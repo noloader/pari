@@ -36,13 +36,14 @@ Help topics: for a list of relevant subtopics, type ?n for n in
   3: TRANSCENDENTAL functions
   4: NUMBER THEORETICAL functions
   5: Functions related to ELLIPTIC CURVES
-  6: Functions related to general NUMBER FIELDS
-  7: POLYNOMIALS and power series
-  8: Vectors, matrices, LINEAR ALGEBRA and sets
-  9: SUMS, products, integrals and similar functions
- 10: GRAPHIC functions
- 11: PROGRAMMING under GP
- 12: The PARI community
+  6: Functions related to MODULAR FORMS and MODULAR SYMBOLS
+  7: Functions related to general NUMBER FIELDS
+  8: POLYNOMIALS and power series
+  9: Vectors, matrices, LINEAR ALGEBRA and sets
+ 10: SUMS, products, integrals and similar functions
+ 11: GRAPHIC functions
+ 12: PROGRAMMING under GP
+ 13: The PARI community
 
 Also:
   ? functionname (short on-line help)

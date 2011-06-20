@@ -3,24 +3,26 @@ use PARI::822;
 
 $class=$ARGV[0];
 
+$i = 1;
 %secnumber=(
-  'operators'             =>  1,
-  'conversions'           =>  2,
-  'transcendental'        =>  3,
-  'number_theoretical'    =>  4,
-  'elliptic_curves'       =>  5,
-  'number_fields'         =>  6,
-  'polynomials'           =>  7,
-  'linear_algebra'        =>  8,
-  'sums'                  =>  9,
-  'graphic'               => 10,
-  'programming/control'   => 11,
-  'programming/specific'  => 11,
-  'programming/parallel'  => 11,
-  'symbolic_operators'    => 13,
-  'member_functions'      => 14,
-  'programming/internals' => 15,
-  'default'               => 16,
+  'operators'             => $i++,
+  'conversions'           => $i++,
+  'transcendental'        => $i++,
+  'number_theoretical'    => $i++,
+  'elliptic_curves'       => $i++,
+  'modular_forms'         => $i++,
+  'number_fields'         => $i++,
+  'polynomials'           => $i++,
+  'linear_algebra'        => $i++,
+  'sums'                  => $i++,
+  'graphic'               => $i++,
+  'programming/control'   => $i,   # NOT ++
+  'programming/specific'   => $i,  # NOT ++
+  'programming/parallel'  => $i+=2,# skip next
+  'symbolic_operators'    => $i++,
+  'member_functions'      => $i++,
+  'programming/internals' => $i++,
+  'default'               => $i++,
 );
 
 print <<EOF;

@@ -148,6 +148,12 @@ converting unneeded dynamic data and avoids potential memory leaks
 (the changed curve would have had to be deleted using \tet{obj_free}). The
 original curve $e$ is updated as well with the same information.
 
+\fun{GEN}{ellanal_globalred_all}{GEN e, GEN *v, GEN *N, GEN *tam} as
+\tet{ellanal_globalred}; further set \kbd{*N} to the curve conductor
+and \kbd{*tam} to the product of the local Tamagawa numbers, including
+the factor at infinity (multiply by the number of connected components
+of $e(\R)$).
+
 \subsubsec{Curves over a number field \var{nf}}
 
 \fun{GEN}{ellnf_get_nf}{GEN x} returns the field over which $E$ is defined

@@ -1280,8 +1280,8 @@ heegner_find_disc(GEN *ymin, GEN *points, GEN *coefs, long *pind, GEN E,
   }
 }
 
-static GEN
-ell_apply_globalred_all(GEN e, GEN *N, GEN *cb, GEN *tam)
+GEN
+ellanal_globalred_all(GEN e, GEN *cb, GEN *N, GEN *tam)
 {
   GEN E = ellanal_globalred(e, cb), red = obj_check(E, Q_GLOBALRED);
   *N = gel(red, 1);
@@ -1300,7 +1300,7 @@ ellheegner(GEN E)
   pari_timer T;
   GEN N, cb, tam, torsion;
 
-  E = ell_apply_globalred_all(E, &N, &cb, &tam);
+  E = ellanal_globalred_all(E, &cb, &N, &tam);
   if (ellrootno_global(E) == 1)
     pari_err_DOMAIN("ellheegner", "(analytic rank)%2","=",gen_0,E);
   torsion = elltors(E);

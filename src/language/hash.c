@@ -113,21 +113,24 @@ hash_insert(hashtable *h, void *k, void *v)
   e->val = v; hash_link(h, e);
 }
 
-/* returns entry associated with key k or NULL */
+/* assume hash = h->hash(k) */
 hashentry *
-hash_search(hashtable *h, void *k)
+hash_search2(hashtable *h, void *k, ulong hash)
 {
-  ulong hash;
-  hashentry *e;
-  if (h->nb == 0) return NULL;
-  hash = h->hash(k);
-  e = h->table[ hash % h->len ];
+  hashentry *e = h->table[ hash % h->len ];
   while (e)
   {
     if (hash == e->hash && h->eq(k, e->key)) return e;
     e = e->next;
   }
   return NULL; /* not found */
+}
+/* returns entry associated with key k or NULL */
+hashentry *
+hash_search(hashtable *h, void *k)
+{
+  if (h->nb == 0) return NULL;
+  return hash_search2(h, k, h->hash(k));
 }
 
 hashentry *

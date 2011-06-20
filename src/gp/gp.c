@@ -317,6 +317,7 @@ print_fun_list(char **list, long nbli)
   if (i) pari_putc('\n');
 }
 
+static const long MAX_SECTION = 12;
 static void
 commands(long n)
 {
@@ -338,7 +339,8 @@ commands(long n)
         case EpNEW: continue;
       }
       m = ep->menu;
-      if ((n < 0 && m && m < 13) || m == n) pari_stack_pushp(&s_L, (void*)ep->name);
+      if (m == n || (n < 0 && m && m <= MAX_SECTION))
+        pari_stack_pushp(&s_L, (void*)ep->name);
     }
   pari_stack_pushp(&s_L, NULL);
   print_fun_list(t_L, term_height()-4);
@@ -438,13 +440,14 @@ menu_commands(void)
   3: TRANSCENDENTAL functions\n\
   4: NUMBER THEORETICAL functions\n\
   5: Functions related to ELLIPTIC CURVES\n\
-  6: Functions related to general NUMBER FIELDS\n\
-  7: POLYNOMIALS and power series\n\
-  8: Vectors, matrices, LINEAR ALGEBRA and sets\n\
-  9: SUMS, products, integrals and similar functions\n\
- 10: GRAPHIC functions\n\
- 11: PROGRAMMING under GP\n\
- 12: The PARI community\n\
+  6: Functions related to MODULAR FORMS and MODULAR SYMBOLS\n\
+  7: Functions related to general NUMBER FIELDS\n\
+  8: POLYNOMIALS and power series\n\
+  9: Vectors, matrices, LINEAR ALGEBRA and sets\n\
+ 10: SUMS, products, integrals and similar functions\n\
+ 11: GRAPHIC functions\n\
+ 12: PROGRAMMING under GP\n\
+ 13: The PARI community\n\
 \n\
 Also:\n\
   ? functionname (short on-line help)\n\
@@ -662,8 +665,9 @@ static void
 digit_help(char *s, long flag)
 {
   long n = atoi(s);
-  if (n < 0 || n > 15) pari_err(e_SYNTAX,"no such section in help: ?",s,s);
-  if (n == 12)
+  if (n < 0 || n > MAX_SECTION+4)
+    pari_err(e_SYNTAX,"no such section in help: ?",s,s);
+  if (n == MAX_SECTION+1)
     community();
   else if (flag & h_LONG)
     external_help(s,3);

@@ -165,6 +165,9 @@ mkvecsmall3(long x,long y,long z) { GEN v = cgetg(4, t_VECSMALL);
 INLINE GEN
 mkvecsmall4(long x,long y,long z,long t) { GEN v = cgetg(5, t_VECSMALL);
   v[1]=x; v[2]=y; v[3]=z; v[4]=t; return v; }
+INLINE GEN
+mkvecsmall5(long x,long y,long z,long t,long u) { GEN v = cgetg(6, t_VECSMALL);
+  v[1]=x; v[2]=y; v[3]=z; v[4]=t; v[5]=u; return v; }
 
 INLINE GEN
 mkqfi(GEN x, GEN y, GEN z) { retmkqfi(x,y,z); }

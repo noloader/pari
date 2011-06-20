@@ -229,6 +229,7 @@ GEN     Flx_recip(GEN x);
 GEN     Flx_red(GEN z, ulong p);
 GEN     Flx_rem(GEN x, GEN y, ulong p);
 GEN     Flx_renormalize(GEN x, long l);
+GEN     Flx_rescale(GEN P, ulong h, ulong p);
 ulong   Flx_resultant(GEN a, GEN b, ulong p);
 GEN     Flx_shift(GEN a, long n);
 GEN     Flx_splitting(GEN p, long k);
@@ -860,6 +861,7 @@ GEN     gen_bkeval_powers(GEN P, long d, GEN V, void *E,
 void    Flc_lincomb1_inplace(GEN X, GEN Y, ulong v, ulong q);
 void    RgM_check_ZM(GEN A, const char *s);
 void    RgV_check_ZV(GEN A, const char *s);
+GEN     ZV_zc_mul(GEN x, GEN y);
 GEN     ZC_ZV_mul(GEN x, GEN y);
 GEN     ZC_Z_add(GEN x, GEN y);
 GEN     ZC_Z_divexact(GEN X, GEN c);
@@ -894,6 +896,7 @@ GEN     ZM_pow(GEN x, GEN n);
 GEN     ZM_powu(GEN x, ulong n);
 GEN     ZM_reducemodlll(GEN x,GEN y);
 GEN     ZM_reducemodmatrix(GEN v, GEN y);
+GEN     ZM_sqr(GEN x);
 GEN     ZM_sub(GEN x, GEN y);
 GEN     ZM_supnorm(GEN x);
 GEN     ZM_to_Flm(GEN x, ulong p);
@@ -1074,6 +1077,7 @@ GEN     ZM_detmult(GEN A);
 GEN     ZM_gauss(GEN a, GEN b);
 GEN     ZM_imagecompl(GEN x);
 GEN     ZM_indeximage(GEN x);
+GEN     ZM_indexrank(GEN x);
 GEN     ZM_inv(GEN M, GEN dM);
 long    ZM_rank(GEN x);
 GEN     ZlM_gauss(GEN a, GEN b, ulong p, long e, GEN C);
@@ -1120,7 +1124,7 @@ GEN     Frobeniusform(GEN V, long n);
 GEN     QM_minors_coprime(GEN x, GEN pp);
 GEN     QM_ImZ_hnf(GEN x);
 GEN     QM_ImQ_hnf(GEN x);
-GEN     gnorml1_fake(GEN x);
+GEN     QM_charpoly_ZX(GEN M);
 GEN     ZM_charpoly(GEN x);
 GEN     adj(GEN x);
 GEN     adjsafe(GEN x);
@@ -1132,6 +1136,7 @@ GEN     charpoly(GEN x, long v);
 GEN     charpoly0(GEN x, long v,long flag);
 GEN     gnorm(GEN x);
 GEN     gnorml1(GEN x,long prec);
+GEN     gnorml1_fake(GEN x);
 GEN     gnormlp(GEN x, GEN p, long prec);
 GEN     gnorml2(GEN x);
 GEN     gsupnorm(GEN x, long prec);
@@ -1987,6 +1992,8 @@ long setrealprecision(long n, long *prec);
 /* ellanal.c */
 
 GEN     ellanalyticrank(GEN e, GEN eps, long prec);
+GEN     ellanal_globalred_all(GEN e, GEN *N, GEN *cb, GEN *tam);
+GEN     ellheegner(GEN e);
 GEN     ellL1(GEN e, long r, long prec);
 
 /* elldata.c */
@@ -2059,7 +2066,6 @@ GEN     ellheight0(GEN e, GEN a, GEN b, long prec);
 GEN     ellheight(GEN e, GEN a, long prec);
 GEN     ellheightmatrix(GEN E, GEN x, long n);
 GEN     ellheightoo(GEN e, GEN z, long prec);
-GEN     ellheegner(GEN e);
 GEN     ellinit(GEN x, GEN p, long prec);
 GEN     ellisoncurve(GEN e, GEN z);
 GEN     elllseries(GEN e, GEN s, GEN A, long prec);
@@ -2097,6 +2103,9 @@ int     oncurve(GEN e, GEN z);
 GEN     orderell(GEN e, GEN p);
 GEN     pointell(GEN e, GEN z, long prec);
 GEN     zell(GEN e, GEN z, long prec);
+
+/* ellpadicL.c */
+GEN ellpadicL(GEN E, GEN p, long n, long r, GEN D, GEN C);
 
 /* ellisogeny.c */
 
@@ -2612,6 +2621,7 @@ long    group_ident_trans(GEN G, GEN S);
 hashtable *hash_create(ulong minsize, ulong (*hash)(void*), int (*eq)(void*,void*), int use_stack);
 void hash_insert(hashtable *h, void *k, void *v);
 hashentry *hash_search(hashtable *h, void *k);
+hashentry *hash_search2(hashtable *h, void *k, ulong hash);
 hashentry *hash_remove(hashtable *h, void *k);
 void hash_destroy(hashtable *h);
 ulong hash_str(const char *str);
@@ -2886,6 +2896,7 @@ GEN     member_zkst(GEN bid);
 GEN     addmulii(GEN x, GEN y, GEN z);
 GEN     addmulii_inplace(GEN x, GEN y, GEN z);
 ulong   Fl_inv(ulong x, ulong p);
+ulong   Fl_invgen(ulong x, ulong p, ulong *pg);
 ulong   Fl_invsafe(ulong x, ulong p);
 int     Fp_ratlift(GEN x, GEN m, GEN amax, GEN bmax, GEN *a, GEN *b);
 int     absi_cmp(GEN x, GEN y);
@@ -3489,6 +3500,13 @@ GEN     weberf(GEN x, long prec);
 GEN     weberf1(GEN x, long prec);
 GEN     weberf2(GEN x, long prec);
 GEN     glambertW(GEN y, long prec);
+
+/* modsym.c */
+GEN     ellsym(GEN E, long signe);
+GEN     modulartosym(GEN M, GEN v);
+GEN     msinit(GEN N, GEN k, long sign);
+GEN     xpm(GEN E, GEN a, GEN b);
+GEN     Q_xpm(GEN E, GEN c);
 
 /* level1.h */
 

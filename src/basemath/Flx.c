@@ -988,6 +988,24 @@ Flx_recip(GEN x)
   return z;
 }
 
+/* Return h^degpol(P) P(x / h) */
+GEN
+Flx_rescale(GEN P, ulong h, ulong p)
+{
+  long i, l = lg(P);
+  GEN Q = cgetg(l,t_VECSMALL);
+  ulong hi = h;
+  Q[l-1] = P[l-1];
+  for (i=l-2; i>=2; i--)
+  {
+    Q[i] = Fl_mul(P[i], hi, p);
+    if (i == 2) break;
+    hi = Fl_mul(hi,h, p);
+  }
+  Q[1] = P[1]; return Q;
+}
+
+
 /*
  * x/polrecip(P)+O(x^n)
  */

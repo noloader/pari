@@ -1074,6 +1074,18 @@ Fl_invsafe(ulong x, ulong p)
   return xv;
 }
 
+/* assume 0 < x < p; return u such that u x = gcd(x,p) (mod p);
+ * set *pg = gcd(x,p) */
+ulong
+Fl_invgen(ulong x, ulong p, ulong *pg)
+{
+  ulong v, v1;
+  long s;
+  *pg = xgcduu(p, x, 0, &v, &v1, &s);
+  if (s > 0) v = p - v;
+  return v;
+}
+
 /* 1 / Mod(x,p). Assume x < p */
 ulong
 Fl_inv(ulong x, ulong p)

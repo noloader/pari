@@ -2662,7 +2662,7 @@ ZM_count_0_cols(GEN M)
 }
 
 static void indexrank_all(long m, long n, long r, GEN d, GEN *prow, GEN *pcol);
-/* As above, integer entries */
+/* As RgM_pivots, integer entries */
 GEN
 ZM_pivots(GEN M0, long *rr)
 {
@@ -2678,7 +2678,7 @@ ZM_pivots(GEN M0, long *rr)
   if (n == zc) { *rr = zc; return zero_zv(n); }
 
   m = nbrows(M0);
-  rmin = (m < n-zc) ? n-m : zc;
+  rmin = maxss(zc, n-m);
   init_modular(&S);
   imax = (n < (1<<4))? 1: (n>>3); /* heuristic */
 
@@ -3439,6 +3439,15 @@ ZM_rank(GEN x) {
   long r;
   (void)ZM_pivots(x,&r);
   avma = av; return lg(x)-1-r;
+}
+GEN
+ZM_indexrank(GEN x) {
+  pari_sp av = avma;
+  long r;
+  GEN d;
+  init_indexrank(x);
+  d = ZM_pivots(x,&r);
+  avma = av; return indexrank0(lg(x)-1, r, d);
 }
 
 /*******************************************************************/

@@ -2472,9 +2472,7 @@ pari_version(void)
   }
 }
 
-/* List of GP functions:
- * generated from the description system.
- * ---------------------
+/* List of GP functions: generated from the description system.
  * Format (struct entree) :
  *   char *name   : name (under GP).
  *   ulong valence: (EpNEW, EpALIAS,EpVAR, EpINSTALL)|EpSTATIC

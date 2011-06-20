@@ -847,15 +847,20 @@ Flm_charpoly(GEN x, long p)
   return gerepileuptoleaf(av, gel(y,lx));
 }
 
-/* s = max_k binomial(n,k) (kB^2)^(k/2),  B = |M|oo. Return ceil(log2(s)) */
+/* Bound for sup norm of charpoly(M/dM), M integral: let B = |M|oo / |dM|,
+ *   s = max_k binomial(n,k) (kB^2)^(k/2),
+ * return ceil(log2(s)) */
 static double
-charpoly_bound(GEN M)
+charpoly_bound(GEN M, GEN dM)
 {
   pari_sp av = avma;
-  GEN s = real_0(LOWDEFAULTPREC), bin, B2 = itor(sqri(ZM_supnorm(M)), LOWDEFAULTPREC);
+  GEN B = itor(ZM_supnorm(M), LOWDEFAULTPREC);
+  GEN s = real_0(LOWDEFAULTPREC), bin, B2;
   long n = lg(M)-1, k;
   double d;
   bin = gen_1;
+  if (dM) B = divri(B, dM);
+  B2 = sqrr(B);
   for (k = n; k >= (n+1)>>1; k--)
   {
     GEN t = mulri(powruhalf(mulur(k, B2), k), bin);
@@ -865,18 +870,18 @@ charpoly_bound(GEN M)
   d = dbllog2(s); avma = av; return ceil(d);
 }
 
-GEN
-ZM_charpoly(GEN M)
+/* Assume M a square ZM, dM integer. Return charpoly(M / dM) in Z[X] */
+static GEN
+QM_charpoly_ZX_i(GEN M, GEN dM)
 {
   pari_timer T;
-  pari_sp av = avma;
   long l = lg(M), n = l-1, bit;
   GEN q = NULL, H = NULL, Hp;
   forprime_t S;
   ulong p;
   if (!n) return pol_1(0);
 
-  bit = (long)charpoly_bound(M) + 1;
+  bit = (long)charpoly_bound(M, dM) + 1;
   if (DEBUGLEVEL>5) {
     err_printf("ZM_charpoly: bit-bound 2^%ld\n", bit);
     timer_start(&T);
@@ -884,7 +889,13 @@ ZM_charpoly(GEN M)
   init_modular(&S);
   while ((p = u_forprime_next(&S)))
   {
+    pari_sp av = avma;
+    ulong dMp = 0;
+    if (dM && !(dMp = umodiu(dM, p))) continue;
     Hp = Flm_charpoly(ZM_to_Flm(M, p), p);
+    /* char_{M/d}(X) = d^(-n) char_M(dX) */
+    if (dM) Hp = Flx_rescale(Hp, Fl_inv(dMp,p), p);
+    Hp = gerepileuptoleaf(av, Hp);
     if (!H)
     {
       H = ZX_init_CRT(Hp, p, 0);
@@ -902,8 +913,21 @@ ZM_charpoly(GEN M)
       if (stable && expi(q) > bit) break;
     }
   }
-  if (!p) pari_err_OVERFLOW("ZM_charpoly [ran out of primes]");
-  return gerepilecopy(av, H);
+  if (!p) pari_err_OVERFLOW("charpoly [ran out of primes]");
+  return H;
+}
+GEN
+QM_charpoly_ZX(GEN M)
+{
+  pari_sp av = avma;
+  GEN dM; M = Q_remove_denom(M, &dM);
+  return gerepilecopy(av, QM_charpoly_ZX_i(M, dM));
+}
+GEN
+ZM_charpoly(GEN M)
+{
+  pari_sp av = avma;
+  return gerepilecopy(av, QM_charpoly_ZX_i(M, NULL));
 }
 
 /*******************************************************************/

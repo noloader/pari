@@ -1770,6 +1770,11 @@ mod~$m$, raise an exception.
 positive representative of $x^{-1}$ modulo $m$. If $x$ is not invertible
 mod~$m$, return $0$ (which is ambiguous if $m=1$).
 
+\fun{ulong}{Fl_invgen}{ulong x, ulong m, ulong *pg} set \kbd{*pg} to
+$g = \gcd(x,m)$ and return $u$ (invertible) such that $x u = g$ modulo $m$.
+We have $g = 1$ if and only if $x$ is invertible, and in this case $u$
+is its inverse.
+
 \fun{ulong}{Fl_div}{ulong x, ulong y, ulong m} returns the smallest
 positive representative of $x y^{-1}$ modulo $m$. If $y$ is not invertible
 mod $m$, raise an exception.
@@ -4729,6 +4734,9 @@ $(X^n - 1, p)$. Shallow function.
 
 \fun{GEN}{Flx_normalize}{GEN z, ulong p}, as \kbd{FpX\_normalize}.
 
+\fun{GEN}{Flx_rescale}{GEN P, ulong h, ulong p} returns $h^{\deg(P)} P(x/h)$,
+\kbd{P} is a \kbd{Flx} and \kbd{h} is a non-zero integer.
+
 \fun{GEN}{random_Flx}{long d, long sv, ulong p} returns a random \kbd{Flx}
 in variable \kbd{v}, of degree less than~\kbd{d}.
 
@@ -5736,6 +5744,8 @@ Multiply a multiprecision object by a single-precision one.
 
 \fun{GEN}{ZM_zc_mul}{GEN x, GEN y}
 
+\fun{GEN}{ZV_zc_mul}{GEN x, GEN y}
+
 \fun{GEN}{ZM_zm_mul}{GEN x, GEN y}
 
 \fun{GEN}{ZC_z_mul}{GEN x, long y}
@@ -6337,6 +6347,8 @@ not be corrupted. (We use \tet{togglesign_safe}.)
 \fun{GEN}{ZM_mul}{GEN x, GEN y} multiplies \kbd{x} and \kbd{y} (assumed to
 have compatible dimensions).
 
+\fun{GEN}{ZM_sqr}{GEN x} returns $x^2$, where $x$ is a square \kbd{ZM}.
+
 \fun{GEN}{ZM_Z_mul}{GEN x, GEN y} multiplies the \kbd{ZM}~\kbd{x}
 by the \typ{INT}~\kbd{y}.
 
@@ -6378,6 +6390,10 @@ underlying \tet{detint}.
 
 \fun{GEN}{ZM_charpoly}{GEN M} returns the characteristic polynomial (in
 variable $0$) of the \kbd{ZM} $M$.
+
+\fun{GEN}{QM_charpoly_ZX}{GEN M} returns the characteristic polynomial
+(in variable $0$) of the \kbd{QM} $M$, assuming that the result has integer
+coefficients.
 
 \fun{GEN}{ZM_imagecompl}{GEN x} returns \kbd{matimagecompl(x)}.
 

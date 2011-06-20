@@ -104,6 +104,19 @@ ZM_nc_mul_i(GEN x, GEN y, long c, long l)
   }
   return z;
 }
+
+/* x ZV, y a compatible zc. */
+GEN
+ZV_zc_mul(GEN x, GEN y)
+{
+  long j, l = lg(x);
+  pari_sp av = avma;
+  GEN s = mulis(gel(x,1),y[1]);
+  for (j=2; j<l; j++)
+    if (y[j]) s = addii(s, mulis(gel(x,j),y[j]));
+  return gerepileuptoint(av,s);
+}
+
 /* x non-empty ZM, y a compatible zc (dimension > 0). */
 static GEN
 ZM_zc_mul_i(GEN x, GEN y, long c, long l)
@@ -264,6 +277,16 @@ ZM_transmul(GEN x, GEN y)
     for (j=1; j<lx; j++) gel(c,j) = ZV_dotproduct_i(yi,gel(x,j),l);
   }
   return M;
+}
+GEN
+ZM_sqr(GEN x)
+{
+  long j, l, lx=lg(x);
+  GEN z;
+  if (lx==1) return cgetg(1,t_MAT);
+  l = lgcols(x); z = cgetg(lx,t_MAT);
+  for (j=1; j<lx; j++) gel(z,j) = ZM_ZC_mul_i(x, gel(x,j), lx, l);
+  return z;
 }
 GEN
 ZM_ZC_mul(GEN x, GEN y)
