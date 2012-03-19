@@ -464,60 +464,11 @@ init_universal_constants(void)
   err_e_STACK = (GEN)readonly_err_STACK;
 }
 
-static const size_t MIN_STACK = 500032;
-static size_t
-fix_size(size_t a)
-{
-  size_t b = a & (~0x3fUL); /* Align */
-  if (b < MIN_STACK) b = MIN_STACK;
-  return b;
-}
-/* old = current stack size (0 = unallocated), size = new size */
-void
-pari_init_stack(size_t size, size_t old)
-{
-  size_t s = fix_size(size);
-  if (old != s) {
-    BLOCK_SIGINT_START;
-    if (old) pari_free((void*)pari_mainstack->bot);
-    for (;; s>>=1)
-    {
-      char buf[128];
-      if (s < MIN_STACK) pari_err(e_MEM); /* no way out. Die */
-      pari_mainstack->bot = (pari_sp)malloc(s); /* NOT pari_malloc, e_MEM would be deadly */
-      if (pari_mainstack->bot) break;
-      /* must use sprintf: pari stack is currently dead */
-      s = fix_size(s>>1);
-      sprintf(buf, "not enough memory, new stack %lu", (ulong)s);
-      pari_warn(warner, buf, s);
-    }
-    BLOCK_SIGINT_END;
-  }
-  pari_mainstack->size = s;
-  avma = pari_mainstack->top = pari_mainstack->bot+s;
-  pari_mainstack->memused = 0;
-}
-
 static void
 pari_init_errcatch(void)
 {
   iferr_env = NULL;
   global_err_data = NULL;
-}
-
-void
-allocatemem(ulong newsize)
-{
-  size_t s, old = pari_mainstack->size;
-
-  evalstate_reset();
-  if (!newsize) newsize = old << 1;
-  pari_init_stack(newsize, old);
-  s = pari_mainstack->size;
-  pari_warn(warner,"new stack size = %lu (%.3f Mbytes)", s, s/1048576.);
-  if (cb_pari_pre_recover) cb_pari_pre_recover(-1);
-  pari_init_errcatch();
-  cb_pari_err_recover(-1);
 }
 
 /*********************************************************************/
@@ -644,31 +595,106 @@ pari_add_oldmodule(entree *ep)
 }
 
 /*********************************************************************/
-/*                       PARI THREAD                                 */
+/*                       PARI MAIN STACK                             */
 /*********************************************************************/
 
-static void
-pari_mainstack_alloc(struct pari_mainstack *st, size_t s)
+static const size_t MIN_STACK = 500032;
+static size_t
+fix_size(size_t a)
 {
-  st->size = s;
-  st->bot = (pari_sp)pari_malloc(s);
-  st->top = st->bot+s;
+  size_t b = a & (~0x3fUL); /* Align */
+  if (b < MIN_STACK) b = MIN_STACK;
+  return b;
+}
+
+static void
+pari_mainstack_alloc(struct pari_mainstack *st, size_t rsize, size_t vsize)
+{
+  size_t sizemax = vsize ? vsize: rsize, s = fix_size(sizemax);
+  for (;; s>>=1)
+  {
+    char buf[128];
+    if (s < MIN_STACK) pari_err(e_MEM); /* no way out. Die */
+    st->vbot = (pari_sp)malloc(s); /* NOT pari_malloc, e_MEM would be deadly */
+    if (st->vbot) break;
+      /* must use sprintf: pari stack is currently dead */
+    sprintf(buf, "not enough memory, new stack %lu", (ulong)s);
+    pari_warn(warner, buf, s);
+  }
+  st->vsize = vsize ? s: 0;
+  st->rsize = minss(rsize, s);
+  st->size = st->rsize;
+  st->top = st->vbot+s;
+  st->bot = st->top - st->size;
   st->memused = 0;
 }
 
 static void
 pari_mainstack_free(struct pari_mainstack *st)
 {
-  pari_free((void*)st->bot);
-  st->top = st->bot = 0;
+  pari_free((void*)st->vbot);
+  st->top = st->bot = st->vbot = 0;
+  st->size = st->vsize =0;
+}
+
+static void
+pari_mainstack_resize(struct pari_mainstack *st, size_t rsize, size_t vsize)
+{
+  BLOCK_SIGINT_START;
+  pari_mainstack_free(st);
+  pari_mainstack_alloc(st, rsize, vsize);
+  BLOCK_SIGINT_END;
 }
 
 static void
 pari_mainstack_use(struct pari_mainstack *st)
 {
   pari_mainstack = st;
-  avma = pari_mainstack->top;
+  avma = st->top;
 }
+
+void
+paristack_alloc(ulong rsize, ulong vsize)
+{
+  pari_mainstack_alloc(pari_mainstack, rsize, vsize);
+  pari_mainstack_use(pari_mainstack);
+}
+
+void
+parivstack_resize(ulong newsize)
+{
+  size_t s, size = pari_mainstack->vsize ? pari_mainstack->vsize:
+                                           pari_mainstack->rsize;
+  if (!newsize) newsize = size << 1;
+  evalstate_reset();
+  if (pari_mainstack->vsize)
+    pari_mainstack_resize(pari_mainstack, pari_mainstack->rsize, newsize);
+  else
+    pari_mainstack_resize(pari_mainstack, newsize, 0);
+  pari_mainstack_use(pari_mainstack);
+  s = size;
+  pari_warn(warner,"new stack size = %lu (%.3f Mbytes)", s, s/1048576.);
+  global_err_data = NULL;
+  cb_pari_err_recover(-1);
+}
+
+void
+paristack_resize(ulong newsize)
+{
+  long vsize = pari_mainstack->vsize;
+  if (!newsize)
+  {
+    if (pari_mainstack->size == vsize) pari_err(e_STACK);
+    newsize = minss(pari_mainstack->size << 1, vsize);
+  }
+  else if (newsize > vsize) pari_err(e_STACK);
+  pari_mainstack->size = newsize;
+  pari_mainstack->bot = pari_mainstack->top - pari_mainstack->size;
+}
+
+/*********************************************************************/
+/*                       PARI THREAD                                 */
+/*********************************************************************/
 
 /* Initial PARI thread structure t with a stack of size s and
  * argument arg */
@@ -676,7 +702,7 @@ pari_mainstack_use(struct pari_mainstack *st)
 void
 pari_thread_alloc(struct pari_thread *t, size_t s, GEN arg)
 {
-  pari_mainstack_alloc(&t->st,s);
+  pari_mainstack_alloc(&t->st,s,0);
   t->data = arg;
 }
 
@@ -753,7 +779,7 @@ pari_init_opts(size_t parisize, ulong maxprime, ulong init_opts)
 
   if ((init_opts&INIT_SIGm)) pari_sig_init(pari_sighandler);
   pari_mainstack = malloc(sizeof(*pari_mainstack));
-  pari_mainstack_alloc(pari_mainstack, parisize);
+  pari_mainstack_alloc(pari_mainstack, parisize, 0);
   pari_mainstack_use(pari_mainstack);
   init_universal_constants();
   diffptr = NULL;

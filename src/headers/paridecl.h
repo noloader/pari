@@ -1918,6 +1918,7 @@ GEN sd_nbthreads(const char *v, long flag);
 GEN sd_new_galois_format(const char *v, long flag);
 GEN sd_output(const char *v, long flag);
 GEN sd_parisize(const char *v, long flag);
+GEN sd_parisizemax(const char *v, long flag);
 GEN sd_path(const char *v, long flag);
 GEN sd_prettyprinter(const char *v, long flag);
 GEN sd_primelimit(const char *v, long flag);
@@ -2628,7 +2629,6 @@ GEN     usumdivkvec(ulong n, GEN K);
 
 /* init.c */
 
-void    allocatemem(ulong newsize);
 long    timer_delay(pari_timer *T);
 long    timer_get(pari_timer *T);
 void    timer_start(pari_timer *T);
@@ -2690,6 +2690,9 @@ void    pari_thread_init(void);
 GEN     pari_thread_start(struct pari_thread *t);
 GEN     pari_version(void);
 void    pari_warn(int numerr, ...);
+void    paristack_alloc(ulong rsize, ulong size);
+void    paristack_resize(ulong newsize);
+void    parivstack_resize(ulong newsize);
 GEN     trap0(const char *e, GEN f, GEN r);
 void    shiftaddress(GEN x, long dec);
 void    shiftaddress_canon(GEN x, long dec);

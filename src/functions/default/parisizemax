@@ -1,0 +1,12 @@
+Function: _def_parisizemax
+Class: default
+Section: default
+C-Name: sd_parisizemax
+Prototype:
+Help:
+Doc: \kbd{gp}, and in fact any program using the PARI library, needs a
+ \tev{stack} in which to do its computations.  If non-zero,  \kbd{parisizemax}
+ is the maximum size the stack can grow to, in bytes.  If zero, the stack will
+ not automaticall grow, and will be limited to the value of \kbd{parisize}.
+
+ The default value is $0$.

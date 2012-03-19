@@ -88,10 +88,16 @@ INLINE GEN
 new_chunk(size_t x) /* x is a number of longs */
 {
   GEN z = ((GEN) avma) - x;
-  if (x > (avma-pari_mainstack->bot) / sizeof(long)) pari_err(e_STACK);
   CHECK_CTRLC
+  if (x > (avma-pari_mainstack->bot) / sizeof(long))
+  {
+    if (pari_mainstack->vsize==0
+      || x > (avma-pari_mainstack->vbot) / sizeof(long)) pari_err(e_STACK);
+    while (x > (avma-pari_mainstack->bot) / sizeof(long))
+      paristack_resize(0);
+    pari_warn(warner,"increasing stack size to %lu",pari_mainstack->size);
+  }
   avma = (pari_sp)z;
-
 #ifdef MEMSTEP
   if (DEBUGMEM && pari_mainstack->memused != DISABLE_MEMUSED) {
     long d = (long)pari_mainstack->memused - (long)z;

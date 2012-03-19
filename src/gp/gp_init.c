@@ -33,7 +33,12 @@ allocatemem0(GEN z)
     newsize = itou(z);
     if (signe(z) < 0) pari_err_DOMAIN("allocatemem","size","<",gen_0,z);
   }
-  allocatemem(newsize);
+  if (!newsize) newsize = pari_mainstack->rsize << 1;
+  pari_mainstack->rsize = newsize;
+  if (pari_mainstack->vsize==0)
+    parivstack_resize(newsize);
+  else
+    paristack_resize(newsize);
 }
 
 #include "gp_init.h"

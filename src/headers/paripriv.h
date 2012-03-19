@@ -621,7 +621,6 @@ int     uisprime_661(ulong n);
 /* init.c */
 
 void    pari_init_defaults(void);
-void    pari_init_stack(size_t size, size_t old);
 
 /* nffactor.c */
 

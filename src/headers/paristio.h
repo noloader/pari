@@ -77,8 +77,8 @@ typedef struct GENbin {
 
 struct pari_mainstack
 {
-  pari_sp top, bot;
-  size_t size, memused;
+  pari_sp top, bot, vbot;
+  size_t size, rsize, vsize, memused;
 };
 
 extern THREAD struct pari_mainstack *pari_mainstack;
@@ -230,11 +230,12 @@ extern char *current_psfile, *pari_datadir;
 
 /* Define this to (1) locally (in a given file, NOT here) to check
  * "random" garbage collecting */
+#define DYNAMIC_STACK
 #ifdef DEBUG_LOWSTACK
 #  define low_stack(x,l) 1
 #else
 #ifdef DYNAMIC_STACK
-#  define low_stack(x,l) (avma < (pari_sp)(l))
+#  define low_stack(x,l) ((void)(x),avma < (pari_sp)(l))
 #else
 #  define low_stack(x,l) (avma < (pari_sp)(x))
 #endif
