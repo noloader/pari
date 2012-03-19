@@ -874,7 +874,7 @@ License, and comes WITHOUT ANY WARRANTY WHATSOEVER.");
   pari_puts("\nType ? for help, \\q to quit.\n");
   print_text("Type ?12 for how to get moral (and possibly technical) support.");
   pari_printf("\nparisize = %lu, primelimit = %lu\n",
-              top - bot, GP_DATA->primelimit);
+              pari_mainstack->size, GP_DATA->primelimit);
 }
 
 /********************************************************************/
@@ -1611,7 +1611,7 @@ gp_main_loop(long flag)
         filestate_restore(rec.file);
         gp_context_save(&rec);
       }
-      avma = av = top;
+      avma = av = pari_mainstack->top;
       kill_buffers_upto(b);
       alarm0(0);
     }
@@ -1704,7 +1704,7 @@ break_loop(int numerr)
   pari_sp av;
 
   if (numerr == e_SYNTAX) return 0;
-  if (numerr == e_STACK) { evalstate_clone(); avma = top; }
+  if (numerr == e_STACK) { evalstate_clone(); avma = pari_mainstack->top; }
 
   b = filtered_buffer(&F);
   nenv=pari_stack_new(&s_env);
@@ -1882,7 +1882,7 @@ read_main(const char *s)
     else z = gp_main_loop(gp_RECOVER);
   }
   if (!z) err_printf("... skipping file '%s'\n", s);
-  avma = top;
+  avma = pari_mainstack->top;
 }
 
 static GEN
@@ -2025,8 +2025,15 @@ static void
 init_trivial_stack(void)
 {
   const size_t s = 2048;
-  bot = (pari_sp)pari_malloc(s);
-  avma = top = bot + s;
+  pari_mainstack->size = s;
+  pari_mainstack->bot = (pari_sp)pari_malloc(s);
+  avma = pari_mainstack->top = pari_mainstack->bot + s;
+}
+
+static void
+free_trivial_stack(void)
+{
+  free((void*)pari_mainstack->bot);
 }
 
 typedef struct { char *key, *val; } pair_t;
@@ -2089,7 +2096,7 @@ START:
         if (strcmp(t, "version-short") == 0) { print_shortversion(); exit(0); }
         if (strcmp(t, "version") == 0) {
           init_trivial_stack(); print_version();
-          pari_free((void*)bot); exit(0);
+          free_trivial_stack(); exit(0);
         }
         if (strcmp(t, "default") == 0) {
           if (i == argc) usage(argv[0]);

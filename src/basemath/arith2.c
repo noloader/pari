@@ -362,7 +362,7 @@ sieve_chunk(byteptr known_primes, ulong s, byteptr data, ulong n)
 static void
 initprimes0(ulong maxnum, long *lenp, ulong *lastp, byteptr p1)
 {
-  pari_sp av = avma;
+  pari_sp av = avma, bot = pari_mainstack->bot;
   long alloced, psize;
   byteptr q, end, p, end1, plast, curdiff;
   ulong last, remains, curlow, rootnum, asize;

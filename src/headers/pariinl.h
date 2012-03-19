@@ -1089,7 +1089,7 @@ gerepilecopy(pari_sp av, GEN x)
   {
     avma = av;
     if (x < (GEN)av) {
-      if (x < (GEN)bot) new_chunk(lg(x));
+      if (x < (GEN)pari_mainstack->bot) new_chunk(lg(x));
       x = leafcopy_avma(x, av);
       avma = (pari_sp)x;
     } else
@@ -1752,7 +1752,9 @@ INLINE int odd(long x) { return x & 1; }
 INLINE int both_odd(long x, long y) { return x & y & 1; }
 
 INLINE int
-isonstack(GEN x) { return ((pari_sp)x >= bot && (pari_sp)x < top); }
+isonstack(GEN x)
+{ return ((pari_sp)x >= pari_mainstack->bot
+       && (pari_sp)x <  pari_mainstack->top); }
 
 /* assume 0 <= k <= BITS_IN_LONG. Return uniform random 0 <= x < (1<<k) */
 INLINE long

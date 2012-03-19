@@ -266,7 +266,7 @@ mt_queue_start(struct pari_mt *pt, GEN worker)
     long NBT = pari_mt_nbthreads;
     struct mt_pstate *mt =
            (struct mt_pstate*) pari_malloc(sizeof(struct mt_pstate));
-    long mtparisize = GP_DATA->threadsize? GP_DATA->threadsize: top-bot;
+    long mtparisize = GP_DATA->threadsize? GP_DATA->threadsize: pari_mainstack->size;
     long i;
     mt->mq  = (struct mt_queue *) pari_malloc(sizeof(*mt->mq)*NBT);
     mt->th  = (pthread_t *) pari_malloc(sizeof(*mt->th)*NBT);

@@ -74,7 +74,7 @@ int main(int argc, char **argv)
     if (chrono && time)
       pari_printf("%stime = %s%ld ms%s.\n",
                   col(c_NONE),col(c_TIME),time,col(c_NONE));
-    free(in); avma = top;
+    free(in); avma=pari_mainstack->top;
   }
   return 0;
 }

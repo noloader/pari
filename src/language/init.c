@@ -77,8 +77,8 @@ GEN pari_colormap, pari_graphcolors;
 
 entree  **varentries;
 
-THREAD pari_sp bot, top, avma;
-THREAD size_t memused;
+THREAD pari_sp avma;
+THREAD struct pari_mainstack *pari_mainstack;
 
 static void ** MODULES, ** OLDMODULES;
 static pari_stack s_MODULES, s_OLDMODULES;
@@ -479,13 +479,13 @@ pari_init_stack(size_t size, size_t old)
   size_t s = fix_size(size);
   if (old != s) {
     BLOCK_SIGINT_START;
-    if (old) pari_free((void*)bot);
-    for (;;)
+    if (old) pari_free((void*)pari_mainstack->bot);
+    for (;; s>>=1)
     {
       char buf[128];
       if (s < MIN_STACK) pari_err(e_MEM); /* no way out. Die */
-      bot = (pari_sp)malloc(s); /* NOT pari_malloc, e_MEM would be deadly */
-      if (bot) break;
+      pari_mainstack->bot = (pari_sp)malloc(s); /* NOT pari_malloc, e_MEM would be deadly */
+      if (pari_mainstack->bot) break;
       /* must use sprintf: pari stack is currently dead */
       s = fix_size(s>>1);
       sprintf(buf, "not enough memory, new stack %lu", (ulong)s);
@@ -493,8 +493,9 @@ pari_init_stack(size_t size, size_t old)
     }
     BLOCK_SIGINT_END;
   }
-  avma = top = bot+s;
-  memused = 0;
+  pari_mainstack->size = s;
+  avma = pari_mainstack->top = pari_mainstack->bot+s;
+  pari_mainstack->memused = 0;
 }
 
 static void
@@ -507,12 +508,12 @@ pari_init_errcatch(void)
 void
 allocatemem(ulong newsize)
 {
-  size_t s, old = top - bot;
+  size_t s, old = pari_mainstack->size;
 
   evalstate_reset();
   if (!newsize) newsize = old << 1;
   pari_init_stack(newsize, old);
-  s = top - bot;
+  s = pari_mainstack->size;
   pari_warn(warner,"new stack size = %lu (%.3f Mbytes)", s, s/1048576.);
   if (cb_pari_pre_recover) cb_pari_pre_recover(-1);
   pari_init_errcatch();
@@ -649,8 +650,9 @@ pari_add_oldmodule(entree *ep)
 static void
 pari_mainstack_alloc(struct pari_mainstack *st, size_t s)
 {
+  st->size = s;
   st->bot = (pari_sp)pari_malloc(s);
-  st->avma = st->top = st->bot+s;
+  st->top = st->bot+s;
   st->memused = 0;
 }
 
@@ -658,14 +660,14 @@ static void
 pari_mainstack_free(struct pari_mainstack *st)
 {
   pari_free((void*)st->bot);
-  st->avma = st->top = st->bot = 0;
+  st->top = st->bot = 0;
 }
 
 static void
 pari_mainstack_use(struct pari_mainstack *st)
 {
-  bot = st->bot; top = st->top; avma = st->avma;
-  memused = st->memused;
+  pari_mainstack = st;
+  avma = pari_mainstack->top;
 }
 
 /* Initial PARI thread structure t with a stack of size s and
@@ -749,8 +751,10 @@ pari_init_opts(size_t parisize, ulong maxprime, ulong init_opts)
     gp_expand_path(GP_DATA->path);
   }
 
-  if (init_opts&INIT_SIGm) pari_sig_init(pari_sighandler);
-  pari_init_stack(parisize, 0);
+  if ((init_opts&INIT_SIGm)) pari_sig_init(pari_sighandler);
+  pari_mainstack = malloc(sizeof(*pari_mainstack));
+  pari_mainstack_alloc(pari_mainstack, parisize);
+  pari_mainstack_use(pari_mainstack);
   init_universal_constants();
   diffptr = NULL;
   if (!(init_opts&INIT_noPRIMEm)) initprimetable(maxprime);
@@ -798,10 +802,11 @@ pari_close_opts(ulong init_opts)
 
   free((void*)functions_hash);
   free((void*)defaults_hash);
-  free((void*)bot);
   if (diffptr) free((void*)diffptr);
   free(current_logfile);
   free(current_psfile);
+  pari_mainstack_free(pari_mainstack);
+  free((void*)pari_mainstack);
   pari_stack_delete(&s_MODULES);
   pari_stack_delete(&s_OLDMODULES);
   pari_close_homedir();
@@ -1239,7 +1244,7 @@ pari_err2str(GEN e)
                         gel(e,2), gel(e,3));
   case e_STACK:
     {
-      size_t d = top - bot;
+      size_t d = pari_mainstack->size;
       char *buf = (char *) pari_malloc(512*sizeof(char));
       sprintf(buf, "the PARI stack overflows !\n"
           "  current stack size: %lu (%.3f Mbytes)\n"
@@ -2078,13 +2083,14 @@ gerepile(pari_sp av, pari_sp tetpil, GEN q)
 void
 fill_stack(void)
 {
-  GEN x = ((GEN)bot);
+  GEN x = ((GEN)pari_mainstack->bot);
   while (x < (GEN)avma) *x++ = 0xfefefefeUL;
 }
 
 void
 debug_stack(void)
 {
+  pari_sp top = pari_mainstack->top, bot = pari_mainstack->bot;
   GEN z;
   err_printf("bot=0x%lx\ttop=0x%lx\tavma=0x%lx\n", bot, top, avma);
   for (z = ((GEN)top)-1; z >= (GEN)avma; z--)
@@ -2095,7 +2101,7 @@ void
 setdebugvar(long n) { DEBUGVAR=n; }
 
 long
-getstack(void) { return top-avma; }
+getstack(void) { return pari_mainstack->top-avma; }
 
 /*******************************************************************/
 /*                                                                 */

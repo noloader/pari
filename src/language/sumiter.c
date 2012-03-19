@@ -1229,7 +1229,7 @@ direuler0(GEN a, GEN b, GEN code, GEN c)
 INLINE GEN
 copyupto(GEN z, GEN t)
 {
-  if (is_universal_constant(z) || (z>(GEN)bot && z<=t))
+  if (is_universal_constant(z) || (z>(GEN)pari_mainstack->bot && z<=t))
     return z;
   else
     return gcopy(z);

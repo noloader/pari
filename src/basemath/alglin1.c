@@ -29,7 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 static void
 gerepile_mat(pari_sp av, pari_sp tetpil, GEN x, long k, long m, long n, long t)
 {
-  pari_sp A;
+  pari_sp A, bot = pari_mainstack->bot;
   long u, i;
   size_t dec;
 
@@ -83,7 +83,7 @@ gerepile_gauss_ker(GEN x, long k, long t, pari_sp av)
 static void
 gerepile_gauss(GEN x,long k,long t,pari_sp av, long j, GEN c)
 {
-  pari_sp tetpil = avma, A;
+  pari_sp tetpil = avma, A, bot;
   long u,i, n = lg(x)-1, m = n? nbrows(x): 0;
   size_t dec;
 
@@ -95,6 +95,7 @@ gerepile_gauss(GEN x,long k,long t,pari_sp av, long j, GEN c)
       for (i=k+1; i<=n; i++) COPY(gcoeff(x,u,i));
 
   (void)gerepile(av,tetpil,NULL); dec = av-tetpil;
+  bot = pari_mainstack->bot;
   for (u=t+1; u<=m; u++)
     if (u==j || !c[u])
     {

@@ -524,7 +524,7 @@ sd_output(const char *v, long flag)
 GEN
 sd_parisize(const char *v, long flag)
 {
-  ulong size = top - bot, n = size;
+  ulong size = pari_mainstack->size, n = size;
   GEN r = sd_ulong(v,flag,"parisize",&n, 10000,LONG_MAX,NULL);
   if (n != size) {
     if (flag == d_INITRC)

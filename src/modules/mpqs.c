@@ -2314,7 +2314,7 @@ stream_read_F2m(pariFILE *pFREL, long rows, long cols, long *fpos)
   char buf[MPQS_STRING_LENGTH], *s;
   GEN m;
   long space = 2*((nbits2nlong(rows)+3)*cols+1);
-  if ((long)((GEN)avma - (GEN)bot) < space)
+  if ((long)((GEN)avma - (GEN)pari_mainstack->bot) < space)
   {
     pari_sp av = avma;
     m = gclone(zero_F2m(rows, cols));

@@ -77,9 +77,11 @@ typedef struct GENbin {
 
 struct pari_mainstack
 {
-  pari_sp top, bot, avma;
-  size_t memused;
+  pari_sp top, bot;
+  size_t size, memused;
 };
+
+extern THREAD struct pari_mainstack *pari_mainstack;
 
 struct pari_thread
 {
@@ -211,18 +213,20 @@ enum { c_ERR, c_HIST, c_PROMPT, c_INPUT, c_OUTPUT, c_HELP, c_TIME, c_LAST,
 
 enum { TEXSTYLE_PAREN=2, TEXSTYLE_BREAK=4 };
 
-extern THREAD pari_sp avma, bot, top;
+extern THREAD pari_sp avma;
 #define DISABLE_MEMUSED (size_t)-1
-extern THREAD size_t memused;
 extern byteptr diffptr;
 extern char *current_psfile, *pari_datadir;
 
 #define gcopyifstack(x,y)  STMT_START {pari_sp _t=(pari_sp)(x); \
-  (y)=(_t>=bot &&_t<top)? gcopy((GEN)_t): (GEN)_t;} STMT_END
+  (y)=(_t>=pari_mainstack->bot &&_t<pari_mainstack->top)? \
+      gcopy((GEN)_t): (GEN)_t;} STMT_END
 #define copyifstack(x,y)  STMT_START {pari_sp _t=(pari_sp)(x); \
-  (y)=(_t>=bot &&_t<top)? gcopy((GEN)_t): (GEN)_t;} STMT_END
+  (y)=(_t>=pari_mainstack->bot &&_t<pari_mainstack->top)? \
+      gcopy((GEN)_t): (GEN)_t;} STMT_END
 #define icopyifstack(x,y) STMT_START {pari_sp _t=(pari_sp)(x); \
-  (y)=(_t>=bot &&_t<top)? icopy((GEN)_t): (GEN)_t;} STMT_END
+  (y)=(_t>=pari_mainstack->bot &&_t<pari_mainstack->top)? \
+      icopy((GEN)_t): (GEN)_t;} STMT_END
 
 /* Define this to (1) locally (in a given file, NOT here) to check
  * "random" garbage collecting */
@@ -236,7 +240,7 @@ extern char *current_psfile, *pari_datadir;
 #endif
 #endif
 
-#define stack_lim(av,n) (bot + (((av)-bot)>>(n)))
+#define stack_lim(av,n) (pari_mainstack->bot+(((av)-pari_mainstack->bot)>>(n)))
 
 #ifndef SIG_IGN
 #  define SIG_IGN (void(*)())1

@@ -1,12 +1,13 @@
 #include "pari.h"
 
 GEN   gen_0, gen_1, gen_m1, gen_2, gen_m2;
-THREAD pari_sp top, bot, avma;
+THREAD pari_sp avma;
 THREAD size_t memused = 0;
 ulong  DEBUGLEVEL,DEBUGMEM = 0;
 const double LOG10_2 = 0.;
 const long lontyp[] = {0};
 THREAD VOLATILE int PARI_SIGINT_block, PARI_SIGINT_pending;
+struct pari_mainstack * pari_mainstack;
 
 void mt_sigint_block(void) { }
 void mt_sigint_unblock(void) { }
@@ -14,8 +15,10 @@ void mt_sigint_unblock(void) { }
 void specinit()
 {
   long size = 100000L;
-  bot = (pari_sp)malloc(size);
-  top = avma = bot + size;
+  pari_mainstack = malloc(sizeof(*pari_mainstack));
+  pari_mainstack->size = size;
+  pari_mainstack->bot = (pari_sp)malloc(size);
+  pari_mainstack->top = avma = pari_mainstack->bot + size;
   gen_0 = cgeti(2); affui(0, gen_0);
   gen_1 = utoipos(1);
   gen_m1= utoineg(1);

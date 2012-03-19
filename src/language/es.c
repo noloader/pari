@@ -2299,9 +2299,10 @@ dbg_pari_heap(void)
   long nu, l, u, s;
   pari_sp av = avma;
   GEN adr = getheap();
+  pari_sp top = pari_mainstack->top, bot = pari_mainstack->bot;
 
   nu = (top-avma)/sizeof(long);
-  l = (top-bot)/sizeof(long);
+  l = pari_mainstack->size/sizeof(long);
   pari_printf("\n Top : %lx   Bottom : %lx   Current stack : %lx\n",
               top, bot, avma);
   pari_printf(" Used :                         %ld  long words  (%ld K)\n",

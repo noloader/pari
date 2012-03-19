@@ -528,7 +528,7 @@ new_ptr(void)
 INLINE GEN
 copyupto(GEN z, GEN t)
 {
-  if (is_universal_constant(z) || (z>(GEN)bot && z<=t))
+  if (is_universal_constant(z) || (z>(GEN)pari_mainstack->bot && z<=t))
     return z;
   else
     return gcopy(z);
@@ -1420,7 +1420,7 @@ evalstate_reset(void)
   reset_break();
   compilestate_reset();
   parsestate_reset();
-  avma = top;
+  avma = pari_mainstack->top;
 }
 
 void

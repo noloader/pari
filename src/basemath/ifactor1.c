@@ -583,6 +583,7 @@ ellmult(GEN N, GEN *gl, long nbc, ulong k, GEN *X1, GEN *X2, GEN *XAUX)
 static GEN*
 alloc_scratch(long nbc, long spc, long tf)
 {
+  pari_sp bot = pari_mainstack->bot;
   long i, tw = evallg(tf) | evaltyp(t_INT), len = spc + 385 + spc*tf;
   GEN *X, w;
   if ((long)((GEN)avma - (GEN)bot) < len + (3*nbc + 240)*tf)

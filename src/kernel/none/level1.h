@@ -88,17 +88,18 @@ INLINE GEN
 new_chunk(size_t x) /* x is a number of longs */
 {
   GEN z = ((GEN) avma) - x;
-  if (x > (avma-bot) / sizeof(long)) pari_err(e_STACK);
+  if (x > (avma-pari_mainstack->bot) / sizeof(long)) pari_err(e_STACK);
   CHECK_CTRLC
   avma = (pari_sp)z;
 
 #ifdef MEMSTEP
-  if (DEBUGMEM && memused != DISABLE_MEMUSED) {
-    long d = (long)memused - (long)z;
+  if (DEBUGMEM && pari_mainstack->memused != DISABLE_MEMUSED) {
+    long d = (long)pari_mainstack->memused - (long)z;
     if (d > 4*MEMSTEP || d < -4*MEMSTEP)
     {
-      memused = (pari_sp)z;
-      err_printf("...%4.0lf Mbytes used\n",(top-memused)/1048576.);
+      pari_mainstack->memused = (pari_sp)z;
+      err_printf("...%4.0lf Mbytes used\n",
+                (pari_mainstack->top-pari_mainstack->memused)/1048576.);
     }
   }
 #endif
