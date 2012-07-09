@@ -2522,7 +2522,8 @@ idealred(GEN nf, GEN I) { return idealred0(nf, I, NULL); }
 /*                              CLOSURES                           */
 /*                                                                 */
 /*******************************************************************/
-INLINE long closure_arity(GEN C)    { return C[1]; }
+INLINE long closure_arity(GEN C)          { return ((ulong)C[1])&ARITYBITS; }
+INLINE long closure_is_variadic(GEN C) { return !!(((ulong)C[1])&VARARGBITS); }
 INLINE const char *closure_codestr(GEN C)  { return GSTR(gel(C,2))-1; }
 INLINE GEN closure_get_code(GEN C)  { return gel(C,2); }
 INLINE GEN closure_get_oper(GEN C)  { return gel(C,3); }

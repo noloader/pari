@@ -1224,17 +1224,29 @@ closure_eval(GEN C)
       {
         long n=operand;
         GEN fun = gel(st,sp-1-n);
-        long arity;
+        long arity, isvar;
         GEN z;
         if (typ(fun)!=t_CLOSURE) pari_err(e_NOTFUNC, fun);
+        isvar = closure_is_variadic(fun);
         arity = closure_arity(fun);
-        if (n!=arity)
+        if (!isvar || n < arity)
         {
+          st_alloc(arity-n);
           if (n>arity)
             pari_err(e_MISC,"too many parameters in user-defined function call");
-          st_alloc(arity-n);
           for (j=n+1;j<=arity;j++)
             gel(st,sp++)=0;
+          if (isvar) gel(st,sp-1) = cgetg(1,t_VEC);
+        }
+        else
+        {
+          GEN v;
+          long j, m = n-arity+1;
+          v = cgetg(m+1,t_VEC);
+          sp-=m;
+          for (j=1; j<=m; j++)
+            gel(v,j) = gcopy(gel(st,sp+j-1));
+          gel(st,sp++)=v;
         }
 #ifdef STACK_CHECK
         if (PARI_stack_limit && (void*) &z <= PARI_stack_limit)

@@ -1627,6 +1627,25 @@ variable name for different parameters of your function:
   ***                                ^----
 @eprog
 
+\misctitle{Functions taking an unlimited number of arguments}
+
+A function taking an unlimited number of arguments is called \emph{variadic}.
+It is possible to create such function by using the syntax
+
+  \kbd{(\var{list of formal variables}, \var{var}[..]) -> \var{seq}}
+
+The parameter \var{var} will be substitued by a vector of all the remaining
+arguments.
+
+\bprog
+? f(c[..])= sum(i=1,#c,c[i]);
+? f(1,2,3)
+%1 = 6
+? sep(s,v[..])=for(i=1,#v,print1(v[i],s));print();
+? sep(",",1,2,3)
+1,2,3,
+@eprog
+
 \misctitle{Finishing touch}
 You can add a specific help message for your function using \kbd{addhelp},
 but the online help system already handles it. By default \kbd{?\var{name}}

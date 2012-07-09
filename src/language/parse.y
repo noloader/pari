@@ -208,6 +208,7 @@ compr: '[' expr '|' inseq ']' {$$=addcurrexpr($4,$2,&@$);}
 ;
 
 arg: seq        {$$=$1;}
+   | lvalue '[' ".." ']' {$$=newnode(Fvararg,$1,-1,&@$);}
    | '&' lvalue {$$=newnode(Frefarg,$2,-1,&@$);}
    | arg error  {if (!pari_once) { yyerrok; } pari_once=1;}  expr
                      {pari_once=0; $$=newopcall(OPcat,$1,$4,&@$);}

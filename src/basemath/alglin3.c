@@ -567,10 +567,17 @@ genselect(void *E, long (*f)(void* E, GEN x), GEN A)
   clone_unlock(A); return y;
 }
 
+void
+check_callgen1(GEN f, const char *s)
+{
+  if (typ(f) != t_CLOSURE || closure_is_variadic(f)  || closure_arity(f) < 1)
+    pari_err_TYPE(s, f);
+}
+
 GEN
 select0(GEN f, GEN x, long flag)
 {
-  if (typ(f) != t_CLOSURE || closure_arity(f) < 1) pari_err_TYPE("select", f);
+  check_callgen1(f, "select");
   switch(flag)
   {
     case 0: return genselect((void *) f, gp_callbool, x);
@@ -587,7 +594,7 @@ parselect(GEN C, GEN D, long flag)
   long lv, l = lg(D), i, pending = 0, workid;
   GEN V, worker, done;
   struct pari_mt pt;
-  if (typ(C) != t_CLOSURE || closure_arity(C) < 1) pari_err_TYPE("parapply",C);
+  check_callgen1(C, "parselect");
   if (!is_vec_t(typ(D))) pari_err_TYPE("parapply",D);
   V = cgetg(l, t_VECSMALL); av = avma;
   worker = strtoclosure("_parapply_worker", 1, C);
@@ -676,7 +683,7 @@ genapply(void *E, GEN (*f)(void* E, GEN x), GEN x)
 GEN
 apply0(GEN f, GEN x)
 {
-  if (typ(f) != t_CLOSURE || closure_arity(f) < 1) pari_err_TYPE("apply",f);
+  check_callgen1(f, "apply");
   return genapply((void *) f, gp_call, x);
 }
 
@@ -714,7 +721,7 @@ parapply(GEN C, GEN D)
   long l = lg(D), i, pending = 0, workid;
   GEN V, worker, done;
   struct pari_mt pt;
-  if (typ(C) != t_CLOSURE || closure_arity(C) < 1) pari_err_TYPE("parapply",C);
+  check_callgen1(C, "parapply");
   if (!is_vec_t(typ(D))) pari_err_TYPE("parapply",D);
   worker = strtoclosure("_parapply_worker", 1, C);
   V = cgetg(l, typ(D));

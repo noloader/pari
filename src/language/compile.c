@@ -1985,7 +1985,7 @@ compilenode(long n, int mode, long flag)
       pari_sp ltop=avma;
       struct codepos pos;
       GEN arg=listtogen(x,Flistarg);
-      long nb, lgarg, nbmvar, gap;
+      long nb, lgarg, nbmvar, dovararg=0, gap;
       long strict = GP_DATA->strictargs;
       GEN vep = cgetg_copy(arg, &lgarg);
       GEN text=cgetg(3,t_VEC);
@@ -2002,7 +2002,13 @@ compilenode(long n, int mode, long flag)
         for(i=1;i<=nb;i++)
         {
           long a=arg[i];
-          vep[i]=(long)getvar(tree[a].f==Fassign?tree[a].x:a);
+          if (i==nb && tree[a].f==Fvararg)
+          {
+            dovararg=1;
+            vep[i]=(long)getvar(tree[a].x);
+          }
+          else
+            vep[i]=(long)getvar(tree[a].f==Fassign?tree[a].x:a);
           var_push(NULL,Lmy);
         }
         checkdups(arg,vep);
@@ -2035,6 +2041,7 @@ compilenode(long n, int mode, long flag)
         compilenode(y,Ggen,FLsurvive|FLreturn);
       else
         compilecast(n,Gvoid,Ggen);
+      if (dovararg) nb|=VARARGBITS;
       op_push(OCpushgen, data_push(getfunction(&pos,nb,nbmvar,text,gap)),n);
       if (nbmvar) op_push(OCsaveframe,!!(flag&FLsurvive),n);
       compilecast(n, Gclosure, mode);
@@ -2070,7 +2077,9 @@ closure_deriv(GEN G)
   struct codepos pos;
   const char *code;
   GEN text;
-  long arity=G[1];
+  long arity=closure_arity(G);
+  if (arity==0 || closure_is_variadic(G))
+    pari_err_TYPE("derivfun",G);
   if (typ(gel(G,6))==t_STR)
   {
     code = GSTR(gel(G,6));
@@ -2363,6 +2372,9 @@ optimizenode(long n)
     return;
   case Frefarg:
     compile_err("unexpected character '&'",tree[n].str);
+    return;
+  case Fvararg:
+    compile_err("unexpected characters '..'",tree[n].str);
     return;
   case Ffunction:
     {

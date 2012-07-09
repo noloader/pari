@@ -1487,6 +1487,9 @@ functions to create or to evaluate \typ{CLOSURE}s are documented in
 
 \fun{long}{closure_arity}{GEN C} returns the arity of the \typ{CLOSURE}.
 
+\fun{long}{closure_is_variadic}{GEN C} returns $1$ if the closure \kbd{C} is
+variadic, $0$ else.
+
 \subsec{Type \typ{LIST} (list)}\kbdsidx{t_LIST}\sidx{list}
 this type was introduced for specific \kbd{gp} use and is rather inefficient
 compared to a straightforward linked list implementation (it requires more

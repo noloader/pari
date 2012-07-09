@@ -1449,7 +1449,7 @@ sort_function(void **E, GEN x, GEN k)
     case t_VEC: case t_COL: k = ZV_to_zv(k); break;
     case t_VECSMALL: break;
     case t_CLOSURE:
-     if (closure_arity(k) != 2)
+     if (closure_arity(k) != 2 || closure_is_variadic(k))
        pari_err_TYPE("sort_function, cmp. fun. needs exactly 2 arguments",k);
      *E = (void*)k;
      return &closurecmp;
@@ -1880,7 +1880,7 @@ setbinop(GEN f, GEN x, GEN y)
   pari_sp av = avma;
   long i, j, lx, ly, k = 1;
   GEN z;
-  if (typ(f) != t_CLOSURE || closure_arity(f) != 2)
+  if (typ(f) != t_CLOSURE || closure_arity(f) != 2 || closure_is_variadic(f))
     pari_err_TYPE("setbinop [function needs exactly 2 arguments]",f);
   lx = lg(x);
   if (typ(x) != t_VEC) pari_err_TYPE("setbinop", x);

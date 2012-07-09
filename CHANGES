@@ -10,6 +10,7 @@ Done for version 2.8.0 (released ??/??/2014):
   Added
     1- add optional argument to sumdigits to specify the base
     2- [libpari] bits_to_int,bits_to_u,binary_zv,binary_2k,binary_2k_zv
+    3- [GP] support for variadic GP functions (f(v[..])=expr)
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]

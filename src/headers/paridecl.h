@@ -3742,6 +3742,7 @@ INLINE GEN    closure_get_data(GEN C);
 INLINE GEN    closure_get_dbg(GEN C);
 INLINE GEN    closure_get_text(GEN C);
 INLINE GEN    closure_get_frame(GEN C);
+INLINE long   closure_is_variadic(GEN C);
 
 INLINE GEN    addmuliu(GEN x, GEN y, ulong u);
 INLINE GEN    addmuliu_inplace(GEN x, GEN y, ulong u);
