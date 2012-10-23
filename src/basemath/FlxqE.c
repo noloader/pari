@@ -967,7 +967,7 @@ zx_is_pcyc(GEN T)
 }
 
 static GEN
-Flxq_ellcard_Harley(GEN a4, GEN a6, GEN T, ulong p)
+Flxq_ellcard_Kohel(GEN a4, GEN a6, GEN T, ulong p)
 {
   pari_sp av = avma, av2;
   pari_timer ti;
@@ -1020,6 +1020,133 @@ Flxq_ellcard_Harley(GEN a4, GEN a6, GEN T, ulong p)
     if (DEBUGLEVEL) timer_printf(&ti,"Teichmuller/Fp");
     Nc2 = Fp_mul(Nc2,tNc2,q);
   }
+  t = Fp_center(Fp_mul(Nc2,Np,q),q,shifti(q,-1));
+  return gerepileupto(av, subii(addis(powuu(p,n),1),t));
+}
+
+static void
+liftcurve(GEN J, GEN T, GEN q, ulong p, long N, GEN *A4, GEN *A6)
+{
+  pari_sp av = avma;
+  GEN r = ZpXQ_inv(Z_ZX_sub(utoi(1728),J),T,utoi(p),N);
+  GEN g = FpXQ_mul(J,r,T,q);
+  *A4 = FpX_mulu(g,3,q);
+  *A6 = FpX_mulu(g,2,q);
+  gerepileall(av,2,A4,A6);
+}
+
+static GEN
+getc5(GEN H, GEN A40, GEN A60, GEN A41, GEN A61, GEN T, GEN q, ulong p, long N)
+{
+  long d = lg(H)-1;
+  GEN s1 = gel(H,d-1), s2 = gel(H,d-2), s3 = d<5 ? pol_0(varn(T)): gel(H,d-3);
+  GEN s12 = FpXQ_sqr(s1,T,q);
+  GEN h2 = ZX_sub(ZX_shifti(s2,1),s12); /*2*s2-s1^2*/
+  GEN h3 = ZX_sub(FpXQ_mul(ZX_add(h2,s2),s1,T,q),ZX_mulu(s3,3));
+                                        /*3*s2*s1-s1^3-3s3*/
+  GEN alpha= ZX_sub(ZX_mulu(h2,30), ZX_mulu(A40,5*p-6)); /* 30*h2+A40*(6-5*p)*/
+  GEN beta = ZX_sub(ZX_sub(ZX_mulu(FpXQ_mul(A40,s1,T,q),42),ZX_mulu(A60,14*p-15)),
+                    ZX_mulu(h3,70)); /* 42*A40*s1-A60*(14*p-15)-70*h3 */
+  GEN u2 = FpXQ_mul(FpXQ_mul(A41,beta,T,q),
+                    ZpXQ_inv(FpXQ_mul(A61,alpha,T,q),T,utoi(p),N),T,q);
+  return u2;
+}
+
+GEN
+ZpXQX_liftrootmod_vald(GEN f, GEN H, long v, GEN T, GEN p, long e)
+{
+  pari_sp av = avma, av2, lim;
+  GEN pv = p, q, qv, W, df, Tq, fr, dfr;
+  ulong mask;
+  pari_timer ti;
+  if (e <= v+1) return H;
+  df = RgX_deriv(f);
+  if (v) { pv = powiu(p,v); qv = mulii(pv,p); df = ZXX_Z_divexact(df, pv); }
+  else qv = p;
+  mask = quadratic_prec_mask(e-v);
+  Tq = FpXT_red(T, qv); dfr = FpXQX_red(df, Tq, p);
+  if (DEBUGLEVEL) timer_start(&ti);
+  W = FpXQXQ_inv(FpXQX_rem(dfr, H, Tq, p), H, Tq, p); /* 1/f'(a) mod (T,p) */
+  if (DEBUGLEVEL) timer_printf(&ti,"FpXQXQ_inv");
+  q = p;
+  av2 = avma; lim = stack_lim(av2, 2);
+  for (;;)
+  {
+    GEN u, fa, qv, q2v, Tq2, fadH;
+    GEN H2 = H, q2 = q;
+    q = sqri(q);
+    if (mask & 1) q = diviiexact(q,p);
+    mask >>= 1;
+    if (v) { qv = mulii(q, pv); q2v = mulii(q2, pv); }
+    else { qv = q; q2v = q2; }
+    Tq2 = FpXT_red(T, q2v); Tq = FpXT_red(T, qv);
+    fr = FpXQX_red(f, Tq, qv);
+    fa = FpXQX_rem(fr, H, Tq, qv);
+    fa = ZXX_Z_divexact(fa, q2v);
+    fadH = FpXQXQ_mul(RgX_deriv(H),fa,H,Tq2,q2);
+    H = FpXX_add(H, gmul(FpXQXQ_mul(W, fadH, H, Tq2, q2v), q2), qv);
+    if (mask == 1) return gerepileupto(av, H);
+    dfr = FpXQX_rem(FpXQX_red(df, Tq, q),H,Tq,q);
+    u = ZXX_Z_divexact(ZXX_Z_add_shallow(FpXQXQ_mul(W,dfr,H,Tq,q),gen_m1),q2);
+    W = gsub(W,gmul(FpXQXQ_mul(u,W,H2,Tq2,q2),q2));
+    if (low_stack(lim, stack_lim(av2,2)))
+    {
+      if(DEBUGMEM>1) pari_warn(warnmem,"ZpXQX_liftroot, e = %ld", e);
+      gerepileall(av2, 3, &H, &W, &q);
+    }
+  }
+}
+
+static GEN
+get_H1(GEN A41, GEN A61, GEN T2, ulong p)
+{
+  GEN q = utoi(p), T = FpXT_red(T2,q);
+  GEN pol = FpXQ_elldivpol(FpX_red(A41,q),FpX_red(A61,q),p,T,q);
+  return FqX_normalize(RgX_deflate(pol,p),T,q);
+}
+
+static GEN
+Flxq_ellcard_Harley(GEN a4, GEN a6, GEN T, ulong p)
+{
+  pari_sp av = avma;
+  pari_timer ti;
+  long n = get_Flx_degree(T), N = (n+5)/2;
+  GEN q = powuu(p, N);
+  GEN T2, j, t;
+  GEN J1,A40,A41,A60,A61, sqx,Xm;
+  GEN pol, h1, H;
+  GEN c2, tc2, c2p, Nc2, Np;
+  timer_start(&ti);
+  T2 = Flx_canonlift(get_Flx_mod(T),N,p);
+  if (DEBUGLEVEL) timer_printf(&ti,"Teich");
+  T2 = FpX_get_red(T2, q); T = ZXT_to_FlxT(T2, p);
+  if (DEBUGLEVEL) timer_printf(&ti,"Barrett");
+  Xm = FpXQ_powers(monomial(gen_1,n,varn(T)),p-1,T2,q);
+  if (DEBUGLEVEL) timer_printf(&ti,"Xm");
+  j = Flxq_ellj(a4,a6,T,p);
+  sqx = Flxq_powers(Flxq_lroot(polx_Flx(T[1]), T, p), p-1, T, p);
+  J1 = lift_isogeny(modpoly_ZM(p), Flx_to_ZX(j), N, Xm, T2,sqx,T,p);
+  if (DEBUGLEVEL) timer_printf(&ti,"Lift isogeny");
+  liftcurve(J1,T2,q,p,N,&A41,&A61);
+  A40 = ZpXQ_frob(A41, Xm, T2, q, p);
+  A60 = ZpXQ_frob(A61, Xm, T2, q, p);
+  if (DEBUGLEVEL) timer_printf(&ti,"liftcurve");
+  pol = FpXQ_elldivpol(A40,A60,p,T2,q);
+  if (DEBUGLEVEL) timer_printf(&ti,"p-division");
+  h1 = get_H1(A41,A61,T2,p);
+  H = ZpXQX_liftrootmod_vald(pol,h1,1,T2,utoi(p),N);
+  q = diviuexact(q,p); N--;
+  if (DEBUGLEVEL) timer_printf(&ti,"kernel");
+  c2 = getc5(H,A40,A60,A41,A61,T2,q,p,N);
+  if (DEBUGLEVEL) timer_printf(&ti,"c^2");
+  c2p = Flx_to_ZX(Flxq_inv(ZX_to_Flx(c2,p),T,p));
+  tc2 = Teichmuller_lift(c2p,Xm, T2,sqx,T,p,N);
+  if (DEBUGLEVEL) timer_printf(&ti,"teichmuller");
+  c2 = FpX_rem(FpX_mul(tc2,c2,q),T2,q);
+  if (DEBUGLEVEL) timer_printf(&ti,"tc2");
+  Nc2 = ZpXQ_sqrtnorm(c2,T2,q,utoi(p),N);
+  if (DEBUGLEVEL) timer_printf(&ti,"Norm");
+  Np = get_norm(a4,a6,T,p,N);
   t = Fp_center(Fp_mul(Nc2,Np,q),q,shifti(q,-1));
   return gerepileupto(av, subii(addis(powuu(p,n),1),t));
 }
@@ -1262,7 +1389,7 @@ F3xq_ellcard(GEN a2, GEN a6, GEN T)
       if (umodiu(t, 3)!=1) t = negi(t);
       return Flx_equal1(a2) || Flxq_issquare(a2,T,3) ? subii(q1,t): addii(q1,t);
     }
-    else return Flxq_ellcard_Harley(mkvec(a2), a6, T, 3);
+    else return Flxq_ellcard_Kohel(mkvec(a2), a6, T, 3);
   }
 }
 
@@ -1295,7 +1422,8 @@ Flxq_ellcard_Satoh(GEN a4, GEN a6, GEN j, GEN T, ulong p)
         return Flxq_is2npower(u, 2, T, p) ? subii(q1,t): addii(q1,t);
       }
     }
-    return Flxq_ellcard_Harley(a4, a6, T, p);
+    if (p<=7 || p==13 ) return Flxq_ellcard_Kohel(a4, a6, T, p);
+    else return Flxq_ellcard_Harley(a4, a6, T, p);
   }
 }
 
@@ -1464,10 +1592,12 @@ Flxq_ellcard(GEN a4, GEN a6, GEN T, ulong p)
     r = Fp_ffellcard(utoi(Flx_eval(a4,0,p)),utoi(Flx_eval(a6,0,p)),q,n,utoi(p));
   else if (degpol(J=Flxq_ellj(a4,a6,T,p))<=0)
     r = Flxq_ellcardj(a4,a6,lgpol(J)?J[2]:0,T,q,p,n);
-  else if (p <= 7 || p==13)
+  else if (p <= 7)
     r = Flxq_ellcard_Satoh(a4, a6, J, T, p);
   else if (cmpis(q,100)<0)
     r = utoi(Flxq_ellcard_naive(a4, a6, T, p));
+  else if (p <= 13 || (7*p <= (ulong)10*n && (BITS_IN_LONG==64 || p <= 31)))
+    r = Flxq_ellcard_Satoh(a4, a6, J, T, p);
   else if (p <= (ulong)2*n)
     r = Flxq_ellcard_Kedlaya(a4, a6, T, p);
   else if (expi(q)<=62)
