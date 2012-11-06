@@ -749,6 +749,20 @@ ZXX_Z_mul(GEN y, GEN x)
 }
 
 GEN
+ZXX_Z_add_shallow(GEN x, GEN y)
+{
+  long i, l = lg(x);
+  GEN z, a;
+  if (signe(x)==0) return scalarpol(y,varn(x));
+  z = cgetg(l,t_POL); z[1] = x[1];
+  a = gel(x,2);
+  gel(z, 2) = typ(a)==t_INT? addii(a,y): ZX_Z_add(a,y);
+  for(i=3; i<l; i++)
+    gel(z,i) = gel(x,i);
+  return z;
+}
+
+GEN
 ZXX_Z_divexact(GEN y, GEN x)
 {
   long i, l = lg(y);

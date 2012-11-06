@@ -1048,6 +1048,7 @@ int     ZXV_equal(GEN V, GEN W);
 GEN     ZXV_remi2n(GEN x, long n);
 GEN     ZXX_Z_divexact(GEN y, GEN x);
 GEN     ZXX_Z_mul(GEN y, GEN x);
+GEN     ZXX_Z_add_shallow(GEN x, GEN y);
 long    ZXX_max_lg(GEN x);
 GEN     ZXX_renormalize(GEN x, long lx);
 GEN     ZXX_to_Kronecker(GEN P, long n);
