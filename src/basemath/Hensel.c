@@ -491,15 +491,14 @@ GEN
 ZpXQX_liftroot_vald(GEN f, GEN a, long v, GEN T, GEN p, long e)
 {
   pari_sp av = avma, av2;
-  GEN pv = p, q, qv, W, df, Tq, fr, dfr;
+  GEN pv = p, q, W, df, Tq, fr, dfr;
   ulong mask;
   a = Fq_red(a, T, p);
   if (e <= v+1) return a;
   df = RgX_deriv(f);
-  if (v) { pv = powiu(p,v); qv = mulii(pv,p); df = ZXX_Z_divexact(df, pv); }
-  else qv = p;
+  if (v) { pv = powiu(p,v); df = ZXX_Z_divexact(df, pv); }
   mask = quadratic_prec_mask(e-v);
-  Tq = FpXT_red(T, qv); dfr = FpXQX_red(df, Tq, p);
+  Tq = FpXT_red(T, p); dfr = FpXQX_red(df, Tq, p);
   W = Fq_inv(FqX_eval(dfr, a, Tq, p), Tq, p); /* 1/f'(a) mod (T,p) */
   q = p;
   av2 = avma;
