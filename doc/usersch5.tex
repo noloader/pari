@@ -6735,6 +6735,31 @@ and the $p^{v_p(n)}$.
 \fun{ulong}{tridiv_bound}{GEN n} returns the trial division bound used by
 \tet{Z_factor}$(n)$.
 
+\subsec{Coprime factorization}
+
+Given $a$ and $b$ two non-zero integers, let \teb{ppi}$(a,b)$, \teb{ppo}$(a,b)$,
+\teb{ppg}$(a,b)$, \teb{pple}$(a,b)$ (powers in $a$ of primes inside $b$,
+outside $b$, greater than thos in $b$, less than or equal to those in $b$) be
+the integers defined by
+
+\item $v_p(\text{ppi}) = v_p(a) [v_p(b) > 0]$,
+
+\item $v_p(\text{ppo}) = v_p(a) [v_p(b) = 0]$,
+
+\item $v_p(\text{ppg}) = v_p(a) [v_p(a) > v_p(b)]$,
+
+\item $v_p(\text{pple}) = v_p(a) [v_p(a) \leq v_p(b)]$.
+
+\fun{GEN}{Z_ppgle}{GEN a, GEN b} returns $[\text{ppg}(a,b), \text{pple}(a,b)]$;
+shallow function.
+
+\fun{GEN}{Z_ppio}{GEN a, GEN b} returns
+$[\gcd(a,b), \text{ppi}(a,b), \text{ppo}(a,b)]$; shallow function.
+
+\fun{GEN}{Z_dcba}{GEN a, GEN b} fast natural coprime base algorithm. Returns a
+vector of coprime divisors of $a$ and $b$ such that both $a$ and $b$ can
+be multiplicatively generated from this set.
+
 \subsec{Checks attached to arithmetic functions}
 
 Arithmetic functions accept arguments of the following kind: a plain positive

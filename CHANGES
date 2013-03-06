@@ -475,6 +475,7 @@ BA 183- GP function ellsea
    183- [libpari] nfsub, Rg_RgC_sub, Rg_RgC_sub, Z_ZC_sub
    184- [libpari] zkchinese, zkchinese1, zkchineseinit
    185- [libpari] vecsmall_reverse
+   186- [libpari] Z_ppio, Z_ppgle, Z_cba
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]

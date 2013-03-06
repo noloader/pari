@@ -1956,6 +1956,9 @@ GEN     zkchineseinit(GEN nf, GEN A, GEN B, GEN AB);
 
 /* base4.c */
 
+GEN     Z_cba(GEN a, GEN b);
+GEN     Z_ppgle(GEN a, GEN b);
+GEN     Z_ppio(GEN a, GEN b);
 GEN     RM_round_maxrank(GEN G);
 GEN     ZM_famat_limit(GEN fa, GEN limit);
 GEN     famat_Z_gcd(GEN M, GEN n);

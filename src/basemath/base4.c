@@ -2132,6 +2132,94 @@ idealmin(GEN nf, GEN x, GEN vdir)
 /*                   APPROXIMATION THEOREM                         */
 /*                                                                 */
 /*******************************************************************/
+/* a = ppi(a,b) ppo(a,b), where ppi regroups primes common to a and b
+ * and ppo(a,b) = coprime_part(a,b) */
+/* return gcd(a,b),ppi(a,b),ppo(a,b) */
+GEN
+Z_ppio(GEN a, GEN b)
+{
+  GEN x, y, d = gcdii(a,b);
+  if (is_pm1(d)) return mkvec3(gen_1, gen_1, a);
+  x = d; y = diviiexact(a,d);
+  for(;;)
+  {
+    GEN g = gcdii(x,y);
+    if (is_pm1(g)) return mkvec3(d, x, y);
+    x = mulii(x,g); y = diviiexact(y,g);
+  }
+}
+/* a = ppg(a,b)pple(a,b), where ppg regroups primes such that v(a) > v(b)
+ * and pple all others */
+/* return gcd(a,b),ppg(a,b),pple(a,b) */
+GEN
+Z_ppgle(GEN a, GEN b)
+{
+  GEN x, y, g, d = gcdii(a,b);
+  if (equalii(a, d)) return mkvec3(a, gen_1, a);
+  x = diviiexact(a,d); y = d;
+  for(;;)
+  {
+    g = gcdii(x,y);
+    if (is_pm1(g)) return mkvec3(d, x, y);
+    x = mulii(x,g); y = diviiexact(y,g);
+  }
+}
+static void
+Z_dcba_rec(GEN L, GEN a, GEN b)
+{
+  GEN x, r, v, g, h, c, c0;
+  long n;
+  if (is_pm1(b)) {
+    if (!is_pm1(a)) vectrunc_append(L, a);
+    return;
+  }
+  v = Z_ppio(a,b);
+  a = gel(v,2);
+  r = gel(v,3);
+  if (!is_pm1(r)) vectrunc_append(L, r);
+  v = Z_ppgle(a,b);
+  g = gel(v,1);
+  h = gel(v,2);
+  x = c0 = gel(v,3);
+  for (n = 1; !is_pm1(h); n++)
+  {
+    GEN d, y;
+    long i;
+    v = Z_ppgle(h,sqri(g));
+    g = gel(v,1);
+    h = gel(v,2);
+    c = gel(v,3); if (is_pm1(c)) continue;
+    d = gcdii(c,b);
+    x = mulii(x,d);
+    y = d; for (i=1; i < n; i++) y = sqri(y);
+    Z_dcba_rec(L, diviiexact(c,y), d);
+  }
+  Z_dcba_rec(L,diviiexact(b,x), c0);
+}
+static GEN
+Z_cba_rec(GEN L, GEN a, GEN b)
+{
+  GEN g;
+  if (lg(L) > 10)
+  { /* a few naive steps before switching to dcba */
+    Z_dcba_rec(L, a, b);
+    return gel(L, lg(L)-1);
+  }
+  if (is_pm1(a)) return b;
+  g = gcdii(a,b);
+  if (is_pm1(g)) { vectrunc_append(L, a); return b; }
+  a = diviiexact(a,g);
+  b = diviiexact(b,g);
+  return Z_cba_rec(L, Z_cba_rec(L, a, g), b);
+}
+GEN
+Z_cba(GEN a, GEN b)
+{
+  GEN L = vectrunc_init(expi(a) + expi(b) + 2);
+  GEN t = Z_cba_rec(L, a, b);
+  if (!is_pm1(t)) vectrunc_append(L, t);
+  return L;
+}
 
 /* write x = x1 x2, x2 maximal s.t. (x2,f) = 1, return x2 */
 GEN
