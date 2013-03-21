@@ -60,6 +60,13 @@ R=elladd(E,P,Q);
 elladd(E,ellsub(E,R,P),ellneg(E,Q))
 N=ellcard(E);ellmul(E,P,N)
 
+checkorder(E, N)=
+{
+  for(i=1,4,
+    P=random(E);
+    if(ellmul(E,P,N)!=[0],error(a)));
+}
+
 check(a)=
 {
   my(E,Et,P,N);
@@ -68,9 +75,7 @@ check(a)=
   if (ellap(Et)!=-ellap(E),error("twist:",a));
   N=ellcard(E);
   if ((N==1)!=(#random(E)==1),error(a));
-  for(i=1,4,
-    P=random(E);
-    if(ellmul(E,P,N)!=[0],error(a)));
+  checkorder(E, N);
   ellgenerators(E);
 }
 {
@@ -84,6 +89,17 @@ check(a)=
     g = ffprimroot(ffgen(5^a,'t));
     for(i=0,5^a-2, check(g^i)));
 }
+
+testss(n,N)=
+{
+  my(a);
+  a=ffprimroot(ffgen([2,n],'a));
+  for(i=1,N,
+    E=ellinit([0,0,random(a),random(a),random(a)]);
+    if(#E, checkorder(E,ellcard(E))));
+}
+
+for(i=1,8,testss(i,min(1000,2^(3*i))));
 
 checkt(p,n,f,B=100)=
 {

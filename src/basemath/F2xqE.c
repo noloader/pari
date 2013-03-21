@@ -781,48 +781,85 @@ F2xq_elltrace_Harley(GEN a6, GEN T2)
   return gerepileuptoint(ltop, t);
 }
 
+static GEN
+get_v(GEN u, GEN a, GEN T)
+{
+  GEN a4 = gel(a,2), a3i = gel(a,3);
+  GEN ui2 = F2xq_mul(u, a3i, T), ui4 = F2xq_sqr(ui2, T);
+  return F2xq_mul(a4, ui4, T);
+}
+
+static GEN
+get_r(GEN w, GEN u, GEN T)
+{
+  return F2xq_sqr(F2xq_mul(F2xq_Artin_Schreier(w, T), u, T), T);
+}
+
+static GEN
+F2xq_elltracej(GEN a, GEN a6, GEN T, GEN q, long n)
+{
+  GEN a3 = gel(a,1), a4 = gel(a,2), a3i = gel(a,3);
+  GEN r, pi, rhs;
+  long t, s, m = n >> 1;
+  if (odd(n))
+  {
+    GEN u, v, w;
+    u = F2xq_pow(a3,diviuexact(subis(shifti(q,1), 1), 3),T);
+    v = get_v(u, a, T);
+    if (F2xq_trace(v, T)==0) return gen_0;
+    w = F2xq_Artin_Schreier(F2x_1_add(v), T);
+    if (F2xq_trace(w, T)) w = F2x_1_add(w);
+    r = get_r(w, u, T);
+    pi = int2n(m+1);
+    s = (((m+3)&3L) <= 1) ? -1: 1;
+  }
+  else
+  {
+    if (F2x_degree(F2xq_pow(a3,diviuexact(subis(q, 1), 3),T))==0)
+    {
+      GEN u, v, w;
+      u = F2xq_sqrtn(a3, utoi(3), T, NULL);
+      v = get_v(u, a, T);
+      if (F2xq_trace(v, T)==1) return gen_0;
+      w = F2xq_Artin_Schreier(v, T);
+      if (F2xq_trace(w, T)==1) return gen_0;
+      r = get_r(w, u, T);
+      pi = int2n(m+1);
+      s = odd(m+1) ? -1: 1;
+    }
+    else
+    {
+      long sv = T[1];
+      GEN P = mkpoln(5, pol1_F2x(sv), pol0_F2x(sv), pol0_F2x(sv), a3, a4);
+      r = F2xq_sqr(gel(F2xqX_roots(P,T), 1), T);
+      pi = int2n(m);
+      s = odd(m) ? -1: 1;
+    }
+  }
+  rhs = F2x_add(F2xq_mul(F2x_add(F2xq_sqr(r, T), a4), r, T), a6);
+  t = F2xq_trace(F2xq_mul(rhs, F2xq_sqr(a3i, T), T), T);
+  return (t==0)^(s==1)? pi: negi(pi);
+}
+
 GEN
 F2xq_ellcard(GEN a, GEN a6, GEN T)
 {
   pari_sp av = avma;
   long n = F2x_degree(T);
-  GEN q = int2u(n), c;
+  GEN c;
   if (typ(a)==t_VECSMALL)
   {
     GEN t = F2xq_elltrace_Harley(a6, T);
-    c = addii(q, F2xq_trace(a,T) ? addui(1,t): subui(1,t));
+    c = addii(int2u(n), F2xq_trace(a,T) ? addui(1,t): subui(1,t));
   } else if (n==1)
   {
     long a4i = lgpol(gel(a,2)), a6i = lgpol(a6);
     return utoi(a4i? (a6i? 1: 5): 3);
   }
-  else if (n==2)
-  {
-    GEN a3 = gel(a,1), a4 = gel(a,2), x = polx_F2x(T[1]), x1 = pol1_F2x(T[1]);
-    GEN a613 = F2xq_mul(F2x_add(x1, a6),a3,T), a43= F2xq_mul(a4,a3,T);
-    long f0= F2xq_trace(F2xq_mul(a6,a3,T),T);
-    long f1= F2xq_trace(F2x_add(a43,a613),T);
-    long f2= F2xq_trace(F2x_add(F2xq_mul(a43,x,T),a613),T);
-    long f3= F2xq_trace(F2x_add(F2xq_mul(a43,F2x_add(x,x1),T),a613),T);
-    c = utoi(9-2*(f0+f1+f2+f3));
-  }
   else
   {
-    struct _F2xqE e;
-    long m = (n+1)>>1;
-    GEN q1 = addis(q, 1);
-    GEN v = n==4 ? mkvec4s(13,17,21,25)
-                 : odd(n) ? mkvec3(subii(q1,int2u(m)),q1,addii(q1,int2u(m))):
-                            mkvec5(subii(q1,int2u(m+1)),subii(q1,int2u(m)),q1,
-                                   addii(q1,int2u(m)),addii(q1,int2u(m+1)));
-    e.a2=a; e.a6=a6; e.T=T;
-    c = gen_select_order(v,(void*)&e, &F2xqE_group);
-    if (n==4 && absequaliu(c, 21)) /* Ambiguous case */
-    {
-      GEN d = F2xq_powu(polx_F2x(T[1]),3,T), a3 = gel(a,1);
-      e.a6 = F2x_add(a6,F2xq_mul(d,F2xq_sqr(a3,T),T)); /* twist */
-      c = subui(34, gen_select_order(mkvec2s(13,25),(void*)&e, &F2xqE_group));
-    }
+    GEN q = int2u(n);
+    c = subii(addis(q, 1), F2xq_elltracej(a, a6, T, q, n));
   }
   return gerepileuptoint(av, c);
 }
