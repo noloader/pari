@@ -306,6 +306,301 @@ matadjoint0(GEN x, long flag)
 
 /*******************************************************************/
 /*                                                                 */
+/*                       Frobenius form                            */
+/*                                                                 */
+/*******************************************************************/
+
+/* The following section implement a mix of Ozello and Storjohann algorithms
+
+P. Ozello, doctoral thesis (in French):
+Calcul exact des formes de Jordan et de Frobenius d'une matrice
+Chapitre 2
+http://tel.archives-ouvertes.fr/tel-00323705
+
+A. Storjohann,  Diss. ETH No. 13922
+Algorithms for Matrix Canonical Forms
+Chapter 9
+https://cs.uwaterloo.ca/~astorjoh/diss2up.pdf
+
+We use Storjohann Lemma 9.14 (step1, step2, step3) Ozello theorem 4,
+and Storjohann Lemma 9.18
+*/
+
+/* Elementary transforms */
+
+static void
+transL(GEN M, GEN P, GEN k, long i, long j)
+{
+  long l, n = lg(M)-1;
+  for(l=1; l<=n; l++)
+    gcoeff(M,l,j) = gsub(gcoeff(M,l,j), gmul(gcoeff(M,l,i), k));
+  for(l=1; l<=n; l++)
+    gcoeff(M,i,l) = gadd(gcoeff(M,i,l), gmul(gcoeff(M,j,l), k));
+  if (P)
+    for(l=1; l<=n; l++)
+      gcoeff(P,i,l) = gadd(gcoeff(P,i,l), gmul(gcoeff(P,j,l), k));
+}
+
+static void
+transD(GEN M, GEN P, GEN k, long j)
+{
+  long l, n = lg(M)-1;
+  GEN ki = ginv(k);
+  for(l=1; l<=n; l++)
+    if (l!=j)
+    {
+      gcoeff(M,l,j) = gmul(gcoeff(M,l,j), k);
+      gcoeff(M,j,l) = gmul(gcoeff(M,j,l), ki);
+    }
+  if (P)
+    for(l=1; l<=n; l++)
+      gcoeff(P,j,l) = gmul(gcoeff(P,j,l), ki);
+}
+
+static void
+transS(GEN M, GEN P, long i, long j)
+{
+  long l, n = lg(M)-1;
+  swap(gel(M,i), gel(M,j));
+  for (l=1; l<=n; l++)
+    swap(gcoeff(M,i,l), gcoeff(M,j,l));
+  if (P)
+    for (l=1; l<=n; l++)
+      swap(gcoeff(P,i,l), gcoeff(P,j,l));
+}
+
+/* Convert companion matrix to polynomial*/
+static GEN
+minpoly_polslice(GEN M, long i, long j, long v)
+{
+  long k, d = j+1-i;
+  GEN P = cgetg(d+3,t_POL);
+  P[1] = evalsigne(1)|evalvarn(v);
+  for (k=0; k<d; k++)
+    gel(P,k+2) = gneg(gcoeff(M,i+k, j));
+  gel(P,d+2) = gen_1;
+  return P;
+}
+
+static GEN
+minpoly_listpolslice(GEN M, GEN V, long v)
+{
+  long i, n = lg(M)-1, nb = lg(V)-1;
+  GEN W = cgetg(nb+1, t_VEC);
+  for (i=1; i<=nb; i++)
+    gel(W,i) = minpoly_polslice(M, V[i], i < nb? V[i+1]-1: n, v);
+  return W;
+}
+
+static int
+minpoly_dvdslice(GEN M, long i, long j, long k)
+{
+  pari_sp av = avma;
+  long r = signe(RgX_rem(minpoly_polslice(M, i, j-1, 0),
+                        minpoly_polslice(M, j, k, 0)));
+  avma = av; return r==0;
+}
+
+static void
+RgM_replace(GEN M, GEN M2)
+{
+  long n = lg(M)-1, m = nbrows(M), i, j;
+  for(i=1; i<=n; i++)
+    for(j=1; j<=m; j++)
+      gcoeff(M, i, j) = gcoeff(M2, i, j);
+}
+
+static void
+gerepilemat2_inplace(pari_sp av, GEN M, GEN P)
+{
+  GEN M2 = M, P2 = P;
+  gerepileall(av, P ? 2: 1, &M2, &P2);
+  RgM_replace(M, M2);
+  if (P) RgM_replace(P, P2);
+}
+
+/* Lemma 9.14 */
+
+static long
+weakfrobenius_step1(GEN M, GEN P, long j0)
+{
+  pari_sp av = avma, lim = stack_lim(av, 1);
+  long n = lg(M)-1, k, j;
+  for (j = j0; j < n; ++j)
+  {
+    if (gequal0(gcoeff(M, j + 1, j)))
+    {
+      for (k = j+2; k <= n; ++k)
+        if (!gequal0(gcoeff(M, k, j)))
+          break;
+      if (k > n)
+        return j;
+      transS(M, P, k, j + 1);
+    }
+    if (!gequal1(gcoeff(M, j + 1, j)))
+      transD(M, P, gcoeff(M, j + 1, j), j + 1);
+    for (k = 1; k <= n; ++k)
+      if (k != j + 1 && !gequal0(gcoeff(M, k, j)))
+        transL(M, P, gneg(gcoeff(M, k, j)), k, j + 1);
+    if (low_stack(lim, stack_lim(av,1)))
+    {
+      if (DEBUGMEM > 1)
+        pari_warn(warnmem,"RgM_minpoly stage 1: j0=%ld, j=%ld", j0, j);
+      gerepilemat2_inplace(av, M, P);
+    }
+  }
+  return n;
+}
+
+static void
+weakfrobenius_step2(GEN M, GEN P, long j)
+{
+  pari_sp av = avma, lim = stack_lim(av, 1);
+  long i, k, n = lg(M)-1;
+  for(i=j; i>=2; i--)
+  {
+    for(k=j+1; k<=n; k++)
+      if (!gequal0(gcoeff(M,i,k)))
+        transL(M, P, gcoeff(M,i,k), i-1, k);
+    if (low_stack(lim, stack_lim(av,1)))
+    {
+      if (DEBUGMEM > 1)
+        pari_warn(warnmem,"RgM_minpoly stage 2: j=%ld, i=%ld", j, i);
+      gerepilemat2_inplace(av, M, P);
+    }
+  }
+}
+
+static long
+weakfrobenius_step3(GEN M, GEN P, long j0, long j)
+{
+  long i, k, n = lg(M)-1;
+  if (j == n) return 0;
+  if (gequal0(gcoeff(M, j0, j+1)))
+  {
+    for (k=j+2; k<=n; k++)
+      if (!gequal0(gcoeff(M, j0, k)))
+        break;
+    if (k > n) return 0;
+    transS(M, P, k, j+1);
+  }
+  if (!gequal1(gcoeff(M, j0, j + 1)))
+    transD(M, P, gcoeff(M, j0, j + 1), j + 1);
+  for (i=j+2; i<=n; i++)
+      if (!gequal0(gcoeff(M, j0, i)))
+        transL(M, P, gcoeff(M, j0, i),j + 1, i);
+  return 1;
+}
+
+/* flag: 0 -> full Frobenius from , 1 -> weak Frobenius form */
+static GEN
+RgM_Frobenius(GEN M, long flag, GEN *pt_P, GEN *pt_v)
+{
+  pari_sp av = avma, av2, ltop, lim;
+  long n = lg(M)-1, eps, j0 = 1, nb = 0;
+  GEN v, P;
+  v = cgetg(n+1, t_VECSMALL);
+  ltop = avma;
+  P = pt_P ? matid(n): NULL;
+  M = RgM_shallowcopy(M);
+  av2 = avma; lim = stack_lim(av2, 1);
+  while (j0 <= n)
+  {
+    long j = weakfrobenius_step1(M, P, j0);
+    weakfrobenius_step2(M, P, j);
+    eps = weakfrobenius_step3(M, P, j0, j);
+    if (eps == 0)
+    {
+      v[++nb] = j0;
+      if (flag == 0 && nb > 1 && !minpoly_dvdslice(M, v[nb-1], j0, j))
+      {
+        j = j0; j0 = v[nb-1]; nb -= 2;
+        transL(M, P, gen_1, j, j0); /*lemma 9.18*/
+      } else
+        j0 = j+1;
+    }
+    else
+      transS(M, P, j0, j+1); /*theorem 4*/
+    if (low_stack(lim, stack_lim(av,1)))
+    {
+      if (DEBUGMEM > 1)
+        pari_warn(warnmem,"weakfrobenius j0=%ld",j0);
+      gerepilemat2_inplace(av2, M, P);
+    }
+  }
+  fixlg(v, nb+1);
+  if (pt_v) *pt_v = v;
+  gerepileall(pt_v ? ltop: av, P? 2: 1, &M, &P);
+  if (pt_P) *pt_P = P;
+  return M;
+}
+
+static GEN
+RgM_minpoly(GEN M, long v)
+{
+  pari_sp av = avma;
+  GEN V, W;
+  M = RgM_Frobenius(M, 1, NULL, &V);
+  W = minpoly_listpolslice(M, V, v);
+  if (varncmp(v,gvar2(W)) >= 0)
+    pari_err_PRIORITY("matfrobenius", M, "<=", v);
+  return gerepileupto(av, RgX_normalize(glcm0(W, NULL)));
+}
+
+GEN
+Frobeniusform(GEN V, long n)
+{
+  long i, j, k;
+  GEN M = zeromatcopy(n,n);
+  for (k=1,i=1;i<lg(V);i++,k++)
+  {
+    GEN  P = gel(V,i);
+    long d = degpol(P);
+    if (k+d-1 > n) pari_err_PREC("matfrobenius");
+    for (j=0; j<d-1; j++, k++) gcoeff(M,k+1,k) = gen_1;
+    for (j=0; j<d; j++) gcoeff(M,k-j,k) = gneg(gel(P, 1+d-j));
+  }
+  return M;
+}
+
+GEN
+matfrobenius(GEN M, long flag, long v)
+{
+  long n;
+  if (typ(M)!=t_MAT) pari_err_TYPE("matfrobenius",M);
+  if (v < 0) v = 0;
+  n = lg(M)-1;
+  if (n && lgcols(M)!=n+1) pari_err_DIM("matfrobenius");
+  if (flag > 2) pari_err_FLAG("matfrobenius");
+  switch (flag)
+  {
+  case 0:
+    return RgM_Frobenius(M, 0, NULL, NULL);
+  case 1:
+    {
+      pari_sp av = avma;
+      GEN V, W, F;
+      F = RgM_Frobenius(M, 0, NULL, &V);
+      W = minpoly_listpolslice(F, V, v);
+      if (varncmp(v, gvar2(W)) >= 0)
+        pari_err_PRIORITY("matfrobenius", M, "<=", v);
+      return gerepileupto(av, W);
+    }
+  case 2:
+    {
+      GEN P, F, R = cgetg(3, t_VEC);
+      F = RgM_Frobenius(M, 0, &P, NULL);
+      gel(R,1) = F; gel(R,2) = P;
+      return R;
+    }
+  default:
+    pari_err_FLAG("matfrobenius");
+  }
+  return NULL; /*NOT REACHED*/
+}
+
+/*******************************************************************/
+/*                                                                 */
 /*                       MINIMAL POLYNOMIAL                        */
 /*                                                                 */
 /*******************************************************************/
@@ -338,7 +633,7 @@ minpoly(GEN x, long v)
       setvarn(p1,v); return gerepileupto(ltop,p1);
   }
 
-  P=easymin(x,v);
+  P = easymin(x,v);
   if (P) return P;
   if (typ(x)==t_POLMOD)
   {
@@ -348,7 +643,7 @@ minpoly(GEN x, long v)
   }
   if (typ(x)!=t_MAT) pari_err_TYPE("minpoly",x);
   if (lg(x) == 1) return pol_1(v);
-  return gerepilecopy(ltop,gel(matfrobenius(x,1,v),1));
+  return RgM_minpoly(x,v);
 }
 
 /*******************************************************************/

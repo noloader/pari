@@ -1112,10 +1112,11 @@ GEN     suppl(GEN x);
 
 /* alglin2.c */
 
-GEN     FpM_charpoly(GEN x, GEN p);
-GEN     FpM_hess(GEN x, GEN p);
 GEN     Flm_charpoly(GEN x, long p);
 GEN     Flm_hess(GEN x, ulong p);
+GEN     FpM_charpoly(GEN x, GEN p);
+GEN     FpM_hess(GEN x, GEN p);
+GEN     Frobeniusform(GEN V, long n);
 GEN     QM_minors_coprime(GEN x, GEN pp);
 GEN     QM_ImZ_hnf(GEN x);
 GEN     QM_ImQ_hnf(GEN x);
@@ -2622,7 +2623,6 @@ GEN     hyperellpadicfrobenius(GEN x, ulong p, long e);
 
 /* hnf_snf.c */
 
-GEN     Frobeniusform(GEN V, long n);
 GEN     RgM_hnfall(GEN A, GEN *pB, long remove);
 GEN     ZM_hnf(GEN x);
 GEN     ZM_hnfall(GEN A, GEN *ptB, long remove);
