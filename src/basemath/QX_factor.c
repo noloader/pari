@@ -209,8 +209,8 @@ cmbf(GEN pol, GEN famod, GEN bound, GEN p, long a, long b,
         T1 = Fp_mul(lc, T1, pa);
         T2 = Fp_mul(lc2,T2, pa);
       }
-      trace1[i] = itou(diviiround(T1, pb));
-      trace2[i] = itou(diviiround(T2, pb));
+      uel(trace1,i) = itou(diviiround(T1, pb));
+      uel(trace2,i) = itou(diviiround(T2, pb));
     }
     spa_b   = uel(pa_b,2); /* < 2^31 */
     spa_bs2 = uel(pa_bs2,2); /* < 2^31 */
@@ -240,8 +240,8 @@ nextK:
       ulong t;
 
       /* d - 1 test */
-      for (t=trace1[ind[1]],i=2; i<=K; i++)
-        t = Fl_add(t, trace1[ind[i]], spa_b);
+      for (t=uel(trace1,ind[1]),i=2; i<=K; i++)
+        t = Fl_add(t, uel(trace1,ind[i]), spa_b);
       if (t > spa_bs2) t = spa_b - t;
       if (t > Sbound)
       {
@@ -249,8 +249,8 @@ nextK:
         goto NEXT;
       }
       /* d - 2 test */
-      for (t=trace2[ind[1]],i=2; i<=K; i++)
-        t = Fl_add(t, trace2[ind[i]], spa_b);
+      for (t=uel(trace2,ind[1]),i=2; i<=K; i++)
+        t = Fl_add(t, uel(trace2,ind[i]), spa_b);
       if (t > spa_bs2) t = spa_b - t;
       if (t > Sbound)
       {
@@ -302,8 +302,8 @@ nextK:
         else
         {
           gel(famod,k) = gel(famod,i);
-          trace1[k] = trace1[i];
-          trace2[k] = trace2[i];
+          uel(trace1,k) = uel(trace1,i);
+          uel(trace2,k) = uel(trace2,i);
           deg[k] = deg[i]; k++;
         }
       }
