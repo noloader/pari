@@ -266,7 +266,7 @@ roundr_up_ip(GEN x, long l)
   long i = l;
   for(;;)
   {
-    if (++((ulong*)x)[--i]) break;
+    if (++uel(x,--i)) break;
     if (i == 2) { x[2] = (long)HIGHBIT; shiftr_inplace(x, 1); break; }
   }
 }
@@ -625,12 +625,12 @@ divrr(GEN x, GEN y)
     }
     else
     {
-      if ((ulong)r1[1] > y0) /* can't happen if i=0 */
+      if (uel(r1,1) > y0) /* can't happen if i=0 */
       {
         GEN y1 = y+1;
         j = lr-i; r1[j] = subll(r1[j],y1[j]);
         for (j--; j>0; j--) r1[j] = subllx(r1[j],y1[j]);
-        j=i; do ((ulong*)r)[--j]++; while (j && !r[j]);
+        j=i; do uel(r,--j)++; while (j && !uel(r,j));
       }
       hiremainder = r1[1]; overflow = 0;
       qp = divll(r1[2],y0); k = hiremainder;
@@ -679,9 +679,9 @@ divrr(GEN x, GEN y)
   }
   /* i = lr-1 */
   /* round correctly */
-  if ((ulong)r1[1] > (y0>>1))
+  if (uel(r1,1) > (y0>>1))
   {
-    j=i; do ((ulong*)r)[--j]++; while (j && !r[j]);
+    j=i; do uel(r,--j)++; while (j && !r[j]);
   }
   r1 = r-1; for (j=i; j>=2; j--) r[j]=r1[j];
   if (r[0] == 0) e--;

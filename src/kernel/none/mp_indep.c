@@ -420,7 +420,7 @@ mulir(GEN x, GEN y)
   long sx = signe(x), sy;
   if (!sx) return mul0r(y);
   if (lgefint(x) == 3) {
-    GEN z = mulur((ulong)x[2], y);
+    GEN z = mulur(uel(x,2), y);
     if (sx < 0) togglesign(z);
     return z;
   }
@@ -713,7 +713,7 @@ divru(GEN x, ulong y)
   e = expo(x);
   lx = lg(x);
   z = cgetr(lx);
-  if (y <= (ulong)x[2])
+  if (y <= uel(x,2))
   {
     hiremainder = 0;
     for (i=2; i<lx; i++) z[i] = divll(x[i],y);
