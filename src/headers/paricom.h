@@ -98,7 +98,8 @@ enum {
   INIT_SIGm = 2,
   INIT_DFTm = 4,
   INIT_noPRIMEm = 8,
-  INIT_noIMTm = 16
+  INIT_noIMTm = 16,
+  INIT_noINTGMPm = 32
 };
 
 #ifndef HAS_EXP2

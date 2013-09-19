@@ -269,8 +269,6 @@ void  free_graph(void);
 void  initout(int initerr);
 void  resetout(int initerr);
 void  init_linewrap(long w);
-void  pari_kernel_init(void);
-void  pari_kernel_close(void);
 void  print_functions_hash(const char *s);
 GEN   readbin(const char *name, FILE *f, int *vector);
 int   term_height(void);

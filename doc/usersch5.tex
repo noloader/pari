@@ -85,6 +85,58 @@ Guide for detail). Do not call \tet{pari_mt_init} to initialize the
 multi-thread engine. If this flag is set, \kbd{pari\_mt\_init()} will need to
 be called manually. See \kbd{examples/pari-mt.c} for an example.
 
+  \kbd{INIT\_noINTGMPm}: do not install PARI-specific GMP memory functions.
+This option is ignored when the GMP library is not in use.
+
+Note that it is possible to install the PARI-specific GMP memory functions
+later by calling
+
+\fun{void}{pari_kernel_init}{void}
+
+and to restore the previous values using
+
+\fun{void}{pari_kernel_close}{void}
+
+This option should not be used. It is at best a band-aid.
+The GMP memory functions are global variables used by the GMP library.
+If a program is linked with two libraries that require these variables to be
+set to different values, conflict ensues. To avoid such conflict, the proper
+solution is to record their values with \kbd{mp\_get\_memory\_functions} and
+to call \kbd{mp\_set\_memory\_functions} to restore the expected values
+each time the code switches from using one library to the other.
+
+Example
+\bprog
+void *(*pari_alloc_ptr) (size_t);
+void *(*pari_realloc_ptr) (void *, size_t, size_t);
+void (*pari_free_ptr) (void *, size_t);
+void *(*otherlib_alloc_ptr) (size_t);
+void *(*otherlib_realloc_ptr) (void *, size_t, size_t);
+void (*otherlib_free_ptr) (void *, size_t);
+
+void init(void)
+{
+  pari_init(8000000, 500000);
+  mp_get_memory_functions(&pari_alloc_ptr,&pari_realloc_ptr,
+                          &pari_free_ptr);
+  otherlib_init();
+  mp_get_memory_functions(&otherlib_alloc_ptr,&otherlib_realloc_ptr,
+                          &otherlib_free_ptr);
+}
+void function_that_use_pari(void)
+{
+  mp_set_memory_functions(pari_alloc_ptr,pari_realloc_ptr,
+                          pari_free_ptr);
+  /*use PARI functions*/
+}
+void function_that_use_otherlib(void)
+{
+  mp_set_memory_functions(otherlib_alloc_ptr,otherlib_realloc_ptr,
+                          otherlib_free_ptr);
+  /*use OTHERLIB functions*/
+}
+@eprog
+
 \fun{void}{pari_close_opts}{ulong init_opts} as \kbd{pari\_close},
 for a library initialized with a mask of options using
 \kbd{pari\_init\_opts}. \kbd{opts} is a mask of flags among
