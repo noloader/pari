@@ -449,16 +449,16 @@ nf_bestlift_to_pol(GEN elt, GEN bound, nflift_t *L)
 /* return the T->powden * (lift of pol with coefficients of T2-norm <= C)
  * if it exists. */
 static GEN
-nf_pol_lift(GEN pol, GEN bound, nfcmbf_t *T)
+nf_pol_lift(GEN pol, GEN bound, nflift_t *L)
 {
   long i, l = lg(pol);
-  GEN t, x = cgetg(l,t_POL);
+  GEN x = cgetg(l,t_POL);
 
   x[1] = pol[1];
-  gel(x,l-1) = mul_content(gel(pol,l-1), T->L->topowden);
+  gel(x,l-1) = mul_content(gel(pol,l-1), L->topowden);
   for (i=l-2; i>1; i--)
   {
-    t = nf_bestlift_to_pol(gel(pol,i), bound, T->L);
+    GEN t = nf_bestlift_to_pol(gel(pol,i), bound, L);
     if (!t) return NULL;
     gel(x,i) = t;
   }
@@ -1041,7 +1041,7 @@ nextK:
         if (y) q = gmul(y, q);
         y = FqX_centermod(q, Tpk, pk, pks2);
       }
-      y = nf_pol_lift(y, bound, T);
+      y = nf_pol_lift(y, bound, T->L);
       if (!y)
       {
         if (DEBUGLEVEL>3) err_printf("@");
@@ -1146,7 +1146,7 @@ nf_chk_factors(nfcmbf_t *T, GEN P, GEN M_L, GEN famod, GEN pk)
     if (DEBUGLEVEL) err_printf("nf_LLL_cmbf: checking factor %ld\n", i);
     y = chk_factors_get(D.lt, famod, gel(piv,i), Tpk, pk);
 
-    if (! (y = nf_pol_lift(y, bound, T)) ) return NULL;
+    if (! (y = nf_pol_lift(y, bound, T->L)) ) return NULL;
     y = gerepilecopy(av, y);
     /* y is the candidate factor */
     pol = RgXQX_divrem(D.C2ltpol, y, nfT, ONLY_DIVIDES);
