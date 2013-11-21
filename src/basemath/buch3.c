@@ -2404,3 +2404,100 @@ bnrdisclist0(GEN bnf, GEN L, GEN arch)
   if (typ(L)!=t_INT) return discrayabslist(bnf,L);
   return discrayabslistarch(bnf,arch,itos(L));
 }
+
+/****************************************************************************/
+/*                                Galois action on a BNR                    */
+/****************************************************************************/
+
+GEN
+bnrautmatrix(GEN bnr, GEN aut)
+{
+  pari_sp av=avma;
+  GEN gen, mat, nf;
+  long i, l;
+  nf = bnr_get_nf(bnr);
+  gen = bnr_get_gen(bnr); l = lg(gen);
+  aut = algtobasis(nf, aut);
+  mat = cgetg(l,t_MAT);
+  for (i=1; i<l; i++)
+    gel(mat, i) = bnrisprincipal(bnr,galoisapply(nf,aut,gel(gen,i)),0);
+  return gerepilecopy(av, mat);
+}
+
+GEN
+bnrgaloismatrix(GEN bnr, GEN aut)
+{
+  checkbnr(bnr);
+  switch (typ(aut))
+  {
+    case t_POL:
+    case t_COL:
+      return bnrautmatrix(bnr, aut);
+    case t_VEC:
+    {
+      long i, l = lg(aut);
+      GEN V;
+      if (l==9 && typ(gal_get_gen(aut))==t_VEC)
+      {
+        pari_sp av = avma;
+        V = galoispermtopol(aut, gal_get_gen(aut));
+        return gerepileupto(av, bnrgaloismatrix(bnr, V));
+      }
+      V = cgetg(l, t_VEC);
+      for(i=1; i<l; i++)
+        gel(V,i) = bnrautmatrix(bnr, gel(aut,i));
+      return V;
+    }
+    default:
+      pari_err_TYPE("bnrgaloismatrix", aut);
+      return NULL; /*NOT REACHED*/
+  }
+}
+
+GEN
+bnrgaloisapply(GEN bnr, GEN mat, GEN x)
+{
+  pari_sp av=avma;
+  GEN cyc;
+  checkbnr(bnr);
+  cyc = bnr_get_cyc(bnr);
+  if (typ(mat)!=t_MAT || !RgM_is_ZM(mat))
+    pari_err_TYPE("bnrgaloisapply",mat);
+  if (typ(x)!=t_MAT || !RgM_is_ZM(x))
+    pari_err_TYPE("bnrgaloisapply",x);
+  return gerepileupto(av, ZM_hnfmodid(ZM_mul(mat, x), cyc));
+}
+
+static GEN
+check_bnrgal(GEN bnr, GEN M)
+{
+  checkbnr(bnr);
+  if (typ(M)==t_MAT)
+    return mkvec(M);
+  else if (typ(M)==t_VEC && lg(M)==9 && typ(gal_get_gen(M))==t_VEC)
+  {
+    pari_sp av = avma;
+    GEN V = galoispermtopol(M, gal_get_gen(M));
+    return gerepileupto(av, bnrgaloismatrix(bnr, V));
+  }
+  else if (!is_vec_t(typ(M)))
+    pari_err_TYPE("bnrisgalois",M);
+  return M;
+}
+
+long
+bnrisgalois(GEN bnr, GEN M, GEN H)
+{
+  pari_sp av = avma;
+  long i, l;
+  if (typ(H)!=t_MAT || !RgM_is_ZM(H))
+    pari_err_TYPE("bnrisgalois",H);
+  M = check_bnrgal(bnr, M); l = lg(M);
+  for (i=1; i<l; i++)
+  {
+    long res = ZM_equal(bnrgaloisapply(bnr,gel(M,i), H), H);
+    if (!res) { avma = av; return 0; }
+  }
+  avma = av;
+  return 1;
+}
