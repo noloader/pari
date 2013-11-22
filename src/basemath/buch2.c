@@ -626,75 +626,66 @@ static GEN
 compute_invres(GRHcheck_t *S, long LIMC)
 {
   pari_sp av = avma;
-  GEN loginvres = real_0(DEFAULTPREC);
+  double loginvres = 0.;
   GRHprime_t *pr;
   long i;
-  GEN logLIMC = mplog(stor(LIMC, DEFAULTPREC));
-  GEN logLIMC2 = sqrr(logLIMC), denc;
-  GEN c0, c1, c2;
-  double llimc = log(LIMC);
-  denc = invr(mulir(powuu(LIMC, 3), mulrr(logLIMC, logLIMC2)));
-  c2=mulrr(addrr(        logLIMC2 ,addrs(shiftr(mulur(3,logLIMC),-1),1)),denc);
-  denc = mulur(LIMC, denc);
-  c1=mulrr(addrr(mulur(3,logLIMC2),addrs(shiftr(        logLIMC , 2),2)),denc);
-  denc = mulur(LIMC, denc);
-  c0=mulrr(addrr(mulur(3,logLIMC2),addrs(shiftr(mulur(5,logLIMC),-1),1)),denc);
+  double logLIMC = log(LIMC);
+  double logLIMC2 = logLIMC*logLIMC, denc;
+  double c0, c1, c2;
+  denc = 1/(pow(LIMC, 3) * logLIMC * logLIMC2);
+  c2 = (    logLIMC2 + 3 * logLIMC / 2 + 1) * denc;
+  denc *= LIMC;
+  c1 = (3 * logLIMC2 + 4 * logLIMC     + 2) * denc;
+  denc *= LIMC;
+  c0 = (3 * logLIMC2 + 5 * logLIMC / 2 + 1) * denc;
   for (pr = S->primes, i = S->nprimes; i > 0; pr++, i--)
   {
-    GEN dec, fs, ns, gp, NPk, glogp;
+    GEN dec, fs, ns;
     long addpsi;
-    GEN addpsi1, addpsi2;
-    long j, k, limp = llimc/pr->logp;
-    ulong p, p2;
+    double addpsi1, addpsi2;
+    double logp = pr->logp, NPk;
+    long j, k, limp = logLIMC/logp;
+    ulong p = pr->p, p2 = p*p;
     if (limp < 1) break;
-    p = pr->p;
-    p2 = p*p;
     dec = pr->dec;
     fs = gel(dec, 1); ns = gel(dec, 2);
-    gp = stor(p, DEFAULTPREC);
-    glogp = mplog(gp);
-    loginvres = addrr(loginvres, invr(gp));
+    loginvres += 1./p;
     /*
      * note for optimization: limp == 1 nearly always and limp >= 3 for
      * only very few primes.
      */
-    for (k = 2, NPk = gp; k <= limp; k++)
+    for (k = 2, NPk = p; k <= limp; k++)
     {
-      NPk = mulrr(gp, NPk);
-      loginvres = addrr(loginvres, invr(mulur(k, NPk)));
+      NPk *= p;
+      loginvres += 1/(k * NPk);
     }
     addpsi = limp;
-    addpsi1 = diviuexact(subiu(powuu(p , limp+1), p ), p -1);
-    addpsi2 = diviuexact(subiu(powuu(p2, limp+1), p2), p2-1);
+    addpsi1 = p *(pow(p , limp)-1)/(p -1);
+    addpsi2 = p2*(pow(p2, limp)-1)/(p2-1);
     j = lg(fs);
     while (--j > 0)
     {
       long f, nb, kmax;
-      GEN NP, NP2, addinvres;
+      double NP, NP2, addinvres;
       f = fs[j]; if (f > limp) continue;
       nb = ns[j];
-      NP = itor(powuu(p, f), DEFAULTPREC);
-      addinvres = invr(NP);
+      NP = pow(p, f);
+      addinvres = 1/NP;
       kmax = limp / f;
       for (k = 2, NPk = NP; k <= kmax; k++)
       {
-	NPk = mulrr(NP, NPk);
-	addinvres = addrr(addinvres, invr(mulur(k, NPk)));
+	NPk *= NP;
+	addinvres += 1/(k*NPk);
       }
-      NP2 = sqrr(NP);
-      loginvres = subrr(loginvres, mulur(nb, addinvres));
+      NP2 = NP*NP;
+      loginvres -= nb * addinvres;
       addpsi -= nb * f * kmax;
-      addpsi1 = gsub(addpsi1,gmulsg(nb*f,gdiv(subrr(powru(NP ,kmax+1),NP ),gsub(NP ,gen_1))));
-      addpsi2 = gsub(addpsi2,gmulsg(nb*f,gdiv(subrr(powru(NP2,kmax+1),NP2),gsub(NP2,gen_1))));
+      addpsi1 -= nb*(f*NP *(pow(NP ,kmax)-1)/(NP -1));
+      addpsi2 -= nb*(f*NP2*(pow(NP2,kmax)-1)/(NP2-1));
     }
-    if (addpsi)
-      loginvres = subrr(loginvres, mulrr(mulsr(addpsi, glogp), c0));
-    if (!isexactzero(addpsi1))
-      loginvres = addrr(loginvres, mulrr(gmul(addpsi1, glogp), c1));
-    if (!isexactzero(addpsi2))
-      loginvres = subrr(loginvres, mulrr(gmul(addpsi2, glogp), c2));
+    loginvres -= (addpsi*c0 - addpsi1*c1 + addpsi2*c2)*logp;
   }
-  return gerepileuptoleaf(av, mpexp(loginvres));
+  return gerepileuptoleaf(av, mpexp(dbltor(loginvres)));
 }
 
 static long
