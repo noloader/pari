@@ -190,6 +190,7 @@ GEN    special_anti_uniformizer(GEN nf, GEN pr);
 GEN    subgroupcondlist(GEN cyc, GEN bound, GEN listKer);
 void   testprimes(GEN bnf, GEN bound);
 GEN    to_Fp_simple(GEN nf, GEN x, GEN ffproj);
+GEN    to_Fq_simple(GEN nf, GEN x, GEN pr);
 GEN    unif_mod_fZ(GEN pr, GEN F);
 GEN    unnf_minus_x(GEN x);
 GEN    ideallog_sgn(GEN nf, GEN x, GEN sgn, GEN bid);

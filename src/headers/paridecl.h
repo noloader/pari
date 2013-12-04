@@ -468,6 +468,7 @@ GEN     FpXT_red(GEN z, GEN p);
 GEN     FpXV_prod(GEN V, GEN p);
 GEN     FpXV_red(GEN z, GEN p);
 int     Fq_issquare(GEN x, GEN T, GEN p);
+GEN     Fq_log(GEN a, GEN g, GEN ord, GEN T, GEN p);
 GEN     FqV_inv(GEN x, GEN T, GEN p);
 GEN     Z_to_FpX(GEN a, GEN p, long v);
 GEN     gener_FpXQ(GEN T, GEN p, GEN *o);

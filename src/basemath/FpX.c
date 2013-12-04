@@ -1664,6 +1664,21 @@ FpXQ_log(GEN a, GEN g, GEN ord, GEN T, GEN p)
     return z? z: cgetg(1,t_VEC);
   }
 }
+GEN
+Fq_log(GEN a, GEN g, GEN ord, GEN T, GEN p)
+{
+  if (!T) return Fp_log(a,g,ord,p);
+  if (typ(g) == t_INT)
+  {
+    if (typ(a) == t_POL)
+    {
+      if (degpol(a)) return cgetg(1,t_VEC);
+      a = gel(a,2);
+    }
+    return Fp_log(a,g,ord,p);
+  }
+  return typ(a) == t_INT? Fp_FpXQ_log(a,g,ord,T,p): FpXQ_log(a,g,ord,T,p);
+}
 
 GEN
 FpXQ_sqrtn(GEN a, GEN n, GEN T, GEN p, GEN *zeta)
