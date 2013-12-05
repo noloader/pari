@@ -2156,7 +2156,7 @@ set_fact(FB_t *F, FACT *fact, GEN ex, long *pnz)
   long nz;
   GEN c = zero_Flv(F->KC);
   if (!n) /* trivial factorization */
-    *pnz = F->KC;
+    *pnz = F->KC+1;
   else {
     nz = fact[1].pr;
     if (fact[n].pr < nz) /* Possible with jid in rnd_rel */
@@ -2203,6 +2203,7 @@ add_rel_i(RELCACHE_t *cache, GEN R, long nz, GEN m, long orig, long aut, REL_t *
 {
   long i, k, n = lg(R)-1;
 
+  if (nz == n+1) { k = 0; goto ADD_REL; }
   if (already_known(cache, nz, R)) return -1;
   if (cache->last >= cache->base + cache->len) return 0;
   if (DEBUGLEVEL>6)
@@ -2264,8 +2265,9 @@ add_rel_i(RELCACHE_t *cache, GEN R, long nz, GEN m, long orig, long aut, REL_t *
   {
     REL_t *rel;
 
+ADD_REL:
     rel = ++cache->last;
-    if (!k && cache->relsup)
+    if (!k && cache->relsup && nz < n+1)
     {
       cache->relsup--;
       k = (rel - cache->base) + cache->missing;
@@ -3560,6 +3562,38 @@ init_rel(RELCACHE_t *cache, FB_t *F, long add_need)
 }
 
 static void
+cyclotomic_units(GEN nf, GEN zu, RELCACHE_t *cache, FB_t *F)
+{
+  pari_sp av = avma;
+  long n = itos(gel(zu, 1)), a;
+  GEN zeta, zetaa = NULL, invpowsm1, u, R;
+  if (n == 2) return;
+  R = zero_Flv(F->KC);
+  zeta = algtobasis(nf,gel(zu, 2));
+  invpowsm1 = const_vec(n, NULL);
+  if (n & (n-1))
+  {
+    zetaa = zeta;
+    a = 1;
+  }
+  else
+    a = 0;
+  while (++a < n/2)
+  {
+    ulong p, gcd = ugcd(a, n);
+    zetaa = zetaa ? nfmul(nf, zetaa, zeta) : zeta;
+    u = nfadd(nf, zetaa, gen_m1);
+    if (uisprimepower(n/gcd, &p))
+    {
+      if (!gel(invpowsm1,gcd)) { gel(invpowsm1, gcd) = nfinv(nf, u); continue; }
+      u = nfmul(nf, u, gel(invpowsm1, gcd));
+    }
+    add_rel(cache, F, R, F->KC+1, u, 0);
+  }
+  avma = av;
+}
+
+static void
 shift_embed(GEN G, GEN Gtw, long a, long r1)
 {
   long j, k, l = lg(G);
@@ -3909,6 +3943,8 @@ START:
   av2 = avma;
   init_rel(&cache, &F, RELSUP + RU-1); /* trivial relations */
   old_need = need = cache.end - cache.last;
+  cyclotomic_units(nf, zu, &cache, &F);
+  cache.end = cache.last + need;
 
   W = NULL; zc = 0;
   sfb_trials = nreldep = 0;
