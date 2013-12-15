@@ -1527,7 +1527,7 @@ nf_DDF_roots(GEN pol, GEN polred, GEN nfpol, GEN init_fa, long nbf,
     z = roots_from_deg1(z);
   }
   else
-    z = rootpadicfast(polred, L->p, L->k);
+    z = ZpX_roots(polred, L->p, L->k);
   Cltx_r = deg1pol_shallow(D.Clt? D.Clt: gen_1, NULL, varn(pol));
   for (m=1,i=1; i<lg(z); i++)
   {

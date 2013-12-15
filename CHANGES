@@ -63,3 +63,4 @@ BA  2- [libpari] rename RgX_mullow -> RgXn_mul, RgX_sqrlow -> RgXn_sqr,
        operators. Such a comparison now raises an exception.
     6- valuation(0,p), nfeltval(nf,0,pr), idealval(nf,0) now all return +oo
        poldegree(0) now returns -oo
+BA  7- rootpadicfast renamed ZpX_roots

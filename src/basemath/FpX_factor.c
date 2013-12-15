@@ -718,7 +718,7 @@ Flx_Berlekamp_ker(GEN u, ulong l)
 }
 
 /* product of terms of degree 1 in factorization of f */
-static GEN
+GEN
 FpX_split_part(GEN f, GEN p)
 {
   long n = degpol(f);

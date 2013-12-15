@@ -2273,8 +2273,8 @@ galoisconj4_main(GEN T, GEN den, long flag)
   if (DEBUGLEVEL >= 1) timer_start(&ti);
   den = galoisborne(T, den, &gb, degpol(T));
   if (DEBUGLEVEL >= 1) timer_printf(&ti, "galoisborne()");
-  L = rootpadicfast(T, gb.l, gb.valabs);
-  if (DEBUGLEVEL >= 1) timer_printf(&ti, "rootpadicfast()");
+  L = ZpX_roots(T, gb.l, gb.valabs);
+  if (DEBUGLEVEL >= 1) timer_printf(&ti, "ZpX_roots");
   M = vandermondeinversemod(L, T, den, gb.ladicabs);
   if (DEBUGLEVEL >= 1) timer_printf(&ti, "vandermondeinversemod()");
   if (n == 1)

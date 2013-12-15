@@ -404,9 +404,48 @@ polhensellift(GEN pol, GEN L, GEN p, long N)
   return gerepilecopy(av, ZpX_liftfact(pol, L, T, p, N, powiu(p,N)));
 }
 
-/*************************************************************************/
-/*                             rootpadicfast                             */
-/*************************************************************************/
+static GEN
+ZpX_liftroots_full(GEN f, GEN S, GEN p, long e)
+{
+  long i, n = lg(S)-1;
+  GEN r = cgetg(n+1, typ(S));
+  pari_sp av = avma;
+  long v = varn(f);
+  GEN y, q;
+  for (i=1; i<=n; i++)
+    gel(r,i) = deg1pol(gen_1, Fp_neg(gel(S, i), p), v);
+  q = powiu(p, e);
+  y = ZpX_liftfact(f, r, NULL, p, e, q);
+  r = cgetg(n+1 ,t_COL);
+  for (i=1; i<=n; i++)
+    gel(r,i) = Fp_neg(gmael(y, i, 2), q);
+  return gerepileupto(av, r);
+}
+
+GEN
+ZpX_roots(GEN f, GEN p, long e)
+{
+  pari_sp av = avma;
+  long i, v = varn(f);
+  GEN y, r, q;
+  GEN g = FpX_split_part(f, p);
+  GEN S = FpX_roots(g, p);
+  long l = lg(S)-1, n = l < degpol(f) ? l+1: l;
+  if (l==0) return cgetg(1, t_COL);
+  if (l==1) return mkcol(ZpX_liftroot(f,gel(S,1),p,e));
+  r = cgetg(n+1 ,t_COL);
+  for (i=1; i<=l; i++)
+    gel(r,i) = deg1pol(gen_1, Fp_neg(gel(S, i), p), v);
+  if (l < degpol(f))
+    gel(r, n) = FpX_div(f, FpX_normalize(g, p), p);
+  q = powiu(p, e);
+  y = ZpX_liftfact(f, r, NULL, p, e, q);
+  r = cgetg(l+1 ,t_COL);
+  for (i=1; i<=l; i++)
+    gel(r,i) = Fp_neg(gmael(y, i, 2), q);
+  return gerepileupto(av, r);
+}
+
 /* SPEC:
  * p is a t_INT > 1, e >= 1
  * f is a ZX with leading term prime to p.
@@ -435,6 +474,18 @@ ZpX_liftroot(GEN f, GEN a, GEN p, long e)
     if (mask == 1) return gerepileuptoint(av, a);
     W = Fp_sub(shifti(W,1), Fp_mul(Fp_sqr(W,q), FpX_eval(ZX_deriv(fr),a,q), q), q);
   }
+}
+
+GEN
+ZpX_liftroots(GEN f, GEN S, GEN p, long e)
+{
+  long i, n = lg(S)-1, d = degpol(f);
+  GEN r;
+  if (n == d) return ZpX_liftroots_full(f, S, p, e);
+  r = cgetg(n+1, typ(S));
+  for (i=1; i <= n; i++)
+    gel(r,i) = ZpX_liftroot(f, gel(S,i), p, e);
+  return r;
 }
 
 GEN
@@ -480,30 +531,6 @@ ZpXQX_liftroot_vald(GEN f, GEN a, long v, GEN T, GEN p, long e)
 
 GEN
 ZpXQX_liftroot(GEN f, GEN a, GEN T, GEN p, long e) { return ZpXQX_liftroot_vald(f,a,0,T,p,e); }
-
-/* Apply ZpX_liftroot to all roots in S and trace trick.
- * Elements of S must be distinct simple roots mod p for all p|q. */
-GEN
-ZpX_liftroots(GEN f, GEN S, GEN q, long e)
-{
-  long i, d, l = lg(S), n = l-1;
-  GEN y = cgetg(l, typ(S));
-  if (!n) return y;
-  for (i=1; i<n; i++)
-    gel(y,i) = ZpX_liftroot(f, gel(S,i), q, e);
-  d = degpol(f);
-  if (n != d) /* not totally split*/
-    gel(y,n) = ZpX_liftroot(f, gel(S,n), q, e);
-  else
-  { /* totally split: use trace trick */
-    pari_sp av = avma;
-    GEN z = gel(f, d+1);/* -trace(roots) */
-    for(i=1; i<n;i++) z = addii(z, gel(y,i));
-    z = modii(negi(z), powiu(q,e));
-    gel(y,n) = gerepileuptoint(av,z);
-  }
-  return y;
-}
 
 /* Same as ZpX_liftroot for the polynomial X^2-b */
 GEN

@@ -421,21 +421,7 @@ rootpadic(GEN f, GEN p, long prec)
     for (i=1; i<k; i++) gel(y,i) = ginv(gel(y,i));
   return gerepilecopy(av, y);
 }
-/* p is prime
- * f in a ZX, with leading term prime to p.
- * f must have no multiple roots mod p.
- *
- * return p-adics roots of f with prec p^e, as integers (implicitly mod p^e) */
-GEN
-rootpadicfast(GEN f, GEN p, long e)
-{
-  pari_sp av = avma;
-  GEN y, S = FpX_roots(f, p); /*no multiplicity*/
-  if (lg(S)==1) { avma = av; return cgetg(1,t_COL); }
-  S = gclone(S); avma = av;
-  y = ZpX_liftroots(f,S,p,e);
-  gunclone(S); return y;
-}
+
 /**************************************************************************/
 
 static void

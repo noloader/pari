@@ -4009,6 +4009,9 @@ Assumes that \kbd{p} is prime.
 the \kbd{FpX}~\kbd{f} (without multiplicity, as a vector of \kbd{Fp}s).
 Assumes that \kbd{p} is prime.
 
+\fun{GEN}{FpX_split_part}{GEN f, GEN p} returns the largest totally split
+squarefree factor of $f$.
+
 \fun{GEN}{random_FpX}{long d, long v, GEN p} returns a random \kbd{FpX}
 in variable \kbd{v}, of degree less than~\kbd{d}.
 
@@ -5411,10 +5414,9 @@ be \kbd{FpXQ}s (modulo $T$) such that $a^n \equiv b \mod (p,T)$.
 Returns an \kbd{Fq} $A$ such that $A^n \equiv b \mod (p^e, T)$.
 Special case of \tet{ZpXQ_liftroot}.
 
-\fun{GEN}{rootpadicfast}{GEN f, GEN p, long e} $f$ a \kbd{ZX} with leading
+\fun{GEN}{ZpX_roots}{GEN f, GEN p, long e} $f$ a \kbd{ZX} with leading
 term prime to $p$, and without multiple roots mod $p$. Return a vector
-of \typ{INT}s which are the roots of $f$ mod $p^e$. This is a very important
-special case of \kbd{rootpadic}.
+of \typ{INT}s which are the roots of $f$ mod $p^e$.
 
 \fun{GEN}{ZpX_liftroot}{GEN f, GEN a, GEN p, long e} $f$ a \kbd{ZX} with
 leading term prime to $p$, and $a$ a root mod $p$ such that

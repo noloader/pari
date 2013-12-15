@@ -515,6 +515,7 @@ long    FpX_nbroots(GEN f, GEN p);
 GEN     FpX_oneroot(GEN f, GEN p);
 GEN     FpX_roots(GEN f, GEN p);
 GEN     FpX_rootsff(GEN P, GEN T, GEN p);
+GEN     FpX_split_part(GEN f, GEN p);
 GEN     FpXQX_Frobenius(GEN S, GEN T, GEN p);
 long    FpXQX_nbfact(GEN u, GEN T, GEN p);
 long    FpXQX_nbroots(GEN f, GEN T, GEN p);
@@ -649,7 +650,8 @@ GEN     Zp_sqrtlift(GEN b, GEN a, GEN p, long e);
 GEN     Zp_sqrtnlift(GEN b, GEN n, GEN a, GEN p, long e);
 GEN     ZpX_liftfact(GEN pol, GEN Q, GEN T, GEN p, long e, GEN pe);
 GEN     ZpX_liftroot(GEN f, GEN a, GEN p, long e);
-GEN     ZpX_liftroots(GEN f, GEN S, GEN q, long e);
+GEN     ZpX_liftroots(GEN f, GEN S, GEN p, long e);
+GEN     ZpX_roots(GEN f, GEN p, long e);
 GEN     ZpXQ_inv(GEN a, GEN T, GEN p, long e);
 GEN     ZpXQ_invlift(GEN b, GEN a, GEN T, GEN p, long e);
 GEN     ZpXQ_log(GEN a, GEN T, GEN p, long N);
@@ -3024,7 +3026,6 @@ GEN     grem(GEN x, GEN y);
 GEN     padicappr(GEN f, GEN a);
 GEN     poldivrem(GEN x, GEN y, GEN *pr);
 GEN     rootpadic(GEN f, GEN p, long r);
-GEN     rootpadicfast(GEN f, GEN p, long e);
 
 /* polarit2.c */
 
