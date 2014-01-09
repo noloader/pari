@@ -339,6 +339,29 @@ Flmrow_Flc_mul_SMALL(GEN x, GEN y, ulong p, long lx, long i)
   }
   return c % p;
 }
+
+static ulong
+Flmrow_Flc_mul_SMALL2(GEN x, GEN y, ulong p, ulong pi, long lx, long i)
+{
+  LOCAL_OVERFLOW;
+  LOCAL_HIREMAINDER;
+  ulong lo = mulll(ucoeff(x,i,1), uel(y,1));
+  ulong hi = hiremainder;
+  ulong c;
+  long k;
+  if (lx == 2) return remll_pre(hi, lo, p, pi);
+  for (k = 2; k < lx; k++) {
+    c = mulll(ucoeff(x,i,k), uel(y,k));
+    lo = addll(c, lo);
+    hi = addllx(hi, hiremainder);
+    if ((hi & HIGHBIT) != 0 || k == lx - 1) {
+      lo = remll_pre(hi, lo, p, pi);
+      hi = 0;
+    }
+  }
+  return lo;
+}
+
 static ulong
 Flmrow_Flc_mul(GEN x, GEN y, ulong p, long lx, long i)
 {
@@ -384,6 +407,14 @@ Flm_Flc_mul_i_SMALL(GEN x, GEN y, long lx, long l, ulong p)
   GEN z = cgetg(l,t_VECSMALL);
   long i;
   for (i = 1; i < l; i++) z[i] = Flmrow_Flc_mul_SMALL(x, y, p, lx, i);
+  return z;
+}
+static GEN
+Flm_Flc_mul_i_SMALL2(GEN x, GEN y, long lx, long l, ulong p, ulong pi)
+{
+  GEN z = cgetg(l,t_VECSMALL);
+  long i;
+  for (i = 1; i < l; i++) z[i] = Flmrow_Flc_mul_SMALL2(x, y, p, pi, lx, i);
   return z;
 }
 static GEN
@@ -455,6 +486,10 @@ Flm_mul(GEN x, GEN y, ulong p)
   if (SMALL_ULONG(p)) {
     for (j=1; j<ly; j++)
       gel(z,j) = Flm_Flc_mul_i_SMALL(x, gel(y,j), lx, l, p);
+  } else if ((p & HIGHBIT) == 0) {
+    ulong pi = get_Fl_red(p);
+    for (j=1; j<ly; j++)
+      gel(z,j) = Flm_Flc_mul_i_SMALL2(x, gel(y,j), lx, l, p, pi);
   } else {
     for (j=1; j<ly; j++)
       gel(z,j) = Flm_Flc_mul_i(x, gel(y,j), lx, l, p);
@@ -613,7 +648,10 @@ Flm_Flc_mul(GEN x, GEN y, ulong p)
     return Flm_Flc_mul_i_2(x, y, lx, l);
   else if (SMALL_ULONG(p))
     return Flm_Flc_mul_i_SMALL(x, y, lx, l, p);
-  else
+  else if ((p & HIGHBIT) == 0) {
+    ulong pi = get_Fl_red(p);
+    return Flm_Flc_mul_i_SMALL2(x, y, lx, l, p, pi);
+  } else
     return Flm_Flc_mul_i(x, y, lx, l, p);
 }
 GEN
