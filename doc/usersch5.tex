@@ -3537,6 +3537,9 @@ of \kbd{x} and \kbd{y}
 
 \fun{ulong}{Flv_sum}{GEN x, ulong p} returns the sums of the components of $x$.
 
+\fun{GEN}{Flv_inv}{GEN x, ulong p} returns the vector of inverses of the elements
+of $x$ (as a \kbd{Flv}). Use Montgomery trick.
+
 \fun{GEN}{zero_Flm}{long m, long n} creates a \kbd{Flm} with \kbd{m} x \kbd{n}
 components set to $0$. Note that the result allocates a
 \emph{single} column, so modifying an entry in one column modifies it in
@@ -4698,6 +4701,9 @@ Euclidean quotient of the \kbd{Flx}~\kbd{A} by $X - \kbd{a}$, and sets
 
 \fun{ulong}{Flx_eval}{GEN x, ulong y, ulong p}, as \kbd{FpX\_eval}.
 
+\fun{ulong}{Flx_Flv_eval}{GEN P, GEN v, ulong y, ulong p} returns the vector
+$[P(v[1]),\ldots,P(v[n])]$ as a \kbd{Flv}.
+
 \fun{GEN}{Flx_deflate}{GEN P, long d} assuming $P$ is a polynomial of the
 form $Q(X^d)$, return $Q$.
 
@@ -4716,7 +4722,7 @@ irreducible factors of $f$ are of degree at most $r$, $0$ otherwise.
 
 \fun{long}{Flx_nbfact}{GEN z, ulong p}, as \kbd{FpX\_nbfact}.
 
-\fun{GEN}{FlX_degfact}{GEN f, ulong p}, as \kbd{FpX\_degfact}.
+\fun{GEN}{Flx_degfact}{GEN f, ulong p}, as \kbd{FpX\_degfact}.
 
 \fun{GEN}{Flx_nbfact_by_degree}{GEN z, long *nb, ulong p} Assume
 that the \kbd{Flx} $z$ is squarefree mod the prime $p$. Returns a
@@ -4730,6 +4736,10 @@ as \kbd{FpX\_ffintersect}
 
 \fun{GEN}{Flv_polint}{GEN x, GEN y, ulong p, long sv} as \kbd{FpV\_polint},
 returning an \kbd{Flx} in variable $v$.
+
+\fun{GEN}{Flv_FlvV_polint}{GEN x, GEN V, ulong p, long sv} equivalent (but
+faster) to applying \kbd{Flv\_polint(x,$\ldots$)} to all the elements of the
+vector $V$.
 
 \fun{GEN}{Flv_roots_to_pol}{GEN a, ulong p, long sv} as
 \kbd{FpV\_roots\_to\_pol} returning an \kbd{Flx} in variable $v$.
