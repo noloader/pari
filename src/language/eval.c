@@ -1815,6 +1815,13 @@ gp_call(void *E, GEN x)
   return closure_callgen1(code, x);
 }
 
+GEN
+gp_call2(void *E, GEN x, GEN y)
+{
+  GEN code = (GEN)E;
+  return closure_callgen2(code, x, y);
+}
+
 long
 gp_callbool(void *E, GEN x)
 {

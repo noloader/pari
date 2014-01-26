@@ -737,6 +737,27 @@ parapply(GEN C, GEN D)
   return gerepilecopy(av, V);
 }
 
+GEN
+genfold(void *E, GEN (*f)(void* E, GEN x, GEN y), GEN x)
+{
+  pari_sp av = avma;
+  GEN z;
+  long i, l = lg(x);
+  if (!is_vec_t(typ(x))|| l==1  ) pari_err_TYPE("fold",x);
+  clone_lock(x);
+  z = gel(x,1);
+  for (i=2; i<l; i++)
+    z = f(E,z,gel(x,i));
+  clone_unlock(x);
+  return gerepilecopy(av, z);
+}
+
+GEN
+fold0(GEN f, GEN x)
+{
+  if (typ(f) != t_CLOSURE || closure_arity(f) < 2) pari_err_TYPE("apply",f);
+  return genfold((void *) f, gp_call2, x);
+}
 /*******************************************************************/
 /*                                                                 */
 /*                     SCALAR-MATRIX OPERATIONS                    */

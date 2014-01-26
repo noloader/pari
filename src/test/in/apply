@@ -10,3 +10,8 @@ L=[1,2,3]; apply(f, L)
 L=[1,2,3]; [f(x) | x<-L]
 L=[1,2,3]; [x | x<-L, f(x)]
 L=[1,2,3]; select(f, L)
+
+fold((x,y)->x*y, [1,2,3,4])
+fold((x,y)->[x,y], [1,2,3,4])
+fold((x,f)->f(x), [2,sqr,sqr,sqr])
+fold((x,y)->(x+y)/(1-x*y),[1..5])

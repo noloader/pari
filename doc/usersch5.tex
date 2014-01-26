@@ -11427,6 +11427,9 @@ input.
 
 \fun{GEN}{gp_call}{void *E, GEN x} evaluates the closure \kbd{(GEN)E} on $x$.
 
+\fun{GEN}{gp_call2}{void *E, GEN x, GEN y} evaluates the closure \kbd{(GEN)E}
+on $(x,y)$.
+
 \fun{long}{gp_callbool}{void *E, GEN x} evaluates the closure \kbd{(GEN)E} on
 $x$, returns \kbd{1} if its result is non-zero, and \kbd{0} otherwise.
 
