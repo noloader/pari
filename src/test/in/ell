@@ -268,3 +268,11 @@ ellsigma(E)
 \\#1558
 ellap(ellinit([-1137195,489565862]),2038074751)
 ellap(ellinit([582304190,64196421]),2147438927)
+e=ellinit([0,-1,1,-2,2]); P=[2,-2]; ellnonsingularmultiple(e, P)
+e=ellinit([-111,214]); P=[35,-198]; v = [4*3,12,214,12];
+e=ellchangecurve(e,v); P=ellchangepoint(P,v);
+ellnonsingularmultiple(e,P)
+e=ellinit([0,-1,1,-2,2]);
+test(f)=print(f(e,,'t)); print(f(e,5)); print(f(e,5,'t));
+F=[ellformalw,ellformalpoint,ellformaldifferential,ellformallog,ellformalexp];
+for(i=1,#F,print(F[i]);test(F[i]));

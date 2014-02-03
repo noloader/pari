@@ -2019,6 +2019,379 @@ zellQp(GEN E, GEN z, long prec)
   return gerepileupto(av, t);
 }
 
+/* t to w := -1/y */
+GEN
+ellformalw(GEN e, long n, long v)
+{
+  pari_sp av = avma, av2;
+  GEN a1 = ell_get_a1(e), a2 = ell_get_a2(e), a3 = ell_get_a3(e);
+  GEN a4 = ell_get_a4(e), a6 = ell_get_a6(e), a63 = gmulgs(a6,3);
+  GEN w = cgetg(3, t_SER), t, U, V, W, U2;
+  ulong mask = quadratic_prec_mask(n), nold = 1;
+  if (v < 0) v = 0;
+  t = pol_x(v);
+  w[1] = evalsigne(1)|evalvarn(v)|evalvalp(3);
+  gel(w,2) = gen_1; /* t^3 + O(t^4) */
+  /* use Newton iteration, doubling accuracy at each step
+   *
+   *            w^3 a6 + w^2(a4 t + a3) + w (a2 t^2 + a1 t - 1) + t^3
+   * w  <-  w - -----------------------------------------------------
+   *              w^2 (3a6) + w (2a4 t + 2a3) + (a2 t^2 + a1 t - 1)
+   *
+   *              w^3 a6 + w^2 U + w V + W
+   *      =: w -  -----------------------
+   *                w^2 (3a6) + 2w U + V
+   */
+  U = gadd(gmul(a4,t), a3);
+  U2 = gmul2n(U,1);
+  V = gsubgs(gadd(gmul(a2,gsqr(t)), gmul(a1,t)), 1);
+  W = gpowgs(t,3);
+  av2 = avma;
+  while (mask > 1)
+  { /* nold correct terms in w */
+    ulong i, nnew = nold << 1;
+    GEN num, den, wnew, w2, w3;
+    if (mask & 1) nnew--;
+    mask >>= 1;
+    wnew = cgetg(nnew+2, t_SER);
+    wnew[1] = w[1];
+    for (i = 2; i < nold+2; i++) gel(wnew,i) = gel(w,i);
+    for (     ; i < nnew+2; i++) gel(wnew,i) = gen_0;
+    w = wnew;
+    w2 = gsqr(w); w3 = gmul(w2,w);
+    num = gadd(gmul(a6,w3), gadd(gmul(U,w2), gadd(gmul(V,w), W)));
+    den = gadd(gmul(a63,w2), gadd(gmul(w,U2), V));
+
+    w = gerepileupto(av2, gsub(w, gdiv(num, den)));
+    nold = nnew;
+  }
+  return gerepilecopy(av, w);
+}
+
+static GEN
+ellformalpoint_i(GEN w, GEN wi)
+{ return mkvec2(gmul(pol_x(varn(w)),wi), gneg(wi)); }
+
+/* t to [x,y] */
+GEN
+ellformalpoint(GEN e, long n, long v)
+{
+  pari_sp av = avma;
+  GEN w = ellformalw(e, n, v), wi = inv_ser(w);
+  return gerepilecopy(av, ellformalpoint_i(w, wi));
+}
+
+static GEN
+ellformaldifferential_i(GEN e, GEN w, GEN wi, GEN *px)
+{
+  GEN x, w1;
+  if (gequal0(ell_get_a1(e)) && gequal0(ell_get_a3(e)))
+  { /* dx/2y = dx * -w/2, avoid division */
+    x = gmul(pol_x(varn(w)), wi);
+    w1 = gmul(derivser(x), gneg(gmul2n(w,-1)));
+  }
+  else
+  {
+    GEN P = ellformalpoint_i(w, wi);
+    x = gel(P,1);
+    w1 = gdiv(derivser(x), gneg(ec_dFdy_evalQ(e, P)));
+  }
+  *px = x; return w1;
+}
+/* t to [ dx / (2y + a1 x + a3), x * ... ]*/
+GEN
+ellformaldifferential(GEN e, long n, long v)
+{
+  pari_sp av = avma;
+  GEN w = ellformalw(e, n, v), wi = inv_ser(w), x;
+  GEN w1 = ellformaldifferential_i(e, w, wi, &x);
+  return gerepilecopy(av, mkvec2(w1,gmul(x,w1)));
+}
+
+/* t to z, dz = w1 dt */
+GEN
+ellformallog(GEN e, long n, long v)
+{
+  pari_sp av = avma;
+  GEN w = ellformalw(e, n, v), wi = inv_ser(w), x;
+  GEN w1 = ellformaldifferential_i(e, w, wi, &x);
+  return gerepileupto(av, integser(w1));
+}
+/* z to t */
+GEN
+ellformalexp(GEN e, long n, long v)
+{
+  pari_sp av = avma;
+  return gerepileupto(av, serreverse(ellformallog(e,n,v)));
+}
+/* [log_p (sigma(t) / t), log_E t], as power series, d (log_E t) := w1 dt;
+ * As a fonction of z: odd, = e.b2/12 * z + O(z^3).
+ *   sigma(z) = ellsigma(e) exp(e.b2/24*z^2)
+ * log_p(sigma(t)/t)=log(subst(sigma(z), x, ellformallog(e))/x) */
+static GEN
+ellformallogsigma_t(GEN e, long n)
+{
+  pari_sp av = avma;
+  GEN w = ellformalw(e, n, 0), wi = inv_ser(w), t = pol_x(0);
+  GEN x, s = ellformaldifferential_i(e, w, wi, &x);
+  GEN f = gmul(s, gadd(integser(gmul(x,s)), gmul2n(ell_get_a1(e),-1)));
+  return gerepilecopy(av, mkvec2(integser( gsub(ginv(gneg(t)), f) ),
+                                 integser(s)));
+}
+
+/* P = rational point of exact denominator d. Is Q singular on E(Fp) ? */
+static int
+FpE_issingular(GEN E, GEN P, GEN d, GEN p)
+{
+  pari_sp av = avma;
+  GEN t, x, y, a1, a2, a3, a4;
+  if (ell_is_inf(E) || !signe(remii(d,p))) return 0; /* 0_E is smooth */
+  P = Q_muli_to_int(P,d);
+  x = gel(P,1);
+  y = gel(P,2);
+  a1 = ell_get_a1(E);
+  a3 = ell_get_a3(E);
+  t = addii(shifti(y,1), addii(mulii(a1,x), mulii(a3,d)));
+  if (signe(remii(t,p))) { avma = av; return 0; }
+  a2 = ell_get_a2(E);
+  a4 = ell_get_a4(E);
+  d = Fp_inv(d, p);
+  x = Fp_mul(x,d,p);
+  y = Fp_mul(y,d,p);
+  t = subii(mulii(a1,y), addii(a4, mulii(x, addii(gmul2n(a2,1), muliu(x,3)))));
+  avma = av; return signe(remii(t,p))? 0: 1;
+}
+
+/* E/Q, P on E(Q). Let g > 0 minimal such that the image of R = [g]P in a
+ * minimal model is everywhere non-singular. return [R,g] */
+GEN
+ellnonsingularmultiple(GEN e, GEN P)
+{
+  pari_sp av = avma;
+  GEN ch, E = ellanal_globalred(e, &ch), NP, L, S, d, g = gen_1;
+  long i, l;
+  if (ell_is_inf(P)) retmkvec2(gcopy(P), gen_1);
+  if (E != e) P = ellchangepoint(P, ch);
+  S = obj_check(E, Q_GLOBALRED);
+  NP = gmael(S,3,1);
+  L = gel(S,4);
+  l = lg(NP);
+  d = Q_denom(P);
+  for (i = 1; i < l; i++)
+  {
+    GEN c,kod, G = gel(L,i), p = gel(NP,i);/* prime of bad reduction */
+    if (!FpE_issingular(E, P, d, p)) continue;
+    c = gel(G, 4); /* Tamagawa number at p */
+    kod = gel(G, 2); /* Kodaira type */
+    if (cmpis(kod, 5) >= 0) /* I_nu */
+    {
+      long nu = itos(kod) - 4;
+      long n = minss(Q_pval(ec_dFdy_evalQ(E, P), p), nu/2);
+      nu /= ugcd(nu, n);
+      g = muliu(g, nu);
+      P = ellmul_Z(E, P, utoipos(nu));
+      d = Q_denom(P);
+    } else if (cmpis(kod, -5) <= 0) /* I^*_nu */
+    { /* either 2 or 4 */
+      long nu = - itos(kod) - 4;
+      P = elladd(E, P,P);
+      d = Q_denom(P);
+      g = shifti(g,1);
+      if (odd(nu) && FpE_issingular(E, P, d, p))
+      { /* it's 4 */
+        P = elladd(E, P,P);
+        d = Q_denom(P);
+        g = shifti(g,1);
+      }
+    } else {
+      if (equaliu(c, 4)) c = gen_2;
+      P = ellmul(E, P, c);
+      d = Q_denom(P);
+      g = mulii(g, c);
+    }
+  }
+  if (E != e) P = ellchangepointinv(P, ch);
+  return gerepilecopy(av, mkvec2(P,g));
+}
+
+/* m >= 0, T = b6^2, g4 = b6^2 - b4 b8, return g_m(xP) mod N, in Mazur-Tate's
+ * notation (Duke 1991)*/
+static GEN
+rellg(hashtable *H, GEN m, GEN T, GEN g4, GEN b8, GEN N)
+{
+  hashentry *h;
+  GEN n, z, np2, np1, nm2, nm1, fp2, fp1, fm2, fm1, f;
+  ulong m4;
+  if (cmpiu(m, 4) <= 0) switch(itou(m))
+  {
+    case 0: return gen_0;
+    case 1: return gen_1;
+    case 2: return subiu(N,1);
+    case 3: return b8;
+    case 4: return g4;
+  }
+  if ((h = hash_search(H, (void*)m))) return (GEN)h->val;
+  m4 = mod4(m);
+  n = shifti(m, -1); f   = rellg(H,n,T,g4,b8,N);
+  np2 = addiu(n, 2); fp2 = rellg(H,np2,T,g4,b8,N);
+  np1 = addiu(n, 1); fp1 = rellg(H,np1,T,g4,b8,N);
+  nm2 = subiu(n, 2); fm2 = rellg(H,nm2,T,g4,b8,N);
+  nm1 = subiu(n, 1); fm1 = rellg(H,nm1,T,g4,b8,N);
+  if (odd(m4))
+  {
+    GEN t1 = Fp_mul(fp2, Fp_powu(f,3,N), N);
+    GEN t2 = Fp_mul(fm1, Fp_powu(fp1,3,N), N);
+    if (mpodd(n))
+      z = Fp_sub(t1, Fp_mul(T,t2,N), N);
+    else
+      z = Fp_sub(Fp_mul(T,t1,N), t2, N);
+  }
+  else
+  {
+    GEN t1 = Fp_mul(fm2, Fp_sqr(fp1,N), N);
+    GEN t2 = Fp_mul(fp2, Fp_sqr(fm1,N), N);
+    z = Fp_mul(f, Fp_sub(t1, t2, N), N);
+  }
+  hash_insert(H, (void*)m, (void*)z);
+  return z;
+}
+
+static GEN
+addii3(GEN x, GEN y, GEN z) { return addii(x,addii(y,z)); }
+static GEN
+addii4(GEN x, GEN y, GEN z, GEN t) { return addii(x,addii3(y,z,t)); }
+static GEN
+addii5(GEN x, GEN y, GEN z, GEN t, GEN u) { return addii(x,addii4(y,z,t,u)); }
+
+/* xP = [n,d] (corr. to n/d, coprime), such that the reduction of the point
+ * P = [xP,yP] is non singular at all places. Return x([m] P) mod N as
+ * [num,den] (coprime) */
+static GEN
+xmP(GEN e, GEN xP, GEN m, GEN N)
+{
+  pari_sp av = avma;
+  ulong k = expi(m);
+  hashtable *H = hash_create((5+k)*k, (ulong(*)(void*))&hash_GEN,
+                                      (int(*)(void*,void*))&gidentical, 1);
+  GEN b2 = ell_get_b2(e), b4 = ell_get_b4(e), n = gel(xP,1), d = gel(xP,2);
+  GEN b6 = ell_get_b6(e), b8 = ell_get_b8(e);
+  GEN B4, B6, B8, T, g4;
+  GEN d2 = Fp_sqr(d,N), d3 = Fp_mul(d2,d,N), d4 = Fp_sqr(d2,N);
+  GEN n2 = Fp_sqr(n,N), n3 = Fp_mul(n2,n,N), n4 = Fp_sqr(n2,N);
+  GEN nd = Fp_mul(n,d,N), n2d2 = Fp_sqr(nd,N);
+  GEN b2nd = Fp_mul(b2,nd, N), b2n2d = Fp_mul(b2nd,n,N);
+  GEN b6d3 = Fp_mul(b6,d3,N), g,gp1,gm1, C,D;
+  B8 = addii5(muliu(n4,3), mulii(b2n2d,n), mulii(muliu(b4,3), n2d2),
+              mulii(muliu(b6d3,3), n), mulii(b8,d4));
+  B6 = addii4(muliu(n3,4), mulii(b2nd,n),
+              shifti(mulii(b4,Fp_mul(n,d2,N)), 1),
+              b6d3);
+  B4 = addii3(muliu(n2,6), b2nd,  mulii(b4,d2));
+
+  B4 = modii(B4,N);
+  B6 = modii(B6,N);
+  B8 = modii(B8,N);
+
+  g4 = Fp_sub(sqri(B6), mulii(B4,B8), N);
+  T = Fp_sqr(B6,N);
+
+  g = rellg(H, m, T,g4,B8, N);
+  gp1 = rellg(H, addiu(m,1), T,g4,B8, N);
+  gm1 = rellg(H, subiu(m,1), T,g4,B8, N);
+  C = Fp_sqr(g, N);
+  D = Fp_mul(gp1,gm1, N);
+
+  if(mpodd(m))
+  {
+    n = Fp_sub(mulii(C,n), mulii(D,B6), N);
+    d = Fp_mul(C,d, N);
+  }
+  else
+  {
+    n = Fp_sub(Fp_mul(Fp_mul(B6,C,N), n, N), D, N);
+    d = Fp_mul(Fp_mul(C,d,N), B6, N);
+  }
+  return gerepilecopy(av, mkvec2(n,d));
+}
+/* given [n,d2], x = n/d2 (coprime, d2 = d^2), p | den,
+ * return t = -x/y + O(p^v) */
+static GEN
+tfromx(GEN e, GEN x, GEN p, long v, GEN N, GEN *pd)
+{
+  GEN n = gel(x,1), d2 = gel(x,2), d;
+  GEN a1, a3, b2, b4, b6, B, C, d4, d6, Y;
+  if (!signe(n)) { *pd = gen_1; return zeropadic(p, v); }
+  a1 = ell_get_a1(e);
+  b2 = ell_get_b2(e);
+  a3 = ell_get_a3(e);
+  b4 = ell_get_b4(e);
+  b6 = ell_get_b6(e);
+  d = Qp_sqrt(cvtop(d2, p, v));
+  if (!d) pari_err_BUG("ellpadicheight");
+  d = padic_to_Q(d);
+  /* Solve Y^2 = 4n^3 + b2 n^2 d2+ 2b4 n d2^2 + b6 d2^3,
+   * Y = 2y + a1 n d + a3 d^3 */
+  d4 = Fp_sqr(d2, N);
+  d6 = Fp_mul(d4, d2, N);
+  B = Fp_mul(d, Fp_add(mulii(a1,n), mulii(a3,d2), N), N);
+  C = mkpoln(4, utoipos(4), Fp_mul(b2, d2, N),
+                Fp_mul(shifti(b4,1), d4, N),
+                Fp_mul(b6,d6,N));
+  C = FpX_eval(C, n, N);
+  Y = Qp_sqrt(cvtop(C, p, v));
+  if (!Y) pari_err_BUG("ellpadicheight");
+  *pd = d;
+  return gdiv(gmulgs(gmul(n,d), -2), gsub(Y,B));
+}
+
+GEN
+ellpadicheight(GEN e, GEN P, GEN p, long v)
+{
+  pari_sp av = avma;
+  GEN N, H, h, t, ch, g, E, x, n, d, D, ls, lt, S, a,b;
+  if (ell_is_inf(P)) return gen_0;
+  E = ellanal_globalred(e, &ch);
+  if (E != e) P = ellchangepoint(P, ch);
+  S = ellnonsingularmultiple(E, P);
+  P = gel(S,1);
+  g = gel(S,2);
+  v += 2*Z_pval(g, p);
+  if (equaliu(p,2)) v += 2;
+  x = gel(P,1);
+  N = powiu(p, v);
+  n = numer(x);
+  d = denom(x);
+  x = mkvec2(n, d);
+  if (!dvdii(Q_denom(P), p))
+  { /* P not in kernel of reduction mod p */
+    GEN m, Pp, Ep = ellinit_Fp(E, p);
+    if (!Ep) pari_err(e_MISC,"ellpadicheight: bad reduction");
+    Pp = RgV_to_FpV(P, p);
+    m = ellorder(Ep, Pp, NULL);
+    x = xmP(E, x, m, N);
+    g = mulii(g,m);
+  }
+  t = tfromx(E, x, p, v, N, &D); /* D^2 = denom(x) = x[2] */
+  if (gequal0(t)) return gerepileupto(av, t);
+  /* FIXME: replace 2*v by proper p-adic accuracy */
+  S = ellformallogsigma_t(E, 2*v);
+  ls = gtrunc(gel(S,1)); /* log_p (sigma(T)/T) */
+  lt = gtrunc(gel(S,2)); /* log_E (T) */
+  /* evaluate our formal power series at t */
+  H = gadd(gsubst(ls, 0, t), glog(gdiv(t, D), 0));
+  h = gsqr(gsubst(lt, 0, t));
+  g = sqri(g);
+  a = gdiv(gmulgs(H,-2), g);
+  b = gdiv(gneg(h), g);
+  if (E != e)
+  {
+    GEN u = gel(ch,1), r = gel(ch,2);
+    a = gdiv(gadd(a, gmul(r,b)), u);
+    b = gmul(u,b);
+  }
+  return gerepilecopy(av, mkvec2(a, b));
+}
+
 GEN
 zell(GEN e, GEN z, long prec)
 {
