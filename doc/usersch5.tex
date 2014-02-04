@@ -7414,9 +7414,27 @@ Karatsuba algorithm (Mulders, Hanrot-Zimmermann variant).
 where $a$ is a \typ{POL} in the variable $X$ and $n \geq 0$. Uses
 Karatsuba algorithm (Mulders, Hanrot-Zimmermann variant).
 
+\fun{GEN}{RgXn_powers}{GEN x, long m, long n} returns $[\kbd{x}^0,
+\dots, \kbd{x}^\kbd{m}]$ modulo $X^n$ as a \typ{VEC} of \kbd{RgXn}s.
+
 \fun{GEN}{RgXn_eval}{GEN Q, GEN x, long n} special case of
 \tet{RgX_RgXQ_eval}, when the modulus is a monomial:
 returns $\kbd{Q}(\kbd{x})$ modulo $t^n$, where $x \in R[t]$.
+
+\fun{GEN}{RgX_RgXn_eval}{GEN f, GEN x, long n} returns $\kbd{f}(\kbd{x})$ modulo
+$X^n$.
+
+\fun{GEN}{RgX_RgXnV_eval}{GEN f, GEN V, long n} as \kbd{RgX\_RgXn\_eval(f, x, n)},
+assuming $V$ was output by \kbd{RgXn\_powers(x, m, n)} for some $m\geq 1$.
+
+\fun{GEN}{RgXn_reverse}{GEN f, GEN n} assuming that $f = a\*x \mod{x^2}$
+with $a$ invertible, returns a \typ{POL} $g$ of degree $< n$ such that $(g
+\circ f)(x) = x$ modulo $x^n$.
+
+\subsec{\kbd{RgXnV}}
+
+\fun{GEN}{RgXnV_red_shallow}{GEN x, long n} apply \kbd{RgXn\_red\_shallow}
+to all the components of the vector $x$.
 
 \subsec{\kbd{RgXQ}}
 
@@ -7445,7 +7463,7 @@ polynomial of \kbd{Mod(x, T)}, in variable $v$.
 \fun{GEN}{RgX_RgXQ_eval}{GEN f, GEN x, GEN T} returns $\kbd{f}(\kbd{x})$ modulo
 $T$.
 
-\fun{GEN}{RgX_RgXQV_eval}{GEN f, GEN V} as \kbd{RgX\_RgXQ\_eval(f, x, T)},
+\fun{GEN}{RgX_RgXQV_eval}{GEN f, GEN V, GEN T} as \kbd{RgX\_RgXQ\_eval(f, x, T)},
 assuming $V$ was output by \kbd{RgXQ\_powers(x, n, T)} for some $n\geq 1$.
 
 \fun{int}{RgXQ_ratlift}{GEN x, GEN T, long amax, long bmax, GEN *P, GEN *Q}

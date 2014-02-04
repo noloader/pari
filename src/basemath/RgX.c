@@ -664,6 +664,15 @@ RgXn_red_shallow(GEN a, long n)
   return b;
 }
 
+GEN
+RgXnV_red_shallow(GEN P, long n)
+{
+  long i, l = lg(P);
+  GEN Q = cgetg(l, t_VEC);
+  for (i=1; i<l; i++) gel(Q,i) = RgXn_red_shallow(gel(P,i), n);
+  return Q;
+}
+
 /* return (x * X^n). Shallow */
 GEN
 RgX_shift_shallow(GEN a, long n)
@@ -1992,6 +2001,34 @@ _zeroXn(void *data) {
 }
 static struct bb_algebra RgXn_algebra = { _red,_add, _mulXn,_sqrXn, _oneXn,_zeroXn };
 
+GEN
+RgXn_powers(GEN x, long m, long n)
+{
+  long d = degpol(x);
+  int use_sqr = (d<<1) >= n;
+  struct modXn S;
+  S.v = varn(x); S.n = n;
+  return gen_powers(x,m,use_sqr,(void*)&S,_sqrXn,_mulXn,_oneXn);
+}
+
+/* Q(x) mod t^n, x in R[t], n >= 1 */
+GEN
+RgX_RgXnV_eval(GEN Q, GEN x, long n)
+{
+  struct modXn S;
+  S.v = varn(x); S.n = n;
+  return gen_bkeval_powers(Q,degpol(Q),x,(void*)&S,&RgXn_algebra,_cmul);
+}
+
+GEN
+RgX_RgXn_eval(GEN Q, GEN x, long n)
+{
+  int use_sqr = (degpol(x)<<1) >= n;
+  struct modXn S;
+  S.v = varn(x); S.n = n;
+  return gen_bkeval(Q,degpol(Q),x,use_sqr,(void*)&S,&RgXn_algebra,_cmul);
+}
+
 /* Q(x) mod t^n, x in R[t], n >= 1 */
 GEN
 RgXn_eval(GEN Q, GEN x, long n)
@@ -2008,6 +2045,51 @@ RgXn_eval(GEN Q, GEN x, long n)
   S.n = n;
   use_sqr = (d<<1) >= n;
   return gen_bkeval(Q,degpol(Q),x,use_sqr,(void*)&S,&RgXn_algebra,_cmul);
+}
+
+GEN
+RgXn_reverse(GEN f, long e)
+{
+  pari_sp av = avma, av2, lim;
+  ulong mask;
+  GEN fi, a, df, W, an;
+  long v = varn(f), n=1;
+  if (degpol(f)<1 || !gequal0(gel(f,2)))
+    pari_err_INV("serreverse",f);
+  fi = ginv(gel(f,3));
+  a = deg1pol_shallow(fi,gen_0,v);
+  if (e <= 2) return gerepilecopy(av, a);
+  W = scalarpol(fi,v);
+  df = RgX_deriv(f);
+  mask = quadratic_prec_mask(e);
+  av2 = avma; lim = stack_lim(av2, 2);
+  for (;mask>1;)
+  {
+    GEN u, fa, fr;
+    long n2 = n, rt;
+    n<<=1; if (mask & 1) n--;
+    mask >>= 1;
+    fr = RgXn_red_shallow(f, n);
+    rt = brent_kung_optpow(degpol(fr), 4, 3);
+    an = RgXn_powers(a, rt, n);
+    if (n>1)
+    {
+      long n4 = (n2+1)>>1;
+      GEN dfr = RgXn_red_shallow(df, n2);
+      dfr = RgX_RgXnV_eval(dfr, RgXnV_red_shallow(an, n2), n2);
+      u = RgX_shift(RgX_Rg_sub(RgXn_mul(W, dfr, n2), gen_1), -n4);
+      W = RgX_sub(W, RgX_shift(RgXn_mul(u, W, n2-n4), n4));
+    }
+    fa = RgX_sub(RgX_RgXnV_eval(fr, an, n), pol_x(v));
+    fa = RgX_shift(fa, -n2);
+    a = RgX_sub(a, RgX_shift(RgXn_mul(W, fa, n-n2), n2));
+    if (low_stack(lim, stack_lim(av2,2)))
+    {
+      if(DEBUGMEM>1) pari_warn(warnmem,"RgX_serreverse, e = %ld", n);
+      gerepileall(av2, 2, &a, &W);
+    }
+  }
+  return gerepileupto(av, a);
 }
 
 /* x,T in Rg[X], n in N, compute lift(x^n mod T)) */
