@@ -5,3 +5,21 @@ default(realprecision,38);
 do(2)
 default(realprecision,211);
 do(1e14)
+do(y)=my(x = lambertw(y)); if (normlp(Vec(exp(x)*x - y)) > 1e-38, error(y));
+default(realprecision,38);
+do(O(x^10))
+do(O(x^30))
+do(3+O(x^10))
+do(3+O(x^30))
+do(x)
+do(x+O(x^10))
+do(x+O(x^30))
+do(3+x)
+do(3+x+O(x^10))
+do(3+x+O(x^30))
+do(x^2-2*x^3)
+do(x^2-2*x^3+O(x^10))
+do(x^2-2*x^3+O(x^30))
+do(3+x^2-2*x^3)
+do(3+x^2-2*x^3+O(x^10))
+do(3+x^2-2*x^3+O(x^30))

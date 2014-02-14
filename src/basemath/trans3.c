@@ -3282,10 +3282,62 @@ mplambertW(GEN y)
 GEN
 glambertW(GEN y, long prec)
 {
+  pari_sp av;
+  GEN x, sery, p1;
+  long i, n, v, val;
   switch(typ(y))
   {
     case t_REAL: return mplambertW(y);
     case t_COMPLEX: pari_err_IMPL("lambert(t_COMPLEX)");
+    default:
+      av = avma; if (!(sery = toser_i(y))) break;
+      if (!signe(sery)) return gcopy(sery);
+      v = varn(sery);
+      n = degpol(sery);
+      for (val = 1; val < n; val++) if (signe(polcoeff0(sery, val, v))) break;
+      if (val == n)
+      {
+        if (valp(sery))
+        {
+          avma = av; return zeroser(v, n);
+        }
+        else
+        {
+          p1 = cgetg(n+3, t_SER);
+          setvarn(p1, v); setvalp(p1, 0); setsigne(p1, 1);
+          gel(p1, 2) = glambertW(constant_term(sery), prec);
+          for (i = 3; i < n+3; i++) gel(p1, i) = gen_0;
+          return gerepileupto(av, p1);
+        }
+      }
+      if (valp(sery))
+        x = gen_0;
+      else
+        x = glambertW(constant_term(sery), prec);
+      p1 = cgetg(3 + n/val, t_SER);
+      setvarn(p1, v);
+      setvalp(p1, 0);
+      setsigne(p1, 1);
+      gel(p1, 2) = x;
+      gel(p1, 3) = gen_1;
+      for (i = 4; i < 3+n/val; i++) gel(p1, i) = gen_0;
+      if (x == gen_0) p1 = normalize(p1);
+      p1 = gmul(p1, gexp(p1, prec));
+      if (x != gen_0)
+      {
+        gel(p1, 2) = gen_0;
+        p1 = normalize(p1);
+      }
+      p1 = serreverse(p1);
+      if (x != gen_0)
+      {
+        p1 = gadd(p1, x);
+        if (y == sery) sery = shallowcopy(sery);
+        gel(sery, 2) = gen_0;
+        sery = normalize(sery);
+      }
+      p1 = gsubst(p1, v, sery);
+      return gerepileupto(av, normalize(p1));
   }
   return trans_eval("lambert",glambertW,y,prec);
 }
