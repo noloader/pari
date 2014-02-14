@@ -1,0 +1,9 @@
+Function: ellcompisog
+Section: elliptic_curves
+C-Name: ellcompisog
+Prototype: GG
+Help: ellcompisog(f, g): Given isogenies f:E -> E' and g:E' -> E'', return the composite isogeny gof:E -> E''.
+Doc:
+ Given compatible isogenies of elliptic curves $f:E \to E'$ and
+ $g:E'\to E''$ (each being the result of a call to \tet{ellisog}),
+ return the composite isogeny $g\circ f:E\to E''$.

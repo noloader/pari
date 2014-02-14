@@ -2048,6 +2048,13 @@ GEN     orderell(GEN e, GEN p);
 GEN     pointell(GEN e, GEN z, long prec);
 GEN     zell(GEN e, GEN z, long prec);
 
+/* ellisog.c */
+
+GEN     ellapplyisog(GEN f, GEN P);
+GEN     ellcompisog(GEN f, GEN g);
+GEN     ellisog(GEN e, GEN G, long only_compute_image,
+                long xvar, long yvar, long prec);
+
 /* ellsea.c */
 
 GEN     Fp_ellcard_SEA(GEN a4, GEN a6, GEN p, long early_abort);
