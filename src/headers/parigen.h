@@ -123,19 +123,19 @@ typedef unsigned long pari_ulong;
                       (((ulong*)(x))[0]&(~LGBITS)) | evallg(s))
 #define incrprec(x)   ((x)++)
 
-#define expo(x)       ((long) ((((ulong*)(x))[1] & EXPOBITS) - HIGHEXPOBIT))
+#define expo(x)       ((long) ((((ulong)((x)[1])) & EXPOBITS) - HIGHEXPOBIT))
 #define setexpo(x,s)  (((ulong*)(x))[1]=\
                        (((ulong*)(x))[1]&(~EXPOBITS)) | (ulong)evalexpo(s))
 
-#define valp(x)       ((long) ((((ulong*)(x))[1] & VALPBITS) - HIGHVALPBIT))
+#define valp(x)       ((long) ((((ulong)((x)[1])) & VALPBITS) - HIGHVALPBIT))
 #define setvalp(x,s)  (((ulong*)(x))[1]=\
                        (((ulong*)(x))[1]&(~VALPBITS)) | (ulong)evalvalp(s))
 
-#define precp(x)      ((long) (((ulong*)(x))[1] >> PRECPSHIFT))
+#define precp(x)      ((long) (((ulong)((x)[1])) >> PRECPSHIFT))
 #define setprecp(x,s) (((ulong*)(x))[1]=\
                        (((ulong*)(x))[1]&(~PRECPBITS)) | (ulong)evalprecp(s))
 
-#define varn(x)       ((long)((((ulong*)(x))[1]&VARNBITS) >> VARNSHIFT))
+#define varn(x)       ((long)((((ulong)((x)[1]))&VARNBITS) >> VARNSHIFT))
 #define setvarn(x,s)  (((ulong*)(x))[1]=\
                        (((ulong*)(x))[1]&(~VARNBITS)) | (ulong)evalvarn(s))
 
