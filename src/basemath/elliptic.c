@@ -6367,3 +6367,149 @@ elldivpol(GEN e, long n, long v)
   }
   return gerepilecopy(av, ret);
 }
+
+static GEN
+FpXXQ_red(GEN S, GEN T, GEN p)
+{
+  pari_sp av = avma;
+  long dS = degpol(S);
+  GEN A = cgetg(dS+3, t_POL);
+  A[1] = S[1];
+  GEN C = pol_0(varn(T));
+  long i;
+  for(i=dS; i>0; i--)
+  {
+    GEN Si = FpX_add(C, gel(S,i+2), p);
+    GEN R, Q = FpX_divrem(Si, T, p, &R);
+    gel(A,i+2) = R;
+    C = Q;
+  }
+  gel(A,2) = FpX_add(C, gel(S,2), p);
+  return gerepilecopy(av, FpXX_renormalize(A,dS+3));
+}
+
+static GEN
+FpXXQ_sqr(GEN x, GEN T, GEN p)
+{
+  pari_sp av = avma;
+  GEN z, kx;
+  long n = degpol(T);
+  kx = ZXX_to_Kronecker(x, n);
+  z = Kronecker_to_ZXX(FpX_sqr(kx, p), n, varn(T));
+  return gerepileupto(av, FpXXQ_red(z, T, p));
+}
+
+static GEN
+FpXXQ_mul(GEN x, GEN y, GEN T, GEN p)
+{
+  pari_sp av = avma;
+  GEN z, kx, ky;
+  long n = degpol(T);
+  kx = ZXX_to_Kronecker(x, n);
+  ky = ZXX_to_Kronecker(y, n);
+  z = Kronecker_to_ZXX(FpX_mul(ky,kx,p), n, varn(T));
+  return gerepileupto(av, FpXXQ_red(z, T, p));
+}
+
+static GEN
+ZpXXQ_invsqrt(GEN S, GEN T, ulong p, long e)
+{
+  pari_sp av = avma, av2, lim;
+  ulong mask;
+  long v = varn(S), n=1;
+  GEN a = pol_1(v);
+  if (e <= 1) return gerepilecopy(av, a);
+  mask = quadratic_prec_mask(e);
+  av2 = avma; lim = stack_lim(av2, 1);
+  for (;mask>1;)
+  {
+    long n2 = n;
+    n<<=1; if (mask & 1) n--;
+    mask >>= 1;
+    GEN q = powuu(p,n), q2 = powuu(p,n2);
+    GEN f = gsub(FpXXQ_mul(S, FpXXQ_sqr(a, T, q), T, q), pol_1(v));
+    GEN fq = ZXX_Z_divexact(f, q2);
+    GEN q22 = shifti(addis(q2,1),-1);
+    a = FpXX_sub(a, gmul(FpXX_Fp_mul(FpXXQ_mul(a, fq, T, q2), q22, q2), q2), q);
+    if (low_stack(lim, stack_lim(av2,1)))
+    {
+      if(DEBUGMEM>1) pari_warn(warnmem,"ZpXXQ_invsqrt, e = %ld", n);
+      a = gerepileupto(av2, a);
+    }
+  }
+  return gerepileupto(av, a);
+}
+
+static GEN
+to_ZX(GEN a, long v) { return typ(a)==t_INT? scalarpol(a,v): a; }
+
+static GEN
+ZpXXQ_frob(GEN S, GEN T, ulong p, long e)
+{
+  pari_sp av = avma, av2, lim;
+  long i, pr = degpol(S), v=varn(T);
+  GEN q = powuu(p,e);
+  GEN dT = FpX_deriv(T,q);
+  GEN R = polresultantext(T,dT);
+  GEN U = FpX_red(to_ZX(gel(R,1),v),q), V = FpX_red(to_ZX(gel(R,2),v),q);
+  GEN d = Fp_inv(gel(R,3), q);
+  GEN M = gel(S,pr+2);
+  U = FpX_Fp_mul(U,d,q); V = FpX_Fp_mul(V,d,q);
+  av2 = avma; lim = stack_lim(av2, 1);
+  for(i = pr-1; i>=0; i--)
+  {
+    GEN A, B, H, Bc;
+    ulong v, w, r;
+    H = FpX_divrem(FpX_mul(V,M,q), T, q, &B);
+    A = FpX_add(FpX_mul(U,M,q), FpX_mul(H, dT, q),q);
+    v = u_lvalrem(2*i+1,p,&r);
+    Bc = FpX_deriv(B, q);
+    if (signe(Bc)) { w = ZX_lval(Bc, p); if (v>w) pari_err(e_MISC,"%ld>%ld",v,w); }
+    Bc = FpX_Fp_mul(ZX_Z_divexact(Bc,powuu(p,v)),Fp_div(gen_2, utoi(r), q), q);
+    M = FpX_add(gel(S,i+2), FpX_add(A, Bc, q), q);
+    if (low_stack(lim, stack_lim(av2,1)))
+    {
+      if(DEBUGMEM>1) pari_warn(warnmem,"ZpXXQ_frob, i = %ld", i);
+      M = gerepileupto(av2, M);
+    }
+  }
+  for(i = degpol(M)-degpol(T)+1; i>=0; i--)
+  {
+    GEN B = FpX_mulu(RgX_shift(T,i-1), 2*i, q);
+    GEN A = RgX_shift(dT,i);
+    GEN H = FpX_add(A, B, q);
+    M = RgX_rem(M, H);
+  }
+  return gerepileupto(av, M);
+}
+
+GEN
+ellfrobeniusmatrix(GEN E, ulong p, long n)
+{
+  pari_sp av = avma;
+  ulong p2 = p>>1;
+  long N, i;
+  GEN F, s, q, Q, pN1;
+  checkell_Q(E);
+  N = n + logint0(stoi(2*n), stoi(p), NULL);
+  q = zeropadic(utoi(p),n); pN1 = powuu(p,N+1);
+  Q = RgX_to_FpX(RHSpol(E,0), pN1);
+  setvarn(Q,1);
+  s = cgetg(p+3,t_POL);
+  s[1] = evalsigne(1) | evalvarn(0);
+  gel(s,2) = pol_1(1);
+  for (i = 3; i <= p+1; i++) gel(s,i) = pol_0(1);
+  gel(s,p+2) = ZX_sub(RgX_inflate(Q, p), FpX_powu(Q, p, pN1));
+  s = FpXXQ_red(s, Q, powuu(p,N));
+  s = RgX_shift(ZpXXQ_invsqrt(s, Q, p, N), p2);
+  F = cgetg(3, t_MAT);
+  for (i = 0; i <= 1; i++)
+  {
+    pari_sp av2 = avma;
+    GEN Ome = FpXXQ_red(gmul(s,monomial(utoi(p), p*i+p-1, 1)), Q, pN1);
+    GEN M = ZpXXQ_frob(Ome, Q, p, N + 1);
+    gel(F, i+1) = gerepilecopy(av2,
+           mkcol2(gadd(polcoeff0(M, 0, -1),q), gadd(polcoeff0(M, 1, -1),q)));
+  }
+  return gerepileupto(av, F);
+}

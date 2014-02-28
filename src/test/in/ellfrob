@@ -1,0 +1,23 @@
+{
+  for( a = 3, 3,
+      for (b = 3,25,
+        my(E=ellinit([a,b]));
+        if( c != 0,
+          forprime(p=5,23,
+            if( (4*a^3+27*b^2)%p !=0,
+              print ([a,b,p,ellfrobeniusmatrix(E,p,20)[,1]~]))
+            )
+          )
+        )
+     )
+}
+
+e=ellinit([1,-1,1,-1,-14]);
+ee=ellinit([0,0,0,-e.c4/48,-e.c6/864]);
+P=[1,-1/4;0,1];
+{
+  forprime(p=3,40,if(p==17,next);
+  A=ellfrobeniusmatrix(e,p,20);
+  AA=ellfrobeniusmatrix(ee,p,20);
+  if(AA!=P^-1*A*P,error(p)));
+}
