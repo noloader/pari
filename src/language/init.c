@@ -16,6 +16,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 /*        INITIALIZING THE SYSTEM, ERRORS, STACK MANAGEMENT        */
 /*                                                                 */
 /*******************************************************************/
+/* _GNU_SOURCE is needed before first include to get RUSAGE_THREAD */
+#define _GNU_SOURCE
 #include <string.h>
 #include "pari.h"
 #include "paripriv.h"
@@ -96,6 +98,8 @@ const char * pari_library_path = NULL;
 static THREAD GEN global_err_data;
 THREAD jmp_buf *iferr_env;
 const long CATCH_ALL = -1;
+
+static void pari_init_timer(void);
 
 /*********************************************************************/
 /*                                                                   */
@@ -868,6 +872,7 @@ pari_init_opts(size_t parisize, ulong maxprime, ulong init_opts)
   pari_init_seadata();
   pari_init_functions();
   pari_var_init();
+  pari_init_timer();
   (void)getabstime();
   try_to_recover = 1;
   if (!(init_opts&INIT_noIMTm)) pari_mt_init();
@@ -2224,6 +2229,8 @@ getstack(void) { return pari_mainstack->top-avma; }
 
 #if defined(USE_CLOCK_GETTIME)
 #include <time.h>
+static void
+pari_init_timer(void) { }
 void
 timer_start(pari_timer *T)
 {
@@ -2235,17 +2242,33 @@ timer_start(pari_timer *T)
 #elif defined(USE_GETRUSAGE)
 # include <sys/time.h>
 # include <sys/resource.h>
+#ifdef RUSAGE_THREAD
+static THREAD int rusage_type = RUSAGE_THREAD;
+#else
+static const THREAD int rusage_type = RUSAGE_SELF;
+#endif
+static void
+pari_init_timer(void)
+{
+#ifdef RUSAGE_THREAD
+  rusage_type = RUSAGE_SELF;
+#endif
+}
+
 void
 timer_start(pari_timer *T)
 {
   struct rusage r;
-  getrusage(RUSAGE_SELF,&r);
+  getrusage(rusage_type,&r);
   T->us = r.ru_utime.tv_usec;
   T->s  = r.ru_utime.tv_sec;
 }
 #elif defined(USE_FTIME)
 
 # include <sys/timeb.h>
+static void
+pari_init_timer(void) { }
+
 void
 timer_start(pari_timer *T)
 {
@@ -2268,6 +2291,9 @@ _get_time(pari_timer *T, long Ticks, long TickPerSecond)
 #  include <sys/times.h>
 #  include <sys/time.h>
 #  include <time.h>
+static void
+pari_init_timer(void) { }
+
 void
 timer_start(pari_timer *T)
 {
@@ -2280,6 +2306,9 @@ timer_start(pari_timer *T)
   _get_time(T, t.tms_utime, tck);
 }
 # elif defined(WINCE)
+static void
+pari_init_timer(void) { }
+
 void
 timer_start(pari_timer *T)
 { _get_time(T, GetTickCount(), 1000); }
@@ -2288,6 +2317,9 @@ timer_start(pari_timer *T)
 #  ifndef CLOCKS_PER_SEC
 #   define CLOCKS_PER_SEC 1000000 /* may be false on YOUR system */
 #  endif
+static void
+pari_init_timer(void) { }
+
 void
 timer_start(pari_timer *T)
 { _get_time(T, clock(), CLOCKS_PER_SEC); }
