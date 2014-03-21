@@ -25,6 +25,8 @@ BA  5- [libpari] New functions family RgXn: new functions RgXnV_red_shallow,
        RgXn_exp
 BA  6- [libpari] New functions Flv_inv
 BA  7- [libpari] New functions Flx_Flv_eval, Flv_FlvV_polint
+WH  8- [libpari] New low-level functions get_Fl_inv, remll_pre
+BA  9- [libpari] New low-level functions Fl_sqr_pre, Fl_mul_pre
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]

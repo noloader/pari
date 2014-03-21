@@ -1792,6 +1792,24 @@ $p^k$, $k > 1$, assuming $p$ is an odd prime.
 \fun{ulong}{pgener_Fl_local}{ulong p, GEN L}, see \kbd{gener\_Fp\_local},
 \kbd{L} is an \kbd{Flv}.
 
+\subsec{Modular kernel with ``precomputed inverse''}
+
+This is based on an algorithm by T. Grandlund and N. M\"{o}ller in
+``Improved division by invariant integers''
+\kbd{https://gmplib.org/~tege/division-paper.pdf}.
+
+\fun{ulong}{get_Fl_red}{ulong p} returns a pseudo inverse \var{pi} for $p$
+
+\fun{ulong}{remll_pre}{ulong u1, ulong u0, ulong p, ulong pi} returns
+$u_1\*2^\B+u_0$ modulo $p$, assuming $pi$ is the pseudo inverse of $p$.
+This function is faster if $u_1 < p$.
+
+\fun{ulong}{Fl_sqr_pre}{ulong x, ulong p, ulong pi} returns $x^2$ modulo $p$,
+assuming $pi$ is the pseudo inverse of $p$.
+
+\fun{ulong}{Fl_mul_pre}{ulong x, ulong y, ulong p, ulong pi} returns $x\*y$
+modulo $p$, assuming $pi$ is the pseudo inverse of $p$.
+
 \subsec{Switching between Fl\_xxx and standard operators}
 
 Even though the \kbd{Fl\_xxx} routines are efficient, they are slower than

@@ -699,20 +699,41 @@ Flx_eval2BILspec(GEN x, long k, long l)
 }
 
 static GEN
-Z_mod2BIL_Flx(GEN x, long bs, long d, ulong p)
+Z_mod2BIL_Flx_2(GEN x, long d, ulong p)
+{
+  long i, offset, lm = lgefint(x)-2, l = d+3;
+  ulong pi = get_Fl_red(p);
+  GEN pol = cgetg(l, t_VECSMALL);
+  pol[1] = 0;
+  for (i=0, offset=0; offset+1 < lm; i++, offset += 2)
+    pol[i+2] = remll_pre(*int_W(x,offset+1), *int_W(x,offset), p, pi);
+  if (offset < lm)
+    pol[i+2] = (*int_W(x,offset)) % p;
+  return Flx_renormalize(pol,l);
+}
+
+static GEN
+Z_mod2BIL_Flx_3(GEN x, long d, ulong p)
 {
   long i, offset, lm = lgefint(x)-2, l = d+3;
   GEN pol = cgetg(l, t_VECSMALL);
   pari_sp av = avma;
   pol[1] = 0;
-  for (i=0, offset=0; i <= d; i++, offset += bs)
+  for (i=0, offset=0; i <= d; i++, offset += 3)
   {
-    long lz = minss(bs, lm-offset);
+    long lz = minss(3, lm-offset);
     GEN z = adduispec_offset(0, x, offset, lz);
     pol[i+2] = umodiu(z, p);
     avma = av;
   }
   return Flx_renormalize(pol,l);
+}
+
+static GEN
+Z_mod2BIL_Flx(GEN x, long bs, long d, ulong p)
+{
+  return bs==2 ? Z_mod2BIL_Flx_2(x, d, p):
+                 Z_mod2BIL_Flx_3(x, d, p);
 }
 
 static GEN
