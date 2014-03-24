@@ -1379,30 +1379,71 @@ sumdigits(GEN n)
   }
 }
 
+static GEN
+check_basis(GEN B)
+{
+  if (!B) return utoipos(10);
+  if (typ(B)!=t_INT) pari_err_TYPE("digits",B);
+  if (cmpis(B,2)<0) pari_err_DOMAIN("digits","B","<",gen_2,B);
+  return B;
+}
+
 static void
-digits_dac(GEN x, GEN B, long l, GEN* z)
+digits_dac(GEN x, GEN vB, long l, GEN* z)
 {
   GEN q,r;
   long m;
   if (l==1) { *z=x; return; }
   m=l>>1;
-  q=dvmdii(x,powiu(B,m),&r);
-  digits_dac(q,B,l-m,z);
-  digits_dac(r,B,m,z+l-m);
+  q = dvmdii(x, gel(vB,m), &r);
+  digits_dac(q,vB,l-m,z);
+  digits_dac(r,vB,m,z+l-m);
 }
 
+/* x has l digits in base B, write them to z[0..l-1], vB[i] = B^i */
 static void
-digits_dacsmall(GEN x, ulong B, long l, ulong* z)
+digits_dacsmall(GEN x, GEN vB, long l, ulong* z)
 {
   pari_sp av = avma;
   GEN q,r;
   long m;
   if (l==1) { *z=itou(x); return; }
   m=l>>1;
-  q=dvmdii(x,powuu(B,m),&r);
-  digits_dacsmall(q,B,l-m,z);
-  digits_dacsmall(r,B,m,z+l-m);
+  q = dvmdii(x, gel(vB,m), &r);
+  digits_dacsmall(q,vB,l-m,z);
+  digits_dacsmall(r,vB,m,z+l-m);
   avma = av;
+}
+
+/* set v[i] = 1 iff B^i is needed in the digits_dac algorithm */
+static void
+set_vexp(GEN v, long l)
+{
+  long m;
+  if (v[l]) return;
+  v[l] = 1; m = l>>1;
+  set_vexp(v, m);
+  set_vexp(v, l-m);
+}
+/* return all needed B^i for DAC algorithm, for lz digits */
+static GEN
+get_vB(GEN B, long lz)
+{
+  GEN vB, vexp = const_vecsmall(lz, 0);
+  long i, l = (lz+1) >> 1;
+  vexp[1] = 1;
+  vexp[2] = 1;
+  set_vexp(vexp, lz);
+  vB = zerovec(lz); /* unneeded entries remain = 0 */
+  gel(vB, 1) = B;
+  for (i = 2; i <= l; i++)
+    if (vexp[i])
+    {
+      long j = i >> 1;
+      GEN B2j = sqri(gel(vB,j));
+      gel(vB,i) = odd(i)? mulii(B2j, B): B2j;
+    }
+  return vB;
 }
 
 GEN
@@ -1410,29 +1451,73 @@ digits(GEN x, GEN B)
 {
   pari_sp av=avma;
   long lz;
-  GEN z;
+  GEN z, vB;
   if (typ(x)!=t_INT) pari_err_TYPE("digits",x);
-  if (!B)
-    B = utoi(10);
-  else {
-    if (typ(B)!=t_INT) pari_err_TYPE("digits",B);
-    if (cmpis(B,2)<0) pari_err_DOMAIN("digits","B","<",gen_2,B);
-  }
-  if (equalis(B,2))    {avma = av; return binaire(x); }
+  B = check_basis(B);
   if (!signe(x))       {avma = av; return cgetg(1,t_VEC); }
   if (absi_cmp(x,B)<0) {avma = av; retmkvec(absi(x)); }
-  x = absi(x); lz = logint(x,B,NULL);
+  if (Z_ispow2(B))
+  {
+    long k = expi(B);
+    if (k == 1) return binaire(x);
+    if (k < BITS_IN_LONG)
+    {
+      (void)new_chunk(4*(expi(x) + 2)); /* HACK */
+      z = binary_2k_zv(x, k);
+      avma = av; return Flv_to_ZV(z);
+    }
+    else
+    {
+      avma = av; return binary_2k(x, k);
+    }
+  }
+  if (signe(x) < 0) x = absi(x);
+  lz = logint(x,B,NULL);
+  vB = get_vB(B, lz);
   if (lgefint(B)>3)
   {
     z = zerovec(lz);
-    digits_dac(x,B,lz,(GEN*)(z+1));
+    digits_dac(x,vB,lz,(GEN*)(z+1));
     return gerepilecopy(av,z);
   }
   else
   {
-    ulong b = B[2];
+    (void)new_chunk(3*lz); /* HACK */
     z = zero_zv(lz);
-    digits_dacsmall(x,b,lz,(ulong*)(z+1));
-    return gerepileupto(av,vecsmall_to_vec(z));
+    digits_dacsmall(x,vB,lz,(ulong*)(z+1));
+    avma = av; return vecsmall_to_vec(z);
   }
+}
+
+GEN
+sumdigits0(GEN x, GEN B)
+{
+  pari_sp av = avma;
+  GEN vB, z;
+  long lz;
+
+  if (!B) return sumdigits(x);
+  if (typ(x) != t_INT) pari_err_TYPE("sumdigits", x);
+  B = check_basis(B);
+  if (Z_ispow2(B))
+  {
+    long k = expi(B);
+    if (k == 1) { avma = av; return utoi(hammingweight(x)); }
+    if (k < BITS_IN_LONG)
+    {
+      GEN z = binary_2k_zv(x, k);
+      if (lg(z)-1 > 1<<(BITS_IN_LONG-k)) /* may overflow */
+        return gerepileuptoint(av, ZV_sum(Flv_to_ZV(z)));
+      avma = av; return utoi(zv_sum(z));
+    }
+    return gerepileuptoint(av, ZV_sum(binary_2k(x, k)));
+  }
+  if (!signe(x))       { avma = av; return gen_0; }
+  if (absi_cmp(x,B)<0) { avma = av; return absi(x); }
+  if (equaliu(B,10))   { avma = av; return sumdigits(x); }
+  lz = logint(x,B,NULL);
+  vB = get_vB(B, lz);
+  z = zerovec(lz);
+  digits_dac(x,vB,lz,(GEN*)(z+1));
+  return gerepileuptoint(av, ZV_sum(z));
 }

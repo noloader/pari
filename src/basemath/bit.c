@@ -23,6 +23,65 @@ INLINE GEN
 inegate(GEN z) { return subsi(-1,z); }
 
 GEN
+binary_zv(GEN x)
+{
+  GEN xp, z;
+  long i, k, lx;
+  if (!signe(x)) return cgetg(1,t_VECSMALL);
+  xp = int_LSW(x);
+  lx = lgefint(x);
+  k = expi(x)+2;
+  z = cgetg(k, t_VECSMALL);
+  k--;
+  for(i = 2; i < lx; i++)
+  {
+    ulong u = *xp;
+    long j;
+    for (j=0; j<BITS_IN_LONG && k; j++) z[k--] = (u>>j)&1UL;
+    if (!k) break;
+    xp = int_nextW(xp);
+  }
+  return z;
+}
+static GEN
+F2v_to_ZV_inplace(GEN v)
+{
+  long i, l = lg(v);
+  v[0] = evaltyp(t_VEC) | _evallg(l);
+  for (i = 1; i < l; i++) gel(v,i) = v[i]? gen_1: gen_0;
+  return v;
+}
+/* "vector" of l bits (possibly no code word) to non-negative t_INT */
+GEN
+bits_to_int(GEN x, long l)
+{
+  long i, j, lz;
+  GEN z, zp;
+
+  if (!l) return gen_0;
+  lz = nbits2lg(l);
+  z = cgetg(lz, t_INT);
+  z[1] = evalsigne(1) | evallgefint(lz);
+  zp = int_LSW(z); *zp = 0;
+  for(i=l,j=0; i; i--,j++)
+  {
+    if (j==BITS_IN_LONG) { j=0; zp = int_nextW(zp); *zp = 0; }
+    if (x[i]) *zp |= 1UL<<j;
+  }
+  return int_normalize(z, 0);
+}
+/* "vector" of l < BITS_IN_LONG bits (possibly no code word) to non-negative
+ * ulong */
+ulong
+bits_to_u(GEN v, long l)
+{
+  ulong u = 0;
+  long i;
+  for (i = 1; i <= l; i++) u = (u <<1) | v[i];
+  return u;
+}
+
+GEN
 binaire(GEN x)
 {
   ulong m,u;
@@ -32,24 +91,9 @@ binaire(GEN x)
   switch(tx)
   {
     case t_INT:
-    if (!signe(x))
-      return cgetg(1,t_VEC);
-    else
-    {
-      GEN xp=int_MSW(x);
-      lx=lgefint(x);
-      y = cgetg(2 + expi(x), t_VEC); ly=1;
-      m=HIGHBIT>>bfffo(*xp); u=*xp;
-      do { gel(y,ly) = m & u ? gen_1 : gen_0; ly++; } while (m>>=1);
-      for (i=3; i<lx; i++)
-      {
-        m=HIGHBIT; xp=int_precW(xp); u=*xp;
-        do { gel(y,ly) = m & u ? gen_1 : gen_0; ly++; } while (m>>=1);
-      }
-      break;
-    }
+      return F2v_to_ZV_inplace( binary_zv(x) );
     case t_REAL:
-      ex=expo(x);
+      ex = expo(x);
       if (!signe(x)) return const_vec(maxss(-ex,0), gen_0);
 
       lx=lg(x); y=cgetg(3,t_VEC);
@@ -93,6 +137,43 @@ binaire(GEN x)
       return NULL; /* not reached */
   }
   return y;
+}
+
+/* assume k < BITS_IN_LONG */
+GEN
+binary_2k_zv(GEN x, long k)
+{
+  long iv, j, n, nmodk, nk;
+  GEN v, vk;
+  if (k == 1) return binary_zv(x);
+  if (!signe(x)) return cgetg(1,t_VECSMALL);
+  v = binary_zv(x);
+  n = lg(v)-1;
+  nk = n / k; nmodk = n % k;
+  if (nmodk) nk++;
+  vk = cgetg(nk+1, t_VECSMALL);
+  iv = n - k;
+  if (!nmodk) nmodk = k;
+  for (j = nk; j >= 2; j--,iv-=k) vk[j] = bits_to_u(v+iv, k);
+  vk[1] = bits_to_u(v,nmodk);
+  return vk;
+}
+GEN
+binary_2k(GEN x, long k)
+{
+  long iv, j, n, nmodk, nk;
+  GEN v, vk;
+  if (!signe(x)) return cgetg(1,t_VEC);
+  v = binary_zv(x);
+  n = lg(v)-1;
+  nk = n / k; nmodk = n % k;
+  if (nmodk) nk++;
+  vk = cgetg(nk+1, t_VEC);
+  iv = n - k;
+  if (!nmodk) nmodk = k;
+  for (j = nk; j >= 2; j--,iv-=k) gel(vk,j) = bits_to_int(v+iv, k);
+  gel(vk,1) = bits_to_int(v, nmodk);
+  return vk;
 }
 
 /* return 1 if bit n of x is set, 0 otherwise */

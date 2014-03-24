@@ -29,4 +29,7 @@
   ***   at top-level: binary(I)
   ***                 ^---------
   *** binary: incorrect type in binary (t_COMPLEX).
-Total time spent: 112
+[16, 21, 21, 21, 19, 27, 43, 45, 45, 39]
+[1, 0, 3]
+4
+Total time spent: 104

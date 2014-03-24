@@ -2182,6 +2182,27 @@ shifts the mantissa
 $$f, s[m], s[m+1],\ldots s[M]$$
 right by $n$ bits.
 
+\subsec{From \typ{INT} to bits}
+
+\fun{GEN}{binary_zv}{GEN x} given a \typ{INT} $x$, return a \typ{VECSMALL} of
+bits, from most significant to least significant.
+
+\fun{GEN}{binary_2k}{GEN x, long k} given a \typ{INT} $x$, and
+$k > 0$, return a \typ{VEC} of digits of $x$ in base $2^k$, as \typ{INT}s, from
+most significant to least significant.
+
+\fun{GEN}{binary_2k_zv}{GEN x, long k} given a \typ{INT} $x$, and $0 < k <
+\tet{BITS_IN_LONG}$, return a \typ{VECSMALL} of digits of $x$ in base $2^k$, as
+\typ{ulong}s, from most significant to least significant.
+
+\fun{GEN}{bits_to_int}{GEN x, long l} given a vector $x$ of $l$ bits (as a
+\typ{VECSMALL} or even a pointer to a part of a larger vector, so not a
+proper \kbd{GEN}), return the integer $\sum_{i = 1}^l x[i] 2^{l-i}$, as a
+\typ{INT}.
+
+\fun{ulong}{bits_to_u}{GEN v, long l} same as \tet{bits_to_int}, where
+$l < \tet{BITS_IN_LONG}$, so we can return an \kbd{ulong}.
+
 \subsec{Integer valuation}
 For integers $x$ and $p$, such that $x\neq 0$ and $|p| > 1$, we define
 $v_p(x)$ to be the largest integer exponent $e$ such that $p^e$ divides $x$.

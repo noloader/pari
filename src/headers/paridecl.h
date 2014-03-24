@@ -1355,6 +1355,7 @@ int     is_Z_factorpos(GEN f);
 ulong   maxprime(void);
 void    maxprime_check(ulong c);
 GEN     sumdigits(GEN n);
+GEN     sumdigits0(GEN n, GEN B);
 ulong   sumdigitsu(ulong n);
 
 /* DedekZeta.c */
@@ -1778,7 +1779,12 @@ long    zv_search(GEN x, long y);
 
 /* bit.c */
 
+GEN     bits_to_int(GEN x, long l);
+ulong   bits_to_u(GEN v, long l);
 GEN     binaire(GEN x);
+GEN     binary_zv(GEN x);
+GEN     binary_2k(GEN x, long k);
+GEN     binary_2k_zv(GEN x, long k);
 long    bittest(GEN x, long n);
 GEN     gbitand(GEN x, GEN y);
 GEN     gbitneg(GEN x, long n);
