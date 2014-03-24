@@ -670,7 +670,7 @@ isprimePL(GEN N)
   pari_sp ltop = avma;
   long i, l;
   int eps;
-  GEN C, P, W, R, F, f;
+  GEN P, W, R, F, f;
 
   if (typ(N) != t_INT) pari_err_TYPE("isprimePL",N);
   eps = cmpis(N,2);
@@ -683,10 +683,10 @@ isprimePL(GEN N)
     err_printf("Pocklington-Lehmer: N-1 factored up to %Ps! (%.3Ps%%)\n", f, divri(itor(f,LOWDEFAULTPREC), N));
     err_printf("Pocklington-Lehmer: N-1 smooth enough! Computing certificate\n");
   }
-  C = cgetg(4,t_MAT); l = lg(F);
-  gel(C,1) = P = cgetg(l,t_COL);
-  gel(C,2) = W = cgetg(l,t_COL);
-  gel(C,3) = R = cgetg(l,t_COL);
+  l = lg(F);
+  P = cgetg(l,t_COL);
+  W = cgetg(l,t_COL);
+  R = cgetg(l,t_COL);
   for(i=1; i<l; i++)
   {
     GEN p = gel(F,i);
@@ -702,7 +702,7 @@ isprimePL(GEN N)
       pari_err_BUG("isprimePL [false prime number]");
     }
   }
-  return gerepileupto(ltop,C);
+  return gerepileupto(ltop, mkmat3(P,W,R));
 }
 
 /* F is a vector of BPSW pseudoprimes of N. For each of then, find a PL witness,
