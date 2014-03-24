@@ -693,7 +693,7 @@ isprimePL(GEN N)
     ulong witness = pl831(N,p);
 
     if (!witness) { avma = ltop; return gen_0; }
-    gel(P,i) = icopy(p);
+    gel(P,i) = p;
     gel(W,i) = utoipos(witness);
     gel(R,i) = check_prime(p);
     if (gel(R,i) == gen_0)
@@ -702,7 +702,7 @@ isprimePL(GEN N)
       pari_err_BUG("isprimePL [false prime number]");
     }
   }
-  return gerepileupto(ltop, mkmat3(P,W,R));
+  return gerepilecopy(ltop, mkmat3(P,W,R));
 }
 
 /* F is a vector of BPSW pseudoprimes of N. For each of then, find a PL witness,
