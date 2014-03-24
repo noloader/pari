@@ -2,7 +2,7 @@
 VersionMajor='2'
 
 # minor version number
-VersionMinor='7'
+VersionMinor='8'
 
 # Patch level
 patch='0'
