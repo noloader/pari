@@ -2587,6 +2587,14 @@ glog(GEN x, long prec)
     }
     case t_COMPLEX:
       if (ismpzero(gel(x,2))) return glog(gel(x,1), prec);
+      if (ismpzero(gel(x,1)))
+      {
+        GEN a = gel(x,2), b;
+        av = avma; b = Pi2n(-1,prec);
+        if (gsigne(a) < 0) { setsigne(b, -1); a = gabs(a,prec); }
+        a = isint1(a) ? gen_0: glog(a,prec);
+        return gerepilecopy(av, mkcomplex(a, b));
+      }
       l = precision(x); if (l > prec) prec = l;
       if (prec >= LOGAGMCX_LIMIT) return logagmcx(x, prec);
       y = cgetg(3,t_COMPLEX);
