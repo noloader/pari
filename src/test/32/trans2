@@ -36,7 +36,7 @@ error("incorrect type in exp (t_INTMOD).")
 error("incorrect type in log (t_INTMOD).")
 error("domain error in Qp_log: argument = 0")
 O(3^4)
-0.E-38 + 1.5707963267948966192313216916397514421*I
+1.5707963267948966192313216916397514421*I
 error("incorrect type in cos (t_INTMOD).")
 1 + O(3^5)
 1 + 3^2 + 2*3^4 + O(3^6)
@@ -87,4 +87,4 @@ O(x)
 2.2048475583142180027021126820970067173 - 1.02440088160844588172486045441088
 66770*I
 0.E-2003
-Total time spent: 16
+Total time spent: 4
