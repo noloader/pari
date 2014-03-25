@@ -4,6 +4,7 @@ Bug numbers refer to the BTS at http://pari.math.u-bordeaux.fr/Bugs/
 Done for version 2.8.0 (released ??/??/2014):
 
   Fixed
+    1- make install fails on OS/X: ln -s libpari.dylib libpari.dylib fails
 
   Added
     1- add optional argument to sumdigits to specify the base
