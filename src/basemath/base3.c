@@ -650,6 +650,7 @@ ZC_nfvalrem(GEN nf, GEN x, GEN pr, GEN *newx)
   long i, v, l;
   GEN r, y, p = pr_get_p(pr), mul = zk_scalar_or_multable(nf, pr_get_tau(pr));
 
+  /* p inert */
   if (typ(mul) == t_INT) return newx? ZV_pvalrem(x, p, newx):ZV_pval(x, p);
   y = cgetg_copy(x, &l); /* will hold the new x */
   x = leafcopy(x);
@@ -711,6 +712,55 @@ nfval(GEN nf, GEN x, GEN pr)
   w = ZC_nfval(nf,x,pr);
   if (cx) w += e*Q_pval(cx,p);
   avma = av; return w;
+}
+
+/* want to write p^v = uniformizer^(e*v) * z^v, z coprime to pr */
+/* z := tau^e / p^(e-1), algebraic integer coprime to pr; return z^v */
+static GEN
+powp(GEN nf, GEN pr, long v)
+{
+  GEN b, z;
+  long e;
+  if (!v) return gen_1;
+  b = pr_get_tau(pr);
+  if (typ(b) == t_INT) return gen_1;
+  e = pr_get_e(pr);
+  z = gel(b,1);
+  if (e != 1) z = gdiv(nfpow_u(nf, z, e), powiu(pr_get_p(pr),e-1));
+  return nfpow_u(nf, z, v);
+}
+long
+nfvalrem(GEN nf, GEN x, GEN pr, GEN *py)
+{
+  pari_sp av = avma;
+  long w, e;
+  GEN cx, p, t;
+
+  if (!py) return nfval(nf,x,pr);
+  if (gequal0(x)) { *py = gcopy(x); return LONG_MAX; }
+  nf = checknf(nf);
+  checkprid(pr);
+  p = pr_get_p(pr);
+  e = pr_get_e(pr);
+  x = nf_to_scalar_or_basis(nf, x);
+  if (typ(x) != t_COL) {
+    w = Q_pvalrem(x,p, py);
+    if (!w) { *py = gerepilecopy(av, x); return 0; }
+    *py = gerepileupto(av, gmul(powp(nf, pr, w), *py));
+    return e*w;
+  }
+  x = Q_primitive_part(x, &cx);
+  w = ZC_nfvalrem(nf,x,pr, py);
+  if (cx)
+  {
+    long v = Q_pvalrem(cx,p, &t);
+    *py = nfmul(nf, *py, gmul(powp(nf,pr,v), t));
+    *py = gerepileupto(av, *py);
+    w += e*v;
+  }
+  else
+    *py = gerepilecopy(av, *py);
+  return w;
 }
 
 GEN

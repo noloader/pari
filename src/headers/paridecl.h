@@ -1523,6 +1523,7 @@ GEN     nfsqr(GEN nf,GEN x);
 GEN     nfsqri(GEN nf, GEN x);
 GEN     nftrace(GEN nf, GEN x);
 long    nfval(GEN nf, GEN x, GEN vp);
+long    nfvalrem(GEN nf, GEN x, GEN pr, GEN *py);
 GEN     polmod_nffix(const char *f, GEN rnf, GEN x,int lift);
 GEN     polmod_nffix2(const char *f, GEN T, GEN relpol, GEN x, int lift);
 int     pr_equal(GEN nf, GEN P, GEN Q);

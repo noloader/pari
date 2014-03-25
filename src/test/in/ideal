@@ -67,6 +67,12 @@ test(nf,F,v)
 F[,2] = [1,1,1,1]~;
 test(nf,F,[1,0,0,0])
 test(nf,F,[0,1/11,0,0])
+P = F[2,1];
+v = nfeltval(nf, 0, P, &y); [v,y]
+v = nfeltval(nf, 12, P, &y); [v,y]
+v = nfeltval(nf, (2/5*(1-x))^3, P, &y); [v,y]
+v = nfeltval(nf, nfeltpow(nf,P.gen[2],4), P, &y); [v,y]
+
 
 K=nfinit(2*x^2+1);
 idealprimedec(K,2)
