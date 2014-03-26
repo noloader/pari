@@ -2481,9 +2481,9 @@ inteta_pol(GEN q, long v, long l)
     k2 = k1 - vqn; /* = l-2 + v - vps + 1 */
     if (k1 <= 0) break;
     t = RgX_mul(q, RgX_sqr(qn));
-    t = RgX_modXn_shallow(t, k1);
+    t = RgXn_red_shallow(t, k1);
     t = RgX_mul(ps,t);
-    t = RgX_modXn_shallow(t, k1);
+    t = RgXn_red_shallow(t, k1);
     t = RgX_neg(t); /* t = (-1)^(n+1) q^(n(3n+1)/2 + 2n+1) */
     t = gerepileupto(av2, t);
     y = addmulXn(t, y, vt);
@@ -2491,7 +2491,7 @@ inteta_pol(GEN q, long v, long l)
 
     qn = RgX_mul(qn,q);
     ps = RgX_mul(t,qn);
-    ps = RgX_modXn_shallow(ps, k2);
+    ps = RgXn_red_shallow(ps, k2);
     y = addmulXn(ps, y, vps);
 
     if (low_stack(lim, stack_lim(av,1)))

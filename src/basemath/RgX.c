@@ -652,12 +652,12 @@ RgXY_swap(GEN x, long n, long w)
 
 /* return (x % X^n). Shallow */
 GEN
-RgX_modXn_shallow(GEN a, long n)
+RgXn_red_shallow(GEN a, long n)
 {
   long i, L, l = lg(a);
   GEN  b;
   if (l == 2 || !n) return pol_0(varn(a));
-  if (n < 0) pari_err_DOMAIN("RgX_modXn", "n", "<", gen_0, stoi(n));
+  if (n < 0) pari_err_DOMAIN("RgXn_red", "n", "<", gen_0, stoi(n));
   L = n+2; if (L > l) L = l;
   b = cgetg(L, t_POL); b[1] = a[1];
   for (i=2; i<L; i++) gel(b,i) = gel(a,i);
@@ -1130,7 +1130,7 @@ addmulXncopy(GEN x, GEN y, long d)
 
 /* return x * y mod t^n */
 static GEN
-RgX_mullow_basecase(GEN x, GEN y, long n)
+RgXn_mul_basecase(GEN x, GEN y, long n)
 {
   long i, lz = n+2, lx = lgpol(x), ly = lgpol(y);
   GEN z;
@@ -1151,19 +1151,19 @@ RgX_mullow_basecase(GEN x, GEN y, long n)
 }
 /* Mulders / Karatsuba product f*g mod t^n (Hanrot-Zimmermann variant) */
 GEN
-RgX_mullow(GEN f, GEN g, long n)
+RgXn_mul(GEN f, GEN g, long n)
 {
   pari_sp av = avma;
   GEN fe,fo, ge,go, l,h,m;
   long n0, n1;
   if (degpol(f) + degpol(g) < n) return RgX_mul(f,g);
-  if (n < 80) return RgX_mullow_basecase(f,g,n);
+  if (n < 80) return RgXn_mul_basecase(f,g,n);
   n0 = n>>1; n1 = n-n0;
   RgX_even_odd(f, &fe, &fo);
   RgX_even_odd(g, &ge, &go);
-  l = RgX_mullow(fe,ge,n1);
-  h = RgX_mullow(fo,go,n0);
-  m = RgX_sub(RgX_mullow(RgX_add(fe,fo),RgX_add(ge,go),n0), RgX_add(l,h));
+  l = RgXn_mul(fe,ge,n1);
+  h = RgXn_mul(fo,go,n0);
+  m = RgX_sub(RgXn_mul(RgX_add(fe,fo),RgX_add(ge,go),n0), RgX_add(l,h));
   /* n1-1 <= n0 <= n1, deg l,m <= n1-1, deg h <= n0-1
    * result is t^2 h(t^2) + t m(t^2) + l(t^2) */
   l = RgX_inflate(l,2); /* deg l <= 2n1 - 2 <= n-1 */
@@ -1269,7 +1269,7 @@ RgX_sqrspec_basecase(GEN x, long nx, long v)
 }
 /* return x^2 mod t^n */
 static GEN
-RgX_sqrlow_basecase(GEN x, long n)
+RgXn_sqr_basecase(GEN x, long n)
 {
   long i, lz = n+2, lx = lgpol(x);
   GEN z;
@@ -1285,18 +1285,18 @@ RgX_sqrlow_basecase(GEN x, long n)
 }
 /* Mulders / Karatsuba product f^2 mod t^n (Hanrot-Zimmermann variant) */
 GEN
-RgX_sqrlow(GEN f, long n)
+RgXn_sqr(GEN f, long n)
 {
   pari_sp av = avma;
   GEN fe,fo, l,h,m;
   long n0, n1;
   if (2*degpol(f) < n) return RgX_sqr(f);
-  if (n < 80) return RgX_sqrlow_basecase(f,n);
+  if (n < 80) return RgXn_sqr_basecase(f,n);
   n0 = n>>1; n1 = n-n0;
   RgX_even_odd(f, &fe, &fo);
-  l = RgX_sqrlow(fe,n1);
-  h = RgX_sqrlow(fo,n0);
-  m = RgX_sub(RgX_sqrlow(RgX_add(fe,fo),n0), RgX_add(l,h));
+  l = RgXn_sqr(fe,n1);
+  h = RgXn_sqr(fo,n0);
+  m = RgX_sub(RgXn_sqr(RgX_add(fe,fo),n0), RgX_add(l,h));
   /* n1-1 <= n0 <= n1, deg l,m <= n1-1, deg h <= n0-1
    * result is t^2 h(t^2) + t m(t^2) + l(t^2) */
   l = RgX_inflate(l,2); /* deg l <= 2n1 - 2 <= n-1 */
@@ -1973,12 +1973,12 @@ struct modXn {
 static GEN
 _sqrXn(void *data, GEN x) {
   struct modXn *S = (struct modXn*)data;
-  return RgX_sqrlow(x, S->n);
+  return RgXn_sqr(x, S->n);
 }
 static GEN
 _mulXn(void *data, GEN x, GEN y) {
   struct modXn *S = (struct modXn*)data;
-  return RgX_mullow(x,y, S->n);
+  return RgXn_mul(x,y, S->n);
 }
 static GEN
 _oneXn(void *data) {
@@ -1990,11 +1990,11 @@ _zeroXn(void *data) {
   struct modXn *S = (struct modXn*)data;
   return pol_0(S->v);
 }
-static struct bb_algebra RgX_modXn_algebra = { _red,_add, _mulXn,_sqrXn, _oneXn,_zeroXn };
+static struct bb_algebra RgXn_algebra = { _red,_add, _mulXn,_sqrXn, _oneXn,_zeroXn };
 
 /* Q(x) mod t^n, x in R[t], n >= 1 */
 GEN
-RgX_modXn_eval(GEN Q, GEN x, long n)
+RgXn_eval(GEN Q, GEN x, long n)
 {
   long d = degpol(x);
   int use_sqr;
@@ -2007,7 +2007,7 @@ RgX_modXn_eval(GEN Q, GEN x, long n)
   S.v = varn(x);
   S.n = n;
   use_sqr = (d<<1) >= n;
-  return gen_bkeval(Q,degpol(Q),x,use_sqr,(void*)&S,&RgX_modXn_algebra,_cmul);
+  return gen_bkeval(Q,degpol(Q),x,use_sqr,(void*)&S,&RgXn_algebra,_cmul);
 }
 
 /* x,T in Rg[X], n in N, compute lift(x^n mod T)) */

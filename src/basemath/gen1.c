@@ -1910,7 +1910,7 @@ gmul(GEN x, GEN y)
         }
       }
       else
-        y = RgX_mullow(x, y, lx-2);
+        y = RgXn_mul(x, y, lx-2);
       z = fill_ser(z, y);
       return gerepilecopy((pari_sp)(z + lx), z);
     }
@@ -2281,7 +2281,7 @@ gsqr(GEN x)
           }
         }
         else
-          x = RgX_sqrlow(x, lx-2);
+          x = RgXn_sqr(x, lx-2);
         z = fill_ser(z, x);
         return gerepilecopy(av, z);
       }

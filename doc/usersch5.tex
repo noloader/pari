@@ -3200,6 +3200,10 @@ the prime field.
   E.g.~an \kbd{FpXQ} belongs to $(\Z/p\Z)[X]/(T(X))$, \kbd{FpXQV} means a
   vector of such elements, etc.
 
+  \kbd{n}: representative (\typ{POL}) of power series modulo $X^n$.
+  E.g.~an \kbd{FpXn} belongs to $(\Z/p\Z)[X]/(X^n)$, \kbd{FpXnV} means a
+  vector of such elements, etc.
+
   \kbd{x}, \kbd{y}, \kbd{m}, \kbd{v}, \kbd{c}, \kbd{q}: as their uppercase
   counterpart, but coefficient arrays are implemented using \typ{VECSMALL}s,
   which coefficient understood as \kbd{ulong}s.
@@ -7189,10 +7193,6 @@ $\sum_{i = 0}^{\kbd{na-1}} \kbd{a}[i] X^i$ and
 $\sum_{i = 0}^{\kbd{nb-1}} \kbd{b}[i] X^i$. Returns their product (as a true
 \kbd{GEN}).
 
-\fun{GEN}{RgX_mullow}{GEN a, GEN b, long n} returns $a b$ modulo $X^n$,
-where $a,b$ are two \typ{POL} in the same variable $X$ and $n \geq 0$. Uses
-Karatsuba algorithm (Mulders, Hanrot-Zimmermann variant).
-
 \fun{GEN}{RgX_sqr}{GEN x} squares the \typ{POL} \kbd{x}. Uses Karatsuba
 algorithm.
 
@@ -7200,10 +7200,6 @@ algorithm.
 \kbd{a} is an array of coefficients representing polynomial
 $\sum_{i = 0}^{\kbd{na-1}} \kbd{a}[i] X^i$. Return its square (as a true
 \kbd{GEN}).
-
-\fun{GEN}{RgX_sqrlow}{GEN a, long n} returns $a^2$ modulo $X^n$,
-where $a$ is a \typ{POL} in the variable $X$ and $n \geq 0$. Uses
-Karatsuba algorithm (Mulders, Hanrot-Zimmermann variant).
 
 \fun{GEN}{RgX_divrem}{GEN x, GEN y, GEN *r} by default, returns the Euclidean
 quotient and store the remainder in $r$. Three special values of $r$ change
@@ -7319,10 +7315,10 @@ non-zero remainder in the polynomial remainder sequence if it exists and to
 \kbd{resultant\_all}, this function always uses the generic subresultant
 algorithm, hence always computes \kbd{sol}.
 
-\fun{GEN}{RgX_modXn_shallow}{GEN x, long n} return $\kbd{x \% } t^n$,
+\fun{GEN}{RgXn_red_shallow}{GEN x, long n} return $\kbd{x \% } t^n$,
 where $n\geq 0$. Shallow function.
 
-\fun{GEN}{RgX_modXn_eval}{GEN Q, GEN x, long n} special case of
+\fun{GEN}{RgXn_eval}{GEN Q, GEN x, long n} special case of
 \tet{RgX_RgXQ_eval}, when the modulus is a monomial:
 returns $\kbd{Q}(\kbd{x})$ modulo $t^n$, where $x \in R[t]$.
 
@@ -7392,7 +7388,18 @@ the extra leading terms are $0$.
 
 \fun{long}{RgX_equal_var}{GEN x, GEN y} returns $1$ if $x$ and $y$
 have the same variable number and \kbd{RgX\_equal(x,y)} is $1$.
-\smallskip
+
+\subsec{\kbd{RgXn}}
+
+\fun{GEN}{RgXn_mul}{GEN a, GEN b, long n} returns $a b$ modulo $X^n$,
+where $a,b$ are two \typ{POL} in the same variable $X$ and $n \geq 0$. Uses
+Karatsuba algorithm (Mulders, Hanrot-Zimmermann variant).
+
+\fun{GEN}{RgXn_sqr}{GEN a, long n} returns $a^2$ modulo $X^n$,
+where $a$ is a \typ{POL} in the variable $X$ and $n \geq 0$. Uses
+Karatsuba algorithm (Mulders, Hanrot-Zimmermann variant).
+
+\subsec{\kbd{RgXQ}}
 
 \fun{GEN}{RgXQ_mul}{GEN y, GEN x, GEN T} computes $xy$ mod $T$
 
