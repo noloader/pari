@@ -1245,7 +1245,7 @@ closure_eval(GEN C)
           v = cgetg(m+1,t_VEC);
           sp-=m;
           for (j=1; j<=m; j++)
-            gel(v,j) = gcopy(gel(st,sp+j-1));
+            gel(v,j) = gel(st,sp+j-1)? gcopy(gel(st,sp+j-1)): gen_0;
           gel(st,sp++)=v;
         }
 #ifdef STACK_CHECK

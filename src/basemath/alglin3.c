@@ -567,7 +567,7 @@ genselect(void *E, long (*f)(void* E, GEN x), GEN A)
   clone_unlock(A); return y;
 }
 
-void
+static void
 check_callgen1(GEN f, const char *s)
 {
   if (typ(f) != t_CLOSURE || closure_is_variadic(f)  || closure_arity(f) < 1)

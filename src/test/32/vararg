@@ -5,6 +5,7 @@ myprintsep =
 :
 :
 a, b, c, d
+a, 0, c, 0
 a0b0c0d
 :
   ***   at top-level: print1(":");myprintsep()
@@ -19,4 +20,5 @@ a, b, c, d
   ***   in function myprintsep: s,v[..]
   ***                           ^-------
   ***   missing mandatory argument 's' in user function.
+a, 0, c, 0
 Total time spent: 0
