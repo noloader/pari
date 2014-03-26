@@ -7180,6 +7180,21 @@ $[a_0(X),a_1(X),\ldots,a_{k-1}(X)]$.  This is a shallow function.
 
 \fun{GEN}{RgX_Rg_sub}{GEN y, GEN x} returns $x-y$
 
+\fun{GEN}{RgX_Rg_mul}{GEN y, GEN x} multiplies the \kbd{RgX} \kbd{y}
+by the scalar \kbd{x}.
+
+\fun{GEN}{RgX_muls}{GEN y, long s} multiplies the \kbd{RgX} \kbd{y}
+by the \kbd{long}~\kbd{s}.
+
+\fun{GEN}{RgX_Rg_div}{GEN y, GEN x} divides the \kbd{RgX} \kbd{y}
+by the scalar \kbd{x}.
+
+\fun{GEN}{RgX_divs}{GEN y, long s} divides the \kbd{RgX} \kbd{y}
+by the \kbd{long}~\kbd{s}.
+
+\fun{GEN}{RgX_Rg_divexact}{GEN x, GEN y} exact division of the \kbd{RgX}
+\kbd{y} by the scalar \kbd{x}.
+
 \fun{GEN}{RgX_mul}{GEN x, GEN y} multiplies the two \typ{POL} (in the same
 variable) \kbd{x} and \kbd{y}. Uses Karatsuba algorithm.
 
@@ -7315,13 +7330,6 @@ non-zero remainder in the polynomial remainder sequence if it exists and to
 \kbd{resultant\_all}, this function always uses the generic subresultant
 algorithm, hence always computes \kbd{sol}.
 
-\fun{GEN}{RgXn_red_shallow}{GEN x, long n} return $\kbd{x \% } t^n$,
-where $n\geq 0$. Shallow function.
-
-\fun{GEN}{RgXn_eval}{GEN Q, GEN x, long n} special case of
-\tet{RgX_RgXQ_eval}, when the modulus is a monomial:
-returns $\kbd{Q}(\kbd{x})$ modulo $t^n$, where $x \in R[t]$.
-
 \fun{GEN}{RgX_renormalize}{GEN x} remove leading terms in \kbd{x} which are
 equal to (necessarily inexact) zeros.
 
@@ -7367,6 +7375,10 @@ on the stack. Suitable but inefficient for \kbd{gerepileupto}.)
 \fun{GEN}{RgXV_unscale}{GEN v, GEN h} apply \kbd{RgX\_unscale} to a vector
 of \kbd{RgX}.
 
+\fun{GEN}{RgX_translate}{GEN P, GEN c} assume $c$ is a scalar or
+a polynomials whose main variable has lower priority than the main variable
+$X$ of $P$. Returns $P(X + c)$ (optimized for $c = \pm 1$).
+
 \fun{int}{RgX_is_rational}{GEN P} return 1 is the \kbd{RgX}~$P$ has only
 rational coefficients (\typ{INT} and \typ{FRAC}), and 0 otherwise.
 
@@ -7391,6 +7403,9 @@ have the same variable number and \kbd{RgX\_equal(x,y)} is $1$.
 
 \subsec{\kbd{RgXn}}
 
+\fun{GEN}{RgXn_red_shallow}{GEN x, long n} return $\kbd{x \% } t^n$,
+where $n\geq 0$. Shallow function.
+
 \fun{GEN}{RgXn_mul}{GEN a, GEN b, long n} returns $a b$ modulo $X^n$,
 where $a,b$ are two \typ{POL} in the same variable $X$ and $n \geq 0$. Uses
 Karatsuba algorithm (Mulders, Hanrot-Zimmermann variant).
@@ -7398,6 +7413,10 @@ Karatsuba algorithm (Mulders, Hanrot-Zimmermann variant).
 \fun{GEN}{RgXn_sqr}{GEN a, long n} returns $a^2$ modulo $X^n$,
 where $a$ is a \typ{POL} in the variable $X$ and $n \geq 0$. Uses
 Karatsuba algorithm (Mulders, Hanrot-Zimmermann variant).
+
+\fun{GEN}{RgXn_eval}{GEN Q, GEN x, long n} special case of
+\tet{RgX_RgXQ_eval}, when the modulus is a monomial:
+returns $\kbd{Q}(\kbd{x})$ modulo $t^n$, where $x \in R[t]$.
 
 \subsec{\kbd{RgXQ}}
 
@@ -7414,6 +7433,20 @@ $n$ being an \kbd{ulong}.
 
 \fun{GEN}{RgXQ_powers}{GEN x, long n, GEN T} returns $[\kbd{x}^0,
 \dots, \kbd{x}^\kbd{n}]$ as a \typ{VEC} of \kbd{RgXQ}s.
+
+\fun{GEN}{RgXQ_matrix_pow}{GEN y, long n, long m, GEN P} returns
+\kbd{RgXQ\_powers(y,m-1,P)}, as a matrix of dimension $n \geq \deg P$.
+
+\fun{GEN}{RgXQ_norm}{GEN x, GEN T} returns the norm of \kbd{Mod(x, T)}.
+
+\fun{GEN}{RgXQ_charpoly}{GEN x, GEN T, long v} returns the characteristic
+polynomial of \kbd{Mod(x, T)}, in variable $v$.
+
+\fun{GEN}{RgX_RgXQ_eval}{GEN f, GEN x, GEN T} returns $\kbd{f}(\kbd{x})$ modulo
+$T$.
+
+\fun{GEN}{RgX_RgXQV_eval}{GEN f, GEN V} as \kbd{RgX\_RgXQ\_eval(f, x, T)},
+assuming $V$ was output by \kbd{RgXQ\_powers(x, n, T)} for some $n\geq 1$.
 
 \fun{int}{RgXQ_ratlift}{GEN x, GEN T, long amax, long bmax, GEN *P, GEN *Q}
 Assuming that $\kbd{amax}+\kbd{bmax}<\deg T$, attempts to recognize $x$ as a
@@ -7436,27 +7469,7 @@ needs not compute the characteristic polynomial of $f$ mod $T$ (often already
 known in applications). In the trivial case where $n \leq 1$, returns a
 scalar, not a constant \typ{POL}.
 
-\fun{GEN}{RgXQ_matrix_pow}{GEN y, long n, long m, GEN P} returns
-\kbd{RgXQ\_powers(y,m-1,P)}, as a matrix of dimension $n \geq \deg P$.
-
-\fun{GEN}{RgXQ_norm}{GEN x, GEN T} returns the norm of \kbd{Mod(x, T)}.
-
-\fun{GEN}{RgXQ_charpoly}{GEN x, GEN T, long v} returns the characteristic
-polynomial of \kbd{Mod(x, T)}, in variable $v$.
-
-\fun{GEN}{RgX_RgXQ_eval}{GEN f, GEN x, GEN T} returns $\kbd{f}(\kbd{x})$ modulo
-$T$.
-
-\fun{GEN}{RgX_RgXQV_eval}{GEN f, GEN V} as \kbd{RgX\_RgXQ\_eval(f, x, T)},
-assuming $V$ was output by \kbd{RgXQ\_powers(x, n, T)} for some $n\geq 1$.
-
-\fun{GEN}{RgX_translate}{GEN P, GEN c} assume $c$ is a scalar or
-a polynomials whose main variable has lower priority than the main variable
-$X$ of $P$. Returns $P(X + c)$ (optimized for $c = \pm 1$).
-
-\fun{GEN}{RgXQX_translate}{GEN P, GEN c, GEN T} assume the main variable
-$X$ of $P$ has higher priority than the main variable $Y$ of $T$ and $c$.
-Return a lift of $P(X+\text{Mod}(c(Y), T(Y)))$.
+\subsec{\kbd{RgXQV, RgXQC}}
 
 \fun{GEN}{RgXQC_red}{GEN z, GEN T} \kbd{z} a vector whose
 coefficients are \kbd{RgX}s (arbitrary \kbd{GEN}s in fact), reduce them to
@@ -7466,36 +7479,13 @@ coefficients are \kbd{RgX}s (arbitrary \kbd{GEN}s in fact), reduce them to
 coefficients are \kbd{RgX}s (arbitrary \kbd{GEN}s in fact), reduce them to
 \kbd{RgXQ}s (applying \kbd{grem} coefficientwise) in a \typ{VEC}.
 
+\subsec{\kbd{RgXQX}}
+
 \fun{GEN}{RgXQX_red}{GEN z, GEN T} \kbd{z} a \typ{POL} whose
 coefficients are \kbd{RgX}s (arbitrary \kbd{GEN}s in fact), reduce them to
 \kbd{RgXQ}s (applying \kbd{grem} coefficientwise).
 
 \fun{GEN}{RgXQX_mul}{GEN x, GEN y, GEN T}
-
-\fun{GEN}{Kronecker_to_mod}{GEN z, GEN T} $z\in R[X]$ represents an element
-$P(X,Y)$ in $R[X,Y]$ mod $T(Y)$ in Kronecker form, i.e. $z = P(X,X^{2*n-1})$
-
-Let $R$ be some commutative ring, $n = \deg T$ and let $P(X,Y)\in R[X,Y]$ lift
-a polynomial in $K[Y]$, where $K := R[X]/(T)$ and $\deg_X P < 2n-1$ --- such as
-would result from multiplying minimal degree lifts of two polynomials in
-$K[Y]$. Let $z = P(t,t^{2*n-1})$ be a Kronecker form of $P$, this function
-returns the image of $P(X,t)$ in $K[t]$, with \typ{POLMOD} coefficients.
-Not stack-clean. Note that $t$ need not be the same variable as $Y$!
-
-\fun{GEN}{RgX_Rg_mul}{GEN y, GEN x} multiplies the \kbd{RgX} \kbd{y}
-by the scalar \kbd{x}.
-
-\fun{GEN}{RgX_muls}{GEN y, long s} multiplies the \kbd{RgX} \kbd{y}
-by the \kbd{long}~\kbd{s}.
-
-\fun{GEN}{RgX_Rg_div}{GEN y, GEN x} divides the \kbd{RgX} \kbd{y}
-by the scalar \kbd{x}.
-
-\fun{GEN}{RgX_divs}{GEN y, long s} divides the \kbd{RgX} \kbd{y}
-by the \kbd{long}~\kbd{s}.
-
-\fun{GEN}{RgX_Rg_divexact}{GEN x, GEN y} exact division of the \kbd{RgX}
-\kbd{y} by the scalar \kbd{x}.
 
 \fun{GEN}{RgXQX_RgXQ_mul}{GEN x, GEN y, GEN T} multiplies the \kbd{RgXQX}
 \kbd{y} by the scalar (\kbd{RgXQ}) \kbd{x}.
@@ -7507,6 +7497,20 @@ by the \kbd{long}~\kbd{s}.
 \fun{GEN}{RgXQX_div}{GEN x, GEN y, GEN T, GEN *r}
 
 \fun{GEN}{RgXQX_rem}{GEN x, GEN y, GEN T, GEN *r}
+
+\fun{GEN}{RgXQX_translate}{GEN P, GEN c, GEN T} assume the main variable
+$X$ of $P$ has higher priority than the main variable $Y$ of $T$ and $c$.
+Return a lift of $P(X+\text{Mod}(c(Y), T(Y)))$.
+
+\fun{GEN}{Kronecker_to_mod}{GEN z, GEN T} $z\in R[X]$ represents an element
+$P(X,Y)$ in $R[X,Y]$ mod $T(Y)$ in Kronecker form, i.e. $z = P(X,X^{2*n-1})$
+
+Let $R$ be some commutative ring, $n = \deg T$ and let $P(X,Y)\in R[X,Y]$ lift
+a polynomial in $K[Y]$, where $K := R[X]/(T)$ and $\deg_X P < 2n-1$ --- such as
+would result from multiplying minimal degree lifts of two polynomials in
+$K[Y]$. Let $z = P(t,t^{2*n-1})$ be a Kronecker form of $P$, this function
+returns the image of $P(X,t)$ in $K[t]$, with \typ{POLMOD} coefficients.
+Not stack-clean. Note that $t$ need not be the same variable as $Y$!
 
 \newpage
 \chapter{Operations on general PARI objects}
