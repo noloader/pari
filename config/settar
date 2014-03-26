@@ -6,7 +6,7 @@ STATUS=$3; # status we're being coerced into
 case "$STATUS" in
   alpha|beta) dir="$dir.$STATUS";;
   snapshot) STATUS="development git-"`git log -1 --pretty=format:%h`;
-            dir=`git describe`;;
+            dir=pari-`git describe`;;
 esac
 if test -d $dir; then
   echo "Remove $dir before building a new release"; exit 1
