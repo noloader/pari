@@ -3296,6 +3296,13 @@ serexp0(long v, long n)
 }
 
 static GEN
+reverse(GEN y)
+{
+  GEN z = ser2rfrac_i(y);
+  long l = lg(z);
+  return RgX_to_ser(RgXn_reverse(z, l-2), l);
+}
+static GEN
 serlambertW(GEN y, long prec)
 {
   GEN x, t, y0;
@@ -3320,7 +3327,7 @@ serlambertW(GEN y, long prec)
   {
     t = serexp0(vy, l-3);
     setvalp(t, 1); /* t exp(t) */
-    t = serreverse(t);
+    t = reverse(t);
   }
   else
   {
@@ -3328,7 +3335,7 @@ serlambertW(GEN y, long prec)
     x = glambertW(y0, prec);
     /* (x + t) exp(x + t) = (y0 + t y0/x) * exp(t) */
     t = gmul(deg1pol_shallow(gdiv(y0,x), y0, vy), serexp0(vy, l-3));
-    t = gadd(x, serreverse(serchop0(t)));
+    t = gadd(x, reverse(serchop0(t)));
   }
   t = gsubst(t, vy, y);
   return normalize(t);
