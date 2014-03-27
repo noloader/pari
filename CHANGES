@@ -6,7 +6,8 @@ Done for version 2.8.0 (released ??/??/2014):
   Fixed
     1- make install fails on OS/X: ln -s libpari.dylib libpari.dylib fails
     2- Q_pvalrem(t_FRAC) => wrong result
-
+    3- lambertw(3+O(x)) -> SEGV
+    4- lambertw(x) -> wrong number of terms (absolute vs relative prec)
 
   Added
     1- add optional argument to sumdigits to specify the base
