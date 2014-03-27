@@ -2048,6 +2048,36 @@ RgXn_eval(GEN Q, GEN x, long n)
 }
 
 GEN
+RgXn_inv(GEN f, long e)
+{
+  pari_sp av = avma, av2, lim;
+  ulong mask;
+  GEN W;
+  long v = varn(f), n=1;
+  if (signe(f)==0)
+    pari_err_INV("RgXn_inv",f);
+  W = scalarpol(ginv(gel(f,2)),v);
+  mask = quadratic_prec_mask(e);
+  av2 = avma; lim = stack_lim(av2, 2);
+  for (;mask>1;)
+  {
+    GEN u, fr;
+    long n2 = n;
+    n<<=1; if (mask & 1) n--;
+    mask >>= 1;
+    fr = RgXn_red_shallow(f, n);
+    u = RgX_shift(RgX_Rg_sub(RgXn_mul(W, fr, n), gen_1), -n2);
+    W = RgX_sub(W, RgX_shift(RgXn_mul(u, W, n-n2), n2));
+    if (low_stack(lim, stack_lim(av2,2)))
+    {
+      if(DEBUGMEM>1) pari_warn(warnmem,"RgXn_inv, e = %ld", n);
+      W = gerepileupto(av2, W);
+    }
+  }
+  return gerepileupto(av, W);
+}
+
+GEN
 RgXn_reverse(GEN f, long e)
 {
   pari_sp av = avma, av2, lim;
@@ -2085,7 +2115,7 @@ RgXn_reverse(GEN f, long e)
     a = RgX_sub(a, RgX_shift(RgXn_mul(W, fa, n-n2), n2));
     if (low_stack(lim, stack_lim(av2,2)))
     {
-      if(DEBUGMEM>1) pari_warn(warnmem,"RgX_serreverse, e = %ld", n);
+      if(DEBUGMEM>1) pari_warn(warnmem,"RgXn_reverse, e = %ld", n);
       gerepileall(av2, 2, &a, &W);
     }
   }

@@ -7414,6 +7414,10 @@ Karatsuba algorithm (Mulders, Hanrot-Zimmermann variant).
 where $a$ is a \typ{POL} in the variable $X$ and $n \geq 0$. Uses
 Karatsuba algorithm (Mulders, Hanrot-Zimmermann variant).
 
+\fun{GEN}{RgXn_inv}{GEN a, long n} returns $a^-1$ modulo $X^n$,
+where $a$ is a \typ{POL} in the variable $X$ and $n \geq 0$. Uses
+Newton-Raphson algorithm.
+
 \fun{GEN}{RgXn_powers}{GEN x, long m, long n} returns $[\kbd{x}^0,
 \dots, \kbd{x}^\kbd{m}]$ modulo $X^n$ as a \typ{VEC} of \kbd{RgXn}s.
 
