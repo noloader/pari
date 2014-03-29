@@ -7421,6 +7421,9 @@ Newton-Raphson algorithm.
 \fun{GEN}{RgXn_powers}{GEN x, long m, long n} returns $[\kbd{x}^0,
 \dots, \kbd{x}^\kbd{m}]$ modulo $X^n$ as a \typ{VEC} of \kbd{RgXn}s.
 
+\fun{GEN}{RgXn_exp}{GEN a, long n} returns $exp(a)$ modulo $X^n$, assuming
+$a = 0 \mod{X}$. Uses Hanrot-Zimmermann algorithm.
+
 \fun{GEN}{RgXn_eval}{GEN Q, GEN x, long n} special case of
 \tet{RgX_RgXQ_eval}, when the modulus is a monomial:
 returns $\kbd{Q}(\kbd{x})$ modulo $t^n$, where $x \in R[t]$.

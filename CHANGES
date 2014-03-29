@@ -16,7 +16,8 @@ BA  3- [GP] support for variadic GP functions (f(v[..])=expr)
     4- nfeltval(K, x, pr, &y) now takes an optional 4th argument, containing
        the part of x coprime to pr.
 BA  5- [libpari] New functions family RgXn: new functions RgXnV_red_shallow,
-       RgXn_powers, RgX_RgXnV_eval, RgX_RgXn_eval, RgXn_reverse, RgXn_inv
+       RgXn_powers, RgX_RgXnV_eval, RgX_RgXn_eval, RgXn_reverse, RgXn_inv,
+       RgXn_exp
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]

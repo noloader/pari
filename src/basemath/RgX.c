@@ -2066,8 +2066,8 @@ RgXn_inv(GEN f, long e)
     n<<=1; if (mask & 1) n--;
     mask >>= 1;
     fr = RgXn_red_shallow(f, n);
-    u = RgX_shift(RgX_Rg_sub(RgXn_mul(W, fr, n), gen_1), -n2);
-    W = RgX_sub(W, RgX_shift(RgXn_mul(u, W, n-n2), n2));
+    u = RgX_shift_shallow(RgXn_mul(W, fr, n), -n2);
+    W = RgX_sub(W, RgX_shift_shallow(RgXn_mul(u, W, n-n2), n2));
     if (low_stack(lim, stack_lim(av2,2)))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"RgXn_inv, e = %ld", n);
@@ -2075,6 +2075,35 @@ RgXn_inv(GEN f, long e)
     }
   }
   return gerepileupto(av, W);
+}
+
+GEN
+RgXn_exp(GEN h, long e)
+{
+  pari_sp av = avma, av2, lim;
+  long v = varn(h), n=1;
+  GEN f = pol_1(v), g = pol_1(v);
+  ulong mask = quadratic_prec_mask(e);
+  av2 = avma; lim = stack_lim(av2, 2);
+  if (signe(h)==0 || degpol(h)<1 || !gequal0(gel(h,2)))
+    pari_err_DOMAIN("RgXn_exp","valuation", "<", gen_1, h);
+  for (;mask>1;)
+  {
+    GEN q, w;
+    long n2 = n;
+    n<<=1; if (mask & 1) n--;
+    mask >>= 1;
+    g = RgX_sub(RgX_muls(g,2),RgXn_mul(f,RgXn_sqr(g,n2),n2));
+    q = RgX_deriv(RgXn_red_shallow(h,n2));
+    w = RgX_add(q, RgXn_mul(g, RgX_sub(RgX_deriv(f), RgXn_mul(f,q,n-1)),n-1));
+    f = RgX_add(f, RgXn_mul(f, RgX_sub(RgXn_red_shallow(h, n), RgX_integ(w)), n));
+    if (low_stack(lim, stack_lim(av2,2)))
+    {
+      if(DEBUGMEM>1) pari_warn(warnmem,"RgXn_exp, e = %ld", n);
+      gerepileall(av2, 2, &f, &g);
+    }
+  }
+  return gerepileupto(av, f);
 }
 
 GEN
