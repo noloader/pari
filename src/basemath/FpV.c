@@ -945,7 +945,7 @@ gen_FpM_Wiedemann(void *E, GEN (*f)(void*, GEN), GEN B, GEN p)
     {
       W = f(E, W);
       affii(gel(W, col),gel(b, i));
-      if (low_stack(lim, stack_lim(av,2)))
+      if (low_stack(lim, stack_lim(av,1)))
       {
         if (DEBUGMEM>1) pari_warn(warnmem,"Wiedemann: first loop, %ld",i);
         W = gerepileupto(av, W);
@@ -963,7 +963,7 @@ gen_FpM_Wiedemann(void *E, GEN (*f)(void*, GEN), GEN B, GEN p)
     {
       W = f(E, W);
       V = ZC_lincomb(gen_1, gel(Q,i), V, W);
-      if (low_stack(lim, stack_lim(av,2)))
+      if (low_stack(lim, stack_lim(av,1)))
       {
         if (DEBUGMEM>1) pari_warn(warnmem,"Wiedemann: second loop, %ld",i);
         gerepileall(av, 2, &V, &W);
