@@ -635,11 +635,11 @@ _fix(GEN x, long k)
   if (lgefint(y) < k) { GEN p1 = cgeti(k); affii(y,p1); *x = (long)p1; }
 }
 
-/* Return the lift of a (mod b), which is closest to h */
+/* Return the lift of a (mod b), which is closest to c */
 static GEN
-closest_lift(GEN a, GEN b, GEN h)
+closest_lift(GEN a, GEN b, GEN c)
 {
-  return addii(a, mulii(b, diviiround(subii(h,a), b)));
+  return addii(a, mulii(b, diviiround(subii(c,a), b)));
 }
 
 static long
@@ -653,24 +653,61 @@ get_table_size(GEN pordmin, GEN B)
   return itos(t) >> 1;
 }
 
+/* Find x such that kronecker(u = x^3+c4x+c6, p) is KRO.
+ * Return point [x*u,u^2] on E (KRO=1) / E^twist (KRO=-1) */
+static GEN
+Fp_ellpoint(long KRO, ulong *px, GEN c4, GEN c6, GEN p)
+{
+  ulong x = *px;
+  GEN u;
+  for(;;)
+  {
+    x++; /* u = x^3 + c4 x + c6 */
+    u = modii(addii(c6, mului(x, addii(c4, sqru(x)))), p);
+    if (kronecker(u,p) == KRO) break;
+  }
+  *px = x;
+  return mkvec2(modii(mului(x,u),p), Fp_sqr(u,p));
+}
+static GEN
+Fl_ellpoint(long KRO, ulong *px, ulong c4, ulong c6, ulong p)
+{
+  ulong t, u, x = *px;
+  for(;;)
+  {
+    if (++x >= p) pari_err_PRIME("ellap",utoi(p));
+    t = Fl_add(c4, Fl_sqr(x,p), p);
+    u = Fl_add(c6, Fl_mul(x, t, p), p);
+    if (krouu(u,p) == KRO) break;
+  }
+  *px = x;
+  return mkvecsmall2(Fl_mul(x,u,p), Fl_sqr(u,p));
+}
+
+static GEN ap_j1728(GEN a4,GEN p);
 /* compute a_p using Shanks/Mestre + Montgomery's trick. Assume p > 457 */
 static GEN
 Fp_ellcard_Shanks(GEN c4, GEN c6, GEN p)
 {
   pari_timer T;
-  long *tx, *ty, *ti, pfinal, i, j, s, KRO, KROold, nb;
+  long *tx, *ty, *ti, pfinal, i, j, s, KRO, nb;
   ulong x;
   pari_sp av = avma, av2;
-  GEN p1, P, h, mfh, F,f, fh,fg, pordmin, u, v, p1p, p2p, A, B, a4, pts;
+  GEN p1, P, mfh, h, F,f, fh,fg, pordmin, u, v, p1p, p2p, A, B, a4, pts;
   tx = NULL;
   ty = ti = NULL; /* gcc -Wall */
+
+  if (!signe(c6)) {
+    GEN ap = ap_j1728(c4, p);
+    return gerepileuptoint(av, subii(addiu(p,1), ap));
+  }
 
   if (DEBUGLEVEL) timer_start(&T);
   /* once #E(Fp) is know mod B >= pordmin, it is completely determined */
   pordmin = addis(sqrti(gmul2n(p,4)), 1); /* ceil( 4sqrt(p) ) */
   p1p = addsi(1, p);
   p2p = shifti(p1p, 1);
-  x = 0; u = c6; KRO = kronecker(u, p); KROold = - KRO;
+  x = 0; KRO = 0;
   /* how many 2-torsion points ? */
   switch(FpX_nbroots(mkpoln(4, gen_1, gen_0, c4, c6), p))
   {
@@ -678,32 +715,29 @@ Fp_ellcard_Shanks(GEN c4, GEN c6, GEN p)
     case 1:  A = gen_0; B = gen_2; break;
     default: A = gen_1; B = gen_2; break; /* 0 */
   }
-  h = closest_lift(A, B, p1p);
   for(;;)
   {
-    long CODE;
-    while (!KRO || KRO == KROold)
-    { /* look for points alternatively on E and its quadratic twist E' */
-      x++; /* u = x^3 + c4 x + c6 */
-      u = modii(addii(c6, mului(x, addii(c4, sqru(x)))), p);
-      KRO = kronecker(u, p);
+    h = closest_lift(A, B, p1p);
+    if (!KRO) /* first time, initialize */
+    {
+      KRO = kronecker(c6,p);
+      f = mkvec2(gen_0, Fp_sqr(c6,p));
     }
-    KROold = KRO;
+    else
+    {
+      KRO = -KRO;
+      f = Fp_ellpoint(KRO, &x, c4,c6,p);
+    }
     /* [ux, u^2] is on E_u: y^2 = x^3 + c4 u^2 x + c6 u^3
      * E_u isomorphic to E (resp. E') iff KRO = 1 (resp. -1)
      * #E(F_p) = p+1 - a_p, #E'(F_p) = p+1 + a_p
      *
      * #E_u(Fp) = A (mod B),  h is close to #E_u(Fp) */
-
-    f = cgetg(3,t_VEC);
-    gel(f,1) = modii(mului(x,u), p);
-    gel(f,2) = modii(sqri(u),    p);
     a4 = modii(mulii(c4, gel(f,2)), p); /* c4 for E_u */
     fh = FpE_mul(f, h, a4, p);
     if (ell_is_inf(fh)) goto FOUND;
 
     s = get_table_size(pordmin, B);
-    CODE = evaltyp(t_VECSMALL) | evallg(s+1);
     /* look for h s.t f^h = 0 */
     if (!tx)
     { /* first time: initialize */
@@ -712,7 +746,7 @@ Fp_ellcard_Shanks(GEN c4, GEN c6, GEN p)
       ti = ty + (s+1);
     }
     F = FpE_mul(f,B,a4,p);
-    *tx = CODE;
+    *tx = evaltyp(t_VECSMALL) | evallg(s+1);
 
     /* F = B.f */
     P = gcopy(fh);
@@ -855,22 +889,15 @@ Fp_ellcard_Shanks(GEN c4, GEN c6, GEN p)
 FOUND: /* found a point of exponent h on E_u */
     h = FpE_order(f, h, a4, p);
     /* h | #E_u(Fp) = A (mod B) */
-    if (B == gen_1)
-      B = h;
-    else
-      A = Z_chinese_all(A, gen_0, B, h, &B);
-
-    i = (cmpii(B, pordmin) < 0);
-    /* If we are not done, update A mod B for the _next_ curve, isomorphic to
+    A = Z_chinese_all(A, gen_0, B, h, &B);
+    if (cmpii(B, pordmin) >= 0) break;
+    /* not done: update A mod B for the _next_ curve, isomorphic to
      * the quadratic twist of this one */
-    if (i) A = remii(subii(p2p,A), B); /* #E(Fp)+#E'(Fp) = 2p+2 */
-
-    /* h = A mod B, closest lift to p+1 */
-    h = closest_lift(A, B, p1p);
-    if (!i) break;
+    A = remii(subii(p2p,A), B); /* #E(Fp)+#E'(Fp) = 2p+2 */
   }
   if (tx) killblock(tx);
-  return gerepileuptoint(av, KRO==1? h: subii(shifti(p1p,1),h));
+  h = closest_lift(A, B, p1p);
+  return gerepileuptoint(av, KRO==1? h: subii(p2p,h));
 }
 
 typedef struct
@@ -881,55 +908,63 @@ typedef struct
 static int
 compare_multiples(multiple *a, multiple *b) { return a->x > b->x? 1:a->x<b->x?-1:0; }
 
-static long
-sclosest_lift(long A, long B, ulong p2p)
+/* find x such that h := a + b x is closest to c and return h:
+ * x = round((c-a) / b) = floor( (2(c-a) + b) / 2b )
+ * Assume 0 <= a < b < c  and b + 2c < 2^BIL */
+static ulong
+uclosest_lift(ulong a, ulong b, ulong c)
 {
-  return A + B * (((ulong)(p2p + B - (A << 1))) / (B << 1));
+  ulong x = (b + ((c-a) << 1)) / (b << 1);
+  return a + b * x;
 }
 
-/* assume p > 99 and e has good reduction at p. Should use Montgomery.
- * See Fp_ellcard_Shanks() */
+/* assume 99 < p < 2^(BIL-1) - 2^((BIL+1)/2) and e has good reduction at p.
+ * Should use Barett reduction + multi-inverse. See Fp_ellcard_Shanks() */
 static long
 Fl_ellcard_Shanks(ulong c4, ulong c6, ulong p)
 {
   GEN f, fh, fg, ftest, F;
-  ulong x, u, cp4, p1p, p2p, h;
-  long pordmin,A,B;
-  long i, s, KRO, KROold, l, r, m;
+  ulong i, s, h, x, cp4, p1p, p2p, pordmin,A,B;
+  long KRO, l, r, m;
   pari_sp av = avma;
   multiple *table;
 
-  pordmin = (long)(1 + 4*sqrt((double)p));
+  if (!c6) {
+    GEN ap = ap_j1728(utoi(c4), utoipos(p));
+    avma = av; return p+1 - itos(ap);
+  }
+
+  pordmin = (ulong)(1 + 4*sqrt((double)p));
   p1p = p+1;
   p2p = p1p << 1;
-  x = 0; u = c6; KRO = krouu(u, p); KROold = -KRO;
-
+  x = 0; KRO = 0;
   switch(Flx_nbroots(mkvecsmalln(5,0, c6,c4,0,1), p))
   {
     case 3:  A = 0; B = 4; break;
     case 1:  A = 0; B = 2; break;
     default: A = 1; B = 2; break; /* 0 */
   }
-  h = sclosest_lift(A, B, p2p);
   for(;;)
-  {
-    while (!KRO || KRO == KROold)
+  { /* see comments in Fp_ellcard_Shanks */
+    h = uclosest_lift(A, B, p1p);
+    if (!KRO) /* first time, initialize */
     {
-      ulong t;
-      if (++x >= p) pari_err_PRIME("ellap",utoi(p));
-      t = Fl_add(c4, Fl_mul(x,x,p), p);
-      u = Fl_add(c6, Fl_mul(x, t, p), p);
-      KRO = krouu(u,p);
+      KRO = krouu(c6,p); /* != 0 */
+      f = mkvecsmall2(0, Fl_sqr(c6,p));
     }
-    KROold = KRO;
-    f = mkvecsmall2(Fl_mul(x, u, p), Fl_mul(u, u, p));
+    else
+    {
+      KRO = -KRO;
+      f = Fl_ellpoint(KRO, &x, c4,c6,p);
+    }
     cp4 = Fl_mul(c4, f[2], p);
     fh = Fle_mulu(f, h, cp4, p);
-    s = (long) (sqrt(((double)pordmin)/B) / 2);
+    if (ell_is_inf(fh)) goto FOUND;
+
+    s = (ulong) (sqrt(((double)pordmin)/B) / 2);
     if (!s) s = 1;
     table = (multiple *) stack_malloc((s+1) * sizeof(multiple));
     F = Fle_mulu(f, B, cp4, p);
-    if (ell_is_inf(fh)) goto FOUND;
     for (i=0; i < s; i++)
     {
       table[i].x = fh[1];
@@ -949,38 +984,33 @@ Fl_ellcard_Shanks(ulong c4, ulong c6, ulong p)
       while (l<r)
       {
         m = (l+r) >> 1;
-        if (table[m].x < (ulong) ftest[1]) l=m+1; else r=m;
+        if (table[m].x < (ulong)ftest[1]) l=m+1; else r=m;
       }
-      if (r < s && table[r].x == (ulong) ftest[1]) break;
+      if (r < s && table[r].x == (ulong)ftest[1]) break;
       if (Fle_add_inplace(ftest, fg, cp4, p))
         pari_err_PRIME("ellap",utoi(p));
     }
     h += table[r].i * B;
-    if (table[r].y == (ulong) ftest[2]) i = -i;
-    h += s * i * B;
-
-FOUND:
-    h = itou(Fle_order(f, utoi(h), cp4, p));
-    if (B == 1) B = h;
+    if (table[r].y == (ulong)ftest[2])
+      h -= s * i * B;
     else
+      h += s * i * B;
+FOUND:
+    h = itou(Fle_order(f, utoipos(h), cp4, p));
+    /* h | #E_u(Fp) = A (mod B) */
     {
       GEN C;
-      A = itos( Z_chinese_all(gen_0, modss(A,B), utoipos(h), utoipos(B), &C) );
-      if (is_bigint(C)) { h = A; break; }
-      B = itos(C);
+      A = itou( Z_chinese_all(gen_0, utoi(A), utoipos(h), utoipos(B), &C) );
+      B = itou_or_0(C);
+      if (!B) { h = A; break; }
+      if (B >= pordmin) { /* this one may overflow if B  huge */
+        h = itou( closest_lift(utoi(A), utoi(B), utoipos(p1p)) );
+        break;
+      }
     }
-
-    i = (B < pordmin);
-    if (i)
-    {
-      A = (p2p - A) % B;
-      if ((A << 1) > B) A -= B;
-    }
-    /* h = A mod B, closest lift to p+1 */
-    h = sclosest_lift(A, B, p2p);
-    avma = av; if (!i) break;
+    A = (p2p - A) % B; avma = av;
   }
-  return KRO==1? h: 2*p1p-h;
+  avma = av; return KRO==1? h: p2p-h;
 }
 
 /** ellap from CM (original code contributed by Mark Watkins) **/

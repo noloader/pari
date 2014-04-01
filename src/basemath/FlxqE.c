@@ -1177,7 +1177,7 @@ Flxq_ellcard_Shanks(GEN a4, GEN a6, GEN q, GEN T, ulong p)
 {
   pari_sp av = avma;
   long vn = get_Flx_var(T);
-  long i, twistp, twistpold=0;
+  long twistp, twistpold=0;
   GEN h,f, ta4, u, x, A, B;
   long n = get_Flx_degree(T);
   GEN q1p = addsi(1, q), q2p = shifti(q1p, 1);
@@ -1190,9 +1190,9 @@ Flxq_ellcard_Shanks(GEN a4, GEN a6, GEN q, GEN T, ulong p)
   case 1:  A = gen_0; B = gen_2; break;
   default: A = gen_1; B = gen_2; break; /* 0 */
   }
-  h = closest_lift(A, B, q1p);
   for(;;)
   {
+    h = closest_lift(A, B, q1p);
     do
     { /* look for points alternatively on E and its quadratic twist E' */
       x = random_Flx(n,vn,p);
@@ -1211,20 +1211,13 @@ Flxq_ellcard_Shanks(GEN a4, GEN a6, GEN q, GEN T, ulong p)
     h = FlxqE_find_order(f, h, bound, B, ta4,T,p);
     h = FlxqE_order(f, h, ta4, T, p);
     /* h | #E_u(Flxq) = A (mod B) */
-    if (B == gen_1)
-      B = h;
-    else
-      A = Z_chinese_all(A, gen_0, B, h, &B);
-
-    i = (cmpii(B, bound) < 0);
-    /* If we are not done, update A mod B for the _next_ curve, isomorphic to
+    A = Z_chinese_all(A, gen_0, B, h, &B);
+    if (cmpii(B, bound) >= 0) break;
+    /* not done, update A mod B for the _next_ curve, isomorphic to
      * the quadratic twist of this one */
-    if (i) A = remii(subii(q2p,A), B); /* #E(Fq)+#E'(Fq) = 2q+2 */
-
-    /* h = A mod B, closest lift to p+1 */
-    h = closest_lift(A, B, q1p);
-    if (!i) break;
+    A = remii(subii(q2p,A), B); /* #E(Fq)+#E'(Fq) = 2q+2 */
   }
+  h = closest_lift(A, B, q1p);
   return gerepileuptoint(av, twistp? h: subii(shifti(q1p,1),h));
 }
 
