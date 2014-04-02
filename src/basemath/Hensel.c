@@ -288,11 +288,11 @@ MultiLift(GEN f, GEN a, GEN T, GEN p, long e0, long flag)
         else
           Td = FpX_red(T, peold);
         Tnew = FpX_red(T, penew);
-        ZpXQ_RecTreeLift(link, v, w, Td, Tnew, pd, peold, penew, f, lgpol(v),
+        ZpXQ_RecTreeLift(link, v, w, Td, Tnew, pd, peold, penew, f, lg(v)-2,
                          (flag == 0 && mask == 1));
       }
       else
-        ZpX_RecTreeLift(link, v, w, pd, peold, penew, f, lgpol(v),
+        ZpX_RecTreeLift(link, v, w, pd, peold, penew, f, lg(v)-2,
                         (flag == 0 && mask == 1));
       if (DEBUGLEVEL > 3) timer_printf(&Ti, "lifting to prec %ld", enew);
     }
@@ -361,7 +361,7 @@ bezout_lift_fact(GEN pol, GEN Q, GEN p, long e)
   link = gel(E,2);
   v    = gel(E,3);
   w    = gel(E,4);
-  BezoutPropagate(link, v, w, pe, NULL, pol, lgpol(v));
+  BezoutPropagate(link, v, w, pe, NULL, pol, lg(v)-2);
   E = cgetg(k+1, t_VEC);
   for (i = 1; i <= 2*k-2; i++)
   {

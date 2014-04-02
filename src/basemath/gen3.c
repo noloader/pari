@@ -3103,7 +3103,7 @@ _polcoeff(GEN x, long n, long v)
 static GEN
 _sercoeff(GEN x, long n, long v)
 {
-  long w, dx = degpol(x), ex = valp(x), N = n - ex;
+  long w, dx = lg(x)-3, ex = valp(x), N = n - ex;
   GEN z;
   if (dx < 0)
   {

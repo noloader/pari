@@ -2714,7 +2714,7 @@ bruti_intern(GEN g, pariout_t *T, outString *S, int addsign)
 
     case t_SER: v = get_var(varn(g), buf);
       i = valp(g);
-      l = lgpol(g);
+      l = lg(g)-2;
       if (l)
       {
         /* See normalize(): Mod(0,2)*x^i*(1+O(x)), has valp = i+1 */

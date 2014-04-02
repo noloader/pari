@@ -775,7 +775,7 @@ gtomat(GEN x)
       lx = lg(x);
       if (lx == 1) return cgetg(1, t_MAT);
       if (typ(gel(x,1)) == t_VEC) {
-        long j, h = lgcols(x);
+        long j, h = lg(gel(x,1));
         for (i=2; i<lx; i++) {
           if (typ(gel(x,i)) != t_VEC || lg(gel(x,i)) != h) break;
         }
