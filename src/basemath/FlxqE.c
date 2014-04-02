@@ -1172,14 +1172,38 @@ Flxq_ellcard_naive(GEN a4, GEN a6, GEN T, ulong p)
   return a;
 }
 
+/* assume T irreducible mod p, m = (q-1)/(p-1) */
+static int
+Flxq_kronecker(GEN x, GEN m, GEN T, ulong p)
+{
+  pari_sp av;
+  ulong z;
+  if (lgpol(x) == 0) return 0;
+  av = avma;
+  z = Flxq_pow(x, m, T, p)[2];
+  avma = av; return krouu(z, p);
+}
+
+/* Find x such that kronecker(u = x^3+a4x+a6, p) is KRO.
+ * Return point [x*u,u^2] on E (KRO=1) / E^twist (KRO=-1) */
+static GEN
+Flxq_ellpoint(long KRO, GEN a4, GEN a6, GEN m, long n, long vn, GEN T, ulong p)
+{
+  for(;;)
+  {
+    GEN x = random_Flx(n,vn,p);
+    GEN u = Flx_add(a6, Flxq_mul(Flx_add(a4, Flxq_sqr(x,T,p), p), x, T,p), p);
+    if (Flxq_kronecker(u, m,T,p) == KRO)
+      return mkvec2(Flxq_mul(u,x, T,p), Flxq_sqr(u, T,p));
+  }
+}
+
 static GEN
 Flxq_ellcard_Shanks(GEN a4, GEN a6, GEN q, GEN T, ulong p)
 {
   pari_sp av = avma;
-  long vn = get_Flx_var(T);
-  long twistp, twistpold=0;
-  GEN h,f, ta4, u, x, A, B;
-  long n = get_Flx_degree(T);
+  long vn = get_Flx_var(T), n = get_Flx_degree(T), KRO = -1;
+  GEN h,f, ta4, A, B, m;
   GEN q1p = addsi(1, q), q2p = shifti(q1p, 1);
   GEN bound = addis(sqrti(gmul2n(q,4)), 1); /* ceil( 4sqrt(q) ) */
   /* once #E(Flxq) is know mod B >= bound, it is completely determined */
@@ -1190,23 +1214,18 @@ Flxq_ellcard_Shanks(GEN a4, GEN a6, GEN q, GEN T, ulong p)
   case 1:  A = gen_0; B = gen_2; break;
   default: A = gen_1; B = gen_2; break; /* 0 */
   }
+  m = diviuexact(subiu(powuu(p,n), 1), p-1);
   for(;;)
   {
     h = closest_lift(A, B, q1p);
-    do
-    { /* look for points alternatively on E and its quadratic twist E' */
-      x = random_Flx(n,vn,p);
-      u = Flx_add(a6, Flxq_mul(Flx_add(a4, Flxq_sqr(x, T, p), p), x , T, p), p);
-      twistp = Flxq_issquare(u, T, p);
-    } while (twistp == twistpold);
-    twistpold = twistp;
     /* [ux, u^2] is on E_u: y^2 = x^3 + c4 u^2 x + c6 u^3
-     * E_u isomorphic to E (resp. E') iff twistp = 1 (resp. -1)
+     * E_u isomorphic to E (resp. E') iff KRO = 1 (resp. -1)
      * #E(F_p) = p+1 - a_p, #E'(F_p) = p+1 + a_p
      *
      * #E_u(Flxq) = A (mod B),  h is close to #E_u(Flxq) */
+    KRO = -KRO;
+    f = Flxq_ellpoint(KRO, a4,a6, m,n,vn, T,p);
 
-    f = mkvec2(Flxq_mul(u, x, T, p), Flxq_sqr(u, T, p));
     ta4 = Flxq_mul(a4, gel(f,2), T, p); /* a4 for E_u */
     h = FlxqE_find_order(f, h, bound, B, ta4,T,p);
     h = FlxqE_order(f, h, ta4, T, p);
@@ -1218,7 +1237,7 @@ Flxq_ellcard_Shanks(GEN a4, GEN a6, GEN q, GEN T, ulong p)
     A = remii(subii(q2p,A), B); /* #E(Fq)+#E'(Fq) = 2q+2 */
   }
   h = closest_lift(A, B, q1p);
-  return gerepileuptoint(av, twistp? h: subii(shifti(q1p,1),h));
+  return gerepileuptoint(av, KRO == 1? h: subii(q2p,h));
 }
 
 static GEN
