@@ -924,8 +924,8 @@ static long
 Fl_ellcard_Shanks(ulong c4, ulong c6, ulong p)
 {
   GEN f, fh, fg, ftest, F;
-  ulong i, s, h, x, cp4, p1p, p2p, pordmin,A,B;
-  long KRO, l, r, m;
+  ulong i, l, r, s, h, x, cp4, p1p, p2p, pordmin,A,B;
+  long KRO;
   pari_sp av = avma;
   multiple *table;
 
@@ -983,7 +983,7 @@ Fl_ellcard_Shanks(ulong c4, ulong c6, ulong p)
       l=0; r=s;
       while (l<r)
       {
-        m = (l+r) >> 1;
+        ulong m = (l+r) >> 1;
         if (table[m].x < (ulong)ftest[1]) l=m+1; else r=m;
       }
       if (r < s && table[r].x == (ulong)ftest[1]) break;
