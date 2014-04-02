@@ -681,7 +681,7 @@ parivstack_resize(ulong newsize)
 void
 paristack_resize(ulong newsize)
 {
-  long vsize = pari_mainstack->vsize;
+  size_t vsize = pari_mainstack->vsize;
   if (!newsize)
   {
     if (pari_mainstack->size == vsize) pari_err(e_STACK);
@@ -778,7 +778,7 @@ pari_init_opts(size_t parisize, ulong maxprime, ulong init_opts)
   }
 
   if ((init_opts&INIT_SIGm)) pari_sig_init(pari_sighandler);
-  pari_mainstack = malloc(sizeof(*pari_mainstack));
+  pari_mainstack = (struct pari_mainstack *) malloc(sizeof(*pari_mainstack));
   pari_mainstack_alloc(pari_mainstack, parisize, 0);
   pari_mainstack_use(pari_mainstack);
   init_universal_constants();
