@@ -2011,12 +2011,11 @@ RgXn_powers(GEN x, long m, long n)
   return gen_powers(x,m,use_sqr,(void*)&S,_sqrXn,_mulXn,_oneXn);
 }
 
-/* Q(x) mod t^n, x in R[t], n >= 1 */
 GEN
 RgX_RgXnV_eval(GEN Q, GEN x, long n)
 {
   struct modXn S;
-  S.v = varn(x); S.n = n;
+  S.v = varn(gel(x,2)); S.n = n;
   return gen_bkeval_powers(Q,degpol(Q),x,(void*)&S,&RgXn_algebra,_cmul);
 }
 
