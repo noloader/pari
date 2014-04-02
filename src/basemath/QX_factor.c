@@ -1384,8 +1384,9 @@ long
 poliscyclo(GEN f)
 {
   pari_sp av = avma;
-  long d = degpol(f);
+  long d;
   if (typ(f) != t_POL) pari_err_TYPE("poliscyclo", f);
+  d = degpol(f);
   if (d <= 0 || !RgX_is_ZX(f)) return 0;
   if (!equali1(gel(f,d+2)) || !is_pm1(gel(f,2))) return 0;
   if (d == 1) return signe(gel(f,2)) > 0? 2: 1;
