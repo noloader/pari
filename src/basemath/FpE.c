@@ -1001,12 +1001,11 @@ FOUND:
     {
       GEN C;
       A = itou( Z_chinese_all(gen_0, utoi(A), utoipos(h), utoipos(B), &C) );
-      B = itou_or_0(C);
-      if (!B) { h = A; break; }
-      if (B >= pordmin) { /* this one may overflow if B  huge */
-        h = itou( closest_lift(utoi(A), utoi(B), utoipos(p1p)) );
+      if (cmpiu(C, pordmin) >= 0) { /* uclosest_lift could overflow */
+        h = itou( closest_lift(utoi(A), C, utoipos(p1p)) );
         break;
       }
+      B = itou(C);
     }
     A = (p2p - A) % B; avma = av;
   }
