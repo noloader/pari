@@ -963,18 +963,19 @@ Zlx_gcd(GEN f1, GEN f2, ulong p, ulong pm)
 {
   pari_sp av = avma;
   GEN a = Zlx_sylvester_echelon(f1,f2,0,p,pm);
-  long c, l = lg(a), v = varn(f1);
+  long c, l = lg(a), sv = f1[1];
   for (c = 1; c < l; c++)
   {
     ulong t = ucoeff(a,c,c);
     if (t)
     {
-      a = RgV_to_RgX(Flv_to_ZV(gel(a,c)), v);
+      a = Flx_to_ZX(Flv_to_Flx(gel(a,c), sv));
       if (t == 1) return gerepilecopy(av, a);
       return gerepileupto(av, RgX_Rg_div(a, utoipos(t)));
     }
   }
-  avma = av; return pol_0(v);
+  avma = av;
+  a = cgetg(2,t_POL); a[1] = sv; return a;
 }
 GEN
 ZpX_gcd(GEN f1, GEN f2, GEN p, GEN pm)
