@@ -547,12 +547,10 @@ sd_parisize(const char *v, long flag)
     if (pari_mainstack->vsize==0)
     {
       pari_mainstack->rsize = n;
-      {
-        if (flag == d_INITRC)
-          paristack_alloc(n, n);
-        else
-          parivstack_resize(n);
-      }
+      if (flag == d_INITRC)
+        paristack_alloc(n, 0);
+      else
+        parivstack_resize(n);
     } else
     {
       if (flag == d_INITRC)
