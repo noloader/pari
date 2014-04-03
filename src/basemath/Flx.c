@@ -2063,7 +2063,7 @@ FlvV_polint_tree(GEN T, GEN R, GEN xa, GEN ya, ulong p, long vs)
   for (i=2; i<=m; i++)
   {
     GEN u = gel(T, i-1);
-    t = cgetg(lg(gel(T,i)), t_VEC);
+    GEN t = cgetg(lg(gel(T,i)), t_VEC);
     GEN v = gel(Tp, i-1);
     long n = lg(v)-1;
     for (j=1, k=1; k<n; j++, k+=2)
