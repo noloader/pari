@@ -1991,6 +1991,10 @@ ZV_dvd(GEN x, GEN y)
 INLINE GEN
 Fq_red(GEN x, GEN T, GEN p)
 { return typ(x)==t_INT? Fp_red(x,p): FpXQ_red(x,T,p); }
+INLINE GEN
+gener_Fq_local(GEN T, GEN p, GEN L)
+{ return T? gener_FpXQ_local(T,p, L)
+          : pgener_Fp_local(p, L); }
 
 /* FpXQX */
 INLINE GEN

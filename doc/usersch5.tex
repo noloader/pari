@@ -1,3 +1,19 @@
+% $Id: texkb,v 1.1.1.1 2006/08/01 16:39:15 kb Exp $
+\documentclass[a4paper,12pt]{amsart}
+\usepackage{kb}
+
+\author{Karim Belabas}
+\title{}
+
+\begin{document}
+%\begin{abstract}
+%\end{abstract}
+\maketitle
+%\tableofcontents
+
+\bibliographystyle{kbplain}
+\bibliography{kb}
+\end{document}
 % Copyright (c) 2000  The PARI Group
 %
 % This file is part of the PARI/GP documentation
@@ -4178,6 +4194,12 @@ stack, besides the $N$ in the result.
 \fun{GEN}{Fq_powu}{GEN x, ulong n, GEN pol, GEN p} returns $\kbd{x}^\kbd{n}$
 for small $n$.
 
+\fun{GEN}{Fq_log}{GEN a, GEN g, GEN ord, GEN T, GEN p}
+Let \kbd{g} be of order \kbd{ord} in the finite field $\F_p[X]/(T)$, return $e$
+such that $a^e=g$. If $e$ does not exists, the result is currently undefined.
+Allow $T = \kbd{NULL}$ (discrete log over $\F_p$), otherwise
+assume that \kbd{T} is irreducible mod \kbd{p}.
+
 \fun{int}{Fq_issquare}{GEN x, GEN T, GEN p} returns $1$ if $x$ is a square
 and $0$ otherwise. Assumes that \kbd{T} is irreducible mod \kbd{p}. $T =
 \kbd{NULL}$ is forbidden unless $x$ is an \kbd{Fp}.
@@ -4216,6 +4238,11 @@ which is a generator of the $\ell$-Sylow of $G$ for every $\ell$ in
 \kbd{L}. It is not necessary, and in fact slightly inefficient, to include
 $\ell=2$, since 2 is treated separately in any case, i.e. the generator
 obtained is never a square if $p$ is odd.
+
+\fun{GEN}{gener_Fq_local}{GEN T, GEN p, GEN L} as
+\tet{pgener_Fp_local} (if $T$ is \kbd{NULL})
+or \tet{gener_FpXQ_local} (otherwise).
+
 
 \fun{GEN}{FpXQ_powers}{GEN x, long n, GEN T, GEN p} returns $[\kbd{x}^0,
 \dots, \kbd{x}^\kbd{n}]$ as a \typ{VEC} of \kbd{FpXQ}s.
