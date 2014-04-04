@@ -15,7 +15,7 @@ Doc: Let $Q,P$ be polynomials with integer coefficients.
 
  \noindent This function rewritten from an implementation of Liu's algorithm by
  Cohen and Liu (1994), \kbd{genus2reduction-0.3}, see
- \kbd{http://www.math.u-bordeaux1.fr/\til liu/G2R/}.
+ \url{http://www.math.u-bordeaux1.fr/~liu/G2R/}.
 
  \misctitle{CAVEAT} The function interface may change: for the
  time being, it returns $[N,\var{FaN}, T, V]$

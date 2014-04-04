@@ -214,6 +214,9 @@
 \def\@kbdidx#1{{\tt\@idx{#1}}}
 \def\tet{\gdef\f@nt{tt}\let\do=\@kbdidx\doverb}
 
+\def\@url#1{\hbox{\tt#1}}
+\def\url{\let\do=\@url\doverb}
+
 % to index + set up as var (variable)
 \def\@kbdvar#1{{\it\@idx{#1}\/}}
 \def\tev{\gdef\f@nt{it}\let\do=\@kbdvar\doverb}

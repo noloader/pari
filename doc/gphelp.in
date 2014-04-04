@@ -716,10 +716,16 @@ sub inittr {
 	);
 }
 
-sub indent_equally { my $in = shift; $in =~ s/^[ \t]*/    /mg; $in}
+sub indent_equally { my $in = shift; $in =~ s/^[ \t]*/    /mg; $in }
+sub quote { my $in = shift; $in =~ s/~/\\~/g; $in }
 
 sub basic_subst {
   local($_) = shift;
+
+  s/\\teb\{([^\}]*)\}/"\\sidx{$1}$tr{startbold}" . quote($1) . "$tr{endbold}"/eg;
+  s/\\tet\{([^\}]*)\}/"\\sidx{$1}$tr{startcode}" . quote($1) . "$tr{endcode}"/eg;
+  s/\\url\{([^\}]*)\}/"\\sidx{$1}$tr{startcode}" . quote($1) . "$tr{endcode}"/eg;
+  s/\\tev\{([^\}]*)\}/"\\sidx{$1}$tr{startit}" . quote($1) . "$tr{endit}"/eg;
 
   s/(\S)[ \t]*\n[ \t]+/$1\n/gm;
   s/([^\\])\\\{/$1$tr{obr}/g;
@@ -875,9 +881,6 @@ sub basic_subst {
   s/\\item/$tr{startbold}*$tr{endbold}/g;
   s/^ *\\misctitle\{([^\}]*)\}/\@3$tr{startbold}$1.$tr{endbold}/g;
   s/\\subsec\{([^\}]*)\}/\@3$tr{startbold}$1.$tr{endbold}/g unless $to_pod;
-  s/\\teb\{([^\}]*)\}/\\sidx{$1}$tr{startbold}$1$tr{endbold}/g;
-  s/\\tet\{([^\}]*)\}/\\sidx{$1}$tr{startcode}$1$tr{endcode}/g;
-  s/\\tev\{([^\}]*)\}/\\sidx{$1}$tr{startit}$1$tr{endit}/g;
   s/\\\$/$tr{ldollar}/g;
   s/\\kbd\s*\{\s*</\\kbd{$tr{lt}/g if $to_pod;
   s/\\kbd\s*\{\s*>/\\kbd{$tr{gt}/g if $to_pod;
