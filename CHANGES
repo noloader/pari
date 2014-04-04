@@ -34,6 +34,7 @@ WH  8- [libpari] New low-level functions get_Fl_inv, remll_pre
 BA  9- [libpari] New low-level functions Fl_sqr_pre, Fl_mul_pre, remlll_pre
    10- [TeX documentation] new primitive \url (verbatim arg)
    11- [libpari] New functions Fq_log, gener_Fq_local
+BA 12- GP functions bnrisgalois, bnrgaloismatrix, bnrgaloisapply
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]
