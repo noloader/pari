@@ -1798,11 +1798,17 @@ This is based on an algorithm by T. Grandlund and N. M\"{o}ller in
 ``Improved division by invariant integers''
 \url{http://gmplib.org/~tege/division-paper.pdf}.
 
+In the following, we set $B=\B$.
+
 \fun{ulong}{get_Fl_red}{ulong p} returns a pseudo inverse \var{pi} for $p$
 
 \fun{ulong}{remll_pre}{ulong u1, ulong u0, ulong p, ulong pi} returns
-$u_1\*2^\B+u_0$ modulo $p$, assuming $pi$ is the pseudo inverse of $p$.
-This function is faster if $u_1 < p$.
+the Euclidean remainder of $u_1\*2^B+u_0$ modulo $p$, assuming $pi$ is the
+pseudo inverse of $p$.  This function is faster if $u_1 < p$.
+
+\fun{ulong}{remlll_pre}{ulong u2, ulong u1, ulong u0, ulong p, ulong pi}
+returns the Euclidean remainder of $u_2\*2^{2\*B}+u_1\*2^{B}+u_0$ modulo $p$,
+assuming $pi$ is the pseudo inverse of $p$.
 
 \fun{ulong}{Fl_sqr_pre}{ulong x, ulong p, ulong pi} returns $x^2$ modulo $p$,
 assuming $pi$ is the pseudo inverse of $p$.

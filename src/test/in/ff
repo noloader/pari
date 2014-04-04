@@ -39,6 +39,9 @@ test(7, 7)
 test(precprime(2^32), 3)
 test(nextprime(2^32), 3)
 
+ffgen(ffinit(2^32-5,101),'a)^10000
+ffgen(ffinit(2^64-59,101),'a)^10000
+
 test2(p)=
 {
   ffgen(x*Mod(1,p));

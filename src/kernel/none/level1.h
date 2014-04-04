@@ -914,6 +914,13 @@ remll_pre(ulong a_hi, ulong a_lo, ulong n, ulong ninv)
 }
 
 INLINE ulong
+remlll_pre(ulong u2, ulong u1, ulong u0, ulong n, ulong ninv)
+{
+  u1 = remll_pre(u2, u1, n, ninv);
+  return remll_pre(u1, u0, n, ninv);
+}
+
+INLINE ulong
 Fl_sqr_pre(ulong a, ulong p, ulong pi)
 {
   register ulong x;

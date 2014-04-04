@@ -3590,6 +3590,7 @@ INLINE void   remiiz(GEN x, GEN y, GEN z);
 INLINE GEN    remis(GEN x, long y);
 INLINE void   remisz(GEN y, long s, GEN z);
 INLINE ulong  remll_pre(ulong u1, ulong u0, ulong p, ulong pi);
+INLINE ulong  remlll_pre(ulong u2, ulong u1, ulong u0, ulong p, ulong pi);
 INLINE GEN    remsi(long x, GEN y);
 INLINE void   remsiz(long s, GEN y, GEN z);
 INLINE GEN    remss(long x, long y);
