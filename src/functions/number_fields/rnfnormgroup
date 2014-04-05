@@ -18,4 +18,6 @@ Doc:
  bnr). The result is the HNF defining the norm group on the given generators
  of \kbd{bnr.gen}. Note that neither the fact that \var{pol} defines an
  Abelian extension nor the fact that the module is a multiple of the conductor
- is checked. The result is undefined if the assumption is not correct.
+ is checked. The result is undefined if the assumption is not correct,
+ but the function will return the empty matrix \kbd{[;]} if it detects a
+ problem; it may also not detect the problem and return a wrong result.

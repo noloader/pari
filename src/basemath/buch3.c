@@ -1380,19 +1380,14 @@ bnrisconductor(GEN bnr, GEN H0)
   avma = av; return 1;
 }
 
-static void
-err_rnfnormgroup(GEN T)
-{ pari_err_DOMAIN("rnfnormgroup","rnfisabelian(bnr,pol)","=", gen_0,T); }
-
 /* return the norm group corresponding to the relative extension given by
  * polrel over bnr.bnf, assuming it is abelian and the modulus of bnr is a
  * multiple of the conductor */
-GEN
-rnfnormgroup(GEN bnr, GEN polrel)
+static GEN
+rnfnormgroup_i(GEN bnr, GEN polrel)
 {
   long i, j, reldeg, nfac, k;
-  pari_sp av = avma;
-  GEN bnf, index, discnf, nf, group, detgroup, fa, greldeg;
+  GEN bnf, index, discnf, nf, G, detG, fa, greldeg;
   GEN fac, col, cnd;
   forprime_t S;
   ulong p;
@@ -1406,15 +1401,15 @@ rnfnormgroup(GEN bnr, GEN polrel)
   reldeg = degpol(polrel);
   /* reldeg-th powers are in norm group */
   greldeg = utoipos(reldeg);
-  group = FpC_red(bnr_get_cyc(bnr), greldeg);
-  for (i=1; i<lg(group); i++)
-    if (!signe(gel(group,i))) gel(group,i) = greldeg;
-  detgroup = ZV_prod(group);
-  group = diagonal_shallow(group);
-  k = cmpiu(detgroup,reldeg);
-  if (k < 0) err_rnfnormgroup(polrel);
-  if (!k) return gerepilecopy(av, group);
+  G = FpC_red(bnr_get_cyc(bnr), greldeg);
+  for (i=1; i<lg(G); i++)
+    if (!signe(gel(G,i))) gel(G,i) = greldeg;
+  detG = ZV_prod(G);
+  k = cmpiu(detG,reldeg);
+  if (k < 0) return NULL;
+  if (!k) return diagonal(G);
 
+  G = diagonal_shallow(G);
   discnf = nf_get_disc(nf);
   index  = nf_get_index(nf);
   u_forprime_init(&S, 2, ULONG_MAX);
@@ -1447,7 +1442,7 @@ rnfnormgroup(GEN bnr, GEN polrel)
       nfac = lg(fac)-1;
       /* check decomposition of pr has Galois type */
       for (j=2; j<=nfac; j++)
-        if (degpol(gel(fac,j)) != f) err_rnfnormgroup(polrel);
+        if (degpol(gel(fac,j)) != f) return NULL;
       if (oldf < 0) oldf = f; else if (oldf != f) oldf = 0;
       if (f == reldeg) continue; /* reldeg-th powers already included */
 
@@ -1456,14 +1451,22 @@ rnfnormgroup(GEN bnr, GEN polrel)
       /* pr^f = N P, P | pr, hence is in norm group */
       col = bnrisprincipal(bnr,pr,0);
       if (f > 1) col = ZC_z_mul(col, f);
-      group = ZM_hnf(shallowconcat(group, col));
-      detgroup = ZM_det_triangular(group);
-      k = cmpiu(detgroup,reldeg);
-      if (k < 0) err_rnfnormgroup(polrel);
-      if (!k) { cgiv(detgroup); return gerepileupto(av,group); }
+      G = ZM_hnf(shallowconcat(G, col));
+      detG = ZM_det_triangular(G);
+      k = cmpiu(detG,reldeg);
+      if (k < 0) return NULL;
+      if (!k) { cgiv(detG); return G; }
     }
   }
   return NULL;
+}
+GEN
+rnfnormgroup(GEN bnr, GEN polrel)
+{
+  pari_sp av = avma;
+  GEN G = rnfnormgroup_i(bnr, polrel);
+  if (!G) { avma = av; return cgetg(1,t_MAT); }
+  return gerepileupto(av, G);
 }
 
 GEN
