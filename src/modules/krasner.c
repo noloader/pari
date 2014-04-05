@@ -761,18 +761,23 @@ WildlyRamifiedCase(KRASNER_t *data)
   return gerepileupto(av, rep);
 }
 
-/* return the minimal polynomial (mod pr) of a generator of (F_p^f)^x with variable v */
+/* return the minimal polynomial (mod pr) of an element nu of (F_q)^x
+ * where q = p^f that is l-maximal for all primes l dividing g = (e,q-1). */
 static GEN
 CycloPol(KRASNER_t *d)
 {
-  GEN T, z;
+  long v = d->v, e = d->e, f = d->f;
+  GEN T, z, fa, p = d->p;
+
   /* v - primroot(p) */
   if (d->f == 1)
-    return deg1pol_shallow(gen_1, Fp_neg(pgener_Fp(d->p), d->pr), d->v);
-  T = init_Fq(d->p, d->f, d->v);
-  z = gener_FpXQ(T, d->p, NULL);
+    return deg1pol_shallow(gen_1, Fp_neg(pgener_Fp(p), d->pr), v);
+
+  T = init_Fq(d->p, d->f, v);
+  fa = factoru( ugcd(e, umodiu(subiu(powiu(p,f),1), e)) );
+  z = gener_FpXQ_local(T, d->p, zv_to_ZV(gel(fa,1)));
   z = ZpXQ_sqrtnlift(scalarpol(gen_1,varn(T)), d->qm1, z, T, d->p, d->r);
-  return FpX_red(ZXQ_charpoly(z, T, d->v), d->pr);
+  return FpX_red(ZXQ_charpoly(z, T, v), d->pr);
 }
 
 /* return [ p^1, p^2, ..., p^c ] */

@@ -13,11 +13,12 @@ BA  5- ellheegner was using too much memory in some case
        ellap(ellinit([582304190,64196421]),2147438927) -> overflow
        ellap(ellinit([-1137195,489565862]),2038074751) -> wrong result
     7- nfhilbert(K,x,y, P above 2) could give wrong results [#1561]
-    8- rnfkummer sometimes failed to return an answer:$error or oo loop.
+    8- rnfkummer sometimes failed to return an answer: error or oo loop.
        Relied on exhaustive enumeration of an Fp-vector space, some of
        whose elements would trigger an error. Replace by Fp-linear algebra
        that directly picks the correct line (O(d^3) algo instead of O(p^d),
        and no failures). Only compute the defining poly for the right element.
+XR  9- padicfields(huge p, d) was very slow [even though ramification is tame]
 
   Added
     1- add optional argument to sumdigits to specify the base
