@@ -598,11 +598,52 @@ pari_add_oldmodule(entree *ep)
 /*                       PARI MAIN STACK                             */
 /*********************************************************************/
 
-static const size_t MIN_STACK = 500032;
+#ifdef HAS_MMAP
+#include <sys/mman.h>
+#define PARI_STACK_ALIGN (sysconf(_SC_PAGE_SIZE))
+static void *
+pari_mainstack_malloc(size_t size)
+{
+  void *b = mmap(NULL, size, PROT_READ|PROT_WRITE,
+                             MAP_PRIVATE|MAP_ANONYMOUS|MAP_NORESERVE,-1,0);
+  return (b == MAP_FAILED) ? NULL: b;
+}
+
+static void
+pari_mainstack_mfree(void *s, size_t size)
+{
+  munmap(s, size);
+}
+
+static void
+pari_mainstack_mreset(void *s, size_t size)
+{
+  madvise(s, size, MADV_DONTNEED);
+}
+
+#else
+#define PARI_STACK_ALIGN (0x40UL)
+static void *
+pari_mainstack_malloc(size_t s)
+{
+  return malloc(s); /* NOT pari_malloc, e_MEM would be deadly */
+}
+
+static void
+pari_mainstack_mfree(void *s, size_t size) { (void) size; free(s); }
+
+static void
+pari_mainstack_mreset(void *s, size_t size) { (void) s; (void) size; }
+
+#endif
+
+static const size_t MIN_STACK = 500032UL;
 static size_t
 fix_size(size_t a)
 {
-  size_t b = a & (~0x3fUL); /* Align */
+  size_t ps = PARI_STACK_ALIGN;
+  size_t b = a & ~(ps - 1); /* Align */
+  if (b < a) b += ps;
   if (b < MIN_STACK) b = MIN_STACK;
   return b;
 }
@@ -615,7 +656,7 @@ pari_mainstack_alloc(struct pari_mainstack *st, size_t rsize, size_t vsize)
   {
     char buf[128];
     if (s < MIN_STACK) pari_err(e_MEM); /* no way out. Die */
-    st->vbot = (pari_sp)malloc(s); /* NOT pari_malloc, e_MEM would be deadly */
+    st->vbot = (pari_sp)pari_mainstack_malloc(s);
     if (st->vbot) break;
       /* must use sprintf: pari stack is currently dead */
     sprintf(buf, "not enough memory, new stack %lu", (ulong)s);
@@ -632,7 +673,7 @@ pari_mainstack_alloc(struct pari_mainstack *st, size_t rsize, size_t vsize)
 static void
 pari_mainstack_free(struct pari_mainstack *st)
 {
-  pari_free((void*)st->vbot);
+  pari_mainstack_mfree((void*)st->vbot, st->vsize);
   st->top = st->bot = st->vbot = 0;
   st->size = st->vsize =0;
 }
@@ -693,6 +734,15 @@ paristack_resize(ulong newsize)
   else if (newsize > vsize) pari_err(e_STACK);
   pari_mainstack->size = newsize;
   pari_mainstack->bot = pari_mainstack->top - pari_mainstack->size;
+}
+
+void
+parivstack_reset(void)
+{
+  pari_mainstack->size = pari_mainstack->rsize;
+  pari_mainstack->bot = pari_mainstack->top - pari_mainstack->size;
+  pari_mainstack_mreset((void *)pari_mainstack->vbot,
+                        pari_mainstack->bot-pari_mainstack->vbot);
 }
 
 /*********************************************************************/

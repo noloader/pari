@@ -2706,6 +2706,7 @@ void    pari_warn(int numerr, ...);
 void    paristack_alloc(ulong rsize, ulong size);
 void    paristack_resize(ulong newsize);
 void    parivstack_resize(ulong newsize);
+void    parivstack_reset(void);
 GEN     trap0(const char *e, GEN f, GEN r);
 void    shiftaddress(GEN x, long dec);
 void    shiftaddress_canon(GEN x, long dec);

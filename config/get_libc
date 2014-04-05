@@ -29,6 +29,7 @@ list=TIOCGWINSZ; . ./look
 list=getrlimit; . ./look
 list='stat opendir'; . ./look
 list=vsnprintf; . ./look
+list=mmap; . ./look
 list=waitpid; . ./look
 list=setsid; . ./look
 list=getenv; . ./look

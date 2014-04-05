@@ -1613,6 +1613,7 @@ gp_main_loop(long flag)
         gp_context_save(&rec);
       }
       avma = av = pari_mainstack->top;
+      parivstack_reset();
       kill_buffers_upto(b);
       alarm0(0);
     }
@@ -1650,6 +1651,7 @@ gp_main_loop(long flag)
     if (GP_DATA->simplify) z = simplify_shallow(z);
     pari_add_hist(z, t);
     if (z != gnil && ! is_silent(b->buf) ) gp_output(z, GP_DATA);
+    parivstack_reset();
   }
 }
 
