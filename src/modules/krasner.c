@@ -654,7 +654,13 @@ RandomPol(KRASNER_t *data, GEN Omega)
     for (j = 1; j <= end-st; j++)
       c = ZX_add(c, ZX_Z_mul(RandomFF(data), gel(data->pk, j)));
     c = ZX_Z_mul(c, gel(data->pk, st));
-    gel(pol, i+1) = FpX_red(c, data->pr);
+    c = FpX_red(c, data->pr);
+    switch(degpol(c))
+    {
+      case -1: c = gen_0; break;
+      case  0: c = gel(c,2); break;
+    }
+    gel(pol, i+1) = c;
   }
   gel(pol, i+1) = gen_1; /* monic */
   return pol;
