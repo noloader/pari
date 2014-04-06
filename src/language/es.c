@@ -4547,41 +4547,31 @@ void gpwritebin(const char *s, GEN x) { char *t=wr_check(s); writebin(t, x); par
  *   p > 0, called from %p or %#p
  *   p <= 0, called from %` or %#` (|p| backquotes, possibly 0) */
 static gp_hist_cell *
-history(gp_hist *H, long p, char *old, char *entry)
+history(long p)
 {
+  gp_hist *H = GP_DATA->hist;
   ulong t = H->total, s = H->size;
   gp_hist_cell *c;
 
-  if (!t)
-    pari_err(old?e_SYNTAX:e_MISC,"The result history is empty", old, entry);
+  if (!t) pari_err(e_MISC,"The result history is empty");
 
   if (p <= 0) p += t; /* count |p| entries starting from last */
   if (p <= 0 || p <= (long)(t - s) || (ulong)p > t)
   {
-    char *str = stack_malloc(128);
     long pmin = (long)(t - s) + 1;
     if (pmin <= 0) pmin = 1;
-    sprintf(str, "History result %%%ld not available [%%%ld-%%%lu]", p,pmin,t);
-    pari_err(e_SYNTAX, str, old, entry);
+    pari_err(e_MISC,"History result %%%ld not available [%%%ld-%%%lu]",
+             p,pmin,t);
   }
   c = H->v + ((p-1) % s);
   if (!c->z)
-  {
-    char *str = stack_malloc(128);
-    sprintf(str, "History result %%%ld has been deleted (histsize changed)", p);
-    pari_err(e_SYNTAX, str, old, entry);
-  }
+    pari_err(e_MISC,"History result %%%ld has been deleted (histsize changed)", p);
   return c;
 }
 GEN
-gp_history(gp_hist *H, long p, char *old, char *entry)
-{ return history(H,p,old,entry)->z; }
-GEN
-pari_get_hist(long p)
-{ return history(GP_DATA->hist, p, NULL,NULL)->z; }
+pari_get_hist(long p) { return history(p)->z; }
 long
-pari_get_histtime(long p)
-{ return history(GP_DATA->hist, p, NULL,NULL)->t; }
+pari_get_histtime(long p) { return history(p)->t; }
 
 void
 pari_add_hist(GEN x, long time)

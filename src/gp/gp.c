@@ -940,7 +940,7 @@ escape(char *tch, int ismain)
         d = atol(s); if (*s == '-') s++;
         while (isdigit((int)*s)) s++;
       }
-      x = gp_history(GP_DATA->hist, d, tch+1,tch-1);
+      x = pari_get_hist(d);
       switch (c)
       {
         case 'B':

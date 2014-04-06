@@ -45,3 +45,4 @@ BA  2- [libpari] rename RgX_mullow -> RgXn_mul, RgX_sqrlow -> RgXn_sqr,
     it detects a problem (modulus not a multiple of the conductor, non-abelian
     extension...): this is a BIB with undefined result, but returning a
     sentinel is more useful *if* we notice it.
+    4- [gp] uniformize errors from the % history operator (SYNTAX->MISC) [#1553]

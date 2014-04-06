@@ -443,7 +443,6 @@ char *filtre(const char *s, int flag);
 void check_filtre(filtre_t *F);
 
 gp_data *default_gp_data(void);
-GEN  gp_history(gp_hist *H, long p, char *old, char *entry);
 
 void delete_dirs(gp_path *p);
 void gp_expand_path(gp_path *p);
