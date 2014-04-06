@@ -300,6 +300,21 @@ ZX_valrem(GEN x, GEN *Z)
   return vx;
 }
 
+/* Return 2^(n degpol(P))  P(x >> n), not memory clean if P is a ZX */
+GEN
+ZX_rescale2n(GEN P, long n)
+{
+  long i, l = lg(P), ni = n;
+  GEN Q = cgetg(l,t_POL);
+  Q[l-1] = P[l-1];
+  for (i=l-2; i>=2; i--)
+  {
+    gel(Q,i) = shifti(gel(P,i), ni);
+    ni += n;
+  }
+  Q[1] = P[1]; return Q;
+}
+
 /* Return h^deg(P) P(x / h), not memory clean. h integer, P ZX */
 GEN
 ZX_rescale(GEN P, GEN h)

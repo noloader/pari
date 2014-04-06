@@ -1,0 +1,15 @@
+Function: polrootsreal
+Section: polynomials
+C-Name: realroots
+Prototype: Gp
+Help: polrootsreal(x): real roots of the polynomial x with rational
+ coefficients, using Uspensky's method.
+Doc: real roots of the polynomial \var{x} with rational
+ coefficients, multiple roots being included only once. The roots are given
+ to a relative accuracy of \kbd{realprecision}.
+
+ The algorithm used is a modification of Uspensky's method (relying on
+ Descartes's rule of sign), following Rouillier and Zimmerman ``Efficient
+ isolation of a polynomial real roots''
+ (\url{http://hal.inria.fr/inria-00072518/}. Barring bugs, it is guaranteed
+ to converge and to give the roots to the required accuracy.

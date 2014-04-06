@@ -819,6 +819,7 @@ GEN     RgXn_reverse(GEN f, long e);
 GEN     RgXn_sqr(GEN f, long n);
 GEN     RgXnV_red_shallow(GEN P, long n);
 GEN     ZX_translate(GEN P, GEN c);
+GEN     ZX_unscale2n(GEN P, long n);
 GEN     ZX_unscale(GEN P, GEN h);
 GEN     ZX_unscale_div(GEN P, GEN h);
 int     ZXQX_dvd(GEN x, GEN y, GEN T);
@@ -936,6 +937,7 @@ GEN     ZX_mulu(GEN y, ulong x);
 GEN     ZX_neg(GEN x);
 GEN     ZX_rem(GEN x, GEN y);
 GEN     ZX_remi2n(GEN y, long n);
+GEN     ZX_rescale2n(GEN P, long n);
 GEN     ZX_rescale(GEN P, GEN h);
 GEN     ZX_rescale_lt(GEN P);
 GEN     ZX_shifti(GEN x, long n);
@@ -3221,6 +3223,8 @@ int     isrealappr(GEN x, long l);
 GEN     polgraeffe(GEN p);
 GEN     polmod_to_embed(GEN x, long prec);
 GEN     roots(GEN x,long l);
+GEN     realroots(GEN P, long prec);
+GEN     ZX_uspensky(GEN P, long onlypos, long flag, long prec);
 
 /* subcyclo.c */
 

@@ -2160,3 +2160,542 @@ QX_complex_roots(GEN p, long l)
   L = all_roots(Q_primpart(p), bit);
   return gerepileupto(av, clean_roots(L, l, bit, 1));
 }
+
+/********************************************************************/
+/**                                                                **/
+/**                REAL ROOTS OF INTEGER POLYNOMIAL                **/
+/**                                                                **/
+/********************************************************************/
+
+/* Count sign changes in the coefficients of (x+1)^deg(P)*P(1/(x+1))
+ * The inversion is implicit (we take coefficients backwards) */
+static long
+X2XP1(GEN P, unsigned long deg, GEN *Premapped)
+{
+  pari_sp av = avma, lim = stack_lim(av, 3);
+  GEN v = shallowcopy(P);
+  long i, j, vlim, nb, s, s2;
+  char flag;
+
+  vlim = deg+2;
+  nb = 0;
+  i = 0;
+  do
+  {
+    for (j = 2; j < vlim; j++) gel(v, j+1) = addii(gel(v, j), gel(v, j+1));
+    s = -signe(gel(v, vlim));
+    vlim--;
+    i++;
+  }
+  while (!s);
+  if (vlim != deg + 1 && Premapped) setlg(v, vlim + 2);
+
+  for (; i <= deg - 1; i++)
+  {
+    s2 = -signe(gel(v, 2));
+    flag = (s2 == s);
+    for (j = 2; j < vlim; j++)
+    {
+      gel(v, j+1) = addii(gel(v, j), gel(v, j+1));
+      if (flag) flag = (s2 != signe(gel(v, j+1)));
+    }
+
+    if (low_stack(lim, stack_lim(av, 3)))
+    {
+      if (!Premapped) setlg(v, vlim);
+      v = gerepileupto(av, v);
+      if (DEBUGMEM > 1) pari_warn(warnmem, "X2XP1");
+    }
+
+    if (s == signe(gel(v, vlim)))
+    {
+      nb++;
+      if (nb >= 2) { avma = av; return 2; }
+      s = -s;
+    }
+
+    if (flag && !Premapped) goto END;
+    vlim--;
+  }
+  if (s == signe(gel(v, vlim))) nb++;
+END:
+  if (Premapped && nb == 1)
+    *Premapped = gerepileupto(av, v);
+  else
+    avma = av;
+  return nb;
+}
+
+static long
+_intervalcmp(GEN x, GEN y)
+{
+  if (typ(x) == t_VEC) x = gel(x, 1);
+  if (typ(y) == t_VEC) y = gel(y, 1);
+  return gcmp(x, y);
+}
+
+static GEN
+_gen_nored(void *E, GEN x) { return x; }
+static GEN
+_mp_add(void *E, GEN x, GEN y) { return mpadd(x, y); }
+static GEN
+_mp_mul(void *E, GEN x, GEN y) { return mpmul(x, y); }
+static GEN
+_mp_sqr(void *E, GEN x) { return mpsqr(x); }
+static GEN
+_gen_one(void *E) { return gen_1; }
+static GEN
+_gen_zero(void *E) { return gen_0; }
+
+static struct bb_algebra mp_algebra = { _gen_nored,_mp_add,_mp_mul,_mp_sqr,_gen_one,_gen_zero };
+
+static GEN
+_mp_cmul(void *E, GEN P, long a, GEN x) { return mpmul(gel(P, a+2), x); }
+
+/* Split the polynom P in two parts, each with unique sign.
+ * Moreover compute the two parts of the derivative of P. */
+static long
+split_polynoms(GEN P, long deg, long s0, GEN *Pp, GEN *Pm, GEN *Pprimep, GEN *Pprimem)
+{
+  long i, degneg, v = evalvarn(varn(P));
+  for(i=1; i <= deg; i++) if (signe(gel(P, i+2)) != s0) break;
+  degneg = i;
+  *Pm = cgetg(degneg + 2, t_POL);
+  (*Pm)[1] = v;
+  *Pprimem = cgetg(degneg + 1, t_POL);
+  (*Pprimem)[1] = v;
+  for(i=0; i < degneg; i++)
+  {
+    GEN elt = gel(P, i+2);
+    gel(*Pm, i+2) = elt;
+    if (i) gel(*Pprimem, i+1) = mului(i, elt);
+  }
+  *Pp = cgetg(deg - degneg + 3, t_POL);
+  (*Pp)[1] = v;
+  *Pprimep = cgetg(deg - degneg + 3, t_POL);
+  (*Pprimep)[1] = v;
+  for(i=degneg; i <= deg; i++)
+  {
+    GEN elt = gel(P, i+2);
+    gel(*Pp, i+2-degneg) = elt;
+    gel(*Pprimep, i+2-degneg) = mului(i, elt);
+  }
+  *Pm = normalizepol_lg(*Pm, degneg+2);
+  *Pprimem = normalizepol_lg(*Pprimem, degneg+1);
+  *Pp = normalizepol_lg(*Pp, deg-degneg+3);
+  *Pprimep = normalizepol_lg(*Pprimep, deg-degneg+3);
+  return degpol(*Pm) + 1;
+}
+
+static GEN
+gen_bkeval_single_power(long d, GEN V, void *E, struct bb_algebra *ff)
+{
+  long mp = lg(V) - 2;
+  if (d > mp) return gmul(gpowgs(gel(V, mp+1), d/mp), gel(V, (d%mp)+1));
+  return gel(V, d+1);
+}
+
+static GEN
+splitpoleval(GEN Pp, GEN Pm, GEN pows, long deg, long degneg, long bitprec)
+{
+  GEN vp = gen_bkeval_powers(Pp, deg-degneg, pows, NULL, &mp_algebra, _mp_cmul);
+  GEN vm = gen_bkeval_powers(Pm, degneg-1, pows, NULL, &mp_algebra, _mp_cmul);
+  GEN xa = gen_bkeval_single_power(degneg, pows, NULL, &mp_algebra);
+  GEN r;
+  vp = gmul(vp, xa);
+  r = gadd(vp, vm);
+  if (expo(vp) - (signe(r) ? expo(r) : 0) > prec2nbits(realprec(vp)) - bitprec)
+    return NULL;
+  return r;
+}
+
+/* Newton for polynom P. One solution between 0 and infinity, P' has also at
+ * most one zero. P is almost certainly without zero coefficients. */
+static GEN
+polsolve(GEN P, long bitprec)
+{
+  pari_sp av = avma;
+  GEN Pp, Pm, Pprimep, Pprimem, pows;
+  GEN Pprime, Pprime2;
+  GEN ra, rb, rc, rcold = NULL, Pc, Ppc;
+  long deg = degpol(P), degneg, rt;
+  long s0, cprec = DEFAULTPREC, prec = nbits2prec(bitprec);
+  long bitaddprec, addprec;
+  long expoold = LONG_MAX, iter;
+  if (deg == 1)
+  {
+    ra = negr(divrr(itor(gel(P, 2), bitprec), itor(gel(P, 3), bitprec)));
+    return gerepileuptoleaf(av, ra);
+  }
+  Pprime = ZX_deriv(P); Pprime2 = ZX_deriv(Pprime);
+  bitaddprec = 1 + 2*expu(deg); addprec = nbits2prec(bitaddprec);
+  s0 = signe(gel(P, 2));
+  degneg = split_polynoms(P, deg, s0, &Pp, &Pm, &Pprimep, &Pprimem);
+  rt = maxss(degneg, brent_kung_optpow(maxss(deg-degneg, degneg-1), 2, 1));
+  {
+    /* Optimized Cauchy bound */
+    GEN summin = gen_0, absmaj;
+    long i;
+
+    absmaj = gel(P, 2);
+    for(i=1; i < degneg; i++)
+    {
+      GEN elt = gel(P, i+2);
+      if (absi_cmp(absmaj, elt) < 0) absmaj = elt;
+    }
+    summin = gel(P, i+2);
+    while (++i <= deg) summin = addii(summin, gel(P, i+2));
+    rb = subsr(1, rdivii(absmaj, summin, cprec));
+    do
+    {
+      pows = gen_powers(rb, rt, 1, NULL, _mp_sqr, _mp_mul, _gen_one);
+      Pc = splitpoleval(Pp, Pm, pows, deg, degneg, bitaddprec);
+      if (!Pc) { cprec++; rb = rtor(rb, cprec); continue; }
+      if (signe(Pc) != s0) break;
+      shiftr_inplace(rb,1);
+    }
+    while (1);
+  }
+  ra = NULL;
+  iter = 0;
+  while (1)
+  {
+    GEN wdth;
+    iter++;
+    if (ra)
+      rc = shiftr(addrr(ra, rb), -1);
+    else
+      rc = shiftr(rb, -1);
+    do
+    {
+      pows = gen_powers(rc, rt, 1, NULL, _mp_sqr, _mp_mul, _gen_one);
+      Pc = splitpoleval(Pp, Pm, pows, deg, degneg, bitaddprec+2);
+      if (Pc) break;
+      cprec++; rc = rtor(rc, cprec);
+    } while (1);
+    if (signe(Pc) == s0)
+      ra = rc;
+    else
+      rb = rc;
+    if (!ra) continue;
+    wdth = subrr(rb, ra);
+    if (!(iter % 8))
+    {
+      GEN m1 = poleval(Pprime, ra), M2;
+      if (signe(m1) == s0) continue;
+      M2 = poleval(Pprime2, rb);
+      if (absr_cmp(gmul(M2, wdth), shiftr(m1, 1)) > 0) continue;
+      break;
+    }
+    else if (gexpo(wdth) <= -bitprec)
+      break;
+  }
+  rc = rb;
+  iter = 0;
+  while (1)
+  {
+    long exponew;
+    GEN dist;
+    iter++;
+    rcold = rc;
+    pows = gen_powers(rc, rt, 1, NULL, _mp_sqr, _mp_mul, _gen_one);
+    Ppc = splitpoleval(Pprimep, Pprimem, pows, deg-1, degneg-1, bitaddprec+4);
+    if (Ppc)
+      Pc = splitpoleval(Pp, Pm, pows, deg, degneg, bitaddprec+4);
+    if (!Ppc || !Pc)
+    {
+      if (cprec >= prec+addprec)
+        cprec++;
+      else
+        cprec = minss(2*cprec, prec+addprec);
+      rc = rtor(rc, cprec); /* Backtrack one step */
+      continue;
+    }
+    dist = divrr(Pc, Ppc);
+    rc = subrr(rc, dist);
+    if (cmprr(ra, rc) > 0 || cmprr(rb, rc) < 0)
+    {
+      if (cprec >= prec+addprec) break;
+      cprec = minss(2*cprec, prec+addprec);
+      rc = rtor(rcold, cprec); /* Backtrack one step */
+      continue;
+    }
+    if (expoold == LONG_MAX) { expoold = expo(dist); continue; }
+    exponew = expo(dist);
+    if (exponew < -bitprec - 1)
+    {
+      if (cprec >= prec+addprec) break;
+      cprec = minss(2*cprec, prec+addprec);
+      rc = rtor(rc, cprec);
+      continue;
+    }
+    if (exponew > expoold - 2)
+    {
+      if (cprec >= prec+addprec) break;
+      cprec = minss(2*cprec, prec+addprec);
+      rc = rtor(rc, cprec);
+      expoold = LONG_MAX;
+      continue;
+    }
+    expoold = exponew;
+  }
+  return gerepileuptoleaf(av, rtor(rc, prec));
+}
+
+static GEN
+usp(GEN Q0, long deg, long *nb_donep, long flag, long bitprec)
+{
+  pari_sp av, lim;
+  GEN Q, sol;
+  long nb_todo, nbr = 0, ind, deg0, indf, i, k, nb, j;
+  long listsize = 64, nb_done = 0;
+  GEN c, Lc, Lk;
+
+  av = avma;
+
+  sol = const_col(deg, gen_0);
+  deg0 = deg;
+  Lc = const_vec(listsize, gen_0);
+  Lk = cgetg(listsize+1, t_VECSMALL);
+  c = gen_0;
+  k = Lk[1] = 0;
+  ind = 1; indf = 2;
+  Q = gcopy(Q0);
+
+  nb_todo = 1;
+  lim = stack_lim(av, 2);
+  while (nb_todo)
+  {
+    GEN nc = gel(Lc, ind), Qremapped;
+    if (DEBUGLEVEL > 1)
+      err_printf("Checking interval [%Ps/2^%ld, %Ps/2^%ld)\n",
+              nc, Lk[ind], addis(nc, 1), Lk[ind]);
+
+    if (Lk[ind] == k + 1)
+    {
+      if (DEBUGLEVEL > 2) err_printf("depth %d\n", Lk[ind]);
+      deg0 = deg;
+      setlg(Q0, deg + 3);
+      Q0 = ZX_rescale2n(Q0, 1);
+      Q = Q_primpart(Q0);
+      c = gen_0;
+    }
+
+    if (cmpii(nc, c))
+      Q = ZX_translate(Q, subii(nc, c));
+
+    if (DEBUGLEVEL > 2 && Lk[ind] == 19) err_printf("Q=%Ps\n", Q);
+
+    k = Lk[ind];
+    c = nc;
+    ind++;
+    nb_todo--;
+
+    if (gequal(gel(Q, 2), gen_0))
+    {
+      GEN newsol = gmul2n(c, -k);
+      for (j = 1; j <= nbr; j++)
+        if (gequal(gel(sol, j), newsol)) break;
+      if (j > nbr) gel(sol, ++nbr) = newsol;
+
+      deg0--;
+      for (j = 2; j <= deg0 + 2; j++) gel(Q, j) = gel(Q, j+1);
+      setlg(Q, j);
+      if (DEBUGLEVEL > 1)
+        err_printf("2-root %Ps, Q=%Ps\n", newsol, Q);
+    }
+    else if (DEBUGLEVEL > 2) err_printf("Q=%Ps\n", Q);
+
+    nb = X2XP1(Q, deg0, flag ? &Qremapped : NULL);
+    nb_done++;
+
+    if (DEBUGLEVEL > 1) err_printf("nb = %ld\n", nb);
+
+    switch (nb)
+    {
+    case 0:
+      if (DEBUGLEVEL > 2) err_printf("No root in this interval\n");
+      break;
+    case 1:
+      if (DEBUGLEVEL > 2) err_printf("A simple root in this interval\n");
+      if (!flag)
+      {
+        GEN low, hi;
+        low = gmul2n(c, -k);
+        hi  = gmul2n(addis(c,1), -k);
+        gel(sol, ++nbr) = mkvec2(low, hi);
+      }
+      else
+      {
+        /* Caveat emptor: Qremapped is the reciprocal polynomial */
+        GEN sr = polsolve(Qremapped, bitprec);
+        gel(sol, ++nbr) = rtor(gmul2n(addir(c, divrr(sr, addsr(1, sr))), -k), nbits2prec(bitprec));
+      }
+      break;
+
+    default:
+      if (DEBUGLEVEL > 2)
+        err_printf("Maybe at least %ld roots, retry\n", nb);
+      if (indf + 2 > listsize)
+      {
+        if (ind>1)
+        {
+          for (i = ind; i < indf; i++)
+          {
+            gel(Lc, i-ind+1) = gel(Lc, i); Lk[i-ind+1] = Lk[i];
+          }
+          indf -= ind-1; ind = 1;
+          for (i = indf; i <= listsize; i++) gel(Lc, i) = gen_0;
+        }
+        if (indf + 2 > listsize)
+        {
+          listsize *= 2;
+          Lc = vec_lengthen(Lc, listsize);
+          Lk = vecsmall_lengthen(Lk, listsize);
+          for (i = indf; i < listsize; i++) { gel(Lc, i) = gen_0; }
+        }
+      }
+      nc = shifti(c, 1);
+      gel(Lc, indf) = nc;
+      gel(Lc, indf + 1) = addis(nc, 1);
+      Lk[indf] = Lk[indf + 1] = k + 1;
+      indf += 2;
+      nb_todo += 2;
+    }
+
+    if (low_stack(lim, stack_lim(av, 2)))
+    {
+      gerepileall(av, 5, &Q0, &Q, &sol, &Lc, &Lk);
+      if (DEBUGMEM > 1) pari_warn(warnmem, "ZX_uspensky", avma);
+    }
+  }
+
+  setlg(sol, nbr+1);
+  *nb_donep += nb_done;
+  return gerepilecopy(av, sol);
+}
+
+GEN
+ZX_uspensky(GEN P, long onlypos, long flag, long bitprec)
+{
+  pari_sp av = avma;
+  GEN sol, Pcur;
+  long i, nbr, deg, b, nb_done = 0;
+
+  deg = degpol(P);
+  if (deg == 0) return cgetg(1, t_COL);
+  if (deg == 1)
+  {
+    GEN a = pollead(P, -1), b = gel(P,2);
+    if (onlypos && signe(a) == signe(b)) return cgetg(1, t_COL);
+    retmkcol(gdiv(gneg(b), a));
+  }
+  nbr = ZX_valrem(P, &Pcur);
+  deg -= nbr;
+  if (!nbr) Pcur = P;
+
+  b = (long)ceil(cauchy_bound(P)/LOG2);
+  if (DEBUGLEVEL > 1) err_printf("b = %d\n", b);
+  Pcur = ZX_unscale2n(Pcur, b); /* Maps roots to [-1;1] */
+  sol = usp(Pcur, deg, &nb_done, flag, bitprec);
+  if (!onlypos)
+    sol = concat(sol, gneg(usp(ZX_unscale(Pcur, gen_m1), deg, &nb_done, flag, bitprec)));
+  for (i = 1; i < lg(sol); i++)
+  {
+    GEN soli = gel(sol, i);
+    if (typ(soli) == t_VEC)
+    {
+      gel(soli, 1) = gmul2n(gel(soli, 1), b);
+      gel(soli, 2) = gmul2n(gel(soli, 2), b);
+    }
+    else
+      gel(sol, i) = gmul2n(soli, b);
+  }
+  if (nbr)
+    sol = concat(zerovec(nbr), sol);
+
+  if (DEBUGLEVEL > 2)
+    err_printf("Number of visited nodes: %d\n", nb_done);
+
+  if (flag)
+  {
+    long prec = nbits2prec(bitprec);
+    for (i = 1; i <= nbr; i++)
+      if (typ(gel(sol, i)) != t_REAL)
+        gel(sol, i) = gtofp(gel(sol, i), prec);
+    return gerepileupto(av, sort(sol));
+  }
+  return gerepileupto(av, gen_sort(sol, (void *)_intervalcmp, cmp_nodata));
+}
+
+GEN
+realroots(GEN P, long prec)
+{
+  pari_sp av = avma;
+  long nrr = 0, v = varn(P);
+  GEN sol = NULL, x = pol_x(v), fa, ex;
+  long i, j, k;
+
+  if (typ(P) != t_POL)
+  {
+    if (gequal0(P)) pari_err_ROOTS0("realroots");
+    if (!isvalidcoeff(P)) pari_err_TYPE("realroots",P);
+    return cgetg(1,t_COL); /* constant polynomial */
+  }
+  P = Q_primpart(P);
+  if (!RgX_is_ZX(P)) pari_err_TYPE("realroots",P);
+  fa = ZX_squff(P, &ex);
+  for (i = 1; i < lg(fa); i++)
+  {
+    GEN Pi = gel(fa, i), soli, soli2 = NULL;
+    long n, nrri = 0, h;
+    Pi = RgX_deflate_max(Pi, &h);
+    soli = ZX_uspensky(Pi, !(h%2), 1, prec2nbits(prec));
+    n = lg(soli);
+    if (!(h % 2)) soli2 = cgetg(n, t_COL);
+    for (j = 1; j < n; j++)
+    {
+      GEN elt = gel(soli, j);
+      if (typ(elt) != t_VEC)
+      {
+        nrri++;
+        Pi = gdiv(Pi, gsub(gmul(denom(elt), x), numer(elt)));
+        gel(soli, j) = gtofp(elt, prec);
+      }
+      if (h > 1)
+      {
+        /* note: elt != 0 because we are square free */
+        GEN sqrtroot, elt = gel(soli, j);
+        if (h == 2)
+          sqrtroot = gsqrt(elt, prec);
+        else
+        {
+          if (signe(elt) < 0)
+            sqrtroot = mpneg(gsqrtn(mpneg(elt), utoipos(h), NULL, prec));
+          else
+            sqrtroot = gsqrtn(elt, utoipos(h), NULL, prec);
+        }
+        gel(soli, j) = sqrtroot;
+        if (!(h % 2)) gel(soli2, j) = mpneg(sqrtroot);
+      }
+    }
+    for (j = 1; j < n; j++)
+    {
+      GEN interval = gel(soli, j);
+      if (typ(interval) != t_VEC) continue;
+      gel(soli, j) = polsolve(NULL,prec2nbits(prec));
+    }
+    if (!(h % 2)) soli = shallowconcat(soli, soli2);
+    for (k = 1; k <= ex[i]; k++)
+      sol = sol ? shallowconcat(sol, soli) : soli;
+    nrr += ex[i]*nrri;
+  }
+
+  if (DEBUGLEVEL > 2)
+  {
+    err_printf("Number of real roots: %d\n", lg(sol)-1);
+    err_printf(" -- of which 2-integral: %ld\n", nrr);
+  }
+
+  return gerepilecopy(av, sort(sol));
+}

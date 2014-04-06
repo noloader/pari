@@ -1,19 +1,3 @@
-% $Id: texkb,v 1.1.1.1 2006/08/01 16:39:15 kb Exp $
-\documentclass[a4paper,12pt]{amsart}
-\usepackage{kb}
-
-\author{Karim Belabas}
-\title{}
-
-\begin{document}
-%\begin{abstract}
-%\end{abstract}
-\maketitle
-%\tableofcontents
-
-\bibliographystyle{kbplain}
-\bibliography{kb}
-\end{document}
 % Copyright (c) 2000  The PARI Group
 %
 % This file is part of the PARI/GP documentation
@@ -6916,6 +6900,10 @@ smaller coefficients.
 \kbd{P} is a \kbd{ZX} and \kbd{h} is a non-zero integer. Neither memory-clean
 nor suitable for \kbd{gerepileupto}.
 
+\fun{GEN}{ZX_rescale2n}{GEN P, long n} returns $2^{n\deg(P)} P(x>>n)$ where
+\kbd{P} is a \kbd{ZX}. Neither memory-clean nor suitable for
+\kbd{gerepileupto}.
+
 \fun{GEN}{ZX_rescale_lt}{GEN P} returns the monic integral polynomial
 $h^{\deg(P)-1} P(x/h)$, where \kbd{P} is a non-zero \kbd{ZX} and \kbd{h} is
 its leading coefficient. Neither memory-clean nor suitable for
@@ -6926,6 +6914,9 @@ integer. Returns $P(X + c)$ (optimized for $c = \pm 1$).
 
 \fun{GEN}{ZX_unscale}{GEN P, GEN h} given a \kbd{ZX} $P$ and a \typ{INT} $h$,
 returns $P(hx)$. Not memory clean.
+
+\fun{GEN}{ZX_unscale2n}{GEN P, long n} given a \kbd{ZX} $P$, returns
+$P(x<<n)$. Not memory clean.
 
 \fun{GEN}{ZX_unscale_div}{GEN P, GEN h} given a \kbd{ZX} $P$ and a \typ{INT} $h$
 such that $h \mid P(0)$, returns $P(hx)/h$. Not memory clean.
@@ -7060,6 +7051,19 @@ caller).
 \kbd{QX} $p$ at accuracy $l$, where real roots are returned as \typ{REAL}s.
 More efficient when $p$ is irreducible and primitive. Special case
 of \tet{cleanroots}.
+
+\fun{GEN}{ZX_uspensky}{GEN P, long onlypos, long flag, long bitprec} let \kbd{P} be a
+primitive \kbd{ZX} polynomial whose real roots are simple and \kbd{bitprec} is
+the relative precision in bits. If \kbd{flag} is 0 returns a list of intervals
+that isolate the real roots of \kbd{P}. In that case the return value is a
+column of elements which are either vectors \kbd{[a,b]} meaning that there is a
+single root in the open interval \kbd{(a,b)} or elements \kbd{x0} such that
+\kbd{x0} is a root of \kbd{P}. There is no guarantee that all rational roots
+will be found (at most those with power of $2$ denominator can be found and
+even those are not guaranteed to be found). Beware that the limits of the open
+intervals can be roots of the polynomial. If \kbd{flag} is 1 returns an
+approximation of the real roots of \kbd{P}. If \kbd{onlypos} is non-zero, limit
+the results to the non-negative roots.
 
 \subsec{\kbd{QXQ}}
 

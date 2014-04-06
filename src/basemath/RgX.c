@@ -216,6 +216,24 @@ ZX_unscale(GEN P, GEN h)
   }
   return Q;
 }
+/* P a ZX. Return P(x << n), not memory clean */
+GEN
+ZX_unscale2n(GEN P, long n)
+{
+  long i, ni = n, l = lg(P);
+  GEN Q = cgetg(l, t_POL);
+  Q[1] = P[1];
+  if (l == 2) return Q;
+  gel(Q,2) = gel(P,2);
+  if (l == 3) return Q;
+  gel(Q,3) = shifti(gel(P,3), ni);
+  for (i=4; i<l; i++)
+  {
+    ni += n;
+    gel(Q,i) = shifti(gel(P,i), ni);
+  }
+  return Q;
+}
 /* P(h*X) / h, assuming h | P(0), i.e. the result is a ZX */
 GEN
 ZX_unscale_div(GEN P, GEN h)
