@@ -2542,18 +2542,18 @@ usp(GEN Q0, long deg, long *nb_donep, long flag, long bitprec)
         {
           for (i = ind; i < indf; i++)
           {
-            gel(Lc, i-ind+1) = gel(Lc, i); Lk[i-ind+1] = Lk[i];
+            gel(Lc, i-ind+1) = gel(Lc, i);
+            Lk[i-ind+1] = Lk[i];
           }
           indf -= ind-1; ind = 1;
-          for (i = indf; i <= listsize; i++) gel(Lc, i) = gen_0;
         }
         if (indf + 2 > listsize)
         {
           listsize *= 2;
           Lc = vec_lengthen(Lc, listsize);
           Lk = vecsmall_lengthen(Lk, listsize);
-          for (i = indf; i < listsize; i++) { gel(Lc, i) = gen_0; }
         }
+        for (i = indf; i <= listsize; i++) gel(Lc, i) = gen_0;
       }
       nc = shifti(c, 1);
       gel(Lc, indf) = nc;
