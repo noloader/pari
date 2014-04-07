@@ -52,3 +52,4 @@ BA  2- [libpari] rename RgX_mullow -> RgXn_mul, RgX_sqrlow -> RgXn_sqr,
     4- [gp] uniformize errors from the % history operator (SYNTAX->MISC) [#1553]
     5- t_STR used to compare as larger than any real number via < or >
        operators. Such a comparison now raises an exception.
+    6- valuation(0,p), nfeltval(nf,0,pr), idealval(nf,0) now all return +oo

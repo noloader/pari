@@ -762,6 +762,12 @@ nfvalrem(GEN nf, GEN x, GEN pr, GEN *py)
     *py = gerepilecopy(av, *py);
   return w;
 }
+GEN
+gpnfvalrem(GEN nf, GEN x, GEN pr, GEN *py)
+{
+  long v = nfvalrem(nf,x,pr,py);
+  return v == LONG_MAX? mkoo(): stoi(v);
+}
 
 GEN
 coltoalg(GEN nf, GEN x)

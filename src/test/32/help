@@ -145,5 +145,6 @@ List of the PARI types:
   t_CLOSURE: functions [ code ] [ arity ] [ code ] [ operand ] [ data ] [ te
 xt ]
   t_ERROR  : error context     [ code ] [ errnum ] [ dat_1 ] ... [ dat_k ]
+  t_INFINITY: a*infinity       [ code ] [ a ]
 
 Total time spent: 0

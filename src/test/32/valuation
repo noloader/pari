@@ -1,4 +1,4 @@
-oo oo oo oo 
++oo +oo +oo +oo 
 0 0 0 0 
 0 -1 0 0 
 ERROR ERROR 0 0 
@@ -24,4 +24,4 @@ ERROR 1 0 0
 00000*x + O(x^2)
 1
 O(x)
-Total time spent: 8
+Total time spent: 4

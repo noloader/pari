@@ -1,13 +1,13 @@
 Function: nfeltval
 Section: number_fields
-C-Name: nfvalrem
-Prototype: lGGGD&
+C-Name: gpnfvalrem
+Prototype: GGGD&
 Help: nfeltval(nf,x,pr,{&y}): valuation of element x at the prime pr as output
  by idealprimedec.
 Doc: given an element $x$ in
  \var{nf} and a prime ideal \var{pr} in the format output by
  \kbd{idealprimedec}, computes the valuation $v$ at \var{pr} of the
- element $x$.
+ element $x$. The valuation of $0$ is \kbd{+oo}.
  \bprog
  ? nf = nfinit(x^2 + 1);
  ? P = idealprimedec(nf, 2)[1];
@@ -35,3 +35,6 @@ Doc: given an element $x$ in
  the residue field of \var{pr} more efficiently than if the product had
  been expanded beforehand: we can reduce mod \var{pr} after each ring
  operation.
+Variant: Also available is
+ \fun{long}{nfvalrem}{GEN nf, GEN x, GEN pr, GEN *y = NULL}, which returns
+ \tet{LONG_MAX} if $x = 0$ and the valuation as a \kbd{long} integer.

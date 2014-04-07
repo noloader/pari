@@ -1190,6 +1190,12 @@ gvaluation(GEN x, GEN p)
   pari_err_OP("valuation", x,p);
   return 0; /* not reached */
 }
+GEN
+gpvaluation(GEN x, GEN p)
+{
+  long v = gvaluation(x,p);
+  return v == LONG_MAX? mkoo(): stoi(v);
+}
 
 /* x is non-zero */
 long

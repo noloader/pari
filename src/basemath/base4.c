@@ -702,6 +702,12 @@ idealval(GEN nf, GEN ix, GEN P)
   }
   avma = av; return v + vd;
 }
+GEN
+gpidealval(GEN nf, GEN ix, GEN P)
+{
+  long v = idealval(nf,ix,P);
+  return v == LONG_MAX? mkoo(): stoi(v);
+}
 
 /* gcd and generalized Bezout */
 
