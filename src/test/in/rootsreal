@@ -1,0 +1,7 @@
+default(realprecision,38);
+polrootsreal(x^3-6*x^2+11*x-6)
+polrootsreal(polchebyshev(9))
+polrootsreal(polchebyshev(10))
+polrootsreal(1)
+polrootsreal(0)
+polrootsreal(Mod(1,2))
