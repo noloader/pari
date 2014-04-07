@@ -2077,6 +2077,7 @@ FlvV_polint_tree(GEN T, GEN R, GEN xa, GEN ya, ulong p, long vs)
     ulong a = Fl_mul(ya[k], R[k], p), b = Fl_mul(ya[k+1], R[k+1], p);
     gel(t, j) = mkvecsmall3(vs, Fl_neg(Fl_add(Fl_mul(xa[k], b, p ),
                             Fl_mul(xa[k+1], a, p), p), p), Fl_add(a, b, p));
+    gel(t, j) = Flx_renormalize(gel(t, j), 4);
   }
   if (k==n) gel(t, j) = Fl_to_Flx(Fl_mul(ya[k], R[k], p), vs);
   gel(Tp, 1) = t;
@@ -2123,7 +2124,7 @@ Flv_FlvV_polint(GEN xa, GEN ya, ulong p, long vs)
   long i;
   GEN P = Flx_deriv(gmael(T, m, 1), p);
   GEN R = Flv_inv(Flx_Flv_eval_tree(P, xa, T, p), p);
-  GEN M = cgetg(l+1, t_MAT);
+  GEN M = cgetg(l+1, t_VEC);
   for (i=1; i<=l; i++)
     gel(M,i) = FlvV_polint_tree(T, R, xa, gel(ya,i), p, vs);
   return gerepilecopy(av, M);
