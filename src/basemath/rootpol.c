@@ -2481,8 +2481,7 @@ usp(GEN Q0, long deg, long *nb_donep, long flag, long bitprec)
       c = gen_0;
     }
 
-    if (cmpii(nc, c))
-      Q = ZX_translate(Q, subii(nc, c));
+    if (!equalii(nc, c)) Q = ZX_translate(Q, subii(nc, c));
 
     if (DEBUGLEVEL > 2 && Lk[ind] == 19) err_printf("Q=%Ps\n", Q);
 
@@ -2491,7 +2490,7 @@ usp(GEN Q0, long deg, long *nb_donep, long flag, long bitprec)
     ind++;
     nb_todo--;
 
-    if (gequal(gel(Q, 2), gen_0))
+    if (equalii(gel(Q, 2), gen_0))
     {
       GEN newsol = gmul2n(c, -k);
       for (j = 1; j <= nbr; j++)
@@ -2522,12 +2521,11 @@ usp(GEN Q0, long deg, long *nb_donep, long flag, long bitprec)
       {
         GEN low, hi;
         low = gmul2n(c, -k);
-        hi  = gmul2n(addis(c,1), -k);
+        hi  = gmul2n(addiu(c,1), -k);
         gel(sol, ++nbr) = mkvec2(low, hi);
       }
       else
-      {
-        /* Caveat emptor: Qremapped is the reciprocal polynomial */
+      { /* Caveat emptor: Qremapped is the reciprocal polynomial */
         GEN sr = polsolve(Qremapped, bitprec);
         gel(sol, ++nbr) = rtor(gmul2n(addir(c, divrr(sr, addsr(1, sr))), -k), nbits2prec(bitprec));
       }
