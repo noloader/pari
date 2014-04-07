@@ -688,7 +688,7 @@ get_badbnf(GEN bnf)
  * - ell, or
  * - a generator in bnf.gen or bnfz.gen */
 static GEN
-get_prlist(GEN bnr, GEN H, long ell, GEN bnfz)
+get_prlist(GEN bnr, GEN H, ulong ell, GEN bnfz)
 {
   pari_sp av0 = avma;
   forprime_t T;
