@@ -343,9 +343,9 @@ The extra operator \kbd{===} tests whether two objects are identical and is
 much stricter than \kbd{==} : objects of different type or length are never
 identical.
 
-For the purpose of comparison, \typ{STR} objects are strictly larger than any
-other non-string type; two \typ{STR} objects are compared using the standard
-lexicographic order.
+For the purpose of comparison, \typ{STR} objects are compared using
+the standard lexicographic order, and comparing them to objects
+of a different type raises an exception.
 
 GP accepts \kbd{<>} as a synonym for \kbd{!=}. On the other hand, \kbd{=} is
 definitely \emph{not} a synonym for \kbd{==}: it is the assignment statement.

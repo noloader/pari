@@ -2822,6 +2822,8 @@ bruti_intern(GEN g, pariout_t *T, outString *S, int addsign)
         str_putc(S,'}');
       }
       break;
+    case t_INFINITY: str_puts(S, inf_get_sign(g) == 1? "+oo": "-oo");
+      break;
 
     case t_MAT:
     {
@@ -3093,6 +3095,8 @@ texi_sign(GEN g, pariout_t *T, outString *S, int addsign)
         str_putc(S,',');   texi(gel(g,4),T,S);
         str_putc(S,',');   texi(gel(g,5),T,S); str_puts(S,"\\}");
       }
+      break;
+    case t_INFINITY: str_puts(S, inf_get_sign(g) == 1? "+\\infty": "-\\infty");
       break;
 
     case t_MAT:

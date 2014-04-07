@@ -169,5 +169,6 @@ enum {
   t_STR    =  21,
   t_VECSMALL= 22,
   t_CLOSURE = 23,
-  t_ERROR   = 24
+  t_ERROR   = 24,
+  t_INFINITY= 25
 };

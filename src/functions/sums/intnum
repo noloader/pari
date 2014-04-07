@@ -3,7 +3,7 @@ Section: sums
 C-Name: intnum0
 Prototype: V=GGEDGp
 Help: intnum(X=a,b,expr,{tab}): numerical integration of expr from a to b with
- respect to X. Plus/minus infinity is coded as [+1]/ [-1]. Finally tab is
+ respect to X. Plus/minus infinity is coded as +oo/-oo. Finally tab is
  either omitted (let the program choose the integration step), a positive
  integer m (choose integration step 1/2^m), or data precomputed with intnuminit.
 Wrapper: (,,G)
@@ -21,12 +21,8 @@ Doc: numerical integration
  ? intnum(x = 0,Pi/2, [cos(x), sin(x)])
  %2 = [1.000000000000000000000000000, 1.000000000000000000000000000]
  @eprog\noindent
- An endpoint equal to $\pm\infty$ is coded as the single-component vector
- $[\pm1]$. You are welcome to set, e.g \kbd{oo = [1]} or \kbd{INFINITY = [1]},
- then using \kbd{+oo}, \kbd{-oo}, \kbd{-INFINITY}, etc. will have the expected
- behavior.
+ An endpoint equal to $\pm\infty$ is coded as \kbd{+oo} or \kbd{-oo}.
  \bprog
- ? oo = [1];  \\@com for clarity
  ? intnum(x = 1,+oo, 1/x^2)
  %2 = 1.000000000000000000000000000
  @eprog\noindent
@@ -59,9 +55,9 @@ Doc: numerical integration
 
  \misctitle{Specifying the behavior at endpoints}
  This is done as follows. An endpoint $a$ is either given as such (a scalar,
- real or complex, or $[\pm1]$ for $\pm\infty$), or as a two component vector
- $[a,\alpha]$, to indicate the behavior of the integrand in a neighborhood
- of $a$.
+ real or complex, \kbd{oo} or \kbd{-oo} for $\pm\infty$), or as a two
+ component vector $[a,\alpha]$, to indicate the behavior of the integrand in a
+ neighborhood of $a$.
 
  If $a$ is finite, the code $[a,\alpha]$ means the function has a
  singularity of the form $(x-a)^{\alpha}$, up to logarithms. (If $\alpha \ge
@@ -77,18 +73,17 @@ Doc: numerical integration
  %3 = 1.999999999999999999999946438 \\@com using a wrong exponent is bad
  @eprog
 
- If $a$ is $\pm\infty$, which is coded as $[\pm 1]$, the situation is more
- complicated, and $[[\pm1],\alpha]$ means:
+ If $a$ is $\pm\infty$, which is coded as \kbd{+oo} or \kbd{-oo},
+ the situation is more complicated, and $[\pm\kbd{oo},\alpha]$ means:
 
- \item $\alpha=0$ (or no $\alpha$ at all, i.e. simply $[\pm1]$) assumes that the
- integrand tends to zero, but not exponentially fast, and not
- oscillating such as $\sin(x)/x$.
+ \item $\alpha=0$ (or no $\alpha$ at all, i.e. simply $\pm\kbd{oo}$)
+ assumes that the integrand tends to zero, but not exponentially fast, and
+ not oscillating such as $\sin(x)/x$.
 
  \item $\alpha>0$ assumes that the function tends to zero exponentially fast
  approximately as $\exp(-\alpha x)$. This includes oscillating but quickly
  decreasing functions such as $\exp(-x)\sin(x)$.
  \bprog
- ? oo = [1];
  ? intnum(x=0, +oo, exp(-2*x))
    ***   at top-level: intnum(x=0,+oo,exp(-
    ***                 ^--------------------
@@ -123,9 +118,11 @@ Doc: numerical integration
 
  \misctitle{Note} If $f(x)=\cos(kx)g(x)$ where $g(x)$ tends to zero
  exponentially fast as $\exp(-\alpha x)$, it is up to the user to choose
- between $[[\pm1],\alpha]$ and $[[\pm1],k* I]$, but a good rule of thumb is that
+ between $[\pm\kbd{oo},\alpha]$ and $[\pm\kbd{oo},k* I]$, but a good rule of
+ thumb is that
  if the oscillations are much weaker than the exponential decrease, choose
- $[[\pm1],\alpha]$, otherwise choose $[[\pm1],k* I]$, although the latter can
+ $[\pm\kbd{oo},\alpha]$, otherwise choose $[\pm\kbd{oo},k*I]$, although the
+ latter can
  reasonably be used in all cases, while the former cannot. To take a specific
  example, in the inverse Mellin transform, the integrand is almost always a
  product of an exponentially decreasing and an oscillating factor. If we
@@ -144,7 +141,6 @@ Doc: numerical integration
  decimal digits. We first type
  \bprog
  ? \p 105
- ? oo = [1]  \\@com for clarity
  @eprog
 
  \misctitle{Apparent singularities} Even if the function $f(x)$ represented

@@ -575,6 +575,13 @@ gcmp(GEN x, GEN y)
       case t_REAL: return cmprr(x, y);
       case t_FRAC: return cmpfrac(x, y);
       case t_STR:  return cmp_str(GSTR(x), GSTR(y));
+      case t_INFINITY:
+      {
+        long sx = inf_get_sign(x), sy = inf_get_sign(y);
+        if (sx < sy) return -1;
+        if (sx > sy) return 1;
+        return 0;
+      }
     }
   switch(tx)
   {
@@ -583,7 +590,7 @@ gcmp(GEN x, GEN y)
       {
         case t_REAL: return cmpir(x, y);
         case t_FRAC: return cmpifrac(x, y);
-        case t_STR:  return -1;
+        case t_INFINITY: return inf_get_sign(y) == 1? -1: 1;
       }
       break;
     case t_REAL:
@@ -591,7 +598,7 @@ gcmp(GEN x, GEN y)
       {
         case t_INT:  return cmpri(x, y);
         case t_FRAC: return cmprfrac(x, y);
-        case t_STR:  return -1;
+        case t_INFINITY: return inf_get_sign(y) == 1? -1: 1;
       }
       break;
     case t_FRAC:
@@ -599,10 +606,10 @@ gcmp(GEN x, GEN y)
       {
         case t_INT:  return -cmpifrac(y, x);
         case t_REAL: return -cmprfrac(y, x);
-        case t_STR:  return -1;
+        case t_INFINITY: return inf_get_sign(y) == 1? -1: 1;
       }
       break;
-    case t_STR: return 1;
+    case t_INFINITY: return inf_get_sign(x) == 1? 1: -1;
   }
   pari_err_TYPE2("comparison",x,y);
   return 0;/*not reached*/
@@ -887,6 +894,7 @@ gidentical(GEN x, GEN y)
       if (!x) return y? 0: 1;
       if (!y) return 0;
       return vecidentical(x, y);
+    case t_INFINITY: return gidentical(gel(x,1),gel(y,1));
   }
   return 0;
 }
@@ -1002,6 +1010,8 @@ gequal(GEN x, GEN y)
         return gequal(x, y);
       case t_CLOSURE:
         return closure_identical(x,y);
+      case t_INFINITY:
+        return gequal(gel(x,1),gel(y,1));
     }
   (void)&av; /* emulate volatile */
   av = avma; i = gequal_try(x, y);
@@ -1718,6 +1728,7 @@ gneg(GEN x)
     case t_VEC: return RgV_neg(x);
     case t_COL: return RgC_neg(x);
     case t_MAT: return RgM_neg(x);
+    case t_INFINITY: return inf_get_sign(x) == 1? mkmoo(): mkoo();
     default:
       pari_err_TYPE("gneg",x);
       return NULL; /* not reached */
@@ -2532,6 +2543,7 @@ gsigne(GEN x)
   {
     case t_INT: case t_REAL: return signe(x);
     case t_FRAC: return signe(gel(x,1));
+    case t_INFINITY: return inf_get_sign(x);
   }
   pari_err_TYPE("gsigne",x);
   return 0; /* not reached */

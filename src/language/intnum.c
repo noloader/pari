@@ -839,22 +839,32 @@ static long
 transcode(GEN a, const char *name)
 {
   GEN a1, a2;
+  switch(typ(a))
+  {
+    case t_VEC: break;
+    case t_INFINITY: return inf_get_sign(a) == 1 ? f_YSLOW: -f_YSLOW;
+    default: return f_REG;
+  }
   if (typ(a) != t_VEC) return f_REG;
   switch(lg(a))
   {
     case 2: return gsigne(gel(a,1)) > 0 ? f_YSLOW : -f_YSLOW;
-    case 3: a1 = gel(a,1); a2 = gel(a,2); break;
+    case 3: break;
     default: err_code(a,name);
   }
   a1 = gel(a,1);
   a2 = gel(a,2);
-  if (typ(a1) != t_VEC)
+  switch(typ(a1))
   {
-    if (!isinC(a1) || !isinR(a2) || gcmpgs(a2, -1) <= 0) err_code(a,name);
-    return gsigne(a2) < 0 ? f_SING : f_REG;
+    case t_VEC:
+      if (lg(a1) != 2) err_code(a,name);
+      return gsigne(gel(a1,1)) * code_aux(a, name);
+    case t_INFINITY:
+      return inf_get_sign(a1) * code_aux(a, name);
+    default:
+      if (!isinC(a1) || !isinR(a2) || gcmpgs(a2, -1) <= 0) err_code(a,name);
+      return gsigne(a2) < 0 ? f_SING : f_REG;
   }
-  if (lg(a1) != 2) err_code(a,name);
-  return gsigne(gel(a1,1)) * code_aux(a, name);
 }
 
 /* computes the necessary tabs, knowing a, b and m */

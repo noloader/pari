@@ -1,7 +1,6 @@
 default(echo,1);
 allocatemem(20 * 10^6);
-check(a,b) = my(t = abs((a-b)/b)); if (t, ceil(log(t)/log(10)), "-oo");
-oo = [1];
+check(a,b) = my(t = abs((a-b)/b)); if (t, ceil(log(t)/log(10)), -oo);
 \p96
 check(intcirc(s=1, 0.5, zeta(s)), 1)
 check(intlaplaceinv(x=2, 1, 1/x), 1)

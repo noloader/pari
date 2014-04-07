@@ -38,6 +38,7 @@ BA  9- [libpari] New low-level functions Fl_sqr_pre, Fl_mul_pre, remlll_pre
    11- [libpari] New functions Fq_log, gener_Fq_local
 BA 12- GP functions bnrisgalois, bnrgaloismatrix, bnrgaloisapply
 LGr13- GP function polrootsreal
+   14- GP constant "oo" (for +/- infinity)
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]
@@ -48,3 +49,5 @@ BA  2- [libpari] rename RgX_mullow -> RgXn_mul, RgX_sqrlow -> RgXn_sqr,
     extension...): this is a BIB with undefined result, but returning a
     sentinel is more useful *if* we notice it.
     4- [gp] uniformize errors from the % history operator (SYNTAX->MISC) [#1553]
+    5- t_STR used to compare as larger than any real number via < or >
+       operators. Such a comparison now raises an exception.
