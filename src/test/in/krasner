@@ -1,4 +1,12 @@
-filter_output(p, v) = vecsort(vector(#v, j, my([D,e,f,d]=v[j]); [valuation(poldisc(D), p), e, f, d]), cmp);
+filter_output(p, v) =
+{
+  vecsort(vector(#v, j,
+    if (type(v[j]) == type([]),
+      my([D,e,f,d]=v[j]); [valuation(poldisc(D), p), e, f, d]
+    ,
+      valuation(poldisc(v[j]), p)))
+  , cmp);
+}
 
 do(p,N,flag)=filter_output(p, padicfields(p,N,flag));
 
@@ -14,4 +22,4 @@ do(2^64+13, 8, 1)
 do(2^64+13, 2, 1)
 padicfields(2^64+13, 8, 2)
 do(2, 4, 1)
-padicfields(2, 3)
+do(2, 3, 0)
