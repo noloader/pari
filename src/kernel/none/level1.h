@@ -882,9 +882,10 @@ get_Fl_red(ulong n)
 INLINE ulong /* requires u1 <= n, n normalised */
 remll_pre_normalized(ulong u1, ulong u0, ulong n, ulong ninv)
 {
+  ulong q0, q1, r;
   LOCAL_HIREMAINDER;
   LOCAL_OVERFLOW;
-  ulong q0 = mulll(ninv, u1), q1 = hiremainder, r;
+  q0 = mulll(ninv, u1); q1 = hiremainder;
   q0 = addll(q0, u0);
   q1 = addllx(q1, u1);
   r = u0 - (q1 + 1) * n;
