@@ -1490,6 +1490,18 @@ functions to create or to evaluate \typ{CLOSURE}s are documented in
 \fun{long}{closure_is_variadic}{GEN C} returns $1$ if the closure \kbd{C} is
 variadic, $0$ else.
 
+\subsec{Type \typ{INFINITY} (infinity)}\kbdsidx{t_INFINITY}\sidx{infinity}
+
+This type has a single \typ{INT} component, which is either $1$ or $-1$,
+corresponding to $+\infty$ and $-\infty$ respectively.
+
+\fun{GEN}{mkmoo}{} returns $-\infty$
+
+\fun{GEN}{mkoo}{} returns $\infty$
+
+\fun{long}{inf_get_sign}{GEN x} returns $1$ if $x$ is $+\infty$, and $-1$
+if $x$ is $-\infty$.
+
 \subsec{Type \typ{LIST} (list)}\kbdsidx{t_LIST}\sidx{list}
 this type was introduced for specific \kbd{gp} use and is rather inefficient
 compared to a straightforward linked list implementation (it requires more

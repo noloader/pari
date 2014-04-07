@@ -39,6 +39,7 @@ BA  9- [libpari] New low-level functions Fl_sqr_pre, Fl_mul_pre, remlll_pre
 BA 12- GP functions bnrisgalois, bnrgaloismatrix, bnrgaloisapply
 LGr13- GP function polrootsreal
    14- GP constant "oo" (for +/- infinity)
+   15- [libpari] New functions mkoo, mkmoo, inf_get_sign
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]
