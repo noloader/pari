@@ -2235,17 +2235,17 @@ _intervalcmp(GEN x, GEN y)
 }
 
 static GEN
-_gen_nored(void *E, GEN x) { return x; }
+_gen_nored(void *E, GEN x) { (void)E; return x; }
 static GEN
-_mp_add(void *E, GEN x, GEN y) { return mpadd(x, y); }
+_mp_add(void *E, GEN x, GEN y) { (void)E; return mpadd(x, y); }
 static GEN
-_mp_mul(void *E, GEN x, GEN y) { return mpmul(x, y); }
+_mp_mul(void *E, GEN x, GEN y) { (void)E; return mpmul(x, y); }
 static GEN
-_mp_sqr(void *E, GEN x) { return mpsqr(x); }
+_mp_sqr(void *E, GEN x) { (void)E; return mpsqr(x); }
 static GEN
-_gen_one(void *E) { return gen_1; }
+_gen_one(void *E) { (void)E; return gen_1; }
 static GEN
-_gen_zero(void *E) { return gen_0; }
+_gen_zero(void *E) { (void)E; return gen_0; }
 
 static struct bb_algebra mp_algebra = { _gen_nored,_mp_add,_mp_mul,_mp_sqr,_gen_one,_gen_zero };
 
@@ -2288,7 +2288,7 @@ split_polynoms(GEN P, long deg, long s0, GEN *Pp, GEN *Pm, GEN *Pprimep, GEN *Pp
 }
 
 static GEN
-gen_bkeval_single_power(long d, GEN V, void *E, struct bb_algebra *ff)
+bkeval_single_power(long d, GEN V)
 {
   long mp = lg(V) - 2;
   if (d > mp) return gmul(gpowgs(gel(V, mp+1), d/mp), gel(V, (d%mp)+1));
@@ -2300,7 +2300,7 @@ splitpoleval(GEN Pp, GEN Pm, GEN pows, long deg, long degneg, long bitprec)
 {
   GEN vp = gen_bkeval_powers(Pp, deg-degneg, pows, NULL, &mp_algebra, _mp_cmul);
   GEN vm = gen_bkeval_powers(Pm, degneg-1, pows, NULL, &mp_algebra, _mp_cmul);
-  GEN xa = gen_bkeval_single_power(degneg, pows, NULL, &mp_algebra);
+  GEN xa = bkeval_single_power(degneg, pows);
   GEN r;
   vp = gmul(vp, xa);
   r = gadd(vp, vm);
