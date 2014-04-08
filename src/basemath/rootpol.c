@@ -2626,20 +2626,29 @@ ZX_uspensky(GEN P, long onlypos, long flag, long bitprec)
   return gerepileupto(av, gen_sort(sol, (void *)_intervalcmp, cmp_nodata));
 }
 
+/* x a scalar */
+static GEN
+rootsdeg0(GEN x)
+{
+  if (gequal0(x)) pari_err_ROOTS0("realroots");
+  if (!isvalidcoeff(x)) pari_err_TYPE("realroots",x);
+  return cgetg(1,t_COL); /* constant polynomial */
+}
 GEN
 realroots(GEN P, long prec)
 {
   pari_sp av = avma;
   long nrr = 0, v = varn(P);
-  GEN sol = NULL, x = pol_x(v), fa, ex;
+  GEN sol = NULL, x, fa, ex;
   long i, j, k;
 
-  if (typ(P) != t_POL)
+  if (typ(P) != t_POL) return rootsdeg0(P);
+  switch(degpol(P))
   {
-    if (gequal0(P)) pari_err_ROOTS0("realroots");
-    if (!isvalidcoeff(P)) pari_err_TYPE("realroots",P);
-    return cgetg(1,t_COL); /* constant polynomial */
+    case -1: return rootsdeg0(gen_0);
+    case 0: return rootsdeg0(gel(P,2));
   }
+  x = pol_x(v);
   P = Q_primpart(P);
   if (!RgX_is_ZX(P)) pari_err_TYPE("realroots",P);
   fa = ZX_squff(P, &ex);
