@@ -5361,6 +5361,20 @@ solution. Otherwise, return \kbd{NULL} if it has no solution.
 
 \medskip
 
+\fun{GEN}{ZV_chinese}{GEN A, GEN P, GEN *pt_mod}
+where $A$ and $P$ are vectors of integer (or \typ{VECSMALL}s) of the same
+length $n$, the elements of $P$ being pairwise coprime, and $M$ being the
+product of the elements of $P$, returns the integer in $[0, M[$ congruent to
+$A[i]$ mod $P[i]$ for all $1\leq i\leq n$.  If \kbd{pt\_mod} is not \kbd{NULL},
+set \kbd{*pt\_mod} to $M$
+
+\fun{GEN}{Z_ZV_mod}{GEN A, GEN P}
+$P$ being a vector of integer (or \typ{VECSMALL}s) of length $n$,
+return a vector $B$ of the same length such that
+$B[i]=A\pmod{P[i]}$ and $0\leq B[i] < P[i]$ for all $1\leq i\leq n$.
+
+\medskip
+
 The following pair of functions is used in homomorphic imaging schemes,
 when reconstructing an integer from its images modulo pairwise coprime
 integers. The idea is as follows: we want to discover an integer $H$ which

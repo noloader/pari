@@ -2452,6 +2452,199 @@ chinese1_coprime_Z(GEN x) {return gassoc_proto(chinese1_coprime_Z_aux,x,NULL);}
 /**                                                                 **/
 /*********************************************************************/
 
+/* xa, ya = t_VECSMALL */
+static GEN
+ZV_producttree(GEN xa)
+{
+  long n = lg(xa)-1;
+  long m = expu(n-1)+1;
+  GEN T = cgetg(m+1, t_VEC), t;
+  long i, j, k;
+  t = cgetg(((n+1)>>1)+1, t_VEC);
+  if (typ(xa)==t_VECSMALL)
+  {
+    for (j=1, k=1; k<n; j++, k+=2)
+      gel(t, j) = muluu(xa[k], xa[k+1]);
+    if (k==n) gel(t, j) = utoi(xa[k]);
+  } else {
+    for (j=1, k=1; k<n; j++, k+=2)
+      gel(t, j) = mulii(gel(xa,k), gel(xa,k+1));
+    if (k==n) gel(t, j) = icopy(gel(xa,k));
+  }
+  gel(T,1) = t;
+  for (i=2; i<=m; i++)
+  {
+    GEN u = gel(T, i-1);
+    long n = lg(u)-1;
+    t = cgetg(((n+1)>>1)+1, t_VEC);
+    for (j=1, k=1; k<n; j++, k+=2)
+      gel(t, j) = mulii(gel(u, k), gel(u, k+1));
+    if (k==n) gel(t, j) = gel(u, k);
+    gel(T, i) = t;
+  }
+  return T;
+}
+
+static GEN
+Z_ZV_mod_tree(GEN P, GEN xa, GEN T)
+{
+  long i,j,k;
+  long m = lg(T)-1, n = lg(xa)-1;
+  GEN t;
+  GEN Tp = cgetg(m+1, t_VEC);
+  gel(Tp, m) = mkvec(P);
+  for (i=m-1; i>=1; i--)
+  {
+    GEN u = gel(T, i);
+    GEN v = gel(Tp, i+1);
+    long n = lg(u)-1;
+    t = cgetg(n+1, t_VEC);
+    for (j=1, k=1; k<n; j++, k+=2)
+    {
+      gel(t, k)   = modii(gel(v, j), gel(u, k));
+      gel(t, k+1) = modii(gel(v, j), gel(u, k+1));
+    }
+    if (k==n) gel(t, k) = gel(v, j);
+    gel(Tp, i) = t;
+  }
+  {
+    GEN u = gel(T, i+1);
+    GEN v = gel(Tp, i+1);
+    long l = lg(u)-1;
+    GEN R = cgetg(n+1, t_VEC);
+    for (j=1, k=1; j<=l; j++, k+=2)
+    {
+      gel(R,k) = modii(gel(v, j), gel(xa,k));
+      if (k < n)
+        gel(R,k+1) = modii(gel(v, j), gel(xa,k+1));
+    }
+    return R;
+  }
+}
+
+static GEN
+ZV_polint_tree(GEN T, GEN R, GEN xa, GEN ya)
+{
+  long m = lg(T)-1, n = lg(ya)-1;
+  long i,j,k;
+  GEN Tp = cgetg(m+1, t_VEC);
+  GEN t = cgetg(lg(gel(T,1)), t_VEC);
+  if (typ(xa)==t_VECSMALL)
+  {
+    for (j=1, k=1; k<n; j++, k+=2)
+    {
+      pari_sp av = avma;
+      GEN a = mului(ya[k], gel(R,k)), b = mului(ya[k+1], gel(R,k+1));
+      gel(t, j) = gerepileuptoint(av, addii(mului(xa[k],b), mului(xa[k+1],a)));
+    }
+    if (k==n) gel(t, j) = mului(ya[k], gel(R,k));
+  } else
+  {
+    for (j=1, k=1; k<n; j++, k+=2)
+    {
+      pari_sp av = avma;
+      GEN a = mulii(gel(ya,k), gel(R,k)), b = mulii(gel(ya,k+1), gel(R,k+1));
+      gel(t, j) = gerepileuptoint(av, addii(mulii(gel(xa,k),b), mulii(gel(xa,k+1),a)));
+    }
+    if (k==n) gel(t, j) = mulii(gel(ya,k), gel(R,k));
+  }
+  gel(Tp, 1) = t;
+  for (i=2; i<=m; i++)
+  {
+    GEN u = gel(T, i-1);
+    GEN t = cgetg(lg(gel(T,i)), t_VEC);
+    GEN v = gel(Tp, i-1), m = gel(T, i);
+    long n = lg(v)-1;
+    for (j=1, k=1; k<n; j++, k+=2)
+    {
+      pari_sp av = avma;
+      gel(t, j) = gerepileuptoint(av, modii(addii(mulii(gel(u, k), gel(v, k+1)),
+            mulii(gel(u, k+1), gel(v, k))), gel(m, j)));
+    }
+    if (k==n) gel(t, j) = gel(v, k);
+    gel(Tp, i) = t;
+  }
+  return gmael(Tp,m,1);
+}
+
+GEN
+Z_ZV_mod(GEN P, GEN xa)
+{
+  pari_sp av = avma;
+  GEN T = ZV_producttree(xa);
+  return gerepileuptoleaf(av, Z_ZV_mod_tree(P, xa, T));
+}
+
+static GEN
+ZV_sqr(GEN z)
+{
+  long i,l = lg(z);
+  GEN x = cgetg(l, t_VEC);
+  if (typ(z)==t_VECSMALL)
+    for (i=1; i<l; i++) gel(x,i) = sqru(z[i]);
+  else
+    for (i=1; i<l; i++) gel(x,i) = sqri(gel(z,i));
+  return x;
+}
+
+static GEN
+ZT_sqr(GEN z)
+{
+  if (typ(z) == t_INT)
+    return sqri(z);
+  else
+  {
+    long i,l = lg(z);
+    GEN x = cgetg(l, t_VEC);
+    for (i=1; i<l; i++) gel(x,i) = ZT_sqr(gel(z,i));
+    return x;
+  }
+}
+
+static GEN
+ZV_invdivexact(GEN y, GEN x)
+{
+  long i, l = lg(y);
+  GEN z = cgetg(l,t_VEC);
+  if (typ(x)==t_VECSMALL)
+    for (i=1; i<l; i++)
+    {
+      pari_sp av = avma;
+      ulong a = Fl_inv(umodiu(diviuexact(gel(y,i),x[i]), x[i]), x[i]);
+      avma = av;
+      gel(z,i) = utoi(a);
+    }
+  else
+    for (i=1; i<l; i++)
+      gel(z,i) = Fp_inv(diviiexact(gel(y,i), gel(x,i)), gel(x,i));
+  return z;
+}
+
+static GEN
+ZV_chinesetree(GEN T, GEN xa)
+{
+  GEN T2 = ZT_sqr(T), xa2 = ZV_sqr(xa);
+  GEN mod = gmael(T,lg(T)-1,1);
+  return ZV_invdivexact(Z_ZV_mod_tree(mod, xa2, T2), xa);
+}
+
+GEN
+ZV_chinese(GEN A, GEN P, GEN *pt_mod)
+{
+  pari_sp av = avma;
+  GEN T = ZV_producttree(P);
+  GEN R = ZV_chinesetree(T, P);
+  GEN a = ZV_polint_tree(T, R, P, A);
+  if (!pt_mod)
+    return gerepileuptoleaf(av, a);
+  else
+  {
+    GEN mod = gmael(T, lg(T)-1, 1);
+    gerepileall(av, 2, &a, &mod);
+    *pt_mod = mod;
+    return a;
+  }
+}
 /* modified Barrett reduction with one fold */
 /* See Fast Modular Reduction, W. Hasenplaugh, G. Gaubatz, V. Gopal, ARITH 18 */
 
