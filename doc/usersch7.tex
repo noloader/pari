@@ -242,6 +242,29 @@ infinity.
 [u,r,s,t]$, returns the inverse change of variables $w'$, such that if $E' =
 \kbd{ellchangecurve(E, w)}$, then $E = \kbd{ellchangecurve}(E, w')$.
 
+\subsec{Generic helper functions}
+
+The naming scheme assumes an affine equation
+$F(x,y) = f(x) - (y^2 + h(x)y) = 0$
+in standard Weierstrass form: $f = x^3+a_2x^2+a_4x+a_6$, $h = a_1x + a_3$.
+
+\fun{GEN}{ellbasechar}{GEN E} returns the characteristic of the base ring over
+which $E$ is defined.
+
+\fun{GEN}{ec_f_evalx}{GEN E, GEN x} returns $f(x)$.
+
+\fun{GEN}{ec_dFdx_evalQ}{GEN E, GEN Q} returns $3x^2 + 2a_2x + a_4 -a_1y$,
+where $Q = [x,y]$.
+
+\fun{GEN}{ec_dFdy_evalQ}{GEN E, GEN Q} returns $-(2y + a_1 x + a_3)$,
+where $Q = [x,y]$.
+
+\fun{GEN}{ec_2divpol_evalx}{GEN E, GEN x} returns
+$4x^3 + b_2x^2 + 2b_4x + b_6$.
+
+\fun{GEN}{ec_half_deriv_2divpol_evalx}{GEN E, GEN x} returns
+$6x^2 + b_2x + b_4$.
+
 \subsec{Functions to handle elliptic curves over finite fields}
 
 \subsubsec{Tolerant routines}

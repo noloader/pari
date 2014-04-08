@@ -1964,6 +1964,7 @@ void    forell(void *E, long call(void*, GEN), long a, long b);
 
 /* elliptic.c */
 enum { t_ELL_Rg = 0, t_ELL_Q = 1, t_ELL_Qp = 2, t_ELL_Fp = 3, t_ELL_Fq = 4};
+GEN     ellbasechar(GEN E);
 GEN     akell(GEN e, GEN n);
 GEN     anell(GEN e, long n);
 GEN     anellsmall(GEN e, long n);
@@ -1974,6 +1975,11 @@ void    checkell_Q(GEN e);
 void    checkell_Qp(GEN e);
 void    checkellpt(GEN z);
 void    checkell5(GEN e);
+GEN     ec_f_evalx(GEN E, GEN x);
+GEN     ec_dfdx_evalQ(GEN E, GEN Q);
+GEN     ec_dfdy_evalQ(GEN E, GEN Q);
+GEN     ec_2divpol_evalx(GEN E, GEN x);
+GEN     ec_half_deriv_2divpol_evalx(GEN E, GEN x);
 GEN     ellanal_globalred(GEN e, GEN *gr);
 GEN     ellQ_get_N(GEN e);
 void    ellQ_get_Nfa(GEN e, GEN *N, GEN *faN);

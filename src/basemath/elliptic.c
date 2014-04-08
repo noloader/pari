@@ -133,7 +133,6 @@ ell_is_integral(GEN E)
       && typ(ell_get_a6(E)) == t_INT;
 }
 
-
 static void
 checkcoordch(GEN z)
 { if (typ(z)!=t_VEC || lg(z) != 5) pari_err_TYPE("checkcoordch",z); }
@@ -169,47 +168,116 @@ doellR_roots(GEN e, long prec)
 static GEN
 ellR_root(GEN e, long prec) { return gel(ellR_roots(e,prec),1); }
 
-/* x^3 + a2 x^2 + a4 x + a6 */
-static GEN
-ellRHS(GEN e, GEN x)
+/* Given E and the x-coordinate of a point Q = [xQ, yQ], return
+ *   f(xQ) = xQ^3 + E.a2 * xQ^2 + E.a4 * xQ + E.a6
+ * where E is given by y^2 + h(x)y = f(x). */
+GEN
+ec_f_evalx(GEN E, GEN x)
 {
+  pari_sp av = avma;
   GEN z;
-  z = gadd(ell_get_a2(e),x);
-  z = gadd(ell_get_a4(e), gmul(x,z));
-  z = gadd(ell_get_a6(e), gmul(x,z));
-  return z;
+  z = gadd(ell_get_a2(E),x);
+  z = gadd(ell_get_a4(E), gmul(x,z));
+  z = gadd(ell_get_a6(E), gmul(x,z));
+  return gerepileupto(av, z); /* ((x + E.a2) * x + E.a4) * x + E.a6 */
 }
 
 /* a1 x + a3 */
 static GEN
-ellLHS0(GEN e, GEN x)
+ec_h_evalx(GEN e, GEN x)
 {
   GEN a1 = ell_get_a1(e);
   GEN a3 = ell_get_a3(e);
   return gequal0(a1)? a3: gadd(a3, gmul(x,a1));
 }
-
 static GEN
-ellLHS0_i(GEN e, GEN x)
+Zec_h_evalx(GEN e, GEN x)
 {
   GEN a1 = ell_get_a1(e);
   GEN a3 = ell_get_a3(e);
   return signe(a1)? addii(a3, mulii(x, a1)): a3;
 }
-
-/* y^2 + a1 xy + a3 y */
+/* y^2 + a1 xy + a3 y = y^2 + h(x)y */
 static GEN
-ellLHS(GEN e, GEN z)
+ec_LHS_evalQ(GEN e, GEN Q)
 {
-  GEN y = gel(z,2);
-  return gmul(y, gadd(y, ellLHS0(e,gel(z,1))));
+  GEN x = gel(Q,1), y = gel(Q,2);
+  return gmul(y, gadd(y, ec_h_evalx(e,x)));
 }
 
-/* 2y + a1 x + a3 */
-static GEN
-d_ellLHS(GEN e, GEN z)
+/* Given E and a point Q = [xQ, yQ], return
+ *   3 * xQ^2 + 2 * E.a2 * xQ + E.a4 - E.a1 * yQ.
+ * which is the derivative of the curve equation
+ *   f(x) - (y^2 + h(x)y) = 0
+ * wrt x evaluated at Q */
+GEN
+ec_dfdx_evalQ(GEN E, GEN Q)
 {
-  return gadd(ellLHS0(e, gel(z,1)), gmul2n(gel(z,2),1));
+  pari_sp av = avma;
+  GEN x = gel(Q,1), y = gel(Q,2);
+  GEN a1 = ell_get_a1(E);
+  GEN a2 = ell_get_a2(E);
+  GEN a4 = ell_get_a4(E);
+  GEN tmp = gmul(gadd(gmulsg(3L,x), gmul2n(a2,1)), x);
+  return gerepileupto(av, gadd(tmp, gsub(a4, gmul(a1, y))));
+}
+
+/* Given E and a point Q = [xQ, yQ], return
+ *  -(2 * yQ + E.a1 * xQ + E.a3)
+ * which is the derivative of the curve equation
+ *  f(x) - (y^2 + h(x)y) = 0
+ * wrt y evaluated at Q */
+GEN
+ec_dfdy_evalQ(GEN E, GEN Q)
+{
+  pari_sp av = avma;
+  GEN x = gel(Q,1), y = gel(Q,2);
+  GEN tmp = gadd(ec_h_evalx(E,x), gmul2n(y,1));
+  return gerepileupto(av, gneg(tmp));
+}
+/* 2y + a1 x + a3 = -ec_dfdy_evalQ */
+static GEN
+ec_dLHSdy_evalQ(GEN e, GEN Q)
+{
+  GEN x = gel(Q,1), y = gel(Q,2);
+  return gadd(ec_h_evalx(e, x), gmul2n(y,1));
+}
+
+/* Given E and a point Q = [xQ, yQ], return
+ *   4 xQ^3 + E.b2 xQ^2 + 2 E.b4 xQ + E.b6
+ * which is the 2-division polynomial of E evaluated at Q */
+GEN
+ec_2divpol_evalx(GEN E, GEN x)
+{
+  pari_sp av = avma;
+  GEN b2 = ell_get_b2(E);
+  GEN b4 = ell_get_b4(E);
+  GEN b6 = ell_get_b6(E);
+  GEN t1 = gmul(gadd(gmulsg(4L, x), b2), x);
+  GEN t2 = gadd(t1, gmulsg(2L, b4));
+  return gerepileupto(av, gadd(gmul(t2, x), b6));
+}
+
+/* Given E and a point Q = [xQ, yQ], return
+ *   6 xQ^2 + E.b2 xQ + E.b4
+ * which, if f is the curve equation, is 2 dfdx - E.a1 dfdy evaluated at Q */
+GEN
+ec_half_deriv_2divpol_evalx(GEN E, GEN x)
+{
+  pari_sp av = avma;
+  GEN b2 = ell_get_b2(E);
+  GEN b4 = ell_get_b4(E);
+  GEN res = gadd(gmul(gadd(gmulsg(6L, x), b2), x), b4);
+  return gerepileupto(av, res);
+}
+
+/* Return the characteristic of the ring over which E is defined. */
+GEN
+ellbasechar(GEN E)
+{
+  pari_sp av = avma;
+  GEN D = ell_get_disc(E);
+  return gerepileuptoint(av, characteristic(D));
 }
 
 /* return basic elliptic struct y[1..13], y[14] (domain type) and y[15]
@@ -318,7 +386,7 @@ ellprint(GEN e)
   checkell5(e);
   vx = fetch_var(); name_var(vx, "X");
   vy = fetch_var(); name_var(vy, "Y"); z = mkvec2(pol_x(vx), pol_x(vy));
-  err_printf("%Ps - (%Ps)\n", ellLHS(e, z), ellRHS(e, pol_x(vx)));
+  err_printf("%Ps - (%Ps)\n", ec_LHS_evalQ(e, z), ec_f_evalx(e, pol_x(vx)));
   (void)delete_var();
   (void)delete_var(); avma = av;
 }
@@ -782,11 +850,11 @@ coordch_r(GEN e, GEN r)
   /* A2 = a2 + 3r */
   gel(y,2) = gadd(a2,rx3);
   /* A3 = a1 r + a3 */
-  gel(y,3) = ellLHS0(e,r);
+  gel(y,3) = ec_h_evalx(e,r);
   /* A4 = 3r^2 + 2a2 r + a4 */
   gel(y,4) = gadd(ell_get_a4(e), gmul(r,gadd(gmul2n(a2,1),rx3)));
   /* A6 = r^3 + a2 r^2 + a4 r + a6 */
-  gel(y,5) = ellRHS(e,r);
+  gel(y,5) = ec_f_evalx(e,r);
   if (lg(y) == 6) return y;
 
   b4 = ell_get_b4(e);
@@ -1146,8 +1214,8 @@ oncurve(GEN e, GEN z)
 
   checkellpt(z); if (ell_is_inf(z)) return 1; /* oo */
   av = avma;
-  LHS = ellLHS(e,z);
-  RHS = ellRHS(e,gel(z,1)); x = gsub(LHS,RHS);
+  LHS = ec_LHS_evalQ(e,z);
+  RHS = ec_f_evalx(e,gel(z,1)); x = gsub(LHS,RHS);
   if (gequal0(x)) { avma = av; return 1; }
   pl = precision(LHS);
   pr = precision(RHS);
@@ -1197,12 +1265,12 @@ elladd(GEN e, GEN z1, GEN z2)
     {
       int eq;
       if (precision(y1) || precision(y2))
-        eq = (gexpo(gadd(ellLHS0(e,x1),gadd(y1,y2))) >= gexpo(y1));
+        eq = (gexpo(gadd(ec_h_evalx(e,x1),gadd(y1,y2))) >= gexpo(y1));
       else
         eq = gequal(y1,y2);
       if (!eq) { avma = av; return ellinf(); }
     }
-    p2 = d_ellLHS(e,z1);
+    p2 = ec_dLHSdy_evalQ(e,z1);
     if (gequal0(p2)) { avma = av; return ellinf(); }
     p1 = gadd(gsub(ell_get_a4(e),gmul(ell_get_a1(e),y1)),
               gmul(x1,gadd(gmul2n(ell_get_a2(e),1),gmulsg(3,x1))));
@@ -1213,7 +1281,7 @@ elladd(GEN e, GEN z1, GEN z2)
   }
   p1 = gdiv(p1,p2);
   x = gsub(gmul(p1,gadd(p1,ell_get_a1(e))), gadd(gadd(x1,x2),ell_get_a2(e)));
-  y = gadd(gadd(y1, ellLHS0(e,x)), gmul(p1,gsub(x,x1)));
+  y = gadd(gadd(y1, ec_h_evalx(e,x)), gmul(p1,gsub(x,x1)));
   tetpil = avma; p1 = cgetg(3,t_VEC);
   gel(p1,1) = gcopy(x);
   gel(p1,2) = gneg(y); return gerepile(av,tetpil,p1);
@@ -1226,7 +1294,7 @@ ellneg_i(GEN e, GEN z)
   if (ell_is_inf(z)) return z;
   t = cgetg(3,t_VEC);
   gel(t,1) = gel(z,1);
-  gel(t,2) = gneg_i(gadd(gel(z,2), ellLHS0(e,gel(z,1))));
+  gel(t,2) = gneg_i(gadd(gel(z,2), ec_h_evalx(e,gel(z,1))));
   return t;
 }
 
@@ -1240,7 +1308,7 @@ ellneg(GEN e, GEN z)
   t = cgetg(3,t_VEC);
   gel(t,1) = gcopy(gel(z,1));
   av = avma;
-  y = gneg(gadd(gel(z,2), ellLHS0(e,gel(z,1))));
+  y = gneg(gadd(gel(z,2), ec_h_evalx(e,gel(z,1))));
   gel(t,2) = gerepileupto(av, y);
   return t;
 }
@@ -1258,7 +1326,7 @@ static GEN
 ellordinate_i(GEN E, GEN x, long prec)
 {
   pari_sp av = avma;
-  GEN a = ellRHS(E,x), b = ellLHS0(E,x), D = gadd(gsqr(b), gmul2n(a,2));
+  GEN a = ec_f_evalx(E,x), b = ec_h_evalx(E,x), D = gadd(gsqr(b), gmul2n(a,2));
   GEN d, y, p;
 
   /* solve y*(y+b) = a */
@@ -1388,7 +1456,7 @@ ellmul_CM(GEN e, GEN z, GEN n)
   x = gdiv(p1,q1);
   y = gdiv(gsub(gmul(p1p,q1), gmul(p1,q1p)), gmul(n,gsqr(q1)));
   x = gsub(x, b2ov12);
-  y = gsub( gmul(d_ellLHS(e,z), y), ellLHS0(e,x));
+  y = gsub( gmul(ec_dLHSdy_evalQ(e,z), y), ec_h_evalx(e,x));
   return mkvec2(x, gmul2n(y,-1));
 }
 
@@ -1647,7 +1715,7 @@ static GEN
 zellcx(GEN E, GEN P, long prec)
 {
   GEN roots = ellR_roots(E, prec+EXTRAPRECWORD);
-  GEN x0 = gel(P,1), y0 = d_ellLHS(E,P);
+  GEN x0 = gel(P,1), y0 = ec_dLHSdy_evalQ(E,P);
   if (gequal0(y0))
     return zell_closest_0(ellomega_cx(E,prec),x0,roots);
   else
@@ -1667,7 +1735,7 @@ zellcx(GEN E, GEN P, long prec)
 static GEN
 zellrealneg(GEN E, GEN P, long prec)
 {
-  GEN x0 = gel(P,1), y0 = d_ellLHS(E,P);
+  GEN x0 = gel(P,1), y0 = ec_dLHSdy_evalQ(E,P);
   if (gequal0(y0)) return gmul2n(gel(ellR_omega(E,prec),1),-1);
   else
   {
@@ -1687,7 +1755,7 @@ static GEN
 zellrealpos(GEN E, GEN P, long prec)
 {
   GEN roots = ellR_roots(E, prec+EXTRAPRECWORD);
-  GEN e1,e2,e3, a,b, x0 = gel(P,1), y0 = d_ellLHS(E,P);
+  GEN e1,e2,e3, a,b, x0 = gel(P,1), y0 = ec_dLHSdy_evalQ(E,P);
   if (gequal0(y0)) return zell_closest_0(ellR_omega(E,prec), x0,roots);
   e1 = gel(roots,1);
   e2 = gel(roots,2);
@@ -1848,7 +1916,7 @@ zellQp(GEN E, GEN z, long prec)
   c0 = gadd(x, gmul2n(r0,-1)); ar1 = gmul(a,r1);
   delta = gdiv(ar1, gsqr(c0));
   x0 = gmul2n(gmul(c0,gaddsg(1,Qp_sqrt(gsubsg(1,gmul2n(delta,2))))),-1);
-  y0 = gdiv(gadd(y, gmul2n(d_ellLHS(E,z), -1)), gsubsg(1, gdiv(ar1,gsqr(x0))));
+  y0 = gdiv(gadd(y, gmul2n(ec_dLHSdy_evalQ(E,z), -1)), gsubsg(1, gdiv(ar1,gsqr(x0))));
 
   x1 = gmul(x0, gsqr(gmul2n(gaddsg(1, Qp_sqrt(gdiv(gadd(x0,r1),x0))),-1)));
   y1 = gdiv(y0, gsubsg(1, gsqr(gdiv(r1,gmul2n(x1,2)))));
@@ -2583,7 +2651,7 @@ pointell(GEN e, GEN z, long prec)
   v = ellwpnum_all(e,z,1,prec);
   if (!v) { avma = av; return ellinf(); }
   gel(v,1) = gsub(gel(v,1), gdivgs(ell_get_b2(e),12));
-  gel(v,2) = gsub(gel(v,2), gmul2n(ellLHS0(e,gel(v,1)),-1));
+  gel(v,2) = gsub(gel(v,2), gmul2n(ec_h_evalx(e,gel(v,1)),-1));
   return gerepilecopy(av, v);
 }
 
@@ -2678,7 +2746,7 @@ localred_p(GEN e, GEN p)
     }
     r = negi( diviuexact(r, 3) );
 
-    t = negi(ellLHS0_i(e,r));
+    t = negi(Zec_h_evalx(e,r));
     if (mpodd(t)) t = addii(t, mulii(pk, p2k));
     t = shifti(t, -1);
 
@@ -3106,7 +3174,7 @@ min_get_v(ellmin_t *M, GEN E)
   GEN r, s, t;
   r = diviuexact(subii(mulis(M->u2,M->b2), ell_get_b2(E)), 12);
   s = shifti(subii(M->a1? M->u: gen_0, ell_get_a1(E)), -1);
-  t = shifti(subii(M->a3? M->u3: gen_0, ellLHS0(E,r)), -1);
+  t = shifti(subii(M->a3? M->u3: gen_0, ec_h_evalx(E,r)), -1);
   return mkvec4(M->u,r,s,t);
 }
 
@@ -4158,7 +4226,7 @@ hell(GEN e, GEN a, long prec)
     y = gadd(y, gmul(qn, gsin(gmulsg(n,z),prec)));
     if (gexpo(qn) < -prec2nbits(prec)) break;
   }
-  p1 = gmul(gsqr(gdiv(gmul2n(y,1), d_ellLHS(e,a))), pi2surw);
+  p1 = gmul(gsqr(gdiv(gmul2n(y,1), ec_dLHSdy_evalQ(e,a))), pi2surw);
   p1 = gsqr(gsqr(gdiv(p1, gsqr(gsqr(denom(gel(a,1)))))));
   p1 = gdiv(gmul(p1,q), ell_get_disc(e));
   p1 = gmul2n(glog(gabs(p1,prec),prec), -5);
@@ -4287,7 +4355,7 @@ exp4hellagm(GEN E, GEN z, long prec)
   {
     GEN eh = exphellagm(E, elladd(E, z,z), 0, prec);
     /* h_oo(2P) = 4h_oo(P) - log |2y + a1x + a3| */
-    return gmul(eh, gabs(d_ellLHS(E, z), prec));
+    return gmul(eh, gabs(ec_dLHSdy_evalQ(E, z), prec));
   }
   return exphellagm(E, z, 1, prec);
 }
@@ -4302,7 +4370,7 @@ ellheightoo(GEN E, GEN z, long prec)
   {
     GEN eh = exphellagm(E, elladd(E, z,z), 0, prec);
     /* h_oo(2P) = 4h_oo(P) - log |2y + a1x + a3| */
-    h = gmul(eh, gabs(d_ellLHS(E, z), prec));
+    h = gmul(eh, gabs(ec_dLHSdy_evalQ(E, z), prec));
   }
   else
     h = exphellagm(E, z, 1, prec);
@@ -4344,7 +4412,7 @@ ellheight0(GEN e, GEN a, long flag, long prec)
   if (ell_is_inf(a)) return gen_0;
   if (!oncurve(e,a))
     pari_err_DOMAIN("ellheight", "point", "not on", strtoGENstr("E"),a);
-  psi2 = Q_numer(d_ellLHS(e,a));
+  psi2 = Q_numer(ec_dLHSdy_evalQ(e,a));
   if (!signe(psi2)) { avma = av; return gen_0; }
   switch(flag)
   {
@@ -4564,7 +4632,7 @@ elltaniyama(GEN e, long prec)
     gel(X,n+2) = gerepileupto(av2, s1);
   }
   w = gmul(d,derivser(x)); setvalp(w, valp(w)+1);
-  w = gsub(w, ellLHS0(e,x));
+  w = gsub(w, ec_h_evalx(e,x));
   c = cgetg(3,t_VEC);
   gel(c,1) = gcopy(x);
   gel(c,2) = gmul2n(w,-1); return gerepileupto(av, c);
@@ -4594,7 +4662,7 @@ best_in_cycle(GEN e, GEN p, long k)
     q = elladd(e,q,p0);
     if (ugcd(i,k)==1 && smaller_x(gel(q,1), gel(p,1))) p = q;
   }
-  return (gsigne(d_ellLHS(e,p)) < 0)? ellneg_i(e,p): p;
+  return (gsigne(ec_dLHSdy_evalQ(e,p)) < 0)? ellneg_i(e,p): p;
 }
 
 /* <p,q> = E_tors, possibly NULL (= oo), p,q independent unless NULL
@@ -4818,7 +4886,7 @@ nagelllutz(GEN e)
   lr = ratroot(pol); nlr=lg(lr)-1;
   for (t=1,i=1; i<=nlr; i++)
   {
-    GEN x = gel(lr,i), y = gmul2n(gneg(ellLHS0(e,x)), -1);
+    GEN x = gel(lr,i), y = gmul2n(gneg(ec_h_evalx(e,x)), -1);
     gel(r,++t) = mkvec2(x, y);
   }
   ld = absi_factor(gmul2n(ell_get_disc(e), 4));
@@ -4831,7 +4899,7 @@ nagelllutz(GEN e)
     lr = ratroot(ZX_Z_sub(pol, shifti(sqri(d), 6)));
     for (i=1; i<lg(lr); i++)
     {
-      GEN x = gel(lr,i), y = gmul2n(gsub(d, ellLHS0(e,x)), -1);
+      GEN x = gel(lr,i), y = gmul2n(gsub(d, ec_h_evalx(e,x)), -1);
       p1 = mkvec2(x, y);
       if (is_new_torsion(e,r,p1,t2))
       {

@@ -40,6 +40,8 @@ BA 12- GP functions bnrisgalois, bnrgaloismatrix, bnrgaloisapply
 LGr13- GP function polrootsreal
    14- GP constant "oo" (for +/- infinity)
    15- [libpari] New functions mkoo, mkmoo, inf_get_sign
+   16- [libpari] New functions ellbasechar, ec_f_evalx, ec_dfdx_evalQ,
+   ec_dfdy_evalQ, ec_2divpol_evalx, ec_half_deriv_2divpol_evalx
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]
