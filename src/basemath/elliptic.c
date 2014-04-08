@@ -188,7 +188,7 @@ ec_h_evalx(GEN e, GEN x)
 {
   GEN a1 = ell_get_a1(e);
   GEN a3 = ell_get_a3(e);
-  return gequal0(a1)? a3: gadd(a3, gmul(x,a1));
+  return gadd(a3, gmul(x,a1));
 }
 static GEN
 Zec_h_evalx(GEN e, GEN x)
@@ -211,7 +211,7 @@ ec_LHS_evalQ(GEN e, GEN Q)
  *   f(x) - (y^2 + h(x)y) = 0
  * wrt x evaluated at Q */
 GEN
-ec_dfdx_evalQ(GEN E, GEN Q)
+ec_dFdx_evalQ(GEN E, GEN Q)
 {
   pari_sp av = avma;
   GEN x = gel(Q,1), y = gel(Q,2);
@@ -228,7 +228,7 @@ ec_dfdx_evalQ(GEN E, GEN Q)
  *  f(x) - (y^2 + h(x)y) = 0
  * wrt y evaluated at Q */
 GEN
-ec_dfdy_evalQ(GEN E, GEN Q)
+ec_dFdy_evalQ(GEN E, GEN Q)
 {
   pari_sp av = avma;
   GEN x = gel(Q,1), y = gel(Q,2);

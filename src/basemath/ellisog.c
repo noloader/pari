@@ -14,127 +14,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #include "pari.h"
 
 /*
- * Given E and the x-coordinate of a point Q = [xQ, yQ], return
- *
- *  f(xQ) = xQ^3 + E.a2 * xQ^2 + E.a4 * xQ + E.a6
- *
- * where E is given by y^2 + h(x)y = f(x).
- */
-INLINE GEN
-ec_f_evalx(GEN E, GEN xQ)
-{
-  pari_sp ltop = avma;
-  GEN a2 = ell_get_a2(E);
-  GEN a4 = ell_get_a4(E);
-  GEN a6 = ell_get_a6(E);
-  /* GEN res = ((xQ + E.a2) * xQ + E.a4) * xQ + E.a6; */
-  GEN res = gadd(gmul(gadd(gmul(gadd(xQ, a2), xQ), a4), xQ), a6);
-  return gerepileupto(ltop, res);
-}
-
-
-/*
- * Given E and a point Q = [xQ, yQ], return
- *
- *  3 * xQ^2 + 2 * E.a2 * xQ + E.a4 - E.a1 * yQ.
- *
- * which is the derivative of the curve equation
- *
- *  f(x) - (y^2 + h(x)y) = 0
- *
- * wrt x evaluated at Q.
- */
-INLINE GEN
-ec_dfdx_evalQ(GEN E, GEN Q)
-{
-  pari_sp av = avma;
-  GEN xQ = gel(Q, 1), yQ = gel(Q, 2);
-  GEN a1 = ell_get_a1(E);
-  GEN a2 = ell_get_a2(E);
-  GEN a4 = ell_get_a4(E);
-  GEN tmp = gmul(gadd(gmulsg(3L, xQ), gmulsg(2L, a2)), xQ);
-  return gerepileupto(av, gadd(tmp, gsub(a4, gmul(a1, yQ))));
-}
-
-
-/*
- * Given E and a point Q = [xQ, yQ], return
- *
- *  -(2 * yQ + E.a1 * xQ + E.a3)
- *
- * which is the derivative of the curve equation
- *
- * f(x) - (y^2 + h(x)y) = 0
- *
- * wrt y evaluated at Q.
- */
-INLINE GEN
-ec_dfdy_evalQ(GEN E, GEN Q)
-{
-  pari_sp av = avma;
-  GEN xQ = gel(Q, 1), yQ = gel(Q, 2);
-  GEN a1 = ell_get_a1(E), a3 = ell_get_a3(E);
-  GEN tmp = gadd(gmulsg(2L, yQ), gmul(a1, xQ));
-  return gerepileupto(av, gneg(gadd(tmp, a3)));
-}
-
-
-/*
- * Given E and a point Q = [xQ, yQ], return
- *
- *  4 xQ^3 + E.b2 xQ^2 + 2 E.b4 xQ + E.b6
- *
- * which is the 2-division polynomial of E evaluated at Q.
- */
-INLINE GEN
-ec_2divpol_evalx(GEN E, GEN xQ)
-{
-  /* uQ = ((4 * xQ + E.b2) * xQ + 2 * E.b4) * xQ + E.b6 */
-  pari_sp av = avma;
-  GEN b2 = ell_get_b2(E);
-  GEN b4 = ell_get_b4(E);
-  GEN b6 = ell_get_b6(E);
-
-  GEN t1 = gmul(gadd(gmulsg(4L, xQ), b2), xQ);
-  GEN t2 = gadd(t1, gmulsg(2L, b4));
-  return gerepileupto(av, gadd(gmul(t2, xQ), b6));
-}
-
-
-/*
- * Given a curve E and a point Q = [xQ, yQ], return
- *
- *  6 xQ^2 + E.b2 xQ + E.b4
- *
- * which, if f is the curve equation, is 2 dfdx - E.a1 dfdy evaluated
- * at Q.
- */
-INLINE GEN
-ec_half_deriv_2divpol_evalx(GEN E, GEN xQ)
-{
-  pari_sp av = avma;
-  GEN b2 = ell_get_b2(E);
-  GEN b4 = ell_get_b4(E);
-  /* (6 xQ + b2) * xQ + b4 */
-  GEN res = gadd(gmul(gadd(gmulsg(6L, xQ), b2), xQ), b4);
-  return gerepileupto(av, res);
-}
-
-
-/*
- * Return an educated guess as to the characteristic of the ring over
- * which the given elliptic curve E is defined.
- */
-INLINE GEN
-ellbasechar(GEN E)
-{
-  pari_sp av = avma;
-  GEN D = ell_get_disc(E);
-  return gerepileupto(av, characteristic(D));
-}
-
-
-/*
  * Return 1 if the point Q is a Weierstrass (2-torsion) point of the
  * curve E, return 0 otherwise.
  */
@@ -143,7 +22,7 @@ ellisweierstrasspoint(GEN E, GEN Q)
 {
   if (ell_is_inf(Q))
     return 1;
-  return gequal0(ec_dfdy_evalQ(E, Q));
+  return gequal0(ec_dFdy_evalQ(E, Q));
 }
 
 
@@ -256,8 +135,7 @@ ellcompisog(GEN f, GEN g)
   GEN comp_x = gel(comp, 1), comp_y = gel(comp, 2);
   GEN tmp_z = gel(comp, 3), tmp_z_sqr = gsqr(tmp_z);
   GEN tmp_z_cubed = gmul(tmp_z, tmp_z_sqr), tmp;
-  GEN comp_z, comp_z_sqr, comp_z_cubed, denom_y, res;
-  GEN lt, denom_comp_x, denom_comp_y;
+  GEN comp_z, res;
 
   /* Caluculate kernel poly of composite and put it in comp_z. */
   av = avma;
@@ -297,8 +175,8 @@ update_isogeny_polys(
   GEN rt = deg1pol(gen_1, gneg(xQ), xvar);
   GEN a1 = ell_get_a1(E), a3 = ell_get_a3(E);
 
-  GEN gQx = ec_dfdx_evalQ(E, Q);
-  GEN gQy = ec_dfdy_evalQ(E, Q);
+  GEN gQx = ec_dFdx_evalQ(E, Q);
+  GEN gQy = ec_dFdy_evalQ(E, Q);
   GEN tmp1, tmp2, tmp3, tmp4, f, g, h, rt_sqr, res;
 
   /* g -= uQ * (2 * y + E.a1 * x + E.a3)
@@ -425,7 +303,7 @@ isogeny_from_kernel_generator(
     /* ... so we need to take Q = [count]P into consideration. */
     xQ = gel(Q, 1);
 
-    tQ = ec_dfdx_evalQ(E, Q);
+    tQ = ec_dFdx_evalQ(E, Q);
     t = gadd(t, tQ);
 
     uQ = ec_2divpol_evalx(E, xQ);
@@ -544,7 +422,7 @@ two_torsion_contrib__weierstrass_pt(
 
   Q = mkvec2(x0, y0);
   res = cgetg(6, t_VEC);
-  t = ec_dfdx_evalQ(E, Q);
+  t = ec_dFdx_evalQ(E, Q);
   w = gmul(x0, t);
   gel(res, 1) = t;
   gel(res, 2) = w;
@@ -626,9 +504,7 @@ two_torsion_contrib__full_tors(
     GEN f, g, h = kerh;
     long d = 3;
     GEN s1 = gneg(polcoeff0(h, d - 1, xvar));
-    GEN s2 = polcoeff0(h, d - 2, xvar);
     GEN dh = RgX_deriv(h);
-    GEN ddh = RgX_deriv(dh);
     GEN psi2xy = gadd(deg1pol(a1, a3, xvar),
                       deg1pol(gen_2, gen_0, yvar));
 
@@ -693,6 +569,7 @@ two_torsion_contribution(
     res = two_torsion_contrib__full_tors(
       E, kerh, only_compute_image, xvar, yvar, prec);
   } else {
+    res = NULL;
     pari_err_BUG("two_torsion_contribution (given kernel polynomial "
                  "doesn't have degree 1 or 3)");
   }
@@ -884,9 +761,9 @@ isog_ordinate(
   GEN g;
 
   if ( ! equalis(ellbasechar(E), 2L)) {
-    // FIXME: We don't use (hence don't need to calculate)
-    // g2 = gel(two_tors, 4) when char(k) != 2.
-    GEN psi2 = gneg(ec_dfdy_evalQ(E, mkvec2(x, y)));
+    /* FIXME: We don't use (hence don't need to calculate)
+     * g2 = gel(two_tors, 4) when char(k) != 2. */
+    GEN psi2 = gneg(ec_dFdy_evalQ(E, mkvec2(x, y)));
     g = non_two_torsion_ordinate_char_not2(E, f, kerp, psi2);
   } else {
     GEN h2 = gel(two_tors, 5);
@@ -914,7 +791,7 @@ isogeny_from_kernel_poly(
   long xvar, long yvar, long prec)
 {
   pari_sp ltop = avma, btop, av;
-  long e, n, m, deg;
+  long e, m;
   GEN psums, p1, p2, p3, b2, b4, b6, x, y;
   GEN two_tors, isog, res, EE, t, w;
   GEN kerh = two_torsion_part(E, kerp);
@@ -924,9 +801,8 @@ isogeny_from_kernel_poly(
                  "kernel polynomial doesn't divide it)");
   }
   e = degpol(kerh); /* e should be 0, 1, or 3. */
-  n = degpol(kerp);
+  /* isogeny degree: 2*degpol(kerp)+1-e */
   m = degpol(kerq);
-  deg = 2 * n + 1 - e; /* degree of the isogeny */
 
   kerp = RgX_Rg_div(kerp, leading_term(kerp));
 

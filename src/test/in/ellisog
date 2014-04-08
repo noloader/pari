@@ -27,15 +27,17 @@ ffone(p, n = 1, v = 't) =
     return(ffgen(ffinit(p, n, v))^0);
 }
 
+num_isog(E, isog) =
+{
+  my([x,y,d] = isog);
+  my(d2 = d^2, d3 = d2*d, d4 = d2^2, d6 = d3^2);
+  ((x + E.a2*d2)*x + E.a4*d4)*x + E.a6*d6 - y*(y + E.a1*d*x + d3*E.a3);
+}
 
 isog_satisfies_eqns(E, F, isog) =
 {
-    my (res = numerator(substvec(elldefiningequation(F),
-                                 ['x, 'y],
-                                 [isog[1]/isog[3]^2, isog[2]/isog[3]^3])));
-    if (Mod(res, elldefiningequation(E)) != 0,
-        error("Isogeny polynomials don't satisfy the curve equations.  res = ",
-              res));
+  if (Mod(num_isog(F,isog), elldefiningequation(E)) != 0,
+      error("Isogeny polynomials don't satisfy the curve equations"));
 }
 
 
