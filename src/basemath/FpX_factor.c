@@ -418,6 +418,104 @@ FpX_roots_i(GEN f, GEN p)
     }
   }
 }
+
+/* solve x^l = a , l prime in G of order q.
+ *
+ * q =  (l^e)*r, e >= 1, (r,l) = 1
+ * y generates the l-Sylow of G
+ * m = y^(l^(e-1)) != 1 */
+static ulong
+Fl_sqrtl_pre(ulong a, ulong l, ulong p, ulong pi)
+{
+  pari_sp av;
+  long k;
+  ulong p1, v, w, z, dl, zm;
+  ulong y, m;
+  ulong r, e, u2;
+  if (a==0) return a;
+  e = u_lvalrem(p-1, l, &r);
+  u2 = Fl_inv(l%r, r);
+  v = Fl_powu_pre(a, u2, p,pi);
+  w = Fl_powu_pre(v, l, p,pi);
+  w = Fl_mul_pre(w, Fl_inv(a, p),p,pi);
+  if (w==1) return v;
+  av=avma; y = pgener_Fl_local(p,mkvecsmall(l)); avma=av;
+  y = Fl_powu_pre(y,r,p,pi);
+  m = Fl_powu_pre(y,upowuu(l,e-1),p,pi);
+  while (w!=1)
+  {
+    k = 0;
+    p1 = w;
+    do
+    {
+      z = p1; p1 = Fl_powu_pre(p1, l, p, pi);
+      k++;
+    } while (p1!=1);
+    if (k==e) return ~0UL;
+    dl = 0; zm = 1;
+    while (z!=zm)
+    {
+      zm = Fl_mul_pre(zm, m, p, pi); dl++;
+    }
+    dl = Fl_neg(dl, l);
+    p1 = Fl_powu_pre(y,dl*upowuu(l,e-k-1),p,pi);
+    m = Fl_powu_pre(m, dl, p, pi);
+    e = k;
+    v = Fl_mul_pre(p1,v,p,pi);
+    y = Fl_powu_pre(p1,l,p,pi);
+    w = Fl_mul_pre(y,w,p,pi);
+  }
+  return v;
+}
+
+/* Assume f is normalized */
+static ulong
+Flx_cubic_root(GEN ff, ulong p)
+{
+  GEN f = Flx_normalize(ff,p);
+  ulong pi = get_Fl_red(p);
+  ulong a = f[4], b=f[3], c=f[2], p3 = p%3==1 ? (2*p+1)/3 :(p+1)/3;
+  ulong t = Fl_mul_pre(a, p3, p, pi), t2 = Fl_sqr_pre(t, p, pi);
+  ulong A = Fl_sub(b, Fl_triple(t2, p), p);
+  ulong B = Fl_add(Fl_mul_pre(t, Fl_sub(Fl_double(t2, p), b, p), p ,pi), c, p);
+  ulong A3 =  Fl_mul_pre(A, p3, p, pi);
+  ulong A32 = Fl_sqr_pre(A3, p, pi), A33 = Fl_mul_pre(A3, A32, p, pi);
+  ulong S = Fl_neg(B,p), P = Fl_neg(A3,p);
+  ulong D = Fl_add(Fl_sqr_pre(S, p, pi), Fl_double(Fl_double(A33, p), p), p);
+  ulong s = Fl_sqrt(D, p), vS1, vS2;
+  if (s!=~0UL)
+  {
+    ulong S1 = S==s ? S: Fl_halve(Fl_sub(S, s, p), p);
+    if (p%3==2) /* 1 solutions */
+      vS1 = Fl_powu_pre(S1, (2*p-1)/3, p, pi);
+    else
+    {
+      vS1 = Fl_sqrtl_pre(S1, 3, p, pi);
+      if (vS1==~0UL) return p; /*0 solutions*/
+      /*3 solutions*/
+    }
+    vS2 = P? Fl_mul_pre(P, Fl_inv(vS1, p), p, pi): 0;
+    return Fl_sub(Fl_add(vS1,vS2, p), t, p);
+  }
+  else
+  {
+    pari_sp av = avma;
+    GEN S1 = mkvecsmall2(Fl_halve(S, p), Fl_halve(1UL, p));
+    GEN vS1 = Fl2_sqrtn_pre(S1, utoi(3), D, p, pi, NULL);
+    ulong Sa;
+    if (!vS1) return p; /*0 solutions, p%3==2*/
+    Sa = vS1[1];
+    if (p%3==1) /*1 solutions*/
+    {
+      ulong Fa = Fl2_norm_pre(vS1, D, p, pi);
+      if (Fa!=P)
+        Sa = Fl_mul(Sa, Fl_div(Fa, P, p),p);
+    }
+    avma = av;
+    return Fl_sub(Fl_double(Sa,p),t,p);
+  }
+}
+
 /* assume p > 2 prime */
 static ulong
 Flx_oneroot_i(GEN f, ulong p)
@@ -431,6 +529,7 @@ Flx_oneroot_i(GEN f, ulong p)
   {
     case 1: return Fl_neg(f[2], p);
     case 2: return Flx_quad_root(f, p, 1);
+    case 3: if (p>3) return Flx_cubic_root(f, p); /*FALL THROUGH*/
   }
 
   a = Flxq_powu(polx_Flx(f[1]), p - 1, f,p);
@@ -450,6 +549,7 @@ Flx_oneroot_i(GEN f, ulong p)
     {
       case 1: return Fl_neg(a[2], p);
       case 2: return Flx_quad_root(a, p, 0);
+      case 3: if (p>3) return Flx_cubic_root(a, p); /*FALL THROUGH*/
       default: {
         GEN b = Flx_Fl_add(Flxq_powu(pol,q, a,p), p-1, p);
         long db;
