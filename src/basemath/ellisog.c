@@ -13,99 +13,65 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 
 #include "pari.h"
 
-/*
- * Return 1 if the point Q is a Weierstrass (2-torsion) point of the
- * curve E, return 0 otherwise.
- */
+/* Return 1 if the point Q is a Weierstrass (2-torsion) point of the
+ * curve E, return 0 otherwise */
 static long
 ellisweierstrasspoint(GEN E, GEN Q)
-{
-  if (ell_is_inf(Q))
-    return 1;
-  return gequal0(ec_dFdy_evalQ(E, Q));
-}
+{ return ell_is_inf(Q) || gequal0(ec_dFdy_evalQ(E, Q)); }
 
 
-/*
- * Given an elliptic curve E = [a1, a2, a3, a4, a6] and two elements t
- * and w in the ring of definition of E, return the curve
- *
- *  E' = [a1, a2, a3, a4 - 5t, a6 - (b2 t + 7w)]
- *
- * where b2 is E.b2.
- */
+/* Given an elliptic curve E = [a1, a2, a3, a4, a6] and t,w in the ring of
+ * definition of E, return the curve
+ *  E' = [a1, a2, a3, a4 - 5t, a6 - (E.b2 t + 7w)] */
 static GEN
 make_velu_curve(GEN E, GEN t, GEN w, long prec)
 {
-  pari_sp ltop = avma;
-  GEN coeffs = cgetg(6, t_VEC);
-  gel(coeffs, 1) = ell_get_a1(E);
-  gel(coeffs, 2) = ell_get_a2(E);
-  gel(coeffs, 3) = ell_get_a3(E);
-
-  /* E.a4 - 5 * t */
-  gel(coeffs, 4) = gsub(ell_get_a4(E), gmulsg(5L, t));
-
-  /* E.a6 - (E.b2 * t + 7 * w) */
-  gel(coeffs, 5) = gsub(ell_get_a6(E),
-                        gadd(gmul(ell_get_b2(E), t),
-                             gmulsg(7L, w)));
-
-  return gerepileupto(ltop, ellinit(coeffs, NULL, prec));
+  GEN A4, A6, a1 = ell_get_a1(E), a2 = ell_get_a2(E), a3 = ell_get_a3(E);
+  A4 = gsub(ell_get_a4(E), gmulsg(5L, t));
+  A6 = gsub(ell_get_a6(E), gadd(gmul(ell_get_b2(E), t), gmulsg(7L, w)));
+  return ellinit(mkvec5(a1,a2,a3,A4,A6), NULL, prec);
 }
 
-
-/*
- * If phi = (f(x)/h(x)^2, g(x, y)/h(x)^3) is an isogeny, return the
- * variables x and y in a vecsmall.
- */
+/* If phi = (f(x)/h(x)^2, g(x,y)/h(x)^3) is an isogeny, return the
+ * variables x and y in a vecsmall */
 INLINE GEN
 get_isog_vars(GEN phi)
 {
-  long xvar = varn(gel(phi, 1));
-  long yvar = varn(gel(phi, 2));
-  if (yvar == xvar)
-    yvar = varn(leading_term(gel(phi, 2)));
-  return mkvecsmall2(xvar, yvar);
+  long vx = varn(gel(phi, 1));
+  long vy = varn(gel(phi, 2));
+  if (vy == vx) vy = varn(leading_term(gel(phi, 2)));
+  return mkvecsmall2(vx, vy);
 }
 
-
-/*
- * Given an isogeny phi (being the result of a call to ellisog()) and
- * a point P in the domain of phi, return phi(P).
- */
+/* Given an isogeny phi from ellisog() and a point P in the domain of phi,
+ * return phi(P) */
 GEN
 ellapplyisog(GEN phi, GEN P)
 {
   pari_sp ltop = avma;
   GEN f, g, h, img_f, img_g, img_h, img_h2, img_h3, img, vars, tmp;
-  long xvar, yvar;
-  if (ell_is_inf(P))
-    return ellinf();
+  long vx, vy;
+  if (ell_is_inf(P)) return ellinf();
   f = gel(phi, 1);
   g = gel(phi, 2);
   h = gel(phi, 3);
   vars = get_isog_vars(phi);
-  xvar = vars[1];
-  yvar = vars[2];
+  vx = vars[1];
+  vy = vars[2];
   img_h = poleval(h, gel(P, 1));
-  if (gequal0(img_h)) {
-    avma = ltop;
-    return ellinf();
-  }
+  if (gequal0(img_h)) { avma = ltop; return ellinf(); }
+
   img_h2 = gsqr(img_h);
   img_h3 = gmul(img_h, img_h2);
   img_f = poleval(f, gel(P, 1));
-  /* FIXME: This calculation of g is perhaps not as efficient as it
-   * could be. */
-  tmp = gsubst(g, xvar, gel(P, 1));
-  img_g = gsubst(tmp, yvar, gel(P, 2));
+  /* FIXME: This calculation of g is perhaps not as efficient as it could be */
+  tmp = gsubst(g, vx, gel(P, 1));
+  img_g = gsubst(tmp, vy, gel(P, 2));
   img = cgetg(3, t_VEC);
   gel(img, 1) = gdiv(img_f, img_h2);
   gel(img, 2) = gdiv(img_g, img_h3);
   return gerepileupto(ltop, img);
 }
-
 
 INLINE GEN
 substvec(GEN target, GEN vars, GEN input)
@@ -118,61 +84,45 @@ substvec(GEN target, GEN vars, GEN input)
   return res;
 }
 
-
-/*
- * Given isogenies f:E -> E' and g:E' -> E'', return the composite
- * isogeny g o f:E -> E''.
- */
+/* Given isogenies F:E -> E' and G:E' -> E'', return the composite
+ * isogeny G o F:E -> E'' */
 GEN
-ellcompisog(GEN f, GEN g)
+ellcompisog(GEN F, GEN G)
 {
-  pari_sp ltop = avma, av;
-  GEN vars = get_isog_vars(g);
-  GEN f_z2 = gsqr(gel(f, 3));
-  GEN f_z3 = gmul(gel(f, 3), f_z2);
-  GEN input = mkvec2(gdiv(gel(f, 1), f_z2), gdiv(gel(f, 2), f_z3));
-  GEN comp = substvec(g, vars, input);
-  GEN comp_x = gel(comp, 1), comp_y = gel(comp, 2);
-  GEN tmp_z = gel(comp, 3), tmp_z_sqr = gsqr(tmp_z);
-  GEN tmp_z_cubed = gmul(tmp_z, tmp_z_sqr), tmp;
-  GEN comp_z, res;
+  pari_sp av = avma;
+  GEN vars = get_isog_vars(G);
+  GEN Fh2 = gsqr(gel(F, 3)), Fh3 = gmul(gel(F, 3), Fh2);
+  GEN input = mkvec2(gdiv(gel(F,1), Fh2), gdiv(gel(F,2), Fh3));
+  GEN comp = substvec(G, vars, input);
+  GEN f = gel(comp, 1), g = gel(comp, 2), h;
+  GEN z = gel(comp, 3), numz = numer(z), denz = denom(z);
+  GEN denz2 = gsqr(denz), denz3 = gmul(denz, denz2);
 
-  /* Caluculate kernel poly of composite and put it in comp_z. */
-  av = avma;
-  tmp = gerepileupto(av, RgX_mul(denom(comp_x), numer(tmp_z_sqr)));
-  if ( ! issquareall(tmp, &comp_z)) {
-    pari_err_BUG("ellcompisog (denominator of composite "
-                 "abscissa is not square)");
-  }
+  if (!issquareall(denom(f), &h))
+    pari_err_BUG("ellcompisog (denominator of composite abscissa not square)");
+  h  = RgX_mul(h, numz);
+  h = RgX_Rg_div(h, leading_term(h));
 
-  res = cgetg(4, t_VEC);
-  av = avma;
-  comp_x = gerepileupto(av, RgX_mul(numer(comp_x), denom(tmp_z_sqr)));
-  gel(res, 1) = comp_x;
-
-  av = avma;
-  comp_y = gerepileupto(av, RgX_mul(numer(comp_y), denom(tmp_z_cubed)));
-  gel(res, 2) = comp_y;
-
-  gel(res, 3) = RgX_Rg_div(comp_z, leading_term(comp_z));
-  return gerepileupto(ltop, res);
+  f = RgX_mul(numer(f), denz2);
+  g = RgX_mul(numer(g), denz3);
+  return gerepilecopy(av, mkvec3(f,g,h));
 }
 
-
-/*
- * This is an internal method that returns an updated value for isog
- * based (primarily) on tQ and uQ. Used to iteratively compute the
- * isogeny corresponding to a subgroup generated by a given point.
- * Ref: Equation 8 in Velu's paper.
- */
+/* isog = [f, g, h] = [x, y, 1] = identity */
 static GEN
-update_isogeny_polys(
-  GEN isog, GEN E, GEN Q, GEN tQ, GEN uQ,
-  long xvar, long yvar)
+isog_identity(long vx, long vy)
+{ return mkvec3(pol_x(vx), pol_x(vy), pol_1(vx)); }
+
+/* Returns an updated value for isog based (primarily) on tQ and uQ. Used to
+ * iteratively compute the isogeny corresponding to a subgroup generated by a
+ * given point. Ref: Equation 8 in Velu's paper.
+ * isog = NULL codes the identity */
+static GEN
+update_isogeny_polys(GEN isog, GEN E, GEN Q, GEN tQ, GEN uQ, long vx, long vy)
 {
   pari_sp ltop = avma, av;
   GEN xQ = gel(Q, 1), yQ = gel(Q, 2);
-  GEN rt = deg1pol(gen_1, gneg(xQ), xvar);
+  GEN rt = deg1pol_shallow(gen_1, gneg(xQ), vx);
   GEN a1 = ell_get_a1(E), a3 = ell_get_a3(E);
 
   GEN gQx = ec_dFdx_evalQ(E, Q);
@@ -183,17 +133,18 @@ update_isogeny_polys(
    *   + tQ * rt * (E.a1 * rt + y - yQ)
    *   + rt * (E.a1 * uQ - gQx * gQy) */
   av = avma;
-  tmp1 = gmul(uQ, gadd(deg1pol(gen_2, gen_0, yvar),
-                       deg1pol(a1, a3, xvar)));
+  tmp1 = gmul(uQ, gadd(deg1pol_shallow(gen_2, gen_0, vy),
+                       deg1pol_shallow(a1, a3, vx)));
   tmp1 = gerepileupto(av, tmp1);
   av = avma;
   tmp2 = gmul(tQ, gadd(gmul(a1, rt),
-                       deg1pol(gen_1, gneg(yQ), yvar)));
+                       deg1pol_shallow(gen_1, gneg(yQ), vy)));
   tmp2 = gerepileupto(av, tmp2);
   av = avma;
   tmp3 = gsub(gmul(a1, uQ), gmul(gQx, gQy));
   tmp3 = gerepileupto(av, tmp3);
 
+  if (!isog) isog = isog_identity(vx,vy);
   f = gel(isog, 1);
   g = gel(isog, 2);
   h = gel(isog, 3);
@@ -204,440 +155,215 @@ update_isogeny_polys(
   gel(res, 1) = gerepileupto(av, gadd(f, tmp4));
   av = avma;
   tmp4 = gadd(tmp1, gmul(rt, gadd(tmp2, tmp3)));
-  gel(res, 2) =
-    gerepileupto(av, gsub(g, gdiv(tmp4, gmul(rt, rt_sqr))));
+  gel(res, 2) = gerepileupto(av, gsub(g, gdiv(tmp4, gmul(rt, rt_sqr))));
   av = avma;
   gel(res, 3) = gerepileupto(av, gmul(h, rt));
   return gerepileupto(ltop, res);
 }
 
-
-/*
- * Given a point P on an elliptic curve E, return the curve E/<P> and,
- * if only_compute_image is zero, the isogeny corresponding to the
- * canonical surjection pi:E -> E/<P>. The variables xvar and yvar
- * are used to describe the isogeny (and are ignored if
- * only_compute_image is zero).
- */
+/* Given a point P on E, return the curve E/<P> and, if only_image is zero,
+ * the isogeny pi: E -> E/<P>. The variables vx and vy are used to describe
+ * the isogeny (ignored if only_image is zero) */
 static GEN
-isogeny_from_kernel_generator(
-  GEN E, GEN P, int only_compute_image,
-  long xvar, long yvar, long prec)
+isogeny_from_kernel_point(GEN E, GEN P, int only_image, long vx, long vy, long prec)
 {
-  pari_sp ltop = avma;
-  GEN isog, res, EE, f, g, h, h2, h3, map;
+  pari_sp av = avma, lim = stack_lim(av, 1);
+  GEN isog, res, EE, f, g, h, h2, h3;
   GEN Q = P, t = gen_0, w = gen_0;
-  long count;
-  if ( ! oncurve(E, P)) {
-    pari_err_DOMAIN("isogeny_from_kernel_generator",
-                    "point", "not on", E, P);
+  long c;
+  if (!oncurve(E,P))
+    pari_err_DOMAIN("isogeny_from_kernel_point", "point", "not on", E, P);
+  if (ell_is_inf(P))
+  {
+    if (only_image) retmkvec(gcopy(E));
+    return gerepilecopy(av, mkvec2(E, isog_identity(vx,vy)));
   }
 
-  /* isog = [f, g, h] = [x, y, 1] = identity. */
-  if ( ! only_compute_image) {
-    isog = cgetg(4, t_VEC);
-    gel(isog, 1) = pol_x(xvar);
-    gel(isog, 2) = pol_x(yvar);
-    gel(isog, 3) = pol_1(xvar);
-  }
-
-  if (ell_is_inf(P)) {
-    if (only_compute_image) {
-      avma = ltop;
-      retmkvec(gcopy(E));
+  isog = NULL; c = 1;
+  for (;;)
+  {
+    GEN tQ, xQ = gel(Q,1), uQ = ec_2divpol_evalx(E, xQ);
+    int stop = 0;
+    if (ellisweierstrasspoint(E,Q))
+    { /* ord(P)=2c; take Q=[c]P into consideration and stop */
+      tQ = ec_dFdx_evalQ(E, Q);
+      stop = 1;
     }
-    res = cgetg(3, t_VEC);
-    gel(res, 1) = gcopy(E);
-    gel(res, 2) = gcopy(isog);
-    return gerepileupto(ltop, res);
-  }
-
-  count = 1;
-  if ( ! ellisweierstrasspoint(E, Q)) {
-    pari_sp btop = avma, limit = stack_lim(avma, 1), av;
-    GEN xQ, tQ, uQ;
-    do {
-      /* Image curve calculation */
-      xQ = gel(Q, 1);
-
+    else
       tQ = ec_half_deriv_2divpol_evalx(E, xQ);
-      uQ = ec_2divpol_evalx(E, xQ);
-
-      av = avma;
-      t = gerepileupto(av, gadd(t, tQ));
-      /* w += uQ + tQ * xQ */
-      av = avma;
-      w = gerepileupto(av, gadd(w, gadd(uQ, gmul(tQ, xQ))));
-
-      /* Isogeny calculation */
-      if ( ! only_compute_image) {
-        isog = update_isogeny_polys(isog, E, Q, tQ, uQ,
-                                    xvar, yvar);
-      }
-
-      Q = elladd(E, P, Q);
-      ++count;
-
-      if (avma < limit) {
-        if (only_compute_image)
-          gerepileall(btop, 4, &Q, &xQ, &t, &w);
-        else
-          gerepileall(btop, 5, &isog, &Q, &xQ, &t, &w);
-      }
-    } while ( ! gequal(gel(Q, 1), xQ)
-         && ! ellisweierstrasspoint(E, Q));
-  }
-
-  /* Modify 'count' so that it equals ord(P). */
-  if ( ! ellisweierstrasspoint(E, Q)) {
-    /* So we exited the loop because x([count]P) = x([count - 1]P)
-     * hence [count]P == -[count - 1]P and so
-     * [2 * count - 1]P == 0. */
-    count += count - 1;
-  } else {
-    GEN xQ, tQ, uQ;
-
-    /* Otherwise [count]P is Weierstrass hence 2-torsion so
-     * ord(P) = 2*count. */
-    count *= 2;
-    /* ... so we need to take Q = [count]P into consideration. */
-    xQ = gel(Q, 1);
-
-    tQ = ec_dFdx_evalQ(E, Q);
     t = gadd(t, tQ);
-
-    uQ = ec_2divpol_evalx(E, xQ);
-    /* w += uQ + tQ * xQ */
     w = gadd(w, gadd(uQ, gmul(tQ, xQ)));
+    if (!only_image) isog = update_isogeny_polys(isog, E, Q,tQ,uQ, vx,vy);
+    if (stop) break;
 
-    if ( ! only_compute_image) {
-      isog = update_isogeny_polys(isog, E, Q, tQ, uQ,
-                                  xvar, yvar);
+    Q = elladd(E, P, Q);
+    ++c;
+    /* IF x([c]P) = x([c-1]P) THEN [c]P = -[c-1]P and [2c-1]P = 0 */
+    if (gequal(gel(Q,1), xQ)) break;
+    if (low_stack(lim, stack_lim(av,1)))
+    {
+      if(DEBUGMEM>1) pari_warn(warnmem,"isogeny_from_kernel_point");
+      gerepileall(av, isog? 4: 3, &Q, &t, &w, &isog);
     }
   }
 
-  res = cgetg(3, t_VEC);
+  res = cgetg(2, t_VEC);
   EE = make_velu_curve(E, t, w, prec);
-  gel(res, 1) = EE;
-  if (only_compute_image) {
-    setlg(res, 2);
-    return gerepileupto(ltop, res);
-  }
+  if (only_image) { gel(res, 1) = EE; return gerepileupto(av, res); }
 
+  if (!isog) isog = isog_identity(vx,vy);
   f = gel(isog, 1);
   g = gel(isog, 2);
-  if ( ! (typ(f) == t_RFRAC && typ(g) == t_RFRAC)) {
-    pari_err_BUG("isogeny_from_kernel_generator "
-                 "(f or g has wrong type)");
-  }
+  if ( ! (typ(f) == t_RFRAC && typ(g) == t_RFRAC))
+    pari_err_BUG("isogeny_from_kernel_point (f or g has wrong type)");
 
   /* Clean up the isogeny polynomials f, g and h so that the isogeny
-   * is given by (x, y) |-> (f(x)/h(x)^2, g(x, y)/h(x)^3). */
+   * is given by (x,y) -> (f(x)/h(x)^2, g(x,y)/h(x)^3) */
   h = gel(isog, 3);
   h2 = gsqr(h);
   h3 = gmul(h, h2);
   f = gmul(f, h2);
   g = gmul(g, h3);
-  if ( ! gequal1(denom(f)) || ! gequal1(denom(g))) {
-    pari_err_BUG("isogeny_from_kernel_generator "
-                 "(one of the denominators is not right)");
-  }
-
-  map = cgetg(4, t_VEC);
-  gel(res, 2) = map;
-  gel(map, 1) = numer(f);
-  gel(map, 2) = numer(g);
-  gel(map, 3) = gcopy(gel(isog, 3));
-  return gerepileupto(ltop, res);
+  if (typ(f) != t_POL || typ(g) != t_POL)
+    pari_err_BUG("isogeny_from_kernel_point (wrong denominator)");
+  return gerepilecopy(av, mkvec2(EE, mkvec3(f,g, gel(isog,3))));
 }
 
-
-/*
- * Given a polynomial x^n - s1 x^{n-1} + s2 x^{n-2} - s3 x^{n-3} + ...
- * return (in a t_VEC) the first three power sums (Newton's
- * identities), namely:
- *
- * p1 = s1
- * p2 = s1^2 - 2 s2
- * p3 = (s1^2 - 3 s2) s1 + 3 s3.
- */
-static GEN
-first_three_power_sums(GEN pol)
+/* Given a t_POL x^n - s1 x^{n-1} + s2 x^{n-2} - s3 x^{n-3} + ...
+ * return the first three power sums (Newton's identities):
+ *   p1 = s1
+ *   p2 = s1^2 - 2 s2
+ *   p3 = (s1^2 - 3 s2) s1 + 3 s3 */
+static void
+first_three_power_sums(GEN pol, GEN *p1, GEN *p2, GEN *p3)
 {
-  GEN res = cgetg(4, t_VEC);
   long d = degpol(pol);
-  long xvar = varn(pol);
-  GEN s1, s2, ms3, tmp;
+  GEN s1, s2, ms3;
 
-  /* p1 = s1 */
-  pari_sp av = avma;
-  s1 = gneg(polcoeff0(pol, d - 1, xvar));
-  gel(res, 1) = gerepileupto(av, s1);
+  *p1 = s1 = gneg(RgX_coeff(pol, d-1));
 
-  /* p2 = s1^2 - 2 s2 */
-  av = avma;
-  s2 = polcoeff0(pol, d - 2, xvar);
-  gel(res, 2) = gerepileupto(av, gsub(gsqr(gel(res, 1)),
-                                      gmulsg(2L, s2)));
+  s2 = RgX_coeff(pol, d-2);
+  *p2 = gsub(gsqr(s1), gmulsg(2L, s2));
 
-  /* p3 = (s1^2 - 3 s2) s1 + 3 s3. */
-  av = avma;
-  ms3 = polcoeff0(pol, d - 3, xvar);
-  s2 = polcoeff0(pol, d - 2, xvar);
-  tmp = gadd(gmul(gel(res, 1), gsub(gel(res, 2), s2)),
-             gmulsg(3L, gneg(ms3)));
-  gel(res, 3) = gerepileupto(av, tmp);
-  return res;
+  ms3 = RgX_coeff(pol, d-3);
+  *p3 = gadd(gmul(s1, gsub(*p2, s2)), gmulsg(-3L, ms3));
 }
 
 
+/* Let E and a t_POL h of degree 1 or 3 whose roots are 2-torsion points on E.
+ * - if only_image != 0, return [t, w] used to compute the equation of the
+ *   quotient by the given 2-torsion points
+ * - else return [t,w, f,g,h], along with the contributions f, g and
+ *   h to the isogeny giving the quotient by h. Variables vx and vy are used
+ *   to create f, g and h, or ignored if only_image is zero */
+
+/* deg h = 1; 2-torsion contribution from Weierstrass point */
 static GEN
-two_torsion_contrib__weierstrass_pt(
-  GEN E, GEN kerh, long only_compute_image,
-  long xvar, long yvar, long prec)
+contrib_weierstrass_pt(GEN E, GEN h, long only_image, long vx, long vy, long prec)
 {
-  pari_sp ltop = avma, av;
   GEN p = ellbasechar(E);
   GEN a1 = ell_get_a1(E);
   GEN a3 = ell_get_a3(E);
-  /* kerh = x - x0 */
-  GEN x0 = gneg(constant_term(kerh));
-  /* b = a1 * x0 + a3 */
-  GEN b = gadd(gmul(a1, x0), a3);
-  GEN y0, Q, t, w, t1, t2;
-  GEN res;
+  GEN x0 = gneg(constant_term(h)); /* h = x - x0 */
+  GEN b = gadd(gmul(a1,x0), a3);
+  GEN y0, Q, t, w, t1, t2, f, g;
 
-  if ( ! equalis(p, 2L)) {
-    /* char(k) =/= 2 ==> y0 = -b/2 */
-    y0 = gdivgs(gneg(b), 2L);
-  } else {
-    /* char(k) = 2 ==> y0 = sqrt(f(x0)) where E is
-     * y^2 + h(x) = f(x). */
-    if ( ! gequal0(b)) {
-      pari_err_BUG("two_torsion_contribution "
-                   "(E.a1 * x0 + E.a3 is nonzero)");
-    }
+  if (!equalis(p, 2L)) /* char(k) != 2 ==> y0 = -b/2 */
+    y0 = gmul2n(gneg(b), -1);
+  else
+  { /* char(k) = 2 ==> y0 = sqrt(f(x0)) where E is y^2 + h(x) = f(x). */
+    if (!gequal0(b)) pari_err_BUG("two_torsion_contrib (a1*x0+a3 != 0)");
     y0 = gsqrt(ec_f_evalx(E, x0), prec);
   }
-
   Q = mkvec2(x0, y0);
-  res = cgetg(6, t_VEC);
   t = ec_dFdx_evalQ(E, Q);
   w = gmul(x0, t);
-  gel(res, 1) = t;
-  gel(res, 2) = w;
-  if (only_compute_image) {
-    setlg(res, 3);
-    return gerepileupto(ltop, res);
-  }
+  if (only_image) return mkvec2(t,w);
 
-  /* Compute isogeny */
-  av = avma;
-  /* f = (x - x0) * t */
-  gel(res, 3) = gerepileupto(av, deg1pol(t, gmul(t, gneg(x0)), xvar));
+  /* Compute isogeny, f = (x - x0) * t */
+  f = deg1pol_shallow(t, gmul(t, gneg(x0)), vx);
 
-  av = avma;
-  /* g = (x - x0) * t * (E.a1 * (x - x0) + (y - y0)) */
-  t1 = gmul(a1, deg1pol(gen_1, gneg(x0), xvar));
-  t2 = deg1pol(gen_1, gneg(y0), yvar);
-  gel(res, 4) = gerepileupto(av, gmul(gel(res, 3), gadd(t1, t2)));
-  gel(res, 5) = gcopy(kerh);
-  return gerepileupto(ltop, res);
+  /* g = (x - x0) * t * (a1 * (x - x0) + (y - y0)) */
+  t1 = deg1pol_shallow(a1, gmul(a1, gneg(x0)), vx);
+  t2 = deg1pol_shallow(gen_1, gneg(y0), vy);
+  g = gmul(f, gadd(t1, t2));
+  return mkvec5(t, w, f, g, h);
 }
-
-
-/* NB: kerh is assumed monic.  Base field characteristic should be
- * odd or zero (otherwise the isogeny would be inseperable). */
+/* deg h =3; full 2-torsion contribution. NB: assume h is monic; base field
+ * characteristic is odd or zero (otherwise the isogeny is inseparable). */
 static GEN
-two_torsion_contrib__full_tors(
-  GEN E, GEN kerh, long only_compute_image,
-  long xvar, long yvar, long prec)
+contrib_full_tors(GEN E, GEN h, long only_image, long vx, long vy, long prec)
 {
-  pari_sp ltop = avma, av;
-  GEN psums, p1, p2, p3, half_b2, half_b4;
-  GEN res, t, w;
+  GEN p1, p2, p3, half_b2, half_b4, t, w, f, g;
   GEN p = ellbasechar(E);
 
-  if (equalis(p, 2L)) {
-    pari_err_DOMAIN("two_torsion_contrib__full_tors",
-                    "The map E -> E/E[2]",
-                    "is not separable in characteristic 2",
-                    E, kerh);
-  }
+  if (equalis(p, 2L))
+    pari_err_DOMAIN("contrib_full_tors", "The map E -> E/E[2]",
+                    "is not separable in characteristic 2", E, h);
+  first_three_power_sums(h, &p1,&p2,&p3);
+  half_b2 = gmul2n(ell_get_b2(E), -1);
+  half_b4 = gmul2n(ell_get_b4(E), -1);
 
-  psums = first_three_power_sums(kerh);
-  p1 = gel(psums, 1);
-  p2 = gel(psums, 2);
-  p3 = gel(psums, 3);
-  half_b2 = gdivgs(ell_get_b2(E), 2L);
-  half_b4 = gdivgs(ell_get_b4(E), 2L);
-
-  res = cgetg(6, t_VEC);
-
-  av = avma;
-  /* t = 3 * p2 + p1 * b2/2 + 3 * b4/2
-   *   = 3 * (p2 + b4/2) + p1 * b2/2 */
+  /* t = 3*(p2 + b4/2) + p1 * b2/2 */
   t = gadd(gmulsg(3L, gadd(p2, half_b4)), gmul(p1, half_b2));
-  t = gerepileupto(av, t);
-  gel(res, 1) = t;
 
-  av = avma;
   /* w = 3 * p3 + p2 * b2/2 + p1 * b4/2 */
   w = gadd(gmulsg(3L, p3), gadd(gmul(p2, half_b2),
                                 gmul(p1, half_b4)));
-  w = gerepileupto(av, w);
-  gel(res, 2) = w;
-
-  if (only_compute_image) {
-    setlg(res, 3);
-    return gerepileupto(ltop, res);
-  }
+  if (only_image) return mkvec2(t,w);
 
   /* Compute isogeny */
   {
-    pari_sp btop = avma;
-    /* Shorthand */
-    GEN a1 = ell_get_a1(E);
-    GEN a3 = ell_get_a3(E);
-
-    GEN t1, t2;
-    GEN f, g, h = kerh;
-    long d = 3;
-    GEN s1 = gneg(polcoeff0(h, d - 1, xvar));
+    GEN a1 = ell_get_a1(E), a3 = ell_get_a3(E), t1, t2;
+    GEN s1 = gneg(RgX_coeff(h, 2));
     GEN dh = RgX_deriv(h);
-    GEN psi2xy = gadd(deg1pol(a1, a3, xvar),
-                      deg1pol(gen_2, gen_0, yvar));
+    GEN psi2xy = gadd(deg1pol_shallow(a1, a3, vx),
+                      deg1pol_shallow(gen_2, gen_0, vy));
 
-    av = avma;
-    /* f = -3 (3 x + b2/2 + s1) h + (3 x^2 + (b2/2) x + (b4/2)) dh */
-    t1 = RgX_mul(h, gmulsg(-3, deg1pol(stoi(3), gadd(half_b2, s1), xvar)));
+    /* f = -3 (3 x + b2/2 + s1) h + (3 x^2 + (b2/2) x + (b4/2)) h'*/
+    t1 = RgX_mul(h, gmulsg(-3, deg1pol(stoi(3), gadd(half_b2, s1), vx)));
     t2 = mkpoln(3, stoi(3), half_b2, half_b4);
-    setvarn(t2, xvar);
+    setvarn(t2, vx);
     t2 = RgX_mul(dh, t2);
-    f = gerepileupto(av, RgX_add(t1, t2));
+    f = RgX_add(t1, t2);
 
-    av = avma;
-    /* g = psi2xy * (deriv(f) * h - f * dh)/2
-     *   - (E.a1 * f + E.a3 * h) * h/2; */
-    t1 = RgX_divs(RgX_sub(RgX_mul(RgX_deriv(f), h),
-                          RgX_mul(f, dh)), 2L);
-    t2 = RgX_divs(RgX_mul(h, RgX_add(RgX_Rg_mul(f, a1),
-                                     RgX_Rg_mul(h, a3))), 2L);
-    g = gsub(gmul(psi2xy, t1), t2);
-    g = gerepileupto(av, g);
+    /* 2g = psi2xy * (f'*h - f*h') - (a1*f + a3*h) * h; */
+    t1 = RgX_sub(RgX_mul(RgX_deriv(f), h), RgX_mul(f, dh));
+    t2 = RgX_mul(h, RgX_add(RgX_Rg_mul(f, a1), RgX_Rg_mul(h, a3)));
+    g = RgX_divs(gsub(gmul(psi2xy, t1), t2), 2L);
 
-    f = gmul(f, h);
-    g = gmul(g, h);
-
-    gerepileall(btop, 2, &f, &g);
-    gel(res, 3) = f;
-    gel(res, 4) = g;
+    f = RgX_mul(f, h);
+    g = RgX_mul(g, h);
   }
-  gel(res, 5) = gcopy(kerh);
-
-  return gerepileupto(ltop, res);
+  return mkvec5(t, w, f, g, h);
 }
 
-
-/*
- * Given an elliptic curve E and a polynomial kerh of degree 1 or 3
- * whose roots are 2-torsion points on E, if only_compute_image is
- * nonzero, return a t_VEC of length 2 containing two values t and w
- * used to compute the equation of the quotient by the given 2-torsion
- * points; if only_compute_image is zero, return a t_VEC of length 5
- * containing t and w as before, along with the contributions f, g and
- * h to the isogeny giving the quotient by kerh. The variables xvar
- * and yvar are used to create f, g and h, or ignored if
- * only_compute_image is zero.
- */
-static GEN
-two_torsion_contribution(
-  GEN E, GEN kerh, long only_compute_image,
-  long xvar, long yvar, long prec)
-{
-  pari_sp av = avma;
-  GEN res;
-  ulong e = degpol(kerh);
-  /* Make kerh monic */
-  if ( ! gequal1(leading_term(kerh)))
-    kerh = RgX_Rg_div(kerh, leading_term(kerh));
-
-  if (e == 1) {
-    res = two_torsion_contrib__weierstrass_pt(
-      E, kerh, only_compute_image, xvar, yvar, prec);
-  } else if (e == 3) {
-    res = two_torsion_contrib__full_tors(
-      E, kerh, only_compute_image, xvar, yvar, prec);
-  } else {
-    res = NULL;
-    pari_err_BUG("two_torsion_contribution (given kernel polynomial "
-                 "doesn't have degree 1 or 3)");
-  }
-  return gerepileupto(av, res);
-}
-
-
-/*
- * Given an elliptic curve E and a polynomial kerp whose roots define
- * a subgroup G of E, return the factor of kerp that corresponds to
- * the 2-torsion points E[2] \cap G in G.
- */
+/* Given E and a t_POL T whose roots define a subgroup G of E, return the factor
+ * of T that corresponds to the 2-torsion points E[2] \cap G in G */
 INLINE GEN
-two_torsion_part(GEN E, GEN kerp)
-{
-  pari_sp av = avma;
-  GEN divpol = elldivpol(E, 2, varn(kerp));
-  return gerepileupto(av, RgX_gcd(kerp, divpol));
-}
+two_torsion_part(GEN E, GEN T)
+{ return RgX_gcd(T, elldivpol(E, 2, varn(T))); }
 
-
-/*
- * Return the jth Hasse derivative of the polynomial f. If $f =
- * \sum_{i=0}^n a_i x^i$, then the jth Hasse derivative of f is
- * defined to be $\sum_{i=j}^n a_i \binom{i}{j} x^{i-j}$. It is a
- * derivation even when the coefficient ring has positive
- * characteristic.
- */
+/* Return the jth Hasse derivative of the polynomial f = \sum_{i=0}^n a_i x^i,
+ * i.e. \sum_{i=j}^n a_i \binom{i}{j} x^{i-j}. It is a derivation even when the
+ * coefficient ring has positive characteristic */
 static GEN
 derivhasse(GEN f, ulong j)
 {
-  pari_sp ltop = avma, av;
-  GEN deriv;
-  long v = varn(f), iszero;
-  ulong d, i;
-  if (gequal0(f))
-    return pol_0(v);
-  d = degpol(f);
-  if (d == 0)
-    return pol_0(v);
-  if (j == 0)
-    return gcopy(f);
-
-  iszero = 1;
-  /* 2 code words and d - j + 1 coefficients. */
-  deriv = cgetg(2 + (d - j + 1), t_POL);
-  setvarn(deriv, v);
-  for (i = j; i <= d; ++i) {
-    av = avma;
-    gel(deriv, i - j + 2) =
-      gerepileupto(av, gmul(binomialuu(i, j), gel(f, i + 2)));
-    iszero &= gequal0(gel(deriv, i - j + 2));
-  }
-  if (iszero) {
-    avma = ltop;
-    return pol_0(v);
-  }
-  setsigne(deriv, 1);
-  return normalizepol(deriv);
+  ulong i, d = degpol(f);
+  GEN df;
+  if (gequal0(f) || d == 0) return pol_0(varn(f));
+  if (j == 0) return gcopy(f);
+  df = cgetg(2 + (d-j+1), t_POL);
+  df[1] = f[1];
+  for (i = j; i <= d; ++i) gel(df, i-j+2) = gmul(binomialuu(i,j), gel(f, i+2));
+  return normalizepol(df);
 }
-
 
 static GEN
 non_two_torsion_abscissa(GEN E, GEN h0, GEN x)
 {
-  pari_sp av = avma;
   GEN mp1, dh0, ddh0, t, u, t1, t2, t3;
-  GEN f0;
   long m = degpol(h0);
   mp1 = gel(h0, m + 1); /* negative of first power sum */
   dh0 = RgX_deriv(h0);
@@ -647,26 +373,16 @@ non_two_torsion_abscissa(GEN E, GEN h0, GEN x)
   t1 = RgX_sub(RgX_sqr(dh0), RgX_mul(ddh0, h0));
   t2 = RgX_mul(u, RgX_mul(h0, dh0));
   t3 = RgX_mul(RgX_sqr(h0),
-               deg1pol(stoi(2 * m), gmulsg(2L, mp1), varn(x)));
-  /* f0 = t * (dh0^2 - ddh0 * h0) - u * dh0 * h0
-   *   + (2 * m * x - 2 * s1) * h0^2); */
-  f0 = RgX_add(RgX_sub(RgX_mul(t, t1), t2), t3);
-  return gerepileupto(av, f0);
+               deg1pol_shallow(stoi(2*m), gmulsg(2L, mp1), varn(x)));
+  /* t * (dh0^2 - ddh0*h0) - u*dh0*h0 + (2*m*x - 2*s1) * h0^2); */
+  return RgX_add(RgX_sub(RgX_mul(t, t1), t2), t3);
 }
-
 
 static GEN
 isog_abscissa(GEN E, GEN kerp, GEN h0, GEN x, GEN two_tors)
 {
-  pari_sp av = avma;
-  GEN f0, f2, h2, f, t1, t2, t3;
-  long m = degpol(h0);
-
-  if (m > 0)
-    f0 = non_two_torsion_abscissa(E, h0, x);
-  else
-    f0 = pol_0(varn(x));
-
+  GEN f0, f2, h2, t1, t2, t3;
+  f0 = (degpol(h0) > 0)? non_two_torsion_abscissa(E, h0, x): pol_0(varn(x));
   f2 = gel(two_tors, 3);
   h2 = gel(two_tors, 5);
 
@@ -674,93 +390,70 @@ isog_abscissa(GEN E, GEN kerp, GEN h0, GEN x, GEN two_tors)
   t1 = RgX_mul(x, RgX_sqr(kerp));
   t2 = RgX_mul(f2, RgX_sqr(h0));
   t3 = RgX_mul(f0, RgX_sqr(h2));
-  /* f = x * kerp^2 + f2 * h0^2 + f0 * h2^2 */
-  f = RgX_add(t1, RgX_add(t2, t3));
-  return gerepileupto(av, f);
+  /* x * kerp^2 + f2 * h0^2 + f0 * h2^2 */
+  return RgX_add(t1, RgX_add(t2, t3));
 }
-
 
 static GEN
 non_two_torsion_ordinate_char_not2(GEN E, GEN f, GEN h, GEN psi2)
 {
-  pari_sp av = avma;
   GEN a1 = ell_get_a1(E), a3 = ell_get_a3(E);
   GEN df = RgX_deriv(f), dh = RgX_deriv(h);
-
   /* g = df * h * psi2/2 - f * dh * psi2
    *   - (E.a1 * f + E.a3 * h^2) * h/2 */
   GEN t1 = RgX_mul(df, RgX_mul(h, RgX_divs(psi2, 2L)));
   GEN t2 = RgX_mul(f, RgX_mul(dh, psi2));
   GEN t3 = RgX_mul(RgX_divs(h, 2L),
-                   RgX_add(RgX_Rg_mul(f, a1),
-                           RgX_Rg_mul(RgX_sqr(h), a3)));
-  return gerepileupto(av, RgX_sub(RgX_sub(t1, t2), t3));
+                   RgX_add(RgX_Rg_mul(f, a1), RgX_Rg_mul(RgX_sqr(h), a3)));
+  return RgX_sub(RgX_sub(t1, t2), t3);
 }
 
-
+/* h = kerq */
 static GEN
-non_two_torsion_ordinate_char2(GEN E, GEN kerq, GEN x, GEN y)
+non_two_torsion_ordinate_char2(GEN E, GEN h, GEN x, GEN y)
 {
-  pari_sp ltop = avma, av;
-  GEN h, h2, h3, dh, dh2, ddh, D2h, D2dh, H;
-  GEN psi2, b2, b4, b6, u, t, a1, a3, a4, alpha;
+  GEN a1 = ell_get_a1(E), a3 = ell_get_a3(E), a4 = ell_get_a4(E);
+  GEN b2 = ell_get_b2(E), b4 = ell_get_b4(E), b6 = ell_get_b6(E);
+  GEN h2, dh, dh2, ddh, D2h, D2dh, H, psi2, u, t, alpha;
   GEN p1, t1, t2, t3, t4;
-  long m, xvar = varn(x);
+  long m, vx = varn(x);
 
-  h = kerq;
   h2 = RgX_sqr(h);
-  h3 = RgX_mul(h, h2);
   dh = RgX_deriv(h);
   dh2 = RgX_sqr(dh);
   ddh = RgX_deriv(dh);
   H = RgX_sub(dh2, RgX_mul(h, ddh));
   D2h = derivhasse(h, 2);
   D2dh = derivhasse(dh, 2);
-  a1 = ell_get_a1(E);
-  a3 = ell_get_a3(E);
-  a4 = ell_get_a4(E);
-  b2 = ell_get_b2(E);
-  b4 = ell_get_b4(E);
-  b6 = ell_get_b6(E);
-  psi2 = deg1pol(a1, a3, xvar);
+  psi2 = deg1pol_shallow(a1, a3, vx);
   u = mkpoln(3, b2, gen_0, b6);
-  setvarn(u, xvar);
-  t = deg1pol(b2, b4, xvar);
+  setvarn(u, vx);
+  t = deg1pol_shallow(b2, b4, vx);
   alpha = mkpoln(4, a1, a3, gmul(a1, a4), gmul(a3, a4));
-  setvarn(alpha, xvar);
+  setvarn(alpha, vx);
   m = degpol(h);
-  p1 = polcoeff0(h, m - 1, xvar); /* first power sum */
+  p1 = RgX_coeff(h, m-1); /* first power sum */
 
-  av = avma;
-  t1 = gadd(gmul(a1, p1), gmulgs(a3, m));
-  t1 = gerepileupto(av, gmul(t1, h3));
+  t1 = gmul(gadd(gmul(a1, p1), gmulgs(a3, m)), RgX_mul(h,h2));
 
-  av = avma;
   t2 = gmul(a1, gadd(gmul(a1, gadd(y, psi2)), RgX_add(RgX_Rg_add(RgX_sqr(x), a4), t)));
-  t2 = gerepileupto(av, gmul(t2, gmul(dh, h2)));
+  t2 = gmul(t2, gmul(dh, h2));
 
-  av = avma;
   t3 = gadd(gmul(y, t), RgX_add(alpha, RgX_Rg_mul(u, a1)));
-  t3 = gerepileupto(av, gmul(t3, RgX_mul(h, H)));
+  t3 = gmul(t3, RgX_mul(h, H));
 
-  av = avma;
   t4 = gmul(u, psi2);
   t4 = gmul(t4, RgX_sub(RgX_sub(RgX_mul(h2, D2dh), RgX_mul(dh, H)),
                         RgX_mul(h, RgX_mul(dh, D2h))));
-  t4 = gerepileupto(av, t4);
 
-  return gerepileupto(ltop, gadd(t1, gadd(t2, gadd(t3, t4))));
+  return gadd(t1, gadd(t2, gadd(t3, t4)));
 }
 
-
 static GEN
-isog_ordinate(
-  GEN E, GEN kerp, GEN kerq, GEN x, GEN y, GEN two_tors, GEN f)
+isog_ordinate(GEN E, GEN kerp, GEN kerq, GEN x, GEN y, GEN two_tors, GEN f)
 {
-  pari_sp av = avma;
   GEN g;
-
-  if ( ! equalis(ellbasechar(E), 2L)) {
+  if (! equalis(ellbasechar(E), 2L)) {
     /* FIXME: We don't use (hence don't need to calculate)
      * g2 = gel(two_tors, 4) when char(k) != 2. */
     GEN psi2 = gneg(ec_dFdy_evalQ(E, mkvec2(x, y)));
@@ -772,163 +465,99 @@ isog_ordinate(
     g0 = gmul(g0, RgX_mul(h2, RgX_sqr(h2)));
     g = gsub(gmul(y, RgX_mul(kerp, RgX_sqr(kerp))), gadd(g2, g0));
   }
-
-  return gerepileupto(av, g);
+  return g;
 }
 
-
-/*
- * Given an elliptic curve E and a polynomial kerp whose roots give
- * the x-coordinates of a subgroup G of E, return the curve E/G and,
- * if only_compute_image is zero, the isogeny corresponding to the
- * canonical surjection pi:E -> E/G. The variables xvar and yvar are
- * used to describe the isogeny (and are ignored if only_compute_image
- * is zero).
- */
+/* Given an elliptic curve E and a polynomial kerp whose roots give the
+ * x-coordinates of a subgroup G of E, return the curve E/G and,
+ * if only_image is zero, the isogeny pi:E -> E/G. Variables vx and vy are
+ * used to describe the isogeny (and are ignored if only_image is zero). */
 static GEN
-isogeny_from_kernel_poly(
-  GEN E, GEN kerp, long only_compute_image,
-  long xvar, long yvar, long prec)
+isogeny_from_kernel_poly(GEN E, GEN kerp, long only_image, long vx, long vy, long prec)
 {
-  pari_sp ltop = avma, btop, av;
-  long e, m;
-  GEN psums, p1, p2, p3, b2, b4, b6, x, y;
-  GEN two_tors, isog, res, EE, t, w;
+  pari_sp ltop = avma;
+  long m;
+  GEN b2 = ell_get_b2(E), b4 = ell_get_b4(E), b6 = ell_get_b6(E);
+  GEN p1, p2, p3, x, y, f, g, two_tors, res, EE, t, w;
   GEN kerh = two_torsion_part(E, kerp);
   GEN kerq = RgX_divrem(kerp, kerh, ONLY_DIVIDES);
-  if ( ! kerq) {
-    pari_err_BUG("isogeny_from_kernel_poly (two torsion part of "
-                 "kernel polynomial doesn't divide it)");
-  }
-  e = degpol(kerh); /* e should be 0, 1, or 3. */
-  /* isogeny degree: 2*degpol(kerp)+1-e */
+  if (!kerq) pari_err_BUG("isogeny_from_kernel_poly");
+  /* isogeny degree: 2*degpol(kerp)+1-degpol(kerh) */
   m = degpol(kerq);
 
   kerp = RgX_Rg_div(kerp, leading_term(kerp));
-
-  if (e == 2) {
-    pari_err_DOMAIN("isogeny_from_kernel_poly",
-                    "kernel polynomial",
-                    "does not define a subgroup of",
-                    E, kerp);
-  }
-
-  if (e != 0) {
-    /* kernel has some 2-torsion */
-    two_tors = two_torsion_contribution(E, kerh,
-                                        only_compute_image,
-                                        xvar, yvar, prec);
-  } else {
-    two_tors = mkvec5(gen_0, gen_0,
-                      pol_0(xvar), pol_0(xvar), pol_1(xvar));
-  }
-
-  /* Make kerq monic */
   kerq = RgX_Rg_div(kerq, leading_term(kerq));
-  /* Shorthand */
-  b2 = ell_get_b2(E);
-  b4 = ell_get_b4(E);
-  b6 = ell_get_b6(E);
-  psums = first_three_power_sums(kerq);
-  p1 = gel(psums, 1);
-  p2 = gel(psums, 2);
-  p3 = gel(psums, 3);
-  x = pol_x(xvar);
-  y = pol_x(yvar);
+  kerh = RgX_Rg_div(kerh, leading_term(kerh));
+  switch(degpol(kerh))
+  {
+  case 0:
+    two_tors = mkvec5(gen_0, gen_0, pol_0(vx), pol_0(vx), pol_1(vx));
+    break;
+  case 1:
+    two_tors = contrib_weierstrass_pt(E, kerh, only_image,vx,vy, prec);
+    break;
+  case 3:
+    two_tors = contrib_full_tors(E, kerh, only_image,vx,vy, prec);
+    break;
+  default:
+    two_tors = NULL;
+    pari_err_DOMAIN("isogeny_from_kernel_poly", "kernel polynomial",
+                    "does not define a subgroup of", E, kerp);
+  }
+  first_three_power_sums(kerq,&p1,&p2,&p3);
+  x = pol_x(vx);
+  y = pol_x(vy);
 
-  res = cgetg(3, t_VEC);
-
-  btop = avma;
   /* t = 6 * p2 + b2 * p1 + m * b4, */
   t = gadd(gmulsg(6L, p2), gadd(gmul(b2, p1), gmulsg(m, b4)));
-  t = gerepileupto(btop, t);
 
-  av = avma;
   /* w = 10 * p3 + 2 * b2 * p2 + 3 * b4 * p1 + m * b6, */
   w = gadd(gmulsg(10L, p3),
            gadd(gmul(gmulsg(2L, b2), p2),
-                gadd(gmul(gmulsg(3L, b4), p1),
-                     gmulsg(m, b6))));
-  w = gerepileupto(av, w);
+                gadd(gmul(gmulsg(3L, b4), p1), gmulsg(m, b6))));
 
-  EE = make_velu_curve(E,
-                       gadd(t, gel(two_tors, 1)),
-                       gadd(w, gel(two_tors, 2)), prec);
+  res = cgetg(2, t_VEC);
+  EE = make_velu_curve(E, gadd(t, gel(two_tors, 1)),
+                          gadd(w, gel(two_tors, 2)), prec);
 
-  EE = gerepileupto(btop, EE);
-  gel(res, 1) = EE;
+  if (only_image) { gel(res, 1) = EE; return gerepileupto(ltop, res); }
 
-  if (only_compute_image) {
-    setlg(res, 2);
-    return gerepileupto(ltop, res);
-  }
-
-  isog = cgetg(4, t_VEC);
-  gel(res, 2) = isog;
-  gel(isog, 1) = isog_abscissa(E, kerp, kerq, x, two_tors);
-  gel(isog, 2) = isog_ordinate(E, kerp, kerq, x, y, two_tors, gel(isog, 1));
-  gel(isog, 3) = gcopy(kerp);
-  return gerepileupto(ltop, res);
+  f = isog_abscissa(E, kerp, kerq, x, two_tors);
+  g = isog_ordinate(E, kerp, kerq, x, y, two_tors, f);
+  return gerepilecopy(ltop, mkvec2(EE, mkvec3(f,g,kerp)));
 }
 
-
-/*
- * Given an elliptic curve E and a subgroup G of E, return the curve
- * E/G and, if only_compute_image is zero, the isogeny corresponding
- * to the canonical surjection pi:E -> E/G. The variables xvar and
- * yvar are used to describe the isogeny (and are ignored if
- * only_compute_image is zero). The subgroup G may be given either as
+/* Given an elliptic curve E and a subgroup G of E, return the curve
+ * E/G and, if only_image is zero, the isogeny corresponding
+ * to the canonical surjection pi:E -> E/G. The variables vx and
+ * vy are used to describe the isogeny (and are ignored if
+ * only_image is zero). The subgroup G may be given either as
  * a generating point P on E or as a polynomial kerp whose roots are
- * the x-coordinates of the points in G.
- */
+ * the x-coordinates of the points in G */
 GEN
-ellisog(GEN E, GEN G, long only_compute_image,
-    long xvar, long yvar, long prec)
+ellisog(GEN E, GEN G, long only_image, long vx, long vy, long prec)
 {
-  checkell(E);
-  if (xvar < 0)
-    xvar = 0;
-  if (yvar < 0)
-    yvar = fetch_user_var("y");
-  if (varncmp(xvar, yvar) >= 0) {
-    pari_err_PRIORITY("ellisog",
-                      pol_x(xvar),
-                      "has priority less than or equal to",
-                      yvar);
-  }
-  if (varncmp(yvar, gvar(ell_get_j(E))) >= 0) {
-    pari_err_PRIORITY("ellisog",
-                      ell_get_j(E),
-                      "has priority greater than or equal to",
-                      yvar);
-  }
-
-  if (typ(G) == t_VEC) {
+  GEN j;
+  checkell(E);j = ell_get_j(E);
+  if (vx < 0) vx = 0;
+  if (vy < 0) vy = fetch_user_var("y");
+  if (varncmp(vx, vy) >= 0) pari_err_PRIORITY("ellisog", pol_x(vx), "<=", vy);
+  if (varncmp(vy, gvar(j)) >= 0) pari_err_PRIORITY("ellisog", j, ">=", vy);
+  switch(typ(G))
+  {
+  default: pari_err_TYPE("ellisog", G);
+  case t_VEC:
     checkellpt(G);
-    if (varncmp(yvar, gvar(gel(G, 1))) >= 0) {
-      pari_err_PRIORITY("ellisog",
-                        gel(G, 1),
-                        "has priority greater than or equal to",
-                        yvar);
+    if (!ell_is_inf(G))
+    {
+      GEN x =  gel(G,1), y = gel(G,2);
+      if (varncmp(vy, gvar(x)) >= 0) pari_err_PRIORITY("ellisog", x, ">=", vy);
+      if (varncmp(vy, gvar(y)) >= 0) pari_err_PRIORITY("ellisog", y, ">=", vy);
     }
-    if (lg(G) > 2 && varncmp(yvar, gvar(gel(G, 2))) >= 0) {
-      pari_err_PRIORITY("ellisog",
-                        gel(G, 2),
-                        "has priority greater than or equal to",
-                        yvar);
-    }
-    return isogeny_from_kernel_generator(E, G, only_compute_image,
-                                         xvar, yvar, prec);
+    return isogeny_from_kernel_point(E, G, only_image, vx, vy, prec);
+  case t_POL:
+    if (varncmp(vy, gvar(constant_term(G))) >= 0)
+      pari_err_PRIORITY("ellisog", constant_term(G), ">=", vy);
+    return isogeny_from_kernel_poly(E, G, only_image, vx, vy, prec);
   }
-  if (typ(G) != t_POL) {
-    pari_err_TYPE("ellisog", G);
-  }
-  if (varncmp(yvar, gvar(constant_term(G))) >= 0) {
-    pari_err_PRIORITY("ellisog",
-                      constant_term(G),
-                      "has priority greater than or equal to",
-                      yvar);
-  }
-  return isogeny_from_kernel_poly(E, G, only_compute_image,
-                                  xvar, yvar, prec);
 }
