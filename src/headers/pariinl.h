@@ -1823,6 +1823,13 @@ RgX_copy(GEN x)
   return y;
 }
 INLINE GEN
+RgX_coeff(GEN x, long n)
+{
+  long  dx = degpol(x);
+  if (dx < 0) return gen_0;
+  return (n < 0 || n > dx)? gen_0: gel(x,n+2);
+}
+INLINE GEN
 RgX_renormalize(GEN x) { return RgX_renormalize_lg(x, lg(x)); }
 INLINE GEN
 RgX_div(GEN x, GEN y) { return RgX_divrem(x,y,NULL); }

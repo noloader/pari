@@ -3906,6 +3906,7 @@ INLINE GEN    RgXQ_mul(GEN x,GEN y,GEN T);
 INLINE GEN    RgXQ_sqr(GEN x,GEN T);
 INLINE GEN    RgXQX_div(GEN x, GEN y, GEN T);
 INLINE GEN    RgXQX_rem(GEN x, GEN y, GEN T);
+INLINE GEN    RgX_coeff(GEN x, long n);
 INLINE GEN    RgX_copy(GEN x);
 INLINE GEN    RgX_div(GEN x, GEN y);
 INLINE GEN    RgX_fpnorml2(GEN x, long prec);

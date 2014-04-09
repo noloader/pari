@@ -7216,6 +7216,10 @@ is defined, to the proper accuracy (e.g. \kbd{0}, \kbd{Mod(0,3)},
 \fun{int}{RgX_isscalar}{GEN x} return 1 if $x$ all the coefficients of
 $x$ of degree $> 0$ are $0$ (as per \kbd{gequal0}).
 
+\fun{GEN}{RgX_coeff}{GEN P, long n} return the coefficient of $x^n$ in $P$,
+defined as \kbd{gen\_0} if $n < 0$ or $n > \kbd{degpol}(P)$. Shallow
+function.
+
 \fun{int}{RgX_blocks}{GEN P, long n, long m} writes
 $P(X)=a_0(X)+X^n*a_1(X)*X^n+\ldots+X^{n*(m-1)}\*a_{m-1}(X)$,
 where the $a_i$ are polynomial of degree at most $n-1$
