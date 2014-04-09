@@ -1,0 +1,7 @@
+  ***   at top-level: ellapplyisog(x,x)
+  ***                 ^-----------------
+  *** ellapplyisog: incorrect type in checkellisog (t_POL).
+  ***   at top-level: ellcompisog(x,x)
+  ***                 ^----------------
+  *** ellcompisog: incorrect type in checkellisog (t_POL).
+Total time spent: 104
