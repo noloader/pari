@@ -1828,7 +1828,7 @@ INLINE GEN
 RgX_coeff(GEN x, long n)
 {
   ulong l = lg(x);
-  return (n < 0 || ((ulong)n+2) > l)? gen_0: gel(x,n+2);
+  return (n < 0 || ((ulong)n+3) > l)? gen_0: gel(x,n+2);
 }
 INLINE GEN
 RgX_renormalize(GEN x) { return RgX_renormalize_lg(x, lg(x)); }
