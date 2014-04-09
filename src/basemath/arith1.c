@@ -2435,11 +2435,23 @@ Fl_powu(ulong x, ulong n0, ulong p)
   }
   if (x <= 1) return x; /* 0 or 1 */
   y = 1; z = x; n = n0;
-  for(;;)
+  if (SMALL_ULONG(p))
   {
-    if (n&1) y = Fl_mul(y,z,p);
-    n>>=1; if (!n) return y;
-    z = Fl_sqr(z,p);
+    for(;;)
+    {
+      if (n&1) y = Fl_mul(y,z,p);
+      n>>=1; if (!n) return y;
+      z = Fl_sqr(z,p);
+    }
+  } else
+  {
+    ulong pi = get_Fl_red(p);
+    for(;;)
+    {
+      if (n&1) y = Fl_mul_pre(y,z,p,pi);
+      n>>=1; if (!n) return y;
+      z = Fl_sqr_pre(z,p,pi);
+    }
   }
 }
 
