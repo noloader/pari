@@ -1822,12 +1822,13 @@ RgX_copy(GEN x)
   for (i = 2; i<lx; i++) gel(y,i) = gcopy(gel(x,i));
   return y;
 }
+/* have to use ulong to avoid silly warnings from gcc "assuming signed
+ * overflow does not occur" */
 INLINE GEN
 RgX_coeff(GEN x, long n)
 {
-  long  dx = degpol(x);
-  if (dx < 0) return gen_0;
-  return (n < 0 || n > dx)? gen_0: gel(x,n+2);
+  ulong l = lg(x);
+  return (n < 0 || ((ulong)n+2) > l)? gen_0: gel(x,n+2);
 }
 INLINE GEN
 RgX_renormalize(GEN x) { return RgX_renormalize_lg(x, lg(x)); }
