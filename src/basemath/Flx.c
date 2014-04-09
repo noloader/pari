@@ -598,13 +598,13 @@ Flx_mullimb_ok(GEN x, GEN y, ulong p, long a, long b)
 }
 
 INLINE ulong
-Flx_mullimb(GEN x, GEN y, ulong p, long a, long b)
+Flx_mullimb(GEN x, GEN y, ulong p, ulong pi, long a, long b)
 {
   ulong p1 = 0;
   long i;
   for (i=a; i<b; i++)
     if (y[i])
-      p1 = Fl_add(p1, Fl_mul(y[i],x[-i],p), p);
+      p1 = Fl_add(p1, Fl_mul_pre(y[i],x[-i],p, pi), p);
   return p1;
 }
 
@@ -625,9 +625,10 @@ Flx_mulspec_basecase(GEN x, GEN y, ulong p, long nx, long ny)
   }
   else
   {
-    for (i=0; i<ny; i++)z[i] = Flx_mullimb(x+i,y,p,0,i+1);
-    for (  ; i<nx; i++) z[i] = Flx_mullimb(x+i,y,p,0,ny);
-    for (  ; i<nz; i++) z[i] = Flx_mullimb(x+i,y,p,i-nx+1,ny);
+    ulong pi = get_Fl_red(p);
+    for (i=0; i<ny; i++)z[i] = Flx_mullimb(x+i,y,p,pi,0,i+1);
+    for (  ; i<nx; i++) z[i] = Flx_mullimb(x+i,y,p,pi,0,ny);
+    for (  ; i<nz; i++) z[i] = Flx_mullimb(x+i,y,p,pi,i-nx+1,ny);
   }
   z -= 2; return Flx_renormalize(z, lz);
 }
@@ -852,19 +853,20 @@ Flx_sqrspec_basecase(GEN x, ulong p, long nx)
   }
   else
   {
-    z[0] = Fl_sqr(x[0], p);
+    ulong pi = get_Fl_red(p);
+    z[0] = Fl_sqr_pre(x[0], p, pi);
     for (i=1; i<nx; i++)
     {
-      p1 = Flx_mullimb(x+i,x,p,0, (i+1)>>1);
+      p1 = Flx_mullimb(x+i,x,p,pi,0, (i+1)>>1);
       p1 = Fl_add(p1, p1, p);
-      if ((i&1) == 0) p1 = Fl_add(p1, Fl_sqr(x[i>>1], p), p);
+      if ((i&1) == 0) p1 = Fl_add(p1, Fl_sqr_pre(x[i>>1], p, pi), p);
       z[i] = p1;
     }
     for (  ; i<nz; i++)
     {
-      p1 = Flx_mullimb(x+i,x,p,i-nx+1, (i+1)>>1);
+      p1 = Flx_mullimb(x+i,x,p,pi,i-nx+1, (i+1)>>1);
       p1 = Fl_add(p1, p1, p);
-      if ((i&1) == 0) p1 = Fl_add(p1, Fl_sqr(x[i>>1], p), p);
+      if ((i&1) == 0) p1 = Fl_add(p1, Fl_sqr_pre(x[i>>1], p, pi), p);
       z[i] = p1;
     }
   }
@@ -1157,19 +1159,20 @@ Flx_rem_basecase(GEN x, GEN y, ulong p)
   }
   else
   {
-    z[dz] = Fl_mul(inv, x[dx], p);
+    ulong pi = get_Fl_red(p);
+    z[dz] = Fl_mul_pre(inv, x[dx], p, pi);
     for (i=dx-1; i>=dy; --i)
     {
       p1 = p - x[i]; /* compute -p1 instead of p1 (pb with ulongs otherwise) */
       for (j=i-dy+1; j<=i && j<=dz; j++)
-        p1 = Fl_add(p1, Fl_mul(z[j],y[i-j],p), p);
-      z[i-dy] = p1? Fl_mul(p - p1, inv, p): 0;
+        p1 = Fl_add(p1, Fl_mul_pre(z[j],y[i-j],p,pi), p);
+      z[i-dy] = p1? Fl_mul_pre(p - p1, inv, p, pi): 0;
     }
     for (i=0; i<dy; i++)
     {
-      p1 = Fl_mul(z[0],y[i],p);
+      p1 = Fl_mul_pre(z[0],y[i],p,pi);
       for (j=1; j<=i && j<=dz; j++)
-        p1 = Fl_add(p1, Fl_mul(z[j],y[i-j],p), p);
+        p1 = Fl_add(p1, Fl_mul_pre(z[j],y[i-j],p,pi), p);
       c[i] = Fl_sub(x[i], p1, p);
     }
   }
