@@ -1973,6 +1973,7 @@ void    checkell(GEN e);
 void    checkell_Fq(GEN e);
 void    checkell_Q(GEN e);
 void    checkell_Qp(GEN e);
+void    checkellisog(GEN v);
 void    checkellpt(GEN z);
 void    checkell5(GEN e);
 GEN     ec_f_evalx(GEN E, GEN x);

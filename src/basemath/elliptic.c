@@ -87,6 +87,9 @@ checkell5(GEN E)
 void
 checkell(GEN E)
 { if (typ(E)!=t_VEC || lg(E) != 17) pari_err_TYPE("checkell",E); }
+void
+checkellisog(GEN v)
+{ if (typ(v)!=t_VEC || lg(v) != 4) pari_err_TYPE("checkellisog",v); }
 
 void
 checkell_Q(GEN E)
