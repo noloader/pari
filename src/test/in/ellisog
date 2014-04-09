@@ -283,4 +283,5 @@ if (F[2] != G[2], error("Different isogenies obtained for same kernel"));
 isog_satisfies_eqns(E, F[1], F[2]);
 
 ellapplyisog(x,x)
+ellapplyisog([f,g,h],1)
 ellcompisog(x,x)

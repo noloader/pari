@@ -52,6 +52,7 @@ ellapplyisog(GEN phi, GEN P)
   GEN f, g, h, img_f, img_g, img_h, img_h2, img_h3, img, vars, tmp;
   long vx, vy;
   checkellisog(phi);
+  checkellpt(P);
   if (ell_is_inf(P)) return ellinf();
   f = gel(phi, 1);
   g = gel(phi, 2);
