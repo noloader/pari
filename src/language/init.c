@@ -673,7 +673,7 @@ pari_mainstack_alloc(struct pari_mainstack *st, size_t rsize, size_t vsize)
 static void
 pari_mainstack_free(struct pari_mainstack *st)
 {
-  pari_mainstack_mfree((void*)st->vbot, st->vsize);
+  pari_mainstack_mfree((void*)st->vbot, st->vsize ? st->vsize : fix_size(st->rsize));
   st->top = st->bot = st->vbot = 0;
   st->size = st->vsize =0;
 }
@@ -704,20 +704,29 @@ paristack_alloc(ulong rsize, ulong vsize)
 void
 parivstack_resize(ulong newsize)
 {
-  size_t s, size = pari_mainstack->vsize ? pari_mainstack->vsize:
-                                           pari_mainstack->rsize;
-  if (!newsize) newsize = size << 1;
+  size_t s;
+  if (newsize && newsize < pari_mainstack->rsize)
+    pari_err_DIM("stack sizes");
+  if (newsize == pari_mainstack->vsize) return;
   evalstate_reset();
-  if (pari_mainstack->vsize)
-    pari_mainstack_resize(pari_mainstack, pari_mainstack->rsize, newsize);
-  else
-    pari_mainstack_resize(pari_mainstack, newsize, 0);
+  pari_mainstack_resize(pari_mainstack, pari_mainstack->rsize, newsize);
   pari_mainstack_use(pari_mainstack);
-  s = size;
-  if (pari_mainstack->vsize)
-    pari_warn(warner,"new maximum stack size = %lu (%.3f Mbytes)", s, s/1048576.);
-  else
-    pari_warn(warner,"new stack size = %lu (%.3f Mbytes)", s, s/1048576.);
+  s = newsize ? newsize : pari_mainstack->rsize;
+  pari_warn(warner,"new maximum stack size = %lu (%.3f Mbytes)", s, s/1048576.);
+  global_err_data = NULL;
+  cb_pari_err_recover(-1);
+}
+
+void
+paristack_newrsize(ulong newsize)
+{
+  size_t s, vsize = pari_mainstack->vsize;
+  if (!newsize) newsize = pari_mainstack->rsize << 1;
+  if (newsize != pari_mainstack->rsize)
+    pari_mainstack_resize(pari_mainstack, newsize, vsize);
+  evalstate_reset();
+  s = pari_mainstack->rsize;
+  pari_warn(warner,"new stack size = %lu (%.3f Mbytes)", s, s/1048576.);
   global_err_data = NULL;
   cb_pari_err_recover(-1);
 }

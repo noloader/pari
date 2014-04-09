@@ -2719,6 +2719,7 @@ GEN     pari_thread_start(struct pari_thread *t);
 GEN     pari_version(void);
 void    pari_warn(int numerr, ...);
 void    paristack_alloc(ulong rsize, ulong size);
+void    paristack_newrsize(ulong newsize);
 void    paristack_resize(ulong newsize);
 void    parivstack_resize(ulong newsize);
 void    parivstack_reset(void);

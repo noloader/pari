@@ -526,10 +526,7 @@ sd_parisizemax(const char *v, long flag)
 {
   ulong size = pari_mainstack->vsize, n = size;
   GEN r = sd_ulong(v,flag,"parisizemax",&n, 0,LONG_MAX,NULL);
-  if (n && n<10000)
-    r = sd_ulong(v,flag,"parisizemax",&n, 10000,LONG_MAX,NULL);
   if (n != size) {
-    pari_mainstack->vsize = n;
     if (flag == d_INITRC)
       paristack_alloc(pari_mainstack->rsize, n);
     else
@@ -544,20 +541,10 @@ sd_parisize(const char *v, long flag)
   ulong rsize = pari_mainstack->rsize, n = rsize;
   GEN r = sd_ulong(v,flag,"parisize",&n, 10000,LONG_MAX,NULL);
   if (n != rsize) {
-    if (pari_mainstack->vsize==0)
-    {
-      pari_mainstack->rsize = n;
-      if (flag == d_INITRC)
-        paristack_alloc(n, 0);
-      else
-        parivstack_resize(n);
-    } else
-    {
-      if (flag == d_INITRC)
-        paristack_alloc(n, pari_mainstack->vsize);
-      else
-        paristack_resize(n);
-    }
+    if (flag == d_INITRC)
+      paristack_alloc(n, pari_mainstack->vsize);
+    else
+      paristack_newrsize(n);
   }
   return r;
 }
