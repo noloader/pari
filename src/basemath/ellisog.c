@@ -480,7 +480,7 @@ isogeny_from_kernel_poly(GEN E, GEN kerp, long only_image, long vx, long vy, lon
 {
   long m;
   GEN b2 = ell_get_b2(E), b4 = ell_get_b4(E), b6 = ell_get_b6(E);
-  GEN p1, p2, p3, x, y, f, g, two_tors, res, EE, t, w;
+  GEN p1, p2, p3, x, y, f, g, two_tors, EE, t, w;
   GEN kerh = two_torsion_part(E, kerp);
   GEN kerq = RgX_divrem(kerp, kerh, ONLY_DIVIDES);
   if (!kerq) pari_err_BUG("isogeny_from_kernel_poly");
