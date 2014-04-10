@@ -293,16 +293,13 @@ contrib_weierstrass_pt(GEN E, GEN h, long only_image, long vx, long vy, long pre
   return mkvec5(t, w, f, g, h);
 }
 /* deg h =3; full 2-torsion contribution. NB: assume h is monic; base field
- * characteristic is odd or zero (otherwise the isogeny is inseparable). */
+ * characteristic is odd or zero (otherwise we cannot have full 2-torsion). */
 static GEN
 contrib_full_tors(GEN E, GEN h, long only_image, long vx, long vy, long prec)
 {
   GEN p1, p2, p3, half_b2, half_b4, t, w, f, g;
   GEN p = ellbasechar(E);
 
-  if (equalis(p, 2L))
-    pari_err_DOMAIN("contrib_full_tors", "The map E -> E/E[2]",
-                    "is not separable in characteristic 2", E, h);
   first_three_power_sums(h, &p1,&p2,&p3);
   half_b2 = gmul2n(ell_get_b2(E), -1);
   half_b4 = gmul2n(ell_get_b4(E), -1);
@@ -561,8 +558,9 @@ ellisogeny(GEN E, GEN G, long only_image, long vx, long vy, long prec)
       pari_err_PRIORITY("ellisogeny", constant_term(G), ">=", vy);
     z = isogeny_from_kernel_poly(E, G, only_image, vx, vy, prec);
     break;
-  default: pari_err_TYPE("ellisogeny", G);
+  default:
     z = NULL;
+    pari_err_TYPE("ellisogeny", G);
   }
   return gerepilecopy(av, z);
 }
