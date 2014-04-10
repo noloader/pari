@@ -502,11 +502,11 @@ polgalois(GEN x, long prec)
   if (n > 7) return galoisbig(x, prec);
   for(;;)
   {
-    double cb = cauchy_bound(x);
+    double fb = fujiwara_bound(x);
     switch(n)
     {
       case 4: z = cgetg(7,t_VEC);
-        prec = nbits2prec((long)(cb*(18./ LOG2)) + 64);
+        prec = nbits2prec((long)(fb*18.) + 64);
         for(;;)
         {
           p1=QX_complex_roots(x,prec);
@@ -538,7 +538,7 @@ polgalois(GEN x, long prec)
       case 5: z = cgetg(7,t_VEC);
         ee= cgetg(7,t_VECSMALL);
         w = cgetg(7,t_VECSMALL);
-        prec = nbits2prec((long)(cb*(21. / LOG2)) + 64);
+        prec = nbits2prec((long)(fb*21.) + 64);
         for(;;)
         {
           for(;;)
@@ -595,7 +595,7 @@ polgalois(GEN x, long prec)
         }
 
       case 6: z = cgetg(7, t_VEC);
-        prec = nbits2prec((long) (cb * (42. / LOG2)) + 64);
+        prec = nbits2prec((long) (fb * 42) + 64);
         for(;;)
         {
           for(;;)
@@ -684,7 +684,7 @@ polgalois(GEN x, long prec)
         }
 
       case 7: z = cgetg(36,t_VEC);
-        prec = nbits2prec((long)(cb*(7. / LOG2)) + 64);
+        prec = nbits2prec((long)(fb*7.) + 64);
         for(;;)
         {
           ind = 0; p1=QX_complex_roots(x,prec);
@@ -1398,7 +1398,7 @@ get_roots_for_M(nffp_t *F)
     double er;
     n = degpol(F->x);
     eBD = 1 + gexpo(gel(F->basden,1));
-    er  = F->ro? (1+gexpo(F->ro)): cauchy_bound(F->x)/LOG2;
+    er  = F->ro? (1+gexpo(F->ro)): fujiwara_bound(F->x);
     if (er < 0) er = 0;
     F->extraprec = nbits2extraprec((long)(n*er + eBD + log2(n))-(BITS_IN_LONG-1));/*FIXME*/
   }
@@ -2220,7 +2220,7 @@ polred_init(nfbasic_t *T, nffp_t *F, CG_data *d)
   GEN ro;
   set_LLL_basis(T, &ro, 0.9999);
   /* || polchar ||_oo < 2^e ~ 2 (n * rho)^n, rho = max modulus of root */
-  log2rho = ro ? (double)gexpo(ro): cauchy_bound(T->x) / LOG2;
+  log2rho = ro ? (double)gexpo(ro): fujiwara_bound(T->x);
   e = n * (long)(log2rho + log2((double)n)) + 1;
   if (e < 0) e = 0; /* can occur if n = 1 */
   prec = chk_gen_prec(n, e);

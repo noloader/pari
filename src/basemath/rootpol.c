@@ -1785,15 +1785,14 @@ split_complete(GEN p, long bit, GEN roots_pol)
 }
 
 static GEN
-quickabs(GEN x)
+quicktofp(GEN x)
 {
   const long prec = DEFAULTPREC;
-  GEN y;
   switch(typ(x))
   {
-    case t_INT: y = itor(x, prec); setabssign(y); return y;
-    case t_REAL: y = rtor(x, prec); setabssign(y); return y;
-    case t_FRAC: y = fractor(x, prec); setabssign(y); return y;
+    case t_INT: return itor(x, prec);
+    case t_REAL: return rtor(x, prec);
+    case t_FRAC: return fractor(x, prec);
     case t_COMPLEX: {
       GEN a = gel(x,1), b = gel(x,2);
       /* avoid problem with 0, e.g. x = 0 + I*1e-100. We don't want |x| = 0. */
@@ -1802,32 +1801,37 @@ quickabs(GEN x)
       a = cxcompotor(a, prec);
       b = cxcompotor(b, prec); return sqrtr(addrr(sqrr(a), sqrr(b)));
     }
-    default: pari_err_TYPE("quickabs",x);
+    default: pari_err_TYPE("quicktofp",x);
       return NULL;/*not reached*/
   }
 
 }
 
-/* bound ln |largest root of p| */
+/* bound log_2 |largest root of p| (Fujiwara's bound) */
 double
-cauchy_bound(GEN p)
+fujiwara_bound(GEN p)
 {
   pari_sp av = avma;
   long i, n = degpol(p);
-  GEN invlc;
-  double Lmax = -pariINFINITY;
+  GEN cc;
+  double loglc, Lmax;
 
-  if (n <= 0) pari_err_CONSTPOL("cauchy_bound");
-  invlc = invr( quickabs(gel(p,n+2)) ); /* 1 / |lc(p)| */
-  for (i = 0; i < n; i++)
+  if (n <= 0) pari_err_CONSTPOL("fujiwara_bound");
+  loglc = mydbllog2r( quicktofp(gel(p,n+2)) ); /* log_2 |lc(p)| */
+  cc = gel(p, 2);
+  if (gequal0(cc))
+    Lmax = -pariINFINITY;
+  else
+    Lmax = (mydbllog2r(quicktofp(cc)) - loglc - 1) / n;
+  for (i = 1; i < n; i++)
   {
     GEN y = gel(p,i+2);
     double L;
     if (gequal0(y)) continue;
-    L = mydbllogr(mulrr(quickabs(y), invlc)) / (n-i);
+    L = (mydbllog2r(quicktofp(y)) - loglc) / (n-i);
     if (L > Lmax) Lmax = L;
   }
-  avma = av; return Lmax + LOG2;
+  avma = av; return Lmax + 1;
 }
 
 static GEN
@@ -1911,7 +1915,7 @@ all_roots(GEN p, long bit)
   pari_sp av;
 
   pd = RgX_deflate_max(p, &h); lc = leading_term(pd);
-  e = (long)((2/LOG2) * cauchy_bound(pd)); if (e < 0) e = 0;
+  e = (long)(2 * fujiwara_bound(pd)); if (e < 0) e = 0;
   bit0 = bit + gexpo(pd) - gexpo(lc) + (long)log2(n/h)+1+e;
   bit2 = bit0; e = 0;
   for (av=avma,i=1;; i++,avma=av)
@@ -2592,7 +2596,7 @@ ZX_uspensky(GEN P, long onlypos, long flag, long bitprec)
   deg -= nbr;
   if (!nbr) Pcur = P;
 
-  b = (long)ceil(cauchy_bound(P)/LOG2);
+  b = (long)ceil(fujiwara_bound(P));
   if (DEBUGLEVEL > 1) err_printf("b = %d\n", b);
   Pcur = ZX_unscale2n(Pcur, b); /* Maps roots to [-1;1] */
   sol = usp(Pcur, deg, &nb_done, flag, bitprec);

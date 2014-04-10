@@ -9187,6 +9187,10 @@ the complex polynomial $x$ (with coefficients \typ{INT}, \typ{FRAC},
 as \typ{REAL} or \typ{COMPLEX} of \typ{REAL}s of precision \kbd{prec}
 (guaranteeing a non-$0$ imaginary part). See \tet{QX_complex_roots}.
 
+\fun{double}{fujiwara_bound}{GEN x} return a quick upper bound for the
+logarithm in base $2$ of the modulus of the largest complex roots of
+the polynomial $x$.
+
 \fun{GEN}{polmod_to_embed}{GEN x, long prec} return the vector of complex
 embeddings of the \typ{POLMOD} $x$ (with complex coefficients). Shallow
 function, simple complex variant of \tet{conjvec}.
