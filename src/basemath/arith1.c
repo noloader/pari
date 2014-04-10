@@ -2429,9 +2429,8 @@ ulong
 Fl_powu_pre(ulong x, ulong n0, ulong p, ulong pi)
 {
   ulong y, z, n;
-  if (n0 <= 2)
+  if (n0 <= 1)
   { /* frequent special cases */
-    if (n0 == 2) return Fl_sqr_pre(x,p,pi);
     if (n0 == 1) return x;
     if (n0 == 0) return 1;
   }
