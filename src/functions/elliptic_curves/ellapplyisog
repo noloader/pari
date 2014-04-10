@@ -1,9 +1,0 @@
-Function: ellapplyisog
-Section: elliptic_curves
-C-Name: ellapplyisog
-Prototype: GG
-Help: ellapplyisog(f, P): Given an isogeny f and a point P in the domain of f, return the image of P under f.
-Doc:
- Given an isogeny of elliptic curves $f$ (being the result of a call
- to \tet{ellisog}) and a point $P$ in the domain of $f$, return the
- image $f(P)$.

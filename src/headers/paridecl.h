@@ -2051,11 +2051,11 @@ GEN     orderell(GEN e, GEN p);
 GEN     pointell(GEN e, GEN z, long prec);
 GEN     zell(GEN e, GEN z, long prec);
 
-/* ellisog.c */
+/* ellisogeny.c */
 
-GEN     ellapplyisog(GEN f, GEN P);
+GEN     ellisogenyapply(GEN f, GEN P);
 GEN     ellcompisog(GEN f, GEN g);
-GEN     ellisog(GEN e, GEN G, long only_compute_image,
+GEN     ellisogeny(GEN e, GEN G, long only_compute_image,
                 long xvar, long yvar, long prec);
 
 /* ellsea.c */

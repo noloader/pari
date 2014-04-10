@@ -43,10 +43,10 @@ get_isog_vars(GEN phi)
   return mkvecsmall2(vx, vy);
 }
 
-/* Given an isogeny phi from ellisog() and a point P in the domain of phi,
+/* Given an isogeny phi from ellisogeny() and a point P in the domain of phi,
  * return phi(P) */
 GEN
-ellapplyisog(GEN phi, GEN P)
+ellisogenyapply(GEN phi, GEN P)
 {
   pari_sp ltop = avma;
   GEN f, g, h, img_f, img_g, img_h, img_h2, img_h3, img, vars, tmp;
@@ -535,15 +535,15 @@ isogeny_from_kernel_poly(GEN E, GEN kerp, long only_image, long vx, long vy, lon
  * a generating point P on E or as a polynomial kerp whose roots are
  * the x-coordinates of the points in G */
 GEN
-ellisog(GEN E, GEN G, long only_image, long vx, long vy, long prec)
+ellisogeny(GEN E, GEN G, long only_image, long vx, long vy, long prec)
 {
   pari_sp av = avma;
   GEN j, z;
   checkell(E);j = ell_get_j(E);
   if (vx < 0) vx = 0;
   if (vy < 0) vy = fetch_user_var("y");
-  if (varncmp(vx, vy) >= 0) pari_err_PRIORITY("ellisog", pol_x(vx), "<=", vy);
-  if (varncmp(vy, gvar(j)) >= 0) pari_err_PRIORITY("ellisog", j, ">=", vy);
+  if (varncmp(vx, vy) >= 0) pari_err_PRIORITY("ellisogeny", pol_x(vx), "<=", vy);
+  if (varncmp(vy, gvar(j)) >= 0) pari_err_PRIORITY("ellisogeny", j, ">=", vy);
   switch(typ(G))
   {
   case t_VEC:
@@ -551,17 +551,17 @@ ellisog(GEN E, GEN G, long only_image, long vx, long vy, long prec)
     if (!ell_is_inf(G))
     {
       GEN x =  gel(G,1), y = gel(G,2);
-      if (varncmp(vy, gvar(x)) >= 0) pari_err_PRIORITY("ellisog", x, ">=", vy);
-      if (varncmp(vy, gvar(y)) >= 0) pari_err_PRIORITY("ellisog", y, ">=", vy);
+      if (varncmp(vy, gvar(x)) >= 0) pari_err_PRIORITY("ellisogeny", x, ">=", vy);
+      if (varncmp(vy, gvar(y)) >= 0) pari_err_PRIORITY("ellisogeny", y, ">=", vy);
     }
     z = isogeny_from_kernel_point(E, G, only_image, vx, vy, prec);
     break;
   case t_POL:
     if (varncmp(vy, gvar(constant_term(G))) >= 0)
-      pari_err_PRIORITY("ellisog", constant_term(G), ">=", vy);
+      pari_err_PRIORITY("ellisogeny", constant_term(G), ">=", vy);
     z = isogeny_from_kernel_poly(E, G, only_image, vx, vy, prec);
     break;
-  default: pari_err_TYPE("ellisog", G);
+  default: pari_err_TYPE("ellisogeny", G);
     z = NULL;
   }
   return gerepilecopy(av, z);

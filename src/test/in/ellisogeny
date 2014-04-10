@@ -79,13 +79,13 @@ check_data(E, P, ord) = {
   if (!ellisoncurve(E, P) || ellorder(E, P) != ord,
       error("Broken data: ", ord, "-torsion"));
   my (F, G, FF, GG, ker);
-  F = ellisog(E, P);
-  FF = ellisog(E, P, 1);
+  F = ellisogeny(E, P);
+  FF = ellisogeny(E, P, 1);
   if (F[1] != FF,
       error("Got different curve when only computing image"));
   ker = kernel_poly_from_generator(E, P, ord, 'x);
-  G = ellisog(E, ker);
-  GG = ellisog(E, ker, 1);
+  G = ellisogeny(E, ker);
+  GG = ellisogeny(E, ker, 1);
   if (G[1] != GG,
       error("Got different curve when only computing image"));
   if (F[1][1..5] != G[1][1..5],
@@ -107,17 +107,17 @@ do_tate(b, c, ord, p = 0, n = 1) =
 }
 
 check_apply(E, ker, P, fP) =
-{ my ([F, f] = ellisog(E, ker));
-  if (ellapplyisog(f, P) != fP, error("Wrong image of point"));
+{ my ([F, f] = ellisogeny(E, ker));
+  if (ellisogenyapply(f, P) != fP, error("Wrong image of point"));
 }
 
 check_compose() =
 { my (one = ffone(101),
       E = ellinit([6, 53, 85, 32, 34] * one),
       P = [84, 71] * one, \\ order 5
-      [F, f] = ellisog(E, P),
+      [F, f] = ellisogeny(E, P),
       Q = [89, 44] * one, \\ order 2
-      [G, g] = ellisog(ellinit(F), Q),
+      [G, g] = ellisogeny(ellinit(F), Q),
       gof = ellcompisog(f, g));
   isog_satisfies_eqns(E, ellinit(G), gof);
 }
@@ -125,7 +125,7 @@ check_compose() =
 check_prio_err(E, ker, var1, var2, tst, msg) =
 {
   my (got_err = 0);
-  iferr(ellisog(E, ker, 0, var1, var2),
+  iferr(ellisogeny(E, ker, 0, var1, var2),
         err, got_err = 1,
         errname(err) == "e_PRIORITY"
           && variable(component(err, 2)) == tst);
@@ -135,7 +135,7 @@ check_prio_err(E, ker, var1, var2, tst, msg) =
 check_errs() =
 { my (E = ellinit([8, 5]), P = [0, 0], got_err = 0);
   \\ ellisoncurve(E, P) = 0
-  iferr(ellisog(E, P),
+  iferr(ellisogeny(E, P),
         err, got_err = 1,
         errname(err) == "e_DOMAIN"
           && component(err, 4) == E && component(err, 5) == P);
@@ -144,7 +144,7 @@ check_errs() =
   my (var1 = 'var1, var2 = 'var2);
   check_prio_err(E, P, var2, var1, 'var2, "No error with bad variable order");
 
-  iferr(ellisog(E, "banana bread"),
+  iferr(ellisogeny(E, "banana bread"),
         err, got_err = 1,
         errname(err) == "e_TYPE"
           && component(err, 2) == "banana bread");
@@ -164,7 +164,7 @@ check_errs() =
       E = ellinit([t, t + 1, 0, t, t] * one),
       div2 = elldivpol(E, 2));
   div2 /= polcoeff(div2, poldegree(div2));
-  iferr(ellisog(E, div2),
+  iferr(ellisogeny(E, div2),
         err, got_err = 1,
         errname(err) == "e_DOMAIN"
           && component(err, 4) == E && component(err, 5) == div2);
@@ -223,8 +223,8 @@ check_data(E, Q, 3);
 \\ Quotient by full 2-torsion.  Arbitrary E here; just need char(k) != 2.
 E = ellinit([0, 3, 0, 7, 0] * ffone(1009));
 ker = elldivpol(E, 2) * E.j^0;
-F = ellisog(E, ker);
-FF = ellisog(E, ker, 1);
+F = ellisogeny(E, ker);
+FF = ellisogeny(E, ker, 1);
 if (F[1] != FF, error("Got different curve when only computing image"));
 isog_satisfies_eqns(E, F[1], F[2]);
 
@@ -276,12 +276,12 @@ a = z + 1/z;
 xP = a*(a - 1)*(a + 2);
 \\ [25]P = 0 on E.
 P = [xP, a*xP];
-F = ellisog(E, P, 0, 'x, 'y);
-G = ellisog(E, kernel_poly_from_generator(E, P, 25, 'x), 0, 'x, 'y);
+F = ellisogeny(E, P, 0, 'x, 'y);
+G = ellisogeny(E, kernel_poly_from_generator(E, P, 25, 'x), 0, 'x, 'y);
 if (F[1] != G[1], error("Different curves obtained for same kernel"));
 if (F[2] != G[2], error("Different isogenies obtained for same kernel"));
 isog_satisfies_eqns(E, F[1], F[2]);
 
-ellapplyisog(x,x)
-ellapplyisog([f,g,h],1)
+ellisogenyapply(x,x)
+ellisogenyapply([f,g,h],1)
 ellcompisog(x,x)

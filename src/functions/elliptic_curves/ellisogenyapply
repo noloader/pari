@@ -1,0 +1,9 @@
+Function: ellisogenyapply
+Section: elliptic_curves
+C-Name: ellisogenyapply
+Prototype: GG
+Help: ellisogenyapply(f, P): Given an isogeny f and a point P in the domain of f, return the image of P under f.
+Doc:
+ Given an isogeny of elliptic curves $f$ (being the result of a call
+ to \tet{ellisogeny}) and a point $P$ in the domain of $f$, return the
+ image $f(P)$.
