@@ -298,8 +298,6 @@ static GEN
 contrib_full_tors(GEN E, GEN h, long only_image, long vx, long vy, long prec)
 {
   GEN p1, p2, p3, half_b2, half_b4, t, w, f, g;
-  GEN p = ellbasechar(E);
-
   first_three_power_sums(h, &p1,&p2,&p3);
   half_b2 = gmul2n(ell_get_b2(E), -1);
   half_b4 = gmul2n(ell_get_b4(E), -1);
