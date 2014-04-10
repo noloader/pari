@@ -1972,6 +1972,7 @@ type_name(long t)
     case t_VECSMALL:s="t_VECSMALL";break;
     case t_CLOSURE: s="t_CLOSURE"; break;
     case t_ERROR:   s="t_ERROR";   break;
+    case t_INFINITY:s="t_INFINITY";break;
     default: pari_err(e_MISC,"unknown type %ld",t);
       s = NULL; /* not reached */
   }
@@ -2112,6 +2113,11 @@ dbg(GEN x, long nb, long bl)
           blancs(bl); pari_puts("frame = "); dbg(closure_get_frame(x),nb,bl);
         }
       }
+      break;
+
+    case t_INFINITY:
+      blancs(bl); pari_printf("1st component = ");
+      dbg(gel(x,1),nb,bl);
       break;
 
     case t_MAT:
