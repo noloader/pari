@@ -313,6 +313,12 @@ poldegree(GEN x, long v)
   pari_err_TYPE("degree",x);
   return 0; /* not reached  */
 }
+GEN
+gppoldegree(GEN x, long v)
+{
+  long d = poldegree(x,v);
+  return d == -LONG_MAX? mkmoo(): stoi(d);
+}
 
 /* assume v >= 0 and x is a POLYNOMIAL in v, return deg_v(x) */
 long
