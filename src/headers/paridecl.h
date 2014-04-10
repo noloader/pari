@@ -1247,6 +1247,7 @@ GEN     rhorealnod(GEN x, GEN isqrtD);
 
 ulong   Fl_order(ulong a, ulong o, ulong p);
 ulong   Fl_powu(ulong x, ulong n, ulong p);
+ulong   Fl_powu_pre(ulong x, ulong n, ulong p, ulong pi);
 ulong   Fl_sqrt(ulong a, ulong p);
 GEN     Fp_factored_order(GEN a, GEN o, GEN p);
 int     Fp_ispower(GEN x, GEN K, GEN p);

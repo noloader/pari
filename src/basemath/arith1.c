@@ -1944,6 +1944,7 @@ ulong
 Fl_sqrt(ulong a, ulong p)
 {
   long i, e, k;
+  ulong pi = get_Fl_red(p);
   ulong p1, q, v, y, w, m;
 
   if (!a) return 0;
@@ -1964,28 +1965,28 @@ Fl_sqrt(ulong a, ulong p)
         if (i) continue;
         pari_err_PRIME("Fl_sqrt [modulus]",utoi(p));
       }
-      y = m = Fl_powu(k, q, p);
+      y = m = Fl_powu_pre(k, q, p, pi);
       for (i=1; i<e; i++)
-        if ((m = Fl_sqr(m,p)) == 1) break;
+        if ((m = Fl_sqr_pre(m, p, pi)) == 1) break;
       if (i == e) break; /* success */
     }
 
-  p1 = Fl_powu(a, q >> 1, p); /* a ^ [(q-1)/2] */
+  p1 = Fl_powu_pre(a, q >> 1, p, pi); /* a ^ [(q-1)/2] */
   if (!p1) return 0;
-  v = Fl_mul(a, p1, p);
-  w = Fl_mul(v, p1, p);
+  v = Fl_mul_pre(a, p1, p, pi);
+  w = Fl_mul_pre(v, p1, p, pi);
   while (w != 1)
   { /* a*w = v^2, y primitive 2^e-th root of 1
        a square --> w even power of y, hence w^(2^(e-1)) = 1 */
-    p1 = Fl_sqr(w,p);
-    for (k=1; p1 != 1 && k < e; k++) p1 = Fl_sqr(p1,p);
+    p1 = Fl_sqr_pre(w,p,pi);
+    for (k=1; p1 != 1 && k < e; k++) p1 = Fl_sqr_pre(p1,p,pi);
     if (k == e) return ~0UL;
     /* w ^ (2^k) = 1 --> w = y ^ (u * 2^(e-k)), u odd */
     p1 = y;
-    for (i=1; i < e-k; i++) p1 = Fl_sqr(p1,p);
-    y = Fl_sqr(p1, p); e = k;
-    w = Fl_mul(y, w, p);
-    v = Fl_mul(v, p1, p);
+    for (i=1; i < e-k; i++) p1 = Fl_sqr_pre(p1, p, pi);
+    y = Fl_sqr_pre(p1, p, pi); e = k;
+    w = Fl_mul_pre(y, w, p, pi);
+    v = Fl_mul_pre(v, p1, p, pi);
   }
   p1 = p - v; if (v > p1) v = p1;
   return v;
@@ -2423,6 +2424,27 @@ _m2sqr(void *data, GEN x)
   muldata *D = (muldata *)data;
   return D->mul2(D, D->res(D, sqri(x)));
 }
+
+ulong
+Fl_powu_pre(ulong x, ulong n0, ulong p, ulong pi)
+{
+  ulong y, z, n;
+  if (n0 <= 2)
+  { /* frequent special cases */
+    if (n0 == 2) return Fl_sqr_pre(x,p,pi);
+    if (n0 == 1) return x;
+    if (n0 == 0) return 1;
+  }
+  if (x <= 1) return x; /* 0 or 1 */
+  y = 1; z = x; n = n0;
+  for(;;)
+  {
+    if (n&1) y = Fl_mul_pre(y,z,p,pi);
+    n>>=1; if (!n) return y;
+    z = Fl_sqr_pre(z,p,pi);
+  }
+}
+
 ulong
 Fl_powu(ulong x, ulong n0, ulong p)
 {
@@ -2434,24 +2456,14 @@ Fl_powu(ulong x, ulong n0, ulong p)
     if (n0 == 0) return 1;
   }
   if (x <= 1) return x; /* 0 or 1 */
+  if (!SMALL_ULONG(p))
+    return Fl_powu_pre(x, n0, p, get_Fl_red(p));
   y = 1; z = x; n = n0;
-  if (SMALL_ULONG(p))
+  for(;;)
   {
-    for(;;)
-    {
-      if (n&1) y = Fl_mul(y,z,p);
-      n>>=1; if (!n) return y;
-      z = Fl_sqr(z,p);
-    }
-  } else
-  {
-    ulong pi = get_Fl_red(p);
-    for(;;)
-    {
-      if (n&1) y = Fl_mul_pre(y,z,p,pi);
-      n>>=1; if (!n) return y;
-      z = Fl_sqr_pre(z,p,pi);
-    }
+    if (n&1) y = Fl_mul(y,z,p);
+    n>>=1; if (!n) return y;
+    z = Fl_sqr(z,p);
   }
 }
 
