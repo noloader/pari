@@ -43,7 +43,7 @@ LGr13- GP function polrootsreal
    15- [libpari] New functions mkoo, mkmoo, inf_get_sign
    16- [libpari] New functions ellbasechar, ec_f_evalx, ec_dfdx_evalQ,
    ec_dfdy_evalQ, ec_2divpol_evalx, ec_half_deriv_2divpol_evalx
-HIL17- GP functions ellisog, ellapplyisog, ellcompisog
+HIL17- GP functions ellisogeny, ellisogenyapply
    18- [libpari] New function RgX_coeff
 BA 19- [libpari] New functions Fl_halve, Fp_halve, Flx_halve, Fq_halve
 

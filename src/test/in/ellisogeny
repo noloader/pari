@@ -16,7 +16,7 @@ elldefiningequation(E, x = 'x, y = 'y) =
 
 ellbasechar(E) = iferr(E.p, unused_param, 0);
 
-ffone(p, n = 1, v = 't) = ffgen(ffinit(p, n, v))^0;
+ffone(p, n = 1, v = 't) = ffgen(p^n, v)^0;
 
 num_isog(E, isog) =
 { my([x,y,d] = isog);
@@ -118,7 +118,7 @@ check_compose() =
       [F, f] = ellisogeny(E, P),
       Q = [89, 44] * one, \\ order 2
       [G, g] = ellisogeny(ellinit(F), Q),
-      gof = ellcompisog(f, g));
+      gof = ellisogenyapply(g, f));
   isog_satisfies_eqns(E, ellinit(G), gof);
 }
 
@@ -284,4 +284,3 @@ isog_satisfies_eqns(E, F[1], F[2]);
 
 ellisogenyapply(x,x)
 ellisogenyapply([f,g,h],1)
-ellcompisog(x,x)

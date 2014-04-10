@@ -2054,9 +2054,7 @@ GEN     zell(GEN e, GEN z, long prec);
 /* ellisogeny.c */
 
 GEN     ellisogenyapply(GEN f, GEN P);
-GEN     ellcompisog(GEN f, GEN g);
-GEN     ellisogeny(GEN e, GEN G, long only_compute_image,
-                long xvar, long yvar, long prec);
+GEN     ellisogeny(GEN e, GEN G, long only_image, long vx, long vy, long prec);
 
 /* ellsea.c */
 

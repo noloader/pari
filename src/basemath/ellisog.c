@@ -43,6 +43,42 @@ get_isog_vars(GEN phi)
   return mkvecsmall2(vx, vy);
 }
 
+INLINE GEN
+substvec(GEN target, GEN vars, GEN in)
+{
+  long nvars = lg(vars) - 1, i;
+  GEN res = target;
+  for (i = 1; i <= nvars; ++i)
+    res = gsubst(res, vars[i], gel(in, i));
+  return res;
+}
+/* Given isogenies F:E' -> E and G:E'' -> E', return the composite
+ * isogeny F o G:E'' -> E */
+static GEN
+ellcompisog(GEN F, GEN G)
+{
+  pari_sp av = avma;
+  GEN Gh, Gh2, Gh3, f, g, h, z, numz, denz, denz2, in, comp;
+
+  checkellisog(F);
+  checkellisog(G);
+  Gh = gel(G,3); Gh2 = gsqr(Gh); Gh3 = gmul(Gh, Gh2);
+  in = mkvec2(gdiv(gel(G,1), Gh2), gdiv(gel(G,2), Gh3));
+  comp = substvec(F, get_isog_vars(F), in);
+  f = gel(comp,1);
+  g = gel(comp,2);
+  z = gel(comp,3); numz = numer(z); denz = denom(z);
+  if (!issquareall(denom(f), &h))
+    pari_err_BUG("ellcompisog (denominator of composite abscissa not square)");
+  h  = RgX_mul(h, numz);
+  h = RgX_Rg_div(h, leading_term(h));
+
+  denz2 = gsqr(denz);
+  f = RgX_mul(numer(f), denz2);
+  g = RgX_mul(numer(g), gmul(denz,denz2));
+  return gerepilecopy(av, mkvec3(f,g,h));
+}
+
 /* Given an isogeny phi from ellisogeny() and a point P in the domain of phi,
  * return phi(P) */
 GEN
@@ -51,6 +87,7 @@ ellisogenyapply(GEN phi, GEN P)
   pari_sp ltop = avma;
   GEN f, g, h, img_f, img_g, img_h, img_h2, img_h3, img, vars, tmp;
   long vx, vy;
+  if (lg(P) == 4) return ellcompisog(phi,P);
   checkellisog(phi);
   checkellpt(P);
   if (ell_is_inf(P)) return ellinf();
@@ -73,43 +110,6 @@ ellisogenyapply(GEN phi, GEN P)
   gel(img, 1) = gdiv(img_f, img_h2);
   gel(img, 2) = gdiv(img_g, img_h3);
   return gerepileupto(ltop, img);
-}
-
-INLINE GEN
-substvec(GEN target, GEN vars, GEN in)
-{
-  long nvars = lg(vars) - 1, i;
-  GEN res = target;
-  for (i = 1; i <= nvars; ++i)
-    res = gsubst(res, vars[i], gel(in, i));
-  return res;
-}
-
-/* Given isogenies F:E -> E' and G:E' -> E'', return the composite
- * isogeny G o F:E -> E'' */
-GEN
-ellcompisog(GEN F, GEN G)
-{
-  pari_sp av = avma;
-  GEN Fh, Fh2, Fh3, f, g, h, z, numz, denz, denz2, in, comp;
-
-  checkellisog(F);
-  checkellisog(G);
-  Fh = gel(F,3); Fh2 = gsqr(Fh); Fh3 = gmul(Fh, Fh2);
-  in = mkvec2(gdiv(gel(F,1), Fh2), gdiv(gel(F,2), Fh3));
-  comp = substvec(G, get_isog_vars(G), in);
-  f = gel(comp,1);
-  g = gel(comp,2);
-  z = gel(comp,3); numz = numer(z); denz = denom(z);
-  if (!issquareall(denom(f), &h))
-    pari_err_BUG("ellcompisog (denominator of composite abscissa not square)");
-  h  = RgX_mul(h, numz);
-  h = RgX_Rg_div(h, leading_term(h));
-
-  denz2 = gsqr(denz);
-  f = RgX_mul(numer(f), denz2);
-  g = RgX_mul(numer(g), gmul(denz,denz2));
-  return gerepilecopy(av, mkvec3(f,g,h));
 }
 
 /* isog = [f, g, h] = [x, y, 1] = identity */
