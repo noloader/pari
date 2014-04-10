@@ -29,7 +29,7 @@ make_velu_curve(GEN E, GEN t, GEN w, long prec)
   GEN A4, A6, a1 = ell_get_a1(E), a2 = ell_get_a2(E), a3 = ell_get_a3(E);
   A4 = gsub(ell_get_a4(E), gmulsg(5L, t));
   A6 = gsub(ell_get_a6(E), gadd(gmul(ell_get_b2(E), t), gmulsg(7L, w)));
-  return ellinit(mkvec5(a1,a2,a3,A4,A6), NULL, prec);
+  return mkvec5(a1,a2,a3,A4,A6);
 }
 
 /* If phi = (f(x)/h(x)^2, g(x,y)/h(x)^3) is an isogeny, return the
@@ -172,15 +172,15 @@ static GEN
 isogeny_from_kernel_point(GEN E, GEN P, int only_image, long vx, long vy, long prec)
 {
   pari_sp av = avma, lim = stack_lim(av, 1);
-  GEN isog, res, EE, f, g, h, h2, h3;
+  GEN isog, EE, f, g, h, h2, h3;
   GEN Q = P, t = gen_0, w = gen_0;
   long c;
   if (!oncurve(E,P))
     pari_err_DOMAIN("isogeny_from_kernel_point", "point", "not on", E, P);
   if (ell_is_inf(P))
   {
-    if (only_image) retmkvec(gcopy(E));
-    return gerepilecopy(av, mkvec2(E, isog_identity(vx,vy)));
+    if (only_image) return E;
+    return mkvec2(E, isog_identity(vx,vy));
   }
 
   isog = NULL; c = 1;
@@ -211,9 +211,8 @@ isogeny_from_kernel_point(GEN E, GEN P, int only_image, long vx, long vy, long p
     }
   }
 
-  res = cgetg(2, t_VEC);
   EE = make_velu_curve(E, t, w, prec);
-  if (only_image) { gel(res, 1) = EE; return gerepileupto(av, res); }
+  if (only_image) return EE;
 
   if (!isog) isog = isog_identity(vx,vy);
   f = gel(isog, 1);
@@ -230,7 +229,7 @@ isogeny_from_kernel_point(GEN E, GEN P, int only_image, long vx, long vy, long p
   g = gmul(g, h3);
   if (typ(f) != t_POL || typ(g) != t_POL)
     pari_err_BUG("isogeny_from_kernel_point (wrong denominator)");
-  return gerepilecopy(av, mkvec2(EE, mkvec3(f,g, gel(isog,3))));
+  return mkvec2(EE, mkvec3(f,g, gel(isog,3)));
 }
 
 /* Given a t_POL x^n - s1 x^{n-1} + s2 x^{n-2} - s3 x^{n-3} + ...
@@ -479,7 +478,6 @@ isog_ordinate(GEN E, GEN kerp, GEN kerq, GEN x, GEN y, GEN two_tors, GEN f)
 static GEN
 isogeny_from_kernel_poly(GEN E, GEN kerp, long only_image, long vx, long vy, long prec)
 {
-  pari_sp ltop = avma;
   long m;
   GEN b2 = ell_get_b2(E), b4 = ell_get_b4(E), b6 = ell_get_b6(E);
   GEN p1, p2, p3, x, y, f, g, two_tors, res, EE, t, w;
@@ -520,15 +518,13 @@ isogeny_from_kernel_poly(GEN E, GEN kerp, long only_image, long vx, long vy, lon
            gadd(gmul(gmulsg(2L, b2), p2),
                 gadd(gmul(gmulsg(3L, b4), p1), gmulsg(m, b6))));
 
-  res = cgetg(2, t_VEC);
   EE = make_velu_curve(E, gadd(t, gel(two_tors, 1)),
                           gadd(w, gel(two_tors, 2)), prec);
-
-  if (only_image) { gel(res, 1) = EE; return gerepileupto(ltop, res); }
+  if (only_image) return EE;
 
   f = isog_abscissa(E, kerp, kerq, x, two_tors);
   g = isog_ordinate(E, kerp, kerq, x, y, two_tors, f);
-  return gerepilecopy(ltop, mkvec2(EE, mkvec3(f,g,kerp)));
+  return mkvec2(EE, mkvec3(f,g,kerp));
 }
 
 /* Given an elliptic curve E and a subgroup G of E, return the curve
@@ -541,7 +537,8 @@ isogeny_from_kernel_poly(GEN E, GEN kerp, long only_image, long vx, long vy, lon
 GEN
 ellisog(GEN E, GEN G, long only_image, long vx, long vy, long prec)
 {
-  GEN j;
+  pari_sp av = avma;
+  GEN j, z;
   checkell(E);j = ell_get_j(E);
   if (vx < 0) vx = 0;
   if (vy < 0) vy = fetch_user_var("y");
@@ -549,7 +546,6 @@ ellisog(GEN E, GEN G, long only_image, long vx, long vy, long prec)
   if (varncmp(vy, gvar(j)) >= 0) pari_err_PRIORITY("ellisog", j, ">=", vy);
   switch(typ(G))
   {
-  default: pari_err_TYPE("ellisog", G);
   case t_VEC:
     checkellpt(G);
     if (!ell_is_inf(G))
@@ -558,10 +554,15 @@ ellisog(GEN E, GEN G, long only_image, long vx, long vy, long prec)
       if (varncmp(vy, gvar(x)) >= 0) pari_err_PRIORITY("ellisog", x, ">=", vy);
       if (varncmp(vy, gvar(y)) >= 0) pari_err_PRIORITY("ellisog", y, ">=", vy);
     }
-    return isogeny_from_kernel_point(E, G, only_image, vx, vy, prec);
+    z = isogeny_from_kernel_point(E, G, only_image, vx, vy, prec);
+    break;
   case t_POL:
     if (varncmp(vy, gvar(constant_term(G))) >= 0)
       pari_err_PRIORITY("ellisog", constant_term(G), ">=", vy);
-    return isogeny_from_kernel_poly(E, G, only_image, vx, vy, prec);
+    z = isogeny_from_kernel_poly(E, G, only_image, vx, vy, prec);
+    break;
+  default: pari_err_TYPE("ellisog", G);
+    z = NULL;
   }
+  return gerepilecopy(av, z);
 }

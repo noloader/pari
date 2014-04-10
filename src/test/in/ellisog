@@ -81,12 +81,12 @@ check_data(E, P, ord) = {
   my (F, G, FF, GG, ker);
   F = ellisog(E, P);
   FF = ellisog(E, P, 1);
-  if (F[1] != FF[1],
+  if (F[1] != FF,
       error("Got different curve when only computing image"));
   ker = kernel_poly_from_generator(E, P, ord, 'x);
   G = ellisog(E, ker);
   GG = ellisog(E, ker, 1);
-  if (G[1] != GG[1],
+  if (G[1] != GG,
       error("Got different curve when only computing image"));
   if (F[1][1..5] != G[1][1..5],
       error("Different curves obtained for same kernel"));
@@ -117,9 +117,9 @@ check_compose() =
       P = [84, 71] * one, \\ order 5
       [F, f] = ellisog(E, P),
       Q = [89, 44] * one, \\ order 2
-      [G, g] = ellisog(F, Q),
+      [G, g] = ellisog(ellinit(F), Q),
       gof = ellcompisog(f, g));
-  isog_satisfies_eqns(E, G, gof);
+  isog_satisfies_eqns(E, ellinit(G), gof);
 }
 
 check_prio_err(E, ker, var1, var2, tst, msg) =
@@ -225,7 +225,7 @@ E = ellinit([0, 3, 0, 7, 0] * ffone(1009));
 ker = elldivpol(E, 2) * E.j^0;
 F = ellisog(E, ker);
 FF = ellisog(E, ker, 1);
-if (F[1] != FF[1], error("Got different curve when only computing image"));
+if (F[1] != FF, error("Got different curve when only computing image"));
 isog_satisfies_eqns(E, F[1], F[2]);
 
 \\ See Kubert 1976 for why all this works.  Data was selected randomly.
