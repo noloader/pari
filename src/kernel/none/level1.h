@@ -1007,6 +1007,15 @@ Fl_triple(ulong a, ulong p)
   return (res >= p || res < a)? res - p: res;
 }
 INLINE ulong
+Fl_halve(ulong a, ulong p)
+{
+  ulong ap, ap2;
+  if ((a&1UL)==0) return a>>1;
+  ap = a + p; ap2 = ap>>1;
+  return ap>=a ? ap2: (ap2|HIGHBIT);
+}
+
+INLINE ulong
 Fl_add(ulong a, ulong b, ulong p)
 {
   ulong res = a + b;

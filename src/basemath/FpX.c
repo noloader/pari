@@ -322,6 +322,16 @@ FpX_Fp_mul_to_monic(GEN y,GEN x,GEN p)
   gel(z,l-1) = gen_1; return z;
 }
 
+GEN
+FpX_halve(GEN y, GEN p)
+{
+  GEN z;
+  long i, l;
+  z = cgetg_copy(y, &l); z[1] = y[1];
+  for(i=2; i<l; i++) gel(z,i) = Fp_halve(gel(y,i), p);
+  return z;
+}
+
 static GEN
 FpX_divrem_basecase(GEN x, GEN y, GEN p, GEN *pr)
 {

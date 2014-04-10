@@ -1436,7 +1436,6 @@ remsBIL(long n) { return n & (BITS_IN_LONG-1); }
 
 INLINE GEN
 Fp_red(GEN a, GEN m) { return modii(a, m); }
-
 INLINE GEN
 Fp_add(GEN a, GEN b, GEN m)
 {
@@ -1494,6 +1493,14 @@ Fp_neg(GEN b, GEN m)
     p = remii(negi(b), m);
   return gerepileuptoint(av, p);
 }
+
+INLINE GEN
+Fp_halve(GEN a, GEN p)
+{
+  if (mpodd(a)) a = addii(a,p);
+  return shifti(a,-1);
+}
+
 /* assume 0 <= u < p and ps2 = p>>1 */
 INLINE GEN
 Fp_center(GEN u, GEN p, GEN ps2)

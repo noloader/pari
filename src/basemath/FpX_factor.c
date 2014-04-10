@@ -252,7 +252,7 @@ FpX_quad_factortype(GEN x, GEN p)
 GEN
 FpX_quad_root(GEN x, GEN p, int unknown)
 {
-  GEN s, u, D, b = gel(x,3), c = gel(x,2);
+  GEN s, D, b = gel(x,3), c = gel(x,2);
 
   if (equaliu(p, 2)) {
     if (!signe(b)) return c;
@@ -265,8 +265,7 @@ FpX_quad_root(GEN x, GEN p, int unknown)
   s = Fp_sqrt(D,p);
   /* p is not prime, go on and give e.g. maxord a chance to recover */
   if (!s) return NULL;
-  u = addis(shifti(p,-1), 1); /* = 1/2 */
-  return Fp_mul(u, subii(s,b), p);
+  return Fp_halve(subii(s,b), p);
 }
 static GEN
 FpX_otherroot(GEN x, GEN r, GEN p)
@@ -285,13 +284,12 @@ Fl_disc_bc(ulong b, ulong c, ulong p)
 static ulong
 Flx_quad_root(GEN x, ulong p, int unknown)
 {
-  ulong s, u, b = x[3], c = x[2];
+  ulong s, b = x[3], c = x[2];
   ulong D = Fl_disc_bc(b, c, p);
   if (unknown && krouu(D,p) == -1) return p;
   s = Fl_sqrt(D,p);
   if (s==~0UL) return p;
-  u = (p>>1)+1;
-  return Fl_mul(u, Fl_sub(s,b, p), p);
+  return Fl_halve(Fl_sub(s,b, p), p);
 }
 static ulong
 Flx_otherroot(GEN x, ulong r, ulong p)
@@ -2637,7 +2635,7 @@ F2xqX_quad_roots(GEN P, GEN T)
 static GEN
 FqX_quad_roots(GEN x, GEN T, GEN p)
 {
-  GEN s, u, D, nb, b = gel(x,3), c = gel(x,2);
+  GEN s, D, nb, b = gel(x,3), c = gel(x,2);
   if (equaliu(p, 2))
   {
     GEN f2 = ZXX_to_F2xX(x, get_FpX_var(T));
@@ -2645,13 +2643,12 @@ FqX_quad_roots(GEN x, GEN T, GEN p)
     return F2xC_to_ZXC(s);
   }
   D = Fq_sub(Fq_sqr(b,T,p), Fq_Fp_mul(c,utoi(4),T,p), T,p);
-  u = addis(shifti(p,-1), 1); /* = 1/2 */
   nb = Fq_neg(b,T,p);
   if (signe(D)==0)
-    return mkcol(Fq_Fp_mul(nb,u,T, p));
+    return mkcol(Fq_halve(nb,T, p));
   s = Fq_sqrt(D,T,p);
   if (!s) return cgetg(1, t_COL);
-  s = Fq_Fp_mul(Fq_add(s,nb,T,p),u,T, p);
+  s = Fq_halve(Fq_add(s,nb,T,p),T, p);
   return mkcol2(s,Fq_sub(nb,s,T,p));
 }
 

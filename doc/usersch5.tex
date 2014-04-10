@@ -1754,6 +1754,9 @@ representative of $x y$ modulo $m$.
 
 \fun{ulong}{Fl_triple}{ulong x, ulong m} returns $3x$ modulo $m$.
 
+\fun{ulong}{Fl_halve}{ulong x, ulong m} returns $z$ such that $2\*z = x$ modulo
+$m$ assuming such $z$ exists.
+
 \fun{ulong}{Fl_sqr}{ulong x, ulong m} returns the smallest positive
 representative of $x^2$ modulo $m$.
 
@@ -2936,6 +2939,9 @@ returns the representative of \kbd{a} in the symmetric residue system.
 \fun{GEN}{Fp_muls}{GEN a, long b, GEN m} returns the product of \kbd{a} by
 \kbd{b} modulo \kbd{m} (smallest non-negative residue).
 
+\fun{GEN}{Fp_halve}{GEN x, GEN m} returns $z$ such that $2\*z = x$ modulo
+$m$ assuming such $z$ exists.
+
 \fun{GEN}{Fp_sqr}{GEN a, GEN m} returns $\kbd{a}^2$ modulo \kbd{m} (smallest
 non-negative residue).
 
@@ -3836,6 +3842,9 @@ $\kbd{l} = \kbd{lg(x)}$, in place.
 
 \fun{GEN}{FpX_sub}{GEN x,GEN y,GEN p} returns $x-y$.
 
+\fun{GEN}{FpX_halve}{GEN x, GEN m} returns $z$ such that $2\*z = x$ modulo
+$m$ assuming such $z$ exists.
+
 \fun{GEN}{FpX_mul}{GEN x,GEN y,GEN p} returns $x\*y$.
 
 \fun{GEN}{FpX_mulspec}{GEN a, GEN b, GEN p, long na, long nb}
@@ -4152,6 +4161,9 @@ by the \typ{INT} $y$.
 
 \fun{GEN}{Fq_mulu}{GEN x, ulong y, GEN T, GEN p} multiplies the \kbd{Fq} $x$
 by the scalar $y$.
+
+\fun{GEN}{Fq_halve}{GEN x, GEN T, GEN p} returns $z$ such that $2\*z = x$
+assuming such $z$ exists.
 
 \fun{GEN}{Fq_sqr}{GEN x, GEN T, GEN p}
 

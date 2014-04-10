@@ -530,8 +530,14 @@ GEN
 Fq_neg(GEN x, GEN T/*unused*/, GEN p)
 {
   (void)T;
-  return (typ(x)==t_POL)? FpX_neg(x,p)
-                        : Fp_neg(x,p);
+  return (typ(x)==t_POL)? FpX_neg(x,p): Fp_neg(x,p);
+}
+
+GEN
+Fq_halve(GEN x, GEN T/*unused*/, GEN p)
+{
+  (void)T;
+  return (typ(x)==t_POL)? FpX_halve(x,p): Fp_halve(x,p);
 }
 
 /* If T==NULL do not reduce*/

@@ -564,7 +564,7 @@ find_isogenous_from_Atkin(GEN a4, GEN a6, long ell, GEN meqn, GEN g, GEN T, GEN 
   GEN Roots, gprime, u1;
   long k, vx = 0, vJ = MAXVARN;
   GEN E4 = Fq_div(a4, stoi(-3), T, p);
-  GEN E6 = Fq_mul(a6, shifti(p, -1), T, p);
+  GEN E6 = Fq_neg(Fq_halve(a6, T, p), T, p);
   GEN E42 = Fq_sqr(E4, T, p);
   GEN E43 = Fq_mul(E4, E42, T, p);
   GEN E62 = Fq_sqr(E6, T, p);
@@ -628,7 +628,7 @@ find_isogenous_from_canonical(GEN a4, GEN a6, long ell, GEN meqn, GEN g, GEN T, 
   long vx = 0, vJ = MAXVARN;
   GEN h;
   GEN E4 = Fq_div(a4, stoi(-3), T, p);
-  GEN E6 = Fq_mul(a6, shifti(p, -1), T, p);
+  GEN E6 = Fq_neg(Fq_halve(a6, T, p), T, p);
   GEN E42 = Fq_sqr(E4, T, p);
   GEN E43 = Fq_mul(E4, E42, T, p);
   GEN E62 = Fq_sqr(E6, T, p);
@@ -677,7 +677,7 @@ find_isogenous_from_canonical(GEN a4, GEN a6, long ell, GEN meqn, GEN g, GEN T, 
     Djs = FqXY_eval(DJ, f, jl, T, p);
     jld = Fq_div(Fq_mul(Fq_neg(fd, T, p), Dgs, T, p), Fq_mulu(Djs, ell, T, p), T, p);
     E6l = Fq_div(Fq_mul(Fq_neg(E4l, T, p), jld, T, p), jl, T, p);
-    p_1 = Fq_mul(Fq_mulu(E2s, ell, T, p), shifti(p, -1), T, p);
+    p_1 = Fq_neg(Fq_halve(Fq_mulu(E2s, ell, T, p), T, p),T,p);
   }
   a4tilde = Fq_mul(Fq_mul(stoi(-3), powuu(ell,4), T, p), E4l, T, p);
   a6tilde = Fq_mul(Fq_mul(stoi(-2), powuu(ell,6), T, p), E6l, T, p);
