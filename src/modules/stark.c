@@ -3570,7 +3570,7 @@ compocyclo(GEN nf, long m, long d)
   p2 = gcoeff(nffactor(nfL,p2),1,1);
   p3 = do_compo(p1,p2); /* relative equation over L */
   /* compute non trivial s in Gal(L / K) */
-  sb= gneg(gadd(b, truecoeff(polLK,1))); /* s(b) = Tr(b) - b */
+  sb= gneg(gadd(b, RgX_coeff(polLK,1))); /* s(b) = Tr(b) - b */
   s = gadd(pol_x(vx), gsub(sb, b)); /* s(t) = t + s(b) - b */
   p3 = gmul(p3, galoisapplypol(nfL, s, p3));
   return findquad_pol(nf_get_pol(nf), a, p3);

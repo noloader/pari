@@ -177,8 +177,8 @@ myval_zi2(GEN b)
 {
   long v0, v1;
   b = lift(b);
-  v0 = myval_zi(truecoeff(b,0));
-  v1 = myval_zi(truecoeff(b,1));
+  v0 = myval_zi(RgX_coeff(b,0));
+  v1 = myval_zi(RgX_coeff(b,1));
   return minss(2*v0, 2*v1+1);
 }
 
@@ -333,18 +333,18 @@ theta_j(GEN B, GEN p, long j)
 static GEN
 theta_3_zi(GEN B)
 {
-  long v2 = myval_zi(truecoeff(B,2));
-  long v1 = myval_zi(truecoeff(B,1));
-  long v0 = myval_zi(truecoeff(B,0));
+  long v2 = myval_zi(RgX_coeff(B,2));
+  long v1 = myval_zi(RgX_coeff(B,1));
+  long v0 = myval_zi(RgX_coeff(B,0));
   return frac2s(min3(6*v2, 3*v1, 2*v0), 6);
 }
 /* compute theta_3 for B in (Z[i,Y]/(Y^2-3))[X], p = 3 */
 static GEN
 theta_3_zi2(GEN B)
 {
-  long v2 = myval_zi2(truecoeff(B,2));
-  long v1 = myval_zi2(truecoeff(B,1));
-  long v0 = myval_zi2(truecoeff(B,0));
+  long v2 = myval_zi2(RgX_coeff(B,2));
+  long v1 = myval_zi2(RgX_coeff(B,1));
+  long v0 = myval_zi2(RgX_coeff(B,0));
   return frac2s(min3(6*v2, 3*v1, 2*v0), 6);
 }
 
@@ -416,9 +416,9 @@ polymini(GEN pol, GEN p)
 
   if (lambda <= 2)
   {
-    if (myval(truecoeff(H,2),p) > 1-alpha &&
-        myval(truecoeff(H,1),p) > 2-alpha &&
-        myval(truecoeff(H,0),p) > 3-alpha)
+    if (myval(RgX_coeff(H,2),p) > 1-alpha &&
+        myval(RgX_coeff(H,1),p) > 2-alpha &&
+        myval(RgX_coeff(H,0),p) > 3-alpha)
     {
       pol = RgX_unscale(H, p);
       if (alpha) pol = RgX_Rg_mul(pol, p);
@@ -429,8 +429,8 @@ polymini(GEN pol, GEN p)
   {
     if (degpol(Hp) == 3)
     {
-      if (myval(truecoeff(H,6),p) >= 3 &&
-          myval(truecoeff(H,5),p) >= 2)
+      if (myval(RgX_coeff(H,6),p) >= 3 &&
+          myval(RgX_coeff(H,5),p) >= 2)
       {
         H = RgX_rescale(H, p); /* H(x/p)p^(deg H) */
         H = RgX_Rg_div(H, powiu(p, degpol(H)-3)); /* H(x/p)p^3 */
@@ -478,7 +478,7 @@ polymini_zi(GEN pol) /* polynome minimal dans Z[i] */
   alpha = polval(pol,p) & 1;
   polh = alpha? RgX_Rg_div(pol, p): pol;
   beta = 0;
-  rac = mkcomplex(Fp_div(truecoeff(polh,3), truecoeff(polh,6), p), gen_1);
+  rac = mkcomplex(Fp_div(RgX_coeff(polh,3), RgX_coeff(polh,6), p), gen_1);
   for(;;)
   {
     polh = RgX_translate(polh, rac);
@@ -510,7 +510,7 @@ static GEN
 zi2mod(GEN u)
 {
   GEN a,b,unmodp = mkintmod(gen_1, stoi(3));
-  u = truecoeff(lift(u),0);
+  u = RgX_coeff(lift(u),0);
   a = gmul(unmodp,real_i(u));
   b = gmul(unmodp,imag_i(u));
   return gadd(a,gmul(b,gen_I()));
@@ -528,10 +528,10 @@ polymini_zi2(GEN pol)
   y = mkpolmod(y, gsubgs(gsqr(y), 3)); /* mod(y,y^2-3) */
   polh = pol;
   polh = gdivgs(RgX_unscale(polh, y),27); /* H(y*x) / 27 */
-  if (myval_zi2(truecoeff(polh,4)) <= 0 ||
-      myval_zi2(truecoeff(polh,2)) <= 0) return mkcol2(gen_0, gen_0);
+  if (myval_zi2(RgX_coeff(polh,4)) <= 0 ||
+      myval_zi2(RgX_coeff(polh,2)) <= 0) return mkcol2(gen_0, gen_0);
 
-  if (myval_zi2(gsub(truecoeff(polh,6), truecoeff(polh,0))) > 0)
+  if (myval_zi2(gsub(RgX_coeff(polh,6), RgX_coeff(polh,0))) > 0)
     rac = gen_I();
   else
     rac = gen_1;
@@ -2083,13 +2083,13 @@ genus2localred(struct igusa *I, struct igusa_p *Ip, GEN p, GEN polmini)
           Ip->type = stack_sprintf("[II-II*{%ld}] page 176", dism);
           Ip->neron = groupH(dism+1); break;
         case 21:
-          vb6 = myval(truecoeff(polh,0),p);
+          vb6 = myval(RgX_coeff(polh,0),p);
           if (vb6<2) pari_err_BUG("genus2localred [red3]");
           condp = dismin-14;
           Ip->type = "[IV*-II{0}] page 175";
           Ip->neron = cyclic(1); break;
         case 30:
-          vb5 = myval(truecoeff(polh,1),p);
+          vb5 = myval(RgX_coeff(polh,1),p);
           if (vb5 == 2)
           {
             if (Ip->tt >= 5) pari_err_BUG("genus2localred [tt 6]");
@@ -2129,7 +2129,7 @@ genus2localred(struct igusa *I, struct igusa_p *Ip, GEN p, GEN polmini)
           Ip->neron = groupH(dism+1); break;
           break;
         case 2: case 3:
-          if (myval(truecoeff(polh,0),p) == 2)
+          if (myval(RgX_coeff(polh,0),p) == 2)
           {
             if (Ip->tt>4) pari_err_BUG("genus2localred [tt 5]");
             return tame(polh, theta, alpha, dismin, I, Ip);
