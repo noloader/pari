@@ -24,7 +24,7 @@ ellisweierstrasspoint(GEN E, GEN Q)
  * definition of E, return the curve
  *  E' = [a1, a2, a3, a4 - 5t, a6 - (E.b2 t + 7w)] */
 static GEN
-make_velu_curve(GEN E, GEN t, GEN w, long prec)
+make_velu_curve(GEN E, GEN t, GEN w)
 {
   GEN A4, A6, a1 = ell_get_a1(E), a2 = ell_get_a2(E), a3 = ell_get_a3(E);
   A4 = gsub(ell_get_a4(E), gmulsg(5L, t));
@@ -169,7 +169,7 @@ update_isogeny_polys(GEN isog, GEN E, GEN Q, GEN tQ, GEN uQ, long vx, long vy)
  * the isogeny pi: E -> E/<P>. The variables vx and vy are used to describe
  * the isogeny (ignored if only_image is zero) */
 static GEN
-isogeny_from_kernel_point(GEN E, GEN P, int only_image, long vx, long vy, long prec)
+isogeny_from_kernel_point(GEN E, GEN P, int only_image, long vx, long vy)
 {
   pari_sp av = avma, lim = stack_lim(av, 1);
   GEN isog, EE, f, g, h, h2, h3;
@@ -211,7 +211,7 @@ isogeny_from_kernel_point(GEN E, GEN P, int only_image, long vx, long vy, long p
     }
   }
 
-  EE = make_velu_curve(E, t, w, prec);
+  EE = make_velu_curve(E, t, w);
   if (only_image) return EE;
 
   if (!isog) isog = isog_identity(vx,vy);
@@ -262,7 +262,7 @@ first_three_power_sums(GEN pol, GEN *p1, GEN *p2, GEN *p3)
 
 /* deg h = 1; 2-torsion contribution from Weierstrass point */
 static GEN
-contrib_weierstrass_pt(GEN E, GEN h, long only_image, long vx, long vy, long prec)
+contrib_weierstrass_pt(GEN E, GEN h, long only_image, long vx, long vy)
 {
   GEN p = ellbasechar(E);
   GEN a1 = ell_get_a1(E);
@@ -276,7 +276,7 @@ contrib_weierstrass_pt(GEN E, GEN h, long only_image, long vx, long vy, long pre
   else
   { /* char(k) = 2 ==> y0 = sqrt(f(x0)) where E is y^2 + h(x) = f(x). */
     if (!gequal0(b)) pari_err_BUG("two_torsion_contrib (a1*x0+a3 != 0)");
-    y0 = gsqrt(ec_f_evalx(E, x0), prec);
+    y0 = gsqrt(ec_f_evalx(E, x0), 0);
   }
   Q = mkvec2(x0, y0);
   t = ec_dFdx_evalQ(E, Q);
@@ -296,7 +296,7 @@ contrib_weierstrass_pt(GEN E, GEN h, long only_image, long vx, long vy, long pre
  * characteristic is odd or zero (otherwise E->E/E[2] inseparable: cannot
  * happen  over a finite field since we cannot have full 2-torsion in char 2).*/
 static GEN
-contrib_full_tors(GEN E, GEN h, long only_image, long vx, long vy, long prec)
+contrib_full_tors(GEN E, GEN h, long only_image, long vx, long vy)
 {
   GEN p1, p2, p3, half_b2, half_b4, t, w, f, g;
 
@@ -477,7 +477,7 @@ isog_ordinate(GEN E, GEN kerp, GEN kerq, GEN x, GEN y, GEN two_tors, GEN f)
  * if only_image is zero, the isogeny pi:E -> E/G. Variables vx and vy are
  * used to describe the isogeny (and are ignored if only_image is zero). */
 static GEN
-isogeny_from_kernel_poly(GEN E, GEN kerp, long only_image, long vx, long vy, long prec)
+isogeny_from_kernel_poly(GEN E, GEN kerp, long only_image, long vx, long vy)
 {
   long m;
   GEN b2 = ell_get_b2(E), b4 = ell_get_b4(E), b6 = ell_get_b6(E);
@@ -497,10 +497,10 @@ isogeny_from_kernel_poly(GEN E, GEN kerp, long only_image, long vx, long vy, lon
     two_tors = mkvec5(gen_0, gen_0, pol_0(vx), pol_0(vx), pol_1(vx));
     break;
   case 1:
-    two_tors = contrib_weierstrass_pt(E, kerh, only_image,vx,vy, prec);
+    two_tors = contrib_weierstrass_pt(E, kerh, only_image,vx,vy);
     break;
   case 3:
-    two_tors = contrib_full_tors(E, kerh, only_image,vx,vy, prec);
+    two_tors = contrib_full_tors(E, kerh, only_image,vx,vy);
     break;
   default:
     two_tors = NULL;
@@ -520,7 +520,7 @@ isogeny_from_kernel_poly(GEN E, GEN kerp, long only_image, long vx, long vy, lon
                 gadd(gmul(gmulsg(3L, b4), p1), gmulsg(m, b6))));
 
   EE = make_velu_curve(E, gadd(t, gel(two_tors, 1)),
-                          gadd(w, gel(two_tors, 2)), prec);
+                          gadd(w, gel(two_tors, 2)));
   if (only_image) return EE;
 
   f = isog_abscissa(E, kerp, kerq, x, two_tors);
@@ -536,7 +536,7 @@ isogeny_from_kernel_poly(GEN E, GEN kerp, long only_image, long vx, long vy, lon
  * a generating point P on E or as a polynomial kerp whose roots are
  * the x-coordinates of the points in G */
 GEN
-ellisogeny(GEN E, GEN G, long only_image, long vx, long vy, long prec)
+ellisogeny(GEN E, GEN G, long only_image, long vx, long vy)
 {
   pari_sp av = avma;
   GEN j, z;
@@ -555,12 +555,12 @@ ellisogeny(GEN E, GEN G, long only_image, long vx, long vy, long prec)
       if (varncmp(vy, gvar(x)) >= 0) pari_err_PRIORITY("ellisogeny", x, ">=", vy);
       if (varncmp(vy, gvar(y)) >= 0) pari_err_PRIORITY("ellisogeny", y, ">=", vy);
     }
-    z = isogeny_from_kernel_point(E, G, only_image, vx, vy, prec);
+    z = isogeny_from_kernel_point(E, G, only_image, vx, vy);
     break;
   case t_POL:
     if (varncmp(vy, gvar(constant_term(G))) >= 0)
       pari_err_PRIORITY("ellisogeny", constant_term(G), ">=", vy);
-    z = isogeny_from_kernel_poly(E, G, only_image, vx, vy, prec);
+    z = isogeny_from_kernel_poly(E, G, only_image, vx, vy);
     break;
   default:
     z = NULL;
