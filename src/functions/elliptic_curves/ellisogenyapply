@@ -12,7 +12,7 @@ Doc:
  \item if $x$ is a point $P$ in the domain of $f$, return the image $f(P)$;
 
  \item if $x$ is a compatible isogeny $g:E''\to E'$, return the composite
- isogeny $f \cirg g:  E''\to E$.
+ isogeny $f \circ g:  E''\to E$.
 
  \bprog
  ? one = ffgen(101, 't)^0;
