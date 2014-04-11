@@ -293,11 +293,17 @@ contrib_weierstrass_pt(GEN E, GEN h, long only_image, long vx, long vy, long pre
   return mkvec5(t, w, f, g, h);
 }
 /* deg h =3; full 2-torsion contribution. NB: assume h is monic; base field
- * characteristic is odd or zero (otherwise we cannot have full 2-torsion). */
+ * characteristic is odd or zero (otherwise E->E/E[2] inseparable: cannot
+ * happen  over a finite field since we cannot have full 2-torsion in char 2).*/
 static GEN
 contrib_full_tors(GEN E, GEN h, long only_image, long vx, long vy, long prec)
 {
   GEN p1, p2, p3, half_b2, half_b4, t, w, f, g;
+
+  if (equalis(ellbasechar(E), 2L))
+    pari_err_DOMAIN("contrib_full_tors", "The map E -> E/E[2]",
+                    "is not separable in characteristic 2", E, h);
+
   first_three_power_sums(h, &p1,&p2,&p3);
   half_b2 = gmul2n(ell_get_b2(E), -1);
   half_b4 = gmul2n(ell_get_b4(E), -1);
