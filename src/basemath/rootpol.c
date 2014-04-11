@@ -2250,7 +2250,7 @@ _gen_zero(void *E) { (void)E; return gen_0; }
 static struct bb_algebra mp_algebra = { _gen_nored,_mp_add,_mp_mul,_mp_sqr,_gen_one,_gen_zero };
 
 static GEN
-_mp_cmul(void *E, GEN P, long a, GEN x) { return mpmul(gel(P, a+2), x); }
+_mp_cmul(void *E, GEN P, long a, GEN x) {(void)E; return mpmul(gel(P,a+2), x);}
 
 /* Split the polynom P in two parts, each with unique sign.
  * Moreover compute the two parts of the derivative of P. */
