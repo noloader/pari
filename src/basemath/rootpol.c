@@ -2170,7 +2170,7 @@ QX_complex_roots(GEN p, long l)
 /* Count sign changes in the coefficients of (x+1)^deg(P)*P(1/(x+1))
  * The inversion is implicit (we take coefficients backwards) */
 static long
-X2XP1(GEN P, unsigned long deg, GEN *Premapped)
+X2XP1(GEN P, long deg, GEN *Premapped)
 {
   pari_sp av = avma, lim = stack_lim(av, 3);
   GEN v = shallowcopy(P);
