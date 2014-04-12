@@ -3236,18 +3236,20 @@ won't forget to look them up in the manual, will you?)
 Output is done via variants of the familiar \kbd{print} (to screen),
 \kbd{write} (to a file). Input via \kbd{read} (from file), \kbd{input}
 (querying user), or \kbd{extern} (from an external auxiliary program).
-Perhaps the most useful simple command we haven't seen yet is
-\kbd{allocatemem} which increase the size of \kbd{gp}'s ``scratch space''. If
-you regularly see \kbd{PARI stack overflows!} messages, think about this
-one.
 
 To customize \kbd{gp}, e.g.~increase the default stack space or load your
 private script libraries on startup, look up \kbd{The preferences file}
-section in the User's manual. For clarity, it is advisable  to declare local
-variables in user functions (and in fact, with the smallest possible scope),
-as we have done so far with the keyword \kbd{my}. One is usually better off
-avoiding global variables altogether, but you are the sole master on board at
-this point.
+section in the User's manual. We strongly advise to set \kbd{parisizemax} to
+a large non-zero value, about what you believe your machine can stand: this
+both limits the amount of memory PARI will use for its computation (thereby
+keeping your machine usable), and let PARI increases its stack size (up to
+this limit) to accomodate large computations. If you regularly see \kbd{PARI
+stack overflows} messages, think about this one!
+
+For clarity, it is advisable  to declare local variables in user functions
+(and in fact, with the smallest possible scope), as we have done so far with
+the keyword \kbd{my}. As usual, one is usually better off avoiding global
+variables altogether.
 
 \emph{Break loops} are more powerful than we saw: look up \kbd{dbg\_down} /
 \kbd{dbg\_up} (to get a chance to inspect local variables in various scopes)
