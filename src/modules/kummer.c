@@ -692,11 +692,13 @@ get_prlist(GEN bnr, GEN H, ulong ell, GEN bnfz)
 {
   pari_sp av0 = avma;
   forprime_t T;
+  long N;
   ulong p;
   GEN L, nf, cyc, bad, cond, condZ, Hsofar;
   L = cgetg(1, t_VEC);
   cyc = bnr_get_cyc(bnr);
   nf = bnr_get_nf(bnr);
+  N =  nf_get_degree(nf);
 
   cond = gel(bnr_get_mod(bnr), 1);
   condZ = gcoeff(cond,1,1);
@@ -718,7 +720,8 @@ get_prlist(GEN bnr, GEN H, ulong ell, GEN bnfz)
     if (p == ell || !umodiu(bad, p)) continue;
     LP = idealprimedec(nf, utoipos(p));
     l = lg(LP);
-    for (i = 1; i < l-1; i++)
+    if (N != 1) l--; /* remove one prime */
+    for (i = 1; i < l; i++)
     {
       pari_sp av = avma;
       GEN P = gel(LP,i), v, M;
@@ -1191,9 +1194,12 @@ static GEN
 prlifttoKz(GEN nfz, GEN nf, GEN pr, compo_s *C)
 {
   GEN F, p = pr_get_p(pr), t = pr_get_gen(pr), T = nf_get_pol(nfz);
-  t = Q_primpart( lifttoKz(nf,t,C) );
-  T = FpX_gcd(FpX_red(T,p), FpX_red(t,p), p); /* restrict to primes above pr */
-  T = FpX_normalize(T, p);
+  if (nf_get_degree(nf) != 1)
+  { /* restrict to primes above pr */
+    t = Q_primpart( lifttoKz(nf,t,C) );
+    T = FpX_gcd(FpX_red(T,p), FpX_red(t,p), p);
+    T = FpX_normalize(T, p);
+  }
   F = FpX_factor(T, p);
   return primedec_apply_kummer(nfz,gcoeff(F,1,1), 1,p);
 }
