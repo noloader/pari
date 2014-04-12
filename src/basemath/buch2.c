@@ -808,8 +808,16 @@ smooth_norm(FB_t *F, GEN *N, GEN *ex)
   for (i=1; ; i++)
   {
     int stop;
-    (*ex)[i] = Z_lvalrem_stop(N, (ulong)FB[i], &stop);
-    if (stop) break;
+    ulong p = (ulong)FB[i];
+    long v = Z_lvalrem_stop(N, p, &stop);
+    (*ex)[i] = v;
+    if (v)
+    {
+      GEN LP = F->LV[p];
+      if(!LP) pari_err_BUG("can_factor");
+      if (lg(LP) == 1) return 0;
+      if (stop) break;
+    }
     if (i == KCZ) return 0;
   }
   (*ex)[0] = i;
@@ -821,11 +829,6 @@ divide_p(FB_t *F, long p, long k, GEN nf, GEN I, GEN m, FACT *fact)
 {
   GEN LP = F->LV[p];
   long ip = F->iLP[p];
-  if (!LP)
-  {
-    if (!I) pari_err_BUG("divide_p");
-    pari_err_TYPE("divide_p [not an ideal]", I);
-  }
   if (!m) return divide_p_id (LP,ip,k,nf,I,fact);
   if (!I) return divide_p_elt(LP,ip,k,nf,m,fact);
   return divide_p_quo(LP,ip,k,nf,I,m,fact);
