@@ -3564,34 +3564,58 @@ init_rel(RELCACHE_t *cache, FB_t *F, long add_need)
   }
 }
 
+/* Let z = \zeta_n in nf. List of not-obviously-dependent generators for
+ * cyclotomic units modulo torsion in Q(z) [independent when n a prime power]:
+ * - z^a - 1,  n/(a,n) not a prime power, a \nmid n unless a=1,  1 <= a < n/2
+ * - (Z^a - 1)/(Z - 1),  p^k || n, Z = z^{n/p^k}, (p,a) = 1, 1 < a <= (p^k-1)/2
+ */
+static GEN
+cyclotomic_units(GEN nf, GEN zu)
+{
+  long n = itos(gel(zu, 1)), n2, lP, i, a;
+  GEN z, fa, P, E, L, mz, powz;
+  if (n <= 6) return cgetg(1, t_VEC);
+
+  z = algtobasis(nf,gel(zu, 2));
+  if ((n & 3) == 2) { n = n >> 1; z = ZC_neg(z); } /* ensure n != 2 (mod 4) */
+  n2 = n/2;
+  mz = zk_multable(nf, z); /* multiplication by z */
+  powz = cgetg(n2, t_VEC); gel(powz,1) = z;
+  for (i = 2; i < n2; i++) gel(powz,i) = ZM_ZC_mul(mz, gel(powz,i-1));
+  /* powz[i] = z^i */
+
+  L = vectrunc_init(n);
+  fa = factoru(n);
+  P = gel(fa,1); lP = lg(P);
+  E = gel(fa,2);
+  for (i = 1; i < lP; i++)
+  { /* second kind */
+    long p = P[i], k = E[i], pk = upowuu(p,k), pk2 = (pk-1) / 2;
+    GEN u = gen_1;
+    for (a = 2; a <= pk2; a++)
+    {
+      u = nfadd(nf, u, gel(powz, (n/pk) * (a-1))); /* = (Z^a-1)/(Z-1) */
+      if (a % p) vectrunc_append(L, u);
+    }
+  }
+  if (lP > 2) for (a = 1; a < n2; a++)
+  { /* first kind, when n not a prime power */
+    ulong p;
+    if (a > 1 && (n % a == 0 || uisprimepower(n/ugcd(a,n), &p))) continue;
+    vectrunc_append(L, nfadd(nf, gel(powz, a), gen_m1));
+  }
+  return L;
+}
 static void
-cyclotomic_units(GEN nf, GEN zu, RELCACHE_t *cache, FB_t *F)
+add_cyclotomic_units(GEN nf, GEN zu, RELCACHE_t *cache, FB_t *F)
 {
   pari_sp av = avma;
-  long n = itos(gel(zu, 1)), a;
-  GEN zeta, zetaa = NULL, invpowsm1, u, R;
-  if (n == 2) return;
-  R = zero_Flv(F->KC);
-  zeta = algtobasis(nf,gel(zu, 2));
-  invpowsm1 = const_vec(n, NULL);
-  if (n & (n-1))
+  GEN L = cyclotomic_units(nf, zu);
+  long i, l = lg(L);
+  if (l > 1)
   {
-    zetaa = zeta;
-    a = 1;
-  }
-  else
-    a = 0;
-  while (++a < n/2)
-  {
-    ulong p, gcd = ugcd(a, n);
-    zetaa = zetaa ? nfmul(nf, zetaa, zeta) : zeta;
-    u = nfadd(nf, zetaa, gen_m1);
-    if (uisprimepower(n/gcd, &p))
-    {
-      if (!gel(invpowsm1,gcd)) { gel(invpowsm1, gcd) = nfinv(nf, u); continue; }
-      u = nfmul(nf, u, gel(invpowsm1, gcd));
-    }
-    add_rel(cache, F, R, F->KC+1, u, 0);
+    GEN R = zero_Flv(F->KC);
+    for(i = 1; i < l; i++) add_rel(cache, F, R, F->KC+1, gel(L,i), 0);
   }
   avma = av;
 }
@@ -3946,7 +3970,7 @@ START:
   av2 = avma;
   init_rel(&cache, &F, RELSUP + RU-1); /* trivial relations */
   old_need = need = cache.end - cache.last;
-  cyclotomic_units(nf, zu, &cache, &F);
+  add_cyclotomic_units(nf, zu, &cache, &F);
   cache.end = cache.last + need;
 
   W = NULL; zc = 0;
