@@ -9189,7 +9189,12 @@ as \typ{REAL} or \typ{COMPLEX} of \typ{REAL}s of precision \kbd{prec}
 
 \fun{double}{fujiwara_bound}{GEN x} return a quick upper bound for the
 logarithm in base $2$ of the modulus of the largest complex roots of
-the polynomial $x$.
+the polynomial $x$ (complex coefficients).
+
+\fun{double}{fujiwara_bound_real}{GEN x, long sign} return a quick upper
+bound for the logarithm in base $2$ of the absolute value of the largest
+real root of sign \var{sign} ($1$ or $-1$), for the polynomial $x$ (real
+coefficients).
 
 \fun{GEN}{polmod_to_embed}{GEN x, long prec} return the vector of complex
 embeddings of the \typ{POLMOD} $x$ (with complex coefficients). Shallow

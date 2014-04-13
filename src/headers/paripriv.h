@@ -230,7 +230,6 @@ GEN  RgXQ_minpoly_naive(GEN y, GEN P);
 GEN lift_intern(GEN x);
 
 /* c) factorization */
-double fujiwara_bound(GEN p);
 GEN chk_factors_get(GEN lt, GEN famod, GEN c, GEN T, GEN N);
 long cmbf_maxK(long nb);
 GEN ZX_DDF(GEN x);

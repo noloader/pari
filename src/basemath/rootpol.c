@@ -1820,7 +1820,7 @@ fujiwara_bound(GEN p)
   loglc = mydbllog2r( quicktofp(gel(p,n+2)) ); /* log_2 |lc(p)| */
   cc = gel(p, 2);
   if (gequal0(cc))
-    Lmax = -pariINFINITY;
+    Lmax = -pariINFINITY-1;
   else
     Lmax = (mydbllog2r(quicktofp(cc)) - loglc - 1) / n;
   for (i = 1; i < n; i++)
@@ -1832,6 +1832,44 @@ fujiwara_bound(GEN p)
     if (L > Lmax) Lmax = L;
   }
   avma = av; return Lmax + 1;
+}
+
+/* Fujiwara's bound, real roots. Based on the following remark: if
+ *   p = x^n + sum a_i x^i and q = x^n + sum min(a_i,0)x^i
+ * then for all x >= 0, p(x) >= q(x). Thus any bound for the (positive) roots
+ * of q is a bound for the positive roots of p. */
+double
+fujiwara_bound_real(GEN p, long sign)
+{
+  pari_sp av = avma;
+  GEN x;
+  long n = degpol(p), i, signodd, signeven;
+  double fb;
+  if (n <= 0) pari_err_CONSTPOL("fujiwara_bound");
+  x = shallowcopy(p);
+  if (gsigne(gel(x, n+2)) > 0)
+  {
+    signeven = 1;
+    signodd = sign;
+  }
+  else
+  {
+    signeven = -1;
+    signodd = -sign;
+  }
+  for (i = 0; i < n; i++)
+  {
+    if ((n - i) % 2)
+    {
+      if (gsigne(gel(x, i+2)) == signodd ) gel(x, i+2) = gen_0;
+    }
+    else
+    {
+      if (gsigne(gel(x, i+2)) == signeven) gel(x, i+2) = gen_0;
+    }
+  }
+  fb = fujiwara_bound(x);
+  avma = av; return fb;
 }
 
 static GEN
@@ -2582,6 +2620,7 @@ ZX_uspensky(GEN P, long onlypos, long flag, long bitprec)
 {
   pari_sp av = avma;
   GEN sol, Pcur;
+  double fb;
   long i, nbr, deg, b, nb_done = 0;
 
   deg = degpol(P);
@@ -2596,22 +2635,29 @@ ZX_uspensky(GEN P, long onlypos, long flag, long bitprec)
   deg -= nbr;
   if (!nbr) Pcur = P;
 
-  b = (long)ceil(fujiwara_bound(P));
-  if (DEBUGLEVEL > 1) err_printf("b = %d\n", b);
-  Pcur = ZX_unscale2n(Pcur, b); /* Maps roots to [-1;1] */
-  sol = usp(Pcur, deg, &nb_done, flag, bitprec);
-  if (!onlypos)
-    sol = concat(sol, gneg(usp(ZX_unscale(Pcur, gen_m1), deg, &nb_done, flag, bitprec)));
-  for (i = 1; i < lg(sol); i++)
+  fb = fujiwara_bound_real(Pcur, 1);
+  if (fb > -pariINFINITY)
   {
-    GEN soli = gel(sol, i);
-    if (typ(soli) == t_VEC)
+    GEN Pcurp;
+    b = (long)ceil(fb);
+    if (DEBUGLEVEL > 1) err_printf("b+ = %d\n", b);
+    Pcurp = ZX_unscale2n(Pcur, b);
+    sol = gmul2n(usp(Pcurp, deg, &nb_done, flag, bitprec), b);
+  }
+  else
+    sol = cgetg(1, t_COL);
+  if (!onlypos)
+  {
+    fb = fujiwara_bound_real(Pcur, -1);
+    if (fb > -pariINFINITY)
     {
-      gel(soli, 1) = gmul2n(gel(soli, 1), b);
-      gel(soli, 2) = gmul2n(gel(soli, 2), b);
+      GEN Pcurm;
+      b = (long)ceil(fb);
+      if (DEBUGLEVEL > 1) err_printf("b- = %d\n", b);
+      Pcurm = ZX_unscale(Pcur, gen_m1);
+      Pcurm = ZX_unscale2n(Pcurm, b);
+      sol = concat(sol,gneg(gmul2n(usp(Pcurm,deg,&nb_done,flag,bitprec),b)));
     }
-    else
-      gel(sol, i) = gmul2n(soli, b);
   }
   if (nbr)
     sol = concat(zerovec(nbr), sol);

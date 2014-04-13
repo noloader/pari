@@ -1,5 +1,6 @@
 default(realprecision,38);
 polrootsreal(x^3-6*x^2+11*x-6)
+polrootsreal(x^10 + 23*x^9 + 19*x^8 + 18*x^7 + 39*x^6 + 41*x^5 + 46*x^4 + 24*x^3 - 4*x^2 + 2*x + 42)
 polrootsreal(polchebyshev(9))
 polrootsreal(polchebyshev(10))
 polrootsreal(x^0)
