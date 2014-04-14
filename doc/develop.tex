@@ -548,6 +548,22 @@ subproduct of computing the function. The vector $v$ allows \kbd{eval} to
 provide these to \kbd{invd}. The implementation of \kbd{invd} will generally
 involves the use of the function \kbd{gen\_ZpX\_Dixon}.
 
+\section{$\F_l^2$ field for small primes $l$}
+Let $l>2$ be a prime \kbd{ulong}.  A \kbd{Fl2} is an element of the finite
+field $\F_l^2$ represented (currently) by a \kbd{Flx} of degree at most $1$
+modulo a polynomial of the form $x^2-D$ for some non square $0\leq D<p$.
+Below \kbd{pi} denotes the pseudo inverse of \kbd{p}, see \kbd{Fl_mul_pre}
+
+\fun{int}{Fl2_equal1}{GEN x} return $1$ if $x=1$, $0$ else.
+\fun{GEN}{Fl2_mul_pre}{GEN x, GEN y, ulong D, ulong p, ulong pi} return $x\*y$
+\fun{GEN}{Fl2_sqr_pre}{GEN x, ulong D, ulong p, ulong pi} return $x^2$
+\fun{GEN}{Fl2_inv_pre}{GEN x, ulong D, ulong p, ulong pi} return $x^{-1}$
+\fun{GEN}{Fl2_pow_pre}{GEN x, GEN n, ulong D, ulong p, ulong pi} return $x^n$
+\fun{GEN}{Fl2_sqrtn_pre}{GEN a, GEN n, ulong D, ulong p, ulong pi, GEN *zeta}
+as \kbd{Flxq_sqrtn}
+\fun{GEN}{Fl2_norm_pre}{GEN x, GEN n, ulong D, ulong p, ulong pi} return the
+norm of $x$.
+
 \section{Public functions useless outside of GP context}
 
 These functions implement GP functionality for which the C language or

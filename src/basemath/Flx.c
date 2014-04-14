@@ -2731,6 +2731,139 @@ const struct bb_field *get_Flxq_field(void **E, GEN T, ulong p)
 
 /***********************************************************************/
 /**                                                                   **/
+/**                               Fl2                                 **/
+/**                                                                   **/
+/***********************************************************************/
+/* Fl2 objects are Flv of length 2 [a,b] representing a+bsqrt(D) for
+   a non-square D.
+*/
+
+INLINE GEN
+mkF2(ulong a, ulong b) { return mkvecsmall2(a,b); }
+
+GEN
+Fl2_mul_pre(GEN x, GEN y, ulong D, ulong p, ulong pi)
+{
+  ulong xaya, xbyb, Db2, mid;
+  ulong z1, z2;
+  ulong x1 = x[1], x2 = x[2], y1 = y[1], y2 = y[2];
+  xaya = Fl_mul_pre(x1,y1,p,pi);
+  if (x2==0 && y2==0) return mkF2(xaya,0);
+  if (x2==0) return mkF2(xaya,Fl_mul_pre(x1,y2,p,pi));
+  if (y2==0) return mkF2(xaya,Fl_mul_pre(x2,y1,p,pi));
+  xbyb = Fl_mul_pre(x2,y2,p,pi);
+  mid = Fl_mul_pre(Fl_add(x1,x2,p), Fl_add(y1,y2,p),p,pi);
+  Db2 = Fl_mul_pre(D, xbyb, p,pi);
+  z1 = Fl_add(xaya,Db2,p);
+  z2 = Fl_sub(mid,Fl_add(xaya,xbyb,p),p);
+  return mkF2(z1,z2);
+}
+
+GEN
+Fl2_sqr_pre(GEN x, ulong D, ulong p, ulong pi)
+{
+  ulong a = x[1], b = x[2];
+  ulong a2, Db2, ab;
+  a2 = Fl_sqr_pre(a,p,pi);
+  if (b==0) return mkF2(a2,0);
+  Db2= Fl_mul_pre(D, Fl_sqr_pre(b,p,pi), p,pi);
+  ab = Fl_mul_pre(a,b,p,pi);
+  return mkF2(Fl_add(a2,Db2,p), Fl_double(ab,p));
+}
+
+ulong
+Fl2_norm_pre(GEN x, ulong D, ulong p, ulong pi)
+{
+  ulong a2 = Fl_sqr_pre(x[1],p,pi);
+  return x[2]? Fl_sub(a2, Fl_mul_pre(D, Fl_sqr_pre(x[2], p,pi), p,pi), p): a2;
+}
+
+GEN
+Fl2_inv_pre(GEN x, ulong D, ulong p, ulong pi)
+{
+  ulong n, ni;
+  if (x[2] == 0) return mkF2(Fl_inv(x[1],p),0);
+  n = Fl_sub(Fl_sqr_pre(x[1], p,pi),
+             Fl_mul_pre(D, Fl_sqr_pre(x[2], p,pi), p,pi), p);
+  ni = Fl_inv(n,p);
+  return mkF2(Fl_mul_pre(x[1], ni, p,pi),
+               Fl_neg(Fl_mul_pre(x[2], ni, p,pi), p));
+}
+
+int
+Fl2_equal1(GEN x) { return x[1]==1 && x[2]==0; }
+
+struct _Fl2 {
+  ulong p, pi, D;
+};
+
+
+static GEN
+_Fl2_sqr(void *data, GEN x)
+{
+  struct _Fl2 *D = (struct _Fl2*)data;
+  return Fl2_sqr_pre(x, D->D, D->p, D->pi);
+}
+static GEN
+_Fl2_mul(void *data, GEN x, GEN y)
+{
+  struct _Fl2 *D = (struct _Fl2*)data;
+  return Fl2_mul_pre(x,y, D->D, D->p, D->pi);
+}
+
+/* n-Power of x in Z/pZ[X]/(T), as t_VECSMALL. */
+GEN
+Fl2_pow_pre(GEN x, GEN n, ulong D, ulong p, ulong pi)
+{
+  pari_sp av = avma;
+  struct _Fl2 d;
+  GEN y;
+  long s = signe(n);
+  if (!s) return mkF2(1,0);
+  if (s < 0)
+    x = Fl2_inv_pre(x,D,p,pi);
+  if (is_pm1(n)) return s < 0 ? x : zv_copy(x);
+  d.p = p; d.pi = pi; d.D=D;
+  y = gen_pow_i(x, n, (void*)&d, &_Fl2_sqr, &_Fl2_mul);
+  return gerepileuptoleaf(av, y);
+}
+
+static GEN
+_Fl2_pow(void *data, GEN x, GEN n)
+{
+  struct _Fl2 *D = (struct _Fl2*)data;
+  return Fl2_pow_pre(x, n, D->D, D->p, D->pi);
+}
+
+static GEN
+_Fl2_rand(void *data)
+{
+  struct _Fl2 *D = (struct _Fl2*)data;
+  ulong a = random_Fl(D->p), b=random_Fl(D->p-1)+1;
+  return mkF2(a,b);
+}
+
+static const struct bb_group Fl2_star={_Fl2_mul, _Fl2_pow, _Fl2_rand,
+       hash_GEN, zv_equal, Fl2_equal1, NULL};
+
+GEN
+Fl2_sqrtn_pre(GEN a, GEN n, ulong D, ulong p, ulong pi, GEN *zeta)
+{
+  struct _Fl2 E;
+  GEN o;
+  if (a[1]==0 && a[2]==0)
+  {
+    if (signe(n) < 0) pari_err_INV("Flxq_sqrtn",a);
+    if (zeta) *zeta=mkF2(1,0);
+    return zv_copy(a);
+  }
+  E.p=p; E.pi = pi; E.D = D;
+  o = addis(powuu(p,2),-1);
+  return gen_Shanks_sqrtn(a,n,o,zeta,(void*)&E,&Fl2_star);
+}
+
+/***********************************************************************/
+/**                                                                   **/
 /**                               FlxV                                **/
 /**                                                                   **/
 /***********************************************************************/

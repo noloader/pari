@@ -169,6 +169,13 @@ GEN     random_F2xqE(GEN a2, GEN a6, GEN T);
 /* Flx.c */
 
 GEN     Fl_to_Flx(ulong x, long sv);
+int     Fl2_equal1(GEN x);
+GEN     Fl2_inv_pre(GEN x, ulong D, ulong p, ulong pi);
+GEN     Fl2_mul_pre(GEN x, GEN y, ulong D, ulong p, ulong pi);
+ulong   Fl2_norm_pre(GEN x, ulong D, ulong p, ulong pi);
+GEN     Fl2_pow_pre(GEN x, GEN n, ulong D, ulong p, ulong pi);
+GEN     Fl2_sqr_pre(GEN x, ulong D, ulong p, ulong pi);
+GEN     Fl2_sqrtn_pre(GEN a, GEN n, ulong D, ulong p, ulong pi, GEN *zeta);
 GEN     Flc_to_ZC(GEN z);
 GEN     Flm_to_FlxV(GEN x, long sv);
 GEN     Flm_to_FlxX(GEN x, long v,long w);
