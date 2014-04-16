@@ -20,7 +20,7 @@ Doc: general factorization function, where $x$ is a
  See \tet{factorint} for more information about the algorithms used.
  The rational or Gaussian primes are in fact \var{pseudoprimes}
  (see \kbd{ispseudoprime}), a priori not rigorously proven primes. In fact,
- any factor which is $\leq 10^{64}$ (whose norm is $\leq 10^{64}$ for an
+ any factor which is $\leq 2^{64}$ (whose norm is $\leq 2^{64}$ for an
  irrational Gaussian prime) is a genuine prime. Use \kbd{isprime} to prove
  primality of other factors, as in
  \bprog
