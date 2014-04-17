@@ -724,7 +724,7 @@ liftlistsubgroups(GEN L, GEN C, long r)
     {
       GEN p = gel(C,j);
       if (perm_relorder(p, Selt) == r && group_perm_normalize(S, p))
-        gel(R,k++) = mkvec2(vecsmall_append(gen, (long)p),
+        gel(R,k++) = mkvec2(vec_append(gen, p),
                             vecsmall_append(ord, r));
     }
   }

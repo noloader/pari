@@ -472,6 +472,15 @@ vec_lengthen(GEN v, long n)
 }
 /* shallow*/
 INLINE GEN
+vec_append(GEN V, GEN s)
+{
+  long i, l2 = lg(V);
+  GEN res = cgetg(l2+1, typ(V));
+  for (i = 1; i < l2; ++i) gel(res, i) = gel(V,i);
+  gel(res,l2) = s; return res;
+}
+/* shallow*/
+INLINE GEN
 vec_setconst(GEN v, GEN x)
 {
   long i, l = lg(v);
@@ -552,12 +561,11 @@ vecsmall_prepend(GEN V, long s)
   return res;
 }
 
-/*Can be used on t_VEC, but coeffs not gcopy-ed*/
 INLINE GEN
 vecsmall_append(GEN V, long s)
 {
   long i, l2 = lg(V);
-  GEN res = cgetg(l2+1, typ(V));
+  GEN res = cgetg(l2+1, t_VECSMALL);
   for (i = 1; i < l2; ++i) res[i] = V[i];
   res[l2] = s; return res;
 }
