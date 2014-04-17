@@ -10624,6 +10624,9 @@ type as $A$ (\typ{VEC}, \typ{COL} or \typ{MAT}), and whose components
 are $A[p_1],\dots,A[p_n]$. If $A$ is a \typ{MAT}, these are the
 \emph{columns} of $A$.
 
+\fun{GEN}{vecsmallpermute}{GEN A, GEN p} as \kbd{vecpermute} when \kbd{A} is a
+\typ{VECSMALL}.
+
 \fun{GEN}{vecslicepermute}{GEN A, GEN p, long y1, long y2} short for
 \bprog
   vecslice(vecpermute(A,p), y1, y2)

@@ -628,7 +628,7 @@ hnfadd_i(GEN H, GEN perm, GEN* ptdep, GEN* ptB, GEN* ptC, /* cf hnfspec */
   permpro = ZM_imagecomplspec(extramat, &nlze);
   extramat = rowpermute(extramat, permpro);
   *ptB     = rowpermute(B,        permpro);
-  permpro = vecpermute(perm, permpro);
+  permpro = vecsmallpermute(perm, permpro);
   for (i=1; i<=lig; i++) perm[i] = permpro[i]; /* perm o= permpro */
 
   *ptdep  = rowslice(extramat, 1, nlze);

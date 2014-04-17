@@ -3250,8 +3250,8 @@ factoru(ulong n)
     ifac_factoru(utoipos(n), P, E, &i);
     setlg(P, i);
     perm = vecsmall_indexsort(P);
-    P = vecpermute(P, perm);
-    E = vecpermute(E, perm);
+    P = vecsmallpermute(P, perm);
+    E = vecsmallpermute(E, perm);
   }
 END:
   avma = av;

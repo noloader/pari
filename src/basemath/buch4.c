@@ -592,7 +592,7 @@ make_unit(GEN nf, GEN bnfS, GEN *px)
   }
   if (!is_pm1(N0)) return NULL;
   /* here, x = S v */
-  p1 = vecpermute(v, perm);
+  p1 = vecsmallpermute(v, perm);
   v = ZM_zc_mul(HB, p1);
   for (i=1; i<=cH; i++)
   {

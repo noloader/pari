@@ -1137,7 +1137,7 @@ gen_ZpM_Dixon(void *E, GEN (*f)(void*, GEN), GEN B, GEN p, long e)
 static GEN
 vecprow(GEN A, GEN prow)
 {
-  return mkvec2(vecpermute(prow,gel(A,1)), gel(A,2));
+  return mkvec2(vecsmallpermute(prow,gel(A,1)), gel(A,2));
 }
 
 /* Solve the equation MX = A. Return either a solution as a t_COL,

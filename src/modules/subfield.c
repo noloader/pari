@@ -193,7 +193,7 @@ im_block_by_perm(GEN D,GEN perm)
 {
   long i, lb = lg(D);
   GEN Dn = cgetg(lb,t_VEC);
-  for (i=1; i<lb; i++) gel(Dn,i) = vecpermute(perm, gel(D,i));
+  for (i=1; i<lb; i++) gel(Dn,i) = vecsmallpermute(perm, gel(D,i));
   return Dn;
 }
 

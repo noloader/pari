@@ -878,6 +878,9 @@ vecreverse(GEN A)
 }
 
 INLINE GEN
+vecsmallpermute(GEN A, GEN p) { return perm_mul(A, p); }
+
+INLINE GEN
 vecpermute(GEN A, GEN p)
 {
   long i,lB = lg(p);
@@ -890,7 +893,9 @@ rowpermute(GEN A, GEN p)
 {
   long i, lB = lg(A);
   GEN B = cgetg(lB, typ(A));
-  for (i=1; i<lB; i++) gel(B, i) = vecpermute(gel(A, i), p);
+  for (i=1; i<lB; i++)
+    gel(B, i) = typ(gel(A,i)) == t_VECSMALL ? vecsmallpermute(gel(A, i), p):
+                                                    vecpermute(gel(A, i), p);
   return B;
 }
 /*******************************************************************/

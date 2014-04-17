@@ -2312,7 +2312,7 @@ zlog_units(GEN nf, GEN U, GEN sgnU, GEN bid)
   GEN m = cgetg(l, t_MAT);
   zlog_S S; init_zlog_bid(&S, bid);
   for (j = 1; j < l; j++)
-    gel(m,j) = zlog(nf, gel(U,j), vecpermute(gel(sgnU,j), S.archp), &S);
+    gel(m,j) = zlog(nf, gel(U,j), vecsmallpermute(gel(sgnU,j), S.archp), &S);
   return m;
 }
 /* compute matrix of zlogs of units, assuming S.archp = [] */
