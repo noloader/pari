@@ -2616,64 +2616,160 @@ usp(GEN Q0, long deg, long *nb_donep, long flag, long bitprec)
 }
 
 GEN
-ZX_uspensky(GEN P, long onlypos, long flag, long bitprec)
+ZX_uspensky(GEN P, GEN ab, long flag, long bitprec)
 {
   pari_sp av = avma;
-  GEN sol, Pcur;
+  GEN a, b, sol, Pcur;
   double fb;
-  long i, nbr, deg, b, nb_done = 0;
+  long nbz, deg, nb_done = 0;
 
   deg = degpol(P);
   if (deg == 0) return cgetg(1, t_COL);
-  if (deg == 1)
+  if (ab)
   {
-    GEN a = pollead(P, -1), b = gel(P,2);
-    if (onlypos && signe(a) == signe(b)) return cgetg(1, t_COL);
-    retmkcol(gdiv(gneg(b), a));
-  }
-  nbr = ZX_valrem(P, &Pcur);
-  deg -= nbr;
-  if (!nbr) Pcur = P;
-
-  fb = fujiwara_bound_real(Pcur, 1);
-  if (fb > -pariINFINITY)
-  {
-    GEN Pcurp;
-    b = (long)ceil(fb);
-    if (DEBUGLEVEL > 1) err_printf("b+ = %d\n", b);
-    Pcurp = ZX_unscale2n(Pcur, b);
-    sol = gmul2n(usp(Pcurp, deg, &nb_done, flag, bitprec), b);
+    if (typ(ab) == t_VEC)
+    {
+      if (lg(ab) != 3) pari_err_DIM("ZX_uspensky");
+      a = gel(ab, 1);
+      b = gel(ab, 2);
+    }
+    else
+    {
+      a = ab;
+      b = mkoo();
+    }
   }
   else
-    sol = cgetg(1, t_COL);
-  if (!onlypos)
+  {
+    a = mkmoo();
+    b = mkoo();
+  }
+  switch (gcmp(a, b))
+  {
+    case 1: avma = av; return cgetg(1, t_COL);
+    case 0:
+      if (typ(a) != t_INFINITY && gequal0(poleval(P, a)))
+      { avma = av; retmkcol(gcopy(a)); }
+      else
+      { avma = av; return cgetg(1, t_COL); }
+  }
+  if (deg == 1)
+  {
+    GEN sol = gdiv(gneg(gel(P, 2)), pollead(P, -1));
+    if (gcmp(a, sol) > 0 || gcmp(sol, b) > 0)
+    { avma = av; return cgetg(1, t_COL); }
+    return gerepilecopy(av, mkcol(sol));
+  }
+  nbz = ZX_valrem(P, &Pcur);
+  deg -= nbz;
+  if (!nbz) Pcur = P;
+  if (nbz && (gsigne(a) > 0 || gsigne(b) < 0)) nbz = 0;
+  if (flag)
+    sol = const_col(nbz, real_0(bitprec));
+  else
+    sol = zerocol(nbz);
+
+  if (typ(a) == t_INFINITY && typ(b) != t_INFINITY && gsigne(b))
   {
     fb = fujiwara_bound_real(Pcur, -1);
     if (fb > -pariINFINITY)
-    {
-      GEN Pcurm;
-      b = (long)ceil(fb);
-      if (DEBUGLEVEL > 1) err_printf("b- = %d\n", b);
-      Pcurm = ZX_unscale(Pcur, gen_m1);
-      Pcurm = ZX_unscale2n(Pcurm, b);
-      sol = concat(sol,gneg(gmul2n(usp(Pcurm,deg,&nb_done,flag,bitprec),b)));
-    }
+      a = negi(int2n((long)ceil(fb)));
+    else
+      a = gen_0;
   }
-  if (nbr)
-    sol = concat(zerovec(nbr), sol);
+  if (typ(b) == t_INFINITY && typ(a) != t_INFINITY && gsigne(a))
+  {
+    fb = fujiwara_bound_real(Pcur, -1);
+    if (fb > -pariINFINITY)
+      b = int2n((long)ceil(fb));
+    else
+      b = gen_0;
+  }
+
+  if (typ(a) != t_INFINITY && typ(b) != t_INFINITY)
+  {
+    pari_sp av1;
+    GEN den = lcmii(denom(a), denom(b)), diff, unscaledres, co, Pdiv;
+    GEN ascaled;
+    long i;
+    if (!is_pm1(den))
+    {
+      Pcur = ZX_rescale(Pcur, den);
+      ascaled = gmul(a, den);
+    }
+    else
+    {
+      den = NULL;
+      ascaled = a;
+    }
+    diff = subii(den ? gmul(b,den) : b, ascaled);
+    Pcur = ZX_unscale(ZX_translate(Pcur, ascaled), diff);
+    av1 = avma;
+    Pdiv = cgetg(deg+2, t_POL);
+    Pdiv[1] = Pcur[1];
+    co = gel(Pcur, deg+2);
+    for (i = deg; --i >= 0; )
+    {
+      gel(Pdiv, i+2) = co;
+      co = addii(co, gel(Pcur, i+2));
+    }
+    if (!signe(co))
+    {
+      Pcur = Pdiv;
+      deg--;
+      sol = concat(sol, b);
+    }
+    else
+      avma = av1;
+    unscaledres = usp(Pcur, deg, &nb_done, flag, bitprec);
+    for (i = 1; i < lg(unscaledres); i++)
+    {
+      GEN z = gmul(diff, gel(unscaledres, i));
+      if (typ(z) == t_VEC)
+      {
+        gel(z, 1) = gadd(ascaled, gel(z, 1));
+        gel(z, 2) = gadd(ascaled, gel(z, 2));
+      }
+      else
+        z = gadd(ascaled, z);
+      if (den) z = gdiv(z, den);
+      gel(unscaledres, i) = z;
+    }
+    sol = concat(sol, unscaledres);
+  }
+  if (typ(b) == t_INFINITY && (fb=fujiwara_bound_real(Pcur, 1)) > -pariINFINITY)
+  {
+    GEN Pcurp;
+    long bp = (long)ceil(fb);
+    if (DEBUGLEVEL > 1) err_printf("b+ = %d\n", bp);
+    Pcurp = ZX_unscale2n(Pcur, bp);
+    sol = concat(sol, gmul2n(usp(Pcurp, deg, &nb_done, flag, bitprec), bp));
+  }
+  if (typ(a) == t_INFINITY && (fb=fujiwara_bound_real(Pcur,-1)) > -pariINFINITY)
+  {
+    GEN Pcurm, unscaledres;
+    long i, bm = (long)ceil(fb);
+    if (DEBUGLEVEL > 1) err_printf("b- = %d\n", bm);
+    Pcurm = ZX_unscale(Pcur, gen_m1);
+    Pcurm = ZX_unscale2n(Pcurm, bm);
+    unscaledres = usp(Pcurm,deg,&nb_done,flag,bitprec);
+    for (i = 1; i < lg(unscaledres); i++)
+    {
+      GEN z = gneg(gmul2n(gel(unscaledres, i), bm));
+      if (typ(z) == t_VEC) swap(gel(z, 1), gel(z, 2));
+      gel(unscaledres, i) = z;
+    }
+    sol = concat(unscaledres, sol);
+  }
 
   if (DEBUGLEVEL > 2)
     err_printf("Number of visited nodes: %d\n", nb_done);
 
   if (flag)
-  {
-    long prec = nbits2prec(bitprec);
-    for (i = 1; i <= nbr; i++)
-      if (typ(gel(sol, i)) != t_REAL)
-        gel(sol, i) = gtofp(gel(sol, i), prec);
-    return gerepileupto(av, sort(sol));
-  }
-  return gerepileupto(av, gen_sort(sol, (void *)_intervalcmp, cmp_nodata));
+    sol = sort(sol);
+  else
+    sol = gen_sort(sol, (void *)_intervalcmp, cmp_nodata);
+  return gerepileupto(av, sol);
 }
 
 /* x a scalar */
@@ -2688,8 +2784,8 @@ GEN
 realroots(GEN P, long prec)
 {
   pari_sp av = avma;
-  long nrr = 0, v = varn(P);
-  GEN sol = NULL, x, fa, ex;
+  long nrr = 0;
+  GEN sol = NULL, fa, ex;
   long i, j, k;
 
   if (typ(P) != t_POL) return rootsdeg0(P);
@@ -2698,31 +2794,37 @@ realroots(GEN P, long prec)
     case -1: return rootsdeg0(gen_0);
     case 0: return rootsdeg0(gel(P,2));
   }
-  x = pol_x(v);
   P = Q_primpart(P);
   if (!RgX_is_ZX(P)) pari_err_TYPE("realroots",P);
   fa = ZX_squff(P, &ex);
   for (i = 1; i < lg(fa); i++)
   {
     GEN Pi = gel(fa, i), soli, soli2 = NULL;
-    long n, nrri = 0, h;
+    long n, nrri = 0, h, nbz;
     Pi = RgX_deflate_max(Pi, &h);
-    soli = ZX_uspensky(Pi, !(h%2), 1, prec2nbits(prec));
+    if (!signe(gel(Pi, 2)))
+    {
+      Pi = RgX_shift_shallow(Pi, -1);
+      nbz = 1;
+    }
+    else
+      nbz = 0;
+    soli = ZX_uspensky(Pi, h%2 ? NULL : gen_0, 1, prec2nbits(prec));
     n = lg(soli);
     if (!(h % 2)) soli2 = cgetg(n, t_COL);
     for (j = 1; j < n; j++)
     {
       GEN elt = gel(soli, j);
-      if (typ(elt) != t_VEC)
+      if (typ(elt) != t_REAL)
       {
         nrri++;
-        Pi = gdiv(Pi, gsub(gmul(denom(elt), x), numer(elt)));
-        gel(soli, j) = gtofp(elt, prec);
+        elt = gtofp(elt, prec);
+        gel(soli, j) = elt;
       }
       if (h > 1)
       {
         /* note: elt != 0 because we are square free */
-        GEN sqrtroot, elt = gel(soli, j);
+        GEN sqrtroot;
         if (h == 2)
           sqrtroot = gsqrt(elt, prec);
         else
@@ -2736,13 +2838,8 @@ realroots(GEN P, long prec)
         if (!(h % 2)) gel(soli2, j) = mpneg(sqrtroot);
       }
     }
-    for (j = 1; j < n; j++)
-    {
-      GEN interval = gel(soli, j);
-      if (typ(interval) != t_VEC) continue;
-      gel(soli, j) = polsolve(NULL,prec2nbits(prec));
-    }
     if (!(h % 2)) soli = shallowconcat(soli, soli2);
+    if (nbz) soli = concat(soli, real_0(prec));
     for (k = 1; k <= ex[i]; k++)
       sol = sol ? shallowconcat(sol, soli) : soli;
     nrr += ex[i]*nrri;

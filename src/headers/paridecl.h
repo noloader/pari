@@ -3264,7 +3264,7 @@ GEN     polgraeffe(GEN p);
 GEN     polmod_to_embed(GEN x, long prec);
 GEN     roots(GEN x,long l);
 GEN     realroots(GEN P, long prec);
-GEN     ZX_uspensky(GEN P, long onlypos, long flag, long prec);
+GEN     ZX_uspensky(GEN P, GEN ab, long flag, long prec);
 
 /* subcyclo.c */
 

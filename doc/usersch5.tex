@@ -7071,7 +7071,7 @@ caller).
 More efficient when $p$ is irreducible and primitive. Special case
 of \tet{cleanroots}.
 
-\fun{GEN}{ZX_uspensky}{GEN P, long onlypos, long flag, long bitprec} let \kbd{P} be a
+\fun{GEN}{ZX_uspensky}{GEN P, GEN ab, long flag, long bitprec} let \kbd{P} be a
 primitive \kbd{ZX} polynomial whose real roots are simple and \kbd{bitprec} is
 the relative precision in bits. If \kbd{flag} is 0 returns a list of intervals
 that isolate the real roots of \kbd{P}. In that case the return value is a
@@ -7081,8 +7081,11 @@ single root in the open interval \kbd{(a,b)} or elements \kbd{x0} such that
 will be found (at most those with power of $2$ denominator can be found and
 even those are not guaranteed to be found). Beware that the limits of the open
 intervals can be roots of the polynomial. If \kbd{flag} is 1 returns an
-approximation of the real roots of \kbd{P}. If \kbd{onlypos} is non-zero, limit
-the results to the non-negative roots.
+approximation of the real roots of \kbd{P}. The argument \kbd{ab} specify the
+interval in which the roots are searched. The default interval is
+$(-\infty,\infty)$. If \kbd{ab} is an integer or fraction $a$ then the interval
+will be $[a,\infty)$. If \kbd{ab} is a vector of two integers or fractions $a$
+e $b$, the the interval will be $[a,b]$.
 
 \subsec{\kbd{QXQ}}
 
