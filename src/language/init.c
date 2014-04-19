@@ -1336,7 +1336,7 @@ pari_err2str(GEN e)
       char *buf = (char *) pari_malloc(512*sizeof(char));
       sprintf(buf, "the PARI stack overflows !\n"
           "  current stack size: %lu (%.3f Mbytes)\n"
-          "  [hint] you can increase GP stack with allocatemem()\n",
+          "  [hint] set 'parisizemax' to a non-zero value in your GPRC\n",
           (ulong)d, (double)d/1048576.);
       return buf;
     }
