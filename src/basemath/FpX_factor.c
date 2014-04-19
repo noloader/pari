@@ -1075,12 +1075,33 @@ static GEN
 Flx_roots_i(GEN f, ulong p)
 {
   GEN pol, g;
-  ulong q = p >> 1;
+  long v = Flx_valrem(f, &g);
+  ulong q;
   struct split_t S;
 
+  /* optimization: test for small degree first */
+  switch(degpol(g))
+  {
+    case 1: {
+      ulong r = p - g[2];
+      return v? mkvecsmall2(0, r): mkvecsmall(r);
+    }
+    case 2: {
+      ulong r = Flx_quad_root(g, p, 1), s;
+      if (r == p) return v? mkvecsmall(0): cgetg(1,t_VECSMALL);
+      s = Flx_otherroot(g,r, p);
+      if (r < s)
+        return v? mkvecsmall3(0, r, s): mkvecsmall2(r, s);
+      else if (r > s)
+        return v? mkvecsmall3(0, s, r): mkvecsmall2(s, r);
+      else
+        return v? mkvecsmall2(0, s): mkvecsmall(s);
+    }
+  }
+  q = p >> 1;
   split_init(&S, lg(f)-1);
   settyp(S.done, t_VECSMALL);
-  if (Flx_valrem(f, &g)) split_add_done(&S, (GEN)0);
+  if (v) split_add_done(&S, (GEN)0);
   if (! split_Flx_cut_out_roots(&S, g, p))
     return all_roots_mod_p(p, lg(S.done) == 1);
   pol = polx_Flx(f[1]);
