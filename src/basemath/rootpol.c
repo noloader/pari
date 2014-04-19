@@ -2563,7 +2563,7 @@ usp(GEN Q0, long deg, long *nb_donep, long flag, long bitprec)
 
     if (low_stack(lim, stack_lim(av, 2)))
     {
-      gerepileall(av, 5, &Q0, &Q, &sol, &Lc, &Lk);
+      gerepileall(av, 6, &Q0, &Q, &sol, &c, &Lc, &Lk);
       if (DEBUGMEM > 1) pari_warn(warnmem, "ZX_uspensky", avma);
     }
   }
