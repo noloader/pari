@@ -651,8 +651,7 @@ FpX_is_totally_split(GEN f, GEN p)
   if (cmpui(n, p) > 0) return 0;
   f = FpX_red(f, p);
   z = FpXQ_pow(pol_x(varn(f)), p, f, p);
-  avma = av;
-  return degpol(z) == 1 && gequal1(gel(z,3)) && !signe(gel(z,2)); /* x^p = x ? */
+  avma = av; return gequalX(z);
 }
 
 /* Flv_Flx( Flm_Flc_mul(x, Flx_Flv(y), p) ) */
