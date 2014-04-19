@@ -1332,12 +1332,23 @@ pari_err2str(GEN e)
                         gel(e,2), gel(e,3));
   case e_STACK:
     {
-      size_t d = pari_mainstack->size;
       char *buf = (char *) pari_malloc(512*sizeof(char));
-      sprintf(buf, "the PARI stack overflows !\n"
-          "  current stack size: %lu (%.3f Mbytes)\n"
-          "  [hint] set 'parisizemax' to a non-zero value in your GPRC\n",
-          (ulong)d, (double)d/1048576.);
+      if (pari_mainstack->vsize)
+      {
+        size_t d = pari_mainstack->vsize;
+        sprintf(buf, "the PARI stack overflows !\n"
+            "  current stack size: %lu (%.3f Mbytes)\n"
+            "  [hint] you can increase 'parisizemax' using default()\n",
+            (ulong)d, (double)d/1048576.);
+      }
+      else
+      {
+        size_t d = pari_mainstack->rsize;
+        sprintf(buf, "the PARI stack overflows !\n"
+            "  current stack size: %lu (%.3f Mbytes)\n"
+            "  [hint] set 'parisizemax' to a non-zero value in your GPRC\n",
+            (ulong)d, (double)d/1048576.);
+      }
       return buf;
     }
   case e_SYNTAX:
