@@ -2473,7 +2473,7 @@ FqX_frob_deflate(GEN f, GEN T, GEN p)
 static GEN
 FqX_split_Trager(GEN A, GEN T, GEN p)
 {
-  GEN c, P, u, fa, n;
+  GEN c = NULL, P, u, fa, n;
   long lx, i, k;
 
   u = A;
