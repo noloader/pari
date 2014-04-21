@@ -369,11 +369,8 @@ nthidealquad(GEN D, long n)
   forprime_t S;
   ulong p;
   (void)u_forprime_init(&S, 2, ULONG_MAX);
-  while (n > 0)
-  {
-    p = u_forprime_next(&S);
+  while ((p = u_forprime_next(&S)) && n > 0)
     if (!is_bad(D, p) && kroiu(D, p) >= 0) n--;
-  }
   avma = av; return p;
 }
 
