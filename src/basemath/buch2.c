@@ -547,7 +547,7 @@ compute_invres(GRHcheck_t *S)
   for (; i > 0; pr++, i--)
   {
     GEN dec, a = NULL, b = NULL, fs, ns;
-    long j, k, limp = llimc/pr->logp;
+    long j, k, limp = (long)(llimc/pr->logp);
     ulong p = pr->p;
     dec = pr->dec;
     fs = gel(dec, 1); ns = gel(dec, 2);

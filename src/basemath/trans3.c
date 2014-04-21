@@ -658,7 +658,7 @@ incgam_0(GEN x, GEN expx)
   }
   else
   {
-    long prec = l + nbits2extraprec((mx+log(mx))/LOG2);
+    long prec = l + (long)nbits2extraprec((mx+log(mx))/LOG2);
     GEN S, t, H, run = real_1(prec);
     n = -prec2nbits(prec);
     x = rtor(x, prec);
@@ -724,7 +724,7 @@ incgamc(GEN s, GEN x, long prec)
   { /* take cancellation into account */
     long p = LOWDEFAULTPREC;
     double X = rtodbl(gabs(gtofp(x, p), p));
-    p = l + nbits2extraprec(X*log(X));
+    p = l + (long)nbits2extraprec(X*log(X));
     x = gtofp(x, p);
     if (isinexactreal(s)) s = gtofp(s, p);
   }

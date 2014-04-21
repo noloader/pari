@@ -302,10 +302,10 @@ static void
 cache_prime_quad(GRHcheck_t *S, ulong LIM, GEN D)
 {
   GRHprime_t *pr;
-  double nb;
+  long nb;
 
   if (S->limp >= LIM) return;
-  nb = primepi_upper_bound((double)LIM); /* #{p <= LIM} <= nb */
+  nb = (long)primepi_upper_bound((double)LIM); /* #{p <= LIM} <= nb */
   GRH_ensure(S, nb+1); /* room for one extra prime */
   for (pr = S->primes + S->nprimes;;)
   {

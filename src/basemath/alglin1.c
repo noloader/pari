@@ -382,7 +382,7 @@ GEN
 gen_matcolmul(GEN A, GEN B, void *E, const struct bb_field *ff)
 {
   ulong lgA = lg(A);
-  if (lgA != lg(B))
+  if (lgA != (ulong)lg(B))
     pari_err_OP("operation 'gen_matcolmul'", A, B);
   if (lgA == 1)
     return cgetg(1, t_COL);
