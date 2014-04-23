@@ -16,3 +16,8 @@ G = [1,0,0;0,1,0;0,0,-34];
 qfparam(G, qfsolve(G))
 qfparam(G, qfsolve(G),1)
 qfparam(G, qfsolve(G),2)
+
+qfsolve(Mat(0))
+qfsolve(Mat(1))
+qfsolve([1,2;2,1])
+qfsolve([35, 46; 46, 60])

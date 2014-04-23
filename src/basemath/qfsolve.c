@@ -747,8 +747,8 @@ END:
 /* or 0 in some rare cases. */
 /*  */
 /* If given, factD must be equal to factor(-abs(2*matdet(G))). */
-GEN
-qfsolve(GEN G, GEN factD)
+static  GEN
+qfsolve_i(GEN G, GEN factD)
 {
   GEN M, signG, Min, U, G1, M1, subspace1, G2, subspace2, M2, solG2;
   GEN fa, U2, V, solG1, sol, Q, d, detG1, dQ, detG2;
@@ -968,6 +968,12 @@ qfsolve(GEN G, GEN factD)
   if (lg(sol) == 2) sol = gel(sol,1);
   return sol;
 }
+GEN
+qfsolve(GEN G, GEN factD)
+{
+  pari_sp av = avma;
+  return gerepilecopy(av, qfsolve_i(G,factD));
+}
 
 /* G is a symmetric 3x3 matrix, and sol a solution of sol~*G*sol=0.
  * Returns a parametrization of the solutions with the good invariants,
@@ -977,9 +983,14 @@ qfsolve(GEN G, GEN factD)
 GEN
 qfparam(GEN G, GEN sol, long fl)
 {
-  GEN U, G1, G2;
-  GEN a, b, c, d, e;
+  pari_sp av = avma;
+  GEN U, G1, G2, a, b, c, d, e;
+  long n;
 
+  if (typ(G) != t_MAT) pari_err_TYPE("qfsolve", G);
+  n = lg(G)-1;
+  if (n == 0) pari_err_DOMAIN("qfsolve", "dimension" , "=", gen_0, G);
+  if (n != nbrows(G)) pari_err_DIM("qfsolve");
   sol = Q_primpart(sol);
   /* build U such that U[,3] = sol, and |det(U)| = 1 */
   U = completebasis(sol,1);
@@ -1007,5 +1018,5 @@ qfparam(GEN G, GEN sol, long fl)
                mkcol3(sqri(b),mulii(b,d),sqri(d)));
     sol = ZM_mul(sol,U);
   }
-  return sol;
+  return gerepileupto(av, sol);
 }
