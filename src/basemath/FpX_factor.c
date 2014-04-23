@@ -428,7 +428,6 @@ static ulong
 Fl_sqrtl_pre(ulong a, ulong l, ulong p, ulong pi)
 {
   pari_sp av;
-  long k;
   ulong p1, v, w, z, dl, zm;
   ulong y, m;
   ulong r, e, u2;
@@ -444,7 +443,7 @@ Fl_sqrtl_pre(ulong a, ulong l, ulong p, ulong pi)
   m = Fl_powu_pre(y,upowuu(l,e-1),p,pi);
   while (w!=1)
   {
-    k = 0;
+    ulong k = 0;
     p1 = w;
     do
     {
