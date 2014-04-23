@@ -552,7 +552,7 @@ involves the use of the function \kbd{gen\_ZpX\_Dixon}.
 Let $l>2$ be a prime \kbd{ulong}.  A \kbd{Fl2} is an element of the finite
 field $\F_l^2$ represented (currently) by a \kbd{Flx} of degree at most $1$
 modulo a polynomial of the form $x^2-D$ for some non square $0\leq D<p$.
-Below \kbd{pi} denotes the pseudo inverse of \kbd{p}, see \kbd{Fl_mul_pre}
+Below \kbd{pi} denotes the pseudo inverse of \kbd{p}, see \kbd{Fl\_mul\_pre}
 
 \fun{int}{Fl2_equal1}{GEN x} return $1$ if $x=1$, $0$ else.
 \fun{GEN}{Fl2_mul_pre}{GEN x, GEN y, ulong D, ulong p, ulong pi} return $x\*y$
@@ -560,7 +560,7 @@ Below \kbd{pi} denotes the pseudo inverse of \kbd{p}, see \kbd{Fl_mul_pre}
 \fun{GEN}{Fl2_inv_pre}{GEN x, ulong D, ulong p, ulong pi} return $x^{-1}$
 \fun{GEN}{Fl2_pow_pre}{GEN x, GEN n, ulong D, ulong p, ulong pi} return $x^n$
 \fun{GEN}{Fl2_sqrtn_pre}{GEN a, GEN n, ulong D, ulong p, ulong pi, GEN *zeta}
-as \kbd{Flxq_sqrtn}
+as \kbd{Flxq\_sqrtn}
 \fun{GEN}{Fl2_norm_pre}{GEN x, GEN n, ulong D, ulong p, ulong pi} return the
 norm of $x$.
 
