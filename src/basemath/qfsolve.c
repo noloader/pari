@@ -103,7 +103,7 @@ qflocalinvariant(GEN G, GEN p)
 }
 
 /* G symmetrix matrix or qfb or list of quadratic forms with same discriminant.
- * If != NULL, fa must be equal to factor(-abs(2*matdet(G)))[,1]. */
+ * fa must be equal to factor(-abs(2*matdet(G)))[,1]. */
 static GEN
 qflocalinvariants(GEN G, GEN fa)
 {
@@ -117,11 +117,6 @@ qflocalinvariants(GEN G, GEN fa)
   {
     GEN g = gel(G,j);
     if (typ(g) == t_QFI || typ(g) == t_QFR) gel(G,j) = gtomat(g);
-  }
-  /* compute the factorization of -2*abs(det(G)) */
-  if (!fa) {
-    fa = Z_factor(negi(shifti(absi(ZM_det(gel(G,1))), 1)));
-    fa = gel(fa,1);
   }
   sol = zero_Flm_copy(lg(fa)-1, l-1);
   if (lg(gel(G,1)) == 3)
