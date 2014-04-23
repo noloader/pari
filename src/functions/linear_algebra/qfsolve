@@ -1,0 +1,23 @@
+Function: qfsolve
+Section: linear_algebra
+C-Name: qfsolve
+Prototype: GDG
+Help: qfsolve(G, {factD}): solve over Q the quaratic equation X^t G X = 0.
+ matrix G.
+Doc: Given a square matrix $G$ of dimension $n \geq 1$, solve over $\Q$ the
+ quadratic equation $X^tGX = 0$. The matrix $G$ must have rational
+ coefficients. The solution might be a single non-zero vector (vectorv) or a
+ matrix (whose columns generate a totally isotropic subspace).
+
+ If no solution exists, returns an integer, that can be a prime $p$ such that
+ there is no local solution at $p$, or $-1$ if there is no real solution, or
+ $0$ in some rare cases where it was possible to exclude the existence of
+ global solutions directly (e.g. when $G$ is positive definite).
+
+ To save time, a second optional parameter \kbd{factD} can be given and must
+ be equal to \kbd{factor(-abs(2*matdet(G)))}.
+ \bprog
+ ? G = [1,0,0;0,1,0;0,0,-34];
+ ? qfsolve(G)
+ %1 = [-3, -5, 1]~
+ @eprog

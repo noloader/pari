@@ -3232,6 +3232,10 @@ GEN     qfisom0(GEN g, GEN h, GEN flags);
 GEN     qfisominit(GEN g, GEN flags);
 GEN     qfisominit0(GEN g, GEN flags);
 
+/* qfparam.c */
+GEN qfsolve(GEN G, GEN factD);
+GEN qfparam(GEN G, GEN sol, long fl);
+
 /* random.c */
 
 GEN     genrand(GEN N);
