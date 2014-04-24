@@ -18,11 +18,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 struct mt_queue
 {
   long no;
+  pari_sp avma;
   GEN input, output;
   GEN worker;
   long workid;
-  pthread_cond_t cond, cond1, cond2;
-  pthread_mutex_t mut, mut1, mut2;
+  pthread_cond_t cond;
+  pthread_mutex_t mut;
   pthread_cond_t *pcond;
   pthread_mutex_t *pmut;
 };
@@ -114,6 +115,11 @@ mt_queue_run(void *arg)
   pari_sp av = avma;
   struct mt_queue *mq = (struct mt_queue *) args;
   mt_thread_no = mq->no;
+  LOCK(mq->pmut)
+  {
+    mq->avma = av;
+    pthread_cond_signal(mq->pcond);
+  } UNLOCK(mq->pmut);
   for(;;)
   {
     GEN work, done;
@@ -122,26 +128,18 @@ mt_queue_run(void *arg)
       while(!mq->input)
         pthread_cond_wait(&mq->cond, &mq->mut);
     } UNLOCK(&mq->mut);
-    work = gcopy(mq->input);
-    LOCK(&mq->mut1)
-    {
-      mq->input = NULL;
-      pthread_cond_signal(&mq->cond1);
-    } UNLOCK(&mq->mut1);
+    avma = mq->avma;
+    work = mq->input;
     pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS,NULL);
     done = closure_callgenvec(mq->worker,work);
     pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED,NULL);
     LOCK(mq->pmut)
     {
+      mq->avma = av;
+      mq->input = NULL;
       mq->output = done;
       pthread_cond_signal(mq->pcond);
     } UNLOCK(mq->pmut);
-    LOCK(&mq->mut2)
-    {
-      while(mq->output)
-        pthread_cond_wait(&mq->cond2, &mq->mut2);
-    } UNLOCK(&mq->mut2);
-    avma = av;
   }
   return NULL;
 }
@@ -189,17 +187,11 @@ mtpthread_queue_get(struct mt_state *junk, long *workid, long *pending)
   mq = mt->mq+last;
   if (mq->output==err_e_STACK) pari_err(e_STACK);
   done = gcopy(mq->output);
+  mq->output = NULL;
   if (workid) *workid = mq->workid;
   if (typ(done)==t_ERROR) pari_err(0,done);
-  BLOCK_SIGINT_START
-  LOCK(&mq->mut2)
-  {
-    mq->output = NULL;
-    pthread_cond_signal(&mq->cond2);
-  } UNLOCK(&mq->mut2);
   mt->last = last;
   mt->pending--;
-  BLOCK_SIGINT_END
   *pending = mt->pending;
   return done;
 }
@@ -212,19 +204,26 @@ mtpthread_queue_submit(struct mt_state *junk, long workid, GEN work)
   (void) junk;
   if (!work) { mt->nbint=mt->n; return; }
   BLOCK_SIGINT_START
-  if (mt->nbint<mt->n) mt->nbint++;
+  if (mt->nbint<mt->n)
+  {
+    mt->nbint++;
+    if (!mq->avma)
+    {
+      LOCK(mq->pmut)
+      {
+        while(!mq->avma)
+          pthread_cond_wait(mq->pcond, mq->pmut);
+      } UNLOCK(mq->pmut);
+    }
+  }
   LOCK(&mq->mut)
   {
-    mq->input = work;
+    mq->output = NULL;
     mq->workid = workid;
+    mq->input = gcopy_avma(work, &mq->avma);
     pthread_cond_signal(&mq->cond);
   } UNLOCK(&mq->mut);
   mt->pending++;
-  LOCK(&mq->mut1)
-  {
-    while (mq->input)
-      pthread_cond_wait(&mq->cond1, &mq->mut1);
-  } UNLOCK(&mq->mut1);
   BLOCK_SIGINT_END
 }
 
@@ -243,11 +242,7 @@ mt_queue_reset(void)
   {
     struct mt_queue *mq = mt->mq+i;
     pthread_cond_destroy(&mq->cond);
-    pthread_cond_destroy(&mq->cond1);
-    pthread_cond_destroy(&mq->cond2);
     pthread_mutex_destroy(&mq->mut);
-    pthread_mutex_destroy(&mq->mut1);
-    pthread_mutex_destroy(&mq->mut2);
     pari_thread_free(&mt->pth[i]);
   }
   pari_free(mt->mq);
@@ -283,17 +278,14 @@ mt_queue_start(struct pari_mt *pt, GEN worker)
     {
       struct mt_queue *mq = mt->mq+i;
       mq->no     = i;
+      mq->avma   = 0;
       mq->worker = worker;
       mq->input  = NULL;
       mq->output = NULL;
       mq->pcond  = &mt->pcond;
       mq->pmut   = &mt->pmut;
       pthread_cond_init(&mq->cond,NULL);
-      pthread_cond_init(&mq->cond1,NULL);
-      pthread_cond_init(&mq->cond2,NULL);
       pthread_mutex_init(&mq->mut,NULL);
-      pthread_mutex_init(&mq->mut1,NULL);
-      pthread_mutex_init(&mq->mut2,NULL);
       if (mtparisizemax)
         pari_thread_valloc(&mt->pth[i],mtparisize,mtparisizemax,(GEN)mq);
       else
