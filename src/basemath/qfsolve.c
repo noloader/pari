@@ -744,7 +744,7 @@ END:
 static  GEN
 qfsolve_i(GEN G, GEN factD)
 {
-  GEN M, signG, Min, U, G1, M1, subspace1, G2, subspace2, M2, solG2;
+  GEN M, signG, Min, U, G1, M1, G2, M2, solG2;
   GEN fa, U2, V, solG1, sol, Q, d, detG1, dQ, detG2;
   long n, np, codim, dim;
 
@@ -843,29 +843,25 @@ qfsolve_i(GEN G, GEN factD)
     M1 = gel(Min,2);
     fa = gel(Min,3);
     np = nbrows(fa);
-    subspace1 = zeromatcopy(n,n-1);
-    for(i=1; i <n; i++) gcoeff(subspace1,i,i) = gen_1;
   }
   else
   {
     codim = 0;
     G1 = G;
-    subspace1 = M1 = matid(n);
+    M1 = NULL;
   }
 
   /* now, d is squarefree */
   if (!np)
   { /* |d| = 1 */
      G2 = G1;
-     subspace2 = M2 = matid(n);
+     M2 = NULL;
   }
   else
-  { /* |d| > 1: need to increment dimension by 2 */
+  { /* |d| > 1: increment dimension by 2 */
     GEN factd, factdP, factdE, clgp2, W;
     long i, lfactdP;
     codim += 2;
-    subspace2 = zeromatcopy(n+2,n);
-    for(i=1; i <=n; i++) gcoeff(subspace2,i,i) = gen_1;
     d = ZV_prod(gel(fa,1)); /* d = abs(matdet(G1)); */
     if (odd(signG[2])) togglesign_safe(&d); /* d = matdet(G1); */
     factD = shallowconcat(mpodd(d)? mkcol2(gen_m1,gen_2): mkcol(gen_m1),
@@ -951,13 +947,24 @@ qfsolve_i(GEN G, GEN factD)
   while(gequal0(principal_minor(gel(solG2,1), dim))) dim ++;
   solG2 = vecslice(gel(solG2,2), 1, dim-1);
 
-  /* The solution of G1 is simultaneously in solG2 and subspace2 */
-  solG1 = intersect(subspace2, gmul(M2,solG2));
-  solG1 = gmul(shallowtrans(subspace2), solG1);
-
-  /* The solution of G is simultaneously in solG and subspace1 */
-  sol = intersect(subspace1, gmul(M1,solG1));
-  sol = gmul(shallowtrans(subspace1), sol);
+  if (!M2)
+    solG1 = solG2;
+  else
+  { /* solution of G1 is simultaneously in solG2 and x[n+1] = x[n+2] = 0*/
+    GEN K;
+    solG1 = RgM_mul(M2,solG2);
+    K = ker(rowslice(solG1,n+1,n+2));
+    solG1 = RgM_mul(rowslice(solG1,1,n), K);
+  }
+  if (!M1)
+    sol = solG1;
+  else
+  { /* solution of G1 is simultaneously in solG2 and x[n] = 0 */
+    GEN K;
+    sol = RgM_mul(M1,solG1);
+    K = ker(rowslice(sol,n,n));
+    sol = RgM_mul(rowslice(sol,1,n-1), K);
+  }
   sol = Q_primpart(gmul(M, sol));
   if (lg(sol) == 2) sol = gel(sol,1);
   return sol;
