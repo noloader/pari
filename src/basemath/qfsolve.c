@@ -317,7 +317,7 @@ qflllgram_indefgoon2(GEN G)
  * impossible because of local non-solvability.
  * If given, factdetG must be equal to factor(abs(det(G))). */
 static GEN qfsolvemodp(GEN G, GEN p);
-GEN
+static GEN
 qfminimize(GEN G, GEN factdetG)
 {
   GEN d, U, Ker, sol, aux, P, E, faE, faP;
@@ -337,7 +337,6 @@ qfminimize(GEN G, GEN factdetG)
     if (!vp || signe(p) < 0) continue;
 
     if (DEBUGLEVEL >= 4) err_printf("    p^v = %Ps^%ld\n", p,vp);
-
     /* The case vp = 1 can be minimized only if n is odd. */
     if (vp == 1 && n%2 == 0) {
       vectrunc_append(faP, p);
