@@ -165,25 +165,28 @@ mtpthread_queue_get(struct mt_state *junk, long *workid, long *pending)
   long last;
   (void) junk;
   if (mt->nbint<mt->n) { mt->last = mt->nbint; *pending = mt->pending; return NULL; }
-  BLOCK_SIGINT_START
-  LOCK(&mt->pmut)
+  if ((last = mt_queue_check(mt)) < 0)
   {
-    while ((last = mt_queue_check(mt)) < 0)
+    BLOCK_SIGINT_START
+    LOCK(&mt->pmut)
     {
-      pthread_cond_wait(&mt->pcond, &mt->pmut);
-      if (PARI_SIGINT_pending)
+      while ((last = mt_queue_check(mt)) < 0)
       {
-        int sig = PARI_SIGINT_pending;
-        PARI_SIGINT_pending = 0;
-        pthread_mutex_unlock(&mt->pmut);
-        PARI_SIGINT_block = 0;
-        raise(sig);
-        PARI_SIGINT_block = 1;
-        pthread_mutex_lock(&mt->pmut);
+        pthread_cond_wait(&mt->pcond, &mt->pmut);
+        if (PARI_SIGINT_pending)
+        {
+          int sig = PARI_SIGINT_pending;
+          PARI_SIGINT_pending = 0;
+          pthread_mutex_unlock(&mt->pmut);
+          PARI_SIGINT_block = 0;
+          raise(sig);
+          PARI_SIGINT_block = 1;
+          pthread_mutex_lock(&mt->pmut);
+        }
       }
-    }
-  } UNLOCK(&mt->pmut);
-  BLOCK_SIGINT_END
+    } UNLOCK(&mt->pmut);
+    BLOCK_SIGINT_END
+  }
   mq = mt->mq+last;
   if (mq->output==err_e_STACK) pari_err(e_STACK);
   done = gcopy(mq->output);
