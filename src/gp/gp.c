@@ -874,8 +874,15 @@ gp_head(void)
 License, and comes WITHOUT ANY WARRANTY WHATSOEVER.");
   pari_puts("\nType ? for help, \\q to quit.\n");
   print_text("Type ?12 for how to get moral (and possibly technical) support.");
-  pari_printf("\nparisize = %lu, primelimit = %lu\n",
-              pari_mainstack->size, GP_DATA->primelimit);
+  if (pari_mainstack->vsize)
+    pari_printf("\nparisizemax = %lu, primelimit = %lu",
+                pari_mainstack->vsize,GP_DATA->primelimit);
+  else
+    pari_printf("\nparisize = %lu, primelimit = %lu",
+                pari_mainstack->rsize,GP_DATA->primelimit);
+  if (pari_mt_nbthreads > 1)
+    pari_printf(", nbthreads = %lu", pari_mt_nbthreads);
+  pari_putc('\n');
 }
 
 /********************************************************************/
