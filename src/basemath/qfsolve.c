@@ -547,7 +547,7 @@ quadclass2(GEN D, GEN factdetG, GEN W, int n_is_4)
   GEN factD, E, gen, Wgen, U2;
   long i, n, r, m, vD;
 
-  if (equalii(D, utoineg(4))) return mkvec(mkqfi(gen_1,gen_0,gen_1));
+  if (equalii(D, utoineg(4))) return matid(2);
   factD = shallowconcat(mkcol(gen_m1), gel(factdetG,1) );
   if (mpodd(D)) { D = shifti(D,2); gcoeff(factdetG,1,2) = utoipos(3); }
 
