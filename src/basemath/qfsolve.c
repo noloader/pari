@@ -62,12 +62,6 @@ kermodp(GEN M, GEN p, long *d)
 
 /* INVARIANTS COMPUTATIONS */
 
-/* Compute the Hilbert symbol at p */
-/* where p = -1 means real place and not p = 0 as in gp */
-static long
-myhilbert(GEN a, GEN b, GEN p)
-{ return hilbert(a, b, signe(p) < 0? NULL: p); }
-
 static GEN
 principal_minor(GEN G, long  i)
 { return rowslice(vecslice(G,1,i), 1,i); }
@@ -82,7 +76,7 @@ det_minors(GEN G)
 }
 
 /* Given a symmetric matrix G over Z, compute the Witt invariant
- *  of G at the prime p (at real place if p = -1)
+ *  of G at the prime p (at real place if p = NULL)
  * Assume that none of the determinant G[1..i,1..i] is 0. */
 static long
 qflocalinvariant(GEN G, GEN p)
@@ -97,9 +91,17 @@ qflocalinvariant(GEN G, GEN p)
   /* (diag[i],diag[j])_p for i < j */
   c = 1;
   for (i = 1; i < l-1; i++)
-    for (j = i+1; j < l; j++)
-          c *= myhilbert(gel(diag,i), gel(diag,j), p);
+    for (j = i+1; j < l; j++) c *= hilbertii(gel(diag,i), gel(diag,j), p);
   return c;
+}
+
+static GEN
+hilberts(GEN a, GEN b, GEN P, long lP)
+{
+  GEN v = cgetg(lP, t_VECSMALL);
+  long i;
+  for (i = 1; i < lP; i++) v[i] = hilbertii(a, b, gel(P,i)) < 0;
+  return v;
 }
 
 /* G symmetrix matrix or qfb or list of quadratic forms with same discriminant.
@@ -108,7 +110,7 @@ static GEN
 qflocalinvariants(GEN G, GEN P)
 {
   GEN sol;
-  long i, j, l;
+  long i, j, l, lP = lg(P);
 
   /* convert G into a vector of symmetric matrices */
   G = (typ(G) == t_VEC)? shallowcopy(G): mkvec(G);
@@ -118,28 +120,28 @@ qflocalinvariants(GEN G, GEN P)
     GEN g = gel(G,j);
     if (typ(g) == t_QFI || typ(g) == t_QFR) gel(G,j) = gtomat(g);
   }
-  sol = zero_Flm_copy(lg(P)-1, l-1);
+  sol = cgetg(l, t_MAT);
   if (lg(gel(G,1)) == 3)
   { /* in dimension 2, each invariant is a single Hilbert symbol. */
     GEN d = negi(ZM_det(gel(G,1)));
-    for (i = 1; i < lg(P); i++)
+    for (j = 1; j < l; j++)
     {
-      GEN p = gel(P,i);
-      for (j = 1; j < l; j++)
-        ucoeff(sol,i,j) = (myhilbert(gcoeff(gel(G,j),1,1), d, p) < 0)? 1: 0;
+      GEN a = gcoeff(gel(G,j),1,1);
+      gel(sol,j) = hilberts(a, d, P, lP);
     }
   }
   else /* in dimension n > 2, we compute a product of n Hilbert symbols. */
     for (j = 1; j <l; j++)
     {
-      GEN g = gel(G,j), v = det_minors(g);
+      GEN g = gel(G,j), v = det_minors(g), w = cgetg(lP, t_VECSMALL);
       long n = lg(v);
-      for (i = 1; i < lg(P); i++)
+      gel(sol,j) = w;
+      for (i = 1; i < lP; i++)
       {
         GEN p = gel(P,i);
-        long k = n-2, h = myhilbert(gel(v,k), gel(v,k+1),p);
-        for (k--; k >= 1; k--) h *= myhilbert(negi(gel(v,k)), gel(v,k+1),p);
-        ucoeff(sol,i,j) = h < 0? 1: 0;
+        long k = n-2, h = hilbertii(gel(v,k), gel(v,k+1),p);
+        for (k--; k >= 1; k--) h *= hilbertii(negi(gel(v,k)), gel(v,k+1),p);
+        w[i] = h < 0;
       }
     }
   return sol;
@@ -330,7 +332,7 @@ qfminimize(GEN G, GEN P, GEN E)
   {
     GEN p = gel(P,i);
     long vp = E[i];
-    if (!vp || signe(p) < 0) continue;
+    if (!vp || !p) continue;
 
     if (DEBUGLEVEL >= 4) err_printf("    p^v = %Ps^%ld\n", p,vp);
     /* The case vp = 1 can be minimized only if n is odd. */
@@ -557,16 +559,10 @@ quadclass2(GEN D, GEN P2D, GEN E2D, GEN Pm2D, GEN W, int n_is_4)
   m = (signe(D)>0)? r+1: r;
   if (m < 0) m = 0;
 
-  if (n_is_4)
-  { /* need to look among forms of type q or 2*q: Q might be imprimitive */
-    U2 = cgetg(lg(Pm2D), t_VECSMALL);
-    for (i = 1; i < lg(Pm2D); i++)
-      U2[i] = myhilbert(gen_2, D, gel(Pm2D,i)) < 0;
-    U2 = mkmat(U2);
-  }
+  if (n_is_4) /* look among forms of type q or 2*q: Q might be imprimitive */
+    U2 = mkmat(hilberts(gen_2, D, Pm2D, lg(Pm2D)));
   else
     U2 = NULL;
-
   E = qfb(D, gen_1, gen_0, shifti(negi(D),-2));
   if (U2 && zv_equal(gel(U2,1),W)) return gmul2n(gtomat(E),1);
 
@@ -761,13 +757,11 @@ END:
 /* be a prime p such that there is no local solution at p, */
 /* or -1 if there is no real solution, */
 /* or 0 in some rare cases. */
-/*  */
-/* If given, fam2detG must be equal to factor(-abs(2*matdet(G))). */
 static  GEN
-qfsolve_i(GEN G, GEN fam2detG)
+qfsolve_i(GEN G)
 {
   GEN M, signG, Min, U, G1, M1, G2, M2, solG2, P, E;
-  GEN solG1, sol, Q, d, dQ, detG2;
+  GEN solG1, sol, Q, d, dQ, detG2, fam2detG;
   long n, np, codim, dim;
 
   if (typ(G) != t_MAT) pari_err_TYPE("qfsolve", G);
@@ -807,8 +801,9 @@ qfsolve_i(GEN G, GEN fam2detG)
   }
 
   /* factorization of the determinant */
-  if (!fam2detG) fam2detG = Z_factor( negi(absi(shifti(d,1))) );
+  fam2detG = Z_factor( negi(absi(shifti(d,1))) );
   P = gel(fam2detG,1);
+  gel(P,1) = NULL; /* replace -1 */
   E = ZV_to_zv(gel(fam2detG,2));
   E[2]--;
   /* P,E = factor(-|det(G)|) */
@@ -889,7 +884,7 @@ qfsolve_i(GEN G, GEN fam2detG)
     if (n == 4 && smodis(d,8) == 1 && qflocalinvariant(G,gen_2) == 1)
       return gen_2;
 
-    P = shallowconcat(mpodd(d)? mkvec2(gen_m1,gen_2): mkvec(gen_m1), P);
+    P = shallowconcat(mpodd(d)? mkvec2(NULL,gen_2): mkvec(NULL), P);
     /* build a binary quadratic form with given Witt invariants */
     W = const_vecsmall(lg(P)-1, 0);
     /* choose signature of Q (real invariant and sign of the discriminant) */
@@ -911,7 +906,7 @@ qfsolve_i(GEN G, GEN fam2detG)
       if (odd((n-3)/2)) s = -s;
       t = s > 0? utoipos(8): utoineg(8);
       for (i = 3; i < lg(P); i++)
-        W[i] = myhilbert(t, gel(P,i), gel(P,i)) > 0;
+        W[i] = hilbertii(t, gel(P,i), gel(P,i)) > 0;
     }
     /* for p = 2, the choice is fixed from the product formula */
     W[2] = Flv_sum(W, 2);
@@ -965,10 +960,10 @@ qfsolve_i(GEN G, GEN fam2detG)
   return sol;
 }
 GEN
-qfsolve(GEN G, GEN factD)
+qfsolve(GEN G)
 {
   pari_sp av = avma;
-  return gerepilecopy(av, qfsolve_i(G,factD));
+  return gerepilecopy(av, qfsolve_i(G));
 }
 
 /* G is a symmetric 3x3 matrix, and sol a solution of sol~*G*sol=0.
