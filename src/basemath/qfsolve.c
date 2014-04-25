@@ -315,7 +315,7 @@ qflllgram_indefgoon2(GEN G)
  * is integral and has minimal determinant.
  * In dimension 3 or 4, may return a prime p if the reduction at p is
  * impossible because of local non-solvability.
- * mat2(P,zv_to_ZV(E)) = factor(abs(det(G))), destroy E. */
+ * P,E = factor(+/- det(G)), "prime" -1 is ignored. Destroy E. */
 static GEN qfsolvemodp(GEN G, GEN p);
 static GEN
 qfminimize(GEN G, GEN P, GEN E)
@@ -323,8 +323,8 @@ qfminimize(GEN G, GEN P, GEN E)
   GEN d, U, Ker, sol, aux, faE, faP;
   long n = lg(G)-1, lP = lg(P), i, dimKer, dimKer2, m;
 
-  faP = vectrunc_init(lP); settyp(faP, t_COL);
-  faE = vectrunc_init(lP); settyp(faE, t_COL);
+  faP = vectrunc_init(lP);
+  faE = vecsmalltrunc_init(lP);
   U = matid(n);
   for (i = 1; i < lP; i++)
   {
@@ -336,7 +336,7 @@ qfminimize(GEN G, GEN P, GEN E)
     /* The case vp = 1 can be minimized only if n is odd. */
     if (vp == 1 && n%2 == 0) {
       vectrunc_append(faP, p);
-      vectrunc_append(faE, gen_1);
+      vecsmalltrunc_append(faE, 1);
       continue;
     }
     Ker = kermodp(G,p, &dimKer); /* dimKer <= vp */
@@ -448,11 +448,11 @@ qfminimize(GEN G, GEN P, GEN E)
       return(p);
     }
     vectrunc_append(faP, p);
-    vectrunc_append(faE, stoi(vp));
+    vecsmalltrunc_append(faE, vp);
   }
   /* apply LLL to avoid coefficient explosion */
   aux = lllint(Q_primpart(U));
-  return mkvec3(qf_apply_ZM(G,aux), RgM_mul(U,aux), mkmat2(faP,faE));
+  return mkvec4(qf_apply_ZM(G,aux), RgM_mul(U,aux), faP, faE);
 }
 
 /* CLASS GROUP COMPUTATIONS */
@@ -762,12 +762,12 @@ END:
 /* or -1 if there is no real solution, */
 /* or 0 in some rare cases. */
 /*  */
-/* If given, factD must be equal to factor(-abs(2*matdet(G))). */
+/* If given, fam2detG must be equal to factor(-abs(2*matdet(G))). */
 static  GEN
-qfsolve_i(GEN G, GEN factD)
+qfsolve_i(GEN G, GEN fam2detG)
 {
   GEN M, signG, Min, U, G1, M1, G2, M2, solG2, P, E;
-  GEN fa, solG1, sol, Q, d, detG1, dQ, detG2;
+  GEN solG1, sol, Q, d, dQ, detG2;
   long n, np, codim, dim;
 
   if (typ(G) != t_MAT) pari_err_TYPE("qfsolve", G);
@@ -807,10 +807,11 @@ qfsolve_i(GEN G, GEN factD)
   }
 
   /* factorization of the determinant */
-  if (!factD) factD = Z_factor( negi(absi(shifti(d,1))) );
-  P = gel(factD,1);
-  E = ZV_to_zv(gel(factD,2));
+  if (!fam2detG) fam2detG = Z_factor( negi(absi(shifti(d,1))) );
+  P = gel(fam2detG,1);
+  E = ZV_to_zv(gel(fam2detG,2));
   E[2]--;
+  /* P,E = factor(-|det(G)|) */
 
   /* Minimization and local solubility */
   Min = qfminimize(G, P, E);
@@ -818,7 +819,9 @@ qfsolve_i(GEN G, GEN factD)
 
   M = gmul(M, gel(Min,2));
   G = gel(Min,1);
-  fa = gel(Min,3); /* factorization of abs(matdet(G)); */
+  P = gel(Min,3);
+  E = gel(Min,4);
+  /* P,E = factor(|det(G))| */
 
   /* Now, we know that local solutions exist (except maybe at 2 if n==4)
    * if n==3, det(G) = +-1
@@ -831,19 +834,26 @@ qfsolve_i(GEN G, GEN factD)
   if(typ(U) == t_COL) return gmul(M,U);
   G = gel(U,1);
   M = gmul(M, gel(U,2));
+  /* P,E = factor(|det(G))| */
 
   /* If n >= 6 is even, need to increment the dimension by 1 to suppress all
-   * the squares of det(G) */
-  np = nbrows(fa);
-  if (n >= 6 && !odd(n) && np)
+   * squares from det(G) */
+  np = lg(P)-1;
+  if (n < 6 || odd(n) || !np)
+  {
+    codim = 0;
+    G1 = G;
+    M1 = NULL;
+  }
+  else
   {
     GEN aux;
     long i;
     codim = 1; n++;
-    /* largest square divisor of d. FIXME */
+    /* largest square divisor of d */
     aux = gen_1;
     for (i = 1; i <= np; i++)
-      if (equaliu(gcoeff(fa,i,2), 2)) aux = mulii(aux, gcoeff(fa,i,1));
+      if (E[i] == 2) { aux = mulii(aux, gel(P,i)); E[i] = 3; }
     /* Choose sign(aux) so as to balance the signature of G1 */
     if (signG[1] > signG[2])
     {
@@ -853,20 +863,13 @@ qfsolve_i(GEN G, GEN factD)
     else
       signG[1]++;
     G1 = shallowmatconcat(diagonal_shallow(mkvec2(G,aux)));
-    detG1 = mulii(shifti(aux,1), ZM_det(G));
-    for (i = 2; i < lg(P); i++) E[i] = Z_pval(detG1, gel(P,i));
-    E[2]--;
+    /* P,E = factor(|det G1|) */
     Min = qfminimize(G1, P, E);
     G1 = gel(Min,1);
     M1 = gel(Min,2);
-    fa = gel(Min,3);
-    np = nbrows(fa);
-  }
-  else
-  {
-    codim = 0;
-    G1 = G;
-    M1 = NULL;
+    P = gel(Min,3);
+    E = gel(Min,4);
+    np = lg(P)-1;
   }
 
   /* now, d is squarefree */
@@ -880,13 +883,13 @@ qfsolve_i(GEN G, GEN factD)
     GEN factdP, factdE, W;
     long i, lfactdP;
     codim += 2;
-    d = ZV_prod(gel(fa,1)); /* d = abs(matdet(G1)); */
+    d = ZV_prod(P); /* d = abs(matdet(G1)); */
     if (odd(signG[2])) togglesign_safe(&d); /* d = matdet(G1); */
     /* solubility at 2 (this is the only remaining bad prime). */
     if (n == 4 && smodis(d,8) == 1 && qflocalinvariant(G,gen_2) == 1)
       return gen_2;
 
-    P = shallowconcat(mpodd(d)? mkcol2(gen_m1,gen_2): mkcol(gen_m1), gel(fa,1));
+    P = shallowconcat(mpodd(d)? mkvec2(gen_m1,gen_2): mkvec(gen_m1), P);
     /* build a binary quadratic form with given Witt invariants */
     W = const_vecsmall(lg(P)-1, 0);
     /* choose signature of Q (real invariant and sign of the discriminant) */
