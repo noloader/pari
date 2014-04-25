@@ -540,12 +540,11 @@ qfb_factorback(GEN D, GEN E, GEN gen, GEN e)
  * group of discriminant D. Only works for D = fundamental discriminant.
  * When D = 1(4), work with 4D.
  * factdetG = factor(abs(2*D)).
- * Apart from this factorization, the algorithm is polynomial time
- * Stop as soon as an element having Witt invariants W is found */
+ * Return an having Witt invariants W */
 static GEN
-quadclass2(GEN D, GEN factdetG, GEN W, GEN U2)
+quadclass2(GEN D, GEN factdetG, GEN W, int n_is_4)
 {
-  GEN factD, E, gen, Wgen;
+  GEN factD, E, gen, Wgen, U2;
   long i, n, r, m, vD;
 
   if (equalii(D, utoineg(4))) return mkvec(mkqfi(gen_1,gen_0,gen_1));
@@ -555,12 +554,22 @@ quadclass2(GEN D, GEN factdetG, GEN W, GEN U2)
   n = lg(factD)-1; r = n-3;
   m = (signe(D)>0)? r+1: r;
   if (m < 0) m = 0;
-  gen = cgetg(m+1, t_VEC);
 
-  vD = Z_lval(D,2);  /* = 2 or 3 */
+  if (n_is_4)
+  { /* need to look among forms of type q or 2*q: Q might be imprimitive */
+    U2 = cgetg(lg(factD), t_VECSMALL);
+    for (i = 1; i < lg(factD); i++)
+      U2[i] = myhilbert(gen_2, D, gel(factD,i)) < 0;
+    U2 = mkmat(U2);
+  }
+  else
+    U2 = NULL;
+
   E = qfb(D, gen_1, gen_0, shifti(negi(D),-2));
-  if (U2 && Flm_Flc_invimage(U2,W,2)) return mkvec(E);
+  if (U2 && zv_equal(gel(U2,1),W)) return gmul2n(gtomat(E),1);
 
+  gen = cgetg(m+1, t_VEC);
+  vD = Z_lval(D,2);  /* = 2 or 3 */
   for (i = 1; i <= m; i++) /* no need to look at factD[1]=-1, nor factD[2]=2 */
   {
     GEN p = gel(factD,i+2), d;
@@ -578,7 +587,7 @@ quadclass2(GEN D, GEN factdetG, GEN W, GEN U2)
     GEN q2 = qfb(D, int2n(vD-2),gen_0, negi(shifti(D,-vD)));
     m++; r++; gen = shallowconcat(gen, mkvec(q2));
   }
-  if (!r) return mkvec(E);
+  if (!r) return gtomat(E);
   Wgen = qflocalinvariants(gen,factD);
   for(;;)
   {
@@ -586,10 +595,17 @@ quadclass2(GEN D, GEN factdetG, GEN W, GEN U2)
     long dKer;
     if (lg(indexim)-1 >= r)
     {
-      GEN W2 = Wgen;
+      GEN W2 = Wgen, V;
       if (lg(indexim) < lg(Wgen)) W2 = vecpermute(Wgen,indexim);
-      if (U2) W2 = shallowconcat(Wgen,U2);
-      if (Flm_Flc_invimage(W2, W,2)) return vecpermute(gen, indexim);
+      if (U2) W2 = shallowconcat(W2,U2);
+      V = Flm_Flc_invimage(W2, W,2);
+      if (V) {
+        GEN Q = primeform(mpodd(D)? shifti(D,2): D, gen_1, DEFAULTPREC);
+        Q = qfb_factorback(D, Q, vecpermute(gen,indexim), V);
+        Q = gtomat(Q);
+        if (U2 && V[lg(V)-1]) Q = gmul2n(Q,1);
+        return Q;
+      }
     }
     Ker = Flm_ker(Wgen,2); dKer = lg(Ker)-1;
     gen2 = cgetg(m+1, t_VEC);
@@ -749,7 +765,7 @@ static  GEN
 qfsolve_i(GEN G, GEN factD)
 {
   GEN M, signG, Min, U, G1, M1, G2, M2, solG2;
-  GEN fa, U2, V, solG1, sol, Q, d, detG1, dQ, detG2;
+  GEN fa, solG1, sol, Q, d, detG1, dQ, detG2;
   long n, np, codim, dim;
 
   if (typ(G) != t_MAT) pari_err_TYPE("qfsolve", G);
@@ -863,7 +879,7 @@ qfsolve_i(GEN G, GEN factD)
   }
   else
   { /* |d| > 1: increment dimension by 2 */
-    GEN factd, factdP, factdE, clgp2, W;
+    GEN factd, factdP, factdE, W;
     long i, lfactdP;
     codim += 2;
     d = ZV_prod(gel(fa,1)); /* d = abs(matdet(G1)); */
@@ -902,34 +918,15 @@ qfsolve_i(GEN G, GEN factD)
     W[2] = Flv_sum(W, 2);
 
     /* Construction of the 2-class group of discriminant dQ until some product
-     * of the generators gives the desired invariants. In dim 4, need to look
-     * among the forms of type q or 2*q because Q might be imprimitive. */
+     * of the generators gives the desired invariants. */
     factdP = vecsplice(factD, 1); lfactdP =  lg(factdP);
     factdE = cgetg(lfactdP, t_COL);
     for (i = 1; i < lfactdP; i++)
       gel(factdE,i) = stoi(Z_pval(dQ, gel(factdP,i)));
     gel(factdE,1) = addiu(gel(factdE,1), 1);
     factd = mkmat2(factdP,factdE);
-    if (n == 4)
-    {
-      U2 = cgetg(lg(factD), t_VECSMALL);
-      for (i = 1; i < lg(factD); i++)
-        U2[i] = myhilbert(gen_2, dQ, gel(factD,i)) < 0;
-      U2 = mkmat(U2);
-    }
-    else
-      U2 = NULL;
-    clgp2 = quadclass2(dQ,factd,W,U2);
-
-    U = qflocalinvariants(clgp2,factD);
-    if (U2) U = shallowconcat(U,U2);
-    V = Flm_Flc_invimage(U, W, 2);
-    Q = primeform(mpodd(dQ)? shifti(dQ,2): dQ, gen_1, DEFAULTPREC);
-    Q = qfb_factorback(dQ, Q, clgp2, V);
-    Q = gtomat(Q);
-    if (n == 4 && V[lg(V)-1]) Q = gmul2n(Q,1);
+    Q = quadclass2(dQ,factd,W, n == 4);
     /* Build a form of dim=n+2 potentially unimodular */
-
     G2 = shallowmatconcat(diagonal_shallow(mkvec2(G1,ZM_neg(Q))));
     /* Minimization of G2 */
     detG2 = ZM_det(G2);
@@ -938,10 +935,8 @@ qfsolve_i(GEN G, GEN factD)
     Min = qfminimize(G2,factd);
     M2 = gel(Min,2);
     G2 = gel(Min,1);
-    if (!is_pm1(ZM_det(G2))) pari_err_BUG("qfsolve (|det(G2)| > 1)");
-    /* Now, we have |det(G2)| = 1 */
-    /* Find a totally isotropic subspace for G2 */
   }
+  /* |det(G2)| = 1, find a totally isotropic subspace for G2 */
   solG2 = qflllgram_indefgoon(G2);
   /* G2 must have a subspace of solutions of dimension > codim */
   if (!gequal0(principal_minor(gel(solG2,1),codim+1)))
