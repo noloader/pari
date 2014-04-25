@@ -103,9 +103,9 @@ qflocalinvariant(GEN G, GEN p)
 }
 
 /* G symmetrix matrix or qfb or list of quadratic forms with same discriminant.
- * fa must be equal to factor(-abs(2*matdet(G)))[,1]. */
+ * P must be equal to factor(-abs(2*matdet(G)))[,1]. */
 static GEN
-qflocalinvariants(GEN G, GEN fa)
+qflocalinvariants(GEN G, GEN P)
 {
   GEN sol;
   long i, j, l;
@@ -118,13 +118,13 @@ qflocalinvariants(GEN G, GEN fa)
     GEN g = gel(G,j);
     if (typ(g) == t_QFI || typ(g) == t_QFR) gel(G,j) = gtomat(g);
   }
-  sol = zero_Flm_copy(lg(fa)-1, l-1);
+  sol = zero_Flm_copy(lg(P)-1, l-1);
   if (lg(gel(G,1)) == 3)
   { /* in dimension 2, each invariant is a single Hilbert symbol. */
     GEN d = negi(ZM_det(gel(G,1)));
-    for (i = 1; i < lg(fa); i++)
+    for (i = 1; i < lg(P); i++)
     {
-      GEN p = gel(fa,i);
+      GEN p = gel(P,i);
       for (j = 1; j < l; j++)
         ucoeff(sol,i,j) = (myhilbert(gcoeff(gel(G,j),1,1), d, p) < 0)? 1: 0;
     }
@@ -134,9 +134,9 @@ qflocalinvariants(GEN G, GEN fa)
     {
       GEN g = gel(G,j), v = det_minors(g);
       long n = lg(v);
-      for (i = 1; i < lg(fa); i++)
+      for (i = 1; i < lg(P); i++)
       {
-        GEN p = gel(fa,i);
+        GEN p = gel(P,i);
         long k = n-2, h = myhilbert(gel(v,k), gel(v,k+1),p);
         for (k--; k >= 1; k--) h *= myhilbert(negi(gel(v,k)), gel(v,k+1),p);
         ucoeff(sol,i,j) = h < 0? 1: 0;
@@ -315,18 +315,14 @@ qflllgram_indefgoon2(GEN G)
  * is integral and has minimal determinant.
  * In dimension 3 or 4, may return a prime p if the reduction at p is
  * impossible because of local non-solvability.
- * If given, factdetG must be equal to factor(abs(det(G))). */
+ * mat2(P,zv_to_ZV(E)) = factor(abs(det(G))), destroy E. */
 static GEN qfsolvemodp(GEN G, GEN p);
 static GEN
-qfminimize(GEN G, GEN factdetG)
+qfminimize(GEN G, GEN P, GEN E)
 {
-  GEN d, U, Ker, sol, aux, P, E, faE, faP;
-  long n, lP, i, dimKer, dimKer2, m;
+  GEN d, U, Ker, sol, aux, faE, faP;
+  long n = lg(G)-1, lP = lg(P), i, dimKer, dimKer2, m;
 
-  n = lg(G)-1;
-  if (!factdetG) factdetG = Z_factor(ZM_det(G));
-  P = gel(factdetG,1); lP = lg(P);
-  E = ZV_to_zv(gel(factdetG,2));
   faP = vectrunc_init(lP); settyp(faP, t_COL);
   faE = vectrunc_init(lP); settyp(faE, t_COL);
   U = matid(n);
@@ -470,13 +466,13 @@ qfb(GEN D, GEN a, GEN b, GEN c)
 /* Compute the square root of the quadratic form q of discriminant D. Not
  * fully implemented; it only works for detqfb squarefree except at 2, where
  * the valuation is 2 or 3.
- * fa = factor(2*abs(det q)) */
+ * mkmat2(P,zv_to_ZV(E)) = factor(2*abs(det q)) */
 static GEN
-qfbsqrt(GEN D, GEN q, GEN fa)
+qfbsqrt(GEN D, GEN q, GEN P, GEN E)
 {
   GEN a = gel(q,1), b = shifti(gel(q,2),-1), c = gel(q,3), mb = negi(b);
   GEN m,n, aux,Q1,M, A,B,C;
-  GEN d = subii(mulii(a,c), sqri(b)), P = gel(fa,1), E = ZV_to_zv(gel(fa,2));
+  GEN d = subii(mulii(a,c), sqri(b));
   long i;
 
   /* 1st step: solve m^2 = a (d), m*n = -b (d), n^2 = c (d) */
@@ -539,27 +535,33 @@ qfb_factorback(GEN D, GEN E, GEN gen, GEN e)
 /* Shanks/Bosma-Stevenhagen algorithm to compute the 2-Sylow of the class
  * group of discriminant D. Only works for D = fundamental discriminant.
  * When D = 1(4), work with 4D.
- * factdetG = factor(abs(2*D)).
+ * P2D = factor(abs(2*D))[,1]
+ * E2D = Vecsmall( factor(abs(2*D))[,2] )
+ * Pm2D = factor(-abs(2*D))[,1].
  * Return an having Witt invariants W */
 static GEN
-quadclass2(GEN D, GEN factdetG, GEN W, int n_is_4)
+quadclass2(GEN D, GEN P2D, GEN E2D, GEN Pm2D, GEN W, int n_is_4)
 {
-  GEN factD, E, gen, Wgen, U2;
+  GEN E, gen, Wgen, U2;
   long i, n, r, m, vD;
 
   if (equalii(D, utoineg(4))) return matid(2);
-  factD = shallowconcat(mkcol(gen_m1), gel(factdetG,1) );
-  if (mpodd(D)) { D = shifti(D,2); gcoeff(factdetG,1,2) = utoipos(3); }
+  if (mpodd(D))
+  {
+    D = shifti(D,2);
+    E2D = shallowcopy(E2D);
+    E2D[1] = 3;
+  }
 
-  n = lg(factD)-1; r = n-3;
+  n = lg(Pm2D)-1; r = n-3;
   m = (signe(D)>0)? r+1: r;
   if (m < 0) m = 0;
 
   if (n_is_4)
   { /* need to look among forms of type q or 2*q: Q might be imprimitive */
-    U2 = cgetg(lg(factD), t_VECSMALL);
-    for (i = 1; i < lg(factD); i++)
-      U2[i] = myhilbert(gen_2, D, gel(factD,i)) < 0;
+    U2 = cgetg(lg(Pm2D), t_VECSMALL);
+    for (i = 1; i < lg(Pm2D); i++)
+      U2[i] = myhilbert(gen_2, D, gel(Pm2D,i)) < 0;
     U2 = mkmat(U2);
   }
   else
@@ -570,9 +572,9 @@ quadclass2(GEN D, GEN factdetG, GEN W, int n_is_4)
 
   gen = cgetg(m+1, t_VEC);
   vD = Z_lval(D,2);  /* = 2 or 3 */
-  for (i = 1; i <= m; i++) /* no need to look at factD[1]=-1, nor factD[2]=2 */
+  for (i = 1; i <= m; i++) /* no need to look at Pm2D[1]=-1, nor Pm2D[2]=2 */
   {
-    GEN p = gel(factD,i+2), d;
+    GEN p = gel(Pm2D,i+2), d;
     long vp = Z_pvalrem(D,p, &d);
     GEN aux = powiu(p, vp);
     gel(gen,i) = qfb(D, aux, gen_0, negi(shifti(d,-2)));
@@ -588,7 +590,7 @@ quadclass2(GEN D, GEN factdetG, GEN W, int n_is_4)
     m++; r++; gen = shallowconcat(gen, mkvec(q2));
   }
   if (!r) return gtomat(E);
-  Wgen = qflocalinvariants(gen,factD);
+  Wgen = qflocalinvariants(gen,Pm2D);
   for(;;)
   {
     GEN Wgen2, gen2, Ker, indexim = gel(Flm_indexrank(Wgen,2), 2);
@@ -613,9 +615,9 @@ quadclass2(GEN D, GEN factdetG, GEN W, int n_is_4)
     for (i = 1; i <= dKer; i++)
     {
       GEN q = qfb_factorback(D,E,gen, gel(Ker,i));
-      q = qfbsqrt(D,q,factdetG);
+      q = qfbsqrt(D,q,P2D,E2D);
       gel(gen2,i) = q;
-      gel(Wgen2,i) = gel(qflocalinvariants(q,factD), 1);
+      gel(Wgen2,i) = gel(qflocalinvariants(q,Pm2D), 1);
     }
     for (; i <=m; i++)
     {
@@ -764,7 +766,7 @@ END:
 static  GEN
 qfsolve_i(GEN G, GEN factD)
 {
-  GEN M, signG, Min, U, G1, M1, G2, M2, solG2;
+  GEN M, signG, Min, U, G1, M1, G2, M2, solG2, P, E;
   GEN fa, solG1, sol, Q, d, detG1, dQ, detG2;
   long n, np, codim, dim;
 
@@ -805,15 +807,13 @@ qfsolve_i(GEN G, GEN factD)
   }
 
   /* factorization of the determinant */
-  if (!factD)
-  {
-    factD = Z_factor( negi(absi(shifti(d,1))) );
-    gcoeff(factD,1,2) = gen_0;
-    gcoeff(factD,2,2) = subiu(gcoeff(factD,2,2), 1);
-  }
+  if (!factD) factD = Z_factor( negi(absi(shifti(d,1))) );
+  P = gel(factD,1);
+  E = ZV_to_zv(gel(factD,2));
+  E[2]--;
 
   /* Minimization and local solubility */
-  Min = qfminimize(G,factD);
+  Min = qfminimize(G, P, E);
   if (typ(Min) == t_INT) return Min;
 
   M = gmul(M, gel(Min,2));
@@ -854,11 +854,9 @@ qfsolve_i(GEN G, GEN factD)
       signG[1]++;
     G1 = shallowmatconcat(diagonal_shallow(mkvec2(G,aux)));
     detG1 = mulii(shifti(aux,1), ZM_det(G));
-    factD = shallowcopy(factD);
-    for (i = 2; i <= nbrows(factD); i++)
-      gcoeff(factD,i,2) = stoi(Z_pval(detG1, gcoeff(factD,i,1)));
-    gcoeff(factD,2,2) = subiu(gcoeff(factD,2,2), 1);
-    Min = qfminimize(G1,factD);
+    for (i = 2; i < lg(P); i++) E[i] = Z_pval(detG1, gel(P,i));
+    E[2]--;
+    Min = qfminimize(G1, P, E);
     G1 = gel(Min,1);
     M1 = gel(Min,2);
     fa = gel(Min,3);
@@ -879,20 +877,18 @@ qfsolve_i(GEN G, GEN factD)
   }
   else
   { /* |d| > 1: increment dimension by 2 */
-    GEN factd, factdP, factdE, W;
+    GEN factdP, factdE, W;
     long i, lfactdP;
     codim += 2;
     d = ZV_prod(gel(fa,1)); /* d = abs(matdet(G1)); */
     if (odd(signG[2])) togglesign_safe(&d); /* d = matdet(G1); */
-    factD = shallowconcat(mpodd(d)? mkcol2(gen_m1,gen_2): mkcol(gen_m1),
-                          gel(fa,1));
-
     /* solubility at 2 (this is the only remaining bad prime). */
     if (n == 4 && smodis(d,8) == 1 && qflocalinvariant(G,gen_2) == 1)
       return gen_2;
 
+    P = shallowconcat(mpodd(d)? mkcol2(gen_m1,gen_2): mkcol(gen_m1), gel(fa,1));
     /* build a binary quadratic form with given Witt invariants */
-    W = const_vecsmall(lg(factD)-1, 0);
+    W = const_vecsmall(lg(P)-1, 0);
     /* choose signature of Q (real invariant and sign of the discriminant) */
     dQ = absi(d);
     if (signG[1] > signG[2]) togglesign_safe(&dQ); /* signQ = [2,0]; */
@@ -902,8 +898,8 @@ qfsolve_i(GEN G, GEN factD)
     /* p-adic invariants */
     if (n == 4)
     {
-      GEN t = qflocalinvariants(ZM_neg(G1),factD);
-      for (i = 3; i < lg(factD); i++) W[i] = ucoeff(t,i,1);
+      GEN t = qflocalinvariants(ZM_neg(G1),P);
+      for (i = 3; i < lg(P); i++) W[i] = ucoeff(t,i,1);
     }
     else
     {
@@ -911,28 +907,25 @@ qfsolve_i(GEN G, GEN factD)
       GEN t;
       if (odd((n-3)/2)) s = -s;
       t = s > 0? utoipos(8): utoineg(8);
-      for (i = 3; i < lg(factD); i++)
-        W[i] = myhilbert(t, gel(factD,i), gel(factD,i)) > 0;
+      for (i = 3; i < lg(P); i++)
+        W[i] = myhilbert(t, gel(P,i), gel(P,i)) > 0;
     }
     /* for p = 2, the choice is fixed from the product formula */
     W[2] = Flv_sum(W, 2);
 
     /* Construction of the 2-class group of discriminant dQ until some product
      * of the generators gives the desired invariants. */
-    factdP = vecsplice(factD, 1); lfactdP =  lg(factdP);
-    factdE = cgetg(lfactdP, t_COL);
-    for (i = 1; i < lfactdP; i++)
-      gel(factdE,i) = stoi(Z_pval(dQ, gel(factdP,i)));
-    gel(factdE,1) = addiu(gel(factdE,1), 1);
-    factd = mkmat2(factdP,factdE);
-    Q = quadclass2(dQ,factd,W, n == 4);
+    factdP = vecsplice(P, 1); lfactdP =  lg(factdP);
+    factdE = cgetg(lfactdP, t_VECSMALL);
+    for (i = 1; i < lfactdP; i++) factdE[i] = Z_pval(dQ, gel(factdP,i));
+    factdE[1]++;
+    Q = quadclass2(dQ, factdP,factdE, P, W, n == 4);
     /* Build a form of dim=n+2 potentially unimodular */
     G2 = shallowmatconcat(diagonal_shallow(mkvec2(G1,ZM_neg(Q))));
     /* Minimization of G2 */
-    detG2 = ZM_det(G2);
-    for (i = 1; i < lfactdP; i++)
-      gel(factdE,i) = stoi(Z_pval(detG2, gel(factdP,i)));
-    Min = qfminimize(G2,factd);
+    detG2 = mulii(d, ZM_det(Q));
+    for (i = 1; i < lfactdP; i++) factdE[i] = Z_pval(detG2, gel(factdP,i));
+    Min = qfminimize(G2, factdP,factdE);
     M2 = gel(Min,2);
     G2 = gel(Min,1);
   }
