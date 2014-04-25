@@ -545,7 +545,7 @@ qfb_factorback(GEN D, GEN E, GEN gen, GEN e)
 static GEN
 quadclass2(GEN D, GEN factdetG, GEN W, GEN U2)
 {
-  GEN factD, gen, E, invgen, gen2;
+  GEN factD, E, gen, Wgen;
   long i, n, r, m, vD;
 
   if (equalii(D, utoineg(4))) return mkvec(mkqfi(gen_1,gen_0,gen_1));
@@ -579,31 +579,34 @@ quadclass2(GEN D, GEN factdetG, GEN W, GEN U2)
     m++; r++; gen = shallowconcat(gen, mkvec(q2));
   }
   if (!r) return mkvec(E);
-  invgen = qflocalinvariants(gen,factD);
+  Wgen = qflocalinvariants(gen,factD);
   for(;;)
   {
-    GEN Ker, Kerim, im = Flm_invimage(invgen, Flm_image(invgen,2), 2);
-    if (lg(im)-1 >= r &&
-        Flm_Flc_invimage(shallowconcat(invgen,U2), W,2))
+    GEN Wgen2, gen2, Ker, im = Flm_invimage(Wgen, Flm_image(Wgen,2), 2);
+    long dKer;
+    if (lg(im)-1 >= r && Flm_Flc_invimage(shallowconcat(Wgen,U2), W,2))
     {
       gen2 = cgetg(r+1, t_VEC);
-      for (i = 1; i <= r; i++)
-        gel(gen2,i) = qfb_factorback(D, E, gen, gel(im,i));
+      for (i = 1; i <= r; i++) gel(gen2,i) = qfb_factorback(D,E,gen, gel(im,i));
       return gen2;
     }
-    Ker = Flm_ker(invgen,2);
-    Kerim = shallowconcat(Ker,im);
+    Ker = Flm_ker(Wgen,2); dKer = lg(Ker)-1;
     gen2 = cgetg(m+1, t_VEC);
-    for (i = 1; i <= m; i++)
-      gel(gen2,i) = qfb_factorback(D, E, gen, gel(Kerim,i));
-    gen = gen2;
-    invgen = Flm_mul(invgen,Kerim,2);
-    for (i = 1; i < lg(Ker); i++)
+    Wgen2 = cgetg(m+1, t_MAT);
+    for (i = 1; i <= dKer; i++)
     {
-      GEN G2 = qfbsqrt(D,gel(gen,i),factdetG);
-      gel(gen,i) = G2;
-      gel(invgen,i) = gel(qflocalinvariants(G2,factD), 1);
+      GEN q = qfb_factorback(D,E,gen, gel(Ker,i));
+      q = qfbsqrt(D,q,factdetG);
+      gel(gen2,i) = q;
+      gel(Wgen2,i) = gel(qflocalinvariants(q,factD), 1);
     }
+    for (; i <=m; i++)
+    {
+      GEN v = gel(im,i-dKer);
+      gel(gen2,i) = qfb_factorback(D,E,gen, v);
+      gel(Wgen2,i) = Flm_Flc_mul(Wgen,v,2);
+    }
+    gen = gen2; Wgen = Wgen2;
   }
 }
 
