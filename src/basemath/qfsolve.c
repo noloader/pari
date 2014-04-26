@@ -553,6 +553,11 @@ qfb_factorback(GEN D, GEN gen, GEN e)
   return qfb(D, gcoeff(M,1,1), shifti(gcoeff(M,1,2),1), gcoeff(M,2,2));
 }
 
+/* unit form, assuming 4 | D */
+static GEN
+id(GEN D)
+{ return mkmat2(mkcol2(gen_1,gen_0),mkcol2(gen_0,shifti(negi(D),-2))); }
+
 /* Shanks/Bosma-Stevenhagen algorithm to compute the 2-Sylow of the class
  * group of discriminant D. Only works for D = fundamental discriminant.
  * When D = 1(4), work with 4D.
@@ -562,10 +567,9 @@ qfb_factorback(GEN D, GEN gen, GEN e)
 static GEN
 quadclass2(GEN D, GEN P2D, GEN E2D, GEN Pm2D, GEN W, int n_is_4)
 {
-  GEN E, gen, Wgen, U2;
+  GEN gen, Wgen, U2;
   long i, n, r, m, vD;
 
-  if (equalii(D, utoineg(4))) return matid(2);
   if (mpodd(D))
   {
     D = shifti(D,2);
@@ -573,27 +577,24 @@ quadclass2(GEN D, GEN P2D, GEN E2D, GEN Pm2D, GEN W, int n_is_4)
     E2D[1] = 3;
   }
 
-  n = lg(Pm2D)-1; r = n-3;
+  n = lg(Pm2D)-1; /* >= 2 */
+  r = n-3;
   m = (signe(D)>0)? r+1: r;
-  if (m < 0) m = 0;
-
   if (n_is_4) /* look among forms of type q or 2*q: Q might be imprimitive */
     U2 = mkmat(hilberts(gen_2, D, Pm2D, lg(Pm2D)));
   else
     U2 = NULL;
-  E = qfb(D, gen_1, gen_0, shifti(negi(D),-2));
-  if (zv_equal0(W)) return gtomat(E);
-  if (U2 && zv_equal(gel(U2,1),W)) return gmul2n(gtomat(E),1);
+  if (zv_equal0(W)) return id(D);
+  if (U2 && zv_equal(gel(U2,1),W)) return gmul2n(id(D),1);
 
   gen = cgetg(m+1, t_VEC);
-  vD = Z_lval(D,2);  /* = 2 or 3 */
   for (i = 1; i <= m; i++) /* no need to look at Pm2D[1]=-1, nor Pm2D[2]=2 */
   {
     GEN p = gel(Pm2D,i+2), d;
     long vp = Z_pvalrem(D,p, &d);
-    GEN aux = powiu(p, vp);
-    gel(gen,i) = qfb(D, aux, gen_0, negi(shifti(d,-2)));
+    gel(gen,i) = qfb(D, powiu(p,vp), gen_0, negi(shifti(d,-2)));
   }
+  vD = Z_lval(D,2);  /* = 2 or 3 */
   if (vD == 2 && smodis(D,16) != 4)
   {
     GEN q2 = qfb(D, gen_2,gen_2, shifti(subsi(4,D),-3));
@@ -601,10 +602,10 @@ quadclass2(GEN D, GEN P2D, GEN E2D, GEN Pm2D, GEN W, int n_is_4)
   }
   if (vD == 3)
   {
-    GEN q2 = qfb(D, int2n(vD-2),gen_0, negi(shifti(D,-vD)));
+    GEN q2 = qfb(D, gen_2,gen_0, negi(shifti(D,-3)));
     m++; r++; gen = shallowconcat(gen, mkvec(q2));
   }
-  if (!r) return gtomat(E);
+  if (!r) return id(D);
   Wgen = qflocalinvariants(gen,Pm2D);
   for(;;)
   {
