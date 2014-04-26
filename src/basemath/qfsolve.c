@@ -537,10 +537,9 @@ qfb_factorback(GEN D, GEN E, GEN gen, GEN e)
 /* Shanks/Bosma-Stevenhagen algorithm to compute the 2-Sylow of the class
  * group of discriminant D. Only works for D = fundamental discriminant.
  * When D = 1(4), work with 4D.
- * P2D = factor(abs(2*D))[,1]
- * E2D = Vecsmall( factor(abs(2*D))[,2] )
+ * P2D,E2D = factor(abs(2*D))
  * Pm2D = factor(-abs(2*D))[,1].
- * Return an having Witt invariants W */
+ * Return a form having Witt invariants W at Pm2D */
 static GEN
 quadclass2(GEN D, GEN P2D, GEN E2D, GEN Pm2D, GEN W, int n_is_4)
 {
@@ -801,12 +800,10 @@ qfsolve_i(GEN G)
   }
 
   /* factorization of the determinant */
-  fam2detG = Z_factor( negi(absi(shifti(d,1))) );
+  fam2detG = Z_factor( absi(d) );
   P = gel(fam2detG,1);
-  gel(P,1) = NULL; /* replace -1 */
   E = ZV_to_zv(gel(fam2detG,2));
-  E[2]--;
-  /* P,E = factor(-|det(G)|) */
+  /* P,E = factor(|det(G)|) */
 
   /* Minimization and local solubility */
   Min = qfminimize(G, P, E);
@@ -917,12 +914,14 @@ qfsolve_i(GEN G)
     factdE = cgetg(lfactdP, t_VECSMALL);
     for (i = 1; i < lfactdP; i++) factdE[i] = Z_pval(dQ, gel(factdP,i));
     factdE[1]++;
+    /* factdP,factdE = factor(2|dQ|), P = factor(-2|dQ|)[,1] */
     Q = quadclass2(dQ, factdP,factdE, P, W, n == 4);
     /* Build a form of dim=n+2 potentially unimodular */
     G2 = shallowmatconcat(diagonal_shallow(mkvec2(G1,ZM_neg(Q))));
     /* Minimization of G2 */
     detG2 = mulii(d, ZM_det(Q));
     for (i = 1; i < lfactdP; i++) factdE[i] = Z_pval(detG2, gel(factdP,i));
+    /* factdP,factdE = factor(|det G2|) */
     Min = qfminimize(G2, factdP,factdE);
     M2 = gel(Min,2);
     G2 = gel(Min,1);
