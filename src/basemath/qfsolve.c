@@ -576,15 +576,13 @@ quadclass2(GEN D, GEN P2D, GEN E2D, GEN Pm2D, GEN W, int n_is_4)
     E2D = shallowcopy(E2D);
     E2D[1] = 3;
   }
+  if (zv_equal0(W)) return id(D);
 
-  n = lg(Pm2D)-1; /* >= 2 */
+  n = lg(Pm2D)-1; /* >= 3 since W != 0 */
   r = n-3;
   m = (signe(D)>0)? r+1: r;
-  if (n_is_4) /* look among forms of type q or 2*q: Q might be imprimitive */
-    U2 = mkmat(hilberts(gen_2, D, Pm2D, lg(Pm2D)));
-  else
-    U2 = NULL;
-  if (zv_equal0(W)) return id(D);
+  /* n=4: look among forms of type q or 2*q, since Q can be imprimitive */
+  U2 = n_is_4? mkmat(hilberts(gen_2, D, Pm2D, lg(Pm2D))): NULL;
   if (U2 && zv_equal(gel(U2,1),W)) return gmul2n(id(D),1);
 
   gen = cgetg(m+1, t_VEC);
