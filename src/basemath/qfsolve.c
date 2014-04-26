@@ -538,14 +538,14 @@ qfbsqrt(GEN D, GEN q, GEN P, GEN E)
     return qfb(D, c, shifti(negi(b),1), shifti(a,1));
 }
 
-/* \prod gen[i]^e[i] as a Qfb */
+/* \prod gen[i]^e[i] as a Qfb, e in {0,1}^n non-zero */
 static GEN
-qfb_factorback(GEN D, GEN E, GEN gen, GEN e)
+qfb_factorback(GEN D, GEN gen, GEN e)
 {
-  GEN q = E, M, red;
+  GEN q = NULL, M, red;
   long j, l = lg(gen), n = 0;
   for (j = 1; j < l; j++)
-    if (e[j]) { n++; q = qfbcompraw(q, gel(gen,j)); }
+    if (e[j]) { n++; q = q? qfbcompraw(q, gel(gen,j)): gel(gen,j); }
   if (n <= 1) return q;
   M = gtomat(q);
   red = qfbreduce(M);
@@ -582,6 +582,7 @@ quadclass2(GEN D, GEN P2D, GEN E2D, GEN Pm2D, GEN W, int n_is_4)
   else
     U2 = NULL;
   E = qfb(D, gen_1, gen_0, shifti(negi(D),-2));
+  if (zv_equal0(W)) return gtomat(E);
   if (U2 && zv_equal(gel(U2,1),W)) return gmul2n(gtomat(E),1);
 
   gen = cgetg(m+1, t_VEC);
@@ -616,8 +617,7 @@ quadclass2(GEN D, GEN P2D, GEN E2D, GEN Pm2D, GEN W, int n_is_4)
       if (U2) W2 = shallowconcat(W2,U2);
       V = Flm_Flc_invimage(W2, W,2);
       if (V) {
-        GEN Q = primeform(mpodd(D)? shifti(D,2): D, gen_1, DEFAULTPREC);
-        Q = qfb_factorback(D, Q, vecpermute(gen,indexim), V);
+        GEN Q = qfb_factorback(D, vecpermute(gen,indexim), V);
         Q = gtomat(Q);
         if (U2 && V[lg(V)-1]) Q = gmul2n(Q,1);
         return Q;
@@ -628,7 +628,7 @@ quadclass2(GEN D, GEN P2D, GEN E2D, GEN Pm2D, GEN W, int n_is_4)
     Wgen2 = cgetg(m+1, t_MAT);
     for (i = 1; i <= dKer; i++)
     {
-      GEN q = qfb_factorback(D,E,gen, gel(Ker,i));
+      GEN q = qfb_factorback(D, gen, gel(Ker,i));
       q = qfbsqrt(D,q,P2D,E2D);
       gel(gen2,i) = q;
       gel(Wgen2,i) = gel(qflocalinvariants(q,Pm2D), 1);
