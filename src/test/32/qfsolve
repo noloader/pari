@@ -111,7 +111,8 @@ dim=8
 
 [1]
 
-0
-0
+-1
+-1
+[1, 0]~
 [-42, 35]~
-Total time spent: 3148
+Total time spent: 3116

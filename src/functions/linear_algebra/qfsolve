@@ -10,9 +10,7 @@ Doc: Given a square matrix $G$ of dimension $n \geq 1$, solve over $\Q$ the
  matrix (whose columns generate a totally isotropic subspace).
 
  If no solution exists, returns an integer, that can be a prime $p$ such that
- there is no local solution at $p$, or $-1$ if there is no real solution, or
- $0$ in some rare cases where it was possible to exclude the existence of
- global solutions directly (e.g. when $G$ is positive definite).
+ there is no local solution at $p$, or $-1$ if there is no real solution.
  \bprog
  ? G = [1,0,0;0,1,0;0,0,-34];
  ? qfsolve(G)

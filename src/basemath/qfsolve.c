@@ -774,15 +774,13 @@ qfsolve_i(GEN G)
   if (!signe(d)) return ker(G);
 
   /* Small dimension: n <= 2 */
-  if (n == 1) return gen_0;
+  if (n == 1) return gen_m1;
   if (n == 2)
   {
-    GEN di =  negi(d), a, b;
-    if (!Z_issquare(di)) return gen_0;
-    di = sqrti(di);
-    a =  gcoeff(G,1,1);
-    b =  gcoeff(G,1,2);
-    return mkcol2(subii(di,b), a);
+    GEN t, a =  gcoeff(G,1,1);
+    if (!signe(a)) return mkcol2(gen_1, gen_0);
+    if (!Z_issquareall(negi(d), &t)) return gen_m1;
+    return mkcol2(subii(t,gcoeff(G,1,2)), a);
   }
 
   /* 1st reduction of the coefficients of G */
