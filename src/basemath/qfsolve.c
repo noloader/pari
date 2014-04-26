@@ -150,41 +150,33 @@ qflocalinvariants(GEN G, GEN P)
 }
 
 /* QUADRATIC FORM REDUCTION */
-
-/* M = [a,b;b;c] has integral coefficients
- * Gauss reduction of the binary quadratic form
- * qf = (a,b,c)=a*X^2+2*b*X*Y+c*Y^2
- * Returns the reduction matrix with det = +1. */
-#if 0
 static GEN
-qfbreduce(GEN M)
+qfb(GEN D, GEN a, GEN b, GEN c)
 {
-  GEN U, a = gcoeff(M,1,1); b = gcoeff(M,1,2); c = gcoeff(M,2,2);
-  (void)redimagsl2(mkqfi(a,b,c), &U); return U;
+  if (signe(D) < 0) return mkqfi(a,b,c);
+  retmkqfr(a,b,c,real_0(DEFAULTPREC));
 }
-#else
+
+/* Gauss reduction of the binary quadratic form
+ * Q = a*X^2+2*b*X*Y+c*Y^2 of discriminant D (divisible by 4)
+ * returns the reduced form */
 static GEN
-qfbreduce(GEN M)
+qfbreduce(GEN D, GEN Q)
 {
-  GEN H = matid(2), a = gcoeff(M,1,1), b = gcoeff(M,1,2), c = gcoeff(M,2,2);
+  GEN a = gel(Q,1), b = shifti(gel(Q,2),-1), c = gel(Q,3);
   while (signe(a))
   {
-    GEN t, r, q, nexta, nextb, nextc;
+    GEN r, q, nexta, nextc;
     q = dvmdii(b,a, &r); /* FIXME: export as dvmdiiround ? */
     if (signe(r) > 0 && absi_cmp(shifti(r,1), a) > 0) {
       r = subii(r, absi(a)); q = addis(q, signe(a));
     }
-
-    gel(H,2) = ZC_lincomb(gen_1, negi(q), gel(H,2), gel(H,1));
-    nextc = a; nextb = negi(r); nexta = addii(mulii(subii(nextb,b),q), c);
-
-    if (absi_cmp(nexta, a) >= 0) return H;
-    c = nextc; b = nextb; a = nexta;
-    t = gel(H,1); gel(H,1) = ZC_neg(gel(H,2)); gel(H,2) = t;
+    nextc = a; nexta = subii(c, mulii(q, addii(r,b)));
+    if (absi_cmp(nexta, a) >= 0) break;
+    c = nextc; b = negi(r); a = nexta;
   }
-  return H;
+  return qfb(D,a,shifti(b,1),c);
 }
-#endif
 
 /* LLL-reduce a positive definite qf QD bounding the indefinite G, dim G > 1.
  * Then finishes the reduction with qfsolvetriv() */
@@ -477,12 +469,6 @@ qfminimize(GEN G, GEN P, GEN E)
 }
 
 /* CLASS GROUP COMPUTATIONS */
-static GEN
-qfb(GEN D, GEN a, GEN b, GEN c)
-{
-  if (signe(D) < 0) return mkqfi(a,b,c);
-  retmkqfr(a,b,c,real_0(DEFAULTPREC));
-}
 
 /* Compute the square root of the quadratic form q of discriminant D. Not
  * fully implemented; it only works for detqfb squarefree except at 2, where
@@ -542,15 +528,11 @@ qfbsqrt(GEN D, GEN q, GEN P, GEN E)
 static GEN
 qfb_factorback(GEN D, GEN gen, GEN e)
 {
-  GEN q = NULL, M, red;
+  GEN q = NULL;
   long j, l = lg(gen), n = 0;
   for (j = 1; j < l; j++)
     if (e[j]) { n++; q = q? qfbcompraw(q, gel(gen,j)): gel(gen,j); }
-  if (n <= 1) return q;
-  M = gtomat(q);
-  red = qfbreduce(M);
-  M = qf_apply_ZM(M, red);
-  return qfb(D, gcoeff(M,1,1), shifti(gcoeff(M,1,2),1), gcoeff(M,2,2));
+  return (n <= 1)? q: qfbreduce(D, q);
 }
 
 /* unit form, assuming 4 | D */
