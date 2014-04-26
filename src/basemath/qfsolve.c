@@ -91,7 +91,8 @@ qflocalinvariant(GEN G, GEN p)
   /* (diag[i],diag[j])_p for i < j */
   c = 1;
   for (i = 1; i < l-1; i++)
-    for (j = i+1; j < l; j++) c *= hilbertii(gel(diag,i), gel(diag,j), p);
+    for (j = i+1; j < l; j++)
+      if (hilbertii(gel(diag,i), gel(diag,j), p) < 0) c = -c;
   return c;
 }
 
@@ -140,7 +141,8 @@ qflocalinvariants(GEN G, GEN P)
       {
         GEN p = gel(P,i);
         long k = n-2, h = hilbertii(gel(v,k), gel(v,k+1),p);
-        for (k--; k >= 1; k--) h *= hilbertii(negi(gel(v,k)), gel(v,k+1),p);
+        for (k--; k >= 1; k--)
+          if (hilbertii(negi(gel(v,k)), gel(v,k+1),p) < 0) h = -h;
         w[i] = h < 0;
       }
     }
@@ -184,7 +186,7 @@ qfbreduce(GEN M)
 }
 #endif
 
-/* LLL-reduce a positive definite qf QD bounding the indefinite G.
+/* LLL-reduce a positive definite qf QD bounding the indefinite G, dim G > 1.
  * Then finishes the reduction with qfsolvetriv() */
 static GEN qfsolvetriv(GEN G, long base);
 static GEN
@@ -193,20 +195,23 @@ qflllgram_indef(GEN G, long base)
   GEN M, QD, M1, S, red;
   long i, n = lg(G)-1;
 
-  M = matid(n);
+  M = NULL;
   QD = G;
+  /* gaussred with early abort when a principal minor is singular */
   for (i = 1; i < n; i++)
   {
     GEN d = gcoeff(QD,i,i);
     long j;
     if (isintzero(d)) return qfsolvetriv(G,base);
-    M1 = matid(n);
-    for(j = i+1; j <= n; j++) gcoeff(M1,i,j) = gdiv(gneg(gcoeff(QD,i,j)), d);
-    M = RgM_mul(M,M1);
+    M1 = matid(n); d = gneg(d);
+    for(j = i+1; j <= n; j++) gcoeff(M1,i,j) = gdiv(gcoeff(QD,i,j), d);
+    M = M? RgM_mul(M,M1): M1;
     QD = qf_apply_RgM(QD,M1);
   }
+  /* M~*G*M = QD diagonal */
   M = RgM_inv_upper(M);
-  QD = qf_apply_RgM(gabs(QD,0), M);
+  for (i=1; i<=n; i++) gcoeff(QD,i,i) = Q_abs_shallow(gcoeff(QD,i,i));
+  QD = qf_apply_RgM(QD, M);
   S = lllgramint(Q_primpart(QD));
   if (lg(S)-1 < n) S = completebasis(S, 0);
   red = qfsolvetriv(qf_apply_ZM(G,S), base);
@@ -263,16 +268,28 @@ qflllgram_indefgoon(GEN G)
   return mkvec2(G6, ZM_mul(U,U5));
 }
 
+/* qf_apply_ZM(G,H),  where H = matrix of \tau_{i,j}, i != j */
+static GEN
+qf_apply_tau(GEN G, long i, long j)
+{
+  long l = lg(G), k;
+  G = RgM_shallowcopy(G);
+  swap(gel(G,i), gel(G,j));
+  for (k = 1; k < l; k++) swap(gcoeff(G,i,k), gcoeff(G,j,k));
+  return G;
+}
+
 /* LLL reduction of the quadratic form G (Gram matrix)
  * in dim 3 only, with detG = -1 and sign(G) = [2,1]; */
 static GEN
 qflllgram_indefgoon2(GEN G)
 {
-  GEN red, U1, G2, a, b, c, d, u, v, r, U2, G3, U3;
+  GEN red, G2, a, b, c, d, e, f, u, v, r, r3, U2, G3;
 
   red = qflllgram_indef(G,1); /* always find an isotropic vector. */
-  U1 = mkmat3(vec_ei(3,3), vec_ei(3,2), vec_ei(3,1));
-  G2 = qf_apply_ZM(gel(red,1), U1); /* G2 has a 0 at the bottom right corner */
+  G2 = qf_apply_tau(gel(red,1),1,3); /* G2[3,3] = 0 */
+  r = row(gel(red,2), 3);
+  swap(gel(r,1), gel(r,3)); /* apply tau_{1,3} */
   a = gcoeff(G2,3,1);
   b = gcoeff(G2,3,2);
   d = bezout(a,b, &u,&v);
@@ -281,32 +298,34 @@ qflllgram_indefgoon2(GEN G)
     a = diviiexact(a,d);
     b = diviiexact(b,d);
   }
-  U2 = mkmat3(mkcol3(u,v,gen_0),
-              mkcol3(b,negi(a),gen_0),
-              mkcol3(gen_0,gen_0,gen_m1));
-  G3 = qf_apply_ZM(G2,U2); /* G3 has 0 under the co-diagonal */
+  /* for U2 = [-u,-b,0;-v,a,0;0,0,1]
+   * G3 = qf_apply_ZM(G2,U2) has known last row (-d, 0, 0),
+   * so apply to principal_minor(G3,2), instead */
+  U2 = mkmat2(mkcol2(negi(u),negi(v)), mkcol2(negi(b),a));
+  G3 = qf_apply_ZM(principal_minor(G2,2),U2);
+  r3 = gel(r,3);
+  r = ZV_ZM_mul(mkvec2(gel(r,1),gel(r,2)),U2);
+
   a = gcoeff(G3,1,1);
   b = gcoeff(G3,1,2);
-  c = gcoeff(G3,1,3);
+  c = negi(d); /* G3[1,3] */
   d = gcoeff(G3,2,2);
   if (mpodd(a))
   {
-    GEN e = addii(b,d);
-    a = addii(a, addii(b, e));
-    b = e;
-    d = gen_1;
+    e = addii(b,d);
+    a = addii(a, addii(b,e));
+    e = diviiround(negi(e),c);
+    f = diviiround(negi(a), shifti(c,1));
+    a = addmulii(addii(gel(r,1),gel(r,2)), f,r3);
   }
   else
-    d = gen_0;
-  U3 = mkmat3(
-        mkcol3(gen_1, d, diviiround(negi(a), shifti(c,1))),
-        mkcol3(gen_0, gen_1, diviiround(negi(b),c)),
-        mkcol3(gen_0, gen_0, gen_1)
-  );
-  r = row(gel(red,2), 3);
-  r = ZV_ZM_mul(r,U1);
-  r = ZV_ZM_mul(r,U2);
-  r = ZV_ZM_mul(r,U3); return r;
+  {
+    e = diviiround(negi(b),c);
+    f = diviiround(negi(shifti(a,-1)), c);
+    a = addmulii(gel(r,1), f, r3);
+  }
+  b = addmulii(gel(r,2), e, r3);
+  return mkvec3(a,b, r3);
 }
 
 /* QUADRATIC FORM MINIMIZATION */
@@ -649,13 +668,13 @@ qfsolvetriv(GEN G, long base)
       s = gel(H,i);
       if (!base) return s;
       gel(H,i) = gel(H,1); gel(H,1) = s;
-      return mkvec3(qf_apply_ZM(G,H),H,s);
+      return mkvec3(qf_apply_tau(G,1,i),H,s);
     }
   /* case 2: G has a block +- [1,0;0,-1] on the diagonal */
   for (i = 2; i <= n; i++)
     if (!signe(gcoeff(G,i-1,i)) && both_pm1(gcoeff(G,i-1,i-1),gcoeff(G,i,i)))
     {
-      gcoeff(H,i-1,i) = gen_m1; s = gel(H,i);
+      s = gel(H,i); gel(s,i-1) = gen_m1;
       if (!base) return s;
       gel(H,i) = gel(H,1); gel(H,1) = s;
       return mkvec3(qf_apply_ZM(G,H),H,s);
@@ -898,7 +917,7 @@ qfsolve_i(GEN G)
     }
     else
     {
-      long s = signe(dQ)*signe(d);
+      long s = signe(dQ) == signe(d)? 1: -1;
       GEN t;
       if (odd((n-3)/2)) s = -s;
       t = s > 0? utoipos(8): utoineg(8);
