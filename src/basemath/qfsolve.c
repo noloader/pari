@@ -383,7 +383,31 @@ qflllgram_indefgoon2(GEN G)
 }
 
 /* QUADRATIC FORM MINIMIZATION */
+/* G symetric, return ZM_Z_divexact(G,d) */
+static GEN
+ZsymM_Z_divexact(GEN G, GEN d)
+{
+  long i,j,l = lg(G);
+  GEN H = cgetg(l, t_MAT);
+  for(j=1; j<l; j++)
+  {
+    GEN c = cgetg(l, t_COL), b = gel(G,j);
+    for(i=1; i<j; i++) gcoeff(H,j,i) = gel(c,i) = diviiexact(gel(b,i),d);
+    gel(c,j) = diviiexact(gel(b,j),d);
+    gel(H,j) = c;
+  }
+  return H;
+}
 
+/* write symetric G as [A,B;B~,C], A dxd, C (n-d)x(n-d) */
+static void
+blocks4(GEN G, long d, long n, GEN *A, GEN *B, GEN *C)
+{
+  GEN G2 = vecslice(G,d+1,n);
+  *A = principal_minor(G, d);
+  *B = rowslice(G2, 1, d);
+  *C = rowslice(G2, d+1, n);
+}
 /* Minimization of the quadratic form G, deg G != 0, dim n >= 2
  * G symmetric integral
  * Returns [G',U,factd] with U in GLn(Q) such that G'=U~*G*U*constant
@@ -400,7 +424,7 @@ qfminimize(GEN G, GEN P, GEN E)
 
   faP = vectrunc_init(lP);
   faE = vecsmalltrunc_init(lP);
-  U = matid(n);
+  U = NULL;
   for (i = 1; i < lP; i++)
   {
     GEN p = gel(P,i);
@@ -419,12 +443,12 @@ qfminimize(GEN G, GEN P, GEN E)
     if (dimKer == n)
     { /* trivial case: dimKer = n */
       if (DEBUGLEVEL >= 4) err_printf("     case 0: dimKer = n\n");
-      G = RgM_Rg_div(G, p);
+      G = ZsymM_Z_divexact(G, p);
       E[i] -= n;
       i--; continue; /* same p */
     }
     G = qf_apply_ZM(G, Ker);
-    U = RgM_mul(U,Ker);
+    U = U? RgM_mul(U,Ker): Ker;
 
     /* 1st case: dimKer < vp */
     /* then the kernel mod p contains a kernel mod p^2 */
@@ -434,8 +458,8 @@ qfminimize(GEN G, GEN P, GEN E)
       if (dimKer == 1)
       {
         long j;
-        gel(G,1) = RgC_Rg_div(gel(G,1), p);
-        for (j = 1; j<=n; j++) gcoeff(G,1,j) = gdiv(gcoeff(G,1,j), p);
+        gel(G,1) = ZC_Z_divexact(gel(G,1), p);
+        for (j = 1; j<=n; j++) gcoeff(G,1,j) = diviiexact(gcoeff(G,1,j), p);
         gel(U,1) = RgC_Rg_div(gel(U,1), p);
         E[i] -= 2;
       }
@@ -446,13 +470,11 @@ qfminimize(GEN G, GEN P, GEN E)
         K2 = kermodp(K2, p, &dimKer2);
         for (j = 1; j <= dimKer2; j++) gel(K2,j) = RgC_Rg_div(gel(K2,j), p);
         /* Write G = [A,B;B~,C] and apply [K2,0;0,Id] by blocks */
-        A = principal_minor(G, dimKer);
-        B = rowslice(vecslice(G,dimKer+1,n), 1, dimKer);
-        C = rowslice(vecslice(G,dimKer+1,n), dimKer+1, n);
+        blocks4(G, dimKer,n, &A,&B,&C);
         A = qf_apply_RgM(A,K2);
-        B = RgM_transmul(K2, B);
-        G = shallowmatconcat(mkmat2(mkcol2(A,shallowtrans(B)),
-                                    mkcol2(B, C)));
+        B = RgM_transmul(B,K2);
+        G = shallowmatconcat(mkmat2(mkcol2(A,B),
+                                    mkcol2(shallowtrans(B), C)));
         /* U *= [K2,0;0,Id] */
         U = shallowconcat(RgM_mul(vecslice(U,1,dimKer),K2),
                           vecslice(U,dimKer+1,n));
@@ -468,25 +490,19 @@ qfminimize(GEN G, GEN P, GEN E)
     if (dimKer > 2) {
       if (DEBUGLEVEL >= 4) err_printf("    case 2.1\n");
       dimKer = 3;
-      sol = qfsolvemodp(RgM_Rg_div(principal_minor(G,3),p),  p);
+      sol = qfsolvemodp(ZsymM_Z_divexact(principal_minor(G,3),p),  p);
+      sol = FpC_red(sol, p);
     }
     else if (dimKer == 2)
     {
-      GEN a= gcoeff(G,1,1), b = gcoeff(G,1,2), c = gcoeff(G,2,2);
-      GEN di = subii(sqri(b), mulii(a,c)), p2 = sqri(p);
-      di = diviiexact(di, p2);
-      if (kronecker(modii(di,p),p) >= 0)
+      GEN a = modii(diviiexact(gcoeff(G,1,1),p), p);
+      GEN b = modii(diviiexact(gcoeff(G,1,2),p), p);
+      GEN c = diviiexact(gcoeff(G,2,2),p);
+      GEN di= modii(subii(sqri(b), mulii(a,c)), p);
+      if (kronecker(di,p) >= 0)
       {
         if (DEBUGLEVEL >= 4) err_printf("    case 2.2\n");
-        if (dvdii(a, p2))
-          sol = vec_ei(2,1);
-        else
-        {
-          a = diviiexact(a,p);
-          b = diviiexact(b,p);
-          sol = mkcol2(subii(Fp_sqrt(di,p), b), a);
-          sol = FpC_red(sol, p);
-        }
+        sol = signe(a)? mkcol2(Fp_sub(Fp_sqrt(di,p), b, p), a): vec_ei(2,1);
       }
     }
     if (sol)
@@ -529,9 +545,14 @@ qfminimize(GEN G, GEN P, GEN E)
     vectrunc_append(faP, p);
     vecsmalltrunc_append(faE, vp);
   }
-  /* apply LLL to avoid coefficient explosion */
-  aux = lllint(Q_primpart(U));
-  return mkvec4(qf_apply_ZM(G,aux), RgM_mul(U,aux), faP, faE);
+  if (!U) U = matid(n);
+  else
+  { /* apply LLL to avoid coefficient explosion */
+    aux = lllint(Q_primpart(U));
+    G = qf_apply_ZM(G,aux);
+    U = RgM_mul(U,aux);
+  }
+  return mkvec4(G, U, faP, faE);
 }
 
 /* CLASS GROUP COMPUTATIONS */
@@ -741,64 +762,40 @@ qfsolvetriv(GEN G, long base)
   return G;
 }
 
-/* p a prime number, G square such that det(G) !=0 mod p and dim G = n>=3
- * finds X such that X^t G X = 0 mod p */
+/* p a prime number, G 3x3 symetric. Finds X!=0 such that X^t G X = 0 mod p.
+ * Allow returning a shorter X: to be completed with 0s. */
 static GEN
 qfsolvemodp(GEN G, GEN p)
 {
-  GEN vdet, v1, v2, v3, mv3, G2,x1,x2,x3,N1,N2,N3,s,r, S;
-  GEN po2 = shifti(p,-1);
-  long i, l = lg(G);
+  GEN a,b,c,d,e,f, v1,v2,v3,v4,v5, x1,x2,x3,N1,N2,N3,s,r;
 
-  vdet = cgetg(4, t_VEC);
-  for (i = 1; i <= 3; i++)
-  {
-    GEN d;
-    G2 = FpM_red(principal_minor(G,i), p);
-    gel(vdet,i) = d = FpM_det(G2, p);
-    if (!signe(d))
-    {
-      S = FpC_center(gel(FpM_ker(G2,p), 1), p, po2);
-      goto END;
-    }
-  }
-  v1 = gel(vdet,1);
-  v2 = gel(vdet,2);
-  v3 = gel(vdet,3);
+  /* principal_minor(G,3) = [a,b,d; b,c,e; d,e,f] */
+  a = modii(gcoeff(G,1,1), p);
+  if (!signe(a)) return mkcol(gen_1);
+  v1 = a;
+  b = modii(gcoeff(G,1,2), p);
+  c = modii(gcoeff(G,2,2), p);
+  v2 = modii(subii(mulii(a,c), sqri(b)), p);
+  if (!signe(v2)) return mkcol2(Fp_neg(b,p), a);
+  d = modii(gcoeff(G,1,3), p);
+  e = modii(gcoeff(G,2,3), p);
+  f = modii(gcoeff(G,3,3), p);
+  v4 = modii(subii(mulii(c,d), mulii(e,b)), p);
+  v5 = modii(subii(mulii(a,e), mulii(d,b)), p);
+  v3 = subii(mulii(v2,f), addii(mulii(v4,d), mulii(v5,e))); /* det(G) */
+  v3 = modii(v3, p);
+  N1 =  Fp_neg(v2,  p);
+  x3 = mkcol3(v4, v5, N1);
+  if (!signe(v3)) return x3;
 
   /* now, solve in dimension 3... reduction to the diagonal case: */
   x1 = mkcol3(gen_1, gen_0, gen_0);
-  x2 = mkcol3(negi(gcoeff(G2,1,2)), gcoeff(G2,1,1), gen_0);
-
-  N1 =  Fp_neg(v2,  p);
-  if (kronecker(N1,p) == 1) {
-    s = Fp_sqrt(N1,p);
-    S = ZC_lincomb(s,gen_1,x1,x2);
-    goto END;
-  }
-
-  x3 = mkcol3(subii(mulii(gcoeff(G2,2,2),gcoeff(G2,1,3)),
-                    mulii(gcoeff(G2,2,3),gcoeff(G2,1,2))),
-              subii(mulii(gcoeff(G2,1,1),gcoeff(G2,2,3)),
-                    mulii(gcoeff(G2,1,3),gcoeff(G2,1,2))),
-              subii(sqri(gcoeff(G2,1,2)),
-                    mulii(gcoeff(G2,1,1),gcoeff(G2,2,2)))
-       );
-  x3 = FpC_red(x3, p);
-  mv3 = Fp_neg(v3,p);
-  N2 = Fp_div(mv3, v1, p);
-  if (kronecker(N2,p) == 1) {
-    s = Fp_sqrt(N2,p);
-    S = ZC_lincomb(s,gen_1,x2,x3);
-    goto END;
-  }
-  N3 = Fp_div(Fp_mul(v2,mv3,p), v1, p);
-  if (kronecker(N3,p) == 1)
-  {
-    s = Fp_sqrt(N3,p);
-    S = ZC_lincomb(s,gen_1,x1,x3);
-    goto END;
-  }
+  x2 = mkcol3(negi(b), a, gen_0);
+  if (kronecker(N1,p) == 1) return ZC_lincomb(Fp_sqrt(N1,p),gen_1,x1,x2);
+  N2 = Fp_div(Fp_neg(v3,p), v1, p);
+  if (kronecker(N2,p) == 1) return ZC_lincomb(Fp_sqrt(N2,p),gen_1,x2,x3);
+  N3 = Fp_mul(v2, N2, p);
+  if (kronecker(N3,p) == 1) return ZC_lincomb(Fp_sqrt(N3,p),gen_1,x1,x3);
   r = gen_1;
   for(;;)
   {
@@ -807,9 +804,7 @@ qfsolvemodp(GEN G, GEN p)
     r = randomi(p);
   }
   s = Fp_sqrt(Fp_div(s,N3,p), p);
-  S = ZC_add(x1, ZC_lincomb(r,s,x2,x3));
-END:
-  return vecextend(S, l-1);
+  return ZC_add(x1, ZC_lincomb(r,s,x2,x3));
 }
 
 /* Given a square matrix G of dimension n >= 1, */
