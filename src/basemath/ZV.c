@@ -246,6 +246,25 @@ ZM_transmultosym(GEN x, GEN y)
   }
   return M;
 }
+/* x~ * y */
+GEN
+ZM_transmul(GEN x, GEN y)
+{
+  long i, j, l, lx, ly = lg(y);
+  GEN M;
+  if (ly == 1) return cgetg(1,t_MAT);
+  lx = lg(x);
+  l = lgcols(y);
+  if (lgcols(x) != l) pari_err_OP("operation 'ZM_transmul'", x,y);
+  M = cgetg(ly, t_MAT);
+  for (i=1; i<ly; i++)
+  {
+    GEN yi = gel(y,i), c = cgetg(lx,t_COL);
+    gel(M,i) = c;
+    for (j=1; j<lx; j++) gel(c,j) = ZV_dotproduct_i(yi,gel(x,j),l);
+  }
+  return M;
+}
 GEN
 ZM_ZC_mul(GEN x, GEN y)
 {

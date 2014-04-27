@@ -215,34 +215,39 @@ partialgaussred(GEN a)
 }
 
 /* LLL-reduce a positive definite qf QD bounding the indefinite G, dim G > 1.
- * Then finishes the reduction with qfsolvetriv() */
-static GEN qfsolvetriv(GEN G, long base);
+ * Then finishes by looking for trivial solution */
+static GEN qftriv(GEN G, GEN z, long base);
 static GEN
 qflllgram_indef(GEN G, long base)
 {
-  GEN M, R, g, DM, S;
+  GEN M, R, g, DM, S, dR;
   long i, j, n = lg(G)-1;
 
   R = partialgaussred(G);
-  if (typ(R) == t_INT) return qfsolvetriv(G,base);
+  if (typ(R) == t_INT) return qftriv(G, R, base);
+  R = Q_remove_denom(R, &dR); /* avoid rational arithmetic */
   M = zeromatcopy(n,n);
   DM = zeromatcopy(n,n);
   for (i = 1; i <= n; i++)
   {
-    GEN d = Q_abs_shallow(gcoeff(R,i,i));
-    gcoeff(M,i,i) = gen_1;
-    gcoeff(DM,i,i) = d;
+    GEN d = absi_shallow(gcoeff(R,i,i));
+    if (dR) {
+      gcoeff(M,i,i) = dR;
+      gcoeff(DM,i,i) = mulii(d,dR);
+    } else {
+      gcoeff(M,i,i) = gen_1;
+      gcoeff(DM,i,i) = d;
+    }
     for (j = i+1; j <= n; j++)
     {
       gcoeff(M,i,j) = gcoeff(R,i,j);
-      gcoeff(DM,i,j) = gmul(d, gcoeff(R,i,j));
+      gcoeff(DM,i,j) = mulii(d, gcoeff(R,i,j));
     }
   }
   /* G = M~*D*M, D diagonal, DM=|D|*M, g =  M~*|D|*M */
-  g = RgM_transmultosym(M,DM);
+  g = ZM_transmultosym(M,DM);
   S = lllgramint(Q_primpart(g));
-  if (lg(S)-1 < n) S = completebasis(S, 0);
-  R = qfsolvetriv(qf_apply_ZM(G,S), base);
+  R = qftriv(qf_apply_ZM(G,S), NULL, base);
   switch(typ(R))
   {
     case t_COL: return ZM_ZC_mul(S,R);
@@ -465,18 +470,18 @@ qfminimize(GEN G, GEN P, GEN E)
       }
       else
       {
-        GEN A,B,C, K2 = RgM_Rg_div(principal_minor(G,dimKer),p);
+        GEN A,B,C, K2 = ZsymM_Z_divexact(principal_minor(G,dimKer),p);
         long j, dimKer2;
         K2 = kermodp(K2, p, &dimKer2);
-        for (j = 1; j <= dimKer2; j++) gel(K2,j) = RgC_Rg_div(gel(K2,j), p);
-        /* Write G = [A,B;B~,C] and apply [K2,0;0,Id] by blocks */
+        for (j = dimKer2+1; j <= dimKer; j++) gel(K2,j) = ZC_Z_mul(gel(K2,j),p);
+        /* Write G = [A,B;B~,C] and apply [K2,0;0,p*Id]/p by blocks */
         blocks4(G, dimKer,n, &A,&B,&C);
-        A = qf_apply_RgM(A,K2);
-        B = RgM_transmul(B,K2);
+        A = ZsymM_Z_divexact(qf_apply_ZM(A,K2), sqri(p));
+        B = ZM_Z_divexact(ZM_transmul(B,K2), p);
         G = shallowmatconcat(mkmat2(mkcol2(A,B),
                                     mkcol2(shallowtrans(B), C)));
         /* U *= [K2,0;0,Id] */
-        U = shallowconcat(RgM_mul(vecslice(U,1,dimKer),K2),
+        U = shallowconcat(RgM_Rg_div(RgM_mul(vecslice(U,1,dimKer),K2), p),
                           vecslice(U,dimKer+1,n));
         E[i] -= 2*dimKer2;
       }
@@ -507,13 +512,14 @@ qfminimize(GEN G, GEN P, GEN E)
     }
     if (sol)
     {
+      long j;
       sol = FpC_center(sol, p, shifti(p,-1));
       sol = Q_primpart(sol);
       if (DEBUGLEVEL >= 4) err_printf("    sol = %Ps\n", sol);
       Ker = completebasis(vecextend(sol,n), 1);
-      gel(Ker,n) = RgC_Rg_div(gel(Ker,n), p);
-      G = qf_apply_RgM(G, Ker);
-      U = RgM_mul(U,Ker);
+      for(j=1; j<n; j++) gel(Ker,j) = ZC_Z_mul(gel(Ker,j), p);
+      G = ZsymM_Z_divexact(qf_apply_ZM(G, Ker), sqri(p));
+      U = RgM_Rg_div(RgM_mul(U,Ker), p);
       E[i] -= 2;
       i--; continue; /* same p */
     }
@@ -529,7 +535,7 @@ qfminimize(GEN G, GEN P, GEN E)
       if (DEBUGLEVEL >= 4) err_printf("    case 3\n");
       Ker = matid(n);
       for (j = dimKer+1; j <= n; j++) gcoeff(Ker,j,j) = p;
-      G = RgM_Rg_div(qf_apply_ZM(G, Ker), p);
+      G = ZsymM_Z_divexact(qf_apply_ZM(G, Ker), p);
       U = RgM_mul(U,Ker);
       E[i] -= 2*dimKer-n;
       i--; continue; /* same p */
@@ -724,42 +730,36 @@ both_pm1(GEN x, GEN y)
  * If base == 1 and norm 0 is obtained, returns [H~*G*H,H] where
  * the 1st column of H is a norm 0 vector */
 static GEN
-qfsolvetriv(GEN G, long base)
+qftriv(GEN G, GEN R, long base)
 {
   long n = lg(G)-1, i;
-  GEN s, H = matid(n);
+  GEN s, H;
 
   /* case 1: A basis vector is isotropic */
   for (i = 1; i <= n; i++)
     if (!signe(gcoeff(G,i,i)))
     {
-      s = gel(H,i);
-      if (!base) return s;
-      gel(H,i) = gel(H,1); gel(H,1) = s;
+      if (!base) return col_ei(n,i);
+      H = matid(n); swap(gel(H,1), gel(H,i));
       return mkvec2(qf_apply_tau(G,1,i),H);
     }
   /* case 2: G has a block +- [1,0;0,-1] on the diagonal */
   for (i = 2; i <= n; i++)
     if (!signe(gcoeff(G,i-1,i)) && both_pm1(gcoeff(G,i-1,i-1),gcoeff(G,i,i)))
     {
-      s = gel(H,i); gel(s,i-1) = gen_m1;
+      s = col_ei(n,i); gel(s,i-1) = gen_m1;
       if (!base) return s;
-      gel(H,i) = gel(H,1); gel(H,1) = s;
+      H = matid(n); gel(H,i) = gel(H,1); gel(H,1) = s;
       return mkvec2(qf_apply_ZM(G,H),H);
     }
+  if (!R) return G; /* fail */
   /* case 3: a principal minor is 0 */
-  for (i = 2; i <= n; i++)
-  {
-    GEN GG = principal_minor(G,i);
-    if (signe(ZM_det(GG))) continue;
-    s = gel(keri(GG),1);
-    s = vecextend(Q_primpart(s), n);
-    if (!base) return s;
-    H = completebasis(s, 0);
-    gel(H,n) = ZC_neg(gel(H,1)); gel(H,1) = s;
-    return mkvec2(qf_apply_ZM(G,H),H);
-  }
-  return G;
+  s = keri(principal_minor(G, itos(R)));
+  s = vecextend(Q_primpart(gel(s,1)), n);
+  if (!base) return s;
+  H = completebasis(s, 0);
+  gel(H,n) = ZC_neg(gel(H,1)); gel(H,1) = s;
+  return mkvec2(qf_apply_ZM(G,H),H);
 }
 
 /* p a prime number, G 3x3 symetric. Finds X!=0 such that X^t G X = 0 mod p.
@@ -830,7 +830,13 @@ qfsolve_i(GEN G)
 
   /* Trivial case: det = 0 */
   d = ZM_det(G);
-  if (!signe(d)) return ker(G);
+  if (!signe(d))
+  {
+    if (n == 1) return mkcol(gen_1);
+    sol = keri(G);
+    if (lg(sol) == 2) sol = gel(sol,1);
+    return sol;
+  }
 
   /* Small dimension: n <= 2 */
   if (n == 1) return gen_m1;

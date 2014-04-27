@@ -882,6 +882,7 @@ GEN     ZM_sub(GEN x, GEN y);
 GEN     ZM_supnorm(GEN x);
 GEN     ZM_to_Flm(GEN x, ulong p);
 GEN     ZM_to_zm(GEN z);
+GEN     ZM_transmul(GEN x, GEN y);
 GEN     ZM_transmultosym(GEN x, GEN y);
 GEN     ZMV_to_zmV(GEN z);
 void    ZM_togglesign(GEN M);

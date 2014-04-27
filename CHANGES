@@ -49,6 +49,7 @@ HIL17- GP functions ellisogeny, ellisogenyapply
 BA 19- [libpari] New functions Fl_halve, Fp_halve, Flx_halve, Fq_halve
 BA 20- [libpari] New functions vecsmallpermute, vec_append
    21- GP functions qfsolve, qfparam [ adapted from Denis Simon's qfsolve.gp ]
+   22- [libpari] New function ZM_transmul
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]
