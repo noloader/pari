@@ -178,42 +178,68 @@ qfbreduce(GEN D, GEN Q)
   return qfb(D,a,shifti(b,1),c);
 }
 
+/* private version of qfgaussred:
+ * - early abort if k-th principal minor is singular, return stoi(k)
+ * - else return a matrix whose upper triangular part is qfgaussred(a) */
+static GEN
+partialgaussred(GEN a)
+{
+  long n = lg(a)-1, k;
+  a = RgM_shallowcopy(a);
+  for(k = 1; k < n; k++)
+  {
+    GEN ak, p = gcoeff(a,k,k);
+    long i, j;
+    if (isintzero(p)) return stoi(k);
+    ak = row(a, k);
+    for (i=k+1; i<=n; i++) gcoeff(a,k,i) = gdiv(gcoeff(a,k,i), p);
+    for (i=k+1; i<=n; i++)
+    {
+      GEN c = gel(ak,i);
+      if (gequal0(c)) continue;
+      for (j=i; j<=n; j++)
+        gcoeff(a,i,j) = gsub(gcoeff(a,i,j), gmul(c,gcoeff(a,k,j)));
+    }
+  }
+  return a;
+}
+
 /* LLL-reduce a positive definite qf QD bounding the indefinite G, dim G > 1.
  * Then finishes the reduction with qfsolvetriv() */
 static GEN qfsolvetriv(GEN G, long base);
 static GEN
 qflllgram_indef(GEN G, long base)
 {
-  GEN M, QD, M1, S, red;
-  long i, n = lg(G)-1;
+  GEN M, R, g, DM, S;
+  long i, j, n = lg(G)-1;
 
-  M = NULL;
-  QD = G;
-  /* gaussred with early abort when a principal minor is singular */
-  for (i = 1; i < n; i++)
+  R = partialgaussred(G);
+  if (typ(R) == t_INT) return qfsolvetriv(G,base);
+  M = zeromatcopy(n,n);
+  DM = zeromatcopy(n,n);
+  for (i = 1; i <= n; i++)
   {
-    GEN d = gcoeff(QD,i,i);
-    long j;
-    if (isintzero(d)) return qfsolvetriv(G,base);
-    M1 = matid(n); d = gneg(d);
-    for(j = i+1; j <= n; j++) gcoeff(M1,i,j) = gdiv(gcoeff(QD,i,j), d);
-    M = M? RgM_mul(M,M1): M1;
-    QD = qf_apply_RgM(QD,M1);
+    GEN d = Q_abs_shallow(gcoeff(R,i,i));
+    gcoeff(M,i,i) = gen_1;
+    gcoeff(DM,i,i) = d;
+    for (j = i+1; j <= n; j++)
+    {
+      gcoeff(M,i,j) = gcoeff(R,i,j);
+      gcoeff(DM,i,j) = gmul(d, gcoeff(R,i,j));
+    }
   }
-  /* M~*G*M = QD diagonal */
-  M = RgM_inv_upper(M);
-  for (i=1; i<=n; i++) gcoeff(QD,i,i) = Q_abs_shallow(gcoeff(QD,i,i));
-  QD = qf_apply_RgM(QD, M);
-  S = lllgramint(Q_primpart(QD));
+  /* G = M~*D*M, D diagonal, DM=|D|*M, g =  M~*|D|*M */
+  g = RgM_transmultosym(M,DM);
+  S = lllgramint(Q_primpart(g));
   if (lg(S)-1 < n) S = completebasis(S, 0);
-  red = qfsolvetriv(qf_apply_ZM(G,S), base);
-  switch(typ(red))
+  R = qfsolvetriv(qf_apply_ZM(G,S), base);
+  switch(typ(R))
   {
-    case t_COL: return ZM_ZC_mul(S,red);
-    case t_MAT: return mkvec2(red, S);
+    case t_COL: return ZM_ZC_mul(S,R);
+    case t_MAT: return mkvec2(R, S);
     default:
-      gel(red,2) = RgM_mul(S, gel(red,2));
-      return red;
+      gel(R,2) = RgM_mul(S, gel(R,2));
+      return R;
   }
 }
 
