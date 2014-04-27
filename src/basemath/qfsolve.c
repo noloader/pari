@@ -207,57 +207,83 @@ qflllgram_indef(GEN G, long base)
   S = lllgramint(Q_primpart(QD));
   if (lg(S)-1 < n) S = completebasis(S, 0);
   red = qfsolvetriv(qf_apply_ZM(G,S), base);
-  if (typ(red) == t_COL) return ZM_ZC_mul(S,red);
-  gel(red,2) = gmul(S, gel(red,2));
-  if (lg(red) == 4) gel(red,3) = gmul(S, gel(red,3));
-  return red;
+  switch(typ(red))
+  {
+    case t_COL: return ZM_ZC_mul(S,red);
+    case t_MAT: return mkvec2(red, S);
+    default:
+      gel(red,2) = RgM_mul(S, gel(red,2));
+      return red;
+  }
+}
+
+/* G symetric, i < j, let E = E_{i,j}(a), G <- E~*G*E,  U <- U*E.
+ * Everybody integral */
+static void
+qf_apply_transvect_Z(GEN G, GEN U, long i, long j, GEN a)
+{
+  long k, n = lg(G)-1;
+  gel(G, j) =  ZC_lincomb(gen_1, a, gel(G,j), gel(G,i));
+  for (k = 1; k < n; k++) gcoeff(G, j, k) = gcoeff(G, k, j);
+  gcoeff(G,j,j) = addmulii(gcoeff(G,j,j), a,
+                           addmulii(gcoeff(G,i,j), a,gcoeff(G,i,i)));
+  gel(U, j) =  ZC_lincomb(gen_1, a, gel(U,j), gel(U,i));
 }
 
 /* LLL reduction of the quadratic form G (Gram matrix)
-k* where we go on, even if an isotropic vector is found. */
+ * where we go on, even if an isotropic vector is found. */
 static GEN
 qflllgram_indefgoon(GEN G)
 {
-  GEN red, U, U1, G2, U2, G3, U3, G4, V, B, U4, G5, U5, G6, g;
-  long j, n;
+  GEN red, U, A, U1,U2,U3,U5,U6, V, B, G2,G3,G4,G5, G6, a, g;
+  long i, j, n = lg(G)-1;
 
   red = qflllgram_indef(G,1);
-  if (lg(red) == 3) return red; /* no isotropic vector found: nothing to do */
+  if (typ(red)==t_MAT) return red; /*no isotropic vector found: nothing to do*/
   /* otherwise a solution is found: */
   U1 = gel(red,2);
   G2 = gel(red,1); /* G2[1,1] = 0 */
   U2 = gel(mathnf0(row(G2,1), 4), 2);
   G3 = qf_apply_ZM(G2,U2);
-  /* The first line of G3 only contains 0, except some 'g' on the right,
-   * where g^2| det G. */
-  n = lg(G)-1; g = gcoeff(G3,1,n);
+  U = ZM_mul(U1,U2); /* qf_apply(G,U) = G3 */
+  /* G3[1,] = [0,...,0,g], g^2 | det G */
+  g = gcoeff(G3,1,n);
+  a = diviiround(negi(gcoeff(G3,n,n)), shifti(g,1));
+  if (signe(a)) qf_apply_transvect_Z(G3,U,1,n,a);
+  /* G3[n,n] reduced mod 2g */
+  if (n == 2) return mkvec2(G3,U);
+  V = rowpermute(vecslice(G3, 2,n-1), mkvecsmall2(1,n));
+  A = mkmat2(mkcol2(gcoeff(G3,1,1),gcoeff(G3,1,n)),
+             mkcol2(gcoeff(G3,1,n),gcoeff(G3,2,2)));
+  B = ground(RgM_neg(RgM_mul(RgM_inv(A), V)));
   U3 = matid(n);
-  gcoeff(U3,1,n) = diviiround(negi(gcoeff(G3,n,n)), shifti(g,1));
-  G4 = qf_apply_ZM(G3,U3); /* G4[n,n] is reduced modulo 2g */
-  U = mkmat2(mkcol2(gcoeff(G4,1,1),gcoeff(G4,1,n)),
-             mkcol2(gcoeff(G4,1,n),gcoeff(G4,2,2)));
-  if (n == 2)
-    V = cgetg(1,t_MAT); /* should be 2x0 */
-  else
-    V = rowpermute(vecslice(G4, 2,n-1), mkvecsmall2(1,n));
-  B = ground(gneg(RgM_mul(RgM_inv(U), V)));
-  U4 = matid(n);
   for (j = 2; j < n; j++)
   {
-    gcoeff(U4,1,j) = gcoeff(B,1,j-1);
-    gcoeff(U4,n,j) = gcoeff(B,2,j-1);
+    gcoeff(U3,1,j) = gcoeff(B,1,j-1);
+    gcoeff(U3,n,j) = gcoeff(B,2,j-1);
   }
-  G5 = qf_apply_ZM(G4,U4); /* the last column of G5 is reduced */
-  U = U1;
-  U = ZM_mul(U,U2);
+  G4 = qf_apply_ZM(G3,U3); /* the last column of G4 is reduced */
   U = ZM_mul(U,U3);
-  U = ZM_mul(U,U4);
-  if (n < 4) return mkvec2(G5,U);
+  if (n == 3) return mkvec2(G4,U);
 
-  red = qflllgram_indefgoon(rowslice(vecslice(G5,2,n-1),2,n-1));
-  U5 = shallowmatconcat(diagonal_shallow(mkvec3(gen_1, gel(red,2), gen_1)));
-  G6 = qf_apply_ZM(G5,U5);
-  return mkvec2(G6, ZM_mul(U,U5));
+  red = qflllgram_indefgoon(rowslice(vecslice(G4,2,n-1),2,n-1));
+  if (typ(red) == t_MAT) return mkvec2(G4,U);
+  /* Let U5:=matconcat(diagonal[1,red[2],1])
+   * return [qf_apply_ZM(G5, U5), U*U5] */
+  G5 = gel(red,1);
+  U5 = gel(red,2);
+  G6 = cgetg(n+1,t_MAT);
+  gel(G6,1) = gel(G4,1);
+  gel(G6,n) = gel(G4,n);
+  for (j=2; j<n; j++)
+  {
+    gel(G6,j) = cgetg(n+1,t_COL);
+    gcoeff(G6,1,j) = gcoeff(G4,j,1);
+    gcoeff(G6,n,j) = gcoeff(G4,j,n);
+    for (i=2; i<n; i++) gcoeff(G6,i,j) = gcoeff(G5,i-1,j-1);
+  }
+  U6 = mkvec3(mkmat(gel(U,1)), ZM_mul(vecslice(U,2,n-1),U5), mkmat(gel(U,n)));
+  return mkvec2(G6, shallowconcat1(U6));
 }
 
 /* qf_apply_ZM(G,H),  where H = matrix of \tau_{i,j}, i != j */
@@ -632,10 +658,10 @@ both_pm1(GEN x, GEN y)
 
 /* Try to solve G = 0 with small coefficients. This is proved to work if
  * -  det(G) = 1, dim <= 6 and G is LLL reduced
- * Returns [G,matid] if no solution is found.
+ * Returns G if no solution is found.
  * Exit with a norm 0 vector if one such is found.
- * If base == 1 and norm 0 is obtained, returns [H~*G*H,H,sol] where
- * sol is a norm 0 vector and is the 1st column of H. */
+ * If base == 1 and norm 0 is obtained, returns [H~*G*H,H] where
+ * the 1st column of H is a norm 0 vector */
 static GEN
 qfsolvetriv(GEN G, long base)
 {
@@ -649,7 +675,7 @@ qfsolvetriv(GEN G, long base)
       s = gel(H,i);
       if (!base) return s;
       gel(H,i) = gel(H,1); gel(H,1) = s;
-      return mkvec3(qf_apply_tau(G,1,i),H,s);
+      return mkvec2(qf_apply_tau(G,1,i),H);
     }
   /* case 2: G has a block +- [1,0;0,-1] on the diagonal */
   for (i = 2; i <= n; i++)
@@ -658,7 +684,7 @@ qfsolvetriv(GEN G, long base)
       s = gel(H,i); gel(s,i-1) = gen_m1;
       if (!base) return s;
       gel(H,i) = gel(H,1); gel(H,1) = s;
-      return mkvec3(qf_apply_ZM(G,H),H,s);
+      return mkvec2(qf_apply_ZM(G,H),H);
     }
   /* case 3: a principal minor is 0 */
   for (i = 2; i <= n; i++)
@@ -670,9 +696,9 @@ qfsolvetriv(GEN G, long base)
     if (!base) return s;
     H = completebasis(s, 0);
     gel(H,n) = ZC_neg(gel(H,1)); gel(H,1) = s;
-    return mkvec3(qf_apply_ZM(G,H),H,s);
+    return mkvec2(qf_apply_ZM(G,H),H);
   }
-  return mkvec2(G,H);
+  return G;
 }
 
 /* p a prime number, G square such that det(G) !=0 mod p and dim G = n>=3
@@ -927,9 +953,6 @@ qfsolve_i(GEN G)
   /* |det(G2)| = 1, find a totally isotropic subspace for G2 */
   solG2 = qflllgram_indefgoon(G2);
   /* G2 must have a subspace of solutions of dimension > codim */
-  if (!gequal0(principal_minor(gel(solG2,1),codim+1)))
-    pari_err_BUG("qfsolve (not enough solutions in G2)");
-
   dim = codim+2;
   while(gequal0(principal_minor(gel(solG2,1), dim))) dim ++;
   solG2 = vecslice(gel(solG2,2), 1, dim-1);
