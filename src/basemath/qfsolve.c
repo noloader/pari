@@ -248,7 +248,7 @@ qflllgram_indef(GEN G, long base)
     case t_COL: return ZM_ZC_mul(S,R);
     case t_MAT: return mkvec2(R, S);
     default:
-      gel(R,2) = RgM_mul(S, gel(R,2));
+      gel(R,2) = ZM_mul(S, gel(R,2));
       return R;
   }
 }
@@ -871,7 +871,7 @@ qfsolve_i(GEN G)
   Min = qfminimize(G, P, E);
   if (typ(Min) == t_INT) return Min;
 
-  M = gmul(M, gel(Min,2));
+  M = RgM_mul(M, gel(Min,2));
   G = gel(Min,1);
   P = gel(Min,3);
   E = gel(Min,4);
@@ -885,9 +885,9 @@ qfsolve_i(GEN G)
   /* Reduction of G and search for trivial solutions. */
   /* When |det G|=1, such trivial solutions always exist. */
   U = qflllgram_indef(G,0);
-  if(typ(U) == t_COL) return gmul(M,U);
+  if(typ(U) == t_COL) return RgM_RgC_mul(M,U);
   G = gel(U,1);
-  M = gmul(M, gel(U,2));
+  M = RgM_mul(M, gel(U,2));
   /* P,E = factor(|det(G))| */
 
   /* If n >= 6 is even, need to increment the dimension by 1 to suppress all
@@ -1013,7 +1013,7 @@ qfsolve_i(GEN G)
     K = ker(rowslice(sol,n,n));
     sol = RgM_mul(rowslice(sol,1,n-1), K);
   }
-  sol = Q_primpart(gmul(M, sol));
+  sol = Q_primpart(RgM_mul(M, sol));
   if (lg(sol) == 2) sol = gel(sol,1);
   return sol;
 }
