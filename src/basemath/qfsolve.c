@@ -21,6 +21,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #include "paripriv.h"
 
 /* LINEAR ALGEBRA */
+/* complete by 0s, assume l-1 <= n */
+static GEN
+vecextend(GEN v, long n)
+{
+  long i, l = lg(v);
+  GEN w = cgetg(n+1, t_COL);
+  for (i = 1; i < l; i++) gel(w,i) = gel(v,i);
+  for (     ; i <=n; i++) gel(w,i) = gen_0;
+  return w;
+}
 
 /* Gives a unimodular matrix with the last column(s) equal to Mv.
  * Mv can be a column vector or a rectangular matrix.
@@ -386,7 +396,7 @@ static GEN
 qfminimize(GEN G, GEN P, GEN E)
 {
   GEN d, U, Ker, sol, aux, faE, faP;
-  long n = lg(G)-1, lP = lg(P), i, dimKer, dimKer2, m;
+  long n = lg(G)-1, lP = lg(P), i, dimKer, m;
 
   faP = vectrunc_init(lP);
   faE = vecsmalltrunc_init(lP);
@@ -431,14 +441,21 @@ qfminimize(GEN G, GEN P, GEN E)
       }
       else
       {
-        GEN Ker2 = RgM_Rg_div(principal_minor(G,dimKer),p);
-        long j;
-        Ker2 = kermodp(Ker2, p, &dimKer2);
-        for (j = 1; j <= dimKer2; j++)
-          gel(Ker2,j) = RgC_Rg_div(gel(Ker2,j), p);
-        Ker2 = shallowmatconcat(diagonal_shallow(mkvec2(Ker2,matid(n-dimKer))));
-        G = qf_apply_RgM(G, Ker2);
-        U = RgM_mul(U,Ker2);
+        GEN A,B,C, K2 = RgM_Rg_div(principal_minor(G,dimKer),p);
+        long j, dimKer2;
+        K2 = kermodp(K2, p, &dimKer2);
+        for (j = 1; j <= dimKer2; j++) gel(K2,j) = RgC_Rg_div(gel(K2,j), p);
+        /* Write G = [A,B;B~,C] and apply [K2,0;0,Id] by blocks */
+        A = principal_minor(G, dimKer);
+        B = rowslice(vecslice(G,dimKer+1,n), 1, dimKer);
+        C = rowslice(vecslice(G,dimKer+1,n), dimKer+1, n);
+        A = qf_apply_RgM(A,K2);
+        B = RgM_transmul(K2, B);
+        G = shallowmatconcat(mkmat2(mkcol2(A,shallowtrans(B)),
+                                    mkcol2(B, C)));
+        /* U *= [K2,0;0,Id] */
+        U = shallowconcat(RgM_mul(vecslice(U,1,dimKer),K2),
+                          vecslice(U,dimKer+1,n));
         E[i] -= 2*dimKer2;
       }
       i--; continue; /* same p */
@@ -474,13 +491,10 @@ qfminimize(GEN G, GEN P, GEN E)
     }
     if (sol)
     {
-      long j;
       sol = FpC_center(sol, p, shifti(p,-1));
       sol = Q_primpart(sol);
       if (DEBUGLEVEL >= 4) err_printf("    sol = %Ps\n", sol);
-      Ker = zerocol(n);
-      for (j = 1; j <= dimKer; j++) gel(Ker,j) = gel(sol,j); /* fill with 0's */
-      Ker = completebasis(Ker,1);
+      Ker = completebasis(vecextend(sol,n), 1);
       gel(Ker,n) = RgC_Rg_div(gel(Ker,n), p);
       G = qf_apply_RgM(G, Ker);
       U = RgM_mul(U,Ker);
@@ -718,7 +732,7 @@ qfsolvetriv(GEN G, long base)
     GEN GG = principal_minor(G,i);
     if (signe(ZM_det(GG))) continue;
     s = gel(keri(GG),1);
-    s = shallowconcat(Q_primpart(s), zerocol(n-i));
+    s = vecextend(Q_primpart(s), n);
     if (!base) return s;
     H = completebasis(s, 0);
     gel(H,n) = ZC_neg(gel(H,1)); gel(H,1) = s;
@@ -732,9 +746,9 @@ qfsolvetriv(GEN G, long base)
 static GEN
 qfsolvemodp(GEN G, GEN p)
 {
-  GEN vdet, v1, v2, v3, mv3, G2,sol,x1,x2,x3,N1,N2,N3,s,r, S;
+  GEN vdet, v1, v2, v3, mv3, G2,x1,x2,x3,N1,N2,N3,s,r, S;
   GEN po2 = shifti(p,-1);
-  long i, j, l = lg(G);
+  long i, l = lg(G);
 
   vdet = cgetg(4, t_VEC);
   for (i = 1; i <= 3; i++)
@@ -795,9 +809,7 @@ qfsolvemodp(GEN G, GEN p)
   s = Fp_sqrt(Fp_div(s,N3,p), p);
   S = ZC_add(x1, ZC_lincomb(r,s,x2,x3));
 END:
-  sol = zerocol(l-1);
-  for  (j = 1; j <= i; j++) gel(sol,j) = gel(S,j);
-  return sol;
+  return vecextend(S, l-1);
 }
 
 /* Given a square matrix G of dimension n >= 1, */
