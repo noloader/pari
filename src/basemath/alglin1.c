@@ -3689,26 +3689,17 @@ ZM_det3(GEN M)
   GEN a = gcoeff(M,1,1), b = gcoeff(M,1,2), c = gcoeff(M,1,3);
   GEN d = gcoeff(M,2,1), e = gcoeff(M,2,2), f = gcoeff(M,2,3);
   GEN g = gcoeff(M,3,1), h = gcoeff(M,3,2), i = gcoeff(M,3,3);
-  GEN p1,p2,p3,p4,p5,p6, D;
-  if (!signe(i)) p1 = p5 = gen_0;
-  else
+  GEN t, D = signe(i)? mulii(subii(mulii(a,e), mulii(b,d)), i): gen_0;
+  if (signe(g))
   {
-    p1 = mulii(mulii(a,e), i);
-    p5 = mulii(mulii(b,d), i);
+    t = mulii(subii(mulii(b,f), mulii(c,e)), g);
+    D = addii(D, t);
   }
-  if (!signe(g)) p2 = p6 = gen_0;
-  else
+  if (signe(h))
   {
-    p2 = mulii(mulii(b,f), g);
-    p6 = mulii(mulii(c,e), g);
+    t = mulii(subii(mulii(c,d), mulii(a,f)), h);
+    D = addii(D, t);
   }
-  if (!signe(h)) p3 = p4 = gen_0;
-  else
-  {
-    p3 = mulii(mulii(c,d), h);
-    p4 = mulii(mulii(a,f), h);
-  }
-  D = subii(addii(p1,addii(p2,p3)), addii(p4,addii(p5,p6)));
   return gerepileuptoint(av, D);
 }
 
