@@ -2547,65 +2547,74 @@ usp(GEN Q0, long deg, long *nb_donep, long flag, long bitprec)
     }
     else if (DEBUGLEVEL > 2) err_printf("Q=%Ps\n", Q);
 
-    nb = X2XP1(Q, deg0, flag ? &Qremapped : NULL);
+    nb = X2XP1(Q, deg0, flag == 1 ? &Qremapped : NULL);
     nb_done++;
 
     if (DEBUGLEVEL > 1) err_printf("nb = %ld\n", nb);
 
     switch (nb)
     {
-    case 0:
-      if (DEBUGLEVEL > 2) err_printf("No root in this interval\n");
-      break;
-    case 1:
-      if (DEBUGLEVEL > 2) err_printf("A simple root in this interval\n");
-      if (!flag)
-      {
-        GEN low, hi;
-        low = gmul2n(c, -k);
-        hi  = gmul2n(addiu(c,1), -k);
-        gel(sol, ++nbr) = mkvec2(low, hi);
-      }
-      else
-      { /* Caveat emptor: Qremapped is the reciprocal polynomial */
-        GEN sr = polsolve(Qremapped, bitprec);
-        gel(sol, ++nbr) = rtor(gmul2n(addir(c, divrr(sr, addsr(1, sr))), -k), nbits2prec(bitprec));
-      }
+      case 0:
+        if (DEBUGLEVEL > 2) err_printf("No root in this interval\n");
+        break;
+      case 1:
+        if (DEBUGLEVEL > 2) err_printf("A simple root in this interval\n");
+        switch(flag)
+        {
+          case 0:
+              {
+              GEN low, hi;
+              low = gmul2n(c, -k);
+              hi  = gmul2n(addiu(c,1), -k);
+              gel(sol, ++nbr) = mkvec2(low, hi);
+            }
+            break;
+          case 1:
+            { /* Caveat emptor: Qremapped is the reciprocal polynomial */
+              GEN sr = polsolve(Qremapped, bitprec);
+	      sr = divrr(sr, addsr(1, sr));
+	      sr = gmul2n(addir(c, sr), -k);
+              gel(sol, ++nbr) = rtor(sr, nbits2prec(bitprec));
+            }
+            break;
+          default:
+            gel(sol, ++nbr) = gen_0;
+        }
       break;
 
-    default:
-      if (DEBUGLEVEL > 2)
-        err_printf("Maybe at least %ld roots, retry\n", nb);
-      if (indf + 2 > listsize)
-      {
-        if (ind>1)
-        {
-          for (i = ind; i < indf; i++)
-          {
-            gel(Lc, i-ind+1) = gel(Lc, i);
-            Lk[i-ind+1] = Lk[i];
-          }
-          indf -= ind-1; ind = 1;
-        }
+      default:
+        if (DEBUGLEVEL > 2)
+          err_printf("Maybe at least %ld roots, retry\n", nb);
         if (indf + 2 > listsize)
         {
-          listsize *= 2;
-          Lc = vec_lengthen(Lc, listsize);
-          Lk = vecsmall_lengthen(Lk, listsize);
+          if (ind>1)
+          {
+            for (i = ind; i < indf; i++)
+            {
+              gel(Lc, i-ind+1) = gel(Lc, i);
+              Lk[i-ind+1] = Lk[i];
+            }
+          indf -= ind-1; ind = 1;
+          }
+          if (indf + 2 > listsize)
+          {
+            listsize *= 2;
+            Lc = vec_lengthen(Lc, listsize);
+            Lk = vecsmall_lengthen(Lk, listsize);
+          }
+          for (i = indf; i <= listsize; i++) gel(Lc, i) = gen_0;
         }
-        for (i = indf; i <= listsize; i++) gel(Lc, i) = gen_0;
-      }
-      nc = shifti(c, 1);
-      gel(Lc, indf) = nc;
-      gel(Lc, indf + 1) = addis(nc, 1);
-      Lk[indf] = Lk[indf + 1] = k + 1;
-      indf += 2;
-      nb_todo += 2;
+        nc = shifti(c, 1);
+        gel(Lc, indf) = nc;
+        gel(Lc, indf + 1) = addis(nc, 1);
+        Lk[indf] = Lk[indf + 1] = k + 1;
+        indf += 2;
+        nb_todo += 2;
     }
 
     if (low_stack(lim, stack_lim(av, 2)))
     {
-      gerepileall(av, 6, &Q0, &Q, &sol, &c, &Lc, &Lk);
+      gerepileall(av, 6, &Q0, &Q, &c, &Lc, &Lk, &sol);
       if (DEBUGMEM > 1) pari_warn(warnmem, "ZX_uspensky", avma);
     }
   }
@@ -2619,12 +2628,12 @@ GEN
 ZX_uspensky(GEN P, GEN ab, long flag, long bitprec)
 {
   pari_sp av = avma;
-  GEN a, b, sol, Pcur;
+  GEN a, b, sol = NULL, Pcur;
   double fb;
   long nbz, deg, nb_done = 0;
 
   deg = degpol(P);
-  if (deg == 0) return cgetg(1, t_COL);
+  if (deg == 0) return flag <= 1 ? cgetg(1, t_COL) : gen_0;
   if (ab)
   {
     if (typ(ab) == t_VEC)
@@ -2646,28 +2655,35 @@ ZX_uspensky(GEN P, GEN ab, long flag, long bitprec)
   }
   switch (gcmp(a, b))
   {
-    case 1: avma = av; return cgetg(1, t_COL);
+    case 1: avma = av; return flag <= 1 ? cgetg(1, t_COL) : gen_0;
     case 0:
       if (typ(a) != t_INFINITY && gequal0(poleval(P, a)))
-      { avma = av; retmkcol(gcopy(a)); }
+      { avma = av; if (flag <= 1) retmkcol(gcopy(a)); else return gen_1; }
       else
-      { avma = av; return cgetg(1, t_COL); }
+      { avma = av; return flag <= 1 ? cgetg(1, t_COL) : gen_0; }
   }
   if (deg == 1)
   {
-    GEN sol = gdiv(gneg(gel(P, 2)), pollead(P, -1));
+    sol = gdiv(gneg(gel(P, 2)), pollead(P, -1));
     if (gcmp(a, sol) > 0 || gcmp(sol, b) > 0)
-    { avma = av; return cgetg(1, t_COL); }
+    { avma = av; return flag <= 1 ? cgetg(1, t_COL) : gen_0; }
+    if (flag >= 2) { avma = av; return gen_1; }
     return gerepilecopy(av, mkcol(sol));
   }
   nbz = ZX_valrem(P, &Pcur);
   deg -= nbz;
   if (!nbz) Pcur = P;
   if (nbz && (gsigne(a) > 0 || gsigne(b) < 0)) nbz = 0;
-  if (flag)
-    sol = const_col(nbz, real_0(bitprec));
-  else
-    sol = zerocol(nbz);
+  switch(flag)
+  {
+    case 0:
+      sol = zerocol(nbz);
+      break;
+    case 1:
+      sol = const_col(nbz, real_0(bitprec));
+      break;
+    /* case 2: nothing */
+  }
 
   if (typ(a) == t_INFINITY && typ(b) != t_INFINITY && gsigne(b))
   {
@@ -2717,33 +2733,45 @@ ZX_uspensky(GEN P, GEN ab, long flag, long bitprec)
     {
       Pcur = Pdiv;
       deg--;
-      sol = concat(sol, b);
+      if (flag <= 1)
+        sol = concat(sol, b);
+      else
+        nbz++;
     }
     else
       avma = av1;
     unscaledres = usp(Pcur, deg, &nb_done, flag, bitprec);
-    for (i = 1; i < lg(unscaledres); i++)
+    if (flag <= 1)
     {
-      GEN z = gmul(diff, gel(unscaledres, i));
-      if (typ(z) == t_VEC)
+      for (i = 1; i < lg(unscaledres); i++)
       {
-        gel(z, 1) = gadd(ascaled, gel(z, 1));
-        gel(z, 2) = gadd(ascaled, gel(z, 2));
+        GEN z = gmul(diff, gel(unscaledres, i));
+        if (typ(z) == t_VEC)
+        {
+          gel(z, 1) = gadd(ascaled, gel(z, 1));
+          gel(z, 2) = gadd(ascaled, gel(z, 2));
+        }
+        else
+          z = gadd(ascaled, z);
+        if (den) z = gdiv(z, den);
+        gel(unscaledres, i) = z;
       }
-      else
-        z = gadd(ascaled, z);
-      if (den) z = gdiv(z, den);
-      gel(unscaledres, i) = z;
+      sol = concat(sol, unscaledres);
     }
-    sol = concat(sol, unscaledres);
+    else
+      nbz += lg(unscaledres) - 1;
   }
   if (typ(b) == t_INFINITY && (fb=fujiwara_bound_real(Pcur, 1)) > -pariINFINITY)
   {
-    GEN Pcurp;
+    GEN Pcurp, unscaledres;
     long bp = (long)ceil(fb);
     if (DEBUGLEVEL > 1) err_printf("b+ = %d\n", bp);
     Pcurp = ZX_unscale2n(Pcur, bp);
-    sol = concat(sol, gmul2n(usp(Pcurp, deg, &nb_done, flag, bitprec), bp));
+    unscaledres = usp(Pcurp, deg, &nb_done, flag, bitprec);
+    if (flag <= 1)
+      sol = concat(sol, gmul2n(unscaledres, bp));
+    else
+      nbz += lg(unscaledres) - 1;
   }
   if (typ(a) == t_INFINITY && (fb=fujiwara_bound_real(Pcur,-1)) > -pariINFINITY)
   {
@@ -2753,18 +2781,24 @@ ZX_uspensky(GEN P, GEN ab, long flag, long bitprec)
     Pcurm = ZX_unscale(Pcur, gen_m1);
     Pcurm = ZX_unscale2n(Pcurm, bm);
     unscaledres = usp(Pcurm,deg,&nb_done,flag,bitprec);
-    for (i = 1; i < lg(unscaledres); i++)
+    if (flag <= 1)
     {
-      GEN z = gneg(gmul2n(gel(unscaledres, i), bm));
-      if (typ(z) == t_VEC) swap(gel(z, 1), gel(z, 2));
-      gel(unscaledres, i) = z;
+      for (i = 1; i < lg(unscaledres); i++)
+      {
+        GEN z = gneg(gmul2n(gel(unscaledres, i), bm));
+        if (typ(z) == t_VEC) swap(gel(z, 1), gel(z, 2));
+        gel(unscaledres, i) = z;
+      }
+      sol = concat(unscaledres, sol);
     }
-    sol = concat(unscaledres, sol);
+    else
+      nbz += lg(unscaledres) - 1;
   }
 
   if (DEBUGLEVEL > 2)
     err_printf("Number of visited nodes: %d\n", nb_done);
 
+  if (flag >= 2) return utoi(nbz);
   if (flag)
     sol = sort(sol);
   else
