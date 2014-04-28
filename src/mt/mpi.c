@@ -18,8 +18,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 static THREAD int pari_MPI_size, pari_MPI_rank;
 static THREAD long nbreq = 0;
 
-enum PMPI_cmd { PMPI_close, PMPI_worker, PMPI_work, PMPI_parisize,
-                PMPI_precreal, PMPI_eval };
+enum PMPI_cmd { PMPI_close, PMPI_worker, PMPI_work, PMPI_parisizemax,
+                PMPI_parisize, PMPI_precreal, PMPI_eval };
 
 struct mt_mstate
 {
@@ -145,7 +145,7 @@ static void
 pari_MPI_child(void)
 {
   pari_sp av = avma;
-  long size;
+  ulong rsize, vsize;
   GEN worker = NULL, work, done;
   struct gp_context rec;
   if (!diffptr) initprimetable(500000);
@@ -159,7 +159,8 @@ pari_MPI_child(void)
     switch (recvfrom_request(0))
     {
     case PMPI_worker:
-      avma = pari_mainstack->top;
+      paristack_setsize(rsize, vsize);
+      gp_context_save(&rec);
       worker = recvfrom_GEN(0);
       av = avma;
       break;
@@ -169,10 +170,11 @@ pari_MPI_child(void)
       send_GEN(done, 0);
       avma = av;
       break;
+    case PMPI_parisizemax:
+      vsize = recvfrom_long(0);
+      break;
     case PMPI_parisize:
-      size = recvfrom_long(0);
-      paristack_setrsize(size);
-      gp_context_save(&rec);
+      rsize = recvfrom_long(0);
       break;
     case PMPI_precreal:
       precreal = recvfrom_long(0);
@@ -296,11 +298,13 @@ mt_queue_start(struct pari_mt *pt, GEN worker)
     struct mt_mstate *mt = &pari_mt_data;
     long i, n = minss(pari_mt_nbthreads, pari_MPI_size-1);
     long mtparisize = GP_DATA->threadsize? GP_DATA->threadsize: pari_mainstack->rsize;
+    long mtparisizemax = GP_DATA->threadsizemax;
     pari_mt = mt;
     mt->workid = (long*) pari_malloc(sizeof(long)*(n+1));
     for (i=1; i <= n; i++)
     {
       send_request_long(PMPI_parisize, mtparisize, i);
+      send_request_long(PMPI_parisizemax, mtparisizemax, i);
       send_request_long(PMPI_precreal, precreal, i);
       send_request_GEN(PMPI_worker, worker, i);
     }

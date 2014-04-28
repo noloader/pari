@@ -41,9 +41,13 @@ void *child_thread(void *arg)
   pari_thread_free(&pth); /* ... and clean up */
 @eprog
 
-\fun{void}{pari_thread_alloc}{struct pari_thread *pth, size_t s, GEN arg}
-Allocate a PARI stack of size \kbd{s} and associate it, together with the
+\fun{void}{pari_thread_valloc}{struct pari_thread *pth, size_t s, size_t v, GEN arg}
+Allocate a PARI stack of size \kbd{s} which can grow to at most \kbd{v} (as
+with \kbd{parisize} and \kbd{parisizemax}) and associate it, together with the
 argument \kbd{arg}, with the PARI thread data \kbd{pth}.
+
+\fun{void}{pari_thread_alloc}{struct pari_thread *pth, size_t s, GEN arg}
+As above but the stack cannot grow beyond \kbd{s}.
 
 \fun{void}{pari_thread_free}{struct pari_thread *pth}
 Free the PARI stack associated with the PARI thread data \kbd{pth}. This

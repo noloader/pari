@@ -382,7 +382,7 @@ typedef struct {
   int secure, simplify, strictmatch, strictargs, chrono; /* libpari ? */
   pari_timer *T;
   ulong primelimit; /* deprecated */
-  ulong threadsize;
+  ulong threadsizemax, threadsize;
 } gp_data;
 extern gp_data *GP_DATA;
   /* GP_DATA->flags */

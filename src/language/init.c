@@ -702,6 +702,13 @@ paristack_alloc(size_t rsize, size_t vsize)
 }
 
 void
+paristack_setsize(ulong rsize, ulong vsize)
+{
+  pari_mainstack_resize(pari_mainstack, rsize, vsize);
+  pari_mainstack_use(pari_mainstack);
+}
+
+void
 parivstack_resize(ulong newsize)
 {
   size_t s;
@@ -709,8 +716,7 @@ parivstack_resize(ulong newsize)
     pari_err_DIM("stack sizes");
   if (newsize == pari_mainstack->vsize) return;
   evalstate_reset();
-  pari_mainstack_resize(pari_mainstack, pari_mainstack->rsize, newsize);
-  pari_mainstack_use(pari_mainstack);
+  paristack_setsize(pari_mainstack->rsize, newsize);
   s = newsize ? newsize : pari_mainstack->rsize;
   pari_warn(warner,"new maximum stack size = %lu (%.3f Mbytes)", s, s/1048576.);
   global_err_data = NULL;
@@ -718,19 +724,12 @@ parivstack_resize(ulong newsize)
 }
 
 void
-paristack_setrsize(ulong newsize)
+paristack_newrsize(ulong newsize)
 {
-  size_t vsize = pari_mainstack->vsize;
+  size_t s, vsize = pari_mainstack->vsize;
   if (!newsize) newsize = pari_mainstack->rsize << 1;
   if (newsize != pari_mainstack->rsize)
     pari_mainstack_resize(pari_mainstack, newsize, vsize);
-}
-
-void
-paristack_newrsize(ulong newsize)
-{
-  size_t s;
-  paristack_setrsize(newsize);
   evalstate_reset();
   s = pari_mainstack->rsize;
   pari_warn(warner,"new stack size = %lu (%.3f Mbytes)", s, s/1048576.);
@@ -764,6 +763,16 @@ parivstack_reset(void)
 /*********************************************************************/
 /*                       PARI THREAD                                 */
 /*********************************************************************/
+
+/* Initial PARI thread structure t with a stack of size s and virtual size v
+ * and argument arg */
+
+void
+pari_thread_valloc(struct pari_thread *t, size_t s, size_t v, GEN arg)
+{
+  pari_mainstack_alloc(&t->st,s,v);
+  t->data = arg;
+}
 
 /* Initial PARI thread structure t with a stack of size s and
  * argument arg */

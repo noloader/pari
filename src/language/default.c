@@ -550,6 +550,16 @@ sd_parisize(const char *v, long flag)
 }
 
 GEN
+sd_threadsizemax(const char *v, long flag)
+{
+  ulong size = GP_DATA->threadsizemax, n = size;
+  GEN r = sd_ulong(v,flag,"threadsizemax",&n, 0,LONG_MAX,NULL);
+  if (n != size)
+    GP_DATA->threadsizemax = n;
+  return r;
+}
+
+GEN
 sd_threadsize(const char *v, long flag)
 {
   ulong size = GP_DATA->threadsize, n = size;
