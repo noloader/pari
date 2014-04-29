@@ -171,7 +171,7 @@ pari_MPI_child(void)
       break;
     case PMPI_parisize:
       size = recvfrom_long(0);
-      pari_init_stack(size,pari_mainstack->size);
+      paristack_setrsize(size);
       gp_context_save(&rec);
       break;
     case PMPI_precreal:
@@ -295,7 +295,7 @@ mt_queue_start(struct pari_mt *pt, GEN worker)
   {
     struct mt_mstate *mt = &pari_mt_data;
     long i, n = minss(pari_mt_nbthreads, pari_MPI_size-1);
-    long mtparisize = GP_DATA->threadsize? GP_DATA->threadsize: pari_mainstack->size;
+    long mtparisize = GP_DATA->threadsize? GP_DATA->threadsize: pari_mainstack->rsize;
     pari_mt = mt;
     mt->workid = (long*) pari_malloc(sizeof(long)*(n+1));
     for (i=1; i <= n; i++)

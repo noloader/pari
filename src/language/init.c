@@ -718,12 +718,19 @@ parivstack_resize(ulong newsize)
 }
 
 void
-paristack_newrsize(ulong newsize)
+paristack_setrsize(ulong newsize)
 {
-  size_t s, vsize = pari_mainstack->vsize;
+  size_t vsize = pari_mainstack->vsize;
   if (!newsize) newsize = pari_mainstack->rsize << 1;
   if (newsize != pari_mainstack->rsize)
     pari_mainstack_resize(pari_mainstack, newsize, vsize);
+}
+
+void
+paristack_newrsize(ulong newsize)
+{
+  size_t s;
+  paristack_setrsize(newsize);
   evalstate_reset();
   s = pari_mainstack->rsize;
   pari_warn(warner,"new stack size = %lu (%.3f Mbytes)", s, s/1048576.);
