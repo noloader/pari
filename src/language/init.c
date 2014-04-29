@@ -695,7 +695,7 @@ pari_mainstack_use(struct pari_mainstack *st)
 }
 
 void
-paristack_alloc(ulong rsize, ulong vsize)
+paristack_alloc(size_t rsize, size_t vsize)
 {
   pari_mainstack_alloc(pari_mainstack, rsize, vsize);
   pari_mainstack_use(pari_mainstack);
