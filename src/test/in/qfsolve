@@ -22,3 +22,5 @@ qfsolve(Mat(1))
 qfsolve([1,2;2,1])
 qfsolve([0,1;1,1])
 qfsolve([35, 46; 46, 60])
+
+qfparam(matdiagonal([1,1,-1]),[1,0,1])

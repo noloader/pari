@@ -113,4 +113,7 @@ dim=8
 -1
 [1, 0]~
 [-42, 35]~
-Total time spent: 2460
+  ***   at top-level: qfparam(matdiagonal(
+  ***                 ^--------------------
+  *** qfparam: incorrect type in qfsolve (t_MAT).
+Total time spent: 2724

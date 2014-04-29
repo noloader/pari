@@ -1038,9 +1038,10 @@ qfparam(GEN G, GEN sol, long fl)
   long n;
 
   if (typ(G) != t_MAT) pari_err_TYPE("qfsolve", G);
+  if (typ(sol) != t_COL) pari_err_TYPE("qfsolve", G);
   n = lg(G)-1;
   if (n == 0) pari_err_DOMAIN("qfsolve", "dimension" , "=", gen_0, G);
-  if (n != nbrows(G)) pari_err_DIM("qfsolve");
+  if (n != nbrows(G) || n != 3 || lg(sol) != 4) pari_err_DIM("qfsolve");
   sol = Q_primpart(sol);
   /* build U such that U[,3] = sol, and |det(U)| = 1 */
   U = completebasis(sol,1);
