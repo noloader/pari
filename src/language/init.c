@@ -2229,13 +2229,24 @@ getstack(void) { return pari_mainstack->top-avma; }
 
 #if defined(USE_CLOCK_GETTIME)
 #include <time.h>
+#if defined(_POSIX_THREAD_CPUTIME)
+static THREAD clockid_t time_type = CLOCK_THREAD_CPUTIME_ID;
+#else
+static const THREAD clockid_t time_type = CLOCK_PROCESS_CPUTIME_ID;
+#endif
 static void
-pari_init_timer(void) { }
+pari_init_timer(void)
+{
+#if defined(_POSIX_THREAD_CPUTIME)
+  time_type = CLOCK_PROCESS_CPUTIME_ID;
+#endif
+}
+
 void
 timer_start(pari_timer *T)
 {
   struct timespec t;
-  clock_gettime(CLOCK_PROCESS_CPUTIME_ID,&t);
+  clock_gettime(time_type,&t);
   T->us = t.tv_nsec / 1000;
   T->s  = t.tv_sec;
 }
