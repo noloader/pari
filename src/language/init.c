@@ -702,7 +702,7 @@ paristack_alloc(size_t rsize, size_t vsize)
 }
 
 void
-paristack_setsize(ulong rsize, ulong vsize)
+paristack_setsize(size_t rsize, size_t vsize)
 {
   pari_mainstack_resize(pari_mainstack, rsize, vsize);
   pari_mainstack_use(pari_mainstack);
