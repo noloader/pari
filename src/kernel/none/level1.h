@@ -95,7 +95,6 @@ new_chunk(size_t x) /* x is a number of longs */
       || x > (avma-pari_mainstack->vbot) / sizeof(long)) pari_err(e_STACK);
     while (x > (avma-pari_mainstack->bot) / sizeof(long))
       paristack_resize(0);
-    pari_warn(warner,"increasing stack size to %lu",pari_mainstack->size);
   }
   avma = (pari_sp)z;
 #ifdef MEMSTEP

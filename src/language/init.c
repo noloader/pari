@@ -742,13 +742,11 @@ paristack_resize(ulong newsize)
 {
   size_t vsize = pari_mainstack->vsize;
   if (!newsize)
-  {
-    if (pari_mainstack->size == vsize) pari_err(e_STACK);
-    newsize = minss(pari_mainstack->size << 1, vsize);
-  }
-  else if (newsize > vsize) pari_err(e_STACK);
+    newsize = pari_mainstack->size << 1;
+  newsize = minss(newsize, vsize);
   pari_mainstack->size = newsize;
   pari_mainstack->bot = pari_mainstack->top - pari_mainstack->size;
+  pari_warn(warner,"increasing stack size to %lu",newsize);
 }
 
 void
