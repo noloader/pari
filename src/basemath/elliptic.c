@@ -458,6 +458,17 @@ static void
 chk_p(GEN p, GEN p2)
 { if (!equalii(p, p2)) pari_err_MODULUS("ellinit", p,p2); }
 
+static int
+fix_nftype(GEN *pp)
+{
+  switch(nftyp(*pp))
+  {
+    case typ_NF: case typ_BNF: break;
+    case typ_BNR:*pp = bnr_get_bnf(*pp); break;
+    default: return 0;
+  }
+  return 1;
+}
 static long
 base_ring(GEN x, GEN *pp, long *prec)
 {
@@ -485,11 +496,15 @@ base_ring(GEN x, GEN *pp, long *prec)
     case t_FFELT:
       p = *pp;
       break;
+    case t_VEC:
+      t = t_VEC; p = *pp;
+      if (fix_nftype(&p)) break;
     default:
       pari_err_TYPE("elliptic curve base_ring", *pp);
       return 0;
   }
   /* Possible cases:
+   * t = t_VEC (p an nf or bnf)
    * t = t_FFELT (p t_FFELT)
    * t = t_INTMOD (p a prime)
    * t = t_PADIC (p a prime, e = padic prec)
@@ -540,6 +555,10 @@ base_ring(GEN x, GEN *pp, long *prec)
           default: pari_err_TYPE("elliptic curve base_ring", x);
         }
         break;
+      case t_COL:
+      case t_POL:
+      case t_POLMOD:
+        if (t == t_VEC) break;
       default: /* base ring too general */
         return t_COMPLEX;
     }
@@ -583,6 +602,37 @@ ellinit_Q(GEN x, long prec)
   s = gsigne( ell_get_disc(y) );
   gel(y,14) = mkvecsmall(t_ELL_Q);
   gel(y,15) = mkvec(mkvecsmall2(prec2nbits(prec), s));
+  return gerepilecopy(av, y);
+}
+
+/* shallow basistoalg */
+static GEN
+nftoalg(GEN nf, GEN x)
+{
+  switch(typ(x))
+  {
+    case t_INT: case t_FRAC: case t_POLMOD: return x;
+    default: return basistoalg(nf, x);
+  }
+}
+static GEN
+nfVtoalg(GEN nf, GEN x)
+{
+  long i, l;
+  GEN y = cgetg_copy(x,&l);
+  for (i=1; i<l; i++) gel(y,i) = nftoalg(nf,gel(x,i));
+  return y;
+}
+
+static GEN
+ellinit_nf(GEN x, GEN p)
+{
+  pari_sp av = avma;
+  GEN y;
+  x = nfVtoalg(p, x);
+  if (!(y = initsmall(x, 1))) return NULL;
+  gel(y,14) = mkvecsmall(t_ELL_NF);
+  gel(y,15) = mkvec(p);
   return gerepilecopy(av, y);
 }
 
@@ -645,6 +695,9 @@ ellinit(GEN x, GEN p, long prec)
     break;
   case t_REAL:
     y = ellinit_Rg(x, 1, prec);
+    break;
+  case t_VEC:
+    y = ellinit_nf(x, p);
     break;
   default:
     y = ellinit_Rg(x, 0, prec);
@@ -1216,6 +1269,7 @@ oncurve(GEN e, GEN z)
   pari_sp av;
 
   checkellpt(z); if (ell_is_inf(z)) return 1; /* oo */
+  if (ell_get_type(e) == t_ELL_NF) z = nfVtoalg(ellnf_get_nf(e), z);
   av = avma;
   LHS = ec_LHS_evalQ(e,z);
   RHS = ec_f_evalx(e,gel(z,1)); x = gsub(LHS,RHS);
@@ -1262,6 +1316,14 @@ elladd(GEN e, GEN z1, GEN z2)
 
   x1 = gel(z1,1); y1 = gel(z1,2);
   x2 = gel(z2,1); y2 = gel(z2,2);
+  if (ell_get_type(e) == t_ELL_NF)
+  {
+    GEN nf = ellnf_get_nf(e);
+    x1 = nftoalg(nf, x1);
+    x2 = nftoalg(nf, x2);
+    y1 = nftoalg(nf, y1);
+    y2 = nftoalg(nf, y2);
+  }
   if (x1 == x2 || gequal(x1,x2))
   { /* y1 = y2 or -LHS0-y2 */
     if (y1 != y2)
@@ -1293,11 +1355,19 @@ elladd(GEN e, GEN z1, GEN z2)
 static GEN
 ellneg_i(GEN e, GEN z)
 {
-  GEN t;
+  GEN t, x, y;
   if (ell_is_inf(z)) return z;
+  x = gel(z,1);
+  y = gel(z,2);
+  if (ell_get_type(e) == t_ELL_NF)
+  {
+    GEN nf = ellnf_get_nf(e);
+    x = nftoalg(nf,x);
+    y = nftoalg(nf,y);
+  }
   t = cgetg(3,t_VEC);
-  gel(t,1) = gel(z,1);
-  gel(t,2) = gneg_i(gadd(gel(z,2), ec_h_evalx(e,gel(z,1))));
+  gel(t,1) = x;
+  gel(t,2) = gneg_i(gadd(y, ec_h_evalx(e,x)));
   return t;
 }
 
@@ -1329,9 +1399,16 @@ static GEN
 ellordinate_i(GEN E, GEN x, long prec)
 {
   pari_sp av = avma;
-  GEN a = ec_f_evalx(E,x), b = ec_h_evalx(E,x), D = gadd(gsqr(b), gmul2n(a,2));
-  GEN d, y, p;
+  GEN a, b, D, d, y, p, nf = NULL;
 
+  if (ell_get_type(E) == t_ELL_NF)
+  {
+    nf = ellnf_get_nf(E);
+    x = nftoalg(nf,x);
+  }
+  a = ec_f_evalx(E,x);
+  b = ec_h_evalx(E,x);
+  D = gadd(gsqr(b), gmul2n(a,2));
   /* solve y*(y+b) = a */
   if (gequal0(D)) {
     if (ell_get_type(E) == t_ELL_Fq && equaliu(ellff_get_p(E),2))
@@ -1361,6 +1438,12 @@ ellordinate_i(GEN E, GEN x, long prec)
     case t_ELL_Q:
       if (typ(x) == t_COMPLEX) { d = gsqrt(D, prec); break; }
       if (!issquareall(D,&d)) { avma = av; return cgetg(1,t_VEC); }
+      break;
+
+    case t_ELL_NF:
+      d = nfroots(nf, mkpoln(3, gen_1, gen_0, gneg(D)));
+      if (lg(d) == 1) { avma = av; return cgetg(1, t_VEC); }
+      d = gel(d,1);
       break;
 
     case t_ELL_Qp:
@@ -2718,7 +2801,7 @@ localred_p_get_f(GEN e, GEN p)
   return (nuD - nuj) % 12 ? 2: 1;
 }
 #endif
-/* Here p > 3. e assumed integral, minim = 1 if we only want a minimal model */
+/* p > 3, e integral */
 static GEN
 localred_p(GEN e, GEN p)
 {
@@ -2999,39 +3082,236 @@ localred(GEN e, GEN p)
   }
 }
 
+/* Given J an ideal in HNF coprime to 2 and z algebraic integer,
+ * return b algebraic integer such that z + 2b in  J */
+static GEN
+approx_mod2(GEN nf, GEN J, GEN z)
+{
+  GEN b = z;
+  long i;
+  if (typ(b) == t_INT)
+  {
+    if (mpodd(b)) b = addii(b, gcoeff(J,1,1));
+    return shifti(negi(b),-1);
+  }
+  for (i = lg(J)-1; i >= 1; i--)
+  {
+    if (mpodd(gel(b,i))) b = ZC_add(b, gel(J,i));
+  }
+  return gshift(ZC_neg(b), -1);
+}
+
+/* Given J an ideal in HNF coprime to 3 and z algebraic integer,
+ * return b algebraic integer such that z + 3b in  J */
+static GEN
+approx_mod3(GEN nf, GEN J, GEN z)
+{
+  GEN b = z;
+  long i;
+  if (typ(b) == t_INT)
+  {
+    long s = smodis(b,3);
+    if (s)
+    {
+      GEN Jz = gcoeff(J,1,1);
+      if (smodis(Jz, 3) == s)
+        b = subii(b, Jz);
+      else
+        b = addii(b, Jz);
+    }
+    return diviiexact(b, stoi(-3));
+  }
+  for (i = lg(J)-1; i >= 1; i--)
+  {
+    long s = smodis(gel(b,i), 3);
+    if (!s) continue;
+    if (smodis(gcoeff(J,i,i), 3) == s)
+      b = ZC_sub(b, gel(J,i));
+    else
+      b = ZC_add(b, gel(J,i));
+  }
+  return ZC_Z_divexact(b, stoi(-3));
+}
+
+/* Local reduction, residual characteristic >= 5. E/nf, P prid
+* Output: f, kod, [u,r,s,t], c */
+static GEN
+nflocalred_p(GEN e, GEN P)
+{
+  GEN nf = ellnf_get_nf(e), T,p, modP = nf_to_Fq_init(nf,&P,&T,&p);
+  long c, f, vc4, vc6, vD, kod, m;
+  GEN ch, c4, c6, D, z, pi, piinv;
+
+  c4 = ell_get_c4(e);
+  c6 = ell_get_c6(e);
+  D = ell_get_disc(e);
+  vc4= nfval(nf,c4,P);
+  vc6= nfval(nf,c6,P);
+  vD = nfval(nf,D,P);
+  m = minss(vc4/4, vc6/6);
+  piinv = pr_get_tau(P);
+  if (typ(piinv) == t_MAT) piinv = gel(piinv,1);
+  piinv = gdiv(piinv, p); /* v_P(piinv) = -1, v_Q(piinv) >= 0, Q!=P */
+  pi = nfinv(nf, piinv); /* local uniformizer */
+
+  if(m <= 0) ch = init_ch();
+  else
+  { /* model not minimal */
+    GEN r,s,t, a1,a2,a3, u,ui,ui2,ui4,ui6,ui12;
+    u = nfpow_u(nf,pi,m);
+    ui = nfpow_u(nf,piinv,m);
+    ui2 = nfsqr(nf,ui);
+    ui4 = nfsqr(nf,ui2);
+    ui6 = nfmul(nf,ui2,ui4);
+    ui12 = nfsqr(nf,ui6);
+    c4 = nfmul(nf,c4,ui4); vc4-= 4*m;
+    c6 = nfmul(nf,c6,ui6); vc6-= 6*m;
+    D = nfmul(nf,D,ui12);  vD -= 12*m;
+    a1 = nf_to_scalar_or_basis(nf, ell_get_a1(e));
+    a2 = nf_to_scalar_or_basis(nf, ell_get_a2(e));
+    a3 = nf_to_scalar_or_basis(nf, ell_get_a3(e));
+    s = approx_mod2(nf, idealpow(nf,P,stoi(m)),   a1);
+    r = gsub(a2, nfmul(nf,s,gadd(a1,s)));
+    r = approx_mod3(nf, idealpow(nf,P,stoi(2*m)), r);
+    t = gadd(a3, nfmul(nf,r,a1));
+    t = approx_mod2(nf, idealpow(nf,P,stoi(3*m)), t);
+    ch = mkvec4(u,r,s,t);
+  }
+
+  kod = 0; c = 1;
+  /* minimal at P */
+  if (3*vc4 < vD)
+  { /* v(j) < 0 */
+    if (vc4==0)
+    { /* v(c4) = v(c6) = 0, multiplicative reduction */
+      f = 1; kod = 4+vD;
+      z = Fq_neg(nf_to_Fq(nf,c6,modP), T,p);
+      if (Fq_issquare(z,T,p))
+        c = vD;/* split */
+      else
+        c = odd(vD)?1 : 2; /* non-split */
+    }
+    else
+    { /* v(c4) = 2, v(c6) = 3, potentially multiplicative */
+      GEN Du;
+      f = 2; kod = 2-vD;
+      (void)nfvalrem(nf, D, P, &Du);
+      z = nf_to_Fq(nf, Du, modP);
+      if(odd(vD))
+      {
+        GEN c6u;
+        (void)nfvalrem(nf, c6, P, &c6u);
+        c6u = nf_to_Fq(nf, c6u, modP);
+        z = Fq_mul(z, c6u, T,p);
+      }
+      c = Fq_issquare(z,T,p)? 4: 2;
+    }
+  }
+  else
+  { /* v(j) >= 0 */
+    f = vD? 2: 0;
+    switch(vD)
+    {
+      GEN piinv2, piinv3, piinv4, w;
+      case 0: kod = 0; c = 1; break;
+      case 2: kod = 2; c = 1; break;
+      case 3: kod = 3; c = 2; break;
+      case 4: kod = 4;
+        z = nfmul(nf,c6,nfsqr(nf,piinv));
+        z = nf_to_Fq(nf, z, modP);
+        z = Fq_Fp_mul(z,stoi(-6),T,p);
+        c = Fq_issquare(z,T,p)? 3: 1;
+        break;
+      case 6: kod = -1;
+        piinv2 = nfsqr(nf,piinv);
+        piinv3 = nfmul(nf,piinv,piinv2);
+        z = nfmul(nf,c4,piinv2); z = nf_to_Fq(nf, z, modP);
+        z = Fq_Fp_mul(z,stoi(-3), T,p);
+        w = nfmul(nf,c6,piinv3); w = nf_to_Fq(nf, w, modP);
+        w = Fq_Fp_mul(w,gen_m2, T,p);
+        c = 1 + FqX_nbroots(mkpoln(4, gen_1,gen_0,z,w), T,p);
+        break;
+      case 8: kod = -4;
+        piinv4 = nfpow_u(nf,piinv,4);
+        z = nfmul(nf,c6,piinv4); z = nf_to_Fq(nf, z, modP);
+        z = Fq_Fp_mul(z,stoi(-6),T,p);
+        c = Fq_issquare(z,T,p)? 3: 1;
+        break;
+      case 9: kod = -3; c = 2; break;
+      case 10: kod = -2; c = 1; break;
+    }
+  }
+  return localred_result(f,kod,c,ch);
+}
+static GEN
+nflocalred(GEN e, GEN  pr)
+{
+  GEN p = pr_get_p(pr);
+  if (cmpiu(p, 3) <= 0) pari_err_IMPL("nflocalred (p < 5)");
+  return nflocalred_p(e,pr);
+}
+
 GEN
 elllocalred(GEN e, GEN p)
 {
   pari_sp av = avma;
-  checkell_Q(e);
-  if (typ(ell_get_disc(e)) != t_INT)
-    pari_err_TYPE("elllocalred [not an integral curve]",e);
-  if (typ(p) != t_INT) pari_err_TYPE("elllocalred [prime]",p);
-  if (signe(p) <= 0) pari_err_PRIME("elllocalred",p);
-  return gerepileupto(av, localred(e, p));
+  checkell(e);
+  switch(ell_get_type(e))
+  {
+    case t_ELL_Q:
+      if (typ(ell_get_disc(e)) != t_INT)
+        pari_err_TYPE("elllocalred [not an integral curve]",e);
+      if (typ(p) != t_INT) pari_err_TYPE("elllocalred [prime]",p);
+      if (signe(p) <= 0) pari_err_PRIME("elllocalred",p);
+      return gerepileupto(av, localred(e, p));
+    default: pari_err_TYPE("elllocalred", e);
+    case t_ELL_NF:
+      checkprid(p);
+      return gerepileupto(av, nflocalred(e, p));
+  }
 }
 
+/* typ(c) = t_INT or t_FRAC */
+static GEN
+handle_Q(GEN c, GEN *pd)
+{
+  *pd = (typ(c) == t_INT)? NULL: gel(c,2);
+  return c;
+}
+static GEN
+handle_coeff(GEN nf, GEN c, GEN *pd)
+{
+  *pd = NULL;
+  switch(typ(c))
+  {
+    case t_INT: *pd = NULL; return c;
+    case t_FRAC: *pd = gel(c,2); return c;
+    case t_POL: case t_POLMOD: case t_COL:
+      if (nf)
+      {
+        c = nf_to_scalar_or_basis(nf,c);
+        return handle_Q(Q_content(c), pd);
+      }
+    default: pari_err_TYPE("ellintegralmodel",c);
+      return NULL;
+  }
+}
 /* Return an integral model for e / Q. Set v = NULL (already integral)
  * or the variable change [u,0,0,0], u = 1/t, t > 1 integer making e integral */
 static GEN
 ellintegralmodel(GEN e, GEN *pv)
 {
-  GEN a = cgetg(6,t_VEC), t, u, L;
+  GEN a = cgetg(6,t_VEC), t, u, L, nf;
   long i, l, k;
 
+  nf = (ell_get_type(e) == t_ELL_NF)?checknf(ellnf_get_nf(e)): NULL;
   L = cgetg(1, t_VEC);
   for (i = 1; i < 6; i++)
   {
-    GEN c = gel(e,i);
-    gel(a,i) = c;
-    switch(typ(c))
-    {
-      case t_INT: break;
-      case t_FRAC: /* partial factorization */
-        L = shallowconcat(L, gel(Z_factor_limit(gel(c,2), 0),1));
-        break;
-      default: pari_err_TYPE("ellintegralmodel [not a rational curve]",e);
-    }
+    GEN d;
+    gel(a,i) = handle_coeff(nf, gel(e,i), &d);
+    if (d) /* partial factorization of denominator */
+      L = shallowconcat(L, gel(Z_factor_limit(d, 0),1));
   }
   /* a = [a1, a2, a3, a4, a6] */
   l = lg(L); if (l == 1) { if (pv) *pv = NULL; return e; }

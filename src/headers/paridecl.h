@@ -1976,7 +1976,7 @@ GEN     ellsearchcurve(GEN name);
 void    forell(void *E, long call(void*, GEN), long a, long b);
 
 /* elliptic.c */
-enum { t_ELL_Rg = 0, t_ELL_Q = 1, t_ELL_Qp = 2, t_ELL_Fp = 3, t_ELL_Fq = 4};
+enum { t_ELL_Rg = 0, t_ELL_Q, t_ELL_Qp, t_ELL_Fp, t_ELL_Fq, t_ELL_NF };
 GEN     ellbasechar(GEN E);
 GEN     akell(GEN e, GEN n);
 GEN     anell(GEN e, long n);
@@ -3743,6 +3743,7 @@ INLINE int    ell_is_inf(GEN z);
 INLINE GEN    ellinf(void);
 INLINE GEN    ellff_get_field(GEN x);
 INLINE GEN    ellff_get_a4a6(GEN x);
+INLINE GEN    ellnf_get_nf(GEN x);
 INLINE GEN    ellQp_get_p(GEN E);
 INLINE long   ellQp_get_prec(GEN E);
 INLINE GEN    ellQp_get_zero(GEN x);

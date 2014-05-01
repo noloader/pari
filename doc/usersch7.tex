@@ -57,6 +57,8 @@ is defined, one of
 
   \tet{t_ELL_Q} the field of rational numbers;
 
+  \tet{t_ELL_NF} a number field;
+
   \tet{t_ELL_Qp} the field of $p$-adic numbers, for some prime $p$;
 
   \tet{t_ELL_Fp} a prime finite field, base field elements are represented as
@@ -141,6 +143,11 @@ contains \kbd{ellglobalred} data, as well as global and local root numbers. If
 converting unneeded dynamic data and avoids potential memory leaks
 (the changed curve would have had to be deleted using \tet{obj_free}). The
 original curve $e$ is updated as well with the same information.
+
+\subsubsec{Curves over a number field \var{nf}}
+
+\fun{GEN}{ellnf_get_nf}{GEN x} returns the field over which $E$ is defined
+(\var{nf} or \var{bnf} structure).
 
 \subsubsec{Curves over $\Q_p$}
 

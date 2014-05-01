@@ -105,6 +105,7 @@ member_nf(GEN x)
   long t; GEN y = get_nf(x,&t);
   if (!y) {
     if (t == typ_RNF) return gel(x,10);
+    if (t == typ_ELL && ell_get_type(x) == t_ELL_NF) return ellnf_get_nf(x);
     member_err("nf",x);
   }
   return y;

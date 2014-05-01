@@ -8,8 +8,10 @@ Help: elllocalred(E,p): E being an elliptic curve, returns
  minimal at p, and c is the local Tamagawa number c_p.
 Doc:
  calculates the \idx{Kodaira} type of the local fiber of the elliptic curve
- $E$ at the prime $p$. $E$ must be an \var{ell} structure as output by
- \kbd{ellinit}, and is assumed to have all its coefficients $a_i$ in $\Z$.
+ $E$ at $p$. $E$ must be an \var{ell} structure as output by
+ \kbd{ellinit}, over $\Q$ ($p$ a rational prime) or a number field $K$ ($p$
+ a maximal ideal given by a \var{prid} structure), and is assumed to have all
+ its coefficients $a_i$ integral.
  The result is a 4-component vector $[f,kod,v,c]$. Here $f$ is the exponent of
  $p$ in the arithmetic conductor of $E$, and $kod$ is the Kodaira type which
  is coded as follows:
@@ -21,3 +23,6 @@ Doc:
  giving the coordinate changes done during the local reduction;
  $u = 1$ if and only if the given equation was already minimal at $p$.
  Finally, the last component $c$ is the local \idx{Tamagawa number} $c_p$.
+
+ \misctitle{Caveat} If $E$ is not defined over $\Q$, the current
+ implementation requires that $p$ be above a prime $\geq 5$.

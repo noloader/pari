@@ -50,6 +50,8 @@ Doc:
  \kbd{precision}$(x)$. If no such argument is given, the value of
  \kbd{realprecision} at the time \kbd{ellinit} is called will be used.
 
+ \item a number field $K$, given by a \var{nf} or \var{bnf} structure.
+
  This argument $D$ is indicative: the curve coefficients are checked for
  compatibility, possibly changing $D$; for instance if $D = 1$ and
  an \typ{INTMOD} is found. If inconsistencies are detected, an error is
