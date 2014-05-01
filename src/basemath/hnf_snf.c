@@ -116,7 +116,7 @@ hnffinal(GEN matgen,GEN perm,GEN* ptdep,GEN* ptB,GEN* ptC)
 
   diagH1 = new_chunk(lnz+1); /* diagH1[i] = 0 iff H[i,i] != 1 (set later) */
 
-  av = avma; lim = stack_lim(av,1);
+  av = avma; lim = stack_lim(av,3);
   Cnew = cgetg(co, typ(C));
   setlg(C, col+1); p1 = gmul(C,U);
   for (j=1; j<=col; j++) gel(Cnew,j) = gel(p1,j);
@@ -138,7 +138,7 @@ hnffinal(GEN matgen,GEN perm,GEN* ptdep,GEN* ptB,GEN* ptC)
       for (   ; k<=lig;  k++) gel(z,k) = subii(gel(z,k), mulii(p1, gel(Hi,k-nlze)));
       gel(Cnew,j) = gsub(gel(Cnew,j), gmul(p1, gel(Cnew,i+zc)));
     }
-    if (low_stack(lim, stack_lim(av,1)))
+    if (low_stack(lim, stack_lim(av,3)))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"hnffinal, i = %ld",i);
       gerepileall(av, 2, &Cnew, &B);
@@ -262,7 +262,7 @@ hnfspec_i(GEN mat0, GEN perm, GEN* ptdep, GEN* ptB, GEN* ptC, long k0)
     p1 = cgetg(k0+1,t_COL); gel(matt,j) = p1; gel(mat,j) = matj;
     for (i=1; i<=k0; i++) gel(p1,i) = stoi(matj[perm[i]]);
   }
-  av = avma; lim = stack_lim(av,1);
+  av = avma; lim = stack_lim(av,3);
 
   i = lig = li-1; col = co-1; lk0 = k0;
   T = (k0 || (lg(C) > 1 && lgcols(C) > 1))? matid(col): NULL;
@@ -328,7 +328,7 @@ hnfspec_i(GEN mat0, GEN perm, GEN* ptdep, GEN* ptB, GEN* ptC, long k0)
       if (T) ZC_lincomb1_inplace(gel(T,j), gel(T,col), stoi(-t));
     }
     lig--; col--;
-    if (low_stack(lim, stack_lim(av,1)))
+    if (low_stack(lim, stack_lim(av,3)))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"hnfspec[1]");
       if (T) T = gerepilecopy(av, T); else avma = av;
@@ -371,7 +371,7 @@ hnfspec_i(GEN mat0, GEN perm, GEN* ptdep, GEN* ptB, GEN* ptC, long k0)
       if (T) ZC_lincomb1_inplace(gel(T,j), gel(T,col), stoi(-t));
     }
     lig--; col--;
-    if (low_stack(lim, stack_lim(av,1)))
+    if (low_stack(lim, stack_lim(av,3)))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"hnfspec[2]");
       gerepileall(av, T? 2: 1, &vmax, &T);
@@ -414,7 +414,7 @@ END2: /* clean up mat: remove everything to the right of the 1s on diagonal */
         for (h=1; h<i0; h++) gel(Bj,h) = subii(gel(Bj,h), mulii(v,gel(Bk,h)));
       }
       if (T) ZC_lincomb1_inplace(gel(T,j), gel(T,k), negi(v));
-      if (low_stack(lim, stack_lim(av,1)))
+      if (low_stack(lim, stack_lim(av,3)))
       {
         if(DEBUGMEM>1) pari_warn(warnmem,"hnfspec[3], (i,j) = %ld,%ld", i,j);
         for (h=1; h<co; h++) setlg(matb[h], i0+1); /* bottom can be forgotten */
