@@ -79,7 +79,6 @@ typedef struct FB_t {
   GEN vecG, G0;
   GEN idealperm; /* permutation of ideals under field automorphisms */
   GEN minidx; /* minidx[i] min ideal in orbit of LP[i] under field autom */
-  long orbits; /* number of ideal orbits */
   subFB_t *allsubFB; /* all subFB's used */
   GEN embperm; /* permutations of the complex embeddings */
   GEN invs; /* inverse of automorphism */
@@ -254,12 +253,10 @@ FB_aut_perm(FB_t *F, GEN nf, GEN auts, GEN cyclic)
   if (nauts == 1)
   {
     for (i = 1; i <= KC; i++) minidx[i] = i;
-    F->orbits = KC;
   }
   else
   {
     long j, m;
-    F->orbits = 0;
     for (m = 1; m < lg(cyclic); m++)
     {
       GEN thiscyc = gel(cyclic, m);
@@ -300,7 +297,6 @@ FB_aut_perm(FB_t *F, GEN nf, GEN auts, GEN cyclic)
     for (j = 1; j <= KC; j++)
     {
       if (minidx[j]) continue;
-      F->orbits++;
       minidx[j] = j;
       for (i = 1; i < nauts; i++) minidx[coeff(perm, j, i)] = j;
     }
