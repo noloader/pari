@@ -22,6 +22,7 @@ XR  9- padicfields(huge p, d) was very slow [even though ramification is tame]
    10- gcd(1/2, 1+I*1.) -> SEGV [#1563], 2.5.5 returned the wrong answer 1/2
    11- mathnf(t_VEC) could corrupt input (change sign)
    12- [libpari] Fq_issquare didn't support T=NULL
+   13- [libpari] nfpow_u didn't handle non-integral rational numbers
 
   Added
     1- add optional argument to sumdigits to specify the base
