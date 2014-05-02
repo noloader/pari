@@ -743,7 +743,7 @@ paristack_resize(ulong newsize)
   size_t vsize = pari_mainstack->vsize;
   if (!newsize)
     newsize = pari_mainstack->size << 1;
-  newsize = minss(newsize, vsize);
+  newsize = maxuu(minuu(newsize, vsize), pari_mainstack->size);
   pari_mainstack->size = newsize;
   pari_mainstack->bot = pari_mainstack->top - pari_mainstack->size;
   pari_warn(warner,"increasing stack size to %lu",newsize);
