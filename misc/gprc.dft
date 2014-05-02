@@ -6,10 +6,16 @@
 \\ Read ~/.gprc.gp (GP script) before gp prompts you for commands.
 \\ read "~/.gprc.gp"
 
-/* Most important options */
+/* Critical options */
 
-\\ Set PARI stack size to 10 Mbytes = 10^7 bytes
-\\ parisize = 10M
+\\ Limit PARI stack size to 400 Mbytes = 4*10^8 bytes
+\\ parisizemax = 400M
+
+\\ Set PARI typical stack size to 40 Mbytes = 4*10^7 bytes (will grow as
+\\ needed, up to parisizemax)
+\\ parisize = 40M
+
+/* Important options */
 
 \\ Save a history of all input commands in this file, and load it in each
 \\ new session's history
@@ -76,7 +82,7 @@
 \\  This file should be put in $HOME/.gprc or /etc/gprc and contains:
 \\  * references to gp scripts that are to be run BEFORE the first gp prompt.
 \\
-\\    Syntax: read "filename"  (quotes are mandatory. ~ syntax allowed)
+\\    Syntax: read "filename"  (quotes mandatory; ~ syntax for homedir allowed)
 \\
 \\  * options settings
 \\
@@ -85,8 +91,8 @@
 \\  Options which are not set here assume default values in gp. The command
 \\  default() under GP lists available options and their default values.
 \\
-\\  Options settings can be overriden by command line switches. For instance
-\\  gp --default parisize=10M
-\\  will set parisize to 10000000, regardless of what is in .gprc
-\\  They can also be changed under GP using default(): e.g.
-\\  default(parisize,"10M") 
+\\  Options settings are overriden by command line switches. For instance
+\\    gp --default parisizemax=1G
+\\  sets parisize to 1 GByte, regardless of what is in .gprc
+\\  They can also be changed under GP using default(), e.g.
+\\    default(parisize,"10M") 

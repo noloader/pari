@@ -153,9 +153,9 @@ object:
 ? x
 %2 = x          \\@com a polynomial of degree 1 in the unknown \kbd{x}
 ? print("Hello")
-Hello           \\@com \kbd{void} return value
+Hello           \\@com \kbd{void} return value, 'Hello' printed as side effect
 ? f(x) = x^2
-%3 = (x)->x^2   \\@com a user function
+%4 = (x)->x^2   \\@com a user function
 @eprog
 \noindent In the third example, \kbd{Hello} is printed as a side effect, but
 is not the return value. The \kbd{print} command is a \emph{procedure},
@@ -2611,18 +2611,17 @@ is described in \secref{se:default}. The basic syntax is
 use, most of these can be abbreviated using \kbd{gp} metacommands
 (mostly, starting with \b), which we shall describe in the next section.
 
-Here we will only describe the available defaults and how they are used. Just
-be aware that typing \kbd{default} by itself will list all of them, as well
-as their current values (see \b{d}). Just after the default name, we give
-between parentheses the initial value when \kbd{gp} starts, assuming you did
-not tamper with factory settings using command-line switches or a~\tet{gprc}.
+Available defaults are described in the reference guide,
+\secref{se:gp_defaults}, the most important one being \tet{parisizemax}.
+Just be aware that typing \kbd{default} by itself will list all of them, as
+well as their current values (see \b{d}).
 
 \misctitle{Note} The suffixes \kbd{k}, \kbd{M} or \kbd{G} can be appended to
 a \var{value} which is a numeric argument, with the effect of multiplying it
 by $10^3$, $10^6$ and $10^9$ respectively. Case is not taken into account
 there, so for instance \kbd{30k} and \kbd{30K} both stand for $30000$. This
-is mostly useful to modify or set the default \kbd{parisize} which typically
-involve a lot of trailing zeroes.
+is mostly useful to modify or set the defaults \kbd{parisize} and
+\kbd{parisizemax} which typically involve a lot of trailing zeroes.
 
 \misctitle{(somewhat technical) Note} As we saw in \secref{se:strings},
 the second argument to \kbd{default} is subject to string context
@@ -2659,9 +2658,6 @@ corresponding value. Also the \kbd{\til} symbol has the same meaning as in
 many shells~--- \kbd{\til} by itself stands for your home directory, and
 \kbd{\til{}user} is expanded to \kbd{user}'s home directory. This is applied
 to all file names\sidx{filename}. \label{se:envir}
-
-Available defaults are described in the reference guide,
-\secref{se:gp_defaults}.
 
 \section{Simple metacommands}\label{se:meta}
 
