@@ -2561,24 +2561,24 @@ usp(GEN Q0, long deg, long *nb_donep, long flag, long bitprec)
         if (DEBUGLEVEL > 2) err_printf("A simple root in this interval\n");
         switch(flag)
         {
-          case 0:
-              {
-              GEN low, hi;
-              low = gmul2n(c, -k);
-              hi  = gmul2n(addiu(c,1), -k);
-              gel(sol, ++nbr) = mkvec2(low, hi);
-            }
-            break;
-          case 1:
-            { /* Caveat emptor: Qremapped is the reciprocal polynomial */
-              GEN sr = polsolve(Qremapped, bitprec);
-	      sr = divrr(sr, addsr(1, sr));
-	      sr = gmul2n(addir(c, sr), -k);
-              gel(sol, ++nbr) = rtor(sr, nbits2prec(bitprec));
-            }
-            break;
-          default:
-            gel(sol, ++nbr) = gen_0;
+        case 0:
+          {
+            GEN low, hi;
+            low = gmul2n(c, -k);
+            hi  = gmul2n(addiu(c,1), -k);
+            gel(sol, ++nbr) = mkvec2(low, hi);
+          }
+          break;
+        case 1:
+          { /* Caveat emptor: Qremapped is the reciprocal polynomial */
+            GEN sr = polsolve(Qremapped, bitprec);
+            sr = divrr(sr, addsr(1, sr));
+            sr = gmul2n(addir(c, sr), -k);
+            gel(sol, ++nbr) = rtor(sr, nbits2prec(bitprec));
+          }
+          break;
+        default:
+          gel(sol, ++nbr) = gen_0;
         }
       break;
 

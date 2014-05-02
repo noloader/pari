@@ -6967,6 +6967,29 @@ with the $e_1 < e_2 < \cdots$ all distinct and the $T_i$ pairwise coprime.
 Return the vector of the $T_i$, and set \kbd{*E} to the vector of the $e_i$,
 as a \typ{VECSMALL}.
 
+\fun{GEN}{ZX_uspensky}{GEN P, GEN ab, long flag, long bitprec} let \kbd{P} be a
+primitive \kbd{ZX} polynomial whose real roots are simple and \kbd{bitprec} is
+the relative precision in bits.
+
+\item If \kbd{flag} is 0 returns a list of intervals that isolate the real
+roots of \kbd{P}. The return value is a column of elements which are either
+vectors \kbd{[a,b]} meaning that there is a single root in the open interval
+\kbd{(a,b)} or elements \kbd{x0} such that \kbd{x0} is a root of \kbd{P}.
+There is no guarantee that all rational roots are found (at most those with
+denominator a power of $2$ can be found and even those are not guaranteed).
+Beware that the limits of the open intervals can be roots of the polynomial.
+
+\item If \kbd{flag} is 1 returns an approximation of the real roots of \kbd{P}.
+
+\item If \kbd{flag} is 2 returns the number of roots.
+
+The argument \kbd{ab} specify the interval in which the roots
+are searched. The default interval is $(-\infty,\infty)$. If \kbd{ab} is an
+integer or fraction $a$ then the interval is $[a,\infty)$. If \kbd{ab} is
+a vector $[a,b]$, where \typ{INT}, \typ{FRAC} or \typ{INFINITY} are allowed
+for $a$ and $b$, the interval is $[a,b]$.
+
+
 \subsec{\kbd{ZXQ}}
 
 \fun{GEN}{ZXQ_mul}{GEN x,GEN y,GEN T} returns $x*y$ mod $T$, assuming
@@ -7070,23 +7093,6 @@ caller).
 \kbd{QX} $p$ at accuracy $l$, where real roots are returned as \typ{REAL}s.
 More efficient when $p$ is irreducible and primitive. Special case
 of \tet{cleanroots}.
-
-\fun{GEN}{ZX_uspensky}{GEN P, GEN ab, long flag, long bitprec} let \kbd{P} be a
-primitive \kbd{ZX} polynomial whose real roots are simple and \kbd{bitprec} is
-the relative precision in bits. If \kbd{flag} is 0 returns a list of intervals
-that isolate the real roots of \kbd{P}. In that case the return value is a
-column of elements which are either vectors \kbd{[a,b]} meaning that there is a
-single root in the open interval \kbd{(a,b)} or elements \kbd{x0} such that
-\kbd{x0} is a root of \kbd{P}. There is no guarantee that all rational roots
-will be found (at most those with power of $2$ denominator can be found and
-even those are not guaranteed to be found). Beware that the limits of the open
-intervals can be roots of the polynomial. If \kbd{flag} is 1 returns an
-approximation of the real roots of \kbd{P}. If \kbd{flag} is 2 returns the
-number of roots. The argument \kbd{ab} specify the interval in which the roots
-are searched. The default interval is $(-\infty,\infty)$. If \kbd{ab} is an
-integer or fraction $a$ then the interval will be $[a,\infty)$. If \kbd{ab} is
-a vector of two integers or fractions $a$ e $b$, the the interval will be
-$[a,b]$.
 
 \subsec{\kbd{QXQ}}
 
