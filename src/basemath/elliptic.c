@@ -569,40 +569,37 @@ base_ring(GEN x, GEN *pp, long *prec)
 static GEN
 ellinit_Rg(GEN x, int real, long prec)
 {
-  pari_sp av=avma;
   GEN y;
   long s;
   if (!(y = initsmall(x, 4))) return NULL;
   s = real? gsigne( ell_get_disc(y) ): 0;
   gel(y,14) = mkvecsmall(t_ELL_Rg);
   gel(y,15) = mkvec(mkvecsmall2(prec2nbits(prec), s));
-  return gerepilecopy(av, y);
+  return y;
 }
 
 static GEN
 ellinit_Qp(GEN x, GEN p, long prec)
 {
-  pari_sp av=avma;
   GEN y;
   if (lg(x) > 6) x = vecslice(x,1,5);
   x = QpV_to_QV(x); /* make entries rational */
   if (!(y = initsmall(x, 2))) return NULL;
   gel(y,14) = mkvecsmall(t_ELL_Qp);
   gel(y,15) = mkvec(zeropadic(p, prec));
-  return gerepilecopy(av, y);
+  return y;
 }
 
 static GEN
 ellinit_Q(GEN x, long prec)
 {
-  pari_sp av=avma;
   GEN y;
   long s;
   if (!(y = initsmall(x, 8))) return NULL;
   s = gsigne( ell_get_disc(y) );
   gel(y,14) = mkvecsmall(t_ELL_Q);
   gel(y,15) = mkvec(mkvecsmall2(prec2nbits(prec), s));
-  return gerepilecopy(av, y);
+  return y;
 }
 
 /* shallow basistoalg */
@@ -627,49 +624,49 @@ nfVtoalg(GEN nf, GEN x)
 static GEN
 ellinit_nf(GEN x, GEN p)
 {
-  pari_sp av = avma;
   GEN y;
   x = nfVtoalg(p, x);
   if (!(y = initsmall(x, 1))) return NULL;
   gel(y,14) = mkvecsmall(t_ELL_NF);
   gel(y,15) = mkvec(p);
-  return gerepilecopy(av, y);
+  return y;
 }
 
 static GEN
 ellinit_Fp(GEN x, GEN p)
 {
-  pari_sp av=avma;
   long i;
   GEN y, disc;
   if (!(y = initsmall(x, 4))) return NULL;
   if (cmpiu(p,3)<=0) /* ell_to_a4a6_bc does not handle p<=3 */
-  {
-    y = FF_ellinit(y,p_to_FF(p,0));
-    if (!y) return NULL;
-    return gerepilecopy(av, y);
-  }
+    return FF_ellinit(y,p_to_FF(p,0));
   disc = Rg_to_Fp(ell_get_disc(y),p);
   if (!signe(disc)) return NULL;
   for(i=1;i<=13;i++)
     gel(y,i) = Fp_to_mod(Rg_to_Fp(gel(y,i),p),p);
   gel(y,14) = mkvecsmall(t_ELL_Fp);
   gel(y,15) = mkvec2(p, ell_to_a4a6_bc(y, p));
-  return gerepilecopy(av, y);
+  return y;
 }
 
 static GEN
 ellinit_Fq(GEN x, GEN fg)
 {
-  pari_sp av=avma;
   GEN y;
   if (!(y = initsmall(x, 4))) return NULL;
-  y = FF_ellinit(y,fg);
-  return y ? gerepilecopy(av, y): NULL;
+  return FF_ellinit(y,fg);
 }
 
+static GEN
+ellinit_nf_to_Fq(GEN x, GEN P)
+{
+  GEN nf = ellnf_get_nf(x);
+  GEN T,p, modP = nf_to_Fq_init(nf,&P,&T,&p);
+  x = nfV_to_FqV(vecslice(x,1,5), nf, modP);
+  return T? ellinit_Fq(x,Tp_to_FF(T,p)): ellinit_Fp(x,p);
+}
 GEN
-ellinit(GEN x, GEN p, long prec)
+ellinit(GEN x, GEN D, long prec)
 {
   pari_sp av = avma;
   GEN y;
@@ -679,16 +676,23 @@ ellinit(GEN x, GEN p, long prec)
     case t_VEC: break;
     default: pari_err_TYPE("ellxxx [not an elliptic curve (ell5)]",x);
   }
-  switch (base_ring(x, &p, &prec))
+  if (D && get_prid(D))
+  {
+    checkell(x);
+    if (ell_get_type(x) != t_ELL_NF) pari_err_TYPE("ellinit",x);
+    y = ellinit_nf_to_Fq(x, D);
+    goto END;
+  }
+  switch (base_ring(x, &D, &prec))
   {
   case t_PADIC:
-    y = ellinit_Qp(x, p, prec);
+    y = ellinit_Qp(x, D, prec);
     break;
   case t_INTMOD:
-    y = ellinit_Fp(x, p);
+    y = ellinit_Fp(x, D);
     break;
   case t_FFELT:
-    y = ellinit_Fq(x, p);
+    y = ellinit_Fq(x, D);
     break;
   case t_FRAC:
     y = ellinit_Q(x, prec);
@@ -697,13 +701,14 @@ ellinit(GEN x, GEN p, long prec)
     y = ellinit_Rg(x, 1, prec);
     break;
   case t_VEC:
-    y = ellinit_nf(x, p);
+    y = ellinit_nf(x, D);
     break;
   default:
     y = ellinit_Rg(x, 0, prec);
   }
+END:
   if (!y) { avma = av; return cgetg(1,t_VEC); }
-  return y;
+  return gerepilecopy(av,y);
 }
 
 /********************************************************************/
@@ -5553,16 +5558,16 @@ elltatepairing(GEN E, GEN P, GEN Q, GEN m)
 
 /* E/Q, return cardinal including the (possible) ramified point */
 static GEN
-ellcard_ram(GEN E, GEN p)
+ellcard_ram(GEN E, GEN p, int *good_red)
 {
   GEN a4, a6, D = Rg_to_Fp(ell_get_disc(E), p);
   if (!signe(D))
   {
     pari_sp av = avma;
-    int good_red;
-    GEN ap = is_minimal_ap(E, p, &good_red);
+    GEN ap = is_minimal_ap(E, p, good_red);
     return gerepileuptoint(av, subii(addiu(p,1), ap));
   }
+  *good_red = 1;
   if (equaliu(p,2)) return utoi(cardmod2(E));
   if (equaliu(p,3)) return utoi(cardmod3(E));
   ell_to_a4a6(E,p,&a4,&a6);
@@ -5573,10 +5578,15 @@ static GEN
 checkellp(GEN E, GEN p, const char *s)
 {
   GEN q;
-  if (p)
+  if (p) switch(typ(p))
   {
-    if (typ(p)!=t_INT) pari_err_TYPE(s,p);
-    if (cmpis(p, 2) < 0) pari_err_DOMAIN(s,"p", "<", gen_2, p);
+    case t_INT:
+      if (cmpis(p, 2) < 0) pari_err_DOMAIN(s,"p", "<", gen_2, p);
+      break;
+    case t_VEC:
+      q = get_prid(p);
+      if (q) { p = q; break; }
+    default: pari_err_TYPE(s,p);
   }
   checkell(E);
   switch(ell_get_type(E))
@@ -5591,6 +5601,7 @@ checkellp(GEN E, GEN p, const char *s)
       q = ellff_get_p(E);
       if (p && !equalii(p, q)) pari_err_TYPE(s,p);
       return q;
+    case t_ELL_NF:
     case t_ELL_Q:
       if (p) return p;
     default:
@@ -5604,6 +5615,7 @@ ellap(GEN E, GEN p)
 {
   pari_sp av = avma;
   GEN q, card;
+  int goodred;
   p = checkellp(E, p, "ellap");
   switch(ell_get_type(E))
   {
@@ -5614,7 +5626,7 @@ ellap(GEN E, GEN p)
     q = FF_q(ellff_get_field(E)); card = ellff_get_card(E);
     break;
   case t_ELL_Q:
-    q = p; card = ellcard_ram(E, p);
+    q = p; card = ellcard_ram(E, p, &goodred);
     break;
   default:
     pari_err_TYPE("ellap",E);
@@ -5651,9 +5663,9 @@ ellcard(GEN E, GEN p)
   case t_ELL_Q:
     {
       pari_sp av = avma;
-      GEN N = ellcard_ram(E, p);
-      GEN D = Rg_to_Fp(ell_get_disc(E), p);
-      if (!signe(D)) N = subis(N, 1); /* remove singular point */
+      int goodred;
+      GEN N = ellcard_ram(E, p, &goodred);
+      if (!goodred) N = subis(N, 1); /* remove singular point */
       return gerepileuptoint(av, N);
     }
   default:

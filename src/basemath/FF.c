@@ -1566,6 +1566,44 @@ p_to_FF(GEN p, long v)
   gel(ff,3) = T;
   gel(ff,4) = p; return ff;
 }
+GEN
+Tp_to_FF(GEN T, GEN p)
+{
+  GEN A, ff;
+  long v;
+  if (!T) return p_to_FF(p,0);
+  ff = cgetg(5,t_FFELT);
+  v = varn(T);
+  if (lgefint(p)==3)
+  {
+    ulong pp = p[2];
+    long sv = evalvarn(v);
+    if (pp==2)
+    {
+      ff[1] = t_FF_F2xq;
+      T = ZX_to_F2x(T);
+      A = pol1_F2x(sv);
+      p = gen_2;
+    }
+    else
+    {
+      ff[1] = t_FF_Flxq;
+      T = ZX_to_Flx(T, pp);
+      A = pol1_Flx(sv);
+      p = icopy(p);
+    }
+  }
+  else
+  {
+    ff[1] = t_FF_FpXQ;
+    T = ZX_copy(T);
+    A = pol_1(v);
+    p = icopy(p);
+  }
+  gel(ff,2) = A;
+  gel(ff,3) = T;
+  gel(ff,4) = p; return ff;
+}
 
 GEN
 fforder(GEN x, GEN o)

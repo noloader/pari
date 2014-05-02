@@ -2285,6 +2285,7 @@ int     Rg_is_FF(GEN c, GEN *ff);
 int     RgC_is_FFC(GEN x, GEN *ff);
 int     RgM_is_FFM(GEN x, GEN *ff);
 GEN     p_to_FF(GEN p, long v);
+GEN     Tp_to_FF(GEN T, GEN p);
 
 /* galconj.c */
 

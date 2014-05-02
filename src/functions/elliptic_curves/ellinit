@@ -52,6 +52,10 @@ Doc:
 
  \item a number field $K$, given by a \var{nf} or \var{bnf} structure.
 
+ \item a prime ideal $\goth{p}$, given by a \var{prid} structure; valid if
+ $x$ is a curve defined over a number field $K$ and the equation is integral
+ and minimal at $\goth{p}$.
+
  This argument $D$ is indicative: the curve coefficients are checked for
  compatibility, possibly changing $D$; for instance if $D = 1$ and
  an \typ{INTMOD} is found. If inconsistencies are detected, an error is

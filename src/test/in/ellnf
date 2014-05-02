@@ -9,6 +9,8 @@ ellordinate(e, t)
 ellordinate(e, t+1)
 elldivpol(e, 3)
 ellfromj(Mod(t,t^3-2))
+ellinit(e, idealprimedec(K,2)[1])
+e5 = ellinit(e, idealprimedec(K,5)[1])
 
 {
   K = nfinit(t);

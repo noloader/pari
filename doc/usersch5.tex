@@ -9252,6 +9252,11 @@ characteristic is small enough.
 finite field $\Z/p\Z$. Useful for generic code that wants to handle
 (inefficiently) $\Z/p\Z$ as if it were not a prime field.
 
+\fun{GEN}{Tp_to_FF}{GEN T, GEN p} returns a \typ{FFELT} equal to $1$ in the
+finite field $\F_p/(T)$, where $T$ is a \kbd{ZX}, assumed to be irreducible
+modulo $p$, or \kbd{NULL} in which case the routine acts as \tet{p_to_FF(p,0)}.
+No checks.
+
 \fun{GEN}{FF_1}{GEN a} returns the unity in the definition field of the
 \typ{FFELT} element \kbd{a}.
 
