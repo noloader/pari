@@ -8,11 +8,15 @@ list=log2; . ./look
 extra_flags=
 list=strftime; . ./look
 if test "$timing_fun" = "clock_gettime"; then
-  extra_flags=-lrt
   list=clock_gettime; . ./look
-  extra_flags=
-  if test "$has_clock_gettime" = yes; then
-    RT_LIBS=-lrt
+  if test "$has_clock_gettime" = no; then
+    echo "Try again, with -lrt this time..."
+    extra_flags=-lrt
+    list=clock_gettime; . ./look
+    extra_flags=
+    if test "$has_clock_gettime" = yes; then
+      RT_LIBS=-lrt
+    fi
   fi
 else
   if test -n "$timing_fun"; then
