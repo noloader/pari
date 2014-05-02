@@ -87,28 +87,28 @@ affrr_fixlg(GEN y, GEN z) { fixlg(z, lg(y)); affrr(y, z); }
 INLINE GEN
 new_chunk(size_t x) /* x is a number of longs */
 {
-  GEN z = ((GEN) avma) - x;
+  pari_sp newavma = avma - x*sizeof(long);
   CHECK_CTRLC
-  if (x > (avma-pari_mainstack->bot) / sizeof(long))
+  if (newavma < pari_mainstack->bot)
   {
-    if (pari_mainstack->vsize==0
-      || x > (avma-pari_mainstack->vbot) / sizeof(long)) pari_err(e_STACK);
-    while (x > (avma-pari_mainstack->bot) / sizeof(long))
+    if (newavma < pari_mainstack->vbot) pari_err(e_STACK);
+    do
       paristack_resize(0);
+    while (newavma < pari_mainstack->bot);
   }
-  avma = (pari_sp)z;
+  avma = newavma;
 #ifdef MEMSTEP
   if (DEBUGMEM && pari_mainstack->memused != DISABLE_MEMUSED) {
-    long d = (long)pari_mainstack->memused - (long)z;
+    long d = (long)pari_mainstack->memused - (long)newavma;
     if (d > 4*MEMSTEP || d < -4*MEMSTEP)
     {
-      pari_mainstack->memused = (pari_sp)z;
+      pari_mainstack->memused = newavma;
       err_printf("...%4.0lf Mbytes used\n",
                 (pari_mainstack->top-pari_mainstack->memused)/1048576.);
     }
   }
 #endif
-  return z;
+  return (GEN) newavma;
 }
 
 INLINE char *
