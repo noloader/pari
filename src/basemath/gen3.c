@@ -2448,11 +2448,11 @@ mkintn(long n, ...)
   for (i=0; i <n; i++)
   {
 #ifdef LONG_IS_64BIT
-    ulong a = (e && !i)? 0: va_arg(ap, long);
-    ulong b = va_arg(ap, long);
+    ulong a = (e && !i)? 0: (ulong) va_arg(ap, unsigned int);
+    ulong b = (ulong) va_arg(ap, unsigned int);
     *y = (a << 32) | b;
 #else
-    *y = va_arg(ap, long);
+    *y = (ulong) va_arg(ap, unsigned int);
 #endif
     y = int_precW(y);
   }

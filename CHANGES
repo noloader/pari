@@ -80,3 +80,4 @@ BA  7- rootpadicfast renamed ZpX_roots
          - polsturm(T, a, b) used to return the number of roots in ]a,b],
            we now use the closed interval [a,b]: more intuitive given the new
            syntax, and compatible with polrootsreal()
+BA 10- [libpari] mkintn: handles arguments as 32bit unsigned int

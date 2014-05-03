@@ -14,6 +14,7 @@ This file lists the incompatible changes between Version 2.x and older versions
   - top and bot are replaced by pari_mainstack->top and pari_mainstack->bot.
   - allocatemem() is replaced by paristack_resize.
   - rootpadicfast was renamed to ZpX_roots
+  - mkintn() now handles arguments as 32bit unsigned int on both 64/32 bits.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%% VERSION 2.6 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   - eval() no longer evaluates its arguments in "permissive" mode: eval("1a")
