@@ -28,6 +28,15 @@ else
     esac;
   fi; . ./look
 fi
+if test "$has_clock_gettime" = yes -o "$has_ftime" = yes; then
+  :
+else
+  list='gettimeofday ftime'; . ./look
+  if test "$has_ftime" = yes; then
+    has_ftimeforwalltime=yes
+    unset has_ftime
+  fi
+fi
 list=sigaction; . ./look
 list=TIOCGWINSZ; . ./look
 list=getrlimit; . ./look

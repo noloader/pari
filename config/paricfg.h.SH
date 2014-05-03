@@ -123,6 +123,13 @@ yes) echo '#define USE_CLOCK_GETTIME 1' >> $file;;
      esac;;
 esac
 
+case "$has_gettimeofday" in
+yes) echo '#define USE_GETTIMEOFDAY 1' >> $file;;
+  *) case "$has_ftimeforwalltime" in
+     yes) echo '#define USE_FTIMEFORWALLTIME 1' >> $file;;
+     esac;;
+esac
+
 case $has_sigaction in
 yes) echo '#define HAS_SIGACTION' >> $file;;
 esac

@@ -2398,6 +2398,36 @@ msgtimer(const char *format, ...)
 }
 long
 getabstime(void)  { return timer_get(&abstimer_T);}
+#if defined(USE_CLOCK_GETTIME) || defined(USE_GETTIMEOFDAY) \
+ || defined(USE_FTIMEFORWALLTIME)
+static GEN
+timetoi(ulong s, ulong m)
+{
+  pari_sp av = avma;
+  GEN r = addiu(muliu(utoi(s), 1000), m);
+  return gerepileuptoint(av, r);
+}
+#endif
+#if defined(USE_FTIMEFORWALLTIME) && !defined(USE_FTIME)
+# include <sys/timeb.h>
+#endif
+GEN
+getwalltime(void)
+{
+#if defined(USE_CLOCK_GETTIME)
+  struct timespec t;
+  if (!clock_gettime(CLOCK_REALTIME,&t))
+    return timetoi(t.tv_sec, (t.tv_nsec + 500000)/1000000);
+#elif defined(USE_GETTIMEOFDAY)
+  struct timeval tv;
+  if (!gettimeofday(&tv, NULL))
+    return timetoi(tv.tv_sec, (tv.tv_usec + 500)/1000);
+#elif defined(USE_FTIMEFORWALLTIME)
+  struct timeb tp;
+  if (!ftime(&tp)) return timetoi(tp.time, tp.millitm);
+#endif
+  return utoi(getabstime());
+}
 
 /*******************************************************************/
 /*                                                                 */

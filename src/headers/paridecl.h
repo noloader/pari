@@ -1781,6 +1781,7 @@ GEN     gen_sort_uniq(GEN x, void *E, int (*cmp)(void*,GEN,GEN));
 long    getstack(void);
 long    gettime(void);
 long    getabstime(void);
+GEN     getwalltime(void);
 GEN     gprec(GEN x, long l);
 GEN     gprec_wtrunc(GEN x, long pr);
 GEN     gprec_w(GEN x, long pr);
