@@ -9,7 +9,7 @@ Doc: real roots of the polynomial \var{x} with rational
  to a relative accuracy of \kbd{realprecision}. If argument \var{ab} is
  present, it must be a vector $[a,b]$ with two components (of type
  \typ{INT}, \typ{FRAC} or \typ{INFINITY}) and we restrict to roots belonging
- to that interval.
+ to that closed interval.
  \bprog
  ? \p9
  ? polrootsreal(x^2-2)
@@ -18,6 +18,8 @@ Doc: real roots of the polynomial \var{x} with rational
  %2 = [1.41421356]~
  ? polrootsreal(x^2-2, [2,3])
  %3 = []~
+ ? polrootsreal((x-1)*(x-2), [2,3])
+ %4 = [2.00000000]~
  @eprog\noindent
  The algorithm used is a modification of Uspensky's method (relying on
  Descartes's rule of sign), following Rouillier and Zimmerman ``Efficient
