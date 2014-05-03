@@ -2318,7 +2318,7 @@ numberofconjugates(GEN T, long pinit)
   nbmax = (n < 10)? 20: (n<<1) + 1;
   nbtest = 0;
 #if 0
-  c = sturm(T); c = ugcd(c, n - c); /* too costly: finite primes are cheaper */
+  c = ZX_sturm(T); c = ugcd(c, n-c); /* too costly: finite primes are cheaper */
 #else
   c = n;
 #endif

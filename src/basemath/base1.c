@@ -1234,11 +1234,21 @@ nfisincl(GEN a, GEN b) { return nfiso0(a,b,0); }
 GEN
 get_roots(GEN x, long r1, long prec)
 {
-  GEN roo = (typ(x)!=t_POL)? leafcopy(x): QX_complex_roots(x,prec);
-  long i, ru = (lg(roo)-1 + r1) >> 1;
-
-  for (i=r1+1; i<=ru; i++) gel(roo,i) = gel(roo, (i<<1)-r1);
-  roo[0]=evaltyp(t_VEC)|evallg(ru+1); return roo;
+  long i, ru;
+  GEN z;
+  if (typ(x) != t_POL)
+  {
+    z = leafcopy(x);
+    ru = (lg(z)-1 + r1) >> 1;
+  }
+  else
+  {
+    long n = degpol(x);
+    z = (r1 == n)? realroots(x, NULL, prec): QX_complex_roots(x,prec);
+    ru = (n+r1)>>1;
+  }
+  for (i=r1+1; i<=ru; i++) gel(z,i) = gel(z, (i<<1)-r1);
+  z[0]=evaltyp(t_VEC)|evallg(ru+1); return z;
 }
 
 GEN
@@ -1854,7 +1864,7 @@ nfbasic_init(GEN x, long flag, nfbasic_t *T)
       bas = S.basis;
       dx = S.dT;
       unscale = S.unscale;
-      r1 = sturm(x);
+      r1 = ZX_sturm(x);
       break;
     }
     case t_VEC:
@@ -1875,7 +1885,7 @@ nfbasic_init(GEN x, long flag, nfbasic_t *T)
       index = NULL;
       dx = NULL;
       dK = NULL;
-      r1 = sturm(x);
+      r1 = ZX_sturm(x);
       break;
     default: /* -1 */
       pari_err_TYPE("nfbasic_init", x);

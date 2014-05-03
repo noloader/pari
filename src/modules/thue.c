@@ -662,7 +662,7 @@ thueinit(GEN pol, long flag, long prec)
   }
 
   if (dpol <= 2) pari_err_DOMAIN("thue", "degree","<=",gen_2,pol);
-  s = sturm(pol);
+  s = ZX_sturm(pol);
   if (s)
   {
     long PREC, n = degpol(pol);

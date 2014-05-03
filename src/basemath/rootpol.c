@@ -2571,7 +2571,7 @@ usp(GEN Q0, long deg, long *nb_donep, long flag, long bitprec)
           break;
         case 1:
           { /* Caveat emptor: Qremapped is the reciprocal polynomial */
-            GEN sr = polsolve(Qremapped, bitprec);
+            GEN sr = polsolve(Qremapped, bitprec+1);
             sr = divrr(sr, addsr(1, sr));
             sr = gmul2n(addir(c, sr), -k);
             gel(sol, ++nbr) = rtor(sr, nbits2prec(bitprec));
@@ -2814,14 +2814,31 @@ rootsdeg0(GEN x)
   if (!isvalidcoeff(x)) pari_err_TYPE("realroots",x);
   return cgetg(1,t_COL); /* constant polynomial */
 }
+static void
+checkbound(GEN a)
+{
+  switch(typ(a))
+  {
+    case t_INT: case t_FRAC: case t_INFINITY: break;
+    default: pari_err_TYPE("polrealroots", a);
+  }
+}
 GEN
-realroots(GEN P, long prec)
+realroots(GEN P, GEN ab, long prec)
 {
   pari_sp av = avma;
   long nrr = 0;
   GEN sol = NULL, fa, ex;
   long i, j, k;
 
+  if (ab) {
+    GEN a, b;
+    if (typ(ab) != t_VEC || lg(ab) != 3) pari_err_TYPE("polrootsreal",ab);
+    a = gel(ab,1); checkbound(a);
+    b = gel(ab,2); checkbound(b);
+    if (typ(a) == t_INFINITY && inf_get_sign(a) < 0 &&
+        typ(b) == t_INFINITY && inf_get_sign(b) > 0) ab = NULL;
+  }
   if (typ(P) != t_POL) return rootsdeg0(P);
   switch(degpol(P))
   {
@@ -2835,7 +2852,10 @@ realroots(GEN P, long prec)
   {
     GEN Pi = gel(fa, i), soli, soli2 = NULL;
     long n, nrri = 0, h, nbz;
-    Pi = RgX_deflate_max(Pi, &h);
+    if (ab)
+      h = 1;
+    else
+      Pi = RgX_deflate_max(Pi, &h);
     if (!signe(gel(Pi, 2)))
     {
       Pi = RgX_shift_shallow(Pi, -1);
@@ -2843,7 +2863,7 @@ realroots(GEN P, long prec)
     }
     else
       nbz = 0;
-    soli = ZX_uspensky(Pi, h%2 ? NULL : gen_0, 1, prec2nbits(prec));
+    soli = ZX_uspensky(Pi, h%2 ? ab: gen_0, 1, prec2nbits(prec));
     n = lg(soli);
     if (!(h % 2)) soli2 = cgetg(n, t_COL);
     for (j = 1; j < n; j++)
@@ -2856,24 +2876,23 @@ realroots(GEN P, long prec)
         gel(soli, j) = elt;
       }
       if (h > 1)
-      {
-        /* note: elt != 0 because we are square free */
-        GEN sqrtroot;
+      { /* note: elt != 0 because we are square free */
+        GEN r;
         if (h == 2)
-          sqrtroot = gsqrt(elt, prec);
+          r = gsqrt(elt, prec);
         else
         {
           if (signe(elt) < 0)
-            sqrtroot = mpneg(gsqrtn(mpneg(elt), utoipos(h), NULL, prec));
+            r = mpneg(gsqrtn(mpneg(elt), utoipos(h), NULL, prec));
           else
-            sqrtroot = gsqrtn(elt, utoipos(h), NULL, prec);
+            r = gsqrtn(elt, utoipos(h), NULL, prec);
         }
-        gel(soli, j) = sqrtroot;
-        if (!(h % 2)) gel(soli2, j) = mpneg(sqrtroot);
+        gel(soli, j) = r;
+        if (!(h % 2)) gel(soli2, j) = mpneg(r);
       }
     }
     if (!(h % 2)) soli = shallowconcat(soli, soli2);
-    if (nbz) soli = concat(soli, real_0(prec));
+    if (nbz) soli = shallowconcat(soli, real_0(prec));
     for (k = 1; k <= ex[i]; k++)
       sol = sol ? shallowconcat(sol, soli) : soli;
     nrr += ex[i]*nrri;
@@ -2885,5 +2904,19 @@ realroots(GEN P, long prec)
     err_printf(" -- of which 2-integral: %ld\n", nrr);
   }
 
-  return gerepilecopy(av, sort(sol));
+  return gerepileupto(av, sort(sol));
+}
+
+/* P non-constant, squarefree ZX */
+long
+ZX_sturm(GEN P)
+{
+  pari_sp av = avma;
+  long h, nr;
+  P = RgX_deflate_max(P, &h);
+  if (odd(h))
+    nr = itos(ZX_uspensky(P, NULL, 2, 0));
+  else
+    nr = 2*itos(ZX_uspensky(P, gen_0, 2, 10));
+  avma = av; return nr;
 }

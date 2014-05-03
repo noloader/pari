@@ -3263,7 +3263,8 @@ int     isrealappr(GEN x, long l);
 GEN     polgraeffe(GEN p);
 GEN     polmod_to_embed(GEN x, long prec);
 GEN     roots(GEN x,long l);
-GEN     realroots(GEN P, long prec);
+GEN     realroots(GEN P, GEN ab, long prec);
+long    ZX_sturm(GEN P);
 GEN     ZX_uspensky(GEN P, GEN ab, long flag, long prec);
 
 /* subcyclo.c */
