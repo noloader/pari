@@ -100,7 +100,7 @@ new_chunk(size_t x) /* x is a number of longs */
 #ifdef MEMSTEP
   if (DEBUGMEM && pari_mainstack->memused != DISABLE_MEMUSED) {
     long d = (long)pari_mainstack->memused - (long)z;
-    if (d > 4*MEMSTEP || d < -4*MEMSTEP)
+    if (labs(d) > 4*MEMSTEP)
     {
       pari_mainstack->memused = (pari_sp)z;
       err_printf("...%4.0lf Mbytes used\n",
