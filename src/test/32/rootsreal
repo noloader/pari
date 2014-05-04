@@ -36,7 +36,23 @@
   ***   at top-level: polrootsreal(0)
   ***                 ^---------------
   *** polrootsreal: zero polynomial in realroots.
+  ***   at top-level: polrootsreal(Pol(0))
+  ***                 ^--------------------
+  *** polrootsreal: zero polynomial in realroots.
   ***   at top-level: polrootsreal(Mod(1,2
   ***                 ^--------------------
   *** polrootsreal: incorrect type in realroots (t_INTMOD).
-Total time spent: 0
+[0.E-38 + 0.E-38*I, 1.0000000000000000000000000000000000000 + 0.E-38*I, 2.00
+00000000000000000000000000000000000 + 0.E-38*I, 3.00000000000000000000000000
+00000000000 + 0.E-38*I]~
+[]~
+[1.0000000000000000000000000000000000000]~
+[]~
+1
+0
+3
+2
+3
+[1.2599210498948731647672106072782283506]~
+[-1.2599210498948731647672106072782283506]~
+Total time spent: 4

@@ -344,6 +344,12 @@
   ***   at top-level: polroots(x^2+Mod(1,2
   ***                 ^--------------------
   *** polroots: incorrect type in roots (t_INTMOD).
+  ***   at top-level: polroots(0)
+  ***                 ^-----------
+  *** polroots: zero polynomial in roots.
+  ***   at top-level: polroots(Mod(1,2))
+  ***                 ^------------------
+  *** polroots: incorrect type in roots (t_INTMOD).
   ***   at top-level: prime(-2)
   ***                 ^---------
   *** prime: domain error in prime: n <= 0
