@@ -2884,16 +2884,16 @@ realroots(GEN P, GEN ab, long prec)
       { /* note: elt != 0 because we are square free */
         GEN r;
         if (h == 2)
-          r = gsqrt(elt, prec);
+          r = sqrtr(elt);
         else
         {
           if (signe(elt) < 0)
-            r = mpneg(gsqrtn(mpneg(elt), utoipos(h), NULL, prec));
+            r = negr(sqrtnr(negr(elt), h));
           else
-            r = gsqrtn(elt, utoipos(h), NULL, prec);
+            r = sqrtnr(elt, h);
         }
         gel(soli, j) = r;
-        if (!(h % 2)) gel(soli2, j) = mpneg(r);
+        if (!(h % 2)) gel(soli2, j) = negr(r);
       }
     }
     if (!(h % 2)) soli = shallowconcat(soli, soli2);
