@@ -54,7 +54,7 @@ BA 20- [libpari] New functions vecsmallpermute, vec_append
    21- GP functions qfsolve, qfparam [ adapted from Denis Simon's qfsolve.gp ]
    22- [libpari] New function ZM_transmul
    23- allow elliptic curves over number fields: ellinit([a1,...,a5], nf)
-   24- [libpari] ZX_sturm
+   24- [libpari] ZX_sturm, ZX_sturmpart, RgX_sturmpart
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]
@@ -71,4 +71,12 @@ BA  2- [libpari] rename RgX_mullow -> RgXn_mul, RgX_sqrlow -> RgXn_sqr,
        poldegree(0) now returns -oo
 BA  7- rootpadicfast renamed ZpX_roots
     8- nfinit: switch from sturm() to ZX_sturm() [Uspensky], and from polroots
-       to polrootsreal (totally real fields)
+       to polrootsreal (totally real fields). polsturm() now uses Uspensky in
+       most cases.
+    9- polsturm interface change
+         - polsturm(T, a, b) is still supported but deprecated, use
+           polsturm(T, [a,b])
+
+         - polsturm(T, a, b) used to return the number of roots in ]a,b],
+           we now use the closed interval [a,b]: more intuitive given the new
+           syntax, and compatible with polrootsreal()

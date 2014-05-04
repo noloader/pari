@@ -545,8 +545,8 @@
   ***   at top-level: mathnfmod([1;2],2)
   ***                 ^------------------
   *** mathnfmod: domain error in ZM_hnfmod: nb lines > nb columns
-  ***   at top-level: polsturm(x^2)
-  ***                 ^-------------
+  ***   at top-level: polsturm(x^2*1.)
+  ***                 ^----------------
   *** polsturm: domain error in polsturm: issquarefree(pol) = 0
   ***   at top-level: removeprimes(2)
   ***                 ^---------------

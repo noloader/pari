@@ -2,9 +2,9 @@ Function: polrootsreal
 Section: polynomials
 C-Name: realroots
 Prototype: GDGp
-Help: polrootsreal(x, {ab}): real roots of the polynomial x with rational
+Help: polrootsreal(T, {ab}): real roots of the polynomial T with rational
  coefficients, using Uspensky's method. In interval ab = [a,b] if present.
-Doc: real roots of the polynomial \var{x} with rational
+Doc: real roots of the polynomial $T$ with rational
  coefficients, multiple roots being included only once. The roots are given
  to a relative accuracy of \kbd{realprecision}. If argument \var{ab} is
  present, it must be a vector $[a,b]$ with two components (of type
@@ -26,3 +26,11 @@ Doc: real roots of the polynomial \var{x} with rational
  isolation of a polynomial real roots''
  (\url{http://hal.inria.fr/inria-00072518/}. Barring bugs, it is guaranteed
  to converge and to give the roots to the required accuracy.
+
+ \misctitle{Remark} If the polynomial $T$ is of the
+ form $Q(x^h)$ for some $h\geq 2$ and \var{ab} is omitted, the routine will
+ apply the algorithm to $Q$ (restricting to non-negative roots when $h$ is
+ even), then take $h$-th roots. On the other hand, if you want to specify
+ \var{ab}, you should apply the routine to $Q$ yourself and a suitable
+ interval $[a',b']$ using approximate $h$-th roots adapted to your problem:
+ the function will not perform this change of variables if \var{ab} is present.

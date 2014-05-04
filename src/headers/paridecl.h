@@ -3052,6 +3052,7 @@ GEN     RgX_gcd(GEN x, GEN y);
 GEN     RgX_gcd_simple(GEN x, GEN y);
 int     RgXQ_ratlift(GEN y, GEN x, long amax, long bmax, GEN *P, GEN *Q);
 GEN     RgX_resultant_all(GEN P, GEN Q, GEN *sol);
+long    RgX_sturmpart(GEN x, GEN ab);
 long    RgX_type(GEN x, GEN *ptp, GEN *ptpol, long *ptpa);
 void    RgX_type_decode(long x, long *t1, long *t2);
 int     RgX_type_is_composite(long t);
@@ -3265,6 +3266,7 @@ GEN     polmod_to_embed(GEN x, long prec);
 GEN     roots(GEN x,long l);
 GEN     realroots(GEN P, GEN ab, long prec);
 long    ZX_sturm(GEN P);
+long    ZX_sturmpart(GEN P, GEN ab);
 GEN     ZX_uspensky(GEN P, GEN ab, long flag, long prec);
 
 /* subcyclo.c */

@@ -2658,7 +2658,7 @@ ZX_uspensky(GEN P, GEN ab, long flag, long bitprec)
     case 1: avma = av; return flag <= 1 ? cgetg(1, t_COL) : gen_0;
     case 0:
       if (typ(a) != t_INFINITY && gequal0(poleval(P, a)))
-      { avma = av; if (flag <= 1) retmkcol(gcopy(a)); else return gen_1; }
+      { avma = av; return flag <= 1 ? mkcolcopy(a): gen_1; }
       else
       { avma = av; return flag <= 1 ? cgetg(1, t_COL) : gen_0; }
   }
@@ -2695,7 +2695,7 @@ ZX_uspensky(GEN P, GEN ab, long flag, long bitprec)
   }
   if (typ(b) == t_INFINITY && typ(a) != t_INFINITY && gsigne(a))
   {
-    fb = fujiwara_bound_real(Pcur, -1);
+    fb = fujiwara_bound_real(Pcur, 1);
     if (fb > -pariINFINITY)
       b = int2n((long)ceil(fb));
     else
@@ -2810,8 +2810,8 @@ ZX_uspensky(GEN P, GEN ab, long flag, long bitprec)
 static GEN
 rootsdeg0(GEN x)
 {
+  if (!is_rational_t(typ(x))) pari_err_TYPE("realroots",x);
   if (gequal0(x)) pari_err_ROOTS0("realroots");
-  if (!isvalidcoeff(x)) pari_err_TYPE("realroots",x);
   return cgetg(1,t_COL); /* constant polynomial */
 }
 static void
@@ -2823,6 +2823,18 @@ checkbound(GEN a)
     default: pari_err_TYPE("polrealroots", a);
   }
 }
+static GEN
+check_ab(GEN ab)
+{
+  GEN a, b;
+  if (!ab) return NULL;
+  if (typ(ab) != t_VEC || lg(ab) != 3) pari_err_TYPE("polrootsreal",ab);
+  a = gel(ab,1); checkbound(a);
+  b = gel(ab,2); checkbound(b);
+  if (typ(a) == t_INFINITY && inf_get_sign(a) < 0 &&
+      typ(b) == t_INFINITY && inf_get_sign(b) > 0) ab = NULL;
+  return ab;
+}
 GEN
 realroots(GEN P, GEN ab, long prec)
 {
@@ -2831,14 +2843,7 @@ realroots(GEN P, GEN ab, long prec)
   GEN sol = NULL, fa, ex;
   long i, j, k;
 
-  if (ab) {
-    GEN a, b;
-    if (typ(ab) != t_VEC || lg(ab) != 3) pari_err_TYPE("polrootsreal",ab);
-    a = gel(ab,1); checkbound(a);
-    b = gel(ab,2); checkbound(b);
-    if (typ(a) == t_INFINITY && inf_get_sign(a) < 0 &&
-        typ(b) == t_INFINITY && inf_get_sign(b) > 0) ab = NULL;
-  }
+  ab = check_ab(ab);
   if (typ(P) != t_POL) return rootsdeg0(P);
   switch(degpol(P))
   {
@@ -2912,11 +2917,21 @@ long
 ZX_sturm(GEN P)
 {
   pari_sp av = avma;
-  long h, nr;
+  long h, r;
   P = RgX_deflate_max(P, &h);
   if (odd(h))
-    nr = itos(ZX_uspensky(P, NULL, 2, 0));
+    r = itos(ZX_uspensky(P, NULL, 2, 0));
   else
-    nr = 2*itos(ZX_uspensky(P, gen_0, 2, 10));
-  avma = av; return nr;
+    r = 2*itos(ZX_uspensky(P, gen_0, 2, 0));
+  avma = av; return r;
+}
+/* P non-constant, squarefree ZX */
+long
+ZX_sturmpart(GEN P, GEN ab)
+{
+  pari_sp av = avma;
+  long r;
+  if (!check_ab(ab)) return ZX_sturm(P);
+  r = itos(ZX_uspensky(P, ab, 2, 0));
+  avma = av; return r;
 }

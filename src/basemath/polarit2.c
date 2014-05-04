@@ -2893,16 +2893,27 @@ reduceddiscsmith(GEN x)
 /***********************************************************************/
 /**                                                                   **/
 /**                       STURM ALGORITHM                             **/
-/**              (number of real roots of x in ]a,b])                 **/
+/**              (number of real roots of x in [a,b])                 **/
 /**                                                                   **/
 /***********************************************************************/
+static int
+exact_sturm(GEN a)
+{
+  switch(typ(a))
+  {
+    case t_INT: case t_FRAC: case t_INFINITY: return 1;
+    default: return 0;
+  }
+}
 
-/* if a (resp. b) is NULL, set it to -oo (resp. +oo) */
-long
-sturmpart(GEN x, GEN a, GEN b)
+/* Deprecated: support the old format: if a (resp. b) is NULL, set it
+ * to -oo resp. +oo). ZX_sturmpart() should be preferred  */
+static long
+sturmpart_i(GEN x, GEN a, GEN b)
 {
   long sl, sr, s, t, r1;
   pari_sp av = avma, lim = stack_lim(av, 1);
+  int integral;
   GEN g,h,u,v;
 
   if (gequal0(x)) pari_err_ROOTS0("sturm");
@@ -2913,21 +2924,46 @@ sturmpart(GEN x, GEN a, GEN b)
     pari_err_TYPE("sturm",x);
   }
   s=lg(x); if (s==3) return 0;
-
-  sl = gsigne(leading_term(x));
+  u = primpart(x);
+  integral = RgX_is_ZX(u);
+  if (!b && a && typ(a) == t_VEC && lg(a) == 3)
+  { /* new format */
+    if (integral && exact_sturm(gel(a,1)) && exact_sturm(gel(a,2)))
+      return ZX_sturmpart(u, a);
+    /* but can't use new function; convert to old form */
+    integral = 0;
+    b = gel(a,2);
+    if (typ(b) == t_INFINITY)
+    {
+      if (inf_get_sign(b) < 0) return 0;
+      b = NULL;
+    }
+    a = gel(a,1);
+    if (typ(a) == t_INFINITY)
+    {
+      if (inf_get_sign(a) > 0) return 0;
+      a = NULL;
+    }
+  }
+  if (integral)
+  {
+    if (!a) a = mkmoo();
+    if (!b) b = mkoo();
+    if (exact_sturm(a) && exact_sturm(b)) return ZX_sturmpart(u, mkvec2(a,b));
+  }
+  /* legacy code: should only be used if we have a t_REAL somewhere; and even
+   * then, the calling program should be changed */
+  sl = gsigne(leading_term(u));
+  t = a? gsigne(poleval(u,a)): (odd(s)? sl: -sl);
   if (s==4)
   {
-    t = a? gsigne(poleval(x,a)): -sl;
-    if (t == 0) { avma = av; return 0; }
-    s = b? gsigne(poleval(x,b)):  sl;
-    avma = av; return (s == t)? 0: 1;
+    if (t == 0) return 1;
+    s = b? gsigne(poleval(u,b)):  sl;
+    return (s == t)? 0: 1;
   }
-  u = primpart(x);
-  v = primpart(RgX_deriv(x));
-  g=gen_1; h=gen_1;
   s = b? gsigne(poleval(u,b)): sl;
-  t = a? gsigne(poleval(u,a)): ((lg(u)&1)? sl: -sl);
-  r1=0;
+  r1= (t == 0)? 1: 0;
+  v = primpart(RgX_deriv(x));
   sr = b? gsigne(poleval(v,b)): s;
   if (sr)
   {
@@ -2940,6 +2976,7 @@ sturmpart(GEN x, GEN a, GEN b)
     if (!t) t=sr;
     else if (sr!=t) { t= -t; r1++; }
   }
+  g=gen_1; h=gen_1;
   for(;;)
   {
     GEN p1, r = RgX_pseudorem(u,v);
@@ -2960,7 +2997,7 @@ sturmpart(GEN x, GEN a, GEN b)
       if (!t) t=sr;
       else if (sr!=t) { t= -t; r1++; }
     }
-    if (dr==3) { avma=av; return r1; }
+    if (dr==3) return r1;
 
     u=v; p1 = g; g = gabs(leading_term(u),DEFAULTPREC);
     switch(degq)
@@ -2980,6 +3017,15 @@ sturmpart(GEN x, GEN a, GEN b)
     }
   }
 }
+long
+sturmpart(GEN x, GEN a, GEN b)
+{
+  pari_sp av = avma;
+  long r = sturmpart_i(x,a,b);
+  avma = av; return r;
+}
+long
+RgX_sturmpart(GEN x, GEN ab) { return sturmpart(x, ab, NULL); }
 
 /***********************************************************************/
 /**                                                                   **/
