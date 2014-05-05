@@ -654,6 +654,7 @@ FBgen(FB_t *F, GEN nf, long N, ulong C1, ulong C2, GRHcheck_t *S)
     /* compute l such that p^f <= C2  <=> f <= l */
     l = (long)(L/pr->logp);
     for (k=0, m=1; m < lg(f) && f[m]<=l; m++) k += nb[m];
+    if (!k) continue; /* p too inert to appear in FB */
 
     prim[2] = p; LP = idealprimedec(nf,prim);
     /* keep non-inert ideals with Norm <= C2 */
