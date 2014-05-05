@@ -285,6 +285,8 @@ DOTEST=$dotest
 OBJS   = $OBJS
 OBJSGP = $OBJSGP
 
+TESTS  = $test_extra
+
 .PHONY: gp dft clean
 
 gp: gp-$dft ../gp$suffix$exe_suff $libdft
@@ -520,11 +522,11 @@ bench: $exec clean_pari_ps
 dobench:: clean_pari_ps
 	@\$(DOTEST) $test_basic
 test-all: $exec clean_pari_ps
-	@\$(DOTEST) $test_extra
+	@\$(DOTEST) \$(TESTS)
 dotest-all:: clean_pari_ps
-	@\$(DOTEST) $test_extra
+	@\$(DOTEST) \$(TESTS)
 dyntest-all: gp-dyn$exe_suff clean_pari_ps
-	@env dotestSUF=dyn \$(MAKE)test-all
+	@env dotestSUF=dyn \$(MAKE) test-all
 statest-all: gp-sta$exe_suff clean_pari_ps
 	@env dotestSUF=sta \$(MAKE) test-all
 
