@@ -757,13 +757,13 @@ is_unit(GEN M, long r1, GEN x)
 }
 
 /* FIXME: should use smallvectors */
-static GEN
+static double
 minimforunits(GEN nf, long BORNE, ulong w)
 {
   const long prec = MEDDEFAULTPREC;
-  long n, r1, i, j, k, s, *x, cnt = 0;
+  long n, r1, i, j, k, *x, cnt = 0;
   pari_sp av = avma;
-  GEN u, r, M;
+  GEN r, M;
   double p, norme, normin, normax;
   double **q,*v,*y,*z;
   double eps=0.000001, BOUND = BORNE * 1.00001;
@@ -783,8 +783,8 @@ minimforunits(GEN nf, long BORNE, ulong w)
     v[j] = gtodouble(gcoeff(r,j,j));
     for (i=1; i<j; i++) q[i][j] = gtodouble(gcoeff(r,i,j));
   }
-  normax = 0.; normin = (double)BOUND;
-  s=0; k=n; y[n]=z[n]=0;
+  normax = 0.; normin = (double)BORNE*(1-eps);
+  k=n; y[n]=z[n]=0;
   x[n] = (long)(sqrt(BOUND/v[n]));
 
   for(;;x[1]--)
@@ -812,25 +812,22 @@ minimforunits(GEN nf, long BORNE, ulong w)
     if (!x[1] && y[1]<=eps) break;
 
     if (DEBUGLEVEL>8){ err_printf("."); err_flush(); }
-    if (++cnt == 5000) return NULL; /* too expensive */
+    if (++cnt == 5000) return -1.; /* too expensive */
 
-    p = (double)x[1] + z[1]; norme = y[1] + p*p*v[1] + eps;
-    if (norme > normax) normax = norme;
+    p = (double)x[1] + z[1]; norme = y[1] + p*p*v[1];
+    if (norme+eps > normax) normax = norme;
     if (is_unit(M, r1, x)
     && (norme > 2*n  /* exclude roots of unity */
         || !ZV_isscalar(nfpow_u(nf, zc_to_ZC(x), w))))
     {
-      if (norme < normin) normin = norme;
+      if (norme < normin) normin = norme*(1-eps);
       if (DEBUGLEVEL>=2) { err_printf("*"); err_flush(); }
     }
 
   }
   if (DEBUGLEVEL>=2){ err_printf("\n"); err_flush(); }
-  avma = av; u = cgetg(4,t_VEC);
-  gel(u,1) = stoi(s<<1);
-  gel(u,2) = dbltor(normax);
-  gel(u,3) = dbltor(normin);
-  return u;
+  avma = av;
+  return normin;
 }
 
 #undef NBMAX
@@ -987,7 +984,8 @@ static GEN
 lowerboundforregulator(GEN bnf, GEN units)
 {
   long i, N, R2, RU = lg(units)-1;
-  GEN nf, M0, M, G, bound, minunit, vecminim;
+  GEN nf, M0, M, G, minunit;
+  double bound;
 
   if (!RU) return gen_1;
   nf = bnf_get_nf(bnf);
@@ -1003,11 +1001,10 @@ lowerboundforregulator(GEN bnf, GEN units)
   }
   if (gexpo(minunit) > 30) return NULL;
 
-  vecminim = minimforunits(nf, itos(gceil(minunit)), bnf_get_tuN(bnf));
-  if (!vecminim) return NULL;
-  bound = gel(vecminim,3);
-  if (DEBUGLEVEL>1) err_printf("M* = %Ps\n", bound);
-  M0 = compute_M0(bound, N);
+  bound = minimforunits(nf, itos(gceil(minunit)), bnf_get_tuN(bnf));
+  if (bound < 0) return NULL;
+  if (DEBUGLEVEL>1) err_printf("M* = %Ps\n", dbltor(bound));
+  M0 = compute_M0(dbltor(bound), N);
   if (DEBUGLEVEL>1) { err_printf("M0 = %.28Pg\n",M0); err_flush(); }
   M = gmul2n(divru(gdiv(powrs(M0,RU),hermiteconstant(RU)),N),R2);
   if (cmprr(M, dbltor(0.04)) < 0) return NULL;
