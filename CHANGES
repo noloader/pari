@@ -33,6 +33,7 @@ XR  9- padicfields(huge p, d) was very slow [even though ramification is tame]
    20- precprime(1) -> invalid t_INT [#1576]
    21- gaffsg(0, t_PADIC): wrong valuation
    22- thue(f^e*g, ...), e even, (f,g)=1 missed solutions such that f<0
+   23- faster znlog when p-1 has only smallish prime factors.
 
   Added
     1- add optional argument to sumdigits to specify the base

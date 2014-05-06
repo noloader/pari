@@ -3018,6 +3018,12 @@ Fp_log_index(GEN a, GEN b, GEN m, GEN p)
   return gerepileuptoint(av, l);
 }
 
+static int
+Fp_log_use_index(long e, long p)
+{
+  return (e >= 27 && 20*(p+6)<=e*e);
+}
+
 /* Trivial cases a = 1, -1. Return x s.t. g^x = a or [] if no such x exist */
 static GEN
 Fp_easylog(void *E, GEN a, GEN g, GEN ord)
@@ -3038,7 +3044,7 @@ Fp_easylog(void *E, GEN a, GEN g, GEN ord)
     if (!equalii(Fp_pow(g, t, p), a)) { avma = av; return cgetg(1, t_VEC); }
     avma = av2; return gerepileuptoint(av, t);
   }
-  if (typ(ord)==t_INT && expi(ord)>=27 && BPSW_psp(p))
+  if (typ(ord)==t_INT && BPSW_psp(p) && Fp_log_use_index(expi(ord),expi(p)))
     return Fp_log_index(a, g, ord, p);
   avma = av; return NULL; /* not easy */
 }
@@ -3047,8 +3053,13 @@ GEN
 Fp_log(GEN a, GEN g, GEN ord, GEN p)
 {
   GEN v = dlog_get_ordfa(ord);
-  ord = mkvec2(gel(v,1),ZM_famat_limit(gel(v,2),int2n(27)));
-  return gen_PH_log(a,g,ord,(void*)p,&Fp_star);
+  GEN F = gmael(v,2,1);
+  long lF = lg(F)-1, lmax;
+  if (lF == 0) return gen_0;
+  lmax = expi(gel(F,lF));
+  if (BPSW_psp(p) && Fp_log_use_index(lmax,expi(p)))
+    v = mkvec2(gel(v,1),ZM_famat_limit(gel(v,2),int2n(27)));
+  return gen_PH_log(a,g,v,(void*)p,&Fp_star);
 }
 
 /* find x such that h = g^x mod N > 1, N = prod_{i <= l} P[i]^E[i], P[i] prime.
