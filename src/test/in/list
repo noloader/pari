@@ -35,3 +35,4 @@ getheap()[1]
 chinese(List())
 chinese(List([Mod(1,3)]))
 chinese(List([Mod(0,2),Mod(1,3),Mod(2,5)]))
+liftint(List([0,1]))

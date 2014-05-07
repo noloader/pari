@@ -1573,7 +1573,7 @@ list_internal_copy(GEN z, long nmax)
   if (!z) return NULL;
   l = lg(z);
   a = (GEN)pari_malloc((nmax+1) * sizeof(long));
-  for (i = 1; i < l; i++) gel(a,i) = gclone( gel(z,i) );
+  for (i = 1; i < l; i++) gel(a,i) = gel(z,i)? gclone(gel(z,i)): gen_0;
   a[0] = z[0]; return a;
 }
 
@@ -1677,16 +1677,15 @@ gcopy_avma(GEN x, pari_sp *AVMA)
       y = cgetlist_avma(AVMA);
       listassign(x, y); return y;
 
-    default:
-      y = cgetg_copy_avma(x, &lx, AVMA);
-      if (lontyp[tx] == 1) i = 1; else { y[1] = x[1]; i = 2; }
-      for (; i<lx; i++) gel(y,i) = gcopy_avma(gel(x,i), AVMA);
   }
+  y = cgetg_copy_avma(x, &lx, AVMA);
+  if (lontyp[tx] == 1) i = 1; else { y[1] = x[1]; i = 2; }
+  for (; i<lx; i++) gel(y,i) = gcopy_avma(gel(x,i), AVMA);
   return y;
 }
 
 /* [copy_bin/bin_copy:] same as gcopy_avma but use NULL to code an exact 0, and
- * make shallow copies of t_LISTs */
+ * make shallow copies of finalized t_LISTs */
 static GEN
 gcopy_av0(GEN x, pari_sp *AVMA)
 {
@@ -1699,14 +1698,16 @@ gcopy_av0(GEN x, pari_sp *AVMA)
       if (!signe(x)) return NULL; /* special marker */
       *AVMA = (pari_sp)icopy_avma(x, *AVMA);
       return (GEN)*AVMA;
-    case t_REAL: case t_STR: case t_VECSMALL: case t_LIST:
+    case t_LIST:
+      if (list_data(x) && !list_nmax(x)) break; /* not finalized, need copy */
+      /* else finalized: shallow copy */
+    case t_REAL: case t_STR: case t_VECSMALL:
       *AVMA = (pari_sp)leafcopy_avma(x, *AVMA);
       return (GEN)*AVMA;
-    default:
-      y = cgetg_copy_avma(x, &lx, AVMA);
-      if (lontyp[tx] == 1) i = 1; else { y[1] = x[1]; i = 2; }
-      for (; i<lx; i++) gel(y,i) = gcopy_av0(gel(x,i), AVMA);
   }
+  y = cgetg_copy_avma(x, &lx, AVMA);
+  if (lontyp[tx] == 1) i = 1; else { y[1] = x[1]; i = 2; }
+  for (; i<lx; i++) gel(y,i) = gcopy_av0(gel(x,i), AVMA);
   return y;
 }
 
@@ -1752,12 +1753,11 @@ gcopy_av0_canon(GEN x, pari_sp *AVMA)
       }
       return y;
     }
-    default:
-      y = cgetg_copy_avma(x, &lx, AVMA);
-      if (lontyp[tx] == 1) i = 1; else { y[1] = x[1]; i = 2; }
-      for (; i<lx; i++) gel(y,i) = gcopy_av0_canon(gel(x,i), AVMA);
   }
-return y;
+  y = cgetg_copy_avma(x, &lx, AVMA);
+  if (lontyp[tx] == 1) i = 1; else { y[1] = x[1]; i = 2; }
+  for (; i<lx; i++) gel(y,i) = gcopy_av0_canon(gel(x,i), AVMA);
+  return y;
 }
 
 /* [copy_bin/bin_copy:] size (number of words) required for gcopy_av0(x) */
@@ -1778,11 +1778,10 @@ taille0(GEN x)
       GEN L = list_data(x);
       return L? 3 + taille0(L): 3;
     }
-    default:
-      n = lx = lg(x);
-      for (i=lontyp[tx]; i<lx; i++) n += taille0(gel(x,i));
-      return n;
   }
+  n = lx = lg(x);
+  for (i=lontyp[tx]; i<lx; i++) n += taille0(gel(x,i));
+  return n;
 }
 
 /* [copy_bin/bin_copy:] size (number of words) required for gcopy_av0(x) */
@@ -1795,16 +1794,20 @@ taille0_nolist(GEN x)
     case t_INT:
       lx = lgefint(x);
       return lx == 2? 0: lx;
+    case t_LIST:
+    {
+      GEN L = list_data(x);
+      if (L && !list_nmax(x)) break; /* not finalized, deep copy */
+    }
+    /* else finalized: shallow */
     case t_REAL:
     case t_STR:
     case t_VECSMALL:
-    case t_LIST:
       return lg(x);
-    default:
-      n = lx = lg(x);
-      for (i=lontyp[tx]; i<lx; i++) n += taille0_nolist(gel(x,i));
-      return n;
   }
+  n = lx = lg(x);
+  for (i=lontyp[tx]; i<lx; i++) n += taille0_nolist(gel(x,i));
+  return n;
 }
 
 /* How many words do we need to allocate to copy x ? t_LIST is a special case
@@ -1905,8 +1908,14 @@ void
 shiftaddress(GEN x, long dec)
 {
   long i, lx, tx = typ(x);
-  if (is_recursive_t(tx) && tx != t_LIST)
+  if (is_recursive_t(tx))
   {
+    if (tx == t_LIST)
+    {
+      if (!list_data(x) || list_nmax(x)) return; /* empty or finalized */
+      x = list_data(x); /* not finalized, update pointers  */
+      tx = t_VEC;
+    }
     lx = lg(x);
     for (i=lontyp[tx]; i<lx; i++) {
       if (!x[i]) gel(x,i) = gen_0;

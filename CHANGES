@@ -25,6 +25,7 @@ XR  9- padicfields(huge p, d) was very slow [even though ramification is tame]
    13- [libpari] Fq_issquare didn't support T=NULL
    14- [libpari] nfpow_u didn't handle non-integral rational numbers
    15- eint1(0) -> stack overflow [#1568]
+   16- liftint(List([0])) -> gerepile bug
 
   Added
     1- add optional argument to sumdigits to specify the base
