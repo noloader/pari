@@ -6,6 +6,13 @@ This file lists the incompatible changes between Version 2.x and older versions
   - valuation(0,p), nfeltval(nf,0,pr), idealval(nf,0) now all return +oo
     under GP [ used to return LONG_MAX ]
   - poldegree(0) now returns -oo [ used to return -LONG_MAX ]
+  - polsturm interface change
+     * polsturm(T, a, b) is still supported but deprecated, use
+       polsturm(T, [a,b])
+
+     * polsturm(T, a, b) used to return the number of roots in ]a,b],
+       we now use the closed interval [a,b]: more intuitive given the new
+       syntax, and compatible with polrootsreal()
 
 * Specific to the PARI library:
 ===============================
@@ -15,6 +22,8 @@ This file lists the incompatible changes between Version 2.x and older versions
   - allocatemem() is replaced by paristack_resize.
   - rootpadicfast was renamed to ZpX_roots
   - mkintn() now handles arguments as 32bit unsigned int on both 64/32 bits.
+  - sturmpart(x, a, b) is deprecated, use RgX_sturmpart(x, ab) or (better)
+    ZX_sturmpart(x, ab)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%% VERSION 2.6 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   - eval() no longer evaluates its arguments in "permissive" mode: eval("1a")

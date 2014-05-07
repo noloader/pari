@@ -24,7 +24,6 @@ XR  9- padicfields(huge p, d) was very slow [even though ramification is tame]
    12- [libpari] RgM_transmul did not work
    13- [libpari] Fq_issquare didn't support T=NULL
    14- [libpari] nfpow_u didn't handle non-integral rational numbers
-   15- nfhilbert could run into an infinite loop [#1569]
 
   Added
     1- add optional argument to sumdigits to specify the base
