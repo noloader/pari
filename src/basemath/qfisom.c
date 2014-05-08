@@ -323,16 +323,15 @@ init_bacher(long bachdep, struct fingerprint *fp, struct qfauto *qf)
 
 /* checks, whether the vector v[I] has the Bacher-polynomial pol  */
 static long
-bachcomp(GEN pol, long I, long S, GEN V, GEN W, GEN Fv)
+bachcomp(GEN pol, long I, GEN V, GEN W, GEN Fv)
 {
   pari_sp av = avma;
   GEN co, list, listxy, vI;
   long i, j, k;
   long nlist, nxy, count;
-  long n = lg(V)-1;
+  const long n = lg(V)-1, S = mael(W,I,1) / 2;
   long sum = mael(pol,1,1), mind = mael(pol,1,2), maxd = mael(pol,1,3);
   GEN coef = gel(pol,2);
-  I = abs(I);
   vI = gel(V,I);
   list = zero_Flv(sum);
   /* nlist should be equal to pol.sum */
@@ -822,10 +821,9 @@ qfisom_candidates(GEN CI, long I, GEN x, struct qfauto *qf,
   long DEP = qfcand->cdep, len = f * DEP;
   if (I >= 2  &&  I <= lg(qfcand->bacher_pol))
   {
-    long BACHSCP = mael(W,labs(x[I-1]),1) / 2;
+    long t = labs(x[I-1]);
     GEN bpolI = gel(qfcand->bacher_pol,I-1);
-    if (bachcomp(bpolI, x[I-1], BACHSCP, V, W, gel(v,1)) == 0)
-      return 0;
+    if (bachcomp(bpolI, t, V, W, gel(v,1)) == 0) return 0;
   }
   if (I==1 || DEP ==0)
     return qfisom_candidates_novec(CI,I,x,qf,qff,fp);
