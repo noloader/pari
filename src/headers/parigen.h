@@ -142,7 +142,7 @@ typedef unsigned long pari_ulong;
 #define varncmp(x,y)  ((x)-(y))
 
 /* t_LIST */
-#define list_nmax(x) ((GEN)x)[1]
+#define list_nmax(x) x[1]
 #define list_data(x) ((GEN*)x)[2]
 
 /* DO NOT REORDER THESE

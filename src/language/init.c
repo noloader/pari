@@ -1913,8 +1913,7 @@ shiftaddress(GEN x, long dec)
     if (tx == t_LIST)
     {
       if (!list_data(x) || list_nmax(x)) return; /* empty or finalized */
-      x = list_data(x); /* not finalized, update pointers  */
-      tx = t_VEC;
+      /* not finalized, update pointers  */
     }
     lx = lg(x);
     for (i=lontyp[tx]; i<lx; i++) {
