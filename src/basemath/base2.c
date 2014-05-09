@@ -721,81 +721,29 @@ nfmaxord(nfmaxord_t *S, GEN T0, long flag)
   GEN O = get_maxord(S, T0, flag);
   allbase_from_maxord(S, O);
 }
-
-static void
-_nfbasis(GEN x, long flag, GEN fa, GEN *pbas, GEN *pdK)
-{
-  nfmaxord_t S;
-  nfmaxord(&S, fa? mkvec2(x,fa): x, flag);
-  if (pbas) *pbas = RgXV_unscale(S.basis, S.unscale);
-  if (pdK)  *pdK = S.dK;
-}
-static GEN
-_nfdisc(GEN x, long flag, GEN fa)
-{
-  pari_sp av = avma;
-  nfmaxord_t S;
-  GEN O = get_maxord(&S, fa? mkvec2(x,fa): x, flag);
-  GEN D = disc_from_maxord(&S, O);
-  D = icopy_avma(D, av); avma = (pari_sp)D; return D;
-}
-
-/* deprecated: backward compatibility only ! */
-GEN
-nfbasis_gp(GEN T, GEN P, GEN junk)
-{
-  if (!P || isintzero(P)) return nfbasis(T, NULL, junk);
-  if (junk) pari_err_FLAG("nfbasis");
-  /* treat specially nfbasis(T, 1): the deprecated way to initialize an nf when
-   * disc(T) is hard to factor */
-  if (typ(P) == t_INT && equali1(P)) P = utoipos(maxprime());
-  return nfbasis(T, NULL, P);
-}
-/* deprecated */
-GEN
-nfdisc_gp(GEN T, GEN P, GEN junk)
-{
-  if (!P || isintzero(P)) return _nfdisc(T, 0, junk);
-  if (junk) pari_err_FLAG("nfdisc");
-  /* treat specially nfdisc(T, 1) */
-  if (typ(P) == t_INT && equali1(P)) P = utoipos(maxprime());
-  return _nfdisc(T, 0, P);
-}
-/* backward compatibility */
-static long
-nfbasis_flag_translate(long flag)
-{
-  switch(flag) {
-    case 0: return 0;
-    case 1: return nf_PARTIALFACT;
-    case 2: return nf_ROUND2;
-    case 3: return nf_ROUND2|nf_PARTIALFACT;
-    default: pari_err_FLAG("nfbasis");
-             return 0;
-  }
-}
-/* deprecated */
-GEN
-nfbasis0(GEN x, long flag, GEN fa)
-{
-  pari_sp av = avma;
-  GEN bas; _nfbasis(x, nfbasis_flag_translate(flag), fa, &bas, NULL);
-  return gerepilecopy(av, bas);
-}
-/* deprecated */
-GEN
-nfdisc0(GEN x, long flag, GEN fa)
-{ return _nfdisc(x, nfbasis_flag_translate(flag), fa); }
-
 GEN
 nfbasis(GEN x, GEN *pdK, GEN fa)
 {
   pari_sp av = avma;
-  GEN bas; _nfbasis(x, 0, fa, &bas, pdK);
-  gerepileall(av, pdK? 2: 1, &bas, pdK); return bas;
+  nfmaxord_t S;
+  GEN B;
+  nfmaxord(&S, fa? mkvec2(x,fa): x, 0);
+  B = RgXV_unscale(S.basis, S.unscale);
+  if (pdK)  *pdK = S.dK;
+  gerepileall(av, pdK? 2: 1, &B, pdK); return B;
 }
 GEN
-nfdisc(GEN x) { return _nfdisc(x, 0, NULL); }
+nfdisc(GEN x)
+{
+  pari_sp av = avma;
+  nfmaxord_t S;
+  GEN O = get_maxord(&S, x, 0);
+  GEN D = disc_from_maxord(&S, O);
+  D = icopy_avma(D, av); avma = (pari_sp)D; return D;
+}
+
+GEN
+nfbasis_gp(GEN x) { return nfbasis(x,NULL,NULL); }
 
 static ulong
 Flx_checkdeflate(GEN x)

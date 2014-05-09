@@ -14,6 +14,52 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #include "pari.h"
 #include "paripriv.h"
 #include "anal.h"
+static long
+nfbasis_flag_translate(long flag)
+{
+  switch(flag) {
+    case 0: return 0;
+    case 1: return nf_PARTIALFACT;
+    case 2: return nf_ROUND2;
+    case 3: return nf_ROUND2|nf_PARTIALFACT;
+    default: pari_err_FLAG("nfbasis");
+             return 0;
+  }
+}
+static GEN
+nfbasis0(GEN x, long flag, GEN fa)
+{
+  pari_sp av = avma;
+  nfmaxord_t S;
+  GEN B;
+  nfmaxord(&S, fa? mkvec2(x,fa): x, nfbasis_flag_translate(flag));
+  B = RgXV_unscale(S.basis, S.unscale);
+  return gerepilecopy(av, B);
+}
+static  GEN
+nfdisc0(GEN x, long flag, GEN fa)
+{
+  pari_sp av = avma;
+  nfmaxord_t S;
+  nfmaxord(&S, fa? mkvec2(x,fa): x, nfbasis_flag_translate(flag));
+  return gerepilecopy(av, S.dK);
+}
+static GEN
+factorpadic0(GEN f,GEN p,long r,long flag)
+{
+  if (typ(f)!=t_POL) pari_err_TYPE("factorpadic",f);
+  if (typ(p)!=t_INT) pari_err_TYPE("factorpadic",p);
+  if (!signe(f)) return prime_fact(f);
+  if (r <= 0)
+    pari_err_DOMAIN("factorpadic", "precision", "<=",gen_0,stoi(r));
+  switch(flag)
+  {
+    case 0: case 1:
+       return factorpadic(f,p,r);
+     default: pari_err_FLAG("factorpadic");
+  }
+  return NULL; /* not reached */
+}
 static GEN
 ghell2(GEN e, GEN a, long prec) { return ellheight0(e,a,0,prec); }
 

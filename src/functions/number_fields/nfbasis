@@ -1,7 +1,7 @@
 Function: nfbasis
 Section: number_fields
 C-Name: nfbasis_gp
-Prototype: GDGDG
+Prototype: G
 Help: nfbasis(T): integral basis of the field Q[a], where a is
  a root of the polynomial T, using the round 4 algorithm. An argument
  [T,listP] is possible, where listP is a list of primes (to get an

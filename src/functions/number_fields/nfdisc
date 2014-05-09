@@ -1,7 +1,7 @@
 Function: nfdisc
 Section: number_fields
-C-Name: nfdisc_gp
-Prototype: GDGDG
+C-Name: nfdisc
+Prototype: G
 Help: nfdisc(T): discriminant of the number field defined by
  the polynomial T. An argument [T,listP] is possible, where listP is a list
  of primes or a prime bound.

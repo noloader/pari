@@ -26,7 +26,7 @@ try(f) = for (i=1, #v, for (j=1,#v, print( f(nf, v[i],v[j])) ))
 for (i = 1, #funs, try(funs[i]))
 
 nfisincl(nfinit(x-1),y)
-p=x^2+3;nfbasis(p, 0, factor(poldisc(p)))
+p=x^2+3;nfbasis([p, factor(poldisc(p))])
 
 \\#1253
 k=bnfinit(z^2+19*z+6,1); bnfisunit(k,k.fu[1]^2)

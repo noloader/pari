@@ -1,7 +1,7 @@
 Function: factorpadic
 Section: polynomials
-C-Name: factorpadic0
-Prototype: GGLD0,L,
+C-Name: factorpadic
+Prototype: GGL
 Help: factorpadic(pol,p,r): p-adic factorization of the polynomial pol
  to precision r.
 Doc: $p$-adic factorization
