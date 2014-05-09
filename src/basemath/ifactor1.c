@@ -3158,9 +3158,9 @@ utridiv_bound(ulong n)
 }
 
 static void
-ifac_factoru(GEN n, GEN P, GEN E, long *pi)
+ifac_factoru(GEN n, long hint, GEN P, GEN E, long *pi)
 {
-  GEN part = ifac_start(n, 0);
+  GEN part = ifac_start_hint(n, 0, hint);
   for(;;)
   {
     long v;
@@ -3198,56 +3198,70 @@ u_forprime_next_fast(forprime_t *T)
 
 /* Factor n and output [p,e] where
  * p, e are vecsmall with n = prod{p[i]^e[i]} */
-GEN
-factoru(ulong n)
+static GEN
+factoru_sign(ulong n, ulong all, long hint)
 {
   GEN f, E, E2, P, P2;
   pari_sp av;
-  ulong p;
-  long v, i, oldi;
+  ulong p, lim;
+  long i;
   forprime_t S;
 
   if (n == 0) retmkvec2(mkvecsmall(0), mkvecsmall(1));
   if (n == 1) return trivial_fact();
 
-  v = vals(n);
-  if (v)
-  {
-    n >>= v;
-    if (n == 1) retmkvec2(mkvecsmall(2), mkvecsmall(v));
-  }
   f = cgetg(3,t_VEC); av = avma;
+  lim = all; if (!lim) lim = utridiv_bound(n);
   /* enough room to store <= 15 primes and exponents (OK if n < 2^64) */
-  (void)new_chunk((15 + 1)*2);
-  u_forprime_init(&S, 3, utridiv_bound(n));
-  P = cgetg(16, t_VECSMALL);
+  (void)new_chunk(16*2);
+  P = cgetg(16, t_VECSMALL); i = 1;
   E = cgetg(16, t_VECSMALL);
-  if (v) { P[1] = 2; E[1] = v; i = 2; } else i = 1;
-  oldi = i;
-  while ( (p = u_forprime_next_fast(&S)) )
+  if (lim > 2)
   {
-    int stop;
-    /* tiny integers without small factors are often primes */
-    if (p == 673)
+    long v = vals(n), oldi;
+    if (v)
     {
-      oldi = i;
-      if (uisprime_661(n)) { P[i] = n; E[i] = 1; i++; goto END; }
+      P[1] = 2; E[1] = v; i = 2;
+      n >>= v; if (n == 1) goto END;
     }
-    v = u_lvalrem_stop(&n, p, &stop);
-    if (v) {
-      P[i] = p;
-      E[i] = v; i++;
+    u_forprime_init(&S, 3, lim);
+    oldi = i;
+    while ( (p = u_forprime_next_fast(&S)) )
+    {
+      int stop;
+      /* tiny integers without small factors are often primes */
+      if (p == 673)
+      {
+        oldi = i;
+        if (uisprime_661(n)) { P[i] = n; E[i] = 1; i++; goto END; }
+      }
+      v = u_lvalrem_stop(&n, p, &stop);
+      if (v) {
+        P[i] = p;
+        E[i] = v; i++;
+      }
+      if (stop) {
+        if (n != 1) { P[i] = n; E[i] = 1; i++; }
+        goto END;
+      }
     }
-    if (stop) {
-      if (n != 1) { P[i] = n; E[i] = 1; i++; }
-      goto END;
-    }
+    if (oldi != i && uisprime_661(n)) { P[i] = n; E[i] = 1; i++; goto END; }
   }
-  if (oldi != i && uisprime_661(n)) { P[i] = n; E[i] = 1; i++; }
-  else
+  if (all)
+  { /* smallfact: look for easy pure powers then stop */
+#ifdef LONG_IS_64BIT
+    ulong mask = all > 563 ? (all > 7129 ? 1: 3): 7;
+#else
+    ulong mask = all > 22 ? (all > 83 ? 1: 3): 7;
+#endif
+    long k = 1, ex;
+    while (uissquareall(n, &n)) k <<= 1;
+    while ( (ex = uis_357_power(n, &n, &mask)) ) k *= ex;
+    P[i] = n; E[i] = k; i++; goto END;
+  }
   {
     GEN perm;
-    ifac_factoru(utoipos(n), P, E, &i);
+    ifac_factoru(utoipos(n), hint, P, E, &i);
     setlg(P, i);
     perm = vecsmall_indexsort(P);
     P = vecsmallpermute(P, perm);
@@ -3260,6 +3274,9 @@ END:
   while (--i >= 1) { P2[i] = P[i]; E2[i] = E[i]; }
   return f;
 }
+GEN
+factoru(ulong n)
+{ return factoru_sign(n, 0, decomp_default_hint); }
 
 long
 moebiusu(ulong n)
@@ -3629,7 +3646,7 @@ ifactor_sign(GEN n, ulong all, long hint, long sn)
     av = avma;
     /* enough room to store <= 15 primes and exponents (OK if n < 2^64) */
     (void)new_chunk((15*3 + 15 + 1) * 2);
-    f = factoru(n[2]);
+    f = factoru_sign(n[2], all, hint);
     avma = av;
     Pf = gel(f,1);
     Ef = gel(f,2);
