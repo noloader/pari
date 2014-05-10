@@ -154,13 +154,244 @@ gen_BG_rec(void *E, bg_fun *fun, struct bg_data *bg, GEN sum0)
   return gerepileupto(av, sum);
 }
 
-/* Computing L-series derivatives */
+/******************************************************************
+ *
+ *L functions of elliptic curves
+ *Pascal Molin (molin.maths@gmail.com) 2014
+ *
+ ******************************************************************/
 
-/* Implementation by C. Delaunay and X.-F. Roblot
-   after a GP script of Tom Womack and John Cremona
-   and the corresponding section of Henri Cohen's book GTM 239
-   Generic Buhler-Gross iteration and baby-step-giant-step implementation
-   by Bill Allombert.
+struct lcritical
+{
+  GEN h;    /* real */
+  long cprec; /* computation prec */
+  long L; /* number of points */
+  long K; /* length of series */
+  long real;
+};
+
+static double
+logboundG0(long e, double aY)
+{
+  double cla, loggam;
+  cla = 1 + 1/sqrt(aY);
+  if (e) cla = ( cla + 1/(2*aY) ) / (2*sqrt(aY));
+  loggam = (e) ? log(2)-aY : -aY + log( log( 1+1/aY) );
+  return log(cla) + loggam;
+}
+
+static void
+param_points(GEN N, double Y, double tmax, long bprec, long *cprec, long *L,
+             long *K, double *h)
+{
+  double D, a, aY, X, logM;
+  long d = 2, w = 1;
+  tmax *= d;
+  D = bprec * LOG2 + PI/4*tmax + 2;
+  *cprec = nbits2prec(ceil(D / LOG2) + 5);
+  a = 2 * PI / sqrt(gtodouble(N));
+  aY = a * cos(PI/2*Y);
+  logM = log(4) + logboundG0(w+1, aY) + tmax * Y * PI/2;
+  *h = ( 2 * PI * PI / 2 * Y ) / ( D + logM );
+  X = log( D / a);
+  *L = ceil( X / *h);
+  *K = ceil( D / a);
+}
+
+/* ************************************************************************
+ * Compute F transform at regularly spaced points
+ * */
+
+static GEN
+vecF2_lk_bsgs(GEN h, long L, long K, GEN N, long w, GEN a, long prec)
+{
+  GEN PiN, eh, seh;
+  pari_sp av = avma, av2, lim2;
+  long l;
+  GEN elh, sleh;
+  GEN S = cgetg(L+1, t_VEC);
+  for (l = 1; l <= L; l++) gel(S,l) = cgetr(prec);
+  PiN = shiftr(divrr(mppi(prec), gsqrt(N, prec)), 1);
+  eh = mpexp(h);
+  seh = w % 2 ? powru(eh, (w+1)>>1) : powru(sqrtr(eh), w+1);
+  av2 = avma; lim2 = stack_lim(avma, 1);
+  elh = real_1(prec);
+  sleh = real_1(prec);
+  for (l = 1; l <= L; ++l)
+  {
+    long Kl;
+    GEN e1, Sl;
+    long aB, b, A, B;
+    GEN z, zB;
+    pari_sp av3, lim3;
+    Kl = ceil( K / rtodbl(elh));
+    /* FIXME: could reduce prec here (useful for large prec) */
+    e1 = mpexp(mulrr(negr(PiN), elh));
+    Sl = real_0(prec);;
+    /* baby-step giant step */
+    A = floor(sqrt(Kl)); B = A + 1;
+    z = powruvec(e1, B); zB = gel(z, B);
+    av3 = avma; lim3 = stack_lim(av3, 1);
+    for (aB = A*B; aB >= 0; aB -= B)
+    {
+      GEN s = real_0(prec); /* could change also prec here */
+      for (b = B; b > 0; --b)
+      {
+        long k = aB+b;
+        if (k <= Kl && a[k]) s = addrr(s, mulsr(a[k], gel(z, b)));
+        if (low_stack(lim3, stack_lim(av3, 1)))
+          gerepileall(av3, 2, &s, &Sl);
+      }
+      Sl = addrr(mulrr(Sl, zB), s);
+    }
+    affrr(mulrr(Sl, sleh), gel(S, l)); /* to avoid copying all S */
+    elh = mulrr(elh, eh);
+    sleh = mulrr(sleh, seh);
+    if (low_stack(lim2, stack_lim(av2, 1)))
+      gerepileall(av2, 2, &elh, &sleh);
+  }
+  return gerepilecopy(av, S);
+}
+
+static GEN
+vecF(struct lcritical *C, GEN E)
+{
+  pari_sp av = avma;
+  GEN N = ellQ_get_N(E), h = C->h;
+  long K = C->K, L = C->L, cprec = C->cprec;
+  GEN vec, a = anellsmall(E, K);
+  vec = vecF2_lk_bsgs(h, L, K, N, 1, a, cprec);
+  return gerepileupto(av, vec);
+}
+
+/* ************************************************************************
+ *
+ * Compute Lambda function by Fourier inversion
+ *
+ */
+
+static GEN
+glambda(GEN t, GEN vec, GEN h, long real, long prec)
+{
+  GEN ehs, elhs;
+  GEN r;
+  long L = lg(vec)-1, l;
+  /* assume vec is a grid */
+  ehs = gexp(gmul(gen_I(),gmul(h, t)), prec);
+  elhs = (real == 1) ? gen_1 : mkcomplex(gen_0, gen_m1);
+  r = greal(gmul(greal(gel(vec, 1)), elhs)); /* FIXME: sure ? */
+  /* FIXME: summing backward may be more stable */
+  for (l = 2; l <= L; ++l)
+  {
+    elhs = gmul(elhs, ehs);
+    r = gadd(r, gmulsg(2, greal(gmul(gel(vec, l), elhs))));
+  }
+  return gmul(mulsr(2, h), r);
+}
+
+static GEN
+Lpoints(struct lcritical *C, GEN e, GEN tmax, long bprec)
+{
+  double h = 0, Y = .97;
+  GEN N = ellQ_get_N(e);
+  param_points(N, Y, gtodouble(tmax), bprec, &C->cprec, &C->L, &C->K, &h);
+  C->real = ellrootno_global(e);
+  C->h = rtor(dbltor(h), C->cprec);
+  return vecF(C, e);
+}
+
+static GEN
+Llambda(GEN vec, struct lcritical *C, GEN t, long prec)
+{
+  GEN lambda = glambda(gprec_w(t, C->cprec), vec, C->h, C->real, C->cprec);
+  return gprec_w(lambda, prec);
+}
+
+/* 2*(2*Pi)^(-s)*gamma(s)*N^(s/2); */
+static GEN
+ellgammafactor(GEN N, GEN s, long prec)
+{
+  GEN Ns2 = gpow(N, gdivgs(s, 2), prec);
+  Ns2 = gmul(Ns2, gmulsg(2, gpow(shiftr(mppi(prec), 1), gneg(s), prec)));
+  return gmul(Ns2, ggamma(s, prec));
+}
+
+static GEN
+ellL1_eval(GEN e, GEN vec, struct lcritical *C, GEN t, long prec)
+{
+  GEN gam = ellgammafactor(ellQ_get_N(e), gaddgs(t, 1), prec);
+  return gdiv(Llambda(vec, C, t, prec), gam);
+}
+
+static GEN
+ellL1_der(GEN e, GEN vec, struct lcritical *C, GEN t, long der, long prec)
+{
+  GEN r = polcoeff0(ellL1_eval(e, vec, C, t, prec), der, 0);
+  if (odd(der>>1)) r = gneg(r);
+  return gmul(r, mpfact(der));
+}
+
+static GEN
+ellL1_bitprec(GEN E, long r, long bitprec)
+{
+  pari_sp av = avma;
+  struct lcritical C;
+  long prec = nbits2prec(bitprec);
+  GEN e = ellanal_globalred(E, NULL);
+  GEN vec = Lpoints(&C, e, gen_0, bitprec);
+  GEN t = r ? scalarser(gen_1, 0, r):  zeroser(0, 0);
+  setvalp(t, 1);
+  return gerepileupto(av, ellL1_der(e, vec, &C, t, r, prec));
+}
+
+GEN
+ellL1(GEN E, long r, long prec) { return ellL1_bitprec(E, r, prec2nbits(prec)); }
+
+static GEN
+ellanalyticrank_bprec(GEN E, GEN eps, long bprec)
+{
+  pari_sp av = avma, av2;
+  long prec = nbits2prec(bprec);
+  struct lcritical C;
+  pari_timer ti;
+  GEN e, vec;
+  long rk;
+  if (DEBUGLEVEL) timer_start(&ti);
+  if (!eps)
+    eps = real2n(-bprec/2+1, DEFAULTPREC);
+  else
+    if (typ(eps) != t_REAL) {
+      eps = gtofp(eps, DEFAULTPREC);
+      if (typ(eps) != t_REAL) pari_err_TYPE("ellanalyticrank", eps);
+    }
+  e = ellanal_globalred(E, NULL);
+  vec = Lpoints(&C, e, gen_1, bprec);
+  if (DEBUGLEVEL) timer_printf(&ti, "init L");
+  av2 = avma;
+  for (rk = C.real>0 ? 0: 1;  ; rk += 2)
+  {
+    GEN Lrk;
+    GEN t = rk ? scalarser(gen_1, 0, rk):  zeroser(0, 0);
+    setvalp(t, 1);
+    Lrk = ellL1_der(e, vec, &C, t, rk, prec);
+    if (DEBUGLEVEL) timer_printf(&ti, "L^(%ld)=%Ps", rk, Lrk);
+    if (absr_cmp(Lrk, eps) > 0)
+      return gerepilecopy(av, mkvec2(stoi(rk), Lrk));
+    avma = av2;
+  }
+}
+
+GEN
+ellanalyticrank(GEN E, GEN eps, long prec)
+{
+  return ellanalyticrank_bprec(E, eps, prec2nbits(prec));
+}
+
+/*        Heegner point computation
+
+   This section is a C version by Bill Allombert of a GP script by
+   Christophe Delaunay which was based on a GP script by John Cremona.
+   Reference: Henri Cohen's book GTM 239.
 */
 
 /* used to compute exp((g*bgbnd + b) C) = baby[b] * giant[g] */
@@ -170,282 +401,6 @@ struct babygiant
   ulong bgbnd;
 };
 
-struct ellld {
-  GEN E, N; /* ell, conductor */
-  GEN bnd; /* t_INT; will need all an for n <= bnd */
-  ulong rootbnd; /* floor(sqrt(bnd)) */
-  long r; /* we are computing L^{(r)}(1) */
-  GEN X; /* t_REAL, 2Pi / sqrt(N) */
-  GEN eX; /* t_REAL, exp(X) */
-  GEN emX; /* t_REAL, exp(-X) */
-  long epsbit;
-  /* only if r > 1 */
-  GEN alpha; /* t_VEC of t_REALs, except alpha[1] = gen_1 */
-  GEN A; /* t_VEC of t_REALs, A[1] = 1 */
-  /* only if r = 1 */
-  GEN gcache, gjcache; /* t_VEC of t_REALs */
-  /* only if r = 0 */
-  struct babygiant BG[1];
-};
-
-static GEN
-init_alpha(long m, long prec)
-{
-  GEN a, si, p1;
-  GEN s = gadd(pol_x(0), zeroser(0, m+1));
-  long i;
-
-  si = s;
-  p1 = gmul(mpeuler(prec), s);
-  for (i = 2; i <= m; i++)
-  {
-    si = gmul(si, s); /* = s^i */
-    p1 = gadd(p1, gmul(divru(szeta(i, prec), i), si));
-  }
-  p1 = gexp(p1, prec); /* t_SER of valuation = 0 */
-
-  a = cgetg(m+2, t_VEC);
-  for (i = 1; i <= m+1; i++) gel(a, i) = gel(p1, i+1);
-  return a;
-}
-
-/* assume r >= 2, return a t_VEC A of t_REALs of length > 2.
- * NB: A[1] = 1 */
-static GEN
-init_A(long r, long m, long prec)
-{
-  const long l = m+1;
-  long j, s, n;
-  GEN A, B, ONE, fj;
-  pari_sp av0, av;
-
-  A = cgetg(l, t_VEC); /* will contain the final result */
-  gel(A,1) = real_1(prec);
-  for (j = 2; j < l; j++) gel(A,j) = cgetr(prec);
-  av0 = avma;
-  B = cgetg(l, t_VEC); /* scratch space */
-  for (j = 1; j < l; j++) gel(B,j) = cgetr(prec);
-  ONE = real_1(prec);
-  av = avma;
-
-  /* We alternate between two temp arrays A, B (initially virtually filled
-   * ONEs = 1.), which are swapped after each loop.
-   * After the last loop, we want A to contain the final array: make sure
-   * we swap an even number of times */
-  if (odd(r)) swap(A, B);
-
-  /* s = 1 */
-    for (n = 2; n <= m; n++)
-    {
-      GEN p3 = ONE; /* j = 1 */
-      for (j = 2; j <= n; j++) p3 = addrr(p3, divru(ONE, j));
-      affrr(p3, gel(B, n)); avma = av;
-    }
-  swap(A, B); /* B becomes the new A, old A becomes the new scratchspace */
-  for (s = 2; s <= r; s++)
-  {
-    for (n = 2; n <= m; n++)
-    {
-      GEN p3 = ONE; /* j = 1 */
-      for (j = 2; j <= n; j++) p3 = addrr(p3, divru(gel(A, j), j));
-      affrr(p3, gel(B, n)); avma = av;
-    }
-    swap(A, B); /* B becomes the new A, old A becomes the new scratchspace */
-  }
-
-  /* leave A[1] (division by 1) alone */
-  fj = ONE; /* will destroy ONE now */
-  for (j = 2; j < l; j++)
-  {
-    affrr(mulru(fj, j), fj);
-    affrr(divrr(gel(A,j), fj), gel(A,j));
-    avma = av;
-  }
-  avma = av0; return A;
-}
-
-/* x > 0 t_REAL, M >= 2 */
-static long
-estimate_prec_Sx(GEN x, long M)
-{
-  GEN p1, p2;
-  pari_sp av = avma;
-
-  x = rtor(x, DEFAULTPREC);
-  p1 = divri(powru(x, M-2), mpfact(M-1)); /* x^(M-2) / (M-1)! */
-  if (expo(x) < 0)
-  {
-    p2 = divrr(mulrr(p1, powru(x,3)), mulur(M,subsr(1,x)));/* x^(M+1)/(1-x)M! */
-    if (cmprr(p2,p1) < 0) p1 = p2;
-  }
-  avma = av; return expo(p1);
-}
-
-/* x a t_REAL */
-static long
-number_of_terms_Sx(GEN x, long epsbit)
-{
-  long M, M1, M2;
-  M1 = (long)(epsbit * 7.02901423262); /* epsbit * log(2) / (log(3) - 1) */
-  M2 = itos(ceil_safe(gmul2n(x,1))); /* >= 2x */
-  if (M2 < 2) M2 = 2;
-  M = M2;
-  for(;;)
-  {
-    if (estimate_prec_Sx(x, M) < -epsbit) M1 = M; else M2 = M;
-    M = (M1+M2+1) >> 1;
-    if (M >= M1) return M1;
-  }
-}
-
-/* X t_REAL, emX = exp(-X) t_REAL; return t_INT */
-static GEN
-cutoff_point(long r, GEN X, GEN emX, long epsbit, long prec)
-{
-  GEN M1 = ceil_safe(divsr(7*prec2nbits(prec)+1, X));
-  GEN M2 = gen_2, M = M1;
-  for(;;)
-  {
-    GEN c = divrr(powgi(emX, M), powru(mulri(X,M), r+1));
-    if (expo(c) < -epsbit) M1 = M; else M2 = M;
-    M = shifti(addii(M1, M2), -1);
-    if (cmpii(M2, M) >= 0) return M;
-  }
-}
-
-/* x "small" t_REAL, use power series expansion. Returns a t_REAL */
-static GEN
-compute_Gr_VSx(struct ellld *el, GEN x)
-{
-  pari_sp av = avma;
-  long r = el->r, n;
-  /* n = 2 */
-  GEN p1 = divrs(sqrr(x), -2); /* (-1)^(n-1) x^n / n! */
-  GEN p2 = x;
-  GEN p3 = shiftr(p1, -r);
-  for (n = 3; ; n++)
-  {
-    if (expo(p3) < -el->epsbit) return gerepilecopy(av, p2);
-    p2 = addrr(p2, p3);
-    p1 = divrs(mulrr(p1, x), -n); /* (-1)^(n-1) x^n / n! */
-    p3 = divri(p1, powuu(n, r));
-  }
-  /* sum_{n = 1}^{oo} (-1)^(n-1) x^n / (n! n^r) */
-}
-
-/* t_REAL, assume r >= 2. m t_INT or NULL; Returns a t_REAL */
-static GEN
-compute_Gr_Sx(struct ellld *el, GEN m, ulong sm)
-{
-  pari_sp av = avma;
-  const long thresh_SMALL = 5;
-  long i, r = el->r;
-  GEN x = m? mulir(m, el->X): mulur(sm, el->X);
-  GEN logx = mplog(x), p4;
-  /* i = 0 */
-  GEN p3 = gel(el->alpha, r+1);
-  GEN p2 = logx;
-  for (i = 1; i < r; i++)
-  { /* p2 = (logx)^i / i! */
-    p3 = addrr(p3, mulrr(gel(el->alpha, r-i+1), p2));
-    p2 = divru(mulrr(p2, logx), i+1);
-  }
-  /* i = r, use alpha[1] = 1 */
-  p3 = addrr(p3, p2);
-
-  if (cmprs(x, thresh_SMALL) < 0)
-    p4 = compute_Gr_VSx(el, x); /* x "small" use expansion near 0 */
-  else
-  { /* x "large" use expansion at infinity */
-    pari_sp av = avma, lim = stack_lim(av, 2);
-    long M = lg(el->A);
-    GEN xi = sqrr(x); /* x^2 */
-    p4 = x; /* i = 1. Uses A[1] = 1; NB: M > 1 */
-    for (i = 2; i < M; i++)
-    {
-      GEN p5 = mulrr(xi, gel(el->A, i));
-      if (expo(p5) < -el->epsbit) break;
-      p4 = addrr(p4, p5);
-      xi = mulrr(xi, x); /* = x^i */
-      if (low_stack(lim, stack_lim(av, 2)))
-      {
-        if (DEBUGMEM > 0) pari_warn(warnmem, "compute_Gr_Sx");
-        gerepileall(av, 2, &xi, &p4);
-      }
-    }
-    p4 = mulrr(p4, m? powgi(el->emX, m): powru(el->emX, sm));
-  }
-  return gerepileuptoleaf(av, odd(r)? subrr(p4, p3): subrr(p3, p4));
-}
-
-/* return G_r(X), cache values G(n*X), n < rootbnd.
- * If r = 0, G(x) = exp(-x), cache Baby/Giant struct in el->BG
- * If r >= 2, precompute the expansions at 0 and oo of G */
-static GEN
-init_G(struct ellld *el, long prec)
-{
-  if (el->r == 0)
-  {
-    ulong bnd = el->rootbnd+1;
-    el->BG->bgbnd = bnd;
-    el->BG->baby  = powruvec(el->emX, bnd);
-    el->BG->giant = powruvec(gel(el->BG->baby,bnd), bnd);
-    return gel(el->BG->baby, 1);
-  }
-  if (el->r == 1)
-    el->gcache = mpveceint1(el->X, el->eX, el->rootbnd);
-  else
-  {
-    long m, j, l = el->rootbnd;
-    GEN G;
-    m = number_of_terms_Sx(mulri(el->X, el->bnd), el->epsbit);
-    el->alpha = init_alpha(el->r, prec);
-    el->A = init_A(el->r, m, prec);
-    G = cgetg(l+1, t_VEC);
-    for (j = 1; j <= l; j++) gel(G,j) = compute_Gr_Sx(el, NULL, j);
-    el->gcache = G;
-  }
-  return gel(el->gcache, 1);
-}
-
-/* r >= 2; sum += G(n*X) * a_n / n */
-static void
-ellld_L1(void *E, GEN *psum, GEN n, GEN a, long j)
-{
-  struct ellld *el = (struct ellld *)E;
-  GEN G;
-  (void)j;
-  if (cmpiu(n, el->rootbnd) <= 0)
-    G = gel(el->gcache, itou(n));
-  else
-    G = compute_Gr_Sx(el, n, 0);
-  *psum = addrr(*psum, divri(mulir(a, G), n));
-}
-/* r = 1; sum += G(n*X) * a_n / n, where G = eint1.
- * If j < 0, cache values G(n*a*X), 1 <= a <= |j| in gjcache
- * If j > 0, assume n = N*j and retrieve G(N*j*X), from gjcache */
-static void
-ellld_L1r1(void *E, GEN *psum, GEN n, GEN a, long j)
-{
-  struct ellld *el = (struct ellld *)E;
-  GEN G;
-  if (j==0)
-  {
-    if (cmpiu(n, el->rootbnd) <= 0)
-      G = gel(el->gcache, itou(n));
-    else
-      G = mpeint1(mulir(n,el->X), powgi(el->eX,n));
-  }
-  else if (j < 0)
-  {
-    el->gjcache = mpveceint1(mulir(n,el->X), powgi(el->eX,n), -j);
-    G = gel(el->gjcache, 1);
-  }
-  else
-    G = gel(el->gjcache, j);
-  *psum = addrr(*psum, divri(mulir(a, G), n));
-}
-
 /* assume n / h->bgbnd fits in an ulong */
 static void
 get_baby_giant(struct babygiant *h, GEN n, GEN *b, GEN *g)
@@ -453,17 +408,6 @@ get_baby_giant(struct babygiant *h, GEN n, GEN *b, GEN *g)
   ulong r, q = udiviu_rem(n, h->bgbnd, &r);
   *b = r? gel(h->baby,r): NULL;
   *g = q? gel(h->giant,q): NULL;
-}
-static void
-ellld_L1r0(void *E, GEN *psum, GEN n, GEN a, long j)
-{
-  GEN b, g, G;
-  get_baby_giant(((struct ellld*)E)->BG, n, &b, &g);
-  (void)j;
-  if (!b)      G = g;
-  else if (!g) G = b;
-  else         G = mulrr(b,g);
-  *psum = addrr(*psum, divri(mulir(a, G), n));
 }
 static void
 heegner_L1(void*E, GEN *psum, GEN n, GEN a, long jmax)
@@ -482,95 +426,6 @@ heegner_L1(void*E, GEN *psum, GEN n, GEN a, long jmax)
   }
   *psum = sum;
 }
-
-/* Basic data independent from r (E, N, X, eX, emX) already filled,
- * Returns a t_REAL */
-static GEN
-ellL1_i(struct ellld *el, struct bg_data *bg, long r, GEN ap, long prec)
-{
-  GEN sum;
-  if (DEBUGLEVEL) err_printf("in ellL1 with r = %ld, prec = %ld\n", r, prec);
-  el->r = r;
-  el->bnd = cutoff_point(r, el->X, el->emX, el->epsbit, prec);
-  gen_BG_init(bg,el->E,el->N,el->bnd,ap);
-  el->rootbnd = bg->rootbnd;
-  sum = init_G(el, prec);
-  if (DEBUGLEVEL>=3) err_printf("el_bnd = %Ps, N=%Ps\n", el->bnd, el->N);
-  sum = gen_BG_rec(el, r>=2? ellld_L1: (r==1? ellld_L1r1: ellld_L1r0), bg, sum);
-  return mulri(shiftr(sum, 1), mpfact(r));
-}
-
-static void
-init_el(struct ellld *el, GEN E, long *parity, long bitprec)
-{
-  GEN eX;
-  long prec;
-
-  el->E = E = ellanal_globalred(E, NULL);
-  el->N = ellQ_get_N(E);
-  prec = nbits2prec(bitprec+(expi(el->N)>>1));
-  el->X = divrr(Pi2n(1, prec), sqrtr(itor(el->N, prec))); /* << 1 */
-  eX = mpexp(el->X);
-  if (realprec(eX) > prec) eX = rtor(eX, prec); /* avoid spurious accuracy increase */
-  el->eX = eX;
-  el->emX = invr(el->eX);
-  el->epsbit = bitprec+1;
-  *parity = (ellrootno_global(E) > 0)? 0: 1; /* rank parity */
-}
-
-static GEN
-ellL1_bitprec(GEN E, long r, long bitprec)
-{
-  pari_sp av = avma;
-  struct ellld el;
-  struct bg_data bg;
-  long parity;
-  long prec = nbits2prec(bitprec)+1;
-  if (r<0) pari_err_DOMAIN("ellL1","derivative order","<",gen_0,stoi(r));
-  init_el(&el, E, &parity, bitprec);
-  if (parity != (r & 1)) return gen_0;
-  return gerepileuptoleaf(av, ellL1_i(&el, &bg, r, NULL, prec));
-}
-
-GEN
-ellL1(GEN E, long r, long prec) { return ellL1_bitprec(E, r, prec2nbits(prec)); }
-
-GEN
-ellanalyticrank(GEN e, GEN eps, long prec)
-{
-  struct ellld el;
-  struct bg_data bg;
-  long rk;
-  pari_sp av = avma, av2;
-  GEN ap = NULL;
-  pari_timer T;
-
-  if (!eps)
-    eps = real2n(-prec2nbits(prec)/2+1, DEFAULTPREC);
-  else
-    if (typ(eps) != t_REAL) {
-      eps = gtofp(eps, DEFAULTPREC);
-      if (typ(eps) != t_REAL) pari_err_TYPE("ellanalyticrank", eps);
-    }
-  init_el(&el, e, &rk, prec2nbits(prec)); /* set rk to rank parity (0 or 1) */
-  if (DEBUGLEVEL) {
-    err_printf("ellanalyticrank: rank is %s, eps=%Ps\n", rk? "odd": "even",eps);
-    timer_start(&T);
-  }
-  av2 = avma;
-  for(;; rk += 2)
-  {
-    GEN Lr1 = ellL1_i(&el, &bg, rk, ap, prec);
-    if (DEBUGLEVEL) timer_printf(&T, "L^(%ld)=%Ps", rk, Lr1);
-    if (absr_cmp(Lr1, eps) > 0) return gerepilecopy(av, mkvec2(stoi(rk), Lr1));
-    ap = gerepilecopy(av2, bg.ap);
-  }
-}
-
-/* This file is a C version by Bill Allombert of a GP script by
-   Christophe Delaunay which was based on a GP script by John Cremona.
-   Reference: Henri Cohen's book GTM 239.
-*/
 
 /* Return C, C[i][j] = Q[j]^i, i = 1..nb */
 static GEN
