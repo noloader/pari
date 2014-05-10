@@ -96,7 +96,7 @@ idealhnf_principal(GEN nf, GEN x)
     case t_INT:  if (!signe(x)) return cgetg(1,t_MAT);
       return scalarmat(absi(x), nf_get_degree(nf));
     case t_FRAC:
-      return scalarmat(Q_abs(x), nf_get_degree(nf));
+      return scalarmat(Q_abs_shallow(x), nf_get_degree(nf));
     default: pari_err_TYPE("idealhnf",x);
   }
   x = Q_primitive_part(x, &cx);
@@ -458,7 +458,8 @@ idealtwoelt(GEN nf, GEN x)
   if (tx == id_PRIME) return mkvec2copy(gel(x,1), gel(x,2));
   /* id_PRINCIPAL */
   av = avma; x = nf_to_scalar_or_basis(nf, x);
-  return gerepilecopy(av, typ(x)==t_COL? mkvec2(gen_0,x): mkvec2(Q_abs(x),gen_0));
+  return gerepilecopy(av, typ(x)==t_COL? mkvec2(gen_0,x):
+                                         mkvec2(Q_abs_shallow(x),gen_0));
 }
 
 /*******************************************************************/
@@ -580,7 +581,7 @@ idealfactor(GEN nf, GEN x)
       GEN c1, c2;
       long lfa, i,j;
       if (isintzero(y)) pari_err_DOMAIN("idealfactor", "ideal", "=",gen_0,x);
-      f = factor(Q_abs(y));
+      f = factor(Q_abs_shallow(y));
       c1 = gel(f,1); lfa = lg(c1);
       if (lfa == 1) { avma = av; return trivial_fact(); }
       c2 = gel(f,2);
@@ -1393,7 +1394,7 @@ idealmulelt(GEN nf, GEN x, GEN v)
   if (lg(v) == 1) return cgetg(1, t_MAT);
   x = nf_to_scalar_or_basis(nf,x);
   if (typ(x) != t_COL)
-    return isintzero(x)? cgetg(1,t_MAT): RgM_Rg_mul(v, Q_abs(x));
+    return isintzero(x)? cgetg(1,t_MAT): RgM_Rg_mul(v, Q_abs_shallow(x));
   x = nfC_nf_mul(nf, v, x);
   x = Q_primitive_part(x, &cx);
   settyp(x, t_MAT); lx = lg(x);
@@ -1433,7 +1434,7 @@ idealmul_aux(GEN nf, GEN x, GEN y, long tx, long ty)
               if (!signe(x)) return cgetg(1,t_MAT);
               return ZM_Z_mul(idealhnf_two(nf,y), absi(x));
             case t_FRAC:
-              return RgM_Rg_mul(idealhnf_two(nf,y), Q_abs(x));
+              return RgM_Rg_mul(idealhnf_two(nf,y), Q_abs_shallow(x));
           }
           /* t_COL */
           x = Q_primitive_part(x, &cx);
@@ -2669,7 +2670,8 @@ idV_simplify(GEN v)
   for (i = 1; i < l; i++)
   {
     GEN M = gel(v,i);
-    if (typ(M)==t_MAT && RgM_isscalar(M,NULL)) gel(v,i) = Q_abs(gcoeff(M,1,1));
+    if (typ(M)==t_MAT && RgM_isscalar(M,NULL))
+      gel(v,i) = Q_abs_shallow(gcoeff(M,1,1));
   }
 }
 /* Given a torsion-free module x outputs a pseudo-basis for x in HNF */

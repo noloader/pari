@@ -974,7 +974,7 @@ gdivround(GEN x, GEN y)
     int fl;
     q = quotrem(x,y,&r);
     av1 = avma;
-    fl = gcmp(gmul2n(Q_abs(r),1), Q_abs(y));
+    fl = gcmp(gmul2n(Q_abs_shallow(r),1), Q_abs_shallow(y));
     avma = av1; cgiv(r);
     if (fl >= 0) /* If 2*|r| >= |y| */
     {
