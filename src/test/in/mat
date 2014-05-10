@@ -92,3 +92,5 @@ Ap=Mod(A,p);
 vecsum([])
 vecsum([2])
 vecsum(primes(4))
+vecsum(1)
+1~

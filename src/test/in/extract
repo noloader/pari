@@ -37,3 +37,13 @@ polcoeff(s,0,x)
 polcoeff(s,1,x)
 
 vecextract(Vecsmall([3,4,5]),[2,3,1])
+vecextract([1], 11)
+vecextract([1], "1..2")
+vecextract([1], 1/2)
+vecextract(1, 1)
+vecextract(matid(2),[3],[])
+[1][2..3]
+[1][-10..3]
+1[1..2]
+[1/2..1]
+[1..1/2]

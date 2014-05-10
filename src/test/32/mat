@@ -358,4 +358,10 @@ od(0, 18446744073709551629); Mod(7, 18446744073709551629), Mod(8, 1844674407
 0
 2
 17
-Total time spent: 56
+  ***   at top-level: vecsum(1)
+  ***                 ^---------
+  *** vecsum: incorrect type in vecsum (t_INT).
+  ***   at top-level: 1~
+  ***                 ^--
+  *** _~: incorrect type in gtrans (t_INT).
+Total time spent: 72
