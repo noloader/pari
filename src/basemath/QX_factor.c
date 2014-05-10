@@ -792,8 +792,8 @@ pick_prime(GEN a, long fl, pari_timer *T)
 static GEN
 DDF_roots(GEN A)
 {
-  GEN p, Ap, lc, lcpol, z, pe, pes2, bound;
-  long i, m, e, lz, v = varn(A);
+  GEN p, lc, lcpol, z, pe, pes2, bound;
+  long i, m, e, lz;
   ulong pp;
   pari_sp av, lim;
   pari_timer T;
@@ -806,33 +806,16 @@ DDF_roots(GEN A)
   if (is_pm1(lc))
   { lc = NULL; lcpol = A; }
   else
-  { lc = absi(lc); lcpol = ZX_Z_mul(A, lc); }
-  Ap = ZX_to_Flx(A, pp);
-  bound = root_bound(A);
-  if (lc) { Ap = Flx_normalize(Ap, pp); bound = mulii(lc, bound); }
+  { lc = absi_shallow(lc); lcpol = ZX_Z_mul(A, lc); }
+  bound = root_bound(A); if (lc) bound = mulii(lc, bound);
   e = logint(addiu(shifti(bound, 1), 1), p, &pe);
   pes2 = shifti(pe, -1);
   if (DEBUGLEVEL>2) timer_printf(&T, "Root bound");
-
-  av = avma; lim = stack_lim(av,2);
-  z = Flx_roots(Ap, pp);
-  lz = lg(z)-1;
-  if (lz > (degpol(A) >> 2))
-  { /* many roots */
-    GEN Bp = Flx_div(Ap, Flv_roots_to_pol(z, pp, v), pp);
-    z = Flv_to_ZV(z);
-    z = shallowconcat(deg1_from_roots(z, v), Flx_to_ZX(Bp));
-    z = ZpX_liftfact(A, z, NULL, p, e, pe);
-  }
-  else
-  {
-    z = Flv_to_ZV(z);
-    z = ZpX_liftroots(A, z, p, e);
-    z = deg1_from_roots(z, v);
-  }
+  z = ZpX_roots(A, p, e); lz = lg(z);
+  z = deg1_from_roots(z, varn(A));
   if (DEBUGLEVEL>2) timer_printf(&T, "Hensel lift (mod %lu^%ld)", pp,e);
-
-  for (m=1, i=1; i <= lz; i++)
+  av = avma; lim = stack_lim(av,2);
+  for (m=1, i=1; i < lz; i++)
   {
     GEN q, r, y = gel(z,i);
     if (lc) y = ZX_Z_mul(y, lc);
@@ -844,14 +827,14 @@ DDF_roots(GEN A)
     if (lc) {
       r = gdiv(r,lc);
       A = Q_primpart(A);
-      lc = absi( leading_term(A) );
+      lc = absi_shallow( leading_term(A) );
       if (is_pm1(lc)) lc = NULL; else lcpol = ZX_Z_mul(A, lc);
     }
     gel(z,m++) = r;
     if (low_stack(lim, stack_lim(av,2)))
     {
       if (DEBUGMEM>1) pari_warn(warnmem,"DDF_roots, m = %ld", m);
-      gerepileall(av, lc? 4:2, &z, &A, &lc, &lcpol);
+      gerepileall(av, lc? 3:1, &A, &lc, &lcpol);
 
     }
   }

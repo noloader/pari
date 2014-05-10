@@ -423,26 +423,25 @@ ZpX_liftroots_full(GEN f, GEN S, GEN p, long e)
 }
 
 GEN
-ZpX_roots(GEN f, GEN p, long e)
+ZpX_roots(GEN F, GEN p, long e)
 {
   pari_sp av = avma;
-  long i, v = varn(f);
+  long i, v = varn(F);
   GEN y, r, q;
-  GEN g = FpX_split_part(f, p);
+  GEN f = FpX_normalize(F, p);
+  GEN g = FpX_normalize(FpX_split_part(f, p), p);
   GEN S = FpX_roots(g, p);
-  long l = lg(S)-1, n = l < degpol(f) ? l+1: l;
+  long l = lg(S)-1, n = l < degpol(f)? l+1: l;
   if (l==0) return cgetg(1, t_COL);
-  if (l==1) return mkcol(ZpX_liftroot(f,gel(S,1),p,e));
+  if (l==1) return mkcol(ZpX_liftroot(F,gel(S,1),p,e));
   r = cgetg(n+1 ,t_COL);
   for (i=1; i<=l; i++)
-    gel(r,i) = deg1pol(gen_1, Fp_neg(gel(S, i), p), v);
-  if (l < degpol(f))
-    gel(r, n) = FpX_div(f, FpX_normalize(g, p), p);
+    gel(r,i) = deg1pol_shallow(gen_1, Fp_neg(gel(S,i), p), v);
+  if (l < degpol(f)) gel(r, n) = FpX_div(f, g, p);
   q = powiu(p, e);
-  y = ZpX_liftfact(f, r, NULL, p, e, q);
+  y = ZpX_liftfact(F, r, NULL, p, e, q);
   r = cgetg(l+1 ,t_COL);
-  for (i=1; i<=l; i++)
-    gel(r,i) = Fp_neg(gmael(y, i, 2), q);
+  for (i=1; i<=l; i++) gel(r,i) = Fp_neg(gmael(y,i,2), q);
   return gerepileupto(av, r);
 }
 
