@@ -339,6 +339,7 @@ fplll(GEN *ptrB, GEN *ptrU, GEN *ptrr, double DELTA, double ETA, long flag, long
   const long triangular = 0;
   pari_timer T;
   GEN B = *ptrB, U;
+  long cnt = 0;
 
   d = lg(B)-1;
   if (gram)
@@ -421,12 +422,8 @@ fplll(GEN *ptrB, GEN *ptrU, GEN *ptrr, double DELTA, double ETA, long flag, long
     }
     else
     { /* Step5: Find the right insertion index kappa, kappa2 = initial kappa */
-      if (DEBUGLEVEL>=10 && kappa==kappamax && signe(gel(s,kappa-1)))
-      {
-        long e = expo(divrr(mulrr(gmael(r,kappa-1,kappa-1), delta),
-                            gel(s,kappa-1)));
-        err_printf("(%ld) ", e);
-      }
+      if (DEBUGLEVEL>=4 && kappa==kappamax && signe(gel(s,kappa-1)))
+        if (++cnt > 20) { cnt = 0; err_printf("(%ld) ", expo(gel(s,1))); }
       kappa2 = kappa;
       do {
         kappa--;
