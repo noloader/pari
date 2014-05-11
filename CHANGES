@@ -30,6 +30,7 @@ XR  9- padicfields(huge p, d) was very slow [even though ramification is tame]
    18- factor(n,lim): lim was ignored when n fit into a long
    19- nfrootsQ(t_POL with leading coeff -1) could miss some solutions, e.g.
        nfroots(,-y^2-24476*y+119814917) -> [] instead of [-28657,4181]
+   20- precprime(1) -> invalid t_INT [#1576]
 
   Added
     1- add optional argument to sumdigits to specify the base
