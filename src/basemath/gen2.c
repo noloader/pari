@@ -2026,7 +2026,7 @@ padicaff0(GEN x)
 {
   if (signe(gel(x,4)))
   {
-    setvalp(x, valp(x)|precp(x));
+    x[1] = evalvalp(valp(x)+precp(x));
     affsi(0,gel(x,4));
   }
 }
