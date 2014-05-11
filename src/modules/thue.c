@@ -613,24 +613,22 @@ thueinit(GEN pol, long flag, long prec)
   if (dpol <= 0) pari_err_CONSTPOL("thueinit");
   RgX_check_ZX(pol, "thueinit");
   if (varn(pol)) { pol = leafcopy(pol); setvarn(pol, 0); }
-  /* POL monic: POL(x) = C pol(x/L), L integer */
-  POL = ZX_primitive_to_monic(Q_primpart(pol), &L);
-  C = gdiv(powiu(L, dpol), gel(pol, dpol+2));
-  pol = POL;
 
-  fa = ZX_factor(pol);
-  lfa = lgcols(fa);
+  POL = Q_primitive_part(pol, &C);
+  L = gen_1;
+  fa = ZX_factor(POL); lfa = lgcols(fa);
   if (lfa > 2 || itos(gcoeff(fa,1,2)) > 1)
-  { /* reducible polynomial */
+  { /* reducible polynomial, no need to reduce to the monic case */
     GEN P, Q, R, g, f = gcoeff(fa,1,1), E = gcoeff(fa,1,2);
     long e = itos(E);
     long vy = fetch_var();
     long va = fetch_var();
     long vb = fetch_var();
+    if (!C) C = gen_1;
     if (e != 1)
     {
       if (lfa == 2) {
-        tnf = mkvec2(mkvec3(pol,C,L), mkvec2(thueinit(f, flag, prec), E));
+        tnf = mkvec2(mkvec3(POL,C,L), mkvec2(thueinit(f, flag, prec), E));
         delete_var(); delete_var(); delete_var();
         return gerepilecopy(av, tnf);
       }
@@ -638,14 +636,18 @@ thueinit(GEN pol, long flag, long prec)
     }
     else
       P = f;
-    g = RgX_div(pol, P);
+    g = RgX_div(POL, P);
     P = RgX_Rg_sub(RgX_homogenize(f, vy), pol_x(va));
     Q = RgX_Rg_sub(RgX_homogenize(g, vy), pol_x(vb));
     R = polresultant0(P, Q, -1, 0);
-    tnf = mkvec2(mkvec3(pol,C,L), mkvec2(mkvecsmall4(degpol(f), e, va,vb),  R));
+    tnf = mkvec2(mkvec3(POL,C,L), mkvec2(mkvecsmall4(degpol(f), e, va,vb),  R));
     delete_var(); delete_var(); delete_var();
     return gerepilecopy(av, tnf);
   }
+  /* POL monic: POL(x) = C pol(x/L), L integer */
+  POL = ZX_primitive_to_monic(POL, &L);
+  C = gdiv(powiu(L, dpol), gel(pol, dpol+2));
+  pol = POL;
 
   if (dpol <= 2) pari_err_DOMAIN("thue", "degree","<=",gen_2,pol);
   s = ZX_sturm(pol);
@@ -1030,9 +1032,15 @@ get_ne_from_neabs(GEN tnf, long s, GEN neabs)
 { return bnfisintnorm_i(gel(tnf,2), s, neabs); }
 
 static GEN
-sol_0(void)
-{ GEN S = cgetg(2, t_VEC); gel(S,1) = mkvec2(gen_0,gen_0); return S; }
-
+sol_0(void) { retmkvec( mkvec2(gen_0,gen_0) ); }
+static void
+sols_from_R(GEN Rab, GEN *pS, GEN P, GEN POL, GEN rhs)
+{
+  GEN ry = nfrootsQ(Rab);
+  long k, l = lg(ry);
+  for (k = 1; k < l; k++)
+    if (typ(gel(ry,k)) == t_INT) check_y(pS, P, POL, gel(ry,k), rhs);
+}
 /* Given a tnf structure as returned by thueinit, a RHS and
  * optionally the solutions to the norm equation, returns the solutions to
  * the Thue equation F(x,y)=a */
@@ -1104,20 +1112,15 @@ thue(GEN tnf, GEN rhs, GEN ne)
     D = divisors(rhs); l = lg(D);
     for (i = 1; i < l; i++)
     {
-      GEN Rab, ry, df = gel(D,i), dg = diviiexact(rhs, df);
-      long k;
-
+      GEN Rab, df = gel(D,i), dg = gel(D,l-i); /* df*dg=|rhs| */
       if (e > 1 && !Z_ispowerall(df, e, &df)) continue;
       /* Rab: univariate polynomial in Z[Y], whose roots are the possible y. */
       /* Here and below, Rab != 0 */
+      if (signe(rhs) < 0) dg = negi(dg); /* df*dg=rhs */
       Rab = gsubst(gsubst(R, va, df), vb, dg);
-      ry = nfrootsQ(Rab);
-      for (k = 1; k < lg(ry); k++)
-        if (typ(gel(ry,k)) == t_INT) check_y(&S, P, POL, gel(ry,k), rhs);
+      sols_from_R(Rab, &S,P,POL,rhs);
       Rab = gsubst(gsubst(R, va, negi(df)), vb, odd(e)? negi(dg): dg);
-      ry = nfrootsQ(Rab);
-      for (k = 1; k < lg(ry); k++)
-        if (typ(gel(ry,k)) == t_INT) check_y(&S, P, POL, gel(ry,k), rhs);
+      sols_from_R(Rab, &S,P,POL,rhs);
     }
   }
   S = filter_sol_x(S, L);
