@@ -93,6 +93,7 @@ BA 10- [libpari] mkintn: handles arguments as 32bit unsigned int
    11- nfdisc, nfbasis: no longer support the old (T,flag,fa) arguments.
        Use the generic [T,listP] syntax (see 2.6.0-C105)
    12- factorpadic: no longer support the deprecated (no-op) 'flag' argument
+   13- thue() sort solutions lexicographically
 
 Removed
   - deprecated functions nfbasis0, nfdisc0, factorpadic0

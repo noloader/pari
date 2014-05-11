@@ -392,24 +392,10 @@ LLL_1stPass(GEN *pB0, GEN kappa, baker_s *BS, GEN *pBx)
   *pB0 = B0; *pBx = Bx; return 1;
 }
 
-
-/* Check whether a solution has already been found */
-static int
-new_sol(GEN z, GEN S)
-{
-  long i, l = lg(S);
-  for (i=1; i<l; i++)
-    if (ZV_equal(z,gel(S,i))) return 0;
-  return 1;
-}
-
 /* add solution (x,y) if not already known */
 static void
 add_sol(GEN *pS, GEN x, GEN y)
-{
-  GEN u = mkvec2(x,y);
-  if (new_sol(u, *pS)) *pS = shallowconcat(*pS, mkvec(u));
-}
+{ *pS = shallowconcat(*pS, mkvec(mkvec2(x,y))); }
 /* z = P(p,q), d = deg P, |z| = |rhs|. Check signs and (possibly)
  * add solutions (p,q), (-p,-q) */
 static void
@@ -841,17 +827,9 @@ LargeSols(GEN P, GEN tnf, GEN rhs, GEN ne, GEN *pS)
   baker_s BS;
   pari_sp av = avma;
 
+  if (lg(ne)==1) return NULL;
   bnf  = gel(tnf,2);
   csts = gel(tnf,7);
-  if (!ne)
-  {
-    ne = bnfisintnorm(bnf, rhs);
-    if (DEBUGLEVEL)
-      if (!is_pm1(gel(csts, 7)) && !is_pm1(bnf_get_no(bnf)) && !is_pm1(rhs))
-        pari_warn(warner, "The result returned by 'thue' is conditional on the GRH");
-  }
-  else if (typ(ne) != t_VEC) pari_err_TYPE("thue",ne);
-  if (lg(ne)==1) return NULL;
 
   nf_get_sign(bnf_get_nf(bnf), &s, &t);
   BS.r = r = s+t-1; n = degpol(P);
@@ -1023,6 +1001,34 @@ filter_sol_x(GEN S, GEN L)
   setlg(S, k); return S;
 }
 
+static GEN bnfisintnorm_i(GEN bnf, long s, GEN z);
+/* return solutions of Norm(x) = a mod U(K)^+ */
+static GEN
+get_ne(GEN tnf, GEN a)
+{
+  GEN bnf = gel(tnf,2), csts = gel(tnf,7);
+  GEN ne = bnfisintnorm(bnf, a);
+  if (DEBUGLEVEL)
+    if (!is_pm1(gel(csts,7)) && !is_pm1(bnf_get_no(bnf)) && !is_pm1(a))
+      pari_warn(warner, "The result returned by 'thue' is conditional on the GRH");
+  return ne;
+}
+/* return solutions of |Norm(x)| = |a| mod U(K) */
+static GEN
+get_neabs(GEN tnf, GEN a)
+{
+  GEN bnf = gel(tnf,2), csts = gel(tnf,7);
+  GEN ne = bnfisintnormabs(bnf, a);
+  if (DEBUGLEVEL)
+    if (!is_pm1(gel(csts,7)) && !is_pm1(bnf_get_no(bnf)) && !is_pm1(a))
+      pari_warn(warner, "The result returned by 'thue' is conditional on the GRH");
+  return ne;
+}
+/* return solutions of Norm(x) = s*|a| mod U(K)^+, where neabs = get_neabs(a) */
+static GEN
+get_ne_from_neabs(GEN tnf, long s, GEN neabs)
+{ return bnfisintnorm_i(gel(tnf,2), s, neabs); }
+
 static GEN
 sol_0(void)
 { GEN S = cgetg(2, t_VEC); gel(S,1) = mkvec2(gen_0,gen_0); return S; }
@@ -1051,8 +1057,12 @@ thue(GEN tnf, GEN rhs, GEN ne)
   if (lg(tnf) == 8)
   {
     if (!signe(rhs)) { avma = av; return sol_0(); }
+    if (!ne)
+      ne = get_ne(tnf, rhs);
+    else if (typ(ne) != t_VEC)
+      pari_err_TYPE("thue",ne);
     x3 = LargeSols(POL, tnf, rhs, ne, &S);
-    if (!x3) { avma = (pari_sp)S; return S; }
+    if (!x3) { avma = av; return cgetg(1, t_VEC); }
     S = SmallSols(S, x3, POL, rhs);
   }
   else if (typ(gel(tnf,2)) == t_REAL)
@@ -1065,6 +1075,7 @@ thue(GEN tnf, GEN rhs, GEN ne)
   }
   else if (typ(gmael(tnf,2,1)) == t_VEC) /* reducible case, pure power*/
   {
+    GEN ne1 = NULL, ne2 = NULL;
     long e;
     tnf = gel(tnf,2);
     e = itos( gel(tnf,2) );
@@ -1072,8 +1083,14 @@ thue(GEN tnf, GEN rhs, GEN ne)
 
     if (!Z_ispowerall(rhs, e, &rhs)) { avma = av; return cgetg(1, t_VEC); }
     tnf = gel(tnf,1);
-    S = thue(tnf, rhs, NULL);
-    if (odd(e)) S = shallowconcat(S, thue(tnf, negi(rhs), NULL));
+    if (lg(tnf) == 8)
+    {
+      ne = get_neabs(tnf, rhs);
+      ne1= get_ne_from_neabs(tnf,1,ne);
+      if (!odd(e)) ne2 = get_ne_from_neabs(tnf,-1,ne);
+    }
+    S = thue(tnf, rhs, ne1);
+    if (!odd(e)) S = shallowconcat(S, thue(tnf, negi(rhs), ne2));
   }
   else if (typ(gel(tnf,2)) == t_VEC) /* other reducible cases */
   { /* solve f^e * g = rhs, f irreducible factor of smallest degree */
@@ -1103,7 +1120,9 @@ thue(GEN tnf, GEN rhs, GEN ne)
         if (typ(gel(ry,k)) == t_INT) check_y(&S, P, POL, gel(ry,k), rhs);
     }
   }
-  return gerepilecopy(av, filter_sol_x(S, L));
+  S = filter_sol_x(S, L);
+  S = gen_sort_uniq(S, (void*)lexcmp, cmp_nodata);
+  return gerepileupto(av, S);
 }
 
 /********************************************************************/
@@ -1346,13 +1365,12 @@ bnfisintnormabs(GEN bnf, GEN a)
   return res;
 }
 
-GEN
-bnfisintnorm(GEN bnf, GEN a)
+/* z = bnfisintnormabs(bnf,a), sa = 1 or -1, return bnfisintnorm(bnf,sa*|a|) */
+static GEN
+bnfisintnorm_i(GEN bnf, long sa, GEN z)
 {
-  pari_sp av = avma;
   GEN nf = checknf(bnf), T = nf_get_pol(nf), unit = NULL;
-  GEN z = bnfisintnormabs(bnf, a);
-  long sNx, i, j, N = degpol(T), l = lg(z), sa = signe(a);
+  long sNx, i, j, N = degpol(T), l = lg(z);
   long norm_1 = 0; /* gcc -Wall */
 
   /* update z in place to get correct signs: multiply by unit of norm -1 if
@@ -1377,6 +1395,11 @@ bnfisintnorm(GEN bnf, GEN a)
     }
     gel(z,j++) = x;
   }
-  setlg(z, j);
-  return gerepilecopy(av, z);
+  setlg(z, j); return z;
+}
+GEN
+bnfisintnorm(GEN bnf, GEN a)
+{
+  pari_sp av = avma;
+  return gerepilecopy(av, bnfisintnorm_i(bnf,signe(a),bnfisintnormabs(bnf,a)));
 }
