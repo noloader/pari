@@ -624,7 +624,7 @@ thueinit(GEN pol, long flag, long prec)
     long vy = fetch_var();
     long va = fetch_var();
     long vb = fetch_var();
-    if (!C) C = gen_1;
+    C = C? ginv(C): gen_1;
     if (e != 1)
     {
       if (lfa == 2) {
