@@ -1957,6 +1957,12 @@ RgXQX_RgXQ_mul(GEN x, GEN y, GEN T)
   return RgXQX_red(RgX_Rg_mul(x,y), T);
 }
 GEN
+RgXQV_RgXQ_mul(GEN v, GEN x, GEN T)
+{
+  return RgXQV_red(RgV_Rg_mul(v,x), T);
+}
+
+GEN
 RgXQX_sqr(GEN x, GEN T)
 {
   return RgXQX_red(RgX_sqr(x), T);

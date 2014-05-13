@@ -64,6 +64,7 @@ BA 20- [libpari] New functions vecsmallpermute, vec_append
    22- [libpari] New function ZM_transmul
    23- allow elliptic curves over number fields: ellinit([a1,...,a5], nf)
    24- [libpari] ZX_sturm, ZX_sturmpart, RgX_sturmpart
+   25- [libpari] RgXQV_RgXQ_mul
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]

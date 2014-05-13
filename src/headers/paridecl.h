@@ -805,6 +805,7 @@ GEN     RgXQ_pow(GEN x, GEN n, GEN T);
 GEN     RgXQ_powers(GEN x, long l, GEN T);
 GEN     RgXQ_powu(GEN x, ulong n, GEN T);
 GEN     RgXQC_red(GEN P, GEN T);
+GEN     RgXQV_RgXQ_mul(GEN v, GEN x, GEN T);
 GEN     RgXQV_red(GEN P, GEN T);
 GEN     RgXQX_RgXQ_mul(GEN x, GEN y, GEN T);
 GEN     RgXQX_divrem(GEN x,GEN y,GEN T,GEN *r);
