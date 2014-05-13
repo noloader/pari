@@ -605,6 +605,12 @@ pari_add_oldmodule(entree *ep)
 #ifdef HAS_MMAP
 #include <sys/mman.h>
 #define PARI_STACK_ALIGN (sysconf(_SC_PAGE_SIZE))
+#ifndef MAP_ANONYMOUS
+#define MAP_ANONYMOUS MAP_ANON
+#endif
+#ifndef MAP_NORESERVE
+#define MAP_NORESERVE 0
+#endif
 static void *
 pari_mainstack_malloc(size_t size)
 {

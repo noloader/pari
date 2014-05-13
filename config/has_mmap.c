@@ -1,5 +1,11 @@
 #include <unistd.h>
 #include <sys/mman.h>
+#ifndef MAP_ANONYMOUS
+#define MAP_ANONYMOUS MAP_ANON
+#endif
+#ifndef MAP_NORESERVE
+#define MAP_NORESERVE 0
+#endif
 int main(void)
 {
   size_t size = sysconf(_SC_PAGE_SIZE)*1000;
