@@ -5434,9 +5434,12 @@ vector of \typ{INT}s which are the root of $f$ mod $p^e$ congruent to the
 $S[i]$ mod $p$.
 
 \fun{GEN}{ZpXQX_liftroot}{GEN f, GEN a, GEN T, GEN p, long e} as
-\tet{ZpX_liftroot}, but $f$ is now a polynomial in $\Z[X,Y]$ and we find
-a root in the unramified extension of $\Q_p$ with residue field $\F_p[Y]/(T)$,
+\tet{ZpX_liftroot}, but $f$ is now a polynomial in $\Z[X,Y]$ and lift the
+root $a$ in the unramified extension of $\Q_p$ with residue field $\F_p[Y]/(T)$,
 assuming $v_p(f(a))>0$ and $v_p(f'(a))=0$.
+
+\fun{GEN}{ZpX_ZpXQ_liftroot}{GEN f, GEN a, GEN T, GEN p, long e}
+as \tet{ZpXQX_liftroot}, but $f$ is a polynomial in $\Z[X]$.
 
 \fun{GEN}{ZpXQX_liftroot_vald}{GEN f, GEN a, long v, GEN T, GEN p, long e}
 returns the foots of $f$ as \tet{ZpXQX_liftroot}, where $v$ is the valuation
