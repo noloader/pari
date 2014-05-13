@@ -32,3 +32,20 @@ thue((x^3-2)^2,4)
 thue((x^3-2)^3,-8)
 thue((x^3-x+1)^3,-512)
 thue((2*x^3+2)^3*(x+1)^3, 157464)
+thue(x^4+1,20^30+3)
+
+thue(x^2+x+1, a=7*13*11^2*10^4)
+do(T,a)=
+{
+  my(L = thue(T,a), d = poldegree(T));
+  for(i=1,#L,
+    my([u,v]=L[i]);
+    my(h = if(v, v^d*subst(T,x,u/v), pollead(T)*u^d));
+    if(h!=a, error([u,v]))); #L;
+}
+do(x^2+1,10^10)
+do(4*x^2+1,10^10)
+do(x^2+5,10^10)
+do(4*x^2+5,10^10)
+do(x^2+x+1,7*13*11^2*10^4)
+do(25*x^2+45*x+21,10^4)

@@ -12,7 +12,7 @@ Doc: returns all solutions of the equation
  $\kbd{thueinit}(P)$. If present, \var{sol} must contain the solutions of
  $\Norm(x)=a$ modulo units of positive norm in the number field
  defined by $P$ (as computed by \kbd{bnfisintnorm}). If there are infinitely
- many solutions, an error will be issued.
+ many solutions, an error is issued.
 
  It is allowed to input directly the polynomial $P$ instead of a \var{tnf},
  in which case, the function first performs \kbd{thueinit(P,0)}. This is

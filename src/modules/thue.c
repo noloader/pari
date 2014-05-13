@@ -28,9 +28,11 @@ static int
 checktnf(GEN tnf)
 {
   long l = lg(tnf);
-  if (typ(tnf)!=t_VEC || (l!=8 && l!=3)) return 0;
-  if (typ(gel(tnf,1)) != t_VEC) return 0;
-  if (l != 8) return 1; /* S=0 */
+  GEN v;
+  if (typ(tnf)!=t_VEC || (l!=8 && l!=4)) return 0;
+  v = gel(tnf,1);
+  if (typ(v) != t_VEC || lg(v) != 4) return 0;
+  if (l == 4) return 1; /* s=0 */
 
   (void)checkbnf(gel(tnf,2));
   return (typ(gel(tnf,3)) == t_COL
@@ -605,7 +607,7 @@ thueinit(GEN pol, long flag, long prec)
 {
   GEN POL, C, L, fa, tnf, bnf = NULL;
   pari_sp av = avma;
-  long k, s, lfa, dpol;
+  long s, lfa, dpol;
 
   if (checktnf(pol)) { bnf = checkbnf(gel(pol,2)); pol = gel(pol,1); }
   if (typ(pol)!=t_POL) pari_err_TYPE("thueinit",pol);
@@ -628,7 +630,7 @@ thueinit(GEN pol, long flag, long prec)
     if (e != 1)
     {
       if (lfa == 2) {
-        tnf = mkvec2(mkvec3(POL,C,L), mkvec2(thueinit(f, flag, prec), E));
+        tnf = mkvec3(mkvec3(POL,C,L), thueinit(f, flag, prec), E);
         delete_var(); delete_var(); delete_var();
         return gerepilecopy(av, tnf);
       }
@@ -640,7 +642,7 @@ thueinit(GEN pol, long flag, long prec)
     P = RgX_Rg_sub(RgX_homogenize(f, vy), pol_x(va));
     Q = RgX_Rg_sub(RgX_homogenize(g, vy), pol_x(vb));
     R = polresultant0(P, Q, -1, 0);
-    tnf = mkvec2(mkvec3(POL,C,L), mkvec2(mkvecsmall4(degpol(f), e, va,vb),  R));
+    tnf = mkvec3(mkvec3(POL,C,L), mkvecsmall4(degpol(f), e, va,vb),  R);
     delete_var(); delete_var(); delete_var();
     return gerepilecopy(av, tnf);
   }
@@ -649,13 +651,13 @@ thueinit(GEN pol, long flag, long prec)
   C = gdiv(powiu(L, dpol), gel(pol, dpol+2));
   pol = POL;
 
-  if (dpol <= 2) pari_err_DOMAIN("thue", "degree","<=",gen_2,pol);
   s = ZX_sturm(pol);
   if (s)
   {
     long PREC, n = degpol(pol);
     double d, dr, dn = (double)n;
 
+    if (dpol <= 2) pari_err_DOMAIN("thueinit", "P","=",pol,pol);
     dr = (double)((s+n-2)>>1); /* s+t-1 */
     d = dn*(dn-1)*(dn-2);
     /* Guess precision by approximating Baker's bound. The guess is most of
@@ -679,9 +681,18 @@ thueinit(GEN pol, long flag, long prec)
   }
   else
   {
-    GEN ro = roots(pol, DEFAULTPREC), c0 = imag_i(gel(ro,1));
-    for (k=2; k<lg(ro); k++) c0 = mulrr(c0, imag_i(gel(ro,k)));
-    c0 = invr( absr(c0) ); tnf = mkvec2(pol, c0);
+    GEN ro, c0;
+    long k,l;
+    if (!bnf)
+    {
+      bnf = Buchall(pol, nf_FORCE, DEFAULTPREC);
+      if (flag) (void)bnfcertify(bnf);
+    }
+    ro = nf_get_roots(bnf_get_nf(bnf));
+    l = lg(ro);
+    c0 = imag_i(gel(ro,1));
+    for (k = 2; k < l; k++) c0 = mulrr(c0, imag_i(gel(ro,k)));
+    c0 = invr(sqrr(c0)); tnf = mkvec3(pol,bnf,c0);
   }
   gel(tnf,1) = mkvec3(gel(tnf,1), C, L);
   return gerepilecopy(av,tnf);
@@ -829,10 +840,8 @@ LargeSols(GEN P, GEN tnf, GEN rhs, GEN ne, GEN *pS)
   baker_s BS;
   pari_sp av = avma;
 
-  if (lg(ne)==1) return NULL;
   bnf  = gel(tnf,2);
   csts = gel(tnf,7);
-
   nf_get_sign(bnf_get_nf(bnf), &s, &t);
   BS.r = r = s+t-1; n = degpol(P);
   ro     = gel(tnf,3);
@@ -1004,32 +1013,54 @@ filter_sol_x(GEN S, GEN L)
 }
 
 static GEN bnfisintnorm_i(GEN bnf, long s, GEN z);
+static GEN
+tnf_get_Ind(GEN tnf) { return gmael(tnf,7,7); }
+static GEN
+tnf_get_bnf(GEN tnf) { return gel(tnf,2); }
+
+static void
+maybe_warn(GEN bnf, GEN a, GEN Ind)
+{
+  if (!is_pm1(Ind) && !is_pm1(bnf_get_no(bnf)) && !is_pm1(a))
+    pari_warn(warner, "The result returned by 'thue' is conditional on the GRH");
+}
 /* return solutions of Norm(x) = a mod U(K)^+ */
 static GEN
-get_ne(GEN tnf, GEN a)
+get_ne(GEN bnf, GEN a, GEN Ind)
 {
-  GEN bnf = gel(tnf,2), csts = gel(tnf,7);
-  GEN ne = bnfisintnorm(bnf, a);
-  if (DEBUGLEVEL)
-    if (!is_pm1(gel(csts,7)) && !is_pm1(bnf_get_no(bnf)) && !is_pm1(a))
-      pari_warn(warner, "The result returned by 'thue' is conditional on the GRH");
-  return ne;
+  if (DEBUGLEVEL) maybe_warn(bnf,a,Ind);
+  return bnfisintnorm(bnf, a);
 }
 /* return solutions of |Norm(x)| = |a| mod U(K) */
 static GEN
-get_neabs(GEN tnf, GEN a)
+get_neabs(GEN bnf, GEN a, GEN Ind)
 {
-  GEN bnf = gel(tnf,2), csts = gel(tnf,7);
-  GEN ne = bnfisintnormabs(bnf, a);
-  if (DEBUGLEVEL)
-    if (!is_pm1(gel(csts,7)) && !is_pm1(bnf_get_no(bnf)) && !is_pm1(a))
-      pari_warn(warner, "The result returned by 'thue' is conditional on the GRH");
-  return ne;
+  if (DEBUGLEVEL) maybe_warn(bnf,a,Ind);
+  return bnfisintnormabs(bnf, a);
 }
-/* return solutions of Norm(x) = s*|a| mod U(K)^+, where neabs = get_neabs(a) */
+
+/* Let P(z)=z^2+Bz+C, convert t=u+v*z (mod P) solution of norm equation N(t)=A
+ * to [x,y] = [u,-v] form: y^2P(x/y) = A */
 static GEN
-get_ne_from_neabs(GEN tnf, long s, GEN neabs)
-{ return bnfisintnorm_i(gel(tnf,2), s, neabs); }
+ne2_to_xy(GEN t)
+{
+  GEN u,v;
+  switch(degpol(t))
+  {
+    case -1: u = v = gen_0; break;
+    case 0: u = gel(t,2); v = gen_0; break;
+    default: u = gel(t,2); v = gel(t,3);
+  }
+  return mkvec2(u, gneg(v));
+}
+static GEN
+ne2V_to_xyV(GEN v)
+{
+  long i, l;
+  GEN w = cgetg_copy(v,&l);
+  for (i=1; i<l; i++) gel(w,i) = ne2_to_xy(gel(v,i));
+  return w;
+}
 
 static GEN
 sol_0(void) { retmkvec( mkvec2(gen_0,gen_0) ); }
@@ -1053,61 +1084,92 @@ thue(GEN tnf, GEN rhs, GEN ne)
   if (typ(tnf) == t_POL) tnf = thueinit(tnf, 0, DEFAULTPREC);
   if (!checktnf(tnf)) pari_err_TYPE("thue [please apply thueinit()]", tnf);
   if (typ(rhs) != t_INT) pari_err_TYPE("thue",rhs);
+  if (ne && typ(ne) != t_VEC) pari_err_TYPE("thue",ne);
 
   /* solve P(x,y) = rhs <=> POL(L x, y) = C rhs, with POL monic in Z[X] */
   POL = gel(tnf,1);
   C = gel(POL,2); rhs = gmul(C, rhs);
   if (typ(rhs) != t_INT) { avma = av; return cgetg(1, t_VEC); }
+  if (!signe(rhs))
+  {
+    GEN v = gel(tnf,2);
+    avma = av;
+    /* at least 2 irreducible factors, one of which has degree 1 */
+    if (typ(v) == t_VECSMALL && v[1] ==1)
+      pari_err_DOMAIN("thue","#sols","=",strtoGENstr("oo"),rhs);
+    return sol_0();
+  }
   L = gel(POL,3);
   POL = gel(POL,1);
 
   S = cgetg(1,t_VEC);
   if (lg(tnf) == 8)
   {
-    if (!signe(rhs)) { avma = av; return sol_0(); }
-    if (!ne)
-      ne = get_ne(tnf, rhs);
-    else if (typ(ne) != t_VEC)
-      pari_err_TYPE("thue",ne);
+    if (!ne) ne = get_ne(tnf_get_bnf(tnf), rhs, tnf_get_Ind(tnf));
+    if (lg(ne) == 1) { avma = av; return cgetg(1, t_VEC); }
     x3 = LargeSols(POL, tnf, rhs, ne, &S);
-    if (!x3) { avma = av; return cgetg(1, t_VEC); }
     S = SmallSols(S, x3, POL, rhs);
   }
-  else if (typ(gel(tnf,2)) == t_REAL)
+  else if (typ(gel(tnf,3)) == t_REAL)
   { /* Case s=0. All solutions are "small". */
-    GEN c0 = gel(tnf,2); /* t_REAL */
-    if (!signe(rhs)) { avma = av; return sol_0(); }
+    GEN bnf = tnf_get_bnf(tnf);
+    GEN c0 = gel(tnf,3), F;
     x3 = sqrtnr(mulir(absi(rhs),c0), degpol(POL));
     x3 = addrr(x3, dbltor(0.1)); /* guard from round-off errors */
-    S = SmallSols(S, x3, POL, rhs);
-  }
-  else if (typ(gmael(tnf,2,1)) == t_VEC) /* reducible case, pure power*/
-  {
-    GEN ne1 = NULL, ne2 = NULL;
-    long e;
-    tnf = gel(tnf,2);
-    e = itos( gel(tnf,2) );
-    if (!signe(rhs)) { avma = av; return sol_0(); }
-
-    if (!Z_ispowerall(rhs, e, &rhs)) { avma = av; return cgetg(1, t_VEC); }
-    tnf = gel(tnf,1);
-    if (lg(tnf) == 8)
+    if (!ne && expo(x3) > 10)
     {
-      ne = get_neabs(tnf, rhs);
-      ne1= get_ne_from_neabs(tnf,1,ne);
-      if (!odd(e)) ne2 = get_ne_from_neabs(tnf,-1,ne);
+      long l;
+      GEN P;
+      if (expi(rhs) < 150) F = Z_factor(rhs);
+      else
+      {
+        F = Z_factor_limit(rhs, 500000);
+        P = gel(F,1); l = lg(P);
+        if (!is_pm1(rhs) && !BPSW_psp(gel(P,l-1))) F = NULL;
+      }
+      if (F) ne = get_ne(bnf, F, gen_1);
     }
-    S = thue(tnf, rhs, ne1);
-    if (!odd(e)) S = shallowconcat(S, thue(tnf, negi(rhs), ne2));
+    if (ne)
+    {
+      if (lg(ne) == 1) { avma = av; return cgetg(1,t_VEC); }
+      if (degpol(POL) == 2) /* quadratic imaginary */
+      {
+        GEN u = bnf_get_tuU(bnf);
+        long w =  bnf_get_tuN(bnf);
+        if (w == 4) /* u = I */
+          ne = shallowconcat(ne, RgXQV_RgXQ_mul(ne,u,POL));
+        else if (w == 6) /* u = j */
+        {
+          GEN u2 = RgXQ_sqr(u,POL);
+          ne = shallowconcat1(mkvec3(ne, RgXQV_RgXQ_mul(ne,u,POL),
+                                         RgXQV_RgXQ_mul(ne,u2,POL)));
+        }
+        ne = ne2V_to_xyV(ne);
+        S = shallowconcat(ne, RgV_neg(ne));
+      }
+    }
+    if (lg(S) == 1) S = SmallSols(S, x3, POL, rhs);
   }
-  else if (typ(gel(tnf,2)) == t_VEC) /* other reducible cases */
-  { /* solve f^e * g = rhs, f irreducible factor of smallest degree */
-    GEN P, D, v = gmael(tnf, 2, 1), R = gmael(tnf, 2, 2);
-    long i, l, degf = v[1], e = v[2], va = v[3], vb = v[4];
-    if (!signe(rhs)) {
-      if (degf == 1) pari_err_DOMAIN("thue","#sols","=",strtoGENstr("oo"),rhs);
-      avma = av; return cgetg(1, t_VEC);
+  else if (typ(gel(tnf,3)) == t_INT) /* reducible case, pure power*/
+  {
+    GEN bnf, ne1 = NULL, ne2 = NULL;
+    long e = itos( gel(tnf,3) );
+    if (!Z_ispowerall(rhs, e, &rhs)) { avma = av; return cgetg(1, t_VEC); }
+    tnf = gel(tnf,2);
+    bnf = tnf_get_bnf(tnf);
+    ne = get_neabs(bnf, rhs, lg(tnf)==8?tnf_get_Ind(tnf): gen_1);
+    ne1= bnfisintnorm_i(bnf,1,ne);
+    S = thue(tnf, rhs, ne1);
+    if (!odd(e) && lg(tnf)==8) /* if s=0, norms are positive */
+    {
+      ne2 = bnfisintnorm_i(bnf,-1,ne);
+      S = shallowconcat(S, thue(tnf, negi(rhs), ne2));
     }
+  }
+  else /* other reducible cases */
+  { /* solve f^e * g = rhs, f irreducible factor of smallest degree */
+    GEN P, D, v = gel(tnf, 2), R = gel(tnf, 3);
+    long i, l, e = v[2], va = v[3], vb = v[4];
     P = cgetg(lg(POL), t_POL); P[1] = POL[1];
     D = divisors(rhs); l = lg(D);
     for (i = 1; i < l; i++)
@@ -1247,10 +1309,10 @@ isintnorm_loop(struct sol_abs *T, long i)
 }
 
 static int
-get_sol_abs(struct sol_abs *T, GEN bnf, GEN a, GEN *ptPR)
+get_sol_abs(struct sol_abs *T, GEN bnf, GEN fact, GEN *ptPR)
 {
   GEN nf = bnf_get_nf(bnf);
-  GEN fact = absi_factor(a), P = gel(fact,1), E = gel(fact,2), PR;
+  GEN P = gel(fact,1), E = gel(fact,2), PR;
   long N = nf_get_degree(nf), nP = lg(P)-1, Ngen, max, nPR, i, j;
 
   max = nP*N; /* upper bound for T->nPR */
@@ -1348,15 +1410,16 @@ GEN
 bnfisintnormabs(GEN bnf, GEN a)
 {
   struct sol_abs T;
-  GEN nf, res, PR;
+  GEN nf, res, PR, F;
   long i;
 
-  if (typ(a) != t_INT) pari_err_TYPE("bnfisintnormabs",a);
+  if ((F = check_arith_all(a,"bnfisintnormabs")))
+    a = typ(a) == t_VEC? gel(a,1): factorback(F);
   bnf = checkbnf(bnf); nf = bnf_get_nf(bnf);
   if (!signe(a)) return mkvec(gen_0);
   if (is_pm1(a)) return mkvec(gen_1);
-
-  if (!get_sol_abs(&T, bnf, a, &PR)) return cgetg(1, t_VEC);
+  if (!F) F = absi_factor(a);
+  if (!get_sol_abs(&T, bnf, F, &PR)) return cgetg(1, t_VEC);
   /* |a| > 1 => T.nPR > 0 */
   res = cgetg(T.sindex+1, t_VEC);
   for (i=1; i<=T.sindex; i++)
@@ -1404,5 +1467,11 @@ GEN
 bnfisintnorm(GEN bnf, GEN a)
 {
   pari_sp av = avma;
-  return gerepilecopy(av, bnfisintnorm_i(bnf,signe(a),bnfisintnormabs(bnf,a)));
+  GEN ne = bnfisintnormabs(bnf,a);
+  switch(typ(a))
+  {
+    case t_VEC: a = gel(a,1); break;
+    case t_MAT: a = factorback(a); break;
+  }
+  return gerepilecopy(av, bnfisintnorm_i(bnf,signe(a), ne));
 }

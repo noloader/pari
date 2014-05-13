@@ -65,6 +65,7 @@ BA 20- [libpari] New functions vecsmallpermute, vec_append
    23- allow elliptic curves over number fields: ellinit([a1,...,a5], nf)
    24- [libpari] ZX_sturm, ZX_sturmpart, RgX_sturmpart
    25- [libpari] RgXQV_RgXQ_mul
+   26- thue / thueinit now also support (powers of) imaginary quadratic equations
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]
@@ -95,6 +96,9 @@ BA 10- [libpari] mkintn: handles arguments as 32bit unsigned int
        Use the generic [T,listP] syntax (see 2.6.0-C105)
    12- factorpadic: no longer support the deprecated (no-op) 'flag' argument
    13- thue() sort solutions lexicographically
+   14- thueinit tnf format: always include a bnf (also when r1=0), to allow
+       checking for norm equation solutions first: e.g. thue(x^4+1,7*10^80)
+       becomes instantaneous instead of overflowing
 
 Removed
   - deprecated functions nfbasis0, nfdisc0, factorpadic0
