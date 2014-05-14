@@ -826,7 +826,8 @@ ZpXQ_sqrtnlift(GEN a, GEN n, GEN x, GEN T, GEN p, long e)
 }
 
 GEN
-ZpX_ZpXQ_liftroot(GEN P, GEN S, GEN T, GEN p, long n)
+ZpX_ZpXQ_liftroot_ea(GEN P, GEN S, GEN T, GEN p, long n, void *E,
+                     int early(void *E, GEN x, GEN q))
 {
   pari_sp ltop = avma, av, st_lim;
   long N, r;
@@ -857,7 +858,8 @@ ZpX_ZpXQ_liftroot(GEN P, GEN S, GEN T, GEN p, long n)
     Sq = FpX_sub(S, ZX_Z_mul(H, q2), q);
     if (DEBUGLEVEL > 3)
       timer_printf(&ti,"ZpX_ZpXQ_liftroot: lift to prec %ld",N);
-    if (mask == 1) return gerepileupto(ltop, Sq);
+    if (mask==1 || (early && early(E, Sq, q)))
+      return gerepileupto(ltop, Sq);
     qq = sqri(q); N <<= 1;
     if (mask&1UL) { qq = diviiexact(qq, p); N--; }
     mask >>= 1;
@@ -876,4 +878,10 @@ ZpX_ZpXQ_liftroot(GEN P, GEN S, GEN T, GEN p, long n)
       gerepileall(av, 5, &S, &W, &Q, &q, &q2);
     }
   }
+}
+
+GEN
+ZpX_ZpXQ_liftroot(GEN P, GEN S, GEN T, GEN p, long n)
+{
+  return ZpX_ZpXQ_liftroot_ea(P, S, T, p, n, NULL, NULL);
 }

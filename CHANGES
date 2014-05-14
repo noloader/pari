@@ -66,6 +66,7 @@ BA 20- [libpari] New functions vecsmallpermute, vec_append
    24- [libpari] ZX_sturm, ZX_sturmpart, RgX_sturmpart
    25- [libpari] RgXQV_RgXQ_mul
    26- thue / thueinit now also support (powers of) imaginary quadratic equations
+BA 27- [libpari] ZpX_ZpXQ_liftroot, ZpX_ZpXQ_liftroot_ea
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]

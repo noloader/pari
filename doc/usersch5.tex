@@ -5438,13 +5438,19 @@ $S[i]$ mod $p$.
 root $a$ in the unramified extension of $\Q_p$ with residue field $\F_p[Y]/(T)$,
 assuming $v_p(f(a))>0$ and $v_p(f'(a))=0$.
 
-\fun{GEN}{ZpX_ZpXQ_liftroot}{GEN f, GEN a, GEN T, GEN p, long e}
-as \tet{ZpXQX_liftroot}, but $f$ is a polynomial in $\Z[X]$.
-
 \fun{GEN}{ZpXQX_liftroot_vald}{GEN f, GEN a, long v, GEN T, GEN p, long e}
 returns the foots of $f$ as \tet{ZpXQX_liftroot}, where $v$ is the valuation
 of the content of $f'$ and it is required that $v_p(f(a))>v$ and
 $v_p(f'(a))=v$.
+
+\fun{GEN}{ZpX_ZpXQ_liftroot}{GEN f, GEN a, GEN T, GEN p, long e}
+as \tet{ZpXQX_liftroot}, but $f$ is a polynomial in $\Z[X]$.
+
+\fun{GEN}{ZpX_ZpXQ_liftroot_ea}{GEN f, GEN a, GEN T, GEN p, long e,
+                     void *E, int early(void *E, GEN x, GEN q)}
+as \tet{ZpX_ZpXQ_liftroot} with early abort: the function \kbd{early(E,x,q)}
+will be called with $x$ is a root of $f$ modulo $q=p^n$ for some $n$. If early
+return a non-zero value, the function will return $x$ immediately.
 
 \fun{GEN}{ZpX_liftfact}{GEN A, GEN B, GEN T, GEN p, long e, GEN pe} is
 the routine underlying \tet{polhensellift}. Here, $p$ is prime, $T(Y)$
