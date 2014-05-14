@@ -17,6 +17,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 /*                                                                 */
 /*******************************************************************/
 /* _GNU_SOURCE is needed before first include to get RUSAGE_THREAD */
+#undef _GNU_SOURCE /* avoid warning */
 #define _GNU_SOURCE
 #include <string.h>
 #include "pari.h"
