@@ -12,7 +12,7 @@ Doc: initializes the \var{tnf} corresponding to $P$, a non-constant
  equations $P(X / Y)Y^{\deg P} = a$, where $a$ is an integer. Accordingly,
  $P$ must either have at least two distinct irreducible factors over $\Q$,
  or have one irreducible factor $T$ with degree $>2$ or two conjugate
- complex roots: under these (necessary and sufficient) conditions, the 
+ complex roots: under these (necessary and sufficient) conditions, the
  equation has finitely many integer solutions.
  \bprog
  ? S = thueinit(t^2+1);
@@ -33,7 +33,7 @@ Doc: initializes the \var{tnf} corresponding to $P$, a non-constant
  is $\pm1$, then results are unconditional.
 
  \misctitle{Note} The general philsophy is to disprove the existence of large
- solutions then to enumerate bounded solutions naively. The implementation 
+ solutions then to enumerate bounded solutions naively. The implementation
  will overflow when there exist huge solutions and the equation has degree
  $> 2$ (the quadratic imaginary case is special, since we can use
  \kbd{bnfisintnorm}):
