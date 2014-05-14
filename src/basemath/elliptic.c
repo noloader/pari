@@ -3090,7 +3090,7 @@ localred(GEN e, GEN p)
 /* Given J an ideal in HNF coprime to 2 and z algebraic integer,
  * return b algebraic integer such that z + 2b in  J */
 static GEN
-approx_mod2(GEN nf, GEN J, GEN z)
+approx_mod2(GEN J, GEN z)
 {
   GEN b = z;
   long i;
@@ -3109,7 +3109,7 @@ approx_mod2(GEN nf, GEN J, GEN z)
 /* Given J an ideal in HNF coprime to 3 and z algebraic integer,
  * return b algebraic integer such that z + 3b in  J */
 static GEN
-approx_mod3(GEN nf, GEN J, GEN z)
+approx_mod3(GEN J, GEN z)
 {
   GEN b = z;
   long i;
@@ -3175,11 +3175,11 @@ nflocalred_p(GEN e, GEN P)
     a1 = nf_to_scalar_or_basis(nf, ell_get_a1(e));
     a2 = nf_to_scalar_or_basis(nf, ell_get_a2(e));
     a3 = nf_to_scalar_or_basis(nf, ell_get_a3(e));
-    s = approx_mod2(nf, idealpow(nf,P,stoi(m)),   a1);
+    s = approx_mod2(idealpow(nf,P,stoi(m)),   a1);
     r = gsub(a2, nfmul(nf,s,gadd(a1,s)));
-    r = approx_mod3(nf, idealpow(nf,P,stoi(2*m)), r);
+    r = approx_mod3(idealpow(nf,P,stoi(2*m)), r);
     t = gadd(a3, nfmul(nf,r,a1));
-    t = approx_mod2(nf, idealpow(nf,P,stoi(3*m)), t);
+    t = approx_mod2(idealpow(nf,P,stoi(3*m)), t);
     ch = mkvec4(u,r,s,t);
   }
 
