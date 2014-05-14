@@ -176,6 +176,7 @@ HIL64- [libpari] function family Flj_*
    67- GP function nfsplitting
 HIL68- [libpari] functions Flv_dotproduct_pre, Flx_eval_pre,
        Flx_eval_powers_pre, FlxY_eval_powers_pre, FlxY_evalx_powers_pre
+HIL69- GP functions polclass, polmodular
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]

@@ -1,0 +1,16 @@
+Function: polmodular
+Section: polynomials
+C-Name: polmodular
+Prototype: LDGDnD0,L,
+Help: polmodular(L, {x = 'x}, {y = 'y}, {compute_derivs = 0}): return the modular polynomial of level L.
+Doc:
+ Return the modular polynomial of level $L$ in variables $x$ and $y$ for the $j$
+ function.  If $x$ is given as $Mod(j, p)$ or an element $j$ of a prime finite field,
+ then return the modular polynomial of level $L$ evaluated at $j$ modulo $p$.  If $j$
+ is from a finite field and $compute_derivs$ is non-zero, then return a triple where
+ the last two elements are the first and second derivatives of the modular polynomial
+ evaluated at $j$.
+ \bprog
+ ? modpoly(3)
+ %1 = x^4 + (-y^3 + 2232*y^2 - 1069956*y + 36864000)*x^3 + (2232*y^3 + 2587918086*y^2 + 8900222976000*y + 452984832000000)*x^2 + (-1069956*y^3 + 8900222976000*y^2 - 770845966336000000*y + 1855425871872000000000)*x + (y^4 + 36864000*y^3 + 452984832000000*y^2 + 1855425871872000000000*y)
+ @eprog

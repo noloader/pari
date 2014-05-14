@@ -260,6 +260,54 @@ enum { FF_CARD = 1, FF_GROUP, FF_GROUPGEN, FF_O };
 /* for Buchall_param */
 enum { fupb_NONE, fupb_RELAT, fupb_LARGE, fupb_PRECI };
 
+/*
+ * Represents the data in the equation(s)
+ *
+ *   4p = t^2 - v^2 D = t^2 - v^2 u^2 D_K = w^2 D_K.
+ *
+ * t is the absolute trace, so always > 0.
+ * T is a twisting parameter, which satisfies (T|p) == -1.
+ * factw is the factorisation of w
+ * u_levels[i] is the valuation of u at the ith factor of w,
+ * i.e. the level of D in the ith volcano.
+ * vdepths[i] is the depth of the ith volcano.
+ */
+typedef struct {
+  long D;
+  long t, u, v, w;
+  ulong p, pi;
+  ulong T;
+  GEN factw;
+  GEN u_levels;
+  GEN vdepths;
+} norm_eqn_struct;
+typedef norm_eqn_struct norm_eqn_t[1];
+
+/* Isogeny volcanos */
+long j_level_in_volcano(
+  GEN phi, ulong j, ulong p, ulong pi, long L, long depth);
+ulong ascend_volcano(
+  GEN phi, ulong j, ulong p, ulong pi, long level, long L, long depth,
+  long steps);
+ulong descend_volcano(
+  GEN phi, ulong j, ulong p, ulong pi, long level, long L, long depth,
+  long steps);
+long walk_surface_path(
+  ulong path[], GEN phi, ulong p, ulong pi, long L, long depth,
+  long max_len);
+GEN enum_j_with_endo_ring(
+  ulong j0, norm_eqn_t ne, GEN *mpdb, GEN pcp, long max_elts);
+
+/* Modpoly database maintenance */
+GEN modpoly_db_init(GEN levels);
+void modpoly_db_clear(GEN db);
+GEN modpoly_db_get(GEN *db, long L);
+GEN modpoly_db_getp(GEN *db, long L, ulong p);
+
+void random_curves_with_m_torsion(
+  ulong *a4, ulong *a6, ulong *tx, ulong *ty,
+  long ncurves, long m, ulong p);
+
 /* Allocation / gerepile */
 void   setdebugvar(long n);
 void   debug_stack(void);
@@ -611,6 +659,10 @@ GEN     sylvestermatrix_i(GEN x, GEN y);
 /* QX_factor */
 
 void    factor_quad(GEN x, GEN res, long *ptcnt);
+
+/* FpX.c */
+
+ulong   Flj_order_ufact(GEN P, ulong n, GEN F, ulong a4, ulong p, ulong pi);
 
 /* FpX.c */
 

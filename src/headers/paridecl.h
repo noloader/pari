@@ -2013,6 +2013,10 @@ long    nfhilbert0(GEN bnf,GEN a,GEN b,GEN p);
 long    hyperell_locally_soluble(GEN pol,GEN p);
 long    nf_hyperell_locally_soluble(GEN nf,GEN pol,GEN p);
 
+/* classpoly.c */
+
+GEN     polclass(GEN D, long xvar);
+
 /* compile.c */
 
 GEN     closure_deriv(GEN G);
@@ -3037,6 +3041,14 @@ GEN     member_tufu(GEN x);
 GEN     member_tu(GEN x);
 GEN     member_zk(GEN x);
 GEN     member_zkst(GEN bid);
+
+/* modpoly.c */
+
+GEN     Flm_Fl_modpoly_evalx(GEN phi, long L, ulong j, ulong p, ulong pi);
+GEN     Fp_modpoly_evalx(long L, GEN J, GEN P, long v, int compute_derivs);
+GEN     modpoly_ZM(long L);
+GEN     modpoly_ZXX(long L, long xvar, long yvar);
+GEN     polmodular(long L, GEN x, long yvar, int compute_derivs);
 
 /* mp.c */
 

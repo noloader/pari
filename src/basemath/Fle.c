@@ -246,6 +246,41 @@ Flj_mulu_pre(GEN P, ulong n, ulong a4, ulong p, ulong pi)
   return Flj_mulu_pre_naf(P, n, a4, p, pi, &x);
 }
 
+ulong
+Flj_order_ufact(GEN P, ulong n, GEN F, ulong a4, ulong p, ulong pi)
+{
+  pari_sp av = avma;
+  ulong res = 1;
+  long i, nfactors;
+  GEN primes, exps;
+
+  primes = gel(F, 1);
+  nfactors = lg(primes);
+  exps = gel(F, 2);
+
+  for (i = 1; i < nfactors; ++i) {
+    ulong q, pp = primes[i];
+    long ei = exps[i];
+    long j, k;
+    naf_t x;
+    GEN b;
+
+    for (q = pp, j = 1; j < ei; ++j)
+      q *= pp;
+    b = Flj_mulu_pre(P, n / q, a4, p, pi);
+
+    naf_repr(&x, pp);
+    for (j = 0; j < ei && b[3] != 0; ++j)
+      b = Flj_mulu_pre_naf(b, pp, a4, p, pi, &x);
+    if (b[3] != 0)
+      return 0;
+    for (k = 0; k < j; ++k)
+      res *= pp;
+    avma = av;
+  }
+  return res;
+}
+
 GEN
 Fle_to_Flj(GEN P)
 { return ell_is_inf(P) ? mkvecsmall3(1UL, 1UL, 0UL):
