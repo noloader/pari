@@ -1414,7 +1414,10 @@ bnfisintnormabs(GEN bnf, GEN a)
   long i;
 
   if ((F = check_arith_all(a,"bnfisintnormabs")))
+  {
     a = typ(a) == t_VEC? gel(a,1): factorback(F);
+    if (signe(a) < 0) F = clean_Z_factor(F);
+  }
   bnf = checkbnf(bnf); nf = bnf_get_nf(bnf);
   if (!signe(a)) return mkvec(gen_0);
   if (is_pm1(a)) return mkvec(gen_1);
