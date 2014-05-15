@@ -832,28 +832,23 @@ ZpX_ZpXQ_liftroot_ea(GEN P, GEN S, GEN T, GEN p, long n, void *E,
   pari_sp ltop = avma, av, st_lim;
   long N, r;
   long mask;
-  GEN q2, q, W, Q;
+  GEN q2, q, W, Q, Tq2, Tq, Pq;
   pari_timer ti;
-  GEN Tp, Tq, Pq, dPp;
   T = FpX_get_red(T, powiu(p, n));
   if (n == 1) return gcopy(S);
   mask = quadratic_prec_mask(n);
-  av = avma; st_lim = stack_lim(av, 2);
+  av = avma; st_lim = stack_lim(av, 1);
   q2 = p; q = sqri(p); mask >>= 1; N = 2;
   if (DEBUGLEVEL > 3) timer_start(&ti);
-  dPp = FpX_deriv(P,p);
-  Tp = FpXT_red(T,p);
   Tq = FpXT_red(T,q);
+  Tq2 = FpXT_red(Tq,q2);
   Pq = FpX_red(P,q);
-  W = FpXQ_inv(FpX_FpXQ_eval(dPp, S, Tp, p), Tp, p);
-  Q  = ZX_Z_divexact(FpX_FpXQ_eval(Pq, S, Tq, q), p);
+  W = FpXQ_inv(FpX_FpXQ_eval(FpX_deriv(P,q2), S, Tq2, q2), Tq2, q2);
+  Q  = ZX_Z_divexact(FpX_FpXQ_eval(Pq, S, Tq, q), q2);
   r = brent_kung_optpow(degpol(P), 4, 3);
   for (;;)
   {
-    GEN H, Sq, Wq, Spow, dP, Pq, Tq, Tq2, qq, Pqq, Tqq;
-    Pq   = FpX_red(P, q);
-    Tq  = FpXT_red(T, q);
-    Tq2 = FpXT_red(Tq, q2);
+    GEN H, Sq, Wq, Spow, dP, qq, Pqq, Tqq;
     H  = FpXQ_mul(W, Q, Tq2, q2);
     Sq = FpX_sub(S, ZX_Z_mul(H, q2), q);
     if (DEBUGLEVEL > 3)
@@ -871,11 +866,11 @@ ZpX_ZpXQ_liftroot_ea(GEN P, GEN S, GEN T, GEN p, long n, void *E,
     Wq = ZX_Z_divexact(FpX_Fp_sub(FpXQ_mul(W, dP, Tq, q), gen_1, q), q2);
     Wq = ZX_Z_mul(FpXQ_mul(W, Wq, Tq2, q2), q2);
     Wq = FpX_sub(W, Wq, q);
-    S = Sq; W = Wq; q2 = q; q = qq;
-    if (low_stack(st_lim, stack_lim(av, 2)))
+    S = Sq; W = Wq; q2 = q; q = qq; Tq2 = Tq; Tq = Tqq; Pq = Pqq;
+    if (low_stack(st_lim, stack_lim(av, 1)))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"ZpX_ZpXQ_Newton");
-      gerepileall(av, 5, &S, &W, &Q, &q, &q2);
+      gerepileall(av, 8, &S, &W, &Q, &Tq2, &Tq, &Pq, &q, &q2);
     }
   }
 }
