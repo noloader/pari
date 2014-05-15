@@ -460,9 +460,19 @@ poltopermtest(GEN f, struct galois_lift *gl, GEN pf)
   return 1;
 }
 
-static long
-monoratlift(GEN S, GEN q, GEN qm1old,struct galois_lift *gl, GEN frob)
+struct monoratlift
 {
+  struct galois_lift *gl;
+  GEN frob;
+  long early;
+};
+
+static int
+monoratlift(void *E, GEN S, GEN q)
+{
+  struct monoratlift *d = (struct monoratlift *) E;
+  struct galois_lift *gl = d->gl;
+  GEN qm1old = sqrti(shifti(q,-2));
   GEN tlift = FpX_ratlift(S,q,qm1old,qm1old,gl->den);
   if (tlift)
   {
@@ -473,9 +483,10 @@ monoratlift(GEN S, GEN q, GEN qm1old,struct galois_lift *gl, GEN frob)
       GEN N = gl->gb->ladicsol, N2 = shifti(N,-1);
       tlift = FpX_center(FpX_red(Q_muli_to_int(tlift, gl->den), N), N,N2);
     }
-    if (poltopermtest(tlift, gl, frob))
+    if (poltopermtest(tlift, gl, d->frob))
     {
       if(DEBUGLEVEL>=4) err_printf("MonomorphismLift: true early solution.\n");
+      d->early = 1;
       avma = ltop; return 1;
     }
     avma = ltop;
@@ -487,51 +498,18 @@ monoratlift(GEN S, GEN q, GEN qm1old,struct galois_lift *gl, GEN frob)
 static GEN
 monomorphismratlift(GEN P, GEN S, struct galois_lift *gl, GEN frob)
 {
-  pari_sp ltop, lbot;
-  GEN Q = gl->T, p = gl->p, qold = NULL, q = p;
-  GEN Sr, Spow, Wr = NULL, W, Prold = NULL, Pr, Qrold = NULL, Qr;
-  long e = gl->e, level = 1, rt;
-  ulong mask;
-  GEN *gptr[2];
   pari_timer ti;
-
-  if (DEBUGLEVEL == 1) timer_start(&ti);
-  rt = brent_kung_optpow(degpol(P), 4, 3);
-  mask = quadratic_prec_mask(e);
-  Pr = FpX_red(P,q);
-  Qr = (P==Q)? Pr: FpX_red(Q, q);/*A little speed up for automorphismlift*/
-  W = FpXQ_inv(FpX_FpXQ_eval(ZX_deriv(Pr),S, Qr,q), Qr,q);
-  gptr[0] = &S;
-  gptr[1] = &Wr;
-  for (;;)
+  if (DEBUGLEVEL >= 1) timer_start(&ti);
+  if (frob)
   {
-    if (DEBUGLEVEL>=2) { level = (level<<1) - (mask & 1); timer_start(&ti); }
-    q = sqri(q);
-    if (mask & 1) q = diviiexact(q, p);
-    mask >>= 1;
-    Pr = FpX_red(P, q);
-    Qr = (P==Q)? Pr: FpX_red(Q, q);/*A little speed up for automorphismlift*/
-    ltop = avma;
-    Sr = S;
-    Spow = FpXQ_powers(Sr, rt, Qr, q);
-    if (Wr)
-    {
-      W = FpXQ_mul(Wr, FpX_FpXQV_eval(ZX_deriv(Prold),FpXV_red(Spow,qold),Qrold,qold),
-                   Qrold,qold);
-      W = FpXQ_mul(Wr, Fp_FpX_sub(gen_2, W, qold), Qrold,qold);
-    }
-    Wr = W;
-    S = FpXQ_mul(Wr, FpX_FpXQV_eval(Pr, Spow, Qr, q),Qr,q);
-    lbot = avma;
-    S = FpX_sub(Sr, S, q);
-    if (DEBUGLEVEL >= 4) timer_printf(&ti, "MonomorphismLift: lift to prec %d",level);
-    if (mask == 1) break;
-    Wr = ZX_copy(Wr);
-    gerepilemanysp(ltop, lbot, gptr, 2);
-    if (qold && frob && monoratlift(S,q,diviiexact(qold,p),gl,frob)) return NULL;
-    qold = q; Prold = Pr; Qrold = Qr;
+    struct monoratlift d;
+    d.gl = gl; d.frob = frob; d.early = 0;
+    S = ZpX_ZpXQ_liftroot_ea(P,S,gl->T,gl->p, gl->e, (void*)&d, monoratlift);
+    S = d.early ? NULL: S;
   }
-  if (DEBUGLEVEL == 1) timer_printf(&ti, "monomorphismlift()");
+  else
+    S = ZpX_ZpXQ_liftroot(P,S,gl->T,gl->p, gl->e);
+  if (DEBUGLEVEL >= 1) timer_printf(&ti, "monomorphismlift()");
   return S;
 }
 
