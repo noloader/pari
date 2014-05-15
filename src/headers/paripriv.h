@@ -576,7 +576,6 @@ long    intheadlong(GEN x, GEN mod);
 GEN     listznstarelts(long m, long p);
 GEN     matheadlong(GEN W, GEN mod);
 GEN     matrixnorm(GEN M, long prec);
-GEN     monomorphismlift(GEN P, GEN S, GEN Q, GEN p, long e);
 long    polheadlong(GEN P, long n, GEN mod);
 GEN     vandermondeinverseprep(GEN L);
 

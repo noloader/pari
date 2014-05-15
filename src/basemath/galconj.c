@@ -544,20 +544,6 @@ automorphismlift(GEN S, struct galois_lift *gl, GEN frob)
   return monomorphismratlift(gl->T, S, gl, frob);
 }
 
-/* Let P be a polynomial in Z[X] , p a prime number, S in Fp[X]/(Q) so
- * that T(S)=0 [p,T]. Lift S in S_0 so that T(S_0)=0 [Q,p^e]
- * Unclean stack */
-
-GEN
-monomorphismlift(GEN P, GEN S, GEN Q, GEN p, long e)
-{
-  struct galois_lift gl;
-  gl.T = Q;
-  gl.p = p;
-  gl.e = e;
-  return monomorphismratlift(P,S,&gl,NULL);
-}
-
 static GEN
 galoisdolift(struct galois_lift *gl, GEN frob)
 {
