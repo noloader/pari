@@ -276,3 +276,13 @@ e=ellinit([0,-1,1,-2,2]);
 test(f)=print(f(e,,'t)); print(f(e,5)); print(f(e,5,'t));
 F=[ellformalw,ellformalpoint,ellformaldifferential,ellformallog,ellformalexp];
 for(i=1,#F,print(F[i]);test(F[i]));
+
+E=ellinit([1,-1,1,0,0]);P=[0,0];
+ellpadicheight(E,P, 2,4)
+ellpadicheight(E,P, 3,4)
+ellpadicheight(E,P, 5,4)
+E=ellinit([0,-1,1,-10,-20]);P=[5,5]
+ellpadicheight(E,P, 19,6)
+
+E=ellinit([0,0,1,-4,2]);P=[-2,1];
+ellpadicheight(E,P, 3,5)

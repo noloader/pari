@@ -2344,12 +2344,27 @@ tfromx(GEN e, GEN x, GEN p, long v, GEN N, GEN *pd)
   return gdiv(gmulgs(gmul(n,d), -2), gsub(Y,B));
 }
 
+/* return minimal i s.t. -v_p(j) - log_p(j) + (j+1)*t >= v for all j >= i */
+static long
+logsigma_prec(GEN p, long v, long t)
+{
+  double log2p = dbllog2(p);
+  long j, i = ((v - t) / (t - 2*LOG2/(3*log2p)) + 0.01);
+  if (i < 5) i = 5; /* guaranteed to work, now optimize */
+  for (j = i-1; j >= 1; j--)
+  {
+    if (- u_pval(j,p) - log2(j)/log2p + (j+1)*t + 0.01 < v) break;
+    i = j;
+  }
+  return i;
+}
+
 GEN
 ellpadicheight(GEN e, GEN P, GEN p, long v)
 {
   pari_sp av = avma;
   GEN N, H, h, t, ch, g, E, x, n, d, D, ls, lt, S, a,b;
-  if (ell_is_inf(P)) return gen_0;
+  if (ell_is_inf(P)) return mkvec2(gen_0,gen_0);
   E = ellanal_globalred(e, &ch);
   if (E != e) P = ellchangepoint(P, ch);
   S = ellnonsingularmultiple(E, P);
@@ -2373,8 +2388,8 @@ ellpadicheight(GEN e, GEN P, GEN p, long v)
   }
   t = tfromx(E, x, p, v, N, &D); /* D^2 = denom(x) = x[2] */
   if (gequal0(t)) return gerepileupto(av, t);
-  /* FIXME: replace 2*v by proper p-adic accuracy */
-  S = ellformallogsigma_t(E, 2*v);
+
+  S = ellformallogsigma_t(E, logsigma_prec(p, v, valp(t)));
   ls = gtrunc(gel(S,1)); /* log_p (sigma(T)/T) */
   lt = gtrunc(gel(S,2)); /* log_E (T) */
   /* evaluate our formal power series at t */
