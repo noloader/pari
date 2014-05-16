@@ -5988,6 +5988,13 @@ are all non-zero.
 integer $n$, return the factorization of $|n|$, i.e.~remove $-1$ from the
 factorization. Shallow function.
 
+\fun{GEN}{fuse_Z_factor}{GEN f, GEN B} assuming $f$ is the
+factorization of an integer $n$, return \kbd{boundfact(n, B)}, i.e.
+return a factorization where all primary factors for $|p| \leq B$
+are preserved, and all others are ``fused'' into a single composite
+integer; if that remainder is trivial, i.e.~equal to 1, it is of course
+not included. Shallow function.
+
 In the following two routines, $f$ is the name of an arithmetic function,
 and $n$ a supplied argument. They all raise exceptions if $n$ does not
 correspond to an integer or an integer factorization of the expected shape.

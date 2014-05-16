@@ -1372,6 +1372,7 @@ GEN     divisorsu(ulong n);
 GEN     factor_pn_1(GEN p, ulong n);
 GEN     factor_pn_1_limit(GEN p, long n, ulong lim);
 GEN     factoru_pow(ulong n);
+GEN     fuse_Z_factor(GEN f, GEN B);
 byteptr initprimes(ulong maxnum, long *lenp, ulong *lastp);
 void    initprimetable(ulong maxnum);
 ulong   init_primepointer_geq(ulong a, byteptr *pd);

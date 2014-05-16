@@ -722,6 +722,22 @@ clean_Z_factor(GEN f)
     return mkmat2(vecslice(P,2,n), vecslice(gel(f,2),2,n));
   return f;
 }
+GEN
+fuse_Z_factor(GEN f, GEN B)
+{
+  GEN P = gel(f,1), E = gel(f,2), P2,E2;
+  long i, l = lg(P);
+  if (l == 1) return f;
+  for (i = 1; i < l; i++)
+    if (absi_cmp(gel(P,i), B) > 0) break;
+  if (i == l) return f;
+  /* tail / initial segment */
+  P2 = vecslice(P, i, l-1); P = vecslice(P, 1, i-1);
+  E2 = vecslice(E, i, l-1); E = vecslice(E, 1, i-1);
+  P = shallowconcat(P, mkvec(factorback2(P2,E2)));
+  E = shallowconcat(E, mkvec(gen_1));
+  return mkmat2(P, E);
+}
 
 /* n associated to a factorization of a positive integer: either N (t_INT)
  * a factorization matrix faN, or a t_VEC: [N, faN] */
