@@ -2401,7 +2401,7 @@ ellpadicheight(GEN e, GEN P, GEN p, long v0)
   v += Z_pval(gel(x,2), p);
   N = powiu(p,v);
   t = tfromx(E, x, p, v, N, &D); /* D^2=denom(x)=x[2] */
-  if (gequal0(t)) return gerepileupto(av, t);
+  if (gequal0(t)) { avma = av; return mkvec2(gen_0,gen_0); }
 
   S = ellformallogsigma_t(E, logsigma_prec(p, v, valp(t)) + 1);
   ls = gtrunc(gel(S,1)); /* log_p (sigma(T)/T) */
