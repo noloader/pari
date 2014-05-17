@@ -2388,10 +2388,10 @@ ellpadicheight(GEN e, GEN P, GEN p, long v)
     x = xmP(E, x, m, N);
     g = mulii(g,m);
   }
-  t = tfromx(E, x, p, v, N, &D); /* D^2 = denom(x) = x[2] */
+  t = tfromx(E, x, p, v, N, &D); /* D^2=denom(x)=x[2] */
   if (gequal0(t)) return gerepileupto(av, t);
 
-  S = ellformallogsigma_t(E, logsigma_prec(p, v, valp(t)));
+  S = ellformallogsigma_t(E, logsigma_prec(p, v, valp(t)) + 1);
   ls = gtrunc(gel(S,1)); /* log_p (sigma(T)/T) */
   lt = gtrunc(gel(S,2)); /* log_E (T) */
   /* evaluate our formal power series at t */
