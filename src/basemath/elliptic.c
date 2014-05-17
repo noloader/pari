@@ -2362,32 +2362,42 @@ logsigma_prec(GEN p, long v, long t)
 }
 
 GEN
-ellpadicheight(GEN e, GEN P, GEN p, long v)
+ellpadicheight(GEN e, GEN P, GEN p, long v0)
 {
   pari_sp av = avma;
   GEN N, H, h, t, ch, g, E, x, n, d, D, ls, lt, S, a,b;
+  long v;
   if (ell_is_inf(P)) return mkvec2(gen_0,gen_0);
   E = ellanal_globalred(e, &ch);
   if (E != e) P = ellchangepoint(P, ch);
   S = ellnonsingularmultiple(E, P);
   P = gel(S,1);
   g = gel(S,2);
-  v += 2*Z_pval(g, p);
+  v = v0 + 2*Z_pval(g, p);
   if (equaliu(p,2)) v += 2;
   x = gel(P,1);
-  N = powiu(p, v);
   n = numer(x);
   d = denom(x);
   x = mkvec2(n, d);
   if (!dvdii(Q_denom(P), p))
   { /* P not in kernel of reduction mod p */
-    GEN m, Pp, Ep = ellinit_Fp(E, p);
+    GEN m, X, Pp, Ep = ellinit_Fp(E, p);
+    long w = v+1;
     if (!Ep) pari_err(e_MISC,"ellpadicheight: bad reduction");
     Pp = RgV_to_FpV(P, p);
     m = ellorder(Ep, Pp, NULL);
-    x = xmP(E, x, m, N);
     g = mulii(g,m);
+    for(;;)
+    {
+      N = powiu(p, w);
+      X = xmP(E, x, m, N);
+      if (signe(gel(X,2))) break;
+      w <<= 1;
+    }
+    x = X;
   }
+  v += Z_pval(gel(x,2), p);
+  N = powiu(p,v);
   t = tfromx(E, x, p, v, N, &D); /* D^2=denom(x)=x[2] */
   if (gequal0(t)) return gerepileupto(av, t);
 
@@ -2406,7 +2416,7 @@ ellpadicheight(GEN e, GEN P, GEN p, long v)
     a = gdiv(gadd(a, gmul(r,b)), u);
     b = gmul(u,b);
   }
-  return gerepilecopy(av, mkvec2(a, b));
+  return gerepileupto(av, gprec(mkvec2(a, b), v0));
 }
 
 GEN
