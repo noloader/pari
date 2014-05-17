@@ -2024,12 +2024,14 @@ GEN
 ellformalw(GEN e, long n, long v)
 {
   pari_sp av = avma, av2;
-  GEN a1 = ell_get_a1(e), a2 = ell_get_a2(e), a3 = ell_get_a3(e);
-  GEN a4 = ell_get_a4(e), a6 = ell_get_a6(e), a63 = gmulgs(a6,3);
+  GEN a1,a2,a3,a4,a6, a63;
   GEN w = cgetg(3, t_SER), t, U, V, W, U2;
   ulong mask = quadratic_prec_mask(n), nold = 1;
   if (v < 0) v = 0;
   t = pol_x(v);
+  checkell(e);
+  a1 = ell_get_a1(e); a2 = ell_get_a2(e); a3 = ell_get_a3(e);
+  a4 = ell_get_a4(e); a6 = ell_get_a6(e); a63 = gmulgs(a6,3);
   w[1] = evalsigne(1)|evalvarn(v)|evalvalp(3);
   gel(w,2) = gen_1; /* t^3 + O(t^4) */
   /* use Newton iteration, doubling accuracy at each step
