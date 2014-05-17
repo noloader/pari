@@ -1,4 +1,4 @@
-HEAP=[77, if(precision(1.)==38,5279,5458)];
+HEAP=[77, if(precision(1.)==38,5281,5460)];
 default(realprecision,154); Pi; default(realprecision,38);
 \e
 ellinit([-1,0])
@@ -12,7 +12,7 @@ elladd(acurve,apoint,apoint)
 ellak(acurve,1000000007)
 ellan(acurve,100)
 ellap(acurve,10007)
-deu=direuler(p=2,100,1/(1-ellap(acurve,p)*x+if(acurve[12]%p,p,0)*x^2))
+deu=direuler(p=2,100,1/(1-ellap(acurve,p)*x+if(acurve.disc%p,p,0)*x^2))
 ellan(acurve,100)==deu
 ellisoncurve(acurve,apoint)
 acurve=ellchangecurve(acurve,[-1,1,2,3])
@@ -40,8 +40,8 @@ tcurve=ellinit([1,0,1,-19,26]);
 ellorder(tcurve,[1,2])
 elltors(tcurve)
 \\
-mcurve=ellinit([-17,0])
-mpoints=[[-1,4],[-4,2]]~
+mcurve=ellinit([-17,0]);
+mpoints=[[-1,4],[-4,2]]~;
 mhbi=ellbil(mcurve,mpoints,[9,24])
 ma=ellheightmatrix(mcurve,mpoints)
 matsolve(ma,mhbi)

@@ -5167,24 +5167,25 @@ ghell(GEN e, GEN a, long prec) { return ellheight0(e,a,2,prec); }
 GEN
 mathell(GEN e, GEN x, long prec)
 {
-  GEN y, h, pdiag;
-  long lx = lg(x),i,j,tx=typ(x);
+  GEN y, D;
+  long lx = lg(x), i, j;
   pari_sp av = avma;
 
-  if (!is_vec_t(tx)) pari_err_TYPE("ellheightmatrix",x);
-  y = cgetg(lx,t_MAT); pdiag = new_chunk(lx);
+  if (!is_vec_t(typ(x))) pari_err_TYPE("ellheightmatrix",x);
+  D = cgetg(lx,t_VEC);
+  y = cgetg(lx,t_MAT);
   for (i=1; i<lx; i++)
   {
-    gel(pdiag,i) = ghell(e,gel(x,i),prec);
+    gel(D,i) = ghell(e,gel(x,i),prec);
     gel(y,i) = cgetg(lx,t_COL);
   }
   for (i=1; i<lx; i++)
   {
-    gcoeff(y,i,i) = gel(pdiag,i);
+    gcoeff(y,i,i) = gel(D,i);
     for (j=i+1; j<lx; j++)
     {
-      h = ghell(e, elladd(e,gel(x,i),gel(x,j)), prec);
-      h = gsub(h, gadd(gel(pdiag,i),gel(pdiag,j)));
+      GEN h = ghell(e, elladd(e,gel(x,i),gel(x,j)), prec);
+      h = gsub(h, gadd(gel(D,i),gel(D,j)));
       gcoeff(y,j,i) = gcoeff(y,i,j) = gmul2n(h, -1);
     }
   }
@@ -5192,30 +5193,28 @@ mathell(GEN e, GEN x, long prec)
 }
 
 static GEN
-bilhells(GEN e, GEN z1, GEN z2, GEN h2, long prec)
+bilhells(GEN e, GEN z1, GEN z2, long prec)
 {
-  long lz1=lg(z1), tx, i;
+  long l=lg(z1), tx, i;
   pari_sp av = avma;
   GEN y,p1,p2;
 
-  if (lz1==1) return cgetg(1,typ(z1));
-
+  if (l==1) return cgetg(1,typ(z1));
   tx = typ(gel(z1,1));
   if (!is_matvec_t(tx))
   {
     p1 = ghell(e, elladd(e,z1,z2),prec);
-    p2 = gadd(h2, ghell(e,z1,prec));
-    return gerepileupto(av, gmul2n(gsub(p1,p2), -1));
+    p2 = ghell(e, ellsub(e,z1,z2),prec);
+    return gerepileupto(av, gmul2n(gsub(p1,p2), -2));
   }
-  y = cgetg(lz1, typ(z1));
-  for (i=1; i<lz1; i++) gel(y,i) = bilhells(e,gel(z1,i),z2,h2,prec);
+  y = cgetg(l, typ(z1));
+  for (i=1; i<l; i++) gel(y,i) = bilhells(e,gel(z1,i),z2,prec);
   return y;
 }
 
 GEN
 bilhell(GEN e, GEN z1, GEN z2, long prec)
 {
-  GEN p1, h2;
   long tz1 = typ(z1), tz2 = typ(z2);
   pari_sp av = avma;
 
@@ -5229,10 +5228,9 @@ bilhell(GEN e, GEN z1, GEN z2, long prec)
   if (is_matvec_t(tz2))
   {
     if (is_matvec_t(tz1)) pari_err_TYPE("bilhell",z1);
-    p1 = z1; z1 = z2; z2 = p1;
+    swap(z1,z2);
   }
-  h2 = ghell(e,z2,prec);
-  return gerepileupto(av, bilhells(e,z1,z2,h2,prec));
+  return gerepileupto(av, bilhells(e,z1,z2, prec));
 }
 
 /********************************************************************/
