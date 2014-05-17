@@ -2404,11 +2404,11 @@ ellpadicheight(GEN e, GEN P, GEN p, long v0)
   if (gequal0(t)) { avma = av; return mkvec2(gen_0,gen_0); }
 
   S = ellformallogsigma_t(E, logsigma_prec(p, v, valp(t)) + 1);
-  ls = gtrunc(gel(S,1)); /* log_p (sigma(T)/T) */
-  lt = gtrunc(gel(S,2)); /* log_E (T) */
+  ls = ser2rfrac_i(gel(S,1)); /* log_p (sigma(T)/T) */
+  lt = ser2rfrac_i(gel(S,2)); /* log_E (T) */
   /* evaluate our formal power series at t */
-  H = gadd(gsubst(ls, 0, t), glog(gdiv(t, D), 0));
-  h = gsqr(gsubst(lt, 0, t));
+  H = gadd(poleval(ls, t), glog(gdiv(t, D), 0));
+  h = gsqr(poleval(lt, t));
   g = sqri(g);
   a = gdiv(gmulgs(H,-2), g);
   b = gdiv(gneg(h), g);
