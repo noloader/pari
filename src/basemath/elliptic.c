@@ -2172,6 +2172,7 @@ ellnonsingularmultiple(GEN e, GEN P)
   pari_sp av = avma;
   GEN ch, E = ellanal_globalred(e, &ch), NP, L, S, d, g = gen_1;
   long i, l;
+  checkellpt(P);
   if (ell_is_inf(P)) retmkvec2(gcopy(P), gen_1);
   if (E != e) P = ellchangepoint(P, ch);
   S = obj_check(E, Q_GLOBALRED);
@@ -2367,6 +2368,7 @@ ellpadicheight(GEN e, GEN P, GEN p, long v0)
   pari_sp av = avma;
   GEN N, H, h, t, ch, g, E, x, n, d, D, ls, lt, S, a,b;
   long v;
+  checkellpt(P);
   if (ell_is_inf(P)) return mkvec2(gen_0,gen_0);
   E = ellanal_globalred(e, &ch);
   if (E != e) P = ellchangepoint(P, ch);
