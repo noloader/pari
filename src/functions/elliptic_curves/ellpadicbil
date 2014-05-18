@@ -1,0 +1,10 @@
+Function: ellpadicbil
+Section: elliptic_curves
+C-Name: ellpadicbil
+Prototype: GGGGL
+Help:ellpadicbil(E, A,B,p, n): E elliptic curve/Q, A,B in E(Q),
+ p prime, n an integer; returns the value of the bilinear form
+ associated to p-adic height with values in D_dR(E).
+Doc: bilinear form associatied to the global $p$-adic height of the rational
+ point $P$ on the elliptic curve $E$ (defined over $\Q$), given to $n$
+ $p$-adic digits. See \tet{ellpadicheight}.

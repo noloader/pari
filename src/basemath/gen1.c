@@ -3205,10 +3205,10 @@ inv_ser(GEN b)
   pari_sp av = avma, av2, lim;
   long j, lold, l = lg(b), e = valp(b), v = varn(b);
   GEN y, x = cgetg(l, t_SER), a = leafcopy(b);
-  ulong mask = quadratic_prec_mask(l - 2);
+  ulong mask;
 
   if (!signe(b)) pari_err_INV("inv_ser",b);
-
+  mask = quadratic_prec_mask(l - 2);
   for (j = 3; j < l; j++) gel(x,j) = gen_0;
   gel(x,2) = ginv(gel(b,2));
   a[1] = x[1] = _evalvalp(0) | evalvarn(v) | evalsigne(1);
