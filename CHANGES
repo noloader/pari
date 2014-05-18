@@ -70,7 +70,8 @@ BA 20- [libpari] New functions vecsmallpermute, vec_append
 BA 27- [libpari] ZpX_ZpXQ_liftroot, ZpX_ZpXQ_liftroot_ea
    28- [libpari] fuse_Z_factor
    29- ellformalw, ellformalpoint, ellformaldifferential,
-       ellformallog, ellformalexp, ellnonsingularmultiple, ellpadicheight
+       ellformallog, ellformalexp, ellnonsingularmultiple, ellpadicheight,
+       ellpadicbil
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]

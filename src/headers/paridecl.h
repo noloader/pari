@@ -2048,6 +2048,7 @@ GEN     ellnonsingularmultiple(GEN e, GEN P);
 GEN     ellneg(GEN e, GEN z);
 GEN     ellorder(GEN e, GEN p, GEN o);
 GEN     ellordinate(GEN e, GEN x, long prec);
+GEN     ellpadicbil(GEN E, GEN P, GEN Q, GEN p, long n);
 GEN     ellpadicheight(GEN e, GEN P, GEN p, long v);
 GEN     ellperiods(GEN w, long flag, long prec);
 GEN     ellrandom(GEN e);

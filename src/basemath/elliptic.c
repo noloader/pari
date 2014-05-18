@@ -2026,8 +2026,10 @@ ellformalw(GEN e, long n, long v)
   pari_sp av = avma, av2;
   GEN a1,a2,a3,a4,a6, a63;
   GEN w = cgetg(3, t_SER), t, U, V, W, U2;
-  ulong mask = quadratic_prec_mask(n), nold = 1;
+  ulong mask, nold = 1;
   if (v < 0) v = 0;
+  if (n <= 0) pari_err_DOMAIN("ellformalw","precision","<=",gen_0,stoi(n));
+  mask = quadratic_prec_mask(n);
   t = pol_x(v);
   checkell(e);
   a1 = ell_get_a1(e); a2 = ell_get_a2(e); a3 = ell_get_a3(e);
@@ -2362,6 +2364,7 @@ logsigma_prec(GEN p, long v, long t)
   return i;
 }
 
+static long _orderell(GEN E, GEN P);
 GEN
 ellpadicheight(GEN e, GEN P, GEN p, long v0)
 {
@@ -2369,7 +2372,9 @@ ellpadicheight(GEN e, GEN P, GEN p, long v0)
   GEN N, H, h, t, ch, g, E, x, n, d, D, ls, lt, S, a,b;
   long v;
   checkellpt(P);
-  if (ell_is_inf(P)) return mkvec2(gen_0,gen_0);
+  if (v0<=0) pari_err_DOMAIN("ellpadicheight","precision","<=",gen_0,stoi(v0));
+  checkell_Q(e);
+  if (ell_is_inf(P)  || _orderell(e,P)) return mkvec2(gen_0,gen_0);
   E = ellanal_globalred(e, &ch);
   if (E != e) P = ellchangepoint(P, ch);
   S = ellnonsingularmultiple(E, P);
@@ -2401,8 +2406,6 @@ ellpadicheight(GEN e, GEN P, GEN p, long v0)
   v += Z_pval(gel(x,2), p);
   N = powiu(p,v);
   t = tfromx(E, x, p, v, N, &D); /* D^2=denom(x)=x[2] */
-  if (gequal0(t)) { avma = av; return mkvec2(gen_0,gen_0); }
-
   S = ellformallogsigma_t(E, logsigma_prec(p, v, valp(t)) + 1);
   ls = ser2rfrac_i(gel(S,1)); /* log_p (sigma(T)/T) */
   lt = ser2rfrac_i(gel(S,2)); /* log_E (T) */
@@ -5193,46 +5196,56 @@ mathell(GEN e, GEN x, long prec)
 }
 
 static GEN
-bilhells(GEN e, GEN z1, GEN z2, long prec)
+_hell(GEN E, GEN P, GEN p, long n)
+{ return p? ellpadicheight(E,P,p,n): ghell(E,P,n); }
+/* Q an actual point, P a point or vector/matrix of points */
+static GEN
+bilhell_i(GEN E, GEN P, GEN Q, GEN p, long n)
 {
-  long l=lg(z1), tx, i;
-  pari_sp av = avma;
-  GEN y,p1,p2;
-
-  if (l==1) return cgetg(1,typ(z1));
-  tx = typ(gel(z1,1));
-  if (!is_matvec_t(tx))
+  long l = lg(P);
+  if (l==1) return cgetg(1,typ(P));
+  if (!is_matvec_t( typ(gel(P,1)) ))
   {
-    p1 = ghell(e, elladd(e,z1,z2),prec);
-    p2 = ghell(e, ellsub(e,z1,z2),prec);
-    return gerepileupto(av, gmul2n(gsub(p1,p2), -2));
+    pari_sp av = avma;
+    GEN a = _hell(E, elladd(E,P,Q),p,n);
+    GEN b = _hell(E, ellsub(E,P,Q),p,n);
+    return gerepileupto(av, gmul2n(gsub(a,b), -2));
   }
-  y = cgetg(l, typ(z1));
-  for (i=1; i<l; i++) gel(y,i) = bilhells(e,gel(z1,i),z2,prec);
-  return y;
+  else
+  {
+    GEN y = cgetg(l, typ(P));
+    long i;
+    for (i=1; i<l; i++) gel(y,i) = bilhell_i(E,gel(P,i),Q,p,n);
+    return y;
+  }
+}
+static GEN
+bilhellp(GEN E, GEN P, GEN Q, GEN p, long n)
+{
+  long t1 = typ(P), t2 = typ(Q);
+  if (!is_matvec_t(t1)) pari_err_TYPE("ellbil",P);
+  if (!is_matvec_t(t2)) pari_err_TYPE("ellbil",Q);
+  if (lg(P)==1) return cgetg(1,t1);
+  if (lg(Q)==1) return cgetg(1,t2);
+  t2 = typ(gel(Q,1));
+  if (is_matvec_t(t2))
+  {
+    t1 = typ(gel(P,1));
+    if (is_matvec_t(t1)) pari_err_TYPE("bilhell",P);
+    return bilhell_i(E,Q,P, p,n);
+  }
+  return bilhell_i(E,P,Q, p,n);
 }
 
 GEN
-bilhell(GEN e, GEN z1, GEN z2, long prec)
+bilhell(GEN E, GEN P, GEN Q, long n)
+{ return bilhellp(E,P,Q, NULL, n); }
+GEN
+ellpadicbil(GEN E, GEN P, GEN Q, GEN p, long n)
 {
-  long tz1 = typ(z1), tz2 = typ(z2);
-  pari_sp av = avma;
-
-  if (!is_matvec_t(tz1)) pari_err_TYPE("ellbil",z1);
-  if (!is_matvec_t(tz2)) pari_err_TYPE("ellbil",z2);
-  if (lg(z1)==1) return cgetg(1,tz1);
-  if (lg(z2)==1) return cgetg(1,tz2);
-
-  tz1 = typ(gel(z1,1));
-  tz2 = typ(gel(z2,1));
-  if (is_matvec_t(tz2))
-  {
-    if (is_matvec_t(tz1)) pari_err_TYPE("bilhell",z1);
-    swap(z1,z2);
-  }
-  return gerepileupto(av, bilhells(e,z1,z2, prec));
+  if (typ(p) != t_INT) pari_err_TYPE("ellpadicbil",p);
+  return bilhellp(E,P,Q,p, equaliu(p,2)? n+2: n);
 }
-
 /********************************************************************/
 /**                                                                **/
 /**                    Modular Parametrization                     **/
