@@ -73,7 +73,6 @@ typedef struct FB_t {
   GEN subFB; /* LP o subFB =  part of FB used to build random relations */
   int sfb_chg; /* need to change subFB ? */
   int newpow; /* need to compute powFB */
-  int newarc; /* need to compute archimedean components */
   GEN perm; /* permutation of LP used to represent relations [updated by
                hnfspec/hnfadd: dense rows come first] */
   GEN vecG, G0;
@@ -237,7 +236,6 @@ assign_subFB(FB_t *F, GEN yes, long iyes)
   for (i = 0; i < iyes; i++) sub->subFB[i] = yes[i];
   F->subFB = sub->subFB;
   F->newpow = 1;
-  F->newarc = 1;
 }
 
 /*
@@ -4103,7 +4101,6 @@ START:
         if (precdouble) gunclone(nf0);
         precdouble++; precpb = NULL;
 
-        F.newarc = 1;
         for (i = 1; i < lg(PERM); i++) F.perm[i] = PERM[i];
         cache.chk = cache.base; W = NULL; /* recompute arch components+reduce */
       }
