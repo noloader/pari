@@ -322,6 +322,19 @@ FpX_Fp_mul_to_monic(GEN y,GEN x,GEN p)
   gel(z,l-1) = gen_1; return z;
 }
 
+static GEN
+_FpX_sqr(void * E, GEN x) { return FpX_sqr(x, (GEN) E); }
+
+static GEN
+_FpX_mul(void * E, GEN x, GEN y) { return FpX_mul(x, y, (GEN) E); }
+
+GEN
+FpX_powu(GEN x, ulong n, GEN p)
+{
+  if (n==0) return pol_1(varn(x));
+  return gen_powu(x, n, (void *)p, _FpX_sqr, _FpX_mul);
+}
+
 GEN
 FpX_halve(GEN y, GEN p)
 {
@@ -871,7 +884,6 @@ FpX_disc(GEN x, GEN p)
   return gerepileuptoint(av, D);
 }
 
-static GEN _FpX_mul(void *p,GEN a,GEN b){return FpX_mul(a,b,(GEN)p);}
 GEN
 FpXV_prod(GEN V, GEN p)
 {

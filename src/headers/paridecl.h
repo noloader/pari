@@ -441,6 +441,7 @@ GEN     FpX_mulspec(GEN a, GEN b, GEN p, long na, long nb);
 GEN     FpX_mulu(GEN x, ulong y, GEN p);
 GEN     FpX_neg(GEN x, GEN p);
 GEN     FpX_normalize(GEN z, GEN p);
+GEN     FpX_powu(GEN x, ulong n, GEN p);
 GEN     FpX_red(GEN z, GEN p);
 GEN     FpX_rem(GEN x, GEN y, GEN p);
 GEN     FpX_rescale(GEN P, GEN h, GEN p);
