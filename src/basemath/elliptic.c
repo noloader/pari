@@ -2349,32 +2349,55 @@ tfromx(GEN e, GEN x, GEN p, long v, GEN N, GEN *pd)
   return gdiv(gmulgs(gmul(n,d), -2), gsub(Y,B));
 }
 
-/* return minimal i s.t. -v_p(j) - log_p(j) + (j+1)*t >= v for all j >= i */
+/* return minimal i s.t. -v_p(j+1) - log_p(j-1) + (j+1)*t >= v for all j >= i */
 static long
 logsigma_prec(GEN p, long v, long t)
 {
   double log2p = dbllog2(p);
   long j, i = ((v - t) / (t - 2*LOG2/(3*log2p)) + 0.01);
-  if (i < 5) i = 5; /* guaranteed to work, now optimize */
-  for (j = i-1; j >= 1; j--)
+  if (equaliu(p,2) && i < 5) i = 5;
+  /* guaranteed to work, now optimize */
+  for (j = i-1; j >= 2; j--)
   {
-    if (- u_pval(j,p) - log2(j)/log2p + (j+1)*t + 0.01 < v) break;
+    if (- u_pval(j+1,p) - log2(j-1)/log2p + (j+1)*t + 0.01 < v) break;
     i = j;
+  }
+  if (j == 1)
+  {
+    if (- equaliu(p,2) + 2*t + 0.01 >= v) i = 1;
   }
   return i;
 }
 
 static long _orderell(GEN E, GEN P);
+static GEN
+parse_p(GEN p, GEN *ab)
+{
+  *ab = NULL;
+  switch(typ(p))
+  {
+    case t_INT: break;
+    case t_VEC:
+      if (lg(p) != 3) pari_err_TYPE("ellpadicheight",p);
+      *ab = gel(p,2);
+      if (typ(*ab) != t_VEC || lg(*ab) != 3) pari_err_TYPE("ellpadicheight",p);
+      p = gel(p,1);
+  }
+  if (cmpis(p,2) < 0) pari_err_PRIME("ellpadicheight",p);
+  return p;
+}
+
 GEN
 ellpadicheight(GEN e, GEN P, GEN p, long v0)
 {
   pari_sp av = avma;
-  GEN N, H, h, t, ch, g, E, x, n, d, D, ls, lt, S, a,b;
-  long v;
+  GEN N, H, h, t, ch, g, E, x, n, d, D, ls, lt, S, a,b, ab;
+  long v, vd;
   checkellpt(P);
   if (v0<=0) pari_err_DOMAIN("ellpadicheight","precision","<=",gen_0,stoi(v0));
   checkell_Q(e);
-  if (ell_is_inf(P)  || _orderell(e,P)) return mkvec2(gen_0,gen_0);
+  p = parse_p(p, &ab);
+  if (ell_is_inf(P)  || _orderell(e,P)) return ab? gen_0: mkvec2(gen_0,gen_0);
   E = ellanal_globalred(e, &ch);
   if (E != e) P = ellchangepoint(P, ch);
   S = ellnonsingularmultiple(E, P);
@@ -2386,7 +2409,8 @@ ellpadicheight(GEN e, GEN P, GEN p, long v0)
   n = numer(x);
   d = denom(x);
   x = mkvec2(n, d);
-  if (!dvdii(Q_denom(P), p))
+  vd = Z_pval(d, p);
+  if (!vd)
   { /* P not in kernel of reduction mod p */
     GEN m, X, Pp, Ep = ellinit_Fp(E, p);
     long w = v+1;
@@ -2398,12 +2422,21 @@ ellpadicheight(GEN e, GEN P, GEN p, long v0)
     {
       N = powiu(p, w);
       X = xmP(E, x, m, N);
-      if (signe(gel(X,2))) break;
-      w <<= 1;
+      d = gel(X,2);
+      if (!signe(d))
+        w <<= 1;
+      else
+      {
+        vd = Z_pval(d, p);
+        if (w >= v+2*vd) break;
+        w = v+2*vd;
+      }
     }
     x = X;
   }
-  v += Z_pval(gel(x,2), p);
+  /* we will want t mod p^(v+vd) because of t/D in H later, and
+   * we lose p^vd in tfromx because of sqrt(d) */
+  v += 2*vd;
   N = powiu(p,v);
   t = tfromx(E, x, p, v, N, &D); /* D^2=denom(x)=x[2] */
   S = ellformallogsigma_t(E, logsigma_prec(p, v, valp(t)) + 1);
@@ -2421,7 +2454,9 @@ ellpadicheight(GEN e, GEN P, GEN p, long v0)
     a = gdiv(gadd(a, gmul(r,b)), u);
     b = gmul(u,b);
   }
-  return gerepileupto(av, gprec(mkvec2(a, b), v0));
+  H = mkvec2(a,b);
+  if (ab) H = RgV_dotproduct(H, ab);
+  return gerepileupto(av, gprec(H, v0));
 }
 
 GEN
@@ -5167,8 +5202,11 @@ ellheight0(GEN e, GEN a, long flag, long prec)
 GEN
 ghell(GEN e, GEN a, long prec) { return ellheight0(e,a,2,prec); }
 
+static GEN
+_hell(GEN E, GEN P, GEN p, long n)
+{ return p? ellpadicheight(E,P,p,n): ghell(E,P,n); }
 GEN
-mathell(GEN e, GEN x, long prec)
+ellpadicheightmatrix(GEN e, GEN x, GEN p, long n)
 {
   GEN y, D;
   long lx = lg(x), i, j;
@@ -5179,7 +5217,7 @@ mathell(GEN e, GEN x, long prec)
   y = cgetg(lx,t_MAT);
   for (i=1; i<lx; i++)
   {
-    gel(D,i) = ghell(e,gel(x,i),prec);
+    gel(D,i) = _hell(e,gel(x,i),p,n);
     gel(y,i) = cgetg(lx,t_COL);
   }
   for (i=1; i<lx; i++)
@@ -5187,17 +5225,17 @@ mathell(GEN e, GEN x, long prec)
     gcoeff(y,i,i) = gel(D,i);
     for (j=i+1; j<lx; j++)
     {
-      GEN h = ghell(e, elladd(e,gel(x,i),gel(x,j)), prec);
+      GEN h = _hell(e, elladd(e,gel(x,i),gel(x,j)), p, n);
       h = gsub(h, gadd(gel(D,i),gel(D,j)));
       gcoeff(y,j,i) = gcoeff(y,i,j) = gmul2n(h, -1);
     }
   }
   return gerepilecopy(av,y);
 }
+GEN
+mathell(GEN e, GEN x, long n)
+{ return ellpadicheightmatrix(e,x,NULL,n); }
 
-static GEN
-_hell(GEN E, GEN P, GEN p, long n)
-{ return p? ellpadicheight(E,P,p,n): ghell(E,P,n); }
 /* Q an actual point, P a point or vector/matrix of points */
 static GEN
 bilhell_i(GEN E, GEN P, GEN Q, GEN p, long n)
@@ -5219,8 +5257,8 @@ bilhell_i(GEN E, GEN P, GEN Q, GEN p, long n)
     return y;
   }
 }
-static GEN
-bilhellp(GEN E, GEN P, GEN Q, GEN p, long n)
+GEN
+ellpadicbil(GEN E, GEN P, GEN Q, GEN p, long n)
 {
   long t1 = typ(P), t2 = typ(Q);
   if (!is_matvec_t(t1)) pari_err_TYPE("ellbil",P);
@@ -5236,16 +5274,9 @@ bilhellp(GEN E, GEN P, GEN Q, GEN p, long n)
   }
   return bilhell_i(E,P,Q, p,n);
 }
-
 GEN
 bilhell(GEN E, GEN P, GEN Q, long n)
-{ return bilhellp(E,P,Q, NULL, n); }
-GEN
-ellpadicbil(GEN E, GEN P, GEN Q, GEN p, long n)
-{
-  if (typ(p) != t_INT) pari_err_TYPE("ellpadicbil",p);
-  return bilhellp(E,P,Q,p, equaliu(p,2)? n+2: n);
-}
+{ return ellpadicbil(E,P,Q, NULL, n); }
 /********************************************************************/
 /**                                                                **/
 /**                    Modular Parametrization                     **/

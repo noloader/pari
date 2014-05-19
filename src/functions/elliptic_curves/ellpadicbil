@@ -5,6 +5,10 @@ Prototype: GGGGL
 Help:ellpadicbil(E, A,B,p, n): E elliptic curve/Q, A,B in E(Q),
  p prime, n an integer; returns the value of the bilinear form
  associated to p-adic height with values in D_dR(E).
-Doc: bilinear form associatied to the global $p$-adic height of the rational
- point $P$ on the elliptic curve $E$ (defined over $\Q$), given to $n$
- $p$-adic digits. See \tet{ellpadicheight}.
+Doc: bilinear form $[f(A,B),g(A,B)]$ associated to the cyclotomic $p$-adic
+ height of the rational point $A,B$ on the elliptic curve $E$ (defined over
+ $\Q$), given to $n$ $p$-adic digits. See \tet{ellpadicheight}.
+
+ In particular one can replace the parameter $p$ prime by a vector
+ $[p,[a,b]]$, in which case the routine returns the $p$-adic number $af +
+ bg$.

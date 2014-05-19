@@ -1,4 +1,4 @@
-/* Copyright (C) 2000-2004  The PARI group.
+/* Copyright (C) 1999-2004  The PARI group.
 
 This file is part of the PARI/GP package.
 
@@ -2052,6 +2052,7 @@ GEN     ellorder(GEN e, GEN p, GEN o);
 GEN     ellordinate(GEN e, GEN x, long prec);
 GEN     ellpadicbil(GEN E, GEN P, GEN Q, GEN p, long n);
 GEN     ellpadicheight(GEN e, GEN P, GEN p, long v);
+GEN     ellpadicheightmatrix(GEN e, GEN x, GEN p, long n);
 GEN     ellperiods(GEN w, long flag, long prec);
 GEN     ellrandom(GEN e);
 long    ellrootno(GEN e, GEN p);

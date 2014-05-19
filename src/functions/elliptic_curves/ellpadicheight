@@ -4,17 +4,21 @@ C-Name: ellpadicheight
 Prototype: GGGL
 Help:ellpadicheight(E, P,p, n): E elliptic curve/Q, P in E(Q),
  p prime, n an integer; returns the p-adic height with values in D_dR(E).
-Doc: global $p$-adic height of the rational point $P$ on the elliptic curve
- $E$ (defined over $\Q$), given to $n$ $p$-adic digits. The $p$-adic height has
- values in $D_{dR}(E)$ and is given by its components in the basis $(\omega,
- \eta=x\omega)$ related to the given model. If $P\in E(\Q)$ is in the kernel
- of reduction mod $p$ and if its reduction is non singular at all finite
- places, then the component on $\eta$ is the opposite of the square
- of the logarithm
- (for the formal group of $E$ at $p$) of $P$. If furthermore the model is of
- the form $Y^2 = X^3 + a X + b$ and $P = (x,y)$, the component on $\omega$ is
- given by
-   $$ \log_p(\kbd{denominator}(x)) - 2 \log_p(\sigma(P))$$
+Doc: cyclotomic $p$-adic height of the rational point $P$ on the elliptic curve
+ $E$ (defined over $\Q$), given to $n$ $p$-adic digits. Let
+ $H^1_{dR}(E) \otimes_\Q \Q_p$ be the $\Q_p$ vector space spanned by $\omega$
+ (invariant differential $dx/(2y+a_1x+a3)$ related to the given model) and
+ $\eta = x \omega$. The cyclotomic $p$-adic height associates to
+ $P\in E(\Q)$ an element $f \omega + h_\omega \eta$ in $H^1_{dR}$.
+ This routine returns the vector $[f, g]$ to $n$ $p$-adic digits.
+
+ If $P\in E(\Q)$ is in the kernel of reduction mod $p$ and if its reduction is
+ non singular at all finite places, then $g = -(\log_E P)^2$, where
+ $\log_E$ is the logarithm for the formal group of $E$ at $p$.
+
+ If furthermore the model is of the form $Y^2 = X^3 + a X + b$ and $P = (x,y)$,
+ then
+   $$ f = \log_p(\kbd{denominator}(x)) - 2 \log_p(\sigma(P))$$
  where $\sigma(P)$ is given by \kbd{ellsigma}$(E,P)$.
 
  Recall (\emph{Advanced topics in the arithmetic of elliptic
@@ -35,3 +39,6 @@ Doc: global $p$-adic height of the rational point $P$ on the elliptic curve
   ? ellpadicheight(E,P, 3,5)
   %6 = [2*3^2 + 2*3^3 + 3^4 + O(3^5), 2*3^2 + 3^4 + 2*3^5 + 3^6 + O(3^7)]
  @eprog
+
+ One can replace the parameter $p$ prime by a vector $[p,[a,b]]$, in which
+ case the routine returns the $p$-adic number $af + bg$.
