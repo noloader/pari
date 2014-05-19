@@ -954,15 +954,15 @@ Flx_sqr(GEN x, ulong p)
 }
 
 GEN
-Flx_pow(GEN x, long n, ulong p)
+Flx_powu(GEN x, ulong n, ulong p)
 {
   GEN y = pol1_Flx(x[1]), z;
-  long m;
+  ulong m;
   if (n == 0) return y;
   m = n; z = x;
   for (;;)
   {
-    if (m&1) y = Flx_mul(y,z, p);
+    if (m&1UL) y = Flx_mul(y,z, p);
     m >>= 1; if (!m) return y;
     z = Flx_sqr(z, p);
   }

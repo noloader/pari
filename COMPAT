@@ -28,6 +28,7 @@ This file lists the incompatible changes between Version 2.x and older versions
   - sturmpart(x, a, b) is deprecated, use RgX_sturmpart(x, ab) or (better)
     ZX_sturmpart(x, ab)
   - removed deprecated functions nfbasis0, nfdisc0, factorpadic0
+  - Flx_pow renamed to Flx_powu
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%% VERSION 2.6 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   - eval() no longer evaluates its arguments in "permissive" mode: eval("1a")

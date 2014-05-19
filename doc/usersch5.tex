@@ -4660,6 +4660,8 @@ assuming the result is monic of the same degree as $y$ (in particular $x\neq
 
 \fun{GEN}{Flx_sqr}{GEN x, ulong p}
 
+\fun{GEN}{Flx_powu}{GEN x, ulong n, ulong p} returns $x^n$.
+
 \fun{GEN}{Flx_divrem}{GEN x, GEN y, ulong p, GEN *pr}
 
 \fun{GEN}{Flx_div}{GEN x, GEN y, ulong p}
@@ -4676,8 +4678,6 @@ $M$ with determinant $\pm 1$ such that the image $(a,b)$ of $(x,y)$ by $M$
 has the property that $\deg a \geq {\deg x \over 2} > \deg b$.
 
 \fun{GEN}{Flx_extgcd}{GEN a, GEN b, ulong p, GEN *ptu, GEN *ptv}
-
-\fun{GEN}{Flx_pow}{GEN x, long n, ulong p}
 
 \fun{GEN}{Flx_roots}{GEN f, ulong p} returns the vector of roots
 of $f$ (without multiplicity, as a \typ{VECSMALL}). Assumes that $p$ is

@@ -216,7 +216,7 @@ GEN     Flx_mul(GEN x, GEN y, ulong p);
 GEN     Flx_neg(GEN x, ulong p);
 GEN     Flx_neg_inplace(GEN x, ulong p);
 GEN     Flx_normalize(GEN z, ulong p);
-GEN     Flx_pow(GEN x, long n, ulong p);
+GEN     Flx_powu(GEN x, ulong n, ulong p);
 GEN     Flx_recip(GEN x);
 GEN     Flx_red(GEN z, ulong p);
 GEN     Flx_rem(GEN x, GEN y, ulong p);
