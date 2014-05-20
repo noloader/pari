@@ -2333,12 +2333,11 @@ tfromx(GEN e, GEN x, GEN p, long v, GEN N, GEN *pd)
   b6 = ell_get_b6(e);
   d = Qp_sqrt(cvtop(d2, p, v - Z_pval(d2,p)));
   if (!d) pari_err_BUG("ellpadicheight");
-  d = padic_to_Q(d);
   /* Solve Y^2 = 4n^3 + b2 n^2 d2+ 2b4 n d2^2 + b6 d2^3,
    * Y = 2y + a1 n d + a3 d^3 */
   d4 = Fp_sqr(d2, N);
   d6 = Fp_mul(d4, d2, N);
-  B = Fp_mul(d, Fp_add(mulii(a1,n), mulii(a3,d2), N), N);
+  B = gmul(d, Fp_add(mulii(a1,n), mulii(a3,d2), N));
   C = mkpoln(4, utoipos(4), Fp_mul(b2, d2, N),
                 Fp_mul(shifti(b4,1), d4, N),
                 Fp_mul(b6,d6,N));
@@ -2392,7 +2391,7 @@ parse_p(GEN p, GEN *ab)
 
 static GEN
 precp_fix(GEN h, long v)
-{ return (precp(h)+valp(h) > v)? gprec(h,v): h; }
+{ return (precp(h) > v)? gprec(h,v): h; }
 
 GEN
 ellpadicheight(GEN e, GEN P, GEN p, long v0)
