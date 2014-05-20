@@ -2241,21 +2241,18 @@ X2XP1(GEN P, long deg, GEN *Premapped)
       gel(v, j+1) = addii(gel(v, j), gel(v, j+1));
       if (flag) flag = (s2 != signe(gel(v, j+1)));
     }
-
-    if (low_stack(lim, stack_lim(av, 3)))
-    {
-      if (!Premapped) setlg(v, vlim);
-      v = gerepileupto(av, v);
-      if (DEBUGMEM > 1) pari_warn(warnmem, "X2XP1");
-    }
-
     if (s == signe(gel(v, vlim)))
     {
       nb++;
       if (nb >= 2) { avma = av; return 2; }
       s = -s;
     }
-
+    if (low_stack(lim, stack_lim(av, 3)))
+    {
+      if (!Premapped) setlg(v, vlim);
+      v = gerepileupto(av, v);
+      if (DEBUGMEM > 1) pari_warn(warnmem, "X2XP1");
+    }
     if (flag && !Premapped) goto END;
     vlim--;
   }
