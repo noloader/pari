@@ -753,7 +753,7 @@ GEN     QXQXV_to_mod(GEN V, GEN T);
 GEN     QXV_QXQ_eval(GEN v, GEN a, GEN T);
 GEN     QXX_QXQ_eval(GEN v, GEN a, GEN T);
 GEN     Rg_RgX_sub(GEN x, GEN y);
-GEN     Rg_to_RgV(GEN x, long N);
+GEN     Rg_to_RgC(GEN x, long N);
 GEN     RgM_to_RgXV(GEN x, long v);
 GEN     RgM_to_RgXX(GEN x, long v,long w);
 GEN     RgV_to_RgX(GEN x, long v);

@@ -578,7 +578,7 @@ RgX_to_RgV(GEN x, long N)
   return z;
 }
 GEN
-Rg_to_RgV(GEN x, long N)
+Rg_to_RgC(GEN x, long N)
 {
   return (typ(x) == t_POL)? RgX_to_RgV(x,N): scalarcol_shallow(x, N);
 }
@@ -600,7 +600,7 @@ RgV_to_RgM(GEN v, long n)
 {
   long j, N = lg(v);
   GEN y = cgetg(N, t_MAT);
-  for (j=1; j<N; j++) gel(y,j) = Rg_to_RgV(gel(v,j), n);
+  for (j=1; j<N; j++) gel(y,j) = Rg_to_RgC(gel(v,j), n);
   return y;
 }
 GEN
@@ -631,7 +631,7 @@ RgXX_to_RgM(GEN v, long n)
 {
   long j, N = lg(v)-1;
   GEN y = cgetg(N, t_MAT);
-  for (j=1; j<N; j++) gel(y,j) = Rg_to_RgV(gel(v,j+1), n);
+  for (j=1; j<N; j++) gel(y,j) = Rg_to_RgC(gel(v,j+1), n);
   return y;
 }
 
