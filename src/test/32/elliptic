@@ -47,8 +47,6 @@ mall([128, 1])], [0, 0, 0, 0, 0, 0, 0, 0]]
 [37, [1, -1, 2, 2], 1, Mat([37, 1]), [[1, 5, 0, 1]]]
 ? ellheight(acurve,apoint)
 0.81778253183950144377417759611107234575
-? ellheight(acurve,apoint,1)
-0.81778253183950144377417759611107234575
 ? ellordinate(acurve,1)
 [8, 3]
 ? ellpointtoz(acurve,apoint)
@@ -123,4 +121,4 @@ small([128, 1])], [0, 0, 0, 0, 0, 0, 0, 0]]
  28*w))]
 ? if(getheap()!=HEAP,getheap())
 ? print("Total time spent: ",gettime);
-Total time spent: 28
+Total time spent: 24

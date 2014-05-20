@@ -71,7 +71,7 @@ BA 27- [libpari] ZpX_ZpXQ_liftroot, ZpX_ZpXQ_liftroot_ea
    28- [libpari] fuse_Z_factor
    29- ellformalw, ellformalpoint, ellformaldifferential,
        ellformallog, ellformalexp, ellnonsingularmultiple, ellpadicheight,
-       ellpadicbil, ellpadicheightmatrix
+       ellpadicheightmatrix
 BA 30- [libpari] function FpX_powu
 BA 31- GP function ellfrobeniusmatrix
 
@@ -108,6 +108,9 @@ BA 10- [libpari] mkintn: handles arguments as 32bit unsigned int
        checking for norm equation solutions first: e.g. thue(x^4+1,7*10^80)
        becomes instantaneous instead of overflowing
 BA 15- Flx_pow renamed to Flx_powu
+   16- optional flag to ellheight is gone (useless)
+   17- ellbil(E,P,Q) is now deprecated, use ellheight(E,P,Q)
+   18- [libpari] rename ghell->ellheight, mathell->ellheightmatrix
 
 Removed
   - deprecated functions nfbasis0, nfdisc0, factorpadic0

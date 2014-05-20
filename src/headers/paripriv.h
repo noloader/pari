@@ -44,7 +44,6 @@ clone_unlock(GEN C) { if (isclone(C)) gunclone(C); }
 #define swapspec(x,y, nx,ny) {swap(x,y); lswap(nx,ny);}
 
 /* unused */
-GEN ellheightoo(GEN e, GEN z, long prec);
 void ellprint(GEN e);
 
 /* binary splitting */

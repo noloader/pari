@@ -61,7 +61,7 @@ factorpadic0(GEN f,GEN p,long r,long flag)
   return NULL; /* not reached */
 }
 static GEN
-ghell2(GEN e, GEN a, long prec) { return ellheight0(e,a,0,prec); }
+ghell2(GEN e, GEN a, long prec) { return ellheight(e,a,prec); }
 
 static GEN
 polylogd(long m, GEN x, long prec) { return polylog0(m,x,1,prec); }

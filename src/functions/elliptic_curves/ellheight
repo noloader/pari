@@ -1,21 +1,17 @@
 Function: ellheight
 Section: elliptic_curves
 C-Name: ellheight0
-Prototype: GGD2,L,p
-Help: ellheight(E,x,{flag=2}): canonical height of point x on elliptic curve
- E. flag is optional and selects the algorithm
- used to compute the Archimedean local height. Its meaning is 0: use
- theta-functions, 1: use Tate's method, 2: use Mestre's AGM.
-Doc: global N\'eron-Tate height of the point $z$ on the elliptic curve
- $E$ (defined over $\Q$), using the normalization in Cremona's
- \emph{Algorithms for modular elliptic curves}. $E$
- must be an \kbd{ell} as output by \kbd{ellinit}; it needs not be given by a
- minimal model although the computation will be faster if it is. \fl\ selects
- the algorithm used to compute the Archimedean local height. If $\fl=0$,
- we use sigma and theta-functions and Silverman's trick (Computing
- heights on elliptic curves, \emph{Math.~Comp.} {\bf 51}; note that
- our height is twice Silverman's height). If
- $\fl=1$, use Tate's $4^n$ algorithm. If $\fl=2$, use Mestre's AGM algorithm.
- The latter converges quadratically and is much faster than the other two.
-Variant: Also available is \fun{GEN}{ghell}{GEN E, GEN x, long prec}
- ($\fl=2$).
+Prototype: GGDGp
+Help: ellheight(E,P,{Q}): canonical height of point P on elliptic curve E,
+ resp. the value of the associated bilinear form at (P,Q).
+Doc: global N\'eron-Tate height $h(P)$ of the point $P$ on the elliptic curve
+ $E/\Q$, using the normalization in Cremona's \emph{Algorithms for modular
+ elliptic curves}. $E$ must be an \kbd{ell} as output by \kbd{ellinit}; it
+ needs not be given by a minimal model although the computation will be faster
+ if it is.
+
+ If the argument $Q$ is present, computes the value of the bilinear
+ form $(h(P+Q)-h(P-Q)) / 4$.
+
+Variant: Also available is \fun{GEN}{ellheight}{GEN E, GEN P, long prec}
+ ($Q$ omitted).

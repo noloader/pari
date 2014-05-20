@@ -1169,16 +1169,6 @@ static void
 E_compose_rst(GEN *vtotal, GEN *e, GEN r, GEN s, GEN t)
 { *e=coordch_rst(*e,r,s,t); composev_rst(vtotal,r,s,t); }
 
-/* apply [1,r,0,0] to P */
-static GEN
-ellchangepoint_r(GEN P, GEN r)
-{
-  GEN x, y, a;
-  if (ell_is_inf(P)) return P;
-  x = gel(P,1); y = gel(P,2); a = gsub(x,r);
-  return mkvec2(a, y);
-}
-
 /* X = (x-r)/u^2
  * Y = (y - s(x-r) - t) / u^3 */
 static GEN
@@ -2394,7 +2384,7 @@ precp_fix(GEN h, long v)
 { return (precp(h) > v)? gprec(h,v): h; }
 
 GEN
-ellpadicheight(GEN e, GEN P, GEN p, long v0)
+ellpadicheight(GEN e, GEN p, long v0, GEN P)
 {
   pari_sp av = avma;
   GEN N, H, h, t, ch, g, E, x, n, d, D, ls, lt, S, a,b, ab;
@@ -4950,79 +4940,8 @@ elllseries(GEN e, GEN s, GEN A, long prec)
 /**                                                                **/
 /********************************************************************/
 
-/* h' := h_oo(a) + 1/2 log(denom(a)) */
-static GEN
-hell(GEN e, GEN a, long prec)
-{
-  long n;
-  pari_sp av = avma;
-  GEN pi2 = Pi2n(1, prec);
-  GEN om = ellR_omega(e,prec), w1 = gel(om,1), w2 = gel(om,2);
-  GEN p1, y, z, q, pi2surw, qn, ps;
-
-  pi2surw = gdiv(pi2, w1);
-  z = gmul(real_i(zell(e,a,prec)), pi2surw);
-  q = real_i( expIxy(mpneg(pi2surw), w2, prec) );
-  y = mpsin(z); qn = gen_1; ps = gneg_i(q);
-  for (n = 3; ; n += 2)
-  {
-    qn = gmul(qn, ps);
-    ps = gmul(ps, q);
-    y = gadd(y, gmul(qn, gsin(gmulsg(n,z),prec)));
-    if (gexpo(qn) < -prec2nbits(prec)) break;
-  }
-  p1 = gmul(gsqr(gdiv(gmul2n(y,1), ec_dLHSdy_evalQ(e,a))), pi2surw);
-  p1 = gsqr(gsqr(gdiv(p1, gsqr(gsqr(denom(gel(a,1)))))));
-  p1 = gdiv(gmul(p1,q), ell_get_disc(e));
-  p1 = gmul2n(glog(gabs(p1,prec),prec), -5);
-  return gerepileupto(av, gneg(p1));
-}
-
 static GEN
 Q_numer(GEN x) { return typ(x) == t_INT? x: gel(x,1); }
-
-/* h' := h_oo(x) + 1/2 log(denom(x)) */
-static GEN
-hells(GEN e, GEN Q, long prec)
-{
-  GEN b2 = ell_get_b2(e);
-  GEN b4 = ell_get_b4(e);
-  GEN b6 = ell_get_b6(e);
-  GEN b8 = ell_get_b8(e);
-  GEN x = gel(Q,1), w, z, t, mu, b42, b62;
-  long n, lim;
-
-  mu = gmul2n(glog(Q_numer(x),prec),-1);
-  t = ginv(gtofp(x, prec));
-  b42 = gmul2n(b4,1);
-  b62 = gmul2n(b6,1);
-  lim = 15 + prec2nbits(prec);
-  for (n = 3; n < lim; n += 2)
-  {
-    /* 4 + b2 t + 2b4 t^2 + b6 t^3 */
-    w = gmul(t, gaddsg(4, gmul(t, gadd(b2, gmul(t, gadd(b42, gmul(t, b6)))))));
-    /* 1 - (b4 t^2 + 2b6 t^3 + b8 t^4) */
-    z = gsubsg(1, gmul(gsqr(t), gadd(b4, gmul(t, gadd(b62, gmul(t, b8))))));
-    mu = gadd(mu, gmul2n(glog(z,prec), -n));
-    t = gdiv(w, z);
-  }
-  return mu;
-}
-
-static GEN
-hell2(GEN e, GEN x, long prec)
-{
-  GEN e3, ro, r;
-  pari_sp av = avma;
-
-  if (ell_is_inf(x)) return gen_0;
-  ro= ellR_roots(e, prec);
-  e3 = (ellR_get_sign(e) < 0)? gel(ro,1): gel(ro,3);
-  r = addis(gfloor(e3),-1);
-  e = coordch_r(e, r);
-  x = ellchangepoint_r(x, r);
-  return gerepileupto(av, hells(e, x, prec));
-}
 
 /* one root of X^2 - t X + c */
 static GEN
@@ -5092,21 +5011,9 @@ ellR_on_neutral(GEN E, GEN P, long prec)
   return gcmp(x, e1) >= 0;
 }
 
-/* exp( 4h_oo(z) ) */
+/* hoo + 1/2 log(den(x)) */
 static GEN
-exp4hellagm(GEN E, GEN z, long prec)
-{
-  if (!ellR_on_neutral(E, z, prec))
-  {
-    GEN eh = exphellagm(E, elladd(E, z,z), 0, prec);
-    /* h_oo(2P) = 4h_oo(P) - log |2y + a1x + a3| */
-    return gmul(eh, gabs(ec_dLHSdy_evalQ(E, z), prec));
-  }
-  return exphellagm(E, z, 1, prec);
-}
-
-GEN
-ellheightoo(GEN E, GEN z, long prec)
+hoo_aux(GEN E, GEN z, GEN d, long prec)
 {
   pari_sp av = avma;
   GEN h;
@@ -5119,21 +5026,41 @@ ellheightoo(GEN E, GEN z, long prec)
   }
   else
     h = exphellagm(E, z, 1, prec);
+  if (!is_pm1(d)) h = gmul(h, sqri(d));
   return gerepileuptoleaf(av, gmul2n(mplog(h), -2));
 }
+GEN
+ellheightoo(GEN E, GEN z, long prec) { return hoo_aux(E, z, gen_1, prec); }
+
+static GEN
+_hell(GEN E, GEN p, long n, GEN P)
+{ return p? ellpadicheight(E,p,n, P): ellheight(E,P,n); }
+static GEN
+ellheightpairing(GEN E, GEN p, long n, GEN P, GEN Q)
+{
+  pari_sp av = avma;
+  GEN a = _hell(E,p,n, elladd(E,P,Q));
+  GEN b = _hell(E,p,n, ellsub(E,P,Q));
+  return gerepileupto(av, gmul2n(gsub(a,b), -2));
+}
+GEN
+ellheight0(GEN e, GEN a, GEN b, long n)
+{ return b? ellheightpairing(e,NULL,n, a,b): ellheight(e,a,n); }
+GEN
+ellpadicheight0(GEN e, GEN p, long n, GEN P, GEN Q)
+{ return Q? ellheightpairing(e,p,n, P,Q): ellpadicheight(e,p,n, P); }
 
 GEN
-ellheight0(GEN e, GEN a, long flag, long prec)
+ellheight(GEN e, GEN a, long prec)
 {
-  long i, tx = typ(a), lx;
+  long i, lx;
   pari_sp av = avma;
   GEN Lp, x, y, z, phi2, psi2, psi3;
   GEN v, S, b2, b4, b6, b8, a1, a2, a4, c4, D;
 
-  if (flag > 2 || flag < 0) pari_err_FLAG("ellheight");
-  checkell_Q(e); if (!is_matvec_t(tx)) pari_err_TYPE("ellheight",a);
-  lx = lg(a); if (lx==1) return cgetg(1,tx);
-  tx = typ(gel(a,1));
+  checkell_Q(e);
+  checkellpt(a);
+  if (ell_is_inf(a)) return gen_0;
   if ((S = obj_check(e, Q_MINIMALMODEL)))
   { /* switch to minimal model if needed */
     if (lg(S) != 2)
@@ -5148,29 +5075,10 @@ ellheight0(GEN e, GEN a, long flag, long prec)
     e = ellminimalmodel_i(e, &v);
     a = ellchangepoint(a, v);
   }
-  if (is_matvec_t(tx))
-  {
-    z = cgetg(lx,tx);
-    for (i=1; i<lx; i++) gel(z,i) = ellheight0(e,gel(a,i),flag,prec);
-    return z;
-  }
-  if (ell_is_inf(a)) return gen_0;
   if (!oncurve(e,a))
     pari_err_DOMAIN("ellheight", "point", "not on", strtoGENstr("E"),a);
   psi2 = Q_numer(ec_dLHSdy_evalQ(e,a));
   if (!signe(psi2)) { avma = av; return gen_0; }
-  switch(flag)
-  {
-    case 0:  z = hell2(e,a,prec); break; /* Tate 4^n */
-    case 1:  z = hell(e,a,prec);  break; /* Silverman's log(sigma) */
-    default:
-    {
-      GEN d = denom(gel(a,1));
-      z = exp4hellagm(e,a,prec); /* = exp(4h_oo(a)), Mestre's AGM */
-      if (!is_pm1(d)) z = gmul(z, sqri(d));
-      z = gmul2n(mplog(z), -2); break;
-    }
-  }
   x = gel(a,1);
   y = gel(a,2);
   b2 = ell_get_b2(e);
@@ -5189,6 +5097,7 @@ ellheight0(GEN e, GEN a, long flag, long prec)
   );
   c4 = ell_get_c4(e);
   D = ell_get_disc(e);
+  z = hoo_aux(e,a,Q_denom(x),prec);  /* hoo(a) + log(den(x))/2 */
   Lp = gel(Z_factor(gcdii(psi2,phi2)),1);
   lx = lg(Lp);
   for (i=1; i<lx; i++)
@@ -5217,13 +5126,7 @@ ellheight0(GEN e, GEN a, long flag, long prec)
 }
 
 GEN
-ghell(GEN e, GEN a, long prec) { return ellheight0(e,a,2,prec); }
-
-static GEN
-_hell(GEN E, GEN P, GEN p, long n)
-{ return p? ellpadicheight(E,P,p,n): ghell(E,P,n); }
-GEN
-ellpadicheightmatrix(GEN e, GEN x, GEN p, long n)
+ellpadicheightmatrix(GEN e, GEN p, long n, GEN x)
 {
   GEN y, D;
   long lx = lg(x), i, j;
@@ -5234,7 +5137,7 @@ ellpadicheightmatrix(GEN e, GEN x, GEN p, long n)
   y = cgetg(lx,t_MAT);
   for (i=1; i<lx; i++)
   {
-    gel(D,i) = _hell(e,gel(x,i),p,n);
+    gel(D,i) = _hell(e,p,n, gel(x,i));
     gel(y,i) = cgetg(lx,t_COL);
   }
   for (i=1; i<lx; i++)
@@ -5242,7 +5145,7 @@ ellpadicheightmatrix(GEN e, GEN x, GEN p, long n)
     gcoeff(y,i,i) = gel(D,i);
     for (j=i+1; j<lx; j++)
     {
-      GEN h = _hell(e, elladd(e,gel(x,i),gel(x,j)), p, n);
+      GEN h = _hell(e,p,n, elladd(e,gel(x,i),gel(x,j)));
       h = gsub(h, gadd(gel(D,i),gel(D,j)));
       gcoeff(y,j,i) = gcoeff(y,i,j) = gmul2n(h, -1);
     }
@@ -5250,8 +5153,8 @@ ellpadicheightmatrix(GEN e, GEN x, GEN p, long n)
   return gerepilecopy(av,y);
 }
 GEN
-mathell(GEN e, GEN x, long n)
-{ return ellpadicheightmatrix(e,x,NULL,n); }
+ellheightmatrix(GEN E, GEN x, long n)
+{ return ellpadicheightmatrix(E,NULL,n, x); }
 
 /* Q an actual point, P a point or vector/matrix of points */
 static GEN
@@ -5259,13 +5162,7 @@ bilhell_i(GEN E, GEN P, GEN Q, GEN p, long n)
 {
   long l = lg(P);
   if (l==1) return cgetg(1,typ(P));
-  if (!is_matvec_t( typ(gel(P,1)) ))
-  {
-    pari_sp av = avma;
-    GEN a = _hell(E, elladd(E,P,Q),p,n);
-    GEN b = _hell(E, ellsub(E,P,Q),p,n);
-    return gerepileupto(av, gmul2n(gsub(a,b), -2));
-  }
+  if (!is_matvec_t( typ(gel(P,1)) )) return ellheightpairing(E,p,n,P,Q);
   else
   {
     GEN y = cgetg(l, typ(P));

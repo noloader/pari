@@ -1,15 +1,20 @@
 Function: ellpadicheight
 Section: elliptic_curves
-C-Name: ellpadicheight
-Prototype: GGGL
-Help:ellpadicheight(E, P,p, n): E elliptic curve/Q, P in E(Q),
+C-Name: ellpadicheight0
+Prototype: GGLGDG
+Help:ellpadicheight(E, p,n, P,{Q}): E elliptic curve/Q, P in E(Q),
  p prime, n an integer; returns the p-adic height with values in D_dR(E).
+ Resp. the value of the associated bilinear form at (P,Q).
 Doc: cyclotomic $p$-adic height of the rational point $P$ on the elliptic curve
- $E$ (defined over $\Q$), given to $n$ $p$-adic digits. Let
- $H^1_{dR}(E) \otimes_\Q \Q_p$ be the $\Q_p$ vector space spanned by $\omega$
+ $E$ (defined over $\Q$), given to $n$ $p$-adic digits.
+ If the argument $Q$ is present, computes the value of the bilinear
+ form $(h(P+Q)-h(P-Q)) / 4$.
+
+ Let $D_{dR}(E) := H^1_{dR}(E) \otimes_\Q \Q_p$ be the $\Q_p$ vector space
+ spanned by $\omega$
  (invariant differential $dx/(2y+a_1x+a3)$ related to the given model) and
- $\eta = x \omega$. The cyclotomic $p$-adic height associates to
- $P\in E(\Q)$ an element $f \omega + h_\omega \eta$ in $H^1_{dR}$.
+ $\eta = x \omega$. Then the cyclotomic $p$-adic height associates to
+ $P\in E(\Q)$ an element $f \omega + h_\omega \eta$ in $D_{dR}$.
  This routine returns the vector $[f, g]$ to $n$ $p$-adic digits.
 
  If $P\in E(\Q)$ is in the kernel of reduction mod $p$ and if its reduction is
@@ -30,14 +35,15 @@ Doc: cyclotomic $p$-adic height of the rational point $P$ on the elliptic curve
  Silverman's).
  \bprog
   ? E = ellinit([1,-1,1,0,0]); P = [0,0];
-  ? ellpadicheight(E,P, 5,4)
+  ? ellpadicheight(E,5,4, P)
   %2 = [3*5 + 5^2 + 2*5^3 + O(5^4), 5^2 + 4*5^4 + O(5^6)]
   ? E = ellinit("11a1"); P = [5,5]; \\ torsion point
-  ? ellpadicheight(E,P, 19,6)
+  ? ellpadicheight(E,19,6, P)
   %4 = O(19^6)
   ? E = ellinit([0,0,1,-4,2]); P = [-2,1];
-  ? ellpadicheight(E,P, 3,5)
+  ? ellpadicheight(E,3,5, P)
   %6 = [2*3^2 + 2*3^3 + 3^4 + O(3^5), 2*3^2 + 3^4 + 2*3^5 + 3^6 + O(3^7)]
+  ? ellpadicheight(E,3,5, P, elladd(E,P,P))
  @eprog
 
  One can replace the parameter $p$ prime by a vector $[p,[a,b]]$, in which

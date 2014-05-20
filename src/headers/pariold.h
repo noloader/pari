@@ -13,6 +13,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 
 /* For compatibility with 1.x.x */
 /*functions renamed*/
+#define mathell ellheightmatrix
+#define ghell ellheight
 #define mpexp1 mpexpm1
 #define ggamd ggammah
 #define gach gacosh

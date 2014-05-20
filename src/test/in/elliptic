@@ -1,4 +1,4 @@
-HEAP=[77, if(precision(1.)==38,5281,5460)];
+HEAP=[75, if(precision(1.)==38,5225,5390)];
 default(realprecision,154); Pi; default(realprecision,38);
 \e
 ellinit([-1,0])
@@ -20,7 +20,6 @@ apoint=ellchangepoint(apoint,[-1,1,2,3])
 ellisoncurve(acurve,apoint)
 ellglobalred(acurve)
 ellheight(acurve,apoint)
-ellheight(acurve,apoint,1)
 ellordinate(acurve,1)
 ellpointtoz(acurve,apoint)
 ellztopoint(acurve,%)
