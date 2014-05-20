@@ -1803,7 +1803,7 @@ FpXQ_conjvec(GEN x, GEN T, GEN p)
   long n = get_FpX_degree(T), v = varn(x);
   GEN M = FpXQ_matrix_pow(FpXQ_pow(pol_x(v),p,T,p),n,n,T,p);
   GEN z = cgetg(n+1,t_COL);
-  gel(z,1) = RgX_to_RgV(x,n);
+  gel(z,1) = RgX_to_RgC(x,n);
   for (i=2; i<=n; i++) gel(z,i) = FpM_FpC_mul(M,gel(z,i-1),p);
   gel(z,1) = x;
   for (i=2; i<=n; i++) gel(z,i) = RgV_to_RgX(gel(z,i),v);

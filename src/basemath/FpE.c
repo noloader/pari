@@ -1666,7 +1666,7 @@ GEN
 elltrace_extension(GEN t, long n, GEN q)
 {
   pari_sp av = avma;
-  GEN v = RgX_to_RgV(RgXQ_powu(pol_x(0), n, mkpoln(3,gen_1,negi(t),q)),2);
+  GEN v = RgX_to_RgC(RgXQ_powu(pol_x(0), n, mkpoln(3,gen_1,negi(t),q)),2);
   GEN te = addii(shifti(gel(v,1),1), mulii(t,gel(v,2)));
   return gerepileuptoint(av, te);
 }

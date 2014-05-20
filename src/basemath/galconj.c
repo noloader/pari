@@ -254,7 +254,7 @@ vandermondeinverse(GEN L, GEN T, GEN den, GEN prep)
   for (i = 1; i <= n; i++)
   {
     P = RgX_Rg_div(RgX_div_by_X_x(T, gel(L,i), NULL), gel(prep,i));
-    gel(M,i) = RgX_to_RgV(P,n);
+    gel(M,i) = RgX_to_RgC(P,n);
   }
   return den? gerepileupto(ltop, gmul(den, M)): gerepilecopy(ltop, M);
 }
@@ -1105,7 +1105,7 @@ vandermondeinversemod(GEN L, GEN T, GEN den, GEN mod)
     z = Fp_inv(FpX_eval(Tp, gel(L,i),mod),mod);
     z = Fp_mul(den,z,mod);
     P = FpX_Fp_mul(FpX_div_by_X_x(T, gel(L,i), mod, NULL), z, mod);
-    gel(M,i) = gerepilecopy(av, RgX_to_RgV(P, n-1));
+    gel(M,i) = gerepilecopy(av, RgX_to_RgC(P, n-1));
   }
   gunclone(Tp); /*unclone*/
   return M;

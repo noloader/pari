@@ -566,7 +566,7 @@ RgV_to_RgX_reverse(GEN x, long v)
 
 /* return the (N-dimensional) vector of coeffs of p */
 GEN
-RgX_to_RgV(GEN x, long N)
+RgX_to_RgC(GEN x, long N)
 {
   long i, l;
   GEN z;
@@ -580,7 +580,7 @@ RgX_to_RgV(GEN x, long N)
 GEN
 Rg_to_RgC(GEN x, long N)
 {
-  return (typ(x) == t_POL)? RgX_to_RgV(x,N): scalarcol_shallow(x, N);
+  return (typ(x) == t_POL)? RgX_to_RgC(x,N): scalarcol_shallow(x, N);
 }
 
 /* vector of polynomials (in v) whose coeffs are given by the columns of x */
@@ -608,7 +608,7 @@ RgXV_to_RgM(GEN v, long n)
 {
   long j, N = lg(v);
   GEN y = cgetg(N, t_MAT);
-  for (j=1; j<N; j++) gel(y,j) = RgX_to_RgV(gel(v,j), n);
+  for (j=1; j<N; j++) gel(y,j) = RgX_to_RgC(gel(v,j), n);
   return y;
 }
 

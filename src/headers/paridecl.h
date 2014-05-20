@@ -800,7 +800,7 @@ GEN     RgX_splitting(GEN p, long k);
 GEN     RgX_sqr(GEN x);
 GEN     RgX_sqrspec(GEN a, long na);
 GEN     RgX_sub(GEN x, GEN y);
-GEN     RgX_to_RgV(GEN x, long N);
+GEN     RgX_to_RgC(GEN x, long N);
 GEN     RgX_translate(GEN P, GEN c);
 GEN     RgX_unscale(GEN P, GEN h);
 GEN     RgXQ_matrix_pow(GEN y, long n, long m, GEN P);

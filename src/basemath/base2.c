@@ -898,7 +898,7 @@ ZpX_sylvester_echelon(GEN f1, GEN f2, long early_abort, GEN p, GEN pm)
   h = FpXQ_red(f2,f1,pm);
   for (j=1;; j++)
   {
-    gel(a,j) = RgX_to_RgV(h, n);
+    gel(a,j) = RgX_to_RgC(h, n);
     if (j == n) break;
     h = FpX_rem(RgX_shift_shallow(h, 1), f1, pm);
   }
@@ -1212,7 +1212,7 @@ dbasis(GEN p, GEN f, long mf, GEN a, GEN U)
         h = FpXQ_mul(h, a, f, D);
         if (da) h = ZX_Z_divexact(h, da);
       }
-      gel(b,i) = RgX_to_RgV(h,n);
+      gel(b,i) = RgX_to_RgC(h,n);
     }
     return ZpM_hnfmodid(b, p, pd);
   }
@@ -1227,7 +1227,7 @@ dbasis(GEN p, GEN f, long mf, GEN a, GEN U)
     h = RgX_Rg_div(U, p);
     for ( ; i <= n; i++)
     {
-      gel(b, i) = RgX_to_RgV(h,n);
+      gel(b, i) = RgX_to_RgC(h,n);
       if (i == n) break;
       h = RgX_shift_shallow(h,1);
     }
@@ -1364,10 +1364,10 @@ Decomp(decomp_t *S, long flag)
     fred = centermod_i(S->f, D, shifti(D,-1));
     M = cgetg(n+1, t_MAT);
     for (i=1; i<=n1; i++)
-      gel(M,i) = RgX_to_RgV(FpX_rem(FpX_mul(gel(B1,i),e,D), fred, D), n);
+      gel(M,i) = RgX_to_RgC(FpX_rem(FpX_mul(gel(B1,i),e,D), fred, D), n);
     e = Z_ZX_sub(de, e); B2 -= n1;
     for (   ; i<=n; i++)
-      gel(M,i) = RgX_to_RgV(FpX_rem(FpX_mul(gel(B2,i),e,D), fred, D), n);
+      gel(M,i) = RgX_to_RgC(FpX_rem(FpX_mul(gel(B2,i),e,D), fred, D), n);
     return ZpM_hnfmodid(M, p, D);
   }
 }
@@ -2531,7 +2531,7 @@ get_proj_modT(GEN basis, GEN T, GEN p)
       w = Q_primitive_part(w, &cx);
       w = FpXQ_red(w, T, p);
       if (cx) w = FpX_Fp_mul(w, Rg_to_Fp(cx, p), p);
-      w = RgX_to_RgV(w, f);
+      w = RgX_to_RgC(w, f);
     }
     gel(z,i) = w; /* w_i mod (T,p) */
   }
@@ -3073,7 +3073,7 @@ rnfdedekind_i(GEN nf, GEN P, GEN pr, long vdisc, long only_maximal)
   pal = FqX_to_nfX(FqX_div(Ppr,k, T,p), modpr);
   for (   ; j<=m+d; j++)
   {
-    gel(A,j) = RgX_to_RgV(pal,m);
+    gel(A,j) = RgX_to_RgC(pal,m);
     gel(I,j) = prinvp;
     if (j < m+d) pal = RgXQX_rem(RgX_shift_shallow(pal,1),P,nfT);
   }

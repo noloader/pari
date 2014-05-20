@@ -2884,7 +2884,7 @@ reduceddiscsmith(GEN x)
   xp = ZX_deriv(x);
   for (j=1; j<=n; j++)
   {
-    gel(M,j) = RgX_to_RgV(xp, n);
+    gel(M,j) = RgX_to_RgC(xp, n);
     if (j<n) xp = RgX_rem(RgX_shift_shallow(xp, 1), x);
   }
   return gerepileupto(av, ZM_snf(M));

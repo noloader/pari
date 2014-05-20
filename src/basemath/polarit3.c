@@ -956,7 +956,7 @@ FpXQV_FpX_Frobenius(GEN V, GEN P, GEN T, GEN p)
   GEN M,W,Mi;
   GEN *gptr[2];
   long lV=lg(V);
-  GEN  PV=RgX_to_RgV(P, lgpol(P));
+  GEN  PV=RgX_to_RgC(P, lgpol(P));
   M=cgetg(l+1,t_VEC);
   gel(M,1) = scalar_ZX_shallow(FpX_eval(P,gen_1,p),v);
   gel(M,2) = FpXV_FpC_mul(V,PV,p);
@@ -1325,7 +1325,7 @@ FpX_ffintersect(GEN P, GEN Q, long n, GEN l, GEN *SP, GEN *SQ, GEN MA, GEN MB)
       if (j)
       {
         Ay = FpXQ_mul(Ay,FpXQ_pow(Ap,lmun,P,l),P,l);
-        VP = RgX_to_RgV(Ay,np);
+        VP = RgX_to_RgC(Ay,np);
       }
       Ap = FpM_FpC_invimage(MA,VP,l);
       Ap = RgV_to_RgX(Ap,vp);
@@ -1333,7 +1333,7 @@ FpX_ffintersect(GEN P, GEN Q, long n, GEN l, GEN *SP, GEN *SQ, GEN MA, GEN MB)
       if (j)
       {
         By = FpXQ_mul(By,FpXQ_pow(Bp,lmun,Q,l),Q,l);
-        VQ = RgX_to_RgV(By,nq);
+        VQ = RgX_to_RgC(By,nq);
       }
       Bp = FpM_FpC_invimage(MB,VQ,l);
       Bp = RgV_to_RgX(Bp,vq);

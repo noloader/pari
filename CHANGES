@@ -111,6 +111,7 @@ BA 15- Flx_pow renamed to Flx_powu
    16- optional flag to ellheight is gone (useless)
    17- ellbil(E,P,Q) is now deprecated, use ellheight(E,P,Q)
    18- [libpari] rename ghell->ellheight, mathell->ellheightmatrix
+BA 19- Rg_to_RgV renamed to Rg_to_RgC, RgX_to_RgV renamed to RgX_to_RgC
 
 Removed
   - deprecated functions nfbasis0, nfdisc0, factorpadic0
