@@ -2331,7 +2331,7 @@ tfromx(GEN e, GEN x, GEN p, long v, GEN N, GEN *pd)
   a3 = ell_get_a3(e);
   b4 = ell_get_b4(e);
   b6 = ell_get_b6(e);
-  d = Qp_sqrt(cvtop(d2, p, v));
+  d = Qp_sqrt(cvtop(d2, p, v - Z_pval(d2,p)));
   if (!d) pari_err_BUG("ellpadicheight");
   d = padic_to_Q(d);
   /* Solve Y^2 = 4n^3 + b2 n^2 d2+ 2b4 n d2^2 + b6 d2^3,
@@ -2343,7 +2343,10 @@ tfromx(GEN e, GEN x, GEN p, long v, GEN N, GEN *pd)
                 Fp_mul(shifti(b4,1), d4, N),
                 Fp_mul(b6,d6,N));
   C = FpX_eval(C, n, N);
-  Y = Qp_sqrt(cvtop(C, p, v));
+  if (!signe(C))
+    Y = zeropadic(p, v >> 1);
+  else
+    Y = Qp_sqrt(cvtop(C, p, v - Z_pval(C,p)));
   if (!Y) pari_err_BUG("ellpadicheight");
   *pd = d;
   return gdiv(gmulgs(gmul(n,d), -2), gsub(Y,B));
@@ -2354,7 +2357,7 @@ static long
 logsigma_prec(GEN p, long v, long t)
 {
   double log2p = dbllog2(p);
-  long j, i = ((v - t) / (t - 2*LOG2/(3*log2p)) + 0.01);
+  long j, i = ceil((v - t) / (t - 2*LOG2/(3*log2p)) + 0.01);
   if (equaliu(p,2) && i < 5) i = 5;
   /* guaranteed to work, now optimize */
   for (j = i-1; j >= 2; j--)
@@ -2387,12 +2390,17 @@ parse_p(GEN p, GEN *ab)
   return p;
 }
 
+static GEN
+precp_fix(GEN h, long v)
+{ return (precp(h)+valp(h) > v)? gprec(h,v): h; }
+
 GEN
 ellpadicheight(GEN e, GEN P, GEN p, long v0)
 {
   pari_sp av = avma;
   GEN N, H, h, t, ch, g, E, x, n, d, D, ls, lt, S, a,b, ab;
   long v, vd;
+  int is2;
   checkellpt(P);
   if (v0<=0) pari_err_DOMAIN("ellpadicheight","precision","<=",gen_0,stoi(v0));
   checkell_Q(e);
@@ -2404,7 +2412,8 @@ ellpadicheight(GEN e, GEN P, GEN p, long v0)
   P = gel(S,1);
   g = gel(S,2);
   v = v0 + 2*Z_pval(g, p);
-  if (equaliu(p,2)) v += 2;
+  is2 = equaliu(p,2);
+  if (is2) v += 2;
   x = gel(P,1);
   n = numer(x);
   d = denom(x);
@@ -2413,7 +2422,7 @@ ellpadicheight(GEN e, GEN P, GEN p, long v0)
   if (!vd)
   { /* P not in kernel of reduction mod p */
     GEN m, X, Pp, Ep = ellinit_Fp(E, p);
-    long w = v+1;
+    long w = v+2;
     if (!Ep) pari_err(e_MISC,"ellpadicheight: bad reduction");
     Pp = RgV_to_FpV(P, p);
     m = ellorder(Ep, Pp, NULL);
@@ -2428,18 +2437,18 @@ ellpadicheight(GEN e, GEN P, GEN p, long v0)
       else
       {
         vd = Z_pval(d, p);
-        if (w >= v+2*vd) break;
-        w = v+2*vd;
+        if (w >= v+2*vd + is2) break;
+        w = v+2*vd + is2;
       }
     }
     x = X;
   }
   /* we will want t mod p^(v+vd) because of t/D in H later, and
-   * we lose p^vd in tfromx because of sqrt(d) */
-  v += 2*vd;
+   * we lose p^vd in tfromx because of sqrt(d) (p^(vd+1) if p=2)*/
+  v += 2*vd + is2;
   N = powiu(p,v);
   t = tfromx(E, x, p, v, N, &D); /* D^2=denom(x)=x[2] */
-  S = ellformallogsigma_t(E, logsigma_prec(p, v, valp(t)) + 1);
+  S = ellformallogsigma_t(E, logsigma_prec(p, v-vd, valp(t)) + 1);
   ls = ser2rfrac_i(gel(S,1)); /* log_p (sigma(T)/T) */
   lt = ser2rfrac_i(gel(S,2)); /* log_E (T) */
   /* evaluate our formal power series at t */
@@ -2455,8 +2464,17 @@ ellpadicheight(GEN e, GEN P, GEN p, long v0)
     b = gmul(u,b);
   }
   H = mkvec2(a,b);
-  if (ab) H = RgV_dotproduct(H, ab);
-  return gerepileupto(av, gprec(H, v0));
+  if (ab)
+  {
+    H = RgV_dotproduct(H, ab);
+    H = precp_fix(H,v0);
+  }
+  else
+  {
+    gel(H,1) = precp_fix(gel(H,1),v0);
+    gel(H,2) = precp_fix(gel(H,2),v0);
+  }
+  return gerepilecopy(av, H);
 }
 
 GEN
