@@ -53,6 +53,14 @@ struct bb_algebra
   GEN (*zero)(void *E);
 };
 
+/* black box ring */
+struct bb_ring
+{
+  GEN (*add)(void *E, GEN x, GEN y);
+  GEN (*mul)(void *E, GEN x, GEN y);
+  GEN (*sqr)(void *E, GEN x);
+};
+
 /* OBSOLETE */
 GEN     bernvec(long nomb);
 GEN     buchimag(GEN D, GEN c1, GEN c2, GEN gCO);
@@ -1374,6 +1382,9 @@ GEN     factor_pn_1(GEN p, ulong n);
 GEN     factor_pn_1_limit(GEN p, long n, ulong lim);
 GEN     factoru_pow(ulong n);
 GEN     fuse_Z_factor(GEN f, GEN B);
+GEN     gen_digits(GEN x, GEN B, long n, void *E, struct bb_ring *r,
+                          GEN (*div)(void *E, GEN x, GEN y, GEN *r));
+GEN     gen_fromdigits(GEN x, GEN B, void *E, struct bb_ring *r);
 byteptr initprimes(ulong maxnum, long *lenp, ulong *lastp);
 void    initprimetable(ulong maxnum);
 ulong   init_primepointer_geq(ulong a, byteptr *pd);

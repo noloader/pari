@@ -1304,6 +1304,174 @@ issquarefree(GEN x)
 /**                                                                 **/
 /*********************************************************************/
 
+/* set v[i] = 1 iff B^i is needed in the digits_dac algorithm */
+static void
+set_vexp(GEN v, long l)
+{
+  long m;
+  if (v[l]) return;
+  v[l] = 1; m = l>>1;
+  set_vexp(v, m);
+  set_vexp(v, l-m);
+}
+
+/* return all needed B^i for DAC algorithm, for lz digits */
+static GEN
+get_vB(GEN T, long lz, void *E, struct bb_ring *r)
+{
+  GEN vB, vexp = const_vecsmall(lz, 0);
+  long i, l = (lz+1) >> 1;
+  vexp[1] = 1;
+  vexp[2] = 1;
+  set_vexp(vexp, lz);
+  vB = zerovec(lz); /* unneeded entries remain = 0 */
+  gel(vB, 1) = T;
+  for (i = 2; i <= l; i++)
+    if (vexp[i])
+    {
+      long j = i >> 1;
+      GEN B2j = r->sqr(E, gel(vB,j));
+      gel(vB,i) = odd(i)? r->mul(E, B2j, T): B2j;
+    }
+  return vB;
+}
+
+static void
+gen_digits_dac(GEN x, GEN vB, long l, GEN *z,
+               void *E, GEN div(void *E, GEN a, GEN b, GEN *r))
+{
+  GEN q, r;
+  long m = l>>1;
+  if (l==1) { *z=x; return; }
+  q = div(E, x, gel(vB,m), &r);
+  gen_digits_dac(r, vB, m, z, E, div);
+  gen_digits_dac(q, vB, l-m, z+m, E, div);
+}
+
+static GEN
+gen_fromdigits_dac(GEN x, GEN vB, long i, long l, void *E,
+                   GEN add(void *E, GEN a, GEN b),
+                   GEN mul(void *E, GEN a, GEN b))
+{
+  GEN a, b;
+  long m = l>>1;
+  if (l==1) return gel(x,i);
+  a = gen_fromdigits_dac(x, vB, i, m, E, add, mul);
+  b = gen_fromdigits_dac(x, vB, i+m, l-m, E, add, mul);
+  return add(E, a, mul(E, b, gel(vB, m)));
+}
+
+static GEN
+gen_digits_i(GEN x, GEN B, long n, void *E, struct bb_ring *r,
+                          GEN (*div)(void *E, GEN x, GEN y, GEN *r))
+{
+  GEN z, vB;
+  if (n==1) retmkvec(gcopy(x));
+  vB = get_vB(B, n, E, r);
+  z = cgetg(n+1, t_VEC);
+  gen_digits_dac(x, vB, n, (GEN*)(z+1), E, div);
+  return z;
+}
+
+GEN
+gen_digits(GEN x, GEN B, long n, void *E, struct bb_ring *r,
+                          GEN (*div)(void *E, GEN x, GEN y, GEN *r))
+{
+  pari_sp av = avma;
+  return gerepilecopy(av, gen_digits_i(x, B, n, E, r, div));
+}
+
+GEN
+gen_fromdigits(GEN x, GEN B, void *E, struct bb_ring *r)
+{
+  pari_sp av = avma;
+  long n = lg(x)-1;
+  GEN vB = get_vB(B, n, E, r);
+  GEN z = gen_fromdigits_dac(x, vB, 1, n, E, r->add, r->mul);
+  return gerepilecopy(av, z);
+}
+
+static GEN
+_addii(void *data /* ignored */, GEN x, GEN y)
+{ (void)data; return addii(x,y); }
+static GEN
+_sqri(void *data /* ignored */, GEN x) { (void)data; return sqri(x); }
+static GEN
+_mulii(void *data /* ignored */, GEN x, GEN y)
+ { (void)data; return mulii(x,y); }
+static GEN
+_dvmdii(void *data /* ignored */, GEN x, GEN y, GEN *r)
+ { (void)data; return dvmdii(x,y,r); }
+
+static struct bb_ring Z_ring = { _addii, _mulii, _sqri };
+
+static GEN
+check_basis(GEN B)
+{
+  if (!B) return utoipos(10);
+  if (typ(B)!=t_INT) pari_err_TYPE("digits",B);
+  if (cmpis(B,2)<0) pari_err_DOMAIN("digits","B","<",gen_2,B);
+  return B;
+}
+
+/* x has l digits in base B, write them to z[0..l-1], vB[i] = B^i */
+static void
+digits_dacsmall(GEN x, GEN vB, long l, ulong* z)
+{
+  pari_sp av = avma;
+  GEN q,r;
+  long m;
+  if (l==1) { *z=itou(x); return; }
+  m=l>>1;
+  q = dvmdii(x, gel(vB,m), &r);
+  digits_dacsmall(q,vB,l-m,z);
+  digits_dacsmall(r,vB,m,z+l-m);
+  avma = av;
+}
+
+GEN
+digits(GEN x, GEN B)
+{
+  pari_sp av=avma;
+  long lz;
+  GEN z, vB;
+  if (typ(x)!=t_INT) pari_err_TYPE("digits",x);
+  B = check_basis(B);
+  if (!signe(x))       {avma = av; return cgetg(1,t_VEC); }
+  if (absi_cmp(x,B)<0) {avma = av; retmkvec(absi(x)); }
+  if (Z_ispow2(B))
+  {
+    long k = expi(B);
+    if (k == 1) return binaire(x);
+    if (k < BITS_IN_LONG)
+    {
+      (void)new_chunk(4*(expi(x) + 2)); /* HACK */
+      z = binary_2k_zv(x, k);
+      avma = av; return Flv_to_ZV(z);
+    }
+    else
+    {
+      avma = av; return binary_2k(x, k);
+    }
+  }
+  if (signe(x) < 0) x = absi(x);
+  lz = logint(x,B,NULL);
+  if (lgefint(B)>3)
+  {
+    z = gerepileupto(av, gen_digits_i(x, B, lz, NULL, &Z_ring, _dvmdii));
+    vecreverse_inplace(z);
+    return z;
+  }
+  else
+  {
+    vB = get_vB(B, lz, NULL, &Z_ring);
+    (void)new_chunk(3*lz); /* HACK */
+    z = zero_zv(lz);
+    digits_dacsmall(x,vB,lz,(ulong*)(z+1));
+    avma = av; return vecsmall_to_vec(z);
+  }
+}
+
 static ulong DS[] ={
   0,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,10,2,3,4,5,6,7,8,9,10,11,3,4,5,6,7,8,
   9,10,11,12,4,5,6,7,8,9,10,11,12,13,5,6,7,8,9,10,11,12,13,14,6,7,8,9,10,11,
@@ -1397,121 +1565,11 @@ sumdigits(GEN n)
   }
 }
 
-static GEN
-check_basis(GEN B)
-{
-  if (!B) return utoipos(10);
-  if (typ(B)!=t_INT) pari_err_TYPE("digits",B);
-  if (cmpis(B,2)<0) pari_err_DOMAIN("digits","B","<",gen_2,B);
-  return B;
-}
-
-static void
-digits_dac(GEN x, GEN vB, long l, GEN* z)
-{
-  GEN q,r;
-  long m;
-  if (l==1) { *z=x; return; }
-  m=l>>1;
-  q = dvmdii(x, gel(vB,m), &r);
-  digits_dac(q,vB,l-m,z);
-  digits_dac(r,vB,m,z+l-m);
-}
-
-/* x has l digits in base B, write them to z[0..l-1], vB[i] = B^i */
-static void
-digits_dacsmall(GEN x, GEN vB, long l, ulong* z)
-{
-  pari_sp av = avma;
-  GEN q,r;
-  long m;
-  if (l==1) { *z=itou(x); return; }
-  m=l>>1;
-  q = dvmdii(x, gel(vB,m), &r);
-  digits_dacsmall(q,vB,l-m,z);
-  digits_dacsmall(r,vB,m,z+l-m);
-  avma = av;
-}
-
-/* set v[i] = 1 iff B^i is needed in the digits_dac algorithm */
-static void
-set_vexp(GEN v, long l)
-{
-  long m;
-  if (v[l]) return;
-  v[l] = 1; m = l>>1;
-  set_vexp(v, m);
-  set_vexp(v, l-m);
-}
-/* return all needed B^i for DAC algorithm, for lz digits */
-static GEN
-get_vB(GEN B, long lz)
-{
-  GEN vB, vexp = const_vecsmall(lz, 0);
-  long i, l = (lz+1) >> 1;
-  vexp[1] = 1;
-  vexp[2] = 1;
-  set_vexp(vexp, lz);
-  vB = zerovec(lz); /* unneeded entries remain = 0 */
-  gel(vB, 1) = B;
-  for (i = 2; i <= l; i++)
-    if (vexp[i])
-    {
-      long j = i >> 1;
-      GEN B2j = sqri(gel(vB,j));
-      gel(vB,i) = odd(i)? mulii(B2j, B): B2j;
-    }
-  return vB;
-}
-
-GEN
-digits(GEN x, GEN B)
-{
-  pari_sp av=avma;
-  long lz;
-  GEN z, vB;
-  if (typ(x)!=t_INT) pari_err_TYPE("digits",x);
-  B = check_basis(B);
-  if (!signe(x))       {avma = av; return cgetg(1,t_VEC); }
-  if (absi_cmp(x,B)<0) {avma = av; retmkvec(absi(x)); }
-  if (Z_ispow2(B))
-  {
-    long k = expi(B);
-    if (k == 1) return binaire(x);
-    if (k < BITS_IN_LONG)
-    {
-      (void)new_chunk(4*(expi(x) + 2)); /* HACK */
-      z = binary_2k_zv(x, k);
-      avma = av; return Flv_to_ZV(z);
-    }
-    else
-    {
-      avma = av; return binary_2k(x, k);
-    }
-  }
-  if (signe(x) < 0) x = absi(x);
-  lz = logint(x,B,NULL);
-  vB = get_vB(B, lz);
-  if (lgefint(B)>3)
-  {
-    z = zerovec(lz);
-    digits_dac(x,vB,lz,(GEN*)(z+1));
-    return gerepilecopy(av,z);
-  }
-  else
-  {
-    (void)new_chunk(3*lz); /* HACK */
-    z = zero_zv(lz);
-    digits_dacsmall(x,vB,lz,(ulong*)(z+1));
-    avma = av; return vecsmall_to_vec(z);
-  }
-}
-
 GEN
 sumdigits0(GEN x, GEN B)
 {
   pari_sp av = avma;
-  GEN vB, z;
+  GEN z;
   long lz;
 
   if (!B) return sumdigits(x);
@@ -1534,8 +1592,6 @@ sumdigits0(GEN x, GEN B)
   if (absi_cmp(x,B)<0) { avma = av; return absi(x); }
   if (equaliu(B,10))   { avma = av; return sumdigits(x); }
   lz = logint(x,B,NULL);
-  vB = get_vB(B, lz);
-  z = zerovec(lz);
-  digits_dac(x,vB,lz,(GEN*)(z+1));
+  z = gen_digits_i(x, B, lz, NULL, &Z_ring, _dvmdii);
   return gerepileuptoint(av, ZV_sum(z));
 }

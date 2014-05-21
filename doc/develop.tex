@@ -504,6 +504,44 @@ parameter $l$ for the evaluation of $n/m$ polynomials of degree $d$.
 Fractional values can be used if the evaluations are done with different
 accuracies, and thus have different weights.
 
+\section{Black box ring}
+
+A black box ring is defined by a \tet{bb_ring} struct, describing methods
+available to handle ring elements:
+\bprog
+struct bb_ring
+{
+  GEN (*add)(void *E, GEN x, GEN y);
+  GEN (*mul)(void *E, GEN x, GEN y);
+  GEN (*sqr)(void *E, GEN x);
+};
+@eprog
+
+\kbd{add(E,x,y)} returns the sum $x+y$.
+
+\kbd{mul(E,x,y)} returns the product $x\*y$.
+
+\kbd{sqr(E,x)} returns the square $x^2$.
+
+\fun{GEN}{gen_fromdigits}{GEN v, GEN B, void *E, struct bb_ring *r}
+where $B$ is a ring element and $v=[c_0,\ldots,c_{n-1}]$ a vector of ring elements,
+return $\sum_{i=0}^n c_i\*B^i$ using binary splitting.
+
+\fun{GEN}{gen_digits}{GEN x, GEN B, long n, void *E, struct bb_ring *r,
+                          GEN (*div)(void *E, GEN x, GEN y, GEN *r)}
+
+(Require the ring to be Euclidean)
+
+\kbd{div(E,x,y,\&r)} performs the Euclidean division of $x$ by $y$ in the ring
+$R$, returning the quotient $q$ and setting $r$ to the residue so that
+$x=q\*y+r$ holds. The residue must belong to a fixed set of representatives of
+$R/(y)$.
+
+The argument $x$ being a ring element, \kbd{gen\_digits} returns a vector of
+ring elements $[c_0,\ldots,c_{n-1}]$ such that $x = \sum_{i=0}^n c_i\*B^i$.
+Furthermore for all $i\ne n-1$, the elements $c_i$ belonging to the fixed set
+of representatives of $R/(B)$.
+
 \section{Black box free $\Z_p$-modules}
 
 (Very experimental)
