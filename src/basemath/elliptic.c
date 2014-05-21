@@ -5171,7 +5171,7 @@ bilhell_i(GEN E, GEN P, GEN Q, GEN p, long n)
     return y;
   }
 }
-GEN
+static GEN
 ellpadicbil(GEN E, GEN P, GEN Q, GEN p, long n)
 {
   long t1 = typ(P), t2 = typ(Q);
