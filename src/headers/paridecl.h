@@ -2026,7 +2026,7 @@ GEN     ellff_get_gens(GEN E);
 GEN     ellff_get_group(GEN E);
 GEN     ellff_get_o(GEN x);
 GEN     ellff_get_p(GEN E);
-GEN     ellfrobeniusmatrix(GEN E, ulong p, long n);
+GEN     ellpadicfrobenius(GEN E, ulong p, long n);
 GEN     ellfromj(GEN j);
 GEN     ellformaldifferential(GEN e, long n, long v);
 GEN     ellformalexp(GEN e, long n, long v);

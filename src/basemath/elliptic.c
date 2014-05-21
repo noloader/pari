@@ -6429,7 +6429,7 @@ ZpXXQ_frob(GEN S, GEN T, ulong p, long e)
 }
 
 GEN
-ellfrobeniusmatrix(GEN E, ulong p, long n)
+ellpadicfrobenius(GEN E, ulong p, long n)
 {
   pari_sp av = avma;
   ulong p2 = p>>1;
