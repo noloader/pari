@@ -459,6 +459,30 @@ FpX_div_by_X_x(GEN a, GEN x, GEN p, GEN *r)
   return z;
 }
 
+static GEN
+_FpX_divrem(void * E, GEN x, GEN y, GEN *r) { return FpX_divrem(x, y, (GEN) E, r); }
+static GEN
+_FpX_add(void * E, GEN x, GEN y) { return FpX_add(x, y, (GEN) E); }
+
+static struct bb_ring FpX_ring = { _FpX_add,_FpX_mul,_FpX_sqr };
+
+GEN
+FpX_digits(GEN x, GEN T, GEN p)
+{
+  pari_sp av = avma;
+  long d = degpol(T), n = (lgpol(x)+d-1)/d;
+  GEN z = gen_digits(x,T,n,(void *)p, &FpX_ring, _FpX_divrem);
+  return gerepileupto(av, z);
+}
+
+GEN
+FpX_fromdigits(GEN x, GEN T, GEN p)
+{
+  pari_sp av = avma;
+  GEN z = gen_fromdigits(x,T,(void *)p, &FpX_ring);
+  return gerepileupto(av, z);
+}
+
 long
 FpX_valrem(GEN x, GEN t, GEN p, GEN *py)
 {
