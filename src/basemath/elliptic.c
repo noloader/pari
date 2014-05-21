@@ -2503,10 +2503,17 @@ ellpadics2(GEN E, GEN p, long n)
 {
   pari_sp av = avma;
   GEN D, l, F = ellpadicfrobenius(E, itou(p), n);
-  GEN a = gcoeff(F,1,1), b = gcoeff(F,1,2), d = gcoeff(F,2,2);
-  GEN ap = padic_to_Fp(gadd(a,d), p);
-  if(!signe(ap)) pari_err_DOMAIN("ellpadics2","E","is supersingular at", p,E);
-  ap = Fp_center(ap,p,shifti(p,-1));
+  GEN a = gcoeff(F,1,1), b = gcoeff(F,1,2), d = gcoeff(F,2,2), ap = gadd(a,d);
+  ulong pp = itou_or_0(p);
+  if(valp(ap) > 0) pari_err_DOMAIN("ellpadics2","E","is supersingular at", p,E);
+  if (pp == 2 || (pp <= 13 && n == 1)) /* 2sqrt(p) > p/2: ambiguity */
+    ap = ellap(E,p);
+  else
+  { /* either 2sqrt(p) < p/2 or n > 1 and 2sqrt(p) < p^2/2 (since p!=2) */
+    GEN q = cmpiu(p,13) <= 0? sqri(p): p;
+    ap = padic_to_Fp(ap, q);
+    ap = Fp_center(ap,q,shifti(q,-1));
+  }
   D = subii(sqri(ap), shifti(p,2));
   if (equaliu(p,2)) n++;
   l = gmul2n(gadd(ap, Qp_sqrt(cvtop(D, p, n))), -1); /*unit eigenvalue of F*/
