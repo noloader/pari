@@ -71,9 +71,9 @@ BA 27- [libpari] ZpX_ZpXQ_liftroot, ZpX_ZpXQ_liftroot_ea
    28- [libpari] fuse_Z_factor
    29- ellformalw, ellformalpoint, ellformaldifferential,
        ellformallog, ellformalexp, ellnonsingularmultiple, ellpadicheight,
-       ellpadicheightmatrix
+       ellpadicheightmatrix, ellpadics2, ellpadiclog
 BA 30- [libpari] function FpX_powu
-BA 31- GP function ellfrobeniusmatrix
+BA 31- GP function ellpadicfrobenius
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]

@@ -2341,7 +2341,7 @@ tfromx(GEN e, GEN x, GEN p, long v, GEN N, GEN *pd)
   return gdiv(gmulgs(gmul(n,d), -2), gsub(Y,B));
 }
 
-/* return minimal i s.t. -v_p(j+1) - log_p(j-1) + (j+1)*t >= v for all j >= i */
+/* return minimal i s.t. -v_p(j+1) - log_p(j-1) + (j+1)*t >= v for all j>=i */
 static long
 logsigma_prec(GEN p, long v, long t)
 {
@@ -2357,6 +2357,20 @@ logsigma_prec(GEN p, long v, long t)
   if (j == 1)
   {
     if (- equaliu(p,2) + 2*t + 0.01 >= v) i = 1;
+  }
+  return i;
+}
+/* return minimal i s.t. -v_p(j+1) + (j+1)*t >= v for all j>=i */
+static long
+log_prec(GEN p, long v, long t)
+{
+  double log2p = dbllog2(p);
+  long j, i = ceil(v / (t - LOG2/(2*log2p)) + 0.01);
+  /* guaranteed to work, now optimize */
+  for (j = i-1; j >= 1; j--)
+  {
+    if (- u_pval(j+1,p) + (j+1)*t + 0.01 < v) break;
+    i = j;
   }
   return i;
 }
@@ -2464,6 +2478,39 @@ ellpadicheight(GEN e, GEN p, long v0, GEN P)
     gel(H,2) = precp_fix(gel(H,2),v0);
   }
   return gerepilecopy(av, H);
+}
+
+GEN
+ellpadiclog(GEN E, GEN p, long n, GEN P)
+{
+  pari_sp av = avma;
+  long vt;
+  GEN t, x, y, L;
+  checkellpt(P);
+  if (ell_is_inf(P)) return gen_0;
+  x = gel(P,1);
+  y = gel(P,2); t = gneg(gdiv(x,y));
+  vt = gvaluation(t, p); /* can be a t_INT, t_FRAC or t_PADIC */
+  if (vt <= 0)
+    pari_err_DOMAIN("ellpadiclog","P","not in the kernel of reduction at",p,P);
+  L = ser2rfrac_i(ellformallog(E, log_prec(p, n, vt) + 1, 0));
+  return gerepileupto(av, poleval(L, cvtop(t, p, n)));
+}
+
+/* s2 = (b_2-E_2)/12 */
+GEN
+ellpadics2(GEN E, GEN p, long n)
+{
+  pari_sp av = avma;
+  GEN D, l, F = ellpadicfrobenius(E, itou(p), n);
+  GEN a = gcoeff(F,1,1), b = gcoeff(F,1,2), d = gcoeff(F,2,2);
+  GEN ap = padic_to_Fp(gadd(a,d), p);
+  if(!signe(ap)) pari_err_DOMAIN("ellpadics2","E","is supersingular at", p,E);
+  ap = Fp_center(ap,p,shifti(p,-1));
+  D = subii(sqri(ap), shifti(p,2));
+  if (equaliu(p,2)) n++;
+  l = gmul2n(gadd(ap, Qp_sqrt(cvtop(D, p, n))), -1); /*unit eigenvalue of F*/
+  return gerepileupto(av, gdiv(b, gsub(l, a))); /* slope of eigenvector */
 }
 
 GEN
@@ -6436,6 +6483,8 @@ ellpadicfrobenius(GEN E, ulong p, long n)
   long N, i;
   GEN F, s, q, Q, pN1;
   checkell_Q(E);
+  if (n <= 0)
+    pari_err_DOMAIN("ellpadicfrobenius","precision","<=",gen_0,stoi(n));
   N = n + logint0(stoi(2*n), stoi(p), NULL);
   q = zeropadic(utoi(p),n); pN1 = powuu(p,N+1);
   Q = RgX_to_FpX(RHSpol(E,0), pN1);
