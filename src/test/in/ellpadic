@@ -39,6 +39,8 @@ E=ellinit([-577/48,14689/864]);
 ellpadics2(E,43,6)
 E=ellinit([1,0,1,-460,-3830]);
 ellpadics2(E,5,6)
+E=ellinit([0,0,1,-1,0]);
+ellpadics2(E,5,6)
 
 E=ellinit([1, -1, 1, 0, 0]);
 ellpadicfrobenius(E,5,7)

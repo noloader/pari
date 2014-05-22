@@ -2502,7 +2502,7 @@ GEN
 ellpadics2(GEN E, GEN p, long n)
 {
   pari_sp av = avma;
-  GEN D, l, F = ellpadicfrobenius(E, itou(p), n);
+  GEN sqrtD, D, l, F = ellpadicfrobenius(E, itou(p), n);
   GEN a = gcoeff(F,1,1), b = gcoeff(F,1,2), d = gcoeff(F,2,2), ap = gadd(a,d);
   ulong pp = itou_or_0(p);
   if(valp(ap) > 0) pari_err_DOMAIN("ellpadics2","E","is supersingular at", p,E);
@@ -2516,7 +2516,8 @@ ellpadics2(GEN E, GEN p, long n)
   }
   D = subii(sqri(ap), shifti(p,2));
   if (equaliu(p,2)) n++;
-  l = gmul2n(gadd(ap, Qp_sqrt(cvtop(D, p, n))), -1); /*unit eigenvalue of F*/
+  sqrtD = Zp_sqrtlift(D, ap, p, n); /* congruent to ap mod p */
+  l = gmul2n(gadd(ap, cvtop(sqrtD,p,n)), -1); /*unit eigenvalue of F*/
   return gerepileupto(av, gdiv(b, gsub(l, a))); /* slope of eigenvector */
 }
 
