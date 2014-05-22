@@ -2,17 +2,16 @@ Function: ellpadics2
 Section: elliptic_curves
 C-Name: ellpadics2
 Prototype: GGL
-Help: ellpadics2(E,p,n): returns to absolute p-adic precision p^n.
+Help: ellpadics2(E,p,n): returns s2 to absolute p-adic precision p^n
 Doc: If $p>2$ is a prime and $E/\Q$ is a elliptic curve with ordinary good
  reduction at $p$, returns the slope of the unit eigenvector
- of \kbd{ellpadicfrobenius(E,p,n)}, i.e.
- the action of Frobenius $\varphi$ on
+ of \kbd{ellpadicfrobenius(E,p,n)}, i.e. the action of Frobenius $\varphi$ on
  the crystalline module $D_p(E)= \Q_p \otimes H^1_{dR}(E/\Q)$ in the basis of
  the given model $(\omega, \eta=x\*\omega)$, where $\omega$ is the invariant
  differential $dx/(2\*y+a_1\*x+a_3)$. In other words, $\eta + s_2\omega$
  is an eigenvector for the unit eigenvalue of $\varphi$.
 
- This slope is the unique $c \in \Z_p$ such that the odd solution
+ This slope is the unique $c \in 3^{-1}\Z_p$ such that the odd solution
    $\sigma(t) = t + O(t^2)$ of
  $$ - d(\dfrac{1}{\sigma} \dfrac{d \sigma}{\omega})
   = (x(t) + c) \omega$$
