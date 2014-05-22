@@ -2502,9 +2502,15 @@ GEN
 ellpadics2(GEN E, GEN p, long n)
 {
   pari_sp av = avma;
-  GEN sqrtD, D, l, F = ellpadicfrobenius(E, itou(p), n);
-  GEN a = gcoeff(F,1,1), b = gcoeff(F,1,2), d = gcoeff(F,2,2), ap = gadd(a,d);
-  ulong pp = itou_or_0(p);
+  GEN sqrtD, D, l, F, a,b,d, ap;
+  ulong pp;
+  if (typ(p) != t_INT) pari_err_TYPE("ellpadics2",p);
+  if (cmpis(p,2) < 0) pari_err_PRIME("ellpadics2",p);
+  pp = itou_or_0(p);
+  F = ellpadicfrobenius(E, itou(p), n);
+  a = gcoeff(F,1,1);
+  b = gcoeff(F,1,2);
+  d = gcoeff(F,2,2); ap = gadd(a,d);
   if(valp(ap) > 0) pari_err_DOMAIN("ellpadics2","E","is supersingular at", p,E);
   if (pp == 2 || (pp <= 13 && n == 1)) /* 2sqrt(p) > p/2: ambiguity */
     ap = ellap(E,p);
