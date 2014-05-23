@@ -10668,6 +10668,9 @@ type as $A$ (\typ{VEC}, \typ{COL} or \typ{MAT}), and whose components
 are the $A[n],\dots,A[1]$. If $A$ is a \typ{MAT}, these are the
 \emph{columns} of $A$.
 
+\fun{void}{vecreverse_inplace}{GEN A} as \kbd{vecreverse}, but reverse
+$A$ in place.
+
 \fun{GEN}{vecpermute}{GEN A, GEN p} $p$ is a \typ{VECSMALL} representing
 a list $[p_1,\dots,p_n]$ of indices. Returns a \kbd{GEN} which has the same
 type as $A$ (\typ{VEC}, \typ{COL} or \typ{MAT}), and whose components
