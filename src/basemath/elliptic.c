@@ -6380,7 +6380,6 @@ FpXXQ_red(GEN S, GEN T, GEN p)
   pari_sp av = avma;
   long dS = degpol(S);
   GEN A = cgetg(dS+3, t_POL);
-  A[1] = S[1];
   GEN C = pol_0(varn(T));
   long i;
   for(i=dS; i>0; i--)
@@ -6391,6 +6390,7 @@ FpXXQ_red(GEN S, GEN T, GEN p)
     C = Q;
   }
   gel(A,2) = FpX_add(C, gel(S,2), p);
+  A[1] = S[1];
   return gerepilecopy(av, FpXX_renormalize(A,dS+3));
 }
 
@@ -6429,13 +6429,14 @@ ZpXXQ_invsqrt(GEN S, GEN T, ulong p, long e)
   av2 = avma; lim = stack_lim(av2, 1);
   for (;mask>1;)
   {
+    GEN q, q2, q22, f, fq;
     long n2 = n;
     n<<=1; if (mask & 1) n--;
     mask >>= 1;
-    GEN q = powuu(p,n), q2 = powuu(p,n2);
-    GEN f = gsub(FpXXQ_mul(S, FpXXQ_sqr(a, T, q), T, q), pol_1(v));
-    GEN fq = ZXX_Z_divexact(f, q2);
-    GEN q22 = shifti(addis(q2,1),-1);
+    q = powuu(p,n), q2 = powuu(p,n2);
+    f = gsub(FpXXQ_mul(S, FpXXQ_sqr(a, T, q), T, q), pol_1(v));
+    fq = ZXX_Z_divexact(f, q2);
+    q22 = shifti(addis(q2,1),-1);
     a = FpXX_sub(a, gmul(FpXX_Fp_mul(FpXXQ_mul(a, fq, T, q2), q22, q2), q2), q);
     if (low_stack(lim, stack_lim(av2,1)))
     {
