@@ -2525,15 +2525,15 @@ Fincke_Pohst_ideal(RELCACHE_t *cache, FB_t *F, GEN nf, GEN M,
 }
 
 static void
-small_norm(RELCACHE_t *cache, FB_t *F, GEN nf, long nbrelpid,
-           double LOGD, double LIMC2, FACT *fact, GEN p0)
+small_norm(RELCACHE_t *cache, FB_t *F, GEN nf, long nbrelpid, GEN M,
+           FACT *fact, GEN p0)
 {
   pari_timer T;
-  const long N = nf_get_degree(nf), prec = nf_get_prec(nf);
+  const long prec = nf_get_prec(nf);
   FP_t fp;
   pari_sp av;
-  GEN M = nf_get_M(nf), G = nf_get_G(nf), L_jid = F->L_jid;
-  long nbsmallnorm, nbfact, precbound, noideal = lg(L_jid);
+  GEN G = nf_get_G(nf), L_jid = F->L_jid;
+  long nbsmallnorm, nbfact, noideal = lg(L_jid);
   REL_t *last = cache->last;
 
   if (DEBUGLEVEL)
@@ -2544,16 +2544,7 @@ small_norm(RELCACHE_t *cache, FB_t *F, GEN nf, long nbrelpid,
   }
   nbsmallnorm = nbfact = 0;
 
- /* LLL reduction produces v0 in I such that
-  *     T2(v0) <= (4/3)^((n-1)/2) NI^(2/n) disc(K)^(1/n)
-  * We consider v with T2(v) <= BMULT * T2(v0)
-  * Hence Nv <= ((4/3)^((n-1)/2) * BMULT / n)^(n/2) NI sqrt(disc(K)) */
-  precbound = nbits2prec( BITS_IN_LONG + (long)ceil(
-    (N/2. * ((N-1)/2.* log(4./3) + log(BMULT/(double)N)) + log(LIMC2) + LOGD/2)
-      / LOG2)); /* enough to compute norms */
-  if (precbound < prec) M = gprec_w(M, precbound);
-
-  minim_alloc(N+1, &fp.q, &fp.x, &fp.y, &fp.z, &fp.v);
+  minim_alloc(lg(M), &fp.q, &fp.x, &fp.y, &fp.z, &fp.v);
   for (av = avma; --noideal; avma = av)
   {
     GEN ideal=gel(F->LP,L_jid[noideal]);
@@ -3831,7 +3822,7 @@ Buchall_param(GEN P, double cbach, double cbach2, long nbrelpid, long flun, long
   long PRECREG, N, R1, R2, RU, low, high, LIMC0, LIMC, LIMC2, LIMCMAX, zc, i;
   long MAXDEPSIZESFB, MAXDEPSFB;
   long nreldep, sfb_trials, need, old_need, precdouble = 0, precadd = 0;
-  long done_small, small_fail, fail_limit, squash_index;
+  long done_small, small_fail, fail_limit, squash_index, small_norm_prec;
   double lim, drc, LOGD, LOGD2;
   GEN computed = NULL, zu, nf, D, A, W, R, h, PERM, fu = NULL /*-Wall*/;
   GEN small_multiplier;
@@ -3936,6 +3927,14 @@ START:
   if (F.LP) delete_FB(&F);
   if (LIMC2 < LIMC) LIMC2 = LIMC;
   if (DEBUGLEVEL) { err_printf("LIMC = %ld, LIMC2 = %ld\n",LIMC,LIMC2); }
+ /* In small_norm, LLL reduction produces v0 in I such that
+  *     T2(v0) <= (4/3)^((n-1)/2) NI^(2/n) disc(K)^(1/n)
+  * We consider v with T2(v) <= BMULT * T2(v0)
+  * Hence Nv <= ((4/3)^((n-1)/2) * BMULT / n)^(n/2) NI sqrt(disc(K)).
+  * NI <= LIMC2^2 */
+  small_norm_prec = nbits2prec( BITS_IN_LONG + (long)ceil(
+    (N/2. * ((N-1)/2.*log(4./3) + log(BMULT/(double)N)) + 2*log(LIMC2) + LOGD/2)
+      / LOG2)); /* enough to compute norms */
 
   FBgen(&F, nf, N, LIMC, LIMC2, &GRHcheck);
   if (!F.KC) goto START;
@@ -4042,7 +4041,11 @@ START:
           }
         }
         if (lg(F.L_jid) > 1)
-          small_norm(&cache, &F, nf, nbrelpid, LOGD, LIMC2, fact, p0);
+        {
+          GEN M2 = nf_get_M(nf);
+          if (small_norm_prec < PRECREG) M2 = gprec_w(M2, small_norm_prec);
+          small_norm(&cache, &F, nf, nbrelpid, M2, fact, p0);
+        }
         avma = av3;
         if (!A && cache.last != last)
           small_fail = 0;
