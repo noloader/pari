@@ -34,6 +34,7 @@ XR  9- padicfields(huge p, d) was very slow [even though ramification is tame]
    21- gaffsg(0, t_PADIC): wrong valuation
    22- thue(f^e*g, ...), e even, (f,g)=1 missed solutions such that f<0
    23- faster znlog when p-1 has only smallish prime factors.
+   24- (t_INTMOD with word-sized modulus)^(huge negative power) wrong [#1584]
 
   Added
     1- add optional argument to sumdigits to specify the base
