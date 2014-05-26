@@ -436,7 +436,7 @@ void
 maxprime_check(ulong c) { if (_maxprime < c) pari_err_MAXPRIME(c); }
 
 /* We ensure 65302 <= maxnum <= 436273289: the LHS ensures modular function
- * have enough fast primes to work, the RHS ensures that p_{n+1} - p_n < 255 
+ * have enough fast primes to work, the RHS ensures that p_{n+1} - p_n < 255
  * (N.B. RHS would be incorrect since initprimes0 would make it odd, thereby
  * increasing it by 1) */
 byteptr
