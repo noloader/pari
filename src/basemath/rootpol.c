@@ -2506,13 +2506,8 @@ usp(GEN Q0, long deg, long *nb_donep, long flag, long bitprec)
   while (nb_todo)
   {
     GEN nc = gel(Lc, ind), Qremapped;
-    if (DEBUGLEVEL > 1)
-      err_printf("Checking interval [%Ps/2^%ld, %Ps/2^%ld)\n",
-              nc, Lk[ind], addis(nc, 1), Lk[ind]);
-
     if (Lk[ind] == k + 1)
     {
-      if (DEBUGLEVEL > 2) err_printf("depth %d\n", Lk[ind]);
       deg0 = deg;
       setlg(Q0, deg + 3);
       Q0 = ZX_rescale2n(Q0, 1);
@@ -2521,8 +2516,6 @@ usp(GEN Q0, long deg, long *nb_donep, long flag, long bitprec)
     }
 
     if (!equalii(nc, c)) Q = ZX_translate(Q, subii(nc, c));
-
-    if (DEBUGLEVEL > 2 && Lk[ind] == 19) err_printf("Q=%Ps\n", Q);
 
     k = Lk[ind];
     c = nc;
@@ -2539,23 +2532,16 @@ usp(GEN Q0, long deg, long *nb_donep, long flag, long bitprec)
       deg0--;
       for (j = 2; j <= deg0 + 2; j++) gel(Q, j) = gel(Q, j+1);
       setlg(Q, j);
-      if (DEBUGLEVEL > 1)
-        err_printf("2-root %Ps, Q=%Ps\n", newsol, Q);
     }
-    else if (DEBUGLEVEL > 2) err_printf("Q=%Ps\n", Q);
 
     nb = X2XP1(Q, deg0, flag == 1 ? &Qremapped : NULL);
     nb_done++;
 
-    if (DEBUGLEVEL > 1) err_printf("nb = %ld\n", nb);
-
     switch (nb)
     {
       case 0:
-        if (DEBUGLEVEL > 2) err_printf("No root in this interval\n");
         break;
       case 1:
-        if (DEBUGLEVEL > 2) err_printf("A simple root in this interval\n");
         switch(flag)
         {
         case 0:
@@ -2580,8 +2566,6 @@ usp(GEN Q0, long deg, long *nb_donep, long flag, long bitprec)
       break;
 
       default:
-        if (DEBUGLEVEL > 2)
-          err_printf("Maybe at least %ld roots, retry\n", nb);
         if (indf + 2 > listsize)
         {
           if (ind>1)
@@ -2762,7 +2746,6 @@ ZX_uspensky(GEN P, GEN ab, long flag, long bitprec)
   {
     GEN Pcurp, unscaledres;
     long bp = (long)ceil(fb);
-    if (DEBUGLEVEL > 1) err_printf("b+ = %d\n", bp);
     Pcurp = ZX_unscale2n(Pcur, bp);
     unscaledres = usp(Pcurp, deg, &nb_done, flag, bitprec);
     if (flag <= 1)
@@ -2774,7 +2757,6 @@ ZX_uspensky(GEN P, GEN ab, long flag, long bitprec)
   {
     GEN Pcurm, unscaledres;
     long i, bm = (long)ceil(fb);
-    if (DEBUGLEVEL > 1) err_printf("b- = %d\n", bm);
     Pcurm = ZX_unscale(Pcur, gen_m1);
     Pcurm = ZX_unscale2n(Pcurm, bm);
     unscaledres = usp(Pcurm,deg,&nb_done,flag,bitprec);
@@ -2792,8 +2774,8 @@ ZX_uspensky(GEN P, GEN ab, long flag, long bitprec)
       nbz += lg(unscaledres) - 1;
   }
 
-  if (DEBUGLEVEL > 2)
-    err_printf("Number of visited nodes: %d\n", nb_done);
+  if (DEBUGLEVEL > 4)
+    err_printf("ZX_uspensky: Number of visited nodes: %d\n", nb_done);
 
   if (flag >= 2) return utoi(nbz);
   if (flag)
@@ -2900,7 +2882,7 @@ realroots(GEN P, GEN ab, long prec)
     nrr += ex[i]*nrri;
   }
 
-  if (DEBUGLEVEL > 2)
+  if (DEBUGLEVEL > 4)
   {
     err_printf("Number of real roots: %d\n", lg(sol)-1);
     err_printf(" -- of which 2-integral: %ld\n", nrr);
