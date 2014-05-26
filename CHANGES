@@ -35,6 +35,9 @@ XR  9- padicfields(huge p, d) was very slow [even though ramification is tame]
    22- thue(f^e*g, ...), e even, (f,g)=1 missed solutions such that f<0
    23- faster znlog when p-1 has only smallish prime factors.
    24- (t_INTMOD with word-sized modulus)^(huge negative power) wrong [#1584]
+   25- (gp -p N) or (primelimit=N in gprc_ for N >= 436273290 resulted in an
+       incorrect primetable. N.B. Such commands are now useless: needed primes
+       are produced dynamically anyway.
 
   Added
     1- add optional argument to sumdigits to specify the base
