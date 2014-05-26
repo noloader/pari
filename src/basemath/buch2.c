@@ -2614,7 +2614,7 @@ rnd_rel(RELCACHE_t *cache, FB_t *F, GEN nf, FACT *fact)
   RNDREL_t rr;
   FP_t fp;
   const long nbG = lg(F->vecG)-1, lgsub = lg(F->subFB), l_jid = lg(L_jid);
-  const long N = nf_get_degree(nf), prec = nf_get_prec(nf);
+  const long prec = nf_get_prec(nf);
   long jlist;
   pari_sp av;
 
@@ -2628,7 +2628,7 @@ rnd_rel(RELCACHE_t *cache, FB_t *F, GEN nf, FACT *fact)
   baseideal = get_random_ideal(F, nf, rr.ex);
   baseideal = red(nf, baseideal, F->G0, &rr.m1);
   baseideal = idealhnf_two(nf, baseideal);
-  minim_alloc(N+1, &fp.q, &fp.x, &fp.y, &fp.z, &fp.v);
+  minim_alloc(lg(M), &fp.q, &fp.x, &fp.y, &fp.z, &fp.v);
   for (av = avma, jlist = 1; jlist < l_jid; jlist++, avma = av)
   {
     long j;
@@ -3824,7 +3824,7 @@ Buchall_param(GEN P, double cbach, double cbach2, long nbrelpid, long flun, long
   long nreldep, sfb_trials, need, old_need, precdouble = 0, precadd = 0;
   long done_small, small_fail, fail_limit, squash_index, small_norm_prec;
   double lim, drc, LOGD, LOGD2;
-  GEN computed = NULL, zu, nf, D, A, W, R, h, PERM, fu = NULL /*-Wall*/;
+  GEN computed = NULL, zu, nf, M_sn, D, A, W, R, h, PERM, fu = NULL /*-Wall*/;
   GEN small_multiplier;
   GEN res, L, invhr, B, C, C0, lambda, dep, clg1, clg2, Vbase;
   GEN auts, cyclic;
@@ -3927,6 +3927,10 @@ START:
   if (F.LP) delete_FB(&F);
   if (LIMC2 < LIMC) LIMC2 = LIMC;
   if (DEBUGLEVEL) { err_printf("LIMC = %ld, LIMC2 = %ld\n",LIMC,LIMC2); }
+
+  FBgen(&F, nf, N, LIMC, LIMC2, &GRHcheck);
+  if (!F.KC) goto START;
+  av = avma;
  /* In small_norm, LLL reduction produces v0 in I such that
   *     T2(v0) <= (4/3)^((n-1)/2) NI^(2/n) disc(K)^(1/n)
   * We consider v with T2(v) <= BMULT * T2(v0)
@@ -3935,10 +3939,17 @@ START:
   small_norm_prec = nbits2prec( BITS_IN_LONG + (long)ceil(
     (N/2. * ((N-1)/2.*log(4./3) + log(BMULT/(double)N)) + 2*log(LIMC2) + LOGD/2)
       / LOG2)); /* enough to compute norms */
-
-  FBgen(&F, nf, N, LIMC, LIMC2, &GRHcheck);
-  if (!F.KC) goto START;
-  av = avma;
+  if (small_norm_prec > PRECREG)
+  {
+    GEN nf0 = nf;
+    PRECREG = small_norm_prec;
+    nf = gclone( nfnewprec_shallow(nf, PRECREG) );
+    if (precdouble) gunclone(nf0);
+    precdouble++;
+  }
+  M_sn = nf_get_M(nf);
+  if (small_norm_prec < PRECREG) M_sn = gprec_w(M_sn, small_norm_prec);
+  else if (precdouble) M_sn = gcopy(M_sn);
   subFBgen(&F,nf,auts,cyclic,mindd(lim,LIMC2) + 0.5,MINSFB);
   if (DEBUGLEVEL)
   {
@@ -4041,11 +4052,7 @@ START:
           }
         }
         if (lg(F.L_jid) > 1)
-        {
-          GEN M2 = nf_get_M(nf);
-          if (small_norm_prec < PRECREG) M2 = gprec_w(M2, small_norm_prec);
-          small_norm(&cache, &F, nf, nbrelpid, M2, fact, p0);
-        }
+          small_norm(&cache, &F, nf, nbrelpid, M_sn, fact, p0);
         avma = av3;
         if (!A && cache.last != last)
           small_fail = 0;
