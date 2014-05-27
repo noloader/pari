@@ -2089,7 +2089,6 @@ GEN     ellwpseries(GEN e, long v, long PRECDL);
 GEN     ellzeta(GEN om, GEN z, long prec);
 GEN     expIxy(GEN x, GEN y, long prec);
 GEN     ghell(GEN e, GEN a, long prec);
-GEN     hyperellpadicfrobenius(GEN x, ulong p, long e);
 GEN     mathell(GEN e, GEN x, long prec);
 int     oncurve(GEN e, GEN z);
 GEN     orderell(GEN e, GEN p);
@@ -2615,6 +2614,10 @@ void hash_destroy(hashtable *h);
 ulong hash_str(const char *str);
 ulong hash_str2(const char *s);
 ulong hash_GEN(GEN x);
+
+/* hyperell.c */
+
+GEN     hyperellpadicfrobenius(GEN x, ulong p, long e);
 
 /* hnf_snf.c */
 
