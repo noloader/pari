@@ -736,6 +736,19 @@ ZXX_max_lg(GEN x)
 }
 
 GEN
+ZXX_Z_mul(GEN y, GEN x)
+{
+  long i, l = lg(y);
+  GEN z = cgetg(l,t_POL); z[1] = y[1];
+  for(i=2; i<l; i++)
+    if(typ(gel(y,i))==t_INT)
+      gel(z,i) = mulii(gel(y,i),x);
+    else
+      gel(z,i) = ZX_Z_mul(gel(y,i),x);
+  return z;
+}
+
+GEN
 ZXX_Z_divexact(GEN y, GEN x)
 {
   long i, l = lg(y);
