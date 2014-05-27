@@ -38,6 +38,7 @@ XR  9- padicfields(huge p, d) was very slow [even though ramification is tame]
    25- (gp -p N) or (primelimit=N in gprc_ for N >= 436273290 resulted in an
        incorrect primetable. N.B. Such commands are now useless: needed primes
        are produced dynamically anyway.
+   26- monomial(exact zero, d, v) returned an invalid t_POL / t_RFRAC
 
   Added
     1- add optional argument to sumdigits to specify the base
