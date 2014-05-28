@@ -586,6 +586,9 @@ closure_castgen(GEN z, long mode)
   case Gsmall:
     st[sp++]=gtos(z);
     break;
+  case Gusmall:
+    st[sp++]=gtou(z);
+    break;
   case Gvar:
     st[sp++]=closure_varn(z);
     break;
@@ -933,8 +936,14 @@ closure_eval(GEN C)
     case OCstoi:
       gel(st,sp-1)=stoi(st[sp-1]);
       break;
+    case OCutoi:
+      gel(st,sp-1)=utoi(st[sp-1]);
+      break;
     case OCitos:
       st[sp+operand]=gtos(gel(st,sp+operand));
+      break;
+    case OCitou:
+      st[sp+operand]=gtou(gel(st,sp+operand));
       break;
     case OCtostr:
       {
@@ -1318,6 +1327,13 @@ closure_eval(GEN C)
       sp--;
       if (st[sp+operand])
         st[sp+operand]=gtos(gel(st,sp+operand));
+      else
+        st[sp+operand]=st[sp];
+      break;
+    case OCdefaultulong:
+      sp--;
+      if (st[sp+operand])
+        st[sp+operand]=gtou(gel(st,sp+operand));
       else
         st[sp+operand]=st[sp];
       break;
@@ -1876,8 +1892,14 @@ closure_disassemble(GEN C)
     case OCstoi:
       pari_printf("stoi\n");
       break;
+    case OCutoi:
+      pari_printf("utoi\n");
+      break;
     case OCitos:
       pari_printf("itos\t\t%ld\n",operand);
+      break;
+    case OCitou:
+      pari_printf("itou\t\t%ld\n",operand);
       break;
     case OCtostr:
       pari_printf("tostr\t\t%ld\n",operand);
@@ -1926,6 +1948,9 @@ closure_disassemble(GEN C)
       break;
     case OCdefaultlong:
       pari_printf("defaultlong\t%ld\n",operand);
+      break;
+    case OCdefaultulong:
+      pari_printf("defaultulong\t%ld\n",operand);
       break;
     case OCdefaultgen:
       pari_printf("defaultgen\t%ld\n",operand);
@@ -2042,7 +2067,9 @@ opcode_need_relink(op_code opcode)
   case OCprecreal:
   case OCprecdl:
   case OCstoi:
+  case OCutoi:
   case OCitos:
+  case OCitou:
   case OCtostr:
   case OCvarn:
   case OCcopy:
@@ -2062,6 +2089,7 @@ opcode_need_relink(op_code opcode)
   case OCdefaultarg:
   case OCdefaultgen:
   case OCdefaultlong:
+  case OCdefaultulong:
   case OCcalluser:
   case OCvec:
   case OCcol:

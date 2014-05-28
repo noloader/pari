@@ -233,7 +233,7 @@ check_proto(const char *code)
 {
   long arity = 0;
   const char *s = code, *old;
-  if (*s == 'l' || *s == 'v' || *s == 'i' || *s == 'm') s++;
+  if (*s == 'l' || *s == 'v' || *s == 'i' || *s == 'm' || *s == 'u') s++;
   while (*s && *s != '\n') switch (*s++)
   {
     case '&':
@@ -241,6 +241,7 @@ check_proto(const char *code)
     case 'G':
     case 'I':
     case 'J':
+    case 'U':
     case 'L':
     case 'M':
     case 'P':

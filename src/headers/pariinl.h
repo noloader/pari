@@ -1248,6 +1248,13 @@ gtos(GEN x) {
   return itos(x);
 }
 
+INLINE ulong
+gtou(GEN x) {
+  if (typ(x) != t_INT || signe(x)<0)
+    pari_err_TYPE("gtou [integer >=0 expected]",x);
+  return itou(x);
+}
+
 INLINE GEN
 absfrac(GEN x)
 {

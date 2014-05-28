@@ -13,7 +13,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 
 BEGINEXTERN
 
-typedef enum {Gvoid, Gsmall, Gvec, Gvar, Ggen, Gclosure} Gtype;
+typedef enum {Gvoid, Gsmall, Gvec, Gvar, Ggen, Gclosure, Gusmall} Gtype;
 
 typedef enum {OCpushlong='A',OCpushgnil,OCpushgen,OCpushreal,OCpushstoi,OCpushvar,
               OCpop,
@@ -32,6 +32,7 @@ typedef enum {OCpushlong='A',OCpushgnil,OCpushgen,OCpushreal,OCpushstoi,OCpushva
               OCcheckargs,OCcheckargs0,OCdefaultgen,OCdefaultlong,
               OCavma,OCgerepile,
               OCcowvardyn,OCcowvarlex,
-              OCdup,OCstoreptr,OCcheckuserargs} op_code;
+              OCdup,OCstoreptr,OCcheckuserargs,
+              OCitou,OCutoi,OCdefaultulong} op_code;
 
 ENDEXTERN

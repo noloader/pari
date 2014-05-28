@@ -499,15 +499,16 @@ get_ret_type(const char **p, long arity, Gtype *t, long *flag)
 {
   *flag = 0;
   if (**p == 'v') { (*p)++; *t=Gvoid; return OCcallvoid; }
-  else if (**p == 'i') { (*p)++; *t=Gsmall; return OCcallint; }
-  else if (**p == 'l') { (*p)++; *t=Gsmall; return OCcalllong; }
+  else if (**p == 'i') { (*p)++; *t=Gsmall;  return OCcallint; }
+  else if (**p == 'l') { (*p)++; *t=Gsmall;  return OCcalllong; }
+  else if (**p == 'u') { (*p)++; *t=Gusmall; return OCcalllong; }
   else if (**p == 'm') { (*p)++; *flag = FLnocopy; }
   *t=Ggen; return arity==2?OCcallgen2:OCcallgen;
 }
 
 /*supported types:
- * type: Gsmall, Ggen, Gvoid, Gvec, Gclosure
- * mode: Gsmall, Ggen, Gvar, Gvoid
+ * type: Gusmall, Gsmall, Ggen, Gvoid, Gvec, Gclosure
+ * mode: Gusmall, Gsmall, Ggen, Gvar, Gvoid
  */
 static void
 compilecast_loc(int type, int mode, const char *loc)
@@ -515,13 +516,21 @@ compilecast_loc(int type, int mode, const char *loc)
   if (type==mode) return;
   switch (mode)
   {
+  case Gusmall:
+    if (type==Ggen)        op_push_loc(OCitou,-1,loc);
+    else if (type==Gvoid)  op_push_loc(OCpushlong,0,loc);
+    else if (type!=Gsmall)
+      compile_err("this should be a small integer >=0",loc);
+    break;
   case Gsmall:
     if (type==Ggen)        op_push_loc(OCitos,-1,loc);
     else if (type==Gvoid)  op_push_loc(OCpushlong,0,loc);
-    else compile_err("this should be a small integer",loc);
+    else if (type!=Gusmall)
+      compile_err("this should be a small integer",loc);
     break;
   case Ggen:
     if (type==Gsmall)      op_push_loc(OCstoi,0,loc);
+    else if (type==Gusmall)op_push_loc(OCutoi,0,loc);
     else if (type==Gvoid)  op_push_loc(OCpushgnil,0,loc);
     break;
   case Gvoid:
@@ -816,6 +825,8 @@ compilesmall(long n, long x, long mode)
     op_push(OCpushstoi, x, n);
   else
   {
+    if (mode==Gusmall && x < 0)
+      compile_err("this should be a small integer >=0",tree[n].str);
     op_push(OCpushlong, x, n);
     compilecast(n,Gsmall,mode);
   }
@@ -1347,8 +1358,11 @@ compilefunc(entree *ep, long n, int mode, long flag)
             }
             break;
           }
-        case 'P': case 'L': /*Fall through*/
+        case 'P': case 'L':
           compilenode(arg[j++],Gsmall,0);
+          break;
+        case 'U':
+          compilenode(arg[j++],Gusmall,0);
           break;
         case 'n':
           compilenode(arg[j++],Gvar,0);
@@ -1506,6 +1520,9 @@ compilefunc(entree *ep, long n, int mode, long flag)
         case 'L':
         case 'M':
           op_push(OCpushlong,strtol(q+1,NULL,10),n);
+          break;
+        case 'U':
+          op_push(OCpushlong,(long)strtoul(q+1,NULL,10),n);
           break;
         case 'r':
         case 's':
@@ -1673,6 +1690,9 @@ genclosure(entree *ep, const char *loc, long  nbdata, int check)
       case 'L':
         op_push_loc(OCitos,-index,loc);
         break;
+      case 'U':
+        op_push_loc(OCitou,-index,loc);
+        break;
       case 'n':
         op_push_loc(OCvarn,-index,loc);
         break;
@@ -1724,6 +1744,9 @@ genclosure(entree *ep, const char *loc, long  nbdata, int check)
         op_push_loc(OCpushlong,strtol(q+1,NULL,10),loc);
         op_push_loc(OCdefaultlong,-index,loc);
         break;
+      case 'U':
+        op_push_loc(OCpushlong,(long)strtoul(q+1,NULL,10),loc);
+        op_push_loc(OCdefaultulong,-index,loc);
       case 'r':
       case 's':
         str_defproto(p, q, loc);
@@ -2205,6 +2228,7 @@ optimizefunc(entree *ep, long n)
         case 'n':
         case 'M':
         case 'L':
+        case 'U':
         case 'P':
           optimizenode(arg[j]);
           fl&=tree[arg[j++]].flags;

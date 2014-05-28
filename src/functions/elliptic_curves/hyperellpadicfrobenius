@@ -1,7 +1,7 @@
 Function: hyperellpadicfrobenius
 Section: elliptic_curves
 C-Name: hyperellpadicfrobenius
-Prototype: GLL
+Prototype: GUL
 Help: hyperellpadicfrobenius(Q,p,n): Q being a  rational polynomial of degree
  2*g+1, return the matrix of the Frobenius at p>=g in the standard
  basis of H^1_dR(E) to absolute p-adic precision p^n.

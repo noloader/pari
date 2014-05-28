@@ -7,6 +7,7 @@ Description:
  (empty, bptr, small)
  (empty, bool, lg, small)
  (empty, bool, small_int, small)
+ (empty, bool, usmall, small)
  (empty, void, negbool, bool)
  (empty, typ, str, genstr,gen)
  (empty, errtyp, str)
@@ -30,6 +31,7 @@ Description:
  (#negbool):bool       ${1 value not}
  (negbool):bool        !$(1)
  (small_int):bool
+ (usmall):bool
  (small):bool
  (lg):bool:parens      $(1)!=1
  (bptr):bool           *$(1)
@@ -54,14 +56,21 @@ Description:
  (typ):small_int
  (small):small_int
 
+ (bool):usmall
+ (typ):usmall
+ (small):usmall
+
  (bool):small
  (typ):small
  (small_int):small
+ (usmall):small
  (bptr):small           *$(1)
  (int):small            itos($1)
+ (int):usmall           itou($1)
  (#lg):small:parens     ${1 value 1 sub}
  (lg):small:parens      $(1)-1
  (gen):small            gtos($1)
+ (gen):usmall           gtou($1)
 
  (void):int             gen_0
  (-2):int               gen_m2
@@ -71,6 +80,7 @@ Description:
  (2):int                gen_2
  (bool):int             stoi($1)
  (small):int            stoi($1)
+ (usmall):int           utoi($1)
  (mp):int
  (gen):int
 

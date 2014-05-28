@@ -2504,6 +2504,7 @@ pari_version(void)
  *  J  implicit function of arity 1, like in parsum() loop
  *  G  GEN
  *  L  long
+ *  U  ulong
  *  V  lexical variable
  *  C  lexical context
  *  n  variable number
@@ -2534,6 +2535,7 @@ pari_version(void)
  * Return type (first char or immediately after 'x'): GEN by default, otherwise
  *  m Return GEN but is can point to the input (member function).
  *  l Return long
+ *  u Return ulong
  *  i Return int
  *  v Return void
  *
