@@ -904,15 +904,6 @@ gp_quit(long exitcode)
   exit(exitcode);
 }
 
-static GEN
-gpreadbin(const char *s, int *vector)
-{
-  GEN x = readbin(s,pari_infile, vector);
-  popinfile();
-  if (!x) pari_err_FILE("input file",s);
-  return x;
-}
-
 static void
 escape(char *tch, int ismain)
 {
@@ -1011,12 +1002,14 @@ escape(char *tch, int ismain)
     case 'q': gp_quit(0); break;
     case 'r':
       s = get_sep(s);
-      if (!ismain) { read0(s); break; }
+      if (!ismain) { (void)gp_read_file(s); break; }
       switchin(s);
       if (file_is_binary(pari_infile))
       {
         int vector;
-        GEN x = gpreadbin(s, &vector);
+        GEN x = readbin(s,pari_infile, &vector);
+        popinfile();
+        if (!x) pari_err_FILE("input file",s);
         if (vector) /* many BIN_GEN */
         {
           long i, l = lg(x);
@@ -1869,14 +1862,7 @@ check_secure(const char *s)
     pari_err(e_MISC, "[secure mode]: system commands not allowed\nTried to run '%s'",s);
 }
 
-GEN
-read0(const char *s)
-{
-  switchin(s);
-  if (file_is_binary(pari_infile)) return gpreadbin(s, NULL);
-  return gp_main_loop(0);
-}
-/* as read0 but without a main instance of gp running */
+/* as gp_read_file, before running the main gp instance */
 static void
 read_main(const char *s)
 {

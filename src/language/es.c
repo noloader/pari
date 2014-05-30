@@ -249,14 +249,13 @@ gp_read_stream(FILE *fi)
 }
 
 GEN
-gp_read_file(char *s)
+gp_read_file(const char *s)
 {
   GEN x = gnil;
   FILE *f = switchin(s);
-  if (file_is_binary(f)) {
-    int junk;
-    x = readbin(s,f, &junk);
-  } else {
+  if (file_is_binary(f))
+    x = readbin(s,f, NULL);
+  else {
     Buffer *b = new_buffer();
     x = gnil;
     for (;;) {

@@ -2126,7 +2126,7 @@ int     file_is_binary(FILE *f);
 void    err_flush(void);
 void    err_printf(const char* pat, ...);
 GEN     gp_getenv(const char *s);
-GEN     gp_read_file(char *s);
+GEN     gp_read_file(const char *s);
 GEN     gp_read_stream(FILE *f);
 GEN     gp_readvec_file(char *s);
 GEN     gp_readvec_stream(FILE *f);
