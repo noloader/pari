@@ -632,7 +632,7 @@ pl831(GEN N, GEN p)
     if (!equalii(g,N)) return 0;
   }
 }
-/* Assume x BPSW pseudoprime. Return gen_0 if not prime, and a primality
+/* Assume x BPSW pseudoprime. Return NULL if not prime, and a primality
  * certificate otherwise */
 static GEN isprimePL(GEN N);
 static GEN
@@ -640,7 +640,7 @@ check_prime(GEN p)
 {
   if (BPSW_isprime_small(p)) return gen_1;
   if (expi(p) <= 250) return isprimePL(p);
-  return isprimeAPRCL(p)? gen_2: gen_0;
+  return isprimeAPRCL(p)? gen_2: NULL;
 }
 /* initialize Selfridge / Pocklington-Lehmer test, return 0
  * if proven composite */
@@ -696,7 +696,7 @@ isprimePL(GEN N)
     gel(P,i) = p;
     gel(W,i) = utoipos(witness);
     gel(R,i) = check_prime(p);
-    if (gel(R,i) == gen_0)
+    if (!gel(R,i))
     { /* composite in prime factorisation ! */
       err_printf("Not a prime: %Ps", p);
       pari_err_BUG("isprimePL [false prime number]");
@@ -705,64 +705,55 @@ isprimePL(GEN N)
   return gerepilecopy(ltop, mkmat3(P,W,R));
 }
 
-/* F is a vector of BPSW pseudoprimes of N. For each of then, find a PL witness,
- * then prove primality. If (avoid_last) do not apply test to last entry */
+/* F is a vector whose n first entries are primes. For each of them,
+ * find a PL witness */
 static long
-isprimeSelfridge(GEN N, GEN F, int avoid_last)
+isprimeSelfridge(GEN N, GEN F, long n)
 {
-  long i, l = lg(F);
-  if (avoid_last) l--;
-  for(i = 1; i < l; i++)
-  {
-    GEN p = gel(F,i);
-    if (! pl831(N, p)) return 0;
-    if (DEBUGLEVEL>3)
-      err_printf("Pocklington-Lehmer: recursively proving primality of p = %Ps\n", p);
-    if (!BPSW_isprime(p)) return 0;
-  }
+  long i;
+  for(i = 1; i <= n; i++)
+    if (! pl831(N, gel(F,i))) return 0;
   return 1;
+}
+
+/* BPSW_psp(N) && !BPSW_isprime_small(N). Prove N prime  */
+static long
+BPSW_isprime_big(GEN N)
+{
+  ulong B = minuu(1UL<<19, maxprime());
+  GEN E, p, U, F, N_1 = subiu(N,1);
+  GEN fa = Z_factor_limit(N_1, B), P = gel(fa,1);
+  long n = lg(P)-1;
+
+  p = gel(P,n);
+  /* fully factored */
+  if (cmpiu(p,B) <= 0 || (BPSW_psp_nosmalldiv(p) && check_prime(p)))
+    return isprimeSelfridge(N,P, n);
+
+  E = gel(fa,2);
+  U = powii(p, gel(E,n)); /* unfactored part of N-1 */
+  /* n >= 2, since 2 and p divide  N-1 */
+  if (n == 2)
+    F = powii(gel(P,1), gel(E,1));
+  else
+    F = diviiexact(N_1,  U);
+
+  /* N-1 = F U, F factored, U possibly composite */
+  if (cmpii(F, U) >= 0) /* 1/2-smooth */
+    return isprimeSelfridge(N,P, n-1);
+  if (cmpii(sqri(F), U) >= 0) /* 1/3-smooth */
+    return BLS_test(N, F) && isprimeSelfridge(N,P, n-1);
+  return isprimeAPRCL(N);
 }
 
 /* assume N a BPSW pseudoprime, in particular, it is odd > 2 */
 long
 BPSW_isprime(GEN N)
 {
-  pari_sp av = avma;
-  long l, res;
-  ulong B;
-  GEN fa, P, E, p, U, F, N_1;
-
+  pari_sp av;
+  long res;
   if (BPSW_isprime_small(N)) return 1;
-  N_1 = subis(N,1);
-  B = minuu(1UL<<19, maxprime());
-  fa = Z_factor_limit(N_1, B);
-  P = gel(fa,1);
-  E = gel(fa,2);
-  l = lg(P)-1;
-  p = gel(P,l);
-  U = powii(p, gel(E,l)); /* (possibly) unfactored part of N-1 */
-  if (cmpiu(U, B) <= 0) { U = gen_1; F = N_1; }
-  else
-  { /* l >= 2, since 2 and U divide  N-1 */
-    if (l == 2)
-      F = powii(gel(P,1), gel(E,1));
-    else
-      F = diviiexact(N_1,  U);
-  }
-  /* N-1 = F U, F factored, U possibly composite */
-  if (U == gen_1) /* smooth */
-    res = isprimeSelfridge(N, P, 0);
-  else if (cmpii(F, U) >= 0) /* 1/2-smooth */
-    res = isprimeSelfridge(N, P, 1);
-  else if (cmpii(sqri(F), U) >= 0) /* 1/3-smooth */
-  {
-    res = BLS_test(N, F);
-    if (res) res = isprimeSelfridge(N, P, 1);
-  }
-  else if (BPSW_psp_nosmalldiv(p)) /* smooth after all */
-    res = isprimeSelfridge(N, P, 0);
-  else
-    res = isprimeAPRCL(N);
+  av = avma; res = BPSW_isprime_big(N);
   avma = av; return res;
 }
 

@@ -41,6 +41,7 @@ XR  9- padicfields(huge p, d) was very slow [even though ramification is tame]
    26- monomial(exact zero, d, v) returned an invalid t_POL / t_RFRAC
    27- contfracpnqn(v, n) returned partial quotients p[-1]/q[-1] ...
        p[n-1]/q[n-1], instead of the documented p[0]/q[0] ... p[n]/q[n] [#1580]
+   28- isprime(N, 0) was often slower than either of isprime(N, 1 or 2)
 
   Added
     1- add optional argument to sumdigits to specify the base
