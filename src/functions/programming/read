@@ -1,5 +1,4 @@
 Function: read
-Class: gp
 Section: programming/specific
 C-Name: gp_read_file
 Prototype: D"",s,
