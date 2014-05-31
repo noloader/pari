@@ -147,6 +147,8 @@ ZpXXQ_frob(GEN S, GEN U, GEN V, GEN T, ulong p, long e)
       M = gerepileupto(av2, M);
     }
   }
+  if (degpol(M)<dT-1)
+    return gerepileupto(av, M);
   R = RgX_shift_shallow(M,dT-degpol(M)-2);
   av2 = avma; lim = stack_lim(av2, 1);
   for(i = degpol(M)-dT+2; i>=1; i--)
