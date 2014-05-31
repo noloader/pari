@@ -7275,6 +7275,13 @@ is defined, to the proper accuracy (e.g. \kbd{0}, \kbd{Mod(0,3)},
 \fun{int}{RgX_isscalar}{GEN x} return 1 if $x$ all the coefficients of
 $x$ of degree $> 0$ are $0$ (as per \kbd{gequal0}).
 
+\fun{GEN}{RgX_normalize}{GEN x} divides $x$ by its
+leading coefficient. If the latter is~$1$, $x$ itself is returned, not a
+copy. Leading coefficients equal to $0$ are stripped, e.g.
+\bprog
+  0.*t^3 + Mod(0,3)*t^2 + 2*t
+@eprog\noindent is normalized to $t$.
+
 \fun{GEN}{RgX_coeff}{GEN P, long n} return the coefficient of $x^n$ in $P$,
 defined as \kbd{gen\_0} if $n < 0$ or $n > \kbd{degpol}(P)$. Shallow
 function.
@@ -7283,14 +7290,14 @@ function.
 $P(X)=a_0(X)+X^n*a_1(X)*X^n+\ldots+X^{n*(m-1)}\*a_{m-1}(X)$,
 where the $a_i$ are polynomial of degree at most $n-1$
 (except possibly for the last one) and returns
-$[a_0(X),a_1(X),\ldots,a_{m-1}(X)]$.  This is a shallow function.
+$[a_0(X),a_1(X),\ldots,a_{m-1}(X)]$.  Shallow function.
 
 \fun{void}{RgX_even_odd}{GEN p, GEN *pe, GEN *po} write $p(X) = E(X^2) +
-X O(X^2)$ and set \kbd{*pe = E}, \kbd{*po = O}.
+X O(X^2)$ and set \kbd{*pe = E}, \kbd{*po = O}.  Shallow function.
 
 \fun{GEN}{RgX_splitting}{GEN P, long k} write
 $P(X)=a_0(X^k)+X\*a_1(X^k)+\ldots+X^{k-1}\*a_{k-1}(X^k)$ and return
-$[a_0(X),a_1(X),\ldots,a_{k-1}(X)]$.  This is a shallow function.
+$[a_0(X),a_1(X),\ldots,a_{k-1}(X)]$.  Shallow function.
 
 \fun{GEN}{RgX_copy}{GEN x} returns (a deep copy of) $\kbd{x}$.
 

@@ -1410,6 +1410,20 @@ RgX_Rg_div(GEN x, GEN y) {
   return normalizepol_lg(z, lx);
 }
 GEN
+RgX_normalize(GEN x)
+{
+  GEN d = NULL;
+  long i, n = lg(x)-1;
+  for (i = n; i > 1; i--)
+  {
+    d = gel(x,i);
+    if (!gequal0(d)) break;
+  }
+  if (i == 1) return pol_0(varn(x));
+  if (i == n && isint1(d)) return x;
+  return normalizepol_lg(RgX_Rg_div(x, d), i+1);
+}
+GEN
 RgX_divs(GEN x, long y) {
   long i, lx;
   GEN z = cgetg_copy(x, &lx); z[1] = x[1];

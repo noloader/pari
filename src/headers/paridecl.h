@@ -797,6 +797,7 @@ GEN     RgX_mulXn(GEN x, long d);
 GEN     RgX_muls(GEN y, long x);
 GEN     RgX_mulspec(GEN a, GEN b, long na, long nb);
 GEN     RgX_neg(GEN x);
+GEN     RgX_normalize(GEN x);
 GEN     RgX_pseudodivrem(GEN x, GEN y, GEN *ptr);
 GEN     RgX_pseudorem(GEN x, GEN y);
 GEN     RgX_recip(GEN x);
