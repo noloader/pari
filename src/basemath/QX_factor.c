@@ -212,8 +212,8 @@ cmbf(GEN pol, GEN famod, GEN bound, GEN p, long a, long b,
       trace1[i] = itou(diviiround(T1, pb));
       trace2[i] = itou(diviiround(T2, pb));
     }
-    spa_b   = (ulong)  pa_b[2]; /* < 2^31 */
-    spa_bs2 = (ulong)pa_bs2[2]; /* < 2^31 */
+    spa_b   = uel(pa_b,2); /* < 2^31 */
+    spa_bs2 = uel(pa_bs2,2); /* < 2^31 */
   }
   degsofar[0] = 0; /* sentinel */
 

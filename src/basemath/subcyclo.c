@@ -110,7 +110,7 @@ znstar_generate(long n, GEN V)
   long i, r = 0;
   for(i=1; i<lg(V); i++)
   {
-    ulong v = (ulong)V[i], g = v;
+    ulong v = uel(V,i), g = v;
     long o = 0;
     while (!F2v_coeff(bits, (long)g)) { g = Fl_mul(g, v, (ulong)n); o++; }
     if (!o) continue;
@@ -265,7 +265,7 @@ znstar_hnf_generators(GEN Z, GEN M)
     {
       ulong u = itou(gel(Mj,h));
       if (!u) continue;
-      gen[j] = Fl_mul((ulong)gen[j], Fl_powu(zgen[h], u, n), n);
+      gen[j] = Fl_mul(uel(gen,j), Fl_powu(uel(zgen,h), u, n), n);
     }
   }
   avma = ltop; return gen;

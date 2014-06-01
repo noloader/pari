@@ -108,7 +108,7 @@ nextprime(GEN n)
   if (signe(n) <= 0) { avma = av; return gen_2; }
   if (lgefint(n) == 3)
   {
-    ulong k = unextprime(n[2]);
+    ulong k = unextprime(uel(n,2));
     avma = av;
     if (k) return utoipos(k);
 #ifdef LONG_IS_64BIT
@@ -1179,7 +1179,7 @@ pollardbrent(GEN n)
   if (tf >= 4)
     size = expi(n) + 1;
   else if (tf == 3)                /* try to keep purify happy...  */
-    size = 1 + expu((ulong)n[2]);
+    size = 1 + expu(uel(n,2));
 
   if (size <= 28)
     c0 = 32;/* amounts very nearly to 'insist'. Now that we have squfof(), we
@@ -1493,7 +1493,7 @@ squfof(GEN n)
   int act1 = 1, act2 = 1;
 
 #ifdef LONG_IS_64BIT
-  if (tf > 3 || (tf == 3 && (ulong)n[2]          >= (1UL << (BITS_IN_LONG-5))))
+  if (tf > 3 || (tf == 3 && uel(n,2)             >= (1UL << (BITS_IN_LONG-5))))
 #else  /* 32 bits */
   if (tf > 4 || (tf == 4 && (ulong)(*int_MSW(n)) >= (1UL << (BITS_IN_LONG-5))))
 #endif
@@ -1960,12 +1960,12 @@ is_357_power(GEN x, GEN *pt, ulong *mask)
     return 0;
   }
 #ifdef LONG_IS_64BIT
-  r = (lx == 3)? (ulong)x[2]: umodiu(x, 6046846918939827UL);
+  r = (lx == 3)? uel(x,2): umodiu(x, 6046846918939827UL);
   if (!uis_357_powermod(r, mask)) return 0;
 #else
-  r = (lx == 3)? (ulong)x[2]: umodiu(x, 211*209*61*203);
+  r = (lx == 3)? uel(x,2): umodiu(x, 211*209*61*203);
   if (!uis_357_powermod_32bit_1(r, mask)) return 0;
-  r = (lx == 3)? (ulong)x[2]: umodiu(x, 117*31*43*71);
+  r = (lx == 3)? uel(x,2): umodiu(x, 117*31*43*71);
   if (!uis_357_powermod_32bit_2(r, mask)) return 0;
 #endif
   av = avma;
@@ -2983,7 +2983,7 @@ ifac_main(GEN *partial)
   if (factor_add_primes && !(get_hint(partial) & 8))
   {
     GEN p = VALUE(here);
-    if (lgefint(p)>3 || (ulong)p[2] > 0x1000000UL) (void)addprimes(p);
+    if (lgefint(p)>3 || uel(p,2) > 0x1000000UL) (void)addprimes(p);
   }
   return here;
 }
@@ -3351,7 +3351,7 @@ moebius(GEN n)
       if (!equali1(gel(E,1))) { avma = av; return 0; }
     avma = av; return odd(l)? 1: -1;
   }
-  if (lgefint(n) == 3) return moebiusu(n[2]);
+  if (lgefint(n) == 3) return moebiusu(uel(n,2));
   p = mod4(n); if (!p) return 0;
   if (p == 2) { s = -1; n = shifti(n, -1); } else { s = 1; n = icopy(n); }
   setabssign(n);
@@ -3489,7 +3489,7 @@ core(GEN n)
   {
     case 2: return gen_0;
     case 3:
-      p = coreu(n[2]);
+      p = coreu(uel(n,2));
       return signe(n) > 0? utoipos(p): utoineg(p);
   }
 
@@ -3646,7 +3646,7 @@ ifactor_sign(GEN n, ulong all, long hint, long sn)
     av = avma;
     /* enough room to store <= 15 primes and exponents (OK if n < 2^64) */
     (void)new_chunk((15*3 + 15 + 1) * 2);
-    f = factoru_sign(n[2], all, hint);
+    f = factoru_sign(uel(n,2), all, hint);
     avma = av;
     Pf = gel(f,1);
     Ef = gel(f,2);

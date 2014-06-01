@@ -685,9 +685,9 @@ redimag_1(pari_sp av, GEN a, GEN b, GEN c)
   { /* at most twice */
     long lb = lgefint(b); /* <= 3 after first loop */
     if (lb == 2) return redimag_1_b0(a[2],c[2]);
-    if (lb == 3 && (ulong)b[2] <= (ulong)LONG_MAX) break;
+    if (lb == 3 && uel(b,2) <= (ulong)LONG_MAX) break;
     REDB(a,&b,&c);
-    if ((ulong)a[2] <= (ulong)c[2])
+    if (uel(a,2) <= uel(c,2))
     { /* lg(b) <= 3 but may be too large for itos */
       long s = signe(b);
       avma = av;

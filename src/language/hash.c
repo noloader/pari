@@ -203,13 +203,13 @@ hash_GEN(GEN x)
     case t_INT:
       lx = lgefint(x);
       h &= TYPBITS;
-      for (i = 1; i < lx; i++) h = glue(h, (ulong)x[i]);
+      for (i = 1; i < lx; i++) h = glue(h, uel(x,i));
       return h;
     case t_REAL:
     case t_STR:
     case t_VECSMALL:
       lx = lg(x);
-      for (i = 1; i < lx; i++) h = glue(h, (ulong)x[i]);
+      for (i = 1; i < lx; i++) h = glue(h, uel(x,i));
       return h;
     /* one more special case */
     case t_LIST:

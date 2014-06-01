@@ -203,7 +203,7 @@ factorquad(struct buch_quad *B, GEN f, long nFB, ulong limp)
 
   for (i=1; lgefint(x) > 3; i++)
   {
-    ulong p = (ulong)FB[i], r;
+    ulong p = uel(FB,i), r;
     GEN q = diviu_rem(x, p, &r);
     if (!r)
     {
@@ -221,7 +221,7 @@ factorquad(struct buch_quad *B, GEN f, long nFB, ulong limp)
   if (X == 1) { P[0] = 0; return 1; }
   for (;; i++)
   { /* single precision affair, split for efficiency */
-    ulong p = (ulong)FB[i];
+    ulong p = uel(FB,i);
     ulong q = X / p, r = X % p; /* gcc makes a single div */
     if (!r)
     {
@@ -465,7 +465,7 @@ subFBquad(struct buch_quad *B, GEN D, double PROD, long minSFB)
   no    = cgetg(lv, t_VECSMALL);
   for (j = 1; j < lv; j++)
   {
-    ulong p = B->FB[j];
+    ulong p = uel(B->FB,j);
     if (!umodiu(D, p)) no[ino++] = j; /* ramified */
     else
     {

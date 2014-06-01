@@ -1100,7 +1100,7 @@ gpow(GEN x, GEN n, long prec)
     if (!precision(x)) return gcopy(x);
 
     x = ground(gmulsg(gexpo(x),n));
-    if (is_bigint(x) || (ulong)x[2] >= HIGHEXPOBIT)
+    if (is_bigint(x) || uel(x,2) >= HIGHEXPOBIT)
       pari_err_OVERFLOW("gpow");
     avma = av; return real_0_bit(itos(x));
   }
@@ -2370,14 +2370,14 @@ logr_abs(GEN X)
   * 1-1/x and 1-x/2 ( crossover sqrt(2), worse ~ 0.29 ). To avoid an inverse,
   * we choose between x-1 and 1-x/2 ( crossover 4/3, worse ~ 0.33 ) */
   EX = expo(X);
-  u = (ulong)X[2];
+  u = uel(X,2);
   k = 2;
   if (u > (~0UL / 3) * 2) { /* choose 1-x/2 */
     EX++; u = ~u;
-    while (!u && ++k < l) { u = (ulong)X[k]; u = ~u; }
+    while (!u && ++k < l) { u = uel(X,k); u = ~u; }
   } else { /* choose x - 1 */
     u &= ~HIGHBIT; /* u - HIGHBIT, assuming HIGHBIT set */
-    while (!u && ++k < l) u = (ulong)X[k];
+    while (!u && ++k < l) u = uel(X,k);
   }
   if (k == l) return EX? mulsr(EX, mplog2(l)): real_0(l);
   z = cgetr(EX? l: l - (k-2)); ltop = avma;
@@ -2520,7 +2520,7 @@ Zp_teichmuller(GEN x, GEN p, long e, GEN pe)
     /* q <= qold^2 */
     if (lgefint(q) == 3)
     {
-      ulong Z = (ulong)z[2], Q = (ulong)q[2], P1 = (ulong)p1[2];
+      ulong Z = uel(z,2), Q = uel(q,2), P1 = uel(p1,2);
       ulong W = (Q-1) / P1; /* -1/(p-1) + O(qold) */
       ulong T = Fl_mul(W, Fl_powu(Z,P1,Q) - 1, Q);
       Z = Fl_mul(Z, 1 + T, Q);

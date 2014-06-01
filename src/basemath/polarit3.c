@@ -204,7 +204,7 @@ RgX_is_FpXQX(GEN x, GEN *pT, GEN *pp)
 GEN
 Rg_to_Fp(GEN x, GEN p)
 {
-  if (lgefint(p) == 3) return utoi(Rg_to_Fl(x, (ulong)p[2]));
+  if (lgefint(p) == 3) return utoi(Rg_to_Fl(x, uel(p,2)));
   switch(typ(x))
   {
     case t_INT: return modii(x, p);
@@ -2115,7 +2115,7 @@ FpX_FpXY_resultant(GEN a, GEN b, GEN p)
 
   if (lgefint(p) == 3)
   {
-    ulong pp = (ulong)p[2];
+    ulong pp = uel(p,2);
     b = ZXX_to_FlxX(b, pp, vY);
     a = ZX_to_Flx(a, pp);
     x = Flx_FlxY_resultant(a, b, pp);

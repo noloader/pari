@@ -2602,7 +2602,7 @@ sumdedekind_coprime(GEN h, GEN k)
   pari_sp av = avma;
   GEN s2, s1, p, pp;
   long s;
-  if (lgefint(k) == 3 && (ulong)k[2] <= (2*(ulong)LONG_MAX) / 3)
+  if (lgefint(k) == 3 && uel(k,2) <= (2*(ulong)LONG_MAX) / 3)
   {
     ulong kk = k[2], hh = umodiu(h, kk);
     long s1, s2;

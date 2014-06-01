@@ -1282,7 +1282,7 @@ Z_lval(GEN x, ulong p)
   long vx;
   pari_sp av;
   if (p == 2) return vali(x);
-  if (lgefint(x) == 3) return u_lval((ulong)x[2], p);
+  if (lgefint(x) == 3) return u_lval(uel(x,2), p);
   av = avma;
   for(vx = 0;;)
   {
@@ -1307,7 +1307,7 @@ Z_lvalrem(GEN x, ulong p, GEN *py)
   if (p == 2) { vx = vali(x); *py = shifti(x, -vx); return vx; }
   if (lgefint(x) == 3) {
     ulong u;
-    vx = u_lvalrem((ulong)x[2], p, &u);
+    vx = u_lvalrem(uel(x,2), p, &u);
     *py = signe(x) < 0? utoineg(u): utoipos(u);
     return vx;
   }
@@ -1333,7 +1333,7 @@ Z_lvalrem(GEN x, ulong p, GEN *py)
 static int
 isless_iu(GEN q, ulong p) {
   long l = lgefint(q);
-  return l==2 || (l == 3 && (ulong)q[2] <= p);
+  return l==2 || (l == 3 && uel(q,2) <= p);
 }
 
 long

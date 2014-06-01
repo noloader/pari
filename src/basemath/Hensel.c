@@ -550,7 +550,7 @@ Zp_sqrtlift(GEN b, GEN a, GEN p, long e)
     mask >>= 1;
     if (lgefint(q) == 3)
     {
-      ulong Q = (ulong)q[2];
+      ulong Q = uel(q,2);
       ulong A = umodiu(a, Q);
       ulong B = umodiu(b, Q);
       ulong W = umodiu(w, Q);
@@ -591,7 +591,7 @@ Zp_sqrtnlift(GEN b, GEN n, GEN a, GEN p, long e)
     mask >>= 1;
     if (lgefint(q) == 3 && lgefint(n) == 3)
     {
-      ulong Q = (ulong)q[2], N = (ulong)n[2];
+      ulong Q = uel(q,2), N = uel(n,2);
       ulong A = umodiu(a, Q);
       ulong B = umodiu(b, Q);
       ulong W = umodiu(w, Q);

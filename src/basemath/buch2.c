@@ -796,14 +796,14 @@ smooth_norm(FB_t *F, GEN *N, GEN *ex)
 {
   GEN FB = F->FB;
   const long KCZ = F->KCZ;
-  const ulong limp = (ulong)FB[KCZ]; /* last p in FB */
+  const ulong limp = uel(FB,KCZ); /* last p in FB */
   long i;
 
   *ex = new_chunk(KCZ+1);
   for (i=1; ; i++)
   {
     int stop;
-    ulong p = (ulong)FB[i];
+    ulong p = uel(FB,i);
     long v = Z_lvalrem_stop(N, p, &stop);
     (*ex)[i] = v;
     if (v)

@@ -139,7 +139,7 @@ millerrabin(GEN n, long k)
   if (typ(n) != t_INT) pari_err_TYPE("millerrabin",n);
   if (signe(n)<=0) return 0;
   /* If |n| <= 3, check if n = +- 1 */
-  if (lgefint(n)==3 && (ulong)(n[2])<=3) return (n[2] != 1);
+  if (lgefint(n)==3 && uel(n,2)<=3) return uel(n,2) != 1;
 
   if (!mod2(n)) return 0;
   init_MR_Jaeschke(&S, n); av2 = avma;
@@ -231,7 +231,7 @@ MR_Jaeschke(GEN n, long k)
   long i;
   MR_Jaeschke_t S;
 
-  if (lgefint(n) == 3) return Fl_MR_Jaeschke((ulong)n[2], k);
+  if (lgefint(n) == 3) return Fl_MR_Jaeschke(uel(n,2), k);
 
   if (!mod2(n)) return 0;
   if      (k == 16) { p = pr+13; k = 4; } /* 2,13,23,1662803 */
@@ -513,7 +513,7 @@ BPSW_psp(GEN N)
 
   if (typ(N) != t_INT) pari_err_TYPE("BPSW_psp",N);
   if (signe(N) <= 0) return 0;
-  if (lgefint(N) == 3) return uisprime((ulong)N[2]);
+  if (lgefint(N) == 3) return uisprime(uel(N,2));
   if (!mod2(N)) return 0;
 #ifdef LONG_IS_64BIT
   /* 16294579238595022365 = 3*5*7*11*13*17*19*23*29*31*37*41*43*47*53
@@ -563,7 +563,7 @@ BPSW_psp_nosmalldiv(GEN N)
   long l = lgefint(N);
   int k;
 
-  if (l == 3) return uisprime_661((ulong)N[2]);
+  if (l == 3) return uisprime_661(uel(N,2));
   av = avma;
   /* N large: test for pure power, rarely succeeds, but requires < 1% of
    * compositeness test times */
