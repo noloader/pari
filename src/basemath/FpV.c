@@ -578,9 +578,8 @@ Flv_dotproduct(GEN x, GEN y, ulong p)
   return c;
 }
 ulong
-F2v_dotproduct(GEN x0, GEN y0)
+F2v_dotproduct(GEN x, GEN y)
 {
-  GEN x = x0, y = y0;
   long i, lx = lg(x);
   ulong c;
   if (lx == 2) return 0;
