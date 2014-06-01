@@ -191,7 +191,7 @@ check_LIMC(long LIMC, long LIMCMAX)
 static int
 isless_iu(GEN q, ulong p) {
   long l = lgefint(q);
-  return l==2 || (l == 3 && (ulong)q[2] <= p);
+  return l==2 || (l == 3 && uel(q,2) <= p);
 }
 
 static long
@@ -212,12 +212,12 @@ factorquad(struct buch_quad *B, GEN f, long nFB, ulong limp)
       lo++; P[lo] = p; E[lo] = k;
     }
     if (isless_iu(q,p)) {
-      if (lgefint(x) == 3) { X = (ulong)x[2]; goto END; }
+      if (lgefint(x) == 3) { X = uel(x,2); goto END; }
       return 0;
     }
     if (i == nFB) return 0;
   }
-  X = (ulong)x[2];
+  X = uel(x,2);
   if (X == 1) { P[0] = 0; return 1; }
   for (;; i++)
   { /* single precision affair, split for efficiency */

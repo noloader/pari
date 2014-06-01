@@ -910,7 +910,7 @@ Flx_try_pow(GEN w0, GEN pol, ulong p, GEN q, long r)
     w2 = Flxq_sqr(w,pol,p);
     if (Flx_equal1(w2)) break;
   }
-  return degpol(w)==0 && (ulong)w[2] == p-1 ? NULL: w;
+  return degpol(w)==0 && uel(w,2) == p-1 ? NULL: w;
 }
 
 /* INPUT:
@@ -1658,14 +1658,14 @@ factmod_aux(GEN f, GEN p, GEN (*Factor)(GEN,GEN,long), long flag)
   if (flag)
     for (j=1; j<nbfact; j++)
     {
-      gel(u,j) = utoi((ulong)t[j]);
-      gel(v,j) = utoi((ulong)E[j]);
+      gel(u,j) = utoi(uel(t,j));
+      gel(v,j) = utoi(uel(E,j));
     }
   else
     for (j=1; j<nbfact; j++)
     {
       gel(u,j) = FpX_to_mod(gel(t,j), p);
-      gel(v,j) = utoi((ulong)E[j]);
+      gel(v,j) = utoi(uel(E,j));
     }
   return gerepileupto(av, y);
 }
@@ -2263,7 +2263,7 @@ to_Fq_fact(GEN P, GEN E, GEN T, GEN p, pari_sp av)
   for (j=1; j<l; j++)
   {
     gel(u,j) = simplify_shallow(gel(P,j)); /* may contain pols of degree 0 */
-    gel(v,j) = utoi((ulong)E[j]);
+    gel(v,j) = utoi(uel(E,j));
   }
   y = gerepilecopy(av, mkmat2(u, v));
   u = gel(y,1);

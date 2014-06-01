@@ -52,7 +52,7 @@ get_FpX_degree(GEN T) { return typ(T)==t_VEC? degpol(gel(T,2)): degpol(T); }
 static ulong
 to_Flx(GEN *P, GEN *Q, GEN p)
 {
-  ulong pp = (ulong)p[2];
+  ulong pp = uel(p,2);
   *P = ZX_to_Flx(*P, pp);
   *Q = ZX_to_Flx(*Q, pp); return pp;
 }
@@ -60,7 +60,7 @@ to_Flx(GEN *P, GEN *Q, GEN p)
 static ulong
 to_Flxq(GEN *P, GEN *T, GEN p)
 {
-  ulong pp = (ulong)p[2];
+  ulong pp = uel(p,2);
   if (P) *P = ZX_to_Flx(*P, pp);
   *T = ZXT_to_FlxT(*T, pp); return pp;
 }

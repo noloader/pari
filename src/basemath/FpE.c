@@ -984,14 +984,14 @@ Fl_ellcard_Shanks(ulong c4, ulong c6, ulong p)
       while (l<r)
       {
         ulong m = (l+r) >> 1;
-        if (table[m].x < (ulong)ftest[1]) l=m+1; else r=m;
+        if (table[m].x < uel(ftest,1)) l=m+1; else r=m;
       }
-      if (r < s && table[r].x == (ulong)ftest[1]) break;
+      if (r < s && table[r].x == uel(ftest,1)) break;
       if (Fle_add_inplace(ftest, fg, cp4, p))
         pari_err_PRIME("ellap",utoi(p));
     }
     h += table[r].i * B;
-    if (table[r].y == (ulong)ftest[2])
+    if (table[r].y == uel(ftest,2))
       h -= s * i * B;
     else
       h += s * i * B;

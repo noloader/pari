@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 static ulong
 to_FlxqX(GEN P, GEN Q, GEN T, GEN p, GEN *pt_P, GEN *pt_Q, GEN *pt_T)
 {
-  ulong pp = (ulong)p[2];
+  ulong pp = uel(p,2);
   long v = get_FpX_var(T);
   *pt_P = ZXX_to_FlxX(P, pp, v);
   if (pt_Q) *pt_Q = ZXX_to_FlxX(Q, pp, v);

@@ -1392,7 +1392,7 @@ get_FqE_group(void ** pt_E, GEN a4, GEN a6, GEN T, GEN p)
   if (!T) return get_FpE_group(pt_E,a4,a6,p);
   else if (lgefint(p)==3)
   {
-    ulong pp=(ulong) p[2];
+    ulong pp = uel(p,2);
     return get_FlxqE_group(pt_E, ZX_to_Flx(a4,pp),ZX_to_Flx(a6,pp),ZXT_to_FlxT(T,pp),pp);
   }
   return get_FpXQE_group(pt_E,a4,a6,T,p);

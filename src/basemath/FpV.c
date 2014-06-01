@@ -419,7 +419,7 @@ FpM_mul(GEN x, GEN y, GEN p)
   if (lgefint(p) == 3)
   {
     pari_sp av = avma;
-    ulong pp = (ulong)p[2];
+    ulong pp = uel(p,2);
     if (pp == 2)
     {
       x = ZM_to_F2m(x);
@@ -517,7 +517,7 @@ FpM_powu(GEN x, ulong n, GEN p)
   if (lgefint(p) == 3)
   {
     pari_sp av = avma;
-    ulong pp = (ulong)p[2];
+    ulong pp = uel(p,2);
     GEN z;
     if (pp == 2)
       z = F2m_to_ZM(F2m_powu(ZM_to_F2m(x),n));

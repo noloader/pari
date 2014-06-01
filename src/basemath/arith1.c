@@ -63,7 +63,7 @@ u_is_gener_expo(ulong p, GEN L0)
     L0 = L = u_odd_prime_divisors(q);
     l = lg(L);
   }
-  for (i=1; i<l; i++) L[i] = q / (ulong)L0[i];
+  for (i=1; i<l; i++) L[i] = q / uel(L0,i);
   return L;
 }
 
@@ -174,7 +174,7 @@ pgener_Zp(GEN p)
     GEN x = utoipos(2);
     for (;; x[2]++)
       if (is_gener_Fp(x,p,p_1,L) && !equali1(Fp_pow(x,p_1,p2))) break;
-    avma = av; return utoipos((ulong)x[2]);
+    avma = av; return utoipos(uel(x,2));
   }
 }
 

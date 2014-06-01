@@ -2155,7 +2155,7 @@ discrayabslistarch(GEN bnf, GEN arch, ulong bound)
   Ray = Z;
   while ((p[2] = u_forprime_next(&S)))
   {
-    if (!flbou && (ulong)p[2] > sqbou)
+    if (!flbou && uel(p,2) > sqbou)
     {
       GEN z;
       flbou = 1;

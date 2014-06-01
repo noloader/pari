@@ -199,7 +199,7 @@ static GEN
 div_intmod_same(GEN z, GEN X, GEN x, GEN y)
 {
   if (lgefint(X) == 3) {
-    ulong m = (ulong)X[2], u = Fl_div(itou(x), itou(y), m);
+    ulong m = uel(X,2), u = Fl_div(itou(x), itou(y), m);
     avma = (pari_sp)z; gel(z,2) = utoi(u);
   }
   else

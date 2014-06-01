@@ -329,7 +329,7 @@ Flx_red(GEN z, ulong p)
   long i, l = lg(z);
   GEN x = cgetg(l, t_VECSMALL);
   x[1] = z[1];
-  for (i=2; i<l; i++) x[i] = ((ulong) z[i])%p;
+  for (i=2; i<l; i++) x[i] = uel(z,i)%p;
   return Flx_renormalize(x,l);
 }
 
@@ -638,7 +638,7 @@ int_to_Flx(GEN z, ulong p)
 {
   long i, l = lgefint(z);
   GEN x = cgetg(l, t_VECSMALL);
-  for (i=2; i<l; i++) x[i] = ((ulong) z[i])%p;
+  for (i=2; i<l; i++) x[i] = uel(z,i)%p;
   return Flx_renormalize(x, l);
 }
 
@@ -1211,7 +1211,7 @@ Flx_divrem_basecase(GEN x, GEN y, ulong p, GEN *pr)
   x += 2;
   y += 2;
   z = cgetg(dz + 3, t_VECSMALL); z[1] = sv; z += 2;
-  inv = (ulong)y[dy];
+  inv = uel(y, dy);
   if (inv != 1UL) inv = Fl_inv(inv,p);
 
   if (SMALL_ULONG(p))
@@ -1234,7 +1234,7 @@ Flx_divrem_basecase(GEN x, GEN y, ulong p, GEN *pr)
     z[dz] = Fl_mul(inv, x[dx], p);
     for (i=dx-1; i>=dy; --i)
     { /* compute -p1 instead of p1 (pb with ulongs otherwise) */
-      p1 = p - (ulong)x[i];
+      p1 = p - uel(x,i);
       for (j=i-dy+1; j<=i && j<=dz; j++)
         p1 = Fl_add(p1, Fl_mul(z[j],y[i-j],p), p);
       z[i-dy] = p1? Fl_mul(p - p1, inv, p): 0;
@@ -1924,7 +1924,7 @@ Flx_eval(GEN x, ulong y, ulong p)
           return Fl_mul(p1, y, p);
         }
       r = (i==j)? y: Fl_powu(y, i-j+1, p);
-      p1 = Fl_add((ulong)x[j], Fl_mul(p1,r,p), p);
+      p1 = Fl_add(uel(x,j), Fl_mul(p1,r,p), p);
     }
   }
   return p1;
@@ -2245,7 +2245,7 @@ Flxq_invsafe(GEN x, GEN T, ulong p)
   GEN V, z = Flx_extgcd(get_Flx_mod(T), x, p, NULL, &V);
   ulong iz;
   if (degpol(z)) return NULL;
-  iz = Fl_inv ((ulong)z[2], p);
+  iz = Fl_inv (uel(z,2), p);
   return Flx_Fl_mul(V, iz, p);
 }
 
@@ -2677,7 +2677,7 @@ gener_Flxq(GEN T, ulong p, GEN *po)
     for (i = 1; i < j; i++)
     {
       GEN a = Flxq_pow_Frobenius(tt, gel(L2,i), F, T, p);
-      if (!degpol(a) && (ulong)a[2] == RES) break;
+      if (!degpol(a) && uel(a,2) == RES) break;
     }
     if (i == j) break;
   }
@@ -3295,7 +3295,7 @@ FlxY_Flx_div(GEN x, GEN y, ulong p)
   GEN z;
   if (degpol(y) == 0)
   {
-    ulong t = (ulong)y[2];
+    ulong t = uel(y,2);
     if (t == 1) return x;
     t = Fl_inv(t, p);
     z = cgetg_copy(x, &l); z[1] = x[1];

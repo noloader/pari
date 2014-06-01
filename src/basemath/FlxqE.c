@@ -1115,7 +1115,7 @@ Flx_next(GEN t, ulong p)
 {
   long i;
   for(i=2;;i++)
-    if ((ulong)t[i]==p-1)
+    if (uel(t,i)==p-1)
       t[i]=0;
     else
     {

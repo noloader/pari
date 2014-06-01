@@ -170,7 +170,7 @@ gen_pow_i(GEN x, GEN n, void *E, GEN (*sqr)(void*,GEN),
                                  GEN (*mul)(void*,GEN,GEN))
 {
   long l, e;
-  if (lgefint(n)==3) return gen_powu_i(x,(ulong)n[2],E,sqr,mul);
+  if (lgefint(n)==3) return gen_powu_i(x, uel(n,2), E, sqr, mul);
   l = expi(n);
   if      (l<=64)  e = 3;
   else if (l<=160) e = 4;

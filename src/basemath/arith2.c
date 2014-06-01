@@ -1092,7 +1092,7 @@ eulerphi(GEN n)
       avma = av; return utoipos(e);
     }
   }
-  else if (lgefint(n) == 3) return utoipos(eulerphiu((ulong)n[2]));
+  else if (lgefint(n) == 3) return utoipos(eulerphiu(uel(n,2)));
   else
     F = absi_factor(n);
   if (!signe(n)) return gen_2;

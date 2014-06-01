@@ -116,7 +116,7 @@ FF_equalm1(GEN x)
   case t_FF_FpXQ:
     return (degpol(y) == 0 && Fp_cmp_1(gel(y,2), p));
   default:
-    return (degpol(y) == 0 && (ulong)y[2] == pp-1);
+    return (degpol(y) == 0 && uel(y,2) == pp-1);
   }
 }
 
@@ -1393,7 +1393,7 @@ to_FF_fact(long vP, GEN P, GEN E, GEN ff, pari_sp av)
     GEN Q = simplify_shallow(gel(P,j)); /* may contain pols of degree 0 */
     if (typ(Q) == t_POL) setvarn(Q, vP);
     gel(u,j) = Q;
-    gel(v,j) = utoi((ulong)E[j]);
+    gel(v,j) = utoi(uel(E,j));
   }
   y = gerepilecopy(av, y); u = gel(y,1);
   zf = FF_zero(ff);

@@ -1248,14 +1248,14 @@ long
 z_pval(long s, GEN p)
 {
   if (lgefint(p) > 3) return 0;
-  return z_lval(s, (ulong)p[2]);
+  return z_lval(s, uel(p,2));
 }
 /* assume |p| > 1 */
 long
 z_pvalrem(long s, GEN p, long *py)
 {
   if (lgefint(p) > 3) { *py = s; return 0; }
-  return z_lvalrem(s, (ulong)p[2], py);
+  return z_lvalrem(s, uel(p,2), py);
 }
 
 /* return v_q(x) and set *py = x / q^v_q(x), using divide & conquer */
@@ -1391,7 +1391,7 @@ Z_pvalrem(GEN x, GEN p, GEN *py)
   long vx;
   pari_sp av;
 
-  if (lgefint(p) == 3) return Z_lvalrem(x, (ulong)p[2], py);
+  if (lgefint(p) == 3) return Z_lvalrem(x, uel(p,2), py);
   if (lgefint(x) == 3) { *py = icopy(x); return 0; }
   av = avma; vx = 0; (void)new_chunk(lgefint(x));
   for(;;)
@@ -1404,13 +1404,13 @@ Z_pvalrem(GEN x, GEN p, GEN *py)
 long
 u_pvalrem(ulong x, GEN p, ulong *py)
 {
-  if (lgefint(p) == 3) return u_lvalrem(x, (ulong)p[2], py);
+  if (lgefint(p) == 3) return u_lvalrem(x, uel(p,2), py);
   *py = x; return 0;
 }
 long
 u_pval(ulong x, GEN p)
 {
-  if (lgefint(p) == 3) return u_lval(x, (ulong)p[2]);
+  if (lgefint(p) == 3) return u_lval(x, uel(p,2));
   return 0;
 }
 long
@@ -1418,7 +1418,7 @@ Z_pval(GEN x, GEN p) {
   long vx;
   pari_sp av;
 
-  if (lgefint(p) == 3) return Z_lval(x, (ulong)p[2]);
+  if (lgefint(p) == 3) return Z_lval(x, uel(p,2));
   if (lgefint(x) == 3) return 0;
   av = avma; vx = 0;
   for(;;)

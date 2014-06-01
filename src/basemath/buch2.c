@@ -2226,7 +2226,7 @@ add_rel_i(RELCACHE_t *cache, GEN R, long nz, GEN m, long orig, long aut, REL_t *
       }
       else
       {
-        ulong invak = Fl_inv((ulong)a[k], mod_p);
+        ulong invak = Fl_inv(uel(a,k), mod_p);
         /* Cleanup a */
         for (i = k; i-- > 1; )
         {
