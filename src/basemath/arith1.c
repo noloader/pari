@@ -74,7 +74,7 @@ is_gener_Fl(ulong x, ulong p, ulong p_1, GEN L)
   if (krouu(x, p) >= 0) return 0;
   for (i=lg(L)-1; i; i--)
   {
-    ulong t = Fl_powu(x, (ulong)L[i], p);
+    ulong t = Fl_powu(x, uel(L,i), p);
     if (t == p_1 || t == 1) return 0;
   }
   return 1;
@@ -127,13 +127,13 @@ pgener_Fp_local(GEN p, GEN L0)
     ulong z;
     if (p[2] == 2) return gen_1;
     if (L0) L0 = ZV_to_nv(L0);
-    z = pgener_Fl_local((ulong)p[2], L0);
+    z = pgener_Fl_local(uel(p,2), L0);
     avma = av0; return utoipos(z);
   }
   p_1 = subis(p,1); L = is_gener_expo(p, L0);
   x = utoipos(2);
   for (;; x[2]++) { if (is_gener_Fp(x, p, p_1, L)) break; }
-  avma = av0; return utoipos((ulong)x[2]);
+  avma = av0; return utoipos(uel(x,2));
 }
 
 GEN
@@ -628,7 +628,7 @@ Z_issquareall(GEN x, GEN *pt)
   }
   if (lgefint(x) == 3)
   {
-    ulong u = (ulong)x[2], a;
+    ulong u = uel(x,2), a;
     if (!pt) return uissquare(u);
     if (!uissquareall(u, &a)) return 0;
     *pt = utoipos(a); return 1;
@@ -2077,7 +2077,7 @@ Fp_sqrt(GEN a, GEN p)
   if (signe(p) <= 0 || equali1(p)) pari_err_PRIME("Fp_sqrt",p);
   if (lgefint(p) == 3)
   {
-    ulong u = (ulong)p[2]; u = Fl_sqrt(umodiu(a, u), u);
+    ulong pp = uel(p,2), u = Fl_sqrt(umodiu(a, pp), pp);
     if (u == ~0UL) return NULL;
     return utoi(u);
   }
@@ -2503,7 +2503,7 @@ Fp_powu(GEN A, ulong k, GEN N)
   pari_sp av;
 
   if (lN == 3) {
-    ulong n = (ulong)N[2];
+    ulong n = uel(N,2);
     return utoi( Fl_powu(umodiu(A, n), k, n) );
   }
   if (k <= 2)
@@ -2594,7 +2594,7 @@ Fp_pow(GEN A, GEN K, GEN N)
         k = umodiu(negi(K), eulerphiu(n));
     }
     else
-      k = (ulong)K[2];
+      k = uel(K,2);
     return utoi(Fl_powu(a, k, n));
   }
 

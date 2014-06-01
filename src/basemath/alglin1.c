@@ -748,7 +748,7 @@ FpM_init(GEN a, GEN p, ulong *pp)
 {
   if (lgefint(p) == 3)
   {
-    *pp = (ulong)p[2];
+    *pp = uel(p,2);
     return (*pp==2)? ZM_to_F2m(a): ZM_to_Flm(a, *pp);
   }
   *pp = 0; return a;
@@ -758,7 +758,7 @@ RgM_Fp_init(GEN a, GEN p, ulong *pp)
 {
   if (lgefint(p) == 3)
   {
-    *pp = (ulong)p[2];
+    *pp = uel(p,2);
     return (*pp==2)? RgM_to_F2m(a): RgM_to_Flm(a, *pp);
   }
   *pp = 0; return RgM_to_FpM(a,p);
@@ -1036,7 +1036,7 @@ FqM_gauss_pivot(GEN x, GEN T, GEN p, long *rr)
   if (lgefint(p) == 3)
   {
     pari_sp av = avma;
-    ulong pp = (ulong)p[2];
+    ulong pp = uel(p,2);
     GEN Tp = ZXT_to_FlxT(T, pp);
     GEN d = FlxqM_gauss_pivot(FqM_to_FlxM(x, T, p), Tp, pp, rr);
     return d ? gerepileuptoleaf(av, d): d;

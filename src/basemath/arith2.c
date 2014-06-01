@@ -528,7 +528,7 @@ Z_smoothen(GEN N, GEN L, GEN *pP, GEN *pe)
   GEN e = new_chunk(l), P = new_chunk(l);
   for (i = j = 1; i < l; i++)
   {
-    ulong p = (ulong)L[i];
+    ulong p = uel(L,i);
     long v = Z_lvalrem(N, p, &N);
     if (v) { P[j] = p; e[j] = v; j++; if (is_pm1(N)) { N = NULL; break; } }
   }

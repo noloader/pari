@@ -1296,7 +1296,7 @@ static long
 next_pow(long q, long p, long n)
 {
   const GEN x = muluu((ulong)q, (ulong)p);
-  const ulong qp = (ulong)x[2];
+  const ulong qp = uel(x,2);
   return (lgefint(x) > 3 || qp > (ulong)n)? 0: qp;
 }
 

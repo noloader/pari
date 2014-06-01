@@ -187,7 +187,7 @@ precprime(GEN n)
   if (signe(n) <= 0) { avma = av; return gen_0; }
   if (lgefint(n) <= 3)
   {
-    ulong k = (ulong)n[2];
+    ulong k = uel(n,2);
     avma = av;
     return utoi(uprecprime(k));
   }

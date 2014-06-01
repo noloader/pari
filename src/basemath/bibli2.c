@@ -918,20 +918,20 @@ numtoperm(long n, GEN x)
   if (n < 0) pari_err_DOMAIN("numtoperm", "n", "<", gen_0, stoi(n));
   if (typ(x) != t_INT) pari_err_TYPE("numtoperm",x);
   v = cgetg(n+1, t_VEC); if (n==0) return v;
-  v[n] = 1; av = avma; lim = stack_lim(av,2);
+  uel(v,n) = 1; av = avma; lim = stack_lim(av,2);
   if (signe(x) <= 0) x = modii(x, mpfact(n));
   for (r=n-1; r>=1; r--)
   {
     ulong a;
     x = diviu_rem(x, n+1-r,&a);
     for (i=r+1; i<=(ulong)n; i++)
-      if((ulong)v[i]>a) v[i]++;
-    v[r] = a+1;
+      if (uel(v,i) > a) uel(v,i)++;
+    uel(v,r) = a+1;
     if (low_stack(lim, stack_lim(av,2)))
       x = gerepileuptoint(av, x);
   }
   avma = av;
-  for (i=1; i<=(ulong)n; i++) gel(v,i) = utoipos(v[i]);
+  for (i=1; i<=(ulong)n; i++) gel(v,i) = utoipos(uel(v,i));
   return v;
 }
 
