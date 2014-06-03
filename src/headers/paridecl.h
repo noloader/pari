@@ -2091,8 +2091,6 @@ GEN     ellwp0(GEN w, GEN z, long flag, long prec);
 GEN     ellwpseries(GEN e, long v, long PRECDL);
 GEN     ellzeta(GEN om, GEN z, long prec);
 GEN     expIxy(GEN x, GEN y, long prec);
-GEN     ghell(GEN e, GEN a, long prec);
-GEN     mathell(GEN e, GEN x, long prec);
 int     oncurve(GEN e, GEN z);
 GEN     orderell(GEN e, GEN p);
 GEN     pointell(GEN e, GEN z, long prec);
