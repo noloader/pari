@@ -106,7 +106,6 @@ BA  7- rootpadicfast renamed ZpX_roots
     9- polsturm interface change
          - polsturm(T, a, b) is still supported but deprecated, use
            polsturm(T, [a,b])
-
          - polsturm(T, a, b) used to return the number of roots in ]a,b],
            we now use the closed interval [a,b]: more intuitive given the new
            syntax, and compatible with polrootsreal()
@@ -123,6 +122,7 @@ BA 15- Flx_pow renamed to Flx_powu
    17- ellbil(E,P,Q) is now deprecated, use ellheight(E,P,Q)
    18- [libpari] rename ghell->ellheight, mathell->ellheightmatrix
 BA 19- Rg_to_RgV renamed to Rg_to_RgC, RgX_to_RgV renamed to RgX_to_RgC
+   20- ellL1(e, r): make r optional (default value = 0)
 
 Removed
   - deprecated functions nfbasis0, nfdisc0, factorpadic0
