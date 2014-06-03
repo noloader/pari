@@ -129,6 +129,10 @@ where the \typ{INT} $c\in \{-1,1\}$ is the global root number, and the
 $c_{p_i}$ are the local root numbers at all prime divisors of the conductor,
 ordered as in \kbd{faN} above.
 
+\fun{GEN}{ellheightoo}{GEN E, GEN P, long prec} given $P = [x,y]$ an affine
+point on $E$, return the (canonical) local height at infinity
+$\lambda_\infty(P) \in \R$.
+
 \fun{GEN}{elldatagenerators}{GEN E} returns generators for $E(\Q)$
 extracted from Cremona's table.
 
@@ -247,6 +251,7 @@ infinity.
 \fun{GEN}{ellinf}{} returns the point at infinity \kbd{[0]}.
 
 \subsec{Change of variables}
+
 \fun{GEN}{ellchangeinvert}{GEN w} given a change of variables $w =
 [u,r,s,t]$, returns the inverse change of variables $w'$, such that if $E' =
 \kbd{ellchangecurve(E, w)}$, then $E = \kbd{ellchangecurve}(E, w')$.
