@@ -7018,6 +7018,12 @@ for $a$ and $b$, the interval is $[a,b]$.
 squarefree \kbd{ZX} $P$. For efficiency, it is advised to make $P$ primitive
 first.
 
+\fun{long}{ZX_sturmpart}{GEN P, GEN ab} number of real roots of the
+non-constant squarefree \kbd{ZX} $P$ in the interval specified by \kbd{ab}:
+either \kbd{NULL} (no restriction) or a \typ{VEC} $[a,b]$ with two real
+components (of type \typ{INT}, \typ{FRAC} or \typ{INFINITY}). For efficiency,
+it is advised to make $P$ primitive first.
+
 \subsec{\kbd{ZXQ}}
 
 \fun{GEN}{ZXQ_mul}{GEN x,GEN y,GEN T} returns $x*y$ mod $T$, assuming
@@ -11116,13 +11122,15 @@ a \typ{STR} otherwise.
 
 \fun{GEN}{sd_simplify}{const char *v, long flag}
 
-\fun{GEN}{sd_sopath}{char *v, int flag}
+\fun{GEN}{sd_sopath}{const char *v, int flag}
 
 \fun{GEN}{sd_strictargs}{const char *v, long flag}
 
 \fun{GEN}{sd_strictmatch}{const char *v, long flag}
 
 \fun{GEN}{sd_threadsize}{const char *v, long flag}
+
+\fun{GEN}{sd_threadsizemax}{const char *v, long flag}
 
 \noindent Generic functions used to implement defaults: most of the above
 routines are implemented in terms of the following generic ones. In all
