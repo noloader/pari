@@ -1071,7 +1071,7 @@ compilemy(GEN arg, const char *str, int inl)
         GEN vars = listtogen(tree[x].x,Fmatrixelts);
         long nv = lg(vars)-1;
         compilenode(tree[a].y,Ggen,FLnocopy);
-        op_push(OCdup,nv-1,x);
+        if (nv > 1) op_push(OCdup,nv-1,x);
         for (j=1; j<=nv; j++)
         {
           long v = detag(vars[j]);
@@ -1124,7 +1124,7 @@ compilelocal(GEN arg)
         GEN vars = listtogen(tree[x].x,Fmatrixelts);
         long nv = lg(vars)-1;
         compilenode(tree[a].y,Ggen,FLnocopy);
-        op_push(OCdup,nv-1,x);
+        if (nv > 1) op_push(OCdup,nv-1,x);
         for (j=1; j<=nv; j++)
         {
           long v = detag(vars[j]);
@@ -1855,9 +1855,9 @@ compilenode(long n, int mode, long flag)
     if (tree[x].f==Fvec && tree[x].x>=0)
     {
       GEN vars = listtogen(tree[x].x,Fmatrixelts);
-      long i, l = lg(vars)-1;
+      long i, l = lg(vars)-1, d = mode==Gvoid? l-1: l;
       compilenode(y,Ggen,mode==Gvoid?FLnocopy:flag&FLsurvive);
-      op_push(OCdup,mode==Gvoid?l-1:l,x);
+      if (d) op_push(OCdup, d, x);
       for(i=1; i<=l; i++)
       {
         long a = detag(vars[i]);
