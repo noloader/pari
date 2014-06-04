@@ -4076,39 +4076,71 @@ qfbclassno0(GEN x,long flag)
 static GEN
 find_order(GEN f, GEN h) { return gen_order(f, h, NULL, &qfb_group); }
 
-static GEN
-end_classno(GEN h, GEN hin, GEN forms)
+static int
+ok_q(GEN q, GEN h, long r2)
 {
-  GEN a, b, p1, q, fh, fg, f = gel(forms,1);
-  long i, com, l = lg(forms);
+  if (is_pm1(q)) return 1;
+  if (r2 <= 1 && !mpodd(q)) return 0;
+  return is_pm1(coprime_part(q,h));
+}
 
-  h = find_order(f,h); /* H = <f> */
+static GEN
+end_classno(GEN h, GEN hin, GEN forms, long r2)
+{
+  long i, l = lg(forms);
+  GEN q;
+
+  h = find_order(gel(forms,1),h); /* H = <f> */
   q = diviiround(hin, h); /* approximate order of G/H */
   for (i=2; i < l; i++)
   {
-    pari_sp av = avma;
-    fg = powgi(gel(forms,i), h);
-    fh = powgi(fg, q);
-    a = gel(fh,1);
-    if (equali1(a)) continue;
-    b = gel(fh,2); p1 = fg;
-    for (com=1; ; com++, p1 = gmul(p1,fg))
-      if (equalii(gel(p1,1), a) && absi_equal(gel(p1,2), b)) break;
-    if (signe(gel(p1,2)) == signe(b)) com = -com;
-    /* f_i ^ h(q+com) = 1 */
-    q = addsi(com,q);
-    if (gequal0(q))
-    { /* f^(ih) != 1 for all 0 < i <= oldq. Happen if the original upper bound
-         for h was wrong */
-      ulong c;
-      p1 = fh;
-      for (c=1; ; c++, p1 = gmul(p1,fh))
-        if (qfb_is_1(p1)) break;
-      q = mulsi(-com, find_order(fh, utoipos(c)));
+    GEN a, o, F, fh, f = gel(forms,i);
+    fh = powgi(f, h);
+    if (is_pm1(gel(fh,1))) continue;
+    F = powgi(fh, q);
+    a = gel(F,1);
+    if (!is_pm1(a))
+    {
+      pari_sp av = avma;
+      long c;
+      GEN G, b = gel(F,2);
+      G = fh;
+      for (c=1;; c++, G = gmul(G,fh))
+        if (equalii(gel(G,1), a) && absi_equal(gel(G,2), b)) break;
+      avma = av;
+      if (signe(gel(G,2)) == signe(b)) c = -c;
+      /* f ^ h(q+c) = 1 */
+      q = addsi(c,q);
+      if (gequal0(q))
+      { /* f^(ih) != 1 for all 0 < i <= oldq */
+        av = avma; G = F;
+        for (c=1;; c++, G = gmul(G,F))
+          if (qfb_is_1(G)) break;
+        avma = av; q = muliu(q, c);
+      }
     }
-    q = gerepileuptoint(av, q);
+    /* f^(hq) = 1 */
+    o = find_order(f, mulii(h,q));
+    h = lcmii(h,o);
+    q = diviiround(hin, h);
   }
-  return mulii(q,h);
+  /* very probably h = expo(Cl^2(K)), q ~ #Cl^2(K) / h. Impose q | h^oo */
+  if (!ok_q(q,h,r2))
+  {
+    GEN q0 = q;
+    long d;
+    if (cmpii(mulii(q,h), hin) < 0)
+    { /* try q = q0+1,-1,+2,-2 */
+      d = 1;
+      do { q = addis(q0,d); d = d>0? -d: 1-d; } while(!ok_q(q,h,r2));
+    }
+    else
+    { /* q0-1,+1,-2,+2  */
+      d = -1;
+      do { q = addis(q0,d); d = d<0? -d: -1-d; } while(!ok_q(q,h,r2));
+    }
+  }
+  return mulii(h,q);
 }
 
 /* Write x = Df^2, where D = fundamental discriminant,
@@ -4199,7 +4231,7 @@ _low(GEN x) { return signe(x)? mod2BIL(x): 0; }
 GEN
 classno(GEN x)
 {
-  const long MAXFORM = 12;
+  const long MAXFORM = 20;
   pari_sp av = avma, av2, lim;
   long r2, p, nforms, k, i, j, com, s;
   GEN forms, count, index, tabla, tablb, hash, p1, p2;
@@ -4283,7 +4315,7 @@ classno(GEN x)
         { /* p1 = ftest or ftest^(-1), we are done */
           if (signe(gel(p1,2)) == signe(b)) com = -com;
           h = addii(addis(h,j2), mulss(s,com));
-          h = end_classno(h, hin, forms);
+          h = end_classno(h, hin, forms, r2);
           return gerepileuptoint(av, shifti(mulii(h,Hf), r2));
         }
       }
