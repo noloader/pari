@@ -2242,8 +2242,19 @@ getstack(void) { return pari_mainstack->top-avma; }
 /*                                                                 */
 /*******************************************************************/
 
+#if defined(USE_GETTIMEOFDAY) || defined(USE_GETRUSAGE)
+#include <sys/time.h>
+#endif
+
+#if defined(USE_FTIME) || defined(USE_FTIMEFORWALLTIME)
+#include <sys/timeb.h>
+#endif
+
 #if defined(USE_CLOCK_GETTIME)
 #include <time.h>
+#endif
+
+#if defined(USE_CLOCK_GETTIME)
 #if defined(_POSIX_THREAD_CPUTIME)
 static THREAD clockid_t time_type = CLOCK_THREAD_CPUTIME_ID;
 #else
@@ -2266,13 +2277,12 @@ timer_start(pari_timer *T)
   T->s  = t.tv_sec;
 }
 #elif defined(USE_GETRUSAGE)
-# include <sys/time.h>
 # include <sys/resource.h>
 #ifdef RUSAGE_THREAD
 static THREAD int rusage_type = RUSAGE_THREAD;
 #else
 static const THREAD int rusage_type = RUSAGE_SELF;
-#endif
+#endif /*RUSAGE_THREAD*/
 static void
 pari_init_timer(void)
 {
@@ -2291,7 +2301,6 @@ timer_start(pari_timer *T)
 }
 #elif defined(USE_FTIME)
 
-# include <sys/timeb.h>
 static void
 pari_init_timer(void) { }
 
@@ -2407,9 +2416,6 @@ timetoi(ulong s, ulong m)
   GEN r = addiu(muliu(utoi(s), 1000), m);
   return gerepileuptoint(av, r);
 }
-#endif
-#if defined(USE_FTIMEFORWALLTIME) && !defined(USE_FTIME)
-# include <sys/timeb.h>
 #endif
 GEN
 getwalltime(void)
