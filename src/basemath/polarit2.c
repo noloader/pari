@@ -494,7 +494,7 @@ gauss_factor(GEN x)
     exp &= 3;
   }
   if (j > 1) {
-    long k = 1;;
+    long k = 1;
     GEN P1 = cgetg(l, t_COL);
     GEN E1 = cgetg(l, t_COL);
     /* remove factors with exponent 0 */
