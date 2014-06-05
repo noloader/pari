@@ -886,7 +886,7 @@ qfsolve_i(GEN G)
   /* Reduction of G and search for trivial solutions. */
   /* When |det G|=1, such trivial solutions always exist. */
   U = qflllgram_indef(G,0);
-  if(typ(U) == t_COL) return RgM_RgC_mul(M,U);
+  if(typ(U) == t_COL) return Q_primpart(RgM_RgC_mul(M,U));
   G = gel(U,1);
   M = RgM_mul(M, gel(U,2));
   /* P,E = factor(|det(G))| */
