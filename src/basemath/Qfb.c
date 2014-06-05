@@ -304,6 +304,7 @@ qfi_1_by_disc(GEN D)
 {
   GEN b,c, y = cgetg(4,t_QFI);
   quadpoly_bc(D, mod2(D), &b,&c);
+  if (b == gen_m1) b = gen_1;
   gel(y,1) = gen_1;
   gel(y,2) = b;
   gel(y,3) = c; return y;
