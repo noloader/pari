@@ -1702,6 +1702,8 @@ GEN     rnfinit(GEN nf,GEN pol);
 GEN dlog_get_ordfa(GEN o);
 GEN dlog_get_ord(GEN o);
 GEN gen_PH_log(GEN a, GEN g, GEN ord, void *E, const struct bb_group *grp);
+GEN gen_Shanks_init(GEN g, long n, void *E, const struct bb_group *grp);
+GEN gen_Shanks(GEN T, GEN x, ulong N, void *E, const struct bb_group *grp);
 GEN gen_Shanks_sqrtn(GEN a, GEN n, GEN q, GEN *zetan, void *E, const struct bb_group *grp);
 GEN gen_gener(GEN o, void *E, const struct bb_group *grp);
 GEN gen_ellgens(GEN d1, GEN d2, GEN m, void *E, const struct bb_group *grp,

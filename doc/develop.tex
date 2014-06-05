@@ -290,6 +290,22 @@ Return \kbd{cgetg(1, t\_VEC)} if there are no solutions. This requires
 $O(\sqrt{N})$ group operations and uses an auxiliary table containing
 $O(\sqrt{N})$ group elements.
 
+The above is useful for a one-shot computation. If many discrete logs
+are desired:
+\fun{GEN}{gen_Shanks_init}{GEN g, long n, void *E, const struct bb_group *grp}
+return an auxiliary data structure $T$ required to compute a discrete log in
+base $g$. Compute and store all powers $g^i$,  $i < n$.
+
+\fun{GEN}{gen_Shanks}{GEN T, GEN x, ulong N, void *E, const struct bb_group *grp}
+Let $T$ be computed by \tet{gen_Shanks_init}$(g,n,\dots)$.
+Return $k < n N$ such that  $g^k = x$ or \kbd{NULL} if no such index exist.
+It uses $O(N)$ operation in the group and fast table lookups  (in time
+$O(\log n)$). The interface is such that the function may be used when the
+order of the base $g$ is unknown, and hence compute it given only an upper
+bound $B$ for it: e.g. choose $n,N$ such that $nN \geq B$ and compute the
+discrete log $l$ of $g^{-1}$ in base $g$, then use \tet{gen_order}
+with multiple $N = l+1$.
+
 \fun{GEN}{gen_Pollard_log}{GEN x, GEN g, GEN N, void *E, const struct bb_group
 *grp} \hbadness 10000\break
 Generic Pollard rho algorithm. Assuming that $g$ has order $N$, compute an

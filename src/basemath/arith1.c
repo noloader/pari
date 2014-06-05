@@ -4057,7 +4057,18 @@ quadregulator(GEN x, long prec)
 /*************************************************************************/
 static int qfb_is_1(GEN f) { return equali1(gel(f,1)); }
 static GEN qfb_pow(void *E, GEN f, GEN n) { (void)E; return powgi(f,n); }
-static const struct bb_group qfb_group={ NULL,qfb_pow,NULL,NULL,
+static GEN qfi_comp(void *E, GEN f, GEN g) { (void)E; return qficomp(f,g); }
+static ulong qfb_hash(GEN x)
+{
+  GEN a = gel(x,1);
+  GEN b = gel(x,2);
+  ulong A = mod2BIL(a);
+  ulong B = signe(b)? mod2BIL(b): 0;
+  return (A  << BITS_IN_HALFULONG) | B;
+}
+static const struct bb_group qfi_group={ qfi_comp,qfb_pow,NULL,qfb_hash,
+                                         gidentical,qfb_is_1,NULL};
+static const struct bb_group qfiQ_group={ NULL,qfb_pow,NULL,NULL,
                                          NULL,qfb_is_1,NULL};
 
 GEN
@@ -4072,75 +4083,66 @@ qfbclassno0(GEN x,long flag)
   return NULL; /* not reached */
 }
 
-/* f^h = 1, return order(f) */
+/* f^h = 1, return order(f). Set *pfao to its factorization */
 static GEN
-find_order(GEN f, GEN h) { return gen_order(f, h, NULL, &qfb_group); }
-
-static int
-ok_q(GEN q, GEN h, long r2)
+find_order(GEN f, GEN h, GEN *pfao)
 {
-  if (is_pm1(q)) return 1;
-  if (r2 <= 1 && !mpodd(q)) return 0;
-  return is_pm1(coprime_part(q,h));
+  GEN v = gen_factored_order(f, h, NULL, &qfi_group);
+  *pfao = gel(v,2); return gel(v,1);
 }
 
-static GEN
-end_classno(GEN h, GEN hin, GEN forms, long r2)
+static int
+ok_q(GEN q, GEN h, GEN d2, long r2)
 {
-  long i, l = lg(forms);
-  GEN q;
-
-  h = find_order(gel(forms,1),h); /* H = <f> */
-  q = diviiround(hin, h); /* approximate order of G/H */
-  for (i=2; i < l; i++)
+  if (d2)
   {
-    GEN a, o, F, fh, f = gel(forms,i);
-    fh = powgi(f, h);
-    if (is_pm1(gel(fh,1))) continue;
-    F = powgi(fh, q);
-    a = gel(F,1);
-    if (!is_pm1(a))
-    {
-      pari_sp av = avma;
-      long c;
-      GEN G, b = gel(F,2);
-      G = fh;
-      for (c=1;; c++, G = gmul(G,fh))
-        if (equalii(gel(G,1), a) && absi_equal(gel(G,2), b)) break;
-      avma = av;
-      if (signe(gel(G,2)) == signe(b)) c = -c;
-      /* f ^ h(q+c) = 1 */
-      q = addsi(c,q);
-      if (gequal0(q))
-      { /* f^(ih) != 1 for all 0 < i <= oldq */
-        av = avma; G = F;
-        for (c=1;; c++, G = gmul(G,F))
-          if (qfb_is_1(G)) break;
-        avma = av; q = muliu(q, c);
-      }
-    }
-    /* f^(hq) = 1 */
-    o = find_order(f, mulii(h,q));
-    h = lcmii(h,o);
-    q = diviiround(hin, h);
+    if (r2 <= 2 && !mpodd(q)) return 0;
+    return is_pm1(coprime_part(q,d2));
   }
-  /* very probably h = expo(Cl^2(K)), q ~ #Cl^2(K) / h. Impose q | h^oo */
-  if (!ok_q(q,h,r2))
+  else
   {
-    GEN q0 = q;
-    long d;
-    if (cmpii(mulii(q,h), hin) < 0)
-    { /* try q = q0+1,-1,+2,-2 */
-      d = 1;
-      do { q = addis(q0,d); d = d>0? -d: 1-d; } while(!ok_q(q,h,r2));
+    if (r2 <= 1 && !mpodd(q)) return 0;
+    return is_pm1(coprime_part(q,h));
+  }
+}
+
+/* a,b given by their factorizations. Return factorization of lcm(a,b).
+ * Set A,B such that A*B = lcm(a, b), (A,B)=1, A|a, B|b */
+static GEN
+split_lcm(GEN a, GEN Fa, GEN b, GEN Fb, GEN *pA, GEN *pB)
+{
+  GEN P = ZV_union_shallow(gel(Fa,1), gel(Fb,1));
+  GEN A = gen_1, B = gen_1;
+  long i, l = lg(P);
+  GEN E = cgetg(l, t_COL);
+  for (i=1; i<l; i++)
+  {
+    GEN p = gel(P,i);
+    long va = Z_pval(a,p);
+    long vb = Z_pval(b,p);
+    if (va < vb)
+    {
+      B = mulii(B,powiu(p,vb));
+      gel(E,i) = utoi(vb);
     }
     else
-    { /* q0-1,+1,-2,+2  */
-      d = -1;
-      do { q = addis(q0,d); d = d<0? -d: -1-d; } while(!ok_q(q,h,r2));
+    {
+      A = mulii(A,powiu(p,va));
+      gel(E,i) = utoi(va);
     }
   }
-  return mulii(h,q);
+  *pA = A;
+  *pB = B; return mkmat2(P,E);
+}
+
+/* g1 has order d1, f has order o, replace g1 by an element of order lcm(d1,o)*/
+static void
+update_g1(GEN *pg1, GEN *pd1, GEN *pfad1, GEN f, GEN o, GEN fao)
+{
+  GEN A,B, g1 = *pg1, d1 = *pd1;
+  *pfad1 = split_lcm(d1,*pfad1, o,fao, &A,&B);
+  *pg1 = gmul(powgi(g1, diviiexact(d1,A)),  powgi(f, diviiexact(o,B)));
+  *pd1 = mulii(A,B); /* g1 has order d1 <- lcm(d1,o) */
 }
 
 /* Write x = Df^2, where D = fundamental discriminant,
@@ -4220,9 +4222,93 @@ two_rank(GEN x)
 
 static GEN
 sqr_primeform(GEN x, ulong p) { return redimag(qfisqr(primeform_u(x, p))); }
+/* return a set of forms hopefully generating Cl(K)^2; set L ~ L(chi_D,1) */
+static GEN
+get_forms(GEN D, GEN *pL)
+{
+  const long MAXFORM = 20;
+  GEN L, sqrtD = gsqrt(absi(D),DEFAULTPREC), forms = vectrunc_init(MAXFORM+1);
+  long s, nforms = 0;
+  ulong p;
+  forprime_t S;
+  L = mulrr(divrr(sqrtD,mppi(DEFAULTPREC)), dbltor(1.005));/*overshoot by 0.5%*/
+  s = itos_or_0( truncr(shiftr(sqrtr(sqrtD), 1)) );
+  if (!s) pari_err_OVERFLOW("classno [discriminant too large]");
+  if      (s < 10)   s = 200;
+  else if (s < 20)   s = 1000;
+  else if (s < 5000) s = 5000;
+  u_forprime_init(&S, 2, s);
+  while ( (p = u_forprime_next(&S)) )
+  {
+    long d, k = kroiu(D,p);
+    pari_sp av2;
+    if (!k) continue;
+    if (k > 0)
+    {
+      if (++nforms < MAXFORM) vectrunc_append(forms, sqr_primeform(D,p));
+      d = p-1;
+    }
+    else
+      d = p+1;
+    av2 = avma; affrr(divru(mulur(p,L),d), L); avma = av2;
+  }
+  *pL = L; return forms;
+}
 
-static ulong
-_low(GEN x) { return signe(x)? mod2BIL(x): 0; }
+/* h ~ #G, return o = order of f, set fao = its factorization */
+static  GEN
+Shanks_order(GEN f, GEN h, GEN *pfao)
+{
+  long s = minss(itos(sqrti(h)), 10000);
+  GEN T = gen_Shanks_init(f, s, NULL, &qfi_group);
+  GEN v = gen_Shanks(T, ginv(f), ULONG_MAX, NULL, &qfi_group);
+  return find_order(f, addiu(v,1), pfao);
+}
+
+/* if g = 1 in  G/<f> ? */
+static int
+equal1(GEN T, ulong N, GEN g)
+{ return !!gen_Shanks(T, g, N, NULL, &qfi_group); }
+
+/* Order of 'a' in G/<f>, T = gen_Shanks_init(f,n), order(f) < n*N
+ * FIXME: should be gen_order, but equal1 has the wrong prototype */
+static GEN
+relative_order(GEN a, GEN o, ulong N,  GEN T)
+{
+  pari_sp av = avma;
+  long i, l;
+  GEN m;
+
+  m = dlog_get_ordfa(o);
+  if (!m) pari_err_TYPE("gen_order [missing order]",a);
+  o = gel(m,1);
+  m = gel(m,2); l = lgcols(m);
+  for (i = l-1; i; i--)
+  {
+    GEN t, y, p = gcoeff(m,i,1);
+    long j, e = itos(gcoeff(m,i,2));
+    if (l == 2) {
+      t = gen_1;
+      y = a;
+    } else {
+      t = diviiexact(o, powiu(p,e));
+      y = powgi(a, t);
+    }
+    if (equal1(T,N,y)) o = t;
+    else {
+      for (j = 1; j < e; j++)
+      {
+        y = powgi(y, p);
+        if (equal1(T,N,y)) break;
+      }
+      if (j < e) {
+        if (j > 1) p = powiu(p, j);
+        o = mulii(t, p);
+      }
+    }
+  }
+  return gerepilecopy(av, o);
+}
 
 /* h(x) for x<0 using Baby Step/Giant Step.
  * Assumes G is not too far from being cyclic.
@@ -4231,12 +4317,9 @@ _low(GEN x) { return signe(x)? mod2BIL(x): 0; }
 GEN
 classno(GEN x)
 {
-  const long MAXFORM = 20;
-  pari_sp av = avma, av2, lim;
-  long r2, p, nforms, k, i, j, com, s;
-  GEN forms, count, index, tabla, tablb, hash, p1, p2;
-  GEN hin, h, f, fh, fg, ftest, Hf, D;
-  forprime_t S;
+  pari_sp av = avma;
+  long r2, k, s, i, l;
+  GEN forms, hin, Hf, D, g1, d1, d2, q, L, fad1, order_bound;
 
   if (signe(x) >= 0) return classno2(x);
 
@@ -4245,85 +4328,77 @@ classno(GEN x)
 
   Hf = conductor_part(x, k, &D, NULL);
   if (cmpiu(D,12) <= 0) return gerepilecopy(av, Hf);
+  forms =  get_forms(D, &L);
+  r2 = two_rank(D);
+  hin = roundr(shiftr(L, -r2)); /* rough approximation for #G, G = Cl(K)^2 */
 
-  p2 = gsqrt(absi(D),DEFAULTPREC);
-  p1 = mulrr(divrr(p2,mppi(DEFAULTPREC)), dbltor(1.005)); /*overshoot by 0.5%*/
-  s = itos_or_0( truncr(shiftr(sqrtr(p2), 1)) );
-  if (!s) pari_err_OVERFLOW("classno [discriminant too large]");
-  if      (s < 10)   s = 200;
-  else if (s < 20)   s = 1000;
-  else if (s < 5000) s = 5000;
-  forms = vectrunc_init(MAXFORM+1);
-
-  u_forprime_init(&S, 2, s);
-  nforms = 0;
-  while ( (p = u_forprime_next(&S)) )
+  l = lg(forms);
+  order_bound = const_vec(l-1, NULL);
+  g1 = gel(forms,1);
+  gel(order_bound,1) = d1 = Shanks_order(g1, hin, &fad1);
+  q = diviiround(hin, d1); /* approximate order of G/<g1> */
+  d2 = NULL; /* not computed yet */
+  if (is_pm1(q)) goto END;
+  for (i=2; i < l; i++)
   {
-    long d, k = kroiu(D,p);
-    pari_sp av3;
-    if (!k) continue;
-    if (k > 0)
+    GEN o, fao, a, F, fd, f = gel(forms,i);
+    fd = powgi(f, d1); if (is_pm1(gel(fd,1))) continue;
+    F = powgi(fd, q);
+    a = gel(F,1);
+    o = is_pm1(a)? find_order(fd, q, &fao): Shanks_order(fd, q, &fao);
+    /* f^(d1 q) = 1 */
+    fao = merge_factor(fad1,fao, (void*)&cmpii, &cmp_nodata);
+    o = find_order(f, fao, &fao);
+    gel(order_bound,i) = o;
+    /* o = order of f, fao = factor(o) */
+    update_g1(&g1,&d1,&fad1, f,o,fao);
+    q = diviiround(hin, d1);
+    if (is_pm1(q)) goto END;
+  }
+  /* very probably d1 = expo(Cl^2(K)), q ~ #Cl^2(K) / d1 */
+  if (expi(q) > 4)
+  { /* q large: compute d2, 2nd elt divisor */
+    ulong N, n = 2*itou(sqrti(d1));
+    GEN D = d1, T = gen_Shanks_init(g1, n, NULL, &qfi_group);
+    d2 = gen_1;
+    N = itou( gceil(gdivgs(d1,n)) ); /* order(g1) < n*N */
+    for (i = 1; i < l; i++)
     {
-      if (++nforms < MAXFORM) vectrunc_append(forms, sqr_primeform(D,p));
-      d = p - 1;
+      GEN d, f = gel(forms,i), B = gel(order_bound,i);
+      if (!B) B = find_order(f, fad1, /*junk*/&d);
+      f = powgi(f,d2);
+      if (equal1(T,N,f)) continue;
+      B = diviiexact(B,d2);
+      d = relative_order(f, B, N,T);
+      d2= mulii(d,d2);
+      D = mulii(d1,d2);
+      q = diviiround(hin,D);
+      if (is_pm1(q)) { d1 = D; goto END; }
+    }
+    /* very probably, d2 is the 2nd elementary divisor */
+    d1 = D; /* product of first two elt divisors */
+  }
+  /* impose q | d2^oo (d1^oo if d2 not computed), and compatible with known
+   * 2-rank */
+  if (!ok_q(q,d1,d2,r2))
+  {
+    GEN q0 = q;
+    long d;
+    if (cmpii(mulii(q,d1), hin) < 0)
+    { /* try q = q0+1,-1,+2,-2 */
+      d = 1;
+      do { q = addis(q0,d); d = d>0? -d: 1-d; } while(!ok_q(q,d1,d2,r2));
     }
     else
-      d = p + 1;
-    av3 = avma; affrr(divru(mulur(p,p1),d), p1);
-    avma = av3;
-  }
-  r2 = two_rank(D);
-  h = hin = roundr(shiftr(p1, -r2));
-  s = 2*itos(gceil(sqrtnr(p1, 4)));
-  if (s > 10000) s = 10000;
-
-  count = new_chunk(256); for (i=0; i<=255; i++) count[i]=0;
-  index = new_chunk(257);
-  tabla = new_chunk(10000);
-  tablb = new_chunk(10000);
-  hash  = new_chunk(10000);
-  f = gel(forms,1);
-  p1 = fh = powgi(f, h);
-  for (i=0; i<s; i++, p1 = qficomp(p1,f))
-  {
-    tabla[i] = _low(gel(p1,1));
-    tablb[i] = _low(gel(p1,2)); count[tabla[i]&255]++;
-  }
-  /* follow the idea of counting sort to avoid maintaining linked lists in
-   * hashtable */
-  index[0]=0; for (i=0; i< 255; i++) index[i+1] = index[i]+count[i];
-  /* index[i] = # of forms hashing to <= i */
-  for (i=0; i<s; i++) hash[ index[tabla[i]&255]++ ] = i;
-  index[0]=0; for (i=0; i<=255; i++) index[i+1] = index[i]+count[i];
-  /* hash[index[i-1]..index[i]-1] = forms hashing to i */
-
-  fg = gpowgs(f,s); av2 = avma; lim = stack_lim(av2,2);
-  ftest = gpowgs(p1,0);
-  for (com=0; ; com++)
-  {
-    long j1, k, l;
-    GEN a, b;
-    a = gel(ftest,1); k = _low(a);
-    b = gel(ftest,2); l = _low(b); j = k&255;
-    for (j1=index[j]; j1 < index[j+1]; j1++)
-    {
-      long j2 = hash[j1];
-      if (tabla[j2] == k && tablb[j2] == l)
-      {
-        p1 = gmul(gpowgs(f,j2),fh);
-        if (equalii(gel(p1,1), a) && absi_equal(gel(p1,2), b))
-        { /* p1 = ftest or ftest^(-1), we are done */
-          if (signe(gel(p1,2)) == signe(b)) com = -com;
-          h = addii(addis(h,j2), mulss(s,com));
-          h = end_classno(h, hin, forms, r2);
-          return gerepileuptoint(av, shifti(mulii(h,Hf), r2));
-        }
-      }
+    { /* q0-1,+1,-2,+2  */
+      d = -1;
+      do { q = addis(q0,d); d = d<0? -d: -1-d; } while(!ok_q(q,d1,d2,r2));
     }
-    ftest = gmul(ftest,fg);
-    if (equali1(gel(ftest,1))) pari_err_IMPL("classno with too small order");
-    if (low_stack(lim, stack_lim(av2,2))) ftest = gerepileupto(av2,ftest);
   }
+  d1 = mulii(d1,q);
+
+END:
+  return gerepileuptoint(av, shifti(mulii(d1,Hf), r2));
 }
 
 /* use Euler products */
