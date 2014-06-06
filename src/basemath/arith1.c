@@ -4068,8 +4068,6 @@ static ulong qfb_hash(GEN x)
 }
 static const struct bb_group qfi_group={ qfi_comp,qfb_pow,NULL,qfb_hash,
                                          gidentical,qfb_is_1,NULL};
-static const struct bb_group qfiQ_group={ NULL,qfb_pow,NULL,NULL,
-                                         NULL,qfb_is_1,NULL};
 
 GEN
 qfbclassno0(GEN x,long flag)
