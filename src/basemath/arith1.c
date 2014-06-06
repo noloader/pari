@@ -4354,7 +4354,7 @@ classno(GEN x)
     if (is_pm1(q)) goto END;
   }
   /* very probably d1 = expo(Cl^2(K)), q ~ #Cl^2(K) / d1 */
-  if (expi(q) > 4)
+  if (expi(q) > 3)
   { /* q large: compute d2, 2nd elt divisor */
     ulong N, n = 2*itou(sqrti(d1));
     GEN D = d1, T = gen_Shanks_init(g1, n, NULL, &qfi_group);
