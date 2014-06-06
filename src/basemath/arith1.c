@@ -4359,14 +4359,15 @@ classno(GEN x)
     ulong N, n = 2*itou(sqrti(d1));
     GEN D = d1, T = gen_Shanks_init(g1, n, NULL, &qfi_group);
     d2 = gen_1;
-    N = itou( gceil(gdivgs(d1,n)) ); /* order(g1) < n*N */
+    N = itou( gceil(gdivgs(d1,n)) ); /* order(g1) <= n*N */
     for (i = 1; i < l; i++)
     {
       GEN d, f = gel(forms,i), B = gel(order_bound,i);
       if (!B) B = find_order(f, fad1, /*junk*/&d);
       f = powgi(f,d2);
       if (equal1(T,N,f)) continue;
-      B = diviiexact(B,d2);
+      B = gdiv(B,d2); if (typ(B) == t_FRAC) B = gel(B,1);
+      /* f^B = 1 */
       d = relative_order(f, B, N,T);
       d2= mulii(d,d2);
       D = mulii(d1,d2);
