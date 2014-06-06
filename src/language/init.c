@@ -730,7 +730,7 @@ parivstack_resize(ulong newsize)
   paristack_setsize(pari_mainstack->rsize, newsize);
   s = newsize ? newsize : pari_mainstack->rsize;
   pari_warn(warner,"new maximum stack size = %lu (%.3f Mbytes)", s, s/1048576.);
-  global_err_data = NULL;
+  pari_init_errcatch();
   cb_pari_err_recover(-1);
 }
 
@@ -744,7 +744,7 @@ paristack_newrsize(ulong newsize)
   evalstate_reset();
   s = pari_mainstack->rsize;
   pari_warn(warner,"new stack size = %lu (%.3f Mbytes)", s, s/1048576.);
-  global_err_data = NULL;
+  pari_init_errcatch();
   cb_pari_err_recover(-1);
 }
 
