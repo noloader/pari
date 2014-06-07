@@ -7972,7 +7972,7 @@ $O(\kbd{p}^\kbd{n})$.
 \fun{GEN}{scalarser}{GEN x, long v, long prec} creates a constant \typ{SER}
 in variable \kbd{v} and precision \kbd{prec}, whose constant coefficient is
 (a copy of) \kbd{x}, in other words $\kbd{x} + O(\kbd{v}^\kbd{prec})$.
-Assumes that \kbd{x} is non-zero.
+Assumes that $\kbd{prec}\geq 0$.
 
 \fun{GEN}{pol_0}{long v} Returns the constant polynomial $0$ in variable $v$.
 
