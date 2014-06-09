@@ -4528,7 +4528,7 @@ quadregulator(GEN x, long prec)
 /*************************************************************************/
 static int qfb_is_1(GEN f) { return equali1(gel(f,1)); }
 static GEN qfb_pow(void *E, GEN f, GEN n) { (void)E; return powgi(f,n); }
-static GEN qfi_comp(void *E, GEN f, GEN g) { (void)E; return qficomp(f,g); }
+static GEN qfi_comp(void *E, GEN f, GEN g) { return nucomp(f,g, E); }
 static ulong qfb_hash(GEN x)
 {
   GEN a = gel(x,1);
@@ -4554,9 +4554,9 @@ qfbclassno0(GEN x,long flag)
 
 /* f^h = 1, return order(f). Set *pfao to its factorization */
 static GEN
-find_order(GEN f, GEN h, GEN *pfao)
+find_order(void *E, GEN f, GEN h, GEN *pfao)
 {
-  GEN v = gen_factored_order(f, h, NULL, &qfi_group);
+  GEN v = gen_factored_order(f, h, E, &qfi_group);
   *pfao = gel(v,2); return gel(v,1);
 }
 
@@ -4726,23 +4726,23 @@ get_forms(GEN D, GEN *pL)
 
 /* h ~ #G, return o = order of f, set fao = its factorization */
 static  GEN
-Shanks_order(GEN f, GEN h, GEN *pfao)
+Shanks_order(void *E, GEN f, GEN h, GEN *pfao)
 {
   long s = minss(itos(sqrti(h)), 10000);
-  GEN T = gen_Shanks_init(f, s, NULL, &qfi_group);
-  GEN v = gen_Shanks(T, ginv(f), ULONG_MAX, NULL, &qfi_group);
-  return find_order(f, addiu(v,1), pfao);
+  GEN T = gen_Shanks_init(f, s, E, &qfi_group);
+  GEN v = gen_Shanks(T, ginv(f), ULONG_MAX, E, &qfi_group);
+  return find_order(E, f, addiu(v,1), pfao);
 }
 
 /* if g = 1 in  G/<f> ? */
 static int
-equal1(GEN T, ulong N, GEN g)
-{ return !!gen_Shanks(T, g, N, NULL, &qfi_group); }
+equal1(void *E, GEN T, ulong N, GEN g)
+{ return !!gen_Shanks(T, g, N, E, &qfi_group); }
 
 /* Order of 'a' in G/<f>, T = gen_Shanks_init(f,n), order(f) < n*N
  * FIXME: should be gen_order, but equal1 has the wrong prototype */
 static GEN
-relative_order(GEN a, GEN o, ulong N,  GEN T)
+relative_order(void *E, GEN a, GEN o, ulong N,  GEN T)
 {
   pari_sp av = avma;
   long i, l;
@@ -4763,12 +4763,12 @@ relative_order(GEN a, GEN o, ulong N,  GEN T)
       t = diviiexact(o, powiu(p,e));
       y = powgi(a, t);
     }
-    if (equal1(T,N,y)) o = t;
+    if (equal1(E, T,N,y)) o = t;
     else {
       for (j = 1; j < e; j++)
       {
         y = powgi(y, p);
-        if (equal1(T,N,y)) break;
+        if (equal1(E, T,N,y)) break;
       }
       if (j < e) {
         if (j > 1) p = powiu(p, j);
@@ -4789,6 +4789,7 @@ classno(GEN x)
   pari_sp av = avma;
   long r2, k, s, i, l;
   GEN forms, hin, Hf, D, g1, d1, d2, q, L, fad1, order_bound;
+  void *E;
 
   if (signe(x) >= 0) return classno2(x);
 
@@ -4803,8 +4804,9 @@ classno(GEN x)
 
   l = lg(forms);
   order_bound = const_vec(l-1, NULL);
+  E = (void*)sqrtnint(shifti(absi(D),-2),4);
   g1 = gel(forms,1);
-  gel(order_bound,1) = d1 = Shanks_order(g1, hin, &fad1);
+  gel(order_bound,1) = d1 = Shanks_order(E, g1, hin, &fad1);
   q = diviiround(hin, d1); /* approximate order of G/<g1> */
   d2 = NULL; /* not computed yet */
   if (is_pm1(q)) goto END;
@@ -4814,10 +4816,10 @@ classno(GEN x)
     fd = powgi(f, d1); if (is_pm1(gel(fd,1))) continue;
     F = powgi(fd, q);
     a = gel(F,1);
-    o = is_pm1(a)? find_order(fd, q, &fao): Shanks_order(fd, q, &fao);
+    o = is_pm1(a)? find_order(E, fd, q, &fao): Shanks_order(E, fd, q, &fao);
     /* f^(d1 q) = 1 */
     fao = merge_factor(fad1,fao, (void*)&cmpii, &cmp_nodata);
-    o = find_order(f, fao, &fao);
+    o = find_order(E, f, fao, &fao);
     gel(order_bound,i) = o;
     /* o = order of f, fao = factor(o) */
     update_g1(&g1,&d1,&fad1, f,o,fao);
@@ -4828,18 +4830,18 @@ classno(GEN x)
   if (expi(q) > 3)
   { /* q large: compute d2, 2nd elt divisor */
     ulong N, n = 2*itou(sqrti(d1));
-    GEN D = d1, T = gen_Shanks_init(g1, n, NULL, &qfi_group);
+    GEN D = d1, T = gen_Shanks_init(g1, n, E, &qfi_group);
     d2 = gen_1;
     N = itou( gceil(gdivgs(d1,n)) ); /* order(g1) <= n*N */
     for (i = 1; i < l; i++)
     {
       GEN d, f = gel(forms,i), B = gel(order_bound,i);
-      if (!B) B = find_order(f, fad1, /*junk*/&d);
+      if (!B) B = find_order(E, f, fad1, /*junk*/&d);
       f = powgi(f,d2);
-      if (equal1(T,N,f)) continue;
+      if (equal1(E, T,N,f)) continue;
       B = gdiv(B,d2); if (typ(B) == t_FRAC) B = gel(B,1);
       /* f^B = 1 */
-      d = relative_order(f, B, N,T);
+      d = relative_order(E, f, B, N,T);
       d2= mulii(d,d2);
       D = mulii(d1,d2);
       q = diviiround(hin,D);
