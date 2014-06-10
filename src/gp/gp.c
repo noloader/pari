@@ -1241,6 +1241,14 @@ get_preproc_value(char **s)
     if (!d) return orequal;
     return less? (d < 0): (d > 0);
   }
+  if (!strncmp(*s,"BITS_IN_LONG",12)) {
+    *s += 12;
+    if ((*s)[0] == '=' && (*s)[1] == '=')
+    {
+      *s += 2;
+      return BITS_IN_LONG == read_uint(s);
+    }
+  }
   return -1;
 }
 

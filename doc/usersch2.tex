@@ -2918,6 +2918,10 @@ last two components can be omitted (i.e.~$1$ is understood as version $1.0.0$).
 This is \kbd{true} if \kbd{gp}'s version number satisfies the required
 inequality.
 
+\kbd{BITS\_IN\_LONG} \kbd{==} \var{number}: \var{number} is $32$ (resp.~$64$).
+This is \kbd{true} if \kbd{gp} was built for a 32-bit (resp.~64-bit)
+architecture.
+
 \subsubsec{Commands:}
 After preprocessing, the remaining lines are executed as
 sequence of expressions (as usual, separated by \kbd{;} if necessary). Only
