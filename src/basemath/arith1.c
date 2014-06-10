@@ -1699,7 +1699,7 @@ long
 krois(GEN x, long y)
 {
   ulong yu;
-  long s = 1, r;
+  long s = 1;
 
   if (y <= 0)
   {
@@ -1708,12 +1708,12 @@ krois(GEN x, long y)
   }
   else
     yu = (ulong)y;
-  r = vals(yu);
-  if (r)
+  if (!odd(yu))
   {
+    long r;
     if (!mpodd(x)) return 0;
+    r = vals(yu); yu >>= r;
     if (odd(r) && gome(x)) s = -s;
-    yu >>= r;
   }
   return krouu_s(umodiu(x, yu), yu, s);
 }
@@ -1721,14 +1721,11 @@ krois(GEN x, long y)
 long
 kroiu(GEN x, ulong y)
 {
-  long s = 1, r = vals(y);
-  if (r)
-  {
-    if (!mpodd(x)) return 0;
-    if (odd(r) && gome(x)) s = -s;
-    y >>= r;
-  }
-  return krouu_s(umodiu(x, y), y, s);
+  long r;
+  if (odd(y)) return krouu_s(umodiu(x,y), y, 1);
+  if (!mpodd(x)) return 0;
+  r = vals(y); y >>= r;
+  return krouu_s(umodiu(x,y), y, (odd(r) && gome(x))? -1: 1);
 }
 
 long
@@ -1771,7 +1768,7 @@ long
 kross(long x, long y)
 {
   ulong yu;
-  long s = 1, r;
+  long s = 1;
 
   if (y <= 0)
   {
@@ -1780,12 +1777,12 @@ kross(long x, long y)
   }
   else
     yu = (ulong)y;
-  r = vals(yu);
-  if (r)
+  if (!odd(yu))
   {
+    long r;
     if (!odd(x)) return 0;
+    r = vals(yu); yu >>= r;
     if (odd(r) && ome(x)) s = -s;
-    yu >>= r;
   }
   x %= (long)yu; if (x < 0) x += yu;
   return krouu_s((ulong)x, yu, s);
@@ -1795,10 +1792,10 @@ long
 krouu(ulong x, ulong y)
 {
   long r;
-  if (y & 1) return krouu_s(x, y, 1);
+  if (odd(y)) return krouu_s(x, y, 1);
   if (!odd(x)) return 0;
-  r = vals(y);
-  return krouu_s(x, y >> r, (odd(r) && ome(x))? -1: 1);
+  r = vals(y); y >>= r;
+  return krouu_s(x, y, (odd(r) && ome(x))? -1: 1);
 }
 
 /*********************************************************************/
