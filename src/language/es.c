@@ -254,7 +254,10 @@ gp_read_file(const char *s)
   GEN x = gnil;
   FILE *f = switchin(s);
   if (file_is_binary(f))
+  {
     x = readbin(s,f, NULL);
+    if (!x) pari_err_FILE("input file",s);
+  }
   else {
     Buffer *b = new_buffer();
     x = gnil;
@@ -299,6 +302,7 @@ gp_readvec_file(char *s)
   if (file_is_binary(f)) {
     int junk;
     x = readbin(s,f,&junk);
+    if (!x) pari_err_FILE("input file",s);
   } else
     x = gp_readvec_stream(f);
   popinfile(); return x;
