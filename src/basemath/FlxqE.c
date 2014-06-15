@@ -1295,6 +1295,21 @@ Flxq_ellcard_Satoh(GEN a4, GEN a6, GEN T, ulong p)
   }
 }
 
+static GEN
+Flxq_ellcard_Kedlaya(GEN a4, GEN a6, GEN T, ulong p)
+{
+  pari_sp av = avma;
+  GEN H = mkpoln(4, gen_1, gen_0,Flx_to_ZX(a4),Flx_to_ZX(a6));
+  GEN Tp = Flx_to_ZX(get_Flx_mod(T));
+  long n = degpol(Tp), e = (n>>1)+1;
+  GEN M = ZlXQX_hyperellpadicfrobenius(H, Tp, p, e);
+  GEN N = ZpXQM_prodFrobenius(M, Tp, utoi(p), e);
+  GEN q = powuu(p, e);
+  GEN tp = Fq_add(gcoeff(N,1,1), gcoeff(N,2,2), Tp, q);
+  GEN t = Fp_center(typ(tp)==t_INT ? tp: leading_term(tp), q, shifti(q,-1));
+  return gerepileupto(av, subii(addis(powuu(p, n), 1), t));
+}
+
 GEN
 Flxq_ellj(GEN a4, GEN a6, GEN T, ulong p)
 {
@@ -1429,6 +1444,8 @@ Flxq_ellcard(GEN a4, GEN a6, GEN T, ulong p)
     r = Flxq_ellcardj(a4,a6,lgpol(J)?J[2]:0,T,q,p,n);
   else if (p <= 7 || p==13)
     r = Flxq_ellcard_Satoh(a4,a6,T,p);
+  else if (p <= 500)
+    r = Flxq_ellcard_Kedlaya(a4,a6,T,p);
   else if (cmpis(q,100)<0)
     r = utoi(Flxq_ellcard_naive(a4, a6, T, p));
   else if (expi(q)<=62)

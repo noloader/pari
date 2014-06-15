@@ -2664,6 +2664,7 @@ ulong hash_GEN(GEN x);
 /* hyperell.c */
 
 GEN     hyperellpadicfrobenius(GEN x, ulong p, long e);
+GEN     ZlXQX_hyperellpadicfrobenius(GEN H, GEN T, ulong p, long n);
 
 /* hnf_snf.c */
 
