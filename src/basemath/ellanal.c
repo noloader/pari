@@ -21,7 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 
 struct baby_giant
 {
-  GEN baby, giant;
+  GEN baby, giant, sum;
   GEN bnd, rbnd;
 };
 
@@ -472,83 +472,131 @@ ellanalyticrank(GEN E, GEN eps, long prec)
    Reference: Henri Cohen's book GTM 239.
 */
 
-/* used to compute exp((g*rbnd + b) C) = baby[b] * giant[g] */
-
-struct babygiant
-{
-  GEN baby, giant, sum;
-  ulong rbnd;
-};
-
-/* assume n / h->rbnd fits in an ulong */
 static void
-get_baby_giant(struct babygiant *h, GEN n, GEN *b, GEN *g)
+heegner_L1_bg(void*E, GEN n, GEN a)
 {
-  ulong r, q = udiviu_rem(n, h->rbnd, &r);
-  *b = r? gel(h->baby,r): NULL;
-  *g = q? gel(h->giant,q): NULL;
+  struct baby_giant *bb = (struct baby_giant*) E;
+  long j, l = lg(bb->giant);
+  for (j = 1; j < l; j++)
+    if (cmpii(n, gel(bb->bnd,j)) <= 0)
+    {
+      ulong r, q = udiviu_rem(n, bb->rbnd[j], &r);
+      GEN giant = gel(bb->giant, j), baby = gel(bb->baby, j);
+      gaffect(gadd(gel(giant, q+1), gdiv(gmul(gel(baby, r+1), a), n)), gel(giant, q+1));
+    }
 }
+
 static void
 heegner_L1(void*E, GEN n, GEN a)
 {
-  pari_sp av = avma;
-  struct babygiant *bb = (struct babygiant*)E;
-  GEN b, g, sum = bb->sum;
-  long j, l = lg(sum);
-  get_baby_giant(bb, n, &b, &g);
+  struct baby_giant *bb = (struct baby_giant*) E;
+  long j, l = lg(bb->giant);
   for (j = 1; j < l; j++)
+    if (cmpii(n, gel(bb->bnd,j)) <= 0)
+    {
+      ulong r, q = udiviu_rem(n, bb->rbnd[j], &r);
+      GEN giant = gel(bb->giant, j), baby = gel(bb->baby, j);
+      GEN ex = mulreal(gel(baby, r+1), gel(giant, q+1));
+      affrr(addrr(gel(bb->sum, j), divri(mulri(ex, a), n)), gel(bb->sum, j));
+    }
+}
+/* Return C, C[i][j] = Q[j]^i, i = 1..nb */
+static void
+baby_init2(struct baby_giant *bb, GEN Q, GEN bnd, GEN rbnd, long prec)
+{
+  long i, j, l = lg(Q);
+  GEN R, C, r0;
+  C = cgetg(l,t_VEC);
+  for (i = 1; i < l; ++i)
+    gel(C, i) = gpowers(gel(Q, i), rbnd[i]);
+  R = cgetg(l,t_VEC);
+  r0 = mkcomplex(real_0(prec),real_0(prec));
+  for (i = 1; i < l; ++i)
   {
-    GEN G;
-    if (!b)      G = real_i(gel(g,j));
-    else if (!g) G = real_i(gel(b,j));
-    else         G = mulreal(gel(b,j), gel(g,j));
-    affrr(addrr(gel(sum,j), divri(mulir(a, G), n)), gel(sum, j));
-    avma = av;
+    gel(R, i) = cgetg(rbnd[i]+1, t_VEC);
+    gmael(R, i, 1) = cgetc(prec);
+    gaffect(gmael(C, i, 2),gmael(R, i, 1));
+    for (j = 2; j <= rbnd[i]; j++)
+    {
+      gmael(R, i, j) = cgetc(prec);
+      gaffect(r0, gmael(R, i, j));
+    }
   }
+  bb->baby = C; bb->giant = R;
+  bb->bnd = bnd; bb->rbnd = rbnd;
 }
 
 /* Return C, C[i][j] = Q[j]^i, i = 1..nb */
-static GEN
-fillstep(GEN Q, long nb)
+static void
+baby_init3(struct baby_giant *bb, GEN Q, GEN bnd, GEN rbnd, long prec)
 {
-  long i, k, l = lg(Q);
-  GEN C = cgetg(nb+1,t_VEC);
-  gel(C,1) = Q;
-  for (i = 2; i<=nb; ++i)
+  long i, l = lg(Q);
+  GEN R, C, S;
+  C = cgetg(l,t_VEC);
+  for (i = 1; i < l; ++i)
+    gel(C, i) = gpowers(gel(Q, i), rbnd[i]);
+  R = cgetg(l,t_VEC);
+  for (i = 1; i < l; ++i)
+    gel(R, i) = gpowers(gmael(C, i, 1+rbnd[i]), rbnd[i]);
+  S = cgetg(l,t_VEC);
+  for (i = 1; i < l; ++i)
   {
-    gel(C,i) = cgetg(l, t_VEC);
-    for (k = 1; k<l; ++k) gmael(C,i,k) = gmul(gel(Q,k),gmael(C,i-1,k));
+    gel(S, i) = cgetr(prec);
+    affrr(real_i(gmael(C, i, 2)), gel(S, i));
   }
-  return C;
+  bb->baby = C; bb->giant = R; bb->sum = S;
+  bb->bnd = bnd; bb->rbnd = rbnd;
 }
 
 /* ymin a t_REAL */
 static GEN
 heegner_psi(GEN E, GEN N, GEN ymin, GEN points, long bitprec)
 {
-  pari_sp av = avma;
-  struct babygiant BG;
+  pari_sp av = avma, av2;
+  struct baby_giant bb;
   struct bg_data bg;
-  ulong bnd;
-  long k, np = lg(points), prec = nbits2prec(bitprec)+1;
-  GEN Q, sum, pi2 = Pi2n(1, prec);
-  GEN B = ceilr(divrr(mulur(bitprec,mplog2(DEFAULTPREC)), mulrr(pi2, ymin)));
-  gen_BG_init(&bg,E,N,B,NULL);
-  bnd = bg.rootbnd + 1;
-  BG.rbnd = bnd;
-  Q = cgetg(np, t_VEC);
-  sum = cgetg(np, t_VEC);
-  for (k = 1; k<np; ++k)
+  long k, L = lg(points)-1, prec = nbits2prec(bitprec)+1;
+  GEN  Q, pi2 = Pi2n(1, prec), bnd, rbnd;
+  long l;
+  GEN B = divrr(mulur(bitprec,mplog2(DEFAULTPREC)), pi2);
+  GEN bndmax;
+  rbnd = cgetg(L+1, t_VECSMALL);
+  av2 = avma;
+  bnd = cgetg(L+1, t_VEC);
+  Q  = cgetg(L+1, t_VEC);
+  for (l = 1; l <= L; ++l)
   {
-    gel(Q, k) = expIxy(pi2, gel(points, k), prec);
-    gel(sum,k) = cgetr(prec);
-    affrr(real_i(gel(Q, k)), gel(sum, k));
+    gel(bnd,l) = ceil_safe(divrr(B,gimag(gel(points, l))));
+    rbnd[l] = itou(sqrtint(gel(bnd,l)))+1;
+    gel(Q, l) = expIxy(pi2, gel(points, l), prec);
   }
-  BG.baby  = fillstep(Q, bnd);
-  BG.giant = fillstep(gel(BG.baby, bnd), bnd);
-  BG.sum = sum;
-  gen_BG_rec((void*)&BG, heegner_L1, &bg);
-  return gerepilecopy(av, BG.sum);
+  gerepileall(av2, 2, &bnd, &Q);
+  bndmax = gel(bnd,vecindexmax(bnd));
+  gen_BG_init(&bg, E, N, bndmax, NULL);
+  if (bitprec >= 1900)
+  {
+    GEN S;
+    baby_init2(&bb, Q, bnd, rbnd, prec);
+    gen_BG_rec((void*)&bb, heegner_L1_bg, &bg);
+    S = cgetg(L+1, t_VEC);
+    for (k = 1; k <= L; ++k)
+    {
+      pari_sp av2 = avma;
+      long j, g = rbnd[k];
+      GEN giant = gmael(bb.baby, k, g+1);
+      GEN Sl = real_0(prec);
+      for (j = g; j >=1; j--)
+        Sl = gadd(gmul(Sl, giant), gmael(bb.giant,k,j));
+      gel(S, k) = gerepileupto(av2, real_i(Sl));
+    }
+    return gerepileupto(av, S);
+  }
+  else
+  {
+    baby_init3(&bb, Q, bnd, rbnd, prec);
+    gen_BG_rec((void*)&bb, heegner_L1, &bg);
+    return gerepilecopy(av, bb.sum);
+  }
 }
 
 /*Returns lambda_bad list for one prime p, nv = localred(E, p) */
