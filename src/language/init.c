@@ -2476,78 +2476,21 @@ pari_version(void)
  * generated from the description system.
  * ---------------------
  * Format (struct entree) :
- *   char *name    : name (under GP).
- *   ulong valence : (EpNEW, EpALIAS,EpVAR, EpINSTALL)|EpSTATIC
- *   void *value   : For PREDEFINED FUNCTIONS: C function to call.
- *                   For USER FUNCTIONS: pointer to defining data (block) =
- *                    entree*: NULL, list of entree (arguments), NULL
- *                    char*  : function text
- *   long menu     : which help section do we belong to (See below).
- *   char *code    : argument list (See below).
- *   char *help    : short help text (init to NULL).
- *   void *pvalue  : push_val history.
- *   long arity    : maximum number of arguments.
- *   entree *next  : next entree (init to NULL, used in hashing code).
- * menu:
- * -----
- *  1: Standard monadic or dyadic OPERATORS
- *  2: CONVERSIONS and similar elementary functions
- *  3: TRANSCENDENTAL functions
- *  4: NUMBER THEORETICAL functions
- *  5: Functions related to ELLIPTIC CURVES
- *  6: Functions related to general NUMBER FIELDS
- *  7: POLYNOMIALS and power series
- *  8: Vectors, matrices, LINEAR ALGEBRA and sets
- *  9: SUMS, products, integrals and similar functions
- *  10: GRAPHIC functions
- *  11: PROGRAMMING under GP
- *
- * code: describe function prototype. NULL = use valence instead.
- * -----
- * Arguments:
- *  I  closure whose value is ignored, like in for() loop
- *  E  closure whose value is used, like in sum() loop
- *  J  implicit function of arity 1, like in parsum() loop
- *  G  GEN
- *  L  long
- *  U  ulong
- *  V  lexical variable
- *  C  lexical context
- *  n  variable number
- *  W  GEN, which will be modified in place (for t_LIST)
- *  &  *GEN
- *  f  Fake *long (function requires it, but we don't use the resulting long)
- *  p  real precision (prec for the C library)
- *  P  series precision (precdl for the C library)
- *  r  raw input (treated as a string without quotes).
- *     Quoted args are copied as strings. Stops at first unquoted ')' or ','.
- *     Special chars can be quoted using '\'.  Ex : aa"b\n)"c => "aab\n)c".
- *  s  expanded string. Example: Pi"x"2 yields "3.142x2".
- *     The unquoted components can be of any pari type (converted according to
- *     the current output format)
- *  E* any number of E
- *  s* any number of strings (see s)
- *  M  Mnemonic or a flag (converted to a long); description follows
- *         after \n at the end of the argument description
- *  D  Has a default value. Format is "Dvalue,type," (the ending comma is
- *     mandatory). Ex: D0,L, (arg is long, 0 by default).
- *     Special syntax:
- *       if type = G, &, r, s, I or V:  D[G&rsIV] all send NULL.
- *       if type = n: Dn sends -1.
- *       if type = &: argument must be prefixed by '&'.
- *
- *     The user-given args are read first, then completed by the defaults
- *
- * Return type (first char or immediately after 'x'): GEN by default, otherwise
- *  m Return GEN but is can point to the input (member function).
- *  l Return long
- *  u Return ulong
- *  i Return int
- *  v Return void
- *
- * Syntax requirements:
- *  = Separator '=' required.
- ****************************************************************************
- */
+ *   char *name   : name (under GP).
+ *   ulong valence: (EpNEW, EpALIAS,EpVAR, EpINSTALL)|EpSTATIC
+ *   void *value  : For PREDEFINED FUNCTIONS: C function to call.
+ *                  For USER FUNCTIONS: pointer to defining data (block) =
+ *                   entree*: NULL, list of entree (arguments), NULL
+ *                   char*  : function text
+ *   long menu    : which help section do we belong to
+ *                   1: Standard monadic or dyadic OPERATORS
+ *                   2: CONVERSIONS and similar elementary functions
+ *                   3: TRANSCENDENTAL functions, etc.
+ *   char *code   : GP prototype, aka Parser Code (see libpari's manual)
+ *                  if NULL, use valence instead.
+ *   char *help   : short help text (init to NULL).
+ *   void *pvalue : push_val history.
+ *   long arity   : maximum number of arguments.
+ *   entree *next : next entree (init to NULL, used in hashing code). */
 #include "init.h"
 #include "default.h"
