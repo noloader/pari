@@ -2748,6 +2748,7 @@ GEN     listcopy(GEN x);
 void    timer_printf(pari_timer *T, const char *format, ...);
 void    msgtimer(const char *format, ...);
 long    name_numerr(const char *s);
+void    new_chunk_resize(size_t x);
 GEN     newblock(size_t n);
 const char * numerr_name(long errnum);
 GEN     obj_check(GEN S, long K);

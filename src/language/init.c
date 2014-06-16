@@ -769,6 +769,15 @@ parivstack_reset(void)
                         pari_mainstack->bot-pari_mainstack->vbot);
 }
 
+void
+new_chunk_resize(size_t x)
+{
+  if (pari_mainstack->vsize==0
+    || x > (avma-pari_mainstack->vbot) / sizeof(long)) pari_err(e_STACK);
+  while (x > (avma-pari_mainstack->bot) / sizeof(long))
+    paristack_resize(0);
+}
+
 /*********************************************************************/
 /*                       PARI THREAD                                 */
 /*********************************************************************/

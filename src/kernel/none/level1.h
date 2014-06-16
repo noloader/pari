@@ -90,12 +90,7 @@ new_chunk(size_t x) /* x is a number of longs */
   GEN z = ((GEN) avma) - x;
   CHECK_CTRLC
   if (x > (avma-pari_mainstack->bot) / sizeof(long))
-  {
-    if (pari_mainstack->vsize==0
-      || x > (avma-pari_mainstack->vbot) / sizeof(long)) pari_err(e_STACK);
-    while (x > (avma-pari_mainstack->bot) / sizeof(long))
-      paristack_resize(0);
-  }
+    new_chunk_resize(x);
   avma = (pari_sp)z;
 #ifdef MEMSTEP
   if (DEBUGMEM && pari_mainstack->memused != DISABLE_MEMUSED) {
