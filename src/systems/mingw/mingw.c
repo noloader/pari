@@ -156,3 +156,32 @@ win32_set_pdf_viewer(void)
     putenv(buf);
   }
 }
+
+extern int win32ctrlc, win32alrm;
+static HANDLE hTimerQueue = NULL;
+
+static void CALLBACK
+win32_cb_alarm(void *lpParam, BOOLEAN TimerOrWaitFired)
+{
+  win32ctrlc++;
+  win32alrm = 1;
+}
+
+void
+win32_alarm(unsigned int s)
+{
+  if (hTimerQueue)
+  {
+    HANDLE oldhTimerQueue = hTimerQueue;
+    hTimerQueue = NULL;
+    DeleteTimerQueue(oldhTimerQueue);
+  }
+  if (s)
+  {
+    void *arg = NULL;
+    HANDLE hTimer = NULL;
+    hTimerQueue = CreateTimerQueue();
+    CreateTimerQueueTimer( &hTimer, hTimerQueue,
+        (WAITORTIMERCALLBACK)win32_cb_alarm, &arg , s*1000, 0, 0);
+  }
+}

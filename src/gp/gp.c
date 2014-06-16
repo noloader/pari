@@ -1672,18 +1672,9 @@ gp_main_loop(long flag)
 /*                      EXCEPTION HANDLER                           */
 /*                                                                  */
 /********************************************************************/
-static void
-gp_sigint_fun(void) {
-  char buf[64];
-  if (GP_DATA->flags & gpd_TEXMACS) tm_start_output();
-  convert_time(buf, timer_get(GP_DATA->T));
-  pari_sigint(buf);
-}
-
-#if defined(SIGALRM) || defined(HAS_ALARM)
 static THREAD pari_timer ti_alarm;
-#endif
-#ifdef SIGALRM
+
+#if defined(_WIN32) || defined(SIGALRM)
 static void
 gp_alarm_fun(void) {
   char buf[64];
@@ -1692,6 +1683,17 @@ gp_alarm_fun(void) {
   pari_err(e_ALARM, buf);
 }
 #endif /* SIGALRM */
+
+static void
+gp_sigint_fun(void) {
+  char buf[64];
+#if defined(_WIN32)
+  if (win32alrm) { win32alrm = 0; gp_alarm_fun(); return;}
+#endif
+  if (GP_DATA->flags & gpd_TEXMACS) tm_start_output();
+  convert_time(buf, timer_get(GP_DATA->T));
+  pari_sigint(buf);
+}
 
 static const char *
 break_loop_prompt(char *buf, long n)
@@ -1974,7 +1976,7 @@ closure_alarmer(GEN C, long s)
   VOLATILE GEN x;
   if (!s) { alarm0(0); return closure_evalgen(C); }
   evalstate_save(&state);
-#ifndef HAS_ALARM
+#if !defined(HAS_ALARM) && !defined(_WIN32)
   pari_err(e_ARCH,"alarm");
 #endif
   pari_CATCH(CATCH_ALL) /* We need to stop the timer after any error */
@@ -1991,8 +1993,10 @@ void
 alarm0(long s)
 {
   if (s < 0) pari_err_DOMAIN("alarm","delay","<",gen_0,stoi(s));
-#ifdef HAS_ALARM
   if (s) timer_start(&ti_alarm);
+#ifdef _WIN32
+  win32_alarm(s);
+#elif defined(HAS_ALARM)
   alarm(s);
 #else
   if (s) pari_err(e_ARCH,"alarm");

@@ -347,7 +347,7 @@ static void
 dflt_sigint_fun(void) { pari_err(e_MISC, "user interrupt"); }
 
 #if defined(_WIN32) || defined(__CYGWIN32__)
-int win32ctrlc = 0;
+int win32ctrlc = 0, win32alrm = 0;
 void
 dowin32ctrlc(void)
 {
