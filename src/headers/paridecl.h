@@ -3503,7 +3503,6 @@ GEN     glambertW(GEN y, long prec);
 
 /* modsym.c */
 GEN     ellsym(GEN E, long signe);
-GEN     modulartosym(GEN M, GEN v);
 GEN     msinit(GEN N, GEN k, long sign);
 GEN     xpm(GEN E, GEN a, GEN b);
 GEN     Q_xpm(GEN E, GEN c);

@@ -18,7 +18,7 @@ modsymbHecke(W1, 2)
 modsymbHecke(W, 2)
 modsymbHecke(W1, 11)
 ellsym(ellinit([1,2]), 1);
-ellsym(ellinit("11a1"), 1);
+ellsym(ellinit([0,-1,1,-10,-20]), 1);
 
 N = 227;
 W = msinit(N,2,1);
