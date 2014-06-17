@@ -45,6 +45,8 @@ XR  9- padicfields(huge p, d) was very slow [even though ramification is tame]
    29- factor((3+4*I)/25) -> factor 2+I had 0 exponent [#1586]
    30- made qfbclassno more reliable (fixes all counter examples in [#1411])
 BA 31- iferr() could crash if some component of the t_ERROR were clones.
+   32- nffactor() could overflow the stack when default accuracy too low: e.g.
+       nffactor(y^2-22, x^2+926246528884912528275985458927067632*y-4344481316563541186659879867597013188)
 
   Added
     1- add optional argument to sumdigits to specify the base
