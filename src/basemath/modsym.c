@@ -260,7 +260,7 @@ gamma_equiv(GEN a, GEN b, ulong N)
 /* Input: a,b = 2 paths that are \Gamma_0(N)-equivalent, N = integer
  * Output: M in \Gamma_0(N) such that Mb=a */
 static GEN
-gamma_equiv_matrix(GEN a, GEN b, ulong N)
+gamma_equiv_matrix(GEN a, GEN b)
 {
   GEN m = zm_to_ZM( path_to_matrix(a) );
   GEN n = zm_to_ZM( path_to_matrix(b) );
@@ -359,7 +359,7 @@ p1_index(long x, long y, GEN p1N)
 
 /* \sum_{d | N} \phi(gcd(d, N/d)), using multiplicativity. fa = factor(N) */
 static ulong
-nbcusp(ulong N, GEN fa)
+nbcusp(GEN fa)
 {
   GEN P = gel(fa,1), E = gel(fa,2);
   long i, l = lg(P);
@@ -385,7 +385,7 @@ inithashcusps(GEN p1N)
 {
   ulong N = p1N_get_N(p1N);
   GEN div = p1N_get_div(p1N), H = zerovec(N+1);
-  long k, ind, l = lg(div), ncusp = nbcusp(N, p1N_get_fa(p1N));
+  long k, ind, l = lg(div), ncusp = nbcusp(p1N_get_fa(p1N));
   GEN cusps = cgetg(ncusp+1, t_VEC);
 
   gel(H,1) = mkvecsmall2(0/*empty*/, 1/* first cusp: (1:0) */);
@@ -1011,7 +1011,7 @@ insert_E(GEN path, PS_sets_t *S, GEN p1N)
     r = S->E2->nb;
     if (gel(S->E2_in_terms_of_E1, r) != gen_0) pari_err_BUG("insert_E");
 
-    gamma = gamma_equiv_matrix(rev, p1, p1N_get_N(p1N));
+    gamma = gamma_equiv_matrix(rev, p1);
     /* E2[r] + gamma * E1[s] = 0 */
     gel(S->E2_in_terms_of_E1, r) = mkvec2(utoipos(s),
                                           mkvec(mkvec2(gamma, gen_m1)));
@@ -1487,7 +1487,7 @@ modsymbinit_N(ulong N)
   for (r = 1; r <= T2->nb; r++)
   {
     GEN w = gel(vecT2,r);
-    GEN gamma = gamma_equiv_matrix(Reverse(w), w, N);
+    GEN gamma = gamma_equiv_matrix(Reverse(w), w);
     gel(annT2, r) = mkvec2(mkvec2(gen_1,gen_1), mkvec2(gamma,gen_1));
   }
 
