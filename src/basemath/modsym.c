@@ -131,8 +131,8 @@ static GEN
 generatemsymbols(ulong N, ulong num, GEN divN)
 {
   GEN ret = cgetg(num+1, t_VEC);
-  ulong c, d;
-  long i, l, curn = 0;
+  ulong c, d, curn = 0;
+  long i, l;
   /* generate Manin-symbols in two lists: */
   /* list 1: (c:1) for 0 <= c < N */
   for (c = 0; c < N; c++) gel(ret, ++curn) = mkvecsmall2(c, 1);
@@ -958,13 +958,13 @@ Reverse(GEN v)
 /* insert path in set T */
 static void
 set_insert(hashtable *T, GEN path)
-{ hash_insert(T, path,  (void*)T->nb + 1); }
+{ hash_insert(T, path,  (void*)(T->nb + 1)); }
 
 static GEN
 hash_to_vec(hashtable *h)
 {
   GEN v = cgetg(h->nb + 1, t_VEC);
-  long i;
+  ulong i;
   for (i = 0; i < h->len; i++)
   {
     hashentry *e = h->table[i];
@@ -1123,15 +1123,15 @@ ZGLQ_normalize(GEN x)
   old = gel(x,1); g = gel(old,1); e = gel(old,2);
   for (i = 2; i < lx; i++)
   {
-    GEN new = gel(x,i);
-    if (gidentical(gel(new,1), g))
-      e = addii(gel(new,2), e);
+    GEN n = gel(x,i);
+    if (gidentical(gel(n,1), g))
+      e = addii(gel(n,2), e);
     else
     {
       gel(old,2) = e;
       if (!signe(e)) ix--;
-      gel(x, ix++) = new;
-      old = new; g = gel(old,1); e = gel(old,2);
+      gel(x, ix++) = n;
+      old = n; g = gel(old,1); e = gel(old,2);
     }
   }
   gel(old,2) = e;
@@ -1412,7 +1412,8 @@ modsymbinit_N(ulong N)
 {
   GEN p1N = create_p1mod(N);
   GEN C, vecF, vecT2, vecT31;
-  long r, s, nball, width, nbgen, nbp1N = p1_size(p1N);
+  ulong r, s, width;
+  long nball, nbgen, nbp1N = p1_size(p1N);
   GEN TAU = mkmat2(mkcol2(gen_0,gen_1), mkcol2(gen_m1,gen_m1)); /*[0,-1;1,-1]*/
   GEN W, W2, singlerel, annT2, annT31;
   GEN F_index;
@@ -2103,7 +2104,7 @@ static GEN
 Tp_matrices(ulong p)
 {
   GEN v = cgetg(p+2, t_VEC);
-  long i;
+  ulong i;
   for (i = 1; i <= p; i++) gel(v,i) = mat2(1, i-1, 0, p);
   gel(v,i) = mat2(p, 0, 0, 1);
   return v;
@@ -2112,7 +2113,7 @@ static GEN
 Up_matrices(ulong p)
 {
   GEN v = cgetg(p+1, t_VEC);
-  long i;
+  ulong i;
   for (i = 1; i <= p; i++) gel(v,i) = mat2(1, i-1, 0, p);
   return v;
 }
@@ -2515,7 +2516,10 @@ msinit(GEN N, GEN K, long sign)
   if (typ(N) != t_INT) pari_err_TYPE("msinit", N);
   if (typ(K) != t_INT) pari_err_TYPE("msinit", K);
   k = itos(K);
+  if (k < 2) pari_err_DOMAIN("msinit","k", "<", gen_2,K);
   if (odd(k)) pari_err_IMPL("msinit [odd weight]");
+  if (signe(N) <= 0) pari_err_DOMAIN("msinit","N", "<=", gen_0,N);
+  if (equali1(N)) pari_err_IMPL("msinit [ N = 1 ]");
   W = modsymbkinit(itou(N), k, sign);
   return gerepilecopy(av, W);
 }
@@ -2566,8 +2570,7 @@ twistcurve(GEN e, GEN D)
 static GEN
 get_X(GEN E, long D)
 {
-  long d = labs(D);
-  ulong a;
+  ulong a, d = (ulong)labs(D);
   GEN t = gen_0;
   GEN nc = icopy(gen_1), c = mkfrac(nc, utoipos(d));
   for (a=1; a < d; a++)
