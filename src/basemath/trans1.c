@@ -490,6 +490,8 @@ static GEN
 _sqrr(void *data /* ignored */, GEN x) { (void)data; return sqrr(x); }
 static GEN
 _mulr(void *data /* ignored */, GEN x, GEN y) { (void)data; return mulrr(x,y); }
+static GEN
+_oner(void *data /* prec */) { return real_1( *(long*) data); }
 
 /* INTEGER POWERING (a^n for integer a != 0 and integer n > 0)
  *
@@ -739,6 +741,13 @@ powru(GEN x, ulong n)
   if (!n) return powr0(x);
   y = gen_powu_i(x, n, NULL, &_sqrr, &_mulr);
   return gerepileuptoleaf(av,y);
+}
+
+GEN
+powersr(GEN x, long n)
+{
+  long prec = realprec(x);
+  return gen_powers(x, n, 1, &prec, &_sqrr, &_mulr, &_oner);
 }
 
 /* x^(s/2), assume x t_REAL */

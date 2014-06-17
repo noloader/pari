@@ -19,6 +19,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #include "pari.h"
 #include "paripriv.h"
 
+struct baby_giant
+{
+  GEN baby, giant;
+  GEN bnd, rbnd;
+};
+
 /* Generic Buhler-Gross algorithm */
 
 struct bg_data
@@ -31,22 +37,23 @@ struct bg_data
   GEN p;  /* t_VECSMALL: primes <= rootbnd */
 };
 
-typedef void bg_fun(void*el, GEN *psum, GEN n, GEN a, long jmax);
+typedef void bg_fun(void*el, GEN n, GEN a);
 
 /* a = a_n, where p = bg->pp[i] divides n, and lasta = a_{n/p}.
- * Call fun(E, psum, N, a_N, 0), for all N, n | N, P^+(N) <= p, a_N != 0,
- * i.e. assumes that fun accumulates psum += a_N * w(N) */
+ * Call fun(E, N, a_N), for all N, n | N, P^+(N) <= p, a_N != 0,
+ * i.e. assumes that fun accumulates a_N * w(N) */
+
 static void
-gen_BG_add(void *E, bg_fun *fun, struct bg_data *bg, GEN *psum, GEN n, long i, GEN a, GEN lasta)
+gen_BG_add(void *E, bg_fun *fun, struct bg_data *bg, GEN n, long i, GEN a, GEN lasta)
 {
-  pari_sp av = avma, lim = stack_lim(av,2);
+  pari_sp av = avma;
   long j;
   ulong nn = itou_or_0(n);
   if (nn && nn <= bg->rootbnd) bg->an[nn] = itos(a);
 
   if (signe(a))
   {
-    fun(E, psum, n, a, 0);
+    fun(E, n, a);
     j = 1;
   }
   else
@@ -58,12 +65,8 @@ gen_BG_add(void *E, bg_fun *fun, struct bg_data *bg, GEN *psum, GEN n, long i, G
     if (cmpii(pn, bg->bnd) > 0) return;
     nexta = mulis(a, bg->ap[j]);
     if (i == j && umodiu(bg->N, p)) nexta = subii(nexta, mului(p, lasta));
-    gen_BG_add(E, fun, bg, psum, pn, j, nexta, a);
-    if (low_stack(lim, stack_lim(av,2)))
-    {
-      if (DEBUGMEM>1) pari_warn(warnmem,"gen_BG_add, p=%lu",p);
-      *psum = gerepilecopy(av, *psum);
-    }
+    gen_BG_add(E, fun, bg, pn, j, nexta, a);
+    avma = av;
   }
 }
 
@@ -90,29 +93,24 @@ gen_BG_init(struct bg_data *bg, GEN E, GEN N, GEN bnd, GEN ap)
   bg->an[1] = 1;
 }
 
-static GEN
-gen_BG_rec(void *E, bg_fun *fun, struct bg_data *bg, GEN sum0)
+static void
+gen_BG_rec(void *E, bg_fun *fun, struct bg_data *bg)
 {
-  long i, j, lp = lg(bg->p)-1, lim;
+  long i, j, lp = lg(bg->p)-1;
   GEN bndov2 = shifti(bg->bnd, -1);
   pari_sp av = avma, av2;
-  GEN sum, p;
+  GEN p;
   forprime_t S;
   (void)forprime_init(&S, utoipos(bg->p[lp]+1), bg->bnd);
-  av2 = avma; lim = stack_lim(av2,1);
+  av2 = avma;
   if(DEBUGLEVEL)
     err_printf("1st stage, using recursion for p <= %ld\n", bg->p[lp]);
-  sum = gcopy(sum0);
   for (i = 1; i <= lp; i++)
   {
     ulong pp = bg->p[i];
     long ap = bg->ap[i];
-    gen_BG_add(E, fun, bg, &sum, utoipos(pp), i, stoi(ap), gen_1);
-    if (low_stack(lim, stack_lim(av2,1)))
-    {
-      if (DEBUGMEM>1) pari_warn(warnmem,"ellL1, p=%lu",pp);
-      sum = gerepileupto(av2, sum);
-    }
+    gen_BG_add(E, fun, bg, utoipos(pp), i, stoi(ap), gen_1);
+    avma = av2;
   }
   if (DEBUGLEVEL) err_printf("2nd stage, looping for p <= %Ps\n", bndov2);
   while ( (p = forprime_next(&S)) )
@@ -122,7 +120,7 @@ gen_BG_rec(void *E, bg_fun *fun, struct bg_data *bg, GEN sum0)
     if (!signe(ap)) continue;
 
     jmax = itou( divii(bg->bnd, p) ); /* 2 <= jmax <= el->rootbound */
-    fun(E, &sum, p, ap, -jmax); /*Beware: create a cache on the stack */
+    fun(E, p, ap);
     for (j = 2;  j <= jmax; j++)
     {
       long aj = bg->an[j];
@@ -130,13 +128,9 @@ gen_BG_rec(void *E, bg_fun *fun, struct bg_data *bg, GEN sum0)
       if (!aj) continue;
       a = mulis(ap, aj);
       n = muliu(p, j);
-      fun(E, &sum, n, a, j);
+      fun(E, n, a);
     }
-    if (low_stack(lim, stack_lim(av2,1)))
-    {
-      if (DEBUGMEM>1) pari_warn(warnmem,"ellL1, p=%Ps",p);
-      sum = gerepilecopy(av2, sum);
-    }
+    avma = av2;
     if (absi_cmp(p, bndov2) >= 0) break;
   }
   if (DEBUGLEVEL) err_printf("3nd stage, looping for p <= %Ps\n", bg->bnd);
@@ -144,14 +138,10 @@ gen_BG_rec(void *E, bg_fun *fun, struct bg_data *bg, GEN sum0)
   {
     GEN ap = ellap(bg->E, p);
     if (!signe(ap)) continue;
-    fun(E, &sum, p, ap, 0);
-    if (low_stack(lim, stack_lim(av2,1)))
-    {
-      if (DEBUGMEM>1) pari_warn(warnmem,"ellL1, p=%Ps",p);
-      sum = gerepilecopy(av2, sum);
-    }
+    fun(E, p, ap);
+    avma = av2;
   }
-  return gerepileupto(av, sum);
+  avma = av;
 }
 
 /******************************************************************
@@ -166,7 +156,7 @@ struct lcritical
   GEN h;    /* real */
   long cprec; /* computation prec */
   long L; /* number of points */
-  long K; /* length of series */
+  GEN  K; /* length of series */
   long real;
 };
 
@@ -182,7 +172,7 @@ logboundG0(long e, double aY)
 
 static void
 param_points(GEN N, double Y, double tmax, long bprec, long *cprec, long *L,
-             long *K, double *h)
+             GEN *K, double *h)
 {
   double D, a, aY, X, logM;
   long d = 2, w = 1;
@@ -195,62 +185,101 @@ param_points(GEN N, double Y, double tmax, long bprec, long *cprec, long *L,
   *h = ( 2 * PI * PI / 2 * Y ) / ( D + logM );
   X = log( D / a);
   *L = ceil( X / *h);
-  *K = ceil( D / a);
+  *K = ceil_safe(dbltor( D / a ));
 }
 
 /* ************************************************************************
  * Compute F transform at regularly spaced points
  * */
 
-static GEN
-vecF2_lk_bsgs(GEN h, long L, long K, GEN N, long w, GEN a, long prec)
+/* Return C, C[i][j] = Q[j]^i, i = 1..nb */
+static void
+baby_init(struct baby_giant *bb, GEN Q, GEN bnd, long prec)
 {
-  GEN PiN, eh, seh;
-  pari_sp av = avma, av2, lim2;
-  long l;
-  GEN elh, sleh;
-  GEN S = cgetg(L+1, t_VEC);
-  for (l = 1; l <= L; l++) gel(S,l) = cgetr(prec);
+  pari_sp av;
+  long i, j, l = lg(Q);
+  GEN R, C, rbnd, r0;
+  rbnd = cgetg(l,t_VECSMALL);
+  av = avma;
+  for (i = 1; i < l; ++i)
+    rbnd[i] = itou(sqrtint(gel(bnd,i)))+1;
+  avma = av;
+  C = cgetg(l,t_VEC);
+  for (i = 1; i < l; ++i)
+    gel(C, i) = powersr(gel(Q, i), rbnd[i]);
+  R = cgetg(l,t_VEC);
+  r0 = real_0(prec);
+  for (i = 1; i < l; ++i)
+  {
+    gel(R, i) = cgetg(rbnd[i]+1, t_VEC);
+    gmael(R, i, 1) = cgetr(prec);
+    affrr(gmael(C, i, 2),gmael(R, i, 1));
+    for (j = 2; j <= rbnd[i]+1; j++)
+    {
+      gmael(R, i, j) = cgetr(prec);
+      affrr(r0, gmael(R, i, j));
+    }
+  }
+  bb->baby = C;
+  bb->giant = R;
+  bb->bnd = bnd;
+  bb->rbnd = rbnd;
+}
+
+static void
+ellL1_add(void *E, GEN n, GEN a)
+{
+  pari_sp av = avma;
+  struct baby_giant *bb = (struct baby_giant*) E;
+  long j, l = lg(bb->giant);
+  for (j = 1; j < l; j++)
+    if (cmpii(n, gel(bb->bnd,j)) <= 0)
+    {
+      ulong r, q = udiviu_rem(n, bb->rbnd[j], &r);
+      GEN giant = gel(bb->giant, j), baby = gel(bb->baby, j);
+      affrr(addrr(gel(giant, q+1), mulri(gel(baby, r+1), a)), gel(giant, q+1));
+      avma = av;
+    } else break;
+}
+
+static GEN
+vecF2_lk_bsgs(GEN E, GEN h, long L, GEN K, GEN N, long w, long prec)
+{
+  GEN PiN, eh;
+  pari_sp av = avma;
+  struct bg_data bg;
+  struct baby_giant bb;
+  long k,l;
+  GEN sleh, elh, seh;
+  GEN Q, S, Kl;
+  gen_BG_init(&bg, E, N, K, NULL);
   PiN = shiftr(divrr(mppi(prec), gsqrt(N, prec)), 1);
   eh = mpexp(h);
   seh = w % 2 ? powru(eh, (w+1)>>1) : powru(sqrtr(eh), w+1);
-  av2 = avma; lim2 = stack_lim(avma, 1);
   elh = real_1(prec);
-  sleh = real_1(prec);
+  Kl = cgetg(L+1, t_VEC);
+  Q  = cgetg(L+1, t_VEC);
   for (l = 1; l <= L; ++l)
   {
-    long Kl;
-    GEN e1, Sl;
-    long aB, b, A, B;
-    GEN z, zB;
-    pari_sp av3, lim3;
-    Kl = ceil( K / rtodbl(elh));
-    /* FIXME: could reduce prec here (useful for large prec) */
-    e1 = mpexp(mulrr(negr(PiN), elh));
-    Sl = real_0(prec);;
-    /* baby-step giant step */
-    A = floor(sqrt(Kl)); B = A + 1;
-    z = powruvec(e1, B); zB = gel(z, B);
-    av3 = avma; lim3 = stack_lim(av3, 1);
-    for (aB = A*B; aB >= 0; aB -= B)
-    {
-      GEN s = real_0(prec); /* could change also prec here */
-      for (b = B; b > 0; --b)
-      {
-        long k = aB+b;
-        if (k <= Kl && a[k]) s = addrr(s, mulsr(a[k], gel(z, b)));
-        if (low_stack(lim3, stack_lim(av3, 1)))
-          gerepileall(av3, 2, &s, &Sl);
-      }
-      Sl = addrr(mulrr(Sl, zB), s);
-    }
-    affrr(mulrr(Sl, sleh), gel(S, l)); /* to avoid copying all S */
+    gel(Kl,l) = l==1 ? K: ceil_safe(divir(K, elh));
+    gel(Q, l) = mpexp(mulrr(negr(PiN), elh));
     elh = mulrr(elh, eh);
-    sleh = mulrr(sleh, seh);
-    if (low_stack(lim2, stack_lim(av2, 1)))
-      gerepileall(av2, 2, &elh, &sleh);
   }
-  return gerepilecopy(av, S);
+  baby_init(&bb, Q, Kl, prec);
+  gen_BG_rec((void*) &bb, ellL1_add, &bg);
+  sleh = powersr(seh, L);
+  S = cgetg(L+1, t_VEC);
+  for (k = 1; k <= L; ++k)
+  {
+    pari_sp av2 = avma;
+    long j, g = bb.rbnd[k];
+    GEN giant = gmael(bb.baby, k, g+1);
+    GEN Sl = real_0(prec);
+    for (j = g; j >=1; j--)
+      Sl = addrr(mulrr(Sl, giant), gmael(bb.giant,k,j));
+    gel(S, k) = gerepileupto(av2, mulrr(gel(sleh,k), Sl));
+  }
+  return gerepileupto(av, S);
 }
 
 static GEN
@@ -258,9 +287,7 @@ vecF(struct lcritical *C, GEN E)
 {
   pari_sp av = avma;
   GEN N = ellQ_get_N(E), h = C->h;
-  long K = C->K, L = C->L, cprec = C->cprec;
-  GEN vec, a = anellsmall(E, K);
-  vec = vecF2_lk_bsgs(h, L, K, N, 1, a, cprec);
+  GEN vec = vecF2_lk_bsgs(E, h, C->L, C->K, N, 1, C->cprec);
   return gerepileupto(av, vec);
 }
 
@@ -337,9 +364,12 @@ ellL1_bitprec(GEN E, long r, long bitprec)
   pari_sp av = avma;
   struct lcritical C;
   long prec = nbits2prec(bitprec);
-  GEN e = ellanal_globalred(E, NULL);
-  GEN vec = Lpoints(&C, e, gen_0, bitprec);
-  GEN t = r ? scalarser(gen_1, 0, r):  zeroser(0, 0);
+  GEN e, vec, t;
+  if (r < 0)
+    pari_err_DOMAIN("ellL1", "derivative order", "<", gen_0, stoi(r));
+  e = ellanal_globalred(E, NULL);
+  vec = Lpoints(&C, e, gen_0, bitprec);
+  t = r ? scalarser(gen_1, 0, r):  zeroser(0, 0);
   setvalp(t, 1);
   return gerepileupto(av, ellL1_der(e, vec, &C, t, r, prec));
 }
@@ -394,37 +424,39 @@ ellanalyticrank(GEN E, GEN eps, long prec)
    Reference: Henri Cohen's book GTM 239.
 */
 
-/* used to compute exp((g*bgbnd + b) C) = baby[b] * giant[g] */
+/* used to compute exp((g*rbnd + b) C) = baby[b] * giant[g] */
+
 struct babygiant
 {
-  GEN baby, giant;
-  ulong bgbnd;
+  GEN baby, giant, sum;
+  ulong rbnd;
 };
 
-/* assume n / h->bgbnd fits in an ulong */
+/* assume n / h->rbnd fits in an ulong */
 static void
 get_baby_giant(struct babygiant *h, GEN n, GEN *b, GEN *g)
 {
-  ulong r, q = udiviu_rem(n, h->bgbnd, &r);
+  ulong r, q = udiviu_rem(n, h->rbnd, &r);
   *b = r? gel(h->baby,r): NULL;
   *g = q? gel(h->giant,q): NULL;
 }
 static void
-heegner_L1(void*E, GEN *psum, GEN n, GEN a, long jmax)
+heegner_L1(void*E, GEN n, GEN a)
 {
-  long j, l = lg(*psum);
-  GEN b, g, sum = cgetg(l, t_VEC);
-  get_baby_giant((struct babygiant*)E, n, &b, &g);
-  (void)jmax;
+  pari_sp av = avma;
+  struct babygiant *bb = (struct babygiant*)E;
+  GEN b, g, sum = bb->sum;
+  long j, l = lg(sum);
+  get_baby_giant(bb, n, &b, &g);
   for (j = 1; j < l; j++)
   {
     GEN G;
     if (!b)      G = real_i(gel(g,j));
     else if (!g) G = real_i(gel(b,j));
     else         G = mulreal(gel(b,j), gel(g,j));
-    gel(sum, j) = addrr(gel(*psum,j), divri(mulir(a, G), n));
+    affrr(addrr(gel(sum,j), divri(mulir(a, G), n)), gel(sum, j));
+    avma = av;
   }
-  *psum = sum;
 }
 
 /* Return C, C[i][j] = Q[j]^i, i = 1..nb */
@@ -447,21 +479,28 @@ static GEN
 heegner_psi(GEN E, GEN N, GEN ymin, GEN points, long bitprec)
 {
   pari_sp av = avma;
-  struct babygiant BG[1];
+  struct babygiant BG;
   struct bg_data bg;
   ulong bnd;
   long k, np = lg(points), prec = nbits2prec(bitprec)+1;
-  GEN sum, Q, pi2 = Pi2n(1, prec);
+  GEN Q, sum, pi2 = Pi2n(1, prec);
   GEN B = ceilr(divrr(mulur(bitprec,mplog2(DEFAULTPREC)), mulrr(pi2, ymin)));
   gen_BG_init(&bg,E,N,B,NULL);
   bnd = bg.rootbnd + 1;
-  BG->bgbnd = bnd;
+  BG.rbnd = bnd;
   Q = cgetg(np, t_VEC);
-  for (k = 1; k<np; ++k) gel(Q, k) = expIxy(pi2, gel(points, k), prec);
-  BG->baby  = fillstep(Q, bnd);
-  BG->giant = fillstep(gel(BG->baby, bnd), bnd);
-  sum = gen_BG_rec((void*)BG, heegner_L1, &bg, real_i(Q));
-  return gerepileupto(av, sum);
+  sum = cgetg(np, t_VEC);
+  for (k = 1; k<np; ++k)
+  {
+    gel(Q, k) = expIxy(pi2, gel(points, k), prec);
+    gel(sum,k) = cgetr(prec);
+    affrr(real_i(gel(Q, k)), gel(sum, k));
+  }
+  BG.baby  = fillstep(Q, bnd);
+  BG.giant = fillstep(gel(BG.baby, bnd), bnd);
+  BG.sum = sum;
+  gen_BG_rec((void*)&BG, heegner_L1, &bg);
+  return gerepilecopy(av, BG.sum);
 }
 
 /*Returns lambda_bad list for one prime p, nv = localred(E, p) */
