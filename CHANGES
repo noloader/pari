@@ -92,6 +92,7 @@ BA 33- much faster matfrobenius/minpoly(t_MAT)
 BA 34- prototype codes U and u for ulong
    35- allow testing for BITS_IN_LONG in gprc
    36- GP functions msinit, ellpadicL
+BA 37- [mingw] support for the alarm GP function
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]
