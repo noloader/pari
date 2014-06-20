@@ -419,67 +419,6 @@ FpX_roots_i(GEN f, GEN p)
   }
 }
 
-static ulong
-Fl_lgener_pre_all(ulong l, long e, ulong r, ulong p, ulong pi, ulong *pt_m)
-{
-  ulong x, y, m;
-  ulong le1 = upowuu(l, e-1);
-  for (x = 2; ; x++)
-  {
-    y = Fl_powu_pre(x, r, p, pi);
-    if (y==1) continue;
-    m = Fl_powu_pre(y, le1, p, pi);
-    if (m != 1) break;
-  }
-  *pt_m = m;
-  return y;
-}
-
-/* solve x^l = a , l prime in G of order q.
- *
- * q =  (l^e)*r, e >= 1, (r,l) = 1
- * y generates the l-Sylow of G
- * m = y^(l^(e-1)) != 1 */
-static ulong
-Fl_sqrtl_pre(ulong a, ulong l, ulong p, ulong pi)
-{
-  ulong p1, v, w, z, dl, zm;
-  ulong y, m;
-  ulong r, e, u2;
-  if (a==0) return a;
-  e = u_lvalrem(p-1, l, &r);
-  u2 = Fl_inv(l%r, r);
-  v = Fl_powu_pre(a, u2, p,pi);
-  w = Fl_powu_pre(v, l, p,pi);
-  w = Fl_mul_pre(w, Fl_inv(a, p),p,pi);
-  if (w==1) return v;
-  y = Fl_lgener_pre_all(l, e, r, p, pi, &m);
-  while (w!=1)
-  {
-    ulong k = 0;
-    p1 = w;
-    do
-    {
-      z = p1; p1 = Fl_powu_pre(p1, l, p, pi);
-      k++;
-    } while (p1!=1);
-    if (k==e) return ~0UL;
-    dl = 0; zm = 1;
-    while (z!=zm)
-    {
-      zm = Fl_mul_pre(zm, m, p, pi); dl++;
-    }
-    dl = Fl_neg(dl, l);
-    p1 = Fl_powu_pre(y,dl*upowuu(l,e-k-1),p,pi);
-    m = Fl_powu_pre(m, dl, p, pi);
-    e = k;
-    v = Fl_mul_pre(p1,v,p,pi);
-    y = Fl_powu_pre(p1,l,p,pi);
-    w = Fl_mul_pre(y,w,p,pi);
-  }
-  return v;
-}
-
 /* Assume f is normalized */
 static ulong
 Flx_cubic_root(GEN ff, ulong p)

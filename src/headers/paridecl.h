@@ -1283,6 +1283,8 @@ ulong   Fl_powu(ulong x, ulong n, ulong p);
 ulong   Fl_powu_pre(ulong x, ulong n, ulong p, ulong pi);
 ulong   Fl_sqrt(ulong a, ulong p);
 ulong   Fl_sqrt_pre(ulong a, ulong p, ulong pi);
+ulong   Fl_sqrtl(ulong a, ulong l, ulong p);
+ulong   Fl_sqrtl_pre(ulong a, ulong l, ulong p, ulong pi);
 GEN     Fp_factored_order(GEN a, GEN o, GEN p);
 int     Fp_ispower(GEN x, GEN K, GEN p);
 GEN     Fp_log(GEN a, GEN g, GEN ord, GEN p);

@@ -1786,6 +1786,10 @@ positive representative of $x^n$ modulo $m$.
 modulo \kbd{p} (smallest positive representative). Assumes \kbd{p} to be
 prime, and \kbd{x} to be a square modulo \kbd{p}.
 
+\fun{ulong}{Fl_sqrtl}{ulong x, ulong l, ulong p} returns a $l$-the root of \kbd{x}
+modulo \kbd{p}. Assumes \kbd{p} to be prime and $p \equiv 1 \pmod{l}$, and
+\kbd{x} to be a $l$-th power modulo \kbd{p}.
+
 \fun{ulong}{Fl_order}{ulong a, ulong o, ulong p} returns the order of the
 \typ{Fp} \kbd{a}. It is assumed that \kbd{o} is a multiple of the order of
 \kbd{a}, $0$ being allowed (no non-trivial information).
@@ -1832,6 +1836,12 @@ $x^n$ modulo $p$, assuming $pi$ is the pseudo inverse of $p$.
 \fun{ulong}{Fl_sqrt_pre}{ulong x, ulong p, ulong pi} returns a square root
 of $x$ modulo $p$, assuming $pi$ is the pseudo inverse of $p$.
 See \kbd{Fl\_sqrt}.
+
+\fun{ulong}{Fl_sqrtl_pre}{ulong x, ulong l, ulong p, ulong pi}
+returns a $l$-the root of \kbd{x}
+modulo \kbd{p}, assuming $pi$ is the pseudo inverse of $p$,
+$p$ prime and $p \equiv 1 \pmod{l}$, and \kbd{x} to be a $l$-th power modulo
+\kbd{p}.
 
 \subsec{Switching between Fl\_xxx and standard operators}
 
