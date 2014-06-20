@@ -2004,6 +2004,11 @@ Fl_sqrt(ulong a, ulong p)
   return Fl_sqrt_i(a, p, pi, 0, 0);
 }
 
+ulong
+Fl_sqrt_pre(ulong a, ulong p, ulong pi)
+{
+  return Fl_sqrt_i(a, p, pi, 0, 0);
+}
 /* Cipolla is better than Tonelli-Shanks when e = v_2(p-1) is "too big".
  * Otherwise, is a constant times worse; for p = 3 (mod 4), is about 3 times worse,
  * and in average is about 2 or 2.5 times worse. But try both algorithms for

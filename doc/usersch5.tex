@@ -1829,6 +1829,10 @@ modulo $p$, assuming $pi$ is the pseudo inverse of $p$.
 \fun{ulong}{Fl_powu_pre}{ulong x, ulong n, ulong p, ulong pi} returns
 $x^n$ modulo $p$, assuming $pi$ is the pseudo inverse of $p$.
 
+\fun{ulong}{Fl_sqrt_pre}{ulong x, ulong p, ulong pi} returns a square root
+of $x$ modulo $p$, assuming $pi$ is the pseudo inverse of $p$.
+See \kbd{Fl\_sqrt}.
+
 \subsec{Switching between Fl\_xxx and standard operators}
 
 Even though the \kbd{Fl\_xxx} routines are efficient, they are slower than
