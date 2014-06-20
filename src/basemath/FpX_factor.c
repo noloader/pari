@@ -433,7 +433,7 @@ Flx_cubic_root(GEN ff, ulong p)
   ulong A32 = Fl_sqr_pre(A3, p, pi), A33 = Fl_mul_pre(A3, A32, p, pi);
   ulong S = Fl_neg(B,p), P = Fl_neg(A3,p);
   ulong D = Fl_add(Fl_sqr_pre(S, p, pi), Fl_double(Fl_double(A33, p), p), p);
-  ulong s = Fl_sqrt(D, p), vS1, vS2;
+  ulong s = Fl_sqrt_pre(D, p, pi), vS1, vS2;
   if (s!=~0UL)
   {
     ulong S1 = S==s ? S: Fl_halve(Fl_sub(S, s, p), p);
