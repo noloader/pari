@@ -1936,6 +1936,29 @@ hilbert(GEN x, GEN y, GEN p)
 /*                                                                 */
 /*******************************************************************/
 
+static ulong
+Fl_2gener_pre_all(long e, ulong p, ulong pi, ulong *pt_m)
+{
+  ulong y, m;
+  long k, i;
+  ulong q = (p-1) >> e; /* q = (p-1)/2^oo is odd */
+  for (k=2; ; k++)
+  { /* loop terminates for k < p (even if p composite) */
+    i = krouu(k, p);
+    if (i >= 0)
+    {
+      if (i) continue;
+      pari_err_PRIME("Fl_sqrt [modulus]",utoi(p));
+    }
+    y = m = Fl_powu_pre(k, q, p, pi);
+    for (i=1; i<e; i++)
+      if ((m = Fl_sqr_pre(m, p, pi)) == 1) break;
+    if (i == e) break; /* success */
+  }
+  *pt_m = m;
+  return y;
+}
+
 /* Tonelli-Shanks. Assume p is prime and (a,p) != -1. */
 ulong
 Fl_sqrt(ulong a, ulong p)
@@ -1954,20 +1977,7 @@ Fl_sqrt(ulong a, ulong p)
   q = p1 >> e; /* q = (p-1)/2^oo is odd */
   if (e == 1) y = p1;
   else /* look for an odd power of a primitive root */
-    for (k=2; ; k++)
-    { /* loop terminates for k < p (even if p composite) */
-      i = krouu(k, p);
-      if (i >= 0)
-      {
-        if (i) continue;
-        pari_err_PRIME("Fl_sqrt [modulus]",utoi(p));
-      }
-      y = m = Fl_powu_pre(k, q, p, pi);
-      for (i=1; i<e; i++)
-        if ((m = Fl_sqr_pre(m, p, pi)) == 1) break;
-      if (i == e) break; /* success */
-    }
-
+    y = Fl_2gener_pre_all(e, p, pi, &m);
   p1 = Fl_powu_pre(a, q >> 1, p, pi); /* a ^ [(q-1)/2] */
   if (!p1) return 0;
   v = Fl_mul_pre(a, p1, p, pi);
