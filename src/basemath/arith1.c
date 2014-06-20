@@ -1960,12 +1960,11 @@ Fl_2gener_pre_all(long e, ulong p, ulong pi, ulong *pt_m)
 }
 
 /* Tonelli-Shanks. Assume p is prime and (a,p) != -1. */
-ulong
-Fl_sqrt(ulong a, ulong p)
+static ulong
+Fl_sqrt_i(ulong a, ulong p, ulong pi, ulong y, ulong m)
 {
   long i, e, k;
-  ulong pi = get_Fl_red(p);
-  ulong p1, q, v, y, w, m;
+  ulong p1, q, v, w;
 
   if (!a) return 0;
   p1 = p - 1; e = vals(p1);
@@ -1975,9 +1974,8 @@ Fl_sqrt(ulong a, ulong p)
     return ((a & 1) == 0)? 0: 1;
   }
   q = p1 >> e; /* q = (p-1)/2^oo is odd */
-  if (e == 1) y = p1;
-  else /* look for an odd power of a primitive root */
-    y = Fl_2gener_pre_all(e, p, pi, &m);
+  if (e == 1)    y = p1;
+  else if (y==0) y = Fl_2gener_pre_all(e, p, pi, &m);
   p1 = Fl_powu_pre(a, q >> 1, p, pi); /* a ^ [(q-1)/2] */
   if (!p1) return 0;
   v = Fl_mul_pre(a, p1, p, pi);
@@ -1997,6 +1995,13 @@ Fl_sqrt(ulong a, ulong p)
   }
   p1 = p - v; if (v > p1) v = p1;
   return v;
+}
+
+ulong
+Fl_sqrt(ulong a, ulong p)
+{
+  ulong pi = get_Fl_red(p);
+  return Fl_sqrt_i(a, p, pi, 0, 0);
 }
 
 /* Cipolla is better than Tonelli-Shanks when e = v_2(p-1) is "too big".
