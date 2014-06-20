@@ -2032,10 +2032,9 @@ Fl_lgener_pre_all(ulong l, long e, ulong r, ulong p, ulong pi, ulong *pt_m)
  * y generates the l-Sylow of G
  * m = y^(l^(e-1)) != 1 */
 ulong
-Fl_sqrtl_pre(ulong a, ulong l, ulong p, ulong pi)
+Fl_sqrtl_i(ulong a, ulong l, ulong p, ulong pi, ulong y, ulong m)
 {
   ulong p1, v, w, z, dl, zm;
-  ulong y, m;
   ulong r, e, u2;
   if (a==0) return a;
   e = u_lvalrem(p-1, l, &r);
@@ -2044,7 +2043,7 @@ Fl_sqrtl_pre(ulong a, ulong l, ulong p, ulong pi)
   w = Fl_powu_pre(v, l, p,pi);
   w = Fl_mul_pre(w, Fl_inv(a, p),p,pi);
   if (w==1) return v;
-  y = Fl_lgener_pre_all(l, e, r, p, pi, &m);
+  if (y==0) y = Fl_lgener_pre_all(l, e, r, p, pi, &m);
   while (w!=1)
   {
     ulong k = 0;
@@ -2072,10 +2071,16 @@ Fl_sqrtl_pre(ulong a, ulong l, ulong p, ulong pi)
 }
 
 ulong
+Fl_sqrtl_pre(ulong a, ulong l, ulong p, ulong pi)
+{
+  return Fl_sqrtl_i(a, l, p, pi, 0, 0);
+}
+
+ulong
 Fl_sqrtl(ulong a, ulong l, ulong p)
 {
   ulong pi = get_Fl_red(p);
-  return Fl_sqrtl_pre(a, l, p, pi);
+  return Fl_sqrtl_i(a, l, p, pi, 0, 0);
 }
 
 /* Cipolla is better than Tonelli-Shanks when e = v_2(p-1) is "too big".
