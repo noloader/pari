@@ -71,7 +71,7 @@ logp(GEN C, GEN a, ulong p, GEN q)
 /** p-adic L function **/
 
 /* E an ellsym struct. D > 0. Assume |D p^m| < MAX_ULONG, m > 0 */
-GEN
+static GEN
 loopLpn(GEN E, ulong D, ulong p, long m, long R, GEN q)
 {
   pari_sp av, lim;
