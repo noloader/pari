@@ -769,7 +769,7 @@ Shift_right(GEN path)
 
 /* linked lists */
 typedef struct list_t { GEN data; struct list_t *next; } list_t;
-list_t *
+static list_t *
 list_new(GEN x)
 {
   list_t *L = (list_t*)stack_malloc(sizeof(list_t));
