@@ -1054,6 +1054,8 @@ heegner_find_point(GEN e, GEN om, GEN ht, GEN z1, long k, long prec)
   pari_sp av = avma;
   long m;
   GEN Ore = gel(om, 1), Oim = gel(om, 2);
+  if (DEBUGLEVEL > 0)
+    err_printf("%ld*%ld multipliers to test\n",k,lg(lambdas)-1);
   for (m = 0; m < k; m++)
   {
     GEN P, z2 = divrs(addrr(z1, mulsr(m, Ore)), k);
@@ -1245,8 +1247,12 @@ heegner_find_disc(GEN *ymin, GEN *points, GEN *coefs, long *pind, GEN E,
       GEN indmultD = heegner_indexmultD(faN, indmult, itos(D), sqrtD);
       do
       {
-        GEN mulf = ltwist1(E, D, bprec+expo(indmultD));
-        GEN indr = mulrr(indmultD, mulf);
+        GEN mulf, indr;
+        pari_timer ti;
+        if (DEBUGLEVEL) timer_start(&ti);
+        mulf = ltwist1(E, D, bprec+expo(indmultD));
+        if (DEBUGLEVEL) timer_printf(&ti,"ellL1twist");
+        indr = mulrr(indmultD, mulf);
         if (DEBUGLEVEL>=1) err_printf("Disc = %Ps, Index^2 = %Ps\n", D, indr);
         if (signe(indr)>0 && expo(indr) >= -1) /* indr >=.5 */
         {
@@ -1297,7 +1303,7 @@ ellheegner(GEN E)
   GEN z, P, ht, points, coefs, ymin, s, om, indmult;
   long ind, lint, k, l, wtor, etor;
   long bitprec = 16, prec = nbits2prec(bitprec)+1;
-  pari_timer T;
+  pari_timer ti;
   GEN N, cb, tam, torsion;
 
   E = ellanal_globalred_all(E, &cb, &N, &tam);
@@ -1310,7 +1316,9 @@ ellheegner(GEN E)
   {
     GEN hnaive, l1;
     long bitneeded;
+    if (DEBUGLEVEL) timer_start(&ti);
     l1 = ellL1_bitprec(E, 1, bitprec);
+    if (DEBUGLEVEL) timer_printf(&ti,"ellL1");
     if (expo(l1) < 1 - bitprec/2)
       pari_err_DOMAIN("ellheegner", "analytic rank",">",gen_1,E);
     om = ellR_omega(E,prec);
@@ -1327,9 +1335,9 @@ ellheegner(GEN E)
   indmult = heegner_indexmult(om, wtor, tam, prec);
   heegner_find_disc(&ymin, &points, &coefs, &ind, E, indmult, prec);
   if (DEBUGLEVEL == 1) err_printf("N = %Ps, ymin*N = %Ps\n",N,gmul(ymin,N));
-  if (DEBUGLEVEL) timer_start(&T);
+  if (DEBUGLEVEL) timer_start(&ti);
   s = heegner_psi(E, N, ymin, points, bitprec);
-  if (DEBUGLEVEL) timer_printf(&T,"heegner_psi");
+  if (DEBUGLEVEL) timer_printf(&ti,"heegner_psi");
   l = lg(points);
   z = mulsr(coefs[1], gel(s, 1));
   for (k = 2; k < l; ++k) z = addrr(z, mulsr(coefs[k], gel(s, k)));
@@ -1337,7 +1345,7 @@ ellheegner(GEN E)
   z = gsub(z, gmul(gel(om,1), ground(gdiv(z, gel(om,1)))));
   lint = wtor > 1 ? cgcd(ind, etor): 1;
   P = heegner_find_point(E, om, ht, gmulsg(2*lint, z), lint*2*ind, prec);
-  if (DEBUGLEVEL) timer_printf(&T,"heegner_find_point");
+  if (DEBUGLEVEL) timer_printf(&ti,"heegner_find_point");
   if (cb) P = ellchangepointinv(P, cb);
   return gerepilecopy(av, P);
 }
