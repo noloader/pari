@@ -612,7 +612,7 @@ imag_relations(struct buch_quad *B, long need, long *pc, ulong LIMC, GEN mat)
   GEN col, form, ex = cgetg(lgsub, t_VECSMALL);
 
   if (!current) current = 1;
-  if (DEBUGLEVEL) timer_start(&T);
+  if (DEBUGLEVEL>2) timer_start(&T);
   av = avma;
   for(;;)
   {
@@ -623,7 +623,7 @@ imag_relations(struct buch_quad *B, long need, long *pc, ulong LIMC, GEN mat)
     nbtest++; fpc = factorquad(B,form,B->KC,LIMC);
     if (!fpc)
     {
-      if (DEBUGLEVEL>1) err_printf(".");
+      if (DEBUGLEVEL>3) err_printf(".");
       if ((nbtest & 0xff) == 0 && ++current > B->KC) current = 1;
       continue;
     }
@@ -634,7 +634,7 @@ imag_relations(struct buch_quad *B, long need, long *pc, ulong LIMC, GEN mat)
       GEN form2;
       if (!fpd)
       {
-        if (DEBUGLEVEL>1) err_printf(".");
+        if (DEBUGLEVEL>3) err_printf(".");
         continue;
       }
       form2 = qficomp(qfi_factorback(B,fpd), qfi_pf(B->QFR->D, B->FB[fpd[-2]]));
@@ -656,19 +656,19 @@ imag_relations(struct buch_quad *B, long need, long *pc, ulong LIMC, GEN mat)
         for (i=1; i<lgsub; i++) col[B->subFB[i]] += -fpd[i]-ex[i];
         add_fact(B, col, form2); col[fpd[-2]]--;
       }
-      if (DEBUGLEVEL) err_printf(" %ldP",s);
+      if (DEBUGLEVEL>2) err_printf(" %ldP",s);
     }
     else
     {
       col = gel(mat,++s);
       for (i=1; i<lgsub; i++) col[B->subFB[i]] = -ex[i];
       add_fact(B, col, form);
-      if (DEBUGLEVEL) err_printf(" %ld",s);
+      if (DEBUGLEVEL>2) err_printf(" %ld",s);
     }
     col[current]--;
     if (++current > B->KC) current = 1;
   }
-  if (DEBUGLEVEL) dbg_all(&T, "random", s, nbtest);
+  if (DEBUGLEVEL>2) dbg_all(&T, "random", s, nbtest);
   *pc = current;
 }
 
@@ -681,7 +681,7 @@ imag_be_honest(struct buch_quad *B)
 
   while (s<B->KC2)
   {
-    p = B->FB[s+1]; if (DEBUGLEVEL) err_printf(" %ld",p);
+    p = B->FB[s+1]; if (DEBUGLEVEL>2) err_printf(" %ld",p);
     F = qficomp(qfi_pf(B->QFR->D, p), qfi_random(B, ex));
     fpc = factorquad(B,F,s,p-1);
     if (fpc == 1) { nbtest=0; s++; }
@@ -706,7 +706,7 @@ real_relations(struct buch_quad *B, long need, long *pc, long lim, ulong LIMC, G
   pari_sp av, av1, limstack;
   GEN d, col, form, form0, form1, ex = cgetg(lgsub, t_VECSMALL);
 
-  if (DEBUGLEVEL) timer_start(&T);
+  if (DEBUGLEVEL>2) timer_start(&T);
   if (!current) current = 1;
   if (lim > need) lim = need;
   av = avma; limstack = stack_lim(av,1);
@@ -715,7 +715,7 @@ real_relations(struct buch_quad *B, long need, long *pc, long lim, ulong LIMC, G
     if (s >= need) break;
     if (first && s >= lim) {
       first = 0;
-      if (DEBUGLEVEL) dbg_all(&T, "initial", s, nbtest);
+      if (DEBUGLEVEL>2) dbg_all(&T, "initial", s, nbtest);
     }
     avma = av; form = qfr3_random(B, ex);
     if (!first)
@@ -762,7 +762,7 @@ CYCLE:
     nbtest++; fpc = factorquad(B,form,B->KC,LIMC);
     if (!fpc)
     {
-      if (DEBUGLEVEL>1) err_printf(".");
+      if (DEBUGLEVEL>3) err_printf(".");
       goto CYCLE;
     }
     if (fpc > 1)
@@ -772,7 +772,7 @@ CYCLE:
       GEN form2;
       if (!fpd)
       {
-        if (DEBUGLEVEL>1) err_printf(".");
+        if (DEBUGLEVEL>3) err_printf(".");
         goto CYCLE;
       }
       if (!form1)
@@ -817,7 +817,7 @@ CYCLE:
         d = qfr5_dist(addii(gel(form1,4),gel(form2,4)),
                       mulrr(gel(form1,5),gel(form2,5)), prec);
       }
-      if (DEBUGLEVEL) err_printf(" %ldP",s);
+      if (DEBUGLEVEL>2) err_printf(" %ldP",s);
     }
     else
     { /* standard relation */
@@ -834,7 +834,7 @@ CYCLE:
       for (i=1; i<lgsub; i++) col[B->subFB[i]] = -ex[i];
       add_fact(B, col, form1);
       d = qfr5_dist(gel(form1,4), gel(form1,5), prec);
-      if (DEBUGLEVEL) err_printf(" %ld",s);
+      if (DEBUGLEVEL>2) err_printf(" %ld",s);
     }
     affrr(d, gel(C,s));
     if (first)
@@ -848,7 +848,7 @@ CYCLE:
       if (++current > B->KC) current = 1;
     }
   }
-  if (DEBUGLEVEL) dbg_all(&T, "random", s, nbtest);
+  if (DEBUGLEVEL>2) dbg_all(&T, "random", s, nbtest);
   *pc = current;
 }
 
@@ -861,7 +861,7 @@ real_be_honest(struct buch_quad *B)
 
   while (s<B->KC2)
   {
-    p = B->FB[s+1]; if (DEBUGLEVEL) err_printf(" %ld",p);
+    p = B->FB[s+1]; if (DEBUGLEVEL>2) err_printf(" %ld",p);
     F = QFR3_comp(qfr3_random(B, ex), qfr3_pf(B->QFR, p), B->QFR);
     for (F0 = F;;)
     {
@@ -919,10 +919,10 @@ get_R(struct buch_quad *B, GEN C, long sreg, GEN z, GEN *ptR)
     }
     if (gexpo(R) <= -3)
     {
-      if (DEBUGLEVEL) err_printf("regulator is zero.\n");
+      if (DEBUGLEVEL>2) err_printf("regulator is zero.\n");
       return fupb_RELAT;
     }
-    if (DEBUGLEVEL) err_printf("#### Tentative regulator: %Ps\n",R);
+    if (DEBUGLEVEL>2) err_printf("#### Tentative regulator: %Ps\n",R);
   }
   c = gtodouble(gmul(z, R));
   if (c < 0.8 || c > 1.3) return fupb_RELAT;
@@ -934,10 +934,10 @@ quad_be_honest(struct buch_quad *B)
 {
   int r;
   if (B->KC2 <= B->KC) return 1;
-  if (DEBUGLEVEL)
+  if (DEBUGLEVEL>2)
     err_printf("be honest for primes from %ld to %ld\n", B->FB[B->KC+1],B->FB[B->KC2]);
   r = B->PRECREG? real_be_honest(B): imag_be_honest(B);
-  if (DEBUGLEVEL) err_printf("\n");
+  if (DEBUGLEVEL>2) err_printf("\n");
   return r;
 }
 
@@ -974,7 +974,7 @@ Buchquad(GEN D, double cbach, double cbach2, long prec)
   } else {
     BQ.PRECREG = maxss(prec+EXTRAPRECWORD, nbits2prec(2*expi(QFR.D) + 128));
   }
-  if (DEBUGLEVEL) timer_start(&T);
+  if (DEBUGLEVEL>2) timer_start(&T);
   BQ.primfact   = new_chunk(100);
   BQ.exprimfact = new_chunk(100);
   BQ.hashtab = (long**) new_chunk(HASHT);
@@ -1029,7 +1029,7 @@ START:
   do
   {
     if (!FIRST) LIMC = check_LIMC(LIMC,LIMCMAX);
-    if (DEBUGLEVEL && LIMC > LIMC0)
+    if (DEBUGLEVEL>2 && LIMC > LIMC0)
       err_printf("%s*** Bach constant: %f\n", FIRST?"":"\n", LIMC/LOGD2);
     FIRST = 0; avma = av;
     if (BQ.subFB) gunclone(BQ.subFB);
@@ -1040,9 +1040,9 @@ START:
     if (BQ.PRECREG) qfr_data_init(QFR.D, BQ.PRECREG, &QFR);
 
     FBquad(&BQ, LIMC2, LIMC, &GRHcheck);
-    if (DEBUGLEVEL) timer_printf(&T, "factor base");
+    if (DEBUGLEVEL>2) timer_printf(&T, "factor base");
     BQ.subFB = subFBquad(&BQ, QFR.D, lim + 0.5, minSFB);
-    if (DEBUGLEVEL) timer_printf(&T, "subFBquad = %Ps",
+    if (DEBUGLEVEL>2) timer_printf(&T, "subFBquad = %Ps",
                                  vecpermute(BQ.FB, BQ.subFB));
     nsubFB = lg(BQ.subFB) - 1;
   }
@@ -1050,7 +1050,7 @@ START:
   /* invhr = 2^r1 (2pi)^r2 / sqrt(D) w ~ L(chi,1) / hR */
   invhr = gmul(dbltor((BQ.PRECREG?2.:PI)/sdrc), compute_invresquad(&GRHcheck));
   BQ.powsubFB = powsubFBquad(&BQ,CBUCH+1);
-  if (DEBUGLEVEL) timer_printf(&T, "powsubFBquad");
+  if (DEBUGLEVEL>2) timer_printf(&T, "powsubFBquad");
   BQ.limhash = (LIMC & HIGHMASK)? (HIGHBIT>>1): LIMC*LIMC;
 
   need = BQ.KC + RELSUP - 2;
@@ -1063,12 +1063,12 @@ START:
   do
   {
     if ((nreldep & 3) == 1 || (nrelsup & 7) == 1) {
-      if (DEBUGLEVEL) err_printf("*** Changing sub factor base\n");
+      if (DEBUGLEVEL>2) err_printf("*** Changing sub factor base\n");
       gunclone(BQ.subFB);
       gunclone(BQ.powsubFB);
       BQ.subFB = gclone(vecslice(BQ.vperm, 1, nsubFB));
       BQ.powsubFB = powsubFBquad(&BQ,CBUCH+1);
-      if (DEBUGLEVEL) timer_printf(&T, "powsubFBquad");
+      if (DEBUGLEVEL>2) timer_printf(&T, "powsubFBquad");
       clearhash(BQ.hashtab);
     }
     need += 2;
@@ -1077,10 +1077,10 @@ START:
     if (!W) { /* first time */
       C = extraC;
       triv = trivial_relations(&BQ, mat, C);
-      if (DEBUGLEVEL) err_printf("KC = %ld, need %ld relations\n", BQ.KC, need);
+      if (DEBUGLEVEL>2) err_printf("KC = %ld, need %ld relations\n", BQ.KC, need);
     } else {
       triv = 0;
-      if (DEBUGLEVEL) err_printf("...need %ld more relations\n", need);
+      if (DEBUGLEVEL>2) err_printf("...need %ld more relations\n", need);
     }
     if (BQ.PRECREG) {
       for (i = triv+1; i<=need; i++) {
@@ -1109,7 +1109,7 @@ START:
     }
 
     h = ZM_det_triangular(W);
-    if (DEBUGLEVEL) err_printf("\n#### Tentative class number: %Ps\n", h);
+    if (DEBUGLEVEL>2) err_printf("\n#### Tentative class number: %Ps\n", h);
 
     switch(get_R(&BQ, C, (lg(C)-1) - (lg(B)-1) - (lg(W)-1), mulir(h,invhr), &R))
     {
@@ -1129,7 +1129,7 @@ START:
   while (need);
   /* DONE */
   if (!quad_be_honest(&BQ)) goto START;
-  if (DEBUGLEVEL) timer_printf(&T, "be honest");
+  if (DEBUGLEVEL>2) timer_printf(&T, "be honest");
   clearhash(BQ.hashtab);
   free_GRHcheck(&GRHcheck);
 
