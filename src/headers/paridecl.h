@@ -1305,6 +1305,7 @@ long    Z_isfundamental(GEN x);
 long    Z_ispow2(GEN x);
 long    Z_ispowerall(GEN x, ulong k, GEN *pt);
 long    Z_issquareall(GEN x, GEN *pt);
+GEN     ZV_allpnqn(GEN x);
 long    Zp_issquare(GEN a, GEN p);
 GEN     bestappr(GEN x, GEN k);
 GEN     bestapprPade(GEN x, long B);

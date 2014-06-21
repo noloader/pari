@@ -2903,6 +2903,13 @@ such that $\kbd{au} + \kbd{bv} = d$.
 U]$, where $d$ is the GCD of the $A[i]$ and $U$ is a matrix
 in $\text{GL}_n(\Z)$ such that $AU = [0,\dots,0,D]$.
 
+\subsec{Continued fractions and convegents}
+
+\fun{GEN}{ZV_allpnqn}{GEN x} given $x = [a_0, ..., a_n]$ a
+continued fracton from \tet{gboundcf}, $n\geq0$, return all
+convergents as $[P,Q]$, where $P = [p_0,\dots,p_n]$ and $Q =
+[q_0,\dots,q_n]$.
+
 \subsec{Pseudo-random integers}
 These routine return pseudo-random integers uniformly distributed in some
 interval. The all use the same underlying generator which can be seeded and

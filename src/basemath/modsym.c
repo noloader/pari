@@ -1596,28 +1596,6 @@ ZGV_tors(GEN V, long k)
   return v;
 }
 
-
-/* x = [a0, ..., a_n] from gboundcf, n >= 0;
- * return [[p0, ..., pn], [q0,...,qn]] */
-GEN
-ZV_pnqn(GEN x)
-{
-  long i, lx = lg(x);
-  GEN p0, p1, q0, q1, p2, q2, P,Q, v = cgetg(3,t_VEC);
-
-  gel(v,1) = P = cgetg(lx, t_VEC);
-  gel(v,2) = Q = cgetg(lx, t_VEC);
-  p0 = gen_1; q0 = gen_0;
-  gel(P, 1) = p1 = gel(x,1); gel(Q, 1) = q1 = gen_1;
-  for (i=2; i<lx; i++)
-  {
-    GEN a = gel(x,i);
-    gel(P, i) = p2 = addmulii(p0, a, p1); p0 = p1; p1 = p2;
-    gel(Q, i) = q2 = addmulii(q0, a, q1); q0 = q1; q1 = q2;
-  }
-  return v;
-}
-
 static long
 set_from_index(GEN W11, long i)
 {
@@ -1733,7 +1711,7 @@ cusplog(GEN v, GEN W, int negate, GEN cusp)
 
   if (!cusp[2]) return;
 
-  PQ = ZV_pnqn( gboundcf(cusp_to_frac(cusp), 0) );
+  PQ = ZV_allpnqn( gboundcf(cusp_to_frac(cusp), 0) );
   P = gel(PQ,1);
   Q = gel(PQ,2);
   lx = lg(P);

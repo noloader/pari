@@ -3721,6 +3721,26 @@ contfracpnqn(GEN x, long n)
 }
 GEN
 pnqn(GEN x) { return contfracpnqn(x,-1); }
+/* x = [a0, ..., an] from gboundcf, n >= 0;
+ * return [[p0, ..., pn], [q0,...,qn]] */
+GEN
+ZV_allpnqn(GEN x)
+{
+  long i, lx = lg(x);
+  GEN p0, p1, q0, q1, p2, q2, P,Q, v = cgetg(3,t_VEC);
+
+  gel(v,1) = P = cgetg(lx, t_VEC);
+  gel(v,2) = Q = cgetg(lx, t_VEC);
+  p0 = gen_1; q0 = gen_0;
+  gel(P, 1) = p1 = gel(x,1); gel(Q, 1) = q1 = gen_1;
+  for (i=2; i<lx; i++)
+  {
+    GEN a = gel(x,i);
+    gel(P, i) = p2 = addmulii(p0, a, p1); p0 = p1; p1 = p2;
+    gel(Q, i) = q2 = addmulii(q0, a, q1); q0 = q1; q1 = q2;
+  }
+  return v;
+}
 
 /* write Mod(x,N) as a/b, gcd(a,b) = 1, b <= B (no condition if B = NULL) */
 static GEN
