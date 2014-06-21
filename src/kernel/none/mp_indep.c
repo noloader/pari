@@ -678,6 +678,7 @@ GEN
 divrs(GEN x, long y)
 {
   long i, lx, garde, sh, s = signe(x);
+  ulong yp;
   GEN z;
   LOCAL_HIREMAINDER;
 
@@ -687,11 +688,23 @@ divrs(GEN x, long y)
   if (y==1) { z = rcopy(x); setsigne(z,s); return z; }
   if (y==2) { z = shiftr(x, -1); setsigne(z,s); return z; }
 
-  z=cgetr(lx=lg(x)); hiremainder=0;
-  for (i=2; i<lx; i++) z[i] = divll(x[i],y);
-
+  lx=lg(x);
+  if (lx ==3)
+  {
+    z=cgetr(3); hiremainder=0;
+    z[2] = divll(x[2], y);
   /* we may have hiremainder != 0 ==> garde */
-  garde=divll(0,y); sh=bfffo(z[2]);
+    garde = divll(0,y);
+  }
+  else
+  {
+    yp = get_Fl_red(y);
+    z=cgetr(lx); hiremainder=0;
+    for (i=2; i<lx; i++) z[i] = divll_pre(x[i],y,yp);
+    /* we may have hiremainder != 0 ==> garde */
+    garde=divll_pre(0,y,yp);
+  }
+  sh=bfffo(z[2]);
   if (sh) shift_left(z,z, 2,lx-1, garde,sh);
   z[1] = evalsigne(s) | evalexpo(expo(x)-sh);
   if ((garde << sh) & HIGHBIT) roundr_up_ip(z, lx);
@@ -713,21 +726,42 @@ divru(GEN x, ulong y)
   e = expo(x);
   lx = lg(x);
   z = cgetr(lx);
-  if (y <= uel(x,2))
+  if (lx == 3)
   {
-    hiremainder = 0;
-    for (i=2; i<lx; i++) z[i] = divll(x[i],y);
-    /* we may have hiremainder != 0 ==> garde */
-    garde = divll(0,y);
+    if (y <= uel(x,2))
+    {
+      hiremainder = 0;
+      z[2] = divll(x[2],y);
+      /* we may have hiremainder != 0 ==> garde */
+      garde = divll(0,y);
+    }
+    else
+    {
+      hiremainder = x[2];
+      z[2] = divll(0,y);
+      garde = hiremainder;
+      e -= BITS_IN_LONG;
+    }
   }
   else
   {
-    long l = lx-1;
-    hiremainder = x[2];
-    for (i=2; i<l; i++) z[i] = divll(x[i+1],y);
-    z[i] = divll(0,y);
-    garde = hiremainder;
-    e -= BITS_IN_LONG;
+    ulong yp = get_Fl_red(y);
+    if (y <= uel(x,2))
+    {
+      hiremainder = 0;
+      for (i=2; i<lx; i++) z[i] = divll_pre(x[i],y,yp);
+      /* we may have hiremainder != 0 ==> garde */
+      garde = divll_pre(0,y,yp);
+    }
+    else
+    {
+      long l = lx-1;
+      hiremainder = x[2];
+      for (i=2; i<l; i++) z[i] = divll_pre(x[i+1],y,yp);
+      z[i] = divll_pre(0,y,yp);
+      garde = hiremainder;
+      e -= BITS_IN_LONG;
+    }
   }
   sh=bfffo(z[2]); /* z[2] != 0 */
   if (sh) shift_left(z,z, 2,lx-1, garde,sh);

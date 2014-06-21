@@ -864,50 +864,6 @@ dvdiiz(GEN x, GEN y, GEN z)
   affii(p1,z); avma=av; return 1;
 }
 
-INLINE ulong /* precompute inverse of n */
-get_Fl_red(ulong n)
-{
-  LOCAL_HIREMAINDER;
-  n <<= bfffo(n);
-  hiremainder = ~n;
-  return divll(~0UL, n);
-}
-
-INLINE ulong /* requires u1 <= n, n normalised */
-remll_pre_normalized(ulong u1, ulong u0, ulong n, ulong ninv)
-{
-  ulong q0, q1, r;
-  LOCAL_HIREMAINDER;
-  LOCAL_OVERFLOW;
-  q0 = mulll(ninv, u1); q1 = hiremainder;
-  q0 = addll(q0, u0);
-  q1 = addllx(q1, u1);
-  r = u0 - (q1 + 1) * n;
-  if (r >= q0)
-    r += n;
-  return r < n ? r : r - n;
-}
-
-INLINE ulong /* reduce <a_hi, a_lo> mod n */
-remll_pre(ulong a_hi, ulong a_lo, ulong n, ulong ninv)
-{
-  int norm = bfffo(n);
-  int bits = BITS_IN_LONG - norm;
-  ulong sn = n << norm;
-  if (a_hi >= n) /* reduce a_hi first */
-  {
-    const ulong u1 = norm ? a_hi >> bits : 0;
-    const ulong u0 = a_hi << norm;
-    a_hi = remll_pre_normalized(u1, u0, sn, ninv) >> norm;
-  }
-  /* now reduce <a_hi, a_lo> */
-  {
-    const ulong u1 = ((a_hi << norm) | (norm ? a_lo >> bits: 0));
-    const ulong u0 =   a_lo << norm;
-    return remll_pre_normalized(u1, u0, sn, ninv) >> norm;
-  }
-}
-
 INLINE ulong
 remlll_pre(ulong u2, ulong u1, ulong u0, ulong n, ulong ninv)
 {

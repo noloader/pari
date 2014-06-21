@@ -61,7 +61,7 @@ BA  6- [libpari] New functions Flv_inv
 BA  7- [libpari] New functions Flx_Flv_eval, Flv_FlvV_polint
 WH  8- [libpari] New low-level functions get_Fl_inv, remll_pre
 BA  9- [libpari] New low-level functions Fl_sqr_pre, Fl_mul_pre, remlll_pre,
-       Fl_powu_pre, Fl_sqrt_pre
+       Fl_powu_pre, Fl_sqrt_pre, divll_pre
    10- [TeX documentation] new primitive \url (verbatim arg)
    11- [libpari] New functions Fq_log, gener_Fq_local
 BA 12- GP functions bnrisgalois, bnrgaloismatrix, bnrgaloisapply

@@ -1816,6 +1816,9 @@ In the following, we set $B=\B$.
 
 \fun{ulong}{get_Fl_red}{ulong p} returns a pseudo inverse \var{pi} for $p$
 
+\fun{ulong}{divll_pre}{ulong x, ulong p, ulong yi}
+as divll, where $yi$ is the pseudo inverse of $y$.
+
 \fun{ulong}{remll_pre}{ulong u1, ulong u0, ulong p, ulong pi} returns
 the Euclidean remainder of $u_1\*2^B+u_0$ modulo $p$, assuming $pi$ is the
 pseudo inverse of $p$.  This function is faster if $u_1 < p$.
