@@ -117,6 +117,7 @@ gen_BG_rec(void *E, bg_fun *fun, struct bg_data *bg)
   {
     long jmax;
     GEN ap = ellap(bg->E, p);
+    pari_sp av3 = avma;
     if (!signe(ap)) continue;
 
     jmax = itou( divii(bg->bnd, p) ); /* 2 <= jmax <= el->rootbound */
@@ -129,6 +130,7 @@ gen_BG_rec(void *E, bg_fun *fun, struct bg_data *bg)
       a = mulis(ap, aj);
       n = muliu(p, j);
       fun(E, n, a);
+      avma = av3;
     }
     avma = av2;
     if (absi_cmp(p, bndov2) >= 0) break;
