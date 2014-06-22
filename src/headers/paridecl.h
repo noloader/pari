@@ -3486,7 +3486,6 @@ GEN     jbesselh(GEN n, GEN z, long prec);
 GEN     mpeint1(GEN x, GEN expx);
 GEN     mplambertW(GEN y);
 GEN     mpveceint1(GEN C, GEN eC, long n);
-GEN     powruvec(GEN e, ulong n);
 GEN     nbessel(GEN n, GEN z, long prec);
 GEN     jell(GEN x, long prec);
 GEN     kbessel(GEN nu, GEN gx, long prec);

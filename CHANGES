@@ -135,6 +135,7 @@ BA 15- Flx_pow renamed to Flx_powu
    18- [libpari] rename ghell->ellheight, mathell->ellheightmatrix
 BA 19- Rg_to_RgV renamed to Rg_to_RgC, RgX_to_RgV renamed to RgX_to_RgC
    20- ellL1(e, r): make r optional (default value = 0)
+BA 21- powruvec is replaced by powersr
 
 Removed
-  - deprecated functions nfbasis0, nfdisc0, factorpadic0
+   1- deprecated functions nfbasis0, nfdisc0, factorpadic0

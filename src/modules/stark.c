@@ -2020,12 +2020,13 @@ computean(GEN dtcr, LISTray *R, long n, long deg)
 static GEN
 mpvecpowdiv(GEN A, long n)
 {
-  GEN v = powruvec(A, n);
   pari_sp av = avma;
   long i;
-
-  for (i=2; i<=n; i++) affrr(divru(gel(v,i), i), gel(v,i));
-  avma = av; return v;
+  GEN v = powersr(A, n);
+  GEN w = cgetg(n+1, t_VEC);
+  gel(w,1) = rcopy(gel(v,2));
+  for (i=2; i<=n; i++) gel(w,i) = divru(gel(v,i+1), i);
+  return gerepileupto(av, w);
 }
 
 static void GetST0(GEN bnr, GEN *pS, GEN *pT, GEN dataCR, GEN vChar, long prec);

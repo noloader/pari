@@ -1106,20 +1106,6 @@ mpveceint1(GEN C, GEN eC, long N)
   avma = av0; return w;
 }
 
-/* e t_REAL, vector of e^i, 1 <= i <= n */
-GEN
-powruvec(GEN e, ulong n)
-{
-  GEN G = cgetg(n+1, t_VEC);
-  ulong j;
-  if (n)
-  {
-    gel(G, 1) = e;
-    for (j = 2; j <= n; j++) gel(G,j) = mulrr(gel(G,j-1), e);
-  }
-  return G;
-}
-
 /* erfc via numerical integration : assume real(x)>=1 */
 static GEN
 cxerfc_r1(GEN x, long prec)
