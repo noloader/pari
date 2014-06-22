@@ -18,12 +18,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA. */
 
 /* Adapted from shp_package/moments by Robert Pollack
  * http://www.math.mcgill.ca/darmon/programs/shp/shp.html */
-GEN modsymbHecke(GEN W, ulong p);
-GEN modsymbSigma(GEN W);
-GEN modsymbAtkinLehner(GEN W, GEN Q);
-GEN new_subspace(GEN W);
-GEN Cuspidal_subspace(GEN W);
-GEN Eisenstein_subspace(GEN W);
 static GEN modsymbkinit(ulong N, long k, long sign);
 static GEN new_subspace_trivial(GEN W);
 static GEN Cuspidal_subspace_trivial(GEN W0);
@@ -442,7 +436,7 @@ ZM_inv_denom(GEN M)
   if (c) ciM = diviiexact(ciM, c);
   return mkvec2(iM, ciM);
 }
-/* return M^(-1) v, dinv = ZM_inv_denom(M) OR project_init(M) */
+/* return M^(-1) v, dinv = ZM_inv_denom(M) OR Qevproj_init(M) */
 static GEN
 ZC_apply_dinv(GEN dinv, GEN v)
 {
@@ -453,7 +447,7 @@ ZC_apply_dinv(GEN dinv, GEN v)
     c = gel(dinv,2);
   }
   else
-  { /* project_init */
+  { /* Qevproj_init */
     iM = gel(dinv,2);
     c = gel(dinv,3);
     v = typ(v) == t_MAT? rowpermute(v, gel(dinv,4))
@@ -467,7 +461,7 @@ ZC_apply_dinv(GEN dinv, GEN v)
 /* M an n x d ZM of rank d (basis of a Q-subspace), n >= d.
  * Initialize a projector on M */
 GEN
-project_init(GEN M)
+Qevproj_init(GEN M)
 {
   GEN v = ZM_indexrank(M), perm = gel(v,1);
   GEN MM = rowpermute(M, perm); /* square invertible */
@@ -475,19 +469,21 @@ project_init(GEN M)
   return mkvec4(M, iM, ciM, perm);
 }
 /* T an n x n QM, stabilizing d-dimensional Q-vector space spanned by the
- * columns of M, pro = project_init(M). Return d x d matrix of T acting on M */
+ * columns of M, pro = Qevproj_init(M). Return d x d matrix of T acting
+ * on M */
 GEN
-project_apply(GEN T, GEN pro)
+Qevproj_apply(GEN T, GEN pro)
 {
   GEN M = gel(pro,1), iM = gel(pro,2), ciM = gel(pro,3), perm = gel(pro,4);
   return RgM_Rg_div(RgM_mul(iM, RgM_mul(rowpermute(T,perm), M)), ciM);
 }
-/* project_apply(T,pro)[,1] */
-static GEN
-project_apply_1(GEN T, GEN pro)
+/* Qevproj_apply(T,pro)[,k] */
+GEN
+Qevproj_apply_vecei(GEN T, GEN pro, long k)
 {
   GEN M = gel(pro,1), iM = gel(pro,2), ciM = gel(pro,3), perm = gel(pro,4);
-  return RgC_Rg_div(RgM_RgC_mul(iM, RgM_RgC_mul(rowpermute(T,perm), gel(M,1))), ciM);
+  GEN v = RgM_RgC_mul(iM, RgM_RgC_mul(rowpermute(T,perm), gel(M,k)));
+  return RgC_Rg_div(v, ciM);
 }
 
 /* normalize a Q-basis*/
@@ -515,7 +511,7 @@ simple_subspaces(GEN W, GEN H)
   (void)u_forprime_init(&S, 2, ULONG_MAX);
   dim = lg(H)-1;
   V = vectrunc_init(dim);
-  vectrunc_append(V, project_init(H));
+  vectrunc_append(V, Qevproj_init(H));
   first = 1; /* V[1..first-1] contains simple subspaces */
   while ((p = u_forprime_next(&S)))
   {
@@ -537,7 +533,7 @@ simple_subspaces(GEN W, GEN H)
     {
       pari_sp av = avma;
       GEN Vj = gel(V,j), P = gel(Vj,1);
-      GEN TVj = project_apply(T, Vj); /* c T | V_j */
+      GEN TVj = Qevproj_apply(T, Vj); /* c T | V_j */
       GEN ch = QM_charpoly_ZX(TVj), fa = ZX_factor(ch), F, E;
       long k;
       F = gel(fa, 1);
@@ -571,7 +567,7 @@ simple_subspaces(GEN W, GEN H)
           GEN M = RgX_RgMV_eval(f, pows); /* f(TVj) */
           GEN K = QM_ker(M);
           GEN p = Q_primpart( RgM_mul(P, K) );
-          vectrunc_append(V, project_init(p));
+          vectrunc_append(V, Qevproj_init(p));
           if (lg(K) == 2 || isint1(gel(E,k)))
           { /* simple subspace */
             swap(gel(V,first), gel(V, lg(V)-1));
@@ -587,7 +583,7 @@ simple_subspaces(GEN W, GEN H)
   return NULL;
 }
 
-/* proV = project_init of a Hecke simple subspace, return [ a_p, p <= B ] */
+/* proV = Qevproj_init of a Hecke simple subspace, return [ a_p, p <= B ] */
 GEN
 qexpansion(GEN W, GEN proV, long B)
 {
@@ -612,7 +608,7 @@ qexpansion(GEN W, GEN proV, long B)
       T2 = T1;
       T1 = T = modsymbHecke(W, p);
     }
-    TV = project_apply(T, proV); /* T | V */
+    TV = Qevproj_apply(T, proV); /* T | V */
     ch = QM_charpoly_ZX(TV);
     if (ZX_is_irred(ch)) break;
     ch = NULL;
@@ -633,7 +629,7 @@ qexpansion(GEN W, GEN proV, long B)
   while ((p = u_forprime_next(&S)))
   {
     GEN T = modsymbHecke(W, p), u;
-    GEN Tv = project_apply_1(T, proV); /* Tp.v */
+    GEN Tv = Qevproj_apply_vecei(T, proV, 1); /* Tp.v */
     /* Write Tp.v = \sum u_i T^i v */
     u = RgC_Rg_div(RgM_RgC_mul(iM, Tv), ciM);
     gel(AP, i++) = RgV_to_RgX(u, 0);
@@ -649,7 +645,7 @@ QM_image(GEN A)
 }
 
 static GEN
-project_Sigma(GEN W, GEN H)
+Qevproj_Sigma(GEN W, GEN H)
 {
   long s = modsymbk_get_sign(W);
   if (s)
@@ -684,7 +680,7 @@ new_subspace_trivial(GEN W)
   }
   Snew = ZM_mul(K, Q_primpart_basis( keri( matconcat(v) ) ));
 END:
-  return project_Sigma(W, Snew);
+  return Qevproj_Sigma(W, Snew);
 }
 
 GEN
@@ -708,8 +704,8 @@ new_subspace(GEN W)
   v = QM_image(matconcat(v)); /* old forms */
   /* restrict to cuspidal subspace */
   Sold = Q_primpart_basis(intersect(S, v));
-  pr_S = project_init(S);
-  pr_Sold = project_init(Sold);
+  pr_S = Qevproj_init(S);
+  pr_Sold = Qevproj_init(Sold);
   Snew = NULL;
   (void)u_forprime_init(&F, 2, ULONG_MAX);
   while ((p = u_forprime_next(&F)))
@@ -718,8 +714,8 @@ new_subspace(GEN W)
     GEN T, chS, chSold, chSnew;
     if (N % p == 0) continue;
     T = modsymbHecke(W, p);
-    chS = QM_charpoly_ZX(project_apply(T, pr_S));
-    chSold = QM_charpoly_ZX(project_apply(T, pr_Sold));
+    chS = QM_charpoly_ZX(Qevproj_apply(T, pr_S));
+    chSold = QM_charpoly_ZX(Qevproj_apply(T, pr_Sold));
     chSnew = RgX_div(chS, chSold); /* = char T | S^new */
     if (!degpol( ZX_gcd(chSnew, chSold) ))
     {
@@ -730,7 +726,7 @@ new_subspace(GEN W)
     avma = av;
   }
 END:
-  return project_Sigma(W, Snew);
+  return Qevproj_Sigma(W, Snew);
 }
 
 /* Solve the Manin relations for a congruence subgroup \Gamma by constructing
@@ -1795,7 +1791,7 @@ path_mul(GEN path, long a, long b, long c, long d)
   return mkpath(c1,c2);
 }
 /* f in Gl2(Q), act on path (zm) */
-GEN
+static GEN
 Gl2Q_act_path(GEN f, GEN path)
 { return path_mul(path, coeff(f,1,1),coeff(f,1,2),coeff(f,2,1),coeff(f,2,2)); }
 
@@ -2203,11 +2199,11 @@ EC_subspace_trivial(GEN W)
     if (N % p) break;
   T = modsymbHecke(W, p);
   ch = QM_charpoly_ZX(T);
-  TC = project_apply(T, project_init(C)); /* T_p | TC */
+  TC = Qevproj_apply(T, Qevproj_init(C)); /* T_p | TC */
   chC = QM_charpoly_ZX(TC);
   chE = RgX_div(ch, chC); /* charpoly(T_p | E_k), coprime to chC */
   M = RgX_RgM_eval(chE, T);
-  return mkvec2(project_Sigma(W, QM_ker(M)), C);
+  return mkvec2(Qevproj_Sigma(W, QM_ker(M)), C);
 }
 
 static GEN
@@ -2227,7 +2223,7 @@ Eisenstein_subspace(GEN W)
   l = lg(cusps);
   M = cgetg(l, t_MAT);
   for (i = 1; i < l; i++) gel(M,i) = Eisenstein_symbol(W, gel(cusps,i));
-  return project_Sigma(W, QM_image(M));
+  return Qevproj_Sigma(W, QM_image(M));
 }
 
 GEN
@@ -2246,11 +2242,11 @@ Cuspidal_subspace(GEN W)
     if (N % p) break;
   T = modsymbHecke(W, p);
   ch = QM_charpoly_ZX(T);
-  TE = project_apply(T, project_init(E)); /* T_p | E */
+  TE = Qevproj_apply(T, Qevproj_init(E)); /* T_p | E */
   chE = QM_charpoly_ZX(TE);
   chS = RgX_div(ch, chE); /* charpoly(T_p | S_k), coprime to chE */
   M = RgX_RgM_eval(chS, T);
-  return mkvec2(E, project_Sigma(W, QM_ker(M)));
+  return mkvec2(E, Qevproj_Sigma(W, QM_ker(M)));
 }
 
 /** INIT ELLSYM STRUCTURE **/
@@ -2281,14 +2277,6 @@ RgMV_find_non_zero_last_row(long offset, GEN V)
 END:
   if (!m) return NULL;
   return mkvec2(m, mkvecsmall2(lasti+offset, lastj));
-}
-/* sum of #cols of the matrices contained in V */
-static long
-RgMV_dim(GEN V)
-{
-  long l = lg(V), d = 0, i;
-  for (i = 1; i < l; i++) d += lg(gel(V,i)) - 1;
-  return d;
 }
 /* invert the d_oo := (\gamma_oo - 1) operator, acting on
  * [x^(k-2), ..., y^(k-2)] */
@@ -2348,6 +2336,14 @@ modsymbkinit_trivial(GEN WN, long sign)
   long dim = modsymb_get_nbE1(WN);
   GEN W = mkvec3(WN, gen_0, mkvec2(gen_0,mkvecsmall2(2, dim)));
   return add_Sigma(W, sign);
+}
+/* sum of #cols of the matrices contained in V */
+static long
+RgMV_dim(GEN V)
+{
+  long l = lg(V), d = 0, i;
+  for (i = 1; i < l; i++) d += lg(gel(V,i)) - 1;
+  return d;
 }
 static GEN
 modsymbkinit_nontrivial(GEN WN, long k, long sign)
@@ -2470,7 +2466,7 @@ modsymbkinit_nontrivial(GEN WN, long k, long sign)
     if (i <= nbE1 && i != s) /* maximal rank k-1 */
       inv = ZM_inv_denom(M);
     else /* i = s (rank k-2) or from torsion: rank k/3 or k/2 */
-      inv = project_init(M);
+      inv = Qevproj_init(M);
     gel(invphiblock,i) = inv;
   }
   W = mkvec3(WN, gen_0, mkvec5(basis, mkvecsmall2(k, dim), mkvecsmall2(s,t),

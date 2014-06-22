@@ -3508,10 +3508,25 @@ GEN     weberf2(GEN x, long prec);
 GEN     glambertW(GEN y, long prec);
 
 /* modsym.c */
-GEN     ellsym(GEN E, long signe);
-GEN     msinit(GEN N, GEN k, long sign);
-GEN     xpm(GEN E, GEN a, GEN b);
+GEN     Cuspidal_subspace(GEN W);
+GEN     Eisenstein_subspace(GEN W);
+GEN     Eisenstein_symbol(GEN W, GEN c);
 GEN     Q_xpm(GEN E, GEN c);
+GEN     Qevproj_init(GEN M);
+GEN     Qevproj_apply(GEN T, GEN pro);
+GEN     Qevproj_apply_vecei(GEN T, GEN pro, long k);
+GEN     RgX_act_Gl2(GEN g, long k);
+GEN     RgX_act_ZG(GEN z, long k);
+GEN     ellsym(GEN E, long signe);
+GEN     modsymbAtkinLehner(GEN W, GEN Q);
+GEN     modsymbHecke(GEN W, ulong p);
+GEN     modsymbSigma(GEN W);
+GEN     modsymblog(GEN W, GEN path);
+GEN     msinit(GEN N, GEN k, long sign);
+GEN     new_subspace(GEN W);
+GEN     qexpansion(GEN W, GEN proV, long B);
+GEN     simple_subspaces(GEN W, GEN H);
+GEN     xpm(GEN E, GEN a, GEN b);
 
 /* level1.h */
 

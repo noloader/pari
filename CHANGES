@@ -96,6 +96,7 @@ BA 37- [mingw] support for the alarm GP function
 BA 38- [libpari] functions Fl_sqrtl, Fl_sqrtl_pre
    39- [libpari] function ZV_allpnqn
 Pmo40- Much faster ellL1 and ellanalyticrank.
+   41- [libpari] function Qevproj_init, Qevproj_apply, Qevproj_apply_vecei
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]

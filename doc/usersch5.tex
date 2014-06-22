@@ -6445,6 +6445,24 @@ identity matrix, and 0 otherwise.
 triangular with positive diagonal coefficients, and  for $j>i$,
 $x_{i,i}>x_{i,j} \ge 0$.
 
+\fun{GEN}{Qevproj_init}{GEN M} let $M$ be a  $n\times d$ \kbd{ZM} of
+maximal rank $d \leq n$, representing the basis of a $\Q$-subspace
+$V$ of $\Q^n$. Return a projector on $V$, to be used by \tet{Qevproj_apply}.
+The interface details may change in the future, but this function currently
+returns $[M, B,D,p]$, where $p$ is a \typ{VECSMALL} with $d$ entries
+such that the submatrix $A = \kbd{rowpermute}(M,p)$ is invertible, $B$ is a
+\kbd{ZM} and $d$ a \typ{INT} such that $A B = D \Id_d$.
+
+\fun{GEN}{Qevproj_apply}{GEN T, GEN pro} let $T$ be an $n\times n$
+\kbd{QM}, stabilizing a $\Q$-subspace $V\subset \Q^n$ of dimension $d$, and
+let \kbd{pro} be a projector on that subspace initialized by
+\tet{Qevproj_init}$(M)$. Return the $d\times d$ matrix representing $T_{|V}$
+on the basis given by the columns of $M$.
+
+\fun{GEN}{Qevproj_apply_vecei}{GEN T, GEN pro, long k} as
+\tet{Qevproj_apply}, return only the image of the $k$-th basis vector $M[k]$
+(still on the basis given by the columns of $M$).
+
 \subsec{\kbd{zv}, \kbd{zm}}
 
 \fun{GEN}{zv_neg}{GEN x} return $-x$. No check for overflow is done, which
