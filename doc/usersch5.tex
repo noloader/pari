@@ -6784,6 +6784,55 @@ invertible \typ{MAT} with \typ{INT} or \typ{REAL} coefficients, returns
 matrix from the $QR$ decomposition of $x$, renormalized to accomodate
 \kbd{qfgaussred} conventions. Not memory clean.
 
+\subsec{\kbd{ZG}}
+
+Let $G$ be a multiplicative group with neutral element $1_G$ whose
+multiplication is supported by \kbd{gmul} and where equality test is
+performed using \tet{gidentical}, e.g. a matrix group. The following
+routines implement basic computations in the group algebra $\Z[G]$. All of
+them are shallow for efficiency reasons. A \kbd{ZG} is either
+
+\item a \typ{INT} $n$, representing $n[1_G]$
+
+\item or a ``factorization matrix'' with two columns $[g,e]$: the first one
+contains group elements, sorted according to \tet{cmp_universal}, and the
+second one contains integer ``exponents'', representing $\sum e_i [g_i]$.
+
+Note that \tet{to_famat} and \tet{to_famat_shallow}$(g,e)$ allow to build
+the \kbd{ZG} $e[g]$ from $e\in \Z$ and $g\in G$.
+
+\fun{GEN}{ZG_normalize}{GEN x} given a \typ{INT} $x$ or a factorization
+matrix \emph{without} assuming that the first column is properly sorted.
+Return a valid (sorted) \kbd{ZG}. Shallow function.
+
+\fun{GEN}{ZG_add}{GEN x, GEN y} return $x+y$; shallow function.
+
+\fun{GEN}{ZG_neg}{GEN x} return $-x$; shallow function.
+
+\fun{GEN}{ZG_sub}{GEN x, GEN y} return $x-y$; shallow function.
+
+\fun{GEN}{ZG_mul}{GEN x, GEN y} return $xy$; shallow function.
+
+\fun{GEN}{ZG_G_mul}{GEN x, GEN y} given a \kbd{ZG} $x$ and $y\in G$,
+ return $xy$; shallow function.
+
+\fun{GEN}{G_ZG_mul}{GEN x, GEN y} given a \kbd{ZG} $y$ and $x\in G$,
+ return $xy$; shallow function.
+
+\fun{GEN}{ZG_Z_mul}{GEN x, GEN n} given a \kbd{ZG} $x$ and $y\in \Z$,
+ return $xy$; shallow function.
+
+\fun{GEN}{ZGC_G_mul}{GEN v, GEN x} given $v$ a vector of \kbd{ZG} and $x\in
+G$ return the vector (with the same type as $v$ with entries $v[i]\cdot x$.
+Shallow function.
+
+\fun{GEN}{ZGC_Z_mul}{GEN v, GEN n} given $v$ a vector of \kbd{ZG} and $n\in
+Z$ return the vector (with the same type as $v$ with entries $n \cdot v[i]$.
+Shallow function.
+
+\fun{GEN}{G_ZGC_mul}{GEN x, GEN v} given $v$ a vector of \kbd{ZG} and $x\in
+G$ return the vector of $x \cdot v[i]$. Shallow function.
+
 \subsec{Blackbox linear algebra}
 
 A sparse column \kbd{zCs} $v$ is a \typ{COL} with two components $C$ and $E$
@@ -7269,6 +7318,8 @@ multiplied by $\kbd{x}^n$, assuming $n\geq 0$.
 
 \subsec{\kbd{RgX}}
 
+\subsubsec{Coefficient ring}
+
 \fun{long}{RgX_type}{GEN x, GEN *ptp, GEN *ptpol, long *ptprec} returns
 the ``natural'' base ring over which the polynomial $x$ is defined. Raise an
 error if it detects consistency problems in modular objects: incompatible rings
@@ -7335,15 +7386,37 @@ is defined, to the proper accuracy (e.g. \kbd{0}, \kbd{Mod(0,3)},
 \fun{GEN}{RgX_get_1}{GEN x} returns $1$ in the base ring over which $x$
 is defined, to the proper accuracy (e.g. \kbd{0}, \kbd{Mod(0,3)},
 
+\subsubsec{Tests}
+
+\fun{long}{RgX_degree}{GEN x, long v} $x$ being a \typ{POL} and $v \geq 0$,
+returns the degree in $v$ of $x$. Error if $x$ is not a polynomial in $v$.
+
 \fun{int}{RgX_isscalar}{GEN x} return 1 if $x$ all the coefficients of
 $x$ of degree $> 0$ are $0$ (as per \kbd{gequal0}).
 
-\fun{GEN}{RgX_normalize}{GEN x} divides $x$ by its
-leading coefficient. If the latter is~$1$, $x$ itself is returned, not a
-copy. Leading coefficients equal to $0$ are stripped, e.g.
-\bprog
-  0.*t^3 + Mod(0,3)*t^2 + 2*t
-@eprog\noindent is normalized to $t$.
+\fun{int}{RgX_is_rational}{GEN P} return 1 is the \kbd{RgX}~$P$ has only
+rational coefficients (\typ{INT} and \typ{FRAC}), and 0 otherwise.
+
+\fun{int}{RgX_is_QX}{GEN P} return 1 is the \kbd{RgX}~$P$ has only
+\typ{INT} and \typ{FRAC} coefficients, and 0 otherwise.
+
+\fun{int}{RgX_is_ZX}{GEN P} return 1 is the \kbd{RgX}~$P$ has only
+\typ{INT} coefficients, and 0 otherwise.
+
+\fun{int}{RgX_is_monomial}{GEN x} returns 1 (true) if \kbd{x} is a non-zero
+monomial in its main variable, 0~otherwise.
+
+\fun{long}{RgX_equal}{GEN x, GEN y} returns $1$ if the \typ{POL}s $x$ and $y$
+have the same \kbd{degpol} and their coefficients are equal (as per
+\tet{gequal}). Variable numbers are not checked. Note that this is more
+stringent than \kbd{gequal(x,y)}, which only checks whether $x - y$ satisfies
+\kbd{gequal0}; in particular, they may have different apparent degrees provided
+the extra leading terms are $0$.
+
+\fun{long}{RgX_equal_var}{GEN x, GEN y} returns $1$ if $x$ and $y$
+have the same variable number and \kbd{RgX\_equal(x,y)} is $1$.
+
+\subsubsec{Coefficients, blocks}
 
 \fun{GEN}{RgX_coeff}{GEN P, long n} return the coefficient of $x^n$ in $P$,
 defined as \kbd{gen\_0} if $n < 0$ or $n > \kbd{degpol}(P)$. Shallow
@@ -7363,6 +7436,71 @@ $P(X)=a_0(X^k)+X\*a_1(X^k)+\ldots+X^{k-1}\*a_{k-1}(X^k)$ and return
 $[a_0(X),a_1(X),\ldots,a_{k-1}(X)]$.  Shallow function.
 
 \fun{GEN}{RgX_copy}{GEN x} returns (a deep copy of) $\kbd{x}$.
+
+\fun{GEN}{RgX_renormalize}{GEN x} remove leading terms in \kbd{x} which are
+equal to (necessarily inexact) zeros.
+
+\fun{GEN}{RgX_renormalize_lg}{GEN x, long lx} as \kbd{setlg(x, lx)}
+followed by \kbd{RgX\_renormalize(x)}. Assumes that $\kbd{lx} \leq
+\kbd{lg(x)}$.
+
+\fun{GEN}{RgX_recip}{GEN P} returns the reverse of the polynomial
+$P$, i.e. $X^{\deg P} P(1/X)$.
+
+\fun{GEN}{RgX_recip_shallow}{GEN P} shallow function of \tet{RgX_recip}.
+
+\fun{GEN}{RgX_deflate}{GEN P, long d} assuming $P$ is a polynomial of the
+form $Q(X^d)$, return $Q$. Shallow function, not suitable for
+\kbd{gerepileupto}.
+
+\fun{long}{RgX_deflate_max}{GEN P, long *d} sets \kbd{d} to the largest exponent
+such that $P$ is of the form $P(x^d)$ (use \kbd{gequal0} to check
+whether coefficients are 0), $0$ if $P$ is the zero polynomial. Returns
+\kbd{RgX\_deflate(P,d)}. Shallow function.
+
+\fun{GEN}{RgX_inflate}{GEN P, long d} return $P(X^d)$. Shallow function, not
+suitable for \kbd{gerepileupto}.
+
+\subsubsec{Shifts, valuations}
+
+\fun{GEN}{RgX_shift}{GEN x, long n} returns $\kbd{x} * t^n$ if $n\geq 0$,
+and $\kbd{x} \bs t^{-n}$ otherwise.
+
+\fun{GEN}{RgX_shift_shallow}{GEN x, long n} as \kbd{RgX\_shift}, but
+shallow (coefficients are not copied).
+
+\fun{GEN}{RgX_rotate_shallow}{GEN P, long k, long p} returns $\kbd{P} * X^k
+\pmod {X^p-1}$, assuming the degree of $P$ is strictly less than $p$, and
+$k\geq 0$.
+
+\fun{void}{RgX_shift_inplace_init}{long v} $v \geq 0$, prepare for a later
+call to \tet{RgX_shift_inplace}. Reserves $v$ words on the stack.
+
+\fun{GEN}{RgX_shift_inplace}{GEN x, long v} $v \geq 0$, assume that
+\tet{RgX_shift_inplace_init}$(v)$ has been called (reserving $v$ words on the
+stack), immediately followed by a \typ{POL} $x$. Return \kbd{RgX\_shift}$(x,v)$
+by shifting $x$ in place. To be used as follows
+\bprog
+  RgX_shift_inplace_init(v);
+  av = avma;
+  ...
+  x = gerepileupto(av, ...); /* a t_POL */
+  return RgX_shift_inplace(x, v);
+@eprog
+
+\fun{long}{RgX_valrem}{GEN P, GEN *pz} returns the valuation $v$ of the
+\typ{POL}~\kbd{P} with respect to its main variable $X$. Check whether
+coefficients are $0$ using \kbd{gequal0}. Set \kbd{*pz} to
+$\kbd{RgX\_shift\_shallow}(P,-v)$.
+
+\fun{long}{RgX_val}{GEN P} returns the valuation $v$ of the
+\typ{POL}~\kbd{P} with respect to its main variable $X$. Check whether
+coefficients are $0$ using \kbd{gequal0}.
+
+\fun{long}{RgX_valrem_inexact}{GEN P, GEN *z} as \kbd{RgX\_valrem}, using
+\kbd{isexactzero} instead of \kbd{gequal0}.
+
+\subsubsec{Basic arithmetic}
 
 \fun{GEN}{RgX_add}{GEN x,GEN y} adds \kbd{x} and \kbd{y}.
 
@@ -7392,6 +7530,13 @@ by the \kbd{long}~\kbd{s}.
 
 \fun{GEN}{RgX_Rg_divexact}{GEN x, GEN y} exact division of the \kbd{RgX}
 \kbd{y} by the scalar \kbd{x}.
+
+\fun{GEN}{RgX_normalize}{GEN x} divides $x$ by its
+leading coefficient. If the latter is~$1$, $x$ itself is returned, not a
+copy. Leading coefficients equal to $0$ are stripped, e.g.
+\bprog
+  0.*t^3 + Mod(0,3)*t^2 + 2*t
+@eprog\noindent is normalized to $t$.
 
 \fun{GEN}{RgX_mul}{GEN x, GEN y} multiplies the two \typ{POL} (in the same
 variable) \kbd{x} and \kbd{y}. Uses Karatsuba algorithm.
@@ -7439,9 +7584,6 @@ $q$ and pseudo-remainder $r$ such that $\kbd{lc}(y)^{\deg(x) - \deg(y) + 1}x
 \fun{GEN}{RgX_pseudorem}{GEN x, GEN y} return the remainder
 in the pseudo-division of $x$ by $y$.
 
-\fun{long}{RgX_degree}{GEN x, long v} $x$ being a \typ{POL} and $v \geq 0$,
-returns the degree in $v$ of $x$. Error if $x$ is not a polynomial in $v$.
-
 \fun{GEN}{RgXQX_pseudorem}{GEN x, GEN y, GEN T} return the remainder
 in the pseudo-division of $x$ by $y$ over $R[X]/(T)$.
 
@@ -7460,48 +7602,7 @@ set \kbd{*ptr} to $r$.
 be a \typ{FRAC} if $n < 0$ and the valuation of \kbd{x} is not large
 enough.
 
-\fun{GEN}{RgX_shift}{GEN x, long n} returns $\kbd{x} * t^n$ if $n\geq 0$,
-and $\kbd{x} \bs t^{-n}$ otherwise.
-
-\fun{GEN}{RgX_shift_shallow}{GEN x, long n} as \kbd{RgX\_shift}, but
-shallow (coefficients are not copied).
-
-\fun{GEN}{RgX_rotate_shallow}{GEN P, long k, long p} returns $\kbd{P} * X^k
-\pmod {X^p-1}$, assuming the degree of $P$ is strictly less than $p$, and
-$k\geq 0$.
-
-\fun{void}{RgX_shift_inplace_init}{long v} $v \geq 0$, prepare for a later
-call to \tet{RgX_shift_inplace}. Reserves $v$ words on the stack.
-
-\fun{GEN}{RgX_shift_inplace}{GEN x, long v} $v \geq 0$, assume that
-\tet{RgX_shift_inplace_init}$(v)$ has been called (reserving $v$ words on the
-stack), immediately followed by a \typ{POL} $x$. Return \kbd{RgX\_shift}$(x,v)$
-by shifting $x$ in place. To be used as follows
-\bprog
-  RgX_shift_inplace_init(v);
-  av = avma;
-  ...
-  x = gerepileupto(av, ...); /* a t_POL */
-  return RgX_shift_inplace(x, v);
-@eprog
-
-\fun{long}{RgX_valrem}{GEN P, GEN *pz} returns the valuation $v$ of the
-\typ{POL}~\kbd{P} with respect to its main variable $X$. Check whether
-coefficients are $0$ using \kbd{gequal0}. Set \kbd{*pz} to
-$\kbd{RgX\_shift\_shallow}(P,-v)$.
-
-\fun{long}{RgX_val}{GEN P} returns the valuation $v$ of the
-\typ{POL}~\kbd{P} with respect to its main variable $X$. Check whether
-coefficients are $0$ using \kbd{gequal0}.
-
-\fun{long}{RgX_valrem_inexact}{GEN P, GEN *z} as \kbd{RgX\_valrem}, using
-\kbd{isexactzero} instead of \kbd{gequal0}.
-
-\fun{GEN}{RgX_deriv}{GEN x} returns the derivative of \kbd{x} with respect to
-its main variable.
-
-\fun{GEN}{RgX_integ}{GEN x} returns the primitive of \kbd{x} vanishing at
-$0$, with respect to its main variable.
+\subsubsec{GCD, Resultant}
 
 \fun{GEN}{RgX_gcd}{GEN x, GEN y} returns the GCD of \kbd{x} and \kbd{y},
 assumed to be \typ{POL}s in the same variable.
@@ -7528,12 +7629,7 @@ non-zero remainder in the polynomial remainder sequence if it exists and to
 \kbd{resultant\_all}, this function always uses the generic subresultant
 algorithm, hence always computes \kbd{sol}.
 
-\fun{GEN}{RgX_renormalize}{GEN x} remove leading terms in \kbd{x} which are
-equal to (necessarily inexact) zeros.
-
-\fun{GEN}{RgX_renormalize_lg}{GEN x, long lx} as \kbd{setlg(x, lx)}
-followed by \kbd{RgX\_renormalize(x)}. Assumes that $\kbd{lx} \leq
-\kbd{lg(x)}$.
+\subsubsec{Other operations}
 
 \fun{GEN}{RgX_gtofp}{GEN x, GEN prec} returns the polynomial obtained by
 applying
@@ -7546,22 +7642,11 @@ applying
   gnorml2( RgX_gtofp(x, prec) )
 @eprog
 
-\fun{GEN}{RgX_recip}{GEN P} returns the reverse of the polynomial
-$P$, i.e. $X^{\deg P} P(1/X)$.
+\fun{GEN}{RgX_deriv}{GEN x} returns the derivative of \kbd{x} with respect to
+its main variable.
 
-\fun{GEN}{RgX_recip_shallow}{GEN P} shallow function of \tet{RgX_recip}.
-
-\fun{GEN}{RgX_deflate}{GEN P, long d} assuming $P$ is a polynomial of the
-form $Q(X^d)$, return $Q$. Shallow function, not suitable for
-\kbd{gerepileupto}.
-
-\fun{long}{RgX_deflate_max}{GEN P, long *d} sets \kbd{d} to the largest exponent
-such that $P$ is of the form $P(x^d)$ (use \kbd{gequal0} to check
-whether coefficients are 0), $0$ if $P$ is the zero polynomial. Returns
-\kbd{RgX\_deflate(P,d)}.
-
-\fun{GEN}{RgX_inflate}{GEN P, long d} return $P(X^d)$. Shallow function, not
-suitable for \kbd{gerepileupto}.
+\fun{GEN}{RgX_integ}{GEN x} returns the primitive of \kbd{x} vanishing at
+$0$, with respect to its main variable.
 
 \fun{GEN}{RgX_rescale}{GEN P, GEN h} returns $h^{\deg(P)} P(x/h)$.
 \kbd{P} is an \kbd{RgX} and \kbd{h} is non-zero. (Leaves small objects on the
@@ -7577,27 +7662,18 @@ of \kbd{RgX}.
 a polynomials whose main variable has lower priority than the main variable
 $X$ of $P$. Returns $P(X + c)$ (optimized for $c = \pm 1$).
 
-\fun{int}{RgX_is_rational}{GEN P} return 1 is the \kbd{RgX}~$P$ has only
-rational coefficients (\typ{INT} and \typ{FRAC}), and 0 otherwise.
+\subsubsec{Function related to modular forms}
 
-\fun{int}{RgX_is_QX}{GEN P} return 1 is the \kbd{RgX}~$P$ has only
-\typ{INT} and \typ{FRAC} coefficients, and 0 otherwise.
+\fun{GEN}{RgX_act_Gl2Q}{GEN g, long k} let $R$ be a commutative ring
+and $g = [a,b;c,d]$ be in $\text{GL}_2(\Q)$, $g$ acts (on the left)
+on homogeneous polynomials of degree $k-2$ in $V := R[X,Y]_{k-2}$ via
+$$ g\cdot P := P(dX-cY, -bX+aY) = (\det g)^{k-2} P((X,Y)\cdot g^{-1}).$$
+This function returns the matrix in $M_{k-1}(R)$ of $P\mapsto g\cdot P$ in
+the basis $(X^{k-2},\dots,Y^{k-2})$ of $V$.
 
-\fun{int}{RgX_is_ZX}{GEN P} return 1 is the \kbd{RgX}~$P$ has only
-\typ{INT} coefficients, and 0 otherwise.
-
-\fun{int}{RgX_is_monomial}{GEN x} returns 1 (true) if \kbd{x} is a non-zero
-monomial in its main variable, 0~otherwise.
-
-\fun{long}{RgX_equal}{GEN x, GEN y} returns $1$ if the \typ{POL}s $x$ and $y$
-have the same \kbd{degpol} and their coefficients are equal (as per
-\tet{gequal}). Variable numbers are not checked. Note that this is more
-stringent than \kbd{gequal(x,y)}, which only checks whether $x - y$ satisfies
-\kbd{gequal0}; in particular, they may have different apparent degrees provided
-the extra leading terms are $0$.
-
-\fun{long}{RgX_equal_var}{GEN x, GEN y} returns $1$ if $x$ and $y$
-have the same variable number and \kbd{RgX\_equal(x,y)} is $1$.
+\fun{GEN}{RgX_act_ZGl2Q}{GEN z, long k} let $G:=\text{GL}_2(\Q)$, acting
+on $R[X,Y]_{k-2}$ and $z\in \Z[G]$. Return the matrix giving
+$P\mapsto z\cdot P$ in the basis $(X^{k-2},\dots,Y^{k-2})$.
 
 \subsec{\kbd{RgXn}}
 
@@ -8697,9 +8773,7 @@ comparison function, return a sorted concatenation, with duplicates removed.
 \fun{GEN}{merge_factor}{GEN fx, GEN fy, void *data, int (*cmp)(void *,GEN,GEN)}
 let \kbd{fx} and \kbd{fy} be factorization matrices for $X$ and $Y$
 sorted with respect to the comparison function \kbd{cmp} (see
-\tet{sort_factor}), returns the factorization of $X * Y$. Zero exponents in
-the latter factorization are preserved, e.g. when merging the factorization
-of $2$ and $1/2$, the result is $2^0$.
+\tet{sort_factor}), returns the factorization of $X * Y$.
 
 \fun{long}{gen_search}{GEN v, GEN y, long flag, void *data, int
 (*cmp)(void*,GEN,GEN)}.\hfil\break

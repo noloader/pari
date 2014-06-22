@@ -21,11 +21,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA. */
 static GEN modsymbkinit(ulong N, long k, long sign);
 static GEN new_subspace_trivial(GEN W);
 static GEN Cuspidal_subspace_trivial(GEN W0);
-static GEN ZGLQ_star(GEN v);
+static GEN ZGl2Q_star(GEN v);
 static GEN getMorphism_trivial(GEN WW1, GEN WW2, GEN v);
 static GEN getMorphism(GEN W1, GEN W2, GEN v);
-static GEN ZGLQC_GLQ_mul(GEN v, GEN x);
-static GEN voo_act_Gl2(GEN g, long k);
+static GEN voo_act_Gl2Q(GEN g, long k);
 
 /* Input: P^1(Z/NZ) (formed by create_p1mod)
    Output: # P^1(Z/NZ) */
@@ -496,7 +495,15 @@ Q_primpart_basis(GEN M)
   return N;
 }
 static GEN
-QM_ker(GEN M) { return Q_primpart_basis(keri(Q_primpart(M))); }
+ZM_ker(GEN M) { return Q_primpart_basis(keri(M)); }
+static GEN
+QM_ker(GEN M) { return ZM_ker(Q_primpart(M)); }
+static GEN
+QM_image(GEN A)
+{
+  A = Q_primpart_basis(A);
+  return vecpermute(A, ZM_indeximage(A));
+}
 
 /* Decompose the subspace H in simple subspaces.
  * Eg for H = new_subspace */
@@ -638,13 +645,6 @@ qexpansion(GEN W, GEN proV, long B)
 }
 
 static GEN
-QM_image(GEN A)
-{
-  A = Q_primpart_basis(A);
-  return vecpermute(A, ZM_indeximage(A));
-}
-
-static GEN
 Qevproj_Sigma(GEN W, GEN H)
 {
   long s = modsymbk_get_sign(W);
@@ -678,7 +678,7 @@ new_subspace_trivial(GEN W)
     gel(v,2*i-1) = ZM_mul(T1, K); /* multiply by K = restrict to Ker delta */
     gel(v,2*i) = ZM_mul(Td, K);
   }
-  Snew = ZM_mul(K, Q_primpart_basis( keri( matconcat(v) ) ));
+  Snew = ZM_mul(K, ZM_ker(matconcat(v)));
 END:
   return Qevproj_Sigma(W, Snew);
 }
@@ -1010,7 +1010,7 @@ insert_E(GEN path, PS_sets_t *S, GEN p1N)
     gamma = gamma_equiv_matrix(rev, p1);
     /* E2[r] + gamma * E1[s] = 0 */
     gel(S->E2_in_terms_of_E1, r) = mkvec2(utoipos(s),
-                                          mkvec(mkvec2(gamma, gen_m1)));
+                                          to_famat_shallow(gamma,gen_m1));
   }
   else
   {
@@ -1101,169 +1101,30 @@ form_E_F_T(ulong N, GEN p1N, GEN *pC, PS_sets_t *S)
   setlg(S->E2_in_terms_of_E1, E2->nb+1);
 }
 
-static int
-cmp_GLQ(GEN x, GEN y) { return cmp_universal(gel(x,1), gel(y,1)); }
-
-/* a ZGLQ is either a t_INT or a t_VEC of pairs [g,e] representing
- * \sum e_i [g_i], e_i in Z, g_i in GLQ. */
+/* v = \sum n_i g_i, return \sum n_i g_i^(-1) */
 static GEN
-ZGLQ_normalize(GEN x)
+ZGl2Q_star(GEN v)
 {
-  long i, ix, lx;
-  GEN old, g, e;
-  if (typ(x) == t_INT) return x;
-  lx = lg(x);
-  if (lx <= 2) return x;
-  gen_sort_inplace(x, (void*)&cmp_GLQ, cmp_nodata, NULL);
-  ix = 2;
-  old = gel(x,1); g = gel(old,1); e = gel(old,2);
-  for (i = 2; i < lx; i++)
+  long i, l;
+  GEN w, G;
+  if (typ(v) == t_INT) return v;
+  G = gel(v,1);
+  w = cgetg_copy(G, &l);
+  for (i = 1; i < l; i++)
   {
-    GEN n = gel(x,i);
-    if (gidentical(gel(n,1), g))
-      e = addii(gel(n,2), e);
-    else
-    {
-      gel(old,2) = e;
-      if (!signe(e)) ix--;
-      gel(x, ix++) = n;
-      old = n; g = gel(old,1); e = gel(old,2);
-    }
+    GEN g = gel(G,i);
+    if (typ(g) == t_MAT) g = SL2_inv(g);
+    gel(w,i) = g;
   }
-  gel(old,2) = e;
-  if (!signe(e)) ix--;
-  if (ix == 1) return gen_0;
-  setlg(x, ix); return x;
-}
-
-static GEN
-ZGLQ_add(GEN x, GEN y)
-{
-  if (typ(x) == t_INT)
-  {
-    if (!signe(x)) return y;
-    if (typ(y) == t_INT)
-    {
-      if (!signe(y)) return x;
-      return addii(x,y);
-    }
-    x = mkvec(mkvec2(gen_1, x));
-  }
-  else if (typ(y) == t_INT)
-  {
-    if (!signe(y)) return x;
-    y = mkvec(mkvec2(gen_1, y));
-  }
-  return ZGLQ_normalize(shallowconcat(x, y));
+  return ZG_normalize(mkmat2(w, gel(v,2)));
 }
 static GEN
-ZGLQ_neg(GEN x)
-{
-  long i, lx;
-  GEN y;
-  if (typ(x) == t_INT) return negi(x);
-  lx = lg(x); y = cgetg(lx, t_VEC);
-  for (i = 1; i < lx; i++)
-  {
-    GEN old = gel(x,i);
-    gel(y,i) = mkvec2(gel(old,1), negi(gel(old,2)));
-  }
-  return y;
-}
-static GEN
-ZGLQ_sub(GEN x, GEN y) { return ZGLQ_add(x, ZGLQ_neg(y)); }
-#if 0
-/* x * c[Id_2], x in Z[GL2(Q)] */
-static GEN
-ZGLQ_Z_mul(GEN x, GEN c)
-{
-  long i, lx;
-  GEN y;
-  if (c == gen_1) return x;
-  if (c == gen_m1) return ZGLQ_neg(x);
-  if (typ(x) == t_INT) return mulii(x,c);
-  lx = lg(x); y = cgetg(lx, t_VEC);
-  for (i = 1; i < lx; i++)
-  {
-    GEN old = gel(x,i);
-    gel(y,i) = mkvec2(gel(old,1), mulii(c, gel(old,2)));
-  }
-  return y;
-}
-/* x * y, x,y, in Z[GL2(Q)] */
-static GEN
-ZGLQ_mul(GEN x, GEN y)
-{
-  long i, j, k, nx, ny;
-  GEN z;
-  if (typ(x) == t_INT) return ZGLQ_Z_mul(y, x);
-  if (typ(y) == t_INT) return ZGLQ_Z_mul(x, y);
-  nx = lg(x)-1;
-  ny = lg(y)-1;
-  z = cgetg(nx*ny + 1, t_VEC);
-  k = 1;
-  for (i = 1; i <= nx; i++)
-    for (j = 1; j <= ny; j++)
-    {
-      GEN X = gel(x,i), Y = gel(y,j);
-      gel(z,k++) = mkvec2(gmul(gel(X,1), gel(Y,1)), mulii(gel(X,2), gel(Y,2)));
-    }
-  return ZGLQ_normalize(z);
-}
-static GEN
-ZGLQV_add(GEN x, GEN y)
-{
-  long i, lx;
-  GEN v = cgetg_copy(x, &lx);
-  for (i = 1; i < lx; i++) gel(v,i) = ZGLQ_add(gel(x,i), gel(y,i));
-  return v;
-}
-static GEN
-ZGLQV_sub(GEN x, GEN y)
-{
-  long i, lx;
-  GEN v = cgetg_copy(x, &lx);
-  for (i = 1; i < lx; i++) gel(v,i) = ZGLQ_sub(gel(x,i), gel(y,i));
-  return v;
-}
-#endif
-static GEN
-ZGLQ_GLQ_mul(GEN x, GEN y)
-{
-  long i, nx;
-  GEN z;
-  if (typ(x) == t_INT) return mkvec(mkvec2(y, x));
-  nx = lg(x)-1;
-  z = cgetg(nx + 1, t_VEC);
-  for (i = 1; i <= nx; i++)
-  {
-    GEN X = gel(x,i);
-    gel(z,i) = mkvec2(gmul(gel(X,1), y), gel(X,2));
-  }
-  return z;
-}
-static GEN
-ZGLQC_GLQ_mul(GEN v, GEN x)
+ZGl2QC_star(GEN v)
 {
   long i, l;
   GEN w = cgetg_copy(v, &l);
-  for (i = 1; i < l; i++) gel(w,i) = ZGLQ_GLQ_mul(gel(v,i), x);
+  for (i = 1; i < l; i++) gel(w,i) = ZGl2Q_star(gel(v,i));
   return w;
-}
-static GEN
-GLQ_ZGLQ_mul(GEN x, GEN y)
-{
-  long i, ny;
-  GEN z;
-  if (typ(y) == t_INT) return mkvec(mkvec2(x, y));
-  ny = lg(y)-1;
-  z = cgetg(ny + 1, t_VEC);
-  for (i = 1; i <= ny; i++)
-  {
-    GEN Y = gel(y,i);
-    gel(z,i) = mkvec2(gmul(x, gel(Y,1)), gel(Y,2));
-  }
-  return z;
 }
 
 /* Input: h = set of unimodular paths, p1N = P^1(Z/NZ) = Gamma_0(N)\PSL2(Z)
@@ -1472,8 +1333,8 @@ modsymbinit_N(ulong N)
     GEN data = gel(S.E2_in_terms_of_E1,s);
     long c = itos(gel(data,1));
     GEN u = gel(data,2); /* E2[s] = u * E1[c], u = - [gamma] */
-    GEN gamma = gmael(u,1,1);
-    gel(singlerel, c) = mkvec2(mkvec2(gen_1,gen_1), mkvec2(gamma,gen_m1));
+    GEN gamma = gcoeff(u,1,1);
+    gel(singlerel, c) = mkmat2(mkcol2(gen_1,gamma),mkcol2(gen_1,gen_m1));
   }
   for (r = E1->nb + 1; r <= width; r++) gel(singlerel, r) = gen_1;
 
@@ -1484,7 +1345,7 @@ modsymbinit_N(ulong N)
   {
     GEN w = gel(vecT2,r);
     GEN gamma = gamma_equiv_matrix(Reverse(w), w);
-    gel(annT2, r) = mkvec2(mkvec2(gen_1,gen_1), mkvec2(gamma,gen_1));
+    gel(annT2, r) = mkmat2(mkcol2(gen_1,gamma), mkcol2(gen_1,gen_1));
   }
 
   /* form the 3-torsion relations */
@@ -1494,9 +1355,8 @@ modsymbinit_N(ulong N)
   {
     GEN M = zm_to_ZM( path_to_matrix( Reverse(gel(vecT31,r)) ) );
     GEN gamma = ZM_mul(ZM_mul(M, TAU), SL2_inv(M));
-    gel(annT31, r) = mkvec3(mkvec2(gen_1, gen_1),
-                            mkvec2(gamma, gen_1),
-                            mkvec2(ZM_sqr(gamma), gen_1));
+    gel(annT31, r) = mkmat2(mkcol3(gen_1,gamma,ZM_sqr(gamma)),
+                            mkcol3(gen_1,gen_1,gen_1));
   }
   gel(W,6) = F_index;
   gel(W,7) = S.E2_in_terms_of_E1;
@@ -1526,7 +1386,7 @@ RgX_powers(GEN T, long n)
 
 /* g = [a,b;c,d]. Return (X^{k-2} | g)(X,Y)[X = 1]. */
 static GEN
-voo_act_Gl2(GEN g, long k)
+voo_act_Gl2Q(GEN g, long k)
 {
   GEN c = gcoeff(g,2,1), d = gcoeff(g,2,2);
   return RgX_to_RgC(gpowgs(deg1pol_shallow(gneg(c), d, 0), k-2), k-1);
@@ -1535,7 +1395,7 @@ voo_act_Gl2(GEN g, long k)
 /* g = [a,b;c,d]. Return (P | g)(X,Y)[X = 1] = P(dX - cY, -b X + aY)[X = 1],
  * for P = X^{k-2}, X_^{k-3}Y, ..., Y^{k-2} */
 GEN
-RgX_act_Gl2(GEN g, long k)
+RgX_act_Gl2Q(GEN g, long k)
 {
   GEN a = gcoeff(g,1,1), b = gcoeff(g,1,2);
   GEN c = gcoeff(g,2,1), d = gcoeff(g,2,2);
@@ -1555,18 +1415,21 @@ RgX_act_Gl2(GEN g, long k)
 }
 /* z in Z[\Gamma], return the matrix of z acting on (X^{k-2},...,Y^{k-2}) */
 GEN
-RgX_act_ZG(GEN z, long k)
+RgX_act_ZGl2Q(GEN z, long k)
 {
-  long l = lg(z), j;
-  GEN S = NULL;
+  long l, j;
+  GEN S = NULL, G, E;
+  if (typ(z) == t_INT) return matid(k-1);
+  G = gel(z,1); l = lg(G);
+  E = gel(z,2);
   for (j = 1; j < l; j++)
   {
-    GEN M, u = gel(z,j), g = gel(u,1), n = gel(u,2);
+    GEN M, g = gel(G,j), n = gel(E,j);
     if (typ(g) == t_INT)
       M = scalarmat_shallow(n, k-1);
     else
     {
-      M = RgX_act_Gl2(g, k);
+      M = RgX_act_Gl2Q(g, k);
       if (is_pm1(n))
       { if (signe(n) < 0) M = RgM_neg(M);
       } else
@@ -1575,6 +1438,16 @@ RgX_act_ZG(GEN z, long k)
     S = j == 1? M: RgM_add(S, M);
   }
   return S;
+}
+/* Given a vector of elements in Z[G], return it as vector of operators on V
+ * (given by t_MAT) */
+static GEN
+ZGl2QC_to_act(GEN v, long k)
+{
+  long i, l;
+  GEN w = cgetg_copy(v, &l);
+  for (i = 1; i < l; i++) gel(w,i) = RgX_act_ZGl2Q(gel(v,i), k);
+  return w;
 }
 
 /* For all V[i] in Z[\Gamma], find the P such that  P . V[i]^* = 0;
@@ -1586,8 +1459,8 @@ ZGV_tors(GEN V, long k)
   GEN v = cgetg(l, t_VEC);
   for (i = 1; i < l; i++)
   {
-    GEN a = ZGLQ_star( gel(V, i) );
-    gel(v,i) = Q_primpart_basis( keri( RgX_act_ZG(a, k) ) );
+    GEN a = ZGl2Q_star(gel(V,i));
+    gel(v,i) = ZM_ker(RgX_act_ZGl2Q(a,k));
   }
   return v;
 }
@@ -1630,9 +1503,9 @@ treat_index(GEN W, GEN M, long index, int negate, GEN v)
       long s = itou(gel(z,1));
 
       index = s;
-      M = GLQ_ZGLQ_mul(M, gel(z,2)); /* M * (-gamma) */
-      gel(v, index) = negate? ZGLQ_sub(gel(v, index), M)
-                            : ZGLQ_add(gel(v, index), M);
+      M = G_ZG_mul(M, gel(z,2)); /* M * (-gamma) */
+      gel(v, index) = negate? ZG_sub(gel(v, index), M)
+                            : ZG_add(gel(v, index), M);
       break;
     }
 
@@ -1640,17 +1513,15 @@ treat_index(GEN W, GEN M, long index, int negate, GEN v)
     {
       long T3shift = W11[5] - W11[2]; /* #T32 + #E1 + #T2 */
       index += T3shift;
-      M = mkvec(mkvec2(M, gen_m1));
       index -= shift;
-      gel(v, index) = negate? ZGLQ_sub(gel(v, index), M)
-                            : ZGLQ_add(gel(v, index), M);
+      gel(v, index) = ZG_add(gel(v, index),
+                             to_famat_shallow(M,negate?gen_1:gen_m1));
       break;
     }
     default: /*E1,T2,T31*/
-      M = mkvec(mkvec2(M, gen_1));
       index -= shift;
-      gel(v, index) = negate? ZGLQ_sub(gel(v, index), M)
-                            : ZGLQ_add(gel(v, index), M);
+      gel(v, index) = ZG_add(gel(v, index),
+                             to_famat_shallow(M,negate?gen_m1:gen_1));
       break;
   }
 }
@@ -1678,7 +1549,6 @@ treat_index_trivial(GEN W, long index, int negate, GEN v)
       long r = index - W11[1];
       GEN E2_in_terms_of_E1= gel(W,7), z = gel(E2_in_terms_of_E1, r);
       long s = itou(gel(z,1));
-
       index = s;
       gel(v, index) = negate? addiu(gel(v, index), 1)
                             : subiu(gel(v, index), 1);
@@ -1798,43 +1668,6 @@ Gl2Q_act_path(GEN f, GEN path)
 static GEN
 init_act_trivial(GEN W) { return zerocol(modsymb_get_nbE1(W)); }
 
-/* v = \sum n_i g_i, return \sum n_i g_i^(-1) */
-static GEN
-ZGLQ_star(GEN v)
-{
-  long i, l;
-  GEN w;
-  if (typ(v) == t_INT) return v;
-  w = cgetg_copy(v, &l);
-  for (i = 1; i < l; i++)
-  {
-    GEN z = shallowcopy( gel(v,i) );
-    GEN M = gel(z,1);
-    if (typ(M) == t_MAT) M = SL2_inv(M);
-    gel(z,1) = M;
-    gel(w,i) = z;
-  }
-  return w;
-}
-static GEN
-ZGLQC_star(GEN v)
-{
-  long i, l;
-  GEN w = cgetg_copy(v, &l);
-  for (i = 1; i < l; i++) gel(w,i) = ZGLQ_star(gel(v,i));
-  return w;
-}
-/* Given a vector of elements in Z[G], return it as vector of operators on V
- * (given by t_MAT) */
-static GEN
-ZGLQC_to_act(GEN v, long k)
-{
-  long i, l;
-  GEN w = cgetg_copy(v, &l);
-  for (i = 1; i < l; i++) gel(w,i) = RgX_act_ZG(gel(v,i), k);
-  return w;
-}
-
 /* map from WW1 -> WW2, weight 2, trivial action. v a Gl2_Q or a t_VEC
  * of Gl2_Q (\sum v[i] in Z[Gl2(Q)]). Return the matrix associated to the
  * action of v. */
@@ -1888,9 +1721,9 @@ init_dual_act(GEN f, GEN W1, GEN W2)
     pari_sp av = avma;
     GEN w = gel(section, gen[j]); /* path_to_matrix( E1/T2/T3 element ) */
     GEN l = modsymblog(W1, Gl2Q_act_path(f, w)); /* lambda_{i,j} */
-    l = ZGLQC_star(l); /* lambda_{i,j}^* */
-    l = ZGLQC_GLQ_mul(l, F); /* mu_{i,j} */
-    gel(T,j) = gerepilecopy(av, ZGLQC_to_act(l, k)); /* as operators on V */
+    l = ZGl2QC_star(l); /* lambda_{i,j}^* */
+    l = ZGC_G_mul(l, F); /* mu_{i,j} */
+    gel(T,j) = gerepilecopy(av, ZGl2QC_to_act(l, k)); /* as operators on V */
   }
   return T;
 }
@@ -1986,7 +1819,7 @@ checkrelation(GEN W, GEN T)
   for (i = 1; i <= nbE1; i++)
   {
     GEN z = gel(singlerel, i);
-    GEN M = RgX_act_ZG(ZGLQ_star(z), k);
+    GEN M = RgX_act_ZGl2Q(ZGl2Q_star(z), k);
     GEN a = RgM_RgC_mul(M, gel(T,i));
     s = s? gadd(s, a): a;
   }
@@ -1999,14 +1832,14 @@ checkrelation(GEN W, GEN T)
   for (i = 1; i <= nbT2; i++)
   {
     GEN z = gel(annT2, i);
-    GEN M = RgX_act_ZG(ZGLQ_star(z), k);
+    GEN M = RgX_act_ZGl2Q(ZGl2Q_star(z), k);
     GEN a = RgM_RgC_mul(M, gel(T,i + nbE1));
     if (!gcmp0(a)) pari_err_BUG("checkrelation (T2)");
   }
   for (i = 1; i <= nbT31; i++)
   {
     GEN z = gel(annT31, i);
-    GEN M = RgX_act_ZG(ZGLQ_star(z), k);
+    GEN M = RgX_act_ZGl2Q(ZGl2Q_star(z), k);
     GEN a = RgM_RgC_mul(M, gel(T,i + nbE1 + nbT2));
     if (!gcmp0(a)) pari_err_BUG("checkrelation (T31)");
   }
@@ -2143,7 +1976,7 @@ Cuspidal_subspace_trivial(GEN W0)
       gcoeff(T, i2, j) = gen_m1;
     }
   }
-  return Q_primpart_basis(keri(T));
+  return ZM_ker(T);
 }
 
 /* return E_c(r) */
@@ -2154,7 +1987,7 @@ get_Ec_r(GEN c, long k)
   GEN gr;
   (void)cbezout(p, q, &u, &v);
   gr = mat2(p, -v, q, u); /* g . (1:0) = (p:q) */
-  return voo_act_Gl2(zm_to_ZM(sl2_inv(gr)), k);
+  return voo_act_Gl2Q(zm_to_ZM(sl2_inv(gr)), k);
 }
 /* returns the modular symbol associated to the cusp c := p/q via the rule
  * E_c(path from a to b in Delta_0) := E_c(b) - E_c(a), where
@@ -2283,7 +2116,7 @@ END:
 static GEN
 Delta_inv(GEN doo, long k)
 {
-  GEN M = RgX_act_ZG(doo, k);
+  GEN M = RgX_act_ZGl2Q(doo, k);
   M = RgM_minor(M, k-1, 1); /* 1st column and last row are 0 */
   return ZM_inv_denom(M);
 }
@@ -2351,7 +2184,7 @@ modsymbkinit_nontrivial(GEN WN, long k, long sign)
   GEN annT2 = gel(WN,8), annT31 = gel(WN,9), singlerel = gel(WN,10);
   GEN link, basis, monomials, invphiblock;
   long nbE1 = modsymb_get_nbE1(WN);
-  GEN dinv = Delta_inv(ZGLQ_neg( ZGLQ_star(gel(singlerel,1)) ), k);
+  GEN dinv = Delta_inv(ZG_neg( ZGl2Q_star(gel(singlerel,1)) ), k);
   GEN p1 = cgetg(nbE1+1, t_VEC), remove;
   GEN p2 = ZGV_tors(annT2, k);
   GEN p3 = ZGV_tors(annT31, k);
@@ -2362,7 +2195,7 @@ modsymbkinit_nontrivial(GEN WN, long k, long sign)
   for (i = 2; i <= nbE1; i++) /* skip 1st element = (\gamma_oo-1)g_oo */
   {
     GEN z = gel(singlerel, i);
-    gel(p1, i) = RgX_act_ZG(ZGLQ_star(z), k);
+    gel(p1, i) = RgX_act_ZGl2Q(ZGl2Q_star(z), k);
   }
   remove = RgMV_find_non_zero_last_row(nbE1, gentor);
   if (!remove) remove = RgMV_find_non_zero_last_row(0, p1);

@@ -1659,7 +1659,11 @@ merge_factor(GEN fx, GEN fy, void *data, int (*cmp)(void *,GEN,GEN))
     if (s < 0)
     { gel(M,m) = gel(x,ix); gel(E,m) = gel(e,ix); ix++; }
     else if (s == 0)
-    { gel(M,m) = gel(x,ix); gel(E,m) = addii(gel(e,ix), gel(f,iy)); iy++; ix++; }
+    {
+      GEN z = gel(x,ix), g = addii(gel(e,ix), gel(f,iy));
+      iy++; ix++; if (!signe(g)) continue;
+      gel(M,m) = z; gel(E,m) = g;
+    }
     else
     { gel(M,m) = gel(y,iy); gel(E,m) = gel(f,iy); iy++; }
     m++;

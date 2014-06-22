@@ -856,6 +856,19 @@ GEN     gen_bkeval(GEN Q, long d, GEN x, int use_sqr, void *E,
 GEN     gen_bkeval_powers(GEN P, long d, GEN V, void *E,
           const struct bb_algebra *ff, GEN cmul(void *E, GEN P, long a, GEN x));
 
+/* ZG.c */
+GEN     G_ZGC_mul(GEN x, GEN v);
+GEN     G_ZG_mul(GEN x, GEN y);
+GEN     ZGC_G_mul(GEN v, GEN x);
+GEN     ZGC_Z_mul(GEN v, GEN x);
+GEN     ZG_G_mul(GEN x, GEN y);
+GEN     ZG_Z_mul(GEN x, GEN c);
+GEN     ZG_add(GEN x, GEN y);
+GEN     ZG_mul(GEN x, GEN y);
+GEN     ZG_neg(GEN x);
+GEN     ZG_normalize(GEN x);
+GEN     ZG_sub(GEN x, GEN y);
+
 /* ZV.c */
 
 void    Flc_lincomb1_inplace(GEN X, GEN Y, ulong v, ulong q);
@@ -3514,8 +3527,8 @@ GEN     Q_xpm(GEN E, GEN c);
 GEN     Qevproj_init(GEN M);
 GEN     Qevproj_apply(GEN T, GEN pro);
 GEN     Qevproj_apply_vecei(GEN T, GEN pro, long k);
-GEN     RgX_act_Gl2(GEN g, long k);
-GEN     RgX_act_ZG(GEN z, long k);
+GEN     RgX_act_Gl2Q(GEN g, long k);
+GEN     RgX_act_ZGl2Q(GEN z, long k);
 GEN     ellsym(GEN E, long signe);
 GEN     modsymbAtkinLehner(GEN W, GEN Q);
 GEN     modsymbHecke(GEN W, ulong p);
