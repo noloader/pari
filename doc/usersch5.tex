@@ -2846,6 +2846,11 @@ see the technical note in \secref{se:genbinop}.
 \fun{GEN}{powruvec}{GEN e, ulong n}. Given a \typ{REAL} $e$, return the vector
 of all $e^i$, $1 \leq i \leq n$.
 
+\fun{GEN}{powersr}{GEN e, long n}. Given a \typ{REAL} $e$, return the vector
+$v$ of all $e^i$, $0 \leq i \leq n$, where $v[i] = e^{i-1}$. In contrast to
+\kbd{powruvec}, this function uses the \tet{gen_powers} convention, which
+allows to use \tet{gen_bkeval}.
+
 \fun{GEN}{powrshalf}{GEN x, long n}, assumes $x$ is a \typ{REAL} and returns
 $x^{n/2}$ (always a \typ{REAL}, even if $n = 0$).
 
@@ -10550,6 +10555,10 @@ keys $k$, but which of the two is affected by later commands is undefined.
 
 \fun{hashentry*}{hash_search}{hashtable *h, void *k} look for an entry
 with key $k$ in $h$. Return it if it one exists, and \kbd{NULL} if not.
+
+\fun{hashentry*}{hash_search2}{hashtable *h, void *k, ulong hash} look for an
+entry with key $k$ in $h$, assuming \kbd{h->hash(k)} is \kbd{hash}. Return
+it if it one exists, and \kbd{NULL} if not.
 
 \fun{hashentry*}{hash_remove}{hashtable *h, void *k} deletes an entry $(k,v)$
 with key $k$ from $h$ and return it. (Return \kbd{NULL} if none was found.)
