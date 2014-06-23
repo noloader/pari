@@ -148,8 +148,8 @@ gen_BG_rec(void *E, bg_fun *fun, struct bg_data *bg)
 
 /******************************************************************
  *
- *L functions of elliptic curves
- *Pascal Molin (molin.maths@gmail.com) 2014
+ * L functions of elliptic curves
+ * Pascal Molin (molin.maths@gmail.com) 2014
  *
  ******************************************************************/
 
@@ -190,22 +190,54 @@ param_points(GEN N, double Y, double tmax, long bprec, long *cprec, long *L,
   *K = ceil_safe(dbltor( D / a ));
 }
 
-/* ************************************************************************
- * Compute F transform at regularly spaced points
- * */
+static GEN
+vecF2_lk(GEN E, GEN K, GEN rbnd, GEN Q, GEN sleh, long prec)
+{
+  pari_sp av = avma, av2;
+  long l, L  = lg(K)-1;
+  GEN a = anellsmall(E, itos(gel(K,1)));
+  GEN S = cgetg(L+1, t_VEC);
+  for (l = 1; l <= L; l++)
+    gel(S,l) = cgetr(prec);
+  av2 = avma;
+  for (l = 1; l <= L; ++l)
+  {
+    GEN e1, Sl;
+    long aB, b, A, B;
+    GEN z, zB;
+    pari_sp av3, lim3;
+    long Kl = itou(gel(K,l));
+    /* FIXME: could reduce prec here (useful for large prec) */
+    e1 = gel(Q, l);
+    Sl = real_0(prec);;
+    /* baby-step giant step */
+    A = rbnd[l]; B = A;
+    z = powersr(e1, B); zB = gel(z, B+1);
+    av3 = avma; lim3 = stack_lim(av3, 1);
+    for (aB = A*B; aB >= 0; aB -= B)
+    {
+      GEN s = real_0(prec); /* could change also prec here */
+      for (b = B; b > 0; --b)
+      {
+        long k = aB+b;
+        if (k <= Kl && a[k]) s = addrr(s, mulsr(a[k], gel(z, b+1)));
+        if (low_stack(lim3, stack_lim(av3, 1)))
+          gerepileall(av3, 2, &s, &Sl);
+      }
+      Sl = addrr(mulrr(Sl, zB), s);
+    }
+    affrr(mulrr(Sl, gel(sleh,l)), gel(S, l)); /* to avoid copying all S */
+    avma = av2;
+  }
+  return gerepilecopy(av, S);
+}
 
 /* Return C, C[i][j] = Q[j]^i, i = 1..nb */
 static void
-baby_init(struct baby_giant *bb, GEN Q, GEN bnd, long prec)
+baby_init(struct baby_giant *bb, GEN Q, GEN bnd, GEN rbnd, long prec)
 {
-  pari_sp av;
   long i, j, l = lg(Q);
-  GEN R, C, rbnd, r0;
-  rbnd = cgetg(l,t_VECSMALL);
-  av = avma;
-  for (i = 1; i < l; ++i)
-    rbnd[i] = itou(sqrtint(gel(bnd,i)))+1;
-  avma = av;
+  GEN R, C, r0;
   C = cgetg(l,t_VEC);
   for (i = 1; i < l; ++i)
     gel(C, i) = powersr(gel(Q, i), rbnd[i]);
@@ -216,16 +248,26 @@ baby_init(struct baby_giant *bb, GEN Q, GEN bnd, long prec)
     gel(R, i) = cgetg(rbnd[i]+1, t_VEC);
     gmael(R, i, 1) = cgetr(prec);
     affrr(gmael(C, i, 2),gmael(R, i, 1));
-    for (j = 2; j <= rbnd[i]+1; j++)
+    for (j = 2; j <= rbnd[i]; j++)
     {
       gmael(R, i, j) = cgetr(prec);
       affrr(r0, gmael(R, i, j));
     }
   }
-  bb->baby = C;
-  bb->giant = R;
-  bb->bnd = bnd;
-  bb->rbnd = rbnd;
+  bb->baby = C; bb->giant = R;
+  bb->bnd = bnd; bb->rbnd = rbnd;
+}
+
+static long
+baby_size(GEN rbnd, long Ks, long prec)
+{
+  long i, s, m, l = lg(rbnd);
+  for (s = 0, i = 1; i < l; ++i)
+    s += rbnd[i];
+  m = 2*s*prec + 3*l + s;
+  if (DEBUGLEVEL > 0)
+    err_printf("ellL1: BG_add: %ld words, ellan: %ld words\n", m, Ks);
+  return m;
 }
 
 static void
@@ -245,36 +287,21 @@ ellL1_add(void *E, GEN n, GEN a)
 }
 
 static GEN
-vecF2_lk_bsgs(GEN E, GEN h, long L, GEN K, GEN N, long w, long prec)
+vecF2_lk_bsgs(GEN E, GEN bnd, GEN rbnd, GEN Q, GEN sleh, GEN N, long prec)
 {
-  GEN PiN, eh;
   pari_sp av = avma;
   struct bg_data bg;
   struct baby_giant bb;
-  long k,l;
-  GEN sleh, elh, seh;
-  GEN Q, S, Kl;
-  gen_BG_init(&bg, E, N, K, NULL);
-  PiN = shiftr(divrr(mppi(prec), gsqrt(N, prec)), 1);
-  eh = mpexp(h);
-  seh = w % 2 ? powru(eh, (w+1)>>1) : powru(sqrtr(eh), w+1);
-  elh = real_1(prec);
-  Kl = cgetg(L+1, t_VEC);
-  Q  = cgetg(L+1, t_VEC);
-  for (l = 1; l <= L; ++l)
-  {
-    gel(Kl,l) = l==1 ? K: ceil_safe(divir(K, elh));
-    gel(Q, l) = mpexp(mulrr(negr(PiN), elh));
-    elh = mulrr(elh, eh);
-  }
-  baby_init(&bb, Q, Kl, prec);
+  long k, L = lg(bnd)-1;
+  GEN S;
+  baby_init(&bb, Q, bnd, rbnd, prec);
+  gen_BG_init(&bg, E, N, gel(bnd,1), NULL);
   gen_BG_rec((void*) &bb, ellL1_add, &bg);
-  sleh = powersr(seh, L);
   S = cgetg(L+1, t_VEC);
   for (k = 1; k <= L; ++k)
   {
     pari_sp av2 = avma;
-    long j, g = bb.rbnd[k];
+    long j, g = rbnd[k];
     GEN giant = gmael(bb.baby, k, g+1);
     GEN Sl = real_0(prec);
     for (j = g; j >=1; j--)
@@ -287,9 +314,27 @@ vecF2_lk_bsgs(GEN E, GEN h, long L, GEN K, GEN N, long w, long prec)
 static GEN
 vecF(struct lcritical *C, GEN E)
 {
-  pari_sp av = avma;
-  GEN N = ellQ_get_N(E), h = C->h;
-  GEN vec = vecF2_lk_bsgs(E, h, C->L, C->K, N, 1, C->cprec);
+  pari_sp av = avma, av2;
+  long prec = C->cprec, Ks = itos_or_0(C->K), l, L = C->L;
+  GEN N = ellQ_get_N(E);
+  GEN PiN = shiftr(divrr(mppi(prec), gsqrt(N, prec)), 1);
+  GEN eh = mpexp(C->h), elh = powersr(eh, L-1), sleh = elh;
+  GEN Q, bnd, rbnd, vec;
+  rbnd = cgetg(L+1, t_VECSMALL);
+  av2 = avma;
+  bnd = cgetg(L+1, t_VEC);
+  Q  = cgetg(L+1, t_VEC);
+  for (l = 1; l <= L; ++l)
+  {
+    gel(bnd,l) = l==1 ? C->K: ceil_safe(divir(C->K, gel(elh, l)));
+    rbnd[l] = itou(sqrtint(gel(bnd,l)))+1;
+    gel(Q, l) = mpexp(mulrr(negr(PiN), gel(elh, l)));
+  }
+  gerepileall(av2, 2, &bnd, &Q);
+  if (Ks && baby_size(rbnd, Ks, prec) > (Ks>>1))
+    vec = vecF2_lk(E, bnd, rbnd, Q, sleh, prec);
+  else
+    vec = vecF2_lk_bsgs(E, bnd, rbnd, Q, sleh, N, prec);
   return gerepileupto(av, vec);
 }
 
