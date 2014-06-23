@@ -16,7 +16,7 @@ getheap()[1]
 E=ellinit([0,-1437004800,0,458885065605120000,0]);
 ellglobalred(E); ellheegner(E)
 
-L = ellinit([0,0,1,-7,6]);
+L = ellinit([0,0,1,7,6]);
 ellL1(L)
 ellL1(L,1)
 ellL1(L,3)
