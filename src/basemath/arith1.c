@@ -2031,7 +2031,7 @@ Fl_lgener_pre_all(ulong l, long e, ulong r, ulong p, ulong pi, ulong *pt_m)
  * q =  (l^e)*r, e >= 1, (r,l) = 1
  * y generates the l-Sylow of G
  * m = y^(l^(e-1)) != 1 */
-ulong
+static ulong
 Fl_sqrtl_i(ulong a, ulong l, ulong p, ulong pi, ulong y, ulong m)
 {
   ulong p1, v, w, z, dl, zm;
