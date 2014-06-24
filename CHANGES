@@ -95,9 +95,8 @@ BA 34- prototype codes U and u for ulong
 BA 37- [mingw] support for the alarm GP function
 BA 38- [libpari] functions Fl_sqrtl, Fl_sqrtl_pre
    39- [libpari] function ZV_allpnqn
-Pmo40- Much faster ellL1 and ellanalyticrank.
-   41- [libpari] function Qevproj_init, Qevproj_apply, Qevproj_apply_vecei
-   42- [libpari] functions G_ZGC_mul, G_ZG_mul, ZGC_G_mul, ZGC_Z_mul, ZG_G_mul,
+   40- [libpari] function Qevproj_init, Qevproj_apply, Qevproj_apply_vecei
+   41- [libpari] functions G_ZGC_mul, G_ZG_mul, ZGC_G_mul, ZGC_Z_mul, ZG_G_mul,
        ZG_Z_mul, ZG_add, ZG_mul, ZG_neg, ZG_normalize, ZG_sub
 
   Changed
@@ -139,6 +138,8 @@ BA 19- Rg_to_RgV renamed to Rg_to_RgC, RgX_to_RgV renamed to RgX_to_RgC
    20- ellL1(e, r): make r optional (default value = 0)
 BA 21- powruvec is replaced by powersr
    22- [libpari] merge_factor no longer keeps entries with exponent 0
+Pmo23- More robust and much faster ellL1 and ellanalyticrank. The condition
+       ord(L_E,s=1) <= r in ellL1(E,r) is no longer necessary.
 
 Removed
    1- deprecated functions nfbasis0, nfdisc0, factorpadic0
