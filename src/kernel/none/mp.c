@@ -495,18 +495,29 @@ ulong
 umodiu(GEN y, ulong x)
 {
   long sy=signe(y),ly,i;
+  ulong xi;
   LOCAL_HIREMAINDER;
 
   if (!x) pari_err_INV("umodiu",gen_0);
   if (!sy) return 0;
   ly = lgefint(y);
-  if (x <= (ulong)y[2]) hiremainder=0;
+  if (x <= (ulong)y[2])
+  {
+    hiremainder=0;
+    if (ly==3)
+    {
+      hiremainder=uel(y,2)%x;
+      if (!hiremainder) return 0;
+      return (sy > 0)? hiremainder: x - hiremainder;
+    }
+  }
   else
   {
     if (ly==3) return (sy > 0)? (ulong)y[2]: x - (ulong)y[2];
     hiremainder=y[2]; ly--; y++;
   }
-  for (i=2; i<ly; i++) (void)divll(y[i],x);
+  xi = get_Fl_red(x);
+  for (i=2; i<ly; i++) (void)divll_pre(y[i],x,xi);
   if (!hiremainder) return 0;
   return (sy > 0)? hiremainder: x - hiremainder;
 }
@@ -517,20 +528,31 @@ diviu_rem(GEN y, ulong x, ulong *rem)
 {
   long ly,i;
   GEN z;
+  ulong xi;
   LOCAL_HIREMAINDER;
 
   if (!x) pari_err_INV("diviu_rem",gen_0);
   if (!signe(y)) { *rem = 0; return gen_0; }
 
   ly = lgefint(y);
-  if (x <= (ulong)y[2]) hiremainder=0;
+  if (x <= (ulong)y[2])
+  {
+    hiremainder=0;
+    if (ly==3)
+    {
+      z = cgetipos(3);
+      z[2]=divll(y[2],x);
+      *rem = hiremainder; return z;
+    }
+  }
   else
   {
     if (ly==3) { *rem = (ulong)y[2]; return gen_0; }
     hiremainder=y[2]; ly--; y++;
   }
+  xi = get_Fl_red(x);
   z = cgetipos(ly);
-  for (i=2; i<ly; i++) z[i]=divll(y[i],x);
+  for (i=2; i<ly; i++) z[i]=divll_pre(y[i],x,xi);
   *rem = hiremainder; return z;
 }
 
@@ -539,6 +561,7 @@ divis_rem(GEN y, long x, long *rem)
 {
   long sy=signe(y),ly,s,i;
   GEN z;
+  ulong xi;
   LOCAL_HIREMAINDER;
 
   if (!x) pari_err_INV("divis_rem",gen_0);
@@ -546,14 +569,25 @@ divis_rem(GEN y, long x, long *rem)
   if (x<0) { s = -sy; x = -x; } else s = sy;
 
   ly = lgefint(y);
-  if ((ulong)x <= (ulong)y[2]) hiremainder=0;
+  if ((ulong)x <= (ulong)y[2])
+  {
+    hiremainder=0;
+    if (ly==3)
+    {
+      z = cgeti(3); z[1] = evallgefint(3) | evalsigne(s);
+      z[2] = divll(y[2],x);
+      if (sy<0) hiremainder = - ((long)hiremainder);
+      *rem = (long)hiremainder; return z;
+    }
+  }
   else
   {
     if (ly==3) { *rem = itos(y); return gen_0; }
     hiremainder=y[2]; ly--; y++;
   }
+  xi = get_Fl_red(x);
   z = cgeti(ly); z[1] = evallgefint(ly) | evalsigne(s);
-  for (i=2; i<ly; i++) z[i]=divll(y[i],x);
+  for (i=2; i<ly; i++) z[i]=divll_pre(y[i],x,xi);
   if (sy<0) hiremainder = - ((long)hiremainder);
   *rem = (long)hiremainder; return z;
 }
@@ -562,6 +596,7 @@ GEN
 divis(GEN y, long x)
 {
   long sy=signe(y),ly,s,i;
+  ulong xi;
   GEN z;
   LOCAL_HIREMAINDER;
 
@@ -570,14 +605,24 @@ divis(GEN y, long x)
   if (x<0) { s = -sy; x = -x; } else s = sy;
 
   ly = lgefint(y);
-  if ((ulong)x <= (ulong)y[2]) hiremainder=0;
+  if ((ulong)x <= (ulong)y[2])
+  {
+    hiremainder=0;
+    if (ly==3)
+    {
+      z = cgeti(3); z[1] = evallgefint(3) | evalsigne(s);
+      z[2] = divll(y[2],x);
+      return z;
+    }
+  }
   else
   {
     if (ly==3) return gen_0;
     hiremainder=y[2]; ly--; y++;
   }
+  xi = get_Fl_red(x);
   z = cgeti(ly); z[1] = evallgefint(ly) | evalsigne(s);
-  for (i=2; i<ly; i++) z[i]=divll(y[i],x);
+  for (i=2; i<ly; i++) z[i]=divll_pre(y[i],x, xi);
   return z;
 }
 
