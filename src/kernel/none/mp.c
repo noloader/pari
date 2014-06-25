@@ -817,7 +817,14 @@ DIVIDE: /* quotient is non-zero */
     {
       hiremainder = x[2]; lx--; x++;
     }
-    q = new_chunk(lx); for (i=2; i<lx; i++) q[i]=divll(x[i],y0);
+    q = new_chunk(lx);
+    if (lx==3)
+      q[2]=divll(x[2],y0);
+    else
+    {
+      ulong y0i = get_Fl_red(y0);
+      for (i=2; i<lx; i++) q[i]=divll_pre(x[i],y0,y0i);
+    }
     if (z == ONLY_REM)
     {
       avma=av; if (!hiremainder) return gen_0;
