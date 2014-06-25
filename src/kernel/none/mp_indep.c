@@ -697,9 +697,11 @@ divru(GEN x, ulong y)
 
   if (!y) pari_err_INV("divru",gen_0);
   if (!s) return real_0_bit(expo(x) - expu(y));
-  if (y==1) return rcopy(x);
-  if (y==2) return shiftr(x, -1);
-
+  if (!(y & (y-1))) /* power of 2 */
+  {
+    if (y == 1) return rcopy(x);
+    return shiftr(x, -expu(y));
+  }
   e = expo(x);
   lx = lg(x);
   z = cgetr(lx);
