@@ -568,12 +568,12 @@ lambda1(GEN E, GEN nv, GEN p, long prec)
       gel(res, j) = gmul(lp, gsubgs(gdivgs(sqru(j), n), j)); /* j^2/n - j */
   }
   else if (kod < -4)
-    res = mkvec2(negr(lp), divrs(mulrs(lp, kod), 4));
+    res = mkvec2(negr(lp), shiftr(mulrs(lp, kod), -2));
   else
   {
     const long lam[] = {8,9,0,6,0,0,0,3,4};
     long m = -lam[kod+4];
-    res = mkvec(divrs(mulrs(lp, m), 6));
+    res = mkvec(divru(mulrs(lp, m), 6));
   }
   return gerepilecopy(av, res);
 }
@@ -660,8 +660,8 @@ hnaive_max(GEN ell, GEN ht)
   GEN hj     = heightQ(j, prec);
   GEN logb2p = signe(b2)? addrr(logplusQ(gdivgs(b2, 12),prec), mplog2(prec))
                         : real_1(prec);
-  GEN mu     = addrr(divrs(addrr(logd, logj),6), logb2p);
-  return addrs(addrr(addrr(ht, divrs(hj,12)), mu), 2);
+  GEN mu     = addrr(divru(addrr(logd, logj),6), logb2p);
+  return addrs(addrr(addrr(ht, divru(hj,12)), mu), 2);
 }
 
 static GEN
@@ -923,7 +923,7 @@ heegner_indexmult(GEN om, long t, GEN tam, long prec)
 {
   pari_sp av = avma;
   GEN Ovr = gabs(gimag(gel(om, 2)), prec); /* O_vol/O_re, t_REAL */
-  return gerepileupto(av, divrs(divir(tam, Ovr), 4*t*t));
+  return gerepileupto(av, divru(divir(tam, Ovr), 4*t*t));
 }
 
 
@@ -999,7 +999,7 @@ heegner_find_point(GEN e, GEN om, GEN ht, GEN z1, long k, long prec)
     err_printf("%ld*%ld multipliers to test\n",k,lg(lambdas)-1);
   for (m = 0; m < k; m++)
   {
-    GEN P, z2 = divrs(addrr(z1, mulsr(m, Ore)), k);
+    GEN P, z2 = divru(addrr(z1, mulsr(m, Ore)), k);
     if (DEBUGLEVEL > 1)
       err_printf("Trying multiplier %ld\n",m);
     P = heegner_try_point(e, lambdas, ht, z2, prec);
