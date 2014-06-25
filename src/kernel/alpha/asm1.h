@@ -12,7 +12,7 @@ with the package; see the file 'COPYING'. If not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 
 /* This file is a slight adaptation of source code extracted from gmp-3.1.1
-  (from T. Granlund), files longlong.h and gmp-e_IMPL.h
+  (from T. Granlund), files longlong.h and gmp-impl.h
 
   Copyright (C) 2000 Free Software Foundation, Inc.
 
