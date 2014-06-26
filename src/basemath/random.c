@@ -38,26 +38,33 @@ static THREAD int xorgen_i;
   static THREAD ulong state[128]; /* size r */
 #endif
 
+static ulong
+block()
+{
+  ulong t = state[xorgen_i = (xorgen_i+1)&(r-1)];
+  ulong v = state[(xorgen_i+(r-s))&(r-1)];/* index is (i-s) mod r */
+  t ^= t<<a; t ^= t>>b;                   /* (I + L^a)(I + R^b) */
+  v ^= v<<c; v ^= v>>d;                   /* (I + L^c)(I + R^d) */
+  return state[xorgen_i] = t^v;           /* update circular array */
+}
+
 static void
 init_xor4096i(ulong seed)
 {
-  ulong t, v = seed;  /* v must be nonzero */
+  ulong v = seed; /* v must be nonzero */
   int k;
 
-  for (k = BITS_IN_LONG; k > 0; k--) {/* Avoid correlations for close seeds */
-    v ^= v<<10; v ^= v>>15;      /* Recurrence has period 2**BIL -1 */
+  for (k = BITS_IN_LONG; k > 0; k--) {/* avoid correlations for close seeds */
+    v ^= v<<10; v ^= v>>15; /* recurrence has period 2**BIL -1 */
     v ^= v<<4;  v ^= v>>13;
   }
-  for (xorgen_w = v, k = 0; k < r; k++) { /* Initialise circular array */
+  for (xorgen_w = v, k = 0; k < r; k++) { /* initialise circular array */
     v ^= v<<10; v ^= v>>15;
     v ^= v<<4;  v ^= v>>13;
     state[k] = v + (xorgen_w+=weyl);
   }
-  for (xorgen_i = r-1, k = 4*r; k > 0; k--) { /* Discard first 4*r results */
-    t = state[xorgen_i = (xorgen_i+1)&(r-1)]; t ^= t<<a;  t ^= t>>b;
-    v = state[(xorgen_i+(r-s))&(r-1)];        v ^= v<<c;  v ^= v>>d;
-    state[xorgen_i] = t^v;
-  }
+  /* discard first 4*r results */
+  for (xorgen_i = r-1, k = 4*r; k > 0; k--) (void)block();
 }
 
 void pari_init_rand(void) { init_xor4096i(1); }
@@ -67,14 +74,8 @@ void pari_init_rand(void) { init_xor4096i(1); }
 ulong
 pari_rand(void)
 {
-  ulong t, v;
-
-  t = state[xorgen_i = (xorgen_i+1)&(r-1)];
-  v = state[(xorgen_i+(r-s))&(r-1)];   /* Index is (xorgen_i-s) mod r */
-  t ^= t<<a;  t ^= t>>b;               /* (I + L^a)(I + R^b) */
-  v ^= v<<c;  v ^= v>>d;               /* (I + L^c)(I + R^d) */
-  state[xorgen_i] = (v ^= t);          /* Update circular array */
-  xorgen_w += weyl;                    /* Update Weyl generator */
+  ulong v = block();
+  xorgen_w += weyl; /* update Weyl generator */
   return v + (xorgen_w ^ (xorgen_w>>ws));
 }
 
@@ -139,18 +140,15 @@ GEN
 randomi(GEN N)
 {
   long lx = lgefint(N);
-  GEN d, NMSW;
+  GEN d;
   pari_sp av;
   int shift;
 
   if (lx == 3) return utoi( random_Fl(N[2]) );
 
-  NMSW = int_MSW(N); shift = bfffo(*NMSW);
-  if (((ulong)*NMSW << shift) == HIGHBIT)
-  { /* if N a power of 2, increment shift */
-    for (d = int_LSW(N); !*d; d = int_nextW(d)) /* empty */;
-    if (d == NMSW && ++shift == BITS_IN_LONG) { shift = 0; lx--; }
-  }
+  shift = bfffo(*int_MSW(N));
+  /* if N a power of 2, increment shift */
+  if (Z_ispow2(N) && ++shift == BITS_IN_LONG) { shift = 0; lx--; }
   for (av = avma;; avma = av) {
     GEN x = cgetipos(lx), xMSW = int_MSW(x);
     for (d = int_LSW(x); d != xMSW; d = int_nextW(d)) *d = pari_rand();
