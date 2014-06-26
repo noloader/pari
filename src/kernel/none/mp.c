@@ -776,6 +776,7 @@ dvmdii(GEN x, GEN y, GEN *z)
 
   if (!sx)
   {
+    if (ly < 3) pari_err_INV("dvmdii",gen_0);
     if (!z || z == ONLY_REM) return gen_0;
     *z=gen_0; return gen_0;
   }

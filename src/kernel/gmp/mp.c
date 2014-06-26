@@ -845,11 +845,7 @@ dvmdii(GEN x, GEN y, GEN *z)
   pari_sp av;
   GEN r,q;
 
-  if (!sy)
-  {
-    if (z == ONLY_REM && !sx) return gen_0;
-    pari_err_INV("dvmdii",y);
-  }
+  if (!sy) pari_err_INV("dvmdii",y);
   if (!sx)
   {
     if (!z || z == ONLY_REM) return gen_0;
