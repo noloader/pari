@@ -1286,7 +1286,7 @@ ellisoncurve(GEN e, GEN x)
 {
   long i, tx = typ(x), lx;
 
-  checkell5(e);
+  checkell(e);
   if (!is_vec_t(tx)) pari_err_TYPE("ellisoncurve [point]", x);
   lx = lg(x); if (lx==1) return cgetg(1,tx);
   tx = typ(gel(x,1));
@@ -1305,7 +1305,7 @@ elladd(GEN e, GEN z1, GEN z2)
   GEN p1, p2, x, y, x1, x2, y1, y2;
   pari_sp av = avma, tetpil;
 
-  checkell5(e); checkellpt(z1); checkellpt(z2);
+  checkell(e); checkellpt(z1); checkellpt(z2);
   if (ell_is_inf(z1)) return gcopy(z2);
   if (ell_is_inf(z2)) return gcopy(z1);
 
@@ -1371,7 +1371,7 @@ ellneg(GEN e, GEN z)
 {
   pari_sp av;
   GEN t, y;
-  checkell5(e); checkellpt(z);
+  checkell(e); checkellpt(z);
   if (ell_is_inf(z)) return z;
   t = cgetg(3,t_VEC);
   gel(t,1) = gcopy(gel(z,1));
@@ -1385,7 +1385,7 @@ GEN
 ellsub(GEN e, GEN z1, GEN z2)
 {
   pari_sp av = avma;
-  checkell5(e); checkellpt(z2);
+  checkell(e); checkellpt(z2);
   return gerepileupto(av, elladd(e, z1, ellneg_i(e,z2)));
 }
 
@@ -1687,7 +1687,7 @@ ellmul(GEN e, GEN z, GEN n)
 {
   pari_sp av = avma;
 
-  checkell5(e); checkellpt(z);
+  checkell(e); checkellpt(z);
   if (ell_is_inf(z)) return ellinf();
   switch(typ(n))
   {

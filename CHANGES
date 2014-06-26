@@ -47,6 +47,9 @@ XR  9- padicfields(huge p, d) was very slow [even though ramification is tame]
 BA 31- iferr() could crash if some component of the t_ERROR were clones.
    32- nffactor() could overflow the stack when default accuracy too low: e.g.
        nffactor(y^2-22, x^2+926246528884912528275985458927067632*y-4344481316563541186659879867597013188)
+   33- some elliptic curve functions accepted (elladd, ellmul) a Weierstrass
+       5-uple [a1,a2,a3,a4,a6] instead of an ell structure. No longer.
+       Now only ellinit and ellchangecurve allow this syntax.
 
   Added
     1- add optional argument to sumdigits to specify the base
