@@ -50,6 +50,7 @@ BA 31- iferr() could crash if some component of the t_ERROR were clones.
    33- some elliptic curve functions accepted (elladd, ellmul) a Weierstrass
        5-uple [a1,a2,a3,a4,a6] instead of an ell structure. No longer.
        Now only ellinit and ellchangecurve allow this syntax.
+   34- incorrect rounding in mulrr for one-word precision reals.
 
   Added
     1- add optional argument to sumdigits to specify the base
