@@ -17,10 +17,11 @@ static ulong
 resiu(GEN y, ulong x)
 {
   long i, ly = lgefint(y);
+  ulong xi = get_Fl_red(x);
   LOCAL_HIREMAINDER;
 
   hiremainder = 0;
-  for (i=2; i<ly; i++) (void)divll(y[i],x);
+  for (i=2; i<ly; i++) (void)divll_pre(y[i],x,xi);
   return hiremainder;
 }
 
