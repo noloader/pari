@@ -808,6 +808,13 @@ Flx_nbroots(GEN f, ulong p)
   pari_sp av = avma;
   GEN z, X;
   if (n <= 1) return n;
+  if (n == 2)
+  {
+    ulong D;
+    if (p==2) return (f[2]==0) + (f[2]!=f[3]);
+    D = Fl_sub(Fl_sqr(f[3], p), Fl_mul(Fl_mul(f[4], f[2], p), 4%p, p), p);
+    return 1 + krouu(D,p);
+  }
   X = polx_Flx(f[1]);
   z = Flxq_powu(X, p, f, p);
   z = Flx_sub(z, X, p);
