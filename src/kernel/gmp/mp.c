@@ -209,7 +209,7 @@ adduispec(ulong s, GEN x, long nx)
   GEN  zd;
   long lz;
 
-  if (nx == 1) return adduu((ulong)x[0], s);
+  if (nx == 1) return adduu(uel(x,0), s);
   lz = nx+3; zd = cgeti(lz);
   if (mpn_add_1(LIMBS(zd),(mp_limb_t *)x,nx,s))
     zd[lz-1]=1;
@@ -313,7 +313,7 @@ affir(GEN x, GEN y)
       return;
     }
     mpn_lshift(LIMBS(y),LIMBS(x)+lx-ly,ly-2,sh);
-    y[2]|=((ulong) x[lx-ly+1])>>(BITS_IN_LONG-sh);
+    y[2] |= uel(x,lx-ly+1) >> (BITS_IN_LONG-sh);
     xmpn_mirror(LIMBS(y),ly-2);
     /* lx > ly: round properly */
     if ((x[lx-ly+1]<<sh) & HIGHBIT) roundr_up_ip(y, ly);
@@ -405,7 +405,7 @@ mantissa2nr(GEN x, long n)
     {
       register const ulong sh = BITS_IN_LONG - m;
       shift_left(y,x, 2,lx-1, 0,m);
-      i = ((ulong)x[2]) >> sh;
+      i = uel(x,2) >> sh;
       /* Extend y on the left? */
       if (i) { ly++; y = new_chunk(1); y[2] = i; }
     }
@@ -572,7 +572,7 @@ diviu_rem(GEN y, ulong x, ulong *rem)
   if (!signe(y)) { *rem = 0; return gen_0; }
 
   ly = lgefint(y);
-  if (ly == 3 && (ulong)x > (ulong)y[2]) { *rem = (ulong)y[2]; return gen_0; }
+  if (ly == 3 && (ulong)x > uel(y,2)) { *rem = uel(y,2); return gen_0; }
 
   z = cgeti(ly);
   *rem = mpn_divrem_1(LIMBS(z), 0, LIMBS(y), NLIMBS(y), x);
@@ -592,7 +592,7 @@ divis_rem(GEN y, long x, long *rem)
   if (x<0) { s = -sy; x = -x; } else s = sy;
 
   ly = lgefint(y);
-  if (ly == 3 && (ulong)x > (ulong)y[2]) { *rem = itos(y); return gen_0; }
+  if (ly == 3 && (ulong)x > uel(y,2)) { *rem = itos(y); return gen_0; }
 
   z = cgeti(ly);
   *rem = mpn_divrem_1(LIMBS(z), 0, LIMBS(y), NLIMBS(y), x);
@@ -613,7 +613,7 @@ divis(GEN y, long x)
   if (x<0) { s = -sy; x = -x; } else s=sy;
 
   ly = lgefint(y);
-  if (ly == 3 && (ulong)x > (ulong)y[2]) return gen_0;
+  if (ly == 3 && (ulong)x > uel(y,2)) return gen_0;
 
   z = cgeti(ly);
   (void)mpn_divrem_1(LIMBS(z), 0, LIMBS(y), NLIMBS(y), x);
@@ -646,7 +646,7 @@ divrr_with_gmp(GEN x, GEN y)
   mpn_tdiv_qr(q,r,0,u,lu,z,lly);
 
   /*Round up: This is not exactly correct we should test 2*r>z*/
-  if ((ulong)r[lly-1] > ((ulong)z[lly-1]>>1))
+  if (uel(r,lly-1) > (uel(z,lly-1)>>1))
     mpn_add_1(q,q,lw+1,1);
 
   xmpn_mirrorcopy(RLIMBS(w),q,lw);
@@ -684,7 +684,7 @@ divri_with_gmp(GEN x, GEN y)
   mpn_tdiv_qr(q,r,0,u,lu,z,lly);
 
   /*Round up: This is not exactly correct we should test 2*r>z*/
-  if ((ulong)r[lly-1] > ((ulong)z[lly-1]>>1))
+  if (uel(r,lly-1) > (uel(z,lly-1)>>1))
     mpn_add_1(q,q,llx+1,1);
 
   xmpn_mirrorcopy(RLIMBS(w),q,llx);
@@ -730,7 +730,7 @@ divrr(GEN x, GEN y)
   {
     ulong k = x[2], l = (lx>3)? x[3]: 0;
     LOCAL_HIREMAINDER;
-    if (k < (ulong)y[2]) e--;
+    if (k < uel(y,2)) e--;
     else
     {
       l >>= 1; if (k&1) l |= HIGHBIT;
@@ -754,13 +754,13 @@ divrr(GEN x, GEN y)
     LOCAL_HIREMAINDER;
     LOCAL_OVERFLOW;
 
-    if ((ulong)r1[1] == y0)
+    if (uel(r1,1) == y0)
     {
       qp = ULONG_MAX; k = addll(y0,r1[2]);
     }
     else
     {
-      if ((ulong)r1[1] > y0) /* can't happen if i=0 */
+      if (uel(r1,1) > y0) /* can't happen if i=0 */
       {
         GEN y1 = y+1;
         j = lr-i; r1[j] = subll(r1[j],y1[j]);
@@ -790,9 +790,9 @@ divrr(GEN x, GEN y)
       r1[j] = subll(r1[j], addmul(qp,y[j]));
       hiremainder += overflow;
     }
-    if ((ulong)r1[1] != hiremainder)
+    if (uel(r1,1) != hiremainder)
     {
-      if ((ulong)r1[1] < hiremainder)
+      if (uel(r1,1) < hiremainder)
       {
         qp--;
         j = lr-i-(lr-i>=ly); r1[j] = addll(r1[j], y[j]);
@@ -814,7 +814,7 @@ divrr(GEN x, GEN y)
   }
   /* i = lr-1 */
   /* round correctly */
-  if ((ulong)r1[1] > (y0>>1))
+  if (uel(r1,1) > (y0>>1))
   {
     j=i; do r[--j]++; while (j && !r[j]);
   }
@@ -955,17 +955,17 @@ red_montgomery(GEN T, GEN N, ulong inv)
 #endif
   if (k == 1)
   { /* as below, special cased for efficiency */
-    ulong n = (ulong)N[2];
+    ulong n = uel(N,2);
     if (d == 1) {
-      hiremainder = (ulong)T[2];
+      hiremainder = uel(T,2);
       m = hiremainder * inv;
       (void)addmul(m, n); /* t + m*n = 0 */
       return utoi(hiremainder);
     } else { /* d = 2 */
-      hiremainder = (ulong)T[2];
+      hiremainder = uel(T,2);
       m = hiremainder * inv;
       (void)addmul(m, n); /* t + m*n = 0 */
-      t = addll(hiremainder, (ulong)T[3]);
+      t = addll(hiremainder, uel(T,3));
       if (overflow) t -= n; /* t > n doesn't fit in 1 word */
       return utoi(t);
     }
@@ -1326,7 +1326,7 @@ sqrtr_abs(GEN a)
   {
     ulong u;
     b = (mp_limb_t *) mantissa2nr(a,-1);
-    b[1] = ((ulong)a[l+1])<<(BITS_IN_LONG-1);
+    b[1] = uel(a,l+1)<<(BITS_IN_LONG-1);
     b = (mp_limb_t *) new_chunk(l);
     xmpn_zero(b,l+1); /* overwrites the former b[0] */
     c = (mp_limb_t *) new_chunk(l + 1);

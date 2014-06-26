@@ -135,7 +135,7 @@ adduispec(ulong s, GEN x, long nx)
   GEN xd, zd = (GEN)avma;
   long lz;
 
-  if (nx == 1) return adduu(s, (ulong)x[0]);
+  if (nx == 1) return adduu(s, uel(x,0));
   lz = nx+3; (void)new_chunk(lz);
   xd = x + nx;
   *--zd = (ulong)*--xd + s;
@@ -185,7 +185,7 @@ addiispec(GEN x, GEN y, long nx, long ny)
     for(;;)
     {
       if (i < -nx) { zd[i] = 1; i--; break; } /* enlarge z */
-      zd[i] = (ulong)xd[i] + 1;
+      zd[i] = uel(xd,i) + 1;
       if (zd[i]) { i--; lz--; break; }
       i--;
     }
@@ -247,7 +247,7 @@ subiispec(GEN x, GEN y, long nx, long ny)
   if (overflow)
     for(;;)
     {
-      zd[i] = ((ulong)xd[i]) - 1;
+      zd[i] = uel(xd,i) - 1;
       if (xd[i--]) break;
     }
   if (i>=-nx)
@@ -328,7 +328,7 @@ shiftispec(GEN x, long nx, long n)
     {
       register const ulong sh = BITS_IN_LONG - m;
       shift_left(yd,x, 0,nx-1, 0,m);
-      i = ((ulong)x[0]) >> sh;
+      i = uel(x,0) >> sh;
       /* Extend y on the left? */
       if (i) { ny++; y = new_chunk(1); y[2] = i; }
     }
@@ -426,7 +426,7 @@ cmpiispec(GEN x, GEN y, long lx, long ly)
   if (lx > ly) return  1;
   i = 0; while (i<lx && x[i]==y[i]) i++;
   if (i==lx) return 0;
-  return ((ulong)x[i] > (ulong)y[i])? 1: -1;
+  return (uel(x,i) > uel(y,i))? 1: -1;
 }
 
 INLINE int
@@ -501,7 +501,7 @@ umodiu(GEN y, ulong x)
   if (!x) pari_err_INV("umodiu",gen_0);
   if (!sy) return 0;
   ly = lgefint(y);
-  if (x <= (ulong)y[2])
+  if (x <= uel(y,2))
   {
     hiremainder=0;
     if (ly==3)
@@ -513,8 +513,8 @@ umodiu(GEN y, ulong x)
   }
   else
   {
-    if (ly==3) return (sy > 0)? (ulong)y[2]: x - (ulong)y[2];
-    hiremainder=y[2]; ly--; y++;
+    if (ly==3) return (sy > 0)? uel(y,2): x - uel(y,2);
+    hiremainder=uel(y,2); ly--; y++;
   }
   xi = get_Fl_red(x);
   for (i=2; i<ly; i++) (void)divll_pre(y[i],x,xi);
@@ -535,20 +535,20 @@ diviu_rem(GEN y, ulong x, ulong *rem)
   if (!signe(y)) { *rem = 0; return gen_0; }
 
   ly = lgefint(y);
-  if (x <= (ulong)y[2])
+  if (x <= uel(y,2))
   {
     hiremainder=0;
     if (ly==3)
     {
       z = cgetipos(3);
-      z[2]=divll(y[2],x);
+      z[2] = divll(uel(y,2),x);
       *rem = hiremainder; return z;
     }
   }
   else
   {
-    if (ly==3) { *rem = (ulong)y[2]; return gen_0; }
-    hiremainder=y[2]; ly--; y++;
+    if (ly==3) { *rem = uel(y,2); return gen_0; }
+    hiremainder = uel(y,2); ly--; y++;
   }
   xi = get_Fl_red(x);
   z = cgetipos(ly);
@@ -569,13 +569,13 @@ divis_rem(GEN y, long x, long *rem)
   if (x<0) { s = -sy; x = -x; } else s = sy;
 
   ly = lgefint(y);
-  if ((ulong)x <= (ulong)y[2])
+  if ((ulong)x <= uel(y,2))
   {
     hiremainder=0;
     if (ly==3)
     {
       z = cgeti(3); z[1] = evallgefint(3) | evalsigne(s);
-      z[2] = divll(y[2],x);
+      z[2] = divll(uel(y,2),x);
       if (sy<0) hiremainder = - ((long)hiremainder);
       *rem = (long)hiremainder; return z;
     }
@@ -583,7 +583,7 @@ divis_rem(GEN y, long x, long *rem)
   else
   {
     if (ly==3) { *rem = itos(y); return gen_0; }
-    hiremainder=y[2]; ly--; y++;
+    hiremainder = uel(y,2); ly--; y++;
   }
   xi = get_Fl_red(x);
   z = cgeti(ly); z[1] = evallgefint(ly) | evalsigne(s);
@@ -605,7 +605,7 @@ divis(GEN y, long x)
   if (x<0) { s = -sy; x = -x; } else s = sy;
 
   ly = lgefint(y);
-  if ((ulong)x <= (ulong)y[2])
+  if ((ulong)x <= uel(y,2))
   {
     hiremainder=0;
     if (ly==3)
@@ -643,7 +643,7 @@ divrr(GEN x, GEN y)
   {
     ulong k = x[2], l = (lx>3)? x[3]: 0;
     LOCAL_HIREMAINDER;
-    if (k < (ulong)y[2]) e--;
+    if (k < uel(y,2)) e--;
     else
     {
       l >>= 1; if (k&1) l |= HIGHBIT;
@@ -664,7 +664,7 @@ divrr(GEN x, GEN y)
     LOCAL_HIREMAINDER;
     LOCAL_OVERFLOW;
 
-    if ((ulong)r1[1] == y0)
+    if (uel(r1,1) == y0)
     {
       qp = ULONG_MAX; k = addll(y0,r1[2]);
     }
@@ -700,9 +700,9 @@ divrr(GEN x, GEN y)
       r1[j] = subll(r1[j], addmul(qp,y[j]));
       hiremainder += overflow;
     }
-    if ((ulong)r1[1] != hiremainder)
+    if (uel(r1,1) != hiremainder)
     {
-      if ((ulong)r1[1] < hiremainder)
+      if (uel(r1,1) < hiremainder)
       {
         qp--;
         j = lr-i-(lr-i>=ly); r1[j] = addll(r1[j], y[j]);
@@ -793,7 +793,7 @@ dvmdii(GEN x, GEN y, GEN *z)
       for (i=2; i<lx; i++)
         if (x[i] != y[i])
         {
-          if ((ulong)x[i] > (ulong)y[i]) goto DIVIDE;
+          if (uel(x,i) > uel(y,i)) goto DIVIDE;
           goto TRIVIAL;
         }
       if (z == ONLY_REM) return gen_0;
@@ -812,7 +812,7 @@ DIVIDE: /* quotient is non-zero */
   {
     LOCAL_HIREMAINDER;
     y0 = y[2];
-    if (y0 <= (ulong)x[2]) hiremainder=0;
+    if (y0 <= uel(x,2)) hiremainder=0;
     else
     {
       hiremainder = x[2]; lx--; x++;
@@ -848,7 +848,7 @@ DIVIDE: /* quotient is non-zero */
     r = new_chunk(ly);
     shift_left(r, y,2,ly-1, 0,sh); y = r;
     shift_left(r1,x,2,lx-1, 0,sh);
-    r1[1] = ((ulong)x[2]) >> m;
+    r1[1] = uel(x,2) >> m;
   }
   else
   {
@@ -862,7 +862,7 @@ DIVIDE: /* quotient is non-zero */
     LOCAL_HIREMAINDER;
     LOCAL_OVERFLOW;
 
-    if ((ulong)r1[1] == y0)
+    if (uel(r1,1) == y0)
     {
       qp = ULONG_MAX; k = addll(y0,r1[2]);
     }
@@ -883,7 +883,7 @@ DIVIDE: /* quotient is non-zero */
       r1[j] = subll(r1[j], addmul(qp,y[j]));
       hiremainder += overflow;
     }
-    if ((ulong)r1[1] < hiremainder)
+    if (uel(r1,1) < hiremainder)
     {
       qp--;
       j = ly-1; r1[j] = addll(r1[j],y[j]);
@@ -996,17 +996,17 @@ red_montgomery(GEN T, GEN N, ulong inv)
 #endif
   if (k == 1)
   { /* as below, special cased for efficiency */
-    ulong n = (ulong)N[2];
+    ulong n = uel(N,2);
     if (d == 1) {
-      hiremainder = (ulong)T[2];
+      hiremainder = uel(T,2);
       m = hiremainder * inv;
       (void)addmul(m, n); /* t + m*n = 0 */
       return utoi(hiremainder);
     } else { /* d = 2 */
-      hiremainder = (ulong)T[3];
+      hiremainder = uel(T,3);
       m = hiremainder * inv;
       (void)addmul(m, n); /* t + m*n = 0 */
-      t = addll(hiremainder, (ulong)T[2]);
+      t = addll(hiremainder, uel(T,2));
       if (overflow) t -= n; /* t > n doesn't fit in 1 word */
       return utoi(t);
     }
@@ -1084,9 +1084,9 @@ diviuexact_i(GEN x, ulong y)
 
   if (y == 1) return icopy(x);
   lx = lgefint(x);
-  if (lx == 3) return utoipos((ulong)x[2] / y);
+  if (lx == 3) return utoipos(uel(x,2) / y);
   yinv = invmod2BIL(y);
-  lz = (y <= (ulong)x[2]) ? lx : lx-1;
+  lz = (y <= uel(x,2)) ? lx : lx-1;
   z = new_chunk(lz);
   z0 = z + lz;
   x0 = x + lx; x0min = x + lx-lz+2;
@@ -1131,7 +1131,7 @@ diviuexact(GEN x, ulong y)
   if (y == 1) return icopy(x);
   lx = lgefint(x);
   if (lx == 3) {
-    ulong q = (ulong)x[2] / y;
+    ulong q = uel(x,2) / y;
     return (s > 0)? utoipos(q): utoineg(q);
   }
   av = avma; (void)new_chunk(lx); vy = vals(y);
@@ -1140,7 +1140,7 @@ diviuexact(GEN x, ulong y)
     if (y == 1) { avma = av; return shifti(x, -vy); }
     x = shifti(x, -vy);
     if (lx == 3) {
-      ulong q = (ulong)x[2] / y;
+      ulong q = uel(x,2) / y;
       avma = av;
       return (s > 0)? utoipos(q): utoineg(q);
     }
@@ -1165,7 +1165,7 @@ diviiexact(GEN x, GEN y)
   if (!sx) return gen_0;
   lx = lgefint(x);
   if (lx == 3) {
-    q = (ulong)x[2] / (ulong)y[2];
+    q = uel(x,2) / uel(y,2);
     return (sx+sy) ? utoipos(q): utoineg(q);
   }
   vy = vali(y); av = avma;
@@ -1181,12 +1181,12 @@ diviiexact(GEN x, GEN y)
   ly = lgefint(y);
   if (ly == 3)
   {
-    x = diviuexact_i(x,(ulong)y[2]); /* x != 0 */
+    x = diviuexact_i(x,uel(y,2)); /* x != 0 */
     setsigne(x, (sx+sy)? 1: -1); return x;
   }
   y0inv = invmod2BIL(y[ly-1]);
   i=2; while (i<ly && y[i]==x[i]) i++;
-  lz = (i==ly || (ulong)y[i] < (ulong)x[i]) ? lx-ly+3 : lx-ly+2;
+  lz = (i==ly || uel(y,i) < uel(x,i)) ? lx-ly+3 : lx-ly+2;
   z = new_chunk(lz);
 
   y += ly - 1; /* now y[-i] = i-th word of y */
@@ -1196,7 +1196,7 @@ diviiexact(GEN x, GEN y)
     LOCAL_HIREMAINDER;
     LOCAL_OVERFLOW;
 
-    z[i] = q = y0inv*((ulong)x[ii]); /* i-th quotient */
+    z[i] = q = y0inv*uel(x,ii); /* i-th quotient */
     if (!q) continue;
 
     /* x := x - q * y */
@@ -1936,7 +1936,7 @@ static GEN
 sqrtispec1_sh(GEN n, GEN *pr)
 {
   GEN S;
-  ulong r, s, u0 = (ulong)n[0];
+  ulong r, s, u0 = uel(n,0);
   int sh = bfffo(u0) & ~1UL;
   if (sh) u0 <<= sh;
   p_sqrtu1(&u0, &s, &r);
@@ -1960,7 +1960,7 @@ static GEN
 sqrtispec2_sh(GEN n, GEN *pr)
 {
   GEN S;
-  ulong U[2], r, s, u0 = (ulong)n[0], u1 = (ulong)n[1];
+  ulong U[2], r, s, u0 = uel(n,0), u1 = uel(n,1);
   int hi, sh = bfffo(u0) & ~1UL;
   if (sh) {
     u0 = (u0 << sh) | (u1 >> (BITS_IN_LONG-sh));
@@ -2081,11 +2081,11 @@ sqrtr_abs(GEN x)
     ulong u;
     b = new_chunk(2 + (l << 1));
     shift_left(b+1, x+2, 0,l-1, 0, BITS_IN_LONG-1);
-    b[0] = ((ulong)x[2])>>1;
+    b[0] = uel(x,2)>>1;
     xmpn_zero(b + l+1,l+1);
     b = sqrtispec(b, l+1, &c);
     xmpn_copy(res+2, b+2, l);
-    u = (ulong)b[l+2];
+    u = uel(b,l+2);
     if ( u&HIGHBIT || (u == ~HIGHBIT && cmpii(c,b) > 0))
       roundr_up_ip(res, l+2);
   }
@@ -2186,7 +2186,7 @@ convi(GEN x, long *l)
 {
   long lz, lx = lgefint(x);
   ulong *z;
-  if (lx == 3 && (ulong)x[2] < 1000000000UL) {
+  if (lx == 3 && uel(x,2) < 1000000000UL) {
     z = (ulong*)new_chunk(1);
     *z = x[2];
     *l = 1; return z+1;

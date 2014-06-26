@@ -42,7 +42,7 @@ invmod(GEN a, GEN b, GEN *res)
   av = avma;
   if (lgefint(b) == 3) /* single-word affair */
   {
-    ulong d1 = umodiu(a, (ulong)(b[2]));
+    ulong d1 = umodiu(a, uel(b,2));
     if (d1 == 0)
     {
       if (b[2] == 1L)
@@ -50,14 +50,14 @@ invmod(GEN a, GEN b, GEN *res)
       else
         { *res = absi(b); return 0; }
     }
-    g = xgcduu((ulong)(b[2]), d1, 1, &xv, &xv1, &s);
+    g = xgcduu(uel(b,2), d1, 1, &xv, &xv1, &s);
 #ifdef DEBUG_LEHMER
-    err_printf(" <- %lu,%lu\n", (ulong)(b[2]), (ulong)(d1[2]));
+    err_printf(" <- %lu,%lu\n", uel(b,2), uel(d1,2));
     err_printf(" -> %lu,%ld,%lu; %lx\n", g,s,xv1,avma);
 #endif
     avma = av;
     if (g != 1UL) { *res = utoipos(g); return 0; }
-    xv = xv1 % (ulong)(b[2]); if (s < 0) xv = ((ulong)(b[2])) - xv;
+    xv = xv1 % uel(b,2); if (s < 0) xv = uel(b,2) - xv;
     *res = utoipos(xv); return 1;
   }
 
@@ -137,10 +137,10 @@ invmod(GEN a, GEN b, GEN *res)
     /* Assertions: lgefint(d)==lgefint(d1)==3, and
      * gcd(d,d1) is nonzero and fits into one word
      */
-    g = xxgcduu((ulong)d[2], (ulong)d1[2], 1, &xu, &xu1, &xv, &xv1, &s);
+    g = xxgcduu(uel(d,2), uel(d1,2), 1, &xu, &xu1, &xv, &xv1, &s);
 #ifdef DEBUG_LEHMER
     output(d);output(d1);output(v);output(v1);
-    err_printf(" <- %lu,%lu\n", (ulong)d[2], (ulong)d1[2]);
+    err_printf(" <- %lu,%lu\n", uel(d,2), uel(d1,2));
     err_printf(" -> %lu,%ld,%lu; %lx\n", g,s,xv1,avma);
 #endif
     if (g != 1UL) { avma = av; *res = utoipos(g); return 0; }

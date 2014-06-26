@@ -68,7 +68,7 @@ bezout(GEN a, GEN b, GEN *pu, GEN *pv)
 
   if (lgefint(a) == 3)                /* single-word affair */
   {
-    g = xxgcduu((ulong)a[2], (ulong)b[2], 0, &xu, &xu1, &xv, &xv1, &s);
+    g = xxgcduu(uel(a,2), uel(b,2), 0, &xu, &xu1, &xv, &xv1, &s);
     sa = s > 0 ? sa : -sa;
     sb = s > 0 ? -sb : sb;
     if (pu)
@@ -189,7 +189,7 @@ bezout(GEN a, GEN b, GEN *pu, GEN *pv)
     /* Assertions: lgefint(d)==lgefint(d1)==3, and
      * gcd(d,d1) is nonzero and fits into one word
      */
-    g = xxgcduu((ulong)(d[2]), (ulong)(d1[2]), 0, &xu, &xu1, &xv, &xv1, &s);
+    g = xxgcduu(uel(d,2), uel(d1,2), 0, &xu, &xu1, &xv, &xv1, &s);
     u = subii(muliu(u,xu), muliu(u1, xv));
     v = subii(muliu(v,xu), muliu(v1, xv));
     if (s < 0) { sa = -sa; sb = -sb; }

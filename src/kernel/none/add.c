@@ -183,7 +183,7 @@ addrex01(GEN x)
   long l = lg(x);
   GEN y = cgetr(l);
   y[1] = evalsigne(1) | _evalexpo(1);
-  y[2] = HIGHBIT | (((ulong)x[2] & ~HIGHBIT) >> 1);
+  y[2] = HIGHBIT | ((uel(x,2) & ~HIGHBIT) >> 1);
   shift_right(y, x, 3,l, x[2], 1);
   return y;
 }
@@ -197,7 +197,7 @@ subrex01(GEN x)
   ulong u;
   GEN y;
   k = 2;
-  u = (ulong)x[2] & (~HIGHBIT);
+  u = uel(x,2) & (~HIGHBIT);
   while (!u) u = x[++k]; /* terminates: x not a power of 2 */
   ly = (k == 2)? lx: lx - k+3; /* NB: +3, not +2: 1 extra word */
   y = cgetr(ly);
@@ -298,7 +298,7 @@ addrr_sign(GEN x, long sx, GEN y, long sy)
     if (overflow)
     {
       z[1] = 1; /* stops since z[1] != 0 */
-      for (;;) { z[i] = (ulong) y[i]+1; if (z[i--]) break; }
+      for (;;) { z[i] = uel(y,i)+1; if (z[i--]) break; }
       if (i <= 0)
       {
         shift_right(z,z, 2,lz, 1,1);
@@ -315,7 +315,7 @@ addrr_sign(GEN x, long sx, GEN y, long sy)
   {
     i = 2; while (i < lx && x[i] == y[i]) i++;
     if (i==lx) return real_0_bit(ey+1 - bit_accuracy(lx));
-    f2 = ((ulong)y[i] > (ulong)x[i]);
+    f2 = (uel(y,i) > uel(x,i));
   }
   /* result is non-zero. f2 = (y > x) */
   i = lz-1; z = cgetr(lz);
@@ -326,7 +326,7 @@ addrr_sign(GEN x, long sx, GEN y, long sy)
     else        z[i] = subll(y[i], x[j--]);
     for (i--; j>=2; i--) z[i] = subllx(y[i], x[j--]);
     if (overflow) /* stops since y[1] != 0 */
-      for (;;) { z[i] = (ulong) y[i]-1; if (y[i--]) break; }
+      for (;;) { z[i] = uel(y,i)-1; if (y[i--]) break; }
     for (; i>=2; i--) z[i] = y[i];
     sx = sy;
   }
