@@ -875,8 +875,7 @@ pari_init_opts(size_t parisize, ulong maxprime, ulong init_opts)
 
   if ((init_opts&INIT_SIGm)) pari_sig_init(pari_sighandler);
   pari_mainstack = (struct pari_mainstack *) malloc(sizeof(*pari_mainstack));
-  pari_mainstack_alloc(pari_mainstack, parisize, 0);
-  pari_mainstack_use(pari_mainstack);
+  paristack_alloc(parisize, 0);
   init_universal_constants();
   diffptr = NULL;
   if (!(init_opts&INIT_noPRIMEm)) initprimetable(maxprime);
