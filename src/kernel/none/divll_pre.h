@@ -20,6 +20,7 @@ extern ulong hiremainder;
 #define LOCAL_HIREMAINDER
 #endif
 
+#if defined(INLINE) && defined(__GNUC__) && !defined(DISABLE_INLINE)
 INLINE ulong /* precompute inverse of n */
 get_Fl_red(ulong n)
 {
@@ -28,6 +29,18 @@ get_Fl_red(ulong n)
   hiremainder = ~n;
   return divll(~0UL, n);
 }
+#else
+INLINE ulong /* precompute inverse of n */
+get_Fl_red(ulong n)
+{
+  ulong q, oldhi = hiremainder;
+  n <<= bfffo(n);
+  hiremainder = ~n;
+  q = divll(~0UL, n);
+  hiremainder = oldhi;
+  return q;
+}
+#endif
 
 INLINE ulong /* requires u1 <= n, n normalised */
 divll_pre_normalized(ulong u1, ulong u0, ulong n, ulong ninv, ulong *pt_r)
