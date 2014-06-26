@@ -446,13 +446,6 @@ lllintpartialall(GEN m, long flag)
         swap(gcoeff(dot,i,i), gcoeff(dot,s,s));
       }
     }
-    i = 1;
-    while (i <= ncol && !signe(gcoeff(dot,i,i))) i++;
-    if (i > 1)
-    {
-      tm2 += (i - 1);
-      tm2[0] = evaltyp(t_MAT)|evallg(ncol - i);
-    }
   } /* local block */
   return gerepileupto(av, ZM_mul(tm1? tm1: mid, tm2));
 }
