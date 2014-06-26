@@ -768,24 +768,36 @@ divri(GEN x, GEN y)
 GEN
 dvmdii(GEN x, GEN y, GEN *z)
 {
-  long sx=signe(x),sy=signe(y);
-  long lx, ly, lz, i, j, sh, lq, lr;
+  long sx = signe(x), sy = signe(y);
+  long lx, ly = lgefint(y), lz, i, j, sh, lq, lr;
   pari_sp av;
-  ulong y0,y1, *xd,*rd,*qd;
+  ulong y0,y0i,y1, *xd,*rd,*qd;
   GEN q, r, r1;
 
-  if (!sy)
-  {
-    if (z == ONLY_REM && !sx) return gen_0;
-    if (!sy) pari_err_INV("dvmdii",gen_0);
-  }
   if (!sx)
   {
     if (!z || z == ONLY_REM) return gen_0;
     *z=gen_0; return gen_0;
   }
+  if (ly <= 3)
+  {
+    ulong rem;
+    if (ly < 3) pari_err_INV("dvmdii",gen_0);
+    if (z == ONLY_REM)
+    {
+      rem = umodiu(x,uel(y,2));
+      if (!rem) return gen_0;
+      return (sx < 0)? utoineg(uel(y,2) - rem): utoipos(rem);
+    }
+    q = diviu_rem(x, uel(y,2), &rem);
+    if (sx != sy) togglesign(q);
+    if (!z) return q;
+    if (!rem) *z = gen_0;
+    else *z = sx < 0? utoineg(rem): utoipos(rem);
+    return q;
+  }
   lx=lgefint(x);
-  ly=lgefint(y); lz=lx-ly;
+  lz=lx-ly;
   if (lz <= 0)
   {
     if (lz == 0)
@@ -808,39 +820,6 @@ TRIVIAL:
   }
 DIVIDE: /* quotient is non-zero */
   av=avma; if (sx<0) sy = -sy;
-  if (ly==3)
-  {
-    LOCAL_HIREMAINDER;
-    y0 = y[2];
-    if (y0 <= uel(x,2)) hiremainder=0;
-    else
-    {
-      hiremainder = x[2]; lx--; x++;
-    }
-    q = new_chunk(lx);
-    if (lx==3)
-      q[2]=divll(x[2],y0);
-    else
-    {
-      ulong y0i = get_Fl_red(y0);
-      for (i=2; i<lx; i++) q[i]=divll_pre(x[i],y0,y0i);
-    }
-    if (z == ONLY_REM)
-    {
-      avma=av; if (!hiremainder) return gen_0;
-      r=cgeti(3);
-      r[1] = evalsigne(sx) | evallgefint(3);
-      r[2]=hiremainder; return r;
-    }
-    q[1] = evalsigne(sy) | evallgefint(lx);
-    q[0] = evaltyp(t_INT) | evallg(lx);
-    if (!z) return q;
-    if (!hiremainder) { *z=gen_0; return q; }
-    r=cgeti(3);
-    r[1] = evalsigne(sx) | evallgefint(3);
-    r[2] = hiremainder; *z=r; return q;
-  }
-
   r1 = new_chunk(lx); sh = bfffo(y[2]);
   if (sh)
   { /* normalize so that highbit(y) = 1 (shift left x and y by sh bits)*/
@@ -855,7 +834,8 @@ DIVIDE: /* quotient is non-zero */
     r1[1] = 0; for (j=2; j<lx; j++) r1[j] = x[j];
   }
   x = r1;
-  y0 = y[2]; y1 = y[3];
+  y0 = y[2]; y0i = get_Fl_red(y0);
+  y1 = y[3];
   for (i=0; i<=lz; i++)
   { /* r1 = x + i */
     ulong k, qp;
@@ -869,7 +849,7 @@ DIVIDE: /* quotient is non-zero */
     else
     {
       hiremainder = r1[1]; overflow = 0;
-      qp = divll(r1[2],y0); k = hiremainder;
+      qp = divll_pre(r1[2],y0,y0i); k = hiremainder;
     }
     if (!overflow)
     {
