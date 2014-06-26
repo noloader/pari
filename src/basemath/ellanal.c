@@ -442,7 +442,7 @@ ellanalyticrank_bprec(GEN E, GEN eps, long bprec)
       if (typ(eps) != t_REAL) pari_err_TYPE("ellanalyticrank", eps);
     }
   e = ellanal_globalred(E, NULL);
-  vec = Lpoints(&C, e, gen_1, bprec);
+  vec = Lpoints(&C, e, gen_0, bprec);
   if (DEBUGLEVEL) timer_printf(&ti, "init L");
   av2 = avma;
   for (rk = C.real>0 ? 0: 1;  ; rk += 2)
