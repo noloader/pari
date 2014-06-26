@@ -39,7 +39,7 @@ static THREAD int xorgen_i;
 #endif
 
 static ulong
-block()
+block(void)
 {
   ulong t = state[xorgen_i = (xorgen_i+1)&(r-1)];
   ulong v = state[(xorgen_i+(r-s))&(r-1)];/* index is (i-s) mod r */
