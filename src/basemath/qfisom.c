@@ -653,8 +653,8 @@ stab(long I, struct group *G, struct fingerprint *fp, GEN V, ulong p)
            generator is applied to a random point of the orbit to get Rest more
            stabilizer elements */
       {
-        cnd = 1+(long)(pari_rand() % len);
-        i = 1+(long)(pari_rand() % nH);
+        cnd = 1+(long)random_Fl(len);
+        i = 1+(long)random_Fl(nH);
       }
       im = operate(orb[cnd], gel(H,i), V);
       if (flag[im+n+1] == 0)
@@ -1572,13 +1572,13 @@ isostab(long pt, GEN G, GEN V, long Maxfail, ulong p)
         if (!zvV_equal(B, gel(w,im+n+1)))
         {
           gel(H,nH+1) = zm_divmod(gel(w,im+n+1),B,p);
-          rpt = 1+(long)(pari_rand() % n);
+          rpt = 1+(long)random_Fl(n);
           tmplen = orbitlen(rpt, 2*n, H, nH+1, V);
           while (tmplen < orblen)
             /* the orbit of this vector is shorter than a previous one, hence
                choose a new random vector */
           {
-            rpt = 1+(long)(pari_rand() % n);
+            rpt = 1+(long)random_Fl(n);
             tmplen = orbitlen(rpt, 2*n, H, nH+1, V);
           }
           if (tmplen > orblen)
