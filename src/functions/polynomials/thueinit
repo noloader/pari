@@ -4,7 +4,7 @@ C-Name: thueinit
 Prototype: GD0,L,p
 Help: thueinit(P,{flag=0}): initialize the tnf corresponding to P, that will
  be used to solve Thue equations P(x,y) = some-integer. If flag is non-zero,
- certify the result unconditionnaly. Otherwise, assume GRH (much faster of
+ certify the result unconditionaly. Otherwise, assume GRH (much faster of
  course).
 Doc: initializes the \var{tnf} corresponding to $P$, a non-constant
  univariate polynomial with integer coefficients.
@@ -32,7 +32,7 @@ Doc: initializes the \var{tnf} corresponding to $P$, a non-constant
  conditional computed class groups are trivial \emph{or} the right hand side
  is $\pm1$, then results are unconditional.
 
- \misctitle{Note} The general philsophy is to disprove the existence of large
+ \misctitle{Note} The general philosophy is to disprove the existence of large
  solutions then to enumerate bounded solutions naively. The implementation
  will overflow when there exist huge solutions and the equation has degree
  $> 2$ (the quadratic imaginary case is special, since we can use

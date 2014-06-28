@@ -56,9 +56,9 @@ Doc: this special operation changes the stack size \emph{after}
  albeit very slowly due to the frequent garbage collections.
 
  \misctitle{Deprecated: when \kbd{parisizemax} is unset}
- This is currently still the default behaviour in order not to break backward
+ This is currently still the default behavior in order not to break backward
  compatibility. The rest of this section documents the
- behaviour of \kbd{allocatemem} in that (deprecated) situation: it becomes a
+ behavior of \kbd{allocatemem} in that (deprecated) situation: it becomes a
  synonym for \kbd{default(parisize,...)}. In that case, there is no
  notion of a virtual stack, and the stack size is always equal to
  \kbd{parisize}. If more memory is needed, the PARI stack overflows, aborting
