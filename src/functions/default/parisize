@@ -8,7 +8,7 @@ Doc: \kbd{gp}, and in fact any program using the PARI
  library, needs a \tev{stack} in which to do its computations; \kbd{parisize}
  is the stack size, in bytes. It is recommended to increase this
  default using a \tet{gprc}, to the value you believe PARI should be happy
- with, given your typical computation. We strongly recommand to also
+ with, given your typical computation. We strongly recommend to also
  set \tet{parisizemax} to a much larger value, about what you believe your
  machine can stand: PARI will then try to fit its computations within about
  \kbd{parisize} bytes, but will increase the stack size if needed (up to

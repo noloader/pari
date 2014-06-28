@@ -9,7 +9,7 @@ Doc: \kbd{gp}, and in fact any program using the PARI library, needs a
  is the maximum size the stack can grow to, in bytes.  If zero, the stack will
  not automaticall grow, and will be limited to the value of \kbd{parisize}.
 
- We strongly recommand to set \tet{parisizemax} to a non-zero value, about
+ We strongly recommend to set \tet{parisizemax} to a non-zero value, about
  what you believe your machine can stand: PARI will then try to fit its
  computations within about \kbd{parisize} bytes, but will increase the stack
  size if needed (up to \kbd{parisizemax}). Once the memory intensive

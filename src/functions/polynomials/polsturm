@@ -22,7 +22,7 @@ Doc: number of real roots of the real squarefree polynomial \var{T}. If
  %3 = 2
  ? polsturm(T, [1/2,+oo])
  %4 = 3
- ? polsturm(T, [1, Pi])  \\ Pi inexact: not recommanded !
+ ? polsturm(T, [1, Pi])  \\ Pi inexact: not recommended !
  %5 = 3
  @eprog
  %\syn{NO}
