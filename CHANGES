@@ -52,6 +52,7 @@ BA 31- iferr() could crash if some component of the t_ERROR were clones.
        Now only ellinit and ellchangecurve allow this syntax.
    34- incorrect rounding in mulrr for one-word precision reals.
 BA 35- multiif did not handle correctly return() in conditions [#1590]
+   36- [0..5] -> [0,0,0,0,0] on some architectures
 
   Added
     1- add optional argument to sumdigits to specify the base
