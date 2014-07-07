@@ -153,6 +153,7 @@ BA 21- powruvec is replaced by powersr
 Pmo23- More robust and much faster ellL1 and ellanalyticrank. The condition
        ord(L_E,s=1) <= r in ellL1(E,r) is no longer necessary.
    24- renamed ZV_gcdext -> ZV_extgcd for consistency with other gcdext methods
+BA 25- setrand now return a (huge) integer instead of a vecsmall
 
 Removed
    1- deprecated functions nfbasis0, nfdisc0, factorpadic0

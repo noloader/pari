@@ -25,43 +25,58 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 /* Adapted from xorgens.c version 3.04, Richard P. Brent, 20060628 (GPL).
  * 32-bit or 64-bit integer random number generator with period at
  * least 2**4096-1. It is assumed that "ulong" is a 32-bit or 64-bit integer */
-static THREAD ulong xorgen_w;
-static THREAD int xorgen_i;
 
-#ifdef LONG_IS_64BIT /* weyl = odd approximation to 2^BIL*(sqrt(5)-1)/2. */
-  static const ulong weyl = 0x61c8864680b583ebUL;
-  static const int ws = 27, r = 64,  s = 53, a = 33, b = 26, c = 27, d = 29;
-  static THREAD ulong state[64]; /* size r */
+#ifdef LONG_IS_64BIT
+  typedef ulong u64;
+  static THREAD ulong state[64];
+  #define u64state(i)      ((u64)state[(i)])
+  #define u64stateset(i,x) state[(i)] = (ulong) (x);
 #else
-  static const ulong weyl = 0x61c88647UL;
-  static const int ws = 16, r = 128, s = 95, a = 17, b = 12, c = 13, d = 15;
-  static THREAD ulong state[128]; /* size r */
+  typedef unsigned long long u64;
+  static THREAD ulong state[128];
+  #define u64state(i)      _32to64(state[2*(i)],state[2*(i)+1])
+  #define u64stateset(i,x) _64to32(x,state+2*(i),state+2*(i)+1)
+static u64
+_32to64(ulong a, ulong b) { u64 v = a; return (v<<32)|b; }
+static void
+_64to32(u64 v, ulong *a, ulong *b) { *a = v>>32; *b = v&0xFFFFFFFF; }
 #endif
+static THREAD u64 xorgen_w;
+static THREAD int xorgen_i;
+/* weyl = odd approximation to 2^64*(sqrt(5)-1)/2. */
+static const u64 weyl = 0x61c8864680b583eb;
 
-static ulong
+static u64
 block(void)
 {
-  ulong t = state[xorgen_i = (xorgen_i+1)&(r-1)];
-  ulong v = state[(xorgen_i+(r-s))&(r-1)];/* index is (i-s) mod r */
+  const int r = 64;
+  const int a = 33, b = 26, c = 27, d = 29, s = 53;
+  u64 t, v, w;
+  xorgen_i = (xorgen_i+1)&(r-1);
+  t = u64state(xorgen_i);
+  v = u64state((xorgen_i+(r-s))&(r-1));   /* index is (i-s) mod r */
   t ^= t<<a; t ^= t>>b;                   /* (I + L^a)(I + R^b) */
   v ^= v<<c; v ^= v>>d;                   /* (I + L^c)(I + R^d) */
-  return state[xorgen_i] = t^v;           /* update circular array */
+  w = t^v;
+  u64stateset(xorgen_i, w);               /* update circular array */
+  return w;
 }
 
 static void
 init_xor4096i(ulong seed)
 {
-  ulong v = seed; /* v must be nonzero */
+  const int r = 64;
+  u64 v = seed; /* v must be nonzero */
   int k;
 
-  for (k = BITS_IN_LONG; k > 0; k--) {/* avoid correlations for close seeds */
-    v ^= v<<10; v ^= v>>15; /* recurrence has period 2**BIL -1 */
+  for (k = r; k > 0; k--) {/* avoid correlations for close seeds */
+    v ^= v<<10; v ^= v>>15; /* recurrence has period 2**64-1 */
     v ^= v<<4;  v ^= v>>13;
   }
   for (xorgen_w = v, k = 0; k < r; k++) { /* initialise circular array */
     v ^= v<<10; v ^= v>>15;
     v ^= v<<4;  v ^= v>>13;
-    state[k] = v + (xorgen_w+=weyl);
+    u64stateset(k, v + (xorgen_w+=weyl));
   }
   /* discard first 4*r results */
   for (xorgen_i = r-1, k = 4*r; k > 0; k--) (void)block();
@@ -69,46 +84,65 @@ init_xor4096i(ulong seed)
 
 void pari_init_rand(void) { init_xor4096i(1); }
 
+static u64
+rand64(void)
+{
+  u64 v = block();
+  xorgen_w += weyl; /* update Weyl generator */
+  return v + (xorgen_w ^ (xorgen_w>>27));
+}
+
 /* One random number uniformly distributed in [0..2**BIL) is returned, where
  * BIL = 8*sizeof(ulong) = 32 or 64. */
 ulong
-pari_rand(void)
-{
-  ulong v = block();
-  xorgen_w += weyl; /* update Weyl generator */
-  return v + (xorgen_w ^ (xorgen_w>>ws));
-}
+pari_rand(void) { return rand64(); }
 
 void
-setrand(GEN seed) {
-  switch (typ(seed))
-  {
-    case t_VECSMALL:
-    {
-      GEN xd = seed+1;
-      long i;
-      if (lg(seed) != r+2 + 1) break;
-      for (i = 0; i < r; i++) state[i] = xd[i];
-      xorgen_i = xd[i++];
-      xorgen_w = xd[i++];
-      return;
-    }
-    case t_INT: if (signe(seed) > 0) { init_xor4096i( itou(seed) ); return; }
-  }
-  pari_err_TYPE("setrand",seed);
+setrand(GEN x)
+{
+  const int r2 = sizeof(state)/sizeof(ulong);
+  ulong useed;
+  long i;
+  GEN xp;
+  if (typ(x)!=t_INT)
+    pari_err_TYPE("setrand",x);
+  if (signe(x) <= 0) return;
+  useed = itou_or_0(x);
+  if (useed > 0) { init_xor4096i(useed); return; }
+  if (lgefint(x)!=2+r2+2+(r2==128))
+    pari_err_TYPE("setrand",x);
+  xp = int_LSW(x);
+  for (i = 0; i < r2; i++) { state[i] = *xp; xp = int_nextW(xp); }
+#ifdef LONG_IS_64BIT
+  xorgen_w = *xp; xp = int_nextW(xp);
+#else
+  xorgen_w = _32to64(*xp, *int_nextW(xp)); xp = int_nextW(int_nextW(xp));
+#endif
+  xorgen_i =  (*xp) & 63;
 }
+
 GEN
-getrand(void) {
-  GEN x, xd;
+getrand(void)
+{
+  const int r2 = sizeof(state)/sizeof(ulong);
+  GEN x;
+  ulong *xp;
   long i;
   if (xorgen_i < 0) init_xor4096i(1);
 
-  x = cgetg(r+2 + 1, t_VECSMALL); xd = x+1;
-  for (i = 0; i < r; i++) xd[i] = state[i];
-  xd[i++] = xorgen_i;
-  xd[i++] = xorgen_w;
-  return x;
+  x = cgetipos(2+r2+2+(r2==128)); xp = (ulong *) int_LSW(x);
+  for (i = 0; i < r2; i++) { *xp = state[i]; xp = int_nextW(xp); }
+#ifdef LONG_IS_64BIT
+  *xp = xorgen_w; xp = int_nextW(xp);
+#else
+  _64to32(xorgen_w, xp, int_nextW(xp)); xp = int_nextW(int_nextW(xp));
+#endif
+  *xp = xorgen_i? xorgen_i: 64; return x;
 }
+
+/* assume 0 <= k <= BITS_IN_LONG. Return uniform random 0 <= x < (1<<k) */
+long
+random_bits(long k) { return rand64() >> (64-k); }
 
 /********************************************************************/
 /*                                                                  */
@@ -122,26 +156,32 @@ random_Fl(ulong n)
 {
   ulong d;
   int shift;
+#ifdef LONG_IS_64BIT
+  int SHIFT = 0;
+#else
+  int SHIFT = 32;
+#endif
 
   if (n == 1) return 0;
 
   shift = bfffo(n); /* 2^(BIL-shift) > n >= 2^(BIL-shift-1)*/
   /* if N a power of 2, increment shift. No reject */
-  if ((n << shift) == HIGHBIT) return pari_rand() >> (shift+1);
+  if ((n << shift) == HIGHBIT) return rand64() >> (SHIFT+shift+1);
   for (;;) {
-    d = pari_rand() >> shift; /* d < 2^(BIL-shift) uniformly distributed */
-    /* reject strategy: proba success = n 2^(shift-BIL), in [1/2, 1[ */
+    d = rand64() >> (SHIFT+shift); /* d < 2^(64-shift) uniformly distributed */
+    /* reject strategy: proba success = n 2^(shift-64), in [1/2, 1[ */
     if (d < n) return d;
   }
 }
 
-/* assume N > 0, see random_Fl() for algorithm */
+/* assume N > 0, see random_Fl() for algorithm. Make sure that 32-bit and
+ * 64-bit architectures produce the same integers (consuming random bits
+ * by packets of 64) */
 GEN
 randomi(GEN N)
 {
   long lx = lgefint(N);
-  GEN d;
-  pari_sp av;
+  GEN x, d;
   int shift;
 
   if (lx == 3) return utoi( random_Fl(N[2]) );
@@ -149,13 +189,58 @@ randomi(GEN N)
   shift = bfffo(*int_MSW(N));
   /* if N a power of 2, increment shift */
   if (Z_ispow2(N) && ++shift == BITS_IN_LONG) { shift = 0; lx--; }
-  for (av = avma;; avma = av) {
-    GEN x = cgetipos(lx), xMSW = int_MSW(x);
-    for (d = int_LSW(x); d != xMSW; d = int_nextW(d)) *d = pari_rand();
-    *d = pari_rand() >> shift;
-    x = int_normalize(x, 0);
-    if (absi_cmp(x, N) < 0) return x;
+  x = cgetipos(lx);
+  for (;;) {
+    GEN y, MSW = int_MSW(x), STOP = MSW;
+#ifdef LONG_IS_64BIT
+    for (d = int_LSW(x); d != STOP; d = int_nextW(d)) *d = rand64();
+    *d = rand64() >> shift;
+#else
+    if (!odd(lx)) STOP = int_precW(STOP);
+    /* STOP points to where MSW would in 64-bit */
+    for (d = int_LSW(x); d != STOP; d = int_nextW(d))
+    {
+      ulong a, b; _64to32(rand64(), &a,&b);
+      *d = b; d = int_nextW(d);
+      *d = a;
+    }
+    {
+      ulong a, b; _64to32(rand64() >> shift, &a,&b);
+      if (d == MSW) /* 32 bits needed */
+        *d = a;
+      else
+      { /* 64 bits needed */
+        *d = b; d = int_nextW(d);
+        *d = a;
+      }
+    }
+#endif
+    y = int_normalize(x, 0);
+    if (absi_cmp(y, N) < 0) return y;
   }
+}
+
+GEN
+random_F2x(long d, long vs)
+{
+  long i, l = nbits2lg(d+1), n = l-1;
+  GEN y = cgetg(l,t_VECSMALL); y[1] = vs;
+#ifdef LONG_IS_64BIT
+  for (i=2; i<=n; i++) y[i] = rand64();
+#else
+  for (i=2; i<=n; i++)
+  {
+    u64 v = rand64();
+    y[i] = v & 0xFFFFFFFFUL;
+    i++;
+    if (i > n) break;
+    y[i] = v>>32;
+    i++;
+    if (i > n) { v = rand64(); break; }
+  }
+#endif
+  y[n] &= (1UL<<remsBIL(d))-1UL;
+  return F2x_renormalize(y,l);
 }
 
 GEN

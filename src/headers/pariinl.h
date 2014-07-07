@@ -1804,10 +1804,6 @@ isonstack(GEN x)
 { return ((pari_sp)x >= pari_mainstack->bot
        && (pari_sp)x <  pari_mainstack->top); }
 
-/* assume 0 <= k <= BITS_IN_LONG. Return uniform random 0 <= x < (1<<k) */
-INLINE long
-random_bits(long k) { return pari_rand() >> (BITS_IN_LONG - k); }
-
 /* assume x != 0 and x t_REAL, return an approximation to log2(|x|) */
 INLINE double
 dbllog2r(GEN x)

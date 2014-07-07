@@ -3320,6 +3320,7 @@ ulong   pari_rand(void);
 GEN     randomi(GEN x);
 GEN     randomr(long prec);
 ulong   random_Fl(ulong n);
+long    random_bits(long k);
 void    setrand(GEN seed);
 
 /* rootpol.c */
@@ -4211,7 +4212,6 @@ INLINE GEN    quad_disc(GEN x);
 INLINE GEN    qfb_disc(GEN x);
 INLINE GEN    qfb_disc3(GEN x, GEN y, GEN z);
 INLINE GEN    quadnorm(GEN q);
-INLINE long   random_bits(long k);
 INLINE long   remsBIL(long n);
 INLINE GEN    resultant(GEN x, GEN y);
 INLINE GEN    row(GEN A, long x1);

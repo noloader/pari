@@ -907,16 +907,6 @@ F2xq_conjvec(GEN x, GEN T)
   return z;
 }
 
-GEN
-random_F2x(long d, long vs)
-{
-  long i, l = nbits2lg(d+1);
-  GEN y = cgetg(l,t_VECSMALL); y[1] = vs;
-  for (i=2; i<l; i++) y[i] = pari_rand();
-  y[l-1] &= (1UL<<remsBIL(d))-1UL;
-  return F2x_renormalize(y,l);
-}
-
 static GEN
 _F2xq_pow(void *data, GEN x, GEN n)
 {
