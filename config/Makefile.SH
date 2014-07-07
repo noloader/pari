@@ -319,7 +319,7 @@ mpinl\$(_O): .headers parilvl0.h parilvl1.h $knone/mpinl.c
 
 test-kernel:: kerntest
 	@./kerntest > gp.out;\
-	diff -c gp.out $src/test/$numbits/kernel > kern.dif;\
+	diff -c gp.out $src/test/32/kernel > kern.dif;\
 	if test -s kern.dif; then echo "KERNEL BUG"; else echo OK; fi
 
 tune.o: $src/test/tune.c

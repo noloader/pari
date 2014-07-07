@@ -30,7 +30,8 @@ void specinit()
 void sorstring(ulong x)
 {
 #ifdef LONG_IS_64BIT
-  printf("%016lx  ", x);
+  if (x>>32) printf("%08lx  ", x>>32);
+  printf("%08lx  ", x & 0xFFFFFFFF);
 #else
   printf("%08lx  ", x);
 #endif
@@ -40,15 +41,15 @@ void _voiri(GEN x)
 {
   long i, lx = lgefint(x);
   GEN y = int_MSW(x);
-  /* sorstring(x[0]); depends on the kernel and contains no useful info */
-  sorstring(x[1]);
+  printf("signe: %ld, ",signe(x));
   for (i=2; i < lx; i++, y = int_precW(y)) sorstring(*y);
   printf("\n");
 }
 void _voirr(GEN x)
 {
   long i, lx = lg(x);
-  for (i=1; i < lx; i++) sorstring(x[i]);
+  printf("signe: %ld, expo: %ld, ",signe(x),expo(x));
+  for (i=2; i < lx; i++) sorstring(x[i]);
   printf("\n");
 }
 
