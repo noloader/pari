@@ -1410,7 +1410,7 @@ get_roots_for_M(nffp_t *F)
     eBD = 1 + gexpo(gel(F->basden,1));
     er  = F->ro? (1+gexpo(F->ro)): fujiwara_bound(F->x);
     if (er < 0) er = 0;
-    F->extraprec = nbits2extraprec((long)(n*er + eBD + log2(n))-(BITS_IN_LONG-1));/*FIXME*/
+    F->extraprec = nbits2extraprec(n*er + eBD + log2(n));
   }
 
   PREC = F->prec + F->extraprec;
@@ -1433,15 +1433,12 @@ make_M(nffp_t *F, int trunc)
     for (i=1; i<l; i++) gel(m,i) = poleval(gel(bas,j), gel(ro,i));
   }
   if (den)
-  {
-    GEN invd, rd = cgetr(F->prec + F->extraprec);
     for (j=2; j<n; j++)
     {
       d = gel(den,j); if (!d) continue;
-      m = gel(M,j); affir(d,rd); invd = invr(rd);
-      for (i=1; i<l; i++) gel(m,i) = gmul(gel(m,i), invd);
+      m = gel(M,j);
+      for (i=1; i<l; i++) gel(m,i) = gdiv(gel(m,i), d);
     }
-  }
 
   if (trunc && gprecision(M) > F->prec)
   {
