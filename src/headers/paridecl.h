@@ -1359,6 +1359,7 @@ long    kroiu(GEN x, ulong y);
 long    kronecker(GEN x, GEN y);
 long    krosi(long s, GEN x);
 long    kross(long x, long y);
+long    kroui(ulong x, GEN y);
 long    krouu(ulong x, ulong y);
 GEN     lcmii(GEN a, GEN b);
 long    logint(GEN B, GEN y, GEN *ptq);

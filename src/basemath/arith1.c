@@ -106,7 +106,7 @@ pgener_Fl(ulong p) { return pgener_Fl_local(p, NULL); }
 int
 is_gener_Fp(GEN x, GEN p, GEN p_1, GEN L)
 {
-  long i, t = lgefint(x)==3? krosi(x[2], p): kronecker(x, p);
+  long i, t = lgefint(x)==3? kroui(x[2], p): kronecker(x, p);
   if (t >= 0) return 0;
   for (i = lg(L)-1; i; i--)
   {
@@ -1728,13 +1728,29 @@ kroiu(GEN x, ulong y)
   return krouu_s(umodiu(x,y), y, (odd(r) && gome(x))? -1: 1);
 }
 
+/* assume y > 0, odd, return s * kronecker(x,y) */
+static long
+krouodd(ulong x, GEN y, long s)
+{
+  long r;
+  if (lgefint(y) == 3) return krouu_s(x, y[2], s);
+  if (!x) return 0; /* y != 1 */
+  r = vals(x);
+  if (r)
+  {
+    if (odd(r) && gome(y)) s = -s;
+    x >>= r;
+  }
+  /* x=3 mod 4 && y=3 mod 4 ? (both are odd here) */
+  if (x & mod2BIL(y) & 2) s = -s;
+  return krouu_s(umodiu(y,x), x, s);
+}
+
 long
 krosi(long x, GEN y)
 {
   const pari_sp av = avma;
   long s = 1, r;
-  ulong u, xu;
-
   switch (signe(y))
   {
     case -1: y = negi(y); if (x < 0) s = -1; break;
@@ -1748,20 +1764,29 @@ krosi(long x, GEN y)
     y = shifti(y,-r);
   }
   if (x < 0) { x = -x; if (mod4(y) == 3) s = -s; }
-  xu = (ulong)x;
-  if (lgefint(y) == 3)
-    return krouu_s(xu, itou(y), s);
-  if (!xu) return 0; /* y != 1 */
-  r = vals(xu);
+  s = krouodd((ulong)x, y, s);
+  avma = av; return s;
+}
+
+long
+kroui(ulong x, GEN y)
+{
+  const pari_sp av = avma;
+  long s = 1, r;
+  switch (signe(y))
+  {
+    case -1: y = negi(y); break;
+    case 0: return x==1UL;
+  }
+  r = vali(y);
   if (r)
   {
-    if (odd(r) && gome(y)) s = -s;
-    xu >>= r;
+    if (!odd(x)) { avma = av; return 0; }
+    if (odd(r) && ome(x)) s = -s;
+    y = shifti(y,-r);
   }
-  /* xu=3 mod 4 && y=3 mod 4 ? (both are odd here) */
-  if (xu & mod2BIL(y) & 2) s = -s;
-  u = umodiu(y, xu);
-  avma = av; return krouu_s(u, xu, s);
+  s = krouodd(x, y, s);
+  avma = av; return s;
 }
 
 long
