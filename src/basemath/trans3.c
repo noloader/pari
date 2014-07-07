@@ -659,7 +659,7 @@ incgam_0(GEN x, GEN expx)
   }
   else
   {
-    long prec = l + (long)nbits2extraprec((mx+log(mx))/LOG2);
+    long prec = l + (long)nbits2extraprec((mx+log(mx))/LOG2 + 10);
     GEN S, t, H, run = real_1(prec);
     n = -prec2nbits(prec);
     x = rtor(x, prec);
