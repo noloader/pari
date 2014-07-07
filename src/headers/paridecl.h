@@ -1758,6 +1758,7 @@ GEN     algdep(GEN x, long n);
 GEN     algdep0(GEN x, long n, long bit);
 void    forqfvec0(GEN a, GEN BORNE, GEN code);
 GEN     gaussred_from_QR(GEN x, long prec);
+GEN     gram_schmidt(GEN e, GEN *ptB);
 GEN     lindep0(GEN x, long flag);
 GEN     lindep(GEN x);
 GEN     lindep2(GEN x, long bit);

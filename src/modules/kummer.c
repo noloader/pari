@@ -84,13 +84,7 @@ ok_sign(GEN X, GEN msign, GEN arch)
 
 /* REDUCTION MOD ell-TH POWERS */
 
-static GEN
-fix_be(GEN bnfz, GEN be, GEN u)
-{
-  GEN nf = bnf_get_nf(bnfz), fu = bnf_get_fu_nocheck(bnfz);
-  return nfmul(nf, be, nffactorback(nf, fu, u));
-}
-
+#if 0
 static GEN
 logarch2arch(GEN x, long r1, long prec)
 {
@@ -107,46 +101,7 @@ logarch2arch(GEN x, long r1, long prec)
   }
   return y;
 }
-
-/* multiply be by ell-th powers of units as to find small L2-norm for new be */
-static GEN
-reducebetanaive(GEN bnfz, GEN be, long ell, GEN elllogfu)
-{
-  GEN z, nmax, b, c, nf = bnf_get_nf(bnfz);
-  const long r1 = nf_get_r1(nf), n = maxss(ell>>1,3);
-  long i, k, ru;
-
-  b = gmul(nf_get_M(nf), be);
-  z = cgetg(n+1, t_VEC);
-  c = logarch2arch(elllogfu, r1, nf_get_prec(nf)); /* embeddings of fu^ell */
-  c = gprec_w(gnorm(c), DEFAULTPREC);
-  b = gprec_w(gnorm(b), DEFAULTPREC); /* need little precision */
-  gel(z,1) = shallowconcat(c, vecinv(c));
-  for (k=2; k<=n; k++) gel(z,k) = vecmul(gel(z,1), gel(z,k-1));
-  nmax = embednorm_T2(b, r1);
-  ru = lg(c)-1; c = zerovec(ru);
-  for(;;)
-  {
-    GEN B = NULL;
-    long besti = 0, bestk = 0;
-    for (k=1; k<=n; k++)
-    {
-      GEN zk = gel(z,k);
-      for (i=1; i<=ru; i++)
-      {
-        GEN v, t;
-        v = vecmul(b, gel(zk,i));    t = embednorm_T2(v,r1);
-        if (gcmp(t,nmax) < 0) { B=v; nmax=t; besti=i; bestk = k; continue; }
-        v = vecmul(b, gel(zk,i+ru)); t = embednorm_T2(v,r1);
-        if (gcmp(t,nmax) < 0) { B=v; nmax=t; besti=i; bestk =-k; }
-      }
-    }
-    if (!B) break;
-    b = B; gel(c,besti) = addis(gel(c,besti), bestk);
-  }
-  if (DEBUGLEVEL) err_printf("naive reduction mod U^l: unit exp. = %Ps\n",c);
-  return fix_be(bnfz, be, ZC_z_mul(c, ell));
-}
+#endif
 
 static GEN
 reduce_mod_Qell(GEN bnfz, GEN be, GEN gell)
@@ -186,53 +141,66 @@ idealsqrtn(GEN nf, GEN x, GEN gn, int strict)
   return q? q: gen_1;
 }
 
+/* Assume B an LLL-reduced basis, t a vector. Apply Babai's nearest plane
+ * algorithm to (B,t) */
+static GEN
+Babai(GEN B, GEN t)
+{
+  GEN C, N, G = gram_schmidt(B, &N), b = t;
+  long j, n = lg(B)-1;
+
+  C = cgetg(n+1,t_COL);
+  for (j = n; j > 0; j--)
+  {
+    GEN c = gdiv( RgV_dotproduct(b, gel(G,j)), gel(N,j) );
+    long e;
+    c = grndtoi(c,&e);
+    if (e >= 0) return NULL;
+    if (signe(c)) b = RgC_sub(b, RgC_Rg_mul(gel(G,j), c));
+    gel(C,j) = c;
+  }
+  return C;
+}
+
 static GEN
 reducebeta(GEN bnfz, GEN be, GEN ell)
 {
-  long j,ru, prec = nf_get_prec(bnfz);
-  GEN emb, z, u, elllogfu, nf = bnf_get_nf(bnfz);
+  long prec = nf_get_prec(bnfz);
+  GEN y, elllogfu, nf = bnf_get_nf(bnfz), fu = bnf_get_fu_nocheck(bnfz);
 
   if (DEBUGLEVEL>1) err_printf("reducing beta = %Ps\n",be);
   /* reduce mod Q^ell */
   be = reduce_mod_Qell(nf, be, ell);
   /* reduce l-th root */
-  z = idealsqrtn(nf, be, ell, 0);
-  if (typ(z) == t_MAT && !is_pm1(gcoeff(z,1,1)))
+  y = idealsqrtn(nf, be, ell, 0);
+  if (typ(y) == t_MAT && !is_pm1(gcoeff(y,1,1)))
   {
-    z = idealred_elt(nf, z);
-    be = nfdiv(nf, be, nfpow(nf, z, ell));
+    y = idealred_elt(nf, y);
+    be = nfdiv(nf, be, nfpow(nf, y, ell));
     /* make be integral */
     be = reduce_mod_Qell(nf, be, ell);
   }
   if (DEBUGLEVEL>1) err_printf("beta reduced via ell-th root = %Ps\n",be);
-
+  /* log. embeddings of fu^ell */
+  elllogfu = RgM_Rg_mul(real_i(bnf_get_logfu(bnfz)), ell);
   for (;;)
   {
-    z = get_arch_real(nf, be, &emb, prec);
-    if (z) break;
+    GEN emb, z = get_arch_real(nf, be, &emb, prec);
+    if (z)
+    {
+      GEN ex = Babai(elllogfu, z);
+      if (ex)
+      {
+        be = nfdiv(nf, be, nffactorback(nf, fu, RgC_Rg_mul(ex,ell)));
+        break;
+      }
+    }
     prec = precdbl(prec);
     if (DEBUGLEVEL) pari_warn(warnprec,"reducebeta",prec);
     nf = nfnewprec_shallow(nf,prec);
   }
-  /* log. embeddings of fu^ell */
-  elllogfu = RgM_Rg_mul(real_i(bnf_get_logfu(bnfz)), ell);
-  z = shallowconcat(elllogfu, z);
-  u = lll(z);
-  if (lg(u) == lg(z))
-  {
-    ru = lg(u);
-    for (j=1; j < ru; j++)
-      if (gequal1(gcoeff(u,ru-1,j))) break;
-    if (j < ru)
-    {
-      u = gel(u,j); /* coords on (fu^ell, be) of a small generator */
-      ru--; setlg(u, ru);
-      be = fix_be(bnfz, be, ZC_Z_mul(u, ell));
-    }
-  }
   if (DEBUGLEVEL>1) err_printf("beta LLL-reduced mod U^l = %Ps\n",be);
-  if (typ(be) == t_INT) return be;
-  return reducebetanaive(bnfz, be, itos(ell), elllogfu);
+  return be;
 }
 
 static GEN
