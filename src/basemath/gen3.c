@@ -2025,37 +2025,66 @@ round0(GEN x, GEN *pte)
   return ground(x);
 }
 
+/* x t_REAL of exponent ex, return x + 0.5 to an accuracy sufficient for
+ * rounding */
+
+/* x t_REAL, return q=floor(x+1/2), set e = expo(x-q) */
+static GEN
+round_i(GEN x, long *pe)
+{
+  long e;
+  GEN B, q,r, m = mantissa_real(x, &e); /* x = m/2^e */
+  if (e <= 0)
+  {
+    if (e) m = shifti(m,-e);
+    *pe = -e; return m;
+  }
+  B = int2n(e-1);
+  m = addii(m, B);
+  q = shifti(m, -e);
+  r = remi2n(m, e);
+  /* 2^e (x+1/2) = m = 2^e q + r, sgn(r)=sgn(m), |r|<2^e */
+  if (!signe(r))
+    *pe = -1;
+  else
+  {
+    if (signe(m) < 0)
+    {
+      q = subiu(q,1);
+      r = addii(r, B);
+    }
+    else
+      r = subii(r, B);
+    /* |x - q| = |r| / 2^e */
+    *pe = signe(r)? expi(r) - e: -e;
+    cgiv(r);
+  }
+  return q;
+}
 /* assume x a t_REAL */
 GEN
 roundr(GEN x)
 {
   long ex, s = signe(x);
   pari_sp av;
-  GEN t;
   if (!s || (ex=expo(x)) < -1) return gen_0;
   if (ex == -1) return s>0? gen_1:
                             absrnz_equal2n(x)? gen_0: gen_m1;
-  av = avma;
-  t = addrr(real2n(-1, nbits2prec(ex+1)), x); /* x + 0.5 */
-  return gerepileuptoint(av, floorr(t));
+  av = avma; x = round_i(x, &ex);
+  if (ex >= 0) pari_err_PREC( "roundr (precision loss in truncation)");
+  return gerepileuptoint(av, x);
 }
 GEN
 roundr_safe(GEN x)
 {
-  long e1, ex, s = signe(x);
+  long ex, s = signe(x);
   pari_sp av;
-  GEN t, y;
 
   if (!s || (ex = expo(x)) < -1) return gen_0;
   if (ex == -1) return s>0? gen_1:
                             absrnz_equal2n(x)? gen_0: gen_m1;
-  av = avma;
-  t = addrr(real2n(-1,nbits2prec(ex+1)), x); /* x + 0.5 */
-
-  e1 = expo(t) - bit_prec(t) + 1;
-  y = mantissa2nr(t, e1);
-  if (signe(x) < 0) y = addsi(-1,y);
-  return gerepileuptoint(av,y);
+  av = avma; x = round_i(x, &ex);
+  return gerepileuptoint(av, x);
 }
 
 GEN
@@ -2115,23 +2144,9 @@ grndtoi(GEN x, long *e)
     case t_INT: return icopy(x);
     case t_REAL: {
       long ex = expo(x);
-      GEN t;
       if (!signe(x) || ex < -1) { *e = ex; return gen_0; }
-      av = avma;
-      /* ex+2 since we may have ex = -1 */
-      t = addrr(real2n(-1,nbits2prec(ex+2)), x); e1 = expo(t);
-      if (e1 < 0)
-      {
-        if (signe(t) >= 0) { *e = ex; avma = av; return gen_0; }
-        *e = expo(addsr(1,x)); avma = av; return gen_m1;
-      }
-      e1 = e1 - bit_prec(t) + 1;
-      y = mantissa2nr(t, e1);
-      if (signe(x) < 0) y = addsi(-1,y);
-      y = gerepileuptoint(av,y);
-
-      if (e1 <= 0) { av = avma; e1 = expo(subri(x,y)); avma = av; }
-      *e = e1; return y;
+      av = avma; x = round_i(x, e);
+      return gerepileuptoint(av, x);
     }
     case t_FRAC: return diviiround(gel(x,1), gel(x,2));
     case t_INTMOD: case t_QUAD: return gcopy(x);
