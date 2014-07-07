@@ -970,7 +970,7 @@ Buchquad(GEN D, double cbach, double cbach2, long prec)
       gel(z,1) = gel(z,4) = gen_1; gel(z,2) = gel(z,3) = cgetg(1,t_VEC);
       return z;
     }
-    BQ.PRECREG = 0;
+    prec = BQ.PRECREG = 0;
   } else {
     BQ.PRECREG = maxss(prec+EXTRAPRECWORD, nbits2prec(2*expi(QFR.D) + 128));
   }
@@ -1133,7 +1133,7 @@ START:
   clearhash(BQ.hashtab);
   free_GRHcheck(&GRHcheck);
 
-  gen = get_clgp(&BQ,W,&cyc,BQ.PRECREG);
+  gen = get_clgp(&BQ,W,&cyc,prec);
   gunclone(BQ.subFB);
   gunclone(BQ.powsubFB);
   res = cgetg(5,t_VEC);
