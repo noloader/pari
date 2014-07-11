@@ -439,7 +439,6 @@ typedef struct {
 } filtre_t;
 void init_filtre(filtre_t *F, Buffer *buf);
 char *filtre(const char *s, int flag);
-void check_filtre(filtre_t *F);
 
 gp_data *default_gp_data(void);
 

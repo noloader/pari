@@ -63,6 +63,15 @@ pari_ask_confirm(const char *s)
 #define MULTI_LINE_COMMENT 1
 #define LBRACE '{'
 #define RBRACE '}'
+
+static int
+in_help(filtre_t *F)
+{
+  char c;
+  if (!F->buf) return (*F->s == '?');
+  c = *F->buf->buf;
+  return c? (c == '?'): (*F->s == '?');
+}
 /* Filter F->s into F->t */
 static char *
 filtre0(filtre_t *F)
@@ -76,7 +85,6 @@ filtre0(filtre_t *F)
   t = F->t;
 
   if (F->more_input == 1) F->more_input = 0;
-
   while ((c = *s++))
   {
     if (F->in_string)
@@ -127,14 +135,14 @@ filtre0(filtre_t *F)
 
       case '\\':
         if (!*s) {
-          if (*F->buf->buf == '?') break; /* '?...\' */
+          if (in_help(F)) break; /* '?...\' */
           t--;
           if (!F->more_input) F->more_input = 1;
           goto END;
         }
         if (*s == '\r') s++; /* DOS */
         if (*s == '\n') {
-          if (*F->buf->buf == '?') break; /* '?...\' */
+          if (in_help(F)) break; /* '?...\' */
           t--; s++;
           if (!*s)
           {
@@ -165,8 +173,7 @@ filtre0(filtre_t *F)
   if (t != F->t) /* non empty input */
   {
     c = t[-1]; /* last char */
-    if (c == '=')
-    { if (*F->buf->buf != '?') F->more_input = 2; }
+    if (c == '=') { if (!in_help(F)) F->more_input = 2; }
     else if (! F->wait_for_brace) F->more_input = 0;
     else if (c == RBRACE)       { F->more_input = 0; t--; F->wait_for_brace--;}
   }
@@ -181,6 +188,7 @@ char *
 filtre(const char *s, int downcase)
 {
   filtre_t T;
+  T.buf = NULL;
   T.s = s;    T.in_string = 0; T.more_input = 0;
   T.t = NULL; T.in_comment= 0; T.wait_for_brace = 0;
   T.downcase = downcase;
@@ -355,7 +363,20 @@ input_loop(filtre_t *F, input_method *IM)
   char *to_read, *s = b->buf;
 
   /* read first line */
-  if (! (to_read = IM->getline(&s,1, IM, F)) ) { check_filtre(F); return 0; }
+  if (! (to_read = IM->getline(&s,1, IM, F)) )
+  {
+    if (F->in_string)
+    {
+      pari_warn(warner,"run-away string. Closing it");
+      F->in_string = 0;
+    }
+    if (F->in_comment)
+    {
+      pari_warn(warner,"run-away comment. Closing it");
+      F->in_comment = 0;
+    }
+    return 0;
+  }
 
   /* buffer is not empty, init filter */
   F->in_string = 0;
@@ -3343,21 +3364,6 @@ pari_unlink(const char *s)
   if (unlink(s)) pari_warn(warner, "I/O: can\'t remove file %s", s);
   else if (DEBUGFILES)
     err_printf("I/O: removed file %s\n", s);
-}
-
-void
-check_filtre(filtre_t *T)
-{
-  if (T && T->in_string)
-  {
-    pari_warn(warner,"run-away string. Closing it");
-    T->in_string = 0;
-  }
-  if (T && T->in_comment)
-  {
-    pari_warn(warner,"run-away comment. Closing it");
-    T->in_comment = 0;
-  }
 }
 
 /* Remove one INFILE from the stack. Reset pari_infile (to the most recent
