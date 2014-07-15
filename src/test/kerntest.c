@@ -11,6 +11,7 @@ struct pari_mainstack * pari_mainstack;
 
 void mt_sigint_block(void) { }
 void mt_sigint_unblock(void) { }
+void new_chunk_resize(size_t x) {(void)x;}
 
 void specinit()
 {
