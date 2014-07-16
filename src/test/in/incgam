@@ -18,7 +18,7 @@ test(fun, p) =
 
 test(incgam, 19)
 test(incgam, 38)
-test(incgam, 100)
+test(incgam, 96)
 
 mylog(x)=if(x==0, "oo", round(log(abs(x))/log(10)));
 
