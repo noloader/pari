@@ -1,4 +1,4 @@
-\p38
+default(realprecision,38);
 setrand(1429412696);bnfinit(x^2+29051222508*x-12).clgp
 setrand(1); bnfinit(x^8 + 12*x^6 + 30*x^4 + 24*x^2 + 4).reg
 setrand(1); bnfinit(x^4 - 3*x^2 + 49).reg
