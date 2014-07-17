@@ -415,6 +415,7 @@ ellL1_bitprec(GEN E, long r, long bitprec)
   if (r < 0)
     pari_err_DOMAIN("ellL1", "derivative order", "<", gen_0, stoi(r));
   e = ellanal_globalred(E, NULL);
+  if (r == 0 && ellrootno_global(e) < 0) { avma = av; return gen_0; }
   vec = Lpoints(&C, e, gen_0, bitprec);
   t = r ? scalarser(gen_1, 0, r):  zeroser(0, 0);
   setvalp(t, 1);
