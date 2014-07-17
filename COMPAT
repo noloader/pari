@@ -34,6 +34,7 @@ This file lists the incompatible changes between Version 2.x and older versions
   - [libpari] rename ghell->ellheight, mathell->ellheightmatrix
   - Rg_to_RgV renamed to Rg_to_RgC, RgX_to_RgV renamed to RgX_to_RgC
   - powruvec was replaced by powersr
+  - renamed ZV_gcdext -> ZV_extgcd for consistency with other 'gcdext' methods
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%% VERSION 2.6 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   - eval() no longer evaluates its arguments in "permissive" mode: eval("1a")

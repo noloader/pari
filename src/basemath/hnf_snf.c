@@ -1652,12 +1652,12 @@ ZV_gcdext_i(GEN A)
   return mkvec2(gel(A,n-1), B);
 }
 GEN
-ZV_gcdext(GEN A)
+ZV_extgcd(GEN A)
 {
   pari_sp av = avma;
   return gerepilecopy(av, ZV_gcdext_i(A));
 }
-/* as ZV_gcdext, transforming the gcd into a t_MAT, for mathnf0 */
+/* as ZV_extgcd, transforming the gcd into a t_MAT, for mathnf0 */
 static GEN
 ZV_hnfgcdext(GEN A)
 {
