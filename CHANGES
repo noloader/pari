@@ -54,6 +54,7 @@ BA 31- iferr() could crash if some component of the t_ERROR were clones.
 BA 35- multiif did not handle correctly return() in conditions [#1590]
    36- [0..5] -> [0,0,0,0,0] on some architectures
    37- is_gener_Fp could return wrong results
+   38- Fq_sqrtn(t_INT,..,&zeta) could return a wrong root of 1
 
   Added
     1- add optional argument to sumdigits to specify the base
