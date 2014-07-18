@@ -55,6 +55,7 @@ Major contributors (large modules written or rewritten from scratch):
     documentation layout, AIX and Solaris support, first PARI web site.
   Michel OLIVIER: 68k multiprecision kernel, number fields, original polgalois
     and nfsubfields implementation
+  Aurel PAGE: central simple algebra package (?8)
   Thomas PAPANIKOlAOU: MPQS integration, Pari-Lidia project
   Xavier ROBLOT: MPQS integration, Stark, original nffactor, padicfields
   Denis SIMON: Norm equations, S-units, Hilbert symbols, original qfsolve
@@ -71,8 +72,9 @@ kindly remind us if you have been forgotten!
 AF = Aurimas Fiseras
 AM = Alex V. Myltsev
 AMe= Anton Mellit
-AW = Aleksander Wittlin
+AP = Aurel Page
 AS = Andy Stubbs
+AW = Aleksander Wittlin
 BA = Bill Allombert
 BD = Bill Daly
 BG = Brian Gladman

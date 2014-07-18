@@ -38,12 +38,13 @@ Help topics: for a list of relevant subtopics, type ?n for n in
   5: Functions related to ELLIPTIC CURVES
   6: Functions related to MODULAR FORMS and MODULAR SYMBOLS
   7: Functions related to general NUMBER FIELDS
-  8: POLYNOMIALS and power series
-  9: Vectors, matrices, LINEAR ALGEBRA and sets
- 10: SUMS, products, integrals and similar functions
- 11: GRAPHIC functions
- 12: PROGRAMMING under GP
- 13: The PARI community
+  8: Functions related to central simple ALGEBRAS
+  9: POLYNOMIALS and power series
+ 10: Vectors, matrices, LINEAR ALGEBRA and sets
+ 11: SUMS, products, integrals and similar functions
+ 12: GRAPHIC functions
+ 13: PROGRAMMING under GP
+ 14: The PARI community
 
 Also:
   ? functionname (short on-line help)

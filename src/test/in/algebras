@@ -1,0 +1,1020 @@
+J = varhigher("J",y);
+default(realprecision,38);
+default(parisize,40M);
+Q=nfinit(y); T=polcyclo(5, 'x); F=rnfinit(Q, T);
+A = alinit(F, [Mod(x^2,T), 3])
+
+do(name, test) = {
+ setrand(1);
+ print(name,": ", iferr(test(), E, E));
+}
+gusuite(name, tests) = print("Suite: ", name); tests();
+
+gumaxtime = 3;
+
+searchin(hf,pr,h) =
+{
+  my(i,n);
+  for(i=1,#hf[1],
+    if(hf[1][i]==pr, return(hf[2][i]==h))
+  );
+  return(h==0);
+};
+
+samehasse(hf1,hi1,hf2,hi2) =
+{
+  my(i,n);
+  if(hi1 != hi2, return(0));
+
+  n = #hf1[1];
+  for(i=1,n,
+    if(!searchin(hf2,hf1[1][i],hf1[2][i]), return(0));
+  );
+
+  n = #hf2[1];
+  for(i=1,n,
+    if(!searchin(hf1,hf2[1][i],hf2[2][i]), return(0));
+  );
+
+  return(1);
+};
+
+hassetriv(hf,hi) = samehasse(hf,hi,[[],Vecsmall([])],Vecsmall(vector(#hi,i,0)));
+altriv(al) = hassetriv(algethassef(al),algethassei(al));
+alsame(al,hf,hi) = samehasse(algethassef(al),algethassei(al),hf,hi);
+
+testcharpol(al,a)=
+{ my (T = alcharpoly(al,a));
+  print(T);
+  !alpoleval(al,T,a);
+}
+get() = gusuite("get", ()->{
+  my(s='s,i='i,poli,nf,ii,pols,rnf,ss,al);
+  poli = i^2+1;
+  nf = nfinit(poli);
+  ii = Mod(i,poli);
+  pols = s^2+2;
+  rnf = rnfinit(nf, pols);
+  ss = Mod(s,pols);
+  al = alinit(rnf,[-ss,ii]);
+
+  do("degree", ()->algetdegree(al)==2);
+  do("center", ()->algetcenter(al)==nf);
+  do("splitting", ()->algetsplitting(al)==rnf);
+  do("automorphism", ()->algetaut(al)==-ss);
+  do("b", ()->algetb(al)==ii);
+  do("trivial hasse invariants", ()->altriv(al));
+  do("charac", ()->algetchar(al)==0);
+  do("dim", ()->algetdim(al)==4);
+  do("absdim", ()->algetabsdim(al)==8);
+  do("ord", ()->#algetord(al)==8);
+  do("invord", ()->#algetinvord(al)==8);
+  do("ord*invord", ()->algetord(al)*algetinvord(al)==matid(8));
+  do("iscyclic", ()->altype(al)==3);
+  do("radical", ()->alradical(al)==0); \\cyclic => simple
+});
+
+operations() = gusuite("operations", ()->{
+  my(s='s,i='i,poli,nf,ii,pols,rnf,ss,al,n,un,u,j);
+  poli = i^2+1;
+  nf = nfinit(poli);
+  ii = Mod(i,poli);
+  pols = s^2+2;
+  rnf = rnfinit(nf, pols);
+  ss = Mod(s,pols);
+  ss = ss*Mod(1,poli);
+  al = alinit(rnf,[-ss,ii]);
+
+  do("radical", ()->alradical(al)==0); \\cyclic => simple
+
+  nfii = ii;
+  ii = ii*Mod(1,pols);
+
+  n = [-ss,ii-1]~;
+  un = [1,0]~;
+  u = [1-ss,ii-1]~;
+  j = [0,1]~;
+  do("addition", ()->aladd(al,n,un)==u);
+  do("negation", ()->alneg(al,u)==[ss-1,1-ii]~);
+  do("soustraction", ()->alsub(al,u,n)==un);
+  do("multiplication", ()->almul(al,n,un)==n);
+  do("non-commutativity", ()->almul(al,n,j)==almul(al,j,n));
+  do("left division", ()->aldivl(al,u,n)==n);
+  do("right division", ()->aldivr(al,n,u)==n);
+  do("noncommutative left division", ()->aldivl(al,u,j)==[ii+1,1-ss]~);
+  do("noncommutative right division", ()->aldivr(al,j,u)==[ii+1,1+ss]~);
+  do("division by non-invertible", ()->aldivl(al,n,u));
+  do("nilpotent", ()->alsqr(al,n)==[0,0]~);
+  do("square", ()->alsqr(al,u)==aladd(al,u,n));
+  do("square j", ()->alsqr(al,j)==[ii,0]~);
+  do("inverse", ()->alinv(al,u)==alsub(al,un,n));
+  do("powers", ()->alpow(al,u,124)==aladd(al,un,almul(al,[124,0]~,n)));
+  do("negative powers", ()->alpow(al,j,-56)==un);
+  do("multiplication table j", ()->almultable(al,j)==[0,ii;1,0]);
+  do("multiplication table", ()->almultable(al,u)==[1-ss,-1-ii;ii-1,1+ss]);
+  do("characteristic polynomial", ()->alcharpoly(al,u,'y)==y^2-2*y+1);
+  do("characteristic polynomial j", ()->alcharpoly(al,j,'y)==y^2-nfii);
+  do("trace zero", ()->altrace(al,n)==0);
+  do("trace commutator", ()->altrace(al,alsub(al,almul(al,j,u),almul(al,u,j)))==0);
+  do("trace", ()->altrace(al,almul(al,u,j))==-2-2*nfii);
+  do("norm zero", ()->alnorm(al,n)==0);
+  do("norm one", ()->alnorm(al,u)==1);
+  do("norm j", ()->alnorm(al,j)==-nfii);
+  a = aladd(al,u,j); b = aladd(al, n, [12-4*ii+ss*(4-ii),7+3*ii+ss*(1+7*ii)]~);
+  do("norm is multiplicative a*b", ()->nfalgtobasis(nf,alnorm(al,almul(al,a,b)))==nfalgtobasis(nf,nfeltmul(nf,alnorm(al,a),alnorm(al,b))));
+  do("norm is multiplicative b*a", ()->nfalgtobasis(nf,alnorm(al,almul(al,b,a)))==nfalgtobasis(nf,nfeltmul(nf,alnorm(al,b),alnorm(al,a))));
+});
+
+alcheckhasse(al) =
+{
+  my(n,h);
+  n = algetdegree(al);
+  h = Mod(0,n);
+  for(i=1, #algethassef(al)[1],
+      h += algethassef(al)[2][i]);
+  for(i=1, #algethassei(al),
+      h += (n/2)*algethassei(al)[i]);
+  return(h == Mod(0,n));
+};
+
+al_cyclotomic(p,b,mo=1) =
+{
+  my(Q,F,pc,r);
+  Q = nfinit(y);
+  pc = polcyclo(p,x);
+  F = rnfinit(Q,pc);
+  r = lift(znprimroot(p));
+  return(alinit(F, [Mod(Mod(1,y)*x^r,pc), b], 'x, mo));
+};
+
+hasse0() = gusuite("hasse sum to 0", ()->{
+  do("cyclo construction", ()->al_cyclotomic(3,-175624635));
+  do("cyclo ramified at infinity", ()->alcheckhasse(al_cyclotomic(3,-175624635)));
+  do("cyclo unramified at infinity", ()->alcheckhasse(al_cyclotomic(3,2763764)));
+  do("cyclo 5", ()->alcheckhasse(al_cyclotomic(5,7861623)));
+  do("cyclo 5 bis", ()->alcheckhasse(al_cyclotomic(5,6569846846546548798*25)));
+  do("cyclo 7 bis no mo", ()->alcheckhasse(al_cyclotomic(7,168656465154165487*7^3,0)));
+  do("cyclo 11 no mo", ()->alcheckhasse(al_cyclotomic(11,87165765,0)));
+  do("quat -1,-1 over Q", ()->alcheckhasse(alinit(nfinit(y),[-1,-1])));
+  do("quat -1,-1 over Q(sqrt(2))", ()->alcheckhasse(alinit(nfinit(y^2-2),[-1,-1],x)));
+  do("quat -1,-1 over Q(sqrt(60))", ()->alcheckhasse(alinit(nfinit(y^2-60),[-1,-1],x)));
+});
+
+nfcompo() = gusuite("compositum of relative extensions", ()->{
+  my(nf, pol, ii);
+  pol = y^2+1;
+  nf = nfinit(pol);
+  ii = Mod(y,pol);
+
+  do("compositum of degrees 2 and 3 over quadratic field", (()->my(L=nfcompositum(nf,x^2-ii,x^3-5,3), a=Mod(L[2],L[1]), b=Mod(L[3],L[1])); polisirreducible(L[1]) && a^2-ii==0 && b^3-5==0 && b+L[4]*a==Mod(x,L[1])));
+  do("compositum of degrees 2 and 4 over quadratic field", (()->my(L=nfcompositum(nf,x^2-ii,x^4-5,3), a=Mod(L[2],L[1]), b=Mod(L[3],L[1])); polisirreducible(L[1]) && a^2-ii==0 && b^4-5==0 && b+L[4]*a==Mod(x,L[1])));
+  do("compositum of degrees 5 and 7 over quadratic field", (()->my(L=nfcompositum(nf,x^5+ii*x+1,x^7-5*x+ii,3), a=Mod(L[2],L[1]), b=Mod(L[3],L[1])); polisirreducible(L[1]) && a^5+ii*a+1==0 && b^7-5*b+ii==0 && b+L[4]*a==Mod(x,L[1])));
+
+  pol = y^5-2;
+  nf = nfinit(pol);
+  ii = Mod(y,pol);
+
+  do("compositum of degrees 2 and 3 over degree 5 field", (()->my(L=nfcompositum(nf,x^2-ii,x^3-5,3), a=Mod(L[2],L[1]), b=Mod(L[3],L[1])); polisirreducible(L[1]) && a^2-ii==0 && b^3-5==0 && b+L[4]*a==Mod(x,L[1])));
+  do("compositum of degrees 2 and 4 over degree 5 field", (()->my(L=nfcompositum(nf,x^2-ii,x^4-5,3), a=Mod(L[2],L[1]), b=Mod(L[3],L[1])); polisirreducible(L[1]) && a^2-ii==0 && b^4-5==0 && b+L[4]*a==Mod(x,L[1])));
+  do("compositum of degrees 5 and 4 over degree 5 field", (()->my(L=nfcompositum(nf,x^5+ii*x+1,x^4-5*x+ii,3), a=Mod(L[2],L[1]), b=Mod(L[3],L[1])); polisirreducible(L[1]) && a^5+ii*a+1==0 && b^4-5*b+ii==0 && b+L[4]*a==Mod(x,L[1])));
+});
+
+tensor() = gusuite("tensor product of cyclic algebras", ()->{
+  my(nf,pol,jj,al1,al2,al3,hf12,hf23,p7,p7b,p3,p5);
+  pol = y^2+y+1;
+  nf = nfinit(pol);
+  jj = Mod(y,pol);
+  al1 = alinit(rnfinit(nf,x^2-(1+jj)), [-x, 4*jj+5]);
+  al2 = alinit(rnfinit(nf,x^3-2), [jj*x, 7]);
+  al3 = alinit(rnfinit(nf,x^4+x^3+x^2+x+1), [x^2, 7]);
+  do("radical 1", ()->alradical(al1)==0); \\cyclic => simple
+  do("radical 2", ()->alradical(al2)==0); \\cyclic => simple
+  do("radical 3", ()->alradical(al3)==0); \\cyclic => simple
+  p3 = idealprimedec(nf,3)[1];
+  p5 = idealprimedec(nf,5)[1];
+  p7 = idealprimedec(nf,7)[1];
+  p7b = idealprimedec(nf,7)[2];
+
+  hf12 = [[p3,p7,p7b],Vecsmall([3,4,5])];
+  hf23 = [[p5,p7,p7b],Vecsmall([6,11,7])];
+
+  do("tensor of degree 2 and 3 no mo", ()->alsame(altensor(al1,al2,0),hf12,Vecsmall([])));
+});
+
+rnfprimedec2(rnf,pp,nf2) = {
+  my(nf = rnf.nf,pp2,pp3);
+  pp2 = rnfidealup(rnf,pp);
+  pp3 = idealadd(nf2,pp2[1],pp2[2]);
+  for(i=3, #pp2,
+    pp3 = idealadd(nf2,pp3,pp2[i]));
+  return(idealfactor(nf2,pp3));
+};
+
+rnfprimedec(rnf,pp) = rnfprimedec2(rnf,pp,nfinit(rnf.polabs));
+
+testgwa(nf,Lpr,Ld,pl) = ()->{
+  my(rnf, d, n, nf2);
+  rnf = rnfinit(nf,nfgrunwaldwang(nf,Lpr,Ld,pl,x));
+  d = rnf.disc[1];
+  n = poldegree(rnf.pol);
+  return(1);
+  nf2 = nfinit(rnf.polabs);
+  for(i=1,#Lpr,
+    if(#mattranspose(rnfprimedec2(rnf,Lpr[i],nf2))*Ld[i] != n, return(0)));
+  return(1);
+};
+
+gw() = gusuite("Grunwald-Wang", ()->{
+  my(p2,p3,p5,p7,p11,p13,p17,pp,ppp,nf);
+  nf = nfinit(y);
+  p2 = idealprimedec(nf,2)[1];
+  p3 = idealprimedec(nf,3)[1];
+  p5 = idealprimedec(nf,5)[1];
+  pp = idealprimedec(nf,nextprime(1234))[1];
+  ppp = idealprimedec(nf,nextprime(4321))[1];
+
+  do("A quadratic over Q, 2 large inert, imaginary", testgwa(nf,[pp,ppp],Vecsmall([2,2]),Vecsmall([-1])));
+
+  nf = nfinit(y^2+1);
+  p2 = idealprimedec(nf,2)[1];
+  p3 = idealprimedec(nf,3)[1];
+  p5 = idealprimedec(nf,5)[1];
+  do("A : degree 4 over Q(i), local degrees [4,1,1]", testgwa(nf,[p2,p3,p5],Vecsmall([4,1,1]),Vecsmall([])));
+
+  nf = nfinit(y^2+y+1);
+  p2 = idealprimedec(nf,2)[1];
+  p3 = idealprimedec(nf,3)[1];
+  p5 = idealprimedec(nf,5)[1];
+  p7 = idealprimedec(nf,7)[1];
+  pp = idealprimedec(nf,nextprime(1248))[1];
+  ppp = idealprimedec(nf,nextprime(7531))[1];
+
+  do("A degree 3 over Q(j), local degrees [3,3] larger primes", testgwa(nf,[pp,ppp],Vecsmall([3,3]),Vecsmall([])));
+
+  nf = nfinit(y^2-5);
+  p2 = idealprimedec(nf,2)[1];
+  p3 = idealprimedec(nf,3)[1];
+  p5 = idealprimedec(nf,5)[1];
+  p7 = idealprimedec(nf,7)[1];
+  p11 = idealprimedec(nf,11)[1];
+  p13 = idealprimedec(nf,13)[1];
+  p17 = idealprimedec(nf,17)[1];
+  pp = idealprimedec(nf,nextprime(1248))[1];
+  ppp = idealprimedec(nf,nextprime(4897))[1];
+
+  do("A : degree 3 over Q(sqrt(5)), local degrees [3,3] [-1,-1], larger primes", testgwa(nf,[pp,ppp],Vecsmall([3,3]),Vecsmall([-1,-1])));
+
+  nf = nfinit(y^2-7);
+  p2 = idealprimedec(nf,2)[1];
+  p3 = idealprimedec(nf,3)[1];
+  p5 = idealprimedec(nf,5)[1];
+  p7 = idealprimedec(nf,7)[1];
+  p11 = idealprimedec(nf,11)[1];
+  p13 = idealprimedec(nf,13)[1];
+  p17 = idealprimedec(nf,17)[1];
+
+  do("A : degree 5 over Q(sqrt(7)), local degrees [5,5,5,5,5,5,5] [-1,-1]", testgwa(nf,[p2,p3,p5,p7,p11,p13,p17],Vecsmall([5,5,5,5,5,5,5]),Vecsmall([-1,-1])));
+
+  nf = nfinit(polcyclo(9,y));
+  p2 = idealprimedec(nf,2)[1];
+  p3 = idealprimedec(nf,3)[1];
+  p5 = idealprimedec(nf,5)[1];
+  p7 = idealprimedec(nf,7)[1];
+  do("A : degree 9 over Q(zeta_9), local degrees [9,9,9,9]", testgwa(nf,[p2,p3,p5,p7],Vecsmall([9,9,9,9]),Vecsmall([])));
+
+  nf = nfinit(y^6 -y^5 -7*y^4 +2*y^3 +7*y^2 -2*y -1);
+  p2 = idealprimedec(nf,2)[1];
+  p3 = idealprimedec(nf,3)[1];
+  p5 = idealprimedec(nf,5)[1];
+  p7 = idealprimedec(nf,7)[1];
+  p11 = idealprimedec(nf,11)[1];
+  p13 = idealprimedec(nf,13)[1];
+  p17 = idealprimedec(nf,17)[1];
+  pp = idealprimedec(nf,nextprime(1357))[1];
+  ppp = idealprimedec(nf,nextprime(853))[1];
+
+  do("A degree 2 over totally real sextic, local degrees [2,2] [2,2,2,2,2,2], larger primes", testgwa(nf,[pp,ppp],Vecsmall([2,2]),Vecsmall([-1,-1,-1,-1,-1,-1])));
+
+  do("A degree 2 over totally real sextic, local degrees [] [2,2,2,2,2,2]", testgwa(nf,[],Vecsmall([]),Vecsmall([-1,-1,-1,-1,-1,-1])));
+});
+
+alfromhasse() = gusuite("algebra from Hasse invariants", ()->{
+  my(nf, pr7, pr13, finvm, finv, finv1, finv2, iinvm, iinv, iinv1, iinv2, d1, d2, d, dm, mai, al);
+  nf = nfinit(y^3+y^2-2*y-1);
+  pr7 = idealprimedec(nf,7);
+  pr13 = idealprimedec(nf,13);
+
+  al = alinit(nf,3,J);
+  do("matrix algebra invariants", ()->altriv(al));
+
+  d1 = 3;
+  finv1 = [pr13,Vecsmall([1,1,1])];
+  iinv1 = Vecsmall([0,0,0]);
+  al = alinit(nf,[d1,finv1,iinv1],J);
+  do("algebra 1 invariants", ()->alsame(al,finv1,iinv1));
+
+  d2 = 2;
+  finv2 = [pr7,Vecsmall([1])];
+  iinv2 = Vecsmall([1,0,0]);
+  al = alinit(nf,[d2,finv2,iinv2],J);
+  do("algebra 2 invariants", ()->alsame(al,finv2,iinv2));
+
+  nf = nfinit(y);
+  p13 = idealprimedec(nf,13)[1];
+  finv1 = [[p13],Vecsmall([1])];
+  iinv1 = Vecsmall([1]);
+  do("test", ()->alinit(nf,[2,finv1,iinv1],J));
+
+  d = 6;
+  p3 = idealprimedec(nf,3)[1];
+  p5 = idealprimedec(nf,5)[1];
+  p7 = idealprimedec(nf,7)[1];
+  p11 = idealprimedec(nf,11)[1];
+  finv = [[p3,p5,p7,p11], Vecsmall([3,2,2,2])];
+  iinv = Vecsmall([3]);
+  al = alinit(nf,[d,finv,iinv],J,0);
+  do("degree 6 algebra over Q", ()->alsame(al,finv,iinv));
+
+});
+
+moreoperations() = gusuite("more operations", ()->{
+  my(x='x, y='y, nf, p1, p2, iinv, finv, al, u, t, b, w, un, pol1, pol2, cp, mul, rnf, aut, ww, tt, ord, invord);
+
+  pol1 = y;
+  nf = nfinit(pol1);
+  p1 = idealprimedec(nf,2)[1];
+  p2 = idealprimedec(nf,3)[1];
+  iinv = [0];
+  finv = [[p1,p2],[1/3,2/3]];
+  al = alinit(nf,[3,finv,iinv],x);
+
+  do("construct algebra", ()->al);
+
+  pol2 = algetsplitting(al).pol;
+  mul = Mod(1,pol1)*Mod(1,pol2);
+  u = [0,1,0]~*mul;
+  t = [x,0,0]~*mul;
+  b = [algetb(al),0,0]~*mul;
+  w = [x+x^2-7,1/2+x-3/7*x^2,12*x-1]~*mul;
+  un = [1,0,0]~*mul;
+
+  do("norm(u)", ()->lift(alnorm(al,u))==lift(algetb(al)));
+  do("norm(t)", ()->alnorm(al,t)==rnfeltnorm(algetsplitting(al),x));
+  do("trace(u)", ()->altrace(al,u)==0);
+  do("trace(t)", ()->altrace(al,t)==rnfelttrace(algetsplitting(al),x));
+  do("u+t", ()->aladd(al,u,t)==aladd(al,t,u));
+  do("u*t", ()->almul(al,u,t)!=almul(al,t,u));
+  do("u^3", ()->alpow(al,u,3)==b);
+  do("w^-1 L", ()->almul(al,w,alinv(al,w))==un);
+  do("w^-1 R", ()->almul(al,alinv(al,w),w)==un);
+  do("w^-1*u", ()->almul(al,w,aldivl(al,w,u)));
+  do("u*w^-1", ()->almul(al,aldivr(al,u,w),w));
+  cp = alcharpoly(al,w,'Y);
+  do("charpol(w)", ()->cp);
+  do("eval charpol", ()->aladd(al,aladd(al,alpow(al,w,3),almul(al,[polcoeff(cp,2),0,0]~*mul,alsqr(al,w))),aladd(al,almul(al,[polcoeff(cp,1),0,0]~*mul,w),[polcoeff(cp,0),0,0]~*mul))==0);
+  do("trace(w)", ()->altrace(al,w)==-polcoeff(cp,2));
+  do("norm(w)", ()->alnorm(al,w)==-polcoeff(cp,0));
+  do("dim", ()->algetdim(al)==9);
+  do("absdim", ()->algetabsdim(al)==9);
+
+  pol1 = y^2+1;
+  nf = nfinit(pol1);
+  pol2 = x^3 + x^2 - 2*x - 1;
+  rnf = rnfinit(nf,pol2);
+  aut = x^2-2;
+  al = alinit(rnf,[aut,Mod(2,pol1)]);
+  mul = Mod(1,pol1)*Mod(1,pol2);
+  u = [0,1,0]~*mul;
+  t = [x,0,0]~*mul;
+  tt = [y*x,0,0]~*mul;
+  b = [2,0,0]~*mul;
+  un = [1,0,0]~*mul;
+  w = [y*x-1/3*x^2, 2+y/7-x, -12*x-3*y*x^2]~*mul;
+  ww = [-x^2*y, 1/13+y+x+4*x^2, (-2+y)*x^2+(y/3+1/5)*x]~*mul;
+  ord = algetord(al);
+  invord = algetinvord(al);
+  do("almultable w+ww", ()->almultable(al,aladd(al,w,ww))==(almultable(al,w)+almultable(al,ww)));
+  do("almultable w*ww", ()->almultable(al,almul(al,w,ww))==(almultable(al,w)*almultable(al,ww)));
+  do("alg(basis(w))", ()->albasistoalg(al,alalgtobasis(al,w))==w);
+  do("alg(basis(ww))", ()->albasistoalg(al,alalgtobasis(al,ww))==ww);
+  do("basis(w)+ww", ()->aladd(al,alalgtobasis(al,w),ww)==alalgtobasis(al,aladd(al,w,ww)));
+  do("basis(w)-ww", ()->alsub(al,alalgtobasis(al,w),ww)==alalgtobasis(al,alsub(al,w,ww)));
+  do("w+basis(ww)", ()->aladd(al,w,alalgtobasis(al,ww))==alalgtobasis(al,aladd(al,w,ww)));
+  do("w-basis(ww)", ()->alsub(al,w,alalgtobasis(al,ww))==alalgtobasis(al,alsub(al,w,ww)));
+  do("basis(w)*ww", ()->almul(al,alalgtobasis(al,w),ww)==alalgtobasis(al,almul(al,w,ww)));
+  do("w*basis(ww)", ()->almul(al,w,alalgtobasis(al,ww))==alalgtobasis(al,almul(al,w,ww)));
+  do("basis(w)^2", ()->alsqr(al,alalgtobasis(al,w))==alalgtobasis(al,alsqr(al,w)));
+  do("basis(ww)^2", ()->alsqr(al,alalgtobasis(al,ww))==alalgtobasis(al,alsqr(al,ww)));
+  do("basis(w)\ww", ()->aldivl(al,alalgtobasis(al,w),ww)==alalgtobasis(al,aldivl(al,w,ww)));
+  do("w\basis(ww)", ()->aldivl(al,w,alalgtobasis(al,ww))==alalgtobasis(al,aldivl(al,w,ww)));
+  do("basis(ww)\w", ()->aldivl(al,alalgtobasis(al,ww),w)==alalgtobasis(al,aldivl(al,ww,w)));
+  do("ww\basis(w)", ()->aldivl(al,ww,alalgtobasis(al,w))==alalgtobasis(al,aldivl(al,ww,w)));
+  do("basis(w)^-1", ()->alinv(al,alalgtobasis(al,w))==alalgtobasis(al,alinv(al,w)));
+  do("basis(ww)^-1", ()->alinv(al,alalgtobasis(al,ww))==alalgtobasis(al,alinv(al,ww)));
+  do("basis(w)/ww", ()->aldivr(al,alalgtobasis(al,w),ww)==alalgtobasis(al,aldivr(al,w,ww)));
+  do("w/basis(ww)", ()->aldivr(al,w,alalgtobasis(al,ww))==alalgtobasis(al,aldivr(al,w,ww)));
+  do("basis(ww)/w", ()->aldivr(al,alalgtobasis(al,ww),w)==alalgtobasis(al,aldivr(al,ww,w)));
+  do("ww/basis(w)", ()->aldivr(al,ww,alalgtobasis(al,w))==alalgtobasis(al,aldivr(al,ww,w)));
+  do("trace(basis(w))", ()->altrace(al,w)==altrace(al,alalgtobasis(al,w)));
+  do("trace(basis(ww))", ()->altrace(al,ww)==altrace(al,alalgtobasis(al,ww)));
+  w = [0,0,x*y]~*mul;
+  ww = [1+y,1+x,1+x^2]~*mul;
+  do("alg(basis(w)) 2", ()->albasistoalg(al,alalgtobasis(al,w))==w);
+  do("alg(basis(ww)) 2", ()->albasistoalg(al,alalgtobasis(al,ww))==ww);
+  do("basis(w)+ww 2", ()->aladd(al,alalgtobasis(al,w),ww)==alalgtobasis(al,aladd(al,w,ww)));
+  do("basis(w)-ww 2", ()->alsub(al,alalgtobasis(al,w),ww)==alalgtobasis(al,alsub(al,w,ww)));
+  do("w+basis(ww) 2", ()->aladd(al,w,alalgtobasis(al,ww))==alalgtobasis(al,aladd(al,w,ww)));
+  do("w-basis(ww) 2", ()->alsub(al,w,alalgtobasis(al,ww))==alalgtobasis(al,alsub(al,w,ww)));
+  do("basis(w)*ww 2", ()->almul(al,alalgtobasis(al,w),ww)==alalgtobasis(al,almul(al,w,ww)));
+  do("w*basis(ww) 2", ()->almul(al,w,alalgtobasis(al,ww))==alalgtobasis(al,almul(al,w,ww)));
+  do("basis(w)^2 2", ()->alsqr(al,alalgtobasis(al,w))==alalgtobasis(al,alsqr(al,w)));
+  do("basis(ww)^2 2", ()->alsqr(al,alalgtobasis(al,ww))==alalgtobasis(al,alsqr(al,ww)));
+  do("basis(w)\ww 2", ()->aldivl(al,alalgtobasis(al,w),ww)==alalgtobasis(al,aldivl(al,w,ww)));
+  do("w\basis(ww) 2", ()->aldivl(al,w,alalgtobasis(al,ww))==alalgtobasis(al,aldivl(al,w,ww)));
+  do("basis(ww)\w 2", ()->aldivl(al,alalgtobasis(al,ww),w)==alalgtobasis(al,aldivl(al,ww,w)));
+  do("ww\basis(w) 2", ()->aldivl(al,ww,alalgtobasis(al,w))==alalgtobasis(al,aldivl(al,ww,w)));
+  do("basis(w)^-1 2", ()->alinv(al,alalgtobasis(al,w))==alalgtobasis(al,alinv(al,w)));
+  do("basis(ww)^-1 2", ()->alinv(al,alalgtobasis(al,ww))==alalgtobasis(al,alinv(al,ww)));
+  do("basis(w)/ww 2", ()->aldivr(al,alalgtobasis(al,w),ww)==alalgtobasis(al,aldivr(al,w,ww)));
+  do("w/basis(ww) 2", ()->aldivr(al,w,alalgtobasis(al,ww))==alalgtobasis(al,aldivr(al,w,ww)));
+  do("basis(ww)/w 2", ()->aldivr(al,alalgtobasis(al,ww),w)==alalgtobasis(al,aldivr(al,ww,w)));
+  do("ww/basis(w) 2", ()->aldivr(al,ww,alalgtobasis(al,w))==alalgtobasis(al,aldivr(al,ww,w)));
+  do("trace(basis(w)) 2", ()->altrace(al,w)==altrace(al,alalgtobasis(al,w)));
+  do("trace(basis(ww)) 2", ()->altrace(al,ww)==altrace(al,alalgtobasis(al,ww)));
+  w = [1/2,1/3*x,1/5]~*mul;
+  ww = [1+y,1+x,1+x^2]~*mul;
+  do("alg(basis(w)) 3", ()->albasistoalg(al,alalgtobasis(al,w))==w);
+  do("alg(basis(ww)) 3", ()->albasistoalg(al,alalgtobasis(al,ww))==ww);
+  do("basis(w)+ww 3", ()->aladd(al,alalgtobasis(al,w),ww)==alalgtobasis(al,aladd(al,w,ww)));
+  do("basis(w)-ww 3", ()->alsub(al,alalgtobasis(al,w),ww)==alalgtobasis(al,alsub(al,w,ww)));
+  do("w+basis(ww) 3", ()->aladd(al,w,alalgtobasis(al,ww))==alalgtobasis(al,aladd(al,w,ww)));
+  do("w-basis(ww) 3", ()->alsub(al,w,alalgtobasis(al,ww))==alalgtobasis(al,alsub(al,w,ww)));
+  do("basis(w)*ww 3", ()->almul(al,alalgtobasis(al,w),ww)==alalgtobasis(al,almul(al,w,ww)));
+  do("w*basis(ww) 3", ()->almul(al,w,alalgtobasis(al,ww))==alalgtobasis(al,almul(al,w,ww)));
+  do("basis(w)^2 3", ()->alsqr(al,alalgtobasis(al,w))==alalgtobasis(al,alsqr(al,w)));
+  do("basis(ww)^2 3", ()->alsqr(al,alalgtobasis(al,ww))==alalgtobasis(al,alsqr(al,ww)));
+  do("basis(w)\ww 3", ()->aldivl(al,alalgtobasis(al,w),ww)==alalgtobasis(al,aldivl(al,w,ww)));
+  do("w\basis(ww) 3", ()->aldivl(al,w,alalgtobasis(al,ww))==alalgtobasis(al,aldivl(al,w,ww)));
+  do("basis(ww)\w 3", ()->aldivl(al,alalgtobasis(al,ww),w)==alalgtobasis(al,aldivl(al,ww,w)));
+  do("ww\basis(w) 3", ()->aldivl(al,ww,alalgtobasis(al,w))==alalgtobasis(al,aldivl(al,ww,w)));
+  do("basis(w)^-1 3", ()->alinv(al,alalgtobasis(al,w))==alalgtobasis(al,alinv(al,w)));
+  do("basis(ww)^-1 3", ()->alinv(al,alalgtobasis(al,ww))==alalgtobasis(al,alinv(al,ww)));
+  do("basis(w)/ww 3", ()->aldivr(al,alalgtobasis(al,w),ww)==alalgtobasis(al,aldivr(al,w,ww)));
+  do("w/basis(ww) 3", ()->aldivr(al,w,alalgtobasis(al,ww))==alalgtobasis(al,aldivr(al,w,ww)));
+  do("basis(ww)/w 3", ()->aldivr(al,alalgtobasis(al,ww),w)==alalgtobasis(al,aldivr(al,ww,w)));
+  do("ww/basis(w) 3", ()->aldivr(al,ww,alalgtobasis(al,w))==alalgtobasis(al,aldivr(al,ww,w)));
+  do("trace(basis(w)) 3", ()->altrace(al,w)==altrace(al,alalgtobasis(al,w)));
+  do("trace(basis(ww)) 3", ()->altrace(al,ww)==altrace(al,alalgtobasis(al,ww)));
+  do("radical", ()->alradical(al)==0); \\cyclic => simple
+
+  pol1 = y;
+  nf = nfinit(pol1);
+  pol2 = x^2-2;
+  rnf = rnfinit(nf,pol2);
+  aut = -x;
+  al = alinit(rnf,[aut,Mod(5,pol1)]);
+  mul = Mod(1,pol1)*Mod(1,pol2);
+  u = [0,1]~*mul;
+  t = [x,0]~*mul;
+  b = [5,0]~*mul;
+  un = [1,0]~*mul;
+  w = [-1/3*x^2, 2/7-x]~*mul;
+  ww = [-x^2*4, 1/13+x+4*x^2]~*mul;
+  ord = algetord(al);
+  invord = algetinvord(al);
+  do("almultable/Q w+ww", ()->almultable(al,aladd(al,w,ww))==(almultable(al,w)+almultable(al,ww)));
+  do("almultable/Q w*ww", ()->almultable(al,almul(al,w,ww))==(almultable(al,w)*almultable(al,ww)));
+  do("alg(basis(w))/Q", ()->albasistoalg(al,alalgtobasis(al,w))==w);
+  do("alg(basis(ww))/Q", ()->albasistoalg(al,alalgtobasis(al,ww))==ww);
+  do("basis(w)+ww/Q", ()->aladd(al,alalgtobasis(al,w),ww)==alalgtobasis(al,aladd(al,w,ww)));
+  do("basis(w)-ww/Q", ()->alsub(al,alalgtobasis(al,w),ww)==alalgtobasis(al,alsub(al,w,ww)));
+  do("w+basis(ww)/Q", ()->aladd(al,w,alalgtobasis(al,ww))==alalgtobasis(al,aladd(al,w,ww)));
+  do("w-basis(ww)/Q", ()->alsub(al,w,alalgtobasis(al,ww))==alalgtobasis(al,alsub(al,w,ww)));
+  do("basis(w)*ww/Q", ()->almul(al,alalgtobasis(al,w),ww)==alalgtobasis(al,almul(al,w,ww)));
+  do("w*basis(ww)/Q", ()->almul(al,w,alalgtobasis(al,ww))==alalgtobasis(al,almul(al,w,ww)));
+  do("basis(w)^2/Q", ()->alsqr(al,alalgtobasis(al,w))==alalgtobasis(al,alsqr(al,w)));
+  do("basis(ww)^2/Q", ()->alsqr(al,alalgtobasis(al,ww))==alalgtobasis(al,alsqr(al,ww)));
+  do("basis(w)\ww/Q", ()->aldivl(al,alalgtobasis(al,w),ww)==alalgtobasis(al,aldivl(al,w,ww)));
+  do("w\basis(ww)/Q", ()->aldivl(al,w,alalgtobasis(al,ww))==alalgtobasis(al,aldivl(al,w,ww)));
+  do("basis(ww)\w/Q", ()->aldivl(al,alalgtobasis(al,ww),w)==alalgtobasis(al,aldivl(al,ww,w)));
+  do("ww\basis(w)/Q", ()->aldivl(al,ww,alalgtobasis(al,w))==alalgtobasis(al,aldivl(al,ww,w)));
+  do("basis(w)^-1/Q", ()->alinv(al,alalgtobasis(al,w))==alalgtobasis(al,alinv(al,w)));
+  do("basis(ww)^-1/Q", ()->alinv(al,alalgtobasis(al,ww))==alalgtobasis(al,alinv(al,ww)));
+  do("basis(w)/ww/Q", ()->aldivr(al,alalgtobasis(al,w),ww)==alalgtobasis(al,aldivr(al,w,ww)));
+  do("w/basis(ww)/Q", ()->aldivr(al,w,alalgtobasis(al,ww))==alalgtobasis(al,aldivr(al,w,ww)));
+  do("basis(ww)/w/Q", ()->aldivr(al,alalgtobasis(al,ww),w)==alalgtobasis(al,aldivr(al,ww,w)));
+  do("ww/basis(w)/Q", ()->aldivr(al,ww,alalgtobasis(al,w))==alalgtobasis(al,aldivr(al,ww,w)));
+  do("trace(basis(w))/Q", ()->altrace(al,w)==altrace(al,alalgtobasis(al,w)));
+  do("trace(basis(ww))/Q", ()->altrace(al,ww)==altrace(al,alalgtobasis(al,ww)));
+  do("radical/Q", ()->alradical(al)==0); \\cyclic => simple
+});
+
+tablealg() = gusuite("table algebra", ()->{
+  my(x='x, al, mt, p, un, a, b, c, d, e, ss, projm, liftm, pa, sc);
+  mt = [[1,0,0;0,1,0;0,0,1],[0,0,0;1,0,1;0,0,0],[0,0,0;0,0,0;1,0,1]]; \\Matrices [*,*;0,*]
+  un = [1,0,0]~;
+  a = [1,0,-1]~;
+  b = [0,-1,1]~;
+  do("alisassociative 0.0", ()->alisassociative(mt));
+  do("alisassociative 0.1", ()->alisassociative(mt[2..3]));
+  my (mt0 = mt);
+  mt0[3][3,1] = 1;
+  do("alisassociative 0.2", ()->alisassociative(mt0));
+  do("alisassociative 0.3", ()->alisassociative('x));
+  al = altableinit(mt,0);
+  do("construction 0", ()->al);
+  do("iscyclic 0", ()->altype(al)==1);
+  do("dim 0", ()->algetabsdim(al)==3);
+  do("char 0", ()->algetchar(al)==0);
+  do("a+b 0", ()->aladd(al,a,b)==[1,-1,0]~);
+  do("a-b 0", ()->alsub(al,a,b)==[1,1,-2]~);
+  do("a*b 0", ()->almul(al,a,b)==[0,-1,0]~);
+  do("b*a 0", ()->almul(al,b,a)==[0,0,0]~);
+  do("a^2 0", ()->alsqr(al,a)==a);
+  do("b^2 0", ()->alsqr(al,b)==b);
+  e = [1,1,0]~;
+  do("e^691691 0", ()->alpow(al,e,691691)==[1,691691,0]~);
+  d = [1,0,1]~;
+  do("d^101 0", ()->alpow(al,d,101)==[1,0,2^101-1]~);
+  do("multable(a) 0", ()->almultable(al,a)==[1,0,0;0,1,0;-1,0,0]);
+  do("multable(b) 0", ()->almultable(al,b)==[0,0,0;-1,0,-1;1,0,1]);
+  do("divl(d,a) 0", ()->aldivl(al,d,a)==a);
+  do("divl(d,b) 0", ()->aldivl(al,d,b)==[0,-1,1/2]~);
+  do("d^-1 0", ()->alinv(al,d)==[1,0,-1/2]~);
+  do("divr(a,d) 0", ()->aldivr(al,a,d)==a);
+  do("divr(b,d) 0", ()->aldivr(al,b,d)==[0,-1/2,1/2]~);
+  c = [0,7,0]~;
+  do("rad(al) 0", ()->#alradical(al)==1); \\matrices [0,*;0,0]
+  do("ss(al) 0", ()->#alradical(alquotient(al,alradical(al)))==0);
+  [ss,projm,liftm] = alquotient(al,alradical(al),1);
+  pa = projm*a;
+  do("proj(a) idem 0", ()->alsqr(ss,pa)==pa);
+  do("idemproj 0", ()->alcentralproj(ss,[pa,alsub(ss,projm*un,pa)]));
+  sc = alcentralproj(ss,[pa,alsub(ss,projm*un,pa)]);
+  do("simple components 0", ()->algetmultable(sc[1])==[Mat(1)] && algetmultable(sc[2])==[Mat(1)]);
+  do("center al 0", ()->#alcenter(al)==1);
+  do("center ss 0", ()->#alcenter(ss)==2);
+  do("primesubalg ss 0", ()->#alprimesubalg(ss)==-1);
+  do("charpol annihil(a) 0", ()->testcharpol(al,a));
+  do("charpol annihil(b) 0", ()->testcharpol(al,b));
+  do("charpol annihil(c) 0", ()->testcharpol(al,c));
+  do("charpol annihil(d) 0", ()->testcharpol(al,d));
+  do("charpol annihil(e) 0", ()->testcharpol(al,e));
+  do("random 0", ()->alrandom(al,1));
+  do("alsimpledec 0", ()->#alsimpledec(ss)==2);
+  do("al_decomposition 0", ()->dec=aldecomposition(al); #dec[1]==1 && #dec[2]==2);
+
+  p = 2;
+  al = altableinit(mt,p);
+  do("alisassociative 2", ()->alisassociative(mt));
+  do("construction 2", ()->al);
+  do("iscyclic 2", ()->altype(al)==1);
+  do("dim 2", ()->algetabsdim(al)==3);
+  do("char 2", ()->algetchar(al)==p);
+  do("a+b 2", ()->aladd(al,a,b)==[1,1,0]~);
+  do("a-b 2", ()->alsub(al,a,b)==aladd(al,a,b));
+  do("a*b 2", ()->almul(al,a,b)==[0,p-1,0]~);
+  do("b*a 2", ()->almul(al,b,a)==[0,0,0]~);
+  do("a^2 2", ()->alsqr(al,a)==a*Mod(1,p));
+  do("b^2 2", ()->alsqr(al,b)==b*Mod(1,p));
+  do("multable(a) 2", ()->almultable(al,a)==[1,0,0;0,1,0;-1,0,0]*Mod(1,p));
+  do("multable(b) 2", ()->almultable(al,b)==[0,0,0;-1,0,-1;1,0,1]*Mod(1,p));
+  do("divl(un,a) 2", ()->aldivl(al,un,a)==a*Mod(1,p));
+  do("divl(un,b) 2", ()->aldivl(al,un,b)==b*Mod(1,p));
+  do("un^-1 2", ()->alinv(al,un)==un);
+  do("divr(a,un) 2", ()->aldivr(al,a,un)==a*Mod(1,p));
+  do("divr(b,un) 2", ()->aldivr(al,b,un)==b*Mod(1,p));
+  do("rad(al) 2", ()->#alradical(al)==1); \\matrices [0,*;0,0]
+  do("ss(al) 2", ()->#alradical(alquotient(al,alradical(al)))==0);
+  [ss,projm,liftm] = alquotient(al,alradical(al),1);
+  pa = projm*a;
+  do("proj(a) idem 2", ()->alsqr(ss,pa)==pa*Mod(1,p));
+  do("idemproj 2", ()->alcentralproj(ss,[pa,alsub(ss,projm*un,pa)]));
+  sc = alcentralproj(ss,[pa,alsub(ss,projm*un,pa)]);
+  do("simple components 2", ()->algetmultable(sc[1])==[Mat(Mod(1,p))] && algetmultable(sc[2])==[Mat(Mod(1,p))]);
+  do("center al 2", ()->#alcenter(al)==1);
+  do("center ss 2", ()->#alcenter(ss)==2);
+  do("primesubalg ss 2", ()->#alprimesubalg(ss)==2);
+  do("charpol annihil(a) 2", ()->testcharpol(al,a));
+  do("charpol annihil(b) 2", ()->testcharpol(al,b));
+  do("charpol annihil(c) 2", ()->testcharpol(al,c));
+  do("random 2", ()->alrandom(al,1));
+  do("alsimpledec 2", ()->#alsimpledec(ss)==2);
+  do("al_decomposition 2", ()->dec=aldecomposition(al); #dec[1]==1 && #dec[2]==2);
+
+  p = 3;
+  mt = [[1,0;0,1],[0,0;1,0]];\\F3[x]/(x^2)
+  un = [1,0]~;
+  a = [1,-1]~;
+  b = [0,1]~;
+  al = altableinit(mt,p);
+  do("construction 3", ()->al);
+  do("iscyclic 3", ()->altype(al)==1);
+  do("dim 3", ()->algetabsdim(al)==2);
+  do("char 3", ()->algetchar(al)==p);
+  do("a+b 3", ()->aladd(al,a,b)==un);
+  do("a-b 3", ()->alsub(al,a,b)==[1,1]~);
+  do("a*b 3", ()->almul(al,a,b)==[0,1]~);
+  do("b*a 3", ()->almul(al,b,a)==[0,1]~);
+  do("a^2 3", ()->alsqr(al,a)==[1,1]~);
+  do("b^2 3", ()->alsqr(al,b)==[0,0]~);
+  do("a^691691 3", ()->alpow(al,a,691691)==[1,-691691]~*Mod(1,p));
+  do("multable(a) 3", ()->almultable(al,a)==[1,0;-1,1]*Mod(1,p));
+  do("multable(b) 3", ()->almultable(al,b)==[0,0;1,0]);
+  do("aldivl(a,b) 3", ()->aldivl(al,a,b)==b);
+  do("a^-1 3", ()->alinv(al,a)==[1,1]~);
+  do("aldivr(b,a) 3", ()->aldivr(al,b,a)==b);
+  do("rad(al) 3", ()->#alradical(al)==1); \\ideal (x)
+  do("ss(al) 3", ()->#alradical(alquotient(al,alradical(al)))==0);
+  [ss,projm,liftm] = alquotient(al,alradical(al),1);
+  do("center al 3", ()->#alcenter(al)==2);
+  do("center ss 3", ()->#alcenter(ss)==1);
+  do("primesubalg ss 3", ()->#alprimesubalg(ss)==1);
+  do("charpol annihil(a) 3", ()->testcharpol(al,a));
+  do("charpol annihil(b) 3", ()->testcharpol(al,b));
+  do("random 3", ()->alrandom(al,1));
+  do("alsimpledec 3", ()->#alsimpledec(ss)==1);
+  do("al_decomposition 3", ()->dec=aldecomposition(al); #dec[1]==1 && #dec[2]==1);
+
+  p = 3;
+  mt = [[1,0,0;0,1,0;0,0,1],[0,0,0;1,0,0;0,1,0],[0,0,0;0,0,0;1,0,0]];\\F3[x]/(x^3)
+  un = [1,0,0]~;
+  a = [1,-1,0]~;
+  b = [0,1,0]~;
+  al = altableinit(mt,p);
+  do("construction 3c", ()->al);
+  do("iscyclic 3c", ()->altype(al)==1);
+  do("dim 3c", ()->algetabsdim(al)==3);
+  do("char 3c", ()->algetchar(al)==p);
+  do("a+b 3c", ()->aladd(al,a,b)==un);
+  do("a-b 3c", ()->alsub(al,a,b)==[1,1,0]~);
+  do("a*b 3c", ()->almul(al,a,b)==[0,1,p-1]~);
+  do("b*a 3c", ()->almul(al,b,a)==[0,1,p-1]~);
+  do("a^2 3c", ()->alsqr(al,a)==[1,1,1]~);
+  do("b^2 3c", ()->alsqr(al,b)==[0,0,1]~);
+  do("a^691691 3c", ()->alpow(al,a,691691)==[1,-691691,(691691*691690)\2]~*Mod(1,p));
+  do("multable(a) 3c", ()->almultable(al,a)==[1,0,0;-1,1,0;0,-1,1]*Mod(1,p));
+  do("multable(b) 3c", ()->almultable(al,b)==[0,0,0;1,0,0;0,1,0]);
+  do("aldivl(a,b) 3c", ()->aldivl(al,a,b)==[0,1,1]~);
+  do("a^-1 3c", ()->alinv(al,a)==[1,1,1]~);
+  do("aldivr(b,a) 3c", ()->aldivr(al,b,a)==[0,1,1]~);
+  do("rad(al) 3c", ()->#alradical(al)==2); \\ideal (x), basis (x,x^2)
+  do("ss(al) 3c", ()->#alradical(alquotient(al,alradical(al)))==0);
+  [ss,projm,liftm] = alquotient(al,alradical(al),1);
+  do("center al 3c", ()->#alcenter(al)==3);
+  do("center ss 3c", ()->#alcenter(ss)==1);
+  do("primesubalg ss 3c", ()->#alprimesubalg(ss)==1);
+  do("charpol annihil(a) 3c", ()->testcharpol(al,a));
+  do("charpol annihil(b) 3c", ()->testcharpol(al,b));
+  do("random 3c", ()->alrandom(al,1));
+  do("alsimpledec 3c", ()->#alsimpledec(ss)==1);
+  do("al_decomposition 3c", ()->dec=aldecomposition(al); #dec[1]==2 && #dec[2]==1);
+
+  p = 2;
+  mt = [[1,0;0,1],[0,1;1,1]]; \\F2[x]/(x^2+x+1)
+  un = [1,0]~;
+  a = [0,1]~;
+  b = [1,1]~;
+  al = altableinit(mt,p);
+  do("construction 2b", ()->al);
+  do("iscyclic 2b", ()->altype(al)==1);
+  do("dim 2b", ()->algetabsdim(al)==2);
+  do("char 2b", ()->algetchar(al)==p);
+  do("a+b 2b", ()->aladd(al,a,b)==un);
+  do("a-b 2b", ()->alsub(al,a,b)==un);
+  do("a*b 2b", ()->almul(al,a,b)==un);
+  do("b*a 2b", ()->almul(al,b,a)==un);
+  do("a^2 2b", ()->alsqr(al,a)==b);
+  do("b^2 2b", ()->alsqr(al,b)==a);
+  do("a^691691 2b", ()->alpow(al,a,691691)==b);
+  do("multable(a) 2b", ()->almultable(al,a)==[0,1;1,1]);
+  do("multable(b) 2b", ()->almultable(al,b)==[1,1;1,0]);
+  do("divl(a,b) 2b", ()->aldivl(al,a,b)==a);
+  do("a^-1 2b", ()->alinv(al,a)==b);
+  do("divr(b,a) 2b", ()->aldivr(al,b,a)==a);
+  do("rad(al) 2b", ()->#alradical(al)==0); \\separable extension of F2
+  do("center al 2b", ()->#alcenter(al)==2);
+  do("primesubalg al 2b", ()->#alprimesubalg(al)==1);
+  do("charpol annihil(a) 2b", ()->testcharpol(al,a));
+  do("charpol annihil(b) 2b", ()->testcharpol(al,b));
+  do("random 2b", ()->alrandom(al,1));
+  do("alsimpledec 2b", ()->#alsimpledec(al)==1);
+  do("al_decomposition 2b", ()->dec=aldecomposition(al); dec[1]==0 && #dec[2]==1 && algetabsdim(dec[2][1])==2);
+
+  p = 3;
+  mt = [matid(4),
+
+         [0,1,0,0;
+          1,0,0,0;
+          0,0,1,0;
+          0,0,0,-1],
+
+         [0,0,0,1/2;
+          0,0,0,1/2;
+          1,-1,0,0;
+          0,0,0,0],
+
+         [0,0,1/2,0;
+          0,0,-1/2,0;
+          0,0,0,0;
+          1,1,0,0]]*Mod(1,p); \\M_2(F3)
+  un = [1,0,0,0]~;
+  a = [0,1,-1,0]~;
+  b = [1,1,0,1]~;
+  al = altableinit(mt,p);
+  do("construction 3b", ()->al);
+  do("iscyclic 3b", ()->altype(al)==1);
+  do("dim 3b", ()->algetabsdim(al)==4);
+  do("char 3b", ()->algetchar(al)==p);
+  do("a+b 3b", ()->aladd(al,a,b)==[1,-1,2,1]~*Mod(1,p));
+  do("a-b 3b", ()->alsub(al,a,b)==[2,0,2,2]~);
+  do("a*b 3b", ()->almul(al,a,b)==[2,2,0,2]~);
+  do("b*a 3b", ()->almul(al,b,a)==[2,0,1,1]~);
+  do("a^2 3b", ()->alsqr(al,a)==un);
+  do("b^2 3b", ()->alsqr(al,b)==-b*Mod(1,p));
+  do("a^691691 3b", ()->alpow(al,a,691691)==a*Mod(1,p));
+  do("b^691691 3b", ()->alpow(al,b,691691)==b);
+  do("multable(a) 3b", ()->almultable(al,a)==[0,1,0,1;1,0,0,1;2,1,1,0;0,0,0,2]);
+  do("multable(b) 3b", ()->almultable(al,b)==[1,1,2,0;1,1,1,0;0,0,2,0;1,1,0,0]);
+  do("divl(a,b) 3b", ()->aldivl(al,a,b)==[2,2,0,2]~);
+  do("a^-1 3b", ()->alinv(al,a)==[0,1,2,0]~);
+  do("divr(b,a) 3b", ()->aldivr(al,b,a)==[2,0,1,1]~);
+  c = [0,0,1,0]~;
+  do("rad(al) 3b", ()->#alradical(al)==0); \\matrix ring is semisimple
+  do("center al 3b", ()->#alcenter(al)==1);
+  do("primesubalg al 3b", ()->#alprimesubalg(al)==1);
+  do("charpol annihil(a) 3b", ()->testcharpol(al,a));
+  do("charpol annihil(b) 3b", ()->testcharpol(al,b));
+  do("charpol annihil(c) 3b", ()->testcharpol(al,c));
+  do("random 3b", ()->alrandom(al,1));
+  do("alsimpledec 3b", ()->#alsimpledec(al)==1);
+  do("al_decomposition 3b", ()->dec=aldecomposition(al); dec[1]==0 && #dec[2]==1 && #alcenter(dec[2][1])==1);
+
+  p = 2;
+  mt = [matid(4),
+
+     [0,0,1,0;
+      1,0,0,1;
+      0,0,0,0;
+      0,0,-1,0],
+
+     [0,0,0,0;
+      0,0,0,0;
+      1,0,0,0;
+      0,1,0,0],
+
+     [0,0,0,0;
+      0,0,0,0;
+      0,0,1,0;
+      1,0,0,1]]*Mod(1,p); \\M_2(F2)
+  un = [1,0,0,0]~;
+  a = [0,1,0,0]~;
+  b = [1,0,0,1]~;
+  al = altableinit(mt,p);
+  do("construction 2c", ()->al);
+  do("iscyclic 2c", ()->altype(al)==1);
+  do("dim 2c", ()->algetabsdim(al)==4);
+  do("char 2c", ()->algetchar(al)==p);
+  do("a+b 2c", ()->aladd(al,a,b)==[1,1,0,1]~);
+  do("a-b 2c", ()->alsub(al,a,b)==[1,1,0,1]~);
+  do("a*b 2c", ()->almul(al,a,b)==[0,0,0,0]~);
+  do("b*a 2c", ()->almul(al,b,a)==a);
+  do("a^2 2c", ()->alsqr(al,a)==[0,0,0,0]~);
+  do("b^2 2c", ()->alsqr(al,b)==b);
+  c = [1,1,1,1]~;
+  do("a^691691 2c", ()->alpow(al,a,691691)==[0,0,0,0]~);
+  do("b^691691 2c", ()->alpow(al,b,691691)==b);
+  do("c^691691 2c", ()->alpow(al,c,691691)==[0,1,1,1]~);
+  do("multable(a) 2c", ()->almultable(al,a)==[0,0,1,0;1,0,0,1;0,0,0,0;0,0,1,0]);
+  do("multable(b) 2c", ()->almultable(al,b)==[1,0,0,0;0,1,0,0;0,0,0,0;1,0,0,0]);
+  do("divl(c,a) 2c", ()->aldivl(al,c,a)==[0,0,0,1]~);
+  do("divl(c,b) 2c", ()->aldivl(al,c,b)==[0,0,1,0]~);
+  do("c^-1 2c", ()->alinv(al,c)==[0,1,1,1]~);
+  do("divr(a,c) 2c", ()->aldivr(al,a,c)==[1,1,0,1]~);
+  do("divr(b,c) 2c", ()->aldivr(al,b,c)==[0,1,0,0]~);
+  do("rad(al) 2c", ()->#alradical(al)==0); \\matrix ring is semisimple
+  do("center al 2c", ()->#alcenter(al)==1);
+  do("primesubalg al 2c", ()->#alprimesubalg(al)==1);
+  do("charpol annihil(a) 2c", ()->testcharpol(al,a));
+  do("charpol annihil(b) 2c", ()->testcharpol(al,b));
+  do("charpol annihil(c) 2c", ()->testcharpol(al,c));
+  do("random 2c", ()->alrandom(al,1));
+  do("alsimpledec 2c", ()->#alsimpledec(al)==1);
+  do("al_decomposition 2c", ()->dec=aldecomposition(al); dec[1]==0 && #dec[2]==1 && #alcenter(dec[2][1])==1);
+
+  p = 5;
+  mt = [Mat(Mod(1,p))];
+  un = [1]~;
+  a = [2]~;
+  b = [3]~;
+  al = altableinit(mt,p);
+  do("construction 5", ()->al);
+  do("iscyclic 5", ()->altype(al)==1);
+  do("dim 5", ()->algetabsdim(al)==1);
+  do("char 5", ()->algetchar(al)==p);
+  do("a+b 5", ()->aladd(al,a,b)==[Mod(0,p)]~);
+  do("a-b 5", ()->alsub(al,a,b)==[Mod(4,p)]~);
+  do("a*b 5", ()->almul(al,a,b)==[Mod(1,p)]~);
+  do("b*a 5", ()->almul(al,b,a)==[Mod(1,p)]~);
+  do("a^2 5", ()->alsqr(al,a)==[Mod(4,p)]~);
+  do("b^2 5", ()->alsqr(al,b)==[Mod(-1,p)]~);
+  do("a^691691 5", ()->alpow(al,a,691691)==b);
+  do("multable(a) 5", ()->almultable(al,a)==Mat(Mod(2,p)));
+  do("multable(b) 5", ()->almultable(al,b)==Mat(Mod(3,p)));
+  do("divl(a,b) 5", ()->aldivl(al,a,b)==[Mod(4,p)]~);
+  do("a^-1 5", ()->alinv(al,a)==[Mod(3,p)]~);
+  do("divr(a,b) 5", ()->aldivr(al,a,b)==[Mod(4,p)]~);
+  do("rad(al) 5", ()->#alradical(al)==0); \\F5, dim 1
+  do("center al 5", ()->#alcenter(al)==1);
+  do("primesubalg al 5", ()->#alprimesubalg(al)==1);
+  do("charpol annihil(a) 5", ()->testcharpol(al,a));
+  do("charpol annihil(b) 5", ()->testcharpol(al,b));
+  do("random 5", ()->alrandom(al,1));
+  do("alsimpledec 5", ()->#alsimpledec(al)==1);
+  do("al_decomposition 5", ()->dec=aldecomposition(al); dec[1]==0 && #dec[2]==1 && algetabsdim(dec[2][1])==1);
+
+  p = 0; \\M_2(Q)+Q
+  mt = [matid(5),
+
+     [0,0,1,0,0;
+      1,0,0,1,0;
+      0,0,0,0,0;
+      0,0,-1,0,0;
+      0,1,-1,-1,1],
+
+     [0,0,0,0,0;
+      0,0,0,0,0;
+      1,0,0,0,0;
+      0,1,0,0,0;
+      0,0,0,0,0],
+
+     [0,0,0,0,0;
+      0,0,0,0,0;
+      0,0,1,0,0;
+      1,0,0,1,0;
+      0,0,0,0,0],
+
+     [0,0,0,0,0;
+      0,0,0,0,0;
+      0,0,0,0,0;
+      0,0,0,0,0;
+      1,1,0,0,1]
+  ];
+  un = [1,0,0,0,0]~;
+  a = [1,0,0,0,-1]~;
+  b = [1,1,0,0,0]~;
+  al = altableinit(mt,p);
+  do("construction 0b", ()->al);
+  do("iscyclic 0b", ()->altype(al)==1);
+  do("dim 0b", ()->algetabsdim(al)==5);
+  do("char 0b", ()->algetchar(al)==p);
+  do("a+b 0b", ()->aladd(al,a,b)==[2,1,0,0,-1]~);
+  do("a-b 0b", ()->alsub(al,a,b)==[0,-1,0,0,-1]~);
+  do("a*b 0b", ()->almul(al,a,b)==[1,1,0,0,-2]~);
+  do("b*a 0b", ()->almul(al,b,a)==almul(al,a,b));\\a central
+  do("a^2 0b", ()->alsqr(al,a)==a);
+  do("b^2 0b", ()->alsqr(al,b)==[1,2,0,0,1]~);
+  do("a^691691 0b", ()->alpow(al,a,691691)==a);
+  do("b^691 0b", ()->alpow(al,b,691)==[1,691,0,0,2^691-1-691]~);
+  do("multable(a) 0b", ()->almultable(al,a)==
+      [1,0,0,0,0;
+       0,1,0,0,0;
+       0,0,1,0,0;
+       0,0,0,1,0;
+       -1,-1,0,0,0]);
+  do("multable(b) 0b", ()->almultable(al,b)==
+      [1,0,1,0,0;
+       1,1,0,1,0;
+       0,0,1,0,0;
+       0,0,-1,1,0;
+       0,1,-1,-1,2]);
+  do("divl(b,a) 0b", ()->aldivl(al,b,a)==[1,-1,0,0,0]~);
+  do("b^-1 0b", ()->alinv(al,b)==[1,-1,0,0,1/2]~);
+  do("divr(a,b) 0b", ()->aldivr(al,a,b)==aldivl(al,b,a));
+  do("rad(al) 0b", ()->#alradical(al)==0);
+  do("idemproj 0b", ()->alcentralproj(al,[a,alsub(al,un,a)]));
+  sc = alcentralproj(al,[a,alsub(al,un,a)]);
+  do("simple components 0b", ()->algetabsdim(sc[1])==4 && algetabsdim(sc[2])==1);
+  do("mt M2 component 0b", ()->algetmultable(sc[1])[1]==matid(4));
+  do("center al 0b", ()->#alcenter(al)==2);
+  do("primesubalg al 0b", ()->#alprimesubalg(al)==-1);
+  do("charpol annihil(a) 0b", ()->testcharpol(al,a));
+  do("charpol annihil(b) 0b", ()->testcharpol(al,b));
+  do("random 0b", ()->alrandom(al,1));
+  do("alsimpledec 0b", ()->#alsimpledec(al)==2);
+  do("al_decomposition 0b", ()->dec=aldecomposition(al); dec[1]==0 && #dec[2]==2 && #alcenter(dec[2][1])==1 && #alcenter(dec[2][2])==1 && (algetabsdim(dec[2][1])==4 || algetabsdim(dec[2][2])==4));
+
+  p = 3;
+  al = altableinit(mt,p);
+  do("construction 3d", ()->al);
+  do("iscyclic 3d", ()->altype(al)==1);
+  do("dim 3d", ()->algetabsdim(al)==5);
+  do("char 3d", ()->algetchar(al)==p);
+  do("a+b 3d", ()->aladd(al,a,b)==[2,1,0,0,-1]~*Mod(1,p));
+  do("a-b 3d", ()->alsub(al,a,b)==[0,-1,0,0,-1]~*Mod(1,p));
+  do("a*b 3d", ()->almul(al,a,b)==[1,1,0,0,-2]~*Mod(1,p));
+  do("b*a 3d", ()->almul(al,b,a)==almul(al,a,b));\\a central
+  do("a^2 3d", ()->alsqr(al,a)==a*Mod(1,p));
+  do("b^2 3d", ()->alsqr(al,b)==[1,2,0,0,1]~);
+  do("a^691691 3d", ()->alpow(al,a,691691)==a*Mod(1,p));
+  do("b^691 3d", ()->alpow(al,b,691)==[1,691,0,0,2^691-1-691]~*Mod(1,p));
+  do("multable(a) 3d", ()->almultable(al,a)==
+      [1,0,0,0,0;
+       0,1,0,0,0;
+       0,0,1,0,0;
+       0,0,0,1,0;
+       -1,-1,0,0,0]*Mod(1,p));
+  do("multable(b) 3d", ()->almultable(al,b)==
+      [1,0,1,0,0;
+       1,1,0,1,0;
+       0,0,1,0,0;
+       0,0,-1,1,0;
+       0,1,-1,-1,2]*Mod(1,p));
+  do("divl(b,a) 3d", ()->aldivl(al,b,a)==[1,-1,0,0,0]~*Mod(1,p));
+  do("b^-1 3d", ()->alinv(al,b)==[1,-1,0,0,1/2]~*Mod(1,p));
+  do("divr(a,b) 3d", ()->aldivr(al,a,b)==aldivl(al,b,a));
+  do("rad(al) 3d", ()->#alradical(al)==0);
+  do("idemproj 3d", ()->alcentralproj(al,[a,alsub(al,un,a)]));
+  sc = alcentralproj(al,[a,alsub(al,un,a)]);
+  do("simple components 3d", ()->algetabsdim(sc[1])==4 && algetabsdim(sc[2])==1);
+  do("mt M2 component 3d", ()->algetmultable(sc[1])[1]==matid(4));
+  do("center al 3d", ()->#alcenter(al)==2);
+  do("primesubalg al 3d", ()->#alprimesubalg(al)==2);
+  do("charpol annihil(a) 3d", ()->testcharpol(al,a));
+  do("charpol annihil(b) 3d", ()->testcharpol(al,b));
+  do("random 3d", ()->alrandom(al,1));
+  do("alsimpledec 3d", ()->#alsimpledec(al)==2);
+  do("al_decomposition 3d", ()->dec=aldecomposition(al); dec[1]==0 && #dec[2]==2 && #alcenter(dec[2][1])==1 && #alcenter(dec[2][2])==1 && (algetabsdim(dec[2][1])==4 || algetabsdim(dec[2][2])==4));
+});
+
+all() = gusuite("all", ()->{
+  get();
+  operations();
+  hasse0();
+  nfcompo();
+  tensor();
+  gw();
+  alfromhasse();
+  moreoperations();
+  tablealg();
+});
+
+all();
+
+nf = nfinit(y^2-2);
+al = alinit(nf, [-3,-5], x,1);
+print("maxorder assoc: ", alisassociative(al[9]));
+al0 = alinit(nf, [-3,-5], x,0);
+print("natorder assoc: ", alisassociative(al0[9]));
+un = [1,0]~;
+ii = [x,0]~;
+jj = [0,1]~;
+kk = almul(al,ii,jj);
+print("spl(1): ", alsplittingmatrix(al,un)==matid(2));
+print("spl(i): ", alsplittingmatrix(al,ii)==[x,0;0,-x]);
+print("spl(j): ", alsplittingmatrix(al,jj)==[0,-5;1,0]);
+print("spl(k): ", alsplittingmatrix(al,kk)==[0,-5*x;-x,0]);
+print("spl(basis(1)): ", alsplittingmatrix(al,alalgtobasis(al,un))==matid(2));
+print("spl(basis(i)): ", alsplittingmatrix(al,alalgtobasis(al,ii))==[x,0;0,-x]);
+print("spl(basis(j)): ", alsplittingmatrix(al,alalgtobasis(al,jj))==[0,-5;1,0]);
+print("spl(basis(k)): ", alsplittingmatrix(al,alalgtobasis(al,kk))==[0,-5*x;-x,0]);
+a = y+1;
+b = 1/3;
+c = -y/5+1/2;
+print("spl(a*1): ", alsplittingmatrix(al,a*un)==a*matid(2));
+print("spl(a*i): ", alsplittingmatrix(al,a*ii)==a*[x,0;0,-x]);
+print("spl(a*j): ", alsplittingmatrix(al,a*jj)==a*[0,-5;1,0]);
+print("spl(a*k): ", alsplittingmatrix(al,a*kk)==a*[0,-5*x;-x,0]);
+print("spl(b*1): ", alsplittingmatrix(al,b*un)==b*matid(2));
+print("spl(b*i): ", alsplittingmatrix(al,b*ii)==b*[x,0;0,-x]);
+print("spl(b*j): ", alsplittingmatrix(al,b*jj)==b*[0,-5;1,0]);
+print("spl(b*k): ", alsplittingmatrix(al,b*kk)==b*[0,-5*x;-x,0]);
+
+
+ord = algetord(al);
+invord = algetinvord(al);
+x1 = alrandom(al,1);
+ax1 = albasistoalg(al,x1);
+nx1 = alalgtobasis(al0,ax1);
+print("nattomax 1: ", nx1==ord*x1);
+x2 = alrandom(al,1);
+ax2 = albasistoalg(al,x2);
+nx2 = alalgtobasis(al0,ax2);
+print("nattomax 2: ", nx2==ord*x2);
+print("ord*invord=id: ", ord*invord == matid(8));
+print("spl additive: ", alsplittingmatrix(al,x1) + alsplittingmatrix(al,x2) == alsplittingmatrix(al, aladd(al,x1,x2)));
+print("spl multiplicative: ", alsplittingmatrix(al,x1) * alsplittingmatrix(al,x2) == alsplittingmatrix(al, almul(al,x1,x2)));
+print("changebasis bug 1: ", alalgtobasis(al,albasistoalg(al,almul(al,x1,x2)))==almul(al,x1,x2));
+print("changebasis bug 2: ", alalgtobasis(al0,almul(al0,ax1,ax2)) == almul(al0,nx1,nx2));
+print("changebasis bug 3: ", invord*almul(al0,nx1,nx2) == almul(al,x1,x2));
+print("changebasis bug 4: ", almultable(al,x1) == invord*almultable(al0,nx1)*ord);
+
+print("altableinit segfault bug: ");
+alt = altableinit(al[9]);
+print(alt != 'alt);
+print("center of CSA: ", #alcenter(alt)==2);
+print("radical of CSA: ", alradical(alt)==0);
+print("decomposition of CSA: ", #alsimpledec(alt)==1);
+dec = aldecomposition(alt);
+print("al_decomposition of CSA: ", #dec==2 && dec[1]==0 && #dec[2]==1 && #alcenter(dec[2][1])==2 && algetabsdim(dec[2][1])==8);
+

@@ -1,0 +1,6 @@
+Function: algetmultable
+Section: algebras
+C-Name: al_get_multable
+Prototype: G
+Help: algetmultable(al): multiplication table of the algebra al over its prime subfield.
+Doc: Given an algebra \var{al} output by \tet{alinit} or by \tet{altableinit}, returns a multiplication table of \var{al} over its prime subfield ($\Q$ or $\F_p$), as a \typ{VEC} of \typ{MAT}: the left multiplication tables of basis elements. If \var{al} was output by \tet{altableinit}, returns the multiplication table used to define \var{al}. If \var{al} was output by \tet{alinit}, returns the multiplication table of the order stored in \var{al}.

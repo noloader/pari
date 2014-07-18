@@ -1,0 +1,6 @@
+Function: alquotient
+Section: algebras
+C-Name: al_quotient
+Prototype: GGD0,L,
+Help: alquotient(al,I,{flag=0}): quotient of the algebra al by the two-sided ideal I.
+Doc: \var{al} being a table algebra output by \tet{altableinit} and \var{I} being a basis of a two-sided ideal of \var{al} represented by a matrix, returns the quotient $\var{al}/\var{I}$. When $\var{flag}=1$, returns a \typ{VEC} $[\var{al}/\var{I},\var{proj},\var{lift}]$ where \var{proj} and \var{lift} are matrices respectively representing the projection map and a section of it.

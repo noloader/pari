@@ -1,0 +1,6 @@
+Function: algetabsdim
+Section: algebras
+C-Name: al_get_absdim
+Prototype: lG
+Help: algetabsdim(al): dimension of the algebra al over its prime subfield.
+Doc: Given an algebra \var{al} output by \tet{alinit} or by \tet{altableinit}, returns the dimension of \var{al} over its prime subfield ($\Q$ or $\F_p$).

@@ -1,0 +1,6 @@
+Function: alsubalg
+Section: algebras
+C-Name: al_subalg
+Prototype: GG
+Help: alsubalg(al,B): subalgebra of al with basis B.
+Doc: \var{al} being a table algebra output by \tet{altableinit} and \var{B} being a basis of a subalgebra of \var{al} represented by a matrix, returns an algebra isomorphic to \var{B}.

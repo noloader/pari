@@ -1,0 +1,7 @@
+Function: alinv
+Section: algebras
+C-Name: alinv
+Prototype: GG
+Help: alinv(al,x): element 1/x in al.
+Doc: Given an element $x$ in \var{al}, computes its inverse $x^{-1}$ in the
+ algebra \var{al}. Assumes that $x$ is invertible.

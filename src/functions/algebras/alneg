@@ -1,0 +1,7 @@
+Function: alneg
+Section: algebras
+C-Name: alneg
+Prototype: GG
+Help: alneg(al,x): element -x in al.
+Doc: Given an element $x$ in \var{al}, computes its opposite $-x$ in the
+ algebra \var{al}.

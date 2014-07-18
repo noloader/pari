@@ -198,6 +198,19 @@ BA 73- GP function fold()
    78- [libpari] function nfembed, nfissquarefree
    79- new binary flag to polcompositum: assume fields are linearly disjoint
    80- GP function nfcompositum
+AP 81- [GP] central simple algebra package, GP functions
+    aladd              algetaut           alinit             alrandom
+    alalgtobasis       algetb             alinv              alsimpledec
+    albasistoalg       algetcenter        alisassociative    alsplittingmatrix
+    alcenter           algetchar          almul              alsqr
+    alcentralproj      algetdegree        almultable         alsub
+    alcharpoly         algetdim           alneg              alsubalg
+    aldecomposition    algethassef        alnorm             altableinit
+    aldisc             algethassei        alpoleval          altensor
+    aldivl             algetinvord        alpow              altrace
+    aldivr             algetmultable      alprimesubalg      altype
+    algetord           alquotient         algetabsdim        algetsplitting
+    alradical
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]

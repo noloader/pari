@@ -28,6 +28,21 @@ enum {
   typ_RNF
 };
 
+/* types of algebras */
+enum  {
+  al_NULL = 0,
+  al_TABLE,
+  al_CSA,
+  al_CYCLIC
+};
+
+/* models for elements of algebras */
+enum {
+  al_TRIVIAL = 0,
+  al_ALGEBRAIC,
+  al_BASIS
+};
+
 /* idealtyp */
 enum {
   id_PRINCIPAL = 0,

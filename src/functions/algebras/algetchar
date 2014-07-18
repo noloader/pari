@@ -1,0 +1,6 @@
+Function: algetchar
+Section: algebras
+C-Name: al_get_char
+Prototype: G
+Help: algetchar(al): characteristic of the algebra al.
+Doc: Given an algebra \var{al} output by \tet{alinit} or \tet{altableinit}, returns the characteristic of \var{al}.

@@ -1,0 +1,6 @@
+Function: alcentralproj
+Section: algebras
+C-Name: al_centralproj
+Prototype: GGD0,L,
+Help: alcentralproj(al,z,{maps=0}): projections of the algebra al on the orthogonal central idempotents z[i].
+Doc: Given a table algebra \var{al} output by \tet{altableinit} and a \typ{VEC} $\var{z}=[z_1,\dots,z_n]$ of orthogonal central idempotents, returns a \typ{VEC} $[al_1,\dots,al_n]$ of algebras such that $al_i = z_i\, al$. If $\var{maps}=1$, each $al_i$ is a \typ{VEC} $[quo,proj,lift]$ where \var{quo} is the quotient algebra, \var{proj} is a \typ{MAT} representing the projection onto this quotient and \var{lift} is a \typ{MAT} representing a lift.

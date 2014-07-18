@@ -1,0 +1,6 @@
+Function: aldisc
+Section: algebras
+C-Name: aldisc
+Prototype: G
+Help: aldisc(al): discriminant of the stored order of the algebra al.
+Doc: Given a central simple algebra \var{al} output by \tet{alinit}, computes the discriminant of the order $\cal{O}$ stored in \var{al}, that is the determinant of the trace form $\rm{Tr} : \cal{O}\times \cal{O} \to \Z$.

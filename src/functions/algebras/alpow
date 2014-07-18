@@ -1,0 +1,7 @@
+Function: alpow
+Section: algebras
+C-Name: alpow
+Prototype: GGG
+Help: alpow(al,x,n): element x^n in al.
+Doc: Given an element $x$ in \var{al} and an integer $n$, computes the
+ power $x^n$ in the algebra \var{al}.

@@ -1,0 +1,7 @@
+Function: alpoleval
+Section: algebras
+C-Name: alpoleval
+Prototype: GGG
+Help: alpoleval(al,T,b): T in K[X] evaluate T(b) in al.
+Doc: Given an element $b$ in \var{al} and a polynomial $T$ in $K[X]$, computes
+ $T(b)$ in \var{al}.
