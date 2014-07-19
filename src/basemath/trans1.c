@@ -483,7 +483,7 @@ _sqr(void *data /* ignored */, GEN x) { (void)data; return gsqr(x); }
 static GEN
 _mul(void *data /* ignored */, GEN x, GEN y) { (void)data; return gmul(x,y); }
 static GEN
-_one(void *data /* ignored */) { return gen_1; }
+_one(void *x) { return gpowg0((GEN) x); }
 static GEN
 _sqri(void *data /* ignored */, GEN x) { (void)data; return sqri(x); }
 static GEN
@@ -1149,7 +1149,7 @@ gpow(GEN x, GEN n, long prec)
 GEN
 gpowers(GEN x, long n)
 {
-  return gen_powers(x, n, 1, NULL, &_sqr, &_mul, &_one);
+  return gen_powers(x, n, 1, (void*)x, &_sqr, &_mul, &_one);
 }
 
 /********************************************************************/
