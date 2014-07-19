@@ -1149,6 +1149,8 @@ gpow(GEN x, GEN n, long prec)
 GEN
 gpowers(GEN x, long n)
 {
+  if (n < 0)
+    pari_err_DOMAIN("powers", "n", "<", gen_0, stoi(n));
   return gen_powers(x, n, 1, (void*)x, &_sqr, &_mul, &_one);
 }
 
