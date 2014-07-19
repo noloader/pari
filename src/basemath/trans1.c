@@ -483,6 +483,8 @@ _sqr(void *data /* ignored */, GEN x) { (void)data; return gsqr(x); }
 static GEN
 _mul(void *data /* ignored */, GEN x, GEN y) { (void)data; return gmul(x,y); }
 static GEN
+_one(void *data /* ignored */) { return gen_1; }
+static GEN
 _sqri(void *data /* ignored */, GEN x) { (void)data; return sqri(x); }
 static GEN
 _muli(void *data /* ignored */, GEN x, GEN y) { (void)data; return mulii(x,y); }
@@ -1142,6 +1144,12 @@ gpow(GEN x, GEN n, long prec)
   i = (long) precision(n); if (i) prec=i;
   y = gmul(n, glog(x,prec));
   return gerepileupto(av, gexp(y,prec));
+}
+
+GEN
+gpowers(GEN x, long n)
+{
+  return gen_powers(x, n, 1, NULL, &_sqr, &_mul, &_one);
 }
 
 /********************************************************************/

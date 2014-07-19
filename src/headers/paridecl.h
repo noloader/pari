@@ -3420,6 +3420,7 @@ GEN     gexp(GEN x, long prec);
 GEN     gexpm1(GEN x, long prec);
 GEN     glog(GEN x, long prec);
 GEN     gpow(GEN x, GEN n, long prec);
+GEN     gpowers(GEN x, long n);
 GEN     gpowgs(GEN x, long n);
 GEN     gsin(GEN x, long prec);
 void    gsincos(GEN x, GEN *s, GEN *c, long prec);

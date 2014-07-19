@@ -9059,6 +9059,7 @@ binary powering. To treat the special case $n = 0$, we consider
 \kbd{gpowgs} as a series of \kbd{gmul}, so we follow the rule of returning
 result which is as exact as possible given the input. More precisely,
 we return
+
 \item \kbd{gen\_1} if $x$ has type \typ{INT}, \typ{REAL},  \typ{FRAC}, or
 \typ{PADIC}
 
@@ -9076,7 +9077,9 @@ $N$ (the gcd of the moduli that appear).
 
 \item the identity permutation for \typ{VECSMALL}.
 
-\item etc. Of course, the only practical use of this routine for $n = 0$ is
+\item etc.
+
+Of course, the only practical use of this routine for $n = 0$ is
 to obtain the multiplicative neutral element in the base ring (or to treat
 marginal cases that should be special cased anyway if there is the slightest
 doubt about what the result should be).
@@ -9084,6 +9087,8 @@ doubt about what the result should be).
 \fun{GEN}{powgi}{GEN x, GEN y} creates $\kbd{x}^{\kbd{y}}$, where \kbd{y} is a
 \typ{INT}, using left-shift binary powering. The case where $y = 0$
 (as all cases where $y$ is small) is handled by \kbd{gpowgs(x, 0)}.
+
+\fun{GEN}{gpowers}{GEN x, long n} returns the vector $[1,x,\dots,x^n]$.
 
 In addition we also have the obsolete forms:
 
