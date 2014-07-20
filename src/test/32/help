@@ -118,8 +118,8 @@ zkst : structure of (Z_K/m)*         bid,                     bnr
 {f}=optional filename. {n}=optional integer
 
 
-cmp      divrem   lex      max      min      shift    shiftmul sign
-vecmax   vecmin   
+cmp      divrem   lex      max      min      powers   shift    shiftmul
+sign     vecmax   vecmin   
 
 List of the PARI types:
   t_INT    : long integers     [ cod1 ] [ cod2 ] [ man_1 ] ... [ man_k ]
