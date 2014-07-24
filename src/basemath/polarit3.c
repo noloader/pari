@@ -663,9 +663,8 @@ Fq_sqrtn(GEN x, GEN n, GEN T, GEN p, GEN *zeta)
     long d;
     if (!T) return Fp_sqrtn(x,n,p,zeta);
     d = get_FpX_degree(T);
-    /* if p=1(mod n) zeta exists in Fp. If (n,d)=1, root exists
-     * in F_{p^d} iff in Fp */
-    if (ugcd(umodiu(n,d),d) == 1 && equali1(modii(p,n)))
+    /* gcd(n,p-1)=gcd(n,p^d-1) <=> same number of solutions if Fp and F_{p^d} */
+    if (equalii(gcdii(subiu(p,1),n), gcdii(subiu(Fp_powu(p,d,n), 1), n)))
       return Fp_sqrtn(x,n,p,zeta);
     x = scalarpol_shallow(x, get_FpX_var(T));
   }
