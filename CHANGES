@@ -56,6 +56,7 @@ BA 35- multiif did not handle correctly return() in conditions [#1590]
    37- is_gener_Fp could return wrong results
    38- Fq_sqrtn(t_INT,..,&zeta) could return a wrong root of 1
    39- bnfinit: SEGV due to precision issues [#1592]
+   40- zm_zc_mul only worked for square zm matrices
 
   Added
     1- add optional argument to sumdigits to specify the base
