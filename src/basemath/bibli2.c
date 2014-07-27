@@ -1641,7 +1641,7 @@ cmp_RgX(GEN x, GEN y)
 /**                   MERGE & SORT FACTORIZATIONS                  **/
 /********************************************************************/
 /* merge fx, fy two factorizations, whose 1st column is sorted in strictly
- * increasing order wrt cmp. Keep 0 exponents. */
+ * increasing order wrt cmp */
 GEN
 merge_factor(GEN fx, GEN fy, void *data, int (*cmp)(void *,GEN,GEN))
 {
