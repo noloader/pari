@@ -1885,11 +1885,15 @@ idealdiv(GEN nf, GEN x, GEN y)
  * Hence v_p (x + Nx/Nz) = v_p(x).  Likewise for the denominators.  QED.
  *
  *                Peter Montgomery.  July, 1994. */
+static void
+err_divexact(GEN x, GEN y)
+{ pari_err_DOMAIN("idealdivexact","denominator(x/y)", "!=",
+                  gen_1,mkvec2(x,y)); }
 GEN
 idealdivexact(GEN nf, GEN x0, GEN y0)
 {
   pari_sp av = avma;
-  GEN x, y, yZ, Nx, Ny, Nz, cy;
+  GEN x, y, yZ, Nx, Ny, Nz, cy, q, r;
 
   nf = checknf(nf);
   x = idealhnf_shallow(nf, x0);
@@ -1900,18 +1904,20 @@ idealdivexact(GEN nf, GEN x0, GEN y0)
   if (cy) x = RgM_Rg_div(x,cy);
   Nx = idealnorm(nf,x);
   Ny = idealnorm(nf,y);
-  if (typ(Nx) != t_INT || typ(Ny) != t_INT || !dvdii(Nx,Ny))
-    pari_err_DOMAIN("idealdivexact","denominator(x/y)", "!=",
-                    gen_1,mkvec2(x,y));
+  if (typ(Nx) != t_INT) err_divexact(x,y);
+  q = dvmdii(Nx,Ny, &r);
+  if (signe(r)) err_divexact(x,y);
+  if (is_pm1(q)) { avma = av; return idmat(nf_get_degree(nf)); }
   /* Find a norm Nz | Ny such that gcd(Nx/Nz, Nz) = 1 */
-  for (Nz = Ny;;)
+  for (Nz = Ny;;) /* q = Nx/Nz */
   {
-    GEN p1 = gcdii(Nz, diviiexact(Nx,Nz));
+    GEN p1 = gcdii(Nz, q);
     if (is_pm1(p1)) break;
     Nz = diviiexact(Nz,p1);
+    q = mulii(q,p1);
   }
   /* Replace x/y  by  x+(Nx/Nz) / y+(Ny/Nz) */
-  x = ZM_hnfmodid(x, diviiexact(Nx,Nz));
+  x = ZM_hnfmodid(x, q);
   /* y reduced to unit ideal ? */
   if (Nz == Ny) return gerepileupto(av, x);
 
