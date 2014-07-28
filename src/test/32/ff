@@ -156,7 +156,7 @@ a^9 + 9319609099157088592*a^8 + 3845681432811214920*a^7 + 380965757660125686
 1
 ? test2(46744073709551653)
 [2, [46744073709551652, [2, 2; 3, 1; 7, 1; 37, 1; 1036513, 1; 14510113, 1]]]
-0
+[]
 ? test2(precprime(1<<32))
 [2, [4294967290, [2, 1; 5, 1; 19, 1; 22605091, 1]]]
 17
@@ -340,4 +340,4 @@ error("incorrect type in factorback [not an exponent vector] (t_COL).")
 ? g^fflog(a,g,o)==a
 1
 ? print("Total time spent: ",gettime);
-Total time spent: 6436
+Total time spent: 4000
