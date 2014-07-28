@@ -145,11 +145,11 @@ a^9 + 9319609099157088592*a^8 + 3845681432811214920*a^7 + 380965757660125686
 ? test2(3)
 [2, [2, Mat([2, 1])]]
 1
-? test2(46744073709551653)
-[2, [46744073709551652, [2, 2; 3, 1; 7, 1; 37, 1; 1036513, 1; 14510113, 1]]]
-[]
 ? test2(precprime(1<<32))
 [2, [4294967290, [2, 1; 5, 1; 19, 1; 22605091, 1]]]
+17
+? test2(nextprime(1<<64))
+[2, [18446744073709551628, [2, 2; 7, 1; 658812288346769701, 1]]]
 17
 ? for(i=1,10,print(ffnbirred(11,i)));
 11
@@ -331,4 +331,4 @@ error("incorrect type in factorback [not an exponent vector] (t_COL).")
 ? g^fflog(a,g,o)==a
 1
 ? print("Total time spent: ",gettime);
-Total time spent: 1940
+Total time spent: 1660

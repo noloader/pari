@@ -52,8 +52,8 @@ test2(p)=
 }
 test2(2)
 test2(3)
-test2(46744073709551653)
 test2(precprime(1<<32))
+test2(nextprime(1<<64))
 
 for(i=1,10,print(ffnbirred(11,i)));
 for(i=1,10,print(ffnbirred(11,i,1)));
