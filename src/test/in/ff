@@ -1,3 +1,4 @@
+jell(x)=if(#x,x.j,[]);
 {
 test(p,f) = setrand(1); a = ffgen(p^f, 'a); [
 a^2+3*a+1,
@@ -22,7 +23,7 @@ charpoly(a),
 minpoly(a),
 conjvec(a),
 factor(x^6-a*x^3+1),
-ellinit([a,1]),
+jell(ellinit([a,1])),
 a/x,
 (x+a)/(x-a),
 b=ffprimroot(a),
