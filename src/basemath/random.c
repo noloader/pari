@@ -44,7 +44,7 @@ _64to32(u64 v, ulong *a, ulong *b) { *a = v>>32; *b = v&0xFFFFFFFF; }
 static THREAD u64 xorgen_w;
 static THREAD int xorgen_i;
 /* weyl = odd approximation to 2^64*(sqrt(5)-1)/2. */
-static const u64 weyl = 0x61c8864680b583eb;
+static const u64 weyl = (((u64)0x61c88646U)<<32)|((u64)0x80b583ebU);
 
 static u64
 block(void)
