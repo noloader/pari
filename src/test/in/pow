@@ -34,3 +34,6 @@ Mod(1,4)^(1/2)
 sqrt(1+O(2))
 sqrt(1+O(2^3))
 sqrt(Mod(2,4))
+
+powers(Mod(2,11),10)
+powers(Pi,7)
