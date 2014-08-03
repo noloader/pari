@@ -3915,12 +3915,12 @@ of~\kbd{x}.
 This function is not memory-clean, but nevertheless suitable for
 \kbd{gerepileupto}.
 
-\fun{GEN}{FpX_digits}{GEN x, GEN T, GEN p} returns a vector of \kbd{FpX}
-$[c_0,\ldots,c_n]$ of degree less than the degree of $T$ and such that
-$x=\sum_{i=0}^{n}{c_i\*T^i}$.
+\fun{GEN}{FpX_digits}{GEN x, GEN B, GEN p} returns a vector of \kbd{FpX}
+$[c_0,\ldots,c_n]$ of degree less than the degree of $B$ and such that
+$x=\sum_{i=0}^{n}{c_i\*B^i}$.
 
-\fun{GEN}{FpX_fromdigits}{GEN v, GEN T, GEN p} where $v=[c_0,\ldots,c_n]$
-is a vector of \kbd{FpX}, returns $\sum_{i=0}^{n}{c_i\*T^i}$.
+\fun{GEN}{FpX_fromdigits}{GEN v, GEN B, GEN p} where $v=[c_0,\ldots,c_n]$
+is a vector of \kbd{FpX}, returns $\sum_{i=0}^{n}{c_i\*B^i}$.
 
 \fun{GEN}{FpX_translate}{GEN P, GEN c, GEN p} let $c$ be an \kbd{Fp} and let
 $P$ be an \kbd{FpX}; returns the translated \kbd{FpX} of $P(X+c)$.
@@ -4164,8 +4164,6 @@ whose coefficients are \typ{INT}s, reduce them to \kbd{FpXQ}s.
 
 \fun{GEN}{FpXQ_invsafe}{GEN x,GEN T,GEN p}, as \kbd{FpXQ\_inv}, returning
 \kbd{NULL} if \kbd{x} is not invertible.
-
-\fun{GEN}{FpXQX_renormalize}{GEN x, long lx}
 
 \fun{GEN}{FpXQ_pow}{GEN x, GEN n, GEN T, GEN p} computes $\kbd{x}^\kbd{n}$.
 
@@ -4432,6 +4430,8 @@ element of $\F_q[X][Y]$. Returns the \kbd{Fq} $Q(x,y)$.
 \fun{GEN}{FqXY_evalx}{GEN Q, GEN x, GEN T, GEN p} $Q$ being an \kbd{FqXY},
 returns the \kbd{FqX} $Q(x,Y)$, where $Y$ is the main variable of $Q$.
 
+\fun{GEN}{FpXQX_renormalize}{GEN x, long lx}
+
 \fun{GEN}{FpXQX_red}{GEN z, GEN T, GEN p} \kbd{z} a \typ{POL} whose
 coefficients are \kbd{ZX}s or \typ{INT}s, reduce them to \kbd{FpXQ}s.
 
@@ -4454,6 +4454,12 @@ Not stack-clean. Note that $t$ need not be the same variable as $Y$!
 \fun{GEN}{FpXQX_div}{GEN x, GEN y, GEN T, GEN p}
 
 \fun{GEN}{FpXQX_rem}{GEN x, GEN y, GEN T, GEN p}
+
+\fun{GEN}{FpXQX_powu}{GEN x, ulong n, GEN T, GEN p} returns $x^n$.
+
+\fun{GEN}{FpXQX_digits}{GEN x, GEN B, GEN T, GEN p}
+
+\fun{GEN}{FpXQX_fromdigits}{GEN v, GEN B, GEN T, GEN p}
 
 \fun{GEN}{FpXQX_invBarrett}{GEN y, GEN T, GEN p} returns the Barrett inverse of
 the \kbd{FpXQX} $y$, namely a lift of $1/\kbd{polrecip}(y)+O(x^{\deg(y)-1})$.

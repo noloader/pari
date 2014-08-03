@@ -734,11 +734,28 @@ FpXQX_rem(GEN x, GEN y, GEN T, GEN p)
 }
 
 struct _FpXQX { GEN T,p; };
+
 static GEN _FpXQX_mul(void *data, GEN a,GEN b)
 {
   struct _FpXQX *d=(struct _FpXQX*)data;
   return FpXQX_mul(a,b,d->T,d->p);
 }
+
+static GEN _FpXQX_sqr(void *data, GEN a)
+{
+  struct _FpXQX *d=(struct _FpXQX*)data;
+  return FpXQX_sqr(a, d->T, d->p);
+}
+
+GEN
+FpXQX_powu(GEN x, ulong n, GEN T, GEN p)
+{
+  struct _FpXQX D;
+  if (n==0) return pol_1(varn(x));
+  D.T = T; D.p = p;
+  return gen_powu(x, n, (void *)&D, _FpXQX_sqr, _FpXQX_mul);
+}
+
 GEN
 FpXQXV_prod(GEN V, GEN T, GEN p)
 {
@@ -758,6 +775,45 @@ FpXQXV_prod(GEN V, GEN T, GEN p)
     d.T=T;
     return divide_conquer_assoc(V, (void*)&d, &_FpXQX_mul);
   }
+}
+
+static GEN
+_FpXQX_divrem(void * E, GEN x, GEN y, GEN *r)
+{
+  struct _FpXQX *d = (struct _FpXQX *) E;
+  return FpXQX_divrem(x, y, d->T, d->p, r);
+}
+
+static GEN
+_FpXQX_add(void * E, GEN x, GEN y)
+{
+  struct _FpXQX *d = (struct _FpXQX *) E;
+  return FpXX_add(x, y, d->p);
+}
+
+static struct bb_ring FpXQX_ring = { _FpXQX_add, _FpXQX_mul, _FpXQX_sqr };
+
+GEN
+FpXQX_digits(GEN x, GEN B, GEN T, GEN p)
+{
+  pari_sp av = avma;
+  long d = degpol(B), n = (lgpol(x)+d-1)/d;
+  GEN z;
+  struct _FpXQX D;
+  D.T = T; D.p = p;
+  z = gen_digits(x, B, n, (void *)&D, &FpXQX_ring, _FpXQX_divrem);
+  return gerepileupto(av, z);
+}
+
+GEN
+FpXQX_fromdigits(GEN x, GEN B, GEN T, GEN p)
+{
+  pari_sp av = avma;
+  struct _FpXQX D;
+  GEN z;
+  D.T = T; D.p = p;
+  z = gen_fromdigits(x,B,(void *)&D, &FpXQX_ring);
+  return gerepileupto(av, z);
 }
 
 /* Q an FpXY (t_POL with FpX coeffs), evaluate at X = x */
