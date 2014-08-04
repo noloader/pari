@@ -1,7 +1,9 @@
-  ***   at top-level: 1.<<2^60
+5.9 E347063955532709820
+1.7 E-347063955532709821
+  ***   at top-level: 1.<<2^64
   ***                     ^----
   ***   overflow in t_INT-->long assignment.
-  ***   at top-level: 1.>>2^60
+  ***   at top-level: 1.>>2^64
   ***                     ^----
   ***   overflow in t_INT-->long assignment.
 Total time spent: 0
