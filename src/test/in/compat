@@ -1,5 +1,28 @@
-\e
 default(compatible,3)
+{
+if(precision(1.)==38,
+  HEAP=[721,96213];
+  BTSIZE=32;
+  STACK=200
+,
+  HEAP=[721,106625];
+  BTSIZE=24;
+  STACK=104
+);
+}
+\e
+getstack()==STACK;
+\precision=18
+intgen(x=0,pi,sin(x))
+sqr(2*intgen(x=0,4,exp(-x^2)))
+4*intinf(x=1,10^20,1/(1+x^2))
+intnum(x=-0.5,0.5,1/sqrt(1-x^2))
+2*intopen(x=0,100,sin(x)/x)
+\precision=96
+pi
+prec(pi,38)
+bytesize(%)==BTSIZE
+\precision=38
 +3
 -5
 5+3
@@ -9,9 +32,6 @@ default(compatible,3)
 5\/3
 5%3
 5^3
-\precision=154
-pi
-\precision=38
 o(x^12)
 padicno=(5/3)*127+O(127^5)
 initrect(0,500,500)
@@ -67,7 +87,7 @@ setrand(1);buchimag(1-10^7,1,1)
 setrand(1);bnf=buchinitfu(x^2-x-57,0.2,0.2)
 buchcertify(bnf)
 buchfu(bnf)
-setrand(1);buchinitforcefu(x^2-x-100000)
+setrand(1);buchinitforcefu(x^2-x-100000).fu
 setrand(1);bnf=buchinitfu(x^2-x-57,0.2,0.2)
 setrand(1);buchreal(10^9-3,0,0.5,0.5)
 setrand(1);buchgen(x^4-7,0.2,0.2)
@@ -78,7 +98,6 @@ buchnarrow(bnf)
 buchray(bnf,[[5,3;0,1],[1,0]])
 bnr=buchrayinitgen(bnf,[[5,3;0,1],[1,0]])
 bnr2=buchrayinitgen(bnf,[[25,13;0,1],[1,1]])
-bytesize(%)
 \\ C
 ceil(-2.5)
 centerlift(mod(456,555))
@@ -184,7 +203,7 @@ floor(-2.5)
 for(x=1,5,print(x!))
 fordiv(10,x,print(x))
 forprime(p=1,30,print(p))
-forstep(x=0,pi,pi/12,print(sin(x)))
+forstep(x=0,2.9,pi/12,print(sin(x)))
 forvec(x=[[1,3],[-2,2]],print1([x[1],x[2]]," "));print(" ");
 frac(-2.7)
 \\ G
@@ -197,7 +216,6 @@ gauss(hilbert(10),[1,2,3,4,5,6,7,8,9,0]~)
 gaussmodulo([2,3;5,4],[7,11]~,[1,4]~)
 gaussmodulo2([2,3;5,4],[7,11]~,[1,4]~)
 gcd(12345678,87654321)
-getrand()
 globalred(acurve)
 \\ H
 hclassno(2000003)
@@ -257,13 +275,6 @@ nfz=initzeta(x^2-2);
 integ(sin(x),x)
 integ((-x^2-2*a*x+8*a)/(x^4-14*x^3+(2*a+49)*x^2-14*a*x+a^2),x)
 intersect([1,2;3,4;5,6],[2,3;7,8;8,9])
-\precision=19
-intgen(x=0,pi,sin(x))
-sqr(2*intgen(x=0,4,exp(-x^2)))
-4*intinf(x=1,10^20,1/(1+x^2))
-intnum(x=-0.5,0.5,1/sqrt(1-x^2))
-2*intopen(x=0,100,sin(x)/x)
-\precision=38
 inverseimage([1,1;2,3;5,7],[2,2,6]~)
 isdiagonal([1,0,0;0,5,0;0,0,0])
 isfund(12345)
@@ -324,18 +335,15 @@ lllgramkerim(mp~*mp)
 lllint(m)
 lllintpartial(m)
 lllkerim(mp)
-\precision=96
 ln(2)
 lngamma(10^50*i)
-\precision=2000
 log(2)
 logagm(2)
-\precision=19
 bcurve=initell([0,0,0,-3,0])
 localred(bcurve,2)
 ccurve=initell([0,0,-1,-1,0])
 l=lseriesell(ccurve,2,-37,1)
-lseriesell(ccurve,2,-37,1.2)-l
+abs(lseriesell(ccurve,2,-37,1.2)-l)<2e-38
 \\ M
 sbnf=smallbuchinit(x^3-x^2-14*x-1)
 makebigbnf(sbnf)
@@ -343,7 +351,6 @@ concat(mat(vector(4,x,x)~),vector(4,x,10+x)~)
 matextract(matrix(15,15,x,y,x+y),vector(5,x,3*x),vector(3,y,3*y))
 ma=mathell(mcurve,mpoints)
 gauss(ma,mhbi)
-(1.*hilbert(7))^(-1)
 matsize([1,2;3,4;5,6])
 matrix(5,5,x,y,gcd(x,y))
 matrixqz([1,3;3,5;5,7],0)
@@ -434,11 +441,6 @@ powrealraw(qfr(5,3,-1,0.),3)
 pprint((x-12*y)/(y+13*x));
 pprint([1,2;3,4])
 pprint1(x+y);pprint(x+y);
-\precision=96
-pi
-prec(pi,20)
-precision(cmcurve)
-\precision=38
 prime(100)
 primedec(nf,2)
 primedec(nf,3)
@@ -508,7 +510,7 @@ aset=set([5,-2,7,3,5,1])
 bset=set([7,5,-5,7,2])
 setintersect(aset,bset)
 setminus(aset,bset)
-setprecision(28)
+setprecision(30)
 setrand(10)
 setsearch(aset,3)
 setsearch(bset,3)
@@ -558,7 +560,6 @@ subst(sin(x),x,x+x^2)
 sum(0,k=1,10,2^-k)
 sum(0.,k=1,10,2^-k)
 sylvestermatrix(a2*x^2+a1*x+a0,b1*x+b0)
-\precision=38
 4*sumalt(n=0,(-1)^n/(2*n+1))
 4*sumalt2(n=0,(-1)^n/(2*n+1))
 suminf(n=1,2.^-n)
@@ -617,5 +618,4 @@ deplin(Mod(A,7))
 deplin(Mod(A,2^64+13))
 
 p=2^64+13; T=char(Mod(4*p*y+1,y^4+1), x); discf2(T)
-getstack()
-getheap()
+if(getheap()!=HEAP,getheap())
