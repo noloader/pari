@@ -1,3 +1,4 @@
+HEAP=[213, if(precision(1.)==38,91497,101424)];
 default(realprecision,154); Pi; default(realprecision,38);
 dobnf(T,flag=0,tech=[])= setrand(1); my(K = bnfinit(T,flag,tech)); [K.cyc,K.fu];
 \e
@@ -138,5 +139,4 @@ zetak(nfz,1.5+3*I)
 \\
 setrand(1);quadclassunit(1-10^7,,[1,1])
 setrand(1);quadclassunit(10^9-3,,[0.5,0.5])
-sizebyte(%)
-getheap
+if (getheap()!=HEAP, getheap())

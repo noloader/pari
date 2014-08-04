@@ -730,9 +730,6 @@ x^15 - 15*x^11 + 75*x^7 - x^5 - 125*x^3 + 5*x + 1
 ? setrand(1);quadclassunit(10^9-3,,[0.5,0.5])
 [4, [4], [Qfb(211, 31405, -16263, 0.E-38)], 2800.625251907016076486370621737
 0745514]
-? sizebyte(%)
-156
-? getheap
-[212, 101405]
+? if(getheap()!=HEAP,getheap())
 ? print("Total time spent: ",gettime);
-Total time spent: 92
+Total time spent: 96
