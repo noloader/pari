@@ -122,8 +122,8 @@ ellmul(ellinit([3,0]), [1,2], -quadgen(-4))
 logsigma(e,z='x)=if(type(z) != "t_POL" && type(z) != "t_SER", ellsigma(e,z,1));
 v = [ellwp,ellzeta,ellsigma,logsigma];
 e = ellinit([1,1]);
-w = ellperiods([1,I])
-w2 = ellperiods([1,I], 1)
+w = ellperiods([1,I/2])
+w2 = ellperiods([1,I/2], 1)
 u = [e,w,w2];
 {
 for (i = 1, #v,
@@ -141,7 +141,7 @@ for (i = 1, #v,
 }
 elleta(e)
 elleta([1,I])
-v = [x->elleisnum(x,2),x->elleisnum(x,4,1),x->elleisnum(x,6,1),x->elleisnum(x,10)];
+v = [x->elleisnum(x,2),x->real(elleisnum(x,4,1)),x->real(elleisnum(x,6,1)),x->real(elleisnum(x,10))];
 {
 for (i = 1, #v,
   my(f = v[i]);
@@ -182,7 +182,7 @@ do([1, 0, 0, -1070, 7812])
 do([1,0,0,-372368141774940800,87459461608665181808640000])
 do([0,706607569223786457,0,-1866575649655837263252847197205171425,-1298198297451307472292414787720779720378300792679274425])
 
-e=ellinit([1,3.+I]); x=1/2; y=ellordinate(e,x)[1];
+e=ellinit([1,3.+I]); x=1/2+I; y=ellordinate(e,x)[1];
 ellztopoint(e,ellpointtoz(e,[x,y]))
 e=ellinit([0,-1,1,0,0], O(11^5));
 ellpointtoz(e,[0,0])
@@ -232,7 +232,7 @@ ellcard(ellinit([1,2,3,4,5], p))
 E=ellinit([625,15625]);
 elllocalred(E,5)
 ellisoncurve(E,[0.,125.])
-ellisoncurve(E,[0.,125+1e-50])
+ellisoncurve(E,[1e-50,125+1e-50])
 elladd(E,[0.,125.],[0.,125+1e-38])
 iferr(ellmul([0,1,0,2,-15],[2,1],5),E,E)
 x='x;
