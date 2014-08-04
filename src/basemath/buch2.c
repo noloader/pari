@@ -1454,7 +1454,7 @@ scalar_get_arch_real(GEN nf, GEN u, GEN *emb)
 }
 
 static int
-low_prec(GEN x) { return gequal0(x) || (typ(x) == t_REAL && realprec(x) <= LOWDEFAULTPREC); }
+low_prec(GEN x) { return gequal0(x) || (typ(x) == t_REAL && realprec(x) <= DEFAULTPREC); }
 
 /* For internal use. Get archimedean components: [e_i log( | sigma_i(x) | )],
  * with e_i = 1 (resp 2.) for i <= R1 (resp. > R1)
