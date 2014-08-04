@@ -1414,6 +1414,10 @@ get_roots_for_M(nffp_t *F)
   }
 
   PREC = F->prec + F->extraprec;
+  /* make sure that default accuracy is the same on 32/64bit */
+#ifndef LONG_IS_64BIT
+  if (odd(PREC)) PREC += EXTRAPRECWORD;
+#endif
   if (F->ro && gprecision(gel(F->ro,1)) >= PREC) return;
   F->ro = get_roots(F->x, F->r1, PREC);
 }
