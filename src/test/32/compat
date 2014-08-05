@@ -1,4 +1,5 @@
   *** default: Warning: user functions re-initialized.
+   realprecision = 308 significant digits (300 digits displayed)
    echo = 1 (on)
 ? getstack()==stack;
 ? \precision=18
@@ -2424,4 +2425,4 @@ mod(391, 3120), mod(2081, 3120)]]
 256
 ? if(getheap()!=heap,getheap())
 ? print("Total time spent: ",gettime);
-Total time spent: 256
+Total time spent: 210
