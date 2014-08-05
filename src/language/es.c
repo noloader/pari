@@ -2060,7 +2060,7 @@ dbg(GEN x, long nb, long bl)
     pari_printf("(%c,varn=%ld):", vsigne(x), varn(x));
   else if (tx == t_SER)
     pari_printf("(%c,varn=%ld,prec=%ld,valp=%ld):",
-               vsigne(x), varn(x), lgpol(x), valp(x));
+               vsigne(x), varn(x), lg(x)-2, valp(x));
   else if (tx == t_LIST)
   {
     pari_printf("(lmax=%ld):", list_nmax(x));
@@ -3028,9 +3028,9 @@ texi_sign(GEN g, pariout_t *T, outString *S, int addsign)
 
     case t_SER: v = get_texvar(varn(g), buf, sizeof(buf));
       i = valp(g);
-      if (lgpol(g))
+      if (lg(g)-2)
       { /* hack: we want g[i] = coeff of degree i. */
-        l = i + lgpol(g); g -= i-2;
+        l = i + lg(g)-2; g -= i-2;
         wr_lead_texnome(T,S,gel(g,i),v,i,addsign);
         while (++i < l)
         {
