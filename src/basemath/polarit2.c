@@ -161,12 +161,13 @@ centermod(GEN x, GEN p) { return centermod_i(x,p,NULL); }
 /**                                                                   **/
 /***********************************************************************/
 #define assign_or_fail(x,y) { GEN __x = x;\
-  if (y==NULL) y=__x; else if (!gequal(__x,y)) return 0;\
+  if (!*y) *y=__x; else if (!gequal(__x,*y)) return 0;\
 }
+#define update_prec(x,y) { long __x = x; if (__x < *y) *y=__x; }
 
 static const long tsh = 6;
 static long
-RgX_type_code(long t1, long t2) { return (t1 << tsh) | t2; }
+code(long t1, long t2) { return (t1 << tsh) | t2; }
 void
 RgX_type_decode(long x, long *t1, long *t2)
 {
@@ -177,33 +178,28 @@ int
 RgX_type_is_composite(long t) { return t >= tsh; }
 
 long
-RgX_type(GEN x, GEN *ptp, GEN *ptpol, long *ptpa)
+RgX_type(GEN x, GEN *p, GEN *pol, long *pa)
 {
-  long t[16];
-  long tx = typ(x), lx, i, j, s, pa = LONG_MAX;
-  GEN pcx=NULL, p=NULL, pol=NULL, ff=NULL;
-
+  long t[] = {0,0,0,0,0,0,0,0,0,0};
+  long tx = typ(x), lx, i, j, t2 = 0;
+  GEN ff = NULL;
+  *p = *pol = NULL; *pa = LONG_MAX;
   if (is_scalar_t(tx))
   {
     if (tx == t_POLMOD) return 0;
     x = scalarpol(x,0);
   }
-  for (i=2; i<16; i++) t[i]=0;
   /* t[0..1] unused. Other values, if set, indicate a coefficient of type
    * t[2] : t_REAL
    * t[3] : t_INTMOD
    * t[4] : t_COMPLEX of rationals (t_INT/t_FRAC)
-   * t[5] : t_COMPLEX of t_REAL
-   * t[6] : t_COMPLEX of t_INTMOD
-   * t[7] : t_COMPLEX of t_PADIC
-   * t[8] : t_PADIC
-   * t[9] : t_QUAD of rationals (t_INT/t_FRAC)
-   * t[10]: t_QUAD of t_INTMOD
-   * t[11]: t_QUAD of t_PADIC
-   * t[12]: t_POLMOD of rationals (t_INT/t_FRAC)
-   * t[13]: t_POLMOD of t_INTMOD
-   * t[14]: t_POLMOD of t_PADIC
-   * t[15]: t_FFELT */
+   * t[5] : t_FFELT
+   * t[6] : t_COMPLEX of t_REAL
+   * t[7] : t_PADIC
+   * t[8] : t_QUAD of rationals (t_INT/t_FRAC)
+   * t[9]: t_POLMOD of rationals (t_INT/t_FRAC) */
+  /* if t2 != 0: t_POLMOD/t_QUAD/t_COMPLEX of modular (t_INTMOD/t_PADIC,
+   * given by t) */
   lx = lg(x);
   for (i=2; i<lx; i++)
   {
@@ -213,65 +209,63 @@ RgX_type(GEN x, GEN *ptp, GEN *ptpol, long *ptpa)
       case t_INT: case t_FRAC:
         break;
       case t_REAL:
-        s = precision(c); if (s < pa) pa = s;
+        update_prec(precision(c), pa);
         t[2]=1; break;
       case t_INTMOD:
         assign_or_fail(gel(c,1),p);
         t[3]=1; break;
       case t_FFELT:
-        if (ff==NULL) ff=c;
-        else if (!FF_samefield(c,ff)) return 0;
+        if (!ff) ff=c; else if (!FF_samefield(c,ff)) return 0;
         assign_or_fail(FF_p_i(c),p);
-        t[15]=1; break;
+        t[5]=1; break;
       case t_COMPLEX:
-        if (!pcx) pcx = mkpoln(3, gen_1,gen_0,gen_1); /* x^2 + 1 */
         for (j=1; j<=2; j++)
         {
           GEN d = gel(c,j);
           switch(typ(d))
           {
             case t_INT: case t_FRAC:
-              assign_or_fail(pcx,pol);
               t[4]=1; break;
             case t_REAL:
-              s = precision(d); if (s < pa) pa = s;
-              t[5]=1; break;
+              update_prec(precision(d), pa);
+              t[6]=1; break;
             case t_INTMOD:
               assign_or_fail(gel(d,1),p);
-              if (!signe(p) || mod4(p) != 3) return 0;
-              assign_or_fail(pcx,pol);
-              t[6]=1; break;
+              if (!signe(*p) || mod4(*p) != 3) return 0;
+              if (!t2) t2 = t_COMPLEX;
+              t[3]=1; break;
             case t_PADIC:
-              s = precp(d) + valp(d); if (s < pa) pa = s;
+              update_prec(precp(d)+valp(d), pa);
               assign_or_fail(gel(d,2),p);
-              assign_or_fail(pcx,pol);
+              if (!t2) t2 = t_COMPLEX;
               t[7]=1; break;
             default: return 0;
           }
         }
+        if (!t[6]) assign_or_fail(mkpoln(3, gen_1,gen_0,gen_1), pol); /*x^2+1*/
         break;
       case t_PADIC:
-        s = precp(c) + valp(c); if (s < pa) pa = s;
+        update_prec(precp(c)+valp(c), pa);
         assign_or_fail(gel(c,2),p);
-        t[8]=1; break;
+        t[7]=1; break;
       case t_QUAD:
+        assign_or_fail(gel(c,1),pol);
         for (j=2; j<=3; j++)
         {
           GEN d = gel(c,j);
           switch(typ(d))
           {
             case t_INT: case t_FRAC:
-              assign_or_fail(gel(c,1),pol);
-              t[9]=1; break;
+              t[8]=1; break;
             case t_INTMOD:
               assign_or_fail(gel(d,1),p);
-              assign_or_fail(gel(c,1),pol);
-              t[10]=1; break;
+              if (t2 != t_POLMOD) t2 = t_QUAD;
+              t[3]=1; break;
             case t_PADIC:
-              s = precp(d) + valp(d); if (s < pa) pa = s;
+              update_prec(precp(d)+valp(d), pa);
               assign_or_fail(gel(d,2),p);
-              assign_or_fail(gel(c,1),pol);
-              t[11]=1; break;
+              if (t2 != t_POLMOD) t2 = t_QUAD;
+              t[7]=1; break;
             default: return 0;
           }
         }
@@ -284,9 +278,9 @@ RgX_type(GEN x, GEN *ptp, GEN *ptpol, long *ptpa)
           long pabis;
           switch(RgX_type(gel(c,j),&pbis,&polbis,&pabis))
           {
-            case t_INT: t[12]=1; break;
-            case t_INTMOD: t[13]=1; break;
-            case t_PADIC: t[14]=1; if (pabis<pa) pa=pabis; break;
+            case t_INT: t[9]=1; break;
+            case t_INTMOD: t[3]=1; t2 = t_POLMOD; break;
+            case t_PADIC: t[7]=1; t2 = t_POLMOD; update_prec(pabis,pa); break;
             default: return 0;
           }
           if (pbis) assign_or_fail(pbis,p);
@@ -296,42 +290,31 @@ RgX_type(GEN x, GEN *ptp, GEN *ptpol, long *ptpa)
       default: return 0;
     }
   }
-  if (t[5])
+  if (t[5]) /* ffelt */
   {
-    if (t[3]||t[6]||t[7]||t[8]||t[10]||t[11]||t[12]||t[13]||t[14]) return 0;
-    *ptpa=pa; return t_COMPLEX;
+    if (t2 ||t[2]||t[4]||t[6]||t[8]||t[9]) return 0;
+    *pol=ff; return t_FFELT;
   }
-  if (t[2])
+  if (t[6]) /* inexact, complex */
   {
-    if (t[3]||t[6]||t[7]||t[8]||t[10]||t[11]||t[12]||t[13]||t[14]) return 0;
-    *ptpa=pa; return t[4]?t_COMPLEX:t_REAL;
+    if (t2 ||t[3]||t[7]||t[9]) return 0;
+    return t_COMPLEX;
   }
-  if (t[6]||t[10]||t[13])
+  if (t[2]) /* inexact, real */
   {
-    *ptpol=pol; *ptp=p;
-    i = t[13]? t_POLMOD: (t[10]? t_QUAD: t_COMPLEX);
-    return RgX_type_code(i, t_INTMOD);
+    if (t2 ||t[3]||t[7]||t[9]) return 0;
+    return t[4]?t_COMPLEX:t_REAL;
   }
-  if (t[7]||t[11]||t[14])
+  if (t2) /* polmod/quad/complex of intmod/padic */
   {
-    *ptpol=pol; *ptp=p; *ptpa=pa;
-    i = t[14]? t_POLMOD: (t[11]? t_QUAD: t_COMPLEX);
-    return RgX_type_code(i, t_PADIC);
+    if (t[3]) return code(t2,t_INTMOD);
+    if (t[7]) return code(t2,t_PADIC);
   }
-  if (t[4]||t[9]||t[12])
-  {
-    *ptpol=pol;
-    i = t[12]? t_POLMOD: (t[9]? t_QUAD: t_COMPLEX);
-    return RgX_type_code(i, t_INT);
-  }
-  if (t[15])
-  {
-    if (t[8]) return 0;
-    *ptp=p; *ptpol=ff;
-    return t_FFELT;
-  }
-  if (t[3]) { *ptp=p; return t_INTMOD; }
-  if (t[8]) { *ptp=p; *ptpa=pa; return t_PADIC; }
+  if (t[9]) return code(t_POLMOD,t_INT);
+  if (t[8]) return code(t_QUAD,t_INT);
+  if (t[4]) return code(t_COMPLEX,t_INT);
+  if (t[3]) return t_INTMOD;
+  if (t[7]) return t_PADIC;
   return t_INT;
 }
 
