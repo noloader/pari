@@ -1283,7 +1283,7 @@ FpXQ_div(GEN x,GEN y,GEN T,GEN p)
 }
 
 struct _FpXQ {
-  GEN T, p, mg, aut;
+  GEN T, p, aut;
 };
 
 static GEN
