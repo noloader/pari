@@ -950,6 +950,7 @@ find_trace(GEN a4, GEN a6, ulong ell, GEN q, GEN T, GEN p, long *ptr_kt, ulong s
   }
   kt = k;
   if (!get_modular_eqn(&MEQN, ell, 0, MAXVARN)) err_modular_eqn(ell);
+  MEQN.eq = FpXX_red(MEQN.eq, p);
   if (DEBUGLEVEL)
   { err_printf("Process prime %5ld. ", ell); timer_start(&ti); }
   meqnj = FqXY_evalx(MEQN.eq, Fq_ellj(a4, a6, T, p), T, p);
