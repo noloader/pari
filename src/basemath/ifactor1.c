@@ -3208,7 +3208,7 @@ factoru_sign(ulong n, ulong all, long hint)
   forprime_t S;
 
   if (n == 0) retmkvec2(mkvecsmall(0), mkvecsmall(1));
-  if (n == 1) return trivial_fact();
+  if (n == 1) retmkvec2(cgetg(1,t_VECSMALL), cgetg(1,t_VECSMALL));
 
   f = cgetg(3,t_VEC); av = avma;
   lim = all; if (!lim) lim = utridiv_bound(n);
