@@ -3199,50 +3199,6 @@ gmul2n(GEN x, long n)
 /*                              INVERSE                            */
 /*                                                                 */
 /*******************************************************************/
-GEN
-inv_ser(GEN b)
-{
-  pari_sp av = avma, av2, lim;
-  long j, lold, l = lg(b), e = valp(b), v = varn(b);
-  GEN y, x = cgetg(l, t_SER), a = leafcopy(b);
-  ulong mask;
-
-  if (!signe(b)) pari_err_INV("inv_ser",b);
-  mask = quadratic_prec_mask(l - 2);
-  for (j = 3; j < l; j++) gel(x,j) = gen_0;
-  gel(x,2) = ginv(gel(b,2));
-  a[1] = x[1] = _evalvalp(0) | evalvarn(v) | evalsigne(1);
-  av2 = avma; lim = stack_lim(av2, 2);
-  lold = 1;
-  while (mask > 1)
-  {
-    long lnew = lold << 1;
-    GEN z;
-
-    if (mask & 1) lnew--;
-    mask >>= 1;
-    setlg(a, lnew + 2);
-    setlg(x, lnew + 2);
-    /* TODO: gmul(a,x) should be a half product (the higher half is known) */
-    z = gmul(a,x); /* = 1 + O(t^lold) */
-    y = cgetg(lnew-lold + 2, t_SER);
-    y[1] = _evalvalp(lold) | evalvarn(v) | evalsigne(1);
-    for (j = 2; j < 2+lnew-lold; j++) gel(y,j) = gel(z,j+lold);
-    /* y = a*x - 1; */
-    y = gsub(x, gmul(x, y));
-    for (j = lold+2; j < lnew+2; j++) x[j] = y[j];
-    if (low_stack(lim, stack_lim(av2,2)))
-    {
-      if(DEBUGMEM>1) pari_warn(warnmem,"inv_ser");
-      y = gerepilecopy(av2, x);
-      for (j = 2; j < lnew+2; j++) x[j] = y[j];
-    }
-    lold = lnew;
-  }
-  x[1] = evalvalp(valp(x)-e) | evalvarn(v) | evalsigne(1);
-  return gerepilecopy(av, x);
-}
-
 static GEN
 inv_polmod(GEN T, GEN x)
 {

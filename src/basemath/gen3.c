@@ -1056,6 +1056,16 @@ ser2pol_i(GEN x, long lx)
   return y;
 }
 
+GEN
+inv_ser(GEN b)
+{
+  pari_sp av = avma;
+  long l = lg(b), e = valp(b), v = varn(b), prec = l-2;
+  GEN y = RgXn_inv(ser2pol_i(b, l), prec);
+  GEN x = poltoser(y, v, prec);
+  setvalp(x, -e); return gerepilecopy(av, x);
+}
+
 /* T t_POL in var v, mod out by T components of x which are
  * t_POL/t_RFRAC in v. Recursively */
 static GEN
