@@ -772,7 +772,7 @@ WildlyRamifiedCase(KRASNER_t *data)
 static GEN
 CycloPol(KRASNER_t *d)
 {
-  long v = d->v, e = d->e, f = d->f;
+  long v = d->v, e = d->e;
   GEN T, z, fa, p = d->p;
 
   /* v - primroot(p) */
@@ -780,7 +780,7 @@ CycloPol(KRASNER_t *d)
     return deg1pol_shallow(gen_1, Fp_neg(pgener_Fp(p), d->pr), v);
 
   T = init_Fq(d->p, d->f, v);
-  fa = factoru( ugcd(e, umodiu(subiu(powiu(p,f),1), e)) );
+  fa = factoru( ugcd(e, umodiu(d->qm1, e)) );
   z = gener_FpXQ_local(T, d->p, zv_to_ZV(gel(fa,1)));
   z = ZpXQ_sqrtnlift(scalarpol(gen_1,varn(T)), d->qm1, z, T, d->p, d->r);
   return FpX_red(ZXQ_charpoly(z, T, v), d->pr);
