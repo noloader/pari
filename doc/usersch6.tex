@@ -1988,6 +1988,11 @@ maximal orders of number fields with respect to the $T_2$ quadratic form, to
 ensure that the first vector in the output basis corresponds to $1$ (which is
 a shortest vector).
 
+\item  \tet{LLL_COMPATIBLE}. This is a no-op on 64-bit kernels; on 32-bit
+kernels, restrict to 64-bit-compatible accuracies in the course of LLL
+algorithms. This is very likely to produce identical results on all
+kernels, but this is not guaranteed.
+
 The last three flags are mutually exclusive, either 0 or a single one must be
 set:
 

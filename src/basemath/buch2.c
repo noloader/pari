@@ -2417,7 +2417,7 @@ Fincke_Pohst_ideal(RELCACHE_t *cache, FB_t *F, GEN nf, GEN M,
   double BOUND;
   long j, k, skipfirst, nbrelideal=0, dependent=0, try_elt=0,  try_factor=0;
 
-  u = ZM_lll(ZM_mul(F->G0, ideal0), 0.99, LLL_IM);
+  u = ZM_lll(ZM_mul(F->G0, ideal0), 0.99, LLL_IM|LLL_COMPATIBLE);
   ideal = ZM_mul(ideal0,u); /* approximate T2-LLL reduction */
   r = gaussred_from_QR(RgM_mul(G, ideal), prec); /* Cholesky for T2 | ideal */
   if (!r) pari_err_BUG("small_norm (precision too low)");
@@ -4256,7 +4256,7 @@ START:
       }
       /* arch. components of fund. units */
       H = ZM_hnflll(L, &U, 1); U = vecslice(U, lg(U)-(RU-1), lg(U)-1);
-      U = ZM_mul(U, ZM_lll(H, 0.99, LLL_IM));
+      U = ZM_mul(U, ZM_lll(H, 0.99, LLL_IM|LLL_COMPATIBLE));
       AU = RgM_mul(A, U);
       A = cleanarch(AU, N, PRECREG);
       if (DEBUGLEVEL) timer_printf(&T, "cleanarch");

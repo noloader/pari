@@ -115,6 +115,8 @@ BA 38- [libpari] functions Fl_sqrtl, Fl_sqrtl_pre
        ZG_Z_mul, ZG_add, ZG_mul, ZG_neg, ZG_normalize, ZG_sub
    42- [libpari] function kroui
 BA 43- GP function powers and libpari function gpowers
+   44- flag LLL_COMPATIBLE for LLL routines [ use 64-bit compatible accuracies
+       only ]
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]
@@ -162,6 +164,7 @@ BA 25- setrand now return a (huge) integer instead of a vecsmall
    26- unify 32/64 bit random generators. Probabilistic algorithm should now
        behave identically on all architecture, provided they do not involve
        the floating point kernel
+   28- unify 32/64 bit tests
 
 Removed
    1- deprecated functions nfbasis0, nfdisc0, factorpadic0
