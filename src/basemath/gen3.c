@@ -2035,9 +2035,6 @@ round0(GEN x, GEN *pte)
   return ground(x);
 }
 
-/* x t_REAL of exponent ex, return x + 0.5 to an accuracy sufficient for
- * rounding */
-
 /* x t_REAL, return q=floor(x+1/2), set e = expo(x-q) */
 static GEN
 round_i(GEN x, long *pe)
