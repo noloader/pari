@@ -3296,14 +3296,23 @@ FlxY_evalx(GEN Q, ulong x, ulong p)
 }
 
 GEN
-FlxY_Flxq_evalx(GEN P, GEN x, GEN T, ulong p)
+FlxY_FlxqV_evalx(GEN P, GEN x, GEN T, ulong p)
 {
   long i, lP = lg(P);
   GEN res = cgetg(lP,t_POL);
   res[1] = P[1];
   for(i=2; i<lP; i++)
-    gel(res,i) = Flx_Flxq_eval(gel(P,i), x, T, p);
+    gel(res,i) = Flx_FlxqV_eval(gel(P,i), x, T, p);
   return FlxX_renormalize(res, lP);
+}
+
+GEN
+FlxY_Flxq_evalx(GEN P, GEN x, GEN T, ulong p)
+{
+  pari_sp av = avma;
+  long n = brent_kung_optpow(get_Flx_degree(T)-1,lgpol(P),1);
+  GEN xp = Flxq_powers(x, n, T, p);
+  return gerepileupto(av, FlxY_FlxqV_evalx(P, xp, T, p));
 }
 
 GEN

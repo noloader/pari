@@ -854,14 +854,23 @@ FpXY_eval(GEN Q, GEN y, GEN x, GEN p)
 }
 
 GEN
-FpXY_FpXQ_evalx(GEN P, GEN x, GEN T, GEN p)
+FpXY_FpXQV_evalx(GEN P, GEN x, GEN T, GEN p)
 {
   long i, lP = lg(P);
   GEN res = cgetg(lP,t_POL);
   res[1] = P[1];
   for(i=2; i<lP; i++)
-    gel(res,i) = FpX_FpXQ_eval(gel(P,i), x, T, p);
+    gel(res,i) = FpX_FpXQV_eval(gel(P,i), x, T, p);
   return FlxX_renormalize(res, lP);
+}
+
+GEN
+FpXY_FpXQ_evalx(GEN P, GEN x, GEN T, GEN p)
+{
+  pari_sp av = avma;
+  long n = brent_kung_optpow(get_FpX_degree(T)-1,lgpol(P),1);
+  GEN xp = FpXQ_powers(x, n, T, p);
+  return gerepileupto(av, FpXY_FpXQV_evalx(P, xp, T, p));
 }
 
 /*******************************************************************/

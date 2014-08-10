@@ -4357,6 +4357,11 @@ second variable of $Q$, and \kbd{vx} is the variable number of $X$.
 $x$ being an \kbd{FpXQ}, returns the \kbd{FpXQX} $Q(x,Y)$, where $Y$ is the
 first variable of $Q$.
 
+\fun{GEN}{FpXY_FpXQV_evalx}{GEN Q, GEN V, ulong p} $Q$ an \kbd{FpXY} and
+$x$ being an \kbd{FpXQ}, returns the \kbd{FpXQX} $Q(x,Y)$, where $Y$ is the
+first variable of $Q$, assuming that \kbd{V} was computed by
+$\kbd{FpXQ\_powers}(\kbd{x}, n, \kbd{T}, \kbd{p})$.
+
 \fun{GEN}{FpXYQQ_pow}{GEN x, GEN n, GEN S, GEN T, GEN p}, \kbd{x} being a
 \kbd{FpXY}, \kbd{T} being a \kbd{FpX} and \kbd{S} being a \kbd{FpY},
 return $x^n \pmod{S,T,p}$.
@@ -4977,7 +4982,9 @@ by $y$ using \kbd{Flx\_div}.
 
 \fun{GEN}{FlxY_evalx}{GEN x, ulong y, ulong p}
 
-\fun{GEN}{FlxY_Flxq_evalx}{GEN x, GEN y, ulong p}
+\fun{GEN}{FlxY_Flxq_evalx}{GEN x, GEN y, ulong p} as \kbd{FpXY\_FpXQ_evalx}.
+
+\fun{GEN}{FlxY_FlxqV_evalx}{GEN x, GEN y, ulong p} as \kbd{FpXY\_FpXQV_evalx}.
 
 \fun{GEN}{FlxX_renormalize}{GEN x, long l}, as \kbd{normalizepol}, where
 $\kbd{l} = \kbd{lg(x)}$, in place.
