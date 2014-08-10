@@ -4304,12 +4304,19 @@ where $b=a[2]$.
 \fun{GEN}{FpXQ_autpowers}{GEN S, long n, GEN T, GEN p} returns
 $[x,S(x),S(S(x)),\dots,S^{(n)}(x)]$ as a \typ{VEC} of \kbd{FpXQ}s.
 
-\fun{GEN}{FpX_FpXQ_eval}{GEN f,GEN x,GEN T,GEN p} returns
+\fun{GEN}{FpX_FpXQ_eval}{GEN f, GEN x, GEN T, GEN p} returns
 $\kbd{f}(\kbd{x})$.
 
-\fun{GEN}{FpX_FpXQV_eval}{GEN f,GEN V,GEN T,GEN p} returns
+\fun{GEN}{FpX_FpXQV_eval}{GEN f, GEN V, GEN T, GEN p} returns
 $\kbd{f}(\kbd{x})$, assuming that \kbd{V} was computed by
 $\kbd{FpXQ\_powers}(\kbd{x}, n, \kbd{T}, \kbd{p})$.
+
+\fun{GEN}{FpXC_FpXQV_eval}{GEN C, GEN V,GEN T,GEN p} applies
+\kbd{FpX\_FpXQV\_eval} to all elements of the vector $C$
+and returns a \typ{COL}.
+
+\fun{GEN}{FpXM_FpXQV_eval}{GEN M, GEN V,GEN T,GEN p} applies
+\kbd{FpX\_FpXQV\_eval} to all elements of the matrix $M$.
 
 \subsec{\kbd{FpXX}, \kbd{FpXY}}
 Contrary to what the name implies, an \kbd{FpXX} is a \typ{POL} whose
