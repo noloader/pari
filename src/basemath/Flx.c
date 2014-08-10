@@ -3990,19 +3990,23 @@ FlxqXQV_autpow(GEN aut, long n, GEN S, GEN T, ulong p)
 }
 
 static GEN
-FlxqXQ_autsum_mul(void * T, GEN x, GEN y)
+FlxqXQ_autsum_mul(void *E, GEN x, GEN y)
 {
-  FlxqXQ_muldata *D = (FlxqXQ_muldata *)T;
+  FlxqXQ_muldata *D = (FlxqXQ_muldata *)E;
+  GEN T = D->T;
+  ulong p = D->p;
   GEN phi1 = gel(x,1), S1 = gel(x,2), a1 = gel(x,3);
   GEN phi2 = gel(y,1), S2 = gel(y,2), a2 = gel(y,3);
-  GEN phi3 = Flx_Flxq_eval(phi1,phi2,D->T,D->p);
-  GEN Sphi = FlxY_Flxq_evalx(S1,phi2,D->T,D->p);
+  long n2 = brent_kung_optpow(get_Flx_degree(T)-1, lgpol(S1)+lgpol(a1)+1,1);
+  GEN V2 = Flxq_powers(phi2, n2, T, p);
+  GEN phi3 = Flx_FlxqV_eval(phi1, V2, T, p);
+  GEN Sphi = FlxY_FlxqV_evalx(S1, V2, T, p);
+  GEN aphi = FlxY_FlxqV_evalx(a1, V2, T, p);
   long n = brent_kung_optpow(degpol(D->S)-1,2,1);
-  GEN V = FlxqXQ_powers(S2, n, D->S,D->T,D->p);
-  GEN S3 = FlxqX_FlxqXQV_eval(Sphi, V, D->S,D->T,D->p);
-  GEN aphi = FlxY_Flxq_evalx(a1,phi2,D->T,D->p);
-  GEN aS = FlxqX_FlxqXQV_eval(aphi,V,D->S,D->T,D->p);
-  GEN a3 = FlxqXQ_mul(aS,a2,D->S,D->T,D->p);
+  GEN V = FlxqXQ_powers(S2, n, D->S, T, p);
+  GEN S3 = FlxqX_FlxqXQV_eval(Sphi, V, D->S, T, p);
+  GEN aS = FlxqX_FlxqXQV_eval(aphi, V, D->S, T, p);
+  GEN a3 = FlxqXQ_mul(aS, a2, D->S, T, p);
   return mkvec3(phi3, S3, a3);
 }
 
