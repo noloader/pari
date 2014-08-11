@@ -860,7 +860,8 @@ FpXY_FpXQV_evalx(GEN P, GEN x, GEN T, GEN p)
   GEN res = cgetg(lP,t_POL);
   res[1] = P[1];
   for(i=2; i<lP; i++)
-    gel(res,i) = FpX_FpXQV_eval(gel(P,i), x, T, p);
+    gel(res,i) = typ(gel(P,i))==t_INT? icopy(gel(P,i)):
+                                       FpX_FpXQV_eval(gel(P,i), x, T, p);
   return FlxX_renormalize(res, lP);
 }
 
