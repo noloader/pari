@@ -176,6 +176,7 @@ GEN     random_F2xqE(GEN a2, GEN a6, GEN T);
 
 /* Flx.c */
 
+const struct bb_group * get_Flxq_star(void **E, GEN T, ulong p);
 GEN     Fl_to_Flx(ulong x, long sv);
 int     Fl2_equal1(GEN x);
 GEN     Fl2_inv_pre(GEN x, ulong D, ulong p, ulong pi);

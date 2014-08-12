@@ -2487,29 +2487,36 @@ Flx_equal(GEN V, GEN W)
 
 static const struct bb_group Flxq_star={_Flxq_mul,_Flxq_pow,_Flxq_rand,hash_GEN,Flx_equal,Flx_equal1,Flxq_easylog};
 
+const struct bb_group *
+get_Flxq_star(void **E, GEN T, ulong p)
+{
+  struct _Flxq *e = (struct _Flxq *) stack_malloc(sizeof(struct _Flxq));
+  e->T = T; e->p  = p; e->aut =  Flx_Frobenius(T, p);
+  *E = (void*)e; return &Flxq_star;
+}
+
 GEN
 Flxq_order(GEN a, GEN ord, GEN T, ulong p)
 {
-  struct _Flxq E;
-  E.T=T; E.p=p; E.aut = Flx_Frobenius(T,p);
-  return gen_order(a,ord,(void*)&E,&Flxq_star);
+  void *E;
+  const struct bb_group *S = get_Flxq_star(&E,T,p);
+  return gen_order(a,ord,E,S);
 }
 
 GEN
 Flxq_log(GEN a, GEN g, GEN ord, GEN T, ulong p)
 {
-  struct _Flxq E;
+  void *E;
+  pari_sp av = avma;
+  const struct bb_group *S = get_Flxq_star(&E,T,p);
   GEN v = dlog_get_ordfa(ord);
   ord = mkvec2(gel(v,1),ZM_famat_limit(gel(v,2),int2n(27)));
-  E.T=T; E.p=p; E.aut = Flx_Frobenius(T,p);
-  return gen_PH_log(a,g,ord,(void*)&E,&Flxq_star);
+  return gerepileuptoleaf(av, gen_PH_log(a,g,ord,E,S));
 }
 
 GEN
 Flxq_sqrtn(GEN a, GEN n, GEN T, ulong p, GEN *zeta)
 {
-  struct _Flxq E;
-  GEN o;
   if (!lgpol(a))
   {
     if (signe(n) < 0) pari_err_INV("Flxq_sqrtn",a);
@@ -2517,9 +2524,16 @@ Flxq_sqrtn(GEN a, GEN n, GEN T, ulong p, GEN *zeta)
       *zeta=pol1_Flx(get_Flx_var(T));
     return pol0_Flx(get_Flx_var(T));
   }
-  E.T=T; E.p=p; E.aut = Flx_Frobenius(T,p);
-  o = addis(powuu(p,get_Flx_degree(T)),-1);
-  return gen_Shanks_sqrtn(a,n,o,zeta,(void*)&E,&Flxq_star);
+  else
+  {
+    void *E;
+    pari_sp av = avma;
+    const struct bb_group *S = get_Flxq_star(&E,T,p);
+    GEN o = addis(powuu(p,get_Flx_degree(T)),-1);
+    GEN s = gen_Shanks_sqrtn(a,n,o,zeta,E,S);
+    if (s) gerepileall(av, zeta?2:1, &s, zeta);
+    return s;
+  }
 }
 
 GEN
