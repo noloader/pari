@@ -527,7 +527,7 @@ galoisdolift(struct galois_lift *gl, GEN frob)
 {
   pari_sp av = avma;
   GEN Tp = FpX_red(gl->T, gl->p);
-  GEN S = FpXQ_pow(pol_x(varn(Tp)), gl->p, Tp, gl->p);
+  GEN S = FpX_Frobenius(Tp, gl->p);
   return gerepileupto(av, automorphismlift(S, gl, frob));
 }
 

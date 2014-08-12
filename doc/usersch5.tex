@@ -3942,6 +3942,10 @@ This is useful when computing the inverse of $y$ modulo $x$.
 coefficient belong to the symmetric residue system. Assumes the coefficients
 already belong to $[0,\kbd{p}-1]$) and \kbd{pov2} is \kbd{shifti(p,-1)}.
 
+\fun{GEN}{FpX_Frobenius}{GEN T, GEN p} returns $X^{p}\pmod{T(X)}$.
+
+\fun{GEN}{FpX_matFrobenius}{GEN T, GEN p} returns the matrix of the
+Frobenius automorphism $x\mapsto x^p$ over the power basis of $\F_p[X]/(T)$.
 
 \subsubsec{Mixed operations}
 The following functions implement arithmetic operations between \kbd{FpX}

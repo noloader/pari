@@ -752,7 +752,7 @@ Flxq_study_eqn(long ell, GEN mpoly, GEN T, ulong p, long *pt_dG, long *pt_r)
 static GEN
 Fp_study_eqn(long ell, GEN mpoly, GEN p, long *pt_dG, long *pt_r)
 {
-  GEN XP = FpXQ_pow(pol_x(0), p, mpoly, p);
+  GEN XP = FpX_Frobenius(mpoly, p);
   GEN G  = FpX_gcd(FpX_sub(XP, pol_x(0), p), mpoly, p);
   *pt_dG = degpol(G);
   if (!*pt_dG)

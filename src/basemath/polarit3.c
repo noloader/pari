@@ -1279,8 +1279,8 @@ FpX_ffintersect(GEN P, GEN Q, long n, GEN l, GEN *SP, GEN *SQ, GEN MA, GEN MB)
   if (n<=0 || np%n || nq%n)
     pari_err_TYPE("FpX_ffintersect [bad degrees]",stoi(n));
   e = u_pvalrem(n, l, &pg);
-  if(!MA) MA = FpXQ_matrix_pow(FpXQ_pow(pol_x(vp),l,P,l),np,np,P,l);
-  if(!MB) MB = FpXQ_matrix_pow(FpXQ_pow(pol_x(vq),l,Q,l),nq,nq,Q,l);
+  if(!MA) MA = FpX_matFrobenius(P, l);
+  if(!MB) MB = FpX_matFrobenius(Q, l);
   A = Ap = pol_0(vp);
   B = Bp = pol_0(vq);
   if (pg > 1)
@@ -1495,9 +1495,9 @@ FpX_factorff_irred(GEN P, GEN Q, GEN p)
   {
     GEN SP, SQ, MP, MQ, M, FP, FQ, E, V, IR;
     long i, vp = varn(P), vq = varn(Q);
-    FQ = FpXQ_matrix_pow(FpXQ_pow(pol_x(vq),p,Q,p),nq,nq,Q,p);
+    FQ = FpX_matFrobenius(Q,p);
     av = avma;
-    FP = FpXQ_matrix_pow(FpXQ_pow(pol_x(vp),p,P,p),np,np,P,p);
+    FP = FpX_matFrobenius(P,p);
     FpX_ffintersect(P,Q,d,p,&SP,&SQ,FP,FQ);
 
     E = FpX_factorgalois(P,p,d,vq,FP);

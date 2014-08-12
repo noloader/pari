@@ -1401,6 +1401,19 @@ FpXQ_matrix_pow(GEN y, long n, long m, GEN P, GEN l)
 }
 
 GEN
+FpX_Frobenius(GEN T, GEN p)
+{
+  return FpXQ_pow(pol_x(get_FpX_var(T)), p, T, p);
+}
+
+GEN
+FpX_matFrobenius(GEN T, GEN p)
+{
+  long n = get_FpX_degree(T);
+  return FpXQ_matrix_pow(FpX_Frobenius(T, p), n, n, T, p);
+}
+
+GEN
 FpX_FpXQV_eval(GEN Q, GEN x, GEN T, GEN p)
 {
   struct _FpXQ D;
@@ -1669,11 +1682,12 @@ _FpXQ_easylog(void *E, GEN a, GEN g, GEN ord)
 
 static const struct bb_group FpXQ_star={_FpXQ_mul,_FpXQ_pow,_FpXQ_rand,hash_GEN,ZX_equal,ZX_equal1,_FpXQ_easylog};
 
-const struct bb_group *get_FpXQ_star(void **E, GEN T, GEN p)
+const struct bb_group *
+get_FpXQ_star(void **E, GEN T, GEN p)
 {
   GEN z = new_chunk(sizeof(struct _FpXQ));
   struct _FpXQ *e = (struct _FpXQ *) z;
-  e->T = T; e->p  = p; e->aut =  FpXQ_pow(pol_x(get_FpX_var(T)), p, T, p);
+  e->T = T; e->p  = p; e->aut =  FpX_Frobenius(T, p);
   *E = (void*)e; return &FpXQ_star;
 }
 
@@ -1828,7 +1842,7 @@ FpXQ_conjvec(GEN x, GEN T, GEN p)
   pari_sp av=avma;
   long i;
   long n = get_FpX_degree(T), v = varn(x);
-  GEN M = FpXQ_matrix_pow(FpXQ_pow(pol_x(v),p,T,p),n,n,T,p);
+  GEN M = FpX_matFrobenius(T, p);
   GEN z = cgetg(n+1,t_COL);
   gel(z,1) = RgX_to_RgC(x,n);
   for (i=2; i<=n; i++) gel(z,i) = FpM_FpC_mul(M,gel(z,i-1),p);
@@ -1847,7 +1861,7 @@ gener_FpXQ_i(GEN T, GEN p, GEN p_1, GEN Lp, GEN Lq)
 {
   pari_sp av;
   long vT = varn(T), f = degpol(T), l = lg(Lq);
-  GEN F = FpXQ_pow(pol_x(vT), p, T, p); /* Frobenius */
+  GEN F = FpX_Frobenius(T, p);
   int p_is_2 = is_pm1(p_1);
   for (av = avma;; avma = av)
   {

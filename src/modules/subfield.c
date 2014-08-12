@@ -458,7 +458,7 @@ static GEN
 init_traces(GEN ff, GEN T, GEN p)
 {
   long N = degpol(T),i,j,k, r = lg(ff);
-  GEN Frob = FpXQ_matrix_pow(FpXQ_pow(pol_x(varn(T)),p, T,p), N,N, T,p);
+  GEN Frob = FpX_matFrobenius(T,p);
   GEN y,p1,p2,Trk,pow,pow1;
 
   k = degpol(gel(ff,r-1)); /* largest degree in modular factorization */

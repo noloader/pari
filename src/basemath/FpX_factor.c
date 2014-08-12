@@ -626,8 +626,7 @@ FpX_Berlekamp_ker(GEN u, GEN p)
 {
   pari_sp ltop=avma;
   long j,N = degpol(u);
-  GEN XP = FpXQ_pow(pol_x(varn(u)),p,u,p);
-  GEN Q  = FpXQ_matrix_pow(XP,N,N,u,p);
+  GEN Q  = FpX_matFrobenius(u, p);
   for (j=1; j<=N; j++)
     gcoeff(Q,j,j) = Fp_sub(gcoeff(Q,j,j), gen_1, p);
   return gerepileupto(ltop, FpM_ker(Q,p));
@@ -677,8 +676,7 @@ FpX_split_part(GEN f, GEN p)
   GEN z, X = pol_x(varn(f));
   if (n <= 1) return f;
   f = FpX_red(f, p);
-  z = FpXQ_pow(X, p, f, p);
-  z = FpX_sub(z, X, p);
+  z = FpX_sub(FpX_Frobenius(f, p), X, p);
   return FpX_gcd(z,f,p);
 }
 
@@ -697,12 +695,10 @@ FpX_is_totally_split(GEN f, GEN p)
 {
   long n=degpol(f);
   pari_sp av = avma;
-  GEN z;
   if (n <= 1) return 1;
   if (cmpui(n, p) > 0) return 0;
   f = FpX_red(f, p);
-  z = FpXQ_pow(pol_x(varn(f)), p, f, p);
-  avma = av; return gequalX(z);
+  avma = av; return gequalX(FpX_Frobenius(f, p));
 }
 
 /* Flv_Flx( Flm_Flc_mul(x, Flx_Flv(y), p) ) */
@@ -1531,7 +1527,7 @@ FpX_factcantor_i(GEN f, GEN pp, long flag)
 
     /* here u is square-free (product of irred. of multiplicity e * k) */
     v=X;
-    S = du==1 ?  cgetg(1, t_VEC): FpXQ_powers(FpXQ_pow(v, pp, u, pp), du-1, u, pp);
+    S = du==1 ?  cgetg(1, t_VEC): FpXQ_powers(FpX_Frobenius(u, pp), du-1, u, pp);
     for (d=1; d <= du>>1; d++)
     {
       v = FpX_FpXQV_eval(v, S, u, pp);
@@ -2257,7 +2253,7 @@ FpXQXQ_halfFrobenius(GEN a, GEN S, GEN T, GEN p)
   }
   else
   {
-    GEN xp = FpXQ_pow(pol_x(get_FpX_var(T)), p, T, p);
+    GEN xp = FpX_Frobenius(T, p);
     GEN Xp = FpXQXQ_pow(pol_x(varn(S)), p, S, T, p);
     GEN ap2 = FpXQXQ_pow(a,shifti(p,-1), S, T, p);
     GEN V = FpXQXQV_autsum(mkvec3(xp,Xp,ap2), get_FpX_degree(T), S, T, p);
@@ -2283,7 +2279,7 @@ FpXQX_Frobenius(GEN S, GEN T, GEN p)
   pari_sp av = avma;
   long n = get_FpX_degree(T);
   GEN X  = pol_x(varn(S));
-  GEN xp = FpXQ_pow(pol_x(get_FpX_var(T)), p, T, p);
+  GEN xp = FpX_Frobenius(T, p);
   GEN Xp = FpXQXQ_pow(X, p, S, T, p);
   GEN Xq = gel(FpXQXQV_autpow(mkvec2(xp,Xp), n, S, T, p), 2);
   return gerepilecopy(av, Xq);

@@ -117,6 +117,7 @@ BA 38- [libpari] functions Fl_sqrtl, Fl_sqrtl_pre
 BA 43- GP function powers and libpari function gpowers
    44- flag LLL_COMPATIBLE for LLL routines [ use 64-bit compatible accuracies
        only ]
+BA 45- [libpari] functions FpX_Frobenius, FpX_matFrobenius
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]
