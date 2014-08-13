@@ -655,11 +655,10 @@ Flx_Berlekamp_ker(GEN u, ulong l)
 {
   pari_sp ltop=avma;
   long j,N = degpol(u);
-  GEN Q, XP;
+  GEN Q;
   pari_timer T;
   timer_start(&T);
-  XP = Flxq_powu(polx_Flx(u[1]),l,u,l);
-  Q  = Flxq_matrix_pow(XP,N,N,u,l);
+  Q  = Flx_matFrobenius(u, l);
   for (j=1; j<=N; j++)
     coeff(Q,j,j) = Fl_sub(coeff(Q,j,j),1,l);
   if(DEBUGLEVEL>=9) timer_printf(&T,"Berlekamp matrix");
@@ -761,9 +760,8 @@ Flx_nbfact_by_degree(GEN z, long *nb, ulong p)
   long lgg, d = 0, e = degpol(z);
   GEN D = zero_zv(e);
   pari_sp av = avma;
-  GEN g, w,  PolX = polx_Flx(z[1]);
-  GEN XP = Flxq_powu(PolX,p,z,p);
-  GEN MP = Flxq_matrix_pow(XP,e,e,z,p);
+  GEN g, w, PolX = polx_Flx(z[1]);
+  GEN MP = Flx_matFrobenius(z, p);
 
   w = PolX; *nb = 0;
   while (d < (e>>1))
@@ -802,7 +800,7 @@ Flx_nbroots(GEN f, ulong p)
 {
   long n = degpol(f);
   pari_sp av = avma;
-  GEN z, X;
+  GEN z;
   if (n <= 1) return n;
   if (n == 2)
   {
@@ -811,9 +809,7 @@ Flx_nbroots(GEN f, ulong p)
     D = Fl_sub(Fl_sqr(f[3], p), Fl_mul(Fl_mul(f[4], f[2], p), 4%p, p), p);
     return 1 + krouu(D,p);
   }
-  X = polx_Flx(f[1]);
-  z = Flxq_powu(X, p, f, p);
-  z = Flx_sub(z, X, p);
+  z = Flx_sub(Flx_Frobenius(f, p), polx_Flx(f[1]), p);
   z = Flx_gcd(z, f, p);
   avma = av; return degpol(z);
 }
@@ -2234,7 +2230,7 @@ GEN
 FlxqXQ_halfFrobenius(GEN a, GEN S, GEN T, ulong p)
 {
   long vT = get_Flx_var(T);
-  GEN xp = Flxq_powu(polx_Flx(vT), p, T, p);
+  GEN xp = Flx_Frobenius(T, p);
   GEN Xp = FlxqXQ_pow(polx_FlxX(varn(S), vT), utoi(p), S, T, p);
   GEN ap2 = FlxqXQ_pow(a,utoi(p>>1), S, T, p);
   GEN V = FlxqXQV_autsum(mkvec3(xp, Xp, ap2), get_Flx_degree(T), S, T, p);
@@ -2267,7 +2263,7 @@ FlxqX_Frobenius(GEN S, GEN T, ulong p)
   pari_sp av = avma;
   long n = get_Flx_degree(T), vT = get_Flx_var(T);
   GEN X  = polx_FlxX(varn(S), vT);
-  GEN xp = Flxq_powu(polx_Flx(vT), p, T, p);
+  GEN xp = Flx_Frobenius(T, p);
   GEN Xp = FlxqXQ_pow(X, utoi(p), S, T, p);
   GEN Xq = gel(FlxqXQV_autpow(mkvec2(xp,Xp), n, S, T, p), 2);
   return gerepilecopy(av, Xq);

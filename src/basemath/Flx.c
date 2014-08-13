@@ -2298,6 +2298,19 @@ Flxq_matrix_pow(GEN y, long n, long m, GEN P, ulong l)
   return FlxV_to_Flm(Flxq_powers(y,m-1,P,l),n);
 }
 
+GEN
+Flx_Frobenius(GEN T, ulong p)
+{
+  return Flxq_powu(polx_Flx(get_Flx_var(T)), p, T, p);
+}
+
+GEN
+Flx_matFrobenius(GEN T, ulong p)
+{
+  long n = get_Flx_degree(T);
+  return Flxq_matrix_pow(Flx_Frobenius(T, p), n, n, T, p);
+}
+
 static struct bb_algebra Flxq_algebra = { _Flxq_red,_Flxq_add,_Flxq_mul,_Flxq_sqr,_Flxq_one,_Flxq_zero};
 
 GEN
@@ -2430,12 +2443,6 @@ Flxq_pow_Frobenius(GEN x, GEN n, GEN aut, GEN T, ulong p)
 }
 
 static GEN
-Flx_Frobenius(GEN T, ulong p)
-{
-  return Flxq_powu(polx_Flx(get_Flx_var(T)), p, T, p);
-}
-
-static GEN
 _Flxq_pow(void *data, GEN x, GEN n)
 {
   struct _Flxq *D = (struct _Flxq*)data;
@@ -2563,11 +2570,10 @@ Flxq_lroot(GEN a, GEN T, long p)
 {
   pari_sp av=avma;
   long n = get_Flx_degree(T), d = degpol(a);
-  long v = get_Flx_var(T);
-  GEN sqx,V;
+  GEN sqx, V;
   if (n==1) return leafcopy(a);
   if (n==2) return Flxq_powu(a, p, T, p);
-  sqx = Flxq_autpow(Flxq_powu(polx_Flx(v), p, T, p), n-1, T, p);
+  sqx = Flxq_autpow(Flx_Frobenius(T, p), n-1, T, p);
   if (d==1 && a[2]==0 && a[3]==1) return gerepileuptoleaf(av, sqx);
   if (d>=p)
   {
@@ -2677,7 +2683,7 @@ gener_Flxq(GEN T, ulong p, GEN *po)
     gel(L2,j++) = diviiexact(q, gel(L2,i));
   }
   setlg(L2, j);
-  F = Flxq_powu(polx_Flx(evalvarn(vT)), p, T, p); /* Frobenius */
+  F = Flx_Frobenius(T, p);
   for (av = avma;; avma = av)
   {
     ulong RES;
