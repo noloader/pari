@@ -3227,6 +3227,10 @@ the prime field.
 
   \kbd{Z}:  the integers $\Z$, implemented as \typ{INT}s.
 
+  \kbd{Zp}: the $p$-adic integers $\Z_p$, implemented as \typ{INT}s, for arbitrary $p$
+
+  \kbd{Zl}: the $p$-adic integers $\Z_p$, implemented as \typ{INT}s, for $p< 2^{\B}$
+
   \kbd{z}:  the integers $\Z$, implemented using (signed) \kbd{long}s.
 
   \kbd{Q}:  the rational numbers $\Q$, implemented as \typ{INT}s and
@@ -3825,14 +3829,6 @@ and \kbd{y}
 \fun{long}{FlxqM_rank}{GEN x, GEN T, ulong p}
 
 \fun{GEN}{matid_FlxqM}{long n, GEN T, ulong p}
-
-\subsec{\kbd{Zlm}}
-\fun{GEN}{ZlM_gauss}{GEN a, GEN b, ulong p, long e, GEN C} as \kbd{gauss}
-with the following peculiarities: $a$ and $b$ are \kbd{ZM}, such that $a$ is
-invertible modulo $p$. Optional $C$ is an \kbd{Flm} that is an inverse of
-$a\mod p$ or \kbd{NULL}. Return the matrix $x$ such that $ax=b\mod p^e$ and
-all elements of $x$ are in $[0,p^e-1]$. For efficiency, it is better
-to reduce $a$ and $b$ mod $p^e$ first.
 
 \subsec{\kbd{FpX}} Let \kbd{p} an understood \typ{INT}, to be given in
 the function arguments; in practice \kbd{p} is not assumed to be prime, but
@@ -5443,7 +5439,7 @@ The functions is not stack clean if one coefficients of $M$ is negative
 \fun{GEN}{FpC_ratlift}{GEN P, GEN m, GEN amax, GEN bmax, GEN denom} as
 \kbd{FpM\_ratlift}, where $P$ is an \kbd{FpC}.
 
-\subsec{Hensel lifts}
+\subsec{Zp}
 
 \fun{GEN}{Zp_sqrtlift}{GEN b, GEN a, GEN p, long e} let
 $a,b,p$ be \typ{INT}s, with $p > 1$ odd, such that $a^2\equiv b\mod p$.
@@ -5461,20 +5457,7 @@ $1$ congruent to $x$ modulo $p$, modulo $p^e$. For convenience, $p = 2$ is
 also allowed and we return $1$ ($x$ is $1$ mod $4$) or $2^e - 1$ ($x$ is $3$
 mod $4$).
 
-\fun{GEN}{ZpXQ_invlift}{GEN b, GEN a, GEN T, GEN p, long e} let
-$p$ be a prime \typ{INT} and $a,b$ be \kbd{FpXQ}s (modulo $T$) such that $a\*b
-\equiv 1 \mod (p,T)$.  Returns an \kbd{FpXQ} $A$ such that
-$A\*b \equiv 1 \mod (p^e, T)$.  Special case of \tet{ZpXQ_liftroot}.
-
-\fun{GEN}{ZpXQ_inv}{GEN b, GEN T, GEN p, long e} let
-$p$ be a prime \typ{INT} and $b$ be a \kbd{FpXQ} (modulo $T, p^e$).
-Returns an \kbd{FpXQ} $A$ such that $A\*b \equiv 1 \mod (p^e, T)$.
-
-\fun{GEN}{ZpXQ_sqrtnlift}{GEN b, GEN n, GEN a, GEN T, GEN p, long e} let
-$n,p$ be \typ{INT}s, with $n,p > 1$ and $p$ coprime to $n$, and $a,b$
-be \kbd{FpXQ}s (modulo $T$) such that $a^n \equiv b \mod (p,T)$.
-Returns an \kbd{Fq} $A$ such that $A^n \equiv b \mod (p^e, T)$.
-Special case of \tet{ZpXQ_liftroot}.
+\subsec{ZpX}
 
 \fun{GEN}{ZpX_roots}{GEN f, GEN p, long e} $f$ a \kbd{ZX} with leading
 term prime to $p$, and without multiple roots mod $p$. Return a vector
@@ -5495,15 +5478,68 @@ leading term prime to $p$, and $S$ a vector of simple roots mod $p$. Return a
 vector of \typ{INT}s which are the root of $f$ mod $p^e$ congruent to the
 $S[i]$ mod $p$.
 
-\fun{GEN}{ZpXQX_liftroot}{GEN f, GEN a, GEN T, GEN p, long e} as
-\tet{ZpX_liftroot}, but $f$ is now a polynomial in $\Z[X,Y]$ and lift the
-root $a$ in the unramified extension of $\Q_p$ with residue field $\F_p[Y]/(T)$,
-assuming $v_p(f(a))>0$ and $v_p(f'(a))=0$.
+\fun{GEN}{ZpX_liftfact}{GEN A, GEN B, GEN T, GEN p, long e, GEN pe} is
+the routine underlying \tet{polhensellift}. Here, $p$ is prime, $T(Y)$
+defines a finite field $\F_q$, either $\F_q = \F_p$ ($T$ is \kbd{NULL})
+or a non-prime finite field ($T$ an \kbd{FpX}). $A$ is a polynomial in
+$\Z[X]$ ($T$ \kbd{NULL}) or $\Z[X,Y]$, whose leading coefficient
+is non-zero in $\F_q$. $B$ is a vector of monic \kbd{FpX} ($T$ \kbd{NULL}) or
+\kbd{FqX}, pairwise coprime in $\F_q[X]$, whose product is congruent to
+$A/\text{lc}(A)$ in $\F_q[X]$. Lifts the elements of $B$ mod $\kbd{pe} =
+p^e$, such that the congruence now holds mod $(T,p^e)$.
 
-\fun{GEN}{ZpXQX_liftroot_vald}{GEN f, GEN a, long v, GEN T, GEN p, long e}
-returns the foots of $f$ as \tet{ZpXQX_liftroot}, where $v$ is the valuation
-of the content of $f'$ and it is required that $v_p(f(a))>v$ and
-$v_p(f'(a))=v$.
+\fun{long}{ZpX_disc_val}{GEN f, GEN p} returns the valuation at $p$ of the
+discriminant of $f$. Assume that $f$ is a monic \emph{separable} \kbd{ZX}
+and that $p$ is a prime number. Proceeds by dynamically increasing the
+$p$-adic accuracy; infinite loop if the discriminant of $f$ is
+$0$.
+
+\fun{long}{ZpX_resultant_val}{GEN f, GEN g, GEN p, long M} returns the
+valuation at $p$ of $\text{Res}(f,g)$. Assume $f,g$ are both \kbd{ZX},
+and that $p$ is a prime number coprime to the leading coefficient of $f$.
+Proceeds by dynamically increasing the $p$-adic accuracy.
+To avoid an infinite loop when the resultant is $0$, we return $M$ if
+the Sylvester matrix mod $p^M$ still does not have maximal rank.
+
+\fun{GEN}{ZpX_gcd}{GEN f,GEN g, GEN p, GEN pm} $f$ a monic \kbd{ZX},
+$g$ a \kbd{ZX}, $\kbd{pm} = p^m$ a prime power. There is a unique integer
+$r\geq 0$ and a monic $h\in \Q_p[X]$ such that
+$$p^rh\Z_p[X] + p^m\Z_p[X] = f\Z_p[X] + g\Z_p[X] + p^m\Z_p[X].$$
+Return the $0$ polynomial if $r\geq m$ and a monic $h\in\Z[1/p][X]$ otherwise
+(whose valuation at $p$ is $> -m$).
+
+\fun{GEN}{ZpX_reduced_resultant}{GEN f, GEN g, GEN p, GEN pm} $f$ a monic
+\kbd{ZX}, $g$ a \kbd{ZX}, $\kbd{pm} = p^m$ a prime power. The $p$-adic
+\emph{reduced resultant}\varsidx{resultant (reduced)} of $f$ and $g$ is
+$0$ if $f$, $g$ not coprime in $\Z_p[X]$, and otherwise the generator of the
+form $p^d$ of
+$$ (f\Z_p[X] + g\Z_p[X])\cap \Z_p. $$
+Return the reduced resultant modulo $p^m$.
+
+\fun{GEN}{ZpX_reduced_resultant_fast}{GEN f, GEN g, GEN p, long M} $f$
+a monic \kbd{ZX}, $g$ a \kbd{ZX}, $p$ a prime. Returns the
+the $p$-adic reduced resultant of $f$ and $g$ modulo $p^M$. This function
+computes resultants for a sequence of increasing $p$-adic accuracies
+(up to $M$ $p$-adic digits), returning as soon as it obtains a non-zero
+result. It is very inefficient when the resultant is $0$, but otherwise
+usually more efficient than computations using a priori bounds.
+
+\subsec{ZpXQ}
+
+\fun{GEN}{ZpXQ_invlift}{GEN b, GEN a, GEN T, GEN p, long e} let
+$p$ be a prime \typ{INT} and $a,b$ be \kbd{FpXQ}s (modulo $T$) such that $a\*b
+\equiv 1 \mod (p,T)$.  Returns an \kbd{FpXQ} $A$ such that
+$A\*b \equiv 1 \mod (p^e, T)$.  Special case of \tet{ZpXQ_liftroot}.
+
+\fun{GEN}{ZpXQ_inv}{GEN b, GEN T, GEN p, long e} let
+$p$ be a prime \typ{INT} and $b$ be a \kbd{FpXQ} (modulo $T, p^e$).
+Returns an \kbd{FpXQ} $A$ such that $A\*b \equiv 1 \mod (p^e, T)$.
+
+\fun{GEN}{ZpXQ_sqrtnlift}{GEN b, GEN n, GEN a, GEN T, GEN p, long e} let
+$n,p$ be \typ{INT}s, with $n,p > 1$ and $p$ coprime to $n$, and $a,b$
+be \kbd{FpXQ}s (modulo $T$) such that $a^n \equiv b \mod (p,T)$.
+Returns an \kbd{Fq} $A$ such that $A^n \equiv b \mod (p^e, T)$.
+Special case of \tet{ZpXQ_liftroot}.
 
 \fun{GEN}{ZpX_ZpXQ_liftroot}{GEN f, GEN a, GEN T, GEN p, long e}
 as \tet{ZpXQX_liftroot}, but $f$ is a polynomial in $\Z[X]$.
@@ -5514,15 +5550,60 @@ as \tet{ZpX_ZpXQ_liftroot} with early abort: the function \kbd{early(E,x,q)}
 will be called with $x$ is a root of $f$ modulo $q=p^n$ for some $n$. If early
 return a non-zero value, the function will return $x$ immediately.
 
-\fun{GEN}{ZpX_liftfact}{GEN A, GEN B, GEN T, GEN p, long e, GEN pe} is
-the routine underlying \tet{polhensellift}. Here, $p$ is prime, $T(Y)$
-defines a finite field $\F_q$, either $\F_q = \F_p$ ($T$ is \kbd{NULL})
-or a non-prime finite field ($T$ an \kbd{FpX}). $A$ is a polynomial in
-$\Z[X]$ ($T$ \kbd{NULL}) or $\Z[X,Y]$, whose leading coefficient
-is non-zero in $\F_q$. $B$ is a vector of monic \kbd{FpX} ($T$ \kbd{NULL}) or
-\kbd{FqX}, pairwise coprime in $\F_q[X]$, whose product is congruent to
-$A/\text{lc}(A)$ in $\F_q[X]$. Lifts the elements of $B$ mod $\kbd{pe} =
-p^e$, such that the congruence now holds mod $(T,p^e)$.
+\fun{GEN}{ZpXQ_log}{GEN a, GEN T, GEN p, long e} $T$ being a \kbd{ZpX}
+irreducible modulo $p$, return the logarithm of $a$ in $\Z_p[X]/(T)$ to
+precision $e$, assuming that $a\equiv 1 \pmod{p\Z_p[X]}$ if $p$ odd or
+$a\equiv 1 \pmod{4\Z_2[X]}$ if $p=2$.
+
+\subsec{ZpXQX}
+
+\fun{GEN}{ZpXQX_liftroot}{GEN f, GEN a, GEN T, GEN p, long e} as
+\tet{ZpX_liftroot}, but $f$ is now a polynomial in $\Z[X,Y]$ and lift the
+root $a$ in the unramified extension of $\Q_p$ with residue field $\F_p[Y]/(T)$,
+assuming $v_p(f(a))>0$ and $v_p(f'(a))=0$.
+
+\fun{GEN}{ZpXQX_liftroot_vald}{GEN f, GEN a, long v, GEN T, GEN p, long e}
+returns the foots of $f$ as \tet{ZpXQX_liftroot}, where $v$ is the valuation
+of the content of $f'$ and it is required that $v_p(f(a))>v$ and
+$v_p(f'(a))=v$.
+
+\subsec{Other $p$-adic functions}
+
+\fun{GEN}{ZpM_echelon}{GEN M, long early_abort, GEN p, GEN pm} given a
+\kbd{ZM} $M$, a prime $p$ and $\kbd{pm} = p^m$, returns an echelon form
+$E$ for $M$ mod $p^m$. I.e. there exist a square integral matrix $U$ with
+$\det U$ coprime to $p$ such that $E = MU$ modulo $p^m$. I
+\kbd{early\_abort} is non-zero, return NULL as soon as one pivot in
+the echelon form is divisible by $p^m$. The echelon form is an upper
+triangular HNF, we do not waste time to reduce it to Gauss-Jordan form.
+
+\fun{GEN}{zlm_echelon}{GEN M, long early_abort, ulong p, ulong pm}
+variant of \kbd{ZpM\_echelon}, for a \kbd{Zlm} $M$.
+
+\fun{GEN}{ZlM_gauss}{GEN a, GEN b, ulong p, long e, GEN C} as \kbd{gauss}
+with the following peculiarities: $a$ and $b$ are \kbd{ZM}, such that $a$ is
+invertible modulo $p$. Optional $C$ is an \kbd{Flm} that is an inverse of
+$a\mod p$ or \kbd{NULL}. Return the matrix $x$ such that $ax=b\mod p^e$ and
+all elements of $x$ are in $[0,p^e-1]$. For efficiency, it is better
+to reduce $a$ and $b$ mod $p^e$ first.
+
+\fun{GEN}{padic_to_Q}{GEN x} truncate the \typ{PADIC} to a \typ{INT} or
+\typ{FRAC}.
+
+\fun{GEN}{padic_to_Q_shallow}{GEN x} shallow version of \tet{padic_to_Q}
+
+\fun{GEN}{QpV_to_QV}{GEN v} apply \tet{padic_to_Q_shallow}
+
+\fun{long}{padicprec}{GEN x, GEN p} returns the absolute $p$-adic precision of
+the object $x$, by definition the minimum precision of the components of $x$.
+For a non-zero \typ{PADIC}, this returns \kbd{valp(x) + precp(x)}.
+
+\fun{long}{padicprec_relative}{GEN x} returns the relative $p$-adic
+precision of the \typ{INT}, \typ{FRAC}, or \typ{PADIC} $x$ (minimum precision
+of the components of $x$ for \typ{POL} or vector/matrices).
+For a \typ{PADIC}, this returns \kbd{precp(x)} if $x\neq0$, and $0$ for $x=0$.
+
+\subsubsec{low-level}
 
 The following technical function returns an optimal sequence of $p$-adic
 accuracies, for a given target accuracy:
@@ -5573,76 +5654,6 @@ Note that in practice, we rather use an infinite loop, and insert an
 preparations for the next iterations (e.g. lifting Bezout coefficients
 in a quadratic Hensel lift), which are costly and useless in the \emph{last}
 iteration.
-
-\subsec{Other $p$-adic functions}
-
-\fun{long}{ZpX_disc_val}{GEN f, GEN p} returns the valuation at $p$ of the
-discriminant of $f$. Assume that $f$ is a monic \emph{separable} \kbd{ZX}
-and that $p$ is a prime number. Proceeds by dynamically increasing the
-$p$-adic accuracy; infinite loop if the discriminant of $f$ is
-$0$.
-
-\fun{long}{ZpX_resultant_val}{GEN f, GEN g, GEN p, long M} returns the
-valuation at $p$ of $\text{Res}(f,g)$. Assume $f,g$ are both \kbd{ZX},
-and that $p$ is a prime number coprime to the leading coefficient of $f$.
-Proceeds by dynamically increasing the $p$-adic accuracy.
-To avoid an infinite loop when the resultant is $0$, we return $M$ if
-the Sylvester matrix mod $p^M$ still does not have maximal rank.
-
-\fun{GEN}{ZpX_gcd}{GEN f,GEN g, GEN p, GEN pm} $f$ a monic \kbd{ZX},
-$g$ a \kbd{ZX}, $\kbd{pm} = p^m$ a prime power. There is a unique integer
-$r\geq 0$ and a monic $h\in \Q_p[X]$ such that
-$$p^rh\Z_p[X] + p^m\Z_p[X] = f\Z_p[X] + g\Z_p[X] + p^m\Z_p[X].$$
-Return the $0$ polynomial if $r\geq m$ and a monic $h\in\Z[1/p][X]$ otherwise
-(whose valuation at $p$ is $> -m$).
-
-\fun{GEN}{ZpX_reduced_resultant}{GEN f, GEN g, GEN p, GEN pm} $f$ a monic
-\kbd{ZX}, $g$ a \kbd{ZX}, $\kbd{pm} = p^m$ a prime power. The $p$-adic
-\emph{reduced resultant}\varsidx{resultant (reduced)} of $f$ and $g$ is
-$0$ if $f$, $g$ not coprime in $\Z_p[X]$, and otherwise the generator of the
-form $p^d$ of
-$$ (f\Z_p[X] + g\Z_p[X])\cap \Z_p. $$
-Return the reduced resultant modulo $p^m$.
-
-\fun{GEN}{ZpX_reduced_resultant_fast}{GEN f, GEN g, GEN p, long M} $f$
-a monic \kbd{ZX}, $g$ a \kbd{ZX}, $p$ a prime. Returns the
-the $p$-adic reduced resultant of $f$ and $g$ modulo $p^M$. This function
-computes resultants for a sequence of increasing $p$-adic accuracies
-(up to $M$ $p$-adic digits), returning as soon as it obtains a non-zero
-result. It is very inefficient when the resultant is $0$, but otherwise
-usually more efficient than computations using a priori bounds.
-
-\fun{GEN}{ZpM_echelon}{GEN M, long early_abort, GEN p, GEN pm} given a
-\kbd{ZM} $M$, a prime $p$ and $\kbd{pm} = p^m$, returns an echelon form
-$E$ for $M$ mod $p^m$. I.e. there exist a square integral matrix $U$ with
-$\det U$ coprime to $p$ such that $E = MU$ modulo $p^m$. I
-\kbd{early\_abort} is non-zero, return NULL as soon as one pivot in
-the echelon form is divisible by $p^m$. The echelon form is an upper
-triangular HNF, we do not waste time to reduce it to Gauss-Jordan form.
-
-\fun{GEN}{zlm_echelon}{GEN M, long early_abort, ulong p, ulong pm}
-variant of \kbd{ZpM\_echelon}, for a \kbd{Zlm} $M$.
-
-\fun{GEN}{ZpXQ_log}{GEN a, GEN T, GEN p, long e} $T$ being a \kbd{ZpX}
-irreducible modulo $p$, return the logarithm of $a$ in $\Z_p[X]/(T)$ to
-precision $e$, assuming that $a\equiv 1 \pmod{p\Z_p[X]}$ if $p$ odd or
-$a\equiv 1 \pmod{4\Z_2[X]}$ if $p=2$.
-
-\fun{GEN}{padic_to_Q}{GEN x} truncate the \typ{PADIC} to a \typ{INT} or
-\typ{FRAC}.
-
-\fun{GEN}{padic_to_Q_shallow}{GEN x} shallow version of \tet{padic_to_Q}
-
-\fun{GEN}{QpV_to_QV}{GEN v} apply \tet{padic_to_Q_shallow}
-
-\fun{long}{padicprec}{GEN x, GEN p} returns the absolute $p$-adic precision of
-the object $x$, by definition the minimum precision of the components of $x$.
-For a non-zero \typ{PADIC}, this returns \kbd{valp(x) + precp(x)}.
-
-\fun{long}{padicprec_relative}{GEN x} returns the relative $p$-adic
-precision of the \typ{INT}, \typ{FRAC}, or \typ{PADIC} $x$ (minimum precision
-of the components of $x$ for \typ{POL} or vector/matrices).
-For a \typ{PADIC}, this returns \kbd{precp(x)} if $x\neq0$, and $0$ for $x=0$.
 
 \subsec{Conversions involving single precision objects}
 
