@@ -669,6 +669,7 @@ GEN     zMs_ZC_mul(GEN M, GEN B);
 
 GEN     Zp_sqrtlift(GEN b, GEN a, GEN p, long e);
 GEN     Zp_sqrtnlift(GEN b, GEN n, GEN a, GEN p, long e);
+GEN     ZpX_Frobenius(GEN T, GEN p, long e);
 GEN     ZpX_ZpXQ_liftroot(GEN P, GEN S, GEN T, GEN p, long e);
 GEN     ZpX_ZpXQ_liftroot_ea(GEN P, GEN S, GEN T, GEN p, long n, void *E,
                      int early(void *E, GEN x, GEN q));

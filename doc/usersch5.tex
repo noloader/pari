@@ -5488,6 +5488,9 @@ is non-zero in $\F_q$. $B$ is a vector of monic \kbd{FpX} ($T$ \kbd{NULL}) or
 $A/\text{lc}(A)$ in $\F_q[X]$. Lifts the elements of $B$ mod $\kbd{pe} =
 p^e$, such that the congruence now holds mod $(T,p^e)$.
 
+\fun{GEN}{ZpX_Frobenius}{GEN T, GEN p, ulong e} returns the $p$-adic lift
+of the Frobenius automorphism of $\F_p[X]/(T)$ to precision $e$.
+
 \fun{long}{ZpX_disc_val}{GEN f, GEN p} returns the valuation at $p$ of the
 discriminant of $f$. Assume that $f$ is a monic \emph{separable} \kbd{ZX}
 and that $p$ is a prime number. Proceeds by dynamically increasing the

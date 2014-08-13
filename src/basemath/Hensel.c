@@ -880,3 +880,9 @@ ZpX_ZpXQ_liftroot(GEN P, GEN S, GEN T, GEN p, long n)
 {
   return ZpX_ZpXQ_liftroot_ea(P, S, T, p, n, NULL, NULL);
 }
+
+GEN
+ZpX_Frobenius(GEN T, GEN p, long e)
+{
+  return ZpX_ZpXQ_liftroot(T, FpX_Frobenius(T, p), T, p, e);
+}
