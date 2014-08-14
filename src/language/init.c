@@ -2438,7 +2438,7 @@ getwalltime(void)
     return timetoi(tv.tv_sec, (tv.tv_usec + 500)/1000);
 #elif defined(USE_FTIMEFORWALLTIME)
   struct timeb tp;
-  if (!ftime(&tp)) return timetoi(tp.time, tp.millitm);
+  ftime(&tp); return timetoi(tp.time, tp.millitm);
 #endif
   return utoi(getabstime());
 }
