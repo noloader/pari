@@ -1526,6 +1526,33 @@ FpXQ_autsum(GEN x, ulong n, GEN T, GEN p)
   return gen_powu(x,n,(void*)&D,FpXQ_autsum_sqr,FpXQ_autsum_mul);
 }
 
+static GEN
+FpXQM_autsum_mul(void *E, GEN x, GEN y)
+{
+  struct _FpXQ *D = (struct _FpXQ*)E;
+  GEN T = D->T, p = D->p;
+  GEN phi1 = gel(x,1), a1 = gel(x,2);
+  GEN phi2 = gel(y,1), a2 = gel(y,2);
+  long g = lg(a2)-1, dT = get_FpX_degree(T);
+  ulong d = brent_kung_optpow(dT-1, g*g+1, 1);
+  GEN V1 = FpXQ_powers(phi1, d, T, p);
+  GEN phi3 = FpX_FpXQV_eval(phi2, V1, T, p);
+  GEN aphi = FpXM_FpXQV_eval(a2, V1, T, p);
+  GEN a3 = FqM_mul(a1, aphi, T, p);
+  return mkvec2(phi3, a3);
+}
+static GEN
+FpXQM_autsum_sqr(void *E, GEN x)
+{ return FpXQM_autsum_mul(E, x, x); }
+
+GEN
+FpXQM_autsum(GEN x, ulong n, GEN T, GEN p)
+{
+  struct _FpXQ D;
+  D.T = FpX_get_red(T, p); D.p = p;
+  return gen_powu(x, n, (void*)&D, FpXQM_autsum_sqr, FpXQM_autsum_mul);
+}
+
 static long
 bounded_order(GEN p, GEN b, long k)
 {

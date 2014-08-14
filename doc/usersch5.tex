@@ -4304,6 +4304,11 @@ where $b=a[2]$.
 \fun{GEN}{FpXQ_autpowers}{GEN S, long n, GEN T, GEN p} returns
 $[x,S(x),S(S(x)),\dots,S^{(n)}(x)]$ as a \typ{VEC} of \kbd{FpXQ}s.
 
+\fun{GEN}{FpXQM_autsum}{GEN a, long n, GEN T, GEN p}
+$\sigma$ being the automorphism defined by $\sigma(X)=a[1]\pmod{T(X)}$,
+returns the vector $[\sigma^n(X),b\sigma(b)\ldots\sigma^{n-1}(b)]$
+where $b=a[2]$ is a square matrix.
+
 \fun{GEN}{FpX_FpXQ_eval}{GEN f, GEN x, GEN T, GEN p} returns
 $\kbd{f}(\kbd{x})$.
 

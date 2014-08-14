@@ -491,6 +491,7 @@ GEN     FpXQ_sqrt(GEN a, GEN T, GEN p);
 GEN     FpXQ_sqrtn(GEN a, GEN n, GEN T, GEN p, GEN *zetan);
 GEN     FpXQ_trace(GEN x, GEN T, GEN p);
 GEN     FpXQC_to_mod(GEN z, GEN T, GEN p);
+GEN     FpXQM_autsum(GEN x, ulong n, GEN T, GEN p);
 GEN     FpXT_red(GEN z, GEN p);
 GEN     FpXV_prod(GEN V, GEN p);
 GEN     FpXV_red(GEN z, GEN p);
