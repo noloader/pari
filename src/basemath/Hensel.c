@@ -884,5 +884,5 @@ ZpX_ZpXQ_liftroot(GEN P, GEN S, GEN T, GEN p, long n)
 GEN
 ZpX_Frobenius(GEN T, GEN p, long e)
 {
-  return ZpX_ZpXQ_liftroot(T, FpX_Frobenius(T, p), T, p, e);
+  return ZpX_ZpXQ_liftroot(get_FpX_mod(T), FpX_Frobenius(T, p), T, p, e);
 }
