@@ -550,7 +550,7 @@ baby_init3(struct baby_giant *bb, GEN Q, GEN bnd, GEN rbnd, long prec)
 
 /* ymin a t_REAL */
 static GEN
-heegner_psi(GEN E, GEN N, GEN ymin, GEN points, long bitprec)
+heegner_psi(GEN E, GEN N, GEN points, long bitprec)
 {
   pari_sp av = avma, av2;
   struct baby_giant bb;
@@ -1208,7 +1208,7 @@ rootno(GEN Q, GEN P, GEN R)
 }
 
 static void
-heegner_find_disc(GEN *ymin, GEN *points, GEN *coefs, long *pind, GEN E,
+heegner_find_disc(GEN *points, GEN *coefs, long *pind, GEN E,
                   GEN indmult, long prec)
 {
   long d = 0;
@@ -1255,7 +1255,6 @@ heegner_find_disc(GEN *ymin, GEN *points, GEN *coefs, long *pind, GEN E,
             continue;
           }
           *pind = itos(indi);
-          *ymin = gsqrt(gel(Lk, 1), prec);
           L = gel(Lk, 2); l = lg(L);
           pts = cgetg(l, t_VEC);
           cfs = cgetg(l, t_VECSMALL);
@@ -1268,6 +1267,9 @@ heegner_find_disc(GEN *ymin, GEN *points, GEN *coefs, long *pind, GEN E,
             if (!equali1(z)) c *= 2;
             cfs[i] = c;
           }
+          if (DEBUGLEVEL == 1)
+            err_printf("N = %Ps, ymin*N = %Ps\n",N,
+                       gmul(gsqrt(gel(Lk, 1), prec),N));
           *coefs = cfs; *points = pts; return;
         }
       } while(0);
@@ -1290,7 +1292,7 @@ GEN
 ellheegner(GEN E)
 {
   pari_sp av = avma;
-  GEN z, P, ht, points, coefs, ymin, s, om, indmult;
+  GEN z, P, ht, points, coefs, s, om, indmult;
   long ind, lint, k, l, wtor, etor;
   long bitprec = 16, prec = nbits2prec(bitprec)+1;
   pari_timer ti;
@@ -1323,10 +1325,9 @@ ellheegner(GEN E)
     prec = nbits2prec(bitprec)+1;
   }
   indmult = heegner_indexmult(om, wtor, tam, prec);
-  heegner_find_disc(&ymin, &points, &coefs, &ind, E, indmult, prec);
-  if (DEBUGLEVEL == 1) err_printf("N = %Ps, ymin*N = %Ps\n",N,gmul(ymin,N));
+  heegner_find_disc(&points, &coefs, &ind, E, indmult, prec);
   if (DEBUGLEVEL) timer_start(&ti);
-  s = heegner_psi(E, N, ymin, points, bitprec);
+  s = heegner_psi(E, N, points, bitprec);
   if (DEBUGLEVEL) timer_printf(&ti,"heegner_psi");
   l = lg(points);
   z = mulsr(coefs[1], gel(s, 1));
