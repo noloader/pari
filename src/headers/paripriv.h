@@ -596,6 +596,10 @@ GEN     gsubst_expr(GEN pol, GEN from, GEN to);
 GEN     poltoser(GEN x, long v, long prec);
 GEN     rfractoser(GEN x, long v, long prec);
 
+/* hyperell.c */
+
+GEN     ZlXQX_hyperellpadicfrobenius(GEN H, GEN T, ulong p, long n);
+
 /* ifactor1.c */
 
 GEN     ellfacteur(GEN n, int insist);

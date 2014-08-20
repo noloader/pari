@@ -214,6 +214,37 @@ diff_red(GEN s, GEN A, long m, GEN T, GEN p)
 }
 
 static GEN
+ZX_to_padic(GEN P, GEN q)
+{
+  long i, l = lg(P);
+  GEN Q = cgetg(l, t_POL);
+  Q[1] = P[1];
+  for (i=2; i<l ;i++)
+    gel(Q,i) = gadd(gel(P,i), q);
+  return normalizepol(Q);
+}
+
+static GEN
+ZXC_to_padic(GEN C, GEN q)
+{
+  long i, l = lg(C);
+  GEN V = cgetg(l,t_COL);
+  for(i = 1; i < l; i++)
+    gel(V, i) = ZX_to_padic(gel(C, i), q);
+  return V;
+}
+
+static GEN
+ZXM_to_padic(GEN M, GEN q)
+{
+  long i, l = lg(M);
+  GEN V = cgetg(l,t_MAT);
+  for(i = 1; i < l; i++)
+    gel(V, i) = ZXC_to_padic(gel(M, i), q);
+  return V;
+}
+
+static GEN
 topad(GEN P, long g, GEN q)
 {
   long i, d = lgpol(P);
@@ -338,7 +369,7 @@ FpXXX_Fp_mul(GEN z, GEN a, GEN p)
 static GEN
 ZpXQXXQ_invsqrt(GEN F, GEN S, GEN T, ulong p, long e)
 {
-  pari_sp av = avma, av2;
+  pari_sp av = avma, av2, av3;
   ulong mask;
   long v = varn(F), n=1;
   pari_timer ti;
@@ -354,8 +385,10 @@ ZpXQXXQ_invsqrt(GEN F, GEN S, GEN T, ulong p, long e)
     n<<=1; if (mask & 1) n--;
     mask >>= 1;
     q = powuu(p,n), q2 = powuu(p,n2);
+    av3 = avma;
     f = RgX_sub(FpXQXXQ_mul(F, FpXQXXQ_sqr(a, S, T, q), S, T, q), pol_1(v));
     fq = RgX_Rg_divexact(f, q2);
+    fq = gerepileupto(av3, RgX_Rg_divexact(f, q2));
     q22 = shifti(addis(q2,1),-1);
     afq = FpXXX_Fp_mul(FpXQXXQ_mul(a, fq, S, T, q2), q22, q2);
     a = RgX_sub(a, RgX_Rg_mul(afq, q2));
@@ -529,4 +562,15 @@ ZlXQX_hyperellpadicfrobenius(GEN H, GEN T, ulong p, long n)
     gel(F, i) = gerepileupto(av2, ZXX_to_FpXC(M, g, q, varn(T)));
   }
   return gerepileupto(av, F);
+}
+
+GEN
+nfhyperellpadicfrobenius(GEN H, GEN T, ulong p, long n)
+{
+  pari_sp av = avma;
+  GEN M = ZlXQX_hyperellpadicfrobenius(lift(H),T,p,n);
+  GEN MM = ZpXQM_prodFrobenius(M, T, utoi(p), n);
+  GEN q = zeropadic(utoi(p),n);
+  GEN m = gmul(ZXM_to_padic(MM, q), gmodulo(gen_1, T));
+  return gerepileupto(av, m);
 }
