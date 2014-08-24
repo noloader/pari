@@ -87,6 +87,7 @@ easychar(GEN x, long v)
   pari_err_TYPE("easychar",x);
   return NULL; /* not reached */
 }
+static GEN Flm_charpoly_i(GEN x, ulong p);
 /* compute charpoly by mapping to Fp first, return lift to Z */
 static GEN
 RgM_Fp_charpoly(GEN x, GEN p, long v)
@@ -95,7 +96,7 @@ RgM_Fp_charpoly(GEN x, GEN p, long v)
   if (lgefint(p) == 3)
   {
     ulong pp = itou(p);
-    T = Flm_charpoly(RgM_to_Flm(x, pp), pp);
+    T = Flm_charpoly_i(RgM_to_Flm(x, pp), pp);
     T = Flx_to_ZX(T);
   }
   else
@@ -792,13 +793,17 @@ carhess(GEN x, long v)
 GEN
 FpM_charpoly(GEN x, GEN p)
 {
-  pari_sp av;
+  pari_sp av = avma;
   long lx, r, i;
   GEN y, H;
 
-  /* Flm_charpoly left on stack */
-  if (lgefint(p) == 3) return Flx_to_ZX(Flm_charpoly(x, p[2]));
-  lx = lg(x); av = avma; y = cgetg(lx+1, t_VEC);
+  if (lgefint(p) == 3)
+  {
+    ulong pp = p[2];
+    y = Flx_to_ZX(Flm_charpoly(ZM_to_Flm(x,pp), pp));
+    return gerepileupto(av, y);
+  }
+  lx = lg(x); y = cgetg(lx+1, t_VEC);
   gel(y,1) = pol_1(0); H = FpM_hess(x, p);
   for (r = 1; r < lx; r++)
   {
@@ -819,14 +824,11 @@ FpM_charpoly(GEN x, GEN p)
   }
   return gerepileupto(av, gel(y,lx));
 }
-GEN
-Flm_charpoly(GEN x, long p)
+static GEN
+Flm_charpoly_i(GEN x, ulong p)
 {
-  pari_sp av;
-  long lx, r, i;
-  GEN y, H;
-
-  lx = lg(x); av = avma; y = cgetg(lx+1, t_VEC);
+  long lx = lg(x), r, i;
+  GEN H, y = cgetg(lx+1, t_VEC);
   gel(y,1) = pol1_Flx(0); H = Flm_hess(x, p);
   for (r = 1; r < lx; r++)
   {
@@ -844,7 +846,13 @@ Flm_charpoly(GEN x, long p)
     /* (X - H[r,r])y[r] - b */
     gel(y,r+1) = gerepileuptoleaf(av2, Flx_sub(z, b, p));
   }
-  return gerepileuptoleaf(av, gel(y,lx));
+  return gel(y,lx);
+}
+GEN
+Flm_charpoly(GEN x, ulong p)
+{
+  pari_sp av = avma;
+  return gerepileuptoleaf(av, Flm_charpoly_i(x,p));
 }
 
 /* Bound for sup norm of charpoly(M/dM), M integral: let B = |M|oo / |dM|,
@@ -892,7 +900,7 @@ QM_charpoly_ZX_i(GEN M, GEN dM)
     pari_sp av = avma;
     ulong dMp = 0;
     if (dM && !(dMp = umodiu(dM, p))) continue;
-    Hp = Flm_charpoly(ZM_to_Flm(M, p), p);
+    Hp = Flm_charpoly_i(ZM_to_Flm(M, p), p);
     /* char_{M/d}(X) = d^(-n) char_M(dX) */
     if (dM) Hp = Flx_rescale(Hp, Fl_inv(dMp,p), p);
     Hp = gerepileuptoleaf(av, Hp);

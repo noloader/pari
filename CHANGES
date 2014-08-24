@@ -61,6 +61,7 @@ BA 35- multiif did not handle correctly return() in conditions [#1590]
    42- [ghelp] oo loop when $COLUMNS too small [#1594]
    43- genus2red(x,-x^6-3*x^4-10*x^2-1,3) -> impossible inverse [#1597]
    44- factoru(1) returned a t_MAT instead of the expected "matsmall" [#1598]
+   45- FpM_charpoly wrong in small characteristic [#1602]
 
   Added
     1- add optional argument to sumdigits to specify the base

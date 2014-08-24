@@ -1139,7 +1139,7 @@ GEN     suppl(GEN x);
 
 /* alglin2.c */
 
-GEN     Flm_charpoly(GEN x, long p);
+GEN     Flm_charpoly(GEN x, ulong p);
 GEN     Flm_hess(GEN x, ulong p);
 GEN     FpM_charpoly(GEN x, GEN p);
 GEN     FpM_hess(GEN x, GEN p);
