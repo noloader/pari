@@ -163,7 +163,7 @@ RgX_to_ser(GEN x, long l)
   long i, lx = lg(x);
   if (lx == 2) return zeroser(varn(x), l-2);
   /* analogous to RgX_valrem + normalize */
-  i = 2; while (i<lx && isrationalzero(gel(x,i))) i++;
+  i = 2; while (i<lx && isexactzero(gel(x,i))) i++;
   return greffe_aux(x, l, lx, i - 2);
 }
 GEN

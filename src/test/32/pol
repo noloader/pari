@@ -1,5 +1,5 @@
 Mod(0, 3) Mod(0, 3) Mod(0, 3)
-Mod(0, 3) + O(y^16) Mod(0, 3) + O(x^16) Mod(0, 3) + O(x^5)
+Mod(0, 3)*y^15 + O(y^16) Mod(0, 3)*x^15 + O(x^16) Mod(0, 3)*x^4 + O(x^5)
 y x x
 y + O(y^17) y + O(x^16) y + O(x^5)
 0 0 0
