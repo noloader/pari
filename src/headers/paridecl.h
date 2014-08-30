@@ -4232,6 +4232,7 @@ INLINE GEN    rowcopy(GEN A, long x0);
 INLINE GEN    rowpermute(GEN A, GEN p);
 INLINE GEN    rowslice(GEN A, long x1, long x2);
 INLINE GEN    rowslicepermute(GEN A, GEN p, long x1, long x2);
+INLINE int    ser_isexactzero(GEN x);
 INLINE GEN    shallowcopy(GEN x);
 INLINE GEN    sqrfrac(GEN x);
 INLINE GEN    sqrti(GEN x);

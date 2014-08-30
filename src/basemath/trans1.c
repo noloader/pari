@@ -1323,7 +1323,8 @@ sqrt_ser(GEN b, long prec)
     y = sqr_ser_part(x, lold, l-1) - lold;
     for (j = lold+2; j < l+2; j++) gel(y,j) = gsub(gel(y,j), gel(a,j));
     y += lold; setvalp(y, lold);
-    y = gsub(x, gdiv(y, x2)); /* = gmuloldn(gadd(x, gdiv(a,x)), -1); */
+    y = normalize(y);
+    y = gsub(x, gdiv(y, x2)); /* = gmul2n(gsub(x, gdiv(a,x)), -1); */
     for (j = lold+2; j < l+2; j++) gel(x,j) = gel(y,j);
     lold = l;
   }
@@ -2044,6 +2045,7 @@ serchop0(GEN s)
   long i, l = lg(s);
   GEN y;
   if (l == 2) return s;
+  if (l == 3 && isexactzero(gel(s,2))) return s;
   y = cgetg(l, t_SER); y[1] = s[1];
   gel(y,2) = gen_0; for (i=3; i <l; i++) gel(y,i) = gel(s,i);
   return normalize(y);

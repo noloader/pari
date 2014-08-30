@@ -635,8 +635,12 @@ convol(GEN x, GEN y)
   if (typ(x) != t_SER) pari_err_TYPE("convol",x);
   if (typ(y) != t_SER) pari_err_TYPE("convol",y);
   if (varn(y) != vx) pari_err_VAR("convol", x,y);
-  ex = valp(x); lx = lg(x) + ex; x -= ex;
-  ey = valp(y); ly = lg(y) + ey; y -= ey;
+  ex = valp(x);
+  ey = valp(y);
+  if (ser_isexactzero(x))
+    return scalarser(gadd(RgX_get_0(x), RgX_get_0(y)), varn(x), maxss(ex,ey));
+  lx = lg(x) + ex; x -= ex;
+  ly = lg(y) + ey; y -= ey;
   /* inputs shifted: x[i] and y[i] now correspond to monomials of same degree */
   if (ly < lx) lx = ly; /* min length */
   if (ex < ey) ex = ey; /* max valuation */

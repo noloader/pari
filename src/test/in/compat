@@ -1,11 +1,11 @@
 default(compatible,3)
 {
 if(precision(1.)==38,
-  HEAP=[722,96268];
+  HEAP=[722,96235];
   BTSIZE=32;
   STACK=200
 ,
-  HEAP=[722,106709];
+  HEAP=[722,106676];
   BTSIZE=24;
   STACK=104
 );

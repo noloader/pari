@@ -6,7 +6,7 @@ Help: Ser(s,{v='x},{d=seriesprecision}): convert s into a power series with
  variable v and precision d, starting with the constant coefficient.
 Doc: transforms the object $s$ into a power series with main variable $v$
  ($x$ by default) and precision (number of significant terms) equal to
- $d$ (= the default \kbd{seriesprecision} by default). If $s$ is a
+ $d \geq 0$ ($d = \kbd{seriesprecision}$ by default). If $s$ is a
  scalar, this gives a constant power series in $v$ with precision \kbd{d}.
  If $s$ is a polynomial, the polynomial is truncated to $d$ terms if needed
  \bprog

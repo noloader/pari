@@ -37,4 +37,19 @@ y + x + O(x^2)
   *** Ser: incorrect type in gtoser (t_STR).
 Mod(0, 7)*x^15 + O(x^16)
 Mod(1, 7)*x^2 + Mod(1, 7)*x^4 + O(x^5)
+Mod(0, 7)*x^15 + O(x^16)
+Mod(1, 7) + O(x^16)
+Mod(1, 7)*x + O(x^16)
+Mod(0, 7)*x^14 + O(x^15)
+Mod(0, 7)*x^14 + O(x^15)
+Mod(0, 7)*x^15 + O(x^16)
+Mod(0, 7)*x^15 + O(x^16)
+Mod(0, 7)*x^15 + O(x^16)
+Mod(0, 7)*x^15 + O(x^16)
+O(x^16)
+Mod(0, 7)*x^15 + O(x^16)
+O(x^16)
+  ***   at top-level: Ser(x,,-5)
+  ***                 ^----------
+  *** Ser: domain error in gtoser: precision < 0
 Total time spent: 0

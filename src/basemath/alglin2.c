@@ -1324,6 +1324,7 @@ gtrace(GEN x)
       return normalizepol_lg(y, lx);
 
     case t_SER:
+      if (ser_isexactzero(x)) return gcopy(x);
       y = cgetg_copy(x, &lx); y[1] = x[1];
       for (i=2; i<lx; i++) gel(y,i) = gtrace(gel(x,i));
       return normalize(y);

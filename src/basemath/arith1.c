@@ -3946,7 +3946,10 @@ bestappr_Q(GEN x, GEN k)
       return gerepilecopy(av, a);
     }
 
-    case t_COMPLEX: case t_POLMOD: case t_POL: case t_SER: case t_RFRAC:
+    case t_SER:
+      if (ser_isexactzero(x)) return gcopy(x);
+      /* fall through */
+    case t_COMPLEX: case t_POLMOD: case t_POL: case t_RFRAC:
     case t_VEC: case t_COL: case t_MAT:
       y = cgetg_copy(x, &lx);
       if (lontyp[tx] == 1) i = 1; else { y[1] = x[1]; i = 2; }

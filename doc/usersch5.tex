@@ -9444,6 +9444,10 @@ the coefficient of the term of degree \kbd{n} in the main variable.
 the series is either $0$ or equal to $t^v(1+O(t))$. Shallow function if the
 ``leading term'' is $1$.
 
+\fun{int}{ser_isexactzero}{GEN x} return $1$ if $x$ is a zero series, all
+of whose known coefficients are exact zeroes; this implies that
+$\kbd{sign}(x) = 0$ and $\kbd{lg}(x) \leq 3$.
+
 \section{Functions to handle \typ{FFELT}}
 These functions define the public interface of the \typ{FFELT} type to use in
 generic functions.  However, in specific functions, it is better to use the

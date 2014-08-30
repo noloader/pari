@@ -64,6 +64,9 @@ BA 35- multiif did not handle correctly return() in conditions [#1590]
    45- FpM_charpoly wrong in small characteristic [#1602]
    46- Ser(Mod(0,2)) => incorrect object [#1587]
    47- Ser(Mod(1,2)*x^2,,4) => incorrect precision [#1587]
+   48- Ser(x,v,prec < 0) => crash [#1587]
+   49- The t_SER Mod(0,2) + O(x^n) was not handled properly [precision and
+       valuation would change unexpectedly] [#1587]
 
   Added
     1- add optional argument to sumdigits to specify the base
@@ -122,6 +125,7 @@ BA 43- GP function powers and libpari function gpowers
        only ]
 BA 45- [libpari] functions FpX_Frobenius, FpX_matFrobenius, Flx_Frobenius,
        Flx_matFrobenius, ZpX_Frobenius
+   46- [libpari] function ser_isexactzero
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]

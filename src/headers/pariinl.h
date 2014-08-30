@@ -309,6 +309,16 @@ zeroser(long v, long e)
   GEN x = cgetg(2, t_SER);
   x[1] = evalvalp(e) | evalvarn(v); return x;
 }
+INLINE int
+ser_isexactzero(GEN x)
+{
+  if (!signe(x)) switch(lg(x))
+  {
+    case 2: return 1;
+    case 3: return isexactzero(gel(x,2));
+  }
+  return 0;
+}
 /* 0 * pol_x(v) */
 INLINE GEN
 zeropol(long v) { return pol_0(v); }

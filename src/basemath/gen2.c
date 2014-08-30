@@ -160,11 +160,8 @@ greffe_aux(GEN x, long l, long lx, long v)
 GEN
 RgX_to_ser(GEN x, long l)
 {
-  long i, lx = lg(x);
-  if (lx == 2) return zeroser(varn(x), l-2);
-  /* analogous to RgX_valrem + normalize */
-  i = 2; while (i<lx && isexactzero(gel(x,i))) i++;
-  return greffe_aux(x, l, lx, i - 2);
+  if (lg(x) == 2) return zeroser(varn(x), l-2);
+  return greffe_aux(x, l, lg(x), RgX_val(x));
 }
 GEN
 RgX_to_ser_inexact(GEN x, long l)
@@ -2468,7 +2465,18 @@ normalize(GEN x)
   GEN y, z;
 
   if (typ(x) != t_SER) pari_err_TYPE("normalize",x);
-  if (lx==2) { setsigne(x,0); return x; }
+  if (lx == 2) { setsigne(x,0); return x; }
+  if (lx == 3) {
+    z = gel(x,2);
+    if (!gcmp0(z)) return x;
+    if (isrationalzero(z)) return zeroser(vx,vp+1);
+    if (isexactzero(z)) {
+      /* dangerous case: already normalized ? */
+      if (!signe(x)) return z;
+      setvalp(x,vp+1); /* no: normalize */
+    }
+    setsigne(x,0); return z;
+  }
   for (i=2; i<lx; i++)
     if (! isrationalzero(gel(x,i))) break;
   if (i == lx) return zeroser(vx,lx-2+vp);
