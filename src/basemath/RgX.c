@@ -675,11 +675,10 @@ RgXn_red_shallow(GEN a, long n)
   long i, L, l = lg(a);
   GEN  b;
   if (l == 2 || !n) return pol_0(varn(a));
-  if (n < 0) pari_err_DOMAIN("RgXn_red", "n", "<", gen_0, stoi(n));
   L = n+2; if (L > l) L = l;
   b = cgetg(L, t_POL); b[1] = a[1];
   for (i=2; i<L; i++) gel(b,i) = gel(a,i);
-  return b;
+  return normalizepol_lg(b,L);
 }
 
 GEN
