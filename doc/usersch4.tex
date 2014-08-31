@@ -1429,7 +1429,8 @@ integer $0$.) A series whose coefficients are integers equal to zero
 is represented as $O(x^n)$ (\kbd{zeroser}$(\var{vx},n)$).
 A series whose coefficients are exact zeroes, but not all of
 them integers  (e.g. an \typ{INTMOD} such as \kbd{Mod(0,2)}) is
-represented or $z*x^{n-1} +O(x^n)$.
+represented as $z*x^{n-1} +O(x^n)$, where $z$ is the $0$ of the
+base ring, as per \tet{RgX_get_0}.
 
 Note that the exponent of a power series can be negative, i.e.~we are
 then dealing with a Laurent series (with a finite number of negative
