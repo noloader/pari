@@ -67,6 +67,7 @@ BA 35- multiif did not handle correctly return() in conditions [#1590]
    48- Ser(x,v,prec < 0) => crash [#1587]
    49- The t_SER Mod(0,2) + O(x^n) was not handled properly [precision and
        valuation would change unexpectedly] [#1587]
+   50- when compatible = 3; series() used a random precision
 
   Added
     1- add optional argument to sumdigits to specify the base
