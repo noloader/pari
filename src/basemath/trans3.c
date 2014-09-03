@@ -1355,95 +1355,6 @@ bernfrac_using_zeta(long n)
   return gerepilecopy(av, mkfrac(a, d));
 }
 
-/* n >= k >= 2, y = binomial(n,k-2), as a t_REAL. Return binomial(n,k) */
-static GEN
-next_bin(GEN y, long n, long k)
-{
-  if (n & HIGHMASK)
-  {
-    y = divru(mulru(y, n-k+2), k-1);
-    return divru(mulru(y, n-k+1), k);
-  }
-  return divru(mulru(y, (n-k+2)*(n-k+1)), (k-1)*k);
-}
-
-/* assume k > 1 odd */
-static GEN
-szeta_odd(long k, long prec)
-{
-  long kk, n, li = -(1+prec2nbits(prec));
-  pari_sp av = avma, av2;
-  GEN y, p1, qn, z, q, pi2 = Pi2n(1, prec), binom= real_1(prec+EXTRAPRECWORD);
-
-  q = mpexp(pi2); kk = k+1; /* >= 4 */
-  qn = sqrr(q);
-  y = NULL; /* gcc -Wall */
-  mpbern(kk>>1,prec);
-  if ((k&3)==3)
-  {
-    for (n=0; n <= kk>>1; n+=2)
-    {
-      p1 = mulrr(bernreal(kk-n,prec),bernreal(n,prec));
-      if (n) binom = next_bin(binom,kk,n);
-      p1 = mulrr(binom,p1);
-      if (n == kk>>1) shiftr_inplace(p1, -1);
-      if ((n>>1)&1) togglesign(p1);
-      y = n? addrr(y,p1): p1;
-    }
-    y = mulrr(divrr(powru(pi2,k),mpfactr(kk,prec)),y);
-
-    av2 = avma;
-    z = invr( addrs(q,-1) );
-    for (n=2;; n++)
-    {
-      p1 = invr( mulir(powuu(n,k),addrs(qn,-1)) );
-      z = addrr(z,p1); if (expo(p1) < li) break;
-      qn = mulrr(qn,q);
-      if (gc_needed(av2,1))
-      {
-        if (DEBUGMEM>1) pari_warn(warnmem,"szeta, delta = %ld", expo(p1)-li);
-        gerepileall(av2,2, &z,&qn);
-      }
-    }
-    shiftr_inplace(z, 1);
-    y = addrr(y,z); togglesign(y);
-  }
-  else
-  {
-    GEN p2 = divru(pi2, k-1);
-    for (n=0; n <= k>>1; n+=2)
-    {
-      p1 = mulrr(bernreal(kk-n,prec),bernreal(n,prec));
-      if (n) binom = next_bin(binom,kk,n);
-      p1 = mulrr(binom,p1);
-      p1 = mulur(kk-(n<<1),p1);
-      if ((n>>1)&1) togglesign(p1);
-      y = n? addrr(y,p1): p1;
-    }
-    y = mulrr(divrr(powru(pi2,k),mpfactr(kk,prec)),y);
-    y = divru(y,k-1);
-
-    av2 = avma;
-    p1 = sqrr(addrs(q,-1));
-    z = divrr(addrs(mulrr(q,addsr(1,mulur(2,p2))),-1),p1);
-    for (n=2;; n++)
-    {
-      p1 = mulir(powuu(n,k),sqrr(addrs(qn,-1)));
-      p1 = divrr(addrs(mulrr(qn,addsr(1,mulur(n<<1,p2))),-1),p1);
-      z = addrr(z,p1); if (expo(p1) < li) break;
-      qn = mulrr(qn,q);
-      if (gc_needed(av2,1))
-      {
-        if (DEBUGMEM>1) pari_warn(warnmem,"szeta, delta = %ld", expo(p1)-li);
-        gerepileall(av2,2, &z,&qn);
-      }
-    }
-    shiftr_inplace(z, 1);
-    y = subrr(y,z);
-  }
-  return gerepileuptoleaf(av, y);
-}
-
 static int
 bernreal_use_zeta(long k, long prec)
 {
@@ -1492,12 +1403,76 @@ bernreal(long n, long prec)
   return B;
 }
 
+/* zeta(s+h*j), j=0..N-1, s>1, using sumalt. Johansonn's thesis, Algo 4.7.1 */
+GEN
+zetaBorweinRecycled(long s, long h, long N, long prec)
+{
+  pari_sp av = avma, lim = stack_lim(av,3);
+  const long n = ceil(2 + prec2nbits_mul(prec, LOG2/1.7627));
+  long j, k;
+  GEN c, d, z = cgetg(N+1, t_VEC);
+  c = d = int2n(2*n-1);
+  for (j = 0; j < N; j++) gel(z,j+1) = gen_0;
+  for (k = n; k; k--)
+  {
+    GEN u, t = divii(d, powuu(k,s));
+    if (!odd(k)) t = negi(t);
+    gel(z,1) = addii(gel(z,1), t);
+    u = powuu(k,h);
+    for (j = 1; j < N; j++)
+    {
+      t = divii(t,u); if (!signe(t)) break;
+      gel(z,j+1) = addii(gel(z,j+1), t);
+    }
+    c = muluui(k,2*k-1,c);
+    c = diviuuexact(c, 2*(n-k+1),n+k-1);
+    d = addii(d,c);
+    if (low_stack(lim,stack_lim(av,3)))
+    {
+      if(DEBUGMEM>1) pari_warn(warnmem,"zetaBorweinRecycled");
+      gerepileall(av, 3, &c,&d,&z);
+    }
+  }
+  for (j = 0; j < N; j++)
+  {
+    long a = s+h*j-1;
+    gel(z,j+1) = rdivii(shifti(gel(z,j+1), a), subii(shifti(d,a), d), prec);
+  }
+  return gerepilecopy(av, z);
+}
+/* zeta(s) using sumalt, case h=0,N=1. Assume s > 1 */
+static GEN
+zetaBorwein(long s, long prec)
+{
+  pari_sp av = avma, lim = stack_lim(av,3);
+  const long n = ceil(2 + prec2nbits_mul(prec, LOG2/1.7627));
+  long k;
+  GEN c, d, z = gen_0;
+  c = d = int2n(2*n-1);
+  for (k = n; k; k--)
+  {
+    GEN t = divii(d, powuu(k,s));
+    z = odd(k)? addii(z,t): subii(z,t);
+    c = muluui(k,2*k-1,c);
+    c = diviuuexact(c, 2*(n-k+1),n+k-1);
+    d = addii(d,c);
+    if (low_stack(lim,stack_lim(av,3)))
+    {
+      if(DEBUGMEM>1) pari_warn(warnmem,"zetaBorwein");
+      gerepileall(av, 3, &c,&d,&z);
+    }
+  }
+  z = rdivii(shifti(z, s-1), subii(shifti(d,s-1), d), prec);
+  return gerepileuptoleaf(av, z);
+}
+
 /* assume k != 1 */
 GEN
 szeta(long k, long prec)
 {
   pari_sp av = avma;
   GEN y;
+  double p;
 
   /* treat trivial cases */
   if (!k) { y = real2n(-1, prec); setsigne(y,-1); return y; }
@@ -1526,9 +1501,10 @@ szeta(long k, long prec)
     return gerepileuptoleaf(av, y);
   }
   /* k > 1 odd */
-  if (k * log(k) > prec2nbits_mul(prec, LOG2)) /* heuristic */
+  p = prec2nbits_mul(prec,0.393); /* 0.393 ~ 1/log_2(3+sqrt(8)) */
+  if (log2(p * log(p))*k > prec2nbits(prec))
     return gerepileuptoleaf(av, invr( inv_szeta_euler(k, 0, prec) ));
-  return szeta_odd(k, prec);
+  return zetaBorwein(k, prec);
 }
 
 /* return n^-s, n > 1 odd. tab[q] := q^-s, q prime power */
