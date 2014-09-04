@@ -25,6 +25,73 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 /*                                                                 */
 /*******************************************************************/
 
+static GEN
+Flm_charpoly_i(GEN x, ulong p)
+{
+  long lx = lg(x), r, i;
+  GEN H, y = cgetg(lx+1, t_VEC);
+  gel(y,1) = pol1_Flx(0); H = Flm_hess(x, p);
+  for (r = 1; r < lx; r++)
+  {
+    pari_sp av2 = avma;
+    ulong a = 1;
+    GEN z, b = zero_Flx(0);
+    for (i = r-1; i; i--)
+    {
+      a = Fl_mul(a, ucoeff(H,i+1,i), p);
+      if (!a) break;
+      b = Flx_add(b, Flx_Fl_mul(gel(y,i), Fl_mul(a,ucoeff(H,i,r),p), p), p);
+    }
+    z = Flx_sub(Flx_shift(gel(y,r), 1),
+                Flx_Fl_mul(gel(y,r), ucoeff(H,r,r), p), p);
+    /* (X - H[r,r])y[r] - b */
+    gel(y,r+1) = gerepileuptoleaf(av2, Flx_sub(z, b, p));
+  }
+  return gel(y,lx);
+}
+
+GEN
+Flm_charpoly(GEN x, ulong p)
+{
+  pari_sp av = avma;
+  return gerepileuptoleaf(av, Flm_charpoly_i(x,p));
+}
+
+GEN
+FpM_charpoly(GEN x, GEN p)
+{
+  pari_sp av = avma;
+  long lx, r, i;
+  GEN y, H;
+
+  if (lgefint(p) == 3)
+  {
+    ulong pp = p[2];
+    y = Flx_to_ZX(Flm_charpoly_i(ZM_to_Flm(x,pp), pp));
+    return gerepileupto(av, y);
+  }
+  lx = lg(x); y = cgetg(lx+1, t_VEC);
+  gel(y,1) = pol_1(0); H = FpM_hess(x, p);
+  for (r = 1; r < lx; r++)
+  {
+    pari_sp av2 = avma;
+    GEN z, a = gen_1, b = pol_0(0);
+    for (i = r-1; i; i--)
+    {
+      a = Fp_mul(a, gcoeff(H,i+1,i), p);
+      if (!signe(a)) break;
+      b = ZX_add(b, ZX_Z_mul(gel(y,i), Fp_mul(a,gcoeff(H,i,r),p)));
+    }
+    b = FpX_red(b, p);
+    z = FpX_sub(RgX_shift_shallow(gel(y,r), 1),
+                FpX_Fp_mul(gel(y,r), gcoeff(H,r,r), p), p);
+    z = FpX_sub(z,b,p);
+    if (r+1 == lx) { gel(y,lx) = z; break; }
+    gel(y,r+1) = gerepileupto(av2, z); /* (X - H[r,r])y[r] - b */
+  }
+  return gerepileupto(av, gel(y,lx));
+}
+
 GEN
 charpoly0(GEN x, long v, long flag)
 {
@@ -87,7 +154,6 @@ easychar(GEN x, long v)
   pari_err_TYPE("easychar",x);
   return NULL; /* not reached */
 }
-static GEN Flm_charpoly_i(GEN x, ulong p);
 /* compute charpoly by mapping to Fp first, return lift to Z */
 static GEN
 RgM_Fp_charpoly(GEN x, GEN p, long v)
@@ -788,71 +854,6 @@ carhess(GEN x, long v)
     gel(y,r+1) = gerepileupto(av2, RgX_sub(z, b)); /* (X - H[r,r])y[r] - b */
   }
   return fix_pol(av, gel(y,lx));
-}
-
-GEN
-FpM_charpoly(GEN x, GEN p)
-{
-  pari_sp av = avma;
-  long lx, r, i;
-  GEN y, H;
-
-  if (lgefint(p) == 3)
-  {
-    ulong pp = p[2];
-    y = Flx_to_ZX(Flm_charpoly(ZM_to_Flm(x,pp), pp));
-    return gerepileupto(av, y);
-  }
-  lx = lg(x); y = cgetg(lx+1, t_VEC);
-  gel(y,1) = pol_1(0); H = FpM_hess(x, p);
-  for (r = 1; r < lx; r++)
-  {
-    pari_sp av2 = avma;
-    GEN z, a = gen_1, b = pol_0(0);
-    for (i = r-1; i; i--)
-    {
-      a = Fp_mul(a, gcoeff(H,i+1,i), p);
-      if (!signe(a)) break;
-      b = ZX_add(b, ZX_Z_mul(gel(y,i), Fp_mul(a,gcoeff(H,i,r),p)));
-    }
-    b = FpX_red(b, p);
-    z = FpX_sub(RgX_shift_shallow(gel(y,r), 1),
-                FpX_Fp_mul(gel(y,r), gcoeff(H,r,r), p), p);
-    z = FpX_sub(z,b,p);
-    if (r+1 == lx) { gel(y,lx) = z; break; }
-    gel(y,r+1) = gerepileupto(av2, z); /* (X - H[r,r])y[r] - b */
-  }
-  return gerepileupto(av, gel(y,lx));
-}
-static GEN
-Flm_charpoly_i(GEN x, ulong p)
-{
-  long lx = lg(x), r, i;
-  GEN H, y = cgetg(lx+1, t_VEC);
-  gel(y,1) = pol1_Flx(0); H = Flm_hess(x, p);
-  for (r = 1; r < lx; r++)
-  {
-    pari_sp av2 = avma;
-    ulong a = 1;
-    GEN z, b = zero_Flx(0);
-    for (i = r-1; i; i--)
-    {
-      a = Fl_mul(a, ucoeff(H,i+1,i), p);
-      if (!a) break;
-      b = Flx_add(b, Flx_Fl_mul(gel(y,i), Fl_mul(a,ucoeff(H,i,r),p), p), p);
-    }
-    z = Flx_sub(Flx_shift(gel(y,r), 1),
-                Flx_Fl_mul(gel(y,r), ucoeff(H,r,r), p), p);
-    /* (X - H[r,r])y[r] - b */
-    gel(y,r+1) = gerepileuptoleaf(av2, Flx_sub(z, b, p));
-  }
-  return gel(y,lx);
-}
-GEN
-Flm_charpoly(GEN x, ulong p)
-{
-  pari_sp av = avma;
-  return gerepileuptoleaf(av, Flm_charpoly_i(x,p));
 }
 
 /* Bound for sup norm of charpoly(M/dM), M integral: let B = |M|oo / |dM|,
