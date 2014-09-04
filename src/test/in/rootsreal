@@ -38,3 +38,5 @@ polsturm(U,[-1,+oo])
 
 polrootsreal(x^3-2)
 polrootsreal(x^3+2)
+\\#1605
+polsturm(33*x^2-4*x-1)
