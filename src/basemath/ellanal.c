@@ -90,7 +90,7 @@ gen_BG_rec(void *E, bg_fun *fun, struct bg_data *bg)
   forprime_t S;
   (void)forprime_init(&S, utoipos(bg->p[lp]+1), bg->bnd);
   av2 = avma;
-  if(DEBUGLEVEL)
+  if (DEBUGLEVEL)
     err_printf("1st stage, using recursion for p <= %ld\n", bg->p[lp]);
   for (i = 1; i <= lp; i++)
   {
@@ -252,7 +252,7 @@ baby_size(GEN rbnd, long Ks, long prec)
   for (s = 0, i = 1; i < l; ++i)
     s += rbnd[i];
   m = 2*s*prec + 3*l + s;
-  if (DEBUGLEVEL > 0)
+  if (DEBUGLEVEL)
     err_printf("ellL1: BG_add: %ld words, ellan: %ld words\n", m, Ks);
   return m;
 }
@@ -992,13 +992,13 @@ heegner_try_point(GEN E, GEN lambdas, GEN ht, GEN z, long prec)
   {
     GEN logd = shiftr(gsub(rh, gel(lambdas, i)), -1);
     GEN d, approxd = gexp(logd, prec);
-    if (DEBUGLEVEL > 1)
+    if (DEBUGLEVEL > 2)
       err_printf("Trying lambda number %ld, logd=%Ps, approxd=%Ps\n", i, logd, approxd);
     d = grndtoi(approxd, &eps);
     if (signe(d) > 0 && eps<-10)
     {
       GEN X, ylist, d2 = sqri(d), approxn = mulir(d2, x);
-      if (DEBUGLEVEL > 1) err_printf("approxn=%Ps  eps=%ld\n", approxn,eps);
+      if (DEBUGLEVEL > 2) err_printf("approxn=%Ps  eps=%ld\n", approxn,eps);
       X = gdiv(ground(approxn), d2);
       ylist = ellordinate(E, X, prec);
       if (lg(ylist) > 1)
@@ -1007,7 +1007,7 @@ heegner_try_point(GEN E, GEN lambdas, GEN ht, GEN z, long prec)
         GEN hp = ghell(E,P,prec);
         if (cmprr(hp, shiftr(ht,1)) < 0 && cmprr(hp, shiftr(ht,-1)) > 0)
           return P;
-        if (DEBUGLEVEL > 0)
+        if (DEBUGLEVEL)
           err_printf("found non-Heegner point %Ps\n", P);
       }
     }
@@ -1022,12 +1022,12 @@ heegner_find_point(GEN e, GEN om, GEN ht, GEN z1, long k, long prec)
   pari_sp av = avma;
   long m;
   GEN Ore = gel(om, 1), Oim = gel(om, 2);
-  if (DEBUGLEVEL > 0)
+  if (DEBUGLEVEL)
     err_printf("%ld*%ld multipliers to test\n",k,lg(lambdas)-1);
   for (m = 0; m < k; m++)
   {
     GEN P, z2 = divru(addrr(z1, mulsr(m, Ore)), k);
-    if (DEBUGLEVEL > 1)
+    if (DEBUGLEVEL > 2)
       err_printf("Trying multiplier %ld\n",m);
     P = heegner_try_point(e, lambdas, ht, z2, prec);
     if (P) return P;
@@ -1172,6 +1172,9 @@ listheegner(GEN N, GEN faN4, GEN listQ, GEN D)
     gel(L, k) = mkvec3(t, stoi(lg(Lk) - 2), Q);
     if (!ymin || gcmp(y, ymin) < 0) ymin = y;
   }
+  if (DEBUGLEVEL > 1)
+    err_printf("Disc %Ps : N*ymin = %Pg\n", D,
+                           gmul(gsqrt(ymin, DEFAULTPREC),N));
   return gerepilecopy(av, mkvec3(ymin, L, D));
 }
 
@@ -1203,7 +1206,6 @@ heegner_find_disc(GEN *points, GEN *coefs, long *pind, GEN E,
     pari_sp av = avma;
     GEN list, listD = listDisc(faN4, bad, d);
     long k, l = lg(listD);
-    if (DEBUGLEVEL) err_printf("List of discriminants...%Ps\n", listD);
     list = cgetg(l, t_VEC);
     for (k = 1; k < l; ++k)
       gel(list, k) = listheegner(N, faN4, listQ, stoi(listD[k]));
@@ -1222,7 +1224,7 @@ heegner_find_disc(GEN *points, GEN *coefs, long *pind, GEN E,
         mulf = ltwist1(E, D, bprec+expo(indmultD));
         if (DEBUGLEVEL) timer_printf(&ti,"ellL1twist");
         indr = mulrr(indmultD, mulf);
-        if (DEBUGLEVEL>=1) err_printf("Disc = %Ps, Index^2 = %Ps\n", D, indr);
+        if (DEBUGLEVEL) err_printf("Disc = %Ps, Index^2 = %Ps\n", D, indr);
         if (signe(indr)>0 && expo(indr) >= -1) /* indr >=.5 */
         {
           long e, i, l;
@@ -1246,7 +1248,7 @@ heegner_find_disc(GEN *points, GEN *coefs, long *pind, GEN E,
             if (!equali1(z)) c *= 2;
             cfs[i] = c;
           }
-          if (DEBUGLEVEL == 1)
+          if (DEBUGLEVEL)
             err_printf("N = %Ps, ymin*N = %Ps\n",N,
                        gmul(gsqrt(gel(Lk, 1), prec),N));
           *coefs = cfs; *points = pts; return;
