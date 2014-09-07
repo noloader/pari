@@ -36,3 +36,4 @@ lift(s,x)
 liftint(s)
 Ser(x,, -5)
 O(x^2)*0
+deriv(Mod(2,4)*x^2+O(x^3))

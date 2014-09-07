@@ -53,4 +53,5 @@ O(x^16)
   ***                 ^----------
   *** Ser: domain error in gtoser: precision < 0
 0
-Total time spent: 4
+Mod(0, 4)*x + O(x^2)
+Total time spent: 0

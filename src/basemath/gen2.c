@@ -2472,10 +2472,10 @@ normalize(GEN x)
     if (isrationalzero(z)) return zeroser(vx,vp+1);
     if (isexactzero(z)) {
       /* dangerous case: already normalized ? */
-      if (!signe(x)) return z;
+      if (!signe(x)) return x;
       setvalp(x,vp+1); /* no: normalize */
     }
-    setsigne(x,0); return z;
+    setsigne(x,0); return x;
   }
   for (i=2; i<lx; i++)
     if (! isrationalzero(gel(x,i))) break;

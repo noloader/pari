@@ -1589,12 +1589,12 @@ derivser(GEN x)
   }
   if (e)
   {
-    y = cgetg(lx,t_SER); y[1] = evalvalp(e-1) | evalvarn(vx);
+    y = cgetg(lx,t_SER); y[1] = evalsigne(1)|evalvalp(e-1) | evalvarn(vx);
     for (i=2; i<lx; i++) gel(y,i) = gmulsg(i+e-2,gel(x,i));
   } else {
     if (lx == 3) return zeroser(vx, 0);
     lx--;
-    y = cgetg(lx,t_SER); y[1] = _evalvalp(0) | evalvarn(vx);
+    y = cgetg(lx,t_SER); y[1] = evalsigne(1)|_evalvalp(0) | evalvarn(vx);
     for (i=2; i<lx; i++) gel(y,i) = gmulsg(i-1,gel(x,i+1));
   }
   return normalize(y);
