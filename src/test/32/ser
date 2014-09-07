@@ -52,4 +52,5 @@ O(x^16)
   ***   at top-level: Ser(x,,-5)
   ***                 ^----------
   *** Ser: domain error in gtoser: precision < 0
-Total time spent: 0
+0
+Total time spent: 4

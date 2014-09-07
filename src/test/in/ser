@@ -35,3 +35,4 @@ lift(s)
 lift(s,x)
 liftint(s)
 Ser(x,, -5)
+O(x^2)*0
