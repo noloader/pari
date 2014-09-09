@@ -59,3 +59,4 @@ test(p) =
 }
 test(3);
 test(5);
+p=nextprime(2^65);a=ffgen(p^2,'a);ellgroup(ellinit([a^0,0]))
