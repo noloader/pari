@@ -74,6 +74,7 @@ BA 35- multiif did not handle correctly return() in conditions [#1590]
    53- genus2red(x^3+1,1) -> type error [#1597]
    54- gphelp did not handle === correctly [#1603]
 XR 55- bnrL1(bnrinit(bnfinit(x^2-168),[6,[1,1]],1)) -> bug in ArtinNumber[#1601]
+   56- FpXY_evaly() wrong when evaluating at 0
 
   Added
     1- add optional argument to sumdigits to specify the base
