@@ -1169,6 +1169,7 @@ listfill(GEN N, GEN b, GEN c, GEN d, GEN L, long *s)
 static GEN
 listheegner(GEN N, GEN faN4, GEN listQ, GEN D)
 {
+  pari_sp av = avma;
   const long kmin = 30;
   long h = itos(gel(quadclassunit0(D, 0, NULL, DEFAULTPREC), 1));
   GEN ymin, b = Zn_sqrt(D, faN4), L = vectrunc_init(h+1);
@@ -1193,7 +1194,7 @@ listheegner(GEN N, GEN faN4, GEN listQ, GEN D)
     gel(L, k) = mkvec3(t, stoi(lg(Lk) - 2), Q);
     if (!ymin || gcmp(y, ymin) < 0) ymin = y;
   }
-  return mkvec3(ymin, L, D);
+  return gerepilecopy(av, mkvec3(ymin, L, D));
 }
 
 /* Q | N, P = prime divisors of N, R[i] = local epsilon-factor at P[i].
