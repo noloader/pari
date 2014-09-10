@@ -1322,9 +1322,10 @@ static GEN
 mul_ser_scal(GEN y, GEN x) {
   long ly, i;
   GEN z;
+  if (isexactzero(x)) return gmul(RgX_get_0(y), x);
   if (ser_isexactzero(y))
   {
-    if (lg(y) == 2) return isrationalzero(x)? gen_0: gcopy(y);
+    if (lg(y) == 2) return gcopy(y);
     return scalarser(gmul(x,gel(y,2)), varn(y), valp(y));
   }
   z = cgetg_copy(y, &ly); z[1] = y[1];
