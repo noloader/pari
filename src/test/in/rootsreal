@@ -40,3 +40,6 @@ polrootsreal(x^3-2)
 polrootsreal(x^3+2)
 \\#1605
 polsturm(33*x^2-4*x-1)
+polrootsreal(4*x)
+polsturm(-4*x)
+polsturm((x^4-2)^2)

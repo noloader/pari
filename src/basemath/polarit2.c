@@ -2923,7 +2923,11 @@ sturmpart_i(GEN x, GEN a, GEN b)
   if (!b && a && typ(a) == t_VEC && lg(a) == 3)
   { /* new format */
     if (integral && exact_sturm(gel(a,1)) && exact_sturm(gel(a,2)))
+    {
+      if (!ZX_is_squarefree(u))
+        pari_err_DOMAIN("polsturm","issquarefree(pol)","=",gen_0,u);
       return ZX_sturmpart(u, a);
+    }
     /* but can't use new function; convert to old form */
     integral = 0;
     b = gel(a,2);
@@ -2943,7 +2947,12 @@ sturmpart_i(GEN x, GEN a, GEN b)
   {
     if (!a) a = mkmoo();
     if (!b) b = mkoo();
-    if (exact_sturm(a) && exact_sturm(b)) return ZX_sturmpart(u, mkvec2(a,b));
+    if (exact_sturm(a) && exact_sturm(b))
+    {
+      if (!ZX_is_squarefree(u))
+        pari_err_DOMAIN("polsturm","issquarefree(pol)","=",gen_0,u);
+      return ZX_sturmpart(u, mkvec2(a,b));
+    }
   }
   /* legacy code: should only be used if we have a t_REAL somewhere; and even
    * then, the calling program should be changed */

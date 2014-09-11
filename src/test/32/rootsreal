@@ -56,4 +56,9 @@
 [1.2599210498948731647672106072782283506]~
 [-1.2599210498948731647672106072782283506]~
 2
+[0.E-38]~
+1
+  ***   at top-level: polsturm((x^4-2)^2)
+  ***                 ^-------------------
+  *** polsturm: domain error in polsturm: issquarefree(pol) = 0
 Total time spent: 0

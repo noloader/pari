@@ -2607,6 +2607,17 @@ usp(GEN Q0, long deg, long *nb_donep, long flag, long bitprec)
   return gerepilecopy(av, sol);
 }
 
+static GEN
+ZX_uspensky_cst_pol(long nbz, long flag, long bitprec)
+{
+  switch(flag)
+  {
+    case 0:  return zerocol(nbz);
+    case 1:  retconst_col(nbz, real_0_bit(bitprec));
+    default: return utoi(nbz);
+  }
+}
+
 GEN
 ZX_uspensky(GEN P, GEN ab, long flag, long bitprec)
 {
@@ -2645,25 +2656,31 @@ ZX_uspensky(GEN P, GEN ab, long flag, long bitprec)
       else
       { avma = av; return flag <= 1 ? cgetg(1, t_COL) : gen_0; }
   }
-  if (deg == 1)
-  {
-    sol = gdiv(gneg(gel(P, 2)), pollead(P, -1));
-    if (gcmp(a, sol) > 0 || gcmp(sol, b) > 0)
-    { avma = av; return flag <= 1 ? cgetg(1, t_COL) : gen_0; }
-    if (flag >= 2) { avma = av; return gen_1; }
-    return gerepilecopy(av, mkcol(sol));
-  }
   nbz = ZX_valrem(P, &Pcur);
   deg -= nbz;
   if (!nbz) Pcur = P;
   if (nbz && (gsigne(a) > 0 || gsigne(b) < 0)) nbz = 0;
+  if (deg == 0) { avma = av; return ZX_uspensky_cst_pol(nbz, flag, bitprec); }
+  if (deg == 1)
+  {
+    sol = gdiv(gneg(gel(Pcur, 2)), pollead(Pcur, -1));
+    if (gcmp(a, sol) > 0 || gcmp(sol, b) > 0)
+    {
+      avma = av;
+      return ZX_uspensky_cst_pol(nbz, flag, bitprec);
+    }
+    if (flag >= 2) { avma = av; return utoi(nbz+1); }
+    sol = concat(zerocol(nbz), mkcol(sol));
+    if (flag == 1) sol = RgC_gtofp(sol, nbits2prec(bitprec));
+    return gerepilecopy(av, sol);
+  }
   switch(flag)
   {
     case 0:
       sol = zerocol(nbz);
       break;
     case 1:
-      sol = const_col(nbz, real_0(bitprec));
+      sol = const_col(nbz, real_0_bit(bitprec));
       break;
     /* case 2: nothing */
   }
