@@ -886,3 +886,12 @@ ZpX_Frobenius(GEN T, GEN p, long e)
 {
   return ZpX_ZpXQ_liftroot(get_FpX_mod(T), FpX_Frobenius(T, p), T, p, e);
 }
+
+GEN
+ZpXQM_prodFrobenius(GEN M, GEN T, GEN p, long e)
+{
+  pari_sp av = avma;
+  GEN xp = ZpX_Frobenius(T, p, e);
+  GEN z = FpXQM_autsum(mkvec2(xp, M), get_FpX_degree(T), T, powiu(p,e));
+  return gerepilecopy(av, gel(z,2));
+}

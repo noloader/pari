@@ -5571,6 +5571,13 @@ irreducible modulo $p$, return the logarithm of $a$ in $\Z_p[X]/(T)$ to
 precision $e$, assuming that $a\equiv 1 \pmod{p\Z_p[X]}$ if $p$ odd or
 $a\equiv 1 \pmod{4\Z_2[X]}$ if $p=2$.
 
+\subsec{ZpXQM}
+
+\fun{GEN}{ZpXQM_prodFrobenius}{GEN M, GEN T, GEN p, long e}
+returns the product of matrices $M\*\sigma(M)\*\sigma^2(M)\ldots\sigma^{n-1}(M)$
+to precision $e$ where $\sigma$ is the lift of the Frobenius automorphism
+over $\Z_p[X]/(T)$ and $n$ is the degree of $T$.
+
 \subsec{ZpXQX}
 
 \fun{GEN}{ZpXQX_liftroot}{GEN f, GEN a, GEN T, GEN p, long e} as
