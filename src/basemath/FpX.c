@@ -1759,19 +1759,19 @@ FpXQ_order(GEN a, GEN ord, GEN T, GEN p)
 GEN
 FpXQ_log(GEN a, GEN g, GEN ord, GEN T, GEN p)
 {
+  pari_sp av=avma;
   if (lgefint(p)==3)
   {
-    pari_sp av=avma;
     ulong pp = to_Flxq(&a, &T, p);
     GEN z = Flxq_log(a, ZX_to_Flx(g, pp), ord, T, pp);
-    return gerepileuptoint(av,z);
+    return gerepileuptoleaf(av, z);
   }
   else
   {
     void *E;
     const struct bb_group *S = get_FpXQ_star(&E,T,p);
     GEN z = gen_PH_log(a,g,ord,E,S);
-    return z? z: cgetg(1,t_VEC);
+    return gerepileuptoleaf(av, z);
   }
 }
 GEN
