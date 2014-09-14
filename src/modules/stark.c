@@ -19,7 +19,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #include "pari.h"
 #include "paripriv.h"
 
-#define EXTRA_PREC (DEFAULTPREC-1)
+#define EXTRA_PREC (DEFAULTPREC-2)
 #define ADD_PREC   (DEFAULTPREC-2)*3
 
 /* ComputeCoeff */
@@ -2704,18 +2704,18 @@ bnrL1(GEN bnr, GEN subgp, long flag, long prec)
 
   /* make a list of all non-trivial characters modulo conjugation */
   listCR = cgetg(cl, t_VEC);
-  indCR = new_chunk(cl);
-  invCR = new_chunk(cl); nc = 0;
+  indCR = cgetg(cl, t_VECSMALL);
+  invCR = cgetg(cl, t_VECSMALL); nc = 0;
   for (i = 1; i < cl; i++)
   {
     /* lift to a character on Cl(bnr) */
     GEN lchi = LiftChar(cyc, gel(Qt,3), gel(allCR,i), gel(Qt,2));
     GEN clchi = ConjChar(lchi, cyc);
-    long j, a = i;
+    long j, a = 0;
     for (j = 1; j <= nc; j++)
-      if (ZV_equal(gmael(listCR, j, 1), clchi)) { a = -j; break; }
+      if (ZV_equal(gmael(listCR, j, 1), clchi)) { a = j; break; }
 
-    if (a > 0)
+    if (!a)
     {
       nc++;
       gel(listCR,nc) = mkvec2(lchi, bnrconductorofchar(bnr, lchi));
@@ -2723,7 +2723,7 @@ bnrL1(GEN bnr, GEN subgp, long flag, long prec)
       invCR[nc] = i;
     }
     else
-      indCR[i] = -invCR[-a];
+      indCR[i] = -invCR[a];
 
     gel(allCR,i) = lchi;
   }
