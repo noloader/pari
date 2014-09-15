@@ -3011,7 +3011,7 @@ ifac_main(GEN *partial)
 static long
 ifac_decomp(GEN n, long hint)
 {
-  pari_sp av = avma, lim = stack_lim(av, 1);
+  pari_sp av = avma;
   long nb = 0;
   GEN part, here, workspc, pairs = (GEN)av;
 
@@ -3025,7 +3025,7 @@ ifac_decomp(GEN n, long hint)
   {
     here = ifac_main(&part);
     if (!here) break;
-    if (low_stack(lim, stack_lim(av,1)))
+    if (gc_needed(av,1))
     {
       long offset;
       if(DEBUGMEM>1)
@@ -3070,7 +3070,7 @@ static long
 ifac_moebius(GEN n)
 {
   long mu = 1;
-  pari_sp av = avma, lim = stack_lim(av,1);
+  pari_sp av = avma;
   GEN part = ifac_start(n, 1);
   for(;;)
   {
@@ -3078,7 +3078,7 @@ ifac_moebius(GEN n)
     GEN p;
     if (!ifac_next(&part,&p,&v)) return v? 0: mu;
     mu = -mu;
-    if (low_stack(lim, stack_lim(av,1))) ifac_GC(av,&part);
+    if (gc_needed(av,1)) ifac_GC(av,&part);
   }
 }
 
@@ -3101,7 +3101,7 @@ ifac_skip(GEN part)
 static int
 ifac_ispowerful(GEN n)
 {
-  pari_sp av = avma, lim = stack_lim(av,1);
+  pari_sp av = avma;
   GEN part = ifac_start(n, 0);
   for(;;)
   {
@@ -3112,14 +3112,14 @@ ifac_ispowerful(GEN n)
     if (e != 1 || Z_isanypower(p,NULL)) { ifac_skip(part); continue; }
     if (!ifac_next(&part,&p,&e)) return 1;
     if (e == 1) return 0;
-    if (low_stack(lim, stack_lim(av,1))) ifac_GC(av,&part);
+    if (gc_needed(av,1)) ifac_GC(av,&part);
   }
 }
 static GEN
 ifac_core(GEN n)
 {
   GEN m = gen_1, c = cgeti(lgefint(n));
-  pari_sp av = avma, lim = stack_lim(av,1);
+  pari_sp av = avma;
   GEN part = ifac_start(n, 0);
   for(;;)
   {
@@ -3130,7 +3130,7 @@ ifac_core(GEN n)
     if (!odd(e) || Z_issquare(p)) { ifac_skip(part); continue; }
     if (!ifac_next(&part,&p,&e)) return m;
     if (odd(e)) m = mulii(m, p);
-    if (low_stack(lim, stack_lim(av,1))) { affii(m,c); m=c; ifac_GC(av,&part); }
+    if (gc_needed(av,1)) { affii(m,c); m=c; ifac_GC(av,&part); }
   }
 }
 

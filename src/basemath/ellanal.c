@@ -205,7 +205,7 @@ vecF2_lk(GEN E, GEN K, GEN rbnd, GEN Q, GEN sleh, long prec)
     GEN e1, Sl;
     long aB, b, A, B;
     GEN z, zB;
-    pari_sp av3, lim3;
+    pari_sp av3;
     long Kl = itou(gel(K,l));
     /* FIXME: could reduce prec here (useful for large prec) */
     e1 = gel(Q, l);
@@ -213,7 +213,7 @@ vecF2_lk(GEN E, GEN K, GEN rbnd, GEN Q, GEN sleh, long prec)
     /* baby-step giant step */
     A = rbnd[l]; B = A;
     z = powersr(e1, B); zB = gel(z, B+1);
-    av3 = avma; lim3 = stack_lim(av3, 1);
+    av3 = avma;
     for (aB = A*B; aB >= 0; aB -= B)
     {
       GEN s = real_0(prec); /* could change also prec here */
@@ -221,7 +221,7 @@ vecF2_lk(GEN E, GEN K, GEN rbnd, GEN Q, GEN sleh, long prec)
       {
         long k = aB+b;
         if (k <= Kl && a[k]) s = addrr(s, mulsr(a[k], gel(z, b+1)));
-        if (low_stack(lim3, stack_lim(av3, 1)))
+        if (gc_needed(av3, 1))
           gerepileall(av3, 2, &s, &Sl);
       }
       Sl = addrr(mulrr(Sl, zB), s);

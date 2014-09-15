@@ -154,19 +154,19 @@ find_coeff(GEN a4, GEN a6, GEN T, GEN p, long precS)
 static GEN
 find_transformation(GEN s2, GEN s1)
 {
-  pari_sp ltop = avma, btop, st_lim;
+  pari_sp ltop = avma, btop;
   long i, vx = varn(s1), vs1 = valp(s1), vs2 = valp(s2), degP = vs2/vs1;
   GEN invs1coeff = ginv(gel(s1, 2)), P = gen_0, s1pl = cgetg(degP+1, t_VEC);
 
   gel(s1pl, 1) = s1;
   for (i = 2; i <= degP; i++) gel(s1pl, i) = gmul(s1, gel(s1pl, i-1));
-  btop = avma; st_lim = stack_lim(btop, 1);
+  btop = avma;
   for (i = 0; i < degP; i++)
   {
     GEN Pcoeff = gmul(gel(s2,2), invs1coeff);
     P = gadd(P, gmul(Pcoeff, monomial(gen_1, degP-i, vx)));
     s2 = gsub(s2, gmul(Pcoeff, gel(s1pl, degP-i)));
-    if (low_stack(st_lim, stack_lim(btop, 1))) gerepileall(btop, 2, &P, &s2);
+    if (gc_needed(btop, 1)) gerepileall(btop, 2, &P, &s2);
   }
   P = gadd(P, gmul(gel(s2,2), invs1coeff));
   return gerepileupto(ltop, P);
@@ -442,7 +442,7 @@ static ulong
 find_eigen_value_power(GEN a4, GEN a6, ulong ell, long k, GEN h, ulong lambda, GEN T, GEN p)
 {
   pari_sp ltop = avma;
-  pari_sp btop, st_lim;
+  pari_sp btop;
   struct eigen_ellinit Edat;
   GEN BP, Dr, Gr, nGr;
   /*[0,Gr], BP, Dr are not points on the curve. */
@@ -458,13 +458,13 @@ find_eigen_value_power(GEN a4, GEN a6, ulong ell, long k, GEN h, ulong lambda, G
   Dr = eigen_ellmulu(&Edat, Edat.O, lambda);
   Gr = Edat.Gr; nGr = Edat.nGr;
 
-  btop = avma; st_lim = stack_lim(btop, 1);
+  btop = avma;
   for (t = 0; t < ellk; t += ellk1)
   {
     if (gequal(gel(Dr,2), Gr))  { avma = ltop; return t+lambda; }
     if (gequal(gel(Dr,2), nGr)) { avma = ltop; return ellk-(t+lambda); }
     Dr = pp ? eigenu_elladd(&Edat, Dr, BP): eigen_elladd(&Edat, Dr, BP);
-    if (low_stack(st_lim, stack_lim(btop, 1)))
+    if (gc_needed(btop, 1))
       Dr = gerepileupto(btop, Dr);
   }
   pari_err_BUG("find_eigen_value_power");
@@ -831,7 +831,7 @@ study_modular_eqn(long ell, GEN mpoly, GEN T, GEN p, enum mod_type *mt, long *pt
 static GEN
 find_trace_Elkies_power(GEN a4, GEN a6, ulong ell, long k, struct meqn *MEQN, GEN g, GEN tr, GEN q, GEN T, GEN p, ulong smallfact, pari_timer *ti)
 {
-  pari_sp ltop = avma, btop, st_lim;
+  pari_sp ltop = avma, btop;
   GEN tmp, Eba4, Eba6, Eca4, Eca6, Ib, kpoly;
   ulong lambda, ellk = upowuu(ell, k), pellk = umodiu(q, ellk);
   long cnt;
@@ -853,7 +853,7 @@ find_trace_Elkies_power(GEN a4, GEN a6, ulong ell, long k, struct meqn *MEQN, GE
     ulong ap = Fl_add(lambda, Fl_div(pell, lambda, ell), ell);
     if (Fl_sub(pell, ap, ell)==ell-1) { avma = ltop; return mkvecsmall(ap); }
   }
-  btop = avma; st_lim = stack_lim(btop, 1);
+  btop = avma;
   for (cnt = 2; cnt <= k; cnt++)
   {
     GEN tmp;
@@ -867,7 +867,7 @@ find_trace_Elkies_power(GEN a4, GEN a6, ulong ell, long k, struct meqn *MEQN, GE
     Eca6 = gel(tmp,2);
     kpoly = gel(tmp,4);
     Ib = gel(tmp, 5);
-    if (low_stack(st_lim, stack_lim(btop, 1)))
+    if (gc_needed(btop, 1))
       gerepileall(btop, 6, &Eba4, &Eba6, &Eca4, &Eca6, &kpoly, &Ib);
     if (DEBUGLEVEL>1) err_printf(" [%ld ms]", timer_delay(ti));
   }
@@ -1006,7 +1006,7 @@ find_trace(GEN a4, GEN a6, ulong ell, GEN q, GEN T, GEN p, long *ptr_kt, ulong s
 static long
 separation(GEN cnt)
 {
-  pari_sp btop, st_lim;
+  pari_sp btop;
   long k = lg(cnt)-1, l = (1L<<k)-1, best_i, i, j;
   GEN best_r, P, P3, r;
 
@@ -1014,7 +1014,7 @@ separation(GEN cnt)
   for (j = 1; j <= k; ++j) P = mulis(P, cnt[j]);
   /* p_b * p_g = P is constant */
   P3 = mulsi(3, P);
-  btop = avma; st_lim = stack_lim(btop, 1);
+  btop = avma;
   best_i = 0;
   best_r = P3;
   for (i = 1; i < l; i++)
@@ -1026,7 +1026,7 @@ separation(GEN cnt)
     r = subii(shifti(sqri(p_b), 2), P3); /* (p_b/p_g - 3/4)*4*P */
     if (!signe(r)) { best_i = i; break; }
     if (absi_cmp(r, best_r) < 0) { best_i = i; best_r = r; }
-    if (low_stack(st_lim, stack_lim(btop, 1)))
+    if (gc_needed(btop, 1))
       best_r = gerepileuptoint(btop, best_r);
   }
   return best_i;
@@ -1252,7 +1252,7 @@ BSGS_pre(GEN *pdiff, GEN V, GEN P, void *E, const struct bb_group *grp)
 static GEN
 match_and_sort(GEN compile_atkin, GEN Mu, GEN u, GEN q, void *E, const struct bb_group *grp)
 {
-  pari_sp av1, av2, lim;
+  pari_sp av1, av2;
   GEN baby, giant, SgMb, Mb, Mg, den, Sg, dec_inf, div, pp1 = addis(q,1);
   GEN P, Pb, Pg, point, diff, pre, table, table_ind;
   long best_i, i, lbaby, lgiant, k = lg(compile_atkin)-1;
@@ -1311,7 +1311,7 @@ match_and_sort(GEN compile_atkin, GEN Mu, GEN u, GEN q, void *E, const struct bb
   /*Now we compute the table of babies, this table contains only the */
   /*lifted x-coordinate of the points in order to use less memory */
   table = cgetg(lbaby, t_VECSMALL);
-  av1 = avma; lim = stack_lim(av1,3);
+  av1 = avma;
   /* (p+1 - u - Mu*Mb*Sg) P - (baby[1]) Pb */
   point = grp->pow(E,P, subii(subii(pp1, u), mulii(Mu, addii(SgMb, mulii(Mg, gel(baby,1))))));
   table[1] = grp->hash(gel(point,1));
@@ -1320,7 +1320,7 @@ match_and_sort(GEN compile_atkin, GEN Mu, GEN u, GEN q, void *E, const struct bb
     GEN d = subii(gel(baby, i), gel(baby, i-1));
     point =  grp->mul(E, point, grp->pow(E, gel(pre, ZV_search(diff, d)), gen_m1));
     table[i] = grp->hash(gel(point,1));
-    if (low_stack(lim, stack_lim(av1,3)))
+    if (gc_needed(av1,3))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"match_and_sort, baby = %ld", i);
       point = gerepileupto(av1, point);
@@ -1334,7 +1334,7 @@ match_and_sort(GEN compile_atkin, GEN Mu, GEN u, GEN q, void *E, const struct bb
   table_ind = vecsmall_indexsort(table);
   table = perm_mul(table,table_ind);
 
-  av1 = avma; lim = stack_lim(av1,3);
+  av1 = avma;
   point = grp->pow(E, Pg, gel(giant, 1));
   for (i = 1; ; i++)
   {
@@ -1362,7 +1362,7 @@ match_and_sort(GEN compile_atkin, GEN Mu, GEN u, GEN q, void *E, const struct bb
     if (i==lgiant-1) break;
     d = subii(gel(giant, i+1), gel(giant, i));
     point = grp->mul(E,point, gel(pre, ZV_search(diff, d)));
-    if (low_stack(lim, stack_lim(av1,3)))
+    if (gc_needed(av1,3))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"match_and_sort, giant = %ld", i);
       point = gerepileupto(av1, point);
@@ -1409,7 +1409,7 @@ GEN
 Fq_ellcard_SEA(GEN a4, GEN a6, GEN q, GEN T, GEN p, long smallfact)
 {
   const long MAX_ATKIN = 21;
-  pari_sp ltop = avma, btop, st_lim;
+  pari_sp ltop = avma, btop;
   long ell, i, nb_atkin;
   GEN TR, TR_mod, compile_atkin, bound, bound_bsgs, champ;
   GEN prod_atkin = gen_1, max_traces = gen_0;
@@ -1452,7 +1452,7 @@ Fq_ellcard_SEA(GEN a4, GEN a6, GEN q, GEN T, GEN p, long smallfact)
   bound = sqrti(shifti(q, 4));
   bound_bsgs = get_bound_bsgs(expi(q));
   compile_atkin = zerovec(MAX_ATKIN); nb_atkin = 0;
-  btop = avma; st_lim = stack_lim(btop, 1);
+  btop = avma;
   while ( (ell = u_forprime_next(&TT)) )
   {
     long ellkt, kt = 1, nbtrace;
@@ -1513,7 +1513,7 @@ Fq_ellcard_SEA(GEN a4, GEN a6, GEN q, GEN T, GEN p, long smallfact)
         }
       }
     }
-    if (low_stack(st_lim, stack_lim(btop, 1)))
+    if (gc_needed(btop, 1))
       gerepileall(btop,5, &TR,&TR_mod, &compile_atkin, &max_traces, &prod_atkin);
   }
   return NULL;/*not reached*/

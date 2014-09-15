@@ -667,7 +667,7 @@ dirval(GEN x)
 GEN
 dirmul(GEN x, GEN y)
 {
-  pari_sp av = avma, lim = stack_lim(av, 1);
+  pari_sp av = avma;
   long nx, ny, nz, dx, dy, i, j, k;
   GEN z;
 
@@ -688,7 +688,7 @@ dirmul(GEN x, GEN y)
       for (k=dy,i=j*dy; i<=nz; i+=j,k++) gel(z,i) = gsub(gel(z,i),gel(y,k));
     else
       for (k=dy,i=j*dy; i<=nz; i+=j,k++) gel(z,i) = gadd(gel(z,i),gmul(c,gel(y,k)));
-    if (low_stack(lim, stack_lim(av,1)))
+    if (gc_needed(av,1))
     {
       if (DEBUGLEVEL) err_printf("doubling stack in dirmul\n");
       z = gerepilecopy(av,z);
@@ -833,7 +833,7 @@ vecbinome(long n)
 GEN
 stirling2(ulong n, ulong m)
 {
-  pari_sp av = avma, lim = stack_lim(av, 2);
+  pari_sp av = avma;
   GEN s, bmk;
   ulong k;
   if (n==0) return (m == 0)? gen_1: gen_0;
@@ -849,7 +849,7 @@ stirling2(ulong n, ulong m)
     c = odd(m)? subii(mkn,kn): addii(mkn,kn);
     c = mulii(bmk, c);
     s = odd(k)? subii(s, c): addii(s, c);
-    if (low_stack(lim, stack_lim(av,2)))
+    if (gc_needed(av,2))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"stirling2");
       gerepileall(av, 2, &s, &bmk);
@@ -915,14 +915,14 @@ stirling(long n, long m, long flag)
 GEN
 numtoperm(long n, GEN x)
 {
-  pari_sp av, lim;
+  pari_sp av;
   ulong i, r;
   GEN v;
 
   if (n < 0) pari_err_DOMAIN("numtoperm", "n", "<", gen_0, stoi(n));
   if (typ(x) != t_INT) pari_err_TYPE("numtoperm",x);
   v = cgetg(n+1, t_VEC); if (n==0) return v;
-  uel(v,n) = 1; av = avma; lim = stack_lim(av,2);
+  uel(v,n) = 1; av = avma;
   if (signe(x) <= 0) x = modii(x, mpfact(n));
   for (r=n-1; r>=1; r--)
   {
@@ -931,7 +931,7 @@ numtoperm(long n, GEN x)
     for (i=r+1; i<=(ulong)n; i++)
       if (uel(v,i) > a) uel(v,i)++;
     uel(v,r) = a+1;
-    if (low_stack(lim, stack_lim(av,2)))
+    if (gc_needed(av,2))
       x = gerepileuptoint(av, x);
   }
   avma = av;
@@ -943,7 +943,7 @@ GEN
 permtonum(GEN p)
 {
   long n = lg(p)-1, i, r;
-  pari_sp av = avma, av2, lim;
+  pari_sp av = avma, av2;
   GEN v, x;
 
   if (!is_vec_t(typ(p))) pari_err_TYPE("permtonum",p);
@@ -954,14 +954,14 @@ permtonum(GEN p)
     if (typ(pi) != t_INT) pari_err_TYPE("permtonum",pi);
     v[i] = itos(pi);
   }
-  x = gen_0; av2 = avma; lim = stack_lim(av2,2);
+  x = gen_0; av2 = avma;
   for (i=1; i<=n; i++)
   {
     long vi = v[i];
     x = i==1 ? stoi(v[1]-1): addiu(mulis(x,n+1-i),vi-1);
     for (r=i+1; r<=n; r++)
       if (v[r]>vi) v[r]--;
-    if (low_stack(lim, stack_lim(av,2)))
+    if (gc_needed(av,2))
       x = gerepileuptoint(av2, x);
   }
   return gerepileuptoint(av, x);
@@ -989,7 +989,7 @@ polrecip(GEN x)
 GEN
 RgV_polint(GEN X, GEN Y, long v)
 {
-  pari_sp av0 = avma, av, lim;
+  pari_sp av0 = avma, av;
   GEN Q, P = NULL;
   long i, l = lg(Y);
   if (!X)
@@ -997,7 +997,7 @@ RgV_polint(GEN X, GEN Y, long v)
     X = cgetg(l, t_VEC);
     for (i=1; i<l; i++) gel(X,i) = utoipos(i);
   }
-  Q = roots_to_pol(X, v); av = avma; lim = stack_lim(av,2);
+  Q = roots_to_pol(X, v); av = avma;
   for (i=1; i<l; i++)
   {
     GEN inv, T, dP;
@@ -1006,7 +1006,7 @@ RgV_polint(GEN X, GEN Y, long v)
     inv = ginv(poleval(T,gel(X,i)));
     dP = RgX_Rg_mul(T, gmul(gel(Y,i),inv));
     P = P? RgX_add(P, dP): dP;
-    if (low_stack(lim, stack_lim(av,2)))
+    if (gc_needed(av,2))
     {
       if (DEBUGMEM>1) pari_warn(warnmem,"FpV_polint");
       P = gerepileupto(av, P);

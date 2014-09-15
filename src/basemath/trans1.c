@@ -1165,12 +1165,12 @@ sqrt_2adic(GEN x, long pp)
 {
   GEN z = mod16(x)==(signe(x)>=0?1:15)?gen_1: utoipos(3);
   long zp;
-  pari_sp av, lim;
+  pari_sp av;
 
   if (pp == 4) return z;
   zp = 3; /* number of correct bits in z (compared to sqrt(x)) */
 
-  av = avma; lim = stack_lim(av,2);
+  av = avma;
   for(;;)
   {
     GEN mod;
@@ -1183,7 +1183,7 @@ sqrt_2adic(GEN x, long pp)
 
     if (zp < pp) zp--;
 
-    if (low_stack(lim,stack_lim(av,2)))
+    if (gc_needed(av,2))
     {
       if (DEBUGMEM > 1) pari_warn(warnmem,"Qp_sqrt");
       z = gerepileuptoint(av,z);
@@ -1256,7 +1256,7 @@ Qp_sqrt(GEN x)
 GEN
 Zn_sqrt(GEN d, GEN fn)
 {
-  pari_sp ltop = avma, btop, st_lim;
+  pari_sp ltop = avma, btop;
   GEN b = gen_0, m = gen_1;
   long j, np;
   if (typ(d) != t_INT) pari_err_TYPE("Zn_sqrt",d);
@@ -1265,7 +1265,7 @@ Zn_sqrt(GEN d, GEN fn)
   else if (!is_Z_factorpos(fn))
     pari_err_TYPE("Zn_sqrt",fn);
   np = nbrows(fn);
-  btop = avma; st_lim = stack_lim(btop, 1);
+  btop = avma;
   for (j = 1; j <= np; ++j)
   {
     GEN  bp, mp, pr, r;
@@ -1284,7 +1284,7 @@ Zn_sqrt(GEN d, GEN fn)
     pr = mulii(m, mp);
     b = Z_chinese_coprime(b, bp, m, mp, pr);
     m = pr;
-    if (low_stack(st_lim, stack_lim(btop, 1)))
+    if (gc_needed(btop, 1))
       gerepileall(btop, 2, &b, &m);
   }
   return gerepileupto(ltop, b);

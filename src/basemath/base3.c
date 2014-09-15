@@ -1329,7 +1329,7 @@ GEN
 famat_to_nf_modideal_coprime(GEN nf, GEN g, GEN e, GEN id, GEN EX)
 {
   GEN plus = NULL, minus = NULL, idZ = gcoeff(id,1,1);
-  pari_sp av = avma, lim = stack_lim(av,2);
+  pari_sp av = avma;
   long i, lx = lg(g);
   GEN EXo2 = (expi(EX) > 10)? shifti(EX,-1): NULL;
 
@@ -1358,7 +1358,7 @@ famat_to_nf_modideal_coprime(GEN nf, GEN g, GEN e, GEN id, GEN EX)
     else /* sn < 0 */
       minus = elt_mulpow_modideal(nf, minus, h, absi(n), id);
 
-    if (low_stack(lim, stack_lim(av, 2)))
+    if (gc_needed(av, 2))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"famat_to_nf_modideal_coprime");
       if (!plus) plus = gen_0;
@@ -2344,7 +2344,7 @@ Ideallist(GEN bnf, ulong bound, long flag)
 {
   const long do_units = flag & 2, big_id = !(flag & 4);
   const long istar_flag = (flag & nf_GEN) | nf_INIT;
-  pari_sp lim, av, av0 = avma;
+  pari_sp av, av0 = avma;
   long i, j, l;
   GEN nf, z, p, fa, id, U, empty = cgetg(1,t_VEC);
   forprime_t S;
@@ -2375,7 +2375,7 @@ Ideallist(GEN bnf, ulong bound, long flag)
 
   p = cgetipos(3);
   u_forprime_init(&S, 2, bound);
-  av = avma; lim = stack_lim(av,1);
+  av = avma;
   while ((p[2] = u_forprime_next(&S)))
   {
     if (DEBUGLEVEL>1) { err_printf("%ld ",p[2]); err_flush(); }
@@ -2403,7 +2403,7 @@ Ideallist(GEN bnf, ulong bound, long flag)
           concat_join(&gel(z,iQ), gel(z2,i), join_z, &ID);
       }
     }
-    if (low_stack(lim, stack_lim(av,1)))
+    if (gc_needed(av,1))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"Ideallist");
       z = gerepilecopy(av, z);

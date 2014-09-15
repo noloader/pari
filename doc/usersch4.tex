@@ -705,22 +705,25 @@ the initial copy (on the other hand, it is less cache friendly).
 A most important usage is ``random'' garbage collection during loops
 whose size requirements we cannot (or do not bother to) control in advance:
 \bprog
-  pari_sp ltop = avma, limit = stack_lim(avma, 1);
+  pari_sp av = avma;
   GEN x, y;
   while (...)
   {
     garbage(); x = anything();
     garbage(); y = anything(); garbage();
-    if (avma < limit) /*@Ccom memory is running low (half spent since entry) */
-      gerepileall(ltop, 2, &x, &y);
+    if (gc_needed(av,1)) /*@Ccom memory is running low (half spent since entry) */
+      gerepileall(av, 2, &x, &y);
   }
 @eprog
 \noindent Here we assume that only \kbd{x} and \kbd{y} are needed from one
 iteration to the next. As it would be costly to call gerepile once for each
-iteration, we only do it when it seems to have become necessary. The macro
-\tet{stack_lim}\kbd{(avma,$n$)} denotes an address where $2^{n-1} /
-(2^{n-1}+1)$ of the remaining stack space is exhausted ($1/2$ for $n=1$,
-$2/3$ for $n=2$).
+iteration, we only do it when it seems to have become necessary.
+
+More precisely, the macro \tet{stack_lim}\kbd{(av,$n$)} denotes an address
+where $2^{n-1} / (2^{n-1}+1)$ of the remaining stack space since reference
+point \kbd{av} is exhausted ($1/2$ for $n=1$, $2/3$ for $n=2$). The test
+\tet{gc_needed}\kbd{(av,$n$)} becomes true whenever \kbd{avma} drops below
+that address.
 
 \subsec{Comments}
 
@@ -2239,7 +2242,7 @@ details.
 collection, hence memory use is quadratic in the size of the inputs instead
 of linear. Here is a better version of that loop:
 \bprog
-  pari_sp av = avma, lim = stack_lim(av,1);
+  pari_sp av = avma;
   ...
   while (!gequal0(b))
   {
@@ -2247,7 +2250,7 @@ of linear. Here is a better version of that loop:
 
     vx = subii(ux, mulii(q, vx));
     ux = v; a = b; b = r;
-    if (low_stack(lim, stack_lim(av,1)))
+    if (gc_needed(av,1))
       gerepileall(av, 4, &a, &b, &ux, &vx);
   }
 @eprog

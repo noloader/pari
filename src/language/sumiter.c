@@ -54,12 +54,12 @@ iferrpari(GEN a, GEN b, GEN c)
 static void
 forparii(GEN a, GEN b, GEN code)
 {
-  pari_sp av, av0 = avma, lim;
+  pari_sp av, av0 = avma;
   GEN aa;
   if (gcmp(b,a) < 0) return;
   b = gfloor(b);
   aa = a = setloop(a);
-  av=avma; lim = stack_lim(av,1);
+  av=avma;
   push_lex(a,code);
   while (gcmp(a,b) <= 0)
   {
@@ -73,7 +73,7 @@ forparii(GEN a, GEN b, GEN code)
     else
     { /* 'code' modified a ! Be careful (and slow) from now on */
       a = gaddgs(a,1);
-      if (low_stack(lim, stack_lim(av,1)))
+      if (gc_needed(av,1))
       {
         if (DEBUGMEM>1) pari_warn(warnmem,"forparii");
         a = gerepileupto(av,a);
@@ -87,16 +87,16 @@ forparii(GEN a, GEN b, GEN code)
 void
 forpari(GEN a, GEN b, GEN code)
 {
-  pari_sp ltop=avma, av, lim;
+  pari_sp ltop=avma, av;
   if (typ(a) == t_INT) { forparii(a,b,code); return; }
   b = gcopy(b); /* Kludge to work-around the a+(a=2) bug */
-  av=avma; lim = stack_lim(av,1);
+  av=avma;
   push_lex(a,code);
   while (gcmp(a,b) <= 0)
   {
     closure_evalvoid(code); if (loop_break()) break;
     a = get_lex(-1); a = gaddgs(a,1);
-    if (low_stack(lim, stack_lim(av,1)))
+    if (gc_needed(av,1))
     {
       if (DEBUGMEM>1) pari_warn(warnmem,"forpari");
       a = gerepileupto(av,a);
@@ -141,11 +141,11 @@ void
 forstep(GEN a, GEN b, GEN s, GEN code)
 {
   long ss, i;
-  pari_sp av, av0 = avma, lim;
+  pari_sp av, av0 = avma;
   GEN v = NULL;
   int (*cmp)(GEN,GEN);
 
-  b = gcopy(b); av=avma; lim = stack_lim(av,1);
+  b = gcopy(b); av=avma;
   push_lex(a,code);
   if (is_vec_t(typ(s)))
   {
@@ -166,7 +166,7 @@ forstep(GEN a, GEN b, GEN s, GEN code)
     }
     a = get_lex(-1); a = gadd(a,s);
 
-    if (low_stack(lim, stack_lim(av,1)))
+    if (gc_needed(av,1))
     {
       if (DEBUGMEM>1) pari_warn(warnmem,"forstep");
       a = gerepileupto(av,a);
@@ -884,7 +884,7 @@ forvec(GEN x, GEN code, long flag)
 GEN
 somme(GEN a, GEN b, GEN code, GEN x)
 {
-  pari_sp av, av0 = avma, lim;
+  pari_sp av, av0 = avma;
   GEN p1;
 
   if (typ(a) != t_INT) pari_err_TYPE("sum",a);
@@ -893,14 +893,14 @@ somme(GEN a, GEN b, GEN code, GEN x)
 
   b = gfloor(b);
   a = setloop(a);
-  av=avma; lim = stack_lim(av,1);
+  av=avma;
   push_lex(a,code);
   for(;;)
   {
     p1 = closure_evalnobrk(code);
     x=gadd(x,p1); if (cmpii(a,b) >= 0) break;
     a = incloop(a);
-    if (low_stack(lim, stack_lim(av,1)))
+    if (gc_needed(av,1))
     {
       if (DEBUGMEM>1) pari_warn(warnmem,"sum");
       x = gerepileupto(av,x);
@@ -914,12 +914,12 @@ GEN
 suminf(void *E, GEN (*eval)(void *, GEN), GEN a, long prec)
 {
   long fl, G;
-  pari_sp av0 = avma, av, lim;
+  pari_sp av0 = avma, av;
   GEN p1,x = real_1(prec);
 
   if (typ(a) != t_INT) pari_err_TYPE("suminf",a);
   a = setloop(a);
-  av = avma; lim = stack_lim(av,1);
+  av = avma;
   fl=0; G = prec2nbits(prec) + 5;
   for(;;)
   {
@@ -928,7 +928,7 @@ suminf(void *E, GEN (*eval)(void *, GEN), GEN a, long prec)
       { if (++fl==3) break; }
     else
       fl=0;
-    if (low_stack(lim, stack_lim(av,1)))
+    if (gc_needed(av,1))
     {
       if (DEBUGMEM>1) pari_warn(warnmem,"suminf");
       x = gerepileupto(av,x);
@@ -989,7 +989,7 @@ sumdivmultexpr(GEN num, GEN code)
 GEN
 produit(GEN a, GEN b, GEN code, GEN x)
 {
-  pari_sp av, av0 = avma, lim;
+  pari_sp av, av0 = avma;
   GEN p1;
 
   if (typ(a) != t_INT) pari_err_TYPE("prod",a);
@@ -998,14 +998,14 @@ produit(GEN a, GEN b, GEN code, GEN x)
 
   b = gfloor(b);
   a = setloop(a);
-  av=avma; lim = stack_lim(av,1);
+  av=avma;
   push_lex(a,code);
   for(;;)
   {
     p1 = closure_evalnobrk(code);
     x = gmul(x,p1); if (cmpii(a,b) >= 0) break;
     a = incloop(a);
-    if (low_stack(lim, stack_lim(av,1)))
+    if (gc_needed(av,1))
     {
       if (DEBUGMEM>1) pari_warn(warnmem,"prod");
       x = gerepileupto(av,x);
@@ -1018,13 +1018,13 @@ produit(GEN a, GEN b, GEN code, GEN x)
 GEN
 prodinf(void *E, GEN (*eval)(void *, GEN), GEN a, long prec)
 {
-  pari_sp av0 = avma, av, lim;
+  pari_sp av0 = avma, av;
   long fl,G;
   GEN p1,x = real_1(prec);
 
   if (typ(a) != t_INT) pari_err_TYPE("prodinf",a);
   a = setloop(a);
-  av = avma; lim = stack_lim(av,1);
+  av = avma;
   fl=0; G = -prec2nbits(prec)-5;
   for(;;)
   {
@@ -1032,7 +1032,7 @@ prodinf(void *E, GEN (*eval)(void *, GEN), GEN a, long prec)
     x = gmul(x,p1); a = incloop(a);
     p1 = gsubgs(p1, 1);
     if (gequal0(p1) || gexpo(p1) <= G) { if (++fl==3) break; } else fl=0;
-    if (low_stack(lim, stack_lim(av,1)))
+    if (gc_needed(av,1))
     {
       if (DEBUGMEM>1) pari_warn(warnmem,"prodinf");
       x = gerepileupto(av,x);
@@ -1043,13 +1043,13 @@ prodinf(void *E, GEN (*eval)(void *, GEN), GEN a, long prec)
 GEN
 prodinf1(void *E, GEN (*eval)(void *, GEN), GEN a, long prec)
 {
-  pari_sp av0 = avma, av, lim;
+  pari_sp av0 = avma, av;
   long fl,G;
   GEN p1,p2,x = real_1(prec);
 
   if (typ(a) != t_INT) pari_err_TYPE("prodinf1",a);
   a = setloop(a);
-  av = avma; lim = stack_lim(av,1);
+  av = avma;
   fl=0; G = -prec2nbits(prec)-5;
   for(;;)
   {
@@ -1057,7 +1057,7 @@ prodinf1(void *E, GEN (*eval)(void *, GEN), GEN a, long prec)
     if (gequal0(p1)) { x = p1; break; }
     x = gmul(x,p1); a = incloop(a);
     if (gequal0(p2) || gexpo(p2) <= G) { if (++fl==3) break; } else fl=0;
-    if (low_stack(lim, stack_lim(av,1)))
+    if (gc_needed(av,1))
     {
       if (DEBUGMEM>1) pari_warn(warnmem,"prodinf1");
       x = gerepileupto(av,x);
@@ -1080,7 +1080,7 @@ prodinf0(GEN a, GEN code, long flag, long prec)
 GEN
 prodeuler(void *E, GEN (*eval)(void *, GEN), GEN a, GEN b, long prec)
 {
-  pari_sp av, av0 = avma, lim;
+  pari_sp av, av0 = avma;
   GEN x = real_1(prec), prime;
   forprime_t T;
 
@@ -1088,11 +1088,10 @@ prodeuler(void *E, GEN (*eval)(void *, GEN), GEN a, GEN b, long prec)
   if (!forprime_init(&T, a,b)) { avma = av; return x; }
 
   av = avma;
-  lim = stack_lim(avma,1);
   while ( (prime = forprime_next(&T)) )
   {
     x = gmul(x, eval(E, prime));
-    if (low_stack(lim, stack_lim(av,1)))
+    if (gc_needed(av,1))
     {
       if (DEBUGMEM>1) pari_warn(warnmem,"prodeuler");
       x = gerepilecopy(av, x);
@@ -1112,7 +1111,7 @@ GEN
 direuler(void *E, GEN (*eval)(void *, GEN), GEN a, GEN b, GEN c)
 {
   ulong i, k, n;
-  pari_sp av0 = avma, av, lim = stack_lim(av0, 1);
+  pari_sp av0 = avma, av;
   long j, tx, lx;
   GEN x, y, s, polnum, polden, prime;
   forprime_t T;
@@ -1207,7 +1206,7 @@ direuler(void *E, GEN (*eval)(void *, GEN), GEN a, GEN b, GEN c)
         gel(x,i) = gsub(gel(x,i),s);
       }
     }
-    if (low_stack(lim, stack_lim(av,1)))
+    if (gc_needed(av,1))
     {
       if (DEBUGMEM>1) pari_warn(warnmem,"direuler");
       x = gerepilecopy(av, x);
@@ -1416,7 +1415,7 @@ GEN
 sumalt(void *E, GEN (*eval)(void *, GEN), GEN a, long prec)
 {
   ulong k, N;
-  pari_sp av = avma, av2, lim;
+  pari_sp av = avma, av2;
   GEN s, az, c, e1, d;
 
   if (typ(a) != t_INT) pari_err_TYPE("sumalt",a);
@@ -1427,14 +1426,14 @@ sumalt(void *E, GEN (*eval)(void *, GEN), GEN a, long prec)
   a = setloop(a);
   az = gen_m1; c = d;
   s = gen_0;
-  av2 = avma; lim = stack_lim(av,4);
+  av2 = avma;
   for (k=0; ; k++) /* k < N */
   {
     c = addir(az,c); s = gadd(s, gmul(c, eval(E, a)));
     if (k==N-1) break;
     az = diviuuexact(muluui((N-k)<<1,N+k,az), k+1, (k<<1)+1);
     a = incloop(a); /* in place! */
-    if (low_stack(lim, stack_lim(av,4)))
+    if (gc_needed(av,4))
     {
       if (DEBUGMEM>1) pari_warn(warnmem,"sumalt, k = %ld/%ld", k,N-1);
       gerepileall(av2, 3, &az,&c,&s);
@@ -1447,7 +1446,7 @@ GEN
 sumalt2(void *E, GEN (*eval)(void *, GEN), GEN a, long prec)
 {
   long k, N;
-  pari_sp av = avma, av2, lim;
+  pari_sp av = avma, av2;
   GEN s, dn, pol;
 
   if (typ(a) != t_INT) pari_err_TYPE("sumalt",a);
@@ -1457,13 +1456,13 @@ sumalt2(void *E, GEN (*eval)(void *, GEN), GEN a, long prec)
   a = setloop(a);
   N = degpol(pol);
   s = gen_0;
-  av2 = avma; lim = stack_lim(av,4);
+  av2 = avma;
   for (k=0; k<=N; k++)
   {
     s = gadd(s, gmul(gel(pol,k+2), eval(E, a)));
     if (k == N) break;
     a = incloop(a); /* in place! */
-    if (low_stack(lim, stack_lim(av,4)))
+    if (gc_needed(av,4))
     {
       if (DEBUGMEM>1) pari_warn(warnmem,"sumalt2, k = %ld/%ld", k,N-1);
       s = gerepileupto(av2, s);

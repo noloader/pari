@@ -491,7 +491,7 @@ gerepilemat2_inplace(pari_sp av, GEN M, GEN P)
 static long
 weakfrobenius_step1(GEN M, GEN P, long j0)
 {
-  pari_sp av = avma, lim = stack_lim(av, 1);
+  pari_sp av = avma;
   long n = lg(M)-1, k, j;
   for (j = j0; j < n; ++j)
   {
@@ -509,7 +509,7 @@ weakfrobenius_step1(GEN M, GEN P, long j0)
     for (k = 1; k <= n; ++k)
       if (k != j + 1 && !gequal0(gcoeff(M, k, j)))
         transL(M, P, gneg(gcoeff(M, k, j)), k, j + 1);
-    if (low_stack(lim, stack_lim(av,1)))
+    if (gc_needed(av,1))
     {
       if (DEBUGMEM > 1)
         pari_warn(warnmem,"RgM_minpoly stage 1: j0=%ld, j=%ld", j0, j);
@@ -522,14 +522,14 @@ weakfrobenius_step1(GEN M, GEN P, long j0)
 static void
 weakfrobenius_step2(GEN M, GEN P, long j)
 {
-  pari_sp av = avma, lim = stack_lim(av, 1);
+  pari_sp av = avma;
   long i, k, n = lg(M)-1;
   for(i=j; i>=2; i--)
   {
     for(k=j+1; k<=n; k++)
       if (!gequal0(gcoeff(M,i,k)))
         transL(M, P, gcoeff(M,i,k), i-1, k);
-    if (low_stack(lim, stack_lim(av,1)))
+    if (gc_needed(av,1))
     {
       if (DEBUGMEM > 1)
         pari_warn(warnmem,"RgM_minpoly stage 2: j=%ld, i=%ld", j, i);
@@ -563,14 +563,14 @@ weakfrobenius_step3(GEN M, GEN P, long j0, long j)
 static GEN
 RgM_Frobenius(GEN M, long flag, GEN *pt_P, GEN *pt_v)
 {
-  pari_sp av = avma, av2, ltop, lim;
+  pari_sp av = avma, av2, ltop;
   long n = lg(M)-1, eps, j0 = 1, nb = 0;
   GEN v, P;
   v = cgetg(n+1, t_VECSMALL);
   ltop = avma;
   P = pt_P ? matid(n): NULL;
   M = RgM_shallowcopy(M);
-  av2 = avma; lim = stack_lim(av2, 1);
+  av2 = avma;
   while (j0 <= n)
   {
     long j = weakfrobenius_step1(M, P, j0);
@@ -588,7 +588,7 @@ RgM_Frobenius(GEN M, long flag, GEN *pt_P, GEN *pt_v)
     }
     else
       transS(M, P, j0, j+1); /*theorem 4*/
-    if (low_stack(lim, stack_lim(av,1)))
+    if (gc_needed(av,1))
     {
       if (DEBUGMEM > 1)
         pari_warn(warnmem,"weakfrobenius j0=%ld",j0);
@@ -721,14 +721,14 @@ minpoly(GEN x, long v)
 GEN
 hess(GEN x)
 {
-  pari_sp av = avma, lim;
+  pari_sp av = avma;
   long lx = lg(x), m, i, j;
 
   if (typ(x) != t_MAT) pari_err_TYPE("hess",x);
   if (lx == 1) return cgetg(1,t_MAT);
   if (lgcols(x) != lx) pari_err_DIM("hess");
 
-  x = RgM_shallowcopy(x); lim = stack_lim(av,2);
+  x = RgM_shallowcopy(x);
   for (m=2; m<lx-1; m++)
   {
     GEN t = NULL;
@@ -747,7 +747,7 @@ hess(GEN x)
         gcoeff(x,i,j) = gsub(gcoeff(x,i,j), gmul(c,gcoeff(x,m,j)));
       for (j=1; j<lx; j++)
         gcoeff(x,j,m) = gadd(gcoeff(x,j,m), gmul(c,gcoeff(x,j,i)));
-      if (low_stack(lim, stack_lim(av,2)))
+      if (gc_needed(av,2))
       {
         if (DEBUGMEM>1) pari_warn(warnmem,"hess, m = %ld", m);
         gerepileall(av,2, &x, &t);
@@ -790,7 +790,7 @@ Flm_hess(GEN x, ulong p)
 GEN
 FpM_hess(GEN x, GEN p)
 {
-  pari_sp av = avma, lim;
+  pari_sp av = avma;
   long lx = lg(x), m, i, j;
   if (lx == 1) return cgetg(1,t_MAT);
   if (lgcols(x) != lx) pari_err_DIM("hess");
@@ -800,7 +800,7 @@ FpM_hess(GEN x, GEN p)
     x = Flm_hess(ZM_to_Flm(x, pp), pp);
     return gerepileupto(av, Flm_to_ZM(x));
   }
-  x = RgM_shallowcopy(x); lim = stack_lim(av,2);
+  x = RgM_shallowcopy(x);
   for (m=2; m<lx-1; m++)
   {
     GEN t = NULL;
@@ -819,7 +819,7 @@ FpM_hess(GEN x, GEN p)
         gcoeff(x,i,j) = Fp_sub(gcoeff(x,i,j), Fp_mul(c,gcoeff(x,m,j),p), p);
       for (j=1; j<lx; j++)
         gcoeff(x,j,m) = Fp_add(gcoeff(x,j,m), Fp_mul(c,gcoeff(x,j,i),p), p);
-      if (low_stack(lim, stack_lim(av,2)))
+      if (gc_needed(av,2))
       {
         if (DEBUGMEM>1) pari_warn(warnmem,"hess, m = %ld", m);
         gerepileall(av,2, &x, &t);
@@ -949,9 +949,9 @@ carberkowitz(GEN x, long v)
 {
   long lx, i, j, k, r;
   GEN V, S, C, Q;
-  pari_sp av0, av, lim;
+  pari_sp av0, av;
   if ((V = easychar(x,v))) return V;
-  lx = lg(x); av0 = avma; lim = stack_lim(av0,1);
+  lx = lg(x); av0 = avma;
   V = cgetg(lx+1, t_VEC);
   S = cgetg(lx+1, t_VEC);
   C = cgetg(lx+1, t_VEC);
@@ -984,7 +984,7 @@ carberkowitz(GEN x, long v)
     av2 = avma; t = gmul(gcoeff(x,r,1), gel(S,1));
     for (j = 2; j < r; j++) t = gadd(t, gmul(gcoeff(x,r,j), gel(S,j)));
     gel(C,r+1) = gerepileupto(av2, t);
-    if (low_stack(lim, stack_lim(av0,1)))
+    if (gc_needed(av0,1))
     {
       if (DEBUGMEM>1) pari_warn(warnmem,"carberkowitz");
       gerepileall(av, 2, &C, &V);
@@ -1059,7 +1059,7 @@ cxquadnorm(GEN q, long prec)
 static GEN
 gnorml2_i(GEN x, long prec)
 {
-  pari_sp av, lim;
+  pari_sp av;
   long i, lx;
   GEN s;
 
@@ -1081,12 +1081,12 @@ gnorml2_i(GEN x, long prec)
       return NULL; /* not reached */
   }
   if (lx == 1) return gen_0;
-  av = avma; lim = stack_lim(av,1);
+  av = avma;
   s = gnorml2(gel(x,1));
   for (i=2; i<lx; i++)
   {
     s = gadd(s, gnorml2(gel(x,i)));
-    if (low_stack(lim, stack_lim(av,1)))
+    if (gc_needed(av,1))
     {
       if (DEBUGMEM>1) pari_warn(warnmem,"gnorml2");
       s = gerepileupto(av, s);
@@ -1101,13 +1101,13 @@ static GEN pnormlp(GEN,GEN,long);
 static GEN
 pnormlpvec(long i0, GEN x, GEN p, long prec)
 {
-  pari_sp av = avma, lim = stack_lim(av,1);
+  pari_sp av = avma;
   long i, lx = lg(x);
   GEN s = gen_0;
   for (i=i0; i<lx; i++)
   {
     s = gadd(s, pnormlp(gel(x,i),p,prec));
-    if (low_stack(lim, stack_lim(av,1)))
+    if (gc_needed(av,1))
     {
       if (DEBUGMEM>1) pari_warn(warnmem,"gnormlp, i = %ld", i);
       s = gerepileupto(av, s);
@@ -1367,7 +1367,7 @@ gtrace(GEN x)
 GEN
 qfgaussred_positive(GEN a)
 {
-  pari_sp av = avma, lim=stack_lim(av,1);
+  pari_sp av = avma;
   GEN b;
   long i,j,k, n = lg(a);
 
@@ -1396,7 +1396,7 @@ qfgaussred_positive(GEN a)
       for (j=i; j<n; j++)
         gcoeff(b,i,j) = gsub(gcoeff(b,i,j), gmul(c,gcoeff(b,k,j)));
     }
-    if (low_stack(lim, stack_lim(av,1)))
+    if (gc_needed(av,1))
     {
       if (DEBUGMEM>1) pari_warn(warnmem,"qfgaussred_positive");
       b=gerepilecopy(av,b);
@@ -1432,7 +1432,7 @@ static GEN
 gaussred(GEN a, long signature)
 {
   GEN r, ak, al;
-  pari_sp av, av1, lim;
+  pari_sp av, av1;
   long n = lg(a), i, j, k, l, sp, sn, t;
 
   if (typ(a) != t_MAT) pari_err_TYPE("gaussred",a);
@@ -1442,7 +1442,7 @@ gaussred(GEN a, long signature)
 
   av = avma;
   r = const_vecsmall(n, 1);
-  av1= avma; lim = stack_lim(av1,1);
+  av1= avma;
   a = RgM_shallowcopy(a);
   t = n; sp = sn = 0;
   while (t)
@@ -1511,7 +1511,7 @@ gaussred(GEN a, long signature)
         gcoeff(a,l,k) = gen_m1;
         gcoeff(a,k,k) = gmul2n(p,-1);
         gcoeff(a,l,l) = gneg(gcoeff(a,k,k));
-        if (low_stack(lim, stack_lim(av1,1)))
+        if (gc_needed(av1,1))
         {
           if(DEBUGMEM>1) pari_warn(warnmem,"gaussred");
           a = gerepilecopy(av1, a);
@@ -1666,7 +1666,7 @@ matrixqz0(GEN x,GEN p)
 GEN
 QM_minors_coprime(GEN x, GEN D)
 {
-  pari_sp av = avma, av1, lim;
+  pari_sp av = avma, av1;
   long i, j, m, n, lP;
   GEN P, y;
 
@@ -1694,7 +1694,7 @@ QM_minors_coprime(GEN x, GEN D)
     if (is_pm1(D)) { avma = av2; return ZM_copy(x); }
   }
   P = gel(Z_factor(D), 1); lP = lg(P);
-  av1 = avma; lim = stack_lim(av1,1);
+  av1 = avma;
   for (i=1; i < lP; i++)
   {
     GEN p = gel(P,i), pov2 = shifti(p, -1);
@@ -1711,7 +1711,7 @@ QM_minors_coprime(GEN x, GEN D)
         long k = n; while (!signe(gcoeff(M,k,j))) k--;
         gel(x,k) = gel(N,j);
       }
-      if (low_stack(lim, stack_lim(av1,1)))
+      if (gc_needed(av1,1))
       {
         if (DEBUGMEM>1) pari_warn(warnmem,"QM_minors_coprime, p = %Ps", p);
         x = gerepilecopy(av1, x); pov2 = shifti(p, -1);
@@ -1786,7 +1786,7 @@ QC_elem(GEN aj, GEN ak, GEN A, long j, long k)
 static GEN
 QM_imZ_hnf_aux(GEN A)
 {
-  pari_sp av = avma, lim = stack_lim(av,1);
+  pari_sp av = avma;
   long i,j,k,n,m;
   GEN a;
 
@@ -1816,7 +1816,7 @@ QM_imZ_hnf_aux(GEN A)
       a = Q_denom(a);
       if (!is_pm1(a)) gel(A,k) = RgC_Rg_mul(gel(A,k), a);
     }
-    if (low_stack(lim, stack_lim(av,1)))
+    if (gc_needed(av,1))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"QM_imZ_hnf_aux");
       A = gerepilecopy(av,A);
@@ -1835,14 +1835,14 @@ QM_ImZ_hnf(GEN x)
 GEN
 QM_ImQ_hnf(GEN x)
 {
-  pari_sp av = avma, av1, lim;
+  pari_sp av = avma, av1;
   long j,j1,k,m,n;
   GEN c;
 
   n = lg(x); if (n==1) return gcopy(x);
   m = lgcols(x); x = RgM_shallowcopy(x);
   c = zero_zv(n-1);
-  av1 = avma; lim = stack_lim(av1,1);
+  av1 = avma;
   for (k=1; k<m; k++)
   {
     j=1; while (j<n && (c[j] || gequal0(gcoeff(x,k,j)))) j++;
@@ -1855,7 +1855,7 @@ QM_ImQ_hnf(GEN x)
         GEN t = gcoeff(x,k,j1);
         if (!gequal0(t)) gel(x,j1) = RgC_sub(gel(x,j1), RgC_Rg_mul(gel(x,j),t));
       }
-    if (low_stack(lim, stack_lim(av1,1)))
+    if (gc_needed(av1,1))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"QM_ImQ_hnf");
       x = gerepilecopy(av1,x);

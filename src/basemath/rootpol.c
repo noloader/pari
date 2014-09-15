@@ -1006,7 +1006,7 @@ parameters(GEN p, long *LMAX, double *mu, double *gamma,
 {
   GEN q, pc, Omega, A, RU, prim, g, ONE,TWO;
   long n = degpol(p), bit, NN, K, i, j, Lmax;
-  pari_sp av2, av = avma, lim = stack_lim(av, 1);
+  pari_sp av2, av = avma;
 
   bit = gexpo(p) + (long)param2+8;
   Lmax = 4; while (Lmax <= n) Lmax <<= 1;
@@ -1048,7 +1048,7 @@ parameters(GEN p, long *LMAX, double *mu, double *gamma,
     else
       for (j=0; j<Lmax; j++) g = addrr(g, divrr(ONE, abs_update(gel(A,j),mu)));
     RU = gmul(RU, prim);
-    if (low_stack(lim, stack_lim(av,1)))
+    if (gc_needed(av,1))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"parameters");
       gerepileall(av2,2, &g,&RU);
@@ -1154,14 +1154,14 @@ static GEN
 refine_H(GEN F, GEN G, GEN HH, long bit, long Sbit)
 {
   GEN H = HH, D, aux;
-  pari_sp ltop = avma, lim = stack_lim(ltop, 1);
+  pari_sp ltop = avma;
   long error, i, bit1, bit2;
 
   D = Rg_RgX_sub(gen_1, RgX_rem(RgX_mul(H,G),F)); error = gexpo(D);
   bit2 = bit + Sbit;
   for (i=0; error>-bit && i<NEWTON_MAX && error<=0; i++)
   {
-    if (low_stack(lim, stack_lim(ltop,1)))
+    if (gc_needed(ltop,1))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"refine_H");
       gerepileall(ltop,2, &D,&H);
@@ -1185,7 +1185,7 @@ refine_F(GEN p, GEN *F, GEN *G, GEN H, long bit, double gamma)
 {
   GEN f0, FF, GG, r, HH = H;
   long error, i, bit1 = 0, bit2, Sbit, Sbit2,  enh, normF, normG, n = degpol(p);
-  pari_sp av = avma, lim = stack_lim(av, 1);
+  pari_sp av = avma;
 
   FF = *F; GG = RgX_divrem(p, FF, &r);
   error = gexpo(r); if (error <= -bit) error = 1-bit;
@@ -1198,7 +1198,7 @@ refine_F(GEN p, GEN *F, GEN *G, GEN H, long bit, double gamma)
   for (i=0; error>-bit && i<NEWTON_MAX && error<=0; i++)
   {
     if (bit1 == bit2 && i >= 2) { Sbit += n; Sbit2 += n; bit2 += n; }
-    if (low_stack(lim, stack_lim(av,1)))
+    if (gc_needed(av,1))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"refine_F");
       gerepileall(av,4, &FF,&GG,&r,&HH);
@@ -1308,7 +1308,7 @@ conformal_pol(GEN p, GEN a, long bit)
 {
   GEN z, r, ma = gneg(a), ca = gconj(a);
   long n = degpol(p), i;
-  pari_sp av = avma, lim = stack_lim(av,2);
+  pari_sp av = avma;
 
   z = mkpoln(2, ca, negr(myreal_1(bit)));
   r = scalarpol(gel(p,2+n), 0);
@@ -1318,7 +1318,7 @@ conformal_pol(GEN p, GEN a, long bit)
     r = gadd(r, gmul(z, gel(p,2+i)));
     if (i == 0) return gerepileupto(av, r);
     z = addmulXn(gmul(z,ca), gneg(z), 1); /* z *= conj(a)X - 1 */
-    if (low_stack(lim, stack_lim(av,2)))
+    if (gc_needed(av,2))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"conformal_pol");
       gerepileall(av,2, &r,&z);
@@ -2217,7 +2217,7 @@ QX_complex_roots(GEN p, long l)
 static long
 X2XP1(GEN P, long deg, GEN *Premapped)
 {
-  pari_sp av = avma, lim = stack_lim(av, 3);
+  pari_sp av = avma;
   GEN v = shallowcopy(P);
   long i, j, vlim, nb, s, s2;
   char flag;
@@ -2250,7 +2250,7 @@ X2XP1(GEN P, long deg, GEN *Premapped)
       if (nb >= 2) { avma = av; return 2; }
       s = -s;
     }
-    if (low_stack(lim, stack_lim(av, 3)))
+    if (gc_needed(av, 3))
     {
       if (!Premapped) setlg(v, vlim);
       v = gerepileupto(av, v);
@@ -2487,7 +2487,7 @@ polsolve(GEN P, long bitprec)
 static GEN
 usp(GEN Q0, long deg, long *nb_donep, long flag, long bitprec)
 {
-  pari_sp av, lim;
+  pari_sp av;
   GEN Q, sol;
   long nb_todo, nbr = 0, ind, deg0, indf, i, k, nb, j;
   long listsize = 64, nb_done = 0;
@@ -2505,7 +2505,6 @@ usp(GEN Q0, long deg, long *nb_donep, long flag, long bitprec)
   Q = gcopy(Q0);
 
   nb_todo = 1;
-  lim = stack_lim(av, 2);
   while (nb_todo)
   {
     GEN nc = gel(Lc, ind), Qremapped;
@@ -2596,7 +2595,7 @@ usp(GEN Q0, long deg, long *nb_donep, long flag, long bitprec)
         nb_todo += 2;
     }
 
-    if (low_stack(lim, stack_lim(av, 2)))
+    if (gc_needed(av, 2))
     {
       gerepileall(av, 6, &Q0, &Q, &c, &Lc, &Lk, &sol);
       if (DEBUGMEM > 1) pari_warn(warnmem, "ZX_uspensky", avma);

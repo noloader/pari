@@ -119,7 +119,7 @@ gerepile_gauss(GEN x,long k,long t,pari_sp av, long j, GEN c)
 GEN
 gen_ker(GEN x, long deplin, void *E, const struct bb_field *ff)
 {
-  pari_sp av0 = avma, av, lim, tetpil;
+  pari_sp av0 = avma, av, tetpil;
   GEN y, c, d;
   long i, j, k, r, t, n, m;
 
@@ -128,7 +128,7 @@ gen_ker(GEN x, long deplin, void *E, const struct bb_field *ff)
   x = RgM_shallowcopy(x);
   c = zero_zv(m);
   d=new_chunk(n+1);
-  av=avma; lim=stack_lim(av,1);
+  av=avma;
   for (k=1; k<=n; k++)
   {
     for (j=1; j<=m; j++)
@@ -166,7 +166,7 @@ gen_ker(GEN x, long deplin, void *E, const struct bb_field *ff)
         gcoeff(x,t,k) = ff->s(E,0);
         for (i=k+1; i<=n; i++)
            gcoeff(x,t,i) = ff->add(E, gcoeff(x,t,i), ff->mul(E,piv,gcoeff(x,j,i)));
-        if (low_stack(lim, stack_lim(av,1)))
+        if (gc_needed(av,1))
           gen_gerepile_gauss_ker(x,k,t,av,E,ff->red);
       }
     }
@@ -195,7 +195,7 @@ gen_ker(GEN x, long deplin, void *E, const struct bb_field *ff)
 GEN
 gen_Gauss_pivot(GEN x, long *rr, void *E, const struct bb_field *ff)
 {
-  pari_sp av, lim;
+  pari_sp av;
   GEN c, d;
   long i, j, k, r, t, m, n = lg(x)-1;
 
@@ -205,7 +205,7 @@ gen_Gauss_pivot(GEN x, long *rr, void *E, const struct bb_field *ff)
   d = cgetg(n+1, t_VECSMALL);
   x = RgM_shallowcopy(x);
   c = zero_zv(m);
-  av=avma; lim=stack_lim(av,1);
+  av=avma;
   for (k=1; k<=n; k++)
   {
     for (j=1; j<=m; j++)
@@ -230,7 +230,7 @@ gen_Gauss_pivot(GEN x, long *rr, void *E, const struct bb_field *ff)
         gcoeff(x,t,k) = g0;
         for (i=k+1; i<=n; i++)
           gcoeff(x,t,i) = ff->add(E,gcoeff(x,t,i), ff->mul(E,piv,gcoeff(x,j,i)));
-        if (low_stack(lim, stack_lim(av,1)))
+        if (gc_needed(av,1))
           gerepile_gauss(x,k,t,av,j,c);
       }
       for (i=k; i<=n; i++) gcoeff(x,j,i) = g0; /* dummy */
@@ -242,7 +242,7 @@ gen_Gauss_pivot(GEN x, long *rr, void *E, const struct bb_field *ff)
 GEN
 gen_det(GEN a, void *E, const struct bb_field *ff)
 {
-  pari_sp av = avma, lim = stack_lim(av,1);
+  pari_sp av = avma;
   long i,j,k, s = 1, nbco = lg(a)-1;
   GEN q, x = ff->s(E,1);
   a = RgM_shallowcopy(a);
@@ -272,7 +272,7 @@ gen_det(GEN a, void *E, const struct bb_field *ff)
       for (j=i+1; j<=nbco; j++)
       {
         gcoeff(a,j,k) = ff->add(E, gcoeff(a,j,k), ff->mul(E,m,gcoeff(a,j,i)));
-        if (low_stack(lim, stack_lim(av,1)))
+        if (gc_needed(av,1))
         {
           if(DEBUGMEM>1) pari_warn(warnmem,"det. col = %ld",i);
           gerepileall(av,4, &a,&x,&q,&m);
@@ -315,7 +315,7 @@ gen_Gauss(GEN a, GEN b, void *E, const struct bb_field *ff)
 {
   long i, j, k, li, bco, aco;
   GEN u, g0 = ff->s(E,0);
-  pari_sp av = avma, lim = stack_lim(av,1);
+  pari_sp av = avma;
   a = RgM_shallowcopy(a);
   b = RgM_shallowcopy(b);
   aco = lg(a)-1; bco = lg(b)-1; li = nbrows(a);
@@ -347,7 +347,7 @@ gen_Gauss(GEN a, GEN b, void *E, const struct bb_field *ff)
       for (j=i+1; j<=aco; j++) _gen_addmul(gel(a,j),k,i,m,E,ff);
       for (j=1  ; j<=bco; j++) _gen_addmul(gel(b,j),k,i,m,E,ff);
     }
-    if (low_stack(lim, stack_lim(av,1)))
+    if (gc_needed(av,1))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"gen_Gauss. i=%ld",i);
       gerepileall(av,2, &a,&b);
@@ -1527,7 +1527,7 @@ is_modular_solve(GEN a, GEN b, GEN *u)
 GEN
 RgM_solve(GEN a, GEN b)
 {
-  pari_sp av = avma, lim = stack_lim(av,1);
+  pari_sp av = avma;
   long i, j, k, li, bco, aco;
   int iscol;
   pivot_fun pivot;
@@ -1582,7 +1582,7 @@ RgM_solve(GEN a, GEN b)
         for (j=1;   j<=bco; j++) _submul(gel(b,j),k,i,m);
       }
     }
-    if (low_stack(lim, stack_lim(av,1)))
+    if (gc_needed(av,1))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"gauss. i=%ld",i);
       gerepileall(av,2, &a,&b);
@@ -2184,7 +2184,7 @@ ZM_gauss(GEN a, GEN b0)
 GEN
 ZM_inv(GEN M, GEN dM)
 {
-  pari_sp av2, av = avma, lim = stack_lim(av,1);
+  pari_sp av2, av = avma;
   GEN Hp,q,H;
   ulong p;
   long lM = lg(M), stable = 0;
@@ -2239,7 +2239,7 @@ ZM_inv(GEN M, GEN dM)
       { if (ZM_isidentity(ZM_mul(M, H))) break; }
     }
 
-    if (low_stack(lim, stack_lim(av,2)))
+    if (gc_needed(av,2))
     {
       if (DEBUGMEM>1) pari_warn(warnmem,"ZM_inv");
       gerepileall(av2, 2, &H, &q);
@@ -2275,7 +2275,7 @@ detint(GEN A)
 GEN
 ZM_detmult(GEN A)
 {
-  pari_sp av1, av = avma, lim = stack_lim(av,1);
+  pari_sp av1, av = avma;
   GEN B, c, v, piv;
   long rg, i, j, k, m, n = lg(A) - 1;
 
@@ -2314,11 +2314,11 @@ ZM_detmult(GEN A)
       {
         /* improve further; at this point c[i] is set for all i != t */
         gcoeff(B,t,t) = piv; v = centermod(gel(B,t), det);
-        av1 = avma; lim = stack_lim(av1,1);
+        av1 = avma;
         for ( ; k<=n; k++)
         {
           det = gcdii(det, ZV_dotproduct(v, gel(A,k)));
-          if (low_stack(lim, stack_lim(av1,1)))
+          if (gc_needed(av1,1))
           {
             if(DEBUGMEM>1) pari_warn(warnmem,"detint end. k=%ld",k);
             det = gerepileuptoint(av1, det);
@@ -2345,7 +2345,7 @@ ZM_detmult(GEN A)
         }
     }
     c[t] = k;
-    if (low_stack(lim, stack_lim(av,1)))
+    if (gc_needed(av,1))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"detint. k=%ld",k);
       gerepileall(av1, 2, &piv,&B); v = zerovec(m);
@@ -2381,7 +2381,7 @@ reducemodlll(GEN x,GEN y)
 GEN
 keri(GEN x)
 {
-  pari_sp av, av0, lim;
+  pari_sp av, av0;
   GEN c, l, y, p, pp;
   long i, j, k, r, t, n, m;
 
@@ -2391,7 +2391,7 @@ keri(GEN x)
   x = RgM_shallowcopy(x);
   c = zero_zv(m);
   l = cgetg(n+1, t_VECSMALL);
-  av = avma; lim = stack_lim(av,1);
+  av = avma;
   for (r=0, p=gen_1, k=1; k<=n; k++)
   {
     j = 1;
@@ -2417,7 +2417,7 @@ keri(GEN x)
             GEN p1 = subii(mulii(p,gcoeff(x,t,i)), mulii(q,gcoeff(x,j,i)));
             gcoeff(x,t,i) = gerepileuptoint(av1, diviiexact(p1,p0));
           }
-          if (low_stack(lim, stack_lim(av,1)))
+          if (gc_needed(av,1))
           {
             GEN _p0 = gclone(p0);
             GEN _p  = gclone(p);
@@ -2566,7 +2566,7 @@ static GEN
 gauss_pivot_ker(GEN x, GEN x0, GEN *dd, long *rr)
 {
   GEN c, d, p, data;
-  pari_sp av, lim;
+  pari_sp av;
   long i, j, k, r, t, n, m;
   pivot_fun pivot;
 
@@ -2576,7 +2576,7 @@ gauss_pivot_ker(GEN x, GEN x0, GEN *dd, long *rr)
   x = RgM_shallowcopy(x);
   c = zero_zv(m);
   d = cgetg(n+1,t_VECSMALL);
-  av=avma; lim=stack_lim(av,1);
+  av=avma;
   for (k=1; k<=n; k++)
   {
     j = pivot(x, data, k, c);
@@ -2598,7 +2598,7 @@ gauss_pivot_ker(GEN x, GEN x0, GEN *dd, long *rr)
           p = gcoeff(x,t,k); gcoeff(x,t,k) = gen_0;
           for (i=k+1; i<=n; i++)
             gcoeff(x,t,i) = gadd(gcoeff(x,t,i),gmul(p,gcoeff(x,j,i)));
-          if (low_stack(lim, stack_lim(av,1))) gerepile_gauss_ker(x,k,t,av);
+          if (gc_needed(av,1)) gerepile_gauss_ker(x,k,t,av);
         }
     }
   }
@@ -2619,7 +2619,7 @@ RgM_pivots(GEN x0, GEN data, long *rr, pivot_fun pivot)
 {
   GEN x, c, d, p;
   long i, j, k, r, t, m, n = lg(x0)-1;
-  pari_sp av, lim;
+  pari_sp av;
 
   if (RgM_is_ZM(x0)) return ZM_pivots(x0, rr);
   if (!n) { *rr = 0; return NULL; }
@@ -2628,7 +2628,7 @@ RgM_pivots(GEN x0, GEN data, long *rr, pivot_fun pivot)
   x = RgM_shallowcopy(x0);
   m = nbrows(x); r = 0;
   c = zero_zv(m);
-  av = avma; lim = stack_lim(av,1);
+  av = avma;
   for (k=1; k<=n; k++)
   {
     j = pivot(x, data, k, c);
@@ -2644,7 +2644,7 @@ RgM_pivots(GEN x0, GEN data, long *rr, pivot_fun pivot)
           p = gcoeff(x,t,k); gcoeff(x,t,k) = gen_0;
           for (i=k+1; i<=n; i++)
             gcoeff(x,t,i) = gadd(gcoeff(x,t,i), gmul(p, gcoeff(x,j,i)));
-          if (low_stack(lim, stack_lim(av,1))) gerepile_gauss(x,k,t,av,j,c);
+          if (gc_needed(av,1)) gerepile_gauss(x,k,t,av,j,c);
         }
       for (i=k; i<=n; i++) gcoeff(x,j,i) = gen_0; /* dummy */
     }
@@ -3715,7 +3715,7 @@ ZM_det3(GEN M)
 static GEN
 det_simple_gauss(GEN a, GEN data, pivot_fun pivot)
 {
-  pari_sp av = avma, lim = stack_lim(av,3);
+  pari_sp av = avma;
   long i,j,k, s = 1, nbco = lg(a)-1;
   GEN p, x = gen_1;
 
@@ -3741,7 +3741,7 @@ det_simple_gauss(GEN a, GEN data, pivot_fun pivot)
       for (j=i+1; j<=nbco; j++)
       {
         gcoeff(a,j,k) = gsub(gcoeff(a,j,k), gmul(m,gcoeff(a,j,i)));
-        if (low_stack(lim, stack_lim(av,3)))
+        if (gc_needed(av,3))
         {
           if(DEBUGMEM>1) pari_warn(warnmem,"det. col = %ld",i);
           gerepileall(av,2, &a,&x);
@@ -3783,7 +3783,7 @@ mydiv(GEN x, GEN y)
 static GEN
 det_bareiss(GEN a)
 {
-  pari_sp av = avma, lim = stack_lim(av,2);
+  pari_sp av = avma;
   long nbco = lg(a)-1,i,j,k,s = 1;
   GEN p, pprec;
 
@@ -3828,7 +3828,7 @@ det_bareiss(GEN a)
           GEN p1 = gsub(gmul(p,gel(ck,j)), gmul(m,gel(ci,j)));
           if (diveuc) p1 = mydiv(p1,pprec);
           gel(ck,j) = gerepileupto(av2, p1);
-          if (low_stack(lim,stack_lim(av,2)))
+          if (gc_needed(av,2))
           {
             if(DEBUGMEM>1) pari_warn(warnmem,"det. col = %ld",i);
             gerepileall(av,2, &a,&pprec);

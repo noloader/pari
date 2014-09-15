@@ -1643,7 +1643,7 @@ krouu_s(ulong x, ulong y, long s)
 long
 kronecker(GEN x, GEN y)
 {
-  pari_sp av = avma, lim;
+  pari_sp av = avma;
   long s = 1, r;
   ulong xu, yu;
 
@@ -1661,7 +1661,6 @@ kronecker(GEN x, GEN y)
     if (odd(r) && gome(x)) s = -s;
     y = shifti(y,-r);
   }
-  lim = stack_lim(av,2);
   x = modii(x,y);
   while (lgefint(x) > 3) /* x < y */
   {
@@ -1675,7 +1674,7 @@ kronecker(GEN x, GEN y)
     /* x=3 mod 4 && y=3 mod 4 ? (both are odd here) */
     if (mod2BIL(x) & mod2BIL(y) & 2) s = -s;
     z = remii(y,x); y = x; x = z;
-    if (low_stack(lim, stack_lim(av,2)))
+    if (gc_needed(av,2))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"kronecker");
       gerepileall(av, 2, &x, &y);
@@ -2184,7 +2183,7 @@ sqrt_Cipolla(GEN a, GEN p)
 GEN
 Fp_sqrt(GEN a, GEN p)
 {
-  pari_sp av = avma, av1,lim;
+  pari_sp av = avma, av1;
   long i, k, e;
   GEN p1, q, v, y, w, m;
 
@@ -2242,7 +2241,6 @@ Fp_sqrt(GEN a, GEN p)
   if (!signe(p1)) { avma=av; return gen_0; }
   v = Fp_mul(a, p1, p);
   w = Fp_mul(v, p1, p);
-  lim = stack_lim(av,1);
   while (!equali1(w))
   { /* a*w = v^2, y primitive 2^e-th root of 1
        a square --> w even power of y, hence w^(2^(e-1)) = 1 */
@@ -2255,7 +2253,7 @@ Fp_sqrt(GEN a, GEN p)
     y = sqrmod(p1, p); e = k;
     w = Fp_mul(y, w, p);
     v = Fp_mul(v, p1, p);
-    if (low_stack(lim, stack_lim(av,1)))
+    if (gc_needed(av,1))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"Fp_sqrt");
       gerepileall(av,3, &y,&w,&v);
@@ -4102,13 +4100,13 @@ update_f(GEN f, GEN a)
 GEN
 quadunit(GEN x)
 {
-  pari_sp av = avma, av2, lim;
+  pari_sp av = avma, av2;
   GEN pol, y, a, u, v, sqd, f;
   long r;
 
   check_quaddisc_real(x, &r, "quadunit");
   pol = quadpoly(x);
-  sqd = sqrti(x); av2 = avma; lim = stack_lim(av2,2);
+  sqd = sqrti(x); av2 = avma;
   a = shifti(addsi(r,sqd),-1);
   f = mkmat2(mkcol2(a, gen_1), mkcol2(gen_1, gen_0)); /* [a,0; 1,0] */
   u = stoi(r); v = gen_2;
@@ -4131,7 +4129,7 @@ quadunit(GEN x)
     }
     update_f(f,a);
     u = u1; v = v1;
-    if (low_stack(lim, stack_lim(av2,2)))
+    if (gc_needed(av2,2))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"quadunit");
       gerepileall(av2,4, &a,&f,&u,&v);
@@ -4144,7 +4142,7 @@ quadunit(GEN x)
 GEN
 quadregulator(GEN x, long prec)
 {
-  pari_sp av = avma, av2, lim;
+  pari_sp av = avma, av2;
   GEN R, rsqd, u, v, sqd;
   long r, Rexpo;
 
@@ -4152,7 +4150,7 @@ quadregulator(GEN x, long prec)
   sqd = sqrti(x);
   rsqd = gsqrt(x,prec);
   Rexpo = 0; R = real2n(1, prec); /* = 2 */
-  av2 = avma; lim = stack_lim(av2,2);
+  av2 = avma;
   u = stoi(r); v = gen_2;
   for(;;)
   {
@@ -4173,7 +4171,7 @@ quadregulator(GEN x, long prec)
     Rexpo += expo(R); setexpo(R,0);
     u = u1; v = v1;
     if (Rexpo & ~EXPOBITS) pari_err_OVERFLOW("quadregulator [exponent]");
-    if (low_stack(lim, stack_lim(av2,2)))
+    if (gc_needed(av2,2))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"quadregulator");
       gerepileall(av2,3, &R,&u,&v);

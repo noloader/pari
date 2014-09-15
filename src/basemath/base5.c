@@ -847,7 +847,7 @@ rel_T2(GEN nf, GEN pol, long lx, long prec)
 GEN
 rnflllgram(GEN nf, GEN pol, GEN order,long prec)
 {
-  pari_sp av = avma, lim = stack_lim(av,2);
+  pari_sp av = avma;
   long j, k, l, kmax, r1, lx, count = 0;
   GEN M, I, h, H, mth, MC, MPOL, MCS, B, mu;
   const long alpha = 10, MAX_COUNT = 4;
@@ -920,7 +920,7 @@ PRECPB:
         if (!RED(k, l, h, mu, MC, nf, I, &Ik_inv)) goto PRECPB;
       k++;
     }
-    if (low_stack(lim, stack_lim(av,2)))
+    if (gc_needed(av,2))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"rnflllgram");
       gerepileall(av, H?10:9, &nf,&mth,&h,&MPOL,&B,&MC,&MCS,&mu,&I,&H);

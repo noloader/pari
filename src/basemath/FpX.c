@@ -505,7 +505,7 @@ FpX_valrem(GEN x, GEN t, GEN p, GEN *py)
 static GEN
 FpX_halfgcd_basecase(GEN a, GEN b, GEN p)
 {
-  pari_sp av=avma, lim = stack_lim(av,2);
+  pari_sp av=avma;
   GEN u,u1,v,v1;
   long vx = varn(a);
   long n = lgpol(a)>>1;
@@ -517,7 +517,7 @@ FpX_halfgcd_basecase(GEN a, GEN b, GEN p)
     a = b; b = r; swap(u,u1); swap(v,v1);
     u1 = FpX_sub(u1, FpX_mul(u, q, p), p);
     v1 = FpX_sub(v1, FpX_mul(v, q ,p), p);
-    if (low_stack(lim,stack_lim(av,2)))
+    if (gc_needed(av,2))
     {
       if (DEBUGMEM>1) pari_warn(warnmem,"FpX_halfgcd (d = %ld)",degpol(b));
       gerepileall(av,6, &a,&b,&u1,&v1,&u,&v);
@@ -627,11 +627,11 @@ FpX_halfgcd(GEN x, GEN y, GEN p)
 static GEN
 FpX_gcd_basecase(GEN a, GEN b, GEN p)
 {
-  pari_sp av = avma, av0=avma, lim = stack_lim(av0,2);
+  pari_sp av = avma, av0=avma;
   while (signe(b))
   {
     GEN c;
-    if (low_stack(lim,stack_lim(av0,2)))
+    if (gc_needed(av0,2))
     {
       if (DEBUGMEM>1) pari_warn(warnmem,"FpX_gcd (d = %ld)",degpol(b));
       gerepileall(av0,2, &a,&b);
@@ -695,7 +695,7 @@ FpX_gcd_check(GEN x, GEN y, GEN p)
 static GEN
 FpX_extgcd_basecase(GEN a, GEN b, GEN p, GEN *ptu, GEN *ptv)
 {
-  pari_sp av=avma, lim = stack_lim(av,2);
+  pari_sp av=avma;
   GEN u,v,d,d1,v1;
   long vx = varn(a);
   d = a; d1 = b;
@@ -706,7 +706,7 @@ FpX_extgcd_basecase(GEN a, GEN b, GEN p, GEN *ptu, GEN *ptv)
     v = FpX_sub(v,FpX_mul(q,v1,p),p);
     u=v; v=v1; v1=u;
     u=r; d=d1; d1=u;
-    if (low_stack(lim,stack_lim(av,2)))
+    if (gc_needed(av,2))
     {
       if (DEBUGMEM>1) pari_warn(warnmem,"FpX_extgcd (d = %ld)",degpol(d));
       gerepileall(av,5, &d,&d1,&u,&v,&v1);
@@ -865,7 +865,7 @@ GEN
 FpX_resultant(GEN a, GEN b, GEN p)
 {
   long da,db,dc;
-  pari_sp av, lim;
+  pari_sp av;
   GEN c,lb, res = gen_1;
 
   if (!signe(a) || !signe(b)) return gen_0;
@@ -877,7 +877,7 @@ FpX_resultant(GEN a, GEN b, GEN p)
     if (both_odd(da,db)) res = subii(p, res);
   }
   if (!da) return gen_1; /* = res * a[2] ^ db, since 0 <= db <= da = 0 */
-  av = avma; lim = stack_lim(av,2);
+  av = avma;
   while (db)
   {
     lb = gel(b,db+2);
@@ -887,7 +887,7 @@ FpX_resultant(GEN a, GEN b, GEN p)
 
     if (both_odd(da,db)) res = subii(p, res);
     if (!equali1(lb)) res = Fp_mul(res, Fp_powu(lb, da - dc, p), p);
-    if (low_stack(lim,stack_lim(av,2)))
+    if (gc_needed(av,2))
     {
       if (DEBUGMEM>1) pari_warn(warnmem,"FpX_resultant (da = %ld)",da);
       gerepileall(av,3, &a,&b,&res);

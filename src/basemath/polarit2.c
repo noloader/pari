@@ -752,13 +752,13 @@ roots_to_pol_r1(GEN a, long v, long r1)
 GEN
 divide_conquer_assoc(GEN x, void *data, GEN (*mul)(void *,GEN,GEN))
 {
-  pari_sp ltop, lim;
+  pari_sp ltop;
   long i,k,lx = lg(x);
 
   if (lx == 1) return gen_1;
   if (lx == 2) return gcopy(gel(x,1));
   x = leafcopy(x); k = lx;
-  ltop=avma; lim = stack_lim(ltop,1);
+  ltop=avma;
   while (k > 2)
   {
     if (DEBUGLEVEL>7)
@@ -767,7 +767,7 @@ divide_conquer_assoc(GEN x, void *data, GEN (*mul)(void *,GEN,GEN))
     for (i=1; i<lx-1; i+=2)
       gel(x,k++) = mul(data,gel(x,i),gel(x,i+1));
     if (i < lx) gel(x,k++) = gel(x,i);
-    if (low_stack(lim,stack_lim(ltop,1)))
+    if (gc_needed(ltop,1))
       gerepilecoeffs(ltop,x+1,k-1);
   }
   return gel(x,1);
@@ -1466,7 +1466,7 @@ pol_approx0(GEN r, GEN x, int exact)
 GEN
 RgX_gcd_simple(GEN x, GEN y)
 {
-  pari_sp av1, av = avma, lim = stack_lim(av, 1);
+  pari_sp av1, av = avma;
   GEN r, yorig = y;
   int exact = !(isinexactreal(x) || isinexactreal(y));
 
@@ -1482,7 +1482,7 @@ RgX_gcd_simple(GEN x, GEN y)
       return gerepileupto(av,y);
     }
     x = y; y = r;
-    if (low_stack(lim,stack_lim(av,1))) {
+    if (gc_needed(av,1)) {
       if(DEBUGMEM>1) pari_warn(warnmem,"RgX_gcd_simple");
       gerepileall(av,2, &x,&y);
     }
@@ -2028,7 +2028,7 @@ subres_step(GEN *u, GEN *v, GEN *g, GEN *h, GEN *uze, GEN *um1, long *signh)
 static GEN
 subresext_i(GEN x, GEN y, GEN *U, GEN *V)
 {
-  pari_sp av, av2, lim;
+  pari_sp av, av2;
   long dx, dy, du, signh, tx = typ(x), ty = typ(y);
   GEN r, z, g, h, p1, cu, cv, u, v, um1, uze, vze;
 
@@ -2057,12 +2057,12 @@ subresext_i(GEN x, GEN y, GEN *U, GEN *V)
   av = avma;
   u = x = primitive_part(x, &cu);
   v = y = primitive_part(y, &cv);
-  g = h = gen_1; av2 = avma; lim = stack_lim(av2,1);
+  g = h = gen_1; av2 = avma;
   um1 = gen_1; uze = gen_0;
   for(;;)
   {
     if (!subres_step(&u, &v, &g, &h, &uze, &um1, &signh)) break;
-    if (low_stack(lim,stack_lim(av2,1)))
+    if (gc_needed(av2,1))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"subresext, dr = %ld", degpol(v));
       gerepileall(av2,6, &u,&v,&g,&h,&uze,&um1);
@@ -2126,7 +2126,7 @@ must_negate(GEN x)
 GEN
 RgX_extgcd(GEN x, GEN y, GEN *U, GEN *V)
 {
-  pari_sp av, av2, tetpil, lim;
+  pari_sp av, av2, tetpil;
   long signh; /* junk */
   long dx, dy, vx, tx = typ(x), ty = typ(y);
   GEN z, g, h, p1, cu, cv, u, v, um1, uze, vze, *gptr[3];
@@ -2149,12 +2149,12 @@ RgX_extgcd(GEN x, GEN y, GEN *U, GEN *V)
   av = avma;
   u = x = primitive_part(x, &cu);
   v = y = primitive_part(y, &cv);
-  g = h = gen_1; av2 = avma; lim = stack_lim(av2,1);
+  g = h = gen_1; av2 = avma;
   um1 = gen_1; uze = gen_0;
   for(;;)
   {
     if (!subres_step(&u, &v, &g, &h, &uze, &um1, &signh)) break;
-    if (low_stack(lim,stack_lim(av2,1)))
+    if (gc_needed(av2,1))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"RgX_extgcd, dr = %ld",degpol(v));
       gerepileall(av2,6,&u,&v,&g,&h,&uze,&um1);
@@ -2188,7 +2188,7 @@ RgX_extgcd(GEN x, GEN y, GEN *U, GEN *V)
 int
 RgXQ_ratlift(GEN x, GEN T, long amax, long bmax, GEN *P, GEN *Q)
 {
-  pari_sp av = avma, av2, tetpil, lim;
+  pari_sp av = avma, av2, tetpil;
   long signh; /* junk */
   long vx;
   GEN g, h, p1, cu, cv, u, v, um1, uze, *gptr[2];
@@ -2211,14 +2211,14 @@ RgXQ_ratlift(GEN x, GEN T, long amax, long bmax, GEN *P, GEN *Q)
   vx = varn(T);
   u = x = primitive_part(x, &cu);
   v = T = primitive_part(T, &cv);
-  g = h = gen_1; av2 = avma; lim = stack_lim(av2,1);
+  g = h = gen_1; av2 = avma;
   um1 = gen_1; uze = gen_0;
   for(;;)
   {
     (void) subres_step(&u, &v, &g, &h, &uze, &um1, &signh);
     if (!u || (typ(uze)==t_POL && degpol(uze)>bmax)) { avma=av; return 0; }
     if (typ(v)!=t_POL || degpol(v)<=amax) break;
-    if (low_stack(lim,stack_lim(av2,1)))
+    if (gc_needed(av2,1))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"RgXQ_ratlift, dr = %ld", degpol(v));
       gerepileall(av2,6,&u,&v,&g,&h,&uze,&um1);
@@ -2304,12 +2304,12 @@ nextSousResultant(GEN P, GEN Q, GEN Z, GEN s)
 {
   GEN p0, q0, h0, TMP, H, A, z0 = leading_term(Z);
   long p, q, j, lP, lQ;
-  pari_sp av, lim;
+  pari_sp av;
 
   p = degpol(P); p0 = gel(P,p+2); lP = reductum_lg(P,lg(P));
   q = degpol(Q); q0 = gel(Q,q+2); lQ = reductum_lg(Q,lg(Q));
   /* p > q. Very often p - 1 = q */
-  av = avma; lim = stack_lim(av,1);
+  av = avma;
   /* H = RgX_neg(reductum(Z)) optimized, using Q ~ Z */
   H = RgX_neg_i(Z, lQ); /* deg H < q */
 
@@ -2328,7 +2328,7 @@ nextSousResultant(GEN P, GEN Q, GEN Z, GEN s)
       TMP = RgX_Rg_mul(H, gel(P,j+2));
       A = A? RgX_add(A, TMP): TMP;
     }
-    if (low_stack(lim,stack_lim(av,1)))
+    if (gc_needed(av,1))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"nextSousResultant j = %ld/%ld",j,p);
       gerepileall(av,A?2:1,&H,&A);
@@ -2352,7 +2352,7 @@ nextSousResultant(GEN P, GEN Q, GEN Z, GEN s)
 GEN
 RgX_resultant_all(GEN P, GEN Q, GEN *sol)
 {
-  pari_sp av, av2, lim;
+  pari_sp av, av2;
   long dP, dQ, delta, sig = 1;
   GEN cP, cQ, Z, s;
 
@@ -2374,7 +2374,7 @@ RgX_resultant_all(GEN P, GEN Q, GEN *sol)
   }
   P = primitive_part(P, &cP);
   Q = primitive_part(Q, &cQ);
-  av2 = avma; lim = stack_lim(av2,1);
+  av2 = avma;
   s = gpowgs(leading_term(Q),delta);
   if (both_odd(dP, dQ)) sig = -sig;
   Z = Q;
@@ -2387,7 +2387,7 @@ RgX_resultant_all(GEN P, GEN Q, GEN *sol)
     if (both_odd(degpol(P), degpol(Q))) sig = -sig;
     Q = nextSousResultant(P, Q, Z, s);
     P = Z;
-    if (low_stack(lim,stack_lim(av,1)))
+    if (gc_needed(av,1))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"resultant_all, degpol Q = %ld",degpol(Q));
       gerepileall(av2,2,&P,&Q);
@@ -2726,7 +2726,7 @@ GEN
 RgX_gcd(GEN x, GEN y)
 {
   long dx, dy;
-  pari_sp av, av1, lim;
+  pari_sp av, av1;
   GEN d, g, h, p1, p2, u, v;
   int simple = 0, rational = 1;
 
@@ -2755,7 +2755,7 @@ RgX_gcd(GEN x, GEN y)
     u = primitive_part(x, &p1); if (!p1) p1 = gen_1;
     v = primitive_part(y, &p2); if (!p2) p2 = gen_1;
     d = ggcd(p1,p2);
-    av1 = avma; lim = stack_lim(av1,1);
+    av1 = avma;
     g = h = gen_1;
     for(;;)
     {
@@ -2780,7 +2780,7 @@ RgX_gcd(GEN x, GEN y)
           h = gdiv(gpowgs(g,degq), gpowgs(h,degq-1));
       }
       v = RgX_Rg_div(r,p1);
-      if (low_stack(lim, stack_lim(av1,1)))
+      if (gc_needed(av1,1))
       {
         if(DEBUGMEM>1) pari_warn(warnmem,"RgX_gcd");
         gerepileall(av1,4, &u,&v,&g,&h);
@@ -2906,7 +2906,7 @@ static long
 sturmpart_i(GEN x, GEN a, GEN b)
 {
   long sl, sr, s, t, r1;
-  pari_sp av = avma, lim = stack_lim(av, 1);
+  pari_sp av = avma;
   int integral;
   GEN g,h,u,v;
 
@@ -3004,7 +3004,7 @@ sturmpart_i(GEN x, GEN a, GEN b)
         h = gdivexact(gpowgs(g,degq), gpowgs(h,degq-1));
     }
     v = RgX_Rg_divexact(r,p1);
-    if (low_stack(lim,stack_lim(av,1)))
+    if (gc_needed(av,1))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"polsturm, dr = %ld",dr);
       gerepileall(av,4,&u,&v,&g,&h);

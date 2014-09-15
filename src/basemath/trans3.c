@@ -32,7 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 static GEN
 _jbessel(GEN n, GEN z, long flag, long m)
 {
-  pari_sp av, lim;
+  pari_sp av;
   GEN Z,s;
   long k;
 
@@ -47,11 +47,11 @@ _jbessel(GEN n, GEN z, long flag, long m)
     setlg(Z, k+2);
   }
   s = gen_1;
-  av = avma; lim = stack_lim(av,1);
+  av = avma;
   for (k=m; k>=1; k--)
   {
     s = gaddsg(1, gdiv(gmul(Z,s), gmulgs(gaddgs(n,k),k)));
-    if (low_stack(lim, stack_lim(av,1)))
+    if (gc_needed(av,1))
     {
       if (DEBUGMEM>1) pari_warn(warnmem,"besselj");
       s = gerepileupto(av, s);
@@ -361,7 +361,7 @@ static GEN
 _kbessel1(long n, GEN z, long flag, long m, long prec)
 {
   GEN Z, p1, p2, s, H;
-  pari_sp av, lim;
+  pari_sp av;
   long k;
 
   Z = gmul2n(gsqr(z),-2); if (flag & 1) Z = gneg(Z);
@@ -386,11 +386,11 @@ _kbessel1(long n, GEN z, long flag, long m, long prec)
     for (k=2; k<=m+n; k++) gel(H,k+1) = s = gdivgs(gaddsg(1,gmulsg(k,s)),k);
   }
   s = gadd(gel(H,m+1), gel(H,m+n+1));
-  av = avma; lim = stack_lim(av,1);
+  av = avma;
   for (k=m; k>0; k--)
   {
     s = gadd(gadd(gel(H,k),gel(H,k+n)),gdiv(gmul(Z,s),mulss(k,k+n)));
-    if (low_stack(lim,stack_lim(av,1)))
+    if (gc_needed(av,1))
     {
       if (DEBUGMEM>1) pari_warn(warnmem,"_kbessel1");
       s = gerepileupto(av, s);
@@ -684,7 +684,7 @@ incgam_cf(GEN s, GEN x, double mx, long prec)
 {
   GEN x_s, S, y;
   long n, i;
-  pari_sp av = avma, av2, avlim;
+  pari_sp av = avma, av2;
   double m;
 
   m = (prec2nbits_mul(prec,LOG2) + mx)/4;
@@ -694,12 +694,12 @@ incgam_cf(GEN s, GEN x, double mx, long prec)
   else
     y = gexp(gsub(gmul(gsubgs(s,1), glog(x, prec)), x), prec);
   x_s = gsub(x, s);
-  av2 = avma; avlim = stack_lim(av2,3);
+  av2 = avma;
   S = gdiv(gsubgs(s,n), gaddgs(x_s,n<<1));
   for (i=n-1; i >= 1; i--)
   {
     S = gdiv(gsubgs(s,i), gadd(gaddgs(x_s,i<<1),gmulsg(i,S)));
-    if (low_stack(avlim,stack_lim(av2,3)))
+    if (gc_needed(av2,3))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"incgam_cf");
       S = gerepileupto(av2, S);
@@ -714,7 +714,7 @@ incgamc(GEN s, GEN x, long prec)
 {
   GEN S, t, y;
   long l, n, i, ex;
-  pari_sp av = avma, av2, avlim;
+  pari_sp av = avma, av2;
 
   if (typ(x) != t_REAL) x = gtofp(x, prec);
   if (gequal0(x)) return gcopy(x);
@@ -729,14 +729,14 @@ incgamc(GEN s, GEN x, long prec)
     x = gtofp(x, p);
     if (isinexactreal(s)) s = gtofp(s, p);
   }
-  av2 = avma; avlim = stack_lim(av2,3);
+  av2 = avma;
   S = gdiv(x, gaddsg(1,s));
   t = gaddsg(1, S);
   for (i=2; gexpo(S) >= n; i++)
   {
     S = gdiv(gmul(x,S), gaddsg(i,s)); /* x^i / ((s+1)...(s+i)) */
     t = gadd(S,t);
-    if (low_stack(avlim,stack_lim(av2,3)))
+    if (gc_needed(av2,3))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"incgamc");
       gerepileall(av2, 2, &S, &t);
@@ -754,12 +754,12 @@ incgamc(GEN s, GEN x, long prec)
 static GEN
 incgam_asymp(GEN s, GEN x, long prec)
 {
-  pari_sp av = avma, av2, lim;
+  pari_sp av = avma, av2;
   GEN S, q, cox, invx;
   long oldeq = LONG_MAX, eq, esx, j;
   invx = ginv(x);
   esx = -prec2nbits(prec);
-  av2 = avma; lim = stack_lim(av2, 1);
+  av2 = avma;
   q = gmul(gsubgs(s, 1), invx);
   S = gaddgs(q, 1);
   for (j = 2;; j++)
@@ -772,7 +772,7 @@ incgam_asymp(GEN s, GEN x, long prec)
     }
     q = gmul(q, gmul(gsubgs(s, j), invx));
     S = gadd(S, q);
-    if (low_stack(lim, stack_lim(av2, 1))) gerepileall(av2, 2, &S, &q);
+    if (gc_needed(av2, 1)) gerepileall(av2, 2, &S, &q);
   }
   if (typ(s) == t_INT) /* exp(-x) x^(s-1) */
     cox = gmul(gexp(gneg(x), prec), powgi(x, subis(s, 1)));
@@ -1283,7 +1283,7 @@ GEN
 inv_szeta_euler(long n, double lba, long prec)
 {
   GEN z, res;
-  pari_sp av, av2, avlim;
+  pari_sp av, av2;
   double A, D;
   ulong p, lim;
   forprime_t S;
@@ -1295,7 +1295,7 @@ inv_szeta_euler(long n, double lba, long prec)
   lim = 1 + (ulong)ceil(D);
   if (lim < 3) return subir(gen_1,real2n(-n,prec));
   res = cgetr(prec); incrprec(prec);
-  av = avma; avlim = stack_lim(av, 1);
+  av = avma;
   z = subir(gen_1, real2n(-n, prec));
 
   (void)u_forprime_init(&S, 3, lim);
@@ -1309,7 +1309,7 @@ inv_szeta_euler(long n, double lba, long prec)
     else if (l > prec) l = prec;
     h = divrr(z, rpowuu(p, (ulong)n, l));
     z = subrr(z, h);
-    if (low_stack(avlim, stack_lim(av,1)))
+    if (gc_needed(av,1))
     {
       if (DEBUGMEM>1) pari_warn(warnmem,"inv_szeta_euler, p = %lu/%lu", p,lim);
       z = gerepileuptoleaf(av2, z);
@@ -1372,7 +1372,7 @@ static GEN
 szeta_odd(long k, long prec)
 {
   long kk, n, li = -(1+prec2nbits(prec));
-  pari_sp av = avma, av2, limit;
+  pari_sp av = avma, av2;
   GEN y, p1, qn, z, q, pi2 = Pi2n(1, prec), binom= real_1(prec+EXTRAPRECWORD);
 
   q = mpexp(pi2); kk = k+1; /* >= 4 */
@@ -1392,14 +1392,14 @@ szeta_odd(long k, long prec)
     }
     y = mulrr(divrr(powru(pi2,k),mpfactr(kk,prec)),y);
 
-    av2 = avma; limit = stack_lim(av2,1);
+    av2 = avma;
     z = invr( addrs(q,-1) );
     for (n=2;; n++)
     {
       p1 = invr( mulir(powuu(n,k),addrs(qn,-1)) );
       z = addrr(z,p1); if (expo(p1) < li) break;
       qn = mulrr(qn,q);
-      if (low_stack(limit,stack_lim(av2,1)))
+      if (gc_needed(av2,1))
       {
         if (DEBUGMEM>1) pari_warn(warnmem,"szeta, delta = %ld", expo(p1)-li);
         gerepileall(av2,2, &z,&qn);
@@ -1423,7 +1423,7 @@ szeta_odd(long k, long prec)
     y = mulrr(divrr(powru(pi2,k),mpfactr(kk,prec)),y);
     y = divru(y,k-1);
 
-    av2 = avma; limit = stack_lim(av2,1);
+    av2 = avma;
     p1 = sqrr(addrs(q,-1));
     z = divrr(addrs(mulrr(q,addsr(1,mulur(2,p2))),-1),p1);
     for (n=2;; n++)
@@ -1432,7 +1432,7 @@ szeta_odd(long k, long prec)
       p1 = divrr(addrs(mulrr(qn,addsr(1,mulur(n<<1,p2))),-1),p1);
       z = addrr(z,p1); if (expo(p1) < li) break;
       qn = mulrr(qn,q);
-      if (low_stack(limit,stack_lim(av2,1)))
+      if (gc_needed(av2,1))
       {
         if (DEBUGMEM>1) pari_warn(warnmem,"szeta, delta = %ld", expo(p1)-li);
         gerepileall(av2,2, &z,&qn);
@@ -1553,7 +1553,7 @@ czeta(GEN s0, long prec)
   GEN sim, *tab, tabn, funeq_factor = NULL;
   ulong p, sqn;
   long i, nn, lim, lim2, ct;
-  pari_sp av0 = avma, av, av2, avlim;
+  pari_sp av0 = avma, av, av2;
   pari_timer T;
   forprime_t S;
 
@@ -1638,7 +1638,7 @@ czeta(GEN s0, long prec)
     s1 = gsub(gmul2n(s,1), unr);
     s2 = gmul(s, gsub(s,unr));
     s3 = gmul2n(invn2,3);
-    av2 = avma; avlim = stack_lim(av2,3);
+    av2 = avma;
     s4 = gmul(invn2, gmul2n(gaddsg(4*lim-2,s1),1));
     s5 = gmul(invn2, gadd(s2, gmulsg(lim2, gaddgs(s1, lim2))));
     for (i = lim2-2; i>=2; i -= 2)
@@ -1646,7 +1646,7 @@ czeta(GEN s0, long prec)
       s5 = gsub(s5, s4);
       s4 = gsub(s4, s3);
       tes = gadd(bernreal(i,prec), divgunu(gmul(s5,tes), i+1));
-      if (low_stack(avlim,stack_lim(av2,3)))
+      if (gc_needed(av2,3))
       {
         if(DEBUGMEM>1) pari_warn(warnmem,"czeta");
         gerepileall(av2,3, &tes,&s5,&s4);
@@ -1680,7 +1680,7 @@ GEN
 twistpartialzeta(GEN q, long f, long c, GEN va, GEN cff)
 {
   long j, k, lva = lg(va)-1, N = lg(cff)-1;
-  pari_sp av, av2, lim;
+  pari_sp av, av2;
   GEN Ax, Cx, Bx, Dx, x = pol_x(0), y = pol_x(fetch_user_var("y"));
   GEN cyc, psm, rep, eta, etaf;
 
@@ -1694,7 +1694,7 @@ twistpartialzeta(GEN q, long f, long c, GEN va, GEN cff)
   Ax  = gerepileupto(av, RgX_to_FqX(Ax, cyc, q));
   Cx  = Ax;
   Bx  = gen_1;
-  av  = avma; lim = stack_lim(av, 1);
+  av  = avma;
   for (j = 2; j <= N; j++)
   {
     Bx = gadd(Bx, Cx);
@@ -1702,7 +1702,7 @@ twistpartialzeta(GEN q, long f, long c, GEN va, GEN cff)
     Cx = FpXQX_mul(Cx, Ax, cyc, q);
     Cx = pol_mod_xn(Cx, N);
     if (gequal0(Cx)) break;
-    if (low_stack(lim, stack_lim(av, 1)))
+    if (gc_needed(av, 1))
     {
       if(DEBUGMEM>1) pari_warn(warnmem, "twistpartialzeta (1), j = %ld/%ld", j, N);
       gerepileall(av, 2, &Cx, &Bx);
@@ -1712,7 +1712,7 @@ twistpartialzeta(GEN q, long f, long c, GEN va, GEN cff)
   Bx  = gerepileupto(av, RgX_to_FqX(Bx, cyc, q));
   Cx = lift(gmul(eta, gaddsg(1, x)));
   Dx = pol_1(varn(x));
-  av2 = avma; lim = stack_lim(av2, 1);
+  av2 = avma;
   for (j = lva; j > 1; j--)
   {
     GEN Ex;
@@ -1725,7 +1725,7 @@ twistpartialzeta(GEN q, long f, long c, GEN va, GEN cff)
          them or to compute them in a smart way) */
       Ex = gpowgs(Cx, e);
     Dx = gaddsg(1, FpXQX_mul(Dx, Ex, cyc, q));
-    if (low_stack(lim, stack_lim(av2, 1)))
+    if (gc_needed(av2, 1))
     {
       if(DEBUGMEM>1)
         pari_warn(warnmem, "twistpartialzeta (2), j = %ld/%ld", lva-j, lva);
@@ -1735,13 +1735,13 @@ twistpartialzeta(GEN q, long f, long c, GEN va, GEN cff)
   Dx = FpXQX_mul(Dx, Cx, cyc, q); /* va[1] = 1 */
   Bx = gerepileupto(av, FpXQX_mul(Dx, Bx, cyc, q));
   rep = gen_0;
-  av2 = avma; lim = stack_lim(av2, 1);
+  av2 = avma;
   for (k = 1; k <= N; k++)
   {
     GEN p2, ak = polcoeff_i(Bx, k, 0);
     p2  = quicktrace(ak, psm);
     rep = modii(addii(rep, mulii(gel(cff, k), p2)), q);
-    if (low_stack(lim, stack_lim(av2, 1)))
+    if (gc_needed(av2, 1))
     {
       if(DEBUGMEM>1) pari_warn(warnmem, "twistpartialzeta (3), j = %ld/%ld", k, N);
       rep = gerepileupto(av2, rep);
@@ -1801,14 +1801,14 @@ GEN
 coeff_of_phi_ms(ulong p, GEN q, long m, GEN s, long N, GEN vz)
 {
   GEN qs2 = shifti(q, -1), cff = zerovec(N);
-  pari_sp av, lim;
+  pari_sp av;
   long k, j;
 
-  av = avma; lim = stack_lim(av, 2);
+  av = avma;
   for (k = 1; k <= N; k++)
   {
     gel(cff, k) = phi_ms(p, q, m, s, k, vz);
-    if (low_stack(lim, stack_lim(av, 2)))
+    if (gc_needed(av, 2))
     {
       if(DEBUGMEM>1)
         pari_warn(warnmem, "coeff_of_phi_ms (1), k = %ld/%ld", N-k, N);
@@ -1819,7 +1819,7 @@ coeff_of_phi_ms(ulong p, GEN q, long m, GEN s, long N, GEN vz)
   {
     GEN b = subii(gel(cff, j), gel(cff, j-1));
     gel(cff, j) = centermodii(b, q, qs2);
-    if (low_stack(lim, stack_lim(av, 2)))
+    if (gc_needed(av, 2))
     {
       if(DEBUGMEM>1)
         pari_warn(warnmem, "coeff_of_phi_ms (2), j = %ld/%ld", N-j, N);
@@ -1831,7 +1831,7 @@ coeff_of_phi_ms(ulong p, GEN q, long m, GEN s, long N, GEN vz)
     {
       GEN b = subii(gel(cff, j), gel(cff, j-1));
       gel(cff, j) = centermodii(b, q, qs2);
-      if (low_stack(lim, stack_lim(av, 2)))
+      if (gc_needed(av, 2))
       {
         if(DEBUGMEM>1)
           pari_warn(warnmem, "coeff_of_phi_ms (3), (k,j) = (%ld,%ld)/%ld",
@@ -2077,7 +2077,7 @@ static GEN
 polylog(long m, GEN x, long prec)
 {
   long l, e, i, G, sx;
-  pari_sp av, av1, limpile;
+  pari_sp av, av1;
   GEN X, Xn, z, p1, p2, y, res;
 
   if (m < 0) pari_err_DOMAIN("polylog", "index", "<", gen_0, stoi(m));
@@ -2099,7 +2099,7 @@ polylog(long m, GEN x, long prec)
   }
   X = (e > 0)? ginv(x): x;
   G = -prec2nbits(l);
-  av1 = avma; limpile = stack_lim(av1,1);
+  av1 = avma;
   y = Xn = X;
   for (i=2; ; i++)
   {
@@ -2107,7 +2107,7 @@ polylog(long m, GEN x, long prec)
     y = gadd(y,p2);
     if (gexpo(p2) <= G) break;
 
-    if (low_stack(limpile, stack_lim(av1,1)))
+    if (gc_needed(av1,1))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"polylog");
       gerepileall(av1,2, &y, &Xn);
@@ -2450,7 +2450,7 @@ ser_addmulXn(GEN y, GEN x, long d)
 static GEN
 inteta_pol(GEN q, long v, long l)
 {
-  pari_sp av = avma, lim = stack_lim(av, 1);
+  pari_sp av = avma;
   GEN qn, ps, y;
   ulong vps, vqn, n;
 
@@ -2481,7 +2481,7 @@ inteta_pol(GEN q, long v, long l)
     ps = RgXn_red_shallow(ps, k2);
     y = addmulXn(ps, y, vps);
 
-    if (low_stack(lim, stack_lim(av,1)))
+    if (gc_needed(av,1))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"eta, n = %ld", n);
       gerepileall(av, 3, &y, &qn, &ps);
@@ -2513,7 +2513,7 @@ inteta(GEN q)
   {
     ulong vps, vqn;
     long l = lg(q), v, n;
-    pari_sp av, lim;
+    pari_sp av;
 
     v = valp(q); /* handle valuation separately to avoid overflow */
     if (v <= 0) pari_err_DOMAIN("eta", "v_p(q)", "<=",gen_0,q);
@@ -2521,7 +2521,7 @@ inteta(GEN q)
     n = degpol(y);
     if (n == 1 || n < (l>>2)) return inteta_pol(y, v, l);
 
-    q = leafcopy(q); av = avma; lim = stack_lim(av, 3);
+    q = leafcopy(q); av = avma;
     setvalp(q, 0);
     y = scalarser(gen_1, varn(q), l+v);
     vps = vqn = 0;
@@ -2541,7 +2541,7 @@ inteta(GEN q)
       setlg(q, k);
       setlg(qn, k);
       setlg(ps, k);
-      if (low_stack(lim, stack_lim(av,3)))
+      if (gc_needed(av,3))
       {
         if(DEBUGMEM>1) pari_warn(warnmem,"eta");
         gerepileall(av, 3, &y, &qn, &ps);
@@ -2550,7 +2550,7 @@ inteta(GEN q)
   }
   {
     long l; /* gcc -Wall */
-    pari_sp av = avma, lim = stack_lim(av, 3);
+    pari_sp av = avma;
 
     l = -prec2nbits(precision(q));
     for(;;)
@@ -2562,7 +2562,7 @@ inteta(GEN q)
       y = gadd(y,t); qn = gmul(qn,q); ps = gmul(t,qn);
       y = gadd(y,ps);
       if (gexpo(ps)-gexpo(y) < l) return y;
-      if (low_stack(lim, stack_lim(av,3)))
+      if (gc_needed(av,3))
       {
         if(DEBUGMEM>1) pari_warn(warnmem,"eta");
         gerepileall(av, 3, &y, &qn, &ps);
@@ -3065,7 +3065,7 @@ GEN
 theta(GEN q, GEN z, long prec)
 {
   long l, n;
-  pari_sp av = avma, av2, lim;
+  pari_sp av = avma, av2;
   GEN s, c, snz, cnz, s2z, c2z, ps, qn, y, zy, ps2, k, zold;
 
   l = precision(q);
@@ -3089,7 +3089,7 @@ theta(GEN q, GEN z, long prec)
   c2z = gsubgs(gmul2n(gsqr(c),1), 1); /* cos 2z */
   snz = s;
   cnz = c; y = s;
-  av2 = avma; lim = stack_lim(av2,2);
+  av2 = avma;
   for (n = 3;; n += 2)
   {
     long e;
@@ -3103,7 +3103,7 @@ theta(GEN q, GEN z, long prec)
     c = gsub(gmul(cnz, c2z), gmul(snz,s2z));
     snz = s; /* sin nz */
     cnz = c; /* cos nz */
-    if (low_stack(lim, stack_lim(av,2)))
+    if (gc_needed(av,2))
     {
       if (DEBUGMEM>1) pari_warn(warnmem,"theta (n = %ld)", n);
       gerepileall(av2, 5, &snz, &cnz, &ps, &qn, &y);
@@ -3154,7 +3154,7 @@ static GEN
 vecthetanullk_loop(GEN q2, long k, long prec)
 {
   GEN ps, qn = gen_1, y = const_vec(k, gen_1);
-  pari_sp av = avma, lim = stack_lim(av,2);
+  pari_sp av = avma;
   const long bit = prec2nbits(prec);
   long i, n;
 
@@ -3170,7 +3170,7 @@ vecthetanullk_loop(GEN q2, long k, long prec)
       P = mulii(P, N2);
     }
     if (gexpo(t) < -bit) return y;
-    if (low_stack(lim, stack_lim(av,2)))
+    if (gc_needed(av,2))
     {
       if (DEBUGMEM>1) pari_warn(warnmem,"vecthetanullk_loop, n = %ld",n);
       gerepileall(av, 3, &qn, &ps, &y);

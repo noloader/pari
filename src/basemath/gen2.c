@@ -1076,7 +1076,7 @@ long
 gvaluation(GEN x, GEN p)
 {
   long tx = typ(x), tp = typ(p);
-  pari_sp av, limit;
+  pari_sp av;
 
   switch(tp)
   {
@@ -1147,12 +1147,12 @@ gvaluation(GEN x, GEN p)
         {
           long val;
           if (RgX_is_monomial(p)) return RgX_val(x) / degpol(p);
-          av = avma; limit=stack_lim(av,1);
+          av = avma;
           for (val=0; ; val++)
           {
             x = RgX_divrem(x,p,ONLY_DIVIDES);
             if (!x) { avma = av; return val; }
-            if (low_stack(limit, stack_lim(av,1)))
+            if (gc_needed(av,1))
             {
               if(DEBUGMEM>1) pari_warn(warnmem,"gvaluation");
               x = gerepilecopy(av, x);

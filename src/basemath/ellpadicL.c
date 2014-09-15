@@ -74,7 +74,7 @@ logp(GEN C, GEN a, ulong p, GEN q)
 static GEN
 loopLpn(GEN E, ulong D, ulong p, long m, long R, GEN q)
 {
-  pari_sp av, lim;
+  pari_sp av;
   ulong a;
   GEN q1 = diviuexact(q,p);
   GEN Dq1= mului(D,q1), Dq = muliu(Dq1,p);
@@ -83,7 +83,7 @@ loopLpn(GEN E, ulong D, ulong p, long m, long R, GEN q)
   GEN C = R? initQplog(p, q, m): NULL;
   ulong A = itou(shifti(Dq,-1));
 
-  av = avma; lim = stack_lim(av,2);
+  av = avma;
   for (a = 1; a <= A; a++)
   {
     GEN logpR, x,x1;
@@ -102,7 +102,7 @@ loopLpn(GEN E, ulong D, ulong p, long m, long R, GEN q)
     }
     if (s < 0) { u = subii(u, x); u1= subii(u1,x1); }
     else       { u = addii(u, x); u1= addii(u1,x1); }
-    if (low_stack(lim, stack_lim(av,2)))
+    if (gc_needed(av,2))
     {
       if (DEBUGMEM>1) pari_warn(warnmem,"loopLp: a = %ld / %ld",a,A);
       gerepileall(av, 2, &u,&u1);

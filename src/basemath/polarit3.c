@@ -751,20 +751,19 @@ const struct bb_field *get_Fq_field(void **E, GEN T, GEN p)
 GEN
 FpX_translate(GEN P, GEN c, GEN p)
 {
-  pari_sp av = avma, lim;
+  pari_sp av = avma;
   GEN Q, *R;
   long i, k, n;
 
   if (!signe(P) || !signe(c)) return ZX_copy(P);
   Q = leafcopy(P);
   R = (GEN*)(Q+2); n = degpol(P);
-  lim = stack_lim(av, 2);
   for (i=1; i<=n; i++)
   {
     for (k=n-i; k<n; k++)
       R[k] = Fp_add(R[k], Fp_mul(c, R[k+1], p), p);
 
-    if (low_stack(lim, stack_lim(av,2)))
+    if (gc_needed(av,2))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"FpX_translate, i = %ld/%ld", i,n);
       Q = gerepilecopy(av, Q); R = (GEN*)Q+2;
@@ -776,7 +775,7 @@ FpX_translate(GEN P, GEN c, GEN p)
 GEN
 FqX_translate(GEN P, GEN c, GEN T, GEN p)
 {
-  pari_sp av = avma, lim;
+  pari_sp av = avma;
   GEN Q, *R;
   long i, k, n;
 
@@ -784,13 +783,12 @@ FqX_translate(GEN P, GEN c, GEN T, GEN p)
   if (!signe(P) || !signe(c)) return RgX_copy(P);
   Q = leafcopy(P);
   R = (GEN*)(Q+2); n = degpol(P);
-  lim = stack_lim(av, 2);
   for (i=1; i<=n; i++)
   {
     for (k=n-i; k<n; k++)
       R[k] = Fq_add(R[k], Fq_mul(c, R[k+1], T, p), T, p);
 
-    if (low_stack(lim, stack_lim(av,2)))
+    if (gc_needed(av,2))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"FqX_translate, i = %ld/%ld", i,n);
       Q = gerepilecopy(av, Q); R = (GEN*)Q+2;
@@ -1653,7 +1651,7 @@ static void
 Flx_resultant_set_dglist(GEN a, GEN b, GEN dglist, ulong p)
 {
   long da,db,dc, ind;
-  pari_sp av = avma, lim = stack_lim(av, 2);
+  pari_sp av = avma;
 
   if (lgpol(a)==0 || lgpol(b)==0) return;
   da = degpol(a);
@@ -1670,7 +1668,7 @@ Flx_resultant_set_dglist(GEN a, GEN b, GEN dglist, ulong p)
 
     ind++;
     if (dc > dglist[ind]) dglist[ind] = dc;
-    if (low_stack(lim,stack_lim(av,2)))
+    if (gc_needed(av,2))
     {
       if (DEBUGMEM>1) pari_warn(warnmem,"Flx_resultant_all");
       gerepileall(av, 2, &a,&b);
@@ -1689,7 +1687,7 @@ Flx_resultant_all(GEN a, GEN b, long *C0, long *C1, GEN dglist, ulong p)
   long da,db,dc, ind;
   ulong lb, res, g = 1UL, h = 1UL, ca = 1UL, cb = 1UL;
   int s = 1;
-  pari_sp av = avma, lim = stack_lim(av,2);
+  pari_sp av = avma;
 
   *C0 = 1; *C1 = 0;
   if (lgpol(a)==0 || lgpol(b)==0) return 0;
@@ -1735,7 +1733,7 @@ Flx_resultant_all(GEN a, GEN b, long *C0, long *C1, GEN dglist, ulong p)
     else
       h = Fl_mul(h, Fl_powu(Fl_div(g,h,p), delta, p), p);
 
-    if (low_stack(lim,stack_lim(av,2)))
+    if (gc_needed(av,2))
     {
       if (DEBUGMEM>1) pari_warn(warnmem,"Flx_resultant_all");
       gerepileall(av, 2, &a,&b);
@@ -1771,7 +1769,7 @@ polint_triv(GEN xa, GEN ya)
 {
   GEN P = NULL, Q = roots_to_pol(xa,0);
   long i, n = lg(xa);
-  pari_sp av = avma, lim = stack_lim(av, 2);
+  pari_sp av = avma;
   for (i=1; i<n; i++)
   {
     GEN T, dP, r;
@@ -1786,7 +1784,7 @@ polint_triv(GEN xa, GEN ya)
     else
       dP = gdiv(gmul(gel(ya,i), T), r);
     P = P? gadd(P, dP): dP;
-    if (low_stack(lim,stack_lim(av,2)))
+    if (gc_needed(av,2))
     {
       if (DEBUGMEM>1) pari_warn(warnmem,"polint_triv2 (i = %ld)",i);
       P = gerepileupto(av, P);
@@ -1800,8 +1798,7 @@ FpV_polint(GEN xa, GEN ya, GEN p, long v)
 {
   GEN inv,T,dP, P = NULL, Q = FpV_roots_to_pol(xa, p, v);
   long i, n = lg(xa);
-  pari_sp av, lim;
-  av = avma; lim = stack_lim(av,2);
+  pari_sp av = avma;
   for (i=1; i<n; i++)
   {
     if (!signe(gel(ya,i))) continue;
@@ -1816,7 +1813,7 @@ FpV_polint(GEN xa, GEN ya, GEN p, long v)
     else
       dP = FpX_Fp_mul(T, Fp_mul(gel(ya,i),inv,p), p);
     P = P? FpX_add(P, dP, p): dP;
-    if (low_stack(lim, stack_lim(av,2)))
+    if (gc_needed(av,2))
     {
       if (DEBUGMEM>1) pari_warn(warnmem,"FpV_polint");
       P = gerepileupto(av, P);
@@ -1984,13 +1981,13 @@ static GEN
 FlxX_pseudorem(GEN x, GEN y, ulong p)
 {
   long vx = varn(x), dx, dy, dz, i, lx, dp;
-  pari_sp av = avma, av2, lim;
+  pari_sp av = avma, av2;
 
   if (!signe(y)) pari_err_INV("FlxX_pseudorem",y);
   (void)new_chunk(2);
   dx=degpol(x); x = RgX_recip_shallow(x)+2;
   dy=degpol(y); y = RgX_recip_shallow(y)+2; dz=dx-dy; dp = dz+1;
-  av2 = avma; lim = stack_lim(av2,1);
+  av2 = avma;
   for (;;)
   {
     gel(x,0) = Flx_neg(gel(x,0), p); dp--;
@@ -2001,7 +1998,7 @@ FlxX_pseudorem(GEN x, GEN y, ulong p)
       gel(x,i) = Flx_mul(gel(y,0), gel(x,i), p);
     do { x++; dx--; } while (dx >= 0 && lg(gel(x,0))==2);
     if (dx < dy) break;
-    if (low_stack(lim,stack_lim(av2,1)))
+    if (gc_needed(av2,1))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"FlxX_pseudorem dx = %ld >= %ld",dx,dy);
       gerepilecoeffs(av2,x,dx+1);
@@ -2025,7 +2022,7 @@ FlxX_pseudorem(GEN x, GEN y, ulong p)
 GEN
 FlxX_resultant(GEN u, GEN v, ulong p, long sx)
 {
-  pari_sp av = avma, av2, lim;
+  pari_sp av = avma, av2;
   long degq,dx,dy,du,dv,dr,signh;
   GEN z,g,h,r,p1;
 
@@ -2038,7 +2035,7 @@ FlxX_resultant(GEN u, GEN v, ulong p, long sx)
   if (dy < 0) return zero_Flx(sx);
   if (dy==0) return gerepileupto(av, Flx_powu(gel(v,2),dx,p));
 
-  g = h = pol1_Flx(sx); av2 = avma; lim = stack_lim(av2,1);
+  g = h = pol1_Flx(sx); av2 = avma;
   for(;;)
   {
     r = FlxX_pseudorem(u,v,p); dr = lg(r);
@@ -2057,7 +2054,7 @@ FlxX_resultant(GEN u, GEN v, ulong p, long sx)
     if (both_odd(du,dv)) signh = -signh;
     v = FlxY_Flx_div(r, p1, p);
     if (dr==3) break;
-    if (low_stack(lim,stack_lim(av2,1)))
+    if (gc_needed(av2,1))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"resultant_all, dr = %ld",dr);
       gerepileall(av2,4, &u, &v, &g, &h);
@@ -2206,7 +2203,7 @@ ZX_ZXY_resultant_all(GEN A, GEN B0, long *plambda, GEN *LERS)
   int checksqfree = plambda? 1: 0, delvar = 0, stable;
   long lambda = plambda? *plambda: 0, cnt = 0;
   ulong bound, p, dp;
-  pari_sp av = avma, av2 = 0, lim;
+  pari_sp av = avma, av2 = 0;
   long i,n, lb, degA = degpol(A), dres = degA*degpol(B0);
   long vX = varn(B0), vY = varn(A); /* assume vX << vY */
   long sX = evalvarn(vX);
@@ -2232,7 +2229,6 @@ ZX_ZXY_resultant_all(GEN A, GEN B0, long *plambda, GEN *LERS)
   }
   L = pol_x(MAXVARN);
   B0 = Q_remove_denom(B0, &dB);
-  lim = stack_lim(av,2);
 
   /* make sure p large enough */
   u_forprime_init(&S, maxuu(dres << 1, 27499), ULONG_MAX);
@@ -2367,7 +2363,7 @@ INIT:
     if (DEBUGLEVEL>5 && (stable ||  ++cnt==100))
     { cnt=0; err_printf("%ld%%%s ",100*expi(q)/bound,stable?"s":""); }
     if (stable && (ulong)expi(q) >= bound) break; /* DONE */
-    if (low_stack(lim, stack_lim(av,2)))
+    if (gc_needed(av,2))
     {
       if (DEBUGMEM>1) pari_warn(warnmem,"ZX_ZXY_rnfequation");
       gerepileall(av2, LERS? 4: 2, &H, &q, &H0, &H1);
@@ -2452,7 +2448,7 @@ fp_resultant(GEN a, GEN b)
 {
   long da, db, dc;
   GEN res = gen_1;
-  pari_sp av, lim;
+  pari_sp av;
 
   if (lgpol(a)==0 || lgpol(b)==0) return gen_0;
   da = degpol(a);
@@ -2463,7 +2459,7 @@ fp_resultant(GEN a, GEN b)
     if (both_odd(da,db)) res = gneg(res);
   }
   else if (!da) return gen_1; /* = res * a[2] ^ db, since 0 <= db <= da = 0 */
-  av = avma; lim = stack_lim(av, 1);
+  av = avma;
   while (db)
   {
     GEN lb = gel(b,db+2), c = RgX_rem(a,b);
@@ -2473,7 +2469,7 @@ fp_resultant(GEN a, GEN b)
 
     if (both_odd(da,db)) res = gneg(res);
     res = gmul(res, gpowgs(lb, da - dc));
-    if (low_stack(lim, stack_lim(av,1))) {
+    if (gc_needed(av,1)) {
       if (DEBUGMEM>1) pari_warn(warnmem,"fp_resultant");
       gerepileall(av, 3, &a,&b,&res);
     }
@@ -2488,7 +2484,7 @@ GEN
 ZX_resultant_all(GEN A, GEN B, GEN dB, ulong bound)
 {
   ulong Hp, dp, p;
-  pari_sp av = avma, av2, lim;
+  pari_sp av = avma, av2;
   long degA, degB, cnt=0;
   int stable;
   GEN q, a, b, H;
@@ -2520,7 +2516,7 @@ ZX_resultant_all(GEN A, GEN B, GEN dB, ulong bound)
   }
   if (DEBUGLEVEL>4) err_printf("bound for resultant: 2^%ld\n",bound);
   init_modular(&S);
-  av2 = avma; lim = stack_lim(av,2);
+  av2 = avma;
 
   dp = 1; /* denominator mod p */
   while ((p = u_forprime_next(&S)))
@@ -2561,7 +2557,7 @@ ZX_resultant_all(GEN A, GEN B, GEN dB, ulong bound)
     if (DEBUGLEVEL>5 && (stable ||  cnt++==2000))
     { cnt=0; err_printf("%ld%%%s ",100*expi(q)/bound,stable?"s":""); }
     if (stable && (ulong)expi(q) >= bound) break; /* DONE */
-    if (low_stack(lim, stack_lim(av,2)))
+    if (gc_needed(av,2))
     {
       if (DEBUGMEM>1) pari_warn(warnmem,"ZX_resultant");
       gerepileall(av2, 2, &H,&q);
@@ -2661,7 +2657,7 @@ QXQ_inv(GEN A, GEN B)
 {
   GEN D, cU, q, U, V;
   ulong p;
-  pari_sp av2, av = avma, avlim = stack_lim(av, 1);
+  pari_sp av2, av = avma;
   forprime_t S;
 
   if (is_scalar_t(typ(A))) return scalarpol(ginv(A), varn(B));
@@ -2702,7 +2698,7 @@ QXQ_inv(GEN A, GEN B)
       if (DEBUGLEVEL) err_printf("QXQ_inv: char 0 check failed");
     }
     q = qp;
-    if (low_stack(avlim, stack_lim(av,1)))
+    if (gc_needed(av,1))
     {
       if (DEBUGMEM>1) pari_warn(warnmem,"QXQ_inv");
       gerepileall(av2, 3, &q,&U,&V);

@@ -283,7 +283,7 @@ catmany(GEN y1, GEN y2, long t)
 GEN
 shallowconcat1(GEN x)
 {
-  pari_sp av = avma, lim = stack_lim(av, 3);
+  pari_sp av = avma;
   long lx, t, i;
   GEN z;
   switch(typ(x))
@@ -310,7 +310,7 @@ shallowconcat1(GEN x)
   }
   for (; i<lx; i++) {
     z = shallowconcat(z, gel(x,i));
-    if (low_stack(lim, stack_lim(av,3)))
+    if (gc_needed(av,3))
     {
       if (DEBUGMEM>1) pari_warn(warnmem,"concat: i = %ld", i);
       z = gerepilecopy(av, z);

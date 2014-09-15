@@ -932,7 +932,7 @@ gen_FpM_Wiedemann(void *E, GEN (*f)(void*, GEN), GEN B, GEN p)
   if (ZV_equal0(B)) return zerocol(n);
   while (++col <= n)
   {
-    pari_sp btop = avma, av, lim;
+    pari_sp btop = avma, av;
     long i, lQ;
     GEN V, Q, M, W = B;
     GEN b = cgetg(m+2, t_POL);
@@ -940,12 +940,12 @@ gen_FpM_Wiedemann(void *E, GEN (*f)(void*, GEN), GEN B, GEN p)
     gel(b, 2) = gel(W, col);
     for (i = 3; i<m+2; i++)
       gel(b, i) = cgeti(lgefint(p));
-    av = avma; lim = stack_lim(av,1);
+    av = avma;
     for (i = 3; i<m+2; i++)
     {
       W = f(E, W);
       affii(gel(W, col),gel(b, i));
-      if (low_stack(lim, stack_lim(av,1)))
+      if (gc_needed(av,1))
       {
         if (DEBUGMEM>1) pari_warn(warnmem,"Wiedemann: first loop, %ld",i);
         W = gerepileupto(av, W);
@@ -958,12 +958,12 @@ gen_FpM_Wiedemann(void *E, GEN (*f)(void*, GEN), GEN B, GEN p)
     W = B; lQ =lg(Q);
     if (DEBUGLEVEL) err_printf("Wiedemann: deg. minpoly: %ld\n",lQ-3);
     V = FpC_Fp_mul(W, gel(Q, lQ-2), p);
-    av = avma; lim = stack_lim(av,1);
+    av = avma;
     for (i = lQ-3; i > 1; i--)
     {
       W = f(E, W);
       V = ZC_lincomb(gen_1, gel(Q,i), V, W);
-      if (low_stack(lim, stack_lim(av,1)))
+      if (gc_needed(av,1))
       {
         if (DEBUGMEM>1) pari_warn(warnmem,"Wiedemann: second loop, %ld",i);
         gerepileall(av, 2, &V, &W);
@@ -1058,7 +1058,7 @@ FpV_FpMs_mul(GEN B, GEN M, GEN p) { return FpV_red(ZV_zMs_mul(B, M), p); }
 GEN
 ZlM_gauss(GEN a, GEN b, ulong p, long e, GEN C)
 {
-  pari_sp av = avma, lim = stack_lim(av, 2), av2;
+  pari_sp av = avma, av2;
   GEN xi, xb, pi = gen_1, P;
   long i;
   if (!C) {
@@ -1073,7 +1073,7 @@ ZlM_gauss(GEN a, GEN b, ulong p, long e, GEN C)
   {
     pi = muliu(pi, p); /* = p^(i-1) */
     b = ZM_Z_divexact(ZM_sub(b, ZM_nm_mul(a, xi)), P);
-    if (low_stack(lim, stack_lim(av,2)))
+    if (gc_needed(av,2))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"ZlM_gauss. i=%ld",i);
       gerepileall(av2,3, &pi,&b,&xb);
@@ -1108,7 +1108,7 @@ GEN
 gen_ZpM_Dixon(void *E, GEN (*f)(void*, GEN), GEN B, GEN p, long e)
 {
   struct wrapper_modp_s W;
-  pari_sp av = avma, lim = stack_lim(av, 2);
+  pari_sp av = avma;
   GEN xb, xi, pi = gen_1;
   long i;
   W.E = E;
@@ -1121,7 +1121,7 @@ gen_ZpM_Dixon(void *E, GEN (*f)(void*, GEN), GEN B, GEN p, long e)
   {
     pi = mulii(pi, p); /* = p^(i-1) */
     B = ZC_Z_divexact(ZC_sub(B, f(E, xi)), p);
-    if (low_stack(lim, stack_lim(av,2)))
+    if (gc_needed(av,2))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"gen_ZpM_Dixon. i=%ld",i);
       gerepileall(av,3, &pi,&B,&xb);

@@ -633,7 +633,7 @@ static GEN
 ArtinNumber(GEN bnr, GEN LCHI, long check, long prec)
 {
   long ic, i, j, nz, nChar = lg(LCHI)-1;
-  pari_sp av = avma, av2, lim;
+  pari_sp av = avma, av2;
   GEN sqrtnc, dc, cond, condZ, cond0, cond1, lambda, nf, T;
   GEN cyc, vN, vB, diff, vt, idg, idh, zid, gen, z, nchi;
   GEN indW, W, classe, s0, s, den, muslambda, sarch;
@@ -724,7 +724,7 @@ ArtinNumber(GEN bnr, GEN LCHI, long check, long prec)
   vN = cgetg(nChar+1, t_VEC);
   for (ic = 1; ic <= nChar; ic++) gel(vN,ic) = zero_zv(nz);
 
-  av2 = avma; lim = stack_lim(av2, 1);
+  av2 = avma;
   vB = const_vec(nz, gen_1);
   s0 = powgi(z, modii(gel(vt,1), den)); /* for beta = 1 */
   s = const_vec(nChar, s0);
@@ -749,7 +749,7 @@ ArtinNumber(GEN bnr, GEN LCHI, long check, long prec)
       gel(s,ic) = gadd(gel(s,ic), gmul(val, s0));
     }
 
-    if (low_stack(lim, stack_lim(av2, 1)))
+    if (gc_needed(av2, 1))
     {
       if (DEBUGMEM > 1) pari_warn(warnmem,"ArtinNumber");
       gerepileall(av2, 2, &s, &vB);

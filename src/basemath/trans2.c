@@ -910,7 +910,7 @@ faulhaber(long e, long v)
 GEN
 sumformal(GEN T, long v)
 {
-  pari_sp av = avma, av2, lim;
+  pari_sp av = avma, av2;
   long i, t, d;
   GEN R;
 
@@ -920,7 +920,7 @@ sumformal(GEN T, long v)
     return gerepileupto(av, monomialcopy(T, 1, v < 0? 0: v));
   if (t != t_POL) pari_err_TYPE("sumformal [not a t_POL]", T);
   if (v < 0) v = varn(T);
-  av2 = avma; lim = stack_lim(av2,3);
+  av2 = avma;
   R = gen_0;
   d = poldegree(T,v);
   for (i = d; i >= 0; i--)
@@ -928,7 +928,7 @@ sumformal(GEN T, long v)
     GEN c = polcoeff0(T, i, v);
     if (gequal0(c)) continue;
     R = gadd(R, gmul(c, faulhaber(i, v)));
-    if (low_stack(lim,stack_lim(av2,3)))
+    if (gc_needed(av2,3))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"sumformal, i = %ld/%ld", i,d);
       R = gerepileupto(av2, R);
@@ -1008,7 +1008,7 @@ cxgamma(GEN s0, int dolog, long prec)
 {
   GEN s, u, a, y, res, tes, sig, tau, invn2, p1, nnx, pi, pi2, sqrtpi2;
   long i, lim, nn, esig, et;
-  pari_sp av, av2, avlim;
+  pari_sp av, av2;
   int funeq = 0;
   pari_timer T;
 
@@ -1113,7 +1113,7 @@ cxgamma(GEN s0, int dolog, long prec)
   }
   incrprec(prec);
 
-  av2 = avma; avlim = stack_lim(av2,3);
+  av2 = avma;
   y = s;
   if (typ(s0) == t_INT)
   {
@@ -1124,7 +1124,7 @@ cxgamma(GEN s0, int dolog, long prec)
       for (i=1; i < nn; i++)
       {
         y = mulri(y, addis(s0, i));
-        if (low_stack(avlim,stack_lim(av2,3)))
+        if (gc_needed(av2,3))
         {
           if(DEBUGMEM>1) pari_warn(warnmem,"gamma");
           y = gerepileuptoleaf(av2, y);
@@ -1135,7 +1135,7 @@ cxgamma(GEN s0, int dolog, long prec)
       for (i=1; i < nn; i++)
       {
         y = mulru(y, ss + i);
-        if (low_stack(avlim,stack_lim(av2,3)))
+        if (gc_needed(av2,3))
         {
           if(DEBUGMEM>1) pari_warn(warnmem,"gamma");
           y = gerepileuptoleaf(av2, y);
@@ -1149,7 +1149,7 @@ cxgamma(GEN s0, int dolog, long prec)
     for (i=1; i < nn; i++)
     {
       y = gmul(y, gaddgs(s,i));
-      if (low_stack(avlim,stack_lim(av2,3)))
+      if (gc_needed(av2,3))
       {
         if(DEBUGMEM>1) pari_warn(warnmem,"gamma");
         y = gerepileupto(av2, y);
@@ -1163,7 +1163,7 @@ cxgamma(GEN s0, int dolog, long prec)
     for (i=1; i < nn; i++)
     {
       y = gadd(y, glog(gaddgs(s,i), prec));
-      if (low_stack(avlim,stack_lim(av2,3)))
+      if (gc_needed(av2,3))
       {
         if(DEBUGMEM>1) pari_warn(warnmem,"gamma");
         y = gerepileupto(av2, y);
@@ -1174,7 +1174,7 @@ cxgamma(GEN s0, int dolog, long prec)
 
   nnx = gaddgs(s, nn);
   a = ginv(nnx); invn2 = gsqr(a);
-  av2 = avma; avlim = stack_lim(av2,3);
+  av2 = avma;
   mpbern(lim,prec);
   tes = divrunu(bernreal(2*lim,prec), 2*lim-1); /* B2l / (2l-1) 2l*/
   if (DEBUGLEVEL>5) timer_printf(&T,"Bernoullis");
@@ -1182,7 +1182,7 @@ cxgamma(GEN s0, int dolog, long prec)
   {
     u = divrunu(bernreal(i,prec), i-1); /* Bi / i(i-1) */
     tes = gadd(u, gmul(invn2,tes));
-    if (low_stack(avlim,stack_lim(av2,3)))
+    if (gc_needed(av2,3))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"gamma");
       tes = gerepileupto(av2, tes);
@@ -1636,7 +1636,7 @@ tr(GEN T, GEN z0, long L)
 static GEN
 serpsiz0(GEN z0, long L, long v, long prec)
 {
-  pari_sp av, lim;
+  pari_sp av;
   GEN A,A1,A2, B,B1,B2, Q;
   long n;
 
@@ -1646,7 +1646,7 @@ serpsiz0(GEN z0, long L, long v, long prec)
   z0 = gtofp(z0, prec + EXTRAPRECWORD);
   /* Start from n = 3; in Luke's notation, A2 := A_{n-2}, A1 := A_{n-1},
    * A := A_n. Same for B */
-  av = avma; lim = stack_lim(av,1);
+  av = avma;
   A2= gdivgs(mkpoln(2, gen_1, utoipos(6)), 2);
   B2 = scalarpol_shallow(utoipos(4), 0);
   A1= gdivgs(mkpoln(3, gen_1, utoipos(82), utoipos(96)), 6);
@@ -1684,7 +1684,7 @@ serpsiz0(GEN z0, long L, long v, long prec)
     if (gexpo(gsub(Q,Q0)) < -bit_accuracy(prec)) break;
     A2 = A1; A1 = A; A = a;
     B2 = B1; B1 = B; B = b;
-    if (low_stack(lim,stack_lim(av,1)))
+    if (gc_needed(av,1))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"serpsiz0, n = %ld", n);
       gerepileall(av, 7, &A,&A1,&A2, &B,&B1,&B2, &Q);

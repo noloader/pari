@@ -534,7 +534,7 @@ check_y(GEN *pS, GEN P, GEN poly, GEN Y, GEN rhs)
 static GEN
 SmallSols(GEN S, GEN x3, GEN poly, GEN rhs)
 {
-  pari_sp av = avma, lim = stack_lim(av, 1);
+  pari_sp av = avma;
   GEN X, P, rhs2;
   long j, l = lg(poly), n = degpol(poly);
   ulong y, By;
@@ -572,7 +572,7 @@ SmallSols(GEN S, GEN x3, GEN poly, GEN rhs)
     check_y_root(&S, P, utoineg(y));
     if (lS == lg(S)) { avma = av2; continue; } /* no solution found */
 
-    if (low_stack(lim,stack_lim(av,1)))
+    if (gc_needed(av,1))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"SmallSols");
       gerepileall(av, 2, &S, &rhs2);

@@ -1589,7 +1589,7 @@ parvector(long n, GEN code)
 GEN
 parsum(GEN a, GEN b, GEN code, GEN x)
 {
-  pari_sp av = avma, av2, lim;
+  pari_sp av = avma, av2;
   long pending = 0;
   GEN worker = snm_closure(is_entry("_parvector_worker"), mkvec(code));
   GEN done;
@@ -1601,7 +1601,7 @@ parsum(GEN a, GEN b, GEN code, GEN x)
   mt_queue_start(&pt, worker);
   b = gfloor(b);
   a = mkvec(setloop(a));
-  av2=avma; lim = stack_lim(av2,1);
+  av2=avma;
   for (; cmpii(gel(a,1),b) <= 0 || pending; gel(a,1) = incloop(gel(a,1)))
   {
     mt_queue_submit(&pt, 0, cmpii(gel(a,1),b) <= 0? a: NULL);
@@ -1609,7 +1609,7 @@ parsum(GEN a, GEN b, GEN code, GEN x)
     if (done)
     {
       x = gadd(x, done);
-      if (low_stack(lim, stack_lim(av2,1)))
+      if (gc_needed(av2,1))
       {
         if (DEBUGMEM>1) pari_warn(warnmem,"sum");
         x = gerepileupto(av2,x);

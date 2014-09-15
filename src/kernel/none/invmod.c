@@ -32,7 +32,7 @@ invmod(GEN a, GEN b, GEN *res)
 #endif
 {
   GEN v,v1,d,d1,q,r;
-  pari_sp av, av1, lim;
+  pari_sp av, av1;
   long s;
   ulong g;
   ulong xu,xu1,xv,xv1; /* Lehmer stage recurrence matrix */
@@ -69,7 +69,7 @@ invmod(GEN a, GEN b, GEN *res)
   err_printf("INVERT: -------------------------\n");
   output(d1);
 #endif
-  av1 = avma; lim = stack_lim(av,1);
+  av1 = avma;
 
   while (lgefint(d) > 3 && signe(d1))
   {
@@ -124,7 +124,7 @@ invmod(GEN a, GEN b, GEN *res)
       v=v1; v1=a;
       d=d1; d1=r;
     }
-    if (low_stack(lim, stack_lim(av,1)))
+    if (gc_needed(av,1))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"invmod");
       gerepileall(av1, 4, &d,&d1,&v,&v1);

@@ -660,26 +660,26 @@ F2x_deriv(GEN z)
 GEN
 F2x_gcd(GEN a, GEN b)
 {
-  pari_sp av = avma, lim = stack_lim(av,2);
+  pari_sp av = avma;
   if (lg(b) > lg(a)) swap(a, b);
   while (lgpol(b))
   {
     GEN c = F2x_rem(a,b);
     a = b; b = c;
-    if (low_stack(lim,stack_lim(av,2)))
+    if (gc_needed(av,2))
     {
       if (DEBUGMEM>1) pari_warn(warnmem,"F2x_gcd (d = %ld)",F2x_degree(c));
       gerepileall(av,2, &a,&b);
     }
   }
-  if (low_stack(lim,stack_lim(av,2))) a = gerepileuptoleaf(av, a);
+  if (gc_needed(av,2)) a = gerepileuptoleaf(av, a);
   return a;
 }
 
 GEN
 F2x_extgcd(GEN a, GEN b, GEN *ptu, GEN *ptv)
 {
-  pari_sp av=avma, lim = stack_lim(av,2);
+  pari_sp av=avma;
   GEN u,v,d,d1,v1;
   long vx = a[1];
   d = a; d1 = b;
@@ -690,7 +690,7 @@ F2x_extgcd(GEN a, GEN b, GEN *ptu, GEN *ptv)
     v = F2x_add(v,F2x_mul(q,v1));
     u=v; v=v1; v1=u;
     u=r; d=d1; d1=u;
-    if (low_stack(lim,stack_lim(av,2)))
+    if (gc_needed(av,2))
     {
       if (DEBUGMEM>1) pari_warn(warnmem,"F2x_extgcd (d = %ld)",F2x_degree(d));
       gerepileall(av,5, &d,&d1,&u,&v,&v1);
@@ -698,14 +698,14 @@ F2x_extgcd(GEN a, GEN b, GEN *ptu, GEN *ptv)
   }
   if (ptu) *ptu = F2x_div(F2x_add(d, F2x_mul(b,v)), a);
   *ptv = v;
-  if (low_stack(lim,stack_lim(av,2))) gerepileall(av,ptu?3:2,&d,ptv,ptu);
+  if (gc_needed(av,2)) gerepileall(av,ptu?3:2,&d,ptv,ptu);
   return d;
 }
 
 static GEN
 F2x_halfgcd_i(GEN a, GEN b)
 {
-  pari_sp av=avma, lim = stack_lim(av,2);
+  pari_sp av=avma;
   GEN u,u1,v,v1;
   long vx = a[1];
   long n = (F2x_degree(a)+1)>>1;
@@ -717,7 +717,7 @@ F2x_halfgcd_i(GEN a, GEN b)
     a = b; b = r; swap(u,u1); swap(v,v1);
     u1 = F2x_add(u1, F2x_mul(u, q));
     v1 = F2x_add(v1, F2x_mul(v, q));
-    if (low_stack(lim,stack_lim(av,2)))
+    if (gc_needed(av,2))
     {
       if (DEBUGMEM>1) pari_warn(warnmem,"F2x_halfgcd (d = %ld)",F2x_degree(b));
       gerepileall(av,6, &a,&b,&u1,&v1,&u,&v);
@@ -1074,7 +1074,7 @@ F2xq_log_Coppersmith_d(GEN W, GEN g, long r, long n, GEN T, GEN mo)
 static GEN
 F2xq_log_find_rel(GEN b, long r, GEN T, GEN *g, ulong *e)
 {
-  pari_sp av = avma, lim = stack_lim(av,2);
+  pari_sp av = avma;
   while (1)
   {
     GEN M;
@@ -1093,7 +1093,7 @@ F2xq_log_find_rel(GEN b, long r, GEN T, GEN *g, ulong *e)
         return rel;
       }
     }
-    if (low_stack(lim, stack_lim(av,2)))
+    if (gc_needed(av,2))
     {
       if (DEBUGMEM>1) pari_warn(warnmem,"F2xq_log_find_rel");
       *g = gerepileuptoleaf(av, *g);

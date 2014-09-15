@@ -246,11 +246,11 @@ _powpolmod(Cache *C, GEN jac, Red *R, GEN (*_sqr)(GEN, Red *))
   const long efin = lg(taba)-1, lv = R->lv;
   GEN L, res = jac, pol2 = _sqr(res, R);
   long f;
-  pari_sp av0 = avma, av, lim;
+  pari_sp av0 = avma, av;
 
   L = cgetg(lv+1, t_VEC); gel(L,1) = res;
   for (f=2; f<=lv; f++) gel(L,f) = _mul(gel(L,f-1), pol2, R);
-  av = avma; lim = stack_lim(av, 1);
+  av = avma;
   for (f = efin; f >= 1; f--)
   {
     GEN t = gel(L, taba[f]);
@@ -258,7 +258,7 @@ _powpolmod(Cache *C, GEN jac, Red *R, GEN (*_sqr)(GEN, Red *))
     res = (f==efin)? t: _mul(t, res, R);
     while (tf--) {
       res = _sqr(res, R);
-      if (low_stack(lim, stack_lim(av,1))) {
+      if (gc_needed(av,1)) {
         res = gerepilecopy(av, res);
         if(DEBUGMEM>1) pari_warn(warnmem,"powpolmod: f = %ld",f);
       }

@@ -91,18 +91,18 @@ Fl_MR_Jaeschke_ok(Fl_MR_Jaeschke_t *S, ulong c)
 static int
 bad_for_base(MR_Jaeschke_t *S, GEN a)
 {
-  long r, lim, av = avma;
+  pari_sp av = avma;
+  long r;
   GEN c2, c = Fp_pow(a, S->t1, S->n);
 
   if (is_pm1(c) || equalii(S->t, c)) return 0;
 
-  lim = stack_lim(av,1);
   /* go fishing for -1, not for 1 (saves one squaring) */
   for (r = S->r1 - 1; r; r--) /* r1 - 1 squarings */
   {
     c2 = c; c = remii(sqri(c), S->n);
     if (equalii(S->t, c)) return MR_Jaeschke_ok(S, c2);
-    if (low_stack(lim, stack_lim(av,1)))
+    if (gc_needed(av,1))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"Rabin-Miller");
       c = gerepileuptoint(av, c);
@@ -257,7 +257,7 @@ MR_Jaeschke(GEN n, long k)
 static GEN
 LucasMod(GEN n, ulong P, GEN N)
 {
-  pari_sp av = avma, lim = stack_lim(av, 1);
+  pari_sp av = avma;
   GEN nd = int_MSW(n);
   long i, m = *nd, j = 1+bfffo((ulong)m);
   GEN v = utoipos(P), v1 = utoipos(P*P - 2);
@@ -279,7 +279,7 @@ LucasMod(GEN n, ulong P, GEN N)
       }
       v = modii(v, N);
       v1= modii(v1,N);
-      if (low_stack(lim,stack_lim(av,1)))
+      if (gc_needed(av,1))
       {
         if(DEBUGMEM>1) pari_warn(warnmem,"LucasMod");
         gerepileall(av, 2, &v,&v1);
@@ -348,7 +348,7 @@ uislucaspsp(ulong n)
 static int
 IsLucasPsP(GEN N)
 {
-  pari_sp av = avma, lim = stack_lim(av, 1);
+  pari_sp av = avma;
   GEN N_2, m, z;
   long i, v;
   ulong b;
@@ -369,7 +369,7 @@ IsLucasPsP(GEN N)
     if (!signe(z)) return 1;
     z = modii(subis(sqri(z), 2), N);
     if (equaliu(z, 2)) return 0;
-    if (low_stack(lim,stack_lim(av,1)))
+    if (gc_needed(av,1))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"IsLucasPsP");
       z = gerepileupto(av, z);

@@ -100,7 +100,6 @@ static long
 Babai(pari_sp av, long kappa, GEN *pG, GEN *pB, GEN *pU, GEN mu, GEN r, GEN s,
       long a, long zeros, long maxG, long n, GEN eta, GEN halfplus1, long prec)
 {
-  const pari_sp lim = stack_lim(av,2);
   GEN B = *pB, G = *pG, U = *pU, tmp, rtmp, ztmp;
   long k, aa = (a > zeros)? a : zeros+1;
   GEN maxmu = gen_0, max2mu = gen_0;
@@ -112,7 +111,7 @@ Babai(pari_sp av, long kappa, GEN *pG, GEN *pB, GEN *pU, GEN mu, GEN r, GEN s,
     GEN max3mu;
     long i, j;
 
-    if (low_stack(lim, stack_lim(av,2)))
+    if (gc_needed(av,2))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"Babai[1], a=%ld", aa);
       gerepileall(av,U?5:4,&B,&G,&maxmu,&max2mu,&U);
@@ -157,7 +156,7 @@ Babai(pari_sp av, long kappa, GEN *pG, GEN *pB, GEN *pU, GEN mu, GEN r, GEN s,
       tmp = gmael(mu,kappa,j);
       if (absr_cmp(tmp, eta) <= 0) continue; /* (essentially) size-reduced */
 
-      if (low_stack(lim, stack_lim(av,2)))
+      if (gc_needed(av,2))
       {
         if(DEBUGMEM>1) pari_warn(warnmem,"Babai[2], a=%ld, j=%ld", aa,j);
         gerepileall(av,U?5:4,&B,&G,&maxmu,&max2mu,&U);
@@ -634,7 +633,7 @@ static GEN
 lllgramallgen(GEN x, long flag)
 {
   long lx = lg(x), i, j, k, l, n;
-  pari_sp av, lim;
+  pari_sp av;
   GEN B, L, h, fl;
   int flc;
 
@@ -643,7 +642,7 @@ lllgramallgen(GEN x, long flag)
 
   fl = cgetg(lx, t_VECSMALL);
 
-  av = avma; lim = stack_lim(av,1);
+  av = avma;
   B = scalarcol_shallow(gen_1, lx);
   L = cgetg(lx,t_MAT);
   for (j=1; j<lx; j++) { gel(L,j) = zerocol(n); fl[j] = 0; }
@@ -662,7 +661,7 @@ lllgramallgen(GEN x, long flag)
         if (REDgen(k, l, h, L, gel(B,l+1))) flc = 1;
       if (++k > n) break;
     }
-    if (low_stack(lim, stack_lim(av,1)))
+    if (gc_needed(av,1))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"lllgramallgen");
       gerepileall(av,3,&B,&L,&h);

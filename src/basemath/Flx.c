@@ -1538,7 +1538,7 @@ Flx_splitting(GEN p, long k)
 static GEN
 Flx_halfgcd_basecase(GEN a, GEN b, ulong p)
 {
-  pari_sp av=avma, lim = stack_lim(av,2);
+  pari_sp av=avma;
   GEN u,u1,v,v1;
   long vx = a[1];
   long n = lgpol(a)>>1;
@@ -1550,7 +1550,7 @@ Flx_halfgcd_basecase(GEN a, GEN b, ulong p)
     a = b; b = r; swap(u,u1); swap(v,v1);
     u1 = Flx_sub(u1, Flx_mul(u, q, p), p);
     v1 = Flx_sub(v1, Flx_mul(v, q ,p), p);
-    if (low_stack(lim,stack_lim(av,2)))
+    if (gc_needed(av,2))
     {
       if (DEBUGMEM>1) pari_warn(warnmem,"Flx_halfgcd (d = %ld)",degpol(b));
       gerepileall(av,6, &a,&b,&u1,&v1,&u,&v);
@@ -1673,14 +1673,14 @@ Flx_halfgcd(GEN x, GEN y, ulong p)
 static GEN
 Flx_gcd_basecase(GEN a, GEN b, ulong p)
 {
-  pari_sp av = avma, lim = stack_lim(av,2);
+  pari_sp av = avma;
   ulong iter = 0;
   if (lg(b) > lg(a)) swap(a, b);
   while (lgpol(b))
   {
     GEN c = Flx_rem(a,b,p);
     iter++; a = b; b = c;
-    if (low_stack(lim,stack_lim(av,2)))
+    if (gc_needed(av,2))
     {
       if (DEBUGMEM>1) pari_warn(warnmem,"Flx_gcd (d = %ld)",degpol(c));
       gerepileall(av,2, &a,&b);
@@ -1692,7 +1692,7 @@ Flx_gcd_basecase(GEN a, GEN b, ulong p)
 GEN
 Flx_gcd(GEN x, GEN y, ulong p)
 {
-  pari_sp av = avma, lim = stack_lim(av,2);
+  pari_sp av = avma;
   if (!lgpol(x)) return Flx_copy(y);
   while (lg(y)>Flx_GCD_LIMIT)
   {
@@ -1704,7 +1704,7 @@ Flx_gcd(GEN x, GEN y, ulong p)
     }
     c = FlxM_Flx_mul2(Flx_halfgcd(x,y, p), x, y, p);
     x = gel(c,1); y = gel(c,2);
-    if (low_stack(lim,stack_lim(av,2)))
+    if (gc_needed(av,2))
     {
       if (DEBUGMEM>1) pari_warn(warnmem,"Flx_gcd (y = %ld)",degpol(y));
       gerepileall(av,2,&x,&y);
@@ -1765,7 +1765,7 @@ Flx_is_smooth(GEN g, long r, ulong p)
 static GEN
 Flx_extgcd_basecase(GEN a, GEN b, ulong p, GEN *ptu, GEN *ptv)
 {
-  pari_sp av=avma, lim = stack_lim(av,2);
+  pari_sp av=avma;
   GEN u,v,d,d1,v1;
   long vx = a[1];
   d = a; d1 = b;
@@ -1776,7 +1776,7 @@ Flx_extgcd_basecase(GEN a, GEN b, ulong p, GEN *ptu, GEN *ptv)
     v = Flx_sub(v,Flx_mul(q,v1,p),p);
     u=v; v=v1; v1=u;
     u=r; d=d1; d1=u;
-    if (low_stack(lim,stack_lim(av,2)))
+    if (gc_needed(av,2))
     {
       if (DEBUGMEM>1) pari_warn(warnmem,"Flx_extgcd (d = %ld)",degpol(d));
       gerepileall(av,5, &d,&d1,&u,&v,&v1);
@@ -3734,11 +3734,11 @@ FlxqX_gcd(GEN x, GEN y, GEN T, ulong p)
 GEN
 FlxqX_safegcd(GEN P, GEN Q, GEN T, ulong p)
 {
-  pari_sp btop, ltop = avma, st_lim;
+  pari_sp btop, ltop = avma;
   GEN U;
   if (!signe(P)) return gcopy(Q);
   if (!signe(Q)) return gcopy(P);
-  btop = avma; st_lim = stack_lim(btop, 1);
+  btop = avma;
   for(;;)
   {
     U = Flxq_invsafe(leading_term(Q), T, p);
@@ -3746,7 +3746,7 @@ FlxqX_safegcd(GEN P, GEN Q, GEN T, ulong p)
     Q = FlxqX_Flxq_mul_to_monic(Q,U,T,p);
     P = FlxqX_rem(P,Q,T,p);
     if (!signe(P)) break;
-    if (low_stack(st_lim, stack_lim(btop, 1)))
+    if (gc_needed(btop, 1))
     {
       if (DEBUGMEM>1) pari_warn(warnmem,"FlxqX_safegcd");
       gerepileall(btop, 2, &P,&Q);

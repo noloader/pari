@@ -96,7 +96,7 @@ hnffinal(GEN matgen,GEN perm,GEN* ptdep,GEN* ptB,GEN* ptC)
 {
   GEN p1,p2,U,H,Hnew,Bnew,Cnew,diagH1;
   GEN B = *ptB, C = *ptC, dep = *ptdep, depnew;
-  pari_sp av, lim;
+  pari_sp av;
   long i,j,k,s,i1,j1,zc;
   long co = lg(C);
   long col = lg(matgen)-1;
@@ -116,7 +116,7 @@ hnffinal(GEN matgen,GEN perm,GEN* ptdep,GEN* ptB,GEN* ptC)
 
   diagH1 = new_chunk(lnz+1); /* diagH1[i] = 0 iff H[i,i] != 1 (set later) */
 
-  av = avma; lim = stack_lim(av,3);
+  av = avma;
   Cnew = cgetg(co, typ(C));
   setlg(C, col+1); p1 = gmul(C,U);
   for (j=1; j<=col; j++) gel(Cnew,j) = gel(p1,j);
@@ -138,7 +138,7 @@ hnffinal(GEN matgen,GEN perm,GEN* ptdep,GEN* ptB,GEN* ptC)
       for (   ; k<=lig;  k++) gel(z,k) = subii(gel(z,k), mulii(p1, gel(Hi,k-nlze)));
       gel(Cnew,j) = gsub(gel(Cnew,j), gmul(p1, gel(Cnew,i+zc)));
     }
-    if (low_stack(lim, stack_lim(av,3)))
+    if (gc_needed(av,3))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"hnffinal, i = %ld",i);
       gerepileall(av, 2, &Cnew, &B);
@@ -233,7 +233,7 @@ col_dup(long l, GEN col)
 GEN
 hnfspec_i(GEN mat0, GEN perm, GEN* ptdep, GEN* ptB, GEN* ptC, long k0)
 {
-  pari_sp av, lim;
+  pari_sp av;
   long co, n, s, nlze, lnz, nr, i, j, k, lk0, col, lig, *p;
   GEN mat;
   GEN p1, p2, matb, matbnew, vmax, matt, T, extramat, B, C, H, dep, permpro;
@@ -262,7 +262,7 @@ hnfspec_i(GEN mat0, GEN perm, GEN* ptdep, GEN* ptB, GEN* ptC, long k0)
     p1 = cgetg(k0+1,t_COL); gel(matt,j) = p1; gel(mat,j) = matj;
     for (i=1; i<=k0; i++) gel(p1,i) = stoi(matj[perm[i]]);
   }
-  av = avma; lim = stack_lim(av,3);
+  av = avma;
 
   i = lig = li-1; col = co-1; lk0 = k0;
   T = (k0 || (lg(C) > 1 && lgcols(C) > 1))? matid(col): NULL;
@@ -328,7 +328,7 @@ hnfspec_i(GEN mat0, GEN perm, GEN* ptdep, GEN* ptB, GEN* ptC, long k0)
       if (T) ZC_lincomb1_inplace(gel(T,j), gel(T,col), stoi(-t));
     }
     lig--; col--;
-    if (low_stack(lim, stack_lim(av,3)))
+    if (gc_needed(av,3))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"hnfspec[1]");
       if (T) T = gerepilecopy(av, T); else avma = av;
@@ -371,7 +371,7 @@ hnfspec_i(GEN mat0, GEN perm, GEN* ptdep, GEN* ptB, GEN* ptC, long k0)
       if (T) ZC_lincomb1_inplace(gel(T,j), gel(T,col), stoi(-t));
     }
     lig--; col--;
-    if (low_stack(lim, stack_lim(av,3)))
+    if (gc_needed(av,3))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"hnfspec[2]");
       gerepileall(av, T? 2: 1, &vmax, &T);
@@ -414,7 +414,7 @@ END2: /* clean up mat: remove everything to the right of the 1s on diagonal */
         for (h=1; h<i0; h++) gel(Bj,h) = subii(gel(Bj,h), mulii(v,gel(Bk,h)));
       }
       if (T) ZC_lincomb1_inplace(gel(T,j), gel(T,k), negi(v));
-      if (low_stack(lim, stack_lim(av,3)))
+      if (gc_needed(av,3))
       {
         if(DEBUGMEM>1) pari_warn(warnmem,"hnfspec[3], (i,j) = %ld,%ld", i,j);
         for (h=1; h<co; h++) setlg(matb[h], i0+1); /* bottom can be forgotten */
@@ -922,12 +922,12 @@ remove_0cols(long r, GEN *pA, GEN *pB, long remove)
 static GEN
 hnf_i(GEN A, int remove)
 {
-  pari_sp av0 = avma, av, lim;
+  pari_sp av0 = avma, av;
   long s, n, m, j, k, li, def, ldef;
 
   RgM_dimensions(A, &m, &n);
   if (!n) return cgetg(1,t_MAT);
-  av = avma; lim = stack_lim(av,1);
+  av = avma;
   A = RgM_shallowcopy(A);
   def = n; ldef = (m>n)? m-n: 0;
   for (li=m; li>ldef; li--)
@@ -940,7 +940,7 @@ hnf_i(GEN A, int remove)
       /* zero a = Aij  using  b = Aik */
       k = (j==1)? def: j-1;
       ZC_elem(a,gcoeff(A,li,k), A,NULL, j,k);
-      if (low_stack(lim, stack_lim(av,1)))
+      if (gc_needed(av,1))
       {
         if (DEBUGMEM>1) pari_warn(warnmem,"ZM_hnf[1]. li=%ld",li);
         A = gerepilecopy(av, A);
@@ -955,7 +955,7 @@ hnf_i(GEN A, int remove)
     }
     else
       if (ldef) ldef--;
-    if (low_stack(lim, stack_lim(av,1)))
+    if (gc_needed(av,1))
     {
       if (DEBUGMEM>1) pari_warn(warnmem,"ZM_hnf[2]. li=%ld",li);
       A = gerepilecopy(av, A);
@@ -1000,12 +1000,12 @@ FpV_red_part_ipvec(GEN z, GEN p, long k)
 GEN
 ZpM_echelon(GEN x, long early_abort, GEN p, GEN pm)
 {
-  pari_sp av0 = avma, av, lim;
+  pari_sp av0 = avma, av;
   long m, li, co, i, j, k, def, ldef;
 
   co = lg(x); if (co == 1) return cgetg(1,t_MAT);
   li = lgcols(x);
-  av = avma; lim = stack_lim(av,1);
+  av = avma;
   x = RgM_shallowcopy(x);
   m = Z_pval(pm, p);
 
@@ -1048,7 +1048,7 @@ ZpM_echelon(GEN x, long early_abort, GEN p, GEN pm)
 
       t = diviiexact(a, pvmin); togglesign(t);
       ZC_lincomb1_inplace(gel(x,j), gel(x,def), t);
-      if (low_stack(lim, stack_lim(av,1)))
+      if (gc_needed(av,1))
       {
         if (DEBUGMEM>1) pari_warn(warnmem,"ZpM_echelon. i=%ld",i);
         x = gerepilecopy(av, x); pvmin = gcoeff(x,i,def);
@@ -1133,7 +1133,7 @@ zlm_echelon(GEN x, long early_abort, ulong p, ulong pm)
 GEN
 ZM_hnfmodall_i(GEN x, GEN dm, long flag)
 {
-  pari_sp av, lim;
+  pari_sp av;
   const long center = (flag & hnf_CENTER);
   long moddiag = (flag & hnf_MODID);
   long li, co, i, j, k, def, ldef;
@@ -1161,7 +1161,7 @@ ZM_hnfmodall_i(GEN x, GEN dm, long flag)
       LDM[i] = lgefint(gel(dm,i));
     }
   }
-  av = avma; lim = stack_lim(av,1);
+  av = avma;
   x = RgM_shallowcopy(x);
 
   ldef = 0;
@@ -1194,7 +1194,7 @@ ZM_hnfmodall_i(GEN x, GEN dm, long flag)
         if (lgefint(gel(p2,k)) > LDM[k])
           gel(p2,k) = centermodii(gel(p2,k), gel(dm,k),gel(dm2,k));
       }
-      if (low_stack(lim, stack_lim(av,1)))
+      if (gc_needed(av,1))
       {
         if (DEBUGMEM>1) pari_warn(warnmem,"ZM_hnfmod[1]. i=%ld",i);
         x = gerepilecopy(av, x);
@@ -1236,7 +1236,7 @@ ZM_hnfmodall_i(GEN x, GEN dm, long flag)
         ZC_elem(a, gcoeff(x,j,j), x, NULL, li,j);
         FpV_red_part_ipvec(gel(x,li), dm, j-1);
         FpV_red_part_ipvec(gel(x,j),  dm, j-1);
-        if (low_stack(lim, stack_lim(av,1)))
+        if (gc_needed(av,1))
         {
           if (DEBUGMEM>1) pari_warn(warnmem,"ZM_hnfmod[2]. i=%ld", i);
           x = gerepilecopy(av, x);
@@ -1279,7 +1279,7 @@ ZM_hnfmodall_i(GEN x, GEN dm, long flag)
       p1 = gel(x,j);
       for (k=1; k<i; k++)
         if (lgefint(gel(p1,k)) > LDM[k]) gel(p1,k) = remii(gel(p1,k), gel(dm,i));
-      if (low_stack(lim, stack_lim(av,1)))
+      if (gc_needed(av,1))
       {
         if (DEBUGMEM>1) pari_warn(warnmem,"ZM_hnfmod[3]. i=%ld", i);
         gerepileall(av, 2, &x, &dm); diag = gcoeff(x,i,i);
@@ -1331,7 +1331,7 @@ GEN
 ZM_hnfcenter(GEN M)
 {
   long i, j, k, N = lg(M)-1;
-  pari_sp av = avma, lim = stack_lim(av,1);
+  pari_sp av = avma;
 
   for (j=N-1; j>0; j--) /* skip last line */
   {
@@ -1350,7 +1350,7 @@ ZM_hnfcenter(GEN M)
       }
       else
         for (i = 1; i <= j; i++) gel(Mk,i) = subii(gel(Mk,i), mulii(q,gel(Mj,i)));
-      if (low_stack(lim, stack_lim(av,1)))
+      if (gc_needed(av,1))
       {
         if (DEBUGMEM) pari_warn(warnmem,"ZM_hnfcenter, j = %ld",j);
         M = gerepilecopy(av, M);
@@ -1485,7 +1485,7 @@ reverse_rows(GEN A)
 GEN
 ZM_hnflll(GEN A, GEN *ptB, int remove)
 {
-  pari_sp av = avma, lim = stack_lim(av,3);
+  pari_sp av = avma;
 #ifdef HNFLLL_QUALITY
   const long m1 = 1, n1 = 1; /* alpha = m1/n1. Maybe 3/4 here ? */
 #endif
@@ -1530,7 +1530,7 @@ ZM_hnflll(GEN A, GEN *ptB, int remove)
       {
         long row0, row1;
         reduce2(A,B,k,i,&row0,&row1,lambda,D);
-        if (low_stack(lim, stack_lim(av,3)))
+        if (gc_needed(av,3))
         {
           GEN b = D-1;
           if (DEBUGMEM) pari_warn(warnmem,"hnflll (reducing), kmax = %ld",kmax);
@@ -1540,7 +1540,7 @@ ZM_hnflll(GEN A, GEN *ptB, int remove)
       }
       if (++k > kmax) kmax = k;
     }
-    if (low_stack(lim, stack_lim(av,3)))
+    if (gc_needed(av,3))
     {
       GEN b = D-1;
       if (DEBUGMEM) pari_warn(warnmem,"hnflll, kmax = %ld / %ld",kmax,n-1);
@@ -1674,7 +1674,7 @@ GEN
 ZM_hnfperm(GEN A, GEN *ptU, GEN *ptperm)
 {
   GEN U, c, l, perm, d, p, q, b;
-  pari_sp av = avma, av1, lim;
+  pari_sp av = avma, av1;
   long r, t, i, j, j1, k, m, n;
 
   n = lg(A)-1;
@@ -1688,7 +1688,7 @@ ZM_hnfperm(GEN A, GEN *ptU, GEN *ptperm)
   c = zero_zv(m);
   l = zero_zv(n);
   perm = cgetg(m+1, t_VECSMALL);
-  av1 = avma; lim = stack_lim(av1,1);
+  av1 = avma;
   A = RgM_shallowcopy(A);
   U = ptU? matid(n): NULL;
   /* U base change matrix : A0*U = A all along */
@@ -1747,7 +1747,7 @@ ZM_hnfperm(GEN A, GEN *ptU, GEN *ptperm)
         if (U) ZC_lincomb1_inplace(gel(U,j), gel(U,k), q);
       }
     }
-    if (low_stack(lim, stack_lim(av1,1)))
+    if (gc_needed(av1,1))
     {
       if (DEBUGMEM>1) pari_warn(warnmem,"hnfperm");
       gerepileall(av1, U? 2: 1, &A, &U);
@@ -1803,7 +1803,7 @@ hnfperm(GEN A)
 GEN
 ZM_hnfall(GEN A, GEN *ptB, long remove)
 {
-  pari_sp av = avma, av1, lim;
+  pari_sp av = avma, av1;
   long m, n, r, i, j, k, li;
   GEN B, c, h, a;
 
@@ -1815,7 +1815,7 @@ ZM_hnfall(GEN A, GEN *ptB, long remove)
   }
   c = zero_zv(m);
   h = const_vecsmall(n, m);
-  av1 = avma; lim = stack_lim(av1,1);
+  av1 = avma;
   A = RgM_shallowcopy(A);
   B = ptB? matid(n): NULL;
   r = n+1;
@@ -1830,7 +1830,7 @@ ZM_hnfall(GEN A, GEN *ptB, long remove)
         /* zero a = Aij  using  Aik */
         if (signe(a)) ZC_elem(a,gcoeff(A,i,k), A,B,j,k);
         ZM_reduce(A,B, i,k); /* ensure reduced entries */
-        if (low_stack(lim, stack_lim(av1,1)))
+        if (gc_needed(av1,1))
         {
           if (DEBUGMEM>1) pari_warn(warnmem,"hnfall[1], li = %ld", li);
           gerepileall(av1, B? 2: 1, &A, &B);
@@ -1853,7 +1853,7 @@ ZM_hnfall(GEN A, GEN *ptB, long remove)
       if (B) ZV_togglesign(gel(B,r));
     }
     ZM_reduce(A,B, li,r);
-    if (low_stack(lim, stack_lim(av1,1)))
+    if (gc_needed(av1,1))
     {
       if (DEBUGMEM>1) pari_warn(warnmem,"hnfall[2], li = %ld", li);
       gerepileall(av1, B? 2: 1, &A, &B);
@@ -1869,7 +1869,7 @@ ZM_hnfall(GEN A, GEN *ptB, long remove)
       k = c[i];
       if (signe(a)) ZC_elem(a,gcoeff(A,i,k), A,B, j,k);
       ZM_reduce(A,B, i,k); /* ensure reduced entries, even if a = 0 */
-      if (low_stack(lim, stack_lim(av1,1)))
+      if (gc_needed(av1,1))
       {
         if (DEBUGMEM>1) pari_warn(warnmem,"hnfall[3], j = %ld", j);
         gerepileall(av1, B? 2: 1, &A, &B);
@@ -2086,7 +2086,7 @@ ZM_snf_no_divide(GEN x, long i)
 GEN
 ZM_snfall_i(GEN x, GEN *ptU, GEN *ptV, int return_vec)
 {
-  pari_sp av0 = avma, av, lim = stack_lim(av0,1);
+  pari_sp av0 = avma, av;
   long i, j, k, m0, m, n0, n;
   GEN p1, u, v, U, V, V0, mdet, ys, perm = NULL;
 
@@ -2187,7 +2187,7 @@ ZM_snfall_i(GEN x, GEN *ptU, GEN *ptV, int return_vec)
         b = gcoeff(x,i,j); if (!signe(b)) continue;
         a = gcoeff(x,i,i);
         ZC_elem(b, a, x,V, j,i);
-        if (low_stack(lim, stack_lim(av,1)))
+        if (gc_needed(av,1))
         {
           if (DEBUGMEM>1) pari_warn(warnmem,"[1]: ZM_snfall i = %ld", i);
           snf_pile(av, &x,&U,&V);
@@ -2210,7 +2210,7 @@ ZM_snfall_i(GEN x, GEN *ptU, GEN *ptV, int return_vec)
         gcoeff(x,j,i) = gen_0;
         gcoeff(x,i,i) = d;
         if (U) update(u,v,a,b,(GEN*)(U+i),(GEN*)(U+j));
-        if (low_stack(lim, stack_lim(av,1)))
+        if (gc_needed(av,1))
         {
           if (DEBUGMEM>1) pari_warn(warnmem,"[2]: ZM_snfall, i = %ld", i);
           snf_pile(av, &x,&U,&V);
@@ -2227,7 +2227,7 @@ ZM_snfall_i(GEN x, GEN *ptU, GEN *ptV, int return_vec)
           gcoeff(x,i,j) = addii(gcoeff(x,i,j),gcoeff(x,k,j));
         if (U) gel(U,i) = gadd(gel(U,i),gel(U,k));
       }
-      if (low_stack(lim, stack_lim(av,1)))
+      if (gc_needed(av,1))
       {
         if (DEBUGMEM>1) pari_warn(warnmem,"[3]: ZM_snfall");
         snf_pile(av, &x,&U,&V);
@@ -2405,7 +2405,7 @@ gsnf_no_divide(GEN x, long i, long vx)
 GEN
 RgM_hnfall(GEN A, GEN *pB, long remove)
 {
-  pari_sp av, lim;
+  pari_sp av;
   long li, j, k, m, n, def, ldef;
   GEN B;
   long vx = gvar(A);
@@ -2417,7 +2417,7 @@ RgM_hnfall(GEN A, GEN *pB, long remove)
     return ZM_hnfall(A, pB, remove);
   }
   m = nbrows(A);
-  av = avma; lim = stack_lim(av,1);
+  av = avma;
   A = RgM_shallowcopy(A);
   B = pB? matid(n): NULL;
   def = n; ldef = (m>n)? m-n: 0;
@@ -2443,7 +2443,7 @@ RgM_hnfall(GEN A, GEN *pB, long remove)
       RgM_reduce(A, B, li, def, vx);
       def--;
     }
-    if (low_stack(lim, stack_lim(av,1)))
+    if (gc_needed(av,1))
     {
       if (DEBUGMEM>1) pari_warn(warnmem,"ghnfall");
       gerepileall(av, B? 2: 1, &A, &B);
@@ -2459,7 +2459,7 @@ RgM_hnfall(GEN A, GEN *pB, long remove)
 static GEN
 gsmithall_i(GEN x,long all)
 {
-  pari_sp av, lim;
+  pari_sp av;
   long i, j, k, n;
   GEN z, u, v, U, V;
   long vx = gvar(x);
@@ -2468,7 +2468,7 @@ gsmithall_i(GEN x,long all)
   n = lg(x)-1;
   if (!n) return trivsmith(all);
   if (lgcols(x) != n+1) pari_err_DIM("gsmithall");
-  av = avma; lim = stack_lim(av,1);
+  av = avma;
   x = RgM_shallowcopy(x);
   if (all) { U = matid(n); V = matid(n); }
   for (i=n; i>=2; i--)
@@ -2517,7 +2517,7 @@ gsmithall_i(GEN x,long all)
           gcoeff(x,i,j) = gadd(gcoeff(x,i,j),gcoeff(x,k,j));
         if (all) gel(U,i) = gadd(gel(U,i),gel(U,k));
       }
-      if (low_stack(lim, stack_lim(av,1)))
+      if (gc_needed(av,1))
       {
         if (DEBUGMEM>1) pari_warn(warnmem,"gsmithall");
         gerepileall(av, all? 3: 1, &x, &U, &V);

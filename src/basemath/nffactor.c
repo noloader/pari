@@ -153,7 +153,7 @@ FpX_ratlift(GEN P, GEN mod, GEN amax, GEN bmax, GEN denom)
 GEN
 nfgcd_all(GEN P, GEN Q, GEN T, GEN den, GEN *Pnew)
 {
-  pari_sp btop, st_lim, ltop = avma;
+  pari_sp btop, ltop = avma;
   GEN lP, lQ, M, dsol, R, bo, sol, mod = NULL;
   long vP = varn(P), vT = varn(T), dT = degpol(T), dM = 0, dR;
   forprime_t S;
@@ -168,7 +168,7 @@ nfgcd_all(GEN P, GEN Q, GEN T, GEN den, GEN *Pnew)
     den = mulii(den, gcdii(ZX_resultant(lP, T), ZX_resultant(lQ, T)));
 
   init_modular(&S);
-  btop = avma; st_lim = stack_lim(btop, 1);
+  btop = avma;
   for(;;)
   {
     ulong p = u_forprime_next(&S);
@@ -187,7 +187,7 @@ nfgcd_all(GEN P, GEN Q, GEN T, GEN den, GEN *Pnew)
     R = FlxX_to_Flm(R, dT);
     /* previous primes divided Res(P/gcd, Q/gcd)? Discard them. */
     if (!mod || dR < dM) { M = ZM_init_CRT(R, p); mod = utoipos(p); dM = dR; continue; }
-    if (low_stack(st_lim, stack_lim(btop, 1)))
+    if (gc_needed(btop, 1))
     {
       if (DEBUGMEM>1) pari_warn(warnmem,"nfgcd");
       gerepileall(btop, 2, &M, &mod);
@@ -1336,7 +1336,7 @@ nf_LLL_cmbf(nfcmbf_t *T, long rec)
   long i, C, tmax, n0;
   GEN lP, Bnorm, Tra, T2, TT, CM_L, m, list, ZERO, Btra;
   double Bhigh;
-  pari_sp av, av2, lim;
+  pari_sp av, av2;
   long ti_LLL = 0, ti_CF = 0;
   pari_timer ti2, TI;
 
@@ -1353,7 +1353,7 @@ nf_LLL_cmbf(nfcmbf_t *T, long rec)
   Bnorm = dbltor( n0 * C * C + Bhigh );
   ZERO = zeromat(n0, dnf);
 
-  av = avma; lim = stack_lim(av, 1);
+  av = avma;
   TT = cgetg(n0+1, t_VEC);
   Tra  = cgetg(n0+1, t_MAT);
   for (i=1; i<=n0; i++) TT[i] = 0;
@@ -1466,7 +1466,7 @@ AGAIN:
       if (list) break;
     }
     CM_L = gerepilecopy(av2, CM_L);
-    if (low_stack(lim, stack_lim(av,1)))
+    if (gc_needed(av,1))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"nf_LLL_cmbf");
       gerepileall(av, L->Tpk? 9: 8,

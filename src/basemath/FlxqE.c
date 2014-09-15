@@ -1039,7 +1039,7 @@ closest_lift(GEN a, GEN b, GEN h)
 static GEN
 FlxqE_find_order(GEN f, GEN h, GEN bound, GEN B, GEN a4, GEN T, ulong p)
 {
-  pari_sp av = avma, av1, lim;
+  pari_sp av = avma, av1;
   pari_timer Ti;
   long s = itos( gceil(gsqrt(gdiv(bound,B),DEFAULTPREC)) ) >> 1;
   GEN tx, ti;
@@ -1062,13 +1062,13 @@ FlxqE_find_order(GEN f, GEN h, GEN bound, GEN B, GEN a4, GEN T, ulong p)
   }
   tx = cgetg(s+1,t_VECSMALL);
   /* Baby Step/Giant Step */
-  av1 = avma; lim = stack_lim(av1,3);
+  av1 = avma;
   for (i=1; i<=s; i++)
   { /* baby steps */
     tx[i] = hash_GEN(gel(P, 1));
     P = FlxqE_add(P, F, a4, T, p); /* h.f + i.F */
     if (ell_is_inf(P)) return gerepileupto(av, addii(h, mului(i,B)));
-    if (low_stack(lim, stack_lim(av1,3)))
+    if (gc_needed(av1,3))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"[ellap3] baby steps, i=%ld",i);
       P = gerepileupto(av1,P);
@@ -1081,7 +1081,7 @@ FlxqE_find_order(GEN f, GEN h, GEN bound, GEN B, GEN a4, GEN T, ulong p)
   ti = vecsmall_indexsort(tx); /* = permutation sorting tx */
   tx = perm_mul(tx,ti);
   if (DEBUGLEVEL) timer_printf(&Ti, "[ellap3] sorting");
-  av1 = avma; lim = stack_lim(av1,3);
+  av1 = avma;
   for (P=fg, i=1; ; i++)
   {
     long k = hash_GEN(gel(P,1));
@@ -1102,7 +1102,7 @@ FlxqE_find_order(GEN f, GEN h, GEN bound, GEN B, GEN a4, GEN T, ulong p)
       }
     }
     P = FlxqE_add(P,fg,a4,T,p);
-    if (low_stack(lim, stack_lim(av1,3)))
+    if (gc_needed(av1,3))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"[ellap3] giants steps, i=%ld",i);
       P = gerepileupto(av1,P);

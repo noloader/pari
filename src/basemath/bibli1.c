@@ -374,7 +374,7 @@ lllintpartialall(GEN m, long flag)
    /* For each pair of column vectors v and w in mid * tm2,
     * try to replace (v, w) by (v, v - q*w) for some q.
     * We compute all inner products and check them repeatedly. */
-    const pari_sp av3 = avma, lim = stack_lim(av3,2);
+    const pari_sp av3 = avma;
     long i, j, npass = 0, e = LONG_MAX;
     GEN dot = cgetg(ncol+1, t_MAT); /* scalar products */
 
@@ -412,7 +412,7 @@ lllintpartialall(GEN m, long flag)
                                     mulii(q, gcoeff(dot,k2,k1)));
           for (d = 1; d <= ncol; d++) gcoeff(dot,k1,d) = gcoeff(dot,d,k1);
         } /* for ijdif */
-        if (low_stack(lim, stack_lim(av3,2)))
+        if (gc_needed(av3,2))
         {
           if(DEBUGMEM>1) pari_warn(warnmem,"lllintpartialall");
           gerepileall(av3, 2, &dot,&tm2);
@@ -1102,7 +1102,7 @@ minim0_dolll(GEN a, GEN BORNE, GEN STOCKMAX, long flag, long dolll)
 {
   GEN x, u, r, L, gnorme, invp, V;
   long n = lg(a), i, j, k, s, maxrank, sBORNE;
-  pari_sp av = avma, av1, lim;
+  pari_sp av = avma, av1;
   double p,maxnorm,BOUND,*v,*y,*z,**q;
   const double eps = 1e-10;
   int stockall = 0;
@@ -1194,7 +1194,7 @@ minim0_dolll(GEN a, GEN BORNE, GEN STOCKMAX, long flag, long dolll)
       V = cgetg(1+maxrank, t_VECSMALL);
   }
 
-  s = 0; av1 = avma; lim = stack_lim(av1,1);
+  s = 0; av1 = avma;
   k = n; y[n] = z[n] = 0;
   x[n] = (long)sqrt(BOUND/v[n]);
   for(;;x[1]--)
@@ -1290,7 +1290,7 @@ minim0_dolll(GEN a, GEN BORNE, GEN STOCKMAX, long flag, long dolll)
           s--; avma=av2; continue;
         }
         if (DEBUGLEVEL>1) { err_printf("*"); err_flush(); }
-        if (low_stack(lim, stack_lim(av1,1)))
+        if (gc_needed(av1,1))
         {
           if(DEBUGMEM>1) pari_warn(warnmem,"minim0, rank>=%ld",s);
           invp = gerepilecopy(av1, invp);
@@ -1492,7 +1492,7 @@ static GEN
 smallvectors(GEN q, GEN BORNE, long maxnum, FP_chk_fun *CHECK)
 {
   long N = lg(q), n = N-1, i, j, k, s, stockmax, checkcnt = 1;
-  pari_sp av, av1, lim;
+  pari_sp av, av1;
   GEN inc, S, x, y, z, v, p1, alpha, norms;
   GEN norme1, normax1, borne1, borne2;
   GEN (*check)(void *,GEN) = CHECK? CHECK->f: NULL;
@@ -1506,7 +1506,7 @@ smallvectors(GEN q, GEN BORNE, long maxnum, FP_chk_fun *CHECK)
   v = cgetg(N,t_VEC);
   inc = const_vecsmall(n, 1);
 
-  av = avma; lim = stack_lim(av,2);
+  av = avma;
   stockmax = stockall? 2000: maxnum;
   norms = cgetg(check?(stockmax+1): 1,t_VEC); /* unused if (!check) */
   S = cgetg(stockmax+1,t_VEC);
@@ -1580,7 +1580,7 @@ smallvectors(GEN q, GEN BORNE, long maxnum, FP_chk_fun *CHECK)
         if (++k > n) goto END;
       }
 
-      if (low_stack(lim, stack_lim(av,2)))
+      if (gc_needed(av,2))
       {
         if(DEBUGMEM>1) pari_warn(warnmem,"smallvectors");
         if (stockmax) S = clonefill(S, s, stockmax);

@@ -65,13 +65,13 @@ FpXXQ_mul(GEN x, GEN y, GEN T, GEN p)
 static GEN
 ZpXXQ_invsqrt(GEN S, GEN T, ulong p, long e)
 {
-  pari_sp av = avma, av2, lim;
+  pari_sp av = avma, av2;
   ulong mask;
   long v = varn(S), n=1;
   GEN a = pol_1(v);
   if (e <= 1) return gerepilecopy(av, a);
   mask = quadratic_prec_mask(e);
-  av2 = avma; lim = stack_lim(av2, 1);
+  av2 = avma;
   for (;mask>1;)
   {
     GEN q, q2, q22, f, fq, afq;
@@ -84,7 +84,7 @@ ZpXXQ_invsqrt(GEN S, GEN T, ulong p, long e)
     q22 = shifti(addis(q2,1),-1);
     afq = FpXX_Fp_mul(FpXXQ_mul(a, fq, T, q2), q22, q2);
     a = RgX_sub(a, ZXX_Z_mul(afq, q2));
-    if (low_stack(lim, stack_lim(av2,1)))
+    if (gc_needed(av2,1))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"ZpXXQ_invsqrt, e = %ld", n);
       a = gerepileupto(av2, a);
@@ -125,12 +125,12 @@ frac_to_Fp(GEN a, GEN b, GEN p)
 static GEN
 ZpXXQ_frob(GEN S, GEN U, GEN V, GEN T, ulong p, long e)
 {
-  pari_sp av = avma, av2, lim;
+  pari_sp av = avma, av2;
   long i, pr = degpol(S), dT = degpol(T);
   GEN q = powuu(p,e);
   GEN Tp = FpX_deriv(T, q), Tp1 = RgX_shift_shallow(Tp, 1);
   GEN M = gel(S,pr+2), R;
-  av2 = avma; lim = stack_lim(av2, 1);
+  av2 = avma;
   for(i = pr-1; i>=0; i--)
   {
     GEN A, B, H, Bc;
@@ -141,7 +141,7 @@ ZpXXQ_frob(GEN S, GEN U, GEN V, GEN T, ulong p, long e)
     Bc = FpX_deriv(B, q);
     Bc = FpX_Fp_mul(ZX_Z_divexact(Bc,powuu(p,v)),Fp_div(gen_2, utoi(r), q), q);
     M = FpX_add(gel(S,i+2), FpX_add(A, Bc, q), q);
-    if (low_stack(lim, stack_lim(av2,1)))
+    if (gc_needed(av2,1))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"ZpXXQ_frob, step 1, i = %ld", i);
       M = gerepileupto(av2, M);
@@ -150,7 +150,7 @@ ZpXXQ_frob(GEN S, GEN U, GEN V, GEN T, ulong p, long e)
   if (degpol(M)<dT-1)
     return gerepileupto(av, M);
   R = RgX_shift_shallow(M,dT-degpol(M)-2);
-  av2 = avma; lim = stack_lim(av2, 1);
+  av2 = avma;
   for(i = degpol(M)-dT+2; i>=1; i--)
   {
     GEN B, c;
@@ -160,7 +160,7 @@ ZpXXQ_frob(GEN S, GEN U, GEN V, GEN T, ulong p, long e)
     B = FpX_add(FpX_mulu(T, 2*i, q), Tp1, q);
     c = frac_to_Fp(leading_term(R), leading_term(B), q);
     R = FpX_sub(R, FpX_Fp_mul(B, c, q), q);
-    if (low_stack(lim, stack_lim(av2,1)))
+    if (gc_needed(av2,1))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"ZpXXQ_frob, step 2, i = %ld", i);
       R = gerepileupto(av2, R);
@@ -338,7 +338,7 @@ FpXXX_Fp_mul(GEN z, GEN a, GEN p)
 static GEN
 ZpXQXXQ_invsqrt(GEN F, GEN S, GEN T, ulong p, long e)
 {
-  pari_sp av = avma, av2, lim;
+  pari_sp av = avma, av2;
   ulong mask;
   long v = varn(F), n=1;
   pari_timer ti;
@@ -346,7 +346,7 @@ ZpXQXXQ_invsqrt(GEN F, GEN S, GEN T, ulong p, long e)
   if (DEBUGLEVEL>1) timer_start(&ti);
   if (e <= 1) return gerepilecopy(av, a);
   mask = quadratic_prec_mask(e);
-  av2 = avma; lim = stack_lim(av2, 1);
+  av2 = avma;
   for (;mask>1;)
   {
     GEN q, q2, q22, f, fq, afq;
@@ -359,7 +359,7 @@ ZpXQXXQ_invsqrt(GEN F, GEN S, GEN T, ulong p, long e)
     q22 = shifti(addis(q2,1),-1);
     afq = FpXXX_Fp_mul(FpXQXXQ_mul(a, fq, S, T, q2), q22, q2);
     a = RgX_sub(a, RgX_Rg_mul(afq, q2));
-    if (low_stack(lim, stack_lim(av2,1)))
+    if (gc_needed(av2,1))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"ZpXQXXQ_invsqrt, e = %ld", n);
       a = gerepileupto(av2, a);
@@ -378,12 +378,12 @@ frac_to_Fq(GEN a, GEN b, GEN T, GEN p)
 static GEN
 ZpXQXXQ_frob(GEN F, GEN U, GEN V, GEN S, GEN T, ulong p, long e)
 {
-  pari_sp av = avma, av2, lim;
+  pari_sp av = avma, av2;
   long i, pr = degpol(F), dS = degpol(S), v = varn(T);
   GEN q = powuu(p,e);
   GEN Sp = RgX_deriv(S), Sp1 = RgX_shift_shallow(Sp, 1);
   GEN M = gel(F,pr+2), R;
-  av2 = avma; lim = stack_lim(av2, 1);
+  av2 = avma;
   for(i = pr-1; i>=0; i--)
   {
     GEN A, B, H, Bc;
@@ -394,7 +394,7 @@ ZpXQXXQ_frob(GEN F, GEN U, GEN V, GEN S, GEN T, ulong p, long e)
     Bc = RgX_deriv(B);
     Bc = FpXX_Fp_mul(ZXX_Z_divexact(Bc,powuu(p,v)), Fp_div(gen_2, utoi(r), q), q);
     M = FpXX_add(gel(F,i+2), FpXX_add(A, Bc, q), q);
-    if (low_stack(lim, stack_lim(av2,1)))
+    if (gc_needed(av2,1))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"ZpXQXXQ_frob, step 1, i = %ld", i);
       M = gerepileupto(av2, M);
@@ -403,7 +403,7 @@ ZpXQXXQ_frob(GEN F, GEN U, GEN V, GEN S, GEN T, ulong p, long e)
   if (degpol(M)<dS-1)
     return gerepileupto(av, M);
   R = RgX_shift_shallow(M,dS-degpol(M)-2);
-  av2 = avma; lim = stack_lim(av2, 1);
+  av2 = avma;
   for(i = degpol(M)-dS+2; i>=1; i--)
   {
     GEN B, c;
@@ -413,7 +413,7 @@ ZpXQXXQ_frob(GEN F, GEN U, GEN V, GEN S, GEN T, ulong p, long e)
     B = FpXX_add(FpXX_mulu(S, 2*i, q), Sp1, q);
     c = frac_to_Fq(to_ZX(leading_term(R),v), to_ZX(leading_term(B),v), T, q);
     R = FpXX_sub(R, FpXQX_FpXQ_mul(B, c, T, q), q);
-    if (low_stack(lim, stack_lim(av2,1)))
+    if (gc_needed(av2,1))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"ZpXXQ_frob, step 2, i = %ld", i);
       R = gerepileupto(av2, R);

@@ -1273,7 +1273,7 @@ gsubst(GEN x, long v, GEN y)
 {
   long tx = typ(x), ty = typ(y), lx = lg(x), ly = lg(y);
   long l, vx, vy, ex, ey, i, j, k, jb;
-  pari_sp av, av2, lim;
+  pari_sp av, av2;
   GEN X, t, p1, p2, modp1, z;
 
   switch(ty)
@@ -1340,12 +1340,12 @@ gsubst(GEN x, long v, GEN y)
       {
         if (lx == 2) return (ty==t_MAT)? scalarmat(x,ly-1): gcopy(x);
         av = avma; X = pol_x(vx);
-        av2 = avma; lim = stack_lim(av2,1);
+        av2 = avma;
         z = gadd(gsubst(gel(x,lx-1),v,y), zeroser(vx,1));
         for (i = lx-2; i>=2; i--)
         {
           z = gadd(gmul(z,X), gsubst(gel(x,i),v,y));
-          if (low_stack(lim, stack_lim(av2,1)))
+          if (gc_needed(av2,1))
           {
             if(DEBUGMEM>1) pari_warn(warnmem,"gsubst (i = %ld)", i);
             z = gerepileupto(av2, z);
@@ -1361,12 +1361,12 @@ gsubst(GEN x, long v, GEN y)
           if (ey < 1 || lx == 2) return zeroser(vy, ey*(ex+lx-2));
           if (vy != vx)
           {
-            av = avma; lim = stack_lim(av,1); z = gel(x,lx-1);
+            av = avma; z = gel(x,lx-1);
 
             for (i=lx-2; i>=2; i--)
             {
               z = gadd(gmul(y,z), gel(x,i));
-              if (low_stack(lim, stack_lim(av,1)))
+              if (gc_needed(av,1))
               {
                 if(DEBUGMEM>1) pari_warn(warnmem,"gsubst (i = %ld)", i);
                 z = gerepileupto(av, z);
@@ -1385,7 +1385,7 @@ gsubst(GEN x, long v, GEN y)
             l2 = (i-2)*ey + (gequal0(y)? 2 : ly);
             if (l > l2) l = l2;
           }
-          av = avma; lim=stack_lim(av,1);
+          av = avma;
           t = leafcopy(y);
           if (l < ly) setlg(t, l);
           z = scalarser(gel(x,2),varn(y),l-2);
@@ -1402,7 +1402,7 @@ gsubst(GEN x, long v, GEN y)
                 p1 = gadd(p1, gmul(gel(t,j-k+2),gel(y,k)));
               gel(t,j) = gadd(p1, gmul(gel(t,2),gel(y,j)));
             }
-            if (low_stack(lim, stack_lim(av,1)))
+            if (gc_needed(av,1))
             {
               if(DEBUGMEM>1) pari_warn(warnmem,"gsubst");
               gerepileall(av,2, &z,&t);
@@ -1517,7 +1517,7 @@ GEN
 serreverse(GEN x)
 {
   long v=varn(x), lx = lg(x), i, mi;
-  pari_sp av0 = avma, av, lim;
+  pari_sp av0 = avma, av;
   GEN a, y, u;
 
   if (typ(x)!=t_SER) pari_err_TYPE("serreverse",x);
@@ -1525,7 +1525,7 @@ serreverse(GEN x)
   if (lx < 3) pari_err_DOMAIN("serreverse", "x", "=", gen_0,x);
   y = ser_normalize(x);
   if (y == x) a = NULL; else { a = gel(x,2); x = y; }
-  av = avma; lim = stack_lim(av, 2);
+  av = avma;
   mi = lx-1; while (mi>=3 && gequal0(gel(x,mi))) mi--;
   u = cgetg(lx,t_SER);
   y = cgetg(lx,t_SER);
@@ -1559,7 +1559,7 @@ serreverse(GEN x)
     i++;
     gel(u,i) = gerepileupto(av2, gneg(p1));
     gel(y,i) = gdivgs(gel(u,i), i-1);
-    if (low_stack(lim, stack_lim(av,2)))
+    if (gc_needed(av,2))
     {
       GEN dummy = cgetg(1,t_VEC);
       if(DEBUGMEM>1) pari_warn(warnmem,"serreverse");
@@ -3942,7 +3942,7 @@ GEN
 poleval(GEN x, GEN y)
 {
   long i, j, imin, tx = typ(x);
-  pari_sp av0 = avma, av, lim;
+  pari_sp av0 = avma, av;
   GEN p1, p2, r, s;
 
   if (is_scalar_t(tx)) return gcopy(x);
@@ -3964,7 +3964,6 @@ poleval(GEN x, GEN y)
   if (i<=imin)
     return (i==imin)? gcopy(gel(x,imin)): gen_0;
 
-  lim = stack_lim(av0,2);
   p1 = gel(x,i); i--;
   if (typ(y)!=t_COMPLEX)
   {
@@ -3983,7 +3982,7 @@ poleval(GEN x, GEN y)
         }
       r = (i==j)? y: gpowgs(y, i-j+1);
       p1 = gadd(gmul(p1,r), gel(x,j));
-      if (low_stack(lim, stack_lim(av0,2)))
+      if (gc_needed(av0,2))
       {
         if (DEBUGMEM>1) pari_warn(warnmem,"poleval: i = %ld",i);
         p1 = gerepileupto(av0, p1);
@@ -3998,7 +3997,7 @@ poleval(GEN x, GEN y)
   {
     GEN p3 = gadd(p2, gmul(r, p1));
     p2 = gadd(gel(x,i), gmul(s, p1)); p1 = p3;
-    if (low_stack(lim, stack_lim(av0,2)))
+    if (gc_needed(av0,2))
     {
       if (DEBUGMEM>1) pari_warn(warnmem,"poleval: i = %ld",i);
       gerepileall(av, 2, &p1, &p2);

@@ -2579,7 +2579,7 @@ static void
 set_gamma(GEN t, GEN *pa, GEN *pb, GEN *pc, GEN *pd)
 {
   GEN a, b, c, d, run = dbltor(1. - 1e-8);
-  pari_sp av = avma, lim = stack_lim(av, 1);
+  pari_sp av = avma;
 
   a = d = gen_1;
   b = c = gen_0;
@@ -2596,7 +2596,7 @@ set_gamma(GEN t, GEN *pa, GEN *pb, GEN *pc, GEN *pd)
     t = gneg_i(gdiv(gconj(t), m)); /* apply S */
     togglesign_safe(&c); swap(a,c);
     togglesign_safe(&d); swap(b,d);
-    if (low_stack(lim, stack_lim(av, 1))) {
+    if (gc_needed(av, 1)) {
       if (DEBUGMEM>1) pari_warn(warnmem, "redimagsl2");
       gerepileall(av, 5, &t, &a,&b,&c,&d);
     }
@@ -2765,7 +2765,7 @@ check_real(GEN q)
 static GEN
 trueE(GEN tau, long k, long prec)
 {
-  pari_sp lim, av;
+  pari_sp av;
   GEN p1, q, y, qn;
   long n = 1;
 
@@ -2773,14 +2773,14 @@ trueE(GEN tau, long k, long prec)
   q = expIxy(Pi2n(1, prec), tau, prec);
   q = check_real(q);
   y = gen_0;
-  av = avma; lim = stack_lim(av,2); qn = gen_1;
+  av = avma; qn = gen_1;
   for(;; n++)
   { /* compute y := sum_{n>0} n^(k-1) q^n / (1-q^n) */
     qn = gmul(q,qn);
     p1 = gdiv(gmul(powuu(n,k-1),qn), gsubsg(1,qn));
     if (gequal0(p1) || gexpo(p1) <= - prec2nbits(prec) - 5) break;
     y = gadd(y, p1);
-    if (low_stack(lim, stack_lim(av,2)))
+    if (gc_needed(av,2))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"elleisnum");
       gerepileall(av, 2, &y,&qn);
@@ -2893,7 +2893,7 @@ static GEN
 ellwpnum_all(GEN e, GEN z, long flall, long prec)
 {
   long toadd;
-  pari_sp av = avma, lim, av1;
+  pari_sp av = avma, av1;
   GEN pi2, q, u, y, yp, u1, u2, qn;
   ellred_t T;
   int simple_case;
@@ -2916,7 +2916,7 @@ ellwpnum_all(GEN e, GEN z, long flall, long prec)
   yp = flall? gdiv(gaddsg(1,u), gmul(u1,u2)): NULL;
   toadd = (long)ceil(get_toadd(T.Z));
 
-  av1 = avma; lim = stack_lim(av1,1); qn = q;
+  av1 = avma; qn = q;
   for(;;)
   { /* y += u q^n [ 1/(1-q^n u)^2 + 1/(q^n-u)^2 ] - 2q^n /(1-q^n)^2 */
     /* analogous formula for yp */
@@ -2944,7 +2944,7 @@ ellwpnum_all(GEN e, GEN z, long flall, long prec)
 
     qn = gmul(q,qn);
     if (gexpo(qn) <= - prec2nbits(prec) - 5 - toadd) break;
-    if (low_stack(lim, stack_lim(av1,1)))
+    if (gc_needed(av1,1))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"ellwp");
       gerepileall(av1, flall? 3: 2, &y, &qn, &yp);
@@ -3116,7 +3116,7 @@ ellzeta(GEN w, GEN z, long prec0)
   if (!simple_case)/* otherwise |u|=1 and all terms in sum are 0 */
   {
     long toadd = (long)ceil(get_toadd(T.Z));
-    pari_sp av1 = avma, lim = stack_lim(av1,1);
+    pari_sp av1 = avma;
     GEN qn;
     for (qn = q;;)
     { /* y += sum q^n ( u/(u*q^n - 1) + 1/(u - q^n) ) */
@@ -3124,7 +3124,7 @@ ellzeta(GEN w, GEN z, long prec0)
       y = gadd(y, gmul(qn,p1));
       qn = gmul(q,qn);
       if (gexpo(qn) <= - prec2nbits(prec) - 5 - toadd) break;
-      if (low_stack(lim, stack_lim(av1,1)))
+      if (gc_needed(av1,1))
       {
         if(DEBUGMEM>1) pari_warn(warnmem,"ellzeta");
         gerepileall(av1,2, &y,&qn);
@@ -3148,7 +3148,7 @@ GEN
 ellsigma(GEN w, GEN z, long flag, long prec0)
 {
   long toadd, prec, n;
-  pari_sp av = avma, lim, av1;
+  pari_sp av = avma, av1;
   GEN zinit, pi, pi2, q, q8, qn2, qn, y, y1, uinv, et, etnew;
   GEN u, uhalf, urn, urninv;
   ellred_t T;
@@ -3191,7 +3191,7 @@ ellsigma(GEN w, GEN z, long flag, long prec0)
   q = gpowgs(q8,8);
   u = gneg_i(u); uinv = ginv(u);
   y = gen_0;
-  av1 = avma; lim = stack_lim(av1,1);
+  av1 = avma;
   qn = q; qn2 = gen_1;
   urn = uhalf; urninv = ginv(uhalf);
   for(n=0;;n++)
@@ -3202,7 +3202,7 @@ ellsigma(GEN w, GEN z, long flag, long prec0)
     qn  = gmul(q,qn);
     urn = gmul(urn,u);
     urninv = gmul(urninv,uinv);
-    if (low_stack(lim, stack_lim(av1,1)))
+    if (gc_needed(av1,1))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"ellsigma");
       gerepileall(av1,5, &y,&qn,&qn2,&urn,&urninv);
@@ -4936,7 +4936,7 @@ ellQ_get_Nfa(GEN e, GEN *N, GEN *faN)
 GEN
 elllseries(GEN e, GEN s, GEN A, long prec)
 {
-  pari_sp av = avma, av1, lim;
+  pari_sp av = avma, av1;
   ulong l, n;
   long eps, flun;
   GEN z, cg, v, cga, cgb, s2, K, gs, N;
@@ -4968,7 +4968,7 @@ elllseries(GEN e, GEN s, GEN A, long prec)
   s2 = K = NULL; /* gcc -Wall */
   if (!flun) { s2 = gsubsg(2,s); K = gpow(cg, gsubgs(gmul2n(s,1),2),prec); }
   z = gen_0;
-  av1 = avma; lim = stack_lim(av1,1);
+  av1 = avma;
   for (n = 1; n <= l; n++)
   {
     GEN p1, an, gn = utoipos(n), ns;
@@ -4986,7 +4986,7 @@ elllseries(GEN e, GEN s, GEN A, long prec)
       p1 = gadd(p1, p2);
     }
     z = gadd(z, gmul(p1, an));
-    if (low_stack(lim, stack_lim(av1,1)))
+    if (gc_needed(av1,1))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"lseriesell");
       z = gerepilecopy(av1,z);

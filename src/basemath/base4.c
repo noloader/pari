@@ -619,7 +619,7 @@ idealfactor(GEN nf, GEN x)
 long
 idealval(GEN nf, GEN ix, GEN P)
 {
-  pari_sp av = avma, av1, lim;
+  pari_sp av = avma, av1;
   long N, vmax, vd, v, e, f, i, j, k, tx = typ(ix);
   GEN mul, B, a, x, y, r, p, pk, cx, vals;
 
@@ -673,7 +673,7 @@ idealval(GEN nf, GEN ix, GEN P)
     gel(B,j) = Q_primitive_part(gel(B,j), &cx);
     vals[j] = cx? 1 + e * Q_pval(cx, p): 1;
   }
-  av1 = avma; lim = stack_lim(av1,3);
+  av1 = avma;
   y = cgetg(N+1,t_COL);
   /* can compute mod p^ceil((vmax-v)/e) */
   for (v = 1; v < vmax; v++)
@@ -694,7 +694,7 @@ idealval(GEN nf, GEN ix, GEN P)
         gel(y,i) = gerepileuptoint(av2, a);
       }
       gel(B,j) = y; y = x;
-      if (low_stack(lim,stack_lim(av1,3)))
+      if (gc_needed(av1,3))
       {
         if(DEBUGMEM>1) pari_warn(warnmem,"idealval");
         gerepileall(av1,3, &y,&B,&pk);
@@ -1271,7 +1271,7 @@ famat_makecoprime(GEN nf, GEN g, GEN e, GEN pr, GEN prk, GEN EX)
 {
   long i, l = lg(g);
   GEN prkZ, u, vden = gen_0, p = pr_get_p(pr);
-  pari_sp av = avma, lim = stack_lim(av, 2);
+  pari_sp av = avma;
   GEN newg = cgetg(l+1, t_VEC); /* room for z */
 
   prkZ = gcoeff(prk, 1,1);
@@ -1297,7 +1297,7 @@ famat_makecoprime(GEN nf, GEN g, GEN e, GEN pr, GEN prk, GEN EX)
       x =  ZC_hnfrem(x, prk);
     }
     gel(newg,i) = x;
-    if (low_stack(lim, stack_lim(av, 2)))
+    if (gc_needed(av, 2))
     {
       GEN dummy = cgetg(1,t_VEC);
       long j;
@@ -2685,7 +2685,7 @@ GEN
 nfhnf(GEN nf, GEN x)
 {
   long i, j, def, idef, m, n;
-  pari_sp av0 = avma, av, lim;
+  pari_sp av0 = avma, av;
   GEN y, A, I, J;
 
   nf = checknf(nf);
@@ -2694,7 +2694,7 @@ nfhnf(GEN nf, GEN x)
   I = gel(x,2);
   if (!n) return gcopy(x);
   idef = (n < m)? m-n : 0;
-  av = avma; lim = stack_lim(av, 2);
+  av = avma;
   A = RgM_to_nfM(nf,A);
   I = leafcopy(I);
   J = zerovec(n); def = n;
@@ -2742,7 +2742,7 @@ nfhnf(GEN nf, GEN x)
       gel(A,j) = colcomb1(nf, gneg(c), gel(A,j),gel(A,def));
     }
     def--;
-    if (low_stack(lim, stack_lim(av,2)))
+    if (gc_needed(av,2))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"nfhnf, i = %ld", i);
       gerepileall(av,3, &A,&I,&J);
@@ -2775,7 +2775,7 @@ GEN
 nfsnf(GEN nf, GEN x)
 {
   long i, j, k, l, c, n, m, N;
-  pari_sp av, lim;
+  pari_sp av;
   GEN z,u,v,w,d,dinv,A,I,J;
 
   nf = checknf(nf); N = nf_get_degree(nf);
@@ -2791,7 +2791,7 @@ nfsnf(GEN nf, GEN x)
   RgM_dimensions(A, &m, &n);
   if (!n || n != m) pari_err_IMPL("nfsnf for empty or non square matrices");
 
-  av = avma; lim = stack_lim(av,1);
+  av = avma;
   A = RgM_to_nfM(nf, A);
   I = leafcopy(I);
   J = leafcopy(J); for (i = 1; i <= n; i++) gel(J,i) = idealinv(nf, gel(J,i));
@@ -2856,7 +2856,7 @@ nfsnf(GEN nf, GEN x)
 
           k = i; c = 1; break;
         }
-      if (low_stack(lim, stack_lim(av,1)))
+      if (gc_needed(av,1))
       {
         if(DEBUGMEM>1) pari_warn(warnmem,"nfsnf");
         gerepileall(av,3, &A,&I,&J);
@@ -2951,7 +2951,7 @@ nfdetint(GEN nf, GEN x)
 {
   GEN pass,c,v,det1,piv,pivprec,vi,p1,A,I,id,idprod;
   long i, j, k, rg, n, m, m1, cm=0, N;
-  pari_sp av = avma, av1, lim;
+  pari_sp av = avma, av1;
 
   nf = checknf(nf); N = nf_get_degree(nf);
   check_ZKmodule(x, "nfdetint");
@@ -2964,7 +2964,7 @@ nfdetint(GEN nf, GEN x)
   c = new_chunk(m1); for (k=1; k<=m; k++) c[k] = 0;
   piv = pivprec = gen_1;
 
-  av1 = avma; lim = stack_lim(av1,1);
+  av1 = avma;
   det1 = idprod = gen_0; /* dummy for gerepileall */
   pass = cgetg(m1,t_MAT);
   v = cgetg(m1,t_COL);
@@ -3018,7 +3018,7 @@ nfdetint(GEN nf, GEN x)
           }
       }
     }
-    if (low_stack(lim, stack_lim(av1,1)))
+    if (gc_needed(av1,1))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"nfdetint");
       gerepileall(av1,6, &det1,&piv,&pivprec,&pass,&v,&idprod);
@@ -3076,7 +3076,7 @@ GEN
 nfhnfmod(GEN nf, GEN x, GEN detmat)
 {
   long li, co, i, j, def, ldef;
-  pari_sp av0=avma, av, lim;
+  pari_sp av0=avma, av;
   GEN dA, dI, d0, w, p1, d, u, v, A, I, J, di;
 
   nf = checknf(nf);
@@ -3090,7 +3090,7 @@ nfhnfmod(GEN nf, GEN x, GEN detmat)
   detmat = Q_remove_denom(detmat, NULL);
   RgM_check_ZM(detmat, "nfhnfmod");
 
-  av = avma; lim = stack_lim(av,2);
+  av = avma;
   A = RgM_to_nfM(nf, A);
   A = Q_remove_denom(A, &dA);
   I = Q_remove_denom(leafcopy(I), &dI);
@@ -3122,7 +3122,7 @@ nfhnfmod(GEN nf, GEN x, GEN detmat)
       gel(A,def) = S; gel(A,j) = T;
       gel(I,def) = d; gel(I,j) = w;
     }
-    if (low_stack(lim, stack_lim(av,2)))
+    if (gc_needed(av,2))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"[1]: nfhnfmod, i = %ld", i);
       gerepileall(av,dA? 4: 3, &A,&I,&detmat,&dA);
@@ -3155,7 +3155,7 @@ nfhnfmod(GEN nf, GEN x, GEN detmat)
       c = element_close(nf, c, idealmul(nf,d,gel(J,j)));
       gel(A,j) = colcomb1(nf, gneg(c), gel(A,j),gel(A,i));
     }
-    if (low_stack(lim, stack_lim(av,2)))
+    if (gc_needed(av,2))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"[2]: nfhnfmod, i = %ld", i);
       gerepileall(av,dA? 4: 3, &A,&I,&J,&dA);

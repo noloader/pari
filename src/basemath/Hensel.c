@@ -490,7 +490,7 @@ ZpX_liftroots(GEN f, GEN S, GEN p, long e)
 GEN
 ZpXQX_liftroot_vald(GEN f, GEN a, long v, GEN T, GEN p, long e)
 {
-  pari_sp av = avma, av2, lim;
+  pari_sp av = avma, av2;
   GEN pv = p, q, qv, W, df, Tq, fr, dfr;
   ulong mask;
   a = Fq_red(a, T, p);
@@ -502,7 +502,7 @@ ZpXQX_liftroot_vald(GEN f, GEN a, long v, GEN T, GEN p, long e)
   Tq = FpXT_red(T, qv); dfr = FpXQX_red(df, Tq, p);
   W = Fq_inv(FqX_eval(dfr, a, Tq, p), Tq, p); /* 1/f'(a) mod (T,p) */
   q = p;
-  av2 = avma; lim = stack_lim(av2, 2);
+  av2 = avma;
   for (;;)
   {
     GEN u, fa, qv, q2v, q2, Tq2;
@@ -520,7 +520,7 @@ ZpXQX_liftroot_vald(GEN f, GEN a, long v, GEN T, GEN p, long e)
     dfr = FpXQX_red(df, Tq, q);
     u = ZX_Z_divexact(FpX_Fp_sub(Fq_mul(W,FqX_eval(dfr,a,Tq,q),Tq,q),gen_1,q),q2);
     W = Fq_sub(W,ZX_Z_mul(Fq_mul(u,W,Tq2,q2),q2),Tq,q);
-    if (low_stack(lim, stack_lim(av2,2)))
+    if (gc_needed(av2,2))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"ZpXQX_liftroot, e = %ld", e);
       gerepileall(av2, 3, &a, &W, &q);
@@ -713,13 +713,13 @@ gen_ZpX_Newton(GEN x, GEN p, long n, void *E,
                       GEN eval(void *E, GEN f, GEN q),
                       GEN invd(void *E, GEN V, GEN v, GEN q, long M))
 {
-  pari_sp ltop = avma, av, st_lim;
+  pari_sp ltop = avma, av;
   long N = 1, N2, M;
   long mask;
   GEN q = p;
   if (n == 1) return gcopy(x);
   mask = quadratic_prec_mask(n);
-  av = avma; st_lim = stack_lim(av, 1);
+  av = avma;
   while (mask > 1)
   {
     GEN qM, q2, v, V;
@@ -739,7 +739,7 @@ gen_ZpX_Newton(GEN x, GEN p, long n, void *E,
     v = eval(E, x, q);
     V = ZX_Z_divexact(gel(v,1), q2);
     x = FpX_sub(x, ZX_Z_mul(invd(E, V, v, qM, M), q2), q);
-    if (low_stack(st_lim, stack_lim(av, 1)))
+    if (gc_needed(av, 1))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"gen_ZpX_Newton");
       gerepileall(av, 2, &x, &q);
@@ -829,7 +829,7 @@ GEN
 ZpX_ZpXQ_liftroot_ea(GEN P, GEN S, GEN T, GEN p, long n, void *E,
                      int early(void *E, GEN x, GEN q))
 {
-  pari_sp ltop = avma, av, st_lim;
+  pari_sp ltop = avma, av;
   long N, r;
   long mask;
   GEN q2, q, W, Q, Tq2, Tq, Pq;
@@ -837,7 +837,7 @@ ZpX_ZpXQ_liftroot_ea(GEN P, GEN S, GEN T, GEN p, long n, void *E,
   T = FpX_get_red(T, powiu(p, n));
   if (n == 1) return gcopy(S);
   mask = quadratic_prec_mask(n);
-  av = avma; st_lim = stack_lim(av, 1);
+  av = avma;
   q2 = p; q = sqri(p); mask >>= 1; N = 2;
   if (DEBUGLEVEL > 3) timer_start(&ti);
   Tq = FpXT_red(T,q);
@@ -867,7 +867,7 @@ ZpX_ZpXQ_liftroot_ea(GEN P, GEN S, GEN T, GEN p, long n, void *E,
     Wq = ZX_Z_mul(FpXQ_mul(W, Wq, Tq2, q2), q2);
     Wq = FpX_sub(W, Wq, q);
     S = Sq; W = Wq; q2 = q; q = qq; Tq2 = Tq; Tq = Tqq; Pq = Pqq;
-    if (low_stack(st_lim, stack_lim(av, 1)))
+    if (gc_needed(av, 1))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"ZpX_ZpXQ_Newton");
       gerepileall(av, 8, &S, &W, &Q, &Tq2, &Tq, &Pq, &q, &q2);

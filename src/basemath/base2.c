@@ -375,7 +375,7 @@ static void
 rowred(GEN a, GEN rmod, GEN rmodo2)
 {
   long j,k, c = lg(a), r = lgcols(a);
-  pari_sp av=avma, lim=stack_lim(av,1);
+  pari_sp av=avma;
 
   for (j=1; j<r; j++)
   {
@@ -393,7 +393,7 @@ rowred(GEN a, GEN rmod, GEN rmodo2)
       GEN q=diviiround(gcoeff(a,j,k),gcoeff(a,j,j));
       gel(a,k) = mtran(gel(a,k),gel(a,j),q,rmod,rmodo2, k);
     }
-    if (low_stack(lim, stack_lim(av,1)))
+    if (gc_needed(av,1))
     {
       long j1,k1;
       GEN p1;
@@ -438,7 +438,7 @@ static GEN
 maxord2(GEN cf, GEN p, long epsilon)
 {
   long sp,i,n=lg(cf)-1;
-  pari_sp av=avma, av2,limit;
+  pari_sp av=avma, av2;
   GEN T,T2,Tn,m,v,delta,hard_case_exponent, *w;
   const GEN pp = sqri(p);
   const GEN ppo2 = shifti(pp,-1);
@@ -462,7 +462,7 @@ maxord2(GEN cf, GEN p, long epsilon)
   v = new_chunk(n+1);
   w = (GEN*)new_chunk(n+1);
 
-  av2 = avma; limit = stack_lim(av2,1);
+  av2 = avma;
   delta=gen_1; m=matid(n);
 
   for(;;)
@@ -599,7 +599,7 @@ maxord2(GEN cf, GEN p, long epsilon)
     if (hh) delta = diviiexact(delta,hh);
     epsilon -= 2 * Z_pval(index,p);
     if (epsilon < 2) break;
-    if (low_stack(limit,stack_lim(av2,1)))
+    if (gc_needed(av2,1))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"maxord2");
       gerepileall(av2, 2, &m, &delta);
@@ -1463,9 +1463,9 @@ newtonsums(GEN p, GEN a, GEN da, long vda, GEN chi, long c, GEN pp, GEN ns)
 {
   GEN va, pa, dpa, s;
   long j, k, vdpa;
-  pari_sp av, lim;
+  pari_sp av;
 
-  a = centermod(a, pp); av = avma; lim = stack_lim(av, 1);
+  a = centermod(a, pp); av = avma;
   dpa = pa = NULL; /* -Wall */
   vdpa = 0;
   va = zerovec(c);
@@ -1493,7 +1493,7 @@ newtonsums(GEN p, GEN a, GEN da, long vda, GEN chi, long c, GEN pp, GEN ns)
     }
     gel(va,j) = centermodii(s, pp, shifti(pp,-1));
 
-    if (low_stack(lim, stack_lim(av, 1)))
+    if (gc_needed(av, 1))
     {
       if(DEBUGMEM>1) pari_warn(warnmem, "newtonsums");
       gerepileall(av, dpa?4:3, &pa, &va, &pp, &dpa);
@@ -1829,7 +1829,7 @@ get_g(decomp_t *S, long Ea, long L, long E, GEN beta, GEN *pchig,
 static int
 loop(decomp_t *S, long Ea)
 {
-  pari_sp av = avma, limit = stack_lim(av, 1);
+  pari_sp av = avma;
   GEN beta = FpXQ_powu(S->nu, Ea, S->chi, S->p);
   long N = degpol(S->f), v = varn(S->f);
   S->invnu = NULL;
@@ -1904,7 +1904,7 @@ loop(decomp_t *S, long Ea)
     if (er) d = gmul(d, gpowgs(S->nu, er));
     beta = gsub(beta, d);
 
-    if (low_stack(limit,stack_lim(av,1)))
+    if (gc_needed(av,1))
     {
       if (DEBUGMEM > 1) pari_warn(warnmem, "nilord");
       gerepileall(av, S->invnu? 5: 3, &beta, &(S->precns), &(S->ns), &(S->invnu), &(S->Dinvnu));
@@ -3166,7 +3166,7 @@ ideal_is1(GEN x) {
 static GEN
 rnfmaxord(GEN nf, GEN pol, GEN pr, long vdisc)
 {
-  pari_sp av = avma, av1, lim;
+  pari_sp av = avma, av1;
   long i, j, k, n, vpol, cmpt, sep;
   GEN q, q1, p, T, modpr, W, I, MW, C, p1;
   GEN Tauinv, Tau, prhinv, pip, nfT, rnfId;
@@ -3196,7 +3196,7 @@ rnfmaxord(GEN nf, GEN pol, GEN pr, long vdisc)
   for (j=1; j<=n*n; j++) gel(MW,j) = cgetg(n+1, t_COL);
   Tauinv = cgetg(n+1, t_VEC);
   Tau    = cgetg(n+1, t_VEC);
-  av1 = avma; lim = stack_lim(av1,1);
+  av1 = avma;
   for(cmpt=1; ; cmpt++)
   {
     GEN I0 = leafcopy(I), W0 = leafcopy(W);
@@ -3291,7 +3291,7 @@ rnfmaxord(GEN nf, GEN pol, GEN pr, long vdisc)
     if (DEBUGLEVEL>3) err_printf(" new order:\n%Ps\n%Ps\n", W, I);
     if (sep <= 3 || gequal(I,I0)) break;
 
-    if (low_stack(lim, stack_lim(av1,1)) || (cmpt & 3) == 0)
+    if (gc_needed(av1,1) || (cmpt & 3) == 0)
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"rnfmaxord");
       gerepileall(av1,2, &W,&I);

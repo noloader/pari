@@ -44,14 +44,14 @@ static GEN
 sliding_window_powu(GEN x, ulong n, long e, void *E, GEN (*sqr)(void*,GEN),
                                                      GEN (*mul)(void*,GEN,GEN))
 {
-  pari_sp av, lim;
+  pari_sp av;
   long i, l = expu(n), u = (1UL<<(e-1));
   long w, v;
   GEN tab = cgetg(1+u, t_VEC);
   GEN x2 = sqr(E, x), z = NULL, tw;
   gel(tab, 1) = x;
   for (i=2; i<=u; i++) gel(tab,i) = mul(E, gel(tab,i-1), x2);
-  av = avma; lim = stack_lim(av, 1);
+  av = avma;
   while (l>=0)
   {
     if (e > l+1) e = l+1;
@@ -65,7 +65,7 @@ sliding_window_powu(GEN x, ulong n, long e, void *E, GEN (*sqr)(void*,GEN),
     for (i=1; i<=v; i++) z = sqr(E, z);
     while (l>=0)
     {
-      if (low_stack(lim, stack_lim(av,1)))
+      if (gc_needed(av,1))
       {
         if (DEBUGMEM>1) pari_warn(warnmem,"sliding_window_powu (%ld)", l);
         z = gerepilecopy(av, z);
@@ -83,14 +83,14 @@ static GEN
 sliding_window_pow(GEN x, GEN n, long e, void *E, GEN (*sqr)(void*,GEN),
                                                   GEN (*mul)(void*,GEN,GEN))
 {
-  pari_sp av, lim;
+  pari_sp av;
   long i, l = expi(n), u = (1UL<<(e-1));
   long w, v;
   GEN tab = cgetg(1+u, t_VEC);
   GEN x2 = sqr(E, x), z = NULL, tw;
   gel(tab, 1) = x;
   for (i=2; i<=u; i++) gel(tab,i) = mul(E, gel(tab,i-1), x2);
-  av = avma; lim = stack_lim(av, 1);
+  av = avma;
   while (l>=0)
   {
     if (e > l+1) e = l+1;
@@ -104,7 +104,7 @@ sliding_window_pow(GEN x, GEN n, long e, void *E, GEN (*sqr)(void*,GEN),
     for (i=1; i<=v; i++) z = sqr(E, z);
     while (l>=0)
     {
-      if (low_stack(lim, stack_lim(av,1)))
+      if (gc_needed(av,1))
       {
         if (DEBUGMEM>1) pari_warn(warnmem,"sliding_window_pow (%ld)", l);
         z = gerepilecopy(av, z);
@@ -121,7 +121,7 @@ static GEN
 leftright_binary_powu(GEN x, ulong n, void *E, GEN (*sqr)(void*,GEN),
                                               GEN (*mul)(void*,GEN,GEN))
 {
-  pari_sp av = avma, lim = stack_lim(av, 1);
+  pari_sp av = avma;
   GEN  y;
   int j;
 
@@ -134,7 +134,7 @@ leftright_binary_powu(GEN x, ulong n, void *E, GEN (*sqr)(void*,GEN),
   {
     y = sqr(E,y);
     if (n & HIGHBIT) y = mul(E,y,x); /* first bit set: multiply by base */
-    if (low_stack(lim, stack_lim(av,1)))
+    if (gc_needed(av,1))
     {
       if (DEBUGMEM>1) pari_warn(warnmem,"leftright_powu (%d)", j);
       y = gerepilecopy(av, y);
@@ -193,7 +193,7 @@ GEN
 gen_powu_fold_i(GEN x, ulong n, void *E, GEN  (*sqr)(void*,GEN),
                                          GEN (*msqr)(void*,GEN))
 {
-  pari_sp av = avma, lim = stack_lim(av, 1);
+  pari_sp av = avma;
   GEN y;
   int j;
 
@@ -206,7 +206,7 @@ gen_powu_fold_i(GEN x, ulong n, void *E, GEN  (*sqr)(void*,GEN),
   {
     if (n & HIGHBIT) y = msqr(E,y); /* first bit set: multiply by base */
     else y = sqr(E,y);
-    if (low_stack(lim, stack_lim(av,1)))
+    if (gc_needed(av,1))
     {
       if (DEBUGMEM>1) pari_warn(warnmem,"gen_powu_fold (%d)", j);
       y = gerepilecopy(av, y);
@@ -236,7 +236,7 @@ gen_pow_fold_i(GEN x, GEN N, void *E, GEN (*sqr)(void*,GEN),
     ulong n = *nd;
     long i;
     int j = 1+bfffo(n);
-    pari_sp av = avma, lim = stack_lim(av, 1);
+    pari_sp av = avma;
 
     /* normalize, i.e set highest bit to 1 (we know n != 0) */
     n<<=j; j = BITS_IN_LONG-j;
@@ -247,7 +247,7 @@ gen_pow_fold_i(GEN x, GEN N, void *E, GEN (*sqr)(void*,GEN),
       {
         if (n & HIGHBIT) y = msqr(E,y); /* first bit set: multiply by base */
         else y = sqr(E,y);
-        if (low_stack(lim, stack_lim(av,1)))
+        if (gc_needed(av,1))
         {
           if (DEBUGMEM>1) pari_warn(warnmem,"gen_pow_fold (%d)", j);
           y = gerepilecopy(av, y);
@@ -313,7 +313,7 @@ iter_rho(GEN x, GEN g, GEN q, GEN A, ulong h, void *E, const struct bb_group *gr
 static GEN
 gen_Pollard_log(GEN x, GEN g, GEN q, void *E, const struct bb_group *grp)
 {
-  pari_sp av=avma, lim=stack_lim(av,2);
+  pari_sp av=avma;
   GEN A, B, l, sqrt4q = sqrti(shifti(q,4));
   ulong i, h = 0, imax = itou_or_0(sqrt4q);
   if (!imax) imax = ULONG_MAX;
@@ -332,7 +332,7 @@ gen_Pollard_log(GEN x, GEN g, GEN q, void *E, const struct bb_group *grp)
       A = iter_rho(x, g, q, A, h, E, grp);
       B = iter_rho(x, g, q, B, h, E, grp);
       B = iter_rho(x, g, q, B, h, E, grp);
-      if (low_stack(lim, stack_lim(av,2)))
+      if (gc_needed(av,2))
       {
         if(DEBUGMEM>1) pari_warn(warnmem,"gen_Pollard_log");
         gerepileall(av, 2, &A, &B);
@@ -352,14 +352,14 @@ GEN
 gen_Shanks_init(GEN g, long n, void *E, const struct bb_group *grp)
 {
   GEN p1 = g, G, perm, table = cgetg(n+1,t_VECSMALL);
-  pari_sp av=avma, lim = stack_lim(av,2);
+  pari_sp av=avma;
   long i;
   table[1] = grp->hash(grp->pow(E,g,gen_0));
   for (i=2; i<=n; i++)
   {
     table[i] = grp->hash(p1);
     p1 = grp->mul(E,p1,g);
-    if (low_stack(lim, stack_lim(av,2)))
+    if (gc_needed(av,2))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"gen_Shanks_log, baby = %ld", i);
       p1 = gerepileupto(av, p1);
@@ -374,7 +374,7 @@ gen_Shanks_init(GEN g, long n, void *E, const struct bb_group *grp)
 GEN
 gen_Shanks(GEN T, GEN x, ulong N, void *E, const struct bb_group *grp)
 {
-  pari_sp av=avma, lim = stack_lim(av,2);
+  pari_sp av=avma;
   GEN table = gel(T,1), perm = gel(T,2), g = gel(T,3), G = gel(T,4);
   GEN p1 = x;
   long n = lg(table)-1;
@@ -394,7 +394,7 @@ gen_Shanks(GEN T, GEN x, ulong N, void *E, const struct bb_group *grp)
       }
     }
     p1 = grp->mul(E,p1,G);
-    if (low_stack(lim, stack_lim(av,2)))
+    if (gc_needed(av,2))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"gen_Shanks_log, k = %lu", k);
       p1 = gerepileupto(av, p1);
@@ -408,7 +408,7 @@ gen_Shanks(GEN T, GEN x, ulong N, void *E, const struct bb_group *grp)
 static GEN
 gen_Shanks_log(GEN x, GEN g, GEN q, void *E, const struct bb_group *grp)
 {
-  pari_sp av=avma, av1, lim;
+  pari_sp av=avma, av1;
   long lbaby, i, k;
   GEN p1, table, giant, perm, ginv;
   p1 = sqrti(q);
@@ -416,13 +416,13 @@ gen_Shanks_log(GEN x, GEN g, GEN q, void *E, const struct bb_group *grp)
     pari_err_OVERFLOW("gen_Shanks_log [order too large]");
   lbaby = itos(p1)+1; table = cgetg(lbaby+1,t_VECSMALL);
   ginv = grp->pow(E,g,gen_m1);
-  av1 = avma; lim=stack_lim(av1,2);
+  av1 = avma;
   for (p1=x, i=1;;i++)
   {
     if (grp->equal1(p1)) { avma = av; return stoi(i-1); }
     table[i] = grp->hash(p1); if (i==lbaby) break;
     p1 = grp->mul(E,p1,ginv);
-    if (low_stack(lim, stack_lim(av1,2)))
+    if (gc_needed(av1,2))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"gen_Shanks_log, baby = %ld", i);
       p1 = gerepileupto(av1, p1);
@@ -431,7 +431,7 @@ gen_Shanks_log(GEN x, GEN g, GEN q, void *E, const struct bb_group *grp)
   p1 = giant = gerepileupto(av1, grp->mul(E,x,grp->pow(E, p1, gen_m1)));
   perm = vecsmall_indexsort(table);
   table = vecsmallpermute(table,perm);
-  av1 = avma; lim=stack_lim(av1,2);
+  av1 = avma;
   for (k=1; k<= lbaby; k++)
   {
     long h = grp->hash(p1), i = zv_search(table, h);
@@ -447,7 +447,7 @@ gen_Shanks_log(GEN x, GEN g, GEN q, void *E, const struct bb_group *grp)
       }
     }
     p1 = grp->mul(E,p1,giant);
-    if (low_stack(lim, stack_lim(av1,2)))
+    if (gc_needed(av1,2))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"gen_Shanks_log, k = %ld", k);
       p1 = gerepileupto(av1, p1);
@@ -740,12 +740,12 @@ gen_lgener(GEN l, long e, GEN r,GEN *zeta, void *E, const struct bb_group *grp)
 GEN
 gen_gener(GEN o, void *E, const struct bb_group *grp)
 {
-  pari_sp ltop = avma, av, lim;
+  pari_sp ltop = avma, av;
   long i, lpr;
   GEN F, N, pr, z=NULL;
   F = dlog_get_ordfa(o);
   N = gel(F,1); pr = gel(F,2); lpr = lgcols(pr);
-  av = avma; lim = stack_lim(av,2);
+  av = avma;
 
   for (i = 1; i < lpr; i++)
   {
@@ -754,7 +754,7 @@ gen_gener(GEN o, void *E, const struct bb_group *grp)
     GEN r = diviiexact(N,powis(l,e));
     GEN zetan, zl = gen_lgener(l,e,r,&zetan,E,grp);
     z = i==1 ? zl: grp->mul(E,z,zl);
-    if (low_stack(lim, stack_lim(av,2)))
+    if (gc_needed(av,2))
     { /* n can have lots of prime factors*/
       if(DEBUGMEM>1) pari_warn(warnmem,"gen_gener");
       z = gerepileupto(av, z);
@@ -772,7 +772,7 @@ static GEN
 gen_Shanks_sqrtl(GEN a, GEN l, long e, GEN r, GEN y, GEN m,void *E,
                  const struct bb_group *grp)
 {
-  pari_sp av = avma,lim;
+  pari_sp av = avma;
   long k;
   GEN p1, u1, u2, v, w, z, dl;
 
@@ -780,7 +780,6 @@ gen_Shanks_sqrtl(GEN a, GEN l, long e, GEN r, GEN y, GEN m,void *E,
   v = grp->pow(E,a,u2);
   w = grp->pow(E,v,l);
   w = grp->mul(E,w,grp->pow(E,a,gen_m1));
-  lim = stack_lim(av,1);
   while (!grp->equal1(w))
   {
     k = 0;
@@ -800,7 +799,7 @@ gen_Shanks_sqrtl(GEN a, GEN l, long e, GEN r, GEN y, GEN m,void *E,
     v = grp->mul(E,p1,v);
     y = grp->pow(E,p1,l);
     w = grp->mul(E,y,w);
-    if (low_stack(lim, stack_lim(av,1)))
+    if (gc_needed(av,1))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"gen_Shanks_sqrtl");
       gerepileall(av,4, &y,&v,&w,&m);
@@ -819,7 +818,7 @@ gen_Shanks_sqrtl(GEN a, GEN l, long e, GEN r, GEN y, GEN m,void *E,
 GEN
 gen_Shanks_sqrtn(GEN a, GEN n, GEN q, GEN *zetan, void *E, const struct bb_group *grp)
 {
-  pari_sp ltop = avma, lim;
+  pari_sp ltop = avma;
   GEN m, u1, u2, z;
   int is_1;
 
@@ -833,7 +832,6 @@ gen_Shanks_sqrtn(GEN a, GEN n, GEN q, GEN *zetan, void *E, const struct bb_group
 
   m = bezout(n,q,&u1,&u2);
   z = grp->pow(E,a,gen_0);
-  lim = stack_lim(ltop,1);
   if (!is_pm1(m))
   {
     GEN F = Z_factor(m);
@@ -854,7 +852,7 @@ gen_Shanks_sqrtn(GEN a, GEN n, GEN q, GEN *zetan, void *E, const struct bb_group
           if (!a) { avma = ltop; return NULL;}
         } while (--j);
       }
-      if (low_stack(lim, stack_lim(ltop,1)))
+      if (gc_needed(ltop,1))
       { /* n can have lots of prime factors*/
         if(DEBUGMEM>1) pari_warn(warnmem,"gen_Shanks_sqrtn");
         gerepileall(av1, zetan? 2: 1, &a, &z);

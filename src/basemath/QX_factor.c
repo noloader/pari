@@ -529,7 +529,7 @@ LLL_cmbf(GEN P, GEN famod, GEN p, GEN pa, GEN bound, long a, long rec)
   double logp = log((double)itos(p)), LOGp2 = LOG2/logp;
   double b0 = log((double)dP*2) / logp, logBr;
   GEN lP, Br, Bnorm, Tra, T2, TT, CM_L, m, list, ZERO;
-  pari_sp av, av2, lim;
+  pari_sp av, av2;
   long ti_LLL = 0, ti_CF  = 0;
 
   lP = absi(leading_term(P));
@@ -543,7 +543,7 @@ LLL_cmbf(GEN P, GEN famod, GEN p, GEN pa, GEN bound, long a, long rec)
   Bnorm = dbltor(n0 * (C*C + N0*n0/4.) * 1.00001);
   ZERO = zeromat(n0, N0);
 
-  av = avma; lim = stack_lim(av, 1);
+  av = avma;
   TT = cgetg(n0+1, t_VEC);
   Tra  = cgetg(n0+1, t_MAT);
   for (i=1; i<=n0; i++)
@@ -665,7 +665,7 @@ AGAIN:
       if (DEBUGLEVEL>2) err_printf("LLL_cmbf: chk_factors failed");
     }
     CM_L = gerepilecopy(av2, CM_L);
-    if (low_stack(lim, stack_lim(av,1)))
+    if (gc_needed(av,1))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"LLL_cmbf");
       gerepileall(av, 5, &CM_L, &TT, &Tra, &famod, &pa);
@@ -795,7 +795,7 @@ DDF_roots(GEN A)
   GEN p, lc, lcpol, z, pe, pes2, bound;
   long i, m, e, lz;
   ulong pp;
-  pari_sp av, lim;
+  pari_sp av;
   pari_timer T;
 
   if (DEBUGLEVEL>2) timer_start(&T);
@@ -814,7 +814,7 @@ DDF_roots(GEN A)
   z = ZpX_roots(A, p, e); lz = lg(z);
   z = deg1_from_roots(z, varn(A));
   if (DEBUGLEVEL>2) timer_printf(&T, "Hensel lift (mod %lu^%ld)", pp,e);
-  av = avma; lim = stack_lim(av,2);
+  av = avma;
   for (m=1, i=1; i < lz; i++)
   {
     GEN q, r, y = gel(z,i);
@@ -831,7 +831,7 @@ DDF_roots(GEN A)
       if (is_pm1(lc)) lc = NULL; else lcpol = ZX_Z_mul(A, lc);
     }
     gel(z,m++) = r;
-    if (low_stack(lim, stack_lim(av,2)))
+    if (gc_needed(av,2))
     {
       if (DEBUGMEM>1) pari_warn(warnmem,"DDF_roots, m = %ld", m);
       gerepileall(av, lc? 3:1, &A, &lc, &lcpol);
@@ -1064,7 +1064,7 @@ ZX_gcd_all(GEN A, GEN B, GEN *Anew)
   GEN R, a, b, q, H, Hp, g, Ag, Bg;
   long m, n, valX, valA, vA = varn(A);
   ulong p;
-  pari_sp ltop, av, avlim;
+  pari_sp ltop, av;
   forprime_t S;
 
   if (!signe(A)) { if (Anew) *Anew = pol_0(vA); return ZX_copy(B); }
@@ -1084,7 +1084,7 @@ ZX_gcd_all(GEN A, GEN B, GEN *Anew)
     Bg = ZX_Z_mul(B,g);
   }
   init_modular(&S);
-  av = avma; avlim = stack_lim(av, 1);
+  av = avma;
   R = NULL;/*-Wall*/
   H = NULL;
   while ((p = u_forprime_next(&S)))
@@ -1116,7 +1116,7 @@ ZX_gcd_all(GEN A, GEN B, GEN *Anew)
       q = utoipos(p); n = m; continue;
     }
     if (DEBUGLEVEL>5) err_printf("gcd mod %lu (bound 2^%ld)\n", p,expi(q));
-    if (low_stack(avlim, stack_lim(av,1)))
+    if (gc_needed(av,1))
     {
       if (DEBUGMEM>1) pari_warn(warnmem,"QX_gcd");
       gerepileall(av, 3, &H, &q, &Hp);
@@ -1295,11 +1295,11 @@ ZXQ_mul_by_X(GEN t, GEN T)
 static long
 BD_odd_iscyclo(GEN f)
 {
-  pari_sp av, lim;
+  pari_sp av;
   long d, e, n, bound;
   GEN t;
   f = RgX_deflate_max(f, &e);
-  av = avma; lim = stack_lim(av,1);
+  av = avma;
   /* The original f is cyclotomic (= Phi_{ne}) iff the present one is Phi_n,
    * where all prime dividing e also divide n. If current f is Phi_n,
    * then n is odd and squarefree */
@@ -1324,7 +1324,7 @@ BD_odd_iscyclo(GEN f)
     t = ZXQ_mul_by_X(t, f);
     /* t = (X mod f(X))^d */
     if (degpol(t) == 0) break;
-    if (low_stack(lim, stack_lim(av,1)))
+    if (gc_needed(av,1))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"BD_odd_iscyclo");
       t = gerepilecopy(av, t);

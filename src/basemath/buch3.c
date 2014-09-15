@@ -2108,7 +2108,7 @@ discrayabslistarch(GEN bnf, GEN arch, ulong bound)
 {
   int allarch = (arch==NULL), flbou = 0;
   long degk, j, k, l, nba, nbarch, r1, c;
-  pari_sp av0 = avma,  av,  av1,  lim;
+  pari_sp av0 = avma,  av,  av1;
   GEN nf, p, Z, fa, ideal, bidp, matarchunit, Disc, U, sgnU, EMPTY, empty;
   GEN res, embunit, h, Ray, discall, idealrel, idealrelinit, fadkabs;
   ulong i, ii, sqbou;
@@ -2142,7 +2142,7 @@ discrayabslistarch(GEN bnf, GEN arch, ulong bound)
   /* what follows was rewritten from Ideallist */
   p = cgetipos(3);
   u_forprime_init(&S, 2, bound);
-  av = avma; lim = stack_lim(av,1);
+  av = avma;
   sqbou = (ulong)sqrt((double)bound) + 1;
   Z = bigcgetvec(bound);
   for (i=2; i<=bound; i++) bigel(Z,i) = empty;
@@ -2213,7 +2213,7 @@ discrayabslistarch(GEN bnf, GEN arch, ulong bound)
         ideal = idealmul(nf,ideal,pr);
       }
     }
-    if (low_stack(lim, stack_lim(av,1)))
+    if (gc_needed(av,1))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"[1]: discrayabslistarch");
       gerepileall(av, flbou? 2: 1, &Z, &Ray);
@@ -2237,7 +2237,7 @@ discrayabslistarch(GEN bnf, GEN arch, ulong bound)
   }
   EMPTY = mkvec3(gen_0,gen_0,gen_0);
   idealrelinit = trivial_fact();
-  av1 = avma; lim = stack_lim(av1,1);
+  av1 = avma;
   Disc = bigcgetvec(bound);
   for (i=1; i<=bound; i++) bigel(Disc,i) = empty;
   for (ii=1; ii<=bound; ii++)
@@ -2299,7 +2299,7 @@ STORE:  gel(discall,karch+1) = res;
       res = allarch? mkvec2(Fa, discall)
                    : mkvec4(Fa, gel(res,1), gel(res,2), gel(res,3));
       gel(sousdisc,j) = res;
-      if (low_stack(lim, stack_lim(av1,1)))
+      if (gc_needed(av1,1))
       {
         long jj;
         if(DEBUGMEM>1) pari_warn(warnmem,"[2]: discrayabslistarch");

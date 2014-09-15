@@ -74,7 +74,7 @@ int
 Fp_ratlift(GEN x, GEN m, GEN amax, GEN bmax, GEN *a, GEN *b)
 {
   GEN d, d1, v, v1, q, r;
-  pari_sp av = avma, av1, lim;
+  pari_sp av = avma, av1;
   long lb, lbb, s, s0;
   ulong vmax;
   ulong xu, xu1, xv, xv1; /* Lehmer stage recurrence matrix */
@@ -97,7 +97,7 @@ Fp_ratlift(GEN x, GEN m, GEN amax, GEN bmax, GEN *a, GEN *b)
   lb = lgefint(bmax);
   lbb = bfffo(*int_MSW(bmax));
   s = 1;
-  av1 = avma; lim = stack_lim(av, 1);
+  av1 = avma;
 
   /* General case: Euclidean division chain starting with m div x, and
    * with bounds on the sequence of convergents' denoms v_j.
@@ -212,7 +212,7 @@ Fp_ratlift(GEN x, GEN m, GEN amax, GEN bmax, GEN *a, GEN *b)
       }
     }
 
-    if (low_stack(lim, stack_lim(av,1)))
+    if (gc_needed(av,1))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"ratlift");
       gerepileall(av1, 4, &d, &d1, &v, &v1);

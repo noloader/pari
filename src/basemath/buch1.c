@@ -96,11 +96,11 @@ static GEN
 qfr5_rho_pow(GEN x, long n, struct qfr_data *S)
 {
   long i;
-  pari_sp av = avma, lim = stack_lim(av, 1);
+  pari_sp av = avma;
   for (i=1; i<=n; i++)
   {
     x = qfr5_rho(x,S);
-    if (low_stack(lim, stack_lim(av,1)))
+    if (gc_needed(av,1))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"qfr5_rho_pow");
       x = gerepilecopy(av, x);
@@ -703,13 +703,13 @@ real_relations(struct buch_quad *B, long need, long *pc, long lim, ulong LIMC, G
   /* in a 2nd phase, don't include FB[current] but run along the cyle
    * ==> get more units */
   int first = (current == 0);
-  pari_sp av, av1, limstack;
+  pari_sp av, av1;
   GEN d, col, form, form0, form1, ex = cgetg(lgsub, t_VECSMALL);
 
   if (DEBUGLEVEL>2) timer_start(&T);
   if (!current) current = 1;
   if (lim > need) lim = need;
-  av = avma; limstack = stack_lim(av,1);
+  av = avma;
   for(;;)
   {
     if (s >= need) break;
@@ -731,7 +731,7 @@ CYCLE:
       if (++current > B->KC) current = 1;
       continue;
     }
-    if (low_stack(limstack, stack_lim(av,1)))
+    if (gc_needed(av,1))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"real_relations");
       gerepileall(av1, form1? 2: 1, &form, &form1);

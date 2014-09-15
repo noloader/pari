@@ -198,7 +198,7 @@ Flxq_log_cubic(struct Flxq_log_rel *r, GEN C, GEN R, ulong p)
 static GEN
 Flxq_log_find_rel(GEN b, long r, GEN T, ulong p, GEN *g, long *e)
 {
-  pari_sp av = avma, lim = stack_lim(av,2);
+  pari_sp av = avma;
   while (1)
   {
     GEN M;
@@ -216,7 +216,7 @@ Flxq_log_find_rel(GEN b, long r, GEN T, ulong p, GEN *g, long *e)
         gerepileall(av,2,g,&rel); return rel;
       }
     }
-    if (low_stack(lim, stack_lim(av,2)))
+    if (gc_needed(av,2))
     {
       if (DEBUGMEM>1) pari_warn(warnmem,"Flxq_log_find_rel");
       *g = gerepilecopy(av, *g);

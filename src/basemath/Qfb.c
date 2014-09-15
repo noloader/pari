@@ -614,7 +614,7 @@ GEN
 redimagsl2(GEN q, GEN *U)
 {
   GEN Q = cgetg(4, t_QFI);
-  pari_sp av = avma, av2, lim = stack_lim(av, 1);
+  pari_sp av = avma, av2;
   GEN z, u1,u2,v1,v2, a = gel(q,1), b = gel(q,2), c = gel(q,3);
   long cmp;
   /* upper bound for size of final (a,b,c) */
@@ -635,7 +635,7 @@ redimagsl2(GEN q, GEN *U)
     swap(a,c); b = negi(b);
     z = u1; u1 = u2; u2 = negi(z);
     REDBU(a,&b,&c, u1,&u2);
-    if (low_stack(lim, stack_lim(av, 1))) {
+    if (gc_needed(av, 1)) {
       if (DEBUGMEM>1) pari_warn(warnmem, "redimagsl2");
       gerepileall(av2, 5, &a,&b,&c, &u1,&u2);
     }
@@ -1324,7 +1324,7 @@ redrealsl2step(GEN A, GEN d, GEN rd)
 GEN
 redrealsl2(GEN V, GEN d, GEN rd)
 {
-  pari_sp ltop = avma, st_lim = stack_lim(ltop, 1);
+  pari_sp ltop = avma;
   GEN M, u1, u2, v1, v2;
   GEN a = gel(V,1), b = gel(V,2), c = gel(V,3);
   u1 = v2 = gen_1; v1 = u2 = gen_0;
@@ -1339,7 +1339,7 @@ redrealsl2(GEN V, GEN d, GEN rd)
     if (signe(a) < 0) togglesign(q);
     r = u1; u1 = v1; v1 = subii(mulii(q, v1), r);
     r = u2; u2 = v2; v2 = subii(mulii(q, v2), r);
-    if (low_stack(st_lim, stack_lim(ltop, 1)))
+    if (gc_needed(ltop, 1))
     {
       if (DEBUGMEM>1) pari_warn(warnmem,"redrealsl2");
       gerepileall(ltop, 7, &a,&b,&c,&u1,&u2,&v1,&v2);
@@ -1352,7 +1352,7 @@ redrealsl2(GEN V, GEN d, GEN rd)
 GEN
 qfrsolvep(GEN Q, GEN p)
 {
-  pari_sp ltop = avma, btop, st_lim;
+  pari_sp ltop = avma, btop;
   GEN N, P, P1, P2, M, rd, d = qfb_disc(Q);
   if (kronecker(d, p) < 0) { avma = ltop; return gen_0; }
   rd = sqrti(d);
@@ -1361,14 +1361,14 @@ qfrsolvep(GEN Q, GEN p)
   P1 = redrealsl2(P, d,rd);
   togglesign( gel(P,2) );
   P2 = redrealsl2(P, d,rd);
-  btop = avma; st_lim = stack_lim(btop, 1);
+  btop = avma;
   for(;;)
   {
     if (ZV_equal(gel(M,1), gel(P1,1))) { N = gel(P1,2); break; }
     if (ZV_equal(gel(M,1), gel(P2,1))) { N = gel(P2,2); break; }
     M = redrealsl2step(M, d,rd);
     if (ZV_equal(gel(M,1), gel(N,1))) { avma = ltop; return gen_0; }
-    if (low_stack(st_lim, stack_lim(btop, 1))) M = gerepileupto(btop, M);
+    if (gc_needed(btop, 1)) M = gerepileupto(btop, M);
   }
   return gerepilecopy(ltop, SL2_div_mul_e1(gel(M,2),N));
 }
@@ -1391,7 +1391,7 @@ qfbsolve(GEN Q,GEN n)
 long
 cornacchia(GEN d, GEN p, GEN *px, GEN *py)
 {
-  pari_sp av = avma, av2, lim;
+  pari_sp av = avma, av2;
   GEN a, b, c, L, r;
 
   if (typ(d) != t_INT) pari_err_TYPE("cornacchia", d);
@@ -1405,11 +1405,11 @@ cornacchia(GEN d, GEN p, GEN *px, GEN *py)
   if (!b) { avma = av; return 0; }
   if (absi_cmp(shifti(b,1), p) > 0) b = subii(b,p);
   a = p; L = sqrti(p);
-  av2 = avma; lim = stack_lim(av2, 1);
+  av2 = avma;
   while (absi_cmp(b, L) > 0)
   {
     r = remii(a, b); a = b; b = r;
-    if (low_stack(lim, stack_lim(av2, 1))) {
+    if (gc_needed(av2, 1)) {
       if (DEBUGMEM>1) pari_warn(warnmem,"cornacchia");
       gerepileall(av2, 2, &a,&b);
     }
@@ -1425,7 +1425,7 @@ cornacchia(GEN d, GEN p, GEN *px, GEN *py)
 long
 cornacchia2(GEN d, GEN p, GEN *px, GEN *py)
 {
-  pari_sp av = avma, av2, lim;
+  pari_sp av = avma, av2;
   GEN a, b, c, L, r, px4;
   long k;
 
@@ -1457,11 +1457,11 @@ cornacchia2(GEN d, GEN p, GEN *px, GEN *py)
   }
   if (mod2(b) != (k & 1)) b = subii(p,b);
   a = shifti(p,1); L = sqrti(px4);
-  av2 = avma; lim = stack_lim(av2, 1);
+  av2 = avma;
   while (cmpii(b, L) > 0)
   {
     r = remii(a, b); a = b; b = r;
-    if (low_stack(lim, stack_lim(av2, 1))) {
+    if (gc_needed(av2, 1)) {
       if (DEBUGMEM>1) pari_warn(warnmem,"cornacchia");
       gerepileall(av2, 2, &a,&b);
     }

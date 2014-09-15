@@ -2424,7 +2424,7 @@ mpqs_solve_linear_system(mpqs_handle_t *h, pariFILE *pFREL, long rel)
 {
   GEN N = h->N, X, Y_prod, X_plus_Y, D1, res, new_res;
   mpqs_FB_entry_t *FB = h->FB;
-  pari_sp av=avma, av2, av3, lim, lim3;
+  pari_sp av=avma, av2, av3;
   long *fpos, *ei;
   long i, j, H_cols, H_rows;
   long res_last, res_next, res_size, res_max;
@@ -2471,7 +2471,7 @@ mpqs_solve_linear_system(mpqs_handle_t *h, pariFILE *pFREL, long rel)
    * about which factors we know to be composite (zero) or believe to be
    * composite (NULL) or suspect to be prime (one), or an exponent (two
    * or some t_INT) if it is a proper power */
-  av2 = avma; lim = stack_lim(av2,1);
+  av2 = avma;
   if (rank > (long)BITS_IN_LONG - 2)
     res_max = LONG_MAX; /* the common case, unfortunately */
   else
@@ -2488,13 +2488,13 @@ mpqs_solve_linear_system(mpqs_handle_t *h, pariFILE *pFREL, long rel)
     X = Y_prod = gen_1;
     memset((void *)ei, 0, (h->size_of_FB + 2) * sizeof(long));
 
-    av3 = avma; lim3 = stack_lim(av3,1);
+    av3 = avma;
     for (j = 1; j <= H_rows; j++)
     {
       if (F2m_coeff(ker_m, j, i))
         Y_prod = mpqs_add_relation(Y_prod, N, ei,
                                    mpqs_get_relation(buf, fpos[j-1], pFREL));
-      if (low_stack(lim3, stack_lim(av3,1)))
+      if (gc_needed(av3,1))
       {
         if(DEBUGMEM>1) pari_warn(warnmem,"[1]: mpqs_solve_linear_system");
         Y_prod = gerepileuptoint(av3, Y_prod);
@@ -2502,7 +2502,7 @@ mpqs_solve_linear_system(mpqs_handle_t *h, pariFILE *pFREL, long rel)
     }
     Y_prod = gerepileuptoint(av3, Y_prod);
 
-    av3 = avma; lim3 = stack_lim(av3,1);
+    av3 = avma;
     for (j = 2; j <= h->size_of_FB + 1; j++)
       if (ei[j])
       {
@@ -2510,7 +2510,7 @@ mpqs_solve_linear_system(mpqs_handle_t *h, pariFILE *pFREL, long rel)
         X = remii(mulii(X,
                         Fp_powu(utoipos(FB[j].fbe_p), (ulong)ei[j]>>1, N)),
                   N);
-        if (low_stack(lim3, stack_lim(av3,1)))
+        if (gc_needed(av3,1))
         {
           if(DEBUGMEM>1) pari_warn(warnmem,"[2]: mpqs_solve_linear_system");
           X = gerepileupto(av3, X);
@@ -2636,7 +2636,7 @@ mpqs_solve_linear_system(mpqs_handle_t *h, pariFILE *pFREL, long rel)
        * also when all current factors are probable primes */
       if (res_next > res_max || done == res_next - 1) break;
     } /* end case of further splitting of existing factors */
-    if (low_stack(lim, stack_lim(av2,1)))
+    if (gc_needed(av2,1))
     {
       long i1;
       if(DEBUGMEM>1) pari_warn(warnmem,"[3]: mpqs_solve_linear_system");

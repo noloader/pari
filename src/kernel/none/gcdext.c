@@ -31,7 +31,7 @@ bezout(GEN a, GEN b, GEN *pu, GEN *pv)
 {
   GEN t,u,u1,v,v1,d,d1,q,r;
   GEN *pt;
-  pari_sp av, av1, lim;
+  pari_sp av, av1;
   long s, sa, sb;
   ulong g;
   ulong xu,xu1,xv,xv1;                /* Lehmer stage recurrence matrix */
@@ -128,7 +128,7 @@ bezout(GEN a, GEN b, GEN *pu, GEN *pv)
     d = absi(a); d1 = absi(b);
     u = v1 = gen_1; u1 = v = gen_0;
   }
-  av1 = avma; lim = stack_lim(av, 1);
+  av1 = avma;
 
   /* main loop is almost identical to that of invmod() */
   while (lgefint(d) > 3 && signe(d1))
@@ -176,7 +176,7 @@ bezout(GEN a, GEN b, GEN *pu, GEN *pv)
       v=v1; v1=a;
       d=d1; d1=r;
     }
-    if (low_stack(lim, stack_lim(av,1)))
+    if (gc_needed(av,1))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"bezout");
       gerepileall(av1,6, &d,&d1,&u,&u1,&v,&v1);

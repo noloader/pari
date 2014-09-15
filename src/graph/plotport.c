@@ -117,7 +117,7 @@ plot(GEN a, GEN b, GEN code, GEN ysmlu,GEN ybigu, long prec)
 {
   const char BLANK = ' ', YY = '|', XX_UPPER = '\'', XX_LOWER = '.';
   long jz, j, i, sig;
-  pari_sp av = avma, av2, limite;
+  pari_sp av = avma, av2;
   int jnew, jpre = 0; /* for lint */
   GEN x, dx;
   double diff, dyj, ysml, ybig, y[ISCR+1];
@@ -135,7 +135,7 @@ plot(GEN a, GEN b, GEN code, GEN ysmlu,GEN ybigu, long prec)
     scr[i][JSCR]= XX_UPPER;
     for (j=2; j<JSCR; j++) scr[i][j] = BLANK;
   }
-  av2 = avma; limite=stack_lim(av2,1);
+  av2 = avma;
   ysml = ybig = 0.; /* -Wall */
   for (i=1; i<=ISCR; i++)
   {
@@ -148,7 +148,7 @@ plot(GEN a, GEN b, GEN code, GEN ysmlu,GEN ybigu, long prec)
       if (y[i] > ybig) ybig = y[i];
     }
     x = addrr(x,dx);
-    if (low_stack(limite, stack_lim(av2,1)))
+    if (gc_needed(av2,1))
     {
       if (DEBUGMEM>1) pari_warn(warnmem,"plot");
       x = gerepileuptoleaf(av2, x);

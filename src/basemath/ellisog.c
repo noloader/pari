@@ -171,7 +171,7 @@ update_isogeny_polys(GEN isog, GEN E, GEN Q, GEN tQ, GEN uQ, long vx, long vy)
 static GEN
 isogeny_from_kernel_point(GEN E, GEN P, int only_image, long vx, long vy)
 {
-  pari_sp av = avma, lim = stack_lim(av, 1);
+  pari_sp av = avma;
   GEN isog, EE, f, g, h, h2, h3;
   GEN Q = P, t = gen_0, w = gen_0;
   long c;
@@ -204,7 +204,7 @@ isogeny_from_kernel_point(GEN E, GEN P, int only_image, long vx, long vy)
     ++c;
     /* IF x([c]P) = x([c-1]P) THEN [c]P = -[c-1]P and [2c-1]P = 0 */
     if (gequal(gel(Q,1), xQ)) break;
-    if (low_stack(lim, stack_lim(av,1)))
+    if (gc_needed(av,1))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"isogeny_from_kernel_point");
       gerepileall(av, isog? 4: 3, &Q, &t, &w, &isog);
