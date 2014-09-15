@@ -135,6 +135,7 @@ ellpadicL(GEN e, GEN pp, long n, long r, GEN DD, GEN C)
   GEN E, ap, scale, L;
   ulong p, D;
 
+  (void)C; /* TODO */
   E = ellsym(e, 1);
   e = ellsym_get_ell(E);
   if (DD && !Z_isfundamental(DD))
