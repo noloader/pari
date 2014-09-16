@@ -163,7 +163,7 @@ static HANDLE hTimerQueue = NULL;
 static void CALLBACK
 win32_cb_alarm(void *lpParam, BOOLEAN TimerOrWaitFired)
 {
-  (void) lpParam;
+  (void) lpParam; (void) TimerOrWaitFired;
   win32ctrlc++;
   win32alrm = 1;
 }
