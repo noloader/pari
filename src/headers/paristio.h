@@ -228,8 +228,7 @@ extern char *current_psfile, *pari_datadir;
   (y)=(_t>=pari_mainstack->bot &&_t<pari_mainstack->top)? \
       icopy((GEN)_t): (GEN)_t;} STMT_END
 
-/* Define this to (1) locally (in a given file, NOT here) to check
- * "random" garbage collecting */
+/* Define this to thoroughly check "random" garbage collecting */
 #ifdef DEBUG_LOWSTACK
 #  define low_stack(x,l) 1
 #  define gc_needed(av,n) 1
