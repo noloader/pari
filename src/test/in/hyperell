@@ -4,3 +4,8 @@
      H=hyperellpadicfrobenius(x^(2*g+1)-2*x^n+1,19,g+3);
       print(centerlift(charpoly(H)))))
 }
+
+g=ffgen(ffinit(79,3),'g);
+P=hyperellzeta(x^5+g*x^3+2*x+5);minpoly(Mod(x+79^3/x,P))
+P=hyperellzeta(x^5+Mod('g,g.mod*Mod(1,79))*x^3+2*x+5);minpoly(Mod(x+79^3/x,P))
+P=hyperellzeta((x^7+x^3+2*x+5)*Mod(1,79));minpoly(Mod(x+79/x,P))

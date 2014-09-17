@@ -214,6 +214,26 @@ diff_red(GEN s, GEN A, long m, GEN T, GEN p)
 }
 
 static GEN
+ZC_to_padic(GEN C, GEN q)
+{
+  long i, l = lg(C);
+  GEN V = cgetg(l,t_COL);
+  for(i = 1; i < l; i++)
+    gel(V, i) = gadd(gel(C, i), q);
+  return V;
+}
+
+static GEN
+ZM_to_padic(GEN M, GEN q)
+{
+  long i, l = lg(M);
+  GEN V = cgetg(l,t_MAT);
+  for(i = 1; i < l; i++)
+    gel(V, i) = ZC_to_padic(gel(M, i), q);
+  return V;
+}
+
+static GEN
 ZX_to_padic(GEN P, GEN q)
 {
   long i, l = lg(P);
@@ -245,23 +265,11 @@ ZXM_to_padic(GEN M, GEN q)
 }
 
 static GEN
-topad(GEN P, long g, GEN q)
-{
-  long i, d = lgpol(P);
-  GEN V = cgetg(g+1,t_COL);
-  for(i = 1; i <= d; i++)
-    gel(V, i) = gadd(gel(P, i+1), q);
-  for(     ; i <= g; i++)
-    gel(V, i) = gcopy(q);
-  return V;
-}
-
-GEN
-hyperellpadicfrobenius(GEN H, ulong p, long n)
+ZlX_hyperellpadicfrobenius(GEN H, ulong p, long n)
 {
   pari_sp av = avma;
   long N, i, d, g;
-  GEN F, s, q, Q, pN1, U, V;
+  GEN F, s, Q, pN1, U, V;
   pari_timer ti;
   if (typ(H) != t_POL) pari_err_TYPE("hyperellpadicfrobenius",H);
   if (p == 2) is_sing(H, 2);
@@ -273,7 +281,7 @@ hyperellpadicfrobenius(GEN H, ulong p, long n)
   if (n < 1)
     pari_err_DOMAIN("hyperellpadicfrobenius","n","<", gen_1, utoi(n));
   N = n + logint0(stoi(2*n), stoi(p), NULL);
-  q = zeropadic(utoi(p),n); pN1 = powuu(p,N+1);
+  pN1 = powuu(p,N+1);
   Q = RgX_to_FpX(H, pN1);
   if (dvdiu(leading_term(Q),p)) is_sing(H, p);
   setvarn(Q,1);
@@ -292,9 +300,18 @@ hyperellpadicfrobenius(GEN H, ulong p, long n)
     if (DEBUGLEVEL>1) timer_printf(&ti,"red");
     M = ZpXXQ_frob(D, U, V, Q, p, N + 1);
     if (DEBUGLEVEL>1) timer_printf(&ti,"frob");
-    gel(F, i) = gerepilecopy(av2, topad(M, g, q));
+    gel(F, i) = gerepilecopy(av2, RgX_to_RgC(M, g));
   }
   return gerepileupto(av, F);
+}
+
+GEN
+hyperellpadicfrobenius(GEN H, ulong p, long n)
+{
+  pari_sp av = avma;
+  GEN M = ZlX_hyperellpadicfrobenius(H, p, n);
+  GEN q = zeropadic(utoi(p),n);
+  return gerepileupto(av, ZM_to_padic(M, q));
 }
 
 INLINE GEN
@@ -573,4 +590,32 @@ nfhyperellpadicfrobenius(GEN H, GEN T, ulong p, long n)
   GEN q = zeropadic(utoi(p),n);
   GEN m = gmul(ZXM_to_padic(MM, q), gmodulo(gen_1, T));
   return gerepileupto(av, m);
+}
+
+GEN
+hyperellzeta(GEN H)
+{
+  pari_sp av = avma;
+  GEN M, R, T=NULL, pp=NULL;
+  long n;
+  ulong p;
+  if (typ(H)!=t_POL || !RgX_is_FpXQX(H, &T, &pp) || !pp)
+    pari_err_TYPE("hyperellzeta",H);
+  p = itou(pp);
+  if (!T)
+  {
+    H = RgX_to_FpX(H, pp);
+    n = (degpol(H)-1)/2+1;
+    M = hyperellpadicfrobenius(H, p, n);
+    R = centerlift(carberkowitz(M, 0));
+  }
+  else
+  {
+    T = typ(T)==t_FFELT? FF_mod(T): RgX_to_FpX(T, pp);
+    H = RgX_to_FpXQX(H, T, pp);
+    n = degpol(T)*(degpol(H)-1)/2+1;
+    M = nfhyperellpadicfrobenius(H, T, p, n);
+    R = centerlift(liftpol(carberkowitz(M, 0)));
+  }
+  return gerepileupto(av, R);
 }
