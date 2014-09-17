@@ -2120,7 +2120,7 @@ ff_poltype(GEN *x, GEN *p, GEN *pol)
 {
   GEN Q, P = *x;
   if (!signe(P)) return 0;
-  if (!RgX_is_FpXQX(P,pol,p) || !*p || !*pol)
+  if (!RgX_is_FpXQX(P,pol,p) || !*p || !*pol || typ(*pol)!=t_POL)
     return 0;
   Q = RgX_to_FpX(*pol, *p);
   P = RgX_to_FpXQX(P, Q, *p);

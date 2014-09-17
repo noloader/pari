@@ -4111,9 +4111,12 @@ a \kbd{FpX} to an extended modulus for the corresponding \kbd{Flx}.
 which can be mapped to $\F_p[X]/(T)$: anything for which \kbd{Rg\_is\_Fp} return
 $1$, a \typ{POL} for which \kbd{RgX\_to\_FpX} return $1$, a \typ{POLMOD}
 whose modulus is equal to \kbd{*T} if \kbd{*T} is not \kbd{NULL} (once mapped
-to a \kbd{FpX}).
+to a \kbd{FpX}), or a \typ{FFELT} $z$ such that $z^0$ is equal to \kbd{*T}
+if \kbd{*T} is not \kbd{NULL}.
+
 If an integer modulus is found it is put in \kbd{*p}, else \kbd{*p} is left
-unchanged. If a polynomial modulus is found it is put in \kbd{*T}, else
+unchanged. If a polynomial modulus is found it is put in \kbd{*T},
+if a \typ{FFELT} $z$ is found, $z^0$ is put in \kbd{*T}, else
 \kbd{*T} is left unchanged.
 
 \fun{int}{RgX_is_FpXQX}{GEN z, GEN *T, GEN *p}, \kbd{z} a \typ{POL},

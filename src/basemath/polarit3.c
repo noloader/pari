@@ -155,7 +155,7 @@ RgM_is_FpM(GEN x, GEN *pp)
 int
 Rg_is_FpXQ(GEN x, GEN *pT, GEN *pp)
 {
-  GEN pol, mod;
+  GEN pol, mod, p;
   switch(typ(x))
   {
   case t_INTMOD:
@@ -164,6 +164,16 @@ Rg_is_FpXQ(GEN x, GEN *pT, GEN *pp)
     return 1;
   case t_POL:
     return RgX_is_FpX(x, pp);
+  case t_FFELT:
+    mod = FF_1(x); p = FF_p_i(x);
+    if (!*pp) *pp = p;
+    if (!*pT) *pT = mod;
+    if ((p != *pp && !equalii(p, *pp)) || (mod != *pT && !gequal(mod, *pT)))
+    {
+      if (DEBUGMEM) pari_warn(warner,"different moduli in Rg_is_FpXQ");
+      return 0;
+    }
+    return 1;
   case t_POLMOD:
     mod = gel(x,1); pol = gel(x, 2);
     if (!RgX_is_FpX(mod, pp)) return 0;
