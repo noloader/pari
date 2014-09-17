@@ -1401,29 +1401,6 @@ to_FF_fact(long vP, GEN P, GEN E, GEN ff, pari_sp av)
   return y;
 }
 
-/*Warning: FFX are polynomials whose coefficients are compatible with FF:
- * t_INT t_INTMOD, t_FFELT. Assume varncmp(varn(T), varn(x)) < 0 */
-static GEN
-FFX_to_FqX(GEN x, GEN T, GEN p)
-{
-  long i, l = lg(x);
-  GEN z = cgetg(l, t_POL); z[1] = x[1];
-
-  for (i = 2; i < l; i++)
-  {
-    GEN y = gel(x,i);
-    if (typ(y) == t_FFELT)
-    {
-      y = FF_to_FpXQ(y);
-      setvarn(y, varn(T)); /* paranoia */
-    }
-    else
-      y = Rg_to_FpXQ(y, T,p);
-    gel(z,i) = simplify_shallow(y);
-  }
-  return normalizepol_lg(z, l);
-}
-
 static GEN
 FFX_init_fix_varn(GEN P, GEN x, GEN *pT, GEN *pp)
 {
@@ -1443,7 +1420,7 @@ FFX_init_fix_varn(GEN P, GEN x, GEN *pT, GEN *pp)
     T=Flx_to_ZX(T);
   }
   setvarn(T, 1);
-  Q = FFX_to_FqX(P, T,p);
+  Q = RgX_to_FqX(P, T,p);
   setvarn(Q, 0);
 
   *pT = T;
