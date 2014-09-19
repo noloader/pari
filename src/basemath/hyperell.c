@@ -593,14 +593,14 @@ nfhyperellpadicfrobenius(GEN H, GEN T, ulong p, long n)
 }
 
 GEN
-hyperellzeta(GEN H)
+hyperellcharpoly(GEN H)
 {
   pari_sp av = avma;
   GEN M, R, T=NULL, pp=NULL;
   long n;
   ulong p;
   if (typ(H)!=t_POL || !RgX_is_FpXQX(H, &T, &pp) || !pp)
-    pari_err_TYPE("hyperellzeta",H);
+    pari_err_TYPE("hyperellcharpoly",H);
   p = itou(pp);
   if (!T)
   {
