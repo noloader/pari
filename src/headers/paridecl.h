@@ -1426,6 +1426,7 @@ GEN     divisorsu(ulong n);
 GEN     factor_pn_1(GEN p, ulong n);
 GEN     factor_pn_1_limit(GEN p, long n, ulong lim);
 GEN     factoru_pow(ulong n);
+GEN     fromdigits(GEN x, GEN B);
 GEN     fuse_Z_factor(GEN f, GEN B);
 GEN     gen_digits(GEN x, GEN B, long n, void *E, struct bb_ring *r,
                           GEN (*div)(void *E, GEN x, GEN y, GEN *r));

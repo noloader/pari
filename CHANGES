@@ -137,6 +137,7 @@ BA 45- [libpari] functions FpX_Frobenius, FpX_matFrobenius, Flx_Frobenius,
        Flx_matFrobenius, ZpX_Frobenius
    46- [libpari] function ser_isexactzero
 BA 47- [libpari] ZV_chinese, Z_ZV_mod
+BA 48- GP function fromdigits
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]

@@ -1472,6 +1472,17 @@ digits(GEN x, GEN B)
   }
 }
 
+GEN
+fromdigits(GEN x, GEN B)
+{
+  pari_sp av = avma;
+  if (typ(x)!=t_VEC || !RgV_is_ZV(x)) pari_err_TYPE("fromdigits",x);
+  B = check_basis(B);
+  if (lg(x)==1) { avma = av; return gen_0; }
+  x = vecreverse(x);
+  return gerepileupto(av, gen_fromdigits(x, B, NULL, &Z_ring));
+}
+
 static ulong DS[] ={
   0,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,10,2,3,4,5,6,7,8,9,10,11,3,4,5,6,7,8,
   9,10,11,12,4,5,6,7,8,9,10,11,12,13,5,6,7,8,9,10,11,12,13,14,6,7,8,9,10,11,
