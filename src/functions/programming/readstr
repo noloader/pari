@@ -1,5 +1,4 @@
 Function: readstr
-Class: gp
 Section: programming/specific
 C-Name: readstr
 Prototype: D"",s,

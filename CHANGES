@@ -186,6 +186,9 @@ BA 25- setrand now return a (huge) integer instead of a vecsmall
        behave identically on all architecture, provided they do not involve
        the floating point kernel
    28- unify 32/64 bit tests
+   29- move extern(), externstr(), readstr() and system() to the generic
+       part of GP language (was gp-specific). This allows to use them
+       in parallel mode and under gp2c [#1593]
 
 Removed
    1- deprecated functions nfbasis0, nfdisc0, factorpadic0

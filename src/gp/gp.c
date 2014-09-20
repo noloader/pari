@@ -1869,13 +1869,6 @@ gp_alarm_handler(int sig)
 /*                      GP-SPECIFIC ROUTINES                        */
 /*                                                                  */
 /********************************************************************/
-static void
-check_secure(const char *s)
-{
-  if (GP_DATA->secure)
-    pari_err(e_MISC, "[secure mode]: system commands not allowed\nTried to run '%s'",s);
-}
-
 /* as gp_read_file, before running the main gp instance */
 static void
 read_main(const char *s)
@@ -1895,54 +1888,6 @@ read_main(const char *s)
   avma = pari_mainstack->top;
 }
 
-static GEN
-get_lines(FILE *F)
-{
-  pari_sp av = avma;
-  long i, nz = 16;
-  GEN z = cgetg(nz + 1, t_VEC);
-  Buffer *b = new_buffer();
-  input_method IM;
-  IM.fgets = &fgets;
-  IM.file = F;
-  for(i = 1;;)
-  {
-    char *s = b->buf, *e;
-    if (!file_getline(b, &s, &IM)) break;
-    if (i > nz) { nz <<= 1; z = vec_lengthen(z, nz); }
-    e = s + strlen(s)-1;
-    if (*e == '\n') *e = 0;
-    gel(z,i++) = strtoGENstr(s);
-  }
-  delete_buffer(b); setlg(z, i);
-  return gerepilecopy(av, z);
-}
-
-GEN
-externstr(const char *s)
-{
-  pariFILE *F;
-  GEN z;
-  check_secure(s);
-  F = try_pipe(s, mf_IN);
-  z = get_lines(F->file);
-  pari_fclose(F); return z;
-}
-GEN
-readstr(const char *s)
-{
-  GEN z = get_lines(switchin(s));
-  popinfile(); return z;
-}
-
-GEN
-extern0(const char *s)
-{
-  check_secure(s);
-  pari_infile = try_pipe(s, mf_IN)->file;
-  return gp_main_loop(0);
-}
-
 GEN
 input0(void)
 {
@@ -1954,19 +1899,6 @@ input0(void)
     if (popinfile()) { err_printf("no input ???"); gp_quit(1); }
   x = readseq(b->buf);
   pop_buffer(); return x;
-}
-
-void
-system0(const char *s)
-{
-/*FIXME: HAS_SYSTEM */
-#if defined(UNIX) || defined(__EMX__) || defined(_WIN32)
-  check_secure(s);
-  if (system(s) < 0)
-    pari_err(e_MISC, "system(\"%s\") failed", s);
-#else
-  pari_err(e_ARCH,"system");
-#endif
 }
 
 static GEN

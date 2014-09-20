@@ -1,7 +1,6 @@
 Function: system
-Class: gp
 Section: programming/specific
-C-Name: system0
+C-Name: gpsystem
 Prototype: vs
 Description:
  (str):void   system($1)

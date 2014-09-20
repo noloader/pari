@@ -112,7 +112,6 @@ entree functions_oldgp[] = {
 {"setserieslength",15,(void *)setserieslength,2,"lL","setserieslength(n)=set the default length of power series to n if n>0, or return the current default length if n<=0"},
 {"settype",21,(void *)gsettype,2,"GL","settype(x,t)=make a copy of x with type t (to use with extreme care)"},
 {"string",57,(void*)rectstring,10,"vLs","string(w,x)=draw in rectwindow w the string corresponding to x, where x is either a string, or a number in R, written in format 9.3"},
-{"system",70,(void*) system0,11,"vs","system(a): a being a string, execute the system command a (not valid on every machine)"},
 {"texprint",0,(void*)printtex,11,"vs*","texprint(a)=outputs a in TeX format"},
 {"type",1,(void *)gtype,2,"Gp","type(x)=internal type number of the GEN x"},
 

@@ -1,5 +1,4 @@
 Function: externstr
-Class: gp
 Section: programming/specific
 C-Name: externstr
 Prototype: s

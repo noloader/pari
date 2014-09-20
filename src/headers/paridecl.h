@@ -2158,6 +2158,10 @@ GEN     ellsea(GEN E, GEN p, long early_abort);
 
 /* es.c */
 
+GEN     externstr(const char *cmd);
+GEN     gpextern(const char *cmd);
+void    gpsystem(const char *s);
+GEN     readstr(const char *s);
 GEN     GENtoGENstr_nospace(GEN x);
 GEN     GENtoGENstr(GEN x);
 char*   GENtoTeXstr(GEN x);
