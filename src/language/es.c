@@ -4067,8 +4067,7 @@ check_secure(const char *s)
 void
 gpsystem(const char *s)
 {
-/*FIXME: HAS_SYSTEM */
-#if defined(UNIX) || defined(__EMX__) || defined(_WIN32)
+#ifdef HAS_SYSTEM
   check_secure(s);
   if (system(s) < 0)
     pari_err(e_MISC, "system(\"%s\") failed", s);

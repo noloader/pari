@@ -48,6 +48,7 @@ list=setsid; . ./look
 list=getenv; . ./look
 list=isatty; . ./look
 list=alarm; . ./look
+list=system; . ./look
 
 # For install(). Do we need libdl.so?
 # on irix and osf1 -ldl not needed

@@ -108,6 +108,9 @@ esac
 case "$has_alarm" in
 yes) echo '#define HAS_ALARM' >> $file;;
 esac
+case "$has_system" in
+yes) echo '#define HAS_SYSTEM' >> $file;;
+esac
 
 
 case "$has_clock_gettime" in
