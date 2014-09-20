@@ -19,10 +19,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #include "paripriv.h"
 #include "rect.h"
 
-BEGINEXTERN
-void system0(const char *s);
-ENDEXTERN
-
 void
 rectdraw0(long *w, long *x, long *y, long lw)
 {
@@ -43,7 +39,7 @@ rectdraw0(long *w, long *x, long *y, long lw)
   v = os_getenv("GP_POSTSCRIPT_VIEWER");
   if (!v) v = "open -W";
   cmd = pari_sprintf("%s \"%s\" 2>/dev/null", v, s);
-  system0(cmd);
+  gpsystem(cmd);
   pari_unlink(s); exit(0);
 }
 
