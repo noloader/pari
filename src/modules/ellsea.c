@@ -479,59 +479,50 @@ find_kernel(GEN a4, GEN a6, ulong ell, GEN a4t, GEN a6t, GEN pp1, GEN T, GEN p)
 {
   const long ext = 2;
   pari_sp ltop = avma;
-  GEN M, N, V, K, K1, K2, v, tlist, res;
+  GEN M, V, v, tlist, res;
   long i, j, k;
-  long deg = (ell - 1)/2, dim = deg + ext;
+  long deg = (ell - 1)/2, dim = 2 + deg + ext;
   GEN Coeff  = find_coeff(a4, a6, T, p, dim);
   GEN Coefft = find_coeff(a4t, a6t, T, p, dim);
   GEN psi2  = mkpoln(4, utoi(4), gen_0, Fq_mulu(a4, 4, T, p), Fq_mulu(a6, 4, T, p));
   GEN list  = cgetg(dim+1, t_VEC);
   GEN Dpsi2 = mkpoln(3, utoi(6), gen_0, Fq_mulu(a4, 2, T, p));
-  gel(list, 1) = Dpsi2;
-  for (k = 2; k <= dim; k++)
+  gel(list, 1) = pol_1(0);
+  gel(list, 2) = pol_x(0);
+  gel(list, 3) = Dpsi2;
+  for (k = 4; k <= dim; k++)
   {
     pari_sp btop = avma;
-    GEN tsil = gel(list, k-1);
-    GEN r = FqX_Fq_mul(Dpsi2, gel(tsil,3), T, p);
-    for (j = 4; j < lg(tsil); j++)
+    GEN lp = gel(list, k-1);
+    GEN r = FqX_Fq_mul(Dpsi2, gel(lp,3), T, p);
+    for (j = 4; j < lg(lp); j++)
     {
       long o = j - 2;
       GEN D = FqX_add(RgX_shift_shallow(Dpsi2, 1), FqX_mulu(psi2, o-1, T, p), T, p);
-      GEN E = FqX_Fq_mul(D, Fq_mulu(gel(tsil, j), o, T, p), T, p);
+      GEN E = FqX_Fq_mul(D, Fq_mulu(gel(lp, j), o, T, p), T, p);
       r = FqX_add(r, RgX_shift_shallow(E, o-2), T, p);
     }
     gel(list, k) = gerepileupto(btop, r);
   }
-  for (k = 2; k <= dim; k++)
-  {
-     GEN C = Fq_inv(shifti(mpfact(2*k),-1), T, p);
-     gel(list, k) = FqX_Fq_mul(gel(list, k), C, T, p);
-  }
-  M = shallowtrans(RgXV_to_RgM(list, dim+2));
-  N = vecslice(M, 1, dim);
+  M = shallowtrans(RgXV_to_RgM(list, dim));
   V = FqC_sub(Coefft, Coeff, T, p);
-  v = shallowconcat(FqM_FqC_gauss(N, V, T, p), mkcol2(gen_0, gen_0));
-  K = FqM_ker(M, T, p);
-  if (lg(K) != 3) pari_err_BUG("trace not determined in a unique way");
-  K1 = FqC_Fq_mul(gel(K,1), Fq_inv(gcoeff(K,1,1), T, p), T, p);
-  K2 = FqC_sub(gel(K,2), FqC_Fq_mul(K1, gcoeff(K,1,2), T, p), T, p);
-  K2 = FqC_Fq_mul(K2, Fq_inv(gel(K2,2), T, p), T, p);
-  K1 = FqC_sub(K1, FqC_Fq_mul(K2, gel(K1,2), T, p), T, p);
-  v = FqC_add(v, FqC_Fq_mul(K1, Fq_sub(utoi(deg), gel(v,1), T, p), T, p), T, p);
-  v = FqC_add(v, FqC_Fq_mul(K2, Fq_sub(pp1, gel(v,2), T, p), T, p), T, p);
-  tlist = cgetg(dim+2, t_VEC);
-  gel(tlist, dim+1) = gen_1;
   for (k = 1; k <= dim; k++)
+    gel(V, k) = Fq_Fp_mul(gel(V, k), shifti(mpfact(2*k),-1), T, p);
+  V = shallowconcat(mkcol2(utoi(deg), pp1), V);
+  v = FqM_FqC_gauss(M, V, T, p);
+  tlist = cgetg(dim, t_VEC);
+  gel(tlist, dim-1) = gen_1;
+  for (k = 1; k <= dim-2; k++)
   {
     pari_sp btop = avma;
     GEN s = gel(v, k+1);
     for (i = 1; i < k; i++)
-      s = Fq_add(s, Fq_mul(gel(tlist, dim-i+1), gel(v, k-i+1), T, p), T, p);
-    gel(tlist, dim-k+1) = gerepileupto(btop, Fq_div(s, stoi(-k), T, p));
+      s = Fq_add(s, Fq_mul(gel(tlist, dim-i-1), gel(v, k-i+1), T, p), T, p);
+    gel(tlist, dim-k-1) = gerepileupto(btop, Fq_div(s, stoi(-k), T, p));
   }
   for (i = 1; i <= ext; i++)
     if (signe(gel(tlist, i))) { avma = ltop; return NULL; }
-  res = vecslice(tlist, ext+1, dim+1);
+  res = vecslice(tlist, ext+1, dim-1);
 
   return RgV_to_RgX(res, 0);
 }
