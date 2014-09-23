@@ -78,6 +78,7 @@ XR 55- bnrL1(bnrinit(bnfinit(x^2-168),[6,[1,1]],1)) -> bug in ArtinNumber[#1601]
 BA 57- [win32] gp could crash at start up [#1607]
    58- nfisincl(t_POL, t_POL) could lead to wrong negative results
    59- qfsolve([1,0;0,-2]) returned -1 (no real solution) [#1613]
+   60- qfparam([0,0,-12;0,-12,0;-12,0,-1],[1,0,0]~,3) -> SEGV
 
   Added
     1- add optional argument to sumdigits to specify the base

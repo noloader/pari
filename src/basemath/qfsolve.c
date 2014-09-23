@@ -211,6 +211,7 @@ partialgaussred(GEN a)
         gcoeff(a,i,j) = gsub(gcoeff(a,i,j), gmul(c,gcoeff(a,k,j)));
     }
   }
+  if (isintzero(gcoeff(a,n,n))) return stoi(n);
   return a;
 }
 
