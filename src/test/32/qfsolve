@@ -113,9 +113,13 @@ dim=8
 -2
 [1, 0]~
 [-42, 35]~
-  ***   at top-level: qfparam(matdiagonal(
-  ***                 ^--------------------
-  *** qfparam: incorrect type in qfsolve (t_MAT).
+
+[-1 0 1]
+
+[ 0 2 0]
+
+[ 1 0 1]
+
 [0, 5, -1]~
 3
 
@@ -125,4 +129,4 @@ dim=8
 
 [  0  0 24]
 
-Total time spent: 2636
+Total time spent: 2628

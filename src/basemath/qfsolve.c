@@ -1037,10 +1037,11 @@ qfparam(GEN G, GEN sol, long fl)
 {
   pari_sp av = avma;
   GEN U, G1, G2, a, b, c, d, e;
-  long n;
+  long n, tx = typ(sol);
 
   if (typ(G) != t_MAT) pari_err_TYPE("qfsolve", G);
-  if (typ(sol) != t_COL) pari_err_TYPE("qfsolve", G);
+  if (!is_vec_t(tx)) pari_err_TYPE("qfsolve", G);
+  if (tx == t_VEC) sol = shallowtrans(sol);
   n = lg(G)-1;
   if (n == 0) pari_err_DOMAIN("qfsolve", "dimension" , "=", gen_0, G);
   if (n != nbrows(G) || n != 3 || lg(sol) != 4) pari_err_DIM("qfsolve");
