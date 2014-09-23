@@ -2,7 +2,7 @@ Function: qfsolve
 Section: linear_algebra
 C-Name: qfsolve
 Prototype: G
-Help: qfsolve(G): solve over Q the quaratic equation X^t G X = 0.
+Help: qfsolve(G): solve over Q the quadratic equation X^t G X = 0.
  matrix G.
 Doc: Given a square matrix $G$ of dimension $n \geq 1$, solve over $\Q$ the
  quadratic equation $X^tGX = 0$. The matrix $G$ must have rational
