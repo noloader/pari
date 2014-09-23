@@ -388,7 +388,11 @@ cmpir(GEN x, GEN y)
   GEN z;
 
   if (!signe(x)) return -signe(y);
-  if (!signe(y)) return  signe(x);
+  if (!signe(y))
+  {
+    if (expo(y) >= expi(x)) return 0;
+    return signe(x);
+  }
   av=avma; z = itor(x, realprec(y)); avma=av;
   return cmprr(z,y); /* cmprr does no memory adjustment */
 }

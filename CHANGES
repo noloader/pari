@@ -191,6 +191,8 @@ BA 25- setrand now return a (huge) integer instead of a vecsmall
    29- move extern(), externstr(), readstr() and system() to the generic
        part of GP language (was gp-specific). This allows to use them
        in parallel mode and under gp2c [#1593]
+   30- made cmprr, cmpri, equalrr consistent with == semantic. We now have,
+       e.g., 0e1==1.0 and (0e1 < 1) = 0 (since 1-0e1 evaluates to 0e1)
 
 Removed
    1- deprecated functions nfbasis0, nfdisc0, factorpadic0

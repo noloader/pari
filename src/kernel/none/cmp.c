@@ -46,8 +46,14 @@ equalrr(GEN x, GEN y)
 {
   long lx, ly, i;
 
-  if (!signe(x)) return signe(y) == 0; /* all zeroes are equal */
-  if (x[1] != y[1]) return 0; /* includes signe(y) = 0 */
+  if (!signe(x)) {
+    if (!signe(y)) return 1; /* all zeroes are equal */
+    return expo(x) >= expo(y);
+  }
+  if (!signe(y))
+    return expo(y) >= expo(x);
+
+  if (x[1] != y[1]) return 0;
 
   lx = lg(x);
   ly = lg(y);
@@ -72,9 +78,16 @@ cmprr(GEN x, GEN y)
   const long sx = signe(x), sy = signe(y);
   long ex,ey,lx,ly,lz,i;
 
+  if (!sx) {
+    if (!sy || expo(x) >= expo(y)) return 0;
+    return sy > 0? -1: 1;
+  }
+  if (!sy) {
+    if (expo(y) >= expo(x)) return 0;
+    return sx > 0? 1: -1;
+  }
   if (sx<sy) return -1;
   if (sx>sy) return 1;
-  if (!sx) return 0;
 
   ex=expo(x); ey=expo(y);
   if (ex>ey) return sx;
