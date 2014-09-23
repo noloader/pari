@@ -110,11 +110,12 @@ dim=8
 
 [1]~
 -1
--1
+-2
 [1, 0]~
 [-42, 35]~
   ***   at top-level: qfparam(matdiagonal(
   ***                 ^--------------------
   *** qfparam: incorrect type in qfsolve (t_MAT).
 [0, 5, -1]~
-Total time spent: 2352
+3
+Total time spent: 2616

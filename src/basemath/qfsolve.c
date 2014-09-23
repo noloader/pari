@@ -844,7 +844,8 @@ qfsolve_i(GEN G)
   {
     GEN t, a =  gcoeff(G,1,1);
     if (!signe(a)) return mkcol2(gen_1, gen_0);
-    if (!Z_issquareall(negi(d), &t)) return gen_m1;
+    if (signe(d) > 0) return gen_m1; /* no real solution */
+    if (!Z_issquareall(negi(d), &t)) return gen_m2;
     return mkcol2(subii(t,gcoeff(G,1,2)), a);
   }
 
