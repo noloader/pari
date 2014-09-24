@@ -12,18 +12,18 @@ with the package; see the file 'COPYING'. If not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 
 /* Original code contributed by: Ralf Stephan (ralf@ark.in-berlin.de).
+ * Updated by Bill Allombert (2014) to use Selberg formula for L
+ * following http://dx.doi.org/10.1112/S1461157012001088
  *
  * This program is basically the implementation of the script
  *
  * Psi(n, q) = my(a=sqrt(2/3)*Pi/q, b=n-1/24, c=sqrt(b));
  *             (sqrt(q)/(2*sqrt(2)*b*Pi))*(a*cosh(a*c)-(sinh(a*c)/c))
- * L(n,q)=if(q==1,1,sum(h=1,q-1,if(gcd(h,q)==1, cos((g(h,q)-24*h*n)*Pi/(12*q))))
- * g(h, q) = if(q>=3, 12*sum(k=1,q-1,k*(frac(h*k/q)-1/2)))
- *         \\ sumdedekind(h,q)*12*q
+ * L(n,q)=sqrt(k/3)*sum(l=0,2*k-1,
+          if(((3*l^2+l)/2+n)%k==0,(-1)^cos((6*l+1)/(6*k)*Pi)))
  * part(n) = round(sum(q=1,5 + 0.24*sqrt(n),L(n,q)*Psi(n,q)))
  *
- * only faster. It is a translation of the C/mpfr version at
- * http://www.ark.in-berlin.de/part.c
+ * only faster.
  *
  * ------------------------------------------------------------------
  *   The first restriction depends on Pari's maximum precision of floating
@@ -51,45 +51,31 @@ psi(GEN c, ulong q, long prec)
   return mulrr(sqrtr(stor(q,prec)), subrr(mulrr(a,cha), sha));
 }
 
-/* g(h, q) = if(q>=3, 12*sum(k=1,q-1,k*(frac(h*k/q)-1/2)))
- *   \\ this is an integer = sumdedekind(h,q)*12*q
- * assume h < q and (h,q) = 1. Not memory clean. */
-static GEN
-g(ulong h, ulong q)
-{
-  long s1, s2;
-  GEN v;
-
-  if (q < 3)  return gen_0;
-  if (h == 1) return muluu(q-1,q-2);
-  if (h == 2) return q == 3? gen_m2: muluu(q-1,(q-5)>>1);
-  v = u_sumdedekind_coprime(h, q);
-  s1 = v[1];
-  s2 = v[2];
-  return addis(mulss(q,s1), s2);
-}
-
-/* L(n,q)=if(q==1,1,sum(h=1,q-1,if(gcd(h,q)==1, cos((g(h,q)-24*h*n)*Pi/(12*q))))
+/* L(n,q)=sqrt(k/3)*sum(l=0,2*k-1,
+          if(((3*l^2+l)/2+n)%k==0,(-1)^cos((6*l+1)/(6*k)*Pi)))
  * Never called with q < 3, so ignore this case */
 static GEN
-L(GEN n, ulong q, long bitprec)
+L(GEN n, ulong k, long bitprec)
 {
-  long pr = nbits2prec(bitprec / q + q);
-  ulong h, nmodq = umodiu(n, q), qov2 = q>>1, hn;
-  GEN r, res = stor(0, pr), q12 = muluu(q,12), q24 = shifti(q12,1);
-  GEN pi_q = divri(mppi(pr), q12);
-  pari_sp av = avma;
-  for (h = 1, hn = 0; h <= qov2; h++, avma = av) /* symmetry h <-> q-h */
+  pari_sp av;
+  GEN s;
+  ulong r, l, m;
+  long pr = nbits2prec(bitprec / k + k);
+  GEN pi = mppi(pr);
+  s = stor(0, pr); r = 2; m = umodiu(n,k);
+  av = avma;
+  for (l = 0; l < 2*k; l++)
   {
-    GEN t;
-    hn += nmodq; if (hn >= q) hn -= q;
-    if (ugcd(q, h) > 1) continue;
-    r = subii(g(h,q), muluu(hn, 24));
-    r = centermodii(r, q24, q12);
-    t = isintzero(r)? addrs(res, 1): addrr(res, mpcos(mulri(pi_q,r)));
-    affrr(t, res);
+    if (m == 0)
+    {
+      GEN c = mpcos(mulrr(pi, rdivss(6*l+1, 6*k, pr)));
+      if (odd(l)) subrrz(s, c, s); else addrrz(s, c, s);
+      avma = av;
+    }
+    m += r; if (m >= k) m -= k;
+    r += 3; if (r >= k) r -= k;
   }
-  return shiftr(res,1);
+  return mulrr(sqrtr(rdivss(k, 3, pr)), s);
 }
 
 /* Return a low precision estimate of log p(n). */
