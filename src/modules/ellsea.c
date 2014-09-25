@@ -478,38 +478,44 @@ static GEN
 find_kernel(GEN a4, GEN a6, ulong ell, GEN a4t, GEN a6t, GEN pp1, GEN T, GEN p)
 {
   const long ext = 2;
-  pari_sp ltop = avma;
-  GEN M, V, v, tlist, res;
+  pari_sp ltop = avma, btop;
+  GEN P, v, tlist, res;
   long i, j, k;
   long deg = (ell - 1)/2, dim = 2 + deg + ext;
-  GEN Coeff  = find_coeff(a4, a6, T, p, dim);
-  GEN Coefft = find_coeff(a4t, a6t, T, p, dim);
+  GEN C  = find_coeff(a4, a6, T, p, dim);
+  GEN Ct = find_coeff(a4t, a6t, T, p, dim);
   GEN psi2  = mkpoln(4, utoi(4), gen_0, Fq_mulu(a4, 4, T, p), Fq_mulu(a6, 4, T, p));
-  GEN list  = cgetg(dim+1, t_VEC);
   GEN Dpsi2 = mkpoln(3, utoi(6), gen_0, Fq_mulu(a4, 2, T, p));
-  gel(list, 1) = pol_1(0);
-  gel(list, 2) = pol_x(0);
-  gel(list, 3) = Dpsi2;
-  for (k = 4; k <= dim; k++)
+  GEN V = cgetg(dim+1, t_VEC);
+  for (k = 1; k <= dim; k++)
+    gel(V, k) = Fq_Fp_mul(Fq_sub(gel(Ct,k),gel(C,k), T, p),
+                          shifti(mpfact(2*k),-1), T, p);
+  btop = avma;
+  v = zerovec(dim);
+  gel(v, 1) = utoi(deg);
+  gel(v, 2) = pp1;
+  P = pol_x(0);
+  for (k = 3; k <= dim; k++)
   {
-    pari_sp btop = avma;
-    GEN lp = gel(list, k-1);
-    GEN r = FqX_Fq_mul(Dpsi2, gel(lp,3), T, p);
-    for (j = 4; j < lg(lp); j++)
+    GEN s, r = FqX_Fq_mul(Dpsi2, gel(P, 3), T, p);
+    for (j = 4; j < lg(P); j++)
     {
       long o = j - 2;
       GEN D = FqX_add(RgX_shift_shallow(Dpsi2, 1), FqX_mulu(psi2, o-1, T, p), T, p);
-      GEN E = FqX_Fq_mul(D, Fq_mulu(gel(lp, j), o, T, p), T, p);
+      GEN E = FqX_Fq_mul(D, Fq_mulu(gel(P, j), o, T, p), T, p);
       r = FqX_add(r, RgX_shift_shallow(E, o-2), T, p);
     }
-    gel(list, k) = gerepileupto(btop, r);
+    P = r;
+    s = Fq_mul(gel(P, 2), gel(v, 1), T, p);
+    for (j = 3; j < lg(P)-1; j++)
+      s = Fq_add(s, Fq_mul(gel(P, j), gel(v, j-1), T, p), T, p);
+    gel(v, k) = Fq_div(Fq_sub(gel(V, k-2), s, T, p), gel(P, j), T, p);
+    if (gc_needed(btop, 1))
+    {
+      if(DEBUGMEM>1) pari_warn(warnmem,"find_kernel");
+      gerepileall(btop, 2, &v, &P);
+    }
   }
-  M = shallowtrans(RgXV_to_RgM(list, dim));
-  V = FqC_sub(Coefft, Coeff, T, p);
-  for (k = 1; k <= dim; k++)
-    gel(V, k) = Fq_Fp_mul(gel(V, k), shifti(mpfact(2*k),-1), T, p);
-  V = shallowconcat(mkcol2(utoi(deg), pp1), V);
-  v = FqM_FqC_gauss(M, V, T, p);
   tlist = cgetg(dim, t_VEC);
   gel(tlist, dim-1) = gen_1;
   for (k = 1; k <= dim-2; k++)
@@ -859,7 +865,10 @@ find_trace_Elkies_power(GEN a4, GEN a6, ulong ell, long k, struct meqn *MEQN, GE
     kpoly = gel(tmp,4);
     Ib = gel(tmp, 5);
     if (gc_needed(btop, 1))
+    {
+      if(DEBUGMEM>1) pari_warn(warnmem,"find_trace_Elkies_power");
       gerepileall(btop, 6, &Eba4, &Eba6, &Eca4, &Eca6, &kpoly, &Ib);
+    }
     if (DEBUGLEVEL>1) err_printf(" [%ld ms]", timer_delay(ti));
   }
   avma = ltop;
