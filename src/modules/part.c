@@ -37,10 +37,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 
 /****************************************************************/
 
-/* Given:  b = N-1/24;
- *   c = sqrt(2/3)*Pi*sqrt(b)
- *   d = 1 / ((2*b)^(3/2) * Pi);
- *
+/* Given c = sqrt(2/3)*Pi*sqrt(N-1/24)
  * Psi(N, q) = my(a = c/q); sqrt(q) * (a*cosh(a) - sinh(a)) */
 static GEN
 psi(GEN c, ulong q, long prec)
@@ -92,6 +89,7 @@ estim(GEN n)
   return gerepileupto(av, mplog(p1));
 }
 
+/* c = sqrt(2/3)*Pi*sqrt(n-1/24);  d = 1 / ((2*b)^(3/2) * Pi); */
 static void
 pinit(GEN n, GEN *c, GEN *d, ulong prec)
 {
