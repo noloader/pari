@@ -20,7 +20,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
  * Psi(n, q) = my(a=sqrt(2/3)*Pi/q, b=n-1/24, c=sqrt(b));
  *             (sqrt(q)/(2*sqrt(2)*b*Pi))*(a*cosh(a*c)-(sinh(a*c)/c))
  * L(n,q)=sqrt(k/3)*sum(l=0,2*k-1,
-          if(((3*l^2+l)/2+n)%k==0,(-1)^cos((6*l+1)/(6*k)*Pi)))
+          if(((3*l^2+l)/2+n)%k==0,(-1)^l*cos((6*l+1)/(6*k)*Pi)))
  * part(n) = round(sum(q=1,5 + 0.24*sqrt(n),L(n,q)*Psi(n,q)))
  *
  * only faster.
@@ -52,30 +52,30 @@ psi(GEN c, ulong q, long prec)
 }
 
 /* L(n,q)=sqrt(k/3)*sum(l=0,2*k-1,
-          if(((3*l^2+l)/2+n)%k==0,(-1)^cos((6*l+1)/(6*k)*Pi)))
+          if(((3*l^2+l)/2+n)%k==0,(-1)^l*cos((6*l+1)/(6*k)*Pi)))
  * Never called with q < 3, so ignore this case */
 static GEN
 L(GEN n, ulong k, long bitprec)
 {
-  pari_sp av;
-  GEN s;
   ulong r, l, m;
   long pr = nbits2prec(bitprec / k + k);
-  GEN pi = mppi(pr);
-  s = stor(0, pr); r = 2; m = umodiu(n,k);
-  av = avma;
+  GEN s = stor(0,pr), pi = mppi(pr);
+  pari_sp av = avma;
+
+  r = 2; m = umodiu(n,k);
   for (l = 0; l < 2*k; l++)
   {
     if (m == 0)
     {
-      GEN c = mpcos(mulrr(pi, rdivss(6*l+1, 6*k, pr)));
+      GEN c = mpcos(divru(mulru(pi, 6*l+1), 6*k));
       if (odd(l)) subrrz(s, c, s); else addrrz(s, c, s);
       avma = av;
     }
     m += r; if (m >= k) m -= k;
     r += 3; if (r >= k) r -= k;
   }
-  return mulrr(sqrtr(rdivss(k, 3, pr)), s);
+  /* multiply by sqrt(k/3) */
+  return mulrr(s, sqrtr((k % 3)? rdivss(k,3,pr): utor(k/3,pr)));
 }
 
 /* Return a low precision estimate of log p(n). */
