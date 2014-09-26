@@ -79,6 +79,7 @@ BA 57- [win32] gp could crash at start up [#1607]
    58- nfisincl(t_POL, t_POL) could lead to wrong negative results
    59- qfsolve([1,0;0,-2]) returned -1 (no real solution) [#1613]
    60- qfparam([0,0,-12;0,-12,0;-12,0,-1],[1,0,0]~,3) -> SEGV
+   61- polresultant(1+x*z^2,1+y*z^4,z) -> GC error [#1614]
 
   Added
     1- add optional argument to sumdigits to specify the base
