@@ -1261,15 +1261,19 @@ match_and_sort(GEN compile_atkin, GEN Mu, GEN u, GEN q, void *E, const struct bb
   if (k == 1)
   { /*only one Atkin prime, check the cardinality with random points */
     GEN r = gel(compile_atkin, 1), r1 = gel(r,1), r2 = gel(r,2);
-    long l = lg(r2);
+    long l = lg(r2), j;
+    GEN bound = sqrti(shifti(q, 4));
     GEN card = cgetg(l, t_VEC), Cs2, C, U;
     Z_chinese_pre(Mu, r1, &C,&U, NULL);
     Cs2 = shifti(C, -1);
-    for (i = 1; i < l; i++)
+    for (j = 1, i = 1; i < l; i++)
     {
       GEN t = Z_chinese_post(u, stoi(r2[i]), C, U, NULL);
-      gel(card, i) = subii(pp1, Fp_center(t, C, Cs2));
+      t = Fp_center(t, C, Cs2);
+      if (absi_cmp(t, bound) <= 0)
+        gel(card, j++) = subii(pp1, t);
     }
+    setlg(card, j);
     return gen_select_order(card, E, grp);
   }
   if (DEBUGLEVEL>=2) timer_start(&ti);
