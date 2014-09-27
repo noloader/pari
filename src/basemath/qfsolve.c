@@ -1045,7 +1045,8 @@ qfparam(GEN G, GEN sol, long fl)
   n = lg(G)-1;
   if (n == 0) pari_err_DOMAIN("qfsolve", "dimension" , "=", gen_0, G);
   if (n != nbrows(G) || n != 3 || lg(sol) != 4) pari_err_DIM("qfsolve");
-  sol = Q_primpart(sol);
+  G = Q_primpart(G); RgM_check_ZM(G,"qfsolve");
+  sol = Q_primpart(sol); RgV_check_ZV(sol,"qfsolve");
   /* build U such that U[,3] = sol, and |det(U)| = 1 */
   U = completebasis(sol,1);
   G1 = qf_apply_ZM(G,U); /* G1 has a 0 at the bottom right corner */
