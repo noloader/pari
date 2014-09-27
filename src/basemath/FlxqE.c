@@ -1299,9 +1299,9 @@ static GEN
 Flxq_ellcard_Kedlaya(GEN a4, GEN a6, GEN T, ulong p)
 {
   pari_sp av = avma;
-  GEN H = mkpoln(4, gen_1, gen_0,Flx_to_ZX(a4),Flx_to_ZX(a6));
+  GEN H = mkpoln(4, gen_1, gen_0, Flx_to_ZX(a4), Flx_to_ZX(a6));
   GEN Tp = Flx_to_ZX(get_Flx_mod(T));
-  long n = degpol(Tp), e = (n>>1)+1;
+  long n = degpol(Tp), e = ((p < 16 ? n+1: n)>>1)+1;
   GEN M = ZlXQX_hyperellpadicfrobenius(H, Tp, p, e);
   GEN N = ZpXQM_prodFrobenius(M, Tp, utoi(p), e);
   GEN q = powuu(p, e);

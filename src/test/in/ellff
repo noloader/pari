@@ -35,7 +35,8 @@ test(5,50);
 test(7,3);
 test(7,51);
 test(11,2);
-test(11,19);
+test(11,18);
+test(11,19,,5);
 test(13,41);
 test(17,2);
 test(1009,3);
@@ -85,7 +86,7 @@ checkt(p,n,f,B=100)=
     until(b,b=random(a));
     E=ellinit(if(f==0,[0,b],f==1,[b,0],[b^2,b^3]));
     if(#E==0,next);
-    N=ellcard(ellinit(E,a));
+    N=ellcard(E);
     if(#ellmul(E,random(E),N)>1,error([p,n,f],b)));
 }
 checkt(3,5,0);
