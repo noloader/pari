@@ -1256,13 +1256,13 @@ match_and_sort(GEN compile_atkin, GEN Mu, GEN u, GEN q, void *E, const struct bb
   GEN baby, giant, SgMb, Mb, Mg, den, Sg, dec_inf, div, pp1 = addis(q,1);
   GEN P, Pb, Pg, point, diff, pre, table, table_ind;
   long best_i, i, lbaby, lgiant, k = lg(compile_atkin)-1;
+  GEN bound = sqrti(shifti(q, 4));
   pari_timer ti;
 
   if (k == 1)
   { /*only one Atkin prime, check the cardinality with random points */
     GEN r = gel(compile_atkin, 1), r1 = gel(r,1), r2 = gel(r,2);
     long l = lg(r2), j;
-    GEN bound = sqrti(shifti(q, 4));
     GEN card = cgetg(l, t_VEC), Cs2, C, U;
     Z_chinese_pre(Mu, r1, &C,&U, NULL);
     Cs2 = shifti(C, -1);
@@ -1357,9 +1357,11 @@ match_and_sort(GEN compile_atkin, GEN Mu, GEN u, GEN q, void *E, const struct bb
         if (gequal(gel(Bp,1),gel(point,1)))
         {
           GEN card = subii(Be, mulii(Mu, GMb));
-          card = mkvec2(card, addii(card, mulii(mulsi(2,Mu), GMb)));
+          GEN card2 = addii(card, mulii(mulsi(2,Mu), GMb));
           if (DEBUGLEVEL>=2) timer_printf(&ti,"match_and_sort");
-          return gen_select_order(card, E, grp);
+          if (absi_cmp(subii(pp1, card ), bound) > 0) return card2;
+          if (absi_cmp(subii(pp1, card2), bound) > 0) return card;
+          return gen_select_order(mkvec2(card, card2), E, grp);
         }
       }
     }
