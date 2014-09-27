@@ -569,6 +569,17 @@ Zp_sqrtlift(GEN b, GEN a, GEN p, long e)
   }
   return gerepileuptoint(ltop,a);
 }
+
+GEN
+Zp_sqrt(GEN x, GEN p, long e)
+{
+  pari_sp av = avma;
+  GEN z = Fp_sqrt(Fp_red(x, p), p);
+  if (!z) return NULL;
+  if (e <= 1) return gerepileuptoint(av, z);
+  return gerepileuptoint(av, Zp_sqrtlift(x, z, p, e));
+}
+
 /* Same as ZpX_liftroot for the polynomial X^n-b
  * TODO: generalize to sparse polynomials. */
 GEN

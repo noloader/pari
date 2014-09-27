@@ -1217,12 +1217,7 @@ Up_sqrt(GEN x, GEN p, long e)
     }
   }
   else
-  {
-    GEN z = Fp_sqrt(x, p);
-    if (!z) return NULL;
-    if (e <= 1) return z;
-    return gerepileuptoint(av, Zp_sqrtlift(x, z, p, e));
-  }
+    return Zp_sqrt(x, p, e);
 }
 
 GEN
