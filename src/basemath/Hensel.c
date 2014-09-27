@@ -805,6 +805,16 @@ ZpXQ_sqrtnlift(GEN a, GEN n, GEN x, GEN T, GEN p, long e)
 }
 
 GEN
+ZpXQ_sqrt(GEN a, GEN T, GEN p, long e)
+{
+  pari_sp av = avma;
+  GEN z = FpXQ_sqrt(FpX_red(a, p), T, p);
+  if (!z) return NULL;
+  if (e <= 1) return gerepileupto(av, z);
+  return gerepileupto(av, ZpXQ_sqrtnlift(a, gen_2, z, T, p, e));
+}
+
+GEN
 ZpX_ZpXQ_liftroot_ea(GEN P, GEN S, GEN T, GEN p, long n, void *E,
                      int early(void *E, GEN x, GEN q))
 {

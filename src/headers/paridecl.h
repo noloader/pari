@@ -685,6 +685,7 @@ GEN     ZpX_roots(GEN f, GEN p, long e);
 GEN     ZpXQ_inv(GEN a, GEN T, GEN p, long e);
 GEN     ZpXQ_invlift(GEN b, GEN a, GEN T, GEN p, long e);
 GEN     ZpXQ_log(GEN a, GEN T, GEN p, long N);
+GEN     ZpXQ_sqrt(GEN a, GEN T, GEN p, long e);
 GEN     ZpXQ_sqrtnlift(GEN b, GEN n, GEN a, GEN T, GEN p, long e);
 GEN     ZpXQM_prodFrobenius(GEN M, GEN T, GEN p, long e);
 GEN     ZpXQX_liftroot(GEN f, GEN a, GEN T, GEN p, long e);

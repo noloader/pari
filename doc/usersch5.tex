@@ -5579,6 +5579,10 @@ be \kbd{FpXQ}s (modulo $T$) such that $a^n \equiv b \mod (p,T)$.
 Returns an \kbd{Fq} $A$ such that $A^n \equiv b \mod (p^e, T)$.
 Special case of \tet{ZpXQ_liftroot}.
 
+\fun{GEN}{ZpXQ_sqrt}{GEN b, GEN T, GEN p, long e} let
+$p$ being a odd prime and $b$ be a \kbd{FpXQ} (modulo $T, p^e$),
+returns $a$ such that $a^2 \equiv b \mod (p^e, T)$.
+
 \fun{GEN}{ZpX_ZpXQ_liftroot}{GEN f, GEN a, GEN T, GEN p, long e}
 as \tet{ZpXQX_liftroot}, but $f$ is a polynomial in $\Z[X]$.
 
