@@ -639,15 +639,14 @@ find_isogenous_from_Atkin(GEN a4, GEN a6, long ell, GEN meqn, GEN g, GEN T, GEN 
 
   GEN Dxxg = FpXY_Fq_evaly(Dxx, g, T, p, vJ);
   GEN DJJg = FqX_deriv(DJg, T, p);
-
-  GEN a = Fq_mul(dJ, Fq_mul(g, E6, T, p), T, p);
-  GEN b = Fq_mul(E4, dx, T, p);
-  if (!signe(a) || !signe(b))
-  { /* TODO: understand what this means and use the information */
-    if (DEBUGLEVEL)
-      err_printf("find_isogenous_from_Atkin: division by zero at prime %ld", ell);
+  GEN a, b;
+  if (!signe(dJ))
+  {
+    if (DEBUGLEVEL>0) err_printf("[A: dJ=0]");
     avma = ltop; return NULL;
   }
+  a = Fq_mul(dJ, Fq_mul(g, E6, T, p), T, p);
+  b = Fq_mul(E4, dx, T, p);
   gprime = Zq_div(a, b, T, p, pp, e);
 
   u1 = compute_u(gprime, Dxxg, DxJg, DJJg, j, pJ, px, 1, E4, E6, T, p, pp, e);
@@ -658,6 +657,11 @@ find_isogenous_from_Atkin(GEN a4, GEN a6, long ell, GEN meqn, GEN g, GEN T, GEN 
   for (k = lg(Roots)-1; k >= 1; k--, avma = btop)
   {
     GEN jt = e==1 ? gel(Roots, k): ZpXQX_liftroot(meqnx, gel(Roots, k), T, pp, e);
+    if (signe(jt) == 0 || signe(Fq_sub(jt, utoi(1728), T, p)) == 0)
+    {
+      if (DEBUGLEVEL>0) err_printf("[A: jt=%ld]",signe(jt)? 1728: 0);
+      avma = ltop; return NULL;
+    }
     GEN pxstar = FqX_eval(Dxg, jt, T, p);
     GEN dxstar = Fq_mul(pxstar, g, T, p);
     GEN pJstar = FqX_eval(DJg, jt, T, p);
@@ -709,10 +713,15 @@ find_isogenous_from_canonical(GEN a4, GEN a6, long ell, GEN meqn, GEN g, GEN T, 
   GEN itis = Fq_inv(stoi(-tis), T, p);
   GEN deltal = Zq_div(Fq_mul(delta, Fq_powu(g, tis, T, p), T, p), powuu(ell, 12), T, p, pp, e);
   GEN E4l, E6l, a4tilde, a6tilde, p_1;
+  if (signe(dx)==0)
+  {
+    if (DEBUGLEVEL>0) err_printf("[C: dx=0]");
+    avma = ltop; return NULL;
+  }
   if (signe(dJ)==0)
   {
     GEN jl;
-    if (DEBUGLEVEL) err_printf("Division by zero for prime %Ps\n", T, p);
+    if (DEBUGLEVEL>0) err_printf("[C: dJ=0]");
     E4l = Fq_div(E4, sqru(ell), T, p);
     jl  = Zq_div(Fq_powu(E4l, 3, T, p), deltal, T, p, pp, e);
     E6l = Zq_sqrt(Fq_mul(Fq_sub(jl, utoi(1728), T, p), deltal, T, p), T, p, pp, e);
@@ -732,6 +741,11 @@ find_isogenous_from_canonical(GEN a4, GEN a6, long ell, GEN meqn, GEN g, GEN T, 
     GEN E0bd = Zq_div(Fq_sub(Fq_mul(Dgd, itis, T, p), Fq_mul(E0b, Djd, T, p), T, p), dJ, T, p, pp, e);
     E4l = Zq_div(Fq_sub(E4, Fq_mul(E2s, Fq_sub(Fq_sub(Fq_add(Zq_div(Fq_mulu(E0bd, 12, T, p), E0b, T, p, pp, e), Zq_div(Fq_mulu(E42, 6, T, p), E6, T, p, pp, e), T, p), Zq_div(Fq_mulu(E6, 4, T, p), E4, T, p, pp, e), T, p), E2s, T, p), T, p), T, p), sqru(ell), T, p, pp, e);
     jl = Zq_div(Fq_powu(E4l, 3, T, p), deltal, T, p, pp, e);
+    if (signe(jl)==0)
+    {
+      if (DEBUGLEVEL>0) err_printf("[C: jl=0]");
+      avma = ltop; return NULL;
+    }
     f =  Zq_div(powuu(ell, is), g, T, p, pp, e);
     fd = Fq_neg(Fq_mul(Fq_mul(E2s, f, T, p), itis, T, p), T, p);
     Dgs = FqXY_eval(Dx, f, jl, T, p);
