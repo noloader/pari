@@ -531,69 +531,18 @@ ZpXQX_liftroot_vald(GEN f, GEN a, long v, GEN T, GEN p, long e)
 GEN
 ZpXQX_liftroot(GEN f, GEN a, GEN T, GEN p, long e) { return ZpXQX_liftroot_vald(f,a,0,T,p,e); }
 
-/* Same as ZpX_liftroot for the polynomial X^2-b */
-GEN
-Zp_sqrtlift(GEN b, GEN a, GEN p, long e)
-{
-  pari_sp ltop=avma;
-  GEN q, w;
-  ulong mask;
-
-  if (e == 1) return icopy(a);
-  mask = quadratic_prec_mask(e);
-  w = Fp_inv(modii(shifti(a,1), p), p);
-  q = p;
-  for(;;)
-  {
-    q = sqri(q);
-    if (mask & 1) q = diviiexact(q, p);
-    mask >>= 1;
-    if (lgefint(q) == 3)
-    {
-      ulong Q = uel(q,2);
-      ulong A = umodiu(a, Q);
-      ulong B = umodiu(b, Q);
-      ulong W = umodiu(w, Q);
-      A = Fl_sub(A, Fl_mul(W, Fl_sub(Fl_sqr(A,Q), B, Q), Q), Q);
-      a = utoi(A);
-      if (mask == 1) break;
-      W = Fl_sub(Fl_add(W,W,Q), Fl_mul(Fl_sqr(W,Q), Fl_add(A,A,Q),Q), Q);
-      w = utoi(W);
-    }
-    else
-    {
-      a = modii(subii(a, mulii(w, subii(Fp_sqr(a,q),b))), q);
-      if (mask == 1) break;
-      w = subii(shifti(w,1), Fp_mul(Fp_sqr(w,q), shifti(a,1),q));
-    }
-  }
-  return gerepileuptoint(ltop,a);
-}
-
-GEN
-Zp_sqrt(GEN x, GEN p, long e)
-{
-  pari_sp av = avma;
-  GEN z = Fp_sqrt(Fp_red(x, p), p);
-  if (!z) return NULL;
-  if (e <= 1) return gerepileuptoint(av, z);
-  return gerepileuptoint(av, Zp_sqrtlift(x, z, p, e));
-}
-
-/* Same as ZpX_liftroot for the polynomial X^n-b
- * TODO: generalize to sparse polynomials. */
+/* Same as ZpX_liftroot for the polynomial X^n-b*/
 GEN
 Zp_sqrtnlift(GEN b, GEN n, GEN a, GEN p, long e)
 {
   pari_sp ltop=avma;
   GEN q, w, n_1;
   ulong mask;
-
-  if (equalii(n, gen_2)) return Zp_sqrtlift(b,a,p,e);
+  long pis2 = equalii(n, gen_2)? 1: 0;
   if (e == 1) return icopy(a);
   n_1 = subis(n,1);
   mask = quadratic_prec_mask(e);
-  w = Fp_inv(Fp_mul(n,Fp_pow(a,n_1,p), p), p);
+  w = Fp_inv(pis2 ? shifti(a,1): Fp_mul(n,Fp_pow(a,n_1,p), p), p);
   q = p;
   for(;;)
   {
@@ -620,10 +569,29 @@ Zp_sqrtnlift(GEN b, GEN n, GEN a, GEN p, long e)
       a = modii(subii(a, mulii(w, subii(Fp_pow(a,n,q),b))), q);
       if (mask == 1) break;
       /* w += w - w^2 n a^(n-1)*/
-      w = subii(shifti(w,1), Fp_mul(Fp_sqr(w,q), mulii(n,Fp_pow(a,n_1,q)), q));
+      w = subii(shifti(w,1), Fp_mul(Fp_sqr(w,q),
+                           pis2? shifti(a,1): mulii(n,Fp_pow(a,n_1,q)), q));
     }
   }
   return gerepileuptoint(ltop,a);
+}
+
+
+/* Same as ZpX_liftroot for the polynomial X^2-b */
+GEN
+Zp_sqrtlift(GEN b, GEN a, GEN p, long e)
+{
+  return Zp_sqrtnlift(b, gen_2, a, p, e);
+}
+
+GEN
+Zp_sqrt(GEN x, GEN p, long e)
+{
+  pari_sp av = avma;
+  GEN z = Fp_sqrt(Fp_red(x, p), p);
+  if (!z) return NULL;
+  if (e <= 1) return gerepileuptoint(av, z);
+  return gerepileuptoint(av, Zp_sqrtlift(x, z, p, e));
 }
 
 /* Compute (x-1)/(x+1)/p^k */
