@@ -590,8 +590,8 @@ Zp_sqrt(GEN x, GEN p, long e)
   pari_sp av = avma;
   GEN z = Fp_sqrt(Fp_red(x, p), p);
   if (!z) return NULL;
-  if (e <= 1) return gerepileuptoint(av, z);
-  return gerepileuptoint(av, Zp_sqrtlift(x, z, p, e));
+  if (e > 1) z = Zp_sqrtlift(x, z, p, e);
+  return gerepileuptoint(av, z);
 }
 
 /* Compute (x-1)/(x+1)/p^k */
