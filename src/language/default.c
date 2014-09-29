@@ -13,9 +13,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #include "pari.h"
 #include "paripriv.h"
 
-/* Simple-minded parsing utilities. These are forbidden to use the GP stack
- * which may not exist at this point [e.g upon GP initialization]  */
-
 /* Return all chars, up to next separator
  * [as strtok but must handle verbatim character string] */
 char*
