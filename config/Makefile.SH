@@ -625,7 +625,7 @@ HUGELINE="
 $src/funclist::
 	@-$cfg/genfunclist $desc"
 suffix='$$$$-$(TMPSUF)'
-list="funclist whatnow init default gp_default gp_init highlvl"
+list="funclist whatnow init default gp_init highlvl"
 for name in $list; do
   case $name in
   funclist)
@@ -647,11 +647,6 @@ for name in $list; do
     target=$src/language/default.h
     depend="$desc/\$(DESC) \$(DESC_HELP_GEN)"
     script="gen_proto default \$(DESC)"
-  ;;
-  gp_default)
-    target=$src/gp/gp_default.h
-    depend="$desc/\$(DESC) \$(DESC_HELP_GEN)"
-    script="gen_proto gp_default \$(DESC)"
   ;;
   gp_init)
     target=$src/gp/gp_init.h
@@ -723,7 +718,7 @@ for dir in basemath modules language gp graph systems mt; do
     ;;
   gp_init)
     cflags="$cflags -I$src/graph"
-    depend="$RECT_H $src/gp/gp_init.h $src/gp/gp_default.h"
+    depend="$RECT_H $src/gp/gp_init.h"
     ;;
   default)
     cflags="$cflags \$(DLCFLAGS)"

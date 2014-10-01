@@ -111,7 +111,7 @@ parsestate_restore(struct pari_parsestate *state)
 }
 
 GEN
-pari_compile_str(char *lex, int strict)
+pari_compile_str(const char *lex, int strict)
 {
   pari_sp ltop=avma;
   GEN code;
@@ -122,7 +122,7 @@ pari_compile_str(char *lex, int strict)
   pari_once=1;
   pari_discarded=0;
   pari_lasterror=NULL;
-  if (pari_parse(&lex) || pari_discarded)
+  if (pari_parse((char**)&lex) || pari_discarded)
   {
     if (pari_unused_chars && !pari_discarded)
       unused_chars(pari_unused_chars,strict);

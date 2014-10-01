@@ -195,6 +195,53 @@ typedef struct {
   size_t size;
 } pari_stack;
 
+/* GP_DATA */
+typedef struct {
+  GEN z; /* result */
+  time_t t; /* time to obtain result */
+} gp_hist_cell;
+typedef struct {
+  gp_hist_cell *v; /* array of previous results, FIFO */
+  size_t size; /* # res */
+  ulong total; /* # of results computed since big bang */
+} gp_hist; /* history */
+
+typedef struct {
+  pariFILE *file;
+  char *cmd;
+} gp_pp; /* prettyprinter */
+
+typedef struct {
+  char *PATH;
+  char **dirs;
+} gp_path; /* path */
+typedef struct {
+  char format; /* e,f,g */
+  long sigd;   /* -1 (all) or number of significant digits printed */
+  int sp;      /* 0 = suppress whitespace from output */
+  int prettyp; /* output style: raw, prettyprint, etc */
+  int TeXstyle;
+} pariout_t; /* output format */
+
+enum { gpd_QUIET=1, gpd_TEST=2, gpd_EMACS=256, gpd_TEXMACS=512};
+enum { DO_MATCHED_INSERT = 2, DO_ARGS_COMPLETE = 4 };
+typedef struct {
+  gp_hist *hist;
+  gp_pp *pp;
+  gp_path *path, *sopath;
+  pariout_t *fmt;
+  ulong lim_lines, flags, linewrap, readline_state;
+  int echo, breakloop, recover, use_readline;
+  char *help, *histfile, *prompt, *prompt_cont, *prompt_comment;
+  GEN colormap, graphcolors;
+
+  int secure, simplify, strictmatch, strictargs, chrono;
+  pari_timer *T;
+  ulong primelimit; /* deprecated */
+  ulong threadsizemax, threadsize;
+} gp_data;
+extern gp_data *GP_DATA;
+
 /* Common global variables: */
 
 extern PariOUT *pariOut, *pariErr;

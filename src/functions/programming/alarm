@@ -1,5 +1,4 @@
 Function: alarm
-Class: gp
 Section: programming/specific
 C-Name: gp_alarm
 Prototype: D0,L,DE

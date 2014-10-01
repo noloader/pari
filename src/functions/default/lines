@@ -1,5 +1,5 @@
 Function: _def_lines
-Class: gp_default
+Class: default
 Section: default
 C-Name: sd_lines
 Prototype:

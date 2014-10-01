@@ -23,24 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 
 static void whatnow0(char *s) { whatnow(pariOut, s,0); }
 
-static void
-allocatemem0(GEN z)
-{
-  ulong newsize;
-  if (!z) newsize = 0;
-  else {
-    if (typ(z) != t_INT) pari_err_TYPE("allocatemem",z);
-    newsize = itou(z);
-    if (signe(z) < 0) pari_err_DOMAIN("allocatemem","size","<",gen_0,z);
-  }
-  if (pari_mainstack->vsize)
-    paristack_resize(newsize);
-  else
-    paristack_newrsize(newsize);
-}
-
 #include "gp_init.h"
-#include "gp_default.h"
 
 /* Backward Compatibility */
 
@@ -73,7 +56,7 @@ setprecr(long n)
 }
 
 entree functions_oldgp[] = {
-{"allocatemem",11,(void *)allocatemem0,2,"vLp","allocatemem(s)=allocates a new stack of s bytes, or doubles the stack if size is 0"},
+{"allocatemem",11,(void *)gp_allocatemem,2,"vLp","allocatemem(s)=allocates a new stack of s bytes, or doubles the stack if size is 0"},
 {"box",35,(void *)rectbox,10,"vLGG","box(w,x2,y2)=if the cursor is at position (x1,y1), draw a box with diagonal (x1,y1) and (x2,y2) in rectwindow w (cursor does not move)"},
 {"color",2,(void *)rectcolor,2,"vLL","color(w,c)=set default color to c in rectwindow. Possible values for c are 1=sienna, 2=cornsilk, 3=red, 4=black, 5=grey, 6=blue, 7=gainsborough"},
 {"cursor",11,(void*)rectcursor,10,"vLp","cursor(w)=current position of cursor in rectwindow w"},
@@ -101,7 +84,7 @@ entree functions_oldgp[] = {
 {"print",0,(void*)print,11,"vs*","print(a)=outputs a in raw format ending with newline"},
 {"print1",0,(void*)print1,11,"vs*","print1(a)=outputs a in raw format without ending with newline"},
 {"rbox",35,(void *)rectrbox,10,"vLGG","rbox(w,dx,dy)=if the cursor is at (x1,y1), draw a box with diagonal (x1,y1)-(x1+dx,y1+dy) in rectwindow w (cursor does not move)"},
-{"read",0,(void *)input0,11,"","read()=read an expression from the input file or standard input"},
+{"read",0,(void *)gp_input,11,"","read()=read an expression from the input file or standard input"},
 {"rline",35,(void *)rectrline,10,"vLGG","rline(w,dx,dy)=if the cursor is at (x1,y1), draw a line from (x1,y1) to (x1+dx,y1+dy) (and move the cursor) in the rectwindow w"},
 {"rlines",35,(void *)rectlines,10,"vLGG","rlines(w,dx,dy)=draw in rectwindow w the points given by vector of first coordinates xsand vector of second coordinates, connect them by lines"},
 {"rmove",35,(void *)rectrmove,10,"vLGG","rmove(w,dx,dy)=move cursor to position (dx,dy) relative to the present position in the rectwindow w"},

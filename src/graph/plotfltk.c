@@ -60,12 +60,12 @@ Plotter::Plotter( long *w, long *x, long *y, long lw,
     long i;
 
     this->my_w=w; this->my_x=x; this->my_y=y; this->my_lw=lw;
-    numcolors = lg(pari_colormap)-1;
+    numcolors = lg(GP_DATA->colormap)-1;
     color = (Fl_Color*)pari_malloc(numcolors*sizeof(Fl_Color));
-    for (i = 1; i < lg(pari_colormap); i++)
+    for (i = 1; i < lg(GP_DATA->colormap); i++)
     {
       int r, g, b;
-      color_to_rgb(gel(pari_colormap,i), &r, &g, &b);
+      color_to_rgb(gel(GP_DATA->colormap,i), &r, &g, &b);
       color[i-1] = rgb_color(r, g, b);
     }
 }

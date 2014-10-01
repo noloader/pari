@@ -227,8 +227,8 @@ free_graph(void)
     pari_free((void*)rgb_colors->table);
     pari_free((void*)rgb_colors);
   }
-  if (pari_colormap) pari_free(pari_colormap);
-  if (pari_graphcolors) pari_free(pari_graphcolors);
+  if (GP_DATA->colormap) pari_free(GP_DATA->colormap);
+  if (GP_DATA->graphcolors) pari_free(GP_DATA->graphcolors);
 }
 
 static PariRect *
@@ -388,7 +388,7 @@ rectrpoint(long ne, GEN x, GEN y)
 void
 rectcolor(long ne, long c)
 {
-  long n = lg(pari_colormap)-2;
+  long n = lg(GP_DATA->colormap)-2;
   check_rect(ne);
   if (c < 1) pari_err_DOMAIN("rectcolor", "color", "<", gen_1, stoi(c));
   if (c > n) pari_err_DOMAIN("rectcolor", "color", ">", stoi(n), stoi(c));
@@ -1686,10 +1686,10 @@ rectplothrawin(long grect, dblPointList *data, long flags)
     flags |= PLOT_PARAMETRIC;
     flags &= (~PLOT_COMPLEX); /* turn COMPLEX to PARAMETRIC*/
   } else i = 1;
-  max_graphcolors = lg(pari_graphcolors)-1;
+  max_graphcolors = lg(GP_DATA->graphcolors)-1;
   for (ltype = 0; ltype < nc; ltype++)
   {
-    current_color[grect] = pari_graphcolors[1+(ltype%max_graphcolors)];
+    current_color[grect] = GP_DATA->graphcolors[1+(ltype%max_graphcolors)];
     if (param) x = data[i++];
 
     y = data[i++]; nbpoints = y.nb;
@@ -1820,7 +1820,7 @@ plot_count(long *w, long lw, col_counter rcolcnt)
   RectObj *O;
   long col, i;
 
-  for (col = 1; col < lg(pari_colormap)-1; col++)
+  for (col = 1; col < lg(GP_DATA->colormap)-1; col++)
     for (i = 0; i < ROt_MAX; i++) rcolcnt[col][i] = 0;
   for (i = 0; i < lw; i++)
   {
@@ -1908,14 +1908,14 @@ rectdraw_flag(GEN list, long flag) { gendraw(list, 0, flag); }
 static void
 ps_sc(void *data, long col)
 {
-  long l = lg(pari_colormap)-1;
+  long l = lg(GP_DATA->colormap)-1;
   int r, g, b;
   if (col >= l)
   {
     pari_warn(warner,"non-existent color: %ld", col);
     col = l-1;
   }
-  color_to_rgb(gel(pari_colormap,col+1), &r, &g, &b);
+  color_to_rgb(gel(GP_DATA->colormap,col+1), &r, &g, &b);
   fprintf((FILE*)data,"%f %f %f setrgbcolor\n", r/255., g/255., b/255.);
 }
 
@@ -2030,7 +2030,7 @@ gen_rectdraw0(struct plot_eng *eng, long *w, long *x, long *y, long lw, double x
   long i, j;
   long hgapsize = eng->pl->hunit, fheight = eng->pl->fheight;
   long vgapsize = eng->pl->vunit,  fwidth = eng->pl->fwidth;
-  long numcolors = lg(pari_colormap)-1;
+  long numcolors = lg(GP_DATA->colormap)-1;
   for(i=0; i<lw; i++)
   {
     PariRect *e = rectgraph[w[i]];

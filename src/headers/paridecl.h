@@ -2028,6 +2028,40 @@ GEN sd_ulong(const char *v, long flag, const char *s, ulong *ptn, ulong Min, ulo
 GEN setdefault(const char *s, const char *v, long flag);
 long setrealprecision(long n, long *prec);
 
+/* gplib.c */
+GEN sd_breakloop(const char *v, long flag);
+GEN sd_echo(const char *v, long flag);
+GEN sd_graphcolormap(const char *v, long flag);
+GEN sd_graphcolors(const char *v, long flag);
+GEN sd_help(const char *v, long flag);
+GEN sd_histfile(const char *v, long flag);
+GEN sd_lines(const char *v, long flag);
+GEN sd_linewrap(const char *v, long flag);
+GEN sd_prompt(const char *v, long flag);
+GEN sd_prompt_cont(const char *v, long flag);
+GEN sd_psfile(const char *v, long flag);
+GEN sd_readline(const char *v, long flag);
+GEN sd_recover(const char *v, long flag);
+GEN sd_timer(const char *v, long flag);
+void pari_hit_return(void);
+void gp_load_gprc(void);
+int  gp_meta(const char *buf, int ismain);
+void pari_center(const char *s);
+void pari_print_version(void);
+const char *gp_format_time(long delay);
+const char *gp_format_prompt(const char *p);
+void pari_alarm(long s);
+GEN  gp_alarm(long s, GEN code);
+GEN  gp_input(void);
+void gp_allocatemem(GEN z);
+int  gp_handle_exception(long numerr);
+void gp_alarm_handler(int sig);
+void gp_sigint_fun(void);
+enum { h_REGULAR=0, h_LONG=1, h_APROPOS=2, h_RL=4 };
+void gp_help(const char *s, long flag);
+void gp_echo_and_log(const char *prompt, const char *s);
+void print_fun_list(char **list, long nbli);
+
 /* ellanal.c */
 
 GEN     ellanalyticrank(GEN e, GEN eps, long prec);
@@ -2161,6 +2195,7 @@ GEN     ellsea(GEN E, GEN p, long early_abort);
 /* es.c */
 
 GEN     externstr(const char *cmd);
+char    *gp_filter(const char *s, int flag);
 GEN     gpextern(const char *cmd);
 void    gpsystem(const char *s);
 GEN     readstr(const char *s);
@@ -2810,6 +2845,7 @@ void    pari_add_defaults_module(entree *ep);
 void    pari_add_oldmodule(entree *ep);
 void    pari_close(void);
 void    pari_close_opts(ulong init_opts);
+GEN     pari_compile_str(const char *lex, int strict);
 int     pari_daemon(void);
 void    pari_err(int numerr, ...);
 GEN     pari_err_last(void);

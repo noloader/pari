@@ -76,7 +76,7 @@ ulong   pari_mt_nbthreads;
 ulong   compatible, precreal, precdl, logstyle;
 gp_data *GP_DATA;
 
-GEN pari_colormap, pari_graphcolors;
+GEN colormap, pari_graphcolors;
 
 entree  **varentries;
 
@@ -88,12 +88,20 @@ static pari_stack s_MODULES, s_OLDMODULES;
 const long functions_tblsz = 135; /* size of functions_hash */
 entree **functions_hash, **defaults_hash;
 
+char *(*cb_pari_fgets_interactive)(char *s, int n, FILE *f);
+int (*cb_pari_get_line_interactive)(const char*, const char*, filtre_t *F);
+void (*cb_pari_quit)(long);
+void (*cb_pari_init_histfile)(void);
 void (*cb_pari_ask_confirm)(const char *);
 int  (*cb_pari_handle_exception)(long);
 int  (*cb_pari_whatnow)(PariOUT *out, const char *, int);
 void (*cb_pari_sigint)(void);
 void (*cb_pari_pre_recover)(long);
 void (*cb_pari_err_recover)(long);
+int (*cb_pari_break_loop)(int);
+int (*cb_pari_is_interactive)(void);
+void (*cb_pari_start_output)();
+
 const char * pari_library_path = NULL;
 
 static THREAD GEN global_err_data;
@@ -513,7 +521,7 @@ pari_init_defaults(void)
   }
   else pari_datadir= pari_strdup(pari_datadir);
   for (i=0; i<c_LAST; i++) gp_colors[i] = c_NONE;
-  pari_colormap = NULL; pari_graphcolors = NULL;
+  colormap = NULL; pari_graphcolors = NULL;
 }
 
 /*********************************************************************/
@@ -854,14 +862,24 @@ pari_exit(void)
 static void
 dflt_err_recover(long errnum) { (void) errnum; pari_exit(); }
 
+static void
+dflt_pari_quit(long err) { (void)err; /*do nothing*/; }
+
 /* initialize PARI data. Initialize [new|old]fun to NULL for default set. */
 void
 pari_init_opts(size_t parisize, ulong maxprime, ulong init_opts)
 {
   ulong u;
 
+  cb_pari_quit = dflt_pari_quit;
+  cb_pari_init_histfile = NULL;
+  cb_pari_get_line_interactive = NULL;
+  cb_pari_fgets_interactive = NULL;
   cb_pari_whatnow = NULL;
   cb_pari_pre_recover = NULL;
+  cb_pari_break_loop = NULL;
+  cb_pari_is_interactive = NULL;
+  cb_pari_start_output = NULL;
   cb_pari_sigint = dflt_sigint_fun;
   if (init_opts&INIT_JMPm) cb_pari_err_recover = dflt_err_recover;
 
@@ -888,6 +906,7 @@ pari_init_opts(size_t parisize, ulong maxprime, ulong init_opts)
   pari_init_functions();
   pari_var_init();
   pari_init_timer();
+  pari_init_buffers();
   (void)getabstime();
   try_to_recover = 1;
   if (!(init_opts&INIT_noIMTm)) pari_mt_init();
@@ -939,6 +958,10 @@ pari_close_opts(ulong init_opts)
     if (GP_DATA->pp->cmd) free((void*)GP_DATA->pp->cmd);
     delete_dirs(GP_DATA->path);
     free((void*)GP_DATA->path->PATH);
+    if (GP_DATA->help) free((void*)GP_DATA->help);
+    free((void*)GP_DATA->prompt);
+    free((void*)GP_DATA->prompt_cont);
+    free((void*)GP_DATA->histfile);
   }
   BLOCK_SIGINT_END;
 }

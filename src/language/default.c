@@ -277,7 +277,7 @@ sd_colors(const char *v, long flag)
       v = "9, 13, 11, 15, 14, 10, 11";
     if (l <= 6 && strncmp(v, "boldfg", l) == 0)        /* Good for darkbg consoles */
       v = "[1,,1], [5,,1], [3,,1], [7,,1], [6,,1], , [2,,1]";
-    v0 = s = filtre(v, 0);
+    v0 = s = gp_filter(v, 0);
     for (c=c_ERR; c < c_LAST; c++)
       gp_colors[c] = gp_get_color(&s);
     pari_free(v0);
@@ -790,6 +790,44 @@ init_pp(gp_data *D)
   p->file = NULL;
 }
 
+static char *
+init_help(void)
+{
+  char *h = os_getenv("GPHELP");
+# ifdef GPHELP
+  if (!h) h = (char*)GPHELP;
+# endif
+#ifdef _WIN32
+  win32_set_pdf_viewer();
+#endif
+  if (h) h = pari_strdup(h);
+  return h;
+}
+
+static void
+init_graphs(gp_data *D)
+{
+  char *cols[] = { "",
+    "white","black","blue","violetred","red","green","grey","gainsboro"
+  };
+  const long N = 8;
+  GEN c = cgetalloc(t_VECSMALL, 3), s;
+  long i;
+  c[1] = 4;
+  c[2] = 5;
+  D->graphcolors = c;
+  c = (GEN)pari_malloc((N+1 + 4*N)*sizeof(long));
+  c[0] = evaltyp(t_VEC)|evallg(N+1);
+  for (i = 1, s = c+N+1; i <= N; i++, s += 4)
+  {
+    GEN lp = s;
+    lp[0] = evaltyp(t_STR)|evallg(4);
+    strcpy(GSTR(lp), cols[i]);
+    gel(c,i) = lp;
+  }
+  D->colormap = c;
+}
+
 gp_data *
 default_gp_data(void)
 {
@@ -825,5 +863,12 @@ default_gp_data(void)
   init_path(D->path, pari_default_path());
   init_path(D->sopath, "");
   init_pp(D);
+  init_graphs(D);
+  D->prompt_comment = (char*)"comment> ";
+  D->prompt = pari_strdup("? ");
+  D->prompt_cont = pari_strdup("");
+  D->help = init_help();
+  D->readline_state = DO_ARGS_COMPLETE;
+  D->histfile = NULL;
   return D;
 }

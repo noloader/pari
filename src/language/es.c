@@ -185,7 +185,7 @@ END:
 #undef MULTI_LINE_COMMENT
 
 char *
-filtre(const char *s, int downcase)
+gp_filter(const char *s, int downcase)
 {
   filtre_t T;
   T.buf = NULL;
@@ -1399,6 +1399,7 @@ out_term_color(PariOUT *out, long c)
 void
 term_color(long c) { out_term_color(pariOut, c); }
 
+/* s must be able to store 12 chars (including final \0) */
 char *
 term_get_color(char *s, long n)
 {
@@ -1459,7 +1460,6 @@ strlen_real(const char *s)
 static int
 term_width_intern(void)
 {
-  if (GP_DATA->flags & gpd_TEST) return 0;
 #ifdef _WIN32
   return win32_terminal_width();
 #endif
@@ -1486,7 +1486,6 @@ term_width_intern(void)
 static int
 term_height_intern(void)
 {
-  if (GP_DATA->flags & gpd_TEST) return 0;
 #ifdef _WIN32
   return win32_terminal_height();
 #endif

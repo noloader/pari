@@ -208,14 +208,17 @@ GEN
 readseq(char *t)
 {
   pari_sp av = avma;
-  return gerepileupto(av, closure_evalres(pari_compile_str(t,0)));
+  GEN x;
+  if (gp_meta(t,0)) return gnil;
+  x = pari_compile_str(t,0);
+  return gerepileupto(av, closure_evalres(x));
 }
 
 /* filtered readseq = remove blanks and comments */
 GEN
 gp_read_str(const char *s)
 {
-  char *t = filtre(s, (compatible == OLDALL));
+  char *t = gp_filter(s, (compatible == OLDALL));
   GEN x = readseq(t);
   pari_free(t); return x;
 }
@@ -223,7 +226,7 @@ gp_read_str(const char *s)
 GEN
 compile_str(const char *s)
 {
-  char *t = filtre(s, (compatible == OLDALL));
+  char *t = gp_filter(s, (compatible == OLDALL));
   GEN x = pari_compile_str(t, 1);
   pari_free(t); return x;
 }

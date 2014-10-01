@@ -22,7 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 static void SetForeground(void *data, long col)
 {
   int r,g,b;
-  color_to_rgb(gel(pari_colormap,col), &r, &g, &b);
+  color_to_rgb(gel(GP_DATA->colormap,col), &r, &g, &b);
 
   HPEN hOldPen = SelectObject((HDC)data, CreatePen(PS_SOLID, 2, RGB(r,g,b)));
   if( hOldPen ) DeleteObject(hOldPen);

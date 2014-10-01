@@ -175,10 +175,8 @@ that
 A GP \kbd{default} is likewise associated to a helper routine, that is run
 when the value is consulted, or changed by \tet{default0} or \tet{setdefault}.
 Such routines are grouped into modules: \tet{functions_default} containing all
-defaults that make sense in libpari context, \tet{functions_gp_rl_default}
-containing defaults that are \kbd{gp}-specific and do not make sense unless
-we use \kbd{libreadline}, and \tet{functions_gp_default} containing all other
-\kbd{gp}-specific defaults.
+defaults that make sense in libpari context, and \tet{functions_gp_default}
+containing all \kbd{gp}-specific defaults.
 
 \fun{void}{pari_add_defaults_module}{entree *mod} adds all the defaults in
 module \kbd{mod} to the interpreter. It assumes that \kbd{pari\_init} has
@@ -194,25 +192,52 @@ break loop handler) to the following callbacks, and so can you:
 initialized to \kbd{NULL}. Called with argument $s$ whenever PARI wants
 confirmation for action $s$, for instance in \tet{secure} mode.
 
-\doc{cb_pari_handle_exception}{extern int (*cb_pari_handle_exception)(long)}
+\doc{cb_pari_init_histfile}{void (*cb_pari_init_histfile)(void)}
+initialized to \kbd{NULL}. Called when the \kbd{histfile} default
+is changed. The intent is for that callback to read the file content, append
+it to history in memory, then dump the expanded history to the new
+\kbd{histfile}.
+
+\doc{cb_pari_is_interactive}{int (*cb_pari_is_interactive)(void)};
+initialized to \kbd{NULL}.
+
+\doc{cb_pari_quit}{void (*cb_pari_quit)(long)}
+initialized to a no-op. Called when \kbd{gp} must evaluate the \kbd{quit}
+command.
+
+\doc{cb_pari_start_output}{void (*cb_pari_start_output)(void)}
+initialized to \kbd{NULL}.
+
+\doc{cb_pari_handle_exception}{int (*cb_pari_handle_exception)(long)}
 initialized to \kbd{NULL}. If not \kbd{NULL}, this routine is called with
 argument $-1$ on \kbd{SIGINT}, and argument \kbd{err} on error \kbd{err}. If
 it returns a non-zero value, the error or signal handler returns, in effect
 further ignoring the error or signal, otherwise it raises a fatal error.
+A possible simple-minded handler, used by the \kbd{gp} interpreter, is
+
+\fun{int}{gp_handle_exception}{long err} if the \kbd{breakloop}
+default is enabled and \tet{cb_pari_break_loop} is not \kbd{NULL}, we call it
+with \kbd{err} argument and return the result.
+
+\doc{cb_pari_break_loop}{int (*cb_pari_break_loop)(int)}
+initialized to \kbd{NULL}.
 
 \doc{cb_pari_sigint}{void (*cb_pari_sigint)(void)}.
 Function called when we receive \kbd{SIGINT}. By default, raises
 \bprog
   pari_err(e_MISC, "user interrupt");
-@eprog
+@eprog\noindent A possible simple-minded variant, used by the
+\kbd{gp} interpreter, is
 
-\doc{cb_pari_pre_recover}{extern void (*cb_pari_err_recover)(long)}
+\fun{void}{gp_sigint_fun}{void}
+
+\doc{cb_pari_pre_recover}{void (*cb_pari_err_recover)(long)}
 initialized to \kbd{NULL}. If not \kbd{NULL}, this routine is called just
 before PARI cleans up from an error. It is not required to return.  The error
 number is passed as argument, unless the PARI stack has been destroyed
 (\kbd{allocatemem}), in which case $-1$ is passed.
 
-\doc{cb_pari_err_recover}{extern void (*cb_pari_err_recover)(long)}
+\doc{cb_pari_err_recover}{void (*cb_pari_err_recover)(long)}
 initialized to \kbd{pari\_exit()}. This callback must not return.
 It is called after PARI has cleaned-up from an error. The error number is
 passed as argument, unless the PARI stack has been destroyed, in which case
@@ -235,7 +260,7 @@ non-$0$ result otherwise. May print a help message.
 It is used by the function \tet{gpinstall} to locate the PARI library when
 searching for symbols.  This should only be useful on Windows.
 
-\misctitle{Utility function}
+\subsec{Utility functions}
 
 \fun{void}{pari_ask_confirm}{const char *s} raise an error if the
 callback \tet{cb_pari_ask_confirm} is \kbd{NULL}. Otherwise
@@ -243,6 +268,69 @@ calls
 \bprog
   cb_pari_ask_confirm(s);
 @eprog
+
+\fun{char*}{gp_filter}{const char *s, int flag} pre-processor for the GP
+parser: filter out whitespace and GP comments from $s$. If \fl is non-zero,
+downcase all identifiers (letters outside of \kbd{"..."} GP strings).
+
+\fun{GEN}{pari_compile_str}{const char *s, int strict} low-level form of
+\tet{compile_str}: assumes that $s$ does not contain spaces or GP comments and
+returns the closure associated to the GP expression $s$. Note
+that GP metacommands are not recognized. The \kbd{strict} parameter is likely
+to disappear in the future; if $0$ only warn if unused characters are left at
+the end of the expression, see \kbd{strictmatch}; otherwise, raise an
+exception.
+
+\fun{int}{gp_meta}{const char *s, int ismain} low-level component of
+\tet{gp_read_str}: assumes that $s$ does not contain spaces or GP comments and
+try to interpret $s$ as a GP metacommand (e.g. starting by \kbd{\bs} or
+\kbd{?}). If successful, execute the metacommand and return $1$; otherwise
+return $0$. The \kbd{ismain} parameter modifies the way \kbd{\bs r} commands
+are handled: if non-zero, act as if the file contents were entered via
+standard input (i.e. call \tet{switchin} and divert \tet{pari_infile});
+otherwise, simply call \tet{gp_read_file}.
+
+\fun{void}{pari_hit_return}{void} wait for the use to enter \kbd{\bs n}
+via standard input.
+
+\fun{void}{gp_load_gprc}{void} read and execute the user's \kbd{GPRC} file.
+
+\fun{void}{pari_center}{const char *s} print $s$, centered.
+
+\fun{void}{pari_print_version}{void} print verbose version information.
+
+\fun{const char*}{gp_format_time}{long t} format a delay of $t$ ms
+suitable for \kbd{gp} output, with \kbd{timer} set.
+
+\fun{const char*}{gp_format_prompt}{const char *p} format a prompt $p$
+suitable for \kbd{gp} prompting (includes colors and protecting ANSI escape
+sequences for readline).
+
+\fun{void}{pari_alarm}{long s} set an alarm after $s$ seconds (raise an
+\tet{e_ALARM} exception).
+
+\fun{void}{gp_help}{const char *s, long flag} print help for $s$, depending
+on the value of \fl:
+
+\item \tet{h_REGULAR}, basic help (\kbd{?});
+
+\item \tet{h_LONG}, extended help (\kbd{??});
+
+\item \tet{h_APROPOS}, a propos help (\kbd{??}).
+
+\fun{void}{gp_echo_and_log}{const char *p, const char *s} given a prompt
+$p$ and associated input command $s$, update logfile and possibly
+print on standard output if \tet{echo} is set and we are not in interactive
+mode. The callback \tet{cb_pari_is_interactive} must be set to a sensible
+value.
+
+\fun{void}{gp_alarm_handler}{int sig} the \kbd{SIGALRM} handler
+set by the \kbd{gp} interpreter.
+
+\fun{void}{print_fun_list}{char **list, long n}
+print all elements of \kbd{list} in columns, pausing (hit return)
+every $n$ lines. \kbd{list} is \kbd{NULL} terminated.
+
 \subsec{Saving and restoring the GP context}
 
 \fun{void}{gp_context_save}{struct gp_context* rec} save the current GP
@@ -11297,7 +11385,10 @@ a \typ{STR} otherwise.
 
 \noindent Low-level functions called by \kbd{setdefault}:
 
+
 \fun{GEN}{sd_TeXstyle}{const char *v, long flag}
+
+\fun{GEN}{sd_breakloop}{const char *v, long flag}
 
 \fun{GEN}{sd_colors}{const char *v, long flag}
 
@@ -11311,13 +11402,27 @@ a \typ{STR} otherwise.
 
 \fun{GEN}{sd_debugmem}{const char *v, long flag}
 
+\fun{GEN}{sd_echo}{const char *v, long flag}
+
 \fun{GEN}{sd_factor_add_primes}{const char *v, long flag}
 
 \fun{GEN}{sd_factor_proven}{const char *v, long flag}
 
 \fun{GEN}{sd_format}{const char *v, long flag}
 
+\fun{GEN}{sd_graphcolormap}{const char *v, long flag}
+
+\fun{GEN}{sd_graphcolors}{const char *v, long flag}
+
+\fun{GEN}{sd_help}{const char *v, long flag}
+
+\fun{GEN}{sd_histfile}{const char *v, long flag}
+
 \fun{GEN}{sd_histsize}{const char *v, long flag}
+
+\fun{GEN}{sd_lines}{const char *v, long flag}
+
+\fun{GEN}{sd_linewrap}{const char *v, long flag}
 
 \fun{GEN}{sd_log}{const char *v, long flag}
 
@@ -11339,6 +11444,14 @@ a \typ{STR} otherwise.
 
 \fun{GEN}{sd_primelimit}{const char *v, long flag}
 
+\fun{GEN}{sd_prompt}{const char *v, long flag}
+
+\fun{GEN}{sd_prompt_cont}{const char *v, long flag}
+
+\fun{GEN}{sd_psfile}{const char *v, long flag}
+
+\fun{GEN}{sd_readline}{const char *v, long flag}
+
 \fun{GEN}{sd_realprecision}{const char *v, long flag}
 
 \fun{GEN}{sd_recover}{const char *v, long flag}
@@ -11354,6 +11467,8 @@ a \typ{STR} otherwise.
 \fun{GEN}{sd_strictargs}{const char *v, long flag}
 
 \fun{GEN}{sd_strictmatch}{const char *v, long flag}
+
+\fun{GEN}{sd_timer}{const char *v, long flag}
 
 \fun{GEN}{sd_threadsize}{const char *v, long flag}
 

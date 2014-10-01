@@ -78,11 +78,16 @@ extern THREAD VOLATILE int PARI_SIGINT_block, PARI_SIGINT_pending;
 
 extern const long lontyp[];
 extern void (*cb_pari_ask_confirm)(const char *);
+extern void (*cb_pari_init_histfile)(void);
 extern int  (*cb_pari_whatnow)(PariOUT *out, const char *, int);
+extern void (*cb_pari_quit)(long);
 extern void (*cb_pari_sigint)(void);
 extern int (*cb_pari_handle_exception)(long);
 extern void (*cb_pari_pre_recover)(long);
 extern void (*cb_pari_err_recover)(long);
+extern int (*cb_pari_break_loop)(int);
+extern int (*cb_pari_is_interactive)(void);
+extern void (*cb_pari_start_output)(void);
 extern const char *pari_library_path;
 
 enum manage_var_t {

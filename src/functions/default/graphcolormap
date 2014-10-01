@@ -1,5 +1,5 @@
 Function: _def_graphcolormap
-Class: gp_default
+Class: default
 Section: default
 C-Name: sd_graphcolormap
 Prototype:

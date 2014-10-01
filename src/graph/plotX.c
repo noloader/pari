@@ -181,7 +181,7 @@ rectdraw0(long *w, long *x, long *y, long lw)
   if (!font_info) exiterr("cannot open 9x15 font");
   XSetErrorHandler(Xerror);
   XSetIOErrorHandler(IOerror);
-  PARI_ColorSetUp(display,pari_colormap);
+  PARI_ColorSetUp(display,GP_DATA->colormap);
 
   screen = DefaultScreen(display);
   win = XCreateSimpleWindow
@@ -218,7 +218,7 @@ rectdraw0(long *w, long *x, long *y, long lw)
   oldheight = pari_plot.height;
   dx.display= display;
   dx.win = win;
-  dx.numcolors = lg(pari_colormap)-1;
+  dx.numcolors = lg(GP_DATA->colormap)-1;
   dx.gc = gc;
   plotX.sc = &SetForeground;
   plotX.pt = &DrawPoint;

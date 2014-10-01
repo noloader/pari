@@ -289,7 +289,7 @@ char* get_sep(const char *t);
 long get_int(const char *s, long dflt);
 ulong get_uint(const char *s);
 int  gp_init_functions(void);
-GEN  pari_compile_str(char *lex, int strict);
+void gp_initrc(pari_stack *p_A);
 
 void pari_sigint(const char *s);
 pariFILE *pari_last_tmp_file(void);
@@ -309,44 +309,12 @@ int   term_width(void);
 void  whatnow_new_syntax(const char *f, long n);
 /* gp_colors */
 void decode_color(long n, long *c);
-extern GEN pari_colormap, pari_graphcolors;
 
 /* defaults */
 extern ulong precreal;
 
-/* history */
-typedef struct {
-  GEN z; /* result */
-  time_t t; /* time to obtain result */
-} gp_hist_cell;
-typedef struct {
-  gp_hist_cell *v; /* array of previous results, FIFO */
-  size_t size; /* # res */
-  ulong total; /* # of results computed since big bang */
-} gp_hist;
-
-/* prettyprinter */
-typedef struct {
-  pariFILE *file;
-  char *cmd;
-} gp_pp;
-
-/* path */
-typedef struct {
-  char *PATH;
-  char **dirs;
-} gp_path;
-
-/* for output */
-typedef struct {
-  char format; /* e,f,g */
-  long sigd;   /* -1 (all) or number of significant digits printed */
-  int sp;      /* 0 = suppress whitespace from output */
-  int prettyp; /* output style: raw, prettyprint, etc */
-  int TeXstyle;
-} pariout_t;
-
 void lim_lines_output(char *s, long n, long max);
+int tex2mail_output(GEN z, long n);
 void gen_output(GEN x, pariout_t *T);
 void fputGEN_pariout(GEN x, pariout_t *T, FILE *out);
 
@@ -369,23 +337,6 @@ void mtstate_reset(void);
 void mtstate_restore(long *pending);
 
 void debug_context(void);
-
-/* GP_DATA */
-typedef struct {
-  gp_hist *hist;
-  gp_pp *pp;
-  gp_path *path, *sopath;
-  pariout_t *fmt;
-  ulong lim_lines, flags, linewrap;
-  int echo, breakloop, recover, use_readline; /* GP-specific */
-  int secure, simplify, strictmatch, strictargs, chrono; /* libpari ? */
-  pari_timer *T;
-  ulong primelimit; /* deprecated */
-  ulong threadsizemax, threadsize;
-} gp_data;
-extern gp_data *GP_DATA;
-  /* GP_DATA->flags */
-enum { gpd_QUIET=1, gpd_TEST=2, gpd_EMACS=256, gpd_TEXMACS=512};
 
 typedef struct {
   const char *s;
@@ -438,7 +389,20 @@ typedef struct {
   Buffer *buf;
 } filtre_t;
 void init_filtre(filtre_t *F, Buffer *buf);
-char *filtre(const char *s, int flag);
+Buffer *filtered_buffer(filtre_t *F);
+const char *break_loop_prompt(long n);
+void kill_buffers_upto_including(Buffer *B);
+void pop_buffer(void);
+void kill_buffers_upto(Buffer *B);
+int gp_read_line(filtre_t *F, const char *PROMPT);
+void parse_key_val(char *src, char **ps, char **pt);
+void pari_init_buffers(void);
+extern int (*cb_pari_get_line_interactive)(const char*, const char*, filtre_t *F);
+extern char *(*cb_pari_fgets_interactive)(char *s, int n, FILE *f);
+int get_line_from_file(const char *prompt, filtre_t *F, FILE *file);
+void pari_skip_space(char **s);
+void pari_skip_alpha(char **s);
+char *pari_translate_string(char *src, char *s, char *entry);
 
 gp_data *default_gp_data(void);
 

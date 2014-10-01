@@ -1686,14 +1686,13 @@ library mode: input and output of PARI objects.
 \noindent
 For \idx{input}, PARI provides a powerful high level function
 which enables you to input your objects as if you were under \kbd{gp}. In fact,
-it \emph{is} essentially the GP syntactical parser, hence you can use it not
-only for input but for (most) computations that you can do under \kbd{gp}.
+it \emph{is} essentially the GP syntactical parser.
 It has the following syntax:\label{se:gp_read_str}
 
 \fun{GEN}{gp_read_str}{const char *s}
 
 \noindent
-Note that \kbd{gp}'s metacommands are not recognized.
+Note that \kbd{gp}'s metacommands \emph{are} recognized.
 
 \misctitle{Note} The obsolete form
 

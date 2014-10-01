@@ -35,11 +35,6 @@ BEGINEXTERN
 ENDEXTERN
 
 /**************************************************************************/
-
-enum { DO_MATCHED_INSERT = 2, DO_ARGS_COMPLETE = 4 };
-static ulong readline_state = DO_ARGS_COMPLETE;
-static char *current_histfile = NULL;
-
 static int pari_rl_back;
 static int did_init_matched = 0;
 static entree *current_ep = NULL;
@@ -47,8 +42,8 @@ static entree *current_ep = NULL;
 static int
 change_state(const char *msg, ulong flag, int count)
 {
-  int c = (readline_state & flag) != 0;
-  ulong o_readline_state = readline_state;
+  int c = (GP_DATA->readline_state & flag) != 0;
+  ulong state = GP_DATA->readline_state;
 
   switch(count)
   {
@@ -57,11 +52,10 @@ change_state(const char *msg, ulong flag, int count)
     case -2: c = 1 - c; /* toggle */
   }
   if (c)
-    readline_state |= flag;
+    GP_DATA->readline_state |= flag;
   else {
-    readline_state &= ~flag;
-    if (!readline_state && o_readline_state)
-        readline_state = 1;
+    GP_DATA->readline_state &= ~flag;
+    if (!GP_DATA->readline_state && state) GP_DATA->readline_state = 1;
   }
   rl_save_prompt();
   rl_message("[%s: %s] ", msg, c? "on": "off");
@@ -95,13 +89,12 @@ static int did_matched_insert;
 static int
 pari_rl_matched_insert_suspend(int count, int key)
 {
-  ulong o_readline_state = readline_state;
+  ulong state = GP_DATA->readline_state;
   (void)count; (void)key;
 
-  did_matched_insert = (readline_state & DO_MATCHED_INSERT);
-  readline_state &= ~DO_MATCHED_INSERT;
-  if (!readline_state && o_readline_state)
-    readline_state = 1;
+  did_matched_insert = (GP_DATA->readline_state & DO_MATCHED_INSERT);
+  GP_DATA->readline_state &= ~DO_MATCHED_INSERT;
+  if (!GP_DATA->readline_state && state) GP_DATA->readline_state = 1;
   return 1;
 }
 
@@ -110,7 +103,7 @@ pari_rl_matched_insert_restore(int count, int key)
 {
   (void)count; (void)key;
   if (did_matched_insert)
-    readline_state |= DO_MATCHED_INSERT;
+    GP_DATA->readline_state |= DO_MATCHED_INSERT;
   return 1;
 }
 
@@ -126,7 +119,7 @@ pari_rl_matched_insert(int count, int key)
   if (count <= 0)
     return change_state("electric parens", DO_MATCHED_INSERT, count);
   while (paropen[i] && paropen[i] != key) i++;
-  if (!paropen[i] || !(readline_state & DO_MATCHED_INSERT) || GP_DATA->flags & gpd_EMACS)
+  if (!paropen[i] || !(GP_DATA->readline_state & DO_MATCHED_INSERT) || GP_DATA->flags & gpd_EMACS)
     return ((RLCI)rl_insert)(count,key);
   rl_begin_undo_group();
   ((RLCI)rl_insert)(count,key);
@@ -140,7 +133,7 @@ pari_rl_default_matched_insert(int count, int key)
 {
     if (!did_init_matched) {
       did_init_matched = 1;
-      readline_state |= DO_MATCHED_INSERT;
+      GP_DATA->readline_state |= DO_MATCHED_INSERT;
     }
     return pari_rl_matched_insert(count, key);
 }
@@ -474,7 +467,7 @@ rl_print_aide(char *s, int flag)
   rl_point = 0; rl_end = 0; pari_outfile = rl_outstream;
   rl_save_prompt();
   rl_message("%s",""); /* rl_message("") ==> "zero length format" warning */
-  aide(s, flag);
+  gp_help(s, flag);
   rl_restore_prompt();
   rl_point = p; rl_end = e; pari_outfile = save;
   rl_clear_message();
@@ -497,7 +490,7 @@ add_space(int start)
   m[1] = NULL; return m;
 }
 
-static char **
+char **
 pari_completion(char *text, int START, int END)
 {
   int i, first=0, start=START;
@@ -559,7 +552,7 @@ pari_completion(char *text, int START, int END)
     k = END;
     while (k > j && isspace((int)rl_line_buffer[k])) k--;
     /* If we are in empty parens, insert the default arguments */
-    if ((readline_state & DO_ARGS_COMPLETE) && k == j
+    if ((GP_DATA->readline_state & DO_ARGS_COMPLETE) && k == j
          && (rl_line_buffer[j] == ')' || !rl_line_buffer[j])
          && (iend - i < (long)sizeof(buf))
          && ( strncpy(buf, rl_line_buffer + i, iend - i),
@@ -618,8 +611,107 @@ rl_long_help(int count, int key) { (void)count; return rl_short_help(-1,key); }
 static void
 init_histfile(void)
 {
-  if (current_histfile && read_history(current_histfile))
-    write_history(current_histfile);
+  char *h = GP_DATA->histfile;
+  if (h && read_history(h)) write_history(h);
+}
+
+/*******************************************************************/
+/*                                                                 */
+/*                   GET LINE FROM READLINE                        */
+/*                                                                 */
+/*******************************************************************/
+static int
+history_is_new(char *s)
+{
+  HIST_ENTRY *e;
+  if (!*s) return 0;
+  if (!history_length) return 1;
+  e = history_get(history_length);
+  /* paranoia: e != NULL, unless readline is in a weird state */
+  return e? strcmp(s, e->line): 0;
+}
+
+static void
+gp_add_history(char *s)
+{
+  if (history_is_new(s)) { add_history(s); append_history(1,GP_DATA->histfile); }
+}
+
+/* Read line; returns a malloc()ed string of the user input or NULL on EOF.
+   Increments the buffer size appropriately if needed; fix *endp if so. */
+static char *
+gprl_input(char **endp, int first, input_method *IM, filtre_t *F)
+{
+  pari_sp av = avma;
+  Buffer *b = F->buf;
+  ulong used = *endp - b->buf;
+  ulong left = b->len - used, l;
+  const char *p;
+  char *s, *t;
+
+  if (first) p = IM->prompt;
+  else {
+    p = F->in_comment ? GP_DATA->prompt_comment: IM->prompt_cont;
+    p = gp_format_prompt(p);
+  }
+  if (! (s = readline(p)) ) { avma = av; return NULL; } /* EOF */
+  gp_add_history(s); /* Makes a copy */
+  l = strlen(s) + 1;
+  /* put back \n that readline stripped. This is needed for
+   * { print("a
+   *   b"); }
+   * and conforms with the other input methods anyway. */
+  t = (char*)pari_malloc(l + 1);
+  strncpy(t, s, l-1);
+  t[l-1] = '\n';
+  t[l]   = 0; /* equivalent to sprintf(t,"%s\n", s) */
+  if (left < l)
+  {
+    ulong incr = b->len;
+    if (incr < l) incr = l;
+    fix_buffer(b, b->len + incr);
+    *endp = b->buf + used;
+  }
+  avma = av; return t;
+}
+
+/* request one line interactively.
+ * Return 0: EOF
+ *        1: got one line from readline or pari_infile */
+int
+get_line_from_readline(const char *prompt, const char *prompt_cont, filtre_t *F)
+{
+  const int index = history_length;
+  char *s;
+  input_method IM;
+
+  if (!GP_DATA->use_readline)
+  {
+    pari_puts(prompt); pari_flush();
+    return get_line_from_file(prompt, F, pari_infile);
+  }
+
+  IM.prompt      = prompt;
+  IM.prompt_cont = prompt_cont;
+  IM.getline = &gprl_input;
+  IM.free = 1;
+  if (! input_loop(F,&IM)) { pari_puts("\n"); return 0; }
+
+  s = F->buf->buf;
+  if (*s)
+  {
+    if (history_length > index+1)
+    { /* Multi-line input. Remove incomplete lines */
+      int i = history_length;
+      while (i > index) {
+        HIST_ENTRY *e = remove_history(--i);
+        pari_free(e->line); pari_free(e);
+      }
+      gp_add_history(s);
+    }
+    gp_echo_and_log(prompt, s);
+  }
+  return 1;
 }
 
 void
@@ -628,9 +720,11 @@ init_readline(void)
   static int init_done = 0;
 
   if (init_done) return;
-  if (! GP_DATA->use_readline) readline_state = 0;
+  if (! GP_DATA->use_readline) GP_DATA->readline_state = 0;
   init_done = 1;
   init_histfile();
+  cb_pari_init_histfile = init_histfile;
+  cb_pari_get_line_interactive = get_line_from_readline;
 
   /* Allow conditional parsing of the ~/.inputrc file. */
   rl_readline_name = "Pari-GP";
@@ -675,216 +769,5 @@ init_readline(void)
   rl_bind_key_in_map('[', pari_rl_matched_insert, emacs_standard_keymap);
   rl_bind_key_in_map(6, pari_rl_forward_sexp,  emacs_meta_keymap); /* M-C-f */
   rl_bind_key_in_map(2, pari_rl_backward_sexp, emacs_meta_keymap); /* M-C-b */
-}
-
-void
-readline_prompt_color(char *s, int c)
-{
-#ifdef RL_PROMPT_START_IGNORE
-  *s++ = RL_PROMPT_START_IGNORE;
-  term_get_color(s, c);
-  s += strlen(s);
-  *s++ = RL_PROMPT_END_IGNORE;
-  *s = 0;
-#else
-  term_get_color(s, c);
-#endif
-}
-
-/* readline-specific defaults */
-GEN
-sd_readline(const char *v, long flag)
-{
-  const char *msg[] = {
-    "(bits 0x2/0x4 control matched-insert/arg-complete)", NULL};
-  ulong o_readline_state = readline_state;
-  GEN res = sd_ulong(v,flag,"readline", &readline_state, 0, 7, msg);
-
-  if (o_readline_state != readline_state)
-    (void)sd_toggle(readline_state? "1": "0", d_SILENT, "readline", &(GP_DATA->use_readline));
-  return res;
-}
-GEN
-sd_histfile(const char *v, long flag)
-{
-  char *old = current_histfile;
-  GEN r = sd_string(v, flag, "histfile", &current_histfile);
-  if (v && !*v)
-  {
-    free(current_histfile);
-    current_histfile = NULL;
-  }
-  else if (current_histfile != old && (!old || strcmp(old,current_histfile)))
-    init_histfile();
-  return r;
-}
-
-static void
-print_escape_string(char *s)
-{
-  long l = strlen(s);
-  char *t, *t0 = (char*)pari_malloc(l * 3 + 3);
-
-  t = t0; *t++ = '"';
-  for ( ;*s; *t++ = *s++)
-    switch(*s)
-    {
-      case DATA_BEGIN:
-      case DATA_END:
-      case DATA_ESCAPE: *t++ = DATA_ESCAPE; continue;
-
-      case '\\':
-      case '"': *t++ = '\\'; continue;
-    }
-  *t++ = '"';
-  *t = '\0'; puts(t0); pari_free(t0);
-}
-
-static char *
-completion_word(long end)
-{
-  char *s = rl_line_buffer + end, *found_quote = NULL;
-  long i;
-  /* truncate at cursor position */
-  *s = 0;
-  /* first look for unclosed string */
-  for (i=0; i < end; i++)
-  {
-    switch(rl_line_buffer[i])
-    {
-      case '"':
-        found_quote = found_quote? NULL: rl_line_buffer + i;
-        break;
-
-      case '\\': i++; break;
-    }
-
-  }
-  if (found_quote) return found_quote + 1; /* return next char after quote */
-
-  /* else find beginning of word */
-  while (s >  rl_line_buffer)
-  {
-    s--;
-    if (!is_keyword_char(*s)) { s++; break; }
-  }
-  return s;
-}
-
-/* completion required, cursor on s + pos. Complete wrt strict left prefix */
-void
-texmacs_completion(const char *s, long pos)
-{
-  char **matches, *text;
-
-  if (rl_line_buffer) pari_free(rl_line_buffer);
-  rl_line_buffer = pari_strdup(s);
-  text = completion_word(pos);
-  /* text = start of expression we complete */
-  rl_end = strlen(s)-1;
-  rl_point = pos;
-  matches = pari_completion(text, text - rl_line_buffer, pos);
-  printf("%cscheme:(tuple",DATA_BEGIN);
-  if (matches)
-  {
-    long i, prelen = (rl_line_buffer+pos) - text;
-    char *t = (char*)pari_malloc(prelen+1);
-    strncpy(t, text, prelen); t[prelen] = 0; /* prefix */
-    printf(" ");
-    print_escape_string(t); pari_free(t);
-    for (i = matches[1]? 1: 0; matches[i]; i++)
-    {
-      printf(" ");
-      print_escape_string(matches[i] + prelen);
-      pari_free(matches[i]);
-    }
-    pari_free(matches);
-  }
-  printf(")%c", DATA_END);
-  fflush(stdout);
-}
-
-static int
-history_is_new(char *s)
-{
-  HIST_ENTRY *e;
-  if (!*s) return 0;
-  if (!history_length) return 1;
-  e = history_get(history_length);
-  /* paranoia: e != NULL, unless readline is in a weird state */
-  return e? strcmp(s, e->line): 0;
-}
-
-static void
-gp_add_history(char *s)
-{
-  if (history_is_new(s)) { add_history(s); append_history(1,current_histfile); }
-}
-
-/* Read line; returns a malloc()ed string of the user input or NULL on EOF.
-   Increments the buffer size appropriately if needed; fix *endp if so. */
-static char *
-gprl_input(char **endp, int first, input_method *IM, filtre_t *F)
-{
-  char buf[MAX_PROMPT_LEN + 24];
-  Buffer *b = F->buf;
-  ulong used = *endp - b->buf;
-  ulong left = b->len - used, l;
-  const char *prompt = first? IM->prompt
-                            : do_prompt(buf, IM->prompt_cont, F);
-  char *s, *t;
-
-  if (! (s = readline(prompt)) ) return NULL; /* EOF */
-  gp_add_history(s); /* Makes a copy */
-  l = strlen(s) + 1;
-  /* put back \n that readline stripped. This is needed for
-   * { print("a
-   *   b"); }
-   * and conforms with the other input methods anyway. */
-  t = (char*)pari_malloc(l + 1);
-  strncpy(t, s, l-1);
-  t[l-1] = '\n';
-  t[l]   = 0; /* equivalent to sprintf(t,"%s\n", s) */
-  if (left < l)
-  {
-    ulong incr = b->len;
-    if (incr < l) incr = l;
-    fix_buffer(b, b->len + incr);
-    *endp = b->buf + used;
-  }
-  return t;
-}
-
-/* request one line interactively.
- * Return 0: EOF
- *        1: got one line from readline or pari_infile */
-int
-get_line_from_readline(const char *prompt, const char *prompt_cont, filtre_t *F)
-{
-  const int index = history_length;
-  char *s;
-  input_method IM;
-
-  IM.prompt      = prompt;
-  IM.prompt_cont = prompt_cont;
-  IM.getline = &gprl_input;
-  IM.free = 1;
-  if (! input_loop(F,&IM)) { pari_puts("\n"); return 0; }
-
-  s = F->buf->buf;
-  if (*s)
-  {
-    if (history_length > index+1)
-    { /* Multi-line input. Remove incomplete lines */
-      int i = history_length;
-      while (i > index) {
-        HIST_ENTRY *e = remove_history(--i);
-        pari_free(e->line); pari_free(e);
-      }
-      gp_add_history(s);
-    }
-    echo_and_log(prompt, s);
-  }
-  return 1;
 }
 #endif

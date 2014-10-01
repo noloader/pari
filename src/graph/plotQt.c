@@ -101,12 +101,12 @@ Plotter::Plotter( long *w, long *x, long *y, long lw,
     this->setCaption( "Pari QtPlot");
 #endif
     this->setFont( font);
-    numcolors = lg(pari_colormap)-1;
+    numcolors = lg(GP_DATA->colormap)-1;
     color = (QColor*)pari_malloc(numcolors*sizeof(QColor));
-    for (i = 1; i < lg(pari_colormap); i++)
+    for (i = 1; i < lg(GP_DATA->colormap); i++)
     {
       int r, g, b;
-      color_to_rgb(gel(pari_colormap,i), &r, &g, &b);
+      color_to_rgb(gel(GP_DATA->colormap,i), &r, &g, &b);
       color[i-1] = QColor(r, g, b);
     }
     this->setBackgroundColor( color[0]);
