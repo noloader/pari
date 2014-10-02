@@ -697,20 +697,20 @@ find_kernel_power(GEN Eba4, GEN Eba6, GEN Eca4, GEN Eca6, ulong ell, struct meqn
   GEN a4t, a6t, gtmp;
   GEN num_iso = find_numerator_isogeny(Eba4, Eba6, Eca4, Eca6, kpoly, T, p, ell+1);
   GEN mpoly = FqXY_evalx(MEQN->eq, Fq_ellj(Eca4, Eca6, T, p), T, p);
-  GEN tmp, mroots = FqX_roots(mpoly, T, p);
+  GEN mroots = FqX_roots(mpoly, T, p);
+  GEN kpoly2 = FqX_sqr(kpoly, T, p);
   long i, l1 = lg(mroots);
   btop = avma;
   for (i = 1; i < l1; i++)
   {
-    GEN kpoly2, h;
-    tmp = find_isogenous(Eca4, Eca6, ell, MEQN, gel(mroots, i), T, p);
+    GEN h;
+    GEN tmp = find_isogenous(Eca4, Eca6, ell, MEQN, gel(mroots, i), T, p);
     if (!tmp) { avma = ltop; return NULL; }
     a4t =  gel(tmp, 1);
     a6t =  gel(tmp, 2);
     gtmp = gel(tmp, 3);
 
     /*check that the kernel kpoly is the good one */
-    kpoly2 = FqX_sqr(kpoly, T, p);
     h = liftall_shallow(numer(poleval(gtmp, gdiv(num_iso, kpoly2))));
     if (signe(Fq_elldivpolmod(Eba4, Eba6, ell, h, T, p)))
     {
