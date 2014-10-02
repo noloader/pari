@@ -698,7 +698,7 @@ find_kernel_power(GEN Eba4, GEN Eba6, GEN Eca4, GEN Eca6, ulong ell, struct meqn
   GEN num_iso = find_numerator_isogeny(Eba4, Eba6, Eca4, Eca6, kpoly, T, p, ell+1);
   GEN mpoly = FqXY_evalx(MEQN->eq, Fq_ellj(Eca4, Eca6, T, p), T, p);
   GEN tmp, mroots = FqX_roots(mpoly, T, p);
-  long i, vx = 0, l1 = lg(mroots);
+  long i, l1 = lg(mroots);
   btop = avma;
   for (i = 1; i < l1; i++)
   {
@@ -711,11 +711,11 @@ find_kernel_power(GEN Eba4, GEN Eba6, GEN Eca4, GEN Eca6, ulong ell, struct meqn
 
     /*check that the kernel kpoly is the good one */
     kpoly2 = FqX_sqr(kpoly, T, p);
-    h = liftall_shallow(numer(gsubst(gtmp, vx, gdiv(num_iso, kpoly2))));
+    h = liftall_shallow(numer(poleval(gtmp, gdiv(num_iso, kpoly2))));
     if (signe(Fq_elldivpolmod(Eba4, Eba6, ell, h, T, p)))
     {
-      GEN Ic = gdiv(gsubst(num_iso, vx, Ib), gsqr(gsubst(kpoly, vx, Ib)));
-      GEN kpoly_new = liftall_shallow(numer(gsubst(gtmp, vx, Ic)));
+      GEN Ic = gdiv(poleval(num_iso, Ib), poleval(kpoly2, Ib));
+      GEN kpoly_new = liftall_shallow(numer(poleval(gtmp, Ic)));
       return gerepilecopy(ltop, mkvecn(5, a4t, a6t, kpoly_new, gtmp, Ic));
     }
     avma = btop;
