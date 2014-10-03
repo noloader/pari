@@ -120,7 +120,7 @@ BA 27- [libpari] ZpX_ZpXQ_liftroot, ZpX_ZpXQ_liftroot_ea
        ellformallog, ellformalexp, ellnonsingularmultiple, ellpadicheight,
        ellpadicheightmatrix, ellpadics2, ellpadiclog
 BA 30- [libpari] functions FpX_powu, FpX_digits, FpX_fromdigits,
-                 FpXQX_powu, FpXQX_digits, FpXQX_fromdigits
+                 FpXQX_powu, FpXQX_digits, FpXQX_fromdigits, FqX_powu
 BA 31- GP functions ellpadicfrobenius, hyperellpadicfrobenius, hyperellcharpoly
    32- [libpari] function RgX_normalize
 BA 33- much faster matfrobenius/minpoly(t_MAT)

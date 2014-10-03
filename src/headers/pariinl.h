@@ -2091,6 +2091,9 @@ INLINE GEN
 FqX_sqr(GEN x, GEN T, GEN p)
 { return T? FpXQX_sqr(x, T, p): FpX_sqr(x, p); }
 INLINE GEN
+FqX_powu(GEN x, ulong n, GEN T, GEN p)
+{ return T? FpXQX_powu(x, n, T, p): FpX_powu(x, n, p); }
+INLINE GEN
 FqX_div(GEN x, GEN y, GEN T, GEN p)
 { return T? FpXQX_divrem(x,y,T,p,NULL): FpX_divrem(x,y,p,NULL); }
 INLINE GEN
