@@ -194,7 +194,8 @@ find_numerator_isogeny(GEN Eba4, GEN Eba6, GEN Eca4, GEN Eca6, GEN h, GEN T, GEN
   GEN WEb = gmul(compute_W(Eba4, Eba6, T, p, varn(h), precS), mod);
   GEN WEc = gmul(compute_W(Eca4, Eca6, T, p, varn(h), precS), mod);
   GEN den = poleval(h, WEb);
-  return gerepileupto(ltop, find_transformation(gmul(gsqr(den), WEc), WEb));
+  GEN num = find_transformation(gmul(gsqr(den), WEc), WEb);
+  return gerepilecopy(ltop, liftall_shallow(num));
 }
 
 /****************************************************************************/
@@ -690,6 +691,33 @@ find_isogenous(GEN a4, GEN a6, long ell, struct meqn *MEQN, GEN g, GEN T, GEN p)
 }
 
 static GEN
+FqX_homogenous_eval(GEN P, GEN A, GEN B, GEN T, GEN p)
+{
+  long d = degpol(P), i, v = varn(A);
+  GEN s =  scalar_ZX_shallow(gel(P, d+2), v), Bn = pol_1(v);
+  for (i = d-1; i >= 0; i--)
+  {
+    Bn = FqX_mul(Bn, B, T, p);
+    s = FqX_add(FqX_mul(s, A, T, p), FqX_Fq_mul(Bn, gel(P,i+2), T, p), T, p);
+  }
+  return s;
+}
+
+static GEN
+FqX_homogenous_div(GEN P, GEN Q, GEN A, GEN B, GEN T, GEN p)
+{
+  GEN z = cgetg(3, t_RFRAC);
+  long d = degpol(Q)-degpol(P);
+  gel(z, 1) = FqX_homogenous_eval(P, A, B, T, p);
+  gel(z, 2) = FqX_homogenous_eval(Q, A, B, T, p);
+  if (d > 0)
+    gel(z, 1) = FqX_mul(gel(z, 1), FqX_powu(B, d, T, p), T, p);
+  else if (d < 0)
+    gel(z, 2) = FqX_mul(gel(z, 2), FqX_powu(B, -d, T, p), T, p);
+  return z;
+}
+
+static GEN
 find_kernel_power(GEN Eba4, GEN Eba6, GEN Eca4, GEN Eca6, ulong ell, struct meqn *MEQN, GEN kpoly, GEN Ib, GEN T, GEN p)
 {
   pari_sp ltop = avma, btop;
@@ -710,11 +738,11 @@ find_kernel_power(GEN Eba4, GEN Eba6, GEN Eca4, GEN Eca6, ulong ell, struct meqn
     gtmp = gel(tmp, 3);
 
     /*check that the kernel kpoly is the good one */
-    h = liftall_shallow(numer(poleval(gtmp, gdiv(num_iso, kpoly2))));
+    h = FqX_homogenous_eval(gtmp, num_iso, kpoly2, T, p);
     if (signe(Fq_elldivpolmod(Eba4, Eba6, ell, h, T, p)))
     {
-      GEN Ic = gdiv(poleval(num_iso, Ib), poleval(kpoly2, Ib));
-      GEN kpoly_new = liftall_shallow(numer(poleval(gtmp, Ic)));
+      GEN Ic = FqX_homogenous_div(num_iso, kpoly2, numer(Ib), denom(Ib), T, p);
+      GEN kpoly_new = FqX_homogenous_eval(gtmp, numer(Ic), denom(Ic), T, p);
       return gerepilecopy(ltop, mkvecn(5, a4t, a6t, kpoly_new, gtmp, Ic));
     }
     avma = btop;
