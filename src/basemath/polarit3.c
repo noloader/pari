@@ -331,7 +331,12 @@ RgX_to_FqX(GEN x, GEN T, GEN p)
 {
   long i, l = lg(x);
   GEN z = cgetg(l, t_POL); z[1] = x[1];
-  for (i = 2; i < l; i++) gel(z,i) = simplify_shallow(Rg_to_FpXQ(gel(x,i), T,p));
+  if (T)
+    for (i = 2; i < l; i++)
+      gel(z,i) = simplify_shallow(Rg_to_FpXQ(gel(x,i), T, p));
+  else
+    for (i = 2; i < l; i++)
+      gel(z,i) = Rg_to_Fp(gel(x,i), p);
   return FpXQX_renormalize(z, l);
 }
 
