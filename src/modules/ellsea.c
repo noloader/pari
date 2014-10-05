@@ -413,7 +413,7 @@ find_eigen_value(GEN a4, GEN a6, ulong ell, GEN h, GEN T, GEN p, GEN tr)
   Dr = BP = Edat.O;
   /*[0,Gr], BP, Dr are not points on the curve. */
   /*To obtain the corresponding points, multiply the y-coordinates by Y */
-  if (!tr || lg(tr)==1)
+  if (!tr)
   {
     pari_sp btop = avma;
     for (t = 1; t <= (ell>>1); t++)
@@ -423,17 +423,16 @@ find_eigen_value(GEN a4, GEN a6, ulong ell, GEN h, GEN T, GEN p, GEN tr)
       Dr = pp ? eigenu_elladd(&Edat, Dr, BP): eigen_elladd(&Edat, Dr, BP);
       Dr = gerepileupto(btop, Dr);
     }
-    pari_err_BUG("find_eigen_value");
-    return 0; /* NOT REACHED */
   }
   else
   {
     t = Fl_div(tr[1], 2, ell);
     if (t < (ell>>1)) t = ell - t;
     Dr = eigen_ellmulu(&Edat, BP, t);
-    if (!gequal(gel(Dr,2), Edat.Gr)) t = ell - t;
-    avma = ltop; return t;
+    if (gequal(gel(Dr,2), Edat.Gr)) { avma = ltop; return t; }
+    if (gequal(gel(Dr,2), Edat.nGr)) { avma = ltop; return ell - t; }
   }
+  pari_err_BUG("find_eigen_value"); return 0; /* NOT REACHED */
 }
 
 /*Finds the eigenvalue of the Frobenius modulo ell^k given E, ell, k, h factor
