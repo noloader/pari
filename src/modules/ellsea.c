@@ -1366,12 +1366,15 @@ match_and_sort(GEN compile_atkin, GEN Mu, GEN u, GEN q, void *E, const struct bb
         /* p+1 - u - Mu (Sg Mb + GIANT Mb + BABY Mg) */
         if (gequal(gel(Bp,1),gel(point,1)))
         {
-          GEN card = subii(Be, mulii(Mu, GMb));
-          GEN card2 = addii(card, mulii(mulsi(2,Mu), GMb));
+          GEN card1 = subii(Be, mulii(Mu, GMb));
+          GEN card2 = addii(card1, mulii(mulsi(2,Mu), GMb));
+          int hb1 = absi_cmp(subii(pp1, card1), bound) > 0;
+          int hb2 = absi_cmp(subii(pp1, card2), bound) > 0;
+          if (hb1 && hb2) continue;
           if (DEBUGLEVEL>=2) timer_printf(&ti,"match_and_sort");
-          if (absi_cmp(subii(pp1, card ), bound) > 0) return card2;
-          if (absi_cmp(subii(pp1, card2), bound) > 0) return card;
-          return gen_select_order(mkvec2(card, card2), E, grp);
+          if (hb1) return card2;
+          if (hb2) return card1;
+          return gen_select_order(mkvec2(card1, card2), E, grp);
         }
       }
     }
