@@ -126,6 +126,25 @@ ellmodulareqn(long ell, long vx, long vy)
   return gerepilecopy(av,mkvec2(meqn.eq, stoi(meqn.type=='A')));
 }
 
+static GEN
+FqX_numer_isog_abscissa(GEN h, GEN a4, GEN a6, GEN T, GEN p, long vx)
+{
+  GEN mp1, dh, ddh, t, u, t1, t2, t3, t4, f0;
+  long m = degpol(h);
+  mp1 = gel(h, m + 1); /* negative of first power sum */
+  dh = FqX_deriv(h, T, p);
+  ddh = FqX_deriv(dh, T, p);
+  t  = mkpoln(4, utoi(4), gen_0, Fq_mulu(a4, 4, T, p), Fq_mulu(a6, 4, T, p));
+  u  = mkpoln(3, utoi(6), gen_0, Fq_mulu(a4, 2, T, p));
+  t1 = FqX_sub(FqX_sqr(dh, T, p), FqX_mul(ddh, h, T, p), T, p);
+  t2 = FqX_mul(u, FqX_mul(h, dh, T, p), T, p);
+  t3 = FqX_mul(FqX_sqr(h, T, p),
+               deg1pol_shallow(stoi(2*m), Fq_mulu(mp1, 2, T, p), vx), T, p);
+  f0 = FqX_add(FqX_sub(FqX_mul(t, t1, T, p), t2, T, p), t3, T, p);
+  t4 = FqX_mul(pol_x(vx),  FqX_sqr(h, T, p), T, p);
+  return FqX_add(t4, f0, T, p);
+}
+
 /*Gives the first precS terms of the Weierstrass series related to */
 /*E: y^2 = x^3 + a4x + a6.  Assumes (precS-2)*(2precS+3) < ULONG_MAX, i.e.
  * precS < 46342 in 32-bit machines */
@@ -148,54 +167,6 @@ find_coeff(GEN a4, GEN a6, GEN T, GEN p, long precS)
     gel(res, k) = gerepileupto(btop, a);
   }
   return res;
-}
-
-/* Given power series s1 and s2, finds a polynomial P such that s2 = P(s1) */
-static GEN
-find_transformation(GEN s2, GEN s1)
-{
-  pari_sp ltop = avma, btop;
-  long i, vx = varn(s1), vs1 = valp(s1), vs2 = valp(s2), degP = vs2/vs1;
-  GEN invs1coeff = ginv(gel(s1, 2)), P = gen_0, s1pl = cgetg(degP+1, t_VEC);
-
-  gel(s1pl, 1) = s1;
-  for (i = 2; i <= degP; i++) gel(s1pl, i) = gmul(s1, gel(s1pl, i-1));
-  btop = avma;
-  for (i = 0; i < degP; i++)
-  {
-    GEN Pcoeff = gmul(gel(s2,2), invs1coeff);
-    P = gadd(P, gmul(Pcoeff, monomial(gen_1, degP-i, vx)));
-    s2 = gsub(s2, gmul(Pcoeff, gel(s1pl, degP-i)));
-    if (gc_needed(btop, 1)) gerepileall(btop, 2, &P, &s2);
-  }
-  P = gadd(P, gmul(gel(s2,2), invs1coeff));
-  return gerepileupto(ltop, P);
-}
-
-static GEN
-compute_W(GEN a4, GEN a6, GEN T, GEN p, long vx, long precS)
-{
-  pari_sp ltop = avma;
-  GEN c  = find_coeff(a4, a6, T, p, precS);
-  GEN s  = RgX_inflate(RgV_to_RgX(c,vx), 2);
-  GEN z2 = monomial(gen_1, 2, vx);
-  s = gadd(gadd(ginv(z2), gmul(s, z2)), zeroser(vx, 2*precS));
-  return gerepileupto(ltop, s);
-}
-
-/*Finds numerator phi of the isogeny between Eb and Ec whose denominator is h*/
-static GEN
-find_numerator_isogeny(GEN Eba4, GEN Eba6, GEN Eca4, GEN Eca6, GEN h, GEN T, GEN p,
-                       long precS)
-{
-  pari_sp ltop = avma;
-  GEN mod1p = gmodulsg(1,p);
-  GEN mod = T ? gmodulo(mod1p, gmul(get_FpX_mod(T), mod1p)): mod1p;
-  GEN WEb = gmul(compute_W(Eba4, Eba6, T, p, varn(h), precS), mod);
-  GEN WEc = gmul(compute_W(Eca4, Eca6, T, p, varn(h), precS), mod);
-  GEN den = poleval(h, WEb);
-  GEN num = find_transformation(gmul(gsqr(den), WEc), WEb);
-  return gerepilecopy(ltop, liftall_shallow(num));
 }
 
 /****************************************************************************/
@@ -722,7 +693,7 @@ find_kernel_power(GEN Eba4, GEN Eba6, GEN Eca4, GEN Eca6, ulong ell, struct meqn
 {
   pari_sp ltop = avma, btop;
   GEN a4t, a6t, gtmp;
-  GEN num_iso = find_numerator_isogeny(Eba4, Eba6, Eca4, Eca6, kpoly, T, p, ell+1);
+  GEN num_iso = FqX_numer_isog_abscissa(kpoly, Eba4, Eba6, T, p, 0);
   GEN mpoly = FqXY_evalx(MEQN->eq, Fq_ellj(Eca4, Eca6, T, p), T, p);
   GEN mroots = FqX_roots(mpoly, T, p);
   GEN kpoly2 = FqX_sqr(kpoly, T, p);
