@@ -402,7 +402,7 @@ extern char *(*cb_pari_fgets_interactive)(char *s, int n, FILE *f);
 int get_line_from_file(const char *prompt, filtre_t *F, FILE *file);
 void pari_skip_space(char **s);
 void pari_skip_alpha(char **s);
-const char *pari_translate_string(const char *src, char *s, char *entry);
+char *pari_translate_string(const char *src, char *s, char *entry);
 
 gp_data *default_gp_data(void);
 

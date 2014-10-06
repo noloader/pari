@@ -157,7 +157,7 @@ tm_parse_command(tm_cmd *c, const char *ch)
   {
     char *u = (char*)pari_malloc(strlen(s) + 1);
     pari_skip_space(&s);
-    if (*s == '"') s = (char*)pari_translate_string(s, u, t);
+    if (*s == '"') s = pari_translate_string(s, u, t);
     else
     { /* read integer */
       t = s;

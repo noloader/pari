@@ -63,12 +63,12 @@ matchQ(const char *s, char *entry)
 
 /*  Read a "string" from src. Format then copy it, starting at s. Return
  *  pointer to char following the end of the input string */
-const char *
+char *
 pari_translate_string(const char *src, char *s, char *entry)
 {
   matchQ(src, entry); src++; s = translate(&src, s);
   if (!s) pari_err(e_SYNTAX,"run-away string",src,entry);
-  matchQ(src, entry); return src+1;
+  matchQ(src, entry); return (char*)src+1;
 }
 
 static GEN
