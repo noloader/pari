@@ -127,6 +127,18 @@ ellmodulareqn(long ell, long vx, long vy)
 }
 
 static GEN
+Fq_elldivpol2(GEN a4, GEN a6, GEN T, GEN p)
+{
+  return mkpoln(4, utoi(4), gen_0, Fq_mulu(a4, 4, T, p), Fq_mulu(a6, 4, T, p));
+}
+
+static GEN
+Fq_elldivpol2d(GEN a4, GEN a6, GEN T, GEN p)
+{
+  return mkpoln(3, utoi(6), gen_0, Fq_mulu(a4, 2, T, p));
+}
+
+static GEN
 FqX_numer_isog_abscissa(GEN h, GEN a4, GEN a6, GEN T, GEN p, long vx)
 {
   GEN mp1, dh, ddh, t, u, t1, t2, t3, t4, f0;
@@ -134,8 +146,8 @@ FqX_numer_isog_abscissa(GEN h, GEN a4, GEN a6, GEN T, GEN p, long vx)
   mp1 = gel(h, m + 1); /* negative of first power sum */
   dh = FqX_deriv(h, T, p);
   ddh = FqX_deriv(dh, T, p);
-  t  = mkpoln(4, utoi(4), gen_0, Fq_mulu(a4, 4, T, p), Fq_mulu(a6, 4, T, p));
-  u  = mkpoln(3, utoi(6), gen_0, Fq_mulu(a4, 2, T, p));
+  t  = Fq_elldivpol2(a4, a6, T, p);
+  u  = Fq_elldivpol2d(a4, a6, T, p);
   t1 = FqX_sub(FqX_sqr(dh, T, p), FqX_mul(ddh, h, T, p), T, p);
   t2 = FqX_mul(u, FqX_mul(h, dh, T, p), T, p);
   t3 = FqX_mul(FqX_sqr(h, T, p),
@@ -455,8 +467,8 @@ find_kernel(GEN a4, GEN a6, ulong ell, GEN a4t, GEN a6t, GEN pp1, GEN T, GEN p)
   long deg = (ell - 1)/2, dim = 2 + deg + ext;
   GEN C  = find_coeff(a4, a6, T, p, dim);
   GEN Ct = find_coeff(a4t, a6t, T, p, dim);
-  GEN psi2  = mkpoln(4, utoi(4), gen_0, Fq_mulu(a4, 4, T, p), Fq_mulu(a6, 4, T, p));
-  GEN Dpsi2 = mkpoln(3, utoi(6), gen_0, Fq_mulu(a4, 2, T, p));
+  GEN psi2 = Fq_elldivpol2(a4, a6, T, p);
+  GEN Dpsi2 = Fq_elldivpol2d(a4, a6, T, p);
   GEN V = cgetg(dim+1, t_VEC);
   for (k = 1; k <= dim; k++)
     gel(V, k) = Fq_Fp_mul(Fq_sub(gel(Ct,k),gel(C,k), T, p),
