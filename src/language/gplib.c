@@ -46,50 +46,6 @@ pari_skip_alpha(char **s) {
   *s = t;
 }
 
-static char *
-translate(char **src, char *s, char *entry)
-{
-  char *t = *src;
-  while (*t)
-  {
-    while (*t == '\\')
-    {
-      switch(*++t)
-      {
-        case 'e':  *s='\033'; break; /* escape */
-        case 'n':  *s='\n'; break;
-        case 't':  *s='\t'; break;
-        default:   *s=*t;
-                   if (!*t) pari_err(e_SYNTAX,"unfinished string",s,entry);
-      }
-      t++; s++;
-    }
-    if (*t == '"')
-    {
-      if (t[1] != '"') break;
-      t += 2; continue;
-    }
-    *s++ = *t++;
-  }
-  *s=0; *src=t; return s;
-}
-
-static void
-matchQ(char *s, char *entry)
-{
-  if (*s != '"')
-    pari_err(e_SYNTAX,"expected character: '\"' instead of",s,entry);
-}
-
-/*  Read a "string" from src. Format then copy it, starting at s. Return
- *  pointer to char following the end of the input string */
-char *
-pari_translate_string(char *src, char *s, char *entry)
-{
-  matchQ(src, entry); src++; s = translate(&src, s, entry);
-  matchQ(src, entry); return src+1;
-}
-
 /*******************************************************************/
 /**                                                               **/
 /**                          BUFFERS                              **/

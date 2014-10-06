@@ -27,13 +27,11 @@ enum COflags {COsafelex=1, COsafedyn=2};
  **                                                                       **
  ***************************************************************************/
 
-static GEN
-strntoGENexp(const char *str, long len)
+static char *
+translate(const char **src, char *s)
 {
-  GEN z = cgetg(1+nchar2nlong(len-1), t_STR);
-  char *s=GSTR(z);
-  const char *t=str+1;
-  while (t<=str+len)
+  const char *t = *src;
+  while (*t)
   {
     while (*t == '\\')
     {
@@ -42,7 +40,7 @@ strntoGENexp(const char *str, long len)
         case 'e':  *s='\033'; break; /* escape */
         case 'n':  *s='\n'; break;
         case 't':  *s='\t'; break;
-        default:   *s=*t; if (!*t) compile_err("unfinished string",str);
+        default:   *s=*t; if (!*t) { *src=s; return NULL; }
       }
       t++; s++;
     }
@@ -53,7 +51,32 @@ strntoGENexp(const char *str, long len)
     }
     *s++ = *t++;
   }
-  *s = '\0';
+  *s=0; *src=t; return s;
+}
+
+static void
+matchQ(const char *s, char *entry)
+{
+  if (*s != '"')
+    pari_err(e_SYNTAX,"expected character: '\"' instead of",s,entry);
+}
+
+/*  Read a "string" from src. Format then copy it, starting at s. Return
+ *  pointer to char following the end of the input string */
+const char *
+pari_translate_string(const char *src, char *s, char *entry)
+{
+  matchQ(src, entry); src++; s = translate(&src, s);
+  if (!s) pari_err(e_SYNTAX,"run-away string",src,entry);
+  matchQ(src, entry); return src+1;
+}
+
+static GEN
+strntoGENexp(const char *str, long len)
+{
+  GEN z = cgetg(1+nchar2nlong(len-1), t_STR);
+  const char *t = str+1;
+  if (!translate(&t, GSTR(z))) compile_err("run-away string",str);
   return z;
 }
 
