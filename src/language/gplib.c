@@ -985,19 +985,18 @@ gp_load_gprc(void)
 #ifndef _WIN32
 /* if prompt is coloured, tell readline to ignore the ANSI escape sequences */
 /* s must be able to store 14 chars (including final \0) */
+#ifdef READLINE
+#include <readline/readline.h>
 static void
 readline_prompt_color(char *s, int c)
 {
-#ifdef RL_PROMPT_START_IGNORE
   *s++ = RL_PROMPT_START_IGNORE;
   term_get_color(s, c);
   s += strlen(s);
   *s++ = RL_PROMPT_END_IGNORE;
   *s = 0;
-#else
-  term_get_color(s, c);
-#endif
 }
+#endif
 /* s must be able to store 14 chars (including final \0) */
 static void
 brace_color(char *s, int c, int force)
