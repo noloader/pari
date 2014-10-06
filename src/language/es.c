@@ -2538,11 +2538,7 @@ texparen(pariout_t *T, outString *S, GEN a)
 static void
 times_texnome(outString *S, const char *v, long d)
 {
-  if (d)
-  {
-    if (GP_DATA->flags & gpd_TEXMACS) str_puts(S, "\\*"); else str_putc(S, ' ');
-    texnome(S,v,d);
-  }
+  if (d) { str_puts(S, "\\*"); texnome(S,v,d); }
 }
 static void
 times_monome(outString *S, const char *v, long d)
