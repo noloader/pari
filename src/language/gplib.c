@@ -986,14 +986,13 @@ gp_load_gprc(void)
 /* if prompt is coloured, tell readline to ignore the ANSI escape sequences */
 /* s must be able to store 14 chars (including final \0) */
 #ifdef READLINE
-#include <readline/readline.h>
 static void
 readline_prompt_color(char *s, int c)
 {
-  *s++ = RL_PROMPT_START_IGNORE;
+  *s++ = '\001'; /*RL_PROMPT_START_IGNORE*/
   term_get_color(s, c);
   s += strlen(s);
-  *s++ = RL_PROMPT_END_IGNORE;
+  *s++ = '\002'; /*RL_PROMPT_END_IGNORE*/
   *s = 0;
 }
 #endif
