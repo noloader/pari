@@ -626,6 +626,7 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   cb_pari_handle_exception = gp_handle_exception;
   cb_pari_ask_confirm = gp_ask_confirm;
   gp_expand_path(GP_DATA->path);
+  if (GP_DATA->flags & gpd_EMACS) init_emacs();
   if (GP_DATA->flags & gpd_TEXMACS) init_texmacs();
   if (GP_DATA->flags & gpd_TEST) init_test();
 

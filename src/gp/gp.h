@@ -17,7 +17,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 /*                                                                       */
 /*************************************************************************/
 BEGINEXTERN
-
 void init_emacs(void);
 void init_readline(void);
 void init_texmacs(void);
@@ -37,11 +36,5 @@ extern void (*cb_gp_output)(GEN z);
 extern void (*cb_pari_end_output)(void);
 
 extern entree  functions_highlevel[];
-/* list of GP-specific defaults */
-extern entree functions_gp_default[], functions_gp_rl_default[];
-/* list of GP-specific functions */
-extern entree  functions_gp[];
-/* list of old GP-specific fonctions (up to 1.39.15) */
-extern entree functions_oldgp[];
-
+extern entree functions_gp[], functions_oldgp[], functions_gp_default[];
 ENDEXTERN
