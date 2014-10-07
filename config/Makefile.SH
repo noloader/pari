@@ -712,7 +712,7 @@ for dir in basemath modules language gp graph systems mt; do
     cflags="$cflags -I$src/language -DDL_DFLT_NAME=\$(DL_DFLT_NAME)"
     depend="$src/gp/gp.h"
     ;;
-  gp_rl)
+  gp_rl|texmacs)
     cflags="$cflags -I$src/language \$(RLINCLUDE)"
     depend="$src/gp/gp.h"
     ;;
