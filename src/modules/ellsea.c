@@ -1266,7 +1266,7 @@ match_and_sort(GEN compile_atkin, GEN Mu, GEN u, GEN q, void *E, const struct bb
   GEN baby, giant, SgMb, Mb, Mg, den, Sg, dec_inf, div, pp1 = addis(q,1);
   GEN P, Pb, Pg, point, diff, pre, table, table_ind;
   long best_i, i, lbaby, lgiant, k = lg(compile_atkin)-1;
-  GEN bound = sqrti(shifti(q, 4));
+  GEN bound = sqrti(shifti(q, 2));
   pari_timer ti;
 
   if (k == 1)
