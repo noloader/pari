@@ -3602,8 +3602,8 @@ GEN     modsymbSigma(GEN W);
 GEN     modsymblog(GEN W, GEN path);
 GEN     msinit(GEN N, GEN k, long sign);
 GEN     msnew(GEN W);
-GEN     msqexpansion(GEN W, GEN proV, long B);
-GEN     mssimple(GEN W, GEN H);
+GEN     msqexpansion(GEN W, GEN proV, ulong B);
+GEN     mssplit(GEN W, GEN H);
 GEN     xpm(GEN E, GEN a, GEN b);
 
 /* level1.h */

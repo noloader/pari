@@ -25,6 +25,7 @@ static GEN ZGl2Q_star(GEN v);
 static GEN getMorphism_trivial(GEN WW1, GEN WW2, GEN v);
 static GEN getMorphism(GEN W1, GEN W2, GEN v);
 static GEN voo_act_Gl2Q(GEN g, long k);
+static GEN mscuspidal_i(GEN W);
 
 /* Input: P^1(Z/NZ) (formed by create_p1mod)
    Output: # P^1(Z/NZ) */
@@ -87,6 +88,13 @@ static GEN
 ellsym_get_dualell(GEN E) { return gel(E,2); }
 static GEN
 ellsym_get_ell(GEN E) { return gel(E,3); }
+
+void
+checkms(GEN W)
+{
+  if (typ(W) != t_VEC || lg(W) != 4)
+    pari_err_TYPE("checkms [please apply msinit]", W);
+}
 
 /** MODULAR TO SYM **/
 
@@ -507,8 +515,8 @@ QM_image(GEN A)
 
 /* Decompose the subspace H in simple subspaces.
  * Eg for H = msnew */
-GEN
-mssimple(GEN W, GEN H)
+static GEN
+mssplit_i(GEN W, GEN H)
 {
   ulong p, N = ms_get_N(W);
   long dim, first;
@@ -589,17 +597,29 @@ mssimple(GEN W, GEN H)
   pari_err_BUG("subspaces not found");
   return NULL;
 }
+GEN
+mssplit(GEN W, GEN H)
+{
+  pari_sp av = avma;
+  checkms(W);
+  if (typ(H)!=t_MAT) pari_err_TYPE("mssplit",H);
+  return gerepilecopy(av, mssplit_i(W,H));
+}
 
 /* proV = Qevproj_init of a Hecke simple subspace, return [ a_p, p <= B ] */
 GEN
-msqexpansion(GEN W, GEN proV, long B)
+msqexpansion(GEN W, GEN proV, ulong B)
 {
-  ulong p, N = ms_get_N(W);
-  long i, d;
+  pari_sp av = avma;
+  ulong p, N = ms_get_N(W), sqrtB;
+  long i, d, k = msk_get_weight(W);
   forprime_t S;
-  GEN T1 = NULL, T2 = NULL, TV = NULL, ch, v, dTiv, Tiv, dinv, ciM, iM;
-  GEN AP = cgetg(uprimepi(B)+1, t_VEC);
-  if (B < 2) return AP;
+  GEN T1 = NULL, T2 = NULL, TV = NULL, ch, v, dTiv, Tiv, dinv, ciM, iM, L;
+  switch(B)
+  {
+    case 0: return cgetg(1,t_VEC);
+    case 1: return mkvec(gen_1);
+  }
   (void)u_forprime_init(&S, 2, ULONG_MAX);
   while ((p = u_forprime_next(&S)))
   {
@@ -631,17 +651,40 @@ msqexpansion(GEN W, GEN proV, long B)
   iM = gel(dinv,1);
   ciM = gel(dinv,2);
   if (dTiv) ciM = gdiv(ciM, dTiv);
-  (void)u_forprime_init(&S, 2, B);
-  i = 1;
-  while ((p = u_forprime_next(&S)))
+  L = const_vec(B,NULL);
+  sqrtB = (ulong)sqrt(B);
+  gel(L,1) = gen_1;
+  for (p = 2; p <= B; p++)
   {
-    GEN T = mshecke(W, p), u;
-    GEN Tv = Qevproj_apply_vecei(T, proV, 1); /* Tp.v */
+    GEN T, u, Tv, ap, P;
+    ulong m;
+    if (gel(L,p)) continue;  /* p not prime */
+    T = mshecke(W, p);
+    Tv = Qevproj_apply_vecei(T, proV, 1); /* Tp.v */
     /* Write Tp.v = \sum u_i T^i v */
     u = RgC_Rg_div(RgM_RgC_mul(iM, Tv), ciM);
-    gel(AP, i++) = RgV_to_RgX(u, 0);
+    ap = RgV_to_RgX(u, 0);
+    if (degpol(ap)) ap = mkpolmod(ap,ch);
+    gel(L,p) = ap;
+    P = powuu(p,k-1);
+    if (p <= sqrtB) {
+      ulong pj, oldpj = 1;
+      for (pj = p; pj <= B; oldpj=pj, pj *= p)
+      {
+        if (pj == p)
+          gel(L,pj) = ap;
+        else
+          gel(L,pj) = gsub(gmul(ap, gel(L,oldpj)), gmul(P, gel(L,oldpj/p)));
+        for (m = B/pj; m > 1; m--)
+          if (gel(L,m) && m%p) gel(L,m*pj) = gmul(gel(L,m), gel(L,pj));
+      }
+    } else {
+      gel(L,p) = ap;
+      for (m = B/p; m > 1; m--)
+        if (gel(L,m)) gel(L,m*p) = gmul(ap, gel(L,m));
+    }
   }
-  return mkvec2(ch, AP);
+  return gerepilecopy(av, L);
 }
 
 static GEN
@@ -683,8 +726,8 @@ END:
   return Qevproj_Sigma(W, Snew);
 }
 
-GEN
-msnew(GEN W)
+static GEN
+msnew_i(GEN W)
 {
   GEN p1N = ms_get_p1N(W), P = gel(p1N_get_fa(p1N), 1);
   ulong p, N = ms_get_N(W);
@@ -692,7 +735,7 @@ msnew(GEN W)
   GEN S, Snew, Sold, pr_S, pr_Sold, v;
   forprime_t F;
   if (k == 2) return msnew_trivial(W);
-  S = gel(mscuspidal(W), 2);
+  S = gel(mscuspidal_i(W), 2);
   if (uisprime(N)) { Snew = S; goto END; }
   v = cgetg(2*nP + 1, t_VEC);
   for (i = 1; i <= nP; i++)
@@ -727,6 +770,13 @@ msnew(GEN W)
   }
 END:
   return Qevproj_Sigma(W, Snew);
+}
+GEN
+msnew(GEN W)
+{
+  pari_sp av = avma;
+  checkms(W);
+  return gerepilecopy(av, msnew_i(W));
 }
 
 /* Solve the Manin relations for a congruence subgroup \Gamma by constructing
@@ -2045,8 +2095,8 @@ mseisenstein_trivial(GEN W)
   GEN ES = EC_subspace_trivial(W);
   return gel(ES,1);
 }
-GEN
-mseisenstein(GEN W)
+static GEN
+mseisenstein_i(GEN W)
 {
   GEN S, cusps, M;
   long i, l;
@@ -2058,17 +2108,23 @@ mseisenstein(GEN W)
   for (i = 1; i < l; i++) gel(M,i) = Eisenstein_symbol(W, gel(cusps,i));
   return Qevproj_Sigma(W, QM_image(M));
 }
-
 GEN
-mscuspidal(GEN W)
+mseisenstein(GEN W)
+{
+  pari_sp av = avma;
+  checkms(W);
+  return gerepilecopy(av, mseisenstein_i(W));
+}
+
+static GEN
+mscuspidal_i(GEN W)
 {
   GEN E;
   GEN M, T, TE, ch, chS, chE;
   forprime_t S;
   ulong p, N;
-
   if (msk_get_weight(W) == 2) return EC_subspace_trivial(W);
-  E = mseisenstein(W);
+  E = mseisenstein_i(W);
   N = ms_get_N(W);
   (void)u_forprime_init(&S, 2, ULONG_MAX);
   while ((p = u_forprime_next(&S)))
@@ -2080,6 +2136,13 @@ mscuspidal(GEN W)
   chS = RgX_div(ch, chE); /* charpoly(T_p | S_k), coprime to chE */
   M = RgX_RgM_eval(chS, T);
   return mkvec2(E, Qevproj_Sigma(W, QM_ker(M)));
+}
+GEN
+mscuspidal(GEN W)
+{
+  pari_sp av = avma;
+  checkms(W);
+  return gerepilecopy(av, mscuspidal_i(W));
 }
 
 /** INIT ELLSYM STRUCTURE **/

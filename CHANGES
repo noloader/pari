@@ -142,6 +142,7 @@ BA 45- [libpari] functions FpX_Frobenius, FpX_matFrobenius, Flx_Frobenius,
 BA 47- [libpari] functions ZV_chinese, Z_ZV_mod
 BA 48- GP function fromdigits
 BA 49- [libpari] functions Zp_sqrt, ZpXQ_sqrt
+   50- GP functions mscuspidal, mseisenstein, msnew, mssplit, msqexpansion
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]

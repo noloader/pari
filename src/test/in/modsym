@@ -1,11 +1,6 @@
 allocatemem(100*10^6);
 install(ellmsinit,"GD0,L,");
-install(msqexpansion,"mGGL");
 install(mshecke, GL)
-install(mssimple,"mGG");
-install(msnew,"mG");
-install(mscuspidal,"mG");
-install(mseisenstein,"mG");
 
 N = 11;
 W2 = msinit(N,2,-1);
@@ -20,7 +15,7 @@ ellmsinit(ellinit([0,-1,1,-10,-20]), 1);
 
 N = 227;
 W = msinit(N,2,1);
-mssimple(W, msnew(W))
+mssplit(W, msnew(W))
 
 N = 1000;
 W = msinit(N,2,1);
@@ -46,5 +41,5 @@ T = mshecke(W, 3);
 E == mseisenstein(W)
 
 W = msinit(23,2, 1);
-V = mssimple(W, msnew(W));
+V = mssplit(W, msnew(W));
 msqexpansion(W, V[1], 30)

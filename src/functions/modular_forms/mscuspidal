@@ -1,0 +1,34 @@
+Function: mscuspidal
+Section: modular_forms
+C-Name: mscuspidal
+Prototype: G
+Help: mcuspidal(M): M being a full modular symbol space, as given by msinit,
+ return [E,S] its decomposition into Eisenstein and cuspidal parts
+Doc:
+ $M$ being a full modular symbol space, as given by \kbd{msinit},
+ return $[E,S]$ its decomposition into Eisenstein and cuspidal parts.
+ The two subspaces are given by matrices (with integer coefficients) whose
+ columns form a $\Q$-basis of the corresponding space.
+ \bprog
+ ? M = msinit(2,8, 1); \\ M_8(Gamma_0(2))^+
+ ? [E,S] = mscuspidal(M);
+ ? E  \\ 2-dimensional
+ %3 =
+ [0 -10]
+
+ [0 -15]
+
+ [0  -3]
+
+ [1   0]
+
+ ? S  \\ 1-dimensional
+ %4 =
+ [ 3]
+
+ [30]
+
+ [ 6]
+
+ [-8]
+ @eprog
