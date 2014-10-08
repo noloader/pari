@@ -70,7 +70,7 @@ logp(GEN C, GEN a, ulong p, GEN q)
 
 /** p-adic L function **/
 
-/* E an ellsym struct. D > 0. Assume |D p^m| < MAX_ULONG, m > 0 */
+/* E an ellmsinit struct. D > 0. Assume |D p^m| < MAX_ULONG, m > 0 */
 static GEN
 loopLpn(GEN E, ulong D, ulong p, long m, long R, GEN q)
 {
@@ -136,7 +136,7 @@ ellpadicL(GEN e, GEN pp, long n, long r, GEN DD, GEN C)
   ulong p, D;
 
   (void)C; /* TODO */
-  E = ellsym(e, 1);
+  E = ellmsinit(e, 1);
   e = ellsym_get_ell(E);
   if (DD && !Z_isfundamental(DD))
     pari_err_DOMAIN("ellpadicL", "isfundamental(D)", "=", gen_0, DD);

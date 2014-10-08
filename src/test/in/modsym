@@ -1,50 +1,50 @@
 allocatemem(100*10^6);
-install(modsymbHecke, GL)
-install(ellsym,"GD0,L,");
-install(simple_subspaces,"mGG");
-install(new_subspace,"mG");
-install(Cuspidal_subspace,"mG");
-install(Eisenstein_subspace,"mG");
-install(qexpansion,"mGGL");
+install(ellmsinit,"GD0,L,");
+install(msqexpansion,"mGGL");
+install(mshecke, GL)
+install(mssimple,"mGG");
+install(msnew,"mG");
+install(mscuspidal,"mG");
+install(mseisenstein,"mG");
 
 N = 11;
 W2 = msinit(N,2,-1);
 W1 = msinit(N,2,1);
 W = msinit(N,2);
-modsymbHecke(W2, 2)
-modsymbHecke(W1, 2)
-modsymbHecke(W, 2)
-modsymbHecke(W1, 11)
-ellsym(ellinit([1,2]), 1);
-ellsym(ellinit([0,-1,1,-10,-20]), 1);
+mshecke(W2, 2)
+mshecke(W1, 2)
+mshecke(W, 2)
+mshecke(W1, 11)
+ellmsinit(ellinit([1,2]), 1);
+ellmsinit(ellinit([0,-1,1,-10,-20]), 1);
 
 N = 227;
 W = msinit(N,2,1);
-simple_subspaces(W, new_subspace(W))
+mssimple(W, msnew(W))
 
 N = 1000;
 W = msinit(N,2,1);
-matsize( new_subspace(W) )
+matsize( msnew(W) )
 W = msinit(2, 4);
-charpoly(modsymbHecke(W, 2))
+charpoly(mshecke(W, 2))
 
 W = msinit(3, 6);
-charpoly(modsymbHecke(W, 2))
+charpoly(mshecke(W, 2))
 
 W = msinit(4, 4);
-charpoly(modsymbHecke(W, 3))
+charpoly(mshecke(W, 3))
 
 W = msinit(11, 4);
-charpoly(modsymbHecke(W, 2))
+charpoly(mshecke(W, 2))
 
 W = msinit(2, 8);
-charpoly(modsymbHecke(W, 2))
+charpoly(mshecke(W, 2))
 
 W = msinit(11, 2);
-T = modsymbHecke(W, 3);
-[E,S] = Cuspidal_subspace(W)
-E == Eisenstein_subspace(W)
+T = mshecke(W, 3);
+[E,S] = mscuspidal(W)
+E == mseisenstein(W)
 
 W = msinit(23,2, 1);
-V = simple_subspaces(W, new_subspace(W));
-qexpansion(W, V[1], 30)
+V = mssimple(W, msnew(W));
+msqexpansion(W, V[1], 30)

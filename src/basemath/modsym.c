@@ -18,9 +18,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA. */
 
 /* Adapted from shp_package/moments by Robert Pollack
  * http://www.math.mcgill.ca/darmon/programs/shp/shp.html */
-static GEN modsymbkinit(ulong N, long k, long sign);
-static GEN new_subspace_trivial(GEN W);
-static GEN Cuspidal_subspace_trivial(GEN W0);
+static GEN mskinit(ulong N, long k, long sign);
+static GEN msnew_trivial(GEN W);
+static GEN mscuspidal_trivial(GEN W0);
 static GEN ZGl2Q_star(GEN v);
 static GEN getMorphism_trivial(GEN WW1, GEN WW2, GEN v);
 static GEN getMorphism(GEN W1, GEN W2, GEN v);
@@ -38,49 +38,49 @@ static GEN
 p1N_get_fa(GEN p1N) { return gel(p1N,4); }
 static GEN
 p1N_get_div(GEN p1N) { return gel(p1N,5); }
-/* modsymb-specific accessors */
-/* W a modsymb or an ellsym */
+/* ms-specific accessors */
+/* W = msinit or ellmsinit */
 static GEN
-get_modsymb(GEN W) { return lg(W) == 4? gel(W,1): W; }
+get_ms(GEN W) { return lg(W) == 4? gel(W,1): W; }
 static GEN
-modsymb_get_p1N(GEN W) { W = get_modsymb(W); return gel(W,1); }
+ms_get_p1N(GEN W) { W = get_ms(W); return gel(W,1); }
 static long
-modsymb_get_N(GEN W) { return p1N_get_N(modsymb_get_p1N(W)); }
+ms_get_N(GEN W) { return p1N_get_N(ms_get_p1N(W)); }
 static GEN
-modsymb_get_hashcusps(GEN W) { W = get_modsymb(W); return gel(W,16); }
+ms_get_hashcusps(GEN W) { W = get_ms(W); return gel(W,16); }
 static GEN
-modsymb_get_section(GEN W) { W = get_modsymb(W); return gel(W,12); }
+ms_get_section(GEN W) { W = get_ms(W); return gel(W,12); }
 static GEN
-modsymb_get_genindex(GEN W) { W = get_modsymb(W); return gel(W,5); }
+ms_get_genindex(GEN W) { W = get_ms(W); return gel(W,5); }
 static long
-modsymb_get_nbgen(GEN W) { return lg(modsymb_get_genindex(W))-1; }
+ms_get_nbgen(GEN W) { return lg(ms_get_genindex(W))-1; }
 static long
-modsymb_get_nbE1(GEN W)
+ms_get_nbE1(GEN W)
 {
   GEN W11;
-  W = get_modsymb(W); W11 = gel(W,11);
+  W = get_ms(W); W11 = gel(W,11);
   return W11[4] - W11[3];
 }
-/* modymbk-specific accessors */
+/* msk-specific accessors */
 #if 0
 static long
-modsymbk_get_dim(GEN W) { return gmael(W,3,2)[2]; }
+msk_get_dim(GEN W) { return gmael(W,3,2)[2]; }
 #endif
 static GEN
-modsymbk_get_basis(GEN W) { return gmael(W,3,1); }
+msk_get_basis(GEN W) { return gmael(W,3,1); }
 static long
-modsymbk_get_weight(GEN W) { return gmael(W,3,2)[1]; }
+msk_get_weight(GEN W) { return gmael(W,3,2)[1]; }
 static GEN
-modsymbk_get_st(GEN W) { return gmael(W,3,3); }
+msk_get_st(GEN W) { return gmael(W,3,3); }
 static GEN
-modsymbk_get_link(GEN W) { return gmael(W,3,4); }
+msk_get_link(GEN W) { return gmael(W,3,4); }
 static GEN
-modsymbk_get_invphiblock(GEN W) { return gmael(W,3,5); }
+msk_get_invphiblock(GEN W) { return gmael(W,3,5); }
 static long
-modsymbk_get_sign(GEN W) { return itos(gmael(W,2,1)); }
+msk_get_sign(GEN W) { return itos(gmael(W,2,1)); }
 static GEN
-modsymbk_get_Sigma(GEN W) { return gmael(W,2,2); }
-/* ellsym-specific accessors */
+msk_get_Sigma(GEN W) { return gmael(W,2,2); }
+/* ellmsinit-specific accessors */
 static GEN
 ellsym_get_W(GEN E) { GEN W = gel(E,1); return gel(W,1); }
 static GEN
@@ -506,11 +506,11 @@ QM_image(GEN A)
 }
 
 /* Decompose the subspace H in simple subspaces.
- * Eg for H = new_subspace */
+ * Eg for H = msnew */
 GEN
-simple_subspaces(GEN W, GEN H)
+mssimple(GEN W, GEN H)
 {
-  ulong p, N = modsymb_get_N(W);
+  ulong p, N = ms_get_N(W);
   long dim, first;
   forprime_t S;
   GEN T1 = NULL, T2 = NULL, V;
@@ -533,7 +533,7 @@ simple_subspaces(GEN W, GEN H)
     else
     {
       T2 = T1;
-      T1 = T = modsymbHecke(W, p);
+      T1 = T = mshecke(W, p);
     }
     lV = lg(V);
     for (j = first; j < lV; j++)
@@ -592,9 +592,9 @@ simple_subspaces(GEN W, GEN H)
 
 /* proV = Qevproj_init of a Hecke simple subspace, return [ a_p, p <= B ] */
 GEN
-qexpansion(GEN W, GEN proV, long B)
+msqexpansion(GEN W, GEN proV, long B)
 {
-  ulong p, N = modsymb_get_N(W);
+  ulong p, N = ms_get_N(W);
   long i, d;
   forprime_t S;
   GEN T1 = NULL, T2 = NULL, TV = NULL, ch, v, dTiv, Tiv, dinv, ciM, iM;
@@ -613,7 +613,7 @@ qexpansion(GEN W, GEN proV, long B)
     else
     {
       T2 = T1;
-      T1 = T = modsymbHecke(W, p);
+      T1 = T = mshecke(W, p);
     }
     TV = Qevproj_apply(T, proV); /* T | V */
     ch = QM_charpoly_ZX(TV);
@@ -635,7 +635,7 @@ qexpansion(GEN W, GEN proV, long B)
   i = 1;
   while ((p = u_forprime_next(&S)))
   {
-    GEN T = modsymbHecke(W, p), u;
+    GEN T = mshecke(W, p), u;
     GEN Tv = Qevproj_apply_vecei(T, proV, 1); /* Tp.v */
     /* Write Tp.v = \sum u_i T^i v */
     u = RgC_Rg_div(RgM_RgC_mul(iM, Tv), ciM);
@@ -647,10 +647,10 @@ qexpansion(GEN W, GEN proV, long B)
 static GEN
 Qevproj_Sigma(GEN W, GEN H)
 {
-  long s = modsymbk_get_sign(W);
+  long s = msk_get_sign(W);
   if (s)
   { /* project on +/- component */
-    GEN Sigma = modsymbk_get_Sigma(W);
+    GEN Sigma = msk_get_Sigma(W);
     GEN A = gmul(Sigma, H);
     A = (s > 0)? gadd(A, H): gsub(A, H);
     /* Im(Sigma + sign) = Ker(Sigma - sign) */
@@ -659,20 +659,20 @@ Qevproj_Sigma(GEN W, GEN H)
   return H;
 }
 static GEN
-new_subspace_trivial(GEN W)
+msnew_trivial(GEN W)
 {
-  GEN p1N = modsymb_get_p1N(W), P = gel(p1N_get_fa(p1N), 1);
-  ulong N = modsymb_get_N(W);
+  GEN p1N = ms_get_p1N(W), P = gel(p1N_get_fa(p1N), 1);
+  ulong N = ms_get_N(W);
   long i, nP = lg(P)-1;
   GEN Snew, K, v;
 
-  K = Cuspidal_subspace_trivial(W);
+  K = mscuspidal_trivial(W);
   if (uisprime(N)) { Snew = K; goto END; }
   v = cgetg(2*nP + 1, t_COL);
   for (i = 1; i <= nP; i++)
   {
     ulong M = N / P[i];
-    GEN T1, Td, Wi = modsymbkinit(M, 2, 0);
+    GEN T1, Td, Wi = mskinit(M, 2, 0);
     T1 = getMorphism_trivial(W, Wi, mat2(1,0,0,1));
     Td = getMorphism_trivial(W, Wi, mat2(P[i],0,0,1));
     gel(v,2*i-1) = ZM_mul(T1, K); /* multiply by K = restrict to Ker delta */
@@ -684,20 +684,20 @@ END:
 }
 
 GEN
-new_subspace(GEN W)
+msnew(GEN W)
 {
-  GEN p1N = modsymb_get_p1N(W), P = gel(p1N_get_fa(p1N), 1);
-  ulong p, N = modsymb_get_N(W);
-  long i, nP = lg(P)-1, k = modsymbk_get_weight(W);
+  GEN p1N = ms_get_p1N(W), P = gel(p1N_get_fa(p1N), 1);
+  ulong p, N = ms_get_N(W);
+  long i, nP = lg(P)-1, k = msk_get_weight(W);
   GEN S, Snew, Sold, pr_S, pr_Sold, v;
   forprime_t F;
-  if (k == 2) return new_subspace_trivial(W);
-  S = gel(Cuspidal_subspace(W), 2);
+  if (k == 2) return msnew_trivial(W);
+  S = gel(mscuspidal(W), 2);
   if (uisprime(N)) { Snew = S; goto END; }
   v = cgetg(2*nP + 1, t_VEC);
   for (i = 1; i <= nP; i++)
   {
-    GEN Wi = modsymbkinit(N/P[i], k, 0);
+    GEN Wi = mskinit(N/P[i], k, 0);
     gel(v,2*i-1) = getMorphism(Wi, W, mat2(1,0,0,1));
     gel(v,2*i)   = getMorphism(Wi, W, mat2(P[i],0,0,1));
   }
@@ -713,7 +713,7 @@ new_subspace(GEN W)
     pari_sp av = avma;
     GEN T, chS, chSold, chSnew;
     if (N % p == 0) continue;
-    T = modsymbHecke(W, p);
+    T = mshecke(W, p);
     chS = QM_charpoly_ZX(Qevproj_apply(T, pr_S));
     chSold = QM_charpoly_ZX(Qevproj_apply(T, pr_Sold));
     chSnew = RgX_div(chS, chSold); /* = char T | S^new */
@@ -891,7 +891,7 @@ form_list_of_cusps(ulong N, GEN p1N)
 static GEN
 Gamma0N_decompose(GEN W, GEN M, long *index)
 {
-  GEN p1N = gel(W,1), W3 = gel(W,3), section = modsymb_get_section(W);
+  GEN p1N = gel(W,1), W3 = gel(W,3), section = ms_get_section(W);
   ulong N = p1N_get_N(p1N);
   ulong c = umodiu(gcoeff(M,2,1), N);
   ulong d = umodiu(gcoeff(M,2,2), N);
@@ -905,7 +905,7 @@ path_Gamma0N_decompose(GEN W, GEN path)
 {
   GEN p1N = gel(W,1);
   GEN p1index_to_ind = gel(W,3);
-  GEN section = modsymb_get_section(W);
+  GEN section = ms_get_section(W);
   GEN M = path_to_matrix(path);
   long p1index = p1_index(cc(M), dd(M), p1N);
   long ind = p1index_to_ind[p1index];
@@ -1135,7 +1135,7 @@ ZGl2QC_star(GEN v)
 static void
 paths_decompose(GEN W, hashtable *h, int flag)
 {
-  GEN p1N = modsymb_get_p1N(W), section = modsymb_get_section(W);
+  GEN p1N = ms_get_p1N(W), section = ms_get_section(W);
   GEN v = hash_to_vec(h);
   long i, l = lg(v);
   for (i = 1; i < l; i++)
@@ -1265,7 +1265,7 @@ indices_backward(GEN W, GEN C)
 /* N = integer > 1. Returns data describing Delta_0 = Z[P^1(Q)]_0 seen as
  * a Gamma_0(N) - module. */
 static GEN
-modsymbinit_N(ulong N)
+msinit_N(ulong N)
 {
   GEN p1N = create_p1mod(N);
   GEN C, vecF, vecT2, vecT31;
@@ -1568,7 +1568,7 @@ treat_index_trivial(GEN W, long index, int negate, GEN v)
 static GEN
 cusp_to_frac(GEN c) { return gdivgs(stoi(c[1]), c[2]); }
 
-/* cusp in P^1(Q): expresses {1/0 -> cusp} as \sum x_i g_i, see modsymblog */
+/* cusp in P^1(Q): expresses {1/0 -> cusp} as \sum x_i g_i, see mslog */
 static void
 cusplog(GEN v, GEN W, int negate, GEN cusp)
 {
@@ -1626,20 +1626,20 @@ cusplog_trivial(GEN v, GEN W, int negate, GEN cusp)
  * generators and x_i \in Z[\Gamma]. Returns [x_1,...,x_n].
  * W from solve_manin_relations */
 GEN
-modsymblog(GEN W, GEN path)
+mslog(GEN W, GEN path)
 {
   pari_sp av = avma;
   GEN v;
-  if (typ(W) != t_VEC) pari_err_TYPE("modsymblog", W);
-  W = get_modsymb(W);
-  v = zerovec(modsymb_get_nbgen(W));
+  if (typ(W) != t_VEC) pari_err_TYPE("mslog", W);
+  W = get_ms(W);
+  v = zerovec(ms_get_nbgen(W));
   cusplog(v, W, 0, gel(path,2));
   cusplog(v, W, 1, gel(path,1));
   return gerepilecopy(av, v);
 }
-/* in case the action is trivial: v += modsymblog(path) */
+/* in case the action is trivial: v += mslog(path) */
 static void
-modsymblog_trivial(GEN v, GEN W, GEN path)
+mslog_trivial(GEN v, GEN W, GEN path)
 {
   cusplog_trivial(v, W, 0, gel(path,2));
   cusplog_trivial(v, W, 1, gel(path,1));
@@ -1666,7 +1666,7 @@ Gl2Q_act_path(GEN f, GEN path)
 { return path_mul(path, coeff(f,1,1),coeff(f,1,2),coeff(f,2,1),coeff(f,2,2)); }
 
 static GEN
-init_act_trivial(GEN W) { return zerocol(modsymb_get_nbE1(W)); }
+init_act_trivial(GEN W) { return zerocol(ms_get_nbE1(W)); }
 
 /* map from WW1 -> WW2, weight 2, trivial action. v a Gl2_Q or a t_VEC
  * of Gl2_Q (\sum v[i] in Z[Gl2(Q)]). Return the matrix associated to the
@@ -1674,9 +1674,9 @@ init_act_trivial(GEN W) { return zerocol(modsymb_get_nbE1(W)); }
 static GEN
 getMorphism_trivial(GEN WW1, GEN WW2, GEN v)
 {
-  GEN W1 = get_modsymb(WW1), W2 = get_modsymb(WW2);
-  GEN section = modsymb_get_section(W1), gen = gel(W1,5);
-  long i, j, lv, nbE1 = modsymb_get_nbE1(W1);
+  GEN W1 = get_ms(WW1), W2 = get_ms(WW2);
+  GEN section = ms_get_section(W1), gen = gel(W1,5);
+  long i, j, lv, nbE1 = ms_get_nbE1(W1);
   GEN T = cgetg(nbE1+1, t_MAT);
   if (typ(v) != t_VEC) v = mkvec(v);
   lv = lg(v);
@@ -1686,7 +1686,7 @@ getMorphism_trivial(GEN WW1, GEN WW2, GEN v)
     GEN w = gel(section, e); /* path_to_matrix() */
     GEN t = init_act_trivial(W2);
     for (j = 1; j < lv; j++)
-      modsymblog_trivial(t, W2, Gl2Q_act_path(gel(v,j), w));
+      mslog_trivial(t, W2, Gl2Q_act_path(gel(v,j), w));
     gel(T,i) = t;
   }
   return T;
@@ -1705,8 +1705,8 @@ getMorphism_trivial(GEN WW1, GEN WW2, GEN v)
 static GEN
 init_dual_act(GEN f, GEN W1, GEN W2)
 {
-  GEN section = modsymb_get_section(W2), gen = modsymb_get_genindex(W2);
-  long j, dim = lg(gen)-1, k = modsymbk_get_weight(W1);
+  GEN section = ms_get_section(W2), gen = ms_get_genindex(W2);
+  long j, dim = lg(gen)-1, k = msk_get_weight(W1);
   GEN T = cgetg(dim+1, t_MAT), F;
   if (typ(gel(f,1)) == t_VEC)
   {
@@ -1720,7 +1720,7 @@ init_dual_act(GEN f, GEN W1, GEN W2)
   {
     pari_sp av = avma;
     GEN w = gel(section, gen[j]); /* path_to_matrix( E1/T2/T3 element ) */
-    GEN l = modsymblog(W1, Gl2Q_act_path(f, w)); /* lambda_{i,j} */
+    GEN l = mslog(W1, Gl2Q_act_path(f, w)); /* lambda_{i,j} */
     l = ZGl2QC_star(l); /* lambda_{i,j}^* */
     l = ZGC_G_mul(l, F); /* mu_{i,j} */
     gel(T,j) = gerepilecopy(av, ZGl2QC_to_act(l, k)); /* as operators on V */
@@ -1756,11 +1756,11 @@ dual_act(GEN phi, GEN mu)
 static GEN
 getMorphism_basis(GEN W, GEN vecT)
 {
-  GEN basis = modsymbk_get_basis(W);
+  GEN basis = msk_get_basis(W);
   long i, j, r, lvecT = lg(vecT), dim = lg(basis)-1;
-  GEN st = modsymbk_get_st(W);
-  GEN link = modsymbk_get_link(W);
-  GEN invphiblock = modsymbk_get_invphiblock(W);
+  GEN st = msk_get_st(W);
+  GEN link = msk_get_link(W);
+  GEN invphiblock = msk_get_invphiblock(W);
   long s = st[1], t = st[2];
   GEN R = zerovec(dim), Q, Ls, T0, T1, Ts, mu_st;
   for (r = 2; r < lvecT; r++)
@@ -1807,10 +1807,10 @@ static void
 checkrelation(GEN W, GEN T)
 {
   GEN s, annT2, annT31, singlerel;
-  long k = modsymbk_get_weight(W);
-  long nbE1 = modsymb_get_nbE1(W), nbT2, nbT31;
+  long k = msk_get_weight(W);
+  long nbE1 = ms_get_nbE1(W), nbT2, nbT31;
   long i, l;
-  W = get_modsymb(W);
+  W = get_ms(W);
   annT2 = gel(W,8); nbT2 = lg(annT2)-1;
   annT31 = gel(W,9);nbT31 = lg(annT31)-1;
   singlerel = gel(W,10);
@@ -1848,7 +1848,7 @@ checkrelation(GEN W, GEN T)
 static GEN
 eval_phii_Gj(GEN W, long i, long j)
 {
-  GEN basis = modsymbk_get_basis(W), b = gel(basis,i);
+  GEN basis = msk_get_basis(W), b = gel(basis,i);
   GEN ind = gel(b,2), pols = gel(b,3);
   long s;
   for (s = 1; s < lg(ind); s++)
@@ -1882,7 +1882,7 @@ static GEN
 getMorphism(GEN W1, GEN W2, GEN v)
 {
   pari_sp av0 = avma;
-  GEN basis1 = modsymbk_get_basis(W1);
+  GEN basis1 = msk_get_basis(W1);
   long i, a, lv, dim1 = lg(basis1)-1;
   GEN M = cgetg(dim1+1, t_MAT), act;
   if (typ(v) != t_VEC) v = mkvec(v);
@@ -1925,17 +1925,17 @@ Up_matrices(ulong p)
   return v;
 }
 GEN
-modsymbHecke(GEN W, ulong p)
+mshecke(GEN W, ulong p)
 {
-  GEN v = modsymb_get_N(W) % p? Tp_matrices(p): Up_matrices(p);
-  return modsymbk_get_weight(W) == 2? getMorphism_trivial(W,W,v)
+  GEN v = ms_get_N(W) % p? Tp_matrices(p): Up_matrices(p);
+  return msk_get_weight(W) == 2? getMorphism_trivial(W,W,v)
                                     : getMorphism(W, W, v);
 }
 GEN
-modsymbSigma(GEN W)
+msSigma(GEN W)
 {
   GEN v = mat2(-1,0,0,1);
-  return modsymbk_get_weight(W) == 2? getMorphism_trivial(W,W,v)
+  return msk_get_weight(W) == 2? getMorphism_trivial(W,W,v)
                                     : getMorphism(W, W, v);
 }
 
@@ -1957,12 +1957,12 @@ iscuspeq(ulong N, GEN cusp1, GEN cusp2)
 #endif
 
 static GEN
-Cuspidal_subspace_trivial(GEN W0)
+mscuspidal_trivial(GEN W0)
 {
-  GEN W = get_modsymb(W0);
-  GEN section = modsymb_get_section(W), gen = modsymb_get_genindex(W);
-  GEN S = modsymb_get_hashcusps(W);
-  long j, nbE1 = modsymb_get_nbE1(W), ncusp = gel(S,1)[2];
+  GEN W = get_ms(W0);
+  GEN section = ms_get_section(W), gen = ms_get_genindex(W);
+  GEN S = ms_get_hashcusps(W);
+  long j, nbE1 = ms_get_nbE1(W), ncusp = gel(S,1)[2];
   GEN T = zeromatcopy(ncusp,nbE1);
   for (j = 1; j <= nbE1; j++)
   {
@@ -1998,9 +1998,9 @@ get_Ec_r(GEN c, long k)
 GEN
 Eisenstein_symbol(GEN W, GEN c)
 {
-  GEN section = modsymb_get_section(W), gen = modsymb_get_genindex(W);
-  GEN S = modsymb_get_hashcusps(W);
-  long j, ic = cusp_index(c, S), l = lg(gen), k = modsymbk_get_weight(W);
+  GEN section = ms_get_section(W), gen = ms_get_genindex(W);
+  GEN S = ms_get_hashcusps(W);
+  long j, ic = cusp_index(c, S), l = lg(gen), k = msk_get_weight(W);
   GEN vecT = cgetg(l, t_COL);
   for (j = 1; j < l; j++)
   {
@@ -2023,14 +2023,14 @@ Eisenstein_symbol(GEN W, GEN c)
 static GEN
 EC_subspace_trivial(GEN W)
 {
-  GEN M, ch, chC, chE, T, TC, C = Cuspidal_subspace_trivial(W);
-  long N = modsymb_get_N(W);
+  GEN M, ch, chC, chE, T, TC, C = mscuspidal_trivial(W);
+  long N = ms_get_N(W);
   ulong p;
   forprime_t S;
   (void)u_forprime_init(&S, 2, ULONG_MAX);
   while ((p = u_forprime_next(&S)))
     if (N % p) break;
-  T = modsymbHecke(W, p);
+  T = mshecke(W, p);
   ch = QM_charpoly_ZX(T);
   TC = Qevproj_apply(T, Qevproj_init(C)); /* T_p | TC */
   chC = QM_charpoly_ZX(TC);
@@ -2040,18 +2040,18 @@ EC_subspace_trivial(GEN W)
 }
 
 static GEN
-Eisenstein_subspace_trivial(GEN W)
+mseisenstein_trivial(GEN W)
 {
   GEN ES = EC_subspace_trivial(W);
   return gel(ES,1);
 }
 GEN
-Eisenstein_subspace(GEN W)
+mseisenstein(GEN W)
 {
   GEN S, cusps, M;
   long i, l;
-  if (modsymbk_get_weight(W) == 2) return Eisenstein_subspace_trivial(W);
-  S = modsymb_get_hashcusps(W);
+  if (msk_get_weight(W) == 2) return mseisenstein_trivial(W);
+  S = ms_get_hashcusps(W);
   cusps = gel(S,3);
   l = lg(cusps);
   M = cgetg(l, t_MAT);
@@ -2060,20 +2060,20 @@ Eisenstein_subspace(GEN W)
 }
 
 GEN
-Cuspidal_subspace(GEN W)
+mscuspidal(GEN W)
 {
   GEN E;
   GEN M, T, TE, ch, chS, chE;
   forprime_t S;
   ulong p, N;
 
-  if (modsymbk_get_weight(W) == 2) return EC_subspace_trivial(W);
-  E = Eisenstein_subspace(W);
-  N = modsymb_get_N(W);
+  if (msk_get_weight(W) == 2) return EC_subspace_trivial(W);
+  E = mseisenstein(W);
+  N = ms_get_N(W);
   (void)u_forprime_init(&S, 2, ULONG_MAX);
   while ((p = u_forprime_next(&S)))
     if (N % p) break;
-  T = modsymbHecke(W, p);
+  T = mshecke(W, p);
   ch = QM_charpoly_ZX(T);
   TE = Qevproj_apply(T, Qevproj_init(E)); /* T_p | E */
   chE = QM_charpoly_ZX(TE);
@@ -2160,13 +2160,13 @@ get_phi_ij(long i,long j,long n, long s,long t,GEN P_st,GEN Q_st,GEN d_st,
 static GEN
 add_Sigma(GEN W, long sign)
 {
-  gel(W, 2) = mkvec2(stoi(sign), modsymbSigma(W));
+  gel(W, 2) = mkvec2(stoi(sign), msSigma(W));
   return W;
 }
 static GEN
-modsymbkinit_trivial(GEN WN, long sign)
+mskinit_trivial(GEN WN, long sign)
 {
-  long dim = modsymb_get_nbE1(WN);
+  long dim = ms_get_nbE1(WN);
   GEN W = mkvec3(WN, gen_0, mkvec2(gen_0,mkvecsmall2(2, dim)));
   return add_Sigma(W, sign);
 }
@@ -2179,11 +2179,11 @@ RgMV_dim(GEN V)
   return d;
 }
 static GEN
-modsymbkinit_nontrivial(GEN WN, long k, long sign)
+mskinit_nontrivial(GEN WN, long k, long sign)
 {
   GEN annT2 = gel(WN,8), annT31 = gel(WN,9), singlerel = gel(WN,10);
   GEN link, basis, monomials, invphiblock;
-  long nbE1 = modsymb_get_nbE1(WN);
+  long nbE1 = ms_get_nbE1(WN);
   GEN dinv = Delta_inv(ZG_neg( ZGl2Q_star(gel(singlerel,1)) ), k);
   GEN p1 = cgetg(nbE1+1, t_VEC), remove;
   GEN p2 = ZGV_tors(annT2, k);
@@ -2306,13 +2306,13 @@ modsymbkinit_nontrivial(GEN WN, long k, long sign)
                                link, invphiblock));
   return add_Sigma(W, sign);
 }
-/* WN = modsymbinit_N(N) */
+/* WN = msinit_N(N) */
 static GEN
-modsymbkinit(ulong N, long k, long sign)
+mskinit(ulong N, long k, long sign)
 {
-  GEN WN = modsymbinit_N(N);
-  return k == 2? modsymbkinit_trivial(WN, sign)
-               : modsymbkinit_nontrivial(WN, k, sign);
+  GEN WN = msinit_N(N);
+  return k == 2? mskinit_trivial(WN, sign)
+               : mskinit_nontrivial(WN, k, sign);
 }
 GEN
 msinit(GEN N, GEN K, long sign)
@@ -2327,7 +2327,7 @@ msinit(GEN N, GEN K, long sign)
   if (odd(k)) pari_err_IMPL("msinit [odd weight]");
   if (signe(N) <= 0) pari_err_DOMAIN("msinit","N", "<=", gen_0,N);
   if (equali1(N)) pari_err_IMPL("msinit [ N = 1 ]");
-  W = modsymbkinit(itou(N), k, sign);
+  W = mskinit(itou(N), k, sign);
   return gerepilecopy(av, W);
 }
 
@@ -2359,7 +2359,7 @@ xpmoo(GEN E)
   return gerepileuptoint(av, ZV_dotproduct(dualell,v));
 }
 
-/* E = ellsym struct; image of <0->a/b> */
+/* E = ellmsinit struct; image of <0->a/b> */
 GEN
 xpm(GEN E, GEN a, GEN b)
 { return signe(b)? Q_xpm(E, gdiv(a,b)): xpmoo(E); }
@@ -2413,7 +2413,7 @@ get_Q(GEN E)
   L = ellL1(E, 0, DEFAULTPREC);
   n = sqrtr(divrr(mulru(L, t2), mulri(w1,tam)));
   n = grndtoi(n, &ex);
-  if (ex > -5) pari_err_BUG("ellsym (can't compute analytic |Sha|)");
+  if (ex > -5) pari_err_BUG("ellmsinit (can't compute analytic |Sha|)");
   return gdivgs(mulii(tam,sqri(n)), t2);
 }
 
@@ -2435,7 +2435,7 @@ ell_get_scale(GEN E, long s)
     X = get_X(E, s < 0? -d: d);
     if (signe(X)) break;
   }
-  if (d == LONG_MAX) pari_err_BUG("ellsym (no suitable twist)");
+  if (d == LONG_MAX) pari_err_BUG("ellmsinit (no suitable twist)");
   if (s < 0) d = -d;
   e = ellsym_get_ell(E);
   Q = get_Q(twistcurve(e, stoi(d)));
@@ -2443,7 +2443,7 @@ ell_get_scale(GEN E, long s)
 }
 
 GEN
-ellsym(GEN E, long sign)
+ellmsinit(GEN E, long sign)
 {
   pari_sp av = avma;
   GEN cond;
@@ -2454,24 +2454,24 @@ ellsym(GEN E, long sign)
   E = ellminimalmodel(E, NULL);
   cond = gel(ellglobalred(E), 1);
   N = itou(cond);
-  W = modsymbkinit(N, 2, sign);
+  W = mskinit(N, 2, sign);
 
-  if (!sign) pari_err(e_MISC, "missing sign in ellsym");
-  K = keri(shallowtrans(gsubgs(modsymbk_get_Sigma(W), sign)));
+  if (!sign) pari_err(e_MISC, "missing sign in ellmsinit");
+  K = keri(shallowtrans(gsubgs(msk_get_Sigma(W), sign)));
   /* loop for p <= count_Manin_symbols(N) / 6 would be enough */
   (void)u_forprime_init(&T, 2, ULONG_MAX);
   while( (p = u_forprime_next(&T)) )
   {
     GEN Tp, ap, M, K2;
     if (N % p == 0) continue;
-    Tp = modsymbHecke(W, p);
+    Tp = mshecke(W, p);
     ap = ellap(E, utoipos(p));
     M = RgM_Rg_add_shallow(Tp, negi(ap));
     K2 = keri( ZM_mul(shallowtrans(M), K) );
     if (lg(K2) < lg(K)) K = ZM_mul(K, K2);
     if (lg(K2)-1 == 1) break;
   }
-  if (!p) pari_err_BUG("ellsym: ran out of primes");
+  if (!p) pari_err_BUG("ellmsinit: ran out of primes");
   /* linear form = 0 on all Im(Tp - ap) and Im(S - sign) */
   dualell = Q_primpart(gel(K,1)); settyp(dualell, t_VEC);
   scale_L = ell_get_scale(mkvec3(W, dualell, E), sign);
