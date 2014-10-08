@@ -1907,7 +1907,7 @@ idealdivexact(GEN nf, GEN x0, GEN y0)
   if (typ(Nx) != t_INT) err_divexact(x,y);
   q = dvmdii(Nx,Ny, &r);
   if (signe(r)) err_divexact(x,y);
-  if (is_pm1(q)) { avma = av; return idmat(nf_get_degree(nf)); }
+  if (is_pm1(q)) { avma = av; return matid(nf_get_degree(nf)); }
   /* Find a norm Nz | Ny such that gcd(Nx/Nz, Nz) = 1 */
   for (Nz = Ny;;) /* q = Nx/Nz */
   {

@@ -2237,7 +2237,7 @@ modsymbkinit_nontrivial(GEN WN, long k, long sign)
    * If i = s, j != t
    *   g_i -> d_{s,t} P_{i,j} - d_{i,j} P_{s,t}
    * And everything else to 0. */
-  monomials = idmat(k-1); /* represent the monomials x^{k-2}, ... , y^{k-2} */
+  monomials = matid(k-1); /* represent the monomials x^{k-2}, ... , y^{k-2} */
   if (s <= nbE1) /* in E1 */
   {
     P_st = gel(monomials, t);

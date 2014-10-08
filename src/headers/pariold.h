@@ -11,7 +11,7 @@ Check the License for details. You should have received a copy of it, along
 with the package; see the file 'COPYING'. If not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 
-/* For compatibility with 1.x.x */
+/* For compatibility with older PARI versions */
 /*functions renamed*/
 #define mathell ellheightmatrix
 #define ghell ellheight
@@ -99,6 +99,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #define pariflush pari_flush
 #define ellap0(e,p,flag) ellap(e,p)
 #define apell2(e,p) ellap(e,p)
+
+/* Following deprecated for a long time now, obsoleted in 2.3.* (2007) */
+#ifdef PARI_OLD_NAMES
 #define apell ellap
 #define gscalsmat scalarmat_s
 #define sqred qfgaussred
@@ -226,9 +229,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #define absrz(x,z)  mpabsz((x),(z))
 #define negrz(x,z)  mpnegz((x),(z))
 
-/* Following deprecated for a long time now. Or really, really bad, e.g
- * un, init, er. */
-#ifdef PARI_OLD_NAMES
 #define err pari_err
 #define init pari_init
 

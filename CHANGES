@@ -194,6 +194,8 @@ BA 25- setrand now return a (huge) integer instead of a vecsmall
        in parallel mode and under gp2c [#1593]
    30- made cmprr, cmpri, equalrr consistent with == semantic. We now have,
        e.g., 0e1==1.0 and (0e1 < 1) = 0 (since 1-0e1 evaluates to 0e1)
+   31- [libpari] comment out function names obsoleted during the 2.3.* cycle
+       (2007). See PARI_OLD_NAMES.
 
 Removed
    1- deprecated functions nfbasis0, nfdisc0, factorpadic0
