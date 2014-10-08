@@ -79,6 +79,7 @@ BA 57- [win32] gp could crash at start up [#1607]
    58- nfisincl(t_POL, t_POL) could lead to wrong negative results
    59- polresultant(1+x*z^2,1+y*z^4,z) -> GC error [#1614]
 BA 60- ellcard over non-prime fields of large char could return wrong results
+   61- [libpari] FpX_roots could produce GC errors [#1618]
 
   Added
     1- add optional argument to sumdigits to specify the base
