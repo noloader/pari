@@ -9,7 +9,7 @@ Help: msqexpansion(M,projH,B): M being a full modular symbol space, as given by
 Doc:
  $M$ being a full modular symbol space, as given by \kbd{msinit},
  and \var{projH} being a projector on a Hecke-simple subspace (as given
- by \tet{mssplit}, return the Fourier coefficients $a_n$, $n\leq B$ of the
+ by \tet{mssplit}), return the Fourier coefficients $a_n$, $n\leq B$ of the
  corresponding normalized newform.
  \bprog
  ? M = msinit(11,2, 1); \\ M_2(Gamma_0(11))^+
