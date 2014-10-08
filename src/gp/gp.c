@@ -394,9 +394,9 @@ read_main(const char *s)
   if (setjmp(env[s_env.n-1]))
     z = NULL;
   else {
-    switchin(s);
-    if (file_is_binary(pari_infile)) {
-      z = readbin(s,pari_infile, NULL);
+    FILE *f = switchin(s);
+    if (file_is_binary(f)) {
+      z = readbin(s,f, NULL);
       popinfile();
     }
     else z = gp_main_loop(0);
