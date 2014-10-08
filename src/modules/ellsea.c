@@ -640,9 +640,9 @@ find_isogenous_from_Atkin(GEN a4, GEN a6, long ell, GEN meqn, GEN g, GEN T, GEN 
   GEN Dxxg = FpXY_Fq_evaly(Dxx, g, T, p, vJ);
   GEN DJJg = FqX_deriv(DJg, T, p);
   GEN a, b;
-  if (!signe(dJ))
+  if (!signe(dJ) || !signe(dx))
   {
-    if (DEBUGLEVEL>0) err_printf("[A: dJ=0]");
+    if (DEBUGLEVEL>0) err_printf("[A: d%c=0]",signe(dJ)? 'x': 'J');
     avma = ltop; return NULL;
   }
   a = Fq_mul(dJ, Fq_mul(g, E6, T, p), T, p);
@@ -711,7 +711,7 @@ find_isogenous_from_canonical(GEN a4, GEN a6, long ell, GEN meqn, GEN g, GEN T, 
   GEN ExJ = FqX_eval(DxJg, j, T, p);
   ulong tis = ugcd(12, ell-1), is = 12 / tis;
   GEN itis = Fq_inv(stoi(-tis), T, p);
-  GEN deltal = Zq_div(Fq_mul(delta, Fq_powu(g, tis, T, p), T, p), powuu(ell, 12), T, p, pp, e);
+  GEN deltal = Fq_div(Fq_mul(delta, Fq_powu(g, tis, T, p), T, p), powuu(ell, 12), T, p);
   GEN E4l, E6l, a4tilde, a6tilde, p_1;
   if (signe(dx)==0)
   {
