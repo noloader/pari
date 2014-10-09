@@ -3597,7 +3597,7 @@ GEN     RgX_act_Gl2Q(GEN g, long k);
 GEN     RgX_act_ZGl2Q(GEN z, long k);
 GEN     ellmsinit(GEN E, long signe);
 GEN     msAtkinLehner(GEN W, GEN Q);
-GEN     mshecke(GEN W, ulong p);
+GEN     mshecke(GEN W, long p);
 GEN     msSigma(GEN W);
 GEN     mslog(GEN W, GEN path);
 GEN     msinit(GEN N, GEN k, long sign);

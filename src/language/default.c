@@ -807,7 +807,7 @@ init_help(void)
 static void
 init_graphs(gp_data *D)
 {
-  char *cols[] = { "",
+  const char *cols[] = { "",
     "white","black","blue","violetred","red","green","grey","gainsboro"
   };
   const long N = 8;

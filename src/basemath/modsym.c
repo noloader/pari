@@ -19,6 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA. */
 /* Adapted from shp_package/moments by Robert Pollack
  * http://www.math.mcgill.ca/darmon/programs/shp/shp.html */
 static GEN mskinit(ulong N, long k, long sign);
+static GEN mshecke_i(GEN W, ulong p);
 static GEN msnew_trivial(GEN W);
 static GEN mscuspidal_trivial(GEN W0);
 static GEN ZGl2Q_star(GEN v);
@@ -541,7 +542,7 @@ mssplit_i(GEN W, GEN H)
     else
     {
       T2 = T1;
-      T1 = T = mshecke(W, p);
+      T1 = T = mshecke_i(W, p);
     }
     lV = lg(V);
     for (j = first; j < lV; j++)
@@ -633,7 +634,7 @@ msqexpansion_i(GEN W, GEN proV, ulong B)
     else
     {
       T2 = T1;
-      T1 = T = mshecke(W, p);
+      T1 = T = mshecke_i(W, p);
     }
     TV = Qevproj_apply(T, proV); /* T | V */
     ch = QM_charpoly_ZX(TV);
@@ -662,7 +663,7 @@ msqexpansion_i(GEN W, GEN proV, ulong B)
     GEN T, u, Tv, ap, P;
     ulong m;
     if (gel(L,p)) continue;  /* p not prime */
-    T = mshecke(W, p);
+    T = mshecke_i(W, p);
     Tv = Qevproj_apply_vecei(T, proV, 1); /* Tp.v */
     /* Write Tp.v = \sum u_i T^i v */
     u = RgC_Rg_div(RgM_RgC_mul(iM, Tv), ciM);
@@ -773,7 +774,7 @@ msnew_i(GEN W)
     pari_sp av = avma;
     GEN T, chS, chSold, chSnew;
     if (N % p == 0) continue;
-    T = mshecke(W, p);
+    T = mshecke_i(W, p);
     chS = QM_charpoly_ZX(Qevproj_apply(T, pr_S));
     chSold = QM_charpoly_ZX(Qevproj_apply(T, pr_Sold));
     chSnew = RgX_div(chS, chSold); /* = char T | S^new */
@@ -1991,13 +1992,22 @@ Up_matrices(ulong p)
   for (i = 1; i <= p; i++) gel(v,i) = mat2(1, i-1, 0, p);
   return v;
 }
-GEN
-mshecke(GEN W, ulong p)
+static GEN
+mshecke_i(GEN W, ulong p)
 {
   GEN v = ms_get_N(W) % p? Tp_matrices(p): Up_matrices(p);
   return msk_get_weight(W) == 2? getMorphism_trivial(W,W,v)
                                : getMorphism(W, W, v);
 }
+GEN
+mshecke(GEN W, long p)
+{
+  pari_sp av = avma;
+  checkms(W);
+  if (p <= 1) pari_err_PRIME("mshecke",stoi(p));
+  return gerepilecopy(av, mshecke_i(W,p));
+}
+
 GEN
 msSigma(GEN W)
 {
@@ -2097,7 +2107,7 @@ EC_subspace_trivial(GEN W)
   (void)u_forprime_init(&S, 2, ULONG_MAX);
   while ((p = u_forprime_next(&S)))
     if (N % p) break;
-  T = mshecke(W, p);
+  T = mshecke_i(W, p);
   ch = QM_charpoly_ZX(T);
   TC = Qevproj_apply(T, Qevproj_init(C)); /* T_p | TC */
   chC = QM_charpoly_ZX(TC);
@@ -2146,7 +2156,7 @@ mscuspidal_i(GEN W)
   (void)u_forprime_init(&S, 2, ULONG_MAX);
   while ((p = u_forprime_next(&S)))
     if (N % p) break;
-  T = mshecke(W, p);
+  T = mshecke_i(W, p);
   ch = QM_charpoly_ZX(T);
   TE = Qevproj_apply(T, Qevproj_init(E)); /* T_p | E */
   chE = QM_charpoly_ZX(TE);
@@ -2531,12 +2541,13 @@ ellmsinit(GEN E, long sign)
   ulong p, N;
   forprime_t T;
 
+  if (labs(sign) != 1)
+    pari_err_DOMAIN("ellmsinig","abs(sign)","!=",gen_1,stoi(sign));
   E = ellminimalmodel(E, NULL);
   cond = gel(ellglobalred(E), 1);
   N = itou(cond);
   W = mskinit(N, 2, sign);
 
-  if (!sign) pari_err(e_MISC, "missing sign in ellmsinit");
   K = keri(shallowtrans(gsubgs(msk_get_Sigma(W), sign)));
   /* loop for p <= count_Manin_symbols(N) / 6 would be enough */
   (void)u_forprime_init(&T, 2, ULONG_MAX);
@@ -2544,7 +2555,7 @@ ellmsinit(GEN E, long sign)
   {
     GEN Tp, ap, M, K2;
     if (N % p == 0) continue;
-    Tp = mshecke(W, p);
+    Tp = mshecke_i(W, p);
     ap = ellap(E, utoipos(p));
     M = RgM_Rg_add_shallow(Tp, negi(ap));
     K2 = keri( ZM_mul(shallowtrans(M), K) );

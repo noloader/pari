@@ -1,0 +1,24 @@
+Function: mshecke
+Section: modular_forms
+C-Name: mshecke
+Prototype: GL
+Help: mshecke(M,p): M being a full modular symbol space, as given by msinit,
+ and p being a prime number, return the matrix of T_p acting on M.
+Doc: $M$ being a full modular symbol space, as given by \kbd{msinit},
+ and $p$ being a prime number, return the matrix of $T_p$ acting on $M$.
+ \bprog
+ ? M = msinit(11,2, 1); \\ M_2(Gamma_0(11))^+
+ ? T2 = mshecke(M,2)
+ %2 =
+ [3  0  0]
+
+ [1 -2  0]
+
+ [1  0 -2]
+ ? v = msnew(M)[,1] \\ cuspidal eigenform
+ %3 = [0, -1, -1]~
+ ? p = 1009; mshecke(M, p)*v
+ %4 = [0, 10, 10]~
+ ? ellap(ellinit("11a1"), p)
+ %5 = -10
+ @eprog
