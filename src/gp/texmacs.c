@@ -225,6 +225,7 @@ int
 tm_get_line(const char *prompt, const char *prompt_cont, filtre_t *F)
 {
   int res = get_line_from_file(prompt, F, pari_infile);
+  (void)prompt_cont;
   if (res)
   {
     char *s = F->buf->buf;
