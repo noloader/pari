@@ -9,6 +9,7 @@ precision([1+O(3),2],3)
 default(realprecision,38);
 t=(precision(1.,77)*x+1);
 precision(t)
+localprec(57);precision(1.)
 precision(1./t)
 precision(Qfb(1,0,-2));
 

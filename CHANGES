@@ -146,6 +146,7 @@ BA 48- GP function fromdigits
 BA 49- [libpari] functions Zp_sqrt, ZpXQ_sqrt
    50- GP functions mscuspidal, mseisenstein, msnew, mssplit, msqexpansion,
        mshecke, ellmsinit, msatkinlehner, msstar
+BA 51- GP declaration localprec()
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]

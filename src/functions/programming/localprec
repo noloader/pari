@@ -1,0 +1,5 @@
+Function: localprec
+Section: programming/specific
+C-Name: localprec
+Prototype: vL
+Help: localprec(p): set the real precision to p in the dynamic scope.

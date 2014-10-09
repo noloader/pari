@@ -363,12 +363,12 @@ struct trace
 };
 
 static THREAD long sp, rp, dbg_level;
-static THREAD long *st;
+static THREAD long *st, *precs;
 static THREAD gp_pointer *ptrs;
 static THREAD entree **lvars;
 static THREAD struct var_lex *var;
 static THREAD struct trace *trace;
-static THREAD pari_stack s_st, s_ptrs, s_var, s_lvars, s_trace;
+static THREAD pari_stack s_st, s_ptrs, s_var, s_lvars, s_trace, s_prec;
 
 static void
 changelex(long vn, GEN x)
@@ -496,6 +496,7 @@ pari_init_evaluator(void)
   pari_stack_init(&s_trace,sizeof(*trace),(void**)&trace);
   br_res = NULL;
   pari_stack_init(&s_relocs,sizeof(*relocs),(void**)&relocs);
+  pari_stack_init(&s_prec,sizeof(*precs),(void**)&precs);
 }
 void
 pari_close_evaluator(void)
@@ -506,6 +507,7 @@ pari_close_evaluator(void)
   pari_stack_delete(&s_lvars);
   pari_stack_delete(&s_trace);
   pari_stack_delete(&s_relocs);
+  pari_stack_delete(&s_prec);
 }
 
 static gp_pointer *
@@ -524,6 +526,34 @@ new_ptr(void)
       }
   }
   return &ptrs[rp++];
+}
+
+void
+push_localprec(long p)
+{
+  long n = pari_stack_new(&s_prec);
+  precs[n] = p;
+}
+
+void
+pop_localprec(void)
+{
+  s_prec.n--;
+}
+
+long
+get_localprec(void)
+{
+  return s_prec.n? precs[s_prec.n-1]: precreal;
+}
+
+void
+localprec(long p)
+{
+  if (p < 1) pari_err_DOMAIN("localprec", "p", "<", gen_1, stoi(p));
+  if (p > prec2ndec(LGBITS))
+    pari_err_DOMAIN("localprec", "p", "==", utoi(LONG_MAX), stoi(p));
+  push_localprec(ndec2prec(p));
 }
 
 INLINE GEN
@@ -752,7 +782,7 @@ closure_eval(GEN C)
   GEN data=closure_get_data(C);
   long loper=lg(oper);
   long saved_sp=sp-closure_arity(C);
-  long saved_rp=rp;
+  long saved_rp=rp, saved_prec=s_prec.n;
   long j, nbmvar=0, nblvar=0;
   long pc, t;
   clone_lock(C);
@@ -791,7 +821,7 @@ closure_eval(GEN C)
       gel(st,sp++)=gel(data,operand);
       break;
     case OCpushreal:
-      gel(st,sp++)=strtor(GSTR(data[operand]),precreal);
+      gel(st,sp++)=strtor(GSTR(data[operand]),get_localprec());
       break;
     case OCpushstoi:
       gel(st,sp++)=stoi(operand);
@@ -916,7 +946,7 @@ closure_eval(GEN C)
         break;
       }
     case OCprecreal:
-      st[sp++]=precreal;
+      st[sp++]=get_localprec();
       break;
     case OCprecdl:
       st[sp++]=precdl;
@@ -1388,6 +1418,7 @@ endeval:
       clone_unlock(g->ox);
     }
   }
+  s_prec.n = saved_prec;
   s_trace.n--;
   restore_vars(nbmvar, nblvar);
   clone_unlock(C);
@@ -1408,6 +1439,7 @@ evalstate_save(struct pari_evalstate *state)
   state->avma = avma;
   state->sp   = sp;
   state->rp   = rp;
+  state->prec = s_prec.n;
   state->var  = s_var.n;
   state->lvars= s_lvars.n;
   state->trace= s_trace.n;
@@ -1422,6 +1454,7 @@ evalstate_restore(struct pari_evalstate *state)
   mtstate_restore(&state->pending_threads);
   sp = state->sp;
   rp = state->rp;
+  s_prec.n = state->prec;
   restore_vars(s_var.n-state->var,s_lvars.n-state->lvars);
   restore_trace(s_trace.n-state->trace);
   reset_break();

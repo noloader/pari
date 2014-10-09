@@ -134,6 +134,7 @@ struct pari_evalstate
   long rp;
   long var;
   long lvars;
+  long prec;
   long trace;
   long pending_threads;
   struct pari_compilestate comp;

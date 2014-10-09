@@ -736,6 +736,18 @@ used to implement \kbd{[x<-b,c(x)]}.
 \fun{GEN}{vecselapply}{void *Epred, long (*pred)(void* E, GEN x), void *Efun, GEN (*fun)(void* E, GEN x), GEN A}
 used to implement \kbd{[a(x)|x<-b,c(x)]}.
 
+\subsec{Local precision}
+
+Theses functions allow to change \kbd{realprecision} locally when
+calling the GP interpretor.
+
+\fun{void}{push_localprec}{long p} set the local precision to $p$.
+
+\fun{void}{pop_localprec}{void} reset the local precision to the previous
+value.
+
+\fun{long}{get_localprec}{void} returns the current local precision.
+
 \subsec{Functions related to the GP parser}
 
 The GP parser can generate an opcode saving the current lexical context
