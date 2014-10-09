@@ -1678,6 +1678,19 @@ zbrent0(GEN a, GEN b, GEN code, long prec)
 /**                                                                **/
 /********************************************************************/
 
+struct deriv_data
+{
+  GEN code;
+  GEN args;
+};
+
+static GEN deriv_eval(void *E, GEN x)
+{
+ struct deriv_data *data=(struct deriv_data *)E;
+ gel(data->args,1)=x;
+ return closure_callgenvec(data->code, data->args);
+}
+
 /* Rationale: (f(2^-e) - f(-2^-e) + O(2^-pr)) / (2 * 2^-e) = f'(0) + O(2^-2e)
  * since 2nd derivatives cancel.
  *   prec(LHS) = pr - e
@@ -1689,7 +1702,7 @@ GEN
 derivnum(void *E, GEN (*eval)(void *, GEN), GEN x, long prec)
 {
   GEN eps,a,b, y;
-  long pr, l, e, ex;
+  long pr, l, e, ex, newprec;
   pari_sp av = avma;
   long p = precision(x);
   long fpr = p ? prec2nbits(p): prec2nbits(prec);
@@ -1697,17 +1710,20 @@ derivnum(void *E, GEN (*eval)(void *, GEN), GEN x, long prec)
   if (ex < 0) ex = 0; /* near 0 */
   pr = (long)ceil(fpr * 1.5 + ex);
   l = nbits2prec(pr);
+  newprec = l + nbits2extraprec(ex + BITS_IN_LONG);
   switch(typ(x))
   {
     case t_REAL:
     case t_COMPLEX:
-      x = gprec_w(x, l + nbits2extraprec(ex + BITS_IN_LONG));
+      x = gprec_w(x, newprec);
   }
 
   e = fpr/2; /* 1/2 required prec (in sig. bits) */
   eps = real2n(-e, l);
+  if (eval==gp_eval || eval==deriv_eval) push_localprec(newprec);
   a = eval(E, gsub(x, eps));
   b = eval(E, gadd(x, eps));
+  if (eval==gp_eval || eval==deriv_eval) pop_localprec();
   y = gmul2n(gsub(b,a), e-1);
   return gerepileupto(av, gprec_w(y, nbits2prec(fpr)));
 }
@@ -1735,19 +1751,6 @@ GEN
 derivnum0(GEN a, GEN code, long prec)
 {
   EXPR_WRAP(code, derivfun (EXPR_ARG,a,prec));
-}
-
-struct deriv_data
-{
-  GEN code;
-  GEN args;
-};
-
-static GEN deriv_eval(void *E, GEN x)
-{
- struct deriv_data *data=(struct deriv_data *)E;
- gel(data->args,1)=x;
- return closure_callgenvec(data->code, data->args);
 }
 
 GEN
