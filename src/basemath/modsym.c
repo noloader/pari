@@ -606,11 +606,10 @@ mssplit(GEN W, GEN H)
   return gerepilecopy(av, mssplit_i(W,H));
 }
 
-/* proV = Qevproj_init of a Hecke simple subspace, return [ a_p, p <= B ] */
-GEN
-msqexpansion(GEN W, GEN proV, ulong B)
+/* proV = Qevproj_init of a Hecke simple subspace, return [ a_n, n <= B ] */
+static GEN
+msqexpansion_i(GEN W, GEN proV, ulong B)
 {
-  pari_sp av = avma;
   ulong p, N = ms_get_N(W), sqrtB;
   long i, d, k = msk_get_weight(W);
   forprime_t S;
@@ -623,6 +622,7 @@ msqexpansion(GEN W, GEN proV, ulong B)
   (void)u_forprime_init(&S, 2, ULONG_MAX);
   while ((p = u_forprime_next(&S)))
   {
+    pari_sp av = avma;
     GEN T;
     if (N % p == 0) continue;
     if (T1 && T2)
@@ -638,9 +638,11 @@ msqexpansion(GEN W, GEN proV, ulong B)
     TV = Qevproj_apply(T, proV); /* T | V */
     ch = QM_charpoly_ZX(TV);
     if (ZX_is_irred(ch)) break;
+    avma = av;
     ch = NULL;
   }
   if (!ch) pari_err_BUG("q-Expansion not found");
+  /* T generates the Hecke algebra */
   d = degpol(ch);
   v = vec_ei(d, 1); /* take v = e_1 */
   Tiv = cgetg(d+1, t_MAT); /* Tiv[i] = T^(i-1)v */
@@ -656,6 +658,7 @@ msqexpansion(GEN W, GEN proV, ulong B)
   gel(L,1) = gen_1;
   for (p = 2; p <= B; p++)
   {
+    pari_sp av = avma;
     GEN T, u, Tv, ap, P;
     ulong m;
     if (gel(L,p)) continue;  /* p not prime */
@@ -663,7 +666,7 @@ msqexpansion(GEN W, GEN proV, ulong B)
     Tv = Qevproj_apply_vecei(T, proV, 1); /* Tp.v */
     /* Write Tp.v = \sum u_i T^i v */
     u = RgC_Rg_div(RgM_RgC_mul(iM, Tv), ciM);
-    ap = RgV_to_RgX(u, 0);
+    ap = gerepilecopy(av, RgV_to_RgX(u, 0));
     if (degpol(ap)) ap = mkpolmod(ap,ch);
     gel(L,p) = ap;
     P = powuu(p,k-1);
@@ -671,20 +674,34 @@ msqexpansion(GEN W, GEN proV, ulong B)
       ulong pj, oldpj = 1;
       for (pj = p; pj <= B; oldpj=pj, pj *= p)
       {
-        if (pj == p)
-          gel(L,pj) = ap;
-        else
-          gel(L,pj) = gsub(gmul(ap, gel(L,oldpj)), gmul(P, gel(L,oldpj/p)));
+        GEN apj = (pj==p)? ap
+                         : gsub(gmul(ap,gel(L,oldpj)), gmul(P,gel(L,oldpj/p)));
+        gel(L,pj) = apj;
         for (m = B/pj; m > 1; m--)
-          if (gel(L,m) && m%p) gel(L,m*pj) = gmul(gel(L,m), gel(L,pj));
+          if (gel(L,m) && m%p) gel(L,m*pj) = gmul(gel(L,m), apj);
       }
     } else {
       gel(L,p) = ap;
       for (m = B/p; m > 1; m--)
-        if (gel(L,m)) gel(L,m*p) = gmul(ap, gel(L,m));
+        if (gel(L,m)) gel(L,m*p) = gmul(gel(L,m), ap);
     }
   }
-  return gerepilecopy(av, L);
+  return L;
+}
+GEN
+msqexpansion(GEN W, GEN proV, ulong B)
+{
+  pari_sp av = avma;
+  checkms(W);
+  switch(typ(proV))
+  {
+    case t_MAT:
+      proV = Qevproj_init(proV);
+      break;
+    case t_VEC: if (lg(proV) == 5) break;
+    default: pari_err_TYPE("msqexpansion", proV);
+  }
+  return gerepilecopy(av, msqexpansion_i(W,proV,B));
 }
 
 static GEN
@@ -1979,14 +1996,14 @@ mshecke(GEN W, ulong p)
 {
   GEN v = ms_get_N(W) % p? Tp_matrices(p): Up_matrices(p);
   return msk_get_weight(W) == 2? getMorphism_trivial(W,W,v)
-                                    : getMorphism(W, W, v);
+                               : getMorphism(W, W, v);
 }
 GEN
 msSigma(GEN W)
 {
   GEN v = mat2(-1,0,0,1);
   return msk_get_weight(W) == 2? getMorphism_trivial(W,W,v)
-                                    : getMorphism(W, W, v);
+                               : getMorphism(W, W, v);
 }
 
 #if 0
