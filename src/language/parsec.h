@@ -56,17 +56,6 @@ pari_init_parser(void)
 void
 pari_close_parser(void) { pari_stack_delete(&s_node); }
 
-static void
-unused_chars(const char *lex, int strict)
-{
-  long n = 2 * term_width() - (17+19+1); /* Warning + unused... + . */
-  if (strict) compile_err("unused characters", lex);
-  if ((long)strlen(lex) > n) /* at most 2 lines */
-    pari_warn(warner, "unused characters: %.*s[+++]", n-5, lex);
-  else
-    pari_warn(warner, "unused characters: %s", lex);
-}
-
 void
 compile_err(const char *msg, const char *str)
 {
@@ -111,7 +100,7 @@ parsestate_restore(struct pari_parsestate *state)
 }
 
 GEN
-pari_compile_str(const char *lex, int strict)
+pari_compile_str(const char *lex)
 {
   pari_sp ltop=avma;
   GEN code;
@@ -125,7 +114,7 @@ pari_compile_str(const char *lex, int strict)
   if (pari_parse((char**)&lex) || pari_discarded)
   {
     if (pari_unused_chars && !pari_discarded)
-      unused_chars(pari_unused_chars,strict);
+      compile_err("unused characters", pari_unused_chars);
     else if (pari_lasterror)
       compile_err(GSTR(pari_lasterror),lex-1);
     else /* should not happen */

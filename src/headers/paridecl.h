@@ -2845,7 +2845,7 @@ void    pari_add_defaults_module(entree *ep);
 void    pari_add_oldmodule(entree *ep);
 void    pari_close(void);
 void    pari_close_opts(ulong init_opts);
-GEN     pari_compile_str(const char *lex, int strict);
+GEN     pari_compile_str(const char *lex);
 int     pari_daemon(void);
 void    pari_err(int numerr, ...);
 GEN     pari_err_last(void);

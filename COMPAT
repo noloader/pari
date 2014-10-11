@@ -18,6 +18,7 @@ This file lists the incompatible changes between Version 2.x and older versions
   - factorpadic: no longer support the deprecated (no-op) 'flag' argument
   - optional flag to ellheight is gone (useless)
   - ellbil(E,P,Q) is now deprecated, use ellheight(E,P,Q)
+  - default 'strictmatch' has been obsoleted. It is now a no-op.
 
 * Specific to the PARI library:
 ===============================

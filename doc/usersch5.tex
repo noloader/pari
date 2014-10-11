@@ -273,13 +273,10 @@ calls
 parser: filter out whitespace and GP comments from $s$. If \fl is non-zero,
 downcase all identifiers (letters outside of \kbd{"..."} GP strings).
 
-\fun{GEN}{pari_compile_str}{const char *s, int strict} low-level form of
+\fun{GEN}{pari_compile_str}{const char *s} low-level form of
 \tet{compile_str}: assumes that $s$ does not contain spaces or GP comments and
 returns the closure associated to the GP expression $s$. Note
-that GP metacommands are not recognized. The \kbd{strict} parameter is likely
-to disappear in the future; if $0$ only warn if unused characters are left at
-the end of the expression, see \kbd{strictmatch}; otherwise, raise an
-exception.
+that GP metacommands are not recognized.
 
 \fun{int}{gp_meta}{const char *s, int ismain} low-level component of
 \tet{gp_read_str}: assumes that $s$ does not contain spaces or GP comments and
