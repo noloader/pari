@@ -277,7 +277,7 @@ sd_colors(const char *v, long flag)
       v = "9, 13, 11, 15, 14, 10, 11";
     if (l <= 6 && strncmp(v, "boldfg", l) == 0)        /* Good for darkbg consoles */
       v = "[1,,1], [5,,1], [3,,1], [7,,1], [6,,1], , [2,,1]";
-    v0 = s = gp_filter(v, 0);
+    v0 = s = gp_filter(v);
     for (c=c_ERR; c < c_LAST; c++)
       gp_colors[c] = gp_get_color(&s);
     pari_free(v0);
@@ -349,16 +349,12 @@ sd_compatible(const char *v, long flag)
 {
   const char *msg[] = {
     "(no backward compatibility)",
-    "(warn when using obsolete functions)",
-    "(use old functions, don't ignore case)",
-    "(use old functions, ignore case)", NULL
+    "(no backward compatibility)",
+    "(no backward compatibility)",
+    "(no backward compatibility)", NULL
   };
-  ulong old = compatible;
-  GEN r = sd_ulong(v,flag,"compatible",&compatible, 0,3,msg);
-
-  if (old != compatible && flag != d_INITRC && gp_init_functions())
-    pari_warn(warner,"user functions re-initialized");
-  return r;
+  ulong junk;
+  return sd_ulong(v,flag,"compatible",&junk, 0,3,msg);
 }
 
 GEN

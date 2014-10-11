@@ -614,7 +614,6 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 #endif
   pari_add_module(functions_gp);
   pari_add_module(functions_highlevel);
-  pari_add_oldmodule(functions_oldgp);
 
   init_graph();
 #ifdef READLINE

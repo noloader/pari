@@ -80,7 +80,7 @@ whatnow(PariOUT *out, const char *s, int flag)
   if (flag)
   {
     out_term_color(out, c_NONE);
-    out_print_text(out, "\nA function with that name existed in GP-1.39.15; to run in backward compatibility mode, type \"default(compatible,3)\", or set \"compatible = 3\" in your GPRC file.");
+    out_print_text(out, "\nA function with that name existed in GP-1.39.15. Please update your script.");
     out_putc(out, '\n');
   }
 

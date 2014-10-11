@@ -76,7 +76,6 @@ in_help(filtre_t *F)
 static char *
 filtre0(filtre_t *F)
 {
-  const int downcase = F->downcase;
   const char *s = F->s;
   char *t;
   char c;
@@ -125,8 +124,7 @@ filtre0(filtre_t *F)
     /* weed out comments and spaces */
     if (c=='\\' && *s=='\\') { F->in_comment = ONE_LINE_COMMENT; continue; }
     if (isspace((int)c)) continue;
-    *t++ = downcase? tolower((int)c): c;
-
+    *t++ = c;
     switch(c)
     {
       case '/':
@@ -185,13 +183,12 @@ END:
 #undef MULTI_LINE_COMMENT
 
 char *
-gp_filter(const char *s, int downcase)
+gp_filter(const char *s)
 {
   filtre_t T;
   T.buf = NULL;
   T.s = s;    T.in_string = 0; T.more_input = 0;
   T.t = NULL; T.in_comment= 0; T.wait_for_brace = 0;
-  T.downcase = downcase;
   return filtre0(&T);
 }
 
@@ -201,7 +198,6 @@ init_filtre(filtre_t *F, Buffer *buf)
   F->buf = buf;
   F->in_string  = 0;
   F->in_comment = 0;
-  F->downcase = 0;
 }
 
 /********************************************************************/
@@ -2697,7 +2693,7 @@ bruti_intern(GEN g, pariout_t *T, outString *S, int addsign)
     }
 
     case t_INTMOD: case t_POLMOD:
-      str_puts(S, new_fun_set? "Mod(": "mod(");
+      str_puts(S, "Mod(");
       bruti(gel(g,2),T,S); comma_sp(T,S);
       bruti(gel(g,1),T,S); str_putc(S, ')'); break;
 
@@ -2786,7 +2782,7 @@ bruti_intern(GEN g, pariout_t *T, outString *S, int addsign)
     }
 
     case t_QFR: case t_QFI: r = (tg == t_QFR);
-      if (new_fun_set) str_puts(S, "Qfb("); else str_puts(S, r? "qfr(": "qfi(");
+      str_puts(S, "Qfb(");
       bruti(gel(g,1),T,S); comma_sp(T,S);
       bruti(gel(g,2),T,S); comma_sp(T,S);
       bruti(gel(g,3),T,S);
@@ -2860,16 +2856,13 @@ bruti_intern(GEN g, pariout_t *T, outString *S, int addsign)
       {
         str_puts(S, "matrix(0,");
         str_long(S, r-1);
-        if (new_fun_set)
-          str_putc(S, ')');
-        else
-          str_puts(S, ",j,k,0)");
+        str_putc(S, ')');
         return;
       }
       print = (typ(gel(g,1)) == t_VECSMALL)? prints: bruti;
       if (l==2)
       {
-        str_puts(S, new_fun_set? "Mat(": "mat(");
+        str_puts(S, "Mat(");
         if (r == 2) { print(gcoeff(g,1,1),T,S); str_putc(S, ')'); return; }
       }
       str_putc(S, '[');

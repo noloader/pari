@@ -168,19 +168,8 @@ and come back later)
 1) If you are a PARI old timer, say the last version of PARI you used was
 released around 1996, you have certainly noticed already that many many
 things changed between the older 1.39.xx versions and this one.
-Conspicuously, most function names have been changed.
-
-Of course, this is going to break all your nice old scripts. Well, you can
-either change the compatibility level (typing \kbd{default(compatible, 3)}
-will send you back to the stone-age behavior of good ol' version 1.39.15),
-or rewrite the scripts. We really advise you to do the latter if they are not
-too long, since they can now be written much more cleanly than before,
-especially with lexical scoping (\kbd{my}) and the new control statements
-(\kbd{break}, \kbd{next}, \kbd{return}). Besides it'll be as good a way as any
-to get used to the new names.
-
-To know how a specific function was changed, just type \kbd{whatnow({\rm
-function})}.
+Conspicuously, most function names have been changed. To know how a specific
+function was changed, type \kbd{whatnow({\rm function})}.
 
 2) It seems that the text implicitly says that as soon as an imprecise number
 is entered, the result will be imprecise. Is this always true? There is a

@@ -1288,7 +1288,7 @@ compilefunc(entree *ep, long n, int mode, long flag)
     avma=ltop;
     return;
   }
-  else if (is_func_named(ep,"O") || (compatible==OLDALL && is_func_named(ep,"o")))
+  else if (is_func_named(ep,"O"))
   {
     if (nb!=1)
       compile_err("wrong number of arguments", tree[n].str+tree[n].len-1);

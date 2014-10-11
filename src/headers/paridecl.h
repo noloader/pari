@@ -2195,7 +2195,7 @@ GEN     ellsea(GEN E, GEN p, long early_abort);
 /* es.c */
 
 GEN     externstr(const char *cmd);
-char    *gp_filter(const char *s, int flag);
+char    *gp_filter(const char *s);
 GEN     gpextern(const char *cmd);
 void    gpsystem(const char *s);
 GEN     readstr(const char *s);
@@ -2842,7 +2842,6 @@ GEN     obj_insert_shallow(GEN S, long K, GEN O);
 void    pari_add_function(entree *ep);
 void    pari_add_module(entree *ep);
 void    pari_add_defaults_module(entree *ep);
-void    pari_add_oldmodule(entree *ep);
 void    pari_close(void);
 void    pari_close_opts(ulong init_opts);
 GEN     pari_compile_str(const char *lex);

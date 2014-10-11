@@ -202,6 +202,7 @@ BA 25- setrand now return a (huge) integer instead of a vecsmall
    31- [libpari] comment out function names obsoleted during the 2.3.* cycle
        (2007). See PARI_OLD_NAMES.
    32- default 'strictmatch' has been obsoleted. It is now a no-op.
+   33- default 'compatible' has been obsoleted. It is now a no-op.
 
 Removed
    1- deprecated functions nfbasis0, nfdisc0, factorpadic0

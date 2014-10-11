@@ -1145,7 +1145,6 @@ gp_read_line(filtre_t *F, const char *PROMPT)
   Buffer *b = (Buffer*)F->buf;
   const char *p;
   int res, interactive;
-  F->downcase = (compatible == OLDALL);
   if (b->len > 100000) fix_buffer(b, 100000);
   interactive = is_interactive();
   if (interactive || pari_logfile || GP_DATA->echo)
@@ -1429,7 +1428,7 @@ sd_graphcolormap(const char *v, long flag)
 
   if (v)
   {
-    char *t = gp_filter(v, 0);
+    char *t = gp_filter(v);
     if (*t != '[' || t[strlen(t)-1] != ']')
       pari_err(e_SYNTAX, "incorrect value for graphcolormap", t, t);
     for (s = 0, p = t+1, l = 2, a=0; *p; p++)
@@ -1521,7 +1520,7 @@ sd_graphcolors(const char *v, long flag)
   char *p;
 
   if (v) {
-    char *t = gp_filter(v, 0);
+    char *t = gp_filter(v);
     for (p = t+1, l=2; *p != ']'; p++)
       if (*p == ',') l++;
       else if (*p < '0' || *p > '9')
@@ -1685,26 +1684,8 @@ pari_print_version(void)
 static void
 escape(const char *tch, int ismain)
 {
-  const char *s;
+  const char *s = tch;
   char c;
-
-  if (compatible != NONE)
-  {
-    s = tch;
-    while (*s)
-      if (*s++ == '=')
-      {
-        GEN (*f)(const char *v, long flag) = NULL;
-        long len = (s-tch) - 1;
-        if      (!strncmp(tch,"precision",len))    f = sd_realprecision;
-        else if (!strncmp(tch,"serieslength",len)) f = sd_seriesprecision;
-        else if (!strncmp(tch,"format",len))       f = sd_format;
-        else if (!strncmp(tch,"prompt",len))       f = sd_prompt;
-        if (f) { (void)f(s, d_ACKNOWLEDGE); return; }
-        break;
-      }
-  }
-  s = tch;
   switch ((c = *s++))
   {
     case 'w': case 'x': case 'a': case 'b': case 'B': case 'm':

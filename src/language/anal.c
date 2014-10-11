@@ -218,7 +218,7 @@ readseq(char *t)
 GEN
 gp_read_str(const char *s)
 {
-  char *t = gp_filter(s, (compatible == OLDALL));
+  char *t = gp_filter(s);
   GEN x = readseq(t);
   pari_free(t); return x;
 }
@@ -226,7 +226,7 @@ gp_read_str(const char *s)
 GEN
 compile_str(const char *s)
 {
-  char *t = gp_filter(s, (compatible == OLDALL));
+  char *t = gp_filter(s);
   GEN x = pari_compile_str(t);
   pari_free(t); return x;
 }

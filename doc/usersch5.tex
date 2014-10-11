@@ -166,12 +166,6 @@ it adds to the default set via the calls
   pari_add_module(functions_highlevel);
 @eprog
 
-\fun{void}{pari_add_oldmodule}{entree *mod} adds all the routines in module
-\kbd{mod} to the table of symbols in the interpreter when running in
-"PARI 1.xx compatible" mode (see \kbd{default(compatible)}) . It assumes
-that
-\kbd{pari\_init} has been called.
-
 A GP \kbd{default} is likewise associated to a helper routine, that is run
 when the value is consulted, or changed by \tet{default0} or \tet{setdefault}.
 Such routines are grouped into modules: \tet{functions_default} containing all
@@ -269,9 +263,8 @@ calls
   cb_pari_ask_confirm(s);
 @eprog
 
-\fun{char*}{gp_filter}{const char *s, int flag} pre-processor for the GP
-parser: filter out whitespace and GP comments from $s$. If \fl is non-zero,
-downcase all identifiers (letters outside of \kbd{"..."} GP strings).
+\fun{char*}{gp_filter}{const char *s} pre-processor for the GP
+parser: filter out whitespace and GP comments from $s$.
 
 \fun{GEN}{pari_compile_str}{const char *s} low-level form of
 \tet{compile_str}: assumes that $s$ does not contain spaces or GP comments and

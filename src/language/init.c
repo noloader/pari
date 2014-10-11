@@ -73,7 +73,7 @@ int     disable_color;
 ulong   DEBUGFILES, DEBUGLEVEL, DEBUGMEM;
 long    DEBUGVAR;
 ulong   pari_mt_nbthreads;
-ulong   compatible, precreal, precdl, logstyle;
+ulong   precreal, precdl, logstyle;
 gp_data *GP_DATA;
 
 GEN colormap, pari_graphcolors;
@@ -500,7 +500,6 @@ pari_init_defaults(void)
 #endif
 
   precdl = 16;
-  compatible = NONE;
   DEBUGFILES = DEBUGLEVEL = DEBUGMEM = 0;
   disable_color = 1;
   logstyle = logstyle_none;
@@ -568,9 +567,7 @@ gp_init_entrees(pari_stack *p_A, entree **hash)
 }
 int
 gp_init_functions(void)
-{
-  return gp_init_entrees(new_fun_set? &s_MODULES: &s_OLDMODULES, functions_hash);
-}
+{ return gp_init_entrees(&s_MODULES, functions_hash); }
 
 extern entree functions_basic[], functions_default[];
 static void
@@ -581,8 +578,7 @@ pari_init_functions(void)
   pari_stack_init(&s_OLDMODULES, sizeof(*OLDMODULES),(void**)&OLDMODULES);
   pari_stack_pushp(&s_OLDMODULES,oldfonctions);
   functions_hash = (entree**) pari_calloc(sizeof(entree*)*functions_tblsz);
-  pari_fill_hashtable(functions_hash,
-                      new_fun_set? functions_basic: oldfonctions);
+  pari_fill_hashtable(functions_hash, functions_basic);
   defaults_hash = (entree**) pari_calloc(sizeof(entree*)*functions_tblsz);
   pari_add_defaults_module(functions_default);
 }
@@ -590,22 +586,13 @@ pari_init_functions(void)
 void
 pari_add_module(entree *ep)
 {
-  if (new_fun_set)
-    pari_fill_hashtable(functions_hash, ep);
+  pari_fill_hashtable(functions_hash, ep);
   pari_stack_pushp(&s_MODULES, ep);
 }
 
 void
 pari_add_defaults_module(entree *ep)
 { pari_fill_hashtable(defaults_hash, ep); }
-
-void
-pari_add_oldmodule(entree *ep)
-{
-  if (!new_fun_set)
-    pari_fill_hashtable(functions_hash, ep);
-  pari_stack_pushp(&s_OLDMODULES, ep);
-}
 
 /*********************************************************************/
 /*                       PARI MAIN STACK                             */

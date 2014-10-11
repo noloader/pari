@@ -354,11 +354,6 @@ extern char *current_logfile;
 extern long    gp_colors[];
 extern int     disable_color;
 
-/* backward compatibility */
-extern ulong compatible;
-enum { NONE, WARN, OLDFUN, OLDALL };
-#define new_fun_set (compatible == NONE || compatible == WARN)
-
 /* entrees */
 #define EpVALENCE(ep) ((ep)->valence & 0xFF)
 #define EpSTATIC(ep) ((ep)->valence & 0x100)
@@ -385,7 +380,7 @@ void fix_buffer(Buffer *b, long newlbuf);
 typedef struct {
   const char *s; /* source */
   char *t, *end; /* target, last char read */
-  int in_string, in_comment, more_input, wait_for_brace, downcase;
+  int in_string, in_comment, more_input, wait_for_brace;
   Buffer *buf;
 } filtre_t;
 void init_filtre(filtre_t *F, Buffer *buf);
