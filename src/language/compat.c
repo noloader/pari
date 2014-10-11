@@ -724,6 +724,7 @@ entree oldfonctions[]={
 {"sumpos2",27,(void*)sumpos0,9,"V=GED1,L,p","sumpos2(X=a,expr)=sum of positive series expr, the formal variable X starting at a, using Zagier's polynomials."},
 {"supplement",1,(void*)suppl,8,"G","supplement(x)=supplement the columns of the matrix x to an invertible matrix."},
 {"sylvestermatrix",2,(void*)sylvestermatrix,7,"GG","sylvestermatrix(x,y)=forms the sylvester matrix associated to the two polynomials x and y. Warning: the polynomial coefficients are in columns, not in rows."},
+{"system",70,(void*)gpsystem,11,"vs","system(str): str being a string, execute the system command str"},
 {"tan",1,(void*)gtan,3,"Gp","tan(x)=tangent of x."},
 {"tanh",1,(void*)gtanh,3,"Gp","tanh(x)=hyperbolic tangent of x."},
 {"taniyama",1,(void*)elltaniyama,5,"GP","taniyama(e)=modular parametrization of elliptic curve e."},
