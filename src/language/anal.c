@@ -210,7 +210,7 @@ readseq(char *t)
   pari_sp av = avma;
   GEN x;
   if (gp_meta(t,0)) return gnil;
-  x = pari_compile_str(t,0);
+  x = pari_compile_str(t);
   return gerepileupto(av, closure_evalres(x));
 }
 
@@ -227,7 +227,7 @@ GEN
 compile_str(const char *s)
 {
   char *t = gp_filter(s, (compatible == OLDALL));
-  GEN x = pari_compile_str(t, 1);
+  GEN x = pari_compile_str(t);
   pari_free(t); return x;
 }
 

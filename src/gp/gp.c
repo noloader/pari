@@ -366,7 +366,7 @@ gp_main_loop(long ismain)
       pari_set_last_newline(1);
     }
     if (gp_meta(b->buf,ismain)) continue;
-    z = pari_compile_str(b->buf, GP_DATA->strictmatch);
+    z = pari_compile_str(b->buf);
     z = closure_evalres(z);
     if (!ismain) continue;
     pari_alarm(0);
@@ -465,7 +465,7 @@ break_loop(int numerr)
       if (! *(b->buf) && sigint) break;
       reset_ctrlc();
       if (gp_meta(b->buf,0)) continue;
-      x = pari_compile_str(b->buf, 0);
+      x = pari_compile_str(b->buf);
       x = closure_evalbrk(x, &br_status);
     }
     switch (br_status)
