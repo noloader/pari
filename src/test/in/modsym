@@ -40,3 +40,11 @@ E == mseisenstein(W)
 W = msinit(23,2, 1);
 V = mssplit(W, msnew(W));
 msqexpansion(W, V[1], 30)
+
+W = msinit(6,4);
+msatkinlehner(W,1)
+msatkinlehner(W,2)
+msatkinlehner(W,3)
+msatkinlehner(W,6)
+msatkinlehner(W,4)
+msstar(W)

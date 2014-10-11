@@ -3,11 +3,13 @@ Section: modular_forms
 C-Name: mshecke
 Prototype: GL
 Help: mshecke(M,p): M being a full modular symbol space, as given by msinit,
- and p being a prime number, return the matrix of T_p acting on M.
+ and p being a prime number, return the matrix of T_p acting on M (U_p if p
+ divides).
 Doc: $M$ being a full modular symbol space, as given by \kbd{msinit},
- and $p$ being a prime number, return the matrix of $T_p$ acting on $M$.
+ and $p$ being a prime number, return the matrix of $T_p$ acting on $M$
+ ($U_p$ if $p$ divides $N$).
  \bprog
- ? M = msinit(11,2, 1); \\ M_2(Gamma_0(11))^+
+ ? M = msinit(11,2); \\ M_2(Gamma_0(11))
  ? T2 = mshecke(M,2)
  %2 =
  [3  0  0]

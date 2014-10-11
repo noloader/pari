@@ -1,0 +1,16 @@
+Function: msatkinlehner
+Section: modular_forms
+C-Name: msatkinlehner
+Prototype: GL
+Help: msatkinlehner(M,Q): M being a full modular symbol space of level N,
+ as given by msinit, and Q | N, (Q,N/Q) = 1, return the matrix of w_Q
+ acting on M.
+Doc: $M$ being a full modular symbol space of level $N$,
+ as given by \kbd{msinit}, and $Q \mid N$, $(Q,N/Q) = 1$, return the matrix of
+ $w_Q$ acting on $M$.
+ \bprog
+ ? M = msinit(36,2); \\ M_2(Gamma_0(36))
+ ? w = msatkinlehner(M,4);
+ ? w^2 == 1
+ %3 = 1
+ @eprog

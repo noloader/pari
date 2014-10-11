@@ -64,10 +64,8 @@ ms_get_nbE1(GEN W)
   return W11[4] - W11[3];
 }
 /* msk-specific accessors */
-#if 0
 static long
 msk_get_dim(GEN W) { return gmael(W,3,2)[2]; }
-#endif
 static GEN
 msk_get_basis(GEN W) { return gmael(W,3,1); }
 static long
@@ -1949,7 +1947,6 @@ checkdec(GEN W, GEN D, GEN T)
 static GEN
 getMorphism(GEN W1, GEN W2, GEN v)
 {
-  pari_sp av0 = avma;
   GEN basis1 = msk_get_basis(W1);
   long i, a, lv, dim1 = lg(basis1)-1;
   GEN M = cgetg(dim1+1, t_MAT), act;
@@ -1972,7 +1969,7 @@ getMorphism(GEN W1, GEN W2, GEN v)
 #endif
     gel(M,a) = gerepilecopy(av, D);
   }
-  return gerepilecopy(av0, M);
+  return M;
 }
 
 static GEN
@@ -1993,11 +1990,16 @@ Up_matrices(ulong p)
   return v;
 }
 static GEN
+msendo(GEN W, GEN v)
+{
+  return msk_get_weight(W) == 2? getMorphism_trivial(W,W,v)
+                               : getMorphism(W, W, v);
+}
+static GEN
 mshecke_i(GEN W, ulong p)
 {
   GEN v = ms_get_N(W) % p? Tp_matrices(p): Up_matrices(p);
-  return msk_get_weight(W) == 2? getMorphism_trivial(W,W,v)
-                               : getMorphism(W, W, v);
+  return msendo(W,v);
 }
 GEN
 mshecke(GEN W, long p)
@@ -2008,12 +2010,39 @@ mshecke(GEN W, long p)
   return gerepilecopy(av, mshecke_i(W,p));
 }
 
+static GEN
+msatkinlehner_i(GEN W, long Q)
+{
+  long w, z, d, N = ms_get_N(W), M = N / Q;
+  GEN v;
+  if (Q == 1) return matid(msk_get_dim(W));
+  d = cbezout(Q, -M, &w, &z);
+  if (N % Q) pari_err_DOMAIN("msatkinlehner","N % Q","!=",gen_0,stoi(Q));
+  if (d != 1) pari_err_DOMAIN("msatkinlehner","gcd(Q,N/Q)","!=",gen_1,stoi(Q));
+  v = (Q == N)? mat2(0,1,-N,0): mat2(Q,1,N*z,Q*w);
+  return msendo(W,v);
+}
 GEN
-msSigma(GEN W)
+msatkinlehner(GEN W, long Q)
+{
+  pari_sp av = avma;
+  checkms(W);
+  if (Q <= 0) pari_err_DOMAIN("msatkinlehner","Q","<=",gen_0,stoi(Q));
+  return gerepilecopy(av, msatkinlehner_i(W,Q));
+}
+
+static GEN
+msstar_i(GEN W)
 {
   GEN v = mat2(-1,0,0,1);
-  return msk_get_weight(W) == 2? getMorphism_trivial(W,W,v)
-                               : getMorphism(W, W, v);
+  return msendo(W,v);
+}
+GEN
+msstar(GEN W)
+{
+  pari_sp av = avma;
+  checkms(W);
+  return gerepilecopy(av, msstar_i(W));
 }
 
 #if 0
@@ -2248,9 +2277,9 @@ get_phi_ij(long i,long j,long n, long s,long t,GEN P_st,GEN Q_st,GEN d_st,
 }
 
 static GEN
-add_Sigma(GEN W, long sign)
+add_star(GEN W, long sign)
 {
-  gel(W, 2) = mkvec2(stoi(sign), msSigma(W));
+  gel(W, 2) = mkvec2(stoi(sign), msstar_i(W));
   return W;
 }
 static GEN
@@ -2258,7 +2287,7 @@ mskinit_trivial(GEN WN, long sign)
 {
   long dim = ms_get_nbE1(WN);
   GEN W = mkvec3(WN, gen_0, mkvec2(gen_0,mkvecsmall2(2, dim)));
-  return add_Sigma(W, sign);
+  return add_star(W, sign);
 }
 /* sum of #cols of the matrices contained in V */
 static long
@@ -2394,7 +2423,7 @@ mskinit_nontrivial(GEN WN, long k, long sign)
   }
   W = mkvec3(WN, gen_0, mkvec5(basis, mkvecsmall2(k, dim), mkvecsmall2(s,t),
                                link, invphiblock));
-  return add_Sigma(W, sign);
+  return add_star(W, sign);
 }
 /* WN = msinit_N(N) */
 static GEN
