@@ -4196,7 +4196,6 @@ U and V are technical but essential to work in (Z_K/I)^*. Finally if flag=2,
 same as with flag=1 except that the generators are also given.
 
 
-  ***   Warning: new stack size = 16000000 (15.259 Mbytes).
   ***   at top-level: box()
   ***                 ^-----
   ***   not a function in function call
@@ -4230,12 +4229,6 @@ New syntax: cursor(w) ===> plotcursor(w)
 plotcursor(w): current position of cursor in rectwindow w.
 
 
-   TeXstyle = 0 (bits 0x2/0x4 control output of \left/\PARIbreak)
-   breakloop = 0 (off)
-   colors = "no, no, no, no, no, no, no"
-  ***   at top-level: default()
-  ***                 ^---------
-  *** default: bug in PARI/GP (Segmentation Fault), please report.
   ***   at top-level: draw()
   ***                 ^------
   ***   not a function in function call
@@ -4561,4 +4554,4 @@ New syntax: texprint(x) ===> printtex(x)
 printtex({str}*): outputs its string arguments in TeX format.
 
 
-Total time spent: 20
+Total time spent: 12

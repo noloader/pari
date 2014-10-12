@@ -353,7 +353,7 @@ sd_compatible(const char *v, long flag)
     "(no backward compatibility)",
     "(no backward compatibility)", NULL
   };
-  ulong junk;
+  ulong junk = 0;
   return sd_ulong(v,flag,"compatible",&junk, 0,3,msg);
 }
 
