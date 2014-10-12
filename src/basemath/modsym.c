@@ -730,12 +730,17 @@ msnew_trivial(GEN W)
   v = cgetg(2*nP + 1, t_COL);
   for (i = 1; i <= nP; i++)
   {
+    pari_sp av = avma, av2;
     ulong M = N / P[i];
     GEN T1, Td, Wi = mskinit(M, 2, 0);
     T1 = getMorphism_trivial(W, Wi, mat2(1,0,0,1));
     Td = getMorphism_trivial(W, Wi, mat2(P[i],0,0,1));
-    gel(v,2*i-1) = ZM_mul(T1, K); /* multiply by K = restrict to Ker delta */
-    gel(v,2*i) = ZM_mul(Td, K);
+    av2 = avma;
+    T1 = ZM_mul(T1, K); /* multiply by K = restrict to Ker delta */
+    Td = ZM_mul(Td, K);
+    gerepileallsp(av, av2, 2, &T1,&Td);
+    gel(v,2*i-1)= T1;
+    gel(v,2*i)  = Td;
   }
   Snew = ZM_mul(K, ZM_ker(matconcat(v)));
 END:
@@ -2065,6 +2070,7 @@ iscuspeq(ulong N, GEN cusp1, GEN cusp2)
 static GEN
 mscuspidal_trivial(GEN W0)
 {
+  pari_sp av = avma;
   GEN W = get_ms(W0);
   GEN section = ms_get_section(W), gen = ms_get_genindex(W);
   GEN S = ms_get_hashcusps(W);
@@ -2082,7 +2088,7 @@ mscuspidal_trivial(GEN W0)
       gcoeff(T, i2, j) = gen_m1;
     }
   }
-  return ZM_ker(T);
+  return gerepilecopy(av, ZM_ker(T));
 }
 
 /* return E_c(r) */
