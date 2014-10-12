@@ -615,7 +615,7 @@ compute_u(GEN gprime, GEN Dxxg, GEN DxJg, GEN DJJg, GEN j, GEN pJ, GEN px, ulong
  * E: elliptic curve, ell: a prime, meqn: Atkin modular equation
  * g: root of meqn defining isogenous curve Eb. */
 static GEN
-find_isogenous_from_Atkin(GEN a4, GEN a6, long ell, GEN meqn, GEN g, GEN T, GEN pp, long e)
+find_isogenous_from_Atkin(GEN a4, GEN a6, ulong ell, GEN meqn, GEN g, GEN T, GEN pp, long e)
 {
   pari_sp ltop = avma, btop;
   GEN meqnx, Roots, gprime, u1;
@@ -686,7 +686,7 @@ find_isogenous_from_Atkin(GEN a4, GEN a6, long ell, GEN meqn, GEN g, GEN T, GEN 
  * E: elliptic curve, ell: a prime, meqn: canonical modular equation
  * g: root of meqn defining isogenous curve Eb. */
 static GEN
-find_isogenous_from_canonical(GEN a4, GEN a6, long ell, GEN meqn, GEN g, GEN T, GEN pp, long e)
+find_isogenous_from_canonical(GEN a4, GEN a6, ulong ell, GEN meqn, GEN g, GEN T, GEN pp, long e)
 {
   pari_sp ltop = avma;
   long vx = 0, vJ = MAXVARN;
@@ -762,10 +762,10 @@ find_isogenous_from_canonical(GEN a4, GEN a6, long ell, GEN meqn, GEN g, GEN T, 
 }
 
 static GEN
-find_isogenous(GEN a4, GEN a6, long ell, struct meqn *MEQN, GEN g, GEN T, GEN p)
+find_isogenous(GEN a4,GEN a6, ulong ell, struct meqn *MEQN, GEN g, GEN T,GEN p)
 {
   ulong pp = itou_or_0(p);
-  long e = pp && pp <= 2*ell+3 ? 2+factorial_lval(ell, pp): 1;
+  long e = (pp && pp <= 2*ell+3) ? 2+factorial_lval(ell, pp): 1;
   if (e > 1)
   {
     GEN pe = powiu(p, e);

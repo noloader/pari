@@ -1446,7 +1446,7 @@ Flxq_ellcard(GEN a4, GEN a6, GEN T, ulong p)
     r = Flxq_ellcard_Satoh(a4,a6,T,p);
   else if (cmpis(q,100)<0)
     r = utoi(Flxq_ellcard_naive(a4, a6, T, p));
-  else if (p <= 2*n)
+  else if (p <= (ulong)2*n)
     r = Flxq_ellcard_Kedlaya(a4,a6,T,p);
   else if (expi(q)<=62)
     r = Flxq_ellcard_Shanks(a4, a6, q, T, p);
