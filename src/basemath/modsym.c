@@ -666,7 +666,10 @@ msqexpansion_i(GEN W, GEN proV, ulong B)
     /* Write Tp.v = \sum u_i T^i v */
     u = RgC_Rg_div(RgM_RgC_mul(iM, Tv), ciM);
     ap = gerepilecopy(av, RgV_to_RgX(u, 0));
-    if (degpol(ap)) ap = mkpolmod(ap,ch);
+    if (d > 1)
+      ap = mkpolmod(ap,ch);
+    else
+      ap = simplify_shallow(ap);
     gel(L,p) = ap;
     P = powuu(p,k-1);
     if (p <= sqrtB) {
