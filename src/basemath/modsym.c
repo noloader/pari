@@ -518,12 +518,11 @@ static GEN
 mssplit_i(GEN W, GEN H)
 {
   ulong p, N = ms_get_N(W);
-  long dim, first;
+  long first, dim = lg(H)-1;
   forprime_t S;
   GEN T1 = NULL, T2 = NULL, V;
-  if (lg(H) == 1) return H;
+  if (lg(H) == 1) return cgetg(1,t_VEC);
   (void)u_forprime_init(&S, 2, ULONG_MAX);
-  dim = lg(H)-1;
   V = vectrunc_init(dim);
   vectrunc_append(V, Qevproj_init(H));
   first = 1; /* V[1..first-1] contains simple subspaces */
