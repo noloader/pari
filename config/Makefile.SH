@@ -635,7 +635,7 @@ for name in $list; do
   ;;
   whatnow)
     target=$src/gp/whatnow.h
-    depend="$desc/whatnow $src/whatnow"
+    depend="$desc/whatnow $src/whatnow $src/gp/gp_init.h $src/gp/highlvl.h $src/language/init.h"
     script=whatnow
   ;;
   init)
