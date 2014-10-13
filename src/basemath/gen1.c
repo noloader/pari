@@ -2328,7 +2328,7 @@ div_ser_scal(GEN x, GEN y) {
   GEN z;
   if (ser_isexactzero(x))
   {
-    if (lg(y) == 2) return gcopy(y);
+    if (lg(x) == 2) return gcopy(y);
     return scalarser(gdiv(gel(x,2), y), varn(x), valp(x));
   }
   z = cgetg_copy(x, &lx); z[1] = x[1];
