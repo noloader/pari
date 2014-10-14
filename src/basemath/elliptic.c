@@ -625,6 +625,7 @@ static GEN
 ellinit_nf(GEN x, GEN p)
 {
   GEN y;
+  if (lg(x) > 6) x = vecslice(x,1,5);
   x = nfVtoalg(p, x);
   if (!(y = initsmall(x, 1))) return NULL;
   gel(y,14) = mkvecsmall(t_ELL_NF);
@@ -673,12 +674,13 @@ ellinit(GEN x, GEN D, long prec)
   switch(typ(x))
   {
     case t_STR: x = gel(ellsearchcurve(x),2); break;
-    case t_VEC: break;
+    case t_VEC:
+      if (lg(x) > 6) checkell(x);
+      break;
     default: pari_err_TYPE("ellxxx [not an elliptic curve (ell5)]",x);
   }
   if (D && get_prid(D))
   {
-    checkell(x);
     if (ell_get_type(x) != t_ELL_NF) pari_err_TYPE("ellinit",x);
     y = ellinit_nf_to_Fq(x, D);
     goto END;
