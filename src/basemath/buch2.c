@@ -652,7 +652,11 @@ FBgen(FB_t *F, GEN nf, long N, ulong C1, ulong C2, GRHcheck_t *S)
     /* compute l such that p^f <= C2  <=> f <= l */
     l = (long)(L/pr->logp);
     for (k=0, m=1; m < lg(f) && f[m]<=l; m++) k += nb[m];
-    if (!k) continue; /* p too inert to appear in FB */
+    if (!k) /* p too inert to appear in FB */
+    {
+      if (p == C2) break;
+      continue;
+    }
 
     prim[2] = p; LP = idealprimedec(nf,prim);
     /* keep non-inert ideals with Norm <= C2 */
@@ -668,12 +672,9 @@ FBgen(FB_t *F, GEN nf, long N, ulong C1, ulong C2, GRHcheck_t *S)
     F->FB[++i]= p;
     F->LV[p]  = LP;
     F->iLP[p] = ip; ip += k;
-    if (p == C2)
-    {
-      if (!F->KC) { F->KCZ = i; F->KC = ip; }
-      break;
-    }
+    if (p == C2) break;
   }
+  if (!F->KC) { F->KCZ = i; F->KC = ip; }
   /* Note F->KC > 0 otherwise GRHchk is false */
   setlg(F->FB, F->KCZ+1); F->KCZ2 = i;
   if (DEBUGLEVEL>1)
