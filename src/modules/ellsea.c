@@ -1378,7 +1378,9 @@ match_and_sort(GEN compile_atkin, GEN Mu, GEN u, GEN q, void *E, const struct bb
   GEN baby, giant, SgMb, Mb, Mg, den, Sg, dec_inf, div, pp1 = addis(q,1);
   GEN P, Pb, Pg, point, diff, pre, table, table_ind;
   long best_i, i, lbaby, lgiant, k = lg(compile_atkin)-1;
-  GEN bound = sqrti(shifti(q, 2));
+  GEN bound = sqrti(shifti(q, 2)), card;
+  const long lcard = 100;
+  long lq = lgefint(q), nbcard;
   pari_timer ti;
 
   if (k == 1)
@@ -1427,6 +1429,13 @@ match_and_sort(GEN compile_atkin, GEN Mu, GEN u, GEN q, void *E, const struct bb
   gen_sort_inplace(baby, (void*)&cmpii, &cmp_nodata, NULL);
 
   SgMb = mulii(Sg, Mb);
+  card = cgetg(lcard+1,t_VEC);
+  for (i = 1; i <= lcard; i++) gel(card,i) = cgetipos(lq+1);
+
+  av2 = avma;
+MATCH_RESTART:
+  avma = av2;
+  nbcard = 0;
   P = grp->rand(E);
   point = grp->pow(E,P, Mu);
   Pb = grp->pow(E,point, Mg);
@@ -1480,13 +1489,13 @@ match_and_sort(GEN compile_atkin, GEN Mu, GEN u, GEN q, void *E, const struct bb
         {
           GEN card1 = subii(Be, mulii(Mu, GMb));
           GEN card2 = addii(card1, mulii(mulsi(2,Mu), GMb));
-          int hb1 = absi_cmp(subii(pp1, card1), bound) > 0;
-          int hb2 = absi_cmp(subii(pp1, card2), bound) > 0;
-          if (hb1 && hb2) continue;
           if (DEBUGLEVEL>=2) timer_printf(&ti,"match_and_sort");
-          if (hb1) return card2;
-          if (hb2) return card1;
-          return gen_select_order(mkvec2(card1, card2), E, grp);
+          if (absi_cmp(subii(pp1, card1), bound) <= 0)
+            affii(card1, gel(card, ++nbcard));
+          if (nbcard >= lcard) goto MATCH_RESTART;
+          if (absi_cmp(subii(pp1, card2), bound) <= 0)
+            affii(card2, gel(card, ++nbcard));
+          if (nbcard >= lcard) goto MATCH_RESTART;
         }
       }
     }
@@ -1499,9 +1508,8 @@ match_and_sort(GEN compile_atkin, GEN Mu, GEN u, GEN q, void *E, const struct bb
       point = gerepileupto(av1, point);
     }
   }
-  /* no match ? */
-  pari_err_BUG("match_and_sort");
-  return NULL; /* not reached */
+  setlg(card, nbcard+1);
+  return gen_select_order(card, E, grp);
 }
 
 static GEN
