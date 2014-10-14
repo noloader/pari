@@ -1,12 +1,13 @@
 Function: mshecke
 Section: modular_forms
 C-Name: mshecke
-Prototype: GL
-Help: mshecke(M,p): M being a full modular symbol space, as given by msinit,
- and p being a prime number, return the matrix of T_p acting on M (U_p if p
- divides).
+Prototype: GLDG
+Help: mshecke(M,p,{H}): M being a full modular symbol space, as given by msinit,
+ p being a prime number, and H being a Hecke-stable subspace (M if omitted),
+ return the matrix of T_p acting on H (U_p if p divides the level).
 Doc: $M$ being a full modular symbol space, as given by \kbd{msinit},
- and $p$ being a prime number, return the matrix of $T_p$ acting on $M$
+ $p$ being a prime number, and $H$ being a Hecke-stable subspace ($M$ if
+ omitted) return the matrix of $T_p$ acting on $H$
  ($U_p$ if $p$ divides $N$).
  \bprog
  ? M = msinit(11,2); \\ M_2(Gamma_0(11))

@@ -3601,7 +3601,7 @@ GEN     ellmsinit(GEN E, long signe);
 GEN     msatkinlehner(GEN W, long Q);
 GEN     mscuspidal(GEN W);
 GEN     mseisenstein(GEN W);
-GEN     mshecke(GEN W, long p);
+GEN     mshecke(GEN W, long p, GEN H);
 GEN     msinit(GEN N, GEN k, long sign);
 GEN     mslog(GEN W, GEN path);
 GEN     msnew(GEN W);

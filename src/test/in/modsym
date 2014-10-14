@@ -15,7 +15,7 @@ mssplit(W, msnew(W))
 
 N = 1000;
 W = msinit(N,2,1);
-matsize( msnew(W) )
+matsize( msnew(W)[1] )
 W = msinit(2, 4);
 charpoly(mshecke(W, 2))
 

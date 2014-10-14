@@ -6,8 +6,10 @@ Help: mssplit(M,H): M being a full modular symbol space, as given by msinit,
  and H being a subspace, split H into Hecke-simple subspaces.
 Doc:
  $M$ being a full modular symbol space, as given by \kbd{msinit},
- and $H$ being a subspace, split $H$ into Hecke-simple subspaces. The
- simple subspaces are given by projectors suitable for \kbd{msqexpansion}.
+ and $H$ being a Hecke-stable subspace, split $H$ into Hecke-simple subspaces.
+ A subspace is given by a structure allowing quick projection and restriction
+ of linear operators; its first component is a matrix with integer
+ coefficients whose columns form a $\Q$-basis of the subspace.
  \bprog
  ? M = msinit(11,8, 1); \\ M_8(Gamma_0(11))^+
  ? L = mssplit(M, msnew(M));
