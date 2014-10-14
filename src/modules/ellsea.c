@@ -662,20 +662,23 @@ find_isogenous_from_Atkin(GEN a4, GEN a6, ulong ell, GEN meqn, GEN g, GEN T, GEN
       if (DEBUGLEVEL>0) err_printf("[A: jt=%ld]",signe(jt)? 1728: 0);
       avma = ltop; return NULL;
     }
-    GEN pxstar = FqX_eval(Dxg, jt, T, p);
-    GEN dxstar = Fq_mul(pxstar, g, T, p);
-    GEN pJstar = FqX_eval(DJg, jt, T, p);
-    GEN dJstar = Fq_mul(Fq_mulu(jt, ell, T, p), pJstar, T, p);
-    GEN u = Fq_mul(Fq_mul(dxstar, dJ, T, p), E6, T, p);
-    GEN v = Fq_mul(Fq_mul(dJstar, dx, T, p), E4, T, p);
-    GEN E4t = Zq_div(Fq_mul(Fq_sqr(u, T, p), jt, T, p), Fq_mul(Fq_sqr(v, T, p), Fq_sub(jt, utoi(1728), T, p), T, p), T, p, pp, e);
-    GEN E6t = Zq_div(Fq_mul(u, E4t, T, p), v, T, p, pp, e);
-    GEN u2 = compute_u(gprime, Dxxg, DxJg, DJJg, jt, pJstar, pxstar, ell, E4t, E6t, T, p, pp, e);
-    GEN pp1 = Fq_mulu(Fq_sub(u1, u2, T, p), 3*ell, T, p);
-    GEN a4t = Fq_mul(mulsi(-3, powuu(ell,4)), E4t, T, p);
-    GEN a6t = Fq_mul(mulsi(-2, powuu(ell,6)), E6t, T, p);
-    GEN h = find_kernel(a4, a6, ell, a4t, a6t, pp1, T, p, pp, e);
-    if (h) return gerepilecopy(ltop, mkvec3(a4t, a6t, h));
+    else
+    {
+      GEN pxstar = FqX_eval(Dxg, jt, T, p);
+      GEN dxstar = Fq_mul(pxstar, g, T, p);
+      GEN pJstar = FqX_eval(DJg, jt, T, p);
+      GEN dJstar = Fq_mul(Fq_mulu(jt, ell, T, p), pJstar, T, p);
+      GEN u = Fq_mul(Fq_mul(dxstar, dJ, T, p), E6, T, p);
+      GEN v = Fq_mul(Fq_mul(dJstar, dx, T, p), E4, T, p);
+      GEN E4t = Zq_div(Fq_mul(Fq_sqr(u, T, p), jt, T, p), Fq_mul(Fq_sqr(v, T, p), Fq_sub(jt, utoi(1728), T, p), T, p), T, p, pp, e);
+      GEN E6t = Zq_div(Fq_mul(u, E4t, T, p), v, T, p, pp, e);
+      GEN u2 = compute_u(gprime, Dxxg, DxJg, DJJg, jt, pJstar, pxstar, ell, E4t, E6t, T, p, pp, e);
+      GEN pp1 = Fq_mulu(Fq_sub(u1, u2, T, p), 3*ell, T, p);
+      GEN a4t = Fq_mul(mulsi(-3, powuu(ell,4)), E4t, T, p);
+      GEN a6t = Fq_mul(mulsi(-2, powuu(ell,6)), E6t, T, p);
+      GEN h = find_kernel(a4, a6, ell, a4t, a6t, pp1, T, p, pp, e);
+      if (h) return gerepilecopy(ltop, mkvec3(a4t, a6t, h));
+    }
   }
   pari_err_BUG("find_isogenous_from_Atkin, kernel not found");
   return NULL;
