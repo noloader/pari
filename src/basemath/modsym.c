@@ -77,9 +77,15 @@ msk_get_link(GEN W) { return gmael(W,3,4); }
 static GEN
 msk_get_invphiblock(GEN W) { return gmael(W,3,5); }
 static long
-msk_get_sign(GEN W) { return itos(gmael(W,2,1)); }
+msk_get_sign(GEN W)
+{
+  GEN t = gel(W,2);
+  return typ(t)==t_INT? 0: itos(gel(t,1));
+}
 static GEN
 msk_get_star(GEN W) { return gmael(W,2,2); }
+static GEN
+msk_get_starproj(GEN W) { return gmael(W,2,3); }
 /* ellmsinit-specific accessors */
 static GEN
 ellsym_get_W(GEN E) { GEN W = gel(E,1); return gel(W,1); }
@@ -623,6 +629,8 @@ mssplit(GEN W, GEN H)
 {
   pari_sp av = avma;
   checkms(W);
+  if (!msk_get_sign(W))
+    pari_err_DOMAIN("mssplit","abs(sign)","!=",gen_1,gen_0);
   H = Qevproj_init0(H);
   return gerepilecopy(av, mssplit_i(W,H));
 }
@@ -2019,6 +2027,15 @@ msendo(GEN W, GEN v)
                                : getMorphism(W, W, v);
 }
 static GEN
+endo_project(GEN W, GEN e, GEN H)
+{
+  if (H) H = Qevproj_init0(H);
+  else if (msk_get_sign(W))
+    H = msk_get_starproj(W);
+  if (H) e = Qevproj_apply(e, H);
+  return e;
+}
+static GEN
 mshecke_i(GEN W, ulong p)
 {
   GEN v = ms_get_N(W) % p? Tp_matrices(p): Up_matrices(p);
@@ -2028,13 +2045,11 @@ GEN
 mshecke(GEN W, long p, GEN H)
 {
   pari_sp av = avma;
+  GEN T;
   checkms(W);
   if (p <= 1) pari_err_PRIME("mshecke",stoi(p));
-  if (H)
-  {
-    H = Qevproj_init0(H);
-  }
-  return gerepilecopy(av, mshecke_i(W,p));
+  T = mshecke_i(W,p);
+  return gerepilecopy(av, endo_project(W,T,H));
 }
 
 static GEN
@@ -2050,12 +2065,14 @@ msatkinlehner_i(GEN W, long Q)
   return msendo(W,v);
 }
 GEN
-msatkinlehner(GEN W, long Q)
+msatkinlehner(GEN W, long Q, GEN H)
 {
   pari_sp av = avma;
+  GEN w;
   checkms(W);
   if (Q <= 0) pari_err_DOMAIN("msatkinlehner","Q","<=",gen_0,stoi(Q));
-  return gerepilecopy(av, msatkinlehner_i(W,Q));
+  w = msatkinlehner_i(W,Q);
+  return gerepilecopy(av, endo_project(W,w,H));
 }
 
 static GEN
@@ -2065,11 +2082,13 @@ msstar_i(GEN W)
   return msendo(W,v);
 }
 GEN
-msstar(GEN W)
+msstar(GEN W, GEN H)
 {
   pari_sp av = avma;
+  GEN s;
   checkms(W);
-  return gerepilecopy(av, msstar_i(W));
+  s = msstar_i(W);
+  return gerepilecopy(av, endo_project(W,s,H));
 }
 
 #if 0
@@ -2309,18 +2328,10 @@ get_phi_ij(long i,long j,long n, long s,long t,GEN P_st,GEN Q_st,GEN d_st,
 }
 
 static GEN
-add_star(GEN W, long sign)
-{
-  GEN s = msstar_i(W);
-  gel(W, 2) = mkvec2(stoi(sign), s);
-  return W;
-}
-static GEN
 mskinit_trivial(GEN WN, long sign)
 {
   long dim = ms_get_nbE1(WN);
-  GEN W = mkvec3(WN, gen_0, mkvec2(gen_0,mkvecsmall2(2, dim)));
-  return add_star(W, sign);
+  return mkvec3(WN, gen_0, mkvec2(gen_0,mkvecsmall2(2, dim)));
 }
 /* sum of #cols of the matrices contained in V */
 static long
@@ -2341,7 +2352,7 @@ mskinit_nontrivial(GEN WN, long k, long sign)
   GEN p2 = ZGV_tors(annT2, k);
   GEN p3 = ZGV_tors(annT31, k);
   GEN gentor = shallowconcat(p2, p3);
-  GEN P_st, lP_st, Q_st, d_st, W;
+  GEN P_st, lP_st, Q_st, d_st;
   long n, i, dim, s, t, u;
   gel(p1, 1) = cgetg(1,t_MAT); /* dummy */
   for (i = 2; i <= nbE1; i++) /* skip 1st element = (\gamma_oo-1)g_oo */
@@ -2454,17 +2465,25 @@ mskinit_nontrivial(GEN WN, long k, long sign)
       inv = Qevproj_init(M);
     gel(invphiblock,i) = inv;
   }
-  W = mkvec3(WN, gen_0, mkvec5(basis, mkvecsmall2(k, dim), mkvecsmall2(s,t),
-                               link, invphiblock));
-  return add_star(W, sign);
+  return mkvec3(WN, gen_0, mkvec5(basis, mkvecsmall2(k, dim), mkvecsmall2(s,t),
+                                  link, invphiblock));
+}
+static GEN
+add_star(GEN W, long sign)
+{
+  GEN s = msstar_i(W);
+  GEN K = keri(shallowtrans(gsubgs(s, sign)));
+  gel(W,2) = mkvec3(stoi(sign), s, Qevproj_init(K));
+  return W;
 }
 /* WN = msinit_N(N) */
 static GEN
 mskinit(ulong N, long k, long sign)
 {
   GEN WN = msinit_N(N);
-  return k == 2? mskinit_trivial(WN, sign)
-               : mskinit_nontrivial(WN, k, sign);
+  GEN W = k == 2? mskinit_trivial(WN, sign)
+                : mskinit_nontrivial(WN, k, sign);
+  return add_star(W, sign);
 }
 GEN
 msinit(GEN N, GEN K, long sign)
@@ -2604,13 +2623,13 @@ ellmsinit(GEN E, long sign)
   forprime_t T;
 
   if (labs(sign) != 1)
-    pari_err_DOMAIN("ellmsinig","abs(sign)","!=",gen_1,stoi(sign));
+    pari_err_DOMAIN("ellmsinit","abs(sign)","!=",gen_1,stoi(sign));
   E = ellminimalmodel(E, NULL);
   cond = gel(ellglobalred(E), 1);
   N = itou(cond);
   W = mskinit(N, 2, sign);
+  K = gel(msk_get_starproj(W), 1); /* Ker(star - sign) */
 
-  K = keri(shallowtrans(gsubgs(msk_get_star(W), sign)));
   /* loop for p <= count_Manin_symbols(N) / 6 would be enough */
   (void)u_forprime_init(&T, 2, ULONG_MAX);
   while( (p = u_forprime_next(&T)) )

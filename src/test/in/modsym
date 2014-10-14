@@ -1,3 +1,4 @@
+allocatemem(20*10^6)
 N = 11;
 W2 = msinit(N,2,-1);
 W1 = msinit(N,2,1);
