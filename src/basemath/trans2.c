@@ -1681,7 +1681,7 @@ serpsiz0(GEN z0, long L, long v, long prec)
     a = gdiv(gadd(gadd(gmul(c1,A),gmul(c2,A1)),gmul(c3,A2)), c0);
     b = gdiv(gadd(gadd(gmul(c1,B),gmul(c2,B1)),gmul(c3,B2)), c0);
     Q = gdiv(a,b);
-    if (gexpo(gsub(Q,Q0)) < -bit_accuracy(prec)) break;
+    if (gexpo(gsub(Q,Q0)) < -prec2nbits(prec)) break;
     A2 = A1; A1 = A; A = a;
     B2 = B1; B1 = B; B = b;
     if (gc_needed(av,1))
