@@ -2798,6 +2798,19 @@ Fl_powers(ulong x, long n, ulong p)
  **                                                                  **
  **********************************************************************/
 
+static GEN
+Fp_dblsqr(GEN x, GEN N)
+{
+  GEN z = shifti(Fp_sqr(x, N), 1);
+  return cmpii(z, N) >= 0? subii(z, N): z;
+}
+
+typedef struct muldata {
+  GEN (*sqr)(void * E, GEN x);
+  GEN (*mul)(void * E, GEN x, GEN y);
+  GEN (*mul2)(void * E, GEN x);
+} muldata;
+
 /* modified Barrett reduction with one fold */
 /* See Fast Modular Reduction, W. Hasenplaugh, G. Gaubatz, V. Gopal, ARITH 18 */
 
@@ -2833,93 +2846,110 @@ Fp_rem_mBarrett(GEN a, GEN B, long s, GEN N)
 INLINE ulong
 init_montdata(GEN N) { return (ulong) -invmod2BIL(mod2BIL(N)); }
 
-typedef struct muldata {
+struct montred
+{
   GEN N;
-  GEN iM;
-  ulong inv, s;
-  GEN (*res)(struct muldata *,GEN);
-  GEN (*mul2)(struct muldata *,GEN);
-} muldata;
+  ulong inv;
+};
 
 /* Montgomery reduction */
 static GEN
-_montred(muldata *D, GEN x)
+_sqr_montred(void * E, GEN x)
 {
-  return red_montgomery(x, D->N, D->inv);
+  struct montred * D = (struct montred *) E;
+  return red_montgomery(sqri(x), D->N, D->inv);
+}
+
+/* Montgomery reduction */
+static GEN
+_mul_montred(void * E, GEN x, GEN y)
+{
+  struct montred * D = (struct montred *) E;
+  return red_montgomery(mulii(x, y), D->N, D->inv);
 }
 
 static GEN
-_remii(muldata *D, GEN x) { return remii(x, D->N); }
-
-static GEN
-_remiibar(muldata *D, GEN x) {
-#if DEBUG
-  GEN r = Fp_rem_mBarrett(x, D->iM, D->s, D->N);
-  if (cmpii(r, D->N) >= 0) pari_err_BUG("Rp_rem_mBarrett");
-  return r;
-#else
-  return Fp_rem_mBarrett(x, D->iM, D->s, D->N);
-#endif
-}
-
-/* 2x mod N */
-static GEN
-_muli2red(muldata *D, GEN x)
+_mul2_montred(void * E, GEN x)
 {
-  GEN z = shifti(x,1);
-  return (cmpii(z,D->N) >= 0)? subii(z,D->N): z;
-}
-static GEN
-_muli2montred(muldata *D, GEN x)
-{
-  GEN z = _muli2red(D,x);
+  struct montred * D = (struct montred *) E;
+  GEN z = shifti(_sqr_montred(E, x), 1);
   long l = lgefint(D->N);
-  while (lgefint(z) > l) z = subii(z,D->N);
+  while (lgefint(z) > l) z = subii(z, D->N);
   return z;
 }
+
 static GEN
-_mul(void *data, GEN x, GEN y)
+_sqr_remii(void* N, GEN x)
+{ return remii(sqri(x), (GEN) N); }
+
+static GEN
+_mul_remii(void* N, GEN x, GEN y)
+{ return remii(mulii(x, y), (GEN) N); }
+
+static GEN
+_mul2_remii(void* N, GEN x)
+{ return Fp_dblsqr(x, (GEN) N); }
+
+struct redbarrett
 {
-  muldata *D = (muldata *)data;
-  return D->res(D, mulii(x,y));
+  GEN iM, N;
+  long s;
+};
+
+static GEN
+_sqr_remiibar(void *E, GEN x)
+{
+  struct redbarrett * D = (struct redbarrett *) E;
+  return Fp_rem_mBarrett(sqri(x), D->iM, D->s, D->N);
 }
+
 static GEN
-_sqr(void *data, GEN x)
+_mul_remiibar(void *E, GEN x, GEN y)
 {
-  muldata *D = (muldata *)data;
-  return D->res(D, sqri(x));
+  struct redbarrett * D = (struct redbarrett *) E;
+  return Fp_rem_mBarrett(mulii(x, y), D->iM, D->s, D->N);
 }
+
 static GEN
-_m2sqr(void *data, GEN x)
+_mul2_remiibar(void *E, GEN x)
 {
-  muldata *D = (muldata *)data;
-  return D->mul2(D, D->res(D, sqri(x)));
+  struct redbarrett * D = (struct redbarrett *) E;
+  return Fp_dblsqr(x, D->N);
 }
 
 static long
-Fp_select_red(GEN *y, ulong k, GEN N, long lN, muldata *D)
+Fp_select_red(GEN *y, ulong k, GEN N, long lN, muldata *D, void **pt_E)
 {
-  D->N = N;
   if (lN >= Fp_POW_BARRETT_LIMIT && (k==0 || ((double)k)*expi(*y) > 2 + expi(N)))
   {
-    D->mul2 = &_muli2red;
-    D->res = &_remiibar;
-    D->s = 1+(expi(N)>>1);
-    D->iM = Fp_invmBarrett(N, D->s);
+    struct redbarrett * E = (struct redbarrett *) stack_malloc(sizeof(struct redbarrett));
+    D->sqr = &_sqr_remiibar;
+    D->mul = &_mul_remiibar;
+    D->mul2 = &_mul2_remiibar;
+    E->N = N;
+    E->s = 1+(expi(N)>>1);
+    E->iM = Fp_invmBarrett(N, E->s);
+    *pt_E = (void*) E;
     return 0;
   }
   else if (mod2(N) && lN < Fp_POW_REDC_LIMIT)
   {
+    struct montred * E = (struct montred *) stack_malloc(sizeof(struct montred));
     *y = remii(shifti(*y, bit_accuracy(lN)), N);
-    D->mul2 = &_muli2montred;
-    D->res = &_montred;
-    D->inv = init_montdata(N);
+    D->sqr = &_sqr_montred;
+    D->mul = &_mul_montred;
+    D->mul2 = &_mul2_montred;
+    E->N = N;
+    E->inv = init_montdata(N);
+    *pt_E = (void*) E;
     return 1;
   }
   else
   {
-    D->mul2 = &_muli2red;
-    D->res = &_remii;
+    D->sqr = &_sqr_remii;
+    D->mul = &_mul_remii;
+    D->mul2 = &_mul2_remii;
+    *pt_E = (void*) N;
     return 0;
   }
 }
@@ -2929,7 +2959,8 @@ Fp_powu(GEN A, ulong k, GEN N)
 {
   long lN = lgefint(N), sA;
   int base_is_2, use_montgomery;
-  muldata  D;
+  muldata D;
+  void *E;
   pari_sp av;
 
   if (lN == 3) {
@@ -2952,15 +2983,15 @@ Fp_powu(GEN A, ulong k, GEN N)
 
   /* TODO: Move this out of here and use for general modular computations */
   av = avma;
-  use_montgomery = Fp_select_red(&A, k, N, lN, &D);
+  use_montgomery = Fp_select_red(&A, k, N, lN, &D, &E);
   if (base_is_2)
-    A = gen_powu_fold_i(A, k, (void*)&D, &_sqr, &_m2sqr);
+    A = gen_powu_fold_i(A, k, E, D.sqr, D.mul2);
   else
-    A = gen_powu_i(A, k, (void*)&D, &_sqr, &_mul);
+    A = gen_powu_i(A, k, E, D.sqr, D.mul);
   if (use_montgomery)
   {
-    A = _montred(&D, A);
-    if (cmpii(A,N) >= 0) A = subii(A,N);
+    A = red_montgomery(A, N, ((struct montred *) E)->inv);
+    if (cmpii(A, N) >= 0) A = subii(A,N);
     if (sA) A = subii(N, A);
   }
   return gerepileuptoint(av, A);
@@ -2990,7 +3021,8 @@ Fp_pow(GEN A, GEN K, GEN N)
   long t,s, lN = lgefint(N), sA;
   int base_is_2, use_montgomery;
   GEN y;
-  muldata  D;
+  muldata D;
+  void *E;
 
   s = signe(K);
   if (!s)
@@ -3045,14 +3077,14 @@ Fp_pow(GEN A, GEN K, GEN N)
   }
 
   /* TODO: Move this out of here and use for general modular computations */
-  use_montgomery = Fp_select_red(&y, 0UL, N, lN, &D);
+  use_montgomery = Fp_select_red(&y, 0UL, N, lN, &D, &E);
   if (base_is_2)
-    y = gen_pow_fold_i(y, K, (void*)&D, &_sqr, &_m2sqr);
+    y = gen_pow_fold_i(y, K, E, D.sqr, D.mul2);
   else
-    y = gen_pow_i(y, K, (void*)&D, &_sqr, &_mul);
+    y = gen_pow_i(y, K, E, D.sqr, D.mul);
   if (use_montgomery)
   {
-    y = _montred(&D,y);
+    y = red_montgomery(y, N, ((struct montred *) E)->inv);
     if (cmpii(y,N) >= 0) y = subii(y,N);
     if (sA) y = subii(N, y);
   }
