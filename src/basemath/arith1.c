@@ -2696,7 +2696,7 @@ Fl_powu(ulong x, ulong n0, ulong p)
 GEN
 Fl_powers_pre(ulong x, long n, ulong p, ulong pi)
 {
-  ulong i;
+  long i;
   GEN powers = cgetg(n + 2, t_VECSMALL);
   powers[1] = 1;
   for (i = 2; i <= n + 1; ++i)
@@ -2710,7 +2710,7 @@ Fl_powers(ulong x, long n, ulong p)
   if (!SMALL_ULONG(p)) return Fl_powers_pre(x, n, p, get_Fl_red(p));
   else
   {
-    ulong i;
+    long i;
     GEN powers = cgetg(n + 2, t_VECSMALL);
     powers[1] = 1;
     for (i = 2; i <= n + 1; ++i)
