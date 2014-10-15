@@ -148,6 +148,7 @@ BA 49- [libpari] functions Zp_sqrt, ZpXQ_sqrt
        mshecke, ellmsinit, msatkinlehner, msstar
 BA 51- GP declaration localprec()
 HIL52- [libpari] function Fl_powers_pre
+BA 53- [libpari] function Fl_powers, Fp_powers
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]

@@ -2645,6 +2645,86 @@ ZV_chinese(GEN A, GEN P, GEN *pt_mod)
     return a;
   }
 }
+
+/**********************************************************************
+ **                                                                  **
+ **                    Powering  over (Z/NZ)^*, small N              **
+ **                                                                  **
+ **********************************************************************/
+
+ulong
+Fl_powu_pre(ulong x, ulong n0, ulong p, ulong pi)
+{
+  ulong y, z, n;
+  if (n0 <= 1)
+  { /* frequent special cases */
+    if (n0 == 1) return x;
+    if (n0 == 0) return 1;
+  }
+  if (x <= 1) return x; /* 0 or 1 */
+  y = 1; z = x; n = n0;
+  for(;;)
+  {
+    if (n&1) y = Fl_mul_pre(y,z,p,pi);
+    n>>=1; if (!n) return y;
+    z = Fl_sqr_pre(z,p,pi);
+  }
+}
+
+ulong
+Fl_powu(ulong x, ulong n0, ulong p)
+{
+  ulong y, z, n;
+  if (n0 <= 2)
+  { /* frequent special cases */
+    if (n0 == 2) return Fl_sqr(x,p);
+    if (n0 == 1) return x;
+    if (n0 == 0) return 1;
+  }
+  if (x <= 1) return x; /* 0 or 1 */
+  if (!SMALL_ULONG(p))
+    return Fl_powu_pre(x, n0, p, get_Fl_red(p));
+  y = 1; z = x; n = n0;
+  for(;;)
+  {
+    if (n&1) y = Fl_mul(y,z,p);
+    n>>=1; if (!n) return y;
+    z = Fl_sqr(z,p);
+  }
+}
+
+GEN
+Fl_powers_pre(ulong x, long n, ulong p, ulong pi)
+{
+  ulong i;
+  GEN powers = cgetg(n + 2, t_VECSMALL);
+  powers[1] = 1;
+  for (i = 2; i <= n + 1; ++i)
+    powers[i] = Fl_mul_pre(x, powers[i - 1], p, pi);
+  return powers;
+}
+
+GEN
+Fl_powers(ulong x, long n, ulong p)
+{
+  if (!SMALL_ULONG(p)) return Fl_powers_pre(x, n, p, get_Fl_red(p));
+  else
+  {
+    ulong i;
+    GEN powers = cgetg(n + 2, t_VECSMALL);
+    powers[1] = 1;
+    for (i = 2; i <= n + 1; ++i)
+      powers[i] = Fl_mul(x, powers[i - 1], p);
+    return powers;
+  }
+}
+
+/**********************************************************************
+ **                                                                  **
+ **                    Powering  over (Z/NZ)^*, large N              **
+ **                                                                  **
+ **********************************************************************/
+
 /* modified Barrett reduction with one fold */
 /* See Fast Modular Reduction, W. Hasenplaugh, G. Gaubatz, V. Gopal, ARITH 18 */
 
@@ -2730,58 +2810,6 @@ _m2sqr(void *data, GEN x)
 {
   muldata *D = (muldata *)data;
   return D->mul2(D, D->res(D, sqri(x)));
-}
-
-ulong
-Fl_powu_pre(ulong x, ulong n0, ulong p, ulong pi)
-{
-  ulong y, z, n;
-  if (n0 <= 1)
-  { /* frequent special cases */
-    if (n0 == 1) return x;
-    if (n0 == 0) return 1;
-  }
-  if (x <= 1) return x; /* 0 or 1 */
-  y = 1; z = x; n = n0;
-  for(;;)
-  {
-    if (n&1) y = Fl_mul_pre(y,z,p,pi);
-    n>>=1; if (!n) return y;
-    z = Fl_sqr_pre(z,p,pi);
-  }
-}
-
-GEN
-Fl_powers_pre(ulong x, ulong n, ulong p, ulong pi)
-{
-  register ulong i;
-  GEN powers = cgetg(n + 2, t_VECSMALL);
-  powers[1] = 1;
-  for (i = 2; i <= n + 1; ++i)
-    powers[i] = Fl_mul_pre(x, powers[i - 1], p, pi);
-  return powers;
-}
-
-ulong
-Fl_powu(ulong x, ulong n0, ulong p)
-{
-  ulong y, z, n;
-  if (n0 <= 2)
-  { /* frequent special cases */
-    if (n0 == 2) return Fl_sqr(x,p);
-    if (n0 == 1) return x;
-    if (n0 == 0) return 1;
-  }
-  if (x <= 1) return x; /* 0 or 1 */
-  if (!SMALL_ULONG(p))
-    return Fl_powu_pre(x, n0, p, get_Fl_red(p));
-  y = 1; z = x; n = n0;
-  for(;;)
-  {
-    if (n&1) y = Fl_mul(y,z,p);
-    n>>=1; if (!n) return y;
-    z = Fl_sqr(z,p);
-  }
 }
 
 static long
@@ -2949,6 +2977,20 @@ Fp_pow(GEN A, GEN K, GEN N)
 
 static GEN
 _Fp_mul(void *E, GEN x, GEN y) { return Fp_mul(x,y,(GEN)E); }
+
+static GEN
+_Fp_sqr(void *E, GEN x) { return Fp_sqr(x,(GEN)E); }
+
+static GEN
+_Fp_one(void *E) { return gen_1; }
+
+GEN
+Fp_powers(GEN x, long n, GEN p)
+{
+  if (lgefint(p) == 3)
+    return Flv_to_ZV(Fl_powers(umodiu(x, uel(p, 2)), n, uel(p, 2)));
+  return gen_powers(x, n, 1, (void*)p, _Fp_sqr, _Fp_mul, _Fp_one);
+}
 
 static GEN
 _Fp_pow(void *E, GEN x, GEN n) { return Fp_pow(x,n,(GEN)E); }

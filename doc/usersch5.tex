@@ -1860,6 +1860,9 @@ mod $m$, raise an exception.
 \fun{ulong}{Fl_powu}{ulong x, ulong n, ulong m} returns the smallest
 positive representative of $x^n$ modulo $m$.
 
+\fun{GEN}{Fl_powers}{ulong x, long n, ulong p} returns
+$[\kbd{x}^0, \dots, \kbd{x}^\kbd{n}]$ modulo $m$, as a \typ{VECSMALL}.
+
 \fun{ulong}{Fl_sqrt}{ulong x, ulong p} returns the square root of \kbd{x}
 modulo \kbd{p} (smallest positive representative). Assumes \kbd{p} to be
 prime, and \kbd{x} to be a square modulo \kbd{p}.
@@ -1914,7 +1917,7 @@ modulo $p$, assuming $pi$ is the pseudo inverse of $p$.
 \fun{ulong}{Fl_powu_pre}{ulong x, ulong n, ulong p, ulong pi} returns
 $x^n$ modulo $p$, assuming $pi$ is the pseudo inverse of $p$.
 
-\fun{ulong}{Fl_powers_pre}{ulong x, ulong n, ulong p, ulong pi} returns
+\fun{GEN}{Fl_powers_pre}{ulong x, long n, ulong p, ulong pi} returns
 $[\kbd{x}^0, \dots, \kbd{x}^\kbd{n}]$ as a \typ{VECSMALL}, assuming $pi$ is the
 pseudo inverse of $p$.
 
@@ -3071,6 +3074,10 @@ allowed Not memory-clean, but suitable for \kbd{gerepileupto}.
 
 \fun{GEN}{Fp_pow}{GEN x, GEN n, GEN m} returns $\kbd{x}^\kbd{n}$
 modulo \kbd{m} (smallest non-negative residue).
+
+\fun{GEN}{Fp_powers}{GEN x, long n, GEN m} returns
+$[\kbd{x}^0, \dots, \kbd{x}^\kbd{n}]$ modulo \kbd{m} as a \typ{VEC}
+ (smallest non-negative residue).
 
 \fun{GEN}{Fp_inv}{GEN a, GEN m} returns an inverse of \kbd{a} modulo \kbd{m}
 (smallest non-negative residue). Raise an error if \kbd{a} is not invertible.
