@@ -1914,6 +1914,10 @@ modulo $p$, assuming $pi$ is the pseudo inverse of $p$.
 \fun{ulong}{Fl_powu_pre}{ulong x, ulong n, ulong p, ulong pi} returns
 $x^n$ modulo $p$, assuming $pi$ is the pseudo inverse of $p$.
 
+\fun{ulong}{Fl_powers_pre}{ulong x, ulong n, ulong p, ulong pi} returns
+$[\kbd{x}^0, \dots, \kbd{x}^\kbd{n}]$ as a \typ{VECSMALL}, assuming $pi$ is the
+pseudo inverse of $p$.
+
 \fun{ulong}{Fl_sqrt_pre}{ulong x, ulong p, ulong pi} returns a square root
 of $x$ modulo $p$, assuming $pi$ is the pseudo inverse of $p$.
 See \kbd{Fl\_sqrt}.

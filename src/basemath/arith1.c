@@ -2751,6 +2751,17 @@ Fl_powu_pre(ulong x, ulong n0, ulong p, ulong pi)
   }
 }
 
+GEN
+Fl_powers_pre(ulong x, ulong n, ulong p, ulong pi)
+{
+  register ulong i;
+  GEN powers = cgetg(n + 2, t_VECSMALL);
+  powers[1] = 1;
+  for (i = 2; i <= n + 1; ++i)
+    powers[i] = Fl_mul_pre(x, powers[i - 1], p, pi);
+  return powers;
+}
+
 ulong
 Fl_powu(ulong x, ulong n0, ulong p)
 {
