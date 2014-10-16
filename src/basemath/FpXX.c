@@ -733,6 +733,30 @@ FpXQX_rem(GEN x, GEN y, GEN T, GEN p)
   }
 }
 
+/* x + y*z mod p */
+INLINE GEN
+Fq_addmul(GEN x, GEN y, GEN z, GEN T, GEN p)
+{
+  pari_sp av;
+  if (!signe(y) || !signe(z)) return Fq_red(x, T, p);
+  if (!signe(x)) return Fq_mul(z,y, T, p);
+  av = avma;
+  return gerepileupto(av, Fq_add(x, Fq_mul(y, z, T, p), T, p));
+}
+
+GEN
+FpXQX_div_by_X_x(GEN a, GEN x, GEN T, GEN p, GEN *r)
+{
+  long l = lg(a)-1, i;
+  GEN z = cgetg(l, t_POL);
+  z[1] = evalsigne(1) | evalvarn(0);
+  gel(z, l-1) = gel(a,l);
+  for (i=l-2; i>1; i--) /* z[i] = a[i+1] + x*z[i+1] */
+    gel(z, i) = Fq_addmul(gel(a,i+1), x, gel(z,i+1), T, p);
+  if (r) *r = Fq_addmul(gel(a,2), x, gel(z,2), T, p);
+  return z;
+}
+
 struct _FpXQX { GEN T,p; };
 
 static GEN _FpXQX_mul(void *data, GEN a,GEN b)

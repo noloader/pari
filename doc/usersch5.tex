@@ -4515,6 +4515,8 @@ by its leading term. The leading coefficient becomes $1$ as a \typ{INT}.
 
 \fun{GEN}{FqX_div}{GEN x, GEN y, GEN T, GEN p}
 
+\fun{GEN}{FqX_div_by_X_x}{GEN a, GEN x, GEN T, GEN p, GEN *r}
+
 \fun{GEN}{FqX_rem}{GEN x, GEN y, GEN T, GEN p}
 
 \fun{GEN}{FqX_deriv}{GEN x, GEN T, GEN p} returns the derivative of \kbd{x}.
@@ -4564,6 +4566,8 @@ Not stack-clean. Note that $t$ need not be the same variable as $Y$!
 \fun{GEN}{FpXQX_divrem}{GEN x, GEN y, GEN T, GEN p, GEN *pr}
 
 \fun{GEN}{FpXQX_div}{GEN x, GEN y, GEN T, GEN p}
+
+\fun{GEN}{FpXQX_div_by_X_x}{GEN a, GEN x, GEN T, GEN p, GEN *r}
 
 \fun{GEN}{FpXQX_rem}{GEN x, GEN y, GEN T, GEN p}
 

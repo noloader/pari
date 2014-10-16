@@ -2103,6 +2103,9 @@ INLINE GEN
 FqX_divrem(GEN x, GEN y, GEN T, GEN p, GEN *z)
 { return T? FpXQX_divrem(x,y,T,p,z): FpX_divrem(x,y,p,z); }
 INLINE GEN
+FqX_div_by_X_x(GEN x, GEN y, GEN T, GEN p, GEN *z)
+{ return T? FpXQX_div_by_X_x(x,y,T,p,z): FpX_div_by_X_x(x,y,p,z); }
+INLINE GEN
 FqX_gcd(GEN P,GEN Q,GEN T,GEN p)
 {return T? FpXQX_gcd(P,Q,T,p): FpX_gcd(P,Q,p);}
 INLINE GEN
