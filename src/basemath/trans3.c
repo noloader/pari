@@ -928,7 +928,7 @@ incgam(GEN s, GEN x, long prec) { return incgam0(s, x, NULL, prec); }
 GEN
 mpeint1(GEN x, GEN expx)
 {
-  GEN z = cgetr(lg(x));
+  GEN z = cgetr(realprec(x));
   pari_sp av = avma;
   affrr(incgam_0(x, expx), z);
   avma = av; return z;
@@ -979,7 +979,7 @@ eint1(GEN x, long prec)
   /* rewritten from code contributed by Manfred Radimersky */
   res = cgetg(3, t_COMPLEX);
   av = avma;
-  l  = lg(x);
+  l  = realprec(x);
   n  = prec2nbits(l);
   y  = negr(x);
   if (cmprs(y, (3*n)/4) < 0) {
@@ -3251,7 +3251,7 @@ mplambertW(GEN y)
   pari_sp av = avma;
   GEN x;
   long p = 1, s = signe(y);
-  ulong mask = quadratic_prec_mask(lg(y)-1);
+  ulong mask = quadratic_prec_mask(realprec(y)-1);
 
   if (s<0) pari_err_DOMAIN("Lw", "y", "<", gen_0, y);
   if(s==0) return rcopy(y);
