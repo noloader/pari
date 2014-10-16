@@ -1038,7 +1038,7 @@ static GEN
 sum_jall(GEN a, long J, long prec)
 {
   GEN s = cgetg(J+1, t_VEC);
-  long j, E = -bit_accuracy(prec) - 5;
+  long j, E = -prec2nbits(prec) - 5;
   gel(s, J) = mp_sum_j(a, J, E, prec);
   for (j = J-1; j; j--)
     gel(s,j) = divru(addrs(mulrr(a, gel(s,j+1)), 1), j);
@@ -1081,7 +1081,7 @@ mpveceint1(GEN C, GEN eC, long N)
   }
   if (Nmin == N) { avma = av0; return w; }
 
-  DL = bit_accuracy_mul(prec, LOG2) + 5;
+  DL = prec2nbits_mul(prec, LOG2) + 5;
   jmin = ceil(DL/log(N)) + 1;
   jmax = ceil(DL/log(Nmin)) + 1;
   v = sum_jall(C, jmax, prec);

@@ -335,7 +335,7 @@ mpeuler(long prec) { return rtor(consteuler(prec), prec); }
 static GEN
 catalan(long prec)
 {
-  long i, nmax = bit_accuracy(prec) >> 1;
+  long i, nmax = prec2nbits(prec) >> 1;
   struct abpq_res R;
   struct abpq A;
   GEN u, v;
@@ -2299,7 +2299,7 @@ atanhQ_split(ulong u, ulong v, long prec)
   struct abpq_res R;
   struct abpq A;
   /* satisfies (2n+1) (v/u)^2n > 2^bitprec */
-  nmax = (long)(bit_accuracy(prec) / (2*log2(d)));
+  nmax = (long)(prec2nbits(prec) / (2*log2(d)));
   abpq_init(&A, nmax);
   A.a[0] = A.b[0] = gen_1;
   A.p[0] = utoipos(u);
