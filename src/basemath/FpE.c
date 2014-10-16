@@ -218,6 +218,22 @@ Fl_ellj(ulong a4, ulong a6, ulong p)
     return Fl_ellj_pre(a4, a6, p, get_Fl_red(p));
 }
 
+void
+Fl_ellj_to_a4a6(ulong j, ulong p, ulong *pt_a4, ulong *pt_a6)
+{
+  ulong zagier = 1728 % p;
+  if (j == 0)           { *pt_a4 = 0; *pt_a6 =1; }
+  else if (j == zagier) { *pt_a4 = 1; *pt_a6 =0; }
+  else
+  {
+    ulong k = Fl_sub(zagier, j, p);
+    ulong kj = Fl_mul(k, j, p);
+    ulong k2j = Fl_mul(kj, k, p);
+    *pt_a4 = Fl_triple(kj, p);
+    *pt_a6 = Fl_double(k2j, p);
+  }
+}
+
 /***********************************************************************/
 /**                                                                   **/
 /**                              FpE                                  **/

@@ -368,6 +368,7 @@ GEN     random_FlxqE(GEN a4, GEN a6, GEN T, ulong p);
 /* FpE.c */
 
 ulong   Fl_ellj(ulong a4, ulong a6, ulong p);
+void    Fl_ellj_to_a4a6(ulong j, ulong p, ulong *pt_a4, ulong *pt_a6);
 long    Fl_elltrace(ulong a4, ulong a6, ulong p);
 GEN     Fle_add(GEN P, GEN Q, ulong a4, ulong p);
 GEN     Fle_dbl(GEN P, ulong a4, ulong p);

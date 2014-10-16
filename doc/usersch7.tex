@@ -450,6 +450,10 @@ returns the $j$-invariant of the curve $E$.
 returns the $j$-invariant of the curve $E$, assuming $pi$ is the pseudo inverse
 of $p$.
 
+\fun{void}{Fl_ellj_to_a4a6}{ulong j, ulong p, ulong *pt_a4, ulong *pt_a6}
+Set \kbd{*pt_a4} to $a_4$ and \kbd{*pt_a6} to $a_6$ where $a_4$ and $a_6$
+defined a fixed elliptic curve with $j$-invariant $j$.
+
 \fun{GEN}{Fle_add}{GEN P, GEN Q, ulong a4, ulong p}
 
 \fun{GEN}{Fle_dbl}{GEN P, ulong a4, ulong p}
