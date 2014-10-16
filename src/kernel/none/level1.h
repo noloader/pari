@@ -893,6 +893,19 @@ Fl_mul_pre(ulong a, ulong b, ulong p, ulong pi)
   return remll_pre(hiremainder, x, p, pi);
 }
 
+INLINE ulong
+Fl_ellj_pre(ulong a4, ulong a6, ulong p, ulong pi)
+{
+  /* a43 = 4 a4^3 */
+  ulong a43 = Fl_double(Fl_double(
+              Fl_mul_pre(a4, Fl_sqr_pre(a4, p, pi), p, pi), p), p);
+  /* a62 = 27 a6^2 */
+  ulong a62 = Fl_mul_pre(Fl_sqr_pre(a6, p, pi), 27 % p, p, pi);
+  ulong z1 = Fl_mul_pre(a43, 1728 % p, p, pi);
+  ulong z2 = Fl_add(a43, a62, p);
+  return Fl_div(z1, z2, p);
+}
+
 /*******************************************************************/
 /*                                                                 */
 /*                        MP (INT OR REAL)                         */

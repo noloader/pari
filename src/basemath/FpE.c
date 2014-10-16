@@ -202,6 +202,22 @@ Fle_order(GEN z, GEN o, ulong a4, ulong p)
   return gerepileuptoint(av, gen_order(z, o, (void*)&e, &Fle_group));
 }
 
+ulong
+Fl_ellj(ulong a4, ulong a6, ulong p)
+{
+  if (SMALL_ULONG(p))
+  {
+    /* a43 = 4 a4^3 */
+    ulong a43 = Fl_double(Fl_double(Fl_mul(a4, Fl_sqr(a4, p), p), p), p);
+    /* a62 = 27 a6^2 */
+    ulong a62 = Fl_mul(Fl_sqr(a6, p), 27 % p, p);
+    ulong z1 = Fl_mul(a43, 1728 % p, p);
+    ulong z2 = Fl_add(a43, a62, p);
+    return Fl_div(z1, z2, p);
+  } else
+    return Fl_ellj_pre(a4, a6, p, get_Fl_red(p));
+}
+
 /***********************************************************************/
 /**                                                                   **/
 /**                              FpE                                  **/

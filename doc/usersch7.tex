@@ -443,6 +443,13 @@ with two components.
 \fun{long}{Fl_elltrace}{ulong a4, ulong a6, ulong p} returns the trace $t$ of the Frobenius of
 $E(\F_p)$. The cardinal of $E(\F_p)$ is thus $p+1-t$, which might not fit in a \kbd{ulong}.
 
+\fun{ulong}{Fl_ellj}{ulong a4, ulong a6, ulong p}
+returns the $j$-invariant of the curve $E$.
+
+\fun{ulong}{Fl_ellj_pre}{ulong a4, ulong a6, ulong p, ulong pi}
+returns the $j$-invariant of the curve $E$, assuming $pi$ is the pseudo inverse
+of $p$.
+
 \fun{GEN}{Fle_add}{GEN P, GEN Q, ulong a4, ulong p}
 
 \fun{GEN}{Fle_dbl}{GEN P, ulong a4, ulong p}
