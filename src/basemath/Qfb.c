@@ -953,9 +953,9 @@ static GEN
 qfr5_init(GEN x, struct qfr_data *S)
 {
   GEN d = gel(x,4);
-  long prec = realprec(d), l = nbits2prec(-expo(d));
-  if (l > prec) prec = l;
-  if (prec < LOWDEFAULTPREC) prec = LOWDEFAULTPREC;
+  long prec = realprec(d), l = -expo(d);
+  if (l < BITS_IN_LONG) l = BITS_IN_LONG;
+  prec = maxss(prec, nbits2prec(l));
   x = qfr_to_qfr5(x,prec);
 
   get_disc(x, S);

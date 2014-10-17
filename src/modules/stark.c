@@ -19,8 +19,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #include "pari.h"
 #include "paripriv.h"
 
-#define EXTRA_PREC (DEFAULTPREC-2)
-#define ADD_PREC   (DEFAULTPREC-2)*3
+#define EXTRA_PREC DEFAULTPREC-2
 
 /* ComputeCoeff */
 typedef struct {
@@ -2583,9 +2582,9 @@ LABDOUB:
           a) get at least EXTRA_PREC fractional digits if there is none;
        or b) double the fractional digits.
     */
-    incr_pr = nbits2extraprec( prec2nbits(gprecision(polrelnum))- gexpo(polrelnum) );
+    incr_pr = prec2nbits(gprecision(polrelnum))- gexpo(polrelnum);
     if (incr_pr < 0) incr_pr = -incr_pr + EXTRA_PREC;
-    newprec = newprec + maxss(ADD_PREC, cpt*incr_pr);
+    newprec += nbits2extraprec(maxss(3*EXTRA_PREC, cpt*incr_pr));
     if (DEBUGLEVEL) pari_warn(warnprec, "AllStark", newprec);
 
     nf = nfnewprec_shallow(nf, newprec);
@@ -3234,7 +3233,7 @@ quadhilbertimag(GEN D)
     P = grndtoi(P,&exmax);
     if (DEBUGLEVEL>1) timer_printf(&ti,"product, error bits = %ld",exmax);
     if (exmax <= -10) break;
-    avma = av0; prec += (DEFAULTPREC-2) + nbits2extraprec(exmax);
+    avma = av0; prec += nbits2extraprec(prec2nbits(DEFAULTPREC)+exmax);
     if (DEBUGLEVEL) pari_warn(warnprec,"quadhilbertimag",prec);
   }
   return gerepileupto(av,P);

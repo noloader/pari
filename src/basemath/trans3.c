@@ -659,7 +659,7 @@ incgam_0(GEN x, GEN expx)
   }
   else
   {
-    long prec = l + (long)nbits2extraprec((mx+log(mx))/LOG2 + 10);
+    long prec = nbits2prec(prec2nbits(l) + (mx+log(mx))/LOG2 + 10);
     GEN S, t, H, run = real_1(prec);
     n = -prec2nbits(prec);
     x = rtor(x, prec);
@@ -1302,11 +1302,11 @@ inv_szeta_euler(long n, double lba, long prec)
   av2 = avma; A = n / LOG2;
   while ((p = u_forprime_next(&S)))
   {
-    long l = prec - nbits2extraprec((long)floor(A * log(p)) - BITS_IN_LONG);
+    long l = prec2nbits(prec) - (long)floor(A * log(p)) - BITS_IN_LONG;
     GEN h;
 
-    if (l < 3)         l = 3;
-    else if (l > prec) l = prec;
+    if (l < BITS_IN_LONG) l = BITS_IN_LONG;
+    l = maxss(prec, nbits2prec(l));
     h = divrr(z, rpowuu(p, (ulong)n, l));
     z = subrr(z, h);
     if (gc_needed(av,1))
