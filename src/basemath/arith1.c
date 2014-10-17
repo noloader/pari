@@ -2528,38 +2528,41 @@ ZV_polint_tree(GEN T, GEN R, GEN xa, GEN ya)
   long m = lg(T)-1, n = lg(ya)-1;
   long i,j,k;
   GEN Tp = cgetg(m+1, t_VEC);
-  GEN t = cgetg(lg(gel(T,1)), t_VEC);
+  GEN M = gel(T, 1);
+  GEN t = cgetg(lg(M), t_VEC);
   if (typ(xa)==t_VECSMALL)
   {
     for (j=1, k=1; k<n; j++, k+=2)
     {
       pari_sp av = avma;
       GEN a = mului(ya[k], gel(R,k)), b = mului(ya[k+1], gel(R,k+1));
-      gel(t, j) = gerepileuptoint(av, addii(mului(xa[k],b), mului(xa[k+1],a)));
+      GEN tj = modii(addii(mului(xa[k],b), mului(xa[k+1],a)), gel(M,j));
+      gel(t, j) = gerepileuptoint(av, tj);
     }
-    if (k==n) gel(t, j) = mului(ya[k], gel(R,k));
+    if (k==n) gel(t, j) = modii(mului(ya[k], gel(R,k)), gel(M, j));
   } else
   {
     for (j=1, k=1; k<n; j++, k+=2)
     {
       pari_sp av = avma;
       GEN a = mulii(gel(ya,k), gel(R,k)), b = mulii(gel(ya,k+1), gel(R,k+1));
-      gel(t, j) = gerepileuptoint(av, addii(mulii(gel(xa,k),b), mulii(gel(xa,k+1),a)));
+      GEN tj = modii(addii(mulii(gel(xa,k),b), mulii(gel(xa,k+1),a)), gel(M,j));
+      gel(t, j) = gerepileuptoint(av, tj);
     }
-    if (k==n) gel(t, j) = mulii(gel(ya,k), gel(R,k));
+    if (k==n) gel(t, j) = modii(mulii(gel(ya,k), gel(R,k)), gel(M, j));
   }
   gel(Tp, 1) = t;
   for (i=2; i<=m; i++)
   {
-    GEN u = gel(T, i-1);
-    GEN t = cgetg(lg(gel(T,i)), t_VEC);
-    GEN v = gel(Tp, i-1), m = gel(T, i);
+    GEN u = gel(T, i-1), M = gel(T, i);
+    GEN t = cgetg(lg(M), t_VEC);
+    GEN v = gel(Tp, i-1);
     long n = lg(v)-1;
     for (j=1, k=1; k<n; j++, k+=2)
     {
       pari_sp av = avma;
       gel(t, j) = gerepileuptoint(av, modii(addii(mulii(gel(u, k), gel(v, k+1)),
-            mulii(gel(u, k+1), gel(v, k))), gel(m, j)));
+            mulii(gel(u, k+1), gel(v, k))), gel(M, j)));
     }
     if (k==n) gel(t, j) = gel(v, k);
     gel(Tp, i) = t;
