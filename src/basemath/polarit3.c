@@ -2501,21 +2501,122 @@ fp_resultant(GEN a, GEN b)
   return gerepileupto(av, gmul(res, gpowgs(gel(b,2), da)));
 }
 
+#ifdef LONG_IS_64BIT
+#define  ZXRES_PRIME  4611686018427388039UL
+#else
+#define  ZXRES_PRIME  27449UL
+#endif
+
+static ulong
+get_nbprimes(ulong bound, GEN dB, ulong *pt_start)
+{
+  pari_sp av = avma;
+  ulong p;
+  long i = 0, e;
+  ulong pstart = ZXRES_PRIME;
+  ulong s = 0;
+  forprime_t S;
+  *pt_start = pstart;
+  if (expu(pstart) > bound && (!dB || umodiu(dB, pstart)!=0)) return 1;
+  u_forprime_init(&S, pstart, ULONG_MAX);
+  while ((p = u_forprime_next(&S)))
+  {
+    i++;
+    if (dB && umodiu(dB, p)==0) continue;
+    e = expu(p);
+    s += e;
+    if (s > bound) break;
+  }
+  avma = av; return i;
+}
+
+static ulong
+ZX_resultant_prime(GEN a, GEN b, ulong dp, long degA, long degB, ulong p)
+{
+  pari_sp av = avma;
+  ulong H;
+  long dropa, dropb;
+  if (!b) b = Flx_deriv(a, p);
+  dropa = degA - degpol(a);
+  dropb = degB - degpol(b);
+  if (dropa && dropb) /* p | lc(A), p | lc(B) */
+  { avma = av; return 0; }
+  H = Flx_resultant(a, b, p);
+  if (dropa)
+  { /* multiply by ((-1)^deg B lc(B))^(deg A - deg a) */
+    ulong c = b[degB+2]; /* lc(B) */
+    if (odd(degB)) c = p - c;
+    c = Fl_powu(c, dropa, p);
+    if (c != 1) H = Fl_mul(H, c, p);
+  }
+  else if (dropb)
+  { /* multiply by lc(A)^(deg B - deg b) */
+    ulong c = a[degA+2]; /* lc(A) */
+    c = Fl_powu(c, dropb, p);
+    if (c != 1) H = Fl_mul(H, c, p);
+  }
+  if (dp != 1) H = Fl_mul(H, Fl_powu(Fl_inv(dp,p), degA, p), p);
+  avma = av; return H;
+}
+
+/* If B=NULL, assume B=A' */
+static GEN
+ZX_resultant_slice(GEN A, GEN B, GEN dB, ulong p, ulong n, ulong *plast, GEN *mod)
+{
+  ulong dp = 1;
+  pari_sp av = avma;
+  long degA, degB, i;
+  GEN H, P, T;
+  forprime_t S;
+
+  degA = degpol(A);
+  degB = B ? degpol(B): degA - 1;
+  if (n == 1)
+  {
+    ulong Hp;
+    GEN a, b;
+    p = unextprime(p); *plast = p+1;
+    a = ZX_to_Flx(A, p), b = B ? ZX_to_Flx(B, p): NULL;
+    if (dB) dp = umodiu(dB, p);
+    Hp = ZX_resultant_prime(a, b, dp, degA, degB, p);
+    avma = av;
+    *mod = utoi(p); return utoi(Hp);
+  }
+  u_forprime_init(&S, p, ULONG_MAX);
+  P = cgetg(n+1, t_VECSMALL);
+  for (i=1; i <= n; i++)
+    P[i] = u_forprime_next(&S);
+  T = ZV_producttree(P);
+  A = ZX_nv_mod_tree(A, P, T);
+  if (B) B = ZX_nv_mod_tree(B, P, T);
+  H = cgetg(n+1, t_VECSMALL);
+  for(i=1; i <= n; i++)
+  {
+    ulong p = P[i];
+    GEN a, b;
+    if (dB) { dp = umodiu(dB, p); if (!dp) continue; }
+    a = gel(A, i); b = B ? gel(B, i): NULL;
+    H[i] = ZX_resultant_prime(a, b, dp, degA, degB, p);
+  }
+  H = ZV_chinese_tree(H, P, T, mod); *plast=P[n]+1;
+  gerepileall(av, 2, &H, mod);
+  return H;
+}
+
 /* Res(A, B/dB), assuming the A,B in Z[X] and result is integer */
+/* if B=NULL, take B = A' */
 GEN
 ZX_resultant_all(GEN A, GEN B, GEN dB, ulong bound)
 {
-  ulong Hp, dp, p;
-  pari_sp av = avma, av2;
-  long degA, degB, cnt=0;
-  int stable;
-  GEN q, a, b, H;
-  forprime_t S;
+  ulong p;
+  pari_sp av = avma;
+  long degA, n, m;
+  GEN  H, P, mod;
+  int is_disc = !B;
+  if (is_disc) B = ZX_deriv(A);
 
   if ((H = trivial_case(A,B)) || (H = trivial_case(B,A))) return H;
-  q = H = NULL;
   degA = degpol(A);
-  degB = degpol(B);
   if (!bound)
   {
     bound = ZX_ZXY_ResBound(A, B, dB);
@@ -2536,57 +2637,30 @@ ZX_resultant_all(GEN A, GEN B, GEN dB, ulong bound)
       }
     }
   }
-  if (DEBUGLEVEL>4) err_printf("bound for resultant: 2^%ld\n",bound);
-  init_modular(&S);
-  av2 = avma;
-
-  dp = 1; /* denominator mod p */
-  while ((p = u_forprime_next(&S)))
+  n = get_nbprimes(bound+1, dB, &p);/* +1 to account for sign */
+  if (is_disc)
+    B = NULL;
+  m = minss(degpol(A)+(B ? degpol(B): 0), n);
+  if (m == 1)
+    H = ZX_resultant_slice(A, B, dB, p, n, &p, &mod);
+  else
   {
-    long dropa, dropb;
-    if (dB) { dp = smodis(dB, p); if (!dp) continue; }
-
-    a = ZX_to_Flx(A, p); dropa = degA - degpol(a);
-    b = ZX_to_Flx(B, p); dropb = degB - degpol(b);
-    if (dropa && dropb) /* p | lc(A), p | lc(B) */
-      Hp = 0;
-    else
+    long i, s = n/m, r = n - m*s;
+    if (DEBUGLEVEL > 4)
+      err_printf("ZX_resultant: bound 2^%ld, nb primes: %ld\n",bound, n);
+    H = cgetg(m+1+!!r, t_VEC); P = cgetg(m+1+!!r, t_VEC);
+    for (i=1; i<=m; i++)
     {
-      Hp = Flx_resultant(a, b, p);
-      if (dropa)
-      { /* multiply by ((-1)^deg B lc(B))^(deg A - deg a) */
-        ulong c = b[degB+2]; /* lc(B) */
-        if (odd(degB)) c = p - c;
-        c = Fl_powu(c, dropa, p);
-        if (c != 1) Hp = Fl_mul(Hp, c, p);
-      }
-      else if (dropb)
-      { /* multiply by lc(A)^(deg B - deg b) */
-        ulong c = a[degA+2]; /* lc(A) */
-        c = Fl_powu(c, dropb, p);
-        if (c != 1) Hp = Fl_mul(Hp, c, p);
-      }
-      if (dp != 1) Hp = Fl_mul(Hp, Fl_powu(Fl_inv(dp,p), degA, p), p);
+      gel(H, i) = ZX_resultant_slice(A, B, dB, p, s, &p, &gel(P, i));
+      if (DEBUGLEVEL>5) err_printf("%ld%% ",100*i/m);
     }
-
-    if (!H)
-    {
-      stable = 0; q = utoipos(p);
-      H = Z_init_CRT(Hp, p);
-    }
-    else /* could make it probabilistic ??? [e.g if stable twice, etc] */
-      stable = Z_incremental_CRT(&H, Hp, &q, p);
-    if (DEBUGLEVEL>5 && (stable ||  cnt++==2000))
-    { cnt=0; err_printf("%ld%%%s ",100*expi(q)/bound,stable?"s":""); }
-    if (stable && (ulong)expi(q) >= bound) break; /* DONE */
-    if (gc_needed(av,2))
-    {
-      if (DEBUGMEM>1) pari_warn(warnmem,"ZX_resultant");
-      gerepileall(av2, 2, &H,&q);
-    }
+    if (r)
+      gel(H, i) = ZX_resultant_slice(A, B, dB, p, r, &p, &gel(P, i));
+    H = ZV_chinese(H, P, &mod);
+    if (DEBUGLEVEL>5) err_printf("done\n");
   }
-  if (DEBUGLEVEL>5) err_printf("done\n");
-  return gerepileuptoint(av, icopy(H));
+  H = Fp_center(H, mod, shifti(mod,-1));
+  return gerepileuptoint(av, H);
 }
 
 /* A0 and B0 in Q[X] */
@@ -2654,7 +2728,7 @@ ZX_disc_all(GEN x, ulong bound)
   if (d <= 1) return d ? gen_1: gen_0;
   s = (d & 2) ? -1: 1;
   l = leading_term(x);
-  R = ZX_resultant_all(x, ZX_deriv(x), NULL, bound);
+  R = ZX_resultant_all(x, NULL, NULL, bound);
   if (is_pm1(l))
   { if (signe(l) < 0) s = -s; }
   else

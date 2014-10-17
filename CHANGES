@@ -243,10 +243,11 @@ BA 25- setrand now return a (huge) integer instead of a vecsmall
        code)
    36- add optional flag to nfhnf / nfsnf: return transformation matrices
    37- nfroots/nffactor: factor polynomials in Q[X] over Q first
-   38- GP and libpari polynomial variables of arbitrary priority can now be
+BA 38- much faster polresultant over Z
+   39- GP and libpari polynomial variables of arbitrary priority can now be
        created: 'x' is no longer guaranteed to have maximal priority,
        nor MAXVARN to have minimal priority.
-   39- GP: polynomial variables no longer spring into existence unless a true
+   40- GP: polynomial variables no longer spring into existence unless a true
        t_POL/t_SER in the variable is needed. E.g. y = 0 does not create the
        "variable" y, thereby messing up variable ordering.
 
