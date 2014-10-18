@@ -2985,7 +2985,7 @@ static GEN
 _Fp_sqr(void *E, GEN x) { return Fp_sqr(x,(GEN)E); }
 
 static GEN
-_Fp_one(void *E) { return gen_1; }
+_Fp_one(void *E) { (void) E; return gen_1; }
 
 GEN
 Fp_powers(GEN x, long n, GEN p)
