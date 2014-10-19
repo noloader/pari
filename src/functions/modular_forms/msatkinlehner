@@ -16,4 +16,8 @@ Doc: Let $M$ be a full modular symbol space of level $N$,
  %2 = 1
  ? #w   \\ involution acts on a 13-dimensional space
  %3 = 13
+ ? M = msinit(36,2, -1); \\ M_2(Gamma_0(36))^-
+ ? w = msatkinlehner(M,4); w^2 == 1
+ ? #w
+ %3 = 4
  @eprog

@@ -3607,14 +3607,15 @@ GEN     ellmsinit(GEN E, long signe);
 GEN     msatkinlehner(GEN W, long Q, GEN);
 GEN     mscuspidal(GEN W);
 GEN     mseisenstein(GEN W);
+GEN     mseval(GEN W, GEN s, GEN p);
 GEN     mshecke(GEN W, long p, GEN H);
 GEN     msinit(GEN N, GEN k, long sign);
-GEN     mslog(GEN W, GEN path);
+GEN     mspathgens(GEN W);
+GEN     mspathlog(GEN W, GEN path);
 GEN     msnew(GEN W);
 GEN     msstar(GEN W, GEN);
 GEN     msqexpansion(GEN W, GEN proV, ulong B);
 GEN     mssplit(GEN W, GEN H);
-GEN     xpm(GEN E, GEN a, GEN b);
 
 /* level1.h */
 

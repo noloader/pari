@@ -236,7 +236,7 @@ mat2(long a, long b, long c, long d)
 /* Input: a = 2-vector = path = {r/s,x/y}
  * Output: either [r,x;s,y] or [-r,x;-s,y], whichever has determinant > 0 */
 static GEN
-path_to_matrix(GEN a)
+path_to_zm(GEN a)
 {
   GEN v = gel(a,1), w = gel(a,2);
   long r = v[1], s = v[2], x = w[1], y = w[2];
@@ -257,8 +257,8 @@ static int
 gamma_equiv(GEN a, GEN b, ulong N)
 {
   pari_sp av = avma;
-  GEN m = path_to_matrix(a);
-  GEN n = path_to_matrix(b);
+  GEN m = path_to_zm(a);
+  GEN n = path_to_zm(b);
   GEN d = subii(mulss(cc(m),dd(n)), mulss(dd(m),cc(n)));
   ulong res = umodiu(d, N);
   avma = av; return res == 0;
@@ -268,8 +268,8 @@ gamma_equiv(GEN a, GEN b, ulong N)
 static GEN
 gamma_equiv_matrix(GEN a, GEN b)
 {
-  GEN m = zm_to_ZM( path_to_matrix(a) );
-  GEN n = zm_to_ZM( path_to_matrix(b) );
+  GEN m = zm_to_ZM( path_to_zm(a) );
+  GEN n = zm_to_ZM( path_to_zm(b) );
   return ZM_mul(m, SL2_inv(n));
 }
 
@@ -941,7 +941,7 @@ form_list_of_cusps(ulong N, GEN p1N)
       if (cusp2[3] != type_DO) continue;
 
       /* gam (oo -> 0) = (cusp2 -> cusp1), gam in PSL2(Z) */
-      gam = path_to_matrix(mkpath(cusp2, cusp1)); /* = [a2,a1;b2,b1] */
+      gam = path_to_zm(mkpath(cusp2, cusp1)); /* = [a2,a1;b2,b1] */
       /* we have normalized the cusp representation so that a1 b2 - a2 b1 = 1 */
       b1 = coeff(gam,2,1); b2 = coeff(gam,2,2);
       /* gam.1  = (a1 + a2) / (b1 + b2) */
@@ -1003,7 +1003,7 @@ path_Gamma0N_decompose(GEN W, GEN path)
   GEN p1N = gel(W,1);
   GEN p1index_to_ind = gel(W,3);
   GEN section = ms_get_section(W);
-  GEN M = path_to_matrix(path);
+  GEN M = path_to_zm(path);
   long p1index = p1_index(cc(M), dd(M), p1N);
   long ind = p1index_to_ind[p1index];
   GEN M0 = ZM_zm_mul(zm_to_ZM(M), sl2_inv(gel(section,p1index)));
@@ -1075,7 +1075,7 @@ hash_to_vec(hashtable *h)
 static long
 path_to_p1_index(GEN path, GEN p1N)
 {
-  GEN M = path_to_matrix(path);
+  GEN M = path_to_zm(path);
   return p1_index(cc(M), dd(M), p1N);
 }
 
@@ -1238,7 +1238,7 @@ paths_decompose(GEN W, hashtable *h, int flag)
   for (i = 1; i < l; i++)
   {
     GEN e = gel(v,i);
-    GEN M = path_to_matrix(flag? gel(e,1): e);
+    GEN M = path_to_zm(flag? gel(e,1): e);
     long index = p1_index(cc(M), dd(M), p1N);
     vecsmalltrunc_append(gel(W,2), index);
     gel(section, index) = M;
@@ -1450,7 +1450,7 @@ msinit_N(ulong N)
   vecT31 = hash_to_vec(T31);
   for (r = 1; r <= T31->nb; r++)
   {
-    GEN M = zm_to_ZM( path_to_matrix( Reverse(gel(vecT31,r)) ) );
+    GEN M = zm_to_ZM( path_to_zm( Reverse(gel(vecT31,r)) ) );
     GEN gamma = ZM_mul(ZM_mul(M, TAU), SL2_inv(M));
     gel(annT31, r) = mkmat2(mkcol3(gen_1,gamma,ZM_sqr(gamma)),
                             mkcol3(gen_1,gen_1,gen_1));
@@ -1462,6 +1462,44 @@ msinit_N(ulong N)
   gel(W,10)= singlerel;
   gel(W,16)= inithashcusps(p1N);
   return W;
+}
+static GEN
+cusp_to_frac(GEN c) { return gdivgs(stoi(c[1]), c[2]); }
+static GEN
+cusp_to_P1Q(GEN c) { return c[2]? gdivgs(stoi(c[1]), c[2]): mkoo(); }
+GEN
+mspathgens(GEN W)
+{
+  pari_sp av = avma;
+  long i,j, l, nbE1, nbT2, nbT31;
+  GEN R, r, g, section, gen, annT2, annT31, singlerel;
+  checkms(W); W = get_ms(W);
+  section = ms_get_section(W);
+  gen = ms_get_genindex(W);
+  l = lg(gen);
+  g = cgetg(l,t_VEC);
+  for (i=1; i<l; i++)
+  {
+    GEN p = gel(section,gen[i]);
+    gel(g,i) = mkvec2(cusp_to_P1Q(gel(p,1)), cusp_to_P1Q(gel(p,2)));
+  }
+  nbE1 = ms_get_nbE1(W);
+  annT2 = gel(W,8); nbT2 = lg(annT2)-1;
+  annT31 = gel(W,9);nbT31 = lg(annT31)-1;
+  singlerel = gel(W,10);
+  R = cgetg(nbT2+nbT31+2, t_VEC);
+  l = lg(singlerel);
+  r = cgetg(l, t_VEC);
+  for (i = 1; i <= nbE1; i++)
+    gel(r,i) = mkvec2(gel(singlerel, i), stoi(i));
+  for (; i < l; i++)
+    gel(r,i) = mkvec2(gen_1, stoi(i));
+  gel(R,1) = r; j = 2;
+  for (i = 1; i <= nbT2; i++,j++)
+    gel(R,j) = mkvec( mkvec2(gel(annT2,i), stoi(i + nbE1)) );
+  for (i = 1; i <= nbT31; i++,j++)
+    gel(R,j) = mkvec( mkvec2(gel(annT31,i), stoi(i + nbE1 + nbT2)) );
+  return gerepilecopy(av, mkvec2(g,R));
 }
 
 /* Modular symbols in weight k: Hom_Gamma(Delta, Q[x,y]_{k-2}) */
@@ -1662,22 +1700,16 @@ treat_index_trivial(GEN W, long index, int negate, GEN v)
       break;
   }
 }
-static GEN
-cusp_to_frac(GEN c) { return gdivgs(stoi(c[1]), c[2]); }
 
-/* cusp in P^1(Q): expresses {1/0 -> cusp} as \sum x_i g_i, see mslog */
+/* cusp cu a t_INT/t_FRAC, expresses {1/0 -> cu} as \sum x_i g_i, see mspathlog.
+ * Set v := [x_i]  ([-x_i] if negate) */
 static void
-cusplog(GEN v, GEN W, int negate, GEN cusp)
+Q_log(GEN v, GEN W, int negate, GEN cu)
 {
-  GEN PQ, P,Q, a,b,c,d;
-  long i, lx;
+  GEN PQ = ZV_allpnqn( gboundcf(cu, 0) );
+  GEN P = gel(PQ,1), Q = gel(PQ,2), a,b,c,d;
+  long i, lx = lg(P);
 
-  if (!cusp[2]) return;
-
-  PQ = ZV_allpnqn( gboundcf(cusp_to_frac(cusp), 0) );
-  P = gel(PQ,1);
-  Q = gel(PQ,2);
-  lx = lg(P);
   a = gen_1;
   c = gen_0;
   for (i = 1; i < lx; i++, c = d, a = b)
@@ -1691,6 +1723,27 @@ cusplog(GEN v, GEN W, int negate, GEN cusp)
     treat_index(W, M, index, negate, v);
   }
 }
+static void
+P1Q_log(GEN v, GEN W, int negate, GEN c)
+{
+  switch(typ(c))
+  {
+    case t_INFINITY: break;
+    case t_INT:
+    case t_FRAC:
+      Q_log(v, W, negate, c);
+      break;
+    default:
+      pari_err_TYPE("mspathlog",c);
+  }
+}
+/* cusp in P^1(Q): expresses {oo -> cusp} as \sum x_i g_i, see mspathlog */
+static void
+cusplog(GEN v, GEN W, int negate, GEN cusp)
+{
+  if (cusp[2]) Q_log(v,W,negate,cusp_to_frac(cusp));
+}
+
 /* cusplog for cusp [a,b] in case the action is trivial, q = a/b */
 static void
 cusplog_trivial_frac(GEN v, GEN W, int negate, GEN q)
@@ -1719,24 +1772,35 @@ cusplog_trivial(GEN v, GEN W, int negate, GEN cusp)
   return cusplog_trivial_frac(v,W,negate,cusp_to_frac(cusp));
 }
 
-/* Expresses path as \sum x_i g_i, where the g_i are our distinguished
- * generators and x_i \in Z[\Gamma]. Returns [x_1,...,x_n].
- * W from solve_manin_relations */
-GEN
-mslog(GEN W, GEN path)
+/* Expresses path p as \sum x_i g_i, where the g_i are our distinguished
+ * generators and x_i \in Z[\Gamma]. Returns [x_1,...,x_n] */
+static GEN
+mspathlog_i(GEN W, GEN p)
 {
-  pari_sp av = avma;
   GEN v;
-  if (typ(W) != t_VEC) pari_err_TYPE("mslog", W);
   W = get_ms(W);
   v = zerovec(ms_get_nbgen(W));
-  cusplog(v, W, 0, gel(path,2));
-  cusplog(v, W, 1, gel(path,1));
+  cusplog(v, W, 0, gel(p,2));
+  cusplog(v, W, 1, gel(p,1));
+  return v;
+}
+GEN
+mspathlog(GEN W, GEN p)
+{
+  pari_sp av = avma;
+  GEN v, a,b;
+  checkms(W); W = get_ms(W);
+  if (typ(p) != t_VEC || lg(p) != 3) pari_err_TYPE("mspathlog",p);
+  a = gel(p,1);
+  b = gel(p,2);
+  v = zerovec(ms_get_nbgen(W));
+  P1Q_log(v,W,0,b);
+  P1Q_log(v,W,1,a);
   return gerepilecopy(av, v);
 }
-/* in case the action is trivial: v += mslog(path) */
+/* in case the action is trivial: v += mspathlog(path) */
 static void
-mslog_trivial(GEN v, GEN W, GEN path)
+mspathlog_i_trivial(GEN v, GEN W, GEN path)
 {
   cusplog_trivial(v, W, 0, gel(path,2));
   cusplog_trivial(v, W, 1, gel(path,1));
@@ -1780,10 +1844,10 @@ getMorphism_trivial(GEN WW1, GEN WW2, GEN v)
   for (i = 1; i <= nbE1; i++)
   {
     long e = gen[i]; /* path-index of E1-element */
-    GEN w = gel(section, e); /* path_to_matrix() */
+    GEN w = gel(section, e); /* path_to_zm() */
     GEN t = init_act_trivial(W2);
     for (j = 1; j < lv; j++)
-      mslog_trivial(t, W2, Gl2Q_act_path(gel(v,j), w));
+      mspathlog_i_trivial(t, W2, Gl2Q_act_path(gel(v,j), w));
     gel(T,i) = t;
   }
   return T;
@@ -1816,8 +1880,8 @@ init_dual_act(GEN f, GEN W1, GEN W2)
   for (j = 1; j <= dim; j++)
   {
     pari_sp av = avma;
-    GEN w = gel(section, gen[j]); /* path_to_matrix( E1/T2/T3 element ) */
-    GEN l = mslog(W1, Gl2Q_act_path(f, w)); /* lambda_{i,j} */
+    GEN w = gel(section, gen[j]); /* path_to_zm( E1/T2/T3 element ) */
+    GEN l = mspathlog_i(W1, Gl2Q_act_path(f, w)); /* lambda_{i,j} */
     l = ZGl2QC_star(l); /* lambda_{i,j}^* */
     l = ZGC_G_mul(l, F); /* mu_{i,j} */
     gel(T,j) = gerepilecopy(av, ZGl2QC_to_act(l, k)); /* as operators on V */
@@ -2120,7 +2184,7 @@ mscuspidal_trivial(GEN W0)
   for (j = 1; j <= nbE1; j++)
   {
     long e = gen[j]; /* path-index of E1-element */
-    GEN t = gel(section, e); /* path_to_matrix() */
+    GEN t = gel(section, e); /* path_to_zm() */
     long i1 = cusp_index(gel(t,1), S);
     long i2 = cusp_index(gel(t,2), S);
     if (i1 != i2)
@@ -2157,7 +2221,7 @@ Eisenstein_symbol(GEN W, GEN c)
   GEN vecT = cgetg(l, t_COL);
   for (j = 1; j < l; j++)
   {
-    GEN vj = NULL, g = gel(section, gen[j]); /* path_to_matrix(generator) */
+    GEN vj = NULL, g = gel(section, gen[j]); /* path_to_zm(generator) */
     GEN c1 = gel(g,1), c2 = gel(g,2);
     long i1 = cusp_index(c1, S);
     long i2 = cusp_index(c2, S);
@@ -2328,7 +2392,7 @@ get_phi_ij(long i,long j,long n, long s,long t,GEN P_st,GEN Q_st,GEN d_st,
 }
 
 static GEN
-mskinit_trivial(GEN WN, long sign)
+mskinit_trivial(GEN WN)
 {
   long dim = ms_get_nbE1(WN);
   return mkvec3(WN, gen_0, mkvec2(gen_0,mkvecsmall2(2, dim)));
@@ -2342,7 +2406,7 @@ RgMV_dim(GEN V)
   return d;
 }
 static GEN
-mskinit_nontrivial(GEN WN, long k, long sign)
+mskinit_nontrivial(GEN WN, long k)
 {
   GEN annT2 = gel(WN,8), annT31 = gel(WN,9), singlerel = gel(WN,10);
   GEN link, basis, monomials, invphiblock;
@@ -2382,7 +2446,7 @@ mskinit_nontrivial(GEN WN, long k, long sign)
    * for g_i in E1.
    *
    * If phi \in Hom_Gamma(Delta, V), it is defined by phi(g_i) := P_i in V
-   * with \sum_i P_i . \lambda_i^*, where (\sum n_i g_i)^* :=
+   * with \sum_i P_i . \lambda_i^* = 0, where (\sum n_i g_i)^* :=
    * \sum n_i \gamma_i^(-1).
    *
    * We single out gamma_1 / g_1 (g_oo in Pollack-Stevens paper) and
@@ -2472,7 +2536,7 @@ static GEN
 add_star(GEN W, long sign)
 {
   GEN s = msstar_i(W);
-  GEN K = keri(shallowtrans(gsubgs(s, sign)));
+  GEN K = keri(gsubgs(s, sign));
   gel(W,2) = mkvec3(stoi(sign), s, Qevproj_init(K));
   return W;
 }
@@ -2481,8 +2545,8 @@ static GEN
 mskinit(ulong N, long k, long sign)
 {
   GEN WN = msinit_N(N);
-  GEN W = k == 2? mskinit_trivial(WN, sign)
-                : mskinit_nontrivial(WN, k, sign);
+  GEN W = k == 2? mskinit_trivial(WN)
+                : mskinit_nontrivial(WN, k);
   return add_star(W, sign);
 }
 GEN
@@ -2502,7 +2566,7 @@ msinit(GEN N, GEN K, long sign)
   return gerepilecopy(av, W);
 }
 
-/* c t_FRAC */
+/* E = ellmsinit struct; c t_FRAC or +oo; image of <0->c> */
 GEN
 Q_xpm(GEN E, GEN c)
 {
@@ -2517,6 +2581,96 @@ Q_xpm(GEN E, GEN c)
   return gerepileuptoint(av, ZV_dotproduct(dualell,v));
 }
 
+/* evaluate symbol s on mspathlog B (= sum p_i g_i, p_i in Z[G]) */
+static GEN
+mseval_values(GEN W, GEN s, GEN B)
+{
+  long k = msk_get_weight(W);
+  GEN e;
+  if (k == 2)
+    e = RgV_dotproduct(B,s);
+  else
+  {
+    long i,l;
+    GEN A = cgetg_copy(s,&l);
+    for (i=1; i<l; i++)
+    {
+      GEN a = gel(s,i), b = gel(B,i);
+      if (isintzero(b)) { gel(A,i) = gen_0; continue; }
+      b = RgX_act_ZGl2Q(b, k);
+      switch(typ(a))
+      {
+        case t_POL:
+          a = RgX_to_RgC(a, k-1);
+        case t_COL:
+          a = RgM_RgC_mul(b,a);
+          break;
+        default: a = RgC_Rg_mul(gel(b,1),a);
+      }
+      gel(A,i) = a;
+    }
+    e = RgV_sum(A);
+  }
+  return e;
+}
+/* evaluate symbol s on path p */
+GEN
+mseval(GEN W, GEN s, GEN p)
+{
+  pari_sp av = avma;
+  long i, l, nbgen, v = 0;
+  GEN e;
+  checkms(W);
+  nbgen = ms_get_nbgen(W);
+  switch(typ(s))
+  {
+    case t_VEC: /* values s(g_i) */
+      if (lg(s)-1 != nbgen) pari_err_TYPE("mseval",s);
+      if (!p) return gcopy(s);
+      v = gvar(s);
+      break;
+    case t_COL: /* on the basis phi_{i,j} */
+    {
+      GEN basis = msk_get_basis(W);
+      l = lg(basis);
+      if (lg(s) != l) pari_err_TYPE("mseval",s);
+      e = const_vec(nbgen, gen_0);
+      for (i=1; i<l; i++)
+      {
+        GEN phi, ind, pols, c = gel(s,i);
+        long j, m;
+        if (gequal0(c)) continue;
+        phi = gel(basis,i);
+        ind = gel(phi,2); m = lg(ind);
+        pols = gel(phi,3);
+        for (j=1; j<m; j++) {
+          long k = ind[j];
+          gel(e,k) = gadd(gel(e,k), gmul(c, gel(pols,j)));
+        }
+      }
+      s = e;
+      break;
+    }
+    default: pari_err_TYPE("mseval",s);
+  }
+  if (p)
+  {
+    s = mseval_values(W,s,mspathlog(W,p));
+    s = RgV_to_RgX(s, v);
+  }
+  else
+  {
+    l = lg(s);
+    for (i = 1; i < l; i++)
+    {
+      GEN c = gel(s,i);
+      if (!isintzero(c)) gel(s,i) = RgV_to_RgX(gel(s,i), v);
+    }
+  }
+  return gerepilecopy(av, s);
+}
+
+#if 0
 /* <0->oo>: unused */
 static GEN
 xpmoo(GEN E)
@@ -2529,11 +2683,7 @@ xpmoo(GEN E)
   treat_index_trivial(W, index, 1, v); /* - (oo->0) to correct to 0 -> (a:b) */
   return gerepileuptoint(av, ZV_dotproduct(dualell,v));
 }
-
-/* E = ellmsinit struct; image of <0->a/b> */
-GEN
-xpm(GEN E, GEN a, GEN b)
-{ return signe(b)? Q_xpm(E, gdiv(a,b)): xpmoo(E); }
+#endif
 
 static GEN
 twistcurve(GEN e, GEN D)
@@ -2628,7 +2778,8 @@ ellmsinit(GEN E, long sign)
   cond = gel(ellglobalred(E), 1);
   N = itou(cond);
   W = mskinit(N, 2, sign);
-  K = gel(msk_get_starproj(W), 1); /* Ker(star - sign) */
+  /* linear form = 0 on Im(S - sign) */
+  K = keri(shallowtrans(gsubgs(msk_get_star(W), sign)));
 
   /* loop for p <= count_Manin_symbols(N) / 6 would be enough */
   (void)u_forprime_init(&T, 2, ULONG_MAX);
