@@ -1970,25 +1970,92 @@ Flv_roots_to_pol(GEN a, ulong p, long vs)
   setlg(p1, k); return divide_conquer_assoc(p1, (void *)&p, _Flx_mul);
 }
 
-GEN
-Flv_inv(GEN x, ulong p)
+INLINE void
+Flv_inv_indir_pre(GEN w, GEN v, ulong p, ulong pi)
 {
-  long i, n = lg(x)-1;
-  GEN r = cgetg(n+1, t_VECSMALL);
-  GEN z = cgetg(n+1, t_VECSMALL);
-  ulong v;
-  z[1] = x[1];
-  for(i=2; i<=n; i++)
-    z[i] = Fl_mul(z[i-1],x[i], p);
-  v = Fl_inv(z[n],p);
-  for(i=n; i>1; i--)
-  {
-    r[i] = Fl_mul(v,z[i-1],p);
-    v = Fl_mul(v,x[i],p);
+  pari_sp av = avma;
+  GEN c;
+  register ulong u;
+  register long n = lg(w), i;
+
+  if (n == 1)
+    return;
+
+  c = cgetg(n, t_VECSMALL);
+  c[1] = w[1];
+  for (i = 2; i < n; ++i)
+    c[i] = Fl_mul_pre(w[i], c[i - 1], p, pi);
+
+  i = n - 1;
+  u = Fl_inv(c[i], p);
+  for ( ; i > 1; --i) {
+    ulong t = Fl_mul_pre(u, c[i - 1], p, pi);
+    u = Fl_mul_pre(u, w[i], p, pi);
+    v[i] = t;
   }
-  r[1] = v;
-  avma = (pari_sp) r;
-  return r;
+  v[1] = u;
+  avma = av;
+}
+
+void
+Flv_inv_inplace_pre(GEN v, ulong p, ulong pi)
+{
+  Flv_inv_indir_pre(v, v, p, pi);
+}
+
+GEN
+Flv_inv_pre(GEN w, ulong p, ulong pi)
+{
+  GEN v = cgetg(lg(w), t_VECSMALL);
+  Flv_inv_indir_pre(w, v, p, pi);
+  return v;
+}
+
+INLINE void
+Flv_inv_indir(GEN w, GEN v, ulong p)
+{
+  pari_sp av = avma;
+  GEN c;
+  register ulong u;
+  register long n = lg(w), i;
+
+  if (n == 1)
+    return;
+
+  c = cgetg(n, t_VECSMALL);
+  c[1] = w[1];
+  for (i = 2; i < n; ++i)
+    c[i] = Fl_mul(w[i], c[i - 1], p);
+
+  i = n - 1;
+  u = Fl_inv(c[i], p);
+  for ( ; i > 1; --i) {
+    ulong t = Fl_mul(u, c[i - 1], p);
+    u = Fl_mul(u, w[i], p);
+    v[i] = t;
+  }
+  v[1] = u;
+  avma = av;
+}
+
+void
+Flv_inv_inplace(GEN v, ulong p)
+{
+  if (SMALL_ULONG(p))
+    Flv_inv_indir(v, v, p);
+  else
+    Flv_inv_indir_pre(v, v, p, get_Fl_red(p));
+}
+
+GEN
+Flv_inv(GEN w, ulong p)
+{
+  GEN v = cgetg(lg(w), t_VECSMALL);
+  if (SMALL_ULONG(p))
+    Flv_inv_indir(w, v, p);
+  else
+    Flv_inv_indir_pre(w, v, p, get_Fl_red(p));
+  return v;
 }
 
 GEN
