@@ -469,7 +469,7 @@ Flx_cubic_root(GEN ff, ulong p)
 
 /* assume p > 2 prime */
 static ulong
-Flx_oneroot_i(GEN f, ulong p)
+Flx_oneroot_i(GEN f, ulong p, long fl)
 {
   GEN pol, a;
   ulong q;
@@ -482,11 +482,14 @@ Flx_oneroot_i(GEN f, ulong p)
     case 2: return Flx_quad_root(f, p, 1);
     case 3: if (p>3) return Flx_cubic_root(f, p); /*FALL THROUGH*/
   }
-
-  a = Flxq_powu(polx_Flx(f[1]), p - 1, f,p);
-  if (lg(a) < 3) pari_err_PRIME("rootmod",utoipos(p));
-  a = Flx_Fl_add(a, p-1, p); /* a = x^(p-1) - 1 mod f */
-  a = Flx_gcd(f,a, p);
+  
+  if (!fl)
+  {
+    a = Flxq_powu(polx_Flx(f[1]), p - 1, f,p);
+    if (lg(a) < 3) pari_err_PRIME("rootmod",utoipos(p));
+    a = Flx_Fl_add(a, p-1, p); /* a = x^(p-1) - 1 mod f */
+    a = Flx_gcd(f,a, p);
+  } else a = f;
   da = degpol(a);
   if (!da) return p;
   a = Flx_normalize(a,p);
@@ -520,6 +523,7 @@ Flx_oneroot_i(GEN f, ulong p)
     }
   }
 }
+
 /* assume p > 2 prime */
 static GEN
 FpX_oneroot_i(GEN f, GEN p)
@@ -583,7 +587,22 @@ Flx_oneroot(GEN f, ulong p)
     case 3: avma = av; return p;
   }
   if (p == 2) return Flx_oneroot_mod_2(f);
-  r = Flx_oneroot_i(Flx_normalize(f, p), p);
+  r = Flx_oneroot_i(Flx_normalize(f, p), p, 0);
+  avma = av; return r;
+}
+
+ulong
+Flx_oneroot_split(GEN f, ulong p)
+{
+  pari_sp av = avma;
+  ulong r;
+  switch(lg(f))
+  {
+    case 2: return 0;
+    case 3: avma = av; return p;
+  }
+  if (p == 2) return Flx_oneroot_mod_2(f);
+  r = Flx_oneroot_i(Flx_normalize(f, p), p, 1);
   avma = av; return r;
 }
 
@@ -603,7 +622,7 @@ FpX_oneroot(GEN f, GEN pp) {
     if (p == 2)
       r = Flx_oneroot_mod_2(f);
     else
-      r = Flx_oneroot_i(f, p);
+      r = Flx_oneroot_i(f, p, 0);
     avma = av;
     return (r == p)? NULL: utoi(r);
   }

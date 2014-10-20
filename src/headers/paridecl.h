@@ -524,6 +524,7 @@ long    Flx_nbfact(GEN z, ulong p);
 GEN     Flx_nbfact_by_degree(GEN z, long *nb, ulong p);
 long    Flx_nbroots(GEN f, ulong p);
 ulong   Flx_oneroot(GEN f, ulong p);
+ulong   Flx_oneroot_split(GEN f, ulong p);
 GEN     Flx_roots(GEN f, ulong p);
 GEN     FlxqX_Frobenius(GEN S, GEN T, ulong p);
 GEN     FlxqXQ_halfFrobenius(GEN a, GEN S, GEN T, ulong p);

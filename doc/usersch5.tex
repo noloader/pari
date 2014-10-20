@@ -4854,6 +4854,9 @@ prime.
 the \kbd{Flx}~\kbd{f} in \kbd{\Z/p\Z}. Return $p$ if no root exists. Assumes
 that \kbd{p} is prime.
 
+\fun{ulong}{Flx_oneroot_split}{GEN f, ulong p} as \kbd{Flx\_oneroot} but
+assume $f$ is totally split.
+
 \fun{GEN}{Flx_roots_naive}{GEN f, ulong p} returns the vector of roots
 of $f$ as a \typ{VECSMALL} (multiple roots are not repeated), found
 by an exhaustive search. Efficient for very small $p$ !
