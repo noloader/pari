@@ -707,10 +707,11 @@ _lift_iter(void *E, GEN x2, GEN q)
 {
   struct _lift_iso *d = (struct _lift_iso *) E;
   ulong p = d->p;
+  long n = lg(d->phi)-2;
   GEN TN = FpXT_red(d->T, q), XN = FpXV_red(d->Xm, q);
   GEN y2 = ZpXQ_frob(x2, XN, TN, q, p);
-  GEN xp = FpXQ_powers(x2, p, TN, q);
-  GEN yp = FpXQ_powers(y2, p, TN, q);
+  GEN xp = FpXQ_powers(x2, n, TN, q);
+  GEN yp = FpXQ_powers(y2, n, TN, q);
   GEN V  = FpM_FpXQV_bilinear(d->phi,xp,yp,TN,q);
   return mkvec3(V,xp,yp);
 }
