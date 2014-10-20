@@ -482,7 +482,7 @@ Flx_oneroot_i(GEN f, ulong p, long fl)
     case 2: return Flx_quad_root(f, p, 1);
     case 3: if (p>3) return Flx_cubic_root(f, p); /*FALL THROUGH*/
   }
-  
+
   if (!fl)
   {
     a = Flxq_powu(polx_Flx(f[1]), p - 1, f,p);
