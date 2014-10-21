@@ -353,6 +353,7 @@ GEN     Flxq_ellcard(GEN a4, GEN a6, GEN T, ulong p);
 GEN     Flxq_ellgens(GEN a4, GEN a6, GEN ch, GEN D, GEN m, GEN T, ulong p);
 GEN     Flxq_ellgroup(GEN a4, GEN a6, GEN N, GEN T, ulong p, GEN *pt_m);
 GEN     Flxq_ellj(GEN a4, GEN a6, GEN T, ulong p);
+void    Flxq_ellj_to_a4a6(GEN j, GEN T, ulong p, GEN *pt_a4, GEN *pt_a6);
 GEN     FlxqE_add(GEN P, GEN Q, GEN a4, GEN T, ulong p);
 GEN     FlxqE_changepoint(GEN x, GEN ch, GEN T, ulong p);
 GEN     FlxqE_changepointinv(GEN x, GEN ch, GEN T, ulong p);

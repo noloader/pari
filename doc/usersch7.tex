@@ -547,6 +547,10 @@ $a_2$ and $a_6$ being \kbd{Flx} in $\F_3[X]/(T)$. In that case, the parameter
 \fun{GEN}{Flxq_ellj}{GEN a4, GEN a6, GEN T, ulong p}
 returns the $j$-invariant of the curve $E$.
 
+\fun{void}{Flxq_ellj_to_a4a6}{GEN j, GEN T, ulong p, GEN *pt_a4, GEN *pt_a6}
+Set \kbd{*pt\_a4} to $a_4$ and \kbd{*pt\_a6} to $a_6$ where $a_4$ and $a_6$
+define a fixed elliptic curve with $j$-invariant $j$.
+
 \fun{GEN}{Flxq_ellcard}{GEN a4, GEN a6, GEN T, ulong p}
 returns the order of $E(\F_p[X]/(T))$.
 

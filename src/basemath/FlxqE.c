@@ -1332,6 +1332,24 @@ Flxq_ellj(GEN a4, GEN a6, GEN T, ulong p)
   }
 }
 
+void
+Flxq_ellj_to_a4a6(GEN j, GEN T, ulong p, GEN *pt_a4, GEN *pt_a6)
+{
+  ulong zagier = 1728 % p;
+  if (lgpol(j)==0)
+    { *pt_a4 = pol0_Flx(T[1]); *pt_a6 =pol1_Flx(T[1]); }
+  else if (lgpol(j)==1 && uel(j,2) == zagier)
+    { *pt_a4 = pol1_Flx(T[1]); *pt_a6 =pol0_Flx(T[1]); }
+  else
+  {
+    GEN k = Flx_Fl_add(Flx_neg(j, p), zagier, p);
+    GEN kj = Flxq_mul(k, j, T, p);
+    GEN k2j = Flxq_mul(kj, k, T, p);
+    *pt_a4 = Flx_triple(kj, p);
+    *pt_a6 = Flx_double(k2j, p);
+  }
+}
+
 static GEN
 F3xq_ellcardj(GEN a4, GEN a6, GEN T, GEN q, long n)
 {

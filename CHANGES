@@ -148,7 +148,8 @@ BA 49- [libpari] functions Zp_sqrt, ZpXQ_sqrt
        mshecke, ellmsinit, msatkinlehner, msstar, mseval, mspathgens, mspathlog
 BA 51- GP declaration localprec()
 HIL52- [libpari] functions Fl_powers_pre, Fl_ellj_pre, Fl_elltwist
-BA 53- [libpari] functions Fl_powers, Fp_powers, Fl_ellj, Fl_ellj_to_a4a6
+BA 53- [libpari] functions Fl_powers, Fp_powers, Fl_ellj,
+                           Fl_ellj_to_a4a6, Flxq_ellj_to_a4a6
 BA 54- [libpari] functions FpXQX_div_by_X_x, FqX_div_by_X_x
 HIL55- [libpari] function Flx_oneroot_split
 BA 56- [libpari] functions Flv_inv_pre, Flv_inv_inplace, Flv_inv_inplace_pre
