@@ -1976,48 +1976,98 @@ getMorphism_basis(GEN W, GEN vecT)
   return R;
 }
 
-#if DEBUG
-static void
-checkrelation(GEN W, GEN T)
+/* a = s(g_i) for some modular symbol s; b in Z[G]
+ * return s(b.g_i) = b^* . s(g_i) */
+static GEN
+ZGl2Q_act_s(GEN b, GEN a, long k)
 {
-  GEN s, annT2, annT31, singlerel;
-  long k = msk_get_weight(W);
-  long nbE1 = ms_get_nbE1(W), nbT2, nbT31;
-  long i, l;
+  if (isintzero(b)) return gen_0;
+  b = RgX_act_ZGl2Q(ZGl2Q_star(b), k);
+  switch(typ(a))
+  {
+    case t_POL:
+      a = RgX_to_RgC(a, k-1);
+    case t_COL:
+      a = RgM_RgC_mul(b,a);
+      break;
+    default: a = RgC_Rg_mul(gel(b,1),a);
+  }
+  return a;
+}
+
+static int
+checksymbol(GEN W, GEN s)
+{
+  GEN t, annT2, annT31, singlerel;
+  long i, k, l, nbE1, nbT2, nbT31;
+  k = msk_get_weight(W);
   W = get_ms(W);
-  annT2 = gel(W,8); nbT2 = lg(annT2)-1;
-  annT31 = gel(W,9);nbT31 = lg(annT31)-1;
+  nbE1 = ms_get_nbE1(W);
   singlerel = gel(W,10);
   l = lg(singlerel);
-  s = NULL;
+  if (k == 2)
+  {
+    for (i = nbE1+1; i < l; i++)
+      if (!gequal0(gel(s,i))) return 0;
+    return 1;
+  }
+  annT2 = gel(W,8); nbT2 = lg(annT2)-1;
+  annT31 = gel(W,9);nbT31 = lg(annT31)-1;
+  t = NULL;
   for (i = 1; i <= nbE1; i++)
   {
-    GEN z = gel(singlerel, i);
-    GEN M = RgX_act_ZGl2Q(ZGl2Q_star(z), k);
-    GEN a = RgM_RgC_mul(M, gel(T,i));
-    s = s? gadd(s, a): a;
+    GEN a = gel(s,i);
+    a = ZGl2Q_act_s(gel(singlerel,i), a, k);
+    t = t? gadd(t, a): a;
   }
   for (; i < l; i++)
   {
-    GEN a = gel(T,i);
-    s = s? gadd(s, a): a;
+    GEN a = gel(s,i);
+    t = t? gadd(t, a): a;
   }
-  if (!gcmp0(s)) pari_err_BUG("checkrelation (singlerel)");
+  if (!gcmp0(t)) return 0;
   for (i = 1; i <= nbT2; i++)
   {
-    GEN z = gel(annT2, i);
-    GEN M = RgX_act_ZGl2Q(ZGl2Q_star(z), k);
-    GEN a = RgM_RgC_mul(M, gel(T,i + nbE1));
-    if (!gcmp0(a)) pari_err_BUG("checkrelation (T2)");
+    GEN a = gel(s,i + nbE1);
+    a = ZGl2Q_act_s(gel(annT2,i), a, k);
+    if (!gcmp0(a)) return 0;
   }
   for (i = 1; i <= nbT31; i++)
   {
-    GEN z = gel(annT31, i);
-    GEN M = RgX_act_ZGl2Q(ZGl2Q_star(z), k);
-    GEN a = RgM_RgC_mul(M, gel(T,i + nbE1 + nbT2));
-    if (!gcmp0(a)) pari_err_BUG("checkrelation (T31)");
+    GEN a = gel(s,i + nbE1 + nbT2);
+    a = ZGl2Q_act_s(gel(annT31,i), a, k);
+    if (!gcmp0(a)) return 0;
   }
+  return 1;
 }
+long
+msissymbol(GEN W, GEN s)
+{
+  long k, nbgen;
+  checkms(W);
+  k = msk_get_weight(W);
+  nbgen = ms_get_nbgen(W);
+  switch(typ(s))
+  {
+    case t_VEC: /* values s(g_i) */
+      if (lg(s)-1 != nbgen) return 0;
+      break;
+    case t_COL:
+      if (k == 2) /* on the dual basis of (g_i) */
+      {
+        if (lg(s)-1 != nbgen) return 0;
+      }
+      else
+      {
+        GEN basis = msk_get_basis(W);
+        return (lg(s) == lg(basis));
+      }
+      break;
+    default: return 0;
+  }
+  return checksymbol(W,s);
+}
+#if DEBUG
 /* phi_i(G_j) */
 static GEN
 eval_phii_Gj(GEN W, long i, long j)
@@ -2034,7 +2084,7 @@ static void
 checkdec(GEN W, GEN D, GEN T)
 {
   long i, j;
-  checkrelation(W,T);
+  if (!checksymbol(W,T)) pari_err_BUG("checkdec");
   for (j = 1; j < lg(T); j++)
   {
     GEN S = gen_0;
@@ -2611,22 +2661,7 @@ mseval_by_values(GEN W, GEN s, GEN p)
 
   A = cgetg_copy(s,&l);
   B = mspathlog(W,p);
-  for (i=1; i<l; i++)
-  {
-    GEN a = gel(s,i), b = gel(B,i);
-    if (isintzero(b)) { gel(A,i) = gen_0; continue; }
-    b = RgX_act_ZGl2Q(b, k);
-    switch(typ(a))
-    {
-      case t_POL:
-        a = RgX_to_RgC(a, k-1);
-      case t_COL:
-        a = RgM_RgC_mul(b,a);
-        break;
-      default: a = RgC_Rg_mul(gel(b,1),a);
-    }
-    gel(A,i) = a;
-  }
+  for (i=1; i<l; i++) gel(A,i) = ZGl2Q_act_s(gel(B,i), gel(s,i), k);
   return RgV_sum(A);
 }
 /* evaluate symbol s on path p */

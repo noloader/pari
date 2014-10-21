@@ -28,10 +28,13 @@ Doc: Let $\Delta:=\text{Div}^0(\P^1 \Q)$.
  ? g = mspathgens(M)[1]
  %2 = [[+oo, 0], [0, 1]]
  ? N = msnew(M)[1]; \\ Q-basis of new subspace
- ? s = N[,1];
- ? mseval(M, s)
+ ? s = N[,1];         \\ t_COL representation
+ %4 = [3, 30, 6, -8]~
+ ? S = mseval(M, s)   \\ t_VEC representation
  %5 = [64*x^6-272*x^4+136*x^2-8, 384*x^5+960*x^4+192*x^3-672*x^2-432*x-72]
  ? mseval(M,s,g[1])
+ %6 = 64*x^6 - 272*x^4 + 136*x^2 - 8
+ ? mseval(M,S,g[1])
  %6 = 64*x^6 - 272*x^4 + 136*x^2 - 8
  @eprog\noindent Note that the symbol should have values in
  $V = \Q[x,y]_{k-2}$, we return the de-homogenized values corresponding to $y

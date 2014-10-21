@@ -145,7 +145,8 @@ BA 47- [libpari] functions ZV_chinese, Z_ZV_mod
 BA 48- GP function fromdigits
 BA 49- [libpari] functions Zp_sqrt, ZpXQ_sqrt
    50- GP functions mscuspidal, mseisenstein, msnew, mssplit, msqexpansion,
-       mshecke, ellmsinit, msatkinlehner, msstar, mseval, mspathgens, mspathlog
+       mshecke, ellmsinit, msatkinlehner, msstar, mseval, mspathgens, mspathlog,
+       msissymbol
 BA 51- GP declaration localprec()
 HIL52- [libpari] functions Fl_powers_pre, Fl_ellj_pre, Fl_elltwist
 BA 53- [libpari] functions Fl_powers, Fp_powers, Fl_ellj,

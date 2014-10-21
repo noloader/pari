@@ -62,3 +62,11 @@ msatkinlehner(W,3)
 msatkinlehner(W,6)
 msatkinlehner(W,4)
 msstar(W)
+
+N = msnew(W)[1];
+s = N[,1];
+msissymbol(W,s)
+S = mseval(W,s);
+msissymbol(W,S)
+T=S; T[3]++;
+msissymbol(W,T)

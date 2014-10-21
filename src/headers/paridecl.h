@@ -3616,6 +3616,7 @@ GEN     mseisenstein(GEN W);
 GEN     mseval(GEN W, GEN s, GEN p);
 GEN     mshecke(GEN W, long p, GEN H);
 GEN     msinit(GEN N, GEN k, long sign);
+long    msissymbol(GEN W, GEN s);
 GEN     mspathgens(GEN W);
 GEN     mspathlog(GEN W, GEN path);
 GEN     msnew(GEN W);
