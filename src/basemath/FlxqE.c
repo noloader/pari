@@ -1266,14 +1266,13 @@ F3xq_ellcard(GEN a2, GEN a6, GEN T)
 }
 
 static GEN
-Flxq_ellcard_Satoh(GEN a4, GEN a6, GEN T, ulong p)
+Flxq_ellcard_Satoh(GEN a4, GEN a6, GEN j, GEN T, ulong p)
 {
   long n = get_Flx_degree(T);
   if (n <= 2)
     return utoi(Flxq_ellcard_naive(a4, a6, T, p));
   else
   {
-    GEN j = Flxq_ellj(a4, a6, T, p);
     GEN jp = Flxq_powu(j, p, T, p);
     GEN s = Flx_add(j, jp, p);
     if (degpol(s) <= 0)
@@ -1465,11 +1464,11 @@ Flxq_ellcard(GEN a4, GEN a6, GEN T, ulong p)
   else if (degpol(J=Flxq_ellj(a4,a6,T,p))<=0)
     r = Flxq_ellcardj(a4,a6,lgpol(J)?J[2]:0,T,q,p,n);
   else if (p <= 7 || p==13)
-    r = Flxq_ellcard_Satoh(a4,a6,T,p);
+    r = Flxq_ellcard_Satoh(a4, a6, J, T, p);
   else if (cmpis(q,100)<0)
     r = utoi(Flxq_ellcard_naive(a4, a6, T, p));
   else if (p <= (ulong)2*n)
-    r = Flxq_ellcard_Kedlaya(a4,a6,T,p);
+    r = Flxq_ellcard_Kedlaya(a4, a6, T, p);
   else if (expi(q)<=62)
     r = Flxq_ellcard_Shanks(a4, a6, q, T, p);
   else
