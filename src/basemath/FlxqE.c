@@ -1273,25 +1273,29 @@ Flxq_ellcard_Satoh(GEN a4, GEN a6, GEN T, ulong p)
     return utoi(Flxq_ellcard_naive(a4, a6, T, p));
   else
   {
-    GEN q1 = addis(powuu(p, get_Flx_degree(T)), 1), t;
-    GEN j = Flxq_ellj(a4,a6,T,p);
-    if (Flx_equal1(Flxq_powu(j, p*p-1, T, p)))
-    {
-      GEN sk, sA4, u;
-      GEN P = Flxq_minpoly(j, T, p);
-      long dP = degpol(P); /* dP <= 2 */
-      GEN q = powuu(p,dP);
-      GEN k = mkvecsmall3(T[1], 1728%p, p-1);
-      GEN kj = Flx_shift(k, 1), k2j = Flxq_mul(kj, k, P, p);
-      GEN A4 = Flx_triple(kj,p), A6 = Flx_double(k2j,p);
-      GEN tP = addis(q, 1 - Flxq_ellcard_naive(A4, A6, P, p));
-      t = elltrace_extension(tP, n/dP, q);
-      sk = Flx_Fl_add(Flx_neg(j,p),1728%p,p);
-      sA4 = Flx_triple(Flxq_mul(sk,j,T,p),p);
-      u = Flxq_div(a4,sA4, T, p);
-      return Flxq_is2npower(u, 2, T, p) ? subii(q1,t): addii(q1,t);
+    GEN j = Flxq_ellj(a4, a6, T, p);
+    GEN jp = Flxq_powu(j, p, T, p);
+    GEN s = Flx_add(j, jp, p);
+    if (degpol(s) <= 0)
+    { /* it is assumed j not in F_p */
+      GEN m = Flxq_mul(j, jp, T, p);
+      if (degpol(m) <= 0)
+      {
+        GEN q = sqru(p);
+        GEN q1 = addis(powuu(p, get_Flx_degree(T)), 1);
+        GEN sk = Flx_Fl_add(Flx_neg(j, p), 1728%p, p);
+        GEN sA4 = Flx_triple(Flxq_mul(sk, j, T, p), p);
+        GEN u = Flxq_div(a4, sA4, T, p);
+        ulong ns = lgpol(s) ? Fl_neg(s[2], p): 0UL;
+        GEN P = mkvecsmalln(4, T[1], m[2], ns, 1L);
+        GEN A4, A6, t, tP;
+        Flxq_ellj_to_a4a6(polx_Flx(T[1]), P, p, &A4, &A6);
+        tP = addis(q, 1 - Flxq_ellcard_naive(A4, A6, P, p));
+        t = elltrace_extension(tP, n>>1, q);
+        return Flxq_is2npower(u, 2, T, p) ? subii(q1,t): addii(q1,t);
+      }
     }
-    else return Flxq_ellcard_Harley(a4, a6, T, p);
+    return Flxq_ellcard_Harley(a4, a6, T, p);
   }
 }
 
