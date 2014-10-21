@@ -70,9 +70,10 @@ logp(GEN C, GEN a, ulong p, GEN q)
 
 /** p-adic L function **/
 
-/* E an ellmsinit struct. D > 0. Assume |D p^m| < MAX_ULONG, m > 0 */
+/* W an msinit, xpm the normalized modylar symbol attached to E/Q, D > 0.
+ * Assume |D p^m| < MAX_ULONG, m > 0 */
 static GEN
-loopLpn(GEN E, ulong D, ulong p, long m, long R, GEN q)
+loopLpn(GEN W, GEN xpm, ulong D, ulong p, long m, long R, GEN q)
 {
   pari_sp av;
   ulong a;
@@ -90,8 +91,8 @@ loopLpn(GEN E, ulong D, ulong p, long m, long R, GEN q)
     long s;
     if (a % p == 0 || !(s = krouu(D,a))) continue;
     nc[2] = (long)a;
-    x = Q_xpm(E, c); /* xpm(a / Dq) */
-    x1= Q_xpm(E, c1);/* xpm(a / D(q/p)) */
+    x = Q_xpm(W,xpm, c); /* xpm(a / Dq) */
+    x1= Q_xpm(W,xpm, c1);/* xpm(a / D(q/p)) */
     if (!signe(x) && !signe(x1)) continue;
     if (R)
     {
@@ -121,44 +122,40 @@ unit_eigenvalue(GEN ap, GEN p, long n)
   return gmul2n(gadd(ap, cvtop(sqrtD,p,n)), -1);
 }
 
-/* FIXME : delete and export !!! */
-static GEN
-ellsym_get_ell(GEN E) { return gel(E,3); }
-static GEN
-ellsym_get_scale(GEN E) { return gel(E,4); }
-
 /* TODO: C corresponds to Teichmuller, currently allways NULL */
 GEN
-ellpadicL(GEN e, GEN pp, long n, long r, GEN DD, GEN C)
+ellpadicL(GEN E, GEN pp, long n, long r, GEN DD, GEN C)
 {
   pari_sp av = avma;
-  GEN E, ap, scale, L;
+  GEN ap, scale, L, W, xpm;
   ulong p, D;
 
-  (void)C; /* TODO */
-  E = ellmsinit(e, 1);
-  e = ellsym_get_ell(E);
   if (DD && !Z_isfundamental(DD))
     pari_err_DOMAIN("ellpadicL", "isfundamental(D)", "=", gen_0, DD);
   if (DD && signe(DD) <= 0) pari_err_DOMAIN("ellpadicL", "D", "<=", gen_0, DD);
-  if (typ(pp) != t_INT)
   if (typ(pp) != t_INT) pari_err_TYPE("ellpadicL",pp);
   if (cmpis(pp,2) < 0) pari_err_PRIME("ellpadicL",pp);
   if (n <= 0) pari_err_DOMAIN("ellpadicL","precision","<=",gen_0,stoi(n));
   if (r < 0) pari_err_DOMAIN("ellpadicL","r","<",gen_0,stoi(r));
+
+  (void)C; /* TODO */
+  W = msfromell(E, 1);
+  xpm = gel(W,2);
+  W = gel(W,1);
   p = itou(pp);
   D = DD? itou(DD): 1;
 
-  scale = ellsym_get_scale(E);
+  xpm = Q_primitive_part(xpm,&scale);
+  if (!scale) scale = gen_1;
   n -= Q_pval(scale, pp);
   scale = cvtop(scale, pp, n);
 
-  ap = ellap(e,pp);
+  ap = ellap(E,pp);
   if (umodiu(ap,p))
   { /* ordinary */
     long N = n+1;
     GEN pn = powuu(p, N);
-    GEN u,v, uv = loopLpn(E, D, p, N, r, pn); /* correct mod p^n */
+    GEN u,v, uv = loopLpn(W,xpm, D, p,N,r,pn); /* correct mod p^n */
     GEN al = ginv( unit_eigenvalue(ap, pp, n) );
     al = gel(al,4); /* lift to Z */
     u = modii(gel(uv,1), pn);
@@ -171,7 +168,7 @@ ellpadicL(GEN e, GEN pp, long n, long r, GEN DD, GEN C)
   { /* supersingular */
     GEN _0 = zeropadic_shallow(pp, n);
     long N = signe(ap)? 2*n+3: 2*n+1;
-    GEN uv = loopLpn(E, D, p, N, r, powiu(pp,N)), u = gel(uv,1), v = gel(uv,2);
+    GEN uv = loopLpn(W,xpm, D, p,N,r,powiu(pp,N)), u = gel(uv,1), v = gel(uv,2);
     GEN M = mkmat2(mkcol2(gen_0, gen_m1), gdivgs(mkcol2(gen_1,ap),p));
     L = RgV_RgM_mul(mkvec2(u,gdivgs(v,-p)), gpowgs(M,N));
     u = gadd(gel(L,1), _0);

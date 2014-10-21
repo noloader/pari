@@ -41,7 +41,7 @@ p1N_get_fa(GEN p1N) { return gel(p1N,4); }
 static GEN
 p1N_get_div(GEN p1N) { return gel(p1N,5); }
 /* ms-specific accessors */
-/* W = msinit or ellmsinit */
+/* W = msinit or msfromell */
 static GEN
 get_ms(GEN W) { return lg(W) == 4? gel(W,1): W; }
 static GEN
@@ -86,13 +86,6 @@ static GEN
 msk_get_star(GEN W) { return gmael(W,2,2); }
 static GEN
 msk_get_starproj(GEN W) { return gmael(W,2,3); }
-/* ellmsinit-specific accessors */
-static GEN
-ellsym_get_W(GEN E) { GEN W = gel(E,1); return gel(W,1); }
-static GEN
-ellsym_get_dualell(GEN E) { return gel(E,2); }
-static GEN
-ellsym_get_ell(GEN E) { return gel(E,3); }
 
 void
 checkms(GEN W)
@@ -1701,12 +1694,12 @@ treat_index_trivial(GEN W, long index, int negate, GEN v)
   }
 }
 
-/* cusp cu a t_INT/t_FRAC, expresses {1/0 -> cu} as \sum x_i g_i, see mspathlog.
+/* cusp q a t_INT/t_FRAC, expresses {1/0 -> q} as \sum x_i g_i, see mspathlog.
  * Set v := [x_i]  ([-x_i] if negate) */
 static void
-Q_log(GEN v, GEN W, int negate, GEN cu)
+Q_log(GEN v, GEN W, int negate, GEN q)
 {
-  GEN PQ = ZV_allpnqn( gboundcf(cu, 0) );
+  GEN PQ = ZV_allpnqn( gboundcf(q, 0) );
   GEN P = gel(PQ,1), Q = gel(PQ,2), a,b,c,d;
   long i, lx = lg(P);
 
@@ -1723,30 +1716,9 @@ Q_log(GEN v, GEN W, int negate, GEN cu)
     treat_index(W, M, index, negate, v);
   }
 }
+/* Q_log for cusp [a,b] in case the action is trivial, q = a/b */
 static void
-P1Q_log(GEN v, GEN W, int negate, GEN c)
-{
-  switch(typ(c))
-  {
-    case t_INFINITY: break;
-    case t_INT:
-    case t_FRAC:
-      Q_log(v, W, negate, c);
-      break;
-    default:
-      pari_err_TYPE("mspathlog",c);
-  }
-}
-/* cusp in P^1(Q): expresses {oo -> cusp} as \sum x_i g_i, see mspathlog */
-static void
-cusplog(GEN v, GEN W, int negate, GEN cusp)
-{
-  if (cusp[2]) Q_log(v,W,negate,cusp_to_frac(cusp));
-}
-
-/* cusplog for cusp [a,b] in case the action is trivial, q = a/b */
-static void
-cusplog_trivial_frac(GEN v, GEN W, int negate, GEN q)
+Q_log_trivial(GEN v, GEN W, int negate, GEN q)
 {
   GEN Q, W3 = gel(W,3), p1N = gel(W,1);
   ulong c,d, N = p1N_get_N(p1N);
@@ -1764,13 +1736,43 @@ cusplog_trivial_frac(GEN v, GEN W, int negate, GEN q)
     treat_index_trivial(W, index, negate, v);
   }
 }
+static void
+P1Q_log(GEN v, GEN W, int negate, GEN c)
+{
+  switch(typ(c))
+  {
+    case t_INFINITY: break;
+    case t_INT: case t_FRAC:
+      Q_log(v, W, negate, c);
+      break;
+    default:
+      pari_err_TYPE("mspathlog",c);
+  }
+}
+/* same with trivial action */
+static void
+P1Q_log_trivial(GEN v, GEN W, int negate, GEN c)
+{
+  switch(typ(c))
+  {
+    case t_INFINITY: break;
+    case t_INT: case t_FRAC:
+      Q_log_trivial(v, W, negate, c);
+      break;
+    default:
+      pari_err_TYPE("mspathlog",c);
+  }
+}
+
+/* cusp in P^1(Q): expresses {oo -> cusp} as \sum x_i g_i, see mspathlog */
+static void
+cusplog(GEN v, GEN W, int negate, GEN cusp)
+{ if (cusp[2]) Q_log(v,W,negate,cusp_to_frac(cusp)); }
+
 /* cusplog in case the action is trivial */
 static void
 cusplog_trivial(GEN v, GEN W, int negate, GEN cusp)
-{
-  if (!cusp[2]) return;
-  return cusplog_trivial_frac(v,W,negate,cusp_to_frac(cusp));
-}
+{ if (cusp[2]) return Q_log_trivial(v,W,negate,cusp_to_frac(cusp)); }
 
 /* Expresses path p as \sum x_i g_i, where the g_i are our distinguished
  * generators and x_i \in Z[\Gamma]. Returns [x_1,...,x_n] */
@@ -1784,26 +1786,37 @@ mspathlog_i(GEN W, GEN p)
   cusplog(v, W, 1, gel(p,1));
   return v;
 }
-GEN
-mspathlog(GEN W, GEN p)
-{
-  pari_sp av = avma;
-  GEN v, a,b;
-  checkms(W); W = get_ms(W);
-  if (typ(p) != t_VEC || lg(p) != 3) pari_err_TYPE("mspathlog",p);
-  a = gel(p,1);
-  b = gel(p,2);
-  v = zerovec(ms_get_nbgen(W));
-  P1Q_log(v,W,0,b);
-  P1Q_log(v,W,1,a);
-  return gerepilecopy(av, v);
-}
 /* in case the action is trivial: v += mspathlog(path) */
 static void
 mspathlog_i_trivial(GEN v, GEN W, GEN path)
 {
   cusplog_trivial(v, W, 0, gel(path,2));
   cusplog_trivial(v, W, 1, gel(path,1));
+}
+
+GEN
+mspathlog(GEN W, GEN p)
+{
+  pari_sp av = avma;
+  GEN v;
+  checkms(W); W = get_ms(W);
+  if (typ(p) != t_VEC || lg(p) != 3) pari_err_TYPE("mspathlog",p);
+  v = zerovec(ms_get_nbgen(W));
+  P1Q_log(v,W,0,gel(p,2));
+  P1Q_log(v,W,1,gel(p,1));
+  return gerepilecopy(av, v);
+}
+static GEN
+mspathlog_trivial(GEN W, GEN p)
+{
+  pari_sp av = avma;
+  GEN v;
+  W = get_ms(W);
+  if (typ(p) != t_VEC || lg(p) != 3) pari_err_TYPE("mspathlog",p);
+  v = zerovec(ms_get_nbgen(W));
+  P1Q_log_trivial(v,W,0,gel(p,2));
+  P1Q_log_trivial(v,W,1,gel(p,1));
+  return gerepilecopy(av, v);
 }
 
 /** HECKE OPERATORS **/
@@ -2566,61 +2579,65 @@ msinit(GEN N, GEN K, long sign)
   return gerepilecopy(av, W);
 }
 
-/* E = ellmsinit struct; c t_FRAC or +oo; image of <0->c> */
+/* W = msinit, xpm modular symbol attached to elliptic curve E;
+ * c t_FRAC or +oo; image of <0->c> */
 GEN
-Q_xpm(GEN E, GEN c)
+Q_xpm(GEN W, GEN xpm, GEN c)
 {
   pari_sp av = avma;
-  GEN dualell = ellsym_get_dualell(E), W = ellsym_get_W(E);
-  GEN v = init_act_trivial(W);
-  GEN oo_0 = gmael(W,15,1);
-  long index = gel(oo_0,1)[1];
-
-  cusplog_trivial_frac(v, W, 0, c); /* oo -> (a:b), c = a/b */
+  GEN v, oo_0;
+  long index;
+  W = get_ms(W);
+  v = init_act_trivial(W);
+  oo_0 = gmael(W,15,1);
+  index = gel(oo_0,1)[1];
+  Q_log_trivial(v, W, 0, c); /* oo -> (a:b), c = a/b */
   treat_index_trivial(W, index, 1, v); /* - (oo->0) to correct to 0 -> (a:b) */
-  return gerepileuptoint(av, ZV_dotproduct(dualell,v));
+  return gerepileuptoint(av, RgV_dotproduct(xpm,v));
 }
 
-/* evaluate symbol s on mspathlog B (= sum p_i g_i, p_i in Z[G]) */
+/* Evaluate symbol s on mspathlog B (= sum p_i g_i, p_i in Z[G]) */
 static GEN
-mseval_values(GEN W, GEN s, GEN B)
+mseval_by_values(GEN W, GEN s, GEN p)
 {
-  long k = msk_get_weight(W);
-  GEN e;
+  long i, l, k = msk_get_weight(W);
+  GEN A, B;
+
   if (k == 2)
-    e = RgV_dotproduct(B,s);
-  else
-  {
-    long i,l;
-    GEN A = cgetg_copy(s,&l);
-    for (i=1; i<l; i++)
-    {
-      GEN a = gel(s,i), b = gel(B,i);
-      if (isintzero(b)) { gel(A,i) = gen_0; continue; }
-      b = RgX_act_ZGl2Q(b, k);
-      switch(typ(a))
-      {
-        case t_POL:
-          a = RgX_to_RgC(a, k-1);
-        case t_COL:
-          a = RgM_RgC_mul(b,a);
-          break;
-        default: a = RgC_Rg_mul(gel(b,1),a);
-      }
-      gel(A,i) = a;
-    }
-    e = RgV_sum(A);
+  { /* trivial represention: don't bother with Z[G] */
+    B = mspathlog_trivial(W,p);
+    return RgV_dotproduct(s,B);
   }
-  return e;
+
+  A = cgetg_copy(s,&l);
+  B = mspathlog(W,p);
+  for (i=1; i<l; i++)
+  {
+    GEN a = gel(s,i), b = gel(B,i);
+    if (isintzero(b)) { gel(A,i) = gen_0; continue; }
+    b = RgX_act_ZGl2Q(b, k);
+    switch(typ(a))
+    {
+      case t_POL:
+        a = RgX_to_RgC(a, k-1);
+      case t_COL:
+        a = RgM_RgC_mul(b,a);
+        break;
+      default: a = RgC_Rg_mul(gel(b,1),a);
+    }
+    gel(A,i) = a;
+  }
+  return RgV_sum(A);
 }
 /* evaluate symbol s on path p */
 GEN
 mseval(GEN W, GEN s, GEN p)
 {
   pari_sp av = avma;
-  long i, l, nbgen, v = 0;
+  long i, k, l, nbgen, v = 0;
   GEN e;
   checkms(W);
+  k = msk_get_weight(W);
   nbgen = ms_get_nbgen(W);
   switch(typ(s))
   {
@@ -2629,34 +2646,40 @@ mseval(GEN W, GEN s, GEN p)
       if (!p) return gcopy(s);
       v = gvar(s);
       break;
-    case t_COL: /* on the basis phi_{i,j} */
-    {
-      GEN basis = msk_get_basis(W);
-      l = lg(basis);
-      if (lg(s) != l) pari_err_TYPE("mseval",s);
-      e = const_vec(nbgen, gen_0);
-      for (i=1; i<l; i++)
+    case t_COL:
+      if (k == 2) /* on the dual basis of (g_i) */
       {
-        GEN phi, ind, pols, c = gel(s,i);
-        long j, m;
-        if (gequal0(c)) continue;
-        phi = gel(basis,i);
-        ind = gel(phi,2); m = lg(ind);
-        pols = gel(phi,3);
-        for (j=1; j<m; j++) {
-          long k = ind[j];
-          gel(e,k) = gadd(gel(e,k), gmul(c, gel(pols,j)));
-        }
+        if (lg(s)-1 != nbgen) pari_err_TYPE("mseval",s);
+        if (!p) return gtrans(s);
       }
-      s = e;
+      else
+      { /* on the basis phi_{i,j} */
+        GEN basis = msk_get_basis(W);
+        l = lg(basis);
+        if (lg(s) != l) pari_err_TYPE("mseval",s);
+        e = const_vec(nbgen, gen_0);
+        for (i=1; i<l; i++)
+        {
+          GEN phi, ind, pols, c = gel(s,i);
+          long j, m;
+          if (gequal0(c)) continue;
+          phi = gel(basis,i);
+          ind = gel(phi,2); m = lg(ind);
+          pols = gel(phi,3);
+          for (j=1; j<m; j++) {
+            long t = ind[j];
+            gel(e,t) = gadd(gel(e,t), gmul(c, gel(pols,j)));
+          }
+        }
+        s = e;
+      }
       break;
-    }
     default: pari_err_TYPE("mseval",s);
   }
   if (p)
   {
-    s = mseval_values(W,s,mspathlog(W,p));
-    s = RgV_to_RgX(s, v);
+    s = mseval_by_values(W,s,p);
+    if (k != 2) s = RgV_to_RgX(s, v);
   }
   else
   {
@@ -2673,15 +2696,14 @@ mseval(GEN W, GEN s, GEN p)
 #if 0
 /* <0->oo>: unused */
 static GEN
-xpmoo(GEN E)
+xpmoo(GEN W, GEN xpm)
 {
   pari_sp av = avma;
-  GEN dualell = ellsym_get_dualell(E), W = ellsym_get_W(E);
   GEN v = init_act_trivial(W);
   GEN oo_0 = gmael(W,15,1);
   long index = gel(oo_0,1)[1];
   treat_index_trivial(W, index, 1, v); /* - (oo->0) to correct to 0 -> (a:b) */
-  return gerepileuptoint(av, ZV_dotproduct(dualell,v));
+  return gerepileuptoint(av, ZV_dotproduct(xpm,v));
 }
 #endif
 
@@ -2696,7 +2718,7 @@ twistcurve(GEN e, GEN D)
 
 /* sum_{a < |D|} (D/a)*xpm(E,a/D) */
 static GEN
-get_X(GEN E, long D)
+get_X(GEN W, GEN xpm, long D)
 {
   ulong a, d = (ulong)labs(D);
   GEN t = gen_0;
@@ -2706,7 +2728,7 @@ get_X(GEN E, long D)
     long s = kross(D,a);
     GEN x;
     if (!s) continue;
-    nc[2] = a; x = Q_xpm(E, c);
+    nc[2] = a; x = Q_xpm(W, xpm, c);
     t = (s > 0)? addii(t, x): subii(t, x);
   }
   return t;
@@ -2734,46 +2756,46 @@ get_Q(GEN E)
   L = ellL1(E, 0, DEFAULTPREC);
   n = sqrtr(divrr(mulru(L, t2), mulri(w1,tam)));
   n = grndtoi(n, &ex);
-  if (ex > -5) pari_err_BUG("ellmsinit (can't compute analytic |Sha|)");
+  if (ex > -5) pari_err_BUG("msfromell (can't compute analytic |Sha|)");
   return gdivgs(mulii(tam,sqri(n)), t2);
 }
 
 /* return C such that C*L(E,1)_{xpm} = L(E,1) / w1 */
 static GEN
-ell_get_scale(GEN E, long s)
+ell_get_scale(GEN E, GEN W, GEN xpm, long s)
 {
-  pari_sp av = avma;
-  GEN Q, X = NULL, e;
+  GEN Q, X = NULL;
   long d;
 
   /* find D = s*d such that twist by D has rank 0 */
-  for (d = 1; d < LONG_MAX; d++,avma=av)
+  for (d = 1; d < LONG_MAX; d++)
   {
+    pari_sp av = avma;
     if (s < 0)
     { if (!unegisfundamental(d)) continue; }
     else
     { if (!uposisfundamental(d)) continue; }
-    X = get_X(E, s < 0? -d: d);
+    X = get_X(W, xpm, s < 0? -d: d);
     if (signe(X)) break;
+    avma = av;
   }
-  if (d == LONG_MAX) pari_err_BUG("ellmsinit (no suitable twist)");
+  if (d == LONG_MAX) pari_err_BUG("msfromell (no suitable twist)");
   if (s < 0) d = -d;
-  e = ellsym_get_ell(E);
-  Q = get_Q(twistcurve(e, stoi(d)));
-  return gerepileupto(av, gdiv(gmulsg(get_alpha_d(e,d), Q), X));
+  Q = get_Q(twistcurve(E, stoi(d)));
+  return gdiv(gmulsg(get_alpha_d(E,d), Q), X);
 }
 
 GEN
-ellmsinit(GEN E, long sign)
+msfromell(GEN E, long sign)
 {
   pari_sp av = avma;
   GEN cond;
-  GEN W, K, dualell, scale_L;
+  GEN W, K, x, scale;
   ulong p, N;
   forprime_t T;
 
   if (labs(sign) != 1)
-    pari_err_DOMAIN("ellmsinit","abs(sign)","!=",gen_1,stoi(sign));
+    pari_err_DOMAIN("msfromell","abs(sign)","!=",gen_1,stoi(sign));
   E = ellminimalmodel(E, NULL);
   cond = gel(ellglobalred(E), 1);
   N = itou(cond);
@@ -2794,9 +2816,9 @@ ellmsinit(GEN E, long sign)
     if (lg(K2) < lg(K)) K = ZM_mul(K, K2);
     if (lg(K2)-1 == 1) break;
   }
-  if (!p) pari_err_BUG("ellmsinit: ran out of primes");
+  if (!p) pari_err_BUG("msfromell: ran out of primes");
   /* linear form = 0 on all Im(Tp - ap) and Im(S - sign) */
-  dualell = Q_primpart(gel(K,1)); settyp(dualell, t_VEC);
-  scale_L = ell_get_scale(mkvec3(W, dualell, E), sign);
-  return gerepilecopy(av, mkvec4(W, dualell, E, scale_L));
+  x = Q_primpart(gel(K,1));
+  scale = ell_get_scale(E, W, x, sign);
+  return gerepilecopy(av, mkvec2(W, RgC_Rg_mul(x, scale)));
 }

@@ -33,4 +33,6 @@ Doc: Let $\Delta:=\text{Div}^0(\P^1 \Q)$.
  %5 = [64*x^6-272*x^4+136*x^2-8, 384*x^5+960*x^4+192*x^3-672*x^2-432*x-72]
  ? mseval(M,s,g[1])
  %6 = 64*x^6 - 272*x^4 + 136*x^2 - 8
- @eprog
+ @eprog\noindent Note that the symbol should have values in
+ $V = \Q[x,y]_{k-2}$, we return the de-homogenized values corresponding to $y
+ = 1$ instead.

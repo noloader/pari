@@ -3602,14 +3602,14 @@ GEN     glambertW(GEN y, long prec);
 
 /* modsym.c */
 GEN     Eisenstein_symbol(GEN W, GEN c);
-GEN     Q_xpm(GEN E, GEN c);
+GEN     Q_xpm(GEN W, GEN xpm, GEN c);
 GEN     Qevproj_apply(GEN T, GEN pro);
 GEN     Qevproj_apply_vecei(GEN T, GEN pro, long k);
 GEN     Qevproj_init(GEN M);
 GEN     RgX_act_Gl2Q(GEN g, long k);
 GEN     RgX_act_ZGl2Q(GEN z, long k);
 void    checkms(GEN W);
-GEN     ellmsinit(GEN E, long signe);
+GEN     msfromell(GEN E, long signe);
 GEN     msatkinlehner(GEN W, long Q, GEN);
 GEN     mscuspidal(GEN W);
 GEN     mseisenstein(GEN W);
