@@ -632,6 +632,51 @@ FpE_tatepairing(GEN P, GEN Q, GEN m, GEN a4, GEN p)
 
 /***********************************************************************/
 /**                                                                   **/
+/**                   CM by principal order                           **/
+/**                                                                   **/
+/***********************************************************************/
+
+/* is jn/jd = J (mod p) */
+static int
+is_CMj(long J, GEN jn, GEN jd, GEN p)
+{ return remii(subii(mulis(jd,J), jn), p) == gen_0; }
+#ifndef LONG_IS_64BIT
+/* is jn/jd = -(2^32 a + b) (mod p) */
+static int
+u2_is_CMj(ulong a, ulong b, GEN jn, GEN jd, GEN p)
+{
+  GEN mJ = uu32toi(a,b);
+  return remii(addii(mulii(jd,mJ), jn), p) == gen_0;
+}
+#endif
+
+static long
+Fp_ellj_get_CM(GEN jn, GEN jd, GEN p)
+{
+#define CHECK(CM,J) if (is_CMj(J,jn,jd,p)) return CM;
+  CHECK(-3,  0);
+  CHECK(-4,  1728);
+  CHECK(-8,  8000);
+  CHECK(-12, 54000);
+  CHECK(-11, -32768);
+  CHECK(-16, 287496);
+  CHECK(-19, -884736);
+  CHECK(-27, -12288000);
+  CHECK(-28, 16581375);
+  CHECK(-43, -884736000);
+#ifdef LONG_IS_64BIT
+  CHECK(-67, -147197952000);
+  CHECK(-163, -262537412640768000);
+#else
+  if (u2_is_CMj(0x00000022UL,0x45ae8000UL,jn,jd,p)) return -67;
+  if (u2_is_CMj(0x03a4b862UL,0xc4b40000UL,jn,jd,p)) return -163;
+#endif
+#undef CHECK
+  return 0;
+}
+
+/***********************************************************************/
+/**                                                                   **/
 /**                            issupersingular                        **/
 /**                                                                   **/
 /***********************************************************************/
@@ -1266,19 +1311,6 @@ ap_cm(int CM, long A6B, GEN a6, GEN p)
   if (kronecker(mulis(a6,A6B), p) < 0) s = -s;
   return s > 0? a: negi(a);
 }
-/* is jn/jd = J (mod p) */
-static int
-is_CMj(long J, GEN jn, GEN jd, GEN p)
-{ return remii(subii(mulis(jd,J), jn), p) == gen_0; }
-#ifndef LONG_IS_64BIT
-/* is jn/jd = -(2^32 a + b) (mod p) */
-static int
-u2_is_CMj(ulong a, ulong b, GEN jn, GEN jd, GEN p)
-{
-  GEN mJ = uu32toi(a,b);
-  return remii(addii(mulii(jd,mJ), jn), p) == gen_0;
-}
-#endif
 static GEN
 ec_ap_cm(int CM, GEN a4, GEN a6, GEN p)
 {
@@ -1309,30 +1341,16 @@ Fl_elltrace_CM(int CM, ulong a4, ulong a6, ulong p)
   a = ec_ap_cm(CM, utoi(a4), utoi(a6), utoipos(p));
   avma = av; return itos(a);
 }
+
 static GEN
 CM_ellap(GEN a4, GEN a6, GEN jn, GEN jd, GEN p)
 {
-#define CHECK(CM,J) if (is_CMj(J,jn,jd,p)) return ec_ap_cm(CM,a4,a6,p);
+  long CM;
   if (!signe(a4)) return ap_j0(a6,p);
   if (!signe(a6)) return ap_j1728(a4,p);
-  CHECK(-7,  -3375);
-  CHECK(-8,  8000);
-  CHECK(-12, 54000);
-  CHECK(-11, -32768);
-  CHECK(-16, 287496);
-  CHECK(-19, -884736);
-  CHECK(-27, -12288000);
-  CHECK(-28, 16581375);
-  CHECK(-43, -884736000);
-#ifdef LONG_IS_64BIT
-  CHECK(-67, -147197952000);
-  CHECK(-163, -262537412640768000);
-#else
-  if (u2_is_CMj(0x00000022UL,0x45ae8000UL,jn,jd,p)) return ec_ap_cm(-67,a4,a6,p);
-  if (u2_is_CMj(0x03a4b862UL,0xc4b40000UL,jn,jd,p)) return ec_ap_cm(-163,a4,a6,p);
-#endif
-#undef CHECK
-  return NULL;
+  CM = Fp_ellj_get_CM(jn, jd, p);
+  if (CM < 0) return ec_ap_cm(CM,a4,a6,p);
+  else return NULL;
 }
 
 static GEN
