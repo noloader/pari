@@ -632,6 +632,140 @@ FpE_tatepairing(GEN P, GEN Q, GEN m, GEN a4, GEN p)
 
 /***********************************************************************/
 /**                                                                   **/
+/**                            issupersingular                        **/
+/**                                                                   **/
+/***********************************************************************/
+
+static GEN
+modpoly2(void)
+{
+  GEN b0 = negi(strtoi("157464000000000"));
+  GEN b1 = strtoi("8748000000");
+  GEN b2 = stoi(-162000), b3 = stoi(1488);
+  GEN a2 = mkpoln(3,gen_m1, b3, b2);
+  GEN a1 = mkpoln(3,b3, stoi(40773375), b1);
+  GEN a0 = mkpoln(4,gen_1, b2, b1, b0);
+  setvarn(a0, 1); setvarn(a1, 1); setvarn(a2, 1);
+  return mkpoln(4, gen_1, a2, a1, a0);
+}
+
+INLINE ulong
+sum_of_linear_multiplicities(GEN famat)
+{
+  GEN factors = gel(famat, 1);
+  GEN multiplicities = gel(famat, 2);
+  long sum = 0, lgfactors = lg(factors), i;
+  for (i = 1; i < lgfactors; ++i) {
+    if (degree(gel(factors, i)) == 1)
+      sum += multiplicities[i];
+  }
+  return sum;
+}
+
+INLINE GEN
+roots_from_famat(GEN famat, GEN T, GEN p)
+{
+  GEN factors = gel(famat, 1);
+  ulong lgfactors = lg(factors), i;
+  GEN roots = vectrunc_init(lgfactors);
+  for (i = 1; i < lgfactors; ++i) {
+    if (degree(gel(factors, i)) == 1) {
+      GEN rt = Fq_neg(constant_term(gel(factors, i)), T, p);
+      vectrunc_append(roots, rt);
+    }
+  }
+  return roots;
+}
+
+/*
+ * pol is the modular polynomial of level 2 modulo p.
+ *
+ * (T, p) defines the field FF_{p^2} in which j_prev and j live.
+ */
+static long
+path_extends_to_floor(GEN j_prev, GEN j, GEN T, GEN p, GEN Phi2, ulong max_len)
+{
+  pari_sp ltop = avma;
+  GEN famat;
+  ulong mult, d;
+
+  /* A path made its way to the floor if (i) its length was cut off
+   * before reaching max_path_len, or (ii) it reached max_path_len but
+   * only has one neighbour. */
+  for (d = 1; d < max_len; ++d) {
+    GEN Phi2_j, famat, nbrs;
+    ulong deg_m1, n_nbrs;
+
+    Phi2_j = FqX_div_by_X_x(FqXY_evalx(Phi2, j, T, p), j_prev, T, p, NULL);
+    famat = FqX_factor(Phi2_j, T, p);
+    deg_m1 = sum_of_linear_multiplicities(famat);
+
+    if (deg_m1 == 0) {
+      /* j is on the floor */
+      avma = ltop;
+      return 1;
+    }
+
+    nbrs = roots_from_famat(famat, T, p);
+    n_nbrs = lg(nbrs) - 1;
+    if (n_nbrs == 0) {
+      /* Nowhere to go but not yet on the floor. */
+      pari_err_BUG("path_extends_to_floor");
+    }
+
+    j_prev = j;
+    j = gel(nbrs, random_Fl(n_nbrs) + 1);
+    if (gc_needed(ltop, 2))
+      gerepileall(ltop, 2, &j, &j_prev);
+  }
+
+  /* Check that we didn't end up at the floor on the last step (j will
+   * point to the last element in the path. */
+  famat = FqX_factor(FqXY_evalx(Phi2, j, T, p), T, p);
+  mult = sum_of_linear_multiplicities(famat);
+  avma = ltop;
+  return mult == 1 ? 1 : 0;
+}
+
+static int
+jissupersingular(GEN j, GEN S, GEN p)
+{
+  long max_path_len = expi(p)+1;
+  GEN Phi2 = FpXX_red(modpoly2(), p);
+  GEN famat = FqX_factor(FqXY_evalx(Phi2, j, S, p), S, p);
+  long deg = sum_of_linear_multiplicities(famat);
+  int res = 1;
+
+  /* Every node in a supersingular L-volcano has L + 1 neighbours. */
+  if (deg < 2+1)
+    res = 0;
+  else {
+    GEN nhbrs = roots_from_famat(famat, S, p);
+    long i, l = lg(nhbrs);
+    for (i = 1; i < l; ++i) {
+      if (path_extends_to_floor(j, gel(nhbrs, i), S, p, Phi2, max_path_len)) {
+        res = 0;
+        break;
+      }
+    }
+  }
+  /* If none of the paths reached the floor, then the j-invariant is
+   * supersingular. */
+  return res;
+}
+
+int
+Fp_elljissupersingular(GEN j, GEN p)
+{
+  pari_sp ltop = avma;
+  GEN S = init_Fq(p, 2, MAXVARN);
+  int res = jissupersingular(j, S, p);
+  avma = ltop;
+  return res;
+}
+
+/***********************************************************************/
+/**                                                                   **/
 /**                            Cardinal                               **/
 /**                                                                   **/
 /***********************************************************************/
@@ -1683,7 +1817,7 @@ FpXQE_tatepairing(GEN P, GEN Q, GEN m, GEN a4, GEN T, GEN p)
 
 /***********************************************************************/
 /**                                                                   **/
-/**                           Point counting                          **/
+/**                           issupersingular                         **/
 /**                                                                   **/
 /***********************************************************************/
 
@@ -1701,6 +1835,49 @@ FpXQ_ellj(GEN a4, GEN a6, GEN T, GEN p)
     return gerepileuptoleaf(av, FpXQ_div(num, den, T, p));
   }
 }
+
+int
+FpXQ_elljissupersingular(GEN j, GEN T, GEN p)
+{
+  pari_sp ltop = avma;
+
+  /* All supersingular j-invariants are in FF_{p^2}, so we first check
+   * whether j is in FF_{p^2}.  If d is odd, then FF_{p^2} is not a
+   * subfield of FF_{p^d} so the j-invariants are all in FF_p.  Hence
+   * the j-invariants are in FF_{p^{2 - e}}. */
+  ulong d = get_FpX_degree(T);
+  GEN S;
+  int res;
+
+  if (degpol(j) <= 0) return Fp_elljissupersingular(constant_term(j), p);
+
+  /* Set S so that FF_p[T]/(S) is isomorphic to FF_{p^2}: */
+  if (d == 2)
+    S = T;
+  else { /* d > 2 */
+    /* We construct FF_{p^2} = FF_p[t]/((T - j)(T - j^p)) which
+     * injects into FF_{p^d} via the map T |--> j. */
+    GEN j_pow_p = FpXQ_pow(j, p, T, p);
+    GEN j_sum = FpX_add(j, j_pow_p, p), j_prod;
+    long var = varn(T);
+    if (degpol(j_sum) > 0) { avma = ltop; return 0; /* j not in Fp^2 */ }
+    j_prod = FpXQ_mul(j, j_pow_p, T, p);
+    if (degpol(j_prod) > 0 ) { avma = ltop; return 0; /* j not in Fp^2 */ }
+    j_sum = constant_term(j_sum); j_prod = constant_term(j_prod);
+    S = mkpoln(3, gen_1, Fp_neg(j_sum, p), j_prod);
+    setvarn(S, var);
+    j = pol_x(var);
+  }
+  res = jissupersingular(j, S, p);
+  avma = ltop;
+  return res;
+}
+
+/***********************************************************************/
+/**                                                                   **/
+/**                           Point counting                          **/
+/**                                                                   **/
+/***********************************************************************/
 
 GEN
 elltrace_extension(GEN t, long n, GEN q)

@@ -6298,6 +6298,60 @@ ellfromj(GEN j)
   return ellfromj_simple(j);
 }
 
+/********************************************************************/
+/**                                                                **/
+/**                       IS SUPERSINGULAR                         **/
+/**                                                                **/
+/********************************************************************/
+
+int
+elljissupersingular(GEN x)
+{
+  pari_sp av = avma;
+  int res;
+
+  if (typ(x) == t_INTMOD) {
+    GEN p = gel(x, 1);
+    GEN j = gel(x, 2);
+    res = Fp_elljissupersingular(j, p);
+  } else if (typ(x) == t_FFELT) {
+    GEN j = FF_to_FpXQ_i(x);
+    GEN p = FF_p_i(x);
+    GEN T = FF_mod(x);
+    res = FpXQ_elljissupersingular(j, T, p);
+  } else {
+    pari_err_TYPE("elljissupersingular", x);
+    return 0; /*NOT REACHED*/
+  }
+  avma = av;
+  return res;
+}
+
+int
+ellissupersingular(GEN E, GEN p)
+{
+  if (typ(E)!=t_VEC && !p)
+    return elljissupersingular(E);
+  p = checkellp(E, p, "ellissupersingular");
+  switch(ell_get_type(E))
+  {
+  case t_ELL_Fp:
+  case t_ELL_Fq:
+      return elljissupersingular(ell_get_j(E));
+    break;
+  case t_ELL_Q:
+    {
+      pari_sp av = avma;
+      int res = Fp_elljissupersingular(Rg_to_Fp(ell_get_j(E), p), p);
+      avma = av; return res;
+    }
+    break;
+  default:
+    pari_err_TYPE("ellissupersingular",E);
+  }
+  return 0; /* Not reached */
+}
+
 /* n <= 4, N is the characteristic of the base ring or NULL (char 0) */
 static GEN
 elldivpol4(GEN e, GEN N, long n, long v)

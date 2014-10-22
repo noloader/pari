@@ -365,6 +365,9 @@ parameters $a_4$ and $a_6$ are given as \typ{INT}s when required.
 \fun{GEN}{Fp_ellj}{GEN a4, GEN a6, GEN p}
 returns the $j$-invariant of the curve $E$.
 
+\fun{int}{Fp_elljissupersingular}{GEN j, GEN p} returns $1$ if $j$ is the
+$j$-invariant of a supersingular curve over $\F_p$, $0$ otherwise.
+
 \fun{GEN}{Fp_ellcard}{GEN a4, GEN a6, GEN p} returns the cardinal of the group
 $E(\F_p)$.
 
@@ -610,6 +613,9 @@ in $\F_p[X]/(T)$.  A \kbd{FpXQE} is a point of $E(\F_p[X]/(T))$.
 
 \fun{GEN}{FpXQ_ellj}{GEN a4, GEN a6, GEN T, GEN p}
 returns the $j$-invariant of the curve $E$.
+
+\fun{int}{FpXQ_elljissupersingular}{GEN j, GEN T, GEN p} returns $1$ if $j$ is
+the $j$-invariant of a supersingular curve over $\F_p[X]/(T)$, $0$ otherwise.
 
 \fun{GEN}{FpXQ_ellcard}{GEN a4, GEN a6, GEN T, GEN p}
 returns the order of $E(\F_p[X]/(T))$.

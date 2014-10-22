@@ -155,6 +155,8 @@ BA 53- [libpari] functions Fl_powers, Fp_powers, Fl_ellj,
 BA 54- [libpari] functions FpXQX_div_by_X_x, FqX_div_by_X_x
 HIL55- [libpari] function Flx_oneroot_split
 BA 56- [libpari] functions Flv_inv_pre, Flv_inv_inplace, Flv_inv_inplace_pre
+HIL57- GP function ellissupersingular
+HIL58- [libpari] functions Fp_elljissupersingular, FpXQ_elljissupersingular,
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]
