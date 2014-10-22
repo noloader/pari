@@ -423,6 +423,7 @@ break_loop(int numerr)
 
   b = filtered_buffer(&F);
   nenv=pari_stack_new(&s_env);
+  prompt = break_loop_prompt(s_env.n-1);
   gp_context_save(&rec);
   iferr_env = NULL;
   dbg_level = 0;
@@ -435,7 +436,6 @@ break_loop(int numerr)
     msg = "Break loop: type 'break' to go back to GP prompt";
   print_errcontext(pariOut, msg, NULL, NULL);
   term_color(c_NONE);
-  prompt = break_loop_prompt(s_env.n-1);
   av = avma;
   for(;;)
   {

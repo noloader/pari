@@ -1216,8 +1216,9 @@ gp_sigint_fun(void) {
 const char *
 break_loop_prompt(long n)
 {
-  char s[32];
+  char *s;
   if (n == 1) return gp_format_prompt("break> ");
+  s = stack_malloc(32);
   sprintf(s, "break[%ld]> ", n);
   return gp_format_prompt(s);
 }
