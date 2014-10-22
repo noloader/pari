@@ -82,6 +82,7 @@ BA 60- ellcard over non-prime fields of large char could return wrong results
    61- [libpari] FpX_roots could produce GC errors [#1618]
    62- weber(1+I) was missing its imaginary part
    63- (1+I)*(1+1/2*I) => wrong result (type errors) [#1619]
+   64- contfracpnqn([a]) => [1,a;0,1] instead of [a,1;1,0]
 
   Added
     1- add optional argument to sumdigits to specify the base
