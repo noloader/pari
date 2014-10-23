@@ -803,10 +803,14 @@ int
 Fp_elljissupersingular(GEN j, GEN p)
 {
   pari_sp ltop = avma;
-  GEN S = init_Fq(p, 2, MAXVARN);
-  int res = jissupersingular(j, S, p);
-  avma = ltop;
-  return res;
+  long CM = Fp_ellj_get_CM(j, gen_1, p);
+  if (CM < 0) return krosi(CM, p) < 0;
+  else
+  {
+    GEN S = init_Fq(p, 2, MAXVARN);
+    int res = jissupersingular(j, S, p);
+    avma = ltop; return res;
+  }
 }
 
 /***********************************************************************/
