@@ -658,7 +658,7 @@ zv_to_Flv(GEN z, ulong p)
 {
   long i, l = lg(z);
   GEN x = cgetg(l,t_VECSMALL);
-  for (i=1; i<l; i++) x[i] = smodss(z[i],p);
+  for (i=1; i<l; i++) x[i] = umodsu(z[i], p);
   return x;
 }
 

@@ -605,6 +605,11 @@ smodss(long x, long y)
   long r = x%y;
   return (r >= 0)? r: labs(y) + r;
 }
+INLINE ulong
+umodsu(long x, ulong y)
+{
+  return x>=0 ? x%y: Fl_neg((-x)%y, y);
+}
 
 INLINE long
 sdivss_rem(long x, long y, long *r)
