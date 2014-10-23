@@ -706,34 +706,6 @@ FqX_quad_root(GEN x, GEN T, GEN p)
   return Fq_Fp_mul(Fq_sub(s, b, T, p), shifti(addis(p, 1),-1),T, p);
 }
 
-INLINE ulong
-sum_of_linear_multiplicities(GEN famat)
-{
-  GEN factors = gel(famat, 1);
-  GEN multiplicities = gel(famat, 2);
-  long sum = 0, lgfactors = lg(factors), i;
-  for (i = 1; i < lgfactors; ++i) {
-    if (degree(gel(factors, i)) == 1)
-      sum += multiplicities[i];
-  }
-  return sum;
-}
-
-INLINE GEN
-roots_from_famat(GEN famat, GEN T, GEN p)
-{
-  GEN factors = gel(famat, 1);
-  ulong lgfactors = lg(factors), i;
-  GEN roots = vectrunc_init(lgfactors);
-  for (i = 1; i < lgfactors; ++i) {
-    if (degree(gel(factors, i)) == 1) {
-      GEN rt = Fq_neg(constant_term(gel(factors, i)), T, p);
-      vectrunc_append(roots, rt);
-    }
-  }
-  return roots;
-}
-
 /*
  * pol is the modular polynomial of level 2 modulo p.
  *
@@ -778,18 +750,19 @@ jissupersingular(GEN j, GEN S, GEN p)
 {
   long max_path_len = expi(p)+1;
   GEN Phi2 = FpXX_red(modpoly2(), p);
-  GEN famat = FqX_factor(FqXY_evalx(Phi2, j, S, p), S, p);
-  long deg = sum_of_linear_multiplicities(famat);
+  GEN Phi2_j = FqXY_evalx(Phi2, j, S, p);
+  GEN roots = FqX_roots(Phi2_j, S, p);
+  long nbroots = lg(roots)-1;
   int res = 1;
 
   /* Every node in a supersingular L-volcano has L + 1 neighbours. */
-  if (deg < 2+1)
+  /* Note: a multiple root only occur when j has CM by sqrt(-15). */
+  if (nbroots==0 || (nbroots==1 && FqX_is_squarefree(Phi2_j, S, p)))
     res = 0;
   else {
-    GEN nhbrs = roots_from_famat(famat, S, p);
-    long i, l = lg(nhbrs);
+    long i, l = lg(roots);
     for (i = 1; i < l; ++i) {
-      if (path_extends_to_floor(j, gel(nhbrs, i), S, p, Phi2, max_path_len)) {
+      if (path_extends_to_floor(j, gel(roots, i), S, p, Phi2, max_path_len)) {
         res = 0;
         break;
       }
