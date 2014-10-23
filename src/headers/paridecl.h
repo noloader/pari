@@ -345,6 +345,7 @@ const struct bb_field *get_Flxq_field(void **E, GEN T, ulong p);
 GEN     pol1_FlxX(long v, long sv);
 GEN     polx_FlxX(long v, long sv);
 GEN     random_Flx(long d1, long v, ulong p);
+GEN     zx_to_Flx(GEN x, ulong p);
 GEN     zxX_to_Kronecker(GEN P, GEN Q);
 
 /* FlxqE.c */

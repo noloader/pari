@@ -5917,7 +5917,10 @@ vector of polynomials with \typ{INT} coefficients (repeated calls to
 polynomials with \typ{INT} coefficients (repeated calls to \kbd{Flx\_to\_ZX}).
 
 \fun{GEN}{zx_to_ZX}{GEN z}, as \kbd{Flx\_to\_ZX}, without assuming
-coefficients are non-negative.
+the coefficients to be non-negative.
+
+\fun{GEN}{zx_to_Flx}{GEN z, ulong p} as \kbd{Flx\_red} without assuming
+the coefficients to be non-negative.
 
 \fun{GEN}{Flc_to_ZC}{GEN z}, converts to \kbd{ZC} (\typ{COL} of non-negative
 \typ{INT}s in this case)
