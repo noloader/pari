@@ -2599,7 +2599,7 @@ static GEN
 add_star(GEN W, long sign)
 {
   GEN s = msstar_i(W);
-  GEN K = keri(gsubgs(s, sign));
+  GEN K = QM_ker(gsubgs(s, sign));
   gel(W,2) = mkvec3(stoi(sign), s, Qevproj_init(K));
   return W;
 }
