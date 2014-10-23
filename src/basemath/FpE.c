@@ -694,6 +694,17 @@ modpoly2(void)
   return mkpoln(4, gen_1, a2, a1, a0);
 }
 
+/* assume x reduced mod p, monic. Return one root, or NULL if irreducible */
+static GEN
+FqX_quad_root(GEN x, GEN T, GEN p)
+{
+  GEN b = gel(x,3), c = gel(x,2);
+  GEN D = Fq_sub(Fq_sqr(b, T, p), Fq_mulu(c,4, T, p), T, p);
+  GEN s = Fq_sqrt(D,T, p);
+  if (!s) return NULL;
+  return Fq_Fp_mul(Fq_sub(s, b, T, p), shifti(addis(p, 1),-1),T, p);
+}
+
 INLINE ulong
 sum_of_linear_multiplicities(GEN famat)
 {
@@ -738,28 +749,17 @@ path_extends_to_floor(GEN j_prev, GEN j, GEN T, GEN p, GEN Phi2, ulong max_len)
    * before reaching max_path_len, or (ii) it reached max_path_len but
    * only has one neighbour. */
   for (d = 1; d < max_len; ++d) {
-    GEN Phi2_j, famat, nbrs;
-    ulong deg_m1, n_nbrs;
+    GEN Phi2_j, j_next;
 
     Phi2_j = FqX_div_by_X_x(FqXY_evalx(Phi2, j, T, p), j_prev, T, p, NULL);
-    famat = FqX_factor(Phi2_j, T, p);
-    deg_m1 = sum_of_linear_multiplicities(famat);
-
-    if (deg_m1 == 0) {
-      /* j is on the floor */
+    j_next = FqX_quad_root(Phi2_j, T, p);
+    if (!j_next)
+    { /* j is on the floor */
       avma = ltop;
       return 1;
     }
 
-    nbrs = roots_from_famat(famat, T, p);
-    n_nbrs = lg(nbrs) - 1;
-    if (n_nbrs == 0) {
-      /* Nowhere to go but not yet on the floor. */
-      pari_err_BUG("path_extends_to_floor");
-    }
-
-    j_prev = j;
-    j = gel(nbrs, random_Fl(n_nbrs) + 1);
+    j_prev = j; j = j_next;
     if (gc_needed(ltop, 2))
       gerepileall(ltop, 2, &j, &j_prev);
   }
