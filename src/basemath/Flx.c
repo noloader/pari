@@ -3116,6 +3116,16 @@ Fly_to_FlxY(GEN B, long sv)
 }
 
 GEN
+zxX_to_FlxX(GEN B, ulong p)
+{
+  long i, lb = lg(B);
+  GEN b = cgetg(lb,t_POL);
+  for (i=2; i<lb; i++)
+    gel(b,i) = zx_to_Flx(gel(B,i), p);
+  b[1] = B[1]; return FlxX_renormalize(b, lb);
+}
+
+GEN
 FlxX_to_ZXX(GEN B)
 {
   long i, lb = lg(B);
