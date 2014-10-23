@@ -2849,6 +2849,27 @@ FqX_factor_i(GEN f, GEN T, GEN p)
   T = FpX_normalize(T, p);
   f = FqX_normalize(f, T, p);
   if (isabsolutepol(f)) return FpX_factorff_i(simplify_shallow(f), T, p);
+  if (degpol(f)==2)
+  {
+    long v = varn(f);
+    GEN r = FqX_quad_roots(f,T,p);
+    switch(lg(r)-1)
+    {
+    case 0:
+      return mkvec2(mkcolcopy(f), mkvecsmall(1));
+    case 1:
+      return mkvec2(mkcol(deg1pol_shallow(gen_1, Fq_neg(gel(r,1), T, p), v)),
+                    mkvecsmall(2));
+    case 2:
+      {
+        GEN f1 = deg1pol_shallow(gen_1, Fq_neg(gel(r,1), T, p), v);
+        GEN f2 = deg1pol_shallow(gen_1, Fq_neg(gel(r,2), T, p), v);
+        t = mkcol2(f1, f2); E = mkvecsmall2(1, 1);
+        sort_factor_pol(mkvec2(t, E), cmp_RgX);
+        return mkvec2(t, E);
+      }
+    }
+  }
 
   pg = itos_or_0(p);
   df2  = NULL; /* gcc -Wall */
