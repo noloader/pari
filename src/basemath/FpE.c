@@ -656,9 +656,10 @@ Fp_ellj_get_CM(GEN jn, GEN jd, GEN p)
 #define CHECK(CM,J) if (is_CMj(J,jn,jd,p)) return CM;
   CHECK(-3,  0);
   CHECK(-4,  1728);
+  CHECK(-7,  -3375);
   CHECK(-8,  8000);
-  CHECK(-12, 54000);
   CHECK(-11, -32768);
+  CHECK(-12, 54000);
   CHECK(-16, 287496);
   CHECK(-19, -884736);
   CHECK(-27, -12288000);
