@@ -743,14 +743,14 @@ static long
 path_extends_to_floor(GEN j_prev, GEN j, GEN T, GEN p, GEN Phi2, ulong max_len)
 {
   pari_sp ltop = avma;
-  GEN famat;
+  GEN Phi2_j;
   ulong mult, d;
 
   /* A path made its way to the floor if (i) its length was cut off
    * before reaching max_path_len, or (ii) it reached max_path_len but
    * only has one neighbour. */
   for (d = 1; d < max_len; ++d) {
-    GEN Phi2_j, j_next;
+    GEN j_next;
 
     Phi2_j = FqX_div_by_X_x(FqXY_evalx(Phi2, j, T, p), j_prev, T, p, NULL);
     j_next = FqX_quad_root(Phi2_j, T, p);
@@ -767,10 +767,10 @@ path_extends_to_floor(GEN j_prev, GEN j, GEN T, GEN p, GEN Phi2, ulong max_len)
 
   /* Check that we didn't end up at the floor on the last step (j will
    * point to the last element in the path. */
-  famat = FqX_factor(FqXY_evalx(Phi2, j, T, p), T, p);
-  mult = sum_of_linear_multiplicities(famat);
+  Phi2_j = FqX_div_by_X_x(FqXY_evalx(Phi2, j, T, p), j_prev, T, p, NULL);
+  mult = FqX_nbroots(Phi2_j, T, p);
   avma = ltop;
-  return mult == 1 ? 1 : 0;
+  return mult == 0;
 }
 
 static int
