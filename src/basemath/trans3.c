@@ -1306,7 +1306,7 @@ inv_szeta_euler(long n, double lba, long prec)
     GEN h;
 
     if (l < BITS_IN_LONG) l = BITS_IN_LONG;
-    l = maxss(prec, nbits2prec(l));
+    l = minss(prec, nbits2prec(l));
     h = divrr(z, rpowuu(p, (ulong)n, l));
     z = subrr(z, h);
     if (gc_needed(av,1))
