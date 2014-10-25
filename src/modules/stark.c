@@ -19,7 +19,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #include "pari.h"
 #include "paripriv.h"
 
-#define EXTRA_PREC DEFAULTPREC-2
+static const long EXTRA_PREC = DEFAULTPREC-2;
+static const long EXTRA_BITS = 64;
 
 /* ComputeCoeff */
 typedef struct {
@@ -2577,14 +2578,10 @@ LABDOUB:
   {
     long incr_pr;
     if (++cpt >= 3) pari_err_PREC( "stark (computation impossible)");
-
-    /* compute the precision, we need
-          a) get at least EXTRA_PREC fractional digits if there is none;
-       or b) double the fractional digits.
-    */
+    /* estimate needed precision */
     incr_pr = prec2nbits(gprecision(polrelnum))- gexpo(polrelnum);
-    if (incr_pr < 0) incr_pr = -incr_pr + EXTRA_PREC;
-    newprec += nbits2extraprec(maxss(3*EXTRA_PREC, cpt*incr_pr));
+    if (incr_pr < 0) incr_pr = -incr_pr + EXTRA_BITS;
+    newprec += nbits2extraprec(maxss(3*EXTRA_BITS, cpt*incr_pr));
     if (DEBUGLEVEL) pari_warn(warnprec, "AllStark", newprec);
 
     nf = nfnewprec_shallow(nf, newprec);
