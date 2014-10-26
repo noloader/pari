@@ -1025,7 +1025,7 @@ color_prompt(const char *prompt)
 }
 #else
 static const char *
-color_prompt(const char *prompt) { return prompt; }
+color_prompt(const char *prompt) { return stack_strdup(prompt); }
 #endif
 
 const char *
