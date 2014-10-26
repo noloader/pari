@@ -938,7 +938,7 @@ randomprime(GEN N)
       b = subiu(N,1); /* between 2 and N-1 */
       d = subiu(N,2);
       if (signe(d) <= 0)
-        pari_err_DOMAIN("randomprime","N", "<", gen_2, N);
+        pari_err_DOMAIN("randomprime","N", "<=", gen_2, N);
       break;
     case t_VEC:
       if (lg(N) != 3) pari_err_TYPE("randomprime",N);

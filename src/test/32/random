@@ -11,7 +11,7 @@ a^2
 Mod(5, 7)*x^3 + Mod(2, 7)*x^2 + Mod(1, 7)*x + Mod(6, 7)
   ***   at top-level: randomprime(2)
   ***                 ^--------------
-  *** randomprime: domain error in randomprime: N < 2
+  *** randomprime: domain error in randomprime: N <= 2
   ***   at top-level: randomprime([0,1])
   ***                 ^------------------
   *** randomprime: domain error in randomprime: floor(b) - max(ceil(a),2) < 0
@@ -27,4 +27,4 @@ Mod(5, 7)*x^3 + Mod(2, 7)*x^2 + Mod(1, 7)*x + Mod(6, 7)
   ***   at top-level: random("")
   ***                 ^----------
   *** random: incorrect type in genrand (t_STR).
-Total time spent: 4
+Total time spent: 0
