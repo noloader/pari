@@ -1279,6 +1279,7 @@ GEN     primeform_u(GEN x, ulong p);
 GEN     qfbcompraw(GEN x, GEN y);
 GEN     qfbpowraw(GEN x, long n);
 GEN     qfbred0(GEN x, long flag, GEN D, GEN isqrtD, GEN sqrtD);
+GEN     qfbredsl2(GEN q, GEN S);
 GEN     qfbsolve(GEN Q, GEN n);
 GEN     qfi(GEN x, GEN y, GEN z);
 GEN     qfi_1(GEN x);

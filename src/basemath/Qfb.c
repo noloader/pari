@@ -1350,6 +1350,42 @@ redrealsl2(GEN V, GEN d, GEN rd)
 }
 
 GEN
+qfbredsl2(GEN q, GEN S)
+{
+  GEN v, D, isD;
+  pari_sp av;
+  switch(typ(q))
+  {
+    case t_QFI:
+      if (S) pari_err_TYPE("qfbredsl2",S);
+      v = cgetg(3,t_VEC);
+      gel(v,1) = redimagsl2(q, &gel(v,2));
+      return v;
+    case t_QFR:
+      av = avma;
+      if (S) {
+        if (typ(S) != t_VEC || lg(S) != 3) pari_err_TYPE("qfbredsl2",S);
+        D = gel(S,1);
+        isD = gel(S,2);
+        if (typ(D) != t_INT || signe(D) <= 0 || typ(isD) != t_INT)
+          pari_err_TYPE("qfbredsl2",S);
+      }
+      else
+      {
+        D = qfb_disc(q);
+        isD = sqrtint(D);
+      }
+      v = redrealsl2(q,D,isD);
+      gel(v,1) = qfr3_to_qfr(gel(v,1), real_0(precision(gel(q,4))));
+      return gerepilecopy(av, v);
+
+    default:
+        pari_err_TYPE("qfbredsl2",q);
+        return NULL;
+  }
+}
+
+GEN
 qfrsolvep(GEN Q, GEN p)
 {
   pari_sp ltop = avma, btop;
