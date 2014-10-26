@@ -1308,12 +1308,12 @@ redrealsl2step(GEN A, GEN d, GEN rd)
   pari_sp ltop = avma;
   GEN N, V = gel(A,1), M = gel(A,2);
   GEN a = gel(V,1), b = gel(V,2), c = gel(V,3);
-  GEN ac = mpabs(c);
-  GEN r = addii(b, gmax(rd, ac));
-  GEN q = truedvmdii(r, shifti(ac, 1), NULL);
-  r = subii(mulii(shifti(q, 1), ac), b);
-  a = c; b = r;
-  c = truedvmdii(subii(sqri(r), d), shifti(c,2), NULL);
+  GEN C = mpabs(c);
+  GEN t = addii(b, gmax(rd, C));
+  GEN r, q = truedvmdii(t, shifti(C,1), &r);
+  b = subii(t, addii(r,b));
+  a = c;
+  c = truedivii(subii(sqri(b), d), shifti(c,2));
   if (signe(a) < 0) togglesign(q);
   N = mkmat2(gel(M,2),
              mkcol2(subii(mulii(q, gcoeff(M, 1, 2)), gcoeff(M, 1, 1)),
@@ -1330,12 +1330,12 @@ redrealsl2(GEN V, GEN d, GEN rd)
   u1 = v2 = gen_1; v1 = u2 = gen_0;
   while (!ab_isreduced(a,b,rd))
   {
-    GEN ac = mpabs(c);
-    GEN r = addii(b, gmax(rd,ac));
-    GEN q = truedvmdii(r, shifti(ac, 1), NULL);
-    r = subii(mulii(shifti(q, 1), ac), b);
-    a = c; b = r;
-    c = truedvmdii(subii(sqri(r), d), shifti(c, 2), NULL);
+    GEN C = mpabs(c);
+    GEN t = addii(b, gmax(rd,C));
+    GEN r, q = truedvmdii(t, shifti(C,1), &r);
+    b = subii(t, addii(r,b));
+    a = c;
+    c = truedivii(subii(sqri(b), d), shifti(c,2));
     if (signe(a) < 0) togglesign(q);
     r = u1; u1 = v1; v1 = subii(mulii(q, v1), r);
     r = u2; u2 = v2; v2 = subii(mulii(q, v2), r);
