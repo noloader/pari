@@ -1221,7 +1221,11 @@ primes_interval_zv(ulong a, ulong b)
   if (!a) return primes_upto_zv(b);
   if (b < a) return cgetg(1, t_VECSMALL);
   d = b - a;
-  if (d > 100000UL) d = (ulong)(primepi_upper_bound(b)-primepi_lower_bound(a));
+  if (d > 100000UL)
+  {
+    ulong D = (ulong)ceil(primepi_upper_bound(b)-primepi_lower_bound(a));
+    if (D < d) d = D;
+  }
   return primes_interval_i(a, b, d);
 }
 GEN
