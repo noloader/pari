@@ -5481,9 +5481,15 @@ $A[i]$ mod $P[i]$ for all $1\leq i\leq n$.  If \kbd{pt\_mod} is not \kbd{NULL},
 set \kbd{*pt\_mod} to $M$
 
 \fun{GEN}{Z_ZV_mod}{GEN A, GEN P}
-$P$ being a vector of integer (or \typ{VECSMALL}s) of length $n$,
+$P$ being a vector of integers of length $n$,
 return a vector $B$ of the same length such that
 $B[i]=A\pmod{P[i]}$ and $0\leq B[i] < P[i]$ for all $1\leq i\leq n$.
+
+\fun{GEN}{Z_nv_mod}{GEN A, GEN P}
+$P$ being a \typ{VECSMALL} of length $n$,
+return a \typ{VECSMALL} $B$ of the same length such that
+$B[i]=A\pmod{P[i]}$ and $0\leq B[i] < P[i]$ for all $1\leq i\leq n$.
+The entries of $P$ and $B$ are treated as \kbd{ulong}s.
 
 \medskip
 

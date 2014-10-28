@@ -2472,14 +2472,28 @@ Z_ZV_mod_tree(GEN P, GEN xa, GEN T)
     GEN u = gel(T, i+1);
     GEN v = gel(Tp, i+1);
     long l = lg(u)-1;
-    GEN R = cgetg(n+1, t_VEC);
-    for (j=1, k=1; j<=l; j++, k+=2)
+    if (typ(xa)==t_VECSMALL)
     {
-      gel(R,k) = modii(gel(v, j), gel(xa,k));
-      if (k < n)
-        gel(R,k+1) = modii(gel(v, j), gel(xa,k+1));
+      GEN R = cgetg(n+1, t_VECSMALL);
+      for (j=1, k=1; j<=l; j++, k+=2)
+      {
+        uel(R,k) = umodiu(gel(v, j), xa[k]);
+        if (k < n)
+          uel(R,k+1) = umodiu(gel(v, j), xa[k+1]);
+      }
+      return R;
     }
-    return R;
+    else
+    {
+      GEN R = cgetg(n+1, t_VEC);
+      for (j=1, k=1; j<=l; j++, k+=2)
+      {
+        gel(R,k) = modii(gel(v, j), gel(xa,k));
+        if (k < n)
+          gel(R,k+1) = modii(gel(v, j), gel(xa,k+1));
+      }
+      return R;
+    }
   }
 }
 
@@ -2537,6 +2551,12 @@ Z_ZV_mod(GEN P, GEN xa)
   pari_sp av = avma;
   GEN T = ZV_producttree(xa);
   return gerepileuptoleaf(av, Z_ZV_mod_tree(P, xa, T));
+}
+
+GEN
+Z_nv_mod(GEN P, GEN xa)
+{
+  return Z_ZV_mod(P, xa);
 }
 
 static GEN

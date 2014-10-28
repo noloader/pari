@@ -1353,6 +1353,7 @@ long    Z_isfundamental(GEN x);
 long    Z_ispow2(GEN x);
 long    Z_ispowerall(GEN x, ulong k, GEN *pt);
 long    Z_issquareall(GEN x, GEN *pt);
+GEN     Z_nv_mod(GEN P, GEN xa);
 GEN     ZV_allpnqn(GEN x);
 GEN     ZV_chinese(GEN xa, GEN ya, GEN *pt_mod);
 long    Zp_issquare(GEN a, GEN p);
