@@ -486,7 +486,6 @@ Qevproj_init0(GEN M)
       if (lg(M) == 5) return M;
       break;
     case t_MAT:
-      checksqmat(M, lg(M)-1);
       M = Q_primpart(M);
       RgM_check_ZM(M,"Qevproj_init");
       return Qevproj_init(M);
