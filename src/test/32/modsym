@@ -81,16 +81,16 @@ x^4 - 113*x^3 - 1872*x^2 - 6208*x + 8192
 [[[-5; -1; -1], Mat(1), -5, Vecsmall([1])], [[0, 0; -1, 0; 0, -1], [-1, 0; 0
 , -1], 1, Vecsmall([2, 3])]]
 1
-[1, Mod(x, x^2 + x - 1), Mod(-2*x - 1, x^2 + x - 1), Mod(-x - 1, x^2 + x - 1
-), Mod(2*x, x^2 + x - 1), Mod(x - 2, x^2 + x - 1), Mod(2*x + 2, x^2 + x - 1)
-, Mod(-2*x - 1, x^2 + x - 1), Mod(2, x^2 + x - 1), Mod(-2*x + 2, x^2 + x - 1
-), Mod(-2*x - 4, x^2 + x - 1), Mod(x + 3, x^2 + x - 1), Mod(3, x^2 + x - 1),
- Mod(2, x^2 + x - 1), Mod(2*x - 4, x^2 + x - 1), Mod(3*x, x^2 + x - 1), Mod(
--2*x + 2, x^2 + x - 1), Mod(2*x, x^2 + x - 1), Mod(-2, x^2 + x - 1), Mod(-2,
- x^2 + x - 1), Mod(-2*x - 6, x^2 + x - 1), Mod(-2*x - 2, x^2 + x - 1), Mod(1
-, x^2 + x - 1), Mod(5, x^2 + x - 1), Mod(-4*x - 1, x^2 + x - 1), Mod(3*x, x^
-2 + x - 1), Mod(2*x + 1, x^2 + x - 1), Mod(-2*x - 4, x^2 + x - 1), Mod(-3, x
-^2 + x - 1), Mod(-6*x + 2, x^2 + x - 1)]
+[Mod(1, x^2 + x - 1), Mod(x, x^2 + x - 1), Mod(-2*x - 1, x^2 + x - 1), Mod(-
+x - 1, x^2 + x - 1), Mod(2*x, x^2 + x - 1), Mod(x - 2, x^2 + x - 1), Mod(2*x
+ + 2, x^2 + x - 1), Mod(-2*x - 1, x^2 + x - 1), Mod(2, x^2 + x - 1), Mod(-2*
+x + 2, x^2 + x - 1), Mod(-2*x - 4, x^2 + x - 1), Mod(x + 3, x^2 + x - 1), Mo
+d(3, x^2 + x - 1), Mod(2, x^2 + x - 1), Mod(2*x - 4, x^2 + x - 1), Mod(3*x, 
+x^2 + x - 1), Mod(-2*x + 2, x^2 + x - 1), Mod(2*x, x^2 + x - 1), Mod(-2, x^2
+ + x - 1), Mod(-2, x^2 + x - 1), Mod(-2*x - 6, x^2 + x - 1), Mod(-2*x - 2, x
+^2 + x - 1), Mod(1, x^2 + x - 1), Mod(5, x^2 + x - 1), Mod(-4*x - 1, x^2 + x
+ - 1), Mod(3*x, x^2 + x - 1), Mod(2*x + 1, x^2 + x - 1), Mod(-2*x - 4, x^2 +
+ x - 1), Mod(-3, x^2 + x - 1), Mod(-6*x + 2, x^2 + x - 1)]
 
 [1 0 0 0 0 0]
 
@@ -162,4 +162,4 @@ x^4 - 113*x^3 - 1872*x^2 - 6208*x + 8192
 1
 1
 0
-Total time spent: 1164
+Total time spent: 1136
