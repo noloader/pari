@@ -2713,7 +2713,7 @@ mseval(GEN W, GEN s, GEN p)
   if (p)
   {
     s = mseval_by_values(W,s,p);
-    if (k != 2) s = RgV_to_RgX(s, v);
+    if (k != 2 && is_vec_t(typ(s))) s = RgV_to_RgX(s, v);
   }
   else
   {
