@@ -162,4 +162,5 @@ x^2 + x - 1), Mod(-2*x + 2, x^2 + x - 1), Mod(2*x, x^2 + x - 1), Mod(-2, x^2
 1
 1
 0
-Total time spent: 1136
+1
+Total time spent: 1080

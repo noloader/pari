@@ -1980,16 +1980,31 @@ getMorphism_basis(GEN W, GEN vecT)
 static GEN
 ZGl2Q_act_s(GEN b, GEN a, long k)
 {
-  if (isintzero(b)) return gen_0;
-  b = RgX_act_ZGl2Q(ZGl2Q_star(b), k);
-  switch(typ(a))
+  if (typ(b) == t_INT)
   {
-    case t_POL:
-      a = RgX_to_RgC(a, k-1);
-    case t_COL:
-      a = RgM_RgC_mul(b,a);
-      break;
-    default: a = RgC_Rg_mul(gel(b,1),a);
+    if (!signe(b)) return gen_0;
+    switch(typ(a))
+    {
+      case t_POL:
+        a = RgX_to_RgC(a, k-1); /*fall through*/
+      case t_COL:
+        a = RgC_Rg_mul(a,b);
+        break;
+      default: a = scalarcol_shallow(b,k-1);
+    }
+  }
+  else
+  {
+    b = RgX_act_ZGl2Q(ZGl2Q_star(b), k);
+    switch(typ(a))
+    {
+      case t_POL:
+        a = RgX_to_RgC(a, k-1); /*fall through*/
+      case t_COL:
+        a = RgM_RgC_mul(b,a);
+        break;
+      default: a = RgC_Rg_mul(gel(b,1),a);
+    }
   }
   return a;
 }
@@ -2013,15 +2028,10 @@ checksymbol(GEN W, GEN s)
   annT2 = gel(W,8); nbT2 = lg(annT2)-1;
   annT31 = gel(W,9);nbT31 = lg(annT31)-1;
   t = NULL;
-  for (i = 1; i <= nbE1; i++)
+  for (i = 1; i < l; i++)
   {
     GEN a = gel(s,i);
     a = ZGl2Q_act_s(gel(singlerel,i), a, k);
-    t = t? gadd(t, a): a;
-  }
-  for (; i < l; i++)
-  {
-    GEN a = gel(s,i);
     t = t? gadd(t, a): a;
   }
   if (!gcmp0(t)) return 0;

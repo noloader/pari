@@ -71,3 +71,9 @@ S = mseval(W,s);
 msissymbol(W,S)
 T=S; T[3]++;
 msissymbol(W,T)
+
+M = msinit(7,8, 1);
+N = msnew(M)[1];
+s = N[,1];
+S = mseval(M,s);
+msissymbol(M, S)
