@@ -1788,7 +1788,6 @@ QM_imZ_hnf_aux(GEN A)
 {
   pari_sp av = avma;
   long i,j,k,n,m;
-  GEN a;
 
   n = lg(A);
   if (n == 1) return cgetg(1,t_MAT);
@@ -1801,6 +1800,7 @@ QM_imZ_hnf_aux(GEN A)
   m = lgcols(A);
   for (i=1; i<m; i++)
   {
+    GEN b;
     for (j = k = 1; j<n; j++)
     {
       GEN a = gcoeff(A,i,j);
@@ -1810,11 +1810,11 @@ QM_imZ_hnf_aux(GEN A)
       /* zero a = Aij  using  b = Aik */
       QC_elem(a, gcoeff(A,i,k), A, j,k);
     }
-    a = gcoeff(A,i,k);
-    if (!gequal0(a))
+    b = gcoeff(A,i,k);
+    if (!gequal0(b))
     {
-      a = Q_denom(a);
-      if (!is_pm1(a)) gel(A,k) = RgC_Rg_mul(gel(A,k), a);
+      b = Q_denom(b);
+      if (!is_pm1(b)) gel(A,k) = RgC_Rg_mul(gel(A,k), b);
     }
     if (gc_needed(av,1))
     {
