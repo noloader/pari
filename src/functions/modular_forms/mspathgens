@@ -3,12 +3,12 @@ Section: modular_forms
 C-Name: mspathgens
 Prototype: G
 Help: mspathgens(M): M being a full modular symbol space, as given by
- msinit, return a set of Z[G] generators for Div^0(P^1 Q). The output
+ msinit, return a set of Z[G]-generators for Div^0(P^1 Q). The output
  is [g,R], where g is a minimal system of generators and R the vector of
  Z[G]-relations between the given generators.
-Doc: Let $\Delta:=\text{Div}^0(\P^1 \Q)$.
+Doc: Let $\Delta:=\text{Div}^0(\P^1(\Q))$.
  Let $M$ being a full modular symbol space, as given by \kbd{msinit},
- Return a set of $\Z[G]$ generators for $\Delta$. The output
+ return a set of $\Z[G]$-generators for $\Delta$. The output
  is $[g,R]$, where $g$ is a minimal system of generators and $R$
  the vector of $\Z[G]$-relations between the given generators. A
  relation is coded by a vector of pairs $[a_i,i]$ with $a_i\in \Z[G]$
@@ -43,7 +43,8 @@ Doc: Let $\Delta:=\text{Div}^0(\P^1 \Q)$.
  \bprog
  ? M = msinit(2,8); \\ M_8(Gamma_0(2))
  ? [g,R] = mspathgens(M);
- %2 = [[+oo, 0], [0, 1]]
+ ? g
+ %3 = [[+oo, 0], [0, 1]]
  @eprog\noindent
  Note that the output depends only on the group $G$, not on the
  representation $V$.
