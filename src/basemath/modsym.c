@@ -676,7 +676,7 @@ msqexpansion_i(GEN W, GEN proV, ulong B)
   if (dTiv) ciM = gdiv(ciM, dTiv);
   L = const_vec(B,NULL);
   sqrtB = (ulong)sqrt(B);
-  gel(L,1) = gen_1;
+  gel(L,1) = d > 1? mkpolmod(gen_1,ch): gen_1;
   for (p = 2; p <= B; p++)
   {
     pari_sp av = avma;
