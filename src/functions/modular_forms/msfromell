@@ -14,7 +14,8 @@ Doc: Let $E/\Q$ be an elliptic curve of conductor $N$. Return the (cuspidal,
  $p$-adic measure yields the $p$-adic $L$-function. Namely, for an odd
  fundamental discriminant $d$ such that $\var{sign}\cdot d > 0$ and
  $L(E^{(d)},1) \neq 0$, let $D = |d|$; we then have $$\sum_{0<a<D} (d|a)
- x^{\pm}([a/D]-[0]) = L(E^{(d),1)}) / \Omega_d,$$ where $\Omega_d$ is the real
+ x^{\pm}([a/D]-[0]) = L(E^{(d),1)}) / \Omega_d,$$ where
+ $(d|a)$ is the Kronecker symbol and $\Omega_d$ is the real
  period of the twist $E^{(d)}$.
 
  This function returns the pair $[M, x]$, where $M$ is
