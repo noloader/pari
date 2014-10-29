@@ -124,6 +124,18 @@ returned.
 \fun{void}{ellQ_get_Nfa}{GEN e, GEN *N, GEN *faN} sets $N$ to the conductor
 and \kbd{faN} to its factorization
 
+\fun{int}{ell_is_integral}{GEN e} return $1$ if $e$ is given by an integral
+model, and $0$ otherwise.
+
+\fun{long}{ellQ_get_CM}{GEN e} if $e$ has CM by a principal imaginary
+quadratic order, return its discriminant. Else return $0$.
+
+\fun{long}{ellap_CM_fast}{GEN e, ulong p, long CM} assuming that $p$
+does not divide the discriminant of $E$ (in particular, $E$ has good
+reduction at $p$), and that \kbd{CM} is as given by \tet{ellQ_get_CM},
+return the trace of Frobenius for $E/\F_p$. This is meant to quickly compute
+lots of $a_p$, esp.~when $e$ has CM by a principal quadratic order.
+
 \fun{long}{ellrootno_global}{GEN e} returns $[c, [c_{p_1}, \dots,c_{p_k}]]$,
 where the \typ{INT} $c\in \{-1,1\}$ is the global root number, and the
 $c_{p_i}$ are the local root numbers at all prime divisors of the conductor,
@@ -132,6 +144,22 @@ ordered as in \kbd{faN} above.
 \fun{GEN}{ellheightoo}{GEN E, GEN P, long prec} given $P = [x,y]$ an affine
 point on $E$, return the (canonical) local height at infinity
 $\lambda_\infty(P) \in \R$.
+
+\fun{long}{ellorder_Q}{GEN E, GEN P} return the order of $P\in E(\Q)$, using
+the impossible value $0$ for a point of infinite order. Ultimately called
+by the generic \tet{ellorder} function.
+
+\fun{GEN}{point_to_a4a6}{GEN E, GEN P, GEN p, GEN *a4} given $E/\Q$,
+$p\neq 2,3$ not dividing the discriminant of $E$ and $P\in E(\Q)$ outside the
+kernel of reduction, return the image of $P$ on the short Weierstrass
+model $y^2 = x^3 + a_4x + a_6$ isomorphic to the reduction $E_p$ of $E$ at $p$.
+Also set \kbd{a4} to the $a_4$ coefficient in the above model. This function
+allows quick computations modulo varying primes $p$, avoiding the overhead of
+\kbd{ellinit}$(E,p)$, followed by a change of coordinates. It produces data
+suitable for \kbd{FpE} routines.
+
+\fun{GEN}{point_to_a4a6_Fl}{GEN E, GEN P, ulong p, ulong *pa4} as
+\tet{point_to_a4a6}, returning a \kbd{Fle}.
 
 \fun{GEN}{elldatagenerators}{GEN E} returns generators for $E(\Q)$
 extracted from Cremona's table.
@@ -153,6 +181,11 @@ original curve $e$ is updated as well with the same information.
 and \kbd{*tam} to the product of the local Tamagawa numbers, including
 the factor at infinity (multiply by the number of connected components
 of $e(\R)$).
+
+\fun{GEN}{ellintegralmodel}{GEN e, GEN *pv} return an integral model
+for $e$ (in \kd{ellinit} form, over $\Q$). Set $v = \kbd{NULL}$ (already
+integral, we returned $e$ itself), else to the variable change
+$[u,0,0,0]$ making $e$ integral. We have $u = 1/t$, $t > 1$.
 
 \subsubsec{Curves over a number field \var{nf}}
 
@@ -271,12 +304,20 @@ in standard Weierstrass form: $f = x^3+a_2x^2+a_4x+a_6$, $h = a_1x + a_3$.
 \fun{GEN}{ellbasechar}{GEN E} returns the characteristic of the base ring over
 which $E$ is defined.
 
+\fun{GEN}{ec_bmodel}{GEN E} returns the polynomial $4x^3 + b_2x^2 + 2b_4x +
+b_6$.
+
 \fun{GEN}{ec_f_evalx}{GEN E, GEN x} returns $f(x)$.
+
+\fun{GEN}{ec_h_evalx}{GEN E, GEN x} returns $h(x)$.
 
 \fun{GEN}{ec_dFdx_evalQ}{GEN E, GEN Q} returns $3x^2 + 2a_2x + a_4 -a_1y$,
 where $Q = [x,y]$.
 
 \fun{GEN}{ec_dFdy_evalQ}{GEN E, GEN Q} returns $-(2y + a_1 x + a_3)$,
+where $Q = [x,y]$.
+
+\fun{GEN}{ec_dmFdy_evalQ}{GEN e, GEN Q} returns $2y + a_1 x + a_3$,
 where $Q = [x,y]$.
 
 \fun{GEN}{ec_2divpol_evalx}{GEN E, GEN x} returns
@@ -447,8 +488,16 @@ equation $E:y^2=x^3+a_4\*x+a_6$, where $a_4$ and $a_6$ are \kbd{ulong}.
 A \kbd{Fle} is either the point at infinity (\kbd{ellinf()}), or a \kbd{Flv}
 with two components.
 
-\fun{long}{Fl_elltrace}{ulong a4, ulong a6, ulong p} returns the trace $t$ of the Frobenius of
-$E(\F_p)$. The cardinal of $E(\F_p)$ is thus $p+1-t$, which might not fit in a \kbd{ulong}.
+\fun{long}{Fl_elltrace}{ulong a4, ulong a6, ulong p} returns the trace $t$ of
+the Frobenius of $E(\F_p)$. The cardinal of $E(\F_p)$ is thus $p+1-t$, which
+might not fit in an \kbd{ulong}.
+
+\fun{long}{Fl_elltrace_CM}{long CM, ulong a4, ulong a6, ulong p} as
+\tet{Fl_elltrace}. If \kbd{CM} is $0$, use the standard algorithm; otherwise
+assume the curve has CM by a principal imaginary quadratic order of
+discriminant \kbd{CM} and use a faster algorithm. Useful when the curve is
+the reduction of $E/\Q$, which has CM by a principal order, and we need the
+trace of Frobenius for many distinct $p$, see \tet{ellQ_get_CM}.
 
 \fun{ulong}{Fl_ellj}{ulong a4, ulong a6, ulong p}
 returns the $j$-invariant of the curve $E$.
@@ -478,6 +527,11 @@ define the twist of $E$ by the discriminant $D$.
 \fun{GEN}{Fle_order}{GEN P, GEN o, ulong a4, ulong p}
 
 \fun{GEN}{random_Fle}{ulong a4, ulong a6, ulong p}
+
+\fun{GEN}{Fle_changepoint}{GEN x, GEN ch, ulong p}, \kbd{ch} is assumed
+to give the change of coordinates $[u,r,s,t]$ as a \typ{VECSMALL}.
+
+\fun{GEN}{Fle_changepointinv}{GEN x, GEN ch, ulong p}, as \tet{Fle_changepoint}
 
 \subsec{Elliptic curves over $\F_{2^n}$}
 Let $T$ be an irreducible \kbd{F2x} and $E$ the

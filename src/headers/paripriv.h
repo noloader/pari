@@ -423,9 +423,6 @@ char *file_getline(Buffer *b, char **s0, input_method *IM);
 
 /* By files */
 
-/* FpE.c */
-long Fl_elltrace_CM(int CM, ulong a4, ulong a6, ulong p);
-
 /* Qfb.c */
 
 GEN     redimagsl2(GEN q, GEN *U);

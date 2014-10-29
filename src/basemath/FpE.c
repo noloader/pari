@@ -21,6 +21,38 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 /**                              Fle                                  **/
 /**                                                                   **/
 /***********************************************************************/
+GEN
+Fle_changepoint(GEN x, GEN ch, ulong p)
+{
+  ulong p1,u,r,s,t,v,v2,v3;
+  GEN z;
+  if (ell_is_inf(x)) return x;
+  u = ch[1]; r = ch[2];
+  s = ch[3]; t = ch[4];
+  v = Fl_inv(u, p); v2 = Fl_sqr(v,p); v3 = Fl_mul(v,v2,p);
+  p1 = Fl_sub(x[1],r,p);
+  z = cgetg(3,t_VECSMALL);
+  z[1] = Fl_mul(v2, p1, p);
+  z[2] = Fl_mul(v3, Fl_sub(x[2], Fl_add(Fl_mul(s,p1, p),t, p),p),p);
+  return z;
+}
+
+GEN
+Fle_changepointinv(GEN x, GEN ch, ulong p)
+{
+  ulong u, r, s, t, X, Y, u2, u3, u2X;
+  GEN z;
+  if (ell_is_inf(x)) return x;
+  X = x[1]; Y = x[2];
+  u = ch[1]; r = ch[2];
+  s = ch[3]; t = ch[4];
+  u2 = Fl_sqr(u, p); u3 = Fl_mul(u,u2,p);
+  u2X = Fl_mul(u2,X, p);
+  z = cgetg(3, t_VECSMALL);
+  z[1] = Fl_add(u2X,r,p);
+  z[2] = Fl_add(Fl_mul(u3,Y,p), Fl_add(Fl_mul(s,u2X,p), t, p), p);
+  return z;
+}
 static GEN
 Fle_dbl_slope(GEN P, ulong a4, ulong p, ulong *slope)
 {
@@ -248,7 +280,7 @@ Fl_elltwist(ulong a4, ulong a6, ulong D, ulong p, ulong *pt_a4, ulong *pt_a6)
 /**                                                                   **/
 /***********************************************************************/
 
-/* Theses functions deal with point over elliptic curves over Fp defined
+/* These functions deal with point over elliptic curves over Fp defined
  * by an equation of the form y^2=x^3+a4*x+a6.
  * Most of the time a6 is omitted since it can be recovered from any point
  * on the curve.
@@ -1310,26 +1342,6 @@ ec_ap_cm(int CM, GEN a4, GEN a6, GEN p)
     default: return NULL;
   }
 }
-long
-Fl_elltrace_CM(int CM, ulong a4, ulong a6, ulong p)
-{
-  pari_sp av = avma;
-  GEN a;
-  if (p < 127) return p+1-Fl_ellcard_naive(a4, a6, p);
-  a = ec_ap_cm(CM, utoi(a4), utoi(a6), utoipos(p));
-  avma = av; return itos(a);
-}
-
-static GEN
-CM_ellap(GEN a4, GEN a6, GEN jn, GEN jd, GEN p)
-{
-  long CM;
-  if (!signe(a4)) return ap_j0(a6,p);
-  if (!signe(a6)) return ap_j1728(a4,p);
-  CM = Fp_ellj_get_CM(jn, jd, p);
-  if (CM < 0) return ec_ap_cm(CM,a4,a6,p);
-  else return NULL;
-}
 
 static GEN
 Fp_ellj_nodiv(GEN a4, GEN a6, GEN p)
@@ -1350,10 +1362,18 @@ Fp_ellj(GEN a4, GEN a6, GEN p)
 static GEN /* Only compute a mod p, so assume p>=17 */
 Fp_ellcard_CM(GEN a4, GEN a6, GEN p)
 {
-  pari_sp  av = avma;
-  GEN j = Fp_ellj_nodiv(a4, a6, p);
-  GEN a = CM_ellap(a4, a6, gel(j,1), gel(j,2), p);
-  return a ? gerepileupto(av, subii(addis(p,1),a)): NULL;
+  pari_sp av = avma;
+  GEN a;
+  if (!signe(a4)) a = ap_j0(a6,p);
+  else if (!signe(a6)) a = ap_j1728(a4,p);
+  else
+  {
+    GEN j = Fp_ellj_nodiv(a4, a6, p);
+    long CM = Fp_ellj_get_CM(gel(j,1), gel(j,2), p);
+    if (!CM) { avma = av; return NULL; }
+    a = ec_ap_cm(CM,a4,a6,p);
+  }
+  return gerepileuptoint(av, subii(addis(p,1),a));
 }
 
 GEN
@@ -1375,14 +1395,24 @@ Fp_ellcard(GEN a4, GEN a6, GEN p)
 long
 Fl_elltrace(ulong a4, ulong a6, ulong p)
 {
-  pari_sp av = avma;
-  long lp = expu(p), t;
-  if (lp < 7)
-    return p+1-Fl_ellcard_naive(a4, a6, p);
-  if (lp <= minss(56, BITS_IN_LONG-2))
-    return p+1-Fl_ellcard_Shanks(a4, a6, p);
-  t = itos(subui(p, Fp_ellcard(utoi(a4), utoi(a6), utoi(p)))) + 1;
-  avma = av; return t;
+  pari_sp av;
+  long lp;
+  GEN a;
+  if (p < 127) return p+1-Fl_ellcard_naive(a4, a6, p);
+  lp = expu(p);
+  if (lp <= minss(56, BITS_IN_LONG-2)) return p+1-Fl_ellcard_Shanks(a4, a6, p);
+  av = avma; a = subui(p+1, Fp_ellcard(utoi(a4), utoi(a6), utoipos(p)));
+  avma = av; return itos(a);
+}
+long
+Fl_elltrace_CM(long CM, ulong a4, ulong a6, ulong p)
+{
+  pari_sp av;
+  GEN a;
+  if (!CM) return Fl_elltrace(a4,a6,p);
+  if (p < 127) return p+1-Fl_ellcard_naive(a4, a6, p);
+  av = avma; a = ec_ap_cm(CM, utoi(a4), utoi(a6), utoipos(p));
+  avma = av; return itos(a);
 }
 
 static GEN

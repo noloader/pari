@@ -17,7 +17,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
  * curve E, return 0 otherwise */
 static long
 ellisweierstrasspoint(GEN E, GEN Q)
-{ return ell_is_inf(Q) || gequal0(ec_dFdy_evalQ(E, Q)); }
+{ return ell_is_inf(Q) || gequal0(ec_dmFdy_evalQ(E, Q)); }
 
 
 /* Given an elliptic curve E = [a1, a2, a3, a4, a6] and t,w in the ring of
@@ -454,7 +454,7 @@ isog_ordinate(GEN E, GEN kerp, GEN kerq, GEN x, GEN y, GEN two_tors, GEN f)
   if (! equalis(ellbasechar(E), 2L)) {
     /* FIXME: We don't use (hence don't need to calculate)
      * g2 = gel(two_tors, 4) when char(k) != 2. */
-    GEN psi2 = gneg(ec_dFdy_evalQ(E, mkvec2(x, y)));
+    GEN psi2 = ec_dmFdy_evalQ(E, mkvec2(x, y));
     g = non_two_torsion_ordinate_char_not2(E, f, kerp, psi2);
   } else {
     GEN h2 = gel(two_tors, 5);

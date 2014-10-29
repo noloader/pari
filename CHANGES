@@ -5,8 +5,7 @@ Done for version 2.8.0 (released ??/??/2014):
 
   Fixed
     1- make install fails on OS/X: ln -s libpari.dylib libpari.dylib fails
-    2- Q_pvalrem(t_FRAC) => wrong result
-    3- [] == 0 but []~ != 0  (now []~ == 0 as well) [#1560]
+    2- Q_pvalrem(t_FRAC) => wrong result 3- [] == 0 but []~ != 0  (now []~ == 0 as well) [#1560]
 BA  4- test-kernel did not work when using --mt=pthread
 BA  5- ellheegner was using too much memory in some case
     6- ellap can overflow on 32-bit machine [#1558]
@@ -107,7 +106,8 @@ LGr13- GP function polrootsreal
    14- GP constant "oo" (for +/- infinity)
    15- [libpari] New functions mkoo, mkmoo, inf_get_sign
    16- [libpari] New functions ellbasechar, ec_f_evalx, ec_dfdx_evalQ,
-   ec_dfdy_evalQ, ec_2divpol_evalx, ec_half_deriv_2divpol_evalx
+   ec_dfdy_evalQ, ec_2divpol_evalx, ec_half_deriv_2divpol_evalx, ec_h_evalx,
+   ec_dmFdy_evalQ, ec_bmodel
 HIL17- GP functions ellisogeny, ellisogenyapply
    18- [libpari] New function RgX_coeff
 BA 19- [libpari] New functions Fl_halve, Fp_halve, Flx_halve, Fq_halve
@@ -159,8 +159,11 @@ HIL55- [libpari] function Flx_oneroot_split, zxX_to_FlxX
 BA 56- [libpari] functions Flv_inv_pre, Flv_inv_inplace, Flv_inv_inplace_pre
 HIL57- GP function ellissupersingular
 HIL58- [libpari] functions Fp_elljissupersingular, FpXQ_elljissupersingular,
-BA 59- [libpari] function umodsu, zx_to_Flx
+BA 59- [libpari] functions umodsu, zx_to_Flx
    60- GP function qfbredsl2
+   61- [libpari] functions ell_is_integral, ellintegralmodel, ellQ_get_CM,
+   ellorder_Q, ellap_CM_fast, point_to_a4a6, point_to_a4a6, Fl_elltrace_CM,
+   Fle_changepoint, Fle_changepointinv
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]
