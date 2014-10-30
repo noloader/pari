@@ -5,7 +5,8 @@ Done for version 2.8.0 (released ??/??/2014):
 
   Fixed
     1- make install fails on OS/X: ln -s libpari.dylib libpari.dylib fails
-    2- Q_pvalrem(t_FRAC) => wrong result 3- [] == 0 but []~ != 0  (now []~ == 0 as well) [#1560]
+    2- Q_pvalrem(t_FRAC) => wrong result
+    3- [] == 0 but []~ != 0  (now []~ == 0 as well) [#1560]
 BA  4- test-kernel did not work when using --mt=pthread
 BA  5- ellheegner was using too much memory in some case
     6- ellap can overflow on 32-bit machine [#1558]
