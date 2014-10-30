@@ -3975,9 +3975,7 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: torsell(e) ===> elltors(e)
 
-elltors(E,{flag=0}): torsion subgroup of elliptic curve E: order, structure, 
-generators. If flag = 0, use division polynomials; if flag = 1, use 
-Lutz-Nagell; if flag = 2, use Doud's algorithm.
+elltors(E): torsion subgroup of elliptic curve E: order, structure, generators.
 
 
   ***   at top-level: trans()
@@ -4554,4 +4552,4 @@ New syntax: texprint(x) ===> printtex(x)
 printtex({str}*): outputs its string arguments in TeX format.
 
 
-Total time spent: 12
+Total time spent: 24
