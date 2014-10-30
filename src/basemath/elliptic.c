@@ -5838,12 +5838,12 @@ elldivpol4(GEN e, GEN N, long n, long v)
   {
     GEN b10 = gsub(gmul(b2, b8), gmul(b4, b6));
     GEN b12 = gsub(gmul(b8, b4), gsqr(b6));
-    res = mkpoln(7, N? modsi(2, N): gen_2,b2,gmulsg(5,b4),gmulsg(10,b6),gmulsg(10,b8),b10,b12);
+    res = mkpoln(7, N? modsi(2,N): gen_2,b2,gmulsg(5,b4),gmulsg(10,b6),gmulsg(10,b8),b10,b12);
   }
   setvarn(res, v); return res;
 }
 
-/* T = (2y + a1x + a3)^2 modulo the curve equation. Store elldivpol(e,n,v)
+/* T = (2y + a1x + a3)^4 modulo the curve equation. Store elldivpol(e,n,v)
  * in t[n]. N is the caracteristic of the base ring or NULL (char 0) */
 static GEN
 elldivpol0(GEN e, GEN t, GEN N, GEN T, long n, long v)
@@ -5879,7 +5879,7 @@ GEN
 elldivpol(GEN e, long n, long v)
 {
   pari_sp av = avma;
-  GEN ret, D, N;
+  GEN f, D, N;
   checkell(e); D = ell_get_disc(e);
   if (v==-1) v = 0;
   if (varncmp(gvar(D), v) <= 0) pari_err_PRIORITY("elldivpol", e, "<=", v);
@@ -5887,19 +5887,61 @@ elldivpol(GEN e, long n, long v)
   if (!signe(N)) N = NULL;
   if (n<0) n = -n;
   if (n==1 || n==3)
-    ret = elldivpol4(e, N, n, v);
+    f = elldivpol4(e, N, n, v);
   else
   {
     GEN d2 = ec_bmodel(e); /* (2y + a1x + 3)^2 mod E */
     setvarn(d2,v);
     if (N && !mod2(N)) { gel(d2,5) = modsi(4,N); d2 = normalizepol(d2); }
     if (n <= 4)
-      ret = elldivpol4(e, N, n, v);
+      f = elldivpol4(e, N, n, v);
     else
-      ret = elldivpol0(e, const_vec(n,NULL), N,RgX_sqr(d2), n, v);
-    if (n%2==0) ret = RgX_mul(ret, d2);
+      f = elldivpol0(e, const_vec(n,NULL), N,RgX_sqr(d2), n, v);
+    if (n%2==0) f = RgX_mul(f, d2);
   }
-  return gerepilecopy(av, ret);
+  return gerepilecopy(av, f);
+}
+
+/* return [phi_n, (psi_n)^2] such that x[nP] = phi_n / (psi_n)^2 */
+GEN
+ellxn(GEN e, long n, long v)
+{
+  pari_sp av = avma;
+  GEN d2, D, N, A, B;
+  checkell(e); D = ell_get_disc(e);
+  if (v==-1) v = 0;
+  if (varncmp(gvar(D), v) <= 0) pari_err_PRIORITY("elldivpol", e, "<=", v);
+  N = characteristic(D);
+  if (!signe(N)) N = NULL;
+  if (n<0) n = -n;
+  d2 = ec_bmodel(e); /* (2y + a1x + 3)^2 mod E */
+  setvarn(d2,v);
+  if (N && !mod2(N)) { gel(d2,5) = modsi(4,N); d2 = normalizepol(d2); }
+  if (n == 2)
+  {
+    GEN b4 = ell_get_b4(e);
+    GEN b6 = ell_get_b6(e);
+    GEN b8 = ell_get_b8(e);
+    A = d2;
+    /* phi_2 = x^4 - b4*x^2 - 2b6*x - b8 */
+    B = mkpoln(5, gen_1, gen_0, gneg(b4), gmul2n(gneg(b6),1), gneg(b8));
+    setvarn(B,v);
+  }
+  else
+  {
+    GEN t = const_vec(n+1,NULL), T = RgX_sqr(d2);
+    GEN f = elldivpol0(e, t, N, T, n, v); /* f_n / d2^(n odd)*/
+    GEN g = elldivpol0(e, t, N, T, n-1, v); /* f_{n-1} / d2^(n even) */
+    GEN h = elldivpol0(e, t, N, T, n+1, v); /* f_{n+1} / d2^(n even) */
+    GEN f2 = RgX_sqr(f), u = RgX_mul(g,h);
+    if (!odd(n))
+      A = RgX_mul(f2, d2);
+    else
+    { A = f2; u = RgX_mul(u,d2); }
+    /* A = psi_n^2, u = psi_{n-1} psi_{n+1} */
+    B = RgX_sub(RgX_mulXn(A,1), u);
+  }
+  return gerepilecopy(av, mkvec2(B,A));
 }
 
 GEN

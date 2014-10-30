@@ -2201,6 +2201,7 @@ GEN     ellweilpairing(GEN E, GEN t, GEN s, GEN m);
 GEN     ellwp(GEN w, GEN z, long prec);
 GEN     ellwp0(GEN w, GEN z, long flag, long prec);
 GEN     ellwpseries(GEN e, long v, long PRECDL);
+GEN     ellxn(GEN e, long n, long v);
 GEN     ellzeta(GEN om, GEN z, long prec);
 GEN     expIxy(GEN x, GEN y, long prec);
 int     oncurve(GEN e, GEN z);

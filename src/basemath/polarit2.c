@@ -1704,6 +1704,8 @@ Q_denom(GEN x)
         if (D != gen_1) d = lcmii(d, D);
       }
       return gerepileuptoint(av, d);
+
+    case t_POLMOD: return Q_denom(gel(x,2));
   }
   pari_err_TYPE("Q_denom",x);
   return NULL; /* not reached */

@@ -165,6 +165,7 @@ BA 59- [libpari] functions umodsu, zx_to_Flx
    61- [libpari] functions ell_is_integral, ellintegralmodel, ellQ_get_CM,
    ellorder_Q, ellap_CM_fast, point_to_a4a6, point_to_a4a6, Fl_elltrace_CM,
    Fle_changepoint, Fle_changepointinv
+   62- allow elltors for E/K number field
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]
@@ -224,6 +225,8 @@ BA 25- setrand now return a (huge) integer instead of a vecsmall
    33- default 'compatible' has been obsoleted. It is now a no-op.
    34- zeta(odd integer): use Borwein's "sumalt" algorithm (10 times faster
        than previous at \p1000)
+   35- elltors flags are now deprecated (and ignored, removed corresponding
+       code)
 
 Removed
    1- deprecated functions nfbasis0, nfdisc0, factorpadic0

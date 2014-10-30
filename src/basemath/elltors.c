@@ -87,119 +87,6 @@ tors(GEN e, long k, GEN p, GEN q, GEN v)
   return r;
 }
 
-/* Using Lutz-Nagell */
-
-/* p in Z[X] of degree 3. Return vector of x/4, x integral root of p */
-static GEN
-ratroot(GEN p)
-{
-  GEN L, a, ld;
-  long i, t, v = ZX_valrem(p, &p);
-
-  if (v == 3) return ellinf();
-  if (v == 2) return mkvec2(gen_0, gmul2n(negi(gel(p,2)), -2));
-
-  L = cgetg(4,t_VEC); t = 1;
-  if (v == 1) gel(L,t++) = gen_0;
-  ld = divisors(gel(p,2));
-  for (i=1; i<lg(ld); i++)
-  {
-    a = gel(ld,i);
-    if (!signe(poleval(p,a))) gel(L,t++) = gmul2n(a, -2);
-    a = negi(a);
-    if (!signe(poleval(p,a))) gel(L,t++) = gmul2n(a, -2);
-  }
-  setlg(L,t); return L;
-}
-
-static int
-is_new_torsion(GEN e, GEN v, GEN p, long t2) {
-  GEN pk = p, pkprec = NULL;
-  long k,l;
-
-  for (k=2; k<=6; k++)
-  {
-    pk = elladd(e,pk,p); /* = [k] p */
-    if (ell_is_inf(pk)) return 1;
-
-    for (l=2; l<=t2; l++)
-      if (gequal(gel(pk,1),gmael(v,l,1))) return 1;
-
-    if (pkprec && k<=5)
-      if (gequal(gel(pk,1),gel(pkprec,1))) return 1;
-    pkprec=pk;
-  }
-  return 0;
-}
-
-static GEN
-nagelllutz(GEN e)
-{
-  GEN ld, pol, p1, lr, r, v, w2, w3;
-  long i, j, nlr, t, t2, k, k2;
-  pari_sp av=avma;
-
-  e = ellintegralmodel(e, &v);
-  pol = RgX_rescale(ec_bmodel(e), utoipos(4));
-  r = cgetg(17, t_VEC);
-  gel(r,1) = ellinf();
-  lr = ratroot(pol); nlr=lg(lr)-1;
-  for (t=1,i=1; i<=nlr; i++)
-  {
-    GEN x = gel(lr,i), y = gmul2n(gneg(ec_h_evalx(e,x)), -1);
-    gel(r,++t) = mkvec2(x, y);
-  }
-  ld = absi_factor(gmul2n(ell_get_disc(e), 4));
-  p1 = gel(ld,2); k = lg(p1);
-  for (i=1; i<k; i++) gel(p1,i) = shifti(gel(p1,i), -1);
-  ld = divisors(ld);
-  for (t2=t,j=1; j<lg(ld); j++)
-  {
-    GEN d = gel(ld,j);
-    lr = ratroot(ZX_Z_sub(pol, shifti(sqri(d), 6)));
-    for (i=1; i<lg(lr); i++)
-    {
-      GEN x = gel(lr,i), y = gmul2n(gsub(d, ec_h_evalx(e,x)), -1);
-      p1 = mkvec2(x, y);
-      if (is_new_torsion(e,r,p1,t2))
-      {
-        gel(r,++t) = p1;
-        gel(r,++t) = mkvec2(x, gsub(y, d));
-      }
-    }
-  }
-  if (t == 1) { avma = av; return tors(e,1,NULL,NULL,v); }
-
-  if (nlr < 3)
-  {
-    w2 = mkvec( utoipos(t) );
-    for (k=2; k<=t; k++)
-      if (ellorder_Q(e,gel(r,k)) == t) break;
-    if (k>t) pari_err_BUG("elltors (bug1)");
-
-    w3 = mkvec( gel(r,k) );
-  }
-  else
-  {
-    if (t&3) pari_err_BUG("elltors (bug2)");
-    t2 = t>>1;
-    w2 = mkvec2(utoipos(t2), gen_2);
-    for (k=2; k<=t; k++)
-      if (ellorder_Q(e,gel(r,k)) == t2) break;
-    if (k>t) pari_err_BUG("elltors (bug3)");
-
-    p1 = ellmul(e,gel(r,k),utoipos(t>>2));
-    k2 = (!ell_is_inf(p1) && gequal(gel(r,2),p1))? 3: 2;
-    w3 = mkvec2(gel(r,k), gel(r,k2));
-  }
-  if (v)
-  {
-    gel(v,1) = ginv(gel(v,1));
-    w3 = ellchangepoint(w3,v);
-  }
-  return gerepilecopy(av, mkvec3(utoipos(t), w2,w3));
-}
-
 /* Finds a multiplicative upper bound for #E_tor; assume integral model */
 static long
 torsbound(GEN e)
@@ -227,128 +114,6 @@ torsbound(GEN e)
     if (b == bold) m++; else { bold = b; m = 0; }
   }
   avma = av; return b;
-}
-
-/* Using Doud's algorithm */
-
-static GEN
-myround(GEN x, long *e)
-{
-  GEN y = grndtoi(x,e);
-  if (*e > -5 && prec2nbits(gprecision(x)) < gexpo(y) - 10)
-    pari_err_PREC("elltors");
-  return y;
-}
-
-/* E the curve, w in C/Lambda ~ E of order n, returns q = pointell(w) as a
- * rational point on the curve, or NULL if q is not rational. */
-static GEN
-torspnt(GEN E, GEN w, long n, long prec)
-{
-  GEN p = cgetg(3,t_VEC), q = pointell(E, w, prec);
-  long e;
-  gel(p,1) = gmul2n(myround(gmul2n(gel(q,1),2), &e),-2);
-  if (e > -5 || typ(gel(p,1)) == t_COMPLEX) return NULL;
-  gel(p,2) = gmul2n(myround(gmul2n(gel(q,2),3), &e),-3);
-  if (e > -5 || typ(gel(p,2)) == t_COMPLEX) return NULL;
-  return (oncurve(E,p)
-      && ell_is_inf(ellmul(E,p,utoipos(n)))
-      && ellorder_Q(E,p) == n)? p: NULL;
-}
-
-static GEN
-elltors_doud(GEN e)
-{
-  long B, i, ord, prec, k = 1;
-  pari_sp av=avma;
-  GEN v,w,w1,w22,w1j,w12,p,tor1,tor2;
-  GEN om;
-
-  e = ellintegralmodel(e, &v);
-  B = torsbound(e); /* #E_tor | B */
-  if (B == 1) { avma = av; return tors(e,1,NULL,NULL, v); }
-
-  /* prec >= size of sqrt(D) */
-  prec = DEFAULTPREC + ((lgefint(ell_get_disc(e))-2) >> 1);
-  om = ellR_omega(e, prec);
-  w1 = gel(om,1);
-  w22 = gmul2n(gel(om,2),-1);
-  if (B % 4)
-  { /* cyclic of order 1, p, 2p, p <= 5 */
-    p = NULL;
-    for (i=10; i>1; i--)
-    {
-      if (B%i != 0) continue;
-      w1j = gdivgs(w1,i);
-      p = torspnt(e,w1j,i,prec);
-      if (!p && i%2==0)
-      {
-        p = torspnt(e,gadd(w22,w1j),i,prec);
-        if (!p) p = torspnt(e,gadd(w22,gmul2n(w1j,1)),i,prec);
-      }
-      if (p) { k = i; break; }
-    }
-    return gerepileupto(av, tors(e,k,p,NULL, v));
-  }
-
-  ord = 0; tor1 = tor2 = NULL;
-  w12 = gmul2n(w1,-1);
-  if ((p = torspnt(e,w12,2,prec))) { tor1 = p; ord++; }
-  w = w22;
-  if ((p = torspnt(e,w,2,prec))) { tor2 = p; ord += 2; }
-  if (!ord)
-  {
-    w = gadd(w12,w22);
-    if ((p = torspnt(e,w,2,prec))) { tor2 = p; ord += 2; }
-  }
-  p = NULL;
-  switch(ord)
-  {
-    case 0: /* no point of order 2 */
-      for (i=9; i>1; i-=2)
-      {
-        if (B%i != 0) continue;
-        w1j = gdivgs(w1,i);
-        p = torspnt(e,w1j,i,prec);
-        if (p) { k = i; break; }
-      }
-      break;
-
-    case 1: /* 1 point of order 2: w1 / 2 */
-      for (i=12; i>2; i-=2)
-      {
-        if (B%i != 0) continue;
-        w1j = gdivgs(w1,i);
-        p = torspnt(e,w1j,i,prec);
-        if (!p && i%4==0) p = torspnt(e,gadd(w22,w1j),i,prec);
-        if (p) { k = i; break; }
-      }
-      if (!p) { p = tor1; k = 2; }
-      break;
-
-    case 2: /* 1 point of order 2: w = w2/2 or (w1+w2)/2 */
-      for (i=5; i>1; i-=2)
-      {
-        if (B%i != 0) continue;
-        w1j = gdivgs(w1,i);
-        p = torspnt(e,gadd(w,w1j),2*i,prec);
-        if (p) { k = 2*i; break; }
-      }
-      if (!p) { p = tor2; k = 2; }
-      tor2 = NULL; break;
-
-    case 3: /* 2 points of order 2: w1/2 and w2/2 */
-      for (i=8; i>2; i-=2)
-      {
-        if (B%(2*i) != 0) continue;
-        w1j = gdivgs(w1,i);
-        p = torspnt(e,w1j,i,prec);
-        if (p) { k = i; break; }
-      }
-      if (!p) { p = tor1; k = 2; }
-      break;
-  }
-  return gerepileupto(av, tors(e,k,p,tor2, v));
 }
 
 /* return a rational point of order pk = p^k on E, or NULL if E(Q)[k] = O.
@@ -468,29 +233,242 @@ elltors_divpol(GEN E)
   }
   return tors(E,B, P, Q, v);
 }
+
+/* Bound for the elementary divisors of the torsion group of elliptic curve
+ * Reduce the curve modulo some small good primes */
+static GEN
+nftorsbound(GEN E)
+{
+  long k = 0, g;
+  GEN B1 = gen_0, B2 = gen_0, K = ellnf_get_nf(E);
+  GEN D = ell_get_disc(E), ND = idealnorm(K,D);
+  forprime_t S;
+  if (typ(ND) == t_FRAC) ND = gel(ND,1);
+  ND = mulii(ND, Q_denom(vecslice(E,1,5)));
+  g = maxss(5, expi(ND) >> 3);
+  u_forprime_init(&S, 5, ULONG_MAX);
+  while (k < g) /* k = number of good primes already used */
+  {
+    ulong p = u_forprime_next(&S);
+    GEN P;
+    long j, l;
+    if (!umodiu(ND,p)) continue;
+    P = idealprimedec(K, utoipos(p));
+    l = lg(P);
+    for (j = 1; j < l; j++)
+    {
+      GEN Q = gel(P,j), EQ = ellinit(E,Q,0), cyc = ellgroup(EQ, NULL);
+      long n = lg(cyc)-1;
+      k++;
+      B1 = gcdii(B1,gel(cyc,1));
+      if (is_pm1(B1)) return mkvec2(gen_1,gen_1);
+      if(n==1)
+        B2 = gen_1;
+      else
+        B2 = gcdii(B2,gel(cyc,2));
+    }
+  }
+  if (cmpiu(B2, 2) > 1)
+  { /* if E(K) has full n-torsion then K contains the n-th roots of 1 */
+    GEN n = gel(rootsof1(K), 1);
+    B2 = gcdii(B2,n);
+  }
+  return mkvec2(B1,B2);
+}
+
+/* Checks whether the point P is divisible by n in E(K), where xn is
+ * [phi_n, psi_n^2]
+ * If true, returns a point Q such that nQ = +/- P. Else, returns NULL */
+static GEN
+nfellis_divisible_by(GEN E, GEN P, GEN xn)
+{
+  GEN r, K = ellnf_get_nf(E), x = gel(P,1);
+  long i, l;
+  if (ell_is_inf(P)) return P;
+  r = nfroots(K, RgX_sub(RgX_Rg_mul(gel(xn,2), x), gel(xn,1)));
+  l = lg(r);
+  for(i=1; i<l; i++)
+  {
+    GEN a = gel(r,i), y = ellordinate(E,a,0);
+    if (lg(y) != 1) return mkvec2(a, gel(y,1));
+  }
+  return NULL;
+}
+
+/* 2-torsion point of abcissa x */
+static GEN
+tor2(GEN E, GEN x) { return mkvec2(x, gmul2n(gneg(ec_h_evalx(E,x)), -1)); }
+
+static GEN
+ptor1(long p, long n, GEN P)
+{ return mkvec2(mkvec(powuu(p,n)), mkvec(P)); }
+static GEN
+ptor2(long p, long n1, long n2, GEN P1, GEN P2)
+{ return mkvec2(mkvec2(powuu(p,n1), powuu(p,n2)), mkvec2(P1,P2)); }
+
+/* Computes the p-primary torsion in E(K). Assume that p is small, should use
+ * Weil pairing otherwise.
+ * N1, N2 = upper bounds on the integers n1 >= n2 such that
+ * E(K)[p^oo] = Z/p^n1 x Z/p^n2
+ * Returns [cyc,gen], where E(K)[p^oo] = sum Z/cyc[i] gen[i] */
+static GEN
+nfelltorsprimary(GEN E, long p, long N1, long N2)
+{
+  GEN X, P1, P2, Q1, Q2, xp, K = ellnf_get_nf(E);
+  long n1, n2;
+
+  /* compute E[p] = < P1 > or < P1, P2 > */
+  P1 = P2 = ellinf();
+  X = nfroots(K, elldivpol(E,p,0));
+  if(lg(X) == 1) return mkvec2(gen_1,cgetg(1,t_VEC));
+  if (p==2)
+  {
+    P1 = tor2(E, gel(X,1));
+    if (lg(X) > 2) P2 = tor2(E, gel(X,2)); /* E[2] = (Z/2Z)^2 */
+  }
+  else
+  {
+    long j, l = lg(X), nT, a;
+    GEN T = vectrunc_init(l);
+    for(j=1; j < l; j++)
+    {
+      GEN a = gel(X,j), Y = ellordinate(E,a,0);
+      if (lg(Y) != 1) vectrunc_append(T, mkvec2(a,gel(Y,1)));
+    }
+    nT = lg(T)-1;
+    if (!nT) return mkvec2(gen_1,cgetg(1,t_VEC));
+    P1 = gel(T,1);
+    a = (p-1)/2;
+    if (nT != a)
+    { /* E[p] = (Z/pZ)^2 */
+      GEN Z = cgetg(a+1,t_VEC), Q1 = P1;
+      long k;
+      gel(Z,1) = Q1;
+      for (k=2; k <= a; k++) gel(Z,k) = elladd(E,Q1,P1);
+      gen_sort_inplace(Z, &cmp_universal, &cmp_nodata, NULL);
+      while (tablesearch(Z, gel(T,k), &cmp_universal)) k++;
+      P2 = gel(T,k);
+    }
+  }
+  xp = ellxn(E,p,0);
+
+  if (ell_is_inf(P2))
+  { /* E[p^oo] is cyclic, start from P1 and divide by p while possible */
+    for (n1 = 1; n1 < N1; n1++)
+    {
+      GEN Q = nfellis_divisible_by(E,P1,xp);
+      if (!Q) break;
+      P1 = Q;
+    }
+    return ptor1(p, n1, P1);
+  }
+
+  /* E[p] = (Z/pZ)^2, compute n2 and E[p^n2] */
+  Q1 = NULL;
+  for (n2 = 1; n2 < N2; n2++)
+  {
+    Q1 = nfellis_divisible_by(E,P1,xp);
+    Q2 = nfellis_divisible_by(E,P2,xp);
+    if (!Q1 || !Q2) break;
+    P1 = Q1;
+    P2 = Q2;
+  }
+
+  /* compute E[p^\infty] = < P1, P2 > */
+  n1 = n2;
+  if (n2 == N2)
+  {
+    if (N1 == N2) return ptor2(p, n2,n2, P1,P2);
+    Q1 = nfellis_divisible_by(E,P1,xp);
+  }
+  if (Q1) { P1 = Q1; n1++; }
+  else
+  {
+    Q2 = nfellis_divisible_by(E,P2,xp);
+    if (Q2) { P2 = P1; P1 = Q2; n1++; }
+    else
+    {
+      long k;
+      for (k = 1; k < p; k++)
+      {
+        P1 = elladd(E,P1,P2);
+        Q1 = nfellis_divisible_by(E,P1,xp);
+        if (Q1) { P1 = Q1; n1++; break; }
+      }
+      if (k == p) return ptor2(p, n2,n2, P1,P2);
+    }
+  }
+  /* P1,P2 of order p^n1,p^n2 with n1=n2+1.
+   * Keep trying to divide P1 + k P2 with 0 <= k < p by p */
+  while (n1 < N1)
+  {
+    Q1 = nfellis_divisible_by(E,P1,xp);
+    if (Q1) { P1 = Q1; n1++; }
+    else
+    {
+      long k;
+      for (k = 1; k < p; k++)
+      {
+        P1 = elladd(E,P1,P2);
+        Q1 = nfellis_divisible_by(E,P1,xp);
+        if (Q1) { P1 = Q1; n1++; break; }
+      }
+      if (k == p) break;
+    }
+  }
+  return ptor2(p, n1,n2, P1,P2);
+}
+
+/* Computes the torsion subgroup of E(K), as [order, cyc, gen] */
+static GEN
+ellnftors(GEN e)
+{
+  GEN B = nftorsbound(e), B1 = gel(B,1), B2 = gel(B,2), d1,d2, P1,P2;
+  GEN f = Z_factor(B1), P = gel(f,1), E = gel(f,2);
+  long i, l = lg(P);
+
+  d1 = d2 = gen_1; P1 = P2 = ellinf();
+  for (i=1; i<l; i++)
+  {
+    long p = itos(gel(P,i)); /* Compute p-primary torsion */
+    long N1 = itos(gel(E,i)); /* >= n1 */
+    long N2 = Z_lval(B2,p); /* >= n2 */
+    GEN T = nfelltorsprimary(e, p, N1, N2), cyc = gel(T,1), gen = gel(T,2);
+    if (is_pm1(gel(cyc,1))) continue;
+    /* update generators P1,P2 and their respective orders d1,d2 */
+    P1 = elladd(e, P1, gel(gen,1)); d1 = mulii(d1, gel(cyc,1));
+    if (lg(cyc) > 2)
+    { P2 = elladd(e, P2, gel(gen,2)); d2 = mulii(d2, gel(cyc,2)); }
+  }
+  if (is_pm1(d1)) return mkvec3(gen_1,cgetg(1,t_VEC),cgetg(1,t_VEC));
+  if (is_pm1(d2)) return mkvec3(d1, mkvec(d1), mkvec(P1));
+  return mkvec3(mulii(d1,d2), mkvec2(d1,d2), mkvec2(P1,P2));
+}
+
 GEN
 elltors(GEN e)
 {
   pari_sp av = avma;
-  checkell_Q(e);
-  return gerepileupto(av, elltors_divpol(e));
+  GEN t = NULL;
+  switch(ell_get_type(e))
+  {
+    case t_ELL_Q:  t = elltors_divpol(e); break;
+    case t_ELL_NF: t = ellnftors(e); break;
+    case t_ELL_Fp:
+    case t_ELL_Fq: return ellgroup0(e,NULL,1);
+    default: pari_err_TYPE("elltors",e);
+  }
+  return gerepilecopy(av, t);
 }
 
 GEN
-elltors0(GEN e, long flag)
-{
-  checkell_Q(e);
-  switch(flag)
-  {
-    case 0: return elltors(e);
-    case 1: return nagelllutz(e);
-    case 2: return elltors_doud(e);
-    default: pari_err_FLAG("elltors");
-  }
-  return NULL; /* not reached */
-}
+elltors0(GEN e, long flag) { (void)flag; return elltors(e); }
 
-/* order of points */
+/********************************************************************/
+/**                                                                **/
+/**                ORDER OF POINTS over NUMBER FIELDS              **/
+/**                                                                **/
+/********************************************************************/
 
 /* assume e is defined over Q (use Mazur's theorem) */
 long
