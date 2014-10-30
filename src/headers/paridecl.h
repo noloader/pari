@@ -174,6 +174,20 @@ const struct bb_group * get_F2xqE_group(void **E, GEN a2, GEN a6, GEN T);
 GEN     RgE_to_F2xqE(GEN x, GEN T);
 GEN     random_F2xqE(GEN a2, GEN a6, GEN T);
 
+/* Fle.c */
+
+ulong   Fl_ellj(ulong a4, ulong a6, ulong p);
+void    Fl_ellj_to_a4a6(ulong j, ulong p, ulong *pt_a4, ulong *pt_a6);
+void    Fl_elltwist(ulong a4, ulong a6, ulong D, ulong p, ulong *pt_a4, ulong *pt_a6);
+GEN     Fle_add(GEN P, GEN Q, ulong a4, ulong p);
+GEN     Fle_dbl(GEN P, ulong a4, ulong p);
+GEN     Fle_changepoint(GEN x, GEN ch, ulong p);
+GEN     Fle_changepointinv(GEN x, GEN ch, ulong p);
+GEN     Fle_mul(GEN P, GEN n, ulong a4, ulong p);
+GEN     Fle_mulu(GEN P, ulong n, ulong a4, ulong p);
+GEN     Fle_order(GEN z, GEN o, ulong a4, ulong p);
+GEN     Fle_sub(GEN P, GEN Q, ulong a4, ulong p);
+
 /* Flx.c */
 
 const struct bb_group * get_Flxq_star(void **E, GEN T, ulong p);
@@ -373,19 +387,8 @@ GEN     random_FlxqE(GEN a4, GEN a6, GEN T, ulong p);
 
 /* FpE.c */
 
-ulong   Fl_ellj(ulong a4, ulong a6, ulong p);
-void    Fl_ellj_to_a4a6(ulong j, ulong p, ulong *pt_a4, ulong *pt_a6);
 long    Fl_elltrace(ulong a4, ulong a6, ulong p);
 long    Fl_elltrace_CM(long CM, ulong a4, ulong a6, ulong p);
-void    Fl_elltwist(ulong a4, ulong a6, ulong D, ulong p, ulong *pt_a4, ulong *pt_a6);
-GEN     Fle_add(GEN P, GEN Q, ulong a4, ulong p);
-GEN     Fle_dbl(GEN P, ulong a4, ulong p);
-GEN     Fle_changepoint(GEN x, GEN ch, ulong p);
-GEN     Fle_changepointinv(GEN x, GEN ch, ulong p);
-GEN     Fle_mul(GEN P, GEN n, ulong a4, ulong p);
-GEN     Fle_mulu(GEN P, ulong n, ulong a4, ulong p);
-GEN     Fle_order(GEN z, GEN o, ulong a4, ulong p);
-GEN     Fle_sub(GEN P, GEN Q, ulong a4, ulong p);
 GEN     Fp_ellcard(GEN a4, GEN a6, GEN p);
 GEN     Fp_elldivpol(GEN a4, GEN a6, long n, GEN p);
 GEN     Fp_ellgens(GEN a4, GEN a6, GEN ch, GEN D, GEN m, GEN p);
