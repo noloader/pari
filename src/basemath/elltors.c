@@ -261,11 +261,12 @@ nftorsbound(GEN E)
       long n = lg(cyc)-1;
       k++;
       B1 = gcdii(B1,gel(cyc,1));
-      if (is_pm1(B1)) return mkvec2(gen_1,gen_1);
+      if (is_pm1(B1)) { obj_free(EQ); return mkvec2(gen_1,gen_1); }
       if(n==1)
         B2 = gen_1;
       else
         B2 = gcdii(B2,gel(cyc,2));
+      obj_free(EQ);
     }
   }
   if (cmpiu(B2, 2) > 1)
