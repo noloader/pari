@@ -2876,9 +2876,9 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: orderell(e,x) ===> ellorder(e,x)
 
-ellorder(E,z,{o}): order of the point z on the elliptic curve E over Q or a 
-finite field, 0 if non-torsion. The parameter o, if present, represents a 
-non-zero multiple of the order of z.
+ellorder(E,z,{o}): order of the point z on the elliptic curve E over a number 
+field or a finite field, 0 if non-torsion. The parameter o, if present, 
+represents a non-zero multiple of the order of z.
 
 
   ***   at top-level: ordred()
@@ -4552,4 +4552,4 @@ New syntax: texprint(x) ===> printtex(x)
 printtex({str}*): outputs its string arguments in TeX format.
 
 
-Total time spent: 24
+Total time spent: 16
