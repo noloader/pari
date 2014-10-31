@@ -303,6 +303,9 @@ static GEN
 tor2(GEN E, GEN x) { return mkvec2(x, gmul2n(gneg(ec_h_evalx(E,x)), -1)); }
 
 static GEN
+ptor0()
+{ return mkvec2(mkvec(gen_1),cgetg(1,t_VEC)); }
+static GEN
 ptor1(long p, long n, GEN P)
 { return mkvec2(mkvec(powuu(p,n)), mkvec(P)); }
 static GEN
@@ -323,7 +326,7 @@ nfelltorsprimary(GEN E, long p, long N1, long N2)
   /* compute E[p] = < P1 > or < P1, P2 > */
   P1 = P2 = ellinf();
   X = nfroots(K, elldivpol(E,p,0));
-  if(lg(X) == 1) return mkvec2(mkvec(gen_1),cgetg(1,t_VEC));
+  if(lg(X) == 1) return ptor0();
   if (p==2)
   {
     P1 = tor2(E, gel(X,1));
@@ -339,7 +342,7 @@ nfelltorsprimary(GEN E, long p, long N1, long N2)
       if (lg(Y) != 1) vectrunc_append(T, mkvec2(a,gel(Y,1)));
     }
     nT = lg(T)-1;
-    if (!nT) return mkvec2(gen_1,cgetg(1,t_VEC));
+    if (!nT) return ptor0();
     P1 = gel(T,1);
     a = (p-1)/2;
     if (nT != a)
