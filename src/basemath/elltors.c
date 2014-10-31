@@ -323,7 +323,7 @@ nfelltorsprimary(GEN E, long p, long N1, long N2)
   /* compute E[p] = < P1 > or < P1, P2 > */
   P1 = P2 = ellinf();
   X = nfroots(K, elldivpol(E,p,0));
-  if(lg(X) == 1) return mkvec2(gen_1,cgetg(1,t_VEC));
+  if(lg(X) == 1) return mkvec2(mkvec(gen_1),cgetg(1,t_VEC));
   if (p==2)
   {
     P1 = tor2(E, gel(X,1));
