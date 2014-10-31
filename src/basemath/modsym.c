@@ -2693,7 +2693,7 @@ mseval(GEN W, GEN s, GEN p)
     case t_COL:
       if (k == 2) /* on the dual basis of (g_i) */
       {
-        if (lg(s)-1 != nbgen) pari_err_TYPE("mseval",s);
+        if (lg(s)-1 != ms_get_nbE1(W)) pari_err_TYPE("mseval",s);
         if (!p) return gtrans(s);
       }
       else
