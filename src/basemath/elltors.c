@@ -470,14 +470,13 @@ elltors0(GEN e, long flag) { (void)flag; return elltors(e); }
 /**                ORDER OF POINTS over NUMBER FIELDS              **/
 /**                                                                **/
 /********************************************************************/
-
-/* assume e is defined over Q (use Mazur's theorem) */
+/* E a t_ELL_Q (use Mazur's theorem) */
 long
 ellorder_Q(GEN E, GEN P)
 {
   pari_sp av = avma;
   GEN dx, dy, d4, d6, D, Pp, Q;
-  forprime_t T;
+  forprime_t S;
   ulong a4, p;
   long k;
   if (ell_is_inf(P)) return 1;
@@ -492,11 +491,10 @@ ellorder_Q(GEN E, GEN P)
   D = ell_get_disc (E);
   /* choose not too small prime p dividing neither a coefficient of the
      short Weierstrass form nor of P and leading to good reduction */
-
-  u_forprime_init(&T, 100003, ULONG_MAX);
-  while ( (p = u_forprime_next(&T)) )
-    if (Rg_to_Fl(d4, p) && Rg_to_Fl(d6, p) && Rg_to_Fl(D, p)
-     && Rg_to_Fl(dx, p) && Rg_to_Fl(dy, p)) break;
+  u_forprime_init(&S, 100003, ULONG_MAX);
+  while ( (p = u_forprime_next(&S)) )
+    if (umodiu(d4, p) && umodiu(d6, p) && Rg_to_Fl(D, p)
+     && umodiu(dx, p) && umodiu(dy, p)) break;
 
   /* transform E into short Weierstrass form Ep modulo p and P to Pp on Ep,
    * check whether the order of Pp on Ep is <= 12 */
@@ -514,6 +512,55 @@ ellorder_Q(GEN E, GEN P)
     if (!gequal(Q, ellneg(E,R))) k = 0;
   }
   avma = av; return k;
+}
+/* E a t_ELL_NF */
+static GEN
+ellorder_nf(GEN E, GEN P)
+{
+  GEN K = ellnf_get_nf(E), B;
+  pari_sp av = avma;
+  GEN dx, dy, d4, d6, D, ND, Ep, Pp, Q, gp, modpr, pr, T, k;
+  forprime_t S;
+  ulong a4, p;
+  if (ell_is_inf(P)) return gen_1;
+
+  B = gel(nftorsbound(E), 1);
+  dx = Q_denom(gel(P,1));
+  dy = Q_denom(gel(P,2));
+  d4 = Q_denom(ell_get_c4(E));
+  d6 = Q_denom(ell_get_c6(E));
+  D = ell_get_disc(E);
+  ND = idealnorm(K,D);
+  if (typ(ND) == t_FRAC) ND = gel(ND,1);
+
+  /* choose not too small prime p of degree 1 dividing neither a coefficient of
+   * the short Weierstrass form nor of P and leading to good reduction */
+  u_forprime_init(&S, 100003, ULONG_MAX);
+  while ( (p = u_forprime_next(&S)) )
+  {
+    if (!umodiu(d4, p) || !umodiu(d6, p) || !umodiu(ND, p)
+     || !umodiu(dx, p) || !umodiu(dy, p)) continue;
+    gp = utoipos(p);
+    pr = gel(idealprimedec(K, gp), 1);
+    if (pr_get_f(pr) == 1) break;
+  }
+
+  modpr = nf_to_Fq_init(K, &pr,&T,&gp);
+  Ep = ellinit(E, pr, 0);
+  Pp = nfV_to_FqV(P, K, modpr);
+
+  /* transform E into short Weierstrass form Ep modulo p and P to Pp on Ep,
+   * check whether the order of Pp on Ep divides B */
+  Pp = point_to_a4a6_Fl(Ep, Pp, p, &a4);
+  if (!ell_is_inf(Fle_mul(Pp, B, a4, p))) { avma = av; return gen_0; }
+  k = Fle_order(Pp, B, a4, p);
+  { /* check whether [k]P = O over K. Save potentially costly last elladd */
+    GEN R;
+    Q = ellmul(E, P, shifti(k,-1));
+    R = mod2(k)? elladd(E, P,Q): Q;
+    if (!gequal(Q, ellneg(E,R))) k = gen_0;
+  }
+  return gerepileuptoint(av, k);
 }
 
 GEN
@@ -534,6 +581,7 @@ ellorder(GEN E, GEN P, GEN o)
       if (lg(E)==1) pari_err_IMPL("ellorder for curve with singular reduction");
     }
   }
+  if (ell_get_type(E)==t_ELL_NF) return ellorder_nf(E, P);
   checkell_Fq(E);
   fg = ellff_get_field(E);
   if (!o) o = ellff_get_o(E);
