@@ -505,14 +505,15 @@ ellorder_Q(GEN E, GEN P)
        !ell_is_inf(Q) && k <= 12;
        Q = Fle_add(Q, Pp, a4, p), k++) /* empty */;
 
-  if (k != 13)
-    /* check over Q; one could also run more tests modulo primes */
-    for (Q = elladd(E, P, P), k = 2;
-        !ell_is_inf(Q) && k <= 12;
-        Q = elladd(E, Q, P), k++) /* empty */;
-
-  avma = av;
-  return (k == 13 ? 0 : k);
+  if (k == 13) k = 0;
+  else
+  { /* check whether [k]P = O over Q. Save potentially costly last elladd */
+    GEN R;
+    Q = ellmul(E, P, utoipos(k>>1));
+    R = odd(k)? elladd(E, P,Q): Q;
+    if (!gequal(Q, ellneg(E,R))) k = 0;
+  }
+  avma = av; return k;
 }
 
 GEN
