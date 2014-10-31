@@ -27,13 +27,52 @@ ellorder(E,T.gen[2])
 
 K=nfinit(t^4+18*t^2-324*t-27);E=ellinit([1,3],K);
 elltors(E)
-K=nfinit(t^8-998*t^6+44424*t^4+5106934*t^2+126046063);E=ellinit([1,3],K);
-elltors(E)
+K=nfinit(t^8-998*t^6+44424*t^4+5106934*t^2+126046063);
+e=ellinit([1,3],K); elltors(E)
 
 K=nfinit(polcyclo(11,t));
-E=ellinit([0,-1,1,0,0], K);
-T=elltors(E)
-ellorder(E,T.gen[1])
+e=ellinit([0,-1,1,0,0], K); T=elltors(e)
+ellorder(e,T.gen[1])
+
+\\ [11]
+K = nfinit(y^2+7);
+a1=-209*y-579;
+a2=26752*y+147840;
+a3=-10486784*y-57953280;
+e=ellinit([a1,a2,a3,0,0],K); T=elltors(e)
+ellorder(e,T.gen[1])
+
+\\ [15]
+a1=(-2*y+15);
+a2=26*y-14;
+a3=26*y-14;
+e=ellinit([a1,a2,a3,0,0],K); T=elltors(e)
+ellorder(e,T.gen[1])
+
+\\ [10,2]
+a2=-261214369/131072;
+a4=75626226572068161/68719476736;
+K=nfinit(y^2+2);
+e=ellinit([0,a2,0,a4,0],K); T=elltors(e)
+ellorder(e,T.gen[1])
+ellorder(e,T.gen[2])
+
+\\ [12,2]
+K=nfinit(y^2-13);
+a2=(-4289032*y+15673889)/65536
+a4=(-32028469200*y+115490749725)/4194304
+e=ellinit([0,a2,0,a4,0],K); T=elltors(e)
+ellorder(e,T.gen[1])
+ellorder(e,T.gen[2])
+
+\\ [14]
+K=nfinit(y^2+11);
+a1=-2601888534886283704*y+154252733407512581857;
+a2=-313766195076761969526071169866614175160*y+1735663223649526033628839600302712469280
+a3=-43286504429925775681153399339981518914403432663035092419000*y+239448337641930912934754848966237361950084593095601008052000;
+e=ellinit([a1,a2,a3,0,0],K); T=elltors(e)
+ellorder(e,T.gen[1])
+
 
 E = ellinit([-2147484185^2,0]);
 elltors(E)
