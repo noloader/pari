@@ -453,6 +453,7 @@ elltors(GEN e)
 {
   pari_sp av = avma;
   GEN t = NULL;
+  checkell(e);
   switch(ell_get_type(e))
   {
     case t_ELL_Q:  t = elltors_divpol(e); break;
