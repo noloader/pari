@@ -267,6 +267,8 @@ nftorsbound(GEN E)
       else
         B2 = gcdii(B2,gel(cyc,2));
       obj_free(EQ);
+      /* division by 2 is cheap when it fails, no need to have a sharp bound */
+      if (Z_ispow2(B1)) return mkvec2(B1,B2);
     }
   }
   if (cmpiu(B2, 2) > 1)
