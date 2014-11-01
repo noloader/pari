@@ -2682,17 +2682,21 @@ idV_simplify(GEN v)
 }
 /* Given a torsion-free module x outputs a pseudo-basis for x in HNF */
 GEN
-nfhnf(GEN nf, GEN x)
+nfhnf0(GEN nf, GEN x, long flag)
 {
   long i, j, def, idef, m, n;
   pari_sp av0 = avma, av;
-  GEN y, A, I, J;
+  GEN y, A, I, J, U;
 
   nf = checknf(nf);
   check_ZKmodule(x, "nfhnf");
   A = gel(x,1); RgM_dimensions(A, &m, &n);
   I = gel(x,2);
-  if (!n) return gcopy(x);
+  if (!n) {
+    if (!flag) return gcopy(x);
+    retmkvec2(gcopy(x), cgetg(1,t_MAT));
+  }
+  U = flag? matid(n): NULL;
   idef = (n < m)? m-n : 0;
   av = avma;
   A = RgM_to_nfM(nf,A);
@@ -2712,6 +2716,7 @@ nfhnf(GEN nf, GEN x)
     else {
       swap(gel(A,j), gel(A,def));
       swap(gel(I,j), gel(I,def));
+      if (U) swap(gel(U,j), gel(U,def));
     }
     for (  ; j; j--)
     {
@@ -2724,12 +2729,21 @@ nfhnf(GEN nf, GEN x)
       T = colcomb(nf, a,gneg(b), T0,S0);
       gel(A,def) = S; gel(A,j) = T;
       gel(I,def) = d; gel(I,j) = w;
+      if (U)
+      {
+        S0 = gel(U,def);
+        T0 = gel(U,j);
+        gel(U,def) = colcomb(nf, u,v, S0,T0);
+        gel(U,j) = colcomb(nf, a,gneg(b), T0,S0);
+      }
     }
     y = gcoeff(A,i,def);
     if (!isint1(y))
     {
-      gel(A,def) = nfC_nf_mul(nf, gel(A,def), nfinv(nf,y));
+      GEN yi = nfinv(nf,y);
+      gel(A,def) = nfC_nf_mul(nf, gel(A,def), yi);
       gel(I,def) = idealmul(nf, y, gel(I,def));
+      if (U) gel(U,def) = nfC_nf_mul(nf, gel(U,def), yi);
       di = NULL;
     }
     if (!di) di = idealinv(nf,gel(I,def));
@@ -2737,23 +2751,30 @@ nfhnf(GEN nf, GEN x)
     gel(J,def) = di;
     for (j=def+1; j<=n; j++)
     {
-      GEN c = gcoeff(A,i,j); if (isintzero(c)) continue;
+      GEN mc, c = gcoeff(A,i,j); if (isintzero(c)) continue;
       c = element_close(nf, c, idealmul(nf,d,gel(J,j)));
-      gel(A,j) = colcomb1(nf, gneg(c), gel(A,j),gel(A,def));
+      mc = gneg(c);
+      gel(A,j) = colcomb1(nf, mc, gel(A,j),gel(A,def));
+      if (U) gel(U,j) = colcomb1(nf, mc, gel(U,j),gel(U,def));
     }
     def--;
     if (gc_needed(av,2))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"nfhnf, i = %ld", i);
-      gerepileall(av,3, &A,&I,&J);
+      gerepileall(av,U?4:3, &A,&I,&J,&U);
     }
   }
   n -= def;
   A += def; A[0] = evaltyp(t_MAT)|evallg(n+1);
   I += def; I[0] = evaltyp(t_VEC)|evallg(n+1);
   idV_simplify(I);
-  return gerepilecopy(av0, mkvec2(A, I));
+  x = mkvec2(A,I);
+  if (U) x = mkvec2(x,U);
+  return gerepilecopy(av0, x);
 }
+
+GEN
+nfhnf(GEN nf, GEN x) { return nfhnf0(nf, x, 0); }
 
 static long
 RgV_find_denom(GEN x)

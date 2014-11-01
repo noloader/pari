@@ -1,11 +1,18 @@
 Function: nfhnf
 Section: number_fields
-C-Name: nfhnf
-Prototype: GG
-Help: nfhnf(nf,x): if x=[A,I], gives a pseudo-basis of the module sum A_jI_j
+C-Name: nfhnf0
+Prototype: GGD0,L,
+Help: nfhnf(nf,x,{flag=0}): if x=[A,I], gives a pseudo-basis [B,J] of the module
+ sum A_jI_j. If flag is non-zero, return [[B,J], U], where U is the
+ transformation matrix such that AU = [0|B]
 Doc: given a pseudo-matrix $(A,I)$, finds a
- pseudo-basis in \idx{Hermite normal form} of the module it generates.
+ pseudo-basis $(B,J)$ in \idx{Hermite normal form} of the module it generates.
+ If $\fl$ is non-zero, also return the transfomation matrix $U$ such that
+ $AU = [0|B]$.
+
 Variant: Also available:
+
+ \fun{GEN}{nfhnf}{GEN bnf, GEN x} ($\fl = 0$).
 
  \fun{GEN}{rnfsimplifybasis}{GEN bnf, GEN x} simplifies the pseudo-basis
  given by $x = (A,I)$. The ideals in the list $I$ are integral, primitive and

@@ -228,6 +228,7 @@ BA 25- setrand now return a (huge) integer instead of a vecsmall
        than previous at \p1000)
    35- elltors flags are now deprecated (and ignored, removed corresponding
        code)
+   36- add optional flag to nfhnf: return transformation matrix
 
 Removed
    1- deprecated functions nfbasis0, nfdisc0, factorpadic0
