@@ -352,7 +352,7 @@ nfelltorsprimary(GEN E, long p, long N1, long N2)
       long k;
       gel(Z,1) = Q1;
       for (k=2; k <= a; k++) gel(Z,k) = elladd(E,Q1,P1);
-      gen_sort_inplace(Z, &cmp_universal, &cmp_nodata, NULL);
+      gen_sort_inplace(Z, (void*)&cmp_universal, &cmp_nodata, NULL);
       while (tablesearch(Z, gel(T,k), &cmp_universal)) k++;
       P2 = gel(T,k);
     }
