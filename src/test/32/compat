@@ -2737,7 +2737,9 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: nfhermite(nf,x) ===> nfhnf(nf,x)
 
-nfhnf(nf,x): if x=[A,I], gives a pseudo-basis of the module sum A_jI_j
+nfhnf(nf,x,{flag=0}): if x=[A,I], gives a pseudo-basis [B,J] of the module sum 
+A_jI_j. If flag is non-zero, return [[B,J], U], where U is the transformation 
+matrix such that AU = [0|B]
 
 
   ***   at top-level: nfhermitemod()
@@ -2798,7 +2800,8 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: nfsmith(nf,x) ===> nfsnf(nf,x)
 
-nfsnf(nf,x): if x=[A,I,J], outputs [c_1,...c_n] Smith normal form of x.
+nfsnf(nf,x,{flag=0}): if x=[A,I,J], outputs D=[d_1,...d_n] Smith normal form of 
+x. If flag is non-zero return [D,U,V], where UAV = Id.
 
 
   ***   at top-level: nfval()
@@ -4552,4 +4555,4 @@ New syntax: texprint(x) ===> printtex(x)
 printtex({str}*): outputs its string arguments in TeX format.
 
 
-Total time spent: 16
+Total time spent: 20

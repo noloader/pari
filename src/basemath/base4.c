@@ -2776,12 +2776,13 @@ nfhnf0(GEN nf, GEN x, long flag)
 GEN
 nfhnf(GEN nf, GEN x) { return nfhnf0(nf, x, 0); }
 
-static long
+static GEN
 RgV_find_denom(GEN x)
 {
-  long l = lg(x), i = 1;
-  while (i < l && Q_denom(gel(x,i)) == gen_1) i++;
-  return i;
+  long i, l = lg(x);
+  for (i = 1; i < l; i++)
+    if (Q_denom(gel(x,i)) != gen_1) return gel(x,i);
+  return NULL;
 }
 /* A torsion module M over Z_K will be given by a row vector [A,I,J] with
  * three components. I=[b_1,...,b_n] is a row vector of n fractional ideals
@@ -2793,13 +2794,13 @@ RgV_find_denom(GEN x)
 /* x=[A,I,J] a torsion module as above. Output the
  * smith normal form as K=[c_1,...,c_n] such that x = Z_K/c_1+...+Z_K/c_n */
 GEN
-nfsnf(GEN nf, GEN x)
+nfsnf0(GEN nf, GEN x, long flag)
 {
-  long i, j, k, l, c, n, m, N;
+  long i, j, k, l, n, m;
   pari_sp av;
-  GEN z,u,v,w,d,dinv,A,I,J;
+  GEN z,u,v,w,d,dinv,A,I,J, U,V;
 
-  nf = checknf(nf); N = nf_get_degree(nf);
+  nf = checknf(nf);
   if (typ(x)!=t_VEC || lg(x)!=4) pari_err_TYPE("nfsnf",x);
   A = gel(x,1);
   I = gel(x,2);
@@ -2813,83 +2814,111 @@ nfsnf(GEN nf, GEN x)
   if (!n || n != m) pari_err_IMPL("nfsnf for empty or non square matrices");
 
   av = avma;
+  if (!flag) U = V = NULL;
+  else
+  {
+    U = matid(m);
+    V = matid(n);
+  }
   A = RgM_to_nfM(nf, A);
   I = leafcopy(I);
-  J = leafcopy(J); for (i = 1; i <= n; i++) gel(J,i) = idealinv(nf, gel(J,i));
-  for (i=n; i>=2; i--)
+  J = leafcopy(J);
+  for (i = 1; i <= n; i++) gel(J,i) = idealinv(nf, gel(J,i));
+  z = zerovec(n);
+  for (i=n; i>=1; i--)
   {
-    do
+    GEN Aii, a, b, db;
+    long c = 0;
+    for (j=i-1; j>=1; j--)
     {
-      GEN Aii, a, b, db;
-      c = 0;
-      for (j=i-1; j>=1; j--)
+      GEN S, T, S0, T0 = gel(A,j);
+      b = gel(T0,i); if (gequal0(b)) continue;
+
+      S0 = gel(A,i); a = gel(S0,i);
+      d = nfbezout(nf, a,b, gel(J,i),gel(J,j), &u,&v,&w,&dinv);
+      S = colcomb(nf, u,v, S0,T0);
+      T = colcomb(nf, a,gneg(b), T0,S0);
+      gel(A,i) = S; gel(A,j) = T;
+      gel(J,i) = d; gel(J,j) = w;
+      if (V)
       {
-        GEN S, T, S0, T0 = gel(A,j);
-        b = gel(T0,i); if (gequal0(b)) continue;
-
-        S0 = gel(A,i); a = gel(S0,i);
-        d = nfbezout(nf, a,b, gel(J,i),gel(J,j), &u,&v,&w,&dinv);
-        S = colcomb(nf, u,v, S0,T0);
-        T = colcomb(nf, a,gneg(b), T0,S0);
-        gel(A,i) = S; gel(A,j) = T;
-        gel(J,i) = d; gel(J,j) = w;
-      }
-      for (j=i-1; j>=1; j--)
-      {
-        GEN ri, rj;
-        b = gcoeff(A,j,i); if (gequal0(b)) continue;
-
-        a = gcoeff(A,i,i);
-        d = nfbezout(nf, a,b, gel(I,i),gel(I,j), &u,&v,&w,&dinv);
-        ri = rowcomb(nf, u,v,       i,j, A, i);
-        rj = rowcomb(nf, a,gneg(b), j,i, A, i);
-        for (k=1; k<=i; k++) {
-          gcoeff(A,j,k) = gel(rj,k);
-          gcoeff(A,i,k) = gel(ri,k);
-        }
-        gel(I,i) = d; gel(I,j) = w; c = 1;
-      }
-      if (c) continue;
-
-      Aii = gcoeff(A,i,i); if (gequal0(Aii)) break;
-      gel(J,i) = idealmul(nf, gel(J,i), Aii);
-      gcoeff(A,i,i) = gen_1;
-      b = idealmul(nf,gel(J,i),gel(I,i));
-      b = Q_remove_denom(b, &db);
-      for (k=1; k<i; k++)
-        for (l=1; l<i; l++)
-        {
-          GEN D, p1, p2, p3, Akl = gcoeff(A,k,l);
-          if (gequal0(Akl)) continue;
-
-          p1 = idealmul(nf,Akl,gel(J,l));
-          p3 = idealmul(nf, p1, gel(I,k));
-          if (db) p3 = RgM_Rg_mul(p3, db);
-          if (RgM_is_ZM(p3) && hnfdivide(b, p3)) continue;
-
-          /* find d in D = I[k]/I[i] not in J[i]/(a[k,l] J[l]) */
-          D = idealdiv(nf,gel(I,k),gel(I,i));
-          p2 = idealdiv(nf,gel(J,i), p1);
-          l = RgV_find_denom( RgM_solve(p2, D) );
-          if (l>N) pari_err_BUG("nfsnf");
-          p1 = element_mulvecrow(nf,gel(D,l),A,k,i);
-          for (l=1; l<=i; l++) gcoeff(A,i,l) = gadd(gcoeff(A,i,l),gel(p1,l));
-
-          k = i; c = 1; break;
-        }
-      if (gc_needed(av,1))
-      {
-        if(DEBUGMEM>1) pari_warn(warnmem,"nfsnf");
-        gerepileall(av,3, &A,&I,&J);
+        T0 = gel(V,j);
+        S0 = gel(V,i);
+        gel(V,i) = colcomb(nf, u,v, S0,T0);
+        gel(V,j) = colcomb(nf, a,gneg(b), T0,S0);
       }
     }
-    while (c);
+    for (j=i-1; j>=1; j--)
+    {
+      GEN ri, rj;
+      b = gcoeff(A,j,i); if (gequal0(b)) continue;
+
+      a = gcoeff(A,i,i);
+      d = nfbezout(nf, a,b, gel(I,i),gel(I,j), &u,&v,&w,&dinv);
+      ri = rowcomb(nf, u,v,       i,j, A, i);
+      rj = rowcomb(nf, a,gneg(b), j,i, A, i);
+      for (k=1; k<=i; k++) {
+        gcoeff(A,j,k) = gel(rj,k);
+        gcoeff(A,i,k) = gel(ri,k);
+      }
+      if (U)
+      {
+        ri = rowcomb(nf, u,v,       i,j, U, m);
+        rj = rowcomb(nf, a,gneg(b), j,i, U, m);
+        for (k=1; k<=m; k++) {
+          gcoeff(U,j,k) = gel(rj,k);
+          gcoeff(U,i,k) = gel(ri,k);
+        }
+      }
+      gel(I,i) = d; gel(I,j) = w; c = 1;
+    }
+    if (c) { i++; continue; }
+
+    Aii = gcoeff(A,i,i); if (gequal0(Aii)) continue;
+    gel(J,i) = idealmul(nf, gel(J,i), Aii);
+    gcoeff(A,i,i) = gen_1;
+    if (V) gel(V,i) = nfC_nf_mul(nf, gel(V,i), nfinv(nf,Aii));
+    gel(z,i) = idealmul(nf,gel(J,i),gel(I,i));
+    b = Q_remove_denom(gel(z,i), &db);
+    for (k=1; k<i; k++)
+      for (l=1; l<i; l++)
+      {
+        GEN d, D, p1, p2, p3, Akl = gcoeff(A,k,l);
+        long t;
+        if (gequal0(Akl)) continue;
+
+        p1 = idealmul(nf,Akl,gel(J,l));
+        p3 = idealmul(nf, p1, gel(I,k));
+        if (db) p3 = RgM_Rg_mul(p3, db);
+        if (RgM_is_ZM(p3) && hnfdivide(b, p3)) continue;
+
+        /* find d in D = I[k]/I[i] not in J[i]/(A[k,l] J[l]) */
+        D = idealdiv(nf,gel(I,k),gel(I,i));
+        p2 = idealdiv(nf,gel(J,i), p1);
+        d = RgV_find_denom( RgM_solve(p2, D) );
+        if (!d) pari_err_BUG("nfsnf");
+        p1 = element_mulvecrow(nf,d,A,k,i);
+        for (t=1; t<=i; t++) gcoeff(A,i,t) = gadd(gcoeff(A,i,t),gel(p1,t));
+        if (U)
+        {
+          p1 = element_mulvecrow(nf,d,U,k,i);
+          for (t=1; t<=i; t++) gcoeff(U,i,t) = gadd(gcoeff(U,i,t),gel(p1,t));
+        }
+
+        k = i; c = 1; break;
+      }
+    if (gc_needed(av,1))
+    {
+      if(DEBUGMEM>1) pari_warn(warnmem,"nfsnf");
+      gerepileall(av,U?4:6, &A,&I,&J,&z,&U,&V);
+    }
+    if (c) i++; /* iterate on row/column i */
   }
-  gel(J,1) = idealmul(nf, gcoeff(A,1,1), gel(J,1));
-  z = cgetg(n+1,t_VEC);
-  for (i=1; i<=n; i++) gel(z,i) = idealmul(nf,gel(I,i),gel(J,i));
-  return gerepileupto(av, z);
+  if (U) z = mkvec3(z,U,V);
+  return gerepilecopy(av, z);
 }
+GEN
+nfsnf(GEN nf, GEN x) { return nfsnf0(nf,x,0); }
 
 GEN
 nfmulmodpr(GEN nf, GEN x, GEN y, GEN modpr)

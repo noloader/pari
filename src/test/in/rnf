@@ -58,8 +58,14 @@ aid=[idx,1,1,1];
 [A,U]=nfhnf(K,[a,aid],1);
 A
 U
-f(z)=apply(x->nfbasistoalg(K,x),z);
-lift(f(a)*f(U))
+lift(matbasistoalg(K,a)*matbasistoalg(K,U))
+
+a=a[,1..3];
+[A,U,V]=nfsnf(K,[a, aid[1..3], [1,1,1]],1);
+A
+U
+V
+lift(matbasistoalg(K,U)*matbasistoalg(K,a)*matbasistoalg(K,V))
 
 nf=nfinit(y); A = [[1,1/2;0,1],[1,1]];
 nfhnfmod(nf, A, nfdetint(nf,A))
