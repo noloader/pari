@@ -62,6 +62,9 @@ a=ffgen(2^5,'a);ellinit(ellfromj(a)).j
 a=ffgen(3^5,'a);ellinit(ellfromj(a)).j
 e = ellinit([1,2,3,5,7]);
 elldivpol(e,4)
+ellxn(e,0)
+ellxn(e,1)
+ellxn(e,2)
 ellxn(e,4)
 ellxn(e,5)
 e = ellinit([0,1]);

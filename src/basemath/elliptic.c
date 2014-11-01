@@ -5913,11 +5913,21 @@ ellxn(GEN e, long n, long v)
   if (varncmp(gvar(D), v) <= 0) pari_err_PRIORITY("elldivpol", e, "<=", v);
   N = characteristic(D);
   if (!signe(N)) N = NULL;
-  if (n<0) n = -n;
+  if (n < 0) n = -n;
   d2 = ec_bmodel(e); /* (2y + a1x + 3)^2 mod E */
   setvarn(d2,v);
   if (N && !mod2(N)) { gel(d2,5) = modsi(4,N); d2 = normalizepol(d2); }
-  if (n == 2)
+  if (n == 0)
+  {
+    A = pol_0(v);
+    B = pol_0(v);
+  }
+  else if (n == 1)
+  {
+    A = pol_1(v);
+    B = pol_1(v);
+  }
+  else if (n == 2)
   {
     GEN b4 = ell_get_b4(e);
     GEN b6 = ell_get_b6(e);
