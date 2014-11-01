@@ -5925,7 +5925,7 @@ ellxn(GEN e, long n, long v)
   else if (n == 1)
   {
     A = pol_1(v);
-    B = pol_1(v);
+    B = pol_x(v);
   }
   else if (n == 2)
   {

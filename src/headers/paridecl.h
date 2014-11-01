@@ -2214,6 +2214,9 @@ GEN     point_to_a4a6(GEN E, GEN P, GEN p, GEN *pa4);
 GEN     point_to_a4a6_Fl(GEN E, GEN P, ulong p, ulong *pa4);
 GEN     zell(GEN e, GEN z, long prec);
 
+/* elltors.c */
+long    ellisdivisible(GEN E, GEN P, GEN n, GEN *Q);
+
 /* ellpadicL.c */
 GEN ellpadicL(GEN E, GEN p, long n, long r, GEN D, GEN C);
 

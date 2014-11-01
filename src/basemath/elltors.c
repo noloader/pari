@@ -282,11 +282,11 @@ nftorsbound(GEN E)
 
 /* Checks whether the point P is divisible by n in E(K), where xn is
  * [phi_n, psi_n^2]
- * If true, returns a point Q such that nQ = +/- P. Else, returns NULL */
+ * If true, returns a point Q such that nQ = P or -P. Else, returns NULL */
 static GEN
-nfellis_divisible_by(GEN E, GEN P, GEN xn)
+nfellis_divisible_by(GEN E, GEN K, GEN P, GEN xn)
 {
-  GEN r, K = ellnf_get_nf(E), x = gel(P,1);
+  GEN r, x = gel(P,1);
   long i, l;
   if (ell_is_inf(P)) return P;
   r = nfroots(K, RgX_sub(RgX_Rg_mul(gel(xn,2), x), gel(xn,1)));
@@ -297,6 +297,79 @@ nfellis_divisible_by(GEN E, GEN P, GEN xn)
     if (lg(y) != 1) return mkvec2(a, gel(y,1));
   }
   return NULL;
+}
+
+long
+ellisdivisible(GEN E, GEN P, GEN n, GEN *pQ)
+{
+  pari_sp av = avma;
+  GEN xP, R, K = NULL, N = NULL;
+  long i, l;
+  checkell(E);
+  switch(ell_get_type(E))
+  {
+    case t_ELL_Q: break;
+    case t_ELL_NF: K = ellnf_get_nf(E); break;
+    default: pari_err_TYPE("ellisdivisible",E);
+  }
+  checkellpt(P);
+  switch(typ(n))
+  {
+    case t_INT:
+      N = n;
+      if (!isprime(absi(n)))
+      {
+        GEN f = absi_factor(n), LP = gel(f,1), LE = gel(f,2);
+        l = lg(LP);
+        for (i = 1; i < l; i++)
+        {
+          long j, e = itos(gel(LE,i));
+          GEN xp = ellxn(E,itos(gel(LP,i)),0);
+          for (j = 1; j <= e; j++)
+            if (!ellisdivisible(E, P, xp, &P)) { avma = av; return 0; }
+        }
+        if (pQ)
+        {
+          if (signe(n) < 0) P = ellneg(E, P);
+          *pQ = gerepilecopy(av,P);
+        }
+        else av = avma;
+        return 1;
+      }
+      n = ellxn(E, itou(n), 0);
+      break;
+    case t_VEC:
+      if (lg(n) == 3 && typ(gel(n,1)) == t_POL && typ(gel(n,2)) == t_POL) break;
+    default:
+      pari_err_TYPE("ellisdivisible",n);
+      break;
+  }
+  if (ell_is_inf(P)) { if (pQ) *pQ = ellinf(); return 1; }
+  if (!N) {
+    long d, d2 = degpol(gel(n,1));
+    if (d2 < 0)
+      N = gen_0;
+    else
+    {
+      if (!uissquareall(d2,(ulong*)&d)) pari_err_TYPE("ellisdivisible",n);
+      N = stoi(d);
+    }
+  }
+  if (!signe(N)) return 0;
+  xP = gel(P,1);
+  R = nfroots(K, RgX_sub(RgX_Rg_mul(gel(n,2), xP), gel(n,1)));
+  l = lg(R);
+  for(i=1; i<l; i++)
+  {
+    GEN Q,y, x = gel(R,i), a = ellordinate(E,x,0);
+    if (lg(a) == 1) continue;
+    y = gel(a,1);
+    Q = mkvec2(x,y);
+    if (!gequal(P,ellmul(E,Q,N))) Q = ellneg(E,Q); /* nQ = -P */
+    if (pQ) *pQ = gerepilecopy(av,Q); else avma = av;
+    return 1;
+  }
+  avma = av; return 0;
 }
 
 /* 2-torsion point of abcissa x */
@@ -357,13 +430,13 @@ nfelltorsprimary(GEN E, long p, long N1, long N2)
       P2 = gel(T,k);
     }
   }
-  xp = ellxn(E,p,0);
+  xp = ellxn(E, p, 0);
 
   if (ell_is_inf(P2))
   { /* E[p^oo] is cyclic, start from P1 and divide by p while possible */
     for (n1 = 1; n1 < N1; n1++)
     {
-      GEN Q = nfellis_divisible_by(E,P1,xp);
+      GEN Q = nfellis_divisible_by(E,K,P1,xp);
       if (!Q) break;
       P1 = Q;
     }
@@ -374,8 +447,8 @@ nfelltorsprimary(GEN E, long p, long N1, long N2)
   Q1 = NULL;
   for (n2 = 1; n2 < N2; n2++)
   {
-    Q1 = nfellis_divisible_by(E,P1,xp);
-    Q2 = nfellis_divisible_by(E,P2,xp);
+    Q1 = nfellis_divisible_by(E,K,P1,xp);
+    Q2 = nfellis_divisible_by(E,K,P2,xp);
     if (!Q1 || !Q2) break;
     P1 = Q1;
     P2 = Q2;
@@ -386,12 +459,12 @@ nfelltorsprimary(GEN E, long p, long N1, long N2)
   if (n2 == N2)
   {
     if (N1 == N2) return ptor2(p, n2,n2, P1,P2);
-    Q1 = nfellis_divisible_by(E,P1,xp);
+    Q1 = nfellis_divisible_by(E,K,P1,xp);
   }
   if (Q1) { P1 = Q1; n1++; }
   else
   {
-    Q2 = nfellis_divisible_by(E,P2,xp);
+    Q2 = nfellis_divisible_by(E,K,P2,xp);
     if (Q2) { P2 = P1; P1 = Q2; n1++; }
     else
     {
@@ -399,7 +472,7 @@ nfelltorsprimary(GEN E, long p, long N1, long N2)
       for (k = 1; k < p; k++)
       {
         P1 = elladd(E,P1,P2);
-        Q1 = nfellis_divisible_by(E,P1,xp);
+        Q1 = nfellis_divisible_by(E,K,P1,xp);
         if (Q1) { P1 = Q1; n1++; break; }
       }
       if (k == p) return ptor2(p, n2,n2, P1,P2);
@@ -409,7 +482,7 @@ nfelltorsprimary(GEN E, long p, long N1, long N2)
    * Keep trying to divide P1 + k P2 with 0 <= k < p by p */
   while (n1 < N1)
   {
-    Q1 = nfellis_divisible_by(E,P1,xp);
+    Q1 = nfellis_divisible_by(E,K,P1,xp);
     if (Q1) { P1 = Q1; n1++; }
     else
     {
@@ -417,7 +490,7 @@ nfelltorsprimary(GEN E, long p, long N1, long N2)
       for (k = 1; k < p; k++)
       {
         P1 = elladd(E,P1,P2);
-        Q1 = nfellis_divisible_by(E,P1,xp);
+        Q1 = nfellis_divisible_by(E,K,P1,xp);
         if (Q1) { P1 = Q1; n1++; break; }
       }
       if (k == p) break;

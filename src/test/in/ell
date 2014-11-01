@@ -67,6 +67,17 @@ ellxn(e,1)
 ellxn(e,2)
 ellxn(e,4)
 ellxn(e,5)
+P=[-1,1]; Q=ellmul(e,P,20);
+if (ellisdivisible(e,Q,0,&A), A)
+if (ellisdivisible(e,[0],0,&A), A)
+if (ellisdivisible(e,Q,1,&A), A)
+if (ellisdivisible(e,Q,20,&A), A)
+if (ellisdivisible(e,Q,-20,&A), A)
+if (ellisdivisible(e,Q,2,&A), A)
+if (ellisdivisible(e,Q,5,&A), A)
+if (ellisdivisible(e,Q, ellxn(e,5), &A), A)
+if (ellisdivisible(e,Q,11,&A), A)
+if (ellisdivisible(e,Q,22,&A), A)
 e = ellinit([0,1]);
 elldivpol(e,8)
 
