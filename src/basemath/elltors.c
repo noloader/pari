@@ -246,7 +246,7 @@ nftorsbound(GEN E)
   if (typ(ND) == t_FRAC) ND = gel(ND,1);
   ND = mulii(ND, Q_denom(vecslice(E,1,5)));
   g = maxss(5, expi(ND) >> 3);
-  u_forprime_init(&S, 5, ULONG_MAX);
+  u_forprime_init(&S, 3, ULONG_MAX);
   while (k < g) /* k = number of good primes already used */
   {
     ulong p = u_forprime_next(&S);
