@@ -255,17 +255,18 @@ nftorsbound(GEN E)
     if (!umodiu(ND,p)) continue;
     P = idealprimedec(K, utoipos(p));
     l = lg(P);
-    for (j = 1; j < l; j++)
+    if (typ(D) != t_POLMOD) l = 2; /* E/Q */
+    for (j = 1; j < l; j++,k++)
     {
-      GEN Q = gel(P,j), EQ = ellinit(E,Q,0), cyc = ellgroup(EQ, NULL);
-      long n = lg(cyc)-1;
-      k++;
+      GEN Q = gel(P,j), EQ, cyc;
+      long n;
+      /* primes of degree 1 are easier and give smaller bounds */
+      if (pr_get_f(Q) != 1) break;
+      EQ = ellinit(E,Q,0);
+      cyc = ellgroup(EQ, NULL);
+      n = lg(cyc)-1;
       B1 = gcdii(B1,gel(cyc,1));
-      if (is_pm1(B1)) { obj_free(EQ); return mkvec2(gen_1,gen_1); }
-      if(n==1)
-        B2 = gen_1;
-      else
-        B2 = gcdii(B2,gel(cyc,2));
+      B2 = (n == 1)? gen_1: gcdii(B2,gel(cyc,2));
       obj_free(EQ);
       /* division by 2 is cheap when it fails, no need to have a sharp bound */
       if (Z_ispow2(B1)) return mkvec2(B1,B2);
