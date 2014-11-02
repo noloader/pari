@@ -703,15 +703,19 @@ polissquareall(GEN x, GEN *pt)
   }
   else
   {
+    long m = 1;
     x = RgX_Rg_div(x,a);
-    y = gtrunc(gsqrt(RgX_to_ser(x,lg(x)-1),0));
-    if (!RgX_equal(gsqr(y), x)) { avma = av; return 0; }
+    /* a(x^m) = B^2 => B = b(x^m) provided a(0) != 0 */
+    if (!signe(p)) x = RgX_deflate_max(x,&m);
+    y = ser2rfrac_i(gsqrt(RgX_to_ser(x,lg(x)-1),0));
+    if (!RgX_equal(RgX_sqr(y), x)) { avma = av; return 0; }
     if (!pt) { avma = av; return 1; }
     if (!gequal1(a)) y = gmul(b, y);
+    if (m != 1) y = RgX_inflate(y,m);
   }
 END:
-  *pt = v? gerepilecopy(av, RgX_shift_shallow(y, v >> 1)): gerepileupto(av, y);
-  return 1;
+  if (v) y = RgX_shift_shallow(y, v>>1);
+  *pt = gerepilecopy(av, y); return 1;
 }
 
 /* b unit mod p */
