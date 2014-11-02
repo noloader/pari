@@ -272,7 +272,7 @@ nftorsbound(GEN E)
       if (Z_ispow2(B1)) return mkvec2(B1,B2);
     }
   }
-  if (cmpiu(B2, 2) > 1)
+  if (cmpiu(B2, 2) > 0)
   { /* if E(K) has full n-torsion then K contains the n-th roots of 1 */
     GEN n = gel(rootsof1(K), 1);
     B2 = gcdii(B2,n);
