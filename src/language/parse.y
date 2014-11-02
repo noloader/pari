@@ -83,7 +83,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 %%
 
 sequnused: seq       {$$=$1;}
-         | seq error {$$=$1; pari_unused_chars=@1.end;YYABORT;}
+         | seq error {$$=$1;YYABORT;}
 ;
 
 seq: /**/ %prec SEQ  {$$=NOARG(@$);}

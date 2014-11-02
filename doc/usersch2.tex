@@ -1157,8 +1157,8 @@ If the expression cannot be parsed in a way where the left hand side is an
 lvalue, raise an error.
 \bprog
 ? x + 1 = 1
-  ***   unused characters: x+1=1
-  ***                         ^--
+  ***   syntax error, unexpected '=', expecting $end or ';': x+1=1
+  ***                                                           ^--
 @eprog
 \leavevmode
 \kbd{\var{op}=}, where \var{op} is any binary operator

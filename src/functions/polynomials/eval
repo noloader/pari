@@ -36,8 +36,8 @@ Doc: replaces in $x$ the formal variables by the values that
  exception, which can be trapped as usual:
  \bprog
  ? 1a
-  ***   unused characters: 1a
-  ***                       ^-
+  ***   syntax error, unexpected variable name, expecting $end or ';': 1a
+  ***                                                                   ^-
  ? E(expr) =
    {
      iferr(eval(expr),

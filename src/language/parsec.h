@@ -21,7 +21,7 @@ ENDEXTERN
 
 static THREAD int pari_once;
 static THREAD long pari_discarded;
-static THREAD const char *pari_lex_start, *pari_unused_chars;
+static THREAD const char *pari_lex_start;
 static THREAD GEN pari_lasterror;
 
 static void pari_error(YYLTYPE *yylloc, char **lex, const char *s)
@@ -73,7 +73,6 @@ parsestate_reset(void)
 {
   s_node.n = OPnboperator;
   pari_lex_start = NULL;
-  pari_unused_chars=NULL;
   pari_once=1;
   pari_discarded=0;
   pari_lasterror=NULL;
@@ -83,7 +82,6 @@ parsestate_save(struct pari_parsestate *state)
 {
   state->node = s_node.n;
   state->lex_start = pari_lex_start;
-  state->unused_chars = pari_unused_chars;
   state->once = pari_once;
   state->discarded = pari_discarded;
   state->lasterror = pari_lasterror;
@@ -93,7 +91,6 @@ parsestate_restore(struct pari_parsestate *state)
 {
   s_node.n = state->node;
   pari_lex_start = state->lex_start;
-  pari_unused_chars = state->unused_chars;
   pari_once = state->once;
   pari_discarded = state->discarded;
   pari_lasterror = state->lasterror;
@@ -107,15 +104,12 @@ pari_compile_str(const char *lex)
   struct pari_parsestate state;
   parsestate_save(&state);
   pari_lex_start = lex;
-  pari_unused_chars=NULL;
   pari_once=1;
   pari_discarded=0;
   pari_lasterror=NULL;
   if (pari_parse((char**)&lex) || pari_discarded)
   {
-    if (pari_unused_chars && !pari_discarded)
-      compile_err("unused characters", pari_unused_chars);
-    else if (pari_lasterror)
+    if (pari_lasterror)
       compile_err(GSTR(pari_lasterror),lex-1);
     else /* should not happen */
       compile_err("syntax error",lex-1);
