@@ -206,7 +206,7 @@ GEN     Flm_to_ZM(GEN z);
 GEN     Flv_FlvV_polint(GEN xa, GEN ya, ulong p, long vs);
 GEN     Flv_inv(GEN x, ulong p);
 void    Flv_inv_inplace(GEN x, ulong p);
-void    Flv_inv_inplace_pre(GEN x, ulong p, ulong pi);
+void    Flv_inv_pre_inplace(GEN x, ulong p, ulong pi);
 GEN     Flv_inv_pre(GEN x, ulong p, ulong pi);
 GEN     Flv_polint(GEN xa, GEN ya, ulong p, long vs);
 GEN     Flv_roots_to_pol(GEN a, ulong p, long vs);

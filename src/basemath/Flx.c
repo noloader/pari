@@ -1982,7 +1982,7 @@ Flv_roots_to_pol(GEN a, ulong p, long vs)
 }
 
 INLINE void
-Flv_inv_indir_pre(GEN w, GEN v, ulong p, ulong pi)
+Flv_inv_pre_indir(GEN w, GEN v, ulong p, ulong pi)
 {
   pari_sp av = avma;
   GEN c;
@@ -2009,16 +2009,16 @@ Flv_inv_indir_pre(GEN w, GEN v, ulong p, ulong pi)
 }
 
 void
-Flv_inv_inplace_pre(GEN v, ulong p, ulong pi)
+Flv_inv_pre_inplace(GEN v, ulong p, ulong pi)
 {
-  Flv_inv_indir_pre(v, v, p, pi);
+  Flv_inv_pre_indir(v, v, p, pi);
 }
 
 GEN
 Flv_inv_pre(GEN w, ulong p, ulong pi)
 {
   GEN v = cgetg(lg(w), t_VECSMALL);
-  Flv_inv_indir_pre(w, v, p, pi);
+  Flv_inv_pre_indir(w, v, p, pi);
   return v;
 }
 
@@ -2055,7 +2055,7 @@ Flv_inv_inplace(GEN v, ulong p)
   if (SMALL_ULONG(p))
     Flv_inv_indir(v, v, p);
   else
-    Flv_inv_indir_pre(v, v, p, get_Fl_red(p));
+    Flv_inv_pre_indir(v, v, p, get_Fl_red(p));
 }
 
 GEN
@@ -2065,7 +2065,7 @@ Flv_inv(GEN w, ulong p)
   if (SMALL_ULONG(p))
     Flv_inv_indir(w, v, p);
   else
-    Flv_inv_indir_pre(w, v, p, get_Fl_red(p));
+    Flv_inv_pre_indir(w, v, p, get_Fl_red(p));
   return v;
 }
 

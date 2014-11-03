@@ -158,7 +158,7 @@ BA 53- [libpari] functions Fl_powers, Fp_powers, Fl_ellj,
                            Fl_ellj_to_a4a6, Flxq_ellj_to_a4a6
 BA 54- [libpari] functions FpXQX_div_by_X_x, FqX_div_by_X_x
 HIL55- [libpari] function Flx_oneroot_split, zxX_to_FlxX
-BA 56- [libpari] functions Flv_inv_pre, Flv_inv_inplace, Flv_inv_inplace_pre
+BA 56- [libpari] functions Flv_inv_pre, Flv_inv_inplace, Flv_inv_pre_inplace
 HIL57- GP function ellissupersingular
 HIL58- [libpari] functions Fp_elljissupersingular, FpXQ_elljissupersingular,
 BA 59- [libpari] functions umodsu, zx_to_Flx
