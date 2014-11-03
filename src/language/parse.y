@@ -72,7 +72,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 %left "++" "--"
 %left '('
 %left ':'
-%type <val> seq sequnused
+%type <val> seq sequence
 %type <val> range matrix matrix_index expr
 %type <val> lvalue
 %type <val> matrixelts matrixlines arg listarg definition
@@ -82,8 +82,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 %destructor { pari_discarded++; } seq matrix range matrix_index expr lvalue matrixelts matrixlines arg listarg definition funcid memberid backticks history compr in inseq
 %%
 
-sequnused: seq       {$$=$1;}
-         | seq error {$$=$1;YYABORT;}
+sequence: seq        {$$=$1;} /* skip the destructor */
 ;
 
 seq: /**/ %prec SEQ  {$$=NOARG(@$);}
