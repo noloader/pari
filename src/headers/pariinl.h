@@ -1646,6 +1646,12 @@ Fp_div(GEN a, GEN b, GEN m)
 INLINE GEN
 Flx_mulu(GEN x, ulong a, ulong p) { return Flx_Fl_mul(x,a%p,p); }
 
+INLINE ulong
+Flv_dotproduct_pre(GEN x, GEN y, ulong p, ulong pi)
+{
+  return Flv_dotproduct_spec(x+1, y+1, lg(x) - 1, p, pi);
+}
+
 /*******************************************************************/
 /*                                                                 */
 /*                        ADDMULII / SUBMULII                      */
