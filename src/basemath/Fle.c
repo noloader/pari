@@ -18,6 +18,270 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 
 /***********************************************************************/
 /**                                                                   **/
+/**                              Flj                                  **/
+/**                                                                   **/
+/***********************************************************************/
+
+/* Arithmetic is implemented using Jacobian coordinates, representing
+ * a projective point (x : y : z) on E by [z*x , z^2*y , z].  This is
+ * probably not the fastest representation available for the given
+ * problem, but they're easy to implement and up to 60% faster than
+ * the school-book method used in Fle_mulu().
+ */
+
+/*
+ * Cost: 1M + 8S + 1*a + 10add + 1*8 + 2*2 + 1*3.
+ * Source: http://www.hyperelliptic.org/EFD/g1p/auto-shortw-jacobian.html#doubling-dbl-2007-bl
+ */
+
+INLINE void
+Flj_dbl_indir_pre(GEN P, GEN Q, ulong a4, ulong p, ulong pi)
+{
+  ulong X1, Y1, Z1;
+  ulong XX, YY, YYYY, ZZ, S, M, T;
+
+  X1 = P[1]; Y1 = P[2]; Z1 = P[3];
+
+  if (Z1 == 0)
+  {
+    Q[1] = X1; Q[2] = Y1; Q[3] = Z1;
+    return;
+  }
+
+  XX = Fl_sqr_pre(X1, p, pi);
+  YY = Fl_sqr_pre(Y1, p, pi);
+  YYYY = Fl_sqr_pre(YY, p, pi);
+  ZZ = Fl_sqr_pre(Z1, p, pi);
+  S = Fl_double(Fl_sub(Fl_sqr_pre(Fl_add(X1, YY, p), p, pi),
+                       Fl_add(XX, YYYY, p), p), p);
+  M = Fl_add(Fl_triple(XX, p),
+             Fl_mul_pre(a4, Fl_sqr_pre(ZZ, p, pi), p, pi), p);
+  T = Fl_sub(Fl_sqr_pre(M, p, pi), Fl_double(S, p), p);
+  Q[1] = T;
+  Q[2] = Fl_sub(Fl_mul_pre(M, Fl_sub(S, T, p), p, pi),
+                Fl_double(Fl_double(Fl_double(YYYY, p), p), p), p);
+  Q[3] = Fl_sub(Fl_sqr_pre(Fl_add(Y1, Z1, p), p, pi),
+                Fl_add(YY, ZZ, p), p);
+}
+
+INLINE void
+Flj_dbl_pre_inplace(GEN P, ulong a4, ulong p, ulong pi)
+{
+  Flj_dbl_indir_pre(P, P, a4, p, pi);
+}
+
+GEN
+Flj_dbl_pre(GEN P, ulong a4, ulong p, ulong pi)
+{
+  GEN Q = cgetg(4, t_VECSMALL);
+  Flj_dbl_indir_pre(P, Q, a4, p, pi);
+  return Q;
+}
+
+/*
+ * Cost: 11M + 5S + 9add + 4*2.
+ * Source: http://www.hyperelliptic.org/EFD/g1p/auto-shortw-jacobian.html#addition-add-2007-bl
+ */
+
+INLINE void
+Flj_add_indir_pre(GEN P, GEN Q, GEN R, ulong a4, ulong p, ulong pi)
+{
+  ulong X1, Y1, Z1, X2, Y2, Z2;
+  ulong Z1Z1, Z2Z2, U1, U2, S1, S2, H, I, J, r, V, W;
+  X1 = P[1]; Y1 = P[2]; Z1 = P[3];
+  X2 = Q[1]; Y2 = Q[2]; Z2 = Q[3];
+
+  if (Z2 == 0) {
+    R[1] = X1; R[2] = Y1; R[3] = Z1;
+    return;
+  }
+
+  if (Z1 == 0) {
+    R[1] = X2; R[2] = Y2; R[3] = Z2;
+    return;
+  }
+
+  Z1Z1 = Fl_sqr_pre(Z1, p, pi);
+  Z2Z2 = Fl_sqr_pre(Z2, p, pi);
+  U1 = Fl_mul_pre(X1, Z2Z2, p, pi);
+  U2 = Fl_mul_pre(X2, Z1Z1, p, pi);
+  S1 = Fl_mul_pre(Y1, Fl_mul_pre(Z2, Z2Z2, p, pi), p, pi);
+  S2 = Fl_mul_pre(Y2, Fl_mul_pre(Z1, Z1Z1, p, pi), p, pi);
+  H = Fl_sub(U2, U1, p);
+  r = Fl_double(Fl_sub(S2, S1, p), p);
+
+  /* If points are equal we must double. */
+  if (H == 0) {
+    if (r == 0) {
+      /* Points are equal so double. */
+      Flj_dbl_indir_pre(P, R, a4, p, pi);
+    } else {
+      /* Points are opposite so return zero. */
+      R[1] = R[2] = 1; R[3] = 0;
+    }
+    return;
+  }
+  I = Fl_sqr_pre(Fl_double(H, p), p, pi);
+  J = Fl_mul_pre(H, I, p, pi);
+  V = Fl_mul_pre(U1, I, p, pi);
+  W = Fl_sub(Fl_sqr_pre(r, p, pi), Fl_add(J, Fl_double(V, p), p), p);
+  R[1] = W;
+  R[2] = Fl_sub(Fl_mul_pre(r, Fl_sub(V, W, p), p, pi),
+                Fl_double(Fl_mul_pre(S1, J, p, pi), p), p);
+  R[3] = Fl_mul_pre(Fl_sub(Fl_sqr_pre(Fl_add(Z1, Z2, p), p, pi),
+                           Fl_add(Z1Z1, Z2Z2, p), p), H, p, pi);
+}
+
+INLINE void
+Flj_add_pre_inplace(GEN P, GEN Q, ulong a4, ulong p, ulong pi)
+{
+  Flj_add_indir_pre(P, Q, P, a4, p, pi);
+}
+
+GEN
+Flj_add_pre(GEN P, GEN Q, ulong a4, ulong p, ulong pi)
+{
+  GEN R = cgetg(4, t_VECSMALL);
+  Flj_add_indir_pre(P, Q, R, a4, p, pi);
+  return R;
+}
+
+GEN
+Flj_neg(GEN Q, ulong p)
+{
+  return mkvecsmall3(Q[1], Fl_neg(Q[2], p), Q[3]);
+}
+
+typedef struct {
+  ulong n; /* The number being represented */
+  ulong pbits, nbits;  /* Positive bits and negative bits */
+  ulong lnzb; /* Leading non-zero bit */
+} naf_t;
+
+/*
+ * Return the signed binary representation (i.e. the Non-Adjacent Form
+ * in base 2) of 0 <= a < 2^63.
+ */
+static void
+naf_repr(naf_t *x, ulong a)
+{
+  long t, i;
+  ulong pbits, nbits;
+  ulong c0 = 0, c1, a0;
+
+  x->n = a;
+  pbits = nbits = 0;
+  for (i = 0; a; a >>= 1, ++i) {
+    a0 = a & 1;
+    c1 = (c0 + a0 + ((a & 2) >> 1)) >> 1;
+    t = c0 + a0 - (c1 << 1);
+    if (t < 0)
+      nbits |= (1UL << i);
+    else if (t > 0)
+      pbits |= (1UL << i);
+    c0 = c1;
+  }
+  c1 = c0 >> 1;
+  t = c0 - (c1 << 1);
+  /* Note that we don't need to check whether t < 0, since a >= 0 implies
+   * that this most significant signed bit must be non-negative. */
+#if 0
+  if (t < 0)
+    nbits |= (1UL << i);
+  else
+#endif
+  if (t > 0)
+    pbits |= (1UL << i);
+
+  x->pbits = pbits;
+  x->nbits = nbits;
+  /* Note that expu returns the least nonzero bit in the argument,
+   * like the bit-scan-rev instruction on Intel architectures. */
+  /* Using pbits here is justified by the fact that a >= 0, so the
+   * most significant bit must be positive. */
+  x->lnzb = expu(pbits) - 2;
+}
+
+/*
+ * Standard left-to-right signed double-and-add to compute [n]P.
+ */
+
+static GEN
+Flj_mulu_pre_naf(GEN P, ulong n, ulong a4, ulong p, ulong pi, const naf_t *x)
+{
+  GEN R, Pinv;
+  ulong pbits, nbits, lnzb;
+  ulong m;
+
+  if (n == 0)
+    return mkvecsmall3(1, 1, 0);
+  if (n == 1)
+    return Flv_copy(P);
+
+  R = Flj_dbl_pre(P, a4, p, pi);
+  if (n == 2)
+    return R;
+
+  pbits = x->pbits;
+  nbits = x->nbits;
+  lnzb = x->lnzb;
+
+  Pinv = Flj_neg(P, p);
+  m = (1UL << lnzb);
+  for ( ; m; m >>= 1) {
+    Flj_dbl_pre_inplace(R, a4, p, pi);
+    if (m & pbits)
+      Flj_add_pre_inplace(R, P, a4, p, pi);
+    else if (m & nbits)
+      Flj_add_pre_inplace(R, Pinv, a4, p, pi);
+  }
+  avma = (pari_sp)R; return R;
+}
+
+GEN
+Flj_mulu_pre(GEN P, ulong n, ulong a4, ulong p, ulong pi)
+{
+  naf_t x;
+  naf_repr(&x, n);
+  return Flj_mulu_pre_naf(P, n, a4, p, pi, &x);
+}
+
+GEN
+Fle_to_Flj(GEN P)
+{ return ell_is_inf(P) ? mkvecsmall3(1UL, 1UL, 0UL):
+                         mkvecsmall3(P[1], P[2], 1UL);
+}
+
+GEN
+Flj_to_Fle_pre(GEN P, ulong p, ulong pi)
+{
+  if (P[3] == 0) return ellinf();
+  else
+  {
+    ulong Z = Fl_inv(P[3], p);
+    ulong Z2 = Fl_sqr_pre(Z, p, pi);
+    ulong X3 = Fl_mul_pre(P[1], Z2, p, pi);
+    ulong Y3 = Fl_mul_pre(P[2], Fl_mul_pre(Z, Z2, p, pi), p, pi);
+    return mkvecsmall2(X3, Y3);
+  }
+}
+
+GEN
+random_Flj_pre(ulong a4, ulong a6, ulong p, ulong pi)
+{
+  ulong x, x2, y, rhs;
+  do
+  {
+    x   = random_Fl(p); /*  x^3+a4*x+a6 = x*(x^2+a4)+a6  */
+    x2  = Fl_sqr_pre(x, p, pi);
+    rhs = Fl_add(Fl_mul_pre(x, Fl_add(x2, a4, p), p, pi), a6, p);
+  } while ((!rhs && !Fl_add(Fl_triple(x2,p),a4,p)) || krouu(rhs, p) < 0);
+  y = Fl_sqrt_pre(rhs, p, pi);
+  return mkvecsmall3(x, y, 1);
+}
+
+/***********************************************************************/
+/**                                                                   **/
 /**                              Fle                                  **/
 /**                                                                   **/
 /***********************************************************************/
@@ -131,23 +395,15 @@ _Fle_add(void *E, GEN P, GEN Q)
   return Fle_add(P, Q, ell->a4, ell->p);
 }
 
-static GEN
-_Fle_mulu(void *E, GEN P, ulong n)
-{
-  pari_sp av = avma;
-  struct _Fle *e=(struct _Fle *) E;
-  if (!n || ell_is_inf(P)) return ellinf();
-  if (n==1) return zv_copy(P);
-  if (n==2) return Fle_dbl(P,e->a4, e->p);
-  return gerepileupto(av, gen_powu(P, n, (void*)e, &_Fle_dbl, &_Fle_add));
-}
-
 GEN
 Fle_mulu(GEN P, ulong n, ulong a4, ulong p)
 {
-  struct _Fle E;
-  E.a4= a4; E.p = p;
-  return _Fle_mulu(&E, P, n);
+  ulong pi;
+  if (!n || ell_is_inf(P)) return ellinf();
+  if (n==1) return zv_copy(P);
+  if (n==2) return Fle_dbl(P, a4, p);
+  pi = get_Fl_red(p);
+  return Flj_to_Fle_pre(Flj_mulu_pre(Fle_to_Flj(P), n, a4, p, pi), p, pi);
 }
 
 static GEN
@@ -156,10 +412,13 @@ _Fle_mul(void *E, GEN P, GEN n)
   pari_sp av = avma;
   struct _Fle *e=(struct _Fle *) E;
   long s = signe(n);
+  GEN Q;
   if (!s || ell_is_inf(P)) return ellinf();
-  if (s<0) P = Fle_neg(P, e->p);
-  if (is_pm1(n)) return s>0? zv_copy(P): P;
-  return gerepileupto(av, gen_pow(P, n, (void*)e, &_Fle_dbl, &_Fle_add));
+  if (s < 0) P = Fle_neg(P, e->p);
+  if (is_pm1(n)) return s > 0? zv_copy(P): P;
+  Q = (lgefint(n)==3) ? Fle_mulu(P, uel(n,2), e->a4, e->p):
+                        gen_pow(P, n, (void*)e, &_Fle_dbl, &_Fle_add);
+  return s > 0? Q: gerepileuptoleaf(av, Q);
 }
 
 GEN

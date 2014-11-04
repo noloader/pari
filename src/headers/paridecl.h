@@ -187,7 +187,14 @@ GEN     Fle_mul(GEN P, GEN n, ulong a4, ulong p);
 GEN     Fle_mulu(GEN P, ulong n, ulong a4, ulong p);
 GEN     Fle_order(GEN z, GEN o, ulong a4, ulong p);
 GEN     Fle_sub(GEN P, GEN Q, ulong a4, ulong p);
+GEN     Fle_to_Flj(GEN P);
+GEN     Flj_add_pre(GEN P, GEN Q, ulong a4, ulong p, ulong pi);
+GEN     Flj_dbl_pre(GEN P, ulong a4, ulong p, ulong pi);
+GEN     Flj_mulu_pre(GEN P, ulong n, ulong a4, ulong p, ulong pi);
+GEN     Flj_neg(GEN Q, ulong p);
+GEN     Flj_to_Fle_pre(GEN P, ulong p, ulong pi);
 GEN     random_Fle(ulong a4, ulong a6, ulong p);
+GEN     random_Flj_pre(ulong a4, ulong a6, ulong p, ulong pi);
 
 /* Flx.c */
 

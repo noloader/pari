@@ -486,7 +486,7 @@ Weil pairing of the points of $m$-torsion $P$ and $Q$.
 Let $p$ be a prime \kbd{ulong}, and $E$ the elliptic curve given by the
 equation $E:y^2=x^3+a_4\*x+a_6$, where $a_4$ and $a_6$ are \kbd{ulong}.
 A \kbd{Fle} is either the point at infinity (\kbd{ellinf()}), or a \kbd{Flv}
-with two components.
+with two components $[x,y]$.
 
 \fun{long}{Fl_elltrace}{ulong a4, ulong a6, ulong p} returns the trace $t$ of
 the Frobenius of $E(\F_p)$. The cardinal of $E(\F_p)$ is thus $p+1-t$, which
@@ -532,6 +532,33 @@ define the twist of $E$ by the discriminant $D$.
 to give the change of coordinates $[u,r,s,t]$ as a \typ{VECSMALL}.
 
 \fun{GEN}{Fle_changepointinv}{GEN x, GEN ch, ulong p}, as \tet{Fle_changepoint}
+
+\subsec{\kbd{Flj}}
+
+Let $p$ be a prime \kbd{ulong}, and $E$ the elliptic curve given by the
+equation $E:y^2=x^3+a_4\*x+a_6$, where $a_4$ and $a_6$ are \kbd{ulong}.
+A \kbd{Flj} is a \kbd{Flv} with three components $[x,y,z]$, representing
+the affine point $[x/z^2,y/z^3]$ in Jacobian coordinates, the point at
+infinity being represented by $[1, 1, 0]$. The following must holds:
+$y^2=x^3+a_4\*x\*z^4+a_6\*z^6$. For all non-zero $u$, the points
+$[u^2\*x,u^3\*y,u\*z]$ and $[x,y,z]$ are representing the same affine point.
+
+Below, \kbd{pi} is assumed to be the precomputed inverse of $p$.
+
+\fun{GEN}{Fle_to_Flj}{GEN P} convert a \kbd{Fle} to an equivalent \kbd{Flj}.
+
+\fun{GEN}{Flj_to_Fle_pre}{GEN P} convert a \kbd{Flj} to the equivalent
+\kbd{Fle}.
+
+\fun{GEN}{Flj_add_pre}{GEN P, GEN Q, ulong a4, ulong p, ulong pi}
+
+\fun{GEN}{Flj_dbl_pre}{GEN P, ulong a4, ulong p, ulong pi}
+
+\fun{GEN}{Flj_neg}{GEN P, ulong p} return $-P$.
+
+\fun{GEN}{Flj_mulu_pre}{GEN P, ulong n, ulong a4, ulong p, ulong pi}
+
+\fun{GEN}{random_Flj_pre}{ulong a4, ulong a6, ulong p, ulong pi}
 
 \subsec{Elliptic curves over $\F_{2^n}$}
 Let $T$ be an irreducible \kbd{F2x} and $E$ the
