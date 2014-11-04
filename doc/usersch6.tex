@@ -812,6 +812,12 @@ iff $p$ is inert, and a \kbd{ZM} otherwise. Shallow function.
 
 \fun{GEN}{pr_norm}{GEN pr} returns the norm $p^f$ of the maximal ideal.
 
+\fun{GEN}{idealprimedec}{GEN nf, GEN p} list of maximal ideals dividing the
+prime $p$.
+
+\fun{GEN}{idealprimedec_limit}{GEN nf, GEN p, long f} as \tet{idealprimedec},
+limiting the list to primes of residual degree $\leq f$ if $f$ is non-zero.
+
 \subsec{Reducing modulo maximal ideals}
 
 \fun{GEN}{nfmodprinit}{GEN nf, GEN pr} returns an abstract \kbd{modpr}

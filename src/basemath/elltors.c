@@ -234,11 +234,24 @@ elltors_divpol(GEN E)
   return tors(E,B, P, Q, v);
 }
 
+/* either return one prime of degree 1 above p or NULL (none or expensive) */
+static GEN
+primedec_deg1(GEN K, GEN p)
+{
+  GEN r, T, f = nf_get_index(K);
+  if (dvdii(f,p)) return NULL;
+  T = nf_get_pol(K);
+  r = FpX_oneroot(T, p); if (!r) return NULL;
+  r = deg1pol_shallow(gen_1, Fp_neg(r,p), varn(T));
+  return mkvec( primedec_apply_kummer(K, r, 1, p) );
+}
+
 /* Bound for the elementary divisors of the torsion group of elliptic curve
  * Reduce the curve modulo some small good primes */
 static GEN
 nftorsbound(GEN E)
 {
+  pari_sp av;
   long k = 0, g;
   GEN B1 = gen_0, B2 = gen_0, K = ellnf_get_nf(E);
   GEN D = ell_get_disc(E), ND = idealnorm(K,D);
@@ -246,31 +259,36 @@ nftorsbound(GEN E)
   if (typ(ND) == t_FRAC) ND = gel(ND,1);
   ND = mulii(ND, Q_denom(vecslice(E,1,5)));
   g = maxss(5, expi(ND) >> 3);
+  if (g > 20) g = 20;
   u_forprime_init(&S, 3, ULONG_MAX);
+  av = avma;
   while (k < g) /* k = number of good primes already used */
   {
     ulong p = u_forprime_next(&S);
-    GEN P;
+    GEN P, gp;
     long j, l;
     if (!umodiu(ND,p)) continue;
-    P = idealprimedec(K, utoipos(p));
+    gp = utoipos(p);
+    /* primes of degree 1 are easier and give smaller bounds */
+    if (typ(D) != t_POLMOD) /* E/Q */
+    {
+      P = primedec_deg1(K, gp);
+      if (!P) continue;
+    }
+    else
+      P = idealprimedec_limit(K, utoipos(p), 1);
     l = lg(P);
-    if (typ(D) != t_POLMOD) l = 2; /* E/Q */
     for (j = 1; j < l; j++,k++)
     {
-      GEN Q = gel(P,j), EQ, cyc;
-      long n;
-      /* primes of degree 1 are easier and give smaller bounds */
-      if (pr_get_f(Q) != 1) break;
-      EQ = ellinit(E,Q,0);
-      cyc = ellgroup(EQ, NULL);
-      n = lg(cyc)-1;
+      GEN Q = gel(P,j), EQ = ellinit(E,Q,0), cyc = ellgroup(EQ, NULL);
+      long n = lg(cyc)-1;
       B1 = gcdii(B1,gel(cyc,1));
       B2 = (n == 1)? gen_1: gcdii(B2,gel(cyc,2));
       obj_free(EQ);
       /* division by 2 is cheap when it fails, no need to have a sharp bound */
       if (Z_ispow2(B1)) return mkvec2(B1,B2);
     }
+    if ((g & 15) == 0) gerepileall(av, 2, &B1, &B2);
   }
   if (cmpiu(B2, 2) > 0)
   { /* if E(K) has full n-torsion then K contains the n-th roots of 1 */

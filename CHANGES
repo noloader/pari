@@ -170,6 +170,7 @@ BA 59- [libpari] functions umodsu, zx_to_Flx
    62- allow elltors and ellorder for E/K number field
    63- GP function ellxn, ellisdivisible
 HIL64- [libpari] function family Flj_*
+   65- [libpari] idealprimedec_limit
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]

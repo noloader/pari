@@ -1581,6 +1581,7 @@ GEN     nfmodprinit(GEN nf, GEN pr);
 GEN     nfreducemodpr(GEN nf, GEN x, GEN modpr);
 GEN     polcompositum0(GEN P, GEN Q,long flag);
 GEN     idealprimedec(GEN nf,GEN p);
+GEN     idealprimedec_limit(GEN nf, GEN p, long f);
 GEN     rnfbasis(GEN bnf, GEN order);
 GEN     rnfdedekind(GEN nf, GEN T, GEN pr, long flag);
 GEN     rnfdet(GEN nf, GEN order);

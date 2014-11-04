@@ -2317,9 +2317,9 @@ primedec_end(GEN nf, GEN L, GEN p)
   return Lpr;
 }
 
-/* prime ideal decomposition of p */
+/* prime ideal decomposition of p; if flim!=0, restrict to f(P,p) <= flim */
 static GEN
-primedec_aux(GEN nf, GEN p)
+primedec_aux(GEN nf, GEN p, long flim)
 {
   GEN E, F, L, Ip, H, phi, mat1, f, g, h, p1, UN, T = nf_get_pol(nf);
   long i, k, c, iL, N;
@@ -2333,7 +2333,11 @@ primedec_aux(GEN nf, GEN p)
   {
     L = cgetg(k,t_VEC);
     for (i=1; i<k; i++)
-      gel(L,i) = primedec_apply_kummer(nf,gel(F,i), E[i],p);
+    {
+      GEN t = gel(F,i);
+      if (flim && degpol(t) > flim) { setlg(L, i); break; }
+      gel(L,i) = primedec_apply_kummer(nf, t, E[i],p);
+    }
     return L;
   }
 
@@ -2345,7 +2349,11 @@ primedec_aux(GEN nf, GEN p)
   L = cgetg(N+1,t_VEC); iL = 1;
   for (i=1; i<k; i++)
     if (E[i] == 1 || signe(FpX_rem(f,gel(F,i),p)))
-      gel(L,iL++) = primedec_apply_kummer(nf,gel(F,i), E[i],p);
+    {
+      GEN t = gel(F,i);
+      if (flim && degpol(t) > flim) continue;
+      gel(L,iL++) = primedec_apply_kummer(nf, t, E[i],p);
+    }
     else /* F[i] | (f,g,h), happens at least once by Dedekind criterion */
       E[i] = 0;
 
@@ -2407,20 +2415,27 @@ primedec_aux(GEN nf, GEN p)
         for (i=1; i<=n; i++) { H = gel(h,--c); gel(L,iL++) = H; }
     }
     else /* A2 field ==> H maximal, f = N-k = dim(A2) */
+    {
+      if (flim && N - (lg(H)-1) > flim) continue;
       gel(L,iL++) = H;
+    }
   }
   setlg(L, iL);
   return primedec_end(nf, L, p);
 }
 
 GEN
-idealprimedec(GEN nf, GEN p)
+idealprimedec_limit(GEN nf, GEN p, long f)
 {
   pari_sp av = avma;
+  GEN v;
   if (typ(p) != t_INT) pari_err_TYPE("idealprimedec",p);
-  return gerepileupto(av, gen_sort(primedec_aux(checknf(nf),p),
-                                   (void*)&cmp_prime_over_p, &cmp_nodata));
+  v = primedec_aux(checknf(nf), p, f);
+  return gerepileupto(av, gen_sort(v, (void*)&cmp_prime_over_p, &cmp_nodata));
 }
+GEN
+idealprimedec(GEN nf, GEN p)
+{ return idealprimedec_limit(nf, p, 0); }
 
 /* return [Fp[x]: Fp] */
 static long
