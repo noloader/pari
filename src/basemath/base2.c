@@ -3769,10 +3769,14 @@ nfsplitting(GEN T, GEN D)
 {
   pari_sp av = avma;
   long d;
-  GEN F;
-  if (typ(T) != t_POL) pari_err_TYPE("nfsplitting",T);
-  T = Q_primpart(T);
-  RgX_check_ZX(T,"nfsplitting");
+  GEN F, K;
+  F = T = get_nfpol(T,&K);
+  if (!K)
+  {
+    if (typ(T) != t_POL) pari_err_TYPE("nfsplitting",T);
+    T = Q_primpart(T);
+    RgX_check_ZX(T,"nfsplitting");
+  }
   d = degpol(T);
   if (d<=1) return pol_x(0);
   if (D)
@@ -3785,13 +3789,14 @@ nfsplitting(GEN T, GEN D)
     long dmax = pari_is_dir(data)? 11: 7;
     D = (d <= dmax)? gel(polgalois(T,DEFAULTPREC), 1): mpfact(d);
   }
-  d = itos(D); F = T;
-  if (varn(T) == 0) T = gsubst(T,0,pol_x(1));
+  d = itos(D);
+  if (!K) K = T;
+  if (varn(T) == 0) K = gsubst(K,0,pol_x(1));
   for(;;)
   {
-    GEN P = gel(nffactor(T, F), 1), Q = gel(P,lg(P)-1);
+    GEN P = gel(nffactor(K, F), 1), Q = gel(P,lg(P)-1);
     if (degpol(gel(P,1)) == degpol(Q)) break;
-    F = rnfequation(T,Q);
+    F = rnfequation(K,Q);
     if (degpol(F) == d) break;
   }
   return gerepilecopy(av, F);
