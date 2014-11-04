@@ -280,7 +280,8 @@ nftorsbound(GEN E)
     l = lg(P);
     for (j = 1; j < l; j++,k++)
     {
-      GEN Q = gel(P,j), EQ = ellinit(E,Q,0), cyc = ellgroup(EQ, NULL);
+      GEN Q = gel(P,j), EQ = ellinit(E,zkmodprinit(K,Q),0);
+      GEN cyc = ellgroup(EQ, NULL);
       long n = lg(cyc)-1;
       B1 = gcdii(B1,gel(cyc,1));
       B2 = (n == 1)? gen_1: gcdii(B2,gel(cyc,2));

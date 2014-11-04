@@ -690,10 +690,22 @@ ellinit_Fq(GEN x, GEN fg)
 static GEN
 ellinit_nf_to_Fq(GEN x, GEN P)
 {
-  GEN nf = ellnf_get_nf(x);
-  GEN T,p, modP = nf_to_Fq_init(nf,&P,&T,&p);
-  x = nfV_to_FqV(vecslice(x,1,5), nf, modP);
-  return T? ellinit_Fq(x,Tp_to_FF(T,p)): ellinit_Fp(x,p);
+  GEN nf = ellnf_get_nf(x), e = vecslice(x,1,5);
+  GEN T,p, modP;
+  if (get_modpr(P))
+  { /* modpr accept */
+    modP = P;
+    p = modpr_get_p(modP);
+  }
+  else
+  { /* pr, initialize modpr */
+    GEN d = Q_denom(e);
+    p = pr_get_p(P);
+    modP = dvdii(d,p)? nfmodprinit(nf,P): zkmodprinit(nf,P);
+  }
+  T = modpr_get_T(modP);
+  e = nfV_to_FqV(e, nf, modP);
+  return T? ellinit_Fq(e,Tp_to_FF(T,p)): ellinit_Fp(e,p);
 }
 GEN
 ellinit(GEN x, GEN D, long prec)

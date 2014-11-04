@@ -823,8 +823,19 @@ limiting the list to primes of residual degree $\leq f$ if $f$ is non-zero.
 \fun{GEN}{nfmodprinit}{GEN nf, GEN pr} returns an abstract \kbd{modpr}
 structure, associated to reduction modulo the maximal ideal \kbd{pr}, in
 \kbd{idealprimedec} format. From this data we can quickly project any
-\kbd{pr}-integral number field element to the residue field. This function is
-almost useless in library mode, we rather use:
+\kbd{pr}-integral number field element to the residue field.
+
+\fun{GEN}{modpr_get_pr}{GEN x} return the \kbd{pr} component from a \kbd{modpr}
+structure.
+
+\fun{GEN}{modpr_get_p}{GEN x} return the $p$ component from a \kbd{modpr}
+structure (underlying rational prime).
+
+\fun{GEN}{modpr_get_T}{GEN x} return the \kbd{T} component from a \kbd{modpr}
+structure: either \kbd{NULL} (prime of degree $1$) or an irreducible
+\kbd{FpX} defining the residue field over $\F_p$.
+
+In library mode, it is often easier to use directly
 
 \fun{GEN}{nf_to_Fq_init}{GEN nf, GEN *ppr, GEN *pT, GEN *pp} concrete
 version of \kbd{nfmodprinit}: \kbd{nf} and \kbd{*ppr} are the inputs, the

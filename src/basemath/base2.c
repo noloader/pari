@@ -2500,8 +2500,6 @@ anti_uniformizer2(GEN nf, GEN pr)
 
 #define mpr_TAU 1
 #define mpr_FFP 2
-#define mpr_PR  3
-#define mpr_T   4
 #define mpr_NFP 5
 #define SMALLMODPR 4
 #define LARGEMODPR 6
@@ -2575,7 +2573,7 @@ modprinit(GEN nf, GEN pr, int zk)
     res = cgetg(SMALLMODPR, t_COL);
     gel(res,mpr_TAU) = tau;
     gel(res,mpr_FFP) = dim1proj(prh);
-    gel(res,mpr_PR) = pr; return gerepilecopy(av, res);
+    gel(res,3) = pr; return gerepilecopy(av, res);
   }
 
   c = cgetg(f+1, t_VECSMALL);
@@ -2604,8 +2602,8 @@ modprinit(GEN nf, GEN pr, int zk)
     res = cgetg(SMALLMODPR+1, t_COL);
     gel(res,mpr_TAU) = tau;
     gel(res,mpr_FFP) = ffproj;
-    gel(res,mpr_PR) = pr;
-    gel(res,mpr_T) = T; return gerepilecopy(av, res);
+    gel(res,3) = pr;
+    gel(res,4) = T; return gerepilecopy(av, res);
   }
 
   if (uisprime(f))
@@ -2661,8 +2659,8 @@ modprinit(GEN nf, GEN pr, int zk)
   res = cgetg(LARGEMODPR, t_COL);
   gel(res,mpr_TAU) = tau;
   gel(res,mpr_FFP) = ffproj;
-  gel(res,mpr_PR) = pr;
-  gel(res,mpr_T) = T;
+  gel(res,3) = pr;
+  gel(res,4) = T;
   gel(res,mpr_NFP) = nfproj; return gerepilecopy(av, res);
 }
 
@@ -2679,8 +2677,12 @@ void
 checkmodpr(GEN x)
 {
   if (!ok_modpr(x)) pari_err_TYPE("checkmodpr [use nfmodprinit]", x);
-  checkprid(gel(x,mpr_PR));
+  checkprid(modpr_get_pr(x));
 }
+GEN
+get_modpr(GEN x)
+{ return ok_modpr(x)? x: NULL; }
+
 static int
 is_prid(GEN x)
 {
@@ -2697,7 +2699,7 @@ get_prid(GEN x)
   if (lx == 3 && typ(x) == t_VEC) x = gel(x,1);
   if (is_prid(x)) return x;
   if (ok_modpr(x)) {
-    x = gel(x,mpr_PR);
+    x = modpr_get_pr(x);
     if (is_prid(x)) return x;
   }
   return NULL;
@@ -2707,9 +2709,9 @@ static GEN
 to_ff_init(GEN nf, GEN *pr, GEN *T, GEN *p, int zk)
 {
   GEN modpr = (typ(*pr) == t_COL)? *pr: modprinit(nf, *pr, zk);
-  *T = lg(modpr)==SMALLMODPR? NULL: gel(modpr,mpr_T);
-  *pr = gel(modpr,mpr_PR);
-  *p = gel(*pr,1); return modpr;
+  *T = modpr_get_T(modpr);
+  *pr = modpr_get_pr(modpr);
+  *p = pr_get_p(*pr); return modpr;
 }
 
 /* Return an element of O_K which is set to x Mod T */
@@ -2724,7 +2726,7 @@ modpr_genFq(GEN modpr)
       return gmael(modpr,mpr_NFP, 2);
     default: /* trivial case : p \nmid index */
     {
-      long v = varn( gel(modpr, mpr_T) );
+      long v = varn( modpr_get_T(modpr) );
       return pol_x(v);
     }
   }
@@ -2746,10 +2748,10 @@ zk_to_Fq_init(GEN nf, GEN *pr, GEN *T, GEN *p) {
 GEN
 zk_to_Fq(GEN x, GEN modpr)
 {
-  GEN pr = gel(modpr,mpr_PR), p = pr_get_p(pr);
+  GEN pr = modpr_get_pr(modpr), p = pr_get_p(pr);
   GEN ffproj = gel(modpr,mpr_FFP);
-  if (lg(modpr) == SMALLMODPR) return FpV_dotproduct(ffproj,x, p);
-  return FpM_FpC_mul_FpX(ffproj,x, p, varn(gel(modpr,mpr_T)));
+  GEN T = modpr_get_T(modpr);
+  return T? FpM_FpC_mul_FpX(ffproj,x, p, varn(T)): FpV_dotproduct(ffproj,x, p);
 }
 
 /* REDUCTION Modulo a prime ideal */
@@ -2758,7 +2760,7 @@ zk_to_Fq(GEN x, GEN modpr)
 static GEN
 Rg_to_ff(GEN nf, GEN x0, GEN modpr)
 {
-  GEN x = x0, den, pr = gel(modpr,mpr_PR), p = pr_get_p(pr);
+  GEN x = x0, den, pr = modpr_get_pr(modpr), p = pr_get_p(pr);
   long tx = typ(x);
 
   if (tx == t_POLMOD) { x = gel(x,2); tx = typ(x); }

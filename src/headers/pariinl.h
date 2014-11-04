@@ -2385,6 +2385,10 @@ INLINE GEN ellinf(void) { return mkvec(gen_0); }
 /*                    ALGEBRAIC NUMBER THEORY                      */
 /*                                                                 */
 /*******************************************************************/
+INLINE GEN modpr_get_pr(GEN x)  { return gel(x,3); }
+INLINE GEN modpr_get_p(GEN x)  { return pr_get_p(modpr_get_pr(x)); }
+INLINE GEN modpr_get_T(GEN x)  { return lg(x) == 4? NULL: gel(x,4); }
+
 INLINE GEN pr_get_p(GEN pr)  { return gel(pr,1); }
 INLINE GEN pr_get_gen(GEN pr){ return gel(pr,2); }
 /* .[2] instead of itos works: e and f are small positive integers */
