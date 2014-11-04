@@ -1,0 +1,6 @@
+nfsplitting(1)
+nfsplitting(Pol(0))
+nfsplitting(Pol(1))
+nfsplitting(x)
+nfsplitting(x^5-x-1)
+nfsplitting(x^8+3)

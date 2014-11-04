@@ -172,6 +172,7 @@ BA 59- [libpari] functions umodsu, zx_to_Flx
 HIL64- [libpari] function family Flj_*
    65- [libpari] idealprimedec_limit
    66- [libpari] modpr_get_p, modpr_get_T, modpr_get_pr
+   67- GP function nfsplitting
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]

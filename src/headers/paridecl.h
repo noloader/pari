@@ -1580,6 +1580,7 @@ GEN     nfbasis(GEN x, GEN *y,GEN p);
 void    nfmaxord(nfmaxord_t *S, GEN T, long flag);
 GEN     nfmodprinit(GEN nf, GEN pr);
 GEN     nfreducemodpr(GEN nf, GEN x, GEN modpr);
+GEN     nfsplitting(GEN T, GEN D);
 GEN     polcompositum0(GEN P, GEN Q,long flag);
 GEN     idealprimedec(GEN nf,GEN p);
 GEN     idealprimedec_limit(GEN nf, GEN p, long f);

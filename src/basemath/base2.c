@@ -3763,3 +3763,36 @@ ZX_compositum_disjoint(GEN A, GEN B)
   long k = 1;
   return ZX_ZXY_resultant_all(A, B, &k, NULL);
 }
+
+GEN
+nfsplitting(GEN T, GEN D)
+{
+  pari_sp av = avma;
+  long d;
+  GEN F;
+  if (typ(T) != t_POL) pari_err_TYPE("nfsplitting",T);
+  T = Q_primpart(T);
+  RgX_check_ZX(T,"nfsplitting");
+  d = degpol(T);
+  if (d<=1) return pol_x(0);
+  if (D)
+  {
+    if (typ(D) != t_INT || signe(D) < 1) pari_err_TYPE("nfsplitting",D);
+  }
+  else
+  {
+    char *data = stack_strcat(pari_datadir, "/galdata");
+    long dmax = pari_is_dir(data)? 11: 7;
+    D = (d <= dmax)? gel(polgalois(T,DEFAULTPREC), 1): mpfact(d);
+  }
+  d = itos(D); F = T;
+  if (varn(T) == 0) T = gsubst(T,0,pol_x(1));
+  for(;;)
+  {
+    GEN P = gel(nffactor(T, F), 1), Q = gel(P,lg(P)-1);
+    if (degpol(gel(P,1)) == degpol(Q)) break;
+    F = rnfequation(T,Q);
+    if (degpol(F) == d) break;
+  }
+  return gerepilecopy(av, F);
+}
