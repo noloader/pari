@@ -3438,9 +3438,9 @@ znlog_rec(GEN h, GEN g, GEN N, GEN P, GEN E, GEN PHI)
   if (hp == gen_0 || gp == gen_0) return NULL;
   if (equaliu(p, 2))
   {
-    GEN N = int2n(e);
-    ogpe = Zp_order(gpe, gen_2, e, N);
-    a = Fp_log(hpe, gpe, ogpe, N);
+    GEN n = int2n(e);
+    ogpe = Zp_order(gpe, gen_2, e, n);
+    a = Fp_log(hpe, gpe, ogpe, n);
     if (typ(a) != t_INT) return NULL;
   }
   else
