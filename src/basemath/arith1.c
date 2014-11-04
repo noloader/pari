@@ -319,6 +319,7 @@ znstar(GEN N)
     gel(gen,i) = e > 1? pgener_Zp(p): pgener_Fp(p);
     gel(mod,i) = Q;
   }
+  /* gen[i] has order cyc[i] and generates (Z/mod[i]Z)^* */
   setlg(gen, sizeh+1);
   setlg(cyc, sizeh+1);
   if (nbp > 1)
@@ -329,7 +330,7 @@ znstar(GEN N)
       gel(gen,i) = modii(g, N);
     }
 
-  /*The cyc[i] are > 1. They remain so in the loop*/
+  /*The cyc[i] are > 1 and remain so in the loop, gen[i] = 1 mod (N/mod[i]) */
   for (i=sizeh; i>=2; i--)
   {
     GEN ci = gel(cyc,i), gi = gel(gen,i);
