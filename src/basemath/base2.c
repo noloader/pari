@@ -3770,7 +3770,7 @@ nfsplitting(GEN T, GEN D)
   pari_sp av = avma;
   long d;
   GEN F, K;
-  F = T = get_nfpol(T,&K);
+  T = get_nfpol(T,&K);
   if (!K)
   {
     if (typ(T) != t_POL) pari_err_TYPE("nfsplitting",T);
@@ -3779,6 +3779,7 @@ nfsplitting(GEN T, GEN D)
   }
   d = degpol(T);
   if (d<=1) return pol_x(0);
+  if (!K) K = T = polredbest(T,0);
   if (D)
   {
     if (typ(D) != t_INT || signe(D) < 1) pari_err_TYPE("nfsplitting",D);
@@ -3790,9 +3791,8 @@ nfsplitting(GEN T, GEN D)
     D = (d <= dmax)? gel(polgalois(T,DEFAULTPREC), 1): mpfact(d);
   }
   d = itos(D);
-  if (!K) K = T;
   if (varn(T) == 0) K = gsubst(K,0,pol_x(1));
-  for(;;)
+  for(F = T;;)
   {
     GEN P = gel(nffactor(K, F), 1), Q = gel(P,lg(P)-1);
     if (degpol(gel(P,1)) == degpol(Q)) break;
