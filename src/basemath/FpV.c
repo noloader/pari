@@ -331,10 +331,10 @@ zm_mul(GEN x, GEN y)
 static ulong
 Flmrow_Flc_mul_SMALL(GEN x, GEN y, ulong p, long lx, long i)
 {
-  ulong c = ucoeff(x,i,1) * y[1];
+  ulong c = ucoeff(x,i,1) * uel(y,1);
   long k;
   for (k = 2; k < lx; k++) {
-    c += ucoeff(x,i,k) * y[k];
+    c += ucoeff(x,i,k) * uel(y,k);
     if (c & HIGHBIT) c %= p;
   }
   return c % p;
