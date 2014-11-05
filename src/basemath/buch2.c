@@ -638,7 +638,6 @@ FBgen(FB_t *F, GEN nf, long N, ulong C1, ulong C2, GRHcheck_t *S)
   for (;; pr++) /* p <= C2 */
   {
     ulong p = pr->p;
-    pari_sp av = avma;
     long k, l, m;
     GEN LP, nb, f;
 
@@ -657,18 +656,9 @@ FBgen(FB_t *F, GEN nf, long N, ulong C1, ulong C2, GRHcheck_t *S)
       if (p == C2) break;
       continue;
     }
-
-    prim[2] = p; LP = idealprimedec(nf,prim);
+    prim[2] = p; LP = idealprimedec_limit(nf,prim, l);
     /* keep non-inert ideals with Norm <= C2 */
-    for (m = 1; m <= k; m++)
-    {
-      GEN t = gel(LP,m);
-      gel(t,5) = zk_scalar_or_multable(nf, gel(t,5));
-    }
-    if (m == lg(LP))
-      setisclone(LP); /* flag it: all prime divisors in FB */
-    else
-      { setlg(LP,k+1); LP = gerepilecopy(av,LP); }
+    if (m == lg(f)) setisclone(LP); /* flag it: all prime divisors in FB */
     F->FB[++i]= p;
     F->LV[p]  = LP;
     F->iLP[p] = ip; ip += k;
