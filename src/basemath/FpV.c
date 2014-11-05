@@ -604,16 +604,77 @@ FpV_dotsquare(GEN x, GEN p)
   for (i=2; i<lx; i++) c = addii(c, sqri(gel(x,i)));
   return gerepileuptoint(av, modii(c,p));
 }
+
+INLINE ulong
+Flv_dotproduct_SMALL(GEN x, GEN y, ulong p, long lx)
+{
+  ulong c = uel(x,1) * uel(y,1);
+  long k;
+  for (k = 2; k < lx; k++) {
+    c += uel(x,k) * uel(y,k);
+    if (c & HIGHBIT) c %= p;
+  }
+  return c % p;
+}
+
+INLINE ulong
+Flv_dotproduct_SMALL2(GEN x, GEN y, ulong p, ulong pi, long lx)
+{
+  LOCAL_OVERFLOW;
+  LOCAL_HIREMAINDER;
+  ulong lo = mulll(uel(x,1), uel(y,1));
+  ulong hi = hiremainder;
+  ulong c;
+  long k;
+  if (lx == 2) return remll_pre(hi, lo, p, pi);
+  for (k = 2; k < lx; k++) {
+    c = mulll(uel(x,k), uel(y,k));
+    lo = addll(c, lo);
+    hi = addllx(hi, hiremainder);
+    if ((hi & HIGHBIT) != 0 || k == lx - 1) {
+      lo = remll_pre(hi, lo, p, pi);
+      hi = 0;
+    }
+  }
+  return lo;
+}
+
+INLINE ulong
+Flv_dotproduct_i(GEN x, GEN y, ulong p, ulong pi, long lx)
+{
+  ulong c = Fl_mul_pre(uel(x,1), uel(y,1), p, pi);
+  long k;
+  for (k = 2; k < lx; k++)
+    c = Fl_add(c, Fl_mul_pre(uel(x,k), uel(y,k), p, pi), p);
+  return c;
+}
+
 ulong
 Flv_dotproduct(GEN x, GEN y, ulong p)
 {
-  long i, lx = lg(x);
-  ulong c;
+  long lx = lg(x);
   if (lx == 1) return 0;
-  c = Fl_mul(x[1], y[1], p);
-  for (i=2; i<lx; i++) c = Fl_add(c, Fl_mul(x[i], y[i], p), p);
-  return c;
+  if (SMALL_ULONG(p))
+    return Flv_dotproduct_SMALL(x, y, p, lx);
+  else if ((p & HIGHBIT) == 0)
+    return Flv_dotproduct_SMALL2(x, y, p, lx, get_Fl_red(p));
+  else
+    return Flv_dotproduct_i(x, y, p, lx, get_Fl_red(p));
 }
+
+ulong
+Flv_dotproduct_pre(GEN x, GEN y, ulong p, ulong pi)
+{
+  long lx = lg(x);
+  if (lx == 1) return 0;
+  if (SMALL_ULONG(p))
+    return Flv_dotproduct_SMALL(x, y, p, lx);
+  else if ((p & HIGHBIT) == 0)
+    return Flv_dotproduct_SMALL2(x, y, p, lx, pi);
+  else
+    return Flv_dotproduct_i(x, y, p, lx, pi);
+}
+
 ulong
 F2v_dotproduct(GEN x, GEN y)
 {

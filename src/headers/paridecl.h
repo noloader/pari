@@ -650,6 +650,7 @@ GEN     Flm_transpose(GEN x);
 GEN     Flv_add(GEN x, GEN y, ulong p);
 void    Flv_add_inplace(GEN x, GEN y, ulong p);
 ulong   Flv_dotproduct(GEN x, GEN y, ulong p);
+ulong   Flv_dotproduct_pre(GEN x, GEN y, ulong p, ulong pi);
 GEN     Flv_center(GEN z, ulong p, ulong ps2);
 GEN     Flv_sub(GEN x, GEN y, ulong p);
 void    Flv_sub_inplace(GEN x, GEN y, ulong p);
