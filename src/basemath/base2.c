@@ -3779,7 +3779,10 @@ nfsplitting(GEN T, GEN D)
   }
   d = degpol(T);
   if (d<=1) return pol_x(0);
-  if (!K) K = T = polredbest(T,0);
+  if (!K) {
+    if (!isint1(leading_term(T))) K = T = polredbest(T,0);
+    K = T;
+  }
   if (D)
   {
     if (typ(D) != t_INT || signe(D) < 1) pari_err_TYPE("nfsplitting",D);
