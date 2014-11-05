@@ -24,7 +24,6 @@ Doc: numerical integration
 
  \bprog
  ? \p 105
- ? oo = [1]; \\@com for clarity
  ? A = intmellininv(s=2,4, gamma(s)^3);
  time = 2,500 ms. \\@com not too fast because of $\Gamma(s)^3$.
  \\ @com function of real type, decreasing as $\exp(-3\pi/2\cdot |t|)$
