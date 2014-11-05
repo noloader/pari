@@ -1028,24 +1028,6 @@ Fl_sqr(ulong a, ulong p)
 INLINE ulong
 Fl_div(ulong a, ulong b, ulong p) { return Fl_mul(a, Fl_inv(b, p), p); }
 
-INLINE ulong
-Flv_dotproduct_spec(GEN x, GEN y, long n, ulong p, ulong pi)
-{
-  ulong l0, l1, h0, h1, i = 0;
-  LOCAL_OVERFLOW;
-  LOCAL_HIREMAINDER;
-
-  if (n == 0)
-    return 0;
-
-  l1 = mulll((ulong)x[i], (ulong)y[i]); h1 = hiremainder;
-  while (++i < n) {
-    l0 = mulll((ulong)x[i], (ulong)y[i]); h0 = hiremainder;
-    l1 = addll(l0, l1); h1 = addllx(h0, h1);
-  }
-  return remll_pre(h1, l1, p, pi);
-}
-
 /*******************************************************************/
 /*                                                                 */
 /*        DEFINED FROM EXISTING ONE EXPLOITING COMMUTATIVITY       */
