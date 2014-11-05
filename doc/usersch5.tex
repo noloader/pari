@@ -3658,6 +3658,12 @@ the $n \times n$ identity matrix.
 \fun{GEN}{Flm_Flc_mul}{GEN x, GEN y, ulong p} multiplies  \kbd{x} and \kbd{y}
 (assumed to have compatible dimensions).
 
+\fun{GEN}{Flm_Flc_mul_pre}{GEN x, GEN y, ulong p, ulong pi} multiplies  \kbd{x}
+and \kbd{y} (assumed to have compatible dimensions), assuming $pi$ is the
+pseudo inverse of $p$.
+
+\fun{GEN}{Flm_Fl_mul}{GEN x, ulong y, ulong p} multiplies the \kbd{Flm}
+
 \fun{GEN}{Flm_Fl_mul}{GEN x, ulong y, ulong p} multiplies the \kbd{Flm}
 \kbd{x} by \kbd{y}.
 

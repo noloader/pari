@@ -654,6 +654,21 @@ Flm_Flc_mul(GEN x, GEN y, ulong p)
   else
     return Flm_Flc_mul_i(x, y, lx, l, p, get_Fl_red(p));
 }
+
+GEN
+Flm_Flc_mul_pre(GEN x, GEN y, ulong p, ulong pi)
+{
+  long l, lx = lg(x);
+  if (lx==1) return cgetg(1,t_VECSMALL);
+  l = lgcols(x);
+  if (SMALL_ULONG(p))
+    return Flm_Flc_mul_i_SMALL(x, y, lx, l, p);
+  else if ((p & HIGHBIT) == 0)
+    return Flm_Flc_mul_i_SMALL2(x, y, lx, l, p, pi);
+  else
+    return Flm_Flc_mul_i(x, y, lx, l, p, pi);
+}
+
 GEN
 F2m_F2c_mul(GEN x, GEN y)
 {
