@@ -656,7 +656,7 @@ FBgen(FB_t *F, GEN nf, long N, ulong C1, ulong C2, GRHcheck_t *S)
       if (p == C2) break;
       continue;
     }
-    prim[2] = p; LP = idealprimedec_limit(nf,prim, l);
+    prim[2] = p; LP = idealprimedec_limit_f(nf,prim, l);
     /* keep non-inert ideals with Norm <= C2 */
     if (m == lg(f)) setisclone(LP); /* flag it: all prime divisors in FB */
     F->FB[++i]= p;
@@ -1294,7 +1294,7 @@ testprimes(GEN bnf, GEN BOUND)
 {
   pari_sp av0 = avma, av;
   ulong pmax, count = 0;
-  GEN Vbase, fb, p, nf = bnf_get_nf(bnf), dK = nf_get_disc(nf);
+  GEN Vbase, fb, p, nf = bnf_get_nf(bnf);
   forprime_t S;
   FACT *fact;
   FB_t F;
@@ -1333,21 +1333,16 @@ testprimes(GEN bnf, GEN BOUND)
     }
 
     avma = av;
-    vP = idealprimedec(bnf, p);
-    l = lg(vP);
+    vP = idealprimedec_limit_norm(bnf, p, BOUND);
+    l = lg(vP); if (l == 1) continue;
     if (DEBUGLEVEL>1) err_printf("*** p = %Ps\n",p);
-    /* loop through all P | p if ramified, all but one otherwise */
-    if (!dvdii(dK,p)) l--;
-    for (i=1; i<l; i++)
+    /* if vP[1] unramified, skip it */
+    i = (pr_get_e(gel(vP,1))) == 1? 2: 1;
+    for (; i<l; i++)
     {
       GEN P = gel(vP,i);
       long k;
       if (DEBUGLEVEL>1) err_printf("  Testing P = %Ps\n",P);
-      if (cmpii(pr_norm(P), BOUND) >= 0)
-      {
-        if (DEBUGLEVEL>1) err_printf("    Norm(P) > Zimmert bound\n");
-        break;
-      }
       if (cmpiu(p, pmax) <= 0 && (k = tablesearch(fb, P, &cmp_prime_ideal)))
       { if (DEBUGLEVEL>1) err_printf("    #%ld in factor base\n",k); }
       else if (DEBUGLEVEL>1)

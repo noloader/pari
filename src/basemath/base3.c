@@ -2346,7 +2346,7 @@ Ideallist(GEN bnf, ulong bound, long flag)
   const long istar_flag = (flag & nf_GEN) | nf_INIT;
   pari_sp av, av0 = avma;
   long i, j, l;
-  GEN nf, z, p, fa, id, U, empty = cgetg(1,t_VEC);
+  GEN nf, z, p, fa, id, BOUND, U, empty = cgetg(1,t_VEC);
   forprime_t S;
   ideal_data ID;
   GEN (*join_z)(ideal_data*, GEN) =
@@ -2362,6 +2362,7 @@ Ideallist(GEN bnf, ulong bound, long flag)
    * an ideal, a bid, or a couple [bid, log(units)]. Such objects are stored
    * in vectors, computed one primary component at a time; join_z
    * reconstructs the global object */
+  BOUND = utoipos(bound);
   z = cgetg(bound+1,t_VEC);
   if (do_units) {
     U = init_units(bnf);
@@ -2379,13 +2380,11 @@ Ideallist(GEN bnf, ulong bound, long flag)
   while ((p[2] = u_forprime_next(&S)))
   {
     if (DEBUGLEVEL>1) { err_printf("%ld ",p[2]); err_flush(); }
-    fa = idealprimedec(nf, p);
+    fa = idealprimedec_limit_norm(nf, p, BOUND);
     for (j=1; j<lg(fa); j++)
     {
       GEN pr = gel(fa,j), z2;
-      long f = pr_get_f(pr);
-      ulong q, Q = upowuu(p[2], f);
-      if (!Q || Q > bound) break;
+      ulong q, Q = upowuu(p[2], pr_get_f(pr));
 
       z2 = leafcopy(z);
       q = Q;

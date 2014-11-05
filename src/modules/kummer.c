@@ -686,15 +686,13 @@ get_prlist(GEN bnr, GEN H, ulong ell, GEN bnfz)
     GEN LP;
     long i, l;
     if (p == ell || !umodiu(bad, p)) continue;
-    LP = idealprimedec(nf, utoipos(p));
+    LP = idealprimedec_limit_f(nf, utoipos(p), 1);
     l = lg(LP);
-    if (N != 1) l--; /* remove one prime */
+    if (N != 1 && l-1==N) l--; /* totally split, remove one prime */
     for (i = 1; i < l; i++)
     {
       pari_sp av = avma;
-      GEN P = gel(LP,i), v, M;
-      if (pr_get_f(P) > 1) break;
-      v = bnrisprincipal(bnr, P, 0);
+      GEN M, P = gel(LP,i), v = bnrisprincipal(bnr, P, 0);
       if (!hnf_invimage(H, v)) { avma = av; continue; }
       M = shallowconcat(Hsofar, v);
       M = ZM_hnfmodid(M, cyc);

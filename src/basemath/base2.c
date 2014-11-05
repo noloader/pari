@@ -2425,7 +2425,7 @@ primedec_aux(GEN nf, GEN p, long flim)
 }
 
 GEN
-idealprimedec_limit(GEN nf, GEN p, long f)
+idealprimedec_limit_f(GEN nf, GEN p, long f)
 {
   pari_sp av = avma;
   GEN v;
@@ -2434,8 +2434,11 @@ idealprimedec_limit(GEN nf, GEN p, long f)
   return gerepileupto(av, gen_sort(v, (void*)&cmp_prime_over_p, &cmp_nodata));
 }
 GEN
+idealprimedec_limit_norm(GEN nf, GEN p, GEN B)
+{ return idealprimedec_limit_f(nf, p, logint(B,p,NULL)-1); }
+GEN
 idealprimedec(GEN nf, GEN p)
-{ return idealprimedec_limit(nf, p, 0); }
+{ return idealprimedec_limit_f(nf, p, 0); }
 
 /* return [Fp[x]: Fp] */
 static long

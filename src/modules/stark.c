@@ -1403,14 +1403,6 @@ deg0(LISTray *R, long p) { vecsmalltrunc_append(R->L0, p); }
 static void
 deg2(LISTray *R, long p) { vecsmalltrunc_append(R->L2, p); }
 
-/* pi(x) <= ?? */
-static long
-PiBound(ulong x)
-{
-  double lx = log((double)x);
-  return 1 + (long) (x/lx * (1 + 3/(2*lx)));
-}
-
 static void
 InitPrimesQuad(GEN bnr, ulong N0, LISTray *R)
 {
@@ -1420,7 +1412,7 @@ InitPrimesQuad(GEN bnr, ulong N0, LISTray *R)
   GEN prime, Lpr, nf = bnf_get_nf(bnf), dk = nf_get_disc(nf);
   forprime_t T;
 
-  l = 1 + PiBound(N0);
+  l = 1 + primepi_upper_bound(N0);
   R->L0 = vecsmalltrunc_init(l);
   R->L2 = vecsmalltrunc_init(l); R->condZ = condZ;
   R->L1 = vecsmalltrunc_init(l); R->L1ray = vectrunc_init(l);
@@ -1467,32 +1459,30 @@ InitPrimes(GEN bnr, ulong N0, LISTray *R)
 {
   GEN bnf = bnr_get_bnf(bnr), cond = gel(bnr_get_mod(bnr), 1);
   long p,j,k,l, condZ = itos(gcoeff(cond,1,1)), N = lg(cond)-1;
-  GEN tmpray, tabpr, prime, nf = bnf_get_nf(bnf);
+  GEN tmpray, tabpr, prime, BOUND, nf = bnf_get_nf(bnf);
   forprime_t T;
 
-  R->condZ = condZ; l = PiBound(N0) * N;
+  R->condZ = condZ; l = primepi_upper_bound(N0) * N;
   tmpray = cgetg(N+1, t_VEC);
   R->L1 = vecsmalltrunc_init(l);
   R->L1ray = vectrunc_init(l);
   u_forprime_init(&T, 2, N0);
   prime = utoipos(2);
+  BOUND = utoi(N0);
   while ( (p = u_forprime_next(&T)) )
   {
     pari_sp av = avma;
     prime[2] = p;
     if (DEBUGLEVEL>1 && (p & 2047) == 1) err_printf("%ld ", p);
-    tabpr = idealprimedec(nf, prime);
+    tabpr = idealprimedec_limit_norm(nf, prime, BOUND);
     for (j = 1; j < lg(tabpr); j++)
     {
       GEN pr  = gel(tabpr,j);
-      ulong np = upowuu(p, pr_get_f(pr));
-      if (!np || np > N0) break;
       if (condZ % p == 0 && idealval(nf, cond, pr))
       {
         gel(tmpray,j) = NULL; continue;
       }
-
-      vecsmalltrunc_append(R->L1, np);
+      vecsmalltrunc_append(R->L1, upowuu(p, pr_get_f(pr)));
       gel(tmpray,j) = gclone( isprincipalray(bnr, pr) );
     }
     avma = av;

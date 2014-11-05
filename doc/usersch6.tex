@@ -815,8 +815,12 @@ iff $p$ is inert, and a \kbd{ZM} otherwise. Shallow function.
 \fun{GEN}{idealprimedec}{GEN nf, GEN p} list of maximal ideals dividing the
 prime $p$.
 
-\fun{GEN}{idealprimedec_limit}{GEN nf, GEN p, long f} as \tet{idealprimedec},
+\fun{GEN}{idealprimedec_limit_f}{GEN nf, GEN p, long f} as \tet{idealprimedec},
 limiting the list to primes of residual degree $\leq f$ if $f$ is non-zero.
+
+\fun{GEN}{idealprimedec_limit_norm}{GEN nf, GEN p, GEN B} as
+\tet{idealprimedec}, limiting the list to primes of norm $\leq B$, which
+must be a positive \typ{INT}.
 
 \subsec{Reducing modulo maximal ideals}
 

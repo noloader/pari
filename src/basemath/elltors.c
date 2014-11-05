@@ -243,7 +243,7 @@ primedec_deg1(GEN K, GEN p)
   T = nf_get_pol(K);
   r = FpX_oneroot(T, p); if (!r) return NULL;
   r = deg1pol_shallow(gen_1, Fp_neg(r,p), varn(T));
-  return mkvec( primedec_apply_kummer(K, r, 1, p) );
+  return primedec_apply_kummer(K, r, 1, p);
 }
 
 /* Bound for the elementary divisors of the torsion group of elliptic curve
@@ -272,11 +272,12 @@ nftorsbound(GEN E)
     /* primes of degree 1 are easier and give smaller bounds */
     if (typ(D) != t_POLMOD) /* E/Q */
     {
-      P = primedec_deg1(K, gp);
+      P = primedec_deg1(K, gp); /* single P|p has all the information */
       if (!P) continue;
+      P = mkvec(P);
     }
     else
-      P = idealprimedec_limit(K, utoipos(p), 1);
+      P = idealprimedec_limit_f(K, utoipos(p), 1);
     l = lg(P);
     for (j = 1; j < l; j++,k++)
     {
@@ -640,8 +641,8 @@ ellorder_nf(GEN E, GEN P)
     if (!umodiu(d4, p) || !umodiu(d6, p) || !umodiu(ND, p)
      || !umodiu(dx, p) || !umodiu(dy, p)) continue;
     gp = utoipos(p);
-    pr = gel(idealprimedec(K, gp), 1);
-    if (pr_get_f(pr) == 1) break;
+    pr = primedec_deg1(K, gp);
+    if (pr) break;
   }
 
   modpr = nf_to_Fq_init(K, &pr,&T,&gp);
