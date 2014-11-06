@@ -340,7 +340,7 @@ get_nfsqff_data(GEN *pnf, GEN *pT, GEN *pA, GEN *pB, GEN *ptbad)
     }
   }
   (void)nfgcd_all(A, RgX_deriv(A), T, bad, pB);
-  if( ptbad) *ptbad = bad;
+  if (ptbad) *ptbad = bad;
   return den;
 }
 
@@ -359,7 +359,7 @@ nfroots(GEN nf,GEN pol)
 {
   pari_sp av = avma;
   GEN z, A, B, T, den;
-  long d;
+  long d, dT;
 
   if (!nf) return nfrootsQ(pol);
   T = get_nfpol(nf, &nf);
@@ -374,13 +374,28 @@ nfroots(GEN nf,GEN pol)
     A = mkpolmod(gneg_i(gel(A,2)), T);
     return gerepilecopy(av, mkvec(A));
   }
-  if (degpol(T) == 1) return gerepileupto(av, nfrootsQ(simplify_shallow(A)));
+  dT = degpol(T);
+  if (dT == 1) return gerepileupto(av, nfrootsQ(simplify_shallow(A)));
 
   A = Q_primpart(A);
   den = get_nfsqff_data(&nf, &T, &A, &B, NULL);
   if (degpol(B) != d) B = Q_primpart( QXQX_normalize(B, T) );
   ensure_lt_INT(B);
-  z = nfsqff(nf,B, ROOTS, den);
+  if (RgX_is_ZX(B))
+  {
+    GEN v = gel(ZX_factor(B), 1);
+    long i, l = lg(v), p = mael(factoru(dT),1,1); /* smallest prime divisor */
+    z = cgetg(1, t_VEC);
+    for (i = 1; i < l; i++)
+    {
+      GEN b = gel(v,i); /* irreducible / Q */
+      long db = degpol(b);
+      if (db != 1 && degpol(b) < p) continue;
+      z = shallowconcat(z, nfsqff(nf, b, ROOTS, den));
+    }
+  }
+  else
+    z = nfsqff(nf,B, ROOTS, den);
   z = gerepileupto(av, QXQV_to_mod(z, T));
   gen_sort_inplace(z, (void*)&cmp_RgX, &cmp_nodata, NULL);
   return z;
