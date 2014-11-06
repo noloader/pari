@@ -586,6 +586,19 @@ nffactor(GEN nf,GEN pol)
   if (DEBUGLEVEL>2) timer_printf(&ti, "squarefree test");
   if (degpol(B) != dA) B = Q_primpart( QXQX_normalize(B, T) );
   ensure_lt_INT(B);
+  if (RgX_is_ZX(B))
+  {
+    GEN v = gel(ZX_factor(B), 1);
+    long i, l = lg(v);
+    y = cgetg(1, t_VEC);
+    for (i = 1; i < l; i++)
+    {
+      GEN b = gel(v,i); /* irreducible / Q */
+      y = shallowconcat(y, nfsqff(nf, b, 0, den));
+    }
+  }
+  else
+    y = nfsqff(nf,B, 0, den);
   y = nfsqff(nf,B, 0, den);
   if (DEBUGLEVEL>3) err_printf("number of factor(s) found: %ld\n", lg(y)-1);
 
