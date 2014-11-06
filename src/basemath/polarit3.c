@@ -243,7 +243,12 @@ Rg_to_FpXQ(GEN x, GEN T, GEN p)
   GEN a, b;
   if (is_const_t(tx))
   {
-    if (tx == t_FFELT) return FF_to_FpXQ(x);
+    if (tx == t_FFELT)
+    {
+      GEN z = FF_to_FpXQ(x);
+      setvarn(z, v);
+      return z;
+    }
     return scalar_ZX(Rg_to_Fp(x, p), v);
   }
   switch(tx)
