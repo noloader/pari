@@ -1920,43 +1920,22 @@ Flx_extresultant(GEN a, GEN b, ulong p, GEN *ptU, GEN *ptV)
 }
 
 ulong
-Flx_eval(GEN x, ulong y, ulong p)
+Flx_eval_pre(GEN x, ulong y, ulong p, ulong pi)
 {
-  ulong p1,r;
-  long j, i=lg(x)-1;
+  ulong p1;
+  long i=lg(x)-1;
   if (i<=2)
     return (i==2)? x[2]: 0;
   p1 = x[i];
-  /* specific attention to sparse polynomials (see poleval)*/
-  if (SMALL_ULONG(p))
-  {
-    for (i--; i>=2; i=j-1)
-    {
-      for (j=i; !x[j]; j--)
-        if (j==2)
-        {
-          if (i != j) y = Fl_powu(y, i-j+1, p);
-          return (p1 * y) % p;
-        }
-      r = (i==j)? y: Fl_powu(y, i-j+1, p);
-      p1 = ((p1*r) + x[j]) % p;
-    }
-  }
-  else
-  {
-    for (i--; i>=2; i=j-1)
-    {
-      for (j=i; !x[j]; j--)
-        if (j==2)
-        {
-          if (i != j) y = Fl_powu(y, i-j+1, p);
-          return Fl_mul(p1, y, p);
-        }
-      r = (i==j)? y: Fl_powu(y, i-j+1, p);
-      p1 = Fl_add(uel(x,j), Fl_mul(p1,r,p), p);
-    }
-  }
+  for (i--; i>=2; i--)
+    p1 = Fl_add(uel(x,i), Fl_mul_pre(p1, y, p, pi), p);
   return p1;
+}
+
+ulong
+Flx_eval(GEN x, ulong y, ulong p)
+{
+  return Flx_eval_pre(x, y, p, get_Fl_red(p));
 }
 
 static GEN

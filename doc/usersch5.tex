@@ -4944,6 +4944,9 @@ Euclidean quotient of the \kbd{Flx}~\kbd{A} by $X - \kbd{a}$, and sets
 
 \fun{ulong}{Flx_eval}{GEN x, ulong y, ulong p}, as \kbd{FpX\_eval}.
 
+\fun{ulong}{Flx_eval_pre}{GEN x, ulong y, ulong p, ulong pi}, as \kbd{Flx\_eval},
+assuming $pi$ is the pseudo inverse of $p$.
+
 \fun{ulong}{Flx_Flv_multieval}{GEN P, GEN v, ulong y, ulong p} returns the vector
 $[P(v[1]),\ldots,P(v[n])]$ as a \kbd{Flv}.
 

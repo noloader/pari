@@ -236,6 +236,7 @@ GEN     Flx_div_by_X_x(GEN a, ulong x, ulong p, ulong *rem);
 GEN     Flx_divrem(GEN x, GEN y, ulong p, GEN *pr);
 int     Flx_equal(GEN V, GEN W);
 ulong   Flx_eval(GEN x, ulong y, ulong p);
+ulong   Flx_eval_pre(GEN x, ulong y, ulong p, ulong pi);
 GEN     Flx_extgcd(GEN a, GEN b, ulong p, GEN *ptu, GEN *ptv);
 ulong   Flx_extresultant(GEN a, GEN b, ulong p, GEN *ptU, GEN *ptV);
 GEN     Flx_gcd(GEN a, GEN b, ulong p);
