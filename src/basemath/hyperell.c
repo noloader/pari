@@ -612,6 +612,7 @@ hyperellcharpoly(GEN H)
   else
   {
     T = typ(T)==t_FFELT? FF_mod(T): RgX_to_FpX(T, pp);
+    if (varncmp(varn(T),varn(H)) <= 0) setvarn(T, MAXVARN);
     H = RgX_to_FpXQX(H, T, pp);
     n = degpol(T)*(degpol(H)-1)/2+1;
     M = nfhyperellpadicfrobenius(H, T, p, n);
