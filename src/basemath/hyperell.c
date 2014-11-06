@@ -23,10 +23,11 @@ static GEN
 FpXXQ_red(GEN S, GEN T, GEN p)
 {
   pari_sp av = avma;
-  long dS = degpol(S);
-  GEN A = cgetg(dS+3, t_POL);
-  GEN C = pol_0(varn(T));
-  long i;
+  long i, dS = degpol(S);
+  GEN A, C;
+  if (signe(S)==0) return pol_0(varn(T));
+  A = cgetg(dS+3, t_POL);
+  C = pol_0(varn(T));
   for(i=dS; i>0; i--)
   {
     GEN Si = FpX_add(C, gel(S,i+2), p);
@@ -321,10 +322,11 @@ static GEN
 FpXQXXQ_red(GEN F, GEN S, GEN T, GEN p)
 {
   pari_sp av = avma;
-  long dF = degpol(F);
-  GEN A = cgetg(dF+3, t_POL);
-  GEN C = pol_0(varn(S));
-  long i;
+  long i, dF = degpol(F);
+  GEN A, C;
+  if (signe(F)==0) return pol_0(varn(S));
+  A = cgetg(dF+3, t_POL);
+  C = pol_0(varn(S));
   for(i=dF; i>0; i--)
   {
     GEN Fi = FpXX_add(C, gel(F,i+2), p);
