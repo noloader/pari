@@ -90,15 +90,6 @@ extern int (*cb_pari_is_interactive)(void);
 extern void (*cb_pari_start_output)(void);
 extern const char *pari_library_path;
 
-enum manage_var_t {
-  manage_var_create,
-  manage_var_delete,
-  manage_var_init,
-  manage_var_next,
-  manage_var_max_avail,
-  manage_var_pop
-};
-
 /* pari_init_opts */
 enum {
   INIT_JMPm = 1,

@@ -239,3 +239,4 @@ BA 25- setrand now return a (huge) integer instead of a vecsmall
 
 Removed
    1- deprecated functions nfbasis0, nfdisc0, factorpadic0
+   2- deprecated function manage_var

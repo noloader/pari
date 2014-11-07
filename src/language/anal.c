@@ -811,12 +811,6 @@ void pari_var_init(void) {
 }
 long pari_var_next(void) { return nvar; }
 long pari_var_next_temp(void) { return max_avail; }
-static long
-pari_var_pop(long v)
-{
-  if (v != nvar-1) pari_err(e_MISC,"can't pop user variable %ld", v);
-  return --nvar;
-}
 void
 pari_var_create(entree *ep)
 {
@@ -846,23 +840,6 @@ fetch_var(void)
   return max_avail--;
 }
 
-/* FIXE: obsolete, kept for backward compatibility */
-long
-manage_var(long n, entree *ep)
-{
-  switch(n) {
-      case manage_var_init: pari_var_init(); return 0;
-      case manage_var_next: return pari_var_next();
-      case manage_var_max_avail: return pari_var_next_temp();
-      case manage_var_pop: return pari_var_pop((long)ep);
-      case manage_var_delete: return delete_var();
-      case manage_var_create:
-        pari_var_create(ep);
-        return varn((GEN)initial_value(ep));
-  }
-  pari_err(e_MISC, "panic");
-  return -1; /* not reached */
-}
 
 entree *
 fetch_named_var(const char *s)

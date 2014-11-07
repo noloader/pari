@@ -1257,7 +1257,6 @@ GEN     gp_read_str(const char *t);
 entree* install(void *f, const char *name, const char *code);
 entree* is_entry(const char *s);
 void    kill0(const char *e);
-long    manage_var(long n, entree *ep);
 void    pari_var_init(void);
 long    pari_var_next(void);
 long    pari_var_next_temp(void);
