@@ -3177,7 +3177,7 @@ _rfraccoeff(GEN x, long n, long v)
 {
   GEN P,Q, p = gel(x,1), q = gel(x,2);
   long vp = gvar(p), vq = gvar(q);
-  if (v < 0) v = minss(vp, vq);
+  if (v < 0) v = varncmp(vp, vq) < 0? vp: vq;
   P = (vp == v)? p: swap_vars(p, v);
   Q = (vq == v)? q: swap_vars(q, v);
   if (!RgX_is_monomial(Q)) pari_err_TYPE("polcoeff", x);
