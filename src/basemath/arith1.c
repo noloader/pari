@@ -2682,30 +2682,28 @@ Fl_powu(ulong x, ulong n0, ulong p)
   }
 }
 
+/* Reduce data dependency to maximize internal parallelism */
 GEN
 Fl_powers_pre(ulong x, long n, ulong p, ulong pi)
 {
-  long i;
+  long i, k;
   GEN powers = cgetg(n + 2, t_VECSMALL);
-  powers[1] = 1;
-  for (i = 2; i <= n + 1; ++i)
-    powers[i] = Fl_mul_pre(x, powers[i - 1], p, pi);
+  powers[1] = 1; if (n == 0) return powers;
+  powers[2] = x;
+  for (i = 3, k=2; i <= n; i+=2, k++)
+  {
+    powers[i] = Fl_mul_pre(powers[k], powers[k], p, pi);
+    powers[i+1] = Fl_mul_pre(powers[k], powers[k+1], p, pi);
+  }
+  if (i==n+1)
+    powers[i] = Fl_mul_pre(powers[k], powers[k], p, pi);
   return powers;
 }
 
 GEN
 Fl_powers(ulong x, long n, ulong p)
 {
-  if (!SMALL_ULONG(p)) return Fl_powers_pre(x, n, p, get_Fl_red(p));
-  else
-  {
-    long i;
-    GEN powers = cgetg(n + 2, t_VECSMALL);
-    powers[1] = 1;
-    for (i = 2; i <= n + 1; ++i)
-      powers[i] = Fl_mul(x, powers[i - 1], p);
-    return powers;
-  }
+  return Fl_powers_pre(x, n, p, get_Fl_red(p));
 }
 
 /**********************************************************************
