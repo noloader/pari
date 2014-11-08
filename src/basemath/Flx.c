@@ -1920,7 +1920,26 @@ Flx_extresultant(GEN a, GEN b, ulong p, GEN *ptU, GEN *ptV)
 }
 
 ulong
-Flx_eval_pre(GEN x, ulong y, ulong p, ulong pi)
+Flx_eval_powers_pre(GEN x, GEN y, ulong p, ulong pi)
+{
+  ulong l0, l1, h0, h1, v1,  i = 1, lx = lg(x)-1;
+  LOCAL_OVERFLOW;
+  LOCAL_HIREMAINDER;
+  x++;
+
+  if (lx == 1)
+    return 0;
+  l1 = mulll(uel(x,i), uel(y,i)); h1 = hiremainder; v1 = 0;
+  while (++i < lx) {
+    l0 = mulll(uel(x,i), uel(y,i)); h0 = hiremainder;
+    l1 = addll(l0, l1); h1 = addllx(h0, h1); v1 += overflow;
+  }
+  if (v1 == 0) return remll_pre(h1, l1, p, pi);
+  else return remlll_pre(v1, h1, l1, p, pi);
+}
+
+INLINE ulong
+Flx_eval_pre_i(GEN x, ulong y, ulong p, ulong pi)
 {
   ulong p1;
   long i=lg(x)-1;
@@ -1930,6 +1949,15 @@ Flx_eval_pre(GEN x, ulong y, ulong p, ulong pi)
   for (i--; i>=2; i--)
     p1 = Fl_add(uel(x,i), Fl_mul_pre(p1, y, p, pi), p);
   return p1;
+}
+
+ulong
+Flx_eval_pre(GEN x, ulong y, ulong p, ulong pi)
+{
+  if (degpol(x) > 15)
+    return Flx_eval_powers_pre(x, Fl_powers_pre(y, degpol(x), p, pi), p, pi);
+  else
+    return Flx_eval_pre_i(x, y, p, pi);
 }
 
 ulong

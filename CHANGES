@@ -173,7 +173,7 @@ HIL64- [libpari] function family Flj_*
    65- [libpari] idealprimedec_limit_f, idealprimedec_limit_norm
    66- [libpari] modpr_get_p, modpr_get_T, modpr_get_pr
    67- GP function nfsplitting
-HIL68- [libpari] functions Flv_dotproduct_pre, Flx_eval_pre
+HIL68- [libpari] functions Flv_dotproduct_pre, Flx_eval_pre,Flx_eval_powers_pre
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]
