@@ -4948,7 +4948,8 @@ Euclidean quotient of the \kbd{Flx}~\kbd{A} by $X - \kbd{a}$, and sets
 assuming $pi$ is the pseudo inverse of $p$.
 
 \fun{ulong}{Flx_eval_powers_pre}{GEN P, GEN y, ulong p, ulong pi}, $y$ being
-the vector $[1,a,\dots,a^n]$, where $n$ is the degree of $P$, return $P(a)$.
+the vector $[1,a,\dots,a^n]$, where $n$ is the degree of $P$, return $P(a)$,
+assuming $pi$ is the pseudo inverse of $p$.
 
 \fun{ulong}{Flx_Flv_multieval}{GEN P, GEN v, ulong y, ulong p} returns the vector
 $[P(v[1]),\ldots,P(v[n])]$ as a \kbd{Flv}.
@@ -5121,7 +5122,18 @@ degree~1~\typ{POL} with \kbd{Flx} coefficients in the variable $x$.
 \fun{GEN}{FlxY_Flx_div}{GEN x, GEN y, ulong p} divides the coefficients of $x$
 by $y$ using \kbd{Flx\_div}.
 
-\fun{GEN}{FlxY_evalx}{GEN x, ulong y, ulong p}
+\fun{GEN}{FlxY_evalx}{GEN P, ulong z, ulong p} $Q$ being an \kbd{FlxY}, returns
+the \kbd{Flx} $P(z,Y)$, where $Y$ is the main variable of $P$.
+
+\fun{ulong}{FlxY_evalx_powers_pre}{GEN P, GEN xp, ulong p, ulong pi}, \kbd{xp}
+being the vector $[1,x,\dots,x^n]$, where $n$ is larger or equal to the degree
+of $P$ in $X$, return $P(x,Y)$, where $Y$ is the main variable of $Q$, assuming
+$pi$ is the pseudo inverse of $p$.
+
+\fun{ulong}{FlxY_eval_powers_pre}{GEN P, GEN xp, GEN yp, ulong p, ulong pi},
+\kbd{xp} being the vector $[1,x,\dots,x^n]$, where $n$ is larger or equal to the degree
+of $P$ in $X$ and \kbd{yp} being the vector $[1,y,\dots,y^m]$, where $m$ is larger or equal to the degree of $P$ in $Y$ return $P(x,y)$, assuming
+$pi$ is the pseudo inverse of $p$.
 
 \fun{GEN}{FlxY_Flxq_evalx}{GEN x, GEN y, ulong p} as \kbd{FpXY\_FpXQ\_evalx}.
 

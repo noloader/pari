@@ -3411,6 +3411,27 @@ FlxY_evalx(GEN Q, ulong x, ulong p)
 }
 
 GEN
+FlxY_evalx_powers_pre(GEN pol, GEN ypowers, ulong p, ulong pi)
+{
+  long i, len = lg(pol);
+  GEN res = cgetg(len, t_VECSMALL);
+  res[1] = pol[1] & VARNBITS;
+  for (i = 2; i < len; ++i)
+    res[i] = Flx_eval_powers_pre(gel(pol, i), ypowers, p, pi);
+  return Flx_renormalize(res, len);
+}
+
+ulong
+FlxY_eval_powers_pre(GEN pol, GEN ypowers, GEN xpowers, ulong p, ulong pi)
+{
+  pari_sp av = avma;
+  GEN t = FlxY_evalx_powers_pre(pol, ypowers, p, pi);
+  ulong out = Flx_eval_powers_pre(t, xpowers, p, pi);
+  avma = av;
+  return out;
+}
+
+GEN
 FlxY_FlxqV_evalx(GEN P, GEN x, GEN T, ulong p)
 {
   long i, lP = lg(P);
