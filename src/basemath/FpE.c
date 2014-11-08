@@ -456,19 +456,6 @@ Fp_ellj_get_CM(GEN jn, GEN jd, GEN p)
 /**                                                                   **/
 /***********************************************************************/
 
-static GEN
-modpoly2(void)
-{
-  GEN b0 = negi(strtoi("157464000000000"));
-  GEN b1 = strtoi("8748000000");
-  GEN b2 = stoi(-162000), b3 = stoi(1488);
-  GEN a2 = mkpoln(3,gen_m1, b3, b2);
-  GEN a1 = mkpoln(3,b3, stoi(40773375), b1);
-  GEN a0 = mkpoln(4,gen_1, b2, b1, b0);
-  setvarn(a0, 1); setvarn(a1, 1); setvarn(a2, 1);
-  return mkpoln(4, gen_1, a2, a1, a0);
-}
-
 /* assume x reduced mod p, monic. Return one root, or NULL if irreducible */
 static GEN
 FqX_quad_root(GEN x, GEN T, GEN p)
@@ -523,7 +510,7 @@ static int
 jissupersingular(GEN j, GEN S, GEN p)
 {
   long max_path_len = expi(p)+1;
-  GEN Phi2 = FpXX_red(modpoly2(), p);
+  GEN Phi2 = FpXX_red(modpoly_ZXX(2,0,1), p);
   GEN Phi2_j = FqXY_evalx(Phi2, j, S, p);
   GEN roots = FqX_roots(Phi2_j, S, p);
   long nbroots = lg(roots)-1;
