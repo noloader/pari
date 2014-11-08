@@ -343,7 +343,8 @@ Flmrow_Flc_mul_SMALL(GEN x, GEN y, ulong p, long lx, long i)
 static ulong
 Flmrow_Flc_mul_i(GEN x, GEN y, ulong p, ulong pi, long lx, long i)
 {
-  ulong l0, l1, v1, h0, h1, k = 1;
+  ulong l0, l1, v1, h0, h1;
+  long k = 1;
   LOCAL_OVERFLOW;
   LOCAL_HIREMAINDER;
   l1 = mulll(ucoeff(x,i,k), uel(y,k)); h1 = hiremainder; v1 = 0;
@@ -591,7 +592,8 @@ Flv_dotproduct_SMALL(GEN x, GEN y, ulong p, long lx)
 INLINE ulong
 Flv_dotproduct_i(GEN x, GEN y, ulong p, ulong pi, long lx)
 {
-  ulong l0, l1, v1, h0, h1, i = 1;
+  ulong l0, l1, v1, h0, h1;
+  long i = 1;
   LOCAL_OVERFLOW;
   LOCAL_HIREMAINDER;
   l1 = mulll(uel(x,i), uel(y,i)); h1 = hiremainder; v1 = 0;
