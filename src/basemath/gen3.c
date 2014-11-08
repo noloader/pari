@@ -362,9 +362,8 @@ degree(GEN x)
 GEN
 pollead(GEN x, long v)
 {
-  long l, tx = typ(x), w;
+  long tx = typ(x), w;
   pari_sp av;
-  GEN xinit;
 
   if (is_scalar_t(tx)) return gcopy(x);
   w = varn(x);
@@ -373,33 +372,25 @@ pollead(GEN x, long v)
     case t_POL:
       if (v < 0 || v == w)
       {
-        l=lg(x);
+        long l = lg(x);
         return (l==2)? gen_0: gcopy(gel(x,l-1));
       }
       break;
 
     case t_SER:
       if (v < 0 || v == w) return signe(x)? gcopy(gel(x,2)): gen_0;
+      if (varncmp(v, w) > 0) x = polcoeff_i(x, valp(x), v);
       break;
 
     default:
       pari_err_TYPE("pollead",x);
       return NULL; /* not reached */
   }
-  if (v < w) return gcopy(x);
-  av = avma; xinit = x;
-  x = gsubst(gsubst(x,w,pol_x(MAXVARN)),v,pol_x(0));
-  if (gvar(x)) { avma = av; return gcopy(xinit);}
-  tx = typ(x);
-  if (tx == t_POL) {
-    l = lg(x); if (l == 2) { avma = av; return gen_0; }
-    x = gel(x,l-1);
-  }
-  else if (tx == t_SER) {
-    if (!signe(x)) { avma = av; return gen_0;}
-    x = gel(x,2);
-  } else pari_err_TYPE("pollead",x);
-  return gerepileupto(av, gsubst(x,MAXVARN,pol_x(w)));
+  if (varncmp(v, w) < 0) return gcopy(x);
+  av = avma;
+  x = gsubst(x, v, pol_x(fetch_var_higher()));
+  x = pollead(x, -1);
+  delete_var(); return gerepileupto(av, x);
 }
 
 /* returns 1 if there's a real component in the structure, 0 otherwise */
@@ -1603,7 +1594,7 @@ derivser(GEN x)
 GEN
 deriv(GEN x, long v)
 {
-  long lx, vx, tx, i, j;
+  long lx, tx, i, j;
   pari_sp av;
   GEN y;
 
@@ -1625,17 +1616,21 @@ deriv(GEN x, long v)
       retmkpolmod(deriv(a,v), RgX_copy(b));
     }
     case t_POL:
-      vx = varn(x);
-      if (varncmp(vx, v) > 0) return RgX_get_0(x);
-      if (varncmp(vx, v) == 0) return RgX_deriv(x);
+      switch(varncmp(varn(x), v))
+      {
+        case 1: return RgX_get_0(x);
+        case 0: return RgX_deriv(x);
+      }
       y = cgetg_copy(x, &lx); y[1] = x[1];
       for (i=2; i<lx; i++) gel(y,i) = deriv(gel(x,i),v);
       return normalizepol_lg(y,i);
 
     case t_SER:
-      vx = varn(x);
-      if (varncmp(vx, v) > 0) return RgX_get_0(x);
-      if (varncmp(vx, v) == 0) return derivser(x);
+      switch(varncmp(varn(x), v))
+      {
+        case 1: return RgX_get_0(x);
+        case 0: return derivser(x);
+      }
       if (ser_isexactzero(x)) return gcopy(x);
       y = cgetg_copy(x, &lx); y[1] = x[1];
       for (j=2; j<lx; j++) gel(y,j) = deriv(gel(x,j),v);
@@ -1775,20 +1770,10 @@ diffop0(GEN x, GEN v, GEN dv, long n)
 static GEN
 swapvar_act(GEN x, long vx, long v, GEN (*act)(void*, long, GEN), void *data)
 {
-  GEN y;
-  if (v != MAXVARN) { /* (vx,v) -> (MAXVARN, v) */
-    y = act(data, v, gsubst(x,vx,pol_x(MAXVARN)));
-    y = gsubst(y,MAXVARN,pol_x(vx));
-  } else if (vx != 0) { /* (vx,v) -> (vx, 0) */
-    y = act(data, 0, gsubst(x,v,pol_x(0)));
-    y = gsubst(y,0,pol_x(v));
-  } else { /* (0,MAXVARN) -> (w, 0) */
-    long w = fetch_var();
-    y = act(data, 0, gsubst(gsubst(x,0,pol_x(w)), MAXVARN,pol_x(0)));
-    y = gsubst(gsubst(y,0,pol_x(MAXVARN)), w,pol_x(0));
-    (void)delete_var();
-  }
-  return y;
+  long v0 = fetch_var();
+  GEN y = act(data, v, gsubst(x,vx,pol_x(v0)));
+  y = gsubst(y,v0,pol_x(vx));
+  (void)delete_var(); return y;
 }
 /* x + O(v^data) */
 static GEN

@@ -20,6 +20,12 @@ This file lists the incompatible changes between Version 2.x and older versions
   - ellbil(E,P,Q) is now deprecated, use ellheight(E,P,Q)
   - default 'strictmatch' has been obsoleted. It is now a no-op.
   - default 'compatible' has been obsoleted. It is now a no-op.
+  - GP and libpari polynomial variables of arbitrary priority can now be
+    created: 'x' is no longer guaranteed to have maximal priority,
+    nor MAXVARN to have minimal priority.
+  - GP: polynomial variables no longer spring into existence unless a true
+    t_POL/t_SER in the variable is needed. E.g. y = 0 does not create the
+    "variable" y, thereby messing up variable ordering.
 
 * Specific to the PARI library:
 ===============================

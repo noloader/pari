@@ -854,6 +854,8 @@ GEN
 bnfisnorm(GEN bnf, GEN x, long flag)
 {
   pari_sp av = avma;
-  GEN T = rnfisnorminit(pol_x(MAXVARN), bnf, flag == 0? 1: 2);
-  return gerepileupto(av, rnfisnorm(T, x, flag == 1? 0: flag));
+  GEN T = rnfisnorminit(pol_x(fetch_var()), bnf, flag == 0? 1: 2);
+  GEN r = rnfisnorm(T, x, flag == 1? 0: flag);
+  (void)delete_var();
+  return gerepileupto(av,r);
 }

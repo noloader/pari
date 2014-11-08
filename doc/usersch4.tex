@@ -1573,14 +1573,7 @@ situation.
 Some initializations are needed before you can use a given integer $v$ as a
 variable number.
 
-Initially, this is done for $0$ (the variable \kbd{x} under \kbd{gp}), and
-\tet{MAXVARN}, which is there to address the need for a ``temporary'' new
-variable in library mode and cannot be input under \kbd{gp}. No documented
-library function can create from scratch an object involving \tet{MAXVARN}
-(of course, if the operands originally involve \kbd{MAXVARN}, the function
-abides). We call the latter type a ``temporary variable''. The regular
-variables meant to be used in regular objects, are called ``user
-variables\sidx{variable (user)}''.
+Initially, this is done for $0$ (the variable \kbd{x} under \kbd{gp}).
 
 \subsubsec{User variables}\sidx{variable (user)} When the program starts,
 \kbd{x} is the only user variable (number~$0$). To define new ones, use
@@ -1618,24 +1611,22 @@ that this may not be the same as \kbd{pol\_x(v)} if assignments have been
 performed in the interpreter.
 
 \subsubsec{Temporary variables}\sidx{variable (temporary)}
-\kbd{MAXVARN} is available, but is better left to PARI internal functions
-(some of which do not check that \kbd{MAXVARN} is free for them to use,
-which can be considered a bug). You can create more temporary variables
-using
+You can create temporary variables using
 
 \fun{long}{fetch_var}{}\label{se:fetch_var}
+returns a new variable with \emph{lower} priority than any variable currently
+in use.
+
+\fun{long}{fetch_var_higher}{}\label{se:fetch_var}
+returns a new variable with \emph{higher} priority than any variable
+currently in use.
 
 \noindent
-This returns a variable number which is guaranteed to be unused by the
-library at the time you get it and as long as you do not delete it (we will
-see how to do that shortly). This has \emph{higher} priority than any
-temporary variable produced so far (\kbd{MAXVARN} is assumed to be the first
-such). After the statement \kbd{v = fetch\_var()}, you can use
+After the statement \kbd{v = fetch\_var()}, you can use
 \kbd{pol\_1(v)} and \kbd{pol\_x(v)}. The variables created in this way have no
 identifier assigned to them though, and are printed as
-\kbd{\#<\text{number}>}, except for \kbd{MAXVARN} which is printed
-as~\kbd{\#}. You can assign a name to a temporary variable, after creating
-it, by calling the function
+\kbd{t\text{number}}. You can assign a name to a temporary variable, after
+creating it, by calling the function
 
 \fun{void}{name_var}{long n, char *s}
 
@@ -1643,8 +1634,9 @@ it, by calling the function
 represent the variable number~\kbd{n}. The GP parser will \emph{not}
 recognize it by that name, however, and calling this on a variable known
 to~\kbd{gp} raises an error. Temporary variables are meant to be used as free
-variables, and you should never assign values or functions to them as you
-would do with variables under~\kbd{gp}. For that, you need a user variable.
+variables to build polynomials and power series, and you should never assign
+values or functions to them as you would do with variables under~\kbd{gp}.
+For that, you need a user variable.
 
 All objects created by \kbd{fetch\_var} are on the heap and not on the stack,
 thus they are not subject to standard garbage collecting (they are not
@@ -1654,8 +1646,8 @@ not need a variable number anymore, you can delete it using
 \fun{long}{delete_var}{}
 
 \noindent which deletes the \emph{latest} temporary variable created and
-returns the variable number of the previous one (or simply returns 0 if you
-try, in vain, to delete \kbd{MAXVARN}). Of course you should make sure that
+returns the variable number of the previous one (or simply returns 0 if none
+remain). Of course you should make sure that
 the deleted variable does not appear anywhere in the objects you use later
 on. Here is an example:
 
@@ -1672,8 +1664,7 @@ The (dangerous) statement
 \bprog
   while (delete_var()) /*@Ccom empty */;
 @eprog\noindent
-removes all temporary variables in use, except \kbd{MAXVARN} which cannot be
-deleted.
+removes all temporary variables in use.
 
 \section{Input and output}
 

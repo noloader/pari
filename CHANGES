@@ -179,6 +179,7 @@ HIL68- [libpari] functions Flv_dotproduct_pre, Flx_eval_pre,
        Flx_eval_powers_pre, FlxY_eval_powers_pre, FlxY_evalx_powers_pre
 HIL69- GP functions polclass, polmodular
 BA 70- ellcard over fields of medium characteristic (SEA, Kedlaya, Satoh)
+   71- GP function varhigher()
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]
@@ -242,6 +243,12 @@ BA 25- setrand now return a (huge) integer instead of a vecsmall
        code)
    36- add optional flag to nfhnf / nfsnf: return transformation matrices
    37- nfroots/nffactor: factor polynomials in Q[X] over Q first
+   38- GP and libpari polynomial variables of arbitrary priority can now be
+       created: 'x' is no longer guaranteed to have maximal priority,
+       nor MAXVARN to have minimal priority.
+   39- GP: polynomial variables no longer spring into existence unless a true
+       t_POL/t_SER in the variable is needed. E.g. y = 0 does not create the
+       "variable" y, thereby messing up variable ordering.
 
 Removed
    1- deprecated functions nfbasis0, nfdisc0, factorpadic0

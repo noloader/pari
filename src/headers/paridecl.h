@@ -1257,9 +1257,9 @@ void    alias0(const char *s, const char *old);
 GEN     compile_str(const char *s);
 GEN     chartoGENstr(char c);
 long    delete_var(void);
-entree* fetch_named_var(const char *s);
 long    fetch_user_var(const char *s);
 long    fetch_var(void);
+long    fetch_var_higher(void);
 GEN     fetch_var_value(long vx, GEN t);
 GEN     gp_read_str(const char *t);
 entree* install(void *f, const char *name, const char *code);
@@ -1268,7 +1268,7 @@ void    kill0(const char *e);
 void    pari_var_init(void);
 long    pari_var_next(void);
 long    pari_var_next_temp(void);
-void    pari_var_create(entree *ep);
+long    pari_var_create(entree *ep);
 void    name_var(long n, const char *s);
 GEN     readseq(char *t);
 GEN*    safegel(GEN x, long l);
@@ -1280,6 +1280,7 @@ GEN     strtoGENstr(const char *s);
 GEN     strtoi(const char *s);
 GEN     strtor(const char *s, long prec);
 GEN     type0(GEN x);
+GEN     varhigher(const char *s);
 
 /* aprcl.c */
 
@@ -2042,7 +2043,7 @@ enum { d_SILENT = 0, d_ACKNOWLEDGE, d_INITRC, d_RETURN };
 
 GEN default0(const char *a, const char *b);
 long getrealprecision(void);
-int pari_is_default(const char *s);
+entree *pari_is_default(const char *s);
 GEN sd_TeXstyle(const char *v, long flag);
 GEN sd_colors(const char *v, long flag);
 GEN sd_compatible(const char *v, long flag);
@@ -3934,6 +3935,7 @@ INLINE GEN    utor(ulong s, long prec);
 INLINE GEN    uutoi(ulong x, ulong y);
 INLINE GEN    uutoineg(ulong x, ulong y);
 INLINE long   vali(GEN x);
+INLINE int    varncmp(long x, long y);
 
 /* pariinl.h */
 INLINE GEN    abgrp_get_cyc(GEN x);

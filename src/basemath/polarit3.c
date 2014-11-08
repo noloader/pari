@@ -1083,7 +1083,7 @@ FpM_Frobenius_pow(GEN M, long d, GEN T, GEN p)
 }
 
 /* Essentially we want to compute
- * FqM_ker(MA-pol_x(MAXVARN),U,l)
+ * FqM_ker(MA-pol_x(v),U,l)
  * To avoid use of matrix in Fq we procede as follows:
  * We compute FpM_ker(U(MA),l) and then we recover
  * the eigen value by Galois action, see formula.
@@ -1217,7 +1217,7 @@ Flx_ffintersect(GEN P, GEN Q, long n, ulong l,GEN *SP, GEN *SQ, GEN MA, GEN MB)
     else
     {
       GEN L, An, Bn, z, U;
-      U = gmael(Flx_factor(ZX_to_Flx(polcyclo(pg,MAXVARN),l),l),1,1);
+      U = gmael(Flx_factor(ZX_to_Flx(polcyclo(pg, fetch_var()),l),l),1,1);
       A = Flx_intersect_ker(P, MA, U, l);
       B = Flx_intersect_ker(Q, MB, U, l);
       if (DEBUGLEVEL>=4) timer_start(&T);
@@ -1231,6 +1231,7 @@ Flx_ffintersect(GEN P, GEN Q, long n, ulong l,GEN *SP, GEN *SQ, GEN MA, GEN MB)
       B = FlxqX_Flxq_mul(B,L,U,l);
       A = FlxY_evalx(A,0,l);
       B = FlxY_evalx(B,0,l);
+      (void)delete_var();
     }
   }
   if (e)
@@ -1333,7 +1334,7 @@ FpX_ffintersect(GEN P, GEN Q, long n, GEN l, GEN *SP, GEN *SQ, GEN MA, GEN MB)
     else
     {
       GEN L, An, Bn, z, U;
-      U = gmael(FpX_factor(polcyclo(pg,MAXVARN),l),1,1);
+      U = gmael(FpX_factor(polcyclo(pg,fetch_var()),l),1,1);
       A = FpX_intersect_ker(P, MA, U, l);
       B = FpX_intersect_ker(Q, MB, U, l);
       if (DEBUGLEVEL>=4) timer_start(&T);
@@ -1348,6 +1349,7 @@ FpX_ffintersect(GEN P, GEN Q, long n, GEN l, GEN *SP, GEN *SQ, GEN MA, GEN MB)
       B = FqX_Fq_mul(B,L,U,l);
       A = FpXY_evalx(A,gen_0,l);
       B = FpXY_evalx(B,gen_0,l);
+      (void)delete_var();
     }
   }
   if (e)
@@ -2171,29 +2173,24 @@ FpX_FpXY_resultant(GEN a, GEN b, GEN p)
 }
 
 GEN
-FpX_direct_compositum(GEN A, GEN B, GEN p)
+FpX_direct_compositum(GEN a, GEN b, GEN p)
 {
-  GEN a, b, x;
-  a = leafcopy(A); setvarn(a, MAXVARN);
-  b = leafcopy(B); setvarn(b, MAXVARN);
-  x = deg1pol_shallow(gen_1, pol_x(MAXVARN), 0); /* x + y */
-  return FpX_FpXY_resultant(a, poleval(b,x),p);
+  GEN x = deg1pol_shallow(gen_1, pol_x(varn(a)), fetch_var_higher()); /* x+y */
+  x = FpX_FpXY_resultant(a, poleval(b,x),p);
+  (void)delete_var(); return x;
 }
 
 /* 0, 1, -1, 2, -2, ... */
 #define next_lambda(a) (a>0 ? -a : 1-a)
 GEN
-FpX_compositum(GEN A, GEN B, GEN p)
+FpX_compositum(GEN a, GEN b, GEN p)
 {
-  GEN a, b;
-  long k;
-  a = leafcopy(A); setvarn(a, MAXVARN);
-  b = leafcopy(B); setvarn(b, MAXVARN);
+  long k, v = fetch_var_higher();
   for (k = 1;; k = next_lambda(k))
   {
-    GEN x = deg1pol_shallow(gen_1, gmulsg(k, pol_x(MAXVARN)), 0); /* x + k y */
+    GEN x = deg1pol_shallow(gen_1, gmulsg(k, pol_x(v)), 0); /* x + k y */
     GEN C = FpX_FpXY_resultant(a, poleval(b,x),p);
-    if (FpX_is_squarefree(C, p)) return C;
+    if (FpX_is_squarefree(C, p)) { (void)delete_var(); return C; }
   }
 }
 
@@ -2220,14 +2217,15 @@ init_modular(forprime_t *S) { u_forprime_init(S, 27449, ULONG_MAX); }
 GEN
 ZX_ZXY_resultant_all(GEN A, GEN B0, long *plambda, GEN *LERS)
 {
-  int checksqfree = plambda? 1: 0, delvar = 0, stable;
+  int checksqfree = plambda? 1: 0, stable;
   long lambda = plambda? *plambda: 0, cnt = 0;
   ulong bound, p, dp;
   pari_sp av = avma, av2 = 0;
   long i,n, lb, degA = degpol(A), dres = degA*degpol(B0);
-  long vX = varn(B0), vY = varn(A); /* assume vX << vY */
+  long v = fetch_var_higher();
+  long vX = varn(B0), vY = varn(A); /* assume vY has lower priority */
   long sX = evalvarn(vX);
-  GEN x, y, dglist, dB, B, q, a, b, ev, H, H0, H1, Hp, H0p, H1p, C0, C1, L;
+  GEN x, y, dglist, dB, B, q, a, b, ev, H, H0, H1, Hp, H0p, H1p, C0, C1;
   forprime_t S;
 
   dglist = Hp = H0p = H1p = C0 = C1 = NULL; /* gcc -Wall */
@@ -2241,27 +2239,31 @@ ZX_ZXY_resultant_all(GEN A, GEN B0, long *plambda, GEN *LERS)
   }
   x = cgetg(dres+2, t_VECSMALL);
   y = cgetg(dres+2, t_VECSMALL);
-  if (vY == MAXVARN)
-  {
-    vY = fetch_var(); delvar = 1;
-    B0 = gsubst(B0, MAXVARN, pol_x(vY));
-    A = leafcopy(A); setvarn(A, vY);
-  }
-  L = pol_x(MAXVARN);
   B0 = Q_remove_denom(B0, &dB);
+  if (!dB) B0 = leafcopy(B0);
+  A = leafcopy(A);
+  B = B0;
+  setvarn(A,v);
+  if (vX == vY) setvarn(B0, v);
 
   /* make sure p large enough */
   u_forprime_init(&S, maxuu(dres << 1, 27499), ULONG_MAX);
 INIT:
   /* allways except the first time */
   if (av2) { avma = av2; lambda = next_lambda(lambda); }
-  if (checksqfree)
+  if (vX == vY)
   {
-    /* # + lambda */
-    L = deg1pol_shallow(stoi(lambda), pol_x(MAXVARN), vY);
-    if (DEBUGLEVEL>4) err_printf("Trying lambda = %ld\n", lambda);
+    B = RgX_translate(B0, pol_x(vX));
+    if (lambda) B = RgX_unscale(B, stoi(lambda));
   }
-  B = poleval(B0, L); av2 = avma;
+  else
+  {
+    if (lambda) B = RgX_translate(B0, monomial(stoi(lambda), 1, vY));
+    B = swap_vars(B, vY); setvarn(B,v);
+  }
+  /* B0(lambda v + x, v) */
+  if (DEBUGLEVEL>4 && checksqfree) err_printf("Trying lambda = %ld\n", lambda);
+  av2 = avma;
 
   if (degA <= 3)
   { /* sub-resultant faster for small degrees */
@@ -2392,7 +2394,7 @@ INIT:
   if (!p) pari_err_OVERFLOW("ZX_ZXY_rnfequation [ran out of primes]");
 END:
   if (DEBUGLEVEL>5) err_printf(" done\n");
-  setvarn(H, vX); if (delvar) (void)delete_var();
+  setvarn(H, vX); (void)delete_var();
   if (plambda) *plambda = lambda;
   if (LERS)
   {
@@ -2753,25 +2755,23 @@ ffinit_rand(GEN p,long n)
 static GEN
 f2init(long l)
 {
-  long i;
   GEN Q, T, S;
+  long i, v;
 
-  if (l == 1) return polcyclo(3, MAXVARN);
-
+  if (l == 1) return polcyclo(3, 0);
+  v = fetch_var_higher();
   S = mkpoln(4, gen_1,gen_1,gen_0,gen_0); /* y(y^2 + y) */
-  setvarn(S, MAXVARN);
   Q = mkpoln(3, gen_1,gen_1, S); /* x^2 + x + y(y^2+y) */
+  setvarn(Q, v);
 
   /* x^4+x+1, irred over F_2, minimal polynomial of a root of Q */
   T = mkpoln(5, gen_1,gen_0,gen_0,gen_1,gen_1);
-  for (i=2; i<l; i++)
-  { /* Q = x^2 + x + a(y) irred. over K = F2[y] / (T(y))
-     * ==> x^2 + x + a(y) b irred. over K for any root b of Q
-     * ==> x^2 + x + (b^2+b)b */
-    setvarn(T,MAXVARN);
-    T = FpX_FpXY_resultant(T, Q, gen_2); /* = minpoly of b over F2 */
-  }
-  return T;
+  setvarn(T, v);
+  /* Q = x^2 + x + a(y) irred. over K = F2[y] / (T(y))
+   * ==> x^2 + x + a(y) b irred. over K for any root b of Q
+   * ==> x^2 + x + (b^2+b)b */
+  for (i=2; i<l; i++) T = FpX_FpXY_resultant(T, Q, gen_2); /* minpoly(b) / F2*/
+  (void)delete_var(); setvarn(T,0); return T;
 }
 
 /* return an extension of degree p^l of F_p, assume l > 0
@@ -2779,19 +2779,17 @@ f2init(long l)
 GEN
 ffinit_Artin_Shreier(GEN ip, long l)
 {
-  long i, p = itos(ip);
+  long i, v, p = itos(ip);
   GEN T, Q, xp = monomial(gen_1,p,0); /* x^p */
   T = ZX_sub(xp, deg1pol_shallow(gen_1,gen_1,0)); /* x^p - x - 1 */
   if (l == 1) return T;
 
-  Q = ZX_sub(monomial(gen_1,2*p-1,MAXVARN), monomial(gen_1,p,MAXVARN));
-  Q = gsub(xp, deg1pol_shallow(gen_1, Q, 0)); /* x^p - x - (y^(2p-1)-y^p) */
-  for (i = 2; i <= l; ++i)
-  {
-    setvarn(T,MAXVARN);
-    T = FpX_FpXY_resultant(T, Q, ip);
-  }
-  return T;
+  v = fetch_var_higher();
+  setvarn(xp, v);
+  Q = ZX_sub(monomial(gen_1,2*p-1,0), monomial(gen_1,p,0));
+  Q = gsub(xp, deg1pol_shallow(gen_1, Q, v)); /* x^p - x - (y^(2p-1)-y^p) */
+  for (i = 2; i <= l; ++i) T = FpX_FpXY_resultant(T, Q, ip);
+  (void)delete_var(); setvarn(T,0); return T;
 }
 
 /* check if polsubcyclo(n,l,0) is irreducible modulo p */

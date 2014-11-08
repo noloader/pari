@@ -48,7 +48,8 @@ union token_value { long val; };
 
 int pari_lex(union token_value *yylval, struct node_loc *yylloc, char **lex);
 int pari_parse(char **lex);
-entree* fetch_entry(const char *s, long len);
+entree* fetch_entry_raw(const char *s, long len);
+entree* fetch_entry(const char *s);
 entree* fetch_member(const char *s, long len);
 void pari_close_parser(void);
 void pari_close_compiler(void);

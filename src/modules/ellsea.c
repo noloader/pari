@@ -87,7 +87,11 @@ list_to_pol(GEN list, long vx, long vy)
   return RgV_to_RgX_reverse(P, vx);
 }
 
-struct meqn { char type; GEN eq; };
+struct meqn {
+  char type;
+  GEN eq;
+  long vx,vy;
+};
 
 static int
 get_modular_eqn(struct meqn *M, ulong ell, long vx, long vy)
@@ -102,7 +106,8 @@ get_modular_eqn(struct meqn *M, ulong ell, long vx, long vy)
   if (!eqn) { M->type = 0; M->eq = NULL; return 0; }
   M->type = *GSTR(gel(eqn, 2));
   M->eq = list_to_pol(gel(eqn, 3), vx, vy);
-  return 1;
+  M->vx = vx;
+  M->vy = vy; return 1;
 }
 
 static void
@@ -615,11 +620,11 @@ compute_u(GEN gprime, GEN Dxxg, GEN DxJg, GEN DJJg, GEN j, GEN pJ, GEN px, ulong
  * E: elliptic curve, ell: a prime, meqn: Atkin modular equation
  * g: root of meqn defining isogenous curve Eb. */
 static GEN
-find_isogenous_from_Atkin(GEN a4, GEN a6, ulong ell, GEN meqn, GEN g, GEN T, GEN pp, long e)
+find_isogenous_from_Atkin(GEN a4, GEN a6, ulong ell, struct meqn *MEQN, GEN g, GEN T, GEN pp, long e)
 {
   pari_sp ltop = avma, btop;
-  GEN meqnx, Roots, gprime, u1;
-  long k, vx = 0, vJ = MAXVARN;
+  GEN meqn = MEQN->eq, meqnx, Roots, gprime, u1;
+  long k, vJ = MEQN->vy;
   GEN p = e==1 ? pp: powiu(pp, e);
   GEN E4 = Fq_div(a4, stoi(-3), T, p);
   GEN E6 = Fq_neg(Fq_halve(a6, T, p), T, p);
@@ -628,13 +633,13 @@ find_isogenous_from_Atkin(GEN a4, GEN a6, ulong ell, GEN meqn, GEN g, GEN T, GEN
   GEN E62 = Fq_sqr(E6, T, p);
   GEN delta = Fq_div(Fq_sub(E43, E62, T, p), utoi(1728), T, p);
   GEN j = Zq_div(E43, delta, T, p, pp, e);
-  GEN Dx = deriv(meqn, vx);
+  GEN Dx = RgX_deriv(meqn);
   GEN DJ = deriv(meqn, vJ);
   GEN Dxg = FpXY_Fq_evaly(Dx, g, T, p, vJ);
   GEN px = FqX_eval(Dxg, j, T, p), dx = Fq_mul(px, g, T, p);
   GEN DJg = FpXY_Fq_evaly(DJ, g, T, p, vJ);
   GEN pJ = FqX_eval(DJg, j, T, p), dJ = Fq_mul(pJ, j, T, p);
-  GEN Dxx = deriv(Dx, vx);
+  GEN Dxx = RgX_deriv(Dx);
   GEN DxJg = FqX_deriv(Dxg, T, p);
 
   GEN Dxxg = FpXY_Fq_evaly(Dxx, g, T, p, vJ);
@@ -689,10 +694,11 @@ find_isogenous_from_Atkin(GEN a4, GEN a6, ulong ell, GEN meqn, GEN g, GEN T, GEN
  * E: elliptic curve, ell: a prime, meqn: canonical modular equation
  * g: root of meqn defining isogenous curve Eb. */
 static GEN
-find_isogenous_from_canonical(GEN a4, GEN a6, ulong ell, GEN meqn, GEN g, GEN T, GEN pp, long e)
+find_isogenous_from_canonical(GEN a4, GEN a6, ulong ell, struct meqn *MEQN, GEN g, GEN T, GEN pp, long e)
 {
   pari_sp ltop = avma;
-  long vx = 0, vJ = MAXVARN;
+  GEN meqn = MEQN->eq;
+  long vJ = MEQN->vy;
   GEN p = e==1 ? pp: powiu(pp, e);
   GEN h;
   GEN E4 = Fq_div(a4, stoi(-3), T, p);
@@ -702,13 +708,13 @@ find_isogenous_from_canonical(GEN a4, GEN a6, ulong ell, GEN meqn, GEN g, GEN T,
   GEN E62 = Fq_sqr(E6, T, p);
   GEN delta = Fq_div(Fq_sub(E43, E62, T, p), utoi(1728), T, p);
   GEN j = Zq_div(E43, delta, T, p, pp, e);
-  GEN Dx = deriv(meqn, vx);
+  GEN Dx = RgX_deriv(meqn);
   GEN DJ = deriv(meqn, vJ);
   GEN Dxg = FpXY_Fq_evaly(Dx, g, T, p, vJ);
   GEN px  = FqX_eval(Dxg, j, T, p), dx  = Fq_mul(px, g, T, p);
   GEN DJg = FpXY_Fq_evaly(DJ, g, T, p, vJ);
   GEN pJ = FqX_eval(DJg, j, T, p), dJ = Fq_mul(j, pJ, T, p);
-  GEN Dxx = deriv(Dx, vx);
+  GEN Dxx = RgX_deriv(Dx);
   GEN DxJg = FqX_deriv(Dxg, T, p);
 
   GEN ExJ = FqX_eval(DxJg, j, T, p);
@@ -776,8 +782,8 @@ find_isogenous(GEN a4,GEN a6, ulong ell, struct meqn *MEQN, GEN g, GEN T,GEN p)
     g = ZpXQX_liftroot(meqnj, g, T, p, e);
   }
   return (MEQN->type == 'C')
-    ? find_isogenous_from_canonical(a4, a6, ell, MEQN->eq, g, T, p, e)
-    : find_isogenous_from_Atkin(a4, a6, ell, MEQN->eq, g, T, p, e);
+    ? find_isogenous_from_canonical(a4, a6, ell, MEQN, g, T, p, e)
+    : find_isogenous_from_Atkin(a4, a6, ell, MEQN, g, T, p, e);
 }
 
 static GEN
@@ -1045,7 +1051,8 @@ find_trace_lp1_roots(long ell, GEN q)
 
 /*trace modulo ell^k: [], [t] or [t1,...,td] */
 static GEN
-find_trace(GEN a4, GEN a6, ulong ell, GEN q, GEN T, GEN p, long *ptr_kt, ulong smallfact)
+find_trace(GEN a4, GEN a6, ulong ell, GEN q, GEN T, GEN p, long *ptr_kt,
+  ulong smallfact, long vx, long vy)
 {
   pari_sp ltop = avma;
   GEN g, meqnj, tr, tr2;
@@ -1066,7 +1073,7 @@ find_trace(GEN a4, GEN a6, ulong ell, GEN q, GEN T, GEN p, long *ptr_kt, ulong s
     }
   }
   kt = k;
-  if (!get_modular_eqn(&MEQN, ell, 0, MAXVARN)) err_modular_eqn(ell);
+  if (!get_modular_eqn(&MEQN, ell, vx, vy)) err_modular_eqn(ell);
   if (DEBUGLEVEL)
   { err_printf("Process prime %5ld. ", ell); timer_start(&ti); }
   meqnj = FqXY_evalx(MEQN.eq, Fq_ellj(a4, a6, T, p), T, p);
@@ -1549,7 +1556,7 @@ Fq_ellcard_SEA(GEN a4, GEN a6, GEN q, GEN T, GEN p, long smallfact)
 {
   const long MAX_ATKIN = 21;
   pari_sp ltop = avma, btop;
-  long ell, i, nb_atkin;
+  long ell, i, nb_atkin, vx,vy;
   GEN TR, TR_mod, compile_atkin, bound, bound_bsgs, champ;
   GEN prod_atkin = gen_1, max_traces = gen_0;
   double bound_gr = 1.;
@@ -1558,13 +1565,6 @@ Fq_ellcard_SEA(GEN a4, GEN a6, GEN q, GEN T, GEN p, long smallfact)
   void *E;
 
   if (!modular_eqn && !get_seadata(0)) return NULL;
-  if (T && get_FpX_var(T)==0) /* 0 is used by the modular polynomial */
-  {
-    if (typ(T)==t_POL) { T  = shallowcopy(T); setvarn(T,1); }
-    else T = gsubst(T,0,pol_x(1));
-    a4 = shallowcopy(a4); setvarn(a4,1);
-    a6 = shallowcopy(a6); setvarn(a6,1);
-  }
   /*First compute the trace modulo 2 */
   switch(FqX_nbroots(mkpoln(4, gen_1, gen_0, a4, a6), T, p))
   {
@@ -1584,6 +1584,8 @@ Fq_ellcard_SEA(GEN a4, GEN a6, GEN q, GEN T, GEN p, long smallfact)
     if (DEBUGLEVEL) err_printf("Aborting: #E(Fq) divisible by 2\n");
     avma = ltop; return gen_0;
   }
+  vy = fetch_var();
+  vx = fetch_var_higher();
 
   /* compile_atkin is a vector containing informations about Atkin primes,
    * informations about Elkies primes lie in Mod(TR, TR_mod). */
@@ -1597,7 +1599,7 @@ Fq_ellcard_SEA(GEN a4, GEN a6, GEN q, GEN T, GEN p, long smallfact)
     long ellkt, kt = 1, nbtrace;
     GEN trace_mod;
     if (equalui(ell, p)) continue;
-    trace_mod = find_trace(a4, a6, ell, q, T, p, &kt, smallfact);
+    trace_mod = find_trace(a4, a6, ell, q, T, p, &kt, smallfact, vx,vy);
     if (!trace_mod) continue;
 
     nbtrace = lg(trace_mod) - 1;

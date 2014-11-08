@@ -848,10 +848,10 @@ compute_M0(GEN M_star,long N)
   long bitprec = 24;
 
   if (N == 2) return gmul2n(sqrr(gacosh(gmul2n(M_star,-1),0)), -1);
-  vM = fetch_var(); M = pol_x(vM);
-  vz = fetch_var(); Z = pol_x(vz);
-  vy = fetch_var(); Y = pol_x(vy);
   vx = fetch_var(); X = pol_x(vx);
+  vy = fetch_var(); Y = pol_x(vy);
+  vz = fetch_var(); Z = pol_x(vz);
+  vM = fetch_var(); M = pol_x(vM);
 
   M0 = NULL; m1 = N/3;
   for (n1=1; n1<=m1; n1++) /* 1 <= n1 <= n2 <= n3 < N */

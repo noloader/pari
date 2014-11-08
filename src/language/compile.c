@@ -575,10 +575,10 @@ static entree *
 getfunc(long n)
 {
   long x=tree[n].x;
-  if (tree[x].x==CSTmember)
-    return do_alias(fetch_member(tree[x].str, tree[x].len));
+  if (tree[x].x==CSTmember) /* str-1 points to '.' */
+    return do_alias(fetch_member(tree[x].str - 1, tree[x].len + 1));
   else
-    return do_alias(fetch_entry(tree[x].str, tree[x].len));
+    return do_alias(fetch_entry_raw(tree[x].str, tree[x].len));
 }
 
 static entree *
@@ -1968,8 +1968,8 @@ compilenode(long n, int mode, long flag)
         op_push(OCpushgen,  data_push(strntoGENexp(tree[n].str,tree[n].len)),n);
         break;
       case CSTquote:
-        {
-          entree *ep = fetch_entry(tree[n].str+1,tree[n].len-1);
+        { /* skip ' */
+          entree *ep = fetch_entry_raw(tree[n].str+1,tree[n].len-1);
           if (EpSTATIC(ep)) compile_varerr(tree[n].str+1);
           op_push(OCpushvar, (long)ep,n);
           compilecast(n,Ggen, mode);

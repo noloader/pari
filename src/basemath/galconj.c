@@ -50,17 +50,8 @@ galoisconj1(GEN nf)
     gel(res,2) = pol_x(v);
     return res;
   }
-  if (v == 0)
-  {
-    long w = fetch_var();
-    if (nf) y = gsubst(nf, 0, pol_x(w));
-    else { y = leafcopy(x); setvarn(y, w); }
-  }
-  else
-  {
-    y = x;
-    x = leafcopy(x); setvarn(x, 0);
-  }
+  y = x;
+  x = leafcopy(x); setvarn(x, fetch_var_higher());
   z = nfroots(y, x); lz = lg(z);
   y = cgetg(lz, t_COL);
   for (i = 1; i < lz; i++)
@@ -69,7 +60,7 @@ galoisconj1(GEN nf)
     if (typ(t) == t_POL) setvarn(t, v);
     gel(y,i) = t;
   }
-  if (v == 0) delete_var();
+  (void)delete_var();
   return gerepileupto(av, y);
 }
 

@@ -80,7 +80,7 @@ typedef unsigned long pari_ulong;
 #define VALPBITS    ((1UL<<VALPnumBITS)-1)
 #define VARNBITS    (MAXVARN<<VARNSHIFT)
 #define MAXVARN     ((1UL<<VARNnumBITS)-1)
-#define NO_VARIABLE (2147483647L) /* > MAXVARN */
+#define NO_VARIABLE (-1)
 #define VARARGBITS  HIGHBIT
 #define ARITYBITS   (~VARARGBITS)
 
@@ -138,8 +138,6 @@ typedef unsigned long pari_ulong;
 #define varn(x)       ((long)((((ulong)((x)[1]))&VARNBITS) >> VARNSHIFT))
 #define setvarn(x,s)  (((ulong*)(x))[1]=\
                        (((ulong*)(x))[1]&(~VARNBITS)) | (ulong)evalvarn(s))
-
-#define varncmp(x,y)  ((x)-(y))
 
 /* t_LIST */
 #define list_nmax(x) x[1]

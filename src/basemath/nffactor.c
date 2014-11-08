@@ -1982,7 +1982,7 @@ nfcyclo_root(GEN nf, long n_cyclo, prklift_t *P)
 {
   pari_sp av = avma;
   GEN init_fa = NULL; /* factors mod pr */
-  GEN z, nfpol = nf_get_pol(nf), pol = polcyclo(n_cyclo, MAXVARN);
+  GEN z, nfpol = nf_get_pol(nf), pol = polcyclo(n_cyclo, 0);
   long nbf, deg = degpol(pol); /* = eulerphi(n_cyclo) */
   if (P->L->Tp)
     nbf = FqX_split_deg1(&init_fa, pol, P->L->Tp, P->L->p);

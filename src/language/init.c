@@ -79,6 +79,7 @@ gp_data *GP_DATA;
 GEN colormap, pari_graphcolors;
 
 entree  **varentries;
+long    *varpriority;
 
 THREAD pari_sp avma;
 THREAD struct pari_mainstack *pari_mainstack;
@@ -888,6 +889,8 @@ pari_init_opts(size_t parisize, ulong maxprime, ulong init_opts)
 
   primetab = cgetalloc(t_VEC, 1);
   varentries = (entree**) pari_calloc((MAXVARN+1)*sizeof(entree*));
+  varpriority = (long*)pari_malloc((MAXVARN+2)*sizeof(long)) + 1;
+  varpriority[-1] = 1-LONG_MAX;
   pari_thread_init();
   pari_init_seadata();
   pari_init_functions();
@@ -912,7 +915,6 @@ pari_close_opts(ulong init_opts)
   if ((init_opts&INIT_SIGm)) pari_sig_init(SIG_DFL);
   if (!(init_opts&INIT_noIMTm)) pari_mt_close();
 
-  while (delete_var()) /* empty */;
   for (i = 0; i < functions_tblsz; i++)
   {
     entree *ep = functions_hash[i];
@@ -923,6 +925,7 @@ pari_close_opts(ulong init_opts)
     }
   }
   free((void*)varentries);
+  free((void*)(varpriority-1));
   free((void*)primetab);
   pari_close_seadata();
   pari_thread_close();

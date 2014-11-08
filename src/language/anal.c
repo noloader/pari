@@ -199,6 +199,93 @@ find:
   return retval;
 }
 
+/********************************************************************/
+/**                                                                **/
+/**                   HASH TABLE MANIPULATIONS                     **/
+/**                                                                **/
+/********************************************************************/
+/* return hashing value for identifier s */
+static ulong
+hashvalue(const char *s)
+{
+  ulong n = 0, c;
+  while ( (c = (ulong)*s++) ) n = (n<<1) ^ c;
+  return n;
+}
+
+static ulong
+hashvalue_raw(const char *s, long len)
+{
+  long n = 0, i;
+  for(i=0; i<len; i++) { n = (n<<1) ^ *s; s++; }
+  return n;
+}
+
+static void
+insertep(entree *ep, entree **table, long hash)
+{
+  ep->hash = hash;
+  hash %= functions_tblsz;
+  ep->next = table[hash];
+  table[hash] = ep;
+}
+
+static entree *
+initep(const char *name, long len)
+{
+  const long add = 4*sizeof(long);
+  entree *ep = (entree *) pari_calloc(sizeof(entree) + add + len+1);
+  entree *ep1 = initial_value(ep);
+  char *u = (char *) ep1 + add;
+  ep->name    = u; strncpy(u, name,len); u[len]=0;
+  ep->valence = EpNEW;
+  ep->value   = NULL;
+  ep->menu    = 0;
+  ep->code    = NULL;
+  ep->help    = NULL;
+  ep->pvalue  = NULL;
+  ep->arity   = 0;
+  return ep;
+}
+
+/* Look for s of length len in T; if 'insert', insert if missing */
+static entree *
+findentry(const char *s, long len, entree **T, int insert)
+{
+  long hash = hashvalue_raw(s, len);
+  entree *ep;
+  for (ep = T[hash % functions_tblsz]; ep; ep = ep->next)
+    if (ep->hash == hash)
+    {
+      const char *t = ep->name;
+      if (!strncmp(t, s, len) && !t[len]) return ep;
+    }
+  /* not found */
+  if (insert) { ep = initep(s,len); insertep(ep, T, hash); }
+  return ep;
+}
+entree *
+pari_is_default(const char *s)
+{ return findentry(s, strlen(s), defaults_hash, 0); }
+entree *
+is_entry(const char *s)
+{ return findentry(s, strlen(s), functions_hash, 0); }
+entree *
+fetch_entry_raw(const char *s, long len)
+{ return findentry(s, len, functions_hash, 1); }
+entree *
+fetch_entry(const char *s) { return fetch_entry_raw(s, strlen(s)); }
+entree *
+fetch_member(const char *s, long len)
+{
+  pari_sp av = avma;
+  char *t = stack_malloc(len+1);
+  entree *ep;
+  t[0] = '_'; strncpy(t+1, s, len); t[++len] = 0; /* prepend '_' */
+  ep = fetch_entry_raw(t, len);
+  avma = av; return ep;
+}
+
 /*******************************************************************/
 /*                                                                 */
 /*                  SYNTACTICAL ANALYZER FOR GP                    */
@@ -285,34 +372,24 @@ check_proto(const char *code)
   if (arity > 20) pari_err_IMPL("functions with more than 20 parameters");
   return arity;
 }
-
-static entree *
-installep(const char *name, long len, entree **table)
+static void
+check_name(const char *name)
 {
-  const long add = 4*sizeof(long);
-  entree *ep = (entree *) pari_calloc(sizeof(entree) + add + len+1);
-  entree *ep1 = initial_value(ep);
-  char *u = (char *) ep1 + add;
-  ep->name    = u; strncpy(u, name,len); u[len]=0;
-  ep->valence = EpNEW;
-  ep->value   = NULL;
-  ep->menu    = 0;
-  ep->code    = NULL;
-  ep->help    = NULL;
-  ep->pvalue  = NULL;
-  ep->arity   = 0;
-  ep->next    = *table;
-  return *table = ep;
+  const char *s = name;
+  if (isalpha((int)*s))
+    while (is_keyword_char(*++s)) /* empty */;
+  if (*s) pari_err(e_SYNTAX,"not a valid identifier", s, name);
 }
 
 entree *
 install(void *f, const char *name, const char *code)
 {
-  long hash, arity;
-  entree *ep = is_entry_intern(name, functions_hash, &hash);
+  long arity = check_proto(code);
+  entree *ep;
 
-  arity=check_proto(code);
-  if (ep && ep->valence != EpNEW)
+  check_name(name);
+  ep = fetch_entry(name);
+  if (ep->valence != EpNEW)
   {
     if (ep->valence != EpINSTALL)
       pari_err(e_MISC,"[install] identifier '%s' already in use", name);
@@ -321,16 +398,11 @@ install(void *f, const char *name, const char *code)
   }
   else
   {
-    const char *s = name;
-    if (isalpha((int)*s))
-      while (is_keyword_char(*++s)) /* empty */;
-    if (*s) pari_err(e_SYNTAX,"not a valid identifier", s, name);
-    if (!ep) ep = installep(name, strlen(name), functions_hash + hash);
-    ep->value=f; ep->valence=EpINSTALL;
+    ep->value = f;
+    ep->valence = EpINSTALL;
   }
   ep->code = pari_strdup(code);
-  ep->arity=arity;
-  return ep;
+  ep->arity = arity; return ep;
 }
 
 /* Kill ep, i.e free all memory it references, and reset to initial value */
@@ -348,7 +420,7 @@ kill0(const char *e)
 void
 addhelp(const char *e, char *s)
 {
-  entree *ep = fetch_entry(e, strlen(e));
+  entree *ep = fetch_entry(e);
   if (ep->help && !EpSTATIC(ep)) pari_free((void*)ep->help);
   ep->help = pari_strdup(s);
 }
@@ -723,100 +795,35 @@ chartoGENstr(char c)
   char *t = GSTR(x);
   t[0] = c; t[1] = 0; return x;
 }
-/********************************************************************/
-/**                                                                **/
-/**                   HASH TABLE MANIPULATIONS                     **/
-/**                                                                **/
-/********************************************************************/
-/* return hashing value for identifier s */
-static ulong
-hashvalue(const char *s)
-{
-  ulong n = 0, c;
-  while ( (c = (ulong)*s++) ) n = (n<<1) ^ c;
-  return n % functions_tblsz;
-}
-
-static ulong
-hashvalue_raw(const char *s, long len, ulong n)
-{
-  long i;
-  for(i=0; i<len; i++) { n = (n<<1) ^ *s; s++; }
-  return n % functions_tblsz;
-}
-
-/* Looking for entry in hashtable. ep1 is the cell's first element */
-static entree *
-findentry(const char *name, long len, entree *ep1)
-{
-  entree *ep;
-  for (ep = ep1; ep; ep = ep->next)
-    if (!strncmp(ep->name, name, len) && !(ep->name)[len]) return ep;
-  return NULL; /* not found */
-}
-
-entree *
-is_entry_intern(const char *s, entree **table, long *pthash)
-{
-  long hash = hashvalue(s);
-  if (pthash) *pthash = hash;
-  return findentry(s, strlen(s), table[hash]);
-}
-
-entree *
-is_entry(const char *s)
-{
-  return is_entry_intern(s,functions_hash,NULL);
-}
-
-entree *
-fetch_entry(const char *s, long len)
-{
-  entree **funhash = functions_hash + hashvalue_raw(s, len, 0);
-  entree *ep = findentry(s, len, *funhash);
-  if (ep) return ep;
-  else return installep(s,len,funhash);
-}
-
-/* Assume s point somewhere in the code text, so s[-1]='.' and s[-2]>0
- * So many kludges, so little time */
-entree *
-fetch_member(const char *s, long len)
-{
-  entree **funhash = functions_hash+hashvalue_raw(s-1, len+1, '_');
-  entree *ep;
-  for (ep = *funhash; ep; ep = ep->next)
-  {
-    if (ep->name[0]!='_' || ep->name[1]!='.') continue;
-    if (!strncmp(ep->name+2, s, len) && !(ep->name)[len+2]) break;
-  }
-  if (ep) return ep;
-  ep=installep(s-2,len+2,funhash);
-  ((char*)ep->name)[0]='_';
-  return ep;
-}
 
 /********************************************************************/
 /*                                                                  */
 /*                Formal variables management                       */
 /*                                                                  */
 /********************************************************************/
+static long max_priority, min_priority;
 static long max_avail; /* max variable not yet used */
 static long nvar; /* first GP free variable */
 
-void pari_var_init(void) {
+void
+pari_var_init(void)
+{
+  long i;
   nvar = 0; max_avail = MAXVARN;
-  (void)fetch_var();
-  (void)fetch_named_var("x");
+  max_priority = min_priority = 0;
+  (void)fetch_user_var("x");
+  /* initialize so that people can use pol_x(i) directly */
+  for (i = 1; i <= MAXVARN; i++) varpriority[i] = -i;
+  min_priority = -MAXVARN;
 }
 long pari_var_next(void) { return nvar; }
 long pari_var_next_temp(void) { return max_avail; }
-void
+long
 pari_var_create(entree *ep)
 {
   GEN p = (GEN)initial_value(ep);
   long v;
-  if (*p) return;
+  if (*p) return varn(p);
   if (nvar == max_avail) pari_err(e_MISC,"no more variables available");
   v = nvar++;
   /* set p = pol_x(v) */
@@ -825,56 +832,74 @@ pari_var_create(entree *ep)
   gel(p,2) = gen_0;
   gel(p,3) = gen_1;
   varentries[v] = ep;
+  varpriority[v]= min_priority--;
+  return v;
 }
 
 long
 delete_var(void)
 { /* user wants to delete one of his/her/its variables */
-  if (max_avail == MAXVARN-1) return 0; /* nothing to delete */
-  max_avail++; return max_avail+1;
+  if (max_avail == MAXVARN) return 0; /* nothing to delete */
+  max_avail++;
+  if      (varpriority[max_avail] == min_priority) min_priority++;
+  else if (varpriority[max_avail] == max_priority) max_priority--;
+  return max_avail+1;
 }
 long
 fetch_var(void)
 {
   if (nvar == max_avail) pari_err(e_MISC,"no more variables available");
+  varpriority[max_avail] = min_priority--;
+  return max_avail--;
+}
+long
+fetch_var_higher(void)
+{
+  if (nvar == max_avail) pari_err(e_MISC,"no more variables available");
+  varpriority[max_avail] = ++max_priority;
   return max_avail--;
 }
 
-
-entree *
-fetch_named_var(const char *s)
+GEN
+varhigher(const char *s)
 {
-  entree **funhash = functions_hash + hashvalue(s);
-  entree *ep = findentry(s, strlen(s), *funhash);
-  if (!ep) ep = installep(s,strlen(s),funhash);
-  else switch (EpVALENCE(ep))
-  {
-    case EpVAR: return ep;
-    case EpNEW: break;
-    default: pari_err(e_MISC, "%s already exists with incompatible valence", s);
-  }
-  pari_var_create(ep);
-  ep->valence=EpVAR;
-  ep->value=initial_value(ep);
-  return ep;
+  long v;
+  if (nvar == max_avail) pari_err(e_MISC,"no more variables available");
+  v = nvar++;
+  varpriority[v]= ++max_priority;
+  if (varentries[v]) pari_free(varentries[v]);
+  varentries[v] = initep(s, strlen(s));
+  return pol_x(v);
 }
 
 long
 fetch_user_var(const char *s)
 {
-  return varn((GEN)initial_value(fetch_named_var(s)) );
+  entree *ep = fetch_entry(s);
+  long v;
+  switch (EpVALENCE(ep))
+  {
+    case EpVAR: return varn((GEN)initial_value(ep));
+    case EpNEW: break;
+    default: pari_err(e_MISC, "%s already exists with incompatible valence", s);
+  }
+  v = pari_var_create(ep);
+  ep->valence = EpVAR;
+  ep->value = initial_value(ep);
+  return v;
 }
 
 GEN
-fetch_var_value(long vx, GEN t)
+fetch_var_value(long v, GEN t)
 {
-  entree *ep = varentries[vx];
-  long vn;
+  entree *ep = varentries[v];
   if (!ep) return NULL;
-  if (!t)  return (GEN) ep->value;
-  vn=localvars_find(t,ep);
-  if (vn) return get_lex(vn);
-  return (GEN) ep->value;
+  if (t)
+  {
+    long vn = localvars_find(t,ep);
+    if (vn) return get_lex(vn);
+  }
+  return (GEN)ep->value;
 }
 
 void
@@ -897,6 +922,10 @@ name_var(long n, const char *s)
   varentries[n] = ep;
 }
 
+static int
+cmp_by_var(void *E,GEN x, GEN y)
+{ (void)E; return varncmp(varn(x),varn(y)); }
+
 GEN
 gpolvar(GEN x)
 {
@@ -907,12 +936,13 @@ gpolvar(GEN x)
     for (v = 0; v < n; v++)
     {
       entree *ep = varentries[v];
-      if (ep && ep->name[0] != '_') gel(z,k++) = (GEN)initial_value(ep);
+      if (ep && ep->name[0] != '_') gel(z,k++) = pol_x(v);
     }
     if (k <= n) {
       setlg(z,k);
       stackdummy((pari_sp)(z+n), (pari_sp)(z+k));
     }
+    gen_sort_inplace(z,NULL,cmp_by_var,NULL);
     return z;
   }
   if (typ(x)==t_PADIC) return gcopy( gel(x,2) );
@@ -924,10 +954,10 @@ gpolvar(GEN x)
 static void
 fill_hashtable_single(entree **table, entree *ep)
 {
-  long n = hashvalue(ep->name);
+  long hash = hashvalue(ep->name);
   EpSETSTATIC(ep);
-  ep->next = table[n]; table[n] = ep;
-  if (ep->code) ep->arity=check_proto(ep->code);
+  insertep(ep, table, hash);
+  if (ep->code) ep->arity = check_proto(ep->code);
   ep->pvalue = NULL;
 }
 
@@ -964,8 +994,8 @@ alias0(const char *s, const char *old)
   entree *ep, *e;
   GEN x;
 
-  ep = fetch_entry(old,strlen(old));
-  e  = fetch_entry(s,strlen(s));
+  ep = fetch_entry(old);
+  e  = fetch_entry(s);
   if (EpVALENCE(e) != EpALIAS && EpVALENCE(e) != EpNEW)
     pari_err(e_MISC,"can't replace an existing symbol by an alias");
   freeep(e);

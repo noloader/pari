@@ -44,6 +44,14 @@ evalprecp(long x)
   return v;
 }
 
+INLINE int
+varncmp(long x, long y)
+{
+  if (varpriority[x] < varpriority[y]) return  1;
+  if (varpriority[x] > varpriority[y]) return -1;
+  return 0;
+}
+
 /* Inhibit some area gerepile-wise: declare it to be a non recursive
  * type, of length l. Thus gerepile won't inspect the zone, just copy it.
  * For the following situation:

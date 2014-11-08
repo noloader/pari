@@ -829,8 +829,7 @@ closure_eval(GEN C)
     case OCpushvar:
       {
         entree *ep = (entree *)operand;
-        pari_var_create(ep);
-        gel(st,sp++)=(GEN)initial_value(ep);
+        gel(st,sp++)=pol_x(pari_var_create(ep));
         break;
       }
     case OCpushdyn:
@@ -923,7 +922,10 @@ closure_eval(GEN C)
     case OCstoredyn:
       {
         entree *ep = (entree *)operand;
-        checkvalue(ep);
+        /* light checkvalue: don't create variable */
+        if (MT_IS_THREAD)
+          pari_err(e_MISC,"mt: global variable not supported: %s",ep->name);
+        if (ep->valence==EpINSTALL) err_var(strtoGENstr(ep->name));
         changevalue(ep, gel(st,--sp));
         break;
       }
@@ -2295,7 +2297,7 @@ hash_from_link(GEN e, GEN names, int use_stack)
   for (i = 1; i < l; i++)
   {
     char *s = GSTR(gel(names,i));
-    hash_insert(h, (void*)e[i], (void*)fetch_entry(s, strlen(s)));
+    hash_insert(h, (void*)e[i], (void*)fetch_entry(s));
   }
   return h;
 }

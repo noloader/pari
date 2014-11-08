@@ -108,6 +108,7 @@ typedef struct entree {
   const char *help;
   void *pvalue;
   long arity;
+  ulong hash;
   struct entree *next;
 } entree;
 

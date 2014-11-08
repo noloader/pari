@@ -3771,7 +3771,7 @@ GEN
 nfsplitting(GEN T, GEN D)
 {
   pari_sp av = avma;
-  long d;
+  long d, v;
   GEN F, K;
   T = get_nfpol(T,&K);
   if (!K)
@@ -3797,7 +3797,8 @@ nfsplitting(GEN T, GEN D)
     D = (d <= dmax)? gel(polgalois(T,DEFAULTPREC), 1): mpfact(d);
   }
   d = itos(D);
-  if (varn(T) == 0) K = gsubst(K,0,pol_x(1));
+  v = varn(T);
+  T = leafcopy(T); setvarn(T, fetch_var_higher());
   for(F = T;;)
   {
     GEN P = gel(nffactor(K, F), 1), Q = gel(P,lg(P)-1);
@@ -3805,5 +3806,7 @@ nfsplitting(GEN T, GEN D)
     F = rnfequation(K,Q);
     if (degpol(F) == d) break;
   }
+  (void)delete_var();
+  setvarn(F,v);
   return gerepilecopy(av, F);
 }

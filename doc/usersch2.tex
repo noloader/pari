@@ -1297,7 +1297,9 @@ The answer is that variables are ordered implicitly by the interpreter:
 when a new identifier (e.g~$x$, or $y$ as above) is input, the corresponding
 variable is registered as having a strictly lower priority than any variable in
 use at this point\footnote{*}{This is not strictly true:
-the variable $x$ is predefined and always has the highest possible priority.}%
+the variable $x$ is predefined and initially has the highest possible
+priority. Variables of higher priority than $x$ can be created
+using \tet{varhigher}.}%
 . To see the ordering used by \kbd{gp} at any given time, type
 \kbd{variable()}.\kbdsidx{variable}
 

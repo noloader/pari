@@ -1176,6 +1176,7 @@ nfiso0(GEN a, GEN b, long fliso)
   pari_sp av = avma;
   long i, vb, lx;
   GEN nfa, nfb, y, la, lb;
+  int newvar;
 
   a = get_nfpol(a, &nfa);
   b = get_nfpol(b, &nfb);
@@ -1186,16 +1187,12 @@ nfiso0(GEN a, GEN b, long fliso)
 
   if (nfb) lb = gen_1; else b = ZX_Q_normalize(b,&lb);
   if (nfa) la = gen_1; else a = ZX_Q_normalize(a,&la);
-  a = leafcopy(a); setvarn(a,0);
-  b = leafcopy(b); vb = varn(b);
+  vb = varn(b); newvar = (varncmp(vb,varn(a)) <= 0);
+  if (newvar) { a = leafcopy(a); setvarn(a, fetch_var_higher()); }
   if (nfb)
-  {
-    if (vb == 0) nfb = gsubst(nfb, 0, pol_x(MAXVARN));
     y = lift_intern(nfroots(nfb,a));
-  }
   else
   {
-    if (vb == 0) setvarn(b, fetch_var());
     y = gel(polfnf(a,b),1); lx = lg(y);
     for (i=1; i<lx; i++)
     {
@@ -1203,10 +1200,10 @@ nfiso0(GEN a, GEN b, long fliso)
       if (degpol(t) != 1) { setlg(y,i); break; }
       gel(y,i) = gneg_i(lift_intern(gel(t,2)));
     }
-    if (vb == 0) (void)delete_var();
     settyp(y, t_VEC);
     gen_sort_inplace(y, (void*)&cmp_RgX, &cmp_nodata, NULL);
   }
+  if (newvar) (void)delete_var();
   lx = lg(y); if (lx==1) { avma=av; return gen_0; }
   for (i=1; i<lx; i++)
   {

@@ -331,7 +331,6 @@ is_keyword_char(char c) { return (isalnum((int)c) || c=='_'); }
 /* Interfaces (GP, etc.) */
 hashtable *hash_from_link(GEN e, GEN names, int use_stack);
 void gen_relink(GEN x, hashtable *table);
-entree* is_entry_intern(const char *s, entree **table, long *hash);
 entree* do_alias(entree *ep);
 char* get_sep(const char *t);
 long get_int(const char *s, long dflt);

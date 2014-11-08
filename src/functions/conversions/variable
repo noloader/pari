@@ -27,8 +27,8 @@ Doc:
  @eprog\noindent can be used to test whether a variable is attached to $x$.
 
  If $x$ is omitted, returns the list of user variables known to the
- interpreter, by order of decreasing priority. (Highest priority is $x$,
- which always come first.)
+ interpreter, by order of decreasing priority. (Highest priority is initially
+ $x$, which come first until \tet{varhigher} is used.)
 
 Variant: However, in library mode, this function should not be used for $x$
  non-\kbd{NULL}, since \tet{gvar} is more appropriate. Instead, for

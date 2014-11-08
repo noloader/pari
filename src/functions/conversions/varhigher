@@ -1,0 +1,55 @@
+Function: varhigher
+Section: conversions
+C-Name: varhigher
+Prototype: s
+Help: varhigher(name): return a new variable 'name' whose priority is higher
+ than all currently existing variables.
+Doc: return a new variable \emph{name} whose priority is higher
+ than all currently existing variables.
+ \bprog
+ ? Pol([x,x], t)
+  ***   at top-level: Pol([x,x],t)
+  ***                 ^------------
+  *** Pol: incorrect priority in gtopoly: variable x <= t
+ ? t = varhigher("t");
+ ? Pol([x,x], t)
+ %3 = x*t + x
+ @eprog\noindent This routine is useful since new GP variables directly
+ created by the interpreter always have lower priority than existing
+ GP variable. When some basic objects already exist in a variable
+ that is incompatible with some function requirement, you can now
+ create a new variable with a suitable priority instead of changing variables
+ in existing objects:
+ \bprog
+ ? K = nfinit(x^2+1);
+ ? rnfequation(K,y^2-2)
+  ***   at top-level: rnfequation(K,y^2-2)
+  ***                 ^--------------------
+  *** rnfequation: incorrect priority in rnfequation: variable y >= x
+ ? y = varhigher("y");
+ ? rnfequation(K, y^2-2)
+ %3 = y^4 - 2*y^2 + 9
+ @eprog\noindent
+ \misctitle{Caution 1}
+ The \emph{name} is an arbitrary character string, only used for display
+ purposes and need not be related to the GP variable holding the result, nor
+ to be a valid variable name. In particular the \emph{name} can
+ not be used to retrieve the variable, it is not even present in the parser's
+ hash tables.
+ \bprog
+ ? x = varhigher("#");
+ ? x^2
+ %2 = #^2
+ @eprog
+ \misctitle{Caution 2} There are a limited number of variables and each
+ call to \kbd{varhigher} uses up one slot: do not create
+ new variables in this way unless it's absolutely necessary.
+ \bprog
+ ? n = 0; while(1,varhigher("x"); n++)
+  ***   at top-level: n=0;while(1,varhigher("x");n++)
+  ***                             ^-------------------
+  *** varhigher: no more variables available.
+  ***   Break loop: type 'break' to go back to GP prompt
+ break> n
+ 65510
+ @eprog

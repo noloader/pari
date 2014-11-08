@@ -2487,35 +2487,26 @@ resultant2(GEN x, GEN y)
   av = avma; return gerepileupto(av,det(sylvestermatrix_i(x,y)));
 }
 
-/* Let vx = main variable of x. Return a polynomial in variable 0:
- * if vx is 0 and v != 0, set *mx = 1 and replace vx by pol_x(MAXVARN)
- * if vx = v, copy x, set its main variable to 0 and return
- * if vx < v, return subst(x, v, pol_x(0))
- * if vx > v, return scalarpol(x, 0) */
+/* If x a t_POL, let vx = main variable of x; return a t_POL in variable v0:
+ * if vx <= v, return subst(x, v, pol_x(v0))
+ * if vx >  v, return scalarpol(x, v0) */
 static GEN
-fix_pol(GEN x, long v, long *mx)
+fix_pol(GEN x, long v, long v0)
 {
   long vx;
   if (typ(x) != t_POL) return x;
   vx = varn(x);
   if (v == vx)
   {
-    if (v) { x = leafcopy(x); setvarn(x, 0); }
+    if (v) { x = leafcopy(x); setvarn(x, v0); }
     return x;
-  }
-  if (!vx)
-  {
-    *mx = 1;
-    x = poleval(x, pol_x(MAXVARN));
-    vx = varn(x);
-    if (v == vx) { setvarn(x, 0); return x; }
   }
   if (varncmp(v, vx) > 0)
   {
-    x = gsubst(x,v,pol_x(0));
-    if (typ(x) == t_POL && varn(x) == 0) return x;
+    x = gsubst(x,v,pol_x(v0));
+    if (typ(x) == t_POL && varn(x) == v0) return x;
   }
-  return scalarpol_shallow(x, 0);
+  return scalarpol_shallow(x, v0);
 }
 
 /* resultant of x and y with respect to variable v, or with respect to their
@@ -2523,13 +2514,14 @@ fix_pol(GEN x, long v, long *mx)
 GEN
 polresultant0(GEN x, GEN y, long v, long flag)
 {
-  long m = 0;
+  long v0 = 0;
   pari_sp av = avma;
 
   if (v >= 0)
   {
-    x = fix_pol(x,v, &m);
-    y = fix_pol(y,v, &m);
+    v0 = fetch_var_higher();
+    x = fix_pol(x,v, v0);
+    y = fix_pol(y,v, v0);
   }
   switch(flag)
   {
@@ -2538,30 +2530,26 @@ polresultant0(GEN x, GEN y, long v, long flag)
     case 1: x=resultant2(x,y); break;
     default: pari_err_FLAG("polresultant");
   }
-  if (m) x = gsubst(x,MAXVARN,pol_x(0));
+  if (v >= 0) (void)delete_var();
   return gerepileupto(av,x);
 }
 GEN
 polresultantext0(GEN x, GEN y, long v)
 {
   GEN R, U, V;
-  long m = 0;
+  long v0 = 0;
   pari_sp av = avma;
 
   if (v >= 0)
   {
-    x = fix_pol(x,v, &m);
-    y = fix_pol(y,v, &m);
+    v0 = fetch_var_higher();
+    x = fix_pol(x,v, v0);
+    y = fix_pol(y,v, v0);
   }
   R = subresext_i(x,y, &U,&V);
-  if (m)
+  if (v >= 0)
   {
-    U = gsubst(gsubst(U, 0, pol_x(v)), MAXVARN, pol_x(0));
-    V = gsubst(gsubst(V, 0, pol_x(v)), MAXVARN, pol_x(0));
-    R = gsubst(R,MAXVARN,pol_x(0));
-  }
-  else if (v >= 0)
-  {
+    (void)delete_var();
     if (typ(U) == t_POL && varn(U) != v) U = poleval(U, pol_x(v));
     if (typ(V) == t_POL && varn(V) != v) V = poleval(V, pol_x(v));
   }
@@ -2586,7 +2574,7 @@ GEN
 RgXQ_charpoly(GEN x, GEN T, long v)
 {
   pari_sp av = avma;
-  long d = degpol(T), dx, vx, vp;
+  long d = degpol(T), dx, vx, vp, v0;
   GEN ch, L;
 
   if (typ(x) != t_POL) return caract_const(av, x, v, d);
@@ -2598,17 +2586,13 @@ RgXQ_charpoly(GEN x, GEN T, long v)
   if (dx <= 0)
     return dx? monomial(gen_1, d, v): caract_const(av, gel(x,2), v, d);
 
+  v0 = fetch_var_higher();
   x = RgX_neg(x);
-  if (varn(x) == MAXVARN) { setvarn(x, 0); T = leafcopy(T); setvarn(T, 0); }
-  gel(x,2) = gadd(gel(x,2), pol_x(MAXVARN));
+  gel(x,2) = gadd(gel(x,2), pol_x(v));
+  setvarn(x, v0);
+  T = leafcopy(T); setvarn(T, v0);
   ch = resultant_all(T, x, NULL);
-  if (v != MAXVARN)
-  {
-    if (typ(ch) == t_POL && varn(ch) == MAXVARN)
-      setvarn(ch, v);
-    else
-      ch = gsubst(ch, MAXVARN, pol_x(v));
-  }
+  (void)delete_var();
   /* test for silly input: x mod (deg 0 polynomial) */
   if (typ(ch) != t_POL) { avma = av; return pol_1(v); }
 
@@ -2830,18 +2814,23 @@ RgX_disc(GEN x) { pari_sp av = avma; return gerepileupto(av, RgX_disc_aux(x)); }
 GEN
 poldisc0(GEN x, long v)
 {
-  long i;
   pari_sp av;
-  GEN z, D;
-
   switch(typ(x))
   {
     case t_POL:
-      av = avma; i = 0;
-      if (v >= 0 && v != varn(x)) x = fix_pol(x,v, &i);
+    {
+      GEN D;
+      long v0 = -1;
+      av = avma;
+      if (v >= 0 && v != varn(x))
+      {
+        v0 = fetch_var_higher();
+        x = fix_pol(x,v, v0);
+      }
       D = RgX_disc_aux(x);
-      if (i) D = gsubst(D, MAXVARN, pol_x(0));
+      if (v0 >= 0) (void)delete_var();
       return gerepileupto(av, D);
+    }
 
     case t_COMPLEX:
       return utoineg(4);
@@ -2855,9 +2844,12 @@ poldisc0(GEN x, long v)
       av = avma; return gerepileuptoint(av, qfb_disc(x));
 
     case t_VEC: case t_COL: case t_MAT:
-      z = cgetg_copy(x, &i);
+    {
+      long i;
+      GEN z = cgetg_copy(x, &i);
       for (i--; i; i--) gel(z,i) = poldisc0(gel(x,i), v);
       return z;
+    }
   }
   pari_err_TYPE("poldisc",x);
   return NULL; /* not reached */

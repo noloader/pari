@@ -1316,19 +1316,14 @@ variable we can create.
 \fun{long}{pari_var_next_temp}{} returns \kbd{max\_avail}, the number of the
 next temp variable we can create.
 
-\fun{void}{pari_var_create}{entree *ep} low-level initialization of an
-\kbd{EpVAR}.
+\fun{long}{pari_var_create}{entree *ep} low-level initialization of an
+\kbd{EpVAR}. Return the associated (new) variable number.
 
 \subsec{User variables}
 
 \fun{long}{fetch_user_var}{char *s} returns a user variable whose name
 is \kbd{s}, creating it is needed (and using an existing variable otherwise).
 Returns its variable number.
-
-\fun{entree*}{fetch_named_var}{char *s} as \kbd{fetch\_user\_var}, but
-returns an \kbd{entree*} suitable for inclusion in the interpreter hashlists
-of symbols, not a variable number. \kbd{fetch\_user\_var} is a trivial
-wrapper.
 
 \fun{GEN}{fetch_var_value}{long v} returns a shallow copy of the
 current value of the variable numbered $v$. Return \kbd{NULL} for a temporary
@@ -11420,8 +11415,9 @@ instruction request the iterator to terminate immediately.
 
 \section{Defaults}
 
-\fun{int}{pari_is_default}{const char *s} return $1$ if $s$ is the name
-of a default, $0$ otherwise.
+\fun{entree*}{pari_is_default}{const char *s} return the \kbd{entree}
+structure associated to $s$ if it is the name of a default, \kbd{NULL}
+otherwise.
 
 \fun{GEN}{setdefault}{const char *s, const char *v, long flag} is the
 low-level function underlying \kbd{default0}. If $s$ is \kbd{NULL}, call all

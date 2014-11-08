@@ -2169,11 +2169,12 @@ void
 dbgGEN(GEN x, long nb) { dbg(x,nb,0); }
 
 static void
-print_entree(entree *ep, long hash)
+print_entree(entree *ep)
 {
   pari_printf(" %s ",ep->name); dbg_addr((ulong)ep);
-  pari_printf(":\n   hash = %3ld, menu = %2ld, code = %-10s",
-            hash, ep->menu, ep->code? ep->code: "NULL");
+  pari_printf(": hash = %ld [%ld]\n", ep->hash % functions_tblsz, ep->hash);
+  pari_printf("   menu = %2ld, code = %-10s",
+              ep->menu, ep->code? ep->code: "NULL");
   if (ep->next)
   {
     pari_printf("next = %s ",(ep->next)->name);
@@ -2208,16 +2209,15 @@ print_functions_hash(const char *s)
     for(; n<=m; n++)
     {
       pari_printf("*** hashcode = %lu\n",n);
-      for (ep=functions_hash[n]; ep; ep=ep->next)
-        print_entree(ep,n);
+      for (ep=functions_hash[n]; ep; ep=ep->next) print_entree(ep);
     }
     return;
   }
   if (is_keyword_char((int)*s))
   {
-    ep = is_entry_intern(s,functions_hash,&n);
+    ep = is_entry(s);
     if (!ep) pari_err(e_MISC,"no such function");
-    print_entree(ep,n); return;
+    print_entree(ep); return;
   }
   if (*s=='-')
   {
@@ -2234,11 +2234,7 @@ print_functions_hash(const char *s)
   for (n=0; n<functions_tblsz; n++)
   {
     long cnt = 0;
-    for (ep=functions_hash[n]; ep; ep=ep->next)
-    {
-      print_entree(ep,n);
-      cnt++;
-    }
+    for (ep=functions_hash[n]; ep; ep=ep->next) { print_entree(ep); cnt++; }
     Total += cnt;
     if (cnt > Max) Max = cnt;
   }
@@ -2254,10 +2250,8 @@ static const char *
 get_var(long v, char *buf)
 {
   entree *ep = varentries[v];
-
   if (ep) return (char*)ep->name;
-  if (v==MAXVARN) return "#";
-  sprintf(buf,"#<%d>",(int)v); return buf;
+  sprintf(buf,"t%d",(int)v); return buf;
 }
 
 static void
@@ -4236,11 +4230,11 @@ readobj(FILE *f, int *ptc, hashtable *H)
         x = rdGEN(f);
         if (H) gen_relink(x, H);
         err_printf("setting %s\n",s);
-        changevalue(fetch_named_var(s), x);
+        changevalue(varentries[fetch_user_var(s)], x);
       }
       else
       {
-        pari_var_create(fetch_entry(s, strlen(s)));
+        pari_var_create(fetch_entry(s));
         x = gnil;
       }
       break;

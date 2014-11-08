@@ -742,7 +742,7 @@ setdefault(const char *s, const char *v, long flag)
     pari_stack_delete(&st);
     return gnil;
   }
-  ep = is_entry_intern(s, defaults_hash, NULL);
+  ep = pari_is_default(s);
   if (!ep)
   {
     pari_err(e_MISC,"unknown default: %s",s);
@@ -750,9 +750,6 @@ setdefault(const char *s, const char *v, long flag)
   }
   return call_f2(ep, v, flag);
 }
-int
-pari_is_default(const char *s)
-{ return !!is_entry_intern(s, defaults_hash, NULL); }
 
 GEN
 default0(const char *a, const char *b) { return setdefault(a,b, b? d_SILENT: d_RETURN); }
