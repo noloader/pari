@@ -3230,6 +3230,11 @@ where $x_1$, $x_2$ are the two halves of $x$.
 \fun{ulong}{coreu}{ulong n}, unique squarefree integer $d$ dividing $n$ such
 that $n/d$ is a square.
 
+\fun{ulong}{corediscs}{long d, ulong *pt_f}, $d$ (possibly negative)
+being congruent to $0$ or $1$ modulo $4$, return the fundamental
+discriminant $D$ such that $d=D*f^2$ and set \kbd{*pt\_f} to $f$
+(if \kbd{*pt\_f} not \kbd{NULL}).
+
 \fun{ulong}{eulerphiu}{ulong n}, Euler's totient function of $n$.
 
 \fun{ulong}{eulerphiu_fact}{GEN fa}, Euler's totient function of the

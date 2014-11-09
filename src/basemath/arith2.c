@@ -975,6 +975,18 @@ _mod4(GEN c) {
   return r;
 }
 
+long
+corediscs(long D, ulong *f)
+{
+  /* D = f^2 dK */
+  long dK = D>=0 ? coreu(D) : -(long) coreu(-(ulong) D);
+  ulong dKmod4 = ((ulong)dK)&3UL;
+  if (dKmod4 == 2 || dKmod4 == 3)
+    dK *= 4;
+  if (f) *f = usqrt((ulong)(D/dK));
+  return D;
+}
+
 GEN
 coredisc(GEN n)
 {

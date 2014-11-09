@@ -1460,6 +1460,7 @@ GEN     core2partial(GEN n, long l);
 GEN     coredisc(GEN n);
 GEN     coredisc0(GEN n,long flag);
 GEN     coredisc2(GEN n);
+long    corediscs(long D, ulong *f);
 GEN     digits(GEN N, GEN B);
 GEN     divisors(GEN n);
 GEN     divisorsu(ulong n);
