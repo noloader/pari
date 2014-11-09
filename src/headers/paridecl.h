@@ -176,6 +176,8 @@ GEN     random_F2xqE(GEN a2, GEN a6, GEN T);
 
 /* Fle.c */
 
+ulong   Fl_elldisc(ulong a4, ulong a6, ulong p);
+ulong   Fl_elldisc_pre(ulong a4, ulong a6, ulong p, ulong pi);
 ulong   Fl_ellj(ulong a4, ulong a6, ulong p);
 void    Fl_ellj_to_a4a6(ulong j, ulong p, ulong *pt_a4, ulong *pt_a6);
 void    Fl_elltwist(ulong a4, ulong a6, ulong D, ulong p, ulong *pt_a4, ulong *pt_a6);

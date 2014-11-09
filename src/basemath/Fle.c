@@ -497,6 +497,32 @@ Fl_ellj_to_a4a6(ulong j, ulong p, ulong *pt_a4, ulong *pt_a6)
   }
 }
 
+ulong
+Fl_elldisc_pre(ulong a4, ulong a6, ulong p, ulong pi)
+{
+  /* D = -(4A^3 + 27B^2) */
+  ulong t1, t2;
+  t1 = Fl_mul_pre(a4, Fl_sqr_pre(a4, p, pi), p, pi);
+  t1 = Fl_double(Fl_double(t1, p), p);
+  t2 = Fl_mul_pre(27 % p, Fl_sqr_pre(a6, p, pi), p, pi);
+  return Fl_neg(Fl_add(t1, t2, p), p);
+}
+
+ulong
+Fl_elldisc(ulong a4, ulong a6, ulong p)
+{
+  if (SMALL_ULONG(p))
+  {
+    /* D = -(4A^3 + 27B^2) */
+    ulong t1, t2;
+    t1 = Fl_mul(a4, Fl_sqr(a4, p), p);
+    t1 = Fl_double(Fl_double(t1, p), p);
+    t2 = Fl_mul(27 % p, Fl_sqr(a6, p), p);
+    return Fl_neg(Fl_add(t1, t2, p), p);
+  } else
+    return Fl_elldisc_pre(a4, a6, p, get_Fl_red(p));
+}
+
 void
 Fl_elltwist(ulong a4, ulong a6, ulong D, ulong p, ulong *pt_a4, ulong *pt_a6)
 {

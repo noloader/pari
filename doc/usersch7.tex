@@ -499,6 +499,13 @@ discriminant \kbd{CM} and use a faster algorithm. Useful when the curve is
 the reduction of $E/\Q$, which has CM by a principal order, and we need the
 trace of Frobenius for many distinct $p$, see \tet{ellQ_get_CM}.
 
+\fun{ulong}{Fl_elldisc}{ulong a4, ulong a6, ulong p}
+returns the discriminant of the curve $E$.
+
+\fun{ulong}{Fl_elldisc_pre}{ulong a4, ulong a6, ulong p, ulong pi}
+returns the discriminant of the curve $E$, assuming $pi$ is the pseudo inverse
+of $p$.
+
 \fun{ulong}{Fl_ellj}{ulong a4, ulong a6, ulong p}
 returns the $j$-invariant of the curve $E$.
 
