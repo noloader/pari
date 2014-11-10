@@ -196,6 +196,7 @@ GEN     Flj_mulu_pre(GEN P, ulong n, ulong a4, ulong p, ulong pi);
 GEN     Flj_neg(GEN Q, ulong p);
 GEN     Flj_to_Fle_pre(GEN P, ulong p, ulong pi);
 GEN     random_Fle(ulong a4, ulong a6, ulong p);
+GEN     random_Fle_pre(ulong a4, ulong a6, ulong p, ulong pi);
 GEN     random_Flj_pre(ulong a4, ulong a6, ulong p, ulong pi);
 
 /* Flx.c */

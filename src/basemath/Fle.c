@@ -266,8 +266,9 @@ Flj_to_Fle_pre(GEN P, ulong p, ulong pi)
   }
 }
 
-GEN
-random_Flj_pre(ulong a4, ulong a6, ulong p, ulong pi)
+INLINE void
+random_Fle_pre_indir(ulong a4, ulong a6, ulong p, ulong pi,
+                     ulong *pt_x, ulong *pt_y)
 {
   ulong x, x2, y, rhs;
   do
@@ -277,6 +278,14 @@ random_Flj_pre(ulong a4, ulong a6, ulong p, ulong pi)
     rhs = Fl_add(Fl_mul_pre(x, Fl_add(x2, a4, p), p, pi), a6, p);
   } while ((!rhs && !Fl_add(Fl_triple(x2,p),a4,p)) || krouu(rhs, p) < 0);
   y = Fl_sqrt_pre(rhs, p, pi);
+  *pt_x = x; *pt_y = y;
+}
+
+GEN
+random_Flj_pre(ulong a4, ulong a6, ulong p, ulong pi)
+{
+  ulong x, y;
+  random_Fle_pre_indir(a4, a6, p, pi, &x, &y);
   return mkvecsmall3(x, y, 1);
 }
 
@@ -432,17 +441,18 @@ Fle_mul(GEN P, GEN n, ulong a4, ulong p)
 /* Finds a random non-singular point on E */
 
 GEN
+random_Fle_pre(ulong a4, ulong a6, ulong p, ulong pi)
+{
+  ulong x, y;
+  random_Fle_pre_indir(a4, a6, p, pi, &x, &y);
+  return mkvecsmall2(x, y);
+}
+
+GEN
 random_Fle(ulong a4, ulong a6, ulong p)
 {
-  ulong x, x2, y, rhs;
-  do
-  {
-    x   = random_Fl(p); /*  x^3+a4*x+a6 = x*(x^2+a4)+a6  */
-    x2  = Fl_sqr(x, p);
-    rhs = Fl_add(Fl_mul(x, Fl_add(x2, a4, p), p), a6, p);
-  } while ((!rhs && !Fl_add(Fl_triple(x2,p),a4,p))
-          || krouu(rhs, p) < 0);
-  y = Fl_sqrt(rhs, p);
+  ulong x, y, pi = get_Fl_red(p);
+  random_Fle_pre_indir(a4, a6, p, pi, &x, &y);
   return mkvecsmall2(x, y);
 }
 
