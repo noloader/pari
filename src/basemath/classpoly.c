@@ -86,31 +86,29 @@ famatsmall_divexact(GEN a, GEN b)
  */
 static long
 test_curve_order(
-  norm_eqn_t ne, ulong a4, ulong a6, long N[2], GEN n[2],
+  norm_eqn_t ne, ulong a4, ulong a6,
+  long N0, long N1, GEN n0, GEN n1,
   long hasse[2])
 {
   pari_sp ltop = avma, av;
-  ulong A4[2], A6[2];
-  long m[2];
+  ulong a4t, a6t;
+  long m0, m1;
   long hasse_low, hasse_high;
   ulong p = ne->p, pi = ne->pi, T = ne->T;
-  ulong s = 0;
   ulong swapped = 0;
 
   if (p <= 11) {
     long card = (long)p + 1 - Fl_elltrace(a4, a6, p);
-    return card == N[0] || card == N[1];
+    return card == N0 || card == N1;
   }
 
-  /* [A4[0], A6[0]] is the given curve and [A4[1], A6[1]] is its
-   * quadratic twist. */
-  A4[0] = a4;
-  A6[0] = a6;
-  Fl_elltwist(a4, a6, T, p, &A4[1], &A6[1]);
+  /* [a4, a6] is the given curve and [a4t, a6t] is its quadratic
+   * twist. */
+  Fl_elltwist(a4, a6, T, p, &a4t, &a6t);
 
-  m[0] = m[1] = 1;
+  m0 = m1 = 1;
 
-  if (N[0] + N[1] != 2 * (long)p + 2)
+  if (N0 + N1 != 2 * (long)p + 2)
     pari_err_BUG("test_curve_order");
 
   hasse_low = hasse[0];
@@ -121,20 +119,19 @@ test_curve_order(
     GEN pt, Q, tmp;
     long a1, x, n_s;
 
-    pt = random_Flj_pre(A4[s], A6[s], p, pi);
-    Q = Flj_mulu_pre(pt, m[s], A4[s], p, pi);
+    pt = random_Flj_pre(a4, a6, p, pi);
+    Q = Flj_mulu_pre(pt, m0, a4, p, pi);
     /* FIXME: This is wasteful -- try to work out how to go back to
-     * using the e[s]. */
-    tmp = gcopy(n[s]);
-    famatsmall_divexact(tmp, factoru(m[s]));
-    n_s = Flj_order_ufact(Q, N[s] / m[s], tmp, A4[s], p, pi);
+     * using the e0. */
+    tmp = gcopy(n0);
+    famatsmall_divexact(tmp, factoru(m0));
+    n_s = Flj_order_ufact(Q, N0 / m0, tmp, a4, p, pi);
 
     if (n_s == 0) {
-      /* If m[0] divides N[1] and m[1] divides N[0] and N[0] < N[1],
+      /* If m0 divides N1 and m1 divides N0 and N0 < N1,
        * then swap. */
-      if ( ! swapped && N[1] % m[0] == 0 && N[0] % m[1] == 0) {
-        swap(n[0], n[1]);
-        lswap(N[0], N[1]);
+      if ( ! swapped && N1 % m0 == 0 && N0 % m1 == 0) {
+        swapspec(n0, n1, N0, N1);
         swapped = 1;
         continue;
       } else {
@@ -143,13 +140,13 @@ test_curve_order(
       }
     }
 
-    m[s] *= n_s;
-    a1 = (2 * p + 2) % m[1];
+    m0 *= n_s;
+    a1 = (2 * p + 2) % m1;
     /* Using ceil(n/d) = (n + d - 1)/d */
-    x = (hasse_low + m[0] - 1) / m[0];
-    x *= m[0];
-    for ( ; x <= hasse_high; x += m[0]) {
-      if ((x % m[1]) == a1 && x != N[0] && x != N[1])
+    x = (hasse_low + m0 - 1) / m0;
+    x *= m0;
+    for ( ; x <= hasse_high; x += m0) {
+      if ((x % m1) == a1 && x != N0 && x != N1)
         break;
     }
     /* We exited the loop because we finished iterating, not because
@@ -160,7 +157,9 @@ test_curve_order(
       return 1;
     }
 
-    s = 1 - s;
+    lswap(a4, a4t);
+    lswap(a6, a6t);
+    lswap(m0, m1);
     avma = av;
   }
 }
@@ -182,8 +181,8 @@ find_j_inv_with_given_trace(
 {
   pari_sp ltop = avma, av;
   long curves_tested = 0, batch_size;
-  long N[2], hasse[2];
-  GEN n[2];
+  long N0, N1, hasse[2];
+  GEN n0, n1;
   long i, found = 0;
   ulong p = ne->p, pi = ne->pi;
   long t = ne->t;
@@ -202,14 +201,14 @@ find_j_inv_with_given_trace(
     return 1;
   }
 
-  N[0] = (long)p1 - t;
-  N[1] = (long)p1 + t;
-  n[0] = factoru(N[0]);
-  n[1] = factoru(N[1]);
+  N0 = (long)p1 - t;
+  N1 = (long)p1 + t;
+  n0 = factoru(N0);
+  n1 = factoru(N1);
 
   /* FIXME: Select m more intelligently.  Currently just the biggest
-   * common divisor of N[0] and N[1] less than 39. */
-  m = cgcd(N[0], N[1]);
+   * common divisor of N0 and N1 less than 39. */
+  m = cgcd(N0, N1);
   av = avma;
   if (m > MAX_X1_CURVE_LVL) {
     GEN factm = factoru(m);
@@ -260,7 +259,7 @@ find_j_inv_with_given_trace(
       tP = Flj_mulu_pre(P, t, a4, p, pi);
 
       if (jac_eq_or_opp(p1P, tP, p, pi)
-          && test_curve_order(ne, a4, a6, N, n, hasse)) {
+          && test_curve_order(ne, a4, a6, N0, N1, n0, n1, hasse)) {
         found = 1;
         break;
       }

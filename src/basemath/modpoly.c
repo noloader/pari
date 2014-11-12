@@ -897,7 +897,7 @@ select_curve_with_L_tors_point(
   norm_eqn_t ne)
 {
   pari_sp av = avma;
-  ulong A4[2], A6[2], s = 0;
+  ulong A4, A4t, A6, A6t;
   ulong p = ne->p, pi = ne->pi;
   GEN P;
   if (card % L != 0) {
@@ -905,8 +905,8 @@ select_curve_with_L_tors_point(
                  "Cardinality not divisible by L");
   }
 
-  Fl_ellj_to_a4a6(j, p, &A4[0], &A6[0]);
-  Fl_elltwist(A4[0], A6[0], ne->T, p, &A4[1], &A6[1]);
+  Fl_ellj_to_a4a6(j, p, &A4, &A6);
+  Fl_elltwist(A4, A6, ne->T, p, &A4t, &A6t);
 
   /* Either E = [a4, a6] or its twist has cardinality divisible by L
    * because of the choice of p and t earlier on.  We find out which
@@ -914,15 +914,16 @@ select_curve_with_L_tors_point(
    * Sutherland 2012. */
   while (1) {
     ulong i;
-    P = find_L_tors_point(&i, A4[s], A6[s], p, pi, n, L, val);
+    P = find_L_tors_point(&i, A4, A6, p, pi, n, L, val);
     if (i < val)
       break;
     avma = av;
-    s = 1 - s;
+    lswap(A4, A4t);
+    lswap(A6, A6t);
   }
 
-  *a4 = A4[s];
-  *a6 = A6[s];
+  *a4 = A4;
+  *a6 = A6;
   return gerepilecopy(av, P);
 }
 
@@ -1038,32 +1039,32 @@ identify_L_sqr_cycle(const modpoly_disc_info *dinfo, GEN j_invs, ulong j_idx)
 {
   long idx;
   long m;
-  long j_exp[2], e[2], i;
-  long cyc_gen[2], cyc_elt[2];
+  long j_exp_0, j_exp_1, e_0, e_1, i;
+  long cyc_gen_0, cyc_gen_1, cyc_elt_0, cyc_elt_1;
   long L = dinfo->L;
   GEN res = cgetg(L, t_VECSMALL);
 
   m = dinfo->n2;
-  cyc_gen[0] = dinfo->dl2_0;
-  cyc_gen[1] = 1;
-  cyc_elt[0] = dinfo->dl2_0;
-  cyc_elt[1] = 1;
+  cyc_gen_0 = dinfo->dl2_0;
+  cyc_gen_1 = 1;
+  cyc_elt_0 = dinfo->dl2_0;
+  cyc_elt_1 = 1;
 
   j_idx -= 1;
-  j_exp[1] = j_idx / m;
-  j_exp[0] = j_idx - j_exp[1] * m;
+  j_exp_1 = j_idx / m;
+  j_exp_0 = j_idx - j_exp_1 * m;
 
   for (i = 1; i <= L - 1; ++i) {
-    e[0] = (j_exp[0] + cyc_elt[0]) % m;
-    e[1] = (j_exp[1] + cyc_elt[1]) % 2;
+    e_0 = (j_exp_0 + cyc_elt_0) % m;
+    e_1 = (j_exp_1 + cyc_elt_1) % 2;
 
-    idx = (e[0] + e[1] * m) + 1;
+    idx = (e_0 + e_1 * m) + 1;
     res[i] = j_invs[idx];
 
-    cyc_elt[0] += cyc_gen[0];
-    cyc_elt[0] %= m;
-    cyc_elt[1] += cyc_gen[1];
-    cyc_elt[1] %= 2;
+    cyc_elt_0 += cyc_gen_0;
+    cyc_elt_0 %= m;
+    cyc_elt_1 += cyc_gen_1;
+    cyc_elt_1 %= 2;
   }
 
   return res;
