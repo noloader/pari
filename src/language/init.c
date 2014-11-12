@@ -975,6 +975,7 @@ gp_context_save(struct gp_context* rec)
   rec->listloc = next_block;
   rec->iferr_env = iferr_env;
   rec->err_data  = global_err_data;
+  varstate_save(&rec->var);
   evalstate_save(&rec->eval);
   parsestate_save(&rec->parse);
 }
@@ -1012,6 +1013,7 @@ gp_context_restore(struct gp_context* rec)
       ep = EP;
     }
   }
+  varstate_restore(&rec->var);
   if (DEBUGMEM>2) err_printf("leaving recover()\n");
   BLOCK_SIGINT_END
   try_to_recover = 1;

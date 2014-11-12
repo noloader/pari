@@ -378,6 +378,8 @@ void evalstate_reset(void);
 void evalstate_restore(struct pari_evalstate *state);
 GEN  evalstate_restore_err(struct pari_evalstate *state);
 void evalstate_save(struct pari_evalstate *state);
+void varstate_save(struct pari_varstate *s);
+void varstate_restore(struct pari_varstate *s);
 
 void mtstate_save(long *pending);
 void mtstate_reset(void);

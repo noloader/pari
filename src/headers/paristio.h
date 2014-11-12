@@ -141,10 +141,16 @@ struct pari_evalstate
   struct pari_compilestate comp;
 };
 
+struct pari_varstate
+{
+  long nvar, max_avail, min_priority, max_priority;
+};
+
 struct gp_context
 {
   long listloc;
   long prettyp;
+  struct pari_varstate var;
   struct pari_evalstate eval;
   struct pari_parsestate parse;
   pariFILE *file;

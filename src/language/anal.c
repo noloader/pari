@@ -395,16 +395,23 @@ install(void *f, const char *name, const char *code)
   ep->arity = arity; return ep;
 }
 
+static void
+killep(entree *ep)
+{
+  GEN p = (GEN)initial_value(ep);
+  freeep(ep);
+  *p = 0; /* otherwise pari_var_create won't regenerate it */
+  ep->valence = EpNEW;
+  ep->value   = NULL;
+  ep->pvalue  = NULL;
+}
 /* Kill ep, i.e free all memory it references, and reset to initial value */
 void
 kill0(const char *e)
 {
   entree *ep = is_entry(e);
   if (!ep || EpSTATIC(ep)) pari_err(e_MISC,"can't kill that");
-  freeep(ep);
-  ep->valence = EpNEW;
-  ep->value   = NULL;
-  ep->pvalue  = NULL;
+  killep(ep);
 }
 
 void
@@ -794,6 +801,37 @@ chartoGENstr(char c)
 static long max_priority, min_priority;
 static long max_avail; /* max variable not yet used */
 static long nvar; /* first GP free variable */
+
+void
+varstate_save(struct pari_varstate *s)
+{
+  s->nvar = nvar;
+  s->max_avail = max_avail;
+  s->max_priority = max_priority;
+  s->min_priority = min_priority;
+}
+
+void
+varstate_restore(struct pari_varstate *s)
+{
+  long i;
+  for (i = nvar; i >= s->nvar; i--)
+  {
+    entree *ep = varentries[i];
+    if (ep) { killep(ep); varentries[i] = NULL; }
+    varpriority[i] = -i;
+  }
+  for (i = max_avail; i < s->max_avail; i++)
+  {
+    entree *ep = varentries[i];
+    if (ep) { free(ep); varentries[i] = NULL; }
+    varpriority[i] = -i;
+  }
+  nvar = s->nvar;
+  max_avail = s->max_avail;
+  max_priority = s->max_priority;
+  min_priority = s->min_priority;
+}
 
 void
 pari_var_init(void)
