@@ -1281,6 +1281,7 @@ GEN     strtoi(const char *s);
 GEN     strtor(const char *s, long prec);
 GEN     type0(GEN x);
 GEN     varhigher(const char *s);
+GEN     varlower(const char *s);
 
 /* aprcl.c */
 

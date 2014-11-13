@@ -899,6 +899,14 @@ varhigher(const char *s)
   varentries[v] = initep(s, strlen(s));
   return pol_x(v);
 }
+GEN
+varlower(const char *s)
+{
+  long v = fetch_var();
+  if (varentries[v]) pari_free(varentries[v]);
+  varentries[v] = initep(s, strlen(s));
+  return pol_x(v);
+}
 
 long
 fetch_user_var(const char *s)
@@ -959,9 +967,9 @@ gpolvar(GEN x)
 {
   long v;
   if (!x) {
-    long k = 1, n = pari_var_next();
-    GEN z = cgetg(n+1, t_VEC);
-    for (v = 0; v < n; v++)
+    long k = 1, n = MAXVARN;
+    GEN z = cgetg(n+2, t_VEC);
+    for (v = 0; v <= n; v++)
     {
       entree *ep = varentries[v];
       if (ep && ep->name[0] != '_') gel(z,k++) = pol_x(v);

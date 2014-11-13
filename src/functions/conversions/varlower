@@ -1,0 +1,65 @@
+Function: varlower
+Section: conversions
+C-Name: varlower
+Prototype: s
+Help: varlower(name): return a new variable 'name' whose priority is lower
+ than all currently existing variables.
+Doc: return a new variable \emph{name} whose priority is lower
+ than all currently existing variables. This is a counterpart to
+ \tet{varhigher}.
+
+ New GP variables directly created by the interpreter always
+ have lower priority than existing GP variables, but it is not easy
+ to check whether an identifier is currently unused, so that the
+ corresponding variable has the expected priority when it's created!
+ Thus, depending on the session history, the same command may fail or succeed:
+ \bprog
+ ? y; z;  \\ now y > z
+ ? rnfequation(y^2+1,z^2-y)
+  ***   at top-level: rnfequation(y^2+1,z^
+  ***                 ^--------------------
+  *** rnfequation: incorrect priority in rnfequation: variable y >= y
+ @eprog\noindent Restart and retry:
+ \bprog
+ ? z; y;  \\ now z > y
+ ? rnfequation(y^2+1,z^2-y)
+ %2 = z^4 + 1
+ @eprog\noindent It is quite annoying for package authors, when trying to
+ define a base ring, to notice that the package may fail for some users
+ depending on their session history. The safe way to do this is as follows:
+ \bprog
+ ? z; y;  \\ now z > y
+ ? y = varlower("y");
+ ? rnfequation(y^2+1,z^2-2)
+ %2 = z^4 - 2*z^2 + 9
+ @eprog
+ \bprog
+ ? y; z;  \\ now y > z
+ ? y = varlower("y"); \\ create a new variable, still printed "y"
+ ? rnfequation(y^2+1,z^2-2)
+ %2 = z^4 - 2*z^2 + 9
+ @eprog\noindent Now both constructions succeed.
+
+ \misctitle{Caution 1}
+ The \emph{name} is an arbitrary character string, only used for display
+ purposes and need not be related to the GP variable holding the result, nor
+ to be a valid variable name. In particular the \emph{name} can
+ not be used to retrieve the variable, it is not even present in the parser's
+ hash tables.
+ \bprog
+ ? x = varlower("#");
+ ? x^2
+ %2 = #^2
+ @eprog
+ \misctitle{Caution 2} There are a limited number of variables and each
+ call to \kbd{varlower} uses up one slot: do not create
+ new variables in this way unless it's absolutely necessary.
+ \bprog
+ ? n = 0; while(1,varlower("x"); n++)
+  ***   at top-level: n=0;while(1,varlower("x");n++)
+  ***                             ^-------------------
+  *** varlower: no more variables available.
+  ***   Break loop: type 'break' to go back to GP prompt
+ break> n
+ 65510
+ @eprog

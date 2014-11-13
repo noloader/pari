@@ -5,7 +5,8 @@ Prototype: s
 Help: varhigher(name): return a new variable 'name' whose priority is higher
  than all currently existing variables.
 Doc: return a new variable \emph{name} whose priority is higher
- than all currently existing variables.
+ than all currently existing variables. This is a counterpart to
+ \tet{varlower}.
  \bprog
  ? Pol([x,x], t)
   ***   at top-level: Pol([x,x],t)
@@ -16,7 +17,7 @@ Doc: return a new variable \emph{name} whose priority is higher
  %3 = x*t + x
  @eprog\noindent This routine is useful since new GP variables directly
  created by the interpreter always have lower priority than existing
- GP variable. When some basic objects already exist in a variable
+ GP variables. When some basic objects already exist in a variable
  that is incompatible with some function requirement, you can now
  create a new variable with a suitable priority instead of changing variables
  in existing objects:

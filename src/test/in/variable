@@ -5,3 +5,7 @@ for(i=1,#v,
 )
 }
 variable()
+
+varhigher("y");
+varlower("y");
+variable()

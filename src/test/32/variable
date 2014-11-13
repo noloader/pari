@@ -8,5 +8,6 @@ y
 z
 0
 y
-[x, y, z, v]
-Total time spent: 4
+[x, y, z]
+[y, x, y, z, y]
+Total time spent: 0
