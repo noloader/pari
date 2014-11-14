@@ -5527,6 +5527,12 @@ pairwise coprime, return a \typ{VECSMALL} $B$ of the same length such that
 $B[i]=A\pmod{P[i]}$ and $0\leq B[i] < P[i]$ for all $1\leq i\leq n$.
 The entries of $P$ and $B$ are treated as \kbd{ulong}s.
 
+\fun{GEN}{ZX_nv_mod_tree}{GEN A, GEN P, GEN T} $A$ being a \kbd{ZX}
+and $P$ a \typ{VECSMALL} of length $n\ge 1$, the elements of $P$ being
+pairwise coprime, return the vector of \kbd{Flx}
+$[A \pmod{P[1]},\ldots,A \pmod{P[n]}]$,
+where $T$ is assumed to be the tree created by \kbd{ZV\_producttree(P)}.
+
 \medskip
 
 The following pair of functions is used in homomorphic imaging schemes,

@@ -2564,6 +2564,27 @@ Z_nv_mod(GEN P, GEN xa)
   return Z_ZV_mod(P, xa);
 }
 
+GEN
+ZX_nv_mod_tree(GEN P, GEN xa, GEN T)
+{
+  long i, j, l = lg(P), n = lg(xa)-1;
+  GEN V = cgetg(n+1, t_VEC);
+  for (j=1; j <= n; j++)
+  {
+    gel(V, j) = cgetg(l, t_VECSMALL);
+    mael(V, j, 1) = P[1]&VARNBITS;
+  }
+  for (i=2; i < l; i++)
+  {
+    GEN v = Z_ZV_mod_tree(gel(P, i), xa, T);
+    for (j=1; j <= n; j++)
+      mael(V, j, i) = v[j];
+  }
+  for (j=1; j <= n; j++)
+    (void) Flx_renormalize(gel(V, j), l);
+  return V;
+}
+
 static GEN
 ZV_sqr(GEN z)
 {

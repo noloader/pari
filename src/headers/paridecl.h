@@ -1381,6 +1381,7 @@ GEN     ZV_allpnqn(GEN x);
 GEN     ZV_chinese(GEN A, GEN P, GEN *pt_mod);
 GEN     ZV_chinese_tree(GEN A, GEN P, GEN tree, GEN *pt_mod);
 GEN     ZV_producttree(GEN xa);
+GEN     ZX_nv_mod_tree(GEN P, GEN xa, GEN T);
 long    Zp_issquare(GEN a, GEN p);
 GEN     bestappr(GEN x, GEN k);
 GEN     bestapprPade(GEN x, long B);
