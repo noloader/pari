@@ -20,8 +20,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 /**                                                                **/
 /********************************************************************/
 /* In all the forthcoming remarks, "paper" designs the paper "Thue Equations of
- * High Degree", by Yu. Bilu and G. Hanrot, J. Number Theory (1996). The numbering
- * of the constants corresponds to Hanrot's thesis rather than to the paper */
+ * High Degree", by Yu. Bilu and G. Hanrot, J. Number Theory (1996). The
+ * numbering of the constants corresponds to Hanrot's thesis rather than to the
+ * paper. See also
+ * "Solving Thue equations without the full unit group", Math. Comp. (2000) */
 
 /* Check whether tnf is a valid structure */
 static int
