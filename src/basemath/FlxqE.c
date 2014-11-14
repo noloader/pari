@@ -1052,7 +1052,7 @@ getc5(GEN H, GEN A40, GEN A60, GEN A41, GEN A61, GEN T, GEN q, ulong p, long N)
   return u2;
 }
 
-GEN
+static GEN
 ZpXQX_liftrootmod_vald(GEN f, GEN H, long v, GEN T, GEN p, long e)
 {
   pari_sp av = avma, av2, lim;
