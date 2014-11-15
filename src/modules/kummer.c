@@ -1054,12 +1054,12 @@ mod_Xell_a(GEN z, long v, long ell, GEN num_a, GEN den_a)
   return gadd(z0, z1);
 }
 static GEN
-to_alg(GEN nfz, GEN v)
+to_alg(GEN nfz, GEN c, long v)
 {
   GEN z;
-  if (typ(v) != t_COL) return v;
-  z = gmul(nf_get_zk(nfz), v);
-  if (typ(z) == t_POL) setvarn(z, MAXVARN);
+  if (typ(c) != t_COL) return c;
+  z = gmul(nf_get_zk(nfz), c);
+  if (typ(z) == t_POL) setvarn(z, v);
   return z;
 }
 
@@ -1067,7 +1067,7 @@ to_alg(GEN nfz, GEN v)
 static GEN
 compute_polrel(GEN nfz, toK_s *T, GEN be, long g, long ell)
 {
-  long i, k, m = T->m, vT = fetch_var();
+  long i, k, m = T->m, vT = fetch_var(), vz = fetch_var();
   GEN r, powtaubet, S, p1, root, num_t, den_t, nfzpol, powtau_prim_invbe;
   GEN prim_Rk, C_Rk, prim_root, C_root, prim_invbe, C_invbe;
   pari_timer ti;
@@ -1088,7 +1088,7 @@ compute_polrel(GEN nfz, toK_s *T, GEN be, long g, long ell)
      * 1/be = C_invbe * prim_invbe */
     GEN mmu = get_mmu(i, r, ell);
     /* p1 = prim_invbe ^ -mu */
-    p1 = to_alg(nfz, nffactorback(nfz, powtau_prim_invbe, mmu));
+    p1 = to_alg(nfz, nffactorback(nfz, powtau_prim_invbe, mmu), vz);
     if (C_invbe) p1 = gmul(p1, powgi(C_invbe, RgV_sumpart(mmu, m)));
     /* root += zeta_ell^{r_i} T^{r_i} be^mu_i */
     gel(root, 2 + r[i+1]) = monomial(p1, r[i+1], vT);
@@ -1098,12 +1098,12 @@ compute_polrel(GEN nfz, toK_s *T, GEN be, long g, long ell)
   prim_Rk = prim_root = Q_primitive_part(root, &C_root);
   C_Rk = C_root;
 
-  /* Compute modulo X^ell - 1, T^ell - t, nfzpol(MAXVARN) */
-  p1 = to_alg(nfz, nffactorback(nfz, powtaubet, get_reverse(r)));
+  /* Compute modulo X^ell - 1, T^ell - t, nfzpol(vz) */
+  p1 = to_alg(nfz, nffactorback(nfz, powtaubet, get_reverse(r)), vz);
   num_t = Q_remove_denom(p1, &den_t);
 
   nfzpol = leafcopy(nf_get_pol(nfz));
-  setvarn(nfzpol, MAXVARN);
+  setvarn(nfzpol, vz);
   S = cgetg(ell+1, t_VEC); /* Newton sums */
   gel(S,1) = gen_0;
   for (k = 2; k <= ell; k++)
@@ -1132,6 +1132,7 @@ compute_polrel(GEN nfz, toK_s *T, GEN be, long g, long ell)
     gel(S,k) = z;
   }
   if (DEBUGLEVEL>1) err_printf("\n");
+  (void)delete_var();
   (void)delete_var(); return pol_from_Newton(S);
 }
 

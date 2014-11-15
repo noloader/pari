@@ -613,12 +613,15 @@ hyperellcharpoly(GEN H)
   }
   else
   {
+    int fixvar;
     T = typ(T)==t_FFELT? FF_mod(T): RgX_to_FpX(T, pp);
-    if (varncmp(varn(T),varn(H)) <= 0) setvarn(T, MAXVARN);
+    fixvar = (varncmp(varn(T),varn(H)) <= 0);
+    if (fixvar) setvarn(T, fetch_var());
     H = RgX_to_FpXQX(H, T, pp);
     n = degpol(T)*(degpol(H)-1)/2+1;
     M = nfhyperellpadicfrobenius(H, T, p, n);
-    R = centerlift(liftpol(carberkowitz(M, 0)));
+    R = centerlift(liftpol_shallow(carberkowitz(M, 0)));
+    if (fixvar) (void)delete_var();
   }
   return gerepileupto(av, R);
 }
