@@ -3475,19 +3475,20 @@ PRECPB:
 
 #define nexta(a) (a>0 ? -a : 1-a)
 static GEN
-do_compo(GEN x, GEN y)
+do_compo(GEN x0, GEN y)
 {
-  long a, i, l = lg(y);
-  GEN z;
+  long a, i, l = lg(y), v = fetch_var();
+  GEN x = x0, z;
   y = leafcopy(y); /* y := t^deg(y) y(#/t) */
   for (i = 2; i < l; i++)
-    gel(y,i) = monomial(gel(y,i), l-i-1, MAXVARN);
+    gel(y,i) = monomial(gel(y,i), l-i-1, v);
   for  (a = 0;; a = nexta(a))
   {
-    if (a) x = gsubst(x, 0, gaddsg(a, pol_x(0)));
-    z = gsubst(resultant(x,y), MAXVARN, pol_x(0));
-    if (issquarefree(z)) return z;
+    if (a) x = gsubst(x0, 0, gaddsg(a, pol_x(0)));
+    z = gsubst(resultant(x,y), v, pol_x(0));
+    if (issquarefree(z)) break;
   }
+  (void)delete_var(); return z;
 }
 #undef nexta
 
@@ -3607,8 +3608,7 @@ treatspecialsigma(GEN bnr)
   }
 
   p1 = gcoeff(f,1,1); /* integer > 0 */
-  if (is_bigint(p1)) return NULL;
-  tryf = p1[2];
+  tryf = itou_or_0(p1); if (!tryf) return NULL;
   p2 = gcoeff(f,2,2); /* integer > 0 */
   if (is_pm1(p2)) fl = 0;
   else {
