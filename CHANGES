@@ -87,6 +87,7 @@ BA 60- ellcard over non-prime fields of large char could return wrong results
    66- issquare((x+1/2)^2,&z); z => 1.0*x+0.5 instead of x+1/2
    67- possibly wrong result in nfsnf
    68- possibly missing roots in nfroots (when using Trager)
+   69- quadray(bnf, ideal) did not work
 
   Added
     1- add optional argument to sumdigits to specify the base
