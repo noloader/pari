@@ -255,10 +255,11 @@ static GEN
 FpXY_FpY_mulspec(GEN x, GEN y, GEN T, GEN p, long lx, long ly)
 {
   pari_sp av = avma;
-  GEN z = RgXY_swapspec(x,get_FpX_degree(T)-1,MAXVARN,lx);
-  z = FpXX_FpX_mulspec(z,y,p,MAXVARN,ly);
+  long v = fetch_var();
+  GEN z = RgXY_swapspec(x,get_FpX_degree(T)-1,v,lx);
+  z = FpXX_FpX_mulspec(z,y,p,v,ly);
   z = RgXY_swapspec(z+2,lx+ly+3,get_FpX_var(T),lgpol(z));
-  return gerepilecopy(av,z);
+  (void)delete_var(); return gerepilecopy(av,z);
 }
 
 static GEN

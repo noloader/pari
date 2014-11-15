@@ -542,9 +542,9 @@ Fp_elljissupersingular(GEN j, GEN p)
   if (CM < 0) return krosi(CM, p) < 0;
   else
   {
-    GEN S = init_Fq(p, 2, MAXVARN);
+    GEN S = init_Fq(p, 2, fetch_var());
     int res = jissupersingular(j, S, p);
-    avma = ltop; return res;
+    (void)delete_var(); avma = ltop; return res;
   }
 }
 

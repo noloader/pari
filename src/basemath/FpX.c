@@ -1857,13 +1857,13 @@ GEN
 FpXQ_charpoly(GEN x, GEN T, GEN p)
 {
   pari_sp ltop=avma;
-  long v;
+  long vT, v = fetch_var();
   GEN R;
   T = leafcopy(get_FpX_mod(T));
-  v = varn(T); setvarn(T, MAXVARN);
-  x = leafcopy(x); setvarn(x, MAXVARN);
-  R = FpX_FpXY_resultant(T, deg1pol_shallow(gen_1,FpX_neg(x,p),v),p);
-  return gerepileupto(ltop,R);
+  vT = varn(T); setvarn(T, v);
+  x = leafcopy(x); setvarn(x, v);
+  R = FpX_FpXY_resultant(T, deg1pol_shallow(gen_1,FpX_neg(x,p),vT),p);
+  (void)delete_var(); return gerepileupto(ltop,R);
 }
 
 GEN

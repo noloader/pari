@@ -345,19 +345,21 @@ GEN
 adj(GEN x)
 {
   GEN y;
-  (void)caradj(x, MAXVARN, &y); return y;
+  (void)caradj(x, fetch_var(), &y);
+  (void)delete_var(); return y;
 }
 
 GEN
 adjsafe(GEN x)
 {
-  const long v = MAXVARN;
+  const long v = fetch_var();
   pari_sp av = avma;
-  GEN C;
+  GEN C, A;
   if (typ(x) != t_MAT) pari_err_TYPE("matadjoint",x);
   if (lg(x) < 3) return gcopy(x);
   C = charpoly(x,v);
-  return gerepileupto(av, RgM_adj_from_char(x, v, C));
+  A = RgM_adj_from_char(x, v, C);
+  (void)delete_var(); return gerepileupto(av, A);
 }
 
 GEN

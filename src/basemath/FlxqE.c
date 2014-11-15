@@ -572,13 +572,13 @@ _can5_iter(void *E, GEN f, GEN q)
   pari_sp av = avma;
   struct _can_mul D;
   ulong p = *(ulong*)E;
-  long i;
+  long i, vT = fetch_var();
   GEN N, P, d, V, fs;
-  D.q = q; D.T = ZX_Z_sub(monomial(gen_1,p,MAXVARN),gen_1);
+  D.q = q; D.T = ZX_Z_sub(monomial(gen_1,p,vT),gen_1);
   D.p = p;
-  fs = mkvec2(_shift(f, 1, p, MAXVARN), gen_1);
+  fs = mkvec2(_shift(f, 1, p, vT), gen_1);
   N = gel(gen_powu(fs,p-1,(void*)&D,_can5_sqr,_can5_mul),1);
-  N = simplify_shallow(FpXQX_red(N,polcyclo(p,MAXVARN),q));
+  N = simplify_shallow(FpXQX_red(N,polcyclo(p,vT),q));
   P = FpX_mul(N,f,q);
   P = RgX_deflate(P, p);
   d = RgX_splitting(N, p);
@@ -586,7 +586,7 @@ _can5_iter(void *E, GEN f, GEN q)
   gel(V,1) = ZX_mulu(gel(d,1), p);
   for(i=2; i<= (long)p; i++)
     gel(V,i) = ZX_mulu(RgX_shift_shallow(gel(d,p+2-i), 1), p);
-  return gerepilecopy(av, mkvec2(ZX_sub(f,P),V));
+  (void)delete_var(); return gerepilecopy(av, mkvec2(ZX_sub(f,P),V));
 }
 
 static GEN
