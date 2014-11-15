@@ -572,11 +572,21 @@ static void
 compilecast(long n, int type, int mode) { compilecast_loc(type, mode, tree[n].str); }
 
 static entree *
+fetch_member_raw(const char *s, long len)
+{
+  pari_sp av = avma;
+  char *t = stack_malloc(len+1);
+  entree *ep;
+  t[0] = '_'; strncpy(t+1, s, len); t[++len] = 0; /* prepend '_' */
+  ep = fetch_entry_raw(t, len);
+  avma = av; return ep;
+}
+static entree *
 getfunc(long n)
 {
   long x=tree[n].x;
   if (tree[x].x==CSTmember) /* str-1 points to '.' */
-    return do_alias(fetch_member(tree[x].str - 1, tree[x].len + 1));
+    return do_alias(fetch_member_raw(tree[x].str - 1, tree[x].len + 1));
   else
     return do_alias(fetch_entry_raw(tree[x].str, tree[x].len));
 }

@@ -275,16 +275,6 @@ fetch_entry_raw(const char *s, long len)
 { return findentry(s, len, functions_hash, 1); }
 entree *
 fetch_entry(const char *s) { return fetch_entry_raw(s, strlen(s)); }
-entree *
-fetch_member(const char *s, long len)
-{
-  pari_sp av = avma;
-  char *t = stack_malloc(len+1);
-  entree *ep;
-  t[0] = '_'; strncpy(t+1, s, len); t[++len] = 0; /* prepend '_' */
-  ep = fetch_entry_raw(t, len);
-  avma = av; return ep;
-}
 
 /*******************************************************************/
 /*                                                                 */
