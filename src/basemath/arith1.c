@@ -2419,7 +2419,7 @@ chinese1_coprime_Z(GEN x) {return gassoc_proto(chinese1_coprime_Z_aux,x,NULL);}
 /*********************************************************************/
 
 /* xa, ya = t_VECSMALL */
-static GEN
+GEN
 ZV_producttree(GEN xa)
 {
   long n = lg(xa)-1;
@@ -2615,6 +2615,23 @@ ZV_chinesetree(GEN T, GEN xa)
   GEN T2 = ZT_sqr(T), xa2 = ZV_sqr(xa);
   GEN mod = gmael(T,lg(T)-1,1);
   return ZV_invdivexact(Z_ZV_mod_tree(mod, xa2, T2), xa);
+}
+
+GEN
+ZV_chinese_tree(GEN A, GEN P, GEN T, GEN *pt_mod)
+{
+  pari_sp av = avma;
+  GEN R = ZV_chinesetree(T, P);
+  GEN a = ZV_polint_tree(T, R, P, A);
+  if (!pt_mod)
+    return gerepileuptoleaf(av, a);
+  else
+  {
+    GEN mod = gmael(T, lg(T)-1, 1);
+    gerepileall(av, 2, &a, &mod);
+    *pt_mod = mod;
+    return a;
+  }
 }
 
 GEN

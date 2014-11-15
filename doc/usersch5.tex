@@ -5497,21 +5497,33 @@ solution. Otherwise, return \kbd{NULL} if it has no solution.
 
 \medskip
 
+\fun{GEN}{ZV_producttree}{GEN x} where $x$ are vectors of integer (or
+\typ{VECSMALL}s) of length $n\ge 1$, return the vector of \typ{VEC}s
+$[f(x),f^2(x),\ldots,f^k(x)]$ where $f$ is the transformation
+$[a_1,a_2,\ldots,a_m] \mapsto [a_1\*a_2,a_3\*a_4,\ldots,a_{m-1}\*a_m]$ if $m$
+is even and $[a_1\*a_2,a_3\*a4,\ldots,a_{m-2}\*a_{m-1},a_m]$ if $m$ is odd,
+and $k$ is chosen so that $f^k(x)$ is of length $1$ (This is the vector
+$[a_1\*a_2\*ldots\*a_m]$).
+
 \fun{GEN}{ZV_chinese}{GEN A, GEN P, GEN *pt_mod}
 where $A$ and $P$ are vectors of integer (or \typ{VECSMALL}s) of the same
-length $n$, the elements of $P$ being pairwise coprime, and $M$ being the
+length $n\ge 1$, the elements of $P$ being pairwise coprime, and $M$ being the
 product of the elements of $P$, returns the integer in $[0, M[$ congruent to
 $A[i]$ mod $P[i]$ for all $1\leq i\leq n$.  If \kbd{pt\_mod} is not \kbd{NULL},
 set \kbd{*pt\_mod} to $M$
 
+\fun{GEN}{ZV_chinese_tree}{GEN A, GEN P, GEN T, GEN *pt_mod}
+as \kbd{ZV\_chinese}, where $T$ is assumed to be the tree created by
+\kbd{ZV\_producttree(P)}.
+
 \fun{GEN}{Z_ZV_mod}{GEN A, GEN P}
-$P$ being a vector of integers of length $n$,
-return a vector $B$ of the same length such that
+$P$ being a vector of integers of length $n\ge 1$, the elements of $P$ being
+pairwise coprime, return a vector $B$ of the same length such that
 $B[i]=A\pmod{P[i]}$ and $0\leq B[i] < P[i]$ for all $1\leq i\leq n$.
 
 \fun{GEN}{Z_nv_mod}{GEN A, GEN P}
-$P$ being a \typ{VECSMALL} of length $n$,
-return a \typ{VECSMALL} $B$ of the same length such that
+$P$ being a \typ{VECSMALL} of length $n\ge 1$, the elements of $P$ being
+pairwise coprime, return a \typ{VECSMALL} $B$ of the same length such that
 $B[i]=A\pmod{P[i]}$ and $0\leq B[i] < P[i]$ for all $1\leq i\leq n$.
 The entries of $P$ and $B$ are treated as \kbd{ulong}s.
 
