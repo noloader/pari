@@ -3475,16 +3475,19 @@ PRECPB:
 
 #define nexta(a) (a>0 ? -a : 1-a)
 static GEN
-do_compo(GEN x0, GEN y)
+do_compo(GEN A0, GEN B)
 {
-  long a, i, l = lg(y), v = fetch_var();
-  GEN x = x0, z, X = pol_x(0);
-  y = leafcopy(y); /* y := t^deg(y) y(#/t) */
-  for (i = 2; i < l; i++) gel(y,i) = monomial(gel(y,i), l-i-1, v);
+  long a, i, l = lg(B), v = fetch_var_higher();
+  GEN A = A0, z;
+  /* now v > x = pol_x(0) > nf variable */
+  B = leafcopy(B); setvarn(B, v);
+  for (i = 2; i < l; i++) gel(B,i) = monomial(gel(B,i), l-i-1, 0);
+  /* B := x^deg(B) B(v/x) */
+  A = leafcopy(A); setvarn(A, v);
   for  (a = 0;; a = nexta(a))
   {
-    if (a) x = RgX_translate(x0, stoi(a));
-    z = gsubst(resultant(x,y), v, X);
+    if (a) A = RgX_translate(A0, stoi(a));
+    z = resultant(A,B); /* in variable 0 */
     if (issquarefree(z)) break;
   }
   (void)delete_var(); return z;
