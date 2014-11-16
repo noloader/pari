@@ -412,14 +412,14 @@ ptor2(long p, long n1, long n2, GEN P1, GEN P2)
  * E(K)[p^oo] = Z/p^n1 x Z/p^n2
  * Returns [cyc,gen], where E(K)[p^oo] = sum Z/cyc[i] gen[i] */
 static GEN
-nfelltorsprimary(GEN E, long p, long N1, long N2)
+nfelltorsprimary(GEN E, long p, long N1, long N2, long v)
 {
   GEN X, P1, P2, Q1, Q2, xp, K = ellnf_get_nf(E);
   long n1, n2;
 
   /* compute E[p] = < P1 > or < P1, P2 > */
   P1 = P2 = ellinf();
-  X = nfroots(K, elldivpol(E,p,0));
+  X = nfroots(K, elldivpol(E,p,v));
   if(lg(X) == 1) return ptor0();
   if (p==2)
   {
@@ -450,7 +450,7 @@ nfelltorsprimary(GEN E, long p, long N1, long N2)
       P2 = gel(T,k);
     }
   }
-  xp = ellxn(E, p, 0);
+  xp = ellxn(E, p, v);
 
   if (ell_is_inf(P2))
   { /* E[p^oo] is cyclic, start from P1 and divide by p while possible */
@@ -525,7 +525,7 @@ ellnftors(GEN e)
 {
   GEN B = nftorsbound(e), B1 = gel(B,1), B2 = gel(B,2), d1,d2, P1,P2;
   GEN f = Z_factor(B1), P = gel(f,1), E = gel(f,2);
-  long i, l = lg(P);
+  long i, l = lg(P), v = fetch_var_higher();
 
   d1 = d2 = gen_1; P1 = P2 = ellinf();
   for (i=1; i<l; i++)
@@ -533,13 +533,14 @@ ellnftors(GEN e)
     long p = itos(gel(P,i)); /* Compute p-primary torsion */
     long N1 = itos(gel(E,i)); /* >= n1 */
     long N2 = Z_lval(B2,p); /* >= n2 */
-    GEN T = nfelltorsprimary(e, p, N1, N2), cyc = gel(T,1), gen = gel(T,2);
+    GEN T = nfelltorsprimary(e, p, N1, N2, v), cyc = gel(T,1), gen = gel(T,2);
     if (is_pm1(gel(cyc,1))) continue;
     /* update generators P1,P2 and their respective orders d1,d2 */
     P1 = elladd(e, P1, gel(gen,1)); d1 = mulii(d1, gel(cyc,1));
     if (lg(cyc) > 2)
     { P2 = elladd(e, P2, gel(gen,2)); d2 = mulii(d2, gel(cyc,2)); }
   }
+  (void)delete_var();
   if (is_pm1(d1)) return mkvec3(gen_1,cgetg(1,t_VEC),cgetg(1,t_VEC));
   if (is_pm1(d2)) return mkvec3(d1, mkvec(d1), mkvec(P1));
   return mkvec3(mulii(d1,d2), mkvec2(d1,d2), mkvec2(P1,P2));
