@@ -3478,14 +3478,13 @@ static GEN
 do_compo(GEN x0, GEN y)
 {
   long a, i, l = lg(y), v = fetch_var();
-  GEN x = x0, z;
+  GEN x = x0, z, X = pol_x(0);
   y = leafcopy(y); /* y := t^deg(y) y(#/t) */
-  for (i = 2; i < l; i++)
-    gel(y,i) = monomial(gel(y,i), l-i-1, v);
+  for (i = 2; i < l; i++) gel(y,i) = monomial(gel(y,i), l-i-1, v);
   for  (a = 0;; a = nexta(a))
   {
-    if (a) x = gsubst(x0, 0, gaddsg(a, pol_x(0)));
-    z = gsubst(resultant(x,y), v, pol_x(0));
+    if (a) x = RgX_translate(x0, stoi(a));
+    z = gsubst(resultant(x,y), v, X);
     if (issquarefree(z)) break;
   }
   (void)delete_var(); return z;
