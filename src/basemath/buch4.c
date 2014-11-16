@@ -684,17 +684,6 @@ nfX_eltup(GEN nf, GEN rnfeq, GEN x)
   for (i=2; i<l; i++) gel(y,i) = nfeltup(nf, gel(x,i), zknf, czknf);
   return y;
 }
-/* FIXME: remove this */
-static void
-nfX_fix_var(GEN P, long v)
-{
-  long i, l = lg(P);
-  for (i=2; i<l; i++)
-  {
-    GEN c = gel(P,i);
-    if (typ(c) == t_POL) setvarn(c, v);
-  }
-}
 
 GEN
 rnfisnorminit(GEN T, GEN relpol, int galois)
@@ -729,17 +718,10 @@ rnfisnorminit(GEN T, GEN relpol, int galois)
 
   if (galois == 2)
   {
-    GEN P;
-    long v = varn(T);
-    if (polabs == relpol)
-      P = relpol;
-    else
-    { /* FIXME: don't mess with variables, use proper priorities in nfabs. */
-      P = nfX_eltup(nf, rnfeq, relpol);
-      nfX_fix_var(P, v);
-    }
-    /* FIXME */
-    galois = nfissplit(gsubst(nfabs, nf_get_varn(nfabs), pol_x(v)), P);
+    GEN P = polabs==relpol? leafcopy(relpol): nfX_eltup(nf, rnfeq, relpol);
+    setvarn(P, fetch_var_higher());
+    galois = nfissplit(nfabs, P);
+    (void)delete_var();
   }
 
   prod = gen_1; S1 = S2 = cgetg(1, t_VEC);
