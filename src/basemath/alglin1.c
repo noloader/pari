@@ -503,35 +503,35 @@ F2m_ker_sp(GEN x, long deplin)
 static void /* assume m < p */
 _Fl_submul(GEN b, long k, long i, ulong m, ulong p)
 {
-  b[k] = Fl_sub(b[k], Fl_mul(m, b[i], p), p);
+  uel(b,k) = Fl_sub(uel(b,k), Fl_mul(m, uel(b,i), p), p);
 }
 static void /* same m = 1 */
 _Fl_sub(GEN b, long k, long i, ulong p)
 {
-  b[k] = Fl_sub(b[k], b[i], p);
+  uel(b,k) = Fl_sub(uel(b,k), uel(b,i), p);
 }
 static void /* assume m < p && SMALL_ULONG(p) && (! (b[i] & b[k] & HIGHMASK)) */
 _Fl_addmul_OK(GEN b, long k, long i, ulong m, ulong p)
 {
   uel(b,k) += m * uel(b,i);
-  if (b[k] & HIGHMASK) uel(b,k) %= p;
+  if (uel(b,k) & HIGHMASK) uel(b,k) %= p;
 }
 static void /* assume SMALL_ULONG(p) && (! (b[i] & b[k] & HIGHMASK)) */
 _Fl_add_OK(GEN b, long k, long i, ulong p)
 {
   uel(b,k) += uel(b,i);
-  if (b[k] & HIGHMASK) uel(b,k) %= p;
+  if (uel(b,k) & HIGHMASK) uel(b,k) %= p;
 }
 static void /* assume m < p */
 _Fl_addmul(GEN b, long k, long i, ulong m, ulong p)
 {
   uel(b,i) %= p;
-  b[k] = Fl_add(b[k], Fl_mul(m, b[i], p), p);
+  uel(b,k) = Fl_add(uel(b,k), Fl_mul(m, uel(b,i), p), p);
 }
 static void /* same m = 1 */
 _Fl_add(GEN b, long k, long i, ulong p)
 {
-  b[k] = Fl_add(b[k], b[i], p);
+  uel(b,k) = Fl_add(uel(b,k), uel(b,i), p);
 }
 
 /* in place, destroy x */
@@ -609,10 +609,10 @@ Flm_ker_sp(GEN x, ulong p, long deplin)
     gel(y,j) = C; while (d[k]) k++;
     for (i=1; i<k; i++)
       if (d[i])
-        C[i] = ucoeff(x,d[i],k) % p;
+        uel(C,i) = ucoeff(x,d[i],k) % p;
       else
-        C[i] = 0;
-    C[k] = 1; for (i=k+1; i<=n; i++) C[i] = 0;
+        uel(C,i) = 0UL;
+    uel(C,k) = 1UL; for (i=k+1; i<=n; i++) uel(C,i) = 0UL;
   }
   return y;
 }
@@ -1377,7 +1377,7 @@ Fl_get_col_OK(GEN a, GEN b, long li, ulong p)
     }
     m %= p;
     if (m) m = ((p-m) * ucoeff(a,i,i)) % p;
-    u[i] = m;
+    uel(u,i) = m;
   }
   return u;
 }
@@ -1385,17 +1385,17 @@ static GEN
 Fl_get_col(GEN a, GEN b, long li, ulong p)
 {
   GEN u = cgetg(li+1,t_VECSMALL);
-  ulong m = b[li] % p;
+  ulong m = uel(b,li) % p;
   long i,j;
 
-  u[li] = Fl_mul(m, ucoeff(a,li,li), p);
+  uel(u,li) = Fl_mul(m, ucoeff(a,li,li), p);
   for (i=li-1; i>0; i--)
   {
     m = b[i]%p;
     for (j = i+1; j <= li; j++)
-      m = Fl_sub(m, Fl_mul(ucoeff(a,i,j), u[j], p), p);
+      m = Fl_sub(m, Fl_mul(ucoeff(a,i,j), uel(u,j), p), p);
     if (m) m = Fl_mul(m, ucoeff(a,i,i), p);
-    u[i] = m;
+    uel(u,i) = m;
   }
   return u;
 }
