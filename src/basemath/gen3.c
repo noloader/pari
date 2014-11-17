@@ -387,9 +387,9 @@ pollead(GEN x, long v)
       return NULL; /* not reached */
   }
   if (varncmp(v, w) < 0) return gcopy(x);
-  av = avma;
-  x = gsubst(x, v, pol_x(fetch_var_higher()));
-  x = pollead(x, -1);
+  av = avma; w = fetch_var_higher();
+  x = gsubst(x, v, pol_x(w));
+  x = pollead(x, w);
   delete_var(); return gerepileupto(av, x);
 }
 
