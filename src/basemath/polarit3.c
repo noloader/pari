@@ -2507,7 +2507,7 @@ fp_resultant(GEN a, GEN b)
 #define  ZXRES_PRIME  27449UL
 #endif
 
-static ulong
+static long
 get_nbprimes(ulong bound, GEN dB, ulong *pt_start)
 {
   pari_sp av = avma;
@@ -2517,7 +2517,7 @@ get_nbprimes(ulong bound, GEN dB, ulong *pt_start)
   ulong s = 0;
   forprime_t S;
   *pt_start = pstart;
-  if (expu(pstart) > bound && (!dB || umodiu(dB, pstart)!=0)) return 1;
+  if ((ulong)expu(pstart) > bound && (!dB || umodiu(dB, pstart)!=0)) return 1;
   u_forprime_init(&S, pstart, ULONG_MAX);
   while ((p = u_forprime_next(&S)))
   {
@@ -2561,7 +2561,7 @@ ZX_resultant_prime(GEN a, GEN b, ulong dp, long degA, long degB, ulong p)
 
 /* If B=NULL, assume B=A' */
 static GEN
-ZX_resultant_slice(GEN A, GEN B, GEN dB, ulong p, ulong n, ulong *plast, GEN *mod)
+ZX_resultant_slice(GEN A, GEN B, GEN dB, ulong p, long n, ulong *plast, GEN *mod)
 {
   ulong dp = 1;
   pari_sp av = avma;
