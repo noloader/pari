@@ -626,7 +626,7 @@ FpM_intersect(GEN x, GEN y, GEN p)
 
   if (lx==1 || lg(y)==1) return cgetg(1,t_MAT);
   z = FpM_ker(shallowconcat(x,y), p);
-  for (j=lg(z)-1; j; j--) setlg(z[j],lx);
+  for (j=lg(z)-1; j; j--) setlg(gel(z,j),lx);
   return gerepileupto(av, FpM_mul(x,z,p));
 }
 
