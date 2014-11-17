@@ -737,6 +737,14 @@ closure_err(long level)
   }
 }
 
+GEN
+pari_self(void)
+{
+  long fun = s_trace.n - 1;
+  if (fun > 0) while (lg(trace[fun].closure)==6) fun--;
+  return gcopy(trace[fun].closure);
+}
+
 long
 closure_context(long start, long level)
 {

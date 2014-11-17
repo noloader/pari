@@ -180,6 +180,7 @@ HIL68- [libpari] functions Flv_dotproduct_pre, Flx_eval_pre,
 HIL69- GP functions polclass, polmodular
 BA 70- ellcard over fields of medium characteristic (SEA, Kedlaya, Satoh)
    71- GP function varhigher()
+BA 72- GP function self() (for defining recursive anonymous functions)
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]
