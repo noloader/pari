@@ -1573,10 +1573,27 @@ situation.
 Some initializations are needed before you can use a given integer $v$ as a
 variable number.
 
-Initially, this is done for $0$ (the variable \kbd{x} under \kbd{gp}).
+Initially, this is done for $0$ (the variable \kbd{x} under \kbd{gp}), and
+$1,\dots,9$ (printed as \kbd{t1}, \dots \kbd{t9}), with decreasing
+priority.
 
 \subsubsec{User variables}\sidx{variable (user)} When the program starts,
-\kbd{x} is the only user variable (number~$0$). To define new ones, use
+\kbd{x} is the only user variable (number~$0$), numbers $1$ to $9$
+(decreasing priority) are reserved for building polynomials with predictable
+priorities.
+
+To define further ones, you may use
+
+\fun{GEN}{varhigher}{const char *s}
+
+\fun{GEN}{varlower}{const char *s}
+
+to recover a monomial of degree $1$ in a new variable, which is guaranteed
+to have higer (resp.~lower) priority than all existing ones at the
+time of the function call. The variable is printed as $s$, but is not part
+of GP's interpreter: it is not a symbol bound to a value.
+
+On the other hand
 
 \fun{long}{fetch_user_var}{char *s}: inspects the user variable whose name is
 the string pointed to by \kbd{s}, creating it if needed, and returns its
@@ -1586,7 +1603,9 @@ long v = fetch_user_var("y");
 GEN gy = pol_x(v);
 @eprog\noindent
 The function raises an exception if the name is already in use for an
-\tet{install}ed or built-in function, or an alias.
+\tet{install}ed or built-in function, or an alias. This function
+is mostly useless since it returns a variable with unpredictable priority.
+Don't use it to create new variables.
 
 \misctitle{Caveat} You can use \tet{gp_read_str}
 (see~\secref{se:gp_read_str}) to execute a GP command and create GP

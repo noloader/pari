@@ -842,6 +842,8 @@ pari_var_init(void)
   (void)fetch_user_var("x");
   /* initialize so that people can use pol_x(i) directly */
   for (i = 1; i <= MAXVARN; i++) varpriority[i] = -i;
+  /* reserve varnum 1..9 for static temps with predictable priority wrt x */
+  nvar = 10;
   min_priority = -MAXVARN;
 }
 long pari_var_next(void) { return nvar; }
