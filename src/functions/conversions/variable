@@ -37,7 +37,7 @@ Doc:
  ? varlower("y");
  ? variable()
  %4 = [y, x, y]
- @eprog\noindent Using \kbkd{v = variable()} then \kbd{v[1]}, \kbd{v[2]},
+ @eprog\noindent Using \kbd{v = variable()} then \kbd{v[1]}, \kbd{v[2]},
  etc.~allows to recover and use existing variables.
 
 Variant: However, in library mode, this function should not be used for $x$
