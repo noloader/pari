@@ -480,7 +480,7 @@ MiddleSols(GEN *pS, GEN bound, GEN roo, GEN poly, GEN rhs, long s, GEN c1)
 
   for (k = 1; k <= s; k++)
   {
-    GEN t = contfrac0(real_i(gel(roo,k)), NULL, nmax);
+    GEN t = gboundcf(real_i(gel(roo,k)), nmax);
     GEN pm1, qm1, p0, q0;
 
     pm1 = gen_0; p0 = gen_1;
