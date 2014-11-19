@@ -1,7 +1,7 @@
 Function: self
 Section: programming/control
 C-Name: pari_self
-Prototype:
+Prototype: m
 Help: self(): return the calling function or closure. Useful for defining
  anonymous recursive functions.
 Doc: return the calling function or closure as a \typ{CLOSURE} object.
