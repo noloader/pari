@@ -965,7 +965,7 @@ compilelambda(long n, long y, GEN vep, struct codepos *pos)
 }
 
 static void
-compilecall(long n, int mode)
+compilecall(long n, int mode, entree *ep)
 {
   pari_sp ltop=avma;
   long j;
@@ -973,32 +973,32 @@ compilecall(long n, int mode)
   long y=tree[n].y;
   GEN arg=listtogen(y,Flistarg);
   long nb=lg(arg)-1;
-  long lnc=first_safe_arg(arg, COsafelex);
+  long lnc=first_safe_arg(arg, COsafelex|COsafedyn);
+  long lnl=first_safe_arg(arg, COsafelex);
+  long fl = lnl==0? (lnc==0? FLnocopy: FLnocopylex): 0;
+  if (ep==NULL)
+    compilenode(x, Ggen, fl);
+  else
+  {
+    long vn=getmvar(ep);
+    if (vn)
+      op_push(OCpushlex,vn,n);
+    else
+      op_push(OCpushdyn,(long)ep,n);
+  }
   for (j=1;j<=nb;j++)
   {
     long x = tree[arg[j]].x, f = tree[arg[j]].f;
     if (f==Fseq)
       compile_err("unexpected ';'", tree[x].str+tree[x].len);
     else if (f!=Fnoarg)
-      compilenode(arg[j], Ggen,j>=lnc?FLnocopylex:0);
+      compilenode(arg[j], Ggen,j>=lnl?FLnocopylex:0);
     else
       op_push(OCpushlong,0,n);
   }
   op_push(OCcalluser,nb,x);
   compilecast(n,Ggen,mode);
   avma=ltop;
-}
-
-static void
-compileuserfunc(entree *ep, long n, int mode)
-{
-  long vn=getmvar(ep);
-  if (tree[n].x<OPnboperator) compile_err("operator unknown",tree[n].str);
-  if (vn)
-    op_push(OCpushlex,vn,n);
-  else
-    op_push(OCpushdyn,(long)ep,n);
-  compilecall(n, mode);
 }
 
 static GEN
@@ -2029,14 +2029,17 @@ compilenode(long n, int mode, long flag)
     {
       entree *ep=getfunc(n);
       if (EpVALENCE(ep)==EpVAR || EpVALENCE(ep)==EpNEW)
-        compileuserfunc(ep,n,mode);
+      {
+        if (tree[n].x<OPnboperator) /* should not happen */
+          compile_err("operator unknown",tree[n].str);
+        compilecall(n,mode,ep);
+      }
       else
         compilefunc(ep,n,mode,flag);
       return;
     }
   case Fcall:
-    compilenode(x,Ggen,0);
-    compilecall(n,mode);
+    compilecall(n,mode,NULL);
     return;
   case Flambda:
     {
