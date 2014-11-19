@@ -52,3 +52,6 @@ do(25*x^2+45*x+21,10^4)
 
 \\ short continued fraction [#1629]
 thue(-14*x^3+10*x^2+63*x-5,1)
+
+\\ round error
+thue(29*x^3+130*x^2-35*x-48,1)
