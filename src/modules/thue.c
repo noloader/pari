@@ -462,25 +462,25 @@ myfloor(GEN x) { return expo(x) > 30 ? ceil_safe(x): floorr(x); }
 
 /* Check for not-so-small solutions. Return a t_REAL or NULL */
 static GEN
-MiddleSols(GEN *pS, GEN bound, GEN roo, GEN poly, GEN rhs, long s, GEN c1)
+MiddleSols(GEN *pS, GEN bound, GEN roo, GEN P, GEN rhs, long s, GEN c1)
 {
   long j, k, nmax, d;
   GEN bndcf;
 
   if (expo(bound) < 0) return bound;
-  d = degpol(poly);
+  d = degpol(P);
   bndcf = sqrtnr(shiftr(c1,1), d - 2);
   if (cmprr(bound, bndcf) < 0) return bound;
-  /* divide by log((1+sqrt(5))/2)
+  /* divide by log2((1+sqrt(5))/2)
    * 1 + ==> ceil
    * 2 + ==> continued fraction is normalized if last entry is 1
    * 3 + ==> start at a0, not a1 */
-  nmax = 3 + (long)(gtodouble(logr_abs(bound)) / 0.4812118250596);
+  nmax = 3 + (long)(dbllog2(bound) * 1.44042009041256);
   bound = myfloor(bound);
 
   for (k = 1; k <= s; k++)
   {
-    GEN t = gboundcf(real_i(gel(roo,k)), nmax);
+    GEN ro = real_i(gel(roo,k)), t = gboundcf(ro, nmax);
     GEN pm1, qm1, p0, q0;
 
     pm1 = gen_0; p0 = gen_1;
@@ -494,7 +494,7 @@ MiddleSols(GEN *pS, GEN bound, GEN roo, GEN poly, GEN rhs, long s, GEN c1)
       if (cmpii(q, bound) > 0) break;
       if (DEBUGLEVEL >= 2) err_printf("Checking (+/- %Ps, +/- %Ps)\n",p, q);
 
-      z = poleval(ZX_rescale(poly,q), p); /* = P(p/q) q^dep(P) */
+      z = poleval(ZX_rescale(P,q), p); /* = P(p/q) q^dep(P) */
       Q = dvmdii(rhs, z, &R);
       if (R != gen_0) continue;
       setabssign(Q);
@@ -504,7 +504,17 @@ MiddleSols(GEN *pS, GEN bound, GEN roo, GEN poly, GEN rhs, long s, GEN c1)
         add_pm(pS, p, q, z, d, rhs);
       }
     }
-    if (j == lg(t)) pari_err_BUG("Short continued fraction in thue");
+    if (j == lg(t))
+    {
+      long prec;
+      if (j > nmax) pari_err_BUG("thue [short continued fraction]");
+      /* the theoretical value is bit_prec = gexpo(ro)+1+log2(bound) */
+      prec = precdbl(precision(ro));
+      if (DEBUGLEVEL>1) pari_warn(warnprec,"thue",prec);
+      roo = realroots(P, NULL, prec);
+      if (lg(roo)-1 != s) pari_err_BUG("thue [realroots]");
+      k--;
+    }
   }
   return bndcf;
 }

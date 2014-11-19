@@ -88,6 +88,7 @@ BA 60- ellcard over non-prime fields of large char could return wrong results
    67- possibly wrong result in nfsnf
    68- possibly missing roots in nfroots (when using Trager)
    69- quadray(bnf, ideal) did not work
+   70- thue(-14*x^3 + 10*x^2 + 63*x - 5,1) -> "short continued fraction" [#1629]
 
   Added
     1- add optional argument to sumdigits to specify the base

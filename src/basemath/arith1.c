@@ -3779,7 +3779,7 @@ Qsfcont(GEN a, GEN b, GEN y, ulong k)
   GEN  z, c;
   ulong i, l, ly = lgefint(b);
 
-  /* times log(2) / log2( (1+sqrt(5)) / 2 )  */
+  /* times 1 / log2( (1+sqrt(5)) / 2 )  */
   l = (ulong)(3 + bit_accuracy_mul(ly, 1.44042009041256));
   if (k > 0 && k+1 > 0 && l > k+1) l = k+1; /* beware overflow */
   if (l > LGBITS) l = LGBITS;
