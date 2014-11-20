@@ -11,6 +11,7 @@ Description:
  (real,#small):real    rtor($1, ndec2prec($2))
  (gen,#small):gen      gprec($1, $2)
  (real,small):real     precision0($1, $2)
+ (mp,small):mp         precision0($1, $2)
  (gen,small):gen       precision0($1, $2)
 
 Doc: the function has two different behaviors according to whether $n$ is present or not.
