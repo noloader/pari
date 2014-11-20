@@ -1002,10 +1002,11 @@ LargeSols(GEN P, GEN tnf, GEN rhs, GEN ne, GEN *pS)
   return gmax(x0, MiddleSols(pS, x3, ro, P, rhs, s, c1));
 
 PRECPB:
-  ne = gerepilecopy(av, ne);
+  avma = av;
   prec += nbits2extraprec(5 * prec2nbits(DEFAULTPREC));
   if (DEBUGLEVEL>1) pari_warn(warnprec,"thue",prec);
   tnf = inithue(P, bnf, 0, prec);
+  *pS = cgetg(1, t_VEC); /* reset */
   return LargeSols(P, tnf, rhs, ne, pS);
 }
 
