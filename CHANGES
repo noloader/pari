@@ -91,6 +91,7 @@ BA 60- ellcard over non-prime fields of large char could return wrong results
    70- thue(-14*x^3 + 10*x^2 + 63*x - 5,1) -> "short continued fraction" [#1629]
    71- thue(29*x^3+130*x^2-35*x-48,1) -> "round error" bug
    72- T=thueinit(10*x^3+6*x^2-41*x+8,1); thue(T,8) => SEGV [#1630]
+   73- ellrootno(e,2) when e not minimal at 2 => random result
 
   Added
     1- add optional argument to sumdigits to specify the base
