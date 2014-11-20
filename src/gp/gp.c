@@ -627,10 +627,10 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   gp_expand_path(GP_DATA->path);
   if (GP_DATA->flags & gpd_EMACS) init_emacs();
   if (GP_DATA->flags & gpd_TEXMACS) init_texmacs();
-  if (GP_DATA->flags & gpd_TEST) init_test();
 
   timer_start(GP_DATA->T);
   if (!(GP_DATA->flags & gpd_QUIET)) gp_head();
+  if (GP_DATA->flags & gpd_TEST) init_test();
   if (s_A.n)
   {
     FILE *l = pari_logfile;
