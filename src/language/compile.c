@@ -1679,7 +1679,7 @@ genclosure(entree *ep, const char *loc, long  nbdata, int check)
   if (nbdata > arity)
     pari_err(e_MISC,"too many parameters for closure `%s'", ep->name);
   for(i=1; i<= nbdata; i++)
-    op_push_loc(OCpushgen,data_push(NULL),loc);
+    op_push_loc(OCpushlex,-i,loc);
   arity -= nbdata;
   if (maskarg)  op_push_loc(OCcheckargs,maskarg,loc);
   if (maskarg0) op_push_loc(OCcheckargs0,maskarg0,loc);
@@ -1812,7 +1812,7 @@ genclosure(entree *ep, const char *loc, long  nbdata, int check)
   op_push_loc(ret_op, (long) ep, loc);
   if (ret_flag==FLnocopy) op_push_loc(OCcopy,0,loc);
   compilecast_loc(ret_typ, Ggen, loc);
-  return getfunction(&pos,nb+arity,0,strtoGENstr(ep->name),0);
+  return getfunction(&pos,nb+arity,nbdata,strtoGENstr(ep->name),0);
 }
 
 GEN
@@ -1822,7 +1822,7 @@ snm_closure(entree *ep, GEN data)
   long n = data ? lg(data)-1: 0;
   GEN C = genclosure(ep,ep->name,n,0);
   for(i=1; i<=n; i++)
-    gmael(C,4,i) = gel(data,i);
+    gmael(C,7,i) = gel(data,i);
   return C;
 }
 
@@ -1844,7 +1844,7 @@ strtoclosure(const char *s, long n,  ...)
     long i;
     va_start(ap,n);
     for(i=1; i<=n; i++)
-      gmael(C,4,i) = va_arg(ap, GEN);
+      gmael(C,7,i) = va_arg(ap, GEN);
     va_end(ap);
   }
   return gerepilecopy(av, C);
