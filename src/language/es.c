@@ -2637,12 +2637,32 @@ print_0_or_pm1(GEN g, outString *S, int addsign)
   }
   return 0;
 }
+
+static void
+print_precontext(GEN g, pariout_t *T, outString *S, long tex)
+{
+  if (lg(g)<8 || lg(gel(g,7))==1) return;
+  else
+  {
+    long i, n  = closure_arity(g);
+    str_puts(S,"(");
+    for(i=1; i<=n; i++)
+    {
+      str_puts(S,"v");
+      str_ulong(S,i);
+      if (i < n) str_puts(S,",");
+    }
+    str_puts(S,")->");
+  }
+}
+
 static void
 print_context(GEN g, pariout_t *T, outString *S, long tex)
 {
-  if (lg(g)>=8 && lg(gel(g,7))>1 && lg(gmael(g,5,3))>=2)
+  if (lg(g)<8 || lg(gel(g,7))==1) return;
+  if (lg(gel(closure_get_dbg(g),3)) >= 2)
   {
-    GEN v = gel(g,7), d = gmael3(g,5,3,1);
+    GEN v = closure_get_frame(g), d = gmael(closure_get_dbg(g),3,1);
     long i, l = lg(v), n=0;
     for(i=1; i<l; i++)
       if (gel(d,i))
@@ -2660,6 +2680,25 @@ print_context(GEN g, pariout_t *T, outString *S, long tex)
           str_putc(S,',');
       }
     str_puts(S,");");
+  }
+  else
+  {
+    GEN v = closure_get_frame(g);
+    long i, l = lg(v), n  = closure_arity(g);
+    str_puts(S,"(");
+    for(i=1; i<=n; i++)
+    {
+      str_puts(S,"v");
+      str_ulong(S,i);
+      str_puts(S,",");
+    }
+    for(i=1; i<l; i++)
+    {
+      if (tex) texi(gel(v,l-i),T,S); else bruti(gel(v,l-i),T,S);
+      if (i<l-1)
+        str_putc(S,',');
+    }
+    str_puts(S,")");
   }
 }
 
@@ -2819,7 +2858,11 @@ bruti_intern(GEN g, pariout_t *T, outString *S, int addsign)
       {
         GEN str = closure_get_text(g);
         if (typ(str)==t_STR)
+        {
+          print_precontext(g, T, S, 0);
           str_puts(S, GSTR(str));
+          print_context(g, T, S, 0);
+        }
         else
         {
           str_putc(S,'(');   str_puts(S,GSTR(gel(str,1)));
@@ -3092,7 +3135,10 @@ texi_sign(GEN g, pariout_t *T, outString *S, int addsign)
       {
         GEN str = closure_get_text(g);
         if (typ(str)==t_STR)
+        {
           str_puts(S, GSTR(str));
+          print_context(g, T, S ,1);
+        }
         else
         {
           str_putc(S,'(');          str_puts(S,GSTR(gel(str,1)));
