@@ -2323,6 +2323,7 @@ primedec_aux(GEN nf, GEN p, long flim)
 {
   GEN E, F, L, Ip, H, phi, mat1, f, g, h, p1, UN, T = nf_get_pol(nf);
   long i, k, c, iL, N;
+  int kummer;
 
   F = FpX_factor(T, p);
   E = gel(F,2);
@@ -2341,6 +2342,7 @@ primedec_aux(GEN nf, GEN p, long flim)
     return L;
   }
 
+  kummer = 0;
   g = FpXV_prod(F, p);
   h = FpX_div(T,g,p);
   f = FpX_red(ZX_Z_divexact(ZX_sub(ZX_mul(g,h), T), p), p);
@@ -2351,6 +2353,7 @@ primedec_aux(GEN nf, GEN p, long flim)
     if (E[i] == 1 || signe(FpX_rem(f,gel(F,i),p)))
     {
       GEN t = gel(F,i);
+      kummer = 1;
       if (flim && degpol(t) > flim) continue;
       gel(L,iL++) = primedec_apply_kummer(nf, t, E[i],p);
     }
@@ -2362,7 +2365,7 @@ primedec_aux(GEN nf, GEN p, long flim)
 
   /* split etale algebra Z_K / (p,Ip) */
   h = cgetg(N+1,t_VEC);
-  if (iL > 1)
+  if (kummer)
   { /* split off Kummer factors */
     GEN mulbeta, beta = NULL;
     for (i=1; i<k; i++)
@@ -2412,7 +2415,12 @@ primedec_aux(GEN nf, GEN p, long flim)
         gel(h,c++) = FpM_image(shallowconcat(H, I), p);
       }
       if (n == dim)
-        for (i=1; i<=n; i++) { H = gel(h,--c); gel(L,iL++) = H; }
+        for (i=1; i<=n; i++)
+        {
+          H = gel(h,--c);
+          if (flim && N - (lg(H)-1) > flim) continue;
+          gel(L,iL++) = H;
+        }
     }
     else /* A2 field ==> H maximal, f = N-k = dim(A2) */
     {
