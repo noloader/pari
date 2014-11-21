@@ -969,16 +969,16 @@ gpolvar(GEN x)
 {
   long v;
   if (!x) {
-    long k = 1, n = MAXVARN;
-    GEN z = cgetg(n+2, t_VEC);
-    for (v = 0; v <= n; v++)
+    long k = 1, l = nvar + MAXVARN-max_avail + 2;
+    GEN z = cgetg(l, t_VEC);
+    for (v = 0; v <= MAXVARN; v++)
     {
       entree *ep = varentries[v];
-      if (ep && ep->name[0] != '_') gel(z,k++) = pol_x(v);
+      if (ep) gel(z,k++) = pol_x(v);
     }
-    if (k <= n) {
+    if (k < l) {
       setlg(z,k);
-      stackdummy((pari_sp)(z+n), (pari_sp)(z+k));
+      stackdummy((pari_sp)(z+l), (pari_sp)(z+k));
     }
     gen_sort_inplace(z,NULL,cmp_by_var,NULL);
     return z;
