@@ -252,7 +252,7 @@ initep(const char *name, long len)
 static entree *
 findentry(const char *s, long len, entree **T, int insert)
 {
-  long hash = hashvalue_raw(s, len);
+  ulong hash = hashvalue_raw(s, len);
   entree *ep;
   for (ep = T[hash % functions_tblsz]; ep; ep = ep->next)
     if (ep->hash == hash)
@@ -841,7 +841,7 @@ pari_var_init(void)
   max_priority = min_priority = 0;
   (void)fetch_user_var("x");
   /* initialize so that people can use pol_x(i) directly */
-  for (i = 1; i <= MAXVARN; i++) varpriority[i] = -i;
+  for (i = 1; i <= (long)MAXVARN; i++) varpriority[i] = -i;
   /* reserve varnum 1..9 for static temps with predictable priority wrt x */
   nvar = 10;
   min_priority = -MAXVARN;
