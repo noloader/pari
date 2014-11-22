@@ -84,10 +84,15 @@ tnf_get_roots(GEN poly, long prec, long S, long T)
 static GEN
 LogHeight(GEN x, long prec)
 {
+  pari_sp av = avma;
   long i, n = lg(x)-1;
   GEN LH = gen_1;
-  for (i=1; i<=n; i++) LH = gmul(LH, gmax(gen_1, gabs(gel(x,i), prec)));
-  return gdivgs(glog(LH,prec), n);
+  for (i=1; i<=n; i++)
+  {
+    GEN t = gabs(gel(x,i), prec);
+    if (gcmpgs(t,1) > 0) LH = gmul(LH, t);
+  }
+  return gerepileupto(av, gdivgs(glog(LH,prec), n));
 }
 
 /* |x|^(1/n), x t_INT */
