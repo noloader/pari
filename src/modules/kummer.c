@@ -660,13 +660,11 @@ get_prlist(GEN bnr, GEN H, ulong ell, GEN bnfz)
 {
   pari_sp av0 = avma;
   forprime_t T;
-  long N;
   ulong p;
   GEN L, nf, cyc, bad, cond, condZ, Hsofar;
   L = cgetg(1, t_VEC);
   cyc = bnr_get_cyc(bnr);
   nf = bnr_get_nf(bnr);
-  N =  nf_get_degree(nf);
 
   cond = gel(bnr_get_mod(bnr), 1);
   condZ = gcoeff(cond,1,1);
@@ -688,7 +686,6 @@ get_prlist(GEN bnr, GEN H, ulong ell, GEN bnfz)
     if (p == ell || !umodiu(bad, p)) continue;
     LP = idealprimedec_limit_f(nf, utoipos(p), 1);
     l = lg(LP);
-    if (N != 1 && l-1==N) l--; /* totally split, remove one prime */
     for (i = 1; i < l; i++)
     {
       pari_sp av = avma;
@@ -1168,7 +1165,7 @@ prlifttoKz(GEN nfz, GEN nf, GEN pr, compo_s *C)
     T = FpX_normalize(T, p);
   }
   F = FpX_factor(T, p);
-  return primedec_apply_kummer(nfz,gcoeff(F,1,1), 1,p);
+  return primedec_apply_kummer(nfz,gcoeff(F,1,1), pr_get_e(pr), p);
 }
 static GEN
 get_przlist(GEN L, GEN nfz, GEN nf, compo_s *C)
