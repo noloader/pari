@@ -181,6 +181,25 @@ RgV_sumpart2(GEN v, long m, long n)
   p = gel(v,m); for (i=m+1; i<=n; i++) p = gadd(p, gel(v,i));
   return p;
 }
+GEN
+RgM_sumcol(GEN A)
+{
+  long i,j,m,l = lg(A);
+  GEN v;
+
+  if (l == 1) return cgetg(1,t_MAT);
+  if (l == 2) return gcopy(gel(A,1));
+  m = lgcols(A);
+  v = cgetg(m, t_COL);
+  for (i = 1; i < m; i++)
+  {
+    pari_sp av = avma;
+    GEN s = gcoeff(A,i,1);
+    for (j = 2; j < l; j++) s = gadd(s, gcoeff(A,i,j));
+    gel(v, i) = gerepileupto(av, s);
+  }
+  return v;
+}
 
 /*                    ADDITION SCALAR + MATRIX                     */
 /* x square matrix, y scalar; create the square matrix x + y*Id */

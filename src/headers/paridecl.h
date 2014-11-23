@@ -775,6 +775,7 @@ GEN     RgM_neg(GEN x);
 GEN     RgM_powers(GEN x, long l);
 GEN     RgM_sqr(GEN x);
 GEN     RgM_sub(GEN x, GEN y);
+GEN     RgM_sumcol(GEN A);
 GEN     RgM_transmul(GEN x, GEN y);
 GEN     RgM_transmultosym(GEN x, GEN y);
 GEN     RgM_zc_mul(GEN x, GEN y);
