@@ -2639,7 +2639,7 @@ print_0_or_pm1(GEN g, outString *S, int addsign)
 }
 
 static void
-print_precontext(GEN g, pariout_t *T, outString *S, long tex)
+print_precontext(GEN g, outString *S, long tex)
 {
   if (lg(g)<8 || lg(gel(g,7))==1) return;
   else
@@ -2649,7 +2649,9 @@ print_precontext(GEN g, pariout_t *T, outString *S, long tex)
     for(i=1; i<=n; i++)
     {
       str_puts(S,"v");
+      if (tex) str_puts(S,"_{");
       str_ulong(S,i);
+      if (tex) str_puts(S,"}");
       if (i < n) str_puts(S,",");
     }
     str_puts(S,")->");
@@ -2689,7 +2691,9 @@ print_context(GEN g, pariout_t *T, outString *S, long tex)
     for(i=1; i<=n; i++)
     {
       str_puts(S,"v");
+      if (tex) str_puts(S,"_{");
       str_ulong(S,i);
+      if (tex) str_puts(S,"}");
       str_puts(S,",");
     }
     for(i=1; i<l; i++)
@@ -2859,7 +2863,7 @@ bruti_intern(GEN g, pariout_t *T, outString *S, int addsign)
         GEN str = closure_get_text(g);
         if (typ(str)==t_STR)
         {
-          print_precontext(g, T, S, 0);
+          print_precontext(g, S, 0);
           str_puts(S, GSTR(str));
           print_context(g, T, S, 0);
         }
@@ -3136,6 +3140,7 @@ texi_sign(GEN g, pariout_t *T, outString *S, int addsign)
         GEN str = closure_get_text(g);
         if (typ(str)==t_STR)
         {
+          print_precontext(g, S, 1);
           str_puts(S, GSTR(str));
           print_context(g, T, S ,1);
         }
