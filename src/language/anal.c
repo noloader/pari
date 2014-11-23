@@ -992,9 +992,8 @@ gpolvar(GEN x)
 static void
 fill_hashtable_single(entree **table, entree *ep)
 {
-  long hash = hashvalue(ep->name);
   EpSETSTATIC(ep);
-  insertep(ep, table, hash);
+  insertep(ep, table,  hashvalue(ep->name));
   if (ep->code) ep->arity = check_proto(ep->code);
   ep->pvalue = NULL;
 }
