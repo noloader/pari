@@ -222,7 +222,7 @@ hashvalue_raw(const char *s, long len)
 }
 
 static void
-insertep(entree *ep, entree **table, long hash)
+insertep(entree *ep, entree **table, ulong hash)
 {
   ep->hash = hash;
   hash %= functions_tblsz;
