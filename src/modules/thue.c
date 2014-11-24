@@ -253,7 +253,7 @@ inithue(GEN P, GEN bnf, long flag, long prec)
 
 typedef struct {
   GEN c10, c11, c13, c15, bak, NE, ALH, Ind, hal, MatFU, ro, Hmu;
-  GEN delta, lambda, inverrdelta;
+  GEN delta, lambda, inverrdelta, Pi, Pi2;
   long r, iroot, deg;
 } baker_s;
 
@@ -287,7 +287,7 @@ Baker(baker_s *BS)
   hb0 = gmax(hb0, gdiv(tmp, BS->bak));
   c9 = gmul(c9,hb0);
   /* Multiply c9 by the "constant" factor */
-  c9 = gmul(c9, gmul(mulri(mulur(18,mppi(prec)), int2n(5*(4+r))),
+  c9 = gmul(c9, gmul(shiftr(mulur(9,BS->Pi2), 5*(4+r)),
                      gmul(gmul(mpfact(r+3), powiu(muliu(BS->bak,r+2), r+3)),
                           glog(muliu(BS->bak,2*(r+2)),prec))));
   c9 = gprec_w(myround(c9, 1), DEFAULTPREC);
@@ -298,8 +298,7 @@ Baker(baker_s *BS)
                    BS->c10));
   B0 = gmax(B0, dbltor(2.71828183));
   B0 = gmax(B0, mulrr(divir(BS->Ind, BS->c10),
-                      mplog(divrr(mulir(BS->Ind, BS->c11),
-                                  Pi2n(1, prec)))));
+                      mplog(divrr(mulir(BS->Ind, BS->c11), BS->Pi2))));
 
   if (DEBUGLEVEL>1) {
     err_printf("  B0  = %Ps\n",B0);
@@ -768,6 +767,24 @@ thueinit(GEN pol, long flag, long prec)
   return gerepilecopy(av,tnf);
 }
 
+/* arg(t^2) / 2Pi; arg(t^2) = arg(t/conj(t)) */
+static GEN
+argsqr(GEN t, GEN Pi)
+{
+  GEN v, u = divrr(garg(t,0), Pi); /* in -1 < u <= 1 */
+  /* reduce mod Z to -1/2 < u <= 1/2 */
+  if (signe(u) > 0)
+  {
+    v = subrs(u,1); /* ]-1,0] */
+    if (absr_cmp(v,u) < 0) u = v;
+  }
+  else
+  {
+    v = addrs(u,1);/* ]0,1] */
+    if (absr_cmp(v,u) <= 0) u = v;
+  }
+  return u;
+}
 /* i1 != i2 */
 static void
 init_get_B(long i1, long i2, GEN Delta2, GEN Lambda, GEN Deps5, baker_s *BS,
@@ -778,24 +795,18 @@ init_get_B(long i1, long i2, GEN Delta2, GEN Lambda, GEN Deps5, baker_s *BS,
   {
     delta = gel(Delta2,i2);
     lambda = gsub(gmul(delta,gel(Lambda,i1)), gel(Lambda,i2));
-    if (Deps5)
-      BS->inverrdelta = divrr(Deps5, addsr(1,delta));
+    if (Deps5) BS->inverrdelta = divrr(Deps5, addsr(1,delta));
   }
   else
-  { /* r == 1, single fundamental unit (i1 = s = t = 1) */
-    GEN p1, Pi2 = Pi2n(1, prec);
-    GEN fu = gel(BS->MatFU,1), ro = BS->ro;
+  { /* r == 1: i1 = s = t = 1; i2 = 2 */
+    GEN fu = gel(BS->MatFU,1), ro = BS->ro, t;
 
-    p1 = gdiv(gel(fu,2), gel(fu,3));
-    delta = divrr(garg(p1,prec), Pi2);
+    t = gel(fu,2);
+    delta = argsqr(t, BS->Pi);
+    if (Deps5) BS->inverrdelta = shiftr(gabs(t,prec), prec2nbits(prec)-1);
 
-    p1 = gmul(gdiv(gsub(gel(ro,1), gel(ro,2)),
-                   gsub(gel(ro,1), gel(ro,3))),
-              gdiv(gel(BS->NE,3), gel(BS->NE,2)));
-    lambda = divrr(garg(p1,prec), Pi2);
-
-    if (Deps5)
-      BS->inverrdelta = shiftr(gabs(gel(fu,2),prec), prec2nbits(prec)-1);
+    t = gmul(gsub(gel(ro,1), gel(ro,2)), gel(BS->NE,3));
+    lambda = argsqr(t, BS->Pi);
   }
   BS->delta = delta;
   BS->lambda = lambda;
@@ -985,6 +996,8 @@ START:
     }
     BS.ro    = ro;
     BS.iroot = iroot;
+    BS.Pi  = mppi(prec);
+    BS.Pi2 = Pi2n(1,prec);
     diffRo = cgetg(r+1, t_VEC);
     for (k=1; k<=r; k++)
     {
