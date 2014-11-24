@@ -773,12 +773,13 @@ static void
 init_get_B(long i1, long i2, GEN Delta2, GEN Lambda, GEN Deps5, baker_s *BS,
            long prec)
 {
-  GEN delta, lambda, inverrdelta;
+  GEN delta, lambda;
   if (BS->r > 1)
   {
     delta = gel(Delta2,i2);
     lambda = gsub(gmul(delta,gel(Lambda,i1)), gel(Lambda,i2));
-    inverrdelta = divrr(Deps5, addsr(1,delta));
+    if (Deps5)
+      BS->inverrdelta = divrr(Deps5, addsr(1,delta));
   }
   else
   { /* r == 1, single fundamental unit (i1 = s = t = 1) */
@@ -793,12 +794,11 @@ init_get_B(long i1, long i2, GEN Delta2, GEN Lambda, GEN Deps5, baker_s *BS,
               gdiv(gel(BS->NE,3), gel(BS->NE,2)));
     lambda = divrr(garg(p1,prec), Pi2);
 
-    inverrdelta = shiftr(gabs(gel(fu,2),prec), prec2nbits(prec)-1);
+    if (Deps5)
+      BS->inverrdelta = shiftr(gabs(gel(fu,2),prec), prec2nbits(prec)-1);
   }
-  if (DEBUGLEVEL>1) err_printf("  inverrdelta = %Ps\n",inverrdelta);
   BS->delta = delta;
   BS->lambda = lambda;
-  BS->inverrdelta = inverrdelta;
 }
 
 static GEN
@@ -809,6 +809,7 @@ get_B0(long i1, GEN Delta2, GEN Lambda, GEN Deps5, long prec, baker_s *BS)
   for(;;) /* i2 from 1 to r unless r = 1 [then i2 = 2] */
   {
     init_get_B(i1,i2, Delta2,Lambda,Deps5, BS, prec);
+    if (DEBUGLEVEL>1) err_printf("  inverrdelta = %Ps\n",BS->inverrdelta);
     if (DEBUGLEVEL>1) err_printf("  Entering CF...\n");
     /* Reduce B0 as long as we make progress: newB0 < oldB0 - 0.1 */
     for (;;)
@@ -849,13 +850,13 @@ get_B0(long i1, GEN Delta2, GEN Lambda, GEN Deps5, long prec, baker_s *BS)
 }
 
 static GEN
-get_Bx_LLL(long i1, GEN Delta2, GEN Lambda, GEN Deps5, long prec, baker_s *BS)
+get_Bx_LLL(long i1, GEN Delta2, GEN Lambda, long prec, baker_s *BS)
 {
   GEN B0 = Baker(BS), Bx = NULL;
   long step = 0, i2 = (i1 == 1)? 2: 1;
   for(;;) /* i2 from 1 to r unless r = 1 [then i2 = 2] */
   {
-    init_get_B(i1,i2, Delta2,Lambda,Deps5, BS, prec);
+    init_get_B(i1,i2, Delta2,Lambda,NULL, BS, prec);
     if (DEBUGLEVEL>1) err_printf("  Entering LLL...\n");
     /* Reduce B0 as long as we make progress: newB0 < oldB0 - 0.1 */
     for (;;)
@@ -1021,7 +1022,7 @@ START:
       }
       else
       {
-        if (! (Bx = get_Bx_LLL(i1, Delta2, Lambda, Deps5, prec, &BS)) )
+        if (! (Bx = get_Bx_LLL(i1, Delta2, Lambda, prec, &BS)) )
            goto START;
         x3 = gerepileupto(av2, gmax(Bx, x3));
       }
