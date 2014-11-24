@@ -1057,7 +1057,7 @@ find_trace_lp1_roots(long ell, GEN q)
 
 /*trace modulo ell^k: [], [t] or [t1,...,td] */
 static GEN
-find_trace(GEN a4, GEN a6, ulong ell, GEN q, GEN T, GEN p, long *ptr_kt,
+find_trace(GEN a4, GEN a6, GEN j, ulong ell, GEN q, GEN T, GEN p, long *ptr_kt,
   ulong smallfact, long vx, long vy)
 {
   pari_sp ltop = avma;
@@ -1082,7 +1082,7 @@ find_trace(GEN a4, GEN a6, ulong ell, GEN q, GEN T, GEN p, long *ptr_kt,
   if (!get_modular_eqn(&MEQN, ell, vx, vy)) err_modular_eqn(ell);
   if (DEBUGLEVEL)
   { err_printf("Process prime %5ld. ", ell); timer_start(&ti); }
-  meqnj = FqXY_evalx(MEQN.eq, Fq_ellj(a4, a6, T, p), T, p);
+  meqnj = FqXY_evalx(MEQN.eq, j, T, p);
   g = study_modular_eqn(ell, meqnj, T, p, &mt, &r);
   /* If l is an Elkies prime, search for a factor of the l-division polynomial.
   * Then deduce the trace by looking for eigenvalues of the Frobenius by
@@ -1566,12 +1566,17 @@ Fq_ellcard_SEA(GEN a4, GEN a6, GEN q, GEN T, GEN p, long smallfact)
   long ell, i, nb_atkin, vx,vy;
   GEN TR, TR_mod, compile_atkin, bound, bound_bsgs, champ;
   GEN prod_atkin = gen_1, max_traces = gen_0;
+  GEN j;
   double bound_gr = 1.;
   const double growth_factor = 1.26;
   forprime_t TT;
   void *E;
 
   if (!modular_eqn && !get_seadata(0)) return NULL;
+  j = Fq_ellj(a4, a6, T, p);
+  if (typ(j)==t_INT && (signe(j)==0 || equaliu(j, umodui(1728, p))))
+    return T ? FpXQ_ellcard(Fq_to_FpXQ(a4, T, p), Fq_to_FpXQ(a6, T, p), T, p)
+             : Fp_ellcard(a4, a6, p);
   /*First compute the trace modulo 2 */
   switch(FqX_nbroots(mkpoln(4, gen_1, gen_0, a4, a6), T, p))
   {
@@ -1606,7 +1611,7 @@ Fq_ellcard_SEA(GEN a4, GEN a6, GEN q, GEN T, GEN p, long smallfact)
     long ellkt, kt = 1, nbtrace;
     GEN trace_mod;
     if (equalui(ell, p)) continue;
-    trace_mod = find_trace(a4, a6, ell, q, T, p, &kt, smallfact, vx,vy);
+    trace_mod = find_trace(a4, a6, j, ell, q, T, p, &kt, smallfact, vx,vy);
     if (!trace_mod) continue;
 
     nbtrace = lg(trace_mod) - 1;
