@@ -456,6 +456,12 @@ eigen_ellmulu(struct eigen_ellinit *E, GEN z, ulong n)
     return gerepileupto(av, gen_powu(z, n, E, &eigen_elldbl, &eigen_elladd));
 }
 
+static GEN
+Fq_to_Flx(GEN a4, GEN T, ulong p)
+{
+  return typ(a4)==t_INT ? Z_to_Flx(a4, p, get_FpX_var(T)): ZX_to_Flx(a4, p);
+}
+
 /*Finds the eigenvalue of the Frobenius given E, ell odd prime, h factor of the
  *ell-division polynomial, p and tr the possible values for the trace
  *(useful for primes with one root)*/
@@ -468,7 +474,7 @@ find_eigen_value(GEN a4, GEN a6, ulong ell, GEN h, GEN T, GEN p, GEN tr)
   struct eigen_ellinit Edat;
   ulong pp = T ?itou_or_0(p): 0;
   if (pp)
-    init_eigenu(&Edat, ZX_to_Flx(a4,pp), ZX_to_Flx(a6,pp),
+    init_eigenu(&Edat, Fq_to_Flx(a4, T, pp), Fq_to_Flx(a6, T, pp),
                        ZXX_to_FlxX(h,pp, get_FpX_var(T)), ZXT_to_FlxT(T,pp), pp);
   else
     init_eigen(&Edat, a4, a6, h, T, p);
@@ -511,7 +517,7 @@ find_eigen_value_power(GEN a4, GEN a6, ulong ell, long k, GEN h, ulong lambda, G
   ulong t, ellk1 = upowuu(ell, k-1), ellk = ell*ellk1;
   ulong pp = T ?itou_or_0(p): 0;
   if (pp)
-    init_eigenu(&Edat, ZX_to_Flx(a4,pp), ZX_to_Flx(a6,pp),
+    init_eigenu(&Edat, Fq_to_Flx(a4, T, pp), Fq_to_Flx(a6, T, pp),
         ZXX_to_FlxX(h, pp, get_FpX_var(T)), ZXT_to_FlxT(T,pp), pp);
   else
     init_eigen(&Edat, a4, a6, h, T, p);
@@ -1540,7 +1546,8 @@ get_FqE_group(void ** pt_E, GEN a4, GEN a6, GEN T, GEN p)
   else if (lgefint(p)==3)
   {
     ulong pp = uel(p,2);
-    return get_FlxqE_group(pt_E, ZX_to_Flx(a4,pp),ZX_to_Flx(a6,pp),ZXT_to_FlxT(T,pp),pp);
+    return get_FlxqE_group(pt_E, Fq_to_Flx(a4, T, pp), Fq_to_Flx(a6, T, pp),
+                           ZXT_to_FlxT(T,pp),pp);
   }
   return get_FpXQE_group(pt_E,a4,a6,T,p);
 }
