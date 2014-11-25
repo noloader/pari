@@ -337,21 +337,8 @@ a non-prime finite field $\F_q$, ignore $p$ and return $q+1 - \#E(\F_q)$.
 When $p$ is implied ($E$ defined over $\Q_p$ or a finite field), $p$ can be
 omitted (set to \kbd{NULL}).
 
-\fun{GEN}{ellsea}{GEN E, GEN p, long s} available if the \kbd{seadata}
-package is installed. This function returns $\#E(\F_p)$, using the
-Schoof-Elkies-Atkin algorithm; it is called by \kbd{ellap}: same conditions
-as above for $E$, except that \tet{t_ELL_Fq} are not allowed.
-In addition the $j$ invariant of $E$ must not be equal to $0$ or $1728$
-modulo $p$.
-
-The extra flag \kbd{s}, if set to a non-zero value, causes the computation to
-return \kbd{gen\_0} (an impossible cardinality) if one of the small primes
-$\ell>s$ divides the curve order. For cryptographic applications, where one
-is usually interested in curves of prime order, setting $s=1$ efficiently
-weeds out most uninteresting curves; if curves of order a power of $2$ times
-a prime are acceptable, set $s=2$. There is no guarantee that the resulting
-cardinality is prime, only that it has no small prime divisor larger than
-$s$.
+\fun{GEN}{ellsea}{GEN E, GEN p, long s} deprecated, use \kbd{Fp\_ellcard\_SEA}
+instead.
 
 \subsubsec{Curves defined a non-prime finite field}
 In this subsection, we assume that \tet{ell_get_type}$(E)$ is \tet{t_ELL_Fq}.
@@ -416,12 +403,16 @@ $j$-invariant of a supersingular curve over $\F_p$, $0$ otherwise.
 \fun{GEN}{Fp_ellcard}{GEN a4, GEN a6, GEN p} returns the cardinal of the group
 $E(\F_p)$.
 
-\fun{GEN}{Fp_ellcard_SEA}{GEN a4, GEN a6, GEN p, long s} same as
-\tet{ellsea} when only $[a_4,a_6]$ are given.
+\fun{GEN}{Fp_ellcard_SEA}{GEN a4, GEN a6, GEN p, long s}
+available if the \kbd{seadata} package is installed. This function returns
+$\#E(\F_p)$, using the Schoof-Elkies-Atkin algorithm.
 
-\fun{GEN}{Fq_ellcard_SEA}{GEN a4, GEN a6, GEN q, GEN T, GEN p, long s} same
-as \tet{ellsea} when only $[a_4,a_6]$ are given, over $\F_p[t]/(T)$.
-Assume $p\neq 2,3$.
+The extra flag \kbd{s}, if set to a non-zero value, causes the computation to
+return \kbd{gen\_0} (an impossible cardinality) if one of the small primes
+$\ell>s$ divides the curve order. For cryptographic applications, where one
+is usually interested in curves of prime order, setting $s=1$ efficiently
+weeds out most uninteresting curves; if curves of order a power of $2$ times
+a prime are acceptable, set $s=2$.
 
 \fun{GEN}{Fp_ffellcard}{GEN a4, GEN a6, GEN q, long n, GEN p} returns the
 cardinal of the group $E(\F_q)$ where $q=p^n$.
@@ -713,6 +704,12 @@ the $j$-invariant of a supersingular curve over $\F_p[X]/(T)$, $0$ otherwise.
 
 \fun{GEN}{FpXQ_ellcard}{GEN a4, GEN a6, GEN T, GEN p}
 returns the order of $E(\F_p[X]/(T))$.
+
+\fun{GEN}{Fq_ellcard_SEA}{GEN a4, GEN a6, GEN q, GEN T, GEN p, long s}
+available if the \kbd{seadata} package is installed. This function returns
+$\#E(\F_p[X]/(T))$, using the Schoof-Elkies-Atkin algorithm.
+Assume $p\neq 2,3$, and $q$ is the cardinal of $\F_p[X]/(T)$.
+The parameter $s$ has the same meaning as in \kbd{Fp\_ellcard\_SEA}.
 
 \fun{GEN}{FpXQ_ellgroup}{GEN a4, GEN a6, GEN N, GEN T, GEN p, GEN *pt_m}
 Return the group structure $D$ of the group $E(\F_p[X]/(T))$,
