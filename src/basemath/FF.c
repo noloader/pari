@@ -981,13 +981,6 @@ F2xq_ell_to_a4a6(GEN E, GEN T)
 }
 
 static GEN
-Fq_to_FpXQ(GEN x, GEN T, GEN p /*unused*/)
-{
-  (void) p;
-  return typ(x)==t_INT ? scalarpol(x, varn(T)): x;
-}
-
-static GEN
 FqV_to_FpXQV(GEN x, GEN T)
 {
   pari_sp av = avma;

@@ -2054,6 +2054,13 @@ INLINE GEN
 Fq_red(GEN x, GEN T, GEN p)
 { return typ(x)==t_INT? Fp_red(x,p): FpXQ_red(x,T,p); }
 INLINE GEN
+Fq_to_FpXQ(GEN x, GEN T, GEN p /*unused*/)
+{
+  (void) p;
+  return typ(x)==t_INT ? scalarpol(x, get_FpX_var(T)): x;
+}
+
+INLINE GEN
 gener_Fq_local(GEN T, GEN p, GEN L)
 { return T? gener_FpXQ_local(T,p, L)
           : pgener_Fp_local(p, L); }

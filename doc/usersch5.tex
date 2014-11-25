@@ -4241,6 +4241,10 @@ whose modulus is divisible by $T$ (once mapped to a \kbd{FpX}), a suitable
 returns the \kbd{FqX} obtained by applying \kbd{Rg\_to\_FpXQ}
 coefficientwise and simplifying scalars to \typ{INT}s.
 
+\fun{GEN}{Fq_to_FpXQ}{GEN z, GEN T, GEN p /*unused*/}
+if $z$ is a \typ{INT}, convert it to a constant polynomial in the variable of
+$T$, otherwise return $z$ (shallow function).
+
 \fun{GEN}{Fq_red}{GEN x, GEN T, GEN p}, \kbd{x} a \kbd{ZX} or \typ{INT},
 reduce it to an \kbd{Fq} ($\kbd{T} = \kbd{NULL}$ is allowed iff \kbd{x} is a
 \typ{INT}).
