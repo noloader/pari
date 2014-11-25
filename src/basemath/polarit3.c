@@ -2501,33 +2501,16 @@ fp_resultant(GEN a, GEN b)
   return gerepileupto(av, gmul(res, gpowgs(gel(b,2), da)));
 }
 
-#ifdef LONG_IS_64BIT
-#define  ZXRES_PRIME  4611686018427388039UL
-#else
-#define  ZXRES_PRIME  27449UL
-#endif
-
 static long
 get_nbprimes(ulong bound, GEN dB, ulong *pt_start)
 {
-  pari_sp av = avma;
-  ulong p;
-  long i = 0, e;
-  ulong pstart = ZXRES_PRIME;
-  ulong s = 0;
-  forprime_t S;
+#ifdef LONG_IS_64BIT
+  ulong pstart = 4611686018427388039UL;
+#else
+  ulong pstart = 1073741827UL;
+#endif
   *pt_start = pstart;
-  if ((ulong)expu(pstart) > bound && (!dB || umodiu(dB, pstart)!=0)) return 1;
-  u_forprime_init(&S, pstart, ULONG_MAX);
-  while ((p = u_forprime_next(&S)))
-  {
-    i++;
-    if (dB && umodiu(dB, p)==0) continue;
-    e = expu(p);
-    s += e;
-    if (s > bound) break;
-  }
-  avma = av; return i;
+  return (bound/expu(pstart))+1;
 }
 
 static ulong
@@ -2567,7 +2550,6 @@ ZX_resultant_slice(GEN A, GEN B, GEN dB, ulong p, long n, ulong *plast, GEN *mod
   pari_sp av = avma;
   long degA, degB, i;
   GEN H, P, T;
-  forprime_t S;
 
   degA = degpol(A);
   degB = B ? degpol(B): degA - 1;
@@ -2575,17 +2557,16 @@ ZX_resultant_slice(GEN A, GEN B, GEN dB, ulong p, long n, ulong *plast, GEN *mod
   {
     ulong Hp;
     GEN a, b;
-    p = unextprime(p); *plast = p+1;
+    *plast = unextprime(p+1);
     a = ZX_to_Flx(A, p), b = B ? ZX_to_Flx(B, p): NULL;
     if (dB) dp = umodiu(dB, p);
     Hp = ZX_resultant_prime(a, b, dp, degA, degB, p);
     avma = av;
     *mod = utoi(p); return utoi(Hp);
   }
-  u_forprime_init(&S, p, ULONG_MAX);
   P = cgetg(n+1, t_VECSMALL);
-  for (i=1; i <= n; i++)
-    P[i] = u_forprime_next(&S);
+  for (i=1; i <= n; i++, p = unextprime(p+1))
+    P[i] = p;
   T = ZV_producttree(P);
   A = ZX_nv_mod_tree(A, P, T);
   if (B) B = ZX_nv_mod_tree(B, P, T);
@@ -2598,7 +2579,7 @@ ZX_resultant_slice(GEN A, GEN B, GEN dB, ulong p, long n, ulong *plast, GEN *mod
     a = gel(A, i); b = B ? gel(B, i): NULL;
     H[i] = ZX_resultant_prime(a, b, dp, degA, degB, p);
   }
-  H = ZV_chinese_tree(H, P, T, mod); *plast=P[n]+1;
+  H = ZV_chinese_tree(H, P, T, mod); *plast=p;
   gerepileall(av, 2, &H, mod);
   return H;
 }
