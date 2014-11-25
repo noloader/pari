@@ -2827,7 +2827,7 @@ quadray_init(GEN *pD, GEN f, GEN *pbnf, long prec)
     int isfund;
     if (pbnf) {
       long v = f? gvar(f): NO_VARIABLE;
-      if (v == NO_VARIABLE) v = fetch_user_var("y");
+      if (v == NO_VARIABLE) v = 1;
       bnf = Buchall(quadpoly0(D, v), nf_FORCE, prec);
       nf = bnf_get_nf(bnf);
       isfund = equalii(D, nf_get_disc(nf));

@@ -840,8 +840,9 @@ pari_var_init(void)
   nvar = 0; max_avail = MAXVARN;
   max_priority = min_priority = 0;
   (void)fetch_user_var("x");
+  (void)fetch_user_var("y");
   /* initialize so that people can use pol_x(i) directly */
-  for (i = 1; i <= (long)MAXVARN; i++) varpriority[i] = -i;
+  for (i = 2; i <= (long)MAXVARN; i++) varpriority[i] = -i;
   /* reserve varnum 1..9 for static temps with predictable priority wrt x */
   nvar = 10;
   min_priority = -MAXVARN;

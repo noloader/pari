@@ -1,4 +1,4 @@
-junk1;k;c;d;e;f;g;junk2;junk3;b;h;j;a;z;y;x2;x3;x4;x1;
+k;c;d;e;f;g;junk2;junk3;b;h;j;a;z;x2;x3;x4;x1;
 
 allocatemem(20*10^6);
 do(P,Q)=my(v=variable()); substvec(polresultant(P,Q), v, vector(#v,i,i));

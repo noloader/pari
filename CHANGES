@@ -253,9 +253,8 @@ BA 38- much faster polresultant over Z
    39- GP and libpari polynomial variables of arbitrary priority can now be
        created: 'x' is no longer guaranteed to have maximal priority,
        nor MAXVARN to have minimal priority.
-   40- GP: polynomial variables no longer spring into existence unless a true
-       t_POL/t_SER in the variable is needed. E.g. y = 0 does not create the
-       "variable" y, thereby messing up variable ordering.
+   40- GP: polynomial variable 'y' is now always defined on startup, 
+       with priority lower than 'x'
 
 Removed
    1- deprecated functions nfbasis0, nfdisc0, factorpadic0

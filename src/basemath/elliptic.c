@@ -2006,9 +2006,8 @@ START:
     u = Qp_sqrt(u2);
   else
   {
-    long v = fetch_user_var("u");
     GEN T = mkpoln(3, gen_1, gen_0, gneg(u2));
-    setvarn(T, v); u = mkpolmod(pol_x(v), T);
+    u = mkpolmod(pol_x(0), T);
   }
   return mkvec4(u2, u, q, mkvec2(a, b));
 }

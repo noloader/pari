@@ -1458,7 +1458,7 @@ modpoly_ZXX(long L, long vx, long vy)
   GEN phi = modpoly_ZM(L);
 
   if (vx < 0) vx = 0;
-  if (vy < 0) vy = fetch_user_var("y");
+  if (vy < 0) vy = 1;
   if (varncmp(vx, vy) >= 0)
     pari_err_PRIORITY("modpoly_ZXX", pol_x(vx), "<=", vy);
 

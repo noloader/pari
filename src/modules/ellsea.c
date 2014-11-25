@@ -120,7 +120,7 @@ ellmodulareqn(long ell, long vx, long vy)
   pari_sp av = avma;
   struct meqn meqn;
   if (vx<0) vx=0;
-  if (vy<0) vy=fetch_user_var("y");
+  if (vy<0) vy=1;
   if (varncmp(vx,vy)>=0)
     pari_err_PRIORITY("ellmodulareqn", pol_x(vx), ">=", vy);
   if (ell < 0 || !uisprime(ell))

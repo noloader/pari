@@ -2508,7 +2508,7 @@ galoisfixedfield(GEN gal, GEN perm, long flag, long y)
       mod = Pgb.ladicabs; mod2 = shifti(mod,-1);
     }
     PM = vandermondeinversemod(PL, P, Pden, mod);
-    if (y < 0) y = fetch_user_var("y");
+    if (y < 0) y = 1;
     if (varncmp(y, vT) <= 0)
       pari_err_PRIORITY("galoisfixedfield", T, "<=", y);
     res = cgetg(4, t_VEC);

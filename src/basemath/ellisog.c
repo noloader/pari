@@ -536,7 +536,7 @@ ellisogeny(GEN E, GEN G, long only_image, long vx, long vy)
   GEN j, z;
   checkell(E);j = ell_get_j(E);
   if (vx < 0) vx = 0;
-  if (vy < 0) vy = fetch_user_var("y");
+  if (vy < 0) vy = 1;
   if (varncmp(vx, vy) >= 0) pari_err_PRIORITY("ellisogeny", pol_x(vx), "<=", vy);
   if (varncmp(vy, gvar(j)) >= 0) pari_err_PRIORITY("ellisogeny", j, ">=", vy);
   switch(typ(G))
