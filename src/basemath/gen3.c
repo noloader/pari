@@ -57,7 +57,7 @@ variables_vecsmall(GEN x)
 
 GEN
 variables_vec(GEN x)
-{ return vars_to_RgXV(variables_vecsmall(x)); }
+{ return x? vars_to_RgXV(variables_vecsmall(x)): gpolvar(NULL); }
 
 long
 gvar(GEN x)
