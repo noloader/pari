@@ -255,7 +255,7 @@ BA 38- much faster polresultant over Z
    39- GP and libpari polynomial variables of arbitrary priority can now be
        created: 'x' is no longer guaranteed to have maximal priority,
        nor MAXVARN to have minimal priority.
-   40- GP: polynomial variable 'y' is now always defined on startup, 
+   40- GP: polynomial variable 'y' is now always defined on startup,
        with priority lower than 'x'
 
 Removed
