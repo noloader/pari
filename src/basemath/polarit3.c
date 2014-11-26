@@ -2502,7 +2502,7 @@ fp_resultant(GEN a, GEN b)
 }
 
 static long
-get_nbprimes(ulong bound, GEN dB, ulong *pt_start)
+get_nbprimes(ulong bound, ulong *pt_start)
 {
 #ifdef LONG_IS_64BIT
   ulong pstart = 4611686018427388039UL;
@@ -2514,11 +2514,12 @@ get_nbprimes(ulong bound, GEN dB, ulong *pt_start)
 }
 
 static ulong
-ZX_resultant_prime(GEN a, GEN b, ulong dp, long degA, long degB, ulong p)
+ZX_resultant_prime(GEN a, GEN b, GEN dB, long degA, long degB, ulong p)
 {
   pari_sp av = avma;
   ulong H;
   long dropa, dropb;
+  ulong dp = dB ? umodiu(dB, p): 1;
   if (!b) b = Flx_deriv(a, p);
   dropa = degA - degpol(a);
   dropb = degB - degpol(b);
@@ -2546,7 +2547,6 @@ ZX_resultant_prime(GEN a, GEN b, ulong dp, long degA, long degB, ulong p)
 static GEN
 ZX_resultant_slice(GEN A, GEN B, GEN dB, ulong p, long n, ulong *plast, GEN *mod)
 {
-  ulong dp = 1;
   pari_sp av = avma;
   long degA, degB, i;
   GEN H, P, T;
@@ -2557,16 +2557,18 @@ ZX_resultant_slice(GEN A, GEN B, GEN dB, ulong p, long n, ulong *plast, GEN *mod
   {
     ulong Hp;
     GEN a, b;
-    *plast = unextprime(p+1);
+    if (dB) while (umodiu(dB, p)==0) p = unextprime(p+1);
     a = ZX_to_Flx(A, p), b = B ? ZX_to_Flx(B, p): NULL;
-    if (dB) dp = umodiu(dB, p);
-    Hp = ZX_resultant_prime(a, b, dp, degA, degB, p);
+    Hp = ZX_resultant_prime(a, b, dB, degA, degB, p);
     avma = av;
-    *mod = utoi(p); return utoi(Hp);
+    *plast = unextprime(p+1); *mod = utoi(p); return utoi(Hp);
   }
   P = cgetg(n+1, t_VECSMALL);
   for (i=1; i <= n; i++, p = unextprime(p+1))
+  {
+    if (dB && umodiu(dB, p)==0) { i--; continue; }
     P[i] = p;
+  }
   T = ZV_producttree(P);
   A = ZX_nv_mod_tree(A, P, T);
   if (B) B = ZX_nv_mod_tree(B, P, T);
@@ -2574,10 +2576,8 @@ ZX_resultant_slice(GEN A, GEN B, GEN dB, ulong p, long n, ulong *plast, GEN *mod
   for(i=1; i <= n; i++)
   {
     ulong p = P[i];
-    GEN a, b;
-    if (dB) { dp = umodiu(dB, p); if (!dp) continue; }
-    a = gel(A, i); b = B ? gel(B, i): NULL;
-    H[i] = ZX_resultant_prime(a, b, dp, degA, degB, p);
+    GEN a = gel(A, i), b = B ? gel(B, i): NULL;
+    H[i] = ZX_resultant_prime(a, b, dB, degA, degB, p);
   }
   H = ZV_chinese_tree(H, P, T, mod); *plast=p;
   gerepileall(av, 2, &H, mod);
@@ -2618,7 +2618,7 @@ ZX_resultant_all(GEN A, GEN B, GEN dB, ulong bound)
       }
     }
   }
-  n = get_nbprimes(bound+1, dB, &p);/* +1 to account for sign */
+  n = get_nbprimes(bound+1, &p);/* +1 to account for sign */
   if (is_disc)
     B = NULL;
   m = minss(degpol(A)+(B ? degpol(B): 0), n);
