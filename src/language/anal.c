@@ -1026,29 +1026,25 @@ name_var(long n, const char *s)
 
 static int
 cmp_by_var(void *E,GEN x, GEN y)
-{ (void)E; return varncmp(varn(x),varn(y)); }
-
+{ (void)E; return varncmp((long)x,(long)y); }
+GEN
+vars_sort_inplace(GEN z)
+{ gen_sort_inplace(z,NULL,cmp_by_var,NULL); return z; }
+GEN
+vars_to_RgXV(GEN h)
+{
+  long i, l = lg(h);
+  GEN z = cgetg(l, t_VEC);
+  for (i = 1; i < l; i++) gel(z,i) = pol_x(h[i]);
+  return z;
+}
 GEN
 gpolvar(GEN x)
 {
   long v;
   if (!x) {
-    hashtable *h = h_polvar;
-    long i, k = 1, l = h->nb + 1;
-    GEN z = cgetg(l, t_VEC);
-    for (i = 0; i < h->len; i++)
-    {
-      hashentry *e = h->table[i];
-      while (e)
-      {
-        long v = (long)e->val;
-        gel(z,k++) = pol_x(v);
-        e = e->next;
-      }
-    }
-    if (k != l) pari_err_BUG("variable [mismatch]");
-    gen_sort_inplace(z,NULL,cmp_by_var,NULL);
-    return z;
+    GEN h = hash_values(h_polvar);
+    return vars_to_RgXV(vars_sort_inplace(h));
   }
   if (typ(x)==t_PADIC) return gcopy( gel(x,2) );
   v = gvar(x);

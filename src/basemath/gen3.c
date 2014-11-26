@@ -25,6 +25,40 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 /**                 PRINCIPAL VARIABLE NUMBER                      **/
 /**                                                                **/
 /********************************************************************/
+static void
+recvar(hashtable *h, GEN x)
+{
+  long i = 1, lx = lg(x);
+  void *v;
+  switch(typ(x))
+  {
+    case t_POL: case t_SER:
+      v = (void*)varn(x);
+      if (!hash_search(h, v)) hash_insert(h, v, NULL);
+      i = 2; break;
+    case t_POLMOD: case t_RFRAC:
+    case t_VEC: case t_COL: case t_MAT: break;
+    case t_LIST:
+      x = list_data(x);
+      lx = x? lg(x): 1; break;
+    default:
+      return;
+  }
+  for (; i < lx; i++) recvar(h, gel(x,i));
+}
+
+GEN
+variables_vecsmall(GEN x)
+{
+  hashtable *h = hash_create_ulong(100, 1);
+  recvar(h, x);
+  return vars_sort_inplace(hash_keys(h));
+}
+
+GEN
+variables_vec(GEN x)
+{ return vars_to_RgXV(variables_vecsmall(x)); }
+
 long
 gvar(GEN x)
 {

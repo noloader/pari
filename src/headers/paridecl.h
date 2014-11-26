@@ -2766,6 +2766,10 @@ GEN     tayl(GEN x, long v, long precdl);
 GEN     toser_i(GEN x);
 GEN     trunc0(GEN x, GEN *pte);
 GEN     uu32toi(ulong a, ulong b);
+GEN     vars_sort_inplace(GEN z);
+GEN     vars_to_RgXV(GEN h);
+GEN     variables_vecsmall(GEN x);
+GEN     variables_vec(GEN x);
 
 /* genus2red.c */
 
@@ -2782,6 +2786,8 @@ hashtable *hash_create_ulong(ulong s, long stack);
 hashtable *hash_create_str(ulong s, long stack);
 hashtable *hash_create(ulong minsize, ulong (*hash)(void*), int (*eq)(void*,void*), int use_stack);
 void hash_insert(hashtable *h, void *k, void *v);
+GEN hash_keys(hashtable *h);
+GEN hash_values(hashtable *h);
 hashentry *hash_search(hashtable *h, void *k);
 hashentry *hash_search2(hashtable *h, void *k, ulong hash);
 hashentry *hash_select(hashtable *h, void *k, void *E,int(*select)(void *,hashentry *));

@@ -10912,6 +10912,12 @@ selection criterion (such that \kbd{select(E,e)} is non-zero) and delete it, or
 \kbd{NULL} if none exist. Only the linking structures are freed, memory
 associated to $k$ and $v$ is not reclaimed.
 
+\fun{GEN}{hash_keys}{hashtable *h} return in a \typ{VECSMALL} the keys
+stored in hashtable $h$.
+
+\fun{GEN}{hash_values}{hashtable *h} return in a \typ{VECSMALL}
+the values stored in hashtable $h$.
+
 \fun{void}{hash_destroy}{hashtable *h} deletes the hashtable, by removing all
 entries.
 

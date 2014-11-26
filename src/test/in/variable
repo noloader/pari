@@ -22,3 +22,4 @@ varhigher("y",y);
 variable()
 varhigher("zzz",y);1/0
 variable()
+variables([v,tt,zz])

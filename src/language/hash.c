@@ -128,6 +128,31 @@ hash_select(hashtable *h, void *k, void *E,int(*select)(void *,hashentry *))
   return NULL;
 }
 
+GEN
+hash_keys(hashtable *h)
+{
+  long i, k = 1;
+  GEN v = cgetg(h->nb+1, t_VECSMALL);
+  for (i = 0; i < h->len; i++)
+  {
+    hashentry *e = h->table[i];
+    while (e) { v[k++] = (long)e->key; e = e->next; }
+  }
+  return v;
+}
+GEN
+hash_values(hashtable *h)
+{
+  long i, k = 1;
+  GEN v = cgetg(h->nb+1, t_VECSMALL);
+  for (i = 0; i < h->len; i++)
+  {
+    hashentry *e = h->table[i];
+    while (e) { v[k++] = (long)e->val; e = e->next; }
+  }
+  return v;
+}
+
 /* assume hash = h->hash(k) */
 hashentry *
 hash_search2(hashtable *h, void *k, ulong hash)
