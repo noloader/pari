@@ -864,12 +864,23 @@ varstate_restore(struct pari_varstate *s)
 }
 
 void
+pari_var_close(void)
+{
+  free((void*)varentries);
+  free((void*)(varpriority-1));
+  hash_destroy(h_polvar);
+}
+
+void
 pari_var_init(void)
 {
   long i;
+  varentries = (entree**) pari_calloc((MAXVARN+1)*sizeof(entree*));
+  varpriority = (long*)pari_malloc((MAXVARN+2)*sizeof(long)) + 1;
+  varpriority[-1] = 1-LONG_MAX;
+  h_polvar = hash_create_str(100, 0);
   nvar = 0; max_avail = MAXVARN;
   max_priority = min_priority = 0;
-  h_polvar = hash_create_str(100, 0);
   (void)fetch_user_var("x");
   (void)fetch_user_var("y");
   /* initialize so that people can use pol_x(i) directly */

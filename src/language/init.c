@@ -888,9 +888,6 @@ pari_init_opts(size_t parisize, ulong maxprime, ulong init_opts)
   pari_kernel_init();
 
   primetab = cgetalloc(t_VEC, 1);
-  varentries = (entree**) pari_calloc((MAXVARN+1)*sizeof(entree*));
-  varpriority = (long*)pari_malloc((MAXVARN+2)*sizeof(long)) + 1;
-  varpriority[-1] = 1-LONG_MAX;
   pari_thread_init();
   pari_init_seadata();
   pari_init_functions();
@@ -924,8 +921,7 @@ pari_close_opts(ulong init_opts)
       ep = EP;
     }
   }
-  free((void*)varentries);
-  free((void*)(varpriority-1));
+  pari_var_close();
   free((void*)primetab);
   pari_close_seadata();
   pari_thread_close();
