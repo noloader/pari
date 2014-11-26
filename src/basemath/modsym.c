@@ -1771,7 +1771,7 @@ cusplog(GEN v, GEN W, int negate, GEN cusp)
 /* cusplog in case the action is trivial */
 static void
 cusplog_trivial(GEN v, GEN W, int negate, GEN cusp)
-{ if (cusp[2]) return Q_log_trivial(v,W,negate,cusp_to_frac(cusp)); }
+{ if (cusp[2]) Q_log_trivial(v,W,negate,cusp_to_frac(cusp)); }
 
 /* Expresses path p as \sum x_i g_i, where the g_i are our distinguished
  * generators and x_i \in Z[\Gamma]. Returns [x_1,...,x_n] */
