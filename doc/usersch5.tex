@@ -10875,6 +10875,13 @@ value of keys and test keys for equality, respectively. If \kbd{use\_stack}
 is non zero, the resulting table will use the PARI stack; otherwise, we use
 \kbd{malloc}.
 
+\fun{hashtable*}{hash_create_ulong}{ulong size, long stack} special case
+when the keys are \kbd{ulongs} with ordinary equality test.
+
+\fun{hashtable*}{hash_create_str}{ulong size, long stack} special case
+when the keys are character strings with string equality test (and
+\tet{hash_str} hash function).
+
 \fun{void}{hash_insert}{hashtable *h, void *k, void *v} inserts $(k,v)$
 in hashtable $h$. No copy is made: $k$ and $v$ themselves are stored. The
 implementation does not prevent one to insert two entries with equal
@@ -10887,10 +10894,23 @@ with key $k$ in $h$. Return it if it one exists, and \kbd{NULL} if not.
 entry with key $k$ in $h$, assuming \kbd{h->hash(k)} is \kbd{hash}. Return
 it if it one exists, and \kbd{NULL} if not.
 
+\fun{hashentry *}{hash_select}{hashtable *h, void *k, void *E, int(*select)(void
+*,hashentry *)} variant of \tet{hash_search}, useful when entries
+with identical keys are inserted: among the entries associated to
+key $k$, return one satisfying the selection criterion (such that
+\kbd{select(E,e)} is non-zero), or \kbd{NULL} if none exist.
+
 \fun{hashentry*}{hash_remove}{hashtable *h, void *k} deletes an entry $(k,v)$
 with key $k$ from $h$ and return it. (Return \kbd{NULL} if none was found.)
 Only the linking structures are freed, memory associated to $k$ and $v$
 is not reclaimed.
+
+\fun{hashentry*}{hash_remove_select}{hashtable *h, void *k, void *E, int(*select)(void *,hashentry *) }
+variant of \tet{hash_remove}, useful when entries with identical keys are
+inserted: among the entries associated to key $k$, return one satisfying the
+selection criterion (such that \kbd{select(E,e)} is non-zero) and delete it, or
+\kbd{NULL} if none exist. Only the linking structures are freed, memory
+associated to $k$ and $v$ is not reclaimed.
 
 \fun{void}{hash_destroy}{hashtable *h} deletes the hashtable, by removing all
 entries.

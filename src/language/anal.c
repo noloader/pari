@@ -801,6 +801,7 @@ chartoGENstr(char c)
 static long max_priority, min_priority;
 static long max_avail; /* max variable not yet used */
 static long nvar; /* first GP free variable */
+static hashtable *h_polvar;
 
 void
 varstate_save(struct pari_varstate *s)
@@ -811,20 +812,49 @@ varstate_save(struct pari_varstate *s)
   s->min_priority = min_priority;
 }
 
+static void
+varentries_set(long v, entree *ep)
+{
+  hash_insert(h_polvar, (void*)ep->name, (void*)v);
+  varentries[v] = ep;
+}
+static int
+_given_value(void *E, hashentry *e) { return e->val == E; }
+
+static void
+varentries_unset(long v)
+{
+  entree *ep = varentries[v];
+  if (ep)
+  {
+    hashentry *e = hash_remove_select(h_polvar, (void*)ep->name, (void*)v,
+        _given_value);
+    if (!e) pari_err_BUG("varentries_unset [unknown var]");
+    varentries[v] = NULL;
+    pari_free(e);
+    if (v <= nvar && is_entry(ep->name)) { killep(ep); return; }
+    pari_free(ep);
+ }
+}
+static void
+varentries_reset(long v, entree *ep)
+{
+  varentries_unset(v);
+  varentries_set(v, ep);
+}
+
 void
 varstate_restore(struct pari_varstate *s)
 {
   long i;
   for (i = nvar; i >= s->nvar; i--)
   {
-    entree *ep = varentries[i];
-    if (ep) { killep(ep); varentries[i] = NULL; }
+    varentries_unset(i);
     varpriority[i] = -i;
   }
   for (i = max_avail; i < s->max_avail; i++)
   {
-    entree *ep = varentries[i];
-    if (ep) { free(ep); varentries[i] = NULL; }
+    varentries_unset(i);
     varpriority[i] = -i;
   }
   nvar = s->nvar;
@@ -839,6 +869,7 @@ pari_var_init(void)
   long i;
   nvar = 0; max_avail = MAXVARN;
   max_priority = min_priority = 0;
+  h_polvar = hash_create_str(100, 0);
   (void)fetch_user_var("x");
   (void)fetch_user_var("y");
   /* initialize so that people can use pol_x(i) directly */
@@ -862,7 +893,7 @@ pari_var_create(entree *ep)
   p[1] = evalsigne(1) | evalvarn(v);
   gel(p,2) = gen_0;
   gel(p,3) = gen_1;
-  varentries[v] = ep;
+  varentries_set(v, ep);
   varpriority[v]= min_priority--;
   return v;
 }
@@ -891,24 +922,46 @@ fetch_var_higher(void)
   return max_avail--;
 }
 
-GEN
-varhigher(const char *s)
+int
+_higher(void *E, hashentry *e)
+{ long v = (long)e->val; return (varncmp(v, (long)E) < 0); }
+int
+_lower(void *E, hashentry *e)
+{ long v = (long)e->val; return (varncmp(v, (long)E) > 0); }
+
+static GEN
+var_register(long v, const char *s)
 {
-  long v;
-  if (nvar == max_avail) pari_err(e_MISC,"no more variables available");
-  v = nvar++;
-  varpriority[v]= ++max_priority;
-  if (varentries[v]) pari_free(varentries[v]);
-  varentries[v] = initep(s, strlen(s));
+  varentries_reset(v, initep(s, strlen(s)));
   return pol_x(v);
 }
 GEN
-varlower(const char *s)
+varhigher(const char *s, long w)
 {
-  long v = fetch_var();
-  if (varentries[v]) pari_free(varentries[v]);
-  varentries[v] = initep(s, strlen(s));
-  return pol_x(v);
+  long v;
+  if (w >= 0)
+  {
+    hashentry *e = hash_select(h_polvar, (void*)s, (void*)w, _higher);
+    if (e) return pol_x((long)e->val);
+  }
+  /* no luck: need to create */
+  if (nvar == max_avail) pari_err(e_MISC,"no more variables available");
+  v = nvar++;
+  varpriority[v]= ++max_priority;
+  return var_register(v, s);
+}
+GEN
+varlower(const char *s, long w)
+{
+  long v;
+  if (w >= 0)
+  {
+    hashentry *e = hash_select(h_polvar, (void*)s, (void*)w, _lower);
+    if (e) return pol_x((long)e->val);
+  }
+  /* no luck: need to create */
+  v = fetch_var();
+  return var_register(v, s);
 }
 
 long
@@ -957,8 +1010,7 @@ name_var(long n, const char *s)
   ep->valence = EpVAR;
   ep->name = u; strcpy(u,s);
   ep->value = gen_0; /* in case geval is called */
-  if (varentries[n]) pari_free(varentries[n]);
-  varentries[n] = ep;
+  varentries_reset(n, ep);
 }
 
 static int
@@ -970,17 +1022,20 @@ gpolvar(GEN x)
 {
   long v;
   if (!x) {
-    long k = 1, l = nvar + MAXVARN-max_avail + 2;
+    hashtable *h = h_polvar;
+    long i, k = 1, l = h->nb + 1;
     GEN z = cgetg(l, t_VEC);
-    for (v = 0; v <= MAXVARN; v++)
+    for (i = 0; i < h->len; i++)
     {
-      entree *ep = varentries[v];
-      if (ep) gel(z,k++) = pol_x(v);
+      hashentry *e = h->table[i];
+      while (e)
+      {
+        long v = (long)e->val;
+        gel(z,k++) = pol_x(v);
+        e = e->next;
+      }
     }
-    if (k < l) {
-      setlg(z,k);
-      stackdummy((pari_sp)(z+l), (pari_sp)(z+k));
-    }
+    if (k != l) pari_err_BUG("variable [mismatch]");
     gen_sort_inplace(z,NULL,cmp_by_var,NULL);
     return z;
   }

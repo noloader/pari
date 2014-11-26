@@ -9,5 +9,14 @@ z
 0
 y
 [x, y, z, v]
-[y, x, y, z, v, y]
+[y, x, y, z, v, y, tt]
+[y, x, y, z, v, y, tt, zz]
+[y, y, x, y, z, v, y, tt, zz]
+[y, y, x, y, z, v, y, tt, zz]
+[y, y, x, y, z, v, y, tt, zz, y]
+[y, y, x, y, z, v, y, tt, zz, y]
+  ***   at top-level: varhigher("zzz",y);1/0
+  ***                                     ^--
+  *** _/_: impossible inverse in gdiv: 0.
+[y, y, x, y, z, v, y, tt, zz, y]
 Total time spent: 0

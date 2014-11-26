@@ -186,6 +186,8 @@ BA 70- ellcard over fields of medium characteristic (SEA, Kedlaya, Satoh)
    71- GP functions varhigher() / varlower()
 BA 72- GP function self() (for defining recursive anonymous functions)
 BA 73- GP function fold()
+   74- [libpari] hash_create_ulong, hash_create_str, hash_select,
+       hash_remove_select
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]

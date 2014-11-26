@@ -113,6 +113,21 @@ hash_insert(hashtable *h, void *k, void *v)
   e->val = v; hash_link(h, e);
 }
 
+/* the key 'k' may correspond to different values in the hash, return
+ * one satisfying the selection callback */
+hashentry *
+hash_select(hashtable *h, void *k, void *E,int(*select)(void *,hashentry *))
+{
+  ulong hash = h->hash(k);
+  hashentry *e = h->table[ hash % h->len ];
+  while (e)
+  {
+    if (hash == e->hash && h->eq(k, e->key) && select(E,e)) return e;
+    e = e->next;
+  }
+  return NULL;
+}
+
 /* assume hash = h->hash(k) */
 hashentry *
 hash_search2(hashtable *h, void *k, ulong hash)
@@ -131,6 +146,24 @@ hash_search(hashtable *h, void *k)
 {
   if (h->nb == 0) return NULL;
   return hash_search2(h, k, h->hash(k));
+}
+
+hashentry *
+hash_remove_select(hashtable *h, void *k, void *E,
+  int (*select)(void*,hashentry*))
+{
+  ulong hash = h->hash(k), index = hash % h->len;
+  hashentry **pE = &(h->table[index]), *e = *pE;
+  while (e)
+  {
+    if (hash == e->hash && h->eq(k, e->key) && select(E,e)) {
+      *pE = e->next; h->nb--;
+      return e;
+    }
+    pE = &(e->next);
+    e = e->next;
+  }
+  return NULL;
 }
 
 hashentry *
@@ -161,13 +194,24 @@ hash_destroy(hashtable *h)
   }
   pari_free(h->table); pari_free(h);
 }
+static ulong
+hash_id(void *x) { return (ulong)x; }
+static int
+eq_id(void *x, void *y) { return x == y; }
+hashtable *
+hash_create_ulong(ulong s, long stack)
+{ return hash_create(s, &hash_id, &eq_id, stack); }
 
 static
 int strequal(void *a, void *b) { return !strcmp((char*)a,(char*)b); }
 hashtable *
+hash_create_str(ulong s, long stack)
+{ return hash_create(s, (ulong (*)(void *))&hash_str, strequal, stack); }
+
+hashtable *
 hashstr_import_static(hashentry *e, ulong size)
 {
-  hashtable *h = hash_create(size, (ulong (*)(void *))hash_str, strequal, 0);
+  hashtable *h = hash_create_str(size, 0);
   for ( ; e->key; e++) { hash_link(h, e); h->nb++; }
   return h;
 }

@@ -1,18 +1,18 @@
 Function: varhigher
 Section: conversions
 C-Name: varhigher
-Prototype: s
-Help: varhigher(name): return a new variable 'name' whose priority is higher
- than all currently existing variables.
-Doc: return a new variable \emph{name} whose priority is higher
- than all currently existing variables. This is a counterpart to
- \tet{varlower}.
+Prototype: sDn
+Help: varhigher(name,{v}): return a variable 'name' whose priority is
+ higher than the priority of v (of all existing variables if v is omitted).
+Doc: return a variable \emph{name} whose priority is higher
+ than the priority of $v$ (of all existing variables if $v$ is omitted).
+ This is a counterpart to \tet{varlower}.
  \bprog
  ? Pol([x,x], t)
   ***   at top-level: Pol([x,x],t)
   ***                 ^------------
   *** Pol: incorrect priority in gtopoly: variable x <= t
- ? t = varhigher("t");
+ ? t = varhigher("t", x);
  ? Pol([x,x], t)
  %3 = x*t + x
  @eprog\noindent This routine is useful since new GP variables directly
@@ -27,7 +27,7 @@ Doc: return a new variable \emph{name} whose priority is higher
   ***   at top-level: rnfequation(K,y^2-2)
   ***                 ^--------------------
   *** rnfequation: incorrect priority in rnfequation: variable y >= x
- ? y = varhigher("y");
+ ? y = varhigher("y", x);
  ? rnfequation(K, y^2-2)
  %3 = y^4 - 2*y^2 + 9
  @eprog\noindent
@@ -42,15 +42,22 @@ Doc: return a new variable \emph{name} whose priority is higher
  ? x^2
  %2 = #^2
  @eprog
- \misctitle{Caution 2} There are a limited number of variables and each
- call to \kbd{varhigher} uses up one slot: do not create
- new variables in this way unless it's absolutely necessary.
+ \misctitle{Caution 2} There are a limited number of variables and if no
+ existing variable with the given display name has the requested
+ priority, the call to \kbd{varhigher} uses up one such slot. Do not create
+ new variables in this way unless it's absolutely necessary,
+ reuse existing names instead and choose sensible priority requirements:
+ if you only need a variable with higher priority than $x$, state so
+ rather than creating a new variable with highest priority.
  \bprog
- ? n = 0; while(1,varhigher("x"); n++)
-  ***   at top-level: n=0;while(1,varhigher("x");n++)
+ \\ quickly use up all variables
+ ? n = 0; while(1,varhigher("tmp"); n++)
+  ***   at top-level: n=0;while(1,varhigher("tmp");n++)
   ***                             ^-------------------
   *** varhigher: no more variables available.
   ***   Break loop: type 'break' to go back to GP prompt
  break> n
  65510
+ \\ infinite loop: here we reuse the same 'tmp'
+ ? n = 0; while(1,varhigher("tmp", x); n++)
  @eprog

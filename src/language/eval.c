@@ -2292,11 +2292,6 @@ copybin_unlink(GEN C)
   return res;
 }
 
-static ulong
-hash_id(void *x) { return (ulong)x; }
-static int
-eq_id(void *x, void *y) { return x == y; }
-
 /* e = t_VECSMALL of entree *ep [ addresses ],
  * names = t_VEC of strtoGENstr(ep.names),
  * Return hashtable : ep => is_entry(ep.name) */
@@ -2304,7 +2299,7 @@ hashtable *
 hash_from_link(GEN e, GEN names, int use_stack)
 {
   long i, l = lg(e);
-  hashtable *h = hash_create(l-1, &hash_id, &eq_id, use_stack);
+  hashtable *h = hash_create_ulong(l-1, use_stack);
   if (lg(names) != l) pari_err_DIM("hash_from_link");
   for (i = 1; i < l; i++)
   {

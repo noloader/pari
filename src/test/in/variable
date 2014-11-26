@@ -7,5 +7,18 @@ for(i=1,#v,
 variable()
 
 varhigher("y");
-varlower("y");
+tt=varlower("y");
+variable()
+zz=varhigher("y",x);
+variable()
+varhigher("y",zz);
+variable()
+varlower("y",zz);
+variable()
+varlower("y",tt);
+variable()
+varlower("tt",y);
+varhigher("y",y);
+variable()
+varhigher("zzz",y);1/0
 variable()

@@ -1283,8 +1283,8 @@ GEN     strtoGENstr(const char *s);
 GEN     strtoi(const char *s);
 GEN     strtor(const char *s, long prec);
 GEN     type0(GEN x);
-GEN     varhigher(const char *s);
-GEN     varlower(const char *s);
+GEN     varhigher(const char *s, long v);
+GEN     varlower(const char *s, long v);
 
 /* aprcl.c */
 
@@ -2777,11 +2777,15 @@ long    group_ident_trans(GEN G, GEN S);
 
 /* hash.c */
 
+hashtable *hash_create_ulong(ulong s, long stack);
+hashtable *hash_create_str(ulong s, long stack);
 hashtable *hash_create(ulong minsize, ulong (*hash)(void*), int (*eq)(void*,void*), int use_stack);
 void hash_insert(hashtable *h, void *k, void *v);
 hashentry *hash_search(hashtable *h, void *k);
 hashentry *hash_search2(hashtable *h, void *k, ulong hash);
+hashentry *hash_select(hashtable *h, void *k, void *E,int(*select)(void *,hashentry *));
 hashentry *hash_remove(hashtable *h, void *k);
+hashentry *hash_remove_select(hashtable *h, void *k, void *E, int (*select)(void*,hashentry*));
 void hash_destroy(hashtable *h);
 ulong hash_str(const char *str);
 ulong hash_str2(const char *s);
