@@ -674,8 +674,9 @@ upowuu(ulong p, ulong k)
     q *= q ;
     return odd(k)? q*p: q;
   }
-#endif
+#else
   return 0;
+#endif
 }
 
 typedef struct {
