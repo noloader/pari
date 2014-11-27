@@ -393,7 +393,7 @@ minimal_polycyclic_presentation(ulong h, long D, ulong u)
       ++ri;
     }
     if (ri > 1) {
-      ulong j;
+      long j;
       PCP_GEN_NORMS(pcp) = vecsmall_append(PCP_GEN_NORMS(pcp), curr_p);
       PCP_REL_ORDERS(pcp) = vecsmall_append(PCP_REL_ORDERS(pcp), ri);
       nelts *= ri;

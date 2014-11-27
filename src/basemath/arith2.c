@@ -979,7 +979,7 @@ long
 corediscs(long D, ulong *f)
 {
   /* D = f^2 dK */
-  long dK = D>=0 ? coreu(D) : -(long) coreu(-(ulong) D);
+  long dK = D>=0 ? (long) coreu(D) : -(long) coreu(-(ulong) D);
   ulong dKmod4 = ((ulong)dK)&3UL;
   if (dKmod4 == 2 || dKmod4 == 3)
     dK *= 4;
