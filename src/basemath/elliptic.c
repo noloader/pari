@@ -184,20 +184,42 @@ static int
 invcmp(void *E, GEN x, GEN y) { (void)E; return -gcmp(x,y); }
 
 static GEN
-doellR_roots(GEN e, long prec)
+doellR_roots(GEN e, long prec0)
 {
-  GEN R = roots(ec_bmodel(e), prec);
-  long s = ellR_get_sign(e);
+  GEN R, d1, d2, d3, e1, e2, e3;
+  long s = ellR_get_sign(e), prec = prec0;
+START:
+  R = roots(ec_bmodel(e), prec);
   if (s > 0)
   { /* sort 3 real roots in decreasing order */
     R = real_i(R);
     gen_sort_inplace(R, NULL, &invcmp, NULL);
-  } else if (s < 0)
-  { /* make sure e1 is real, imag(e2) > 0 and imag(e3) < 0 */
-    gel(R,1) = real_i(gel(R,1));
-    if (signe(gmael(R,2,2)) < 0) swap(gel(R,2), gel(R,3));
+    e1 = gel(R,1);
+    e2 = gel(R,2);
+    e3 = gel(R,3);
+    d3 = subrr(e1,e2);
+    d1 = subrr(e2,e3);
+    d2 = subrr(e1,e3);
+    if (realprec(d3) < prec0 || realprec(d1) < prec0)
+    {
+      prec = precdbl(prec);
+      if (DEBUGLEVEL) pari_warn(warnprec,"doellR_roots", prec);
+      goto START;
+    }
+  } else {
+    e1 = gel(R,1);
+    e2 = gel(R,2);
+    e3 = gel(R,3);
+    if (s < 0)
+    { /* make sure e1 is real, imag(e2) > 0 and imag(e3) < 0 */
+      e1 = real_i(e1);
+      if (signe(gel(e2,2)) < 0) swap(e2, e3);
+    }
+    d3 = gsub(e1,e2);
+    d1 = gsub(e2,e3);
+    d2 = gsub(e1,e3);
   }
-  return R;
+  return mkcol6(e1,e2,e3,d1,d2,d3);
 }
 static GEN
 ellR_root(GEN e, long prec) { return gel(ellR_roots(e,prec),1); }
@@ -427,15 +449,17 @@ ellprint(GEN e)
 static GEN
 doellR_ab(GEN E, long prec)
 {
-  GEN b2 = ell_get_b2(E), b4 = ell_get_b4(E), e1 = ellR_root(E, prec);
-  GEN a, b, t, w;
+  GEN b2 = ell_get_b2(E), R = ellR_roots(E, prec);
+  GEN e1 = gel(R,1), d2 = gel(R,5), d3 =  gel(R,6), a, b, t;
 
-  t = gmul2n(gadd(gmulsg(12,e1), b2), -2); /* = (12 e1 + b2) / 4 */
-  w = sqrtr( gmul2n(gadd(b4, gmul(e1,gadd(b2, mulur(6,e1)))),1) );
-  if (gsigne(t) > 0) setsigne(w, -1);
-  /* w^2 = 2b4 + 2b2 e1 + 12 e1^2 = 4(e1-e2)(e1-e3) */
-  a = gmul2n(gsub(w,t),-2);
-  b = gmul2n(w,-1); /* = sqrt( (e1 - e2)(e1 - e3) ) */
+  t = gmul2n(gadd(mulur(12,e1), b2), -4); /* = (12 e1 + b2) / 16 */
+  if (ellR_get_sign(E) > 0)
+    b = mulrr(d3,d2);
+  else
+    b = cxnorm(d3);
+  b = sqrtr(b); /* = sqrt( (e1 - e2)(e1 - e3) ) */
+  if (gsigne(t) > 0) togglesign(b);
+  a = gsub(gmul2n(b,-1),t);
   return mkvec2(a, b);
 }
 GEN
@@ -1778,10 +1802,8 @@ ellomega_cx(GEN E, long prec)
 {
   pari_sp av = avma;
   GEN roots = ellR_roots(E,prec);
-  GEN e1=gel(roots,1), e2=gel(roots,2), e3=gel(roots,3);
-  GEN a = gsqrt(gsub(e1,e2),prec);
-  GEN b = gsqrt(gsub(e2,e3),prec);
-  GEN c = gsqrt(gsub(e1,e3),prec);
+  GEN d1=gel(roots,4), d2=gel(roots,5), d3=gel(roots,6);
+  GEN a = gsqrt(d3,prec), b = gsqrt(d1,prec), c = gsqrt(d2,prec);
   return gerepileupto(av, ellomega_agm(a,b,c,prec));
 }
 
@@ -1792,12 +1814,11 @@ static GEN
 doellR_omega(GEN E, long prec)
 {
   pari_sp av = avma;
-  GEN roots, e1, e3, z, a, b, c;
+  GEN roots, d2, z, a, b, c;
   if (ellR_get_sign(E) >= 0) return ellomega_cx(E,prec);
   roots = ellR_roots(E,prec);
-  e1 = gel(roots,1);
-  e3 = gel(roots,3);
-  z = gsqrt(gsub(e1,e3),prec); /* imag(e1-e3) > 0, so that b > 0*/
+  d2 = gel(roots,5);
+  z = gsqrt(d2,prec); /* imag(e1-e3) > 0, so that b > 0*/
   a = gel(z,1); /* >= 0 */
   b = gel(z,2);
   c = gabs(z, prec);
@@ -1843,14 +1864,14 @@ zell_closest_0(GEN om, GEN x, GEN ro)
 static GEN
 zellcx(GEN E, GEN P, long prec)
 {
-  GEN roots = ellR_roots(E, prec+EXTRAPRECWORD);
+  GEN R = ellR_roots(E, prec+EXTRAPRECWORD);
   GEN x0 = gel(P,1), y0 = ec_dmFdy_evalQ(E,P);
   if (gequal0(y0))
-    return zell_closest_0(ellomega_cx(E,prec),x0,roots);
+    return zell_closest_0(ellomega_cx(E,prec),x0,R);
   else
   {
-    GEN e1 = gel(roots,1), e2 = gel(roots,2), e3 = gel(roots,3);
-    GEN a = gsqrt(gsub(e1,e3),prec), b = gsqrt(gsub(e1,e2),prec);
+    GEN e2 = gel(R,2), e3 = gel(R,3), d2 = gel(R,5), d3 = gel(R,6);
+    GEN a = gsqrt(d2,prec), b = gsqrt(d3,prec);
     GEN r = gsqrt(gdiv(gsub(x0,e3), gsub(x0,e2)),prec);
     GEN t = gdiv(gneg(y0), gmul2n(gmul(r,gsub(x0,e2)),1));
     GEN ar = real_i(a), br = real_i(b), ai = imag_i(a), bi = imag_i(b);
@@ -1868,9 +1889,9 @@ zellrealneg(GEN E, GEN P, long prec)
   if (gequal0(y0)) return gmul2n(gel(ellR_omega(E,prec),1),-1);
   else
   {
-    GEN roots = ellR_roots(E, prec+EXTRAPRECWORD);
-    GEN e1 = gel(roots,1), e3 = gel(roots,3);
-    GEN a = gsqrt(gsub(e1,e3),prec);
+    GEN R = ellR_roots(E, prec+EXTRAPRECWORD);
+    GEN d2 = gel(R,5), e3 = gel(R,3);
+    GEN a = gsqrt(d2,prec);
     GEN z = gsqrt(gsub(x0,e3), prec);
     GEN ar = real_i(a), zr = real_i(z), ai = imag_i(a), zi = imag_i(z);
     GEN t = gdiv(gneg(y0), gmul2n(gnorm(z),1));
@@ -1883,14 +1904,16 @@ zellrealneg(GEN E, GEN P, long prec)
 static GEN
 zellrealpos(GEN E, GEN P, long prec)
 {
-  GEN roots = ellR_roots(E, prec+EXTRAPRECWORD);
-  GEN e1,e2,e3, a,b, x0 = gel(P,1), y0 = ec_dmFdy_evalQ(E,P);
-  if (gequal0(y0)) return zell_closest_0(ellR_omega(E,prec), x0,roots);
-  e1 = gel(roots,1);
-  e2 = gel(roots,2);
-  e3 = gel(roots,3);
-  a = gsqrt(gsub(e1,e3),prec);
-  b = gsqrt(gsub(e1,e2),prec);
+  GEN R = ellR_roots(E, prec+EXTRAPRECWORD);
+  GEN d2,d3,e1,e2,e3, a,b, x0 = gel(P,1), y0 = ec_dmFdy_evalQ(E,P);
+  if (gequal0(y0)) return zell_closest_0(ellR_omega(E,prec), x0,R);
+  e1 = gel(R,1);
+  e2 = gel(R,2);
+  e3 = gel(R,3);
+  d2 = gel(R,5);
+  d3 = gel(R,6);
+  a = gsqrt(d2,prec);
+  b = gsqrt(d3,prec);
   if (gcmp(x0,e1)>0) {
     GEN r = gsqrt(gdiv(gsub(x0,e3), gsub(x0,e2)),prec);
     GEN t = gdiv(gneg(y0), gmul2n(gmul(r,gsub(x0,e2)),1));
@@ -5064,16 +5087,14 @@ quad_root(GEN t, GEN c, long prec)
 static GEN
 exphellagm(GEN e, GEN z, int flag, long prec)
 {
-  GEN x_a, a, b, e1, r, V = cgetg(1, t_VEC), x = gel(z,1);
+  GEN x_a, ab, a, b, e1, r, V = cgetg(1, t_VEC), x = gel(z,1);
   long n, ex = 5-prec2nbits(prec), p = prec+EXTRAPRECWORD;
 
   if (typ(x) == t_REAL && realprec(x) < p) x = gprec_w(x, p);
-  e1 = ellR_root(e, p);
-  {
-    GEN ab = ellR_ab(e, p);
-    a = gel(ab, 1);
-    b = gel(ab, 2);
-  }
+  ab = ellR_ab(e, p);
+  a = gel(ab, 1);
+  b = gel(ab, 2);
+  e1= gel(obj_check(e,R_ROOTS), 1); /* use maximal accuracy, don't truncate */
   x = gsub(x, e1);
   x = quad_root(gadd(x,b), gmul(a,x), prec);
 

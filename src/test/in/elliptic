@@ -1,4 +1,4 @@
-HEAP=[75, if(precision(1.)==38,5225,5390)];
+HEAP=[75, if(precision(1.)==38,5437,5660)];
 default(realprecision,154); Pi; default(realprecision,38);
 \e
 ellinit([-1,0])

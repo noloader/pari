@@ -98,6 +98,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
        gel(_v,3) = (z);\
        gel(_v,4) = (t);\
        gel(_v,5) = (u); return _v; } while(0)
+#define retmkcol6(x,y,z,t,u,v)\
+  do { GEN _v = cgetg(7, t_COL);\
+       gel(_v,1) = (x);\
+       gel(_v,2) = (y);\
+       gel(_v,3) = (z);\
+       gel(_v,4) = (t);\
+       gel(_v,5) = (u);\
+       gel(_v,6) = (v); return _v; } while(0)
 #define retmkmat(x)\
   do { GEN _v = cgetg(2, t_MAT);\
        gel(_v,1) = (x); return _v; } while(0)
@@ -206,6 +214,8 @@ INLINE GEN
 mkcol4(GEN x, GEN y, GEN z, GEN t) { retmkcol4(x,y,z,t); }
 INLINE GEN
 mkcol5(GEN x, GEN y, GEN z, GEN t, GEN u) { retmkcol5(x,y,z,t,u); }
+INLINE GEN
+mkcol6(GEN x, GEN y, GEN z, GEN t, GEN u, GEN v) { retmkcol6(x,y,z,t,u,v); }
 INLINE GEN
 mkcols(long x) { retmkcol(stoi(x)); }
 INLINE GEN

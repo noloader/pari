@@ -4307,6 +4307,7 @@ INLINE GEN    mkcol3s(long x, long y, long z);
 INLINE GEN    mkcol4(GEN x, GEN y, GEN z, GEN t);
 INLINE GEN    mkcol4s(long x, long y, long z, long t);
 INLINE GEN    mkcol5(GEN x, GEN y, GEN z, GEN t, GEN u);
+INLINE GEN    mkcol6(GEN x, GEN y, GEN z, GEN t, GEN u, GEN v);
 INLINE GEN    mkcolcopy(GEN x);
 INLINE GEN    mkcols(long x);
 INLINE GEN    mkcomplex(GEN x, GEN y);

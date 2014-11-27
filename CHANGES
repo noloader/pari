@@ -92,6 +92,7 @@ BA 60- ellcard over non-prime fields of large char could return wrong results
    71- thue(29*x^3+130*x^2-35*x-48,1) -> "round error" bug
    72- T=thueinit(10*x^3+6*x^2-41*x+8,1); thue(T,8) => SEGV [#1630]
    73- ellrootno(e,p = 2 or 3) when e not minimal at p => random result
+   74- catastrophic cancellation in ellheight (at oo) [#1637]
 
   Added
     1- add optional argument to sumdigits to specify the base
