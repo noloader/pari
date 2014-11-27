@@ -651,8 +651,6 @@ select_classpoly_prime_pool(
       pari_err(e_ARCH, err);
     }
   }
-  /* Never reached. */
-  return NULL;
 }
 
 

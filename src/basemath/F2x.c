@@ -967,7 +967,6 @@ F2x_is_smooth(GEN g, long r)
     if (F2x_degree(f)==0) return 1;
     g = F2x_issquare(f) ? F2x_sqrt(f): f;
   }
-  return 0;
 }
 
 static GEN

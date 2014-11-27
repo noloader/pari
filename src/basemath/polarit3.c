@@ -614,7 +614,6 @@ Fq_sqr(GEN x, GEN T, GEN p)
   }
   else
     return Fp_sqr(x,p);
-  return NULL;
 }
 
 GEN

@@ -517,7 +517,6 @@ ZM_lll_norms(GEN x, double DELTA, long flag, GEN *B)
       incrprec(p);
     gerepileall(ltop, U? 2: 1, &x, &U);
   }
-  return NULL; /* NOT REACHED */
 }
 
 /********************************************************************/

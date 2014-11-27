@@ -141,7 +141,6 @@ mt_queue_run(void *arg)
       pthread_cond_signal(mq->pcond);
     } UNLOCK(mq->pmut);
   }
-  return NULL;
 }
 
 static long

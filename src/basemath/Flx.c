@@ -1770,7 +1770,6 @@ Flx_is_smooth(GEN g, long r, ulong p)
     if (degpol(f)==0) return 1;
     g = Flx_is_l_pow(f,p) ? Flx_deflate(f, p): f;
   }
-  return 0;
 }
 
 static GEN
