@@ -74,6 +74,9 @@ my_int(char *s)
       case 'k': case 'K': n = safe_mul(n,1000UL);       p++; break;
       case 'm': case 'M': n = safe_mul(n,1000000UL);    p++; break;
       case 'g': case 'G': n = safe_mul(n,1000000000UL); p++; break;
+#ifdef LONG_IS_64BIT
+      case 't': case 'T': n = safe_mul(n,1000000000000UL); p++; break;
+#endif
     }
     if (!n) pari_err(e_SYNTAX,"integer too large",s,s);
   }
