@@ -933,10 +933,10 @@ fetch_var_higher(void)
   return max_avail--;
 }
 
-int
+static int
 _higher(void *E, hashentry *e)
 { long v = (long)e->val; return (varncmp(v, (long)E) < 0); }
-int
+static int
 _lower(void *E, hashentry *e)
 { long v = (long)e->val; return (varncmp(v, (long)E) > 0); }
 
