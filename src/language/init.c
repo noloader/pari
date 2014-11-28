@@ -73,7 +73,8 @@ int     disable_color;
 ulong   DEBUGFILES, DEBUGLEVEL, DEBUGMEM;
 long    DEBUGVAR;
 ulong   pari_mt_nbthreads;
-ulong   precreal, precdl, logstyle;
+long    precreal;
+ulong   precdl, logstyle;
 gp_data *GP_DATA;
 
 GEN colormap, pari_graphcolors;

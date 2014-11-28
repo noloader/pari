@@ -358,7 +358,7 @@ void  whatnow_new_syntax(const char *f, long n);
 void decode_color(long n, long *c);
 
 /* defaults */
-extern ulong precreal;
+extern long precreal;
 
 void lim_lines_output(char *s, long n, long max);
 int tex2mail_output(GEN z, long n);
