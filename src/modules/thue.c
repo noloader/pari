@@ -820,8 +820,6 @@ get_B0(long i1, GEN Delta2, GEN Lambda, GEN Deps5, long prec, baker_s *BS)
   for(;;) /* i2 from 1 to r unless r = 1 [then i2 = 2] */
   {
     init_get_B(i1,i2, Delta2,Lambda,Deps5, BS, prec);
-    if (DEBUGLEVEL>1) err_printf("  inverrdelta = %Ps\n",BS->inverrdelta);
-    if (DEBUGLEVEL>1) err_printf("  Entering CF...\n");
     /* Reduce B0 as long as we make progress: newB0 < oldB0 - 0.1 */
     for (;;)
     {
@@ -924,11 +922,17 @@ LargeSols(GEN P, GEN tnf, GEN rhs, GEN ne)
 START:
   if (S) /* restart from precision problems */
   {
-    avma = av; prec += nbits2extraprec(320);
-    if (DEBUGLEVEL>1) pari_warn(warnprec,"thue",prec);
+    S = gerepilecopy(av, S);
+    prec = precdbl(prec);
+    if (DEBUGLEVEL) pari_warn(warnprec,"thue",prec);
     tnf = inithue(P, bnf, 0, prec);
   }
-  S = cgetg(1, t_VEC);
+  else
+  {
+    S = cgetg(1, t_VEC);
+    iroot = 1;
+    ine = 1;
+  }
   bnf  = gel(tnf,2);
   csts = gel(tnf,7);
   nf_get_sign(bnf_get_nf(bnf), &s, &t);
@@ -966,7 +970,7 @@ START:
   dP = ZX_deriv(P);
   Delta0 = RgM_sumcol(A);
 
-  for (iroot=1; iroot<=s; iroot++)
+  for (; iroot<=s; iroot++)
   {
     GEN Delta = Delta0, Delta2, D, Deps5, MatNE, Hmu, diffRo, c5, c7;
     long i1, k;
@@ -1006,9 +1010,10 @@ START:
                       : gsub(gel(ro,iroot), z);
       gel(diffRo,k) = gabs(z, prec);
     }
-    for (ine=1; ine<lg(ne); ine++)
+    for (; ine<lg(ne); ine++)
     {
       pari_sp av2 = avma;
+      long lS = lg(S);
       GEN Lambda, B0, c6, c8;
       GEN NE = gel(MatNE,ine), v = cgetg(r+1,t_COL);
 
@@ -1032,6 +1037,7 @@ START:
         if (! (B0 = get_B0(i1, Delta2, Lambda, Deps5, prec, &BS)) ||
             !TrySol(&S, B0, i1, Delta2, Lambda, ro, NE,MatFU, P,rhs))
           goto START;
+        if (lg(S) == lS) avma = av2;
       }
       else
       {
@@ -1040,6 +1046,7 @@ START:
         x3 = gerepileupto(av2, gmax(Bx, x3));
       }
     }
+    ine = 1;
   }
   x3 = gmax(x0, MiddleSols(&S, x3, ro, P, rhs, s, c1));
   return SmallSols(S, x3, P, rhs);
