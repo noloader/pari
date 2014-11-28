@@ -145,7 +145,7 @@ static void
 pari_MPI_child(void)
 {
   pari_sp av = avma;
-  ulong rsize, vsize;
+  ulong rsize = 0, vsize = 0;
   GEN worker = NULL, work, done;
   struct gp_context rec;
   if (!diffptr) initprimetable(500000);
@@ -257,6 +257,7 @@ mtmpi_queue_get(struct mt_state *junk, long *workid, long *pending)
 {
   struct mt_mstate *mt = pari_mt;
   GEN done;
+  (void) junk;
   if (mt->nbint<=mt->n) { mt->source=mt->nbint; *pending = nbreq; return NULL; }
   done = recvany_GEN(&mt->source);
   nbreq--; *pending = nbreq;
@@ -270,6 +271,7 @@ static void
 mtmpi_queue_submit(struct mt_state *junk, long workid, GEN work)
 {
   struct mt_mstate *mt = pari_mt;
+  (void) junk;
   if (!work) { mt->nbint=mt->n+1; return; }
   if (mt->nbint<=mt->n) mt->nbint++;
   nbreq++;
