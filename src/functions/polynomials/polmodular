@@ -12,7 +12,7 @@ Doc:
  non-zero, then return a triple where the last two elements are the first and
  second derivatives of the modular polynomial evaluated at $j$.
  \bprog
- ? modpoly(3)
+ ? polmodular(3)
  %1 = x^4 + (-y^3 + 2232*y^2 - 1069956*y + 36864000)*x^3 + (2232*y^3 + 2587918086*y^2 + 8900222976000*y + 452984832000000)*x^2 + (-1069956*y^3 + 8900222976000*y^2 - 770845966336000000*y + 1855425871872000000000)*x + (y^4 + 36864000*y^3 + 452984832000000*y^2 + 1855425871872000000000*y)
  @eprog
 Variant: Also available are
