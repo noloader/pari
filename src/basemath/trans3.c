@@ -1657,7 +1657,7 @@ twistpartialzeta(GEN q, long f, long c, GEN va, GEN cff)
 {
   long j, k, lva = lg(va)-1, N = lg(cff)-1;
   pari_sp av, av2;
-  GEN Ax, Cx, Bx, Dx, x = pol_x(0), y = pol_x(fetch_user_var("y"));
+  GEN Ax, Cx, Bx, Dx, x = pol_x(0), y = pol_x(1);
   GEN cyc, psm, rep, eta, etaf;
 
   cyc = gdiv(gsubgs(gpowgs(y, c), 1), gsubgs(y, 1));

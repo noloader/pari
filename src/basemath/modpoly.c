@@ -1543,8 +1543,7 @@ polmodular(long L, GEN x, long v, int compute_derivs)
     pari_err_TYPE("polmodular", x);
   }
 
-  if (v < 0)
-    v = fetch_user_var("y");
+  if (v < 0) v = 1;
   res = Fp_modpoly_evalx(L, J, P, v, compute_derivs);
   res = gmul(res, one);
   return gerepileupto(av, res);
