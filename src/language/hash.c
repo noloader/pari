@@ -131,7 +131,8 @@ hash_select(hashtable *h, void *k, void *E,int(*select)(void *,hashentry *))
 GEN
 hash_keys(hashtable *h)
 {
-  long i, k = 1;
+  long k = 1;
+  ulong i;
   GEN v = cgetg(h->nb+1, t_VECSMALL);
   for (i = 0; i < h->len; i++)
   {
@@ -143,7 +144,8 @@ hash_keys(hashtable *h)
 GEN
 hash_values(hashtable *h)
 {
-  long i, k = 1;
+  long k = 1;
+  ulong i;
   GEN v = cgetg(h->nb+1, t_VECSMALL);
   for (i = 0; i < h->len; i++)
   {
