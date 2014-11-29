@@ -425,7 +425,7 @@ CheckSol(GEN *pS, GEN z1, GEN z2, GEN P, GEN rhs, GEN ro)
   return 1;
 }
 
-static const long EXPO1 = 6;
+static const long EXPO1 = 7;
 static int
 round_to_b(GEN v, long b, GEN Delta2, long i1, GEN L)
 {
