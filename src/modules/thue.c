@@ -534,14 +534,15 @@ MiddleSols(GEN *pS, GEN bound, GEN roo, GEN P, GEN rhs, long s, GEN c1)
     for (j = 1; j < lg(t); j++)
     {
       GEN p, q, z, Q, R;
+      pari_sp av;
       p = addii(mulii(p0, gel(t,j)), pm1); pm1 = p0; p0 = p;
       q = addii(mulii(q0, gel(t,j)), qm1); qm1 = q0; q0 = q;
       if (cmpii(q, bound) > 0) break;
       if (DEBUGLEVEL >= 2) err_printf("Checking (+/- %Ps, +/- %Ps)\n",p, q);
-
+      av = avma;
       z = poleval(ZX_rescale(P,q), p); /* = P(p/q) q^dep(P) */
       Q = dvmdii(rhs, z, &R);
-      if (R != gen_0) continue;
+      if (R != gen_0) { avma = av; continue; }
       setabssign(Q);
       if (Z_ispowerall(Q, d, &Q))
       {
