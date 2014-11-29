@@ -128,9 +128,6 @@ Conj_LH(GEN v, GEN *H, GEN r, long prec)
   return M;
 }
 
-static GEN abslog(GEN x, long prec) { return gabs(glog(x,prec), prec); }
-static GEN logabs(GEN x, long prec) { return glog(gabs(x,prec), prec); }
-
 /* Computation of M, its inverse A and precision check (see paper) */
 static GEN
 T_A_Matrices(GEN MatFU, long r, GEN *eps5, long prec)
@@ -139,14 +136,13 @@ T_A_Matrices(GEN MatFU, long r, GEN *eps5, long prec)
   long e = prec2nbits(prec);
 
   m1 = rowslice(vecslice(MatFU, 1,r), 1,r); /* minor order r */
-  m1 = logabs(m1, 3);
-
+  m1 = glog(gabs(m1, prec), prec); /* HIGH accuracy */
   A = RgM_inv(m1); if (!A) pari_err_PREC("thue");
   IntM = RgM_Rg_add(RgM_mul(A,m1), gen_m1);
+  IntM = gabs(IntM, 0);
 
-  eps2 = gadd(vecmax(gabs(IntM, 3)), real2n(-e, LOWDEFAULTPREC)); /* t_REAL */
-  nia = vecmax(gabs(A, 3));
-  if (typ(nia) != t_REAL) nia = gtofp(nia, LOWDEFAULTPREC);
+  eps2 = gadd(vecmax(IntM), real2n(-e, LOWDEFAULTPREC)); /* t_REAL */
+  nia = vecmax(gabs(A, 0));
 
   /* Check for the precision in matrix inversion. See paper, Lemma 2.4.2. */
   p1 = addrr(mulsr(r, gmul2n(nia, e)), eps2); /* t_REAL */
@@ -252,53 +248,46 @@ inithue(GEN P, GEN bnf, long flag, long prec)
 }
 
 typedef struct {
-  GEN c10, c11, c13, c15, bak, NE, ALH, Ind, hal, MatFU, ro, Hmu;
-  GEN delta, lambda, inverrdelta, Pi, Pi2;
+  GEN c10, c11, c13, c15, c91, bak, NE, Ind, hal, MatFU, divro, Hmu;
+  GEN delta, lambda, inverrdelta, ro, Pi, Pi2;
   long r, iroot, deg;
 } baker_s;
+
+static void
+other_roots(long iroot, long *i1, long *i2)
+{
+  switch (iroot) {
+    case 1: *i1=2; *i2=3; break;
+    case 2: *i1=1; *i2=3; break;
+   default: *i1=1; *i2=2; break;
+  }
+}
+/* low precision */
+static GEN abslog(GEN x) { return gabs(glog(gtofp(x,DEFAULTPREC),0), 0); }
 
 /* Compute Baker's bound c9 and B_0, the bound for the b_i's. See Thm 2.3.1 */
 static GEN
 Baker(baker_s *BS)
 {
-  const long prec = DEFAULTPREC;
-  GEN tmp, B0, hb0, c9 = gen_1, ro = BS->ro, ro0 = gel(ro,BS->iroot);
-  long k, i1, i2, r = BS->r;
+  GEN tmp, B0, hb0, c9, Indc11;
+  long i1, i2;
 
-  switch (BS->iroot) {
-    case 1: i1=2; i2=3; break;
-    case 2: i1=1; i2=3; break;
-   default: i1=1; i2=2; break;
-  }
-
-  /* Compute h_1....h_r */
-  for (k=1; k<=r; k++)
-  {
-    tmp = gdiv(gcoeff(BS->MatFU,i1,k), gcoeff(BS->MatFU,i2,k));
-    tmp = gmax(gen_1, abslog(tmp,prec));
-    c9 = gmul(c9, gmax(gel(BS->ALH,k), gdiv(tmp, BS->bak)));
-  }
-
+  other_roots(BS->iroot, &i1,&i2);
   /* Compute a bound for the h_0 */
-  hb0 = gadd(gmul2n(BS->hal,2), gmul2n(gadd(BS->Hmu,mplog2(prec)), 1));
-  tmp = gdiv(gmul(gsub(ro0, gel(ro,i2)), gel(BS->NE,i1)),
-             gmul(gsub(ro0, gel(ro,i1)), gel(BS->NE,i2)));
-  tmp = gmax(gen_1, abslog(tmp, prec));
+  hb0 = gadd(gmul2n(BS->hal,2), gmul2n(gadd(BS->Hmu,mplog2(DEFAULTPREC)), 1));
+  tmp = gmul(BS->divro, gdiv(gel(BS->NE,i1), gel(BS->NE,i2)));
+  tmp = gmax(gen_1, abslog(tmp));
   hb0 = gmax(hb0, gdiv(tmp, BS->bak));
-  c9 = gmul(c9,hb0);
-  /* Multiply c9 by the "constant" factor */
-  c9 = gmul(c9, gmul(shiftr(mulur(9,BS->Pi2), 5*(4+r)),
-                     gmul(gmul(mpfact(r+3), powiu(muliu(BS->bak,r+2), r+3)),
-                          glog(muliu(BS->bak,2*(r+2)),prec))));
+  c9 = gmul(BS->c91,hb0);
   c9 = gprec_w(myround(c9, 1), DEFAULTPREC);
+  Indc11 = rtor(mulir(BS->Ind,BS->c11), DEFAULTPREC);
   /* Compute B0 according to Lemma 2.3.3 */
   B0 = mulir(shifti(BS->Ind,1),
              divrr(addrr(mulrr(c9,mplog(divrr(mulir(BS->Ind, c9),BS->c10))),
-                         mplog(mulir(BS->Ind, BS->c11))),
-                   BS->c10));
+                         mplog(Indc11)), BS->c10));
   B0 = gmax(B0, dbltor(2.71828183));
   B0 = gmax(B0, mulrr(divir(BS->Ind, BS->c10),
-                      mplog(divrr(mulir(BS->Ind, BS->c11), BS->Pi2))));
+                      mplog(divrr(Indc11, BS->Pi2))));
 
   if (DEBUGLEVEL>1) {
     err_printf("  B0  = %Ps\n",B0);
@@ -913,8 +902,8 @@ get_Bx_LLL(long i1, GEN Delta2, GEN Lambda, long prec, baker_s *BS)
 static GEN
 LargeSols(GEN P, GEN tnf, GEN rhs, GEN ne)
 {
-  GEN S = NULL, Delta0, ro, bnf, MatFU, A, csts, dP, Bx;
-  GEN c1,c2,c3,c4,c14, x0, x1, x2, x3, tmp, eps5;
+  GEN S = NULL, Delta0, ro, ALH, bnf, MatFU, A, csts, dP, Bx;
+  GEN c1,c2,c3,c4,c90,c91,c14, x0, x1, x2, x3, tmp, eps5;
   long iroot, ine, n, r, Prec, prec, s,t;
   baker_s BS;
   pari_sp av = avma;
@@ -938,7 +927,7 @@ START:
   nf_get_sign(bnf_get_nf(bnf), &s, &t);
   BS.r = r = s+t-1; n = degpol(P);
   ro     = gel(tnf,3);
-  BS.ALH = gel(tnf,4);
+  ALH    = gel(tnf,4);
   MatFU  = gel(tnf,5);
   A      = gel(tnf,6);
   c1     = gel(csts,1); c1 = gmul(absi(rhs), c1);
@@ -966,14 +955,17 @@ START:
     err_printf("x2 -> %Ps\n",x2);
     err_printf("c14 = %Ps\n",c14);
   }
+  c90 = gmul(shiftr(mulur(18,mppi(DEFAULTPREC)), 5*(4+r)),
+                    gmul(gmul(mpfact(r+3), powiu(muliu(BS.bak,r+2), r+3)),
+                         glog(muliu(BS.bak,2*(r+2)),DEFAULTPREC)));
 
   dP = ZX_deriv(P);
   Delta0 = RgM_sumcol(A);
 
   for (; iroot<=s; iroot++)
   {
-    GEN Delta = Delta0, Delta2, D, Deps5, MatNE, Hmu, diffRo, c5, c7;
-    long i1, k;
+    GEN Delta = Delta0, Delta2, D, Deps5, MatNE, Hmu, diffRo, c5, c7, ro0;
+    long i1, iroot1, iroot2, k;
 
     if (iroot <= r) Delta = RgC_add(Delta, RgC_Rg_mul(gel(A,iroot), stoi(-n)));
     D = gabs(Delta,Prec); i1 = vecindexmax(D);
@@ -998,6 +990,7 @@ START:
       if (DEBUGLEVEL>1) pari_warn(warnprec,"thue",prec);
       ro = tnf_get_roots(P, prec, s, t);
     }
+    ro0 = gel(ro,iroot);
     BS.ro    = ro;
     BS.iroot = iroot;
     BS.Pi  = mppi(prec);
@@ -1006,10 +999,21 @@ START:
     for (k=1; k<=r; k++)
     {
       GEN z = gel(ro,k);
-      z = (k == iroot)? gdiv(rhs, poleval(dP, z))
-                      : gsub(gel(ro,iroot), z);
+      z = (k == iroot)? gdiv(rhs, poleval(dP, z)): gsub(ro0, z);
       gel(diffRo,k) = gabs(z, prec);
     }
+    other_roots(iroot, &iroot1,&iroot2);
+    BS.divro = gdiv(gsub(ro0, gel(ro,iroot2)), gsub(ro0, gel(ro,iroot1)));
+    /* Compute h_1....h_r */
+    c91 = c90;
+    for (k=1; k<=r; k++)
+    {
+      GEN z = gdiv(gcoeff(MatFU,iroot1,k), gcoeff(MatFU,iroot2,k));
+      z = gmax(gen_1, abslog(z));
+      c91 = gmul(c91, gmax(gel(ALH,k), gdiv(z, BS.bak)));
+    }
+    BS.c91 = c91;
+
     for (; ine<lg(ne); ine++)
     {
       pari_sp av2 = avma;
