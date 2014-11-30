@@ -3808,7 +3808,7 @@ nfsplitting(GEN T, GEN D)
     long dmax = pari_is_dir(data)? 11: 7;
     D = (d <= dmax)? gel(polgalois(T,DEFAULTPREC), 1): mpfact(d);
   }
-  d = itos(D);
+  d = itos_or_0(D);
   v = varn(T);
   T = leafcopy(T); setvarn(T, fetch_var_higher());
   for(F = T;;)
