@@ -2339,7 +2339,7 @@ primedec_aux(GEN nf, GEN p, long flim)
       if (flim && degpol(t) > flim) { setlg(L, i); break; }
       gel(L,i) = primedec_apply_kummer(nf, t, E[i],p);
     }
-    return L;
+    return gen_sort(L, (void*)&cmp_prime_over_p, &cmp_nodata);
   }
 
   kummer = 0;
@@ -2415,21 +2415,24 @@ primedec_aux(GEN nf, GEN p, long flim)
         gel(h,c++) = FpM_image(shallowconcat(H, I), p);
       }
       if (n == dim)
-        for (i=1; i<=n; i++)
-        {
-          H = gel(h,--c);
-          if (flim && N - (lg(H)-1) > flim) continue;
-          gel(L,iL++) = H;
-        }
+        for (i=1; i<=n; i++) gel(L,iL++) = gel(h,--c);
     }
     else /* A2 field ==> H maximal, f = N-k = dim(A2) */
-    {
-      if (flim && N - (lg(H)-1) > flim) continue;
       gel(L,iL++) = H;
-    }
   }
   setlg(L, iL);
-  return primedec_end(nf, L, p);
+  L = primedec_end(nf, L, p);
+  if (flim)
+  {
+    long k = 1;
+    for(i = 1; i < iL; i++)
+    {
+      GEN P = gel(L,i);
+      if (pr_get_f(P) <= flim) gel(L,k++) = P;
+    }
+    setlg(L,k);
+  }
+  return L;
 }
 
 GEN
@@ -2439,7 +2442,8 @@ idealprimedec_limit_f(GEN nf, GEN p, long f)
   GEN v;
   if (typ(p) != t_INT) pari_err_TYPE("idealprimedec",p);
   v = primedec_aux(checknf(nf), p, f);
-  return gerepileupto(av, gen_sort(v, (void*)&cmp_prime_over_p, &cmp_nodata));
+  v = gen_sort(v, (void*)&cmp_prime_over_p, &cmp_nodata);
+  return gerepileupto(av,v);
 }
 GEN
 idealprimedec_limit_norm(GEN nf, GEN p, GEN B)
