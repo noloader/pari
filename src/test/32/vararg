@@ -7,6 +7,9 @@ myprintsep =
 a, b, c, d
 a, 0, c, 0
 a0b0c0d
+x=5
+x=5 y=7
+x=5 y=7 z=9
 :
   ***   at top-level: print1(":");myprintsep()
   ***                             ^------------

@@ -1637,7 +1637,7 @@ genclosure(entree *ep, const char *loc, long  nbdata, int check)
   const char *code=ep->code,*p,*q;
   char c;
   long index=ep->arity;
-  long arity=0, maskarg=0, maskarg0=0, stop=0;
+  long arity=0, maskarg=0, maskarg0=0, stop=0, dovararg=0;
   PPproto mod;
   Gtype ret_typ;
   long ret_flag;
@@ -1796,8 +1796,10 @@ genclosure(entree *ep, const char *loc, long  nbdata, int check)
     case PPstar:
       switch(c)
       {
-      case 'E':
       case 's':
+        dovararg = 1;
+        break;
+      case 'E':
         return NULL;
       default:
         pari_err(e_MISC,"Unknown prototype code `%c*' for `%s'",c,ep->name);
@@ -1812,6 +1814,7 @@ genclosure(entree *ep, const char *loc, long  nbdata, int check)
   op_push_loc(ret_op, (long) ep, loc);
   if (ret_flag==FLnocopy) op_push_loc(OCcopy,0,loc);
   compilecast_loc(ret_typ, Ggen, loc);
+  if (dovararg) nb|=VARARGBITS;
   return getfunction(&pos,nb+arity,nbdata,strtoGENstr(ep->name),0);
 }
 
