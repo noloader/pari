@@ -1019,7 +1019,7 @@ setup_norm_eqn(norm_eqn_t ne, long D, long u, GEN norm_eqn)
 
 
 static int
-classpoly0(
+polclass0(
   ulong *total_curves_tested,
   GEN norm_eqn, GEN *hilb, GEN *P, long D, long u, GEN pcp, GEN *mpdb,
   long xvar)
@@ -1040,7 +1040,7 @@ classpoly0(
        * experimental cost/benefit analysis. */
       trace_tries = find_j_inv_with_given_trace(&j_t, ne, rho_inv, 0);
       if (j_t == 0) {
-        pari_err_BUG("classpoly0: "
+        pari_err_BUG("polclass0: "
                      "Couldn't find j-invariant with given trace.");
       }
       dbg_printf4(2, "  j-invariant %ld has trace +/-%ld (%ld tries, 1/rho = %ld)",
@@ -1110,7 +1110,7 @@ polclass(GEN DD, long xvar)
   nprimes = lg(prime_lst) - 1;
   btop = avma;
   for (i = 1; i <= nprimes; ++i) {
-    (void) classpoly0(&total_curves_tested, gel(prime_lst, i),
+    (void) polclass0(&total_curves_tested, gel(prime_lst, i),
                       &hilb, &P, D, u, pcp, &mpdb, xvar);
     if (gc_needed(btop, 2))
       gerepileall(btop, 2, &hilb, &P);
