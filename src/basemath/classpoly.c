@@ -730,7 +730,7 @@ oneroot_of_classpoly(ulong *j_endo, ulong j, norm_eqn_t ne, GEN *mpdb)
     if (L > L_bound)
       break;
 
-    phi = modpoly_db_getp(mpdb, L, p);
+    phi = polmodular_db_getp(mpdb, L, p);
 
     /* FIXME: Can I reuse paths created in j_level_in_volcano() later
      * in {ascend,descend}_volcano()? */
@@ -779,7 +779,7 @@ enum_j_with_endo_ring_small_disc_r(
 
   pari_sp av = avma;
   long plen;
-  GEN phi = modpoly_db_getp(mpdb, L, p);
+  GEN phi = polmodular_db_getp(mpdb, L, p);
   GEN jpath_g = cgetg(d + r + 1, t_VECSMALL);
   ulong *jpath = (ulong *) &jpath_g[1];
   jpath[0] = res[offset];
@@ -879,8 +879,8 @@ fill_parallel_path(ulong box[], ulong p, ulong pi,
   for (i = idx + thread_scale; i < end_idx; i += thread_scale) {
     ulong left_j = box[i - direction_scale];
     ulong up_j   = box[i - thread_scale];
-    GEN modpol_left_j = Flm_Fl_modpoly_evalx(phi_row, L_col, left_j, p, pi);
-    GEN modpol_up_j = Flm_Fl_modpoly_evalx(phi_col, L_row, up_j, p, pi);
+    GEN modpol_left_j = Flm_Fl_polmodular_evalx(phi_row, L_col, left_j, p, pi);
+    GEN modpol_up_j = Flm_Fl_polmodular_evalx(phi_col, L_row, up_j, p, pi);
     GEN next_j_pol = Flx_gcd(modpol_left_j, modpol_up_j, p);
     ok = unique_root(box + i, next_j_pol, p);
     avma = ltop;
@@ -912,7 +912,7 @@ fill_box(
     /* FIXME: We should already know d from an earlier calculation. */
     ulong d = u_lval(w, L); /* volcano_depth(L, u, v); */
     ulong g;
-    GEN phi_L = modpoly_db_getp(mpdb, L, p);
+    GEN phi_L = polmodular_db_getp(mpdb, L, p);
     pari_sp av2 = avma;
 
     ulong *jpath = (ulong *) new_chunk(d + r);
@@ -933,7 +933,7 @@ fill_box(
      * thread. */
     for (g = ngens - 1; g > (ulong)k; --g) {
       ulong LL = gen_norms[g];
-      GEN phi_LL = modpoly_db_getp(mpdb, LL, p);
+      GEN phi_LL = polmodular_db_getp(mpdb, LL, p);
       for (i = m[g]; i < max_elts; i += m[g]) {
         if ((g == ngens - 1) || (i % m[g + 1] != 0)) {
           if ( ! fill_parallel_path(box, p, pi, phi_LL, phi_L,
@@ -1102,7 +1102,7 @@ polclass(GEN DD, long xvar)
   pcp = minimal_polycyclic_presentation(classno, D, u);
 
   prime_lst = select_classpoly_primes(D, k, delta, pcp);
-  mpdb = modpoly_db_init(0);
+  mpdb = polmodular_db_init(0);
 
   hilb = ZX_init_CRT(pol_0(xvar), 1L, xvar);
   P = gen_1;
@@ -1123,7 +1123,7 @@ polclass(GEN DD, long xvar)
   dbg_printf(1, "Total number of curves tested: %lu",
              total_curves_tested);
 
-  modpoly_db_clear(mpdb);
+  polmodular_db_clear(mpdb);
   /* According to Sutherland, 2009, Section 6.3, the coefficients of
    * the class polynomial lie in the interval (-P/2, P/2) when the
    * modulus P with respect to which we are computing the class

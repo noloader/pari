@@ -510,7 +510,7 @@ static int
 jissupersingular(GEN j, GEN S, GEN p)
 {
   long max_path_len = expi(p)+1;
-  GEN Phi2 = FpXX_red(modpoly_ZXX(2,0,1), p);
+  GEN Phi2 = FpXX_red(polmodular_ZXX(2,0,1), p);
   GEN Phi2_j = FqXY_evalx(Phi2, j, S, p);
   GEN roots = FqX_roots(Phi2_j, S, p);
   long nbroots = lg(roots)-1;

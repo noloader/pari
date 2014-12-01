@@ -1136,7 +1136,7 @@ Flxq_ellcard_Harley(GEN a4, GEN a6, GEN T, ulong p)
   if (DEBUGLEVEL) timer_printf(&ti,"Xm");
   j = Flxq_ellj(a4,a6,T,p);
   sqx = Flxq_powers(Flxq_lroot(polx_Flx(T[1]), T, p), p-1, T, p);
-  J1 = lift_isogeny(modpoly_ZM(p), Flx_to_ZX(j), N, Xm, T2,sqx,T,p);
+  J1 = lift_isogeny(polmodular_ZM(p), Flx_to_ZX(j), N, Xm, T2,sqx,T,p);
   if (DEBUGLEVEL) timer_printf(&ti,"Lift isogeny");
   liftcurve(J1,T2,q,p,N,&A41,&A61);
   A40 = ZpXQ_frob(A41, Xm, T2, q, p);

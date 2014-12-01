@@ -3207,10 +3207,10 @@ GEN     member_zkst(GEN bid);
 
 /* modpoly.c */
 
-GEN     Flm_Fl_modpoly_evalx(GEN phi, long L, ulong j, ulong p, ulong pi);
-GEN     Fp_modpoly_evalx(long L, GEN J, GEN P, long v, int compute_derivs);
-GEN     modpoly_ZM(long L);
-GEN     modpoly_ZXX(long L, long xvar, long yvar);
+GEN     Flm_Fl_polmodular_evalx(GEN phi, long L, ulong j, ulong p, ulong pi);
+GEN     Fp_polmodular_evalx(long L, GEN J, GEN P, long v, int compute_derivs);
+GEN     polmodular_ZM(long L);
+GEN     polmodular_ZXX(long L, long xvar, long yvar);
 GEN     polmodular(long L, GEN x, long yvar, int compute_derivs);
 
 /* mp.c */

@@ -26,7 +26,7 @@ INLINE long
 node_degree(GEN phi, long L, ulong j, ulong p, ulong pi)
 {
   pari_sp av = avma;
-  long n = Flx_nbroots(Flm_Fl_modpoly_evalx(phi, L, j, p, pi), p);
+  long n = Flx_nbroots(Flm_Fl_polmodular_evalx(phi, L, j, p, pi), p);
   avma = av;
   return n;
 }
@@ -44,7 +44,7 @@ INLINE GEN
 nhbr_polynomial(ulong path[], GEN phi, ulong p, ulong pi, long L)
 {
   pari_sp ltop = avma;
-  GEN modpol = Flm_Fl_modpoly_evalx(phi, L, path[0], p, pi);
+  GEN modpol = Flm_Fl_polmodular_evalx(phi, L, path[0], p, pi);
 
   /* Note that, if the discriminant of End(path[0]) is less than L^2,
    * then it's possible for path[0] to appear among the roots of
@@ -144,7 +144,7 @@ ascend_volcano(
   av = avma;
   while (steps--) {
     GEN nhbr_pol = first_iter
-      ? Flm_Fl_modpoly_evalx(phi, L, j, p, pi)
+      ? Flm_Fl_polmodular_evalx(phi, L, j, p, pi)
       : nhbr_polynomial(path + 1, phi, p, pi, L);
     GEN nhbrs = Flx_roots(nhbr_pol, p);
     long nhbrs_len = lg(nhbrs) - 1, i;
@@ -196,7 +196,7 @@ random_distinct_neighbours_of(
   long must_have_two_neighbours)
 {
   pari_sp ltop = avma;
-  GEN modpol = Flm_Fl_modpoly_evalx(phi, L, j, p, pi);
+  GEN modpol = Flm_Fl_polmodular_evalx(phi, L, j, p, pi);
   ulong rem;
   *nhbr1 = Flx_oneroot(modpol, p);
   if (*nhbr1 == p) {
@@ -244,7 +244,7 @@ descend_volcano(
     /* Look for any path to the floor.  One of j's first three
      * neighbours must lead to the floor, since at most two neighbours
      * are on the surface. */
-    GEN nhbrs = Flx_roots(Flm_Fl_modpoly_evalx(phi, L, j, p, pi), p);
+    GEN nhbrs = Flx_roots(Flm_Fl_polmodular_evalx(phi, L, j, p, pi), p);
     long i;
     for (i = 1; i <= 3; ++i) {
       long len;
@@ -337,7 +337,7 @@ walk_surface_path(
   if (max_len <= 0)
     pari_err_BUG("walk_surface_path: bad max_len");
 
-  modpol = Flm_Fl_modpoly_evalx(phi, L, path[0], p, pi);
+  modpol = Flm_Fl_polmodular_evalx(phi, L, path[0], p, pi);
   nhbrs = Flx_roots(modpol, p);
   if (lg(nhbrs) == 1) {
     char *err = stack_sprintf("walk_surface_path: "

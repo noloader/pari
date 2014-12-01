@@ -109,12 +109,12 @@ Fl_addmul5(
 }
 
 /*
- * A modpoly database consists of a t_VEC whose L-th entry is 0 or a
+ * A polmodular database consists of a t_VEC whose L-th entry is 0 or a
  * GEN pointing to Phi_L.  levels is a t_VECSMALL of levels to use to
  * populate the database.
  */
 GEN
-modpoly_db_init(GEN levels)
+polmodular_db_init(GEN levels)
 {
   pari_sp av = avma;
   long levellg, maxlevel, i;
@@ -129,7 +129,7 @@ modpoly_db_init(GEN levels)
 
   for (i = 1; i < levellg; ++i) {
     long L = levels[i];
-    gel(res, L) = gclone(modpoly_ZM(L));
+    gel(res, L) = gclone(polmodular_ZM(L));
   }
 
   avma = av;
@@ -138,7 +138,7 @@ modpoly_db_init(GEN levels)
 
 
 void
-modpoly_db_clear(GEN db)
+polmodular_db_clear(GEN db)
 {
   long i, dblg = lg(db);
   for (i = 1; i < dblg; ++i) {
@@ -150,7 +150,7 @@ modpoly_db_clear(GEN db)
 
 
 GEN
-modpoly_db_get(GEN *db, long L)
+polmodular_db_get(GEN *db, long L)
 {
   pari_sp av = avma;
   long max_L = lg(*db) - 1;
@@ -164,22 +164,22 @@ modpoly_db_get(GEN *db, long L)
     killblock(*db);
     *db = newdb;
   }
-  /* NB: In principle, this call to modpoly_ZM could make use of db,
+  /* NB: In principle, this call to polmodular_ZM could make use of db,
    * but in practice it would gain almost nothing, and only in very
    * rare cases.  */
   if (gel(*db, L) == 0)
-    gel(*db, L) = gclone(modpoly_ZM(L));
+    gel(*db, L) = gclone(polmodular_ZM(L));
   avma = av;
   return gel(*db, L);
 }
 
 
-/* NB: Unlike modpoly_db_get(), this function returns something on the
+/* NB: Unlike polmodular_db_get(), this function returns something on the
  * stack that the caller must clean up. */
 GEN
-modpoly_db_getp(GEN *db, long L, ulong p)
+polmodular_db_getp(GEN *db, long L, ulong p)
 {
-  return ZM_to_Flm(modpoly_db_get(db, L), p);
+  return ZM_to_Flm(polmodular_db_get(db, L), p);
 }
 
 
@@ -341,7 +341,7 @@ Flm_Fl_phi5_evalx(GEN phi5, ulong j, ulong p, ulong pi)
 }
 
 GEN
-Flm_Fl_modpoly_evalx(GEN phi, long L, ulong j, ulong p, ulong pi)
+Flm_Fl_polmodular_evalx(GEN phi, long L, ulong j, ulong p, ulong pi)
 {
   pari_sp av = avma;
   GEN j_powers, modpol;
@@ -550,7 +550,7 @@ fill_parallel_path(
     for (k = 2; k <= m + 1; ++i, ++j, ++k) {
       pari_sp av = avma;
       GEN f, g, h;
-      f = Flm_Fl_modpoly_evalx(phi_L, L, twocycl[i], p, pi);
+      f = Flm_Fl_polmodular_evalx(phi_L, L, twocycl[i], p, pi);
       g = Flm_Fl_phi2_qevalx(phi_2, ppath[j - 1], d[k - 1], p, pi);
       g = Flx_remove_cubic_qroot(g, ppath[j - 2], d[k - 2], p, pi);
       h = Flx_gcd_linear_n_2(f, g, p, pi);
@@ -575,7 +575,7 @@ fill_corner(
 {
   ulong left = box[1], up = box[r];
   GEN f, g, h;
-  f = Flm_Fl_modpoly_evalx(phi_L, L, left, p, pi);
+  f = Flm_Fl_polmodular_evalx(phi_L, L, left, p, pi);
   g = Flm_Fl_phi2_evalx(phi_2, up, p, pi);
   h = Flx_mgcd_linear_n_3(f, g, p, pi);
   if (degpol(h) != 1)
@@ -593,8 +593,8 @@ fill_box(
   GEN *mpdb, ulong p, ulong pi)
 {
   pari_sp av = avma;
-  GEN phi_2 = modpoly_db_getp(mpdb, 2, p);
-  GEN phi_L = modpoly_db_getp(mpdb, L, p);
+  GEN phi_2 = polmodular_db_getp(mpdb, 2, p);
+  GEN phi_L = polmodular_db_getp(mpdb, L, p);
   ulong *sidestep = (ulong *)new_chunk(2 + dL);
 
   walk_surface_path(box, phi_2, p, pi, 2, d2, r - 1);
@@ -1088,7 +1088,7 @@ oneroot_of_classpoly(
   for (i = 1; i <= nfactors; ++i) {
     long L = gel(factu, 1)[i];
     long val = gel(factu, 2)[i];
-    GEN phi = modpoly_db_getp(mpdb, L, p);
+    GEN phi = polmodular_db_getp(mpdb, L, p);
     j0 = descend_volcano(phi, j0, p, pi, 0, L, val, val);
     avma = av;
   }
@@ -1098,7 +1098,7 @@ oneroot_of_classpoly(
 
 
 static GEN
-modpoly_split_p_evalx_Flv(
+polmodular_split_p_evalx_Flv(
   const modpoly_disc_info *dinfo, ulong pp,
   GEN j_invs, GEN j_pr_invs, GEN R_j_invs, ulong j_idx)
 {
@@ -1113,7 +1113,7 @@ modpoly_split_p_evalx_Flv(
 
   k = vecsmall_isin(R_j_invs, j_pr_invs[j_idx]);
   if ( ! k) {
-    pari_err_BUG("modpoly_split_p_evalx_Flv: "
+    pari_err_BUG("polmodular_split_p_evalx_Flv: "
                  "Couldn't find j-invariant in list");
   }
 
@@ -1168,7 +1168,7 @@ enum_floor_curves(
   long R_cond = L * ne->u; /* conductor(DR); */
   /* FIXME: Is this still the right v? */
   long w = R_cond * ne->v;
-  /* FIXME: Calculate these once and for all in modpoly0_ZM(). */
+  /* FIXME: Calculate these once and for all in polmodular0_ZM(). */
   long d2 = z_lval(w, 2);
   long dL = z_lval(w, dinfo->L1);
   return enum_j_fast(j0_pr, DR, dinfo->L1, d2, dL, dinfo->n2, mpdb,
@@ -1187,7 +1187,7 @@ evaluated_modpoly_coeffs(
   for (i = 1; i <= L + 2; ++i) {
     long k;
     GEN modpoly_at_ji =
-      modpoly_split_p_evalx_Flv(dinfo, p, j_invs, j_pr_invs, R_j_invs, i);
+      polmodular_split_p_evalx_Flv(dinfo, p, j_invs, j_pr_invs, R_j_invs, i);
     for (k = 1; k <= L + 2; ++k)
       coeff(coeff_mat, i, k) = modpoly_at_ji[k + 1];
     avma = av;
@@ -1216,7 +1216,7 @@ interpolate_coeffs(
  * This is Sutherland 2012, Algorithm 2.1, p16.
  */
 static GEN
-modpoly_split_p_Flm(
+polmodular_split_p_Flm(
   ulong L, GEN hilb, GEN factu, norm_eqn_t ne, GEN *mpdb,
   const modpoly_disc_info *dinfo)
 {
@@ -1301,7 +1301,7 @@ eval_modpoly_modp(
 }
 
 static GEN
-modpoly0_ZM(
+polmodular0_ZM(
   ulong L, double min_prime_bits, GEN J, GEN Q,
   int compute_derivs,
   int quit_on_first_stabilisation)
@@ -1323,7 +1323,7 @@ modpoly0_ZM(
   factu = factoru(cond);
 
   av = avma;
-  mpdb = modpoly_db_init(0);
+  mpdb = polmodular_db_init(0);
 
   dbg_printf2(1, "Selected discriminant D = %ld which has conductor u = %ld.",
               D, cond);
@@ -1362,7 +1362,7 @@ modpoly0_ZM(
     norm_eqn_update(ne, t, p);
 
     av = avma;
-    modpoly_modp = modpoly_split_p_Flm(L, hilb, factu, ne, &mpdb, dinfo);
+    modpoly_modp = polmodular_split_p_Flm(L, hilb, factu, ne, &mpdb, dinfo);
     if (J) {
       modpoly_modp = eval_modpoly_modp(modpoly_modp, j_powers, ne, compute_derivs);
       modpoly_modp = gerepileupto(av, modpoly_modp);
@@ -1375,7 +1375,7 @@ modpoly0_ZM(
       break;
   }
 
-  modpoly_db_clear(mpdb);
+  polmodular_db_clear(mpdb);
   if (J)
     return gerepileupto(ltop, FpM_red(modpoly, Q));
   return gerepileupto(ltop, modpoly);
@@ -1408,7 +1408,7 @@ sympol_to_ZM(GEN phi, long L)
 
 
 GEN
-modpoly_ZM(long L)
+polmodular_ZM(long L)
 {
   double c, min_prime_bits;
   pari_sp av = avma;
@@ -1429,7 +1429,7 @@ modpoly_ZM(long L)
     return gerepilecopy(av, sympol_to_ZM(mp, L));
 
   if (L < 2)
-    pari_err_DOMAIN("modpoly_ZM", "L", "<", gen_2, stoi(L));
+    pari_err_DOMAIN("polmodular_ZM", "L", "<", gen_2, stoi(L));
 
   /* FIXME: Handle non-prime L.  This is Algorithm 1.1 and Corollary
    * 3.4 in Sutherland, "Class polynomials for nonholomorphic modular
@@ -1447,20 +1447,20 @@ modpoly_ZM(long L)
     : 2 * (3 * L + 7 * sqrt(L)) * log(L) + 16 * L;
   min_prime_bits = c / LOG2 + 2;
 
-  return modpoly0_ZM(L, min_prime_bits, 0, 0, 0, 0);
+  return polmodular0_ZM(L, min_prime_bits, 0, 0, 0, 0);
 }
 
 
 GEN
-modpoly_ZXX(long L, long vx, long vy)
+polmodular_ZXX(long L, long vx, long vy)
 {
   pari_sp av = avma;
-  GEN phi = modpoly_ZM(L);
+  GEN phi = polmodular_ZM(L);
 
   if (vx < 0) vx = 0;
   if (vy < 0) vy = 1;
   if (varncmp(vx, vy) >= 0)
-    pari_err_PRIORITY("modpoly_ZXX", pol_x(vx), "<=", vy);
+    pari_err_PRIORITY("polmodular_ZXX", pol_x(vx), "<=", vy);
 
   return gerepilecopy(av, RgM_to_RgXX(phi, vx, vy));
 }
@@ -1477,7 +1477,7 @@ FpV_deriv(GEN v, long deg, GEN P)
 }
 
 GEN
-Fp_modpoly_evalx(
+Fp_polmodular_evalx(
   long L, GEN J, GEN P, long v, int compute_derivs)
 {
   pari_sp av = avma;
@@ -1486,7 +1486,7 @@ Fp_modpoly_evalx(
 
   if (L <= MAX_INTERNAL_MODPOLY_LEVEL) {
     GEN tmp;
-    GEN phi = RgM_to_FpM(modpoly_ZM(L), P);
+    GEN phi = RgM_to_FpM(polmodular_ZM(L), P);
     GEN j_powers = Fp_powers(J, L + 1, P);
     GEN modpol = RgV_to_RgX(FpM_FpC_mul(phi, j_powers, P), v);
     if (compute_derivs) {
@@ -1506,7 +1506,7 @@ Fp_modpoly_evalx(
    *                    = 3 (2L (log(L) + 3) + log(L + 2)) + log(q) + log(4) */
   c = 3 * (2 * L * log2(L) + log2(L + 2)) + 18 * L / LOG2
     + dbllog2r(itor(P, DEFAULTPREC)) + 2;
-  phi = modpoly0_ZM(L, c, J, P, compute_derivs, 0);
+  phi = polmodular0_ZM(L, c, J, P, compute_derivs, 0);
   phi = RgM_to_RgXV(phi, v);
   return gerepilecopy(av, compute_derivs ? phi : gel(phi, 1));
 }
@@ -1524,7 +1524,7 @@ polmodular(long L, GEN x, long v, int compute_derivs)
       xv = varn(x);
     if (compute_derivs)
       pari_err_FLAG("polmodular");
-    return modpoly_ZXX(L, xv, v);
+    return polmodular_ZXX(L, xv, v);
   }
 
   tx = typ(x);
@@ -1544,7 +1544,7 @@ polmodular(long L, GEN x, long v, int compute_derivs)
   }
 
   if (v < 0) v = 1;
-  res = Fp_modpoly_evalx(L, J, P, v, compute_derivs);
+  res = Fp_polmodular_evalx(L, J, P, v, compute_derivs);
   res = gmul(res, one);
   return gerepileupto(av, res);
 }
