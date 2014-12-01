@@ -189,6 +189,7 @@ BA 72- GP function self() (for defining recursive anonymous functions)
 BA 73- GP function fold()
    74- [libpari] hash_create_ulong, hash_create_str, hash_select,
        hash_remove_select, hash_keys, hash_values
+   75- allow serlaplace(t_POL)
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]

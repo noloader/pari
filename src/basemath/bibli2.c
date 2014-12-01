@@ -604,23 +604,44 @@ gprec_wtrunc(GEN x, long pr)
 /********************************************************************/
 /**                  LAPLACE TRANSFORM (OF A SERIES)               **/
 /********************************************************************/
-GEN
-laplace(GEN x)
+static GEN
+serlaplace(GEN x)
 {
-  pari_sp av = avma;
   long i, l = lg(x), e = valp(x);
-  GEN y, t;
-
-  if (typ(x) != t_SER) pari_err_TYPE("laplace",x);
+  GEN t, y = cgetg(l,t_SER);
   if (e < 0) pari_err_DOMAIN("laplace","valuation","<",gen_0,stoi(e));
-  y = cgetg(l,t_SER);
   t = mpfact(e); y[1] = x[1];
   for (i=2; i<l; i++)
   {
     gel(y,i) = gmul(t, gel(x,i));
     e++; t = mului(e,t);
   }
-  return gerepilecopy(av,y);
+  return y;
+}
+static GEN
+pollaplace(GEN x)
+{
+  long i, e = 0, l = lg(x);
+  GEN t = gen_1, y = cgetg(l,t_POL);
+  y[1] = x[1];
+  for (i=2; i<l; i++)
+  {
+    gel(y,i) = gmul(t, gel(x,i));
+    e++; t = mului(e,t);
+  }
+  return y;
+}
+GEN
+laplace(GEN x)
+{
+  pari_sp av = avma;
+  switch(typ(x))
+  {
+    case t_POL: x = pollaplace(x); break;
+    case t_SER: x = serlaplace(x); break;
+    default: pari_err_TYPE("laplace",x);
+  }
+  return gerepilecopy(av, x);
 }
 
 /********************************************************************/
