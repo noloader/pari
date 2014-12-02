@@ -909,6 +909,11 @@ LargeSols(GEN P, GEN tnf, GEN rhs, GEN ne)
   baker_s BS;
   pari_sp av = avma;
 
+  prec = 0; /*-Wall*/
+  bnf = NULL; /*-Wall*/
+  iroot = 1;
+  ine = 1;
+
 START:
   if (S) /* restart from precision problems */
   {
@@ -918,11 +923,7 @@ START:
     tnf = inithue(P, bnf, 0, prec);
   }
   else
-  {
     S = cgetg(1, t_VEC);
-    iroot = 1;
-    ine = 1;
-  }
   bnf  = gel(tnf,2);
   csts = gel(tnf,7);
   nf_get_sign(bnf_get_nf(bnf), &s, &t);
