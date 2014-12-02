@@ -452,7 +452,7 @@ static int
 TrySol(GEN *pS, GEN B0, long i1, GEN Delta2, GEN Lambda, GEN ro,
        GEN NE, GEN MatFU, GEN P, GEN rhs)
 {
-  long bi1, i, B = gtolong(gceil(B0)), l = lg(Delta2);
+  long bi1, i, B = itos(gceil(B0)), l = lg(Delta2);
   GEN b = cgetg(l,t_VEC), L = cgetg(l,t_VEC);
 
   for (i = 1; i < l; i++)
@@ -937,7 +937,7 @@ START:
   BS.hal = gel(csts,3);
   x0     = gel(csts,4);
   eps5   = gel(csts,5);
-  Prec = gtolong(gel(csts,6));
+  Prec = itos(gel(csts,6));
   BS.Ind = gel(csts,7);
   BS.MatFU = MatFU;
   BS.bak = muluu(n, (n-1)*(n-2)); /* safe */
