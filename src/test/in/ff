@@ -1,6 +1,6 @@
 jell(x)=if(#x,x.j,[]);
 {
-test(p,f) = setrand(1); a = ffgen(p^f, 'a); [
+test(p,f) = setrand(1); a = ffgen([p,f], 'a); [
 a^2+3*a+1,
 a/(1+a),
 2*(a+1)/3,

@@ -1458,11 +1458,21 @@ ffgen(GEN T, long v)
       if (!FpX_is_squarefree(T,p)) pari_err_IRREDPOL("ffgen",T);
       break;
     case t_INT:
-      d = Z_isanypower(T, &p);
-      if (!d) { d = 1; p = T; }
-      if (!BPSW_psp(p)) pari_err_PRIME("ffgen",p);
+      d = ispseudoprimepower(T,&p);
+      if (!d) pari_err_PRIME("ffgen",T);
       T = init_Fq(p, d, v);
       break;
+    case t_VEC: case t_COL:
+      if (lg(T) == 3) {
+        p = gel(T,1);
+        A = gel(T,2);
+        if (typ(p) == t_INT && typ(A) == t_INT)
+        {
+          d = itos(A);
+          T = init_Fq(p, d, v);
+          break;
+        }
+      }
     default:
       pari_err_TYPE("ffgen",T);
       return NULL;

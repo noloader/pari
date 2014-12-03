@@ -260,6 +260,7 @@ BA 38- much faster polresultant over Z
        nor MAXVARN to have minimal priority.
    40- GP: polynomial variable 'y' is now always defined on startup,
        with priority lower than 'x'
+   41- Allow ffgen([p,f]) in addition to ffgen(p^f) and ffgen(T*Mod(1,p))
 
 Removed
    1- deprecated functions nfbasis0, nfdisc0, factorpadic0

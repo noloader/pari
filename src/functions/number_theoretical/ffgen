@@ -27,8 +27,16 @@ Doc: return a \typ{FFELT} generator for the finite field with $q$ elements;
   ***   at top-level: ffgen(6)
   ***                 ^--------
   *** ffgen: not a prime number in ffgen: 6.
- @eprog\noindent Alternative syntax: instead of a prime power $q$, one may
- input directly the polynomial $P$ (monic, irreducible, with \typ{INTMOD}
+ @eprog\noindent Alternative syntax: instead of a prime power $q=p^f$, one may
+ input the pair $[p,f]$:
+ \bprog
+ ? g = ffgen([2,4], 't);
+ ? g.p
+ %2 = 2
+ ? g.mod
+ %3 = t^4 + t^3 + t^2 + t + 1
+ @eprog\noindent Finally, one may input
+ directly the polynomial $P$ (monic, irreducible, with \typ{INTMOD}
  coefficients), and the function returns the generator $g = X \pmod{P(X)}$,
  inferring $p$ from the coefficients of $P$. If \kbd{v} is given, the
  variable name is used to display $g$, else the variable of the polynomial
