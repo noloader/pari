@@ -2216,6 +2216,11 @@ init_modular(forprime_t *S) { u_forprime_init(S, 27449, ULONG_MAX); }
 GEN
 ZX_ZXY_resultant_all(GEN A, GEN B0, long *plambda, GEN *LERS)
 {
+#ifdef LONG_IS_64BIT
+  ulong pstart = 4611686018427388039UL;
+#else
+  ulong pstart = 1073741827UL;
+#endif
   int checksqfree = plambda? 1: 0, stable;
   long lambda = plambda? *plambda: 0, cnt = 0;
   ulong bound, p, dp;
@@ -2225,7 +2230,6 @@ ZX_ZXY_resultant_all(GEN A, GEN B0, long *plambda, GEN *LERS)
   long vX = varn(B0), vY = varn(A); /* assume vY has lower priority */
   long sX = evalvarn(vX);
   GEN x, y, dglist, dB, B, q, a, b, ev, H, H0, H1, Hp, H0p, H1p, C0, C1;
-  forprime_t S;
 
   dglist = Hp = H0p = H1p = C0 = C1 = NULL; /* gcc -Wall */
   if (LERS)
@@ -2246,9 +2250,9 @@ ZX_ZXY_resultant_all(GEN A, GEN B0, long *plambda, GEN *LERS)
   if (vX == vY) setvarn(B0, v);
 
   /* make sure p large enough */
-  u_forprime_init(&S, maxuu(dres << 1, 27499), ULONG_MAX);
+  p = pstart-1;
 INIT:
-  /* allways except the first time */
+  /* always except the first time */
   if (av2) { avma = av2; lambda = next_lambda(lambda); }
   if (vX == vY)
   {
@@ -2286,8 +2290,9 @@ INIT:
   bound = ZX_ZXY_ResBound(A, B, dB);
   if (DEBUGLEVEL>4) err_printf("bound for resultant coeffs: 2^%ld\n",bound);
   dp = 1;
-  while ((p = u_forprime_next(&S)))
+  while (1)
   {
+    p = unextprime(p+1);
     if (dB) { dp = smodis(dB, p); if (!dp) continue; }
 
     a = ZX_to_Flx(A, p);
@@ -2390,7 +2395,6 @@ INIT:
       gerepileall(av2, LERS? 4: 2, &H, &q, &H0, &H1);
     }
   }
-  if (!p) pari_err_OVERFLOW("ZX_ZXY_rnfequation [ran out of primes]");
 END:
   if (DEBUGLEVEL>5) err_printf(" done\n");
   setvarn(H, vX); (void)delete_var();
