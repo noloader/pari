@@ -1979,7 +1979,7 @@ FpX_FpXY_eval_resultant(GEN a, GEN b, GEN n, GEN p, GEN la)
 /* assume dres := deg(Res_X(a,b), Y) <= deg(a,X) * deg(b,Y) < p */
 /* Return a Fly */
 static GEN
-Flx_FlyX_resultant_polint(GEN a, GEN b, ulong p, ulong dres, long sx)
+Flx_FlxY_resultant_polint(GEN a, GEN b, ulong p, ulong dres, long sx)
 {
   ulong i, n, la = Flx_lead(a);
   GEN  x = cgetg(dres+2, t_VECSMALL);
@@ -2111,7 +2111,7 @@ Flx_FlxY_resultant(GEN a, GEN b, ulong pp)
   if ((ulong)dres >= pp)
     z = FlxX_resultant(Fly_to_FlxY(a, sy), b, pp, sx);
   else
-    z = Flx_FlyX_resultant_polint(a, b, pp, (ulong)dres, sy);
+    z = Flx_FlxY_resultant_polint(a, b, pp, (ulong)dres, sy);
   return gerepileupto(ltop,z);
 }
 
@@ -2334,7 +2334,7 @@ INIT:
     else
     {
       long dropa = degA - degpol(a), dropb = lb - lg(b);
-      Hp = Flx_FlyX_resultant_polint(a, b, p, (ulong)dres, sX);
+      Hp = Flx_FlxY_resultant_polint(a, b, p, (ulong)dres, sX);
       if (dropa && dropb)
         Hp = zero_Flx(sX);
       else {
