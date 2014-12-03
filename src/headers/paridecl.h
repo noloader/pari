@@ -1655,10 +1655,6 @@ GEN     sumdigits(GEN n);
 GEN     sumdigits0(GEN n, GEN B);
 ulong   sumdigitsu(ulong n);
 
-/* DedekZeta.c */
-
-GEN     dirzetak(GEN nf, GEN b);
-
 /* base1.c */
 
 GEN     FpX_FpC_nfpoleval(GEN nf, GEN pol, GEN a, GEN p);
@@ -3173,6 +3169,115 @@ GEN     padicfields(GEN p, long m, long d, long flag);
 /* kummer.c */
 
 GEN     rnfkummer(GEN bnr, GEN subgroup, long all, long prec);
+
+/* lfun.c */
+
+long    is_linit(GEN data);
+GEN     ldata_get_an(GEN ldata);
+long    ldata_get_selfdual(GEN ldata);
+long    ldata_isreal(GEN ldata);
+GEN     ldata_get_gammavec(GEN ldata);
+long    ldata_get_degree(GEN ldata);
+long    ldata_get_k(GEN ldata);
+GEN     ldata_get_conductor(GEN ldata);
+GEN     ldata_get_rootno(GEN ldata);
+GEN     ldata_get_residue(GEN ldata);
+GEN     ldata_vecan(GEN ldata, long L, long prec);
+long    ldata_get_type(GEN ldata);
+long    linit_get_type(GEN linit);
+GEN     linit_get_ldata(GEN linit);
+GEN     linit_get_tech(GEN linit);
+GEN     lfun_get_domain(GEN tech);
+GEN     lfun_get_dom(GEN tech);
+long    lfun_get_bitprec(GEN tech);
+GEN     lfun_get_factgammavec(GEN tech);
+GEN     lfun_get_step(GEN tech);
+GEN     lfun_get_pol(GEN tech);
+GEN     lfun_get_Residue(GEN tech);
+GEN     lfun_get_k2(GEN tech);
+GEN     lfun_get_w2(GEN tech);
+GEN     lfun_get_expot(GEN tech);
+long    lfun_get_der(GEN tech);
+long    lfun_get_bitprec(GEN tech);
+GEN     lfun(GEN ldata, GEN s, long prec);
+GEN     lfun_bitprec(GEN ldata, GEN s, long bitprec);
+GEN     lfun0_bitprec(GEN ldata, GEN s, long der, long bitprec);
+GEN     lfun0(GEN ldata, GEN s, long der, long prec);
+long    lfuncheckfeq(GEN data, GEN t0, long prec);
+long    lfuncheckfeq_bitprec(GEN data, GEN t0, long bitprec);
+GEN     lfunconductor(GEN data, GEN maxcond, long flag, long prec);
+GEN     lfuncreate(GEN obj);
+GEN     lfunan(GEN ldata, long L, long prec);
+GEN     lfunhardy(GEN ldata, GEN t, long prec);
+GEN     lfunhardy_bitprec(GEN ldata, GEN t, long bitprec);
+GEN     lfuninit(GEN ldata, GEN dom, long der, long prec);
+GEN     lfuninit_bitprec(GEN ldata, GEN dom, long der, long bitprec);
+GEN     lfuninit_make(long t, GEN ldata, GEN molin, GEN domain);
+long    lfunisvgaell(GEN Vga, long flag);
+GEN     lfunlambda(GEN ldata, GEN s, long prec);
+GEN     lfunlambda_bitprec(GEN ldata, GEN s, long bitprec);
+GEN     lfunlambda0(GEN ldata, GEN s, long der, long prec);
+GEN     lfunlambda0_bitprec(GEN ldata, GEN s, long der, long bitprec);
+GEN     lfunmisc_to_ldata(GEN ldata);
+GEN     lfunmisc_to_ldata_shallow(GEN ldata);
+long    lfunorderzero(GEN ldata, long prec);
+long    lfunorderzero_bitprec(GEN ldata, long bitprec);
+GEN     lfunprod_get_fact(GEN tech);
+GEN     lfunrootno(GEN data, long prec);
+GEN     lfunrootno_bitprec(GEN data, long bitprec);
+GEN     lfunrootres(GEN data, long prec);
+GEN     lfunrootres_bitprec(GEN data, long bitprec);
+GEN     lfunrtopoles(GEN r);
+GEN     lfuntheta(GEN data, GEN t, long m, long prec);
+GEN     lfuntheta_bitprec(GEN data, GEN t, long m, long bitprec);
+GEN     lfunthetainit(GEN ldata, GEN tinf, long m, long prec);
+GEN     lfunthetainit_bitprec(GEN ldata, GEN tdom, long m, long bitprec);
+GEN     lfunthetacheckinit(GEN data, GEN tinf, long m, long *ptbitprec, long fl);
+GEN     lfunzeros(GEN ldata, GEN lim, long divz, long prec);
+GEN     lfunzeros_bitprec(GEN ldata, GEN lim, long divz, long bitprec);
+int     sdomain_isincl(GEN dom, GEN dom0);
+GEN     theta_get_an(GEN tdata);
+long    theta_get_L(GEN tdata);
+GEN     theta_get_K(GEN tdata);
+GEN     theta_get_R(GEN tdata);
+long    theta_get_bitprec(GEN tdata);
+long    theta_get_m(GEN tdata);
+GEN     theta_get_tdom(GEN tdata);
+GEN     theta_get_sqrtN(GEN tdata);
+
+/* lfunutils.c */
+
+GEN     dirzetak(GEN nf, GEN b);
+GEN     ellmoddegree(GEN e, long prec);
+GEN     lfunabelianrelinit(GEN bnfabs, GEN bnf, GEN polrel, GEN dom, long der, long prec);
+GEN     lfunabelianrelinit_bitprec(GEN bnfabs, GEN bnf, GEN polrel, GEN dom, long der, long bitprec);
+GEN     lfunconvol(GEN a1, GEN a2);
+GEN     lfunchi(GEN CHI);
+GEN     lfunchigen(GEN bnr, GEN CHI);
+GEN     lfundiv(GEN ldata1, GEN ldata2, long prec);
+GEN     lfunzeta(void);
+GEN     lfunzetakinit(GEN pol, GEN dom, long der, long flag, long prec);
+GEN     lfunzetakinit_bitprec(GEN pol, GEN dom, long der, long flag, long bitprec);
+GEN     lfunzetak(GEN pol);
+GEN     lfunell(GEN e);
+GEN     lfunellmfpeters(GEN E, long prec);
+GEN     lfunellsymsq(GEN E);
+GEN     lfunetaquo(GEN ldata);
+GEN     lfunmfspec(GEN ldata, long prec);
+GEN     lfunmfpeters(GEN ldata, long prec);
+GEN     lfunmul(GEN ldata1, GEN ldata2, long prec);
+GEN     lfunqf(GEN ldata);
+GEN     lfunsymsq(GEN ldata, GEN known, long prec);
+GEN     lfunsymsqspec(GEN ldata, long prec);
+GEN     vecan_chigen(GEN an, long n, long prec);
+GEN     vecan_chivec(GEN an, long n, long prec);
+GEN     vecan_div(GEN an, long n, long prec);
+GEN     vecan_ellsymsq(GEN an, long n);
+GEN     vecan_eta(GEN mateta, long L);
+GEN     vecan_mul(GEN an, long n, long prec);
+GEN     vecan_qf(GEN Q, long L);
+GEN     vecan_Kronecker(GEN D, long n);
+GEN     vecan_symsq(GEN an, long n, long prec);
 
 /* lll.c */
 

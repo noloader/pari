@@ -248,6 +248,12 @@ enum { t_FF_FpXQ = 0, t_FF_Flxq = 1, t_FF_F2xq = 2 };
 GEN FF_ellinit(GEN E, GEN fg);
 GEN FF_elldata(GEN E, GEN fg);
 
+/* L functions */
+enum { t_LFUN_GENERIC, t_LFUN_ZETA, t_LFUN_NF, t_LFUN_ELL, t_LFUN_KRONECKER,
+       t_LFUN_CHIVEC, t_LFUN_CHIGEN, t_LFUN_ETA, t_LFUN_DIV, t_LFUN_MUL,
+       t_LFUN_SYMSQ, t_LFUN_SYMSQ_ELL, t_LFUN_QF };
+enum { t_LDESC_INIT, t_LDESC_THETA, t_LDESC_PRODUCT };
+
 /* Elliptic curves */
 /* common to Q and Rg */
 enum { R_PERIODS = 1, R_ETA, R_ROOTS, R_AB };

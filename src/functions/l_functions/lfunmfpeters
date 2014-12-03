@@ -1,0 +1,11 @@
+Function: lfunmfpeters
+Section: l_functions
+C-Name: lfunmfpeters
+Prototype: Gp
+Help: lfunmfpeters(ldata): ldata corresponding to a normalized
+  eigenform but NOT to the output of lfunsymsq, returns the Petersson
+  square of the form, computed using the symmetric square.
+Doc: \kbd{ldata} corresponding to a normalized eigenform but {\bf not}
+  to the output of \kbd{lfunsymsq}, returns the Petersson square of the
+  form, computed using the symmetric square.
+

@@ -1,0 +1,98 @@
+Function: lfuncreate
+Section: l_functions
+C-Name: lfuncreate
+Prototype: G
+Help: lfuncreate(obj): Given either an object such as a polynomial, elliptic
+ curve, Dirichlet or Hecke character, eta quotient, etc., or an explicit
+ 6 or 7 component vector [dir,real,Vga,k,N,eps,r],
+ create the Ldata structure necessary for lfun computation.
+Doc: This low-level routine creates \tet{Ldata} structures, needed by
+ \var{lfun} functions, describing an $L$ function and its functional equation.
+ You are urged to use a high-level constructor when one is available,
+ and this function accepts them:
+ \bprog
+ ? L = lfuncreate(1); \\ Riemann zeta
+ ? L = lfuncreate(x^2+1); \\ Dedekind zeta for Q(i)
+ ? L = lfuncreate(ellinit([0,1]); \\ Hasse-Weil zeta y^2=x^3+1
+ @eprog\noindent One can then use, e.g., \kbd{Lfun(L,s)} to directly
+ evaluate the respective $L$ functions at $s$, or \kbd{lfuninit(L, [c,w,h]}
+ to initialize computations in the rectangular box $\Re(s-c) \leq w$,
+ $\Im(s) \leq h$.
+
+ We now describe the low-level interface, used to input non-builtin
+ $L$-functions. The input is now a $6$ or $7$ component vector
+ $V=[dir,real,Vga,k,N,eps,r]$, whose components are as follows:
+
+ \item \kbd{V[1]=dir} encodes the Dirichlet series coefficients. The
+ preferred format is a closure of arity 1: \kbd{n->vector(n,i,a(i))} giving
+ the vector of the first $n$ coefficients. The closure is allowed to return
+ a vector of more than $n$ coefficients (only the first $n$ will be
+ considered) or even less than $n$, in which case loss of accuracy will occur
+ and a warning that \kbd{\#an} is less than expected is issued. This
+ allows to precompute and store a fixed large number of Dirichlet
+ coefficients in a vector $v$ and use the closure \kbd{n->v}, which
+ does not depend on $n$. As a shorthand for this latter case, you can input
+ the vector $v$ itself instead of the closure.
+
+ A second format is a closure of arity 2 \kbd{(p,d)->L(p)} giving the local
+ factor $L_p$ at $p$ as a rational function, to be evaluated at $p^{-s}$ as
+ in \kbd{direuler}; $d$ is set to the floor of $\log_p(n)$, where $n$ is
+ the total number of Dirichlet coefficients $(a_1,\dots,a_n)$ that will be
+ computed in this way. This parameter $d$ allows to compute only part of $L_p$
+ when $p$ is large and $L_p$ expensive to compute, but it can of course be
+ ignored by the closure.
+
+ Finally one can describe separately the generic Dirichlet coefficients
+ and the bad local factors by setting $\kbd{dir} = [an, [p_1,L^{-1}_{p_1}],
+ \dots,[p_k,L^{-1}_{p_k}]]$, where \kbd{an} describes the generic coefficients
+ in one of the two formats above, except that coefficients $a_n$ with
+ $p_i \mid n$ for some $i \leq k$ will be ignored. The subsequent pairs $[p,
+ L_p^{-1}]$ give the bad primes and corresponding \emph{inverse} local
+ factors.
+
+ \item \kbd{V[2]=real} is set to $0$ if the function is self-dual (this makes
+ things faster), to $1$ if the dual of the $L$-function is its conjugate, and
+  to the Dirichlet series coefficients of the dual function encoded as above
+  otherwise. Note that the only difference between $0$ and $1$ is efficiency.
+
+ \item \kbd{V[3]=Vga} is the vector of $\alpha_j$ such that the gamma
+ factor of the $L$-function is equal to
+ $$\gamma_A(s)=\prod_{1\le j\le d}\Gamma_{\R}(s+\alpha_j),$$
+ where $\Gamma_{\R}(s)=\pi^{-s/2}\Gamma(s/2)$.
+ This same syntax is used in the \kbd{gammamellininv} functions.
+ In particular the length $d$ of \kbd{Vga} is the degree of the $L$-function.
+ In the present implementation, the $\alpha_j$ are assumed to be exact
+ rational numbers. However when calling theta functions with \emph{complex}
+ (as opposed to real) arguments, determination problems occur which may
+ give wrong results when the $\alpha_j$ are not integral.
+
+ \item \kbd{V[4]=k} is the (classical) \emph{weight}, assumed to be
+ a positive integer. The functional equation relates values at $s$
+ and $k-s$. For instance the weight of an Artin $L$-series such
+ as a Dedekind zeta function is $1$, that of an elliptic curve is $2$,
+ and that of a modular form of weight $k$ is $k$. For motivic $L$-functions,
+ the classical weight is related to the \emph{motivic} weight $w$ by
+ the equation $w = k-1$.
+
+ \item \kbd{V[5]=N} is the conductor, an integer $N\ge1$, such that
+ $\Lambda(s)=N^{s/2}\gamma_A(s)L(s)$ with $\gamma_A(s)$ as above.
+
+ \item \kbd{V[6]=eps} is the root number $\varepsilon$, i.e., the
+ complex number of modulus $1$ such that
+ $\Lambda(k-s)=\varepsilon\overline{\Lambda(\overline{s})}$.
+
+ \item The last optional component \kbd{V[7]=r} encodes the poles of
+ the $L$-function (\emph{not} of the $\Lambda$-function), and should be
+ omitted if there are no poles.
+
+ The coding is as follows: either $r$ is a complex scalar, in which case
+ it is understood that it represents the residue of $L(s)$ at $s=k$
+ (this is the usual situation, for instance for Dedekind zeta functions).
+ In this case, $r$ can be set to $0$ (but not omitted) if unknown, and it
+ will be computed.
+
+ Or $r$ is a vector of $2$-component vectors $[\beta,P_{\beta}(x)]$, where
+ the $\beta$ are the poles of the $L$-function, and $P_{\beta}(x)$ is its
+ polar part, so that $L(s) \sim P_\beta(s-\beta)$ in a neighbourhood of
+ $\beta$. For instance $r/x+O(1)$ for a simple pole at $\beta$
+ or $r_1/x^2+r_2/x+O(1)$ for a double pole.

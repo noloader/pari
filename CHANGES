@@ -328,6 +328,13 @@ HC119- GP function tauramanujan
 PB120- Speed up {Flx,FpX,FpXQX}_divrem_basecase for modulus of the form
        x^n+O(x^m) with m small
 HC121- GP function solvestep
+  122- [GP] New lfun family of functions
+   lfun                lfundiv             lfunmfspec          lfunsymsqspec
+   lfunabelianrelinit  lfunetaquo          lfunmul             lfuntheta
+   lfunan              lfunhardy           lfunorderzero       lfunthetainit
+   lfuncheckfeq        lfuninit            lfunqf              lfunzeros
+   lfunconductor       lfunlambda          lfunrootres
+   lfuncreate          lfunmfpeters        lfunsymsq
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]

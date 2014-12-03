@@ -1,0 +1,21 @@
+Function: lfunsymsq
+Section: l_functions
+C-Name: lfunsymsq
+Prototype: GDGp
+Help: lfunsymsq(ldata,{known=[]}): creates the ldata corresponding to the
+  symmetric square of the modular form ldata, including the search for the
+  conductor and bad Euler factors. known, if present, is the vector
+  [conductor,[list of Euler factors]], where each Euler factor is of the form
+  [p, a_p] corresponding to the factor 1/(1 - a_pp^(-s)). The result can
+  then be used with the usual lfunxxx functions. Warning: in the present
+  implementation, only missing Euler factors of degree at most 1 are
+  supported (this is sufficient in most cases, and always if N is squarefree).
+Doc: creates the ldata corresponding to the symmetric square of the modular
+ form \kbd{ldata}, including the search for the conductor and bad Euler
+ factors. \kbd{known}, if present, is the vector
+ [conductor,[list of Euler factors]], where each Euler factor is of the form
+ $[p, a_p]$ corresponding to the factor $1/(1 - a_pp^{-s})$. The result
+ can then be used with the usual \kbd{lfunxxx} functions.
+ Warning: in the present implementation,
+ only missing Euler factors of degree at most 1 are supported (this is
+ sufficient in most cases, and always if $N$ is squarefree).

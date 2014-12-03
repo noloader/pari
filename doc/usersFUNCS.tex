@@ -649,7 +649,7 @@ fundamental domain.
 $\eta_2$ such that $\eta_i = 2\zeta(\omega_i/2)$, where $\zeta$ is the
 Weierstrass zeta function associated to the period lattice; see
 \tet{ellzeta}. In particular, the Legendre relation holds: $\eta_2\omega_1 -
-\eta_1\omega_2 = 2i\pi$.
+\eta_1\omega_2 = 2\pi i$.
 
 \misctitle{Warning} As for the orientation of the basis of the period lattice,
 beware that many sources use the inverse convention where $\omega_2/\omega_1$
@@ -734,10 +734,250 @@ memory and require at least 2MB stack to avoid stack overflows.
 
 \item \tet{nf} returns the number field over which $E$ is defined.
 
-
 %SECTION: elliptic_curves
 
 \section{Functions related to $L$-functions}
+
+This section describes routines related to $L$-functions. We first introduce
+the basic concept and notations, then explain how to represent them in GP.
+Let $\Gamma_\R(s) = \pi^{-s/2}\Gamma(s/2)$, where $\Gamma$ is Euler's gamma
+function. Given $d \geq 1$ and a $d$-tuple $A=[\alpha_1,\dots,\alpha_d]$ of
+complex numbers, we let $\gamma_A(s) = \prod_{\alpha \in A} \Gamma_\R(s +
+\alpha)$.
+
+Given a sequence $a = (a_n)_{n\geq 1}$ of complex numbers (such that $a_1 = 1$),
+a positive \emph{conductor} $N \in \Z$, and a \emph{gamma factor}
+$\gamma_A$ as above, we consider the Dirichlet series
+$$ L(a,s) = \sum_{n\geq 1} a_n n^{-s} $$
+and the associated completed function
+$$ \Lambda(a,s) = N^{s/2}\gamma_A(s) \cdot L(a,s). $$
+
+Such a datum defines an \emph{$L$-function} if it satisfies the three
+following assumptions:
+
+\item [Convergence] The $a_n = O_\epsilon(n^{k_1+\epsilon})$ have polynomial
+growth, equivalently $L(s)$ converges absolutely in some right half-plane
+$\Re(s) > k_1 + 1$.
+
+\item [Analytic continuation] $L(s)$ has a meromorphic continuation to the
+whole complex plane with finitely many poles.
+
+\item [Functional equation] There exist an integer $k$, a complex number
+$\epsilon$
+of modulus $1$, and an associated sequence $a^*$ defining both an
+$L$-function $L(a^*,s)$ satisfying the above two assumptions and a completed
+function $\Lambda(a^*,s) = N^{s/2}\gamma_A(s) \cdot L(a^*,s)$, such that
+$$\Lambda(a,k-s) = \epsilon \Lambda(a^*,s)$$
+for all regular points.
+
+More often than not in number theory we have $a^* = \overline{a}$, but this
+needs not be the case. If $a$ is a real sequence and $a = a^*$, we say that
+$L$ is \emph{self-dual}. We do not assume that the $a_n$ are multiplicative,
+nor equivalently that $L(s)$ has an Euler product.
+
+\misctitle{Remark}
+Of course, $a$ determines the $L$-function, but the (redundant) datum $a,a^*,
+A, N, k, \epsilon$ describes the situation in a form more suitable for fast
+computations; knowing the polar part $r$ of $L(s)$ (a rational function such
+that $L-r$ is holomorphic) is also useful. A subset of these, including only
+finitely many $a_n$-values will still completely determine $L$ (in suitable
+families), and we provide routines to try and compute missing invariants from
+whatever information is available.
+
+\misctitle{Important Caveat}
+We currently assume that we can take the growth exponent $k_1 = (k-1)/2$ if
+$L$ is entire and $k_1 = k-1$ otherwise, and that the implied constants in
+the $O_\epsilon$ are small. This may be changed and made user-configurable
+in future versions but the essential point remains that it is impossible to
+return proven results in such a generic framework, without more detailed
+information about the $L$ function. The intended use of the $L$-function
+package is not to prove theorems, but to experiment and formulate
+conjectures, so all numerical results should be taken with a grain of salt.
+One can always increase \kbd{realprecision} and recompute: the difference
+estimates the actual absolute error in the original output.
+
+\subsec{Theta functions}
+
+Given an $L$-function as above, we define an associated Theta function
+via Mellin inversion: for any positive real $t > 0$, we let
+$$ \theta(a,t) := \dfrac{1}{2\pi i}\int_{\Re(s) = c} t^{-s} \Lambda(s)\, ds $$
+where $c$ is any positive real number $c > k_1+1$ such that $c + \Re(a) > 0$
+for all $a\in A$. In fact, we have
+$$\theta(a,t) = \sum_{n\geq 1} a_n K(nt/N^{1/2})
+\quad\text{where}\quad
+K(t) := \dfrac{1}{2\pi i}\int_{\Re(s) = c} t^{-s} \gamma_A(s)\, ds.$$
+Note that this function is analytic and actually makes sense for complex $t$,
+such that $\Re(t^{2/d}) > 0$, i.e. in a cone containing the positive real
+half-line. The functional equation for $\Lambda$ translates into
+$$ \theta(a,1/t) - \epsilon t^k\theta(a^*,t) = P_\Lambda(t), $$
+where $P_\Lambda$ is an explicit polynomial in $t$ and $\log t$ given by the
+Taylor development of the polar part of $\Lambda$: there are no $\log$'s if
+all poles are simple, and $P = 0$ if $\Lambda$ is entire. The values
+$\theta(t)$ are generally easier to compute than the $L(s)$, and this
+functional equation provides a fast way to guess possible values for
+missing invariants in the $L$-function definition.
+
+\subsec{Data structures describing $L$ and Theta functions}
+
+We have 3 levels of description:
+
+\item an \tet{Lmath} is an arbitray description of the underlying
+mathematical situation (to which e.g., we associate the $a_p$ as traces of
+Frobenius elements); this is done via constructors to be described in the
+subsections below.
+
+\item an \tet{Ldata} is a computational description of situation, containing
+the complete datum ($a,a^*,A,k,N,\epsilon,r$). Where $a$ and $a^*$ describe
+the coefficients (given $n,b$ we must be able to compute $[a_1,\dots,a_n]$
+with bit accuracy $b$), $A$ describes the Euler factor, the (classical) weight
+is $k$, $N$ is the conductor, and $r$ describes the polar part of $L(s)$.
+This is obtained via the function \tet{lfuncreate}. N.B. For motivic
+$L$-functions, the motivic weight $w$ is $w = k-1$; but we also support
+non-motivic $L$-functions.
+
+\misctitle{Design problem} all components of an \kbd{Ldata} should be given
+exactly since the accuracy to which they must be computed is not bounded a
+priori; but this is not always possible, in particular for $\epsilon$ and $r$.
+
+\item an \tet{Linit} contains an \kbd{Ldata} and everything needed for fast
+\emph{numerical} computations. It specifies the functions to be considered
+(either $L^{(j)}(s)$ or $\theta^{(j)}(t)$ for derivatives of order $j \leq
+m$, where $m$ is now fixed) and specifies a \emph{domain} which limits
+the range of arguments ($t$ or $s$, respectively to certain cones and
+rectangular regions) and the output accuracy. This is obtained via the
+functions \tet{lfuninit} or \tet{lfunthetainit}.
+
+All the functions which are specific to $L$ or Theta functions share the
+prefix \kbd{lfun}. They take as first argument either an \kbd{Lmath}, an
+\kbd{Ldata}, or an \kbd{Linit}. If a single value is to be computed,
+this makes no difference, but when many values are needed (e.g. for plots or
+when searching for zeros), one should first construct an \kbd{Linit}
+associated to the search range and use it in all subsequent calls.
+If you attempt to use an \kbd{Linit} outside the range for which it was
+initialized, a warning is issued, because the initialization is
+performed again, a major inefficiency:
+\bprog
+? Z = lfuncreate(1); \\ Riemann zeta
+? L = lfuninit(Z, [1/2, 0, 100]); \\ zeta(1/2+it), |t| < 100
+? lfun(L, 1/2)    \\ OK, within domain
+%3 = -1.4603545088095868128894991525152980125
+? lfun(L, 0)      \\ not on critical strip !
+  *** lfun: Warning: lfuninit: insufficient initialization.
+%4 = -0.50000000000000000000000000000000000000
+? lfun(L, 1/2, 1) \\ attempt first derivative !
+*** lfun: Warning: lfuninit: insufficient initialization.
+%5 = -3.9226461392091517274715314467145995137
+@eprog
+
+For many $L$-functions, passing from \kbd{Lmath} to an \kbd{Ldata} is
+inexpensive: in that case one may use \kbd{lfuninit} directly from the
+\kbd{Lmath} even when evaluations in different domains are needed. The
+above example could equally have skipped the \kbd{lfuncreate}:
+\bprog
+? L = lfuninit(1, [1/2, 0, 100]); \\ zeta(1/2+it), |t| < 100
+@eprog\noindent In fact, when computing a single value, you can even skip
+\kbd{lfuninit}:
+\bprog
+? L = lfuninit(1, 1/2, 1); \\ zeta'(1/2)
+? L = lfuninit(1, 1+x+O(x^5)); \\ first 5 terms of Taylor development at 1
+@eprog\noindent Both give the desired results with no warning.
+
+\misctitle{Complexity}
+The implementation requires $O(N(|t|+1))^{1/2}$ coefficients $a_n$
+to evaluate $L$ of conductor $N$ at $s = \sigma + i t$.
+
+We now describe the available high-level constructors, for built-in $L$
+functions.
+
+\subsec{Dirichlet $L$-functions}
+
+Given a Dirichlet character $\chi:(\Z/N\Z)^*\to \C$, we let
+$$L(\chi, s) = \sum_{n\geq 1} \chi(n) n^{-s}.$$
+Only primitive characters are supported. Given a fundamental discriminant
+$D$, the function $L((D/.), s)$ is encoded by the \typ{INT} $D$. This
+includes Riemann $\zeta$ function via the special case $D = 1$.
+
+Non-quadratic (primitive) characters of small conductor $N$ can be represented
+by a vector with two components $[n,v]$, where $n$ is the order of the
+character, $N = \kbd{\#}v$ and $\chi(j) = \exp(2\pi i \cdot v[j]/n)$
+for all $1 \leq j \leq N$, $(j,N) = 1$.
+
+For general characters of large conductor, use Hecke characters over $K = \Q$
+(see below).
+
+\subsec{Hecke $L$-functions}
+
+Given a finite order Hecke character $\chi: Cl_f(K)\to \C$, we let
+$$L(\chi, s) = \sum_{A \subset O_K} \chi(A)\, \left(N_{K/\Q}A\right)^{-s}.$$
+Only primitive characters are supported. If $T$ is an irreducible rational
+polynomial or any absolute number field structure (preferably at least
+a \var{bnf}), then $T$ is associated to the Dedekind zeta function (trivial
+$f$ and $\chi$).
+
+Let $Cl_f(K) = \oplus (\Z/d_i\Z) g_i$ given by a \var{bnr} structure with
+generators: the $d_i$ are given by \kbd{K.cyc} and the $g_i$ by \kbd{K.gen}.
+A \tev{character} $\chi$ on the ray class group is given by a row vector
+$v = [a_1,\ldots,a_n]$ such that $\chi(\prod g_i^{n_i}) = \exp(2\pi i\sum
+a_i n_i / d_i)$. The pair $[\var{bnr}, v]$ encodes $\chi$.
+
+\bprog
+? K  = bnfinit(x^2-60);
+? Cf = bnrinit(K, [7, [1,1]], 1); \\ f = 7 oo_1 oo_2
+? Cf.cyc
+%3 = [6, 2, 2]
+? Cf.gen
+%4 = [[2, 1; 0, 1], [22, 9; 0, 1], [-6, 7]~]
+? lfuncreate([Cf, [1,0,0]]); \\$\chi(g_1) = \zeta_6$, $\chi(g_2)=\chi(g_3)=1$
+@eprog
+
+\noindent Dirichlet characters on $(\Z/N\Z)^*$ are a special case,
+where $K = \Q$:
+\bprog
+? Q  = bnfinit(x);
+? Cf = bnrinit(Q, [N, [1]]); \\ for odd characters on (Z/NZ)*
+@eprog\noindent
+For even characters, replace by \kbd{bnrinit(K, N)}. Note that if the
+character is quadratic or $N$ is small, the simpler direct construction in the
+previous section will be more efficient.
+
+\subsec{Hasse-Weil $L$-functions}
+
+For the time being, only elliptic curves over $\Q$ are supported. More
+general hyperelliptic curves over number fields will be added later.
+
+\bprog
+? E = ellinit([1,1]);
+? L = lfuncreate(E);
+@eprog
+
+\subsec{Eta quotients / Modular forms}
+
+An Eta quotient is created by applying \tet{lfunetaquo} to a matrix with
+2 columns $[m, r_m]$ representing
+$$ f(\tau) := \prod_m \eta(m\tau)^{r_m}. $$
+It is currently assumed that $f$ is a self-dual cuspidal form on
+$\Gamma_0(N)$ for some $N$.
+For instance, the $L$-function $\sum \tau(n) n^{-s}$
+associated to Ramanujan's $\Delta$ function is encoded as follows
+\bprog
+? L = lfunetaquo(Mat([1,24]));
+? lfunan(L, 100)  \\ first 100 values of tau(n)
+@eprog
+
+More general modular forms defined by modular symbols will be added later.
+
+\subsec{Low-level Ldata format}
+
+When no direct constructor is available, you can still input an $L$ function
+directly by supplying $[a, a^*,A, k, N, \epsilon, r]$ to \kbd{lfuncreate}
+(see \kbd{??lfuncreate} for details).
+
+It is \emph{strongly} suggested to first check consistency of the created
+$L$-function:
+\bprog
+? L = lfuncreate([a, as, A, k, N, eps, r]);
+? lfunchecfeq(L)
+@eprog
 
 %SECTION: l_functions
 
@@ -860,9 +1100,9 @@ and $\prod d_i = h$. This information can also be retrieved as
 $G.\kbd{no}$, $G.\kbd{cyc}$ and $G.\kbd{gen}$.
 
 \item a \tev{character} on the abelian group
-$\oplus (\Z/d_i\Z) g_i$
+$\oplus (\Z/d_j\Z) g_j$
 is given by a row vector $\chi = [a_1,\ldots,a_n]$ such that
-$\chi(\prod g_i^{n_i}) = \exp(2i\pi\sum a_i n_i / d_i)$.
+$\chi(\prod g_j^{n_j}) = \exp(2\pi i\sum a_j n_j / d_j)$.
 
 \item given such a structure, a \tev{subgroup} $H$ is input as a square
 matrix in HNF, whose columns express generators of $H$ on the given generators

@@ -1,0 +1,10 @@
+Function: lfunmul
+Section: l_functions
+C-Name: lfunmul
+Prototype: GGp
+Help: lfunmul(ldata1,ldata2): creates the ldata structure (without
+  initialization) corresponding to the product of the Dirichlet series
+  given by ldata1 and ldata2.
+Doc: creates the ldata structure (without initialization) corresponding
+  to the product of the Dirichlet series given by \kbd{ldata1} and
+  \kbd{ldata2}.

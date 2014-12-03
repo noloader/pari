@@ -1,0 +1,18 @@
+Function: lfunsymsqspec
+Section: l_functions
+C-Name: lfunsymsqspec
+Prototype: Gp
+Help: lfunsymsqspec(ldata): ldata corresponding either to a normalized
+  eigenform or to the output of lfunsymsq, returns [val, om2], where val
+  is the vector of special values of the symmetric square of the modular form
+  on the right of the critical strip, and om2 is a period, not canonically
+  normalized. For the moment, only for modular forms of even weight.
+Doc: \kbd{ldata} corresponding either to a normalized eigenform or to the
+  output of \kbd{lfunsymsq}, returns \kbd{[val, om2]}, where \kbd{val} is
+  the vector of special values of the symmetric square of the modular form
+  on the right of the critical strip, and \kbd{om2} is a period, not
+  canonically normalized (so that if for instance the form has rational
+  coefficients, \kbd{om2} is a rational multiple both of the Petersson square
+  of the form and of the product $\omega^+\omega^-$ of the special values
+  output by \kbd{lfunmfspec}).
+  For the moment, only for modular forms of even weight.
