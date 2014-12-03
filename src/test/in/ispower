@@ -51,6 +51,10 @@ for (k = 1, #v,
 \\  if ([s,t] != correct[k], error(k))
 )
 }
+n=(2^100+277)^10;
+ispseudoprimepower(n)
+ispseudoprimepower(n,&p)
+p
 
 isprimepower(541^121)
 ispowerful(4)

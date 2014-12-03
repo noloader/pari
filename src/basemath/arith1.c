@@ -1437,8 +1437,8 @@ Z_ispow2(GEN n)
   return !(u & (u-1)); /* faster than hamming_word(u) == 1 */
 }
 
-long
-isprimepower(GEN n, GEN *pt)
+static long
+isprimepower_i(GEN n, GEN *pt, long flag)
 {
   pari_sp av = avma;
   long i, v;
@@ -1471,10 +1471,14 @@ isprimepower(GEN n, GEN *pt)
   }
   /* p | n => p >= 103 */
   v = Z_isanypower_nosmalldiv(&n); /* expensive */
-  if (!isprime(n)) { avma = av; return 0; }
+  if (!(flag? isprime(n): BPSW_psp(n))) { avma = av; return 0; }
   if (pt) *pt = gerepilecopy(av, n); else avma = av;
   return v;
 }
+long
+isprimepower(GEN n, GEN *pt) { return isprimepower_i(n,pt,1); }
+long
+ispseudoprimepower(GEN n, GEN *pt) { return isprimepower_i(n,pt,0); }
 
 long
 uisprimepower(ulong n, ulong *pp)

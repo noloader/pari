@@ -1420,6 +1420,7 @@ long    isfundamental(GEN x);
 long    ispolygonal(GEN x, GEN S, GEN *N);
 long    ispower(GEN x, GEN k, GEN *pty);
 long    isprimepower(GEN x, GEN *pty);
+long    ispseudoprimepower(GEN n, GEN *pt);
 long    issquare(GEN x);
 long    issquareall(GEN x, GEN *pt);
 long    krois(GEN x, long y);
