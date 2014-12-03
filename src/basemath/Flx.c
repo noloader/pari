@@ -1954,7 +1954,13 @@ ulong
 Flx_eval_pre(GEN x, ulong y, ulong p, ulong pi)
 {
   if (degpol(x) > 15)
-    return Flx_eval_powers_pre(x, Fl_powers_pre(y, degpol(x), p, pi), p, pi);
+  {
+    pari_sp av = avma;
+    GEN v = Fl_powers_pre(y, degpol(x), p, pi);
+    ulong r =  Flx_eval_powers_pre(x, v, p, pi);
+    avma = av;
+    return r;
+  }
   else
     return Flx_eval_pre_i(x, y, p, pi);
 }
