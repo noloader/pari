@@ -400,8 +400,8 @@ returns the $j$-invariant of the curve $E$.
 \fun{int}{Fp_elljissupersingular}{GEN j, GEN p} returns $1$ if $j$ is the
 $j$-invariant of a supersingular curve over $\F_p$, $0$ otherwise.
 
-\fun{GEN}{Fp_ellcard}{GEN a4, GEN a6, GEN p} returns the cardinal of the group
-$E(\F_p)$.
+\fun{GEN}{Fp_ellcard}{GEN a4, GEN a6, GEN p} returns the cardinality of the
+group $E(\F_p)$.
 
 \fun{GEN}{Fp_ellcard_SEA}{GEN a4, GEN a6, GEN p, long s}
 available if the \kbd{seadata} package is installed. This function returns
@@ -415,7 +415,7 @@ weeds out most uninteresting curves; if curves of order a power of $2$ times
 a prime are acceptable, set $s=2$.
 
 \fun{GEN}{Fp_ffellcard}{GEN a4, GEN a6, GEN q, long n, GEN p} returns the
-cardinal of the group $E(\F_q)$ where $q=p^n$.
+cardinality of the group $E(\F_q)$ where $q=p^n$.
 
 \fun{GEN}{Fp_ellgroup}{GEN a4, GEN a6, GEN N, GEN p, GEN *pt_m} returns the
 group structure $D$ of the group $E(\F_p)$, which is assumed to be of order $N$
@@ -480,8 +480,8 @@ A \kbd{Fle} is either the point at infinity (\kbd{ellinf()}), or a \kbd{Flv}
 with two components $[x,y]$.
 
 \fun{long}{Fl_elltrace}{ulong a4, ulong a6, ulong p} returns the trace $t$ of
-the Frobenius of $E(\F_p)$. The cardinal of $E(\F_p)$ is thus $p+1-t$, which
-might not fit in an \kbd{ulong}.
+the Frobenius of $E(\F_p)$. The cardinality of $E(\F_p)$ is thus $p+1-t$,
+which might not fit in an \kbd{ulong}.
 
 \fun{long}{Fl_elltrace_CM}{long CM, ulong a4, ulong a6, ulong p} as
 \tet{Fl_elltrace}. If \kbd{CM} is $0$, use the standard algorithm; otherwise
@@ -708,7 +708,7 @@ returns the order of $E(\F_p[X]/(T))$.
 \fun{GEN}{Fq_ellcard_SEA}{GEN a4, GEN a6, GEN q, GEN T, GEN p, long s}
 available if the \kbd{seadata} package is installed. This function returns
 $\#E(\F_p[X]/(T))$, using the Schoof-Elkies-Atkin algorithm.
-Assume $p\neq 2,3$, and $q$ is the cardinal of $\F_p[X]/(T)$.
+Assume $p\neq 2,3$, and $q$ is the cardinality of $\F_p[X]/(T)$.
 The parameter $s$ has the same meaning as in \kbd{Fp\_ellcard\_SEA}.
 
 \fun{GEN}{FpXQ_ellgroup}{GEN a4, GEN a6, GEN N, GEN T, GEN p, GEN *pt_m}

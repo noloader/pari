@@ -5487,7 +5487,7 @@ elltatepairing(GEN E, GEN P, GEN Q, GEN m)
   }
 }
 
-/* E/Q, return cardinal including the (possible) ramified point */
+/* E/Q, return cardinality including the (possible) ramified point */
 static GEN
 ellcard_ram(GEN E, GEN p, int *good_red)
 {

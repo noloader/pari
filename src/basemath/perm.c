@@ -464,7 +464,7 @@ perm_generate(GEN S, GEN H, long o)
   return L;
 }
 
-/*Return the order (cardinal) of a group */
+/*Return the order (cardinality) of a group */
 long
 group_order(GEN G)
 {
