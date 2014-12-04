@@ -1967,10 +1967,10 @@ Flx_FlxY_eval_resultant(GEN a, GEN b, ulong n, ulong p, ulong la)
   return r;
 }
 static GEN
-FpX_FpXY_eval_resultant(GEN a, GEN b, GEN n, GEN p, GEN la)
+FpX_FpXY_eval_resultant(GEN a, GEN b, GEN n, GEN p, GEN la, long db, long vX)
 {
-  GEN ev = FpXY_evalx(b, n, p);
-  long drop=lg(b)-lg(ev);
+  GEN ev = FpXY_evaly(b, n, p, vX);
+  long drop = db-degpol(ev);
   GEN r = FpX_resultant(a, ev, p);
   if (drop && !gequal1(la)) r = Fp_mul(r, Fp_powu(la, drop,p),p);
   return r;
@@ -2138,19 +2138,19 @@ swap_vars(GEN b0, long v)
 GEN
 FpX_FpXY_resultant(GEN a, GEN b, GEN p)
 {
-  long i,n,dres, vX = varn(b), vY = varn(a);
+  long i,n,dres, db, vY = varn(b), vX = varn(a);
   GEN la,x,y;
 
   if (lgefint(p) == 3)
   {
     ulong pp = uel(p,2);
-    b = ZXX_to_FlxX(b, pp, vY);
+    b = ZXX_to_FlxX(b, pp, vX);
     a = ZX_to_Flx(a, pp);
     x = Flx_FlxY_resultant(a, b, pp);
     return Flx_to_ZX(x);
   }
-  dres = degpol(a)*degpol(b);
-  b = swap_vars(b, vY);
+  db = RgXY_degreex(b);
+  dres = degpol(a)*db;
   la = leading_term(a);
   x = cgetg(dres+2, t_VEC);
   y = cgetg(dres+2, t_VEC);
@@ -2159,16 +2159,16 @@ FpX_FpXY_resultant(GEN a, GEN b, GEN p)
   for (i=0,n = 1; i < dres; n++)
   {
     gel(x,++i) = utoipos(n);
-    gel(y,i) = FpX_FpXY_eval_resultant(a,b,gel(x,i),p,la);
+    gel(y,i) = FpX_FpXY_eval_resultant(a,b,gel(x,i),p,la,db,vY);
     gel(x,++i) = subis(p,n);
-    gel(y,i) = FpX_FpXY_eval_resultant(a,b,gel(x,i),p,la);
+    gel(y,i) = FpX_FpXY_eval_resultant(a,b,gel(x,i),p,la,db,vY);
   }
   if (i == dres)
   {
     gel(x,++i) = gen_0;
-    gel(y,i) = FpX_FpXY_eval_resultant(a,b, gel(x,i), p,la);
+    gel(y,i) = FpX_FpXY_eval_resultant(a,b, gel(x,i), p,la,db,vY);
   }
-  return FpV_polint(x,y, p, vX);
+  return FpV_polint(x,y, p, vY);
 }
 
 GEN
