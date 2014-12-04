@@ -49,23 +49,25 @@ RgM_zc_mul_i(GEN x, GEN y, long c, long l)
 {
   long i, j;
   pari_sp av;
-  GEN z = cgetg(l,t_COL), s;
+  GEN z = cgetg(l,t_COL);
 
   for (i=1; i<l; i++)
   {
-    av = avma; s = gmulgs(gcoeff(x,i,1),y[1]);
-    for (j=2; j<c; j++)
+    GEN s = NULL;
+    av = avma;
+    for (j=1; j<c; j++)
     {
       long t = y[j];
+      if (!t) continue;
+      if (!s) { s = gmulgs(gcoeff(x,i,j),t); continue; }
       switch(t)
       {
-        case  0: break;
         case  1: s = gadd(s, gcoeff(x,i,j)); break;
         case -1: s = gsub(s, gcoeff(x,i,j)); break;
         default: s = gadd(s, gmulgs(gcoeff(x,i,j), t)); break;
       }
     }
-    gel(z,i) = gerepileupto(av,s);
+    gel(z,i) = gerepileupto(av,s? s: gen_0);
   }
   return z;
 }
