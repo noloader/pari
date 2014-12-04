@@ -54,16 +54,6 @@ typedef struct {
 /* The table is defined at the end of the file. */
 INLINE const X1_info *get_X1_info(ulong N);
 
-INLINE long
-RgXY_degreex(GEN bpol)
-{
-  long deg = 0, i;
-  for (i = 2; i < lg(bpol); ++i)
-    deg = maxss(deg, degpol(gel(bpol, i)));
-  return deg;
-}
-
-
 /* Compute the image of
  * (x,y) |--> (r_n(x,y)/r_d(x,y), s_n(x,y), s_d(x,y)) */
 static void

@@ -664,6 +664,16 @@ RgXY_swap(GEN x, long n, long w)
   setvarn(z, varn(x)); return z;
 }
 
+long
+RgXY_degreex(GEN bpol)
+{
+  long deg = 0, i;
+  if (!signe(bpol)) return -1;
+  for (i = 2; i < lg(bpol); ++i)
+    deg = maxss(deg, degpol(gel(bpol, i)));
+  return deg;
+}
+
 /* return (x % X^n). Shallow */
 GEN
 RgXn_red_shallow(GEN a, long n)
