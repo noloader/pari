@@ -1531,18 +1531,28 @@ act_arch(GEN A, GEN x)
     return a;
   }
   if (l==1) return cgetg(1, t_VEC);
+  a = NULL;
   if (tA == t_VECSMALL)
   {
-    a = gmulsg(A[1], gel(x,1));
-    for (i=2; i<l; i++)
-      if (A[i]) a = gadd(a, gmulsg(A[i], gel(x,i)));
+    for (i=1; i<l; i++)
+    {
+      long c = A[i];
+      if (!c) continue;
+      if (!a) { a = gmulsg(c, gel(x,i)); continue; }
+      a = gadd(a, gmulsg(c, gel(x,i)));
+    }
   }
   else
   { /* A a t_COL of t_INT. Assume lg(A)==lg(x) */
-    a = gmul(gel(A,1), gel(x,1));
-    for (i=2; i<l; i++)
-      if (signe(gel(A,i))) a = gadd(a, gmul(gel(A,i), gel(x,i)));
+    for (i=1; i<l; i++)
+    {
+      GEN c = gel(A,i);
+      if (!signe(c)) continue;
+      if (!a) { a = gmul(c, gel(x,i)); continue; }
+      a = gadd(a, gmul(gel(A,i), gel(x,i)));
+    }
   }
+  if (!a) return zerovec(lgcols(x)-1);
   settyp(a, t_VEC); return a;
 }
 
