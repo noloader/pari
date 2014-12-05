@@ -1043,11 +1043,6 @@ START:
   x1 = gmax(x0, sqrtnr(shiftr(tmp,1),n));
   x2 = gmax(x1, sqrtnr(mulur(10,c14), n));
   x3 = gmax(x2, sqrtnr(shiftr(c14, EXPO1+1),n));
-  if (DEBUGLEVEL>1) {
-    err_printf("x1 -> %Ps\n",x1);
-    err_printf("x2 -> %Ps\n",x2);
-    err_printf("c14 = %Ps\n",c14);
-  }
   c90 = gmul(shiftr(mulur(18,mppi(DEFAULTPREC)), 5*(4+r)),
                     gmul(gmul(mpfact(r+3), powiu(muliu(BS.bak,r+2), r+3)),
                          glog(muliu(BS.bak,2*(r+2)),DEFAULTPREC)));
