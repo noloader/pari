@@ -261,6 +261,8 @@ BA 38- much faster polresultant over Z
    40- GP: polynomial variable 'y' is now always defined on startup,
        with priority lower than 'x'
    41- Allow ffgen([p,f]) in addition to ffgen(p^f) and ffgen(T*Mod(1,p))
+   42- thue() needed to compute to huge accuracies when regulator was large
+       E.g. t=thueinit(15*x^3+8*x^2-95*x+24,1); thue(t,8)
 
 Removed
    1- deprecated functions nfbasis0, nfdisc0, factorpadic0

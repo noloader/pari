@@ -159,6 +159,37 @@ T_A_Matrices(GEN MatFU, long r, GEN *eps5, long prec)
   *eps5 = mulur(r, eps3); return A;
 }
 
+/* find a few large primes such that p Z_K = P1 P2 P3 Q, whith f(Pi/p) = 1
+ * From x - \alpha y = \prod u_i^b_i we will deduce 3 equations in F_p
+ * in check_prinfo. Eliminating x,y we get a stringent condition on (b_i). */
+static GEN
+get_prime_info(GEN bnf)
+{
+  long n = 1, e = gexpo(bnf_get_reg(bnf)), nbp = e < 20? 1: 2;
+  GEN L = cgetg(nbp+1, t_VEC), nf = checknf(bnf), fu = bnf_get_fu(bnf);
+  GEN X = pol_x(nf_get_varn(nf));
+  ulong p;
+  for(p = 2147483659UL; n <= nbp; p = unextprime(p+1))
+  {
+    GEN A, U, LP = idealprimedec_limit_f(bnf, utoipos(p), 1);
+    long i;
+    if (lg(LP) < 4) continue;
+    A = cgetg(5, t_VECSMALL);
+    U = cgetg(4, t_VEC);
+    for (i = 1; i <= 3; i++)
+    {
+      GEN modpr = zkmodprinit(nf, gel(LP,i));
+      GEN a = nf_to_Fq(nf, X, modpr);
+      GEN u = nfV_to_FqV(fu, nf, modpr);
+      A[i] = itou(a);
+      gel(U,i) = ZV_to_Flv(u,p);
+    }
+    A[4] = p;
+    gel(L,n++) = mkvec2(A,U);
+  }
+  return L;
+}
+
 /* Performs basic computations concerning the equation.
  * Returns a "tnf" structure containing
  *  1) the polynomial
@@ -233,7 +264,7 @@ inithue(GEN P, GEN bnf, long flag, long prec)
     err_printf("c1 = %Ps\nc2 = %Ps\nIndice <= %Ps\n", c1, c2, Ind);
 
   ALH = gmul2n(ALH, 1);
-  tnf = cgetg(8,t_VEC); csts = cgetg(8,t_VEC);
+  tnf = cgetg(8,t_VEC); csts = cgetg(9,t_VEC);
   gel(tnf,1) = P;
   gel(tnf,2) = bnf;
   gel(tnf,3) = ro;
@@ -244,6 +275,7 @@ inithue(GEN P, GEN bnf, long flag, long prec)
   gel(csts,1) = c1; gel(csts,2) = c2;   gel(csts,3) = LogHeight(ro, prec);
   gel(csts,4) = x0; gel(csts,5) = eps5; gel(csts,6) = utoipos(prec);
   gel(csts,7) = Ind;
+  gel(csts,8) = get_prime_info(bnf);
   return tnf;
 }
 
@@ -427,33 +459,91 @@ CheckSol(GEN *pS, GEN z1, GEN z2, GEN P, GEN rhs, GEN ro)
 
 static const long EXPO1 = 7;
 static int
-round_to_b(GEN v, long b, GEN Delta2, long i1, GEN L)
+round_to_b(GEN v, long B, long b, GEN Delta2, long i1, GEN L)
 {
   long i, l = lg(v);
+  if (!b)
+  {
+    for (i = 1; i < l; i++)
+    {
+      long c;
+      if (i == i1)
+        c = 0;
+      else
+      {
+        GEN d = gneg(gel(L,i));
+        long e;
+        d = grndtoi(d,&e);
+        if (e > -EXPO1 || is_bigint(d)) return 0;
+        c = itos(d); if (labs(c) > B) return 0;
+      }
+      v[i] = c;
+    }
+  }
+  else
+  {
+    for (i = 1; i < l; i++)
+    {
+      long c;
+      if (i == i1)
+        c = b;
+      else
+      {
+        GEN d = gsub(gmulgs(gel(Delta2,i), b), gel(L,i));
+        long e;
+        d = grndtoi(d,&e);
+        if (e > -EXPO1 || is_bigint(d)) return 0;
+        c = itos(d); if (labs(c) > B) return 0;
+      }
+      v[i] = c;
+    }
+  }
+  return 1;
+}
+
+/* \prod U[i]^b[i] */
+static ulong
+Fl_factorback(GEN U, GEN b, ulong p)
+{
+  long i, l = lg(U);
+  ulong r = 1;
   for (i = 1; i < l; i++)
   {
-    GEN c;
-    if (i == i1)
-      c = stoi(b);
-    else
-    {
-      long e;
-      c = gsub(gmulgs(gel(Delta2,i), b), gel(L,i));
-      c = grndtoi(c,&e);
-      if (e > -EXPO1) return 0;
-    }
-    gel(v,i) = c;
+    long c = b[i];
+    ulong u = U[i];
+    if (!c) continue;
+    if (c < 0) { u = Fl_inv(u,p); c = -c; }
+    r = Fl_mul(r, Fl_powu(u,c,p), p);
   }
+  return r;
+}
+
+static int
+check_pr(GEN bi, GEN L)
+{
+  GEN A = gel(L,1), U = gel(L,2);
+  ulong a = A[1], b = A[2], c = A[3], p = A[4];
+  ulong r = Fl_mul(Fl_sub(c,b,p), Fl_factorback(gel(U,1),bi, p), p);
+  ulong s = Fl_mul(Fl_sub(b,a,p), Fl_factorback(gel(U,2),bi, p), p);
+  ulong t = Fl_mul(Fl_sub(a,c,p), Fl_factorback(gel(U,3),bi, p), p);
+  return Fl_add(Fl_add(r,s,p),t,p) == 0;
+}
+static int
+check_prinfo(GEN b, GEN prinfo)
+{
+  long i;
+  for (i = 1; i < lg(prinfo); i++)
+    if (!check_pr(b, gel(prinfo,i))) return 0;
   return 1;
 }
 /* For each possible value of b_i1, compute the b_i's
 * and 2 conjugates of z = x - alpha y. Then check. */
 static int
 TrySol(GEN *pS, GEN B0, long i1, GEN Delta2, GEN Lambda, GEN ro,
-       GEN NE, GEN MatFU, GEN P, GEN rhs)
+       GEN NE, GEN MatFU, GEN prinfo, GEN P, GEN rhs)
 {
   long bi1, i, B = itos(gceil(B0)), l = lg(Delta2);
-  GEN b = cgetg(l,t_VEC), L = cgetg(l,t_VEC);
+  GEN b = cgetg(l,t_VECSMALL), L = cgetg(l,t_VEC);
 
   for (i = 1; i < l; i++)
   {
@@ -468,14 +558,14 @@ TrySol(GEN *pS, GEN B0, long i1, GEN Delta2, GEN Lambda, GEN ro,
   for (bi1 = -B; bi1 <= B; bi1++)
   {
     GEN z1, z2;
-    if (!round_to_b(b, bi1, Delta2, i1, L)) continue;
+    if (!round_to_b(b, B, bi1, Delta2, i1, L)) continue;
+    if (!check_prinfo(b, prinfo)) continue;
     z1 = gel(NE,1);
     z2 = gel(NE,2);
     for (i = 1; i < l; i++)
     {
-      GEN c = gel(b,i);
-      z1 = gmul(z1, powgi(gcoeff(MatFU,1,i), c));
-      z2 = gmul(z2, powgi(gcoeff(MatFU,2,i), c));
+      z1 = gmul(z1, gpowgs(gcoeff(MatFU,1,i), b[i]));
+      z2 = gmul(z2, gpowgs(gcoeff(MatFU,2,i), b[i]));
     }
     if (!CheckSol(pS, z1,z2,P,rhs,ro)) return 0;
   }
@@ -904,7 +994,7 @@ static GEN
 LargeSols(GEN P, GEN tnf, GEN rhs, GEN ne)
 {
   GEN S = NULL, Delta0, ro, ALH, bnf, MatFU, A, csts, dP, Bx;
-  GEN c1,c2,c3,c4,c90,c91,c14, x0, x1, x2, x3, tmp, eps5;
+  GEN c1,c2,c3,c4,c90,c91,c14, x0, x1, x2, x3, tmp, eps5, prinfo;
   long iroot, ine, n, r, Prec, prec, s,t;
   baker_s BS;
   pari_sp av = avma;
@@ -942,6 +1032,7 @@ START:
   BS.MatFU = MatFU;
   BS.bak = muluu(n, (n-1)*(n-2)); /* safe */
   BS.deg = n;
+  prinfo = gel(csts,8);
 
   if (t) x0 = gmul(x0, absisqrtn(rhs, n, Prec));
   tmp = divrr(c1,c2);
@@ -1041,7 +1132,7 @@ START:
       if (is_pm1(BS.Ind))
       {
         if (! (B0 = get_B0(i1, Delta2, Lambda, Deps5, prec, &BS)) ||
-            !TrySol(&S, B0, i1, Delta2, Lambda, ro, NE,MatFU, P,rhs))
+            !TrySol(&S, B0, i1, Delta2, Lambda, ro, NE,MatFU,prinfo, P,rhs))
           goto START;
         if (lg(S) == lS) avma = av2;
       }
