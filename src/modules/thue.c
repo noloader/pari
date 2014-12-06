@@ -1160,7 +1160,7 @@ filter_sol_x(GEN S, GEN L)
   setlg(S, k); return S;
 }
 
-static GEN bnfisintnorm_i(GEN bnf, long s, GEN z);
+static GEN bnfisintnorm_i(GEN bnf, GEN a, long s, GEN z);
 static GEN
 tnf_get_Ind(GEN tnf) { return gmael(tnf,7,7); }
 static GEN
@@ -1304,11 +1304,11 @@ thue(GEN tnf, GEN rhs, GEN ne)
     tnf = gel(tnf,2);
     bnf = tnf_get_bnf(tnf);
     ne = get_neabs(bnf, rhs, lg(tnf)==8?tnf_get_Ind(tnf): gen_1);
-    ne1= bnfisintnorm_i(bnf,1,ne);
+    ne1= bnfisintnorm_i(bnf,rhs,1,ne);
     S = thue(tnf, rhs, ne1);
     if (!odd(e) && lg(tnf)==8) /* if s=0, norms are positive */
     {
-      ne2 = bnfisintnorm_i(bnf,-1,ne);
+      ne2 = bnfisintnorm_i(bnf,rhs,-1,ne);
       S = shallowconcat(S, thue(tnf, negi(rhs), ne2));
     }
   }
@@ -1583,11 +1583,19 @@ bnfisintnormabs(GEN bnf, GEN a)
 
 /* z = bnfisintnormabs(bnf,a), sa = 1 or -1, return bnfisintnorm(bnf,sa*|a|) */
 static GEN
-bnfisintnorm_i(GEN bnf, long sa, GEN z)
+bnfisintnorm_i(GEN bnf, GEN a, long sa, GEN z)
 {
-  GEN nf = checknf(bnf), T = nf_get_pol(nf), unit = NULL;
+  GEN nf = checknf(bnf), T = nf_get_pol(nf), f = nf_get_index(nf), unit = NULL;
+  GEN Tp, A = signe(a) == sa? a: negi(a);
   long sNx, i, j, N = degpol(T), l = lg(z);
   long norm_1 = 0; /* gcc -Wall */
+  ulong p, Ap;
+  forprime_t S;
+  u_forprime_init(&S,3,ULONG_MAX);
+  while((p = u_forprime_next(&S)))
+    if (umodiu(f,p)) { Ap = umodiu(A,p); if (Ap) break; }
+  Tp = ZX_to_Flx(T,p);
+  /* p > 2 doesn't divide A nor Q_denom(z in Z_K)*/
 
   /* update z in place to get correct signs: multiply by unit of norm -1 if
    * it exists, otherwise delete solution with wrong sign */
@@ -1596,8 +1604,16 @@ bnfisintnorm_i(GEN bnf, long sa, GEN z)
     GEN x = gel(z,i);
     int xpol = (typ(x) == t_POL);
 
-    if (xpol) sNx = signe(ZX_resultant(T, Q_primpart(x)));
-    else      sNx = gsigne(x) < 0 && odd(N) ? -1 : 1;
+    if (xpol)
+    {
+      GEN dx, y = Q_remove_denom(x,&dx);
+      ulong Np = Flx_resultant(Tp, ZX_to_Flx(y,p), p);
+      ulong dA = dx? Fl_mul(Ap, Fl_powu(umodiu(dx,p), N, p), p): Ap;
+      /* Nx = Res(T,y) / dx^N = A or -A. Check mod p */
+      sNx = dA == Np? sa: -sa;
+    }
+    else
+      sNx = gsigne(x) < 0 && odd(N) ? -1 : 1;
     if (sNx != sa)
     {
       if (! unit) norm_1 = get_unit_1(bnf, &unit);
@@ -1623,5 +1639,5 @@ bnfisintnorm(GEN bnf, GEN a)
     case t_VEC: a = gel(a,1); break;
     case t_MAT: a = factorback(a); break;
   }
-  return gerepilecopy(av, bnfisintnorm_i(bnf,signe(a), ne));
+  return gerepilecopy(av, bnfisintnorm_i(bnf,a,signe(a), ne));
 }
