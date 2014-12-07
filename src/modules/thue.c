@@ -1591,6 +1591,7 @@ bnfisintnorm_i(GEN bnf, GEN a, long sa, GEN z)
   long norm_1 = 0; /* gcc -Wall */
   ulong p, Ap;
   forprime_t S;
+  if (!signe(a)) return z;
   u_forprime_init(&S,3,ULONG_MAX);
   while((p = u_forprime_next(&S)))
     if (umodiu(f,p)) { Ap = umodiu(A,p); if (Ap) break; }
