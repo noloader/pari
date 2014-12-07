@@ -3240,6 +3240,7 @@ get_archclean(GEN nf, GEN x, long prec, int units)
       c = cleanarch(c, N, prec);
       if (!c) return NULL;
     }
+    settyp(c,t_COL);
     gel(M,k) = gerepilecopy(av, c);
   }
   return M;
