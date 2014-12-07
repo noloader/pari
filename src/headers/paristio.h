@@ -175,6 +175,7 @@ struct pari_evalstate
   long rp;
   long var;
   long lvars;
+  long locks;
   long prec;
   long trace;
   struct pari_mtstate mt;

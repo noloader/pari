@@ -384,11 +384,13 @@ struct trace
 
 static THREAD long sp, rp, dbg_level;
 static THREAD long *st, *precs;
+static THREAD GEN *locks;
 static THREAD gp_pointer *ptrs;
 static THREAD entree **lvars;
 static THREAD struct var_lex *var;
 static THREAD struct trace *trace;
-static THREAD pari_stack s_st, s_ptrs, s_var, s_lvars, s_trace, s_prec;
+static THREAD pari_stack s_st, s_ptrs, s_var, s_trace, s_prec;
+static THREAD pari_stack s_lvars, s_locks;
 
 static void
 changelex(long vn, GEN x)
@@ -435,13 +437,15 @@ freelex(void)
 }
 
 INLINE void
-restore_vars(long nbmvar, long nblvar)
+restore_vars(long nbmvar, long nblvar, long nblock)
 {
   long j;
   for(j=1;j<=nbmvar;j++)
     freelex();
   for(j=1;j<=nblvar;j++)
     { s_lvars.n--; pop_val(lvars[s_lvars.n]); }
+  for(j=1;j<=nblock;j++)
+    { s_locks.n--; gunclone(locks[s_locks.n]); }
 }
 
 INLINE void
@@ -518,6 +522,7 @@ pari_init_evaluator(void)
   s_ptrs.n=s_ptrs.alloc;
   pari_stack_init(&s_var,sizeof(*var),(void**)&var);
   pari_stack_init(&s_lvars,sizeof(*lvars),(void**)&lvars);
+  pari_stack_init(&s_locks,sizeof(*locks),(void**)&locks);
   pari_stack_init(&s_trace,sizeof(*trace),(void**)&trace);
   br_res = NULL;
   pari_stack_init(&s_relocs,sizeof(*relocs),(void**)&relocs);
@@ -891,7 +896,7 @@ closure_eval(GEN C)
   long loper=lg(oper);
   long saved_sp=sp-closure_arity(C);
   long saved_rp=rp, saved_prec=s_prec.n;
-  long j, nbmvar=0, nblvar=0;
+  long j, nbmvar=0, nblvar=0, nblock=0;
   long pc, t;
 #ifdef STACK_CHECK
   GEN stackelt;
@@ -1564,7 +1569,7 @@ endeval:
   }
   s_prec.n = saved_prec;
   s_trace.n--;
-  restore_vars(nbmvar, nblvar);
+  restore_vars(nbmvar, nblvar, nblock);
   clone_unlock(C);
 }
 
@@ -1586,6 +1591,7 @@ evalstate_save(struct pari_evalstate *state)
   state->prec = s_prec.n;
   state->var  = s_var.n;
   state->lvars= s_lvars.n;
+  state->locks= s_locks.n;
   state->trace= s_trace.n;
   compilestate_save(&state->comp);
   mtstate_save(&state->mt);
@@ -1599,7 +1605,8 @@ evalstate_restore(struct pari_evalstate *state)
   sp = state->sp;
   rp = state->rp;
   s_prec.n = state->prec;
-  restore_vars(s_var.n-state->var,s_lvars.n-state->lvars);
+  restore_vars(s_var.n-state->var, s_lvars.n-state->lvars,
+               s_locks.n-state->locks);
   restore_trace(s_trace.n-state->trace);
   reset_break();
   compilestate_restore(&state->comp);
@@ -1620,7 +1627,7 @@ evalstate_reset(void)
   sp = 0;
   rp = 0;
   dbg_level = 0;
-  restore_vars(s_var.n, s_lvars.n);
+  restore_vars(s_var.n, s_lvars.n, s_locks.n);
   s_trace.n = 0;
   reset_break();
   compilestate_reset();
