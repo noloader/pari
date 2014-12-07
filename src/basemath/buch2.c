@@ -3123,22 +3123,18 @@ makecycgen(GEN bnf)
 }
 
 static GEN
-get_y(GEN bnf, GEN pFB, long j)
+get_y(GEN bnf, GEN W, GEN B, GEN WB_C, GEN pFB, long j)
 {
-  GEN W, B, nf, WB_C, ex, C, Nx, y;
-  long lW, e;
-
-  W   = gel(bnf,1);
-  B   = gel(bnf,2);
-  WB_C= gel(bnf,4);
-  nf  = bnf_get_nf(bnf);
-  lW=lg(W)-1;
-
-  ex = (j<=lW)? gel(W,j): gel(B,j-lW);
-  C = (j<=lW)? NULL: gel(pFB,j);
-  Nx = get_norm_fact_primes(pFB, ex, C);
-  y = isprincipalarch(bnf,gel(WB_C,j), Nx,gen_1, gen_1, &e);
-  if (y && fact_ok(nf,y,C,pFB,ex)) return y;
+  GEN y, nf  = bnf_get_nf(bnf);
+  long e, lW = lg(W)-1;
+  GEN ex = (j<=lW)? gel(W,j): gel(B,j-lW);
+  GEN C = (j<=lW)? NULL: gel(pFB,j);
+  if (WB_C)
+  { /* archimedean embeddings known: cheap trial */
+    GEN Nx = get_norm_fact_primes(pFB, ex, C);
+    y = isprincipalarch(bnf,gel(WB_C,j), Nx,gen_1, gen_1, &e);
+    if (y && fact_ok(nf,y,C,pFB,ex)) return y;
+  }
   y = isprincipalfact_or_fail(bnf, C, pFB, ex);
   return typ(y) == t_INT? y: gel(y,2);
 }
@@ -3146,33 +3142,33 @@ get_y(GEN bnf, GEN pFB, long j)
 static GEN
 makematal(GEN bnf)
 {
-  GEN W, B, pFB, ma, retry;
+  GEN W, B, WB_C, pFB, ma, retry;
   long lma, j, prec = 0;
 
   if (DEBUGLEVEL) pari_warn(warner,"completing bnf (building matal)");
-  W   = gel(bnf,1);
-  B   = gel(bnf,2);
+  W = gel(bnf,1);
+  B = gel(bnf,2);
+  WB_C= gel(bnf,4);
   lma=lg(W)+lg(B)-1;
   pFB = get_Vbase(bnf);
   ma = cgetg(lma,t_VEC);
-  retry = vectrunc_init(lma);
+  retry = vecsmalltrunc_init(lma);
   for (j=lma-1; j>0; j--)
   {
-    pari_sp av0 = avma, av;
-    GEN c = getrand(), y;
-    av = avma; y = get_y(bnf, pFB, j);
+    pari_sp av = avma;
+    GEN y = get_y(bnf,W,B,WB_C, pFB, j);
     if (typ(y) == t_INT)
     {
       long E = itos(y);
       if (DEBUGLEVEL>1) err_printf("\n%ld done later at prec %ld\n",j,E);
       avma = av;
-      vectrunc_append(retry, mkvec2(c, (GEN)j));
+      vecsmalltrunc_append(retry, j);
       if (E > prec) prec = E;
     }
     else
     {
       if (DEBUGLEVEL>1) err_printf("%ld ",j);
-      gel(ma,j) = gerepileupto(av0,y);
+      gel(ma,j) = gerepileupto(av,y);
     }
   }
   if (prec)
@@ -3186,10 +3182,8 @@ makematal(GEN bnf)
     for (k=1; k<l; k++)
     {
       pari_sp av = avma;
-      GEN S = gel(retry,k), c = gel(S,1);
-      long j = S[2];
-      setrand(c);
-      y = get_y(bnf, pFB, j);
+      long j = retry[k];
+      y = get_y(bnf,W,B,NULL, pFB, j);
       if (typ(y) == t_INT) pari_err_PREC("makematal");
       if (DEBUGLEVEL>1) err_printf("%ld ",j);
       gel(ma,j) = gerepileupto(av,y);
