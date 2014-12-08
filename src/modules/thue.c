@@ -171,11 +171,12 @@ get_prime_info(GEN bnf)
   ulong p;
   for(p = 2147483659UL; n <= nbp; p = unextprime(p+1))
   {
-    GEN A, U, LP = idealprimedec_limit_f(bnf, utoipos(p), 1);
+    GEN PR, A, U, LP = idealprimedec_limit_f(bnf, utoipos(p), 1);
     long i;
     if (lg(LP) < 4) continue;
     A = cgetg(5, t_VECSMALL);
     U = cgetg(4, t_VEC);
+    PR = cgetg(4, t_VEC);
     for (i = 1; i <= 3; i++)
     {
       GEN modpr = zkmodprinit(nf, gel(LP,i));
@@ -183,9 +184,10 @@ get_prime_info(GEN bnf)
       GEN u = nfV_to_FqV(fu, nf, modpr);
       A[i] = itou(a);
       gel(U,i) = ZV_to_Flv(u,p);
+      gel(PR,i) = modpr;
     }
     A[4] = p;
-    gel(L,n++) = mkvec2(A,U);
+    gel(L,n++) = mkvec3(A,U,PR);
   }
   return L;
 }
@@ -501,12 +503,12 @@ round_to_b(GEN v, long B, long b, GEN Delta2, long i1, GEN L)
   return 1;
 }
 
-/* \prod U[i]^b[i] */
+/* mu \prod U[i]^b[i] */
 static ulong
-Fl_factorback(GEN U, GEN b, ulong p)
+Fl_factorback(ulong mu, GEN U, GEN b, ulong p)
 {
   long i, l = lg(U);
-  ulong r = 1;
+  ulong r = mu;
   for (i = 1; i < l; i++)
   {
     long c = b[i];
@@ -518,29 +520,31 @@ Fl_factorback(GEN U, GEN b, ulong p)
   return r;
 }
 
+/* x - alpha y = mu \prod \mu_i^{b_i}. Reduce mod 3 distinct primes of degree 1
+ * above the same p, and eliminate x,y => drastic conditions on b_i */
 static int
-check_pr(GEN bi, GEN L)
+check_pr(GEN bi, GEN Lmu, GEN L)
 {
   GEN A = gel(L,1), U = gel(L,2);
   ulong a = A[1], b = A[2], c = A[3], p = A[4];
-  ulong r = Fl_mul(Fl_sub(c,b,p), Fl_factorback(gel(U,1),bi, p), p);
-  ulong s = Fl_mul(Fl_sub(b,a,p), Fl_factorback(gel(U,2),bi, p), p);
-  ulong t = Fl_mul(Fl_sub(a,c,p), Fl_factorback(gel(U,3),bi, p), p);
+  ulong r = Fl_mul(Fl_sub(c,b,p), Fl_factorback(Lmu[1],gel(U,1),bi, p), p);
+  ulong s = Fl_mul(Fl_sub(b,a,p), Fl_factorback(Lmu[2],gel(U,2),bi, p), p);
+  ulong t = Fl_mul(Fl_sub(a,c,p), Fl_factorback(Lmu[3],gel(U,3),bi, p), p);
   return Fl_add(Fl_add(r,s,p),t,p) == 0;
 }
 static int
-check_prinfo(GEN b, GEN prinfo)
+check_prinfo(GEN b, GEN Lmu, GEN prinfo)
 {
   long i;
   for (i = 1; i < lg(prinfo); i++)
-    if (!check_pr(b, gel(prinfo,i))) return 0;
+    if (!check_pr(b, gel(Lmu,i), gel(prinfo,i))) return 0;
   return 1;
 }
 /* For each possible value of b_i1, compute the b_i's
 * and 2 conjugates of z = x - alpha y. Then check. */
 static int
 TrySol(GEN *pS, GEN B0, long i1, GEN Delta2, GEN Lambda, GEN ro,
-       GEN NE, GEN MatFU, GEN prinfo, GEN P, GEN rhs)
+       GEN Lmu, GEN NE, GEN MatFU, GEN prinfo, GEN P, GEN rhs)
 {
   long bi1, i, B = itos(gceil(B0)), l = lg(Delta2);
   GEN b = cgetg(l,t_VECSMALL), L = cgetg(l,t_VEC);
@@ -559,7 +563,7 @@ TrySol(GEN *pS, GEN B0, long i1, GEN Delta2, GEN Lambda, GEN ro,
   {
     GEN z1, z2;
     if (!round_to_b(b, B, bi1, Delta2, i1, L)) continue;
-    if (!check_prinfo(b, prinfo)) continue;
+    if (!check_prinfo(b, Lmu, prinfo)) continue;
     z1 = gel(NE,1);
     z2 = gel(NE,2);
     for (i = 1; i < l; i++)
@@ -993,7 +997,7 @@ get_Bx_LLL(long i1, GEN Delta2, GEN Lambda, long prec, baker_s *BS)
 static GEN
 LargeSols(GEN P, GEN tnf, GEN rhs, GEN ne)
 {
-  GEN S = NULL, Delta0, ro, ALH, bnf, MatFU, A, csts, dP, Bx;
+  GEN S = NULL, Delta0, ro, ALH, bnf, nf, MatFU, A, csts, dP, Bx;
   GEN c1,c2,c3,c4,c90,c91,c14, x0, x1, x2, x3, tmp, eps5, prinfo;
   long iroot, ine, n, r, Prec, prec, s,t;
   baker_s BS;
@@ -1014,9 +1018,10 @@ START:
   }
   else
     S = cgetg(1, t_VEC);
-  bnf  = gel(tnf,2);
+  bnf= gel(tnf,2);
+  nf = bnf_get_nf(bnf);
   csts = gel(tnf,7);
-  nf_get_sign(bnf_get_nf(bnf), &s, &t);
+  nf_get_sign(nf, &s, &t);
   BS.r = r = s+t-1; n = degpol(P);
   ro     = gel(tnf,3);
   ALH    = gel(tnf,4);
@@ -1126,8 +1131,18 @@ START:
       BS.Hmu = gel(Hmu,ine);
       if (is_pm1(BS.Ind))
       {
+        GEN mu = gel(ne,ine), Lmu = cgetg(lg(prinfo),t_VEC);
+        long i, j;
+
+        for (i = 1; i < lg(prinfo); i++)
+        {
+          GEN v = gel(prinfo,i), PR = gel(v,3), L = cgetg(4, t_VECSMALL);
+          for (j = 1; j <= 3; j++) L[j] = itou(nf_to_Fq(nf, mu, gel(PR,j)));
+          gel(Lmu, i) = L;
+        }
         if (! (B0 = get_B0(i1, Delta2, Lambda, Deps5, prec, &BS)) ||
-            !TrySol(&S, B0, i1, Delta2, Lambda, ro, NE,MatFU,prinfo, P,rhs))
+            !TrySol(&S, B0, i1, Delta2, Lambda, ro, Lmu, NE,MatFU,prinfo,
+                    P,rhs))
           goto START;
         if (lg(S) == lS) avma = av2;
       }
