@@ -293,33 +293,6 @@ find_j_inv_with_given_trace(
 INLINE ulong
 pcp_order(GEN P) { return zv_prod(PCP_REL_ORDERS(P)); }
 
-static int
-pcp_cmpf(GEN x, GEN y)
-{
-  pari_sp ltop = avma;
-  int eq = gequal(redimag(x), redimag(y));
-  avma = ltop;
-  return eq;
-}
-
-
-static long
-linear_search(GEN vec, GEN elt, int (*cmpf)(GEN, GEN))
-{
-  long len = lg(vec);
-  long idx = 1;
-
-  if (cmpf == NULL)
-    cmpf = gequal;
-
-  for ( ; idx < len; ++idx)
-    if (cmpf(gel(vec, idx), elt))
-      break;
-
-  return idx == len ? 0 : idx;
-}
-
-
 static GEN
 next_prime_generator(GEN DD, long D, ulong u, ulong *p)
 {
@@ -346,49 +319,79 @@ next_prime_generator(GEN DD, long D, ulong u, ulong *p)
 }
 
 
+/* These wrappers circumvent a restriction in the C89 standard which
+ * requires that, for example, (S (*)(void *)) and (S (*)(T *)) are
+ * incompatible function pointer types whenever T != void (which is at
+ * least slightly surprising).  This prevents us from using explicit
+ * casts (ulong (*)(void *)) hash_GEN and (int (*)(void *, void *))
+ * gequal in the call to hash_create and obliges us to use these
+ * wrapper functions to do the cast explicitly.
+ *
+ * Refs:
+ * - Annex J.2
+ * - Section 6.3.2.3, paragraph 8
+ * - Section 6.7.5.1, paragraph 2
+ * - Section 6.7.5.3, paragraph 15
+ */
+static ulong
+hash_GEN_wrapper(void *x)
+{
+  return hash_GEN((GEN) x);
+}
+
+static int
+gequal_wrapper(void *x, void *y)
+{
+  return gequal((GEN) x, (GEN) y);
+}
+
 /*
  * This is Sutherland 2009, Algorithm 2.2 (p16).
- *
- * FIXME: Switch order of h and D?
  */
 static GEN
 minimal_polycyclic_presentation(ulong h, long D, ulong u)
 {
-  pari_sp ltop = avma, av, btop;
-  GEN T, DD, ident;
+  pari_sp av = avma;
   ulong curr_p = 1, nelts = 1;
-  GEN pcp;
+  long i;
+  GEN DD, pcp, ident, T;
+  hashtable *tbl;
 
-  DD = stoi(D);
   pcp = cgetg(5, t_VEC);
 
   /* Trivial presentation */
   gel(pcp, 1) = cgetg(1, t_VECSMALL);
   gel(pcp, 2) = cgetg(1, t_VECSMALL);
   gel(pcp, 3) = cgetg(1, t_VECSMALL);
-  /* FIXME: T should be a hash table of some kind so that we can
-   * avoid the linear searches. */
-  T = vectrunc_init(h + 1);
-  av = avma;
-  ident = gerepileupto(av, redimag(primeform_u(DD, 1)));
-  vectrunc_append(T, ident); /* qfi_ident_from_disc(D) */
-  gel(pcp, 4) = T;
+  gel(pcp, 4) = cgetg(h + 1, t_VECSMALL);
+  gel(pcp, 4)[1] = 1UL; /* Identity element has a = 1*/
 
   if (h == 1)
-    return gerepileupto(ltop, pcp);
+    return pcp;
 
-  btop = avma;
+  DD = stoi(D);
+
+  /* Hash table has a QFI as a key and the (boxed) index of that QFI
+   * in T as its value */
+  tbl = hash_create(h, hash_GEN_wrapper, gequal_wrapper, 1);
+  T = vectrunc_init(h + 1);
+  ident = redimag(primeform_u(DD, 1));
+  vectrunc_append(T, ident);
+  hash_insert(tbl, ident, gen_1);
+
   while (nelts < h) {
     GEN gamma_i = next_prime_generator(DD, D, u, &curr_p);
-    GEN beta = gamma_i;
-    ulong N = glength(T), ri = 1, si;
+    GEN beta = redimag(gamma_i);
+    hashentry *e;
+    ulong N = glength(T), Tlen = N, ri = 1, si;
 
-    /* FIXME: The linear search will *recalculate* redimag(beta) for
-     * every element of T, completely unnecessarily. */
-    while ((si = linear_search(T, beta, pcp_cmpf)) == 0) {
+    while ((e = hash_search(tbl, beta)) == NULL) {
       ulong j;
-      for (j = 1; j <= N; ++j)
-        vectrunc_append(T, gmul(beta, gel(T, j)));
+      for (j = 1; j <= N; ++j) {
+        GEN tmp = gmul(beta, gel(T, j));
+        vectrunc_append(T, tmp);
+        hash_insert(tbl, tmp, stoi(++Tlen));
+      }
       beta = gmul(beta, gamma_i);
       ++ri;
     }
@@ -399,8 +402,9 @@ minimal_polycyclic_presentation(ulong h, long D, ulong u)
       nelts *= ri;
 
       N = 1;
-      /* FIXME: This decrement is just because we need indices
-       * starting at 0 for the formula in the for loop to work. */
+      si = itos((GEN) e->val);
+      /* NB: This decrement is because we need indices starting at 0
+       * for the formula in the for loop to work. */
       si--;
       for (j = 1; j < lg(PCP_REL_ORDERS(pcp)); ++j) {
         ulong rj = PCP_REL_ORDERS(pcp)[j];
@@ -408,11 +412,11 @@ minimal_polycyclic_presentation(ulong h, long D, ulong u)
         N *= rj;
       }
     }
-
-    if (gc_needed(btop, 2))
-      gerepileall(btop, 1, &pcp);
   }
-  return gerepilecopy(ltop, pcp);
+  /* Put the a-values in gel(pcp, 4). */
+  for (i = 2; i <= h; ++i)
+    gel(pcp, 4)[i] = itou(gmael(T, i, 1));
+  return gerepileupto(av, pcp);
 }
 
 INLINE ulong
@@ -471,9 +475,7 @@ upper_bound_on_classpoly_coeffs(long D, GEN pcp)
   pari_sp btop = avma;
   ulong k;
   for (k = 2; k <= h; ++k) {
-    /* FIXME: Would be better if the table was a list of vecsmalls to
-     * avoid the conversion here. */
-    ulong ak = itou(gmael(PCP_QFI_TABLE(pcp), k, 1));
+    ulong ak = PCP_QFI_TABLE(pcp)[k];
     /* Unfortunately exp(tmp/a[k]) can overflow for even moderate
      * discriminants, so we need to do this calculation with t_REALs
      * instead of just doubles.  Sutherland has a (much more
