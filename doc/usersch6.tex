@@ -942,9 +942,17 @@ equal to $0$ or $1$, return as a \typ{VECSMALL} the list of indices $i$
 such that $v[i] = 1$. If $v$ is already a \typ{VECSMALL}, return it
 (not suitable for \kbd{gerepile} in this case).
 
+\fun{GEN}{vecsmall01_to_indices}{GEN v} as
+\bprog
+  vec01_to_indices(zv_to_ZV(v));
+@eprog
+
 \fun{GEN}{indices_to_vec01}{GEN p, long n} return the $0/1$ vector of length
 $n$ with ones exactly at the positions $p[1], p[2], \ldots$
 
+\fun{GEN}{nfembed}{GEN nf, GEN x, long k} returns a floating point
+approximation of the $k$-th embedding of $x$ (associated to the $k$-th
+complex root in \kbd{nf.roots}).
 
 \fun{GEN}{nfsign}{GEN nf,GEN x} $x$ being a number field element and \kbd{nf}
 any form of number field, return the $0-1$-vector giving the signs of the
@@ -1359,6 +1367,11 @@ return the associated \var{bnr}, and set $H$ to the associated subgroup. If
 then it contains generators.
 
 \subsec{Relative equations, Galois conjugates}
+
+\fun{GEN}{nfissquarefree}{nf, GEN P} given $P$ a polynomial with
+coefficients in \var{nf}, return $1$ is $P$ is squarefree, and $0$
+otherwise. If is allowed (though less efficient) to replace \var{nf}
+by a monic \kbd{ZX} defining the field.
 
 \fun{GEN}{rnfequationall}{GEN A, GEN B, long *pk, GEN *pLPRS} $A$ is either an
 \var{nf} type (corresponding to a number field $K$) or an irreducible \kbd{ZX}

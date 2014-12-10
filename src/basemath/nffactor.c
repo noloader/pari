@@ -218,6 +218,23 @@ GEN
 nfgcd(GEN P, GEN Q, GEN T, GEN den)
 { return nfgcd_all(P,Q,T,den,NULL); }
 
+int
+nfissquarefree(GEN nf, GEN x)
+{
+  pari_sp av = avma;
+  GEN g, y = RgX_deriv(x);
+  if (RgX_is_rational(x))
+    g = QX_gcd(x, y);
+  else
+  {
+    GEN T = get_nfpol(nf,&nf);
+    x = liftpol_shallow(x);
+    y = liftpol_shallow(y);
+    g = nfgcd(x, y, T, nf? nf_get_index(nf): NULL);
+  }
+  avma = av; return (degpol(g) == 0);
+}
+
 /*******************************************************************/
 /*             FACTOR OVER (Z_K/pr)[X] --> FqX_factor              */
 /*******************************************************************/

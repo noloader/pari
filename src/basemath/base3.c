@@ -1163,12 +1163,37 @@ eval_sign(GEN M, GEN x, long k)
 {
   long i, l = lg(x);
   GEN z = gel(x,1); /* times M[k,1], which is 1 */
-  for (i = 2; i < l; i++)
-    z = mpadd(z, mpmul(gcoeff(M,k,i), gel(x,i)));
+  for (i = 2; i < l; i++) z = mpadd(z, mpmul(gcoeff(M,k,i), gel(x,i)));
   if (realprec(z) < DEFAULTPREC) pari_err_PREC("nfsign_arch");
   return signe(z);
 }
 
+/* sigma_k(x) */
+GEN
+nfembed(GEN nf, GEN x, long k)
+{
+  pari_sp av = avma;
+  long i, l;
+  GEN z, M;
+  nf = checknf(nf);
+  x = nf_to_scalar_or_basis(nf,x);
+  if (typ(x) != t_COL) return gerepilecopy(av, x);
+  M = nf_get_M(nf); l = lg(M); /* > 2 */
+  z = gel(x,1);
+  for (i=2; i<l; i++) z = gadd(z, gmul(gcoeff(M,k,i), gel(x,i)));
+  return gerepileupto(av, z);
+}
+
+GEN
+vecsmall01_to_indices(GEN v)
+{
+  long i, k, l = lg(v);
+  GEN p = new_chunk(l) + l;
+  for (k=1, i=l-1; i; i--)
+    if (v[i]) { *--p = i; k++; }
+  *--p = evallg(k) | evaltyp(t_VECSMALL);
+  avma = (pari_sp)p; return p;
+}
 GEN
 vec01_to_indices(GEN v)
 {

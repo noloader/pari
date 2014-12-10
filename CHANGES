@@ -195,6 +195,7 @@ BA 73- GP function fold()
    75- allow serlaplace(t_POL)
    76- GP function ispseudoprimepower
    77- [libpari] functions FpM_add, Flm_add, FpM_Fp_mul
+   78- [libpari] function nfembed, nfissquarefree
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]

@@ -549,18 +549,6 @@ rnfidealmul(GEN rnf,GEN x,GEN y)
   return gerepileupto(av, nfhnf(nf,z));
 }
 
-int
-nfissquarefree(GEN nf, GEN x)
-{
-  pari_sp av = avma;
-  GEN g, y = RgX_deriv(x);
-  if (RgX_is_rational(x))
-    g = QX_gcd(x, y);
-  else
-    g = nfgcd(x, y, nf, NULL);
-  avma = av; return (degpol(g) == 0);
-}
-
 GEN
 rnfequationall(GEN A, GEN B, long *pk, GEN *pLPRS)
 {

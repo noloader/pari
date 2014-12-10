@@ -497,7 +497,6 @@ long    set_optimize(long what, GEN g);
 /* base2.c */
 
 GEN     gen_if_principal(GEN bnf, GEN x);
-int     nfissquarefree(GEN nf, GEN x);
 GEN     polsymmodp(GEN g, GEN p);
 GEN     nfbasis_gp(GEN T);
 
