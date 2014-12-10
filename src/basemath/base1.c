@@ -227,6 +227,7 @@ nftyp(GEN x)
     case t_VEC:
       switch(lg(x))
       {
+        case 13: return typ_RNF;
         case 10:
           if (typ(gel(x,1))!=t_POL) break;
           return typ_NF;
