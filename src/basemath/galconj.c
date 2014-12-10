@@ -347,17 +347,19 @@ initgaloisborne(GEN T, GEN dn, long prec, GEN *ptL, GEN *ptprep, GEN *ptdis)
   *ptL = L; return den;
 }
 
-/* ||| M ||| with respect to || x ||_oo. Assume M square t_MAT */
+/* ||| M ||| with respect to || x ||_oo, M t_MAT */
 GEN
 matrixnorm(GEN M, long prec)
 {
-  long i,j, n = lg(M);
+  long i,j,m, l = lg(M);
   GEN B = real_0(prec);
 
-  for (i = 1; i < n; i++)
+  if (l == 1) return B;
+  m = lgcols(M);
+  for (i = 1; i < m; i++)
   {
     GEN z = gabs(gcoeff(M,i,1), prec);
-    for (j = 2; j < n; j++) z = gadd(z, gabs(gcoeff(M,i,j), prec));
+    for (j = 2; j < l; j++) z = gadd(z, gabs(gcoeff(M,i,j), prec));
     if (gcmp(z, B) > 0) B = z;
   }
   return B;
