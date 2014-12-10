@@ -104,6 +104,16 @@ FpV_add(GEN x, GEN y, GEN p)
   for (i = 1; i < lx; i++) gel(z, i) = Fp_add(gel(x, i), gel(y, i), p);
   return z;
 }
+GEN
+FpM_add(GEN x, GEN y, GEN p)
+{
+  long lx = lg(x), j;
+  GEN z;
+  if (lx == 1) return cgetg(1, t_MAT);
+  z = cgetg(lx, t_MAT);
+  for (j = 1; j < lx; j++) gel(z,j) = FpC_add(gel(x,j), gel(y,j), p);
+  return z;
+}
 
 GEN
 Flv_add(GEN x, GEN y, ulong p)
@@ -190,6 +200,15 @@ Flm_Fl_add(GEN x, ulong y, ulong p)
   return z;
 }
 
+GEN
+Flm_add(GEN x, GEN y, ulong p)
+{
+  long i, l = lg(x);
+  GEN z = cgetg(l,t_MAT);
+  for (i = 1; i < l; i++) gel(z,i) = Flv_add(gel(x,i),gel(y,i),p);
+  return z;
+}
+
 /********************************************************************/
 /**                                                                **/
 /**                           MULTIPLICATION                       **/
@@ -220,6 +239,20 @@ void
 Flc_Fl_div_inplace(GEN x, ulong y, ulong p)
 {
   Flc_Fl_mul_inplace(x, Fl_inv(y, p), p);
+}
+GEN
+FpM_Fp_mul(GEN X, GEN c, GEN p) {
+  long i, j, h, l = lg(X);
+  GEN A = cgetg(l, t_MAT);
+  if (l == 1) return A;
+  h = lgcols(X);
+  for (j=1; j<l; j++)
+  {
+    GEN a = cgetg(h, t_COL), x = gel(X, j);
+    for (i = 1; i < h; i++) gel(a,i) = Fp_mul(gel(x,i), c, p);
+    gel(A,j) = a;
+  }
+  return A;
 }
 
 /* x *= y */
