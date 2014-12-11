@@ -2697,7 +2697,7 @@ ZV_chinese(GEN A, GEN P, GEN *pt_mod)
   GEN R = ZV_chinesetree(T, P);
   GEN a = ZV_polint_tree(T, R, P, A);
   if (!pt_mod)
-    return gerepileuptoleaf(av, a);
+    return gerepileuptoint(av, a);
   else
   {
     GEN mod = gmael(T, lg(T)-1, 1);
@@ -2715,7 +2715,7 @@ nmV_chinese(GEN A, GEN P, GEN *pt_mod)
   GEN R = ZV_chinesetree(T, P);
   GEN a = nmV_polint_tree(T, R, P, A);
   if (!pt_mod)
-    return gerepileuptoleaf(av, a);
+    return gerepileupto(av, a);
   else
   {
     GEN mod = gmael(T, lg(T)-1, 1);
@@ -2724,7 +2724,6 @@ nmV_chinese(GEN A, GEN P, GEN *pt_mod)
     return a;
   }
 }
-
 
 /**********************************************************************
  **                                                                  **
