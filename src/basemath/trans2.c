@@ -1447,8 +1447,16 @@ ggamma(GEN x, long prec)
         {
           pi = mppi(prec);
           Y = gsubsg(1, y);
+          y0= subsi(1, y0);
         }
-        z = gexp(glngamma(Y,prec),prec);
+        z = glngamma(Y,prec);
+        if (!valp(z))
+        {
+          z = serchop0(z);
+          z = gmul(ggamma(y0,prec), gexp(z,prec));
+        }
+        else
+          z = gexp(z,prec);
         if (pi)
           z = gdiv(mpodd(t)? negr(pi): pi,
                    gmul(z, gsin(gmul(pi,serchop0(y)), prec)));
