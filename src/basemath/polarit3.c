@@ -2247,23 +2247,13 @@ ZX_ZXY_resultant_all(GEN A, GEN B0, long *plambda, GEN *LERS)
   A = leafcopy(A);
   B = B0;
   setvarn(A,v);
-  if (vX == vY) setvarn(B0, v);
-
   /* make sure p large enough */
   p = pstart-1;
 INIT:
   /* always except the first time */
   if (av2) { avma = av2; lambda = next_lambda(lambda); }
-  if (vX == vY)
-  {
-    B = RgX_translate(B0, pol_x(vX));
-    if (lambda) B = RgX_unscale(B, stoi(lambda));
-  }
-  else
-  {
-    if (lambda) B = RgX_translate(B0, monomial(stoi(lambda), 1, vY));
-    B = swap_vars(B, vY); setvarn(B,v);
-  }
+  if (lambda) B = RgX_translate(B0, monomial(stoi(lambda), 1, vY));
+  B = swap_vars(B, vY); setvarn(B,v);
   /* B0(lambda v + x, v) */
   if (DEBUGLEVEL>4 && checksqfree) err_printf("Trying lambda = %ld\n", lambda);
   av2 = avma;

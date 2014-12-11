@@ -3738,10 +3738,12 @@ polcompositum0(GEN A, GEN B, long flag)
   same = (A == B || RgX_equal(A,B));
   A = compositum_fix(A);
   if (!same) B = compositum_fix(B);
+  B = leafcopy(B); setvarn(B,fetch_var_higher());
 
   D = NULL; /* -Wall */
   k = same? -1: 1;
   C = ZX_ZXY_resultant_all(A, B, &k, (flag&1)? &LPRS: NULL);
+  setvarn(C, v);
   if (same)
   {
     D = RgX_rescale(A, stoi(1 - k));
@@ -3751,14 +3753,14 @@ polcompositum0(GEN A, GEN B, long flag)
   else if (flag & 2)
     C = mkvec(C);
   else
-  { /* C = Res_Y (A(Y), B(X + kY)) guaranteed squarefree */
-    C = ZX_DDF(C);
-    gen_sort_inplace(C, (void*)&cmpii, &gen_cmp_RgX, NULL);
-  }
+    C = ZX_DDF(C); /* C = Res_Y (A(Y), B(X + kY)) guaranteed squarefree */
+  gen_sort_inplace(C, (void*)&cmpii, &gen_cmp_RgX, NULL);
   if (flag&1)
   { /* a,b,c root of A,B,C = compositum, c = b - k a */
     long i, l = lg(C);
     GEN a, b, mH0 = RgX_neg(gel(LPRS,1)), H1 = gel(LPRS,2);
+    setvarn(mH0,v);
+    setvarn(H1,v);
     for (i=1; i<l; i++)
     {
       GEN D = gel(C,i);
@@ -3767,8 +3769,11 @@ polcompositum0(GEN A, GEN B, long flag)
       gel(C,i) = mkvec4(D, mkpolmod(a,D), mkpolmod(b,D), stoi(-k));
     }
   }
+  (void)delete_var();
   settyp(C, t_VEC); return gerepilecopy(av, C);
 }
+
+
 GEN
 compositum(GEN pol1,GEN pol2) { return polcompositum0(pol1,pol2,0); }
 GEN
