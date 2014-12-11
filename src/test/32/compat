@@ -521,11 +521,12 @@ A function with that name existed in GP-1.39.15. Please update your script.
 New syntax: compositum(pol1,pol2) ===> polcompositum(pol1,pol2)
 
 polcompositum(P,Q,{flag=0}): vector of all possible compositums of the number 
-fields defined by the polynomials P and Q. If (optional) flag is set (i.e 
-non-null), output for each compositum, not only the compositum polynomial pol, 
-but a vector [R,a,b,k] where a (resp. b) is a root of P (resp. Q) expressed as 
-a polynomial modulo R, and a small integer k such that al2+k*al1 is the chosen 
-root of R.
+fields defined by the polynomials P and Q; flag is optional, whose binary 
+digits mean 1: output for each compositum, not only the compositum polynomial 
+pol, but a vector [R,a,b,k] where a (resp. b) is a root of P (resp. Q) 
+expressed as a polynomial modulo R, and a small integer k such that al2+k*al1 
+is the chosen root of R; 2: assume that the number fields defined by P and Q 
+are linearly disjoint.
 
 
   ***   at top-level: compositum2()
@@ -536,11 +537,12 @@ A function with that name existed in GP-1.39.15. Please update your script.
 New syntax: compositum2(pol1,pol2) ===> polcompositum(pol1,pol2,1)
 
 polcompositum(P,Q,{flag=0}): vector of all possible compositums of the number 
-fields defined by the polynomials P and Q. If (optional) flag is set (i.e 
-non-null), output for each compositum, not only the compositum polynomial pol, 
-but a vector [R,a,b,k] where a (resp. b) is a root of P (resp. Q) expressed as 
-a polynomial modulo R, and a small integer k such that al2+k*al1 is the chosen 
-root of R.
+fields defined by the polynomials P and Q; flag is optional, whose binary 
+digits mean 1: output for each compositum, not only the compositum polynomial 
+pol, but a vector [R,a,b,k] where a (resp. b) is a root of P (resp. Q) 
+expressed as a polynomial modulo R, and a small integer k such that al2+k*al1 
+is the chosen root of R; 2: assume that the number fields defined by P and Q 
+are linearly disjoint.
 
 
   ***   at top-level: comprealraw()
@@ -4555,4 +4557,4 @@ New syntax: texprint(x) ===> printtex(x)
 printtex({str}*): outputs its string arguments in TeX format.
 
 
-Total time spent: 20
+Total time spent: 12

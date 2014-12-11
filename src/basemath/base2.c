@@ -3723,7 +3723,7 @@ compositum_fix(GEN A)
 }
 /* modular version */
 GEN
-polcompositum0(GEN A, GEN B, long flall)
+polcompositum0(GEN A, GEN B, long flag)
 {
   pari_sp av = avma;
   int same;
@@ -3741,17 +3741,21 @@ polcompositum0(GEN A, GEN B, long flall)
 
   D = NULL; /* -Wall */
   k = same? -1: 1;
-  C = ZX_ZXY_resultant_all(A, B, &k, flall? &LPRS: NULL);
+  C = ZX_ZXY_resultant_all(A, B, &k, (flag&1)? &LPRS: NULL);
   if (same)
   {
     D = RgX_rescale(A, stoi(1 - k));
     C = RgX_div(C, D);
     if (degpol(C) <= 0) C = mkvec(D); else C = shallowconcat(ZX_DDF(C), D);
   }
+  else if (flag & 2)
+    C = mkvec(C);
   else
-    C = ZX_DDF(C); /* C = Res_Y (A(Y), B(X + kY)) guaranteed squarefree */
-  gen_sort_inplace(C, (void*)&cmpii, &gen_cmp_RgX, NULL);
-  if (flall)
+  { /* C = Res_Y (A(Y), B(X + kY)) guaranteed squarefree */
+    C = ZX_DDF(C);
+    gen_sort_inplace(C, (void*)&cmpii, &gen_cmp_RgX, NULL);
+  }
+  if (flag&1)
   { /* a,b,c root of A,B,C = compositum, c = b - k a */
     long i, l = lg(C);
     GEN a, b, mH0 = RgX_neg(gel(LPRS,1)), H1 = gel(LPRS,2);
