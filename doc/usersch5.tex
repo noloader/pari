@@ -3500,6 +3500,12 @@ entries are the \kbd{Fp\_center} of the \kbd{gel(z,i)}.
 \fun{GEN}{FpM_center}{GEN z, GEN p, GEN pov2} returns a matrix whose
 entries are the \kbd{Fp\_center} of the \kbd{gcoeff(z,i,j)}.
 
+\fun{void}{FpC_center_inplace}{GEN z, GEN p, GEN pov2}
+in-place version of \kbd{FpC\_center}, using \kbd{affii}.
+
+\fun{void}{FpM_center_inplace}{GEN z, GEN p, GEN pov2}
+in-place version of \kbd{FpM\_center}, using \kbd{affii}.
+
 \fun{GEN}{FpC_add}{GEN x, GEN y, GEN p} adds the \kbd{ZC} $x$ and $y$
 and reduce modulo $p$ to obtain an \kbd{FpC}.
 

@@ -47,6 +47,19 @@ FpC_center(GEN z, GEN p, GEN pov2)
   return x;
 }
 
+/* assume 0 <= u < p and ps2 = p>>1 */
+INLINE void
+Fp_center_inplace(GEN u, GEN p, GEN ps2)
+{ if (absi_cmp(u,ps2) > 0) subiiz(u,p,u); }
+
+void
+FpC_center_inplace(GEN z, GEN p, GEN ps2)
+{
+  long i,l = lg(z);
+  for (i=1; i<l; i++)
+    Fp_center_inplace(gel(z,i), p, ps2);
+}
+
 GEN
 Flv_center(GEN z, ulong p, ulong ps2)
 {
@@ -74,6 +87,12 @@ FpM_center(GEN z, GEN p, GEN pov2)
   return x;
 }
 
+void
+FpM_center_inplace(GEN z, GEN p, GEN pov2)
+{
+  long i, l = lg(z);
+  for (i=1; i<l; i++) FpC_center_inplace(gel(z,i), p, pov2);
+}
 GEN
 Flm_center(GEN z, ulong p, ulong ps2)
 {
