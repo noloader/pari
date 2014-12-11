@@ -2554,6 +2554,36 @@ ZV_polint_tree(GEN T, GEN R, GEN xa, GEN ya)
   return gmael(Tp,m,1);
 }
 
+static GEN
+ncV_polint_tree(GEN T, GEN R, GEN xa, GEN Va)
+{
+  long i, j, l = lg(gel(Va,1)), n = lg(xa);
+  GEN V = cgetg(l, t_COL);
+  for(i=1; i < l; i++)
+  {
+    pari_sp av = avma;
+    GEN ya = cgetg(n, t_VECSMALL);
+    for(j=1; j < n; j++)
+      ya[j] = mael(Va,j,i);
+    gel(V,i) = gerepilecopy(av, ZV_polint_tree(T, R, xa, ya));
+  }
+  return V;
+}
+
+static GEN
+nmV_polint_tree(GEN T, GEN R, GEN xa, GEN Ma)
+{
+  long i, j, l = lg(gel(Ma,1)), n = lg(xa);
+  GEN ya = cgetg(n, t_VEC);
+  GEN M = cgetg(l, t_MAT);
+  for(i=1; i < l; i++)
+  {
+    for(j=1; j < n; j++)
+      gel(ya,j) = gmael(Ma,j,i);
+    gel(M,i) = ncV_polint_tree(T, R, xa, ya);
+  }
+  return M;
+}
 GEN
 Z_ZV_mod(GEN P, GEN xa)
 {
@@ -2676,6 +2706,25 @@ ZV_chinese(GEN A, GEN P, GEN *pt_mod)
     return a;
   }
 }
+
+GEN
+nmV_chinese(GEN A, GEN P, GEN *pt_mod)
+{
+  pari_sp av = avma;
+  GEN T = ZV_producttree(P);
+  GEN R = ZV_chinesetree(T, P);
+  GEN a = nmV_polint_tree(T, R, P, A);
+  if (!pt_mod)
+    return gerepileuptoleaf(av, a);
+  else
+  {
+    GEN mod = gmael(T, lg(T)-1, 1);
+    gerepileall(av, 2, &a, &mod);
+    *pt_mod = mod;
+    return a;
+  }
+}
+
 
 /**********************************************************************
  **                                                                  **

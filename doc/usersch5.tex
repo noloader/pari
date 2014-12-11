@@ -5530,6 +5530,14 @@ set \kbd{*pt\_mod} to $M$
 as \kbd{ZV\_chinese}, where $T$ is assumed to be the tree created by
 \kbd{ZV\_producttree(P)}.
 
+\fun{GEN}{nmV_chinese}{GEN A, GEN P, GEN *pt_mod}
+where $A$ is a vector of \kbd{MATSMALL}s (seen as matrices of unsigned integers)
+ and $P$ a \typ{VECSMALL} of the same length $n\ge 1$, the elements of $P$
+being pairwise coprime, and $M$ being the product of the elements of $P$,
+returns the matrix whose entries are integers in $[0, M[$ congruent to $A[i]$
+mod $P[i]$ for all $1\leq i\leq n$.
+If \kbd{pt\_mod} is not \kbd{NULL}, set \kbd{*pt\_mod} to $M$
+
 \fun{GEN}{Z_ZV_mod}{GEN A, GEN P}
 $P$ being a vector of integers of length $n\ge 1$, the elements of $P$ being
 pairwise coprime, return a vector $B$ of the same length such that
