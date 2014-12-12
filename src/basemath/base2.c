@@ -3714,16 +3714,30 @@ rnfisfree(GEN bnf, GEN order)
 /**                                                                  **/
 /**********************************************************************/
 static GEN
-compositum_fix(GEN A)
+compositum_fix(GEN nf, GEN A)
 {
-  A = Q_primpart(A); RgX_check_ZX(A,"polcompositum");
-  if (!ZX_is_squarefree(A))
-    pari_err_DOMAIN("polcompositum","issquarefree(arg)","=",gen_0,A);
+  int ok;
+  if (nf)
+  {
+    long i, l = lg(A);
+    A = shallowcopy(A);
+    for (i=2; i<l; i++) gel(A,i) = basistoalg(nf, gel(A,i));
+    ok = nfissquarefree(nf,A);
+  }
+  else
+  {
+    A = Q_primpart(A); RgX_check_ZX(A,"polcompositum");
+    ok = ZX_is_squarefree(A);
+  }
+  if (!ok) pari_err_DOMAIN("polcompositum","issquarefree(arg)","=",gen_0,A);
   return A;
 }
+INLINE long
+nextk(long k) { return k>0 ? -k : 1-k; }
+
 /* modular version */
 GEN
-polcompositum0(GEN A, GEN B, long flag)
+nfcompositum(GEN nf, GEN A, GEN B, long flag)
 {
   pari_sp av = avma;
   int same;
@@ -3736,25 +3750,52 @@ polcompositum0(GEN A, GEN B, long flag)
   v = varn(A);
   if (varn(B) != v) pari_err_VAR("polcompositum", A,B);
   same = (A == B || RgX_equal(A,B));
-  A = compositum_fix(A);
-  if (!same) B = compositum_fix(B);
-  B = leafcopy(B); setvarn(B,fetch_var_higher());
+  A = compositum_fix(nf,A);
+  if (!same) B = compositum_fix(nf,B);
 
-  D = NULL; /* -Wall */
+  D = LPRS = NULL; /* -Wall */
   k = same? -1: 1;
-  C = ZX_ZXY_resultant_all(A, B, &k, (flag&1)? &LPRS: NULL);
-  setvarn(C, v);
+  if (nf)
+  {
+    long v0 = fetch_var();
+    GEN q;
+    for(;; k = nextk(k))
+    {
+      GEN chgvar = deg1pol_shallow(stoi(k),pol_x(v0),v);
+      GEN B1 = poleval(B,chgvar);
+      C = RgX_resultant_all(A,B1,&q);
+      C = gsubst(C,v0,pol_x(v));
+      if (nfissquarefree(nf,C)) break;
+    }
+    if (flag&1)
+    {
+      GEN H0, H1;
+      H0 = gsubst(gel(q,2),v0,pol_x(v));
+      H1 = gsubst(gel(q,3),v0,pol_x(v));
+      LPRS = mkvec2(H0,H1);
+    }
+  }
+  else
+  {
+    B = leafcopy(B); setvarn(B,fetch_var_higher());
+    C = ZX_ZXY_resultant_all(A, B, &k, (flag&1)? &LPRS: NULL);
+    setvarn(C, v);
+  }
+  /* C = Res_Y (A(Y), B(X + kY)) guaranteed squarefree */
   if (same)
   {
     D = RgX_rescale(A, stoi(1 - k));
     C = RgX_div(C, D);
-    if (degpol(C) <= 0) C = mkvec(D); else C = shallowconcat(ZX_DDF(C), D);
+    if (degpol(C) <= 0)
+      C = mkvec(D);
+    else
+      C = shallowconcat(nf? gel(nffactor(nf,C),1): ZX_DDF(C), D);
   }
   else if (flag & 2)
     C = mkvec(C);
   else
-    C = ZX_DDF(C); /* C = Res_Y (A(Y), B(X + kY)) guaranteed squarefree */
-  gen_sort_inplace(C, (void*)&cmpii, &gen_cmp_RgX, NULL);
+    C = nf? gel(nffactor(nf,C),1): ZX_DDF(C);
+  gen_sort_inplace(C, (void*)nf?&cmp_RgX: &cmpii, &gen_cmp_RgX, NULL);
   if (flag&1)
   { /* a,b,c root of A,B,C = compositum, c = b - k a */
     long i, l = lg(C);
@@ -3764,7 +3805,7 @@ polcompositum0(GEN A, GEN B, long flag)
     for (i=1; i<l; i++)
     {
       GEN D = gel(C,i);
-      a = RgXQ_mul(mH0, QXQ_inv(H1, D), D);
+      a = RgXQ_mul(mH0, nf? RgXQ_inv(H1,D): QXQ_inv(H1,D), D);
       b = gadd(pol_x(v), gmulsg(k,a));
       gel(C,i) = mkvec4(D, mkpolmod(a,D), mkpolmod(b,D), stoi(-k));
     }
@@ -3772,7 +3813,9 @@ polcompositum0(GEN A, GEN B, long flag)
   (void)delete_var();
   settyp(C, t_VEC); return gerepilecopy(av, C);
 }
-
+GEN
+polcompositum0(GEN A, GEN B, long flag)
+{ return nfcompositum(NULL,A,B,flag); }
 
 GEN
 compositum(GEN pol1,GEN pol2) { return polcompositum0(pol1,pol2,0); }

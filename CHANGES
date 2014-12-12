@@ -197,6 +197,7 @@ BA 73- GP function fold()
    77- [libpari] functions FpM_add, Flm_add, FpM_Fp_mul
    78- [libpari] function nfembed, nfissquarefree
    79- new binary flag to polcompositum: assume fields are linearly disjoint
+   80- GP function nfcompositum
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]
