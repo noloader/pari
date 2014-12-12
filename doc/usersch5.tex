@@ -8570,6 +8570,9 @@ equal to \kbd{[x,y,z,t]}.
 \fun{GEN}{mkcol5}{GEN a1, GEN a2, GEN a3, GEN a4, GEN a5} creates the
 5-dimensional \typ{COL} equal to $[a_1,a_2,a_3,a_4,a_5]$.
 
+\fun{GEN}{mkcol6}{GEN x, GEN y, GEN z, GEN t, GEN u, GEN v}
+creates the $6$-dimensional column vector \kbd{[x,y,z,t,u,v]~}.
+
 \fun{GEN}{mkintmod}{GEN x, GEN y} creates the \typ{INTMOD} \kbd{Mod(x, y)}.
 The inputs must be \typ{INT}s satisfying $0 \leq x < y$.
 
@@ -8662,6 +8665,9 @@ returns the $4$-dimensional \typ{COL} \kbd{[x,y,z,t]~}.
 
 \fun{GEN}{retmkcol5}{GEN x, GEN y, GEN z, GEN t, GEN u}
 returns the $5$-dimensional column vector \kbd{[x,y,z,t,u]~}.
+
+\fun{GEN}{retmkcol6}{GEN x, GEN y, GEN z, GEN t, GEN u, GEN v}
+returns the $6$-dimensional column vector \kbd{[x,y,z,t,u,v]~}.
 
 \fun{GEN}{retconst_col}{long n, GEN x}
 returns the $n$-dimensional \typ{COL} whose entries are constant and all
