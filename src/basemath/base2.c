@@ -3795,7 +3795,7 @@ nfcompositum(GEN nf, GEN A, GEN B, long flag)
     C = mkvec(C);
   else
     C = nf? gel(nffactor(nf,C),1): ZX_DDF(C);
-  gen_sort_inplace(C, (void*)nf?&cmp_RgX: &cmpii, &gen_cmp_RgX, NULL);
+  gen_sort_inplace(C, (void*)(nf?&cmp_RgX: &cmpii), &gen_cmp_RgX, NULL);
   if (flag&1)
   { /* a,b,c root of A,B,C = compositum, c = b - k a */
     long i, l = lg(C);
