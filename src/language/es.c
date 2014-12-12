@@ -2698,7 +2698,7 @@ print_context(GEN g, pariout_t *T, outString *S, long tex)
     }
     for(i=1; i<l; i++)
     {
-      if (tex) texi(gel(v,l-i),T,S); else bruti(gel(v,l-i),T,S);
+      if (tex) texi(gel(v,i),T,S); else bruti(gel(v,i),T,S);
       if (i<l-1)
         str_putc(S,',');
     }
