@@ -37,7 +37,8 @@ Doc: Let \var{nf} be a number field structure associated to the field $K$
  2: assume that $P$ and $Q$ define number fields which are linearly disjoint:
  both polynomials are irreducible and the corresponding number fields
  have no common subfield besides $K$. This allows to save a costly
- factorization over $K$.
+ factorization over $K$. In this case return the single simple factor
+ instead of a vector with one element.
 
  A compositum is often defined by a complicated polynomial, which it is
  advisable to reduce before further work. Here is an example involving

@@ -46,7 +46,8 @@ Doc: \sidx{compositum} $P$ and $Q$
  2: assume that $P$ and $Q$ define number fields which are linearly disjoint:
  both polynomials are irreducible and the corresponding number fields
  have no common subfield besides $\Q$. This allows to save a costly
- factorization over $\Q$.
+ factorization over $\Q$. In this case return the single simple factor
+ instead of a vector with one element.
 
  A compositum is often defined by a complicated polynomial, which it is
  advisable to reduce before further work. Here is an example involving
@@ -75,7 +76,7 @@ Doc: \sidx{compositum} $P$ and $Q$
  polynomial are irreducible over $\Q$; they have coprime degrees so
  define linearly disjoint extensions and we could have started by
  \bprog
- ? L = polcompositum(x^5 - 5, polcyclo(5), 1); \\@com list of $[R,a,b,k]$
+ ? [R,a] = polcompositum(x^5 - 5, polcyclo(5), 3); \\@com $[R,a,b,k]$
  @eprog
 Variant: Also available are
  \fun{GEN}{compositum}{GEN P, GEN Q} ($\fl = 0$) and

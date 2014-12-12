@@ -3811,7 +3811,9 @@ nfcompositum(GEN nf, GEN A, GEN B, long flag)
     }
   }
   (void)delete_var();
-  settyp(C, t_VEC); return gerepilecopy(av, C);
+  settyp(C, t_VEC);
+  if (flag&2) C = gel(C,1);
+  return gerepilecopy(av, C);
 }
 GEN
 polcompositum0(GEN A, GEN B, long flag)
