@@ -1016,6 +1016,31 @@ Flx_rescale(GEN P, ulong h, ulong p)
   Q[1] = P[1]; return Q;
 }
 
+static long
+Flx_multhreshold(GEN T, ulong p, long half, long mul, long mul2, long kara)
+{
+  long na = lgpol(T);
+  switch (maxlengthcoeffpol(p,na))
+  {
+  case 0:
+    if (na>=Flx_MUL_HALFMULII_LIMIT)
+      return na>=half;
+    break;
+  case 1:
+    if (na>=Flx_MUL_MULII_LIMIT)
+      return na>=mul;
+    break;
+  case 2:
+    if (na>=Flx_MUL_MULII2_LIMIT)
+      return na>=mul2;
+    break;
+  case 3:
+    if (na>=70)
+      return na>=70;
+    break;
+  }
+  return na>=kara;
+}
 
 /*
  * x/polrecip(P)+O(x^n)
@@ -1115,7 +1140,10 @@ Flx_invBarrett(GEN T, ulong p)
   long l=lg(T);
   GEN r;
   if (l<5) return pol0_Flx(T[1]);
-  if (l<=Flx_INVBARRETT_LIMIT)
+  if (!Flx_multhreshold(T,p, Flx_INVBARRETT_HALFMULII_LIMIT,
+                             Flx_INVBARRETT_MULII_LIMIT,
+                             Flx_INVBARRETT_MULII2_LIMIT,
+                             Flx_INVBARRETT_KARATSUBA_LIMIT))
   {
     ulong c = T[l-1];
     if (c!=1)
@@ -1136,9 +1164,13 @@ Flx_invBarrett(GEN T, ulong p)
 GEN
 Flx_get_red(GEN T, ulong p)
 {
-  if (typ(T)==t_VECSMALL && lg(T) >= Flx_BARRETT_LIMIT)
-    retmkvec2(Flx_invBarrett(T,p),T);
-  return T;
+  if (typ(T)!=t_VECSMALL || !Flx_multhreshold(T,p,
+                         Flx_BARRETT_HALFMULII_LIMIT,
+                         Flx_BARRETT_MULII_LIMIT,
+                         Flx_BARRETT_MULII2_LIMIT,
+                         Flx_BARRETT_KARATSUBA_LIMIT))
+    return T;
+  retmkvec2(Flx_invBarrett(T,p),T);
 }
 
 /* separate from Flx_divrem for maximal speed. */

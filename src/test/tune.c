@@ -126,13 +126,16 @@ rand_NFlx(long n, ulong l)
   return gerepileuptoleaf(av, x);
 }
 
-#define t_Fhx   99
-#define t_Flx  100
-#define t_Fl1x 101
-#define t_Fl2x 102
-#define t_NFlx 103
-#define t_FpX  104
-#define t_NFpX 105
+#define t_Fhx   100
+#define t_Flx   101
+#define t_Fl1x  102
+#define t_Fl2x  103
+#define t_NFhx  110
+#define t_NFlx  111
+#define t_NFl1x 112
+#define t_NFl2x 113
+#define t_FpX   200
+#define t_NFpX  210
 
 static GEN
 rand_g(long n, long type)
@@ -144,7 +147,10 @@ rand_g(long n, long type)
     case t_Flx:  return rand_Flx(n,DFLT_mod);
     case t_Fl1x: return rand_Flx(n,DFLT_mod1);
     case t_Fl2x: return rand_Flx(n,DFLT_mod2);
+    case t_NFhx: return rand_NFlx(n,DFLT_hmod);
     case t_NFlx: return rand_NFlx(n,DFLT_mod);
+    case t_NFl1x: return rand_NFlx(n,DFLT_mod1);
+    case t_NFl2x: return rand_NFlx(n,DFLT_mod2);
     case t_FpX:  return rand_FpX(n);
     case t_NFpX: return rand_NFpX(n);
   }
@@ -159,7 +165,10 @@ dftmod(speed_param *s)
     case t_Flx:  s->l=DFLT_mod;  return;
     case t_Fl1x: s->l=DFLT_mod1; return;
     case t_Fl2x: s->l=DFLT_mod2; return;
+    case t_NFhx: s->l=DFLT_hmod;  return;
     case t_NFlx: s->l=DFLT_mod;  return;
+    case t_NFl1x: s->l=DFLT_mod1;  return;
+    case t_NFl2x: s->l=DFLT_mod2;  return;
     case t_FpX:  s->p=LARGE_mod; return;
     case t_NFpX: s->p=LARGE_mod; return;
   }
@@ -255,6 +264,7 @@ static double speed_Flx_rem(speed_param *s) {
 static double speed_Flxq_red(speed_param *s) {
   GEN x = rand_NFlx((degpol(s->x)-1)*2, s->l);
   GEN q = Flx_get_red(s->x, s->l);
+  if(typ(q)==t_VECSMALL) err_printf("."); else err_printf("+");
   TIME_FUN(Flx_rem(x, q, s->l));
 }
 
@@ -334,10 +344,24 @@ static tune_param param[] = {
 {0,   var(Flx_SQR_SQRI_LIMIT),     t_Fl1x,5,0, speed_Flx_sqr},
 {0,   var(Flx_MUL_MULII2_LIMIT),   t_Fl2x,5,20000, speed_Flx_mul,0.05},
 {0,   var(Flx_SQR_SQRI2_LIMIT),    t_Fl2x,5,20000, speed_Flx_sqr,0.05},
-{0,   var(Flx_INVBARRETT_LIMIT),  t_NFlx,10,0, speed_Flx_inv,0.05},
+{0,  var(Flx_INVBARRETT_KARATSUBA_LIMIT), t_NFlx,5,20000,
+            speed_Flx_inv,0,0,&Fmod_MUL_MULII_LIMIT,&Flx_MUL_KARATSUBA_LIMIT},
+{0,  var(Flx_INVBARRETT_HALFMULII_LIMIT), t_NFhx,5,0,
+            speed_Flx_inv,0,0,NULL,&Flx_MUL_HALFMULII_LIMIT},
+{0,  var(Flx_INVBARRETT_MULII_LIMIT), t_NFl1x,5,0,
+            speed_Flx_inv,0,0,NULL,&Flx_MUL_MULII_LIMIT},
+{0,  var(Flx_INVBARRETT_MULII2_LIMIT),t_NFl2x,5,0,
+            speed_Flx_inv,0,0,NULL,&Flx_MUL_MULII2_LIMIT},
 {0,  var(Flx_DIVREM_BARRETT_LIMIT),t_NFlx,10,0, speed_Flx_divrem,0.05},
 {0,  var(Flx_REM_BARRETT_LIMIT),  t_NFlx,10,0, speed_Flx_rem,0.05},
-{0,  var(Flx_BARRETT_LIMIT),      t_NFlx,10,0, speed_Flxq_red},
+{0,  var(Flx_BARRETT_KARATSUBA_LIMIT), t_NFlx,5,0,
+            speed_Flxq_red,0,0,&Fmod_MUL_MULII_LIMIT,&Flx_MUL_KARATSUBA_LIMIT},
+{0,  var(Flx_BARRETT_HALFMULII_LIMIT), t_NFhx,5,0,
+            speed_Flxq_red,0,0,NULL,&Flx_MUL_HALFMULII_LIMIT},
+{0,  var(Flx_BARRETT_MULII_LIMIT), t_NFl1x,5,0,
+            speed_Flxq_red,0,0,NULL,&Flx_MUL_MULII_LIMIT},
+{0,  var(Flx_BARRETT_MULII2_LIMIT),t_NFl2x,5,0,
+            speed_Flxq_red,0,0,NULL,&Flx_MUL_MULII2_LIMIT},
 {0,  var(Flx_HALFGCD_LIMIT),       t_Flx,10,0, speed_Flx_halfgcd},
 {0,  var(Flx_GCD_LIMIT),           t_Flx,10,0, speed_Flx_gcd,0.1},
 {0,  var(Flx_EXTGCD_LIMIT),        t_Flx,10,0, speed_Flx_extgcd},
