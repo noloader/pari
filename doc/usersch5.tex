@@ -1310,6 +1310,9 @@ and \kbd{nvar+1}--\kbd{max\_avail-1} (pool of free variable numbers).
 variable counters \kbd{nvar} and \kbd{max\_avail}, notwithstanding existing
 variables! In effect, this even deletes \kbd{x}. Don't use it.
 
+\fun{void}{pari_var_close}{void} associated destructor, called by
+\kbd{pari\_close}.
+
 \fun{long}{pari_var_next}{}: returns \kbd{nvar}, the number of the next user
 variable we can create.
 
@@ -1318,6 +1321,13 @@ next temp variable we can create.
 
 \fun{long}{pari_var_create}{entree *ep} low-level initialization of an
 \kbd{EpVAR}. Return the associated (new) variable number.
+
+\fun{GEN}{vars_sort_inplace}{GEN z} given a \typ{VECSMALL} $z$ of variable
+numbers, sort $z$ in place according to variable priorities (highest priority
+comes first).
+
+\fun{GEN}{vars_to_RgXV}{GEN h} given a \typ{VECSMALL} $z$ of variable numbers,
+return the \typ{VEC} of \kbd{pol\_x}$(z[i])$.
 
 \subsec{User variables}
 
