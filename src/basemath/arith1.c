@@ -2579,20 +2579,43 @@ ncV_polint_center_tree(GEN T, GEN R, GEN xa, GEN Va, GEN m2)
   return V;
 }
 
+GEN
+nmV_polint_center_tree_worker(GEN Va, GEN T, GEN R, GEN xa, GEN m2)
+{
+  return ncV_polint_center_tree(T, R, xa, Va, m2);
+}
+
 static GEN
 nmV_polint_center_tree(GEN T, GEN R, GEN xa, GEN Ma, GEN m2)
 {
   long i, j, l = lg(gel(Ma,1)), n = lg(xa);
+  long pending = 0, workid, cnt = 0;
+  struct pari_mt pt;
+  GEN worker, done, va, M;
   GEN ya = cgetg(n, t_VEC);
-  GEN M = cgetg(l, t_MAT);
-  for(i=1; i < l; i++)
+  worker = snm_closure(is_entry("_polint_worker"), mkvec4(T, R, xa, m2));
+  va = mkvec(gen_0);
+  M = cgetg(l, t_MAT);
+  if (DEBUGLEVEL) err_printf("Start parallel Chinese remainder: ");
+  mt_queue_start(&pt, worker);
+  for (i=1; i<l || pending; i++)
   {
     for(j=1; j < n; j++)
       gel(ya,j) = gmael(Ma,j,i);
-    gel(M,i) = ncV_polint_center_tree(T, R, xa, ya, m2);
+    gel(va, 1) = ya;
+    mt_queue_submit(&pt, i, i<l? va: NULL);
+    done = mt_queue_get(&pt, &workid, &pending);
+    if (done)
+    {
+      gel(M,workid) = done;
+      if (DEBUGLEVEL) err_printf("%ld%% ",(++cnt)*100/(l-1));
+    }
   }
+  if (DEBUGLEVEL) err_printf("\n");
+  mt_queue_end(&pt);
   return M;
 }
+
 GEN
 Z_ZV_mod(GEN P, GEN xa)
 {

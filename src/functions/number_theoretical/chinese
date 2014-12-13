@@ -46,3 +46,10 @@ Doc: if $x$ and $y$ are both intmods or both polmods, creates (with the same
  vector arguments to contain other data, so long as they are identical in both
  vectors.
 Variant: \fun{GEN}{chinese1}{GEN x} is also available.
+
+Function: _polint_worker
+Section: programming/internals
+C-Name: nmV_polint_center_tree_worker
+Prototype: GGGGG
+Help: used for parallel chinese
+Doc: used for parallel chinese
