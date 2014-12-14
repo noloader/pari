@@ -38,7 +38,7 @@ GEN LARGE_mod;
 
 typedef struct {
   ulong reps, type;
-  long *var, *var_disable, size, enabled;
+  long *var, *var_disable, *var_enable, var_enable_min,  size, enabled;
   GEN x, y;
   ulong l;
   GEN p;
@@ -57,6 +57,7 @@ typedef struct {
   double            step_factor; /* how much to step sizes (rounded down) */
   double            stop_factor;
   long              *var_disable;
+  long              *var_enable;
 } tune_param;
 
 /* ========================================================== */
@@ -176,6 +177,7 @@ dftmod(speed_param *s)
   return speed_endtime();                \
 }
 
+#define m_menable(s,var,min) (*(s->var)=minss(lg(s->x)-2,s->min))
 #define  m_enable(s,var) (*(s->var)=lg(s->x)-2)/* enable  asymptotically fastest */
 #define m_disable(s,var) (*(s->var)=lg(s->x)+1)/* disable asymptotically fastest */
 
@@ -183,12 +185,14 @@ static void enable(speed_param *s)
 {
   m_enable(s,var); s->enabled = 1;
   if (s->var_disable) m_disable(s,var_disable);
+  if (s->var_enable) m_menable(s,var_enable,var_enable_min);
 }
 
 static void disable(speed_param *s)
 {
   m_disable(s,var); s->enabled = 0;
   if (s->var_disable) m_disable(s,var_disable);
+  if (s->var_enable) m_menable(s,var_enable,var_enable_min);
 }
 
 static double speed_mulrr(speed_param *s)
@@ -478,11 +482,13 @@ Test(tune_param *param)
   DEFAULT(stop_factor, 1.2);
   DEFAULT(max_size, 10000);
   if (param->var_disable) save_var_disable = *(param->var_disable);
+  if (param->var_enable)  s.var_enable_min = *(param->var_enable);
 
   s.type = param->type;
   s.size = param->min_size;
   s.var  = param->var;
   s.var_disable  = param->var_disable;
+  s.var_enable  = param->var_enable;
   dftmod(&s);
   ndat = since_positive = since_change = thresh = 0;
   if (option_trace >= 1)
@@ -558,6 +564,7 @@ Test(tune_param *param)
   print_define(param->name, thresh);
   *(param->var) = thresh; /* set to optimal value for next tests */
   if (param->var_disable) *(param->var_disable) = save_var_disable;
+  if (param->var_enable) *(param->var_enable) = s.var_enable_min;
 }
 
 void error(char **argv) {
