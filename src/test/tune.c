@@ -619,7 +619,7 @@ main(int argc, char **argv)
   DFLT_hmod = 257;
   DFLT_mod2 = 281474976710677UL;
 #else
-  DFLT_hmod = 17;
+  DFLT_hmod = 3;
   DFLT_mod1 = 1031UL;
 #endif
   v = new_chunk(argc);
