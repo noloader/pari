@@ -653,6 +653,14 @@ time_fun(speed_function_t fun, speed_param *s, long enabled)
   return -1.0; /* LCOV_EXCL_LINE */
 }
 
+int
+cmpdat(const void *a, const void *b)
+{
+  struct dat_t *da =(struct dat_t *)a;
+  struct dat_t *db =(struct dat_t *)b;
+  return da->size-db->size;
+}
+
 void
 add_dat(long size, double d)
 {
@@ -663,6 +671,7 @@ add_dat(long size, double d)
   }
   dat[ndat].size = size;
   dat[ndat].d    = d; ndat++;
+  qsort(dat, ndat, sizeof(*dat), cmpdat);
 }
 
 void
@@ -714,13 +723,14 @@ analyze_dat(int final)
 }
 
 void
-Test(tune_param *param)
+Test(tune_param *param, long linear)
 {
   int since_positive, since_change, thresh, new_thresh;
   speed_param s;
   long save_var_disable = -1;
   pari_timer T;
   pari_sp av=avma;
+  long good = -1, bad = param->min_size;
 
   if (param->kernel == AVOID) { print_define(param->name, -1); return; }
 
@@ -770,34 +780,59 @@ Test(tune_param *param)
 
 #define SINCE_POSITIVE 20
 #define SINCE_CHANGE 50
-    /* Stop if method B has been consistently faster for a while */
-    if (d >= 0)
-      since_positive = 0;
-    else
-      if (++since_positive > SINCE_POSITIVE)
-      {
-        if (option_trace >= 1)
-          diag("Stop: since_positive (%d)\n", SINCE_POSITIVE);
-        break;
-      }
-    /* Stop if method A has become slower by a certain factor */
-    if (t1 >= t2 * param->stop_factor)
+    if (linear)
     {
-      if (option_trace >= 1)
-        diag("Stop: t1 >= t2 * factor (%.1f)\n", param->stop_factor);
-      break;
-    }
-    /* Stop if threshold implied hasn't changed for a while */
-    if (thresh != new_thresh)
-      since_change = 0, thresh = new_thresh;
-    else
-      if (++since_change > SINCE_CHANGE)
+      /* Stop if method B has been consistently faster for a while */
+      if (d >= 0)
+        since_positive = 0;
+      else
+        if (++since_positive > SINCE_POSITIVE)
+        {
+          if (option_trace >= 1)
+            diag("Stop: since_positive (%d)\n", SINCE_POSITIVE);
+          break;
+        }
+      /* Stop if method A has become slower by a certain factor */
+      if (t1 >= t2 * param->stop_factor)
       {
         if (option_trace >= 1)
-          diag("Stop: since_change (%d)\n", SINCE_CHANGE);
+          diag("Stop: t1 >= t2 * factor (%.1f)\n", param->stop_factor);
         break;
       }
-    s.size += maxss((long)floor(s.size * param->step_factor), 1);
+      /* Stop if threshold implied hasn't changed for a while */
+      if (thresh != new_thresh)
+        since_change = 0, thresh = new_thresh;
+      else
+        if (++since_change > SINCE_CHANGE)
+        {
+          if (option_trace >= 1)
+            diag("Stop: since_change (%d)\n", SINCE_CHANGE);
+          break;
+        }
+      s.size += maxss((long)floor(s.size * param->step_factor), 1);
+    }
+    else
+    {
+      if (t2 <= t1)
+        new_thresh = good = s.size;
+       else
+        bad = s.size;
+      if (bad == -1)
+        linear = 1;
+      else if (good == -1)
+      {
+        long new_size = minss(2*s.size,param->max_size-1);
+        if (new_size==s.size) linear = 1;
+        s.size = new_size;
+      }
+      else if (good-bad < 20*param->step_factor*bad)
+      {
+        linear = 1;
+        new_thresh = s.size = bad + 1;
+      }
+      else s.size = (good+bad)/2;
+      err_printf("bad= %ld good = %ld thresh = %ld linear = %ld\n",bad, good, thresh, linear);
+    }
     if (s.size >= param->max_size)
     {
       if (option_trace >= 1)
@@ -835,6 +870,7 @@ int
 main(int argc, char **argv)
 {
   int i, r, n = 0;
+  int linear = 1;
   GEN v;
   pari_init(8000000, 2);
   DFLT_mod = 27449;
@@ -857,7 +893,8 @@ main(int argc, char **argv)
         case 't': option_trace++;
           while (*++s == 't') option_trace++;
           break;
-
+        case 'd': linear = 1-linear;
+          break;
         case 'p':
           if (!*++s)
           {
@@ -887,8 +924,8 @@ main(int argc, char **argv)
       v[n++] = r;
     }
   }
-  if (n) { for (i = 0; i < n; i++) Test(&param[ v[i] ]); return 0; }
+  if (n) { for (i = 0; i < n; i++) Test(&param[ v[i] ], linear); return 0; }
   n = numberof(param);
-  for (i = 0; i < n; i++) Test(&param[i]);
+  for (i = 0; i < n; i++) Test(&param[i], linear);
   return 0;
 }
