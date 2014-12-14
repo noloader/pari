@@ -453,7 +453,7 @@ diag(const char *format, ...)
 }
 void
 print_define(const char *name, long value)
-{ printf("#define __%-25s  %5ld\n", name, value); }
+{ printf("#define __%-30s %ld\n", name, value); }
 
 long
 analyze_dat(int final)
