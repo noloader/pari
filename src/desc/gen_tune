@@ -108,4 +108,7 @@ if ($arg eq "--gendesc")
 elsif ($arg eq "--gentune")
 {
   &gentune;
+} else
+{
+  die("Error: gentune --gendesc|--gentune\n");
 }
