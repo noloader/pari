@@ -1687,7 +1687,11 @@ if [a',b']~=M*[a,b]~ then degpol(a')>= (lgpol(a)>>1) >degpol(b')
 static GEN
 Flx_halfgcd_i(GEN x, GEN y, ulong p)
 {
-  if (lg(x)<=Flx_HALFGCD_LIMIT) return Flx_halfgcd_basecase(x,y,p);
+  if (!Flx_multhreshold(x,p, Flx_HALFGCD_HALFMULII_LIMIT,
+                             Flx_HALFGCD_MULII_LIMIT,
+                             Flx_HALFGCD_MULII2_LIMIT,
+                             Flx_HALFGCD_KARATSUBA_LIMIT))
+    return Flx_halfgcd_basecase(x,y,p);
   return Flx_halfgcd_split(x,y,p);
 }
 

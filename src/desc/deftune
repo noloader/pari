@@ -9,7 +9,10 @@ Flx_BARRETT_MULII_LIMIT           2715     433    1681     448
 Flx_DIVREM_BARRETT_LIMIT          3942    1289    2804     768
 Flx_EXTGCD_LIMIT                   850     632     284     241
 Flx_GCD_LIMIT                     7165    2514    1890    1017
-Flx_HALFGCD_LIMIT                  232     321      80      81
+Flx_HALFGCD_HALFMULII_LIMIT        116      78      60      48
+Flx_HALFGCD_KARATSUBA_LIMIT        230     139      58      77
+Flx_HALFGCD_MULII2_LIMIT          1045     537      64      25
+Flx_HALFGCD_MULII_LIMIT            168      91      90      71
 Flx_INVBARRETT_HALFMULII_LIMIT     898     240     424     231
 Flx_INVBARRETT_KARATSUBA_LIMIT    3471    3600    5120    5067
 Flx_INVBARRETT_MULII2_LIMIT       3672    1815      36      26
