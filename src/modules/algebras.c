@@ -3110,8 +3110,10 @@ al_cyclic(GEN rnf, GEN aut, GEN b, int maxord)
 static int
 ismaximalsubfield(GEN al, GEN x, GEN d, long v, GEN *pt_minpol)
 {
-  GEN cp = albasischarpoly(al, x, v);
+  GEN cp = albasischarpoly(al, x, v), lead;
   if (!ispower(cp, d, pt_minpol)) return 0;
+  lead = leading_term(*pt_minpol);
+  if(isintm1(lead)) *pt_minpol = gneg(*pt_minpol);
   return ZX_is_irred(*pt_minpol);
 }
 

@@ -1018,3 +1018,151 @@ print("decomposition of CSA: ", #alsimpledec(alt)==1);
 dec = aldecomposition(alt);
 print("al_decomposition of CSA: ", #dec==2 && dec[1]==0 && #dec[2]==1 && #alcenter(dec[2][1])==2 && algetabsdim(dec[2][1])==8);
 
+print("tests for al_CSA: ");
+T = y^3-y+1;
+nf = nfinit(T);
+   m_i = [0,-1,0, 0;\
+          1, 0,0, 0;\
+          0, 0,0,-1;\
+          0, 0,1, 0];
+   m_j = [0, 0,-1,0;\
+          0, 0, 0,1;\
+          1, 0, 0,0;\
+          0,-1, 0,0];
+   m_k = [0, 0, 0, -1;\
+          0, 0,-1, 0;\
+          0, 1, 0, 0;\
+          1, 0, 0, 0];
+mt = [matid(4), m_i, m_j, m_k];
+print(alisassociative(mt));
+al = alinit(nf, mt, 'x);
+print(al != 0);
+print(al);
+print("should fail:");
+alfail = alinit(nf, [0,0], 'x);
+algetb(al);
+algetaut(al);
+print("algebra:");
+print("csa getcenter: ", algetcenter(al) == nf);
+print("csa getsplitting: ", algetsplitting(al) != 0);
+print("getrelmultable: ", algetrelmultable(al) == mt);
+print("algetsplittingdata:");
+print(#algetsplittingdata(al) == 3);
+print(#algetsplittingdata(al)[1] == 12);
+print(#algetsplittingdata(al)[2] == 2);
+print(#algetsplittingdata(al)[3][1,] == 12);
+print(#algetsplittingdata(al)[3][,1] == 2);
+print(al[3][3]*al[3][2][,1] == [1,0]~);
+print(al[3][3]*al[3][2][,2] == [0,1]~);
+polabs = al[6].pol;
+for(i=1,10,\
+print(al[3][3]*almul(al, al[3][2][,1], alpow(al,al[3][1],i)) == [Mod(x^i,polabs),0]~);\
+print(al[3][3]*almul(al, al[3][2][,2], alpow(al,al[3][1],i)) == [0,Mod(x,polabs)^i]~)\
+);
+print("hasse invariants:");
+print(algethassei(al) == 0);
+print(algethassef(al) == 0);
+print("csa splitting pol: ", poldegree(al[6].pol) == 6);
+print("csa ord: ", matsize(algetord(al)) == [12,12]);
+print("csa invord: ", matsize(algetinvord(al)) == [12,12]);
+print("csa absdim: ", #algetmultable(al) == algetabsdim(al));
+print("csa char: ", algetchar(al) == 0);
+print("csa deg: ", algetdegree(al) == 2);
+print("csa dim: ", algetdim(al) == 4);
+print("csa absdim: ", algetabsdim(al) == 12);
+print("csa type: ", altype(al) == 2); \\2==al_CSA
+
+print("elements:");
+a = [0, Mod(y,T), 0, 0]~;
+b = [0, -1, Mod(2*y^2,T), 0]~;
+c = [Mod(1-y+2*y^2,T), 3, 0, Mod(-3*y,T)]~;
+mynorm(aa) = sum(i=1,4,aa[i]^2);
+
+print("csa add: ", aladd(al,a,b) == a+b);
+print("csa neg: ", alneg(al,a) == -a);
+print("csa neg 2: ", alneg(al,b) == -b);
+print("csa sub: ", alsub(al,a,b) == a-b);
+print("csa mul: ", almul(al,a,b) == [Mod(y,T), 0, 0, Mod(2*y-2,T)]~);
+print("csa mul 2: ", almul(al,b,a) == [Mod(y,T), 0, 0, Mod(2-2*y,T)]~);
+print("csa sqr: ", alsqr(al,a) == [Mod(-y^2,T),0,0,0]~);
+print("csa sqr 2: ", alsqr(al,b) == [Mod(-1-4*y^4,T),0,0,0]~);
+print("csa mt: ", almultable(al,b) == -m_i + Mod(2*y^2,T)*m_j);
+print("csa inv: ", alinv(al,a) == -1/y^2*a);
+print("csa inv 2: ", alinv(al,b) == -1/Mod(1+4*y^4,T)*b);
+print("csa divl: ", aldivl(al,1+a+b,b) == almul(al, alinv(al, 1+a+b), b));
+print("csa pow: ", alpow(al, a, 5) == Mod(y^4,T)*a);
+aa = alalgtobasis(al, a);
+bb = alalgtobasis(al, b);
+cc = alalgtobasis(al, c);
+print("csa mul 3: ", almul(al,aa,b) == alalgtobasis(al,almul(al,a,b)));
+print("csa mul 4: ", almul(al,a,bb) == alalgtobasis(al,almul(al,a,b)));
+print("csa pow 2: ", alpow(al,aa,13) == alalgtobasis(al,alpow(al,a,13)));
+print("csa sub 2: ", alsub(al,aa,b) == alalgtobasis(al,alsub(al,a,b)));
+print("csa sub 3: ", alsub(al,bb,a) == alalgtobasis(al,alsub(al,b,a)));
+print("csa inv 3: ", alinv(al,aa) == alalgtobasis(al,alinv(al,a)));
+print("csa inv 4: ", alinv(al,bb) == alalgtobasis(al,alinv(al,b)));
+print("csa inv 5: ", alinv(al,aladd(al,a,bb)) == alalgtobasis(al,alinv(al,aladd(al,a,b))));
+print("csa trace: ", altrace(al,cc) == 2*c[1]);
+print("csa trace 2: ", altrace(al,c) == 2*c[1]);
+
+D = 12;
+flag = 1;
+for(i=1, D,\
+  for(j=i, D,\
+    ei = matid(D)[,i];\
+    ej = matid(D)[,j];\
+    flag = flag && (alsplittingmatrix(al,ei)*alsplittingmatrix(al,ej) == alsplittingmatrix(al, almul(al, ei, ej)));\
+    flag = flag && (alsplittingmatrix(al,ei)+alsplittingmatrix(al,ej) == alsplittingmatrix(al, aladd(al, ei, ej)))\
+    ));
+print(flag);
+
+print("testcharpol");
+testcharpol(al,elt) = print(alcharpoly(al,elt)==x^2-altrace(al,elt)*x+mynorm(elt));
+testcharpol(al,a);
+testcharpol(al,b);
+testcharpol(al,c);
+
+print("testcharpol2");
+testcharpol2(al,elt) = print(alcharpoly(al,elt)==x^2-altrace(al,elt)*x+mynorm(albasistoalg(al,elt)));
+testcharpol2(al,aa);
+testcharpol2(al,bb);
+testcharpol2(al,cc);
+
+print("testnorm");
+testnorm(al,elt) = print(alnorm(al,elt) == mynorm(elt));
+testnorm(al,a);
+testnorm(al,b);
+testnorm(al,c);
+
+print("testnorm2");
+testnorm2(al,elt) = print(alnorm(al,elt) == mynorm(albasistoalg(al,elt)));
+testnorm2(al,aa);
+testnorm2(al,bb);
+testnorm2(al,cc);
+
+doubleindex(N,i,j) = (i-1)*N+j;
+matrixringmt(N) = 
+{
+  my(mt = [Mat([Col(0,N^2) | i<-[1..N^2]]) | j<-[1..N^2]], B, Bi, mt2=Vec(0,N^2));
+  for(i=1,N,
+    for(j=1,N,
+      for(k=1,N,
+        mt[doubleindex(N,i,j)][doubleindex(N,i,k),doubleindex(N,j,k)] = 1
+      )
+    )
+  );
+  B = matid(N^2);
+  for(i=1, N, B[doubleindex(N,i,i),1]=1);
+  Bi = B^(-1);
+  mt2[1] = matid(N^2);
+  for(i=2,N^2, mt2[i] = Bi*mt[i]*B);
+  mt2;
+}
+
+print("csa al2");
+al2 = alinit(nf, matrixringmt(2), 'x);
+print(al2);
+print("csa al3");
+al3 = alinit(nf, matrixringmt(3), 'x);
+print(al3);
+

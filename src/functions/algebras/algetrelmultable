@@ -1,0 +1,6 @@
+Function: algetrelmultable
+Section: algebras
+C-Name: al_get_relmultable
+Prototype: G
+Help: algetrelmultable(al): multiplication table of the central simple algebra al over its center.
+Doc: Given a central simple algebra \var{al} output by \tet{alinit} defined by a multiplication table over its center (a number field), returns this multiplication table.

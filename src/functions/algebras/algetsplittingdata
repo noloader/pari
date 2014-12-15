@@ -1,0 +1,12 @@
+Function: algetsplittingdata
+Section: algebras
+C-Name: al_get_splittingdata
+Prototype: G
+Help: algetsplittingdata(al): data stored in the central simple algebra al to compute a splitting of al over an extension.
+Doc: Given a central simple algebra \var{al} output by \tet{alinit} defined by a multiplication table over its center~$K$ (a number field), returns data stored to compute a splitting of \var{al} over an extension. This data is a \typ{VEC} with $3$ components:
+
+  \item an element $x$ of \var{al} such that $L=K(x)$ is a maximal subfield of \var{al};
+
+  \item a matrix expressing a $L$-basis of \var{al} (given an $L$-vector space structure by multiplication on the right) on the integral basis of \var{al};
+
+  \item a matrix expressing the integral basis of \var{al} on the previous $L$-basis.
