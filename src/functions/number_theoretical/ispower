@@ -24,7 +24,7 @@ Doc: if $k$ is given, returns true (1) if $x$ is a $k$-th power, false
  \noindent For a \typ{FFELT} \kbd{x}, instead of omitting \kbd{k} (which is
  not allowed for this type), it may be natural to set
  \bprog
- k = (x.p ^ poldegree(x.pol) - 1) / fforder(x)
+ k = (x.p ^ x.f - 1) / fforder(x)
  @eprog
 Variant: Also available is
  \fun{long}{gisanypower}{GEN x, GEN *pty} ($k$ omitted).
