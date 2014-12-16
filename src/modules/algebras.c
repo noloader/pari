@@ -1290,9 +1290,15 @@ alalgmultable(GEN al, GEN x)
 static GEN
 alZmultable(GEN al, GEN x) {
   pari_sp av = avma;
-  GEN res;
+  GEN res, x0;
   long tx = al_model(al,x);
   switch(tx) {
+    case al_TRIVIAL:
+      x0 = gel(x,1); 
+      if(typ(x0)==t_POLMOD) x0 = lift(x0);
+      if(typ(x0)==t_POL) x0 = constant_term(x0);
+      res = mkmatcopy(mkcolcopy(x0));
+      break;
     case al_ALGEBRAIC: res = almtK2Z(al,alalgmultable(al,x)); break;
     default: res = albasismultable(al,x);
   }
@@ -1473,7 +1479,7 @@ alpow(GEN al, GEN x, GEN n)
   GEN res;
   checkal(al);
   switch(signe(n)) {
-    case 0 :         res = scalarcol_shallow(gen_1,al_get_degree(al)); break;
+    case 0 :         res = scalarcol_shallow(gen_1,al_get_absdim(al)); break;
     case 1 :         res = gen_pow(x, n, (void*)al, _sqr, _mul); break;
     default : /*-1*/ res = gen_pow(alinv(al,x), gneg(n), (void*)al, _sqr, _mul);
   }

@@ -321,7 +321,7 @@ alfromhasse() = gusuite("algebra from Hasse invariants", ()->{
 
   nf = nfinit(y);
   p13 = idealprimedec(nf,13)[1];
-  finv1 = [[p13],Vecsmall([1])];
+  finv1 = [[p13],[Mod(1,2)]];
   iinv1 = Vecsmall([1]);
   do("test", ()->alinit(nf,[2,finv1,iinv1],J));
 
@@ -334,6 +334,11 @@ alfromhasse() = gusuite("algebra from Hasse invariants", ()->{
   iinv = Vecsmall([3]);
   al = alinit(nf,[d,finv,iinv],J,0);
   do("degree 6 algebra over Q", ()->alsame(al,finv,iinv));
+
+  nf = nfinit(y^2-5);
+  finv1 = [[],[]];
+  iinv1 = Vecsmall([1,1]);
+  do("trivial finite conditions", ()->alinit(nf,[2,finv1,iinv1]));
 
 });
 
@@ -525,6 +530,7 @@ tablealg() = gusuite("table algebra", ()->{
   do("construction 0", ()->al);
   do("iscyclic 0", ()->altype(al)==1);
   do("dim 0", ()->algetabsdim(al)==3);
+  do("dim 0b", ()->algetdim(al)==3);
   do("char 0", ()->algetchar(al)==0);
   do("a+b 0", ()->aladd(al,a,b)==[1,-1,0]~);
   do("a-b 0", ()->alsub(al,a,b)==[1,1,-2]~);
@@ -566,7 +572,7 @@ tablealg() = gusuite("table algebra", ()->{
 
   p = 2;
   al = altableinit(mt,p);
-  do("alisassociative 2", ()->alisassociative(mt));
+  do("alisassociative 2", ()->alisassociative(mt,p));
   do("construction 2", ()->al);
   do("iscyclic 2", ()->altype(al)==1);
   do("dim 2", ()->algetabsdim(al)==3);
@@ -1077,6 +1083,8 @@ a = [0, Mod(y,T), 0, 0]~;
 b = [0, -1, Mod(2*y^2,T), 0]~;
 c = [Mod(1-y+2*y^2,T), 3, 0, Mod(-3*y,T)]~;
 mynorm(aa) = sum(i=1,4,aa[i]^2);
+albasistoalg(al,a)
+alalgtobasis(al,[1,2,3,4,5,6,7,8,9,10,11,12]~)
 
 print("csa add: ", aladd(al,a,b) == a+b);
 print("csa neg: ", alneg(al,a) == -a);
@@ -1166,12 +1174,8 @@ print("csa al3");
 al3 = alinit(nf, matrixringmt(3), 'x);
 print(al3);
 
-\\ bad inputs
-alrandom(1,1)
-alrandom(1,I)
-altype(1)
-
-\\limit case
+\\limit cases
+print("trivial algebra over a quadratic field");
 al = alinit(rnfinit(nfinit(y^2+1),x),[y,1])
 a = [y]~
 b = [1-2*y]~
@@ -1187,4 +1191,67 @@ almultable(al,a)
 alcharpoly(al,b)
 altrace(al,c)
 alnorm(al,c)
+
+print("trivial algebra over Q");
+al = alinit(rnfinit(nfinit(y),x),[y,1])
+a = [-2]~
+b = [1/3]~
+c = alrandom(al,3)
+aladd(al,a,b)
+alsub(al,c,a)
+almul(al,a,b)
+aldivl(al,b,c)
+aldivr(al,c,b)
+alinv(al,a)
+alalgtobasis(al,b)
+almultable(al,a)
+alcharpoly(al,b)
+altrace(al,c)
+alnorm(al,c)
+
+mt0 = [Mat([1])];
+almt0 = altableinit(mt0,0)
+a = [12]~
+b = [-1/7]~
+aladd(almt0,a,b)
+alsub(almt0,a,b)
+almul(almt0,a,b)
+alneg(almt0,a)
+alinv(almt0,a)
+alsqr(almt0,b)
+aldivl(almt0,a,b)
+altrace(almt0,a)
+alnorm(almt0,b)
+alcharpoly(almt0,a)
+almultable(almt0,b)
+alpow(almt0,a,0)
+
+
+
+
+\\ bad inputs
+almt = altableinit(mt,0);
+alrandom(1,1)
+alrandom(1,I)
+altype(1)
+algetdim([1,[1],0,0,0,0,0,0,0,0])
+algetabsdim([1,[1],0,0,0,0,0,0,0,0])
+altensor(al,al2)
+altensor(al2,al)
+alisassociative([1],0)
+alisassociative([[1,0;0,2],[0,0;0,0]])
+almul(almt,a,b)
+almultable(almt,a)
+alinv(almt,a)
+alsplittingmatrix(almt,[0,0,0,0]~)
+alalgtobasis(almt,a)
+albasistoalg(almt,[0,0,0,0]~)
+alpoleval(almt,1,a)
+alinit(nfinit(y),[2,[[],[]],[x]])
+alinit(nfinit(y),[2,[],[1,1]])
+alinit(nfinit(y),[2,[[],[]],Vecsmall([1])])
+alinit(y,[2,[[],[]],[1]])
+alinit(nfinit(y), y)
+alinit(nfinit(y), [1,2,3,4])
+altableinit(mt,y);
 
