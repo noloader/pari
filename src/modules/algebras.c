@@ -52,6 +52,9 @@ al_type(GEN al)
   }
   return -1; /*not reached*/
 }
+long
+altype(GEN al)
+{ return checkal_i(al)? al_type(al): al_NULL; }
 
 /* absdim == dim for al_TABLE. */
 long

@@ -1,6 +1,6 @@
 Function: altype
 Section: algebras
-C-Name: al_type
+C-Name: altype
 Prototype: lG
 Help: altype(al): type of the algebra al.
 Doc: Given an algebra \var{al} output by \tet{alinit} or by \tet{altableinit}, returns an integer indicating the type of algebra:

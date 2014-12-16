@@ -1169,3 +1169,4 @@ print(al3);
 \\ bad inputs
 alrandom(1,1)
 alrandom(1,I)
+altype(1)

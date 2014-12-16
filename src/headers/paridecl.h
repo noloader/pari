@@ -1153,6 +1153,7 @@ GEN alsub(GEN al, GEN x, GEN y);
 GEN altableinit(GEN mt, GEN p);
 GEN altrace(GEN al, GEN x);
 GEN altracematrix(GEN al);
+long altype(GEN al);
 GEN bnfgwgeneric(GEN bnf, GEN Lpr, GEN Ld, GEN pl, long var);
 GEN bnrconj(GEN bnr, long i);
 GEN bnrgwsearch(GEN bnr, GEN Lpr, GEN Ld, GEN pl);

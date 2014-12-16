@@ -2145,4 +2145,7 @@ Suitable for \kbd{gerepileupto}, but does not collect garbage.
 \fun{void}{checkal}{GEN a} raise an exception if $a$ was not initialized
 by \tet{alinit}.
 
+\fun{long}{al_type}{GEN al} internal function called by \tet{altype}: assume
+\kbd{al} was created by \tet{alinit} (thereby saving a call to \kbd{checkal}).
+
 \newpage
