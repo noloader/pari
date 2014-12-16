@@ -1069,7 +1069,6 @@ GEN     zx_to_ZX(GEN z);
 
 /* algebras.c */
 
-GEN alZmultable(GEN al, GEN x);
 GEN al_centralproj(GEN al, GEN z, int maps);
 GEN al_changeorder(GEN al, GEN ord);
 GEN al_changeorder_shallow(GEN al, GEN ord);
@@ -1132,16 +1131,13 @@ GEN aldivr(GEN al, GEN x, GEN y);
 GEN alinit(GEN A, GEN B, long v, long flag);
 GEN alinv(GEN al, GEN x);
 int alisinv(GEN al, GEN x, GEN* ptix);
-GEN allauts(GEN rnf, GEN aut);
 GEN alleftordermodp(GEN al, GEN Ip, GEN p);
-GEN almtK2Z(GEN al, GEN m);
 GEN almul(GEN al, GEN x, GEN y);
 GEN almultable(GEN al, GEN x);
 GEN alnattoalg(GEN al, GEN x);
 GEN alneg(GEN al, GEN x);
 GEN alnorm(GEN al, GEN x);
 GEN alpdecompose(GEN al, GEN p);
-GEN alpdecompose0(GEN al, GEN prad, GEN p);
 GEN alpoleval(GEN al, GEN pol, GEN x);
 GEN alpow(GEN al, GEN x, GEN n);
 GEN alpradical(GEN al, GEN p);
@@ -1161,7 +1157,6 @@ void checkal(GEN x);
 void checkhasse(GEN nf, GEN hi, GEN hf, long n);
 long cyclicrelfrob(GEN rnf, GEN nf2, GEN auts, GEN pr);
 long cyclicrelfrob0(GEN nf, GEN aut, GEN pr, GEN q, long f, long g);
-GEN genefrob(GEN nf, GEN gal, GEN r);
 GEN hassecoprime(GEN hi, GEN hf, long n);
 GEN hassedown(GEN nf, long n, GEN hi, GEN hf);
 GEN hassewedderburn(GEN hi, GEN hf, long n);
@@ -1172,7 +1167,6 @@ GEN nfgwkummer(GEN nf, GEN Lpr, GEN Ld, GEN pl, long var);
 GEN extchinese(GEN nf, GEN x, GEN y, GEN pl, GEN* red);
 GEN factoredextchinese(GEN nf, GEN x, GEN y, GEN pl, GEN* fa);
 GEN factoredextchinesetest(GEN nf, GEN x, GEN y, GEN pl, GEN* fa, GEN data, int (*test)(GEN,GEN,GEN));
-long ispositive(GEN nf, GEN x, GEN pl);
 
 /* alglin1.c */
 

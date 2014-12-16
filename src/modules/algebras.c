@@ -164,7 +164,8 @@ rnfrealdec(GEN rnf, long k)
 }
 
 /* pl : requested signs for real embeddings, 0 = no sign constraint */
-long
+/* FIXME: not rigorous */
+static long
 ispositive(GEN nf, GEN x, GEN pl)
 {
   long l = lg(pl), i;
@@ -1161,7 +1162,7 @@ almtK2Z_csa(GEN al, GEN m)
   return gerepilecopy(av,res);
 }
 
-GEN
+static GEN
 almtK2Z(GEN al, GEN m)
 {
   switch(al_type(al))
@@ -1286,7 +1287,7 @@ alalgmultable(GEN al, GEN x)
 }
 
 /*on the natural basis*/
-GEN
+static GEN
 alZmultable(GEN al, GEN x) {
   pari_sp av = avma;
   GEN res;
@@ -2200,7 +2201,7 @@ localhasse(GEN rnf, GEN nf2, GEN cnd, GEN pl, GEN auts, GEN b, long k)
   avma = av; return Fl_neg(h,n);
 }
 
-GEN
+static GEN
 allauts(GEN rnf, GEN aut)
 {
   long n = rnf_get_degree(rnf), i;
@@ -2735,7 +2736,7 @@ hassedown(GEN nf, long n, GEN hf, GEN hi)
 }
 
 /* no garbage collection */
-GEN
+static GEN
 genefrob(GEN nf, GEN gal, GEN r)
 {
   long i;
@@ -3315,7 +3316,7 @@ alpradical(GEN al, GEN p)
   return alpradical_i(al, p, placeholder, gen_1);
 }
 
-GEN
+static GEN
 alpdecompose0(GEN al, GEN prad, GEN p)
 {
   pari_sp av = avma;
