@@ -379,11 +379,17 @@ GEN
 al_tensor(GEN al1, GEN al2, int maxord) {
   pari_sp av = avma;
   long tal1 = al_type(al1), tal2 = al_type(al2);
+  long v, k, d1, d2;
+  GEN nf, P1, P2, aut1, aut2, b1, b2, C, rnf, aut, b, x1, x2, al;
 
   if (tal1 != al_CYCLIC  || tal2 != al_CYCLIC) pari_err(e_MISC, "Not implemented"); /* TODO: do it. */
 
-  GEN nf=al_get_center(al1), P1=al_get_splitpol(al1), P2=al_get_splitpol(al2), aut1=al_get_aut(al1), aut2=al_get_aut(al2), b1=al_get_b(al1), b2=al_get_b(al2), C, rnf, aut, b, x1, x2, al;
-  long v=varn(P1), k, d1=al_get_degree(al1), d2=al_get_degree(al2);
+  nf=al_get_center(al1);
+  P1=al_get_splitpol(al1); aut1=al_get_aut(al1); b1=al_get_b(al1);
+  P2=al_get_splitpol(al2); aut2=al_get_aut(al2); b2=al_get_b(al2);
+  d1=al_get_degree(al1);
+  d2=al_get_degree(al2);
+  v=varn(P1);
 
   C = nfcompositum(nf, P1, P2, 3);
   rnf = rnfinit(nf,gel(C,1));
@@ -740,7 +746,7 @@ al_decompose_total(GEN al, GEN Z, GEN Zal, int maps) //TODO guarantee that the i
     if (maps) return gerepilecopy(av, mkvec(mkvec3(al, matid(n), matid(n))));
     else      return gerepilecopy(av, mkvec(al));
   }
-
+  projm = liftm = NULL; /*-Wall*/
   sc = cgetg(lg(dec), t_VEC);
   nsc = 0;
   for (i=1; i<lg(sc); i++) {
@@ -938,8 +944,9 @@ aladd(GEN al, GEN x, GEN y)
 {
   pari_sp av = avma;
   long tx, ty;
+  GEN p;
   checkal(al);
-  GEN p = al_get_char(al);
+  p = al_get_char(al);
   if (signe(p)) return FpC_add(x,y,p);
   tx = al_model(al,x);
   ty = al_model(al,y);
@@ -957,8 +964,9 @@ alsub(GEN al, GEN x, GEN y)
 {
   long tx, ty;
   pari_sp av = avma;
+  GEN p;
   checkal(al);
-  GEN p = al_get_char(al);
+  p = al_get_char(al);
   if (signe(p)) return FpC_sub(x,y,p);
   tx = al_model(al,x);
   ty = al_model(al,y);
@@ -1383,9 +1391,10 @@ GEN
 almultable(GEN al, GEN x)
 {
   pari_sp av = avma;
-  checkal(al);
-  long tx = al_model(al,x);
+  long tx;
   GEN res;
+  checkal(al);
+  tx = al_model(al,x);
   switch(tx) {
     case al_TRIVIAL : res = mkmatcopy(mkcol(gel(x,1))); break;
     case al_ALGEBRAIC : res = alalgmultable(al,x); break;
@@ -1414,8 +1423,9 @@ alsplittingmatrix(GEN al, GEN x)
 {
   pari_sp av = avma;
   GEN res = NULL;
+  long tx;
   checkal(al);
-  long tx = al_model(al,x);
+  tx = al_model(al,x);
   switch(al_type(al))
   {
     case al_CYCLIC:
@@ -1683,9 +1693,9 @@ GEN
 alnorm(GEN al, GEN x)
 {
   pari_sp av = avma;
-  GEN rnf, res;
+  GEN p, rnf, res;
   checkal(al);
-  GEN p = al_get_char(al);
+  p = al_get_char(al);
   if (signe(p)) return gerepileupto(av, FpM_det(albasismultable(al,x),p));
   if (al_model(al,x) == al_TRIVIAL) return gcopy(gel(x,1));
 
@@ -1796,8 +1806,9 @@ alnattoalg(GEN al, GEN x)
 GEN
 alalgtobasis(GEN al, GEN x)
 {
+  pari_sp av;
   if (al_model(al,x)==al_BASIS) return gcopy(x);
-  pari_sp av = avma;
+  av = avma;
   x = alalgtonat(al,x);
   x = RgM_RgC_mul(al_get_invord(al),x);
   return gerepileupto(av, x);
@@ -1806,8 +1817,9 @@ alalgtobasis(GEN al, GEN x)
 GEN
 albasistoalg(GEN al, GEN x)
 {
+  pari_sp av;
   if (al_model(al,x)==al_ALGEBRAIC) return gcopy(x);
-  pari_sp av = avma;
+  av = avma;
   x = RgM_RgC_mul(al_get_ord(al),x);
   x = alnattoalg(al,x);
   return gerepileupto(av, x);
@@ -1835,10 +1847,10 @@ GEN
 alpoleval(GEN al, GEN pol, GEN x)
 {
   pari_sp av = avma;
-  GEN mx, res;
+  GEN p, mx, res;
   long i;
   checkal(al);
-  GEN p = al_get_char(al);
+  p = al_get_char(al);
   if (typ(pol) != t_POL) pari_err_TYPE("alpoleval",pol);
   mx = (typ(x) == t_MAT)? x: almultable(al,x);
   res = zerocol(lg(mx)-1);
