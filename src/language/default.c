@@ -716,15 +716,13 @@ compare_name(const void *s1, const void *s2) {
   entree *e1 = *(entree**)s1, *e2 = *(entree**)s2;
   return strcmp(e1->name, e2->name);
 }
-/* return all entries with class '18' */
 static void
 defaults_list(pari_stack *s)
 {
   entree *ep;
   long i;
   for (i = 0; i < functions_tblsz; i++)
-    for (ep = defaults_hash[i]; ep; ep = ep->next)
-      if (ep->menu == 18) pari_stack_pushp(s, ep);
+    for (ep = defaults_hash[i]; ep; ep = ep->next) pari_stack_pushp(s, ep);
 }
 /* ep associated to function f of arity 2. Call f(v,flag) */
 static GEN

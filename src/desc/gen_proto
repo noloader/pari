@@ -4,7 +4,7 @@ use PARI::822;
 $class=$ARGV[0];
 
 $i = 1;
-# update gp.c:MAX_SECTION and default.c:defaults_list() when changing this
+# update MAX_SECTION in gplib.c and gp_rl.c when changing this
 %secnumber=(
   'operators'             => $i++,
   'conversions'           => $i++,
