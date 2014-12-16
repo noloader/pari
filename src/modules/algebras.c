@@ -165,15 +165,6 @@ ZMV_to_FlmV(GEN z, ulong m)
   return x;
 }
 
-GEN
-rnf_get_idealdisc(GEN rnf) { return gmael(rnf,3,1); }
-
-GEN
-rnf_get_k(GEN rnf) { return gmael(rnf,11,3); }
-
-GEN
-rnf_get_alpha(GEN rnf) { return gmael(rnf, 11, 2); }
-
 /* FIXME: not rigorous */
 static long
 rnfrealdec(GEN rnf, long k)

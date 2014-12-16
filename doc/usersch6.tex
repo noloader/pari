@@ -299,12 +299,24 @@ $L/K$.
 $\Z_L$ as a $\Z_K$-module, as a pseudo-matrix $(A,I)$ in HNF.
 
 \fun{GEN}{rnf_get_disc}{GEN rnf} is the output $[\goth{d}, s]$
- of \kbd{rnfdisc}
+ of \kbd{rnfdisc}.
+
+\fun{GEN}{rnf_get_idealdisc}{GEN rnf} is the ideal discriminant $\goth{d}$
+from \kbd{rnfdisc}.
 
 \fun{GEN}{rnf_get_index}{GEN rnf} is the index ideal $\goth{f}$
 
 \fun{GEN}{rnf_get_polabs}{GEN rnf} returns an absolute polynomial defining
 $L/\Q$.
+
+\fun{GEN}{rnf_get_alpha}{GEN rnf} a root $\alpha$ of the polynomial
+defining the base field, modulo \kbd{polabs} (cf.~\kbd{rnfequation})
+
+\fun{GEN}{rnf_get_k}{GEN rnf}
+a small integer $k$ such that $\theta = \beta + k\alpha$ is a root of
+\kbd{polabs}, where $\beta$ is a root of \kbd{pol}
+and $\alpha$ a root of the polynomial defining the base field,
+as in \tet{rnf_get_alpha} (cf.~also \kbd{rnfequation}).
 
 \fun{GEN}{rnf_get_invzk}{GEN rnf} contains $A^{-1}$, where $(A,I)$
 is the chosen pseudo-basis for $\Z_L$ over $\Z_K$.

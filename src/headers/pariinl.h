@@ -2562,6 +2562,12 @@ rnf_get_nfdegree(GEN rnf) { return degpol(nf_get_pol(rnf_get_nf(rnf))); }
 INLINE long
 rnf_get_absdegree(GEN rnf) { return degpol(gmael(rnf,11,1)); }
 INLINE GEN
+rnf_get_idealdisc(GEN rnf) { return gmael(rnf,3,1); }
+INLINE GEN
+rnf_get_k(GEN rnf) { return gmael(rnf,11,3); }
+INLINE GEN
+rnf_get_alpha(GEN rnf) { return gmael(rnf, 11, 2); }
+INLINE GEN
 rnf_get_nf(GEN rnf) { return gel(rnf,10); }
 INLINE void
 rnf_get_nfzk(GEN rnf, GEN *b, GEN *cb) {*b=gmael(rnf,2,1); *cb=gmael(rnf,2,2);}

@@ -1168,9 +1168,6 @@ GEN extchinese(GEN nf, GEN x, GEN y, GEN pl, GEN* red);
 GEN factoredextchinese(GEN nf, GEN x, GEN y, GEN pl, GEN* fa);
 GEN factoredextchinesetest(GEN nf, GEN x, GEN y, GEN pl, GEN* fa, GEN data, int (*test)(GEN,GEN,GEN));
 long ispositive(GEN nf, GEN x, GEN pl);
-GEN rnf_get_alpha(GEN rnf);
-GEN rnf_get_idealdisc(GEN rnf);
-GEN rnf_get_k(GEN rnf);
 
 /* alglin1.c */
 
@@ -4174,9 +4171,12 @@ INLINE GEN    pr_get_p(GEN pr);
 INLINE GEN    pr_get_tau(GEN pr);
 INLINE int    pr_is_inert(GEN P);
 INLINE GEN    pr_norm(GEN pr);
+INLINE GEN    rnf_get_alpha(GEN rnf);
 INLINE long   rnf_get_absdegree(GEN rnf);
 INLINE long   rnf_get_degree(GEN rnf);
+INLINE GEN    rnf_get_idealdisc(GEN rnf);
 INLINE GEN    rnf_get_invzk(GEN rnf);
+INLINE GEN    rnf_get_k(GEN rnf);
 INLINE GEN    rnf_get_map(GEN rnf);
 INLINE GEN    rnf_get_nf(GEN rnf);
 INLINE long   rnf_get_nfdegree(GEN rnf);

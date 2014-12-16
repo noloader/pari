@@ -211,6 +211,7 @@ AP 81- [GP] central simple algebra package, GP functions
     aldivr             algetmultable      alprimesubalg      altype
     algetord           alquotient         algetabsdim        algetsplitting
     alradical
+   82- [libpari] functions rnf_get_alpha, rnf_get_idealdisc, rnf_get_k
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]
