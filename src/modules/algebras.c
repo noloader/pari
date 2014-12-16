@@ -3318,7 +3318,7 @@ al_ordermodp(GEN al, GEN p)
 }
 
 static GEN
-alpradical_i(GEN al, GEN p, GEN zprad, GEN projs)
+alpradical_i(GEN al, GEN p, GEN zprad, GEN projs) /* projs for future extension, currently unused*/
 {
   pari_sp av = avma;
   GEN alp = al_ordermodp(al, p), liftrad, alq, alrad, res;
