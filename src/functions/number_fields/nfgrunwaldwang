@@ -18,7 +18,7 @@ Doc: Given \var{nf} a number field in \var{nf} or \var{bnf} format,
  \item at the prime \kbd{Lpr[i]}, the extension has local degree a multiple of
  \kbd{Ld[i]};
 
- \item at the at the $i$-th real place of \var{nf}, it is complex if $pl[i]=-1$
+ \item at the $i$-th real place of \var{nf}, it is complex if $pl[i]=-1$
  (no condition if $pl[i]=1$).
 
  The extension has degree the LCM of the local degrees.
@@ -27,4 +27,3 @@ Doc: Given \var{nf} a number field in \var{nf} or \var{bnf} format,
  roots of unity where $n$ is the degree of the extension to be computed,
  triggers the computation of the \var{bnf} of $nf(\zeta_n)$, which may be
  costly.
-

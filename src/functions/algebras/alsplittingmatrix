@@ -3,4 +3,7 @@ Section: algebras
 C-Name: alsplittingmatrix
 Prototype: GG
 Help: alsplittingmatrix(al,x): image of x under a splitting of al.
-Doc: A central simple algebra \var{al} output by \tet{alinit} contains data describing an isomorphism~$\phi : A\otimes_K L \to M_d(L)$, where $d$ is the degree of the algebra and $L$ is an extention of $L$ with~$[L:K]=d$. Returns the matrix $\phi(x)$.
+Doc: A central simple algebra \var{al} output by \tet{alinit} contains data
+ describing an isomorphism~$\phi : A\otimes_K L \to M_d(L)$, where $d$ is the
+ degree of the algebra and $L$ is an extension of $L$ with~$[L:K]=d$. Returns
+ the matrix $\phi(x)$.
