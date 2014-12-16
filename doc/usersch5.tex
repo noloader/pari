@@ -3595,12 +3595,12 @@ is a \kbd{FpC}.
 \fun{GEN}{FpM_inv}{GEN x, GEN p} returns the inverse of \kbd{x}, or
 \kbd{NULL} if \kbd{x} is not invertible.
 
-\fun{GEN}{FpM_FpC_invimage}{GEN m, GEN v, GEN p}
- given an \kbd{FpM} $x$ and an \kbd{FpC} $y$, returns an $x$ such that $Ax =
+\fun{GEN}{FpM_FpC_invimage}{GEN A, GEN y, GEN p}
+ given an \kbd{FpM} $A$ and an \kbd{FpC} $y$, returns an $x$ such that $Ax =
  y$, or \kbd{NULL} if no such vector exist.
 
-\fun{GEN}{FpM_invimage}{GEN m, GEN v, GEN p}
-given two \kbd{FpM} $x$ and $y$, returns $x$ such that $Ax = y$, or \kbd{NULL}
+\fun{GEN}{FpM_invimage}{GEN A, GEN y, GEN p}
+given two \kbd{FpM} $A$ and $y$, returns $x$ such that $Ax = y$, or \kbd{NULL}
 if no such matrix exist.
 
 \fun{GEN}{FpM_ker}{GEN x, GEN p} as \kbd{ker}
@@ -3784,11 +3784,11 @@ a \kbd{Flc}.
 \fun{GEN}{Flm_inv}{GEN x, ulong p}
 
 \fun{GEN}{Flm_Flc_invimage}{GEN A, GEN y, ulong p} given an \kbd{Flm}
-$x$ and an \kbd{Flc} $y$, returns an $x$ such that $Ax = y$, or \kbd{NULL}
+$A$ and an \kbd{Flc} $y$, returns an $x$ such that $Ax = y$, or \kbd{NULL}
 if no such vector exist.
 
-\fun{GEN}{Flm_invimage}{GEN x, GEN y, ulong p}
-given two \kbd{Flm} $x$ and $y$, returns $x$ such that $Ax = y$, or \kbd{NULL}
+\fun{GEN}{Flm_invimage}{GEN A, GEN y, ulong p}
+given two \kbd{Flm} $A$ and $y$, returns $x$ such that $Ax = y$, or \kbd{NULL}
 if no such matrix exist.
 
 \fun{GEN}{Flm_ker}{GEN x, ulong p}
