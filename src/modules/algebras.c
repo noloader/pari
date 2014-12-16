@@ -26,22 +26,6 @@ static GEN _tablemul_ej_Fp(GEN mt, GEN x, long j, GEN p);
 static GEN _tablemul_ej_Fl(GEN mt, GEN x, long j, ulong p);
 static ulong altracei(GEN mt, ulong p, ulong expo, ulong modu);
 
-/*TODO deplacer*/
-GEN
-ZM_Z_div(GEN X, GEN c) {
-  long i, j, h, l = lg(X);
-  GEN A = cgetg(l, t_MAT);
-  if (l == 1) return A;
-  h = lgcols(X);
-  for (j=1; j<l; j++)
-  {
-    GEN a = cgetg(h, t_COL), x = gel(X, j);
-    for (i = 1; i < h; i++) gel(a,i) = gred_frac2(gel(x,i), c);
-    gel(A,j) = a;
-  }
-  return A;
-}
-
 int
 checkal_i(GEN al)
 {
@@ -828,34 +812,6 @@ al_decomposition(GEN al)
     dec = al_simple(alq,0);
     res = mkvec2(rad, dec); /*TODO si char 0, reconnaitre les centres comme nf et descendre les tables de multiplication*/
     return gerepilecopy(av,res);
-}
-
-long
-RgC_is_ei(GEN x)
-{
-  long i, j = 0, l = lg(x);
-  for (i = 1; i < l; i++)
-  {
-    GEN c = gel(x,i);
-    if (gequal0(c)) continue;
-    if (!gequal1(c) || j) return 0;
-    j = i;
-  }
-  return j;
-}
-long
-ZC_is_ei(GEN x)
-{
-  long i, j = 0, l = lg(x);
-  for (i = 1; i < l; i++)
-  {
-    GEN c = gel(x,i);
-    long s = signe(c);
-    if (!s) continue;
-    if (s < 0 || !is_pm1(c) || j) return 0;
-    j = i;
-  }
-  return j;
 }
 
 /* multiplication table sanity checks */

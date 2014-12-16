@@ -295,6 +295,22 @@ ZM_ZC_mul(GEN x, GEN y)
   return lx==1? cgetg(1,t_COL): ZM_ZC_mul_i(x, y, lx, lgcols(x));
 }
 
+GEN
+ZM_Z_div(GEN X, GEN c)
+{
+  long i, j, h, l = lg(X);
+  GEN A = cgetg(l, t_MAT);
+  if (l == 1) return A;
+  h = lgcols(X);
+  for (j=1; j<l; j++)
+  {
+    GEN a = cgetg(h, t_COL), x = gel(X, j);
+    for (i = 1; i < h; i++) gel(a,i) = gred_frac2(gel(x,i), c);
+    gel(A,j) = a;
+  }
+  return A;
+}
+
 long
 zv_dotproduct(GEN x, GEN y)
 {
@@ -912,6 +928,21 @@ ZM_isidentity(GEN x)
       if (signe(gel(c,i++))) return 0;
   }
   return 1;
+}
+
+long
+ZC_is_ei(GEN x)
+{
+  long i, j = 0, l = lg(x);
+  for (i = 1; i < l; i++)
+  {
+    GEN c = gel(x,i);
+    long s = signe(c);
+    if (!s) continue;
+    if (s < 0 || !is_pm1(c) || j) return 0;
+    j = i;
+  }
+  return j;
 }
 
 /********************************************************************/

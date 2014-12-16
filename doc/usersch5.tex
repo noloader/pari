@@ -6675,6 +6675,9 @@ by the \kbd{ZM}~\kbd{y}. Returns a \typ{VEC}.
 \fun{GEN}{ZM_Z_divexact}{GEN x, GEN y} returns $x/y$ assuming all divisions
 are exact.
 
+\fun{GEN}{ZM_Z_div}{GEN x, GEN y} returns $x/y$, where the resulting matrix
+has rational entries.
+
 \fun{GEN}{ZM_pow}{GEN x, GEN n} returns $\kbd{x}^\kbd{n}$, assuming \kbd{x}
 is a square \kbd{ZM} and $\kbd{n}\geq 0$.
 
@@ -6721,6 +6724,9 @@ entries of $x$ (its determinant if it is indeed triangular).
 
 \fun{int}{ZM_isidentity}{GEN x} return 1 is the \kbd{ZM} $x$ is the
 identity matrix, and 0 otherwise.
+
+\fun{long}{ZC_is_ei}{GEN x} return $i$ if the \kbd{ZC} $x$ has $0$ entries,
+but for a $1$ at position $i$.
 
 \fun{int}{ZM_ishnf}{GEN x} return $1$ if $x$ is in HNF form, i.e. is upper
 triangular with positive diagonal coefficients, and  for $j>i$,
@@ -6958,6 +6964,9 @@ identity matrix, and 0 otherwise.
 
 \fun{int}{RgM_isdiagonal}{GEN x} return 1 is the \typ{MAT} $x$ is a
 diagonal matrix, and 0 otherwise.
+
+\fun{long}{RgC_is_ei}{GEN x} return $i$ if the \typ{COL} $x$ has $0$ entries,
+but for a $1$ at position $i$.
 
 \fun{int}{RgM_is_ZM}{GEN x} return 1 is the \typ{MAT}~$x$ has only
 \typ{INT} coefficients, and 0 otherwise.

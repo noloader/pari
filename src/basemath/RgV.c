@@ -820,6 +820,20 @@ RgM_isidentity(GEN x)
   return 1;
 }
 
+long
+RgC_is_ei(GEN x)
+{
+  long i, j = 0, l = lg(x);
+  for (i = 1; i < l; i++)
+  {
+    GEN c = gel(x,i);
+    if (gequal0(c)) continue;
+    if (!gequal1(c) || j) return 0;
+    j = i;
+  }
+  return j;
+}
+
 int
 RgM_isdiagonal(GEN x)
 {

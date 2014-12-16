@@ -177,6 +177,7 @@ GEN    coltoalg(GEN nf,GEN x);
 GEN    archstar_full_rk(GEN x, GEN bas, GEN v, GEN gen);
 GEN    check_and_build_cycgen(GEN bnf);
 long   check_LIMC(long LIMC, long LIMCMAX);
+int    checkal_i(GEN x);
 GEN    checkbid_i(GEN bid);
 GEN    checkbnf_i(GEN bnf);
 GEN    checknf_i(GEN nf);
