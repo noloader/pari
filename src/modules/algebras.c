@@ -1294,10 +1294,10 @@ alZmultable(GEN al, GEN x) {
   long tx = al_model(al,x);
   switch(tx) {
     case al_TRIVIAL:
-      x0 = gel(x,1); 
-      if(typ(x0)==t_POLMOD) x0 = lift(x0);
+      x0 = gel(x,1);
+      if(typ(x0)==t_POLMOD) x0 = gel(x0,2);
       if(typ(x0)==t_POL) x0 = constant_term(x0);
-      res = mkmatcopy(mkcolcopy(x0));
+      res = mkmatcopy(mkcol(x0));
       break;
     case al_ALGEBRAIC: res = almtK2Z(al,alalgmultable(al,x)); break;
     default: res = albasismultable(al,x);
