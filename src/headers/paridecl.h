@@ -2516,6 +2516,7 @@ enum { br_NONE = 0, br_BREAK, br_NEXT, br_MULTINEXT, br_RETURN };
 void    bincopy_relink(GEN C, GEN vi);
 GEN     break0(long n);
 GEN     closure_callgen1(GEN C, GEN x);
+GEN     closure_callgen1prec(GEN C, GEN x, long prec);
 GEN     closure_callgen2(GEN C, GEN x, GEN y);
 GEN     closure_callgenall(GEN C, long n, ...);
 GEN     closure_callgenvec(GEN C, GEN args);

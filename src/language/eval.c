@@ -1774,6 +1774,19 @@ closure_callgen1(GEN C, GEN x)
 }
 
 GEN
+closure_callgen1prec(GEN C, GEN x, long prec)
+{
+  GEN z;
+  long i, ar = closure_arity(C);
+  gel(st,sp++) = x;
+  for(i=2; i<= ar; i++) gel(st,sp++) = NULL;
+  push_localprec(prec);
+  z = closure_returnupto(C);
+  pop_localprec();
+  return z;
+}
+
+GEN
 closure_callgen2(GEN C, GEN x, GEN y)
 {
   long i, ar = closure_arity(C);
