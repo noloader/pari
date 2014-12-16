@@ -2205,6 +2205,7 @@ allauts(GEN rnf, GEN aut)
 {
   long n = rnf_get_degree(rnf), i;
   GEN pol = rnf_get_pol(rnf), vaut;
+  if(n==1) n=2;
   vaut = cgetg(n,t_VEC);
   aut = lift(rnfbasistoalg(rnf,aut));
   gel(vaut,1) = aut;

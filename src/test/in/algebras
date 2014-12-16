@@ -1170,3 +1170,21 @@ print(al3);
 alrandom(1,1)
 alrandom(1,I)
 altype(1)
+
+\\limit case
+al = alinit(rnfinit(nfinit(y^2+1),x),[y,1])
+a = [y]~
+b = [1-2*y]~
+c = alrandom(al,3)
+aladd(al,a,b)
+alsub(al,c,a)
+almul(al,a,b)
+aldivl(al,b,c)
+aldivr(al,c,b)
+alinv(al,a)
+alalgtobasis(al,b)
+almultable(al,a)
+alcharpoly(al,b)
+altrace(al,c)
+alnorm(al,c)
+
