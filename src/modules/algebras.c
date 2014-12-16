@@ -2052,13 +2052,17 @@ nfgwkummer(GEN nf, GEN Lpr, GEN Ld, GEN pl, long var)
 GEN
 nfgrunwaldwang(GEN nf0, GEN Lpr, GEN Ld, GEN pl, long var)
 {
-  const ulong n = (lg(Ld)==1)? 2: vecsmall_max(Ld);
+  ulong n;
   pari_sp av = avma;
   GEN nf, bnf;
   long t, w;
   ulong ell;
+  if (typ(Ld) != t_VECSMALL) pari_err_TYPE("nfgrunwaldwang",Ld);
+  if (typ(Lpr) != t_VEC) pari_err_TYPE("nfgrunwaldwang",Lpr);
+  if (typ(pl) != t_VECSMALL) pari_err_TYPE("nfgrunwaldwang",pl);
   bnf = get_bnf(nf0,&t);
   nf = get_nf(nf0,&t);
+  n = (lg(Ld)==1)? 2: vecsmall_max(Ld);
 
   (void)uisprimepower(n, &ell);
   w = bnf? bnf_get_tuN(bnf): itos(gel(rootsof1(nf),1));
