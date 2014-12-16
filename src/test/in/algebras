@@ -1141,7 +1141,7 @@ testnorm2(al,bb);
 testnorm2(al,cc);
 
 doubleindex(N,i,j) = (i-1)*N+j;
-matrixringmt(N) = 
+matrixringmt(N) =
 {
   my(mt = [Mat([Col(0,N^2) | i<-[1..N^2]]) | j<-[1..N^2]], B, Bi, mt2=Vec(0,N^2));
   for(i=1,N,
@@ -1165,4 +1165,3 @@ print(al2);
 print("csa al3");
 al3 = alinit(nf, matrixringmt(3), 'x);
 print(al3);
-
