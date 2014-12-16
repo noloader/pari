@@ -8538,6 +8538,11 @@ containing \kbd{[x, y]}.
 
 \fun{GEN}{mkvecsmalln}{long n, ...} returns the \typ{VECSMALL} whose $n$
 coefficients (\kbd{long}) follow.
+\emph{Warning:} since this is a variadic function, C type promotion is not
+performed on the arguments by the compiler, thus you have to make sure that all
+the arguments are of type \kbd{long}, in particular integer constants need to
+be written with the \kbd{L} suffix: \kbd{mkvecsmalln(2, 1L, 2L)} is correct,
+but \kbd{mkvecsmalln(2, 1, 2)} is not.
 
 \subsec{Unclean constructors}\label{se:unclean}
 
