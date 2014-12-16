@@ -1165,3 +1165,7 @@ print(al2);
 print("csa al3");
 al3 = alinit(nf, matrixringmt(3), 'x);
 print(al3);
+
+\\ bad inputs
+alrandom(1,1)
+alrandom(1,I)

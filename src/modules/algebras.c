@@ -1775,8 +1775,12 @@ albasistoalg(GEN al, GEN x)
 GEN
 alrandom(GEN al, GEN b)
 {
-  GEN res, p, N = addiu(shifti(b,1), 1); /* left on stack */
-  long i, n = al_get_absdim(al);
+  GEN res, p, N;
+  long i, n;
+  if (typ(b) != t_INT) pari_err_TYPE("alrandom",b);
+  checkal(al);
+  n = al_get_absdim(al);
+  N = addiu(shifti(b,1), 1); /* left on stack */
   p = al_get_char(al);
   res = cgetg(n+1,t_COL);
   for (i=1; i<= n; i++)
