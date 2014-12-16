@@ -96,6 +96,7 @@ BA 60- ellcard over non-prime fields of large char could return wrong results
    75- bnfnewprec could return a corrupt bnf structure:
         K=bnfinit(x^3-15667*x^2-88630960*x-1836105977032,1);
         bnfisprincipal(K,[29,14,15;0,1,0;0,0,1],3) -> oo loop
+   76- agm(1,2+O(5)) -> SEGV [#1645]
 
   Added
     1- add optional argument to sumdigits to specify the base
