@@ -24,7 +24,7 @@ static GEN alnatmultable(GEN al, long D);
 static GEN _tablemul_ej(GEN mt, GEN x, long j);
 static GEN _tablemul_ej_Fp(GEN mt, GEN x, long j, GEN p);
 static GEN _tablemul_ej_Fl(GEN mt, GEN x, long j, ulong p);
-static ulong altracei(GEN mt, long i, ulong p, ulong expo, ulong modu);
+static ulong altracei(GEN mt, ulong p, ulong expo, ulong modu);
 
 //TODO deplacer
 GEN
@@ -451,7 +451,7 @@ alradical(GEN al)
     for (j = 1; j <= ni; j++)
     {
       GEN M = albasismultable_Flm(MT, gel(I,j), modu);
-      uel(v,j) = altracei(M, i, p,expo,modu);
+      uel(v,j) = altracei(M, p,expo,modu);
     }
     for (col=1; col<=ni; col++)
     {
@@ -1679,7 +1679,7 @@ altracebasis(GEN al)
 /* Assume: i > 0, expo := p^i <= absdim, x contained in I_{i-1} given by mult
  * table modulo modu=p^(i+1). Return Tr(x^(p^i)) mod modu */
 static ulong
-altracei(GEN mt, long i, ulong p, ulong expo, ulong modu)
+altracei(GEN mt, ulong p, ulong expo, ulong modu)
 {
   pari_sp av = avma;
   long j, l = lg(mt);
@@ -3159,7 +3159,7 @@ findmaximalsubfield(GEN al, GEN d, long v)
 }
 
 static GEN
-frobeniusform(GEN al, GEN x, long d)
+frobeniusform(GEN al, GEN x)
 {
   GEN M, FP, P, Pi;
 
@@ -3183,7 +3183,7 @@ computesplitting(GEN al, long d, long v)
   polabs = gel(subf, 2);
 
   /* Frobenius form to obtain L-vector space structure */
-  basis = frobeniusform(al, x, d);
+  basis = frobeniusform(al, x);
   P = gel(basis, 1);
   Pi = gel(basis, 2);
 
