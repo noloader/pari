@@ -26,7 +26,7 @@ static GEN _tablemul_ej_Fp(GEN mt, GEN x, long j, GEN p);
 static GEN _tablemul_ej_Fl(GEN mt, GEN x, long j, ulong p);
 static ulong altracei(GEN mt, ulong p, ulong expo, ulong modu);
 
-//TODO deplacer
+/*TODO deplacer*/
 GEN
 ZM_Z_div(GEN X, GEN c) {
   long i, j, h, l = lg(X);
@@ -732,8 +732,9 @@ al_decompose(GEN al, GEN Z, GEN Zal, int mini)
   }
 }
 
+/*TODO guarantee that the images of the liftm form a direct sum*/
 GEN
-al_decompose_total(GEN al, GEN Z, GEN Zal, int maps) //TODO guarantee that the images of the liftm form a direct sum
+al_decompose_total(GEN al, GEN Z, GEN Zal, int maps)
 {
   pari_sp av = avma;
   GEN dec, sc, projm, projm2, liftm, liftm2, res, al2, p = al_get_char(al);
@@ -783,7 +784,7 @@ GEN al_subalg(GEN al, GEN basis)
   pari_sp av = avma;
   GEN invbasis, mt, x, xy, mtx, p = al_get_char(al);
   long i, j, n = lg(basis)-1;
-  if (signe(p)) { //TODO change after bugfix?
+  if (signe(p)) { /*TODO change after bugfix?*/
       GEN complbasis = FpM_suppl(basis,p);
       invbasis = rowslice(FpM_inv(complbasis,p),1,n);
   }
@@ -814,7 +815,7 @@ al_simple(GEN al, int maps)
   if (signe(p)) Z = alprimesubalg(al);
   else          Z = alcenter(al);
 
-  if (lg(Z) == 2)//dim Z = 1
+  if (lg(Z) == 2)/*dim Z = 1*/
   {
     n = al_get_absdim(al);
     if (maps) return gerepilecopy(av, mkvec(mkvec3(al, matid(n), matid(n))));
@@ -829,12 +830,12 @@ GEN
 al_decomposition(GEN al)
 {
     pari_sp av = avma;
-    //GEN p = al_get_char(al);
+    /*GEN p = al_get_char(al);*/
     GEN rad, alq, dec, res;
     rad = alradical(al);
     alq = gequal0(rad) ? al : al_quotient(al,rad,0);
     dec = al_simple(alq,0);
-    res = mkvec2(rad, dec); //TODO si char 0, reconnaitre les centres comme nf et descendre les tables de multiplication
+    res = mkvec2(rad, dec); /*TODO si char 0, reconnaitre les centres comme nf et descendre les tables de multiplication*/
     return gerepilecopy(av,res);
 }
 
@@ -1559,9 +1560,8 @@ albasischarpoly(GEN al, GEN x, long v)
   pari_sp av = avma;
   GEN p = al_get_char(al);
   if (signe(p)) {
-    //GEN res = FpM_charpoly(albasismultable(al,x),p); TODO use when rebased on master
-    //setvarn(res,v);
-    GEN res = liftint(charpoly(gmodulo(albasismultable(al,x),p),v));
+    GEN res = FpM_charpoly(albasismultable(al,x),p);
+    setvarn(res,v);
     return gerepileupto(av, res);
   }
   return gerepileupto(av, charpoly(albasismultable(al,x),v));
@@ -1837,7 +1837,7 @@ alrandom(GEN al, GEN b)
     pari_sp av = avma;
     gel(res,i) = gerepileuptoint(av, subii(randomi(N),b));
   }
-  if (signe(p)) res = FpC_red(res, p); //FIXME: need garbage collection here?
+  if (signe(p)) res = FpC_red(res, p); /*FIXME: need garbage collection here?*/
   return res;
 }
 
@@ -3166,7 +3166,7 @@ frobeniusform(GEN al, GEN x)
   /* /!\ has to be the *right* multiplication table */
   M = albasisrightmultable(al, x);
 
-  FP = matfrobenius(M,2,0); //M = P^(-1)*F*P
+  FP = matfrobenius(M,2,0); /*M = P^(-1)*F*P*/
   P = gel(FP,2);
   Pi = RgM_inv(P);
   return mkvec2(P, Pi);
@@ -3302,7 +3302,7 @@ alleftordermodp(GEN al, GEN Ip, GEN p)
     gel(M,i) = mattocol(imi, n);
   }
 
-  //TODO : FpM_invimage superbad documentation (have to read RgM_invimage) Does it really do what it claims if left matrix is not invertible ?
+  /*TODO : FpM_invimage superbad documentation (have to read RgM_invimage) Does it really do what it claims if left matrix is not invertible ?*/
   K = FpM_ker(M, p);
   if (lg(K)==1) { avma = av; return matid(n); }
   K = ZM_hnfmodid(K,p);
@@ -3352,7 +3352,7 @@ alpradical_i(GEN al, GEN p, GEN zprad, GEN projs)
 GEN
 alpradical(GEN al, GEN p)
 {
-  GEN placeholder = cgetg(1,t_MAT); //left on stack
+  GEN placeholder = cgetg(1,t_MAT); /*left on stack*/
   return alpradical_i(al, p, placeholder, gen_1);
 }
 
@@ -3393,7 +3393,7 @@ alpdecompose_i(GEN al, GEN p, GEN zprad, GEN projs)
 }
 GEN alpdecompose(GEN al, GEN p)
 {
-  GEN placeholder = cgetg(1,t_MAT); //left on stack
+  GEN placeholder = cgetg(1,t_MAT); /*left on stack*/
   return alpdecompose_i(al, p, placeholder, gen_1);
 }
 
@@ -3560,7 +3560,7 @@ al_pmaximal_i(GEN al, GEN p)
     al2 = al_change_overorder_shallow(al2,lord);
   }
 
-  dec = alpdecompose0(al2,prad,p);//TODO +zprad, projs
+  dec = alpdecompose0(al2,prad,p);/*TODO +zprad, projs*/
   while (lg(dec)>2) {
     for (i=1; i<lg(dec); i++) {
       I = gel(dec,i);
