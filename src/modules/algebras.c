@@ -3057,7 +3057,7 @@ al_cyclic(GEN rnf, GEN aut, GEN b, int maxord)
 {
   pari_sp av = avma;
   GEN al, nf;
-  long D, n, d, i;
+  long D, n, d;
   checkrnf(rnf);
   nf = rnf_get_nf(rnf);
   n = rnf_get_degree(rnf);
@@ -3078,11 +3078,12 @@ al_cyclic(GEN rnf, GEN aut, GEN b, int maxord)
   alcomputehasse(al);
 
   if (maxord) {
-    GEN hf = al_get_hasse_f(al), disc;
-    GEN pr = gel(hf,1), h = gel(hf,2);
+    GEN hf = al_get_hasse_f(al), pr = gel(hf,1);
     al = al_maximal_primes(al, pr_primes(pr));
-    /* check result: to be commented out later */
-    disc = powiu(nf_get_disc(nf), n*n);
+#if 0
+    /* check result */
+    GEN h, disc = powiu(nf_get_disc(nf), n*n);
+    long i;
     disc = absi(disc);
     h = gel(hf,2);
     for (i=1; i<lg(pr); i++) {
@@ -3092,6 +3093,7 @@ al_cyclic(GEN rnf, GEN aut, GEN b, int maxord)
     disc = mulii(disc, powuu(n,D));
     if (!absi_equal(disc, aldisc(al)))
       pari_err_BUG("al_cyclic (wrong maximal order)");
+#endif
   }
   return gerepilecopy(av, al);
 }
