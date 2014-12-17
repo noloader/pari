@@ -355,13 +355,14 @@ size of involved matrices)
 /* assumes same center and same variable */
 /* currently only works for coprime degrees */
 GEN
-al_tensor(GEN al1, GEN al2, int maxord) {
+altensor(GEN al1, GEN al2, int maxord) {
   pari_sp av = avma;
-  long tal1 = al_type(al1), tal2 = al_type(al2);
   long v, k, d1, d2;
   GEN nf, P1, P2, aut1, aut2, b1, b2, C, rnf, aut, b, x1, x2, al;
 
-  if (tal1 != al_CYCLIC  || tal2 != al_CYCLIC)
+  checkal(al1);
+  checkal(al2);
+  if (al_type(al1) != al_CYCLIC  || al_type(al2) != al_CYCLIC)
     pari_err_IMPL("tensor of non-cyclic algebras"); /* TODO: do it. */
 
   nf=al_get_center(al1);
@@ -2829,7 +2830,7 @@ al_hasse(GEN nf, long n, GEN hf, GEN hi, long var, long maxord)
     al2 = al_complete0(rnf,aut,hfl,hil,maxord);
 
     if (i==1) al = al2;
-    else      al = al_tensor(al,al2,maxord);
+    else      al = altensor(al,al2,maxord);
   }
   return gerepilecopy(av,al);
 }

@@ -2716,10 +2716,13 @@ x - 12
   *** algetabsdim: incorrect type in al_get_absdim (t_VEC).
   ***   at top-level: altensor(al,al2)
   ***                 ^----------------
-  *** altensor: Not implemented.
+  *** altensor: sorry, tensor of non-cyclic algebras is not yet implemented.
   ***   at top-level: altensor(al2,al)
   ***                 ^----------------
-  *** altensor: Not implemented.
+  *** altensor: sorry, tensor of non-cyclic algebras is not yet implemented.
+  ***   at top-level: altensor(1,z,1)
+  ***                 ^---------------
+  *** altensor: incorrect type in checkal [please apply alinit()] (t_INT).
   ***   at top-level: alisassociative([1],
   ***                 ^--------------------
   *** alisassociative: incorrect type in alisassociative (mult. table) (t_VEC).
@@ -2768,4 +2771,4 @@ x - 12
   ***   at top-level: altableinit(mt,y)
   ***                 ^-----------------
   *** altableinit: incorrect type in altableinit (t_POL).
-Total time spent: 3416
+Total time spent: 4752
