@@ -402,8 +402,8 @@ alradical(GEN al)
 {
   pari_sp av = avma;
   GEN I, x, traces, K, MT, P = al_get_char(al), mt = al_get_multable(al);
-  long l,i,ni;
-  ulong modu, expo, p, n = al_get_absdim(al);
+  long l,i,ni, n = al_get_absdim(al);
+  ulong modu, expo, p;
 
   traces = altracematrix(al);
   if (!signe(P))
@@ -419,7 +419,7 @@ alradical(GEN al)
   /* tough case, p <= n. Ronyai's algorithm */
   p = P[2]; l = 1;
   expo = p; modu = p*p;
-  while (modu<=n) { l++; modu *= p; }
+  while (modu<=(ulong)n) { l++; modu *= p; }
   MT = ZMV_to_FlmV(mt, modu);
   I = ZM_to_Flm(K,p); /* I_0 */
   for (i=1; i<=l; i++) {/*compute I_i, expo = p^i, modu = p^(l+1) > n*/
@@ -2706,9 +2706,9 @@ static GEN hassedown0(GEN nf, long n, GEN hf, GEN hi)
 
   /* The Hasse invariant at gel(pv,i) has to be h0v[i] mod nnv[i], where nnv[i] | n. */
   if (!totcplx) {
-    hid = uel(hi,1);
+    hid = hi[1];
     for (i=2;i<lg(hi);i++)
-      if (uel(hi,i)!=hid) {avma = av; return gen_0;}
+      if (hi[i] != hid) {avma = av; return gen_0;}
   }
 
   pv = sortedp(gel(hf,1));
