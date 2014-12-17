@@ -361,7 +361,8 @@ al_tensor(GEN al1, GEN al2, int maxord) {
   long v, k, d1, d2;
   GEN nf, P1, P2, aut1, aut2, b1, b2, C, rnf, aut, b, x1, x2, al;
 
-  if (tal1 != al_CYCLIC  || tal2 != al_CYCLIC) pari_err(e_MISC, "Not implemented"); /* TODO: do it. */
+  if (tal1 != al_CYCLIC  || tal2 != al_CYCLIC)
+    pari_err_IMPL("tensor of non-cyclic algebras"); /* TODO: do it. */
 
   nf=al_get_center(al1);
   P1=al_get_splitpol(al1); aut1=al_get_aut(al1); b1=al_get_b(al1);
