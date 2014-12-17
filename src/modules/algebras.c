@@ -2056,6 +2056,17 @@ nfgwkummer(GEN nf, GEN Lpr, GEN Ld, GEN pl, long var)
   return gerepileupto(av,pol);
 }
 
+static GEN
+get_vecsmall(GEN v)
+{
+  switch(typ(v))
+  {
+    case t_VECSMALL: return v;
+    case t_VEC: if (RgV_is_ZV(v)) return ZV_to_zv(v);
+  }
+  pari_err_TYPE("nfgrunwaldwang",v);
+  return NULL;/*not reached*/
+}
 GEN
 nfgrunwaldwang(GEN nf0, GEN Lpr, GEN Ld, GEN pl, long var)
 {
@@ -2064,9 +2075,9 @@ nfgrunwaldwang(GEN nf0, GEN Lpr, GEN Ld, GEN pl, long var)
   GEN nf, bnf;
   long t, w;
   ulong ell;
-  if (typ(Ld) != t_VECSMALL) pari_err_TYPE("nfgrunwaldwang",Ld);
   if (typ(Lpr) != t_VEC) pari_err_TYPE("nfgrunwaldwang",Lpr);
-  if (typ(pl) != t_VECSMALL) pari_err_TYPE("nfgrunwaldwang",pl);
+  Ld = get_vecsmall(Ld);
+  pl = get_vecsmall(pl);
   bnf = get_bnf(nf0,&t);
   nf = get_nf(nf0,&t);
   n = (lg(Ld)==1)? 2: vecsmall_max(Ld);

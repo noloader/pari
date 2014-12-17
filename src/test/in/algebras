@@ -249,7 +249,7 @@ gw() = gusuite("Grunwald-Wang", ()->{
   pp = idealprimedec(nf,nextprime(1248))[1];
   ppp = idealprimedec(nf,nextprime(7531))[1];
 
-  do("A degree 3 over Q(j), local degrees [3,3] larger primes", testgwa(nf,[pp,ppp],Vecsmall([3,3]),Vecsmall([])));
+  do("A degree 3 over Q(j), local degrees [3,3] larger primes", testgwa(nf,[pp,ppp],[3,3],[]));
 
   nf = nfinit(y^2-5);
   p2 = idealprimedec(nf,2)[1];
@@ -262,7 +262,7 @@ gw() = gusuite("Grunwald-Wang", ()->{
   pp = idealprimedec(nf,nextprime(1248))[1];
   ppp = idealprimedec(nf,nextprime(4897))[1];
 
-  do("A : degree 3 over Q(sqrt(5)), local degrees [3,3] [-1,-1], larger primes", testgwa(nf,[pp,ppp],Vecsmall([3,3]),Vecsmall([-1,-1])));
+  do("A : degree 3 over Q(sqrt(5)), local degrees [3,3] [-1,-1], larger primes", testgwa(nf,[pp,ppp],[3,3],[-1,-1]));
 
   nf = nfinit(y^2-7);
   p2 = idealprimedec(nf,2)[1];
