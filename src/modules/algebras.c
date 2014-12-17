@@ -3178,7 +3178,7 @@ computesplitting(GEN al, long d, long v)
     gel(Lbasis,j) = gel(Pi,j2);
 
   Q = zeromatcopy(d,N);
-  pows = pol_x_powers(nd,v); /* TODO fix docu: powers from 0 to N-1, vector with N components */
+  pows = pol_x_powers(nd,v);
   for(i=j=1; j<=N; j+=nd, i++)
   for(j2=0; j2<nd; j2++)
     gcoeff(Q,i,j+j2) = mkpolmod(gel(pows,j2+1),polabs);
