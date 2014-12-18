@@ -711,7 +711,7 @@ dirmul(GEN x, GEN y)
       for (k=dy,i=j*dy; i<=nz; i+=j,k++) gel(z,i) = gadd(gel(z,i),gmul(c,gel(y,k)));
     if (gc_needed(av,1))
     {
-      if (DEBUGLEVEL) err_printf("doubling stack in dirmul\n");
+      if (DEBUGMEM>1) pari_warn(warnmem,"dirmul, coeff %ld",j);
       z = gerepilecopy(av,z);
     }
   }
@@ -721,7 +721,7 @@ dirmul(GEN x, GEN y)
 GEN
 dirdiv(GEN x, GEN y)
 {
-  pari_sp av = avma;
+  pari_sp av = avma, av2;
   long nx,ny,nz,dx,dy,i,j;
   GEN z,p1;
 
@@ -731,11 +731,19 @@ dirdiv(GEN x, GEN y)
   dy = dirval(y); ny = lg(y)-1;
   if (dy != 1 || !ny) pari_err_INV("dirdiv",y);
   nz = minss(nx,ny*dx); p1 = gel(y,1);
-  if (!gequal1(p1)) { y = gdiv(y,p1); x = gdiv(x,p1); } else x = leafcopy(x);
-  z = zerovec(nz);
+  if (!gequal1(p1))
+  {
+    y = gdiv(y,p1);
+    av2 = avma;
+    x = gdiv(x,p1);
+  } else
+  {
+    av2 = avma;
+    x = leafcopy(x);
+  }
   for (j=dx; j<=nz; j++)
   {
-    GEN c = gel(x,j); gel(z,j) = c;
+    GEN c = gel(x,j);
     if (gequal0(c)) continue;
     if (gequal1(c))
       for (i=j+j; i<=nz; i+=j) gel(x,i) = gsub(gel(x,i),gel(y,i/j));
@@ -743,7 +751,17 @@ dirdiv(GEN x, GEN y)
       for (i=j+j; i<=nz; i+=j) gel(x,i) = gadd(gel(x,i),gel(y,i/j));
     else
       for (i=j+j; i<=nz; i+=j) gel(x,i) = gsub(gel(x,i),gmul(c,gel(y,i/j)));
+    if (gc_needed(av2,1))
+    {
+      if (DEBUGMEM>1) pari_warn(warnmem,"dirdiv, coeff %ld",j);
+      x = gerepilecopy(av2,x);
+    }
   }
+  z = cgetg(nz+1,t_VEC);
+  for (j=1; j<dx; j++)
+   gel(z,j) = gen_0;
+  for (j=dx; j<=nz; j++)
+   gel(z,j) = gel(x,j);
   return gerepilecopy(av,z);
 }
 
