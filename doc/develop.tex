@@ -283,8 +283,8 @@ available to handle group elements:
     {
       GEN (*mul)(void*, GEN, GEN);
       GEN (*pow)(void*, GEN, GEN);
-      ulong (*hash)(GEN);
       GEN (*rand)(void*);
+      ulong (*hash)(GEN);
       int (*equal)(GEN, GEN);
       int (*equal1)(GEN);
       GEN (*easylog)(void *E, GEN, GEN, GEN);
@@ -294,9 +294,9 @@ available to handle group elements:
 
 \kbd{pow(E,x,n)} returns $x^n$ ($n$ integer, possibly negative or zero).
 
-\kbd{hash(x)} returns a hash value for $x$ (\kbd{hash\_GEN} is suitable for this field).
-
 \kbd{rand(E)} returns a random element in the group.
+
+\kbd{hash(x)} returns a hash value for $x$ (\kbd{hash\_GEN} is suitable for this field).
 
 \kbd{equal(x,y)} returns one if $x=y$ and zero otherwise.
 
