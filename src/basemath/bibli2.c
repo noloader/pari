@@ -709,9 +709,9 @@ dirmul(GEN x, GEN y)
       for (k=dy,i=j*dy; i<=nz; i+=j,k++) gel(z,i) = gsub(gel(z,i),gel(y,k));
     else
       for (k=dy,i=j*dy; i<=nz; i+=j,k++) gel(z,i) = gadd(gel(z,i),gmul(c,gel(y,k)));
-    if (gc_needed(av,1))
+    if (gc_needed(av,2))
     {
-      if (DEBUGMEM>1) pari_warn(warnmem,"dirmul, coeff %ld",j);
+      if (DEBUGMEM>1) pari_warn(warnmem,"dirmul, %ld/%ld",j,nx);
       z = gerepilecopy(av,z);
     }
   }
@@ -751,9 +751,9 @@ dirdiv(GEN x, GEN y)
       for (i=j+j; i<=nz; i+=j) gel(x,i) = gadd(gel(x,i),gel(y,i/j));
     else
       for (i=j+j; i<=nz; i+=j) gel(x,i) = gsub(gel(x,i),gmul(c,gel(y,i/j)));
-    if (gc_needed(av2,1))
+    if (gc_needed(av2,2))
     {
-      if (DEBUGMEM>1) pari_warn(warnmem,"dirdiv, coeff %ld",j);
+      if (DEBUGMEM>1) pari_warn(warnmem,"dirdiv, %ld/%ld",j,nz);
       x = gerepilecopy(av2,x);
     }
   }
