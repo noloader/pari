@@ -1140,6 +1140,9 @@ gpow(GEN x, GEN n, long prec)
 
     case t_FFELT:
       return gerepileupto(av,FF_pow(FF_sqrtn(x,d,NULL),a));
+    default:
+      if (gequal(d, gen_2))
+        return gerepileupto(av, gsqrt(powgi(x, a), prec));
     }
   }
   i = (long) precision(n); if (i) prec=i;
