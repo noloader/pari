@@ -3236,7 +3236,7 @@ altableinit(GEN mt0, GEN p)
   if (p && typ(p) != t_INT) pari_err_TYPE("altableinit",p);
   if (p && !signe(p)) p = NULL;
   mt = check_mt(mt0,p);
-  if (!mt) pari_err_TYPE("altableinit", mt);
+  if (!mt) pari_err_TYPE("altableinit", mt0);
   n = lg(mt)-1;
   al = cgetg(12, t_VEC);
   for (i=1; i<=6; i++) gel(al,i) = gen_0;
