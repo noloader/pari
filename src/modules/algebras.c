@@ -1426,7 +1426,7 @@ aldivl(GEN al, GEN x, GEN y)
   return z;
 }
 
-GEN
+static GEN
 alinv_i(GEN al, GEN x)
 {
   pari_sp av = avma;
