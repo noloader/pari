@@ -708,6 +708,7 @@ GEN     scalar_Flm(long s, long n);
 GEN     zCs_to_ZC(GEN C, long nbrow);
 GEN     zMs_to_ZM(GEN M, long nbrow);
 GEN     zMs_ZC_mul(GEN M, GEN B);
+GEN     ZMV_to_FlmV(GEN z, ulong m);
 
 /* Hensel.c */
 

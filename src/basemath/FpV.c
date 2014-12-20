@@ -878,6 +878,14 @@ ZM_to_Flm(GEN x, ulong p)
   for (j=1; j<n; j++) gel(y,j) = ZV_to_Flv(gel(x,j), p);
   return y;
 }
+GEN
+ZMV_to_FlmV(GEN z, ulong m)
+{
+  long i, l = lg(z);
+  GEN x = cgetg(l,t_VEC);
+  for (i=1; i<l; i++) gel(x,i) = ZM_to_Flm(gel(z,i), m);
+  return x;
+}
 
 /*                          TO INTMOD                        */
 static GEN

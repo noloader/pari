@@ -213,7 +213,7 @@ AP 81- [GP] central simple algebra package, GP functions
     algetord           alquotient         algetabsdim        algetsplitting
     alradical
    82- [libpari] functions rnf_get_alpha, rnf_get_idealdisc, rnf_get_k
-   83- [libpari] functions ZC_is_ei, RgC_is_ei, ZM_Z_div, checkal
+   83- [libpari] functions ZC_is_ei, RgC_is_ei, ZM_Z_div, ZMV_to_FlmV, checkal
    84- [libpari] functions cbrtr, cbrtr_abs
 
   Changed

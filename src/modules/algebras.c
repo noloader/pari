@@ -143,15 +143,6 @@ al_get_tracebasis(GEN al) { return gel(al,11); }
 
 /** ADDITIONAL **/
 
-GEN
-ZMV_to_FlmV(GEN z, ulong m)
-{
-  long i, l = lg(z);
-  GEN x = cgetg(l,t_VEC);
-  for (i=1; i<l; i++) gel(x,i) = ZM_to_Flm(gel(z,i), m);
-  return x;
-}
-
 /* FIXME: not rigorous */
 static long
 rnfrealdec(GEN rnf, long k)
