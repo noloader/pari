@@ -2055,7 +2055,7 @@ sqrtremi(GEN N, GEN *r)
 GEN
 sqrtr_abs(GEN x)
 {
-  long l = lg(x) - 2, e = expo(x), er = e>>1;
+  long l = realprec(x) - 2, e = expo(x), er = e>>1;
   GEN b, c, res = cgetr(2 + l);
   res[1] = evalsigne(1) | evalexpo(er);
   if (e&1) {

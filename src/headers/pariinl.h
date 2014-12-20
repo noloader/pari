@@ -1793,9 +1793,26 @@ sqrtr(GEN x) {
   if (s >= 0) return sqrtr_abs(x);
   retmkcomplex(gen_0, sqrtr_abs(x));
 }
+INLINE GEN
+cbrtr(GEN x) {
+  long s = signe(x);
+  GEN r;
+  if (s == 0) return real_0_bit(expo(x) / 3);
+  r = cbrtr_abs(x);
+  if (s < 0) togglesign(r);
+  return r;
+}
 /* x^(1/n) */
 INLINE GEN
-sqrtnr(GEN x, long n) { return mpexp(divrs(mplog(x), n)); }
+sqrtnr(GEN x, long n) {
+  switch(n)
+  {
+    case 1: return rcopy(x);
+    case 2: return sqrtr(x);
+    case 3: return cbrtr(x);
+  }
+  return mpexp(divrs(mplog(x), n));
+}
 
 /*******************************************************************/
 /*                                                                 */

@@ -9947,6 +9947,8 @@ is inconsistent here, since we sometimes use the prefix \kbd{mp} even though
 
 \fun{GEN}{sqrtr}{GEN x} returns the square root of $x$.
 
+\fun{GEN}{cbrtr}{GEN x} returns the real cube root of $x$.
+
 \fun{GEN}{sqrtnr}{GEN x, long n} returns the $n$-th root of $x$, assuming
 $n\geq 1$ and $x > 0$. Not stack clean.
 
@@ -9985,6 +9987,8 @@ $x \exp(x) = y$, for $y > 0$ a \typ{REAL}.
 \noindent Useful low-level functions which \emph{disregard} the sign of $x$:
 
 \fun{GEN}{sqrtr_abs}{GEN x} returns $\sqrt{|x|}$ assuming $x\neq 0$.
+
+\fun{GEN}{cbrtr_abs}{GEN x} returns $|x|^{1/3}$ assuming $x\neq 0$.
 
 \fun{GEN}{exp1r_abs}{GEN x} returns $\exp(|x|) - 1$, assuming $x \neq 0$.
 

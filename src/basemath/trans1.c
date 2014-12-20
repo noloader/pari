@@ -1645,6 +1645,18 @@ sqrtnint(GEN a, long n)
   return gerepileuptoleaf(ltop, x);
 }
 
+GEN
+cbrtr_abs(GEN x)
+{
+  long prec = realprec(x), n = bit_accuracy(prec), e = expo(x), er = e / 3;
+  /* x 2^3(n-er) = b t_INT */
+  GEN b = mantissa2nr(x, (e-3*er+1) + n*2);
+  b = sqrtnint(b, 3);
+  b = itor(b, prec);
+  setexpo(b, expo(b)+er-n);
+  return b;
+}
+
 ulong
 usqrtn(ulong a, ulong n)
 {
@@ -1735,7 +1747,15 @@ gsqrtn(GEN x, GEN n, GEN *zetan, long prec)
         y = real_0_bit(b);
     }
     else
-      y = gerepileupto(av, gexp(gdiv(glog(x,prec), n), prec));
+    {
+      long nn = itos_or_0(n);
+      if (tx == t_INT) { x = itor(x,prec); tx = t_REAL; }
+      if (nn > 0 && tx == t_REAL && signe(x) > 0)
+        y = sqrtnr(x, nn);
+      else
+        y = gexp(gdiv(glog(x,prec), n), prec);
+      y = gerepileupto(av, y);
+    }
     if (zetan) *zetan = rootsof1complex(n,prec);
     return y;
 
