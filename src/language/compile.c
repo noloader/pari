@@ -1629,13 +1629,28 @@ compilefunc(entree *ep, long n, int mode, long flag)
   avma=ltop;
 }
 
+static void
+genclosurectx(entree *ep, const char *loc, long nbdata)
+{
+  long i;
+  GEN vep = cgetg(nbdata+1,t_VECSMALL);
+  for(i = 1; i <= nbdata; i++)
+  {
+    vep[i] = 0;
+    op_push_loc(OCpushlex,-i,loc);
+  }
+  frame_push(vep);
+}
+
 static GEN
 genclosure(entree *ep, const char *loc, long  nbdata, int check)
 {
+  pari_sp av = avma;
   struct codepos pos;
-  long i, nb=0;
+  long nb=0;
   const char *code=ep->code,*p,*q;
   char c;
+  GEN text;
   long index=ep->arity;
   long arity=0, maskarg=0, maskarg0=0, stop=0, dovararg=0;
   PPproto mod;
@@ -1678,8 +1693,8 @@ genclosure(entree *ep, const char *loc, long  nbdata, int check)
   dbgstart = loc;
   if (nbdata > arity)
     pari_err(e_MISC,"too many parameters for closure `%s'", ep->name);
-  for(i=1; i<= nbdata; i++)
-    op_push_loc(OCpushlex,-i,loc);
+  if (nbdata) genclosurectx(ep, loc, nbdata);
+  text = strtoGENstr(ep->name);
   arity -= nbdata;
   if (maskarg)  op_push_loc(OCcheckargs,maskarg,loc);
   if (maskarg0) op_push_loc(OCcheckargs0,maskarg0,loc);
@@ -1815,7 +1830,7 @@ genclosure(entree *ep, const char *loc, long  nbdata, int check)
   if (ret_flag==FLnocopy) op_push_loc(OCcopy,0,loc);
   compilecast_loc(ret_typ, Ggen, loc);
   if (dovararg) nb|=VARARGBITS;
-  return getfunction(&pos,nb+arity,nbdata,strtoGENstr(ep->name),0);
+  return gerepilecopy(av, getfunction(&pos,nb+arity,nbdata,text,0));
 }
 
 GEN
