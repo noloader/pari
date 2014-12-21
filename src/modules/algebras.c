@@ -589,17 +589,19 @@ static GEN
 al_decompose0(GEN al, GEN x, GEN fa, GEN Z, int mini)
 {
   long k = lgcols(fa)-1, k2 = mini? 1: k/2;
+  GEN v1 = rowslice(fa,1,k2);
+  GEN v2 = rowslice(fa,k2+1,k);
   GEN alq, u, v, P,Q, mx, p = al_get_char(al), d;
   if (signe(p)) {
-    P = FpX_factorback(rowslice(fa,1,k2), p);
-    Q = FpX_factorback(rowslice(fa,k2+1,k), p);
+    P = FpX_factorback(v1, p);
+    Q = FpX_factorback(v2, p);
     d = FpX_extgcd(P, Q, p, &u, &v);
     d = Fp_inv(constant_term(d), p);
     P = FpX_Fp_mul(FpX_mul(P,u,p),d,p);
   }
   else {
-    P = factorback(rowslice(fa,1,k2));
-    Q = factorback(rowslice(fa,k2+1,k));
+    P = factorback(v1);
+    Q = factorback(v2);
     d = RgX_extgcd(P, Q, &u, &v);
     d = constant_term(d);
     P = RgX_Rg_div(RgX_mul(P,u),d);
@@ -626,6 +628,7 @@ random_pm1(long n)
   return z;
 }
 
+static GEN al_decompose(GEN al, GEN Z, int mini);
 /* Try to split al using x's charpoly. Return gen_0 if simple, NULL if failure.
  * And a splitting otherwise */
 static GEN
@@ -637,15 +640,15 @@ try_fact(GEN al, GEN x, GEN zx, GEN Z, GEN Zal, long mini)
   else          fa = factor(cp);
   nfa = nbrows(fa);
   if (nfa == 1) {
-      if (signe(p)) e = gel(fa,2)[1];
-      else          e = itos(gcoeff(fa,1,2));
-      return e==1 ? gen_0 : NULL;
+    if (signe(p)) e = gel(fa,2)[1];
+    else          e = itos(gcoeff(fa,1,2));
+    return e==1 ? gen_0 : NULL;
   }
   dec0 = al_decompose0(al, x, fa, Z, mini);
   if(!dec0) return NULL;
   if (isintzero(dec0)) return gen_0;
   if (!mini) return dec0;
-  dec1 = al_decompose(gel(dec0,1), gel(dec0,4), al_subalg(gel(dec0,1), gel(dec0,4)), 1);
+  dec1 = al_decompose(gel(dec0,1), gel(dec0,4), 1);
   z = gel(dec0,5);
   if (!isintzero(dec1)) {
     if (signe(p)) z = FpM_mul(z,dec1,p);
@@ -653,77 +656,80 @@ try_fact(GEN al, GEN x, GEN zx, GEN Z, GEN Zal, long mini)
   }
   return z;
 }
-static GEN randimage(GEN Z, GEN b)
+static GEN
+randcol(long n, GEN b)
 {
-  GEN res, N = addiu(shifti(b,1), 1);
-  long i, n = lg(Z)-1;
-  res =  cgetg(n+1,t_COL);
-  for (i=1; i<= n; i++)
+  GEN N = addiu(shifti(b,1), 1);
+  long i;
+  GEN res =  cgetg(n+1,t_COL);
+  for (i=1; i<=n; i++)
   {
     pari_sp av = avma;
     gel(res,i) = gerepileuptoint(av, subii(randomi(N),b));
   }
-  return mkvec2(res,ZM_ZC_mul(Z,res));
+  return res;
 }
 /* Return gen_0 if already simple. mini: only returns a central idempotent
  * corresponding to one simple factor */
-GEN
-al_decompose(GEN al, GEN Z, GEN Zal, int mini)
+static GEN
+al_decompose(GEN al, GEN Z, int mini)
 {
-  pari_sp av = avma;
-  GEN x, zx, rand, dec0, B, p = al_get_char(al);
+  pari_sp av;
+  GEN Zal, x, zx, rand, dec0, B, p;
   long i, nz = lg(Z)-1;
 
-  if (nz==1) { avma = av; return gen_0; }
+  if (nz==1) return gen_0;
+  av = avma;
   rand = random_pm1(nz);
   zx = zc_to_ZC(rand);
+  p = al_get_char(al);
   if (signe(p)) {
     zx = FpC_red(zx,p);
     x = ZM_zc_mul(Z,rand);
     x = FpC_red(x,p);
   }
   else x = RgM_zc_mul(Z,rand);
+  Zal = al_subalg(al,Z);
   dec0 = try_fact(al,x,zx,Z,Zal,mini);
-  if (dec0) return gerepilecopy(av, dec0);
+  if (dec0) return dec0;
   avma = av;
   for (i=2; i<=nz; i++)
   {
     dec0 = try_fact(al,gel(Z,i),col_ei(nz,i),Z,Zal,mini);
-    if (dec0) return gerepilecopy(av, dec0);
+    if (dec0) return dec0;
     avma = av;
   }
   B = int2n(10);
   for(;;)
   {
-    rand = randimage(Z,B);
-    zx = gel(rand,1);
-    x = gel(rand,2);
+    GEN x = randcol(nz,B), zx = ZM_ZC_mul(Z,x);
     dec0 = try_fact(al,x,zx,Z,Zal,mini);
-    if (dec0) return gerepilecopy(av, dec0);
+    if (dec0) return dec0;
     avma = av;
   }
 }
 
 /*TODO guarantee that the images of the liftm form a direct sum*/
-GEN
-al_decompose_total(GEN al, GEN Z, GEN Zal, int maps)
+static GEN
+al_decompose_total(GEN al, GEN Z, int maps)
 {
-  pari_sp av = avma;
-  GEN dec, sc, projm, projm2, liftm, liftm2, res, al2, p = al_get_char(al);
+  GEN dec, sc, projm, liftm, res, p;
   long nsc, i, ires, j, n;
-  n = al_get_absdim(al);
 
-  dec = al_decompose(al, Z, Zal, 0);
+  n = al_get_absdim(al);
+  dec = al_decompose(al, Z, 0);
   if (gequal0(dec))
   {
-    if (maps) return gerepilecopy(av, mkvec(mkvec3(al, matid(n), matid(n))));
-    else      return gerepilecopy(av, mkvec(al));
+    if (maps) return mkvec(mkvec3(al, matid(n), matid(n)));
+    else      return mkvec(al);
   }
+  p = al_get_char(al); if (!signe(p)) p = NULL;
   projm = liftm = NULL; /*-Wall*/
   sc = cgetg(lg(dec), t_VEC);
   nsc = 0;
   for (i=1; i<lg(sc); i++) {
-    gel(sc,i) = al_decompose_total(gmael(dec,i,1), gmael(dec,i,4), al_subalg(gmael(dec,i,1),gmael(dec,i,4)), maps);
+    GEN D = gel(dec,i), a = gel(D,1), Za = gel(D,4);
+    gel(sc,i) = al_decompose_total(a, Za, maps);
     nsc += lg(gel(sc,i))-1;
   }
 
@@ -735,20 +741,19 @@ al_decompose_total(GEN al, GEN Z, GEN Zal, int maps)
       liftm = gmael(dec,i,3);
     }
     for (j=1; j<lg(gel(sc,i)); j++, ires++) {
+      GEN scij = gmael(sc,i,j);
       if (maps) {
-        al2 = gmael3(sc,i,j,1);
-        projm2 = gmael3(sc,i,j,2);
-        if (signe(p)) projm2 = FpM_mul(projm2, projm, p);
-        else          projm2 = RgM_mul(projm2, projm);
-        liftm2 = gmael3(sc,i,j,3);
-        if (signe(p)) liftm2 = FpM_mul(liftm, liftm2, p);
-        else          liftm2 = RgM_mul(liftm, liftm2);
+        GEN al2 = gel(scij,1), projm2 = gel(scij,2), liftm2 = gel(scij,3);
+        if (p) projm2 = FpM_mul(projm2, projm, p);
+        else   projm2 = RgM_mul(projm2, projm);
+        if (p) liftm2 = FpM_mul(liftm, liftm2, p);
+        else   liftm2 = RgM_mul(liftm, liftm2);
         gel(res, ires) = mkvec3(al2, projm2, liftm2);
       }
-      else gel(res,ires) = gmael(sc,i,j);
+      else gel(res,ires) = scij;
     }
   }
-  return gerepilecopy(av, res);
+  return res;
 }
 
 GEN al_subalg(GEN al, GEN basis)
@@ -778,10 +783,10 @@ GEN al_subalg(GEN al, GEN basis)
 }
 
 GEN
-al_simple(GEN al, int maps)
+alsimpledec(GEN al, int maps)
 {
   pari_sp av = avma;
-  GEN Z, p, res, Zal;
+  GEN Z, p, res;
   long n;
   p = al_get_char(al);
   if (signe(p)) Z = alprimesubalg(al);
@@ -790,12 +795,12 @@ al_simple(GEN al, int maps)
   if (lg(Z) == 2)/*dim Z = 1*/
   {
     n = al_get_absdim(al);
-    if (maps) return gerepilecopy(av, mkvec(mkvec3(al, matid(n), matid(n))));
-    else      return gerepilecopy(av, mkvec(al));
+    avma = av;
+    if (!maps) return mkveccopy(al);
+    retmkvec(mkvec3(gcopy(al), matid(n), matid(n)));
   }
-  Zal = al_subalg(al, Z);
-  res = al_decompose_total(al, Z, Zal, maps);
-  return gerepileupto(av, res);
+  res = al_decompose_total(al, Z, maps);
+  return gerepilecopy(av, res);
 }
 
 GEN
@@ -806,7 +811,7 @@ al_decomposition(GEN al)
     GEN rad, alq, dec, res;
     rad = alradical(al);
     alq = gequal0(rad) ? al : al_quotient(al,rad,0);
-    dec = al_simple(alq,0);
+    dec = alsimpledec(alq,0);
     res = mkvec2(rad, dec); /*TODO si char 0, reconnaitre les centres comme nf et descendre les tables de multiplication*/
     return gerepilecopy(av,res);
 }
@@ -3344,7 +3349,7 @@ alpdecompose0(GEN al, GEN prad, GEN p)
   }
   else ss = alp;
 
-  dec = al_simple(ss,1);
+  dec = alsimpledec(ss,1);
   res = cgetg(lg(dec),t_VEC);
   for (i=1; i<lg(dec); i++) {
     I = gmael(dec,i,3);
