@@ -645,7 +645,7 @@ try_fact(GEN al, GEN x, GEN zx, GEN Z, GEN Zal, long mini)
     return e==1 ? gen_0 : NULL;
   }
   dec0 = al_decompose0(al, x, fa, Z, mini);
-  if(!dec0) return NULL;
+  if (!dec0) return NULL;
   if (isintzero(dec0)) return gen_0;
   if (!mini) return dec0;
   dec1 = al_decompose(gel(dec0,1), gel(dec0,4), 1);
@@ -713,47 +713,41 @@ al_decompose(GEN al, GEN Z, int mini)
 static GEN
 al_decompose_total(GEN al, GEN Z, int maps)
 {
-  GEN dec, sc, projm, liftm, res, p;
-  long nsc, i, ires, j, n;
+  GEN dec, sc, p;
+  long i;
 
-  n = al_get_absdim(al);
   dec = al_decompose(al, Z, 0);
-  if (gequal0(dec))
+  if (isintzero(dec))
   {
-    if (maps) return mkvec(mkvec3(al, matid(n), matid(n)));
-    else      return mkvec(al);
+    if (maps) {
+      long n = al_get_absdim(al);
+      al = mkvec3(al, matid(n), matid(n));
+    }
+    return mkvec(al);
   }
   p = al_get_char(al); if (!signe(p)) p = NULL;
-  projm = liftm = NULL; /*-Wall*/
   sc = cgetg(lg(dec), t_VEC);
-  nsc = 0;
   for (i=1; i<lg(sc); i++) {
     GEN D = gel(dec,i), a = gel(D,1), Za = gel(D,4);
-    gel(sc,i) = al_decompose_total(a, Za, maps);
-    nsc += lg(gel(sc,i))-1;
-  }
-
-  res = cgetg(nsc+1, t_VEC);
-  ires = 1;
-  for (i=1; i<lg(sc); i++) {
-    if (maps) {
-      projm = gmael(dec,i,2);
-      liftm = gmael(dec,i,3);
-    }
-    for (j=1; j<lg(gel(sc,i)); j++, ires++) {
-      GEN scij = gmael(sc,i,j);
-      if (maps) {
-        GEN al2 = gel(scij,1), projm2 = gel(scij,2), liftm2 = gel(scij,3);
-        if (p) projm2 = FpM_mul(projm2, projm, p);
-        else   projm2 = RgM_mul(projm2, projm);
-        if (p) liftm2 = FpM_mul(liftm, liftm2, p);
-        else   liftm2 = RgM_mul(liftm, liftm2);
-        gel(res, ires) = mkvec3(al2, projm2, liftm2);
+    GEN S = al_decompose_total(a, Za, maps);
+    gel(sc,i) = S;
+    if (maps)
+    {
+      GEN projm = gel(D,2), liftm = gel(D,3);
+      long j, lS = lg(S);
+      for (j=1; j<lS; j++)
+      {
+        GEN Sj = gel(S,j), p2 = gel(Sj,2), l2 = gel(Sj,3);
+        if (p) p2 = FpM_mul(p2, projm, p);
+        else   p2 = RgM_mul(p2, projm);
+        if (p) l2 = FpM_mul(liftm, l2, p);
+        else   l2 = RgM_mul(liftm, l2);
+        gel(Sj,2) = p2;
+        gel(Sj,3) = l2;
       }
-      else gel(res,ires) = scij;
     }
   }
-  return res;
+  return shallowconcat1(sc);
 }
 
 GEN al_subalg(GEN al, GEN basis)
