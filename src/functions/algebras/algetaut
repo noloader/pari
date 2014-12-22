@@ -1,6 +1,6 @@
 Function: algetaut
 Section: algebras
-C-Name: al_get_aut
+C-Name: algetaut
 Prototype: G
 Help: algetaut(al): the stored automorphism of the splitting field of the cyclic algebra al.
 Doc: Given a cyclic algebra $\var{al} = (L/K,\sigma,b)$ output by \tet{alinit}, returns the automorphism $\sigma$.

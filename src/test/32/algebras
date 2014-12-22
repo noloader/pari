@@ -2710,10 +2710,10 @@ x - 12
 0
   ***   at top-level: algetdim([1,[1],0,0,
   ***                 ^--------------------
-  *** algetdim: incorrect type in al_get_dim (t_VEC).
+  *** algetdim: incorrect type in checkal [please apply alinit()] (t_VEC).
   ***   at top-level: algetabsdim([1,[1],0
   ***                 ^--------------------
-  *** algetabsdim: incorrect type in al_get_absdim (t_VEC).
+  *** algetabsdim: incorrect type in checkal [please apply alinit()] (t_VEC).
   ***   at top-level: altensor(al,al2)
   ***                 ^----------------
   *** altensor: sorry, tensor of non-cyclic algebras is not yet implemented.
@@ -2771,4 +2771,4 @@ x - 12
   ***   at top-level: altableinit(mt,y)
   ***                 ^-----------------
   *** altableinit: incorrect type in altableinit (t_POL).
-Total time spent: 4752
+Total time spent: 4460

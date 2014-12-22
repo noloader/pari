@@ -1,6 +1,6 @@
 Function: algetdegree
 Section: algebras
-C-Name: al_get_degree
+C-Name: algetdegree
 Prototype: lG
 Help: algetdegree(al): degree of the central simple algebra al.
 Doc: Given a central simple algebra \var{al} output by \tet{alinit}, returns the degree of \var{al}.

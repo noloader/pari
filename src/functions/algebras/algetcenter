@@ -1,6 +1,6 @@
 Function: algetcenter
 Section: algebras
-C-Name: al_get_center
+C-Name: algetcenter
 Prototype: G
 Help: algetcenter(al): center of the central simple algebra al.
 Doc: Given a central simple algebra \var{al} output by \tet{alinit}, returns the center of~\var{al}, which is stored in \var{al}. To compute the center of a table algebra output by \tet{alinit}, use \tet{alcenter}.

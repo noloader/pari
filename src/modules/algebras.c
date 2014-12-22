@@ -70,6 +70,9 @@ al_get_dim(GEN al)
   }
   return -1; /*not reached*/
 }
+long
+algetdim(GEN al)
+{ checkal(al); return al_get_dim(al); }
 
 long
 al_get_absdim(GEN al)
@@ -83,6 +86,9 @@ al_get_absdim(GEN al)
   }
   return -1;/*not reached*/
 }
+long
+algetabsdim(GEN al)
+{ checkal(al); return al_get_absdim(al); }
 
 /* only cyclic */
 GEN
@@ -98,17 +104,25 @@ al_get_aut(GEN al)
   return gel(al_get_auts(al),1);
 }
 GEN
+algetaut(GEN al) { checkal(al); return al_get_aut(al); }
+GEN
 al_get_b(GEN al)
 {
   if (al_type(al) != al_CYCLIC) pari_err_TYPE("al_get_b", al);
   return gel(al,3);
 }
+GEN
+algetb(GEN al) { checkal(al); return al_get_b(al); }
 
 /* only CSA */
 GEN
 al_get_relmultable(GEN al) { return gel(al,2); }
 GEN
+algetrelmultable(GEN al) { checkal(al); return al_get_relmultable(al); }
+GEN
 al_get_splittingdata(GEN al) { return gel(al,3); }
+GEN
+algetsplittingdata(GEN al) { checkal(al); return al_get_splittingdata(al); }
 GEN
 al_get_splittingbasis(GEN al) { return gmael(al,3,2); }
 GEN
@@ -117,28 +131,49 @@ al_get_splittingbasisinv(GEN al) { return gmael(al,3,3); }
 /* only cyclic and CSA */
 GEN
 al_get_splitting(GEN al) { return gel(al,1); }
+GEN
+algetsplitting(GEN al) { checkal(al); return al_get_splitting(al); }
 long
 al_get_degree(GEN al) { return rnf_get_degree(al_get_splitting(al)); }
+long
+algetdegree(GEN al) { checkal(al); return al_get_degree(al); }
+
 GEN
 al_get_center(GEN al) { return rnf_get_nf(al_get_splitting(al)); }
 GEN
+algetcenter(GEN al) { checkal(al); return al_get_center(al); }
+GEN
 al_get_splitpol(GEN al) { return rnf_get_pol(al_get_splitting(al)); }
+GEN
+algetsplitpol(GEN al) { checkal(al); return al_get_splitpol(al); }
 GEN
 al_get_abssplitting(GEN al) { return gel(al,6); }
 GEN
 al_get_hasse_i(GEN al) { return gel(al,4); }
 GEN
+algethassei(GEN al) { checkal(al); return al_get_hasse_i(al); }
+GEN
 al_get_hasse_f(GEN al) { return gel(al,5); }
+GEN
+algethassef(GEN al) { checkal(al); return al_get_hasse_f(al); }
 
 /* all types */
 GEN
 al_get_ord(GEN al) { return gel(al,7); }
 GEN
+algetord(GEN al) { checkal(al); return al_get_ord(al); }
+GEN
 al_get_invord(GEN al) { return gel(al,8); }
+GEN
+algetinvord(GEN al) { checkal(al); return al_get_invord(al); }
 GEN
 al_get_multable(GEN al) { return gel(al,9); }
 GEN
+algetmultable(GEN al) { checkal(al); return al_get_multable(al); }
+GEN
 al_get_char(GEN al) { return gel(al,10); }
+GEN
+algetchar(GEN al) { checkal(al); return al_get_char(al); }
 GEN
 al_get_tracebasis(GEN al) { return gel(al,11); }
 

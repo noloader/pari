@@ -1,6 +1,6 @@
 Function: algethassei
 Section: algebras
-C-Name: al_get_hasse_i
+C-Name: algethassei
 Prototype: G
 Help: algethassei(al): the hasse invariant of the central simple algebra al at infinite places.
 Doc: Given a central simple algebra \var{al} output by \tet{alinit}, returns a \typ{VECSMALL} $h_i$ of $r_1$ integers modulo the degree $d$ of \var{al}, where $r_1$ is the number of real places of the center: the local Hasse invariants of \var{al} at infinite places.
