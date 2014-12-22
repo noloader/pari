@@ -533,9 +533,12 @@ GEN
 al_centralproj(GEN al, GEN z, int maps)
 {
   pari_sp av = avma;
-  GEN S, U, Ui, alq, p = al_get_char(al);
+  GEN S, U, Ui, alq, p;
   long i, iu, lz = lg(z);
 
+  checkal(al);
+  if (typ(z) != t_VEC) pari_err_TYPE("alcentralproj",z);
+  p = al_get_char(al);
   S = cgetg(lz,t_VEC); /*S[i] = Im(z_i)*/
   for (i=1; i<lz; i++)
   {
