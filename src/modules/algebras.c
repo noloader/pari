@@ -430,10 +430,13 @@ GEN
 alradical(GEN al)
 {
   pari_sp av = avma;
-  GEN I, x, traces, K, MT, P = al_get_char(al), mt = al_get_multable(al);
-  long l,i,ni, n = al_get_absdim(al);
+  GEN I, x, traces, K, MT, P, mt;
+  long l,i,ni, n;
   ulong modu, expo, p;
-
+  checkal(al);
+  P = al_get_char(al);
+  mt = al_get_multable(al);
+  n = al_get_absdim(al);
   traces = altracematrix(al);
   if (!signe(P))
   {
@@ -504,6 +507,7 @@ al_quotient(GEN al, GEN I, int maps)
   GEN p, IS, ISi, S, Si;
   long n, ni;
 
+  checkal(al);
   p = al_get_char(al);
   n = al_get_absdim(al);
   ni = lg(I)-1;
@@ -560,6 +564,7 @@ alcenter(GEN al)
   pari_sp av = avma;
   long n, i, j, k, ic;
   GEN C, cij, mt, p;
+  checkal(al);
   n = al_get_absdim(al);
   mt = al_get_multable(al);
   p = al_get_char(al);
@@ -585,6 +590,7 @@ alprimesubalg(GEN al)
   pari_sp av = avma;
   GEN p, Z, F, K;
   long nz, i;
+  checkal(al);
   p = al_get_char(al);
   if (!signe(p)) pari_err_DOMAIN("alprimesubalg","characteristic","=",gen_0,p);
 
@@ -824,6 +830,7 @@ alsimpledec(GEN al, int maps)
   pari_sp av = avma;
   GEN Z, p, res;
   long n;
+  checkal(al);
   p = al_get_char(al);
   if (signe(p)) Z = alprimesubalg(al);
   else          Z = alcenter(al);
@@ -1798,6 +1805,7 @@ GEN
 alalgtobasis(GEN al, GEN x)
 {
   pari_sp av;
+  checkal(al);
   if (al_model(al,x)==al_BASIS) return gcopy(x);
   av = avma;
   x = alalgtonat(al,x);
@@ -1809,6 +1817,7 @@ GEN
 albasistoalg(GEN al, GEN x)
 {
   pari_sp av;
+  checkal(al);
   if (al_model(al,x)==al_ALGEBRAIC) return gcopy(x);
   av = avma;
   x = RgM_RgC_mul(al_get_ord(al),x);
@@ -3617,6 +3626,7 @@ GEN
 aldisc(GEN al)
 {
   pari_sp av = avma;
+  checkal(al);
   return gerepileuptoint(av, ZM_det(altracematrix(al)));
 }
 GEN
