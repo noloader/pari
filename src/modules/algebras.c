@@ -2177,7 +2177,8 @@ hasseconvert(GEN H, long n)
   pari_err_TYPE("Hasse invariant", H); return NULL;
 }
 
-long
+/* assume f >= 2 */
+static long
 cyclicrelfrob0(GEN nf, GEN aut, GEN pr, GEN q, long f, long g)
 {
   pari_sp av = avma;

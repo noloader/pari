@@ -1172,7 +1172,6 @@ GEN bnrgwsearch(GEN bnr, GEN Lpr, GEN Ld, GEN pl);
 void checkal(GEN x);
 void checkhasse(GEN nf, GEN hi, GEN hf, long n);
 long cyclicrelfrob(GEN rnf, GEN nf2, GEN auts, GEN pr);
-long cyclicrelfrob0(GEN nf, GEN aut, GEN pr, GEN q, long f, long g);
 GEN hassecoprime(GEN hi, GEN hf, long n);
 GEN hassedown(GEN nf, long n, GEN hi, GEN hf);
 GEN hassewedderburn(GEN hi, GEN hf, long n);
