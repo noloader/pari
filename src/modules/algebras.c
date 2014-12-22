@@ -591,22 +591,17 @@ al_decompose0(GEN al, GEN x, GEN fa, GEN Z, int mini)
   long k = lgcols(fa)-1, k2 = mini? 1: k/2;
   GEN v1 = rowslice(fa,1,k2);
   GEN v2 = rowslice(fa,k2+1,k);
-  GEN alq, u, v, P,Q, mx, p = al_get_char(al), d;
+  GEN alq, P,Q, mx, p = al_get_char(al);
   if (signe(p)) {
     P = FpX_factorback(v1, p);
     Q = FpX_factorback(v2, p);
-    d = FpX_extgcd(P, Q, p, &u, &v);
-    d = Fp_inv(constant_term(d), p);
-    P = FpX_Fp_mul(FpX_mul(P,u,p),d,p);
+    P = FpX_mul(P, FpXQ_inv(P,Q,p), p);
   }
   else {
     P = factorback(v1);
     Q = factorback(v2);
-    d = RgX_extgcd(P, Q, &u, &v);
-    d = constant_term(d);
-    P = RgX_Rg_div(RgX_mul(P,u),d);
+    P = RgX_mul(P, RgXQ_inv(P,Q));
   }
-
   mx = almultable(al, x);
   P = alpoleval(al, P, mx);
   if (signe(p)) Q = FpC_sub(col_ei(lg(P)-1,1), P, p);
