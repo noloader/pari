@@ -1109,7 +1109,7 @@ GEN al_pmaximal(GEN al, GEN p);
 GEN al_quotient(GEN al, GEN I, int maps);
 GEN alradical(GEN al);
 GEN alsimpledec(GEN al, int maps);
-GEN al_subalg(GEN al, GEN basis);
+GEN alsubalg(GEN al, GEN basis);
 long al_type(GEN al);
 GEN aladd(GEN al, GEN x, GEN y);
 GEN alalgmul(GEN al, GEN x, GEN y);

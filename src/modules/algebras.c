@@ -19,6 +19,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 /**                 contributed by Aurel Page (2014)               **/
 /**                                                                **/
 /********************************************************************/
+static GEN al_subalg(GEN al, GEN basis);
 static GEN al_maximal_primes(GEN al, GEN P);
 static GEN alnatmultable(GEN al, long D);
 static GEN _tablemul_ej(GEN mt, GEN x, long j);
@@ -745,30 +746,41 @@ al_decompose_total(GEN al, GEN Z, int maps)
   return shallowconcat1(sc);
 }
 
-GEN al_subalg(GEN al, GEN basis)
+static GEN
+al_subalg(GEN al, GEN basis)
 {
-  pari_sp av = avma;
-  GEN invbasis, mt, x, xy, mtx, p = al_get_char(al);
+  GEN invbasis, mt, p = al_get_char(al);
   long i, j, n = lg(basis)-1;
-  if (signe(p)) { /*TODO change after bugfix?*/
-      GEN complbasis = FpM_suppl(basis,p);
-      invbasis = rowslice(FpM_inv(complbasis,p),1,n);
+  if (!signe(p)) p = NULL;
+  if (p) { /*TODO change after bugfix?*/
+    GEN complbasis = FpM_suppl(basis,p);
+    invbasis = rowslice(FpM_inv(complbasis,p),1,n);
   }
   else invbasis = RgM_inv(basis);
   mt = cgetg(n+1,t_VEC);
   gel(mt,1) = matid(n);
   for(i=2; i<=n; i++) {
-    mtx = zeromat(n,n);
-    x = gel(basis,i);
+    GEN mtx = cgetg(n+1,t_MAT), x = gel(basis,i);
     gel(mtx,1) = col_ei(n,i);
     for(j=2; j<=n; j++) {
-      xy = almul(al, x, gel(basis,j));
+      GEN xy = almul(al, x, gel(basis,j));
       if (signe(p)) gel(mtx,j) = FpM_FpC_mul(invbasis, xy, p);
       else          gel(mtx,j) = RgM_RgC_mul(invbasis, xy);
     }
     gel(mt,i) = mtx;
   }
-  return gerepileupto(av,altableinit(mt,p));
+  return altableinit(mt,p);
+}
+GEN
+alsubalg(GEN al, GEN basis)
+{
+  pari_sp av = avma;
+  GEN p;
+  checkal(al);
+  if (typ(basis) != t_MAT) pari_err_TYPE("alsubalg",basis);
+  p = al_get_char(al);
+  if (signe(p)) basis = RgM_to_FpM(basis,p);
+  return gerepileupto(av, al_subalg(al,basis));
 }
 
 GEN
