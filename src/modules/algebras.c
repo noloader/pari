@@ -764,8 +764,8 @@ al_subalg(GEN al, GEN basis)
     gel(mtx,1) = col_ei(n,i);
     for(j=2; j<=n; j++) {
       GEN xy = almul(al, x, gel(basis,j));
-      if (signe(p)) gel(mtx,j) = FpM_FpC_mul(invbasis, xy, p);
-      else          gel(mtx,j) = RgM_RgC_mul(invbasis, xy);
+      if (p) gel(mtx,j) = FpM_FpC_mul(invbasis, xy, p);
+      else   gel(mtx,j) = RgM_RgC_mul(invbasis, xy);
     }
     gel(mt,i) = mtx;
   }
