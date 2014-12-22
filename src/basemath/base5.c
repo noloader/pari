@@ -231,15 +231,10 @@ makenorms(GEN rnf)
   return typ(f) == t_INT? gen_1: RgM_det_triangular(f);
 }
 
-#define NFABS 1
-#define NORMS 2
+const long NFABS = 1;
 GEN
 check_and_build_nfabs(GEN rnf) {
   return obj_checkbuild(rnf, NFABS, &makenfabs);
-}
-GEN
-check_and_build_norms(GEN rnf) {
-  return obj_checkbuild(rnf, NORMS, &makenorms);
 }
 
 void
@@ -271,10 +266,10 @@ rnfinit(GEN nf, GEN polrel)
   gel(rnf,6) = cgetg(1, t_VEC); /* dummy */
   gel(rnf,7) = bas;
   gel(rnf,8) = lift_if_rational( RgM_inv(B) );
-  gel(rnf,9) = cgetg(1,t_VEC); /* dummy */
+  gel(rnf,9) = makenorms(rnf);
   gel(rnf,10)= nf;
   gel(rnf,11)= rnfeq;
-  gel(rnf,12)= zerovec(2);
+  gel(rnf,12)= zerovec(1);
   return gerepilecopy(av, rnf);
 }
 
@@ -440,7 +435,7 @@ rnfidealnormabs(GEN rnf, GEN id)
   GEN nf, z = gel(rnfidealhnf(rnf,id), 2);
   if (lg(z) == 1) return gen_0;
   nf = rnf_get_nf(rnf); z = prodidnorm(nf, z);
-  return gerepileupto(av, gmul(z, check_and_build_norms(rnf)));
+  return gerepileupto(av, gmul(z, gel(rnf,9)));
 }
 
 GEN
