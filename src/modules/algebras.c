@@ -807,14 +807,14 @@ alsimpledec(GEN al, int maps)
 GEN
 al_decomposition(GEN al)
 {
-    pari_sp av = avma;
-    /*GEN p = al_get_char(al);*/
-    GEN rad, alq, dec, res;
-    rad = alradical(al);
-    alq = gequal0(rad) ? al : al_quotient(al,rad,0);
-    dec = alsimpledec(alq,0);
-    res = mkvec2(rad, dec); /*TODO si char 0, reconnaitre les centres comme nf et descendre les tables de multiplication*/
-    return gerepilecopy(av,res);
+  pari_sp av = avma;
+  /*GEN p = al_get_char(al);*/
+  GEN rad, alq, dec, res;
+  rad = alradical(al);
+  alq = gequal0(rad) ? al : al_quotient(al,rad,0);
+  dec = alsimpledec(alq,0);
+  res = mkvec2(rad, dec); /*TODO si char 0, reconnaitre les centres comme nf et descendre les tables de multiplication*/
+  return gerepilecopy(av,res);
 }
 
 /* multiplication table sanity checks */
@@ -3370,7 +3370,8 @@ alpdecompose_i(GEN al, GEN p, GEN zprad, GEN projs)
   GEN prad = alpradical_i(al,p,zprad,projs);
   return gerepileupto(av, alpdecompose0(al, prad, p));
 }
-GEN alpdecompose(GEN al, GEN p)
+GEN
+alpdecompose(GEN al, GEN p)
 {
   GEN placeholder = cgetg(1,t_MAT); /*left on stack*/
   return alpdecompose_i(al, p, placeholder, gen_1);
