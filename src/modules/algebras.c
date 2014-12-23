@@ -145,8 +145,6 @@ algetcenter(GEN al) { checkal(al); return al_get_center(al); }
 GEN
 al_get_splitpol(GEN al) { return rnf_get_pol(al_get_splitting(al)); }
 GEN
-algetsplitpol(GEN al) { checkal(al); return al_get_splitpol(al); }
-GEN
 al_get_abssplitting(GEN al) { return gel(al,6); }
 GEN
 al_get_hasse_i(GEN al) { return gel(al,4); }
