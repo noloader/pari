@@ -214,21 +214,9 @@ rnf_basM(GEN rnf)
 static GEN
 makenfabs(GEN rnf)
 {
-  GEN nf = rnf_get_nf(rnf), pol = rnf_get_polabs(rnf), NF = zerovec(9);
-  GEN M = rnf_basM(rnf);
-  gel(NF,1) = pol;
-  gel(NF,3) = mulii(powiu(nf_get_disc(nf), rnf_get_degree(rnf)),
-                    idealnorm(nf, rnf_get_disc(rnf)));
-  nf_set_multable(NF, M, NULL);
-  gel(NF,4) = get_nfindex(nf_get_zk(NF));
-  return NF;
-}
-
-static GEN
-makenorms(GEN rnf)
-{
-  GEN f = rnf_get_index(rnf);
-  return typ(f) == t_INT? gen_1: RgM_det_triangular(f);
+  GEN nf = rnf_get_nf(rnf), pol = rnf_get_polabs(rnf);
+  GEN bas = modulereltoabs(rnf, rnf_get_zk(rnf));
+  return nfinit(mkvec2(pol, bas), nf_get_prec(nf));
 }
 
 const long NFABS = 1;
@@ -266,7 +254,7 @@ rnfinit(GEN nf, GEN polrel)
   gel(rnf,6) = cgetg(1, t_VEC); /* dummy */
   gel(rnf,7) = bas;
   gel(rnf,8) = lift_if_rational( RgM_inv(B) );
-  gel(rnf,9) = makenorms(rnf);
+  gel(rnf,9) = typ(f) == t_INT? gen_1: RgM_det_triangular(f);
   gel(rnf,10)= nf;
   gel(rnf,11)= rnfeq;
   gel(rnf,12)= zerovec(1);

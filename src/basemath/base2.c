@@ -2068,23 +2068,18 @@ get_norm(norm_S *S, GEN a)
 static void
 init_norm(norm_S *S, GEN nf, GEN p)
 {
-  GEN T = nf_get_pol(nf);
-  long N = degpol(T);
+  GEN T = nf_get_pol(nf), M = nf_get_M(nf);
+  long N = degpol(T), ex = gexpo(M) + gexpo(mului(8 * N, p));
 
-  S->r1 = 0;   /* -Wall */
-  S->M = NULL; /* -Wall */
-  S->D = NULL; /* -Wall */
-  S->w = NULL; /* -Wall */
-  S->T = NULL; /* -Wall */
-  if (typ(gel(nf,5)) == t_VEC) /* beware dummy nf from rnf/makenfabs */
-  {
-    GEN M = nf_get_M(nf);
-    long ex = gexpo(M) + gexpo(mului(8 * N, p));
-    /* enough prec to use embed_norm */
-    S->r1 = nf_get_r1(nf);
-    if (N * ex <= prec2nbits(gprecision(M))) S->M = M;
+  S->r1 = nf_get_r1(nf);
+  if (N * ex <= prec2nbits(gprecision(M)))
+  { /* enough prec to use embed_norm */
+    S->M = M;
+    S->D = NULL;
+    S->w = NULL;
+    S->T = NULL;
   }
-  if (!S->M)
+  else
   {
     GEN D, w = Q_remove_denom(nf_get_zk(nf), &D), Dp = sqri(p);
     long i;
@@ -2097,6 +2092,7 @@ init_norm(norm_S *S, GEN nf, GEN p)
       gel(w, 1) = remii(w1, Dp);
     }
     for (i=2; i<=N; i++) gel(w,i) = FpX_red(gel(w,i), Dp);
+    S->M = NULL;
     S->D = D;
     S->w = w;
     S->T = T;
