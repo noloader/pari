@@ -11785,10 +11785,16 @@ if the \emph{tag}-component of $S$ is non empty \emph{and} has relative
 $p$-adic precision $\geq \kbd{prec}$, return it. Otherwise insert (a clone
 of) \kbd{build(S, prec)} as \emph{tag}-component in $S$, and return it.
 
-\fun{GEN}{obj_checkbuild_prec}{GEN S, long tag, GEN (*build)(GEN,long), long
+\fun{GEN}{obj_checkbuild_realprec}{GEN S, long tag, GEN (*build)(GEN,long), long
 prec} if the \emph{tag}-component of $S$ is non empty \emph{and} has
 \kbd{gprecision} $\geq \kbd{prec}$, return it. Otherwise insert (a clone of)
 \kbd{build(S, prec)} as \emph{tag}-component in $S$, and return it.
+
+\fun{GEN}{obj_checkbuild_prec}{GEN S, long tag, GEN (*build)(GEN,long), GEN
+(*pr)(GEN), long prec} if the \emph{tag}-component of $S$ is non empty
+\emph{and} has precision $\kbd{pr}(x)\geq \kbd{prec}$, return it. Otherwise
+insert (a clone of) \kbd{build(S, prec)} as \emph{tag}-component in $S$,
+and return it.
 
 \fun{void}{obj_free}{GEN S} destroys all clones stored in the $n$ tagged
 components, and replace them by the initial value $0$. The regular entries of

@@ -464,7 +464,7 @@ doellR_ab(GEN E, long prec)
 }
 GEN
 ellR_ab(GEN E, long prec)
-{ return obj_checkbuild_prec(E, R_AB, &doellR_ab, prec); }
+{ return obj_checkbuild_realprec(E, R_AB, &doellR_ab, prec); }
 
 /* return x mod p */
 static GEN
@@ -1831,13 +1831,13 @@ doellR_eta(GEN E, long prec)
 
 GEN
 ellR_omega(GEN E, long prec)
-{ return obj_checkbuild_prec(E, R_PERIODS, &doellR_omega, prec); }
+{ return obj_checkbuild_realprec(E, R_PERIODS, &doellR_omega, prec); }
 GEN
 ellR_eta(GEN E, long prec)
-{ return obj_checkbuild_prec(E, R_ETA, &doellR_eta, prec); }
+{ return obj_checkbuild_realprec(E, R_ETA, &doellR_eta, prec); }
 GEN
 ellR_roots(GEN E, long prec)
-{ return obj_checkbuild_prec(E, R_ROOTS, &doellR_roots, prec); }
+{ return obj_checkbuild_realprec(E, R_ROOTS, &doellR_roots, prec); }
 
 /********************************************************************/
 /**                                                                **/
@@ -2076,6 +2076,7 @@ zellQp(GEN E, GEN z, long prec)
   (void)do_padic_agm(&x1,&y1, a,b);
   t = gmul(ellQp_u(E, prec), gmul2n(y1,1)); /* 2u y_oo */
   t = gdiv(gsub(t, x1), gadd(t, x1));
+  if (padicprec_relative(t) > prec) t = gprec(t, prec);
   return gerepileupto(av, t);
 }
 

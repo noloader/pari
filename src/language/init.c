@@ -2044,32 +2044,20 @@ obj_checkbuild(GEN S, long tag, GEN (*build)(GEN))
 }
 
 GEN
-obj_checkbuild_prec(GEN S, long tag, GEN (*build)(GEN,long), long prec)
+obj_checkbuild_prec(GEN S, long tag, GEN (*build)(GEN,long),
+  long (*pr)(GEN), long prec)
 {
   pari_sp av = avma;
   GEN w = obj_check(S, tag);
-  if (w)
-  {
-    long p = gprecision(w);
-    if (p >= prec) return gprec_w(w, prec);
-  }
-  w = obj_insert(S, tag, build(S, prec));
-  avma = av; return gcopy(w);
+  if (!w || pr(w) < prec) w = obj_insert(S, tag, build(S, prec));
+  avma = av; return w;
 }
-
+GEN
+obj_checkbuild_realprec(GEN S, long tag, GEN (*build)(GEN,long), long prec)
+{ return obj_checkbuild_prec(S,tag,build,gprecision,prec); }
 GEN
 obj_checkbuild_padicprec(GEN S, long tag, GEN (*build)(GEN,long), long prec)
-{
-  pari_sp av = avma;
-  GEN w = obj_check(S, tag);
-  if (w)
-  {
-    long p = padicprec_relative(w);
-    if (p >= prec) return gprec_w(w, prec);
-  }
-  w = obj_insert(S, tag, build(S, prec));
-  avma = av; return gcopy(w);
-}
+{ return obj_checkbuild_prec(S,tag,build,padicprec_relative,prec); }
 
 /* Reset S [last position], freeing all clones */
 void
