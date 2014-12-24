@@ -2320,7 +2320,7 @@ galoisconj4(GEN nf, GEN d)
 
 }
 
-/* d multipllicative bound for the automorphism's denominators */
+/* d multiplicative bound for the automorphism's denominators */
 GEN
 galoisconj(GEN nf, GEN d)
 {
