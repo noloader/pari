@@ -2350,7 +2350,6 @@ primedec_aux(GEN nf, GEN p, long flim)
     {
       GEN t = gel(F,i);
       kummer = 1;
-      if (flim && degpol(t) > flim) continue;
       gel(L,iL++) = primedec_apply_kummer(nf, t, E[i],p);
     }
     else /* F[i] | (f,g,h), happens at least once by Dedekind criterion */
