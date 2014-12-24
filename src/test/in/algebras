@@ -1043,7 +1043,6 @@ mt = [matid(4), m_i, m_j, m_k];
 print(alisassociative(mt));
 al = alinit(nf, mt, 'x);
 print(al != 0);
-print(al);
 print("should fail:");
 alfail = alinit(nf, [0,0], 'x);
 algetb(al);
@@ -1226,9 +1225,6 @@ alcharpoly(almt0,a)
 almultable(almt0,b)
 alpow(almt0,a,0)
 
-
-
-
 \\ bad inputs
 almt = altableinit(mt,0);
 alrandom(1,1)
@@ -1255,4 +1251,3 @@ alinit(y,[2,[[],[]],[1]])
 alinit(nfinit(y), y)
 alinit(nfinit(y), [1,2,3,4])
 altableinit(mt,y);
-
