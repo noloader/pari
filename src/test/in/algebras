@@ -1167,6 +1167,7 @@ matrixringmt(N) =
 }
 
 print("csa al2");
+setrand(1);
 al2 = alinit(nf, matrixringmt(2), 'x);
 print(al2);
 print("csa al3");
