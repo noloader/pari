@@ -909,6 +909,7 @@ tablealg() = gusuite("table algebra", ()->{
   do("random 0b", ()->alrandom(al,1));
   do("alsimpledec 0b", ()->#alsimpledec(al)==2);
   do("al_decomposition 0b", ()->dec=aldecomposition(al); dec[1]==0 && #dec[2]==2 && #alcenter(dec[2][1])==1 && #alcenter(dec[2][2])==1 && (algetabsdim(dec[2][1])==4 || algetabsdim(dec[2][2])==4));
+  do("subalg M2(Q)", ()->sal=alsubalg(al,[1,0,0,0; 0,1,0,0; 0,0,1,0; 0,0,0,1; 0,0,0,0]); alisassociative(sal) && alradical(sal)==0 && #alsimpledec(sal)==1);
 
   p = 3;
   al = altableinit(mt,p);
@@ -951,6 +952,7 @@ tablealg() = gusuite("table algebra", ()->{
   do("random 3d", ()->alrandom(al,1));
   do("alsimpledec 3d", ()->#alsimpledec(al)==2);
   do("al_decomposition 3d", ()->dec=aldecomposition(al); dec[1]==0 && #dec[2]==2 && #alcenter(dec[2][1])==1 && #alcenter(dec[2][2])==1 && (algetabsdim(dec[2][1])==4 || algetabsdim(dec[2][2])==4));
+  do("subalg M2(F3)", ()->sal=alsubalg(al,[1,0,0,0; 0,1,0,0; 0,0,1,0; 0,0,0,1; 0,0,0,0]); alisassociative(sal) && alradical(sal)==0 && #alsimpledec(sal)==1);
 });
 
 all() = gusuite("all", ()->{

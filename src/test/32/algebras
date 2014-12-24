@@ -881,6 +881,7 @@ charpol annihil(b) 0b: 1
 random 0b: [1, 0, 0, 1, 1]~
 alsimpledec 0b: 1
 al_decomposition 0b: 1
+subalg M2(Q): 1
 construction 3d: [0, 0, 0, 0, 0, 0, [1, 0, 0, 0, 0; 0, 1, 0, 0, 0; 0, 0, 1, 
 0, 0; 0, 0, 0, 1, 0; 0, 0, 0, 0, 1], [1, 0, 0, 0, 0; 0, 1, 0, 0, 0; 0, 0, 1,
  0, 0; 0, 0, 0, 1, 0; 0, 0, 0, 0, 1], [[1, 0, 0, 0, 0; 0, 1, 0, 0, 0; 0, 0, 
@@ -923,6 +924,7 @@ charpol annihil(b) 3d: 1
 random 3d: [1, 0, 0, 1, 1]~
 alsimpledec 3d: 1
 al_decomposition 3d: 1
+subalg M2(F3): 1
 maxorder assoc: 1
 natorder assoc: 1
 spl(1): 1
@@ -2578,4 +2580,4 @@ x - 12
   ***   at top-level: altableinit(mt,y)
   ***                 ^-----------------
   *** altableinit: incorrect type in altableinit (t_POL).
-Total time spent: 3382
+Total time spent: 3416
