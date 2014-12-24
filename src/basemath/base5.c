@@ -210,20 +210,22 @@ rnf_basM(GEN rnf)
   return M;
 }
 
-/* only fill in nf[1,3,4,7,8,9] */
+const long NFABS = 1;
+
 static GEN
-makenfabs(GEN rnf)
+makenfabs(GEN rnf, long prec)
 {
-  GEN nf = rnf_get_nf(rnf), pol = rnf_get_polabs(rnf);
-  GEN bas = modulereltoabs(rnf, rnf_get_zk(rnf));
+  GEN nf, pol, bas;
+  if ((nf = obj_check(rnf,NFABS))) return nfnewprec(nf,prec);
+  nf = rnf_get_nf(rnf);
+  pol = rnf_get_polabs(rnf);
+  bas = modulereltoabs(rnf, rnf_get_zk(rnf));
   return nfinit(mkvec2(pol, bas), nf_get_prec(nf));
 }
 
-const long NFABS = 1;
 GEN
-check_and_build_nfabs(GEN rnf) {
-  return obj_checkbuild(rnf, NFABS, &makenfabs);
-}
+check_and_build_nfabs(GEN rnf, long prec)
+{ return obj_checkbuild_prec(rnf, NFABS, &makenfabs, &nf_get_prec, prec); }
 
 void
 nf_nfzk(GEN nf, GEN rnfeq, GEN *zknf, GEN *czknf)
@@ -502,7 +504,7 @@ rnfidealtwoelement(GEN rnf, GEN x)
   GEN y, cy, z, NF;
 
   y = rnfidealreltoabs(rnf,x);
-  NF = check_and_build_nfabs(rnf);
+  NF = check_and_build_nfabs(rnf, nf_get_prec(rnf_get_nf(rnf)));
   y = matalgtobasis(NF, y); settyp(y, t_MAT);
   y = Q_primitive_part(y, &cy);
   y = ZM_hnf(y);
