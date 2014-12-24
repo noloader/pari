@@ -2826,25 +2826,22 @@ rnfcycaut(GEN rnf, GEN nf2)
   polabs = rnf_get_polabs(rnf);
   nf = rnf_get_nf(rnf);
   pol0 = nf_get_pol(nf);
-  X = pol_x(varn(pol0));
+  X = RgX_rem(pol_x(varn(pol0)), pol0);
 
+  /* TODO: check mod prime of degree 1 */
   for (i=1; i<lg(L); i++) {
-    s = lift(gel(L,i));
-    salpha = RgX_rem(poleval(alpha,s),polabs);
+    s = gel(L,i);
+    salpha = RgX_RgXQ_eval(alpha,s,polabs);
+    if (!gequal(alpha,salpha)) continue;
 
-    if (!gequal0(RgX_rem(gsub(alpha,salpha),polabs))) continue;
     s = lift(rnfeltabstorel(rnf,s));
-    s = gsub(s,gmul(k,X));
-    for (j=2; j<lg(s); j++)
-      if (typ(gel(s,j))==t_POL) gel(s,j) = RgX_rem(gel(s,j),pol0);
-    s = RgX_rem(s,pol);
-    sj = s;
+    sj = s = gsub(s, gmul(k,X));
     for (j=1; !gequal0(gsub(sj,pol_x(varn(s)))); j++)
-      sj = RgX_rem(poleval(sj,s),pol);
+      sj = RgX_RgXQ_eval(sj,s,pol);
     if (j<d) continue;
     return s;
   }
-  return gen_0; /*not reached*/
+  return NULL; /*not reached*/
 }
 
 GEN
