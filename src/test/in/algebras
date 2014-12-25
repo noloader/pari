@@ -1171,9 +1171,11 @@ matrixringmt(N) =
 print("csa al2");
 setrand(1);
 al2 = alinit(nf, matrixringmt(2), 'x);
+al2[6]=0;\\ depends on 32/64bit
 print(al2);
 print("csa al3");
 al3 = alinit(nf, matrixringmt(3), 'x);
+al3[6]=0;\\ depends on 32/64bit
 print(al3);
 
 \\limit cases
