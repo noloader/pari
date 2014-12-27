@@ -1168,6 +1168,103 @@ matrixringmt(N) =
   mt2;
 }
 
+print("examples from docu");
+setrand(1);
+altype([])
+A = alinit(nfinit(y),[-1,1]);
+aladd(A,[1,0]~,[1,2]~)
+
+A = alinit(nfinit(y^2-5),[2,y]);
+alalgtobasis(A,[y,1]~)
+albasistoalg(A,alalgtobasis(A,[y,1]~))
+
+albasistoalg(A,[0,1,0,0,2,-3,0,0]~)
+alalgtobasis(A,albasistoalg(A,[0,1,0,0,2,-3,0,0]~))
+
+mt = [matid(3), [0,0,0; 1,1,0; 0,0,0], [0,0,1; 0,0,0; 1,0,1]];
+A = altableinit(mt,2);
+e = [0,1,0]~;
+one = [1,0,0]~;
+e2 = alsub(A,one,e);
+alcentralproj(A,[e,e2])
+alprimesubalg(A)
+alquotient(A,[0;1;0])
+alsubalg(A,[1,0; 0,0; 0,1])
+
+nf = nfinit(y^2-5);
+A = alinit(nf, [-3,1-y]);
+algethassef(A)
+algetdegree(A)^algetabsdim(A)*nf.disc^algetdim(A)*idealnorm(nf,algethassef(A)[1][2])^algetdegree(A)
+aldisc(A)
+
+nf = nfinit(y^3-y+1);
+A = alinit(nf, [-1,-1]);
+algetabsdim(A)
+algetcenter(A).pol
+algetdegree(A)
+algetdim(A)
+
+nf = nfinit(y);
+p = idealprimedec(nf,7)[1];
+p2 = idealprimedec(nf,11)[1];
+A = alinit(nf,[3,[[p,p2],[1/3,2/3]],[0]]);
+algetaut(A)
+algetb(A)
+
+mt = [matid(3), [0,0,0; 1,1,0; 0,0,0], [0,0,1; 0,0,0; 1,0,1]];
+A = altableinit(mt,13);
+algetchar(A)
+altype(A)
+
+nf = nfinit(y^2-5);
+A = alinit(nf, [-1,2*y-1]);
+algethassef(A)
+A = alinit(nf, [-1,y]);
+algethassei(A)
+
+A = alinit(nfinit(y), [-1,-1]);
+algetinvord(A)
+algetord(A)
+algetmultable(A)
+alinv(A,[1,1,0,0]~)
+almul(A,[1,1,0,0]~,[0,0,2,1]~)
+almultable(A,[0,1,0,0]~)
+alneg(A,[1,1,0,0]~)
+alsplittingmatrix(A,[0,0,0,2]~)
+alpow(A,[1,1,0,0]~,7)
+alsub(A,[1,1,0,0]~,[1,0,1,0]~)
+altrace(A,[5,0,0,1]~)
+altype(A)
+
+nf = nfinit(y^3-5);
+a = y; b = y^2;
+m_i = [0,a,0,0;\
+       1,0,0,0;\
+       0,0,0,a;\
+       0,0,1,0];
+m_j = [0, 0,b, 0;\
+       0, 0,0,-b;\
+       1, 0,0, 0;\
+       0,-1,0, 0];
+m_k = [0, 0,0,-a*b;\
+       0, 0,b,   0;\
+       0,-a,0,   0;\
+       1, 0,0,   0];
+mt = [matid(4), m_i, m_j, m_k];
+A = alinit(nf,mt,'x);
+algetrelmultable(A)
+algetsplitting(A).pol
+algetsplittingdata(A)
+altype(A)
+
+mt = [matid(3), [0,0,0; 1,1,0; 0,0,0], [0,0,1; 0,0,0; 1,0,1]];
+A = altableinit(mt,19);
+alnorm(A,[0,-2,3]~)
+
+
+
+T = y^3-y+1;
+nf = nfinit(T);
 print("csa al2");
 setrand(1);
 al2 = alinit(nf, matrixringmt(2), 'x);
@@ -1230,6 +1327,19 @@ alcharpoly(almt0,a)
 almultable(almt0,b)
 alpow(almt0,a,0)
 
+m_i = [0,-1,0, 0;\
+       1, 0,0, 0;\
+       0, 0,0,-1;\
+       0, 0,1, 0];
+m_j = [0, 0,-1,0;\
+       0, 0, 0,1;\
+       1, 0, 0,0;\
+       0,-1, 0,0];
+m_k = [0, 0, 0, -1;\
+       0, 0,-1, 0;\
+       0, 1, 0, 0;\
+       1, 0, 0, 0];
+mt = [matid(4), m_i, m_j, m_k];
 \\ bad inputs
 almt = altableinit(mt,0);
 alrandom(1,1)

@@ -12,3 +12,32 @@ Doc: Given an algebra \var{al} output by \tet{alinit} or by \tet{altableinit}, r
  \item $2$: central simple algebra output by \tet{alinit} and represented by a multiplication table over its center.
 
  \item $3$: central simple algebra output by \tet{alinit} and represented by a cyclic algebra.
+ \bprog
+ ? altype([])
+ %1 = 0
+ ? mt = [matid(3), [0,0,0; 1,1,0; 0,0,0], [0,0,1; 0,0,0; 1,0,1]];
+ ? A = altableinit(mt,2);
+ ? altype(A)
+ %4 = 1
+ ? nf = nfinit(y^3-5);
+ ?  a = y; b = y^2;
+ ?  {m_i = [0,a,0,0;
+            1,0,0,0;
+            0,0,0,a;
+            0,0,1,0];}
+ ?  {m_j = [0, 0,b, 0;
+            0, 0,0,-b;
+            1, 0,0, 0;
+            0,-1,0, 0];}
+ ?  {m_k = [0, 0,0,-a*b;
+            0, 0,b,   0;
+            0,-a,0,   0;
+            1, 0,0,   0];}
+ ?  mt = [matid(4), m_i, m_j, m_k];
+ ?  A = alinit(nf,mt,'x);
+ ? altype(A)
+ %12 = 2
+ ? A = alinit(nfinit(y), [-1,-1]);
+ ? altype(A)
+ %14 = 3
+ @eprog

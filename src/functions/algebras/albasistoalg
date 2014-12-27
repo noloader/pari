@@ -5,3 +5,10 @@ Prototype: GG
 Help: albasistoalg(al,x): transforms the column vector x on the integral basis of al into an element of al in algebraic form.
 Doc: Given an element \var{x} in the central simple algebra \var{al} output by \tet{alinit}, transforms it to its algebraic representation in \var{al}.
  This is the inverse function of \tet{alalgtobasis}.
+ \bprog
+ ? A = alinit(nfinit(y^2-5),[2,y]);
+ ? albasistoalg(A,[0,1,0,0,2,-3,0,0]~)
+ %2 = [Mod(Mod(-1/2*y - 2, y^2 - 5)*x + Mod(-1/4*y + 5/4, y^2 - 5), x^2 - 2), Mod(Mod(-3/4*y + 7/4, y^2 - 5), x^2 - 2)]~
+ ? alalgtobasis(A,albasistoalg(A,[0,1,0,0,2,-3,0,0]~))
+ %3 = [0, 1, 0, 0, 2, -3, 0, 0]~
+ @eprog

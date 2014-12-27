@@ -4,3 +4,9 @@ C-Name: algetdegree
 Prototype: lG
 Help: algetdegree(al): degree of the central simple algebra al.
 Doc: Given a central simple algebra \var{al} output by \tet{alinit}, returns the degree of \var{al}.
+ \bprog
+ ? nf = nfinit(y^3-y+1);
+ ? A = alinit(nf, [-1,-1]);
+ ? algetdegree(A)
+ %3 = 2
+ @eprog

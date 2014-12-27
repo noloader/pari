@@ -4,3 +4,11 @@ C-Name: algetb
 Prototype: G
 Help: algetb(al): the element b of the center of the cyclic algebra al used to define it.
 Doc: Given a cyclic algebra $\var{al} = (L/K,\sigma,b)$ output by \tet{alinit}, returns the element $b\in K$.
+ \bprog
+ nf = nfinit(y);
+ ? p = idealprimedec(nf,7)[1];
+ ? p2 = idealprimedec(nf,11)[1];
+ ? A = alinit(nf,[3,[[p,p2],[1/3,2/3]],[0]]);
+ ? algetb(A)
+ %5 = Mod(-77, y)
+ @eprog

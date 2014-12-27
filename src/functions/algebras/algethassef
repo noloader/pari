@@ -4,3 +4,9 @@ C-Name: algethassef
 Prototype: G
 Help: algethassef(al): the hasse invariant of the central simple algebra al at finite places.
 Doc: Given a central simple algebra \var{al} output by \tet{alinit}, returns a \typ{VEC} $[\kbd{PR}, h_f]$ describing the local Hasse invariants at the finite places of the center: \kbd{PR} is a \typ{VEC} of primes and $h_f$ is a \typ{VECSMALL} of integers modulo the degree $d$ of \var{al}.
+ \bprog
+ ? nf = nfinit(y^2-5);
+ ? A = alinit(nf, [-1,2*y-1]);
+ ? algethassef(A)
+ %3 = [[[19, [10, 2]~, 1, 1, [-8, 2; 2, -10]], [2, [2, 0]~, 1, 2, 1]], Vecsmall([1, 0])]
+ @eprog

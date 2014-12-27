@@ -4,3 +4,9 @@ C-Name: algetdim
 Prototype: lG
 Help: algetdim(al): dimension of the algebra al.
 Doc: Given a central simple algebra \var{al} output by \tet{alinit}, returns the dimension of \var{al} over its center. Given a table algebra \var{al} output by \tet{altableinit}, returns the dimension of \var{al} over its prime subfield ($\Q$ or $\F_p$).
+ \bprog
+ ? nf = nfinit(y^3-y+1);
+ ? A = alinit(nf, [-1,-1]);
+ ? algetdim(A)
+ %3 = 4
+ @eprog

@@ -4,3 +4,9 @@ C-Name: algetchar
 Prototype: G
 Help: algetchar(al): characteristic of the algebra al.
 Doc: Given an algebra \var{al} output by \tet{alinit} or \tet{altableinit}, returns the characteristic of \var{al}.
+ \bprog
+ ? mt = [matid(3), [0,0,0; 1,1,0; 0,0,0], [0,0,1; 0,0,0; 1,0,1]];
+ ? A = altableinit(mt,13);
+ ? algetchar(A)
+ %3 = 13
+ @eprog

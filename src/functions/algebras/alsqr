@@ -5,3 +5,8 @@ Prototype: GG
 Help: alsqr(al,x): element x^2 in al.
 Doc: Given an element $x$ in \var{al}, computes its square $x^2$ in the
  algebra \var{al}.
+ \bprog
+ ? A = alinit(nfinit(y), [-1,-1]);
+ ? alsqr(A,[1,0,2,0]~)
+ %2 = [-3, 0, 4, 0]~
+ @eprog
