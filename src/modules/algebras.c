@@ -871,7 +871,7 @@ check_mt(GEN mt, GEN p)
   {
     GEN M = gel(mt,i);
     if (typ(M) != t_MAT || lg(M) != l || lgcols(M) != l) return NULL;
-    if (p) M = RgM_to_FpM(M,p); else if (!RgM_is_ZM(M)) return NULL;
+    if (p) M = RgM_to_FpM(M,p);
     if (i > 1 && ZC_is_ei(gel(M,1)) != i) return NULL; /* i = 1 checked at end*/
     gel(MT,i) = M;
   }
