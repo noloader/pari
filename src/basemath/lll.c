@@ -794,32 +794,32 @@ qflllgram0(GEN x, long flag)
 /**                   INTEGRAL KERNEL (LLL REDUCED)                **/
 /**                                                                **/
 /********************************************************************/
-/* Horribly slow (coeff explosion in small dimension): never use this */
 static GEN
-kerint1(GEN x)
+kerint0(GEN M)
+{
+  GEN U, H = ZM_hnfall(M,&U,1);
+  long d = lg(M)-lg(H);
+  if (d == 1) return cgetg(1, t_MAT);
+  return ZM_lll(vecslice(U,1,d), LLLDFT, LLL_INPLACE);
+}
+GEN
+kerint(GEN M)
 {
   pari_sp av = avma;
-  return gerepilecopy(av, ZM_lll(QM_ImQ_hnf(ker(x)), LLLDFT, LLL_INPLACE));
+  return gerepilecopy(av, kerint0(M));
 }
-/* Mostly useless: use ZM_lll(x, 0.99, LLL_KER) directly */
+/* OBSOLETE: use kerint */
 GEN
-kerint(GEN x)
+matkerint0(GEN M, long flag)
 {
   pari_sp av = avma;
-  GEN h = ZM_lll(x, LLLDFT, LLL_KER);
-  if (lg(h)==1) { avma = av; return cgetg(1, t_MAT); }
-  return gerepilecopy(av, ZM_lll(h, LLLDFT, LLL_INPLACE));
-}
-
-GEN
-matkerint0(GEN x, long flag)
-{
-  if (typ(x) != t_MAT) pari_err_TYPE("matkerint",x);
-  RgM_check_ZM(x, "kerint");
+  if (typ(M) != t_MAT) pari_err_TYPE("matkerint",M);
+  M = Q_primpart(M);
+  RgM_check_ZM(M, "kerint");
   switch(flag)
   {
-    case 0: return kerint(x);
-    case 1: return kerint1(x);
+    case 0:
+    case 1: return gerepilecopy(av, kerint0(M));
     default: pari_err_FLAG("matkerint");
   }
   return NULL; /* not reached */

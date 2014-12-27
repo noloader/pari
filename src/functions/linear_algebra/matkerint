@@ -3,20 +3,12 @@ Section: linear_algebra
 C-Name: matkerint0
 Prototype: GD0,L,
 Help: matkerint(x,{flag=0}): LLL-reduced Z-basis of the kernel of the matrix
- x with integral entries. flag is optional, and may be set to 0: default,
- uses LLL, 1: uses matrixqz (much slower).
+ x with integral entries. flag is deprecated, and may be set to 0 or 1
+ for backward compatibility.
 Doc: gives an \idx{LLL}-reduced $\Z$-basis
- for the lattice equal to the kernel of the matrix $x$ as columns of the
- matrix $x$ with integer entries (rational entries are not permitted).
+ for the lattice equal to the kernel of the matrix $x$ with rational entries.
 
- If $\fl=0$, uses an integer LLL algorithm.
+ \fl is deprecated, kept for backward compatibility.
 
- If $\fl=1$, uses $\kbd{matrixqz}(x,-2)$. Many orders of magnitude slower
- than the default: never use this.
-
-Variant: See also \fun{GEN}{kerint}{GEN x} ($\fl=0$), which is a trivial
- wrapper around
- \bprog
- ZM_lll(ZM_lll(x, 0.99, LLL_KER), 0.99, LLL_INPLACE);
- @eprog\noindent Remove the outermost \kbd{ZM\_lll} if LLL-reduction is not
- desired (saves time).
+Variant: Use directly \fun{GEN}{kerint}{GEN x} if $x$ is known to have
+ integer entries, and \tet{Q_primpart} first otherwise.

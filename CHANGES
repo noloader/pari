@@ -288,6 +288,8 @@ BA 38- much faster polresultant over Z
    42- thue() needed to compute to huge accuracies when regulator was large
        E.g. t=thueinit(15*x^3+8*x^2-95*x+24,1); thue(t,8)
    43- rnf structures may now contain a full absolute nf struct ('nfabs')
+   44- matkerint: replace underlying LLL algorithm by mathnf
+       Simple bench: M=matrix(50,55,i,j,random(10^5)); \\ 200 times faster
 
 Removed
    1- deprecated functions nfbasis0, nfdisc0, factorpadic0
