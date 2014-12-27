@@ -20,7 +20,7 @@ Doc: let $\var{rnf}$ be a relative
    rnfidealabstorel(rnf, Labs.zk * m)
  @eprog\noindent converts $m$ to a relative ideal.
  \bprog
- ? K = nfinit(y^2+1); L = rnfinit(K, x^2-y); Labs = nfinit(L.pol);
+ ? K = nfinit(y^2+1); L = rnfinit(K, x^2-y); Labs = nfinit(L);
  ? m = idealhnf(Labs, 17, x^3+2);
  ? B = rnfidealabstorel(L, Labs.zk * m)
  %3 = [[1, 8; 0, 1], [[17, 4; 0, 1], 1]]  \\ pseudo-basis for m as Z_K-module
