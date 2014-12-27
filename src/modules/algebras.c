@@ -3242,7 +3242,7 @@ al_csa_table(GEN nf, GEN mt0, long v, int maxord)
 
   nf = checknf(nf);
   mt = check_mt(mt0,NULL);
-  if (!mt) pari_err_TYPE("altableinit", mt0);
+  if (!mt) pari_err_TYPE("al_csa_table", mt0);
   n = nf_get_degree(nf);
   D = n*d2;
   if (d*d != d2)
