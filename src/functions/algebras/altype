@@ -11,4 +11,4 @@ Doc: Given an algebra \var{al} output by \tet{alinit} or by \tet{altableinit}, r
 
  \item $2$: central simple algebra output by \tet{alinit} and represented by a multiplication table over its center.
 
- \item $3$: central simple algebra output by \tet{alinit} and represented by a central simple algebra.
+ \item $3$: central simple algebra output by \tet{alinit} and represented by a cyclic algebra.
