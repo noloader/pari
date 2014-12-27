@@ -212,11 +212,15 @@ rnf_basM(GEN rnf)
 
 const long NFABS = 1;
 
-static GEN
-makenfabs(GEN rnf, long prec)
+GEN
+rnfnfabs(GEN rnf, long prec)
 {
   GEN nf, pol, bas;
-  if ((nf = obj_check(rnf,NFABS))) return nfnewprec(nf,prec);
+  if ((nf = obj_check(rnf,NFABS)))
+  {
+    if (nf_get_prec(nf) < prec) nf = nfnewprec_shallow(nf,prec);
+    return nf;
+  }
   nf = rnf_get_nf(rnf);
   pol = rnf_get_polabs(rnf);
   bas = modulereltoabs(rnf, rnf_get_zk(rnf));
@@ -225,7 +229,7 @@ makenfabs(GEN rnf, long prec)
 
 GEN
 check_and_build_nfabs(GEN rnf, long prec)
-{ return obj_checkbuild_prec(rnf, NFABS, &makenfabs, &nf_get_prec, prec); }
+{ return obj_checkbuild_prec(rnf, NFABS, &rnfnfabs, &nf_get_prec, prec); }
 
 void
 nf_nfzk(GEN nf, GEN rnfeq, GEN *zknf, GEN *czknf)

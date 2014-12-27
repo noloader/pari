@@ -21,11 +21,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 
 int new_galois_format = 0;
 
+int
+checkrnf_i(GEN rnf)
+{ return (typ(rnf)==t_VEC && lg(rnf)==13); }
+
 void
 checkrnf(GEN rnf)
-{
-  if (typ(rnf)!=t_VEC || lg(rnf)!=13) pari_err_TYPE("checkrnf",rnf);
-}
+{ if (!checkrnf_i(rnf)) pari_err_TYPE("checkrnf",rnf); }
 
 GEN
 checkbnf_i(GEN X)
@@ -1913,6 +1915,7 @@ nfinitall(GEN x, long flag, long prec)
   GEN nf, unscale;
   nfbasic_t T;
 
+  if (checkrnf_i(x)) return check_and_build_nfabs(x, prec);
   nfbasic_init(x, flag, &T);
   if (!ZX_is_irred(T.x)) pari_err_IRREDPOL("nfinit",x);
   if (!equali1(leading_term(T.x0)) && !(flag & nf_RED))

@@ -215,6 +215,7 @@ AP 81- [GP] central simple algebra package, GP functions
    82- [libpari] functions rnf_get_alpha, rnf_get_idealdisc, rnf_get_k
    83- [libpari] functions ZC_is_ei, RgC_is_ei, ZM_Z_div, ZMV_to_FlmV, checkal
    84- [libpari] functions cbrtr, cbrtr_abs
+   85- nfinit(rnf) now returns an nf structure associated to rnf.polabs
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]
