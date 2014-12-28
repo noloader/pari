@@ -1371,3 +1371,11 @@ mt=[matid(3), [0,0,0; 1,1,0; 0,0,0], [0,0,1; 0,0,0; 1,0,1]];
 A=altableinit(mt,2);
 algetdegree(A)
 algetcenter(A)
+alsub(A,1,1)
+aladd(A,1,1)
+alneg(A,1)
+almul(A,1,1)
+alsqr(A,1)
+aldivl(A,1,1)
+aldivr(A,1,1)
+alinv(A,1)

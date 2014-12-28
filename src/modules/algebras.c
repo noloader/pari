@@ -940,9 +940,7 @@ long
 al_model(GEN al, GEN x)
 {
   long D = al_get_absdim(al);
-  if (typ(x) != t_COL) {
-    pari_err_TYPE("al_model", x);
-  }
+  if (typ(x) != t_COL) pari_err_TYPE("al_model", x);
   if (D==1) return al_TRIVIAL; /* cannot distinguish basis and alg from size */
   if (lg(x)==D+1) return al_BASIS;
   return al_ALGEBRAIC;
@@ -955,10 +953,10 @@ aladd(GEN al, GEN x, GEN y)
   long tx, ty;
   GEN p;
   checkal(al);
-  p = al_get_char(al);
-  if (signe(p)) return FpC_add(x,y,p);
   tx = al_model(al,x);
   ty = al_model(al,y);
+  p = al_get_char(al);
+  if (signe(p)) return FpC_add(x,y,p);
   if (tx==ty) return gadd(x,y);
   if (tx==al_ALGEBRAIC)       x = alalgtobasis(al,x);
   else if (ty==al_ALGEBRAIC)  y = alalgtobasis(al,y);
@@ -966,7 +964,7 @@ aladd(GEN al, GEN x, GEN y)
 }
 
 GEN
-alneg(GEN al, GEN x) { (void)al; return gneg(x); }
+alneg(GEN al, GEN x) { checkal(al); (void)al_model(al,x); return gneg(x); }
 
 GEN
 alsub(GEN al, GEN x, GEN y)
@@ -975,10 +973,10 @@ alsub(GEN al, GEN x, GEN y)
   pari_sp av = avma;
   GEN p;
   checkal(al);
-  p = al_get_char(al);
-  if (signe(p)) return FpC_sub(x,y,p);
   tx = al_model(al,x);
   ty = al_model(al,y);
+  p = al_get_char(al);
+  if (signe(p)) return FpC_sub(x,y,p);
   if (tx==ty) return gsub(x,y);
   if (tx==al_ALGEBRAIC)       x = alalgtobasis(al,x);
   else if (ty==al_ALGEBRAIC)  y = alalgtobasis(al,y);
@@ -1147,9 +1145,9 @@ almul(GEN al, GEN x, GEN y)
   pari_sp av = avma;
   long tx, ty;
   checkal(al);
-  if (signe(al_get_char(al))) return albasismul(al,x,y);
   tx = al_model(al,x);
   ty = al_model(al,y);
+  if (signe(al_get_char(al))) return albasismul(al,x,y);
   if (tx==al_TRIVIAL) return gerepilecopy(av,mkcol(gmul(gel(x,1),gel(y,1))));
   if (tx==al_ALGEBRAIC && ty==al_ALGEBRAIC) return alalgmul(al,x,y);
   if (tx==al_ALGEBRAIC) x = alalgtobasis(al,x);
@@ -1163,8 +1161,8 @@ alsqr(GEN al, GEN x)
   pari_sp av = avma;
   long tx;
   checkal(al);
-  if (signe(al_get_char(al))) return albasismul(al,x,x);
   tx = al_model(al,x);
+  if (signe(al_get_char(al))) return albasismul(al,x,x);
   if (tx==al_TRIVIAL) return gerepilecopy(av,mkcol(gsqr(gel(x,1))));
   if (tx==al_ALGEBRAIC) return alalgmul(al,x,x);
   return gerepileupto(av,albasismul(al,x,x));

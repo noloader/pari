@@ -2448,4 +2448,28 @@ x - 12
   ***   at top-level: algetcenter(A)
   ***                 ^--------------
   *** algetcenter: incorrect type in algetdegree (t_VEC).
-Total time spent: 5714
+  ***   at top-level: alsub(A,1,1)
+  ***                 ^------------
+  *** alsub: incorrect type in al_model (t_INT).
+  ***   at top-level: aladd(A,1,1)
+  ***                 ^------------
+  *** aladd: incorrect type in al_model (t_INT).
+  ***   at top-level: alneg(A,1)
+  ***                 ^----------
+  *** alneg: incorrect type in al_model (t_INT).
+  ***   at top-level: almul(A,1,1)
+  ***                 ^------------
+  *** almul: incorrect type in al_model (t_INT).
+  ***   at top-level: alsqr(A,1)
+  ***                 ^----------
+  *** alsqr: incorrect type in al_model (t_INT).
+  ***   at top-level: aldivl(A,1,1)
+  ***                 ^-------------
+  *** aldivl: incorrect type in al_model (t_INT).
+  ***   at top-level: aldivr(A,1,1)
+  ***                 ^-------------
+  *** aldivr: incorrect type in al_model (t_INT).
+  ***   at top-level: alinv(A,1)
+  ***                 ^----------
+  *** alinv: incorrect type in al_model (t_INT).
+Total time spent: 5787
