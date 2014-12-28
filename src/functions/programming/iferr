@@ -216,10 +216,6 @@ Doc: evaluates the expression sequence \var{seq1}. If an error occurs,
   \var{E} has three component, 1 (\typ{STR}): the function $s$,
   2: the argument $x$, 3: the argument $x$.
 
-  \item \kbd{"e\_NEGVAL"}. An argument of function $s$ is a power series with
-  negative valuation, which does not make sense. (As in \kbd{cos(1/x)}.)
-  \var{E} has one component, 1 (\typ{STR}): the function name $s$.
-
   \item \kbd{"e\_PRIME"}. Function $s$ expected a prime number,
   and did receive $p$, which was not. (As in \kbd{idealprimedec(nf, 4)}.)
   \var{E} has two component, 1 (\typ{STR}): the function name $s$,
