@@ -2442,4 +2442,10 @@ x - 12
   ***   at top-level: altableinit(mt,y)
   ***                 ^-----------------
   *** altableinit: incorrect type in altableinit (t_POL).
-Total time spent: 3409
+  ***   at top-level: algetdegree(A)
+  ***                 ^--------------
+  *** algetdegree: incorrect type in algetdegree (t_VEC).
+  ***   at top-level: algetcenter(A)
+  ***                 ^--------------
+  *** algetcenter: incorrect type in algetdegree (t_VEC).
+Total time spent: 5714

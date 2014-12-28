@@ -136,12 +136,26 @@ algetsplitting(GEN al) { checkal(al); return al_get_splitting(al); }
 long
 al_get_degree(GEN al) { return rnf_get_degree(al_get_splitting(al)); }
 long
-algetdegree(GEN al) { checkal(al); return al_get_degree(al); }
+algetdegree(GEN al)
+{
+  GEN rnf;
+  checkal(al);
+  rnf = al_get_splitting(al);
+  if (typ(rnf)!=t_VEC) pari_err_TYPE("algetdegree",al);
+  return rnf_get_degree(rnf);
+}
 
 GEN
 al_get_center(GEN al) { return rnf_get_nf(al_get_splitting(al)); }
 GEN
-algetcenter(GEN al) { checkal(al); return al_get_center(al); }
+algetcenter(GEN al)
+{
+  GEN rnf;
+  checkal(al);
+  rnf = al_get_splitting(al);
+  if (typ(rnf)!=t_VEC) pari_err_TYPE("algetdegree",al);
+  return rnf_get_nf(rnf);
+}
 GEN
 al_get_splitpol(GEN al) { return rnf_get_pol(al_get_splitting(al)); }
 GEN
