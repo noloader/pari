@@ -12,7 +12,7 @@ Doc: \var{al} being the output of \tet{altableinit} representing a semisimple
  ? mt = [matid(3), [0,0,0; 1,1,0; 0,0,0], [0,0,1; 0,0,0; 1,0,1]];
  ? A = altableinit(mt,2);
  ? alprimesubalg(A)
- %3 = 
+ %3 =
  [1 0]
 
  [0 1]

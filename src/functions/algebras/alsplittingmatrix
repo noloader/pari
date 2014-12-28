@@ -10,7 +10,7 @@ Doc: A central simple algebra \var{al} output by \tet{alinit} contains data
  \bprog
  ? A = alinit(nfinit(y), [-1,-1]);
  ? alsplittingmatrix(A,[0,0,0,2]~)
- %2 = 
+ %2 =
  [Mod(x + 1, x^2 + 1) Mod(Mod(1, y)*x + Mod(-1, y), x^2 + 1)]
 
  [Mod(x + 1, x^2 + 1)                   Mod(-x + 1, x^2 + 1)]
