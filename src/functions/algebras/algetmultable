@@ -2,7 +2,8 @@ Function: algetmultable
 Section: algebras
 C-Name: algetmultable
 Prototype: G
-Help: algetmultable(al): multiplication table of the algebra al over its prime subfield.
+Help: algetmultable(al): multiplication table of the algebra al over its
+ prime subfield.
 Doc: Given an algebra \var{al} output by \tet{alinit} or by
  \tet{altableinit}, returns a multiplication table of \var{al} over its prime
  subfield ($\Q$ or $\F_p$), as a \typ{VEC} of \typ{MAT}: the left

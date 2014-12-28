@@ -2,8 +2,11 @@ Function: algetsplitting
 Section: algebras
 C-Name: algetsplitting
 Prototype: G
-Help: algetsplitting(al): the stored splitting field of the central simple algebra al.
-Doc: Given a central simple algebra \var{al} output by \tet{alinit}, returns an \var{rnf} structure: the splitting field of \var{al} that is stored in \var{al}, as a relative extension of the center.
+Help: algetsplitting(al): the stored splitting field of the central simple
+ algebra al.
+Doc: Given a central simple algebra \var{al} output by \tet{alinit}, returns
+ an \var{rnf} structure: the splitting field of \var{al} that is stored in
+ \var{al}, as a relative extension of the center.
  \bprog
  nf = nfinit(y^3-5);
  a = y; b = y^2;

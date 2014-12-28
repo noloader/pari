@@ -2,8 +2,10 @@ Function: algetb
 Section: algebras
 C-Name: algetb
 Prototype: G
-Help: algetb(al): the element b of the center of the cyclic algebra al used to define it.
-Doc: Given a cyclic algebra $\var{al} = (L/K,\sigma,b)$ output by \tet{alinit}, returns the element $b\in K$.
+Help: algetb(al): the element b of the center of the cyclic algebra al used
+ to define it.
+Doc: Given a cyclic algebra $\var{al} = (L/K,\sigma,b)$ output by
+ \tet{alinit}, returns the element $b\in K$.
  \bprog
  nf = nfinit(y);
  ? p = idealprimedec(nf,7)[1];

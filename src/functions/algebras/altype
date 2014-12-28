@@ -9,9 +9,11 @@ Doc: Given an algebra \var{al} output by \tet{alinit} or by \tet{altableinit}, r
 
  \item $1$: table algebra output by \tet{altableinit}.
 
- \item $2$: central simple algebra output by \tet{alinit} and represented by a multiplication table over its center.
+ \item $2$: central simple algebra output by \tet{alinit} and represented by
+ a multiplication table over its center.
 
- \item $3$: central simple algebra output by \tet{alinit} and represented by a cyclic algebra.
+ \item $3$: central simple algebra output by \tet{alinit} and represented by
+ a cyclic algebra.
  \bprog
  ? altype([])
  %1 = 0

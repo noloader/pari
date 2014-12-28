@@ -2,9 +2,11 @@ Function: alalgtobasis
 Section: algebras
 C-Name: alalgtobasis
 Prototype: GG
-Help: alalgtobasis(al,x): transforms the element x of the algebra al into a column vector on the integral basis of al.
-Doc: Given an element \var{x} in the central simple algebra \var{al} output by \tet{alinit}, transforms it to a column vector on the integral basis of \var{al}.
- This is the inverse function of \tet{albasistoalg}.
+Help: alalgtobasis(al,x): transforms the element x of the algebra al into a
+ column vector on the integral basis of al.
+Doc: Given an element \var{x} in the central simple algebra \var{al} output
+ by \tet{alinit}, transforms it to a column vector on the integral basis of
+ \var{al}. This is the inverse function of \tet{albasistoalg}.
  \bprog
  ? A = alinit(nfinit(y^2-5),[2,y]);
  ? alalgtobasis(A,[y,1]~)

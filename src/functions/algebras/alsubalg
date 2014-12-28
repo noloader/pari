@@ -3,7 +3,9 @@ Section: algebras
 C-Name: alsubalg
 Prototype: GG
 Help: alsubalg(al,B): subalgebra of al with basis B.
-Doc: \var{al} being a table algebra output by \tet{altableinit} and \var{B} being a basis of a subalgebra of \var{al} represented by a matrix, returns an algebra isomorphic to \var{B}.
+Doc: \var{al} being a table algebra output by \tet{altableinit} and \var{B}
+ being a basis of a subalgebra of \var{al} represented by a matrix, returns an
+ algebra isomorphic to \var{B}.
  \bprog
  ? mt = [matid(3), [0,0,0; 1,1,0; 0,0,0], [0,0,1; 0,0,0; 1,0,1]];
  ? A = altableinit(mt,2);

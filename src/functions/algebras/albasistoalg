@@ -2,8 +2,11 @@ Function: albasistoalg
 Section: algebras
 C-Name: albasistoalg
 Prototype: GG
-Help: albasistoalg(al,x): transforms the column vector x on the integral basis of al into an element of al in algebraic form.
-Doc: Given an element \var{x} in the central simple algebra \var{al} output by \tet{alinit}, transforms it to its algebraic representation in \var{al}.
+Help: albasistoalg(al,x): transforms the column vector x on the integral
+ basis of al into an element of al in algebraic form.
+
+Doc: Given an element \var{x} in the central simple algebra \var{al} output
+ by \tet{alinit}, transforms it to its algebraic representation in \var{al}.
  This is the inverse function of \tet{alalgtobasis}.
  \bprog
  ? A = alinit(nfinit(y^2-5),[2,y]);

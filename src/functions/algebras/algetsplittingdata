@@ -2,7 +2,8 @@ Function: algetsplittingdata
 Section: algebras
 C-Name: algetsplittingdata
 Prototype: G
-Help: algetsplittingdata(al): data stored in the central simple algebra al to compute a splitting of al over an extension.
+Help: algetsplittingdata(al): data stored in the central simple algebra al to
+ compute a splitting of al over an extension.
 Doc: Given a central simple algebra \var{al} output by \tet{alinit} defined
  by a multiplication table over its center~$K$ (a number field), returns data
  stored to compute a splitting of \var{al} over an extension. This data is a
