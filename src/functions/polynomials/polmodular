@@ -13,16 +13,17 @@ Doc:
  second derivatives of the modular polynomial evaluated at $j$.
  \bprog
  ? polmodular(3)
- %1 = x^4 + (-y^3 + 2232*y^2 - 1069956*y + 36864000)*x^3 + (2232*y^3 + 2587918086*y^2 + 8900222976000*y + 452984832000000)*x^2 + (-1069956*y^3 + 8900222976000*y^2 - 770845966336000000*y + 1855425871872000000000)*x + (y^4 + 36864000*y^3 + 452984832000000*y^2 + 1855425871872000000000*y)
+ %1 = x^4 + (-y^3 + 2232*y^2 - 1069956*y + 36864000)*x^3 + [...]
  @eprog
 Variant: Also available are
 
- \fun{GEN}{modpoly_ZXX}{long L, long xvar, long yvar} which returns a bivariate polynomial
- in variables \kbd{xvar} and \kbd{yvar},
+ \fun{GEN}{modpoly_ZXX}{long L, long xvar, long yvar} which returns a
+ bivariate polynomial in variables \kbd{xvar} and \kbd{yvar},
 
  \fun{GEN}{modpoly_ZM}{long L} which returns a matrix of coefficients, and
 
- \fun{GEN}{Fp_modpoly_evalx}{long L, GEN J, GEN P, long v, int compute_derivs} which returns
- the modular polynomial evaluated at $J$ modulo $P$ in the variable $v$ (if
- \kbd{compute\_derivs} is non-zero, returns a vector containing the modular polynomial and
- its first and second derivatives, all evaluted at $J$ modulo $P$).
+ \fun{GEN}{Fp_modpoly_evalx}{long L, GEN J, GEN P, long v, int
+ compute_derivs} which returns the modular polynomial evaluated at $J$ modulo
+ $P$ in the variable $v$ (if \kbd{compute\_derivs} is non-zero, returns a
+ vector containing the modular polynomial and its first and second
+ derivatives, all evaluted at $J$ modulo $P$).
