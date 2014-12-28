@@ -434,12 +434,12 @@ pre_allocate(RELCACHE_t *cache, size_t n)
 void
 init_GRHcheck(GRHcheck_t *S, long N, long R1, double LOGD)
 {
-  const double c1 = PI*PI/2;
+  const double c1 = M_PI*M_PI/2;
   const double c2 = 3.663862376709;
   const double c3 = 3.801387092431; /* Euler + log(8*Pi)*/
   S->clone = 0;
   S->cN = R1*c2 + N*c1;
-  S->cD = LOGD - N*c3 - R1*PI/2;
+  S->cD = LOGD - N*c3 - R1*M_PI/2;
   S->maxprimes = 16000; /* sufficient for LIMC=176081*/
   S->primes = (GRHprime_t*)pari_malloc(S->maxprimes*sizeof(*S->primes));
   S->nprimes = 0;
@@ -3857,7 +3857,7 @@ Buchall_param(GEN P, double cbach, double cbach2, long nbrelpid, long flun, long
   D = absi(nf_get_disc(nf)); drc = gtodouble(D);
   if (DEBUGLEVEL) err_printf("R1 = %ld, R2 = %ld\nD = %Ps\n",R1,R2, D);
   LOGD = log(drc); LOGD2 = LOGD*LOGD;
-  lim = exp(-N + R2 * log(4/PI)) * sqrt(2*PI*N*drc);
+  lim = exp(-N + R2 * log(4/M_PI)) * sqrt(2*M_PI*N*drc);
   if (lim < 3.) lim = 3.;
   if (cbach > 12.) {
     if (cbach2 < cbach) cbach2 = cbach;

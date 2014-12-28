@@ -2955,7 +2955,7 @@ ellperiods(GEN w, long flag, long prec)
 
 /* 2Pi Im(z)/log(2) */
 static double
-get_toadd(GEN z) { return (2*PI/LOG2)*gtodouble(imag_i(z)); }
+get_toadd(GEN z) { return (2*M_PI/LOG2)*gtodouble(imag_i(z)); }
 
 /* computes the numerical value of wp(z | L), L = om1 Z + om2 Z
  * return NULL if z in L.  If flall=1, compute also wp' */

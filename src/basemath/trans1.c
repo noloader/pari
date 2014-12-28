@@ -127,7 +127,7 @@ abpq_sum(struct abpq_res *r, long n1, long n2, struct abpq *A)
 
 /********************************************************************/
 /**                                                                **/
-/**                               PI                               **/
+/**                               M_PI                               **/
 /**                                                                **/
 /********************************************************************/
 /* replace *old clone by c. Protect against SIGINT */
@@ -2679,7 +2679,7 @@ mpcosm1(GEN x, long *ptmod8)
       q = floorr( divrr(z,pitemp) ); /* round ( x / (Pi/2) ) */
       p = l+EXTRAPRECWORD; x = rtor(x,p);
     } else {
-      q = stoi((long)floor(rtodbl(x) / (PI/2) + 0.5));
+      q = stoi((long)floor(rtodbl(x) / (M_PI/2) + 0.5));
       p = l;
     }
     if (signe(q))

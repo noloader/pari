@@ -82,7 +82,7 @@ mpatan(GEN x)
   if (e < -100)
     alpha = 1.65149612947 - e; /* log_2(Pi) - e */
   else
-    alpha = log2(PI / atan(rtodbl(p1)));
+    alpha = log2(M_PI / atan(rtodbl(p1)));
   beta = (double)(prec2nbits(l)>>1);
   delta = 1 + beta - alpha/2;
   if (delta <= 0) { n = 1; m = 0; }
@@ -971,11 +971,11 @@ double
 darg(double s, double t)
 {
   double x;
-  if (!t) return (s>0)? 0.: PI;
-  if (!s) return (t>0)? PI/2: -PI/2;
+  if (!t) return (s>0)? 0.: M_PI;
+  if (!s) return (t>0)? M_PI/2: -M_PI/2;
   x = atan(t/s);
   return (s>0)? x
-              : ((t>0)? x+PI : x-PI);
+              : ((t>0)? x+M_PI : x-M_PI);
 }
 
 void
@@ -1037,7 +1037,7 @@ cxgamma(GEN s0, int dolog, long prec)
     iS = imag_i(S);
     if (et > 0 && l > 0)
     {
-      GEN t = gmul(iS, dbltor(PI / l)), logt = glog(t,LOWDEFAULTPREC);
+      GEN t = gmul(iS, dbltor(M_PI / l)), logt = glog(t,LOWDEFAULTPREC);
       la = gmul(t, logt);
       if      (gcmpgs(la, 3) < 0)   { logla = log(3.); la = stoi(3); }
       else if (gcmpgs(la, 150) > 0) { logla = rtodbl(logt); la = t; }
@@ -1050,7 +1050,7 @@ cxgamma(GEN s0, int dolog, long prec)
     lim = (long)ceil(l / (1.+ logla));
     if (lim == 0) lim = 1;
 
-    u = gmul(la, dbltor((lim-0.5)/PI));
+    u = gmul(la, dbltor((lim-0.5)/M_PI));
     l2 = gsub(gsqr(u), gsqr(iS));
     if (signe(l2) > 0)
     {
@@ -1082,7 +1082,7 @@ cxgamma(GEN s0, int dolog, long prec)
     /* Im (s - 1/2) log(s) */
     v = (ssig - 0.5)*ilogs + st * rlogs;
     /* l2 = | (s - 1/2) log(s) - s + log(2Pi)/2 |^2 ~ |lngamma(s))|^2 */
-    u = u - ssig + log(2.*PI)/2;
+    u = u - ssig + log(2.*M_PI)/2;
     v = v - st;
     l2 = u*u + v*v;
     if (l2 < 0.000001) l2 = 0.000001;
@@ -1092,7 +1092,7 @@ cxgamma(GEN s0, int dolog, long prec)
     la = 3.; /* FIXME: heuristic... */
     if (st > 1 && l > 0)
     {
-      double t = st * PI / l;
+      double t = st * M_PI / l;
       la = t * log(t);
       if (la < 3) la = 3.;
       if (la > 150) la = t;
@@ -1100,7 +1100,7 @@ cxgamma(GEN s0, int dolog, long prec)
     lim = (long)ceil(l / (1.+ log(la)));
     if (lim == 0) lim = 1;
 
-    u = (lim-0.5) * la / PI;
+    u = (lim-0.5) * la / M_PI;
     l2 = u*u - st*st;
     if (l2 > 0)
     {
@@ -1556,7 +1556,7 @@ cxpsi(GEN s0, long prec)
     lim = 2 + (long)ceil((prec2nbits_mul(prec, LOG2) - l) / (2*(1+log((double)la))));
     if (lim < 2) lim = 2;
 
-    l = (2*lim-1)*la / (2.*PI);
+    l = (2*lim-1)*la / (2.*M_PI);
     L = gsub(dbltor(l*l), gsqr(iS));
     if (signe(L) < 0) L = gen_0;
 
@@ -1579,7 +1579,7 @@ cxpsi(GEN s0, long prec)
     lim = 2 + (long)ceil((prec2nbits_mul(prec, LOG2) - l) / (2*(1+log((double)la))));
     if (lim < 2) lim = 2;
 
-    l = (2*lim-1)*la / (2.*PI);
+    l = (2*lim-1)*la / (2.*M_PI);
     l = l*l - st*st;
     if (l < 0.) l = 0.;
     nn = (long)ceil( sqrt(l) - ssig );

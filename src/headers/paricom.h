@@ -62,8 +62,8 @@ extern const long CATCH_ALL;
 #define pari_ENDCATCH pari_ENDCATCH2(__iferr_old)
 
 extern const double LOG2, LOG10_2, LOG2_10;
-#ifndef  PI
-#  define PI (3.141592653589)
+#ifndef  M_PI
+#  define M_PI 3.14159265358979323846
 #endif
 
 /* Common global variables: */

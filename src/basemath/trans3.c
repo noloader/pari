@@ -289,7 +289,7 @@ kbessel1(GEN nu, GEN gx, long prec)
   y = cgetr(l); l1=lnew+1;
   av = avma; x = gtofp(gx, lnew); nu = gtofp(nu, lnew);
   nu2 = gmul2n(sqrr(nu), 2); togglesign(nu2);
-  n = (long) (prec2nbits_mul(l,LOG2) + PI*fabs(rtodbl(nu))) / 2;
+  n = (long) (prec2nbits_mul(l,LOG2) + M_PI*fabs(rtodbl(nu))) / 2;
   n2 = n<<1; pitemp=mppi(l1);
   r = gmul2n(x,1);
   if (cmprs(x, n) < 0)
@@ -568,7 +568,7 @@ hyperu(GEN a, GEN b, GEN gx, long prec)
   x = gtofp(gx, l);
   a1 = gaddsg(1, gadd(a,mb)); P = gmul(a1, a);
   p1 = gabs(gtofp(P,LOWDEFAULTPREC), LOWDEFAULTPREC);
-  n = (long)(prec2nbits_mul(l, LOG2) + PI*sqrt(gtodouble(p1)));
+  n = (long)(prec2nbits_mul(l, LOG2) + M_PI*sqrt(gtodouble(p1)));
   S = gadd(a1, a);
   if (cmprs(x,n) < 0)
   {
@@ -1113,10 +1113,10 @@ cxerfc_r1(GEN x, long prec)
   GEN h, h2, eh2, denom, res, lambda;
   long u, v;
   const double D = prec2nbits_mul(prec, LOG2);
-  const long npoints = (long)ceil(D/PI)+1;
+  const long npoints = (long)ceil(D/M_PI)+1;
   pari_sp av = avma;
   {
-    double t = exp(-2*PI*PI/D); /* ~exp(-2*h^2) */
+    double t = exp(-2*M_PI*M_PI/D); /* ~exp(-2*h^2) */
     v = 30; /* bits that fit in both long and double mantissa */
     u = (long)floor(t*(1L<<v));
     /* define exp(-2*h^2) to be u*2^(-v) */
@@ -1203,7 +1203,7 @@ get_xinf(double beta)
   double x0, y0, x1;
 
   if (beta < maxbeta) return beta + pow(3*beta, 1.0/3.0);
-  x0 = beta + PI/2.0;
+  x0 = beta + M_PI/2.0;
   for(;;)
   {
     y0 = x0*x0;
@@ -1237,7 +1237,7 @@ optim_zeta(GEN S, long prec, long *pp, long *pn)
     if (beta > 0)
     {
       p = (long)ceil(beta / 2.0);
-      n = fabs(s + 2*p-1)/(2*PI);
+      n = fabs(s + 2*p-1)/(2*M_PI);
     }
     else
     {
@@ -1254,7 +1254,7 @@ optim_zeta(GEN S, long prec, long *pp, long *pn)
     l2 = dabs(s, t)/2;
     if (l < l2) l = l2;
     p = (long) ceil(l); if (p < 2) p = 2;
-    n = 1 + dabs(p+s/2.-.25, t/2) * la / PI;
+    n = 1 + dabs(p+s/2.-.25, t/2) * la / M_PI;
   }
   else
   {
@@ -1269,7 +1269,7 @@ optim_zeta(GEN S, long prec, long *pp, long *pn)
     }
     else
       if (s < 1.0) p = 1;
-    n = p? dabs(s + 2*p-1, t) / (2*PI) : exp((B-LOG2+L) / s);
+    n = p? dabs(s + 2*p-1, t) / (2*M_PI) : exp((B-LOG2+L) / s);
   }
   *pp = p;
   *pn = (long)ceil(n);
@@ -2779,7 +2779,7 @@ jell(GEN x, long prec)
      * but inteta(q) costly and useless if expo(q) << 1  => inteta(q) = 1.
      * log_2 ( exp(-2Pi Im tau) ) < -prec2nbits(prec)
      * <=> Im tau > prec2nbits(prec) * log(2) / 2Pi */
-    long C = (long)prec2nbits_mul(prec, LOG2/(2*PI));
+    long C = (long)prec2nbits_mul(prec, LOG2/(2*M_PI));
     q = exp_IPiC(gmul2n(x,1), prec); /* e(x) */
     if (gcmpgs(gel(x,2), C) > 0) /* eta(q(x)) = 1 : no need to compute q(2x) */
       h = q;

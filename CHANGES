@@ -292,6 +292,7 @@ BA 38- much faster polresultant over Z
    44- matkerint: replace underlying LLL algorithm by mathnf
        Simple bench: M=matrix(50,55,i,j,random(10^5)); \\ 200 times faster
    45- allow t_VECSMALL vector exponents in gen_factorback
+   47- [libpari] rename 'define' PI -> M_PI and use proper constant
 
 Removed
    1- deprecated functions nfbasis0, nfdisc0, factorpadic0

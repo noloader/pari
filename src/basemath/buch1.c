@@ -1048,7 +1048,7 @@ START:
   }
   while (nsubFB < (expi(D) > 15 ? 3 : 2));
   /* invhr = 2^r1 (2pi)^r2 / sqrt(D) w ~ L(chi,1) / hR */
-  invhr = gmul(dbltor((BQ.PRECREG?2.:PI)/sdrc), compute_invresquad(&GRHcheck));
+  invhr = gmul(dbltor((BQ.PRECREG?2.:M_PI)/sdrc), compute_invresquad(&GRHcheck));
   BQ.powsubFB = powsubFBquad(&BQ,CBUCH+1);
   if (DEBUGLEVEL>2) timer_printf(&T, "powsubFBquad");
   BQ.limhash = (LIMC & HIGHMASK)? (HIGHBIT>>1): LIMC*LIMC;

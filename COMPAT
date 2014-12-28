@@ -46,6 +46,7 @@ This file lists the incompatible changes between Version 2.x and older versions
   - comment out libpari function names obsoleted during the 2.3.* cycle
     See PARI_OLD_NAMES.
   - ellsea is replaced by Fp_ellcard_SEA
+  - rename PI -> M_PI
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%% VERSION 2.6 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   - eval() no longer evaluates its arguments in "permissive" mode: eval("1a")

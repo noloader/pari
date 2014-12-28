@@ -179,12 +179,12 @@ param_points(GEN N, double Y, double tmax, long bprec, long *cprec, long *L,
   double D, a, aY, X, logM;
   long d = 2, w = 1;
   tmax *= d;
-  D = bprec * LOG2 + PI/4*tmax + 2;
+  D = bprec * LOG2 + M_PI/4*tmax + 2;
   *cprec = nbits2prec(ceil(D / LOG2) + 5);
-  a = 2 * PI / sqrt(gtodouble(N));
-  aY = a * cos(PI/2*Y);
-  logM = log(4) + logboundG0(w+1, aY) + tmax * Y * PI/2;
-  *h = ( 2 * PI * PI / 2 * Y ) / ( D + logM );
+  a = 2 * M_PI / sqrt(gtodouble(N));
+  aY = a * cos(M_PI/2*Y);
+  logM = log(4) + logboundG0(w+1, aY) + tmax * Y * M_PI/2;
+  *h = ( 2 * M_PI * M_PI / 2 * Y ) / ( D + logM );
   X = log( D / a);
   *L = ceil( X / *h);
   *K = ceil_safe(dbltor( D / a ));
