@@ -10,6 +10,9 @@ Doc: Given a central simple algebra \var{al} output by \tet{alinit}, returns
  \bprog
  ? nf = nfinit(y^2-5);
  ? A = alinit(nf, [-1,2*y-1]);
- ? algethassef(A)
- %3 = [[[19, [10, 2]~, 1, 1, [-8, 2; 2, -10]], [2, [2, 0]~, 1, 2, 1]], Vecsmall([1, 0])]
+ ? [PR,hf] = algethassef(A);
+ ? PR
+ %4 = [[19, [10, 2]~, 1, 1, [-8, 2; 2, -10]], [2, [2, 0]~, 1, 2, 1]]
+ ? hf
+ %5 = Vecsmall([1, 0])
  @eprog
