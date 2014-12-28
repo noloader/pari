@@ -3110,7 +3110,7 @@ al_cyclic(GEN rnf, GEN aut, GEN b, int maxord)
   gel(al,10)= gen_0; /* must be set first */
   gel(al,1) = rnf;
   gel(al,2) = allauts(rnf, aut);
-  gel(al,3) = basistoalg(rnf_get_nf(rnf),b);
+  gel(al,3) = basistoalg(nf,b);
   gel(al,6) = nfinit(rnf_get_polabs(rnf), nf_get_prec(nf));
   gel(al,7) = matid(D);
   gel(al,8) = matid(D); /* TODO modify 7, 8 et 9 once LLL added */
