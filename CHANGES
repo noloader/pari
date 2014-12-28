@@ -291,6 +291,7 @@ BA 38- much faster polresultant over Z
    43- rnf structures may now contain a full absolute nf struct ('nfabs')
    44- matkerint: replace underlying LLL algorithm by mathnf
        Simple bench: M=matrix(50,55,i,j,random(10^5)); \\ 200 times faster
+   45- allow t_VECSMALL vector exponents in gen_factorback
 
 Removed
    1- deprecated functions nfbasis0, nfdisc0, factorpadic0

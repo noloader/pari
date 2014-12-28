@@ -843,12 +843,28 @@ gen_factorback(GEN L, GEN e, GEN (*_mul)(void*,GEN,GEN),
   /* p = elts, e = expo */
   lx = lg(p);
   /* check whether e is an integral vector of correct length */
-  if (!is_vec_t(typ(e)) || lx != lg(e) || !RgV_is_ZV(e))
-    pari_err_TYPE("factorback [not an exponent vector]", e);
-  if (lx == 1) return gen_1;
-  x = cgetg(lx,t_VEC);
-  for (l=1,k=1; k<lx; k++)
-    if (signe(gel(e,k))) gel(x,l++) = _pow(data, gel(p,k), gel(e,k));
+  switch(typ(e))
+  {
+    case t_VECSMALL:
+      if (lx != lg(e))
+        pari_err_TYPE("factorback [not an exponent vector]", e);
+      if (lx == 1) return gen_1;
+      x = cgetg(lx,t_VEC);
+      for (l=1,k=1; k<lx; k++)
+        if (e[k]) gel(x,l++) = _pow(data, gel(p,k), stoi(e[k]));
+      break;
+    case t_VEC: case t_COL:
+      if (lx != lg(e) || !RgV_is_ZV(e))
+        pari_err_TYPE("factorback [not an exponent vector]", e);
+      if (lx == 1) return gen_1;
+      x = cgetg(lx,t_VEC);
+      for (l=1,k=1; k<lx; k++)
+        if (signe(gel(e,k))) gel(x,l++) = _pow(data, gel(p,k), gel(e,k));
+      break;
+    default:
+      pari_err_TYPE("factorback [not an exponent vector]", e);
+      return NULL;
+  }
   x[0] = evaltyp(t_VEC) | _evallg(l);
   return gerepileupto(av, divide_conquer_assoc(x, data, _mul));
 }
