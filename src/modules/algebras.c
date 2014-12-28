@@ -547,6 +547,7 @@ al_centralproj(GEN al, GEN z, int maps)
   U = shallowconcat1(S); /*U = [Im(z_1)|Im(z_2)|...|Im(z_nz)], n x n*/
   if (signe(p)) Ui = FpM_inv(U,p);
   else          Ui = RgM_inv(U);
+  if (!Ui) pari_err_TYPE("alcentralproj",z);
 
   alq = cgetg(lz,t_VEC);
   for (iu=0,i=1; i<lz; i++)
