@@ -13,6 +13,7 @@ Doc: \var{al} being a table algebra output by \tet{altableinit} and \var{I}
  \bprog
  ? mt = [matid(3), [0,0,0; 1,1,0; 0,0,0], [0,0,1; 0,0,0; 1,0,1]];
  ? A = altableinit(mt,2);
- ? alquotient(A,[0;1;0])
- %2 = [0, 0, 0, 0, 0, 0, [1, 0; 0, 1], [1, 0; 0, 1], [[1, 0; 0, 1], [0, 1; 1, 1]], 2, [0, 1]]
+ ? AQ = alquotient(A,[0;1;0]);
+ ? algetdim(AQ)
+ %4 = 2
  @eprog
