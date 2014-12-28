@@ -1050,7 +1050,7 @@ _tablemul_Fp(GEN mt, GEN x, GEN y, GEN p)
   GEN res = NULL;
   for (i=1; i<=D; i++) {
     GEN c = gel(x,i);
-    if (!gequal0(c)) {
+    if (signe(c)) {
       GEN My = FpM_FpC_mul(gel(mt,i),y,p);
       GEN t = FpC_Fp_mul(My,c,p);
       res = res? FpC_add(res,t,p): t;
