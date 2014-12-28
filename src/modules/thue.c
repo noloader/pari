@@ -576,17 +576,17 @@ TrySol(GEN *pS, GEN B0, long i1, GEN Delta2, GEN Lambda, GEN ro,
   return 1;
 }
 
-/* find q1,q2,q3 st q1 + b q2 + c q3 ~ 0 */
+/* find q1,q2,q3 st q1 b + q2 c + q3 ~ 0 */
 static GEN
 GuessQi(GEN b, GEN c, GEN *eps)
 {
-  const long shift = 33;
-  GEN Q, Lat, C = int2n(shift);
+  const long shift = 65;
+  GEN Q, Lat;
 
   Lat = matid(3);
   gcoeff(Lat,3,1) = ground(gmul2n(b, shift));
   gcoeff(Lat,3,2) = ground(gmul2n(c, shift));
-  gcoeff(Lat,3,3) = C;
+  gcoeff(Lat,3,3) = int2n(shift);
 
   Q = gel(lllint(Lat),1);
   if (gequal0(gel(Q,2))) return NULL; /* FAIL */
