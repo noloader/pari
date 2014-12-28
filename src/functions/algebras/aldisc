@@ -3,13 +3,16 @@ Section: algebras
 C-Name: aldisc
 Prototype: G
 Help: aldisc(al): discriminant of the stored order of the algebra al.
-Doc: Given a central simple algebra \var{al} output by \tet{alinit}, computes the discriminant of the order ${\cal O}$ stored in \var{al}, that is the determinant of the trace form $\rm{Tr} : {\cal O}\times {\cal O} \to \Z$.
+Doc: Given a central simple algebra \var{al} output by \tet{alinit}, computes
+ the discriminant of the order ${\cal O}$ stored in \var{al}, that is the
+ determinant of the trace form $\rm{Tr} : {\cal O}\times {\cal O} \to \Z$.
  \bprog
  ? nf = nfinit(y^2-5);
  ? A = alinit(nf, [-3,1-y]);
  ? algethassef(A)
  %3 = [[[2, [2, 0]~, 1, 2, 1], [3, [3, 0]~, 1, 2, 1]], Vecsmall([0, 1])]
- ? algetdegree(A)^algetabsdim(A)*nf.disc^algetdim(A)*idealnorm(nf,algethassef(A)[1][2])^algetdegree(A)
+ ? algetdegree(A)^algetabsdim(A) * nf.disc^algetdim(A) * \
+     idealnorm(nf, algethassef(A)[1][2])^algetdegree(A)
  %4 = 12960000
  ? aldisc(A)
  %5 = 12960000
