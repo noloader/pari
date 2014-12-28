@@ -11,8 +11,27 @@ Doc: Given an algebra \var{al} output by \tet{alinit} or by
  If \var{al} was output by \tet{alinit}, returns the multiplication table of
  the order stored in \var{al}.
  \bprog
- A = alinit(nfinit(y), [-1,-1]);
- ? algetord(A)
- ? algetmultable(A)
- %4 = [[1, 0, 0, 0; 0, 1, 0, 0; 0, 0, 1, 0; 0, 0, 0, 1], [0, -1, 1, 0; 1, 0, 1, 1; 0, 0, 1, 1; 0, 0, -2, -1], [0, -1, -1, -1; 0, -1, 0, -1; 1, -1, 0, 0; 0, 2, 0, 1], [0, -1, 0, -1; 0, 0, 1, 0; 0, -1, 1, 0; 1, 1, -1, 1]]
+ ? A = alinit(nfinit(y), [-1,-1]);
+ ? M = algetmultable(A);
+ ? #M
+ %3 = 4
+ ? M[1]
+ %4 =
+ [1 0 0 0]
+
+ [0 1 0 0]
+
+ [0 0 1 0]
+
+ [0 0 0 1]
+
+ ? M[2]
+ %5 =
+ [0 -1  1  0]
+
+ [1  0  1  1]
+
+ [0  0  1  1]
+
+ [0  0 -2 -1]
  @eprog
