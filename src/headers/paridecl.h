@@ -1146,6 +1146,7 @@ GEN alinit(GEN A, GEN B, long v, long flag);
 GEN alinv(GEN al, GEN x);
 long alisassociative(GEN mt0, GEN p);
 long aliscommutative(GEN al);
+long alissemisimple(GEN al);
 int alisinv(GEN al, GEN x, GEN* ptix);
 GEN alleftordermodp(GEN al, GEN Ip, GEN p);
 GEN almul(GEN al, GEN x, GEN y);

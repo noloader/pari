@@ -475,6 +475,7 @@ norm(w): 1
 dim: 1
 absdim: 1
 iscommutative: 1
+issemisimple: 1
 almultable w+ww: 1
 almultable w*ww: 1
 alg(basis(w)): 1
@@ -545,6 +546,7 @@ trace(basis(w)) 3: 1
 trace(basis(ww)) 3: 1
 radical: 1
 iscommutative cyc 3: 1
+issemisimple cyc 3: 1
 almultable/Q w+ww: 1
 almultable/Q w*ww: 1
 alg(basis(w))/Q: 1
@@ -571,6 +573,7 @@ trace(basis(w))/Q: 1
 trace(basis(ww))/Q: 1
 radical/Q: 1
 iscommutative /Q: 1
+issemisimple /Q: 1
 Suite: table algebra
 alisassociative 0.0: 1
 alisassociative 0.1: error("incorrect type in alisassociative (mult. table) 
@@ -623,6 +626,7 @@ random 0: [1, 0, 0]~
 alsimpledec 0: 1
 al_decomposition 0: 1
 iscommutative 0: 1
+issemisimple 0: 1
 alisassociative 2: 1
 construction 2: [0, 0, 0, 0, 0, 0, [1, 0, 0; 0, 1, 0; 0, 0, 1], [1, 0, 0; 0,
  1, 0; 0, 0, 1], [[1, 0, 0; 0, 1, 0; 0, 0, 1], [0, 0, 0; 1, 0, 1; 0, 0, 0], 
@@ -662,6 +666,7 @@ random 2: [1, 0, 0]~
 alsimpledec 2: 1
 al_decomposition 2: 1
 iscommutative 2: 1
+issemisimple 2: 1
 construction 3: [0, 0, 0, 0, 0, 0, [1, 0; 0, 1], [1, 0; 0, 1], [[1, 0; 0, 1]
 , [0, 0; 1, 0]], 3, [2, 0]]
 iscyclic 3: 1
@@ -692,6 +697,8 @@ random 3: [1, 0]~
 alsimpledec 3: 1
 al_decomposition 3: 1
 iscommutative 3: 1
+issemisimple 3: 1
+issemisimple ss 3: 1
 construction 3c: [0, 0, 0, 0, 0, 0, [1, 0, 0; 0, 1, 0; 0, 0, 1], [1, 0, 0; 0
 , 1, 0; 0, 0, 1], [[1, 0, 0; 0, 1, 0; 0, 0, 1], [0, 0, 0; 1, 0, 0; 0, 1, 0],
  [0, 0, 0; 0, 0, 0; 1, 0, 0]], 3, [0, 0, 0]]
@@ -723,6 +730,8 @@ random 3c: [1, 0, 0]~
 alsimpledec 3c: 1
 al_decomposition 3c: 1
 iscommutative 3c: 1
+issemisimple 3c: 1
+issemisimple ss 3c: 1
 construction 2b: [0, 0, 0, 0, 0, 0, [1, 0; 0, 1], [1, 0; 0, 1], [[1, 0; 0, 1
 ], [0, 1; 1, 1]], 2, [0, 1]]
 iscyclic 2b: 1
@@ -751,6 +760,7 @@ random 2b: [1, 0]~
 alsimpledec 2b: 1
 al_decomposition 2b: 1
 iscommutative 2b: 1
+issemisimple 2b: 1
 construction 3b: [0, 0, 0, 0, 0, 0, [1, 0, 0, 0; 0, 1, 0, 0; 0, 0, 1, 0; 0, 
 0, 0, 1], [1, 0, 0, 0; 0, 1, 0, 0; 0, 0, 1, 0; 0, 0, 0, 1], [[1, 0, 0, 0; 0,
  1, 0, 0; 0, 0, 1, 0; 0, 0, 0, 1], [0, 1, 0, 0; 1, 0, 0, 0; 0, 0, 1, 0; 0, 0
@@ -785,6 +795,7 @@ random 3b: [1, 0, 0, 1]~
 alsimpledec 3b: 1
 al_decomposition 3b: 1
 iscommutative 3b: 1
+issemisimple 3b: 1
 construction 2c: [0, 0, 0, 0, 0, 0, [1, 0, 0, 0; 0, 1, 0, 0; 0, 0, 1, 0; 0, 
 0, 0, 1], [1, 0, 0, 0; 0, 1, 0, 0; 0, 0, 1, 0; 0, 0, 0, 1], [[1, 0, 0, 0; 0,
  1, 0, 0; 0, 0, 1, 0; 0, 0, 0, 1], [0, 0, 1, 0; 1, 0, 0, 1; 0, 0, 0, 0; 0, 0
@@ -822,6 +833,7 @@ random 2c: [1, 0, 0, 1]~
 alsimpledec 2c: 1
 al_decomposition 2c: 1
 iscommutative 2c: 1
+issemisimple 2c: 1
 construction 5: [0, 0, 0, 0, 0, 0, Mat(1), Mat(1), [Mat(1)], 5, [1]]
 iscyclic 5: 1
 dim 5: 1
@@ -849,6 +861,7 @@ random 5: [1]~
 alsimpledec 5: 1
 al_decomposition 5: 1
 iscommutative 5: 1
+issemisimple 5: 1
 construction 0b: [0, 0, 0, 0, 0, 0, [1, 0, 0, 0, 0; 0, 1, 0, 0, 0; 0, 0, 1, 
 0, 0; 0, 0, 0, 1, 0; 0, 0, 0, 0, 1], [1, 0, 0, 0, 0; 0, 1, 0, 0, 0; 0, 0, 1,
  0, 0; 0, 0, 0, 1, 0; 0, 0, 0, 0, 1], [[1, 0, 0, 0, 0; 0, 1, 0, 0, 0; 0, 0, 
@@ -894,6 +907,7 @@ alsimpledec 0b: 1
 al_decomposition 0b: 1
 subalg M2(Q): 1
 iscommutative 0b: 1
+issemisimple 0b: 1
 construction 3d: [0, 0, 0, 0, 0, 0, [1, 0, 0, 0, 0; 0, 1, 0, 0, 0; 0, 0, 1, 
 0, 0; 0, 0, 0, 1, 0; 0, 0, 0, 0, 1], [1, 0, 0, 0, 0; 0, 1, 0, 0, 0; 0, 0, 1,
  0, 0; 0, 0, 0, 1, 0; 0, 0, 0, 0, 1], [[1, 0, 0, 0, 0; 0, 1, 0, 0, 0; 0, 0, 
@@ -938,6 +952,7 @@ alsimpledec 3d: 1
 al_decomposition 3d: 1
 subalg M2(F3): 1
 iscommutative 3d: 1
+issemisimple 3d: 1
 maxorder assoc: 1
 natorder assoc: 1
 spl(1): 1
@@ -1029,6 +1044,7 @@ csa dim: 1
 csa absdim: 1
 csa type: 1
 csa iscommutative: 1
+csa issemisimple: 1
 elements:
 [0, Mod(y, y^3 - y + 1), 0, 0]~
 [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]~
@@ -1094,6 +1110,7 @@ Mod(-3/4*y + 7/4, y^2 - 5), x^2 - 2)]~
 [0, 0, 0, 0, 0, 0, [1, 0; 0, 1], [1, 0; 0, 1], [[1, 0; 0, 1], [0, 1; 1, 1]],
  2, [0, 1]]
 1
+0
 0
 [[[2, [2, 0]~, 1, 2, 1], [3, [3, 0]~, 1, 2, 1]], Vecsmall([0, 1])]
 12960000
@@ -1166,6 +1183,7 @@ Mod(x^4, x^6 - 5), Mod(x, x^6 - 5), Mod(x^3, x^6 - 5), Mod(1/2*x^5 + 1/2*x^4
 od(-1/10*x^3 + 1/2, x^6 - 5), Mod(-1/10*x^5 + 1/2*x^2 + 1, x^6 - 5)]]
 2
 18
+1
 csa al2
 [[x^2 + y*x + y^2, [[1, -x^4 - x^2 - x - 1, x^3 + 1], 1], [[3, 0, 0; 0, 3, 0
 ; 0, 0, 3], [-3, -3, 0]~], 1, [], [], [[1, x], [1, 1]], [1, 0; 0, 1], 1, [y^
@@ -2349,6 +2367,7 @@ x + Mod(2*y - 1, y^2 + 1)
 Mod(3*y - 3, y^2 + 1)
 Mod(3*y - 3, y^2 + 1)
 1
+1
 trivial algebra over Q
 [[x, [[1], 1], [Mat(1), 1], 1, [], [], [[1], [1]], Mat(1), 1, [y, [1, 0], 1,
  1, [Mat(1), Mat(1), Mat(1), Mat(1), 1, Mat(1), [1, 0], []], [0.E-57], [1], 
@@ -2373,6 +2392,7 @@ x - 1/3
 3
 3
 1
+1
 [0, 0, 0, 0, 0, 0, Mat(1), Mat(1), [Mat(1)], 0, [1]]
 [12]~
 [-1/7]~
@@ -2390,6 +2410,7 @@ x - 12
 [-1/7]
 
 [1]~
+1
 1
   ***   at top-level: alrandom(1,1)
   ***                 ^-------------
@@ -2491,4 +2512,4 @@ x - 12
   ***   at top-level: alinv(A,1)
   ***                 ^----------
   *** alinv: incorrect type in al_model (t_INT).
-Total time spent: 3405
+Total time spent: 4191

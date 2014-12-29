@@ -958,6 +958,18 @@ aliscommutative(GEN al) /* assumes e_1 = 1 */
   return 1;
 }
 
+long
+alissemisimple(GEN al)
+{
+  pari_sp av = avma;
+  GEN rad;
+  checkal(al);
+  if(al_type(al) != al_TABLE) return 1;
+  rad = alradical(al);
+  avma = av;
+  return gequal0(rad);
+}
+
 /** OPERATIONS ON ELEMENTS operations.c **/
 
 long
