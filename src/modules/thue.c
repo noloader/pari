@@ -520,16 +520,16 @@ Fl_factorback(ulong mu, GEN U, GEN b, ulong p)
   return r;
 }
 
-/* x - alpha y = mu \prod \mu_i^{b_i}. Reduce mod 3 distinct primes of degree 1
- * above the same p, and eliminate x,y => drastic conditions on b_i */
+/* x - alpha y = \pm mu \prod \mu_i^{b_i}. Reduce mod 3 distinct primes of
+ * degree 1 above the same p, and eliminate x,y => drastic conditions on b_i */
 static int
 check_pr(GEN bi, GEN Lmu, GEN L)
 {
   GEN A = gel(L,1), U = gel(L,2);
   ulong a = A[1], b = A[2], c = A[3], p = A[4];
   ulong r = Fl_mul(Fl_sub(c,b,p), Fl_factorback(Lmu[1],gel(U,1),bi, p), p);
-  ulong s = Fl_mul(Fl_sub(b,a,p), Fl_factorback(Lmu[2],gel(U,2),bi, p), p);
-  ulong t = Fl_mul(Fl_sub(a,c,p), Fl_factorback(Lmu[3],gel(U,3),bi, p), p);
+  ulong s = Fl_mul(Fl_sub(a,c,p), Fl_factorback(Lmu[2],gel(U,2),bi, p), p);
+  ulong t = Fl_mul(Fl_sub(b,a,p), Fl_factorback(Lmu[3],gel(U,3),bi, p), p);
   return Fl_add(Fl_add(r,s,p),t,p) == 0;
 }
 static int
