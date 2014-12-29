@@ -851,8 +851,7 @@ alsimpledec(GEN al, int maps)
   if (signe(p)) Z = alprimesubalg(al);
   else          Z = alcenter(al);
 
-  if (lg(Z) == 2)/*dim Z = 1*/
-  {
+  if (lg(Z) == 2) {/*dim Z = 1*/
     n = al_get_absdim(al);
     avma = av;
     if (!maps) return mkveccopy(al);
@@ -968,6 +967,28 @@ alissemisimple(GEN al)
   rad = alradical(al);
   avma = av;
   return gequal0(rad);
+}
+
+long
+alissimple(GEN al, long ss)
+{
+  pari_sp av = avma;
+  GEN Z, dec, p;
+  checkal(al);
+  if(al_type(al) != al_TABLE) return 1;
+  if(!ss && !alissemisimple(al)) return 0;
+
+  p = al_get_char(al);
+  if (signe(p)) Z = alprimesubalg(al);
+  else          Z = alcenter(al);
+
+  if (lg(Z) == 2) {/*dim Z = 1*/
+    avma = av;
+    return 1;
+  }
+  dec = al_decompose(al, Z, 1);
+  avma = av;
+  return gequal0(dec);
 }
 
 /** OPERATIONS ON ELEMENTS operations.c **/
