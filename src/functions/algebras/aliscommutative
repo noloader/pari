@@ -1,0 +1,18 @@
+Function: aliscommutative
+Section: algebras
+C-Name: aliscommutative
+Prototype: lG
+Help: aliscommutative(al): test whether the algebra al is commutative.
+Doc: \var{al} being a table algebra output by \tet{altableinit} or a central
+ simple algebra output by \tet{alinit}, tests whether the algebra \var{al} is
+ commutative.
+ \bprog
+ ? mt = [matid(3),[0,0,0;1,0,1;0,0,0],[0,0,0;0,0,0;1,0,1]];
+ ? A = altableinit(mt);
+ ? aliscommutative(A)
+ %3 = 0
+ ? mt = [matid(3), [0,0,0; 1,1,0; 0,0,0], [0,0,1; 0,0,0; 1,0,1]];
+ ? A = altableinit(mt,2);
+ ? aliscommutative(A)
+ %6 = 1
+ @eprog

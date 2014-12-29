@@ -934,6 +934,30 @@ alisassociative(GEN mt0, GEN p)
   avma = av; return 1;
 }
 
+long
+aliscommutative(GEN al) /* assumes e_1 = 1 */
+{
+  long i,j,k,N,sp;
+  GEN mt,a,b,p;
+  checkal(al);
+  if(al_type(al) != al_TABLE) return al_get_degree(al)==1;
+  N = al_get_absdim(al);
+  mt = al_get_multable(al);
+  p = al_get_char(al);
+  sp = signe(p);
+  for(i=2; i<=N; i++)
+    for(j=2; j<=N; j++)
+      for(k=1; k<=N; k++) {
+        a = gcoeff(gel(mt,i),k,j);
+        b = gcoeff(gel(mt,j),k,i);
+        if(sp) {
+          if(cmpii(Fp_red(a,p), Fp_red(b,p))) return 0;
+        }
+        else if(gcmp(a,b)) return 0;
+      }
+  return 1;
+}
+
 /** OPERATIONS ON ELEMENTS operations.c **/
 
 long

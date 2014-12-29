@@ -381,6 +381,7 @@ moreoperations() = gusuite("more operations", ()->{
   do("norm(w)", ()->alnorm(al,w)==-polcoeff(cp,0));
   do("dim", ()->algetdim(al)==9);
   do("absdim", ()->algetabsdim(al)==9);
+  do("iscommutative", ()->aliscommutative(al)==0);
 
   pol1 = y^2+1;
   nf = nfinit(pol1);
@@ -471,6 +472,7 @@ moreoperations() = gusuite("more operations", ()->{
   do("trace(basis(w)) 3", ()->altrace(al,w)==altrace(al,alalgtobasis(al,w)));
   do("trace(basis(ww)) 3", ()->altrace(al,ww)==altrace(al,alalgtobasis(al,ww)));
   do("radical", ()->alradical(al)==0); \\cyclic => simple
+  do("iscommutative cyc 3", ()->aliscommutative(al)==0);
 
   pol1 = y;
   nf = nfinit(pol1);
@@ -512,6 +514,7 @@ moreoperations() = gusuite("more operations", ()->{
   do("trace(basis(w))/Q", ()->altrace(al,w)==altrace(al,alalgtobasis(al,w)));
   do("trace(basis(ww))/Q", ()->altrace(al,ww)==altrace(al,alalgtobasis(al,ww)));
   do("radical/Q", ()->alradical(al)==0); \\cyclic => simple
+  do("iscommutative /Q", ()->aliscommutative(al)==0);
 });
 
 tablealg() = gusuite("table algebra", ()->{
@@ -569,6 +572,7 @@ tablealg() = gusuite("table algebra", ()->{
   do("random 0", ()->alrandom(al,1));
   do("alsimpledec 0", ()->#alsimpledec(ss)==2);
   do("al_decomposition 0", ()->dec=aldecomposition(al); #dec[1]==1 && #dec[2]==2);
+  do("iscommutative 0", ()->aliscommutative(al)==0);
 
   p = 2;
   al = altableinit(mt,p);
@@ -607,6 +611,7 @@ tablealg() = gusuite("table algebra", ()->{
   do("random 2", ()->alrandom(al,1));
   do("alsimpledec 2", ()->#alsimpledec(ss)==2);
   do("al_decomposition 2", ()->dec=aldecomposition(al); #dec[1]==1 && #dec[2]==2);
+  do("iscommutative 2", ()->aliscommutative(al)==0);
 
   p = 3;
   mt = [[1,0;0,1],[0,0;1,0]];\\F3[x]/(x^2)
@@ -641,6 +646,7 @@ tablealg() = gusuite("table algebra", ()->{
   do("random 3", ()->alrandom(al,1));
   do("alsimpledec 3", ()->#alsimpledec(ss)==1);
   do("al_decomposition 3", ()->dec=aldecomposition(al); #dec[1]==1 && #dec[2]==1);
+  do("iscommutative 3", ()->aliscommutative(al)==1);
 
   p = 3;
   mt = [[1,0,0;0,1,0;0,0,1],[0,0,0;1,0,0;0,1,0],[0,0,0;0,0,0;1,0,0]];\\F3[x]/(x^3)
@@ -675,6 +681,7 @@ tablealg() = gusuite("table algebra", ()->{
   do("random 3c", ()->alrandom(al,1));
   do("alsimpledec 3c", ()->#alsimpledec(ss)==1);
   do("al_decomposition 3c", ()->dec=aldecomposition(al); #dec[1]==2 && #dec[2]==1);
+  do("iscommutative 3c", ()->aliscommutative(al)==1);
 
   p = 2;
   mt = [[1,0;0,1],[0,1;1,1]]; \\F2[x]/(x^2+x+1)
@@ -706,6 +713,7 @@ tablealg() = gusuite("table algebra", ()->{
   do("random 2b", ()->alrandom(al,1));
   do("alsimpledec 2b", ()->#alsimpledec(al)==1);
   do("al_decomposition 2b", ()->dec=aldecomposition(al); dec[1]==0 && #dec[2]==1 && algetabsdim(dec[2][1])==2);
+  do("iscommutative 2b", ()->aliscommutative(al)==1);
 
   p = 3;
   mt = [matid(4),
@@ -755,6 +763,7 @@ tablealg() = gusuite("table algebra", ()->{
   do("random 3b", ()->alrandom(al,1));
   do("alsimpledec 3b", ()->#alsimpledec(al)==1);
   do("al_decomposition 3b", ()->dec=aldecomposition(al); dec[1]==0 && #dec[2]==1 && #alcenter(dec[2][1])==1);
+  do("iscommutative 3b", ()->aliscommutative(al)==0);
 
   p = 2;
   mt = [matid(4),
@@ -807,6 +816,7 @@ tablealg() = gusuite("table algebra", ()->{
   do("random 2c", ()->alrandom(al,1));
   do("alsimpledec 2c", ()->#alsimpledec(al)==1);
   do("al_decomposition 2c", ()->dec=aldecomposition(al); dec[1]==0 && #dec[2]==1 && #alcenter(dec[2][1])==1);
+  do("iscommutative 2c", ()->aliscommutative(al)==0);
 
   p = 5;
   mt = [Mat(Mod(1,p))];
@@ -838,6 +848,7 @@ tablealg() = gusuite("table algebra", ()->{
   do("random 5", ()->alrandom(al,1));
   do("alsimpledec 5", ()->#alsimpledec(al)==1);
   do("al_decomposition 5", ()->dec=aldecomposition(al); dec[1]==0 && #dec[2]==1 && algetabsdim(dec[2][1])==1);
+  do("iscommutative 5", ()->aliscommutative(al)==1);
 
   p = 0; \\M_2(Q)+Q
   mt = [matid(5),
@@ -910,6 +921,7 @@ tablealg() = gusuite("table algebra", ()->{
   do("alsimpledec 0b", ()->#alsimpledec(al)==2);
   do("al_decomposition 0b", ()->dec=aldecomposition(al); dec[1]==0 && #dec[2]==2 && #alcenter(dec[2][1])==1 && #alcenter(dec[2][2])==1 && (algetabsdim(dec[2][1])==4 || algetabsdim(dec[2][2])==4));
   do("subalg M2(Q)", ()->sal=alsubalg(al,[1,0,0,0; 0,1,0,0; 0,0,1,0; 0,0,0,1; 0,0,0,0]); alisassociative(sal) && alradical(sal)==0 && #alsimpledec(sal)==1);
+  do("iscommutative 0b", ()->aliscommutative(al)==0);
 
   p = 3;
   al = altableinit(mt,p);
@@ -953,6 +965,7 @@ tablealg() = gusuite("table algebra", ()->{
   do("alsimpledec 3d", ()->#alsimpledec(al)==2);
   do("al_decomposition 3d", ()->dec=aldecomposition(al); dec[1]==0 && #dec[2]==2 && #alcenter(dec[2][1])==1 && #alcenter(dec[2][2])==1 && (algetabsdim(dec[2][1])==4 || algetabsdim(dec[2][2])==4));
   do("subalg M2(F3)", ()->sal=alsubalg(al,[1,0,0,0; 0,1,0,0; 0,0,1,0; 0,0,0,1; 0,0,0,0]); alisassociative(sal) && alradical(sal)==0 && #alsimpledec(sal)==1);
+  do("iscommutative 3d", ()->aliscommutative(al)==0);
 });
 
 all() = gusuite("all", ()->{
@@ -1078,6 +1091,7 @@ print("csa deg: ", algetdegree(al) == 2);
 print("csa dim: ", algetdim(al) == 4);
 print("csa absdim: ", algetabsdim(al) == 12);
 print("csa type: ", altype(al) == 2); \\2==al_CSA
+print("csa iscommutative: ", aliscommutative(al)==0);
 
 print("elements:");
 a = [0, Mod(y,T), 0, 0]~;
@@ -1190,6 +1204,11 @@ alcentralproj(A,[e,e2])
 alprimesubalg(A)
 alquotient(A,[0;1;0])
 alsubalg(A,[1,0; 0,0; 0,1])
+aliscommutative(A)
+
+mt = [matid(3),[0,0,0;1,0,1;0,0,0],[0,0,0;0,0,0;1,0,1]];
+A = altableinit(mt);
+aliscommutative(A)
 
 nf = nfinit(y^2-5);
 A = alinit(nf, [-3,1-y]);
@@ -1292,6 +1311,7 @@ almultable(al,a)
 alcharpoly(al,b)
 altrace(al,c)
 alnorm(al,c)
+aliscommutative(al)
 
 print("trivial algebra over Q");
 al = alinit(rnfinit(nfinit(y),x),[y,1])
@@ -1309,6 +1329,7 @@ almultable(al,a)
 alcharpoly(al,b)
 altrace(al,c)
 alnorm(al,c)
+aliscommutative(al)
 
 mt0 = [Mat([1])];
 almt0 = altableinit(mt0,0)
@@ -1326,6 +1347,7 @@ alnorm(almt0,b)
 alcharpoly(almt0,a)
 almultable(almt0,b)
 alpow(almt0,a,0)
+aliscommutative(al)
 
 m_i = [0,-1,0, 0;\
        1, 0,0, 0;\
