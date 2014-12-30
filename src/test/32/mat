@@ -322,6 +322,11 @@ Mod(18446744073709551628, 18446744073709551629)
 
 [                                         1]
 
+
+[-1]
+
+[ 1]
+
 3
 0
 error("inconsistent dimensions in gtrace.")
@@ -364,4 +369,4 @@ od(0, 18446744073709551629); Mod(7, 18446744073709551629), Mod(8, 1844674407
   ***   at top-level: 1~
   ***                 ^--
   *** _~: incorrect type in gtrans (t_INT).
-Total time spent: 72
+Total time spent: 73

@@ -799,7 +799,7 @@ kerint0(GEN M)
 {
   GEN U, H = ZM_hnfall(M,&U,1);
   long d = lg(M)-lg(H);
-  if (d == 1) return cgetg(1, t_MAT);
+  if (!d) return cgetg(1, t_MAT);
   return ZM_lll(vecslice(U,1,d), LLLDFT, LLL_INPLACE);
 }
 GEN
