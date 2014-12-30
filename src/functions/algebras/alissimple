@@ -5,7 +5,7 @@ Prototype: lGD0,L,
 Help: alissimple(al, {ss = 0}): test whether the algebra al is simple.
 Doc: \var{al} being a table algebra output by \tet{altableinit} or a central
  simple algebra output by \tet{alinit}, tests whether the algebra \var{al} is
- simple. If $\var{ss}=1$, assumes that the algebra~\var{al} is semisimple 
+ simple. If $\var{ss}=1$, assumes that the algebra~\var{al} is semisimple
  without testing it.
  \bprog
  ? mt = [matid(3),[0,0,0;1,0,1;0,0,0],[0,0,0;0,0,0;1,0,1]];
