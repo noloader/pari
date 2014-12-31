@@ -704,8 +704,8 @@ try_fact(GEN al, GEN x, GEN zx, GEN Z, GEN Zal, long mini)
   dec1 = al_decompose(gel(dec0,1), gel(dec0,4), 1);
   z = gel(dec0,5);
   if (!isintzero(dec1)) {
-    if (signe(p)) z = FpM_mul(z,dec1,p);
-    else          z = RgM_mul(z,dec1);
+    if (signe(p)) z = FpM_FpC_mul(gel(dec0,3),dec1,p);
+    else          z = RgM_RgC_mul(gel(dec0,3),dec1);
   }
   return z;
 }

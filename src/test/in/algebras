@@ -1074,6 +1074,11 @@ print("decomposition of CSA: ", #alsimpledec(alt)==1);
 dec = aldecomposition(alt);
 print("al_decomposition of CSA: ", #dec==2 && dec[1]==0 && #dec[2]==1 && #alcenter(dec[2][1])==2 && algetabsdim(dec[2][1])==8);
 
+print("alsimple bug");
+mt = [matid(3), [0,0,0;1,1,0;0,0,0], [0,0,0;0,0,0;1,0,1]];
+A = altableinit(mt);
+alissimple(A)
+
 print("tests for al_CSA: ");
 T = y^3-y+1;
 nf = nfinit(T);

@@ -1005,6 +1005,8 @@ center of CSA: 1
 radical of CSA: 1
 decomposition of CSA: 1
 al_decomposition of CSA: 1
+alsimple bug
+0
 tests for al_CSA: 
 1
 1
@@ -2538,4 +2540,4 @@ x - 12
   ***   at top-level: alinv(A,1)
   ***                 ^----------
   *** alinv: incorrect type in al_model (t_INT).
-Total time spent: 4187
+Total time spent: 4189
