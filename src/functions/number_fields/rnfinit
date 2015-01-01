@@ -21,6 +21,14 @@ Doc: $\var{nf}$ being a number field in \kbd{nfinit}
  information via \emph{member functions} is preferred since the specific
  data organization specified below will change in the future.
 
+ Note that a subsequent \kbd{nfinit}$(\var{rnf})$ will explicitly add an
+ \var{nf} structure associated to $L$ to \var{rnf} (and return it as well).
+ This is likely to be very expensive if the absolute degree $mn$ is large,
+ but fixes an integer basis for $\Z_L$ as a $\Z$-module and allows to input
+ and output elements of $L$ in absolute form: as \typ{COL} for elements,
+ as \typ{MAT} in HNF for ideals, as \kbd{prid} for prime ideals. Without such
+ a call, elements of $L$ are represented as \typ{POLMOD}, etc.
+
  $\var{rnf}[1]$(\kbd{rnf.pol}) contains the relative polynomial \var{pol}.
 
  $\var{rnf}[2]$ contains the integer basis $[A,d]$ of $K$, as
@@ -53,8 +61,9 @@ Doc: $\var{nf}$ being a number field in \kbd{nfinit}
 
  $\var{rnf}[10]$ (\kbd{rnf.nf}) is $\var{nf}$.
 
- $\var{rnf}[11]$ is the output of \kbd{rnfequation(K, pol, 1)}. Namely, a
- vector $[P, a, k]$ describing the \emph{absolute} extension
+ $\var{rnf}[11]$ is an extension of \kbd{rnfequation(K, pol, 1)}. Namely, a
+ vector $[P, a, k, \kbd{K.pol}, \kbd{pol}]$ describing the \emph{absolute}
+ extension
  $L/\Q$: $P$ is an absolute equation, more conveniently obtained
  as \kbd{rnf.polabs}; $a$ expresses the generator $\alpha = y \mod \kbd{K.pol}$
  of the number field $K$ as an element of $L$, i.e.~a polynomial modulo the
@@ -63,7 +72,7 @@ Doc: $\var{nf}$ being a number field in \kbd{nfinit}
  $k$ is a small integer such that, if $\beta$ is an abstract root of \var{pol}
  and $\alpha$ the generator of $K$ given above, then $P(\beta + k\alpha) = 0$.
 
- \misctitle{Caveat.} Be careful if $k\neq0$ when dealing simultaneously with
+ \misctitle{Caveat} Be careful if $k\neq0$ when dealing simultaneously with
  absolute and relative quantities since $L = \Q(\beta + k\alpha) =
  K(\alpha)$, and the generator chosen for the absolute extension is not the
  same as for the relative one. If this happens, one can of course go on
