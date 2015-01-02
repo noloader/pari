@@ -210,7 +210,7 @@ inithue(GEN P, GEN bnf, long flag, long prec)
 
   if (!bnf)
   {
-    bnf = Buchall(P, nf_FORCE, DEFAULTPREC);
+    bnf = Buchall(P, nf_FORCE, maxss(prec, DEFAULTPREC));
     if (flag) (void)bnfcertify(bnf);
     else
       Ind = floorr(mulru(bnf_get_reg(bnf), 5));
