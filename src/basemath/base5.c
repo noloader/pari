@@ -210,7 +210,7 @@ rnf_basM(GEN rnf)
 
 const long NFABS = 1;
 
-GEN
+static GEN
 rnfnfabs(GEN rnf, long prec)
 {
   GEN nf, pol, bas;
