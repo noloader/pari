@@ -123,6 +123,10 @@ operations() = gusuite("operations", ()->{
   a = aladd(al,u,j); b = aladd(al, n, [12-4*ii+ss*(4-ii),7+3*ii+ss*(1+7*ii)]~);
   do("norm is multiplicative a*b", ()->nfalgtobasis(nf,alnorm(al,almul(al,a,b)))==nfalgtobasis(nf,nfeltmul(nf,alnorm(al,a),alnorm(al,b))));
   do("norm is multiplicative b*a", ()->nfalgtobasis(nf,alnorm(al,almul(al,b,a)))==nfalgtobasis(nf,nfeltmul(nf,alnorm(al,b),alnorm(al,a))));
+  do("poleval", ()->albasistoalg(al,alpoleval(al,x^3-2,u)) ==\
+alsub(al,alpow(al,u,3),[2,0]~));
+  do("poleval b", ()->albasistoalg(al,alpoleval(al,x^3+i*x-3*i,u)) ==\
+alsub(al,aladd(al,alpow(al,u,3), almul(al,[i,0]~,u)), [3*i,0]~));
 });
 
 alcheckhasse(al) =

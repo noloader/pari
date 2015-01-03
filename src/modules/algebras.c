@@ -1917,7 +1917,8 @@ alrandom(GEN al, GEN b)
 }
 
 /*Assumes pol has coefficients in the same ring as the COL x; x either
- * in basis or mult. table form. TODO more general version*/
+ * in basis, algebraic or mult. table form.
+ TODO more general version: pol with coeffs in center and x in basis form*/
 GEN
 alpoleval(GEN al, GEN pol, GEN x)
 {
