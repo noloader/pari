@@ -13,8 +13,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 
 /*******************************************************************/
 /*                                                                 */
-/*                       BASIC NF OPERATIONS                       */
-/*                          (continued 2)                          */
+/*                     RNF STRUCTURE AND OPERATIONS                */
 /*                                                                 */
 /*******************************************************************/
 #include "pari.h"
@@ -601,6 +600,11 @@ nf_rnfeqsimple(GEN nf, GEN relpol)
   return mkvec5(pol,gen_0/*dummy*/,stoi(sa),get_nfpol(nf, &junk),relpol);
 }
 
+/*******************************************************************/
+/*                                                                 */
+/*                            RELATIVE LLL                         */
+/*                                                                 */
+/*******************************************************************/
 static GEN
 nftau(long r1, GEN x)
 {
@@ -966,4 +970,640 @@ rnfpolred(GEN nf, GEN pol, long prec)
                                 : RgX_Rg_div(newpol, L);
   }
   return gerepilecopy(av,w);
+}
+
+/*******************************************************************/
+/*                                                                 */
+/*                  LINEAR ALGEBRA OVER Z_K  (HNF,SNF)             */
+/*                                                                 */
+/*******************************************************************/
+/* A torsion-free module M over Z_K is given by [A,I].
+ * I=[a_1,...,a_k] is a row vector of k fractional ideals given in HNF.
+ * A is an n x k matrix (same k) such that if A_j is the j-th column of A then
+ * M=a_1 A_1+...+a_k A_k. We say that [A,I] is a pseudo-basis if k=n */
+
+/* Given an element x and an ideal I in HNF, gives an r such that x-r is in H
+ * and r is small */
+GEN
+nfreduce(GEN nf, GEN x, GEN I)
+{
+  pari_sp av = avma;
+  GEN aI;
+  x = nf_to_scalar_or_basis(checknf(nf), x);
+  if (idealtyp(&I,&aI) != id_MAT || lg(I)==1) pari_err_TYPE("nfreduce",I);
+  if (typ(x) != t_COL) x = scalarcol( gmod(x, gcoeff(I,1,1)), lg(I)-1 );
+  else x = reducemodinvertible(x, I);
+  return gerepileupto(av, x);
+}
+/* Given an element x and an ideal in HNF, gives an a in ideal such that
+ * x-a is small. No checks */
+static GEN
+element_close(GEN nf, GEN x, GEN ideal)
+{
+  pari_sp av = avma;
+  GEN y = gcoeff(ideal,1,1);
+  x = nf_to_scalar_or_basis(nf, x);
+  if (typ(y) == t_INT && is_pm1(y)) return ground(x);
+  if (typ(x) == t_COL)
+    x = closemodinvertible(x, ideal);
+  else
+    x = gmul(y, gdivround(x,y));
+  return gerepileupto(av, x);
+}
+
+/* A + v B */
+static GEN
+colcomb1(GEN nf, GEN v, GEN A, GEN B)
+{
+  if (isintzero(v)) return A;
+  return RgC_to_nfC(nf, RgC_add(A, nfC_nf_mul(nf,B,v)));
+}
+/* u A + v B */
+static GEN
+colcomb(GEN nf, GEN u, GEN v, GEN A, GEN B)
+{
+  if (isintzero(u)) return nfC_nf_mul(nf,B,v);
+  if (u != gen_1) A = nfC_nf_mul(nf,A,u);
+  return colcomb1(nf, v, A, B);
+}
+
+/* return m[i,1..lim] * x */
+static GEN
+element_mulvecrow(GEN nf, GEN x, GEN m, long i, long lim)
+{
+  long j, l = minss(lg(m), lim+1);
+  GEN dx, y = cgetg(l, t_VEC);
+  x = nf_to_scalar_or_basis(nf, x);
+  if (typ(x) == t_COL)
+  {
+    x = zk_multable(nf, Q_remove_denom(x, &dx));
+    for (j=1; j<l; j++)
+    {
+      GEN t = gcoeff(m,i,j);
+      if (!isintzero(t))
+      {
+        if (typ(t) == t_COL)
+          t = RgM_RgC_mul(x, t);
+        else
+          t = RgC_Rg_mul(gel(x,1), t);
+        if (dx) t = gdiv(t, dx);
+        t = nf_to_scalar_or_basis(nf,t);
+      }
+      gel(y,j) = t;
+    }
+  }
+  else
+  {
+    for (j=1; j<l; j++) gel(y,j) = gmul(x, gcoeff(m,i,j));
+  }
+  return y;
+}
+
+/* u Z[s,] + v Z[t,], limitied to the first lim entries */
+static GEN
+rowcomb(GEN nf, GEN u, GEN v, long s, long t, GEN Z, long lim)
+{
+  GEN z;
+  if (gequal0(u))
+    z = element_mulvecrow(nf,v,Z,t, lim);
+  else
+  {
+    z = element_mulvecrow(nf,u,Z,s, lim);
+    if (!gequal0(v)) z = gadd(z, element_mulvecrow(nf,v,Z,t, lim));
+  }
+  return z;
+}
+
+/* nfbezout(0,b,A,B). Either bB = NULL or b*B */
+static GEN
+zero_nfbezout(GEN nf,GEN bB, GEN b, GEN A,GEN B,GEN *u,GEN *v,GEN *w,GEN *di)
+{
+  GEN d;
+  if (isint1(b))
+  {
+    *v = gen_1;
+    *w = A;
+    d = B;
+    *di = idealinv(nf,d);
+  }
+  else
+  {
+    *v = nfinv(nf,b);
+    *w = idealmul(nf,A,*v);
+    d = bB? bB: idealmul(nf,b,B);
+    *di = idealinv_HNF(nf,d);
+  }
+  *u = gen_0; return d;
+}
+
+/* Given elements a,b and ideals A, B, outputs d = a.A+b.B and gives
+ * di=d^-1, w=A.B.di, u, v such that au+bv=1 and u in A.di, v in B.di.
+ * Assume A, B non-zero, but a or b can be zero (not both) */
+static GEN
+nfbezout(GEN nf,GEN a,GEN b, GEN A,GEN B, GEN *pu,GEN *pv,GEN *pw,GEN *pdi)
+{
+  GEN w, u,v,uv, d, di, aA, bB;
+
+  if (isintzero(a)) return zero_nfbezout(nf,NULL,b,A,B,pu,pv,pw,pdi);
+  if (isintzero(b)) return zero_nfbezout(nf,NULL,a,B,A,pv,pu,pw,pdi);
+
+  if (a != gen_1) /* frequently called with a = gen_1 */
+  {
+    a = nf_to_scalar_or_basis(nf,a);
+    if (isint1(a)) a = gen_1;
+  }
+  aA = (a == gen_1)? A: idealmul(nf,a,A);
+  bB = idealmul(nf,b,B);
+  d = idealadd(nf,aA,bB);
+  if (gequal(aA, d)) return zero_nfbezout(nf,aA, a,B,A,pv,pu,pw,pdi);
+  if (gequal(bB, d)) return zero_nfbezout(nf,bB, b,A,B,pu,pv,pw,pdi);
+  /* general case is slow */
+  di = idealinv_HNF(nf,d);
+  w = idealmul(nf,aA,di); /* integral */
+  uv = idealaddtoone(nf, w, idealmul(nf,bB,di));
+  w = idealmul(nf,w,B);
+  u = gel(uv,1);
+  v = nfdiv(nf,gel(uv,2),b);
+  if (a != gen_1)
+  {
+    GEN inva = nfinv(nf, a);
+    u =  nfmul(nf,u,inva);
+    w = idealmul(nf, inva, w); /* AB/d */
+  }
+  *pu = u;
+  *pv = v;
+  *pw = w;
+  *pdi = di; return d;
+}
+/* v a vector of ideals, simplify in place the ones generated by elts of Q */
+static void
+idV_simplify(GEN v)
+{
+  long i, l = lg(v);
+  for (i = 1; i < l; i++)
+  {
+    GEN M = gel(v,i);
+    if (typ(M)==t_MAT && RgM_isscalar(M,NULL))
+      gel(v,i) = Q_abs_shallow(gcoeff(M,1,1));
+  }
+}
+/* Given a torsion-free module x outputs a pseudo-basis for x in HNF */
+GEN
+nfhnf0(GEN nf, GEN x, long flag)
+{
+  long i, j, def, idef, m, n;
+  pari_sp av0 = avma, av;
+  GEN y, A, I, J, U;
+
+  nf = checknf(nf);
+  check_ZKmodule(x, "nfhnf");
+  A = gel(x,1); RgM_dimensions(A, &m, &n);
+  I = gel(x,2);
+  if (!n) {
+    if (!flag) return gcopy(x);
+    retmkvec2(gcopy(x), cgetg(1,t_MAT));
+  }
+  U = flag? matid(n): NULL;
+  idef = (n < m)? m-n : 0;
+  av = avma;
+  A = RgM_to_nfM(nf,A);
+  I = leafcopy(I);
+  J = zerovec(n); def = n;
+  for (i=m; i>idef; i--)
+  {
+    GEN d, di = NULL;
+
+    j=def; while (j>=1 && isintzero(gcoeff(A,i,j))) j--;
+    if (!j)
+    { /* no pivot on line i */
+      if (idef) idef--;
+      continue;
+    }
+    if (j==def) j--;
+    else {
+      swap(gel(A,j), gel(A,def));
+      swap(gel(I,j), gel(I,def));
+      if (U) swap(gel(U,j), gel(U,def));
+    }
+    for (  ; j; j--)
+    {
+      GEN a,b, u,v,w, S, T, S0, T0 = gel(A,j);
+      b = gel(T0,i); if (isintzero(b)) continue;
+
+      S0 = gel(A,def); a = gel(S0,i);
+      d = nfbezout(nf, a,b, gel(I,def),gel(I,j), &u,&v,&w,&di);
+      S = colcomb(nf, u,v, S0,T0);
+      T = colcomb(nf, a,gneg(b), T0,S0);
+      gel(A,def) = S; gel(A,j) = T;
+      gel(I,def) = d; gel(I,j) = w;
+      if (U)
+      {
+        S0 = gel(U,def);
+        T0 = gel(U,j);
+        gel(U,def) = colcomb(nf, u,v, S0,T0);
+        gel(U,j) = colcomb(nf, a,gneg(b), T0,S0);
+      }
+    }
+    y = gcoeff(A,i,def);
+    if (!isint1(y))
+    {
+      GEN yi = nfinv(nf,y);
+      gel(A,def) = nfC_nf_mul(nf, gel(A,def), yi);
+      gel(I,def) = idealmul(nf, y, gel(I,def));
+      if (U) gel(U,def) = nfC_nf_mul(nf, gel(U,def), yi);
+      di = NULL;
+    }
+    if (!di) di = idealinv(nf,gel(I,def));
+    d = gel(I,def);
+    gel(J,def) = di;
+    for (j=def+1; j<=n; j++)
+    {
+      GEN mc, c = gcoeff(A,i,j); if (isintzero(c)) continue;
+      c = element_close(nf, c, idealmul(nf,d,gel(J,j)));
+      mc = gneg(c);
+      gel(A,j) = colcomb1(nf, mc, gel(A,j),gel(A,def));
+      if (U) gel(U,j) = colcomb1(nf, mc, gel(U,j),gel(U,def));
+    }
+    def--;
+    if (gc_needed(av,2))
+    {
+      if(DEBUGMEM>1) pari_warn(warnmem,"nfhnf, i = %ld", i);
+      gerepileall(av,U?4:3, &A,&I,&J,&U);
+    }
+  }
+  n -= def;
+  A += def; A[0] = evaltyp(t_MAT)|evallg(n+1);
+  I += def; I[0] = evaltyp(t_VEC)|evallg(n+1);
+  idV_simplify(I);
+  x = mkvec2(A,I);
+  if (U) x = mkvec2(x,U);
+  return gerepilecopy(av0, x);
+}
+
+GEN
+nfhnf(GEN nf, GEN x) { return nfhnf0(nf, x, 0); }
+
+static GEN
+RgV_find_denom(GEN x)
+{
+  long i, l = lg(x);
+  for (i = 1; i < l; i++)
+    if (Q_denom(gel(x,i)) != gen_1) return gel(x,i);
+  return NULL;
+}
+/* A torsion module M over Z_K will be given by a row vector [A,I,J] with
+ * three components. I=[b_1,...,b_n] is a row vector of n fractional ideals
+ * given in HNF, J=[a_1,...,a_n] is a row vector of n fractional ideals in
+ * HNF. A is an nxn matrix (same n) such that if A_j is the j-th column of A
+ * and e_n is the canonical basis of K^n, then
+ * M=(b_1e_1+...+b_ne_n)/(a_1A_1+...a_nA_n) */
+
+/* x=[A,I,J] a torsion module as above. Output the
+ * smith normal form as K=[c_1,...,c_n] such that x = Z_K/c_1+...+Z_K/c_n */
+GEN
+nfsnf0(GEN nf, GEN x, long flag)
+{
+  long i, j, k, l, n, m;
+  pari_sp av;
+  GEN z,u,v,w,d,dinv,A,I,J, U,V;
+
+  nf = checknf(nf);
+  if (typ(x)!=t_VEC || lg(x)!=4) pari_err_TYPE("nfsnf",x);
+  A = gel(x,1);
+  I = gel(x,2);
+  J = gel(x,3);
+  if (typ(A)!=t_MAT) pari_err_TYPE("nfsnf",A);
+  n = lg(A)-1;
+  if (typ(I)!=t_VEC) pari_err_TYPE("nfsnf",I);
+  if (typ(J)!=t_VEC) pari_err_TYPE("nfsnf",J);
+  if (lg(I)!=n+1 || lg(J)!=n+1) pari_err_DIM("nfsnf");
+  RgM_dimensions(A, &m, &n);
+  if (!n || n != m) pari_err_IMPL("nfsnf for empty or non square matrices");
+
+  av = avma;
+  if (!flag) U = V = NULL;
+  else
+  {
+    U = matid(m);
+    V = matid(n);
+  }
+  A = RgM_to_nfM(nf, A);
+  I = leafcopy(I);
+  J = leafcopy(J);
+  for (i = 1; i <= n; i++) gel(J,i) = idealinv(nf, gel(J,i));
+  z = zerovec(n);
+  for (i=n; i>=1; i--)
+  {
+    GEN Aii, a, b, db;
+    long c = 0;
+    for (j=i-1; j>=1; j--)
+    {
+      GEN S, T, S0, T0 = gel(A,j);
+      b = gel(T0,i); if (gequal0(b)) continue;
+
+      S0 = gel(A,i); a = gel(S0,i);
+      d = nfbezout(nf, a,b, gel(J,i),gel(J,j), &u,&v,&w,&dinv);
+      S = colcomb(nf, u,v, S0,T0);
+      T = colcomb(nf, a,gneg(b), T0,S0);
+      gel(A,i) = S; gel(A,j) = T;
+      gel(J,i) = d; gel(J,j) = w;
+      if (V)
+      {
+        T0 = gel(V,j);
+        S0 = gel(V,i);
+        gel(V,i) = colcomb(nf, u,v, S0,T0);
+        gel(V,j) = colcomb(nf, a,gneg(b), T0,S0);
+      }
+    }
+    for (j=i-1; j>=1; j--)
+    {
+      GEN ri, rj;
+      b = gcoeff(A,j,i); if (gequal0(b)) continue;
+
+      a = gcoeff(A,i,i);
+      d = nfbezout(nf, a,b, gel(I,i),gel(I,j), &u,&v,&w,&dinv);
+      ri = rowcomb(nf, u,v,       i,j, A, i);
+      rj = rowcomb(nf, a,gneg(b), j,i, A, i);
+      for (k=1; k<=i; k++) {
+        gcoeff(A,j,k) = gel(rj,k);
+        gcoeff(A,i,k) = gel(ri,k);
+      }
+      if (U)
+      {
+        ri = rowcomb(nf, u,v,       i,j, U, m);
+        rj = rowcomb(nf, a,gneg(b), j,i, U, m);
+        for (k=1; k<=m; k++) {
+          gcoeff(U,j,k) = gel(rj,k);
+          gcoeff(U,i,k) = gel(ri,k);
+        }
+      }
+      gel(I,i) = d; gel(I,j) = w; c = 1;
+    }
+    if (c) { i++; continue; }
+
+    Aii = gcoeff(A,i,i); if (gequal0(Aii)) continue;
+    gel(J,i) = idealmul(nf, gel(J,i), Aii);
+    gcoeff(A,i,i) = gen_1;
+    if (V) gel(V,i) = nfC_nf_mul(nf, gel(V,i), nfinv(nf,Aii));
+    gel(z,i) = idealmul(nf,gel(J,i),gel(I,i));
+    b = Q_remove_denom(gel(z,i), &db);
+    for (k=1; k<i; k++)
+      for (l=1; l<i; l++)
+      {
+        GEN d, D, p1, p2, p3, Akl = gcoeff(A,k,l);
+        long t;
+        if (gequal0(Akl)) continue;
+
+        p1 = idealmul(nf,Akl,gel(J,l));
+        p3 = idealmul(nf, p1, gel(I,k));
+        if (db) p3 = RgM_Rg_mul(p3, db);
+        if (RgM_is_ZM(p3) && hnfdivide(b, p3)) continue;
+
+        /* find d in D = I[k]/I[i] not in J[i]/(A[k,l] J[l]) */
+        D = idealdiv(nf,gel(I,k),gel(I,i));
+        p2 = idealdiv(nf,gel(J,i), p1);
+        d = RgV_find_denom( RgM_solve(p2, D) );
+        if (!d) pari_err_BUG("nfsnf");
+        p1 = element_mulvecrow(nf,d,A,k,i);
+        for (t=1; t<=i; t++) gcoeff(A,i,t) = gadd(gcoeff(A,i,t),gel(p1,t));
+        if (U)
+        {
+          p1 = element_mulvecrow(nf,d,U,k,i);
+          for (t=1; t<=i; t++) gcoeff(U,i,t) = gadd(gcoeff(U,i,t),gel(p1,t));
+        }
+
+        k = i; c = 1; break;
+      }
+    if (gc_needed(av,1))
+    {
+      if(DEBUGMEM>1) pari_warn(warnmem,"nfsnf");
+      gerepileall(av,U?4:6, &A,&I,&J,&z,&U,&V);
+    }
+    if (c) i++; /* iterate on row/column i */
+  }
+  if (U) z = mkvec3(z,U,V);
+  return gerepilecopy(av, z);
+}
+GEN
+nfsnf(GEN nf, GEN x) { return nfsnf0(nf,x,0); }
+
+/* Given a pseudo-basis x, outputs a multiple of its ideal determinant */
+GEN
+nfdetint(GEN nf, GEN x)
+{
+  GEN pass,c,v,det1,piv,pivprec,vi,p1,A,I,id,idprod;
+  long i, j, k, rg, n, m, m1, cm=0, N;
+  pari_sp av = avma, av1;
+
+  nf = checknf(nf); N = nf_get_degree(nf);
+  check_ZKmodule(x, "nfdetint");
+  A = gel(x,1);
+  I = gel(x,2);
+  n = lg(A)-1; if (!n) return gen_1;
+
+  m1 = lgcols(A); m = m1-1;
+  id = matid(N);
+  c = new_chunk(m1); for (k=1; k<=m; k++) c[k] = 0;
+  piv = pivprec = gen_1;
+
+  av1 = avma;
+  det1 = idprod = gen_0; /* dummy for gerepileall */
+  pass = cgetg(m1,t_MAT);
+  v = cgetg(m1,t_COL);
+  for (j=1; j<=m; j++)
+  {
+    gel(pass,j) = zerocol(m);
+    gel(v,j) = gen_0; /* dummy */
+  }
+  for (rg=0,k=1; k<=n; k++)
+  {
+    long t = 0;
+    for (i=1; i<=m; i++)
+      if (!c[i])
+      {
+        vi=nfmul(nf,piv,gcoeff(A,i,k));
+        for (j=1; j<=m; j++)
+          if (c[j]) vi=gadd(vi,nfmul(nf,gcoeff(pass,i,j),gcoeff(A,j,k)));
+        gel(v,i) = vi; if (!t && !gequal0(vi)) t=i;
+      }
+    if (t)
+    {
+      pivprec = piv;
+      if (rg == m-1)
+      {
+        if (!cm)
+        {
+          cm=1; idprod = id;
+          for (i=1; i<=m; i++)
+            if (i!=t)
+              idprod = (idprod==id)? gel(I,c[i])
+                                   : idealmul(nf,idprod,gel(I,c[i]));
+        }
+        p1 = idealmul(nf,gel(v,t),gel(I,k)); c[t]=0;
+        det1 = (typ(det1)==t_INT)? p1: idealadd(nf,p1,det1);
+      }
+      else
+      {
+        rg++; piv=gel(v,t); c[t]=k;
+        for (i=1; i<=m; i++)
+          if (!c[i])
+          {
+            for (j=1; j<=m; j++)
+              if (c[j] && j!=t)
+              {
+                p1 = gsub(nfmul(nf,piv,gcoeff(pass,i,j)),
+                          nfmul(nf,gel(v,i),gcoeff(pass,t,j)));
+                gcoeff(pass,i,j) = rg>1? nfdiv(nf,p1,pivprec)
+                                       : p1;
+              }
+            gcoeff(pass,i,t) = gneg(gel(v,i));
+          }
+      }
+    }
+    if (gc_needed(av1,1))
+    {
+      if(DEBUGMEM>1) pari_warn(warnmem,"nfdetint");
+      gerepileall(av1,6, &det1,&piv,&pivprec,&pass,&v,&idprod);
+    }
+  }
+  if (!cm) { avma = av; return cgetg(1,t_MAT); }
+  return gerepileupto(av, idealmul(nf,idprod,det1));
+}
+
+/* reduce in place components of x[1..lim] mod D (destroy x). D in HNF */
+static void
+nfcleanmod(GEN nf, GEN x, long lim, GEN D)
+{
+  long i;
+  GEN DZ, DZ2, dD;
+  D = Q_remove_denom(D, &dD);
+  if (dD) x = RgC_Rg_mul(x, dD);
+  DZ = gcoeff(D,1,1);
+  DZ2 = shifti(DZ,-1);
+  for (i=1; i<=lim; i++) {
+    GEN c = gel(x,i);
+    c = nf_to_scalar_or_basis(nf, c);
+    switch(typ(c)) /* c = centermod(c, D) */
+    {
+      case t_INT:
+        if (!signe(c)) break;
+        c = centermodii(c, DZ, DZ2);
+        if (dD) c = gred_frac2(c,dD);
+        break;
+      case t_FRAC: {
+        GEN dc = gel(c,2), nc = gel(c,1), N = mulii(DZ, dc);
+        c = centermodii(nc, N, shifti(N,-1));
+        c = gred_frac2(c, dD ? mulii(dc,dD): dc);
+        break;
+      }
+      case t_COL: {
+        GEN dc;
+        c = Q_remove_denom(c, &dc);
+        c = ZC_hnfrem(c, dc? ZM_Z_mul(D,dc): D);
+        if (ZV_isscalar(c))
+        {
+          c = gel(c,1);
+          if (dD) c = gred_frac2(c,dD);
+        }
+        else
+          if (dD) c = RgC_Rg_div(c, dD);
+        break;
+      }
+    }
+    gel(x,i) = c;
+  }
+}
+
+GEN
+nfhnfmod(GEN nf, GEN x, GEN detmat)
+{
+  long li, co, i, j, def, ldef;
+  pari_sp av0=avma, av;
+  GEN dA, dI, d0, w, p1, d, u, v, A, I, J, di;
+
+  nf = checknf(nf);
+  check_ZKmodule(x, "nfhnfmod");
+  A = gel(x,1);
+  I = gel(x,2);
+  co = lg(A); if (co==1) return cgetg(1,t_MAT);
+
+  li = lgcols(A);
+  if (typ(detmat)!=t_MAT) detmat = idealhnf_shallow(nf, detmat);
+  detmat = Q_remove_denom(detmat, NULL);
+  RgM_check_ZM(detmat, "nfhnfmod");
+
+  av = avma;
+  A = RgM_to_nfM(nf, A);
+  A = Q_remove_denom(A, &dA);
+  I = Q_remove_denom(leafcopy(I), &dI);
+  dA = mul_denom(dA,dI);
+  if (dA) detmat = ZM_Z_mul(detmat, powiu(dA, minss(li,co)));
+
+  def = co; ldef = (li>co)? li-co+1: 1;
+  for (i=li-1; i>=ldef; i--)
+  {
+    def--; j=def; while (j>=1 && isintzero(gcoeff(A,i,j))) j--;
+    if (!j) continue;
+    if (j==def) j--;
+    else {
+      swap(gel(A,j), gel(A,def));
+      swap(gel(I,j), gel(I,def));
+    }
+    for (  ; j; j--)
+    {
+      GEN a, b, S, T, S0, T0 = gel(A,j);
+      b = gel(T0,i); if (isintzero(b)) continue;
+
+      S0 = gel(A,def); a = gel(S0,i);
+      d = nfbezout(nf, a,b, gel(I,def),gel(I,j), &u,&v,&w,&di);
+      S = colcomb(nf, u,v, S0,T0);
+      T = colcomb(nf, a,gneg(b), T0,S0);
+      if (u != gen_0 && v != gen_0) /* already reduced otherwise */
+        nfcleanmod(nf, S, i, idealmul(nf,detmat,di));
+      nfcleanmod(nf, T, i, idealdiv(nf,detmat,w));
+      gel(A,def) = S; gel(A,j) = T;
+      gel(I,def) = d; gel(I,j) = w;
+    }
+    if (gc_needed(av,2))
+    {
+      if(DEBUGMEM>1) pari_warn(warnmem,"[1]: nfhnfmod, i = %ld", i);
+      gerepileall(av,dA? 4: 3, &A,&I,&detmat,&dA);
+    }
+  }
+  def--; d0 = detmat;
+  A += def; A[0] = evaltyp(t_MAT)|evallg(li);
+  I += def; I[0] = evaltyp(t_VEC)|evallg(li);
+  J = cgetg(li,t_VEC);
+  for (i=li-1; i>=1; i--)
+  {
+    GEN b = gcoeff(A,i,i);
+    d = nfbezout(nf, gen_1,b, d0,gel(I,i), &u,&v,&w,&di);
+    p1 = nfC_nf_mul(nf,gel(A,i),v);
+    if (i > 1)
+    {
+      d0 = idealmul(nf,d0,di);
+      nfcleanmod(nf, p1, i, d0);
+    }
+    gel(A,i) = p1; gel(p1,i) = gen_1;
+    gel(I,i) = d;
+    gel(J,i) = di;
+  }
+  for (i=li-2; i>=1; i--)
+  {
+    d = gel(I,i);
+    for (j=i+1; j<li; j++)
+    {
+      GEN c = gcoeff(A,i,j); if (isintzero(c)) continue;
+      c = element_close(nf, c, idealmul(nf,d,gel(J,j)));
+      gel(A,j) = colcomb1(nf, gneg(c), gel(A,j),gel(A,i));
+    }
+    if (gc_needed(av,2))
+    {
+      if(DEBUGMEM>1) pari_warn(warnmem,"[2]: nfhnfmod, i = %ld", i);
+      gerepileall(av,dA? 4: 3, &A,&I,&J,&dA);
+    }
+  }
+  idV_simplify(I);
+  if (dA) I = gdiv(I,dA);
+  return gerepilecopy(av0, mkvec2(A, I));
 }
