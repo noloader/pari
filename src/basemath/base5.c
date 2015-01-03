@@ -151,7 +151,6 @@ END:
   return gerepilecopy(av, eltabstorel(rnf_get_map(rnf), x));
 }
 
-
 /* x a t_VEC of rnf elements in 'alg' form (t_POL). Assume maximal rank or 0 */
 static GEN
 modulereltoabs(GEN rnf, GEN x)
@@ -250,7 +249,7 @@ rnfinit(GEN nf, GEN polrel)
   gel(bas,1) = lift_if_rational( RgM_to_RgXV(B,varn(polrel)) );
   rnfeq = nf_rnfeq(nf,polrel);
   nf_nfzk(nf, rnfeq, &basnf, &cobasnf);
-  rnf = cgetg(13, t_VEC);
+  rnf = obj_init(11, 1);
   gel(rnf,1) = polrel;
   gel(rnf,2) = mkvec2(basnf, cobasnf);
   gel(rnf,3) = mkvec2(D, d);
@@ -262,7 +261,6 @@ rnfinit(GEN nf, GEN polrel)
   gel(rnf,9) = typ(f) == t_INT? gen_1: RgM_det_triangular(f);
   gel(rnf,10)= nf;
   gel(rnf,11)= rnfeq;
-  gel(rnf,12)= zerovec(1);
   return gerepilecopy(av, rnf);
 }
 
