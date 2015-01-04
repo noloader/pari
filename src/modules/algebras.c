@@ -2437,7 +2437,7 @@ nextgen(GEN gene, long h, GEN* gens, GEN* hgens, long* ngens, long* curgcd) {
   return;
 }
 
-inline int
+static int
 dividesmod(long d, long h, long n) { return !(h%cgcd(d,n)); }
 
 /* ramified prime with nontrivial Hasse invariant */
