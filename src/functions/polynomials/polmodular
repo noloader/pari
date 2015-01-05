@@ -1,9 +1,9 @@
 Function: polmodular
 Section: polynomials
 C-Name: polmodular
-Prototype: LDGDnD0,L,
-Help: polmodular(L, {x = 'x}, {y = 'y}, {compute_derivs = 0}): return the
- modular polynomial of level L.
+Prototype: LD0,L,DGDnD0,L,
+Help: polmodular(L, {inv = 0}, {x = 'x}, {y = 'y}, {compute_derivs = 0}): return the
+ modular polynomial of level L and invariant inv.
 Doc:
  Return the modular polynomial of level $L$ in variables $x$ and $y$ for the
  $j$ function.  If $x$ is given as \kbd{Mod(j, p)} or an element $j$ of a prime

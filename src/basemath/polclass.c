@@ -1072,6 +1072,7 @@ polclass(GEN DD, long xvar)
   GEN pcp, mpdb;
   static const long k = 2;
   static const double delta = 0.5;
+  long inv = 0; /* INV_J */
 
   if (xvar < 0)
     xvar = 0;
@@ -1091,7 +1092,7 @@ polclass(GEN DD, long xvar)
   pcp = minimal_polycyclic_presentation(classno, D, u);
 
   prime_lst = select_classpoly_primes(D, k, delta, pcp);
-  mpdb = polmodular_db_init(0);
+  mpdb = polmodular_db_init(0, inv);
 
   hilb = ZX_init_CRT(pol_0(xvar), 1L, xvar);
   P = gen_1;

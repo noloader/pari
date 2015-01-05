@@ -62,18 +62,18 @@ forprime(L = 2, MAX_LEVEL, check_modpoly(L));
 
 \\ Check that specifying variables works
 my (phi7 = polmodular(7));
-if (phi7 != polmodular(7, 'x, 'y) || phi7 != polmodular(7, 'x)
-    || polmodular(7, 's, 't) != substvec(phi7, ['x, 'y], ['s, 't]),
+if (phi7 != polmodular(7, , 'x, 'y) || phi7 != polmodular(7, , 'x)
+    || polmodular(7, , 's, 't) != substvec(phi7, ['x, 'y], ['s, 't]),
     error("Bad variables"));
 
 \\ Check argument checking
 my (got_err);
-iferr (polmodular(7, "I am the queen of France", 'x),
+iferr (polmodular(7, , "I am the queen of France", 'x),
        err, got_err = 1, errname(err) == "e_TYPE");
 if ( ! got_err, error("No type error from bad param"));
 
 got_err = 0;
-iferr (polmodular(7, ffgen(2^3), 'x),
+iferr (polmodular(7, , ffgen(2^3), 'x),
        err, got_err = 1, errname(err) == "e_DOMAIN");
 if ( ! got_err, error("No domain error from non-prime field arg"));
 
@@ -90,15 +90,15 @@ iferr (polmodular(nextprime(5000)), err, got_err = 1, errname(err) == "e_IMPL");
 if ( ! got_err, error("No error from huge level"));
 
 got_err = 0;
-iferr (polmodular(7, 'x, 'y, 1), err, got_err = 1, errname(err) == "e_FLAG");
+iferr (polmodular(7, , 'x, 'y, 1), err, got_err = 1, errname(err) == "e_FLAG");
 if ( ! got_err, error("No error from inappropriate flag"));
 
 got_err = 0;
-iferr (polmodular(7, 'x, 'x), err, got_err = 1, errname(err) == "e_PRIORITY");
+iferr (polmodular(7, , 'x, 'x), err, got_err = 1, errname(err) == "e_PRIORITY");
 if ( ! got_err, error("No error from same variables"));
 
 got_err = 0;
-iferr (polmodular(7, 'y, 'x), err, got_err = 1, errname(err) == "e_PRIORITY");
+iferr (polmodular(7, , 'y, 'x), err, got_err = 1, errname(err) == "e_PRIORITY");
 if ( ! got_err, error("No error from bad variables"));
 }
 
@@ -120,10 +120,10 @@ check_eval_modpoly(L, j, p, expected) =
 {
     my (jm = Mod(j, p),
         jf = j * ffgen(p)^0,
-        um = polmodular(L, jm, 'y, 0),
-        uf = polmodular(L, jf, 'y, 0),
-        vm = polmodular(L, jm, 'y, 1),
-        vf = polmodular(L, jf, 'y, 1));
+        um = polmodular(L, , jm, 'y, 0),
+        uf = polmodular(L, , jf, 'y, 0),
+        vm = polmodular(L, , jm, 'y, 1),
+        vf = polmodular(L, , jf, 'y, 1));
     if ( ! poloftype(um, "t_INTMOD") || ! poloftype(uf, "t_FFELT")
         || type(vm) != "t_VEC" || #vm != 3 || type(vf) != "t_VEC" || #vf != 3,
         error("Invalid return type"));

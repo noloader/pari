@@ -3612,10 +3612,10 @@ GEN     polclass(GEN D, long xvar);
 /* polmodular.c */
 
 GEN     Flm_Fl_polmodular_evalx(GEN phi, long L, ulong j, ulong p, ulong pi);
-GEN     Fp_polmodular_evalx(long L, GEN J, GEN P, long v, int compute_derivs);
-GEN     polmodular(long L, GEN x, long yvar, int compute_derivs);
-GEN     polmodular_ZM(long L);
-GEN     polmodular_ZXX(long L, long xvar, long yvar);
+GEN     Fp_polmodular_evalx(long L, long inv, GEN J, GEN P, long v, int compute_derivs);
+GEN     polmodular(long L, long inv, GEN x, long yvar, long compute_derivs);
+GEN     polmodular_ZM(long L, long inv);
+GEN     polmodular_ZXX(long L, long inv, long xvar, long yvar);
 
 /* prime.c */
 

@@ -294,7 +294,7 @@ GEN enum_j_with_endo_ring(
   ulong j0, norm_eqn_t ne, GEN *mpdb, GEN pcp, long max_elts);
 
 /* Polmodular database maintenance */
-GEN polmodular_db_init(GEN levels);
+GEN polmodular_db_init(GEN levels, long inv);
 void polmodular_db_clear(GEN db);
 GEN polmodular_db_get(GEN *db, long L);
 GEN polmodular_db_getp(GEN *db, long L, ulong p);
