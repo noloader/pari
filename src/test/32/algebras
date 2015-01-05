@@ -263,6 +263,7 @@ norm j: 1
 norm is multiplicative a*b: 1
 norm is multiplicative b*a: 1
 poleval: 1
+poleval b: 1
 Suite: hasse sum to 0
 cyclo construction: [[x^2 + x + 1, [[1], 1], [Mat(3), -3], 1, [], [], [[1, x
 ], [1, 1]], [1, 0; 0, 1], 1, [y, [1, 0], 1, 1, [Mat(1), Mat(1), Mat(1), Mat(
@@ -2541,4 +2542,4 @@ x - 12
   ***   at top-level: alinv(A,1)
   ***                 ^----------
   *** alinv: incorrect type in al_model (t_INT).
-Total time spent: 4199
+Total time spent: 3412
