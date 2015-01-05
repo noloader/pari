@@ -1630,7 +1630,7 @@ compilefunc(entree *ep, long n, int mode, long flag)
 }
 
 static void
-genclosurectx(entree *ep, const char *loc, long nbdata)
+genclosurectx(const char *loc, long nbdata)
 {
   long i;
   GEN vep = cgetg(nbdata+1,t_VECSMALL);
@@ -1693,7 +1693,7 @@ genclosure(entree *ep, const char *loc, long  nbdata, int check)
   dbgstart = loc;
   if (nbdata > arity)
     pari_err(e_MISC,"too many parameters for closure `%s'", ep->name);
-  if (nbdata) genclosurectx(ep, loc, nbdata);
+  if (nbdata) genclosurectx(loc, nbdata);
   text = strtoGENstr(ep->name);
   arity -= nbdata;
   if (maskarg)  op_push_loc(OCcheckargs,maskarg,loc);
