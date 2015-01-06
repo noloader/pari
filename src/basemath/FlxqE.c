@@ -1436,7 +1436,7 @@ Flxq_ellcard_Satoh(GEN a4, GEN a6, GEN j, GEN T, ulong p)
         GEN sA4 = Flx_triple(Flxq_mul(sk, j, T, p), p);
         GEN u = Flxq_div(a4, sA4, T, p);
         ulong ns = lgpol(s) ? Fl_neg(s[2], p): 0UL;
-        GEN P = mkvecsmalln(4, T[1], m[2], ns, 1L);
+        GEN P = mkvecsmall4(T[1], m[2], ns, 1L);
         GEN A4, A6, t, tP;
         Flxq_ellj_to_a4a6(polx_Flx(T[1]), P, p, &A4, &A6);
         tP = addis(q, 1 - Flxq_ellcard_naive(A4, A6, P, p));
