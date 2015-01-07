@@ -575,7 +575,7 @@ static entree *
 fetch_member_raw(const char *s, long len)
 {
   pari_sp av = avma;
-  char *t = stack_malloc(len+1);
+  char *t = stack_malloc(len+2);
   entree *ep;
   t[0] = '_'; strncpy(t+1, s, len); t[++len] = 0; /* prepend '_' */
   ep = fetch_entry_raw(t, len);

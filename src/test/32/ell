@@ -462,4 +462,5 @@ t + 1/3*t^3 - 1/2*t^4 + 14/15*t^5 + O(t^6)
   ***                 ^----------------
   *** ellformalw: domain error in ellformalw: precision <= 0
 242.47010035195076100129810400142304776
-Total time spent: 464
+0
+Total time spent: 512
