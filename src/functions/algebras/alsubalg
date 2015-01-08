@@ -9,6 +9,9 @@ Doc: \var{al} being a table algebra output by \tet{altableinit} and \var{B}
  \bprog
  ? mt = [matid(3), [0,0,0; 1,1,0; 0,0,0], [0,0,1; 0,0,0; 1,0,1]];
  ? A = altableinit(mt,2);
- ? alsubalg(A,[1,0; 0,0; 0,1])
- %3 = [0, 0, 0, 0, 0, 0, [1, 0; 0, 1], [1, 0; 0, 1], [[1, 0; 0, 1], [0, 1; 1, 1]], 2, [0, 1]]
+ ? B = alsubalg(A,[1,0; 0,0; 0,1]);
+ ? algetdim(A)
+ %4 = 3
+ ? algetdim(B)
+ %5 = 2
  @eprog
