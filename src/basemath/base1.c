@@ -1814,7 +1814,7 @@ nf_input_type(GEN x)
       switch(typ(V))
       {
         case t_INT: case t_MAT: return t_POL;
-        case t_VEC:
+        case t_VEC: case t_COL:
           if (RgV_is_ZV(V)) return t_POL;
           break;
         default: return -1;
