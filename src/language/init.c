@@ -2050,7 +2050,7 @@ obj_checkbuild_prec(GEN S, long tag, GEN (*build)(GEN,long),
   pari_sp av = avma;
   GEN w = obj_check(S, tag);
   if (!w || pr(w) < prec) w = obj_insert(S, tag, build(S, prec));
-  avma = av; return w;
+  avma = av; return gcopy(w);
 }
 GEN
 obj_checkbuild_realprec(GEN S, long tag, GEN (*build)(GEN,long), long prec)
