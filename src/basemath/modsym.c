@@ -643,7 +643,6 @@ msqexpansion_i(GEN W, GEN proV, ulong B)
   (void)u_forprime_init(&S, 2, ULONG_MAX);
   while ((p = u_forprime_next(&S)))
   {
-    pari_sp av = avma;
     GEN T;
     if (N % p == 0) continue;
     if (T1 && T2)
@@ -659,7 +658,6 @@ msqexpansion_i(GEN W, GEN proV, ulong B)
     TV = Qevproj_apply(T, proV); /* T | V */
     ch = QM_charpoly_ZX(TV);
     if (ZX_is_irred(ch)) break;
-    avma = av;
     ch = NULL;
   }
   if (!ch) pari_err_BUG("q-Expansion not found");
