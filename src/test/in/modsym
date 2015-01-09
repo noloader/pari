@@ -62,6 +62,9 @@ V = mssplit(W, msnew(W));
 msqexpansion(W, V[1], 30)
 msqexpansion(W, V[1])
 
+M=msinit(603,2,1);L=msnew(M);V=mssplit(M,L);
+Set([v|v<-vector(#V,i,msqexpansion(M,V[i])),type(v[1])=="t_INT"])
+
 W = msinit(6,4);
 msatkinlehner(W,1)
 msatkinlehner(W,2)

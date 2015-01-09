@@ -691,6 +691,13 @@ msqexpansion_i(GEN W, GEN proV, ulong B)
     else
       ap = simplify_shallow(ap);
     gel(L,p) = ap;
+    if (!(N % p))
+    { /* p divides the level */
+      ulong C = B/p;
+      for (m=1; m<=C; m++)
+        if (gel(L,m)) gel(L,m*p) = gmul(gel(L,m), ap);
+      continue;
+    }
     P = powuu(p,k-1);
     if (p <= sqrtB) {
       ulong pj, oldpj = 1;
