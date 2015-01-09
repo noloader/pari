@@ -3833,7 +3833,7 @@ GEN     RgX_act_ZGl2Q(GEN z, long k);
 void    checkms(GEN W);
 GEN     msfromell(GEN E, long signe);
 GEN     msatkinlehner(GEN W, long Q, GEN);
-GEN     mscuspidal(GEN W);
+GEN     mscuspidal(GEN W, long flag);
 GEN     mseisenstein(GEN W);
 GEN     mseval(GEN W, GEN s, GEN p);
 GEN     mshecke(GEN W, long p, GEN H);

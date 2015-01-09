@@ -2355,6 +2355,7 @@ mseisenstein(GEN W)
   return gerepilecopy(av, Qevproj_init(mseisenstein_i(W)));
 }
 
+/* return [E,S] */
 static GEN
 mscuspidal_i(GEN W)
 {
@@ -2377,14 +2378,21 @@ mscuspidal_i(GEN W)
   return mkvec2(E, Qevproj_star(W, QM_ker(M)));
 }
 GEN
-mscuspidal(GEN W)
+mscuspidal(GEN W, long flag)
 {
   pari_sp av = avma;
-  GEN v;
+  GEN v, S, E;
   checkms(W);
   v = mscuspidal_i(W);
-  gel(v,1) = Qevproj_init(gel(v,1));
-  gel(v,2) = Qevproj_init(gel(v,2));
+  E = gel(v,1);
+  S = gel(v,2); S = Qevproj_init(S);
+  if (flag)
+  { /* swap arguments to return [S,E] */
+    E = Qevproj_init(E);
+    v = mkvec2(S,E);
+  }
+  else
+    v = S;
   return gerepilecopy(av, v);
 }
 

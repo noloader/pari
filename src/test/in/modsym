@@ -53,8 +53,9 @@ mseval(W,s,g[2])
 
 W = msinit(11, 2);
 T = mshecke(W, 3);
-[E,S] = mscuspidal(W)
+[S,E] = mscuspidal(W, 1)
 E == mseisenstein(W)
+S == mscuspidal(W)
 
 W = msinit(23,2, 1);
 V = mssplit(W, msnew(W));
