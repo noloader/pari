@@ -94,6 +94,12 @@ x^2 + x - 1), Mod(-2*x + 2, x^2 + x - 1), Mod(2*x, x^2 + x - 1), Mod(-2, x^2
 ^2 + x - 1), Mod(1, x^2 + x - 1), Mod(5, x^2 + x - 1), Mod(-4*x - 1, x^2 + x
  - 1), Mod(3*x, x^2 + x - 1), Mod(2*x + 1, x^2 + x - 1), Mod(-2*x - 4, x^2 +
  x - 1), Mod(-3, x^2 + x - 1), Mod(-6*x + 2, x^2 + x - 1)]
+[Mod(1, x^2 + x - 1), Mod(x, x^2 + x - 1), Mod(-2*x - 1, x^2 + x - 1), Mod(-
+x - 1, x^2 + x - 1), Mod(2*x, x^2 + x - 1), Mod(x - 2, x^2 + x - 1), Mod(2*x
+ + 2, x^2 + x - 1), Mod(-2*x - 1, x^2 + x - 1), Mod(2, x^2 + x - 1), Mod(-2*
+x + 2, x^2 + x - 1), Mod(-2*x - 4, x^2 + x - 1), Mod(x + 3, x^2 + x - 1), Mo
+d(3, x^2 + x - 1), Mod(2, x^2 + x - 1), Mod(2*x - 4, x^2 + x - 1), Mod(3*x, 
+x^2 + x - 1)]
 
 [1 0 0 0 0 0]
 
@@ -166,4 +172,4 @@ x^2 + x - 1), Mod(-2*x + 2, x^2 + x - 1), Mod(2*x, x^2 + x - 1), Mod(-2, x^2
 1
 0
 1
-Total time spent: 1180
+Total time spent: 1072

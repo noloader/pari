@@ -60,6 +60,7 @@ S == mscuspidal(W)
 W = msinit(23,2, 1);
 V = mssplit(W, msnew(W));
 msqexpansion(W, V[1], 30)
+msqexpansion(W, V[1])
 
 W = msinit(6,4);
 msatkinlehner(W,1)
