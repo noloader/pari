@@ -727,7 +727,9 @@ BPSW_isprime_big(GEN N)
 
   p = gel(P,n);
   /* fully factored */
-  if (cmpiu(p,B) <= 0 || (BPSW_psp_nosmalldiv(p) && check_prime(p)))
+  if (cmpiu(p,B) <= 0 ||
+      (BPSW_psp_nosmalldiv(p)
+      && (BPSW_isprime_small(N) || BPSW_isprime_big(p))))
     return isprimeSelfridge(N,P, n);
 
   E = gel(fa,2);
