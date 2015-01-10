@@ -1007,17 +1007,6 @@ path_Gamma0N_decompose(GEN W, GEN path)
   return mkvec2(mkvecsmall(ind), M0);
 }
 
-/* Input:  [v1, ..., vn]
- * Output: [vn, ..., v1]. Shallow function */
-static GEN
-Reverse(GEN v)
-{
-  long i, l;
-  GEN w = cgetg_copy(v, &l);
-  for (i = 1; i < l; i++) gel(w, i) = gel(v, l-i);
-  return w;
-}
-
 /*Form generators of H_1(X_0(N),{cusps},Z)
 *
 *Input: N = integer > 1, p1N = P^1(Z/NZ)
@@ -1089,11 +1078,11 @@ set_init(long max)
 static void
 insert_E(GEN path, PS_sets_t *S, GEN p1N)
 {
-  GEN rev = Reverse(path);
+  GEN rev = vecreverse(path);
   long std = path_to_p1_index(rev, p1N);
   GEN v = gel(S->stdE1, std);
   if (v)
-  { /* [s, p1], where E1[s] = the path p1 \equiv Reverse(path) mod \Gamma */
+  { /* [s, p1], where E1[s] = the path p1 \equiv vecreverse(path) mod \Gamma */
     GEN gamma, p1 = gel(v,2);
     long r, s = itos(gel(v,1));
 
@@ -1144,7 +1133,7 @@ form_E_F_T(ulong N, GEN p1N, GEN *pC, PS_sets_t *S)
     GEN c2 = gel(cusp_list,r+1);
     if (c2[3] == type_T)
     {
-      GEN c1 = gel(cusp_list,r), path = mkpath(c1,c2), path2 = Reverse(path);
+      GEN c1 = gel(cusp_list,r), path = mkpath(c1,c2), path2 = vecreverse(path);
       set_insert(T31, path);
       set_insert(T32, path2);
     }
@@ -1181,14 +1170,14 @@ form_E_F_T(ulong N, GEN p1N, GEN *pC, PS_sets_t *S)
         ulong hash = T31->hash(w); /* T31, T32 use the same hash function */
         if (!hash_search2(T31, w, hash) && !hash_search2(T32, w, hash))
         {
-          if (gamma_equiv(path, Reverse(path), N))
+          if (gamma_equiv(path, vecreverse(path), N))
             set_insert(T2, path);
           else
             insert_E(path, S, p1N);
         }
       } else {
         set_insert(F, mkvec2(path, mkvecsmall2(r,s)));
-        set_insert(F, mkvec2(Reverse(path), mkvecsmall2(s,r)));
+        set_insert(F, mkvec2(vecreverse(path), mkvecsmall2(s,r)));
       }
     }
   }
@@ -1438,7 +1427,7 @@ msinit_N(ulong N)
   for (r = 1; r <= T2->nb; r++)
   {
     GEN w = gel(vecT2,r);
-    GEN gamma = gamma_equiv_matrix(Reverse(w), w);
+    GEN gamma = gamma_equiv_matrix(vecreverse(w), w);
     gel(annT2, r) = mkmat2(mkcol2(gen_1,gamma), mkcol2(gen_1,gen_1));
   }
 
@@ -1447,7 +1436,7 @@ msinit_N(ulong N)
   vecT31 = hash_to_vec(T31);
   for (r = 1; r <= T31->nb; r++)
   {
-    GEN M = zm_to_ZM( path_to_zm( Reverse(gel(vecT31,r)) ) );
+    GEN M = zm_to_ZM( path_to_zm( vecreverse(gel(vecT31,r)) ) );
     GEN gamma = ZM_mul(ZM_mul(M, TAU), SL2_inv(M));
     gel(annT31, r) = mkmat2(mkcol3(gen_1,gamma,ZM_sqr(gamma)),
                             mkcol3(gen_1,gen_1,gen_1));

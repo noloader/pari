@@ -902,8 +902,8 @@ row_i(GEN A, long x0, long x1, long x2)
 INLINE GEN
 vecreverse(GEN A)
 {
-  long i,l = lg(A);
-  GEN B = cgetg(l, typ(A));
+  long i, l;
+  GEN B = cgetg_copy(A, &l);
   for (i=1; i<l; i++) gel(B, i) = gel(A, l-i);
   return B;
 }
