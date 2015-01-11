@@ -243,6 +243,7 @@ gred_rfrac_simple(GEN n, GEN d)
   }
 
   cd = content(d);
+  while (typ(n) == t_POL && !degpol(n)) n = gel(n,2);
   cn = (typ(n) == t_POL && varn(n) == varn(d))? content(n): n;
   if (!gequal1(cd)) {
     d = RgX_Rg_div(d,cd);
