@@ -37,4 +37,5 @@ x^2 + 1
   *** Pol: incorrect type in gtopoly (t_STR).
 2*x^2 + x + 1
 6*x^3 + 2*x^2
+"t_INT"
 Total time spent: 0

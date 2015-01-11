@@ -24,3 +24,7 @@ matcompanion(2*x^2+1)
 Pol("")
 serlaplace(1+x+x^2)
 serlaplace(x^2+x^3)
+
+\\#1651
+f1=(x-1)/(x*x-x);
+type(subst(1/f1,x,1))
