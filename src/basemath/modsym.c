@@ -2349,25 +2349,32 @@ mseisenstein(GEN W)
   return gerepilecopy(av, Qevproj_init(mseisenstein_i(W)));
 }
 
+/* upper bound for log_2 |charpoly(T_p|S)|, where S is a cuspidal subspace of
+ * dimension d, k is the weight */
+static long
+TpS_char_bound(ulong p, long k, long d)
+{ /* |eigenvalue| <= 2 p^(k-1)/2 */
+  return d * (2 + (log2((double)p)*(k-1))/2);
+}
+
 /* return [E,S] */
 static GEN
 mscuspidal_i(GEN W)
 {
-  GEN E;
-  GEN M, T, TE, ch, chS, chE;
+  GEN E, M, T, TE, chS;
+  long k = msk_get_weight(W), bit;
   forprime_t S;
   ulong p, N;
-  if (msk_get_weight(W) == 2) return EC_subspace_trivial(W);
+  if (k == 2) return EC_subspace_trivial(W);
   E = mseisenstein_i(W);
   N = ms_get_N(W);
   (void)u_forprime_init(&S, 2, ULONG_MAX);
   while ((p = u_forprime_next(&S)))
     if (N % p) break;
   T = mshecke_i(W, p);
-  ch = QM_charpoly_ZX(T);
   TE = Qevproj_apply(T, Qevproj_init(E)); /* T_p | E */
-  chE = QM_charpoly_ZX(TE);
-  chS = RgX_div(ch, chE); /* charpoly(T_p | S_k), coprime to chE */
+  bit = TpS_char_bound(p, k, msk_get_dim(W) - (lg(TE)-1));
+  chS = QM_charpoly_ZX2_bound(T,TE,bit); /* charpoly(T_p | S_k) */
   M = RgX_RgM_eval(chS, T);
   return mkvec2(E, Qevproj_star(W, QM_ker(M)));
 }

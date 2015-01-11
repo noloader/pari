@@ -881,64 +881,113 @@ charpoly_bound(GEN M, GEN dM)
   d = dbllog2(s); avma = av; return ceil(d);
 }
 
+/* Return char_{M/d}(X) = d^(-n) char_M(dX) modulo p. Assume dp = d mod p. */
+static GEN
+QM_charpoly_Flx(GEN M, ulong dp, ulong p)
+{
+  pari_sp av = avma;
+  GEN H = Flm_charpoly_i(ZM_to_Flm(M,p), p);
+  if (dp) H = Flx_rescale(H, Fl_inv(dp,p), p);
+  return gerepileuptoleaf(av, H);
+}
+
+static int
+ZX_CRT(GEN *H, GEN Hp, GEN *q, ulong p, long bit)
+{
+  if (!*H)
+  {
+    *H = ZX_init_CRT(Hp, p, 0);
+    if (DEBUGLEVEL>5)
+      err_printf("charpoly mod %lu, bound = 2^%ld", p, expu(p));
+    if (expu(p) > bit) return 1;
+    *q = utoipos(p);
+  }
+  else
+  {
+    int stable = ZX_incremental_CRT(H, Hp, q,p);
+    if (DEBUGLEVEL>5)
+      err_printf("charpoly mod %lu (stable=%ld), bound = 2^%ld",
+                 p, stable, expi(*q));
+    if (stable && expi(*q) > bit) return 1;
+  }
+  return 0;
+}
+/* Let V = V1 \oplus V2 Q-vector spaces and f in End(V) stabilizing the Vi
+ * Let M, M2 be square QM representing f, f|V2.
+ * Return H := char(f|V1) = char(f) / char(f|V2) assuming H is in Z[X]
+ * and log 2 |H|oo <= bit */
+GEN
+QM_charpoly_ZX2_bound(GEN M, GEN M2, long bit)
+{
+  long n = lg(M)-1, n2 = lg(M2)-1;
+  GEN q = NULL, H1 = NULL, dM, dM2;
+  forprime_t S;
+  ulong p;
+  if (n == n2) return pol_1(0);
+  if (!n2) return QM_charpoly_ZX_bound(M, bit);
+  M = Q_remove_denom(M,&dM);
+  M2= Q_remove_denom(M2,&dM2);
+
+  if (DEBUGLEVEL>5) err_printf("QM_charpoly_ZX2_bound: bit-bound 2^%ld\n", bit);
+  init_modular(&S);
+  while ((p = u_forprime_next(&S)))
+  {
+    ulong dMp = 0, dM2p = 0;
+    GEN Hp, H1p, H2p;
+    if (dM && !(dMp = umodiu(dM, p))) continue;
+    if (dM2 && !(dM2p = umodiu(dM2, p))) continue;
+    Hp  = QM_charpoly_Flx(M,  dMp,  p);
+    H2p = QM_charpoly_Flx(M2, dM2p, p);
+    H1p = Flx_div(Hp, H2p, p);
+    if (ZX_CRT(&H1, H1p, &q,p, bit)) break;
+  }
+  if (!p) pari_err_OVERFLOW("charpoly [ran out of primes]");
+  return H1;
+}
+
 /* Assume M a square ZM, dM integer. Return charpoly(M / dM) in Z[X] */
 static GEN
-QM_charpoly_ZX_i(GEN M, GEN dM)
+QM_charpoly_ZX_i(GEN M, GEN dM, long bit)
 {
-  pari_timer T;
-  long l = lg(M), n = l-1, bit;
-  GEN q = NULL, H = NULL, Hp;
+  long n = lg(M)-1;
+  GEN q = NULL, H = NULL;
   forprime_t S;
   ulong p;
   if (!n) return pol_1(0);
 
-  bit = (long)charpoly_bound(M, dM) + 1;
-  if (DEBUGLEVEL>5) {
-    err_printf("ZM_charpoly: bit-bound 2^%ld\n", bit);
-    timer_start(&T);
-  }
+  if (bit < 0) bit = (long)charpoly_bound(M, dM) + 1;
+  if (DEBUGLEVEL>5) err_printf("ZM_charpoly: bit-bound 2^%ld\n", bit);
   init_modular(&S);
   while ((p = u_forprime_next(&S)))
   {
-    pari_sp av = avma;
     ulong dMp = 0;
+    GEN Hp;
     if (dM && !(dMp = umodiu(dM, p))) continue;
-    Hp = Flm_charpoly_i(ZM_to_Flm(M, p), p);
-    /* char_{M/d}(X) = d^(-n) char_M(dX) */
-    if (dM) Hp = Flx_rescale(Hp, Fl_inv(dMp,p), p);
-    Hp = gerepileuptoleaf(av, Hp);
-    if (!H)
-    {
-      H = ZX_init_CRT(Hp, p, 0);
-      if (DEBUGLEVEL>5)
-        timer_printf(&T, "charpoly mod %lu, bound = 2^%ld", p, expu(p));
-      if (expu(p) > bit) break;
-      q = utoipos(p);
-    }
-    else
-    {
-      int stable = ZX_incremental_CRT(&H, Hp, &q,p);
-      if (DEBUGLEVEL>5)
-        timer_printf(&T, "charpoly mod %lu (stable=%ld), bound = 2^%ld",
-                     p, stable, expi(q));
-      if (stable && expi(q) > bit) break;
-    }
+    Hp = QM_charpoly_Flx(M, dMp, p);
+    if (ZX_CRT(&H, Hp, &q,p, bit)) break;
   }
   if (!p) pari_err_OVERFLOW("charpoly [ran out of primes]");
   return H;
+}
+GEN
+QM_charpoly_ZX_bound(GEN M, long bit)
+{
+  pari_sp av = avma;
+  GEN dM; M = Q_remove_denom(M, &dM);
+  return gerepilecopy(av, QM_charpoly_ZX_i(M, dM, bit));
 }
 GEN
 QM_charpoly_ZX(GEN M)
 {
   pari_sp av = avma;
   GEN dM; M = Q_remove_denom(M, &dM);
-  return gerepilecopy(av, QM_charpoly_ZX_i(M, dM));
+  return gerepilecopy(av, QM_charpoly_ZX_i(M, dM, -1));
 }
 GEN
 ZM_charpoly(GEN M)
 {
   pari_sp av = avma;
-  return gerepilecopy(av, QM_charpoly_ZX_i(M, NULL));
+  return gerepilecopy(av, QM_charpoly_ZX_i(M, NULL, -1));
 }
 
 /*******************************************************************/
