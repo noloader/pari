@@ -1393,6 +1393,8 @@ aliscommutative(al)
 alissemisimple(al)
 alissimple(al)
 
+\\al = alinit(nfinit(y), [Mat(1)]) TODO add this test when bug fixed
+
 mt0 = [Mat([1])];
 almt0 = altableinit(mt0,0)
 a = [12]~
