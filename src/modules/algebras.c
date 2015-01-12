@@ -1574,7 +1574,8 @@ alisinv(GEN al, GEN x, GEN* ptix)
   pari_sp av = avma;
   GEN ix = alinv_i(al,x);
   if (!ix) { avma = av; return 0; }
-  *ptix = ix; return 1;
+  if (ptix != NULL) *ptix = ix;
+  return 1;
 }
 
 /*  x*y^(-1)  */

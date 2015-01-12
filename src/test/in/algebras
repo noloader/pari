@@ -1232,6 +1232,9 @@ setrand(1);
 altype([])
 A = alinit(nfinit(y),[-1,1]);
 aladd(A,[1,0]~,[1,2]~)
+alisinv(A,[-1,1]~)
+alisinv(A,[1,2]~,&ix)
+ix
 
 A = alinit(nfinit(y^2-5),[2,y]);
 alalgtobasis(A,[y,1]~)
