@@ -311,7 +311,7 @@ F2xqE_tangent_update(GEN R, GEN Q, GEN a2, GEN T, GEN *pt_R)
     *pt_R = ellinf();
     return F2xqE_vert(R, Q, T);
   } else {
-    GEN slope, tmp1, tmp2;
+    GEN slope = NULL, tmp1, tmp2;
     *pt_R = F2xqE_dbl_slope(R, a2, T, &slope);
     tmp1 = F2x_add(gel(Q, 1), gel(R, 1));
     tmp2 = F2x_add(F2xq_mul(tmp1, slope, T), gel(R,2));
@@ -346,7 +346,7 @@ F2xqE_chord_update(GEN R, GEN P, GEN Q, GEN a2, GEN T, GEN *pt_R)
       return F2xqE_vert(R, Q, T);
     }
   } else {
-    GEN slope, tmp1, tmp2;
+    GEN slope = NULL, tmp1, tmp2;
     *pt_R = F2xqE_add_slope(P, R, a2, T, &slope);
     tmp1  = F2xq_mul(F2x_add(gel(Q, 1), gel(R, 1)), slope, T);
     tmp2  = F2x_add(tmp1, gel(R, 2));
