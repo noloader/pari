@@ -1024,9 +1024,6 @@ err_recover(long numerr)
   evalstate_reset();
   killallfiles();
   pari_init_errcatch();
-  out_puts(pariErr, "\n");
-  pariErr->flush();
-
   cb_pari_err_recover(numerr);
 }
 
@@ -1418,17 +1415,18 @@ static void
 pari_err_display(GEN err)
 {
   long numerr=err_get_num(err);
+  err_init();
   if (numerr==e_SYNTAX)
   {
     const char *msg = GSTR(gel(err,2));
     const char *s     = (const char *) gmael(err,3,1);
     const char *entry = (const char *) gmael(err,3,2);
     print_errcontext(pariErr, msg, s, entry);
-    return;
   }
   else
   {
     char *s = pari_err2str(err);
+    closure_err(0);
     err_init_msg(numerr, e_USER);
     pariErr->puts(s);
     if (numerr==e_NOTFUNC)
@@ -1443,6 +1441,8 @@ pari_err_display(GEN err)
     }
     pari_free(s);
   }
+  out_term_color(pariErr, c_NONE);
+  pariErr->flush();
 }
 
 void
@@ -1463,12 +1463,8 @@ pari_err(int numerr, ...)
   global_err_data = E;
   if (*iferr_env) longjmp(*iferr_env, numerr);
   mt_err_recover(numerr);
-  err_init();
-  if (numerr != e_SYNTAX) closure_err(0);
-  pari_err_display(E);
-  out_term_color(pariErr, c_NONE);
   va_end(ap);
-  pariErr->flush();
+  pari_err_display(E);
   if (cb_pari_handle_exception &&
       cb_pari_handle_exception(numerr)) return;
   err_recover(numerr);
