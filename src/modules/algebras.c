@@ -2878,11 +2878,7 @@ cyclicrelfrob0(GEN nf, GEN aut, GEN pr, GEN q, long f, long g)
 
 static GEN
 rnfprimedec(GEN rnf, GEN nf2, GEN pr)
-{
-  GEN pr2;
-  pr2 = idealhnf(nf2,gtomat(matalgtobasis(nf2,rnfidealup(rnf, pr))));
-  return idealfactor(nf2, pr2);
-}
+{ return idealfactor(nf2, rnfidealup0(rnf, pr, 1)); }
 
 long
 cyclicrelfrob(GEN rnf, GEN nf2, GEN auts, GEN pr)

@@ -2037,18 +2037,24 @@ void    nf_nfzk(GEN nf, GEN rnfeq, GEN *zknf, GEN *czknf);
 GEN     nfeltup(GEN nf, GEN x, GEN zknf, GEN czknf);
 GEN     rnfeltabstorel(GEN rnf, GEN x);
 GEN     rnfeltdown(GEN rnf, GEN x);
+GEN     rnfeltdown0(GEN rnf, GEN x, long flag);
 GEN     rnfeltreltoabs(GEN rnf, GEN x);
 GEN     rnfeltup(GEN rnf, GEN x);
+GEN     rnfeltup0(GEN rnf, GEN x, long flag);
 GEN     rnfidealabstorel(GEN rnf, GEN x);
 GEN     rnfidealdown(GEN rnf, GEN x);
+GEN     rnfidealdown0(GEN rnf, GEN x, long flag);
 GEN     rnfidealhnf(GEN rnf, GEN x);
 GEN     rnfidealmul(GEN rnf,GEN x,GEN y);
 GEN     rnfidealnormabs(GEN rnf, GEN x);
 GEN     rnfidealnormrel(GEN rnf, GEN x);
 GEN     rnfidealreltoabs(GEN rnf, GEN x);
+GEN     rnfidealreltoabs0(GEN rnf, GEN x, long flag);
 GEN     rnfidealtwoelement(GEN rnf,GEN x);
 GEN     rnfidealup(GEN rnf, GEN x);
+GEN     rnfidealup0(GEN rnf,GEN x, long flag);
 GEN     rnfinit(GEN nf,GEN pol);
+GEN     rnfinit0(GEN nf,GEN pol,long flag);
 
 /* bb_group.c */
 

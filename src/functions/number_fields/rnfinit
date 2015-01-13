@@ -1,8 +1,8 @@
 Function: rnfinit
 Section: number_fields
-C-Name: rnfinit
-Prototype: GG
-Help: rnfinit(nf,pol): pol being an irreducible polynomial
+C-Name: rnfinit0
+Prototype: GGD0,L,
+Help: rnfinit(nf,pol,{flag=0}): pol being an irreducible polynomial
  defined over the number field nf, initializes a vector of data necessary for
  working in relative number fields (rnf functions). See manual for technical
  details.
@@ -15,19 +15,23 @@ Doc: $\var{nf}$ being a number field in \kbd{nfinit}
 
  The result is a row vector, whose components are technical. In the following
  description, we let $K$ be the base field defined by $\var{nf}$ and $L/K$
- the large field associated to the \var{rnf}. Furthermore, we let
+ the extension attached to the \var{rnf}. Furthermore, we let
  $m = [K:\Q]$ the degree of the base field, $n = [L:K]$ the relative degree,
  $r_1$ and $r_2$ the number of real and complex places of $K$. Access to this
  information via \emph{member functions} is preferred since the specific
  data organization specified below will change in the future.
 
- Note that a subsequent \kbd{nfinit}$(\var{rnf})$ will explicitly add an
- \kbd{nf} structure associated to $L$ to \var{rnf} (and return it as well).
+ If $\fl = 1$, add an \var{nf} structure attached to $L$ to \var{rnf}.
  This is likely to be very expensive if the absolute degree $mn$ is large,
  but fixes an integer basis for $\Z_L$ as a $\Z$-module and allows to input
  and output elements of $L$ in absolute form: as \typ{COL} for elements,
  as \typ{MAT} in HNF for ideals, as \kbd{prid} for prime ideals. Without such
  a call, elements of $L$ are represented as \typ{POLMOD}, etc.
+ Note that a subsequent \kbd{nfinit}$(\var{rnf})$ will also explicitly
+ add such a component, and so will the following functions \kbd{rnfidealmul},
+ \kbd{rnfidealtwoelt}, \kbd{rnfidealup} (with flag 1) and
+ \kbd{rnfidealreltoabs} (with flag 1). The absolute \var{nf}
+ structure attached to $L$ can be recovered using \kbd{nfinit(rnf)}.
 
  $\var{rnf}[1]$(\kbd{rnf.pol}) contains the relative polynomial \var{pol}.
 

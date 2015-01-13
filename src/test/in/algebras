@@ -1533,8 +1533,6 @@ print(al2b);
 print("csa al3");
 al3 = alginit(nf, matrixringmt(3), 'x);
 print("al3 contains nfabs: ", algsplittingfield(al3)[12][1] != 0);
-al3b = al3; al3b[1][12][1] = 0; \\ depends on 32/64bit
-print(al3b);
 
 \\limit cases
 print("trivial algebra over a quadratic field");

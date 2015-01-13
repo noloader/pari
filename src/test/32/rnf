@@ -206,7 +206,7 @@ Mod(-y, y^3 - 21)
 10:
 [Mod(y^2 + 1/2*y, y^3 - 21), Mod(1, y^3 - 21)]~
 Mod(x + Mod(1/2*y, y^3 - 21), x^2 + Mod(-y, y^3 - 21))
-Mod(x + Mod(1/2*y, y^3 - 21), x^2 - y)
+Mod(x + Mod(1/2*y, y^3 - 21), x^2 + Mod(-y, y^3 - 21))
 Mod(1/2*x^2 + x, x^6 - 21)
 error("inconsistent moduli in nf_to_scalar_or_basis: x^2 - y != y^3 - 21")
 error("domain error in rnfeltdown: element not in the base field")
@@ -243,39 +243,39 @@ error("inconsistent moduli in rnfeltabstorel: y^2 + 1 != x^6 - 21")
 error("inconsistent dimensions in rnfalgtobasis.")
 error("inconsistent operation 'RgV_RgC_mul' t_VEC (2 elts) , t_COL (1 elts).
 ")
-error("incorrect type in rnfeltabstorel (t_COL).")
+error("incorrect type in rnfeltabstorel, apply nfinit(rnf) (t_COL).")
 error("incorrect type in rnfeltreltoabs (t_COL).")
 error("incorrect type in nf_to_scalar_or_basis (t_COL).")
-error("incorrect type in rnfeltabstorel (t_COL).")
-error("incorrect type in rnfeltabstorel (t_COL).")
-error("incorrect type in rnfeltabstorel (t_COL).")
+error("incorrect type in rnfeltdown (t_COL).")
+error("incorrect type in rnfeltabstorel, apply nfinit(rnf) (t_COL).")
+error("incorrect type in rnfeltabstorel, apply nfinit(rnf) (t_COL).")
 15:
 [1, 2]~
 Mod(2*x + Mod(-2*y^2 + 1, y^3 - 21), x^2 + Mod(-y, y^3 - 21))
-error("incorrect type in rnfeltabstorel (t_COL).")
+error("incorrect type in rnfeltabstorel, apply nfinit(rnf) (t_COL).")
 error("incorrect type in rnfeltreltoabs (t_COL).")
 error("incorrect type in nf_to_scalar_or_basis (t_COL).")
-error("incorrect type in rnfeltabstorel (t_COL).")
-error("incorrect type in rnfeltabstorel (t_COL).")
-error("incorrect type in rnfeltabstorel (t_COL).")
+error("incorrect type in rnfeltdown (t_COL).")
+error("incorrect type in rnfeltabstorel, apply nfinit(rnf) (t_COL).")
+error("incorrect type in rnfeltabstorel, apply nfinit(rnf) (t_COL).")
 16:
 [1, Mod(y, y^3 - 21)]~
 Mod(Mod(y, y^3 - 21)*x + Mod(-20, y^3 - 21), x^2 + Mod(-y, y^3 - 21))
-error("incorrect type in rnfeltabstorel (t_COL).")
+error("incorrect type in rnfeltabstorel, apply nfinit(rnf) (t_COL).")
 error("incorrect type in rnfeltreltoabs (t_COL).")
 error("incorrect type in nf_to_scalar_or_basis (t_COL).")
-error("incorrect type in rnfeltabstorel (t_COL).")
-error("incorrect type in rnfeltabstorel (t_COL).")
-error("incorrect type in rnfeltabstorel (t_COL).")
+error("incorrect type in rnfeltdown (t_COL).")
+error("incorrect type in rnfeltabstorel, apply nfinit(rnf) (t_COL).")
+error("incorrect type in rnfeltabstorel, apply nfinit(rnf) (t_COL).")
 17:
 error("incorrect type in rnfalgtobasis (t_COMPLEX).")
 error("incorrect type in nf_to_scalar_or_alg (t_COMPLEX).")
-error("incorrect type in rnfeltabstorel (t_COL).")
+error("incorrect type in rnfeltabstorel, apply nfinit(rnf) (t_COL).")
 error("incorrect type in rnfeltreltoabs (t_COL).")
 error("incorrect type in nf_to_scalar_or_basis (t_COL).")
-error("incorrect type in rnfeltabstorel (t_COL).")
-error("incorrect type in rnfeltabstorel (t_COL).")
-error("incorrect type in rnfeltabstorel (t_COL).")
+error("incorrect type in rnfeltdown (t_COL).")
+error("incorrect type in rnfeltabstorel, apply nfinit(rnf) (t_COL).")
+error("incorrect type in rnfeltabstorel, apply nfinit(rnf) (t_COL).")
 18:
 error("incorrect type in rnfalgtobasis (t_POL).")
 error("incorrect type in rnfbasistoalg (t_POL).")
@@ -426,31 +426,31 @@ error("domain error in rnfeltdown: element not in the base field")
 error("inconsistent dimensions in rnfalgtobasis.")
 error("inconsistent operation 'RgV_RgC_mul' t_VEC (2 elts) , t_COL (1 elts).
 ")
-error("incorrect type in rnfeltabstorel (t_COL).")
+error("incorrect type in rnfeltabstorel, apply nfinit(rnf) (t_COL).")
 error("incorrect type in rnfeltreltoabs (t_COL).")
 1
-error("incorrect type in rnfeltabstorel (t_COL).")
-error("incorrect type in rnfeltabstorel (t_COL).")
-error("incorrect type in rnfeltabstorel (t_COL).")
+Mod(1, y + 1)
+error("incorrect type in rnfeltabstorel, apply nfinit(rnf) (t_COL).")
+error("incorrect type in rnfeltabstorel, apply nfinit(rnf) (t_COL).")
 12:
 [1, 2]~
 Mod(2*x + 1, x^2 + 1)
-error("incorrect type in rnfeltabstorel (t_COL).")
+error("incorrect type in rnfeltabstorel, apply nfinit(rnf) (t_COL).")
 error("incorrect type in rnfeltreltoabs (t_COL).")
 error("incorrect type in nf_to_scalar_or_basis (t_COL).")
-error("incorrect type in rnfeltabstorel (t_COL).")
-error("incorrect type in rnfeltabstorel (t_COL).")
-error("incorrect type in rnfeltabstorel (t_COL).")
+error("incorrect type in rnfeltdown (t_COL).")
+error("incorrect type in rnfeltabstorel, apply nfinit(rnf) (t_COL).")
+error("incorrect type in rnfeltabstorel, apply nfinit(rnf) (t_COL).")
 13:
 error("inconsistent dimensions in rnfalgtobasis.")
 error("inconsistent operation 'RgV_RgC_mul' t_VEC (2 elts) , t_COL (1 elts).
 ")
-error("incorrect type in rnfeltabstorel (t_COL).")
+error("incorrect type in rnfeltabstorel, apply nfinit(rnf) (t_COL).")
 error("incorrect type in rnfeltreltoabs (t_COL).")
 Mod(y, x^2 - 2*x + 2)
-error("incorrect type in rnfeltabstorel (t_COL).")
-error("incorrect type in rnfeltabstorel (t_COL).")
-error("incorrect type in rnfeltabstorel (t_COL).")
+error("incorrect type in rnfeltdown (t_COL).")
+error("incorrect type in rnfeltabstorel, apply nfinit(rnf) (t_COL).")
+error("incorrect type in rnfeltabstorel, apply nfinit(rnf) (t_COL).")
 1:
 x^2 - 4*x + 4
 2:
@@ -486,6 +486,20 @@ Mod(1, x^2 - 2)
 1
 [18416, x^2 + 6979, x^4 + 3879, -9208*x^4 + 9208*x, -6979/2*x^4 + 1/2*x^3 + 
 6979/2*x - 21/2, 1/2*x^5 - 3879/2*x^4 - 21/2*x^2 + 3879/2*x]
+
+[18416 9208    1 6979 16477 12698]
+
+[    0 9208 6979    0  3489  5429]
+
+[    0    0    2    0     1     1]
+
+[    0    0    0    1     0     0]
+
+[    0    0    0    0     1     0]
+
+[    0    0    0    0     0     1]
+
+1
 1
 
 [280970 12259 35869]
@@ -496,6 +510,19 @@ Mod(1, x^2 - 2)
 
 [280970, x^2 + 12259, x^4 + 35869, -140485*x^4 + 140485*x, -12259/2*x^4 + 1/
 2*x^3 + 12259/2*x - 21/2, 1/2*x^5 - 35869/2*x^4 - 21/2*x^2 + 35869/2*x]
+
+[280970 140485     1 12259 122551 146615]
+
+[     0 140485 12259     0   6129  24064]
+
+[     0      0     2     0      1      1]
+
+[     0      0     0     1      0      0]
+
+[     0      0     0     0      1      0]
+
+[     0      0     0     0      0      1]
+
 1:
 [[1, 0; 0, 1], [2, 1]]
 [2, 2*x^2, 2*x^4, -x^4 + x, x^3 - 21, x^5 - 21*x^2]
@@ -686,14 +713,14 @@ error("inconsistent variables in nf_to_scalar_or_basis, x != y.")
 441
 [21, Mod(Mod(y, y^3 - 21), x^2 + Mod(-y, y^3 - 21))]
 20:
-error("incorrect type in rnfidealhnf (t_MAT).")
-error("incorrect type in rnfidealhnf (t_MAT).")
-error("incorrect type in rnfidealabstorel (t_MAT).")
-error("incorrect type in rnfidealhnf (t_MAT).")
+[[;], []]
 []
-error("incorrect type in rnfidealhnf (t_MAT).")
-error("incorrect type in rnfidealhnf (t_MAT).")
-error("incorrect type in rnfidealhnf (t_MAT).")
+[[;], []]
+[;]
+[]
+[;]
+0
+[0, 0]
 21:
 [[;], []]
 []
@@ -732,25 +759,25 @@ error("inconsistent dimensions in rnfidealabstorel.")
 error("inconsistent dimensions in rnfidealabstorel.")
 error("inconsistent dimensions in rnfidealabstorel.")
 25:
-error("incorrect type in rnfidealhnf (t_MAT).")
-error("incorrect type in rnfidealhnf (t_MAT).")
-error("incorrect type in rnfidealabstorel (t_MAT).")
-error("incorrect type in rnfidealhnf (t_MAT).")
+error("inconsistent dimensions in rnfidealabstorel.")
+error("inconsistent dimensions in rnfidealabstorel.")
+error("inconsistent dimensions in rnfidealabstorel.")
+error("incorrect type in idealhnf [wrong dimension] (t_MAT).")
 [18416, x^2 + 6979, x^4 + 3879, -9208*x^4 + 9208*x, -6979/2*x^4 + 1/2*x^3 + 
 6979/2*x - 21/2, 1/2*x^5 - 3879/2*x^4 - 21/2*x^2 + 3879/2*x]
-error("incorrect type in rnfidealhnf (t_MAT).")
-error("incorrect type in rnfidealhnf (t_MAT).")
-error("incorrect type in rnfidealhnf (t_MAT).")
+error("inconsistent dimensions in rnfidealabstorel.")
+error("inconsistent dimensions in rnfidealabstorel.")
+error("inconsistent dimensions in rnfidealabstorel.")
 26:
-error("incorrect type in rnfidealhnf (t_MAT).")
-error("incorrect type in rnfidealhnf (t_MAT).")
-error("incorrect type in rnfidealabstorel (t_MAT).")
-error("incorrect type in rnfidealhnf (t_MAT).")
-error("inconsistent operation 'RgV_RgC_mul' t_VEC (3 elts) , t_COL (6 elts).
-")
-error("incorrect type in rnfidealhnf (t_MAT).")
-error("incorrect type in rnfidealhnf (t_MAT).")
-error("incorrect type in rnfidealhnf (t_MAT).")
+[[1, 0; 0, 1], [1, [1, 1/2, 1/2; 0, 1/2, 0; 0, 0, 1/2]]]
+[1, x^2, x^4, -x^4 + x, -1/2*x^4 + 1/2*x^3 + 1/2*x - 21/2, 1/2*x^5 - 1/2*x^4
+ - 21/2*x^2 + 1/2*x]
+[[1, 0; 0, 1], [1, [1, 1/2, 1/2; 0, 1/2, 0; 0, 0, 1/2]]]
+[280970, 12259, 184183; 0, 1, 0; 0, 0, 1]
+error("incorrect type in nf_to_scalar_or_basis (t_COL).")
+[2, 1, 1; 0, 1, 0; 0, 0, 1]
+2
+[1, 0]
 27:
 [[1, -66328; 0, 1], [[280970, 12259, 35869; 0, 1, 0; 0, 0, 1], [1, 1/2, 1/2;
  0, 1/2, 0; 0, 0, 1/2]]]
@@ -814,4 +841,4 @@ error("inconsistent operation 'RgV_RgC_mul' t_VEC (3 elts) , t_COL (2 elts).
   ***                 ^--------------------
   *** rnfidealtwoelt: incorrect type in idealtyp [non-square t_MAT] (t_MAT).
 0
-Total time spent: 568
+Total time spent: 628
