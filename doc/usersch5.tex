@@ -213,6 +213,18 @@ A possible simple-minded handler, used by the \kbd{gp} interpreter, is
 default is enabled and \tet{cb_pari_break_loop} is not \kbd{NULL}, we call it
 with \kbd{err} argument and return the result.
 
+\doc{cb_pari_err_handle}{int (*cb_pari_err_handle)(GEN)}
+If not \kbd{NULL}, this routine is called with a \typ{ERROR} argument
+from \kbd{pari\_err}. If it returns a non-zero value, the error returns, in
+effect further ignoring the error, otherwise it raises a fatal error.
+
+The default behaviour is to print a descriptive error
+message (display the error), then return 0, thereby raising a fatal error.
+This differs from \tet{cb_pari_handle_exception} in that the
+function is not called on \kbd{SIGINT} (which do not generate a \typ{ERROR}),
+only from \kbd{pari\_err}. Use \tet{cb_pari_sigint} if you need to handle
+\kbd{SIGINT} as well.
+
 \doc{cb_pari_break_loop}{int (*cb_pari_break_loop)(int)}
 initialized to \kbd{NULL}.
 

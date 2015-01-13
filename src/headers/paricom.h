@@ -83,6 +83,7 @@ extern int  (*cb_pari_whatnow)(PariOUT *out, const char *, int);
 extern void (*cb_pari_quit)(long);
 extern void (*cb_pari_sigint)(void);
 extern int (*cb_pari_handle_exception)(long);
+extern int (*cb_pari_err_handle)(GEN);
 extern void (*cb_pari_pre_recover)(long);
 extern void (*cb_pari_err_recover)(long);
 extern int (*cb_pari_break_loop)(int);

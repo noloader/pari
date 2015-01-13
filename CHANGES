@@ -218,6 +218,7 @@ AP 81- [GP] central simple algebra package, GP functions
    84- [libpari] functions cbrtr, cbrtr_abs
    85- nfinit(rnf) now returns an nf structure associated to rnf.polabs
    86- idealprimedec now allows an optional 3rd argument, to limit f(P/p)
+   87- [libpari] cb_pari_err_handle callback
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]

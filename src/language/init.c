@@ -96,6 +96,7 @@ void (*cb_pari_quit)(long);
 void (*cb_pari_init_histfile)(void);
 void (*cb_pari_ask_confirm)(const char *);
 int  (*cb_pari_handle_exception)(long);
+int  (*cb_pari_err_handle)(GEN);
 int  (*cb_pari_whatnow)(PariOUT *out, const char *, int);
 void (*cb_pari_sigint)(void);
 void (*cb_pari_pre_recover)(long);
@@ -854,6 +855,8 @@ dflt_err_recover(long errnum) { (void) errnum; pari_exit(); }
 static void
 dflt_pari_quit(long err) { (void)err; /*do nothing*/; }
 
+static int pari_err_display(GEN err);
+
 /* initialize PARI data. Initialize [new|old]fun to NULL for default set. */
 void
 pari_init_opts(size_t parisize, ulong maxprime, ulong init_opts)
@@ -865,6 +868,8 @@ pari_init_opts(size_t parisize, ulong maxprime, ulong init_opts)
   cb_pari_get_line_interactive = NULL;
   cb_pari_fgets_interactive = NULL;
   cb_pari_whatnow = NULL;
+  cb_pari_handle_exception = NULL;
+  cb_pari_err_handle = pari_err_display;
   cb_pari_pre_recover = NULL;
   cb_pari_break_loop = NULL;
   cb_pari_is_interactive = NULL;
@@ -1411,7 +1416,7 @@ pari_err2str(GEN e)
   return NULL; /*NOT REACHED*/
 }
 
-static void
+static int
 pari_err_display(GEN err)
 {
   long numerr=err_get_num(err);
@@ -1442,7 +1447,7 @@ pari_err_display(GEN err)
     pari_free(s);
   }
   out_term_color(pariErr, c_NONE);
-  pariErr->flush();
+  pariErr->flush(); return 0;
 }
 
 void
@@ -1464,7 +1469,8 @@ pari_err(int numerr, ...)
   if (*iferr_env) longjmp(*iferr_env, numerr);
   mt_err_recover(numerr);
   va_end(ap);
-  pari_err_display(E);
+  if (cb_pari_err_handle &&
+      cb_pari_err_handle(E)) return;
   if (cb_pari_handle_exception &&
       cb_pari_handle_exception(numerr)) return;
   err_recover(numerr);
