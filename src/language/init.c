@@ -721,7 +721,7 @@ parivstack_resize(ulong newsize)
 {
   size_t s;
   if (newsize && newsize < pari_mainstack->rsize)
-    pari_err_DIM("stack sizes");
+    pari_err_DIM("stack sizes [parisizemax < parisize]");
   if (newsize == pari_mainstack->vsize) return;
   evalstate_reset();
   paristack_setsize(pari_mainstack->rsize, newsize);
