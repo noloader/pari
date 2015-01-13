@@ -996,11 +996,24 @@ alissimple(GEN al, long ss)
 long
 al_model(GEN al, GEN x)
 {
-  long D = al_get_absdim(al);
+  long D = al_get_absdim(al), n, i, t, d;
   if (typ(x) != t_COL) pari_err_TYPE("al_model", x);
   if (D==1) return al_TRIVIAL; /* cannot distinguish basis and alg from size */
-  if (lg(x)==D+1) return al_BASIS;
-  return al_ALGEBRAIC;
+  if (al_type(al) == al_TABLE) return al_BASIS;
+  n = nf_get_degree(al_get_center(al));
+  if (n == 1) {
+    d = al_get_degree(al);
+    if(lg(x)==d+1) return al_ALGEBRAIC;
+    for(i=1; i<=D; i++) {
+      t = typ(gel(x,i));
+      if (t!=t_INT && t!=t_FRAC) return al_ALGEBRAIC;
+    }
+    return al_BASIS;
+  }
+  else {
+    if (lg(x)==D+1) return al_BASIS;
+    return al_ALGEBRAIC;
+  }
 }
 
 GEN
@@ -3286,8 +3299,8 @@ computesplitting(GEN al, long d, long v)
   pol = nffactor(nf,polabs);
   pol = gcoeff(pol,1,1);
   gel(al,1) = rnf = rnfinit(nf, pol);
-  if (!gequal0(rnf_get_k(rnf)))
-    pari_err_BUG("computesplitting (k!=0)");
+  /* if (!gequal0(rnf_get_k(rnf)))                    NECESSARY ?? */
+  /*  pari_err_BUG("computesplitting (k!=0)");                     */
   gel(al,6) = nfinit(polabs, nf_get_prec(nf));
 
   /* construct splitting data */

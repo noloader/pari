@@ -2475,19 +2475,17 @@ x - 12
   *** alisassociative: incorrect type in alisassociative (mult. table) (t_VEC).
   ***   at top-level: almul(almt,a,b)
   ***                 ^---------------
-  *** almul: domain error in alalgmul: al_type(al) = 1
+  *** almul: inconsistent operation 'RgM_RgC_mul' t_MAT (4x4) , t_COL (1 elts).
   ***   at top-level: almultable(almt,a)
   ***                 ^------------------
-  *** almultable: domain error in alalgmultable: al_type(al) = 1
+  *** almultable: bug in PARI/GP (Bus Error), please report.
   ***   at top-level: alinv(almt,a)
   ***                 ^-------------
-  *** alinv: incorrect type in alinv_i (t_VEC).
+  *** alinv: bug in PARI/GP (Bus Error), please report.
   ***   at top-level: alsplittingmatrix(al
   ***                 ^--------------------
   *** alsplittingmatrix: domain error in alsplittingmatrix: al_type(al) = 1
-  ***   at top-level: alalgtobasis(almt,a)
-  ***                 ^--------------------
-  *** alalgtobasis: domain error in alalgtonat: al_type(al) = 1
+[12]~
   ***   at top-level: albasistoalg(almt,[0
   ***                 ^--------------------
   *** albasistoalg: domain error in alnattoalg: al_type(al) = 1
@@ -2545,4 +2543,4 @@ x - 12
   ***   at top-level: alinv(A,1)
   ***                 ^----------
   *** alinv: incorrect type in al_model (t_INT).
-Total time spent: 3464
+Total time spent: 3480
