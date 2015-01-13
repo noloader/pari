@@ -1572,7 +1572,9 @@ int
 alisinv(GEN al, GEN x, GEN* ptix)
 {
   pari_sp av = avma;
-  GEN ix = alinv_i(al,x);
+  GEN ix;
+  checkal(al);
+  ix = alinv_i(al,x);
   if (!ix) { avma = av; return 0; }
   if (ptix != NULL) *ptix = ix;
   return 1;
