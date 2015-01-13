@@ -3651,8 +3651,8 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: size(x) ===> sizedigit(x)
 
-sizedigit(x): maximum number of decimal digits minus one of (the coefficients 
-of) x.
+sizedigit(x): rough upper bound for the number of decimal digits of (the 
+components of) $x$. DEPRECATED.
 
 
   ***   at top-level: smallbasis()
@@ -4558,4 +4558,4 @@ New syntax: texprint(x) ===> printtex(x)
 printtex({str}*): outputs its string arguments in TeX format.
 
 
-Total time spent: 28
+Total time spent: 32
