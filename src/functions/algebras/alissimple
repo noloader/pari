@@ -1,7 +1,7 @@
 Function: alissimple
 Section: algebras
 C-Name: alissimple
-Prototype: lGD0,L,
+Prototype: iGD0,L,
 Help: alissimple(al, {ss = 0}): test whether the algebra al is simple.
 Doc: \var{al} being a table algebra output by \tet{altableinit} or a central
  simple algebra output by \tet{alinit}, tests whether the algebra \var{al} is

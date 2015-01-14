@@ -1,7 +1,7 @@
 Function: alissemisimple
 Section: algebras
 C-Name: alissemisimple
-Prototype: lG
+Prototype: iG
 Help: alissemisimple(al): test whether the algebra al is semisimple.
 Doc: \var{al} being a table algebra output by \tet{altableinit} or a central
  simple algebra output by \tet{alinit}, tests whether the algebra \var{al} is

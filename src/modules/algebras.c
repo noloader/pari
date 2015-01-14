@@ -893,7 +893,7 @@ check_mt(GEN mt, GEN p)
   return MT;
 }
 
-long
+int
 alisassociative(GEN mt0, GEN p)
 {
   pari_sp av = avma;
@@ -933,7 +933,7 @@ alisassociative(GEN mt0, GEN p)
   avma = av; return 1;
 }
 
-long
+int
 aliscommutative(GEN al) /* assumes e_1 = 1 */
 {
   long i,j,k,N,sp;
@@ -957,7 +957,7 @@ aliscommutative(GEN al) /* assumes e_1 = 1 */
   return 1;
 }
 
-long
+int
 alissemisimple(GEN al)
 {
   pari_sp av = avma;
@@ -969,7 +969,7 @@ alissemisimple(GEN al)
   return gequal0(rad);
 }
 
-long
+int
 alissimple(GEN al, long ss)
 {
   pari_sp av = avma;

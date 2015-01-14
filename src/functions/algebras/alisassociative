@@ -1,7 +1,7 @@
 Function: alisassociative
 Section: algebras
 C-Name: alisassociative
-Prototype: lGD0,G,
+Prototype: iGD0,G,
 Help: alisassociative(mt,p=0): true (1) if the multiplication table mt is
  suitable for altableinit(mt,p), false (0) otherwise.
 Doc: Returns 1 if the multiplication table \kbd{mt} is suitable for
