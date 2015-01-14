@@ -994,26 +994,74 @@ alissimple(GEN al, long ss)
 /** OPERATIONS ON ELEMENTS operations.c **/
 
 long
-al_model(GEN al, GEN x)
+al_model0(GEN al, GEN x)
 {
-  long D = al_get_absdim(al), n, i, t, d;
-  if (typ(x) != t_COL) pari_err_TYPE("al_model", x);
-  if (D==1) return al_TRIVIAL; /* cannot distinguish basis and alg from size */
-  if (al_type(al) == al_TABLE) return al_BASIS;
-  n = nf_get_degree(al_get_center(al));
-  if (n == 1) {
-    d = al_get_degree(al);
-    if(lg(x)==d+1) return al_ALGEBRAIC;
-    for(i=1; i<=D; i++) {
-      t = typ(gel(x,i));
-      if (t!=t_INT && t!=t_FRAC) return al_ALGEBRAIC;
-    }
-    return al_BASIS;
+  long t, N = al_get_absdim(al), lx = lg(x), d, n, D, i;
+  if (typ(x) != t_COL) return al_INVALID;
+  if (N == 1) {
+    if(lx != 2) return al_INVALID;
+    return al_TRIVIAL; /* cannot distinguish basis and alg from size */
   }
-  else {
-    if (lg(x)==D+1) return al_BASIS;
-    return al_ALGEBRAIC;
+
+  switch(al_type(al)) {
+    case al_TABLE:
+      if(lx != N+1) return al_INVALID;
+      return al_BASIS;
+    case al_CYCLIC:
+      d = al_get_degree(al);
+      if (lx == N+1) return al_BASIS;
+      if (lx == d+1) return al_ALGEBRAIC;
+      return al_INVALID;
+    case al_CSA:
+      D = al_get_dim(al);
+      n = nf_get_degree(al_get_center(al));
+      if (n == 1) {
+        if(lx != D+1) return al_INVALID;
+        for(i=1; i<=D; i++) {
+          t = typ(gel(x,i));
+          if (t == t_POL || t == t_POLMOD)  return al_ALGEBRAIC; /* t_COL ? */
+        }
+        return al_BASIS;
+      }
+      else {
+        if (lx == N+1) return al_BASIS;
+        if (lx == D+1) return al_ALGEBRAIC;
+        return al_INVALID;
+      }
   }
+  return al_INVALID; /* not reached */
+}
+
+static void
+checkalx(GEN x, long model)
+{
+  long t, i;
+  switch(model) {
+    case al_BASIS:
+      for(i=1; i<lg(x); i++) {
+        t = typ(gel(x,i));
+        if (t != t_INT && t != t_FRAC)
+          pari_err_TYPE("checkalx", gel(x,i));
+      }
+      return;
+    case al_TRIVIAL:
+    case al_ALGEBRAIC:
+      for(i=1; i<lg(x); i++) {
+        t = typ(gel(x,i));
+        if (t != t_INT && t != t_FRAC && t != t_POL && t != t_POLMOD)
+          /* t_COL ? */
+          pari_err_TYPE("checkalx", gel(x,i));
+      }
+      return;
+  }
+}
+
+long al_model(GEN al, GEN x)
+{
+  long res = al_model0(al, x);
+  if(res == al_INVALID) pari_err_TYPE("al_model", x);
+  checkalx(x, res);
+  return res;
 }
 
 GEN

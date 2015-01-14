@@ -38,7 +38,8 @@ enum  {
 
 /* models for elements of algebras */
 enum {
-  al_TRIVIAL = 0,
+  al_INVALID = 0,
+  al_TRIVIAL,
   al_ALGEBRAIC,
   al_BASIS
 };
