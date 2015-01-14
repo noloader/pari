@@ -1,7 +1,9 @@
 Function: parforprime
 Section: programming/parallel
-C-Name: parforprime
+C-Name: parforprime0
 Prototype: vV=GDGJDVDI
+Description:
+ (gen,gen,closure):void parforprime($1, $2, $3, NULL, NULL)
 Help: parforprime(p=a,{b},expr1,{j},{expr2}): evaluates the sequence expr2
  (dependent on p and j) for p prime between a and b, in random order,
  computed in parallel. Substitute for j the value of expr1 (dependent on p).

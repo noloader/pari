@@ -135,9 +135,9 @@ void mt_init_stack(size_t s);
 int  mt_is_thread(void);
 GEN  parapply_worker(GEN d, GEN code);
 GEN  pareval_worker(GEN code);
-void parfor(GEN a, GEN b, GEN code, GEN code2);
+void parfor0(GEN a, GEN b, GEN code, GEN code2);
 GEN  parfor_worker(GEN i, GEN C);
-void parforprime(GEN a, GEN b, GEN code, GEN code2);
+void parforprime0(GEN a, GEN b, GEN code, GEN code2);
 GEN  parvector_worker(GEN i, GEN C);
 
 /* multiprecision */

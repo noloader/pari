@@ -1,7 +1,9 @@
 Function: parfor
 Section: programming/parallel
-C-Name: parfor
+C-Name: parfor0
 Prototype: vV=GDGJDVDI
+Description:
+ (gen,gen,closure):void parfor($1, $2, $3, NULL, NULL)
 Help: parfor(i=a,{b},expr1,{j},{expr2}): evaluates the sequence expr2
  (dependent on i and j) for i between a and b, in random order, computed
  in parallel. Substitute for j the value of expr1 (dependent on i).

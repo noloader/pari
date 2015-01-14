@@ -1662,7 +1662,7 @@ parsum(GEN a, GEN b, GEN code, GEN x)
 }
 
 void
-parfor(GEN a, GEN b, GEN code, GEN code2)
+parfor(GEN a, GEN b, GEN code, void *E, long call(void*, GEN, GEN))
 {
   pari_sp av = avma, av2;
   long running, pending = 0;
@@ -1681,19 +1681,13 @@ parfor(GEN a, GEN b, GEN code, GEN code2)
   {
     mt_queue_submit(&pt, 0, running ? a: NULL);
     done = mt_queue_get(&pt, NULL, &pending);
-    if (code2 && done && (!stop || cmpii(gel(done,1),stop) < 0))
-    {
-      push_lex(gel(done,1), code2);
-      push_lex(gel(done,2), NULL);
-      closure_evalvoid(code2);
-      pop_lex(2);
-      if (loop_break())
+    if (call && done && (!stop || cmpii(gel(done,1),stop) < 0))
+      if (call(E, gel(done,1), gel(done,2)))
       {
         status = br_status;
         br_status = br_NONE;
         stop = gerepileuptoint(av2, gel(done,1));
       }
-    }
     gel(a,1) = incloop(gel(a,1));
     if (!stop) avma = av2;
   }
@@ -1703,8 +1697,25 @@ parfor(GEN a, GEN b, GEN code, GEN code2)
   avma = av;
 }
 
+static long
+gp_evalvoid2(void *E, GEN x, GEN y)
+{
+  GEN code =(GEN) E;
+  push_lex(x, code);
+  push_lex(y, NULL);
+  closure_evalvoid(code);
+  pop_lex(2);
+  return loop_break();
+}
+
 void
-parforprime(GEN a, GEN b, GEN code, GEN code2)
+parfor0(GEN a, GEN b, GEN code, GEN code2)
+{
+  parfor(a, b, code, (void*)code2, code2 ? gp_evalvoid2: NULL);
+}
+
+void
+parforprime(GEN a, GEN b, GEN code, void *E, long call(void*, GEN, GEN))
 {
   pari_sp av = avma, av2;
   long running, pending = 0;
@@ -1721,25 +1732,25 @@ parforprime(GEN a, GEN b, GEN code, GEN code2)
   {
     mt_queue_submit(&pt, 0, running ? mkvec(T.pp): NULL);
     done = mt_queue_get(&pt, NULL, &pending);
-    if (code2 && done && (!stop || cmpii(gel(done,1),stop) < 0))
-    {
-      push_lex(gel(done,1), code2);
-      push_lex(gel(done,2), NULL);
-      closure_evalvoid(code2);
-      pop_lex(2);
-      if (loop_break())
+    if (call && done && (!stop || cmpii(gel(done,1),stop) < 0))
+      if (call(E, gel(done,1), gel(done,2)))
       {
         status = br_status;
         br_status = br_NONE;
         stop = gerepileuptoint(av2, gel(done,1));
       }
-    }
     if (!stop) avma = av2;
   }
   avma = av2;
   mt_queue_end(&pt);
   br_status = status;
   avma = av;
+}
+
+void
+parforprime0(GEN a, GEN b, GEN code, GEN code2)
+{
+  parforprime(a, b, code, (void*)code2, code2? gp_evalvoid2: NULL);
 }
 
 GEN
