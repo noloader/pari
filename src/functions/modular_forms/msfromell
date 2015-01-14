@@ -2,7 +2,7 @@ Function: msfromell
 Section: modular_forms
 C-Name: msfromell
 Prototype: GD1,L,
-Help: msfromell(E, {sign=1}): return the [M, x], where M is msinit(N,2,sign)
+Help: msfromell(E, {sign=1}): return the [M, x], where M is msinit(N,2)
  and x is the modular symbol in M associated to the elliptic curve E/Q.
 Doc: Let $E/\Q$ be an elliptic curve of conductor $N$. Return the (cuspidal,
  new) modular symbol $x^+$ in $H^1_c(X_0(N),\Q)^+$ (resp.~$x^-$ in
