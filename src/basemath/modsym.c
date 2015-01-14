@@ -2179,7 +2179,9 @@ mshecke(GEN W, long p, GEN H)
   checkms(W);
   if (p <= 1) pari_err_PRIME("mshecke",stoi(p));
   T = mshecke_i(W,p);
-  return gerepilecopy(av, endo_project(W,T,H));
+  T = endo_project(W,T,H);
+  if (msk_get_weight(W) == 2) T = shallowtrans(T);
+  return gerepilecopy(av, T);
 }
 
 static GEN
@@ -2202,7 +2204,9 @@ msatkinlehner(GEN W, long Q, GEN H)
   checkms(W);
   if (Q <= 0) pari_err_DOMAIN("msatkinlehner","Q","<=",gen_0,stoi(Q));
   w = msatkinlehner_i(W,Q);
-  return gerepilecopy(av, endo_project(W,w,H));
+  w = endo_project(W,w,H);
+  if (msk_get_weight(W) == 2) w = shallowtrans(w);
+  return gerepilecopy(av, w);
 }
 
 static GEN
@@ -2218,7 +2222,9 @@ msstar(GEN W, GEN H)
   GEN s;
   checkms(W);
   s = msstar_i(W);
-  return gerepilecopy(av, endo_project(W,s,H));
+  s = endo_project(W,s,H);
+  if (msk_get_weight(W) == 2) s = shallowtrans(s);
+  return gerepilecopy(av, s);
 }
 
 #if 0
@@ -2617,7 +2623,7 @@ static GEN
 add_star(GEN W, long sign)
 {
   GEN s = msstar_i(W);
-  GEN K = QM_ker(gsubgs(s, sign));
+  GEN K = sign? QM_ker(gsubgs(s, sign)): cgetg(1,t_MAT);
   gel(W,2) = mkvec3(stoi(sign), s, Qevproj_init(K));
   return W;
 }
@@ -2873,5 +2879,7 @@ msfromell(GEN E, long sign)
   /* linear form = 0 on all Im(Tp - ap) and Im(S - sign) */
   x = Q_primpart(gel(K,1));
   scale = ell_get_scale(E, W, x, sign);
+  gmael(W,2,1) = gen_0;
+  gmael(W,2,3) = Qevproj_init(cgetg(1,t_MAT));
   return gerepilecopy(av, mkvec2(W, RgC_Rg_mul(x, scale)));
 }
