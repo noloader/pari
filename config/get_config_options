@@ -96,6 +96,7 @@ while test $# -gt 0; do
   --enable-tls) enable_tls=yes;;
   --enable-tls=*) enable_tls=`echo "$1" | sed -e 's/[-a-z]*=//'` ;;
   --disable-tls) enable_tls=no;;
+  --disable-mmap) enable_mmap=no;;
   *) echo "*** Unrecognized option $1." >&2; error=true;;
   esac
   shift
@@ -141,6 +142,7 @@ Additional developer options:
   --enable-tls	  (*experimental*) enable thread-local stack
   --mt=pthread	  (*experimental*) enable pthread thread engine
   --mt=mpi	  (*experimental*) enable MPI thread engine
+  --disable-mmap  (*troubleshooting*) disable mmap usage
 
 Installation directories:
   --prefix=<dir>        install files in <dir> (default $prefix)

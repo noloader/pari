@@ -42,7 +42,11 @@ list=TIOCGWINSZ; . ./look
 list=getrlimit; . ./look
 list='stat opendir'; . ./look
 list=vsnprintf; . ./look
-list=mmap; . ./look
+if test "$enable_mmap" = "no"; then
+  has_mmap=no
+else
+  list=mmap; . ./look
+fi
 list=waitpid; . ./look
 list=setsid; . ./look
 list=getenv; . ./look
