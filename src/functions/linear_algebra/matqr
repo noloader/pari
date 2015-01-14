@@ -14,8 +14,8 @@ Doc: returns $[Q,R]$, the \idx{QR-decomposition} of the square invertible
  \bprog
    [Q,R] = matqr(M);
    [q,r] = matqr(M, 1);
- @eprog\noindent then $r = R$ and \kbd{mathouseholder}$(q, M)$ is $R$;
- furthermore
+ @eprog\noindent then $r = R$ and \kbd{mathouseholder}$(q, M)$ is
+ (close to) $R$; furthermore
  \bprog
    mathouseholder(q, matid(#M)) == Q~
  @eprog\noindent the inverse of $Q$. This function raises an error if the
