@@ -1594,7 +1594,7 @@ GEN
 nfcertify(GEN nf)
 {
   nf = checknf(nf);
-  return primes_certify(nf_get_disc(nf),gmael(nf, 5, 8));
+  return primes_certify(nf_get_disc(nf), nf_get_ramified_primes(nf));
 }
 
 #if 0 /* used to check benches between HNF nf.zk and LLL-reduced nf.zk */

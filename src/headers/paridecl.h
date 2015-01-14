@@ -4181,6 +4181,7 @@ INLINE GEN    nf_get_invzk(GEN nf);
 INLINE GEN    nf_get_pol(GEN nf);
 INLINE long   nf_get_r1(GEN nf);
 INLINE long   nf_get_r2(GEN nf);
+INLINE GEN    nf_get_ramified_primes(GEN nf);
 INLINE GEN    nf_get_roots(GEN nf);
 INLINE GEN    nf_get_roundG(GEN nf);
 INLINE void   nf_get_sign(GEN nf, long *r1, long *r2);

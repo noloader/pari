@@ -2460,6 +2460,8 @@ nf_get_Tr(GEN nf) { return gmael(nf,5,4); }
 INLINE GEN
 nf_get_diff(GEN nf) { return gmael(nf,5,5); }
 INLINE GEN
+nf_get_ramified_primes(GEN nf) { return gmael(nf,5,8); }
+INLINE GEN
 nf_get_roots(GEN nf) { return gel(nf,6); }
 INLINE GEN
 nf_get_zk(GEN nf) { return gel(nf,7); }
