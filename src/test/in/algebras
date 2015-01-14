@@ -1457,6 +1457,7 @@ alinit(y,[2,[[],[]],[1]])
 alinit(nfinit(y), y)
 alinit(nfinit(y), [1,2,3,4])
 altableinit(mt,y);
+alinit(nfinit(x^2+1),-3);
 
 mt=[matid(3), [0,0,0; 1,1,0; 0,0,0], [0,0,1; 0,0,0; 1,0,1]];
 A=altableinit(mt,2);

@@ -3051,6 +3051,7 @@ al_matrix(GEN nf, long n, long v, GEN L, long flag)
 {
   pari_sp av = avma;
   GEN pol, gal, rnf, cyclo, g, r, aut;
+  if (n<=0) pari_err_DOMAIN("al_matrix", "n", "<=", gen_0, stoi(n));
   pol = subcycloindep(nf, n, v, L, &r);
   rnf = rnfinit(nf, pol);
   cyclo = nfinit(pol, nf_get_prec(nf));
