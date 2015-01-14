@@ -1966,6 +1966,7 @@ alrandom(GEN al, GEN b)
   GEN res, p, N;
   long i, n;
   if (typ(b) != t_INT) pari_err_TYPE("alrandom",b);
+  if (signe(b)<0) pari_err_DOMAIN("alrandom", "b", "<", gen_0, b);
   checkal(al);
   n = al_get_absdim(al);
   N = addiu(shifti(b,1), 1); /* left on stack */

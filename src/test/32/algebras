@@ -2518,6 +2518,9 @@ x - 12
   ***   at top-level: alinit(nfinit(x^2+1)
   ***                 ^--------------------
   *** alinit: domain error in al_matrix: n <= 0
+  ***   at top-level: ...t(nfinit(y^2-2),[-1,-1]);alrandom(al,-10)
+  ***                                             ^----------------
+  *** alrandom: domain error in alrandom: b < 0
   ***   at top-level: algetdegree(A)
   ***                 ^--------------
   *** algetdegree: incorrect type in algetdegree (t_VEC).
@@ -2548,4 +2551,4 @@ x - 12
   ***   at top-level: alinv(A,1)
   ***                 ^----------
   *** alinv: incorrect type in al_model (t_INT).
-Total time spent: 3460
+Total time spent: 3458
