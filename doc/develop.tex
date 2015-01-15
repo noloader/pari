@@ -863,23 +863,23 @@ it is actually valid. This is used by GP2C -C.
 
 PARI provides an abstraction for doing parallel computations.
 
-\fun{void}{mt_queue_start}{struct pari\_mt *pt, GEN worker} Let \kbd{worker}
+\fun{void}{mt_queue_start}{struct pari_mt *pt, GEN worker} Let \kbd{worker}
 be a \typ{CLOSURE} object of arity $1$.  Initialize the structure \kbd{pt}
 to evaluate \kbd{worker} in parallel.
 
-\fun{void}{mt_queue_submit}{struct pari\_mt *pt, long taskid, GEN task} Submit
+\fun{void}{mt_queue_submit}{struct pari_mt *pt, long taskid, GEN task} Submit
 \kbd{task} to be evaluated by \kbd{worker}, or \kbd{NULL} if no further task
 is left to be submitted. The value \kbd{taskid} is user-specified and allows
 to later match up results and submitted tasks.
 
-\fun{GEN}{mt_queue_get}{struct pari\_mt *pt, long *taskid, long *pending}
+\fun{GEN}{mt_queue_get}{struct pari_mt *pt, long *taskid, long *pending}
 Return the result of the evaluation by \kbd{worker} of one of the previously
 submitted tasks. Set \kbd{pending} to the number of remaining pending tasks.
 Set \kbd{taskid} to the value associate to this task by
 \kbd{mt\_queue\_submit}.  Returns \kbd{NULL} if more tasks need to be
 submitted.
 
-\fun{void}{mt_queue_end}{struct pari\_mt *pt} End the parallel execution.
+\fun{void}{mt_queue_end}{struct pari_mt *pt} End the parallel execution.
 
 Calls to \tet{mt_queue_submit} and \tet{mt_queue_get} must alternate: each
 call to \tet{mt_queue_submit} must be followed by a call to
