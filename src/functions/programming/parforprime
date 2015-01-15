@@ -4,7 +4,7 @@ C-Name: parforprime
 Prototype: vV=GDGJDVDI
 Help: parforprime(p=a,{b},expr1,{j},{expr2}): evaluates the sequence expr2
  (dependent on p and j) for p prime between a and b, in random order,
- computed in parallel. Substitute for j the value of expr1 (dependent on i).
+ computed in parallel. Substitute for j the value of expr1 (dependent on p).
  If b is omitted, the loop will not stop.
 Doc: evaluates the sequence \kbd{expr2} (dependent on $p$ and $j$) for $p$
  prime between $a$ and $b$, in random order, computed in parallel. Substitute
