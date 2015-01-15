@@ -993,7 +993,7 @@ alissimple(GEN al, long ss)
 
 /** OPERATIONS ON ELEMENTS operations.c **/
 
-long
+static long
 al_model0(GEN al, GEN x)
 {
   long t, N = al_get_absdim(al), lx = lg(x), d, n, D, i;
