@@ -1237,6 +1237,8 @@ pari_err2GEN(long numerr, va_list ap)
     retmkerr2(numerr, utoi(va_arg(ap, ulong)));
   case e_STACK:
     return err_e_STACK;
+  case e_STACKTHREAD:
+    retmkerr3(numerr, utoi(va_arg(ap, ulong)), utoi(va_arg(ap, ulong)));
   default:
     return mkerr(numerr);
   }
@@ -1379,23 +1381,28 @@ pari_err2str(GEN e)
     return pari_sprintf("not an n-th power residue in %Ps: %Ps.",
                         gel(e,2), gel(e,3));
   case e_STACK:
+  case e_STACKTHREAD:
     {
+      const char *stack = numerr == e_STACK? "PARI": "thread";
+      const char *var = numerr == e_STACK? "parisizemax": "threadsizemax";
+      size_t rsize = numerr == e_STACKTHREAD && GP_DATA->threadsize ?
+                                GP_DATA->threadsize: pari_mainstack->rsize;
+      size_t vsize = numerr == e_STACK? pari_mainstack->vsize:
+                                        GP_DATA->threadsizemax;
       char *buf = (char *) pari_malloc(512*sizeof(char));
-      if (pari_mainstack->vsize)
+      if (vsize)
       {
-        size_t d = pari_mainstack->vsize;
-        sprintf(buf, "the PARI stack overflows !\n"
+        sprintf(buf, "the %s stack overflows !\n"
             "  current stack size: %lu (%.3f Mbytes)\n"
-            "  [hint] you can increase 'parisizemax' using default()\n",
-            (ulong)d, (double)d/1048576.);
+            "  [hint] you can increase '%s' using default()\n",
+            stack, (ulong)vsize, (double)vsize/1048576., var);
       }
       else
       {
-        size_t d = pari_mainstack->rsize;
-        sprintf(buf, "the PARI stack overflows !\n"
+        sprintf(buf, "the %s stack overflows !\n"
             "  current stack size: %lu (%.3f Mbytes)\n"
-            "  [hint] set 'parisizemax' to a non-zero value in your GPRC\n",
-            (ulong)d, (double)d/1048576.);
+            "  [hint] set '%s' to a non-zero value in your GPRC\n",
+            stack, (ulong)rsize, (double)rsize/1048576., var);
       }
       return buf;
     }
@@ -1513,6 +1520,7 @@ numerr_name(long numerr)
   case e_SQRTN:    return "e_SQRTN";
   case e_STACK:    return "e_STACK";
   case e_SYNTAX:   return "e_SYNTAX";
+  case e_STACKTHREAD:   return "e_STACKTHREAD";
   case e_TYPE2:    return "e_TYPE2";
   case e_TYPE:     return "e_TYPE";
   case e_USER:     return "e_USER";

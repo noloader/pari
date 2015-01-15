@@ -263,7 +263,12 @@ mtmpi_queue_get(struct mt_state *junk, long *workid, long *pending)
   nbreq--; *pending = nbreq;
   if (workid) *workid = mt->workid[mt->source];
   if (typ(done) == t_ERROR)
-    pari_err(0,done);
+  {
+    if (err_get_num(done)==e_STACK)
+      pari_err(e_STACKTHREAD);
+    else
+      pari_err(0,done);
+  }
   return done;
 }
 

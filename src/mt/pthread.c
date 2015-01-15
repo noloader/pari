@@ -187,7 +187,7 @@ mtpthread_queue_get(struct mt_state *junk, long *workid, long *pending)
     BLOCK_SIGINT_END
   }
   mq = mt->mq+last;
-  if (mq->output==err_e_STACK) pari_err(e_STACK);
+  if (mq->output==err_e_STACK) pari_err(e_STACKTHREAD);
   done = gcopy(mq->output);
   mq->output = NULL;
   if (workid) *workid = mq->workid;
