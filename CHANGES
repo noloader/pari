@@ -98,6 +98,8 @@ BA 60- ellcard over non-prime fields of large char could return wrong results
         bnfisprincipal(K,[29,14,15;0,1,0;0,0,1],3) -> oo loop
    76- agm(1,2+O(5)) -> SEGV [#1645]
 BA 77- [cygwin64] ellap(ellinit([0,0,1,-1,0]),10007) broken
+   78- primes([-5,5]) -> [5] (spurious absolute values)
+   79- matqr([;]) -> crash
 
   Added
     1- add optional argument to sumdigits to specify the base
@@ -219,9 +221,7 @@ AP 81- [GP] central simple algebra package, GP functions
    85- nfinit(rnf) now returns an nf structure associated to rnf.polabs
    86- idealprimedec now allows an optional 3rd argument, to limit f(P/p)
    87- [libpari] cb_pari_err_handle callback
-   88- primes([-5,5]) -> [5] (spurious absolute values)
-   89- matqr([;]) -> crash
-   90- [libpari] function nf_get_ramified_primes
+   88- [libpari] function nf_get_ramified_primes
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]
