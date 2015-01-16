@@ -10,8 +10,8 @@ Doc: \var{al} being a table algebra output by \tet{algtableinit} and \var{B}
  ? mt = [matid(3), [0,0,0; 1,1,0; 0,0,0], [0,0,1; 0,0,0; 1,0,1]];
  ? A = algtableinit(mt,2);
  ? B = algsubalg(A,[1,0; 0,0; 0,1]);
- ? alggetdim(A)
+ ? algdim(A)
  %4 = 3
- ? alggetdim(B)
+ ? algdim(B)
  %5 = 2
  @eprog

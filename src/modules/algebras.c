@@ -1580,6 +1580,13 @@ algmultable(GEN al, GEN x)
   return gerepileupto(av,res);
 }
 
+GEN
+gp_algmultable(GEN al, GEN x)
+{
+  if(x) return algmultable(al,x);
+  return alggetmultable(al);
+}
+
 static GEN
 algbasissplittingmatrix_csa(GEN al, GEN x)
 {

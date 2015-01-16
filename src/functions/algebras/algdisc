@@ -9,10 +9,10 @@ Doc: Given a central simple algebra \var{al} output by \tet{alginit}, computes
  \bprog
  ? nf = nfinit(y^2-5);
  ? A = alginit(nf, [-3,1-y]);
- ? [PR,h] = alggethassef(A);
+ ? [PR,h] = alghassef(A);
  %3 = [[[2, [2, 0]~, 1, 2, 1], [3, [3, 0]~, 1, 2, 1]], Vecsmall([0, 1])]
- ? n = alggetdegree(A);
- ? D = alggetabsdim(A);
+ ? n = algdegree(A);
+ ? D = algabsdim(A);
  ? h = vector(#h, i, n - gcd(n,h[i]));
  ? n^D * nf.disc^(n^2) * idealnorm(nf, idealfactorback(nf,PR,h))^n
  %4 = 12960000

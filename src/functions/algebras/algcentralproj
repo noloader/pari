@@ -1,8 +1,8 @@
-Function: alcentralproj
+Function: algcentralproj
 Section: algebras
 C-Name: alg_centralproj
 Prototype: GGD0,L,
-Help: alcentralproj(al,z,{maps=0}): projections of the algebra al on the
+Help: algcentralproj(al,z,{maps=0}): projections of the algebra al on the
  orthogonal central idempotents z[i].
 Doc: Given a table algebra \var{al} output by \tet{algtableinit} and a
  \typ{VEC} $\var{z}=[z_1,\dots,z_n]$ of orthogonal central idempotents,
@@ -19,9 +19,9 @@ Doc: Given a table algebra \var{al} output by \tet{algtableinit} and a
  ? A = algtableinit(mt,2);
  ? e = [0,1,0]~;
  ? e2 = algsub(A,[1,0,0]~,e);
- ? [a,a2] = alcentralproj(A,[e,e2]);
- ? alggetdim(a)
+ ? [a,a2] = algcentralproj(A,[e,e2]);
+ ? algdim(a)
  %6 = 1
- ? alggetdim(a2)
+ ? algdim(a2)
  %7 = 2
  @eprog

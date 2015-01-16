@@ -1176,6 +1176,7 @@ void checkalg(GEN x);
 void checkhasse(GEN nf, GEN hi, GEN hf, long n);
 long cyclicrelfrob(GEN rnf, GEN nf2, GEN auts, GEN pr);
 GEN gp_algcenter(GEN al);
+GEN gp_algmultable(GEN al, GEN x);
 GEN hassecoprime(GEN hi, GEN hf, long n);
 GEN hassedown(GEN nf, long n, GEN hi, GEN hf);
 GEN hassewedderburn(GEN hi, GEN hf, long n);
