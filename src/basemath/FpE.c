@@ -538,8 +538,10 @@ int
 Fp_elljissupersingular(GEN j, GEN p)
 {
   pari_sp ltop = avma;
-  long CM = Fp_ellj_get_CM(j, gen_1, p);
-  if (CM < 0) return krosi(CM, p) < 0;
+  long CM;
+  if (cmpiu(p, 5) <= 0) return signe(j) == 0; /* valid if p <= 5 */
+  CM = Fp_ellj_get_CM(j, gen_1, p);
+  if (CM < 0) return krosi(CM, p) < 0; /* valid if p > 3 */
   else
   {
     GEN S = init_Fq(p, 2, fetch_var());
@@ -1633,6 +1635,7 @@ FpXQ_elljissupersingular(GEN j, GEN T, GEN p)
   int res;
 
   if (degpol(j) <= 0) return Fp_elljissupersingular(constant_term(j), p);
+  if (cmpiu(p, 5) <= 0) return 0; /* j != 0*/
 
   /* Set S so that FF_p[T]/(S) is isomorphic to FF_{p^2}: */
   if (d == 2)
