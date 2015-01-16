@@ -1168,11 +1168,11 @@ nontrivial two-sided ideals.
 
 \par We provide functions to manipulate associative algebras of finite
 dimension over~$\Q$ or~$\F_p$. We represent them by the left multiplication
-table on a basis over the prime subfield. The function \kbd{altableinit}
+table on a basis over the prime subfield. The function \kbd{algtableinit}
 creates the object representing an associative algebra. We also provide
 functions to manipulate central simple algebras over number fields. We
 represent them either by the left multiplication table on a basis over the
-center, or by a cyclic algebra (see below). The function~\kbd{alinit} creates
+center, or by a cyclic algebra (see below). The function~\kbd{alginit} creates
 the object representing a central simple algebra.
 
 \par The set of elements of an algebra~$A$ that annihilate every simple left
@@ -1219,7 +1219,7 @@ is~$b_0,\dots,b_{nd^2-1}$ where~$b_i = \omega_{(i \mod n)}e_{i/n}$.
 \par As with number fields, we represent elements of central simple algebras
 in two ways, called the \emph{algebraic representation} and the \emph{basis
 representation}, and you can convert betweeen the two with the functions
-\kbd{alalgtobasis} and \kbd{albasistoalg}. In every central simple algebra
+\kbd{algalgtobasis} and \kbd{algbasistoalg}. In every central simple algebra
 object, we store a~$\Z$-basis of an order, and the basis representation is
 simply a \typ{COL} with coefficients in~$\Q$ expressing the element in that
 basis. The stored order is maximal if such an order has been computed, and it
