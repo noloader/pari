@@ -2654,19 +2654,15 @@ msinit(GEN N, GEN K, long sign)
 }
 
 /* W = msinit, xpm modular symbol attached to elliptic curve E;
- * c t_FRAC or +oo; image of <0->c> */
+ * c t_FRAC; image of <oo->c> */
 GEN
 Q_xpm(GEN W, GEN xpm, GEN c)
 {
   pari_sp av = avma;
-  GEN v, oo_0;
-  long index;
+  GEN v;
   W = get_ms(W);
   v = init_act_trivial(W);
-  oo_0 = gmael(W,15,1);
-  index = gel(oo_0,1)[1];
   Q_log_trivial(v, W, 0, c); /* oo -> (a:b), c = a/b */
-  treat_index_trivial(W, index, 1, v); /* - (oo->0) to correct to 0 -> (a:b) */
   return gerepileuptoint(av, RgV_dotproduct(xpm,v));
 }
 
@@ -2775,13 +2771,16 @@ twistcurve(GEN e, GEN D)
   return ellinit(mkvec2(a4,a6),NULL,0);
 }
 
-/* sum_{a < |D|} (D/a)*xpm(E,a/D) */
+/* sum_{a <= |D|} (D/a)*xpm(E,a/|D|) */
 static GEN
 get_X(GEN W, GEN xpm, long D)
 {
   ulong a, d = (ulong)labs(D);
   GEN t = gen_0;
-  GEN nc = icopy(gen_1), c = mkfrac(nc, utoipos(d));
+  GEN nc, c;
+  if (d == 1) return Q_xpm(W, xpm, gen_0);
+  nc = icopy(gen_1);
+  c = mkfrac(nc, utoipos(d));
   for (a=1; a < d; a++)
   {
     long s = kross(D,a);
