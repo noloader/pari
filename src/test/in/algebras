@@ -40,8 +40,8 @@ samehasse(hf1,hi1,hf2,hi2) =
 };
 
 hassetriv(hf,hi) = samehasse(hf,hi,[[],Vecsmall([])],Vecsmall(vector(#hi,i,0)));
-altriv(al) = hassetriv(alggethassef(al),alggethassei(al));
-alsame(al,hf,hi) = samehasse(alggethassef(al),alggethassei(al),hf,hi);
+altriv(al) = hassetriv(alghassef(al),alghassei(al));
+alsame(al,hf,hi) = samehasse(alghassef(al),alghassei(al),hf,hi);
 
 testcharpol(al,a)=
 { my (T = algcharpoly(al,a));
@@ -58,18 +58,18 @@ get() = gusuite("get", ()->{
   ss = Mod(s,pols);
   al = alginit(rnf,[-ss,ii]);
 
-  do("degree", ()->alggetdegree(al)==2);
-  do("center", ()->alggetcenter(al)==nf);
-  do("splitting", ()->alggetsplitting(al)==rnf);
-  do("automorphism", ()->alggetaut(al)==-ss);
-  do("b", ()->alggetb(al)==ii);
+  do("degree", ()->algdegree(al)==2);
+  do("center", ()->algcenter(al)==nf);
+  do("splitting", ()->algsplittingfield(al)==rnf);
+  do("automorphism", ()->algaut(al)==-ss);
+  do("b", ()->algb(al)==ii);
   do("trivial hasse invariants", ()->altriv(al));
-  do("charac", ()->alggetchar(al)==0);
-  do("dim", ()->alggetdim(al)==4);
-  do("absdim", ()->alggetabsdim(al)==8);
-  do("ord", ()->#alggetord(al)==8);
-  do("invord", ()->#alggetinvord(al)==8);
-  do("ord*invord", ()->alggetord(al)*alggetinvord(al)==matid(8));
+  do("charac", ()->algchar(al)==0);
+  do("dim", ()->algdim(al)==4);
+  do("absdim", ()->algabsdim(al)==8);
+  do("ord", ()->#algord(al)==8);
+  do("invord", ()->#alginvord(al)==8);
+  do("ord*invord", ()->algord(al)*alginvord(al)==matid(8));
   do("iscyclic", ()->algtype(al)==3);
   do("radical", ()->algradical(al)==0); \\cyclic => simple
 });
@@ -132,12 +132,12 @@ algsub(al,algadd(al,algpow(al,u,3), algmul(al,[i,0]~,u)), [3*i,0]~));
 alcheckhasse(al) =
 {
   my(n,h);
-  n = alggetdegree(al);
+  n = algdegree(al);
   h = Mod(0,n);
-  for(i=1, #alggethassef(al)[1],
-      h += alggethassef(al)[2][i]);
-  for(i=1, #alggethassei(al),
-      h += (n/2)*alggethassei(al)[i]);
+  for(i=1, #alghassef(al)[1],
+      h += alghassef(al)[2][i]);
+  for(i=1, #alghassei(al),
+      h += (n/2)*alghassei(al)[i]);
   return(h == Mod(0,n));
 };
 
@@ -359,18 +359,18 @@ moreoperations() = gusuite("more operations", ()->{
 
   do("construct algebra", ()->al);
 
-  pol2 = alggetsplitting(al).pol;
+  pol2 = algsplittingfield(al).pol;
   mul = Mod(1,pol1)*Mod(1,pol2);
   u = [0,1,0]~*mul;
   t = [x,0,0]~*mul;
-  b = [alggetb(al),0,0]~*mul;
+  b = [algb(al),0,0]~*mul;
   w = [x+x^2-7,1/2+x-3/7*x^2,12*x-1]~*mul;
   un = [1,0,0]~*mul;
 
-  do("norm(u)", ()->lift(algnorm(al,u))==lift(alggetb(al)));
-  do("norm(t)", ()->algnorm(al,t)==rnfeltnorm(alggetsplitting(al),x));
+  do("norm(u)", ()->lift(algnorm(al,u))==lift(algb(al)));
+  do("norm(t)", ()->algnorm(al,t)==rnfeltnorm(algsplittingfield(al),x));
   do("trace(u)", ()->algtrace(al,u)==0);
-  do("trace(t)", ()->algtrace(al,t)==rnfelttrace(alggetsplitting(al),x));
+  do("trace(t)", ()->algtrace(al,t)==rnfelttrace(algsplittingfield(al),x));
   do("u+t", ()->algadd(al,u,t)==algadd(al,t,u));
   do("u*t", ()->algmul(al,u,t)!=algmul(al,t,u));
   do("u^3", ()->algpow(al,u,3)==b);
@@ -383,8 +383,8 @@ moreoperations() = gusuite("more operations", ()->{
   do("eval charpol", ()->algadd(al,algadd(al,algpow(al,w,3),algmul(al,[polcoeff(cp,2),0,0]~*mul,algsqr(al,w))),algadd(al,algmul(al,[polcoeff(cp,1),0,0]~*mul,w),[polcoeff(cp,0),0,0]~*mul))==0);
   do("trace(w)", ()->algtrace(al,w)==-polcoeff(cp,2));
   do("norm(w)", ()->algnorm(al,w)==-polcoeff(cp,0));
-  do("dim", ()->alggetdim(al)==9);
-  do("absdim", ()->alggetabsdim(al)==9);
+  do("dim", ()->algdim(al)==9);
+  do("absdim", ()->algabsdim(al)==9);
   do("iscommutative", ()->algiscommutative(al)==0);
   do("issemisimple", ()->algissemisimple(al)==1);
   do("issimple", ()->algissimple(al)==1);
@@ -403,8 +403,8 @@ moreoperations() = gusuite("more operations", ()->{
   un = [1,0,0]~*mul;
   w = [y*x-1/3*x^2, 2+y/7-x, -12*x-3*y*x^2]~*mul;
   ww = [-x^2*y, 1/13+y+x+4*x^2, (-2+y)*x^2+(y/3+1/5)*x]~*mul;
-  ord = alggetord(al);
-  invord = alggetinvord(al);
+  ord = algord(al);
+  invord = alginvord(al);
   do("algmultable w+ww", ()->algmultable(al,algadd(al,w,ww))==(algmultable(al,w)+algmultable(al,ww)));
   do("algmultable w*ww", ()->algmultable(al,algmul(al,w,ww))==(algmultable(al,w)*algmultable(al,ww)));
   do("alg(basis(w))", ()->algbasistoalg(al,algalgtobasis(al,w))==w);
@@ -495,8 +495,8 @@ moreoperations() = gusuite("more operations", ()->{
   un = [1,0]~*mul;
   w = [-1/3*x^2, 2/7-x]~*mul;
   ww = [-x^2*4, 1/13+x+4*x^2]~*mul;
-  ord = alggetord(al);
-  invord = alggetinvord(al);
+  ord = algord(al);
+  invord = alginvord(al);
   do("algmultable/Q w+ww", ()->algmultable(al,algadd(al,w,ww))==(algmultable(al,w)+algmultable(al,ww)));
   do("algmultable/Q w*ww", ()->algmultable(al,algmul(al,w,ww))==(algmultable(al,w)*algmultable(al,ww)));
   do("alg(basis(w))/Q", ()->algbasistoalg(al,algalgtobasis(al,w))==w);
@@ -542,9 +542,9 @@ tablealg() = gusuite("table algebra", ()->{
   al = algtableinit(mt,0);
   do("construction 0", ()->al);
   do("iscyclic 0", ()->algtype(al)==1);
-  do("dim 0", ()->alggetabsdim(al)==3);
-  do("dim 0b", ()->alggetdim(al)==3);
-  do("char 0", ()->alggetchar(al)==0);
+  do("dim 0", ()->algabsdim(al)==3);
+  do("dim 0b", ()->algdim(al)==3);
+  do("char 0", ()->algchar(al)==0);
   do("a+b 0", ()->algadd(al,a,b)==[1,-1,0]~);
   do("a-b 0", ()->algsub(al,a,b)==[1,1,-2]~);
   do("a*b 0", ()->algmul(al,a,b)==[0,-1,0]~);
@@ -592,8 +592,8 @@ tablealg() = gusuite("table algebra", ()->{
   do("algisassociative 2", ()->algisassociative(mt,p));
   do("construction 2", ()->al);
   do("iscyclic 2", ()->algtype(al)==1);
-  do("dim 2", ()->alggetabsdim(al)==3);
-  do("char 2", ()->alggetchar(al)==p);
+  do("dim 2", ()->algabsdim(al)==3);
+  do("char 2", ()->algchar(al)==p);
   do("a+b 2", ()->algadd(al,a,b)==[1,1,0]~);
   do("a-b 2", ()->algsub(al,a,b)==algadd(al,a,b));
   do("a*b 2", ()->algmul(al,a,b)==[0,p-1,0]~);
@@ -637,8 +637,8 @@ tablealg() = gusuite("table algebra", ()->{
   al = algtableinit(mt,p);
   do("construction 3", ()->al);
   do("iscyclic 3", ()->algtype(al)==1);
-  do("dim 3", ()->alggetabsdim(al)==2);
-  do("char 3", ()->alggetchar(al)==p);
+  do("dim 3", ()->algabsdim(al)==2);
+  do("char 3", ()->algchar(al)==p);
   do("a+b 3", ()->algadd(al,a,b)==un);
   do("a-b 3", ()->algsub(al,a,b)==[1,1]~);
   do("a*b 3", ()->algmul(al,a,b)==[0,1]~);
@@ -676,8 +676,8 @@ tablealg() = gusuite("table algebra", ()->{
   al = algtableinit(mt,p);
   do("construction 3c", ()->al);
   do("iscyclic 3c", ()->algtype(al)==1);
-  do("dim 3c", ()->alggetabsdim(al)==3);
-  do("char 3c", ()->alggetchar(al)==p);
+  do("dim 3c", ()->algabsdim(al)==3);
+  do("char 3c", ()->algchar(al)==p);
   do("a+b 3c", ()->algadd(al,a,b)==un);
   do("a-b 3c", ()->algsub(al,a,b)==[1,1,0]~);
   do("a*b 3c", ()->algmul(al,a,b)==[0,1,p-1]~);
@@ -715,8 +715,8 @@ tablealg() = gusuite("table algebra", ()->{
   al = algtableinit(mt,p);
   do("construction 2b", ()->al);
   do("iscyclic 2b", ()->algtype(al)==1);
-  do("dim 2b", ()->alggetabsdim(al)==2);
-  do("char 2b", ()->alggetchar(al)==p);
+  do("dim 2b", ()->algabsdim(al)==2);
+  do("char 2b", ()->algchar(al)==p);
   do("a+b 2b", ()->algadd(al,a,b)==un);
   do("a-b 2b", ()->algsub(al,a,b)==un);
   do("a*b 2b", ()->algmul(al,a,b)==un);
@@ -736,7 +736,7 @@ tablealg() = gusuite("table algebra", ()->{
   do("charpol annihil(b) 2b", ()->testcharpol(al,b));
   do("random 2b", ()->algrandom(al,1));
   do("algsimpledec 2b", ()->#algsimpledec(al)==1);
-  do("alg_decomposition 2b", ()->dec=aldecomposition(al); dec[1]==0 && #dec[2]==1 && alggetabsdim(dec[2][1])==2);
+  do("alg_decomposition 2b", ()->dec=aldecomposition(al); dec[1]==0 && #dec[2]==1 && algabsdim(dec[2][1])==2);
   do("iscommutative 2b", ()->algiscommutative(al)==1);
   do("issemisimple 2b", ()->algissemisimple(al)==1);
   do("issimple 2b", ()->algissimple(al)==1);
@@ -766,8 +766,8 @@ tablealg() = gusuite("table algebra", ()->{
   al = algtableinit(mt,p);
   do("construction 3b", ()->al);
   do("iscyclic 3b", ()->algtype(al)==1);
-  do("dim 3b", ()->alggetabsdim(al)==4);
-  do("char 3b", ()->alggetchar(al)==p);
+  do("dim 3b", ()->algabsdim(al)==4);
+  do("char 3b", ()->algchar(al)==p);
   do("a+b 3b", ()->algadd(al,a,b)==[1,-1,2,1]~*Mod(1,p));
   do("a-b 3b", ()->algsub(al,a,b)==[2,0,2,2]~);
   do("a*b 3b", ()->algmul(al,a,b)==[2,2,0,2]~);
@@ -818,8 +818,8 @@ tablealg() = gusuite("table algebra", ()->{
   al = algtableinit(mt,p);
   do("construction 2c", ()->al);
   do("iscyclic 2c", ()->algtype(al)==1);
-  do("dim 2c", ()->alggetabsdim(al)==4);
-  do("char 2c", ()->alggetchar(al)==p);
+  do("dim 2c", ()->algabsdim(al)==4);
+  do("char 2c", ()->algchar(al)==p);
   do("a+b 2c", ()->algadd(al,a,b)==[1,1,0,1]~);
   do("a-b 2c", ()->algsub(al,a,b)==[1,1,0,1]~);
   do("a*b 2c", ()->algmul(al,a,b)==[0,0,0,0]~);
@@ -858,8 +858,8 @@ tablealg() = gusuite("table algebra", ()->{
   al = algtableinit(mt,p);
   do("construction 5", ()->al);
   do("iscyclic 5", ()->algtype(al)==1);
-  do("dim 5", ()->alggetabsdim(al)==1);
-  do("char 5", ()->alggetchar(al)==p);
+  do("dim 5", ()->algabsdim(al)==1);
+  do("char 5", ()->algchar(al)==p);
   do("a+b 5", ()->algadd(al,a,b)==[Mod(0,p)]~);
   do("a-b 5", ()->algsub(al,a,b)==[Mod(4,p)]~);
   do("a*b 5", ()->algmul(al,a,b)==[Mod(1,p)]~);
@@ -879,7 +879,7 @@ tablealg() = gusuite("table algebra", ()->{
   do("charpol annihil(b) 5", ()->testcharpol(al,b));
   do("random 5", ()->algrandom(al,1));
   do("algsimpledec 5", ()->#algsimpledec(al)==1);
-  do("alg_decomposition 5", ()->dec=aldecomposition(al); dec[1]==0 && #dec[2]==1 && alggetabsdim(dec[2][1])==1);
+  do("alg_decomposition 5", ()->dec=aldecomposition(al); dec[1]==0 && #dec[2]==1 && algabsdim(dec[2][1])==1);
   do("iscommutative 5", ()->algiscommutative(al)==1);
   do("issemisimple 5", ()->algissemisimple(al)==1);
   do("issimple 5", ()->algissimple(al)==1);
@@ -917,8 +917,8 @@ tablealg() = gusuite("table algebra", ()->{
   al = algtableinit(mt,p);
   do("construction 0b", ()->al);
   do("iscyclic 0b", ()->algtype(al)==1);
-  do("dim 0b", ()->alggetabsdim(al)==5);
-  do("char 0b", ()->alggetchar(al)==p);
+  do("dim 0b", ()->algabsdim(al)==5);
+  do("char 0b", ()->algchar(al)==p);
   do("a+b 0b", ()->algadd(al,a,b)==[2,1,0,0,-1]~);
   do("a-b 0b", ()->algsub(al,a,b)==[0,-1,0,0,-1]~);
   do("a*b 0b", ()->algmul(al,a,b)==[1,1,0,0,-2]~);
@@ -945,7 +945,7 @@ tablealg() = gusuite("table algebra", ()->{
   do("rad(al) 0b", ()->#algradical(al)==0);
   do("idemproj 0b", ()->alcentralproj(al,[a,algsub(al,un,a)]));
   sc = alcentralproj(al,[a,algsub(al,un,a)]);
-  do("simple components 0b", ()->alggetabsdim(sc[1])==4 && alggetabsdim(sc[2])==1);
+  do("simple components 0b", ()->algabsdim(sc[1])==4 && algabsdim(sc[2])==1);
   do("mt M2 component 0b", ()->alggetmultable(sc[1])[1]==matid(4));
   do("center al 0b", ()->#algcenter(al)==2);
   do("primesubalg al 0b", ()->#algprimesubalg(al)==-1);
@@ -953,7 +953,7 @@ tablealg() = gusuite("table algebra", ()->{
   do("charpol annihil(b) 0b", ()->testcharpol(al,b));
   do("random 0b", ()->algrandom(al,1));
   do("algsimpledec 0b", ()->#algsimpledec(al)==2);
-  do("alg_decomposition 0b", ()->dec=aldecomposition(al); dec[1]==0 && #dec[2]==2 && #algcenter(dec[2][1])==1 && #algcenter(dec[2][2])==1 && (alggetabsdim(dec[2][1])==4 || alggetabsdim(dec[2][2])==4));
+  do("alg_decomposition 0b", ()->dec=aldecomposition(al); dec[1]==0 && #dec[2]==2 && #algcenter(dec[2][1])==1 && #algcenter(dec[2][2])==1 && (algabsdim(dec[2][1])==4 || algabsdim(dec[2][2])==4));
   do("subalg M2(Q)", ()->sal=algsubalg(al,[1,0,0,0; 0,1,0,0; 0,0,1,0; 0,0,0,1; 0,0,0,0]); algisassociative(sal) && algradical(sal)==0 && #algsimpledec(sal)==1);
   do("iscommutative 0b", ()->algiscommutative(al)==0);
   do("issemisimple 0b", ()->algissemisimple(al)==1);
@@ -963,8 +963,8 @@ tablealg() = gusuite("table algebra", ()->{
   al = algtableinit(mt,p);
   do("construction 3d", ()->al);
   do("iscyclic 3d", ()->algtype(al)==1);
-  do("dim 3d", ()->alggetabsdim(al)==5);
-  do("char 3d", ()->alggetchar(al)==p);
+  do("dim 3d", ()->algabsdim(al)==5);
+  do("char 3d", ()->algchar(al)==p);
   do("a+b 3d", ()->algadd(al,a,b)==[2,1,0,0,-1]~*Mod(1,p));
   do("a-b 3d", ()->algsub(al,a,b)==[0,-1,0,0,-1]~*Mod(1,p));
   do("a*b 3d", ()->algmul(al,a,b)==[1,1,0,0,-2]~*Mod(1,p));
@@ -991,7 +991,7 @@ tablealg() = gusuite("table algebra", ()->{
   do("rad(al) 3d", ()->#algradical(al)==0);
   do("idemproj 3d", ()->alcentralproj(al,[a,algsub(al,un,a)]));
   sc = alcentralproj(al,[a,algsub(al,un,a)]);
-  do("simple components 3d", ()->alggetabsdim(sc[1])==4 && alggetabsdim(sc[2])==1);
+  do("simple components 3d", ()->algabsdim(sc[1])==4 && algabsdim(sc[2])==1);
   do("mt M2 component 3d", ()->alggetmultable(sc[1])[1]==matid(4));
   do("center al 3d", ()->#algcenter(al)==2);
   do("primesubalg al 3d", ()->#algprimesubalg(al)==2);
@@ -999,7 +999,7 @@ tablealg() = gusuite("table algebra", ()->{
   do("charpol annihil(b) 3d", ()->testcharpol(al,b));
   do("random 3d", ()->algrandom(al,1));
   do("algsimpledec 3d", ()->#algsimpledec(al)==2);
-  do("alg_decomposition 3d", ()->dec=aldecomposition(al); dec[1]==0 && #dec[2]==2 && #algcenter(dec[2][1])==1 && #algcenter(dec[2][2])==1 && (alggetabsdim(dec[2][1])==4 || alggetabsdim(dec[2][2])==4));
+  do("alg_decomposition 3d", ()->dec=aldecomposition(al); dec[1]==0 && #dec[2]==2 && #algcenter(dec[2][1])==1 && #algcenter(dec[2][2])==1 && (algabsdim(dec[2][1])==4 || algabsdim(dec[2][2])==4));
   do("subalg M2(F3)", ()->sal=algsubalg(al,[1,0,0,0; 0,1,0,0; 0,0,1,0; 0,0,0,1; 0,0,0,0]); algisassociative(sal) && algradical(sal)==0 && #algsimpledec(sal)==1);
   do("iscommutative 3d", ()->algiscommutative(al)==0);
   do("issemisimple 3d", ()->algissemisimple(al)==1);
@@ -1051,8 +1051,8 @@ print("spl(b*j): ", algsplittingmatrix(al,b*jj)==b*[0,-5;1,0]);
 print("spl(b*k): ", algsplittingmatrix(al,b*kk)==b*[0,-5*x;-x,0]);
 
 
-ord = alggetord(al);
-invord = alggetinvord(al);
+ord = algord(al);
+invord = alginvord(al);
 x1 = algrandom(al,1);
 ax1 = algbasistoalg(al,x1);
 nx1 = algalgtobasis(al0,ax1);
@@ -1076,7 +1076,7 @@ print("center of CSA: ", #algcenter(alt)==2);
 print("radical of CSA: ", algradical(alt)==0);
 print("decomposition of CSA: ", #algsimpledec(alt)==1);
 dec = aldecomposition(alt);
-print("alg_decomposition of CSA: ", #dec==2 && dec[1]==0 && #dec[2]==1 && #algcenter(dec[2][1])==2 && alggetabsdim(dec[2][1])==8);
+print("alg_decomposition of CSA: ", #dec==2 && dec[1]==0 && #dec[2]==1 && #algcenter(dec[2][1])==2 && algabsdim(dec[2][1])==8);
 
 print("alsimple bug");
 mt = [matid(3), [0,0,0;1,1,0;0,0,0], [0,0,0;0,0,0;1,0,1]];
@@ -1104,18 +1104,18 @@ al = alginit(nf, mt, 'x);
 print(al != 0);
 print("should fail:");
 alfail = alginit(nf, [0,0], 'x);
-alggetb(al);
-alggetaut(al);
+algb(al);
+algaut(al);
 print("algebra:");
-print("csa getcenter: ", alggetcenter(al) == nf);
-print("csa getsplitting: ", alggetsplitting(al) != 0);
-print("getrelmultable: ", alggetrelmultable(al) == mt);
-print("alggetsplittingdata:");
-print(#alggetsplittingdata(al) == 3);
-print(#alggetsplittingdata(al)[1] == 12);
-print(#alggetsplittingdata(al)[2] == 2);
-print(#alggetsplittingdata(al)[3][1,] == 12);
-print(#alggetsplittingdata(al)[3][,1] == 2);
+print("csa getcenter: ", algcenter(al) == nf);
+print("csa getsplitting: ", algsplittingfield(al) != 0);
+print("getrelmultable: ", algrelmultable(al) == mt);
+print("getsplittingdata:");
+print(#algsplittingdata(al) == 3);
+print(#algsplittingdata(al)[1] == 12);
+print(#algsplittingdata(al)[2] == 2);
+print(#algsplittingdata(al)[3][1,] == 12);
+print(#algsplittingdata(al)[3][,1] == 2);
 print(al[3][3]*al[3][2][,1] == [1,0]~);
 print(al[3][3]*al[3][2][,2] == [0,1]~);
 polabs = al[6].pol;
@@ -1124,16 +1124,16 @@ print(al[3][3]*algmul(al, al[3][2][,1], algpow(al,al[3][1],i)) == [Mod(x^i,polab
 print(al[3][3]*algmul(al, al[3][2][,2], algpow(al,al[3][1],i)) == [0,Mod(x,polabs)^i]~)\
 );
 print("hasse invariants:");
-print(alggethassei(al) == 0);
-print(alggethassef(al) == 0);
+print(alghassei(al) == 0);
+print(alghassef(al) == 0);
 print("csa splitting pol: ", poldegree(al[6].pol) == 6);
-print("csa ord: ", matsize(alggetord(al)) == [12,12]);
-print("csa invord: ", matsize(alggetinvord(al)) == [12,12]);
-print("csa absdim: ", #alggetmultable(al) == alggetabsdim(al));
-print("csa char: ", alggetchar(al) == 0);
-print("csa deg: ", alggetdegree(al) == 2);
-print("csa dim: ", alggetdim(al) == 4);
-print("csa absdim: ", alggetabsdim(al) == 12);
+print("csa ord: ", matsize(algord(al)) == [12,12]);
+print("csa invord: ", matsize(alginvord(al)) == [12,12]);
+print("csa absdim: ", #alggetmultable(al) == algabsdim(al));
+print("csa char: ", algchar(al) == 0);
+print("csa deg: ", algdegree(al) == 2);
+print("csa dim: ", algdim(al) == 4);
+print("csa absdim: ", algabsdim(al) == 12);
 print("csa type: ", algtype(al) == 2); \\2==al_CSA
 print("csa iscommutative: ", algiscommutative(al)==0);
 print("csa issemisimple: ", algissemisimple(al)==1);
@@ -1264,38 +1264,38 @@ algissimple(A,1)
 
 nf = nfinit(y^2-5);
 A = alginit(nf, [-3,1-y]);
-alggethassef(A)
-alggetdegree(A)^alggetabsdim(A)*nf.disc^alggetdim(A)*idealnorm(nf,alggethassef(A)[1][2])^alggetdegree(A)
+alghassef(A)
+algdegree(A)^algabsdim(A)*nf.disc^algdim(A)*idealnorm(nf,alghassef(A)[1][2])^algdegree(A)
 algdisc(A)
 
 nf = nfinit(y^3-y+1);
 A = alginit(nf, [-1,-1]);
-alggetabsdim(A)
-alggetcenter(A).pol
-alggetdegree(A)
-alggetdim(A)
+algabsdim(A)
+algcenter(A).pol
+algdegree(A)
+algdim(A)
 
 nf = nfinit(y);
 p = idealprimedec(nf,7)[1];
 p2 = idealprimedec(nf,11)[1];
 A = alginit(nf,[3,[[p,p2],[1/3,2/3]],[0]]);
-alggetaut(A)
-alggetb(A)
+algaut(A)
+algb(A)
 
 mt = [matid(3), [0,0,0; 1,1,0; 0,0,0], [0,0,1; 0,0,0; 1,0,1]];
 A = algtableinit(mt,13);
-alggetchar(A)
+algchar(A)
 algtype(A)
 
 nf = nfinit(y^2-5);
 A = alginit(nf, [-1,2*y-1]);
-alggethassef(A)
+alghassef(A)
 A = alginit(nf, [-1,y]);
-alggethassei(A)
+alghassei(A)
 
 A = alginit(nfinit(y), [-1,-1]);
-alggetinvord(A)
-alggetord(A)
+alginvord(A)
+algord(A)
 alggetmultable(A)
 alginv(A,[1,1,0,0]~)
 algmul(A,[1,1,0,0]~,[0,0,2,1]~)
@@ -1323,9 +1323,9 @@ a = y; b = y^2;
        1, 0,0,   0];}
 mt = [matid(4), m_i, m_j, m_k];
 A = alginit(nf,mt,'x);
-alggetrelmultable(A)
-alggetsplitting(A).pol
-alggetsplittingdata(A)
+algrelmultable(A)
+algsplittingfield(A).pol
+algsplittingdata(A)
 algtype(A)
 
 mt = [matid(3), [0,0,0; 1,1,0; 0,0,0], [0,0,1; 0,0,0; 1,0,1]];
@@ -1436,8 +1436,8 @@ almt = algtableinit(mt,0);
 algrandom(1,1)
 algrandom(1,I)
 algtype(1)
-alggetdim([1,[1],0,0,0,0,0,0,0,0])
-alggetabsdim([1,[1],0,0,0,0,0,0,0,0])
+algdim([1,[1],0,0,0,0,0,0,0,0])
+algabsdim([1,[1],0,0,0,0,0,0,0,0])
 algtensor(al,al2)
 algtensor(al2,al)
 algtensor(1,z,1)
@@ -1462,8 +1462,7 @@ al = alginit(nfinit(y^2-2),[-1,-1]); algrandom(al,-10)
 
 mt=[matid(3), [0,0,0; 1,1,0; 0,0,0], [0,0,1; 0,0,0; 1,0,1]];
 A=algtableinit(mt,2);
-alggetdegree(A)
-alggetcenter(A)
+algdegree(A)
 algsub(A,1,1)
 algadd(A,1,1)
 algneg(A,1)

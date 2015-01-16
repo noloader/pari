@@ -39,6 +39,27 @@ checkalg_i(GEN al)
 void
 checkalg(GEN al)
 { if (!checkalg_i(al)) pari_err_TYPE("checkalg [please apply alginit()]",al); }
+#if 0
+static void
+checkalg_cyc(GEN al)
+{
+  if (alg_type(al) != al_CYCLIC)
+    pari_err_TYPE("checkalg_cyc [please apply alginit()]",al);
+}
+static void
+checkalg_csa(GEN al)
+{
+  if (alg_type(al) != al_CSA)
+    pari_err_TYPE("checkalg_csa [please apply alginit()]",al);
+}
+#endif
+static void
+checkalg_cyc_csa(GEN al)
+{
+  long tal = alg_type(al);
+  if (tal != al_CSA && tal != al_CYCLIC)
+    pari_err_TYPE("checkalg_cyc_csa [please apply alginit()]",al);
+}
 
 /**  ACCESSORS  **/
 long
@@ -71,7 +92,7 @@ alg_get_dim(GEN al)
   return -1; /*not reached*/
 }
 long
-alggetdim(GEN al)
+algdim(GEN al)
 { checkalg(al); return alg_get_dim(al); }
 
 long
@@ -87,7 +108,7 @@ alg_get_absdim(GEN al)
   return -1;/*not reached*/
 }
 long
-alggetabsdim(GEN al)
+algabsdim(GEN al)
 { checkalg(al); return alg_get_absdim(al); }
 
 /* only cyclic */
@@ -104,7 +125,7 @@ alg_get_aut(GEN al)
   return gel(alg_get_auts(al),1);
 }
 GEN
-alggetaut(GEN al) { checkalg(al); return alg_get_aut(al); }
+algaut(GEN al) { checkalg(al); return alg_get_aut(al); }
 GEN
 alg_get_b(GEN al)
 {
@@ -112,17 +133,17 @@ alg_get_b(GEN al)
   return gel(al,3);
 }
 GEN
-alggetb(GEN al) { checkalg(al); return alg_get_b(al); }
+algb(GEN al) { checkalg(al); return alg_get_b(al); }
 
 /* only CSA */
 GEN
 alg_get_relmultable(GEN al) { return gel(al,2); }
 GEN
-alggetrelmultable(GEN al) { checkalg(al); return alg_get_relmultable(al); }
+algrelmultable(GEN al) { checkalg(al); return alg_get_relmultable(al); }
 GEN
 alg_get_splittingdata(GEN al) { return gel(al,3); }
 GEN
-alggetsplittingdata(GEN al) { checkalg(al); return alg_get_splittingdata(al); }
+algsplittingdata(GEN al) { checkalg(al); return alg_get_splittingdata(al); }
 GEN
 alg_get_splittingbasis(GEN al) { return gmael(al,3,2); }
 GEN
@@ -132,11 +153,11 @@ alg_get_splittingbasisinv(GEN al) { return gmael(al,3,3); }
 GEN
 alg_get_splitting(GEN al) { return gel(al,1); }
 GEN
-alggetsplitting(GEN al) { checkalg(al); return alg_get_splitting(al); }
+algsplittingfield(GEN al) { checkalg(al); return alg_get_splitting(al); }
 long
 alg_get_degree(GEN al) { return rnf_get_degree(alg_get_splitting(al)); }
 long
-alggetdegree(GEN al)
+algdegree(GEN al)
 {
   GEN rnf;
   checkalg(al);
@@ -152,8 +173,9 @@ alggetcenter(GEN al)
 {
   GEN rnf;
   checkalg(al);
+  checkalg_cyc_csa(al);
   rnf = alg_get_splitting(al);
-  if (typ(rnf)!=t_VEC) pari_err_TYPE("alggetdegree",al);
+  if (typ(rnf)!=t_VEC) pari_err_TYPE("algcenter",al);
   return rnf_get_nf(rnf);
 }
 GEN
@@ -163,21 +185,21 @@ alg_get_abssplitting(GEN al) { return gel(al,6); }
 GEN
 alg_get_hasse_i(GEN al) { return gel(al,4); }
 GEN
-alggethassei(GEN al) { checkalg(al); return alg_get_hasse_i(al); }
+alghassei(GEN al) { checkalg(al); return alg_get_hasse_i(al); }
 GEN
 alg_get_hasse_f(GEN al) { return gel(al,5); }
 GEN
-alggethassef(GEN al) { checkalg(al); return alg_get_hasse_f(al); }
+alghassef(GEN al) { checkalg(al); return alg_get_hasse_f(al); }
 
 /* all types */
 GEN
 alg_get_ord(GEN al) { return gel(al,7); }
 GEN
-alggetord(GEN al) { checkalg(al); return alg_get_ord(al); }
+algord(GEN al) { checkalg(al); return alg_get_ord(al); }
 GEN
 alg_get_invord(GEN al) { return gel(al,8); }
 GEN
-alggetinvord(GEN al) { checkalg(al); return alg_get_invord(al); }
+alginvord(GEN al) { checkalg(al); return alg_get_invord(al); }
 GEN
 alg_get_multable(GEN al) { return gel(al,9); }
 GEN
@@ -185,7 +207,7 @@ alggetmultable(GEN al) { checkalg(al); return alg_get_multable(al); }
 GEN
 alg_get_char(GEN al) { return gel(al,10); }
 GEN
-alggetchar(GEN al) { checkalg(al); return alg_get_char(al); }
+algchar(GEN al) { checkalg(al); return alg_get_char(al); }
 GEN
 alg_get_tracebasis(GEN al) { return gel(al,11); }
 
@@ -597,6 +619,13 @@ algcenter(GEN al)
   }
   if (signe(p)) return gerepileupto(av, FpM_ker(C,p));
   else          return gerepileupto(av, ker(C));
+}
+
+GEN gp_algcenter(GEN al)
+{
+  checkalg(al);
+  if(alg_type(al)==al_TABLE) return algcenter(al);
+  return alggetcenter(al);
 }
 
 /* Only in positive characteristic. Assumes that al is semisimple. */

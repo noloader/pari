@@ -1,8 +1,8 @@
-Function: alggetb
+Function: algb
 Section: algebras
-C-Name: alggetb
+C-Name: algb
 Prototype: G
-Help: alggetb(al): the element b of the center of the cyclic algebra al used
+Help: algb(al): the element b of the center of the cyclic algebra al used
  to define it.
 Doc: Given a cyclic algebra $\var{al} = (L/K,\sigma,b)$ output by
  \tet{alginit}, returns the element $b\in K$.
@@ -11,6 +11,6 @@ Doc: Given a cyclic algebra $\var{al} = (L/K,\sigma,b)$ output by
  ? p = idealprimedec(nf,7)[1];
  ? p2 = idealprimedec(nf,11)[1];
  ? A = alginit(nf,[3,[[p,p2],[1/3,2/3]],[0]]);
- ? alggetb(A)
+ ? algb(A)
  %5 = Mod(-77, y)
  @eprog

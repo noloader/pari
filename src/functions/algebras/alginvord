@@ -1,15 +1,15 @@
-Function: alggetinvord
+Function: alginvord
 Section: algebras
-C-Name: alggetinvord
+C-Name: alginvord
 Prototype: G
-Help: alggetinvord(al): natural order of the central simple algebra al in
+Help: alginvord(al): natural order of the central simple algebra al in
  terms of the stored order.
 Doc: Given an central simple algebra \var{al} output by \tet{alginit}, returns
  a $\Z$-basis of the natural order in \var{al} with respect to the stored
  order in \var{al}.
  \bprog
  A = alginit(nfinit(y), [-1,-1]);
- ? alggetinvord(A)
+ ? alginvord(A)
  %2 =
  [1 0 0 -1]
 

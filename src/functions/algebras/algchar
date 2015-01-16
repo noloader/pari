@@ -1,13 +1,13 @@
-Function: alggetchar
+Function: algchar
 Section: algebras
-C-Name: alggetchar
+C-Name: algchar
 Prototype: G
-Help: alggetchar(al): characteristic of the algebra al.
+Help: algchar(al): characteristic of the algebra al.
 Doc: Given an algebra \var{al} output by \tet{alginit} or \tet{algtableinit},
  returns the characteristic of \var{al}.
  \bprog
  ? mt = [matid(3), [0,0,0; 1,1,0; 0,0,0], [0,0,1; 0,0,0; 1,0,1]];
  ? A = algtableinit(mt,13);
- ? alggetchar(A)
+ ? algchar(A)
  %3 = 13
  @eprog

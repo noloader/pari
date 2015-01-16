@@ -1,8 +1,8 @@
-Function: alggetrelmultable
+Function: algrelmultable
 Section: algebras
-C-Name: alggetrelmultable
+C-Name: algrelmultable
 Prototype: G
-Help: alggetrelmultable(al): multiplication table of the central simple
+Help: algrelmultable(al): multiplication table of the central simple
  algebra al over its center.
 Doc: Given a central simple algebra \var{al} output by \tet{alginit} defined by a multiplication table over its center (a number field), returns this multiplication table.
  \bprog
@@ -21,7 +21,7 @@ Doc: Given a central simple algebra \var{al} output by \tet{alginit} defined by 
            1, 0,0,   0];}
  ? mt = [matid(4), m_i, m_j, m_k];
  ? A = alginit(nf,mt,'x);
- ? M = alggetrelmultable(A);
+ ? M = algrelmultable(A);
  ? M[2] == m_i
  %8 = 1
  ? M[3] == m_j

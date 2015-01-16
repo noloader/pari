@@ -1,8 +1,8 @@
-Function: alggethassei
+Function: alghassei
 Section: algebras
-C-Name: alggethassei
+C-Name: alghassei
 Prototype: G
-Help: alggethassei(al): the hasse invariant of the central simple algebra al
+Help: alghassei(al): the hasse invariant of the central simple algebra al
  at infinite places.
 Doc: Given a central simple algebra \var{al} output by \tet{alginit}, returns
  a \typ{VECSMALL} $h_i$ of $r_1$ integers modulo the degree $d$ of \var{al},
@@ -11,6 +11,6 @@ Doc: Given a central simple algebra \var{al} output by \tet{alginit}, returns
  \bprog
  ? nf = nfinit(y^2-5);
  ? A = alginit(nf, [-1,y]);
- ? alggethassei(A)
+ ? alghassei(A)
  %3 = Vecsmall([1, 0])
  @eprog

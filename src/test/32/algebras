@@ -1017,17 +1017,17 @@ should fail:
   ***   at top-level: alfail=alginit(nf,[0,0],'x)
   ***                        ^--------------------
   *** alginit: domain error in idealfactor: ideal = 0
-  ***   at top-level: alggetb(al)
-  ***                 ^-----------
-  *** alggetb: incorrect type in alg_get_b (t_VEC).
-  ***   at top-level: alggetaut(al)
-  ***                 ^-------------
-  *** alggetaut: incorrect type in alg_get_aut (t_VEC).
+  ***   at top-level: algb(al)
+  ***                 ^--------
+  *** algb: incorrect type in alg_get_b (t_VEC).
+  ***   at top-level: algaut(al)
+  ***                 ^----------
+  *** algaut: incorrect type in alg_get_aut (t_VEC).
 algebra:
 csa getcenter: 1
 csa getsplitting: 1
 getrelmultable: 1
-alggetsplittingdata:
+getsplittingdata:
 1
 1
 1
@@ -2453,12 +2453,12 @@ x - 12
   ***                 ^--------------
   *** algrandom: incorrect type in algrandom (t_COMPLEX).
 0
-  ***   at top-level: alggetdim([1,[1],0,0
+  ***   at top-level: algdim([1,[1],0,0,0,
   ***                 ^--------------------
-  *** alggetdim: incorrect type in checkalg [please apply alginit()] (t_VEC).
-  ***   at top-level: alggetabsdim([1,[1],
+  *** algdim: incorrect type in checkalg [please apply alginit()] (t_VEC).
+  ***   at top-level: algabsdim([1,[1],0,0
   ***                 ^--------------------
-  *** alggetabsdim: incorrect type in checkalg [please apply alginit()] (t_VEC).
+  *** algabsdim: incorrect type in checkalg [please apply alginit()] (t_VEC).
   ***   at top-level: algtensor(al,al2)
   ***                 ^-----------------
   *** algtensor: sorry, tensor of non-cyclic algebras is not yet implemented.
@@ -2522,12 +2522,9 @@ x - 12
   ***   at top-level: ...t(nfinit(y^2-2),[-1,-1]);algrandom(al,-10)
   ***                                             ^-----------------
   *** algrandom: domain error in algrandom: b < 0
-  ***   at top-level: alggetdegree(A)
-  ***                 ^---------------
-  *** alggetdegree: incorrect type in alggetdegree (t_VEC).
-  ***   at top-level: alggetcenter(A)
-  ***                 ^---------------
-  *** alggetcenter: incorrect type in alggetdegree (t_VEC).
+  ***   at top-level: algdegree(A)
+  ***                 ^------------
+  *** algdegree: incorrect type in alggetdegree (t_VEC).
   ***   at top-level: algsub(A,1,1)
   ***                 ^-------------
   *** algsub: incorrect type in alg_model (t_INT).
@@ -2552,4 +2549,4 @@ x - 12
   ***   at top-level: alginv(A,1)
   ***                 ^-----------
   *** alginv: incorrect type in alg_model (t_INT).
-Total time spent: 3470
+Total time spent: 3455

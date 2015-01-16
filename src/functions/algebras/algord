@@ -1,14 +1,14 @@
-Function: alggetord
+Function: algord
 Section: algebras
-C-Name: alggetord
+C-Name: algord
 Prototype: G
-Help: alggetord(al): stored order of the central simple algebra al.
+Help: algord(al): stored order of the central simple algebra al.
 Doc: Given an central simple algebra \var{al} output by \tet{alginit}, returns
  a $\Z$-basis of the stored order in \var{al} with respect to the natural
  order in \var{al}. Returns a maximal order if it has been computed.
  \bprog
  A = alginit(nfinit(y), [-1,-1]);
- ? alggetord(A)
+ ? algord(A)
  %2 =
  [1 0 0 1/2]
 
