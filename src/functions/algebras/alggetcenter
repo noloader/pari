@@ -1,0 +1,14 @@
+Function: alggetcenter
+Section: algebras
+C-Name: alggetcenter
+Prototype: G
+Help: alggetcenter(al): center of the central simple algebra al.
+Doc: Given a central simple algebra \var{al} output by \tet{alginit}, returns
+ the center of~\var{al}, which is stored in \var{al}. To compute the center of
+ a table algebra output by \tet{alginit}, use \tet{algcenter}.
+ \bprog
+ ? nf = nfinit(y^3-y+1);
+ ? A = alginit(nf, [-1,-1]);
+ ? alggetcenter(A).pol
+ %3 = y^3 - y + 1
+ @eprog

@@ -242,8 +242,8 @@ left division: 1
 right division: 1
 noncommutative left division: 1
 noncommutative right division: 1
-division by non-invertible: error("impossible inverse in aldivl: [Mod(Mod(-1
-, i^2 + 1)*s, s^2 + 2), Mod(Mod(i - 1, i^2 + 1), s^2 + 2)]~.")
+division by non-invertible: error("impossible inverse in algdivl: [Mod(Mod(-
+1, i^2 + 1)*s, s^2 + 2), Mod(Mod(i - 1, i^2 + 1), s^2 + 2)]~.")
 nilpotent: 1
 square: 1
 square j: 1
@@ -479,8 +479,8 @@ absdim: 1
 iscommutative: 1
 issemisimple: 1
 issimple: 1
-almultable w+ww: 1
-almultable w*ww: 1
+algmultable w+ww: 1
+algmultable w*ww: 1
 alg(basis(w)): 1
 alg(basis(ww)): 1
 basis(w)+ww: 1
@@ -551,8 +551,8 @@ radical: 1
 iscommutative cyc 3: 1
 issemisimple cyc 3: 1
 issimple cyc 3: 1
-almultable/Q w+ww: 1
-almultable/Q w*ww: 1
+algmultable/Q w+ww: 1
+algmultable/Q w*ww: 1
 alg(basis(w))/Q: 1
 alg(basis(ww))/Q: 1
 basis(w)+ww/Q: 1
@@ -580,12 +580,12 @@ iscommutative /Q: 1
 issemisimple /Q: 1
 issimple /Q: 1
 Suite: table algebra
-alisassociative 0.0: 1
-alisassociative 0.1: error("incorrect type in alisassociative (mult. table) 
-(t_VEC).")
-alisassociative 0.2: 1
-alisassociative 0.3: error("incorrect type in alisassociative (mult. table) 
-(t_POL).")
+algisassociative 0.0: 1
+algisassociative 0.1: error("incorrect type in algisassociative (mult. table
+) (t_VEC).")
+algisassociative 0.2: 1
+algisassociative 0.3: error("incorrect type in algisassociative (mult. table
+) (t_POL).")
 construction 0: [0, 0, 0, 0, 0, 0, [1, 0, 0; 0, 1, 0; 0, 0, 1], [1, 0, 0; 0,
  1, 0; 0, 0, 1], [[1, 0, 0; 0, 1, 0; 0, 0, 1], [0, 0, 0; 1, 0, 1; 0, 0, 0], 
 [0, 0, 0; 0, 0, 0; 1, 0, 1]], 0, [3, 0, 1]]
@@ -616,7 +616,8 @@ idemproj 0: [[0, 0, 0, 0, 0, 0, Mat(1), Mat(1), [Mat(1)], 0, [1]], [0, 0, 0,
 simple components 0: 1
 center al 0: 1
 center ss 0: 1
-primesubalg ss 0: error("domain error in alprimesubalg: characteristic = 0")
+primesubalg ss 0: error("domain error in algprimesubalg: characteristic = 0"
+)
 x^3 - 2*x^2 + x
 charpol annihil(a) 0: 1
 x^3 - x^2
@@ -628,13 +629,13 @@ charpol annihil(d) 0: 1
 x^3 - 3*x^2 + 3*x - 1
 charpol annihil(e) 0: 1
 random 0: [1, 0, 0]~
-alsimpledec 0: 1
-al_decomposition 0: 1
+algsimpledec 0: 1
+alg_decomposition 0: 1
 iscommutative 0: 1
 issemisimple 0: 1
 issimple 0: 1
 issimple ss 0: 1
-alisassociative 2: 1
+algisassociative 2: 1
 construction 2: [0, 0, 0, 0, 0, 0, [1, 0, 0; 0, 1, 0; 0, 0, 1], [1, 0, 0; 0,
  1, 0; 0, 0, 1], [[1, 0, 0; 0, 1, 0; 0, 0, 1], [0, 0, 0; 1, 0, 1; 0, 0, 0], 
 [0, 0, 0; 0, 0, 0; 1, 0, 1]], 2, [1, 0, 1]]
@@ -670,8 +671,8 @@ charpol annihil(b) 2: 1
 x^3
 charpol annihil(c) 2: 1
 random 2: [1, 0, 0]~
-alsimpledec 2: 1
-al_decomposition 2: 1
+algsimpledec 2: 1
+alg_decomposition 2: 1
 iscommutative 2: 1
 issemisimple 2: 1
 issimple 2: 1
@@ -690,9 +691,9 @@ b^2 3: 1
 a^691691 3: 1
 multable(a) 3: 1
 multable(b) 3: 1
-aldivl(a,b) 3: 1
+algdivl(a,b) 3: 1
 a^-1 3: 1
-aldivr(b,a) 3: 1
+algdivr(b,a) 3: 1
 rad(al) 3: 1
 ss(al) 3: 1
 center al 3: 1
@@ -703,8 +704,8 @@ charpol annihil(a) 3: 1
 x^2
 charpol annihil(b) 3: 1
 random 3: [1, 0]~
-alsimpledec 3: 1
-al_decomposition 3: 1
+algsimpledec 3: 1
+alg_decomposition 3: 1
 iscommutative 3: 1
 issemisimple 3: 1
 issemisimple ss 3: 1
@@ -725,9 +726,9 @@ b^2 3c: 1
 a^691691 3c: 1
 multable(a) 3c: 1
 multable(b) 3c: 1
-aldivl(a,b) 3c: 1
+algdivl(a,b) 3c: 1
 a^-1 3c: 1
-aldivr(b,a) 3c: 1
+algdivr(b,a) 3c: 1
 rad(al) 3c: 1
 ss(al) 3c: 1
 center al 3c: 1
@@ -738,8 +739,8 @@ charpol annihil(a) 3c: 1
 x^3
 charpol annihil(b) 3c: 1
 random 3c: [1, 0, 0]~
-alsimpledec 3c: 1
-al_decomposition 3c: 1
+algsimpledec 3c: 1
+alg_decomposition 3c: 1
 iscommutative 3c: 1
 issemisimple 3c: 1
 issemisimple ss 3c: 1
@@ -770,8 +771,8 @@ charpol annihil(a) 2b: 1
 x^2 + x + 1
 charpol annihil(b) 2b: 1
 random 2b: [1, 0]~
-alsimpledec 2b: 1
-al_decomposition 2b: 1
+algsimpledec 2b: 1
+alg_decomposition 2b: 1
 iscommutative 2b: 1
 issemisimple 2b: 1
 issimple 2b: 1
@@ -807,8 +808,8 @@ charpol annihil(b) 3b: 1
 x^4
 charpol annihil(c) 3b: 1
 random 3b: [1, 0, 0, 1]~
-alsimpledec 3b: 1
-al_decomposition 3b: 1
+algsimpledec 3b: 1
+alg_decomposition 3b: 1
 iscommutative 3b: 1
 issemisimple 3b: 1
 issimple 3b: 1
@@ -846,8 +847,8 @@ charpol annihil(b) 2c: 1
 x^4 + x^2 + 1
 charpol annihil(c) 2c: 1
 random 2c: [1, 0, 0, 1]~
-alsimpledec 2c: 1
-al_decomposition 2c: 1
+algsimpledec 2c: 1
+alg_decomposition 2c: 1
 iscommutative 2c: 1
 issemisimple 2c: 1
 issimple 2c: 1
@@ -875,8 +876,8 @@ charpol annihil(a) 5: 1
 x + 2
 charpol annihil(b) 5: 1
 random 5: [1]~
-alsimpledec 5: 1
-al_decomposition 5: 1
+algsimpledec 5: 1
+alg_decomposition 5: 1
 iscommutative 5: 1
 issemisimple 5: 1
 issimple 5: 1
@@ -914,15 +915,15 @@ idemproj 0b: [[0, 0, 0, 0, 0, 0, [1, 0, 0, 0; 0, 1, 0, 0; 0, 0, 1, 0; 0, 0,
 simple components 0b: 1
 mt M2 component 0b: 1
 center al 0b: 1
-primesubalg al 0b: error("domain error in alprimesubalg: characteristic = 0"
-)
+primesubalg al 0b: error("domain error in algprimesubalg: characteristic = 0
+")
 x^5 - 4*x^4 + 6*x^3 - 4*x^2 + x
 charpol annihil(a) 0b: 1
 x^5 - 6*x^4 + 14*x^3 - 16*x^2 + 9*x - 2
 charpol annihil(b) 0b: 1
 random 0b: [1, 0, 0, 1, 1]~
-alsimpledec 0b: 1
-al_decomposition 0b: 1
+algsimpledec 0b: 1
+alg_decomposition 0b: 1
 subalg M2(Q): 1
 iscommutative 0b: 1
 issemisimple 0b: 1
@@ -967,8 +968,8 @@ charpol annihil(a) 3d: 1
 x^5 + 2*x^3 + 2*x^2 + 1
 charpol annihil(b) 3d: 1
 random 3d: [1, 0, 0, 1, 1]~
-alsimpledec 3d: 1
-al_decomposition 3d: 1
+algsimpledec 3d: 1
+alg_decomposition 3d: 1
 subalg M2(F3): 1
 iscommutative 3d: 1
 issemisimple 3d: 1
@@ -1001,32 +1002,32 @@ changebasis bug 1: 1
 changebasis bug 2: 1
 changebasis bug 3: 1
 changebasis bug 4: 1
-altableinit segfault bug: 
+algtableinit segfault bug: 
 1
 center of CSA: 1
 radical of CSA: 1
 decomposition of CSA: 1
-al_decomposition of CSA: 1
+alg_decomposition of CSA: 1
 alsimple bug
 0
 tests for al_CSA: 
 1
 1
 should fail:
-  ***   at top-level: alfail=alinit(nf,[0,0],'x)
-  ***                        ^-------------------
-  *** alinit: domain error in idealfactor: ideal = 0
-  ***   at top-level: algetb(al)
-  ***                 ^----------
-  *** algetb: incorrect type in al_get_b (t_VEC).
-  ***   at top-level: algetaut(al)
-  ***                 ^------------
-  *** algetaut: incorrect type in al_get_aut (t_VEC).
+  ***   at top-level: alfail=alginit(nf,[0,0],'x)
+  ***                        ^--------------------
+  *** alginit: domain error in idealfactor: ideal = 0
+  ***   at top-level: alggetb(al)
+  ***                 ^-----------
+  *** alggetb: incorrect type in alg_get_b (t_VEC).
+  ***   at top-level: alggetaut(al)
+  ***                 ^-------------
+  *** alggetaut: incorrect type in alg_get_aut (t_VEC).
 algebra:
 csa getcenter: 1
 csa getsplitting: 1
 getrelmultable: 1
-algetsplittingdata:
+alggetsplittingdata:
 1
 1
 1
@@ -2445,110 +2446,110 @@ x - 12
 1
 1
 1
-  ***   at top-level: alrandom(1,1)
-  ***                 ^-------------
-  *** alrandom: incorrect type in checkal [please apply alinit()] (t_INT).
-  ***   at top-level: alrandom(1,I)
-  ***                 ^-------------
-  *** alrandom: incorrect type in alrandom (t_COMPLEX).
+  ***   at top-level: algrandom(1,1)
+  ***                 ^--------------
+  *** algrandom: incorrect type in checkalg [please apply alginit()] (t_INT).
+  ***   at top-level: algrandom(1,I)
+  ***                 ^--------------
+  *** algrandom: incorrect type in algrandom (t_COMPLEX).
 0
-  ***   at top-level: algetdim([1,[1],0,0,
+  ***   at top-level: alggetdim([1,[1],0,0
   ***                 ^--------------------
-  *** algetdim: incorrect type in checkal [please apply alinit()] (t_VEC).
-  ***   at top-level: algetabsdim([1,[1],0
+  *** alggetdim: incorrect type in checkalg [please apply alginit()] (t_VEC).
+  ***   at top-level: alggetabsdim([1,[1],
   ***                 ^--------------------
-  *** algetabsdim: incorrect type in checkal [please apply alinit()] (t_VEC).
-  ***   at top-level: altensor(al,al2)
-  ***                 ^----------------
-  *** altensor: sorry, tensor of non-cyclic algebras is not yet implemented.
-  ***   at top-level: altensor(al2,al)
-  ***                 ^----------------
-  *** altensor: sorry, tensor of non-cyclic algebras is not yet implemented.
-  ***   at top-level: altensor(1,z,1)
-  ***                 ^---------------
-  *** altensor: incorrect type in checkal [please apply alinit()] (t_INT).
-  ***   at top-level: alisassociative([1],
-  ***                 ^--------------------
-  *** alisassociative: incorrect type in alisassociative (mult. table) (t_VEC).
-  ***   at top-level: alisassociative([[1,
-  ***                 ^--------------------
-  *** alisassociative: incorrect type in alisassociative (mult. table) (t_VEC).
-  ***   at top-level: almul(almt,a,b)
-  ***                 ^---------------
-  *** almul: incorrect type in al_model (t_COL).
-  ***   at top-level: almultable(almt,a)
-  ***                 ^------------------
-  *** almultable: incorrect type in al_model (t_COL).
-  ***   at top-level: alinv(almt,a)
-  ***                 ^-------------
-  *** alinv: incorrect type in al_model (t_COL).
-  ***   at top-level: alsplittingmatrix(al
-  ***                 ^--------------------
-  *** alsplittingmatrix: domain error in alsplittingmatrix: al_type(al) = 1
-  ***   at top-level: alalgtobasis(almt,a)
-  ***                 ^--------------------
-  *** alalgtobasis: incorrect type in al_model (t_COL).
-  ***   at top-level: albasistoalg(almt,[0
-  ***                 ^--------------------
-  *** albasistoalg: domain error in alnattoalg: al_type(al) = 1
-  ***   at top-level: alpoleval(almt,1,a)
-  ***                 ^-------------------
-  *** alpoleval: incorrect type in alpoleval (t_INT).
-  ***   at top-level: alinit(nfinit(y),[2,
-  ***                 ^--------------------
-  *** alinit: incorrect type in Hasse invariant (t_POL).
-  ***   at top-level: alinit(nfinit(y),[2,
-  ***                 ^--------------------
-  *** alinit: incorrect type in checkhasse (t_VECSMALL).
-  ***   at top-level: alinit(nfinit(y),[2,
-  ***                 ^--------------------
-  *** alinit: domain error in checkhasse: sum(Hasse invariants) != 0
-  ***   at top-level: alinit(y,[2,[[],[]],
-  ***                 ^--------------------
-  *** alinit: incorrect type in alinit3 (t_POL).
-  ***   at top-level: alinit(nfinit(y),y)
-  ***                 ^-------------------
-  *** alinit: incorrect type in alinit1 (t_POL).
-  ***   at top-level: alinit(nfinit(y),[1,
-  ***                 ^--------------------
-  *** alinit: incorrect type in alinit1 (t_VEC).
-  ***   at top-level: altableinit(mt,y)
+  *** alggetabsdim: incorrect type in checkalg [please apply alginit()] (t_VEC).
+  ***   at top-level: algtensor(al,al2)
   ***                 ^-----------------
-  *** altableinit: incorrect type in altableinit (t_POL).
-  ***   at top-level: alinit(nfinit(x^2+1)
+  *** algtensor: sorry, tensor of non-cyclic algebras is not yet implemented.
+  ***   at top-level: algtensor(al2,al)
+  ***                 ^-----------------
+  *** algtensor: sorry, tensor of non-cyclic algebras is not yet implemented.
+  ***   at top-level: algtensor(1,z,1)
+  ***                 ^----------------
+  *** algtensor: incorrect type in checkalg [please apply alginit()] (t_INT).
+  ***   at top-level: algisassociative([1]
   ***                 ^--------------------
-  *** alinit: domain error in al_matrix: n <= 0
-  ***   at top-level: ...t(nfinit(y^2-2),[-1,-1]);alrandom(al,-10)
-  ***                                             ^----------------
-  *** alrandom: domain error in alrandom: b < 0
-  ***   at top-level: algetdegree(A)
+  *** algisassociative: incorrect type in algisassociative (mult. table) (t_VEC).
+  ***   at top-level: algisassociative([[1
+  ***                 ^--------------------
+  *** algisassociative: incorrect type in algisassociative (mult. table) (t_VEC).
+  ***   at top-level: algmul(almt,a,b)
+  ***                 ^----------------
+  *** algmul: incorrect type in alg_model (t_COL).
+  ***   at top-level: algmultable(almt,a)
+  ***                 ^-------------------
+  *** algmultable: incorrect type in alg_model (t_COL).
+  ***   at top-level: alginv(almt,a)
   ***                 ^--------------
-  *** algetdegree: incorrect type in algetdegree (t_VEC).
-  ***   at top-level: algetcenter(A)
+  *** alginv: incorrect type in alg_model (t_COL).
+  ***   at top-level: algsplittingmatrix(a
+  ***                 ^--------------------
+  *** algsplittingmatrix: domain error in algsplittingmatrix: alg_type(al) = 1
+  ***   at top-level: algalgtobasis(almt,a
+  ***                 ^--------------------
+  *** algalgtobasis: incorrect type in alg_model (t_COL).
+  ***   at top-level: algbasistoalg(almt,[
+  ***                 ^--------------------
+  *** algbasistoalg: domain error in algnattoalg: alg_type(al) = 1
+  ***   at top-level: algpoleval(almt,1,a)
+  ***                 ^--------------------
+  *** algpoleval: incorrect type in algpoleval (t_INT).
+  ***   at top-level: alginit(nfinit(y),[2
+  ***                 ^--------------------
+  *** alginit: incorrect type in Hasse invariant (t_POL).
+  ***   at top-level: alginit(nfinit(y),[2
+  ***                 ^--------------------
+  *** alginit: incorrect type in checkhasse (t_VECSMALL).
+  ***   at top-level: alginit(nfinit(y),[2
+  ***                 ^--------------------
+  *** alginit: domain error in checkhasse: sum(Hasse invariants) != 0
+  ***   at top-level: alginit(y,[2,[[],[]]
+  ***                 ^--------------------
+  *** alginit: incorrect type in alinit3 (t_POL).
+  ***   at top-level: alginit(nfinit(y),y)
+  ***                 ^--------------------
+  *** alginit: incorrect type in alinit1 (t_POL).
+  ***   at top-level: alginit(nfinit(y),[1
+  ***                 ^--------------------
+  *** alginit: incorrect type in alinit1 (t_VEC).
+  ***   at top-level: algtableinit(mt,y)
+  ***                 ^------------------
+  *** algtableinit: incorrect type in algtableinit (t_POL).
+  ***   at top-level: alginit(nfinit(x^2+1
+  ***                 ^--------------------
+  *** alginit: domain error in alg_matrix: n <= 0
+  ***   at top-level: ...t(nfinit(y^2-2),[-1,-1]);algrandom(al,-10)
+  ***                                             ^-----------------
+  *** algrandom: domain error in algrandom: b < 0
+  ***   at top-level: alggetdegree(A)
+  ***                 ^---------------
+  *** alggetdegree: incorrect type in alggetdegree (t_VEC).
+  ***   at top-level: alggetcenter(A)
+  ***                 ^---------------
+  *** alggetcenter: incorrect type in alggetdegree (t_VEC).
+  ***   at top-level: algsub(A,1,1)
+  ***                 ^-------------
+  *** algsub: incorrect type in alg_model (t_INT).
+  ***   at top-level: algadd(A,1,1)
+  ***                 ^-------------
+  *** algadd: incorrect type in alg_model (t_INT).
+  ***   at top-level: algneg(A,1)
+  ***                 ^-----------
+  *** algneg: incorrect type in alg_model (t_INT).
+  ***   at top-level: algmul(A,1,1)
+  ***                 ^-------------
+  *** algmul: incorrect type in alg_model (t_INT).
+  ***   at top-level: algsqr(A,1)
+  ***                 ^-----------
+  *** algsqr: incorrect type in alg_model (t_INT).
+  ***   at top-level: algdivl(A,1,1)
   ***                 ^--------------
-  *** algetcenter: incorrect type in algetdegree (t_VEC).
-  ***   at top-level: alsub(A,1,1)
-  ***                 ^------------
-  *** alsub: incorrect type in al_model (t_INT).
-  ***   at top-level: aladd(A,1,1)
-  ***                 ^------------
-  *** aladd: incorrect type in al_model (t_INT).
-  ***   at top-level: alneg(A,1)
-  ***                 ^----------
-  *** alneg: incorrect type in al_model (t_INT).
-  ***   at top-level: almul(A,1,1)
-  ***                 ^------------
-  *** almul: incorrect type in al_model (t_INT).
-  ***   at top-level: alsqr(A,1)
-  ***                 ^----------
-  *** alsqr: incorrect type in al_model (t_INT).
-  ***   at top-level: aldivl(A,1,1)
-  ***                 ^-------------
-  *** aldivl: incorrect type in al_model (t_INT).
-  ***   at top-level: aldivr(A,1,1)
-  ***                 ^-------------
-  *** aldivr: incorrect type in al_model (t_INT).
-  ***   at top-level: alinv(A,1)
-  ***                 ^----------
-  *** alinv: incorrect type in al_model (t_INT).
-Total time spent: 3458
+  *** algdivl: incorrect type in alg_model (t_INT).
+  ***   at top-level: algdivr(A,1,1)
+  ***                 ^--------------
+  *** algdivr: incorrect type in alg_model (t_INT).
+  ***   at top-level: alginv(A,1)
+  ***                 ^-----------
+  *** alginv: incorrect type in alg_model (t_INT).
+Total time spent: 3470
