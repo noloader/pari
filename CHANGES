@@ -100,6 +100,7 @@ BA 60- ellcard over non-prime fields of large char could return wrong results
 BA 77- [cygwin64] ellap(ellinit([0,0,1,-1,0]),10007) broken
    78- primes([-5,5]) -> [5] (spurious absolute values)
    79- matqr([;]) -> crash
+   80- content([]) -> 0 [ was 1 ]
 
   Added
     1- add optional argument to sumdigits to specify the base

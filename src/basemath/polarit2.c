@@ -1557,16 +1557,16 @@ content(GEN x)
     }
 
     case t_VEC: case t_COL:
-      lx = lg(x); if (lx==1) return gen_1;
+      lx = lg(x); if (lx==1) return gen_0;
       break;
 
     case t_MAT:
     {
       long hx, j;
       lx = lg(x);
-      if (lx == 1) return gen_1;
+      if (lx == 1) return gen_0;
       hx = lgcols(x);
-      if (hx == 1) return gen_1;
+      if (hx == 1) return gen_0;
       if (lx == 2) { x = gel(x,1); lx = lg(x); break; }
       if (hx == 2) { x = row_i(x, 1, 1, lx-1); break; }
       c = content(gel(x,1));
