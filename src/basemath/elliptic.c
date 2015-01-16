@@ -5853,7 +5853,10 @@ ellissupersingular(GEN E, GEN p)
   case t_ELL_Q:
     {
       pari_sp av = avma;
-      int res = Fp_elljissupersingular(Rg_to_Fp(ell_get_j(E), p), p);
+      GEN j = ell_get_j(E);
+      int res;
+      if (typ(j)==t_FRAC && dvdii(gel(j,2), p)) return 0;
+      res = Fp_elljissupersingular(Rg_to_Fp(j, p), p);
       avma = av; return res;
     }
     break;

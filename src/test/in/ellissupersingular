@@ -31,6 +31,9 @@ if (S != [41, 8, 38*T + 31, 5*T + 36]*one, error("Bad result"));
 if([j | p<-primes(5);j<-[0..p-1],ellissupersingular(Mod(j,p))]!=[0,0,0,6,0,1],
   error("Bad result"));
 
+E=ellinit([1,0,1,-6,4]);
+if([ellissupersingular(E,p)|p<-primes(5)]!=[0,0,1,0,0], error("Bad result"));
+
 badin = "my spoon is too big";
 iferr(ellissupersingular(badin), err, got_err = 1,
       errname(err) == "e_TYPE" && component(err, 2) == badin);
