@@ -1433,6 +1433,10 @@ m_k = [0, 0, 0, -1;\
 mt = [matid(4), m_i, m_j, m_k];
 \\ bad inputs
 almt = algtableinit(mt,0);
+algsplittingfield(almt);
+algdegree(almt);
+alghassei(almt);
+alghassef(almt);
 algrandom(1,1)
 algrandom(1,I)
 algtype(1)
@@ -1459,6 +1463,9 @@ alginit(nfinit(y), [1,2,3,4])
 algtableinit(mt,y);
 alginit(nfinit(x^2+1),-3);
 al = alginit(nfinit(y^2-2),[-1,-1]); algrandom(al,-10)
+al = alginit(nfinit(y^2-2),[-1,-1]);
+algrelmultable(al);
+algsplittingdata(al);
 
 mt=[matid(3), [0,0,0; 1,1,0; 0,0,0], [0,0,1; 0,0,0; 1,0,1]];
 A=algtableinit(mt,2);

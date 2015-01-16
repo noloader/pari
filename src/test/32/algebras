@@ -1056,8 +1056,12 @@ getsplittingdata:
 1
 1
 hasse invariants:
-1
-1
+  ***   at top-level: print(alghassei(al)==0)
+  ***                       ^-----------------
+  *** alghassei: sorry, computation of Hasse invariants over table CSA is not yet implemented.
+  ***   at top-level: print(alghassef(al)==0)
+  ***                       ^-----------------
+  *** alghassef: sorry, computation of Hasse invariants over table CSA is not yet implemented.
 csa splitting pol: 1
 csa ord: 1
 csa invord: 1
@@ -2446,6 +2450,18 @@ x - 12
 1
 1
 1
+  ***   at top-level: algsplittingfield(al
+  ***                 ^--------------------
+  *** algsplittingfield: incorrect type in algsplittingfield (t_VEC).
+  ***   at top-level: algdegree(almt)
+  ***                 ^---------------
+  *** algdegree: incorrect type in algdegree (t_VEC).
+  ***   at top-level: alghassei(almt)
+  ***                 ^---------------
+  *** alghassei: incorrect type in alg_get_hasse_i (t_VEC).
+  ***   at top-level: alghassef(almt)
+  ***                 ^---------------
+  *** alghassef: incorrect type in alg_get_hasse_f (t_VEC).
   ***   at top-level: algrandom(1,1)
   ***                 ^--------------
   *** algrandom: incorrect type in checkalg [please apply alginit()] (t_INT).
@@ -2522,9 +2538,15 @@ x - 12
   ***   at top-level: ...t(nfinit(y^2-2),[-1,-1]);algrandom(al,-10)
   ***                                             ^-----------------
   *** algrandom: domain error in algrandom: b < 0
+  ***   at top-level: algrelmultable(al)
+  ***                 ^------------------
+  *** algrelmultable: incorrect type in alg_get_relmultable (t_VEC).
+  ***   at top-level: algsplittingdata(al)
+  ***                 ^--------------------
+  *** algsplittingdata: incorrect type in alg_get_splittingdata (t_VEC).
   ***   at top-level: algdegree(A)
   ***                 ^------------
-  *** algdegree: incorrect type in alggetdegree (t_VEC).
+  *** algdegree: incorrect type in algdegree (t_VEC).
   ***   at top-level: algsub(A,1,1)
   ***                 ^-------------
   *** algsub: incorrect type in alg_model (t_INT).
@@ -2549,4 +2571,4 @@ x - 12
   ***   at top-level: alginv(A,1)
   ***                 ^-----------
   *** alginv: incorrect type in alg_model (t_INT).
-Total time spent: 3455
+Total time spent: 3460

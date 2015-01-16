@@ -39,27 +39,6 @@ checkalg_i(GEN al)
 void
 checkalg(GEN al)
 { if (!checkalg_i(al)) pari_err_TYPE("checkalg [please apply alginit()]",al); }
-#if 0
-static void
-checkalg_cyc(GEN al)
-{
-  if (alg_type(al) != al_CYCLIC)
-    pari_err_TYPE("checkalg_cyc [please apply alginit()]",al);
-}
-static void
-checkalg_csa(GEN al)
-{
-  if (alg_type(al) != al_CSA)
-    pari_err_TYPE("checkalg_csa [please apply alginit()]",al);
-}
-#endif
-static void
-checkalg_cyc_csa(GEN al)
-{
-  long tal = alg_type(al);
-  if (tal != al_CSA && tal != al_CYCLIC)
-    pari_err_TYPE("checkalg_cyc_csa [please apply alginit()]",al);
-}
 
 /**  ACCESSORS  **/
 long
@@ -137,57 +116,113 @@ algb(GEN al) { checkalg(al); return alg_get_b(al); }
 
 /* only CSA */
 GEN
-alg_get_relmultable(GEN al) { return gel(al,2); }
+alg_get_relmultable(GEN al)
+{
+  if (alg_type(al) != al_CSA) pari_err_TYPE("alg_get_relmultable", al);
+  return gel(al,2);
+}
 GEN
 algrelmultable(GEN al) { checkalg(al); return alg_get_relmultable(al); }
 GEN
-alg_get_splittingdata(GEN al) { return gel(al,3); }
+alg_get_splittingdata(GEN al)
+{
+  if (alg_type(al) != al_CSA) pari_err_TYPE("alg_get_splittingdata", al);
+  return gel(al,3);
+}
 GEN
 algsplittingdata(GEN al) { checkalg(al); return alg_get_splittingdata(al); }
 GEN
-alg_get_splittingbasis(GEN al) { return gmael(al,3,2); }
+alg_get_splittingbasis(GEN al)
+{
+  if (alg_type(al) != al_CSA) pari_err_TYPE("alg_get_splittingbasis", al);
+  return gmael(al,3,2);
+}
 GEN
-alg_get_splittingbasisinv(GEN al) { return gmael(al,3,3); }
+alg_get_splittingbasisinv(GEN al)
+{
+  if (alg_type(al) != al_CSA) pari_err_TYPE("alg_get_splittingbasisinv", al);
+  return gmael(al,3,3);
+}
 
 /* only cyclic and CSA */
 GEN
 alg_get_splitting(GEN al) { return gel(al,1); }
 GEN
-algsplittingfield(GEN al) { checkalg(al); return alg_get_splitting(al); }
+algsplittingfield(GEN al)
+{
+  long ta;
+  checkalg(al);
+  ta = alg_type(al);
+  if (ta != al_CYCLIC && ta != al_CSA) pari_err_TYPE("algsplittingfield", al);
+  return alg_get_splitting(al);
+}
 long
-alg_get_degree(GEN al) { return rnf_get_degree(alg_get_splitting(al)); }
+alg_get_degree(GEN al)
+{
+  long ta;
+  ta = alg_type(al);
+  if (ta != al_CYCLIC && ta != al_CSA) pari_err_TYPE("alg_get_degree", al);
+  return rnf_get_degree(alg_get_splitting(al));
+}
 long
 algdegree(GEN al)
 {
   GEN rnf;
   checkalg(al);
   rnf = alg_get_splitting(al);
-  if (typ(rnf)!=t_VEC) pari_err_TYPE("alggetdegree",al);
+  if (typ(rnf)!=t_VEC) pari_err_TYPE("algdegree",al);
   return rnf_get_degree(rnf);
 }
 
 GEN
-alg_get_center(GEN al) { return rnf_get_nf(alg_get_splitting(al)); }
+alg_get_center(GEN al)
+{
+  long ta;
+  ta = alg_type(al);
+  if (ta != al_CSA && ta != al_CYCLIC) pari_err_TYPE("alg_get_center",al);
+  return rnf_get_nf(alg_get_splitting(al));
+}
 GEN
 alggetcenter(GEN al)
 {
   GEN rnf;
   checkalg(al);
-  checkalg_cyc_csa(al);
   rnf = alg_get_splitting(al);
-  if (typ(rnf)!=t_VEC) pari_err_TYPE("algcenter",al);
+  if (typ(rnf)!=t_VEC) pari_err_TYPE("alggetcenter",al);
   return rnf_get_nf(rnf);
 }
 GEN
-alg_get_splitpol(GEN al) { return rnf_get_pol(alg_get_splitting(al)); }
+alg_get_splitpol(GEN al)
+{
+  long ta = alg_type(al);
+  if (ta != al_CYCLIC && ta != al_CSA) pari_err_TYPE("alg_get_splitpol", al);
+  return rnf_get_pol(alg_get_splitting(al));
+}
 GEN
-alg_get_abssplitting(GEN al) { return gel(al,6); }
+alg_get_abssplitting(GEN al)
+{
+  long ta = alg_type(al);
+  if (ta != al_CYCLIC && ta != al_CSA) pari_err_TYPE("alg_get_abssplitting", al);
+  return gel(al,6);
+}
 GEN
-alg_get_hasse_i(GEN al) { return gel(al,4); }
+alg_get_hasse_i(GEN al)
+{
+  long ta = alg_type(al);
+  if (ta != al_CYCLIC && ta != al_CSA) pari_err_TYPE("alg_get_hasse_i", al);
+  if (ta == al_CSA) pari_err_IMPL("computation of Hasse invariants over table CSA");
+  return gel(al,4);
+}
 GEN
 alghassei(GEN al) { checkalg(al); return alg_get_hasse_i(al); }
 GEN
-alg_get_hasse_f(GEN al) { return gel(al,5); }
+alg_get_hasse_f(GEN al)
+{
+  long ta = alg_type(al);
+  if (ta != al_CYCLIC && ta != al_CSA) pari_err_TYPE("alg_get_hasse_f", al);
+  if (ta == al_CSA) pari_err_IMPL("computation of Hasse invariants over table CSA");
+  return gel(al,5);
+}
 GEN
 alghassef(GEN al) { checkalg(al); return alg_get_hasse_f(al); }
 
