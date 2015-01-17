@@ -5,6 +5,11 @@
 "\e\C-h": backward-kill-word
 "\C-xd": dump-functions
 
+# Comment out for GAP-style history search with up/down arrows
+# (default style is to use ^r/^s)
+# "\e[A": history-search-backward
+# "\e[B": history-search-forward
+
 $if Pari-GP
   set convert-meta on
   set output-meta off
