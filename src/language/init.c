@@ -885,7 +885,6 @@ pari_init_opts(size_t parisize, ulong maxprime, ulong init_opts)
     gp_expand_path(GP_DATA->path);
   }
 
-  if ((init_opts&INIT_SIGm)) pari_sig_init(pari_sighandler);
   pari_mainstack = (struct pari_mainstack *) malloc(sizeof(*pari_mainstack));
   paristack_alloc(parisize, 0);
   init_universal_constants();
@@ -903,6 +902,7 @@ pari_init_opts(size_t parisize, ulong maxprime, ulong init_opts)
   (void)getabstime();
   try_to_recover = 1;
   if (!(init_opts&INIT_noIMTm)) pari_mt_init();
+  if ((init_opts&INIT_SIGm)) pari_sig_init(pari_sighandler);
 }
 
 void
