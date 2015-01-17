@@ -100,18 +100,24 @@ static long
 Babai(pari_sp av, long kappa, GEN *pG, GEN *pB, GEN *pU, GEN mu, GEN r, GEN s,
       long a, long zeros, long maxG, long n, GEN eta, GEN halfplus1, long prec)
 {
+  pari_sp av0 = avma;
   GEN B = *pB, G = *pG, U = *pU, tmp, rtmp, ztmp;
   long k, aa = (a > zeros)? a : zeros+1;
   GEN maxmu = gen_0, max2mu = gen_0;
   /* N.B: we set d = 0 (resp. n = 0) to avoid updating U (resp. B) */
   const long d = U ? lg(U)-1: 0;
 
+  if (gc_needed(av,2))
+  {
+    if(DEBUGMEM>1) pari_warn(warnmem,"Babai[0], a=%ld", aa);
+    gerepileall(av,U?3:2,&B,&G,&U);
+  }
   for (;;) {
     int go_on = 0;
     GEN max3mu;
     long i, j;
 
-    if (gc_needed(av,2))
+    if (gc_needed(av0,2))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"Babai[1], a=%ld", aa);
       gerepileall(av,U?5:4,&B,&G,&maxmu,&max2mu,&U);
@@ -156,7 +162,7 @@ Babai(pari_sp av, long kappa, GEN *pG, GEN *pB, GEN *pU, GEN mu, GEN r, GEN s,
       tmp = gmael(mu,kappa,j);
       if (absr_cmp(tmp, eta) <= 0) continue; /* (essentially) size-reduced */
 
-      if (gc_needed(av,2))
+      if (gc_needed(av0,2))
       {
         if(DEBUGMEM>1) pari_warn(warnmem,"Babai[2], a=%ld, j=%ld", aa,j);
         gerepileall(av,U?5:4,&B,&G,&maxmu,&max2mu,&U);
