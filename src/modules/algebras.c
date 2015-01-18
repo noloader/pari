@@ -27,7 +27,7 @@ static GEN _tablemul_ej_Fp(GEN mt, GEN x, long j, GEN p);
 static GEN _tablemul_ej_Fl(GEN mt, GEN x, long j, ulong p);
 static ulong algtracei(GEN mt, ulong p, ulong expo, ulong modu);
 
-int
+static int
 checkalg_i(GEN al)
 {
   GEN mt;
