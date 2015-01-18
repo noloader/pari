@@ -532,6 +532,16 @@ QM_image(GEN A)
   return vecpermute(A, ZM_indeximage(A));
 }
 
+static int
+cmp_dim(void *E, GEN a, GEN b)
+{
+  long k;
+  (void)E;
+  a = gel(a,1);
+  b = gel(b,1); k = lg(a)-lg(b);
+  return k? ((k > 0)? 1: -1): 0;
+}
+
 /* Decompose the subspace H (Qevproj format) in simple subspaces.
  * Eg for H = msnew */
 static GEN
@@ -611,7 +621,10 @@ mssplit_i(GEN W, GEN H)
         if (j < first) j = first;
       }
     }
-    if (first >= lg(V)) return V;
+    if (first >= lg(V)) {
+      gen_sort_inplace(V, NULL, cmp_dim, NULL);
+      return V;
+    }
   }
   pari_err_BUG("subspaces not found");
   return NULL;
