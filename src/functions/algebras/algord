@@ -4,8 +4,8 @@ C-Name: algord
 Prototype: G
 Help: algord(al): stored order of the central simple algebra al.
 Doc: Given an central simple algebra \var{al} output by \tet{alginit}, returns
- a $\Z$-basis of the stored order in \var{al} with respect to the natural
- order in \var{al}. Returns a maximal order if it has been computed.
+ a $\Z$-basis of the order~${\cal O}_0$ stored in \var{al} with respect to the
+ natural order in \var{al}. Returns a maximal order if one has been computed.
  \bprog
  A = alginit(nfinit(y), [-1,-1]);
  ? algord(A)
