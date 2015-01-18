@@ -11,11 +11,12 @@ Doc:
  restriction of linear operators; its first component is
  a matrix with integer coefficients whose columns form a $\Q$-basis of
  the subspace.
- This is the same basis as given the first component of \kbd{mscuspidal}$(M)$.
+ This is the same basis as given by the second component of
+ \kbd{mscuspidal}$(M, 1)$.
  \bprog
  ? M = msinit(2,8, 1); \\ M_8(Gamma_0(2))^+
  ? E = mseisenstein(M);
- ? E  \\ 2-dimensional
+ ? E[1]  \\ 2-dimensional
  %3 =
  [0 -10]
 
@@ -25,6 +26,6 @@ Doc:
 
  [1   0]
 
- ? E == mscuspidal(M)[1]
+ ? E == mscuspidal(M,1)[2]
  %4 = 1
  @eprog

@@ -8,7 +8,7 @@ Help: mscuspidal(M, {flag=0}): M being a full modular symbol space, as given
 Doc:
  $M$ being a full modular symbol space, as given by \kbd{msinit},
  return its cuspidal part $S$. If $\fl = 1$, return
- $[S,E]$ its decomposition into Eisenstein and cuspidal parts.
+ $[S,E]$ its decomposition into cuspidal and Eisenstein parts.
 
  A subspace is given by a structure allowing quick projection and
  restriction of linear operators; its first component is

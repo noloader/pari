@@ -3,7 +3,7 @@ Section: elliptic_curves
 C-Name: ellpadicL
 Prototype: GGLD0,L,DGDGp
 Help: ellpadicL(E, p, n, {r = 0}, {D}, {char}): returns the value
-  on a character of the  derivative of order r of the L-function of
+  on a character of the derivative of order r of the L-function of
   the elliptic curve E (twisted by D > 0, if present). For the moment, only
   the case of the trivial character is implemented
 Doc:
