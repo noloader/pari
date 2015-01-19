@@ -2836,12 +2836,13 @@ static GEN
 ell_get_scale(GEN E, GEN W, GEN xpm, long s)
 {
   GEN Q, X = NULL;
-  long d;
+  long d, N = ms_get_N(W);
 
   /* find D = s*d such that twist by D has rank 0 */
   for (d = 1; d < LONG_MAX; d++)
   {
     pari_sp av = avma;
+    if (cgcd(N, d) != 1) continue;
     if (s < 0)
     { if (!unegisfundamental(d)) continue; }
     else
