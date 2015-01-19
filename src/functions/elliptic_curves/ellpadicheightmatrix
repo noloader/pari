@@ -1,7 +1,7 @@
 Function: ellpadicheightmatrix
 Section: elliptic_curves
 C-Name: ellpadicheightmatrix
-Prototype: GGLGp
+Prototype: GGLG
 Help: ellpadicheightmatrix(E,p,n,v): gives the height-pairing matrix for vector
  of points v on elliptic curve E.
 Doc: $v$ being a vector of points, this function outputs the Gram matrix of
