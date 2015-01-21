@@ -305,6 +305,8 @@ radical 3: 1
 tensor of degree 2 and 3 no mo: 1
 Suite: Grunwald-Wang
 A quadratic over Q, 2 large inert, imaginary: 1
+A quartic over Q, 2 large inert, imaginary: error("sorry, Grunwald-Wang theo
+rem for non-prime degree is not yet implemented.")
 A : degree 4 over Q(i), local degrees [4,1,1]: 1
 A degree 3 over Q(j), local degrees [3,3] larger primes: 1
 A : degree 3 over Q(sqrt(5)), local degrees [3,3] [-1,-1], larger primes: 1
@@ -2573,4 +2575,4 @@ x - 12
   ***   at top-level: alginv(A,1)
   ***                 ^-----------
   *** alginv: incorrect type in alg_model (t_INT).
-Total time spent: 5823
+Total time spent: 6374

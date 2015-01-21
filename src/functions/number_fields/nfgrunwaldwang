@@ -6,7 +6,7 @@ Help: nfgrunwaldwang(nf,Lpr,Ld,pl,{v='x}): a polynomial in the variable v
  defining a cyclic extension of nf (given in nf or bnf form) with local
  behaviour prescribed by Lpr, Ld and pl: the extension has local degree a
  multiple of Ld[i] at the prime Lpr[i], and the extension is complex at the
- i-th real place of nf if pl[i]=-1 (no condition if pl[i]=1). The extension
+ i-th real place of nf if pl[i]=-1 (no condition if pl[i]=0). The extension
  has degree the LCM of the local degrees.
 Doc: Given \var{nf} a number field in \var{nf} or \var{bnf} format,
  a \typ{VEC} \var{Lpr} of primes of \var{nf} and a \typ{VEC} \var{Ld} of
@@ -21,7 +21,9 @@ Doc: Given \var{nf} a number field in \var{nf} or \var{bnf} format,
  \item at the $i$-th real place of \var{nf}, it is complex if $pl[i]=-1$
  (no condition if $pl[i]=1$).
 
- The extension has degree the LCM of the local degrees.
+ The extension has degree the LCM of the local degrees. Currently, the degree
+ is restricted to be a prime power for the search, and to be prime for the
+ construction because of the \kbd{rnfkummer} restrictions.
 
  \misctitle{Warning} If the number field \var{nf} does not contain the $n$-th
  roots of unity where $n$ is the degree of the extension to be computed,

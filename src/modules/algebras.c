@@ -2325,7 +2325,10 @@ nfgrunwaldwang(GEN nf0, GEN Lpr, GEN Ld, GEN pl, long var)
     if (!bnf) bnf = Buchall(nf,0,0);
     return gerepileupto(av,bnfgwgeneric(bnf,Lpr,Ld,pl,var));
   }
-  else {av = avma; return gen_0;}
+  else {
+    pari_err_IMPL("Grunwald-Wang theorem for non-prime degree");
+    av = avma; return gen_0;
+  }
 }
 
 /** HASSE INVARIANT **/

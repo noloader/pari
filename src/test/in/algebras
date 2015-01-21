@@ -238,6 +238,7 @@ gw() = gusuite("Grunwald-Wang", ()->{
   ppp = idealprimedec(nf,nextprime(4321))[1];
 
   do("A quadratic over Q, 2 large inert, imaginary", testgwa(nf,[pp,ppp],Vecsmall([2,2]),Vecsmall([-1])));
+  do("A quartic over Q, 2 large inert, imaginary", testgwa(nf,[pp,ppp],Vecsmall([4,4]),Vecsmall([-1])));
 
   nf = nfinit(y^2+1);
   p2 = idealprimedec(nf,2)[1];
