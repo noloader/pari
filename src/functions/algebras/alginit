@@ -109,7 +109,7 @@ Doc: initialize the central simple algebra defined by data $B$, $C$ and
   \item The Hasse invariants at the real places of $K$, accessed with
  \kbd{alghassei}.
 
-  \item The Hasse invariants of $A$ at the finite primes of $K$ that ramify in 
+  \item The Hasse invariants of $A$ at the finite primes of $K$ that ramify in
  the natural order of $A$, accessed with \kbd{alghassef}.
 
   \item A basis of an order ${\cal O}_0$ expressed on the basis of the natural
@@ -125,7 +125,7 @@ Doc: initialize the central simple algebra defined by data $B$, $C$ and
 
   \item The absolute traces of the elements of the basis of ${\cal O}_0$.
 
-  \item If $A$ was constructed as a cyclic algebra~$(L/K,\sigma,b)$ of degree 
+  \item If $A$ was constructed as a cyclic algebra~$(L/K,\sigma,b)$ of degree
  $d$, a \typ{VEC} $[\sigma,\sigma^2,\dots,\sigma^{d-1}]$. The function
  \kbd{algaut} returns $\sigma$.
 
@@ -137,8 +137,7 @@ Doc: initialize the central simple algebra defined by data $B$, $C$ and
 
   \item If $A$ was constructed with its multiplication table $mt$ over $K$,
  a \typ{VEC} with three components: a \typ{COL} representing an element of $A$
- generating the splitting field $L$ as a maximal subfield of $A$, a \typ{MAT} 
+ generating the splitting field $L$ as a maximal subfield of $A$, a \typ{MAT}
  representing an $L$-basis ${\cal B}$ of $A$ expressed on the $\Z$-basis of
  ${\cal O}_0$, and a \typ{MAT} representing the $\Z$-basis of ${\cal O}_0$
  expressed on ${\cal B}$. This data is accessed with \kbd{algsplittingdata}.
-
