@@ -8,3 +8,9 @@ forsubgroup(h=[],[2],print(h))
 forsubgroup(h=[],2,print(h))
 forsubgroup(h=[2,3],2,print(h))
 forsubgroup(h=matid(2),2,print(h))
+default(debug,5);
+#subgrouplist(vector(4,i,2))
+default(debug,0);
+subgrouplist(1)
+subgrouplist([2,2],[2]~)
+subgrouplist([2,2],-1)
