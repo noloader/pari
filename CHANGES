@@ -300,6 +300,8 @@ BA 38- much faster polresultant over Z
        Simple bench: M=matrix(50,55,i,j,random(10^5)); \\ 200 times faster
    45- allow t_VECSMALL vector exponents in gen_factorback
    47- [libpari] rename 'define' PI -> M_PI and use proper constant
+   48- no longer print 0 t_POLMOD as "0", bug e.g. Mod(0,x). Uniformize code
+       and behaviour with t_INTMOD.
 
 Removed
    1- deprecated functions nfbasis0, nfdisc0, factorpadic0

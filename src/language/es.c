@@ -2338,8 +2338,6 @@ dbg_pari_heap(void)
   avma = av;
 }
 
-#define isnull_for_pol(g)  ((typ(g)==t_INTMOD)? !signe(gel(g,2)): isnull(g))
-
 /* is to be printed as '0' */
 static long
 isnull(GEN g)
@@ -2357,14 +2355,23 @@ isnull(GEN g)
       return isnull(gel(g,2)) && isnull(gel(g,3));
     case t_FRAC: case t_RFRAC:
       return isnull(gel(g,1));
-    case t_POLMOD:
-      return isnull(gel(g,2));
     case t_POL:
       for (i=lg(g)-1; i>1; i--)
         if (!isnull(gel(g,i))) return 0;
       return 1;
   }
   return 0;
+}
+/* 0 coeff to be omitted in t_POL ? */
+static int
+isnull_for_pol(GEN g)
+{
+  switch(typ(g))
+  {
+    case t_INTMOD: return !signe(gel(g,2));
+    case t_POLMOD: return isnull(gel(g,2));
+    default:       return isnull(g);
+  }
 }
 
 /* return 1 or -1 if g is 1 or -1, 0 otherwise*/
