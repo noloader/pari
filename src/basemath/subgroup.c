@@ -515,7 +515,10 @@ subgroup_engine(subgp_iter *T)
       err_printf("(lifted) subgp of prime to %Ps part:\n%Ps\n",p, T->subq);
   }
   dopsub(T, p,indexsubq);
-  if (DEBUGLEVEL>4) err_printf("nb subgroup = %ld\n",T->count);
+  if (DEBUGLEVEL>4) {
+    err_printf("nb subgroup = %ld\n",T->count);
+    err_flush();
+  }
   avma = av;
 }
 
