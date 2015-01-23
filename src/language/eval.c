@@ -1546,24 +1546,6 @@ closure_returnupto(GEN C)
   return copyupto(closure_return(C),(GEN)av);
 }
 
-void
-closure_callvoid1(GEN C, GEN x)
-{
-  long i, ar = closure_arity(C);
-  gel(st,sp++) = x;
-  for(i=2; i <= ar; i++) gel(st,sp++) = NULL;
-  closure_evalvoid(C);
-}
-
-GEN
-closure_callgen1(GEN C, GEN x)
-{
-  long i, ar = closure_arity(C);
-  gel(st,sp++) = x;
-  for(i=2; i<= ar; i++) gel(st,sp++) = NULL;
-  return closure_returnupto(C);
-}
-
 GEN
 pareval_worker(GEN C)
 {
@@ -1751,6 +1733,24 @@ void
 parforprime0(GEN a, GEN b, GEN code, GEN code2)
 {
   parforprime(a, b, code, (void*)code2, code2? gp_evalvoid2: NULL);
+}
+
+void
+closure_callvoid1(GEN C, GEN x)
+{
+  long i, ar = closure_arity(C);
+  gel(st,sp++) = x;
+  for(i=2; i <= ar; i++) gel(st,sp++) = NULL;
+  closure_evalvoid(C);
+}
+
+GEN
+closure_callgen1(GEN C, GEN x)
+{
+  long i, ar = closure_arity(C);
+  gel(st,sp++) = x;
+  for(i=2; i<= ar; i++) gel(st,sp++) = NULL;
+  return closure_returnupto(C);
 }
 
 GEN
