@@ -2214,11 +2214,15 @@ msatkinlehner(GEN W, long Q, GEN H)
 {
   pari_sp av = avma;
   GEN w;
+  long k;
   checkms(W);
+  k = msk_get_weight(W);
   if (Q <= 0) pari_err_DOMAIN("msatkinlehner","Q","<=",gen_0,stoi(Q));
   w = msatkinlehner_i(W,Q);
   w = endo_project(W,w,H);
-  if (msk_get_weight(W) == 2) w = shallowtrans(w);
+  if (k == 2) w = shallowtrans(w);
+  else if (Q != 1)
+    w = RgM_Rg_div(w, powuu(Q,(k-2)>>1));
   return gerepilecopy(av, w);
 }
 

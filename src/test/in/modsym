@@ -66,10 +66,14 @@ M=msinit(603,2,1);L=msnew(M);V=mssplit(M,L);
 Set([v|v<-vector(#V,i,msqexpansion(M,V[i])),type(v[1])=="t_INT"])
 
 W = msinit(6,4);
-msatkinlehner(W,1)
-msatkinlehner(W,2)
-msatkinlehner(W,3)
-msatkinlehner(W,6)
+m=msatkinlehner(W,1)
+matdet(m)
+m=msatkinlehner(W,2)
+matdet(m)
+m=msatkinlehner(W,3)
+matdet(m)
+m=msatkinlehner(W,6)
+matdet(m)
 msatkinlehner(W,4)
 msstar(W)
 
