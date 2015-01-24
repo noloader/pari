@@ -30,6 +30,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 else\
   gerepilecoeffssp((pari_sp)z, tetpil, z+1, 2); }
 
+static void
+warn_coercion(GEN x, GEN y, GEN z)
+{
+  if (DEBUGLEVEL)
+   pari_warn(warner,"coercing quotient rings; moduli %Ps and %Ps -> %Ps",x,y,z);
+}
+
 static long
 kro_quad(GEN x, GEN y)
 {
@@ -683,6 +690,7 @@ addsub_polmod(GEN X, GEN Y, GEN x, GEN y, GEN(*op)(GEN,GEN))
   if (vx==vy) {
     pari_sp av;
     gel(z,1) = RgX_gcd(X,Y); av = avma;
+    warn_coercion(X,Y,gel(z,1));
     gel(z,2) = gerepileupto(av, gmod(op(x, y), gel(z,1))); return z;
   }
   if (varncmp(vx, vy) < 0)
@@ -954,6 +962,7 @@ gadd(GEN x, GEN y)
       if (X==Y || equalii(X,Y))
         return add_intmod_same(z, X, gel(x,2), gel(y,2));
       gel(z,1) = gcdii(X,Y);
+      warn_coercion(X,Y,gel(z,1));
       av = avma; p1 = addii(gel(x,2),gel(y,2));
       gel(z,2) = gerepileuptoint(av, remii(p1, gel(z,1))); return z;
     }
@@ -1258,6 +1267,7 @@ gsub(GEN x, GEN y)
       if (X==Y || equalii(X,Y))
         return sub_intmod_same(z, X, gel(x,2), gel(y,2));
       gel(z,1) = gcdii(X,Y);
+      warn_coercion(X,Y,gel(z,1));
       av = avma; p1 = subii(gel(x,2),gel(y,2));
       gel(z,2) = gerepileuptoint(av, modii(p1, gel(z,1))); return z;
     }
@@ -1564,6 +1574,7 @@ mul_polmod(GEN X, GEN Y, GEN x, GEN y)
   if (vx==vy) {
     pari_sp av;
     gel(z,1) = RgX_gcd(X,Y); av = avma;
+    warn_coercion(X,Y,gel(z,1));
     gel(z,2) = gerepileupto(av, gmod(gmul(x, y), gel(z,1)));
     return z;
   }
@@ -1834,7 +1845,9 @@ gmul(GEN x, GEN y)
       z = cgetg(3,t_INTMOD);
       if (X==Y || equalii(X,Y))
         return mul_intmod_same(z, X, gel(x,2), gel(y,2));
-      gel(z,1) = gcdii(X,Y); av = avma; p1 = mulii(gel(x,2),gel(y,2));
+      gel(z,1) = gcdii(X,Y);
+      warn_coercion(X,Y,gel(z,1));
+      av = avma; p1 = mulii(gel(x,2),gel(y,2));
       gel(z,2) = gerepileuptoint(av, remii(p1, gel(z,1))); return z;
     }
     case t_FRAC:
@@ -2529,8 +2542,9 @@ gdiv(GEN x, GEN y)
       z = cgetg(3,t_INTMOD);
       if (X==Y || equalii(X,Y))
         return div_intmod_same(z, X, gel(x,2), gel(y,2));
-      gel(z,1) = gcdii(X,Y); av = avma;
-      p1 = mulii(gel(x,2), Fp_inv(gel(y,2), gel(z,1)));
+      gel(z,1) = gcdii(X,Y);
+      warn_coercion(X,Y,gel(z,1));
+      av = avma; p1 = mulii(gel(x,2), Fp_inv(gel(y,2), gel(z,1)));
       gel(z,2) = gerepileuptoint(av, remii(p1, gel(z,1))); return z;
     }
     case t_FRAC: {

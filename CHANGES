@@ -302,6 +302,10 @@ BA 38- much faster polresultant over Z
    47- [libpari] rename 'define' PI -> M_PI and use proper constant
    48- no longer print 0 t_POLMOD as "0", bug e.g. Mod(0,x). Uniformize code
        and behaviour with t_INTMOD.
+   49- warn when coercing quotient rings when 'debug' non-zero
+      ? \g1
+      ? Mod(1,2)+Mod(1,3)
+        *** _+_: Warning: coercing quotient rings; moduli 2 and 3 -> 1.
 
 Removed
    1- deprecated functions nfbasis0, nfdisc0, factorpadic0
