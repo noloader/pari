@@ -352,8 +352,7 @@ static GEN
 minimal_polycyclic_presentation(ulong h, long D, ulong u)
 {
   pari_sp av = avma;
-  ulong curr_p = 1, nelts = 1;
-  long i;
+  ulong curr_p = 1, nelts = 1, i;
   GEN DD, pcp, ident, T;
   hashtable *tbl;
 
