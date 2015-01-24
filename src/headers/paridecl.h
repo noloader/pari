@@ -72,7 +72,6 @@ GEN     rootmod(GEN f, GEN p);
 GEN     rootmod2(GEN f, GEN p);
 GEN     factmod(GEN f, GEN p);
 GEN     simplefactmod(GEN f, GEN p);
-GEN     listcreate(void);
 void    listkill(GEN list);
 GEN     discrayabs(GEN bnr,GEN subgroup);
 GEN     discrayabscond(GEN bnr,GEN subgroup);
@@ -2736,9 +2735,13 @@ int     gsigne(GEN x);
 GEN     gtolist(GEN x);
 long    gtolong(GEN x);
 int     lexcmp(GEN x, GEN y);
+GEN     listcreate_typ(long t);
+GEN     listcreate(void);
 GEN     listinsert(GEN list, GEN object, long index);
 void    listpop(GEN L, long index);
+void    listpop0(GEN L, long index);
 GEN     listput(GEN list, GEN object, long index);
+GEN     listput0(GEN list, GEN object, long index);
 void    listsort(GEN list, long flag);
 GEN     matsize(GEN x);
 GEN     mklistcopy(GEN x);
@@ -3152,6 +3155,18 @@ GEN     lllkerimgen(GEN x);
 GEN     matkerint0(GEN x,long flag);
 GEN     qflll0(GEN x, long flag);
 GEN     qflllgram0(GEN x, long flag);
+
+/* map.c */
+
+GEN     gtomap(GEN M);
+void    mapdelete(GEN T, GEN a);
+GEN     mapdomain(GEN T);
+GEN     mapdomain_shallow(GEN T);
+GEN     mapget(GEN T, GEN a);
+int     mapisdefined(GEN T, GEN a, GEN *pt_z);
+void    mapput(GEN T, GEN a, GEN b);
+GEN     maptomat(GEN T);
+GEN     maptomat_shallow(GEN T);
 
 /* members.c */
 

@@ -1624,7 +1624,7 @@ listassign(GEN x, GEN y)
   long nmax = list_nmax(x);
   GEN L = list_data(x);
   if (!nmax && L) nmax = lg(L) + 32; /* not malloc'ed yet */
-  list_nmax(y) = nmax;
+  y[1] = evaltyp(list_typ(x))|evallg(nmax);
   list_data(y) = list_internal_copy(L, nmax);
 }
 
@@ -1634,6 +1634,7 @@ listcopy(GEN x)
 {
   GEN y = listcreate(), L = list_data(x);
   if (L) list_data(y) = gcopy(L);
+  y[1] = evaltyp(list_typ(x));
   return y;
 }
 
@@ -1784,13 +1785,14 @@ gcopy_av0_canon(GEN x, pari_sp *AVMA)
     /* one more special case */
     case t_LIST:
     {
+      long t = list_typ(x);
       GEN y = cgetlist_avma(AVMA), z = list_data(x);
       if (z) {
         list_data(y) = gcopy_av0_canon(z, AVMA);
-        list_nmax(y) = lg(z)-1;
+        y[1] = evaltyp(t)|evallg(lg(z)-1);
       } else {
         list_data(y) = NULL;
-        list_nmax(y) = 0;
+        y[1] = evaltyp(t);
       }
       return y;
     }

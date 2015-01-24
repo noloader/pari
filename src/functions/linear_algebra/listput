@@ -1,6 +1,6 @@
 Function: listput
 Section: linear_algebra
-C-Name: listput
+C-Name: listput0
 Prototype: WGD0,L,
 Help: listput(list,x,{n}): sets n-th element of list equal to x. If n is
  omitted or greater than the current list length, appends x.

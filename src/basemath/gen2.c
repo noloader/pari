@@ -528,12 +528,27 @@ cmp_universal(GEN x, GEN y)
       return cmp_universal_rec(x, y, 2);
 
     case t_LIST:
-      x = list_data(x);
-      y = list_data(y);
-      if (!x) return y? -1: 0;
-      if (!y) return 1;
-      return cmp_universal_rec(x, y, 1);
-
+      {
+        long tx = list_typ(x), ty = list_typ(y);
+        GEN vx, vy;
+        if (tx < ty) return -1;
+        if (tx > ty) return 1;
+        vx = list_data(x);
+        vy = list_data(y);
+        if (!vx) return vy? -1: 0;
+        if (!vy) return 1;
+        switch (tx)
+        {
+        case t_LIST_MAP:
+          {
+            pari_sp av = avma;
+            int ret = cmp_universal_rec(maptomat_shallow(x), maptomat_shallow(y),1);
+            avma = av; return ret;
+          }
+        default:
+          return cmp_universal_rec(vx, vy, 1);
+        }
+      }
     default:
       return cmp_universal_rec(x, y, lontyp[tx]);
   }
@@ -834,6 +849,31 @@ closure_identical(GEN x, GEN y)
   return gidentical(gel(x,7),gel(y,7));
 }
 
+static int
+list_cmp(GEN x, GEN y, int cmp(GEN x, GEN y))
+{
+  int t = list_typ(x);
+  GEN vx, vy;
+  if (list_typ(y)!=t) return 0;
+  vx = list_data(x);
+  vy = list_data(y);
+  if (!vx) return vy? 0: 1;
+  if (!vy) return 0;
+  if (lg(vx) != lg(vy)) return 0;
+  switch (t)
+  {
+  case t_LIST_MAP:
+    {
+      pari_sp av = avma;
+      GEN mx  = maptomat_shallow(x), my = maptomat_shallow(y);
+      int ret = gidentical(gel(mx, 1), gel(my, 1)) && cmp(gel(mx, 2), gel(my, 2));
+      avma = av; return ret;
+    }
+  default:
+    return cmp(vx, vy);
+  }
+}
+
 int
 gidentical(GEN x, GEN y)
 {
@@ -892,11 +932,7 @@ gidentical(GEN x, GEN y)
     case t_CLOSURE:
       return closure_identical(x,y);
     case t_LIST:
-      x = list_data(x);
-      y = list_data(y);
-      if (!x) return y? 0: 1;
-      if (!y) return 0;
-      return vecidentical(x, y);
+      return list_cmp(x, y, gidentical);
     case t_INFINITY: return gidentical(gel(x,1),gel(y,1));
   }
   return 0;
@@ -1006,11 +1042,7 @@ gequal(GEN x, GEN y)
       case t_VECSMALL:
         return zv_equal(x,y);
       case t_LIST:
-        x = list_data(x);
-        y = list_data(y);
-        if (!x) return y? 0: 1;
-        if (!y) return 0;
-        return gequal(x, y);
+        return list_cmp(x, y, gequal);
       case t_CLOSURE:
         return closure_identical(x,y);
       case t_INFINITY:
@@ -2597,7 +2629,7 @@ ensure_nb(GEN L, long l)
     v[0] = evaltyp(t_VEC) | _evallg(1);
   }
   list_data(L) = v;
-  list_nmax(L) = nmax;
+  L[1] = evaltyp(list_typ(L))|evallg(nmax);
 }
 
 void
@@ -2610,17 +2642,23 @@ listkill(GEN L)
     long i, l = lg(v);
     for (i=1; i<l; i++) gunclone_deep(gel(v,i));
     pari_free(v);
-    list_nmax(L) = 0;
+    L[1] = evaltyp(list_typ(L));
     list_data(L) = NULL;
   }
 }
 
 GEN
-listcreate(void)
+listcreate_typ(long t)
 {
   GEN L = cgetg(3,t_LIST);
-  list_nmax(L) = 0;
+  L[1] = evaltyp(t);
   list_data(L) = NULL; return L;
+}
+
+GEN
+listcreate(void)
+{
+  return listcreate_typ(t_LIST_RAW);
 }
 
 GEN
@@ -2629,7 +2667,6 @@ listput(GEN L, GEN x, long index)
   long l;
   GEN z;
 
-  if (typ(L) != t_LIST) pari_err_TYPE("listput",L);
   if (index < 0) pari_err_COMPONENT("listput", "<", gen_0, stoi(index));
   z = list_data(L);
   l = z? lg(z): 1;
@@ -2648,12 +2685,21 @@ listput(GEN L, GEN x, long index)
 }
 
 GEN
+listput0(GEN L, GEN x, long index)
+{
+  if (typ(L) != t_LIST || list_typ(L) != t_LIST_RAW)
+    pari_err_TYPE("listput",L);
+  return listput(L, x, index);
+}
+
+GEN
 listinsert(GEN L, GEN x, long index)
 {
   long l, i;
   GEN z;
 
-  if (typ(L) != t_LIST) pari_err_TYPE("listinsert",L);
+  if (typ(L) != t_LIST || list_typ(L) != t_LIST_RAW)
+    pari_err_TYPE("listinsert",L);
   z = list_data(L); l = z? lg(z): 1;
   if (index <= 0) pari_err_COMPONENT("listinsert", "<=", gen_0, stoi(index));
   if (index > l) pari_err_COMPONENT("listinsert", ">", stoi(l), stoi(index));
@@ -2684,6 +2730,14 @@ listpop(GEN L, long index)
   z[0] = evaltyp(t_VEC) | evallg(l);
   for (i=index; i < l; i++) z[i] = z[i+1];
   BLOCK_SIGINT_END
+}
+
+void
+listpop0(GEN L, long index)
+{
+  if (typ(L) != t_LIST || list_typ(L) != t_LIST_RAW)
+    pari_err_TYPE("listpop",L);
+  listpop(L, index);
 }
 
 /* return a list with single element x, allocated on stack */

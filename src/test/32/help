@@ -147,7 +147,7 @@ List of the PARI types:
   t_VEC    : row vector        [ code ] [  x_1  ] ... [  x_k  ]
   t_COL    : column vector     [ code ] [  x_1  ] ... [  x_k  ]
   t_MAT    : matrix            [ code ] [ col_1 ] ... [ col_k ]
-  t_LIST   : list              [ code ] [ n ] [ nmax ][ vec ]
+  t_LIST   : list              [ cod1 ] [ cod2 ][ vec ]
   t_STR    : string            [ code ] [ man_1 ] ... [ man_k ]
   t_VECSMALL: vec. small ints  [ code ] [ x_1 ] ... [ x_k ]
   t_CLOSURE: functions [ code ] [ arity ] [ code ] [ operand ] [ data ] [ te
@@ -161,4 +161,4 @@ f =
 g =
   ()->0
 
-Total time spent: 0
+Total time spent: 4

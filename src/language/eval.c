@@ -283,7 +283,7 @@ GEN*
 safelistel(GEN x, long l)
 {
   GEN d;
-  if (typ(x)!=t_LIST)
+  if (typ(x)!=t_LIST || list_typ(x)!=t_LIST_RAW)
     pari_err_TYPE("safelistel",x);
   d = list_data(x);
   check_array_index(l, lg(d));
@@ -1049,6 +1049,8 @@ closure_eval(GEN C)
         case t_LIST:
           {
             long lx;
+            if (list_typ(p)!=t_LIST_RAW)
+              pari_err_TYPE("_[_] OCcompo1 [not a vector]", p);
             p = list_data(p); lx = p? lg(p): 1;
             check_array_index(c, lx);
             closure_castgen(gel(p,c),operand);
@@ -1085,6 +1087,8 @@ closure_eval(GEN C)
           g->x = stoi(p[c]);
           break;
         case t_LIST:
+          if (list_typ(p)!=t_LIST_RAW)
+            pari_err_TYPE("&_[_] OCcompo1 [not a vector]", p);
           p = list_data(p); lx = p? lg(p): 1;
           check_array_index(c,lx);
           C->ptcell = (GEN *) p+c;

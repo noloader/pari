@@ -140,8 +140,14 @@ typedef unsigned long pari_ulong;
                        (((ulong*)(x))[1]&(~VARNBITS)) | (ulong)evalvarn(s))
 
 /* t_LIST */
-#define list_nmax(x) x[1]
+
+#define list_typ(x)  ((long)(((ulong)((x)[1])) >> TYPSHIFT))
+#define list_nmax(x) ((long)(((ulong)((x)[1])) & LGBITS))
 #define list_data(x) ((GEN*)x)[2]
+enum {
+  t_LIST_RAW = 0,
+  t_LIST_MAP = 1
+};
 
 /* DO NOT REORDER THESE
  * actual values can be changed. Adapt lontyp in gen2.c */

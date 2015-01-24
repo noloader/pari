@@ -1216,7 +1216,10 @@ vecexpr0(GEN vec, GEN code, GEN pred)
   {
     case t_LIST:
     {
-      vec = list_data(vec);
+      if (list_typ(vec)==t_LIST_MAP)
+        vec = mapdomain_shallow(vec);
+      else
+        vec = list_data(vec);
       if (!vec) return cgetg(1, t_VEC);
       break;
     }

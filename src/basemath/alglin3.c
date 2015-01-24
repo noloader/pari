@@ -551,7 +551,7 @@ genselect(void *E, long (*f)(void* E, GEN x), GEN A)
         y = cgetg(3, t_LIST);
         v = genindexselect(E, f, z);
         B = extract_copy(z, v);
-        list_nmax(y) = lg(B)-1;
+        y[1] = lg(B)-1;
         list_data(y) = B;
       }
       break;
@@ -638,6 +638,19 @@ vecapply1(void *E, GEN (*f)(void* E, GEN x), GEN x)
   for (i=1; i<lx; i++) gel(y,i) = f(E, gel(x,i));
   return y;
 }
+static GEN
+mapapply1(void *E, GEN (*f)(void* E, GEN x), GEN x)
+{
+  long i, lx;
+  GEN y = cgetg_copy(x, &lx);
+  for (i=1; i<lx; i++)
+  {
+    GEN xi = gel(x, i);
+    gel(y,i) = mkvec2(mkvec2(gcopy(gmael(xi, 1, 1)), f(E,gmael(xi, 1, 2))),
+                             gcopy(gel(xi, 2)));
+  }
+  return y;
+}
 /* as genapply, but treat A [ t_VEC,t_COL, or t_MAT] as a t_VEC */
 GEN
 vecapply(void *E, GEN (*f)(void* E, GEN x), GEN x)
@@ -659,14 +672,25 @@ genapply(void *E, GEN (*f)(void* E, GEN x), GEN x)
       y = ser_isexactzero(x)? gcopy(x): normalize(vecapply2(E,f,x));
       break;
     case t_LIST:
-      z = list_data(x);
-      if (!z)
-        y = listcreate();
-      else
       {
-        y = cgetg(3, t_LIST);
-        list_nmax(y) = lg(z)-1;
-        list_data(y) = vecapply1(E,f,z);
+        long t = list_typ(x);
+        z = list_data(x);
+        if (!z)
+          y = listcreate_typ(t);
+        else
+        {
+          y = cgetg(3, t_LIST);
+          y[1] = evaltyp(t)|evallg(lg(z)-1);
+          switch(t)
+          {
+          case t_LIST_RAW:
+            list_data(y) = vecapply1(E,f,z);
+            break;
+          case t_LIST_MAP:
+            list_data(y) = mapapply1(E,f,z);
+            break;
+          }
+        }
       }
       break;
     case t_MAT:
@@ -773,6 +797,8 @@ gtomat(GEN x)
   switch(typ(x))
   {
     case t_LIST:
+      if (list_typ(x)==t_LIST_MAP)
+        return maptomat(x);
       x = list_data(x);
       if (!x) return cgetg(1, t_MAT);
       /* fall through */

@@ -1355,7 +1355,9 @@ static void
 init_sort(GEN *x, long *tx, long *lx)
 {
   *tx = typ(*x);
-  if (*tx == t_LIST) {
+  if (*tx == t_LIST)
+  {
+    if (list_typ(*x)!=t_LIST_RAW) pari_err_TYPE("sort",*x);
     *x = list_data(*x);
     *lx = *x? lg(*x): 1;
   } else {
@@ -1789,7 +1791,9 @@ gtoset(GEN x)
   {
     case t_VEC:
     case t_COL: lx = lg(x); break;
-    case t_LIST: x = list_data(x); lx = x? lg(x): 1; break;
+    case t_LIST:
+      if (list_typ(x)==t_LIST_MAP) return mapdomain(x);
+      x = list_data(x); lx = x? lg(x): 1; break;
     case t_VECSMALL: lx = lg(x); x = zv_to_ZV(x); break;
     default: return mkveccopy(x);
   }
@@ -1818,7 +1822,9 @@ setsearch(GEN T, GEN y, long flag)
   switch(typ(T))
   {
     case t_VEC: lx = lg(T); break;
-    case t_LIST: T = list_data(T); lx = T? lg(T): 1; break;
+    case t_LIST:
+    if (list_typ(T) != t_LIST_RAW) pari_err_TYPE("setsearch",T);
+    T = list_data(T); lx = T? lg(T): 1; break;
     default: pari_err_TYPE("setsearch",T);
       return 0; /*not reached*/
   }

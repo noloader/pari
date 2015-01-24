@@ -2907,6 +2907,7 @@ gtovec(GEN x)
       for (i=1; i<lx; i++) gel(y,i) = gcopy(gel(x,i));
       return y;
     case t_LIST:
+      if (list_typ(x) == t_LIST_MAP) return mapdomain(x);
       x = list_data(x); lx = x? lg(x): 1;
       y = cgetg(lx, t_VEC);
       for (i=1; i<lx; i++) gel(y,i) = gcopy(gel(x,i));

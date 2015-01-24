@@ -27,6 +27,7 @@ listconcat(GEN A, GEN B)
   GEN L, z, L1, L2;
 
   if (typ(A) != t_LIST) {
+    if (list_typ(B)!=t_LIST_RAW) pari_err_TYPE("listconcat",B);
     L2 = list_data(B);
     if (!L2) return mklistcopy(A);
     lx = lg(L2) + 1;
@@ -35,6 +36,7 @@ listconcat(GEN A, GEN B)
     for (i = 2; i < lx; i++) gel(L,i) = gcopy(gel(L2,i-1));
     gel(L,1) = gcopy(A); return z;
   } else if (typ(B) != t_LIST) {
+    if (list_typ(A)!=t_LIST_RAW) pari_err_TYPE("listconcat",A);
     L1 = list_data(A);
     if (!L1) return mklistcopy(B);
     lx = lg(L1) + 1;
@@ -44,13 +46,15 @@ listconcat(GEN A, GEN B)
     gel(L,i) = gcopy(B); return z;
   }
   /* A, B both t_LISTs */
+  if (list_typ(A)!=t_LIST_RAW) pari_err_TYPE("listconcat",A);
+  if (list_typ(B)!=t_LIST_RAW) pari_err_TYPE("listconcat",B);
   L1 = list_data(A); if (!L1) return listcopy(B);
   L2 = list_data(B); if (!L2) return listcopy(A);
 
   l1 = lg(L1);
   lx = l1-1 + lg(L2);
   z = cgetg(3, t_LIST);
-  list_nmax(z) = 0;
+  z[1] = 0UL;
   list_data(z) = L = cgetg(lx, t_VEC);
   L2 -= l1-1;
   for (i=1; i<l1; i++) gel(L,i) = gclone(gel(L1,i));
@@ -293,6 +297,7 @@ shallowconcat1(GEN x)
       if (lx==1) pari_err_DOMAIN("concat","vector","=",x,x);
       break;
     case t_LIST:
+      if (list_typ(x)!=t_LIST_RAW) pari_err_TYPE("concat",x);
       if (!list_data(x)) pari_err_DOMAIN("concat","vector","=",x,x);
       x = list_data(x); lx = lg(x);
       break;

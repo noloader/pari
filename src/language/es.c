@@ -1901,7 +1901,8 @@ str_absint(outString *S, GEN x)
 #define putsigne_nosp(S, x) str_putc(S, (x>0)? '+' : '-')
 #define putsigne(S, x) str_puts(S, (x>0)? " + " : " - ")
 #define sp_sign_sp(T,S, x) ((T)->sp? putsigne(S,x): putsigne_nosp(S,x))
-#define comma_sp(T,S)     ((T)->sp? str_puts(S, ", "): str_putc(S, ','))
+#define semicolon_sp(T,S)  ((T)->sp? str_puts(S, "; "): str_putc(S, ';'))
+#define comma_sp(T,S)      ((T)->sp? str_puts(S, ", "): str_putc(S, ','))
 
 /* print e to S (more efficient than sprintf) */
 static void
@@ -2062,7 +2063,7 @@ dbg(GEN x, long nb, long bl)
                vsigne(x), varn(x), lg(x)-2, valp(x));
   else if (tx == t_LIST)
   {
-    pari_printf("(lmax=%ld):", list_nmax(x));
+    pari_printf("(subtyp=%ld,lmax=%ld):", list_typ(x), list_nmax(x));
     x = list_data(x); lx = x? lg(x): 1;
     tx = t_VEC; /* print list_data as vec */
   } else if (tx == t_CLOSURE)
@@ -2851,16 +2852,29 @@ bruti_intern(GEN g, pariout_t *T, outString *S, int addsign)
     case t_VECSMALL: wr_vecsmall(T,S,g); break;
 
     case t_LIST:
-      str_puts(S, "List([");
-      g = list_data(g);
-      l = g? lg(g): 1;
-      for (i=1; i<l; i++)
+      switch (list_typ(g))
       {
-        bruti(gel(g,i),T,S);
-        if (i<l-1) comma_sp(T,S);
+      case t_LIST_RAW:
+        str_puts(S, "List([");
+        g = list_data(g);
+        l = g? lg(g): 1;
+        for (i=1; i<l; i++)
+        {
+          bruti(gel(g,i),T,S);
+          if (i<l-1) comma_sp(T,S);
+        }
+        str_puts(S, "])"); break;
+      case t_LIST_MAP:
+        {
+          pari_sp av;
+          str_puts(S, "Map(");
+          av = avma;
+          bruti(maptomat_shallow(g),T,S);
+          avma = av;
+          str_puts(S, ")"); break;
+        }
       }
-      str_puts(S, "])"); break;
-
+      break;
     case t_STR:
       quote_string(S, GSTR(g)); break;
     case t_ERROR:
@@ -2927,7 +2941,7 @@ bruti_intern(GEN g, pariout_t *T, outString *S, int addsign)
           print(gcoeff(g,i,j),T,S);
           if (j<r-1) comma_sp(T,S);
         }
-        if (i<l-1) { str_putc(S, ';'); if (T->sp) str_putc(S, ' '); }
+        if (i<l-1) semicolon_sp(T,S);
       }
       str_putc(S, ']'); if (l==2) str_putc(S, ')');
       break;
@@ -3118,15 +3132,26 @@ texi_sign(GEN g, pariout_t *T, outString *S, int addsign)
       str_puts(S, "\\cr}\n"); break;
 
     case t_LIST:
-      str_puts(S, "\\pmatrix{ ");
-      g = list_data(g);
-      l = g? lg(g): 1;
-      for (i=1; i<l; i++)
+      switch(list_typ(g))
       {
-        texi(gel(g,i),T,S); if (i < l-1) str_putc(S, '&');
+      case t_LIST_RAW:
+        str_puts(S, "\\pmatrix{ ");
+        g = list_data(g);
+        l = g? lg(g): 1;
+        for (i=1; i<l; i++)
+        {
+          texi(gel(g,i),T,S); if (i < l-1) str_putc(S, '&');
+        }
+        str_puts(S, "\\cr}\n"); break;
+      case t_LIST_MAP:
+        {
+          pari_sp av = avma;
+          texi(maptomat_shallow(g),T,S);
+          avma = av;
+          break;
+        }
       }
-      str_puts(S, "\\cr}\n"); break;
-
+      break;
     case t_COL:
       str_puts(S, "\\pmatrix{ "); l = lg(g);
       for (i=1; i<l; i++)
