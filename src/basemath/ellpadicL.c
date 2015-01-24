@@ -112,7 +112,7 @@ loopLpn(GEN W, GEN xpm, ulong D, ulong p, long m, long R, GEN q)
   return mkvec2(u,u1);
 }
 
-/* p | ap, return unit root of x^2 - ap*x + p, accuracy p^n */
+/* p \nmid ap, return unit root of x^2 - ap*x + p, accuracy p^n */
 static GEN
 unit_eigenvalue(GEN ap, GEN p, long n)
 {
@@ -153,7 +153,7 @@ ellpadicL(GEN E, GEN pp, long n, long r, GEN DD, GEN C)
   ap = ellap(E,pp);
   if (umodiu(ap,p))
   { /* ordinary */
-    long N = n+1;
+    long N = n+2;
     GEN pn = powuu(p, N);
     GEN u,v, uv = loopLpn(W,xpm, D, p,N,r,pn); /* correct mod p^n */
     GEN al = ginv( unit_eigenvalue(ap, pp, n) );
