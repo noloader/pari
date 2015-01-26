@@ -2602,6 +2602,21 @@ x - 12
   ***   at top-level: algsplittingdata(al)
   ***                 ^--------------------
   *** algsplittingdata: incorrect type in alg_get_splittingdata (t_VEC).
+  ***   at top-level: algtableinit([matid(
+  ***                 ^--------------------
+  *** algtableinit: incorrect type in algtableinit (t_VEC).
+  ***   at top-level: alginit(Q,[matid(2),
+  ***                 ^--------------------
+  *** alginit: incorrect type in alg_csa_table (t_VEC).
+  ***   at top-level: alginit(Q,[-1/2,-1])
+  ***                 ^--------------------
+  *** alginit: incorrect type in alg_hilbert (t_FRAC).
+  ***   at top-level: alginit(Q,[-1,-1/2])
+  ***                 ^--------------------
+  *** alginit: incorrect type in alg_hilbert (t_FRAC).
+  ***   at top-level: alginit(rnfinit(Q,x^
+  ***                 ^--------------------
+  *** alginit: incorrect type in alg_cyclic (t_FRAC).
   ***   at top-level: algdegree(A)
   ***                 ^------------
   *** algdegree: incorrect type in algdegree (t_VEC).
@@ -2629,4 +2644,4 @@ x - 12
   ***   at top-level: alginv(A,1)
   ***                 ^-----------
   *** alginv: incorrect type in alg_model (t_INT).
-Total time spent: 4808
+Total time spent: 4608

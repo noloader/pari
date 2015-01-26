@@ -3124,6 +3124,8 @@ alg_hilbert(GEN nf, GEN a, GEN b, long v, long flag)
   pari_sp av = avma;
   GEN C, P, rnf, aut;
   checknf(nf);
+  if (!isint1(Q_denom(a))) pari_err_TYPE("alg_hilbert", a);
+  if (!isint1(Q_denom(b))) pari_err_TYPE("alg_hilbert", b);
 
   if (v < 0) v = 0;
   C = Rg_col_ei(gneg(a), 3, 3);
@@ -3294,6 +3296,8 @@ alg_cyclic(GEN rnf, GEN aut, GEN b, int maxord)
   GEN al, nf;
   long D, n, d;
   checkrnf(rnf);
+  if (!isint1(Q_denom(b))) pari_err_TYPE("alg_cyclic", b);
+
   nf = rnf_get_nf(rnf);
   n = rnf_get_degree(rnf);
   d = nf_get_degree(nf);
@@ -3436,6 +3440,7 @@ alg_csa_table(GEN nf, GEN mt0, long v, int maxord)
   nf = checknf(nf);
   mt = check_mt(mt0,NULL);
   if (!mt) pari_err_TYPE("alg_csa_table", mt0);
+  if (!isint1(Q_denom(mt))) pari_err_TYPE("alg_csa_table", mt);
   n = nf_get_degree(nf);
   D = n*d2;
   if (d*d != d2)
@@ -3470,6 +3475,7 @@ algtableinit(GEN mt0, GEN p)
   if (p && !signe(p)) p = NULL;
   mt = check_mt(mt0,p);
   if (!mt) pari_err_TYPE("algtableinit", mt0);
+  if (!p && !isint1(Q_denom(mt0))) pari_err_TYPE("algtableinit", mt0);
   n = lg(mt)-1;
   al = cgetg(12, t_VEC);
   for (i=1; i<=6; i++) gel(al,i) = gen_0;

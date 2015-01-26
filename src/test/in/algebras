@@ -1475,6 +1475,12 @@ al = alginit(nfinit(y^2-2),[-1,-1]); algrandom(al,-10)
 al = alginit(nfinit(y^2-2),[-1,-1]);
 algrelmultable(al);
 algsplittingdata(al);
+algtableinit([matid(2), [0,1/2;1,0]]);
+Q = nfinit(y);
+alginit(Q, [matid(2), [0,1/2;1,0]]);
+alginit(Q, [-1/2, -1]);
+alginit(Q, [-1, -1/2]);
+alginit(rnfinit(Q, x^2+1), [-x,-1/2]);
 
 mt=[matid(3), [0,0,0; 1,1,0; 0,0,0], [0,0,1; 0,0,0; 1,0,1]];
 A=algtableinit(mt,2);

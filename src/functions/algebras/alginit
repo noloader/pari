@@ -13,8 +13,9 @@ Doc: initialize the central simple algebra defined by data $B$, $C$ and
  $(e_1 = 1,\dots, e_n)$; the table is given as a \typ{VEC} of $n$ matrices in
  $M_n(K)$, giving the left multiplication by the basis elements $e_i$, in the
  given basis.
- Assumes that $e_1= 1$ and $K[e_1,\dots,e_n]$ describes a central simple
- algebra over $K$; $v$ and $\fl$ are ignored.
+ Assumes that $e_1= 1$, that the multiplication table is integral, and that
+ $K[e_1,\dots,e_n]$ describes a central simple algebra over $K$; $v$ and $\fl$
+ are ignored.
  \bprog
  { m_i = [0,-1,0, 0;
           1, 0,0, 0;
@@ -36,7 +37,8 @@ Doc: initialize the central simple algebra defined by data $B$, $C$ and
  number field extension $L/K$ of degree $d$, $C$ is a \typ{VEC}
  \kbd{[sigma,b]} with 2 components: \kbd{sigma} is a \typ{POLMOD} representing
  an automorphism generating $\text{Gal}(L/K)$, $b$ is an element in $K^*$. This
- represents the cyclic algebra~$(L/K,\sigma,b)$.
+ represents the cyclic algebra~$(L/K,\sigma,b)$. Currently the element $b$ has
+ to be integral.
  \bprog
   ? Q = nfinit(y); T = polcyclo(5, 'x); F = rnfinit(Q, T);
   ? A = alginit(F, [Mod(x^2,T), 3]);
