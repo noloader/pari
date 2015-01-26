@@ -1023,10 +1023,10 @@ should fail:
   *** alginit: domain error in idealfactor: ideal = 0
   ***   at top-level: algb(al)
   ***                 ^--------
-  *** algb: incorrect type in alg_get_b (t_VEC).
+  *** algb: alg_get_b only possible for cyclic algebras.
   ***   at top-level: algaut(al)
   ***                 ^----------
-  *** algaut: incorrect type in alg_get_aut (t_VEC).
+  *** algaut: alg_get_aut only possible for cyclic algebras.
 algebra:
 csa getcenter: 1
 csa getsplitting: 1
@@ -2510,16 +2510,16 @@ x - 12
 1
   ***   at top-level: algsplittingfield(al
   ***                 ^--------------------
-  *** algsplittingfield: incorrect type in algsplittingfield (t_VEC).
+  *** algsplittingfield: alg_get_splittingfield only possible for central simple algebras created with alginit.
   ***   at top-level: algdegree(almt)
   ***                 ^---------------
   *** algdegree: incorrect type in algdegree (t_VEC).
   ***   at top-level: alghassei(almt)
   ***                 ^---------------
-  *** alghassei: incorrect type in alg_get_hasse_i (t_VEC).
+  *** alghassei: alg_get_hasse_i only possible for central simple algebras created with alginit.
   ***   at top-level: alghassef(almt)
   ***                 ^---------------
-  *** alghassef: incorrect type in alg_get_hasse_f (t_VEC).
+  *** alghassef: alg_get_hasse_f only possible for central simple algebras created with alginit.
   ***   at top-level: algrandom(1,1)
   ***                 ^--------------
   *** algrandom: incorrect type in checkalg [please apply alginit()] (t_INT).
@@ -2598,25 +2598,25 @@ x - 12
   *** algrandom: domain error in algrandom: b < 0
   ***   at top-level: algrelmultable(al)
   ***                 ^------------------
-  *** algrelmultable: incorrect type in alg_get_relmultable (t_VEC).
+  *** algrelmultable: alg_get_relmultable only possible for central simple algebras given by multiplication table.
   ***   at top-level: algsplittingdata(al)
   ***                 ^--------------------
-  *** algsplittingdata: incorrect type in alg_get_splittingdata (t_VEC).
+  *** algsplittingdata: alg_get_splittingdata only possible for central simple algebras given by multiplication table.
   ***   at top-level: algtableinit([matid(
   ***                 ^--------------------
-  *** algtableinit: incorrect type in algtableinit (t_VEC).
+  *** algtableinit: mt0=[[1, 0; 0, 1], [0, 1/2; 1, 0]] should be integral in algtableinit.
   ***   at top-level: alginit(Q,[matid(2),
   ***                 ^--------------------
-  *** alginit: incorrect type in alg_csa_table (t_VEC).
+  *** alginit: mt=[[1, 0; 0, 1], [0, 1/2; 1, 0]] should be integral in alg_csa_table.
   ***   at top-level: alginit(Q,[-1/2,-1])
   ***                 ^--------------------
-  *** alginit: incorrect type in alg_hilbert (t_FRAC).
+  *** alginit: a=-1/2 should be integral in alg_hilbert.
   ***   at top-level: alginit(Q,[-1,-1/2])
   ***                 ^--------------------
-  *** alginit: incorrect type in alg_hilbert (t_FRAC).
+  *** alginit: b=-1/2 should be integral in alg_hilbert.
   ***   at top-level: alginit(rnfinit(Q,x^
   ***                 ^--------------------
-  *** alginit: incorrect type in alg_cyclic (t_FRAC).
+  *** alginit: b=-1/2 should be integral in alg_cyclic.
   ***   at top-level: algdegree(A)
   ***                 ^------------
   *** algdegree: incorrect type in algdegree (t_VEC).
@@ -2644,4 +2644,4 @@ x - 12
   ***   at top-level: alginv(A,1)
   ***                 ^-----------
   *** alginv: incorrect type in alg_model (t_INT).
-Total time spent: 4608
+Total time spent: 4597
