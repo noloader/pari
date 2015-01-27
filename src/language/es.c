@@ -2668,8 +2668,9 @@ print_precontext(GEN g, outString *S, long tex)
 static void
 print_context(GEN g, pariout_t *T, outString *S, long tex)
 {
+  GEN str = closure_get_text(g);
   if (lg(g)<8 || lg(gel(g,7))==1) return;
-  if (lg(gel(closure_get_dbg(g),3)) >= 2)
+  if (typ(str)==t_VEC && lg(gel(closure_get_dbg(g),3)) >= 2)
   {
     GEN v = closure_get_frame(g), d = gmael(closure_get_dbg(g),3,1);
     long i, l = lg(v), n=0;
