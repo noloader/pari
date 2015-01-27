@@ -1597,63 +1597,62 @@ zbrent(void *E, GEN (*eval)(void *, GEN), GEN a, GEN b, long prec)
   pari_sp av = avma;
   GEN c, d, e, tol, fa, fb, fc;
 
-  a = gtofp(a,prec);
-  b = gtofp(b,prec); sig = cmprr(b,a);
+  a = gtofp(a, prec);
+  b = gtofp(b, prec); sig = cmprr(b, a);
   if (!sig) return gerepileupto(av, a);
-  if (sig < 0) { c=a; a=b; b=c; } else c = b;
-
+  if (sig < 0) {c = a; a = b; b = c;} else c = b;
   fa = eval(E, a);
   fb = eval(E, b);
   if (gsigne(fa)*gsigne(fb) > 0)
-    pari_err_DOMAIN("solve", "f(a)f(b)", ">", gen_0, mkvec2(fa,fb));
+    pari_err_DOMAIN("solve", "f(a)f(b)", ">", gen_0, mkvec2(fa, fb));
   itmax = prec2nbits(prec) * 2 + 1;
   tol = real2n(5-prec2nbits(prec), LOWDEFAULTPREC);
   fc = fb;
   e = d = NULL; /* gcc -Wall */
-  for (iter=1; iter<=itmax; iter++)
+  for (iter = 1; iter <= itmax; ++iter)
   {
     GEN xm, tol1;
     if (gsigne(fb)*gsigne(fc) > 0)
     {
-      c = a; fc = fa; e = d = subrr(b,a);
+      c = a; fc = fa; e = d = subrr(b, a);
     }
-    if (gcmp(gabs(fc,0),gabs(fb,0)) < 0)
+    if (gcmp(gabs(fc, 0), gabs(fb, 0)) < 0)
     {
       a = b; b = c; c = a; fa = fb; fb = fc; fc = fa;
     }
     tol1 = absr_cmp(tol, b) > 0? sqrr(tol): mulrr(tol, absr(b));
-    xm = shiftr(subrr(c,b),-1);
-    if (absr_cmp(xm,tol1) <= 0 || gequal0(fb)) break; /* SUCCESS */
+    xm = shiftr(subrr(c, b), -1);
+    if (absr_cmp(xm, tol1) <= 0 || gequal0(fb)) break; /* SUCCESS */
 
-    if (absr_cmp(e,tol1) >= 0 && gcmp(gabs(fa,0),gabs(fb,0)) > 0)
+    if (absr_cmp(e, tol1) >= 0 && gcmp(gabs(fa, 0), gabs(fb, 0)) > 0)
     { /* attempt interpolation */
-      GEN min1, min2, p, q, s = gdiv(fb,fa);
-      if (cmprr(a,c)==0)
+      GEN min1, min2, p, q, s = gdiv(fb, fa);
+      if (cmprr(a, c) == 0)
       {
-        p = gmul2n(gmul(xm,s),1);
-        q = gsubsg(1,s);
+        p = gmul2n(gmul(xm, s), 1);
+        q = gsubsg(1, s);
       }
       else
       {
-        GEN r = gdiv(fb,fc);
-        q = gdiv(fa,fc);
-        p = gmul2n(gmul(gsub(q,r),gmul(xm,q)),1);
-        p = gmul(s, gsub(p, gmul(gsub(b,a),gsubgs(r,1))));
-        q = gmul(gmul(gsubgs(q,1),gsubgs(r,1)),gsubgs(s,1));
+        GEN r = gdiv(fb, fc);
+        q = gdiv(fa, fc);
+        p = gmul2n(gmul(gsub(q, r), gmul(xm, q)), 1);
+        p = gmul(s, gsub(p, gmul(gsub(b, a), gsubgs(r, 1))));
+        q = gmul(gmul(gsubgs(q, 1), gsubgs(r, 1)), gsubgs(s, 1));
       }
       if (gsigne(p) > 0) q = gneg_i(q); else p = gneg_i(p);
-      min1 = gsub(gmulsg(3,gmul(xm,q)), gabs(gmul(q,tol1),0));
-      min2 = gabs(gmul(e,q),0);
-      if (gcmp(gmul2n(p,1), gmin(min1,min2)) < 0)
-        { e = d; d = gdiv(p,q); } /* interpolation OK */
+      min1 = gsub(gmulsg(3, gmul(xm,q)), gabs(gmul(q, tol1), 0));
+      min2 = gabs(gmul(e, q), 0);
+      if (gcmp(gmul2n(p, 1), gmin(min1, min2)) < 0)
+        { e = d; d = gdiv(p, q); } /* interpolation OK */
       else
         { d = xm; e = d; } /* failed, use bisection */
     }
     else { d = xm; e = d; } /* bound decreasing too slowly, use bisection */
     a = b; fa = fb;
-    if (gcmp(gabs(d,0),tol1) > 0) b = gadd(b,d);
-    else if (gsigne(xm) > 0)      b = addrr(b,tol1);
-    else                          b = subrr(b,tol1);
+    if (gcmp(gabs(d, 0), tol1) > 0) b = gadd(b, d);
+    else if (gsigne(xm) > 0)      b = addrr(b, tol1);
+    else                          b = subrr(b, tol1);
     fb = eval(E, b);
   }
   if (iter > itmax) pari_err_IMPL("solve recovery [too many iterations]");
@@ -1662,7 +1661,7 @@ zbrent(void *E, GEN (*eval)(void *, GEN), GEN a, GEN b, long prec)
 
 GEN
 zbrent0(GEN a, GEN b, GEN code, long prec)
-{ EXPR_WRAP(code, zbrent(EXPR_ARG, a,b, prec)); }
+{ EXPR_WRAP(code, zbrent(EXPR_ARG, a, b, prec)); }
 
 /* x = solve_start(&D, a, b, prec)
  * while (x) {
