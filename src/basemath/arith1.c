@@ -2812,20 +2812,23 @@ Fp_invmBarrett(GEN p, long s)
   return mkvec2(Q,R);
 }
 
+/* a <= (N-1)^2, 2^(2s-2) <= N < 2^(2s). Return 0 <= r < N such that
+ * a = r (mod N) */
 static GEN
-Fp_rem_mBarrett(GEN a, GEN B, long s, GEN p)
+Fp_rem_mBarrett(GEN a, GEN B, long s, GEN N)
 {
   pari_sp av = avma;
-  GEN Q = gel(B, 1), R = gel(B, 2);
-  long sQ = expi(Q);
-  GEN A = addii(remi2n(a, 3*s), mulii(R,shifti(a, -3*s)));
-  GEN q = shifti(mulii(shifti(A, sQ-3*s), Q), -sQ);
-  GEN r = subii(A, mulii(q, p));
-  GEN sr= subii(r,p);     /* Now 0 <= r < 4*p */
+  GEN P = gel(B, 1), Q = gel(B, 2); /* 2^(3s) = P N + Q, 0 <= Q < N */
+  long t = expi(P)+1; /* 2^(t-1) <= P < 2^t */
+  GEN u = shifti(a, -3*s), v = remi2n(a, 3*s); /* a = 2^(3s)u + v */
+  GEN A = addii(v, mulii(Q,u)); /* 0 <= A < 2^(3s+1) */
+  GEN q = shifti(mulii(shifti(A, t-3*s), P), -t); /* A/N - 4 < q <= A/N */
+  GEN r = subii(A, mulii(q, N));
+  GEN sr= subii(r,N);     /* 0 <= r < 4*N */
   if (signe(sr)<0) return gerepileuptoint(av, r);
-  r=sr; sr = subii(r,p);  /* Now 0 <= r < 3*p */
+  r=sr; sr = subii(r,N);  /* 0 <= r < 3*N */
   if (signe(sr)<0) return gerepileuptoint(av, r);
-  r=sr; sr = subii(r,p);  /* Now 0 <= r < 2*p */
+  r=sr; sr = subii(r,N);  /* 0 <= r < 2*N */
   return gerepileuptoint(av, signe(sr)>=0 ? sr:r);
 }
 
@@ -2853,7 +2856,15 @@ static GEN
 _remii(muldata *D, GEN x) { return remii(x, D->N); }
 
 static GEN
-_remiibar(muldata *D, GEN x) { return Fp_rem_mBarrett(x, D->iM, D->s, D->N); }
+_remiibar(muldata *D, GEN x) {
+#if DEBUG
+  GEN r = Fp_rem_mBarrett(x, D->iM, D->s, D->N);
+  if (cmpii(r, D->N) >= 0) pari_err_BUG("Rp_rem_mBarrett");
+  return r;
+#else
+  return Fp_rem_mBarrett(x, D->iM, D->s, D->N);
+#endif
+}
 
 /* 2x mod N */
 static GEN
