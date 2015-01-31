@@ -19,6 +19,11 @@ ERROR 1 0 0
   ***   at top-level: valuation(0,0)
   ***                 ^--------------
   *** valuation: domain error in gvaluation: p = 0
+  ***   at top-level: valuation(0,I)
+  ***                 ^--------------
+  *** valuation: domain error in gvaluation: p = I
+2
+0
 2
 1.0000000000000000000000000000000000000 - 1.00000000000000000000000000000000
 00000*x + O(x^2)
@@ -27,4 +32,4 @@ O(x)
 -oo
 -oo
 -oo
-Total time spent: 4
+Total time spent: 0
