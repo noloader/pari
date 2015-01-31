@@ -3697,10 +3697,27 @@ RgM_mulreal(GEN x, GEN y)
 /*                                                                 */
 /*******************************************************************/
 static long
+_egal_i(GEN x, GEN y)
+{
+  x = simplify_shallow(x);
+  y = simplify_shallow(y);
+  if (typ(y) == t_INT)
+  {
+    if (equali1(y)) return gequal1(x);
+    if (equalim1(y)) return gequalm1(x);
+  }
+  else if (typ(x) == t_INT)
+  {
+    if (equali1(x)) return gequal1(y);
+    if (equalim1(x)) return gequalm1(y);
+  }
+  return gequal(x, y);
+}
+static long
 _egal(GEN x, GEN y)
 {
   pari_sp av = avma;
-  long r = gequal(simplify_shallow(x), simplify_shallow(y));
+  long r = _egal_i(x, y);
   avma = av; return r;
 }
 

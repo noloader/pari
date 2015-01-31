@@ -351,7 +351,7 @@ static int
 col_test(GEN x, int(*test)(GEN))
 {
   long i, l = lg(x);
-  if (l == 1) return 0;
+  if (l == 1) return 1;
   if (!test(gel(x,1))) return 0;
   for (i = 2; i < l; i++)
     if (!gequal0(gel(x,i))) return 0;
@@ -383,8 +383,11 @@ gequal1(GEN x)
       return equali1(x);
 
     case t_REAL:
-      return signe(x) > 0 ? absrnz_equal1(x): 0;
-
+    {
+      long s = signe(x);
+      if (!s) return expo(x) >= 0;
+      return s > 0 ? absrnz_equal1(x): 0;
+    }
     case t_INTMOD: case t_POLMOD:
       return gequal1(gel(x,2));
 
@@ -427,8 +430,11 @@ gequalm1(GEN x)
       return equalim1(x);
 
     case t_REAL:
-      return signe(x) < 0 ? absrnz_equal1(x): 0;
-
+    {
+      long s = signe(x);
+      if (!s) return expo(x) >= 0;
+      return s < 0 ? absrnz_equal1(x): 0;
+    }
     case t_INTMOD:
       av=avma; y=equalii(addsi(1,gel(x,2)), gel(x,1)); avma=av; return y;
 
