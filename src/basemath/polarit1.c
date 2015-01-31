@@ -319,7 +319,7 @@ GEN
 ZX_Zp_root(GEN f, GEN a, GEN p, long prec)
 {
   GEN z, R, a0 = modii(a, p);
-  long i, j, k, v;
+  long i, j, k;
 
   if (signe(FpX_eval(FpX_deriv(f, p), a0, p)))
   { /* simple zero mod p, go all the way to p^prec */
@@ -328,8 +328,7 @@ ZX_Zp_root(GEN f, GEN a, GEN p, long prec)
   }
 
   f = ZX_unscale_div(RgX_translate(f,a), p); /* f(pX + a) / p */
-  v = ZX_pval(f,p);
-  if (v) f = ZX_Z_divexact(f, powiu(p,v));
+  (void)ZX_pvalrem(f,p,&f);
   z = cgetg(degpol(f)+1,t_COL);
 
   R = FpX_roots(f, p);

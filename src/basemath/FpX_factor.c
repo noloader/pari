@@ -360,7 +360,7 @@ FpX_roots_i(GEN f, GEN p)
   if (ZX_valrem(f, &f)) split_add_done(&S, gen_0);
   switch(degpol(f))
   {
-    case 0: return S.done;
+    case 0: return ZC_copy(S.done);
     case 1: split_add_done(&S, subii(p, gel(f,2))); return ZC_copy(S.done);
     case 2: {
       GEN s, r = FpX_quad_root(f, p, 1);
@@ -378,7 +378,7 @@ FpX_roots_i(GEN f, GEN p)
   if (lg(a) < 3) pari_err_PRIME("rootmod",p);
   a = FpX_Fp_sub_shallow(a, gen_1, p); /* a = x^(p-1) - 1 mod f */
   a = FpX_gcd(f,a, p);
-  if (!degpol(a)) return S.done;
+  if (!degpol(a)) return ZC_copy(S.done);
   split_add(&S, FpX_normalize(a,p));
 
   q = shifti(p,-1);
