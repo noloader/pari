@@ -17,3 +17,11 @@ for (i=1, #v, if(!(v[i] === v[i]), error(i)));
 
 Mod(1,3) > 0
 lex(Vecsmall([1,2]),Vecsmall([1,3]))
+
+["x"<="y", "x"<="x", "x"<="w"]
+[oo <= -oo, oo <= oo, -oo <= -oo]
+1. <= oo
+1. <= -oo
+1 <= 'x
+1. <= 'x
+1/2 <= 'x

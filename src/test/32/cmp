@@ -11,4 +11,17 @@
   ***                         ^--
   *** _>_: forbidden comparison t_INTMOD , t_INT.
 -1
-Total time spent: 0
+[1, 1, 0]
+[0, 1, 1]
+1
+0
+  ***   at top-level: 1<='x
+  ***                  ^----
+  *** _<=_: forbidden comparison t_INT , t_POL.
+  ***   at top-level: 1.<='x
+  ***                   ^----
+  *** _<=_: forbidden comparison t_REAL , t_POL.
+  ***   at top-level: 1/2<='x
+  ***                    ^----
+  *** _<=_: forbidden comparison t_FRAC , t_POL.
+Total time spent: 4
