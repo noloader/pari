@@ -25,6 +25,22 @@ L=List([1,2]);
 oo===oo
 -oo===-oo
 oo===-oo
+[I===1+I, I===I]
+w=quadgen(5);
+[w===1+w, w===w]
+w==w
+quadgen(5)===quadgen(13)
+
+f()=1;
+g()=0;
+[f==g,f==f]
+[f===g,f===f]
+
+List()==List()
+List(1)==List()
+List()==List(1)
+List(1)==List(1)
+List(2)==List(1)
 
 g=ffgen(2^3);
 h=ffgen(3^3);
