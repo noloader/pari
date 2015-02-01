@@ -117,7 +117,7 @@ plot(GEN a, GEN b, GEN code, GEN ysmlu,GEN ybigu, long prec)
 {
   const char BLANK = ' ', YY = '|', XX_UPPER = '\'', XX_LOWER = '.';
   long jz, j, i, sig;
-  pari_sp av = avma, av2;
+  pari_sp av = avma;
   int jnew, jpre = 0; /* for lint */
   GEN x, dx;
   double diff, dyj, ysml, ybig, y[ISCR+1];
@@ -135,11 +135,12 @@ plot(GEN a, GEN b, GEN code, GEN ysmlu,GEN ybigu, long prec)
     scr[i][JSCR]= XX_UPPER;
     for (j=2; j<JSCR; j++) scr[i][j] = BLANK;
   }
-  av2 = avma;
   ysml = ybig = 0.; /* -Wall */
   for (i=1; i<=ISCR; i++)
   {
+    pari_sp av2 = avma;
     y[i] = gtodouble( READ_EXPR(code,x) );
+    avma = av2;
     if (i == 1)
       ysml = ybig = y[1];
     else
@@ -148,11 +149,6 @@ plot(GEN a, GEN b, GEN code, GEN ysmlu,GEN ybigu, long prec)
       if (y[i] > ybig) ybig = y[i];
     }
     x = addrr(x,dx);
-    if (gc_needed(av2,1))
-    {
-      if (DEBUGMEM>1) pari_warn(warnmem,"plot");
-      x = gerepileuptoleaf(av2, x);
-    }
   }
   avma = av;
   if (ysmlu) ysml = gtodouble(ysmlu);
@@ -163,7 +159,7 @@ plot(GEN a, GEN b, GEN code, GEN ysmlu,GEN ybigu, long prec)
   /* work around bug in gcc-4.8 (32bit): plot(x=-5,5,sin(x)))) */
   jz = 3 - (long)(ysml*dyj + 0.5); /* 3 - DTOL(ysml*dyj) */
   z = PICTZERO(jz); jz /= 3;
-  for (i=1; i<=ISCR; i++, avma = av2)
+  for (i=1; i<=ISCR; i++)
   {
     if (0<=jz && jz<=JSCR) scr[i][jz]=z;
     j = 3 + DTOL((y[i]-ysml)*dyj);
