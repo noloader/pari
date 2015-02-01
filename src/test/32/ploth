@@ -149,5 +149,13 @@
   ***   at top-level: plotinit(100)
   ***                 ^-------------
   *** plotinit: domain error in graphic function: rectwindow > 15
+? plotmove(-1,0,0)
+  ***   at top-level: plotmove(-1,0,0)
+  ***                 ^----------------
+  *** plotmove: domain error in graphic function: rectwindow < 0
+? plotmove(100,0,0)
+  ***   at top-level: plotmove(100,0,0)
+  ***                 ^-----------------
+  *** plotmove: domain error in graphic function: rectwindow > 17
 ? print("Total time spent: ",gettime);
-Total time spent: 96
+Total time spent: 112
