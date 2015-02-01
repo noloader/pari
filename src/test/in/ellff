@@ -47,6 +47,7 @@ test(41);
 test(1073741827);
 test(nextprime(2^65),2);
 
+setrand(1);
 p=18446744073709551557;
 e=ellinit([3,3],p);
 g=ellgenerators(e)
