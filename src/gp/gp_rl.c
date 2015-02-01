@@ -349,9 +349,8 @@ init_prefix(const char *text, int *len, int *junk, char **TEXT)
   *len  = l - j;
 }
 
-static const long MAX_SECTION = 13;
 static int
-is_internal(entree *ep) { return ep->menu > MAX_SECTION; }
+is_internal(entree *ep) { return *ep->name == '_'; }
 
 /* Generator function for command completion.  STATE lets us know whether
  * to start from scratch; without any state (i.e. STATE == 0), then we
