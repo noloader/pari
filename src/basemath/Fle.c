@@ -485,11 +485,7 @@ random_Fle_pre(ulong a4, ulong a6, ulong p, ulong pi)
 
 GEN
 random_Fle(ulong a4, ulong a6, ulong p)
-{
-  ulong x, y, pi = get_Fl_red(p);
-  random_Fle_pre_indir(a4, a6, p, pi, &x, &y);
-  return mkvecsmall2(x, y);
-}
+{ return random_Fle_pre(a4, a6, p, get_Fl_red(p)); }
 
 static GEN
 _Fle_rand(void *E)
