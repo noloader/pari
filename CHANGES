@@ -103,6 +103,7 @@ BA 77- [cygwin64] ellap(ellinit([0,0,1,-1,0]),10007) broken
    80- Fp_rem_mBarrett could return a non-normalized result
        p=436^56-35;Mod(271,p)^((p-1)/2) -> p+1
    81- plotcopy would corrupt "string" objects (ROt_ST)
+   82- [] / 0 => div. by 0. Now returns [] (as [] \ 0 already did)
 
   Added
     1- add optional argument to sumdigits to specify the base

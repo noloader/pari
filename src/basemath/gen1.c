@@ -2688,7 +2688,11 @@ gdiv(GEN x, GEN y)
         return gerepile(av, tetpil, gdiv(p2,p1));
     }
   }
-  if (gequal0(y) && ty != t_MAT) pari_err_INV("gdiv",y);
+  if (gequal0(y))
+  {
+    if (is_matvec_t(tx) && lg(x) == 1) return gcopy(x);
+    if (ty != t_MAT) pari_err_INV("gdiv",y);
+  }
 
   if (is_const_t(tx) && is_const_t(ty)) switch(tx)
   {
@@ -3030,12 +3034,16 @@ gmulsg(long s, GEN y)
 GEN
 gdivgs(GEN x, long s)
 {
-  long lx, i;
+  long tx = typ(x), lx, i;
   pari_sp av;
   GEN z, y, p1;
 
-  if (!s) pari_err_INV("gdivgs",gen_0);
-  switch(typ(x))
+  if (!s)
+  {
+    if (is_matvec_t(tx) && lg(x) == 1) return gcopy(x);
+    pari_err_INV("gdivgs",gen_0);
+  }
+  switch(tx)
   {
     case t_INT:
       av = avma; z = divis_rem(x,s,&i);

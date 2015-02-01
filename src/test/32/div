@@ -907,4 +907,10 @@ Mat(1)
   *** divrem: forbidden division t_INT \ t_STR.
 2
 x
+[]
+[]~
+[;]
+  ***   at top-level: [1]/0
+  ***                    ^--
+  *** _/_: impossible inverse in gdiv: 0.
 Total time spent: 4
