@@ -41,4 +41,5 @@ plotinit(1);
 plotcopy(0,1, 300,0);
 plotclip(1);
 plotdraw([1,10,10]);
+plotinit(-1)
 plotinit(100)
