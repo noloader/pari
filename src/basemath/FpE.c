@@ -231,9 +231,19 @@ FpE_order(GEN z, GEN o, GEN a4, GEN p)
 {
   pari_sp av = avma;
   struct _FpE e;
-  e.a4=a4;
-  e.p=p;
-  return gerepileuptoint(av, gen_order(z, o, (void*)&e, &FpE_group));
+  GEN r;
+  if (lgefint(p) == 3)
+  {
+    ulong pp = p[2];
+    r = Fle_order(ZV_to_Flv(z, pp), o, umodiu(a4,pp), pp);
+  }
+  else
+  {
+    e.a4 = a4;
+    e.p = p;
+    r = gen_order(z, o, (void*)&e, &FpE_group);
+  }
+  return gerepileuptoint(av, r);
 }
 
 GEN
