@@ -121,10 +121,6 @@
 ? ploth(t=0,2*Pi,[sin(5*t),sin(7*t)],"Parametric",100)
 [-0.9998741276738750683, 0.9998741276738750683, -0.9998741276738750683, 0.99
 98741276738750683]
-? ploth(t=0,2*Pi,[sin(5*t),sin(7*t)],"Recursive",100)
-  ***   at top-level: ploth(t=0,2*Pi,[sin(5*t),sin(7*t)],
-  ***                                ^--------------------
-  ***   incorrect type in ploth [multi-curves cannot be plot recursively] (t_VEC).
 ? ploth(t=0,2*Pi,[sin(5*t),sin(7*t)],"Parametric|Recursive",100)
 [-1.000000000000000000, 1.000000000000000000, -1.000000000000000000, 1.00000
 0000000000000]
@@ -146,22 +142,10 @@
 ? plotmove(0,200,200);plotstring(0,"(0,0)")
 ? plotdraw([0,10,10])
 ? psdraw([0,10,10])
-? ploth(x=0,2*Pi,if(x<1,[cos(x),sin(x)],1),"Parametric")
-  ***   at top-level: ploth(x=0,2*Pi,if(x<1,[cos(x),sin(x)],
-  ***                                   ^--------------------
-  ***   inconsistent dimensions in rectploth.
-? ploth(x=0,2*Pi,1,"Parametric")
-  ***   at top-level: ploth(x=0,2*Pi,1,"Parametric")
-  ***                                ^---------------
-  ***   incorrect type in ploth [not a t_VEC with PLOT_PARAMETRIC] (t_INT).
 ? ploth(x=0,1,x^3,"Splines")
 [0.E-307, 1.000000000000000000, 0.E-307, 1.000000000000000000]
 ? ploth(x=0,1,[x^2,x^3],"Parametric|Splines")
 [0.E-307, 0.9999999999999998890, 0.E-307, 0.9999999999999998890]
-? ploth(x=0,1,x,,1)
-  ***   at top-level: ploth(x=0,1,x,,1)
-  ***                 ^-----------------
-  *** ploth: domain error in ploth: #points < 2
 ? plotinit(1);
 ? plotcopy(0,1,300,0);
 ? plotclip(1);
@@ -218,5 +202,21 @@
   ***   at top-level: plotcopy(0,1,1,-1,1)
   ***                 ^--------------------
   *** plotcopy: domain error in plotcopy: dy < 0
+? ploth(x=0,2*Pi,if(x<1,[cos(x),sin(x)],1),"Parametric")
+  ***   at top-level: ploth(x=0,2*Pi,if(x<1,[cos(x),sin(x)],
+  ***                                   ^--------------------
+  ***   inconsistent dimensions in rectploth.
+? ploth(t=0,2*Pi,[sin(5*t),sin(7*t)],"Recursive",100)
+  ***   at top-level: ploth(t=0,2*Pi,[sin(5*t),sin(7*t)],
+  ***                                ^--------------------
+  ***   incorrect type in ploth [multi-curves cannot be plot recursively] (t_VEC).
+? ploth(x=0,2*Pi,1,"Parametric")
+  ***   at top-level: ploth(x=0,2*Pi,1,"Parametric")
+  ***                                ^---------------
+  ***   incorrect type in ploth [not a t_VEC with PLOT_PARAMETRIC] (t_INT).
+? ploth(x=0,1,x,,1)
+  ***   at top-level: ploth(x=0,1,x,,1)
+  ***                 ^-----------------
+  *** ploth: domain error in ploth: #points < 2
 ? print("Total time spent: ",gettime);
-Total time spent: 88
+Total time spent: 96

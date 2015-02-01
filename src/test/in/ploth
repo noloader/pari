@@ -17,7 +17,6 @@ plot(x=-5,5,sin(x))
 ploth(x=-5,5,sin(x))
 ploth(t=0,2*Pi,[sin(5*t),sin(7*t)])
 ploth(t=0,2*Pi,[sin(5*t),sin(7*t)],"Parametric",100)
-ploth(t=0,2*Pi,[sin(5*t),sin(7*t)],"Recursive",100)
 ploth(t=0,2*Pi,[sin(5*t),sin(7*t)],"Parametric|Recursive",100)
 plothraw(vector(501,k,k-1),vector(501,k,(k-1)*(k-1)/500));
 plothraw(vector(501,k,k-1),vector(501,k,(k-1)*(k-1)/500),1);
@@ -35,11 +34,8 @@ plotmove(0,100,100); plotstring(0,Pi)
 plotmove(0,200,200); plotstring(0,"(0,0)")
 plotdraw([0,10,10])
 psdraw([0,10,10])
-ploth(x=0,2*Pi,if (x <1, [cos(x),sin(x)], 1),"Parametric")
-ploth(x=0,2*Pi,1,"Parametric")
 ploth(x=0,1, x^3,"Splines")
 ploth(x=0,1, [x^2,x^3],"Parametric|Splines")
-ploth(x=0,1,x,,1)
 plotinit(1);
 plotcopy(0,1, 300,0);
 plotclip(1);
@@ -78,3 +74,7 @@ plotcopy(0,1,2,1,1)
 plotcopy(0,1,-1,1,1)
 plotcopy(0,1,1,2,1)
 plotcopy(0,1,1,-1,1)
+ploth(x=0,2*Pi,if (x <1, [cos(x),sin(x)], 1),"Parametric")
+ploth(t=0,2*Pi,[sin(5*t),sin(7*t)],"Recursive",100)
+ploth(x=0,2*Pi,1,"Parametric")
+ploth(x=0,1,x,,1)
