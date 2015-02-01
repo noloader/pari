@@ -506,6 +506,16 @@ Fle_order(GEN z, GEN o, ulong a4, ulong p)
   return gerepileuptoint(av, gen_order(z, o, (void*)&e, &Fle_group));
 }
 
+GEN
+Fle_log(GEN a, GEN b, GEN o, ulong a4, ulong p)
+{
+  pari_sp av = avma;
+  struct _Fle e;
+  e.a4=a4;
+  e.p=p;
+  return gerepileuptoint(av, gen_PH_log(a, b, o, (void*)&e, &Fle_group));
+}
+
 ulong
 Fl_ellj(ulong a4, ulong a6, ulong p)
 {

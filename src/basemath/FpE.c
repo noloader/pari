@@ -251,9 +251,19 @@ FpE_log(GEN a, GEN b, GEN o, GEN a4, GEN p)
 {
   pari_sp av = avma;
   struct _FpE e;
-  e.a4=a4;
-  e.p=p;
-  return gerepileuptoint(av, gen_PH_log(a, b, o, (void*)&e, &FpE_group));
+  GEN r;
+  if (lgefint(p) == 3)
+  {
+    ulong pp = p[2];
+    r = Fle_log(ZV_to_Flv(a,pp), ZV_to_Flv(b,pp), o, umodiu(a4,pp), pp);
+  }
+  else
+  {
+    e.a4 = a4;
+    e.p = p;
+    r = gen_PH_log(a, b, o, (void*)&e, &FpE_group);
+  }
+  return gerepileuptoint(av, r);
 }
 
 /***********************************************************************/

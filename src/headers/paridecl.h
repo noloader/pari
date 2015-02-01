@@ -185,6 +185,7 @@ GEN     Fle_add(GEN P, GEN Q, ulong a4, ulong p);
 GEN     Fle_dbl(GEN P, ulong a4, ulong p);
 GEN     Fle_changepoint(GEN x, GEN ch, ulong p);
 GEN     Fle_changepointinv(GEN x, GEN ch, ulong p);
+GEN     Fle_log(GEN a, GEN b, GEN o, ulong a4, ulong p);
 GEN     Fle_mul(GEN P, GEN n, ulong a4, ulong p);
 GEN     Fle_mulu(GEN P, ulong n, ulong a4, ulong p);
 GEN     Fle_order(GEN z, GEN o, ulong a4, ulong p);
