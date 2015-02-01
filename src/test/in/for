@@ -4,3 +4,7 @@ for(a=-N-2, -N+2, print(a))
 
 forprime(p=2^32-50,2^32+30,print(p))
 forprime(p=2^64-70,2^64+50,print(p))
+
+default(realprecision,38);
+for(a=0.5,3,print(a))
+for(a=1,10, print(a+=2))
