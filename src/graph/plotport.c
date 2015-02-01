@@ -819,7 +819,7 @@ rectcopy_gen(long source, long dest, GEN xoff, GEN yoff, long flag)
     if (xd > 1) pari_err_DOMAIN("plotcopy","dx",">",gen_1,xoff);
     if (xd < 0) pari_err_DOMAIN("plotcopy","dx","<",gen_0,xoff);
     if (yd > 1) pari_err_DOMAIN("plotcopy","dy",">",gen_1,yoff);
-    if (yd < 1) pari_err_DOMAIN("plotcopy","dy","<",gen_0,yoff);
+    if (yd < 0) pari_err_DOMAIN("plotcopy","dy","<",gen_0,yoff);
     PARI_get_plot();
     xi = pari_plot.width - 1;
     yi = pari_plot.height - 1;
