@@ -1117,8 +1117,10 @@ Flx_intersect_ker(GEN P, GEN MA, GEN U, ulong p)
   gel(R,1) = gel(A,1);
   gel(R,r) = Flm_Flc_mul(MA, Flc_Fl_mul(gel(A,1),ib0, p), p);
   for(i=r-1; i>1; i--)
-    gel(R,i) = Flv_add(Flm_Flc_mul(MA,gel(R,i+1),p),
-                       Flc_Fl_mul(gel(R,r), U[i+2], p), p);
+  {
+    gel(R,i) = Flm_Flc_mul(MA,gel(R,i+1),p);
+    Flv_add_inplace(gel(R,i), Flc_Fl_mul(gel(R,r), U[i+2], p), p);
+  }
   return gerepileupto(ltop, Flm_to_FlxX(Flm_transpose(R),vp,vu));
 }
 
