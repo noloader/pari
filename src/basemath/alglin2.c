@@ -1755,7 +1755,7 @@ QM_minors_coprime(GEN x, GEN D)
       long lM = lg(M);
       if (lM==1) break;
 
-      M = FpM_center(M, p, pov2);
+      FpM_center_inplace(M, p, pov2);
       N = ZM_Z_divexact(ZM_mul(x,M), p);
       for (j=1; j<lM; j++)
       {
