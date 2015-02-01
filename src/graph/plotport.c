@@ -850,60 +850,47 @@ rectcopy_gen(long source, long dest, GEN xoff, GEN yoff, long flag)
   rectcopy(source, dest, xi, yi);
 }
 
+static void*
+cp(void* R, size_t t)
+{ void *o = pari_malloc(t); memcpy(o,R,t); return o; }
+
 void
-rectcopy(long source, long dest, long xoff, long yoff)
+rectcopy(long source, long dest, long x, long y)
 {
   PariRect *s = check_rect_init(source), *d = check_rect_init(dest);
-  RectObj *R = RHead(s);
-  RectObj *tail = RTail(d);
-  RectObj *next;
-  int i;
+  RectObj *R, *tail = RTail(d);
+  long i;
 
-  while (R)
+  for (R = RHead(s); R; R = RoNext(R))
   {
+    RectObj *o;
     switch(RoType(R))
     {
       case ROt_PT:
-        next = (RectObj*) pari_malloc(sizeof(RectObj1P));
-        memcpy(next,R,sizeof(RectObj1P));
-        RoPTx(next) += xoff; RoPTy(next) += yoff;
-        RoNext(tail) = next; tail = next;
+        o = (RectObj*)cp(R, sizeof(RectObj1P));
+        RoPTx(o) += x; RoPTy(o) += y;
         break;
       case ROt_LN: case ROt_BX:
-        next = (RectObj*) pari_malloc(sizeof(RectObj2P));
-        memcpy(next,R,sizeof(RectObj2P));
-        RoLNx1(next) += xoff; RoLNy1(next) += yoff;
-        RoLNx2(next) += xoff; RoLNy2(next) += yoff;
-        RoNext(tail) = next; tail = next;
+        o = (RectObj*)cp(R, sizeof(RectObj2P));
+        RoLNx1(o) += x; RoLNy1(o) += y;
+        RoLNx2(o) += x; RoLNy2(o) += y;
         break;
       case ROt_MP: case ROt_ML:
-        next = (RectObj*) pari_malloc(sizeof(RectObjMP));
-        memcpy(next,R,sizeof(RectObjMP));
-        RoMPxs(next) = (double*) pari_malloc(sizeof(double)*RoMPcnt(next));
-        RoMPys(next) = (double*) pari_malloc(sizeof(double)*RoMPcnt(next));
-        memcpy(RoMPxs(next),RoMPxs(R),sizeof(double)*RoMPcnt(next));
-        memcpy(RoMPys(next),RoMPys(R),sizeof(double)*RoMPcnt(next));
-        for (i=0; i<RoMPcnt(next); i++)
-        {
-          RoMPxs(next)[i] += xoff; RoMPys(next)[i] += yoff;
-         }
-        RoNext(tail) = next; tail = next;
+        o = (RectObj*)cp(R, sizeof(RectObjMP));
+        RoMPxs(o) = (double*)cp(RoMPxs(R), sizeof(double)*RoMPcnt(o));
+        RoMPys(o) = (double*)cp(RoMPys(R), sizeof(double)*RoMPcnt(o));
+        for (i=0; i<RoMPcnt(o); i++) { RoMPxs(o)[i] += x; RoMPys(o)[i] += y; }
         break;
       case ROt_ST:
-        next = (RectObj*) pari_malloc(sizeof(RectObjST));
-        memcpy(next,R,sizeof(RectObjST));
-        RoSTs(next) = (char*) pari_malloc(RoSTl(R)+1);
-        memcpy(RoSTs(next),RoSTs(R),RoSTl(R)+1);
-        RoSTx(next) += xoff; RoSTy(next) += yoff;
-        RoNext(tail) = next; tail = next;
+        o = (RectObj*)cp(R, sizeof(RectObjST));
+        RoSTs(o) = (char*)cp(RoSTs(R),RoSTl(R)+1);
+        RoSTx(o) += x; RoSTy(o) += y;
         break;
-      case ROt_PTT: case ROt_LNT: case ROt_PTS:
-        next = (RectObj*) pari_malloc(sizeof(RectObjPN));
-        memcpy(next,R,sizeof(RectObjPN));
-        RoNext(tail) = next; tail = next;
+      default: /* ROt_PTT, ROt_LNT, ROt_PTS */
+        o = (RectObj*)cp(R, sizeof(RectObjPN));
         break;
     }
-    R=RoNext(R);
+    RoNext(tail) = o; tail = o;
   }
   RoNext(tail) = NULL; RTail(d) = tail;
 }
