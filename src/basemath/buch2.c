@@ -523,10 +523,10 @@ cache_prime_dec(GRHcheck_t *S, ulong LIM, GEN nf)
     pr->dec = gclone(get_fs(nf, P, index, p));
     S->nprimes++;
     pr++;
+    avma = av;
     /* store up to nextprime(LIM) included */
     if (p >= LIM) { S->limp = p; break; }
   }
-  avma = av;
 }
 
 static double
