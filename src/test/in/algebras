@@ -1119,7 +1119,7 @@ print(#algsplittingdata(al)[3][1,] == 12);
 print(#algsplittingdata(al)[3][,1] == 2);
 print(al[3][3]*al[3][2][,1] == [1,0]~);
 print(al[3][3]*al[3][2][,2] == [0,1]~);
-polabs = al[6].pol;
+polabs = al[1][12][1].pol;
 for(i=1,10,\
 print(al[3][3]*algmul(al, al[3][2][,1], algpow(al,al[3][1],i)) == [Mod(x^i,polabs),0]~);\
 print(al[3][3]*algmul(al, al[3][2][,2], algpow(al,al[3][1],i)) == [0,Mod(x,polabs)^i]~)\
@@ -1127,7 +1127,7 @@ print(al[3][3]*algmul(al, al[3][2][,2], algpow(al,al[3][1],i)) == [0,Mod(x,polab
 print("hasse invariants:");
 print(alghassei(al) == 0);
 print(alghassef(al) == 0);
-print("csa splitting pol: ", poldegree(al[6].pol) == 6);
+print("csa splitting pol: ", poldegree(al[1][12][1].pol) == 6);
 print("csa ord: ", matsize(algord(al)) == [12,12]);
 print("csa invord: ", matsize(alginvord(al)) == [12,12]);
 print("csa absdim: ", #algmultable(al) == algabsdim(al));

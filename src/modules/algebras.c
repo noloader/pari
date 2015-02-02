@@ -212,10 +212,11 @@ alg_get_splitpol(GEN al)
 GEN
 alg_get_abssplitting(GEN al)
 {
-  long ta = alg_type(al);
+  long ta = alg_type(al), prec;
   if (ta != al_CYCLIC && ta != al_CSA)
     pari_err(e_MISC,"alg_get_abssplitting only possible for central simple algebras created with alginit");
-  return gel(al,6);
+  prec = nf_get_prec(alg_get_center(al));
+  return check_and_build_nfabs(alg_get_splitting(al), prec);
 }
 GEN
 alg_get_hasse_i(GEN al)
@@ -3008,7 +3009,7 @@ alg_complete0(GEN rnf, GEN aut, GEN hf, GEN hi, int maxord)
   hfe = gel(hf,2);
 
   auts = allauts(rnf,aut);
-  nf2 = nfinit(rnf_get_polabs(rnf), nf_get_prec(rnf_get_nf(rnf)));
+  nf2 = check_and_build_nfabs(rnf, nf_get_prec(rnf_get_nf(rnf)));
 
   pl = gcopy(hi); /* conditions on the final b */
   pl2 = gcopy(hi); /* conditions for computing local Hasse invariants */
@@ -3065,7 +3066,7 @@ alg_complete0(GEN rnf, GEN aut, GEN hf, GEN hi, int maxord)
   settyp(Lpr,t_VEC);
   hf = mkvec2(Lpr, shallowconcat(hfe, const_vecsmall(lg(Lpr)-lg(hfe), 0)));
   gel(al,5) = hf;
-  gel(al,6) = nf2;
+  gel(al,6) = gen_0;
   gel(al,7) = matid(D);
   gel(al,8) = matid(D); /* TODO modify 7, 8 et 9 once LLL added */
   gel(al,9) = algnatmultable(al,D);
@@ -3367,7 +3368,7 @@ alg_hasse(GEN nf, long n, GEN hf, GEN hi, long var, long maxord)
 
     pol = nfgrunwaldwang(nf,Lpr,Ld,pl,var);
     rnf = rnfinit(nf,pol);
-    nf2 = nfinit(rnf_get_polabs(rnf), nf_get_prec(nf));
+    nf2 = check_and_build_nfabs(rnf, nf_get_prec(nf));
 
     aut = rnfcycaut(rnf,nf2);
     al2 = alg_complete0(rnf,aut,hfl,hil,maxord);
@@ -3619,7 +3620,8 @@ alg_cyclic(GEN rnf, GEN aut, GEN b, int maxord)
   gel(al,1) = rnf;
   gel(al,2) = allauts(rnf, aut);
   gel(al,3) = basistoalg(nf,b);
-  gel(al,6) = nfinit(rnf_get_polabs(rnf), nf_get_prec(nf));
+  check_and_build_nfabs(rnf, nf_get_prec(nf));
+  gel(al,6) = gen_0;
   gel(al,7) = matid(D);
   gel(al,8) = matid(D); /* TODO modify 7, 8 et 9 once LLL added */
   gel(al,9) = algnatmultable(al,D);
@@ -3722,7 +3724,10 @@ computesplitting(GEN al, long d, long v)
   gel(al,1) = rnf = rnfinit(nf, pol);
   /* if (!gequal0(rnf_get_k(rnf)))                    NECESSARY ?? */
   /*  pari_err_BUG("computesplitting (k!=0)");                     */
-  gel(al,6) = nfinit(polabs, nf_get_prec(nf));
+  gel(al,6) = gen_0;
+  check_and_build_nfabs(rnf, nf_get_prec(nf));
+
+  //TODO check whether should change polabs and generator here !!!
 
   /* construct splitting data */
   Lbasis = cgetg(d+1, t_MAT);
