@@ -1351,6 +1351,128 @@ algsplittingfield(A).pol
 
 
 
+print("matrices over algebras");
+scal8(a) = vector(8,i,if(i==1,a,0))~;
+setrand(1);
+nf = nfinit(y^2-5);
+al = alginit(nf, [-1,-7]);
+M1 = [algrandom(al,2),algrandom(al,2);algrandom(al,2),algrandom(al,2)]
+M2 = [algrandom(al,2),algrandom(al,2);algrandom(al,2),algrandom(al,2)]
+print("mul alM: ", algmul(al,M1,M2));
+a = [1,2,3,4,5,6,7,8]~; M = Mat([0,0]); M[1,1] = a; M[1,2] = a;
+algmul(al, M, [a,a,a;a,a,a]);
+print("sqr alM: ", algsqr(al,M1) == algmul(al,M1,M1));
+print("divl alM: ", algmul(al,M1,algdivl(al,M1,M2)) == M2);
+print("divr alM: ", algmul(al,algdivr(al,M1,M2),M2) == M1);
+print("isinv alM: ", algisinv(al, M1));
+print("isinv alM 2: ", algisinv(al, M2));
+un = [1,0,0,0,0,0,0,0]~; zero = [0,0,0,0,0,0,0,0]~; id = [un,zero;zero,un];
+{print("inv alM: ", algmul(al,M1,alginv(al,M1)) == id &&
+ algmul(al,alginv(al,M1),M1) == id);}
+{print("inv alM 2: ", algmul(al,M2,alginv(al,M2)) == id &&
+ algmul(al,alginv(al,M2),M2) == id);}
+print("neg alM: ", algneg(al,M1) == -M1);
+print("sub alM: ", algsub(al,M1,M2) == M1-M2);
+print("add alM: ", algadd(al,M1,M2) == M1+M2);
+print("algtobasis basistoalg alM 1: ", algalgtobasis(al, algbasistoalg(al, M1)) ==
+ M1);
+print("algtobasis basistoalg alM 2: ", algalgtobasis(al, algbasistoalg(al, M2)) ==
+ M2);
+print("algmultable add alM: ", algmultable(al, M1)+algmultable(al,M2) ==
+ algmultable(al, algadd(al, M1, M2)));
+print("algmultable mul alM: ", algmultable(al, M1)*algmultable(al,M2) ==
+ algmultable(al, algmul(al, M1, M2)));
+{print("algmultable sqr alM: ", algmultable(al, M1)^2 == algmultable(al,
+ algsqr(al, M1)));}
+print("algsplitm add alM: ", algsplittingmatrix(al, M1)+algsplittingmatrix(al,M2) ==
+ algsplittingmatrix(al, algadd(al, M1, M2)));
+print("algsplitm mul alM: ", algsplittingmatrix(al, M1)*algsplittingmatrix(al,M2) ==
+ algsplittingmatrix(al, algmul(al, M1, M2)));
+print("algsplitm sqr alM: ", algsplittingmatrix(al, M1)^2 ==
+ algsplittingmatrix(al, algsqr(al, M1)));
+print("algsplitm sqr alM 2: ", algsplittingmatrix(al, M2)^2 ==
+ algsplittingmatrix(al, algsqr(al, M2)));
+{print("algtrace alM: ", algtrace(al,M1) == algtrace(al,M1[1,1]) +
+ algtrace(al,M1[2,2]));}
+{print("algtrace alM 2: ", algtrace(al,M2) == algtrace(al,M2[1,1]) +
+ algtrace(al,M2[2,2]));}
+{print("algtrace prod alM: ", algtrace(al, algmul(al,M1,M2)) == algtrace(al,
+algmul(al,M2,M1)));}
+{print("algnorm alM: ", algnorm(al,algmul(al,M1,M2)) == algnorm(al,M1) *
+ algnorm(al,M2));}
+{print("algnorm alM 2: ", algnorm(al,algmul(al,M2,M1)) == algnorm(al,M1) *
+ algnorm(al,M2));}
+{print("algcharpoly alM: ", poldegree(algcharpoly(al,M1))==4 &&
+ polcoeff(algcharpoly(al,M1),3) == -algtrace(al,M1) &&
+ polcoeff(algcharpoly(al,M1),0) == algnorm(al,M1));}
+{print("algcharpoly alM 2: ", poldegree(algcharpoly(al,M2))==4 &&
+ polcoeff(algcharpoly(al,M2),3) == -algtrace(al,M2) &&
+ polcoeff(algcharpoly(al,M2),0) == algnorm(al,M2));}
+m = 15; n = -8;
+{print("pow alM: ", algmul(al, algpow(al,M1,m), algpow(al,M1,n)) ==
+ algpow(al,M1,m+n));}
+{print("pow alM 2: ", algmul(al, algpow(al,M2,m), algpow(al,M2,n)) ==
+ algpow(al,M2,m+n));}
+print("pow 0 alM: ", algpow(al,M1,0) == id);
+algbasistoalg(al,M1)
+algbasistoalg(al,M2)
+m1 = [1,2;3,4];
+m2 = [5,6;7,8];
+M1 = apply(scal8,m1);
+M2 = apply(scal8,m2);
+print("mul scalar alM: ", algmul(al,M1,M2) == apply(scal8,m1*m2));
+
+m_i=[0,-1,0,0;1,0,0,0;0,0,0,-1;0,0,1,0];
+m_j=[0,0,-1,0;0,0,0,1;1,0,0,0;0,-1,0,0];
+m_k=[0,0,0,-1;0,0,-1,0;0,1,0,0;1,0,0,0];
+mt = [matid(4), m_i, m_j, m_k];
+al = algtableinit(mt);
+M1 = [algrandom(al,2),algrandom(al,2);algrandom(al,2),algrandom(al,2)]
+M2 = [algrandom(al,2),algrandom(al,2);algrandom(al,2),algrandom(al,2)]
+print("mul alM t: ", algmul(al,M1,M2));
+print("sqr alM t: ", algsqr(al,M1) == algmul(al,M1,M1));
+print("divl alM t: ", algmul(al,M1,algdivl(al,M1,M2)) == M2);
+print("divr alM t: ", algmul(al,algdivr(al,M1,M2),M2) == M1);
+print("isinv alM t: ", algisinv(al, M1));
+print("isinv alM t 2: ", algisinv(al, M2));
+un = [1,0,0,0]~; zero = [0,0,0,0]~; id = [un,zero;zero,un];
+{print("inv alM t: ", algmul(al,M1,alginv(al,M1)) == id &&
+ algmul(al,alginv(al,M1),M1) == id);}
+{print("inv alM t 2: ", algmul(al,M2,alginv(al,M2)) == id &&
+ algmul(al,alginv(al,M2),M2) == id);}
+print("neg alM t: ", algneg(al,M1) == -M1);
+print("sub alM t: ", algsub(al,M1,M2) == M1-M2);
+print("add alM t: ", algadd(al,M1,M2) == M1+M2);
+print("algmultable add alM t: ", algmultable(al,M1) + algmultable(al,M2) ==
+ algmultable(al, algadd(al,M1,M2)));
+print("algmultable mul alM t: ", algmultable(al,M1) * algmultable(al,M2) ==
+ algmultable(al, algmul(al,M1,M2)));
+{print("algmultable sqr alM t: ", algmultable(al, M1)^2 == algmultable(al,
+ algsqr(al, M1)));}
+{print("algtrace alM t: ", algtrace(al,M1) == 2*(algtrace(al,M1[1,1]) +
+ algtrace(al,M1[2,2])));}
+{print("algtrace alM t 2: ", algtrace(al,M2) == 2*(algtrace(al,M2[1,1]) +
+ algtrace(al,M2[2,2])));}
+{print("algtrace prod alM t: ", algtrace(al, algmul(al,M1,M2)) == algtrace(al,
+algmul(al,M2,M1)));}
+{print("algnorm alM t: ", algnorm(al,algmul(al,M1,M2)) == algnorm(al,M1) *
+ algnorm(al,M2));}
+{print("algnorm alM t 2: ", algnorm(al,algmul(al,M2,M1)) == algnorm(al,M1) *
+ algnorm(al,M2));}
+{print("algcharpoly alM t: ", poldegree(algcharpoly(al,M1))==16 &&
+ polcoeff(algcharpoly(al,M1),15) == -algtrace(al,M1) &&
+ polcoeff(algcharpoly(al,M1),0) == algnorm(al,M1));}
+{print("algcharpoly alM t 2: ", poldegree(algcharpoly(al,M2))==16 &&
+ polcoeff(algcharpoly(al,M2),15) == -algtrace(al,M2) &&
+ polcoeff(algcharpoly(al,M2),0) == algnorm(al,M2));}
+m = 32; n = -63;
+{print("pow alM t: ", algmul(al, algpow(al,M1,m), algpow(al,M1,n)) ==
+ algpow(al,M1,m+n));}
+{print("pow alM 2 t: ", algmul(al, algpow(al,M2,m), algpow(al,M2,n)) ==
+ algpow(al,M2,m+n));}
+print("pow 0 alM t: ", algpow(al,M2,0) == id);
+
+
 
 T = y^3-y+1;
 nf = nfinit(T);
@@ -1404,6 +1526,25 @@ algnorm(al,c)
 algiscommutative(al)
 algissemisimple(al)
 algissimple(al)
+
+print("empty matrices");
+al = alginit(nfinit(y), [-1,-1]);
+print("-v: ", algneg(al,[;]) == [;]);
+print("v^(-1): ", alginv(al,[;]) == [;]);
+print("v^n: ", algpow(al, [;], 13) == [;]);
+print("v^0: ", algpow(al, [;], 0) == [;]);
+print("mt(v)", algmultable(al, [;]) == [;]);
+print("spl(v)", algsplittingmatrix(al, [;]) == [;]);
+print("trace(v): ", algtrace(al, [;]) == 0);
+print("norm(v): ", algnorm(al, [;]) == 1);
+print("charpoly(v): ", algcharpoly(al, [;]) == 1 && type(algcharpoly(al,[;])) == "t_POL");
+print("v+v: ", algadd(al,[;],[;]) == [;]);
+print("v-v: ", algsub(al,[;],[;]) == [;]);
+print("v*v: ", algmul(al,[;],[;]) == [;]);
+print("v/v: ", algdivr(al,[;],[;]) == [;]);
+print("v\\v: ", algdivl(al,[;],[;]) == [;]);
+
+
 
 \\al = alginit(nfinit(y), [Mat(1)]) TODO add this test when bug fixed
 
@@ -1463,6 +1604,24 @@ algsplittingmatrix(almt,[0,0,0,0]~)
 algalgtobasis(almt,a)
 algbasistoalg(almt,[0,0,0,0]~)
 algpoleval(almt,1,a)
+zero = [0,0,0,0]~; m = Mat([1,1]); m[1,1]=zero; m[1,2]=zero;
+algadd(almt, [zero;zero], m)
+algadd(almt, [zero;zero;zero], [zero;zero]);
+algsub(almt, [zero;zero], m)
+algsub(almt, [zero;zero;zero], [zero;zero]);
+algmul(almt, m, [zero;zero;zero]);
+algsqr(almt, [zero;zero]);
+algdivl(almt, m, zero);
+algdivl(almt, m, [zero,zero;zero,zero]);
+algdivl(almt, m, m);
+alginv(almt, m);
+algmultable(almt, m);
+algpow(almt, m, 3);
+algtrace(almt, m);
+algcharpoly(almt, m);
+algcharpoly(alginit(nfinit(y),[-1,-1]), m);
+algnorm(almt, m);
+algnorm(alginit(nfinit(y),[-1,-1]), m);
 alginit(nfinit(y),[2,[[],[]],[x]])
 alginit(nfinit(y),[2,[],[1,1]])
 alginit(nfinit(y),[2,[[],[]],Vecsmall([1])])

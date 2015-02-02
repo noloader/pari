@@ -4,4 +4,5 @@ C-Name: algdivr
 Prototype: GGG
 Help: algdivr(al,x,y): element x/y in al.
 Doc: Given two elements $x$ and $y$ in \var{al}, computes their right quotient
- $x/y$ in the algebra \var{al}. Assumes that $y$ is invertible.
+ $x/y$ in the algebra \var{al}. Assumes that $y$ is invertible. Also accepts
+ matrices with coefficients in \var{al}.

@@ -10,3 +10,5 @@ Doc: Given two elements $x$ and $y$ in \var{al}, computes their product $x*y$
  ? algmul(A,[1,1,0,0]~,[0,0,2,1]~)
  %2 = [2, 3, 5, -4]~
  @eprog
+
+ Also accepts matrices with coefficients in \var{al}.

@@ -17,3 +17,5 @@ Doc: Given an element $b$ in \var{al}, returns its characteristic polynomial
  ? algcharpoly(al, [0,1]~)
  %2 = x^2 + 1
  @eprog
+
+ Also accepts a square matrix with coefficients in \var{al}.

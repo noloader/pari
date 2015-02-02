@@ -15,3 +15,5 @@ Doc: A central simple algebra \var{al} output by \tet{alginit} contains data
 
  [Mod(x + 1, x^2 + 1)                   Mod(-x + 1, x^2 + 1)]
  @eprog
+
+ Also accepts matrices with coefficients in \var{al}.

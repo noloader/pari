@@ -10,3 +10,5 @@ Doc: Given two elements $x$ and $y$ in \var{al}, computes their sum $x+y$ in
  ? algadd(A,[1,0]~,[1,2]~)
  %2 = [2, 2]~
  @eprog
+
+ Also accepts matrices with coefficients in \var{al}.

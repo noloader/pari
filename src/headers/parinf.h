@@ -41,7 +41,8 @@ enum {
   al_INVALID = 0,
   al_TRIVIAL,
   al_ALGEBRAIC,
-  al_BASIS
+  al_BASIS,
+  al_MATRIX
 };
 
 /* idealtyp */
