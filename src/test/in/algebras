@@ -2,7 +2,11 @@ J = varhigher("J",y);
 default(realprecision,38);
 default(parisize,40M);
 Q=nfinit(y); T=polcyclo(5, 'x); F=rnfinit(Q, T);
-A = alginit(F, [Mod(x^2,T), 3])
+A = alginit(F, [Mod(x^2,T), 3]);
+print("contains nfabs: ", algsplittingfield(A)[12][1] != 0);
+A[1][12][1] = 0;
+A
+
 
 do(name, test) = {
  setrand(1);
@@ -1479,12 +1483,14 @@ nf = nfinit(T);
 print("csa al2");
 setrand(1);
 al2 = alginit(nf, matrixringmt(2), 'x);
-al2[6]=0;\\ depends on 32/64bit
-print(al2);
+print("al2 contains nfabs: ", algsplittingfield(al2)[12][1] != 0);
+al2b = al2; al2b[1][12][1] = 0; \\ depends on 32/64bit
+print(al2b);
 print("csa al3");
 al3 = alginit(nf, matrixringmt(3), 'x);
-al3[6]=0;\\ depends on 32/64bit
-print(al3);
+print("al3 contains nfabs: ", algsplittingfield(al3)[12][1] != 0);
+al3b = al3; al3b[1][12][1] = 0; \\ depends on 32/64bit
+print(al3b);
 
 \\limit cases
 print("trivial algebra over a quadratic field");
