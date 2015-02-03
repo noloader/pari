@@ -1070,6 +1070,88 @@ algissimple(GEN al, long ss)
   return gequal0(dec);
 }
 
+static int
+is_place_prid_i(GEN nf, GEN pl, GEN* pr, long* emb)
+{
+  long r1 = nf_get_r1(nf), r2 = nf_get_r2(nf);
+  *pr = get_prid(pl);
+  if (*pr) return 1;
+  if (typ(pl) != t_INT) return -1;
+  if (signe(pl)<=0) return -2;
+  if (cmpis(pl,r1+r2)>0) return -3;
+  *emb = itos(pl);
+  return 0;
+}
+
+/* if pl is a prime ideal, sets pr to this prime */
+/* if pl is an integer between 1 and r1+r2 sets emb to this integer */
+static int
+is_place_prid(GEN nf, GEN pl, GEN* pr, long* emb)
+{
+  int res = is_place_prid_i(nf, pl, pr, emb);
+  if (res == -1) pari_err_TYPE("is_place_prid", pl);
+  if (res == -2) pari_err_DOMAIN("is_place_prid", "pl", "<=", gen_0, pl);
+  if (res == -3) pari_err_DOMAIN("is_place_prid", "pl", ">", stoi(nf_get_r1(nf)+nf_get_r2(nf)), pl);
+  return res;
+}
+
+/* is there any reason for the primes of hassef not to be sorted ? */
+static long
+linear_prime_search(GEN L, GEN pr)
+{
+  long i;
+  for(i=1; i<lg(L); i++)
+    if(!cmp_prime_ideal(gel(L,i),pr)) return i;
+  return 0;
+}
+
+static long
+alghasse_emb(GEN al, long emb)
+{
+  GEN nf;
+  long r1;
+  nf = alg_get_center(al);
+  r1 = nf_get_r1(nf);
+  if (emb <= r1)    return alg_get_hasse_i(al)[emb];
+  else              return 0;
+}
+
+static long
+alghasse_pr(GEN al, GEN pr)
+{
+  long i;
+  GEN hf, L;
+  hf = alg_get_hasse_f(al);
+  L = gel(hf,1);
+  i = linear_prime_search(L,pr);
+  if (i) return gel(hf,2)[i];
+  else   return 0;
+}
+
+static long
+alghasse_0(GEN al, GEN pl)
+{
+  long ta, emb, ispr, h;
+  GEN pr, nf;
+  checkalg(al);
+  ta = alg_type(al);
+  if (ta == al_CSA) pari_err_IMPL("computation of Hasse invariants over table CSA");
+  nf = alg_get_center(al);
+  ispr = is_place_prid(nf, pl, &pr, &emb);
+  if (ispr) h = alghasse_pr(al, pr);
+  else      h = alghasse_emb(al, emb);
+  return h;
+}
+
+GEN
+alghasse(GEN al, GEN pl)
+{
+  pari_sp av = avma;
+  long h = alghasse_0(al,pl), d;
+  d = alg_get_degree(al);
+  return gerepilecopy(av, gdivgs(stoi(h),d));
+}
+
 /** OPERATIONS ON ELEMENTS operations.c **/
 
 static long
@@ -2643,7 +2725,7 @@ nfgrunwaldwang(GEN nf0, GEN Lpr, GEN Ld, GEN pl, long var)
   }
 }
 
-/** HASSE INVARIANT **/
+/** HASSE INVARIANTS **/
 
 /*TODO long -> ulong + uel */
 static GEN

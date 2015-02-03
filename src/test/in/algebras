@@ -1,6 +1,6 @@
 J = varhigher("J",y);
 default(realprecision,38);
-default(parisize,40M);
+default(parisize,100M);
 Q=nfinit(y); T=polcyclo(5, 'x); F=rnfinit(Q, T);
 A = alginit(F, [Mod(x^2,T), 3]);
 print("contains nfabs: ", algsplittingfield(A)[12][1] != 0);
@@ -1131,6 +1131,7 @@ print(al[3][3]*algmul(al, al[3][2][,2], algpow(al,al[3][1],i)) == [0,Mod(x,polab
 print("hasse invariants:");
 print(alghassei(al) == 0);
 print(alghassef(al) == 0);
+print(alghasse(al,1) == 0);
 print("csa splitting pol: ", poldegree(al[1][12][1].pol) == 6);
 print("csa ord: ", matsize(algord(al)) == [12,12]);
 print("csa invord: ", matsize(alginvord(al)) == [12,12]);
@@ -1297,6 +1298,11 @@ A = alginit(nf, [-1,2*y-1]);
 alghassef(A)
 A = alginit(nf, [-1,y]);
 alghassei(A)
+alghasse(A, 1)
+alghasse(A, 2)
+alghasse(A, idealprimedec(nf,2)[1])
+alghasse(A, idealprimedec(nf,5)[1])
+
 
 A = alginit(nfinit(y), [-1,-1]);
 alginvord(A)
@@ -1640,6 +1646,11 @@ al = alginit(nfinit(y^2-2),[-1,-1]); algrandom(al,-10)
 al = alginit(nfinit(y^2-2),[-1,-1]);
 algrelmultable(al);
 algsplittingdata(al);
+alghasse(al, -1);
+alghasse(al, 3);
+alghasse(al, 2^100);
+alghasse(al, []);
+alghasse(al, 1/3);
 algtableinit([matid(2), [0,1/2;1,0]]);
 Q = nfinit(y);
 alginit(Q, [matid(2), [0,1/2;1,0]]);
@@ -1658,3 +1669,17 @@ algsqr(A,1)
 algdivl(A,1,1)
 algdivr(A,1,1)
 alginv(A,1)
+
+
+\\better accessor for hasse invariants
+setrand(1);
+x='x;
+nf = nfinit(y^3-y+1);
+rnf = rnfinit(nf, polcyclo(5,x));
+al = alginit(rnf, [x^2,-2]);
+alghasse(al,1)
+alghasse(al,2)
+alghasse(al,idealprimedec(nf,2)[1])
+alghasse(al,idealprimedec(nf,3)[1])
+alghasse(al,idealprimedec(nf,5)[1])
+alghasse(al,idealprimedec(nf,5)[2])

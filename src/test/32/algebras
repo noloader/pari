@@ -1,4 +1,4 @@
-  ***   Warning: new stack size = 40000000 (38.147 Mbytes).
+  ***   Warning: new stack size = 100000000 (95.367 Mbytes).
 contains nfabs: 1
 [[x^4 + x^3 + x^2 + x + 1, [[1], 1], [Mat(125), 5], 1, [], [], [[1, x, x^2, 
 x^3], [1, 1, 1, 1]], [1, 0, 0, 0; 0, 1, 0, 0; 0, 0, 1, 0; 0, 0, 0, 1], 1, [y
@@ -1042,6 +1042,9 @@ hasse invariants:
   ***   at top-level: print(alghassef(al)==0)
   ***                       ^-----------------
   *** alghassef: sorry, computation of Hasse invariants over table CSA is not yet implemented.
+  ***   at top-level: print(alghasse(al,1)==0)
+  ***                       ^------------------
+  *** alghasse: sorry, computation of Hasse invariants over table CSA is not yet implemented.
 csa splitting pol: 1
 csa ord: 1
 csa invord: 1
@@ -1140,6 +1143,10 @@ Mod(-77, y)
 [[[19, [10, 2]~, 1, 1, [-8, 2; 2, -10]], [2, [2, 0]~, 1, 2, 1]], Vecsmall([1
 , 0])]
 Vecsmall([1, 0])
+1/2
+0
+1/2
+0
 
 [1 0 0 -1]
 
@@ -2748,6 +2755,21 @@ x - 12
   ***   at top-level: algsplittingdata(al)
   ***                 ^--------------------
   *** algsplittingdata: alg_get_splittingdata only possible for central simple algebras given by multiplication table.
+  ***   at top-level: alghasse(al,-1)
+  ***                 ^---------------
+  *** alghasse: domain error in is_place_prid: pl <= 0
+  ***   at top-level: alghasse(al,3)
+  ***                 ^--------------
+  *** alghasse: domain error in is_place_prid: pl > 2
+  ***   at top-level: alghasse(al,2^100)
+  ***                 ^------------------
+  *** alghasse: domain error in is_place_prid: pl > 2
+  ***   at top-level: alghasse(al,[])
+  ***                 ^---------------
+  *** alghasse: incorrect type in is_place_prid (t_VEC).
+  ***   at top-level: alghasse(al,1/3)
+  ***                 ^----------------
+  *** alghasse: incorrect type in is_place_prid (t_FRAC).
   ***   at top-level: algtableinit([matid(
   ***                 ^--------------------
   *** algtableinit: mt0=[[1, 0; 0, 1], [0, 1/2; 1, 0]] should be integral in algtableinit.
@@ -2790,4 +2812,10 @@ x - 12
   ***   at top-level: alginv(A,1)
   ***                 ^-----------
   *** alginv: incorrect type in alg_model (t_INT).
-Total time spent: 3552
+1/2
+0
+3/4
+0
+1/4
+1/2
+Total time spent: 5431
