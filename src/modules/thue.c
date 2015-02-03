@@ -1604,7 +1604,7 @@ bnfisintnorm_i(GEN bnf, GEN a, long sa, GEN z)
   GEN Tp, A = signe(a) == sa? a: negi(a);
   long sNx, i, j, N = degpol(T), l = lg(z);
   long norm_1 = 0; /* gcc -Wall */
-  ulong p, Ap;
+  ulong p, Ap = 0; /* gcc -Wall */
   forprime_t S;
   if (!signe(a)) return z;
   u_forprime_init(&S,3,ULONG_MAX);
