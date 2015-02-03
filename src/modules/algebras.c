@@ -1389,8 +1389,8 @@ alMrow_alC_mul_i(GEN al, GEN x, GEN y, long i, long lx)
 {
   pari_sp av = avma;
   GEN c = algmul(al,gcoeff(x,i,1),gel(y,1)), ZERO;
-  ZERO = zerocol(alg_get_absdim(al));
   long k;
+  ZERO = zerocol(alg_get_absdim(al));
   for (k = 2; k < lx; k++)
   {
     GEN t = algmul(al, gcoeff(x,i,k), gel(y,k));
