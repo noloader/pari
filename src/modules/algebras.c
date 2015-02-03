@@ -1136,6 +1136,8 @@ alghasse_0(GEN al, GEN pl)
   checkalg(al);
   ta = alg_type(al);
   if (ta == al_CSA) pari_err_IMPL("computation of Hasse invariants over table CSA");
+  if (ta == al_TABLE)
+    pari_err(e_MISC,"alghasse_0 only possible for central simple algebras created with alginit");
   nf = alg_get_center(al);
   ispr = is_place_prid(nf, pl, &pr, &emb);
   if (ispr) h = alghasse_pr(al, pr);
@@ -1150,6 +1152,41 @@ alghasse(GEN al, GEN pl)
   long h = alghasse_0(al,pl), d;
   d = alg_get_degree(al);
   return gerepilecopy(av, gdivgs(stoi(h),d));
+}
+
+static long
+indexfromhasse(long h, long d) { return d/cgcd(h,d); }
+
+long
+algindex(GEN al, GEN pl)
+{
+  pari_sp av = avma;
+  long h, d, res, i, r1;
+  GEN hi, hf, L;
+
+  if (alg_type(al) == al_TABLE)
+    pari_err(e_MISC,"algindex only possible for central simple algebras created with alginit");
+  d = alg_get_degree(al);
+
+  if (pl) {
+    h = alghasse_0(al,pl);
+    avma = av;
+    return indexfromhasse(h,d);
+  }
+
+  /* else : global index */
+  res = 1;
+  r1 = nf_get_r1(alg_get_center(al));
+  hi = alg_get_hasse_i(al);
+  for(i=1; i<=r1 && res!=d; i++)
+    res = clcm(res, indexfromhasse(hi[i],d));
+  hf = alg_get_hasse_f(al);
+  L = gel(hf,1);
+  hf = gel(hf,2);
+  for(i=1; i<lg(L) && res!=d; i++)
+    res = clcm(res, indexfromhasse(hf[i],d));
+  avma = av;
+  return res;
 }
 
 /** OPERATIONS ON ELEMENTS operations.c **/

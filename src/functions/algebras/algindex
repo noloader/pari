@@ -1,0 +1,24 @@
+Function: algindex
+Section: algebras
+C-Name: algindex
+Prototype: lGDG
+Help: algindex(al,{pl}): the index of the central simple algebra al at
+ the place pl, or globally if pl is not set.
+Doc: Given a central simple algebra \var{al} output by \tet{alginit} and a prime
+ ideal or an integer between $1$ and $r_1+r_2$, returns an integer $e$ : the
+ local index of \var{al} at the place specified by \var{pl}. If \var{pl} is not
+ set, returns the (global) index of \var{al}.
+ \bprog
+ ? nf = nfinit(y^2-5);
+ ? A = alginit(nf, [-1,y]);
+ ? algindex(A, 1)
+ %3 = 2
+ ? algindex(A, 2)
+ %4 = 1
+ ? algindex(A, idealprimedec(nf,2)[1])
+ %5 = 2
+ ? algindex(A, idealprimedec(nf,5)[1])
+ %6 = 1
+ ? algindex(A)
+ %7 = 2
+ @eprog

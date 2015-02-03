@@ -1147,6 +1147,11 @@ Vecsmall([1, 0])
 0
 1/2
 0
+2
+1
+2
+1
+2
 
 [1 0 0 -1]
 
@@ -2755,6 +2760,12 @@ x - 12
   ***   at top-level: algsplittingdata(al)
   ***                 ^--------------------
   *** algsplittingdata: alg_get_splittingdata only possible for central simple algebras given by multiplication table.
+  ***   at top-level: alghasse(almt,1)
+  ***                 ^----------------
+  *** alghasse: alghasse_0 only possible for central simple algebras created with alginit.
+  ***   at top-level: algindex(almt,1)
+  ***                 ^----------------
+  *** algindex: algindex only possible for central simple algebras created with alginit.
   ***   at top-level: alghasse(al,-1)
   ***                 ^---------------
   *** alghasse: domain error in is_place_prid: pl <= 0
@@ -2818,4 +2829,31 @@ x - 12
 0
 1/4
 1/2
-Total time spent: 5431
+2
+1
+4
+1
+4
+2
+4
+1/2
+0
+0
+1/2
+0
+2
+1
+1
+2
+1
+2
+0
+0
+0
+0
+1
+1
+1
+1
+1
+Total time spent: 8005

@@ -1145,6 +1145,7 @@ GEN algdivl(GEN al, GEN x, GEN y);
 GEN algdivr(GEN al, GEN x, GEN y);
 GEN alghasse(GEN al, GEN pl);
 GEN alginit(GEN A, GEN B, long v, long flag);
+long algindex(GEN al, GEN pl);
 GEN alginv(GEN al, GEN x);
 int algisassociative(GEN mt0, GEN p);
 int algiscommutative(GEN al);

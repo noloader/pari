@@ -1302,6 +1302,11 @@ alghasse(A, 1)
 alghasse(A, 2)
 alghasse(A, idealprimedec(nf,2)[1])
 alghasse(A, idealprimedec(nf,5)[1])
+algindex(A, 1)
+algindex(A, 2)
+algindex(A, idealprimedec(nf,2)[1])
+algindex(A, idealprimedec(nf,5)[1])
+algindex(A)
 
 
 A = alginit(nfinit(y), [-1,-1]);
@@ -1646,6 +1651,8 @@ al = alginit(nfinit(y^2-2),[-1,-1]); algrandom(al,-10)
 al = alginit(nfinit(y^2-2),[-1,-1]);
 algrelmultable(al);
 algsplittingdata(al);
+alghasse(almt, 1);
+algindex(almt, 1);
 alghasse(al, -1);
 alghasse(al, 3);
 alghasse(al, 2^100);
@@ -1671,7 +1678,7 @@ algdivr(A,1,1)
 alginv(A,1)
 
 
-\\better accessor for hasse invariants
+\\better accessors for hasse invariants
 setrand(1);
 x='x;
 nf = nfinit(y^3-y+1);
@@ -1683,3 +1690,37 @@ alghasse(al,idealprimedec(nf,2)[1])
 alghasse(al,idealprimedec(nf,3)[1])
 alghasse(al,idealprimedec(nf,5)[1])
 alghasse(al,idealprimedec(nf,5)[2])
+algindex(al,1)
+algindex(al,2)
+algindex(al,idealprimedec(nf,2)[1])
+algindex(al,idealprimedec(nf,3)[1])
+algindex(al,idealprimedec(nf,5)[1])
+algindex(al,idealprimedec(nf,5)[2])
+algindex(al)
+
+al = 0;
+al = alginit(rnf, [x^2,-1]);
+alghasse(al,1)
+alghasse(al,2)
+alghasse(al,idealprimedec(nf,2)[1])
+alghasse(al,idealprimedec(nf,5)[1])
+alghasse(al,idealprimedec(nf,5)[2])
+algindex(al,1)
+algindex(al,2)
+algindex(al,idealprimedec(nf,2)[1])
+algindex(al,idealprimedec(nf,5)[1])
+algindex(al,idealprimedec(nf,5)[2])
+algindex(al)
+
+al = 0;
+al = alginit(rnf, [x^2, 1]);
+alghasse(al,1)
+alghasse(al,2)
+alghasse(al,idealprimedec(nf,2)[1])
+alghasse(al,idealprimedec(nf,5)[2])
+algindex(al,1)
+algindex(al,2)
+algindex(al,idealprimedec(nf,2)[1])
+algindex(al,idealprimedec(nf,5)[2])
+algindex(al)
+
