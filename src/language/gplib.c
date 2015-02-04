@@ -1079,7 +1079,6 @@ update_logfile(const char *prompt, const char *s)
   pari_sp av;
   const char *p;
   if (!pari_logfile) return;
-  if (!is_interactive() && !GP_DATA->echo) return;
   av = avma;
   p = strip_prompt(prompt); /* raw prompt */
 
@@ -1104,7 +1103,9 @@ update_logfile(const char *prompt, const char *s)
 void
 gp_echo_and_log(const char *prompt, const char *s)
 {
-  if (GP_DATA->echo && !is_interactive()) {
+  if (!is_interactive())
+  {
+    if (!GP_DATA->echo) return;
     /* not pari_puts(): would duplicate in logfile */
     fputs(prompt, pari_outfile);
     fputs(s,      pari_outfile);
