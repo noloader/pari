@@ -2742,19 +2742,19 @@ x - 12
   *** alghasse: incorrect type in is_place_prid (t_FRAC).
   ***   at top-level: algtableinit([matid(
   ***                 ^--------------------
-  *** algtableinit: mt0=[[1, 0; 0, 1], [0, 1/2; 1, 0]] should be integral in algtableinit.
+  *** algtableinit: domain error in algtableinit: denominator(mt) != 1
   ***   at top-level: alginit(Q,[matid(2),
   ***                 ^--------------------
-  *** alginit: mt=[[1, 0; 0, 1], [0, 1/2; 1, 0]] should be integral in alg_csa_table.
+  *** alginit: domain error in alg_csa_table: denominator(mt) != 1
   ***   at top-level: alginit(Q,[-1/2,-1])
   ***                 ^--------------------
-  *** alginit: a=-1/2 should be integral in alg_hilbert.
+  *** alginit: domain error in alg_hilbert: denominator(a) != 1
   ***   at top-level: alginit(Q,[-1,-1/2])
   ***                 ^--------------------
-  *** alginit: b=-1/2 should be integral in alg_hilbert.
+  *** alginit: domain error in alg_hilbert: denominator(b) != 1
   ***   at top-level: alginit(rnfinit(Q,x^
   ***                 ^--------------------
-  *** alginit: b=-1/2 should be integral in alg_cyclic.
+  *** alginit: domain error in alg_cyclic: denominator(b) != 1
   ***   at top-level: algdegree(A)
   ***                 ^------------
   *** algdegree: incorrect type in algdegree (t_VEC).
@@ -2833,4 +2833,4 @@ x - 12
 0
 0
 0
-Total time spent: 11485
+Total time spent: 11449
