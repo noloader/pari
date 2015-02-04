@@ -265,16 +265,11 @@ FpX_quad_root(GEN x, GEN p, int unknown)
   s = Fp_sqrt(D,p);
   /* p is not prime, go on and give e.g. maxord a chance to recover */
   if (!s) return NULL;
-  return Fp_halve(subii(s,b), p);
+  return Fp_halve(Fp_sub(s,b, p), p);
 }
 static GEN
 FpX_otherroot(GEN x, GEN r, GEN p)
-{
-  GEN s = addii(gel(x,3), r);
-  if (!signe(s)) return s;
-  s = subii(p, s); if (signe(s) < 0) s = addii(s,p);
-  return s;
-}
+{ return Fp_neg(Fp_add(gel(x,3), r, p), p); }
 
 /* disc(x^2+bx+c) = b^2 - 4c */
 static ulong
