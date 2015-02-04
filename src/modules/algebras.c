@@ -95,14 +95,14 @@ GEN
 alg_get_auts(GEN al)
 {
   if (alg_type(al) != al_CYCLIC)
-    pari_err(e_MISC,"alg_get_auts only possible for cyclic algebras");
+    pari_err_TYPE("alg_get_auts [non-cyclic algebra]", al);
   return gel(al,2);
 }
 GEN
 alg_get_aut(GEN al)
 {
   if (alg_type(al) != al_CYCLIC)
-    pari_err(e_MISC,"alg_get_aut only possible for cyclic algebras");
+    pari_err_TYPE("alg_get_aut [non-cyclic algebra]", al);
   return gel(alg_get_auts(al),1);
 }
 GEN
@@ -111,7 +111,7 @@ GEN
 alg_get_b(GEN al)
 {
   if (alg_type(al) != al_CYCLIC)
-    pari_err(e_MISC,"alg_get_b only possible for cyclic algebras");
+    pari_err_TYPE("alg_get_b [non-cyclic algebra]", al);
   return gel(al,3);
 }
 GEN
@@ -122,7 +122,7 @@ GEN
 alg_get_relmultable(GEN al)
 {
   if (alg_type(al) != al_CSA)
-    pari_err(e_MISC,"alg_get_relmultable only possible for central simple algebras given by multiplication table");
+    pari_err_TYPE("alg_get_relmultable [algebra not given via mult. table]", al);
   return gel(al,2);
 }
 GEN
@@ -131,7 +131,7 @@ GEN
 alg_get_splittingdata(GEN al)
 {
   if (alg_type(al) != al_CSA)
-    pari_err(e_MISC,"alg_get_splittingdata only possible for central simple algebras given by multiplication table");
+    pari_err_TYPE("alg_get_splittingdata [algebra not given via mult. table]",al);
   return gel(al,3);
 }
 GEN
@@ -140,14 +140,14 @@ GEN
 alg_get_splittingbasis(GEN al)
 {
   if (alg_type(al) != al_CSA)
-    pari_err(e_MISC,"alg_get_splittingbasis only possible for central simple algebras given by multiplication table");
+    pari_err_TYPE("alg_get_splittingbasis [algebra not given via mult. table]",al);
   return gmael(al,3,2);
 }
 GEN
 alg_get_splittingbasisinv(GEN al)
 {
   if (alg_type(al) != al_CSA)
-    pari_err(e_MISC,"alg_get_splittingbasisinv only possible for central simple algebras given by multiplication table");
+    pari_err_TYPE("alg_get_splittingbasisinv [algebra not given via mult. table]",al);
   return gmael(al,3,3);
 }
 
@@ -161,7 +161,7 @@ algsplittingfield(GEN al)
   checkalg(al);
   ta = alg_type(al);
   if (ta != al_CYCLIC && ta != al_CSA)
-    pari_err(e_MISC,"alg_get_splittingfield only possible for central simple algebras created with alginit");
+    pari_err_TYPE("alg_get_splittingfield [use alginit]",al);
   return alg_get_splitting(al);
 }
 long
@@ -170,7 +170,7 @@ alg_get_degree(GEN al)
   long ta;
   ta = alg_type(al);
   if (ta != al_CYCLIC && ta != al_CSA)
-    pari_err(e_MISC,"alg_get_degree only possible for central simple algebras created with alginit");
+    pari_err_TYPE("alg_get_degree [use alginit]",al);
   return rnf_get_degree(alg_get_splitting(al));
 }
 long
@@ -189,7 +189,7 @@ alg_get_center(GEN al)
   long ta;
   ta = alg_type(al);
   if (ta != al_CSA && ta != al_CYCLIC)
-    pari_err(e_MISC,"alg_get_center only possible for central simple algebras created with alginit");
+    pari_err_TYPE("alg_get_center [use alginit]",al);
   return rnf_get_nf(alg_get_splitting(al));
 }
 GEN
@@ -206,7 +206,7 @@ alg_get_splitpol(GEN al)
 {
   long ta = alg_type(al);
   if (ta != al_CYCLIC && ta != al_CSA)
-    pari_err(e_MISC,"alg_get_splitpol only possible for central simple algebras created with alginit");
+    pari_err_TYPE("alg_get_splitpol [use alginit]",al);
   return rnf_get_pol(alg_get_splitting(al));
 }
 GEN
@@ -214,7 +214,7 @@ alg_get_abssplitting(GEN al)
 {
   long ta = alg_type(al), prec;
   if (ta != al_CYCLIC && ta != al_CSA)
-    pari_err(e_MISC,"alg_get_abssplitting only possible for central simple algebras created with alginit");
+    pari_err_TYPE("alg_get_abssplitting [use alginit]",al);
   prec = nf_get_prec(alg_get_center(al));
   return check_and_build_nfabs(alg_get_splitting(al), prec);
 }
@@ -223,7 +223,7 @@ alg_get_hasse_i(GEN al)
 {
   long ta = alg_type(al);
   if (ta != al_CYCLIC && ta != al_CSA)
-    pari_err(e_MISC,"alg_get_hasse_i only possible for central simple algebras created with alginit");
+    pari_err_TYPE("alg_get_hasse_i [use alginit]",al);
   if (ta == al_CSA) pari_err_IMPL("computation of Hasse invariants over table CSA");
   return gel(al,4);
 }
@@ -234,7 +234,7 @@ alg_get_hasse_f(GEN al)
 {
   long ta = alg_type(al);
   if (ta != al_CYCLIC && ta != al_CSA)
-    pari_err(e_MISC,"alg_get_hasse_f only possible for central simple algebras created with alginit");
+    pari_err_TYPE("alg_get_hasse_f [use alginit]",al);
   if (ta == al_CSA) pari_err_IMPL("computation of Hasse invariants over table CSA");
   return gel(al,5);
 }
@@ -1137,8 +1137,7 @@ alghasse_0(GEN al, GEN pl)
   checkalg(al);
   ta = alg_type(al);
   if (ta == al_CSA) pari_err_IMPL("computation of Hasse invariants over table CSA");
-  if (ta == al_TABLE)
-    pari_err(e_MISC,"alghasse_0 only possible for central simple algebras created with alginit");
+  if (ta == al_TABLE) pari_err_TYPE("alghasse_0 [use alginit]",al);
   nf = alg_get_center(al);
   ispr = is_place_prid(nf, pl, &pr, &emb);
   if (ispr) h = alghasse_pr(al, pr);
@@ -1166,8 +1165,7 @@ algindex(GEN al, GEN pl)
   GEN hi, hf, L;
 
   checkalg(al);
-  if (alg_type(al) == al_TABLE)
-    pari_err(e_MISC,"algindex only possible for central simple algebras created with alginit");
+  if (alg_type(al) == al_TABLE) pari_err_TYPE("algindex [use alginit]",al);
   d = alg_get_degree(al);
 
   if (pl) {
