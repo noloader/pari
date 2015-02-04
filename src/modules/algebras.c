@@ -1164,6 +1164,7 @@ algindex(GEN al, GEN pl)
   long h, d, res, i, r1;
   GEN hi, hf, L;
 
+  checkalg(al);
   if (alg_type(al) == al_TABLE)
     pari_err(e_MISC,"algindex only possible for central simple algebras created with alginit");
   d = alg_get_degree(al);

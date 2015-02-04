@@ -1147,6 +1147,9 @@ Vecsmall([1, 0])
 0
 1/2
 0
+  ***   at top-level: algindex(1,1)
+  ***                 ^-------------
+  *** algindex: incorrect type in checkalg [please apply alginit()] (t_INT).
 2
 1
 2
@@ -2856,4 +2859,4 @@ x - 12
 1
 1
 1
-Total time spent: 8005
+Total time spent: 11425
