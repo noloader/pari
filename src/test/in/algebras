@@ -347,7 +347,8 @@ alfromhasse() = gusuite("algebra from Hasse invariants", ()->{
   nf = nfinit(y^2-5);
   finv1 = [[],[]];
   iinv1 = Vecsmall([1,1]);
-  do("trivial finite conditions", ()->alginit(nf,[2,finv1,iinv1]));
+  do("trivial finite conditions", ()->my(al=alginit(nf,[2,finv1,iinv1]));
+    [alghassei(al),alghassef(al)]);
 
 });
 
