@@ -259,7 +259,7 @@ qflllgram_indef(GEN G, long base)
   }
 }
 
-/* G symetric, i < j, let E = E_{i,j}(a), G <- E~*G*E,  U <- U*E.
+/* G symmetric, i < j, let E = E_{i,j}(a), G <- E~*G*E,  U <- U*E.
  * Everybody integral */
 static void
 qf_apply_transvect_Z(GEN G, GEN U, long i, long j, GEN a)
@@ -389,7 +389,7 @@ qflllgram_indefgoon2(GEN G)
 }
 
 /* QUADRATIC FORM MINIMIZATION */
-/* G symetric, return ZM_Z_divexact(G,d) */
+/* G symmetric, return ZM_Z_divexact(G,d) */
 static GEN
 ZsymM_Z_divexact(GEN G, GEN d)
 {
@@ -405,7 +405,7 @@ ZsymM_Z_divexact(GEN G, GEN d)
   return H;
 }
 
-/* write symetric G as [A,B;B~,C], A dxd, C (n-d)x(n-d) */
+/* write symmetric G as [A,B;B~,C], A dxd, C (n-d)x(n-d) */
 static void
 blocks4(GEN G, long d, long n, GEN *A, GEN *B, GEN *C)
 {
@@ -763,7 +763,7 @@ qftriv(GEN G, GEN R, long base)
   return mkvec2(qf_apply_ZM(G,H),H);
 }
 
-/* p a prime number, G 3x3 symetric. Finds X!=0 such that X^t G X = 0 mod p.
+/* p a prime number, G 3x3 symmetric. Finds X!=0 such that X^t G X = 0 mod p.
  * Allow returning a shorter X: to be completed with 0s. */
 static GEN
 qfsolvemodp(GEN G, GEN p)
@@ -808,6 +808,17 @@ qfsolvemodp(GEN G, GEN p)
   return ZC_add(x1, ZC_lincomb(r,s,x2,x3));
 }
 
+/* assume G square integral */
+static void
+check_symmetric(GEN G)
+{
+  long i,j, l = lg(G);
+  for (i = 1; i < l; i++)
+    for(j = 1; j < i; j++)
+      if (!equalii(gcoeff(G,i,j), gcoeff(G,j,i)))
+        pari_err_TYPE("qfsolve [not symmetric]",G);
+}
+
 /* Given a square matrix G of dimension n >= 1, */
 /* solves over Z the quadratic equation X^tGX = 0. */
 /* G is assumed to have integral coprime coefficients. */
@@ -828,6 +839,7 @@ qfsolve_i(GEN G)
   if (n == 0) pari_err_DOMAIN("qfsolve", "dimension" , "=", gen_0, G);
   if (n != nbrows(G)) pari_err_DIM("qfsolve");
   G = Q_primpart(G); RgM_check_ZM(G, "qfsolve");
+  check_symmetric(G);
 
   /* Trivial case: det = 0 */
   d = ZM_det(G);
@@ -1046,6 +1058,7 @@ qfparam(GEN G, GEN sol, long fl)
   if (n == 0) pari_err_DOMAIN("qfsolve", "dimension" , "=", gen_0, G);
   if (n != nbrows(G) || n != 3 || lg(sol) != 4) pari_err_DIM("qfsolve");
   G = Q_primpart(G); RgM_check_ZM(G,"qfsolve");
+  check_symmetric(G);
   sol = Q_primpart(sol); RgV_check_ZV(sol,"qfsolve");
   /* build U such that U[,3] = sol, and |det(U)| = 1 */
   U = completebasis(sol,1);
