@@ -4071,28 +4071,37 @@ algpdecompose(GEN al, GEN p)
   return algpdecompose_i(al, p, placeholder, gen_1);
 }
 
-/*ord is assumed to be in hnf wrt the integral basis of al.*/
+/* ord is assumed to be in hnf wrt the integral basis of al. */
+/* assumes that alg_get_invord(al) is integral. */
 GEN
 alg_change_overorder_shallow(GEN al, GEN ord)
 {
-  GEN al2, mt, iord, mtx;
+  GEN al2, mt, iord, mtx, den, den2, div;
   long i, n;
   n = alg_get_absdim(al);
 
   iord = QM_inv(ord,gen_1);
   al2 = shallowcopy(al);
-  gel(al2,7) = RgM_mul(gel(al,7), ord);
-  gel(al2,8) = RgM_mul(iord, gel(al,8));
+  ord = Q_remove_denom(ord,&den);
+
+  gel(al2,7) = Q_remove_denom(gel(al,7), &den2);
+  if (den2) div = mulii(den,den2);
+  else      div = den;
+  gel(al2,7) = ZM_Z_div(ZM_mul(gel(al2,7), ord), div);
+
+  gel(al2,8) = ZM_mul(iord, gel(al,8));
 
   mt = cgetg(n+1,t_VEC);
   gel(mt,1) = matid(n);
+  div = sqri(den);
   for(i=2; i<=n; i++) {
     mtx = algbasismultable(al,gel(ord,i));
-    gel(mt,i) = RgM_mul(iord, RgM_mul(mtx, ord));
+    gel(mt,i) = ZM_mul(iord, ZM_mul(mtx, ord));
+    gel(mt,i) = ZM_Z_divexact(gel(mt,i), div);
   }
   gel(al2,9) = mt;
 
-  gel(al2,11)= algtracebasis(al2);
+  gel(al2,11) = algtracebasis(al2);
 
   return al2;
 }
