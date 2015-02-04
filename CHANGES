@@ -104,6 +104,8 @@ BA 77- [cygwin64] ellap(ellinit([0,0,1,-1,0]),10007) broken
        p=436^56-35;Mod(271,p)^((p-1)/2) -> p+1
    81- plotcopy would corrupt "string" objects (ROt_ST)
 BA 82- [GP] default arguments to GP functions could cause corruption [#1658]
+VBr83- [darwin] remove obsolete linker options that cause crashes [#1623]
+   84- divisors([2,1]) -> SEGV                                    [#1664]
 
   Added
     1- add optional argument to sumdigits to specify the base
