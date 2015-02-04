@@ -591,6 +591,7 @@ tablealg() = gusuite("table algebra", ()->{
   do("issemisimple 0", ()->algissemisimple(al)==0);
   do("issimple 0", ()->algissimple(al)==0);
   do("issimple ss 0", ()->algissimple(ss)==0);
+  do("isdivision 0", ()->algisdivision(al)==0);
 
   p = 2;
   al = algtableinit(mt,p);
@@ -1308,6 +1309,12 @@ algindex(A, 2)
 algindex(A, idealprimedec(nf,2)[1])
 algindex(A, idealprimedec(nf,5)[1])
 algindex(A)
+algisdivision(A, 1)
+algisdivision(A, 2)
+algisdivision(A, idealprimedec(nf,2)[1])
+algisdivision(A, idealprimedec(nf,5)[1])
+algisdivision(A)
+
 
 
 A = alginit(nfinit(y), [-1,-1]);
@@ -1524,6 +1531,11 @@ algnorm(al,c)
 algiscommutative(al)
 algissemisimple(al)
 algissimple(al)
+alghasse(al,1)
+alghasse(al,idealprimedec(nfinit(y^2+1),2)[1])
+algindex(al)
+algisdivision(al)
+
 
 print("trivial algebra over Q");
 al = alginit(rnfinit(nfinit(y),x),[y,1])
@@ -1544,6 +1556,10 @@ algnorm(al,c)
 algiscommutative(al)
 algissemisimple(al)
 algissimple(al)
+alghasse(al,1)
+alghasse(al,idealprimedec(nfinit(y),2)[1])
+algindex(al)
+algisdivision(al)
 
 print("empty matrices");
 al = alginit(nfinit(y), [-1,-1]);
@@ -1585,6 +1601,7 @@ algpow(almt0,a,0)
 algiscommutative(al)
 algissemisimple(al)
 algissimple(al)
+algisdivision(al)
 
 m_i = [0,-1,0, 0;\
        1, 0,0, 0;\
@@ -1654,6 +1671,7 @@ algrelmultable(al);
 algsplittingdata(al);
 alghasse(almt, 1);
 algindex(almt, 1);
+algisdivision(almt);
 alghasse(al, -1);
 alghasse(al, 3);
 alghasse(al, 2^100);
@@ -1698,6 +1716,13 @@ algindex(al,idealprimedec(nf,3)[1])
 algindex(al,idealprimedec(nf,5)[1])
 algindex(al,idealprimedec(nf,5)[2])
 algindex(al)
+algisdivision(al,1)
+algisdivision(al,2)
+algisdivision(al,idealprimedec(nf,2)[1])
+algisdivision(al,idealprimedec(nf,3)[1])
+algisdivision(al,idealprimedec(nf,5)[1])
+algisdivision(al,idealprimedec(nf,5)[2])
+algisdivision(al)
 
 al = 0;
 al = alginit(rnf, [x^2,-1]);
@@ -1712,6 +1737,12 @@ algindex(al,idealprimedec(nf,2)[1])
 algindex(al,idealprimedec(nf,5)[1])
 algindex(al,idealprimedec(nf,5)[2])
 algindex(al)
+algisdivision(al,1)
+algisdivision(al,2)
+algisdivision(al,idealprimedec(nf,2)[1])
+algisdivision(al,idealprimedec(nf,5)[1])
+algisdivision(al,idealprimedec(nf,5)[2])
+algisdivision(al)
 
 al = 0;
 al = alginit(rnf, [x^2, 1]);
@@ -1724,4 +1755,9 @@ algindex(al,2)
 algindex(al,idealprimedec(nf,2)[1])
 algindex(al,idealprimedec(nf,5)[2])
 algindex(al)
+algisdivision(al,1)
+algisdivision(al,2)
+algisdivision(al,idealprimedec(nf,2)[1])
+algisdivision(al,idealprimedec(nf,5)[2])
+algisdivision(al)
 

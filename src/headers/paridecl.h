@@ -1149,6 +1149,7 @@ long algindex(GEN al, GEN pl);
 GEN alginv(GEN al, GEN x);
 int algisassociative(GEN mt0, GEN p);
 int algiscommutative(GEN al);
+int algisdivision(GEN al, GEN pl);
 int algissemisimple(GEN al);
 int algissimple(GEN al, long ss);
 int algisinv(GEN al, GEN x, GEN* ptix);

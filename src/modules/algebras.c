@@ -1048,6 +1048,7 @@ algissemisimple(GEN al)
   return gequal0(rad);
 }
 
+/* ss : known to be semisimple */
 int
 algissimple(GEN al, long ss)
 {
@@ -1188,6 +1189,18 @@ algindex(GEN al, GEN pl)
     res = clcm(res, indexfromhasse(hf[i],d));
   avma = av;
   return res;
+}
+
+int
+algisdivision(GEN al, GEN pl)
+{
+  checkalg(al);
+  if (alg_type(al) == al_TABLE) {
+    if (!algissimple(al,0)) return 0;
+    if (algiscommutative(al)) return 1;
+    pari_err_IMPL("algisdivision for table algebras");
+  }
+  return algindex(al,pl) == alg_get_degree(al);
 }
 
 /** OPERATIONS ON ELEMENTS operations.c **/
