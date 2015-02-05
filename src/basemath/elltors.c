@@ -100,6 +100,7 @@ torsbound(GEN e)
   /* nb = number of primes to try ~ 1 prime every 8 bits in D */
   b = bold = 5040; /* = 2^4 * 3^2 * 5 * 7 */
   m = 0;
+  /* p > 2 has good reduction => E(Q) injects in E(Fp) */
   (void)u_forprime_init(&S, 3, ULONG_MAX);
   av2 = avma;
   while (m < nb || (b > 12 && b != 16))
@@ -260,7 +261,9 @@ nftorsbound(GEN E)
   ND = mulii(ND, Q_denom(vecslice(E,1,5)));
   g = maxss(5, expi(ND) >> 3);
   if (g > 20) g = 20;
-  (void)u_forprime_init(&S, 2, ULONG_MAX);
+  /* P | p such that e(P/p) < p-1 => E(K) injects in E(k(P)) [otherwise
+   * we may lose some p-torsion]*/
+  (void)u_forprime_init(&S, 3, ULONG_MAX);
   av = avma;
   while (k < g) /* k = number of good primes already used */
   {
@@ -281,9 +284,12 @@ nftorsbound(GEN E)
     l = lg(P);
     for (j = 1; j < l; j++,k++)
     {
-      GEN Q = gel(P,j), EQ = ellinit(E,zkmodprinit(K,Q),0);
-      GEN cyc = ellgroup(EQ, NULL);
-      long n = lg(cyc)-1;
+      GEN Q = gel(P,j), EQ, cyc;
+      long n;
+      if (pr_get_e(Q) >= p-1) continue;
+      EQ = ellinit(E,zkmodprinit(K,Q),0);
+      cyc = ellgroup(EQ, NULL);
+      n = lg(cyc)-1;
       if (n == 0) return mkvec2(gen_1,gen_1);
       B1 = gcdii(B1,gel(cyc,1));
       B2 = (n == 1)? gen_1: gcdii(B2,gel(cyc,2));
