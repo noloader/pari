@@ -1132,7 +1132,7 @@ alghasse_pr(GEN al, GEN pr)
 static long
 alghasse_0(GEN al, GEN pl)
 {
-  long ta, emb, ispr, h;
+  long ta, ispr, h, emb = 0;/*-Wall*/
   GEN pr, nf;
   checkalg(al);
   ta = alg_type(al);
