@@ -260,7 +260,7 @@ nftorsbound(GEN E)
   ND = mulii(ND, Q_denom(vecslice(E,1,5)));
   g = maxss(5, expi(ND) >> 3);
   if (g > 20) g = 20;
-  u_forprime_init(&S, 3, ULONG_MAX);
+  (void)u_forprime_init(&S, 2, ULONG_MAX);
   av = avma;
   while (k < g) /* k = number of good primes already used */
   {
@@ -284,6 +284,7 @@ nftorsbound(GEN E)
       GEN Q = gel(P,j), EQ = ellinit(E,zkmodprinit(K,Q),0);
       GEN cyc = ellgroup(EQ, NULL);
       long n = lg(cyc)-1;
+      if (n == 0) return mkvec2(gen_1,gen_1);
       B1 = gcdii(B1,gel(cyc,1));
       B2 = (n == 1)? gen_1: gcdii(B2,gel(cyc,2));
       obj_free(EQ);
