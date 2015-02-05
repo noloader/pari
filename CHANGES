@@ -106,6 +106,7 @@ BA 77- [cygwin64] ellap(ellinit([0,0,1,-1,0]),10007) broken
 BA 82- [GP] default arguments to GP functions could cause corruption [#1658]
 VBr83- [darwin] remove obsolete linker options that cause crashes [#1623]
    84- divisors([2,1]) -> SEGV                                    [#1664]
+   85- acos([Pol(1)]) -> GC bug [#1663]
 
   Added
     1- add optional argument to sumdigits to specify the base
