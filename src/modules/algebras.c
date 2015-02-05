@@ -442,7 +442,6 @@ TODO:
 - alg_hasse : call polsubcyclo instead of rnfkummer when possible
 - alg_hasse : do a rnfpolredbest at every step
 - assisted factorization when possible : factorint(famat)
-- tests for consistency of input
 - optimize b by reducing mod n-powers (when creating alg_hasse/can be called independently alred)
 - in all transformations (tensor, optimize...), also return the isomorphism (flag:maps)
 - allow more general elements in operations : integers, rationals, nf (F), nf
@@ -451,13 +450,10 @@ TODO:
 - opposite algebra and involution
 - optimize basismul using the property that the first element is the identity
 - use famat input for bnrinit etc : useful ? only small primes in the conductor, so factorization is fast anyways.
-- check naming conventions.
 - algdisc: reduced disc for al_CYCLIC and al_CSA
 - in algpow, use charpol when better.
 
 Karim :
-- maxord: project on central idempotents corresp. to decomposition of p (reduce
-size of involved matrices)
 - test p-maximality before launching general algorithm
 - easy maximal order when pr unramified in L/K
 - precompute projectors and LLL-reduced basis in extchinese
@@ -3999,23 +3995,48 @@ alg_ordermodp(GEN al, GEN p)
 }
 
 static GEN
-algpradical_i(GEN al, GEN p, GEN zprad, GEN projs/*TODO:currently unused*/)
+algpradical_i(GEN al, GEN p, GEN zprad, GEN projs)
 {
   pari_sp av = avma;
-  GEN alp = alg_ordermodp(al, p), liftrad, alq, alrad, res;
-  long n = alg_get_absdim(alp);
-  (void)projs;
+  GEN alp = alg_ordermodp(al, p), liftrad, projrad, alq, alrad, res, Lalp, radq;
+  long i;
   if(lg(zprad)==1) {
-    liftrad = matid(n);
+    liftrad = NULL;
+    projrad = NULL;
   }
   else {
     alq = alg_quotient(alp, zprad, 1);
     alp = gel(alq,1);
+    projrad = gel(alq,2);
     liftrad = gel(alq,3);
   }
-  alrad = algradical(alp);
+
+  if (projs) {
+    if (projrad) {
+      projs = gcopy(projs);
+      for(i=1; i<lg(projs); i++)
+        gel(projs,i) = FpM_FpC_mul(projrad, gel(projs,i), p);
+    }
+    Lalp = alg_centralproj(alp,projs,1);
+
+    alrad = cgetg(lg(Lalp),t_VEC);
+    for(i=1; i<lg(Lalp); i++) {
+      alq = gel(Lalp,i);
+      radq = algradical(gel(alq,1));
+      if(gequal0(radq))
+        gel(alrad,i) = cgetg(1,t_MAT);
+      else {
+        radq = FpM_mul(gel(alq,3),radq,p);
+        gel(alrad,i) = radq;
+      }
+    }
+    alrad = shallowmatconcat(alrad);
+    alrad = FpM_image(alrad,p);
+  }
+  else alrad = algradical(alp);
+
   if(!gequal0(alrad)) {
-    alrad = FpM_mul(liftrad, alrad, p);
+    if (liftrad) alrad = FpM_mul(liftrad, alrad, p);
     res = shallowmatconcat(mkvec2(alrad, zprad));
     res = FpM_image(res,p);
   }
@@ -4026,29 +4047,47 @@ GEN
 algpradical(GEN al, GEN p)
 {
   GEN placeholder = cgetg(1,t_MAT); /*left on stack*/
-  return algpradical_i(al, p, placeholder, gen_1);
+  return algpradical_i(al, p, placeholder, NULL);
 }
 
 static GEN
-algpdecompose0(GEN al, GEN prad, GEN p)
+algpdecompose0(GEN al, GEN prad, GEN p, GEN projs)
 {
   pari_sp av = avma;
-  GEN alp, quo, ss, liftm = gen_0, dec, res, I;
-  long i;
+  GEN alp, quo, ss, liftm = NULL, projm = NULL, dec, res, I, Lss, deci;
+  long i, j;
 
   alp = alg_ordermodp(al, p);
   if (!gequal0(prad)) {
     quo = alg_quotient(alp,prad,1);
     ss = gel(quo,1);
+    projm = gel(quo,2);
     liftm = gel(quo,3);
   }
   else ss = alp;
 
-  dec = algsimpledec(ss,1);
+  if (projs) {
+    if (projm) {
+      for(i=1; i<lg(projs); i++)
+        gel(projs,i) = FpM_FpC_mul(projm, gel(projs,i), p);
+    }
+    Lss = alg_centralproj(ss, projs, 1);
+
+    dec = cgetg(lg(Lss),t_VEC);
+    for(i=1; i<lg(Lss); i++) {
+      gel(dec,i) = algsimpledec(gmael(Lss,i,1), 1);
+      deci = gel(dec,i);
+      for(j=1; j<lg(deci); j++)
+       gmael(deci,j,3) = FpM_mul(gmael(Lss,i,3), gmael(deci,j,3), p);
+    }
+    dec = shallowconcat1(dec);
+  }
+  else dec = algsimpledec(ss,1);
+
   res = cgetg(lg(dec),t_VEC);
   for (i=1; i<lg(dec); i++) {
     I = gmael(dec,i,3);
-    if (!gequal0(prad)) I = FpM_mul(liftm,I,p);
+    if (liftm) I = FpM_mul(liftm,I,p);
     I = shallowmatconcat(mkvec2(I,prad));
     gel(res,i) = I;
   }
@@ -4062,13 +4101,13 @@ algpdecompose_i(GEN al, GEN p, GEN zprad, GEN projs)
 {
   pari_sp av = avma;
   GEN prad = algpradical_i(al,p,zprad,projs);
-  return gerepileupto(av, algpdecompose0(al, prad, p));
+  return gerepileupto(av, algpdecompose0(al, prad, p, projs));
 }
 GEN
 algpdecompose(GEN al, GEN p)
 {
   GEN placeholder = cgetg(1,t_MAT); /*left on stack*/
-  return algpdecompose_i(al, p, placeholder, gen_1);
+  return algpdecompose_i(al, p, placeholder, NULL);
 }
 
 /* ord is assumed to be in hnf wrt the integral basis of al. */
@@ -4236,6 +4275,7 @@ alg_pmaximal_i(GEN al, GEN p)
   while (1) {
     zprad = algcenter_prad(al2, p, pre);
     projs = algcenter_p_projs(al2, p, pre);
+    if (lg(projs) == 2) projs = NULL;
     prad = algpradical_i(al2,p,zprad,projs);
     if (typ(prad) == t_INT) break;
     lord = algleftordermodp(al2,prad,p);
@@ -4243,7 +4283,7 @@ alg_pmaximal_i(GEN al, GEN p)
     al2 = alg_change_overorder_shallow(al2,lord);
   }
 
-  dec = algpdecompose0(al2,prad,p);/*TODO +zprad, projs*/
+  dec = algpdecompose0(al2,prad,p,projs);
   while (lg(dec)>2) {
     for (i=1; i<lg(dec); i++) {
       I = gel(dec,i);
@@ -4254,6 +4294,7 @@ alg_pmaximal_i(GEN al, GEN p)
     al2 = alg_change_overorder_shallow(al2,lord);
     zprad = algcenter_prad(al2, p, pre);
     projs = algcenter_p_projs(al2, p, pre);
+    if (lg(projs) == 2) projs = NULL;
     dec = algpdecompose_i(al2,p,zprad,projs);
   }
   return al2;
