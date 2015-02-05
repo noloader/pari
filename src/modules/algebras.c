@@ -572,7 +572,7 @@ alg_quotient0(GEN al, GEN S, GEN Si, long nq, GEN p, int maps)
   {
     GEN mti = algmultable(al,gel(S,i));
     if (signe(p)) gel(mt,i) = FpM_mul(Si, FpM_mul(mti,S,p), p);
-    else          gel(mt,i) = ZM_mul(Si, ZM_mul(mti,S));
+    else          gel(mt,i) = RgM_mul(Si, RgM_mul(mti,S));
   }
   al = algtableinit(mt,p);
   if (maps) al = mkvec3(al,Si,S); /*algebra, proj, lift*/
