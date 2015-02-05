@@ -2,12 +2,16 @@ Function: algindex
 Section: algebras
 C-Name: algindex
 Prototype: lGDG
-Help: algindex(al,{pl}): the index of the central simple algebra al at
- the place pl, or globally if pl is not set.
-Doc: Given a central simple algebra \var{al} output by \tet{alginit} and a prime
- ideal or an integer between $1$ and $r_1+r_2$, returns an integer $e$ : the
- local index of \var{al} at the place specified by \var{pl}. If \var{pl} is not
- set, returns the (global) index of \var{al}.
+Help: algindex(al,{pl}): the index of the central simple algebra al. If pl is
+ set, it should be a prime ideal of the center or an integer between 1 and
+ r1+r2, and in that case return the local index at the place pl instead.
+Doc: Return the index of the central simple algebra~$A$ over~$K$ (as output by
+ alginit), that is the degree~$e$ of the unique central division algebra~$D$
+ over $K$ such that~$A$ is isomorphic to some matrix algebra~$M_d(D)$. If
+ \var{pl} is set, it should be a prime ideal of~$K$ or an integer between~$1$
+ and~$r_1+r_2$, and in that case return the local index at the place \var{pl}
+ instead.
+
  \bprog
  ? nf = nfinit(y^2-5);
  ? A = alginit(nf, [-1,y]);
