@@ -3,11 +3,15 @@ Section: algebras
 C-Name: algisdivision
 Prototype: iGDG
 Help: algisdivision(al,{pl}): test whether the central simple algebra al is a
- division algebra at the place pl, or globally if pl is not set.
-Doc: Given a central simple algebra \var{al} output by \tet{alginit} and a prime
- ideal or an integer between $1$ and $r_1+r_2$, tests whether \var{al} is a
- division algebra locally at the place specified by \var{pl}. If \var{pl} is not
- set, tests whether \var{al} is (globally) a division algebra.
+ division algebra. If pl is set, it should be a prime ideal of the center or an
+ integer between 1 and r1+r2, and in that case test whether al is locally a
+ division algebra at the place pl instead.
+Doc: Given a central simple algebra \var{al} output by \tet{alginit}, test
+ whether \var{al} is a division algebra. If \var{pl} is set, it should be a
+ prime ideal of~$K$ or an integer between~$1$ and~$r_1+r_2$, and in that case
+ test whether \var{al} is locally a division algebra at the place \var{pl}
+ instead.
+
  \bprog
  ? nf = nfinit(y^2-5);
  ? A = alginit(nf, [-1,y]);
