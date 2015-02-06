@@ -286,7 +286,7 @@ nftorsbound(GEN E)
     {
       GEN Q = gel(P,j), EQ, cyc;
       long n;
-      if (pr_get_e(Q) >= p-1) continue;
+      if ((ulong)pr_get_e(Q) >= p-1) continue;
       EQ = ellinit(E,zkmodprinit(K,Q),0);
       cyc = ellgroup(EQ, NULL);
       n = lg(cyc)-1;
