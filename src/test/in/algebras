@@ -1579,8 +1579,6 @@ print("v*v: ", algmul(al,[;],[;]) == [;]);
 print("v/v: ", algdivr(al,[;],[;]) == [;]);
 print("v\\v: ", algdivl(al,[;],[;]) == [;]);
 
-
-
 \\al = alginit(nfinit(y), [Mat(1)]) TODO add this test when bug fixed
 
 mt0 = [Mat([1])];
@@ -1699,7 +1697,8 @@ alginv(A,1)
 a='a;
 K=nfinit(a);PR=idealprimedec(K,2);A=alginit(K,[3,[PR,[1]],[-1]]);
 K=nfinit(a);P2=idealprimedec(K,2);P3=idealprimedec(K,3);A=alginit(K,[3,[concat(P2,P3),[1/3,-2/3]],[1/3]]);
-
+algtensor(alginit(nfinit(y),2),alginit(nfinit(y^2+1),3));
+algtensor(alginit(nfinit(y),2),alginit(nfinit(y),2));
 
 \\better accessors for hasse invariants
 setrand(1);
@@ -1772,4 +1771,10 @@ algdegree(A)
 algdim(A)
 algindex(A)
 algisdivision(A)
+
+print("trivial tensor product");
+al1 = alginit(nfinit(y),1);
+al2 = alginit(nfinit(y),2);
+print(algtensor(al1,al2)==al2);
+print(algtensor(al2,al1)==al2);
 

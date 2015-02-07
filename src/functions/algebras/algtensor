@@ -8,3 +8,6 @@ Doc: Given two algebras \var{al1} and \var{al2}, computes their tensor
  \var{maxord} is ignored. For central simple algebras output by \tet{alginit},
  computes a maximal order by default. Prevent this computation by setting
  $\var{maxord}=0$.
+
+ Currently only implemented for cyclic algebras of coprime degree over the same
+ center~$K$, and the tensor product is over~$K$.

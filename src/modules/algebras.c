@@ -473,11 +473,20 @@ algtensor(GEN al1, GEN al2, int maxord) {
     pari_err_IMPL("tensor of non-cyclic algebras"); /* TODO: do it. */
 
   nf=alg_get_center(al1);
+  if (!gequal(alg_get_center(al2),nf))
+    pari_err_OP("tensor product [not the same center]", al1, al2);
+
   P1=alg_get_splitpol(al1); aut1=alg_get_aut(al1); b1=alg_get_b(al1);
   P2=alg_get_splitpol(al2); aut2=alg_get_aut(al2); b2=alg_get_b(al2);
+  v=varn(P1);
+
   d1=alg_get_degree(al1);
   d2=alg_get_degree(al2);
-  v=varn(P1);
+  if (cgcd(d1,d2) != 1)
+    pari_err_IMPL("tensor of cylic algebras of non-coprime degrees"); /* TODO */
+
+  if (d1==1) return gcopy(al2);
+  if (d2==1) return gcopy(al1);
 
   C = nfcompositum(nf, P1, P2, 3);
   rnf = rnfinit(nf,gel(C,1));

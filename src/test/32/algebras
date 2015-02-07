@@ -2772,6 +2772,12 @@ x - 12
   ***   at top-level: ...;P3=idealprimedec(K,3);A=alginit(K,[3,[concat
   ***                                             ^--------------------
   *** alginit: domain error in checkhasse: Hasse invariant at real place [must be 0 or 1/2] != 1
+  ***   at top-level: algtensor(alginit(nf
+  ***                 ^--------------------
+  *** algtensor: inconsistent tensor product [not the same center] t_VEC (11 elts) , t_VEC (11 elts).
+  ***   at top-level: algtensor(alginit(nf
+  ***                 ^--------------------
+  *** algtensor: sorry, tensor of cylic algebras of non-coprime degrees is not yet implemented.
 1/2
 0
 3/4
@@ -2828,4 +2834,7 @@ Hasse inv 0 bug
 9
 1
 0
-Total time spent: 5823
+trivial tensor product
+1
+1
+Total time spent: 5849
