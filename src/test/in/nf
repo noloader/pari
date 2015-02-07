@@ -97,3 +97,5 @@ liftall(b^5)
 L = nfcompositum(K, x^5-y, x^5-y)
 L = nfcompositum(K, x^5-y, polcyclo(3),2)
 L = nfcompositum(K, x^5-y, polcyclo(3),3)
+
+nfcompositum(nfinit(y),x,x^2+x+1,3)

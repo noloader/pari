@@ -3762,11 +3762,16 @@ nfcompositum(GEN nf, GEN A, GEN B, long flag)
       C = gsubst(C,v0,pol_x(v));
       if (nfissquarefree(nf,C)) break;
     }
+    C = lift_if_rational(C);
     if (flag&1)
     {
       GEN H0, H1;
       H0 = gsubst(gel(q,2),v0,pol_x(v));
       H1 = gsubst(gel(q,3),v0,pol_x(v));
+      if (typ(H0) != t_POL) H0 = scalarpol_shallow(H0,v);
+      if (typ(H1) != t_POL) H1 = scalarpol_shallow(H1,v);
+      H0 = lift_if_rational(H0);
+      H1 = lift_if_rational(H1);
       LPRS = mkvec2(H0,H1);
     }
   }
