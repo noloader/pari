@@ -360,7 +360,7 @@ moreoperations() = gusuite("more operations", ()->{
   p1 = idealprimedec(nf,2)[1];
   p2 = idealprimedec(nf,3)[1];
   iinv = [0];
-  finv = [[p1,p2],[1/3,2/3]];
+  finv = [[p1,p2],[-2/3,-1/3]];
   al = alginit(nf,[3,finv,iinv],x);
 
   do("construct algebra", ()->al);
@@ -1699,6 +1699,15 @@ K=nfinit(a);PR=idealprimedec(K,2);A=alginit(K,[3,[PR,[1]],[-1]]);
 K=nfinit(a);P2=idealprimedec(K,2);P3=idealprimedec(K,3);A=alginit(K,[3,[concat(P2,P3),[1/3,-2/3]],[1/3]]);
 algtensor(alginit(nfinit(y),2),alginit(nfinit(y^2+1),3));
 algtensor(alginit(nfinit(y),2),alginit(nfinit(y),2));
+nf = nfinit(y); p2 = idealprimedec(nf,2)[1]; p3 = idealprimedec(nf,3)[1];
+\\alginit(nf, [2, [[p2,p3],[1/2,1/2]], [0]]);
+alginit(nf, [2, [[p2,p2],[1/2,1/2]], [0]]);
+alginit(nf, [2, [[p2,p3],[1/2,1/2]], [0,0]]);
+alginit(nf, [2, [[p2,p3],[1/2,1/2],0], [0]]);
+alginit(nf, [2, [0,[1/2,1/2]], [0]]);
+alginit(nf, [2, [[p2,p3],0], [0]]);
+alginit(nf, [2, [[p2,p3],[1/2,1/2,0]], [0]]);
+alginit(nf, [2, [[p2,p3],[1/2,1/2]], [1/3]]);
 
 \\better accessors for hasse invariants
 setrand(1);

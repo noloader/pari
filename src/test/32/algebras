@@ -2672,7 +2672,7 @@ x - 12
   *** alginit: incorrect type in Hasse invariant (t_POL).
   ***   at top-level: alginit(nfinit(y),[2
   ***                 ^--------------------
-  *** alginit: incorrect type in checkhasse (t_VECSMALL).
+  *** alginit: incorrect type in checkhasse [hf] (t_VECSMALL).
   ***   at top-level: alginit(nfinit(y),[2
   ***                 ^--------------------
   *** alginit: domain error in checkhasse: sum(Hasse invariants) != 0
@@ -2778,6 +2778,27 @@ x - 12
   ***   at top-level: algtensor(alginit(nf
   ***                 ^--------------------
   *** algtensor: sorry, tensor of cylic algebras of non-coprime degrees is not yet implemented.
+  ***   at top-level: alginit(nf,[2,[[p2,p
+  ***                 ^--------------------
+  *** alginit: error in checkhasse [duplicate prime ideal].
+  ***   at top-level: alginit(nf,[2,[[p2,p
+  ***                 ^--------------------
+  *** alginit: domain error in checkhasse [hi should have r1 components]: #hi != 1
+  ***   at top-level: alginit(nf,[2,[[p2,p
+  ***                 ^--------------------
+  *** alginit: incorrect type in Hasse invariant (t_VEC).
+  ***   at top-level: alginit(nf,[2,[0,[1/
+  ***                 ^--------------------
+  *** alginit: incorrect type in Hasse invariant (t_VEC).
+  ***   at top-level: alginit(nf,[2,[[p2,p
+  ***                 ^--------------------
+  *** alginit: incorrect type in Hasse invariant (t_INT).
+  ***   at top-level: alginit(nf,[2,[[p2,p
+  ***                 ^--------------------
+  *** alginit: inconsistent dimensions in checkhasse [Lpr and Lh should have same length].
+  ***   at top-level: alginit(nf,[2,[[p2,p
+  ***                 ^--------------------
+  *** alginit: incorrect type in Hasse invariant (t_FRAC).
 1/2
 0
 3/4
@@ -2837,4 +2858,4 @@ Hasse inv 0 bug
 trivial tensor product
 1
 1
-Total time spent: 5849
+Total time spent: 5852

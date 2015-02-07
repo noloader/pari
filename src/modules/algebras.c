@@ -3223,15 +3223,20 @@ checkhasse(GEN nf, GEN hf, GEN hi, long n)
 {
   GEN Lpr, Lh;
   long i, sum;
-  if (typ(hf) != t_VEC || lg(hf) != 3) pari_err_TYPE("checkhasse", hf);
+  if (typ(hf) != t_VEC || lg(hf) != 3) pari_err_TYPE("checkhasse [hf]", hf);
   Lpr = gel(hf,1);
   Lh = gel(hf,2);
-  if (typ(Lpr) != t_VEC) pari_err_TYPE("checkhasse", Lpr);
-  if (typ(Lh) != t_VECSMALL) pari_err_TYPE("checkhasse", Lh);
-  if (typ(hi) != t_VECSMALL || (nf && lg(hi) != nf_get_r1(nf)+1))
-    pari_err_TYPE("checkhasse", hi);
-  if (lg(Lpr) != lg(Lh)) pari_err_TYPE("checkhasse", hf);
+  if (typ(Lpr) != t_VEC) pari_err_TYPE("checkhasse [Lpr]", Lpr);
+  if (typ(Lh) != t_VECSMALL) pari_err_TYPE("checkhasse [Lh]", Lh);
+  if (typ(hi) != t_VECSMALL) 
+    pari_err_TYPE("checkhasse [hi]", hi);
+  if ((nf && lg(hi) != nf_get_r1(nf)+1))
+    pari_err_DOMAIN("checkhasse [hi should have r1 components]","#hi","!=",stoi(nf_get_r1(nf)),stoi(lg(hi)-1));
+  if (lg(Lpr) != lg(Lh))
+    pari_err_DIM("checkhasse [Lpr and Lh should have same length]");
   for (i=1; i<lg(Lpr); i++) checkprid(gel(Lpr,i));
+  if (lg(gen_sort_uniq(Lpr, (void*)cmp_prime_ideal, cmp_nodata)) < lg(Lpr))
+    pari_err(e_MISC, "error in checkhasse [duplicate prime ideal]");
   sum = 0;
   for (i=1; i<lg(Lh); i++) sum = (sum+Lh[i])%n;
   for (i=1; i<lg(hi); i++) {
@@ -3490,14 +3495,15 @@ alg_hasse(GEN nf, long n, GEN hf, GEN hi, long var, long maxord)
   pari_sp av = avma;
   GEN primary, al = gen_0, al2, rnf, hil, hfl, Ld, pl, pol, nf2, Lpr, aut;
   long i, lk, j;
-  primary = hassecoprime(hf, hi, n); /*contains a checkhasse*/
+  primary = hassecoprime(hf, hi, n);
   if (var < 0) var = 0;
   for (i=1; i<lg(primary); i++) {
     lk = itos(gmael(primary,i,3));
     hfl = gmael(primary,i,1);
+    hil = gmael(primary,i,2);
+    checkhasse(nf, hfl, hil, lk);
 
     if (lg(gel(hfl,1))>1 || lk%2==0) {
-      hil = gmael(primary,i,2);
       Lpr = gel(hfl,1);
       Ld = gcopy(gel(hfl,2));
       for (j=1; j<lg(Ld); j++) Ld[j] = lk/cgcd(lk,Ld[j]);
@@ -3511,9 +3517,7 @@ alg_hasse(GEN nf, long n, GEN hf, GEN hi, long var, long maxord)
       aut = rnfcycaut(rnf,nf2);
       al2 = alg_complete0(rnf,aut,hfl,hil,maxord);
     }
-    else {
-      al2 = alg_matrix(nf, lk, var, cgetg(1,t_VEC), maxord);
-    }
+    else al2 = alg_matrix(nf, lk, var, cgetg(1,t_VEC), maxord);
 
     if (i==1) al = al2;
     else      al = algtensor(al,al2,maxord);
