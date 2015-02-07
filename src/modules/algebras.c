@@ -3484,21 +3484,27 @@ alg_hasse(GEN nf, long n, GEN hf, GEN hi, long var, long maxord)
   primary = hassecoprime(hf, hi, n); /*contains a checkhasse*/
   if (var < 0) var = 0;
   for (i=1; i<lg(primary); i++) {
-    hfl = gmael(primary,i,1);
-    hil = gmael(primary,i,2);
     lk = itos(gmael(primary,i,3));
-    Lpr = gel(hfl,1);
-    Ld = gcopy(gel(hfl,2));
-    for (j=1; j<lg(Ld); j++) Ld[j] = lk/cgcd(lk,Ld[j]);
-    pl = gcopy(hil);
-    for (j=1; j<lg(pl); j++) pl[j] = pl[j] ? -1 : 0;
+    hfl = gmael(primary,i,1);
 
-    pol = nfgrunwaldwang(nf,Lpr,Ld,pl,var);
-    rnf = rnfinit(nf,pol);
-    nf2 = check_and_build_nfabs(rnf, nf_get_prec(nf));
+    if (lg(gel(hfl,1))>1 || lk%2==0) {
+      hil = gmael(primary,i,2);
+      Lpr = gel(hfl,1);
+      Ld = gcopy(gel(hfl,2));
+      for (j=1; j<lg(Ld); j++) Ld[j] = lk/cgcd(lk,Ld[j]);
+      pl = gcopy(hil);
+      for (j=1; j<lg(pl); j++) pl[j] = pl[j] ? -1 : 0;
 
-    aut = rnfcycaut(rnf,nf2);
-    al2 = alg_complete0(rnf,aut,hfl,hil,maxord);
+      pol = nfgrunwaldwang(nf,Lpr,Ld,pl,var);
+      rnf = rnfinit(nf,pol);
+      nf2 = check_and_build_nfabs(rnf, nf_get_prec(nf));
+
+      aut = rnfcycaut(rnf,nf2);
+      al2 = alg_complete0(rnf,aut,hfl,hil,maxord);
+    }
+    else {
+      al2 = alg_matrix(nf, lk, var, cgetg(1,t_VEC), maxord);
+    }
 
     if (i==1) al = al2;
     else      al = algtensor(al,al2,maxord);

@@ -1762,3 +1762,11 @@ algisdivision(al,idealprimedec(nf,2)[1])
 algisdivision(al,idealprimedec(nf,5)[2])
 algisdivision(al)
 
+print("Hasse inv 0 bug");
+setrand(1); a='a;
+K=nfinit(a);PR=idealprimedec(K,2);A=alginit(K,[3,[PR,[0]],[0]]);
+algdegree(A)
+algdim(A)
+algindex(A)
+algisdivision(A)
+
