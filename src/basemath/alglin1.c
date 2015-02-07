@@ -976,7 +976,17 @@ FlxqM_FlxqC_mul(GEN A, GEN B, GEN T, unsigned long p) {
 GEN
 FlxqM_mul(GEN A, GEN B, GEN T, unsigned long p) {
   void *E;
-  const struct bb_field *ff = get_Flxq_field(&E, T, p);
+  const struct bb_field *ff;
+  long n = lg(A) - 1;
+
+  if (n == 0)
+    return cgetg(1, t_MAT);
+  if (n > 1) {
+    GEN C = FlxqM_mul_Kronecker(A, B, T, p);
+    if (C != NULL)
+      return C;
+  }
+  ff = get_Flxq_field(&E, T, p);
   return gen_matmul(A, B, E, ff);
 }
 

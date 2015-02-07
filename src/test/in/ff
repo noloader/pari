@@ -106,6 +106,15 @@ test(2^5)
 test(7^5)
 test((2^64+13)^5)
 
+test(q)={
+  my(t = ffgen(q, 't), M = matrix(10, 10, i, j, random(t)));
+  subst(charpoly(M), 'x, M) == 0;
+}
+test(nextprime(2^7)^5)
+test(nextprime(2^15)^5)
+test(nextprime(2^31)^5)
+test(nextprime(2^63)^5)
+
 p=2^64+13; g=ffprimroot(ffgen(p^2), &o); a=2*g^0;
 v=[I,-1,Mat(1),matid(2)/2];
 for(i=1,#v, print(iferr(fflog(a,g,v[i]),E,E)));

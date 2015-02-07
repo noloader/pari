@@ -233,6 +233,7 @@ AP 81- [GP] central simple algebra package, GP functions
    87- [libpari] cb_pari_err_handle callback
    88- [libpari] function nf_get_ramified_primes
    89- Configure --with-runtime-perl option
+PB 90- Faster matrix multiplication over finite fields
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]

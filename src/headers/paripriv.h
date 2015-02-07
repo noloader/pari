@@ -562,6 +562,10 @@ void    pari_close_files(void);
 int     popinfile(void);
 pariFILE* try_pipe(const char *cmd, int flag);
 
+/* Flx.c */
+
+GEN FlxqM_mul_Kronecker(GEN A, GEN B, GEN T, ulong p);
+
 /* Flxq_log.c */
 
 GEN Flxq_log_index(GEN a0, GEN b0, GEN m, GEN T0, ulong p);

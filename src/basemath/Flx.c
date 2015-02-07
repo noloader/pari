@@ -3968,6 +3968,139 @@ FlxqV_roots_to_pol(GEN V, GEN T, ulong p, long v)
   return gerepileupto(ltop, FlxqXV_prod(W, T, p));
 }
 
+/*** FlxqM ***/
+
+static GEN
+kron_pack_Flx_spec_half(GEN x, long l) {
+  if (l == 0)
+    return gen_0;
+  return Flx_to_int_halfspec(x, l);
+}
+
+static GEN
+kron_pack_Flx_spec(GEN x, long l) {
+  long i;
+  GEN w, y;
+  if (l == 0)
+    return gen_0;
+  y = cgetipos(l + 2);
+  for (i = 0, w = int_LSW(y); i < l; i++, w = int_nextW(w))
+    *w = x[i];
+  return y;
+}
+
+static GEN
+kron_pack_Flx_spec_2(GEN x, long l) {
+  return Flx_eval2BILspec(x, 2, l);
+}
+
+static GEN
+kron_pack_Flx_spec_3(GEN x, long l) {
+  return Flx_eval2BILspec(x, 3, l);
+}
+
+static GEN
+kron_unpack_Flx(GEN z, ulong p)
+{
+  long i, l = lgefint(z);
+  GEN x = cgetg(l, t_VECSMALL), w;
+  for (w = int_LSW(z), i = 2; i < l; w = int_nextW(w), i++)
+    x[i] = ((ulong) *w) % p;
+  return Flx_renormalize(x, l);
+}
+
+static GEN
+kron_unpack_Flx_2(GEN x, ulong p) {
+  long d = (lgefint(x)-1)/2 - 1;
+  return Z_mod2BIL_Flx_2(x, d, p);
+}
+
+static GEN
+kron_unpack_Flx_3(GEN x, ulong p) {
+  long d = lgefint(x)/3 - 1;
+  return Z_mod2BIL_Flx_3(x, d, p);
+}
+
+static GEN
+FlxM_pack_ZM(GEN M, GEN (*pack)(GEN, long)) {
+  long i, j, l, lc;
+  GEN N = cgetg_copy(M, &l), x;
+  if (l == 1)
+    return N;
+  lc = lgcols(M);
+  for (j = 1; j < l; j++) {
+    gel(N, j) = cgetg(lc, t_COL);
+    for (i = 1; i < lc; i++) {
+      x = gcoeff(M, i, j);
+      gcoeff(N, i, j) = pack(x + 2, lgpol(x));
+    }
+  }
+  return N;
+}
+
+static GEN
+ZM_unpack_FlxqM(GEN M, GEN T, ulong p, GEN (*unpack)(GEN, ulong))
+{
+  long i, j, l, lc, sv = get_Flx_var(T);
+  GEN N = cgetg_copy(M, &l), x;
+  if (l == 1)
+    return N;
+  lc = lgcols(M);
+  for (j = 1; j < l; j++) {
+    gel(N, j) = cgetg(lc, t_COL);
+    for (i = 1; i < lc; i++) {
+      x = unpack(gcoeff(M, i, j), p);
+      x[1] = sv;
+      gcoeff(N, i, j) = Flx_rem(x, T, p);
+    }
+  }
+  return N;
+}
+
+GEN
+FlxqM_mul_Kronecker(GEN A, GEN B, GEN T, ulong p) {
+  pari_sp av = avma;
+  long l, n = lg(A) - 1;
+  GEN C, D, z;
+  GEN (*pack)(GEN, long), (*unpack)(GEN, ulong);
+
+  /*
+    cf. Flx_mulspec(), maxlengthcoeffpol()
+    z  can be 1, 2, 3 or (theoretically) 4 words long
+  */
+  z = muliu(muliu(sqru(p - 1), degpol(T)), n);
+  l = lgefint(z);
+  avma = av;
+
+  switch (l - 2) {
+  case 1:
+    if (HIGHWORD(z[2]) == 0) {
+      pack = kron_pack_Flx_spec_half;
+      unpack = int_to_Flx_half;
+    } else {
+      pack = kron_pack_Flx_spec;
+      unpack = kron_unpack_Flx;
+    }
+    break;
+  case 2:
+    pack = kron_pack_Flx_spec_2;
+    unpack = kron_unpack_Flx_2;
+    break;
+  case 3:
+    pack = kron_pack_Flx_spec_3;
+    unpack = kron_unpack_Flx_3;
+    break;
+  default:
+    /* not implemented, probably won't occur in practice */
+    return NULL;
+  }
+  A = FlxM_pack_ZM(A, pack);
+  B = FlxM_pack_ZM(B, pack);
+  C = ZM_mul(A, B);
+  D = ZM_unpack_FlxqM(C, T, p, unpack);
+  return gerepilecopy(av, D);
+}
+
 /*******************************************************************/
 /*                                                                 */
 /*                       (Fl[X]/T(X))[Y] / S(Y)                    */

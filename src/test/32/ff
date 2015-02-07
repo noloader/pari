@@ -319,6 +319,15 @@ t^4 + t^2
 [3*t^2 + 3*t, 18446744073709551628*t^4 + 5*t^3 + 4*t^2 + 1844674407370955162
 7*t + 18446744073709551628, 18446744073709551628*t^4 + 5*t^3 + 4*t^2 + 18446
 744073709551628*t]~
+? test(q)=my(t=ffgen(q,'t),M=matrix(10,10,i,j,random(t)));subst(charpoly(M),'x,M)==0;
+? test(nextprime(2^7)^5)
+1
+? test(nextprime(2^15)^5)
+1
+? test(nextprime(2^31)^5)
+1
+? test(nextprime(2^63)^5)
+1
 ? p=2^64+13;g=ffprimroot(ffgen(p^2),&o);a=2*g^0;
 ? v=[I,-1,Mat(1),matid(2)/2];
 ? for(i=1,#v,print(iferr(fflog(a,g,v[i]),E,E)));
