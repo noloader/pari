@@ -70,7 +70,8 @@ Doc: initialize the central simple algebra defined by data $B$, $C$ and
  local invariants at those maximal ideals. The invariants at infinite real
  places are indexed by the real roots $K$\kbd{.roots}: if the Archimedean
  place $v$ is associated with the $j$-th root, the value of
- $h_v$ is given by $h_i[j]$.
+ $h_v$ is given by $h_i[j]$, must be $0$ or $1/2$ (or~$d/2$ modulo~$d$), and
+ can be nonzero only if~$d$ is even.
 
  By class field theory, provided the local invariants $h_v$ sum to $0$, up
  to Brauer equivalence, there is a unique central simple algebra over $K$

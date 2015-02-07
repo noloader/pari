@@ -3226,7 +3226,7 @@ checkhasse(GEN nf, GEN hf, GEN hi, long n)
   sum = 0;
   for (i=1; i<lg(Lh); i++) sum = (sum+Lh[i])%n;
   for (i=1; i<lg(hi); i++) {
-      if(hi[i] && hi[i] != n/2) pari_err_DOMAIN("checkhasse", "nonzero Hasse invariant at infinity", "!=", stoi(n/2), stoi(hi[i]));
+      if(hi[i] && 2*hi[i] != n) pari_err_DOMAIN("checkhasse", "Hasse invariant at real place [must be 0 or 1/2]", "!=", stoi(hi[i]) , n%2? gen_0 : stoi(n/2));
       sum = (sum+hi[i])%n;
   }
   if (sum<0) sum = n+sum;

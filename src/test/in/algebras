@@ -1696,6 +1696,9 @@ algsqr(A,1)
 algdivl(A,1,1)
 algdivr(A,1,1)
 alginv(A,1)
+a='a;
+K=nfinit(a);PR=idealprimedec(K,2);A=alginit(K,[3,[PR,[1]],[-1]]);
+K=nfinit(a);P2=idealprimedec(K,2);P3=idealprimedec(K,3);A=alginit(K,[3,[concat(P2,P3),[1/3,-2/3]],[1/3]]);
 
 
 \\better accessors for hasse invariants
