@@ -203,9 +203,9 @@ trivial hasse invariants: 1
 charac: 1
 dim: 1
 absdim: 1
-ord: 1
-invord: 1
-ord*invord: 1
+basis: 1
+invbasis: 1
+basis*invbasis: 1
 iscyclic: 1
 radical: 1
 Suite: operations
@@ -985,8 +985,8 @@ hasse invariants:
   ***                       ^------------------
   *** alghasse: sorry, computation of Hasse invariants over table CSA is not yet implemented.
 csa splitting pol: 1
-csa ord: 1
-csa invord: 1
+csa basis: 1
+csa invbasis: 1
 csa absdim: 1
 csa char: 1
 csa deg: 1
@@ -2766,6 +2766,12 @@ x - 12
   ***   at top-level: alginv(A,1)
   ***                 ^-----------
   *** alginv: incorrect type in alg_model (t_INT).
+  ***   at top-level: ...;PR=idealprimedec(K,2);A=alginit(K,[3,[PR,[1]
+  ***                                             ^--------------------
+  *** alginit: domain error in checkhasse: Hasse invariant at real place [must be 0 or 1/2] != 2
+  ***   at top-level: ...;P3=idealprimedec(K,3);A=alginit(K,[3,[concat
+  ***                                             ^--------------------
+  *** alginit: domain error in checkhasse: Hasse invariant at real place [must be 0 or 1/2] != 1
 1/2
 0
 3/4
@@ -2822,4 +2828,4 @@ Hasse inv 0 bug
 9
 1
 0
-Total time spent: 5834
+Total time spent: 5823

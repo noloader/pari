@@ -245,11 +245,11 @@ alghassef(GEN al) { checkalg(al); return alg_get_hasse_f(al); }
 GEN
 alg_get_ord(GEN al) { return gel(al,7); }
 GEN
-algord(GEN al) { checkalg(al); return alg_get_ord(al); }
+algbasis(GEN al) { checkalg(al); return alg_get_ord(al); }
 GEN
 alg_get_invord(GEN al) { return gel(al,8); }
 GEN
-alginvord(GEN al) { checkalg(al); return alg_get_invord(al); }
+alginvbasis(GEN al) { checkalg(al); return alg_get_invord(al); }
 GEN
 alg_get_multable(GEN al) { return gel(al,9); }
 GEN
