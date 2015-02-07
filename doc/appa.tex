@@ -129,6 +129,16 @@ one, \kbd{ftime}, gives timings in terms of absolute (wall-clock) time.
 Moreover, the \kbd{clock\_gettime} function is more precise, but much slower
 (at the time of this writing), than \kbd{getrusage} or \kbd{times}.
 
+\kbd{--with-runtime-perl=}\var{perl}: absolute path to the runtime \kbd{perl}
+binary to be used by the \kbd{gphelp} and \kbd{tex2mail} scripts. Defaults
+to the path found by \kbd{Configure} on the build host (usually
+\kbd{/usr/bin/perl}). For cross-compiling builds, when the target and build
+hosts have mismatched configurations; suggested values are
+
+\kbd{/usr/bin/env perl}: the first \kbd{perl} executable found in user's
+\kbd{PATH},
+
+\kbd{/usr/bin/perl}: \kbd{perl}'s standard location.
 
 The remaining options are specific to parallel programming. We provide an
 \emph{Introduction to parallel GP programming} in the file

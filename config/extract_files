@@ -9,7 +9,7 @@ for dir in "$doc_dir" "$misc_dir"; do
     echo "...in $dir"
     flist=`ls $dir/*.in`
     for file in $flist; do
-      sed -e "s%@perl@%$perl%g"\
+      sed -e "s%@runtime_perl@%$runtime_perl%g"\
           -e "s%@datadir@%$datadir%g"\
           -e "s%@bindir@%$bindir%g"\
           -e "s%@includedir@%$includedir%g"\

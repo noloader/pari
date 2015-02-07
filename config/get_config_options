@@ -63,7 +63,8 @@ while test $# -gt 0; do
   -graphic|--graphic) shift; which_graphic_lib=$1;;
   --graphic=*|--graphi=*|--graph=*|--grap=*|--gra=*|--gr=*|--g=*)
 	       which_graphic_lib=`echo "$1" | sed -e 's/[-a-z]*=//'`;;
-
+  --with-runtime-perl=*)
+      runtime_perl=`echo "$1" | sed -e 's/[-a-z]*=//'` ;;
   --without-readline|--with-readline=no) without_readline=yes ;;
   --with-readline) with_readline=yes ;;
   --with-readline=*)
@@ -165,6 +166,9 @@ Optional libraries:
 
   --with-qt[=DIR]        use the Qt graphical library [prefix for Qt dir.]
   --with-fltk[=DIR]      use the FLTK graphical library [prefix for FLTK dir.]
+
+Miscellaneous
+  --with-runtime-perl[=path-to-perl-binary] for gphelp / tex2mail
 
 Environment variables affecting the build:
   CC                     C compiler

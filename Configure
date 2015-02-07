@@ -159,6 +159,7 @@ for variable in\
   ln_s make_sh\
   sizeof_long doubleformat\
   thread_engine enable_tls\
+  runtime_perl\
   $_tools_list\
   $_test_list\
   $_install_list\
