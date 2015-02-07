@@ -1562,6 +1562,8 @@ alghasse(al,idealprimedec(nfinit(y),2)[1])
 algindex(al)
 algisdivision(al)
 
+al = alginit(nfinit(y), [Mat(1)]);
+
 print("empty matrices");
 al = alginit(nfinit(y), [-1,-1]);
 print("-v: ", algneg(al,[;]) == [;]);
@@ -1578,8 +1580,6 @@ print("v-v: ", algsub(al,[;],[;]) == [;]);
 print("v*v: ", algmul(al,[;],[;]) == [;]);
 print("v/v: ", algdivr(al,[;],[;]) == [;]);
 print("v\\v: ", algdivl(al,[;],[;]) == [;]);
-
-\\al = alginit(nfinit(y), [Mat(1)]) TODO add this test when bug fixed
 
 mt0 = [Mat([1])];
 almt0 = algtableinit(mt0,0)
