@@ -2768,10 +2768,10 @@ x - 12
   *** alginv: incorrect type in alg_model (t_INT).
   ***   at top-level: ...;PR=idealprimedec(K,2);A=alginit(K,[3,[PR,[1]
   ***                                             ^--------------------
-  *** alginit: domain error in checkhasse: Hasse invariant at real place [must be 0 or 1/2] != 2
+  *** alginit: domain error in checkhasse: Hasse invariant at real place [must be 0 or 1/2] != 0
   ***   at top-level: ...;P3=idealprimedec(K,3);A=alginit(K,[3,[concat
   ***                                             ^--------------------
-  *** alginit: domain error in checkhasse: Hasse invariant at real place [must be 0 or 1/2] != 1
+  *** alginit: domain error in checkhasse: Hasse invariant at real place [must be 0 or 1/2] != 0
   ***   at top-level: algtensor(alginit(nf
   ***                 ^--------------------
   *** algtensor: inconsistent tensor product [not the same center] t_VEC (11 elts) , t_VEC (11 elts).
@@ -2798,7 +2798,7 @@ x - 12
   *** alginit: inconsistent dimensions in checkhasse [Lpr and Lh should have same length].
   ***   at top-level: alginit(nf,[2,[[p2,p
   ***                 ^--------------------
-  *** alginit: incorrect type in Hasse invariant (t_FRAC).
+  *** alginit: domain error in hasseconvert [degree should be a denominator of the invariant]: denom(h) ndiv 2
 1/2
 0
 3/4
@@ -2858,4 +2858,4 @@ Hasse inv 0 bug
 trivial tensor product
 1
 1
-Total time spent: 5852
+Total time spent: 5907

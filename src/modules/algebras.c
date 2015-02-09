@@ -2804,6 +2804,7 @@ hasseconvert(GEN H, long n)
           case t_FRAC :
             c = gmulgs(c,n);
             if (typ(c) == t_INT) break;
+            pari_err_DOMAIN("hasseconvert [degree should be a denominator of the invariant]", "denom(h)", "ndiv", stoi(n), Q_denom(gel(H,i)));
           default : pari_err_TYPE("Hasse invariant", c);
         }
         h[i] = smodis(c,n);
@@ -3240,7 +3241,7 @@ checkhasse(GEN nf, GEN hf, GEN hi, long n)
   sum = 0;
   for (i=1; i<lg(Lh); i++) sum = (sum+Lh[i])%n;
   for (i=1; i<lg(hi); i++) {
-      if(hi[i] && 2*hi[i] != n) pari_err_DOMAIN("checkhasse", "Hasse invariant at real place [must be 0 or 1/2]", "!=", stoi(hi[i]) , n%2? gen_0 : stoi(n/2));
+      if(hi[i] && 2*hi[i] != n) pari_err_DOMAIN("checkhasse", "Hasse invariant at real place [must be 0 or 1/2]", "!=", n%2? gen_0 : stoi(n/2), stoi(hi[i]));
       sum = (sum+hi[i])%n;
   }
   if (sum<0) sum = n+sum;
