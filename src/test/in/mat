@@ -101,3 +101,11 @@ vecsum(1)
 content([])
 content([;])
 content(matrix(0,2))
+
+m=[1,0;0,0;0,1]; b=[1,2;0,0;3,4];
+liftint(Mod(m,2)^(-1))
+liftint(Mod(m,3)^(-1))
+liftint(Mod(m,2^64+13)^(-1))
+liftint(matsolve(Mod(m,2),b))
+liftint(matsolve(Mod(m,3),b))
+liftint(matsolve(Mod(m,2^64+13),b))

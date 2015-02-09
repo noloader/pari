@@ -107,6 +107,9 @@ BA 82- [GP] default arguments to GP functions could cause corruption [#1658]
 VBr83- [darwin] remove obsolete linker options that cause crashes [#1623]
    84- divisors([2,1]) -> SEGV                                    [#1664]
    85- acos([Pol(1)]) -> GC bug [#1663]
+   86- matsolve(a,b) and a^(-1) gave wrong results [or SEGV] when t_MAT a
+       was not square and a,b "modular" (F2m,Flm,FpM,FqM,F2xqM,FlxqM)
+       same for x^(-1) [#1666]
 
   Added
     1- add optional argument to sumdigits to specify the base

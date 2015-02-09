@@ -999,10 +999,9 @@ GEN
 F2xqM_inv(GEN a, GEN T)
 {
   pari_sp av = avma;
-  long n = lg(a)-1;
   GEN u;
-  if (!n) { avma = av; return cgetg(1, t_MAT); }
-  u = F2xqM_gauss_gen(a, matid_F2xqM(n,T), T);
+  if (lg(a) == 1) { avma = av; return cgetg(1, t_MAT); }
+  u = F2xqM_gauss_gen(a, matid_F2xqM(nbrows(a),T), T);
   if (!u) { avma = av; return NULL; }
   return gerepilecopy(av, u);
 }
@@ -1757,6 +1756,23 @@ gauss(GEN a, GEN b)
   return z;
 }
 
+static GEN
+F2_get_col(GEN b, GEN d, long li, long aco)
+{
+  long i, l = nbits2lg(aco);
+  GEN u = cgetg(l, t_VECSMALL);
+  u[1] = aco;
+  for (i = 1; i <= li; i++)
+    if (d[i]) /* d[i] can still be 0 if li > aco */
+    {
+      if (F2v_coeff(b, i))
+        F2v_set(u, d[i]);
+      else
+        F2v_clear(u, d[i]);
+    }
+  return u;
+}
+
 /* destroy a, b */
 static GEN
 F2m_gauss_sp(GEN a, GEN b)
@@ -1765,7 +1781,7 @@ F2m_gauss_sp(GEN a, GEN b)
   GEN u, d;
 
   if (!aco) return cgetg(1,t_MAT);
-  li = coeff(a,1,1);
+  li = gel(a,1)[1];
   d = zero_Flv(li);
   bco = lg(b)-1;
   for (i=1; i<=aco; i++)
@@ -1784,32 +1800,16 @@ F2m_gauss_sp(GEN a, GEN b)
     for (l=1; l<=aco; l++)
     {
       GEN al = gel(a,l);
-      if (!F2v_coeff(al,k)) continue;
-
-      F2v_add_inplace(al,ai);
+      if (F2v_coeff(al,k)) F2v_add_inplace(al,ai);
     }
     for (l=1; l<=bco; l++)
     {
-      GEN al = gel(b,l);
-      if (!F2v_coeff(al,k)) continue;
-
-      F2v_add_inplace(al,ai);
+      GEN bl = gel(b,l);
+      if (F2v_coeff(bl,k)) F2v_add_inplace(bl,ai);
     }
   }
-  u = gcopy(b);
-  for (j = 1; j <= bco; j++)
-  {
-    GEN bj = gel(b, j), uj = gel(u, j);
-
-    for (i = 1; i <= li; i++)
-      if (d[i] && d[i] != i) /* can d[i] still be 0 ? */
-      {
-        if (F2v_coeff(bj, i))
-          F2v_set(uj, d[i]);
-        else
-          F2v_clear(uj, d[i]);
-      }
-  }
+  u = cgetg(bco+1,t_MAT);
+  for (j = 1; j <= bco; j++) gel(u,j) = F2_get_col(gel(b,j), d, li, aco);
   return u;
 }
 
@@ -1834,7 +1834,7 @@ F2m_inv(GEN a)
 {
   pari_sp av = avma;
   if (lg(a) == 1) return cgetg(1,t_MAT);
-  return gerepileupto(av, F2m_gauss_sp(F2m_copy(a), matid_F2m(lg(a)-1)));
+  return gerepileupto(av, F2m_gauss_sp(F2m_copy(a), matid_F2m(gel(a,1)[1])));
 }
 
 /* destroy a, b */
@@ -1942,7 +1942,8 @@ Flm_gauss(GEN a, GEN b, ulong p) {
 }
 static GEN
 Flm_inv_sp(GEN a, ulong *detp, ulong p) {
-  return Flm_gauss_sp(a, matid_Flm(lg(a)-1), detp, p);
+  if (lg(a) == 1) return cgetg(1,t_MAT);
+  return Flm_gauss_sp(a, matid_Flm(nbrows(a)), detp, p);
 }
 GEN
 Flm_inv(GEN a, ulong p) {
@@ -1963,11 +1964,11 @@ FpM_gauss_gen(GEN a, GEN b, GEN p)
   const struct bb_field *S = get_Fp_field(&E,p);
   return gen_Gauss(a,b, E, S);
 }
-/* a an FpM; b an FpM or NULL (replace by identity) */
+/* a an FpM, lg(a)>1; b an FpM or NULL (replace by identity) */
 static GEN
 FpM_gauss_i(GEN a, GEN b, GEN p, ulong *pp)
 {
-  long n = lg(a)-1;
+  long n = nbrows(a);
   a = FpM_init(a,p,pp);
   switch(*pp)
   {
@@ -2057,10 +2058,9 @@ GEN
 FlxqM_inv(GEN a, GEN T, ulong p)
 {
   pari_sp av = avma;
-  long n = lg(a)-1;
   GEN u;
-  if (!n) { avma = av; return cgetg(1, t_MAT); }
-  u = FlxqM_gauss_gen(a, matid_FlxqM(n,T,p), T,p);
+  if (lg(a) == 1) { avma = av; return cgetg(1, t_MAT); }
+  u = FlxqM_gauss_gen(a, matid_FlxqM(nbrows(a),T,p), T,p);
   if (!u) { avma = av; return NULL; }
   return gerepilecopy(av, u);
 }
@@ -2099,10 +2099,9 @@ FqM_inv(GEN a, GEN T, GEN p)
 {
   pari_sp av = avma;
   GEN u;
-  long n;
   if (!T) return FpM_inv(a,p);
-  n = lg(a)-1; if (!n) return cgetg(1, t_MAT);
-  u = FqM_gauss_gen(a,matid(n),T,p);
+  if (lg(a) == 1) return cgetg(1, t_MAT);
+  u = FqM_gauss_gen(a,matid(nbrows(a)),T,p);
   if (!u) { avma = av; return NULL; }
   return gerepilecopy(av, u);
 }

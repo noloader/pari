@@ -3606,8 +3606,8 @@ is a \kbd{FpC}.
 
 \fun{GEN}{FpM_intersect}{GEN x, GEN y, GEN p} as \kbd{intersect}
 
-\fun{GEN}{FpM_inv}{GEN x, GEN p} returns the inverse of \kbd{x}, or
-\kbd{NULL} if \kbd{x} is not invertible.
+\fun{GEN}{FpM_inv}{GEN x, GEN p} returns a left inverse of \kbd{x}
+(the inverse if $x$ is square), or \kbd{NULL} if \kbd{x} is not invertible.
 
 \fun{GEN}{FpM_FpC_invimage}{GEN A, GEN y, GEN p}
  given an \kbd{FpM} $A$ and an \kbd{FpC} $y$, returns an $x$ such that $Ax =
