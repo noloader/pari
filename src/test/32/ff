@@ -339,5 +339,10 @@ error("incorrect type in factorback [not a factorization] (t_MAT).")
 error("incorrect type in factorback [not an exponent vector] (t_COL).")
 ? g^fflog(a,g,o)==a
 1
+? test(p)=a=ffgen((x^2+1)*Mod(1,p));b=ffprimroot(a);u=random(a);l=fflog(u,b);b^l==u;
+? test(1073742623)
+1
+? test(1152921504606849707)
+1
 ? print("Total time spent: ",gettime);
-Total time spent: 1660
+Total time spent: 2628

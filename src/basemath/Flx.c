@@ -2585,18 +2585,53 @@ _Flxq_rand(void *data)
   return z;
 }
 
+/* discrete log in FpXQ for a in Fp^*, g in FpXQ^* of order ord */
+static GEN
+Fl_Flxq_log(ulong a, GEN g, GEN o, GEN T, ulong p)
+{
+  pari_sp av = avma;
+  GEN q,n_q,ord,ordp, op;
+
+  if (a == 1UL) return gen_0;
+  /* p > 2 */
+
+  ordp = utoi(p - 1);
+  ord  = dlog_get_ord(o);
+  if (!ord) ord = T? subis(powuu(p, get_FpX_degree(T)), 1): ordp;
+  if (a == p - 1) /* -1 */
+    return gerepileuptoint(av, shifti(ord,-1));
+  ordp = gcdii(ordp, ord);
+  op = typ(o)==t_MAT ? famat_Z_gcd(o, ordp) : ordp;
+
+  q = NULL;
+  if (T)
+  { /* we want < g > = Fp^* */
+    if (!equalii(ord,ordp)) {
+      q = diviiexact(ord,ordp);
+      g = Flxq_pow(g,q,T,p);
+    }
+  }
+  n_q = Fp_log(utoi(a), utoi(uel(g,2)), op, utoi(p));
+  if (lg(n_q)==1) return gerepileuptoleaf(av, n_q);
+  if (q) n_q = mulii(q, n_q);
+  return gerepileuptoint(av, n_q);
+}
+
 static GEN
 Flxq_easylog(void* E, GEN a, GEN g, GEN ord)
 {
   struct _Flxq *f = (struct _Flxq *)E;
+  GEN T = f->T;
+  ulong p = f->p;
   if (Flx_equal1(a)) return gen_0;
   if (Flx_equal(a,g)) return gen_1;
-  if (!degpol(a) && !degpol(g))
-    return Fp_log(utoi(a[2]),utoi(g[2]),ord, utoi(f->p));
-  if (typ(ord)!=t_INT || get_Flx_degree(f->T)<4 || cmpiu(ord,1UL<<27)<0)
+  if (!degpol(a))
+    return Fl_Flxq_log(uel(a,2), g, ord, T, p);
+  if (typ(ord)!=t_INT || get_Flx_degree(T)<4 || cmpiu(ord,1UL<<27)<0)
     return NULL;
-  return Flxq_log_index(a,g,ord,f->T,f->p);
+  return Flxq_log_index(a, g, ord, T, p);
 }
+
 int
 Flx_equal(GEN V, GEN W)
 {
@@ -2632,7 +2667,8 @@ Flxq_log(GEN a, GEN g, GEN ord, GEN T, ulong p)
   pari_sp av = avma;
   const struct bb_group *S = get_Flxq_star(&E,T,p);
   GEN v = dlog_get_ordfa(ord);
-  ord = mkvec2(gel(v,1),ZM_famat_limit(gel(v,2),int2n(27)));
+  if (get_Flx_degree(T) >= 5)
+    ord = mkvec2(gel(v,1),ZM_famat_limit(gel(v,2),int2n(27)));
   return gerepileuptoleaf(av, gen_PH_log(a,g,ord,E,S));
 }
 

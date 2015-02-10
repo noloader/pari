@@ -119,3 +119,14 @@ p=2^64+13; g=ffprimroot(ffgen(p^2), &o); a=2*g^0;
 v=[I,-1,Mat(1),matid(2)/2];
 for(i=1,#v, print(iferr(fflog(a,g,v[i]),E,E)));
 g^fflog(a,g,o) == a
+
+test(p)=
+{
+  a=ffgen((x^2+1)*Mod(1,p));
+  b=ffprimroot(a);
+  u=random(a);
+  l=fflog(u,b);
+  b^l==u;
+}
+test(1073742623)
+test(1152921504606849707)
