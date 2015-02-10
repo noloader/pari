@@ -816,6 +816,7 @@ alg_decompose(GEN al, GEN Z, int mini)
   long i, nz = lg(Z)-1;
 
   if (nz==1) return gen_0;
+  Zal = alg_subalg(al,Z);
   av = avma;
   rand = random_pm1(nz);
   zx = zc_to_ZC(rand);
@@ -826,7 +827,6 @@ alg_decompose(GEN al, GEN Z, int mini)
     x = FpC_red(x,p);
   }
   else x = RgM_zc_mul(Z,rand);
-  Zal = alg_subalg(al,Z);
   dec0 = try_fact(al,x,zx,Z,Zal,mini);
   if (dec0) return dec0;
   avma = av;
