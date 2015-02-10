@@ -34,6 +34,10 @@ checkalg_i(GEN al)
   if (typ(al) != t_VEC || lg(al) != 12) return 0;
   mt = alg_get_multable(al);
   if (typ(mt) != t_VEC || lg(mt) == 1 || typ(gel(mt,1)) != t_MAT) return 0;
+  if (!isintzero(alg_get_splitting(al)) && gequal0(alg_get_char(al))) {
+    if (typ(gel(al,2)) != t_VEC || lg(gel(al,2)) == 1) return 0;
+    checkrnf(alg_get_splitting(al));
+  }
   return 1;
 }
 void
@@ -176,11 +180,8 @@ alg_get_degree(GEN al)
 long
 algdegree(GEN al)
 {
-  GEN rnf;
   checkalg(al);
-  rnf = alg_get_splitting(al);
-  if (typ(rnf)!=t_VEC) pari_err_TYPE("algdegree",al);
-  return rnf_get_degree(rnf);
+  return alg_get_degree(al);
 }
 
 GEN
@@ -195,11 +196,8 @@ alg_get_center(GEN al)
 GEN
 alggetcenter(GEN al)
 {
-  GEN rnf;
   checkalg(al);
-  rnf = alg_get_splitting(al);
-  if (typ(rnf)!=t_VEC) pari_err_TYPE("alggetcenter",al);
-  return rnf_get_nf(rnf);
+  return alg_get_center(al);
 }
 GEN
 alg_get_splitpol(GEN al)

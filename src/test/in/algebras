@@ -635,6 +635,9 @@ tablealg() = gusuite("table algebra", ()->{
   do("issemisimple 2", ()->algissemisimple(al)==0);
   do("issimple 2", ()->algissimple(al)==0);
   do("issimple ss 2", ()->algissimple(ss)==0);
+  do("matrix trace 2", ()->algtrace(al,[un,vector(3)~;vector(3)~,un])==0);
+  do("matrix norm 2", ()->algnorm(al,[un,vector(3)~;vector(3)~,un])==1);
+  do("norm 2", ()->algnorm(al,un)==1);
 
   p = 3;
   mt = [[1,0;0,1],[0,0;1,0]];\\F3[x]/(x^2)
@@ -1582,7 +1585,11 @@ algissplit(al)
 algisramified(al)
 algramifiedplaces(al)
 
+print("trivial CSA over Q");
 al = alginit(nfinit(y), [Mat(1)]);
+algsqr(al,[Mod(3,y)]~)
+algsqr(al,[2]~)
+algsqr(al,[Mod(1,y),Mod(2,y)]~) \\should fail
 
 print("empty matrices");
 al = alginit(nfinit(y), [-1,-1]);
@@ -1600,6 +1607,9 @@ print("v-v: ", algsub(al,[;],[;]) == [;]);
 print("v*v: ", algmul(al,[;],[;]) == [;]);
 print("v/v: ", algdivr(al,[;],[;]) == [;]);
 print("v\\v: ", algdivl(al,[;],[;]) == [;]);
+v1 = matrix(0,1);
+print("v*nv: ", algmul(al,v1,matid(1))==v1);
+print("trace(v) char 2: ", algtrace(algtableinit([matid(1)],2), [;]) == 0);
 
 mt0 = [Mat([1])];
 almt0 = algtableinit(mt0,0)
@@ -1705,6 +1715,31 @@ alginit(Q, [matid(2), [0,1/2;1,0]]);
 alginit(Q, [-1/2, -1]);
 alginit(Q, [-1, -1/2]);
 alginit(rnfinit(Q, x^2+1), [-x,-1/2]);
+algsqr([0,0,0,0,0,0,0,0,0,0,0],[]~);
+algsqr([0,0,0,0,0,0,0,0,[],0,0],[]~);
+algsqr([0,0,0,0,0,0,0,0,[0],0,0],[]~);
+algsqr([0,0,0,0,0,0,0,0,[[;]],0,0],[]~);
+algsqr([[],0,0,0,0,0,0,0,[[;]],0,0],[]~);
+algsqr([[],[0],0,0,0,0,0,0,[[;]],0,0],[]~);
+algdim([[],[0],0,0,0,0,0,0,[[;]],0,0]);
+algdegree([[],[0],0,0,0,0,0,0,[[;]],0,0]);
+algdegree([rnfinit(nfinit(y),x),[[]],0,0,0,0,0,0,[[;]],0,0]);
+algcenter([rnfinit(nfinit(y),x),[[]],0,0,0,0,0,0,[[;]],0,0]);
+algcentralproj(almt,0);
+algcentralproj(almt,[zero,zero]);
+algsubalg(almt,0);
+algisassociative([]);
+algisassociative([matid(2),Mat([1,1])]);
+algisassociative([[1,2;3,4],matid(2)]);
+algisassociative([matid(1)],[]);
+algsqr(algtableinit([matid(1)]),[1,2]~);
+algsqr(al,vector(691)~);
+algsqr(al,[1,2,3,4,5,6,7,f^2]~);
+algsqr(al,[f^3,[]]~);
+algmul(al,[;],[1,2]~);
+algdivl(al,[;],matid(1));
+algdivl(al,matid(1),matrix(1,2));
+alginv(al,[0,0]~);
 
 mt=[matid(3), [0,0,0; 1,1,0; 0,0,0], [0,0,1; 0,0,0; 1,0,1]];
 A=algtableinit(mt,2);
@@ -1844,6 +1879,9 @@ algdegree(A)
 algdim(A)
 algindex(A)
 algisdivision(A)
+algadd(A,[1,0,0,0,0,0,0,0,0]~,[1,2,3]~)
+algsub(A,[1,0,0,0,0,0,0,0,0]~,[1,2,3]~)
+algmul(A,[0,0,0,0,0,0,0,0,0]~,[1,2,3]~)
 
 print("trivial tensor product");
 al1 = alginit(nfinit(y),1);
@@ -1933,4 +1971,8 @@ algiscommutative(al)
 algissemisimple(al)
 setrand(9991);
 algissimple(al,1)
+
+print("non associative algebra");
+mt = [matid(3), [0,2,3;1,4,5;0,6,7], [0,8,9;0,10,11;1,12,13]];
+algisassociative(mt)
 

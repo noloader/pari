@@ -596,6 +596,9 @@ iscommutative 2: 1
 issemisimple 2: 1
 issimple 2: 1
 issimple ss 2: 1
+matrix trace 2: 1
+matrix norm 2: 1
+norm 2: 1
 construction 3: [0, 0, 0, 0, 0, 0, [1, 0; 0, 1], [1, 0; 0, 1], [[1, 0; 0, 1]
 , [0, 0; 1, 0]], 3, [2, 0]]
 iscyclic 3: 1
@@ -2539,6 +2542,12 @@ x - 1/3
 1
 0
 []
+trivial CSA over Q
+[Mod(9, y)]~
+[4]~
+  ***   at top-level: algsqr(al,[Mod(1,y),
+  ***                 ^--------------------
+  *** algsqr: incorrect type in alg_model (t_COL).
 empty matrices
 -v: 1
 v^(-1): 1
@@ -2554,6 +2563,8 @@ v-v: 1
 v*v: 1
 v/v: 1
 v\v: 1
+v*nv: 1
+trace(v) char 2: 1
 [0, 0, 0, 0, 0, 0, Mat(1), Mat(1), [Mat(1)], 0, [1]]
 [12]~
 [-1/7]~
@@ -2580,7 +2591,7 @@ x - 12
   *** algsplittingfield: incorrect type in alg_get_splittingfield [use alginit] (t_VEC).
   ***   at top-level: algdegree(almt)
   ***                 ^---------------
-  *** algdegree: incorrect type in algdegree (t_VEC).
+  *** algdegree: incorrect type in alg_get_degree [use alginit] (t_VEC).
   ***   at top-level: alghassei(almt)
   ***                 ^---------------
   *** alghassei: incorrect type in alg_get_hasse_i [use alginit] (t_VEC).
@@ -2768,9 +2779,84 @@ x - 12
   ***   at top-level: alginit(rnfinit(Q,x^
   ***                 ^--------------------
   *** alginit: domain error in alg_cyclic: denominator(b) != 1
+  ***   at top-level: algsqr([0,0,0,0,0,0,
+  ***                 ^--------------------
+  *** algsqr: incorrect type in checkalg [please apply alginit()] (t_VEC).
+  ***   at top-level: algsqr([0,0,0,0,0,0,
+  ***                 ^--------------------
+  *** algsqr: incorrect type in checkalg [please apply alginit()] (t_VEC).
+  ***   at top-level: algsqr([0,0,0,0,0,0,
+  ***                 ^--------------------
+  *** algsqr: incorrect type in checkalg [please apply alginit()] (t_VEC).
+  ***   at top-level: algsqr([0,0,0,0,0,0,
+  ***                 ^--------------------
+  *** algsqr: incorrect type in alg_model (t_COL).
+  ***   at top-level: algsqr([[],0,0,0,0,0
+  ***                 ^--------------------
+  *** algsqr: incorrect type in checkalg [please apply alginit()] (t_VEC).
+  ***   at top-level: algsqr([[],[0],0,0,0
+  ***                 ^--------------------
+  *** algsqr: incorrect type in checkrnf (t_VEC).
+  ***   at top-level: algdim([[],[0],0,0,0
+  ***                 ^--------------------
+  *** algdim: incorrect type in checkrnf (t_VEC).
+  ***   at top-level: algdegree([[],[0],0,
+  ***                 ^--------------------
+  *** algdegree: incorrect type in checkrnf (t_VEC).
+  ***   at top-level: algdegree([rnfinit(n
+  ***                 ^--------------------
+  *** algdegree: incorrect type in alg_get_degree [use alginit] (t_VEC).
+  ***   at top-level: algcenter([rnfinit(n
+  ***                 ^--------------------
+  *** algcenter: incorrect type in alg_get_center [use alginit] (t_VEC).
+  ***   at top-level: algcentralproj(almt,
+  ***                 ^--------------------
+  *** algcentralproj: incorrect type in alcentralproj (t_INT).
+  ***   at top-level: algcentralproj(almt,
+  ***                 ^--------------------
+  *** algcentralproj: incorrect type in algtableinit (t_VEC).
+  ***   at top-level: algsubalg(almt,0)
+  ***                 ^-----------------
+  *** algsubalg: incorrect type in algsubalg (t_INT).
+  ***   at top-level: algisassociative([])
+  ***                 ^--------------------
+  *** algisassociative: incorrect type in algisassociative (mult. table) (t_VEC).
+  ***   at top-level: algisassociative([ma
+  ***                 ^--------------------
+  *** algisassociative: incorrect type in algisassociative (mult. table) (t_VEC).
+  ***   at top-level: algisassociative([[1
+  ***                 ^--------------------
+  *** algisassociative: incorrect type in algisassociative (mult. table) (t_VEC).
+  ***   at top-level: algisassociative([ma
+  ***                 ^--------------------
+  *** algisassociative: incorrect type in algisassociative (t_VEC).
+  ***   at top-level: algsqr(algtableinit(
+  ***                 ^--------------------
+  *** algsqr: incorrect type in alg_model (t_COL).
+  ***   at top-level: algsqr(al,vector(691
+  ***                 ^--------------------
+  *** algsqr: incorrect type in alg_model (t_COL).
+  ***   at top-level: algsqr(al,[1,2,3,4,5
+  ***                 ^--------------------
+  *** algsqr: incorrect type in checkalgx (t_POL).
+  ***   at top-level: algsqr(al,[f^3,[]]~)
+  ***                 ^--------------------
+  *** algsqr: incorrect type in checkalgx (t_VEC).
+  ***   at top-level: algmul(al,[;],[1,2]~
+  ***                 ^--------------------
+  *** algmul: incorrect type in algmul (t_COL).
+  ***   at top-level: algdivl(al,[;],matid
+  ***                 ^--------------------
+  *** algdivl: impossible inverse in algdivl: [;].
+  ***   at top-level: algdivl(al,matid(1),
+  ***                 ^--------------------
+  *** algdivl: inconsistent dimensions in algdivl (nonsquare).
+  ***   at top-level: alginv(al,[0,0]~)
+  ***                 ^-----------------
+  *** alginv: impossible inverse in alginv: [0, 0]~.
   ***   at top-level: algdegree(A)
   ***                 ^------------
-  *** algdegree: incorrect type in algdegree (t_VEC).
+  *** algdegree: incorrect type in alg_get_degree [use alginit] (t_VEC).
   ***   at top-level: algsub(A,1,1)
   ***                 ^-------------
   *** algsub: incorrect type in alg_model (t_INT).
@@ -2926,6 +3012,9 @@ Hasse inv 0 bug
 9
 1
 0
+[2, 0, 0, 2, 0, 0, 3, 0, 0]~
+[0, 0, 0, -2, 0, 0, -3, 0, 0]~
+[0, 0, 0, 0, 0, 0, 0, 0, 0]~
 trivial tensor product
 1
 1
@@ -2934,4 +3023,6 @@ splitting a nasty commutative algebra
 1
 1
 1
-Total time spent: 5776
+non associative algebra
+0
+Total time spent: 5860
