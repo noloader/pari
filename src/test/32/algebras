@@ -1104,6 +1104,12 @@ Vecsmall([1, 0])
 0
 1
 0
+1
+0
+1
+0
+1
+[1, [2, [2, 0]~, 1, 2, 1]]
 
 [1 0 0 -1]
 
@@ -2495,6 +2501,8 @@ Mod(y + 3, y^2 + 1)
 1
 1
 1
+0
+[]
 trivial algebra over Q
 [[x, [[1], 1], [Mat(1), 1], 1, [], [], [[1], [1]], Mat(1), 1, [y, [1, 0], 1,
  1, [Mat(1), Mat(1), Mat(1), Mat(1), 1, Mat(1), [1, 0], []], [0.E-57], [1], 
@@ -2526,6 +2534,8 @@ x - 1/3
 1
 1
 1
+0
+[]
 empty matrices
 -v: 1
 v^(-1): 1
@@ -2719,6 +2729,12 @@ x - 12
   ***   at top-level: algissplit(almt)
   ***                 ^----------------
   *** algissplit: incorrect type in algissplit [use alginit] (t_VEC).
+  ***   at top-level: algisramified(almt)
+  ***                 ^-------------------
+  *** algisramified: incorrect type in algisramified [use alginit] (t_VEC).
+  ***   at top-level: algramifiedplaces(al
+  ***                 ^--------------------
+  *** algramifiedplaces: incorrect type in algramifiedplaces [use alginit] (t_VEC).
   ***   at top-level: alghasse(al,-1)
   ***                 ^---------------
   *** alghasse: domain error in is_place_prid: pl <= 0
@@ -2836,6 +2852,16 @@ x - 12
 0
 0
 0
+1
+0
+1
+0
+1
+1
+1
+[1, [2, [2, 0, 0]~, 1, 3, 1], [5, [2, 0, 1]~, 1, 1, [-1, 2, -3; 1, -2, -2; -
+2, -1, -1]], [5, [-1, 1, -2]~, 1, 2, [2, -1, 1; 0, 2, 1; 1, 0, 2]]]
+ 
 1/2
 0
 0
@@ -2853,13 +2879,20 @@ x - 12
 0
 0
 0
-issplit
 0
 1
 1
 0
 1
 0
+1
+0
+0
+1
+0
+1
+[1, [5, [2, 0, 1]~, 1, 1, [-1, 2, -3; 1, -2, -2; -2, -1, -1]]]
+ 
 0
 0
 0
@@ -2879,6 +2912,12 @@ issplit
 1
 1
 1
+0
+0
+0
+0
+0
+[]
 Hasse inv 0 bug
 3
 9
@@ -2887,4 +2926,4 @@ Hasse inv 0 bug
 trivial tensor product
 1
 1
-Total time spent: 5781
+Total time spent: 5846

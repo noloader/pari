@@ -1214,6 +1214,43 @@ algissplit(GEN al, GEN pl)
   return algindex(al,pl) == 1;
 }
 
+int
+algisramified(GEN al, GEN pl)
+{
+  checkalg(al);
+  if (alg_type(al) == al_TABLE) pari_err_TYPE("algisramified [use alginit]", al);
+  return algindex(al,pl) != 1;
+}
+
+GEN
+algramifiedplaces(GEN al)
+{
+  pari_sp av = avma;
+  GEN ram, hf, hi, Lpr;
+  long r1, count, i;
+  checkalg(al);
+  if (alg_type(al) == al_TABLE) pari_err_TYPE("algramifiedplaces [use alginit]", al);
+  r1 = nf_get_r1(alg_get_center(al));
+  hi = alg_get_hasse_i(al);
+  hf = alg_get_hasse_f(al);
+  Lpr = gel(hf,1);
+  hf = gel(hf,2);
+  ram = cgetg(r1+lg(Lpr), t_VEC);
+  count = 0;
+  for(i=1; i<=r1; i++)
+    if (hi[i]) {
+      count++;
+      gel(ram,count) = stoi(i);
+    }
+  for(i=1; i<lg(Lpr); i++)
+    if (hf[i]) {
+      count++;
+      gel(ram,count) = gel(Lpr,i);
+    }
+  setlg(ram, count+1);
+  return gerepilecopy(av, ram);
+}
+
 /** OPERATIONS ON ELEMENTS operations.c **/
 
 static long

@@ -2,7 +2,7 @@ Function: algissplit
 Section: algebras
 C-Name: algissplit
 Prototype: iGDG
-Help: algisdivision(al,{pl}): test whether the central simple algebra al is
+Help: algissplit(al,{pl}): test whether the central simple algebra al is
  split, i.e. isomorphic to a matrix ring over its center. If pl is set, it
  should be a prime ideal of the center or an integer between 1 and r1+r2, and in
  that case test whether al is locally split at the place pl instead.

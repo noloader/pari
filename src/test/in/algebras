@@ -1320,6 +1320,12 @@ algissplit(A, 2)
 algissplit(A, idealprimedec(nf,2)[1])
 algissplit(A, idealprimedec(nf,5)[1])
 algissplit(A)
+algisramified(A, 1)
+algisramified(A, 2)
+algisramified(A, idealprimedec(nf,2)[1])
+algisramified(A, idealprimedec(nf,5)[1])
+algisramified(A)
+algramifiedplaces(A)
 
 
 
@@ -1542,6 +1548,8 @@ alghasse(al,idealprimedec(nfinit(y^2+1),2)[1])
 algindex(al)
 algisdivision(al)
 algissplit(al)
+algisramified(al)
+algramifiedplaces(al)
 
 
 print("trivial algebra over Q");
@@ -1568,6 +1576,8 @@ alghasse(al,idealprimedec(nfinit(y),2)[1])
 algindex(al)
 algisdivision(al)
 algissplit(al)
+algisramified(al)
+algramifiedplaces(al)
 
 al = alginit(nfinit(y), [Mat(1)]);
 
@@ -1679,6 +1689,8 @@ alghasse(almt, 1);
 algindex(almt, 1);
 algisdivision(almt);
 algissplit(almt);
+algisramified(almt);
+algramifiedplaces(almt);
 alghasse(al, -1);
 alghasse(al, 3);
 alghasse(al, 2^100);
@@ -1750,7 +1762,16 @@ algissplit(al,idealprimedec(nf,3)[1])
 algissplit(al,idealprimedec(nf,5)[1])
 algissplit(al,idealprimedec(nf,5)[2])
 algissplit(al)
+algisramified(al,1)
+algisramified(al,2)
+algisramified(al,idealprimedec(nf,2)[1])
+algisramified(al,idealprimedec(nf,3)[1])
+algisramified(al,idealprimedec(nf,5)[1])
+algisramified(al,idealprimedec(nf,5)[2])
+algisramified(al)
+algramifiedplaces(al)
 
+print(" ");
 al = 0;
 al = alginit(rnf, [x^2,-1]);
 alghasse(al,1)
@@ -1770,14 +1791,21 @@ algisdivision(al,idealprimedec(nf,2)[1])
 algisdivision(al,idealprimedec(nf,5)[1])
 algisdivision(al,idealprimedec(nf,5)[2])
 algisdivision(al)
-print("issplit");
 algissplit(al,1)
 algissplit(al,2)
 algissplit(al,idealprimedec(nf,2)[1])
 algissplit(al,idealprimedec(nf,5)[1])
 algissplit(al,idealprimedec(nf,5)[2])
 algissplit(al)
+algisramified(al,1)
+algisramified(al,2)
+algisramified(al,idealprimedec(nf,2)[1])
+algisramified(al,idealprimedec(nf,5)[1])
+algisramified(al,idealprimedec(nf,5)[2])
+algisramified(al)
+algramifiedplaces(al)
 
+print(" ");
 al = 0;
 al = alginit(rnf, [x^2, 1]);
 alghasse(al,1)
@@ -1799,6 +1827,12 @@ algissplit(al,2)
 algissplit(al,idealprimedec(nf,2)[1])
 algissplit(al,idealprimedec(nf,5)[2])
 algissplit(al)
+algisramified(al,1)
+algisramified(al,2)
+algisramified(al,idealprimedec(nf,2)[1])
+algisramified(al,idealprimedec(nf,5)[2])
+algisramified(al)
+algramifiedplaces(al)
 
 print("Hasse inv 0 bug");
 setrand(1); a='a;
