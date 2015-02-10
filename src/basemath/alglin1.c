@@ -1540,9 +1540,10 @@ RgM_solve(GEN a, GEN b)
   long i, j, k, li, bco, aco;
   int iscol;
   pivot_fun pivot;
-  GEN p, u, data;
+  GEN p, u, data, ff = NULL;
 
   if (is_modular_solve(a,b,&u)) return gerepileupto(av, u);
+  if (!b && RgM_is_FFM(a, &ff)) return FFM_inv(a, ff);
   avma = av;
 
   if (lg(a)-1 == 2 && nbrows(a) == 2) {
