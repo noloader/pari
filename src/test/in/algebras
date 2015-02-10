@@ -1315,6 +1315,11 @@ algisdivision(A, 2)
 algisdivision(A, idealprimedec(nf,2)[1])
 algisdivision(A, idealprimedec(nf,5)[1])
 algisdivision(A)
+algissplit(A, 1)
+algissplit(A, 2)
+algissplit(A, idealprimedec(nf,2)[1])
+algissplit(A, idealprimedec(nf,5)[1])
+algissplit(A)
 
 
 
@@ -1536,6 +1541,7 @@ alghasse(al,1)
 alghasse(al,idealprimedec(nfinit(y^2+1),2)[1])
 algindex(al)
 algisdivision(al)
+algissplit(al)
 
 
 print("trivial algebra over Q");
@@ -1561,6 +1567,7 @@ alghasse(al,1)
 alghasse(al,idealprimedec(nfinit(y),2)[1])
 algindex(al)
 algisdivision(al)
+algissplit(al)
 
 al = alginit(nfinit(y), [Mat(1)]);
 
@@ -1597,10 +1604,10 @@ algnorm(almt0,b)
 algcharpoly(almt0,a)
 algmultable(almt0,b)
 algpow(almt0,a,0)
-algiscommutative(al)
-algissemisimple(al)
-algissimple(al)
-algisdivision(al)
+algiscommutative(almt0)
+algissemisimple(almt0)
+algissimple(almt0)
+algisdivision(almt0)
 
 m_i = [0,-1,0, 0;\
        1, 0,0, 0;\
@@ -1671,6 +1678,7 @@ algsplittingdata(al);
 alghasse(almt, 1);
 algindex(almt, 1);
 algisdivision(almt);
+algissplit(almt);
 alghasse(al, -1);
 alghasse(al, 3);
 alghasse(al, 2^100);
@@ -1735,6 +1743,13 @@ algisdivision(al,idealprimedec(nf,3)[1])
 algisdivision(al,idealprimedec(nf,5)[1])
 algisdivision(al,idealprimedec(nf,5)[2])
 algisdivision(al)
+algissplit(al,1)
+algissplit(al,2)
+algissplit(al,idealprimedec(nf,2)[1])
+algissplit(al,idealprimedec(nf,3)[1])
+algissplit(al,idealprimedec(nf,5)[1])
+algissplit(al,idealprimedec(nf,5)[2])
+algissplit(al)
 
 al = 0;
 al = alginit(rnf, [x^2,-1]);
@@ -1755,6 +1770,13 @@ algisdivision(al,idealprimedec(nf,2)[1])
 algisdivision(al,idealprimedec(nf,5)[1])
 algisdivision(al,idealprimedec(nf,5)[2])
 algisdivision(al)
+print("issplit");
+algissplit(al,1)
+algissplit(al,2)
+algissplit(al,idealprimedec(nf,2)[1])
+algissplit(al,idealprimedec(nf,5)[1])
+algissplit(al,idealprimedec(nf,5)[2])
+algissplit(al)
 
 al = 0;
 al = alginit(rnf, [x^2, 1]);
@@ -1772,6 +1794,11 @@ algisdivision(al,2)
 algisdivision(al,idealprimedec(nf,2)[1])
 algisdivision(al,idealprimedec(nf,5)[2])
 algisdivision(al)
+algissplit(al,1)
+algissplit(al,2)
+algissplit(al,idealprimedec(nf,2)[1])
+algissplit(al,idealprimedec(nf,5)[2])
+algissplit(al)
 
 print("Hasse inv 0 bug");
 setrand(1); a='a;

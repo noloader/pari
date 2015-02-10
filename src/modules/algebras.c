@@ -1206,6 +1206,14 @@ algisdivision(GEN al, GEN pl)
   return algindex(al,pl) == alg_get_degree(al);
 }
 
+int
+algissplit(GEN al, GEN pl)
+{
+  checkalg(al);
+  if (alg_type(al) == al_TABLE) pari_err_TYPE("algissplit [use alginit]", al);
+  return algindex(al,pl) == 1;
+}
+
 /** OPERATIONS ON ELEMENTS operations.c **/
 
 static long
