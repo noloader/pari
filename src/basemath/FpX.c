@@ -1643,29 +1643,6 @@ Fq_issquare(GEN x, GEN T, GEN p)
   return (T && ! odd(get_FpX_degree(T))) || Fp_issquare(x, p);
 }
 
-static GEN
-famat_Z_gcd(GEN M, GEN n)
-{
-  pari_sp av=avma;
-  long i, j, l=lgcols(M);
-  GEN F=cgetg(3,t_MAT);
-  gel(F,1)=cgetg(l,t_COL);
-  gel(F,2)=cgetg(l,t_COL);
-  for (i=1, j=1; i<l; i++)
-  {
-    GEN p = gcoeff(M,i,1);
-    GEN e = gminsg(Z_pval(n,p),gcoeff(M,i,2));
-    if (signe(e))
-    {
-      gcoeff(F,j,1)=p;
-      gcoeff(F,j,2)=e;
-      j++;
-    }
-  }
-  setlg(gel(F,1),j); setlg(gel(F,2),j);
-  return gerepilecopy(av,F);
-}
-
 /* discrete log in FpXQ for a in Fp^*, g in FpXQ^* of order ord */
 GEN
 Fp_FpXQ_log(GEN a, GEN g, GEN o, GEN T, GEN p)

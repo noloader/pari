@@ -604,6 +604,9 @@ by $n$). Otherwise, understand it as an element and returns the $1$-line
 
 \fun{GEN}{famat_inv_shallow}{GEN f} shallow version of \tet{famat_inv}.
 
+\fun{GEN}{famat_Z_gcd}{GEN M, GEN n} restrict the \var{famat} $M$ to
+the prime power dividing $n$.
+
 \fun{GEN}{to_famat}{GEN x, GEN k} given an element $x$ and an exponent
 $k$, returns the \var{famat} $x^k$.
 

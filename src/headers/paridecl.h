@@ -1843,6 +1843,7 @@ int     ZC_prdvd(GEN nf, GEN x, GEN P);
 
 GEN     RM_round_maxrank(GEN G);
 GEN     ZM_famat_limit(GEN fa, GEN limit);
+GEN     famat_Z_gcd(GEN M, GEN n);
 GEN     famat_inv(GEN f);
 GEN     famat_inv_shallow(GEN f);
 GEN     famat_makecoprime(GEN nf, GEN g, GEN e, GEN pr, GEN prk, GEN EX);
