@@ -1781,7 +1781,7 @@ FFM_mul(GEN M, GEN N, GEN ff)
   GEN P, T, p;
   _getFF(ff, &T, &p, &pp);
   M = FFM_to_raw(M);
-  N = FFM_to_raw(N);
+  N = N==M ? M: FFM_to_raw(N);
   switch (ff[1])
   {
   case t_FF_FpXQ: P = FqM_mul(M, N, T, p); break;

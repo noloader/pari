@@ -615,10 +615,11 @@ RgM_sqr(GEN x)
 {
   pari_sp av = avma;
   long j, lx = lg(x);
-  GEN z;
+  GEN z, ffx = NULL;
   if (lx == 1) return cgetg(1, t_MAT);
   if (lx != lgcols(x)) pari_err_OP("operation 'RgM_mul'", x,x);
   if (is_modular_sqr(x,&z)) return gerepileupto(av, z);
+  if (RgM_is_FFM(x, &ffx))  return FFM_mul(x, x, ffx);
   z = cgetg(lx, t_MAT);
   for (j=1; j<lx; j++) gel(z,j) = RgM_RgC_mul_i(x, gel(x,j), lx, lx);
   return z;
