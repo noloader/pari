@@ -1243,6 +1243,9 @@ algadd(A,[1,0]~,[1,2]~)
 algisinv(A,[-1,1]~)
 algisinv(A,[1,2]~,&ix)
 ix
+algisdivl(A,[x+2,-x-2]~,[x,1]~)
+algisdivl(A,[x+2,-x-2]~,[-x,x]~,&z)
+z
 
 A = alginit(nfinit(y^2-5),[2,y]);
 algalgtobasis(A,[y,1]~)

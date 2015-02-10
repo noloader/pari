@@ -2030,9 +2030,8 @@ algdivl_i(GEN al, GEN x, GEN y, long tx, long ty) {
   return gerepileupto(av,res);
 }
 GEN
-algdivl(GEN al, GEN x, GEN y)
+algdivl_i2(GEN al, GEN x, GEN y)
 {
-  GEN z;
   long tx, ty;
   checkalg(al);
   tx = alg_model(al,x);
@@ -2040,14 +2039,31 @@ algdivl(GEN al, GEN x, GEN y)
   if (tx == al_MATRIX) {
     if (ty != al_MATRIX) pari_err_TYPE2("\\", x, y);
     if (lg(y) == 1) return cgetg(1, t_MAT);
-    if (lg(x) == 1) pari_err_INV("algdivl", x);
+    if (lg(x) == 1) return NULL;
     if (lgcols(x) != lgcols(y)) pari_err_DIM("algdivl");
     if (lg(x) != lgcols(x) || lg(y) != lgcols(y))
       pari_err_DIM("algdivl (nonsquare)");
   }
-  z = algdivl_i(al,x,y,tx,ty);
+  return algdivl_i(al,x,y,tx,ty);
+}
+
+GEN algdivl(GEN al, GEN x, GEN y)
+{
+  GEN z;
+  z = algdivl_i2(al,x,y);
   if (!z) pari_err_INV("algdivl", x);
   return z;
+}
+
+int
+algisdivl(GEN al, GEN x, GEN y, GEN* ptz)
+{
+  pari_sp av = avma;
+  GEN z;
+  z = algdivl_i2(al,x,y);
+  if (!z) { avma = av; return 0; }
+  if (ptz != NULL) *ptz = z;
+  return 1;
 }
 
 static GEN
