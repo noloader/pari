@@ -1164,7 +1164,6 @@ GEN algsub(GEN al, GEN x, GEN y);
 GEN algtableinit(GEN mt, GEN p);
 GEN algtensor(GEN al1, GEN al2, int maxord);
 GEN algtrace(GEN al, GEN x);
-GEN algtracematrix(GEN al);
 long algtype(GEN al);
 GEN bnfgwgeneric(GEN bnf, GEN Lpr, GEN Ld, GEN pl, long var);
 GEN bnrconj(GEN bnr, long i);

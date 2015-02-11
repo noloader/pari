@@ -28,6 +28,7 @@ static GEN _tablemul_ej_Fl(GEN mt, GEN x, long j, ulong p);
 static ulong algtracei(GEN mt, ulong p, ulong expo, ulong modu);
 static GEN alg_pmaximal(GEN al, GEN p);
 static GEN alg_maximal(GEN al);
+static GEN algtracematrix(GEN al);
 
 static int
 checkalg_i(GEN al)
@@ -4385,7 +4386,7 @@ alg_pmaximal(GEN al, GEN p)
   return gerepilecopy(av, alg_pmaximal_i(al, p));
 }
 
-GEN
+static GEN
 algtracematrix(GEN al)
 {
   GEN M, mt;
