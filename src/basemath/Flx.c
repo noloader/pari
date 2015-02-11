@@ -2623,11 +2623,12 @@ Flxq_easylog(void* E, GEN a, GEN g, GEN ord)
   struct _Flxq *f = (struct _Flxq *)E;
   GEN T = f->T;
   ulong p = f->p;
+  long d = get_Flx_degree(T);
   if (Flx_equal1(a)) return gen_0;
   if (Flx_equal(a,g)) return gen_1;
   if (!degpol(a))
     return Fl_Flxq_log(uel(a,2), g, ord, T, p);
-  if (typ(ord)!=t_INT || get_Flx_degree(T)<4 || cmpiu(ord,1UL<<27)<0)
+  if (typ(ord)!=t_INT || d <= 4 || d == 6 || cmpiu(ord,1UL<<27)<0)
     return NULL;
   return Flxq_log_index(a, g, ord, T, p);
 }
@@ -2667,7 +2668,8 @@ Flxq_log(GEN a, GEN g, GEN ord, GEN T, ulong p)
   pari_sp av = avma;
   const struct bb_group *S = get_Flxq_star(&E,T,p);
   GEN v = dlog_get_ordfa(ord);
-  if (get_Flx_degree(T) >= 5)
+  long d = get_Flx_degree(T);
+  if (d == 5 || d >= 7)
     ord = mkvec2(gel(v,1),ZM_famat_limit(gel(v,2),int2n(27)));
   return gerepileuptoleaf(av, gen_PH_log(a,g,ord,E,S));
 }
