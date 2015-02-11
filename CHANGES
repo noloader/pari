@@ -110,6 +110,7 @@ VBr83- [darwin] remove obsolete linker options that cause crashes [#1623]
    86- matsolve(a,b) and a^(-1) gave wrong results [or SEGV] when t_MAT a
        was not square and a,b "modular" (F2m,Flm,FpM,FqM,F2xqM,FlxqM)
        same for x^(-1) [#1666]
+   87- primes([1,Pol(2)]) -> SEGV [#1668]
 
   Added
     1- add optional argument to sumdigits to specify the base
