@@ -4094,11 +4094,13 @@ ZM_unpack_FlxqM(GEN M, GEN T, ulong p, GEN (*unpack)(GEN, ulong))
 }
 
 GEN
-FlxqM_mul_Kronecker(GEN A, GEN B, GEN T, ulong p) {
+FlxqM_mul_Kronecker(GEN A, GEN B, GEN T, ulong p)
+{
   pari_sp av = avma;
   long l, n = lg(A) - 1;
   GEN C, D, z;
   GEN (*pack)(GEN, long), (*unpack)(GEN, ulong);
+  int is_sqr = A==B;
 
   /*
     cf. Flx_mulspec(), maxlengthcoeffpol()
@@ -4131,7 +4133,7 @@ FlxqM_mul_Kronecker(GEN A, GEN B, GEN T, ulong p) {
     return NULL;
   }
   A = FlxM_pack_ZM(A, pack);
-  B = FlxM_pack_ZM(B, pack);
+  B = is_sqr? A: FlxM_pack_ZM(B, pack);
   C = ZM_mul(A, B);
   D = ZM_unpack_FlxqM(C, T, p, unpack);
   return gerepilecopy(av, D);

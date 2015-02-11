@@ -1779,9 +1779,10 @@ FFM_mul(GEN M, GEN N, GEN ff)
   pari_sp av = avma;
   ulong pp;
   GEN P, T, p;
+  int is_sqr = M==N;
   _getFF(ff, &T, &p, &pp);
   M = FFM_to_raw(M);
-  N = N==M ? M: FFM_to_raw(N);
+  N = is_sqr? M: FFM_to_raw(N);
   switch (ff[1])
   {
   case t_FF_FpXQ: P = FqM_mul(M, N, T, p); break;
