@@ -1049,6 +1049,7 @@ examples from docu
 [Mod(Mod(-1/3, y), x^2 + 1), Mod(Mod(2/3, y), x^2 + 1)]~
 0
 1
+1
 [Mod(-2/5*x - 1/5, x^2 + 1), 0]~
 [0, 2, -1, -1, 2, 0, 0, 0]~
 [Mod(Mod(y, y^2 - 5), x^2 - 2), 1]~
@@ -1171,6 +1172,7 @@ d(x^2, x^6 - 5), Mod(x^4, x^6 - 5), Mod(x^4 + x^2 + 1, x^6 - 5), Mod(3, x^6
  x^6 - 5), Mod(x^2, x^6 - 5), Mod(1/5*x^4 + x^2 + 1, x^6 - 5), Mod(x^4 - x, 
 x^6 - 5), Mod(-1/5*x^3 + 1, x^6 - 5), Mod(-1/5*x^5 + x^2, x^6 - 5)]]
 2
+18
 18
 1
 1
@@ -2548,6 +2550,12 @@ trivial CSA over Q
   ***   at top-level: algsqr(al,[Mod(1,y),
   ***                 ^--------------------
   *** algsqr: incorrect type in alg_model (t_COL).
+nontrivial CSA over Q
+[Mod(0, y), Mod(12, y), Mod(6, y), Mod(12, y)]~
+[-81, 27, 36, 45]~
+  ***   at top-level: algsqr(al,[Mod(1,y),
+  ***                 ^--------------------
+  *** algsqr: incorrect type in alg_model (t_COL).
 empty matrices
 -v: 1
 v^(-1): 1
@@ -2564,6 +2572,7 @@ v*v: 1
 v/v: 1
 v\v: 1
 v*nv: 1
+v*v 2: 1
 trace(v) char 2: 1
 [0, 0, 0, 0, 0, 0, Mat(1), Mat(1), [Mat(1)], 0, [1]]
 [12]~
@@ -2640,10 +2649,10 @@ x - 12
   *** algsplittingmatrix: domain error in algsplittingmatrix: alg_type(al) = 1
   ***   at top-level: algalgtobasis(almt,a
   ***                 ^--------------------
-  *** algalgtobasis: incorrect type in alg_model (t_COL).
+  *** algalgtobasis: incorrect type in algalgtobasis [use alginit] (t_VEC).
   ***   at top-level: algbasistoalg(almt,[
   ***                 ^--------------------
-  *** algbasistoalg: domain error in algnattoalg: alg_type(al) = 1
+  *** algbasistoalg: incorrect type in algbasistoalg [use alginit] (t_VEC).
   ***   at top-level: algpoleval(almt,1,a)
   ***                 ^--------------------
   *** algpoleval: incorrect type in algpoleval (t_INT).
@@ -2814,7 +2823,7 @@ x - 12
   *** algcentralproj: incorrect type in alcentralproj (t_INT).
   ***   at top-level: algcentralproj(almt,
   ***                 ^--------------------
-  *** algcentralproj: incorrect type in algtableinit (t_VEC).
+  *** algcentralproj: incorrect type in alcentralproj [z[i]'s not surjective] (t_VEC).
   ***   at top-level: algsubalg(almt,0)
   ***                 ^-----------------
   *** algsubalg: incorrect type in algsubalg (t_INT).
@@ -2854,6 +2863,27 @@ x - 12
   ***   at top-level: alginv(al,[0,0]~)
   ***                 ^-----------------
   *** alginv: impossible inverse in alginv: [0, 0]~.
+  ***   at top-level: algalgtobasis(al0mt,
+  ***                 ^--------------------
+  *** algalgtobasis: incorrect type in algalgtobasis [use alginit] (t_VEC).
+  ***   at top-level: algbasistoalg(al0mt,
+  ***                 ^--------------------
+  *** algbasistoalg: incorrect type in algbasistoalg [use alginit] (t_VEC).
+  ***   at top-level: nfgrunwaldwang(nfini
+  ***                 ^--------------------
+  *** nfgrunwaldwang: incorrect type in nfgrunwaldwang (t_INT).
+  ***   at top-level: alginit(rnfinit(nfin
+  ***                 ^--------------------
+  *** alginit: incorrect type in alinit2 (t_INT).
+  ***   at top-level: alginit(rnfinit(nfin
+  ***                 ^--------------------
+  *** alginit: incorrect type in alinit2 (t_VEC).
+  ***   at top-level: alginit(nfinit(y),[m
+  ***                 ^--------------------
+  *** alginit: incorrect type in alg_csa_table (t_VEC).
+  ***   at top-level: alginit(nfinit(y),[m
+  ***                 ^--------------------
+  *** alginit: domain error in alg_csa_table: (nonsquare) dimension != 1
   ***   at top-level: algdegree(A)
   ***                 ^------------
   *** algdegree: incorrect type in alg_get_degree [use alginit] (t_VEC).
@@ -3025,4 +3055,5 @@ splitting a nasty commutative algebra
 1
 non associative algebra
 0
-Total time spent: 5860
+csa without maximal order
+Total time spent: 5758

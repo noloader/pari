@@ -26,6 +26,8 @@ static GEN _tablemul_ej(GEN mt, GEN x, long j);
 static GEN _tablemul_ej_Fp(GEN mt, GEN x, long j, GEN p);
 static GEN _tablemul_ej_Fl(GEN mt, GEN x, long j, ulong p);
 static ulong algtracei(GEN mt, ulong p, ulong expo, ulong modu);
+static GEN alg_pmaximal(GEN al, GEN p);
+static GEN alg_maximal(GEN al);
 
 static int
 checkalg_i(GEN al)
@@ -634,9 +636,10 @@ alg_centralproj(GEN al, GEN z, int maps)
     else          gel(S,i) = image(mti);
   }
   U = shallowconcat1(S); /*U = [Im(z_1)|Im(z_2)|...|Im(z_nz)], n x n*/
+  if (lg(U)-1 < alg_get_absdim(al)) pari_err_TYPE("alcentralproj [z[i]'s not surjective]",z);
   if (signe(p)) Ui = FpM_inv(U,p);
   else          Ui = RgM_inv(U);
-  if (!Ui) pari_err_TYPE("alcentralproj",z);
+  if (!Ui) pari_err_BUG("alcentralproj");
 
   alq = cgetg(lz,t_VEC);
   for (iu=0,i=1; i<lz; i++)
@@ -781,7 +784,6 @@ try_fact(GEN al, GEN x, GEN zx, GEN Z, GEN Zal, long mini)
   }
   dec0 = alg_decompose0(al, x, fa, Z, mini);
   if (!dec0) return NULL;
-  if (isintzero(dec0)) return gen_0;
   if (!mini) return dec0;
   dec1 = alg_decompose(gel(dec0,1), gel(dec0,4), 1);
   z = gel(dec0,5);
@@ -1358,8 +1360,8 @@ algadd(GEN al, GEN x, GEN y)
     if (tx!=al_MATRIX) return gadd(x,y);
     return gerepilecopy(av, alM_add(al,x,y));
   }
-  if (tx==al_ALGEBRAIC)       x = algalgtobasis(al,x);
-  else if (ty==al_ALGEBRAIC)  y = algalgtobasis(al,y);
+  if (tx==al_ALGEBRAIC) x = algalgtobasis(al,x);
+  if (ty==al_ALGEBRAIC) y = algalgtobasis(al,y);
   return gerepileupto(av, gadd(x,y));
 }
 
@@ -1401,8 +1403,8 @@ algsub(GEN al, GEN x, GEN y)
     if(tx != al_MATRIX) return gsub(x,y);
     return gerepilecopy(av, alM_sub(al,x,y));
   }
-  if (tx==al_ALGEBRAIC)       x = algalgtobasis(al,x);
-  else if (ty==al_ALGEBRAIC)  y = algalgtobasis(al,y);
+  if (tx==al_ALGEBRAIC) x = algalgtobasis(al,x);
+  if (ty==al_ALGEBRAIC) y = algalgtobasis(al,y);
   return gerepileupto(av, gsub(x,y));
 }
 
@@ -1516,9 +1518,11 @@ _tablemul_ej_Fp(GEN mt, GEN x, long j, GEN p)
   if (!res) { avma = av; return zerocol(D); }
   return gerepileupto(av, res);
 }
+#if 0
 GEN
-algbasismul_ej(GEN al, GEN x, long j)
+algbasismul_ej(GEN al, GEN x, long j) /* not used */
 { return _tablemul_ej(alg_get_multable(al), x, j); }
+#endif
 static GEN
 _tablemul_ej_Fl(GEN mt, GEN x, long j, ulong p)
 {
@@ -1541,15 +1545,14 @@ static GEN
 algalgmul_csa(GEN al, GEN x, GEN y)
 { return _tablemul(alg_get_relmultable(al), x, y); }
 
-GEN
+/* assumes x and y in algebraic form */
+static GEN
 algalgmul(GEN al, GEN x, GEN y)
 {
   switch(alg_type(al))
   {
     case al_CYCLIC: return algalgmul_cyc(al, x, y);
     case al_CSA: return algalgmul_csa(al, x, y);
-    default:
-      pari_err_DOMAIN("algalgmul", "alg_type(al)", "=", stoi(alg_type(al)), stoi(alg_type(al)));
   }
   return NULL; /*not reached*/
 }
@@ -1682,6 +1685,7 @@ algmtK2Z_csa(GEN al, GEN m)
   return gerepilecopy(av,res);
 }
 
+/* assumes al is a CSA or CYCLIC */
 static GEN
 algmtK2Z(GEN al, GEN m)
 {
@@ -1689,8 +1693,6 @@ algmtK2Z(GEN al, GEN m)
   {
     case al_CYCLIC: return algmtK2Z_cyc(al, m);
     case al_CSA: return algmtK2Z_csa(al, m);
-    default:
-      pari_err_DOMAIN("algmtK2Z", "alg_type(al)", "=", stoi(alg_type(al)), stoi(alg_type(al)));
   }
   return NULL; /*not reached*/
 }
@@ -1774,24 +1776,24 @@ algalgmultable_csa(GEN al, GEN x)
   return elementmultable(alg_get_relmultable(al), x);
 }
 
-GEN
+/* assumes x in algebraic form */
+static GEN
 algalgmultable(GEN al, GEN x)
 {
   switch(alg_type(al))
   {
     case al_CYCLIC: return algalgmultable_cyc(al, x);
     case al_CSA: return algalgmultable_csa(al, x);
-    default:
-      pari_err_DOMAIN("algalgmultable", "alg_type(al)", "=", stoi(alg_type(al)), stoi(alg_type(al)));
   }
   return NULL; /*not reached*/
 }
 
-/*on the natural basis*/
+/* on the natural basis */
+/* assumes x in algebraic form */
 static GEN
 algZmultable(GEN al, GEN x) {
   pari_sp av = avma;
-  GEN res, x0;
+  GEN res = NULL, x0;
   long tx = alg_model(al,x);
   switch(tx) {
     case al_TRIVIAL:
@@ -1801,7 +1803,6 @@ algZmultable(GEN al, GEN x) {
       res = mkmatcopy(mkcol(x0));
       break;
     case al_ALGEBRAIC: res = algmtK2Z(al,algalgmultable(al,x)); break;
-    default: res = algbasismultable(al,x);
   }
   return gerepileupto(av,res);
 }
@@ -1950,7 +1951,7 @@ algmultable(GEN al, GEN x)
     case al_ALGEBRAIC : res = algalgmultable(al,x); break;
     case al_BASIS : res = algbasismultable(al,x); break;
     case al_MATRIX : res = algmultable_mat(al,x); break;
-    default : return NULL;
+    default : return NULL; /* not reached */
   }
   return gerepileupto(av,res);
 }
@@ -2078,7 +2079,7 @@ alginv_i(GEN al, GEN x)
       switch(alg_type(al)) {
         case al_CYCLIC: n = alg_get_degree(al); break;
         case al_CSA: n = alg_get_dim(al); break;
-        default: pari_err_TYPE("alginv_i", al); return NULL;
+        default: return NULL; /* not reached */
       }
       res = algdivl_i(al, x, col_ei(n,1), tx, al_ALGEBRAIC); break;
     case al_BASIS : res = algdivl_i(al, x, col_ei(alg_get_absdim(al),1), tx, al_BASIS); break;
@@ -2164,6 +2165,7 @@ algredcharpoly_i(GEN al, GEN x, long v)
   return cp;
 }
 
+/* assumes al is CSA or CYCLIC */
 static GEN
 algredcharpoly(GEN al, GEN x, long v)
 {
@@ -2173,8 +2175,6 @@ algredcharpoly(GEN al, GEN x, long v)
     case al_CYCLIC:
     case al_CSA:
       return gerepileupto(av, algredcharpoly_i(al, x, v));
-    default:
-      pari_err_DOMAIN("algredcharpoly", "alg_type(al)", "=", stoi(alg_type(al)), stoi(alg_type(al)));
   }
   return NULL; /*not reached*/
 }
@@ -2214,6 +2214,7 @@ algcharpoly(GEN al, GEN x, long v)
   }
 }
 
+/* assumes x in basis form */
 static GEN
 algabstrace(GEN al, GEN x)
 {
@@ -2223,14 +2224,6 @@ algabstrace(GEN al, GEN x)
   switch(alg_model(al,x)) {
     case al_TRIVIAL: return gcopy(gel(x,1)); break;
     case al_BASIS: res = RgV_dotproduct(x, alg_get_tracebasis(al)); break;
-    case al_ALGEBRAIC:
-      switch(alg_type(al))
-      {
-        case al_CYCLIC:
-        case al_CSA:
-          return algabstrace(al, algalgtobasis(al,x));
-        default: return NULL;
-      }
   }
   return gerepileupto(av,res);
 }
@@ -2253,7 +2246,7 @@ algredtrace(GEN al, GEN x)
           res = gtrace(algalgmultable_csa(al,x));
           res = gdiv(res, stoi(alg_get_degree(al)));
           break;
-        default: return NULL;
+        default: return NULL; /* not reached */
       }
   }
   return gerepileupto(av,res);
@@ -2285,7 +2278,7 @@ algtrace(GEN al, GEN x)
   switch(alg_type(al)) {
     case al_CYCLIC: case al_CSA: return algredtrace(al,x);
     case al_TABLE: return algabstrace(al,x);
-    default : return NULL;
+    default : return NULL; /* not reached */
   }
 }
 
@@ -2401,15 +2394,14 @@ algalgtonat_csa(GEN al, GEN x)
   return gerepilecopy(av, res);
 }
 
-GEN
+/* assumes al CSA or CYCLIC */
+static GEN
 algalgtonat(GEN al, GEN x)
 {
   switch(alg_type(al))
   {
     case al_CYCLIC: return algalgtonat_cyc(al, x);
     case al_CSA: return algalgtonat_csa(al, x);
-    default:
-      pari_err_DOMAIN("algalgtonat", "alg_type(al)", "=", stoi(alg_type(al)), stoi(alg_type(al)));
   }
   return NULL; /*not reached*/
 }
@@ -2444,15 +2436,14 @@ algnattoalg_csa(GEN al, GEN x)
   return gerepilecopy(av, res);
 }
 
-GEN
+/* assumes al CSA or CYCLIC */
+static GEN
 algnattoalg(GEN al, GEN x)
 {
   switch(alg_type(al))
   {
     case al_CYCLIC: return algnattoalg_cyc(al, x);
     case al_CSA: return algnattoalg_csa(al, x);
-    default:
-      pari_err_DOMAIN("algnattoalg", "alg_type(al)", "=", stoi(alg_type(al)), stoi(alg_type(al)));
   }
   return NULL; /*not reached*/
 }
@@ -2479,6 +2470,7 @@ algalgtobasis(GEN al, GEN x)
   pari_sp av;
   long tx;
   checkalg(al);
+  if (alg_type(al) == al_TABLE) pari_err_TYPE("algalgtobasis [use alginit]", al);
   tx = alg_model(al,x);
   if (tx==al_BASIS) return gcopy(x);
   if (tx==al_MATRIX) return algalgtobasis_mat(al,x);
@@ -2510,6 +2502,7 @@ algbasistoalg(GEN al, GEN x)
   pari_sp av;
   long tx;
   checkalg(al);
+  if (alg_type(al) == al_TABLE) pari_err_TYPE("algbasistoalg [use alginit]", al);
   tx = alg_model(al,x);
   if (tx==al_ALGEBRAIC) return gcopy(x);
   if (tx==al_MATRIX) return algbasistoalg_mat(al,x);
@@ -3339,6 +3332,9 @@ hassecoprime(GEN hf, GEN hi, long n)
   return gerepilecopy(av, res);
 }
 
+#if 0
+/* not used */
+
 static GEN
 zv_z_div(GEN z, long k)
 {
@@ -3370,6 +3366,7 @@ hassewedderburn(GEN hf, GEN hi, long n)
   hfd = mkmat2(gel(hf,1), zv_z_div(gel(hf,2),k));
   return gerepilecopy(av, mkvec3(hfd,hid,stoi(k)));
 }
+#endif
 
 static long
 alldegmultiple(GEN pr, long d)
@@ -3685,6 +3682,7 @@ alginit(GEN A, GEN B, long v, long flag)
   return NULL;/*not reached*/
 }
 
+/* assumes al CSA or CYCLIC */
 static GEN
 algnatmultable(GEN al, long D)
 {
@@ -4122,12 +4120,15 @@ algpradical_i(GEN al, GEN p, GEN zprad, GEN projs)
   else res = lg(zprad)==1 ? gen_0 : gcopy(zprad);
   return gerepilecopy(av, res);
 }
+#if 0
+/* not used */
 GEN
 algpradical(GEN al, GEN p)
 {
   GEN placeholder = cgetg(1,t_MAT); /*left on stack*/
   return algpradical_i(al, p, placeholder, NULL);
 }
+#endif
 
 static GEN
 algpdecompose0(GEN al, GEN prad, GEN p, GEN projs)
@@ -4182,12 +4183,15 @@ algpdecompose_i(GEN al, GEN p, GEN zprad, GEN projs)
   GEN prad = algpradical_i(al,p,zprad,projs);
   return gerepileupto(av, algpdecompose0(al, prad, p, projs));
 }
+#if 0
+/* not used */
 GEN
 algpdecompose(GEN al, GEN p)
 {
   GEN placeholder = cgetg(1,t_MAT); /*left on stack*/
   return algpdecompose_i(al, p, placeholder, NULL);
 }
+#endif
 
 /* ord is assumed to be in hnf wrt the integral basis of al. */
 /* assumes that alg_get_invord(al) is integral. */
@@ -4224,6 +4228,8 @@ alg_change_overorder_shallow(GEN al, GEN ord)
   return al2;
 }
 
+#if 0
+/* not used */
 /*ord is assumed to be in hnf wrt the integral basis of al.*/
 GEN
 alg_changeorder_shallow(GEN al, GEN ord)
@@ -4256,6 +4262,7 @@ alg_changeorder(GEN al, GEN ord)
   GEN res = alg_changeorder_shallow(al, ord);
   return gerepilecopy(av, res);
 }
+#endif
 
 static GEN
 algfromcenter(GEN al, GEN x)
@@ -4275,39 +4282,34 @@ algfromcenter(GEN al, GEN x)
   return algalgtobasis(al, scalarcol(basistoalg(nf, x), n));
 }
 
+/* x is an ideal of the center in hnf form */
 static GEN
 algfromcenterhnf(GEN al, GEN x)
 {
   GEN res;
   long i;
-  if(x==gen_1) return cgetg(1,t_MAT);
   res = cgetg(lg(x), t_MAT);
   for(i=1; i<lg(x); i++) gel(res,i) = algfromcenter(al, gel(x,i));
   return res;
 }
 
+/* assumes al is CSA or CYCLIC */
 static GEN
 algcenter_precompute(GEN al, GEN p)
 {
   GEN nf, fa, pdec, nfprad, projs;
   long i, np;
-  if(alg_type(al)!=al_TABLE) {
-    nf = alg_get_center(al);
-    fa = cgetg(3, t_MAT);
-    pdec = idealprimedec(nf, p);
-    settyp(pdec, t_COL);
-    np = lg(pdec)-1;
-    gel(fa,1) = pdec;
-    gel(fa,2) = cgetg(np+1, t_COL);
-    for(i=1; i<=np; i++) gcoeff(fa,i,2) = gen_1;
-    nfprad = idealfactorback(nf,fa,NULL,0);
-    projs = cgetg(np+1, t_VEC);
-    for(i=1; i<=np; i++) gel(projs, i) = idealchinese(nf, fa, vec_ei(np,i));
-  }
-  else {
-    nfprad = gen_0;
-    projs = gen_0;
-  }
+  nf = alg_get_center(al);
+  fa = cgetg(3, t_MAT);
+  pdec = idealprimedec(nf, p);
+  settyp(pdec, t_COL);
+  np = lg(pdec)-1;
+  gel(fa,1) = pdec;
+  gel(fa,2) = cgetg(np+1, t_COL);
+  for(i=1; i<=np; i++) gcoeff(fa,i,2) = gen_1;
+  nfprad = idealfactorback(nf,fa,NULL,0);
+  projs = cgetg(np+1, t_VEC);
+  for(i=1; i<=np; i++) gel(projs, i) = idealchinese(nf, fa, vec_ei(np,i));
   return mkvec2(nfprad, projs);
 }
 
@@ -4317,7 +4319,6 @@ algcenter_prad(GEN al, GEN p, GEN pre)
   GEN nfprad, zprad, mtprad;
   long i;
   nfprad = gel(pre,1);
-  if(gequal0(nfprad)) return cgetg(1,t_MAT);
   zprad = algfromcenterhnf(al, nfprad);
   zprad = FpM_image(zprad, p);
   mtprad = cgetg(lg(zprad), t_VEC);
@@ -4333,7 +4334,6 @@ algcenter_p_projs(GEN al, GEN p, GEN pre)
   GEN projs, zprojs;
   long i;
   projs = gel(pre,2);
-  if(gequal0(projs)) return gen_1;
   zprojs = cgetg(lg(projs), t_VEC);
   for(i=1; i<lg(projs); i++) gel(zprojs,i) = FpC_red(algfromcenter(al, gel(projs,i)),p);
   return zprojs;
@@ -4378,7 +4378,7 @@ alg_pmaximal_i(GEN al, GEN p)
   }
   return al2;
 }
-GEN
+static GEN
 alg_pmaximal(GEN al, GEN p)
 {
   pari_sp av = avma;
@@ -4408,7 +4408,7 @@ algdisc(GEN al)
   checkalg(al);
   return gerepileuptoint(av, ZM_det(algtracematrix(al)));
 }
-GEN
+static GEN
 alg_maximal(GEN al)
 {
   pari_sp av = avma;

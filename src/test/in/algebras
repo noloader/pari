@@ -242,7 +242,7 @@ gw() = gusuite("Grunwald-Wang", ()->{
   ppp = idealprimedec(nf,nextprime(4321))[1];
 
   do("A quadratic over Q, 2 large inert, imaginary", testgwa(nf,[pp,ppp],Vecsmall([2,2]),Vecsmall([-1])));
-  do("A quartic over Q, 2 large inert, imaginary", testgwa(nf,[pp,ppp],Vecsmall([4,4]),Vecsmall([-1])));
+  do("A quartic over Q, 2 large inert, imaginary", testgwa(bnfinit(nf),[pp,ppp],Vecsmall([4,4]),Vecsmall([-1])));
 
   nf = nfinit(y^2+1);
   p2 = idealprimedec(nf,2)[1];
@@ -1247,6 +1247,7 @@ algisinv(A,[-1,1]~)
 algisinv(A,[1,2]~,&ix)
 ix
 algisdivl(A,[x+2,-x-2]~,[x,1]~)
+algisdivl(A,[x+2,-x-2]~,[-x,x]~)
 algisdivl(A,[x+2,-x-2]~,[-x,x]~,&z)
 z
 
@@ -1372,6 +1373,8 @@ algtype(A)
 
 mt = [matid(3), [0,0,0; 1,1,0; 0,0,0], [0,0,1; 0,0,0; 1,0,1]];
 A = algtableinit(mt,19);
+algnorm(A,[0,-2,3]~)
+A = algtableinit(mt);
 algnorm(A,[0,-2,3]~)
 
 m_i=[0,-1,0,0;1,0,0,0;0,0,0,-1;0,0,1,0];
@@ -1590,6 +1593,24 @@ al = alginit(nfinit(y), [Mat(1)]);
 algsqr(al,[Mod(3,y)]~)
 algsqr(al,[2]~)
 algsqr(al,[Mod(1,y),Mod(2,y)]~) \\should fail
+print("nontrivial CSA over Q");
+{m_i = [0,-1,0, 0;
+       1, 0,0, 0;
+       0, 0,0,-1;
+       0, 0,1, 0];
+m_j = [0, 0,-1,0;
+       0, 0, 0,1;
+       1, 0, 0,0;
+       0,-1, 0,0];
+m_k = [0, 0, 0, -1;
+       0, 0,-1, 0;
+       0, 1, 0, 0;
+       1, 0, 0, 0];
+mt = [matid(4), m_i, m_j, m_k];}
+al = alginit(nfinit(y), mt);
+algsqr(al,[Mod(3,y),Mod(2,y),Mod(1,y),Mod(2,y)]~)
+algsqr(al,[2,3,4,5]~)
+algsqr(al,[Mod(1,y),Mod(2,y)]~) \\should fail
 
 print("empty matrices");
 al = alginit(nfinit(y), [-1,-1]);
@@ -1609,6 +1630,7 @@ print("v/v: ", algdivr(al,[;],[;]) == [;]);
 print("v\\v: ", algdivl(al,[;],[;]) == [;]);
 v1 = matrix(0,1);
 print("v*nv: ", algmul(al,v1,matid(1))==v1);
+print("v*v 2: ", algmul(al,[;],matrix(0,1))==matrix(0,1));
 print("trace(v) char 2: ", algtrace(algtableinit([matid(1)],2), [;]) == 0);
 
 mt0 = [Mat([1])];
@@ -1740,6 +1762,14 @@ algmul(al,[;],[1,2]~);
 algdivl(al,[;],matid(1));
 algdivl(al,matid(1),matrix(1,2));
 alginv(al,[0,0]~);
+al0mt = algtableinit([matid(1)]);
+algalgtobasis(al0mt,[1]~);
+algbasistoalg(al0mt,[1]~);
+nfgrunwaldwang(nfinit(y),0,[],[],'x);
+alginit(rnfinit(nfinit(y),x),0);
+alginit(rnfinit(nfinit(y),x),[1,2,3,4]);
+alginit(nfinit(y), [matid(2),matid(2)]);
+alginit(nfinit(y), [matid(2),[0,1;1,0]]);
 
 mt=[matid(3), [0,0,0; 1,1,0; 0,0,0], [0,0,1; 0,0,0; 1,0,1]];
 A=algtableinit(mt,2);
@@ -1976,3 +2006,5 @@ print("non associative algebra");
 mt = [matid(3), [0,2,3;1,4,5;0,6,7], [0,8,9;0,10,11;1,12,13]];
 algisassociative(mt)
 
+print("csa without maximal order");
+alginit(nfinit(y), [matid(1)], 'x, 0);
