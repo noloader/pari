@@ -1806,7 +1806,11 @@ F2m_gauss_sp(GEN a, GEN b)
     if (k > li) return NULL;
     d[k] = i;
 
-    /* Clear k-th row but column-wise */
+    /* Clear k-th row but column-wise instead of line-wise */
+    /*  a_ij -= a_i1*a1j/a_11
+       line-wise grouping:  L_j -= a_1j/a_11*L_1
+       column-wise:         C_i -= a_i1/a_11*C_1
+    */
     F2v_clear(ai,k);
     for (l=1; l<=aco; l++)
     {
