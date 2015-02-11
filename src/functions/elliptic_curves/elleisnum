@@ -11,7 +11,7 @@ Doc: $k$ being an even positive integer, computes the numerical value of the
  \tet{ellperiods}, namely
  $$
  (2i \pi/\omega_2)^k
- \Big(1 + 2/\zeta(1-k) \sum_{n\geq 0} n^{k-1}q^n / (1-q^n)\Big),
+ \Big(1 + 2/\zeta(1-k) \sum_{n\geq 1} n^{k-1}q^n / (1-q^n)\Big),
  $$
  where $q = \exp(2i\pi \tau)$ and $\tau:=\omega_1/\omega_2$ belongs to the
  complex upper half-plane. It is also possible to directly input $w =
