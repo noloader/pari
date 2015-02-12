@@ -2667,9 +2667,8 @@ Flxq_log(GEN a, GEN g, GEN ord, GEN T, ulong p)
   void *E;
   pari_sp av = avma;
   const struct bb_group *S = get_Flxq_star(&E,T,p);
-  GEN v = dlog_get_ordfa(ord);
-  long d = get_Flx_degree(T);
-  if (d == 5 || d >= 7)
+  GEN v = dlog_get_ordfa(ord), F = gmael(v,2,1);
+  if (Flxq_log_use_index(gel(F,lg(F)-1), T, p))
     ord = mkvec2(gel(v,1),ZM_famat_limit(gel(v,2),int2n(27)));
   return gerepileuptoleaf(av, gen_PH_log(a,g,ord,E,S));
 }

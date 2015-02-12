@@ -569,6 +569,7 @@ GEN FlxqM_mul_Kronecker(GEN A, GEN B, GEN T, ulong p);
 /* Flxq_log.c */
 
 GEN Flxq_log_index(GEN a0, GEN b0, GEN m, GEN T0, ulong p);
+int Flxq_log_use_index(GEN m, GEN T0, ulong p);
 
 /* FlxqE.c */
 

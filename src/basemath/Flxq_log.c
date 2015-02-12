@@ -391,6 +391,18 @@ Flxq_log_rec(GEN W, GEN a, long r, GEN T, ulong p, GEN m)
   }
 }
 
+static int
+Flxq_log_use_index_cubic(GEN m, GEN T0, ulong p)
+{
+  pari_sp av = avma;
+  long n = get_Flx_degree(T0), r, nb;
+  GEN cost = smooth_best(p, n, &r, &nb);
+  GEN cost_rho = sqrti(shifti(m,2));
+  int use = (cost && gcmp(cost,cost_rho)<0);
+  avma = av;
+  return use;
+}
+
 static GEN
 Flxq_log_index_cubic(GEN a0, GEN b0, GEN m, GEN T0, ulong p)
 {
@@ -689,7 +701,20 @@ Flxq_log_index_Coppersmith(GEN a0, GEN b0, GEN m, GEN T0, ulong p)
 GEN
 Flxq_log_index(GEN a, GEN b, GEN m, GEN T, ulong p)
 {
-  if (p==3 || (p==5 && degpol(T)>41))
+  long d = get_Flx_degree(T);
+  if (p==3 || (p==5 && d>41))
     return Flxq_log_index_Coppersmith(a, b, m, T, p);
   else    return Flxq_log_index_cubic(a, b, m, T, p);
+}
+
+int
+Flxq_log_use_index(GEN m, GEN T, ulong p)
+{
+  long d = get_Flx_degree(T);
+  if (p==3 || (p==5 && d>41))
+    return 1;
+  else if (d<=4 || d==6)
+    return 0;
+  else
+    return Flxq_log_use_index_cubic(m, T, p);
 }
