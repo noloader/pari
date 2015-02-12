@@ -2805,17 +2805,38 @@ nfgrunwaldwang(GEN nf0, GEN Lpr, GEN Ld, GEN pl, long var)
 {
   ulong n;
   pari_sp av = avma;
-  GEN nf, bnf;
-  long t, w;
-  ulong ell;
-  if (typ(Lpr) != t_VEC) pari_err_TYPE("nfgrunwaldwang",Lpr);
+  GEN nf, bnf, pr;
+  long t, w, i;
+  ulong ell, ell2;
+  nf = get_nf(nf0,&t);
+  if (typ(Lpr) != t_VEC)
+    pari_err_TYPE("nfgrunwaldwang",Lpr);
+  if (lg(Lpr) != lg(Ld))
+    pari_err_DIM("nfgrunwaldwang [Lpr and Ld should have the same length]");
+  for(i=1; i<lg(Lpr); i++) {
+    pr = gel(Lpr,i);
+    if (nf_get_degree(nf)==1 && typ(pr)==t_INT)
+      gel(Lpr,i) = gel(idealprimedec(nf,pr), 1);
+    else checkprid(pr);
+  }
+  if (lg(pl)-1 != nf_get_r1(nf))
+    pari_err_DOMAIN("nfgrunwaldwang [pl should have r1 components]", "#pl",
+        "!=", stoi(nf_get_r1(nf)), stoi(lg(pl)-1));
+
   Ld = get_vecsmall(Ld);
   pl = get_vecsmall(pl);
   bnf = get_bnf(nf0,&t);
-  nf = get_nf(nf0,&t);
   n = (lg(Ld)==1)? 2: vecsmall_max(Ld);
 
-  (void)uisprimepower(n, &ell);
+  if (!uisprimepower(n, &ell))
+    pari_err_IMPL("nfgrunwaldwang for non prime-power local degrees (a)");
+  for(i=1; i<lg(Ld); i++)
+    if (Ld[i]!=1 && (!uisprimepower(Ld[i],&ell2) || ell2!=ell))
+      pari_err_IMPL("nfgrunwaldwang for non prime-power local degrees (b)");
+  for(i=1; i<lg(pl); i++)
+    if (pl[i]==-1 && ell%2)
+      pari_err_IMPL("nfgrunwaldwang for non prime-power local degrees (c)");
+
   w = bnf? bnf_get_tuN(bnf): itos(gel(rootsof1(nf),1));
 
   /*TODO choice between kummer and generic ? Let user choose between speed
@@ -2827,7 +2848,7 @@ nfgrunwaldwang(GEN nf0, GEN Lpr, GEN Ld, GEN pl, long var)
     return gerepileupto(av,bnfgwgeneric(bnf,Lpr,Ld,pl,var));
   }
   else {
-    pari_err_IMPL("Grunwald-Wang theorem for non-prime degree");
+    pari_err_IMPL("nfgrunwaldwang for non-prime degree");
     av = avma; return gen_0;
   }
 }

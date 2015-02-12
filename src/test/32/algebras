@@ -282,12 +282,12 @@ radical 3: 1
 tensor of degree 2 and 3 no mo: 1
 Suite: Grunwald-Wang
 A quadratic over Q, 2 large inert, imaginary: 1
-A quartic over Q, 2 large inert, imaginary: error("sorry, Grunwald-Wang theo
-rem for non-prime degree is not yet implemented.")
+A quartic over Q, 2 large inert, imaginary: error("sorry, nfgrunwaldwang for
+ non-prime degree is not yet implemented.")
 A : degree 4 over Q(i), local degrees [4,1,1]: 1
 A degree 3 over Q(j), local degrees [3,3] larger primes: 1
-A : degree 3 over Q(sqrt(5)), local degrees [3,3] [-1,-1], larger primes: 1
-A : degree 5 over Q(sqrt(7)), local degrees [5,5,5,5,5,5,5] [-1,-1]: 1
+A : degree 3 over Q(sqrt(5)), local degrees [3,3] [0,0], larger primes: 1
+A : degree 5 over Q(sqrt(7)), local degrees [5,5,5,5,5,5,5] [0,0]: 1
 A : degree 9 over Q(zeta_9), local degrees [9,9,9,9]: 1
 A degree 2 over totally real sextic, local degrees [2,2] [2,2,2,2,2,2], larg
 er primes: 1
@@ -1117,6 +1117,7 @@ Vecsmall([1, 0])
 0
 1
 [1, [2, [2, 0]~, 1, 2, 1]]
+x^2 + Mod(-3/2*y + 13/2, y^2 - 5)
 
 [1 0 0 -1]
 
@@ -1163,14 +1164,17 @@ Vecsmall([1, 0])
 0, 0, 0, y; 0, 0, 1, 0], [0, 0, y^2, 0; 0, 0, 0, -y^2; 1, 0, 0, 0; 0, -1, 0,
  0], [0, 0, 0, -y^3; 0, 0, y^2, 0; 0, -y, 0, 0; 1, 0, 0, 0]]
 x^2 - y
-[[0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0]~, [1, 0; 0, -1; 0, 0; 0, 0; 0, 0; 0, 0
+[[0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0]~, [1, 0; 0, -4; 0, 0; 0, 0; 0, 0; 0, 0
 ; 0, 1; 0, 0; 0, 0; 0, 0; 0, 0; 0, 0], [Mod(1, x^6 - 5), Mod(x^2, x^6 - 5), 
-Mod(x^4, x^6 - 5), Mod(x, x^6 - 5), Mod(x^3, x^6 - 5), Mod(x^5, x^6 - 5), Mo
-d(x^2, x^6 - 5), Mod(x^4, x^6 - 5), Mod(x^4 + x^2 + 1, x^6 - 5), Mod(3, x^6 
-- 5), Mod(x^2, x^6 - 5), Mod(x^4, x^6 - 5); Mod(0, x^6 - 5), Mod(0, x^6 - 5)
-, Mod(0, x^6 - 5), Mod(0, x^6 - 5), Mod(0, x^6 - 5), Mod(0, x^6 - 5), Mod(1,
- x^6 - 5), Mod(x^2, x^6 - 5), Mod(1/5*x^4 + x^2 + 1, x^6 - 5), Mod(x^4 - x, 
-x^6 - 5), Mod(-1/5*x^3 + 1, x^6 - 5), Mod(-1/5*x^5 + x^2, x^6 - 5)]]
+Mod(x^4, x^6 - 5), Mod(x, x^6 - 5), Mod(x^3, x^6 - 5), Mod(1/2*x^5 + 1/2*x^4
+ + 1/2*x^3 + 1/2*x^2 + 1/2*x + 1/2, x^6 - 5), Mod(4*x^2, x^6 - 5), Mod(5/2*x
+^4 + 5/2*x^2, x^6 - 5), Mod(5/2*x^2 + 5/2, x^6 - 5), Mod(-3/2*x^3 + 21/2, x^
+6 - 5), Mod(1/2*x^4 + 1/2*x^3 + 3*x^2 + 1/2*x + 1/2, x^6 - 5), Mod(5/2*x^4 +
+ 5*x^2 - 3/2*x, x^6 - 5); Mod(0, x^6 - 5), Mod(0, x^6 - 5), Mod(0, x^6 - 5),
+ Mod(0, x^6 - 5), Mod(0, x^6 - 5), Mod(0, x^6 - 5), Mod(1, x^6 - 5), Mod(1/2
+*x^2 + 1/2, x^6 - 5), Mod(1/10*x^4 + 1/2, x^6 - 5), Mod(1/2*x^4 - 1/2*x, x^6
+ - 5), Mod(-1/10*x^3 + 1/2, x^6 - 5), Mod(-1/10*x^5 + 1/2*x^2 + 1, x^6 - 5)]
+]
 2
 18
 18
@@ -2884,6 +2888,30 @@ x - 12
   ***   at top-level: alginit(nfinit(y),[m
   ***                 ^--------------------
   *** alginit: domain error in alg_csa_table: (nonsquare) dimension != 1
+  ***   at top-level: nfgrunwaldwang(nfini
+  ***                 ^--------------------
+  *** nfgrunwaldwang: incorrect type in nfgrunwaldwang (t_INT).
+  ***   at top-level: nfgrunwaldwang(nfini
+  ***                 ^--------------------
+  *** nfgrunwaldwang: inconsistent dimensions in nfgrunwaldwang [Lpr and Ld should have the same length].
+  ***   at top-level: nfgrunwaldwang(nfini
+  ***                 ^--------------------
+  *** nfgrunwaldwang: domain error in nfgrunwaldwang [pl should have r1 components]: #pl != 1
+  ***   at top-level: nfgrunwaldwang(nfini
+  ***                 ^--------------------
+  *** nfgrunwaldwang: sorry, nfgrunwaldwang for non prime-power local degrees (a) is not yet implemented.
+  ***   at top-level: nfgrunwaldwang(nfini
+  ***                 ^--------------------
+  *** nfgrunwaldwang: sorry, nfgrunwaldwang for non prime-power local degrees (b) is not yet implemented.
+  ***   at top-level: nfgrunwaldwang(nfini
+  ***                 ^--------------------
+  *** nfgrunwaldwang: sorry, nfgrunwaldwang for non prime-power local degrees (c) is not yet implemented.
+  ***   at top-level: nfgrunwaldwang(nfini
+  ***                 ^--------------------
+  *** nfgrunwaldwang: incorrect type in checkprid (t_COL).
+  ***   at top-level: nfgrunwaldwang(nfini
+  ***                 ^--------------------
+  *** nfgrunwaldwang: sorry, nfgrunwaldwang for non-prime degree is not yet implemented.
   ***   at top-level: algdegree(A)
   ***                 ^------------
   *** algdegree: incorrect type in alg_get_degree [use alginit] (t_VEC).
@@ -3056,4 +3084,6 @@ splitting a nasty commutative algebra
 non associative algebra
 0
 csa without maximal order
-Total time spent: 5758
+nfgrunwaldwang SEGV #1669
+t65535^2 + Mod(-17, y)
+Total time spent: 7069

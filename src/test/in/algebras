@@ -271,7 +271,9 @@ gw() = gusuite("Grunwald-Wang", ()->{
   pp = idealprimedec(nf,nextprime(1248))[1];
   ppp = idealprimedec(nf,nextprime(4897))[1];
 
-  do("A : degree 3 over Q(sqrt(5)), local degrees [3,3] [-1,-1], larger primes", testgwa(nf,[pp,ppp],[3,3],[-1,-1]));
+  do("A : degree 3 over Q(sqrt(5)), local degrees [3,3] [0,0], larger primes",
+testgwa(nf,[pp,ppp],[3,3],[0,0]));
+  /* TODO check what happens with [-1,-1] */
 
   nf = nfinit(y^2-7);
   p2 = idealprimedec(nf,2)[1];
@@ -282,7 +284,9 @@ gw() = gusuite("Grunwald-Wang", ()->{
   p13 = idealprimedec(nf,13)[1];
   p17 = idealprimedec(nf,17)[1];
 
-  do("A : degree 5 over Q(sqrt(7)), local degrees [5,5,5,5,5,5,5] [-1,-1]", testgwa(nf,[p2,p3,p5,p7,p11,p13,p17],Vecsmall([5,5,5,5,5,5,5]),Vecsmall([-1,-1])));
+  do("A : degree 5 over Q(sqrt(7)), local degrees [5,5,5,5,5,5,5] [0,0]",
+testgwa(nf,[p2,p3,p5,p7,p11,p13,p17],Vecsmall([5,5,5,5,5,5,5]),Vecsmall([0,0])));
+  /* TODO check what happens with [-1,-1] */
 
   nf = nfinit(polcyclo(9,y));
   p2 = idealprimedec(nf,2)[1];
@@ -1334,6 +1338,10 @@ algisramified(A, idealprimedec(nf,5)[1])
 algisramified(A)
 algramifiedplaces(A)
 
+nf = nfinit(y^2-5);
+pr = idealprimedec(nf,13)[1];
+pol = nfgrunwaldwang(nf, [pr], [2], [0,-1], 'x)
+
 
 
 A = alginit(nfinit(y), [-1,-1]);
@@ -1771,6 +1779,15 @@ alginit(rnfinit(nfinit(y),x),[1,2,3,4]);
 alginit(nfinit(y), [matid(2),matid(2)]);
 alginit(nfinit(y), [matid(2),[0,1;1,0]]);
 
+nfgrunwaldwang(nfinit(y), 0, [], [0]);
+nfgrunwaldwang(nfinit(y), [2], [], [0]);
+nfgrunwaldwang(nfinit(y), [2], [2], []);
+nfgrunwaldwang(nfinit(y), [2], [6], [0]);
+nfgrunwaldwang(nfinit(y), [2,3], [2,3], [0]);
+nfgrunwaldwang(nfinit(y), [2], [3], [-1]);
+nfgrunwaldwang(nfinit(y), [[]~], [3], [-1]);
+nfgrunwaldwang(nfinit(y), [2], [9], [0]);
+
 mt=[matid(3), [0,0,0; 1,1,0; 0,0,0], [0,0,1; 0,0,0; 1,0,1]];
 A=algtableinit(mt,2);
 algdegree(A)
@@ -2008,3 +2025,6 @@ algisassociative(mt)
 
 print("csa without maximal order");
 alginit(nfinit(y), [matid(1)], 'x, 0);
+
+print("nfgrunwaldwang SEGV #1669");
+nfgrunwaldwang(nfinit(y),[2,3],[1,2],Vecsmall(1))

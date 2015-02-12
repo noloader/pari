@@ -19,7 +19,7 @@ Doc: Given \var{nf} a number field in \var{nf} or \var{bnf} format,
  \kbd{Ld[i]};
 
  \item at the $i$-th real place of \var{nf}, it is complex if $pl[i]=-1$
- (no condition if $pl[i]=1$).
+ (no condition if $pl[i]=0$).
 
  The extension has degree the LCM of the local degrees. Currently, the degree
  is restricted to be a prime power for the search, and to be prime for the
@@ -29,3 +29,10 @@ Doc: Given \var{nf} a number field in \var{nf} or \var{bnf} format,
  roots of unity where $n$ is the degree of the extension to be computed,
  triggers the computation of the \var{bnf} of $nf(\zeta_n)$, which may be
  costly.
+
+ \bprog
+ ? nf = nfinit(y^2-5);
+ ? pr = idealprimedec(nf,13)[1];
+ ? pol = nfgrunwaldwang(nf, [pr], [2], [0,-1], 'x)
+ %3 = x^2 + Mod(3/2*y + 13/2, y^2 - 5)
+ @eprog
