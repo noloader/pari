@@ -54,6 +54,8 @@ alg_type(GEN al)
   if (isintzero(alg_get_splitting(al)) || !gequal0(alg_get_char(al))) return al_TABLE;
   switch(typ(gmael(al,2,1))) {
     case t_MAT: return al_CSA;
+    case t_INT:
+    case t_FRAC:
     case t_POL:
     case t_POLMOD: return al_CYCLIC;
     default: return al_NULL;

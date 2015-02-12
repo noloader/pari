@@ -2028,3 +2028,62 @@ alginit(nfinit(y), [matid(1)], 'x, 0);
 
 print("nfgrunwaldwang SEGV #1669");
 nfgrunwaldwang(nfinit(y),[2,3],[1,2],Vecsmall(1))
+
+print("simplify bug #1671");
+test(str,al)={
+ my(sal = simplify(al), x, y);
+ setrand(1);
+ print("testing simplify: ", str);
+ print(algtype(al) == algtype(sal));
+ print(algdim(al) == algdim(sal));
+ x = algrandom(al,3);
+ y = algrandom(al,10);
+ print(algsqr(al,x) == algsqr(sal,x));
+ print(algsplittingmatrix(al,x) == algsplittingmatrix(sal,x));
+ print(algcharpoly(al,x) == algcharpoly(sal,x));
+ print(algnorm(al,x) == algnorm(sal,x));
+ print(algmultable(al,x) == algmultable(sal,x));
+ print(algtrace(al,x) == algtrace(sal,x));
+ print(alginv(al,x) == alginv(sal,x));
+ print(algpow(al,x,42) == algpow(sal,x,42));
+ print(algmul(al,x,y) == algmul(sal,x,y));
+ print(algdivl(al,x,y) == algdivl(sal,x,y));
+
+ print(algbasistoalg(al,x) == algbasistoalg(sal,x));
+ x = algbasistoalg(al,x);
+ print(algbasistoalg(al,y) == algbasistoalg(sal,y));
+ y = algbasistoalg(al,y);
+ print(algsqr(al,x) == algsqr(sal,x));
+ print(algsplittingmatrix(al,x) == algsplittingmatrix(sal,x));
+ print(algcharpoly(al,x) == algcharpoly(sal,x));
+ print(algnorm(al,x) == algnorm(sal,x));
+ print(algmultable(al,x) == algmultable(sal,x));
+ print(algtrace(al,x) == algtrace(sal,x));
+ print(alginv(al,x) == alginv(sal,x));
+ print(algpow(al,x,42) == algpow(sal,x,42));
+ print(algmul(al,x,y) == algmul(sal,x,y));
+ print(algdivl(al,x,y) == algdivl(sal,x,y));
+
+ print(algadd(al,x,y) == algadd(al,x,simplify(y)));
+ print(algmul(al,x,y) == algmul(al,x,simplify(y)));
+ print(algmul(al,x,y) == algmul(al,simplify(x),simplify(y)));
+};
+test("degree 1 cyclic over Q", alginit(nfinit(y),1));
+test("degree 1 cyclic over Q(i)", alginit(nfinit(y^2+1),1));
+test("degree 1 csa over Q", alginit(nfinit(y), [matid(1)]));
+test("degree 1 csa over Q(i)", alginit(nfinit(y^2+1), [matid(1)]));
+test("quatalg over Q(s5)", alginit(nfinit(y^2-5), [-2,-3]));
+{m_i = [0,-1,0, 0;
+       1, 0,0, 0;
+       0, 0,0,-1;
+       0, 0,1, 0];
+m_j = [0, 0,-1,0;
+       0, 0, 0,1;
+       1, 0, 0,0;
+       0,-1, 0,0];
+m_k = [0, 0, 0, -1;
+       0, 0,-1, 0;
+       0, 1, 0, 0;
+       1, 0, 0, 0];
+mt = [matid(4), m_i, m_j, m_k];}
+test("quatalg csa over Q", alginit(nfinit(y), mt));
