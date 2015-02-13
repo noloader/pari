@@ -537,11 +537,11 @@ tailresback(long LIMC, long LIMC2, long LIMC3, long R1, long R2, double rK, doub
   const double r1Q = 1.98505372441;
   const double r2Q = 1.07991541347;
   return fabs((R1+R2-1)*(12*logLIMC3+4*logLIMC2-9*logLIMC-6)/(2*LIMC*logLIMC3)
-	 + (rK-rQ)*(6*logLIMC2 + 5*logLIMC + 2)/(LIMC*logLIMC3)
-	 - R2*(6*logLIMC2+11*logLIMC+6)/(LIMC2*logLIMC2)
-	 - 2*(r1K-r1Q)*(3*logLIMC2 + 4*logLIMC + 2)/(LIMC2*logLIMC3)
-	 + (R1+R2-1)*(12*logLIMC3+40*logLIMC2+45*logLIMC+18)/(6*LIMC3*logLIMC3)
-	 + (r2K-r2Q)*(2*logLIMC2 + 3*logLIMC + 2)/(LIMC3*logLIMC3));
+         + (rK-rQ)*(6*logLIMC2 + 5*logLIMC + 2)/(LIMC*logLIMC3)
+         - R2*(6*logLIMC2+11*logLIMC+6)/(LIMC2*logLIMC2)
+         - 2*(r1K-r1Q)*(3*logLIMC2 + 4*logLIMC + 2)/(LIMC2*logLIMC3)
+         + (R1+R2-1)*(12*logLIMC3+40*logLIMC2+45*logLIMC+18)/(6*LIMC3*logLIMC3)
+         + (r2K-r2Q)*(2*logLIMC2 + 3*logLIMC + 2)/(LIMC3*logLIMC3));
 }
 
 static double
@@ -554,8 +554,8 @@ tailres(long R1, long R2, double al2K, double rKm, double rKM, double r1Km, doub
   return
     al2K*((33*logLIMC2+22*logLIMC+8)/(8*logLIMC3*sqrt(LIMC))+15*E1/16)
      + maxdd(
-	    tailresback(LIMC,LIMC2,LIMC3,R1,R2,rKm,r1KM,r2Km,logLIMC,logLIMC2,logLIMC3),
-	    tailresback(LIMC,LIMC2,LIMC3,R1,R2,rKM,r1Km,r2KM,logLIMC,logLIMC2,logLIMC3)
+            tailresback(LIMC,LIMC2,LIMC3,R1,R2,rKm,r1KM,r2Km,logLIMC,logLIMC2,logLIMC3),
+            tailresback(LIMC,LIMC2,LIMC3,R1,R2,rKM,r1Km,r2KM,logLIMC,logLIMC2,logLIMC3)
        )/2
      + ((R1+R2-1)*4*LIMC+R2)*(LIMC2+6*logLIMC)/(4*LIMC2*LIMC2*logLIMC2);
 }
@@ -674,8 +674,8 @@ compute_invres(GRHcheck_t *S, long LIMC)
       kmax = limp / f;
       for (k = 2, NPk = NP; k <= kmax; k++)
       {
-	NPk *= NP;
-	addinvres += 1/(k*NPk);
+        NPk *= NP;
+        addinvres += 1/(k*NPk);
       }
       NP2 = NP*NP;
       loginvres -= nb * addinvres;
