@@ -320,6 +320,7 @@ BA 38- much faster polresultant over Z
         *** _+_: Warning: coercing quotient rings; moduli 2 and 3 -> 1.
    50- content([]) -> 0 [ was 1 ]
    51- [] / 0 => div. by 0. Now returns [] (as [] \ 0 already did)
+LGr52- use GRH-guaranteed bounds in bnfinit for residue estimate
 
 Removed
    1- deprecated functions nfbasis0, nfdisc0, factorpadic0
