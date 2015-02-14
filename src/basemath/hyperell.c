@@ -79,7 +79,7 @@ ZpXXQ_invsqrt(GEN S, GEN T, ulong p, long e)
     long n2 = n;
     n<<=1; if (mask & 1) n--;
     mask >>= 1;
-    q = powuu(p,n), q2 = powuu(p,n2);
+    q = powuu(p,n); q2 = powuu(p,n2);
     f = RgX_sub(FpXXQ_mul(S, FpXXQ_sqr(a, T, q), T, q), pol_1(v));
     fq = ZXX_Z_divexact(f, q2);
     q22 = shifti(addis(q2,1),-1);
@@ -403,10 +403,9 @@ ZpXQXXQ_invsqrt(GEN F, GEN S, GEN T, ulong p, long e)
     long n2 = n;
     n<<=1; if (mask & 1) n--;
     mask >>= 1;
-    q = powuu(p,n), q2 = powuu(p,n2);
+    q = powuu(p,n); q2 = powuu(p,n2);
     av3 = avma;
     f = RgX_sub(FpXQXXQ_mul(F, FpXQXXQ_sqr(a, S, T, q), S, T, q), pol_1(v));
-    fq = RgX_Rg_divexact(f, q2);
     fq = gerepileupto(av3, RgX_Rg_divexact(f, q2));
     q22 = shifti(addis(q2,1),-1);
     afq = FpXXX_Fp_mul(FpXQXXQ_mul(a, fq, S, T, q2), q22, q2);
@@ -627,10 +626,9 @@ hyperellcharpoly(GEN H)
   if (!odd(d))
   {
     GEN q = T ? powuu(p, degpol(T)): pp;
-    GEN v;
-    R = RgX_div_by_X_x(R, q, &v);
+    GEN v, Rx = RgX_div_by_X_x(R, q, &v);
     if (signe(v)) pari_err_BUG("hyperellcharpoly");
-    return gerepilecopy(av, R);
+    return gerepilecopy(av, Rx);
   }
   return gerepileupto(av, R);
 }
