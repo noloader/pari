@@ -269,14 +269,14 @@ static GEN
 ZlX_hyperellpadicfrobenius(GEN H, ulong p, long n)
 {
   pari_sp av = avma;
-  long N, i, d, g;
+  long N, i, d;
   GEN F, s, Q, pN1, U, V;
   pari_timer ti;
   if (typ(H) != t_POL) pari_err_TYPE("hyperellpadicfrobenius",H);
   if (p == 2) is_sing(H, 2);
-  d = degpol(H); g = ((d-1)>>1)*2;
-  if (d < 0 || !odd(d))
-    pari_err_DOMAIN("hyperellpadicfrobenius","H","degree % 2 = ", gen_0, H);
+  d = degpol(H);
+  if (d <= 0)
+    pari_err_CONSTPOL("hyperellpadicfrobenius");
   if (p < (ulong) d)
     pari_err_DOMAIN("hyperellpadicfrobenius","p","<", utoi(d), utoi(p));
   if (n < 1)
@@ -292,8 +292,8 @@ ZlX_hyperellpadicfrobenius(GEN H, ulong p, long n)
   s = ZpXXQ_invsqrt(s, Q, p, N);
   if (DEBUGLEVEL>1) timer_printf(&ti,"invsqrt");
   get_UV(&U, &V, Q, p, N+1);
-  F = cgetg(1+g, t_MAT);
-  for (i = 1; i <= g; i++)
+  F = cgetg(d, t_MAT);
+  for (i = 1; i < d; i++)
   {
     pari_sp av2 = avma;
     GEN M, D;
@@ -301,7 +301,7 @@ ZlX_hyperellpadicfrobenius(GEN H, ulong p, long n)
     if (DEBUGLEVEL>1) timer_printf(&ti,"red");
     M = ZpXXQ_frob(D, U, V, Q, p, N + 1);
     if (DEBUGLEVEL>1) timer_printf(&ti,"frob");
-    gel(F, i) = gerepilecopy(av2, RgX_to_RgC(M, g));
+    gel(F, i) = gerepilecopy(av2, RgX_to_RgC(M, d-1));
   }
   return gerepileupto(av, F);
 }
@@ -544,14 +544,14 @@ GEN
 ZlXQX_hyperellpadicfrobenius(GEN H, GEN T, ulong p, long n)
 {
   pari_sp av = avma;
-  long N, i, d, g;
+  long N, i, d;
   GEN xp, F, s, q, Q, pN1, U, V;
   pari_timer ti;
   if (typ(H) != t_POL) pari_err_TYPE("hyperellpadicfrobenius",H);
   if (p == 2) is_sing(H, 2);
-  d = degpol(H); g = ((d-1)>>1)*2;
-  if (d < 0 || !odd(d))
-    pari_err_DOMAIN("hyperellpadicfrobenius","H","degree % 2 = ", gen_0, H);
+  d = degpol(H);
+  if (d <= 0)
+    pari_err_CONSTPOL("hyperellpadicfrobenius");
   if (p < (ulong) d)
     pari_err_DOMAIN("hyperellpadicfrobenius","p","<", utoi(d), utoi(p));
   if (n < 1)
@@ -569,8 +569,8 @@ ZlXQX_hyperellpadicfrobenius(GEN H, GEN T, ulong p, long n)
   if (DEBUGLEVEL>1) timer_printf(&ti,"invsqrt");
   Fq_get_UV(&U, &V, Q, T, p, N+1);
   if (DEBUGLEVEL>1) timer_printf(&ti,"get_UV");
-  F = cgetg(1+g, t_MAT);
-  for (i = 1; i <= g; i++)
+  F = cgetg(d, t_MAT);
+  for (i = 1; i < d; i++)
   {
     pari_sp av2 = avma;
     GEN M, D;
@@ -578,7 +578,7 @@ ZlXQX_hyperellpadicfrobenius(GEN H, GEN T, ulong p, long n)
     if (DEBUGLEVEL>1) timer_printf(&ti,"red");
     M = ZpXQXXQ_frob(D, U, V, Q, T, p, N + 1);
     if (DEBUGLEVEL>1) timer_printf(&ti,"frob");
-    gel(F, i) = gerepileupto(av2, ZXX_to_FpXC(M, g, q, varn(T)));
+    gel(F, i) = gerepileupto(av2, ZXX_to_FpXC(M, d-1, q, varn(T)));
   }
   return gerepileupto(av, F);
 }
@@ -599,15 +599,16 @@ hyperellcharpoly(GEN H)
 {
   pari_sp av = avma;
   GEN M, R, T=NULL, pp=NULL;
-  long n;
+  long d, n;
   ulong p;
   if (typ(H)!=t_POL || !RgX_is_FpXQX(H, &T, &pp) || !pp)
     pari_err_TYPE("hyperellcharpoly",H);
-  p = itou(pp);
+  p = itou(pp); d = degpol(H);
+
   if (!T)
   {
     H = RgX_to_FpX(H, pp);
-    n = (degpol(H)-1)/2+1;
+    n = (d>>1) + 1;
     M = hyperellpadicfrobenius(H, p, n);
     R = centerlift(carberkowitz(M, 0));
   }
@@ -618,10 +619,18 @@ hyperellcharpoly(GEN H)
     fixvar = (varncmp(varn(T),varn(H)) <= 0);
     if (fixvar) setvarn(T, fetch_var());
     H = RgX_to_FpXQX(H, T, pp);
-    n = degpol(T)*(degpol(H)-1)/2+1;
+    n = ((degpol(T)*d)>>1) + 1;
     M = nfhyperellpadicfrobenius(H, T, p, n);
     R = centerlift(liftpol_shallow(carberkowitz(M, 0)));
     if (fixvar) (void)delete_var();
+  }
+  if (!odd(d))
+  {
+    GEN q = T ? powuu(p, degpol(T)): pp;
+    GEN v;
+    R = RgX_div_by_X_x(R, q, &v);
+    if (signe(v)) pari_err_BUG("hyperellcharpoly");
+    return gerepilecopy(av, R);
   }
   return gerepileupto(av, R);
 }
