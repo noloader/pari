@@ -19,6 +19,20 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #include "pari.h"
 #include "paripriv.h"
 
+/* Implementation of Kedlaya Algorithm for counting point on hyperelliptic
+curves by Bill Allombert based on a GP script by Bernadette Perrin-Riou.
+
+References:
+Pierrick Gaudry and Nicolas G\"urel
+Counting Points in Medium Characteristic Using Kedlaya's Algorithm
+Experiment. Math.  Volume 12, Number 4 (2003), 395-402.
+   http://projecteuclid.org/euclid.em/1087568016
+
+Harrison, M. An extension of Kedlaya's algorithm for hyperelliptic
+  curves. Journal of Symbolic Computation, 47 (1) (2012), 89-101.
+  http://arxiv.org/pdf/1006.4206v3.pdf
+*/
+
 static GEN
 FpXXQ_red(GEN S, GEN T, GEN p)
 {
