@@ -18,9 +18,22 @@ checkfeq(P,q)=
       print(checkfeq(H,29))))
 }
 
-g=ffgen(ffinit(79,3),'g);
-P=hyperellcharpoly(x^5+g*x^3+2*x+5);checkfeq(P,79^3)
-P=hyperellcharpoly(x^5+Mod('g,g.mod*Mod(1,79))*x^3+2*x+5);checkfeq(P,79^3)
+{
+  forprime(p=3,7,
+    H=hyperellcharpoly((x^6+x+1)*Mod(1,p));
+    print(checkfeq(H,p)));
+  forprime(p=5,11,
+    H=hyperellcharpoly((x^10+x+1)*Mod(1,p));
+    print(checkfeq(H,p)));
+  forprime(p=3,7,
+    g=ffgen(ffinit(p,3),'g);
+    H=hyperellcharpoly((x^6+g*x+1));
+    print(checkfeq(H,p^3)));
+}
+
+g=ffgen(ffinit(79,2),'g);
+P=hyperellcharpoly(x^5+g*x^3+2*x+5);checkfeq(P,79^2)
+P=hyperellcharpoly(x^5+Mod('g,g.mod*Mod(1,79))*x^3+2*x+5);checkfeq(P,79^2)
 g=ffgen(ffinit(79,2),'g);
 P=hyperellcharpoly(x^6+g*x^3+2*x+5);checkfeq(P,79^2)
 P=hyperellcharpoly((x^7+x^3+2*x+5)*Mod(1,79));checkfeq(P,79)

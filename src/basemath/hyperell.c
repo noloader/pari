@@ -274,11 +274,13 @@ ZlX_hyperellpadicfrobenius(GEN H, ulong p, long n)
   d = degpol(H);
   if (d <= 0)
     pari_err_CONSTPOL("hyperellpadicfrobenius");
-  if (p < (ulong) d)
+  if (odd(d) &&  p < (ulong) d)
     pari_err_DOMAIN("hyperellpadicfrobenius","p","<", utoi(d), utoi(p));
+  if (!odd(d) &&  2*p < (ulong) d)
+    pari_err_DOMAIN("hyperellpadicfrobenius","2*p","<", utoi(d), utoi(2*p));
   if (n < 1)
     pari_err_DOMAIN("hyperellpadicfrobenius","n","<", gen_1, utoi(n));
-  N = n + logint0(stoi(2*n), stoi(p), NULL);
+  N = n + logint(stoi(2*n), stoi(p), NULL);
   pN1 = powuu(p,N+1);
   Q = RgX_to_FpX(H, pN1);
   if (dvdiu(leading_term(Q),p)) is_sing(H, p);
@@ -548,11 +550,13 @@ ZlXQX_hyperellpadicfrobenius(GEN H, GEN T, ulong p, long n)
   d = degpol(H);
   if (d <= 0)
     pari_err_CONSTPOL("hyperellpadicfrobenius");
-  if (p < (ulong) d)
+  if (odd(d) &&  p < (ulong) d)
     pari_err_DOMAIN("hyperellpadicfrobenius","p","<", utoi(d), utoi(p));
+  if (!odd(d) && 2*p < (ulong) d)
+    pari_err_DOMAIN("hyperellpadicfrobenius","2*p","<", utoi(d), utoi(p));
   if (n < 1)
     pari_err_DOMAIN("hyperellpadicfrobenius","n","<", gen_1, utoi(n));
-  N = n + logint0(stoi(2*n), stoi(p), NULL);
+  N = n + logint(stoi(2*n), stoi(p), NULL);
   q = powuu(p,n); pN1 = powuu(p,N+1); T = FpX_get_red(T, pN1);
   Q = RgX_to_FqX(H, T, pN1);
   if (signe(FpX_red(to_ZX(leading_term(Q),varn(Q)),utoi(p)))==0) is_sing(H, p);
