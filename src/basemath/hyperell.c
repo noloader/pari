@@ -44,10 +44,9 @@ static GEN
 FpXXQ_sqr(GEN x, GEN T, GEN p)
 {
   pari_sp av = avma;
-  GEN z, kx;
   long n = degpol(T);
-  kx = ZXX_to_Kronecker(x, n);
-  z = Kronecker_to_ZXX(FpX_sqr(kx, p), n, varn(T));
+  GEN z = FpX_red(ZXX_sqr_Kronecker(x, n), p);
+  z = Kronecker_to_ZXX(z, n, varn(T));
   return gerepileupto(av, FpXXQ_red(z, T, p));
 }
 
@@ -55,11 +54,9 @@ static GEN
 FpXXQ_mul(GEN x, GEN y, GEN T, GEN p)
 {
   pari_sp av = avma;
-  GEN z, kx, ky;
   long n = degpol(T);
-  kx = ZXX_to_Kronecker(x, n);
-  ky = ZXX_to_Kronecker(y, n);
-  z = Kronecker_to_ZXX(FpX_mul(ky,kx,p), n, varn(T));
+  GEN z = FpX_red(ZXX_mul_Kronecker(x, y, n), p);
+  z = Kronecker_to_ZXX(z, n, varn(T));
   return gerepileupto(av, FpXXQ_red(z, T, p));
 }
 

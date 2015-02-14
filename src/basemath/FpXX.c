@@ -207,6 +207,10 @@ ZXX_mul_Kronecker(GEN x, GEN y, long n)
 { return ZX_mul(ZXX_to_Kronecker(x,n), ZXX_to_Kronecker(y,n)); }
 
 GEN
+ZXX_sqr_Kronecker(GEN x, long n)
+{ return ZX_sqr(ZXX_to_Kronecker(x,n)); }
+
+GEN
 FpXQX_red(GEN z, GEN T, GEN p)
 {
   long i, l = lg(z);
