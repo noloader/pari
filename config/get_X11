@@ -43,16 +43,16 @@ lib=X11; . ./locatelib
 if test -n "$X11"; then
   X11_LIBS="-L$X11 -lX11 $extralib"
 else
-  exe=$osname-$arch-X11$$
-  cmd="$CC $CFLAGS $extraflag $X11_INC -o $exe has_X11.c -lX11 $extralib"
-  . log_cmd
-  if test -r $exe; then
-    X11_LIBS="-lX11 $extralib"
-  else
-    echo "### X11 not found"
-    X11_LIBS=
-    X11_INC=
-  fi
+  X11_LIBS="-lX11 $extralib"
+fi
+
+exe=$osname-$arch-X11$$
+cmd="$CC $CFLAGS $extraflag $X11_INC -o $exe has_X11.c $X11_LIBS"
+. log_cmd
+if test ! -r $exe; then
+  echo "### X11 not found"
+  X11_LIBS=
+  X11_INC=
 fi
 rm -f $exe $exe$exe_suff;
 echo ..."X11 libraries: $X11_LIBS"

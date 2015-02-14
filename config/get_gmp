@@ -4,8 +4,6 @@ if test -n "$with_gmp"; then
   with_gmp_lib="$with_gmp_lib $with_gmp/lib"
   with_gmp_include="$with_gmp_include $with_gmp/include"
 fi
-pth="$with_gmp_lib $libpth"
-lib=gmp; . ./locatelib
 
 pth="$with_gmp_include $basic_include_path"
 x=`./locate 'gmp.h' '' $pth`
@@ -18,13 +16,15 @@ case $x in
      gmp=;;
 esac
 
-exe=$osname-$arch-gmpv$$
+pth="$with_gmp_lib $libpth"
+lib=gmp; . ./locatelib
 if test -n "$gmp"; then
   GMPLIBS="-L$gmp -lgmp"
 else
   GMPLIBS="-lgmp"
 fi
 
+exe=$osname-$arch-gmpv$$
 cmd="$CC $CFLAGS $extraflag $GMPINCLUDE -o $exe gmp_version.c $GMPLIBS"
 . log_cmd
 if test -r $exe; then

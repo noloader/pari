@@ -6,8 +6,6 @@ if test -n "$with_readline"; then
   with_readline_lib="$with_readline_lib $with_readline/lib"
   with_readline_include="$with_readline_include $with_readline/include"
 fi
-pth="$with_readline_lib $libpth"
-lib=readline; . ./locatelib
 
 # Readline -- Headers
 pth="$with_readline_include $basic_include_path"
@@ -24,39 +22,33 @@ case $x in
      readline=;;
 esac
 
-exe=$osname-$arch-rlv$$
+pth="$with_readline_lib $libpth"
+lib=readline; . ./locatelib
 if test -n "$readline"; then
   RLLIBS="-L$readline -lreadline"
 else
   RLLIBS="-lreadline"
 fi
-rllibs="$RLLIBS";
-cmd="$CC $CFLAGS $extraflag $RLINCLUDE -o $exe rl_version.c $RLLIBS"
-. log_cmd
-if test ! -r $exe; then # need ncurses ?
-  echo ..."Linking failed. Trying with libncurses"
-  pth="$with_ncurses_lib $libpth"
-  lib=ncurses; . ./locatelib
-  if test -n "$ncurses"; then
-    RLLIBS="$rllibs -L$ncurses -lncurses"
-  else
-    RLLIBS="$rllibs -lncurses"
+
+exe=$osname-$arch-rlv$$
+cmd0="$CC $CFLAGS $extraflag $RLINCLUDE -o $exe rl_version.c"
+# try linking
+for tlib in "" tinfo ncurses termcap; do
+  try=$RLLIBS
+  if test -n "$tlib"; then # need a termcap compatible library?
+    eval pth="\$with_${tlib}_lib $libpth"
+    lib=$tlib; . ./locatelib
+    eval p="\$$tlib"
+    if test -n "$p"; then
+      try="$try -L$p -l$tlib"
+    else
+      try="$try -l$tlib"
+    fi
   fi
-  cmd="$CC $CFLAGS $extraflag $RLINCLUDE -o $exe rl_version.c $RLLIBS"
+  cmd="$cmd0 $try"
   . log_cmd
-fi
-if test ! -r $exe; then # need termcap ?
-  echo ..."Linking failed. Trying with libtermcap"
-  pth="$with_ncurses_lib $libpth"
-  lib=termcap; . ./locatelib
-  if test -n "$termcap"; then
-    RLLIBS="$rllibs -L$termcap -ltermcap"
-  else
-    RLLIBS="$rllibs -ltermcap"
-  fi
-  cmd="$CC $CFLAGS $extraflag $RLINCLUDE -o $exe rl_version.c $RLLIBS"
-  . log_cmd
-fi
+  if test -r $exe; then RLLIBS=$try; break; fi
+done
 
 readline_version=
 if test -r $exe; then
