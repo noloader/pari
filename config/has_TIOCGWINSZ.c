@@ -8,5 +8,5 @@ int main()
 {
   struct winsize s;
   int status = ioctl(0, TIOCGWINSZ, &s);
-  return s.ws_col;
+  (void)status; return s.ws_col;
 }
