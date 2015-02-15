@@ -22,33 +22,55 @@ case $x in
      readline=;;
 esac
 
-pth="$with_readline_lib $libpth"
-lib=readline; . ./locatelib
-if test -n "$readline"; then
-  RLLIBS="-L$readline -lreadline"
-else
-  RLLIBS="-lreadline"
-fi
-
 exe=$osname-$arch-rlv$$
 cmd0="$CC $CFLAGS $extraflag $RLINCLUDE -o $exe rl_version.c"
-# try linking
+try() { RLLIBS=$1; cmd="$cmd0 $1"; . log_cmd; }
+
+if test -n "$with_readline_lib"; then
+  rl="-L$with_readline_lib -lreadline"
+else
+  rl="-lreadline"
+fi
+
+# try linking without locatelib (without -L except --with-xxx-lib)
 for tlib in "" tinfo ncurses termcap; do
-  try=$RLLIBS
+  t=$rl
   if test -n "$tlib"; then # need a termcap compatible library?
-    eval pth="\$with_${tlib}_lib $libpth"
-    lib=$tlib; . ./locatelib
-    eval p="\$$tlib"
-    if test -n "$p"; then
-      try="$try -L$p -l$tlib"
+    eval with="\$with_${tlib}_lib"
+    if test -n "$with"; then
+      t="$t -L$with -l$tlib"
     else
-      try="$try -l$tlib"
+      t="$t -l$tlib"
     fi
   fi
-  cmd="$cmd0 $try"
-  . log_cmd
-  if test -r $exe; then RLLIBS=$try; break; fi
+  try "$t"
+  if test -r $exe; then break; fi
 done
+
+# failed; retry with -Lxxx using locatelib
+if test ! -r $exe; then
+  lib=readline; . ./locatelib
+  if test -n "$readline"; then
+    rl="-L$readline -lreadline"
+  else
+    rl="-lreadline" # not found, sequel will almost certainly fail
+  fi
+  for tlib in "" tinfo ncurses termcap; do
+    t=$rl
+    if test -n "$tlib"; then # termcap compatible library, using locatelib
+      eval pth="\$with_${tlib}_lib $libpth"
+      lib=$tlib; . ./locatelib
+      eval p="\$$tlib"
+      if test -n "$p"; then
+        t="$t -L$p -l$tlib"
+      else
+        t="$t -l$p"
+      fi
+    fi
+    try "$t"
+    if test -r $exe; then break; fi
+  done
+fi
 
 readline_version=
 if test -r $exe; then

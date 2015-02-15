@@ -10,7 +10,7 @@ cd ..; rm -rf $tdir
 # Check xmkmf answer
 # X11 -- Headers
 if test ! -f $Xincroot/X11/Xos.h; then
-  x11pth="\
+  x11pth="$addlib64\
     /usr/openwin/share/lib\
     /usr/openwin/lib\
     /usr/X11R6/lib       /usr/X11R5/lib       /usr/X11R4/lib\
@@ -38,17 +38,20 @@ if test -f $Xincroot/X11/Xos.h; then
   X11_INC="-I$Xincroot"
 fi
 # X11 -- Lib
-pth=$x11pth
-lib=X11; . ./locatelib
-if test -n "$X11"; then
-  X11_LIBS="-L$X11 -lX11 $extralib"
-else
-  X11_LIBS="-lX11 $extralib"
-fi
 
 exe=$osname-$arch-X11$$
-cmd="$CC $CFLAGS $extraflag $X11_INC -o $exe has_X11.c $X11_LIBS"
-. log_cmd
+cmd0="$CC $CFLAGS $extraflag $X11_INC -o $exe has_X11.c"
+try() { X11_LIBS=$1; cmd="$cmd0 $1"; . log_cmd; }
+
+try "-lX11 $extralib"
+if test ! -r $exe; then
+  pth=$x11pth
+  lib=X11; . ./locatelib
+  if test -n "$X11"; then
+    try "-L$X11 -lX11 $extralib"
+  fi
+fi
+
 if test ! -r $exe; then
   echo "### X11 not found"
   X11_LIBS=

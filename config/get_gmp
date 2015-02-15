@@ -16,17 +16,24 @@ case $x in
      gmp=;;
 esac
 
-pth="$with_gmp_lib $libpth"
-lib=gmp; . ./locatelib
-if test -n "$gmp"; then
-  GMPLIBS="-L$gmp -lgmp"
-else
-  GMPLIBS="-lgmp"
-fi
+try() { GMPLIBS=$1; cmd="$cmd0 $1"; . log_cmd; }
 
 exe=$osname-$arch-gmpv$$
-cmd="$CC $CFLAGS $extraflag $GMPINCLUDE -o $exe gmp_version.c $GMPLIBS"
-. log_cmd
+cmd0="$CC $CFLAGS $extraflag $GMPINCLUDE -o $exe gmp_version.c"
+
+if test -n "$with_gmp_lib"; then
+  try "-L$with_gmp_lib -lgmp"
+fi
+if test ! -r $exe; then
+  try "-lgmp"
+fi
+if test ! -r $exe; then
+  lib=gmp; . ./locatelib
+  if test -n "$gmp"; then
+    try "-L$gmp -lgmp"
+  fi
+fi
+
 if test -r $exe; then
   gmp_version=`env LD_LIBRARY_PATH="$LD_LIBRARY_PATH$dir_sep$gmp" $RUNTEST $exe`;
 fi

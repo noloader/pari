@@ -321,10 +321,7 @@ BA 38- much faster polresultant over Z
    50- content([]) -> 0 [ was 1 ]
    51- [] / 0 => div. by 0. Now returns [] (as [] \ 0 already did)
 LGr52- use GRH-guaranteed bounds in bnfinit for residue estimate
-   53- Configure: remove default library search path, comply strictly with
-       --with-xxx arguments, LIBRARY_PATH and gcc default library path
-
-would
+   53- Configure: avoid inserting unnecessary -L arguments in link line
 
 Removed
    1- deprecated functions nfbasis0, nfdisc0, factorpadic0
