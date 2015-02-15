@@ -324,7 +324,7 @@ LGr52- use GRH-guaranteed bounds in bnfinit for residue estimate
    53- Configure: remove default library search path, comply strictly with
        --with-xxx arguments, LIBRARY_PATH and gcc default library path
 
-would 
+would
 
 Removed
    1- deprecated functions nfbasis0, nfdisc0, factorpadic0

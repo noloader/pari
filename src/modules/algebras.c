@@ -2031,7 +2031,7 @@ algdivl_i(GEN al, GEN x, GEN y, long tx, long ty) {
   }
   return gerepileupto(av,res);
 }
-GEN
+static GEN
 algdivl_i2(GEN al, GEN x, GEN y)
 {
   long tx, ty;
