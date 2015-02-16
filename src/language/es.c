@@ -4054,8 +4054,8 @@ switchin(const char *name)
     forpath_init(&T, GP_DATA->path, s);
     while ( (t = forpath_next(&T)) )
       if ((f = try_name(t))) { pari_free(s); return f; }
+    pari_free(s);
   }
-  pari_free(s);
   pari_err_FILE("input file",name);
   return NULL; /*not reached*/
 }
@@ -4953,8 +4953,8 @@ gp_dlopen(const char *name, int flag)
       if ( (handle = try_dlopen(t,flag)) ) { pari_free(s); return handle; }
       (void)dlerror(); /* clear error message */
     }
+    pari_free(s);
   }
-  pari_free(s);
   return NULL;
 }
 
@@ -5000,8 +5000,8 @@ gp_LoadLibrary(const char *name)
     forpath_init(&T, GP_DATA->sopath, s);
     while ( (t = forpath_next(&T)) )
       if ( (handle = try_LoadLibrary(t)) ) { pari_free(s); return handle; }
+    pari_free(s);
   }
-  pari_free(s);
   return NULL;
 }
 static void *
