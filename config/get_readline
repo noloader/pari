@@ -49,6 +49,7 @@ done
 
 # failed; retry with -Lxxx using locatelib
 if test ! -r $exe; then
+  pth="$with_readline_lib $libpth"
   lib=readline; . ./locatelib
   if test -n "$readline"; then
     rl="-L$readline -lreadline"
