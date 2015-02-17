@@ -2190,12 +2190,24 @@ chk_pol(GEN P) {
 
 /* P,Q are ZX, study Y^2 + Q(X) Y = P(X) */
 GEN
-genus2red(GEN Q, GEN P, GEN p)
+genus2red(GEN PQ, GEN p)
 {
   pari_sp av = avma;
   struct igusa I;
+  GEN P, Q;
   GEN j22, j42, j2j6, a0,a1,a2,a3,a4,a5,a6, V,polr,facto,factp, vecmini, cond;
   long i, l, dd, vP,vQ;
+
+  if (typ(PQ) == t_VEC && lg(PQ) == 3)
+  {
+    P = gel(PQ,1);
+    Q = gel(PQ,2);
+  }
+  else
+  {
+    P = PQ;
+    Q = gen_0;
+  }
 
   vP = chk_pol(P);
   vQ = chk_pol(Q);

@@ -2911,7 +2911,7 @@ GEN     variables_vec(GEN x);
 
 /* genus2red.c */
 
-GEN     genus2red(GEN Q, GEN P, GEN p);
+GEN     genus2red(GEN PQ, GEN p);
 
 /* groupid.c */
 
