@@ -601,7 +601,7 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   pari_init_defaults();
   pari_library_path = DL_DFLT_NAME;
   pari_stack_init(&s_A,sizeof(*A),(void**)&A);
-  pari_init_opts(1000000 * sizeof(long), 0, INIT_SIGm | INIT_noPRIMEm);
+  pari_init_opts(1000000 * sizeof(long), 0, INIT_SIGm | INIT_noPRIMEm | INIT_noIMTm);
   cb_pari_err_recover = gp_err_recover;
   cb_pari_pre_recover = gp_pre_recover;
   cb_pari_break_loop = break_loop;
@@ -616,15 +616,17 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   pari_add_module(functions_highlevel);
 
   init_graph();
-#ifdef READLINE
-  init_readline();
-#endif
   cb_pari_quit = gp_quit;
   cb_pari_whatnow = whatnow;
   cb_pari_sigint = gp_sigint_fun;
   cb_pari_handle_exception = gp_handle_exception;
   cb_pari_ask_confirm = gp_ask_confirm;
   gp_expand_path(GP_DATA->path);
+  pari_mt_init(); /* MPI: will not return on slaves (pari_MPI_rank = 0) */
+
+#ifdef READLINE
+  init_readline();
+#endif
   if (GP_DATA->flags & gpd_EMACS) init_emacs();
   if (GP_DATA->flags & gpd_TEXMACS) init_texmacs();
 
