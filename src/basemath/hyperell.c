@@ -615,6 +615,8 @@ hyperellcharpoly(GEN H)
   GEN M, R, T=NULL, pp=NULL;
   long d, n;
   ulong p;
+  if (is_vec_t(typ(H)) && lg(H)==3)
+    H = gadd(gsqr(gel(H, 2)), gmul2n(gel(H, 1), 2));
   if (typ(H)!=t_POL || !RgX_is_FpXQX(H, &T, &pp) || !pp)
     pari_err_TYPE("hyperellcharpoly",H);
   p = itou(pp); d = degpol(H);

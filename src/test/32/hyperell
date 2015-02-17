@@ -89,10 +89,11 @@ x^2 - 47*x - 5490
 x^2 - 42*x - 2356
 x^3 + 4*x^2 - 164*x - 180
 x^3 - 10*x^2 - 154*x + 1508
+x^2 + 9*x - 135
   ***   at top-level: hyperellcharpoly((25
   ***                 ^--------------------
   *** hyperellcharpoly: domain error in hyperellpadicfrobenius: H is singular at 5
   ***   at top-level: hyperellcharpoly((25
   ***                 ^--------------------
   *** hyperellcharpoly: domain error in hyperellpadicfrobenius: H is singular at 5
-Total time spent: 2876
+Total time spent: 2884

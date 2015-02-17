@@ -2,10 +2,14 @@ Function: hyperellcharpoly
 Section: elliptic_curves
 C-Name: hyperellcharpoly
 Prototype: G
-Help: hyperellcharpoly(Q): Q being a squarefree polynomial of degree d defined
- over a finite field of characteristic p >= d, return the characteristic
- polynomial of the Frobenius automorphism.
+Help: hyperellcharpoly(X): X being a non-singular hyperelliptic curve defined
+ over a finite field, return the characteristic polynomial of the Frobenius
+ automorphism.  X can be given either by a squarefree polynomial P such that
+ X:y^2=P(x) or by a vector [P,Q] such that X:y^2+Q(x)*y=P(x) and Q^2+4P is
+ squarefree.
 Doc:
- Let $X$ be the curve defined by $y^2=Q(x)$, where  $Q$ is a squarefree
- polynomial of degree $d$ over a finite field of characteristic $p\ge d$,
+ $X$ being a non-singular hyperelliptic curve defined over a finite field,
  return the characteristic polynomial of the Frobenius automorphism.
+ $X$ can be given either by a squarefree polynomial P such that $X: y^2 = P(x)$
+ or by a vector $[P,Q]$ such that $X: y^2 + Q(x)\*y = P(x)$ and $Q^2+4\*P is
+ squarefree.

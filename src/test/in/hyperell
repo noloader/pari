@@ -38,6 +38,7 @@ g=ffgen(ffinit(79,2),'g);
 P=hyperellcharpoly(x^6+g*x^3+2*x+5);checkfeq(P,79^2)
 P=hyperellcharpoly((x^7+x^3+2*x+5)*Mod(1,79));checkfeq(P,79)
 P=hyperellcharpoly((x^8+x^3+2*x+5)*Mod(1,79));checkfeq(P,79)
+P=hyperellcharpoly([x^5+x+1,x]*Mod(1,79));checkfeq(P,79)
 
 hyperellcharpoly((256*a^5+5)*Mod(1,5))
 hyperellcharpoly((256*a^5+5)*ffgen(5^2))
