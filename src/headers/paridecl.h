@@ -228,6 +228,7 @@ GEN     Flv_to_ZV(GEN z);
 GEN     Flx_Fl_add(GEN y, ulong x, ulong p);
 GEN     Flx_Fl_mul(GEN y, ulong x, ulong p);
 GEN     Flx_Fl_mul_to_monic(GEN y, ulong x, ulong p);
+GEN     Flx_Fl2_eval_pre(GEN x, GEN y, ulong D, ulong p, ulong pi);
 GEN     Flx_Flv_multieval(GEN P, GEN v, ulong p);
 GEN     Flx_Flxq_eval(GEN f,GEN x,GEN T,ulong p);
 GEN     Flx_FlxqV_eval(GEN f,GEN x,GEN T,ulong p);

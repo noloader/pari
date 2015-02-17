@@ -3054,6 +3054,23 @@ Fl2_sqrtn_pre(GEN a, GEN n, ulong D, ulong p, ulong pi, GEN *zeta)
   return gen_Shanks_sqrtn(a,n,o,zeta,(void*)&E,&Fl2_star);
 }
 
+GEN
+Flx_Fl2_eval_pre(GEN x, GEN y, ulong D, ulong p, ulong pi)
+{
+  GEN p1;
+  long i = lg(x)-1;
+  if (i <= 2)
+    return mkF2(i == 2? x[2]: 0, 0);
+  p1 = mkF2(x[i], 0);
+  for (i--; i>=2; i--)
+  {
+    p1 = Fl2_mul_pre(p1, y, D, p, pi);
+    uel(p1,1) = Fl_add(uel(p1,1), uel(x,i), p);
+  }
+  return p1;
+}
+
+
 /***********************************************************************/
 /**                                                                   **/
 /**                               FlxV                                **/
