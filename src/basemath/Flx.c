@@ -2705,14 +2705,8 @@ Flxq_sqrt(GEN a, GEN T, ulong p)
 int
 Flxq_issquare(GEN x, GEN T, ulong p)
 {
-  pari_sp av;
-  GEN m;
-  ulong z;
   if (lgpol(x) == 0 || p == 2) return 1;
-  av = avma;
-  m = diviuexact(subis(powuu(p, get_Flx_degree(T)), 1), p - 1);
-  z = Flxq_pow(x, m, T, p)[2];
-  avma = av; return krouu(z, p) == 1;
+  return krouu(Flxq_norm(x,T,p), p) == 1;
 }
 
 /* assume T irreducible mod p */

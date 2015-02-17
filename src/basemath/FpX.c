@@ -1626,7 +1626,7 @@ FpXQ_issquare(GEN x, GEN T, GEN p)
   if (lg(x) == 2 || equalui(2, p)) return 1;
   if (lg(x) == 3) return Fq_issquare(gel(x,2), T, p);
   /* Ng = g^((q-1)/(p-1)) */
-  av = avma; res = kronecker(FpX_resultant(T,x,p), p) == 1;
+  av = avma; res = kronecker(FpXQ_norm(x,T,p), p) == 1;
   avma = av; return res;
 }
 int
