@@ -3085,7 +3085,10 @@ non associative algebra
 0
 csa without maximal order
 nfgrunwaldwang SEGV #1669
-t65535^2 + Mod(-17, y)
+x^2 + Mod(-17, y)
+  ***   at top-level: nfgrunwaldwang(nfini
+  ***                 ^--------------------
+  *** nfgrunwaldwang: incorrect priority in nfgrunwaldwang: variable x >= x
 simplify bug #1671
 testing simplify: degree 1 cyclic over Q
 1
@@ -3255,4 +3258,4 @@ testing simplify: quatalg csa over Q
 1
 1
 1
-Total time spent: 7075
+Total time spent: 10601

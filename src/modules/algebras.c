@@ -2808,9 +2808,13 @@ nfgrunwaldwang(GEN nf0, GEN Lpr, GEN Ld, GEN pl, long var)
   ulong n;
   pari_sp av = avma;
   GEN nf, bnf, pr;
-  long t, w, i;
+  long t, w, i, vnf;
   ulong ell, ell2;
+  if (var < 0) var = 0;
   nf = get_nf(nf0,&t);
+  vnf = nf_get_varn(nf);
+  if (varncmp(var, vnf) >= 0)
+    pari_err_PRIORITY("nfgrunwaldwang", pol_x(var), ">=", vnf);
   if (typ(Lpr) != t_VEC)
     pari_err_TYPE("nfgrunwaldwang",Lpr);
   if (lg(Lpr) != lg(Ld))
