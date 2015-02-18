@@ -14,7 +14,7 @@ Doc:
  \mapsto (f(x)/h(x)^2, g(x,y)/h(x)^3)$.
  \bprog
  ? E = ellinit([0,1]);
- ? elltors(e)
+ ? elltors(E)
  %2 = [6, [6], [[2, 3]]]
  ? ellisogeny(E, [2,3], 1)  \\ Weierstrass model for E/<P>
  %3 = [0, 0, 0, -135, -594]
