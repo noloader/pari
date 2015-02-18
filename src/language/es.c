@@ -2062,7 +2062,8 @@ dbg(GEN x, long nb, long bl)
     x = list_data(x); lx = x? lg(x): 1;
     tx = t_VEC; /* print list_data as vec */
   } else if (tx == t_CLOSURE)
-    pari_printf("(arity=%ld):", closure_arity(x));
+    pari_printf("(arity=%ld%s):", closure_arity(x),
+                                  closure_is_variadic(x)?"+":"");
   for (i=1; i<lx; i++) dbg_word(x[i]);
   bl+=2; pari_putc('\n');
   switch(tx)

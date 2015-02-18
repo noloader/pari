@@ -1850,7 +1850,7 @@ strtoclosure(const char *s, long n,  ...)
   pari_sp av = avma;
   entree *ep = is_entry(s);
   GEN C;
-  if (!ep) pari_err(e_MISC,"no function named \"%s\"",s);
+  if (!ep) pari_err(e_NOTFUNC, strtoGENstr(s));
   ep = do_alias(ep);
   if ((!EpSTATIC(ep) && EpVALENCE(ep)!=EpINSTALL) || !ep->value)
     pari_err(e_MISC,"not a built-in/install'ed function: \"%s\"",s);

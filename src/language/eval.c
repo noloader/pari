@@ -1769,6 +1769,8 @@ closure_callgenvec(GEN C, GEN args)
 {
   long i, l = lg(args), ar = closure_arity(C);
   st_alloc(ar);
+  if (l-1 > ar)
+    pari_err(e_MISC,"too many parameters in user-defined function call");
   for (i = 1; i < l;   i++) gel(st,sp++) = gel(args,i);
   for(      ; i <= ar; i++) gel(st,sp++) = NULL;
   return closure_returnupto(C);
@@ -1780,6 +1782,8 @@ closure_callgenall(GEN C, long n, ...)
   va_list ap;
   long i, ar = closure_arity(C);
   va_start(ap,n);
+  if (n > ar)
+    pari_err(e_MISC,"too many parameters in user-defined function call");
   st_alloc(ar);
   for (i = 1; i <=n;  i++) gel(st,sp++) = va_arg(ap, GEN);
   for(      ; i <=ar; i++) gel(st,sp++) = NULL;
