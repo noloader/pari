@@ -2812,13 +2812,12 @@ nfgrunwaldwang(GEN nf0, GEN Lpr, GEN Ld, GEN pl, long var)
   ulong ell, ell2;
   if (var < 0) var = 0;
   nf = get_nf(nf0,&t);
+  if (!nf) pari_err_TYPE("nfgrunwaldwang",nf0);
   vnf = nf_get_varn(nf);
   if (varncmp(var, vnf) >= 0)
     pari_err_PRIORITY("nfgrunwaldwang", pol_x(var), ">=", vnf);
-  if (typ(Lpr) != t_VEC)
-    pari_err_TYPE("nfgrunwaldwang",Lpr);
-  if (lg(Lpr) != lg(Ld))
-    pari_err_DIM("nfgrunwaldwang [Lpr and Ld should have the same length]");
+  if (typ(Lpr) != t_VEC) pari_err_TYPE("nfgrunwaldwang",Lpr);
+  if (lg(Lpr) != lg(Ld)) pari_err_DIM("nfgrunwaldwang [#Lpr != #Ld]");
   for(i=1; i<lg(Lpr); i++) {
     pr = gel(Lpr,i);
     if (nf_get_degree(nf)==1 && typ(pr)==t_INT)
