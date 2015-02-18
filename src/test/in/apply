@@ -15,3 +15,7 @@ fold((x,y)->x*y, [1,2,3,4])
 fold((x,y)->[x,y], [1,2,3,4])
 fold((x,f)->f(x), [2,sqr,sqr,sqr])
 fold((x,y)->(x+y)/(1-x*y),[1..5])
+
+printfnl(format,args[..]) = call(printf,[format,args]);print();
+printfnl("%s: %s, %s",1,2,3)
+call("_*_",[3,5])

@@ -1875,6 +1875,22 @@ strtofunction(const char *s)
   return strtoclosure(s, 0);
 }
 
+GEN
+call0(GEN fun, GEN args)
+{
+  if (!is_vec_t(typ(args))) pari_err_TYPE("call",args);
+  switch(typ(fun))
+  {
+    case t_STR:
+      fun = strtofunction(GSTR(fun));
+    case t_CLOSURE: /* fall through */
+      return closure_callgenvec(fun, args);
+    default:
+      pari_err_TYPE("call", fun);
+      return NULL; /* NOT REACHED */
+  }
+}
+
 static void
 closurefunc(entree *ep, long n, long mode)
 {
