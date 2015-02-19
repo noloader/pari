@@ -23,14 +23,15 @@ Doc: $N$ being an integer and $P\in \Z[X]$, finds all integers $x$ with
  non-trivial divisor of $N$.
  \bprog
  setrand(1); \\ to make the example reproducible
- p = nextprime(random(10^30));
- q = nextprime(random(10^30)); N = p*q;
+ interval = [10^30, 10^31];
+ p = randomprime(interval);
+ q = randomprime(interval); N = p*q;
  p0 = p % 10^20; \\ assume we know 1) p > 10^29, 2) the last 19 digits of p
- p1 = zncoppersmith(10^19*x + p0, N, 10^12, 10^29)
+ L = zncoppersmith(10^19*x + p0, N, 10^12, 10^29)
 
  \\ result in 10ms.
- %1 = [35023733690]
- ? gcd(p1[1] * 10^19 + p0, N) == p
+ %6 = [738281386540]
+ ? gcd(L[1] * 10^19 + p0, N) == p
  %2 = 1
  @eprog\noindent and we recovered $p$, faster than by trying all
  possibilities $ < 10^{12}$.
@@ -48,7 +49,8 @@ Doc: $N$ being an integer and $P\in \Z[X]$, finds all integers $x$ with
  zncoppersmith((P + x)^3 - C, N, X)
 
  \\ result in 244ms.
- %3 = [265174753892462432]
+ %14 = [2679982004001230401]
+
  ? %[1] == x0
  %4 = 1
  @eprog\noindent
