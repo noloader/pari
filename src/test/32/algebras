@@ -2893,7 +2893,7 @@ x - 12
   *** nfgrunwaldwang: incorrect type in nfgrunwaldwang (t_INT).
   ***   at top-level: nfgrunwaldwang(nfini
   ***                 ^--------------------
-  *** nfgrunwaldwang: inconsistent dimensions in nfgrunwaldwang [Lpr and Ld should have the same length].
+  *** nfgrunwaldwang: inconsistent dimensions in nfgrunwaldwang [#Lpr != #Ld].
   ***   at top-level: nfgrunwaldwang(nfini
   ***                 ^--------------------
   *** nfgrunwaldwang: domain error in nfgrunwaldwang [pl should have r1 components]: #pl != 1
@@ -3258,4 +3258,4 @@ testing simplify: quatalg csa over Q
 1
 1
 1
-Total time spent: 10601
+Total time spent: 7968
