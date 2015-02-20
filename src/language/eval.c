@@ -213,19 +213,36 @@ copyvalue(entree *ep)
 INLINE void
 err_var(GEN x) { pari_err_TYPE("evaluator [variable name expected]", x); }
 
+enum chk_VALUE { chk_ERROR, chk_NOCREATE, chk_CREATE };
+
 INLINE void
-checkvalue(entree *ep)
+checkvalue(entree *ep, enum chk_VALUE flag)
 {
   if (MT_IS_THREAD)
     pari_err(e_MISC,"mt: global variable not supported: %s",ep->name);
   if (ep->valence==EpNEW)
-  {
-    pari_var_create(ep);
-    ep->valence = EpVAR;
-    ep->value = initial_value(ep);
-  }
+    switch(flag)
+    {
+      case chk_ERROR:
+        /* Do nothing until we can report a meaningful error message
+           The extra variable will be cleaned-up anyway */
+      case chk_CREATE:
+        pari_var_create(ep);
+        ep->valence = EpVAR;
+        ep->value = initial_value(ep);
+        break;
+      case chk_NOCREATE:
+        break;
+    }
   else if (ep->valence!=EpVAR)
     err_var(strtoGENstr(ep->name));
+}
+
+INLINE GEN
+checkvalueptr(entree *ep)
+{
+  checkvalue(ep, chk_NOCREATE);
+  return ep->valence==EpNEW? gen_0: ep->value;
 }
 
 /* make GP variables safe for avma = top */
@@ -843,7 +860,7 @@ closure_eval(GEN C)
     case OCpushdyn:
       {
         entree *ep = (entree *)operand;
-        checkvalue(ep);
+        checkvalue(ep, chk_CREATE);
         gel(st,sp++)=(GEN)ep->value;
         break;
       }
@@ -855,8 +872,7 @@ closure_eval(GEN C)
         gp_pointer *g = new_ptr();
         g->vn=0;
         g->ep = (entree*) operand;
-        checkvalue(g->ep);
-        g->x = (GEN) g->ep->value;
+        g->x = checkvalueptr(g->ep);
         g->ox = g->x; clone_lock(g->ox);
         g->sp = sp;
         gel(st,sp++) = (GEN)&(g->x);
@@ -878,7 +894,7 @@ closure_eval(GEN C)
         entree *ep = (entree *)operand;
         gp_pointer *g = new_ptr();
         matcomp *C;
-        checkvalue(ep);
+        checkvalue(ep, chk_ERROR);
         g->sp = -1;
         g->x = copyvalue(ep);
         g->ox = g->x; clone_lock(g->ox);
@@ -930,7 +946,7 @@ closure_eval(GEN C)
     case OCstoredyn:
       {
         entree *ep = (entree *)operand;
-        checkvalue(ep);
+        checkvalue(ep, chk_NOCREATE);
         changevalue(ep, gel(st,--sp));
         break;
       }
@@ -964,7 +980,7 @@ closure_eval(GEN C)
     case OCcowvardyn:
       {
         entree *ep = (entree *)operand;
-        checkvalue(ep);
+        checkvalue(ep, chk_ERROR);
         (void)copyvalue(ep);
         break;
       }
@@ -1176,7 +1192,7 @@ closure_eval(GEN C)
       {
         long n = pari_stack_new(&s_lvars);
         entree *ep = (entree *)operand;
-        checkvalue(ep);
+        checkvalue(ep, chk_NOCREATE);
         lvars[n] = ep;
         nblvar++;
         pushvalue(ep,gel(st,--sp));
@@ -1186,7 +1202,7 @@ closure_eval(GEN C)
       {
         long n = pari_stack_new(&s_lvars);
         entree *ep = (entree *)operand;
-        checkvalue(ep);
+        checkvalue(ep, chk_NOCREATE);
         lvars[n] = ep;
         nblvar++;
         zerovalue(ep);
