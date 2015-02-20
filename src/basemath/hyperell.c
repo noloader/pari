@@ -614,8 +614,14 @@ Flx_genus2charpoly_naive(GEN H, ulong p)
   pari_sp av = avma;
   ulong pi = get_Fl_red(p);
   ulong i, j, p2 = p>>1, D = 2, e = ((p&2UL) == 0) ? -1 : 1;
-  long d = degpol(H)==5 ? 0: 1;
-  long a = d, b = d, c = 0;
+  long a, b, c = 0;
+  if (degpol(H) == 5)
+    a = b = 0;
+  else
+  {
+    a = krouu(Flx_lead(H), p);
+    b = 1;
+  }
   while (krouu(D, p) >= 0) D++;
   for (i=0; i < p; i++)
   {
@@ -639,7 +645,7 @@ hyperellcharpoly(GEN H)
 {
   pari_sp av = avma;
   GEN M, R, T=NULL, pp=NULL;
-  long d, n;
+  long d, n, eps = 0;
   ulong p;
   if (is_vec_t(typ(H)) && lg(H)==3)
     H = gadd(gsqr(gel(H, 2)), gmul2n(gel(H, 1), 2));
@@ -657,7 +663,7 @@ hyperellcharpoly(GEN H)
       R = zx_to_ZX(Flx_genus2charpoly_naive(Hp, p));
       return gerepileupto(av, R);
     }
-    n = (d>>1) + 1;
+    n = (d>>1) + 1; eps = odd(d)? 0: Fp_issquare(leading_term(H), pp);
     M = hyperellpadicfrobenius(H, p, n);
     R = centerlift(carberkowitz(M, 0));
   }
@@ -668,7 +674,7 @@ hyperellcharpoly(GEN H)
     fixvar = (varncmp(varn(T),varn(H)) <= 0);
     if (fixvar) setvarn(T, fetch_var());
     H = RgX_to_FpXQX(H, T, pp);
-    d = degpol(H);
+    d = degpol(H); eps = odd(d)? 0: Fq_issquare(leading_term(H), T, pp);
     n = ((degpol(T)*d)>>1) + 1;
     M = nfhyperellpadicfrobenius(H, T, p, n);
     R = centerlift(liftpol_shallow(carberkowitz(M, 0)));
@@ -677,7 +683,7 @@ hyperellcharpoly(GEN H)
   if (!odd(d))
   {
     GEN q = T ? powuu(p, degpol(T)): pp;
-    GEN v, Rx = RgX_div_by_X_x(R, q, &v);
+    GEN v, Rx = RgX_div_by_X_x(R, eps? q: negi(q), &v);
     if (signe(v)) pari_err_BUG("hyperellcharpoly");
     return gerepilecopy(av, Rx);
   }
