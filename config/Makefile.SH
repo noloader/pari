@@ -716,10 +716,6 @@ for dir in basemath modules language gp graph systems mt; do
     cflags="$cflags -I$src/language \$(RLINCLUDE)"
     depend="$src/gp/gp.h"
     ;;
-  gp_init)
-    cflags="$cflags -I$src/graph"
-    depend="$RECT_H $src/gp/gp_init.h"
-    ;;
   default)
     cflags="$cflags \$(DLCFLAGS)"
     ;;
@@ -730,9 +726,6 @@ for dir in basemath modules language gp graph systems mt; do
   plotport)
     cflags="$cflags -I$src/graph"
     depend="$RECT_H"
-    ;;
-  highlvl)
-    depend="$RECT_H $src/gp/highlvl.h"
     ;;
   plotQt)
     cflags="$cflags \$(PLOTCFLAGS)"

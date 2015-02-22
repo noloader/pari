@@ -168,9 +168,7 @@ it adds to the default set via the calls
 
 A GP \kbd{default} is likewise associated to a helper routine, that is run
 when the value is consulted, or changed by \tet{default0} or \tet{setdefault}.
-Such routines are grouped into modules: \tet{functions_default} containing all
-defaults that make sense in libpari context, and \tet{functions_gp_default}
-containing all \kbd{gp}-specific defaults.
+Such routines are grouped in the module \tet{functions_default}.
 
 \fun{void}{pari_add_defaults_module}{entree *mod} adds all the defaults in
 module \kbd{mod} to the interpreter. It assumes that \kbd{pari\_init} has

@@ -492,47 +492,6 @@ BR_EXIT:
   pop_buffer(); return go_on;
 }
 
-void
-dbg_up(long k)
-{
-  if (k<0) k=0;
-  dbg_level += k;
-  if (dbg_level>frame_level) dbg_level=frame_level;
-  gp_err_recover(e_NONE);
-}
-
-void
-dbg_down(long k)
-{
-  if (k<0) k=0;
-  dbg_level -= k;
-  if (dbg_level<0) dbg_level=0;
-  gp_err_recover(e_NONE);
-}
-
-GEN
-dbg_err(void) { GEN E = pari_err_last(); return E? gcopy(E):gnil; }
-
-void
-pari_breakpoint(void)
-{
-  if (!pari_last_was_newline()) pari_putc('\n');
-  closure_err(0);
-  if (cb_pari_break_loop && cb_pari_break_loop(-1)) return;
-  cb_pari_err_recover(e_MISC);
-}
-
-void
-gp_quit(long code)
-{
-  free_graph();
-  pari_close();
-  kill_buffers_upto(NULL);
-  if (!(GP_DATA->flags & gpd_QUIET)) pari_puts("Goodbye!\n");
-  if (cb_pari_end_output) cb_pari_end_output();
-  exit(code);
-}
-
 #ifdef __CYGWIN32__
 void
 cyg_environment(int argc, char ** argv)
@@ -647,3 +606,51 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   (void)gp_main_loop(1);
   gp_quit(0); return 0; /* not reached */
 }
+
+void
+pari_breakpoint(void)
+{
+  if (!pari_last_was_newline()) pari_putc('\n');
+  closure_err(0);
+  if (cb_pari_break_loop && cb_pari_break_loop(-1)) return;
+  cb_pari_err_recover(e_MISC);
+}
+
+void
+dbg_down(long k)
+{
+  if (k<0) k=0;
+  dbg_level -= k;
+  if (dbg_level<0) dbg_level=0;
+  gp_err_recover(e_NONE);
+}
+
+GEN
+dbg_err(void) { GEN E = pari_err_last(); return E? gcopy(E):gnil; }
+
+void
+dbg_up(long k)
+{
+  if (k<0) k=0;
+  dbg_level += k;
+  if (dbg_level>frame_level) dbg_level=frame_level;
+  gp_err_recover(e_NONE);
+}
+
+void
+gp_quit(long code)
+{
+  free_graph();
+  pari_close();
+  kill_buffers_upto(NULL);
+  if (!(GP_DATA->flags & gpd_QUIET)) pari_puts("Goodbye!\n");
+  if (cb_pari_end_output) cb_pari_end_output();
+  exit(code);
+}
+
+void
+whatnow0(char *s) { whatnow(pariOut, s,0); }
+
+#include "gp_init.h"
+#include "../graph/rect.h"
+#include "highlvl.h"
