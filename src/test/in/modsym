@@ -90,3 +90,7 @@ N = msnew(M)[1];
 s = N[,1];
 S = mseval(M,s);
 msissymbol(M, S)
+
+W=msinit(17,2);
+G=mspathgens(W)[1];
+vector(#G,i,mspathlog(W,G[i]))
