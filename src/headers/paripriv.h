@@ -414,7 +414,6 @@ enum { EpNEW = 100, EpALIAS, EpVAR, EpINSTALL };
 extern const long functions_tblsz;  /* hashcodes table size */
 extern entree **functions_hash;   /* functions hashtable */
 extern entree **defaults_hash;    /* defaults hashtable */
-extern entree oldfonctions[];
 
 /* buffers */
 typedef struct Buffer {

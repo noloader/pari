@@ -85,8 +85,8 @@ long    *varpriority;
 THREAD pari_sp avma;
 THREAD struct pari_mainstack *pari_mainstack;
 
-static void ** MODULES, ** OLDMODULES;
-static pari_stack s_MODULES, s_OLDMODULES;
+static void ** MODULES;
+static pari_stack s_MODULES;
 const long functions_tblsz = 135; /* size of functions_hash */
 entree **functions_hash, **defaults_hash;
 
@@ -578,8 +578,6 @@ pari_init_functions(void)
 {
   pari_stack_init(&s_MODULES, sizeof(*MODULES),(void**)&MODULES);
   pari_stack_pushp(&s_MODULES,functions_basic);
-  pari_stack_init(&s_OLDMODULES, sizeof(*OLDMODULES),(void**)&OLDMODULES);
-  pari_stack_pushp(&s_OLDMODULES,oldfonctions);
   functions_hash = (entree**) pari_calloc(sizeof(entree*)*functions_tblsz);
   pari_fill_hashtable(functions_hash, functions_basic);
   defaults_hash = (entree**) pari_calloc(sizeof(entree*)*functions_tblsz);
@@ -941,7 +939,6 @@ pari_close_opts(ulong init_opts)
   pari_mainstack_free(pari_mainstack);
   free((void*)pari_mainstack);
   pari_stack_delete(&s_MODULES);
-  pari_stack_delete(&s_OLDMODULES);
   pari_close_homedir();
   if (pari_datadir) free(pari_datadir);
   if (init_opts&INIT_DFTm)

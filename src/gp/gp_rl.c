@@ -300,39 +300,6 @@ get_matches(int code, const char *text, GF f)
 }
 
 static char *
-generator(void *list, const char *text, int *nn, int len)
-{
-  const char *def = NULL;
-  int n = *nn;
-
-  /* Return the next name which partially matches from list.*/
-  do
-    def = (((entree *) list)[n++]).name;
-  while (def && strncmp(def,text,len));
-  *nn = n;
-  if (def)
-  {
-    char *name = strcpy((char*)pari_malloc(strlen(def)+1), def);
-    return name;
-  }
-  return NULL; /* no names matched */
-}
-static char *
-old_generator(const char *text,int state)
-{
-  static int n,len;
-  static char *res;
-
-  if (!state) { res = (char*)"a"; n=0; len=strlen(text); }
-  if (res)
-  {
-    res = generator((void *)oldfonctions,text,&n,len);
-    if (res) return res;
-    n=0;
-  }
-  return generator((void *)functions_oldgp,text,&n,len);
-}
-static char *
 add_prefix(const char *name, const char *text, long junk)
 {
   char *s = strncpy((char*)pari_malloc(strlen(name)+1+junk),text,junk);
@@ -542,8 +509,6 @@ pari_completion(char *text, int START, int END)
 
     if (strncmp(rl_line_buffer + i,"default",7) == 0)
       return get_matches(-2, text, default_generator);
-    if (strncmp(rl_line_buffer + i,"whatnow",7) == 0)
-      return get_matches(-1, text, old_generator);
     if ( strncmp(rl_line_buffer + i,"read",4)  == 0
       || strncmp(rl_line_buffer + i,"write",5) == 0)
       return get_matches(-1, text, rl_filename_completion_function);

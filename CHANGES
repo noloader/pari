@@ -325,6 +325,9 @@ LGr52- use GRH-guaranteed bounds in bnfinit for residue estimate
    54- genus2red: change syntax. Allow either genus2red(P) or genus2red([P,Q])
        instead of mandatory Q (was: genus2red(Q,P) with Q almost always 0).
        Allow uniformization with hyperellcharpoly
+   55- old functions from gp-1.39.15 no longer loaded into an "entree" table,
+       no longer complete specially "whatnow" arguments; remove compat.c and
+       most of gp_init.c
 
 Removed
    1- deprecated functions nfbasis0, nfdisc0, factorpadic0

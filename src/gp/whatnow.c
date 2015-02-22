@@ -49,17 +49,7 @@ whatnow(PariOUT *out, const char *s, int flag)
 
   if (flag && s[0] && !s[1]) return 0; /* special case "i" and "o" */
   n = 0;
-  do
-    def = (oldfonctions[n++]).name;
-  while (def && strcmp(def,s));
-  if (!def)
-  {
-    int m = 0;
-    do
-      def = (functions_oldgp[m++]).name;
-    while (def && strcmp(def,s));
-    n += m - 1;
-  }
+  do def = oldfunctions[n++]; while (def && strcmp(def,s));
   /* Above linear search is slow, esp. if the symbol is not found. BUT no
    * point in wasting time by preallocating [ or autoloading ] a hashtable:
    * whatnow() is never used in a case where speed would be necessary */
