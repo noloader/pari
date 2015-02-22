@@ -999,12 +999,24 @@ static GEN
 Gamma0N_decompose(GEN W, GEN M, long *index)
 {
   GEN p1N = gel(W,1), W3 = gel(W,3), section = ms_get_section(W);
+  GEN A;
   ulong N = p1N_get_N(p1N);
   ulong c = umodiu(gcoeff(M,2,1), N);
   ulong d = umodiu(gcoeff(M,2,2), N);
-  long ind = p1_index(c, d, p1N); /* as an elt of P1(Z/NZ) */
+  long s, ind = p1_index(c, d, p1N); /* as an elt of P1(Z/NZ) */
   *index = W3[ind]; /* as an elt of F, E2, ... */
-  return ZM_zm_mul(M, sl2_inv(gel(section,ind)));
+  M = ZM_zm_mul(M, sl2_inv(gel(section,ind)));
+  /* normalize mod +/-Id */
+  A = gcoeff(M,1,1);
+  s = signe(A);
+  if (s < 0)
+    M = ZM_neg(M);
+  else if (!s)
+  {
+    GEN C = gcoeff(M,2,1);
+    if (signe(C) < 0) M = ZM_neg(M);
+  }
+  return M;
 }
 /* same for a path. Return [[ind], M] */
 static GEN
