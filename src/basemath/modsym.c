@@ -1743,6 +1743,27 @@ M2_log(GEN W, GEN M)
   }
   return V;
 }
+
+/* express +oo->q=a/b in terms of the Z[G]-generators, trivial action */
+static void
+Q_log_trivial(GEN v, GEN W, GEN q)
+{
+  GEN Q, W3 = gel(W,3), p1N = gel(W,1);
+  ulong c,d, N = p1N_get_N(p1N);
+  long i, lx;
+
+  Q = Q_log_init(N, q);
+  lx = lg(Q);
+  c = 0;
+  for (i = 1; i < lx; i++, c = d)
+  {
+    long index;
+    d = Q[i];
+    if (c && !odd(i)) c = N - c;
+    index = W3[ p1_index(c,d,p1N) ];
+    treat_index_trivial(v, W, index);
+  }
+}
 static void
 M2_log_trivial(GEN V, GEN W, GEN M)
 {
@@ -1766,6 +1787,7 @@ M2_log_trivial(GEN V, GEN W, GEN M)
   {
     GEN U, B, P, Q, PQ;
     long i, l;
+    if (!signe(c)) return Q_log_trivial(V,W,gdiv(b,d));
     (void)bezout(a,c,&u,&v);
     B = addii(mulii(b,u), mulii(d,v));
     /* [u,v;-c,a] [a,b; c,d] = [1,B; 0,D], i.e. M = U [1,B;0,D] */
@@ -1782,27 +1804,6 @@ M2_log_trivial(GEN V, GEN W, GEN M)
       index = W3[ p1_index(umodiu(c,N),umodiu(d,N),p1N) ];
       treat_index_trivial(V, W, index);
     }
-  }
-}
-
-/* express +oo->q=a/b in terms of the Z[G]-generators, trivial action */
-static void
-Q_log_trivial(GEN v, GEN W, GEN q)
-{
-  GEN Q, W3 = gel(W,3), p1N = gel(W,1);
-  ulong c,d, N = p1N_get_N(p1N);
-  long i, lx;
-
-  Q = Q_log_init(N, q);
-  lx = lg(Q);
-  c = 0;
-  for (i = 1; i < lx; i++, c = d)
-  {
-    long index;
-    d = Q[i];
-    if (c && !odd(i)) c = N - c;
-    index = W3[ p1_index(c,d,p1N) ];
-    treat_index_trivial(v, W, index);
   }
 }
 
