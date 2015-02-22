@@ -625,18 +625,13 @@ HUGELINE="
 $src/funclist::
 	@-$cfg/genfunclist $desc"
 suffix='$$$$-$(TMPSUF)'
-list="funclist whatnow init default gp_init highlvl"
+list="funclist init default gp_init highlvl"
 for name in $list; do
   case $name in
   funclist)
     target="$desc/\$(DESC)"
     depend="$src/funclist $desc/merge_822 $desc/PARI/822.pm"
     script="merge_822 ../funclist"
-  ;;
-  whatnow)
-    target=$src/gp/whatnow.h
-    depend="$desc/whatnow $src/whatnow $src/gp/gp_init.h $src/gp/highlvl.h $src/language/init.h"
-    script=whatnow
   ;;
   init)
     target=$src/language/init.h
