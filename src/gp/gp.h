@@ -35,6 +35,5 @@ int  whatnow(PariOUT *out, const char *s, int silent);
 extern void (*cb_gp_output)(GEN z);
 extern void (*cb_pari_end_output)(void);
 
-extern entree  functions_highlevel[];
-extern entree functions_gp[], functions_gp_default[];
+extern entree  functions_highlevel[], functions_gp[];
 ENDEXTERN
