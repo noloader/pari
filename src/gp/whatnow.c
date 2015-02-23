@@ -32,11 +32,9 @@ int
 whatnow(PariOUT *out, const char *s, int flag)
 {
   const char *def;
-  const whatnow_t *wp;
+  const whatnow_t *wp = whatnowlist;
   entree *ep;
 
-  if (flag && s[0] && !s[1]) return 0; /* special case "i" and "o" */
-  wp = whatnowlist;
   while (wp->old && strcmp(wp->old,s)) wp++;
   /* Above linear search is slow, esp. if the symbol is not found. BUT no
    * point in wasting time by preallocating [ or autoloading ] a hashtable:
