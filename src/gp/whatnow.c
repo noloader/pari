@@ -31,24 +31,23 @@ msg(PariOUT *out, const char *s)
 int
 whatnow(PariOUT *out, const char *s, int flag)
 {
-  int n;
   const char *def;
-  whatnow_t wp;
+  const whatnow_t *wp;
   entree *ep;
 
   if (flag && s[0] && !s[1]) return 0; /* special case "i" and "o" */
-  n = 0;
-  do wp = whatnowlist[n++]; while (wp.old && strcmp(wp.old,s));
+  wp = whatnowlist;
+  while (wp->old && strcmp(wp->old,s)) wp++;
   /* Above linear search is slow, esp. if the symbol is not found. BUT no
    * point in wasting time by preallocating [ or autoloading ] a hashtable:
    * whatnow() is never used in a case where speed would be necessary */
-  if (!wp.old)
+  if (!wp->old)
   {
     if (!flag)
       msg(out, "As far as I can recall, this function never existed");
     return 0;
   }
-  def = wp.name;
+  def = wp->name;
   if (def == SAME)
   {
     if (!flag)
@@ -64,17 +63,16 @@ whatnow(PariOUT *out, const char *s, int flag)
 
   if (def == REMOV)
   {
-    msg(out, "This function was suppressed");
+    msg(out, "This function no longer exists");
     return 0;
   }
-  if (!strcmp(def,"x*y")) ep = NULL;
-  else {
-    ep = is_entry(wp.name);
-    if (!ep) pari_err_BUG("whatnow");
-  }
+  /* special case compimag -> x*y */
+  if (!strcmp(def,"x*y")) def = "_*_";
+  ep = is_entry(def);
+  if (!ep) pari_err_BUG("whatnow");
   out_puts(out, "New syntax: ");
   out_term_color(out, c_ERR);
-  out_printf(out, "%s%s ===> %s%s\n\n", s, wp.oldarg, wp.name, wp.newarg);
-  if (ep) msg(out, ep->help);
+  out_printf(out, "%s%s ===> %s%s\n\n", s, wp->oldarg, wp->name, wp->newarg);
+  msg(out, ep->help);
   out_term_color(out, c_NONE); return 1;
 }
