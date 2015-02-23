@@ -3505,7 +3505,7 @@ Fp_log(GEN a, GEN g, GEN ord, GEN p)
   GEN v = dlog_get_ordfa(ord);
   GEN F = gmael(v,2,1);
   long lF = lg(F)-1, lmax;
-  if (lF == 0) return gen_0;
+  if (lF == 0) return equali1(a)? gen_0: cgetg(1, t_VEC);
   lmax = expi(gel(F,lF));
   if (BPSW_psp(p) && Fp_log_use_index(lmax,expi(p)))
     v = mkvec2(gel(v,1),ZM_famat_limit(gel(v,2),int2n(27)));

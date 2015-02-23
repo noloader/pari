@@ -25,6 +25,11 @@ Mod(84, 148)
 []
 []
 []
+0
+0
+[]
+[]
+[]
 1
 48
 []
@@ -42,4 +47,4 @@ _MAT).")
 error("incorrect type in generic discrete logarithm (order factorization) (t
 _MAT).")
 []
-Total time spent: 1392
+Total time spent: 1401
