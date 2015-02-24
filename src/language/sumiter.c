@@ -1116,6 +1116,16 @@ direuler(void *E, GEN (*eval)(void *, GEN), GEN a, GEN b, GEN c)
   GEN x, y, s, polnum, polden, prime;
   forprime_t T;
 
+  if (typ(b) != t_INT)
+  {
+    b = gfloor(b);
+    if (typ(b) != t_INT) pari_err_TYPE("direuler",b);
+  }
+  if (typ(a) != t_INT)
+  {
+    a = gceil(a);
+    if (typ(a) != t_INT) pari_err_TYPE("direuler",a);
+  }
   if (c)
   {
     if (typ(c) != t_INT)
@@ -1123,18 +1133,14 @@ direuler(void *E, GEN (*eval)(void *, GEN), GEN a, GEN b, GEN c)
       c = gfloor(c);
       if (typ(c) != t_INT) pari_err_TYPE("direuler", c);
     }
-    if (signe(c) <= 0) { avma = av0; return mkvec(gen_1); }
+    if (signe(c) <= 0) { avma = av0; return cgetg(1,t_VEC); }
     n = itou(c);
+    if (n == 1UL) { avma = av0; return mkvec(gen_1); }
     if (cmpui(n, b) < 0) b = c;
   }
-  if (!forprime_init(&T, a,b)) { avma = av0; return mkvec(gen_1); }
+  if (!forprime_init(&T, a,b)) { avma = av0; return cgetg(1,t_VEC); }
 
-  if (c)
-  {
-    n = itou(c);
-    if (cmpui(n, b) < 0) b = c;
-  }
-  else
+  if (!c)
   {
     if (lgefint(b) > 3) pari_err_OVERFLOW("direuler");
     n = itou(b);
