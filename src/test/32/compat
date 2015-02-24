@@ -209,7 +209,7 @@ group is a quotient of the one computed in bnf (much simpler in general).
   ***   not a function in function call
 A function with that name existed in GP-1.39.15. Please update your script.
 
-This function was suppressed
+This function no longer exists
 
 
   ***   at top-level: buchgen()
@@ -217,7 +217,7 @@ This function was suppressed
   ***   not a function in function call
 A function with that name existed in GP-1.39.15. Please update your script.
 
-This function was suppressed
+This function no longer exists
 
 
   ***   at top-level: buchgenforcefu()
@@ -225,7 +225,7 @@ This function was suppressed
   ***   not a function in function call
 A function with that name existed in GP-1.39.15. Please update your script.
 
-This function was suppressed
+This function no longer exists
 
 
   ***   at top-level: buchgenfu()
@@ -233,7 +233,7 @@ This function was suppressed
   ***   not a function in function call
 A function with that name existed in GP-1.39.15. Please update your script.
 
-This function was suppressed
+This function no longer exists
 
 
   ***   at top-level: buchimag()
@@ -390,7 +390,7 @@ terms in the continued fraction expansion.
   ***   not a function in function call
 A function with that name existed in GP-1.39.15. Please update your script.
 
-This function was suppressed
+This function no longer exists
 
 
   ***   at top-level: char()
@@ -499,6 +499,8 @@ main variable if v is omitted, with respect to the variable v otherwise.
 A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: compimag(x,y) ===> x*y
+
+x*y: product of x and y.
 
 
   ***   at top-level: compo()
@@ -1231,7 +1233,7 @@ elllocalred(E, faN[i,1]).
   ***   not a function in function call
 A function with that name existed in GP-1.39.15. Please update your script.
 
-This function was suppressed
+This function no longer exists
 
 
   ***   at top-level: hclassno()
@@ -1307,7 +1309,7 @@ permutation of row indices such that P applied to M U is H.
   ***   not a function in function call
 A function with that name existed in GP-1.39.15. Please update your script.
 
-This function was suppressed
+This function no longer exists
 
 
   ***   at top-level: hermitemod()
@@ -1395,6 +1397,13 @@ ranges from 1 to n). By default, fill with 0s.
   ***   at top-level: i()
   ***                 ^---
   ***   not a function in function call
+A function with that name existed in GP-1.39.15. Please update your script.
+
+New syntax: i ===> I
+
+I=I(): square root of -1.
+
+
   ***   at top-level: idealaddmultone()
   ***                 ^-----------------
   ***   not a function in function call
@@ -1668,7 +1677,7 @@ given by the function matimage.
   ***   not a function in function call
 A function with that name existed in GP-1.39.15. Please update your script.
 
-This function was suppressed
+This function no longer exists
 
 
   ***   at top-level: incgam2()
@@ -1676,7 +1685,7 @@ This function was suppressed
   ***   not a function in function call
 A function with that name existed in GP-1.39.15. Please update your script.
 
-This function was suppressed
+This function no longer exists
 
 
   ***   at top-level: incgam3()
@@ -1684,7 +1693,7 @@ This function was suppressed
   ***   not a function in function call
 A function with that name existed in GP-1.39.15. Please update your script.
 
-This function was suppressed
+This function no longer exists
 
 
   ***   at top-level: incgam4()
@@ -2138,7 +2147,7 @@ ellj(x): elliptic j invariant of x.
   ***   not a function in function call
 A function with that name existed in GP-1.39.15. Please update your script.
 
-This function was suppressed
+This function no longer exists
 
 
   ***   at top-level: kbessel()
@@ -2212,7 +2221,7 @@ compatibility.
   ***   not a function in function call
 A function with that name existed in GP-1.39.15. Please update your script.
 
-This function was suppressed
+This function no longer exists
 
 
   ***   at top-level: kro()
@@ -2230,7 +2239,7 @@ kronecker(x,y): kronecker symbol (x/y).
   ***   not a function in function call
 A function with that name existed in GP-1.39.15. Please update your script.
 
-This function was suppressed
+This function no longer exists
 
 
   ***   at top-level: lambdak()
@@ -2316,7 +2325,7 @@ polynomial coefficients.
   ***   not a function in function call
 A function with that name existed in GP-1.39.15. Please update your script.
 
-This function was suppressed
+This function no longer exists
 
 
   ***   at top-level: lllgen()
@@ -2355,7 +2364,7 @@ coefficients.
   ***   not a function in function call
 A function with that name existed in GP-1.39.15. Please update your script.
 
-This function was suppressed
+This function no longer exists
 
 
   ***   at top-level: lllgramgen()
@@ -2487,7 +2496,7 @@ polynomial coefficients.
   ***   not a function in function call
 A function with that name existed in GP-1.39.15. Please update your script.
 
-This function was suppressed
+This function no longer exists
 
 
   ***   at top-level: ln()
@@ -2852,6 +2861,13 @@ nucomp and nudupl.
   ***   at top-level: o()
   ***                 ^---
   ***   not a function in function call
+A function with that name existed in GP-1.39.15. Please update your script.
+
+New syntax: o(x) ===> O(x)
+
+O(p^e): p-adic or power series zero with precision given by e
+
+
   ***   at top-level: ordell()
   ***                 ^--------
   ***   not a function in function call
@@ -3213,7 +3229,7 @@ znprimroot(n): returns a primitive root of n when it exists.
   ***   not a function in function call
 A function with that name existed in GP-1.39.15. Please update your script.
 
-This function was suppressed
+This function no longer exists
 
 
   ***   at top-level: principalidele()
@@ -3221,7 +3237,7 @@ This function was suppressed
   ***   not a function in function call
 A function with that name existed in GP-1.39.15. Please update your script.
 
-This function was suppressed
+This function no longer exists
 
 
   ***   at top-level: prodinf1()
@@ -3377,7 +3393,7 @@ quadregulator(x): regulator of the real quadratic field of discriminant x.
   ***   not a function in function call
 A function with that name existed in GP-1.39.15. Please update your script.
 
-This function was suppressed
+This function no longer exists
 
 
   ***   at top-level: resultant()
@@ -3563,7 +3579,7 @@ number field nf.
   ***   not a function in function call
 A function with that name existed in GP-1.39.15. Please update your script.
 
-This function was suppressed
+This function no longer exists
 
 
   ***   at top-level: rounderror()
@@ -3963,7 +3979,7 @@ teichmuller(x): teichmuller character of p-adic number x.
   ***   not a function in function call
 A function with that name existed in GP-1.39.15. Please update your script.
 
-This function was suppressed
+This function no longer exists
 
 
   ***   at top-level: threetotwo2()
@@ -3971,7 +3987,7 @@ This function was suppressed
   ***   not a function in function call
 A function with that name existed in GP-1.39.15. Please update your script.
 
-This function was suppressed
+This function no longer exists
 
 
   ***   at top-level: torsell()
@@ -4021,7 +4037,7 @@ poltschirnhaus(x): random Tschirnhausen transformation of the polynomial x.
   ***   not a function in function call
 A function with that name existed in GP-1.39.15. Please update your script.
 
-This function was suppressed
+This function no longer exists
 
 
   ***   at top-level: unit()
@@ -4414,7 +4430,7 @@ postscript program in psfile (pari.ps by default).
   ***   not a function in function call
 A function with that name existed in GP-1.39.15. Please update your script.
 
-This function was suppressed
+This function no longer exists
 
 
   ***   at top-level: pprint1()
@@ -4422,7 +4438,7 @@ This function was suppressed
   ***   not a function in function call
 A function with that name existed in GP-1.39.15. Please update your script.
 
-This function was suppressed
+This function no longer exists
 
 
 
@@ -4558,4 +4574,4 @@ New syntax: texprint(x) ===> printtex(x)
 printtex({str}*): outputs its string arguments in TeX format.
 
 
-Total time spent: 32
+Total time spent: 23
