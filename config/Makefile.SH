@@ -705,7 +705,7 @@ for dir in basemath modules language gp graph systems mt; do
   case "$f" in
   gp)
     cflags="$cflags -I$src/language -DDL_DFLT_NAME=\$(DL_DFLT_NAME)"
-    depend="$src/gp/gp.h"
+    depend="$src/gp/gp.h $src/gp/highlvl.h $src/gp/gp_init.h"
     ;;
   gp_rl|texmacs)
     cflags="$cflags -I$src/language \$(RLINCLUDE)"
