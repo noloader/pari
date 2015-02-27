@@ -1134,18 +1134,11 @@ direuler(void *E, GEN (*eval)(void *, GEN), GEN a, GEN b, GEN c)
       if (typ(c) != t_INT) pari_err_TYPE("direuler", c);
     }
     if (signe(c) <= 0) { avma = av0; return cgetg(1,t_VEC); }
-    n = itou(c);
-    if (n == 1UL) { avma = av0; return mkvec(gen_1); }
-    if (cmpui(n, b) < 0) b = c;
+    if (cmpii(c, b) < 0) b = c;
   }
-  if (!forprime_init(&T, a,b)) { avma = av0; return cgetg(1,t_VEC); }
-
-  if (!c)
-  {
-    if (lgefint(b) > 3) pari_err_OVERFLOW("direuler");
-    n = itou(b);
-  }
-
+  if (lgefint(b) > 3) pari_err_OVERFLOW("direuler");
+  if (!forprime_init(&T, a,b)) { avma = av0; return mkvec(gen_1); }
+  n = itou(b);
   y = cgetg(n+1,t_VEC); av = avma;
   x = zerovec(n); gel(x,1) = gen_1;
   while ( (prime = forprime_next(&T)) )

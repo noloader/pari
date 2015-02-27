@@ -15,3 +15,6 @@ direuler(p=2,10,(X^2-1)/(X^3-1))
 
 direuler(p=I,10.5,1/((1-X)*(1-p*X)))
 direuler(p=2.5,I,1/((1-X)*(1-p*X)))
+direuler(p=2,10,1/((1-X)*(1-p*X)), I)
+direuler(p=2,1,1/((1-X)*(1-p*X)), 1)
+direuler(p=2,2,1/((1-X)*(1-p*X)), 2)
