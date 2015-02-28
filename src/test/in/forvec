@@ -1,8 +1,7 @@
-default(realprecision,38);
-V=vector(3,i,[1.5,3]);
+V=vector(3,i,[3/2,3]);
 forvec(v=V,print(v))
 print()
-V=vector(3,i,[1.5,4]);
+V=vector(3,i,[3/2,4]);
 forvec(v=V,print(v),1)
 print()
 forvec(v=V,print(v),2)
@@ -14,6 +13,10 @@ print()
 forvec(v=V,print(v),2)
 forvec(v=[[1,2],[0,1]],print(v),1)
 forvec(v=[[1,2],[0,1]],print(v),2)
+
+forvec(v=vector(3,i,[3/2,7/2]),print(v),1)
+print()
+forvec(v=[[3/2,3],[2,4]],print(v),2)
 
 forvec(v=[],print(v))
 forvec(v=[1],)

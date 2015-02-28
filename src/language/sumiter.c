@@ -653,13 +653,13 @@ _next_le_i(forvec_t *d)
     if (cmpii(d->a[i], d->M[i]) < 0)
     {
       d->a[i] = incloop(d->a[i]);
-      /* m[i] < a[i] <= M[i] < M[i+1] */
+      /* m[i] < a[i] <= M[i] <= M[i+1] */
       while (i < d->n)
       {
         GEN t;
         i++;
         if (cmpii(d->a[i-1], d->a[i]) <= 0) continue;
-        /* a[i-1] <= M[i-1] <= M[i] */
+        /* a[i] < a[i-1] <= M[i-1] <= M[i] */
         t = d->a[i-1]; if (cmpii(t, d->m[i]) < 0) t = d->m[i];
         d->a[i] = resetloop(d->a[i], t);/*a[i]:=max(a[i-1],m[i])*/
       }
@@ -775,9 +775,10 @@ _next_void(forvec_t *d)
   return NULL;
 }
 
-/* Initialize minima (m) and maxima (M); guarantee
+/* Initialize minima (m) and maxima (M); guarantee M[i] - m[i] integer and
  *   if flag = 1: m[i-1] <= m[i] <= M[i] <= M[i+1]
- *   if flag = 2: m[i-1] <  m[i] <= M[i] <  M[i+1] */
+ *   if flag = 2: m[i-1] <  m[i] <= M[i] <  M[i+1],
+ * for all i */
 int
 forvec_init(forvec_t *d, GEN x, long flag)
 {
@@ -812,32 +813,25 @@ forvec_init(forvec_t *d, GEN x, long flag)
       default: m = gcopy(m);
         break;
     }
+    M = gadd(m, gfloor(gsub(M,m))); /* ensure M-m is an integer */
     if (gcmp(m,M) > 0) { d->a = NULL; d->next = &_next; return 0; }
     d->m[i] = m;
     d->M[i] = M;
   }
-  for (i = l-2; i >= 1; i--)
+  if (flag == 1) for (i = l-2; i >= 1; i--)
   {
-    GEN a, M = d->M[i];
-    switch(flag) {
-      case 1:/* a >= M - M[i] */
-        a = gfloor(gsub(d->M[i+1], M));
-        if (typ(a) != t_INT) pari_err_TYPE("forvec",a);
-        if (signe(a) < 0) M = gadd(M, a); else M = gcopy(M);
-        /* M <= M[i+1] */
-        break;
-      case 2:
-        a = gceil(gsub(d->M[i+1], M));
-        if (typ(a) != t_INT) pari_err_TYPE("forvec",a);
-        a = subis(a, 1);
-        if (signe(a) < 0) M = gadd(M, a); else M = gcopy(M);
-        /* M < M[i+1] */
-        break;
-      default:
-        M = gcopy(M);
-        break;
-    }
-    d->M[i] = M;
+    GEN M = d->M[i], a = gfloor(gsub(d->M[i+1], M));
+    if (typ(a) != t_INT) pari_err_TYPE("forvec",a);
+    /* M[i]+a <= M[i+1] */
+    if (signe(a) < 0) d->M[i] = gadd(M, a);
+  }
+  else if (flag == 2) for (i = l-2; i >= 1; i--)
+  {
+    GEN M = d->M[i], a = gceil(gsub(d->M[i+1], M));
+    if (typ(a) != t_INT) pari_err_TYPE("forvec",a);
+    a = subiu(a, 1);
+    /* M[i]+a < M[i+1] */
+    if (signe(a) < 0) d->M[i] = gadd(M, a);
   }
   if (t == t_INT) {
     for (i = 1; i < l; i++) {
