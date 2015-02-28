@@ -1422,9 +1422,9 @@ compilefunc(entree *ep, long n, int mode, long flag)
             }
             else
             {
-              compilenewptr(vn,ep,n);
+              compilenewptr(vn, ep, a);
               compilelvalue(a);
-              op_push(OCpushptr, 0,n);
+              op_push(OCpushptr, 0, a);
             }
             nbpointers++;
             break;
