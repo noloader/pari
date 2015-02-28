@@ -972,7 +972,9 @@ ZV_abscmp(GEN x, GEN y)
 long
 zv_content(GEN x)
 {
-  long i, l = lg(x), s = labs(x[1]);
+  long i, s, l = lg(x);
+  if (l == 1) return 0;
+  s = labs(x[1]);
   for (i=2; i<l && s!=1; i++) s = cgcd(x[i],s);
   return s;
 }
@@ -982,7 +984,7 @@ ZV_content(GEN x)
   long i, l = lg(x);
   pari_sp av = avma;
   GEN c;
-  if (l == 1) return gen_1;
+  if (l == 1) return gen_0;
   if (l == 2) return absi(gel(x,1));
   c = gel(x,1);
   for (i = 2; i < l; i++)

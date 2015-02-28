@@ -1579,6 +1579,7 @@ content(GEN x)
     case t_POL: case t_SER:
       lx = lg(x); if (lx == 2) return gen_0;
       break;
+    case t_VECSMALL: return utoi(zv_content(x));
     case t_QFR: case t_QFI:
       lx = 4; break;
 

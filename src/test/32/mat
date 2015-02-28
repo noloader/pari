@@ -374,6 +374,15 @@ od(0, 18446744073709551629); Mod(7, 18446744073709551629), Mod(8, 1844674407
 0
 0
 0
+Vecsmall([0, 0, 0])
+Vecsmall([3, 12, 27])
+3
+0
+Vecsmall([2, 2, 0, -4, -10])
+2
+  ***   at top-level: vectorsmall(3,i,i^100)
+  ***                                 ^------
+  ***   overflow in t_INT-->long assignment.
 
 [1 0 0]
 
@@ -419,4 +428,4 @@ od(0, 18446744073709551629); Mod(7, 18446744073709551629), Mod(8, 1844674407
 
 [0 0 1]
 
-Total time spent: 60
+Total time spent: 102
