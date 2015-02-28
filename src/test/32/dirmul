@@ -22,4 +22,10 @@
   ***   incorrect type in gfloor (t_COMPLEX).
 [1]
 [1, 3]
+  ***   at top-level: direuler(p=2,10,1/2)
+  ***                                 ^----
+  ***   domain error in direuler: constant term != 1
+  ***   at top-level: direuler(p=2,10,1/(x-2))
+  ***                                 ^--------
+  ***   domain error in direuler: constant term != 1
 Total time spent: 1
