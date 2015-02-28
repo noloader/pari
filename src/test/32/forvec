@@ -90,4 +90,7 @@
   ***   at top-level: forvec(v=[[1,I]],)
   ***                 ^------------------
   *** forvec: incorrect type in gfloor (t_COMPLEX).
+  ***   at top-level: forvec(v=[[1,1],[1,1
+  ***                 ^--------------------
+  *** forvec: invalid flag in forvec.
 Total time spent: 1
