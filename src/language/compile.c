@@ -1362,10 +1362,11 @@ compilefunc(entree *ep, long n, int mode, long flag)
           break;
         case 'W':
           {
-            entree *ep = getlvalue(arg[j]);
+            long a = arg[j];
+            entree *ep = getlvalue(a);
             long vn = getmvar(ep);
-            if (vn) op_push(OCcowvarlex,vn,n);
-            else op_push(OCcowvardyn,(long)ep,n);
+            if (vn) op_push(OCcowvarlex, vn, a);
+            else op_push(OCcowvardyn, (long)ep, a);
             compilenode(arg[j++],Ggen,FLnocopy);
             break;
           }
