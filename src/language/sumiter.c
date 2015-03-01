@@ -1324,7 +1324,7 @@ polzag(long n, long m)
 {
   pari_sp av = avma, av2;
   long k, d = n - m, r = (m+1)>>1;
-  GEN A, B, B2, g, s;
+  GEN A, B, B2, g;
 
   if (d <= 0 || m < 0) return gen_0;
   A = mkpoln(2, gen_m2, gen_1); /* 1 - 2x */
@@ -1342,8 +1342,7 @@ polzag(long n, long m)
       g = gerepileupto(av2, g);
     }
   }
-  s = mulii(sqru(d), shifti(mpfact(m+1), -r));
-  return gerepileupto(av, RgX_Rg_div(g,s));
+  return gerepileupto(av, RgX_Rg_div(g,gel(g,2)));
 }
 
 /* h = (2+2x)g'- g; g has t_INT coeffs */
@@ -1411,7 +1410,7 @@ polzagreal(long n, long m, long prec)
       g = gerepilecopy(av, g);
     }
   }
-  g = RgX_Rg_mul(g, invr( itor(mului(d, shifti(mpfact(m+1), 1-r)), prec) ));
+  g = RgX_Rg_mul(g, invr( itor(gel(g,2), prec) ));
   return gerepileupto(av, g);
 }
 
