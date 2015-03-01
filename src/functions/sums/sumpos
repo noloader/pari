@@ -23,7 +23,7 @@ Doc: numerical summation of the series \var{expr}, which must be a series of
  have the same sign. As \tet{sumalt}, this function should be used to
  try and guess the value of an infinite sum.
 
- If $\fl=1$, use slightly different polynomials. Sometimes faster.
+ If $\fl=1$, use \kbd{sumalt}$(,1)$ instead of \kbd{sumalt}$(,0)$.
 
  \synt{sumpos}{void *E, GEN (*eval)(void*,GEN),GEN a,long prec}. Also
  available is \tet{sumpos2} with the same arguments ($\fl = 1$).

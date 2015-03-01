@@ -10,19 +10,27 @@ Description:
   (gen,gen,?0):gen:prec sumalt(${2 cookie}, ${2 wrapper}, $1, prec)
   (gen,gen,1):gen:prec sumalt2(${2 cookie}, ${2 wrapper}, $1, prec)
 Doc: numerical summation of the series \var{expr}, which should be an
- \idx{alternating series}, the formal variable $X$ starting at $a$. Use an
- algorithm of Cohen, Villegas and Zagier (\emph{Experiment. Math.} {\bf 9}
- (2000), no.~1, 3--12).
+ \idx{alternating series} $(-1)^k a_k$, the formal variable $X$ starting at
+ $a$. Use an algorithm of Cohen, Villegas and Zagier (\emph{Experiment. Math.}
+ {\bf 9} (2000), no.~1, 3--12).
 
- If $\fl=1$, use a variant with slightly different polynomials. Sometimes
- faster.
+ If $\fl=0$, assuming that that the $a_k$ are the moments of a positive
+ measure on $[0,1]$, the relative error is $O(3+\sqrt8)^(-n)$ after using
+ $a_k$ for $k\leq n$.
 
- The routine is heuristic and a rigorous proof assumes that the values of
- \var{expr} are the moments of a positive measure on $[0,1]$. Divergent
- alternating series can sometimes be summed by this method, as well as series
- which are not exactly alternating (see for example
- \secref{se:user_defined}). It should be used to try and guess the value of
- an infinite sum. (However, see the example at the end of
+ If $\fl=1$, use a variant with slightly different polynomials, see
+ \tet{polzagier}. If the $a_k$ are the moments of $w(x)dx$ where $w$
+ (or only $xw(x^2)$) is a smooth function extending analytically to the whole
+ complex plane, convergence is in $O(14.4^(-n))$. If $xw(x^2)$ extends
+ analytically to a smaller region, we still have exponential convergence,
+ with smaller constants. Usually faster when the computation of $a_k$ is
+ expensive.
+
+ The conditions for rigorous are hard to check but the routine is best used
+ heuristically: even divergent alternating series can sometimes be summed by
+ this method, as well as series which are not exactly alternating (see for
+ example \secref{se:user_defined}). It should be used to try and guess the
+ value of an infinite sum. (However, see the example at the end of
  \secref{se:userfundef}.)
 
  If the series already converges geometrically,
