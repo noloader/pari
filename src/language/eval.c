@@ -242,7 +242,7 @@ INLINE GEN
 checkvalueptr(entree *ep)
 {
   checkvalue(ep, chk_NOCREATE);
-  return ep->valence==EpNEW? gen_0: ep->value;
+  return ep->valence==EpNEW? gen_0: (GEN)ep->value;
 }
 
 /* make GP variables safe for avma = top */
