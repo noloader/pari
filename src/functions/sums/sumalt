@@ -23,10 +23,10 @@ Doc: numerical summation of the series \var{expr}, which should be an
  (or only $xw(x^2)$) is a smooth function extending analytically to the whole
  complex plane, convergence is in $O(14.4^(-n))$. If $xw(x^2)$ extends
  analytically to a smaller region, we still have exponential convergence,
- with smaller constants. Usually faster when the computation of $a_k$ is
+ with worse constants. Usually faster when the computation of $a_k$ is
  expensive.
 
- The conditions for rigorous are hard to check but the routine is best used
+ The conditions for rigorous use are hard to check but the routine is best used
  heuristically: even divergent alternating series can sometimes be summed by
  this method, as well as series which are not exactly alternating (see for
  example \secref{se:user_defined}). It should be used to try and guess the
