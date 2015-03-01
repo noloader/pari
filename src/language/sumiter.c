@@ -1346,7 +1346,7 @@ polzag(long n, long m)
   return gerepileupto(av, RgX_Rg_div(g,s));
 }
 
-/* h = (2+2x)g'- g; g has t_REAL coeffs */
+/* h = (2+2x)g'- g; g has t_INT coeffs */
 static GEN
 delt(GEN g, long n)
 {
@@ -1355,8 +1355,8 @@ delt(GEN g, long n)
   h[1] = g[1];
   gel(h,2) = gel(g,2);
   for (k=1; k<n; k++)
-    gel(h,k+2) = addrr(mulur(k+k+1,gel(g,k+2)), mulur(k<<1,gel(g,k+1)));
-  gel(h,n+2) = mulur(n<<1, gel(g,n+1)); return h;
+    gel(h,k+2) = addii(mului(k+k+1,gel(g,k+2)), mului(k<<1,gel(g,k+1)));
+  gel(h,n+2) = mului(n<<1, gel(g,n+1)); return h;
 }
 
 #ifdef _MSC_VER /* Bill Daly: work around a MSVC bug */
@@ -1384,34 +1384,34 @@ polzagreal(long n, long m, long prec)
                             muluu(k2,k2+1));
   }
   for (; k < d; k++) gel(T,k+1) = gel(T,d-k);
-  gel(g,2) = itor(gel(T,d), prec); /* binomial(2d, 2(d-1)+1) */
+  gel(g,2) = gel(T,d); /* binomial(2d, 2(d-1)+1) */
   for (i = 1; i < d; i++)
   {
     pari_sp av2 = avma;
-    GEN s, t = itor(gel(T,d-i), prec); /* binomial(2d, 2(d-1-i)+1) */
+    GEN s, t = gel(T,d-i); /* binomial(2d, 2(d-1-i)+1) */
     s = t;
     for (k = d-i; k < d; k++)
     {
       long k2 = k<<1;
-      t = divri(mulri(t, muluu(d2-k2+1, d-k)), muluu(k2+1,k-(d-i)+1));
-      s = addrr(s, t);
+      t = diviiexact(mulii(t, muluu(d2-k2+1, d-k)), muluu(k2+1,k-(d-i)+1));
+      s = addii(s, t);
     }
     /* g_i = sum_{d-1-i <= k < d, binomial(2*d, 2*k+1)*binomial(k,d-1-i) */
-    gel(g,i+2) = gerepileuptoleaf(av2, s);
+    gel(g,i+2) = gerepileuptoint(av2, s);
   }
   /* sum_{0 <= i < d} g_i x^i * (x+x^2)^r */
   g = RgX_mulXn(gmul(g, gpowgs(deg1pol(gen_1,gen_1,0),r)), r);
   if (!odd(m)) g = delt(g, n);
   for (i=1; i<=r; i++)
   {
-    g = delt(RgX_deriv(g), n);
+    g = delt(ZX_deriv(g), n);
     if (gc_needed(av,4))
     {
       if (DEBUGMEM>1) pari_warn(warnmem,"polzagreal, i = %ld/%ld", i,r);
       g = gerepilecopy(av, g);
     }
   }
-  g = RgX_Rg_div(g, mului(d, shifti(mpfact(m+1), 1-r)));
+  g = RgX_Rg_mul(g, invr( itor(mului(d, shifti(mpfact(m+1), 1-r)), prec) ));
   return gerepileupto(av, g);
 }
 
