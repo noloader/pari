@@ -1322,16 +1322,25 @@ matrice(GEN nlig, GEN ncol, GEN code)
 GEN
 polzag(long n, long m)
 {
-  pari_sp av = avma;
+  pari_sp av = avma, av2;
   long k, d = n - m;
   GEN A, Bx, g, s;
 
   if (d <= 0 || m < 0) return gen_0;
-  A  = mkpoln(2, stoi(-2), gen_1); /* 1 - 2x */
-  Bx = mkpoln(3, stoi(-2), gen_2, gen_0); /* 2x - 2x^2 */
-  g = gmul(poleval(ZX_deriv(polchebyshev1(d,0)), A), gpowgs(Bx, (m+1)>>1));
+  A  = mkpoln(2, gen_m2, gen_1); /* 1 - 2x */
+  Bx = mkpoln(3, gen_m2, gen_2, gen_0); /* 2x - 2x^2 */
+  av2 = avma;
+  g = ZX_deriv(polchebyshev1(d,0));
+  g = ZX_unscale(ZX_unscale2n(ZX_translate(g,gen_1), 1), gen_m1); /*T'(1-2x)*/
+  g = ZX_mul(g, gpowgs(Bx, (m+1)>>1));
   for (k = m; k >= 0; k--)
-    g = (k&1)? ZX_deriv(g): gadd(gmul(A,g), gmul(Bx,ZX_deriv(g)));
+  {
+    g = (k&1)? ZX_deriv(g): ZX_add(ZX_mul(A,g), ZX_mul(Bx,ZX_deriv(g)));
+    if (gc_needed(av2,4)) {
+      if (DEBUGMEM>1) pari_warn(warnmem,"polzag, k = %ld", k);
+      g = gerepileupto(av2, g);
+    }
+  }
   s = mulii(sqru(d), mpfact(m+1));
   return gerepileupto(av, gdiv(g,s));
 }
