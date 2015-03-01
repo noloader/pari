@@ -1323,74 +1323,96 @@ GEN
 polzag(long n, long m)
 {
   pari_sp av = avma, av2;
-  long k, d = n - m;
-  GEN A, Bx, g, s;
+  long k, d = n - m, r = (m+1)>>1;
+  GEN A, B, B2, g, s;
 
   if (d <= 0 || m < 0) return gen_0;
-  A  = mkpoln(2, gen_m2, gen_1); /* 1 - 2x */
-  Bx = mkpoln(3, gen_m2, gen_2, gen_0); /* 2x - 2x^2 */
+  A = mkpoln(2, gen_m2, gen_1); /* 1 - 2x */
+  B = mkpoln(3, gen_m1, gen_1, gen_0); /* x - x^2 */
+  B2= mkpoln(3, gen_m2, gen_2, gen_0); /* 2x - 2x^2 */
   av2 = avma;
   g = ZX_deriv(polchebyshev1(d,0));
   g = ZX_unscale(ZX_unscale2n(ZX_translate(g,gen_1), 1), gen_m1); /*T'(1-2x)*/
-  g = ZX_mul(g, gpowgs(Bx, (m+1)>>1));
+  g = ZX_mul(g, gpowgs(B, r));
   for (k = m; k >= 0; k--)
   {
-    g = (k&1)? ZX_deriv(g): ZX_add(ZX_mul(A,g), ZX_mul(Bx,ZX_deriv(g)));
+    g = (k&1)? ZX_deriv(g): ZX_add(ZX_mul(A,g), ZX_mul(B2,ZX_deriv(g)));
     if (gc_needed(av2,4)) {
       if (DEBUGMEM>1) pari_warn(warnmem,"polzag, k = %ld", k);
       g = gerepileupto(av2, g);
     }
   }
-  s = mulii(sqru(d), mpfact(m+1));
-  return gerepileupto(av, gdiv(g,s));
+  s = mulii(sqru(d), shifti(mpfact(m+1), -r));
+  return gerepileupto(av, RgX_Rg_div(g,s));
+}
+
+/* h = (2+2x)g'- g; g has t_REAL coeffs */
+static GEN
+delt(GEN g, long n)
+{
+  GEN h = cgetg(n+3,t_POL);
+  long k;
+  h[1] = g[1];
+  gel(h,2) = gel(g,2);
+  for (k=1; k<n; k++)
+    gel(h,k+2) = addrr(mulur(k+k+1,gel(g,k+2)), mulur(k<<1,gel(g,k+1)));
+  gel(h,n+2) = mulur(n<<1, gel(g,n+1)); return h;
 }
 
 #ifdef _MSC_VER /* Bill Daly: work around a MSVC bug */
 #pragma optimize("g",off)
 #endif
+/* polzag(n,m)(-X) */
 static GEN
-polzagreel(long n, long m, long prec)
+polzagreal(long n, long m, long prec)
 {
-  const long d = n - m, d2 = d<<1, r = (m+1)>>1;
-  long j, k, k2;
+  const long d = n - m, d2 = d<<1, r = (m+1)>>1, D = (d+1)>>1;
+  long i, k;
   pari_sp av = avma;
-  GEN Bx, g, h, v, b, s;
+  GEN g, T;
 
-  if (d <= 0 || m < 0) return gen_0;
-  Bx = mkpoln(3, gen_1, gen_1, gen_0); /* x + x^2 */
-  v = cgetg(d+1,t_VEC);
-  g = cgetg(d+1,t_VEC);
-  gel(v,d) = gen_1; b = stor(d2, prec);
-  gel(g,d) = b;
-  for (k = 1; k < d; k++)
+  if (d <= 0 || m < 0) return pol_0(0);
+  g = cgetg(d+2, t_POL);
+  g[1] = evalsigne(1)|evalvarn(0);
+  T = cgetg(d+1,t_VEC);
+  /* T[k+1] = binomial(2d,2k+1), 0 <= k < d */
+  gel(T,1) = utoipos(d2);
+  for (k = 1; k < D; k++)
   {
-    gel(v,d-k) = gen_1;
-    for (j=1; j<k; j++)
-      gel(v,d-k+j) = addii(gel(v,d-k+j), gel(v,d-k+j+1));
-    /* v[d-k+j] = binom(k, j), j = 0..k */
-    k2 = k+k; b = divri(mulri(b,mulss(d2-k2+1,d2-k2)), mulss(k2,k2+1));
-    for (j=1; j<=k; j++)
-      gel(g,d-k+j) = mpadd(gel(g,d-k+j), mulri(b,gel(v,d-k+j)));
-    gel(g,d-k) = b;
+    long k2 = k<<1;
+    gel(T,k+1) = diviiexact(mulii(gel(T,k), muluu(d2-k2+1, d2-k2)),
+                            muluu(k2,k2+1));
   }
-  g = gmul(RgV_to_RgX(g,0), gpowgs(Bx,r));
-  for (j=0; j<=r; j++)
+  for (; k < d; k++) gel(T,k+1) = gel(T,d-k);
+  gel(g,2) = itor(gel(T,d), prec); /* binomial(2d, 2(d-1)+1) */
+  for (i = 1; i < d; i++)
   {
-    if (j) g = RgX_deriv(g);
-    if (j || !(m&1))
+    pari_sp av2 = avma;
+    GEN s, t = itor(gel(T,d-i), prec); /* binomial(2d, 2(d-1-i)+1) */
+    s = t;
+    for (k = d-i; k < d; k++)
     {
-      h = cgetg(n+3,t_POL);
-      h[1] = evalsigne(1);
-      gel(h,2) = gel(g,2);
-      for (k=1; k<n; k++)
-        gel(h,k+2) = gadd(gmulsg(k+k+1,gel(g,k+2)), gmulsg(k<<1,gel(g,k+1)));
-      gel(h,n+2) = gmulsg(n<<1, gel(g,n+1));
-      g = h;
+      long k2 = k<<1;
+      t = divri(mulri(t, muluu(d2-k2+1, d-k)), muluu(k2+1,k-(d-i)+1));
+      s = addrr(s, t);
+    }
+    /* g_i = sum_{d-1-i <= k < d, binomial(2*d, 2*k+1)*binomial(k,d-1-i) */
+    gel(g,i+2) = gerepileuptoleaf(av2, s);
+  }
+  /* sum_{0 <= i < d} g_i x^i * (x+x^2)^r */
+  g = RgX_mulXn(gmul(g, gpowgs(deg1pol(gen_1,gen_1,0),r)), r);
+  if (!odd(m)) g = delt(g, n);
+  for (i=1; i<=r; i++)
+  {
+    g = delt(RgX_deriv(g), n);
+    if (gc_needed(av,4))
+    {
+      if (DEBUGMEM>1) pari_warn(warnmem,"polzagreal, i = %ld/%ld", i,r);
+      g = gerepilecopy(av, g);
     }
   }
-  g = gmul2n(g, r-1);
-  s = mului(d, mpfact(m+1));
-  return gerepileupto(av, gdiv(g,s));
+  g = RgX_Rg_div(g, mului(d, shifti(mpfact(m+1), 1-r)));
+  return gerepileupto(av, g);
 }
 
 #ifdef _MSC_VER
@@ -1436,7 +1458,7 @@ sumalt2(void *E, GEN (*eval)(void *, GEN), GEN a, long prec)
 
   if (typ(a) != t_INT) pari_err_TYPE("sumalt",a);
   N = (long)(0.31*(prec2nbits(prec) + 5));
-  pol = polzagreel(N,N>>1,prec+EXTRAPRECWORD);
+  pol = polzagreal(N,N>>1,prec+EXTRAPRECWORD);
   pol = RgX_div_by_X_x(pol, gen_1, &dn);
   a = setloop(a);
   N = degpol(pol);
@@ -1547,7 +1569,7 @@ sumpos2(void *E, GEN (*eval)(void *, GEN), GEN a, long prec)
       stock[k] = addrr(reel, gmul2n(x,1));
     }
   s = gen_0;
-  pol = polzagreel(N,N>>1,prec+EXTRAPRECWORD);
+  pol = polzagreal(N,N>>1,prec+EXTRAPRECWORD);
   pol = RgX_div_by_X_x(pol, gen_1, &dn);
   for (k=1; k<=lg(pol)-2; k++)
   {
