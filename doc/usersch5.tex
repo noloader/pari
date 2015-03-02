@@ -7314,6 +7314,9 @@ $y$ is monic.
 \fun{GEN}{ZX_mod_Xnm1}{GEN T, ulong n} return $T$ modulo $X^n - 1)$. Shallow
 function.
 
+\fun{GEN}{ZX_div_by_X_1}{GEN T, GEN *r} return the quotient of $T$ by $X-1$.
+If $r$ is not \kbd{NULL} set it to $T(1)$.
+
 \fun{GEN}{ZX_gcd}{GEN x,GEN y} returns a gcd of the \kbd{ZX} $x$ and $y$.
 Not memory-clean, but suitable for \kbd{gerepileupto}.
 

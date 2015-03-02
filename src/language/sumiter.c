@@ -1319,32 +1319,6 @@ matrice(GEN nlig, GEN ncol, GEN code)
 /**                         SUMMING SERIES                         **/
 /**                                                                **/
 /********************************************************************/
-GEN
-polzag(long n, long m)
-{
-  pari_sp av = avma, av2;
-  long k, d = n - m, r = (m+1)>>1;
-  GEN A, B, B2, g;
-
-  if (d <= 0 || m < 0) return gen_0;
-  A = mkpoln(2, gen_m2, gen_1); /* 1 - 2x */
-  B = mkpoln(3, gen_m1, gen_1, gen_0); /* x - x^2 */
-  B2= mkpoln(3, gen_m2, gen_2, gen_0); /* 2x - 2x^2 */
-  av2 = avma;
-  g = ZX_deriv(polchebyshev1(d,0));
-  g = ZX_unscale(ZX_unscale2n(ZX_translate(g,gen_1), 1), gen_m1); /*T'(1-2x)*/
-  g = ZX_mul(g, gpowgs(B, r));
-  for (k = m; k >= 0; k--)
-  {
-    g = (k&1)? ZX_deriv(g): ZX_add(ZX_mul(A,g), ZX_mul(B2,ZX_deriv(g)));
-    if (gc_needed(av2,4)) {
-      if (DEBUGMEM>1) pari_warn(warnmem,"polzag, k = %ld", k);
-      g = gerepileupto(av2, g);
-    }
-  }
-  return gerepileupto(av, RgX_Rg_div(g,gel(g,2)));
-}
-
 /* h = (2+2x)g'- g; g has t_INT coeffs */
 static GEN
 delt(GEN g, long n)
@@ -1361,9 +1335,9 @@ delt(GEN g, long n)
 #ifdef _MSC_VER /* Bill Daly: work around a MSVC bug */
 #pragma optimize("g",off)
 #endif
-/* polzag(n,m)(-X) */
+/* P = polzagier(n,m)(-X), unnormalized (P(0) != 1) */
 static GEN
-polzagreal(long n, long m, long prec)
+polzag1(long n, long m)
 {
   const long d = n - m, d2 = d<<1, r = (m+1)>>1, D = (d+1)>>1;
   long i, k;
@@ -1395,7 +1369,7 @@ polzagreal(long n, long m, long prec)
       t = diviiexact(mulii(t, muluu(d2-k2+1, d-k)), muluu(k2+1,k-(d-i)+1));
       s = addii(s, t);
     }
-    /* g_i = sum_{d-1-i <= k < d, binomial(2*d, 2*k+1)*binomial(k,d-1-i) */
+    /* g_i = sum_{d-1-i <= k < d}, binomial(2*d, 2*k+1)*binomial(k,d-1-i) */
     gel(g,i+2) = gerepileuptoint(av2, s);
   }
   /* sum_{0 <= i < d} g_i x^i * (x+x^2)^r */
@@ -1406,17 +1380,20 @@ polzagreal(long n, long m, long prec)
     g = delt(ZX_deriv(g), n);
     if (gc_needed(av,4))
     {
-      if (DEBUGMEM>1) pari_warn(warnmem,"polzagreal, i = %ld/%ld", i,r);
+      if (DEBUGMEM>1) pari_warn(warnmem,"polzag, i = %ld/%ld", i,r);
       g = gerepilecopy(av, g);
     }
   }
-  g = RgX_Rg_mul(g, invr( itor(gel(g,2), prec) ));
-  return gerepileupto(av, g);
+  return g;
+}
+GEN
+polzag(long n, long m)
+{
+  pari_sp av = avma;
+  GEN g = ZX_unscale(polzag1(n,m), gen_m1);
+  return gerepileupto(av, RgX_Rg_div(g,gel(g,2)));
 }
 
-#ifdef _MSC_VER
-#pragma optimize("g",on)
-#endif
 GEN
 sumalt(void *E, GEN (*eval)(void *, GEN), GEN a, long prec)
 {
@@ -1457,15 +1434,15 @@ sumalt2(void *E, GEN (*eval)(void *, GEN), GEN a, long prec)
 
   if (typ(a) != t_INT) pari_err_TYPE("sumalt",a);
   N = (long)(0.31*(prec2nbits(prec) + 5));
-  pol = polzagreal(N,N>>1,prec+EXTRAPRECWORD);
-  pol = RgX_div_by_X_x(pol, gen_1, &dn);
+  pol = ZX_div_by_X_1(polzag1(N,N>>1), &dn);
   a = setloop(a);
   N = degpol(pol);
   s = gen_0;
   av2 = avma;
   for (k=0; k<=N; k++)
   {
-    s = gadd(s, gmul(gel(pol,k+2), eval(E, a)));
+    GEN t = itor(gel(pol,k+2), prec+EXTRAPRECWORD);
+    s = gadd(s, gmul(t, eval(E, a)));
     if (k == N) break;
     a = incloop(a); /* in place! */
     if (gc_needed(av,4))
@@ -1568,13 +1545,12 @@ sumpos2(void *E, GEN (*eval)(void *, GEN), GEN a, long prec)
       stock[k] = addrr(reel, gmul2n(x,1));
     }
   s = gen_0;
-  pol = polzagreal(N,N>>1,prec+EXTRAPRECWORD);
-  pol = RgX_div_by_X_x(pol, gen_1, &dn);
-  for (k=1; k<=lg(pol)-2; k++)
+  pol = ZX_div_by_X_1(polzag1(N,N>>1), &dn);
+  for (k=0; k<=N; k++)
   {
-    GEN p1 = gmul(gel(pol,k+1),stock[k]);
-    if (!odd(k)) p1 = gneg_i(p1);
-    s = gadd(s,p1);
+    GEN t = gmul(itor(gel(pol,k+2), prec+EXTRAPRECWORD), stock[k]);
+    if (odd(k)) t = gneg_i(t);
+    s = gadd(s,t);
   }
   return gerepileupto(av, gdiv(s,dn));
 }

@@ -300,6 +300,23 @@ ZX_valrem(GEN x, GEN *Z)
   return vx;
 }
 
+GEN
+ZX_div_by_X_1(GEN a, GEN *r)
+{
+  long l = lg(a), i;
+  GEN a0, z0, z = cgetg(l-1, t_POL);
+  z[1] = a[1];
+  a0 = a + l-1;
+  z0 = z + l-2; *z0 = *a0--;
+  for (i=l-3; i>1; i--) /* z[i] = a[i+1] + z[i+1] */
+  {
+    GEN t = addii(gel(a0--,0), gel(z0--,0));
+    gel(z0,0) = t;
+  }
+  if (r) *r = addii(gel(a0,0), gel(z0,0));
+  return z;
+}
+
 /* Return 2^(n degpol(P))  P(x >> n), not memory clean if P is a ZX */
 GEN
 ZX_rescale2n(GEN P, long n)

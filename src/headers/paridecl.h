@@ -1036,6 +1036,7 @@ GEN     ZX_Z_sub(GEN y, GEN x);
 GEN     ZX_add(GEN x, GEN y);
 GEN     ZX_copy(GEN x);
 GEN     ZX_deriv(GEN x);
+GEN     ZX_div_by_X_1(GEN a, GEN *r);
 int     ZX_equal(GEN V, GEN W);
 GEN     ZX_eval1(GEN x);
 long    ZX_max_lg(GEN x);

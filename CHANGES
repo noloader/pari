@@ -112,6 +112,7 @@ VBr83- [darwin] remove obsolete linker options that cause crashes [#1623]
        same for x^(-1) [#1666]
    87- primes([1,Pol(2)]) -> SEGV [#1668]
    88- znlog(0,Mod(1,4),1) -> 0 (instead of [])
+   89- polzagier / sumalt(,1) / sumpos(,1) were slow and used too much memory
 
   Added
     1- add optional argument to sumdigits to specify the base
@@ -237,6 +238,7 @@ AP 81- [GP] central simple algebra package, GP functions
    89- Configure --with-runtime-perl option
 PB 90- Faster matrix multiplication over finite fields
    91- allow content(t_VECSMALL)
+   92 [libpari] ZX_div_by_X_1
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]
