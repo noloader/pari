@@ -1403,7 +1403,7 @@ sumalt(void *E, GEN (*eval)(void *, GEN), GEN a, long prec)
 
   if (typ(a) != t_INT) pari_err_TYPE("sumalt",a);
   e1 = addsr(3, sqrtr(stor(8,prec)));
-  N = (ulong)(0.4*(prec2nbits(prec)+ 7));
+  N = (ulong)(0.39322*(prec2nbits(prec) + 7)); /* 0.39322 > 1/log_2(3+sqrt(8)) */
   d = powru(e1,N);
   d = shiftr(addrr(d, invr(d)),-1);
   a = setloop(a);
@@ -1433,7 +1433,7 @@ sumalt2(void *E, GEN (*eval)(void *, GEN), GEN a, long prec)
   GEN s, dn, pol;
 
   if (typ(a) != t_INT) pari_err_TYPE("sumalt",a);
-  N = (long)(0.31*(prec2nbits(prec) + 5));
+  N = (long)(0.307073*(prec2nbits(prec) + 5)); /*0.307073 > 1/log_2(\beta_B)*/
   pol = ZX_div_by_X_1(polzag1(N,N>>1), &dn);
   a = setloop(a);
   N = degpol(pol);
