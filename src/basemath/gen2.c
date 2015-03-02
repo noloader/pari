@@ -335,7 +335,7 @@ static int
 is_monomial_test(GEN x, long v, int(*test)(GEN))
 {
   long d, i, l;
-  if (!signe(x)) return 0;
+  if (!signe(x)) return (typ(x) == t_SER && v <= 0);
   if (v > 0) return 0;
   l = lg(x); d = 2-v;
   if (l <= d) return 0;
