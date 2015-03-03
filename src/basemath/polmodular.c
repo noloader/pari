@@ -1727,10 +1727,6 @@ phi7_ZV(void)
 }
 
 /*
- * NB: This file is included directly inside 'modpoly.c'.
- */
-
-/*
  * This data was generated using Sutherland's modpoly_pickD() function.
  */
 
