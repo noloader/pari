@@ -1403,7 +1403,7 @@ sumalt(void *E, GEN (*eval)(void *, GEN), GEN a, long prec)
 
   if (typ(a) != t_INT) pari_err_TYPE("sumalt",a);
   e1 = addsr(3, sqrtr(stor(8,prec)));
-  N = (ulong)(0.39322*(prec2nbits(prec) + 7)); /* 0.39322 > 1/log_2(3+sqrt(8)) */
+  N = (ulong)(0.39322*(prec2nbits(prec) + 7)); /*0.39322 > 1/log_2(3+sqrt(8))*/
   d = powru(e1,N);
   d = shiftr(addrr(d, invr(d)),-1);
   a = setloop(a);
@@ -1466,17 +1466,36 @@ sumalt0(GEN a, GEN code, long flag, long prec)
   return NULL; /* not reached */
 }
 
+/* R > 0; \sum_{e >= 0} 2^e f(a + R*2^e) */
+static GEN
+binsum(ulong R, void *E, GEN (*f)(void *, GEN), GEN a, GEN real, long G)
+{
+  pari_sp av = avma;
+  GEN x = gen_0, r = utoipos(R);
+  long e;
+  for(e=0;;e++)
+  {
+    affgr(f(E, addii(r,a)), real);
+    if (!signe(real)) break;
+    shiftr_inplace(real, e);
+    x = mpadd(x,real); if (e && expo(real) < G) break;
+    r = shifti(r,1);
+  }
+  return gerepileuptoleaf(av, x);
+}
+
 GEN
 sumpos(void *E, GEN (*eval)(void *, GEN), GEN a, long prec)
 {
-  long k, kk, N, G;
+  ulong k, N;
+  long G;
   pari_sp av = avma;
-  GEN r, reel, s, az, c, x, e1, d, *stock;
+  GEN reel, s, az, c, e1, d, *stock;
 
   if (typ(a) != t_INT) pari_err_TYPE("sumpos",a);
   a = subis(a,1); reel = cgetr(prec);
   e1 = addsr(3, sqrtr(stor(8,prec)));
-  N = (long)(0.4*(prec2nbits(prec) + 7));
+  N = (ulong)(0.4*(prec2nbits(prec) + 7));
   d = powru(e1,N);
   d = shiftr(addrr(d, invr(d)),-1);
   az = gen_m1; c = d;
@@ -1486,29 +1505,21 @@ sumpos(void *E, GEN (*eval)(void *, GEN), GEN a, long prec)
   stock = (GEN*)new_chunk(N+1); for (k=1; k<=N; k++) stock[k] = NULL;
   for (k=0; k<N; k++)
   {
+    GEN t;
+    GEN x;
     if (odd(k) && stock[k]) x = stock[k];
     else
     {
-      pari_sp av2 = avma;
-      x = gen_0; r = utoipos(2*k+2);
-      for(kk=0;;kk++)
-      {
-
-        long ex;
-        affgr(eval(E, addii(r,a)), reel);
-        if (!signe(reel)) break;
-        ex = expo(reel) + kk; shiftr_inplace(reel, kk);
-        x = mpadd(x,reel); if (kk && ex < G) break;
-        r = shifti(r,1);
-      }
-      x = gerepileupto(av2, x);
+      x = binsum(2*k+2, E,eval,a,reel,G);
       if (2*k < N) stock[2*k+1] = x;
-      affgr(eval(E, addsi(k+1,a)), reel);
+      affgr(eval(E, addui(k+1,a)), reel);
       x = addrr(reel, gmul2n(x,1));
     }
     c = addir(az,c);
-    s = mpadd(s, mulrr(x, k&1? negr(c): c));
-    az = diviiexact(mulii(mulss(N-k,N+k),shifti(az,1)),mulss(k+1,k+k+1));
+    t = mulrr(x, c);
+    s = odd(k)? mpsub(s, t): mpadd(s, t);
+    if (k == N-1) break;
+    az = diviuuexact(muluui((N-k)<<1,N+k,az), k+1, (k<<1)+1);
   }
   return gerepileupto(av, gdiv(s,d));
 }
@@ -1516,9 +1527,9 @@ sumpos(void *E, GEN (*eval)(void *, GEN), GEN a, long prec)
 GEN
 sumpos2(void *E, GEN (*eval)(void *, GEN), GEN a, long prec)
 {
-  long k, kk, N, G;
+  long k, N, G;
   pari_sp av = avma;
-  GEN r, reel, s, pol, dn, x, *stock;
+  GEN reel, s, pol, dn, *stock;
 
   if (typ(a) != t_INT) pari_err_TYPE("sumpos2",a);
   a = subis(a,1); reel = cgetr(prec);
@@ -1529,17 +1540,7 @@ sumpos2(void *E, GEN (*eval)(void *, GEN), GEN a, long prec)
   for (k=1; k<=N; k++)
     if (odd(k) || !stock[k])
     {
-      pari_sp av2 = avma;
-      x = gen_0; r = utoipos(2*k);
-      for(kk=0;;kk++)
-      {
-        long ex;
-        affgr(eval(E, addii(r,a)), reel);
-        ex = expo(reel) + kk; shiftr_inplace(reel, kk);
-        x = mpadd(x,reel); if (kk && ex < G) break;
-        r = shifti(r,1);
-      }
-      x = gerepileupto(av2, x);
+      GEN x = binsum(2*k, E,eval,a,reel,G);
       if (2*k-1 < N) stock[2*k] = x;
       affgr(eval(E, addsi(k,a)), reel);
       stock[k] = addrr(reel, gmul2n(x,1));
@@ -1549,8 +1550,7 @@ sumpos2(void *E, GEN (*eval)(void *, GEN), GEN a, long prec)
   for (k=0; k<=N; k++)
   {
     GEN t = gmul(itor(gel(pol,k+2), prec+EXTRAPRECWORD), stock[k]);
-    if (odd(k)) t = gneg_i(t);
-    s = gadd(s,t);
+    s = odd(k)? gsub(s,t): gadd(s,t);
   }
   return gerepileupto(av, gdiv(s,dn));
 }
