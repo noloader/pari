@@ -1009,7 +1009,7 @@ intnuminit(GEN a, GEN b, long m, long prec)
   return gerepilecopy(av, intnuminit_i(a,b,m,prec));
 }
 
-GEN
+static GEN
 intnuminit0(GEN a, GEN b, GEN tab, long prec)
 {
   long m;
@@ -1023,7 +1023,7 @@ intnuminit0(GEN a, GEN b, GEN tab, long prec)
     m = itos(tab);
   return intnuminit(a, b, m, prec);
 }
-GEN
+static GEN
 sumnuminit0(GEN a, GEN tab, long sgn, long prec)
 {
   long m;
