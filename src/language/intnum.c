@@ -263,27 +263,20 @@ checktab(GEN tab)
       && checktabsimp(gel(tab,2));
 }
 
-static long
-findmforinit(long m, long prec)
+long
+intnumstep(long prec)
 {
-  long p, r;
-
-  if (m <= 0)
-  {
-    p = (long)prec2nbits_mul(prec, 0.3);
-    m = 2; r = 4;
-    while (r < p) { m++; r <<= 1; }
-  }
+  long m = 2, r = 4, p = (long)prec2nbits_mul(prec, 0.3);
+  while (r < p) { m++; r <<= 1; }
   return m;
 }
 
-long
-intnumstep(long prec) { return findmforinit(0, prec); }
-
 static void
-intinit_start(intdata *D, long m0, long flext, long prec)
+intinit_start(intdata *D, long m, long flext, long prec)
 {
-  long m = findmforinit(m0, prec), lim = 20L<<m;
+  long lim;
+  if (m <= 0) m = intnumstep(prec);
+  lim = 20L<<m;
   if (flext > 0) lim = lim << (2*flext);
   D->m = m;
   D->eps = prec2nbits(prec);
