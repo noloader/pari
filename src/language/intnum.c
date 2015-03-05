@@ -777,8 +777,8 @@ intninfinf(void *E, GEN (*eval)(void*, GEN), GEN tab)
 enum {
   f_REG    = 0, /* regular function */
   f_SING   = 1, /* algebraic singularity */
-  f_YSLOW  = 2, /* +\infty, slowly decreasing */
-  f_YVSLO  = 3, /* +\infty, very slowly decreasing */
+  f_YSLOW  = 2, /* +\infty, slowly decreasing, at least x^(-2)  */
+  f_YVSLO  = 3, /* +\infty, very slowly decreasing, worse than x^(-2) */
   f_YFAST  = 4, /* +\infty, exponentially decreasing */
   f_YOSCS  = 5, /* +\infty, sine oscillating */
   f_YOSCC  = 6  /* +\infty, cosine oscillating */
