@@ -323,7 +323,7 @@ divr2_ip(GEN x) { shiftr_inplace(x, -1); return x; }
 static GEN
 inittanhsinh(long m, long prec)
 {
-  pari_sp av, ltop = avma;
+  pari_sp av;
   GEN h, et, ct, st, ext, ex, xp, wp;
   long k, nt = -1, lim;
   intdata D; intinit_start(&D, m, 0, prec);
@@ -347,7 +347,7 @@ inittanhsinh(long m, long prec)
     affrr(xp, gel(D.tabxp,k));
     affrr(wp, gel(D.tabwp,k)); et = gerepileuptoleaf(av, mulrr(et, ex));
   }
-  return gerepilecopy(ltop, intinit_end(&D, nt, 0));
+  return intinit_end(&D, nt, 0);
 }
 
 /* phi(t)=sinh(sinh(t)) : from -\infty to \infty, slowly decreasing, at least
@@ -355,7 +355,7 @@ inittanhsinh(long m, long prec)
 static GEN
 initsinhsinh(long m, long prec)
 {
-  pari_sp av, ltop = avma;
+  pari_sp av;
   GEN h, et, ct, st, ext, exu, ex, xp, wp;
   long k, nt = -1, lim;
   intdata D; intinit_start(&D, m, 0, prec);
@@ -379,7 +379,7 @@ initsinhsinh(long m, long prec)
     affrr(xp, gel(D.tabxp,k));
     affrr(wp, gel(D.tabwp,k)); et = gerepileuptoleaf(av, mulrr(et, ex));
   }
-  return gerepilecopy(ltop, intinit_end(&D, nt, 0));
+  return intinit_end(&D, nt, 0);
 }
 
 /* phi(t)=2sinh(t) : from -\infty to \infty, exponentially decreasing as
@@ -387,7 +387,7 @@ initsinhsinh(long m, long prec)
 static GEN
 initsinh(long m, long prec)
 {
-  pari_sp av, ltop = avma;
+  pari_sp av;
   GEN h, et, ex, eti, xp, wp;
   long k, nt = -1, lim;
   intdata D; intinit_start(&D, m, 0, prec);
@@ -408,7 +408,7 @@ initsinh(long m, long prec)
     affrr(xp, gel(D.tabxp,k));
     affrr(wp, gel(D.tabwp,k)); et = gerepileuptoleaf(av, mulrr(et, ex));
   }
-  return gerepilecopy(ltop, intinit_end(&D, nt, 0));
+  return intinit_end(&D, nt, 0);
 }
 
 /* phi(t)=exp(2sinh(t)) : from 0 to \infty, slowly decreasing at least as
@@ -416,7 +416,6 @@ initsinh(long m, long prec)
 static GEN
 initexpsinh(long m, long prec)
 {
-  pari_sp ltop = avma;
   GEN h, et, eti, ex, xp;
   long k, nt = -1, lim;
   intdata D; intinit_start(&D, m, 0, prec);
@@ -439,14 +438,14 @@ initexpsinh(long m, long prec)
     gel(D.tabwm,k) = mulrr(gel(D.tabxm,k), t);
     if (expo(gel(D.tabxm,k)) < -D.eps) { nt = k-1; break; }
   }
-  return gerepilecopy(ltop, intinit_end(&D, nt, nt));
+  return intinit_end(&D, nt, nt);
 }
 
 /* phi(t)=exp(t-exp(-t)) : from 0 to \infty, exponentially decreasing. */
 static GEN
 initexpexp(long m, long prec)
 {
-  pari_sp av, ltop = avma;
+  pari_sp av;
   GEN kh, h, et, eti, ex, xp, xm, wp, wm;
   long k, nt = -1, lim;
   intdata D; intinit_start(&D, m, 0, prec);
@@ -473,14 +472,14 @@ initexpexp(long m, long prec)
     affrr(xm, gel(D.tabxm,k));
     affrr(wm, gel(D.tabwm,k)); et = gerepileuptoleaf(av, mulrr(et, ex));
   }
-  return gerepilecopy(ltop, intinit_end(&D, nt, nt));
+  return intinit_end(&D, nt, nt);
 }
 
 /* phi(t)=(Pi/h)t/(1-exp(-sinh(t))) : from 0 to \infty, sine oscillation. */
 static GEN
 initnumsine(long m, long prec)
 {
-  pari_sp av, ltop = avma;
+  pari_sp av;
   GEN h, et, eti, ex, st, ct, extp, extm, extp1, extm1, extp2, extm2, kpi, kct;
   GEN xp, xm, wp, wm, pi = mppi(prec);
   long k, nt = -1, lim;
@@ -516,7 +515,7 @@ initnumsine(long m, long prec)
     affrr(xm, gel(D.tabxm,k));
     affrr(wm, gel(D.tabwm,k)); et = gerepileuptoleaf(av, mulrr(et, ex));
   }
-  return gerepilecopy(ltop, intinit_end(&D, nt, nt));
+  return intinit_end(&D, nt, nt);
 }
 
 static GEN
@@ -844,7 +843,6 @@ transcode(GEN a, const char *name)
     case t_INFINITY: return inf_get_sign(a) == 1 ? f_YSLOW: -f_YSLOW;
     default: return f_REG;
   }
-  if (typ(a) != t_VEC) return f_REG;
   switch(lg(a))
   {
     case 2: return gsigne(gel(a,1)) > 0 ? f_YSLOW : -f_YSLOW;
@@ -927,80 +925,69 @@ exptab(GEN tab, GEN k, long prec)
   return v;
 }
 
-GEN
-intnuminit(GEN a, GEN b, long m, long prec)
+static GEN
+init_fin(GEN b, long codeb, long m, long l, long prec)
+{
+  switch(labs(codeb))
+  {
+    case f_REG:
+    case f_SING:  return inittanhsinh(m,l);
+    case f_YSLOW: return initexpsinh(m,l);
+    case f_YVSLO: return exptab(initexpsinh(m,l), gel(b,2), prec);
+    case f_YFAST: return homtab(initexpexp(m,l), f_getycplx(b,l));
+    /* f_YOSCS, f_YOSCC */
+    default: return homtab(initnumsine(m,l),f_getycplx(b,l));
+  }
+}
+
+static GEN
+intnuminit_i(GEN a, GEN b, long m, long prec)
 {
   long codea, codeb, l;
-  GEN T, U, km, kma, kmb, tmp;
+  GEN T, kma, kmb, tmp;
 
   if (m > 30) pari_err_OVERFLOW("intnuminit [m]");
   l = prec+EXTRAPREC;
   codea = transcode(a, "a");
   codeb = transcode(b, "b");
-  if (is_fin_f(codea) && is_fin_f(codeb)) return inittanhsinh(m, l);
   if (labs(codea) > labs(codeb)) { swap(a, b); lswap(codea, codeb); }
   if (codea == f_REG)
   {
-    km = f_getycplx(b, l);
+    T = init_fin(b, codeb, m,l,prec);
     switch(labs(codeb))
     {
-      case f_YSLOW: return initexpsinh(m, l);
-      case f_YVSLO: return exptab(initexpsinh(m, l), gel(b,2), prec);
-      case f_YFAST: return homtab(initexpexp(m, l), km);
-      case f_YOSCS:
-        if (typ(a) == t_VEC || gequal0(a)) return homtab(initnumsine(m, l), km);
-            /* fall through */
-      case f_YOSCC:
-        T = cgetg(3, t_VEC);
-        gel(T,1) = inittanhsinh(m, l);
-        gel(T,2) = homtab(initnumsine(m, l), km);
-        return T;
-    }
-  }
-  if (codea == f_SING)
-  {
-    km = f_getycplx(b, l);
-    T = cgetg(3, t_VEC);
-    gel(T,1) = inittanhsinh(m, l);
-    switch(labs(codeb))
-    {
-      case f_YSLOW: gel(T,2) = initexpsinh(m, l); break;
-      case f_YVSLO: gel(T,2) = exptab(initexpsinh(m, l), gel(b,2), prec); break;
-      case f_YFAST: gel(T,2) = homtab(initexpexp(m, l), km); break;
-      case f_YOSCS: case f_YOSCC:
-        gel(T,2) = homtab(initnumsine(m, l), km); break;
+      case f_YOSCS: if (gequal0(a)) break;
+      case f_YOSCC: T = mkvec2(inittanhsinh(m,l), T);
     }
     return T;
   }
+  if (codea == f_SING)
+  {
+    T = init_fin(b,codeb, m,l,prec);
+    T = mkvec2(inittanhsinh(m,l), T);
+    return T;
+  }
   if (codea * codeb > 0) return gen_0;
-  kma = f_getycplx(a, l);
-  kmb = f_getycplx(b, l);
-  codea = labs(codea);
-  codeb = labs(codeb);
+  kma = f_getycplx(a,l); codea = labs(codea);
+  kmb = f_getycplx(b,l); codeb = labs(codeb);
   if (codea == f_YSLOW && codeb == f_YSLOW) return initsinhsinh(m, l);
   if (codea == f_YFAST && codeb == f_YFAST && gequal(kma, kmb))
-    return homtab(initsinh(m, l), kmb);
+    return homtab(initsinh(m,l), kmb);
   T = cgetg(3, t_VEC);
   switch (codea)
   {
-    case f_YSLOW: gel(T,1) = initexpsinh(m, l);
-      switch (codeb)
-      {
-        case f_YVSLO: gel(T,2) = exptab(gel(T,1), gel(b,2), prec); return T;
-        case f_YFAST: gel(T,2) = homtab(initexpexp(m, l), kmb); return T;
-        case f_YOSCS: case f_YOSCC:
-          gel(T,2) = homtab(initnumsine(m, l), kmb); return T;
-      }
+    case f_YSLOW:
     case f_YVSLO:
-      tmp = initexpsinh(m, l);
-      gel(T,1) = exptab(tmp, gel(a,2), prec);
+      tmp = initexpsinh(m,l);
+      gel(T,1) = codea == f_YSLOW? tmp: exptab(tmp, gel(a,2), prec);
       switch (codeb)
       {
         case f_YVSLO: gel(T,2) = exptab(tmp, gel(b,2), prec); return T;
-        case f_YFAST: gel(T,2) = homtab(initexpexp(m, l), kmb); return T;
+        case f_YFAST: gel(T,2) = homtab(initexpexp(m,l), kmb); return T;
         case f_YOSCS:
-        case f_YOSCC: gel(T,2) = homtab(initnumsine(m, l), kmb); return T;
+        case f_YOSCC: gel(T,2) = homtab(initnumsine(m,l), kmb); return T;
       }
+      break;
     case f_YFAST:
       tmp = initexpexp(m, l);
       gel(T,1) = homtab(tmp, kma);
@@ -1010,19 +997,22 @@ intnuminit(GEN a, GEN b, long m, long prec)
         case f_YOSCS:
         case f_YOSCC: gel(T,2) = homtab(initnumsine(m, l), kmb); return T;
       }
-    case f_YOSCS: case f_YOSCC: tmp = initnumsine(m, l);
-      gel(T,1) = homtab(tmp, kma);
+    case f_YOSCS: case f_YOSCC:
+      tmp = initnumsine(m, l);
+      gel(T,1) = homtab(tmp,kma);
       if (codea == f_YOSCC && codeb == f_YOSCC && !gequal(kma, kmb))
-      {
-        U = cgetg(3, t_VEC);
-        gel(U,1) = inittanhsinh(m, l);
-        gel(U,2) = homtab(tmp, kmb);
-        gel(T,2) = U;
-      }
-      else gel(T,2) = homtab(tmp, kmb);
+        gel(T,2) = mkvec2(inittanhsinh(m,l), homtab(tmp,kmb));
+      else
+        gel(T,2) = homtab(tmp,kmb);
       return T;
   }
   return gen_0; /* not reached */
+}
+GEN
+intnuminit(GEN a, GEN b, long m, long prec)
+{
+  pari_sp av = avma;
+  return gerepilecopy(av, intnuminit_i(a,b,m,prec));
 }
 
 GEN
@@ -1249,14 +1239,14 @@ intfuncinit(void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, long m, long flag, l
 static GEN
 intnum_i(void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, GEN tab, long prec)
 {
-  GEN tmp, S = gen_0, res1, res2, tm, pi2, pi2p, pis2, pis2p, kma, kmb;
+  GEN S = gen_0, res1, res2, pi2, pi2p, pis2, pis2p, kma, kmb;
   GEN SP, SN;
-  long tmpi, sgns = 1, codea = transcode(a, "a"), codeb = transcode(b, "b");
+  long sb, sgns = 1, codea = transcode(a, "a"), codeb = transcode(b, "b");
 
   if (codea == f_REG && typ(a) == t_VEC) a = gel(a,1);
   if (codeb == f_REG && typ(b) == t_VEC) b = gel(b,1);
   if (codea == f_REG && codeb == f_REG) return intn(E, eval, a, b, tab);
-  if (labs(codea) > labs(codeb)) { swap(a, b); lswap(codea, codeb); sgns = -1; }
+  if (labs(codea) > labs(codeb)) { swap(a,b); lswap(codea,codeb); sgns = -1; }
   /* now labs(codea) <= labs(codeb) */
   if (codeb == f_SING)
   {
@@ -1264,40 +1254,41 @@ intnum_i(void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, GEN tab, long prec)
       S = intnsing(E, eval, b, a, tab, prec), sgns = -sgns;
     else
     {
-      tmp = gmul2n(gadd(gel(a,1), gel(b,1)), -1);
-      res1 = intnsing(E, eval, a, tmp, tab, prec);
-      res2 = intnsing(E, eval, b, tmp, tab, prec);
+      GEN c = gmul2n(gadd(gel(a,1), gel(b,1)), -1);
+      res1 = intnsing(E, eval, a, c, tab, prec);
+      res2 = intnsing(E, eval, b, c, tab, prec);
       S = gsub(res1, res2);
     }
     return (sgns < 0) ? gneg(S) : S;
   }
   /* now b is infinite */
-  tmpi = codeb > 0 ? 1 : -1;
+  sb = codeb > 0 ? 1 : -1;
   if (codea == f_REG && labs(codeb) != f_YOSCC
       && (labs(codeb) != f_YOSCS || gequal0(a)))
   {
-    S = intninfpm(E, eval, a, tmpi, tab);
-    return sgns*tmpi < 0 ? gneg(S) : S;
+    S = intninfpm(E, eval, a, sb, tab);
+    return sgns*sb < 0 ? gneg(S) : S;
   }
-  pi2 = Pi2n(1, prec); pis2 = Pi2n(-1, prec);
+  pi2 = Pi2n(1, prec);
   if (is_fin_f(codea))
   { /* either codea == f_SING  or codea == f_REG and codeb = f_YOSCC
      * or (codeb == f_YOSCS and !gequal0(a)) */
+    GEN c;
     pi2p = gmul(pi2, f_getycplx(b, prec));
     pis2p = gmul2n(pi2p, -2);
-    tm = real_i(codea == f_SING ? gel(a,1) : a);
-    if (labs(codeb) == f_YOSCC) tm = gadd(tm, pis2p);
-    tm = gdiv(tm, pi2p);
-    if (tmpi > 0)
-      tm = addsi(1, gceil(tm));
+    c = real_i(codea == f_SING ? gel(a,1) : a);
+    if (labs(codeb) == f_YOSCC) c = gadd(c, pis2p);
+    c = gdiv(c, pi2p);
+    if (sb > 0)
+      c = addsi(1, gceil(c));
     else
-      tm = subis(gfloor(tm), 1);
-    tm = gmul(pi2p, tm);
-    if (labs(codeb) == f_YOSCC) tm = gsub(tm, pis2p);
-    res1 = codea==f_SING? intnsing(E, eval, a,  tm,  gel(tab,1), prec)
-                        : intn    (E, eval, a,  tm,  gel(tab,1));
-    res2 = intninfpm(E, eval, tm, tmpi,gel(tab,2));
-    if (tmpi < 0) res2 = gneg(res2);
+      c = subis(gfloor(c), 1);
+    c = gmul(pi2p, c);
+    if (labs(codeb) == f_YOSCC) c = gsub(c, pis2p);
+    res1 = codea==f_SING? intnsing(E, eval, a, c, gel(tab,1), prec)
+                        : intn    (E, eval, a, c, gel(tab,1));
+    res2 = intninfpm(E, eval, c, sb,gel(tab,2));
+    if (sb < 0) res2 = gneg(res2);
     res1 = gadd(res1, res2);
     return sgns < 0 ? gneg(res1) : res1;
   }
@@ -1312,6 +1303,7 @@ intnum_i(void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, GEN tab, long prec)
   codea = -codea;
   kma = f_getycplx(a, prec);
   kmb = f_getycplx(b, prec);
+  pis2 = Pi2n(-1, prec);
   if ((codea == f_YSLOW && codeb == f_YSLOW)
    || (codea == f_YFAST && codeb == f_YFAST && gequal(kma, kmb)))
     S = intninfinf(E, eval, tab);

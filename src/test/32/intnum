@@ -120,5 +120,10 @@
 ? g(x)=if(x>1e-2,f(x),subst(F,t,x));
 ? sumpos(n=1,g(1/n))
 0.94536905472633293526609521540827019813
+? intnuminit([oo,1+I],[oo,""])
+  *** intnuminit: Warning: real(z)*imag(z)!=0 in endpoint code, real(z) ignored.
+  ***   at top-level: intnuminit([oo,1+I],
+  ***                 ^--------------------
+  *** intnuminit: incorrect type in intnum [incorrect b] (t_VEC).
 ? print("Total time spent: ",gettime);
-Total time spent: 8393
+Total time spent: 5708
