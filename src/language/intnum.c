@@ -764,12 +764,12 @@ intninfinf(void *E, GEN (*eval)(void*, GEN), GEN tab)
 /* general num integration routine int_a^b f(t)dt, where a and b are as follows:
  (1) a scalar : the scalar, no singularity worse than logarithmic at a.
  (2) [a, e] : the scalar a, singularity exponent -1 < e <= 0.
- (3) [1], [-1] : +\infty, -\infty, slowly decreasing function.
- (4) [[+-1], a], a nonnegative real : +-\infty, function behaving like
+ (3) oo, -oo : +\infty, -\infty, slowly decreasing function.
+ (4) [[+-oo], a], a nonnegative real : +-\infty, function behaving like
       exp(-a|t|) at +-\infty.
- (5) [[+-1], e], e < -1 : +-\infty, function behaving like t^e
+ (5) [[+-oo], e], e < -1 : +-\infty, function behaving like t^e
       at +-\infty.
- (5) [[+-1], a*I], a real : +-\infty, function behaving like cos(at) if a>0
+ (5) [[+-oo], a*I], a real : +-\infty, function behaving like cos(at) if a>0
      and like sin(at) if a < 0 at +-\infty.
 */
 
@@ -812,7 +812,7 @@ err_code(GEN a, const char *name)
   pari_err_TYPE(s, a);
 }
 
-/* a = [[+/-1], alpha]*/
+/* a = [[+/-oo], alpha]*/
 static long
 code_aux(GEN a, const char *name)
 {
