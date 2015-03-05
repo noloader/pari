@@ -113,8 +113,8 @@ VBr83- [darwin] remove obsolete linker options that cause crashes [#1623]
    87- primes([1,Pol(2)]) -> SEGV [#1668]
    88- znlog(0,Mod(1,4),1) -> 0 (instead of [])
    89- polzagier / sumalt(,1) / sumpos(,1) were slow and used too much memory
-   90- sumpos was wasting time when pre-computing \sum 2^e a(k*2^e)
-       [ only needed for k odd, but was also done for k = 0 mod 4 ]
+   90- sumpos was wasting time when pre-computing \sum 2^e a(k*2^e) [ only
+       needed for k odd, but was also done for k = 0 mod 4 ] + improve accuracy
 
   Added
     1- add optional argument to sumdigits to specify the base

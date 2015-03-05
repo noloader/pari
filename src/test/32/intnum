@@ -53,15 +53,21 @@
 ? \p308
    realprecision = 308 significant digits
 ? a=sumpos(n=1,1/(n^3+n+1));
+? b=sumpos(n=1,1/(n^3+n+1),1);
+? check(a,b)
+-307
 ? tab=sumnuminit(2);
 ? b=sumnum(n=1,2,1/(n^3+n+1),tab);
 ? check(a,b)
--305
+-306
 ? check(sumnum(n=1,2,1/(n^3+n+1),tab,1),a)
--305
-? c=sumnum(n=1,2,1/(n^2+1),tab,1);
-? d=sumpos(n=1,1/(n^2+1));
-? check(c,d)
+-306
+? a=sumpos(n=1,1/(n^2+1));
+? b=sumpos(n=1,1/(n^2+1),1);
+? check(a,b)
+-307
+? b=sumnum(n=1,2,1/(n^2+1),tab,1);
+? check(a,b)
 -305
 ? check(sumnum(n=1,2,n^(-4/3),,1),zeta(4/3))
 -110
@@ -111,6 +117,6 @@
 ? F=truncate(f(t+O(t^16)));
 ? g(x)=if(x>1e-2,f(x),subst(F,t,x));
 ? sumpos(n=1,g(1/n))
-0.94536905472633293526609521540827019810
+0.94536905472633293526609521540827019813
 ? print("Total time spent: ",gettime);
-Total time spent: 8773
+Total time spent: 8237

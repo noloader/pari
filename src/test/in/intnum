@@ -33,13 +33,17 @@ check(intnum(x=-1,1, intnum(y=-sqrt(1-x^2),sqrt(1-x^2),x^2+y^2,tab),tab), Pi/2)
 \\
 \p 308
 a = sumpos(n=1, 1/(n^3+n+1));
+b = sumpos(n=1, 1/(n^3+n+1), 1);
+check(a, b)
 tab = sumnuminit(2);
 b = sumnum(n=1,2, 1/(n^3+n+1), tab);
 check(a, b)
 check(sumnum(n=1,2, 1/(n^3+n+1), tab, 1), a)
-c = sumnum(n=1,2,1/(n^2+1),tab,1);
-d = sumpos(n=1,1/(n^2+1));
-check(c, d)
+a = sumpos(n=1,1/(n^2+1));
+b = sumpos(n=1,1/(n^2+1), 1);
+check(a, b)
+b = sumnum(n=1,2,1/(n^2+1),tab,1);
+check(a, b)
 check(sumnum(n=1,2,n^(-4/3),,1), zeta(4/3))
 tab = sumnuminit([2,-3/2]);
 check(sumnum(n=1,[2,-3/2],1/(n*sqrt(n)),tab,1), zeta(3/2))
