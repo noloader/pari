@@ -1240,7 +1240,7 @@ intfuncinit(void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, long m, long flag, l
 static GEN
 intnum_i(void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, GEN tab, long prec)
 {
-  GEN S = gen_0, res1, res2, pi2, pi2p, pis2p, kma, kmb;
+  GEN S = gen_0, res1, res2, kma, kmb;
   long sb, sgns = 1, codea = transcode(a, "a"), codeb = transcode(b, "b");
 
   if (codea == f_REG && typ(a) == t_VEC) a = gel(a,1);
@@ -1269,22 +1269,29 @@ intnum_i(void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, GEN tab, long prec)
     S = intninfpm(E, eval, a, sb, tab);
     return sgns*sb < 0 ? gneg(S) : S;
   }
-  pi2 = Pi2n(1, prec);
   if (is_fin_f(codea))
   { /* either codea == f_SING  or codea == f_REG and codeb = f_YOSCC
      * or (codeb == f_YOSCS and !gequal0(a)) */
     GEN c;
-    pi2p = gmul(pi2, f_getycplx(b, prec));
-    pis2p = gmul2n(pi2p, -2);
+    GEN pi2p = gmul(Pi2n(1,prec), f_getycplx(b, prec));
+    GEN pis2p = gmul2n(pi2p, -2);
     c = real_i(codea == f_SING ? gel(a,1) : a);
-    if (labs(codeb) == f_YOSCC) c = gadd(c, pis2p);
-    c = gdiv(c, pi2p);
-    if (sb > 0)
-      c = addsi(1, gceil(c));
-    else
-      c = subis(gfloor(c), 1);
-    c = gmul(pi2p, c);
-    if (labs(codeb) == f_YOSCC) c = gsub(c, pis2p);
+    codeb = labs(codeb);
+    switch(codeb)
+    {
+      case f_YOSCC: case f_YOSCS:
+        if (codeb == f_YOSCC) c = gadd(c, pis2p);
+        c = gdiv(c, pi2p);
+        if (sb > 0)
+          c = addsi(1, gceil(c));
+        else
+          c = subis(gfloor(c), 1);
+        c = gmul(pi2p, c);
+        if (codeb == f_YOSCC) c = gsub(c, pis2p);
+        break;
+      default: c = addsi(1, gceil(c));
+        break;
+    }
     res1 = codea==f_SING? intnsing(E, eval, a, c, gel(tab,1), prec)
                         : intn    (E, eval, a, c, gel(tab,1));
     res2 = intninfpm(E, eval, c, sb,gel(tab,2));
@@ -1310,22 +1317,22 @@ intnum_i(void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, GEN tab, long prec)
   else
   {
     GEN pis2 = Pi2n(-1, prec);
-    GEN coupea = (codea == f_YOSCC)? gmul(pis2, kma): gen_0;
-    GEN coupeb = (codeb == f_YOSCC)? gmul(pis2, kmb): gen_0;
-    GEN coupe = codea == f_YOSCC ? coupea : coupeb;
-    GEN SP, SN = intninfpm(E, eval, coupe, -1, gel(tab,1));
+    GEN ca = (codea == f_YOSCC)? gmul(pis2, kma): gen_0;
+    GEN cb = (codeb == f_YOSCC)? gmul(pis2, kmb): gen_0;
+    GEN c = codea == f_YOSCC ? ca : cb;
+    GEN SP, SN = intninfpm(E, eval, c, -1, gel(tab,1));
     if (codea != f_YOSCC)
-      SP = intninfpm(E, eval, coupeb, 1, gel(tab,2));
+      SP = intninfpm(E, eval, cb, 1, gel(tab,2));
     else
     {
       if (codeb != f_YOSCC) pari_err_BUG("code error in intnum");
       if (gequal(kma, kmb))
-        SP = intninfpm(E, eval, coupeb, 1, gel(tab,2));
+        SP = intninfpm(E, eval, cb, 1, gel(tab,2));
       else
       {
         tab = gel(tab,2);
-        SP = intninfpm(E, eval, coupeb, 1, gel(tab,2));
-        SP = gadd(SP, intn(E, eval, coupea, coupeb, gel(tab,1)));
+        SP = intninfpm(E, eval, cb, 1, gel(tab,2));
+        SP = gadd(SP, intn(E, eval, ca, cb, gel(tab,1)));
       }
     }
     S = gadd(SN, SP);
