@@ -1527,10 +1527,10 @@ sumpos(void *E, GEN (*eval)(void *, GEN), GEN a, long prec)
   d = powru(addsr(3, sqrtr(stor(8,prec))), N);
   d = shiftr(addrr(d, invr(d)),-1);
   az = gen_m1; c = d;
-  s = gen_0;
 
   if (odd(N)) N++; /* extra precision for free */
   S = sumpos_init(E, eval, a, N, prec);
+  s = gen_0;
   for (k=0; k<N; k++)
   {
     GEN t;
@@ -1560,7 +1560,7 @@ sumpos2(void *E, GEN (*eval)(void *, GEN), GEN a, long prec)
   s = gen_0;
   for (k=0; k<N; k++)
   {
-    GEN t = mulrr(gel(S,k+1), itor(gel(pol,k+2), prec+EXTRAPRECWORD));
+    GEN t = mulri(gel(S,k+1), gel(pol,k+2));
     s = odd(k)? mpsub(s,t): mpadd(s,t);
   }
   return gerepileupto(av, gdiv(s,dn));
