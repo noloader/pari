@@ -533,7 +533,7 @@ suminit_start(GEN sig)
   }
   else sig2 = gen_0;
   if (!isinR(sig)) pari_err_TYPE("sumnum",sig);
-  return mkvec2(mkvec(gen_1), sig2);
+  return mkvec2(mkoo(), sig2);
 }
 
 /* phi(t) depending on sig[2] as in intnum, with weights phi'(t)tanh(Pi*phi(t))
@@ -550,7 +550,7 @@ sumnuminit(GEN sig, long m, long sgn, long prec)
   b = suminit_start(sig);
   flii = gequal0(gel(b,2));
   if (flii)
-    tab = intnuminit(mkvec(gen_m1), mkvec(gen_1), m, prec);
+    tab = intnuminit(mkmoo(), mkoo(), m, prec);
   else
     tab = intnuminit(gen_0, b, m, prec);
   eps = prec2nbits(prec);
@@ -967,6 +967,7 @@ intnuminit_i(GEN a, GEN b, long m, long prec)
     T = mkvec2(inittanhsinh(m,l), T);
     return T;
   }
+  /* now a and b are infinite */
   if (codea * codeb > 0) return gen_0;
   kma = f_getycplx(a,l); codea = labs(codea);
   kmb = f_getycplx(b,l); codeb = labs(codeb);
@@ -1239,7 +1240,7 @@ intfuncinit(void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, long m, long flag, l
 static GEN
 intnum_i(void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, GEN tab, long prec)
 {
-  GEN S = gen_0, res1, res2, pi2, pi2p, pis2, pis2p, kma, kmb;
+  GEN S = gen_0, res1, res2, pi2, pi2p, pis2p, kma, kmb;
   long sb, sgns = 1, codea = transcode(a, "a"), codeb = transcode(b, "b");
 
   if (codea == f_REG && typ(a) == t_VEC) a = gel(a,1);
@@ -1303,12 +1304,12 @@ intnum_i(void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, GEN tab, long prec)
   codea = -codea;
   kma = f_getycplx(a, prec);
   kmb = f_getycplx(b, prec);
-  pis2 = Pi2n(-1, prec);
   if ((codea == f_YSLOW && codeb == f_YSLOW)
    || (codea == f_YFAST && codeb == f_YFAST && gequal(kma, kmb)))
     S = intninfinf(E, eval, tab);
   else
   {
+    GEN pis2 = Pi2n(-1, prec);
     GEN coupea = (codea == f_YOSCC)? gmul(pis2, kma): gen_0;
     GEN coupeb = (codeb == f_YOSCC)? gmul(pis2, kmb): gen_0;
     GEN coupe = codea == f_YOSCC ? coupea : coupeb;
@@ -1377,11 +1378,12 @@ intcirc(void *E, GEN (*eval)(void*, GEN), GEN a, GEN R, GEN tab, long prec)
   return gmul2n(gmul(R, z), -1);
 }
 
-static GEN
-gettmpP(GEN x) { return mkvec2(mkvec(gen_1), x); }
-
-static GEN
-gettmpN(GEN tmpP) { return mkvec2(gneg(gel(tmpP,1)), gel(tmpP,2)); }
+static void
+getinf(GEN x, GEN *P, GEN *N)
+{
+  *P = mkvec2(mkoo(), x);
+  *N = mkvec2(mkmoo(),x);
+}
 
 /* w(Rt) f(a+it) */
 static GEN
@@ -1395,7 +1397,7 @@ static GEN
 intinvintern(void *E, GEN (*eval)(void*, GEN), GEN sig, GEN x, GEN tab, long prec)
 {
   auxint_t D;
-  GEN z, zR, zI, tmpP, tmpN;
+  GEN z, zR, zI, P, N;
 
   if (lg(sig) != 3 || !isinR(gel(sig,1)) || !isinR(gel(sig,2)))
     pari_err_TYPE("integral transform",sig);
@@ -1407,23 +1409,24 @@ intinvintern(void *E, GEN (*eval)(void*, GEN), GEN sig, GEN x, GEN tab, long pre
   D.E = E;
   if (gequal0(gel(sig,2)))
   {
+    GEN c = mulcxI(gabs(x, prec));
     D.R = x;
-    tmpP = gettmpP(mulcxI(gabs(x, prec)));
-    tmpN = gettmpN(tmpP);
-    tab = intnuminit0(tmpN, tmpP, tab, prec);
+    getinf(c, &P, &N);
+    tab = intnuminit0(N, P, tab, prec);
     D.w = gcos;
-    zR = intnum_i(&D, &auxinv, tmpN, tmpP, tab, prec);
-    gel(tmpP,2) = gneg(gel(tmpP,2));
+    zR = intnum_i(&D, &auxinv, N, P, tab, prec);
+
+    getinf(gneg(c), &P, &N);
     D.w = gsin;
-    zI = intnum_i(&D, &auxinv, gettmpN(tmpP), tmpP, tab, prec);
+    zI = intnum_i(&D, &auxinv, N, P, tab, prec);
     z = gadd(zR, mulcxI(zI));
   }
   else
   {
     D.R = mulcxI(x);
-    tmpP = gettmpP(gel(sig,2));
+    getinf(gel(sig,2), &P, &N);
     D.w = gexp;
-    z = intnum(&D, &auxinv, gettmpN(tmpP), tmpP, tab, prec);
+    z = intnum(&D, &auxinv, N, P, tab, prec);
   }
   return gdiv(gmul(gexp(gmul(gel(sig,1), x), prec), z), Pi2n(1, prec));
 }
@@ -1463,7 +1466,7 @@ GEN
 intmellininvshort(GEN sig, GEN x, GEN tab, long prec)
 {
   auxmel_t D;
-  GEN z, tmpP, LX = gneg(glog(x, prec));
+  GEN z, P,N, LX = gneg(glog(x, prec));
 
   if (typ(sig) != t_VEC) sig = mkvec2(sig, gen_1);
   if (lg(sig) != 3 || !isinR(gel(sig,1)) || !isinR(gel(sig,2)))
@@ -1472,8 +1475,8 @@ intmellininvshort(GEN sig, GEN x, GEN tab, long prec)
     pari_err_OVERFLOW("intinvmellinshort [need exponential decrease]");
   D.L = mulcxI(LX);
   D.prec = prec;
-  tmpP = gettmpP(gel(sig,2));
-  z = intnum_i(&D, &auxmelshort, gettmpN(tmpP), tmpP, tab, prec);
+  getinf(gel(sig,2), &P,&N);
+  z = intnum_i(&D, &auxmelshort, N, P, tab, prec);
   return gdiv(gmul(gexp(gmul(gel(sig,1), LX), prec), z), Pi2n(1, prec));
 }
 
@@ -1492,8 +1495,8 @@ mytra(GEN a, GEN x, long flag, const char *name)
       if (!s) pari_err_DOMAIN("Fourier transform","Re(x)","=",gen_0,x);
       if (s < 0) xa = gneg(xa);
       b = cgetg(3, t_VEC);
-      gel(b,1) = mkvec( codea > 0 ? gen_1 : gen_m1 );
-      gel(b,2) = (flag? mulcxI(xa): mulcxmI(xa));
+      gel(b,1) = codea > 0? mkoo(): mkmoo();
+      gel(b,2) = flag? mulcxI(xa): mulcxmI(xa);
       return b;
     case f_YOSCS: case f_YOSCC:
       pari_err_IMPL("Fourier transform of oscillating functions");
