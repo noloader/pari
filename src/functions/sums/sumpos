@@ -23,7 +23,19 @@ Doc: numerical summation of the series \var{expr}, which must be a series of
  have the same sign. As \tet{sumalt}, this function should be used to
  try and guess the value of an infinite sum.
 
- If $\fl=1$, use \kbd{sumalt}$(,1)$ instead of \kbd{sumalt}$(,0)$.
+ If $\fl=1$, use \kbd{sumalt}$(,1)$ instead of \kbd{sumalt}$(,0)$, see
+ \secref{se:sumalt}. Requiring more stringent analytic properties for
+ rigorous use, but allowing to compute fewer series terms.
+
+ To reach accuracy $10^{-p}$, both algorithms require $O(p^2)$ space;
+ furthermore, assuming the terms decrease polynomially (in $O(n^-C)$), both
+ need to compute $O(p^2)$ terms. The \kbd{sumpos}$(,1)$ variant has a smaller
+ implied constant (roughly 1.5 times smaller). Since the \kbd{sumalt}$(,1)$
+ overhead is now small compared to the time needed to compute series terms,
+ this last variant should be about 1.5 faster. On the other hand, the
+ achieved accuracy may be much worse: as for \tet{sumalt}, since
+ conditions for rigorous use are hard to check, the routine is best used
+ heuristically.
 
  \synt{sumpos}{void *E, GEN (*eval)(void*,GEN),GEN a,long prec}. Also
  available is \tet{sumpos2} with the same arguments ($\fl = 1$).
