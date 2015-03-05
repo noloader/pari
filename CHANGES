@@ -115,7 +115,7 @@ VBr83- [darwin] remove obsolete linker options that cause crashes [#1623]
    89- polzagier / sumalt(,1) / sumpos(,1) were slow and used too much memory
    90- sumpos was wasting time when pre-computing \sum 2^e a(k*2^e) [ only
        needed for k odd, but was also done for k = 0 mod 4 ] + improve accuracy
-   91- intnum(x=[0,-1/2],[oo,-3/2],1/(sqrt(x)+x^(3/2))) -> junk t_COMPLEX 
+   91- intnum(x=[0,-1/2],[oo,-3/2],1/(sqrt(x)+x^(3/2))) -> junk t_COMPLEX
        (more generally: one endpoint has an algebraic singularity and the
        other is +-oo, non-oscillatory
 
