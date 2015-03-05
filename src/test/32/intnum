@@ -113,10 +113,12 @@
 0.13940279264033098824961630553871957887
 ? intnumromb(x=0,1,sin(x)/x,3)
 0.94608307036718301494135331382317964743
+? intnumromb(x=2,1,x,1)
+-1.4999999999999999999999999999999999999
 ? f(x)=-log(cos(x));
 ? F=truncate(f(t+O(t^16)));
 ? g(x)=if(x>1e-2,f(x),subst(F,t,x));
 ? sumpos(n=1,g(1/n))
 0.94536905472633293526609521540827019813
 ? print("Total time spent: ",gettime);
-Total time spent: 8237
+Total time spent: 8393

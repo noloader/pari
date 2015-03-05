@@ -71,6 +71,10 @@ intnumromb(x=0,1,sin(x))
 intnumromb(x=0,1,sin(x), 1)
 intnumromb(x=1,100,exp(-x^2), 2)
 intnumromb(x=0,1,sin(x)/x, 3)
+\\ sloooow
+\\intnumromb(x=0,110,x, 1)
+\\intnumromb(x=-110,90,x, 1)
+intnumromb(x=2,1,x, 1)
 
 f(x) = -log(cos(x));
 F = truncate( f(t + O(t^16)) );

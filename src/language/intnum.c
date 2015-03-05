@@ -146,11 +146,10 @@ static GEN
 rom_bsmall(void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, long prec)
 {
   if (gcmpgs(a,-100) >= 0) return qrom2(E,eval,a,b,prec);
-  if (b == gen_1 || gcmpgs(b, -1) >= 0) /* a < -100, b >= -1 */
-    return gadd(qromi(E,eval,a,gen_m1,prec), /* split at -1 */
-                qrom2(E,eval,gen_m1,b,prec));
-  /* a < -100, b < -1 */
-  return qromi(E,eval,a,b,prec);
+  if (gcmpgs(b, -1) < 0)   return qromi(E,eval,a,b,prec); /* a<-100, b<-1 */
+  /* a<-100, b>=-1, split at -1 */
+  return gadd(qromi(E,eval,a,gen_m1,prec),
+              qrom2(E,eval,gen_m1,b,prec));
 }
 
 static GEN
