@@ -1,5 +1,8 @@
 default(realprecision,38);
 sin'(4)
+sin'(I)
+sin'(x)
+sin'("")
 derivnum(x=4,sin(x))
 derivnum(x=t^2+O(t^4),sin(x))
 derivnum(x=1,Pi^x)
