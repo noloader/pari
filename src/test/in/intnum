@@ -82,3 +82,5 @@ g(x) = if (x > 1e-2, f(x), subst(F,t,x));
 sumpos(n=1,g(1/n))
 
 intnuminit([oo,1+I],[oo,""])
+intnum(x=oo,oo,1)
+intnum(x=-oo,-oo,1)

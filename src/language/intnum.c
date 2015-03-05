@@ -1240,7 +1240,6 @@ static GEN
 intnum_i(void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, GEN tab, long prec)
 {
   GEN S = gen_0, res1, res2, pi2, pi2p, pis2, pis2p, kma, kmb;
-  GEN SP, SN;
   long sb, sgns = 1, codea = transcode(a, "a"), codeb = transcode(b, "b");
 
   if (codea == f_REG && typ(a) == t_VEC) a = gel(a,1);
@@ -1295,7 +1294,8 @@ intnum_i(void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, GEN tab, long prec)
   /* now a and b are infinite */
   if (codea * codeb > 0)
   {
-    pari_warn(warner, "integral from infty to infty or from -infty to -infty");
+    if (codea > 0) pari_warn(warner, "integral from oo to oo");
+    if (codea < 0) pari_warn(warner, "integral from -oo to -oo");
     return gen_0;
   }
   if (codea > 0) { lswap(codea, codeb); swap(a, b); sgns = -sgns; }
@@ -1312,7 +1312,7 @@ intnum_i(void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, GEN tab, long prec)
     GEN coupea = (codea == f_YOSCC)? gmul(pis2, kma): gen_0;
     GEN coupeb = (codeb == f_YOSCC)? gmul(pis2, kmb): gen_0;
     GEN coupe = codea == f_YOSCC ? coupea : coupeb;
-    SN = intninfpm(E, eval, coupe, -1, gel(tab,1));
+    GEN SP, SN = intninfpm(E, eval, coupe, -1, gel(tab,1));
     if (codea != f_YOSCC)
       SP = intninfpm(E, eval, coupeb, 1, gel(tab,2));
     else
