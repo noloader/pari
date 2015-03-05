@@ -11,8 +11,8 @@ Doc: initialize tables for integration from
  compactness, the possible existence of singularities, the speed of decrease
  or the oscillations at infinity are taken into account, and not the values.
  For instance {\tt intnuminit(-1,1)} is equivalent to {\tt intnuminit(0,Pi)},
- and {\tt intnuminit([0,-1/2],[1])} is equivalent to {\tt
- intnuminit([-1],[-1,-1/2])}. If $m$ is not given, it is computed according to
+ and {\tt intnuminit([0,-1/2],oo)} is equivalent to {\tt
+ intnuminit(-oo,[-1,-1/2])}. If $m$ is not given, it is computed according to
  the current precision. Otherwise the integration step is $1/2^m$. Reasonable
  values of $m$ are $m=6$ or $m=7$ for $100$ decimal digits, and $m=9$ for
  $1000$ decimal digits.
