@@ -12,6 +12,9 @@ addhelp(sin,"test2")
 addhelp(f,"test3")
 addhelp(echo,"test4")
 addhelp(new,"test5")
+install(addii,GG)
+?addii
+addhelp(addii,"test6")
 ?x
 ?sin
 ?f
@@ -22,4 +25,5 @@ addhelp(new,"test5")
 ?.
 ?\
 ?1
+?addii
 \t

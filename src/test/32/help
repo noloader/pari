@@ -15,6 +15,10 @@ new is aliased to:
 
 sin(x): sine of x.
 
+addii: installed function
+library name: addii
+prototype: GG
+
 test1
 
 test2
@@ -122,6 +126,8 @@ zkst : structure of (Z_K/m)*         bid,                     bnr
 cmp      divrem   lex      max      min      powers   shift    shiftmul
 sign     vecmax   vecmin   
 
+test6
+
 List of the PARI types:
   t_INT    : long integers     [ cod1 ] [ cod2 ] [ man_1 ] ... [ man_k ]
   t_REAL   : long real numbers [ cod1 ] [ cod2 ] [ man_1 ] ... [ man_k ]
@@ -149,4 +155,4 @@ xt ]
   t_ERROR  : error context     [ code ] [ errnum ] [ dat_1 ] ... [ dat_k ]
   t_INFINITY: a*infinity       [ code ] [ a ]
 
-Total time spent: 0
+Total time spent: 4
