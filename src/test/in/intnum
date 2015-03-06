@@ -83,6 +83,7 @@ f(x) = -log(cos(x));
 F = truncate( f(t + O(t^16)) );
 g(x) = if (x > 1e-2, f(x), subst(F,t,x));
 sumpos(n=1,g(1/n))
+sumpos(n=0,0)
 
 intnuminit([oo,1+I],[oo,""])
 intnum(x=oo,oo,1)
