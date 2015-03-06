@@ -1703,7 +1703,7 @@ derivnum(void *E, GEN (*eval)(void *, GEN), GEN x, long prec)
   if (ex < 0) ex = 0; /* near 0 */
   pr = (long)ceil(fpr * 1.5 + ex);
   l = nbits2prec(pr);
-  newprec = l + nbits2extraprec(ex + BITS_IN_LONG);
+  newprec = nbits2prec(pr + ex + BITS_IN_LONG);
   switch(typ(x))
   {
     case t_REAL:

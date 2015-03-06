@@ -1,6 +1,6 @@
 default(realprecision,38);
 sin'(4)
-sin'(I)
+sin'(1+I)
 sin'(x)
 sin'("")
 derivnum(x=4,sin(x))
