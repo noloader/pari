@@ -1299,11 +1299,9 @@ intnum_i(void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, GEN tab, long prec)
     if (codea < 0) pari_warn(warner, "integral from -oo to -oo");
     return gen_0;
   }
-  if (codea > 0) { lswap(codea, codeb); swap(a, b); sgns = -sgns; }
-  /* now codea < 0 < codeb */
-  codea = -codea;
-  kma = f_getycplx(a, prec);
-  kmb = f_getycplx(b, prec);
+  if (sb < 0) sgns = -sgns;
+  kma = f_getycplx(a, prec); codea = labs(codea);
+  kmb = f_getycplx(b, prec); codeb = labs(codeb);
   if ((codea == f_YSLOW && codeb == f_YSLOW)
    || (codea == f_YFAST && codeb == f_YFAST && gequal(kma, kmb)))
     S = intninfinf(E, eval, tab);
@@ -1313,18 +1311,18 @@ intnum_i(void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, GEN tab, long prec)
     GEN ca = (codea == f_YOSCC)? gmul(pis2, kma): gen_0;
     GEN cb = (codeb == f_YOSCC)? gmul(pis2, kmb): gen_0;
     GEN c = codea == f_YOSCC ? ca : cb;
-    GEN SP, SN = intninfpm(E, eval, c, -1, gel(tab,1));
+    GEN SP, SN = intninfpm(E, eval, c, -sb, gel(tab,1)); /* signe(a) = -sb */
     if (codea != f_YOSCC)
-      SP = intninfpm(E, eval, cb, 1, gel(tab,2));
+      SP = intninfpm(E, eval, cb, sb, gel(tab,2));
     else
     {
       if (codeb != f_YOSCC) pari_err_BUG("code error in intnum");
       if (gequal(kma, kmb))
-        SP = intninfpm(E, eval, cb, 1, gel(tab,2));
+        SP = intninfpm(E, eval, cb, sb, gel(tab,2));
       else
       {
         tab = gel(tab,2);
-        SP = intninfpm(E, eval, cb, 1, gel(tab,2));
+        SP = intninfpm(E, eval, cb, sb, gel(tab,2));
         SP = gadd(SP, intn(E, eval, ca, cb, gel(tab,1)));
       }
     }

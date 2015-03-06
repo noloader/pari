@@ -20,6 +20,13 @@ check(intnum(x = 0, 1,  1/sqrt(x)), 2)
 check(intnum(x = [0,-1/2], 1,  1/sqrt(x)), 2)
 
 check(intnum(x = [0,-1/2], [oo,-3/2],  1/(sqrt(x)+x^(3/2))), Pi)
+check(intnum(x = [-oo,-3/2], [oo,-3/2],  1/(1+abs(x)^(3/2))), 8*Pi/sqrt(27))
+
+f(x)=if (x<0,1/(1+(-x)^(3/2)), 1/(1+x^(5/2)));
+a=4*Pi/sqrt(27) + 2*(Pi/5)/sin(2*Pi/5);
+check(intnum(x = [-oo,-3/2], [oo,-5/2], f(x)),a)
+f(x)=if (x<0,1/(1+(-x)^(3/2)), exp(-x));
+check(intnum(x = [-oo,-3/2], [oo,1], f(x)), 1+4*Pi/sqrt(27))
 
 check(intnum(x = 0, [oo,1], sin(x)/x), Pi/2)
 check(intnum(x = 0, [oo,-I], sin(x)/x), Pi/2)

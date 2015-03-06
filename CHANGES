@@ -118,6 +118,9 @@ VBr83- [darwin] remove obsolete linker options that cause crashes [#1623]
    91- intnum(x=[0,-1/2],[oo,-3/2],1/(sqrt(x)+x^(3/2))) -> junk t_COMPLEX
        (more generally: one endpoint has an algebraic singularity and the
        other is +-oo, non-oscillatory
+   92- intnum(x = [-oo,-3/2], [oo,-5/2], f(x)) --> loss of accuracy due to
+       confusion between endpoint behaviours a/b in intnuminit data
+       E.g. f(x)=(x<0,1/(1+(-x)^(3/2)), 1/(1+x^(5/2)));
 
   Added
     1- add optional argument to sumdigits to specify the base
