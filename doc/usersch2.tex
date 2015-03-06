@@ -2221,10 +2221,14 @@ bytecode; then the latter is evaluated, calling appropriate functions from
 the PARI library. Accordingly, there are two kind of errors: syntax errors
 produced by the compiler, and runtime errors produced by the PARI library
 either by the evaluator itself, or in a mathematical function.
-Both kinds are fatal to your computation: \kbd{gp} will report the error,
-perform some cleanup (restore variables modified while evaluating the
-erroneous command, close open files, reclaim unused memory, etc.), and output
-its usual prompt.
+Both kinds are fatal to your computation: \kbd{gp} will report the error
+and perform some cleanup (restore variables modified while evaluating the
+erroneous command, close open files, reclaim unused memory, etc.).
+
+At this point, the default is to return to the usual prompt, but if the
+\kbd{recover} option (\secref{se:def,recover}) is off then \kbd{gp} exits
+immediately.  This can be useful for batch-mode operation to make untrapped
+errors fatal.
 
 When reporting a \emph{syntax error}, \kbd{gp} gives meaningful
 context by copying (part of) the expression it was trying to compile,
