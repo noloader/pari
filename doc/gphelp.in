@@ -72,7 +72,7 @@ cleanexit();
 # Procedures
 #
 sub cleanexit {
-  print "\e[0m" unless $to_pod;
+  print "\e[0m" unless $to_pod or $raw;
   exit 0;
 }
 
