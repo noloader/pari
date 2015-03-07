@@ -272,12 +272,11 @@ intnumstep(long prec)
 }
 
 static void
-intinit_start(intdata *D, long m, long flext, long prec)
+intinit_start(intdata *D, long m, long prec)
 {
   long lim;
   if (m <= 0) m = intnumstep(prec);
   lim = 20L<<m;
-  if (flext > 0) lim = lim << (2*flext);
   D->m = m;
   D->eps = prec2nbits(prec);
   D->tabxp = cgetg(lim+1, t_VEC);
@@ -319,7 +318,7 @@ inittanhsinh(long m, long prec)
   pari_sp av;
   GEN h, et, ct, st, ext, ex, xp, wp;
   long k, nt = -1, lim;
-  intdata D; intinit_start(&D, m, 0, prec);
+  intdata D; intinit_start(&D, m, prec);
 
   lim = lg(D.tabxp) - 1;
   D.tabx0 = real_0(prec);
@@ -351,7 +350,7 @@ initsinhsinh(long m, long prec)
   pari_sp av;
   GEN h, et, ct, st, ext, exu, ex, xp, wp;
   long k, nt = -1, lim;
-  intdata D; intinit_start(&D, m, 0, prec);
+  intdata D; intinit_start(&D, m, prec);
 
   lim = lg(D.tabxp) - 1;
   D.tabx0 = real_0(prec);
@@ -383,7 +382,7 @@ initsinh(long m, long prec)
   pari_sp av;
   GEN h, et, ex, eti, xp, wp;
   long k, nt = -1, lim;
-  intdata D; intinit_start(&D, m, 0, prec);
+  intdata D; intinit_start(&D, m, prec);
 
   lim = lg(D.tabxp) - 1;
   D.tabx0 = real_0(prec);
@@ -411,7 +410,7 @@ initexpsinh(long m, long prec)
 {
   GEN h, et, eti, ex, xp;
   long k, nt = -1, lim;
-  intdata D; intinit_start(&D, m, 0, prec);
+  intdata D; intinit_start(&D, m, prec);
 
   lim = lg(D.tabxp) - 1;
   D.tabx0 = real_1(prec);
@@ -441,7 +440,7 @@ initexpexp(long m, long prec)
   pari_sp av;
   GEN kh, h, et, eti, ex, xp, xm, wp, wm;
   long k, nt = -1, lim;
-  intdata D; intinit_start(&D, m, 0, prec);
+  intdata D; intinit_start(&D, m, prec);
 
   lim = lg(D.tabxp) - 1;
   D.tabx0 = mpexp(real_m1(prec));
@@ -476,7 +475,7 @@ initnumsine(long m, long prec)
   GEN h, et, eti, ex, st, ct, extp, extm, extp1, extm1, extp2, extm2, kpi, kct;
   GEN xp, xm, wp, wm, pi = mppi(prec);
   long k, nt = -1, lim;
-  intdata D; intinit_start(&D, m, 0, prec);
+  intdata D; intinit_start(&D, m, prec);
 
   lim = lg(D.tabxp) - 1;
   D.tabx0 = gmul2n(pi, D.m);
@@ -1083,8 +1082,7 @@ ffmodify(GEN v, GEN z)
   return mkvec2(gmul(z, h), gadd(h, gmul(gsqr(h), gmul(z,fp))));
 }
 GEN
-intnuminitgen(void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, long m,
-              long flext, long prec)
+intnuminitgen(void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, long m, long prec)
 {
   enum {
     f_COMP, /* [a,b] */
@@ -1098,7 +1096,7 @@ intnuminitgen(void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, long m,
   long k, h, newprec, lim, precl = prec+EXTRAPREC;
   long flag, codea = transcode(a, "a"), codeb = transcode(b, "b");
   int NOT_OSC, NOT_ODD;
-  intdata D; intinit_start(&D, m, flext, precl);
+  intdata D; intinit_start(&D, m, precl);
 
   flag = f_SEMI;
   if (is_osc_f(codea) || is_osc_f(codeb)) flag = f_OSC1;
@@ -1601,8 +1599,8 @@ intfourexp0(GEN a, GEN b, GEN x, GEN code, GEN tab, long prec)
 { EXPR_WRAP(code, intfourierexp(EXPR_ARG, a, b, x, tab, prec)); }
 
 GEN
-intnuminitgen0(GEN a, GEN b, GEN code, long m, long flag, long prec)
-{ EXPR_WRAP(code, intnuminitgen(EXPR_ARG, a, b, m, flag, prec)); }
+intnuminitgen0(GEN a, GEN b, GEN code, long m, long prec)
+{ EXPR_WRAP(code, intnuminitgen(EXPR_ARG, a, b, m, prec)); }
 
 /* m and flag reversed on purpose */
 GEN
