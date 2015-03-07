@@ -38,7 +38,19 @@
 ? check(intnum(x=[-oo,-3/2],[oo,-5/2],f(x)),a)
 -oo
 ? f(x)=if(x<0,1/(1+(-x)^(3/2)),exp(-x));
-? check(intnum(x=[-oo,-3/2],[oo,1],f(x)),1+4*Pi/sqrt(27))
+? check(intnum(x=[-oo,-3/2],[oo,1],f(x)),4*Pi/sqrt(27)+1)
+-oo
+? f(x)=if(x<0,1/(1+(-x)^(3/2)),sin(x)/x);
+? check(intnum(x=[-oo,-3/2],[oo,-I],f(x)),4*Pi/sqrt(27)+Pi/2)
+-oo
+? f(x)=if(x<0,exp(2*x),1/(1+x^(5/2)));
+? check(intnum(x=[-oo,2],[oo,-5/2],f(x)),1/2+2*(Pi/5)/sin(2*Pi/5))
+-oo
+? f(x)=if(x<0,exp(2*x),exp(-x));
+? check(intnum(x=[-oo,2],[oo,1],f(x)),3/2)
+-oo
+? f(x)=if(x<0,exp(2*x),sin(x)/x);
+? check(intnum(x=[-oo,2],[oo,-I],f(x)),1/2+Pi/2)
 -oo
 ? check(intnum(x=0,[oo,1],sin(x)/x),Pi/2)
 -2
@@ -145,4 +157,4 @@
   ***   Warning: integral from -oo to -oo.
 0
 ? print("Total time spent: ",gettime);
-Total time spent: 8489
+Total time spent: 7768
