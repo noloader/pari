@@ -8,7 +8,7 @@ Help: intnuminitgen(t,a,b,phi,{m=0}): initialize tables for
  -infty to +infty, but it is ph(t) which goes from a to b.
 Doc: initialize tables for integrations from $a$ to $b$ with
 
- \item abscissas $\phi(t)$ (\kbd{phi(t)}), assumed monotonic with
+ \item abscissas $\phi(t)$, assumed monotonic with
  $\lim_{-\infty} \phi = a$ and $\lim_{+\infty} \phi = b$;
 
  \item weights $\phi'(t)$, estimated via \kbd{derivnum}.
@@ -19,7 +19,8 @@ Doc: initialize tables for integrations from $a$ to $b$ with
 
  If $a = -b$, whether finite or infinite, we assume that $\phi$ is \emph{odd}.
 
- The behaviour at $a$ or $b$ of the function to be integrated \emph{must not}
- be specified as usual in \tet{intnum}).
+ The behaviour at $a$ or $b$ of the function to be integrated may be
+ indicated here as in \tet{intnum}, but \emph{must not} be specified again
+ in \tet{intnum}.
 
  \synt{intnuminitgen}{void *E, GEN (*eval)(void*,GEN), GEN a, GEN b, long m, long prec}
