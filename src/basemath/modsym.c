@@ -647,7 +647,7 @@ msqexpansion_i(GEN W, GEN proV, ulong B)
   ulong p, N = ms_get_N(W), sqrtB;
   long i, d, k = msk_get_weight(W);
   forprime_t S;
-  GEN T1 = NULL, T2 = NULL, TV = NULL, ch, v, dTiv, Tiv, dinv, ciM, iM, L;
+  GEN T1=NULL, T2=NULL, TV=NULL, ch=NULL, v, dTiv, Tiv, dinv, ciM, iM, L;
   switch(B)
   {
     case 0: return cgetg(1,t_VEC);
