@@ -4,7 +4,7 @@
 ? \p96
    realprecision = 96 significant digits
 ? check(intcirc(s=1,0.5,zeta(s)),1)
--93
+-94
 ? check(intlaplaceinv(x=2,1,1/x),1)
 -53
 ? m=intnumstep();
@@ -87,7 +87,7 @@
 -oo
 ? tab=intnuminit(-1,1);
 ? check(intnum(x=-1,1,intnum(y=-sqrt(1-x^2),sqrt(1-x^2),x^2+y^2,tab),tab),Pi/2)
--93
+-94
 ? \p308
    realprecision = 308 significant digits
 ? a=sumpos(n=1,1/(n^3+n+1));
@@ -166,4 +166,4 @@
   ***   Warning: integral from -oo to -oo.
 0
 ? print("Total time spent: ",gettime);
-Total time spent: 8152
+Total time spent: 7868
