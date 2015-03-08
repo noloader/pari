@@ -88,10 +88,6 @@ b = sumalt(n=1,(-1)^n/(n^3+n+1));
 check(a, b)
 
 \p96
-T=intnuminitgen(t,0,[1],exp(2*sinh(t)));
-check(intnum(x=0,[1],1/(1+x^2),T), Pi/2)
-T=intnuminitgen(t,0,[[1],1],exp(t-exp(-t)));
-check(intnum(x=0,[[1],1],exp(-x),T), 1)
 intfourierexp(t=0,[[1],1], 1/2, exp(-t^2))
 intfouriercos(t=0,[[1],1], 1/2, exp(-t^2))
 intfouriersin(t=0,[[1],1], 1/2, exp(-t^2))

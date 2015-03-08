@@ -780,9 +780,6 @@ enum {
 /* is c finite */
 static int
 is_fin_f(long c) { return c == f_REG || c == f_SING; }
-/* oscillating case: valid for +oo (c > 0) or -oo (c < 0) */
-static int
-is_osc_f(long c) { c = labs(c); return c == f_YOSCS || c == f_YOSCC; }
 
 static GEN
 f_getycplx(GEN a, long prec)
@@ -1038,133 +1035,6 @@ sumnuminit0(GEN a, GEN tab, long sgn, long prec)
   else
     m = itos(tab);
   return sumnuminit(a, m, sgn, prec);
-}
-
-/* User-defined change of variable phi(t) = f(t), where t goes from -oo to +oo,
- * and a and b are as in intnuminit. */
-static int
-stopnow(long code, GEN xw, long eps, long m, long k)
-{
-  GEN x = gel(xw,1), w = gel(xw,2);
-  eps -= 8; /* for safety. Lose 8 bits, but took 1 whole word extra. */
-  switch(labs(code))
-  {
-    case f_REG: case f_SING:
-      return gexpo(w) < -eps;
-    case f_YSLOW: case f_YVSLO:
-      return gexpo(w) - 2*gexpo(x) < -eps;
-    case f_YFAST:
-      return cmprs(x, (long)(LOG2 * (gexpo(w) + eps) + 1)) > 0;
-    default: /* f_YOSCS, f_YOSCC */
-      return gexpo(x) + m + expu(10 * k) < - eps;
-  }
-}
-
-/* eps = 2^(-k). Return f'(a) ~ (f(a+eps) - f(a-eps)) / 2eps*/
-static GEN
-myderiv_num(void *E, GEN (*eval)(void*, GEN), GEN a, GEN eps, long k, long prec)
-{
-  GEN d = gmul2n(gsub(eval(E, gadd(a,eps)), eval(E, gsub(a,eps))), k-1);
-  return gprec_w(d, prec);
-}
-/* zp = z to a higher accuracy (enough to evaluate numerical derivative) */
-static GEN
-ffprime(void *E, GEN (*eval)(void*, GEN), GEN z, GEN zp, GEN eps, long h, long precl)
-{
-  GEN f = eval(E, z), fp = myderiv_num(E, eval, zp, eps, h, precl);
-  return mkvec2(f, fp);
-}
-/* v = [f(z), f'(z)]; let h := 1/(1-f(z)), return [hz, (hz)'= h + h^2 zf'] */
-static GEN
-ffmodify(GEN v, GEN z)
-{
-  GEN f = gel(v,1), fp = gel(v,2), h = ginv(gsubsg(1, f));
-  return mkvec2(gmul(z, h), gadd(h, gmul(gsqr(h), gmul(z,fp))));
-}
-GEN
-intnuminitgen(void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, long m, long prec)
-{
-  pari_sp ltop = avma;
-  GEN hnpr, eps, v;
-  long k, h, newprec, lim, precl = prec+EXTRAPREC;
-  long codea = transcode(a, "a"), codeb = transcode(b, "b");
-  int OSC, NOT_ODD;
-  intdata D; intinit_start(&D, m, precl);
-
-  if (is_fin_f(codea) && is_fin_f(codeb))
-  {
-    OSC = 0;
-    NOT_ODD = !gequal0(gadd(a,b));
-  }
-  else if (!is_fin_f(codea) && !is_fin_f(codeb))
-  {
-    if (codea * codeb > 0) return gen_0;
-    if (codea != -codeb)
-      pari_err_TYPE("intnuminitgen [infinities of different types]",
-                    mkvec2(a,b));
-    OSC = is_osc_f(codea);
-    NOT_ODD = 0;
-  }
-  else
-  {
-    OSC = (is_osc_f(codea) || is_osc_f(codeb));
-    NOT_ODD = 1;
-  }
-
-  newprec = (3*precl - 1)>>1;
-  h = prec2nbits(precl)/2;
-  eps = real2n(-h, newprec);
-
-  if (!OSC || !gequal1(eval(E, gen_0)))
-  {
-    GEN a0 = real_0(precl), a0n = real_0(newprec), xw;
-    xw = ffprime(E, eval, a0, a0n, eps, h, precl);
-    if (OSC) xw = ffmodify(xw, a0);
-    D.tabx0 = gel(xw,1);
-    D.tabw0 = gel(xw,2);
-  }
-  else
-  {
-    GEN xw = gdiv(pol_x(0), gsubsg(1, eval(E, gadd(pol_x(0), zeroser(0, 4)))));
-    D.tabx0 = gprec_w(polcoeff0(xw, 0, 0), precl);
-    D.tabw0 = gprec_w(polcoeff0(xw, 1, 0), precl);
-  }
-  /* precl <= newprec */
-  hnpr = real2n(-D.m, newprec);
-  lim = lg(D.tabxp) - 1;
-  for (k = 1; k <= lim; k++)
-  {
-    GEN akn = mulur(k, hnpr), ak = rtor(akn, precl), xw, xwmod;
-    int finb;
-    xw = ffprime(E, eval, ak, akn, eps, h, precl);
-    xwmod = OSC? ffmodify(xw, ak): xw;
-    gel(D.tabxp,k) = gel(xwmod,1);
-    gel(D.tabwp,k) = gel(xwmod,2);
-    finb = stopnow(codeb, is_osc_f(codeb)? xw: xwmod, D.eps, D.m, k);
-    if (NOT_ODD)
-    {
-      ak = negr(ak); akn = negr(akn);
-      xw = ffprime(E, eval, ak, akn, eps, h, precl);
-      xwmod = OSC? ffmodify(xw, ak): xw;
-      gel(D.tabxm,k) = gel(xwmod,1);
-      gel(D.tabwm,k) = gel(xwmod,2);
-      if (finb && stopnow(codea, is_osc_f(codea)? xw: xwmod, D.eps, D.m, k))
-        break;
-    }
-    else if (finb) break;
-  }
-  v = intinit_end(&D, k-1, NOT_ODD? k-1: 0);
-  if (OSC)
-  {
-    GEN C = Pi2n(D.m, precl);
-    TABx0(v) = gmul(TABx0(v), C);
-    TABw0(v) = gmul(TABw0(v), C);
-    TABxp(v) = RgV_Rg_mul(TABxp(v), C);
-    TABwp(v) = RgV_Rg_mul(TABwp(v), C);
-    TABxm(v) = RgV_Rg_mul(TABxm(v), C);
-    TABwm(v) = RgV_Rg_mul(TABwm(v), C);
-  }
-  return gerepilecopy(ltop, v);
 }
 
 /* Assigns the values of the function weighted by w[k] at quadrature points x[k]
@@ -1596,10 +1466,6 @@ intfoursin0(GEN a, GEN b, GEN x, GEN code, GEN tab, long prec)
 GEN
 intfourexp0(GEN a, GEN b, GEN x, GEN code, GEN tab, long prec)
 { EXPR_WRAP(code, intfourierexp(EXPR_ARG, a, b, x, tab, prec)); }
-
-GEN
-intnuminitgen0(GEN a, GEN b, GEN code, long m, long prec)
-{ EXPR_WRAP(code, intnuminitgen(EXPR_ARG, a, b, m, prec)); }
 
 /* m and flag reversed on purpose */
 GEN

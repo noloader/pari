@@ -29,7 +29,8 @@ This file lists the incompatible changes between Version 2.x and older versions
   - genus2red: change syntax. Allow either genus2red(P) or genus2red([P,Q])
     instead of mandatory Q (was: genus2red(Q,P) with Q almost always 0).
     Allow uniformization with hyperellcharpoly
-  - intnuminitgen: remove useless flag (increase m instead)
+  - remove useless function intnuminitgen (not very useful and impossible to
+    use reliably together with intnum with boundary conditions)
 
 * Specific to the PARI library:
 ===============================

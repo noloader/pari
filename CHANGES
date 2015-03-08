@@ -340,8 +340,9 @@ LGr52- use GRH-guaranteed bounds in bnfinit for residue estimate
    55- old functions from gp-1.39.15 no longer loaded into an "entree" table,
        no longer complete specially "whatnow" arguments; remove compat.c and
        most of gp_init.c
-   56- intnuminitgen: remove useless flag (increase m instead)
 
 Removed
    1- deprecated functions nfbasis0, nfdisc0, factorpadic0
    2- deprecated function manage_var
+   3- useless function intnuminitgen (not very useful and impossible to use
+      reliably together with intnum with boundary conditions)

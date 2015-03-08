@@ -125,12 +125,6 @@
 -307
 ? \p96
    realprecision = 96 significant digits
-? T=intnuminitgen(t,0,[1],exp(2*sinh(t)));
-? check(intnum(x=0,[1],1/(1+x^2),T),Pi/2)
--oo
-? T=intnuminitgen(t,0,[[1],1],exp(t-exp(-t)));
-? check(intnum(x=0,[[1],1],exp(-x),T),1)
--oo
 ? intfourierexp(t=0,[[1],1],1/2,exp(-t^2))
 0.07515645001618094506724269142337819200573257288846457257682421833136020654
 01315089580450881170413 - 0.408148557374490719018171389392074027664154880556
@@ -172,4 +166,4 @@
   ***   Warning: integral from -oo to -oo.
 0
 ? print("Total time spent: ",gettime);
-Total time spent: 8252
+Total time spent: 8152
