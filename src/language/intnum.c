@@ -310,31 +310,31 @@ static const long EXTRAPREC =
 static GEN
 divr2_ip(GEN x) { shiftr_inplace(x, -1); return x; }
 
-/* phi(t)=tanh((3/2)sinh(t)) : from -1 to 1, hence also from a to b compact
+/* phi(t)=tanh((Pi/2)sinh(t)) : from -1 to 1, hence also from a to b compact
  * interval. */
 static GEN
 inittanhsinh(long m, long prec)
 {
   pari_sp av;
-  GEN h, et, ct, st, ext, ex, xp, wp;
+  GEN h, et, ct, st, ext, ex, xp, wp, pi = mppi(prec), pi2 = gmul2n(pi,-1);
   long k, nt = -1, lim;
   intdata D; intinit_start(&D, m, prec);
 
   lim = lg(D.tabxp) - 1;
   D.tabx0 = real_0(prec);
-  D.tabw0 = divr2_ip(stor(3, prec));
+  D.tabw0 = pi2;
   h = real2n(-D.m, prec);
   et = ex = mpexp(h);
   for (k = 1; k <= lim; k++)
   {
     gel(D.tabxp,k) = cgetr(prec+EXTRAPREC);
     gel(D.tabwp,k) = cgetr(prec+EXTRAPREC); av = avma;
-    ct = divr2_ip(addrr(et, invr(et)));
-    st = subrr(et, ct);
-    ext = invr( addrs(mpexp(mulur(3, st)), 1) );
+    ct = divr2_ip(addrr(et, invr(et))); /* ch(kh) */
+    st = subrr(et, ct); /* sh(kh) */
+    ext = invr( addrs(mpexp(mulrr(pi, st)), 1) );
     shiftr_inplace(ext, 1);
     xp = subsr(1, ext);
-    wp = divr2_ip(mulur(3, mulrr(ct, mulrr(ext, addsr(1, xp)))));
+    wp = divr2_ip(mulrr(pi, mulrr(ct, mulrr(ext, addsr(1, xp)))));
     if (expo(wp) < -D.eps) { nt = k-1; break; }
     affrr(xp, gel(D.tabxp,k));
     affrr(wp, gel(D.tabwp,k)); et = gerepileuptoleaf(av, mulrr(et, ex));
