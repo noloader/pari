@@ -14,6 +14,6 @@ Doc: numerical
  Fourier transform (from $a$ to $b$) of the function represented by
  \var{expr}. Note the minus sign. Endpoints $a$ and $b$ are coded as in
  \kbd{intnum}, and are not necessarily at infinity but if they are,
- oscillations (i.e. $[[\pm1],\alpha I]$) are forbidden.
+ oscillations (i.e. $[\pm\infty,\alpha I]$) are forbidden.
 
  \synt{intfourierexp}{void *E, GEN (*eval)(void*,GEN), GEN a, GEN b, GEN z, GEN tab, long prec}.

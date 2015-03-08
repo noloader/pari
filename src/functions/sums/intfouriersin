@@ -12,7 +12,7 @@ Doc: numerical
  integration of $\var{expr}(X)\sin(2\pi zX)$ from $a$ to $b$, in other words
  Fourier sine transform (from $a$ to $b$) of the function represented by
  \var{expr}. Endpoints $a$ and $b$ are coded as in \kbd{intnum}, and are not
- necessarily at infinity but if they are, oscillations (i.e. $[[\pm1],\alpha
+ necessarily at infinity but if they are, oscillations (i.e. $[\pm\infty,\alpha
  I]$) are forbidden.
 
  \synt{intfouriersin}{void *E, GEN (*eval)(void*,GEN), GEN a, GEN b, GEN z, GEN tab, long prec}.
