@@ -306,6 +306,7 @@ void random_curves_with_m_torsion(
   long ncurves, long m, ulong p);
 
 /* Allocation / gerepile */
+long   getdebugvar(void);
 void   setdebugvar(long n);
 void   debug_stack(void);
 void   fill_stack(void);

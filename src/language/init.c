@@ -2256,6 +2256,9 @@ void
 setdebugvar(long n) { DEBUGVAR=n; }
 
 long
+getdebugvar(void) { return DEBUGVAR; }
+
+long
 getstack(void) { return pari_mainstack->top-avma; }
 
 /*******************************************************************/
