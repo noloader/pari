@@ -13,7 +13,7 @@
 ? check(intlaplaceinv(x=5,1,1/x),1)
 -83
 ? check(intlaplaceinv(x=100,1,1/x),1)
--52
+-54
 ? A=intmellininv(s=2,4,gamma(s)^3);
 ? tab=intfuncinit(t=[-oo,4.5],[oo,4.5],gamma(2+I*t)^3,1);
 ? check(intmellininvshort(2,4,tab),A)
@@ -106,7 +106,7 @@
 -307
 ? b=sumnum(n=1,2,1/(n^2+1),tab,1);
 ? check(a,b)
--305
+-307
 ? check(sumnum(n=1,2,n^(-4/3),,1),zeta(4/3))
 -110
 ? tab=sumnuminit([2,-3/2]);
@@ -125,16 +125,13 @@
 -307
 ? \p96
    realprecision = 96 significant digits
-? intfourierexp(t=0,[[1],1],1/2,exp(-t^2))
-0.07515645001618094506724269142337819200573257288846457257682421833136020654
-01315089580450881170413 - 0.408148557374490719018171389392074027664154880556
-033855962874575972355801042051564345987971241498*I
-? intfouriercos(t=0,[[1],1],1/2,exp(-t^2))
-0.07515645001618094506724269142337819200573257288846457257682421833136020654
-01315089580450881170413
+? check(intfourierexp(t=[-oo,1],[oo,1],1/2,exp(-t^2)),sqrt(Pi)*exp(-Pi^2/4))
+-95
+? check(intfouriercos(t=0,[[1],1],1/2,exp(-t^2)),sqrt(Pi)/2*exp(-Pi^2/4))
+-93
 ? intfouriersin(t=0,[[1],1],1/2,exp(-t^2))
 0.40814855737449071901817138939207402766415488055603385596287457597235580104
-2051564345987971241498
+2051564345987971241481
 ? \p38
    realprecision = 38 significant digits
 ? intnumromb(x=0,1,sin(x))
@@ -166,4 +163,4 @@
   ***   Warning: integral from -oo to -oo.
 0
 ? print("Total time spent: ",gettime);
-Total time spent: 7868
+Total time spent: 8576

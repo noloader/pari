@@ -88,8 +88,8 @@ b = sumalt(n=1,(-1)^n/(n^3+n+1));
 check(a, b)
 
 \p96
-intfourierexp(t=0,[[1],1], 1/2, exp(-t^2))
-intfouriercos(t=0,[[1],1], 1/2, exp(-t^2))
+check(intfourierexp(t=[-oo,1],[oo,1], 1/2, exp(-t^2)), sqrt(Pi)*exp(-Pi^2/4))
+check(intfouriercos(t=0,[[1],1], 1/2, exp(-t^2)), sqrt(Pi)/2*exp(-Pi^2/4))
 intfouriersin(t=0,[[1],1], 1/2, exp(-t^2))
 
 \p38

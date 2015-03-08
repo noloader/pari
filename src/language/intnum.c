@@ -646,7 +646,7 @@ intnsing(void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, GEN tab, long prec)
   ea = ginv(gaddsg(1, gel(a,2)));
   ba = gdiv(gsub(b, tra), gpow(gen_2, ea, prec));
   av = avma;
-  S = gmul(gmul(tabw0, ba), eval(E, gadd(gmul(ba, gaddsg(1, tabx0)), tra)));
+  S = gmul(gmul(tabw0, ba), eval(E, gadd(gmul(ba, addsr(1, tabx0)), tra)));
   for (i = lg(tabxp)-1; i > 0; i--)
   {
     GEN p = addsr(1, gel(tabxp,i));
@@ -671,7 +671,8 @@ intninfpm(void *E, GEN (*eval)(void*, GEN), GEN a, long si, GEN tab)
 {
   GEN tabx0, tabw0, tabxp, tabwp, tabxm, tabwm;
   GEN S;
-  long m, L, k, pas, i;
+  GEN (*ADD)(GEN,GEN);
+  long m, L, i;
   pari_sp ltop = avma, av;
 
   if (!checktabdoub(tab)) pari_err_TYPE("intnum",tab);
@@ -679,20 +680,15 @@ intninfpm(void *E, GEN (*eval)(void*, GEN), GEN a, long si, GEN tab)
   tabx0 = TABx0(tab); tabw0 = TABw0(tab);
   tabxp = TABxp(tab); tabwp = TABwp(tab); L = lg(tabxp);
   tabxm = TABxm(tab); tabwm = TABwm(tab);
-  if (si < 0) { tabxp = gneg(tabxp); tabxm = gneg(tabxm); }
+  ADD = si > 0? gadd: gsub;
   av = avma;
-  S = gmul(tabw0, eval(E, gadd(a, gmulsg(si, tabx0))));
-  for (k = 1; k <= m; k++)
+  S = gmul(tabw0, eval(E, ADD(a, tabx0)));
+  for (i = 1; i < L; i++)
   {
-    pas = 1L<<(m-k);
-    for (i = pas; i < L; i += pas)
-      if (i & pas || k == 1)
-      {
-        GEN SP = eval(E, gadd(a, gel(tabxp,i)));
-        GEN SM = eval(E, gadd(a, gel(tabxm,i)));
-        S = gadd(S, gadd(gmul(gel(tabwp,i), SP), gmul(gel(tabwm,i), SM)));
-        if ((i & 0x7f) == 1) S = gerepileupto(av, S);
-      }
+    GEN SP = eval(E, ADD(a, gel(tabxp,i)));
+    GEN SM = eval(E, ADD(a, gel(tabxm,i)));
+    S = gadd(S, gadd(gmul(gel(tabwp,i), SP), gmul(gel(tabwm,i), SM)));
+    if ((i & 0x7f) == 1) S = gerepileupto(av, S);
   }
   return gerepileupto(ltop, gmul2n(S, -m));
 }
@@ -708,7 +704,7 @@ intninfinfintern(void *E, GEN (*eval)(void*, GEN), GEN tab, long flag)
 {
   GEN tabx0, tabw0, tabxp, tabwp, tabwm;
   GEN S, SP, SM;
-  long m, L, k, i, spf;
+  long m, L, i, spf;
   pari_sp ltop = avma;
 
   if (!checktabsimp(tab)) pari_err_TYPE("intnum",tab);
@@ -719,22 +715,18 @@ intninfinfintern(void *E, GEN (*eval)(void*, GEN), GEN tab, long flag)
   spf = (lg(tabwm) == lg(tabwp));
   S = flag > 0 ? gen_0 : gmul(tabw0, eval(E, tabx0));
   if (spf) S = gmul2n(real_i(S), -1);
-  for (k = 1; k <= m; k++)
+  for (i = L-1; i > 0; i--)
   {
-    long pas = 1L<<(m-k);
-    for (i = pas; i < L; i += pas)
-      if (i & pas || k == 1)
-      {
-        SP = eval(E, gel(tabxp,i));
-        if (spf) S = gadd(S, real_i(gmul(gel(tabwp,i), SP)));
-        else
-        {
-          SM = eval(E, negr(gel(tabxp,i)));
-          if (flag > 0) SM = gneg(SM);
-          S = gadd(S, gmul(gel(tabwp,i), gadd(SP, SM)));
-        }
-        if ((i & 0x7f) == 1) S = gerepileupto(ltop, S);
-      }
+    SP = eval(E, gel(tabxp,i));
+    if (spf)
+      S = gadd(S, real_i(gmul(gel(tabwp,i), SP)));
+    else
+    {
+      SM = eval(E, negr(gel(tabxp,i)));
+      if (flag > 0) SM = gneg(SM);
+      S = gadd(S, gmul(gel(tabwp,i), gadd(SP, SM)));
+    }
+    if ((i & 0x7f) == 1) S = gerepileupto(ltop, S);
   }
   if (spf) m--;
   return gerepileupto(ltop, gmul2n(S, -m));
