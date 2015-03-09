@@ -1164,17 +1164,14 @@ intnum_i(void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, GEN tab, long prec)
     GEN SP, SN = intninfpm(E, eval, c, -sb, gel(tab,1)); /* signe(a) = -sb */
     if (codea != f_YOSCC)
       SP = intninfpm(E, eval, cb, sb, gel(tab,2));
+    /* codea = codeb = f_YOSCC */
+    else if (gequal(kma, kmb))
+      SP = intninfpm(E, eval, cb, sb, gel(tab,2));
     else
     {
-      if (codeb != f_YOSCC) pari_err_BUG("code error in intnum");
-      if (gequal(kma, kmb))
-        SP = intninfpm(E, eval, cb, sb, gel(tab,2));
-      else
-      {
-        tab = gel(tab,2);
-        SP = intninfpm(E, eval, cb, sb, gel(tab,2));
-        SP = gadd(SP, intn(E, eval, ca, cb, gel(tab,1)));
-      }
+      tab = gel(tab,2);
+      SP = intninfpm(E, eval, cb, sb, gel(tab,2));
+      SP = gadd(SP, intn(E, eval, ca, cb, gel(tab,1)));
     }
     S = gadd(SN, SP);
   }
