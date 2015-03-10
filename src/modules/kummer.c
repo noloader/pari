@@ -573,7 +573,7 @@ fix_kernel(GEN K, GEN M, GEN vecMsup, long lW, long ell)
     GEN Msup = gel(vecMsup,i);
     ulong dotprod;
     if (lgcols(Msup) != 2) continue;
-    Msup = row_zm(Msup, 1);
+    Msup = zm_row(Msup, 1);
     for (j=ffree; --j > 0; )
     {
       dotprod = Flv_dotproduct(Msup, gel(K,j), ell);

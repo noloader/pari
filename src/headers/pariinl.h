@@ -873,7 +873,7 @@ row(GEN A, long x0)
   return B;
 }
 INLINE GEN
-row_Flm(GEN A, long x0)
+Flm_row(GEN A, long x0)
 {
   long i, lB = lg(A);
   GEN B  = cgetg(lB, t_VECSMALL);
@@ -2039,7 +2039,7 @@ zm_copy(GEN x) { return Flm_copy(x); }
 INLINE GEN
 zv_copy(GEN x) { return Flv_copy(x); }
 INLINE GEN
-row_zm(GEN x, long i) { return row_Flm(x,i); }
+zm_row(GEN x, long i) { return Flm_row(x,i); }
 
 INLINE GEN
 ZC_hnfrem(GEN x, GEN y) { return ZC_hnfremdiv(x,y,NULL); }

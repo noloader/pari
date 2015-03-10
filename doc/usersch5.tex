@@ -3763,8 +3763,8 @@ all columns.
 \fun{GEN}{zero_Flv}{long n} creates a \kbd{Flv} with \kbd{n} components set to
 $0$.
 
-\fun{GEN}{row_Flm}{GEN A, long x0} return $A[i,]$, the $i$-th row of the
-\kbd{Flm} (or \kbd{zm}) $A$.
+\fun{GEN}{Flm_row}{GEN A, long x0} return $A[i,]$, the $i$-th row of the
+\kbd{Flm} $A$.
 
 \fun{GEN}{Flm_add}{GEN x, GEN y, ulong p} adds \kbd{x} and \kbd{y}
 (assumed to have compatible dimensions).
@@ -6813,7 +6813,7 @@ $0$ otherwise.
 
 \fun{GEN}{zero_zv}{long n} as \kbd{zero\_Flv}.
 
-\fun{GEN}{row_zm}{GEN A, long x0} as \kbd{row\_Flm}.
+\fun{GEN}{zm_row}{GEN A, long x0} as \kbd{Flm\_row}.
 
 \fun{int}{zvV_equal}{GEN x, GEN y} returns $1$ if the two \kbd{zvV} (vectors
 of \kbd{zv}) are equal and $0$ otherwise.

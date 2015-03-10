@@ -786,7 +786,7 @@ Flm_transpose(GEN x)
   GEN y;
   if (lx == 1) return cgetg(1,t_MAT);
   dx = lgcols(x); y = cgetg(dx,t_MAT);
-  for (i=1; i<dx; i++) gel(y,i) = row_Flm(x,i);
+  for (i=1; i<dx; i++) gel(y,i) = Flm_row(x,i);
   return y;
 }
 

@@ -340,6 +340,7 @@ LGr52- use GRH-guaranteed bounds in bnfinit for residue estimate
    55- old functions from gp-1.39.15 no longer loaded into an "entree" table,
        no longer complete specially "whatnow" arguments; remove compat.c and
        most of gp_init.c
+BA 56- Rename row_Flm -> Flm_row, row_zm -> zm_row
 
 Removed
    1- deprecated functions nfbasis0, nfdisc0, factorpadic0
