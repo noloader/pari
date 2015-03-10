@@ -661,13 +661,10 @@ pari_mainstack_alloc(struct pari_mainstack *st, size_t rsize, size_t vsize)
   size_t sizemax = vsize ? vsize: rsize, s = fix_size(sizemax);
   for (;; s>>=1)
   {
-    char buf[128];
     if (s < MIN_STACK) pari_err(e_MEM); /* no way out. Die */
     st->vbot = (pari_sp)pari_mainstack_malloc(s);
     if (st->vbot) break;
-      /* must use sprintf: pari stack is currently dead */
-    sprintf(buf, "not enough memory, new stack %lu", (ulong)s);
-    pari_warn(warner, buf, s);
+    pari_warn(warnstack, s>>1);
   }
   st->vsize = vsize ? s: 0;
   st->rsize = minss(rsize, s);
@@ -1044,7 +1041,7 @@ err_init_msg(int numerr, int user)
 {
   const char *gp_function_name;
   out_puts(pariErr, "  *** ");
-  if (numerr != user && (gp_function_name = closure_func_err()))
+  if (!user && (gp_function_name = closure_func_err()))
     out_printf(pariErr, "%s: ", gp_function_name);
   else
     out_puts(pariErr, "  ");
@@ -1059,7 +1056,7 @@ pari_warn(int numerr, ...)
   va_start(ap,numerr);
 
   err_init();
-  err_init_msg(numerr, warnuser);
+  err_init_msg(numerr, numerr==warnuser || numerr==warnstack);
   switch (numerr)
   {
     case warnuser:
@@ -1087,6 +1084,16 @@ pari_warn(int numerr, ...)
       ch1 = va_arg(ap, char*);
       out_printf(pariErr, "%s: %s", ch1, va_arg(ap, char*));
       break;
+
+    case warnstack:
+    {
+      ulong  s = va_arg(ap, ulong);
+      char buf[128];
+      sprintf(buf,"Warning: not enough memory, new stack %lu", (ulong)s);
+      out_puts(pariErr,buf);
+      break;
+    }
+
   }
   va_end(ap);
   out_term_color(pariErr, c_NONE);
@@ -1100,7 +1107,7 @@ pari_sigint(const char *time_s)
   BLOCK_SIGALRM_START
   err_init();
   closure_err(0);
-  err_init_msg(e_MISC, e_USER);
+  err_init_msg(e_MISC, 0);
   out_puts(pariErr, "user interrupt after ");
   out_puts(pariErr, time_s);
   out_term_color(pariErr, c_NONE);
@@ -1436,7 +1443,7 @@ pari_err_display(GEN err)
   {
     char *s = pari_err2str(err);
     closure_err(0);
-    err_init_msg(numerr, e_USER);
+    err_init_msg(numerr, numerr==e_USER);
     pariErr->puts(s);
     if (numerr==e_NOTFUNC)
     {
