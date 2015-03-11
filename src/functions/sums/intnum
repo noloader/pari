@@ -41,7 +41,7 @@ Doc: numerical integration
  the last \emph{optional} argument \var{tab}.
 
  \misctitle{The \var{tab} argument}
- The routine uses weights $w_i, which are mostly independent of the function
+ The routine uses weights $w_i$, which are mostly independent of the function
  being integrated, evaluated at many sampling points $x_i$ and
  approximates the integral by $\sum w_i f(x_i)$. If \var{tab} is
 
@@ -234,7 +234,7 @@ Doc: numerical integration
  %3 = -7.34... E-55 \\@com bad
  ? intnum(x = 0, [oo,-I], sin(x)^3*exp(-x)) - 0.3
  %4 = 8.9... E-103 \\@com better. Try higher $m$
- ? tab = intnuminit(0,[oo,-I], 1); \\@com double # of sampling points
+ ? tab = intnuminit(0,[oo,-I], 1); \\@com double number of sampling points
  ? intnum(x = 0, oo, sin(x)^3*exp(-x), tab) - 0.3
  %6 = 0.E-115 \\@com perfect
  @eprog
@@ -262,7 +262,7 @@ Doc: numerical integration
  of the function $x^2+y^2$, we can write
  \bprog
  ? tab = intnuminit(-1,1);
- ? intnum(x=-1,1, intnum(y=-sqrt(1-x^2),sqrt(1-x^2), x^2+y^2, tab), tab) - Pi/2
+ ? intnum(x=-1,1, intnum(y=-sqrt(1-x^2),sqrt(1-x^2), x^2+y^2, tab),tab) - Pi/2
  %2 = -7.1... E-115 \\@com OK
 
  @eprog\noindent
