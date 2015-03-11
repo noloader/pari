@@ -341,9 +341,12 @@ LGr52- use GRH-guaranteed bounds in bnfinit for residue estimate
        no longer complete specially "whatnow" arguments; remove compat.c and
        most of gp_init.c
 BA 56- Rename row_Flm -> Flm_row, row_zm -> zm_row
+   57- rewrote intnum / intnuminit routines
 
 Removed
    1- deprecated functions nfbasis0, nfdisc0, factorpadic0
    2- deprecated function manage_var
    3- useless function intnuminitgen (not very useful and impossible to use
       reliably together with intnum with boundary conditions)
+   4- useless function intnumstep: instead of intnum(a,b, intnumstep()+m),
+      use intnum(a,b,m).

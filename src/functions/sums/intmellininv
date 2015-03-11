@@ -17,27 +17,30 @@ Doc: numerical
  line $\Re(X)=sig$,  in other words, inverse Mellin transform of
  the function corresponding to \var{expr} at the value $z$.
 
- $sig$ is coded as follows. Either it is a real number $\sigma$, equal to the
- abscissa of integration, and then the integrated is assumed to decrease
- exponentially fast, of the order of $\exp(-t)$ when the imaginary part of the
- variable tends to $\pm\infty$. Or it is a two component vector
- $[\sigma,\alpha]$, where $\sigma$ is as before, and either $\alpha=0$ for
- slowly decreasing functions, or $\alpha>0$ for functions decreasing like
- $\exp(-\alpha t)$, such as gamma products. Note that it is not necessary to
- choose the exact value of $\alpha$, and that $\alpha=1$ (equivalent to $sig$
- alone) is usually sufficient. \var{tab} is as in \kbd{intnum}.
+ $sig$ is coded as follows. It is either
+
+ \item a real number $\sigma$, equal to the abscissa of integration, and then
+ the integrand is assumed to decrease exponentially fast, of the order of
+ $\exp(-t)$ when the imaginary part of the variable tends to $\pm\infty$.
+
+ \item or it is a two component vector $[\sigma,\alpha]$, where $\sigma$ is as
+ before, and either $\alpha=0$ for slowly decreasing functions, or $\alpha>0$
+ for functions decreasing like $\exp(-\alpha t)$, such as gamma products. Note
+ that it is not necessary to choose the exact value of $\alpha$, and that
+ $\alpha=1$ (equivalent to $sig$ alone) is usually sufficient.
+
+ \var{tab} is as in \kbd{intnum}.
 
  As all similar functions, this function is provided for the convenience of
  the user, who could use \kbd{intnum} directly. However it is in general
  better to use \kbd{intmellininvshort}.
-
  \bprog
  ? \p 105
  ? intmellininv(s=2,4, gamma(s)^3);
- time = 1,190 ms. \\@com reasonable.
+ time = 300 ms. \\@com reasonable.
  ? \p 308
  ? intmellininv(s=2,4, gamma(s)^3);
- time = 51,300 ms. \\@com slow because of $\Gamma(s)^3$.
+ time = 3,909 ms. \\@com slow because of $\Gamma(s)^3$.
  @eprog\noindent
 
  \synt{intmellininv}{void *E, GEN (*eval)(void*,GEN), GEN sig, GEN z, GEN tab, long prec}.

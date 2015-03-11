@@ -4,14 +4,13 @@
 ? \p96
    realprecision = 96 significant digits
 ? check(intcirc(s=1,0.5,zeta(s)),1)
--94
+-84
 ? check(intlaplaceinv(x=2,1,1/x),1)
--53
-? m=intnumstep();
-? check(intlaplaceinv(x=2,1,1/x,m+1),1)
--94
+-52
+? check(intlaplaceinv(x=2,1,1/x,1),1)
+-93
 ? check(intlaplaceinv(x=5,1,1/x),1)
--83
+-81
 ? check(intlaplaceinv(x=100,1,1/x),1)
 -54
 ? A=intmellininv(s=2,4,gamma(s)^3);
@@ -77,17 +76,17 @@
 ? check(A,Pi/2)
 -96
 ? check(intnum(x=0,[oo,1],sin(x)^3*exp(-x)),3/10)
--96
+-47
 ? check(intnum(x=0,[oo,-I],sin(x)^3*exp(-x)),3/10)
--88
-? tab=intnuminit(0,[oo,-I],m+1);
+-85
+? tab=intnuminit(0,[oo,-I],1);
 ? check(intnum(x=0,oo,sin(x)^3*exp(-x),tab),3/10)
 -96
 ? check(intnum(x=0,[oo,-I],x^2*sin(x)),-2)
 -oo
 ? tab=intnuminit(-1,1);
 ? check(intnum(x=-1,1,intnum(y=-sqrt(1-x^2),sqrt(1-x^2),x^2+y^2,tab),tab),Pi/2)
--94
+-95
 ? \p308
    realprecision = 308 significant digits
 ? a=sumpos(n=1,1/(n^3+n+1));
@@ -111,27 +110,27 @@
 -110
 ? tab=sumnuminit([2,-3/2]);
 ? check(sumnum(n=1,[2,-3/2],1/(n*sqrt(n)),tab,1),zeta(3/2))
--305
+-289
 ? check(suminf(n=1,2^(-n)),1)
 -307
 ? check(sumpos(n=1,2^(-n)),1)
 -307
-? check(sumnum(n=1,[2,log(2)],2^(-n),intnumstep()+1,1),1)
--304
+? check(sumnum(n=1,[2,log(2)],2^(-n),1,1),1)
+-305
 ? tab=sumnuminit(2,,-1);
 ? a=sumnumalt(n=1,2,1/(n^3+n+1),tab,1);
 ? b=sumalt(n=1,(-1)^n/(n^3+n+1));
 ? check(a,b)
--307
+-294
 ? \p96
    realprecision = 96 significant digits
 ? check(intfourierexp(t=[-oo,1],[oo,1],1/2,exp(-t^2)),sqrt(Pi)*exp(-Pi^2/4))
 -95
 ? check(intfouriercos(t=0,[[1],1],1/2,exp(-t^2)),sqrt(Pi)/2*exp(-Pi^2/4))
--93
+-94
 ? intfouriersin(t=0,[[1],1],1/2,exp(-t^2))
 0.40814855737449071901817138939207402766415488055603385596287457597235580104
-2051564345987971241481
+2051564345987971241512
 ? \p38
    realprecision = 38 significant digits
 ? intnumromb(x=0,1,sin(x))
@@ -163,4 +162,4 @@
   ***   Warning: integral from -oo to -oo.
 0
 ? print("Total time spent: ",gettime);
-Total time spent: 8052
+Total time spent: 5944

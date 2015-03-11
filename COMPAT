@@ -31,6 +31,8 @@ This file lists the incompatible changes between Version 2.x and older versions
     Allow uniformization with hyperellcharpoly
   - remove useless function intnuminitgen (not very useful and impossible to
     use reliably together with intnum with boundary conditions)
+  - remove useless function intnumstep: instead of intnum(a,b, intnumstep()+m),
+    use intnum(a,b,m)
 
 * Specific to the PARI library:
 ===============================
