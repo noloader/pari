@@ -110,7 +110,7 @@
 -110
 ? tab=sumnuminit([2,-3/2]);
 ? check(sumnum(n=1,[2,-3/2],1/(n*sqrt(n)),tab,1),zeta(3/2))
--289
+-191
 ? check(suminf(n=1,2^(-n)),1)
 -307
 ? check(sumpos(n=1,2^(-n)),1)
@@ -162,4 +162,4 @@
   ***   Warning: integral from -oo to -oo.
 0
 ? print("Total time spent: ",gettime);
-Total time spent: 5944
+Total time spent: 5412

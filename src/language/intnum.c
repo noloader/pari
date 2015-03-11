@@ -423,7 +423,7 @@ initexpsinh(long m, long prec)
   intdata D;
 
   pi = mppi(prec);
-  d = bitprec*LOG10_2*1.5;
+  d = bitprec*LOG10_2/1.05;
   n = (long)ceil(d*log(d)); /* heuristic */
   h = divrs(logr_abs(divrr(mulur(2*n, pi), logr_abs(utor(n,prec)))), n);
   intinit_start(&D, m, n, h, bitprec);
