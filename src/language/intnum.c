@@ -262,14 +262,6 @@ checktab(GEN tab)
       && checktabsimp(gel(tab,2));
 }
 
-long
-intnumstep(long prec)
-{
-  long m = 2, r = 4, p = (long)prec2nbits_mul(prec, 0.3);
-  while (r < p) { m++; r <<= 1; }
-  return m;
-}
-
 static void
 intinit_start(intdata *D, long m, long n, GEN h, long bitprec)
 {

@@ -3120,7 +3120,6 @@ GEN     intmellininvshort(GEN sig, GEN x, GEN tab, long prec);
 GEN     intnum(void *E, GEN (*eval) (void *, GEN), GEN a, GEN b, GEN tab, long prec);
 GEN     intnuminit(GEN a, GEN b, long m, long prec);
 GEN     intnumromb(void *E, GEN (*eval) (void *, GEN), GEN a, GEN b, long flag, long prec);
-long    intnumstep(long prec);
 GEN     sumnum(void *E, GEN (*f) (void *, GEN), GEN a, GEN sig, GEN tab, long flag, long prec);
 GEN     sumnumalt(void *E, GEN (*f) (void *, GEN), GEN a, GEN s, GEN tab, long flag, long prec);
 GEN     sumnuminit(GEN sig, long m, long sgn, long prec);
