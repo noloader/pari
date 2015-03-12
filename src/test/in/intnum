@@ -47,6 +47,10 @@ check(intnum(x = [-oo,-2*I], [oo,1], f(x)), Pi/2+1)
 f(x)=if (x<0,sin(2*x)/x, sin(x)/x);
 check(intnum(x = [-oo,-2*I], [oo,-I], f(x)), Pi)
 
+f(x)=cos((3+tanh(x))*x)/sqrt(1+x^2);
+a = intnum(x = [-oo,2*I], [oo,4*I], f(x), 1);
+check(intnum(x = [-oo,2*I], [oo,4*I], f(x)), a)
+
 check(intnum(x = 0, [oo,1], sin(x)/x), Pi/2)
 check(intnum(x = 0, [oo,-I], sin(x)/x), Pi/2)
 check(intnum(x = 0, [oo,-2*I], sin(2*x)/x), Pi/2)

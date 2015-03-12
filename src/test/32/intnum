@@ -66,6 +66,10 @@
 ? f(x)=if(x<0,sin(2*x)/x,sin(x)/x);
 ? check(intnum(x=[-oo,-2*I],[oo,-I],f(x)),Pi)
 -oo
+? f(x)=cos((3+tanh(x))*x)/sqrt(1+x^2);
+? a=intnum(x=[-oo,2*I],[oo,4*I],f(x),1);
+? check(intnum(x=[-oo,2*I],[oo,4*I],f(x)),a)
+-51
 ? check(intnum(x=0,[oo,1],sin(x)/x),Pi/2)
 -2
 ? check(intnum(x=0,[oo,-I],sin(x)/x),Pi/2)
@@ -162,4 +166,4 @@
   ***   Warning: integral from -oo to -oo.
 0
 ? print("Total time spent: ",gettime);
-Total time spent: 5412
+Total time spent: 6152
