@@ -635,8 +635,6 @@ intn(void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, GEN tab)
   pari_sp ltop = avma, av;
 
   if (!checktabsimp(tab)) pari_err_TYPE("intnum",tab);
-  if (!isinC(a)) pari_err_TYPE("intnum",a);
-  if (!isinC(b)) pari_err_TYPE("intnum",b);
   tabx0 = TABx0(tab); tabw0 = TABw0(tab);
   tabxp = TABxp(tab); tabwp = TABwp(tab);
   bpa = gmul2n(gadd(b, a), -1); /* (b+a)/2 */
