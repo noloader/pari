@@ -2658,10 +2658,13 @@ listinsert(GEN L, GEN x, long index)
   if (index <= 0) pari_err_COMPONENT("listinsert", "<=", gen_0, stoi(index));
   if (index > l) pari_err_COMPONENT("listinsert", ">", stoi(l), stoi(index));
   ensure_nb(L, l);
+  BLOCK_SIGINT_START
   z = list_data(L);
   for (i=l; i > index; i--) gel(z,i) = gel(z,i-1);
   z[0] = evaltyp(t_VEC) | evallg(l+1);
-  return gel(z,index) = gclone(x);
+  gel(z,index) = gclone(x);
+  BLOCK_SIGINT_END
+  return gel(z,index);
 }
 
 void
@@ -2676,9 +2679,11 @@ listpop(GEN L, long index)
   if (!z || (l = lg(z)-1) == 0) return;
 
   if (!index || index > l) index = l;
+  BLOCK_SIGINT_START
   gunclone_deep( gel(z, index) );
   z[0] = evaltyp(t_VEC) | evallg(l);
   for (i=index; i < l; i++) z[i] = z[i+1];
+  BLOCK_SIGINT_END
 }
 
 /* return a list with single element x, allocated on stack */
