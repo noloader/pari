@@ -1,5 +1,5 @@
 Function: listsort
-Section: linear_algebra
+Section: programming/specific
 C-Name: listsort
 Prototype: vWD0,L,
 Help: listsort(L,{flag=0}): sort the list L in place. If flag is non-zero,

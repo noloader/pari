@@ -1,5 +1,5 @@
 Function: listcreate
-Section: linear_algebra
+Section: programming/specific
 C-Name: listcreate
 Prototype: D0,L,
 Help: listcreate(): creates an empty list.

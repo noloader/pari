@@ -1,5 +1,5 @@
 Function: listkill
-Section: linear_algebra
+Section: programming/specific
 C-Name: listkill
 Prototype: vG
 Help: listkill(L): obsolete, retained for backward compatibility.
