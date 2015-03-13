@@ -10,4 +10,10 @@ Doc: return the image of $x$ by the map $M$.
  %2 = 23
  ? mapget(M,"b")
  %3 = 43
+ @eprog\noindent Raises an exception when the key $x$ is not present in $M$
+ \bprog
+ ? mapget(M,"c")
+   ***   at top-level: mapget(M,"c")
+   ***                 ^-------------
+   *** mapget: non-existent component in mapget: index not in map
  @eprog

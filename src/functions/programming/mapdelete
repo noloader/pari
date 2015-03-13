@@ -5,9 +5,9 @@ Prototype: vGG
 Help: mapdelete(M,x): remove x from the domain of the map M.
 Doc: remove $x$ from the domain of the map $M$.
  \bprog
- M=Map(["a",1;"b",3;"c",7]);
- mapdelete(M,"b");
- Mat(M)
+ ? M = Map(["a",1; "b",3; "c",7]);
+ ? mapdelete(M,"b");
+ ? Mat(M)
  ["a" 1]
 
  ["c" 7]
