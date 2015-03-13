@@ -2500,10 +2500,10 @@ $type{"\\leftarrow"}="string";
 $contents{"\\leftarrow"}=" <--- ";
 
 $type{"\\mapsto"}="string";
-$contents{"\\mapsto"}=" |--> ";
+$contents{"\\mapsto"}=" :--> ";
 
 $type{"\\longmapsto"}="string";
-$contents{"\\longmapsto"}=" |----> ";
+$contents{"\\longmapsto"}=" :----> ";
 
 $type{"\\cap"}="string";
 $contents{"\\cap"}=" /~\\ ";
