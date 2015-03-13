@@ -1122,8 +1122,8 @@ intnum_i(void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, GEN tab, long prec)
     else
     {
       GEN c = gmul2n(gadd(gel(a,1), gel(b,1)), -1);
-      res1 = intnsing(E, eval, a, c, tab, prec);
-      res2 = intnsing(E, eval, b, c, tab, prec);
+      res1 = intnsing(E, eval, a, c, gel(tab,1), prec);
+      res2 = intnsing(E, eval, b, c, gel(tab,2), prec);
       S = gsub(res1, res2);
     }
     return (sgns < 0) ? gneg(S) : S;

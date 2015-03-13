@@ -70,6 +70,8 @@
 ? a=intnum(x=[-oo,2*I],[oo,4*I],f(x),1);
 ? check(intnum(x=[-oo,2*I],[oo,4*I],f(x)),a)
 -51
+? check(intnum(x=[0,-1/2],[1,-1/3],x^(-1/2)+(1-x)^(-1/3)),7/2)
+-95
 ? check(intnum(x=0,[oo,1],sin(x)/x),Pi/2)
 -2
 ? check(intnum(x=0,[oo,-I],sin(x)/x),Pi/2)
@@ -166,4 +168,4 @@
   ***   Warning: integral from -oo to -oo.
 0
 ? print("Total time spent: ",gettime);
-Total time spent: 6152
+Total time spent: 5960
