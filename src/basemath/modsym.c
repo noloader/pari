@@ -1998,7 +1998,7 @@ getMorphism_basis(GEN W, GEN vecT)
   GEN link = msk_get_link(W);
   GEN invphiblock = msk_get_invphiblock(W);
   long s = st[1], t = st[2];
-  GEN R = zerovec(dim), Q, Ls, T0, T1, Ts, mu_st;
+  GEN R = zerocol(dim), Q, Ls, T0, T1, Ts, mu_st;
   for (r = 2; r < lvecT; r++)
   {
     GEN Tr, L;
