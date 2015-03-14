@@ -264,7 +264,6 @@ static double speed_Flx_rem(speed_param *s) {
 static double speed_Flxq_red(speed_param *s) {
   GEN x = rand_NFlx((degpol(s->x)-1)*2, s->l);
   GEN q = Flx_get_red(s->x, s->l);
-  if(typ(q)==t_VECSMALL) err_printf("."); else err_printf("+");
   TIME_FUN(Flx_rem(x, q, s->l));
 }
 
