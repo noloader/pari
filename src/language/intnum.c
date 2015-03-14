@@ -561,6 +561,20 @@ suminit_start(GEN sig)
   return mkvec2(mkoo(), sig2);
 }
 
+/* update weight for sum */
+static GEN
+sumweight(GEN x, GEN w, GEN pi, long sgn, long G, double logG)
+{
+  if (expo(x) < logG)
+  {
+    GEN t = mulrr(pi, x);
+    w = (sgn < 0)? divrr(w, gcosh(t, 0))
+                 : mulrr(w, gtanh(t, 0));
+  }
+  else /* ch(pi x) ~ +oo, th(pi x) ~ 1 */
+    if (sgn < 0) w =  real_0_bit(G);
+  return w;
+}
 /* phi(t) depending on sig[2] as in intnum, with weights phi'(t)tanh(Pi*phi(t))
  * (sgn >= 0) or phi'(t)/cosh(Pi*phi(t)) (otherwise), for use in sumnumall.
  * integrations are done from 0 to +infty (flii is set to 0), except if slowly
@@ -569,8 +583,9 @@ GEN
 sumnuminit(GEN sig, long m, long sgn, long prec)
 {
   pari_sp ltop = avma;
-  GEN b, t, tab, tabxp, tabwp, tabxm, tabwm, pi = mppi(prec);
-  long L, k, eps, flii;
+  GEN b, tab, tabxp, tabwp, tabxm, tabwm, pi = mppi(prec);
+  long L, k, G, flii;
+  double logG;
 
   b = suminit_start(sig);
   flii = gequal0(gel(b,2));
@@ -578,30 +593,18 @@ sumnuminit(GEN sig, long m, long sgn, long prec)
     tab = intnuminit(mkmoo(), mkoo(), m, prec);
   else
     tab = intnuminit(gen_0, b, m, prec);
-  eps = prec2nbits(prec);
-  t = gmul(pi, TABx0(tab));
-  if (sgn < 0) TABw0(tab) = gdiv(TABw0(tab), gcosh(t, prec));
-  else         TABw0(tab) = gmul(TABw0(tab), gtanh(t, prec));
+  G = -prec2nbits(prec);
+  logG = log2(-G);
+  TABw0(tab) = sumweight(TABx0(tab), TABw0(tab), pi, sgn,G,logG);
   tabxp = TABxp(tab); L = lg(tabxp);
   tabwp = TABwp(tab);
   tabxm = TABxm(tab);
   tabwm = TABwm(tab);
   for (k = 1; k < L; k++)
   {
-    if (cmprs(gel(tabxp,k), eps) < 0)
-    {
-      t = mulrr(pi, gel(tabxp,k));
-      gel(tabwp,k) = (sgn < 0)? divrr(gel(tabwp,k), gcosh(t, prec))
-                              : mulrr(gel(tabwp,k), gtanh(t, prec));
-    }
-    else
-      if (sgn < 0) gel(tabwp,k) = real_0_bit(-eps);
+    gel(tabwp,k) = sumweight(gel(tabxp,k), gel(tabwp,k), pi, sgn,G,logG);
     if (!flii)
-    {
-      t = mulrr(pi, gel(tabxm,k));
-      gel(tabwm,k) = (sgn < 0)? divrr(gel(tabwm,k), gcosh(t, prec))
-                              : mulrr(gel(tabwm,k), gtanh(t, prec));
-    }
+      gel(tabwm,k) = sumweight(gel(tabxm,k), gel(tabwm,k), pi, sgn,G,logG);
   }
   return gerepilecopy(ltop, tab);
 }
