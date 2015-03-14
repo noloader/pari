@@ -364,7 +364,7 @@ mapput(GEN T, GEN a, GEN b)
   pari_sp av = avma;
   long i;
   GEN p;
-  if (typ(T)!=t_LIST && list_typ(T)!=t_LIST_MAP)
+  if (typ(T)!=t_LIST || list_typ(T)!=t_LIST_MAP)
     pari_err_TYPE("mapput",T);
   p = mkvec2(a, b);
   i = treeinsert(T, p, 1);
@@ -376,7 +376,7 @@ void
 mapdelete(GEN T, GEN a)
 {
   pari_sp av = avma;
-  if (typ(T)!=t_LIST && list_typ(T)!=t_LIST_MAP)
+  if (typ(T)!=t_LIST || list_typ(T)!=t_LIST_MAP)
     pari_err_TYPE("mapdelete",T);
   treedelete(T, a, 1);
   avma = av;
@@ -386,7 +386,7 @@ GEN
 mapget(GEN T, GEN a)
 {
   GEN x;
-  if (typ(T)!=t_LIST && list_typ(T)!=t_LIST_MAP)
+  if (typ(T)!=t_LIST || list_typ(T)!=t_LIST_MAP)
     pari_err_TYPE("mapget",T);
   x = treesearch(T, a, 1);
   if (!x) pari_err_COMPONENT("mapget", "not in", strtoGENstr("map"), a);
@@ -397,7 +397,7 @@ int
 mapisdefined(GEN T, GEN a, GEN *pt_z)
 {
   GEN x;
-  if (typ(T)!=t_LIST && list_typ(T)!=t_LIST_MAP)
+  if (typ(T)!=t_LIST || list_typ(T)!=t_LIST_MAP)
     pari_err_TYPE("mapisdefined",T);
   x = treesearch(T, a, 1);
   if (!x) return 0;
@@ -408,7 +408,7 @@ mapisdefined(GEN T, GEN a, GEN *pt_z)
 GEN
 mapdomain(GEN T)
 {
-  if (typ(T)!=t_LIST && list_typ(T)!=t_LIST_MAP)
+  if (typ(T)!=t_LIST || list_typ(T)!=t_LIST_MAP)
     pari_err_TYPE("mapdomain",T);
   return treekeys(T,1);
 }
@@ -416,15 +416,15 @@ mapdomain(GEN T)
 GEN
 mapdomain_shallow(GEN T)
 {
-  if (typ(T)!=t_LIST && list_typ(T)!=t_LIST_MAP)
-    pari_err_TYPE("mapdomain",T);
+  if (typ(T)!=t_LIST || list_typ(T)!=t_LIST_MAP)
+    pari_err_TYPE("mapdomain_shallow",T);
   return treekeys_i(T,1);
 }
 
 GEN
 maptomat(GEN T)
 {
-  if (typ(T)!=t_LIST && list_typ(T)!=t_LIST_MAP)
+  if (typ(T)!=t_LIST || list_typ(T)!=t_LIST_MAP)
     pari_err_TYPE("maptomat",T);
   return treemat(T);
 }
@@ -432,7 +432,7 @@ maptomat(GEN T)
 GEN
 maptomat_shallow(GEN T)
 {
-  if (typ(T)!=t_LIST && list_typ(T)!=t_LIST_MAP)
+  if (typ(T)!=t_LIST || list_typ(T)!=t_LIST_MAP)
     pari_err_TYPE("maptomap_shallow",T);
   return treemat_i(T);
 }
