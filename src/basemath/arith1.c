@@ -4527,8 +4527,10 @@ quadregulator(GEN x, long prec)
 /**                                                                     **/
 /*************************************************************************/
 static int qfb_is_1(GEN f) { return equali1(gel(f,1)); }
-static GEN qfb_pow(void *E, GEN f, GEN n) { (void)E; return powgi(f,n); }
-static GEN qfi_comp(void *E, GEN f, GEN g) { return nucomp(f,g, E); }
+static GEN qfb_pow(void *E, GEN f, GEN n)
+{ return E? nupow(f,n,(GEN)E): powgi(f,n); }
+static GEN qfi_comp(void *E, GEN f, GEN g)
+{ return E? nucomp(f,g,(GEN)E): qficomp(f,g); }
 static ulong qfb_hash(GEN x)
 {
   GEN a = gel(x,1);
@@ -4804,7 +4806,7 @@ classno(GEN x)
 
   l = lg(forms);
   order_bound = const_vec(l-1, NULL);
-  E = (void*)sqrtnint(shifti(absi(D),-2),4);
+  E = expi(D) > 60? (void*)sqrtnint(shifti(absi(D),-2),4): NULL;
   g1 = gel(forms,1);
   gel(order_bound,1) = d1 = Shanks_order(E, g1, hin, &fad1);
   q = diviiround(hin, d1); /* approximate order of G/<g1> */
