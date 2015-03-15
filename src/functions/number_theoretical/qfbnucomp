@@ -7,8 +7,8 @@ Help: qfbnucomp(x,y,L): composite of primitive positive definite quadratic
 Doc: \idx{composition} of the primitive positive
  definite binary quadratic forms $x$ and $y$ (type \typ{QFI}) using the NUCOMP
  and NUDUPL algorithms of \idx{Shanks}, \`a la Atkin. $L$ is any positive
- constant, but for optimal speed, one should take $L=|D|^{1/4}$, i.e.
- \kbd{sqrtnint(abs(D),4)}, where $D$ is the common discriminant of $x$ and
+ constant, but for optimal speed, one should take $L=|D/4|^{1/4}$, i.e.
+ \kbd{sqrtnint(abs(D)>>2,4)}, where $D$ is the common discriminant of $x$ and
  $y$. When $x$ and $y$ do not have the same discriminant, the result is
  undefined.
 
