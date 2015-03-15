@@ -32,8 +32,7 @@ struct bg_data
   GEN E, N; /* ell, conductor */
   GEN bnd; /* t_INT; will need all an for n <= bnd */
   ulong rootbnd; /* sqrt(bnd) */
-  GEN an; /* t_VECSMALL: cache of ap, n <= rootbnd */
-  GEN ap; /* t_VECSMALL: cache of ap, p <= rootbnd */
+  GEN an; /* t_VECSMALL: cache of an, n <= rootbnd */
   GEN p;  /* t_VECSMALL: primes <= rootbnd */
 };
 
@@ -63,7 +62,7 @@ gen_BG_add(void *E, bg_fun *fun, struct bg_data *bg, GEN n, long i, GEN a, GEN l
     ulong p = bg->p[j];
     GEN nexta, pn = mului(p, n);
     if (cmpii(pn, bg->bnd) > 0) return;
-    nexta = mulis(a, bg->ap[j]);
+    nexta = mulis(a, bg->an[p]);
     if (i == j && umodiu(bg->N, p)) nexta = subii(nexta, mului(p, lasta));
     gen_BG_add(E, fun, bg, pn, j, nexta, a);
     avma = av;
@@ -71,26 +70,14 @@ gen_BG_add(void *E, bg_fun *fun, struct bg_data *bg, GEN n, long i, GEN a, GEN l
 }
 
 static void
-gen_BG_init(struct bg_data *bg, GEN E, GEN N, GEN bnd, GEN ap)
+gen_BG_init(struct bg_data *bg, GEN E, GEN N, GEN bnd)
 {
-  pari_sp av;
-  long i = 1, l;
-  bg->E = E; bg->N = N;
+  bg->E = E;
+  bg->N = N;
   bg->bnd = bnd;
   bg->rootbnd = itou(sqrtint(bnd));
   bg->p = primes_upto_zv(bg->rootbnd);
-  l = lg(bg->p);
-  if (ap)
-  { /* reuse known values */
-    i = lg(ap);
-    bg->ap = vecsmall_lengthen(ap, maxss(l,i)-1);
-  }
-  else bg->ap = cgetg(l, t_VECSMALL);
-  av = avma;
-  for (  ; i < l; i++, avma = av) bg->ap[i] = itos(ellap(E, utoipos(bg->p[i])));
-  avma = av;
-  bg->an = zero_zv(bg->rootbnd);
-  bg->an[1] = 1;
+  bg->an = anellsmall(E, bg->rootbnd);
 }
 
 static void
@@ -108,7 +95,7 @@ gen_BG_rec(void *E, bg_fun *fun, struct bg_data *bg)
   for (i = 1; i <= lp; i++)
   {
     ulong pp = bg->p[i];
-    long ap = bg->ap[i];
+    long ap = bg->an[pp];
     gen_BG_add(E, fun, bg, utoipos(pp), i, stoi(ap), gen_1);
     avma = av2;
   }
@@ -295,7 +282,7 @@ vecF2_lk_bsgs(GEN E, GEN bnd, GEN rbnd, GEN Q, GEN sleh, GEN N, long prec)
   long k, L = lg(bnd)-1;
   GEN S;
   baby_init(&bb, Q, bnd, rbnd, prec);
-  gen_BG_init(&bg, E, N, gel(bnd,1), NULL);
+  gen_BG_init(&bg, E, N, gel(bnd,1));
   gen_BG_rec((void*) &bb, ellL1_add, &bg);
   S = cgetg(L+1, t_VEC);
   for (k = 1; k <= L; ++k)
@@ -572,7 +559,7 @@ heegner_psi(GEN E, GEN N, GEN points, long bitprec)
   }
   gerepileall(av2, 2, &bnd, &Q);
   bndmax = gel(bnd,vecindexmax(bnd));
-  gen_BG_init(&bg, E, N, bndmax, NULL);
+  gen_BG_init(&bg, E, N, bndmax);
   if (bitprec >= 1900)
   {
     GEN S;
