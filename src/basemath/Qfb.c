@@ -502,7 +502,7 @@ mul_nucomp(void *l, GEN x, GEN y) { return nucomp(x, y, (GEN)l); }
 static GEN
 mul_nudupl(void *l, GEN x) { return nudupl(x, (GEN)l); }
 GEN
-nupow(GEN x, GEN n)
+nupow(GEN x, GEN n, GEN L)
 {
   pari_sp av;
   GEN y, D;
@@ -514,7 +514,8 @@ nupow(GEN x, GEN n)
   D = qfb_disc(x);
   y = qfi_1_by_disc(D);
   if (!signe(n)) return y;
-  y = gen_pow(x, n, (void*)sqrtnint(absi(D), 4), &mul_nudupl, &mul_nucomp);
+  if (!L) L = sqrtnint(absi(D), 4);
+  y = gen_pow(x, n, (void*)L, &mul_nudupl, &mul_nucomp);
   if (signe(n) < 0
   && !absi_equal(gel(y,1),gel(y,2))
   && !absi_equal(gel(y,1),gel(y,3))) togglesign(gel(y,2));
