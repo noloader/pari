@@ -4856,74 +4856,91 @@ ellQ_get_CM(GEN e)
   }
   return CM;
 }
+
+/* bad reduction at p */
+static void
+sievep_bad(long p, GEN an, long n)
+{
+  ulong m, N;
+  switch (an[p]) /* (-c6/p) */
+  {
+    case -1: /* non-split */
+      N = n/p;
+      for (m=2; m<=N; m++)
+        if (an[m] != LONG_MAX) an[m*p] = -an[m];
+      break;
+    case 0: /* additive */
+      for (m=2*p; m<=n; m+=p) an[m] = 0;
+      break;
+    case 1: /* split */
+      N = n/p;
+      for (m=2; m<=N; m++)
+        if (an[m] != LONG_MAX) an[m*p] = an[m];
+      break;
+  }
+}
+/* good reduction at p */
+static void
+sievep_good(ulong p, GEN an, ulong n, long SQRTn)
+{
+  const long ap = an[p];
+  ulong m;
+  if (p <= SQRTn) {
+    ulong pk, oldpk = 1;
+    for (pk=p; pk <= n; oldpk=pk, pk *= p)
+    {
+      if (pk != p) an[pk] = ap * an[oldpk] - p * an[oldpk/p];
+      for (m = n/pk; m > 1; m--)
+        if (an[m] != LONG_MAX && m%p) an[m*pk] = an[m] * an[pk];
+    }
+  } else {
+    for (m = n/p; m > 1; m--)
+      if (an[m] != LONG_MAX) an[m*p] = ap * an[m];
+  }
+}
+static void
+sievep(ulong p, GEN an, ulong n, ulong SQRTn, int good_red)
+{
+  if (good_red)
+    sievep_good(p, an, n, SQRTn);
+  else
+    sievep_bad(p, an, n);
+}
+
+static long
+ellan_get_ap(ulong p, int *good_red, int CM, GEN e)
+{
+  if (!umodiu(ell_get_disc(e),p)) /* p|D, bad reduction or non-minimal model */
+    return is_minimal_ap_small(e, p, good_red);
+  else /* good reduction */
+  {
+    *good_red = 1;
+    return ellap_CM_fast(e, p, CM);
+  }
+}
 GEN
 anellsmall(GEN e, long n0)
 {
   pari_sp av;
-  ulong p, m, SQRTn, n = (ulong)n0;
-  GEN an, D;
-  long CM;
+  ulong p, SQRTn, n = (ulong)n0;
+  GEN an;
+  int CM;
 
   checkell_int(e);
   if (n0 <= 0) return cgetg(1,t_VEC);
   if (n >= LGBITS)
     pari_err_IMPL( stack_sprintf("ellan for n >= %lu", LGBITS) );
   SQRTn = (ulong)sqrt(n);
-  D = ell_get_disc(e);
   CM = ellQ_get_CM(e);
 
-  an = cgetg(n+1,t_VECSMALL); an[1] = 1;
-  av = avma;
-  for (p=2; p <= n; p++) an[p] = LONG_MAX; /* not computed yet */
+  an = const_vecsmall(n, LONG_MAX);
+  an[1] = 1; av = avma;
   for (p=2; p<=n; p++)
   {
-    long ap;
+    int good_red;
     if (an[p] != LONG_MAX) continue; /* p not prime */
-    if (!umodiu(D,p)) /* p | D, bad reduction or non-minimal model */
-    {
-      int good_red;
-      ap = is_minimal_ap_small(e, p, &good_red);
-      if (good_red) goto GOOD_RED;
-      switch (ap) /* (-c6/p) */
-      {
-        case -1: { /* non-split */
-          ulong N = n/p;
-          for (m=1; m<=N; m++)
-            if (an[m] != LONG_MAX) an[m*p] = -an[m];
-          break;
-        }
-        case 0: /* additive */
-          for (m=p; m<=n; m+=p) an[m] = 0;
-          break;
-        case 1: { /* split */
-          ulong N = n/p;
-          for (m=1; m<=N; m++)
-            if (an[m] != LONG_MAX) an[m*p] = an[m];
-          break;
-        }
-      }
-    }
-    else /* good reduction */
-    {
-      ap = ellap_CM_fast(e, p, CM);
-GOOD_RED:
-      if (p <= SQRTn) {
-        ulong pk, oldpk = 1;
-        for (pk=p; pk <= n; oldpk=pk, pk *= p)
-        {
-          if (pk == p)
-            an[pk] = ap;
-          else
-            an[pk] = ap * an[oldpk] - p * an[oldpk/p];
-          for (m = n/pk; m > 1; m--)
-            if (an[m] != LONG_MAX && m%p) an[m*pk] = an[m] * an[pk];
-        }
-      } else {
-        an[p] = ap;
-        for (m = n/p; m > 1; m--)
-          if (an[m] != LONG_MAX) an[m*p] = ap * an[m];
-      }
-    }
+    an[p] = ellan_get_ap(p, &good_red, CM, e);
+    sievep(p, an, n, SQRTn, good_red);
   }
   avma = av; return an;
 }
