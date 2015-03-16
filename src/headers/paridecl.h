@@ -2278,6 +2278,10 @@ GEN     ellsearch(GEN A);
 GEN     ellsearchcurve(GEN name);
 void    forell(void *E, long call(void*, GEN), long a, long b);
 
+/* ellfromeqn.c */
+
+GEN     ellfromeqn(GEN s);
+
 /* elliptic.c */
 enum { t_ELL_Rg = 0, t_ELL_Q, t_ELL_Qp, t_ELL_Fp, t_ELL_Fq, t_ELL_NF };
 long    ellQ_get_CM(GEN e);
