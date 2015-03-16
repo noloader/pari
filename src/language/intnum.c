@@ -14,10 +14,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #include "pari.h"
 #include "paripriv.h"
 #include "anal.h"
+
+static const long EXTRAPREC =
+#ifdef LONG_IS_64BIT
+  1;
+#else
+  2;
+#endif
+
 /********************************************************************/
-/**                                                                **/
 /**                NUMERICAL INTEGRATION (Romberg)                 **/
-/**                                                                **/
 /********************************************************************/
 typedef struct {
   void *E;
@@ -174,6 +180,67 @@ rombint(void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, long prec)
 }
 
 /********************************************************************/
+/**             NUMERICAL INTEGRATION (Gauss-Legendre)             **/
+/********************************************************************/
+GEN
+intnumgaussinit(long prec)
+{
+  pari_sp ltop = avma;
+  GEN L, dp1, p1, p2, R, W;
+  long bitprec = prec2nbits(prec), n, i, d1;
+  n = (long)(bitprec*0.2258);
+  if (odd(n)) n++;
+  /* n even, p1 is even */
+  prec = nbits2prec(3*bitprec/2 + 32);
+  L = pollegendre(n, 0); /* L_n = p1(x^2) */
+  p1 = Q_remove_denom(RgX_deflate(L, 2), &dp1);
+  d1 = vali(dp1);
+  p2 = ZX_deriv(p1); /* L_n' = 2x p2(x^2) / 2^d1 */
+  R = ZX_uspensky(p1, gen_0, 1, 3*bitprec/2 + 32); /* positive roots of p1 */
+  n >>= 1;
+  W = cgetg(n+1, t_VEC);
+  for (i = 1; i <= n; ++i)
+  {
+    GEN t, r, r2 = gel(R,i);
+    if (typ(r2) != t_REAL) r2 = gtofp(r2, prec);
+    gel(R,i) = r = sqrtr_abs(r2); /* positive root of L_n */
+    /* 2 / (L'(r)^2(1-r^2)) =  2^(2d1 - 1) / (1-r2)r2 (p2(r2))^2 */
+    t = mulrr(subrr(r2, sqrr(r2)), sqrr(poleval(p2, r2)));
+    shiftr_inplace(t,1-2*d1);
+    gel(W,i) = invr(t);
+  }
+  return gerepilecopy(ltop, mkvec2(R,W));
+}
+
+GEN
+intnumgauss(void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, GEN tab, long prec)
+{
+  pari_sp ltop = avma;
+  GEN R, W, bma, bpa, S;
+  long n, i;
+  if (!tab) tab = intnumgaussinit(prec);
+  R = gel(tab,1); n = lg(R)-1;
+  W = gel(tab,2);
+  a = gprec_w(a, prec+EXTRAPREC);
+  b = gprec_w(b, prec+EXTRAPREC);
+  bma = gmul2n(gsub(b,a), -1); /* (b-a)/2 */
+  bpa = gadd(bma, a); /* (b+a)/2 */
+  S = gen_0;
+  for (i = 1; i <= n; ++i)
+  {
+    GEN r = gel(R,i);
+    GEN P = eval(E, gadd(bpa, gmul(bma, r)));
+    GEN M = eval(E, gsub(bpa, gmul(bma, r)));
+    S = gadd(S, gmul(gel(W,i), gadd(P,M)));
+  }
+  return gerepilecopy(ltop, gprec_wtrunc(gmul(bma,S), prec));
+}
+
+GEN
+intnumgauss0(GEN a, GEN b, GEN code, GEN tab, long prec)
+{ EXPR_WRAP(code, intnumgauss(EXPR_ARG, a, b, tab, prec)); }
+
+/********************************************************************/
 /**                                                                **/
 /**                DOUBLE EXPONENTIAL INTEGRATION                  **/
 /**                                                                **/
@@ -287,13 +354,6 @@ intinit_end(intdata *D, long pnt, long mnt)
   TABxm(v) = D->tabxm; setlg(D->tabxm, mnt+1);
   TABwm(v) = D->tabwm; setlg(D->tabwm, mnt+1); return v;
 }
-
-static const long EXTRAPREC =
-#ifdef LONG_IS_64BIT
-  1;
-#else
-  2;
-#endif
 
 /* divide by 2 in place */
 static GEN

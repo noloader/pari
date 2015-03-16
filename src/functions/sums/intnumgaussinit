@@ -1,0 +1,8 @@
+Function: intnumgaussinit
+Section: sums
+C-Name: intnumgaussinit
+Prototype: p
+Help: intnumgaussinit(): initialize tables for Gauss-Legendre integration
+ on a compact interval.
+Doc: initialize tables for Gauss-Legendre integration on a compact interval.
+

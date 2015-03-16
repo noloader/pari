@@ -1,0 +1,15 @@
+Function: intnumgauss
+Section: sums
+C-Name: intnumgauss0
+Prototype: V=GGEDGp
+Help: intnumgauss(X=a,b,expr,{tab}): numerical integration of expr from
+ a to b, a compact interval, with respect to X using Gauss-Legendre
+ integration. tab is either omitted (and will be recomputed) or
+ precomputed with intnumgaussinit.
+Wrapper: (,,G)
+Description:
+  (gen,gen,gen,?gen):gen:prec intnumgauss(${3 cookie}, ${3 wrapper}, $1, $2, $4, prec)
+Doc: numerical integration of \var{expr} on the compact interval $[a,b]$ with
+ respect to $X$; \kbd{tab} is either omitted or precomputed with
+ \kbd{intnumgaussinit}.
+
