@@ -1361,55 +1361,6 @@ intinvintern(void *E, GEN (*eval)(void*, GEN), GEN sig, GEN x, GEN tab, long pre
   return gdiv(gmul(gexp(gmul(gel(sig,1), x), prec), z), Pi2n(1, prec));
 }
 
-/* If sig = [sigR, e]: if e = 0, slowly decreasing, if e > 0, exponentially
- * decreasing like exp(-e*t). If sig is real, identical to [sig, 1]. */
-GEN
-intmellininv(void *E, GEN (*eval)(void*, GEN), GEN sig, GEN x, GEN tab, long prec)
-{
-  if (typ(sig) != t_VEC) sig = mkvec2(sig, gen_1);
-  return intinvintern(E, eval, sig, gneg(glog(x, prec)), tab, prec);
-}
-
-/* If sig = [sigR, e]: if e = 0, slowly decreasing, if e > 0, exponentially
- * decreasing like exp(-e*t). If sig is real, identical to [sig, 0]. */
-GEN
-intlaplaceinv(void *E, GEN (*eval)(void*, GEN), GEN sig, GEN x, GEN tab, long prec)
-{
-  if (typ(sig) != t_VEC) sig = mkvec2(sig, gen_0);
-  return intinvintern(E, eval, sig, x, tab, prec);
-}
-
-/* assume tab computed with additional weights f(sig + I*T) */
-typedef struct auxmel_s {
-  GEN L;
-  long prec;
-} auxmel_t;
-
-static GEN
-auxmelshort(void *E, GEN t)
-{
-  auxmel_t *D = (auxmel_t*) E;
-  return gexp(gmul(D->L, t), D->prec);
-}
-
-GEN
-intmellininvshort(GEN sig, GEN x, GEN tab, long prec)
-{
-  auxmel_t D;
-  GEN z, P,N, LX = gneg(glog(x, prec));
-
-  if (typ(sig) != t_VEC) sig = mkvec2(sig, gen_1);
-  if (lg(sig) != 3 || !isinR(gel(sig,1)) || !isinR(gel(sig,2)))
-    pari_err_TYPE("intmellininvshort",sig);
-  if (gsigne(gel(sig,2)) <= 0)
-    pari_err_OVERFLOW("intinvmellinshort [need exponential decrease]");
-  D.L = mulcxI(LX);
-  D.prec = prec;
-  getinf(gel(sig,2), &P,&N);
-  z = intnum_i(&D, &auxmelshort, N, P, tab, prec);
-  return gdiv(gmul(gexp(gmul(gel(sig,1), LX), prec), z), Pi2n(1, prec));
-}
-
 GEN
 intnumromb(void *E, GEN (*eval)(void *, GEN), GEN a, GEN b, long flag, long prec)
 {
@@ -1436,12 +1387,6 @@ intnum0(GEN a, GEN b, GEN code, GEN tab, long prec)
 GEN
 intcirc0(GEN a, GEN R, GEN code, GEN tab, long prec)
 { EXPR_WRAP(code, intcirc(EXPR_ARG, a, R, tab, prec)); }
-GEN
-intmellininv0(GEN sig, GEN x, GEN code, GEN tab, long prec)
-{ EXPR_WRAP(code, intmellininv(EXPR_ARG, sig, x, tab, prec)); }
-GEN
-intlaplaceinv0(GEN sig, GEN x, GEN code, GEN tab, long prec)
-{ EXPR_WRAP(code, intlaplaceinv(EXPR_ARG, sig, x, tab, prec)); }
 
 /* m and flag reversed on purpose */
 GEN

@@ -24,7 +24,7 @@ Doc: initialize tables for integration from
  it here for completeness. Let $x=\phi(t)$, $t\in ]-\infty,\infty[$ be an
  internally chosen change of variable, achieving double exponential decrease of
  the integrand at infinity. The integrator \kbd{intnum} will compute
- $$ h \sum_{|n| < N} \phi'(nh) f(\phi(nh)) $$
+ $$ h \sum_{|n| < N} \phi'(nh) F(\phi(nh)) $$
  for some integration step $h$ and truncation parameter $N$.
  In basic use, let
  \bprog
@@ -47,3 +47,9 @@ Doc: initialize tables for integration from
  function. In complicated situations when non-default behaviour is specified at
  end points, \kbd{intnuminit} may return up to $3$ such arrays, corresponding
  to a splitting of up to $3$ integrals of basic type.
+
+ If the functions to be integrated later are of the form $F = f(t) k(t,z)$
+ for some kernel $k$ (e.g. Fourier, Laplace, Mellin, \dots), it is
+ useful to also precompute the values of $f(\phi(nh))$, which is accomplished
+ by \tet{intfuncinit}. The hard part is to determine the behaviour
+ of $F$ at endpoints, depending on $z$.

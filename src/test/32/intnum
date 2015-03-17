@@ -5,18 +5,20 @@
    realprecision = 96 significant digits
 ? check(intcirc(s=1,0.5,zeta(s)),1)
 -84
-? check(intlaplaceinv(x=2,1,1/x),1)
--52
-? check(intlaplaceinv(x=2,1,1/x,1),1)
--93
-? check(intlaplaceinv(x=5,1,1/x),1)
--81
-? check(intlaplaceinv(x=100,1,1/x),1)
--54
-? A=intmellininv(s=2,4,gamma(s)^3);
-? tab=intfuncinit(t=[-oo,4.5],[oo,4.5],gamma(2+I*t)^3,1);
-? check(intmellininvshort(2,4,tab),A)
--94
+? f(s)=gamma(s)^3;
+? c=2;
+? A=[-oo,3*Pi/2];
+? B=[+oo,3*Pi/2];
+? F(z)=my(a=-log(z));intnum(t=A,B,exp(a*I*t),T)*exp(a*c)/(2*Pi);
+? T=intfuncinit(t=A,B,f(c+I*t));
+? ref=F(4);
+? \p38
+   realprecision = 38 significant digits
+? T=intfuncinit(t=A,B,f(c+I*t));
+? check(F(4),ref)
+-37
+? \p96
+   realprecision = 96 significant digits
 ? f(x)=1/(exp(x)-1)-exp(-x)/x;
 ? F=truncate(f(t+O(t^7)));
 ? g(x)=if(x>1e-18,f(x),subst(F,t,x));
@@ -173,4 +175,4 @@
   ***   Warning: integral from -oo to -oo.
 0
 ? print("Total time spent: ",gettime);
-Total time spent: 5896
+Total time spent: 5584

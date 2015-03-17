@@ -361,5 +361,6 @@ Removed
    4- useless function intnumstep: instead of intnum(a,b, intnumstep()+m),
       use intnum(a,b,m).
    5- partially implemented functions intfouriercos / intfouriersin /
-      intfourierexp: use intnum (possibly intfuncinit). Make sure to indicate
-      oscillating behaviour when function decrease slowly at oo
+      intfourierexp / intlaplaceinv / intmellininv / intmellinvshort: use
+      intnum (possibly intfuncinit). Make sure to indicate oscillating behaviour
+      when function decrease slowly at oo

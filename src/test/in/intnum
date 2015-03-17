@@ -3,13 +3,22 @@ allocatemem(20 * 10^6);
 check(a,b) = my(t = abs((a-b)/b)); if (t, ceil(log(t)/log(10)), -oo);
 \p96
 check(intcirc(s=1, 0.5, zeta(s)), 1)
-check(intlaplaceinv(x=2, 1, 1/x), 1)
-check(intlaplaceinv(x=2, 1, 1/x, 1), 1)
-check(intlaplaceinv(x=5, 1, 1/x), 1)
-check(intlaplaceinv(x=100, 1, 1/x), 1)
-A = intmellininv(s=2,4, gamma(s)^3);
-tab = intfuncinit(t=[-oo, 4.5],[oo, 4.5], gamma(2+I*t)^3, 1);
-check(intmellininvshort(2,4,tab), A)
+
+f(s) = gamma(s)^3;  \\ f(c+it) decrease as exp(-3Pi|t|/2)
+c = 2; \\ arbitrary
+A = [-oo,3*Pi/2];
+B = [+oo,3*Pi/2];
+F(z) =
+{ my (a = -log(z));
+  intnum(t=A,B, exp(a*I*t), T)*exp(a*c) / (2*Pi);
+}
+T = intfuncinit(t=A,B, f(c + I*t));
+ref=F(4);
+\p38
+T = intfuncinit(t=A,B, f(c + I*t));
+check(F(4), ref)
+
+\p96
 f(x) = 1/(exp(x)-1) - exp(-x)/x;
 F = truncate( f(t + O(t^7)) );
 g(x) = if (x > 1e-18, f(x), subst(F,t,x));

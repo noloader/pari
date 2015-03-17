@@ -114,6 +114,7 @@ Doc: numerical integration
  %2 = 2.0000000000000000000000000000000000000
  ? intnum(x=1, [+oo,-11/10], x^(-3/2)) \\ worse than default
  %3 = 2.0000000000000000000000000089298011973
+ @eprog
 
  \smallskip The last two codes are reserved for oscillating functions.
  Let $k > 0$ real, and $g(x)$ a non-oscillating function tending slowly to $0$
