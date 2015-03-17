@@ -2013,6 +2013,12 @@ _Flx_mul(void *p, GEN a, GEN b)
   return Flx_mul(a,b, *(ulong*)p);
 }
 
+GEN
+FlxV_prod(GEN V, ulong p)
+{
+  return divide_conquer_assoc(V, (void *)&p, &_Flx_mul);
+}
+
 /* compute prod (x - a[i]) */
 GEN
 Flv_roots_to_pol(GEN a, ulong p, long vs)
