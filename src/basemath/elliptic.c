@@ -4859,7 +4859,7 @@ ellQ_get_CM(GEN e)
 
 /* bad reduction at p */
 static void
-sievep_bad(long p, GEN an, long n)
+sievep_bad(ulong p, GEN an, ulong n)
 {
   ulong m, N;
   switch (an[p]) /* (-c6/p) */
@@ -4881,7 +4881,7 @@ sievep_bad(long p, GEN an, long n)
 }
 /* good reduction at p */
 static void
-sievep_good(ulong p, GEN an, ulong n, long SQRTn)
+sievep_good(ulong p, GEN an, ulong n, ulong SQRTn)
 {
   const long ap = an[p];
   ulong m;
