@@ -135,7 +135,7 @@ Doc: numerical integration
  exponentially fast as $\exp(-\alpha x)$, it is up to the user to choose
  between $[\pm\kbd{oo},\alpha]$ and $[\pm\kbd{oo},k* I]$, but a good rule of
  thumb is that
- if the oscillations are much weaker than the exponential decrease, choose
+ if the oscillations are weaker than the exponential decrease, choose
  $[\pm\kbd{oo},\alpha]$, otherwise choose $[\pm\kbd{oo},k*I]$, although the
  latter can
  reasonably be used in all cases, while the former cannot. To take a specific
@@ -144,10 +144,9 @@ Doc: numerical integration
  choose the oscillating type of integral we perhaps obtain the best results,
  at the expense of having to recompute our functions for a different value of
  the variable $z$ giving the transform, preventing us to use a function such
- as \kbd{intmellininvshort}. On the other hand using the exponential type of
+ as \kbd{intfuncinit}. On the other hand using the exponential type of
  integral, we obtain less accurate results, but we skip expensive
- recomputations. See \kbd{intmellininvshort} and \kbd{intfuncinit} for more
- explanations.
+ recomputations. See \kbd{intfuncinit} for more explanations.
 
  \smallskip
 

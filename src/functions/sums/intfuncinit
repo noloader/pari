@@ -4,11 +4,7 @@ C-Name: intfuncinit0
 Prototype: V=GGED0,L,D0,L,p
 Help: intfuncinit(t=a,b,f,{m=0}): initialize tables for integrations
  from a to b using a weight f(t). Essential for integral transforms such
- as intmellininv, intlaplaceinv and intfourier, since it avoids recomputing
- all the time the same quantities. Must then be used with intmellininvshort
- (for intmellininv) and directly with intnum and not with the corresponding
- integral transforms for the others. See help for intnum for coding of a
- and b, and m is as in intnuminit.
+ as Fourier or Mellin transforms.
 Wrapper: (,,G)
 Description:
   (gen,gen,gen,?small):gen:prec intfuncinit(${3 cookie}, ${3 wrapper}, $1, $2, $4, prec)
