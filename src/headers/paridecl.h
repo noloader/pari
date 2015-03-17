@@ -3113,9 +3113,6 @@ void    traverseheap( void(*f)(GEN, void *), void *data );
 /* intnum.c */
 
 GEN     intcirc(void *E, GEN (*eval) (void *, GEN), GEN a, GEN R, GEN tab, long prec);
-GEN     intfouriercos(void *E, GEN (*eval) (void *, GEN), GEN a, GEN b, GEN x, GEN tab, long prec);
-GEN     intfourierexp(void *E, GEN (*eval)(void *, GEN), GEN a, GEN b, GEN x, GEN tab, long prec);
-GEN     intfouriersin(void *E, GEN (*eval) (void *, GEN), GEN a, GEN b, GEN x, GEN tab, long prec);
 GEN     intfuncinit(void *E, GEN (*eval) (void *, GEN), GEN a, GEN b, long m, long flag, long prec);
 GEN     intlaplaceinv(void *E, GEN (*eval) (void *, GEN), GEN sig, GEN x, GEN tab, long prec);
 GEN     intmellininv(void *E, GEN (*eval) (void *, GEN), GEN sig, GEN x, GEN tab, long prec);

@@ -1410,86 +1410,6 @@ intmellininvshort(GEN sig, GEN x, GEN tab, long prec)
   return gdiv(gmul(gexp(gmul(gel(sig,1), LX), prec), z), Pi2n(1, prec));
 }
 
-/* a as in intnum. flag = 0 for sin, flag = 1 for cos. */
-static GEN
-mytra(GEN a, GEN x, long flag, const char *name)
-{
-  GEN b, xa;
-  long s, codea = transcode(a, name);
-
-  switch (labs(codea))
-  {
-    case f_REG: case f_SING: case f_YFAST: return a;
-    case f_YSLOW: case f_YVSLO:
-      xa = real_i(x); s = gsigne(xa);
-      if (!s) pari_err_DOMAIN("Fourier transform","Re(x)","=",gen_0,x);
-      if (s < 0) xa = gneg(xa);
-      b = cgetg(3, t_VEC);
-      gel(b,1) = codea > 0? mkoo(): mkmoo();
-      gel(b,2) = flag? mulcxI(xa): mulcxmI(xa);
-      return b;
-    case f_YOSCS: case f_YOSCC:
-      pari_err_IMPL("Fourier transform of oscillating functions");
-  }
-  return NULL;
-}
-
-/* w(ta) f(t) */
-static GEN
-auxfour(void *E, GEN t)
-{
-  auxint_t *D = (auxint_t*) E;
-  return gmul(D->w(gmul(t, D->a), D->prec), D->f(D->E, t));
-}
-
-GEN
-intfouriersin(void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, GEN x, GEN tab, long prec)
-{
-  auxint_t D;
-  GEN tmp;
-
-  if (gequal0(x)) return gcopy(x);
-  tmp = gmul(x, Pi2n(1, prec));
-  D.a = tmp;
-  D.R = NULL;
-  D.prec = prec;
-  D.f = eval;
-  D.E = E;
-  a = mytra(a,tmp,0,"a");
-  b = mytra(b,tmp,0,"b");
-  D.w = gsin;
-  return intnum(&D, &auxfour, a, b, tab, prec);
-}
-
-GEN
-intfouriercos(void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, GEN x, GEN tab, long prec)
-{
-  auxint_t D;
-  GEN tmp;
-
-  if (gequal0(x)) return intnum(E, eval, a, b, tab, prec);
-  tmp = gmul(x, Pi2n(1, prec));
-  D.a = tmp;
-  D.R = NULL;
-  D.prec = prec;
-  D.f = eval;
-  D.E = E;
-  a = mytra(a,tmp,1,"a");
-  b = mytra(b,tmp,1,"b");
-  D.w = gcos;
-  return intnum(&D, &auxfour, a, b, tab, prec);
-}
-
-GEN
-intfourierexp(void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, GEN x, GEN tab,
-              long prec)
-{
-  pari_sp ltop = avma;
-  GEN R = intfouriercos(E, eval, a, b, x, tab, prec);
-  GEN I = intfouriersin(E, eval, a, b, x, tab, prec);
-  return gerepileupto(ltop, gadd(R, mulcxmI(I)));
-}
-
 GEN
 intnumromb(void *E, GEN (*eval)(void *, GEN), GEN a, GEN b, long flag, long prec)
 {
@@ -1522,15 +1442,6 @@ intmellininv0(GEN sig, GEN x, GEN code, GEN tab, long prec)
 GEN
 intlaplaceinv0(GEN sig, GEN x, GEN code, GEN tab, long prec)
 { EXPR_WRAP(code, intlaplaceinv(EXPR_ARG, sig, x, tab, prec)); }
-GEN
-intfourcos0(GEN a, GEN b, GEN x, GEN code, GEN tab, long prec)
-{ EXPR_WRAP(code, intfouriercos(EXPR_ARG, a, b, x, tab, prec)); }
-GEN
-intfoursin0(GEN a, GEN b, GEN x, GEN code, GEN tab, long prec)
-{ EXPR_WRAP(code, intfouriersin(EXPR_ARG, a, b, x, tab, prec)); }
-GEN
-intfourexp0(GEN a, GEN b, GEN x, GEN code, GEN tab, long prec)
-{ EXPR_WRAP(code, intfourierexp(EXPR_ARG, a, b, x, tab, prec)); }
 
 /* m and flag reversed on purpose */
 GEN

@@ -133,13 +133,6 @@
 -294
 ? \p96
    realprecision = 96 significant digits
-? check(intfourierexp(t=[-oo,1],[oo,1],1/2,exp(-t^2)),sqrt(Pi)*exp(-Pi^2/4))
--95
-? check(intfouriercos(t=0,[[1],1],1/2,exp(-t^2)),sqrt(Pi)/2*exp(-Pi^2/4))
--94
-? intfouriersin(t=0,[[1],1],1/2,exp(-t^2))
-0.40814855737449071901817138939207402766415488055603385596287457597235580104
-2051564345987971241512
 ? check(intnumgauss(x=0,1,sin(x)),1-cos(1))
 -96
 ? T=intnumgaussinit();
@@ -180,4 +173,4 @@
   ***   Warning: integral from -oo to -oo.
 0
 ? print("Total time spent: ",gettime);
-Total time spent: 5992
+Total time spent: 5896
