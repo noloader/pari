@@ -339,6 +339,7 @@ HC121- GP function solvestep
    lfuncreate          lfunmfpeters        lfunsymsq
   123- [libpari] nfispositive, idealextchinese
 JD124- [libpari] gp_read_str_multiline
+BA125- [libpari] Flx_nbfact_Frobenius, FpX_nbfact_Frobenius
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]

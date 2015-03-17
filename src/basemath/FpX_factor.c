@@ -803,15 +803,6 @@ Flx_nbfact_by_degree(GEN z, long *nb, ulong p)
   avma = av; return D;
 }
 
-/* z must be squarefree mod p*/
-long
-Flx_nbfact(GEN z, ulong p)
-{
-  pari_sp av = avma;
-  long nb; (void)Flx_nbfact_by_degree(z, &nb, p);
-  avma = av; return nb;
-}
-
 long
 Flx_nbroots(GEN f, ulong p)
 {
@@ -1875,6 +1866,28 @@ Flx_degfact(GEN f, ulong p)
   GEN z = Flx_factcantor_i(Flx_normalize(f,p),p,1);
   return gerepilecopy(av, z);
 }
+
+long
+Flx_nbfact_Frobenius(GEN T, GEN XP, ulong p)
+{
+  pari_sp av = avma;
+  GEN ddf = Flx_ddf(T, XP, p);
+  long l = lg(ddf), i, s=0;
+  for(i = 1; i < l; i++)
+    s += degpol(gel(ddf,i))/i;
+  avma = av; return s;
+}
+
+/* T must be squarefree mod p*/
+long
+Flx_nbfact(GEN T, ulong p)
+{
+  pari_sp av = avma;
+  GEN XP = Flx_Frobenius(T, p);
+  long n = Flx_nbfact_Frobenius(T, XP, p);
+  avma = av; return n;
+}
+
 int
 Flx_is_irred(GEN f, ulong p) { return !!Flx_factcantor_i(f,p,2); }
 
