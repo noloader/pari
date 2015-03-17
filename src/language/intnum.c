@@ -1308,59 +1308,6 @@ intcirc(void *E, GEN (*eval)(void*, GEN), GEN a, GEN R, GEN tab, long prec)
   return gmul2n(gmul(R, z), -1);
 }
 
-static void
-getinf(GEN x, GEN *P, GEN *N)
-{
-  *P = mkvec2(mkoo(), x);
-  *N = mkvec2(mkmoo(),x);
-}
-
-/* w(Rt) f(a+it) */
-static GEN
-auxinv(void *E, GEN t)
-{
-  auxint_t *D = (auxint_t*) E;
-  GEN tmp = D->w(gmul(D->R, t), D->prec);
-  return gmul(tmp, D->f(D->E, gadd(D->a, mulcxI(t))));
-}
-static GEN
-intinvintern(void *E, GEN (*eval)(void*, GEN), GEN sig, GEN x, GEN tab, long prec)
-{
-  auxint_t D;
-  GEN z, zR, zI, P, N;
-
-  if (lg(sig) != 3 || !isinR(gel(sig,1)) || !isinR(gel(sig,2)))
-    pari_err_TYPE("integral transform",sig);
-  if (gsigne(gel(sig,2)) < 0)
-    pari_err_OVERFLOW("integral transform [exponential increase]");
-  D.a = gel(sig,1);
-  D.prec = prec;
-  D.f = eval;
-  D.E = E;
-  if (gequal0(gel(sig,2)))
-  {
-    GEN c = mulcxI(gabs(x, prec));
-    D.R = x;
-    getinf(c, &P, &N);
-    tab = intnuminit0(N, P, tab, prec);
-    D.w = gcos;
-    zR = intnum_i(&D, &auxinv, N, P, tab, prec);
-
-    getinf(gneg(c), &P, &N);
-    D.w = gsin;
-    zI = intnum_i(&D, &auxinv, N, P, tab, prec);
-    z = gadd(zR, mulcxI(zI));
-  }
-  else
-  {
-    D.R = mulcxI(x);
-    getinf(gel(sig,2), &P, &N);
-    D.w = gexp;
-    z = intnum(&D, &auxinv, N, P, tab, prec);
-  }
-  return gdiv(gmul(gexp(gmul(gel(sig,1), x), prec), z), Pi2n(1, prec));
-}
-
 GEN
 intnumromb(void *E, GEN (*eval)(void *, GEN), GEN a, GEN b, long flag, long prec)
 {
