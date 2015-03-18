@@ -1150,15 +1150,14 @@ GEN
 intfuncinit(void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, long m, long prec)
 {
   pari_sp ltop = avma;
-  GEN T, tab = intnuminit(a, b, m, prec);
+  GEN T, tab = intnuminit_i(a, b, m, prec);
 
-  if (lg(tab) != 3) T = intfuncinit_i(E, eval, tab);
-  else
-  {
-    T = cgetg(3, t_VEC);
-    gel(T,1) = intfuncinit_i(E, eval, gel(tab,1));
-    gel(T,2) = intfuncinit_i(E, eval, gel(tab,2));
-  }
+  if (lg(tab) == 3)
+    pari_err_IMPL("intfuncinit with hard endpoint behaviour");
+  if (is_fin_f(transcode(a,"intfuncinit")) ||
+      is_fin_f(transcode(b,"intfuncinit")))
+    pari_err_IMPL("intfuncinit with finite endpoints");
+  T = intfuncinit_i(E, eval, tab);
   return gerepilecopy(ltop, T);
 }
 

@@ -3,7 +3,7 @@ Section: sums
 C-Name: intfuncinit0
 Prototype: V=GGED0,L,p
 Help: intfuncinit(t=a,b,f,{m=0}): initialize tables for integrations
- from a to b using a weight f(t). Essential for integral transforms such
+ from a to b using a weight f(t). For integral transforms such
  as Fourier or Mellin transforms.
 Wrapper: (,,G)
 Description:
@@ -17,7 +17,14 @@ Doc: initialize tables for use with integral transforms such Fourier,
  non-negative integer $m$ is as in \kbd{intnum}: multiply the number of
  sampling points roughly by $2^m$, hopefully increasing the accuracy. This
  function is particularly useful when the function $f$ is hard to compute,
- such as a gamma product. Here are some examples :
+ such as a gamma product.
+
+ \misctitle{Limitation} the endpoints $a$ and $b$ must be at infinity,
+ with the same asymptotic behaviour. Oscillating types are not supported.
+ This is easily overcome by integrating vectors of functions, see example
+ below.
+
+ \misctitle{Examples}
 
  \item numerical Fourier transform
  $$F(z) = \int_{-\infty}^{+\infty} f(t)e^{-2i\pi z t}\, dt. $$
@@ -48,6 +55,28 @@ Doc: initialize tables for use with integral transforms such Fourier,
     }
     FC(1)
  @eprog
+ \item Fourier coefficients: we must integrate over a period, but 
+ \kbd{intfuncinit} does not support finite endpoints.
+ The solution is to integrate a vector of functions !
+ \bprog
+ FourierSin(f, T, k) =  \\ first k sine Fourier coeffs
+ {
+   my (w = 2*Pi/T);
+   my (v = vector(k+1));
+   intnum(t = -T/2, T/2, 
+      my (z = exp(I*w*t));
+      v[1] = z; 
+      for (j = 2, k, v[j] = v[j-1]*z);
+      f(t) * imag(v)) * 2/T;
+ }
+ FourierSin(t->sin(2*t), 2*Pi, 10)
+ @eprog\noindent The same technique can be used instead of \kbd{intfuncinit}
+ to integrate $f(t) k(t,z)$ whenever the list of $z$-values is known
+ beforehand.
+
+ Note that the above code includes an unrelated optimization: the
+ $\sin(j w t)$ are computed as imaginary parts of $\exp(i j w t)$ and the
+ latter by successive multiplications.
 
  \item numerical Mellin inversion
  $$F(z) = (2i\pi)^{-1} \int_{c -i\infty}^{c+i\infty} f(s)z^{-s}\, ds
