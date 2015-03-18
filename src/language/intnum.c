@@ -1118,25 +1118,22 @@ weight(void *E, GEN (*eval)(void *, GEN), GEN x, GEN w)
 /* compute the necessary tabs, weights multiplied by f(t).
  * If flag set, assumes that f(-t) = conj(f(t)). */
 static GEN
-intfuncinitintern(void *E, GEN (*eval)(void*, GEN), GEN tab, long flag)
+intfuncinit_i(void *E, GEN (*eval)(void*, GEN), GEN tab)
 {
   GEN tabxp = TABxp(tab), tabwp = TABwp(tab);
   GEN tabxm = TABxm(tab), tabwm = TABwm(tab);
   long L = weight(E, eval, tabxp, tabwp), L0 = lg(tabxp);
 
   TABw0(tab) = gmul(TABw0(tab), eval(E, TABx0(tab)));
-  if (lg(tabxm) > 1) (void)weight(E, eval, tabxm, tabwm);
+  if (lg(tabxm) > 1)
+    (void)weight(E, eval, tabxm, tabwm);
   else
   {
+    long L2;
     tabxm = gneg(tabxp);
-    if (flag) tabwm = gconj(tabwp);
-    else
-    {
-      long L2;
-      tabwm = leafcopy(tabwp);
-      L2 = weight(E, eval, tabxm, tabwm);
-      if (L > L2) L = L2;
-    }
+    tabwm = leafcopy(tabwp);
+    L2 = weight(E, eval, tabxm, tabwm);
+    if (L > L2) L = L2;
     TABxm(tab) = tabxm;
     TABwm(tab) = tabwm;
   }
@@ -1150,17 +1147,17 @@ intfuncinitintern(void *E, GEN (*eval)(void*, GEN), GEN tab, long flag)
 }
 
 GEN
-intfuncinit(void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, long m, long flag, long prec)
+intfuncinit(void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, long m, long prec)
 {
   pari_sp ltop = avma;
   GEN T, tab = intnuminit(a, b, m, prec);
 
-  if (lg(tab) != 3) T = intfuncinitintern(E, eval, tab, flag);
+  if (lg(tab) != 3) T = intfuncinit_i(E, eval, tab);
   else
   {
     T = cgetg(3, t_VEC);
-    gel(T,1) = intfuncinitintern(E, eval, gel(tab,1), flag);
-    gel(T,2) = intfuncinitintern(E, eval, gel(tab,2), flag);
+    gel(T,1) = intfuncinit_i(E, eval, gel(tab,1));
+    gel(T,2) = intfuncinit_i(E, eval, gel(tab,2));
   }
   return gerepilecopy(ltop, T);
 }
@@ -1337,8 +1334,8 @@ intcirc0(GEN a, GEN R, GEN code, GEN tab, long prec)
 
 /* m and flag reversed on purpose */
 GEN
-intfuncinit0(GEN a, GEN b, GEN code, long flag, long m, long prec)
-{ EXPR_WRAP(code, intfuncinit(EXPR_ARG, a, b, m, flag? 1: 0, prec)); }
+intfuncinit0(GEN a, GEN b, GEN code, long m, long prec)
+{ EXPR_WRAP(code, intfuncinit(EXPR_ARG, a, b, m, prec)); }
 
 #if 0
 /* Two variable integration */

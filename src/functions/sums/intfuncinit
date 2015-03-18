@@ -1,7 +1,7 @@
 Function: intfuncinit
 Section: sums
 C-Name: intfuncinit0
-Prototype: V=GGED0,L,D0,L,p
+Prototype: V=GGED0,L,p
 Help: intfuncinit(t=a,b,f,{m=0}): initialize tables for integrations
  from a to b using a weight f(t). Essential for integral transforms such
  as Fourier or Mellin transforms.

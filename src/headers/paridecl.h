@@ -3113,7 +3113,7 @@ void    traverseheap( void(*f)(GEN, void *), void *data );
 /* intnum.c */
 
 GEN     intcirc(void *E, GEN (*eval) (void *, GEN), GEN a, GEN R, GEN tab, long prec);
-GEN     intfuncinit(void *E, GEN (*eval) (void *, GEN), GEN a, GEN b, long m, long flag, long prec);
+GEN     intfuncinit(void *E, GEN (*eval) (void *, GEN), GEN a, GEN b, long m, long prec);
 GEN     intnum(void *E, GEN (*eval) (void *, GEN), GEN a, GEN b, GEN tab, long prec);
 GEN     intnumgauss(void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, GEN tab, long prec);
 GEN     intnumgaussinit(long prec);

@@ -364,3 +364,4 @@ Removed
       intfourierexp / intlaplaceinv / intmellininv / intmellinvshort: use
       intnum (possibly intfuncinit). Make sure to indicate oscillating behaviour
       when function decrease slowly at oo
+   6- optional flag to intfuncinit

@@ -98,7 +98,7 @@ void forsubgroup0(GEN cyc, GEN bound, GEN code);
 void forvec(GEN x, GEN code, long flag);
 void forpart0(GEN k, GEN code , GEN nbound, GEN abound);
 GEN  intcirc0(GEN a, GEN R, GEN code, GEN tab, long prec);
-GEN  intfuncinit0(GEN a, GEN b, GEN code, long flag, long m, long prec);
+GEN  intfuncinit0(GEN a, GEN b, GEN code, long m, long prec);
 GEN  intnum0(GEN a, GEN b, GEN code, GEN tab, long prec);
 GEN  intnumgauss0(GEN a, GEN b, GEN code, GEN tab, long prec);
 GEN  intnumromb0(GEN a, GEN b, GEN code, long flag, long prec);

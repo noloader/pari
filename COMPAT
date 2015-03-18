@@ -37,6 +37,9 @@ This file lists the incompatible changes between Version 2.x and older versions
     intfourierexp / intlaplaceinv / intmellininv / intmellinvshort: use
     intnum (possibly intfuncinit). Make sure to indicate oscillating behaviour
     when function decrease slowly at oo
+  - remove optional flag to intfuncinit: misleading and only affords
+    a 2 x speedup in an 'init' function (maybe reimplement later in a
+    more general form...)
 
 * Specific to the PARI library:
 ===============================
