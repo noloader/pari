@@ -3114,6 +3114,73 @@ gsincos(GEN x, GEN *s, GEN *c, long prec)
 
 /********************************************************************/
 /**                                                                **/
+/**                              SINC                              **/
+/**                                                                **/
+/********************************************************************/
+static GEN
+mpsinc(GEN x)
+{
+  pari_sp av = avma;
+  GEN s, c;
+
+  if (!signe(x)) {
+    long l = nbits2prec(-expo(x));
+    if (l < LOWDEFAULTPREC) l = LOWDEFAULTPREC;
+    return real_1(l);
+  }
+
+  mpsincos(x,&s,&c);
+  return gerepileuptoleaf(av, divrr(s,x));
+}
+
+GEN
+gsinc(GEN x, long prec)
+{
+  pari_sp av;
+  GEN r, u, v, y, u1, v1;
+  long i;
+
+  switch(typ(x))
+  {
+    case t_REAL: return mpsinc(x);
+    case t_COMPLEX:
+      if (isintzero(gel(x,1)))
+      {
+        av = avma;
+        return gerepileuptoleaf(av,gdiv(gsinh(gel(x,2),prec),gel(x,2)));
+      }
+      i = precision(x); if (!i) i = prec;
+      y = cgetc(i); av = avma;
+      r = gexp(gel(x,2),prec);
+      v1 = gmul2n(addrr(invr(r),r), -1); /* = cos(I*Im(x)) */
+      u1 = subrr(r, v1); /* = I*sin(I*Im(x)) */
+      gsincos(gel(x,1),&u,&v,prec);
+      affc_fixlg(gdiv(mkcomplex(gmul(v1,u), gmul(u1,v)), x), y);
+      avma = av; return y;
+
+    case t_INT:
+      if (!signe(x)) return real_1(prec); /*fall through*/
+    case t_FRAC:
+      y = cgetr(prec); av = avma;
+      affrr_fixlg(mpsinc(tofp_safe(x,prec)), y); avma = av; return y;
+
+    case t_PADIC: av = avma; y = sin_p(x);
+      if (!y) pari_err_DOMAIN("gsinc(t_PADIC)","argument","",gen_0,x);
+      return gerepileuptoleaf(av,gdiv(y,x));
+
+    default:
+      av = avma; if (!(y = toser_i(x))) break;
+      if (gequal0(y)) return gerepileupto(av, gaddsg(1,y));
+      if (valp(y) < 0)
+        pari_err_DOMAIN("sinc","valuation", "<", gen_0, x);
+      gsincos(y,&u,&v,prec);
+      return gerepilecopy(av,gdiv(u,y));
+  }
+  return trans_eval("sinc",gsinc,x,prec);
+}
+
+/********************************************************************/
+/**                                                                **/
 /**                     TANGENT and COTANGENT                      **/
 /**                                                                **/
 /********************************************************************/
