@@ -55,7 +55,7 @@ Doc: initialize tables for use with integral transforms such Fourier,
     }
     FC(1)
  @eprog
- \item Fourier coefficients: we must integrate over a period, but 
+ \item Fourier coefficients: we must integrate over a period, but
  \kbd{intfuncinit} does not support finite endpoints.
  The solution is to integrate a vector of functions !
  \bprog
@@ -63,9 +63,9 @@ Doc: initialize tables for use with integral transforms such Fourier,
  {
    my (w = 2*Pi/T);
    my (v = vector(k+1));
-   intnum(t = -T/2, T/2, 
+   intnum(t = -T/2, T/2,
       my (z = exp(I*w*t));
-      v[1] = z; 
+      v[1] = z;
       for (j = 2, k, v[j] = v[j-1]*z);
       f(t) * imag(v)) * 2/T;
  }
