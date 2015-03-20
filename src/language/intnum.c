@@ -675,6 +675,22 @@ sumnuminit(GEN sig, long m, long sgn, long prec)
  * (slowly decreasing, exponentially decreasing, oscillating with a fixed
  * oscillating factor such as sin(x)). */
 
+/* FIXME: The numbers below can be changed, but NOT the ordering */
+enum {
+  f_REG    = 0, /* regular function */
+  f_SING   = 1, /* algebraic singularity */
+  f_YSLOW  = 2, /* +\infty, slowly decreasing, at least x^(-2)  */
+  f_YVSLO  = 3, /* +\infty, very slowly decreasing, worse than x^(-2) */
+  f_YFAST  = 4, /* +\infty, exponentially decreasing */
+  f_YOSCS  = 5, /* +\infty, sine oscillating */
+  f_YOSCC  = 6  /* +\infty, cosine oscillating */
+};
+/* is c finite */
+static int
+is_fin_f(long c) { return c == f_REG || c == f_SING; }
+static int
+is_osc(long c) { long a = labs(c); return a == f_YOSCC|| a == f_YOSCS; }
+
 /* In the following integration functions the parameters are as follows:
 * 1) The parameter denoted by m is the most crucial and difficult to
 * determine in advance: h = 1/2^m is the integration step size. Usually
@@ -755,30 +771,61 @@ intnsing(void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, GEN tab, long prec)
    exp(1+t-exp(-t)) for exponentially decreasing functions, and
    (pi/h)t/(1-exp(-sinh(t))) for oscillating functions. */
 
+static GEN id(GEN x) { return x; }
+
 static GEN
-intninfpm(void *E, GEN (*eval)(void*, GEN), GEN a, long si, GEN tab)
+intninfpm(void *E, GEN (*eval)(void*, GEN), GEN a, long sb, GEN tab)
 {
   GEN tabx0, tabw0, tabxp, tabwp, tabxm, tabwm;
   GEN S;
-  GEN (*ADD)(GEN,GEN);
   long L, i;
-  pari_sp ltop = avma, av;
+  pari_sp av = avma;
 
   if (!checktabdoub(tab)) pari_err_TYPE("intnum",tab);
   tabx0 = TABx0(tab); tabw0 = TABw0(tab);
   tabxp = TABxp(tab); tabwp = TABwp(tab); L = lg(tabxp);
   tabxm = TABxm(tab); tabwm = TABwm(tab);
-  ADD = si > 0? gadd: gsub;
-  av = avma;
-  S = gmul(tabw0, eval(E, ADD(a, tabx0)));
-  for (i = 1; i < L; i++)
+  if (gequal0(a))
   {
-    GEN SP = eval(E, ADD(a, gel(tabxp,i)));
-    GEN SM = eval(E, ADD(a, gel(tabxm,i)));
-    S = gadd(S, gadd(gmul(gel(tabwp,i), SP), gmul(gel(tabwm,i), SM)));
-    if ((i & 0x7f) == 1) S = gerepileupto(av, S);
+    GEN (*NEG)(GEN) = sb > 0? id: gneg;
+    S = gmul(tabw0, eval(E, NEG(tabx0)));
+    for (i = 1; i < L; i++)
+    {
+      GEN SP = eval(E, NEG(gel(tabxp,i)));
+      GEN SM = eval(E, NEG(gel(tabxm,i)));
+      S = gadd(S, gadd(gmul(gel(tabwp,i), SP), gmul(gel(tabwm,i), SM)));
+      if ((i & 0x7f) == 1) S = gerepileupto(av, S);
+    }
   }
-  return gerepileupto(ltop, gmul(S, TABh(tab)));
+  else if (gexpo(a) <= 0 || is_osc(sb))
+  { /* a small */
+    GEN (*ADD)(GEN,GEN) = sb > 0? gadd: gsub;
+    S = gmul(tabw0, eval(E, ADD(a, tabx0)));
+    for (i = 1; i < L; i++)
+    {
+      GEN SP = eval(E, ADD(a, gel(tabxp,i)));
+      GEN SM = eval(E, ADD(a, gel(tabxm,i)));
+      S = gadd(S, gadd(gmul(gel(tabwp,i), SP), gmul(gel(tabwm,i), SM)));
+      if ((i & 0x7f) == 1) S = gerepileupto(av, S);
+    }
+  }
+  else
+  { /* a large, |a|*\int_sgn(a)^{oo} f(|a|*x)dx (sb > 0)*/
+    GEN (*ADD)(long,GEN) = sb > 0? addsr: subsr;
+    long sa = gsigne(a);
+    GEN A = sa > 0? a: gneg(a);
+    pari_sp av2 = avma;
+    S = gmul(tabw0, eval(E, gmul(A, ADD(sa, tabx0))));
+    for (i = 1; i < L; i++)
+    {
+      GEN SP = eval(E, gmul(A, ADD(sa, gel(tabxp,i))));
+      GEN SM = eval(E, gmul(A, ADD(sa, gel(tabxm,i))));
+      S = gadd(S, gadd(gmul(gel(tabwp,i), SP), gmul(gel(tabwm,i), SM)));
+      if ((i & 0x7f) == 1) S = gerepileupto(av2, S);
+    }
+    S = gmul(S,A);
+  }
+  return gerepileupto(av, gmul(S, TABh(tab)));
 }
 
 /* compute  $\int_{-\infty}^\infty f(t)dt$
@@ -834,20 +881,6 @@ intninfinf(void *E, GEN (*eval)(void*, GEN), GEN tab)
  (5) [[+-oo], a*I], a real : +-\infty, function behaving like cos(at) if a>0
      and like sin(at) if a < 0 at +-\infty.
 */
-
-/* FIXME: The numbers below can be changed, but NOT the ordering */
-enum {
-  f_REG    = 0, /* regular function */
-  f_SING   = 1, /* algebraic singularity */
-  f_YSLOW  = 2, /* +\infty, slowly decreasing, at least x^(-2)  */
-  f_YVSLO  = 3, /* +\infty, very slowly decreasing, worse than x^(-2) */
-  f_YFAST  = 4, /* +\infty, exponentially decreasing */
-  f_YOSCS  = 5, /* +\infty, sine oscillating */
-  f_YOSCC  = 6  /* +\infty, cosine oscillating */
-};
-/* is c finite */
-static int
-is_fin_f(long c) { return c == f_REG || c == f_SING; }
 
 static GEN
 f_getycplx(GEN a, long prec)
@@ -1187,10 +1220,11 @@ intnum_i(void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, GEN tab, long prec)
   }
   /* now b is infinite */
   sb = codeb > 0 ? 1 : -1;
-  if (codea == f_REG && labs(codeb) != f_YOSCC
-      && (labs(codeb) != f_YOSCS || gequal0(a)))
+  codeb = labs(codeb);
+  if (codea == f_REG && codeb != f_YOSCC
+      && (codeb != f_YOSCS || gequal0(a)))
   {
-    S = intninfpm(E, eval, a, sb, tab);
+    S = intninfpm(E, eval, a, sb*codeb, tab);
     return sgns*sb < 0 ? gneg(S) : S;
   }
   if (is_fin_f(codea))
@@ -1200,7 +1234,6 @@ intnum_i(void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, GEN tab, long prec)
     GEN pi2p = gmul(Pi2n(1,prec), f_getycplx(b, prec));
     GEN pis2p = gmul2n(pi2p, -2);
     c = real_i(codea == f_SING ? gel(a,1) : a);
-    codeb = labs(codeb);
     switch(codeb)
     {
       case f_YOSCC: case f_YOSCS:
@@ -1218,21 +1251,22 @@ intnum_i(void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, GEN tab, long prec)
     }
     res1 = codea==f_SING? intnsing(E, eval, a, c, gel(tab,1), prec)
                         : intn    (E, eval, a, c, gel(tab,1));
-    res2 = intninfpm(E, eval, c, sb,gel(tab,2));
+    res2 = intninfpm(E, eval, c, sb*codeb,gel(tab,2));
     if (sb < 0) res2 = gneg(res2);
     res1 = gadd(res1, res2);
     return sgns < 0 ? gneg(res1) : res1;
   }
   /* now a and b are infinite */
-  if (codea * codeb > 0)
+  if (codea * sb > 0)
   {
     if (codea > 0) pari_warn(warner, "integral from oo to oo");
     if (codea < 0) pari_warn(warner, "integral from -oo to -oo");
     return gen_0;
   }
   if (sb < 0) sgns = -sgns;
-  kma = f_getycplx(a, prec); codea = labs(codea);
-  kmb = f_getycplx(b, prec); codeb = labs(codeb);
+  codea = labs(codea);
+  kma = f_getycplx(a, prec);
+  kmb = f_getycplx(b, prec);
   if ((codea == f_YSLOW && codeb == f_YSLOW)
    || (codea == f_YFAST && codeb == f_YFAST && gequal(kma, kmb)))
     S = intninfinf(E, eval, tab);
@@ -1242,16 +1276,16 @@ intnum_i(void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, GEN tab, long prec)
     GEN ca = (codea == f_YOSCC)? gmul(pis2, kma): gen_0;
     GEN cb = (codeb == f_YOSCC)? gmul(pis2, kmb): gen_0;
     GEN c = codea == f_YOSCC ? ca : cb;
-    GEN SP, SN = intninfpm(E, eval, c, -sb, gel(tab,1)); /* signe(a) = -sb */
+    GEN SP, SN = intninfpm(E, eval, c, -sb*codea, gel(tab,1)); /*signe(a)=-sb*/
     if (codea != f_YOSCC)
-      SP = intninfpm(E, eval, cb, sb, gel(tab,2));
+      SP = intninfpm(E, eval, cb, sb*codeb, gel(tab,2));
     /* codea = codeb = f_YOSCC */
     else if (gequal(kma, kmb))
-      SP = intninfpm(E, eval, cb, sb, gel(tab,2));
+      SP = intninfpm(E, eval, cb, sb*codeb, gel(tab,2));
     else
     {
       tab = gel(tab,2);
-      SP = intninfpm(E, eval, cb, sb, gel(tab,2));
+      SP = intninfpm(E, eval, cb, sb*codeb, gel(tab,2));
       SP = gadd(SP, intn(E, eval, ca, cb, gel(tab,1)));
     }
     S = gadd(SN, SP);

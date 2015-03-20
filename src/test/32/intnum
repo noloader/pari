@@ -30,6 +30,8 @@
 -58
 ? check(intnum(x=[0,-1/2],1,1/sqrt(x)),2)
 -oo
+? check(intnum(x=100000,oo,1/(1+x^2)),atan(1/100000))
+-oo
 ? check(intnum(x=[0,-1/2],[oo,-3/2],1/(sqrt(x)+x^(3/2))),Pi)
 -oo
 ? check(intnum(x=[-oo,-3/2],[oo,-3/2],1/(1+abs(x)^(3/2))),8*Pi/sqrt(27))
@@ -175,4 +177,4 @@
   ***   Warning: integral from -oo to -oo.
 0
 ? print("Total time spent: ",gettime);
-Total time spent: 5584
+Total time spent: 5536
