@@ -241,21 +241,8 @@ intnumgauss0(GEN a, GEN b, GEN code, GEN tab, long prec)
 { EXPR_WRAP(code, intnumgauss(EXPR_ARG, a, b, tab, prec)); }
 
 /********************************************************************/
-/**                                                                **/
 /**                DOUBLE EXPONENTIAL INTEGRATION                  **/
-/**                                                                **/
 /********************************************************************/
-
-/* The init functions have the following purposes:
-* 1) They fill the value tabx0 = phi(0) and arrays of abcissas
-*   tabxp[] = phi(k/2^m) (positive x) and also of tabxm[] = phi(-k/2^m)
-*   (negative x) unless the phi function is odd, in which case this is useless.
-* 2) They fill the corresponding arrays of weights tabw0 = phi'(0) and
-*   tabwp[] = phi'(k/2^m) (and possibly also of tabwm[] = phi'(-k/2^m)).
-* 3) They set eps to the desired accuracy (depending on the GP default).
-* 4) They compute nt which says that the weights tabwp[k] and tabwm[k] are
-*   negligible with respect to eps if k > nt. In particular the tabxx[] arrays
-*   are indexed from 1 to nt+1. */
 
 typedef struct _intdata {
   long eps;  /* bit accuracy of current precision */
@@ -263,8 +250,8 @@ typedef struct _intdata {
   GEN tabw0; /* weight phi'(0) for t = 0 */
   GEN tabxp; /* table of abcissas phi(kh) for k > 0 */
   GEN tabwp; /* table of weights phi'(kh) for k > 0 */
-  GEN tabxm; /* table of abcissas phi(kh) for k < 0 */
-  GEN tabwm; /* table of weights phi'(kh) for k < 0 */
+  GEN tabxm; /* table of abcissas phi(kh) for k < 0, possibly empty */
+  GEN tabwm; /* table of weights phi'(kh) for k < 0, possibly empty */
   GEN h; /* integration step */
 } intdata;
 
@@ -359,8 +346,8 @@ intinit_end(intdata *D, long pnt, long mnt)
 static GEN
 divr2_ip(GEN x) { shiftr_inplace(x, -1); return x; }
 
-/* phi(t)=tanh((Pi/2)sinh(t)) : from -1 to 1, hence also from a to b compact
- * interval. */
+/* phi(t)=tanh((Pi/2)sinh(t)): from -1 to 1, hence also from a to b compact
+ * interval */
 static GEN
 inittanhsinh(long m, long prec)
 {
@@ -399,7 +386,7 @@ inittanhsinh(long m, long prec)
   return intinit_end(&D, nt, 0);
 }
 
-/* phi(t)=sinh(sinh(t)) : from -\infty to \infty, slowly decreasing, at least
+/* phi(t)=sinh(sinh(t)): from -oo to oo, slowly decreasing, at least
  * as 1/x^2. */
 static GEN
 initsinhsinh(long m, long prec)
@@ -437,8 +424,7 @@ initsinhsinh(long m, long prec)
   return intinit_end(&D, nt, 0);
 }
 
-/* phi(t)=2sinh(t) : from -\infty to \infty, exponentially decreasing as
- * exp(-x). */
+/* phi(t)=2sinh(t): from -oo to oo, exponentially decreasing as exp(-x) */
 static GEN
 initsinh(long m, long prec)
 {
@@ -472,8 +458,7 @@ initsinh(long m, long prec)
   return intinit_end(&D, nt, 0);
 }
 
-/* phi(t)=exp(2sinh(t)) : from 0 to \infty, slowly decreasing at least as
- * 1/x^2. */
+/* phi(t)=exp(2sinh(t)): from 0 to oo, slowly decreasing at least as 1/x^2 */
 static GEN
 initexpsinh(long m, long prec)
 {
@@ -549,7 +534,7 @@ initexpexp(long m, long prec)
   return intinit_end(&D, nt, nt);
 }
 
-/* phi(t)=(Pi/h)*t/(1-exp(-sinh(t))) from 0 to \infty, sine oscillation */
+/* phi(t)=(Pi/h)*t/(1-exp(-sinh(t))) from 0 to oo, sine oscillation */
 static GEN
 initnumsine(long m, long prec)
 {
@@ -637,8 +622,8 @@ sumweight(GEN x, GEN w, GEN pi, long sgn, long G, double logG)
 }
 /* phi(t) depending on sig[2] as in intnum, with weights phi'(t)tanh(Pi*phi(t))
  * (sgn >= 0) or phi'(t)/cosh(Pi*phi(t)) (otherwise), for use in sumnumall.
- * integrations are done from 0 to +infty (flii is set to 0), except if slowly
-   decreasing, from -infty to +infty (flii is set to 1). */
+ * integrations are done from 0 to +oo (flii is set to 0), except if slowly
+   decreasing, from -oo to +oo (flii is set to 1). */
 GEN
 sumnuminit(GEN sig, long m, long sgn, long prec)
 {
@@ -670,12 +655,10 @@ sumnuminit(GEN sig, long m, long sgn, long prec)
 }
 
 /* End of initialization functions. These functions can be executed once
- * and for all for a given accuracy, type of integral ([a,b], [a,\infty[ or
- * ]-\infty,a], ]-\infty,\infty[) and of integrand in the noncompact case
- * (slowly decreasing, exponentially decreasing, oscillating with a fixed
- * oscillating factor such as sin(x)). */
+ * and for all for a given accuracy and type of integral ([a,b], [a,oo[ or
+ * ]-oo,a], ]-oo,oo[) */
 
-/* FIXME: The numbers below can be changed, but NOT the ordering */
+/* The numbers below can be changed, but NOT the ordering */
 enum {
   f_REG    = 0, /* regular function */
   f_SING   = 1, /* algebraic singularity */
@@ -685,26 +668,17 @@ enum {
   f_YOSCS  = 5, /* +\infty, sine oscillating */
   f_YOSCC  = 6  /* +\infty, cosine oscillating */
 };
-/* is c finite */
+/* is finite ? */
 static int
 is_fin_f(long c) { return c == f_REG || c == f_SING; }
+/* is oscillatory ? */
 static int
 is_osc(long c) { long a = labs(c); return a == f_YOSCC|| a == f_YOSCS; }
-
-/* In the following integration functions the parameters are as follows:
-* 1) The parameter denoted by m is the most crucial and difficult to
-* determine in advance: h = 1/2^m is the integration step size. Usually
-* m = floor(log(D)/log(2)), where D is the number of decimal digits of accuracy
-* is plenty for very regulat functions, for instance m = 6 for 100D, and m = 9
-* for 1000D, but values of m 1 or 2 less are often sufficient, while for
-* singular functions, 1 or 2 more may be necessary. The best test is to take 2
-* or 3 consecutive values of m and look. Note that the number of function
-* evaluations, hence the time doubles when m increases by 1. */
 
 /* All inner functions such as intn, etc... must be called with a
  * valid 'tab' table. The wrapper intnum provides a higher level interface */
 
-/* compute $\int_a^b f(t)dt$ with [a,b] compact and f nonsingular. */
+/* compute \int_a^b f(t)dt with [a,b] compact and f nonsingular. */
 static GEN
 intn(void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, GEN tab)
 {
@@ -734,45 +708,43 @@ intn(void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, GEN tab)
   return gerepileupto(ltop, gmul(S, gmul(bma, TABh(tab))));
 }
 
-/* compute $\int_{a[1]}^{b} f(t)dt$ with [a,b] compact, possible
- *  singularity with exponent a[2] at lower extremity, b regular.
- *  Use tanh(sinh(t)). */
+/* compute \int_a^b f(t)dt with [a,b] compact, possible singularity with
+ * exponent a[2] at lower extremity, b regular. Use tanh(sinh(t)). */
 static GEN
 intnsing(void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, GEN tab, long prec)
 {
-  GEN tabx0, tabw0, tabxp, tabwp, ea, ba, S, tra;
+  GEN tabx0, tabw0, tabxp, tabwp, ea, ba, S;
   long i;
   pari_sp ltop = avma, av;
 
   if (!checktabsimp(tab)) pari_err_TYPE("intnum",tab);
   tabx0 = TABx0(tab); tabw0 = TABw0(tab);
   tabxp = TABxp(tab); tabwp = TABwp(tab);
-  tra = gel(a,1);
   ea = ginv(gaddsg(1, gel(a,2)));
-  ba = gdiv(gsub(b, tra), gpow(gen_2, ea, prec));
+  a = gel(a,1);
+  ba = gdiv(gsub(b, a), gpow(gen_2, ea, prec));
   av = avma;
-  S = gmul(gmul(tabw0, ba), eval(E, gadd(gmul(ba, addsr(1, tabx0)), tra)));
+  S = gmul(gmul(tabw0, ba), eval(E, gadd(gmul(ba, addsr(1, tabx0)), a)));
   for (i = lg(tabxp)-1; i > 0; i--)
   {
     GEN p = addsr(1, gel(tabxp,i));
     GEN m = subsr(1, gel(tabxp,i));
     GEN bp = gmul(ba, gpow(p, ea, prec));
     GEN bm = gmul(ba, gpow(m, ea, prec));
-    GEN SP = gmul(gdiv(bp, p), eval(E, gadd(bp, tra)));
-    GEN SM = gmul(gdiv(bm, m), eval(E, gadd(bm, tra)));
+    GEN SP = gmul(gdiv(bp, p), eval(E, gadd(bp, a)));
+    GEN SM = gmul(gdiv(bm, m), eval(E, gadd(bm, a)));
     S = gadd(S, gmul(gel(tabwp,i), gadd(SP, SM)));
     if ((i & 0x7f) == 1) S = gerepileupto(av, S);
   }
   return gerepileupto(ltop, gmul(gmul(S, TABh(tab)), ea));
 }
 
-/* compute  $\int_a^\infty f(t)dt$ if $si=1$ or $\int_{-\infty}^a f(t)dt$
-   if $si=-1$. Use exp(2sinh(t)) for slowly decreasing functions,
-   exp(1+t-exp(-t)) for exponentially decreasing functions, and
-   (pi/h)t/(1-exp(-sinh(t))) for oscillating functions. */
-
 static GEN id(GEN x) { return x; }
 
+/* compute  \int_a^oo f(t)dt if si>0 or \int_{-oo}^a f(t)dt if si<0$.
+ * Use exp(2sinh(t)) for slowly decreasing functions, exp(1+t-exp(-t)) for
+ * exponentially decreasing functions, and (pi/h)t/(1-exp(-sinh(t))) for
+ * oscillating functions. */
 static GEN
 intninfpm(void *E, GEN (*eval)(void*, GEN), GEN a, long sb, GEN tab)
 {
@@ -828,7 +800,7 @@ intninfpm(void *E, GEN (*eval)(void*, GEN), GEN a, long sb, GEN tab)
   return gerepileupto(av, gmul(S, TABh(tab)));
 }
 
-/* compute  $\int_{-\infty}^\infty f(t)dt$
+/* Compute  \int_{-oo}^oo f(t)dt
  * use sinh(sinh(t)) for slowly decreasing functions and sinh(t) for
  * exponentially decreasing functions.
  * HACK: in case TABwm(tab) contains something, assume function to be integrated
@@ -871,17 +843,14 @@ intninfinf(void *E, GEN (*eval)(void*, GEN), GEN tab)
 { return intninfinfintern(E, eval, tab, -1); }
 
 /* general num integration routine int_a^b f(t)dt, where a and b are as follows:
- (1) a scalar : the scalar, no singularity worse than logarithmic at a.
- (2) [a, e] : the scalar a, singularity exponent -1 < e <= 0.
- (3) oo, -oo : +\infty, -\infty, slowly decreasing function.
- (4) [[+-oo], a], a nonnegative real : +-\infty, function behaving like
-      exp(-a|t|) at +-\infty.
- (5) [[+-oo], e], e < -1 : +-\infty, function behaving like t^e
-      at +-\infty.
- (5) [[+-oo], a*I], a real : +-\infty, function behaving like cos(at) if a>0
-     and like sin(at) if a < 0 at +-\infty.
-*/
-
+ - a scalar : the scalar, no singularity worse than logarithmic at a.
+ - [a, e] : the scalar a, singularity exponent -1 < e <= 0.
+ - +oo: slowly decreasing function (at least O(t^-2))
+ - [[+oo], a], a nonnegative real : +oo, function behaving like exp(-a|t|)
+ - [[+oo], e], e < -1 : +oo, function behaving like t^e
+ - [[+oo], a*I], a > 0 real : +oo, function behaving like cos(at)
+ - [[+oo], a*I], a < 0 real : +oo, function behaving like sin(at)
+ and similarly at -oo */
 static GEN
 f_getycplx(GEN a, long prec)
 {
