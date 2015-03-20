@@ -3164,7 +3164,9 @@ gsinc(GEN x, long prec)
       y = cgetr(prec); av = avma;
       affrr_fixlg(mpsinc(tofp_safe(x,prec)), y); avma = av; return y;
 
-    case t_PADIC: av = avma; y = sin_p(x);
+    case t_PADIC:
+      if (gequal0(x)) return cvtop(gen_1, gel(x,2), valp(x));
+      av = avma; y = sin_p(x);
       if (!y) pari_err_DOMAIN("gsinc(t_PADIC)","argument","",gen_0,x);
       return gerepileuptoleaf(av,gdiv(y,x));
 

@@ -36,7 +36,7 @@ a=4*Pi/sqrt(27) + 2*(Pi/5)/sin(2*Pi/5);
 check(intnum(x = [-oo,-3/2], [oo,-5/2], f(x)),a)
 f(x)=if (x<0,1/(1+(-x)^(3/2)), exp(-x));
 check(intnum(x = [-oo,-3/2], [oo,1], f(x)), 4*Pi/sqrt(27)+1)
-f(x)=if (x<0,1/(1+(-x)^(3/2)), sin(x)/x);
+f(x)=if (x<0,1/(1+(-x)^(3/2)), sinc(x));
 check(intnum(x = [-oo,-3/2], [oo,-I], f(x)), 4*Pi/sqrt(27)+Pi/2)
 
 f(x)=if (x<0,exp(2*x), 1/(1+x^(3/2)));
@@ -45,16 +45,16 @@ f(x)=if (x<0,exp(2*x), 1/(1+x^(5/2)));
 check(intnum(x = [-oo,2], [oo,-5/2], f(x)), 1/2+2*(Pi/5)/sin(2*Pi/5))
 f(x)=if (x<0,exp(2*x), exp(-x));
 check(intnum(x = [-oo,2], [oo,1], f(x)), 3/2)
-f(x)=if (x<0,exp(2*x), sin(x)/x);
+f(x)=if (x<0,exp(2*x), sinc(x));
 check(intnum(x = [-oo,2], [oo,-I], f(x)), 1/2+Pi/2)
 
-f(x)=if (x<0,sin(2*x)/x, 1/(1+x^(3/2)));
+f(x)=if (x<0,2*sinc(2*x), 1/(1+x^(3/2)));
 check(intnum(x = [-oo,-2*I], [oo,-3/2], f(x)), Pi/2+4*Pi/sqrt(27))
-f(x)=if (x<0,sin(2*x)/x, 1/(1+x^(5/2)));
+f(x)=if (x<0,2*sinc(2*x), 1/(1+x^(5/2)));
 check(intnum(x = [-oo,-2*I], [oo,-5/2], f(x)), Pi/2+2*(Pi/5)/sin(2*Pi/5))
-f(x)=if (x<0,sin(2*x)/x, exp(-x));
+f(x)=if (x<0,2*sinc(2*x), exp(-x));
 check(intnum(x = [-oo,-2*I], [oo,1], f(x)), Pi/2+1)
-f(x)=if (x<0,sin(2*x)/x, sin(x)/x);
+f(x)=if (x<0,2*sinc(2*x), sinc(x));
 check(intnum(x = [-oo,-2*I], [oo,-I], f(x)), Pi)
 
 f(x)=cos((3+tanh(x))*x)/sqrt(1+x^2);
@@ -65,10 +65,10 @@ check(intnum(x=[0,-1/2],[1,-1/3], x^(-1/2) + (1-x)^(-1/3)), 7/2)
 T=intnuminit([0,-1/2],[1,-1/3]);
 check(intnum(x=[0,-1/2],[1,-1/3], x^(-1/2) + (1-x)^(-1/3), T), 7/2)
 
-check(intnum(x = 0, [oo,1], sin(x)/x), Pi/2)
-check(intnum(x = 0, [oo,-I], sin(x)/x), Pi/2)
-check(intnum(x = 0, [oo,-2*I], sin(2*x)/x), Pi/2)
-A=intnum(x=0,1,(1-cos(x))/x^2)+intnum(x=1,oo,1/x^2)-intnum(x=1,[oo,I],cos(x)/x^2);
+check(intnum(x = 0, [oo,1], sinc(x)), Pi/2)
+check(intnum(x = 0, [oo,-I], sinc(x)), Pi/2)
+check(intnum(x = 0, [oo,-2*I], 2*sinc(2*x)), Pi/2)
+A=intnum(x=0,1,sinc(x/2)^2/2)+intnum(x=1,oo,1/x^2)-intnum(x=1,[oo,I],cos(x)/x^2);
 check(A, Pi/2)
 check(intnum(x = 0, [oo, 1], sin(x)^3*exp(-x)), 3/10)
 check(intnum(x = 0, [oo,-I], sin(x)^3*exp(-x)), 3/10)
@@ -115,7 +115,7 @@ check(intnumgauss(x=2,1,x,T),-3/2)
 intnumromb(x=0,1,sin(x))
 intnumromb(x=0,1,sin(x), 1)
 intnumromb(x=1,100,exp(-x^2), 2)
-intnumromb(x=0,1,sin(x)/x, 3)
+intnumromb(x=0,1,sinc(x), 3)
 \\ sloooow
 \\intnumromb(x=0,110,x, 1)
 \\intnumromb(x=-110,90,x, 1)
