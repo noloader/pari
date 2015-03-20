@@ -49,5 +49,16 @@ for (i=0,7, z=1e-20+i*w; test(z))
 for (i=0,7, z=1e-20+i*w+I; test(z))
 erfc(1/2+I)
 erfc(-1/2+I)
+
+sinc(0)
+sinc(1/2)
+sinc(10*I)
+sinc(1+I)
+sinc(O(3^2))
+sinc(3+O(3^4))
+sinc(2+O(3^2))
+sinc(x)
+sinc(1/x)
+
 default(realprecision,2003);
 log(exp(1.5)) - 1.5
