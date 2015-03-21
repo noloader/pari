@@ -1496,40 +1496,6 @@ contfracinit(GEN M, long lim)
   return gerepilecopy(ltop, c);
 }
 
-static GEN
-cfevalquodif(GEN CF, long nlim, GEN t)
-{
-  pari_sp ltop = avma, btop;
-  long j;
-  GEN S = gen_0, tinv = ginv(t);
-  if (!is_matvec_t(typ(CF))) pari_err_TYPE("cfevalquodif",CF);
-  if (lg(CF) <= nlim)
-    pari_err_COMPONENT("contfraceval", ">", stoi(lg(CF)-1), stoi(nlim));
-  btop = avma;
-  switch(nlim % 3)
-  {
-    case 2:
-      S = gmul(t, gel(CF, nlim));
-      nlim--; break;
-    case 0:
-      S = gdiv(gel(CF, nlim-1), gadd(tinv, gel(CF, nlim)));
-      nlim -= 2; break;
-    case 1:
-      S = gmul(gel(CF, nlim-2), gaddsg(1, gmul(t, gel(CF, nlim))));
-      S = gdiv(S, gadd(tinv, gadd(gel(CF, nlim-1), gel(CF, nlim))));
-      nlim -= 3; break;
-  }
-  /* nlim = 1 (mod 3) */
-  for (j = nlim; j >= 4; j -= 3)
-  {
-    GEN S1 = gaddsg(1, S);
-    GEN S2 = gadd(gel(CF, j), gmul(gadd(tinv, gel(CF, j-1)), S1));
-    S = gdiv(gmul(gadd(S1, gmul(t, gel(CF, j))), gel(CF, j-2)), S2);
-    if (gc_needed(btop, 3)) S = gerepilecopy(btop, S);
-  }
-  return gerepileupto(ltop, ginv(gaddsg(1, S)));
-}
-
 /* Evaluate at t the nlim first terms of the continued fraction output by
  * contfracinit. */
 GEN
@@ -1538,10 +1504,9 @@ contfraceval(GEN CF, GEN t, long nlim)
   pari_sp ltop = avma, btop;
   long j;
   GEN S = gen_0, S1, S2, A, B, tinv = ginv(t);
-  if ((lg(CF) != 3) || typ(gel(CF, 1)) != t_VEC || typ(gel(CF, 2)) != t_VEC)
-    return cfevalquodif(CF, nlim, t);
-  A = gel(CF, 1);
-  B = gel(CF, 2);
+  if (typ(CF) != t_VEC || lg(CF) != 3) pari_err_TYPE("contfraceval", CF);
+  A = gel(CF, 1); if (typ(A) != t_VEC) pari_err_TYPE("contfraceval", CF);
+  B = gel(CF, 2); if (typ(B) != t_VEC) pari_err_TYPE("contfraceval", CF);
   if (nlim < 0)
     nlim = lg(A)-1;
   else if (lg(A) <= nlim)
