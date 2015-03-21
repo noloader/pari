@@ -183,12 +183,12 @@ rombint(void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, long prec)
 /**             NUMERICAL INTEGRATION (Gauss-Legendre)             **/
 /********************************************************************/
 GEN
-intnumgaussinit(long prec)
+intnumgaussinit(long n, long prec)
 {
   pari_sp ltop = avma;
   GEN L, dp1, p1, p2, R, W;
-  long bitprec = prec2nbits(prec), n, i, d1;
-  n = (long)(bitprec*0.2258);
+  long bitprec = prec2nbits(prec), i, d1;
+  if (n <= 0) n = (long)(bitprec*0.2258);
   if (odd(n)) n++;
   /* n even, p1 is even */
   prec = nbits2prec(3*bitprec/2 + 32);
@@ -218,7 +218,16 @@ intnumgauss(void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, GEN tab, long prec)
   pari_sp ltop = avma;
   GEN R, W, bma, bpa, S;
   long n, i;
-  if (!tab) tab = intnumgaussinit(prec);
+  if (!tab)
+    tab = intnumgaussinit(0,prec);
+  else if (typ(tab) != t_INT)
+  {
+    if (typ(tab) != t_VEC || lg(tab) != 3)
+      pari_err_TYPE("intnumgauss",tab);
+  }
+  else
+    tab = intnumgaussinit(itos(tab),prec);
+
   R = gel(tab,1); n = lg(R)-1;
   W = gel(tab,2);
   a = gprec_w(a, prec+EXTRAPREC);
