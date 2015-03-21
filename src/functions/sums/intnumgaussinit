@@ -10,7 +10,7 @@ Doc: initialize tables for $n$-point Gauss-Legendre integration of
  default choice $n \approx \kbd{realprecision}$, suitable for analytic
  functions on $[-1,1]$. The error is bounded by
  $$
-    \frac{(b-a)^{2n+1} (n!)^4}{(2n+1)[(2n)!]^3} f^{(2n)} (\xi) ,
+    \dfrac{(b-a)^{2n+1} (n!)^4}{(2n+1)[(2n)!]^3} f^{(2n)} (\xi) ,
     \qquad a < \xi < b
  $$
  so, if the interval length increases, $n$ should be increased as well.
