@@ -151,6 +151,8 @@
 ? T=intnumgaussinit(100);
 ? check(intnumgauss(x=-2,2,1/(1+x^2),T),2*atan(2))
 -41
+? check(intnumgauss(t=1,2,t,1),3/2)
+-oo
 ? \p38
    realprecision = 38 significant digits
 ? intnumromb(x=0,1,sin(x))
@@ -182,4 +184,4 @@
   ***   Warning: integral from -oo to -oo.
 0
 ? print("Total time spent: ",gettime);
-Total time spent: 4964
+Total time spent: 6040

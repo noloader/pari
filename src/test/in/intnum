@@ -113,6 +113,7 @@ check(intnumgauss(x=2,1,x,T),-3/2)
 check(intnumgauss(x=-1,1,1/(1+x^2), 20), Pi/2)
 T=intnumgaussinit(100);
 check(intnumgauss(x=-2,2,1/(1+x^2), T), 2*atan(2))
+check(intnumgauss(t=1,2,t,1),3/2)
 
 \p38
 intnumromb(x=0,1,sin(x))

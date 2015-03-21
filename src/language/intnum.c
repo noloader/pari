@@ -190,7 +190,8 @@ intnumgaussinit(long n, long prec)
   long bitprec = prec2nbits(prec), i, d1;
   if (n <= 0) n = (long)(bitprec*0.2258);
   if (odd(n)) n++;
-  /* n even, p1 is even */
+  if (n == 2) n = 4;
+  /* n even >= 4, p1 is even */
   prec = nbits2prec(3*bitprec/2 + 32);
   L = pollegendre(n, 0); /* L_n = p1(x^2) */
   p1 = Q_remove_denom(RgX_deflate(L, 2), &dp1);
