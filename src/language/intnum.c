@@ -1421,6 +1421,163 @@ intnumdoub0(GEN a, GEN b, int nc, int nd, int nf, GEN tabext, GEN tabint, long p
 }
 #endif
 
+
+/* The quotient-difference algorithm. Given a vector M, convert the series
+ * S = \sum_{n >= 0} M[n+1]z^n into a continued fraction.
+ * Compute the c[n] such that
+ * S = c[1] / (1 + c[2]z / (1+c[3]z/(1+...c[lim]z))),
+ * Compute A[n] and B[n] such that
+ * S = M[1]/ (1+A[1]*z+B[1]*z^2 / (1+A[2]*z+B[2]*z^2/ (1+...1/(1+A[lim\2]*z)))),
+ * Assume lim <= #M.
+ * Does not work for certain M. */
+
+/* Given a continued fraction CF output by the quodif program,
+convert it into an Euler continued fraction A(n), B(n), where
+$1/(1+c[2]z/(1+c[3]z/(1+..c[lim]z)))
+=1/(1+A[1]*z+B[1]*z^2/(1+A[2]*z+B[2]*z^2/(1+...1/(1+A[lim\2]*z)))). */
+static GEN
+contfrac_Euler(GEN CF)
+{
+  long lima, limb, i, lim = lg(CF)-1;
+  GEN A, B;
+  lima = lim/2;
+  limb = (lim - 1)/2;
+  A = cgetg(lima+1, t_VEC);
+  B = cgetg(limb+1, t_VEC);
+  gel (A, 1) = gel(CF, 2);
+  for (i=2; i <= lima; ++i) gel(A,i) = gadd(gel(CF, 2*i), gel(CF, 2*i-1));
+  for (i=1; i <= limb; ++i) gel(B,i) = gneg(gmul(gel(CF, 2*i+1), gel(CF, 2*i)));
+  return mkvec2(A, B);
+}
+
+GEN
+contfracinit(GEN M, long lim)
+{
+  pari_sp ltop = avma, av;
+  GEN e, q, c;
+  long lim2;
+  long j, k;
+  switch(typ(M))
+  {
+    case t_RFRAC:
+      if (lim < 0) pari_err_TYPE("contfracinit",M);
+      M = gadd(M, zeroser(gvar(M), lim + 2)); /*fall through*/
+    case t_SER: M = gtovec(M); break;
+    case t_POL: M = gtovecrev(M); break;
+    case t_VEC: case t_COL: break;
+    default: pari_err_TYPE("contfracinit", M);
+  }
+  if (lim < 0)
+    lim = lg(M)-2;
+  else if (lg(M)-1 <= lim)
+    pari_err_COMPONENT("contfracinit", "<", stoi(lg(M)-1), stoi(lim));
+  e = zerovec(lim);
+  c = zerovec(lim+1); gel(c, 1) = gel(M, 1);
+  q = cgetg(lim+1, t_VEC);
+  for (k = 1; k <= lim; ++k) gel(q, k) = gdiv(gel(M, k+1), gel(M, k));
+  lim2 = lim/2; av = avma;
+  for (j = 1; j <= lim2; ++j)
+  {
+    long l = lim - 2*j;
+    gel(c, 2*j) = gneg(gel(q, 1));
+    for (k = 0; k <= l; ++k)
+      gel(e, k+1) = gsub(gadd(gel(e, k+2), gel(q, k+2)), gel(q, k+1));
+    for (k = 0; k < l; ++k)
+      gel(q, k+1) = gdiv(gmul(gel(q, k+2), gel(e, k+2)), gel(e, k+1));
+    gel(c, 2*j+1) = gneg(gel(e, 1));
+    if (gc_needed(av, 3))
+    {
+      if (DEBUGMEM>1) pari_warn(warnmem,"contfracinit, %ld/%ld",j,lim2);
+      gerepileall(av, 3, &e, &c, &q);
+    }
+  }
+  if (odd(lim)) gel(c, lim+1) = gneg(gel(q, 1));
+  c = contfrac_Euler(c);
+  return gerepilecopy(ltop, c);
+}
+
+static GEN
+cfevalquodif(GEN CF, long nlim, GEN t)
+{
+  pari_sp ltop = avma, btop;
+  long j;
+  GEN S = gen_0, tinv = ginv(t);
+  if (!is_matvec_t(typ(CF))) pari_err_TYPE("cfevalquodif",CF);
+  if (lg(CF) <= nlim)
+    pari_err_COMPONENT("contfraceval", ">", stoi(lg(CF)-1), stoi(nlim));
+  btop = avma;
+  switch(nlim % 3)
+  {
+    case 2:
+      S = gmul(t, gel(CF, nlim));
+      nlim--; break;
+    case 0:
+      S = gdiv(gel(CF, nlim-1), gadd(tinv, gel(CF, nlim)));
+      nlim -= 2; break;
+    case 1:
+      S = gmul(gel(CF, nlim-2), gaddsg(1, gmul(t, gel(CF, nlim))));
+      S = gdiv(S, gadd(tinv, gadd(gel(CF, nlim-1), gel(CF, nlim))));
+      nlim -= 3; break;
+  }
+  /* nlim = 1 (mod 3) */
+  for (j = nlim; j >= 4; j -= 3)
+  {
+    GEN S1 = gaddsg(1, S);
+    GEN S2 = gadd(gel(CF, j), gmul(gadd(tinv, gel(CF, j-1)), S1));
+    S = gdiv(gmul(gadd(S1, gmul(t, gel(CF, j))), gel(CF, j-2)), S2);
+    if (gc_needed(btop, 3)) S = gerepilecopy(btop, S);
+  }
+  return gerepileupto(ltop, ginv(gaddsg(1, S)));
+}
+
+/* Evaluate at t the nlim first terms of the continued fraction output by
+ * contfracinit. */
+GEN
+contfraceval(GEN CF, GEN t, long nlim)
+{
+  pari_sp ltop = avma, btop;
+  long j;
+  GEN S = gen_0, S1, S2, A, B, tinv = ginv(t);
+  if ((lg(CF) != 3) || typ(gel(CF, 1)) != t_VEC || typ(gel(CF, 2)) != t_VEC)
+    return cfevalquodif(CF, nlim, t);
+  A = gel(CF, 1);
+  B = gel(CF, 2);
+  if (nlim < 0)
+    nlim = lg(A)-1;
+  else if (lg(A) <= nlim)
+    pari_err_COMPONENT("contfraceval", ">", stoi(lg(A)-1), stoi(nlim));
+  if (lg(B)+1 <= nlim)
+    pari_err_COMPONENT("contfraceval", ">", stoi(lg(B)), stoi(nlim));
+  btop = avma;
+  if (nlim <= 1) return gerepileupto(ltop, gdiv(tinv, gadd(gel(A, 1), tinv)));
+  switch(nlim % 3)
+  {
+    case 2:
+      S = gdiv(gel(B, nlim-1), gadd(gel(A, nlim), tinv));
+      nlim--; break;
+
+    case 0:
+      S1 = gadd(gel(A, nlim), tinv);
+      S2 = gadd(gmul(gadd(gel(A, nlim-1), tinv), S1), gel(B, nlim-1));
+      S = gdiv(gmul(gel(B, nlim-2), S1), S2);
+      nlim -= 2; break;
+  }
+  /* nlim = 1 (mod 3) */
+  for (j = nlim; j >= 4; j -= 3)
+  {
+    GEN S3;
+    S1 = gadd(gadd(gel(A, j), tinv), S);
+    S2 = gadd(gmul(gadd(gel(A, j-1), tinv), S1), gel(B, j-1));
+    S3 = gadd(gmul(gadd(gel(A, j-2), tinv), S2), gmul(gel(B, j-2), S1));
+    S = gdiv(gmul(gel(B, j-3), S2), S3);
+    if (gc_needed(btop, 3)) S = gerepilecopy(btop, S);
+  }
+  S = gdiv(tinv, gadd(gadd(gel(A, 1), tinv), S));
+  return gerepileupto(ltop, S);
+}
+
+
+
 /* Numerical summation routine assuming f holomorphic for Re(s) >= sig.
  * Computes sum_{n>=a} f(n)  if sgn >= 0,
  *          sum_{n>=a} (-1)^n f(n) otherwise,  where a is real.

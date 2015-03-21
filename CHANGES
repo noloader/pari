@@ -255,8 +255,9 @@ AP 81- [GP] central simple algebra package, GP functions
 PB 90- Faster matrix multiplication over finite fields
    91- allow content(t_VECSMALL)
    92- [libpari] ZX_div_by_X_1
-   93- intnumgauss / intnumgaussinit: Gauss-Legendre quadrature
+HC 93- intnumgauss / intnumgaussinit: Gauss-Legendre quadrature
 LGr94- sinc function
+HC 95- contfracinit / contfraceval functions
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]

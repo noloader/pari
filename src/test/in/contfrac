@@ -16,3 +16,13 @@ contfracpnqn(v)
 contfracpnqn(v,0)
 contfracpnqn(v,1)
 contfracpnqn(v,2)
+
+s=exp(x);
+contfracinit(s,0)
+contfracinit(s,1)
+contfracinit(s,2)
+e=contfracinit(s)
+contfraceval(e,1,10)
+contfraceval(e,1, 8)
+contfraceval(e,1, 6)
+contfraceval(e,1)

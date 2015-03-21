@@ -3112,6 +3112,8 @@ void    traverseheap( void(*f)(GEN, void *), void *data );
 
 /* intnum.c */
 
+GEN     contfraceval(GEN CF, GEN t, long nlim);
+GEN     contfracinit(GEN M, long lim);
 GEN     intcirc(void *E, GEN (*eval) (void *, GEN), GEN a, GEN R, GEN tab, long prec);
 GEN     intfuncinit(void *E, GEN (*eval) (void *, GEN), GEN a, GEN b, long m, long prec);
 GEN     intnum(void *E, GEN (*eval) (void *, GEN), GEN a, GEN b, GEN tab, long prec);
