@@ -77,4 +77,9 @@
 410105312/150869313
 517656/190435
 410105312/150869313
+[[-2], [1]]
+[[], []]
+  ***   at top-level: contfracinit(1)
+  ***                 ^---------------
+  *** contfracinit: incorrect type in contfracinit (t_INT).
 Total time spent: 0

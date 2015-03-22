@@ -26,3 +26,6 @@ contfraceval(e,1,10)
 contfraceval(e,1, 8)
 contfraceval(e,1, 6)
 contfraceval(e,1)
+contfracinit([1,2,3])
+contfracinit(Pol(0))
+contfracinit(1);

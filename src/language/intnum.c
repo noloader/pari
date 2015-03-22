@@ -1472,6 +1472,7 @@ contfracinit(GEN M, long lim)
     lim = lg(M)-2;
   else if (lg(M)-1 <= lim)
     pari_err_COMPONENT("contfracinit", "<", stoi(lg(M)-1), stoi(lim));
+  if (lim < 0) retmkvec2(cgetg(1,t_VEC),cgetg(1,t_VEC));
   e = zerovec(lim);
   c = zerovec(lim+1); gel(c, 1) = gel(M, 1);
   q = cgetg(lim+1, t_VEC);
