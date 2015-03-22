@@ -1,0 +1,31 @@
+Function: asympnum
+Section: sums
+C-Name: asympnum
+Prototype: GD0,L,D0,L,p
+Help: asympnum(expr,{k},{flag}): asymptotic expansion of expr assuming
+ it has rational coefficients with reasonable height; k and flag are as
+ in extnum.
+Doc: Asymptotic expansion of \var{expr}, corresponding to a sequence $u(n)$,
+ assuming it has the shape
+ $$u(n) \approx \sum_{i \geq 0} a_i n^{-i}$$
+ with rational coefficients $a_i$ with reasonable height; the algorithm
+ is heuristic and performs repeated calls to limitnum, with
+ \kbd{k} and \kbd{flag} are as in \kbd{limitnum}
+ \bprog
+ ? f(n) = n! / (n^n*exp(-n)*sqrt(n));
+ ? asympnum(f)
+ %2 = []   \\ failure !
+ ? l = limitnum(f)
+ %3 = 2.5066282746310005024157652848110452530
+ ? asympnum(n->f(n)/l) \\ normalize
+ %4 = [1, 1/12, 1/288, -139/51840]
+ @eprog\noindent and we indeed get a few terms of Stirling's expansion. Note
+ that it helps to normalize with a limit computed to higher accuracy:
+ \bprog
+ ? \p100
+ ? L = limitnum(f)
+ ? \p38
+ ? asympnum(n->f(n)/L) \\ we get more terms!
+ %6 = [1, 1/12, 1/288, -139/51840, -571/2488320, 163879/209018880,\
+       5246819/75246796800, -534703531/902961561600]
+ @eprog

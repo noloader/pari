@@ -1,0 +1,57 @@
+Function: limitnum
+Section: sums
+C-Name: limitnum
+Prototype: GD0,L,D0,L,p
+Help: limitnum(expr,{k},{flag}): numerical limit of sequence expr; k is
+ a multiplier so that we extrapolate from expr(k*n). If flag=0 (default), use
+ Zagier type extrapolation. If flag=1, use Lagrange extrapolation, and also if
+ flag=2, assuming that the asymptotic expansion is in powers of 1/n^2.
+Doc: numerical extrapolation of \var{expr}, corresponding to a sequence
+ $u_n$, either given by a closure \kbd{n->u(n)} or by a vector of values
+ I.e., assuming that $u_n$ tends to a finite limit $\ell$, try to determine
+ $\ell$. This routine is purely numerical and heuristic, thus may or may not
+ work on your examples; $k$ if present is a multiplier such that we extrapolate
+ from $u_{kn}$.
+
+ \item If \kbd{flag} is $0$ (default), use Zagier type extrapolation;
+ the default value of $k$ is 20. This is usually far superior to the
+ other variants.
+
+ \item if \kbd{flag} is $1$, use Lagrange extrapolation, assuming that
+ $u_n = \ell + \sum_{i\geq 1} a_i n^{-i}$ for some $a_i$;
+ the default value of $k$ is 1.
+
+ \item if \kbd{flag} is $2$, also use Lagrange but assume that $u_n$ has an
+ asymptotic expansion in powers of $1/n^2$;
+ the default value of $k$ is 1.
+
+ \bprog
+ ? limitnum(n -> n*sin(1/n))
+ %1 = 1.0000000000000000000000000000000000000
+
+ ? limitnum(n -> (1+1/n)^n) - exp(1)
+ %2 = 0.E-37
+
+ ? limitnum(n -> 2^(4*n+1)*(n!)^4 / (2*n)! /(2*n+1)! )
+ %3 = 3.1415926535897932384626433832795028842
+ ? Pi
+ %4 = 3.1415926535897932384626433832795028842
+ @eprog\noindent
+ If $u_n$ is given by a vector, it must be long enough for the extrapolation
+ to make sense: at least $k$ times the current \kbd{realprecision}. The
+ preferred format is thus a closure, although it becomes inconvenient
+ when $u_n$ cannot be directly computed in time polynomial in $\log n$,
+ for instance if it is defined as a sum or by induction. In that case,
+ passing a vector of values is the best option.
+ \bprog
+ ? limitnum(vector(100,n,(1+1/n)^n))
+  ***                 ^--------------------
+  *** limitnum: non-existent component in limitnum: index < 400
+ ? limitnum(vector(400,n,(1+1/n)^n))
+ %5 = 2.7182818284590452353602874713526624978
+
+ ? v = vector(400); s = 0;
+ ? for(i=1,#v, s += 1/i; v[i]= s - log(i));
+ ? limitnum(v) - Euler
+ %8 = 6.197211577201592316 E-29
+ @eprog

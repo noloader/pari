@@ -258,6 +258,7 @@ PB 90- Faster matrix multiplication over finite fields
 HC 93- intnumgauss / intnumgaussinit: Gauss-Legendre quadrature
 LGr94- sinc function
 HC 95- contfracinit / contfraceval functions
+HC 96- limitnum / asympnum
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]

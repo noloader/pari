@@ -1669,9 +1669,7 @@ zbrent0(GEN a, GEN b, GEN code, long prec)
  * return D.res; */
 
 /********************************************************************/
-/**                                                                **/
-/**            Numerical derivation                                **/
-/**                                                                **/
+/**                     Numerical derivation                       **/
 /********************************************************************/
 
 struct deriv_data
@@ -1755,4 +1753,124 @@ derivfun0(GEN code, GEN args, long prec)
   struct deriv_data E;
   E.code=code; E.args=args;
   return derivfun((void*)&E, deriv_eval, gel(args,1), prec);
+}
+
+/********************************************************************/
+/**                   Numerical extrapolation                      **/
+/********************************************************************/
+
+static double
+extgetmf(long muli)
+{
+  double LOG102 = 0.30103;
+  double mulfact[] = {0.5,0.48,0.43,0.41,0.39,0.38,0.37,0.36,0.36,0.35};
+  if (muli < 10) return 0.5*LOG102;
+  if (muli > 100) return 0.35*LOG102;
+  return mulfact[muli/10 - 1]*LOG102;
+}
+
+static GEN
+get_uin(GEN u, long in, GEN v, long prec)
+{
+  long nv;
+  GEN uin = typ(u)==t_VEC? gel(u, in): closure_callgen1prec(u, stoi(in), prec);
+  if (v && (nv = lg(v)-1))
+  {
+    GEN gin = stoi(in);
+    long j;
+    for (j = 1; j <= nv; ++j)
+      uin = gsub(uin, gdiv(gel(v,j), gpowgs(gin, j-1)));
+    uin = gmul(uin, gpowgs(gin, nv));
+  }
+  return uin;
+}
+
+static void
+check_len(GEN u, long N)
+{
+  if (typ(u) == t_VEC && lg(u) <= N)
+    pari_err_COMPONENT("limitnum","<",stoi(N), stoi(lg(u)-1));
+}
+
+static GEN
+limitnum_i(GEN u, GEN vres, long muli, long flag, long prec)
+{
+  pari_sp ltop = avma;
+  GEN S, p1, uin;
+  long bitprec = prec2nbits(prec), N, n, precinit = prec;
+  if (flag == 1)
+  { /* Lagrange, asymp. expansion \sum a_i n^-i */
+    if (muli <= 0) muli = 1;
+    N = (long)ceil(0.332*bitprec);
+    prec = nbits2prec((long)ceil(1.613*bitprec));
+    check_len(u, muli*N);
+    S = real_0(prec);
+    for (n = 1; n <= N; n++)
+    {
+      uin = get_uin(u, muli*n, vres, prec);
+      p1 = gmul(uin, mulii(binomialuu(N, n), powuu(n, N)));
+      S = odd(N-n)? gsub(S,p1): gadd(S,p1);
+    }
+    S = gdiv(S, mpfact(N));
+  }
+  else if (flag == 2)
+  { /* Lagrange, asymp. expansion \sum a_i n^(-2i) */
+    if (muli <= 0) muli = 1;
+    N = (long)ceil(0.271*bitprec);
+    prec = nbits2prec((long)ceil(1.3105*bitprec));
+    check_len(u, muli*N);
+    S = real_0(prec);
+    for (n = 1; n <= N; n++)
+    {
+      uin = get_uin(u, muli*n, vres, prec);
+      p1 = gmul(uin, mulii(binomialuu(2*N, N-n), powuu(n*n, N)));
+      S = odd(N-n)? gsub(S,p1): gadd(S,p1);
+    }
+    S = gdiv(gmulsg(2, S), mpfact(2*N));
+  }
+  else
+  { /* Zagier */
+    if (flag) pari_err_FLAG("limitnum");
+    if (muli <= 0) muli = 20;
+    N = (long)ceil(extgetmf(muli)*bitprec);
+    prec = nbits2prec((long)ceil(1.25*bitprec) + 32);
+    check_len(u, muli*(N+1));
+    S = real_0(prec);
+    for (n = 0; n <= N; n++)
+    {
+      uin = get_uin(u, muli*(n+1), vres, prec);
+      p1 = gmul(uin, mulii(binomialuu(N, n), powuu(n+1, N)));
+      S = odd(N-n)? gsub(S,p1): gadd(S,p1);
+    }
+    S = gdiv(S, mpfact(N));
+  }
+  return gerepilecopy(ltop, gprec_w(S, precinit));
+}
+GEN
+limitnum(GEN u, long muli, long flag, long prec)
+{ return limitnum_i(u, NULL, muli, flag, prec); }
+
+GEN
+asympnum(GEN u, long muli, long flag, long prec)
+{
+  const long N = 100;
+  pari_sp av = avma;
+  GEN vres = vectrunc_init(N);
+  long i;
+  for(i = 1; i <= N; i++)
+  {
+    GEN a, s, v, p, q;
+    s = limitnum_i(u, vres, muli, flag, prec);
+    /* NOT bestappr: lindep will "properly" ignore the lower bits */
+    v = lindep(mkvec2(gen_1, s));
+    p = negi(gel(v,1));
+    q = gel(v,2);
+    if (!signe(q)) break;
+    a = gdiv(p,q);
+    s = gsub(s, a);
+    /* |s|q^2 > eps */
+    if (!gcmp0(s) && gexpo(s) + 2*expi(q) > -17) break;
+    vectrunc_append(vres, a);
+  }
+  return gerepilecopy(av, vres);
 }
