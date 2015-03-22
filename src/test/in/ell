@@ -58,6 +58,13 @@ ellinit(ellfromj(Mod(3,5))).j
 ellinit(ellfromj(j*Mod(1,2))).j
 ellinit(ellfromj(Mod(0,3))).j
 ellinit(ellfromj(j*Mod(1,3))).j
+
+elltwist(ellinit([0,a2,0,a4,a6]),x^2-D/4)
+lift(elltwist(ellinit([a1,a2,a3,a4,a6]*Mod(1,2)),x^2+x+T))
+elltwist(ellinit([a1,a2,a3,a4,a6]),1)
+elltwist(ellinit([a1,a2,a3,a4,a6]),-4)
+elltwist(ellinit([a1,a2,a3,a4,a6]),5)
+
 a=ffgen(2^5,'a);ellinit(ellfromj(a)).j
 a=ffgen(3^5,'a);ellinit(ellfromj(a)).j
 

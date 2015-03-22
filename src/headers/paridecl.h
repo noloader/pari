@@ -2386,6 +2386,7 @@ GEN     ellpadicheightmatrix(GEN e, GEN p, long n, GEN P);
 GEN     ellpadiclog(GEN E, GEN p, long n, GEN P);
 GEN     ellpadics2(GEN E, GEN p, long n);
 GEN     ellperiods(GEN w, long flag, long prec);
+GEN     elltwist(GEN E, GEN D);
 GEN     ellrandom(GEN e);
 long    ellrootno(GEN e, GEN p);
 long    ellrootno_global(GEN e);

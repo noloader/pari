@@ -63,8 +63,10 @@ N=ellcard(E);ellmul(E,P,N)
 
 check(a)=
 {
-  my(E,P,N);
+  my(E,Et,P,N);
   E=ellinit(ellfromj(a),a);
+  Et=ellinit(elltwist(E));
+  if (ellap(Et)!=-ellap(E),error("twist:",a));
   N=ellcard(E);
   if ((N==1)!=(#random(E)==1),error(a));
   for(i=1,4,
@@ -88,10 +90,12 @@ checkt(p,n,f,B=100)=
 {
   my(a=ffgen(p^n,'a));
   for(i=1,B,
-    my(E,N,b);
+    my(E,Et,N,b);
     until(b,b=random(a));
     E=ellinit(if(f==0,[0,b],f==1,[b,0],[b^2,b^3]));
     if(#E==0,next);
+    Et=ellinit(elltwist(E));
+    if (ellap(Et)!=-ellap(E),error("twist:",[p,n,f]));
     N=ellcard(E);
     if(#ellmul(E,random(E),N)>1,error([p,n,f],b)));
 }
