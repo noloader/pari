@@ -129,6 +129,7 @@ VBr83- [darwin] remove obsolete linker options that cause crashes [#1623]
    95- buffer overflow after default(format,"f.precision") (whenever many
        initial zeroes)
 BA 96- when r > ord(L_E,1), ellL1(E, r) gave a wrong result
+   97- qfminim(A, 0, ...) -> stack overflow [#1682]
 
   Added
     1- add optional argument to sumdigits to specify the base
