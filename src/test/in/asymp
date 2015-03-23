@@ -1,6 +1,6 @@
 check(a,b) = my(t = abs((a-b)/b)); if (t, ceil(log(t)/log(10)), -oo);
 
-\p100
+\p115
 check(limitnum(n -> n*sin(1/n)), 1)
 check(limitnum(n -> n*sin(1/n),,1), 1)
 check(limitnum(n -> n^2*sin(1/n^2),,2), 1)

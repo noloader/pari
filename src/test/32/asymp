@@ -1,4 +1,4 @@
-   realprecision = 115 significant digits (100 digits displayed)
+   realprecision = 115 significant digits
 -oo
 -oo
 -oo
@@ -22,4 +22,4 @@
 91197468646658015232000000, 2346608607351903737647919577082115121863/1558575
 31164483425927522297220956160000000]
 [0]
-Total time spent: 136
+Total time spent: 364
