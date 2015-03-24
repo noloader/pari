@@ -1,6 +1,6 @@
 Function: asympnum
 Section: sums
-C-Name: asympnum
+C-Name: asympnum0
 Prototype: GD0,L,DGp
 Help: asympnum(expr,{k=20},{alpha = 1}): asymptotic expansion of expr assuming
  it has rational coefficients with reasonable height; k and alpha are as
@@ -42,3 +42,8 @@ Doc: Asymptotic expansion of \var{expr}, corresponding to a sequence $u(n)$,
  ? asympnum(n->-log(1-1/n^a),,a) \\ better !
  %4 = [0, 1, 1/2, 1/3, 1/4, 1/5, 1/6, 1/7, 1/8, 1/9, 1/10, 1/11, 1/12]
  @eprog
+
+ \synt{asympnum}{void *E, GEN (*u)(void *,GEN,long), long muli, GEN alpha, long prec}, where \kbd{u(E, n, prec)} must return $u(n)$ in precision \kbd{prec}.
+ Also available is
+ \fun{GEN}{asympnum0}{GEN u, long muli, GEN alpha, long prec}, where $u$
+ must be a vector of sufficient length as above.

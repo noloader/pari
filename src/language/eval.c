@@ -1839,6 +1839,13 @@ gp_evalupto(void *E, GEN x)
   return copyupto(gp_eval(E,x), (GEN)av);
 }
 
+GEN
+gp_evalprec(void *E, GEN x, long prec)
+{
+  GEN code = (GEN)E;
+  return closure_callgen1prec(code, x, prec);
+}
+
 long
 gp_evalbool(void *E, GEN x)
 {

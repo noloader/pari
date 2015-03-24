@@ -1770,9 +1770,10 @@ extgetmf(long muli)
 }
 
 static GEN
-get_uin(GEN u, long in, GEN v, GEN alpha, long prec)
+get_uin(void *E, GEN (*f)(void*, GEN, long), long in, GEN v, GEN alpha,
+        long prec)
 {
-  GEN uin = typ(u)==t_VEC? gel(u, in): closure_callgen1prec(u, stoi(in), prec);
+  GEN uin = f? f(E,stoi(in),prec): gel(E, in);
   long lv;
   if (v && (lv = lg(v)) > 1)
   {
@@ -1791,15 +1792,17 @@ get_uin(GEN u, long in, GEN v, GEN alpha, long prec)
 }
 
 static void
-check_len(GEN u, long N)
+check_len(void *E, long N)
 {
+  GEN u = (GEN)E;
   if (typ(u) == t_VEC && lg(u) <= N)
     pari_err_COMPONENT("limitnum","<",stoi(N), stoi(lg(u)-1));
 }
 
 /* Zagier/Lagrange extrapolation */
 static GEN
-limitnum_i(GEN u, GEN vres, long muli, GEN alpha, long prec)
+limitnum_i(void *E, GEN (*f)(void *, GEN, long), GEN vres, long muli,
+           GEN alpha, long prec)
 {
   pari_sp av = avma;
   GEN S, p1, uin;
@@ -1807,7 +1810,7 @@ limitnum_i(GEN u, GEN vres, long muli, GEN alpha, long prec)
   if (muli <= 0) muli = 20;
   N = (long)ceil(extgetmf(muli)*bitprec);
   prec = nbits2prec((long)ceil(1.25*bitprec) + 32);
-  check_len(u, muli*N);
+  if (!f) check_len(E, muli*N);
   S = real_0(prec);
   if (alpha)
   {
@@ -1818,7 +1821,7 @@ limitnum_i(GEN u, GEN vres, long muli, GEN alpha, long prec)
       GEN xn = gpow(utoipos(n),malpha,prec);
       if (typ(xn) != t_REAL) xn = gtofp(xn, prec+EXTRAPRECWORD);
       gel(x,n) = xn;
-      gel(y,n) = get_uin(u, muli*n, vres, alpha, prec);
+      gel(y,n) = get_uin(E,f, muli*n, vres, alpha, prec);
     }
     S = polint(x,y,gen_0,NULL);
   }
@@ -1826,7 +1829,7 @@ limitnum_i(GEN u, GEN vres, long muli, GEN alpha, long prec)
   { /* special case alpha = 1 */
     for (n = 1; n <= N; n++)
     {
-      uin = get_uin(u, muli*n, vres, alpha, prec);
+      uin = get_uin(E,f, muli*n, vres, alpha, prec);
       p1 = gmul(uin, mulii(binomialuu(N, n), powuu(n, N)));
       S = odd(N-n)? gsub(S,p1): gadd(S,p1);
     }
@@ -1835,11 +1838,25 @@ limitnum_i(GEN u, GEN vres, long muli, GEN alpha, long prec)
   return gerepilecopy(av, gprec_w(S, precinit));
 }
 GEN
-limitnum(GEN u, long muli, GEN alpha, long prec)
-{ return limitnum_i(u, NULL, muli, alpha, prec); }
+limitnum(void *E, GEN (*f)(void *, GEN, long), long muli, GEN alpha, long prec)
+{ return limitnum_i(E,f, NULL, muli, alpha, prec); }
+GEN
+limitnum0(GEN u, long muli, GEN alpha, long prec)
+{
+  void *E = (void*)u;
+  GEN (*f)(void*,GEN,long) = NULL;
+  switch(typ(u))
+  {
+    case t_COL:
+    case t_VEC: break;
+    case t_CLOSURE: f = gp_evalprec; break;
+    default: pari_err_TYPE("limitnum", u);
+  }
+  return limitnum(E,f, muli,alpha, prec);
+}
 
 GEN
-asympnum(GEN u, long muli, GEN alpha, long prec)
+asympnum(void *E, GEN (*f)(void *, GEN, long), long muli, GEN alpha, long prec)
 {
   const long N = 100;
   pari_sp av = avma;
@@ -1848,7 +1865,7 @@ asympnum(GEN u, long muli, GEN alpha, long prec)
   for(i = 1; i <= N; i++)
   {
     GEN a, s, v, p, q;
-    s = limitnum_i(u, vres, muli, alpha, prec);
+    s = limitnum_i(E,f, vres, muli, alpha, prec);
     /* NOT bestappr: lindep will "properly" ignore the lower bits */
     v = lindep(mkvec2(gen_1, s));
     p = negi(gel(v,1));
@@ -1861,4 +1878,18 @@ asympnum(GEN u, long muli, GEN alpha, long prec)
     vectrunc_append(vres, a);
   }
   return gerepilecopy(av, vres);
+}
+GEN
+asympnum0(GEN u, long muli, GEN alpha, long prec)
+{
+  void *E = (void*)u;
+  GEN (*f)(void*,GEN,long) = NULL;
+  switch(typ(u))
+  {
+    case t_COL:
+    case t_VEC: break;
+    case t_CLOSURE: f = gp_evalprec; break;
+    default: pari_err_TYPE("asympnum", u);
+  }
+  return asympnum(E,f, muli,alpha, prec);
 }

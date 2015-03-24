@@ -1,6 +1,6 @@
 Function: limitnum
 Section: sums
-C-Name: limitnum
+C-Name: limitnum0
 Prototype: GD0,L,DGp
 Help: limitnum(expr,{k = 20},{alpha=1}): numerical limit of sequence expr
  using Lagrange-Zagier extrapolation; k is a multiplier so that we extrapolate
@@ -47,3 +47,9 @@ Doc: Lagrange-Zagier numerical extrapolation of \var{expr}, corresponding to a
  ? limitnum(v) - Euler
  %8 = 6.197211577201592316 E-29
  @eprog
+
+ \synt{limitnum}{void *E, GEN (*u)(void *,GEN,long), long muli, GEN alpha, long prec}, where \kbd{u(E, n, prec)} must return $u(n)$ in precision \kbd{prec}.
+ Also available is
+ \fun{GEN}{limitnum0}{GEN u, long muli, GEN alpha, long prec}, where $u$
+ must be a vector of sufficient length as above.
+

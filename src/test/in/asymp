@@ -4,7 +4,9 @@ default(realprecision, 211);
 pi=Pi;
 
 \p115
+v = vector(1120,n,n*sin(1/n));
 check(limitnum(n -> n*sin(1/n)), 1)
+check(limitnum(v), 1)
 check(limitnum(n -> n^2*sin(1/n^2),,2), 1)
 check(limitnum(n -> n^2*sin(1/n^2),10,2), 1)
 check(limitnum(n -> (1+1/n)^n), exp(1))
@@ -15,3 +17,4 @@ asympnum(n->log(1+1/n^2),,2)
 
 \p115
 asympnum(n->log(1+1/n^pi),,pi)
+asympnum(v)
