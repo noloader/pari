@@ -3679,7 +3679,7 @@ GEN     bnrstark(GEN bnr, GEN subgroup, long prec);
 
 /* sumiter.c */
 
-GEN     asympnum(GEN u, long muli, long flag, long prec);
+GEN     asympnum(GEN u, long muli, GEN alpha, long prec);
 GEN     derivnum(void *E, GEN (*eval)(void *, GEN), GEN x, long prec);
 GEN     derivfun(void *E, GEN (*eval)(void *, GEN), GEN x, long prec);
 GEN     direuler(void *E, GEN (*eval)(void *, GEN), GEN ga, GEN gb, GEN c);
@@ -3689,7 +3689,7 @@ GEN     forprime_next(forprime_t *T);
 int     forprime_init(forprime_t *T, GEN a, GEN b);
 int     forvec_init(forvec_t *T, GEN x, long flag);
 GEN     forvec_next(forvec_t *T);
-GEN     limitnum(GEN u, long muli, long flag, long prec);
+GEN     limitnum(GEN u, long muli, GEN alpha, long prec);
 GEN     polzag(long n, long m);
 GEN     prodeuler(void *E, GEN (*eval)(void *, GEN), GEN ga, GEN gb, long prec);
 GEN     prodinf(void *E, GEN (*eval)(void *, GEN), GEN a, long prec);

@@ -2,12 +2,11 @@ check(a,b) = my(t = abs((a-b)/b)); if (t, ceil(log(t)/log(10)), -oo);
 
 \p115
 check(limitnum(n -> n*sin(1/n)), 1)
-check(limitnum(n -> n*sin(1/n),,1), 1)
 check(limitnum(n -> n^2*sin(1/n^2),,2), 1)
 check(limitnum(n -> n^2*sin(1/n^2),10,2), 1)
 check(limitnum(n -> (1+1/n)^n), exp(1))
 
 f(n) = n! / (n^n*exp(-n)*sqrt(2*Pi*n));
 asympnum(f)
-asympnum(f,,1)
 asympnum(n->log(1+1/n^2),,2)
+asympnum(n->log(1+1/n^Pi),,Pi)

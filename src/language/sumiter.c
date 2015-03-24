@@ -1770,17 +1770,22 @@ extgetmf(long muli)
 }
 
 static GEN
-get_uin(GEN u, long in, GEN v, long prec)
+get_uin(GEN u, long in, GEN v, GEN alpha, long prec)
 {
-  long nv;
   GEN uin = typ(u)==t_VEC? gel(u, in): closure_callgen1prec(u, stoi(in), prec);
-  if (v && (nv = lg(v)-1))
+  long lv;
+  if (v && (lv = lg(v)) > 1)
   {
-    GEN gin = stoi(in);
+    GEN c = stoi(in), cj;
     long j;
-    for (j = 1; j <= nv; ++j)
-      uin = gsub(uin, gdiv(gel(v,j), gpowgs(gin, j-1)));
-    uin = gmul(uin, gpowgs(gin, nv));
+    if (alpha) c = gpow(c, alpha, prec);
+    uin = gsub(uin, gel(v,1));
+    for (j=2, cj=c; j < lv; ++j)
+    {
+      uin = gsub(uin, gdiv(gel(v,j), cj));
+      cj = gmul(cj, c); /* cj = n^(alpha*j) */
+    }
+    uin = gmul(uin, cj);
   }
   return uin;
 }
@@ -1792,66 +1797,47 @@ check_len(GEN u, long N)
     pari_err_COMPONENT("limitnum","<",stoi(N), stoi(lg(u)-1));
 }
 
+/* Zagier/Lagrange extrapolation */
 static GEN
-limitnum_i(GEN u, GEN vres, long muli, long flag, long prec)
+limitnum_i(GEN u, GEN vres, long muli, GEN alpha, long prec)
 {
-  pari_sp ltop = avma;
+  pari_sp av = avma;
   GEN S, p1, uin;
   long bitprec = prec2nbits(prec), N, n, precinit = prec;
-  if (flag == 1)
-  { /* Lagrange, asymp. expansion \sum a_i n^-i */
-    if (muli <= 0) muli = 1;
-    N = (long)ceil(0.332*bitprec);
-    prec = nbits2prec((long)ceil(1.613*bitprec));
-    check_len(u, muli*N);
-    S = real_0(prec);
+  if (muli <= 0) muli = 20;
+  N = (long)ceil(extgetmf(muli)*bitprec);
+  prec = nbits2prec((long)ceil(1.25*bitprec) + 32);
+  check_len(u, muli*N);
+  S = real_0(prec);
+  if (alpha)
+  {
+    GEN x = cgetg(N+1,t_VEC), y = cgetg(N+1,t_VEC);
+    GEN malpha = gneg(alpha);
     for (n = 1; n <= N; n++)
     {
-      uin = get_uin(u, muli*n, vres, prec);
+      gel(x,n) = gpow(utoipos(n),malpha,prec);
+      gel(y,n) = get_uin(u, muli*n, vres, alpha, prec);
+    }
+    S = polint(x,y,gen_0,NULL);
+  }
+  else
+  { /* special case alpha = 1 */
+    for (n = 1; n <= N; n++)
+    {
+      uin = get_uin(u, muli*n, vres, alpha, prec);
       p1 = gmul(uin, mulii(binomialuu(N, n), powuu(n, N)));
       S = odd(N-n)? gsub(S,p1): gadd(S,p1);
     }
     S = gdiv(S, mpfact(N));
   }
-  else if (flag == 2)
-  { /* Lagrange, asymp. expansion \sum a_i n^(-2i) */
-    if (muli <= 0) muli = 1;
-    N = (long)ceil(0.271*bitprec);
-    prec = nbits2prec((long)ceil(1.3105*bitprec));
-    check_len(u, muli*N);
-    S = real_0(prec);
-    for (n = 1; n <= N; n++)
-    {
-      uin = get_uin(u, muli*n, vres, prec);
-      p1 = gmul(uin, mulii(binomialuu(2*N, N-n), powuu(n*n, N)));
-      S = odd(N-n)? gsub(S,p1): gadd(S,p1);
-    }
-    S = gdiv(gmulsg(2, S), mpfact(2*N));
-  }
-  else
-  { /* Zagier */
-    if (flag) pari_err_FLAG("limitnum");
-    if (muli <= 0) muli = 20;
-    N = (long)ceil(extgetmf(muli)*bitprec);
-    prec = nbits2prec((long)ceil(1.25*bitprec) + 32);
-    check_len(u, muli*(N+1));
-    S = real_0(prec);
-    for (n = 0; n <= N; n++)
-    {
-      uin = get_uin(u, muli*(n+1), vres, prec);
-      p1 = gmul(uin, mulii(binomialuu(N, n), powuu(n+1, N)));
-      S = odd(N-n)? gsub(S,p1): gadd(S,p1);
-    }
-    S = gdiv(S, mpfact(N));
-  }
-  return gerepilecopy(ltop, gprec_w(S, precinit));
+  return gerepilecopy(av, gprec_w(S, precinit));
 }
 GEN
-limitnum(GEN u, long muli, long flag, long prec)
-{ return limitnum_i(u, NULL, muli, flag, prec); }
+limitnum(GEN u, long muli, GEN alpha, long prec)
+{ return limitnum_i(u, NULL, muli, alpha, prec); }
 
 GEN
-asympnum(GEN u, long muli, long flag, long prec)
+asympnum(GEN u, long muli, GEN alpha, long prec)
 {
   const long N = 100;
   pari_sp av = avma;
@@ -1860,7 +1846,7 @@ asympnum(GEN u, long muli, long flag, long prec)
   for(i = 1; i <= N; i++)
   {
     GEN a, s, v, p, q;
-    s = limitnum_i(u, vres, muli, flag, prec);
+    s = limitnum_i(u, vres, muli, alpha, prec);
     /* NOT bestappr: lindep will "properly" ignore the lower bits */
     v = lindep(mkvec2(gen_1, s));
     p = negi(gel(v,1));

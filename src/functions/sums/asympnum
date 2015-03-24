@@ -1,16 +1,16 @@
 Function: asympnum
 Section: sums
 C-Name: asympnum
-Prototype: GD0,L,D0,L,p
-Help: asympnum(expr,{k},{flag}): asymptotic expansion of expr assuming
- it has rational coefficients with reasonable height; k and flag are as
+Prototype: GD0,L,DGp
+Help: asympnum(expr,{k=20},{alpha}): asymptotic expansion of expr assuming
+ it has rational coefficients with reasonable height; k and alpha are as
  in extnum.
 Doc: Asymptotic expansion of \var{expr}, corresponding to a sequence $u(n)$,
  assuming it has the shape
- $$u(n) \approx \sum_{i \geq 0} a_i n^{-i}$$
+ $$u(n) \approx \sum_{i \geq 0} a_i n^{-i\alpha}$$
  with rational coefficients $a_i$ with reasonable height; the algorithm
  is heuristic and performs repeated calls to limitnum, with
- \kbd{k} and \kbd{flag} are as in \kbd{limitnum}
+ \kbd{k} and \kbd{alpha} are as in \kbd{limitnum}
  \bprog
  ? f(n) = n! / (n^n*exp(-n)*sqrt(n));
  ? asympnum(f)
