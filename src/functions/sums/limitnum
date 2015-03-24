@@ -11,8 +11,8 @@ Doc: Lagrange-Zagier numerical extrapolation of \var{expr}, corresponding to a
  $u_n$, either given by a closure \kbd{n->u(n)} or by a vector of values
  I.e., assuming that $u_n$ tends to a finite limit $\ell$, try to determine
  $\ell$. This routine is purely numerical and heuristic, thus may or may not
- work on your examples; $k$ if present is a multiplier such that we extrapolate
- from $u_{kn}$.
+ work on your examples; $k$ is ignored if $u$ is given by a vector,
+ and otherwise is a multiplier such that we extrapolate from $u(kn)$.
 
  Assume that $u_n$ has an asymptotic expansion in $n^{-\alpha}$ :
  $$u_n = \ell + \sum_{i\geq 1} a_i n^{-i\alpha}$$
@@ -34,22 +34,31 @@ Doc: Lagrange-Zagier numerical extrapolation of \var{expr}, corresponding to a
  preferred format is thus a closure, although it becomes inconvenient
  when $u_n$ cannot be directly computed in time polynomial in $\log n$,
  for instance if it is defined as a sum or by induction. In that case,
- passing a vector of values is the best option.
+ passing a vector of values is the best option. It usually pays off to
+ interpolate $u(kn)$ for some $k > 1$:
  \bprog
- ? limitnum(vector(100,n,(1+1/n)^n))
+ ? limitnum(vector(10,n,(1+1/n)^n))
   ***                 ^--------------------
-  *** limitnum: non-existent component in limitnum: index < 400
- ? limitnum(vector(400,n,(1+1/n)^n))
- %5 = 2.7182818284590452353602874713526624978
+  *** limitnum: non-existent component in limitnum: index < 20
+ \\ at this accuracy, we must have at least 20 values
+ ? limitnum(vector(20,n,(1+1/n)^n)) - exp(1)
+ %5 = -2.05... E-20
+ ? limitnum(vector(20,n, m=10*n;(1+1/m)^m)) - exp(1) \\ better accuracy
+ %6 = 0.E-37
 
- ? v = vector(400); s = 0;
+ ? v = vector(20); s = 0;
  ? for(i=1,#v, s += 1/i; v[i]= s - log(i));
  ? limitnum(v) - Euler
- %8 = 6.197211577201592316 E-29
+ %9 = -1.6... E-19
+
+ ? V = vector(200); s = 0;
+ ? for(i=1,#V, s += 1/i; V[i]= s);
+ ? v = vector(#V \ 10, i, V[10*i] - log(10*i));
+ ? limitnum(v) - Euler
+ %13 = 6.43... E-29
  @eprog
 
  \synt{limitnum}{void *E, GEN (*u)(void *,GEN,long), long muli, GEN alpha, long prec}, where \kbd{u(E, n, prec)} must return $u(n)$ in precision \kbd{prec}.
  Also available is
  \fun{GEN}{limitnum0}{GEN u, long muli, GEN alpha, long prec}, where $u$
  must be a vector of sufficient length as above.
-

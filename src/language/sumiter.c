@@ -1767,23 +1767,23 @@ extgetmf(long muli)
   return mulfact[muli/10]*LOG10_2;
 }
 
-/* [u(n*muli), u <= N] */
+/* [u(n*muli), u <= N], muli = 1 unless f!=NULL */
 static GEN
 get_u(void *E, GEN (*f)(void *, GEN, long), long N, long muli, long prec)
 {
-  GEN u = cgetg(N+1, t_VEC);
   long n;
+  GEN u;
   if (f)
   {
+    u = cgetg(N+1, t_VEC);
     for (n = 1; n <= N; n++) gel(u,n) = f(E, stoi(muli*n), prec);
   }
   else
   {
-    GEN e = (GEN)E;
-    long M = muli*N;
-    if (typ(e) == t_VEC && lg(e) <= M)
-      pari_err_COMPONENT("limitnum","<",stoi(M), stoi(lg(e)-1));
-    for (n = 1; n <= N; n++) gel(u,n) = gel(e, muli*n);
+    u = (GEN)E;
+    n = lg(u)-1;
+    if (n < N) pari_err_COMPONENT("limitnum","<",stoi(N), stoi(n));
+    u = vecslice(u, 1, N);
   }
   for (n = 1; n <= N; n++)
   {
@@ -1813,6 +1813,7 @@ limit_init(struct limit *L, void *E, GEN (*f)(void*,GEN,long),
   long n;
 
   if (muli <= 0) muli = 20;
+  if (!f) muli = 1;
   L->N = N = (long)ceil(extgetmf(muli)*bitprec);
   L->prec = nbits2prec((long)ceil(1.25*bitprec) + 32);
   L->prec0 = prec;
