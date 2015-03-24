@@ -87,8 +87,6 @@ exec 5>> $config_log
 ####################### CONFIGURE - LIBRARIES ###############################
 # Looking for libraries: gmp, X11, fltk, Qt, readline
 echo Checking for optional libraries and headers...
-. ./get_include_path
-. ./get_libpth
 # $_gmp_list
 if test "$kernlvl1" = "gmp"; then
   . ./get_gmp

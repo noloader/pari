@@ -3,7 +3,7 @@ if test "$optimization" = profiling; then
 fi
 
 _graphic_list="which_graphic_lib X11 X11_INC X11_LIBS \
-FLTKDIR FLTK_LIBS QTDIR QTLIB"
+FLTK_LIBS QTDIR QTLIB"
 
 if test -n "$with_fltk"; then which_graphic_lib=fltk; fi
 if test -n "$with_qt";   then which_graphic_lib=Qt; fi
@@ -37,8 +37,8 @@ case $which_graphic_lib in
   auto|fltk)
     case $osname in
       darwin) ;; # fltk brings in CoreFoundation, incompatible with pari_daemon
-      *). ./get_fltk # FLTKDIR, FLTK_LIBS ;;
-        if test -z "$FLTKDIR"; then
+      *). ./get_fltk # FLTK_LIBS ;;
+        if test -z "$FLTK_LIBS"; then
           case $which_graphic_lib in fltk) which_graphic_lib=none;; esac
         else
           which_graphic_lib=fltk

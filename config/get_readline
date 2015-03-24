@@ -8,18 +8,16 @@ if test -n "$with_readline"; then
 fi
 
 # Readline -- Headers
-pth="$with_readline_include $basic_include_path"
+pth="$with_readline_include"
 x=`./locate 'readline/readline.h' '' $pth`
 case $x in
- ?:/*|/*) rl_include=`dirname $x`
+  ?:/*|/*) rl_include=`dirname $x`
     echo ..."Found readline header in $rl_include"
     if (echo $rl_include | grep "readline$" > /dev/null); then
       rl_include=`dirname $rl_include`
       RLINCLUDE="-I$rl_include"
     fi
      ;;
-  *) echo ..."readline header file not found by Configure, trying to proceed"
-     readline=;;
 esac
 
 exe=$osname-$arch-rlv$$
@@ -46,32 +44,6 @@ for tlib in "" tinfo ncurses termcap; do
   try "$t"
   if test -r $exe; then break; fi
 done
-
-# failed; retry with -Lxxx using locatelib
-if test ! -r $exe; then
-  pth="$with_readline_lib $libpth"
-  lib=readline; . ./locatelib
-  if test -n "$readline"; then
-    rl="-L$readline -lreadline"
-  else
-    rl="-lreadline" # not found, sequel will almost certainly fail
-  fi
-  for tlib in "" tinfo ncurses termcap; do
-    t=$rl
-    if test -n "$tlib"; then # termcap compatible library, using locatelib
-      eval pth="\$with_${tlib}_lib $libpth"
-      lib=$tlib; . ./locatelib
-      eval p="\$$tlib"
-      if test -n "$p"; then
-        t="$t -L$p -l$tlib"
-      else
-        t="$t -l$p"
-      fi
-    fi
-    try "$t"
-    if test -r $exe; then break; fi
-  done
-fi
 
 readline_version=
 if test -r $exe; then

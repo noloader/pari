@@ -79,7 +79,7 @@ Qt4)
   PLOTLIBS="-L\$(QTDIR)/lib $QTLIB"
   graph=plotQt4;;
 fltk)
-  PLOTCFLAGS="-I\$(FLTKDIR)/include $X11_INC"
+  PLOTCFLAGS=
   PLOTLIBS="$FLTK_LIBS"
   postconfig='fltk-config --post '
   graph=plotfltk;;
@@ -273,8 +273,6 @@ MOC        = \$(QTDIR)/bin/moc
 PLOTCFLAGS = $PLOTCFLAGS
 PLOTLIBS   = $PLOTLIBS
 CPLUSPLUS  = g++
-
-FLTKDIR    = "$FLTKDIR"
 
 TOPLDDYN   = "$TOP/$objdir"
 # Description system

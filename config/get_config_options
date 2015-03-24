@@ -165,7 +165,7 @@ Optional libraries:
   --with-gmp-lib=DIR          specify location of gmp libs
 
   --with-qt[=DIR]        use the Qt graphical library [prefix for Qt dir.]
-  --with-fltk[=DIR]      use the FLTK graphical library [prefix for FLTK dir.]
+  --with-fltk            use the FLTK graphical library [need fltk-config]
 
 Miscellaneous
   --with-runtime-perl[=path-to-perl-binary] for gphelp / tex2mail

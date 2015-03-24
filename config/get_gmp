@@ -5,15 +5,13 @@ if test -n "$with_gmp"; then
   with_gmp_include="$with_gmp_include $with_gmp/include"
 fi
 
-pth="$with_gmp_include $basic_include_path"
+pth="$with_gmp_include"
 x=`./locate 'gmp.h' '' $pth`
 case $x in
  ?:/*|/*) gmp_include=`dirname $x`
    echo ..."Found gmp header in $gmp_include"
    GMPINCLUDE="-I$gmp_include"
    ;;
-  *) echo ..."gmp header file not found by Configure, trying to proceed"
-     gmp=;;
 esac
 
 try() { GMPLIBS=$1; cmd="$cmd0 $1"; . log_cmd; }
