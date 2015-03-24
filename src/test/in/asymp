@@ -13,8 +13,8 @@ check(limitnum(n -> (1+1/n)^n), exp(1))
 
 f(n) = n! / (n^n*exp(-n)*sqrt(2*Pi*n));
 asympnum(f)
-asympnum(n->log(1+1/n^2),,2)
+asympnum(n->log(1+1/n^2),,2)[1..17]
 
 \p115
-asympnum(n->log(1+1/n^pi),,pi)
+asympnum(n->log(1+1/n^pi),,pi)[1..17]
 asympnum(v)
