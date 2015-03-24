@@ -2,7 +2,7 @@ Function: asympnum
 Section: sums
 C-Name: asympnum
 Prototype: GD0,L,DGp
-Help: asympnum(expr,{k=20},{alpha}): asymptotic expansion of expr assuming
+Help: asympnum(expr,{k=20},{alpha = 1}): asymptotic expansion of expr assuming
  it has rational coefficients with reasonable height; k and alpha are as
  in extnum.
 Doc: Asymptotic expansion of \var{expr}, corresponding to a sequence $u(n)$,
@@ -28,4 +28,17 @@ Doc: Asymptotic expansion of \var{expr}, corresponding to a sequence $u(n)$,
  ? asympnum(n->f(n)/L) \\ we get more terms!
  %6 = [1, 1/12, 1/288, -139/51840, -571/2488320, 163879/209018880,\
        5246819/75246796800, -534703531/902961561600]
+ @eprog\noindent If \kbd{alpha} is not an integer, loss of accuracy is
+ expected, so it should be precomputed to double accuracy, say:
+ \bprog
+ ? \p38
+ ? asympnum(n->-log(1-1/n^Pi),,Pi)
+ %1 = [0, 1, 1/2, 1/3]
+ ? asympnum(n->-log(1-1/sqrt(n)),,1/2)
+ %2 = [0, 1, 1/2, 1/3, 1/4, 1/5, 1/6, 1/7, 1/8, 1/9, 1/10, 1/11, 1/12, \
+   1/13, 1/14, 1/15, 1/16, 1/17, 1/18, 1/19, 1/20, 1/21, 1/22]
+
+ ? localprec(100); a = Pi;
+ ? asympnum(n->-log(1-1/n^a),,a) \\ better !
+ %4 = [0, 1, 1/2, 1/3, 1/4, 1/5, 1/6, 1/7, 1/8, 1/9, 1/10, 1/11, 1/12]
  @eprog
