@@ -1815,7 +1815,9 @@ limitnum_i(GEN u, GEN vres, long muli, GEN alpha, long prec)
     GEN malpha = gneg(alpha);
     for (n = 1; n <= N; n++)
     {
-      gel(x,n) = gpow(utoipos(n),malpha,prec);
+      GEN xn = gpow(utoipos(n),malpha,prec);
+      if (typ(xn) != t_REAL) xn = gtofp(xn, prec+EXTRAPRECWORD);
+      gel(x,n) = xn;
       gel(y,n) = get_uin(u, muli*n, vres, alpha, prec);
     }
     S = polint(x,y,gen_0,NULL);
