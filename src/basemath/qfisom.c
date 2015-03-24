@@ -1793,3 +1793,55 @@ qfautoexport(GEN G, long flag)
   gel(str,c++) = strtoGENstr(flag ? ">":")");
   return gerepilecopy(av, shallowconcat1(str));
 }
+
+GEN
+qforbits(GEN G, GEN V)
+{
+  pari_sp av = avma;
+  GEN gen, w, W, p, v, orb, o;
+  long i, j, n, ng;
+  long nborbits = 0;
+  if (typ(G)==t_VEC && lg(G)==3 && typ(gel(G,1))==t_INT)
+    G = gel(G,2);
+  gen = qf_to_zmV(G);
+  if (!gen) pari_err_TYPE("qforbits", G);
+  if (typ(V)==t_VEC && lg(V)==4
+   && typ(gel(V,1))==t_INT && typ(gel(V,2))==t_INT)
+    V = gel(V,3);
+  if (typ(V)!=t_MAT || !RgM_is_ZM(V)) pari_err_TYPE("qforbits", V);
+  n = lg(V)-1; ng = lg(gen)-1;
+  W = ZM_to_zm_canon(V);
+  p = vecvecsmall_indexsort(W);
+  v = vecpermute(W, p);
+  w = zero_zv(n);
+  orb = cgetg(n+1, t_VEC);
+  o = cgetg(n+1, t_VECSMALL);
+  if (lg(v) != lg(V)) return 0;
+  for (i=1; i<=n; i++)
+  {
+    long cnd, no = 1;
+    GEN or;
+    if (w[i]) continue;
+    w[i] = ++nborbits;
+    o[1] = i;
+    for (cnd=1; cnd <= no; ++cnd)
+      for(j=1; j <= ng; j++)
+      {
+        long k;
+        GEN Vij = zm_zc_mul(gel(gen, j), gel(v, o[cnd]));
+        (void) zv_canon(Vij);
+        k = vecvecsmall_search(v, Vij, 0);
+        if (k == 0) { avma = av; return gen_0; }
+        if (w[k] == 0)
+        {
+          o[++no] = k;
+          w[k] = nborbits;
+        }
+      }
+    or = cgetg(no+1, t_VEC);
+    for (j=1; j<=no; j++) gel(or,j) = gel(V,p[o[j]]);
+    gel(orb, nborbits) = or;
+  }
+  setlg(orb, nborbits+1);
+  return gerepilecopy(av, orb);
+}

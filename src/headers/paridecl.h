@@ -3784,6 +3784,7 @@ GEN     qfisom(GEN g, GEN h, GEN flags);
 GEN     qfisom0(GEN g, GEN h, GEN flags);
 GEN     qfisominit(GEN g, GEN flags);
 GEN     qfisominit0(GEN g, GEN flags);
+GEN     qforbits(GEN G, GEN V);
 
 /* qfparam.c */
 
