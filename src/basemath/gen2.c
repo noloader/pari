@@ -2671,6 +2671,7 @@ listput(GEN L, GEN x, long index)
   z = list_data(L);
   l = z? lg(z): 1;
 
+  x = gclone(x);
   if (!index || index >= l)
   {
     ensure_nb(L, l);
@@ -2679,7 +2680,7 @@ listput(GEN L, GEN x, long index)
     l++;
   } else
     gunclone_deep( gel(z, index) );
-  gel(z,index) = gclone(x);
+  gel(z,index) = x;
   z[0] = evaltyp(t_VEC) | evallg(l); /*must be after gel(z,index) is set*/
   return gel(z,index);
 }
