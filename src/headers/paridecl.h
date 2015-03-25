@@ -2521,6 +2521,7 @@ GEN     closure_callgen1prec(GEN C, GEN x, long prec);
 GEN     closure_callgen2(GEN C, GEN x, GEN y);
 GEN     closure_callgenall(GEN C, long n, ...);
 GEN     closure_callgenvec(GEN C, GEN args);
+GEN     closure_callgenvecprec(GEN C, GEN args, long prec);
 void    closure_callvoid1(GEN C, GEN x);
 long    closure_context(long start, long level);
 void    closure_disassemble(GEN n);
@@ -2535,6 +2536,7 @@ GEN     copybin_unlink(GEN C);
 GEN     get_lex(long vn);
 long    get_localprec(void);
 GEN     gp_call(void *E, GEN x);
+GEN     gp_callprec(void *E, GEN x, long prec);
 GEN     gp_call2(void *E, GEN x, GEN y);
 long    gp_callbool(void *E, GEN x);
 long    gp_callvoid(void *E, GEN x);
@@ -3682,8 +3684,8 @@ GEN     bnrstark(GEN bnr, GEN subgroup, long prec);
 /* sumiter.c */
 
 GEN     asympnum(void *E, GEN (*f)(void *,GEN,long), long muli, GEN alpha, long prec);
-GEN     derivnum(void *E, GEN (*eval)(void *, GEN), GEN x, long prec);
-GEN     derivfun(void *E, GEN (*eval)(void *, GEN), GEN x, long prec);
+GEN     derivnum(void *E, GEN (*eval)(void *, GEN, long prec), GEN x, long prec);
+GEN     derivfun(void *E, GEN (*eval)(void *, GEN, long prec), GEN x, long prec);
 GEN     direuler(void *E, GEN (*eval)(void *, GEN), GEN ga, GEN gb, GEN c);
 int     forcomposite_init(forcomposite_t *C, GEN a, GEN b);
 GEN     forcomposite_next(forcomposite_t *C);

@@ -1810,6 +1810,16 @@ closure_callgenvec(GEN C, GEN args)
 }
 
 GEN
+closure_callgenvecprec(GEN C, GEN args, long prec)
+{
+  GEN z;
+  push_localprec(prec);
+  z = closure_callgenvec(C, args);
+  pop_localprec();
+  return z;
+}
+
+GEN
 closure_callgenall(GEN C, long n, ...)
 {
   va_list ap;
@@ -1842,8 +1852,11 @@ gp_evalupto(void *E, GEN x)
 GEN
 gp_evalprec(void *E, GEN x, long prec)
 {
-  GEN code = (GEN)E;
-  return closure_callgen1prec(code, x, prec);
+  GEN z;
+  push_localprec(prec);
+  z = gp_eval(E, x);
+  pop_localprec();
+  return z;
 }
 
 long
@@ -1868,6 +1881,13 @@ gp_call(void *E, GEN x)
 {
   GEN code = (GEN)E;
   return closure_callgen1(code, x);
+}
+
+GEN
+gp_callprec(void *E, GEN x, long prec)
+{
+  GEN code = (GEN)E;
+  return closure_callgen1prec(code, x, prec);
 }
 
 GEN

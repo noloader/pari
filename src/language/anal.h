@@ -22,6 +22,7 @@ BEGINEXTERN
 { GEN z; GEN __E = code; \
   push_lex(gen_0, __E); z = call; pop_lex(1); return z; }
 #define EXPR_ARG __E, &gp_eval
+#define EXPR_ARGPREC __E, &gp_evalprec
 #define EXPR_ARGUPTO __E, &gp_evalupto
 #define EXPR_ARGBOOL __E, &gp_evalbool
 

@@ -1678,11 +1678,11 @@ struct deriv_data
   GEN args;
 };
 
-static GEN deriv_eval(void *E, GEN x)
+static GEN deriv_eval(void *E, GEN x, long prec)
 {
  struct deriv_data *data=(struct deriv_data *)E;
  gel(data->args,1)=x;
- return closure_callgenvec(data->code, data->args);
+ return closure_callgenvecprec(data->code, data->args, prec);
 }
 
 /* Rationale: (f(2^-e) - f(-2^-e) + O(2^-pr)) / (2 * 2^-e) = f'(0) + O(2^-2e)
@@ -1693,7 +1693,7 @@ static GEN deriv_eval(void *E, GEN x)
  * For f'(x), x far from 0: prec(LHS) = pr - e - expo(x)
  * --> pr = 3/2 fpr + expo(x) */
 GEN
-derivnum(void *E, GEN (*eval)(void *, GEN), GEN x, long prec)
+derivnum(void *E, GEN (*eval)(void *, GEN, long), GEN x, long prec)
 {
   GEN eps,a,b, y;
   long pr, l, e, ex, newprec;
@@ -1714,16 +1714,14 @@ derivnum(void *E, GEN (*eval)(void *, GEN), GEN x, long prec)
 
   e = fpr/2; /* 1/2 required prec (in sig. bits) */
   eps = real2n(-e, l);
-  if (eval==gp_eval || eval==deriv_eval) push_localprec(newprec);
-  a = eval(E, gsub(x, eps));
-  b = eval(E, gadd(x, eps));
-  if (eval==gp_eval || eval==deriv_eval) pop_localprec();
+  a = eval(E, gsub(x, eps), newprec);
+  b = eval(E, gadd(x, eps), newprec);
   y = gmul2n(gsub(b,a), e-1);
   return gerepileupto(av, gprec_w(y, nbits2prec(fpr)));
 }
 
 GEN
-derivfun(void *E, GEN (*eval)(void *, GEN), GEN x, long prec)
+derivfun(void *E, GEN (*eval)(void *, GEN, long), GEN x, long prec)
 {
   pari_sp av = avma;
   long vx;
@@ -1735,7 +1733,7 @@ derivfun(void *E, GEN (*eval)(void *, GEN), GEN x, long prec)
     x = RgX_to_ser(x, precdl+2+1); /* +1 because deriv reduce the precision by 1 */
   case t_SER: /* FALL THROUGH */
     vx = varn(x);
-    return gerepileupto(av, gdiv(deriv(eval(E, x),vx), deriv(x,vx)));
+    return gerepileupto(av, gdiv(deriv(eval(E, x, prec),vx), deriv(x,vx)));
   default: pari_err_TYPE("formal derivation",x);
     return NULL; /*NOT REACHED*/
   }
@@ -1744,7 +1742,7 @@ derivfun(void *E, GEN (*eval)(void *, GEN), GEN x, long prec)
 GEN
 derivnum0(GEN a, GEN code, long prec)
 {
-  EXPR_WRAP(code, derivfun (EXPR_ARG,a,prec));
+  EXPR_WRAP(code, derivfun (EXPR_ARGPREC,a,prec));
 }
 
 GEN
@@ -1880,7 +1878,7 @@ limitnum0(GEN u, long muli, GEN alpha, long prec)
   {
     case t_COL:
     case t_VEC: break;
-    case t_CLOSURE: f = gp_evalprec; break;
+    case t_CLOSURE: f = gp_callprec; break;
     default: pari_err_TYPE("limitnum", u);
   }
   return limitnum(E,f, muli,alpha, prec);
@@ -1924,7 +1922,7 @@ asympnum0(GEN u, long muli, GEN alpha, long prec)
   {
     case t_COL:
     case t_VEC: break;
-    case t_CLOSURE: f = gp_evalprec; break;
+    case t_CLOSURE: f = gp_callprec; break;
     default: pari_err_TYPE("asympnum", u);
   }
   return asympnum(E,f, muli,alpha, prec);

@@ -5,6 +5,13 @@ Prototype: G
 Description:
   (gen):gen    $1
 
+Function: _wrap_Gp
+Class: gp2c_internal
+C-Name: gp_callprec
+Prototype: Gp
+Description:
+  (gen):gen    $1
+
 Function: _wrap_GG
 Class: gp2c_internal
 C-Name: gp_call2
