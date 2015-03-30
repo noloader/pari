@@ -29,7 +29,7 @@ Doc:
  %2 = 57896044618658097711785492504343953926856930875039260848015607506283634007912
  @eprog
 
- The elliptic curve assocaited to the sum of two cubes:
+ The elliptic curve associated to the sum of two cubes is given by
  \bprog
  ? ellfromeqn(x^3+y^3-a)
  %1 = [0,0,-9*a,0,-27*a^2]
