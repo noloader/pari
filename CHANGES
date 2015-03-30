@@ -130,6 +130,8 @@ VBr83- [darwin] remove obsolete linker options that cause crashes [#1623]
        initial zeroes)
 BA 96- when r > ord(L_E,1), ellL1(E, r) gave a wrong result
    97- qfminim(A, 0, ...) -> stack overflow [#1682]
+   98- e=ellinit("11a1"); ellztopoint(e,3*e.omega[1]/5) -> [5, junk]
+       (instead of expected [5,5]) [#1683]
 
   Added
     1- add optional argument to sumdigits to specify the base

@@ -123,8 +123,11 @@ iferr(ellztopoint(e,3),E,E)
 e = ellinit(ellfromj(11/8),  O(2^5));
 e.tate
 
+e = ellinit([0,-1,1,-10,-20]);
 \\#1185
-ellwp(ellinit([0,-1,1,-10,-20]),x+O(x^12))
+ellwp(e,x+O(x^12))
+\\#1683
+ellztopoint(e,3*e.omega[1]/5)
 
 \\#1186
 ellmul(ellinit([3,0]), [1,2], -quadgen(-4))

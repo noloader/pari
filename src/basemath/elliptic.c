@@ -2983,7 +2983,7 @@ ellwpnum_all(GEN e, GEN z, long flall, long prec)
   if (T.abs_u_is_1) y = real_i(y);
   simple_case = T.abs_u_is_1 && T.q_is_real;
   y = gadd(mkfrac(gen_1, utoipos(12)), y);
-  yp = flall? gdiv(gaddsg(1,u), gmul(u1,u2)): NULL;
+  yp = flall? gen_0: NULL;
   toadd = (long)ceil(get_toadd(T.Z));
 
   av1 = avma; qn = q;
@@ -2995,12 +2995,8 @@ ellwpnum_all(GEN e, GEN z, long flall, long prec)
     GEN a = gsubsg(1,qnu);/* 1 - q^n u */
     GEN a2 = gsqr(a);     /* (1 - q^n u)^2 */
     if (yp) ypadd = gdiv(gaddsg(1,qnu),gmul(a,a2));
-    if (simple_case)
-    { /* conj(u) = 1/u: formula simplifies */
-      yadd = gdiv(u, a2);
-      yadd = gmul2n(real_i(yadd), 1);
-      if (yp) ypadd = gmul2n(real_i(ypadd), 1);
-    }
+    if (simple_case) /* conj(u) = 1/u: formula simplifies */
+      yadd = gmul2n(real_i(gdiv(u,a2)), 1);
     else
     {
       GEN b = gsub(qn,u);/* q^n - u */
@@ -3019,6 +3015,11 @@ ellwpnum_all(GEN e, GEN z, long flall, long prec)
       if(DEBUGMEM>1) pari_warn(warnmem,"ellwp");
       gerepileall(av1, flall? 3: 2, &y, &qn, &yp);
     }
+  }
+  if (yp)
+  {
+    if (simple_case) yp = gsub(yp, gconj(gmul(yp,gsqr(u))));
+    yp = gadd(yp, gdiv(gaddsg(1,u), gmul(u1,u2)));
   }
 
   u1 = gdiv(pi2, mulcxmI(T.W2));
