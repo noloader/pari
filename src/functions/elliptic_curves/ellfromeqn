@@ -10,10 +10,9 @@ Help: ellfromeqn(P): Given a genus 1 plane curve, defined by the affine
 Doc:
  Given a genus $1$ plane curve, defined by the affine equation $f(x,y) = 0$,
  return the coefficients $[a_1,a_2,a_3,a_4,a_6]$ of a Weierstrass equation
- for its Jacobian.
-
- This allows to recover a Weierstrass model for an elliptic curve given by a
- general plane cubic or by a binary quartic or biquadratic model.
+ for its Jacobian. This allows to recover a Weierstrass model for an elliptic
+ curve given by a general plane cubic or by a binary quartic or biquadratic
+ model.
 
  The function implements the $f \mapsto f^*$ formulae of Artin, Tate and
  Villegas (Advances in Math. 198 (2005), pp. 366--382).
@@ -41,12 +40,12 @@ Doc:
  we get $((a^2+(2\*n/a)^2)-c^2)*a^2 = 0$.
  We set $x=a$, $y=a*c$.
  \bprog
- ? ellfromeqn((x^2+(2\*n/x)^2-(y/x)^2)*x^2)
+ ? ellfromeqn((x^2+(2*n/x)^2-(y/x)^2)*x^2)
  %1 = [0,0,0,-16*n^2,0]
  @eprog
- For example $23$ is a congruent number since the curve has a non-torsion
- point, namely:
+ For example $23$ is congruent since the curve has a point of infinite order,
+ namely:
  \bprog
  ? ellheegner(ellinit(subst([0,0,0,-16*n^2,0],n,23)))
- %8 = [168100/289,68053440/4913]
+ %2 = [168100/289,68053440/4913]
  @eprog
