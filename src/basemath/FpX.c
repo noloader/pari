@@ -1739,9 +1739,18 @@ FpXQ_log(GEN a, GEN g, GEN ord, GEN T, GEN p)
   pari_sp av=avma;
   if (lgefint(p)==3)
   {
-    ulong pp = to_Flxq(&a, &T, p);
-    GEN z = Flxq_log(a, ZX_to_Flx(g, pp), ord, T, pp);
-    return gerepileuptoleaf(av, z);
+    if (uel(p,2) == 2)
+    {
+      GEN z = F2xq_log(ZX_to_F2x(a), ZX_to_F2x(g), ord,
+                                     ZX_to_F2x(get_FpX_mod(T)));
+      return gerepileuptoleaf(av, z);
+    }
+    else
+    {
+      ulong pp = to_Flxq(&a, &T, p);
+      GEN z = Flxq_log(a, ZX_to_Flx(g, pp), ord, T, pp);
+      return gerepileuptoleaf(av, z);
+    }
   }
   else
   {
@@ -1751,6 +1760,7 @@ FpXQ_log(GEN a, GEN g, GEN ord, GEN T, GEN p)
     return gerepileuptoleaf(av, z);
   }
 }
+
 GEN
 Fq_log(GEN a, GEN g, GEN ord, GEN T, GEN p)
 {
@@ -1781,12 +1791,22 @@ FpXQ_sqrtn(GEN a, GEN n, GEN T, GEN p, GEN *zeta)
   }
   if (lgefint(p)==3)
   {
-    ulong pp = to_Flxq(&a, &T, p);
-    z = Flxq_sqrtn(a, n, T, pp, zeta);
-    if (!z) return NULL;
-    if (!zeta) return Flx_to_ZX_inplace(gerepileuptoleaf(av, z));
-    z = Flx_to_ZX(z);
-    *zeta=Flx_to_ZX(*zeta);
+    if (uel(p,2) == 2)
+    {
+      GEN z = F2xq_sqrtn(ZX_to_F2x(a), n, ZX_to_F2x(get_Flx_mod(T)), zeta);
+      if (!z) return NULL;
+      if (!zeta) return gerepileuptoleaf(av, F2x_to_ZX(z));
+      z = F2x_to_ZX(z);
+      *zeta=F2x_to_ZX(*zeta);
+    } else
+    {
+      ulong pp = to_Flxq(&a, &T, p);
+      z = Flxq_sqrtn(a, n, T, pp, zeta);
+      if (!z) return NULL;
+      if (!zeta) return Flx_to_ZX_inplace(gerepileuptoleaf(av, z));
+      z = Flx_to_ZX(z);
+      *zeta=Flx_to_ZX(*zeta);
+    }
   }
   else
   {
