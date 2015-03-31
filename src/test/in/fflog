@@ -16,13 +16,13 @@ t = ffprimroot(ffgen(3^23)); fflog(t^12345678910,t)
 t = ffprimroot(ffgen(5^23)); fflog(t^1234567891012345,t)
 t = ffprimroot(ffgen(5^17)); fflog(t^123456789101,t)
 
-test(P,p)=
+test(P,p,ord)=
 {
   my(a,b,u,l);
   a=ffgen(P*Mod(1,p),'a);
   b=ffprimroot(a);
   u=random(a);
-  l=fflog(u,b);
+  l=if(ord,fflog(u,b,ord),fflog(u,b));
   b^l==u;
 }
 test(x^2+1,1073742623)
@@ -30,6 +30,7 @@ test(x^2+1,1152921504606849707)
 test(x^4+699*x^2+107,1129)
 test(polcyclo(5),1073749723)
 test(polcyclo(7),1073741833)
+test(ffinit(5,24),5,5^24-1)
 
 p=2^64+13; g=ffprimroot(ffgen(p^2), &o); a=2*g^0;
 g^fflog(a,g,o) == a
