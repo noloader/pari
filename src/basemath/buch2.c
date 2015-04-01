@@ -531,7 +531,7 @@ cache_prime_dec(GRHcheck_t *S, ulong LIM, GEN nf)
 }
 
 static double
-tailresback(long LIMC, long LIMC2, long LIMC3, long R1, long R2, double rK, double r1K, double r2K, double logLIMC, double logLIMC2, double logLIMC3)
+tailresback(long LIMC, double LIMC2, double LIMC3, long R1, long R2, double rK, double r1K, double r2K, double logLIMC, double logLIMC2, double logLIMC3)
 {
   const double  rQ = 1.83787706641;
   const double r1Q = 1.98505372441;
@@ -550,7 +550,7 @@ tailres(long R1, long R2, double al2K, double rKm, double rKM, double r1Km, doub
   const double logLIMC = log(LIMC), logLIMC2 = logLIMC*logLIMC;
   const double logLIMC3 = logLIMC*logLIMC2;
   const double E1 = rtodbl(eint1(dbltor(logLIMC/2), DEFAULTPREC));
-  const long LIMC2 = LIMC*LIMC, LIMC3 = LIMC*LIMC2;
+  const double LIMC2 = LIMC*LIMC, LIMC3 = LIMC*LIMC2;
   return
     al2K*((33*logLIMC2+22*logLIMC+8)/(8*logLIMC3*sqrt(LIMC))+15*E1/16)
      + maxdd(

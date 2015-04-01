@@ -1211,9 +1211,9 @@ bin_copy(GENbin *p)
   y = (GEN)memcpy((void*)new_chunk(len), (void*)GENbinbase(p), len*sizeof(long));
   y += dx;
   if (p->canon)
-    shiftaddress_canon(y, (y-x)*sizeof(long));
+    shiftaddress_canon(y, ((ulong)y-(ulong)x));
   else
-    shiftaddress(y, (y-x)*sizeof(long));
+    shiftaddress(y, ((ulong)y-(ulong)x));
   pari_free(p); return y;
 }
 

@@ -37,7 +37,7 @@ addsi_sign(long x, GEN y, long sy)
   ly=lgefint(y);
   if (ly==3)
   {
-    const long d = y[2] - x;
+    const long d = (long)(uel(y,2) - (ulong)x);
     if (!d) return gen_0;
     z=cgeti(3);
     if (y[2] < 0 || d > 0) {

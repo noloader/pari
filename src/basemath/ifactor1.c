@@ -1420,11 +1420,12 @@ fin:
 static long
 squfof_ambig(long a, long B, long dd, GEN D)
 {
-  long b, c, q, qc, qcb, a0, b0, b1, c0;
+  long b, c, q, qa, qc, qcb, a0, b0, b1, c0;
   long cnt = 0; /* count reduction steps on the cycle */
 
   q = (dd + (B>>1)) / a;
-  b = ((q*a) << 1) - B;
+  qa = q * a;
+  b = (qa - B) + qa; /* avoid overflow */
   {
     pari_sp av = avma;
     c = itos(divis(shifti(subii(D, sqrs(b)), -2), a));
