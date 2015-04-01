@@ -811,10 +811,10 @@ DDF_roots(GEN A)
   e = logint(addiu(shifti(bound, 1), 1), p, &pe);
   pes2 = shifti(pe, -1);
   if (DEBUGLEVEL>2) timer_printf(&T, "Root bound");
+  av = avma;
   z = ZpX_roots(A, p, e); lz = lg(z);
   z = deg1_from_roots(z, varn(A));
   if (DEBUGLEVEL>2) timer_printf(&T, "Hensel lift (mod %lu^%ld)", pp,e);
-  av = avma;
   for (m=1, i=1; i < lz; i++)
   {
     GEN q, r, y = gel(z,i);
@@ -822,19 +822,19 @@ DDF_roots(GEN A)
     y = centermod_i(y, pe, pes2);
     if (! (q = ZX_divides(lcpol, y)) ) continue;
 
-    lcpol = A = q;
+    lcpol = q;
     r = negi( constant_term(y) );
     if (lc) {
       r = gdiv(r,lc);
-      A = Q_primpart(A);
-      lc = absi_shallow( leading_term(A) );
-      if (is_pm1(lc)) lc = NULL; else lcpol = ZX_Z_mul(A, lc);
+      lcpol = Q_primpart(lcpol);
+      lc = absi_shallow( leading_term(lcpol) );
+      if (is_pm1(lc)) lc = NULL; else lcpol = ZX_Z_mul(lcpol, lc);
     }
     gel(z,m++) = r;
     if (gc_needed(av,2))
     {
       if (DEBUGMEM>1) pari_warn(warnmem,"DDF_roots, m = %ld", m);
-      gerepileall(av, lc? 3:1, &A, &lc, &lcpol);
+      gerepileall(av, lc? 3:2, &z, &lcpol, &lc);
 
     }
   }
