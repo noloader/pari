@@ -1793,10 +1793,10 @@ FpXQ_sqrtn(GEN a, GEN n, GEN T, GEN p, GEN *zeta)
   {
     if (uel(p,2) == 2)
     {
-      GEN z = F2xq_sqrtn(ZX_to_F2x(a), n, ZX_to_F2x(get_Flx_mod(T)), zeta);
+      z = F2xq_sqrtn(ZX_to_F2x(a), n, ZX_to_F2x(get_Flx_mod(T)), zeta);
       if (!z) return NULL;
-      if (!zeta) return gerepileuptoleaf(av, F2x_to_ZX(z));
       z = F2x_to_ZX(z);
+      if (!zeta) return gerepileuptoleaf(av, z);
       *zeta=F2x_to_ZX(*zeta);
     } else
     {
