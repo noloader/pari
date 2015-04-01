@@ -132,6 +132,12 @@ ellwp(e,x+O(x^12))
 \\#1683
 ellztopoint(e,3*e.omega[1]/5)
 
+\\#1683
+e = ellinit([1,1,0,-1740,22184]);
+z=-3.0059315873096303229151114945365166621 + 0.E-36*I/2;
+ellztopoint(e,z)
+
+
 \\#1186
 ellmul(ellinit([3,0]), [1,2], -quadgen(-4))
 
