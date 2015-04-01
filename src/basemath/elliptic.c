@@ -3723,16 +3723,16 @@ static GEN
 nflocalred_p(GEN e, GEN P)
 {
   GEN nf = ellnf_get_nf(e), T,p, modP = nf_to_Fq_init(nf,&P,&T,&p);
-  long c, f, vc4, vc6, vD, kod, m;
+  long c, f, vD, nuj, kod, m;
   GEN ch, c4, c6, D, z, pi, piinv;
 
   c4 = ell_get_c4(e);
   c6 = ell_get_c6(e);
   D = ell_get_disc(e);
-  vc4= nfval(nf,c4,P);
-  vc6= nfval(nf,c6,P);
   vD = nfval(nf,D,P);
-  m = minss(vc4/4, vc6/6);
+  nuj = nfval(nf,ell_get_j(e),P);
+  nuj = nuj >= 0? 0: -nuj; /* v_P(denom(j)) */
+  m = (vD - nuj)/12;
   piinv = pr_get_tau(P);
   if (typ(piinv) == t_MAT) piinv = gel(piinv,1);
   piinv = gdiv(piinv, p); /* v_P(piinv) = -1, v_Q(piinv) >= 0, Q!=P */
@@ -3748,8 +3748,8 @@ nflocalred_p(GEN e, GEN P)
     ui4 = nfsqr(nf,ui2);
     ui6 = nfmul(nf,ui2,ui4);
     ui12 = nfsqr(nf,ui6);
-    c4 = nfmul(nf,c4,ui4); vc4-= 4*m;
-    c6 = nfmul(nf,c6,ui6); vc6-= 6*m;
+    c4 = nfmul(nf,c4,ui4);
+    c6 = nfmul(nf,c6,ui6);
     D = nfmul(nf,D,ui12);  vD -= 12*m;
     a1 = nf_to_scalar_or_basis(nf, ell_get_a1(e));
     a2 = nf_to_scalar_or_basis(nf, ell_get_a2(e));
@@ -3764,9 +3764,9 @@ nflocalred_p(GEN e, GEN P)
 
   kod = 0; c = 1;
   /* minimal at P */
-  if (3*vc4 < vD)
+  if (nuj > 0)
   { /* v(j) < 0 */
-    if (vc4==0)
+    if (vD == nuj)
     { /* v(c4) = v(c6) = 0, multiplicative reduction */
       f = 1; kod = 4+vD;
       z = Fq_neg(nf_to_Fq(nf,c6,modP), T,p);
