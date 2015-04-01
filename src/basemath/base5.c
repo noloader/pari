@@ -1375,7 +1375,7 @@ nfsnf0(GEN nf, GEN x, long flag)
     if (gc_needed(av,1))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"nfsnf");
-      gerepileall(av,U?4:6, &A,&I,&J,&z,&U,&V);
+      gerepileall(av,U?6:4, &A,&I,&J,&z,&U,&V);
     }
     if (c) i++; /* iterate on row/column i */
   }
