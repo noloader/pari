@@ -3,8 +3,12 @@ _readline_list="readline readline_version RLINCLUDE RLLIBS"
 
 readline=
 if test -n "$with_readline"; then
-  with_readline_lib="$with_readline_lib $with_readline/lib"
-  with_readline_include="$with_readline_include $with_readline/include"
+  if test -z "$with_readline_lib"; then
+    with_readline_lib="$with_readline/lib"
+  fi
+  if test -z "$with_readline_include"; then
+    with_readline_include="$with_readline/include"
+  fi
 fi
 
 # Readline -- Headers

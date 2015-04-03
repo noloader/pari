@@ -1,8 +1,12 @@
 _gmp_list="gmp GMPLIBS GMPINCLUDE"
 gmp=
 if test -n "$with_gmp"; then
-  with_gmp_lib="$with_gmp_lib $with_gmp/lib"
-  with_gmp_include="$with_gmp_include $with_gmp/include"
+  if test -z "$with_gmp_lib"; then
+    with_gmp_lib="$with_gmp/lib"
+  fi
+  if test -z "$with_gmp_include"; then
+    with_gmp_include="$with_gmp/include"
+  fi
 fi
 
 pth="$with_gmp_include"
@@ -20,7 +24,8 @@ exe=$osname-$arch-gmp$$
 cmd0="$CC $CFLAGS $extraflag $GMPINCLUDE -o $exe gmp_version.c"
 
 if test -n "$with_gmp_lib"; then
-  try "-L$with_gmp_lib -lgmp"
+  gmp=$with_gmp_lib
+  try "-L$gmp -lgmp"
 fi
 if test ! -r $exe; then
   try "-lgmp"
