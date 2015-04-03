@@ -272,7 +272,7 @@ QTDIR      = "$QTDIR"
 MOC        = \$(QTDIR)/bin/moc
 PLOTCFLAGS = $PLOTCFLAGS
 PLOTLIBS   = $PLOTLIBS
-CPLUSPLUS  = g++
+CXX        = g++
 
 TOPLDDYN   = "$TOP/$objdir"
 # Description system
@@ -723,17 +723,18 @@ for dir in basemath modules language gp graph systems mt; do
   plotQt)
     cflags="$cflags \$(PLOTCFLAGS)"
     depend="$RECT_H"
-    compile="\$(MOC) -o plotQt.moc.cpp $src/graph/plotQt.c && \$(CPLUSPLUS)"
+    compile="\$(MOC) -o plotQt.moc.cpp $src/graph/plotQt.c && \$(CXX)"
     ;;
   plotQt4)
     cflags="$cflags \$(PLOTCFLAGS)"
     depend="$RECT_H"
-    compile="\$(MOC) \$(PLOTCFLAGS) -o plotQt4.moc.cpp $src/graph/plotQt4.c && \$(CPLUSPLUS)"
+    compile="\$(MOC) \$(PLOTCFLAGS) -o plotQt4.moc.cpp $src/graph/plotQt4.c
+&& \$(CXX)"
     ;;
   plotfltk)
     cflags="$cflags \$(PLOTCFLAGS)"
     depend="$RECT_H"
-    compile="\$(CPLUSPLUS)"
+    compile="\$(CXX)"
     ;;
   plot*)
     cflags="$cflags \$(PLOTCFLAGS)"
