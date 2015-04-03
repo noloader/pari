@@ -1366,11 +1366,49 @@ ellisoncurve(GEN e, GEN x)
   return oncurve(e, x)? gen_1: gen_0;
 }
 
+/* y1 = y2 or -LHS0-y2 */
+static GEN
+slope_samex(GEN e, GEN x, GEN y1, GEN y2)
+{
+  GEN dy,dx;
+  if (y1 != y2)
+  {
+    int eq;
+    if (precision(y1) || precision(y2))
+      eq = (gexpo(gadd(ec_h_evalx(e,x),gadd(y1,y2))) >= gexpo(y1));
+    else
+      eq = gequal(y1,y2);
+    if (!eq) return NULL;
+  }
+  dx = ec_dmFdy_evalQ(e,mkvec2(x,y1));
+  if (gequal0(dx)) return NULL;
+  dy = gadd(gsub(ell_get_a4(e),gmul(ell_get_a1(e),y1)),
+            gmul(x,gadd(gmul2n(ell_get_a2(e),1),gmulsg(3,x))));
+  return gdiv(dy,dx);
+}
+static GEN
+get_slope(GEN e, GEN x1, GEN x2, GEN y1, GEN y2)
+{
+  GEN dy,dx;
+  if (x1 == x2 || gequal(x1,x2))
+    return slope_samex(e, x1, y1, y2);
+  dx = gsub(x2,x1);
+  if (typ(dx) == t_COMPLEX) /* its Norm may be 0 */
+  {
+    GEN N = gnorm(dx);
+    if (gequal0(N)) return slope_samex(e,x1,y1,y2);
+    dy = gsub(y2,y1);
+    return gdiv(gmul(dy,gconj(dx)),N); /* dy/dx */
+  }
+  dy = gsub(y2,y1);
+  return gdiv(dy,dx);
+}
+
 GEN
 elladd(GEN e, GEN z1, GEN z2)
 {
-  GEN p1, p2, x, y, x1, x2, y1, y2;
-  pari_sp av = avma, tetpil;
+  GEN s, z, x, y, x1, x2, y1, y2;
+  pari_sp av = avma;
 
   checkell(e); checkellpt(z1); checkellpt(z2);
   if (ell_is_inf(z1)) return gcopy(z2);
@@ -1386,32 +1424,13 @@ elladd(GEN e, GEN z1, GEN z2)
     y1 = nftoalg(nf, y1);
     y2 = nftoalg(nf, y2);
   }
-  if (x1 == x2 || gequal(x1,x2))
-  { /* y1 = y2 or -LHS0-y2 */
-    if (y1 != y2)
-    {
-      int eq;
-      if (precision(y1) || precision(y2))
-        eq = (gexpo(gadd(ec_h_evalx(e,x1),gadd(y1,y2))) >= gexpo(y1));
-      else
-        eq = gequal(y1,y2);
-      if (!eq) { avma = av; return ellinf(); }
-    }
-    p2 = ec_dmFdy_evalQ(e,z1);
-    if (gequal0(p2)) { avma = av; return ellinf(); }
-    p1 = gadd(gsub(ell_get_a4(e),gmul(ell_get_a1(e),y1)),
-              gmul(x1,gadd(gmul2n(ell_get_a2(e),1),gmulsg(3,x1))));
-  }
-  else {
-    p1 = gsub(y2,y1);
-    p2 = gsub(x2,x1);
-  }
-  p1 = gdiv(p1,p2);
-  x = gsub(gmul(p1,gadd(p1,ell_get_a1(e))), gadd(gadd(x1,x2),ell_get_a2(e)));
-  y = gadd(gadd(y1, ec_h_evalx(e,x)), gmul(p1,gsub(x,x1)));
-  tetpil = avma; p1 = cgetg(3,t_VEC);
-  gel(p1,1) = gcopy(x);
-  gel(p1,2) = gneg(y); return gerepile(av,tetpil,p1);
+  s = get_slope(e,x1,x2,y1,y2);
+  if (!s) { avma = av; return ellinf(); }
+  x = gsub(gmul(s,gadd(s,ell_get_a1(e))), gadd(gadd(x1,x2),ell_get_a2(e)));
+  y = gadd(gadd(y1, ec_h_evalx(e,x)), gmul(s,gsub(x,x1)));
+  z = cgetg(3,t_VEC);
+  gel(z,1) = gcopy(x);
+  gel(z,2) = gneg(y); return gerepileupto(av, z);
 }
 
 static GEN
