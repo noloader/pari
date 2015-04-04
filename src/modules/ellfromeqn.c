@@ -71,7 +71,7 @@ jac_quart(GEN t0, GEN s0, GEN s1, GEN s2, GEN r0, GEN r1, GEN r2, GEN r3, GEN r4
 }
 
 /* Input: coefficients of an equation */
-/* (t0*x^2+t1*x^+t2)*y^2+(r0*x^2+r1*x^+r2)*y+(s0*x^2+s1*x+s2)=0 */
+/* (t0*x^2+t1*x+t2)*y^2+(r0*x^2+r1*x+r2)*y+(s0*x^2+s1*x+s2)=0 */
 
 static GEN
 jac_biquadr(GEN t0, GEN t1, GEN t2, GEN r0, GEN r1, GEN r2,
