@@ -2,14 +2,16 @@
 _readline_list="readline readline_version RLINCLUDE RLLIBS"
 
 readline=
-if test -n "$with_readline"; then
+case "$with_readline" in
+  yes|"");;
+  *)
   if test -z "$with_readline_lib"; then
     with_readline_lib="$with_readline/lib"
   fi
   if test -z "$with_readline_include"; then
     with_readline_include="$with_readline/include"
-  fi
-fi
+  fi;;
+esac
 
 # Readline -- Headers
 pth="$with_readline_include"
