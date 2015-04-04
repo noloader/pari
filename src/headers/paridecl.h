@@ -3175,6 +3175,16 @@ void    mapput(GEN T, GEN a, GEN b);
 GEN     maptomat(GEN T);
 GEN     maptomat_shallow(GEN T);
 
+/* mellininv.c */
+
+GEN     gammamellininv(GEN Vga, GEN s, long m, long prec);
+GEN     gammamellininv_bitprec(GEN Vga, GEN s, long m, long bitprec);
+GEN     gammamellininvasymp(GEN Vga, long nlimmax, long m);
+GEN     gammamellininvinit(GEN Vga, long m, long prec);
+GEN     gammamellininvinit_bitprec(GEN Vga, long m, long bitprec);
+GEN     gammamellininvrt(GEN K, GEN x, long prec);
+GEN     gammamellininvrt_bitprec(GEN K, GEN s, long bitprec);
+
 /* members.c */
 
 GEN     member_a1(GEN x);
