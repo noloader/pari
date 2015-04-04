@@ -42,6 +42,7 @@ M=Map([1,2;3,4;5,6])
 Vec(M)
 Mat(M)
 apply(sqr,M)
+for(i=0,2,mapput(M, 2*i+1, -mapget(M,2*i+1)));M
 
 M0=Map(matrix(10,2,i,j,i));
 M1=Map(matrix(10,2,i,j,if(j==1,i,i*x^0)));
