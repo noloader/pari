@@ -26,78 +26,59 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 static const double MELLININV_CUTOFF  =  11.; /* C */
 static const double MELLININV_CUTOFF2 = 121.; /* C*C */
 
-/* Poles of the gamma factor. */
+static GEN
+MOD2(GEN x) { GEN q = gdivent(x,gen_2); return gsub(x,gmul2n(q,1)); }
+static GEN
+RgV_MOD2(GEN v)
+{
+  long i, l;
+  GEN w = cgetg_copy(v,&l);
+  for (i=1; i<l; i++) gel(w,i) = MOD2(gel(v,i));
+  return w;
+}
 
+/* poles of the gamma factor */
 static GEN
 gammapoles(GEN Vga)
 {
   long i, m, d = lg(Vga)-1;
-  GEN P, V;
-  GEN B = cgetg(d+1,t_VEC);
-  for (i = 1; i <= d; ++i)
-    gel(B, i) = gel(gdiventres(gel(Vga, i), gen_2), 2);
+  GEN P, V, B = RgV_MOD2(Vga);
   P = gen_indexsort(B, (void*)gcmp, cmp_nodata);
   V = cgetg(d+1, t_VEC);
   for (i = 1, m = 1; i <= d;)
   {
-    long n, k, j;
-    GEN Vm;
     GEN u = gel(B, P[i]);
-    for(k = i + 1; k <= d; ++k)
-      if (gcmp(gel(B, P[k]), u))
-        break;
-    n = k - i;
-    if (n == 0) break;
-    Vm = cgetg(n+1, t_VEC);
-    for(j = 1; j <= n; ++j)
-      gel(Vm, j) = gel(Vga, P[j+i-1]);
-    gel(V, m++) = Vm;
+    long k;
+    for(k = i+1; k <= d; ++k)
+      if (!gequal(gel(B, P[k]), u)) break;
+    gel(V, m++) = vecpermute(Vga, vecslice(P,i,k-1));
     i = k;
   }
-  setlg(V, m);
-  return V;
+  setlg(V, m); return V;
 }
 
-/* Compute coefficient matrix for generalized power series expansion
-   of inverse Mellin around x = 0. */
-
+/* coefficient matrix for power series expansion of inverse Mellin around x=0 */
 static GEN
 coeffall(GEN Vga, GEN mj, GEN lj, long limn, long prec)
 {
   long i, j, n, N = lg(lj)-1, d = lg(Vga)-1;
-  GEN call, p5;
-  GEN pols = cgetg(N+1, t_MAT);
-  for (j = 1; j <= N; ++j)
+  GEN call = cgetg(N+1, t_MAT);
+  for (j=1; j <= N; j++)
   {
-    GEN polj = cgetg(d+1, t_COL);
-    for (i = 1; i <= d; ++i)
-      gel(polj, i) = deg1pol(ghalf, gdivgs(gadd(gel(mj, j), gel(Vga, i)), 2), 0);
-    gel(pols, j) = polj;
-  }
-  call = cgetg(limn+2, t_MAT);
-  p5 = cgetg(N+1, t_COL);
-  for (j = 1; j <= N; ++j)
-  {
-    pari_sp btop = avma;
-    GEN pr = gen_1;
-    for (i = 1; i <= d; ++i)
-      pr = gmul(pr, ggamma(RgX_to_ser(gmael(pols, j, i), lj[j]+3), prec));
-    gel(p5, j) = gerepileupto(btop, pr);
-  }
-  gel(call, 1) = p5;
-  for (n = 1; n <= limn; ++n)
-  {
-    GEN p16 = cgetg(N+1, t_COL);
-    for (j = 1; j <= N; ++j)
+    GEN c, m = gel(mj,j), pr = gen_1, t = gen_1;
+    long precdl = lj[j]+3;
+    for (i=1; i <= d; ++i)
     {
-      pari_sp btop = avma;
-      GEN pr = cgetg(d+1, t_COL);
-      for (i = 1; i <= d; ++i)
-        gel(pr, i) = gsubgs(gmael(pols, j, i), n);
-      pr = divide_conquer_prod(pr, gmul);
-      gel(p16, j) = gerepileupto(btop, gdiv(gcoeff(call, j, n), pr));
+      GEN a = gmul2n(gadd(m, gel(Vga,i)), -1);
+      GEN u = deg1pol_shallow(ghalf, a, 0);
+      pr = gmul(pr, ggamma(RgX_to_ser(u, precdl), prec));
+      t = gmul(t, u);
     }
-    gel(call, n + 1) = p16;
+    c = cgetg(limn+2,t_COL);
+    gel(c,1) = pr;
+    for (n=1; n <= limn; n++)
+      gel(c,n+1) = gdiv(gel(c,n), RgX_translate(t, stoi(-2*n)));
+    gel(call,j) = c;
   }
   return call;
 }
@@ -109,30 +90,26 @@ mysercoeff(GEN x, long n)
   return (N < 0)? gen_0: gel(x, N+2);
 }
 
-/* Initialization for generalized power series expansion of
-   inverse Mellin around x = 0. */
-
+/* generalized power series expansion of inverse Mellin around x = 0 */
 static GEN
 Ksmallinit(GEN Vga, long bitprec)
 {
   pari_sp av = avma;
-  long prec;
-  long d = lg(Vga)-1, N, j, n;
-  GEN LA, lj, mj;
-  long limn;
-  GEN call, matvec;
+  long d = lg(Vga)-1, N, j, n, limn, prec;
+  GEN LA, lj, mj, call, matvec;
   double C2 = MELLININV_CUTOFF2;
 
   if (!is_matvec_t(typ(Vga))) pari_err_TYPE("Ksmallinit",Vga);
   LA = gammapoles(Vga); N = lg(LA)-1;
   lj = cgetg(N+1, t_VECSMALL);
-  for (j = 1; j <= N; ++j) lj[j] = lg(gel(LA, j))-1;
+  for (j = 1; j <= N; ++j) lj[j] = lg(gel(LA,j))-1;
   mj = cgetg(N+1, t_VEC);
-  for (j = 1; j <= N; ++j) gel(mj, j) = gsubsg(2,vecmin(gel(LA, j)));
+  for (j = 1; j <= N; ++j) gel(mj, j) = gsubsg(2,vecmin(gel(LA,j)));
+
   prec = nbits2prec((long)(1+bitprec*(1+M_PI*d/C2)));
   limn = ceil(2*LOG2*bitprec/(d*rtodbl(mplambertW(dbltor(C2/(M_PI*M_E))))));
   call = coeffall(Vga, mj, lj, limn, prec);
-  matvec = cgetg(N + 1, t_VEC);
+  matvec = cgetg(N+1, t_VEC);
   for (j = 1; j <= N; ++j)
   {
     long k, ljj = lj[j];
@@ -141,15 +118,14 @@ Ksmallinit(GEN Vga, long bitprec)
     {
       GEN L = cgetg(limn+1, t_VEC);
       for (n = 1; n <= limn; ++n)
-        gel(L, n) = gtofp(mysercoeff(gcoeff(call, j, n + 1), -(k + 1)), prec);
-      gmael(matvec, j, k + 1) = L;
+        gel(L, n) = gtofp(mysercoeff(gcoeff(call, n+1, j), -(k+1)), prec);
+      gmael(matvec, j, k+1) = L;
     }
   }
   return gerepilecopy(av, mkvec3(lj, mj, matvec));
 }
 
 /* Same for m-th derivatives. */
-
 static GEN
 Kderivsmallinit(GEN Vga, long m, long bitprec)
 {
@@ -158,7 +134,9 @@ Kderivsmallinit(GEN Vga, long m, long bitprec)
   long N, j, i;
   if (!is_matvec_t(typ(Vga))) pari_err_TYPE("Kderivsmallinit",Vga);
   vv = Ksmallinit(Vga, bitprec);
-  lj = gel(vv, 1); mj = gel(vv, 2); matvec = gel(vv, 3);
+  lj = gel(vv,1);
+  mj = gel(vv,2);
+  matvec = gel(vv,3);
   N = lg(lj)-1;
   matpol = cgetg(N + 1, t_VEC);
   for (j = 1; j <= N; ++j)
@@ -177,9 +155,9 @@ Kderivsmallinit(GEN Vga, long m, long bitprec)
       long k, ljj = lj[j];
       for (k = 0; k < ljj; ++k)
       {
-        GEN p1 = gmael(matpol, j, k + 1), p3 = RgX_shift(RgX_deriv(p1), 1);
-        GEN p2 = (k < ljj - 1) ? gmael(matpol, j, k + 2) : gen_0;
-        gmael(matpol, j, k + 1) = gsub(gmul2n(p3, 1), gadd(p2, gmul(gel(mj, j), p1)));
+        GEN p1 = gmael(matpol, j, k+1), p3 = RgX_shift(RgX_deriv(p1), 1);
+        GEN p2 = (k < ljj-1) ? gmael(matpol, j, k+2) : gen_0;
+        gmael(matpol, j, k+1) = gsub(gmul2n(p3, 1), gadd(p2, gmul(gel(mj, j), p1)));
       }
       gel(mj, j) = gaddgs(gel(mj, j), 1);
     }
@@ -188,8 +166,8 @@ Kderivsmallinit(GEN Vga, long m, long bitprec)
     long k, ljj = lj[j];
     for (k = 0; k < ljj; ++k)
     {
-      GEN p1 = RgX_shift(gmael(matpol, j, k + 1), -1);
-      gmael(matvec, j, k + 1) = RgX_to_RgC(p1, lgpol(p1));
+      GEN p1 = RgX_shift(gmael(matpol, j, k+1), -1);
+      gmael(matvec, j, k+1) = RgX_to_RgC(p1, lgpol(p1));
     }
   }
   return gerepilecopy(av, mkvec3(lj, mj, matvec));
@@ -219,7 +197,6 @@ evalvec(GEN vec, long lim, GEN u, long prec)
 }
 
 /* x^k/k! for 0 <= k <= n. */
-
 static GEN
 gpowersdivfact(GEN x, long n)
 {
@@ -227,14 +204,12 @@ gpowersdivfact(GEN x, long n)
   long j;
   GEN xp = cgetg(n+2, t_VEC);
   gel(xp, 1) = gen_1;
-  for (j = 1; j <= n; ++j)
-    gel(xp, j+1) = gdivgs(gmul(x, gel(xp, j)), j);
+  for (j = 1; j <= n; ++j) gel(xp, j+1) = gdivgs(gmul(x, gel(xp, j)), j);
   return gerepilecopy(av, xp);
 }
 
 /* Compute m-th derivative of inverse Mellin at x by generalized
    power series around x = 0. */
-
 static GEN
 Kderivsmall(GEN K, GEN x, long bitprec)
 {
@@ -242,18 +217,20 @@ Kderivsmall(GEN K, GEN x, long bitprec)
   long prec;
   GEN lj, mj, matvec, Vga = gel(K, 2);
   GEN Lx, Lxp, x2;
-  GEN A, S, VVS = gel(K, 4);
+  GEN A, S, VS = gel(K, 4);
   long d, N, j, k, mlj, limn, m = itos(gel(K, 3));
   double Ed, xd, Wd, Wd0;
   GEN p1;
-  lj = gel(VVS, 1); mj = gel(VVS, 2); matvec = gel(VVS, 3);
+  lj = gel(VS, 1); mj = gel(VS, 2); matvec = gel(VS, 3);
   N = lg(lj)-1; d = lg(Vga)-1; A = vecsum(Vga);
   Ed = LOG2*bitprec/d;
   xd = maxdd(M_PI*gtodouble(gabs(x, LOWDEFAULTPREC)), 1E-13);
   if (xd > Ed)
     pari_err_DOMAIN("Kderivsmall (use Kderivlarge)","x",">=",dbltor(Ed),x);
-  Wd0 = Ed/(M_E*xd); Wd=log(1.+Wd0);
-  Wd*=(1.-log(Wd/Wd0))/(1.+Wd); Wd*=(1.-log(Wd/Wd0))/(1.+Wd);
+  Wd0 = Ed/(M_E*xd);
+  Wd = log(1.+Wd0);
+  Wd *= (1.-log(Wd/Wd0))/(1.+Wd);
+  Wd *= (1.-log(Wd/Wd0))/(1.+Wd);
   limn = (long) ceil(2*Ed/Wd);
   prec = nbits2prec((long) ceil(bitprec+d*xd/LOG2));
   if (!gequal0(imag_i(x)))
@@ -275,7 +252,7 @@ Kderivsmall(GEN K, GEN x, long bitprec)
     GEN s = real_0(prec);
     long ljj = lj[j];
     for (k = 0; k < ljj; ++k)
-      s = gadd(s, gmul(gel(Lxp, k+1), evalvec(gmael(matvec, j, k + 1), limn, x2, prec)));
+      s = gadd(s, gmul(gel(Lxp, k+1), evalvec(gmael(matvec, j, k+1), limn, x2, prec)));
     p1 = gadd(p1, gmul(gpow(x, gneg(gel(mj, j)), prec), s));
     if (gc_needed(btop, 1))
       p1 = gerepilecopy(btop, p1);
@@ -285,9 +262,52 @@ Kderivsmall(GEN K, GEN x, long bitprec)
   return gerepileupto(ltop, gtofp(S, nbits2prec(bitprec)));
 }
 
-/* Compute some coefficients necessary for computing
-   asymptotic expansion of inverse Mellin. */
+/* Compute m-th derivative of inverse Mellin at t by
+   continued fraction of asymptotic expansion. */
+static GEN
+Kderivlarge(GEN K, GEN t, long bitprec)
+{
+  pari_sp ltop = avma;
+  GEN tdA, P, P0, S, pi, pit, Vga = gel(K,2);
+  const long d = lg(Vga)-1;
+  GEN VL = gel(K,5), M;
+  GEN Ms = gel(VL,1), cd = gel(VL,2), A2 = gel(VL,3);
+  double E, CC, tdd;
+  long nlim, m = itos(gel(K, 3)), status;
+  long prec;
 
+  tdd = gtodouble(gabs(t, LOWDEFAULTPREC));
+  prec = nbits2prec( ceil(bitprec+BITS_IN_LONG -
+                          (M_PI*d*tdd - gtodouble(A2)*log(tdd)/2) / LOG2) );
+  if (prec < LOWDEFAULTPREC) prec = LOWDEFAULTPREC;
+  t = gtofp(t, prec);
+  if (typ(A2) == t_INT && !mpodd(A2))
+    tdA = gpowgs(t, itos(A2)/2);
+  else
+    tdA = gsqrt(gpow(t, A2, prec), prec);
+  tdA = gmul(tdA, cd);
+
+  pi = mppi(prec);
+  pit = gmul(pi, t);
+  P0 = gmul(tdA, gexp(gmulsg(-d, pit), prec));
+  P = m ? gmul(gpowgs(gmulsg(-2, pi), m), P0) : P0;
+  M = gel(Ms,1);
+  status = itos(gel(Ms,2));
+  if (status == 2)
+  {
+    GEN z = poleval(RgV_to_RgX(M, 0), ginv(pit));
+    return gerepileupto(ltop, gmul(P, z));
+  }
+  E = LOG2*bitprec;
+  CC = d <= 2 ? 81. : 101.;
+  nlim = ceil(E*E / (CC*tdd));
+  S = contfraceval(M, ginv(pit), nlim/2);
+  if (status == 1) S = gmul(S, gsubsg(1, ginv(gmul(pit, pi))));
+  return gerepileupto(ltop, gmul(P, S));
+}
+
+/* Dokchitser's coefficients used for asymptotic expansion of inverse Mellin
+ * 2 <= p <= min(n+1, d) */
 static GEN
 fun_vp(long p, long n, long d, GEN SM, GEN vsinh)
 {
@@ -296,128 +316,67 @@ fun_vp(long p, long n, long d, GEN SM, GEN vsinh)
   GEN s = gen_0;
   for (m = 0; m <= p; ++m)
   {
-    long pm2 = (p - m)/2;
-    GEN pr = gen_1, s2 = gen_0;
-    for (j = m; j < p; ++j)
-      pr = gmulgs(pr, d - j);
-    for (k = 0; k <= pm2; ++k)
+    GEN pr = gen_1, s2 = gen_0, sh = gel(vsinh, d-p+1);/* (sh(x)/x)^(d-p) */
+    long pm = p-m;
+    for (j = m; j < p; ++j) pr = muliu(pr, d-j);
+    for (k = 0; k <= pm; k+=2)
     {
-      GEN e = gdiv(gpowgs(stoi(2*n - p + 1), p - m - 2*k), mpfact(p - m - 2*k));
-      s2 = gadd(s2, gmul(e, RgX_coeff(gel(vsinh, d - p + 1), 2*k)));
+      GEN e = gdiv(powuu(2*n-p+1, pm-k), mpfact(pm-k));
+      s2 = gadd(s2, gmul(e, RgX_coeff(sh, k)));
     }
-    s = gadd(s, gmul(gmul(gel(SM, m + 1), pr), s2));
-    if (gc_needed(ltop, 1))
-      s = gerepilecopy(ltop, s);
+    s = gadd(s, gmul(gmul(gel(SM, m+1), pr), s2));
+    if (gc_needed(ltop, 1)) s = gerepilecopy(ltop, s);
   }
   return gerepileupto(ltop, gmul(gdivsg(-d, powuu(2*d, p)), s));
 }
 
-/* Reasonable test if Vga with zero Hankel determinants.
-Return 1 if some Hankel vanishes, 2 if some coeff vanishes, 0
-if no vanishing Hankel found. */
-
-static GEN Klargeinit0(GEN Vga, long nlimmax, long *status);
-
-static long
-testhankelspec(GEN Vga)
-{
-  pari_sp av = avma;
-  GEN M, e, q;
-  long j, k, status;
-  M = Klargeinit0(Vga, 7, &status);
-  /* Here status = 0 */
-  e = zerovec(6); q = cgetg(7, t_VEC);
-  for (k = 1; k <= 6; ++k)
-  {
-    if (gequal0(gel(M, k))) {avma = av; return 2;}
-    gel(q, k) = gdiv(gel(M, k+1), gel(M, k));
-  }
-  for (j = 1; j <= 3; ++j)
-  {
-    long l = 6 - 2*j;
-    for (k = 0; k <= l; ++k)
-      gel(e, k+1) = gsub(gadd(gel(e, k+2), gel(q, k+2)), gel(q, k+1));
-    for (k = 0; k < l; ++k)
-    {
-      if (gequal0(gel(e, k+1))) {avma = av; return 1;}
-      gel(q, k+1) = gdiv(gmul(gel(q, k+2), gel(e, k+2)), gel(e, k+1));
-    }
-  }
-  avma = av; return 0;
-}
-
-/* Include here all the Vga you know with zero Hankel determinants.
-   For the moment the only special cases encountered are Vga = [a,a,a,a,a].
-   and [a,a,a,a,a,a,a]. Add more if more are found. */
-
-static long
-ishankelspec(GEN Vga)
-{
-  long i, d = lg(Vga)-1;
-  GEN v1;
-  if (d == 5 || d == 7)
-  {
-    v1 = gel(Vga, 1);
-    for (i = 2; i <= d; ++i)
-      if (!gequal(gel(Vga, i), v1)) break;
-    if (i == d+1) return 1;
-  }
-  return testhankelspec(Vga) != 0;
-}
-
-/* Exponent of t in asymptotic expansion. */
-
-static GEN
-gammavec_expo(GEN Vga)
-{
-  long d = lg(Vga)-1;
-  return gdivgs(gaddsg(1 - d, vecsum(Vga)), d);
-}
-
-/* Returns the asymptotic expansion of inverse Mellin, to
-   length nlimmax. In the special cases d = 1 or
-   d = 2 and Vga[2] - Vga[1] is odd, the asymptotic expansion
-   is finite so return only the necessary number of terms. */
-
+/* Asymptotic expansion of inverse Mellin, to length nlimmax. Set status = 0
+ * (regular), 1 (one Hankel determinant vanishes => contfracinit will fail)
+ * or 2 (same as 1, but asymptotic expansion is finite!)
+ *
+ * If status = 2, the asymptotic expansion is finite so return only
+ * the necessary number of terms nlim <= nlimmax + d. */
 static GEN
 Klargeinit0(GEN Vga, long nlimmax, long *status)
 {
-  long prec = LOWDEFAULTPREC;
-  long k, n, m, cnt = 0;
+  const long prec = LOWDEFAULTPREC;
+  const long d = lg(Vga)-1;
+  long k, n, m, cnt;
   GEN pol, SM, nS1, se, vsinh, M, dk;
-  long d = lg(Vga)-1;
-  *status = 0;
-  if (d == 1 || (d == 2 && gequal1(gabs(gsub(gel(Vga, 1), gel(Vga, 2)), prec))))
-  {
+
+  if (d==1 || (d==2 && gequal1(gabs(gsub(gel(Vga,1), gel(Vga,2)), prec))))
+  { /* shortcut */
     *status = 2; return mkvec(gen_1);
   }
-  pol = roots_to_pol(gneg(Vga), 0);
-  nS1 = gpowers(gneg(RgX_coeff(pol, d - 1)), d);
-  dk = gpowers(utoi(d), d - 1);
+  /* d >= 2 */
+  *status = 0;
+  pol = roots_to_pol(gneg(Vga), 0); /* deg(pol) = d */
+  nS1 = gpowers(gneg(RgX_coeff(pol, d-1)), d);
+  dk = gpowers(utoi(d), d-1);
   SM = cgetg(d+3, t_VEC);
   for (m = 0; m <= d; ++m)
   {
     pari_sp btop = avma;
-    GEN s = gmul(gdivgs(gel(nS1, m + 1), d), binomialuu(d, m));
+    GEN s = gmul(gdivgs(gel(nS1, m+1), d), binomialuu(d, m));
     for (k = 1; k <= m; ++k)
     {
-      GEN e = gmul(gel(nS1, m - k + 1), gel(dk, k));
-      s = gadd(s, gmul(gmul(e, binomialuu(d - k, m - k)), RgX_coeff(pol, d - k)));
+      GEN e = gmul(gel(nS1, m-k+1), gel(dk, k));
+      s = gadd(s, gmul(gmul(e, binomialuu(d-k, m-k)), RgX_coeff(pol, d-k)));
     }
-    gel(SM, m + 1) = gerepileupto(btop, s);
+    gel(SM, m+1) = gerepileupto(btop, s);
   }
-  se = gdiv(gsinh(gadd(pol_x(0), zeroser(0, d + 2)), prec), pol_x(0));
+  se = gdiv(gsinh(RgX_to_ser(pol_x(0), d+2), prec), pol_x(0));
   vsinh = gpowers(se, d);
   M = vectrunc_init(nlimmax + d);
   vectrunc_append(M, gen_1);
-  for (n = 2; (n <= nlimmax) || cnt; ++n)
+  for (n=2, cnt=0; (n <= nlimmax) || cnt; ++n)
   {
     pari_sp btop = avma;
     long p, ld = minss(d, n);
     GEN s = gen_0;
     for (p = 2; p <= ld; ++p)
-      s = gadd(s, gmul(fun_vp(p, n - 1, d, SM, vsinh), gel(M, n + 1 - p)));
-    s = gerepileupto(btop, gdivgs(s, n - 1));
+      s = gadd(s, gmul(fun_vp(p, n-1, d, SM, vsinh), gel(M, n+1-p)));
+    s = gerepileupto(btop, gdivgs(s, n-1));
     vectrunc_append(M, s);
     if (!isintzero(s))
     {
@@ -427,212 +386,149 @@ Klargeinit0(GEN Vga, long nlimmax, long *status)
     else
     {
       cnt++; *status = 1;
-      if (cnt >= d - 1) { *status = 2; setlg(M, lg(M) - (d - 1)); break; }
+      if (cnt >= d-1) { *status = 2; setlg(M, lg(M) - (d-1)); break; }
     }
   }
   return M;
 }
 
-/* Remove trailing zeros from vector. */
-
-static GEN
-remzeros(GEN M)
+/* remove trailing zeros from vector. */
+static void
+stripzeros(GEN M)
 {
-  pari_sp ltop = avma;
-  GEN M0;
-  long lm, i, j;
-  lm = lg(M);
-  for(i = lm - 1; i >= 1; --i)
+  long i;
+  for(i = lg(M)-1; i >= 1; --i)
     if (!gequal0(gel(M, i))) break;
-  M0 = cgetg(i + 1, t_VEC);
-  for (j = 1; j <= i; ++j) gel(M0, j) = gel(M, j);
-  return gerepilecopy(ltop, M0);
+  setlg(M, i+1);
 }
 
-/* Returns the asymptotic expansion of the m-th derivative of
-   inverse Mellin, to length nlimmax. In the special cases d = 1 or
-   d = 2 and Vga[2] - Vga[1] is odd, the asymptotic expansion
-   is finite so return only the necessary number of terms. */
-
+/* Asymptotic expansion of the m-th derivative of inverse Mellin, to length
+ * nlimmax. If status = 2, the asymptotic expansion is finite so return only
+ * the necessary number of terms nlim <= nlimmax + d. */
 static GEN
 gammamellininvasymp_i(GEN Vga, long nlimmax, long m, long *status)
 {
   pari_sp ltop = avma;
   GEN M, A, Aadd;
   long d, i, nlim, n;
-  M = Klargeinit0(Vga, nlimmax, status);
-  if (m == 0) return gerepilecopy(ltop, M);
-  d = lg(Vga)-1; A = gammavec_expo(Vga);
-  if (*status == 2)
-  {
-    long lM = lg(M)-1;
-    M = vec_lengthen(M, lM + m);
-    for (i = 1; i <= m; ++i) gel(M, lM+i) = gen_0;
-  }
-  nlim = lg(M)-1; Aadd = gsubgs(gdivgs(gen_2, d), 1);
-  for (i = 1; i <= m; ++i)
-  {
-    for (n = nlim - 1; n >= 1; --n)
-      gel(M, n + 1) = gsub(gel(M, n + 1), gmul(gel(M, n),
-                           gsub(gdivgs(A, 2), gdivgs(stoi(n - 1), d))));
-    A = gadd(A, Aadd);
-  }
-  return gerepilecopy(ltop, remzeros(M));
-}
 
+  M = Klargeinit0(Vga, nlimmax, status);
+  if (!m) return gerepilecopy(ltop, M);
+  d = lg(Vga)-1;
+  /* half the exponent of t in asymptotic expansion. */
+  A = gdivgs(gaddsg(1-d, vecsum(Vga)), 2*d);
+  if (*status == 2) M = shallowconcat(M, zerovec(m));
+  nlim = lg(M)-1;
+  Aadd = gdivgs(stoi(2-d), 2*d); /* (1/d) - (1/2) */
+  for (i = 1; i <= m; i++, A = gadd(A,Aadd))
+    for (n = nlim-1; n >= 1; --n)
+      gel(M, n+1) = gsub(gel(M, n+1),
+                         gmul(gel(M, n), gsub(A, gdivgs(stoi(n-1), d))));
+  stripzeros(M);
+  return gerepilecopy(ltop, M);
+}
 GEN
 gammamellininvasymp(GEN Vga, long nlimmax, long m)
-{
-  long status;
-  return gammamellininvasymp_i(Vga, nlimmax, m, &status);
-}
+{ long status; return gammamellininvasymp_i(Vga, nlimmax, m, &status); }
 
-/* Compute m-th derivative of inverse Mellin at t by
-   continued fraction of asymptotic expansion. */
-
-static GEN
-Kderivlarge(GEN K, GEN t, long bitprec)
+/* Does the continued fraction of the asymptotic expansion M at oo of inverse
+ * Mellin transform associated to Vga have zero Hankel determinants ? */
+static long
+ishankelspec(GEN Vga, GEN M)
 {
-  pari_sp ltop = avma;
-  long d;
-  GEN tdA, A2, P, P0, S, pi, pit, cd, Vga = gel(K, 2);
-  GEN VVL = gel(K, 5), M;
-  double E, CC, tdd;
-  long nlim, m = itos(gel(K, 3)), status;
-  long prec;
-  d = lg(Vga)-1; A2 = gel(VVL, 3);
-  tdd = gtodouble(gabs(t, LOWDEFAULTPREC));
-  prec = nbits2prec(maxss(LOWDEFAULTPREC,
-               ceil(bitprec+BITS_IN_LONG-(M_PI*d*tdd-gtodouble(A2)*log(tdd)/2)/LOG2)));
-  t = gtofp(t, prec);
-  cd = gel(VVL, 2);
-  if (typ(A2) == t_INT && !mpodd(A2))
-    tdA = gmul(gpowgs(t, itos(A2)/2), cd);
-  else
-    tdA = gmul(gsqrt(gpow(t, A2, prec), prec), cd);
-  pi = mppi(prec); pit = gmul(pi, t);
-  P0 = gmul(tdA, gexp(gmulsg(-d, pit), prec));
-  P = m ? gmul(gpowgs(gmulsg(-2, pi), m), P0) : P0;
-  M = gmael(VVL, 1, 1); status = itos(gmael(VVL, 1, 2));
-  if (status == 2)
-  {
-    GEN z = poleval(RgV_to_RgX(M, 0), ginv(pit));
-    return gerepileupto(ltop, gmul(P, z));
+  long status, i, d = lg(Vga)-1;
+
+  if (d == 5 || d == 7)
+  { /* known bad cases: a x 5 and a x 7 */
+    GEN v1 = gel(Vga, 1);
+    for (i = 2; i <= d; ++i)
+      if (!gequal(gel(Vga,i), v1)) break;
+    if (i > d) return 1;
   }
-  E = LOG2*bitprec;
-  CC = d <= 2 ? 81. : 101.;
-  nlim = ceil(E*E/(CC*tdd));
-  S = contfraceval(M, ginv(pit), nlim/2);
-  if (status == 1) S = gmul(S, gsubsg(1, ginv(gmul(pit, pi))));
-  return gerepileupto(ltop, gmul(P, S));
+  status = 0;
+  /* Heuristic: if 6 first terms in contfracinit don't fail, assume it's OK */
+  pari_CATCH(e_INV) { status = 1; }
+  pari_TRY { contfracinit(M, 6); }
+  pari_ENDCATCH; return status;
 }
 
-/* Compute inverse Mellin at x using all precomputed data.
-tmax is the largest value of $t$ for which we use Ksmall, In
-principle, it is always set by the calling program.
-WARNING: it is assumed that the accuracy has been increased according
-to tmax by the CALLING program. */
-
-/* When K(t) is an exponential, give the formula (if K(t)
-is a Bessel function it is better to use the present program
-because we only want absolute accuracy). Otherwise use the
-power series for $t<tmax$, the continued fraction to at most nlimmax
-terms if $t>tmax$, where $tmax$ is computed by the program. The output
-is a COLUMN vector. */
-/* Warning: we compute here K(x^(d/2)) instead of K(x) because
-this is all that is needed in lfuninit. */
-
-/* Initialize all necessary data for computing m-th
-   derivative of inverse Mellin. */
-
+/* Initialize data for computing m-th derivative of inverse Mellin */
 GEN
 gammamellininvinit_bitprec(GEN Vga, long m, long bitprec)
 {
   pari_sp ltop = avma;
-  GEN A2, M, VVS, VVL, cd;
-  long nlimmax, d = lg(Vga)-1, status;
+  GEN A2, M, VS, VL, cd;
+  long d = lg(Vga)-1, status;
   double tmax = LOG2*bitprec / MELLININV_CUTOFF2;
-  double C2 = MELLININV_CUTOFF2, CC = d <= 2 ? 81. : 101.;
+  const double C2 = MELLININV_CUTOFF2, CC = d <= 2 ? 81. : 101.;
+  const long nlimmax = ceil(bitprec*C2*LOG2/CC);
+
   if (!is_vec_t(typ(Vga))) pari_err_TYPE("gammamellininvinit",Vga);
-  A2 = gaddsg(m*(2 - d) + 1 - d, vecsum(Vga));
-  cd = d <= 2 ? gen_2 : gsqrt(gdivgs(int2n(d + 1), d), nbits2prec(bitprec));
-  nlimmax = ceil(bitprec*C2*LOG2/CC);
-  /* Since we are in Klarge, we have tdd > tmax = LOG2*D/C2.
-     Thus, nlim < LOG2*D*C2/CC. */
+  A2 = gaddsg(m*(2-d) + 1-d, vecsum(Vga));
+  cd = (d <= 2)? gen_2: gsqrt(gdivgs(int2n(d+1), d), nbits2prec(bitprec));
+  /* if in Klarge, we have |t| > tmax = LOG2*D/C2, thus nlim < LOG2*D*C2/CC. */
   M = gammamellininvasymp_i(Vga, nlimmax, m, &status);
   if (status == 2)
   {
-    tmax = -1.; /* Only use Klarge */
-    VVS = gen_0;
+    tmax = -1.; /* only use Klarge */
+    VS = gen_0;
   }
   else
   {
     long prec = nbits2prec((4*bitprec)/3);
-    VVS = Kderivsmallinit(Vga, m, bitprec);
-    if (status == 0 && ishankelspec(Vga)) status = 1;
+    VS = Kderivsmallinit(Vga, m, bitprec);
+    if (status == 0 && ishankelspec(Vga, M)) status = 1;
     if (status == 1)
-    {
-      GEN eps = ginv(mppi(prec));
+    { /* a Hankel determinant vanishes => contfracinit is undefined.
+         So compute K(t) / (1 - 1/(pi^2*t)) instead of K(t)*/
+      GEN t = ginv(mppi(prec));
       long i;
       for (i = 2; i < lg(M); ++i)
-        gel(M, i) = gadd(gel(M, i), gmul(gel(M, i - 1), eps));
+        gel(M, i) = gadd(gel(M, i), gmul(gel(M, i-1), t));
     }
-    M = contfracinit(RgC_gtofp(M, prec), lg(M) - 2);
+    else
+      M = RgC_gtofp(M, prec); /* convert from rationals to t_REAL: faster */
+    M = contfracinit(M, lg(M)-2);
   }
-  VVL = mkvec3(mkvec2(M, stoi(status)), cd, A2);
-  return gerepilecopy(ltop, mkvec5(dbltor(tmax), Vga, stoi(m), VVS, VVL));
+  VL = mkvec3(mkvec2(M, stoi(status)), cd, A2);
+  return gerepilecopy(ltop, mkvec5(dbltor(tmax), Vga, stoi(m), VS, VL));
 }
-
 GEN
 gammamellininvinit(GEN Vga, long m, long prec)
-{
-  return gammamellininvinit_bitprec(Vga, m, prec2nbits(prec));
-}
+{ return gammamellininvinit_bitprec(Vga, m, prec2nbits(prec)); }
 
-/* Compute m-th derivative of inverse Mellin at x = s^(d/2)
-   using initialization data, which contains m = gel(K, 3). */
-
+/* Compute m-th derivative of inverse Mellin at x = s^(d/2) using
+ * initialization data. Use Taylor expansion at 0 for |x| < tmax, and
+ * asymptotic expansion at oo otherwise. WARNING: assume that accuracy
+ * has been increased according to tmax by the CALLING program. */
 GEN
 gammamellininvrt_bitprec(GEN K, GEN x, long bitprec)
 {
-  GEN tmax = gel(K, 1);
+  GEN tmax = gel(K,1);
   if (gcmp(gabs(x, LOWDEFAULTPREC), tmax) < 0)
     return Kderivsmall(K, x, bitprec);
   else
     return Kderivlarge(K, x, bitprec);
 }
-
 GEN
 gammamellininvrt(GEN K, GEN x, long prec)
-{
-  return gammamellininvrt_bitprec(K, x, prec2nbits(prec));
-}
+{ return gammamellininvrt_bitprec(K, x, prec2nbits(prec)); }
 
-/* Compute inverse Mellin at s. K can either be a Vga, in which
-   case the initialization data is computed, or an initialization
-   data itself. In application to lfuninit, this is not needed
-   since only inverse Mellin at s^(d/2) is useful. */
-
-/* Compute m-th derivative of inverse Mellin at s. K can either be a Vga,
-   in which case the initialization data is computed, or an initialization
-   data itself. */
-
+/* Compute inverse Mellin at s. K from gammamellininv OR a Vga, in which
+ * case the initialization data is computed. */
 GEN
 gammamellininv_bitprec(GEN K, GEN s, long m, long bitprec)
 {
-  pari_sp ltop = avma;
-  GEN s2d, p1;
-  if (!is_vec_t(typ(K)))
-    pari_err_TYPE("gammamellininvinit",K);
-  if (!(lg(K) == 6 && is_vec_t(typ(gel(K,2)))))
+  pari_sp av = avma;
+  GEN s2d;
+  long d;
+  if (!is_vec_t(typ(K))) pari_err_TYPE("gammamellininvinit",K);
+  if (lg(K) != 6 || !is_vec_t(typ(gel(K,2))))
     K = gammamellininvinit_bitprec(K, m, bitprec);
-  s2d = gpow(s, gdivgs(gen_2, lg(gel(K, 2))-1), nbits2prec(bitprec));
-  p1 = gammamellininvrt_bitprec(K, s2d, bitprec);
-  return gerepileupto(ltop, p1);
+  d = lg(gel(K,2))-1;
+  s2d = gpow(s, gdivgs(gen_2, d), nbits2prec(bitprec));
+  return gerepileupto(av, gammamellininvrt_bitprec(K, s2d, bitprec));
 }
-
 GEN
 gammamellininv(GEN Vga, GEN s, long m, long prec)
-{
-  return gammamellininv_bitprec(Vga, s, m, prec2nbits(prec));
-}
+{ return gammamellininv_bitprec(Vga, s, m, prec2nbits(prec)); }
