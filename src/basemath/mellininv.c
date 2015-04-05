@@ -262,24 +262,36 @@ Kderivsmall(GEN K, GEN x, long bitprec)
   return gerepileupto(ltop, gtofp(S, nbits2prec(bitprec)));
 }
 
+static void
+Kderivlarge_optim(GEN K, GEN t, long bitprec, long *pprec, long *pnlim)
+{
+  GEN Vga = gel(K,2), VL = gel(K,5), A2 = gel(VL,3);
+  long prec, d = lg(Vga)-1;
+  double td = gtodouble(gabs(t, LOWDEFAULTPREC));
+  double a = BITS_IN_LONG + ceil((gtodouble(A2)*log(td)/2 - M_PI*d*td)/LOG2);
+  double E = LOG2*bitprec;
+  double CC = d <= 2 ? 81. : 101.; /* heuristic */
+
+  if (a > 0) bitprec += a;
+  prec = nbits2prec(bitprec);
+  if (prec < LOWDEFAULTPREC) prec = LOWDEFAULTPREC;
+  *pprec = prec;
+
+  *pnlim = ceil(E*E / (CC*td));
+}
+
 /* Compute m-th derivative of inverse Mellin at t by
    continued fraction of asymptotic expansion. */
 static GEN
 Kderivlarge(GEN K, GEN t, long bitprec)
 {
   pari_sp ltop = avma;
-  GEN tdA, P, P0, S, pi, pit, Vga = gel(K,2);
+  GEN tdA, P, S, pi, pit, Vga = gel(K,2);
   const long d = lg(Vga)-1;
-  GEN VL = gel(K,5), M;
-  GEN Ms = gel(VL,1), cd = gel(VL,2), A2 = gel(VL,3);
-  double E, CC, tdd;
-  long nlim, m = itos(gel(K, 3)), status;
-  long prec;
+  GEN M, VL = gel(K,5), Ms = gel(VL,1), cd = gel(VL,2), A2 = gel(VL,3);
+  long status, prec, nlim, m = itos(gel(K, 3));
 
-  tdd = gtodouble(gabs(t, LOWDEFAULTPREC));
-  prec = nbits2prec( ceil(bitprec+BITS_IN_LONG -
-                          (M_PI*d*tdd - gtodouble(A2)*log(tdd)/2) / LOG2) );
-  if (prec < LOWDEFAULTPREC) prec = LOWDEFAULTPREC;
+  Kderivlarge_optim(K, t, bitprec, &prec, &nlim);
   t = gtofp(t, prec);
   if (typ(A2) == t_INT && !mpodd(A2))
     tdA = gpowgs(t, itos(A2)/2);
@@ -289,20 +301,17 @@ Kderivlarge(GEN K, GEN t, long bitprec)
 
   pi = mppi(prec);
   pit = gmul(pi, t);
-  P0 = gmul(tdA, gexp(gmulsg(-d, pit), prec));
-  P = m ? gmul(gpowgs(gmulsg(-2, pi), m), P0) : P0;
+  P = gmul(tdA, gexp(gmulsg(-d, pit), prec));
+  if (m) P = gmul(P, gpowgs(mulsr(-2, pi), m));
   M = gel(Ms,1);
   status = itos(gel(Ms,2));
   if (status == 2)
+    S = poleval(RgV_to_RgX(M, 0), ginv(pit));
+  else
   {
-    GEN z = poleval(RgV_to_RgX(M, 0), ginv(pit));
-    return gerepileupto(ltop, gmul(P, z));
+    S = contfraceval(M, ginv(pit), nlim/2);
+    if (status == 1) S = gmul(S, gsubsg(1, ginv(gmul(pit, pi))));
   }
-  E = LOG2*bitprec;
-  CC = d <= 2 ? 81. : 101.;
-  nlim = ceil(E*E / (CC*tdd));
-  S = contfraceval(M, ginv(pit), nlim/2);
-  if (status == 1) S = gmul(S, gsubsg(1, ginv(gmul(pit, pi))));
   return gerepileupto(ltop, gmul(P, S));
 }
 
