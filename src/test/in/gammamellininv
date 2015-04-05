@@ -61,3 +61,11 @@ chkd(v0,v1,t) = abs(derivnum(s=t,gammamellininv(v0,s)) - gammamellininv(v1,t));
 }
 
 gammamellininv([0],121.)
+
+G = gammamellininvinit([1], 2);
+a(z) = 4*Pi*z*exp(-Pi*z^2)*(2*Pi*z^2-3);
+f(z) = printf("%.3g\n", abs(a(z) - gammamellininv(G,z)));
+f(I)
+f(2+I)
+
+

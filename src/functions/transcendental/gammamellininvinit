@@ -14,7 +14,7 @@ Doc: initialize data for the computation by \tet{gammamellininv} of
  $G$ functions used to compute $L$-values via the approximate functional
  equation.
 
- \misctitle{Caveat 1} Contrary to the PARI convention, this function
+ \misctitle{Caveat} Contrary to the PARI convention, this function
  guarantees an \emph{absolute} (rather than relative) error bound.
 
  For instance, the inverse Mellin transform of $\Gamma_\R(s)$ is
@@ -35,16 +35,3 @@ Doc: initialize data for the computation by \tet{gammamellininv} of
  ? t(3/2)
  %3 = -1.4693679385278593850 E-39
  @eprog
-
- \misctitle{Caveat 2} Complex arguments are supported, but branch choices
- in \emph{derivatives} are inconsistent. For non-real arguments, derivatives
- are currently only correct up to a multiplicative root of unity.
- \bprog
- ? a(I)
- %4 = -2699.4994145113005949115381456794275730*I
- ? b(I)
- %5 = 2699.4994145113005949115381456794275730*I
- ? abs(a(2+I) - b(2+I))
- %6 = 3.680587501615906746 E-40
- @eprog\noindent In this last example, we either have $a = b$ or $a = -b$,
- depending on the evaluation point.

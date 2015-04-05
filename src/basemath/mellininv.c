@@ -263,54 +263,54 @@ Kderivsmall(GEN K, GEN x, long bitprec)
 }
 
 static void
-Kderivlarge_optim(GEN K, GEN t, long bitprec, long *pprec, long *pnlim)
+Kderivlarge_optim(GEN K, GEN t2d, long bitprec, long *pprec, long *pnlim)
 {
   GEN Vga = gel(K,2), VL = gel(K,5), A2 = gel(VL,3);
   long prec, d = lg(Vga)-1;
-  double td = dblmodulus(t);
-  double a = BITS_IN_LONG + ceil((gtodouble(A2)*log(td)/2 - M_PI*d*td)/LOG2);
+  double a, td = dblmodulus(t2d);
   double E = LOG2*bitprec;
   double CC = d <= 2 ? 81. : 101.; /* heuristic */
 
+  a = BITS_IN_LONG + ceil((gtodouble(A2)*log(td)/2 - M_PI*d*td)/LOG2);
   if (a > 0) bitprec += a;
   prec = nbits2prec(bitprec);
   if (prec < LOWDEFAULTPREC) prec = LOWDEFAULTPREC;
   *pprec = prec;
-
   *pnlim = ceil(E*E / (CC*td));
 }
 
-/* Compute m-th derivative of inverse Mellin at t by
-   continued fraction of asymptotic expansion. */
+/* Compute m-th derivative of inverse Mellin at t by continued fraction of
+ * asymptotic expansion; t2d = t^(2/d); t is possibly NULL (don't bother
+ * about complex branches)*/
 static GEN
-Kderivlarge(GEN K, GEN t, long bitprec)
+Kderivlarge(GEN K, GEN t, GEN t2d, long bitprec)
 {
   pari_sp ltop = avma;
-  GEN tdA, P, S, pi, pit, Vga = gel(K,2);
+  GEN tdA, P, S, pi, z, Vga = gel(K,2);
   const long d = lg(Vga)-1;
   GEN M, VL = gel(K,5), Ms = gel(VL,1), cd = gel(VL,2), A2 = gel(VL,3);
   long status, prec, nlim, m = itos(gel(K, 3));
 
-  Kderivlarge_optim(K, t, bitprec, &prec, &nlim);
-  t = gtofp(t, prec);
-  if (typ(A2) == t_INT && !mpodd(A2))
-    tdA = gpowgs(t, itos(A2)/2);
+  Kderivlarge_optim(K, t2d, bitprec, &prec, &nlim);
+  t2d = gtofp(t2d, prec);
+  if (t)
+    tdA = gpow(t, gdivgs(A2,d), prec);
   else
-    tdA = gsqrt(gpow(t, A2, prec), prec);
-  tdA = gmul(tdA, cd);
+    tdA = gpow(t2d, gdivgs(A2,2), prec);
+  tdA = gmul(cd, tdA);
 
   pi = mppi(prec);
-  pit = gmul(pi, t);
-  P = gmul(tdA, gexp(gmulsg(-d, pit), prec));
+  z = gmul(pi, t2d);
+  P = gmul(tdA, gexp(gmulsg(-d, z), prec));
   if (m) P = gmul(P, gpowgs(mulsr(-2, pi), m));
   M = gel(Ms,1);
   status = itos(gel(Ms,2));
   if (status == 2)
-    S = poleval(RgV_to_RgX(M, 0), ginv(pit));
+    S = poleval(RgV_to_RgX(M, 0), ginv(z));
   else
   {
-    S = contfraceval(M, ginv(pit), nlim/2);
-    if (status == 1) S = gmul(S, gsubsg(1, ginv(gmul(pit, pi))));
+    S = contfraceval(M, ginv(z), nlim/2);
+    if (status == 1) S = gmul(S, gsubsg(1, ginv(gmul(z, pi))));
   }
   return gerepileupto(ltop, gmul(P, S));
 }
@@ -517,7 +517,7 @@ gammamellininvrt_bitprec(GEN K, GEN x, long bitprec)
   if (dblmodulus(x) < rtodbl(tmax))
     return Kderivsmall(K, x, bitprec);
   else
-    return Kderivlarge(K, x, bitprec);
+    return Kderivlarge(K, NULL, x, bitprec);
 }
 GEN
 gammamellininvrt(GEN K, GEN x, long prec)
@@ -529,14 +529,19 @@ GEN
 gammamellininv_bitprec(GEN K, GEN s, long m, long bitprec)
 {
   pari_sp av = avma;
-  GEN s2d;
+  GEN z, s2d, tmax;
   long d;
   if (!is_vec_t(typ(K))) pari_err_TYPE("gammamellininvinit",K);
   if (lg(K) != 6 || !is_vec_t(typ(gel(K,2))))
     K = gammamellininvinit_bitprec(K, m, bitprec);
+  tmax = gel(K,1);
   d = lg(gel(K,2))-1;
   s2d = gpow(s, gdivgs(gen_2, d), nbits2prec(bitprec));
-  return gerepileupto(av, gammamellininvrt_bitprec(K, s2d, bitprec));
+  if (dblmodulus(s2d) < rtodbl(tmax))
+    z = Kderivsmall(K, s2d, bitprec);
+  else
+    z = Kderivlarge(K, s, s2d, bitprec);
+  return gerepileupto(av, z);
 }
 GEN
 gammamellininv(GEN Vga, GEN s, long m, long prec)
