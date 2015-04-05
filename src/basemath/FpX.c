@@ -913,7 +913,7 @@ FpX_disc(GEN x, GEN p)
 GEN
 FpXV_prod(GEN V, GEN p)
 {
-  return divide_conquer_assoc(V, (void *)p, &_FpX_mul);
+  return gen_product(V, (void *)p, &_FpX_mul);
 }
 
 GEN

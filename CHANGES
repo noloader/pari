@@ -362,6 +362,7 @@ BA 56- Rename row_Flm -> Flm_row, row_zm -> zm_row
    57- rewrote intnum / intnuminit routines
    58- nucomp now takes L = floor(|D|^(1/4)) as a 3rd argument. Former
        nucomp(x,n) is nucomp(x,n,NULL).
+BA 59- divide_conquer_assoc renamed to gen_product
 
 Removed
    1- deprecated functions nfbasis0, nfdisc0, factorpadic0

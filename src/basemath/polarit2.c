@@ -749,30 +749,6 @@ roots_to_pol_r1(GEN a, long v, long r1)
   return gerepileupto(av, normalized_to_RgX(L));
 }
 
-GEN
-divide_conquer_assoc(GEN x, void *data, GEN (*mul)(void *,GEN,GEN))
-{
-  pari_sp ltop;
-  long i,k,lx = lg(x);
-
-  if (lx == 1) return gen_1;
-  if (lx == 2) return gcopy(gel(x,1));
-  x = leafcopy(x); k = lx;
-  ltop=avma;
-  while (k > 2)
-  {
-    if (DEBUGLEVEL>7)
-      err_printf("prod: remaining objects %ld\n",k-1);
-    lx = k; k = 1;
-    for (i=1; i<lx-1; i+=2)
-      gel(x,k++) = mul(data,gel(x,i),gel(x,i+1));
-    if (i < lx) gel(x,k++) = gel(x,i);
-    if (gc_needed(ltop,1))
-      gerepilecoeffs(ltop,x+1,k-1);
-  }
-  return gel(x,1);
-}
-
 static GEN
 _domul(void *data, GEN x, GEN y)
 {
@@ -781,7 +757,7 @@ _domul(void *data, GEN x, GEN y)
 }
 GEN
 divide_conquer_prod(GEN x, GEN (*mul)(GEN,GEN))
-{ return divide_conquer_assoc(x, (void *)mul, _domul); }
+{ return gen_product(x, (void *)mul, _domul); }
 
 /*******************************************************************/
 /*                                                                 */
@@ -828,7 +804,7 @@ gen_factorback(GEN L, GEN e, GEN (*_mul)(void*,GEN,GEN),
     switch(typ(L)) {
       case t_VEC:
       case t_COL: /* product of the L[i] */
-        return gerepileupto(av, divide_conquer_assoc(L, data, _mul));
+        return gerepileupto(av, gen_product(L, data, _mul));
       case t_MAT: /* genuine factorization */
         l = lg(L);
         if (l == 1) return gen_1;
@@ -866,7 +842,7 @@ gen_factorback(GEN L, GEN e, GEN (*_mul)(void*,GEN,GEN),
       return NULL;
   }
   x[0] = evaltyp(t_VEC) | _evallg(l);
-  return gerepileupto(av, divide_conquer_assoc(x, data, _mul));
+  return gerepileupto(av, gen_product(x, data, _mul));
 }
 
 GEN

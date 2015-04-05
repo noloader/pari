@@ -286,6 +286,30 @@ gen_powers(GEN x, long l, int use_sqr, void *E, GEN (*sqr)(void*,GEN),
   return V;
 }
 
+GEN
+gen_product(GEN x, void *data, GEN (*mul)(void *,GEN,GEN))
+{
+  pari_sp ltop;
+  long i,k,lx = lg(x);
+
+  if (lx == 1) return gen_1;
+  if (lx == 2) return gcopy(gel(x,1));
+  x = leafcopy(x); k = lx;
+  ltop=avma;
+  while (k > 2)
+  {
+    if (DEBUGLEVEL>7)
+      err_printf("prod: remaining objects %ld\n",k-1);
+    lx = k; k = 1;
+    for (i=1; i<lx-1; i+=2)
+      gel(x,k++) = mul(data,gel(x,i),gel(x,i+1));
+    if (i < lx) gel(x,k++) = gel(x,i);
+    if (gc_needed(ltop,1))
+      gerepilecoeffs(ltop,x+1,k-1);
+  }
+  return gel(x,1);
+}
+
 /***********************************************************************/
 /**                                                                   **/
 /**                    DISCRETE LOGARITHM                             **/

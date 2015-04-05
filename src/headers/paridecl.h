@@ -1963,6 +1963,7 @@ GEN gen_powu(GEN x, ulong n, void *E, GEN (*sqr)(void*,GEN), GEN (*mul)(void*,GE
 GEN gen_powu_i(GEN x, ulong n, void *E, GEN (*sqr)(void*,GEN), GEN (*mul)(void*,GEN,GEN));
 GEN gen_powu_fold(GEN x, ulong n, void *E, GEN (*sqr)(void*,GEN), GEN (*msqr)(void*,GEN));
 GEN gen_powu_fold_i(GEN x, ulong n, void *E, GEN  (*sqr)(void*,GEN), GEN (*msqr)(void*,GEN));
+GEN gen_product(GEN x, void *data, GEN (*mul)(void*,GEN,GEN));
 
 /* bibli1.c */
 
@@ -3465,7 +3466,6 @@ GEN     centermod_i(GEN x, GEN p, GEN ps2);
 GEN     centermodii(GEN x, GEN p, GEN po2);
 GEN     content(GEN x);
 GEN     deg1_from_roots(GEN L, long v);
-GEN     divide_conquer_assoc(GEN x, void *data, GEN (*mul)(void*,GEN,GEN));
 GEN     divide_conquer_prod(GEN x, GEN (*mul)(GEN,GEN));
 GEN     factor(GEN x);
 GEN     factor0(GEN x,long flag);

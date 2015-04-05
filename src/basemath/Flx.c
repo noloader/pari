@@ -2016,7 +2016,7 @@ _Flx_mul(void *p, GEN a, GEN b)
 GEN
 FlxV_prod(GEN V, ulong p)
 {
-  return divide_conquer_assoc(V, (void *)&p, &_Flx_mul);
+  return gen_product(V, (void *)&p, &_Flx_mul);
 }
 
 /* compute prod (x - a[i]) */
@@ -2032,7 +2032,7 @@ Flv_roots_to_pol(GEN a, ulong p, long vs)
                               Fl_neg(Fl_add(a[i],a[i+1],p),p), 1);
   if (i < lx)
     gel(p1,k++) = mkvecsmall3(vs, Fl_neg(a[i],p), 1);
-  setlg(p1, k); return divide_conquer_assoc(p1, (void *)&p, _Flx_mul);
+  setlg(p1, k); return gen_product(p1, (void *)&p, _Flx_mul);
 }
 
 INLINE void
@@ -4012,7 +4012,7 @@ GEN
 FlxqXV_prod(GEN V, GEN T, ulong p)
 {
   struct _FlxqX d; d.p=p; d.T=T;
-  return divide_conquer_assoc(V, (void*)&d, &_FlxqX_mul);
+  return gen_product(V, (void*)&d, &_FlxqX_mul);
 }
 
 GEN
