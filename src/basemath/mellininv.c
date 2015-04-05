@@ -224,7 +224,7 @@ Kderivsmall(GEN K, GEN x, long bitprec)
   lj = gel(VS, 1); mj = gel(VS, 2); matvec = gel(VS, 3);
   N = lg(lj)-1; d = lg(Vga)-1; A = vecsum(Vga);
   Ed = LOG2*bitprec/d;
-  xd = maxdd(M_PI*gtodouble(gabs(x, LOWDEFAULTPREC)), 1E-13);
+  xd = maxdd(M_PI*dblmodulus(x), 1E-13);
   if (xd > Ed)
     pari_err_DOMAIN("Kderivsmall (use Kderivlarge)","x",">=",dbltor(Ed),x);
   Wd0 = Ed/(M_E*xd);
@@ -267,7 +267,7 @@ Kderivlarge_optim(GEN K, GEN t, long bitprec, long *pprec, long *pnlim)
 {
   GEN Vga = gel(K,2), VL = gel(K,5), A2 = gel(VL,3);
   long prec, d = lg(Vga)-1;
-  double td = gtodouble(gabs(t, LOWDEFAULTPREC));
+  double td = dblmodulus(t);
   double a = BITS_IN_LONG + ceil((gtodouble(A2)*log(td)/2 - M_PI*d*td)/LOG2);
   double E = LOG2*bitprec;
   double CC = d <= 2 ? 81. : 101.; /* heuristic */
@@ -514,7 +514,7 @@ GEN
 gammamellininvrt_bitprec(GEN K, GEN x, long bitprec)
 {
   GEN tmax = gel(K,1);
-  if (gcmp(gabs(x, LOWDEFAULTPREC), tmax) < 0)
+  if (dblmodulus(x) < rtodbl(tmax))
     return Kderivsmall(K, x, bitprec);
   else
     return Kderivlarge(K, x, bitprec);

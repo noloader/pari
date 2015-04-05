@@ -865,7 +865,7 @@ precision2(GEN x, GEN y)
 #endif
 
 /* return |x| */
-static double
+double
 dblmodulus(GEN x)
 {
   if (typ(x) == t_COMPLEX)
