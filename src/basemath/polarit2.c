@@ -679,9 +679,10 @@ factor(GEN x)
 /*                                                                 */
 /*******************************************************************/
 static GEN
-normalized_mul(GEN x, GEN y)
+normalized_mul(void *E, GEN x, GEN y)
 {
   long a = gel(x,1)[1], b = gel(y,1)[1];
+  (void) E;
   return mkvec2(mkvecsmall(a + b),
                 RgX_mul_normalized(gel(x,2),a, gel(y,2),b));
 }
@@ -716,7 +717,7 @@ roots_to_pol(GEN a, long v)
   }
   if (i < lx) gel(L,k++) = mkvec2(mkvecsmall(1),
                                   scalarpol_shallow(gneg(gel(a,i)), v));
-  setlg(L, k); L = divide_conquer_prod(L, normalized_mul);
+  setlg(L, k); L = gen_product(L, NULL, normalized_mul);
   return gerepileupto(av, normalized_to_RgX(L));
 }
 
@@ -745,7 +746,7 @@ roots_to_pol_r1(GEN a, long v, long r1)
     GEN x1 = gneg(gtrace(s));
     gel(L,k++) = mkvec2(mkvecsmall(2), deg1pol_shallow(x1,x0,v));
   }
-  setlg(L, k); L = divide_conquer_prod(L, normalized_mul);
+  setlg(L, k); L = gen_product(L, NULL, normalized_mul);
   return gerepileupto(av, normalized_to_RgX(L));
 }
 
