@@ -57,17 +57,24 @@ gammapoles(GEN Vga)
   setlg(V, m); return V;
 }
 
+static GEN
+sercoeff(GEN x, long n, long prec)
+{
+  long N = n - valp(x);
+  return (N < 0)? gen_0: gtofp(gel(x, N+2), prec);
+}
+
 /* coefficient matrix for power series expansion of inverse Mellin around x=0 */
 static GEN
-coeffall(GEN Vga, GEN mj, GEN lj, long limn, long prec)
+coeffall(GEN Vga, GEN lj, GEN mj, long limn, long prec)
 {
-  long i, j, n, N = lg(lj)-1, d = lg(Vga)-1;
-  GEN call = cgetg(N+1, t_MAT);
+  long j, N = lg(lj)-1, d = lg(Vga)-1;
+  GEN matvec = cgetg(N+1, t_VEC);
   for (j=1; j <= N; j++)
   {
-    GEN c, m = gel(mj,j), pr = gen_1, t = gen_1;
-    long precdl = lj[j]+3;
-    for (i=1; i <= d; ++i)
+    GEN C, c, m = gel(mj,j), pr = gen_1, t = gen_1;
+    long i, k, n, ljj = lj[j], precdl = ljj+3;
+    for (i=1; i <= d; i++)
     {
       GEN a = gmul2n(gadd(m, gel(Vga,i)), -1);
       GEN u = deg1pol_shallow(ghalf, a, 0);
@@ -78,16 +85,16 @@ coeffall(GEN Vga, GEN mj, GEN lj, long limn, long prec)
     gel(c,1) = pr;
     for (n=1; n <= limn; n++)
       gel(c,n+1) = gdiv(gel(c,n), RgX_translate(t, stoi(-2*n)));
-    gel(call,j) = c;
-  }
-  return call;
-}
 
-static GEN
-mysercoeff(GEN x, long n)
-{
-  long N = n - valp(x);
-  return (N < 0)? gen_0: gel(x, N+2);
+    gel(matvec, j) = C = cgetg(ljj+1, t_COL);
+    for (k = 1; k <= ljj; k++)
+    {
+      GEN L = cgetg(limn+1, t_VEC);
+      for (n = 1; n <= limn; n++) gel(L,n) = sercoeff(gel(c,n+1), -k, prec);
+      gel(C,k) = L;
+    }
+  }
+  return mkvec3(lj,mj,matvec);
 }
 
 /* generalized power series expansion of inverse Mellin around x = 0 */
@@ -95,34 +102,23 @@ static GEN
 Ksmallinit(GEN Vga, long bitprec)
 {
   pari_sp av = avma;
-  long d = lg(Vga)-1, N, j, n, limn, prec;
-  GEN LA, lj, mj, call, matvec;
+  long d = lg(Vga)-1, N, j, limn, prec;
+  GEN LA, lj, mj;
   double C2 = MELLININV_CUTOFF2;
 
-  if (!is_matvec_t(typ(Vga))) pari_err_TYPE("Ksmallinit",Vga);
-  LA = gammapoles(Vga); N = lg(LA)-1;
+  LA = gammapoles(Vga);
+  N = lg(LA)-1;
   lj = cgetg(N+1, t_VECSMALL);
-  for (j = 1; j <= N; ++j) lj[j] = lg(gel(LA,j))-1;
   mj = cgetg(N+1, t_VEC);
-  for (j = 1; j <= N; ++j) gel(mj, j) = gsubsg(2,vecmin(gel(LA,j)));
-
-  prec = nbits2prec((long)(1+bitprec*(1+M_PI*d/C2)));
-  limn = ceil(2*LOG2*bitprec/(d*rtodbl(mplambertW(dbltor(C2/(M_PI*M_E))))));
-  call = coeffall(Vga, mj, lj, limn, prec);
-  matvec = cgetg(N+1, t_VEC);
   for (j = 1; j <= N; ++j)
   {
-    long k, ljj = lj[j];
-    gel(matvec, j) = cgetg(ljj+1, t_COL);
-    for (k = 0; k < ljj; ++k)
-    {
-      GEN L = cgetg(limn+1, t_VEC);
-      for (n = 1; n <= limn; ++n)
-        gel(L, n) = gtofp(mysercoeff(gcoeff(call, n+1, j), -(k+1)), prec);
-      gmael(matvec, j, k+1) = L;
-    }
+    GEN L = gel(LA,j);
+    lj[j] = lg(L)-1;
+    gel(mj,j) = gsubsg(2, vecmin(L));
   }
-  return gerepilecopy(av, mkvec3(lj, mj, matvec));
+  prec = nbits2prec((long)(1+bitprec*(1+M_PI*d/C2)));
+  limn = ceil(2*LOG2*bitprec/(d*rtodbl(mplambertW(dbltor(C2/(M_PI*M_E))))));
+  return gerepilecopy(av, coeffall(Vga, lj, mj, limn, prec));
 }
 
 /* Same for m-th derivatives. */
