@@ -64,7 +64,7 @@ This file lists the incompatible changes between Version 2.x and older versions
   - renamed row_zm -> zm_row, row_Flm -> Flm_row
   - nucomp now takes L = floor(|D|^(1/4)) as a 3rd argument. Former
     nucomp(x,n) is nucomp(x,n,NULL).
-  - divide_conquer_assoc renamed to gen_product
+  - divide_conquer_assoc renamed to gen_product, divide_conquer_prod removed
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%% VERSION 2.6 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

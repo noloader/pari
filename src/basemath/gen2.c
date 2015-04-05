@@ -64,6 +64,13 @@ map_proto_lGL(long f(GEN,long), GEN x, long y)
   return stoi(f(x,y));
 }
 
+static GEN
+_domul(void *data, GEN x, GEN y)
+{
+  GEN (*mul)(GEN,GEN)=(GEN (*)(GEN,GEN)) data;
+  return mul(x,y);
+}
+
 GEN
 gassoc_proto(GEN f(GEN,GEN), GEN x, GEN y)
 {
@@ -78,7 +85,8 @@ gassoc_proto(GEN f(GEN,GEN), GEN x, GEN y)
       case t_COL: break;
       default: pari_err_TYPE("association",x);
     }
-    return gerepileupto(av, divide_conquer_prod(x,f));
+    return gerepileupto(av, gen_product(x, (void *)f, _domul));
+
   }
   return f(x,y);
 }

@@ -8810,8 +8810,7 @@ polynomials, return their roots, i.e. the $- L[i](0)$.
 
 \fun{GEN}{roots_to_pol}{GEN L, long v} given a vector of scalars $L$,
 returns the monic polynomial in variable $v$ whose roots are the $L[i]$.
-Calls \tet{divide_conquer_prod}, so leaves some garbage on stack, but
-suitable for \kbd{gerepileupto}.
+Leaves some garbage on stack, but suitable for \kbd{gerepileupto}.
 
 \fun{GEN}{roots_to_pol_r1}{GEN L, long v, long r1} as \kbd{roots\_to\_pol}
 assuming the first $r_1$ roots are ``real'', and the following ones are
@@ -8819,10 +8818,8 @@ representatives of conjugate pairs of ``complex'' roots. So if $L$ has $r_1 +
 r_2$ elements, we obtain a polynomial of degree $r_1 + 2r_2$. In most
 applications, the roots are indeed real and complex, but the implementation
 assumes only that each ``complex'' root $z$ introduces a quadratic
-factor $X^2 - \kbd{trace}(z) X + \kbd{norm}(z)$. Calls
-\tet{divide_conquer_prod}.
-Calls \tet{divide_conquer_prod}, so leaves some garbage on stack, but
-suitable for \kbd{gerepileupto}.
+factor $X^2 - \kbd{trace}(z) X + \kbd{norm}(z)$.
+Leaves some garbage on stack, but suitable for \kbd{gerepileupto}.
 
 \section{Integer parts}
 
@@ -9439,21 +9436,6 @@ In addition we also have the obsolete forms:
 
 \section{Generic operators: product, powering, factorback}
 
-\fun{GEN}{divide_conquer_prod}{GEN v, GEN (*mul)(GEN,GEN)} $v$ is a vector of
-objects, which can be ``multiplied'' using the \kbd{mul} function. Return
-the ``product'' of the $v[i]$ using a product tree: by convention
-return \kbd{gen\_1} if $v$ is the empty vector, a copy of $v[1]$ if it has a
-single entry; and otherwise apply the function recursively on the vector
-(twice smaller)
-
-\kbd{mul}$(v[1],v[2])$, \kbd{mul}$(v[3],v[4])$, \dots
-
-\noindent Only requires that \kbd{mul} is an associative binary operator,
-which need not correspond to a true multiplication. \kbd{D} is meant to encode
-an arbitrary evaluation context, set it to \kbd{NULL} in simple cases where you
-do not need this. Leaves some garbage on stack, but suitable for
-\kbd{gerepileupto} if \kbd{mul} is.
-
 To describe the following functions, we use the following private typedefs
 to simplify the description:
 \bprog
@@ -9466,11 +9448,12 @@ respectively (the \kbd{void*} argument provides some arbitrary evaluation
 context).
 
 \fun{GEN}{gen_product}{GEN v, void *D, F2 op}
-general version of \tet{divide_conquer_prod}. Given two objects
-$x,y$, assume that \kbd{op(D, $x$, $y$)} implements an associative binary
-operator. If $v$ has $k$ entries, return
+Given two objects $x,y$, assume that \kbd{op(D, $x$, $y$)} implements an
+associative binary operator. If $v$ has $k$ entries, return
 $$v[1]~\var{op}~v[2]~\var{op}~\ldots ~\var{op}~v[k];$$
 returns \kbd{gen\_1} if $k = 0$ and a copy of $v[1]$ if $k = 1$.
+Use divide an conquer strategy. Leave some garbage on stack, but suitable for
+\kbd{gerepileupto} if \kbd{mul} is.
 
 \fun{GEN}{gen_pow}{GEN x, GEN n, void *D, F1 sqr, F2 mul} $n > 0$ a
 \typ{INT}, returns $x^n$; \kbd{mul(D, $x$, $y$)} implements the multiplication

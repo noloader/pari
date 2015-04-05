@@ -750,16 +750,6 @@ roots_to_pol_r1(GEN a, long v, long r1)
   return gerepileupto(av, normalized_to_RgX(L));
 }
 
-static GEN
-_domul(void *data, GEN x, GEN y)
-{
-  GEN (*mul)(GEN,GEN)=(GEN (*)(GEN,GEN)) data;
-  return mul(x,y);
-}
-GEN
-divide_conquer_prod(GEN x, GEN (*mul)(GEN,GEN))
-{ return gen_product(x, (void *)mul, _domul); }
-
 /*******************************************************************/
 /*                                                                 */
 /*                          FACTORBACK                             */

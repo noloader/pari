@@ -376,3 +376,5 @@ Removed
       intnum (possibly intfuncinit). Make sure to indicate oscillating behaviour
       when function decrease slowly at oo
    6- optional flag to intfuncinit
+BA 7- divide_conquer_prod: use gen_product instead
+

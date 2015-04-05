@@ -332,7 +332,7 @@ initgaloisborne(GEN T, GEN dn, long prec, GEN *ptL, GEN *ptprep, GEN *ptdis)
   prep = vandermondeinverseprep(L);
   if (!dn)
   {
-    GEN dis, res = divide_conquer_prod(gabs(prep,prec), mpmul);
+    GEN dis, res = RgV_prod(gabs(prep,prec));
     dis = ZX_disc_all(T, expi(ceil_safe(res)));
     den = indexpartial(T,dis);
     if (ptdis) *ptdis = dis;

@@ -3467,7 +3467,6 @@ GEN     centermod_i(GEN x, GEN p, GEN ps2);
 GEN     centermodii(GEN x, GEN p, GEN po2);
 GEN     content(GEN x);
 GEN     deg1_from_roots(GEN L, long v);
-GEN     divide_conquer_prod(GEN x, GEN (*mul)(GEN,GEN));
 GEN     factor(GEN x);
 GEN     factor0(GEN x,long flag);
 GEN     factorback(GEN fa);
