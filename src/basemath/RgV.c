@@ -203,6 +203,16 @@ RgM_sumcol(GEN A)
   return v;
 }
 
+static GEN
+_gmul(void *data, GEN x, GEN y)
+{ return gmul(x,y); }
+
+GEN
+RgV_prod(GEN x)
+{
+  return gen_product(x, NULL, _gmul);
+}
+
 /*                    ADDITION SCALAR + MATRIX                     */
 /* x square matrix, y scalar; create the square matrix x + y*Id */
 GEN

@@ -228,7 +228,7 @@ vandermondeinverseprep(GEN L)
     long k = 1;
     for (j = 1; j < n; j++)
       if (i != j) gel(W, k++) = gsub(gel(L,i),gel(L,j));
-    gel(V,i) = gerepileupto(ltop,divide_conquer_prod(W,&gmul));
+    gel(V,i) = gerepileupto(ltop, RgV_prod(W));
   }
   return V;
 }

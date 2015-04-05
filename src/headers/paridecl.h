@@ -800,6 +800,7 @@ GEN     RgV_dotsquare(GEN x);
 int     RgV_is_ZMV(GEN V);
 long    RgV_isin(GEN v, GEN x);
 GEN     RgV_neg(GEN x);
+GEN     RgV_prod(GEN v);
 GEN     RgV_sub(GEN x, GEN y);
 GEN     RgV_sum(GEN v);
 GEN     RgV_sumpart(GEN v, long n);
