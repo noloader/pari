@@ -1017,6 +1017,11 @@ zv_prod(GEN v)
   n = v[1]; for (i = 2; i < l; i++) n *= v[i];
   return n;
 }
+
+static GEN
+_mulii(void *E, GEN a, GEN b)
+{ (void) E; return mulii(a, b); }
+
 /* product of ulongs */
 GEN
 zv_prod_Z(GEN v)
@@ -1031,7 +1036,7 @@ zv_prod_Z(GEN v)
   x = cgetg(m + (odd(n)? 2: 1), t_VEC);
   for (k = 1; k <= m; k++) gel(x,k) = muluu(v[k<<1], v[(k<<1)-1]);
   if (odd(n)) gel(x,k) = utoipos(v[n]);
-  return gerepileuptoint(av, divide_conquer_prod(x, mulii));
+  return gerepileuptoint(av, gen_product(x, NULL, _mulii));
 }
 
 GEN
@@ -1041,7 +1046,7 @@ ZV_prod(GEN v)
   long i, l = lg(v);
   GEN n;
   if (l == 1) return gen_1;
-  if (l > 7) return gerepileuptoint(av, divide_conquer_prod(v, mulii));
+  if (l > 7) return gerepileuptoint(av, gen_product(v, NULL, _mulii));
   n = gel(v,1);
   if (l == 2) return icopy(n);
   for (i = 2; i < l; i++) n = mulii(n, gel(v,i));

@@ -3774,7 +3774,7 @@ mulu_interval(ulong a, ulong b)
   }
   if (l == k) gel(x,lx++) = utoipos(k);
   setlg(x, lx);
-  return gerepileuptoint(av, divide_conquer_prod(x, mulii));
+  return gerepileuptoint(av, ZV_prod(x));
 }
 
 GEN

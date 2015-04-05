@@ -826,7 +826,7 @@ binomial(GEN n, long k)
     {
       y = cgetg(k+1,t_VEC);
       for (i=1; i<=k; i++) gel(y,i) = subis(n,i-1);
-      y = divide_conquer_prod(y,mulii);
+      y = ZV_prod(y);
     }
     y = diviiexact(y, mpfact(k));
     return gerepileuptoint(av, y);
