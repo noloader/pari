@@ -68,8 +68,8 @@ sercoeff(GEN x, long n, long prec)
 static GEN
 coeffall(GEN Vga, GEN lj, GEN mj, long limn, long prec)
 {
-  long j, N = lg(lj)-1, d = lg(Vga)-1;
-  GEN matvec = cgetg(N+1, t_VEC);
+  long j, N = lg(lj)-1, d = lg(Vga)-1, l = limn + 3;
+  GEN matpol = cgetg(N+1, t_VEC);
   for (j=1; j <= N; j++)
   {
     GEN C, c, m = gel(mj,j), pr = gen_1, t = gen_1;
@@ -86,15 +86,17 @@ coeffall(GEN Vga, GEN lj, GEN mj, long limn, long prec)
     for (n=1; n <= limn; n++)
       gel(c,n+1) = gdiv(gel(c,n), RgX_translate(t, stoi(-2*n)));
 
-    gel(matvec, j) = C = cgetg(ljj+1, t_COL);
+    gel(matpol, j) = C = cgetg(ljj+1, t_COL);
     for (k = 1; k <= ljj; k++)
     {
-      GEN L = cgetg(limn+1, t_VEC);
-      for (n = 1; n <= limn; n++) gel(L,n) = sercoeff(gel(c,n+1), -k, prec);
+      GEN L = cgetg(l, t_POL);
+      L[1] = evalsigne(1)|evalvarn(0);
+      gel(L,2) = gen_0;
+      for (n = 3; n < l; n++) gel(L,n) = sercoeff(gel(c,n-1), -k, prec);
       gel(C,k) = L;
     }
   }
-  return mkvec3(lj,mj,matvec);
+  return mkvec3(lj,mj,matpol);
 }
 
 /* generalized power series expansion of inverse Mellin around x = 0 */
@@ -126,47 +128,38 @@ static GEN
 Kderivsmallinit(GEN Vga, long m, long bitprec)
 {
   pari_sp av = avma;
-  GEN vv, lj, mj, matvec, matpol;
+  GEN vv, lj, mj, mat;
   long N, j, i;
-  if (!is_matvec_t(typ(Vga))) pari_err_TYPE("Kderivsmallinit",Vga);
+
   vv = Ksmallinit(Vga, bitprec);
   lj = gel(vv,1);
   mj = gel(vv,2);
-  matvec = gel(vv,3);
+  mat = gel(vv,3);
   N = lg(lj)-1;
-  matpol = cgetg(N + 1, t_VEC);
-  for (j = 1; j <= N; ++j)
-  {
-    long k, ljj = lj[j];
-    gel(matpol, j) = cgetg(ljj+1, t_COL);
-    for (k = 0; k < ljj; ++k)
-    {
-      GEN p1 = RgV_to_RgX(gmael(matvec, j, k + 1), 0);
-      gmael(matpol, j, k + 1) = RgX_shift(p1, 1);
-    }
-  }
   for (i = 1; i <= m; ++i)
     for (j = 1; j <= N; ++j)
     {
       long k, ljj = lj[j];
-      for (k = 0; k < ljj; ++k)
+      GEN C = gel(mat,j), m = gel(mj,j);
+      for (k = 1; k <= ljj; k++)
       {
-        GEN p1 = gmael(matpol, j, k+1), p3 = RgX_shift(RgX_deriv(p1), 1);
-        GEN p2 = (k < ljj-1) ? gmael(matpol, j, k+2) : gen_0;
-        gmael(matpol, j, k+1) = gsub(gmul2n(p3, 1), gadd(p2, gmul(gel(mj, j), p1)));
+        GEN p1 = gel(C,k), p3 = RgX_shift_shallow(RgX_deriv(p1), 1);
+        GEN p2 = (k < ljj) ? gel(C,k+1) : gen_0;
+        gel(C,k) = gsub(gmul2n(p3,1), gadd(p2, RgX_Rg_mul(p1,m)));
       }
-      gel(mj, j) = gaddgs(gel(mj, j), 1);
+      gel(mj,j) = gaddgs(gel(mj,j), 1);
     }
   for (j = 1; j <= N; ++j)
   {
     long k, ljj = lj[j];
-    for (k = 0; k < ljj; ++k)
+    GEN C = gel(mat,j);
+    for (k = 1; k <= ljj; k++)
     {
-      GEN p1 = RgX_shift(gmael(matpol, j, k+1), -1);
-      gmael(matvec, j, k+1) = RgX_to_RgC(p1, lgpol(p1));
+      GEN p1 = RgX_shift_shallow(gel(C,k), -1);
+      gel(C,k) = RgX_to_RgC(p1, lgpol(p1));
     }
   }
-  return gerepilecopy(av, mkvec3(lj, mj, matvec));
+  return gerepilecopy(av, mkvec3(lj, mj, mat));
 }
 
 /* Evaluate a vector considered as a polynomial using Horner's
