@@ -103,6 +103,38 @@ gen_bkeval(GEN Q, long d, GEN x, int use_sqr, void *E, const struct bb_algebra *
   return gerepileupto(av, z);
 }
 
+static GEN
+_gen_nored(void *E, GEN x) { (void)E; return x; }
+static GEN
+_gen_add(void *E, GEN x, GEN y) { (void)E; return gadd(x, y); }
+static GEN
+_gen_mul(void *E, GEN x, GEN y) { (void)E; return gmul(x, y); }
+static GEN
+_gen_sqr(void *E, GEN x) { (void)E; return gsqr(x); }
+static GEN
+_gen_one(void *E) { (void)E; return gen_1; }
+static GEN
+_gen_zero(void *E) { (void)E; return gen_0; }
+
+static struct bb_algebra Rg_algebra = { _gen_nored,_gen_add,_gen_mul,_gen_sqr,
+                                        _gen_one,_gen_zero };
+
+static GEN
+_gen_cmul(void *E, GEN P, long a, GEN x)
+{(void)E; return gmul(gel(P,a+2), x);}
+
+GEN
+RgX_RgV_eval(GEN Q, GEN x)
+{
+  return gen_bkeval_powers(Q, degpol(Q), x, NULL, &Rg_algebra, _gen_cmul);
+}
+
+GEN
+RgX_Rg_eval_bk(GEN Q, GEN x)
+{
+  return gen_bkeval(Q, degpol(Q), x, 1, NULL, &Rg_algebra, _gen_cmul);
+}
+
 /*******************************************************************/
 /*                                                                 */
 /*                         RgX                                     */
