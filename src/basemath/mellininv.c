@@ -161,27 +161,23 @@ Kderivsmallinit(GEN Vga, long m, long bitprec)
   return gerepilecopy(av, mkvec3(lj, mj, mat));
 }
 
-/* Evaluate a vector considered as a polynomial using Horner's
-   rule. Warning: unstable. */
-
+/* Evaluate a vector considered as a polynomial using Horner. Unstable!
+ * If ui != NULL, ui = 1/u, evaluate P(1/u)*u^(deg P): useful for |u|>1 */
 static GEN
-evalvec(GEN vec, long lim, GEN u, long prec)
+evalvec(GEN vec, long lim, GEN u, GEN ui)
 {
   pari_sp ltop = avma;
-  GEN S, ui;
+  GEN S = gen_0;
   long n;
-  if (!is_matvec_t(typ(vec))) pari_err_TYPE("evalvec",vec);
-  lim = minss(lim, lg(vec)-1); S = gen_0;
+  lim = minss(lim, lg(vec)-1);
   if (gcmp(gnorml2(u), gen_1) <= 0)
+    for (n = lim; n >= 1; --n) S = gmul(u, gadd(gel(vec,n), S));
+  else
   {
-    for (n = lim; n >= 1; --n)
-      S = gmul(u, gadd(gel(vec, n), S));
-    return gerepileupto(ltop, S);
+    for (n = 1; n <= lim; ++n) S = gmul(ui, gadd(gel(vec,n), S));
+    S = gmul(gpowgs(u, n), S);
   }
-  ui = ginv(gtofp(u, prec));
-  for (n = 1; n <= lim; ++n)
-    S = gmul(ui, gadd(gel(vec, n), S));
-  return gerepileupto(ltop, gmul(gpowgs(u, lim + 1), S));
+  return gerepileupto(ltop, S);
 }
 
 /* x^k/k! for 0 <= k <= n. */
@@ -201,52 +197,45 @@ gpowersdivfact(GEN x, long n)
 static GEN
 Kderivsmall(GEN K, GEN x, long bitprec)
 {
-  pari_sp ltop = avma, btop;
-  long prec;
-  GEN lj, mj, matvec, Vga = gel(K, 2);
-  GEN Lx, Lxp, x2;
-  GEN A, S, VS = gel(K, 4);
-  long d, N, j, k, mlj, limn, m = itos(gel(K, 3));
+  pari_sp ltop = avma;
+  GEN Vga = gel(K,2), VS = gel(K,4);
+  GEN lj = gel(VS,1); mj = gel(VS,2); matvec = gel(VS,3);
+  GEN Lx, Lxp, x2, x2i, A, S, pi;
+  long prec, d, N, j, k, limn, m = itos(gel(K, 3));
   double Ed, xd, Wd, Wd0;
-  GEN p1;
-  lj = gel(VS, 1); mj = gel(VS, 2); matvec = gel(VS, 3);
+
   N = lg(lj)-1; d = lg(Vga)-1; A = vecsum(Vga);
   Ed = LOG2*bitprec/d;
   xd = maxdd(M_PI*dblmodulus(x), 1E-13);
   if (xd > Ed)
     pari_err_DOMAIN("Kderivsmall (use Kderivlarge)","x",">=",dbltor(Ed),x);
-  Wd0 = Ed/(M_E*xd);
+  Wd0 = Ed/(M_E*xd); /* >= 1/e */
   Wd = log(1.+Wd0);
   Wd *= (1.-log(Wd/Wd0))/(1.+Wd);
   Wd *= (1.-log(Wd/Wd0))/(1.+Wd);
+  /* Wd solution of w exp(-w) = w0 */
   limn = (long) ceil(2*Ed/Wd);
   prec = nbits2prec((long) ceil(bitprec+d*xd/LOG2));
-  if (!gequal0(imag_i(x)))
-  {
-    long j;
-    for (j = 1; j <= d; ++j)
-      if (typ(gel(Vga, j)) != t_INT)
-        pari_err(e_MISC, "Complex argument in inversemellin with nonintegral Vga");
-  }
-  x = gmul(gtofp(x, prec), mppi(prec));
+  if (!gequal0(imag_i(x)) && !RgV_is_ZV(Vga))
+    pari_err_IMPL("complex argument in gammamellininv with nonintegral Vga");
+  pi = mppi(prec);
+  x = gmul(gtofp(x, prec), pi);
   x = odd(d) ? gsqrt(gpowgs(x, d), prec) : gpowgs(x, d/2);
-  Lx = gneg(glog(x, prec)); x2 = gsqr(x);
-  btop = avma;
-  mlj = vecsmall_max(lj);
-  Lxp = gpowersdivfact(Lx, mlj);
-  p1 = gen_0;
+  Lx = gneg(glog(x, prec));
+  x2 = gsqr(x);
+  Lxp = gpowersdivfact(Lx, vecsmall_max(lj));
+  x2i = (gcmp(gnorml2(x2), gen_1) <= 0)? NULL: ginv(gtofp(x2,prec));
+  S = gen_0;
   for (j = 1; j <= N; ++j)
   {
-    GEN s = real_0(prec);
+    GEN s = gen_0;
     long ljj = lj[j];
-    for (k = 0; k < ljj; ++k)
-      s = gadd(s, gmul(gel(Lxp, k+1), evalvec(gmael(matvec, j, k+1), limn, x2, prec)));
-    p1 = gadd(p1, gmul(gpow(x, gneg(gel(mj, j)), prec), s));
-    if (gc_needed(btop, 1))
-      p1 = gerepilecopy(btop, p1);
+    for (k = 1; k <= ljj; k++)
+      s = gadd(s, gmul(gel(Lxp, k), evalvec(gmael(matvec,j,k), limn, x2, x2i)));
+    S = gadd(S, gmul(gpow(x, gneg(gel(mj,j)), prec), s));
   }
   A = gsubsg(m*d, A);
-  S = gequal0(A) ? p1 : gmul(gsqrt(gpow(mppi(prec), A, prec), prec), p1);
+  if (!gequal0(A)) S = gmul(S, gsqrt(gpow(pi, A, prec), prec));
   return gerepileupto(ltop, gtofp(S, nbits2prec(bitprec)));
 }
 
