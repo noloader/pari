@@ -205,7 +205,7 @@ RgM_sumcol(GEN A)
 
 static GEN
 _gmul(void *data, GEN x, GEN y)
-{ return gmul(x,y); }
+{ (void)data; return gmul(x,y); }
 
 GEN
 RgV_prod(GEN x)

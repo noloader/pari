@@ -23,8 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #define M_E 2.7182818284590452354
 #endif
 
-static const double MELLININV_CUTOFF  =  11.; /* C */
-static const double MELLININV_CUTOFF2 = 121.; /* C*C */
+static const double MELLININV_CUTOFF = 121.; /* C*C */
 
 static GEN
 MOD2(GEN x) { GEN q = gdivent(x,gen_2); return gsub(x,gmul2n(q,1)); }
@@ -106,7 +105,7 @@ Ksmallinit(GEN Vga, long bitprec)
   pari_sp av = avma;
   long d = lg(Vga)-1, N, j, limn, prec;
   GEN LA, lj, mj;
-  double C2 = MELLININV_CUTOFF2;
+  double C2 = MELLININV_CUTOFF;
 
   LA = gammapoles(Vga);
   N = lg(LA)-1;
@@ -460,8 +459,8 @@ gammamellininvinit_bitprec(GEN Vga, long m, long bitprec)
   pari_sp ltop = avma;
   GEN A2, M, VS, VL, cd;
   long d = lg(Vga)-1, status;
-  double tmax = LOG2*bitprec / MELLININV_CUTOFF2;
-  const double C2 = MELLININV_CUTOFF2, CC = d <= 2 ? 81. : 101.;
+  double tmax = LOG2*bitprec / MELLININV_CUTOFF;
+  const double C2 = MELLININV_CUTOFF, CC = d <= 2 ? 81. : 101.;
   const long nlimmax = ceil(bitprec*C2*LOG2/CC);
 
   if (!is_vec_t(typ(Vga))) pari_err_TYPE("gammamellininvinit",Vga);
