@@ -199,7 +199,7 @@ Kderivsmall(GEN K, GEN x, long bitprec)
 {
   pari_sp ltop = avma;
   GEN Vga = gel(K,2), VS = gel(K,4);
-  GEN lj = gel(VS,1); mj = gel(VS,2); matvec = gel(VS,3);
+  GEN lj = gel(VS,1), mj = gel(VS,2), matvec = gel(VS,3);
   GEN Lx, Lxp, x2, x2i, A, S, pi;
   long prec, d, N, j, k, limn, m = itos(gel(K, 3));
   double Ed, xd, Wd, Wd0;
