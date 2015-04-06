@@ -427,7 +427,10 @@ gammamellininvasymp_i(GEN Vga, long nlimmax, long m, long *status)
 }
 GEN
 gammamellininvasymp(GEN Vga, long nlimmax, long m)
-{ long status; return gammamellininvasymp_i(Vga, nlimmax, m, &status); }
+{ long status;
+  if (!is_vec_t(typ(Vga))) pari_err_TYPE("gammamellininvinit",Vga);
+  return gammamellininvasymp_i(Vga, nlimmax, m, &status);
+}
 
 /* Does the continued fraction of the asymptotic expansion M at oo of inverse
  * Mellin transform associated to Vga have zero Hankel determinants ? */

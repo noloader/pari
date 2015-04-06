@@ -68,4 +68,5 @@ f(z) = printf("%.3g\n", abs(a(z) - gammamellininv(G,z)));
 f(I)
 f(2+I)
 
-
+gammamellininvasymp([0],10)
+gammamellininvasymp([0,1/2],10)
