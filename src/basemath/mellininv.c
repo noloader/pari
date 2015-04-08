@@ -63,13 +63,14 @@ sercoeff(GEN x, long n, long prec)
   return (N < 0)? gen_0: gtofp(gel(x, N+2), prec);
 }
 
-/* generalized power series expansion of inverse Mellin around x = 0 */
+/* generalized power series expansion of inverse Mellin around x = 0;
+ * m-th derivative */
 static GEN
-Ksmallinit(GEN Vga, long bitprec)
+Kderivsmallinit(GEN Vga, long m, long bitprec)
 {
   pari_sp av = avma;
   long d = lg(Vga)-1, N, j, l, limn, prec;
-  GEN LA, lj, mj, matpol;
+  GEN LA, lj, mj, mat;
   double C2 = MELLININV_CUTOFF;
 
   LA = gammapoles(Vga);
@@ -84,15 +85,15 @@ Ksmallinit(GEN Vga, long bitprec)
   }
   prec = nbits2prec((long)(1+bitprec*(1+M_PI*d/C2)));
   limn = ceil(2*LOG2*bitprec/(d*rtodbl(mplambertW(dbltor(C2/(M_PI*M_E))))));
-  matpol = cgetg(N+1, t_VEC);
+  mat = cgetg(N+1, t_VEC);
   l = limn + 3;
   for (j=1; j <= N; j++)
   {
-    GEN C, c, m = gel(mj,j), pr = gen_1, t = gen_1;
+    GEN C, c, mjj = gel(mj,j), pr = gen_1, t = gen_1;
     long i, k, n, ljj = lj[j], precdl = ljj+3;
     for (i=1; i <= d; i++)
     {
-      GEN a = gmul2n(gadd(m, gel(Vga,i)), -1);
+      GEN a = gmul2n(gadd(mjj, gel(Vga,i)), -1);
       GEN u = deg1pol_shallow(ghalf, a, 0);
       pr = gmul(pr, ggamma(RgX_to_ser(u, precdl), prec));
       t = gmul(t, u);
@@ -102,7 +103,7 @@ Ksmallinit(GEN Vga, long bitprec)
     for (n=1; n <= limn; n++)
       gel(c,n+1) = gdiv(gel(c,n), RgX_translate(t, stoi(-2*n)));
 
-    gel(matpol, j) = C = cgetg(ljj+1, t_COL);
+    gel(mat, j) = C = cgetg(ljj+1, t_COL);
     for (k = 1; k <= ljj; k++)
     {
       GEN L = cgetg(l, t_POL);
@@ -111,47 +112,26 @@ Ksmallinit(GEN Vga, long bitprec)
       for (n = 3; n < l; n++) gel(L,n) = sercoeff(gel(c,n-1), -k, prec);
       gel(C,k) = L;
     }
-  }
-  return gerepilecopy(av, mkvec3(lj,mj,matpol));
-}
-
-/* Same for m-th derivatives. */
-static GEN
-Kderivsmallinit(GEN Vga, long m, long bitprec)
-{
-  pari_sp av = avma;
-  GEN vv, lj, mj, mat;
-  long N, j, i;
-
-  vv = Ksmallinit(Vga, bitprec);
-  lj = gel(vv,1);
-  mj = gel(vv,2);
-  mat = gel(vv,3);
-  N = lg(lj)-1;
-  for (i = 1; i <= m; ++i)
-    for (j = 1; j <= N; ++j)
+    /* C[k] = \sum_n c_{j,k} t^n =: C_k(t) in Dokchitser's Algo 3.3 */
+    /* Take m-th derivative of t^(-mj) sum_k (-ln t)^k/k! C_k(t^2) */
+    for (i = 1; i <= m; i++, mjj = gaddgs(mjj, 1))
     {
-      long k, ljj = lj[j];
-      GEN C = gel(mat,j), m = gel(mj,j);
       for (k = 1; k <= ljj; k++)
       {
-        GEN p1 = gel(C,k), p3 = RgX_shift_shallow(RgX_deriv(p1), 1);
-        GEN p2 = (k < ljj) ? gel(C,k+1) : gen_0;
-        gel(C,k) = gsub(gmul2n(p3,1), gadd(p2, RgX_Rg_mul(p1,m)));
+        GEN c = gel(C,k), d = RgX_shift_shallow(gmul2n(RgX_deriv(c),1), 1);
+        c = RgX_Rg_mul(c, mjj);
+        if (k < ljj) c = RgX_add(c, gel(C,k+1));
+        gel(C,k) = RgX_sub(d, c);
       }
-      gel(mj,j) = gaddgs(gel(mj,j), 1);
     }
-  for (j = 1; j <= N; ++j)
-  {
-    long k, ljj = lj[j];
-    GEN C = gel(mat,j);
+    gel(mj,j) = mjj;
     for (k = 1; k <= ljj; k++)
     {
-      GEN p1 = RgX_shift_shallow(gel(C,k), -1);
-      gel(C,k) = RgX_to_RgC(p1, lgpol(p1));
+      GEN c = RgX_shift_shallow(gel(C,k), -1);
+      gel(C,k) = RgX_to_RgC(c, lgpol(c));
     }
   }
-  return gerepilecopy(av, mkvec3(lj, mj, mat));
+  return gerepilecopy(av, mkvec3(lj,mj,mat));
 }
 
 /* Evaluate a vector considered as a polynomial using Horner. Unstable!
