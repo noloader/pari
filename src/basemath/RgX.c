@@ -135,6 +135,12 @@ RgX_Rg_eval_bk(GEN Q, GEN x)
   return gen_bkeval(Q, degpol(Q), x, 1, NULL, &Rg_algebra, _gen_cmul);
 }
 
+const struct bb_algebra *
+get_Rg_algebra(void)
+{
+  return &Rg_algebra;
+}
+
 /*******************************************************************/
 /*                                                                 */
 /*                         RgX                                     */

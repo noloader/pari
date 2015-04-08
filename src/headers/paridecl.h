@@ -933,6 +933,7 @@ GEN     gen_bkeval(GEN Q, long d, GEN x, int use_sqr, void *E,
           const struct bb_algebra *ff, GEN cmul(void *E, GEN P, long a, GEN x));
 GEN     gen_bkeval_powers(GEN P, long d, GEN V, void *E,
           const struct bb_algebra *ff, GEN cmul(void *E, GEN P, long a, GEN x));
+const struct bb_algebra * get_Rg_algebra(void);
 
 /* ZG.c */
 GEN     G_ZGC_mul(GEN x, GEN v);
