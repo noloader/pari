@@ -63,12 +63,29 @@ sercoeff(GEN x, long n, long prec)
   return (N < 0)? gen_0: gtofp(gel(x, N+2), prec);
 }
 
-/* coefficient matrix for power series expansion of inverse Mellin around x=0 */
+/* generalized power series expansion of inverse Mellin around x = 0 */
 static GEN
-coeffall(GEN Vga, GEN lj, GEN mj, long limn, long prec)
+Ksmallinit(GEN Vga, long bitprec)
 {
-  long j, N = lg(lj)-1, d = lg(Vga)-1, l = limn + 3;
-  GEN matpol = cgetg(N+1, t_VEC);
+  pari_sp av = avma;
+  long d = lg(Vga)-1, N, j, l, limn, prec;
+  GEN LA, lj, mj, matpol;
+  double C2 = MELLININV_CUTOFF;
+
+  LA = gammapoles(Vga);
+  N = lg(LA)-1;
+  lj = cgetg(N+1, t_VECSMALL);
+  mj = cgetg(N+1, t_VEC);
+  for (j = 1; j <= N; ++j)
+  {
+    GEN L = gel(LA,j);
+    lj[j] = lg(L)-1;
+    gel(mj,j) = gsubsg(2, vecmin(L));
+  }
+  prec = nbits2prec((long)(1+bitprec*(1+M_PI*d/C2)));
+  limn = ceil(2*LOG2*bitprec/(d*rtodbl(mplambertW(dbltor(C2/(M_PI*M_E))))));
+  matpol = cgetg(N+1, t_VEC);
+  l = limn + 3;
   for (j=1; j <= N; j++)
   {
     GEN C, c, m = gel(mj,j), pr = gen_1, t = gen_1;
@@ -95,31 +112,7 @@ coeffall(GEN Vga, GEN lj, GEN mj, long limn, long prec)
       gel(C,k) = L;
     }
   }
-  return mkvec3(lj,mj,matpol);
-}
-
-/* generalized power series expansion of inverse Mellin around x = 0 */
-static GEN
-Ksmallinit(GEN Vga, long bitprec)
-{
-  pari_sp av = avma;
-  long d = lg(Vga)-1, N, j, limn, prec;
-  GEN LA, lj, mj;
-  double C2 = MELLININV_CUTOFF;
-
-  LA = gammapoles(Vga);
-  N = lg(LA)-1;
-  lj = cgetg(N+1, t_VECSMALL);
-  mj = cgetg(N+1, t_VEC);
-  for (j = 1; j <= N; ++j)
-  {
-    GEN L = gel(LA,j);
-    lj[j] = lg(L)-1;
-    gel(mj,j) = gsubsg(2, vecmin(L));
-  }
-  prec = nbits2prec((long)(1+bitprec*(1+M_PI*d/C2)));
-  limn = ceil(2*LOG2*bitprec/(d*rtodbl(mplambertW(dbltor(C2/(M_PI*M_E))))));
-  return gerepilecopy(av, coeffall(Vga, lj, mj, limn, prec));
+  return gerepilecopy(av, mkvec3(lj,mj,matpol));
 }
 
 /* Same for m-th derivatives. */
