@@ -128,10 +128,12 @@ Kderivsmallinit(GEN Vga, long m, long bitprec)
     for (k = 1; k <= ljj; k++)
     {
       GEN c = RgX_shift_shallow(gel(C,k), -1);
+      if (k > 2) c = RgX_Rg_div(c, mpfact(k-1));
       gel(C,k) = RgX_to_RgC(c, lgpol(c));
     }
   }
-  return gerepilecopy(av, mkvec3(lj,mj,mat));
+  /* Algo 3.3: * \phi^(m)(t) = sum_j t^m_j sum_k (-ln t)^k mat[j,k](t^2) */
+  return gerepilecopy(av, mkvec3(lj,RgV_neg(mj),mat));
 }
 
 /* Evaluate a vector considered as a polynomial using Horner. Unstable!
@@ -153,18 +155,6 @@ evalvec(GEN vec, long lim, GEN u, GEN ui)
   return gerepileupto(ltop, S);
 }
 
-/* x^k/k! for 0 <= k <= n. */
-static GEN
-gpowersdivfact(GEN x, long n)
-{
-  pari_sp av = avma;
-  long j;
-  GEN xp = cgetg(n+2, t_VEC);
-  gel(xp, 1) = gen_1;
-  for (j = 1; j <= n; ++j) gel(xp, j+1) = gdivgs(gmul(x, gel(xp, j)), j);
-  return gerepilecopy(av, xp);
-}
-
 /* Compute m-th derivative of inverse Mellin at x by generalized
    power series around x = 0. */
 static GEN
@@ -172,8 +162,8 @@ Kderivsmall(GEN K, GEN x, long bitprec)
 {
   pari_sp ltop = avma;
   GEN Vga = gel(K,2), VS = gel(K,4);
-  GEN lj = gel(VS,1), mj = gel(VS,2), matvec = gel(VS,3);
-  GEN Lx, Lxp, x2, x2i, A, S, pi;
+  GEN lj = gel(VS,1), mj = gel(VS,2), mat = gel(VS,3);
+  GEN Lx, x2, x2i, A, S, pi;
   long prec, d, N, j, k, limn, m = itos(gel(K, 3));
   double Ed, xd, Wd, Wd0;
 
@@ -193,19 +183,18 @@ Kderivsmall(GEN K, GEN x, long bitprec)
     pari_err_IMPL("complex argument in gammamellininv with nonintegral Vga");
   pi = mppi(prec);
   x = gmul(gtofp(x, prec), pi);
-  x = odd(d) ? gsqrt(gpowgs(x, d), prec) : gpowgs(x, d/2);
-  Lx = gneg(glog(x, prec));
+  x = gpow(x, gdivsg(d,gen_2), prec);
   x2 = gsqr(x);
-  Lxp = gpowersdivfact(Lx, vecsmall_max(lj));
+  Lx = gpowers(gneg(glog(x,prec)), vecsmall_max(lj));
   x2i = (gcmp(gnorml2(x2), gen_1) <= 0)? NULL: ginv(gtofp(x2,prec));
   S = gen_0;
   for (j = 1; j <= N; ++j)
   {
-    GEN s = gen_0;
     long ljj = lj[j];
+    GEN s = gen_0;
     for (k = 1; k <= ljj; k++)
-      s = gadd(s, gmul(gel(Lxp, k), evalvec(gmael(matvec,j,k), limn, x2, x2i)));
-    S = gadd(S, gmul(gpow(x, gneg(gel(mj,j)), prec), s));
+      s = gadd(s, gmul(gel(Lx,k), evalvec(gmael(mat,j,k), limn, x2, x2i)));
+    S = gadd(S, gmul(gpow(x, gel(mj,j), prec), s));
   }
   A = gsubsg(m*d, A);
   if (!gequal0(A)) S = gmul(S, gsqrt(gpow(pi, A, prec), prec));
