@@ -86,7 +86,7 @@ Kderivsmallinit(GEN Vga, long m, long bitprec)
   prec = nbits2prec((long)(1+bitprec*(1+M_PI*d/C2)));
   limn = ceil(2*LOG2*bitprec/(d*rtodbl(mplambertW(dbltor(C2/(M_PI*M_E))))));
   mat = cgetg(N+1, t_VEC);
-  l = limn + 3;
+  l = limn + 2;
   for (j=1; j <= N; j++)
   {
     GEN C, c, mjj = gel(mj,j), pr = gen_1, t = gen_1;
@@ -108,26 +108,29 @@ Kderivsmallinit(GEN Vga, long m, long bitprec)
     {
       GEN L = cgetg(l, t_POL);
       L[1] = evalsigne(1)|evalvarn(0);
-      gel(L,2) = gen_0;
-      for (n = 3; n < l; n++) gel(L,n) = sercoeff(gel(c,n-1), -k, prec);
+      for (n = 2; n < l; n++) gel(L,n) = sercoeff(gel(c,n), -k, prec);
       gel(C,k) = L;
     }
     /* C[k] = \sum_n c_{j,k} t^n =: C_k(t) in Dokchitser's Algo 3.3 */
-    /* Take m-th derivative of t^(-mj) sum_k (-ln t)^k/k! C_k(t^2) */
-    for (i = 1; i <= m; i++, mjj = gaddgs(mjj, 1))
+    /* Take m-th derivative of t^(-mj+2) sum_k (-ln t)^k/k! C_k(t^2) */
+    if (m)
     {
-      for (k = 1; k <= ljj; k++)
+      mjj = gsubgs(mjj, 2);
+      for (i = 1; i <= m; i++, mjj = gaddgs(mjj, 1))
       {
-        GEN c = gel(C,k), d = RgX_shift_shallow(gmul2n(RgX_deriv(c),1), 1);
-        c = RgX_Rg_mul(c, mjj);
-        if (k < ljj) c = RgX_add(c, gel(C,k+1));
-        gel(C,k) = RgX_sub(d, c);
+        for (k = 1; k <= ljj; k++)
+        {
+          GEN c = gel(C,k), d = RgX_shift_shallow(gmul2n(RgX_deriv(c),1), 1);
+          c = RgX_Rg_mul(c, mjj);
+          if (k < ljj) c = RgX_add(c, gel(C,k+1));
+          gel(C,k) = RgX_sub(d, c);
+        }
       }
+      gel(mj,j) = gaddgs(mjj,2);
     }
-    gel(mj,j) = mjj;
     for (k = 1; k <= ljj; k++)
     {
-      GEN c = RgX_shift_shallow(gel(C,k), -1);
+      GEN c = gel(C,k);
       if (k > 2) c = RgX_Rg_div(c, mpfact(k-1));
       gel(C,k) = RgX_to_RgC(c, lgpol(c));
     }
