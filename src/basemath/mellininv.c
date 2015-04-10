@@ -158,23 +158,23 @@ evalvec(GEN vec, long lim, GEN u, GEN ui)
   return gerepileupto(ltop, S);
 }
 
-/* Compute m-th derivative of inverse Mellin at x by generalized
-   power series around x = 0. */
+/* Compute m-th derivative of inverse Mellin at x by generalized power series
+ * around x = 0; x2d = x^(2/d), x is possibly NULL (don't bother about
+ * complex branches). Assume |x|^(2/d) <= tmax = LOG2*bitprec/MELLININV_CUTOFF*/
 static GEN
-Kderivsmall(GEN K, GEN x, long bitprec)
+Kderivsmall(GEN K, GEN x, GEN x2d, long bitprec)
 {
   pari_sp ltop = avma;
   GEN Vga = gel(K,2), VS = gel(K,4);
   GEN lj = gel(VS,1), mj = gel(VS,2), mat = gel(VS,3);
-  GEN Lx, x2, x2i, A, S, pi;
+  GEN d2, Lx, x2, x2i, A, S, pi;
   long prec, d, N, j, k, limn, m = itos(gel(K, 3));
   double Ed, xd, Wd, Wd0;
 
   N = lg(lj)-1; d = lg(Vga)-1; A = vecsum(Vga);
-  Ed = LOG2*bitprec/d;
-  xd = maxdd(M_PI*dblmodulus(x), 1E-13);
-  if (xd > Ed)
-    pari_err_DOMAIN("Kderivsmall (use Kderivlarge)","x",">=",dbltor(Ed),x);
+  Ed = LOG2*bitprec / d;
+  xd = maxdd(M_PI*dblmodulus(x2d), 1E-13); /* pi |x|^2/d unless x tiny */
+  if (xd > Ed) pari_err_BUG("Kderivsmall (x2d too large)");
   Wd0 = Ed/(M_E*xd); /* >= 1/e */
   Wd = log(1.+Wd0);
   Wd *= (1.-log(Wd/Wd0))/(1.+Wd);
@@ -182,14 +182,18 @@ Kderivsmall(GEN K, GEN x, long bitprec)
   /* Wd solution of w exp(-w) = w0 */
   limn = (long) ceil(2*Ed/Wd);
   prec = nbits2prec((long) ceil(bitprec+d*xd/LOG2));
-  if (!gequal0(imag_i(x)) && !RgV_is_ZV(Vga))
+  if (!gequal0(imag_i(x2d)) && !RgV_is_ZV(Vga))
     pari_err_IMPL("complex argument in gammamellininv with nonintegral Vga");
   pi = mppi(prec);
-  x = gmul(gtofp(x, prec), pi);
-  x = gpow(x, gdivsg(d,gen_2), prec);
+  d2 = gdivsg(d,gen_2);
+  if (x)
+    x = gmul(x, gpow(pi,d2,prec));
+  else
+    x = gpow(gmul(x2d,pi), d2, prec);
+  /* at this stage, x has been replaced by pi^(d/2) x */
   x2 = gsqr(x);
   Lx = gpowers(gneg(glog(x,prec)), vecsmall_max(lj));
-  x2i = (gcmp(gnorml2(x2), gen_1) <= 0)? NULL: ginv(gtofp(x2,prec));
+  x2i = (gcmp(gnorml2(x2), gen_1) <= 0)? NULL: ginv(x2);
   S = gen_0;
   for (j = 1; j <= N; ++j)
   {
@@ -451,22 +455,22 @@ GEN
 gammamellininvinit(GEN Vga, long m, long prec)
 { return gammamellininvinit_bitprec(Vga, m, prec2nbits(prec)); }
 
-/* Compute m-th derivative of inverse Mellin at x = s^(d/2) using
- * initialization data. Use Taylor expansion at 0 for |x| < tmax, and
+/* Compute m-th derivative of inverse Mellin at s2d = s^(d/2) using
+ * initialization data. Use Taylor expansion at 0 for |s2d| < tmax, and
  * asymptotic expansion at oo otherwise. WARNING: assume that accuracy
  * has been increased according to tmax by the CALLING program. */
 GEN
-gammamellininvrt_bitprec(GEN K, GEN x, long bitprec)
+gammamellininvrt_bitprec(GEN K, GEN s2d, long bitprec)
 {
   GEN tmax = gel(K,1);
-  if (dblmodulus(x) < rtodbl(tmax))
-    return Kderivsmall(K, x, bitprec);
+  if (dblmodulus(s2d) < rtodbl(tmax))
+    return Kderivsmall(K, NULL, s2d, bitprec);
   else
-    return Kderivlarge(K, NULL, x, bitprec);
+    return Kderivlarge(K, NULL, s2d, bitprec);
 }
 GEN
-gammamellininvrt(GEN K, GEN x, long prec)
-{ return gammamellininvrt_bitprec(K, x, prec2nbits(prec)); }
+gammamellininvrt(GEN K, GEN s2d, long prec)
+{ return gammamellininvrt_bitprec(K, s2d, prec2nbits(prec)); }
 
 /* Compute inverse Mellin at s. K from gammamellininv OR a Vga, in which
  * case the initialization data is computed. */
@@ -483,7 +487,7 @@ gammamellininv_bitprec(GEN K, GEN s, long m, long bitprec)
   d = lg(gel(K,2))-1;
   s2d = gpow(s, gdivgs(gen_2, d), nbits2prec(bitprec));
   if (dblmodulus(s2d) < rtodbl(tmax))
-    z = Kderivsmall(K, s2d, bitprec);
+    z = Kderivsmall(K, s, s2d, bitprec);
   else
     z = Kderivlarge(K, s, s2d, bitprec);
   return gerepileupto(av, z);
