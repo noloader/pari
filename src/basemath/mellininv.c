@@ -187,9 +187,9 @@ Kderivsmall(GEN K, GEN x, GEN x2d, long bitprec)
   pi = mppi(prec);
   d2 = gdivsg(d,gen_2);
   if (x)
-    x = gmul(x, gpow(pi,d2,prec));
+    x = gmul(gtofp(x,prec), gpow(pi,d2,prec));
   else
-    x = gpow(gmul(x2d,pi), d2, prec);
+    x = gpow(gmul(gtofp(x2d,prec),pi), d2, prec);
   /* at this stage, x has been replaced by pi^(d/2) x */
   x2 = gsqr(x);
   Lx = gpowers(gneg(glog(x,prec)), vecsmall_max(lj));
