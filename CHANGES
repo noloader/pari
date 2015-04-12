@@ -8,8 +8,7 @@ Done for version 2.8.0 (released ??/??/2015):
     2- Q_pvalrem(t_FRAC) => wrong result
     3- [] == 0 but []~ != 0  (now []~ == 0 as well) [#1560]
 BA  4- test-kernel did not work when using --mt=pthread
-BA  5- ellheegner was using too much memory in some case
-    6- ellap can overflow on 32-bit machine [#1558]
+BA  5- ellheegner was using too much memory in some case 6- ellap can overflow on 32-bit machine [#1558]
        ellap(ellinit([582304190,64196421]),2147438927) -> overflow
        ellap(ellinit([-1137195,489565862]),2038074751) -> wrong result
     7- nfhilbert(K,x,y, P above 2) could give wrong results [#1561]
@@ -132,6 +131,7 @@ BA 96- when r > ord(L_E,1), ellL1(E, r) gave a wrong result
    97- qfminim(A, 0, ...) -> stack overflow [#1682]
    98- e=ellinit("11a1"); ellztopoint(e,3*e.omega[1]/5) -> [5, junk]
        (instead of expected [5,5]) [#1683]
+   99- bnfinit(quadhilbert(-2180)) -> precision error [#1688]
 
   Added
     1- add optional argument to sumdigits to specify the base
@@ -266,6 +266,7 @@ BA 97- [libpari] functions FlxV_prod, RgV_prod
 BA 98- GP function ellfromeqn
 HC 99- gammamellininv, gammamellininvasymp, gammamellininvinit
 BA100- [libpari] RgX_Rg_eval_bk, RgX_RgV_eval
+  101- [libpari] RgX_cxeval
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]

@@ -2898,6 +2898,7 @@ GEN     polcoeff_i(GEN x, long n, long v);
 long    poldegree(GEN x,long v);
 long    RgX_degree(GEN x,long v);
 GEN     poleval(GEN x, GEN y);
+GEN     RgX_cxeval(GEN T, GEN u, GEN ui);
 GEN     pollead(GEN x,long v);
 long    precision(GEN x);
 GEN     precision0(GEN x,long n);

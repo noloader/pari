@@ -4042,3 +4042,27 @@ poleval(GEN x, GEN y)
   }
   return gerepileupto(av0, gadd(p2, gmul(y,p1)));
 }
+
+/* Evaluate a polynomial using Horner. Unstable!
+ * If ui != NULL, ui = 1/u, evaluate P(1/u)*u^(deg P): useful for |u|>1 */
+GEN
+RgX_cxeval(GEN T, GEN u, GEN ui)
+{
+  pari_sp ltop = avma;
+  GEN S;
+  long n, lim = lg(T)-1;
+  if (lim == 1) return gen_0;
+  if (lim == 2) return gcopy(gel(T,2));
+  if (!ui)
+  {
+    n = lim; S = gel(T,n);
+    for (n--; n >= 2; n--) S = gadd(gmul(u,S), gel(T,n));
+  }
+  else
+  {
+    n = 2; S = gel(T,2);
+    for (n++; n <= lim; n++) S = gadd(gmul(ui,S), gel(T,n));
+    S = gmul(gpowgs(u, lim-2), S);
+  }
+  return gerepileupto(ltop, S);
+}

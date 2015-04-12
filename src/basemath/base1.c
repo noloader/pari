@@ -1431,10 +1431,12 @@ make_M(nffp_t *F, int trunc)
   long i, j, l = lg(ro), n = lg(bas);
   M = cgetg(n,t_MAT);
   gel(M,1) = const_col(l-1, gen_1); /* bas[1] = 1 */
-  for (j=2; j<n; j++)
+  for (j=2; j<n; j++) gel(M,j) = cgetg(l,t_COL);
+  for (i=1; i<l; i++)
   {
-    m = cgetg(l,t_COL); gel(M,j) = m;
-    for (i=1; i<l; i++) gel(m,i) = poleval(gel(bas,j), gel(ro,i));
+    GEN r = gel(ro,i), ri;
+    ri = (gexpo(r) > 1)? ginv(r): NULL;
+    for (j=2; j<n; j++) gcoeff(M,i,j) = RgX_cxeval(gel(bas,j), r, ri);
   }
   if (den)
     for (j=2; j<n; j++)
