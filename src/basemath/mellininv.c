@@ -148,7 +148,7 @@ evalvec(GEN vec, long lim, GEN u, GEN ui)
   GEN S = gen_0;
   long n;
   lim = minss(lim, lg(vec)-1);
-  if (gcmp(gnorml2(u), gen_1) <= 0)
+  if (!ui)
     for (n = lim; n >= 1; --n) S = gmul(u, gadd(gel(vec,n), S));
   else
   {
