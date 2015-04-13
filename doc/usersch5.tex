@@ -9574,7 +9574,7 @@ the \typ{POL} \kbd{gtovecrev(q)}.
 \fun{GEN}{RgX_cxeval}{GEN T, GEN x, GEN xi} evaluate the \typ{POL} $T$
 at $x$ via Horner's scheme. If \var{xi} is not \kbd{NULL} it must be equal to
 $1/x$ and we evaluate $x^{\deg T}T(1/x)$ instead. This is useful when
-$\abs{x} > 1$ is a \typ{REAL} or an inexact \typ{COMPLEX} and $T$ has
+$|x| > 1$ is a \typ{REAL} or an inexact \typ{COMPLEX} and $T$ has
 ``balanced'' coefficients, since the evaluation becomes numerically stable.
 
 \fun{GEN}{RgX_RgM_eval}{GEN q, GEN x} evaluates the \typ{POL} $q$ at the
