@@ -528,7 +528,7 @@ Fq_get_UV(GEN *U, GEN *V, GEN S, GEN T, ulong p, long e)
   GEN R  = polresultantext(S, dS), C;
   long v = varn(S);
   if (signe(FpX_red(to_ZX(gel(R,3),v),utoi(p)))==0) is_sing(S, p);
-  C = FpXQ_red(gel(R, 3), T, q);
+  C = FpXQ_red(to_ZX(gel(R, 3),v), T, q);
   d = ZpXQ_inv(C, T, utoi(p), e);
   *U = FpXQX_FpXQ_mul(FpXQX_red(to_ZX(gel(R,1),v),T,q),d,T,q);
   *V = FpXQX_FpXQ_mul(FpXQX_red(to_ZX(gel(R,2),v),T,q),d,T,q);
