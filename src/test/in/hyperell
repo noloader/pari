@@ -22,7 +22,7 @@ checkfeq(P,q)=
   forprime(p=3,7,
     H=hyperellcharpoly((x^6+x+1)*Mod(1,p));
     print(checkfeq(H,p)));
-  forprime(p=5,11,
+  forprime(p=3,11,
     H=hyperellcharpoly((x^10+x+1)*Mod(1,p));
     print(checkfeq(H,p)));
   forprime(p=3,7,

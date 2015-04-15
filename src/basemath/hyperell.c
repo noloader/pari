@@ -33,6 +33,15 @@ Harrison, M. An extension of Kedlaya's algorithm for hyperelliptic
   http://arxiv.org/pdf/1006.4206v3.pdf
 */
 
+static long
+get_k(ulong p, long d)
+{
+  if (odd(d))
+    return p < d-1 ? 3 : 1;
+  else
+    return 2*p <= d-2 ? 3 : 1;
+}
+
 static GEN
 FpXXQ_red(GEN S, GEN T, GEN p)
 {
@@ -135,7 +144,7 @@ frac_to_Fp(GEN a, GEN b, GEN p)
 }
 
 static GEN
-ZpXXQ_frob(GEN S, GEN U, GEN V, GEN T, ulong p, long e)
+ZpXXQ_frob(GEN S, GEN U, GEN V, long k, GEN T, ulong p, long e)
 {
   pari_sp av = avma, av2;
   long i, pr = degpol(S), dT = degpol(T);
@@ -143,7 +152,7 @@ ZpXXQ_frob(GEN S, GEN U, GEN V, GEN T, ulong p, long e)
   GEN Tp = FpX_deriv(T, q), Tp1 = RgX_shift_shallow(Tp, 1);
   GEN M = gel(S,pr+2), R;
   av2 = avma;
-  for(i = pr-1; i>=0; i--)
+  for(i = pr-1; i>=k; i--)
   {
     GEN A, B, H, Bc;
     ulong v, r;
@@ -280,7 +289,7 @@ static GEN
 ZlX_hyperellpadicfrobenius(GEN H, ulong p, long n)
 {
   pari_sp av = avma;
-  long N, i, d;
+  long k, N, i, d;
   GEN F, s, Q, pN1, U, V;
   pari_timer ti;
   if (typ(H) != t_POL) pari_err_TYPE("hyperellpadicfrobenius",H);
@@ -288,12 +297,9 @@ ZlX_hyperellpadicfrobenius(GEN H, ulong p, long n)
   d = degpol(H);
   if (d <= 0)
     pari_err_CONSTPOL("hyperellpadicfrobenius");
-  if (odd(d) &&  p < (ulong) d)
-    pari_err_DOMAIN("hyperellpadicfrobenius","p","<", utoi(d), utoi(p));
-  if (!odd(d) &&  2*p < (ulong) d)
-    pari_err_DOMAIN("hyperellpadicfrobenius","2*p","<", utoi(d), utoi(2*p));
   if (n < 1)
     pari_err_DOMAIN("hyperellpadicfrobenius","n","<", gen_1, utoi(n));
+  k = get_k(p, d);
   N = n + logint(stoi(2*n), stoi(p), NULL);
   pN1 = powuu(p,N+1);
   Q = RgX_to_FpX(H, pN1);
@@ -303,6 +309,8 @@ ZlX_hyperellpadicfrobenius(GEN H, ulong p, long n)
   s = revdigits(FpX_digits(RgX_inflate(Q, p), Q, pN1));
   if (DEBUGLEVEL>1) timer_printf(&ti,"s1");
   s = ZpXXQ_invsqrt(s, Q, p, N);
+  if (k==3)
+    s = FpXXQ_mul(s, FpXXQ_sqr(s, Q, pN1), Q, pN1);
   if (DEBUGLEVEL>1) timer_printf(&ti,"invsqrt");
   get_UV(&U, &V, Q, p, N+1);
   F = cgetg(d, t_MAT);
@@ -310,9 +318,9 @@ ZlX_hyperellpadicfrobenius(GEN H, ulong p, long n)
   {
     pari_sp av2 = avma;
     GEN M, D;
-    D = diff_red(s, monomial(utoi(p),p*i-1,1),p>>1, Q, pN1);
+    D = diff_red(s, monomial(utoi(p),p*i-1,1),(k*p-1)>>1, Q, pN1);
     if (DEBUGLEVEL>1) timer_printf(&ti,"red");
-    M = ZpXXQ_frob(D, U, V, Q, p, N + 1);
+    M = ZpXXQ_frob(D, U, V, (k-1)>>1, Q, p, N + 1);
     if (DEBUGLEVEL>1) timer_printf(&ti,"frob");
     gel(F, i) = gerepilecopy(av2, RgX_to_RgC(M, d-1));
   }
@@ -440,7 +448,7 @@ frac_to_Fq(GEN a, GEN b, GEN T, GEN p)
 }
 
 static GEN
-ZpXQXXQ_frob(GEN F, GEN U, GEN V, GEN S, GEN T, ulong p, long e)
+ZpXQXXQ_frob(GEN F, GEN U, GEN V, long k, GEN S, GEN T, ulong p, long e)
 {
   pari_sp av = avma, av2;
   long i, pr = degpol(F), dS = degpol(S), v = varn(T);
@@ -448,7 +456,7 @@ ZpXQXXQ_frob(GEN F, GEN U, GEN V, GEN S, GEN T, ulong p, long e)
   GEN Sp = RgX_deriv(S), Sp1 = RgX_shift_shallow(Sp, 1);
   GEN M = gel(F,pr+2), R;
   av2 = avma;
-  for(i = pr-1; i>=0; i--)
+  for(i = pr-1; i>=k; i--)
   {
     GEN A, B, H, Bc;
     ulong v, r;
@@ -556,7 +564,7 @@ GEN
 ZlXQX_hyperellpadicfrobenius(GEN H, GEN T, ulong p, long n)
 {
   pari_sp av = avma;
-  long N, i, d;
+  long k, N, i, d;
   GEN xp, F, s, q, Q, pN1, U, V;
   pari_timer ti;
   if (typ(H) != t_POL) pari_err_TYPE("hyperellpadicfrobenius",H);
@@ -564,12 +572,9 @@ ZlXQX_hyperellpadicfrobenius(GEN H, GEN T, ulong p, long n)
   d = degpol(H);
   if (d <= 0)
     pari_err_CONSTPOL("hyperellpadicfrobenius");
-  if (odd(d) &&  p < (ulong) d)
-    pari_err_DOMAIN("hyperellpadicfrobenius","p","<", utoi(d), utoi(p));
-  if (!odd(d) && 2*p < (ulong) d)
-    pari_err_DOMAIN("hyperellpadicfrobenius","2*p","<", utoi(d), utoi(p));
   if (n < 1)
     pari_err_DOMAIN("hyperellpadicfrobenius","n","<", gen_1, utoi(n));
+  k = get_k(p, d);
   N = n + logint(stoi(2*n), stoi(p), NULL);
   q = powuu(p,n); pN1 = powuu(p,N+1); T = FpX_get_red(T, pN1);
   Q = RgX_to_FqX(H, T, pN1);
@@ -580,6 +585,8 @@ ZlXQX_hyperellpadicfrobenius(GEN H, GEN T, ulong p, long n)
   s = revdigits(FpXQX_digits(s, Q, T, pN1));
   if (DEBUGLEVEL>1) timer_printf(&ti,"s1");
   s = ZpXQXXQ_invsqrt(s, Q, T, p, N);
+  if (k==3)
+    s = FpXQXXQ_mul(s, FpXQXXQ_sqr(s, Q, T, pN1), Q, T, pN1);
   if (DEBUGLEVEL>1) timer_printf(&ti,"invsqrt");
   Fq_get_UV(&U, &V, Q, T, p, N+1);
   if (DEBUGLEVEL>1) timer_printf(&ti,"get_UV");
@@ -588,9 +595,9 @@ ZlXQX_hyperellpadicfrobenius(GEN H, GEN T, ulong p, long n)
   {
     pari_sp av2 = avma;
     GEN M, D;
-    D = Fq_diff_red(s, monomial(utoi(p),p*i-1,1),p>>1, Q, T, pN1);
+    D = Fq_diff_red(s, monomial(utoi(p),p*i-1,1),(k*p-1)>>1, Q, T, pN1);
     if (DEBUGLEVEL>1) timer_printf(&ti,"red");
-    M = ZpXQXXQ_frob(D, U, V, Q, T, p, N + 1);
+    M = ZpXQXXQ_frob(D, U, V, (k - 1)>>1, Q, T, p, N + 1);
     if (DEBUGLEVEL>1) timer_printf(&ti,"frob");
     gel(F, i) = gerepileupto(av2, ZXX_to_FpXC(M, d-1, q, varn(T)));
   }
@@ -682,7 +689,7 @@ hyperellcharpoly(GEN H)
   }
   if (!odd(d))
   {
-    GEN q = T ? powuu(p, degpol(T)): pp;
+    GEN q = get_k(p, d) == 3 ? gen_1 : T ? powuu(p, degpol(T)): pp;
     GEN v, Rx = RgX_div_by_X_x(R, eps? q: negi(q), &v);
     if (signe(v)) pari_err_BUG("hyperellcharpoly");
     return gerepilecopy(av, Rx);

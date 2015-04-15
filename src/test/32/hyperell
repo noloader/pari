@@ -78,6 +78,7 @@
 x^2 + 3*x
 x^2 - 5
 x^2 + x - 5
+x^4 + 3*x^3 - 3*x^2 - 9*x
 x^4 - 20*x^2 - 10*x + 50
 x^4 + 4*x^3 - 14*x^2 - 42*x + 14
 x^4 + 3*x^3 - 27*x^2 - 26*x + 47
@@ -99,4 +100,4 @@ x + 6
   ***   at top-level: hyperellcharpoly((25
   ***                 ^--------------------
   *** hyperellcharpoly: domain error in hyperellpadicfrobenius: H is singular at 5
-Total time spent: 3284
+Total time spent: 3316
