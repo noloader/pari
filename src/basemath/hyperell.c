@@ -33,8 +33,11 @@ Harrison, M. An extension of Kedlaya's algorithm for hyperelliptic
   http://arxiv.org/pdf/1006.4206v3.pdf
 */
 
+/* We use the basis of differentials (x^i*dx/y^k) (i=1 to 2*g-1),
+   with k either 1 or 3, depending on p and d, see Harrison paper */
+
 static long
-get_k(ulong p, long d)
+get_basis(ulong p, long d)
 {
   if (odd(d))
     return p < d-1 ? 3 : 1;
@@ -299,7 +302,7 @@ ZlX_hyperellpadicfrobenius(GEN H, ulong p, long n)
     pari_err_CONSTPOL("hyperellpadicfrobenius");
   if (n < 1)
     pari_err_DOMAIN("hyperellpadicfrobenius","n","<", gen_1, utoi(n));
-  k = get_k(p, d);
+  k = get_basis(p, d);
   N = n + logint(stoi(2*n), stoi(p), NULL);
   pN1 = powuu(p,N+1);
   Q = RgX_to_FpX(H, pN1);
@@ -574,7 +577,7 @@ ZlXQX_hyperellpadicfrobenius(GEN H, GEN T, ulong p, long n)
     pari_err_CONSTPOL("hyperellpadicfrobenius");
   if (n < 1)
     pari_err_DOMAIN("hyperellpadicfrobenius","n","<", gen_1, utoi(n));
-  k = get_k(p, d);
+  k = get_basis(p, d);
   N = n + logint(stoi(2*n), stoi(p), NULL);
   q = powuu(p,n); pN1 = powuu(p,N+1); T = FpX_get_red(T, pN1);
   Q = RgX_to_FqX(H, T, pN1);
@@ -689,7 +692,7 @@ hyperellcharpoly(GEN H)
   }
   if (!odd(d))
   {
-    GEN q = get_k(p, d) == 3 ? gen_1 : T ? powuu(p, degpol(T)): pp;
+    GEN q = get_basis(p, d) == 3 ? gen_1 : T ? powuu(p, degpol(T)): pp;
     GEN v, Rx = RgX_div_by_X_x(R, eps? q: negi(q), &v);
     if (signe(v)) pari_err_BUG("hyperellcharpoly");
     return gerepilecopy(av, Rx);
