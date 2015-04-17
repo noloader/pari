@@ -3889,6 +3889,9 @@ GEN     msstar(GEN W, GEN);
 GEN     msqexpansion(GEN W, GEN proV, ulong B);
 GEN     mssplit(GEN W, GEN H);
 
+/* zetamult.c */
+GEN zetamult(GEN avec, long prec);
+
 /* level1.h */
 
 INLINE ulong  Fl_add(ulong a, ulong b, ulong p);

@@ -267,6 +267,7 @@ BA 98- GP function ellfromeqn
 HC 99- gammamellininv, gammamellininvasymp, gammamellininvinit
 BA100- [libpari] RgX_Rg_eval_bk, RgX_RgV_eval
   101- [libpari] RgX_cxeval
+HC102- GP function zetamult
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]
