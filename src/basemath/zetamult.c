@@ -151,7 +151,7 @@ GEN
 zetamult(GEN avec, long prec)
 {
   pari_sp ltop = avma;
-  long k, n, i, j, nlim, l;
+  long k, n, i, j, nlim, l, prec2;
   GEN binvec, S, LR, phiall, MA, MR, evec = gen_0;
 
   if (typ(avec) != t_VECSMALL) avec = gtovecsmall(avec);
@@ -171,18 +171,19 @@ zetamult(GEN avec, long prec)
     LR = addevec(addevec(LR, gel(MA,i)), gel(MR,i));
   }
   l = lg(LR);
+  prec2 = prec+EXTRAPRECWORD;
   phiall = cgetg(l, t_VEC);
-  for (j = 1; j < l; j++) gel(phiall,j) = phip(nlim+1, gel(LR,j), prec);
+  for (j = 1; j < l; j++) gel(phiall,j) = phip(nlim+1, gel(LR,j), prec2);
   S = real_0(prec);
   for (i = 1; i < k; i++)
   {
     GEN phi1 = isinphi(LR, gel(MA,i), phiall);
     GEN phi2 = isinphi(LR, gel(MR,i), phiall);
-    GEN s = real_0(prec);
-    for (n = 1; n <= nlim; ++n)
+    GEN s = gmul2n(gmul(gel(phi1,1), gel(phi2,1)), -1);
+    for (n = 2; n <= nlim; ++n)
       s = gadd(s, gdiv(gmul(gel(phi1,n), gel(phi2,n)), gel(binvec,n)));
     S = gadd(S, la(evec[i], evec[i+1], s));
   }
-  return gerepilecopy(ltop, S);
+  return gerepilecopy(ltop, rtor(S,prec));
 }
 
