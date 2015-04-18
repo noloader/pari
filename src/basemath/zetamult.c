@@ -166,8 +166,10 @@ zetamult(GEN avec, long prec)
   if (lg(avec) == 1) return gen_1;
   if (vecsmall_min(avec) <= 0) pari_err_TYPE("zetamult",avec);
   if (avec[1] == 1) pari_err_DOMAIN("zetamult", "s[1]", "=", gen_1, avec);
-  evec = atoe(avec); k = lg(evec)-1;
-  nlim = 5 + prec2nbits(prec)/2;
+  evec = atoe(avec);
+  k = lg(evec)-1; /* weight */
+  prec2 = prec + (1 + (k>>5)) * EXTRAPRECWORD;
+  nlim = 5 + prec2nbits(prec2)/2;
   binvec = cgetg(nlim+1, t_VEC);
   gel(binvec, 1) = gen_2;
   for (n = 2; n <= nlim; ++n)
@@ -182,10 +184,9 @@ zetamult(GEN avec, long prec)
     LR = addevec(addevec(LR, gel(MA,i)), gel(MR,i));
   }
   l = lg(LR);
-  prec2 = prec+EXTRAPRECWORD;
   phiall = cgetg(l, t_VEC);
   for (j = 1; j < l; j++) gel(phiall,j) = phip(nlim+1, gel(LR,j), prec2);
-  S = real_0(prec);
+  S = real_0(prec2);
   for (i = 1; i < k; i++)
   {
     GEN phi1 = isinphi(LR, gel(MA,i), phiall);
