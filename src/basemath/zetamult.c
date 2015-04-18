@@ -153,7 +153,7 @@ GEN
 zetamult(GEN avec, long prec)
 {
   pari_sp ltop = avma;
-  long k, n, i, j, nlim, l, prec2;
+  long k, n, i, j, nlim, l, bitprec, prec2;
   GEN binvec, S, LR, phiall, MA, MR, evec = gen_0;
 
   switch(typ(avec))
@@ -168,8 +168,9 @@ zetamult(GEN avec, long prec)
   if (avec[1] == 1) pari_err_DOMAIN("zetamult", "s[1]", "=", gen_1, avec);
   evec = atoe(avec);
   k = lg(evec)-1; /* weight */
-  prec2 = prec + (1 + (k>>5)) * EXTRAPRECWORD;
-  nlim = 5 + prec2nbits(prec2)/2;
+  bitprec = prec2nbits(prec) + 64*(1+(k>>5));
+  prec2 = nbits2prec(bitprec);
+  nlim = 5 + bitprec/2;
   binvec = cgetg(nlim+1, t_VEC);
   gel(binvec, 1) = gen_2;
   for (n = 2; n <= nlim; ++n)
