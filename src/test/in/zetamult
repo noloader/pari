@@ -14,4 +14,10 @@ for(k=1,10, print(Pi^(4*k) / zetamult(vector(2*k, j, 1+2*(j%2)))));
 
 v = [zeta(9),Pi^2*zeta(7),Pi^4*zeta(5),Pi^6*zeta(3)];
 LD=[2,2,2,2];
-for(i=1,4,LE=LD;LE[i]=3; print(lindep(concat(zetamult(LE),v))));
+{
+  for(i=1,4,
+    LE=LD; LE[i]=3;
+    z = lindep(concat(zetamult(LE),v));
+    if (z[1] < 0, z = -z); print(z);
+  );
+}
