@@ -2,4 +2,12 @@
 -38
 -38
 -39
-Total time spent: 4
+  ***   at top-level: zetamult("a")
+  ***                 ^-------------
+  *** zetamult: incorrect type in zetamult (t_STR).
+1.6449340668482264364724151666460251892
+1
+  ***   at top-level: zetamult([1,2])
+  ***                 ^---------------
+  *** zetamult: domain error in zetamult: s[1] = 1
+Total time spent: 0

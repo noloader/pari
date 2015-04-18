@@ -12,7 +12,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 
 /********************************************************************/
 /**                                                                **/
-/**                   MULTIPLE ZETA VALUES                         **/
+/**                     MULTIPLE ZETA VALUES                       **/
+/**                                                                **/
+/** ALGORITHM DUE TO P. AKHILESH. DO NOT REPRODUCE UNTIL PUBLISHED **/
 /**                                                                **/
 /********************************************************************/
 #include "pari.h"
@@ -154,9 +156,18 @@ zetamult(GEN avec, long prec)
   long k, n, i, j, nlim, l, prec2;
   GEN binvec, S, LR, phiall, MA, MR, evec = gen_0;
 
-  if (typ(avec) != t_VECSMALL) avec = gtovecsmall(avec);
+  switch(typ(avec))
+  {
+    case t_INT: return gzeta(avec,prec);
+    case t_VEC:
+    case t_COL: avec = gtovecsmall(avec); break;
+    default: pari_err_TYPE("zetamult",avec);
+  }
+  if (lg(avec) == 1) return gen_1;
+  if (vecsmall_min(avec) <= 0) pari_err_TYPE("zetamult",avec);
+  if (avec[1] == 1) pari_err_DOMAIN("zetamult", "s[1]", "=", gen_1, avec);
   evec = atoe(avec); k = lg(evec)-1;
-  nlim = (long)ceil(prec2ndec(prec)*1.661) + 5;
+  nlim = 5 + prec2nbits(prec)/2;
   binvec = cgetg(nlim+1, t_VEC);
   gel(binvec, 1) = gen_2;
   for (n = 2; n <= nlim; ++n)
