@@ -115,6 +115,8 @@ GEN  sumdivmultexpr(GEN num, GEN code);
 GEN  suminf0(GEN a, GEN code, long prec);
 GEN  sumnum0(GEN a, GEN sig, GEN code, GEN tab, long flag, long prec);
 GEN  sumnumalt0(GEN a, GEN sig, GEN code, GEN tab, long flag, long prec);
+GEN  sumnumdelta0(GEN a, GEN code, GEN tab, long prec);
+GEN  sumnummon0(GEN a, GEN code, GEN tab, long prec);
 GEN  sumpos0(GEN a, GEN code, long flag,long prec);
 GEN  vecexpr0(GEN nmax, GEN code, GEN pred);
 GEN  vecexpr1(GEN nmax, GEN code, GEN pred);

@@ -3138,6 +3138,10 @@ GEN     intnumromb(void *E, GEN (*eval) (void *, GEN), GEN a, GEN b, long flag, 
 GEN     sumnum(void *E, GEN (*f) (void *, GEN), GEN a, GEN sig, GEN tab, long flag, long prec);
 GEN     sumnumalt(void *E, GEN (*f) (void *, GEN), GEN a, GEN s, GEN tab, long flag, long prec);
 GEN     sumnuminit(GEN sig, long m, long sgn, long prec);
+GEN     sumnumdelta(void *E, GEN (*eval)(void*, GEN), GEN a, GEN tab, long prec);
+GEN     sumnumdeltainit(GEN fast, long prec);
+GEN     sumnummon(void *E, GEN (*eval)(void*, GEN), GEN a, GEN tab, long prec);
+GEN     sumnummoninit(GEN asymp, GEN fast, GEN n0, long prec);
 
 /* krasner.c */
 

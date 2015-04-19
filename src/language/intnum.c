@@ -599,6 +599,9 @@ initnumsine(long m, long prec)
 }
 
 static GEN
+get_oo(GEN fast) { return mkvec2(mkoo(), fast); }
+
+static GEN
 suminit_start(GEN sig)
 {
   GEN sig2;
@@ -613,7 +616,7 @@ suminit_start(GEN sig)
   }
   else sig2 = gen_0;
   if (!isinR(sig)) pari_err_TYPE("sumnum",sig);
-  return mkvec2(mkoo(), sig2);
+  return get_oo(sig2);
 }
 
 /* update weight for sum */
@@ -1451,28 +1454,13 @@ contfrac_Euler(GEN CF)
   return mkvec2(A, B);
 }
 
-GEN
-contfracinit(GEN M, long lim)
+static GEN
+contfracinit_i(GEN M, long lim)
 {
-  pari_sp ltop = avma, av;
+  pari_sp av;
   GEN e, q, c;
   long lim2;
   long j, k;
-  switch(typ(M))
-  {
-    case t_RFRAC:
-      if (lim < 0) pari_err_TYPE("contfracinit",M);
-      M = gadd(M, zeroser(gvar(M), lim + 2)); /*fall through*/
-    case t_SER: M = gtovec(M); break;
-    case t_POL: M = gtovecrev(M); break;
-    case t_VEC: case t_COL: break;
-    default: pari_err_TYPE("contfracinit", M);
-  }
-  if (lim < 0)
-    lim = lg(M)-2;
-  else if (lg(M)-1 <= lim)
-    pari_err_COMPONENT("contfracinit", "<", stoi(lg(M)-1), stoi(lim));
-  if (lim < 0) retmkvec2(cgetg(1,t_VEC),cgetg(1,t_VEC));
   e = zerovec(lim);
   c = zerovec(lim+1); gel(c, 1) = gel(M, 1);
   q = cgetg(lim+1, t_VEC);
@@ -1494,8 +1482,31 @@ contfracinit(GEN M, long lim)
     }
   }
   if (odd(lim)) gel(c, lim+1) = gneg(gel(q, 1));
-  c = contfrac_Euler(c);
-  return gerepilecopy(ltop, c);
+  return c;
+}
+
+GEN
+contfracinit(GEN M, long lim)
+{
+  pari_sp ltop = avma;
+  GEN c;
+  switch(typ(M))
+  {
+    case t_RFRAC:
+      if (lim < 0) pari_err_TYPE("contfracinit",M);
+      M = gadd(M, zeroser(gvar(M), lim + 2)); /*fall through*/
+    case t_SER: M = gtovec(M); break;
+    case t_POL: M = gtovecrev(M); break;
+    case t_VEC: case t_COL: break;
+    default: pari_err_TYPE("contfracinit", M);
+  }
+  if (lim < 0)
+    lim = lg(M)-2;
+  else if (lg(M)-1 <= lim)
+    pari_err_COMPONENT("contfracinit", "<", stoi(lg(M)-1), stoi(lim));
+  if (lim < 0) retmkvec2(cgetg(1,t_VEC),cgetg(1,t_VEC));
+  c = contfracinit_i(M, lim);
+  return gerepilecopy(ltop, contfrac_Euler(c));
 }
 
 /* Evaluate at t the nlim first terms of the continued fraction output by
@@ -1648,3 +1659,380 @@ sumnum0(GEN a, GEN sig, GEN code, GEN tab, long flag, long prec)
 GEN
 sumnumalt0(GEN a, GEN sig, GEN code, GEN tab, long flag, long prec)
 { EXPR_WRAP(code, sumnumalt(EXPR_ARG, a, sig, tab, flag, prec)); }
+
+/* basic Newton, find x ~ z such that Q(x) = 0 */
+static GEN
+monrefine(GEN Q, GEN QP, GEN z, long prec)
+{
+  GEN pr = poleval(Q, z);
+  for(;;)
+  {
+    GEN prnew;
+    z = gsub(z, gdiv(pr, poleval(QP, z)));
+    prnew = poleval(Q, z);
+    if (gcmp(gabs(prnew, prec), gabs(pr, prec)) < 0)
+      pr = prnew;
+    else
+    {
+      z = gprec_w(z, 2*prec-2);
+      return gsub(z, gdiv(poleval(Q, z), poleval(QP, z)));
+    }
+  }
+  return NULL;
+}
+/* (real) roots of Q, assuming QP = Q' and that half the roots are close to
+ * k+1, ..., k+m, m = deg(Q)/2-1. N.B. All roots are real and >= 1 */
+static GEN
+monroots(GEN Q, GEN QP, long k, long prec)
+{
+  long j, n = degpol(Q), m = n/2 - 1;
+  GEN v2, v1 = cgetg(m+1, t_VEC);
+  for (j = 1; j <= m; ++j) gel(v1, j) = monrefine(Q, QP, stoi(k+j), prec);
+  Q = gdivent(Q, roots_to_pol(v1, varn(Q)));
+  v2 = real_i(roots(Q, prec)); settyp(v2, t_VEC);
+  return shallowconcat(v1, v2);
+}
+
+static void
+Pade(GEN M, GEN *pP, GEN *pQ)
+{
+  long n = lg(M)-2, i;
+  GEN v = contfracinit_i(M, n), P = pol_0(0), Q = pol_1(0);
+  /* evaluate continued fraction => Pade approximants */
+  for (i = n-1; i >= 1; i--)
+  { /* S = P/Q: S -> v[i]*x / (1+S) */
+    GEN R = RgX_shift_shallow(RgX_Rg_mul(Q,gel(v,i)), 1);
+    Q = RgX_add(P,Q); P = R;
+  }
+  /* S -> 1+S */
+  *pP = RgX_add(P,Q);
+  *pQ = Q;
+}
+
+static GEN
+_zeta(void *E, GEN x, long prec)
+{ (void)E; return gzeta(x, prec); }
+/* compute zeta'(s) numerically. FIXME: replace by lfun variant */
+static GEN
+gzetaprime(GEN s, long prec)
+{ return derivnum(NULL, _zeta, gtofp(s,prec), prec); }
+
+/* f(n) ~ \sum_{i > 0} f_i log(n)^k / n^(a*i + b); a > 0, a+b > 1 */
+static GEN
+sumnummoninit0(GEN a, GEN b, long k, long prec)
+{
+  GEN c, M, vr, P, Q, Qp, R, vabs, vwt;
+  long bitprec = prec2nbits(prec), m, j, n;
+  double D = bitprec*LOG2/gtodouble(a);
+
+  n = (long)ceil(D/(log(D)-1));
+  prec = maxss(2*prec-2, nbits2prec((long)ceil((2*n+1)/LOG10_2)));
+  if (k && k != 1) pari_err_IMPL("log power > 1 in sumnummoninit");
+  a = gprec_w(a, 2*prec-2);
+  b = gprec_w(b, 2*prec-2);
+  M = cgetg(2*n+3, t_VEC);
+  if (k == 0)
+  {
+    if (typ(a) == t_INT && typ(b) == t_INT)
+    { /* shortcut */
+      long aa = itos(a), bb = itos(b);
+      M = zetaBorweinRecycled(aa+bb, aa, 2*n+2, prec);
+    }
+    else
+      for (m = 1; m <= 2*n+2; m++)
+        gel(M,m) = gzeta(gadd(gmulsg(m,a), b), prec);
+    M = RgV_neg(M);
+  }
+  else
+    for (m = 1; m <= 2*n+2; m++)
+      gel(M,m) = gzetaprime(gadd(gmulsg(m,a), b), prec);
+  Pade(M, &P,&Q);
+  Qp = RgX_deriv(Q);
+  if (gequal1(a))
+  {
+    vabs = vr = monroots(Q, Qp, k, prec);
+    c = b;
+  }
+  else
+  {
+    GEN ai = ginv(a);
+    vr = real_i(roots(Q, prec));
+    vabs = cgetg(n+1, t_VEC);
+    for (j = 1; j <= n; ++j) gel(vabs,j) = gpow(gel(vr,j), ai, prec);
+    c = gdiv(b,a);
+  }
+  c = gsubgs(c,1); if (gequal0(c)) c = NULL;
+  R = gdiv(P, Qp);
+  vwt = cgetg(n+1, t_VEC);
+  for (j = 1; j <= n; ++j)
+  {
+    GEN r = gel(vr,j), t = poleval(R,r);
+    if (c) t = gmul(t, gpow(r, c, prec));
+    gel(vwt,j) = t;
+  }
+  return mkvec2(vabs,vwt);
+}
+
+struct mon_w {
+  GEN w, a, b;
+  long n, j, prec;
+};
+
+/* w(x) / x^(a*(j+k)+b), k >= 1 */
+static GEN
+wrapmonw(void* E, GEN x)
+{
+  struct mon_w *W = (struct mon_w*)E;
+  long k, j = W->j, n = W->n, prec = W->prec, l = 2*n+4-j;
+  GEN wx = closure_callgen1prec(W->w, x, prec);
+  GEN v = cgetg(l, t_VEC);
+  GEN xa = gpow(x, gneg(W->a), prec), w = gmul(wx, gpowgs(xa, j));
+  w = gdiv(w, gpow(x,W->b,prec));
+  for (k = 1; k < l; k++) { gel(v,k) = w; w = gmul(w, xa); }
+  return v;
+}
+/* w(x) / x^(a*j+b) */
+static GEN
+wrapmonw2(void* E, GEN x)
+{
+  struct mon_w *W = (struct mon_w*)E;
+  GEN wnx = closure_callgen1prec(W->w, x, W->prec);
+  return gdiv(wnx, gpow(x, gadd(gmulgs(W->a, W->j), W->b), W->prec));
+}
+
+GEN
+sumnummoninit_w(GEN w, GEN wfast, GEN a, GEN b, GEN n0, long prec)
+{
+  GEN c, M, tab, P, Q, vr, vabs, vwt, R;
+  long bitprec = prec2nbits(prec), j, n;
+  double D = bitprec*LOG2/gtodouble(a);
+  struct mon_w S;
+
+  n = (long)ceil(D/(log(D)-1));
+  prec = maxss(2*prec-2, nbits2prec((long)ceil((2*n+1)/LOG10_2)));
+  S.w = w;
+  S.a = a = gprec_w(a, 2*prec-2);
+  S.b = b = gprec_w(b, 2*prec-2);
+  S.n = n;
+  S.prec = prec;
+  /* M[j] = */
+  if (typ(wfast) == t_INFINITY)
+  {
+    tab = sumnumdeltainit(gen_1, prec);
+    S.j = 1;
+    M = sumnumdelta((void*)&S, wrapmonw, n0, tab, prec);
+  }
+  else
+  {
+    GEN faj = gsub(wfast, b);
+    long j;
+    M = cgetg(2*n+3, t_VEC);
+    for (j = 1; j <= 2*n+2; j++)
+    {
+      faj = gsub(faj, a);
+      if (gcmpgs(faj, -2) <= 0)
+      {
+        S.j = j; setlg(M,j);
+        M = shallowconcat(M, sumnumdelta((void*)&S, wrapmonw, n0, NULL, prec));
+        break;
+      }
+      S.j = j;
+      gel(M,j) = sumnumdelta((void*)&S, wrapmonw2, mkvec2(n0,faj), NULL, prec);
+    }
+  }
+  Pade(M, &P,&Q);
+  vr = real_i(roots(Q, prec)); settyp(vr, t_VEC);
+  if (gequal1(a))
+  {
+    vabs = vr;
+    c = b;
+  }
+  else
+  {
+    GEN ai = ginv(a);
+    vabs = cgetg(n+1, t_VEC);
+    for (j = 1; j <= n; ++j) gel(vabs,j) = gpow(gel(vr,j), ai, prec);
+    c = gdiv(b,a);
+  }
+  c = gsubgs(c,1); if (gequal0(c)) c = NULL;
+  R = gneg(gdiv(P, RgX_deriv(Q)));
+  vwt = cgetg(n+1, t_VEC);
+  for (j = 1; j <= n; j++)
+    gel(vwt,j) = poleval(R, gel(vr,j));
+  return mkvec3(vabs, vwt, n0);
+}
+
+static GEN
+sumnummoninit_i(GEN asymp, GEN w, GEN n0, long prec)
+{
+  const char *fun = "sumnummoninit";
+  GEN a, b, wfast = gen_0;
+  if (!w)
+  {
+    if (!asymp) return sumnummoninit0(gen_1,gen_1,0,prec);
+    w = gen_0;
+  }
+  if (asymp)
+  {
+    if (typ(asymp) == t_VEC)
+    {
+      if (lg(asymp) != 3) pari_err_TYPE(fun, asymp);
+      a = gel(asymp,1);
+      b = gel(asymp,2);
+    }
+    else
+      b = a = asymp;
+    if (gsigne(a) <= 0)
+      pari_err_DOMAIN(fun, "a", "<=", gen_0, a);
+    if (gcmpgs(gadd(a,b), 1) <= 0)
+      pari_err_DOMAIN(fun, "a+b", "<=", gen_m1, mkvec2(a,b));
+  }
+  else a = b = gen_1;
+  if (!n0) n0 = gen_1;
+  if (typ(n0) != t_INT) pari_err_TYPE(fun, n0);
+  switch(typ(w))
+  {
+    case t_INT:
+      if (cmpiu(n0, 2) <= 0)
+      {
+        GEN tab = sumnummoninit0(a, b, itos(w), prec);
+        return shallowconcat(tab,n0);
+      }
+      w = strtofunction("log");
+      break;
+    case t_VEC:
+      if (lg(w) != 3) pari_err_TYPE(fun, w);
+      wfast = gel(w,2);
+      w = gel(w,1);
+      if (typ(w) != t_CLOSURE) pari_err_TYPE(fun, w);
+    case t_CLOSURE:
+      break;
+    default: pari_err_TYPE(fun, w);
+  }
+  return sumnummoninit_w(w, wfast, a, b, n0, prec);
+}
+GEN
+sumnummoninit(GEN asymp, GEN w, GEN n0, long prec)
+{
+  pari_sp av = avma;
+  return gerepilecopy(av, sumnummoninit_i(asymp,w,n0,prec));
+}
+
+/* add 'a' to all components of v */
+static GEN
+RgV_Rg_addall(GEN v, GEN a)
+{
+  long i, l;
+  GEN w = cgetg_copy(v,&l);
+  for (i = 1; i < l; i++) gel(w,i) = gadd(gel(v,i), a);
+  return w;
+}
+
+GEN
+sumnummon(void *E, GEN (*eval)(void*,GEN), GEN n0, GEN tab, long prec)
+{
+  pari_sp av = avma;
+  GEN vabs, vwt, S;
+  long l, i;
+  if (typ(n0) != t_INT) pari_err_TYPE("sumnummon", n0);
+  if (!tab)
+    tab = sumnummoninit0(gen_1,gen_1,0,prec);
+  else switch(lg(tab))
+  {
+    case 4:
+      if (!equalii(n0, gel(tab,3)))
+        pari_err(e_MISC, "incompatible initial value %Ps != %Ps", gel(tab,3),n0);
+    case 3:
+      if (typ(tab) == t_VEC) break;
+    default: pari_err_TYPE("sumnummon", tab);
+  }
+  vabs= gel(tab,1); l = lg(vabs);
+  vwt = gel(tab,2);
+  if (typ(vabs) != t_VEC || typ(vwt) != t_VEC || lg(vwt) != l)
+    pari_err_TYPE("sumnummon", tab);
+  if (!isint1(n0)) vabs = RgV_Rg_addall(vabs, subis(n0,1));
+  S = gen_0;
+  for (i = 1; i < l; i++) S = gadd(S, gmul(gel(vwt,i), eval(E, gel(vabs,i))));
+  return gerepileupto(av, gprec_w(S, prec));
+}
+
+GEN
+sumnumdeltainit(GEN fast, long prec)
+{
+  pari_sp av = avma;
+  GEN s, v, tab, d, C, D;
+  long bitprec = prec2nbits(prec), N, k, k2, m;
+  double w;
+
+  if (!fast) fast = get_oo(gen_0);
+  d = ginv(stoi(4));
+  w = gtodouble(glambertW(ginv(d), LOWDEFAULTPREC));
+  N = (long)ceil(LOG2*bitprec/(w*(1+w))+5);
+  k = (long)ceil(N*w); if (k&1) k--;
+
+  prec += EXTRAPRECWORD;
+  s = RgX_to_ser(monomial(d,1,0), k+3);
+  s = gdiv(gasinh(s, prec), d); /* asinh(dx)/d */
+  s = gsub(ginv(gsubgs(gexp(s,prec), 1)), ginv(s));
+  k2 = k/2;
+  C = matpascal(k-1);
+  D = gpowers(ginv(gmul2n(d,1)), k-1);
+  v = cgetg(k2+1, t_VEC);
+  for (m = 1; m <= k2; m++)
+  {
+    GEN S = real_0(prec);
+    long j;
+    for (j = m; j <= k2; j++)
+    { /* s[X^(2j-1)] * binomial(2*j-1, j-m) / (2d)^(2j-1) */
+      GEN d = gmul(gmul(gel(s,2*j+1), gcoeff(C, 2*j,j-m+1)), gel(D, 2*j));
+      S = odd(j)? gsub(S,d): gadd(S,d);
+    }
+    gel(v,m) = m&1? gneg(S): S;
+  }
+  tab = intnuminit(stoi(N), fast, 0, prec);
+  return gerepilecopy(av, mkvec5(d, stoi(N), stoi(k), RgC_gtofp(v,prec), tab));
+}
+
+GEN
+sumnumdelta(void *E, GEN (*eval)(void*, GEN), GEN a, GEN tab, long prec)
+{
+  pari_sp av = avma;
+  GEN v, tabint, S, d, fast;
+  long as, N, k, m, prec2;
+  if (!a) { a = gen_1; fast = get_oo(gen_0); }
+  else switch(typ(a))
+  {
+  case t_VEC:
+    if (lg(a) != 3) pari_err_TYPE("sumnumdelta", a);
+    fast = get_oo(gel(a,2));
+    a = gel(a,1); break;
+  default:
+    fast = get_oo(gen_0);
+  }
+  if (typ(a) != t_INT) pari_err_TYPE("sumnumdelta", a);
+  if (!tab) tab = sumnumdeltainit(fast, prec);
+  as = itos(a);
+  d = gel(tab,1);
+  N = maxss(as, itos(gel(tab,2)));
+  k = itos(gel(tab,3));
+  v = gel(tab,4);
+  tabint = gel(tab,5);
+  prec2 = prec+EXTRAPRECWORD;
+  S = gmul(eval(E, stoi(N)), real2n(-1,prec2));
+  for (m = as; m < N; m++) S = gadd(S, eval(E, stoi(m)));
+  for (m = 1; m <= k/2; m++)
+  {
+    GEN t = gmulsg(2*m-1, d);
+    GEN s = gsub(eval(E, gsubsg(N,t)), eval(E, gaddsg(N,t)));
+    S = gadd(S, gmul(gel(v,m), s));
+  }
+  S = gadd(S, intnum(E, eval,stoi(N), fast, tabint, prec2));
+  return gerepileupto(av, gprec_w(S, prec));
+}
+
+GEN
+sumnummon0(GEN a, GEN code, GEN tab, long prec)
+{ EXPR_WRAP(code, sumnummon(EXPR_ARG, a, tab, prec)); }
+GEN
+sumnumdelta0(GEN a, GEN code, GEN tab, long prec)
+{ EXPR_WRAP(code, sumnumdelta(EXPR_ARG, a, tab, prec)); }

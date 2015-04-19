@@ -1,0 +1,54 @@
+Function: sumnummoninit
+Section: sums
+C-Name: sumnummoninit
+Prototype: DGDGDGp
+Help: sumnummoninit({asymp},{w},{n0 = 1}): initialize tables for Monien summation of a series with positive terms.
+Doc: initialize tables for Monien summation of a series $\sum_{n\geq n_0}
+ f(n)$ where $f(1/z)$ has a complex analytic continuation in a (complex)
+ neighbourhood of the segment $[0,1]$.
+
+ By default, assume that $f(n) = O(n^{-2})$ and has a non-zero asymptotic
+ expansion
+ $$f(n) = \sum_{i\geq 2} a_i / n^i$$
+ at infinity. Note that the sum starts at $i = 2$! The argument \kbd{asymp}
+ allows to specify different expansions:
+
+ \item a real number $\alpha > 1$ means
+  $$f(n) = \sum_{i\geq 1} a_i / n^\alpha$$
+ (Now the summation starts at $1$.)
+
+ \item a vector $[\alpha,\beta]$ of reals, where we must have $\alpha > 0$
+ and $\alpha + \beta > 1$ to ensure convergence, means that
+  $$f(n) = \sum_{i\geq 1} a_i / n^{\alpha i + \beta}$$
+ Note that $\kbd{asymp} = [\alpha, \alpha]$ is equivalent to $\alpha$.
+
+ The argument $w$ is used to sum expressions of the form
+ $$ \sum_{n\geq n_0} f(n) w(n),$$
+ for varying $f$ \emph{as above}, and fixed weight function $w$, where we
+ further assume that the auxiliary sums
+ $$g_w(m) = \sum_{n\geq n_0} w(n) / n^{\alpha m + \beta} $$
+ converges for all $m\geq 1$. Note that for non-negative integers $k$,
+ and weight $w(n) = (\log n)^k$, the function $g_w(m) = \zeta^{(k)}(\alpha m +
+ \beta)$ has a simple expression; for general weights, $g_w$ is
+ computed using \kbd{sumnumdelta}.
+
+ The following variants are available
+
+ \item an integer $k \geq 0$, to code $w(n) = (\log n)^k$. Currently,
+ only the cases $k = 0,1$ are implemented;
+
+ \item a \typ{CLOSURE} computing the values $w(n)$, where we
+ assume the $w(n) = O(n^\epsilon)$ for all $\epsilon > 0$;
+
+ \item a vector $[w, \kbd{fast}]$, where $w$ is a closure as above
+ and \kbd{fast} is a scalar;
+ we assume that $w(n) = O(n^{\kbd{fast}+\epsilon})$;
+
+ \item a vector $[w, \kbd{oo}]$, where $w$ is a closure as above
+ we assume that $w(n)$ decreases exponentially. Note that in this case,
+ \kbd{sumnummon} is provided for completeness and comparison purposes only:
+ one of \kbd{suminf} or \kbd{sumpos} should be preferred in practice.
+
+ The cases where $w$ is a closure are the only ones where $n_0$ is taken into
+ account and stored in the result. The subsequent call to \kbd{sumnummon}
+ \emph{must} use the same value.
