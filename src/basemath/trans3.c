@@ -1410,9 +1410,8 @@ zetaBorweinRecycled(long s, long h, long N, long prec)
   pari_sp av = avma, lim = stack_lim(av,3);
   const long n = ceil(2 + prec2nbits_mul(prec, LOG2/1.7627));
   long j, k;
-  GEN c, d, z = cgetg(N+1, t_VEC);
+  GEN c, d, z = zerovec(N);
   c = d = int2n(2*n-1);
-  for (j = 0; j < N; j++) gel(z,j+1) = gen_0;
   for (k = n; k; k--)
   {
     GEN u, t = divii(d, powuu(k,s));

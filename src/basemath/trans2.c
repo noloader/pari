@@ -1621,13 +1621,14 @@ static GEN
 serpsi1(long n, long v, long prec)
 {
   long i, l = n+3;
-  GEN g, s = cgetg(l, t_SER);
+  GEN z, g, s = cgetg(l, t_SER);
   s[1] = evalsigne(1)|evalvalp(0)|evalvarn(v);
   g = mpeuler(prec); setsigne(g, -1);
+  z = zetaBorweinRecycled(2, 1, n, prec); /* zeta(2..n) */
   gel(s,2) = g;
   for (i = 2; i < l-1; i++)
   {
-    GEN c = szeta(i, prec);
+    GEN c = gel(z,i-1); /* zeta(i) */
     if (odd(i)) setsigne(c, -1);
     gel(s,i+1) = c;
   }
