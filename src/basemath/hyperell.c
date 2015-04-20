@@ -37,7 +37,7 @@ Harrison, M. An extension of Kedlaya's algorithm for hyperelliptic
    with k either 1 or 3, depending on p and d, see Harrison paper */
 
 static long
-get_basis(ulong p, long d)
+get_basis(long p, long d)
 {
   if (odd(d))
     return p < d-1 ? 3 : 1;
