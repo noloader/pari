@@ -73,8 +73,7 @@ kermodp(GEN M, GEN p, long *d)
 /* INVARIANTS COMPUTATIONS */
 
 static GEN
-principal_minor(GEN G, long  i)
-{ return rowslice(vecslice(G,1,i), 1,i); }
+principal_minor(GEN G, long  i) { return matslice(G,1,i,1,i); }
 static GEN
 det_minors(GEN G)
 {
@@ -308,7 +307,7 @@ qflllgram_indefgoon(GEN G)
   U = ZM_mul(U,U3);
   if (n == 3) return mkvec2(G4,U);
 
-  red = qflllgram_indefgoon(rowslice(vecslice(G4,2,n-1),2,n-1));
+  red = qflllgram_indefgoon(matslice(G4,2,n-1,2,n-1));
   if (typ(red) == t_MAT) return mkvec2(G4,U);
   /* Let U5:=matconcat(diagonal[1,red[2],1])
    * return [qf_apply_ZM(G5, U5), U*U5] */

@@ -135,7 +135,7 @@ T_A_Matrices(GEN MatFU, long r, GEN *eps5, long prec)
   GEN A, p1, m1, IntM, nia, eps3, eps2;
   long e = prec2nbits(prec);
 
-  m1 = rowslice(vecslice(MatFU, 1,r), 1,r); /* minor order r */
+  m1 = matslice(MatFU, 1,r, 1,r); /* minor order r */
   m1 = glog(gabs(m1, prec), prec); /* HIGH accuracy */
   A = RgM_inv(m1); if (!A) pari_err_PREC("thue");
   IntM = RgM_Rg_add(RgM_mul(A,m1), gen_m1);

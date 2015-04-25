@@ -272,7 +272,7 @@ GetPrimChar(GEN chi, GEN bnr, GEN bnrc, long prec)
   M = bnrsurjection(bnr, bnrc);
   (void)ZM_hnfall(shallowconcat(M, Mrc), &U, 1);
   l = lg(M);
-  U = rowslice(vecslice(U, l, lg(U)-1), 1, l-1);
+  U = matslice(U,1,l-1, l,lg(U)-1);
   return gerepilecopy(av, get_Char(chi, initc, U, prec));
 }
 
@@ -325,8 +325,7 @@ ComputeKernel0(GEN P, GEN cycA, GEN cycB)
   GEN U, DB = diagonal_shallow(cycB);
 
   rk = nbA + lg(cycB) - lg(ZM_hnfall(shallowconcat(P, DB), &U, 1));
-  U = vecslice(U, 1,rk);
-  U = rowslice(U, 1,nbA);
+  U = matslice(U, 1,nbA, 1,rk);
   return gerepileupto(av, ZM_hnfmodid(U, cycA));
 }
 
