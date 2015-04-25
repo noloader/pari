@@ -763,8 +763,11 @@ FBgen(FB_t *F, GEN nf, long N, ulong C1, ulong C2, GRHcheck_t *S)
     if (DEBUGLEVEL>1) { err_printf(" %ld",p); err_flush(); }
 
     f = gel(pr->dec, 1); nb = gel(pr->dec, 2);
-    if (f[1] == N) continue; /* p inert */
-    /* compute l such that p^f <= C2  <=> f <= l */
+    if (f[1] == N)
+    {
+      if (p == C2) break;
+      continue; /* p inert */
+    }/* compute l such that p^f <= C2  <=> f <= l */
     l = (long)(L/pr->logp);
     for (k=0, m=1; m < lg(f) && f[m]<=l; m++) k += nb[m];
     if (!k) /* p too inert to appear in FB */
