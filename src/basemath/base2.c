@@ -2317,7 +2317,7 @@ primedec_end(GEN nf, GEN L, GEN p)
 static GEN
 primedec_aux(GEN nf, GEN p, long flim)
 {
-  GEN E, F, L, Ip, H, phi, mat1, f, g, h, p1, UN, T = nf_get_pol(nf);
+  GEN E, F, L, Ip, phi, f, g, h, p1, UN, T = nf_get_pol(nf);
   long i, k, c, iL, N;
   int kummer;
 
@@ -2335,7 +2335,7 @@ primedec_aux(GEN nf, GEN p, long flim)
       if (flim && degpol(t) > flim) { setlg(L, i); break; }
       gel(L,i) = primedec_apply_kummer(nf, t, E[i],p);
     }
-    return gen_sort(L, (void*)&cmp_prime_over_p, &cmp_nodata);
+    return L;
   }
 
   kummer = 0;
@@ -2378,22 +2378,21 @@ primedec_aux(GEN nf, GEN p, long flim)
 
   UN = col_ei(N, 1);
   for (c=1; c; c--)
-  { /* Let A:= (Z_K/p) / Ip; try to split A2 := A / Im H ~ Im M2
+  { /* Let A:= (Z_K/p) / Ip etale; split A2 := A / Im H ~ Im M2
        H * ? + M2 * Mi2 = Id_N ==> M2 * Mi2 projector A --> A2 */
-    GEN M, Mi, M2, Mi2, phi2;
-    long dim;
+    GEN M, Mi, M2, Mi2, phi2, mat1, H = gel(h,c); /* maximal rank */
+    long dim, r = lg(H)-1;
 
-    H = gel(h,c); k = lg(H)-1;
     M   = FpM_suppl(shallowconcat(H,UN), p);
     Mi  = FpM_inv(M, p);
-    M2  = vecslice(M, k+1,N); /* M = (H|M2) invertible */
-    Mi2 = rowslice(Mi,k+1,N);
+    M2  = vecslice(M, r+1,N); /* M = (H|M2) invertible */
+    Mi2 = rowslice(Mi,r+1,N);
     /* FIXME: FpM_mul(,M2) could be done with vecpermute */
     phi2 = FpM_mul(Mi2, FpM_mul(phi,M2, p), p);
     mat1 = FpM_ker(phi2, p);
     dim = lg(mat1)-1; /* A2 product of 'dim' fields */
     if (dim > 1)
-    { /* phi2 v = 0 <==> a = M2 v in Ker phi */
+    { /* phi2 v = 0 => a = M2 v in Ker phi, a not in Fp.1 + H */
       GEN R, a, mula, mul2, v = gel(mat1,2);
       long n;
 
@@ -2402,17 +2401,16 @@ primedec_aux(GEN nf, GEN p, long flim)
       mula = FpM_red(mula, p);
       mul2 = FpM_mul(Mi2, FpM_mul(mula,M2, p), p);
       R = FpX_roots(pol_min(mul2,p), p); /* totally split mod p */
-
       n = lg(R)-1;
       for (i=1; i<=n; i++)
       {
-        GEN r = gel(R,i), I = RgM_Rg_add_shallow(mula, negi(r));
+        GEN I = RgM_Rg_sub_shallow(mula, gel(R,i));
         gel(h,c++) = FpM_image(shallowconcat(H, I), p);
       }
       if (n == dim)
         for (i=1; i<=n; i++) gel(L,iL++) = gel(h,--c);
     }
-    else /* A2 field ==> H maximal, f = N-k = dim(A2) */
+    else /* A2 field ==> H maximal, f = N-r = dim(A2) */
       gel(L,iL++) = H;
   }
   setlg(L, iL);
