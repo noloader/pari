@@ -164,6 +164,173 @@ ZM_nm_mul(GEN x, GEN y)
   return z;
 }
 
+/* Strassen-Winograd algorithm */
+
+/*
+  Return A[ma+1..ma+da, na+1..na+ea] - B[mb+1..mb+db, nb+1..nb+eb]
+  as an (m x n)-matrix, padding the input with zeroes as necessary.
+*/
+static GEN
+add_slices(long m, long n,
+           GEN A, long ma, long da, long na, long ea,
+           GEN B, long mb, long db, long nb, long eb)
+{
+  long min_d = minss(da, db), min_e = minss(ea, eb), i, j;
+  GEN M = cgetg(n + 1, t_MAT), C;
+
+  for (j = 1; j <= min_e; j++) {
+    gel(M, j) = C = cgetg(m + 1, t_COL);
+    for (i = 1; i <= min_d; i++)
+      gel(C, i) = addii(gcoeff(A, ma + i, na + j),
+                        gcoeff(B, mb + i, nb + j));
+    for (; i <= da; i++)
+      gel(C, i) = gcoeff(A, ma + i, na + j);
+    for (; i <= db; i++)
+      gel(C, i) = gcoeff(B, mb + i, nb + j);
+    for (; i <= m; i++)
+      gel(C, i) = gen_0;
+  }
+  for (; j <= ea; j++) {
+    gel(M, j) = C = cgetg(m + 1, t_COL);
+    for (i = 1; i <= da; i++)
+      gel(C, i) = gcoeff(A, ma + i, na + j);
+    for (; i <= m; i++)
+      gel(C, i) = gen_0;
+  }
+  for (; j <= eb; j++) {
+    gel(M, j) = C = cgetg(m + 1, t_COL);
+    for (i = 1; i <= db; i++)
+      gel(C, i) = gcoeff(B, mb + i, nb + j);
+    for (; i <= m; i++)
+      gel(C, i) = gen_0;
+  }
+  for (; j <= n; j++)
+    gel(M, j) = zerocol(m);
+  return M;
+}
+
+/*
+  Return A[ma+1..ma+da, na+1..na+ea] - B[mb+1..mb+db, nb+1..nb+eb]
+  as an (m x n)-matrix, padding the input with zeroes as necessary.
+*/
+static GEN
+subtract_slices(long m, long n,
+                GEN A, long ma, long da, long na, long ea,
+                GEN B, long mb, long db, long nb, long eb)
+{
+  long min_d = minss(da, db), min_e = minss(ea, eb), i, j;
+  GEN M = cgetg(n + 1, t_MAT), C;
+
+  for (j = 1; j <= min_e; j++) {
+    gel(M, j) = C = cgetg(m + 1, t_COL);
+    for (i = 1; i <= min_d; i++)
+      gel(C, i) = subii(gcoeff(A, ma + i, na + j),
+                        gcoeff(B, mb + i, nb + j));
+    for (; i <= da; i++)
+      gel(C, i) = gcoeff(A, ma + i, na + j);
+    for (; i <= db; i++)
+      gel(C, i) = negi(gcoeff(B, mb + i, nb + j));
+    for (; i <= m; i++)
+      gel(C, i) = gen_0;
+  }
+  for (; j <= ea; j++) {
+    gel(M, j) = C = cgetg(m + 1, t_COL);
+    for (i = 1; i <= da; i++)
+      gel(C, i) = gcoeff(A, ma + i, na + j);
+    for (; i <= m; i++)
+      gel(C, i) = gen_0;
+  }
+  for (; j <= eb; j++) {
+    gel(M, j) = C = cgetg(m + 1, t_COL);
+    for (i = 1; i <= db; i++)
+      gel(C, i) = negi(gcoeff(B, mb + i, nb + j));
+    for (; i <= m; i++)
+      gel(C, i) = gen_0;
+  }
+  for (; j <= n; j++)
+    gel(M, j) = zerocol(m);
+  return M;
+}
+
+static GEN ZM_mul_i(GEN x, GEN y, long l, long lx, long ly);
+
+/* Strassen-Winograd matrix product A (m x n) * B (n x p) */
+static GEN
+ZM_mul_sw(GEN A, GEN B, long m, long n, long p)
+{
+  pari_sp av = avma;
+  long m1 = (m + 1)/2, m2 = m/2,
+    n1 = (n + 1)/2, n2 = n/2,
+    p1 = (p + 1)/2, p2 = p/2;
+  GEN A11, A12, A22, B11, B21, B22,
+    S1, S2, S3, S4, T1, T2, T3, T4,
+    M1, M2, M3, M4, M5, M6, M7,
+    V1, V2, V3, C11, C12, C21, C22, C;
+
+  T2 = subtract_slices(n1, p2, B, 0, n1, p1, p2, B, n1, n2, p1, p2);
+  S1 = subtract_slices(m2, n1, A, m1, m2, 0, n1, A, 0, m2, 0, n1);
+  M2 = ZM_mul_i(S1, T2, m2 + 1, n1 + 1, p2 + 1);
+  if (gc_needed(av, 1))
+    gerepileall(av, 2, &T2, &M2);  /* destroy S1 */
+  T3 = subtract_slices(n1, p1, T2, 0, n1, 0, p2, B, 0, n1, 0, p1);
+  if (gc_needed(av, 1))
+    gerepileall(av, 2, &M2, &T3);  /* destroy T2 */
+  S2 = add_slices(m2, n1, A, m1, m2, 0, n1, A, m1, m2, n1, n2);
+  T1 = subtract_slices(n1, p1, B, 0, n1, p1, p2, B, 0, n1, 0, p2);
+  M3 = ZM_mul_i(S2, T1, m2 + 1, n1 + 1, p2 + 1);
+  if (gc_needed(av, 1))
+    gerepileall(av, 4, &M2, &T3, &S2, &M3);  /* destroy T1 */
+  S3 = subtract_slices(m1, n1, S2, 0, m2, 0, n1, A, 0, m1, 0, n1);
+  if (gc_needed(av, 1))
+    gerepileall(av, 4, &M2, &T3, &M3, &S3);  /* destroy S2 */
+  A11 = matslice(A, 1, m1, 1, n1);
+  B11 = matslice(B, 1, n1, 1, p1);
+  M1 = ZM_mul_i(A11, B11, m1 + 1, n1 + 1, p1 + 1);
+  if (gc_needed(av, 1))
+    gerepileall(av, 5, &M2, &T3, &M3, &S3, &M1);  /* destroy A11, B11 */
+  A12 = matslice(A, 1, m1, n1 + 1, n);
+  B21 = matslice(B, n1 + 1, n, 1, p1);
+  M4 = ZM_mul_i(A12, B21, m1 + 1, n2 + 1, p1 + 1);
+  if (gc_needed(av, 1))
+    gerepileall(av, 6, &M2, &T3, &M3, &S3, &M1, &M4);  /* destroy A12, B21 */
+  C11 = add_slices(m1, p1, M1, 0, m1, 0, p1, M4, 0, m1, 0, p1);
+  if (gc_needed(av, 1))
+    gerepileall(av, 6, &M2, &T3, &M3, &S3, &M1, &C11);  /* destroy M4 */
+  M5 = ZM_mul_i(S3, T3, m1 + 1, n1 + 1, p1 + 1);
+  S4 = subtract_slices(m1, n2, A, 0, m1, n1, n2, S3, 0, m1, 0, n2);
+  if (gc_needed(av, 1))
+    gerepileall(av, 7, &M2, &T3, &M3, &M1, &C11, &M5, &S4);  /* destroy S3 */
+  T4 = add_slices(n2, p1, B, n1, n2, 0, p1, T3, 0, n2, 0, p1);
+  if (gc_needed(av, 1))
+    gerepileall(av, 7, &M2, &M3, &M1, &C11, &M5, &S4, &T4);  /* destroy T3 */
+  V1 = subtract_slices(m1, p1, M1, 0, m1, 0, p1, M5, 0, m1, 0, p1);
+  if (gc_needed(av, 1))
+    gerepileall(av, 6, &M2, &M3, &S4, &T4, &C11, &V1);  /* destroy M1, M5 */
+  B22 = matslice(B, n1 + 1, n, p1 + 1, p);
+  M6 = ZM_mul_i(S4, B22, m1 + 1, n2 + 1, p2 + 1);
+  if (gc_needed(av, 1))
+    gerepileall(av, 6, &M2, &M3, &T4, &C11, &V1, &M6);  /* destroy S4, B22 */
+  A22 = matslice(A, m1 + 1, m, n1 + 1, n);
+  M7 = ZM_mul_i(A22, T4, m2 + 1, n2 + 1, p1 + 1);
+  if (gc_needed(av, 1))
+    gerepileall(av, 6, &M2, &M3, &C11, &V1, &M6, &M7);  /* destroy A22, T4 */
+  V3 = add_slices(m1, p2, V1, 0, m1, 0, p2, M3, 0, m2, 0, p2);
+  C12 = add_slices(m1, p2, V3, 0, m1, 0, p2, M6, 0, m1, 0, p2);
+  if (gc_needed(av, 1))
+    gerepileall(av, 6, &M2, &M3, &C11, &V1, &M7, &C12);  /* destroy V3, M6 */
+  V2 = add_slices(m2, p1, V1, 0, m2, 0, p1, M2, 0, m2, 0, p2);
+  if (gc_needed(av, 1))
+    gerepileall(av, 5, &M3, &C11, &M7, &C12, &V2);  /* destroy V1, M2 */
+  C21 = add_slices(m2, p1, V2, 0, m2, 0, p1, M7, 0, m2, 0, p1);
+  if (gc_needed(av, 1))
+    gerepileall(av, 5, &M3, &C11, &C12, &V2, &C21);  /* destroy M7 */
+  C22 = add_slices(m2, p2, V2, 0, m2, 0, p2, M3, 0, m2, 0, p2);
+  if (gc_needed(av, 1))
+    gerepileall(av, 4, &C11, &C12, &C21, &C22);  /* destroy V2, M3 */
+  C = mkmat2(mkcol2(C11, C21), mkcol2(C12, C22));
+  return gerepileupto(av, matconcat(C));
+}
+
 /* x[i,]*y. Assume lg(x) > 1 and 0 < i < lgcols(x) */
 static GEN
 ZMrow_ZC_mul_i(GEN x, GEN y, long i, long lx)
@@ -191,16 +358,36 @@ ZM_ZC_mul_i(GEN x, GEN y, long lx, long l)
   for (i=1; i<l; i++) gel(z,i) = ZMrow_ZC_mul_i(x,y,i,lx);
   return z;
 }
+
+static GEN
+ZM_mul_classical(GEN x, GEN y, long l, long lx, long ly)
+{
+  long j;
+  GEN z = cgetg(ly, t_MAT);
+  for (j = 1; j < ly; j++)
+    gel(z, j) = ZM_ZC_mul_i(x, gel(y, j), lx, l);
+  return z;
+}
+
+/* Strassen-Winograd used for dim >= ZM_sw_bound */
+static const long ZM_sw_bound = 36;
+
+static GEN
+ZM_mul_i(GEN x, GEN y, long l, long lx, long ly)
+{
+  if (l <= ZM_sw_bound || lx <= ZM_sw_bound || ly <= ZM_sw_bound)
+    return ZM_mul_classical(x, y, l, lx, ly);
+  else
+    return ZM_mul_sw(x, y, l - 1, lx - 1, ly - 1);
+}
+
 GEN
 ZM_mul(GEN x, GEN y)
 {
-  long j, l, lx=lg(x), ly=lg(y);
-  GEN z;
+  long lx=lg(x), ly=lg(y);
   if (ly==1) return cgetg(1,t_MAT);
   if (lx==1) return zeromat(0, ly-1);
-  l = lgcols(x); z = cgetg(ly,t_MAT);
-  for (j=1; j<ly; j++) gel(z,j) = ZM_ZC_mul_i(x, gel(y,j), lx, l);
-  return z;
+  return ZM_mul_i(x, y, lgcols(x), lx, ly);
 }
 /* assume result is symmetric */
 GEN

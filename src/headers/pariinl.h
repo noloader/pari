@@ -841,6 +841,12 @@ rowslice(GEN A, long x1, long x2)
   return B;
 }
 
+INLINE GEN
+matslice(GEN A, long x1, long x2, long y1, long y2)
+{
+  return rowslice(vecslice(A, y1, y2), x1, x2);
+}
+
 /* shallow, remove coeff of index j */
 INLINE GEN
 vecsplice(GEN a, long j)

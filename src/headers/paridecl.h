@@ -4487,6 +4487,7 @@ INLINE GEN    leading_term(GEN x);
 INLINE long   lgcols(GEN x);
 INLINE long   lgpol(GEN x);
 INLINE GEN    matpascal(long n);
+INLINE GEN    matslice(GEN A, long x1, long x2, long y1, long y2);
 INLINE GEN    mkcol(GEN x);
 INLINE GEN    mkcol2(GEN x, GEN y);
 INLINE GEN    mkcol2s(long x, long y);

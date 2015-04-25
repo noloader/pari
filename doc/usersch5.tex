@@ -11160,6 +11160,10 @@ return the matrix with $i$-th row and $j$-th column removed.
 and $B$ of compatible dimensions. A \kbd{NULL} pointer is accepted for an
 empty matrix. See \tet{shallowconcat}.
 
+\fun{GEN}{matslice}{GEN A, long i1, long i2, long j1, long j2}
+return the submatrix $A[i_1..i_2,j_1..j_2]$.
+Assume $i_1 \leq i_2$,  $i_1 \leq i_2$.
+
 \fun{GEN}{row}{GEN A, long i} return $A[i,]$, the $i$-th row of the \typ{MAT}
 $A$.
 

@@ -269,6 +269,7 @@ HC 99- gammamellininv, gammamellininvasymp, gammamellininvinit
 BA100- [libpari] RgX_Rg_eval_bk, RgX_RgV_eval
   101- [libpari] RgX_cxeval
 HC102- GP function zetamult
+PB103- ZM_mul: Add Strassen-Winograd algorithm
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]
