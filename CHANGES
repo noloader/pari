@@ -270,7 +270,7 @@ BA100- [libpari] RgX_Rg_eval_bk, RgX_RgV_eval
   101- [libpari] RgX_cxeval
 HC102- GP function zetamult
 PB103- ZM_mul: Add Strassen-Winograd algorithm
-  104- GP functions sumnummon/sumnummoninit, sumnumdelta/sumnumdeltainit
+  104- GP functions sumnummon/sumnummoninit
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]
@@ -369,6 +369,8 @@ BA 56- Rename row_Flm -> Flm_row, row_zm -> zm_row
    58- nucomp now takes L = floor(|D|^(1/4)) as a 3rd argument. Former
        nucomp(x,n) is nucomp(x,n,NULL).
 BA 59- divide_conquer_assoc renamed to gen_product
+   60- sumnum algorithm (replace Abel-Plana by Euler-Mac Laurin). Changed
+       the interface !
 
 Removed
    1- deprecated functions nfbasis0, nfdisc0, factorpadic0
@@ -383,4 +385,5 @@ Removed
       when function decrease slowly at oo
    6- optional flag to intfuncinit
 BA 7- divide_conquer_prod: use gen_product instead
+   8- useless function sumnumalt
 

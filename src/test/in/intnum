@@ -82,27 +82,21 @@ check(intnum(x=-1,1, intnum(y=-sqrt(1-x^2),sqrt(1-x^2),x^2+y^2,tab),tab), Pi/2)
 a = sumpos(n=1, 1/(n^3+n+1));
 b = sumpos(n=1, 1/(n^3+n+1), 1);
 check(a, b)
-tab = sumnuminit(2);
-b = sumnum(n=1,2, 1/(n^3+n+1), tab);
+tab = sumnuminit();
+b = sumnum(n=1, 1/(n^3+n+1), tab);
 check(a, b)
-check(sumnum(n=1,2, 1/(n^3+n+1), tab, 1), a)
 a = sumpos(n=1,1/(n^2+1));
 b = sumpos(n=1,1/(n^2+1), 1);
 check(a, b)
-b = sumnum(n=1,2,1/(n^2+1),tab,1);
+b = sumnum(n=1,1/(n^2+1));
 check(a, b)
-check(sumnum(n=1,2,n^(-4/3),,1), zeta(4/3))
-tab = sumnuminit([2,-3/2]);
-check(sumnum(n=1,[2,-3/2],1/(n*sqrt(n)),tab,1), zeta(3/2))
+check(sumnum(n=[1,-4/3],n^(-4/3)), zeta(4/3))
+tab = sumnuminit([+oo,-3/2]);
+check(sumnum(n=1,1/(n*sqrt(n)),tab), zeta(3/2))
 \\
 check(suminf(n=1, 2^(-n)), 1)
 check(sumpos(n=1, 2^(-n)), 1)
-check(sumnum(n=1,[2,log(2)],2^(-n), 1, 1), 1)
-\\
-tab = sumnuminit(2,,-1);
-a = sumnumalt(n=1,2,1/(n^3+n+1),tab,1);
-b = sumalt(n=1,(-1)^n/(n^3+n+1));
-check(a, b)
+check(sumnum(n=[1, 1],2^(-n)), 1)
 
 \p96
 check(intnumgauss(x=0,1,sin(x)), 1-cos(1))

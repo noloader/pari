@@ -598,75 +598,6 @@ initnumsine(long m, long prec)
   return intinit_end(&D, nt, nt);
 }
 
-static GEN
-get_oo(GEN fast) { return mkvec2(mkoo(), fast); }
-
-static GEN
-suminit_start(GEN sig)
-{
-  GEN sig2;
-
-  if (typ(sig) == t_VEC)
-  {
-    if (lg(sig) != 3) pari_err_TYPE("sumnum",sig);
-    sig2 = gel(sig,2);
-    sig  = gel(sig,1);
-    if (!isinR(sig2)) pari_err_TYPE("sumnum",sig2);
-    if (gsigne(sig2) > 0) sig2 = mulcxmI(sig2);
-  }
-  else sig2 = gen_0;
-  if (!isinR(sig)) pari_err_TYPE("sumnum",sig);
-  return get_oo(sig2);
-}
-
-/* update weight for sum */
-static GEN
-sumweight(GEN x, GEN w, GEN pi, long sgn, long G, double logG)
-{
-  if (expo(x) < logG)
-  {
-    GEN t = mulrr(pi, x);
-    w = (sgn < 0)? divrr(w, gcosh(t, 0))
-                 : mulrr(w, gtanh(t, 0));
-  }
-  else /* ch(pi x) ~ +oo, th(pi x) ~ 1 */
-    if (sgn < 0) w =  real_0_bit(G);
-  return w;
-}
-/* phi(t) depending on sig[2] as in intnum, with weights phi'(t)tanh(Pi*phi(t))
- * (sgn >= 0) or phi'(t)/cosh(Pi*phi(t)) (otherwise), for use in sumnumall.
- * integrations are done from 0 to +oo (flii is set to 0), except if slowly
-   decreasing, from -oo to +oo (flii is set to 1). */
-GEN
-sumnuminit(GEN sig, long m, long sgn, long prec)
-{
-  pari_sp ltop = avma;
-  GEN b, tab, tabxp, tabwp, tabxm, tabwm, pi = mppi(prec);
-  long L, k, G, flii;
-  double logG;
-
-  b = suminit_start(sig);
-  flii = gequal0(gel(b,2));
-  if (flii)
-    tab = intnuminit(mkmoo(), mkoo(), m, prec);
-  else
-    tab = intnuminit(gen_0, b, m, prec);
-  G = -prec2nbits(prec);
-  logG = log2(-G);
-  TABw0(tab) = sumweight(TABx0(tab), TABw0(tab), pi, sgn,G,logG);
-  tabxp = TABxp(tab); L = lg(tabxp);
-  tabwp = TABwp(tab);
-  tabxm = TABxm(tab);
-  tabwm = TABwm(tab);
-  for (k = 1; k < L; k++)
-  {
-    gel(tabwp,k) = sumweight(gel(tabxp,k), gel(tabwp,k), pi, sgn,G,logG);
-    if (!flii)
-      gel(tabwm,k) = sumweight(gel(tabxm,k), gel(tabwm,k), pi, sgn,G,logG);
-  }
-  return gerepilecopy(ltop, tab);
-}
-
 /* End of initialization functions. These functions can be executed once
  * and for all for a given accuracy and type of integral ([a,b], [a,oo[ or
  * ]-oo,a], ]-oo,oo[) */
@@ -1105,20 +1036,6 @@ intnuminit0(GEN a, GEN b, GEN tab, long prec)
     m = itos(tab);
   return intnuminit(a, b, m, prec);
 }
-static GEN
-sumnuminit0(GEN a, GEN tab, long sgn, long prec)
-{
-  long m;
-  if (!tab) m = 0;
-  else if (typ(tab) != t_INT)
-  {
-    if (!checktab(tab)) pari_err_TYPE("sumnuminit0",tab);
-    return tab;
-  }
-  else
-    m = itos(tab);
-  return sumnuminit(a, m, sgn, prec);
-}
 
 /* Assigns the values of the function weighted by w[k] at quadrature points x[k]
  * [replacing the weights]. Return the index of the last non-zero coeff */
@@ -1554,111 +1471,7 @@ contfraceval(GEN CF, GEN t, long nlim)
   return gerepileupto(ltop, S);
 }
 
-
-
-/* Numerical summation routine assuming f holomorphic for Re(s) >= sig.
- * Computes sum_{n>=a} f(n)  if sgn >= 0,
- *          sum_{n>=a} (-1)^n f(n) otherwise,  where a is real.
- * Variant of Abel-Plana. */
-
-static GEN
-auxsum(void *E, GEN t)
-{
-  auxint_t *D = (auxint_t*) E;
-  GEN z = mkcomplex(D->a, t);
-  return D->f(D->E, z);
-}
-/* assume that conj(f(z)) = f(conj(z)) */
-static GEN
-auxsumintern1(void *E, GEN t, long sgn)
-{
-  auxint_t *D = (auxint_t*) E;
-  GEN z = mkcomplex(D->a, t), u = D->f(D->E, z);
-  return sgn > 0 ? imag_i(u): real_i(u);
-}
-/* no assumption */
-static GEN
-auxsumintern(void *E, GEN t, long sgn)
-{
-  auxint_t *D = (auxint_t*) E;
-  GEN u,v, z = mkcomplex(D->a, t);
-  u = D->f(D->E, z); gel(z,2) = gneg(t);
-  v = D->f(D->E, z); return sgn > 0 ? gsub(u, v) : gadd(u, v);
-}
-static GEN
-auxsum0(void *E, GEN t) { return auxsumintern(E, t, 1); }
-static GEN
-auxsum1(void *E, GEN t) { return auxsumintern1(E, t, 1); }
-static GEN
-auxsumalt0(void *E, GEN t) { return auxsumintern(E, t, -1); }
-static GEN
-auxsumalt1(void *E, GEN t) { return auxsumintern1(E, t, -1); }
-
-static GEN
-sumnumall(void *E, GEN (*eval)(void*, GEN), GEN a, GEN sig, GEN tab, long flag, long sgn, long prec)
-{
-  GEN SI, S, nsig, b, signew;
-  long si = 1, flii;
-  pari_sp ltop = avma;
-  auxint_t D;
-
-  b = suminit_start(sig);
-  flii = gequal0(gel(b,2));
-  if (!is_scalar_t(typ(a))) pari_err_TYPE("sumnum",a);
-  tab = sumnuminit0(sig, tab, sgn, prec);
-
-  signew = (typ(sig) == t_VEC) ? gel(sig,1) : sig;
-  a = gceil(a); nsig = gmax(subis(a, 1), gceil(gsub(signew, ghalf)));
-  if (sgn < 0) {
-    if (mpodd(nsig)) nsig = addsi(1, nsig);
-    si = mpodd(a) ? -1 : 1;
-  }
-  SI = real_0(prec);
-  while (cmpii(a, nsig) <= 0)
-  {
-    SI = (si < 0) ? gsub(SI, eval(E, a)) : gadd(SI, eval(E, a));
-    a = addsi(1, a); if (sgn < 0) si = -si;
-  }
-  D.a = gadd(nsig, ghalf);
-  D.R = gen_0;
-  D.f = eval;
-  D.E = E;
-  D.prec = prec;
-  if (!flii)
-    S = intnum_i(&D, sgn > 0? (flag ? &auxsum1 : &auxsum0)
-                            : (flag ? &auxsumalt1 : &auxsumalt0),
-                      gen_0, b, tab, prec);
-  else
-  {
-    if (flag)
-    {
-      GEN emp = leafcopy(tab); TABwm(emp) = TABwp(emp);
-      S = gmul2n(intninfinf(&D, sgn > 0? &auxsum1: &auxsumalt1, emp),-1);
-    }
-    else
-      S = intninfinfintern(&D, &auxsum, tab, sgn);
-  }
-  if (flag) S = gneg(S);
-  else
-  {
-    S = gmul2n(S, -1);
-    S = (sgn < 0) ? gneg(S): mulcxI(S);
-  }
-  return gerepileupto(ltop, gadd(SI, S));
-}
-GEN
-sumnum(void *E, GEN (*f)(void *, GEN), GEN a,GEN sig,GEN tab,long flag,long prec)
-{ return sumnumall(E,f,a,sig,tab,flag,1,prec); }
-GEN
-sumnumalt(void *E, GEN (*f)(void *, GEN),GEN a,GEN s,GEN tab,long flag,long prec)
-{ return sumnumall(E,f,a,s,tab,flag,-1,prec); }
-
-GEN
-sumnum0(GEN a, GEN sig, GEN code, GEN tab, long flag, long prec)
-{ EXPR_WRAP(code, sumnum(EXPR_ARG, a, sig, tab, flag, prec)); }
-GEN
-sumnumalt0(GEN a, GEN sig, GEN code, GEN tab, long flag, long prec)
-{ EXPR_WRAP(code, sumnumalt(EXPR_ARG, a, sig, tab, flag, prec)); }
+/* MONIEN SUMMATION */
 
 /* basic Newton, find x ~ z such that Q(x) = 0 */
 static GEN
@@ -1800,7 +1613,7 @@ wrapmonw2(void* E, GEN x)
   return gdiv(wnx, gpow(x, gadd(gmulgs(W->a, W->j), W->b), W->prec));
 }
 
-GEN
+static GEN
 sumnummoninit_w(GEN w, GEN wfast, GEN a, GEN b, GEN n0, long prec)
 {
   GEN c, M, tab, P, Q, vr, vabs, vwt, R;
@@ -1818,9 +1631,9 @@ sumnummoninit_w(GEN w, GEN wfast, GEN a, GEN b, GEN n0, long prec)
   /* M[j] = */
   if (typ(wfast) == t_INFINITY)
   {
-    tab = sumnumdeltainit(gen_1, prec);
+    tab = sumnuminit(gen_1, prec);
     S.j = 1;
-    M = sumnumdelta((void*)&S, wrapmonw, n0, tab, prec);
+    M = sumnum((void*)&S, wrapmonw, n0, tab, prec);
   }
   else
   {
@@ -1833,11 +1646,11 @@ sumnummoninit_w(GEN w, GEN wfast, GEN a, GEN b, GEN n0, long prec)
       if (gcmpgs(faj, -2) <= 0)
       {
         S.j = j; setlg(M,j);
-        M = shallowconcat(M, sumnumdelta((void*)&S, wrapmonw, n0, NULL, prec));
+        M = shallowconcat(M, sumnum((void*)&S, wrapmonw, n0, NULL, prec));
         break;
       }
       S.j = j;
-      gel(M,j) = sumnumdelta((void*)&S, wrapmonw2, mkvec2(n0,faj), NULL, prec);
+      gel(M,j) = sumnum((void*)&S, wrapmonw2, mkvec2(n0,faj), NULL, prec);
     }
   }
   Pade(M, &P,&Q);
@@ -1956,8 +1769,11 @@ sumnummon(void *E, GEN (*eval)(void*,GEN), GEN n0, GEN tab, long prec)
   return gerepileupto(av, gprec_w(S, prec));
 }
 
+static GEN
+get_oo(GEN fast) { return mkvec2(mkoo(), fast); }
+
 GEN
-sumnumdeltainit(GEN fast, long prec)
+sumnuminit(GEN fast, long prec)
 {
   pari_sp av = avma;
   GEN s, v, tab, d, C, D;
@@ -1980,6 +1796,7 @@ sumnumdeltainit(GEN fast, long prec)
   v = cgetg(k2+1, t_VEC);
   for (m = 1; m <= k2; m++)
   {
+    pari_sp av = avma;
     GEN S = real_0(prec);
     long j;
     for (j = m; j <= k2; j++)
@@ -1987,14 +1804,15 @@ sumnumdeltainit(GEN fast, long prec)
       GEN d = gmul(gmul(gel(s,2*j+1), gcoeff(C, 2*j,j-m+1)), gel(D, 2*j));
       S = odd(j)? gsub(S,d): gadd(S,d);
     }
-    gel(v,m) = m&1? gneg(S): S;
+    if (odd(m)) S = gneg(S);
+    gel(v,m) = gerepileupto(av, S);
   }
   tab = intnuminit(stoi(N), fast, 0, prec);
   return gerepilecopy(av, mkvec5(d, stoi(N), stoi(k), RgC_gtofp(v,prec), tab));
 }
 
 GEN
-sumnumdelta(void *E, GEN (*eval)(void*, GEN), GEN a, GEN tab, long prec)
+sumnum(void *E, GEN (*eval)(void*, GEN), GEN a, GEN tab, long prec)
 {
   pari_sp av = avma;
   GEN v, tabint, S, d, fast;
@@ -2003,14 +1821,14 @@ sumnumdelta(void *E, GEN (*eval)(void*, GEN), GEN a, GEN tab, long prec)
   else switch(typ(a))
   {
   case t_VEC:
-    if (lg(a) != 3) pari_err_TYPE("sumnumdelta", a);
+    if (lg(a) != 3) pari_err_TYPE("sumnum", a);
     fast = get_oo(gel(a,2));
     a = gel(a,1); break;
   default:
     fast = get_oo(gen_0);
   }
-  if (typ(a) != t_INT) pari_err_TYPE("sumnumdelta", a);
-  if (!tab) tab = sumnumdeltainit(fast, prec);
+  if (typ(a) != t_INT) pari_err_TYPE("sumnum", a);
+  if (!tab) tab = sumnuminit(fast, prec);
   as = itos(a);
   d = gel(tab,1);
   N = maxss(as, itos(gel(tab,2)));
@@ -2034,5 +1852,5 @@ GEN
 sumnummon0(GEN a, GEN code, GEN tab, long prec)
 { EXPR_WRAP(code, sumnummon(EXPR_ARG, a, tab, prec)); }
 GEN
-sumnumdelta0(GEN a, GEN code, GEN tab, long prec)
-{ EXPR_WRAP(code, sumnumdelta(EXPR_ARG, a, tab, prec)); }
+sumnum0(GEN a, GEN code, GEN tab, long prec)
+{ EXPR_WRAP(code, sumnum(EXPR_ARG, a, tab, prec)); }
