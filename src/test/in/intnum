@@ -77,27 +77,6 @@ check(intnum(x = 0, oo, sin(x)^3*exp(-x), tab), 3/10)
 check(intnum(x = 0, [oo, -I], x^2*sin(x)), -2)
 tab = intnuminit(-1,1);
 check(intnum(x=-1,1, intnum(y=-sqrt(1-x^2),sqrt(1-x^2),x^2+y^2,tab),tab), Pi/2)
-\\
-\p 308
-a = sumpos(n=1, 1/(n^3+n+1));
-b = sumpos(n=1, 1/(n^3+n+1), 1);
-check(a, b)
-tab = sumnuminit();
-b = sumnum(n=1, 1/(n^3+n+1), tab);
-check(a, b)
-a = sumpos(n=1,1/(n^2+1));
-b = sumpos(n=1,1/(n^2+1), 1);
-check(a, b)
-b = sumnum(n=1,1/(n^2+1));
-check(a, b)
-check(sumnum(n=[1,-4/3],n^(-4/3)), zeta(4/3))
-tab = sumnuminit([+oo,-3/2]);
-check(sumnum(n=1,1/(n*sqrt(n)),tab), zeta(3/2))
-\\
-check(suminf(n=1, 2^(-n)), 1)
-check(sumpos(n=1, 2^(-n)), 1)
-check(sumnum(n=[1, 1],2^(-n)), 1)
-
 \p96
 check(intnumgauss(x=0,1,sin(x)), 1-cos(1))
 T=intnumgaussinit();
@@ -118,12 +97,6 @@ intnumromb(x=0,1,sinc(x), 3)
 \\intnumromb(x=0,110,x, 1)
 \\intnumromb(x=-110,90,x, 1)
 intnumromb(x=2,1,x, 1)
-
-f(x) = -log(cos(x));
-F = truncate( f(t + O(t^16)) );
-g(x) = if (x > 1e-2, f(x), subst(F,t,x));
-sumpos(n=1,g(1/n))
-sumpos(n=0,0)
 
 intnuminit([oo,1+I],[oo,""])
 intnum(x=oo,oo,1)

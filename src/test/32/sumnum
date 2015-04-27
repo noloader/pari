@@ -1,3 +1,4 @@
+  ***   Warning: new stack size = 20000000 (19.073 Mbytes).
 +oo
 +oo
 -38
@@ -20,4 +21,17 @@
 -37
 -38
 +oo
-Total time spent: 804
+   realprecision = 308 significant digits
+-307
+-307
+-307
+-307
+-305
+-305
+-307
+-307
++oo
+   realprecision = 38 significant digits
+0.94536905472633293526609521540827019813
+0.E-37
+Total time spent: 14952
