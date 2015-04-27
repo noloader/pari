@@ -62,18 +62,17 @@ Doc: numerical summation of \var{expr}, the variable $n$ taking values
  \bprog
  ? sumnum(n=1,2^-n)
   ***   at top-level: sumnum(n=1,2^-n)
-  ***                                  ^----
+  ***                             ^----
   *** _^_: overflow in expo().
- \bprog
- ? tab = sumnuminit([+oo,log(2)]); \
-   sumnum(n=1,2^-n, tab)
+ ? tab = sumnuminit([+oo,log(2)]); sumnum(n=1,2^-n, tab)
  %1 = 1.000[...]
  @eprog
 
  As a shortcut, one can also input
  \bprog
    sumnum(n = [a, asymp], f)
- @eprog\noindent
+ @eprog\noindent instead of
+ \bprog
    tab = sumnuminit(asymp);
    sumnum(n = a, f, tab)
  @eprog
