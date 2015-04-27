@@ -13,12 +13,40 @@ Doc: numerical summation of \var{expr}, the variable $n$ taking values
  from $a$ to $+\infty$, where \var{expr} is assumed to have positive
  values and is a $C^\infty$ function; \kbd{a} must be an integer and
  \kbd{tab}, if given, is the output of \kbd{sumnuminit}. The latter
- precomputes abcissas and weights (speeding up \kbd{sumnum} by a
- rough factor 2 when \var{expr} is easy to evaluate); it also allows to specify
- the behaviour at infinity via \kbd{sumdeltainit([+oo, asymp])}.
-
+ precomputes abcissas and weights; it also allows to specify the behaviour at
+ infinity via \kbd{sumnuminit([+oo, asymp])}.
+ \bprog
+ ? \p500
+ ? z3 = zeta(3);
+ time = 4 ms.
+ ? sumnum(n = 1, n^-3) - z3 \\ slower than the dedicated routine but accurate
+ time = 2,752 ms.
+ %2 = 0.E-500
+ @eprog\noindent
  The function $f$ is evaluated at (a little less than) $D$ real arguments,
- where $D \approx \kbd{realprecision} \log(10)$.
+ where $D \approx \kbd{realprecision} \log(10)$. If $f$ satisfies the
+ stronger hypotheses required for Monien summation, then
+ \tet{sumnummon} will be faster:
+ \bprog
+ ? sumnummon(n = 1, n^-3) - z3
+ time = 1,985 ms.
+ %3 = 0.E-500
+ @eprog\noindent The \kbd{tab} argument allows to precomputed technical data
+ not depending on the expression being summed, for a given accuracy, speeding
+ up immensely later calls:
+ \bprog
+ ? tab = sumnuminit();
+ time = 2,709 ms.
+ ? sumnum(n = 1, n^-3, tab) - z3
+ time = 40 ms.
+ %5 = 0.E-500
+
+ ? tabmon = sumnummoninit();
+ time = 1,981 ms.
+ ? sumnummon(n = 1, n^-3, tabmon) - z3
+ time = 2 ms.
+ %7 = 0.E-500
+ @eprog
 
  By default, the function assumes that \var{expr} decreases slowly at infinity,
  but at least like $O(n^{-2})$. If the function decreases like $n^{\alpha}$

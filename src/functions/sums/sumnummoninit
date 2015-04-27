@@ -30,7 +30,7 @@ Doc: initialize tables for Monien summation of a series $\sum_{n\geq n_0}
  converges for all $m\geq 1$. Note that for non-negative integers $k$,
  and weight $w(n) = (\log n)^k$, the function $g_w(m) = \zeta^{(k)}(\alpha m +
  \beta)$ has a simple expression; for general weights, $g_w$ is
- computed using \kbd{sumnumdelta}.
+ computed using \kbd{sumnum}.
 
  The following variants are available
 
