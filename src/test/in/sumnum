@@ -61,3 +61,5 @@ F = truncate( f(t + O(t^16)) );
 g(x) = if (x > 1e-2, f(x), subst(F,t,x));
 sumpos(n=1,g(1/n))
 sumpos(n=0,0)
+
+sumnum(n=1,1/n^2,"bug");

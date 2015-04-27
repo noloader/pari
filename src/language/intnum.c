@@ -1807,10 +1807,17 @@ sumnuminit(GEN fast, long prec)
     if (odd(m)) S = gneg(S);
     gel(v,m) = gerepileupto(av, S);
   }
+  v = RgC_gtofp(v,prec); settyp(v, t_VEC);
   tab = intnuminit(stoi(N), fast, 0, prec);
-  return gerepilecopy(av, mkvec5(d, stoi(N), stoi(k), RgC_gtofp(v,prec), tab));
+  return gerepilecopy(av, mkvec5(d, stoi(N), stoi(k), v, tab));
 }
 
+static int
+checksumtab(GEN T)
+{
+  if (typ(T) != t_VEC || lg(T) != 6) return 0;
+  return typ(gel(T,2))==t_INT && typ(gel(T,3))==t_INT && typ(gel(T,4))==t_VEC;
+}
 GEN
 sumnum(void *E, GEN (*eval)(void*, GEN), GEN a, GEN tab, long prec)
 {
@@ -1829,6 +1836,7 @@ sumnum(void *E, GEN (*eval)(void*, GEN), GEN a, GEN tab, long prec)
   }
   if (typ(a) != t_INT) pari_err_TYPE("sumnum", a);
   if (!tab) tab = sumnuminit(fast, prec);
+  else if (!checksumtab(tab)) pari_err_TYPE("sumnum",tab);
   as = itos(a);
   d = gel(tab,1);
   N = maxss(as, itos(gel(tab,2)));
