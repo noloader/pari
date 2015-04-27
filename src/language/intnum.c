@@ -749,9 +749,9 @@ intninfpm(void *E, GEN (*eval)(void*, GEN), GEN a, long sb, GEN tab)
  * exponentially decreasing functions.
  * HACK: in case TABwm(tab) contains something, assume function to be integrated
  * satisfies f(-x) = conj(f(x)).
- * Usually flag < 0, but flag > 0 is used in sumnumall. */
+ */
 static GEN
-intninfinfintern(void *E, GEN (*eval)(void*, GEN), GEN tab, long flag)
+intninfinf(void *E, GEN (*eval)(void*, GEN), GEN tab)
 {
   GEN tabx0, tabw0, tabxp, tabwp, tabwm;
   GEN S;
@@ -763,7 +763,7 @@ intninfinfintern(void *E, GEN (*eval)(void*, GEN), GEN tab, long flag)
   tabxp = TABxp(tab); tabwp = TABwp(tab); L = lg(tabxp);
   tabwm = TABwm(tab);
   spf = (lg(tabwm) == lg(tabwp));
-  S = flag > 0 ? gen_0 : gmul(tabw0, eval(E, tabx0));
+  S = gmul(tabw0, eval(E, tabx0));
   if (spf) S = gmul2n(real_i(S), -1);
   for (i = L-1; i > 0; i--)
   {
@@ -773,18 +773,13 @@ intninfinfintern(void *E, GEN (*eval)(void*, GEN), GEN tab, long flag)
     else
     {
       GEN SM = eval(E, negr(gel(tabxp,i)));
-      SP = (flag > 0)? gsub(SP, SM): gadd(SP, SM);
-      S = gadd(S, gmul(gel(tabwp,i), SP));
+      S = gadd(S, gmul(gel(tabwp,i), gadd(SP,SM)));
     }
     if ((i & 0x7f) == 1) S = gerepileupto(ltop, S);
   }
   if (spf) S = gmul2n(S,1);
   return gerepileupto(ltop, gmul(S, TABh(tab)));
 }
-
-static GEN
-intninfinf(void *E, GEN (*eval)(void*, GEN), GEN tab)
-{ return intninfinfintern(E, eval, tab, -1); }
 
 /* general num integration routine int_a^b f(t)dt, where a and b are as follows:
  - a scalar : the scalar, no singularity worse than logarithmic at a.
