@@ -30,6 +30,7 @@ check(intnum(x = 100000, oo, 1/(1+x^2)), atan(1/100000))
 
 check(intnum(x = [0,-1/2], [oo,-3/2],  1/(sqrt(x)+x^(3/2))), Pi)
 check(intnum(x = [-oo,-3/2], [oo,-3/2],  1/(1+abs(x)^(3/2))), 8*Pi/sqrt(27))
+check(intnum(x = -oo, oo, 1/(1+x^2)), Pi)
 
 f(x)=if (x<0,1/(1+(-x)^(3/2)), 1/(1+x^(5/2)));
 a=4*Pi/sqrt(27) + 2*(Pi/5)/sin(2*Pi/5);
