@@ -195,7 +195,29 @@ A typical low-level construct:
   l = L? lg(L): 1;
   for (i = 1; i < l; i++) output( gel(L, i) );
   for (i = 1; i < l; i++) gel(L, i) = gclone( ... );
-@eprog\noindent
+@eprog
+
+\subsec{Maps as Lists}
+
+GP's maps are implemented on top of \typ{LIST}s so as to benefit from
+their peculiar memory models. Lists thus come in two subtypes: \typ{LIST\_RAW}
+(actual lists) and \typ{LIST\_MAP} (a map).
+
+\fun{GEN}{listcreate_typ}{long t} create a list of subtype $t$. Plain
+\kbd{listcreate} is an alias for
+\bprog
+  listcreate_typ(t_LIST_RAW);
+@eprog
+
+\fun{long}{list_typ}{GEN L} return the list subtype, either \typ{LIST\_RAW} or
+\typ{LIST\_MAP}.
+
+\fun{void}{listpop}{GEN L, long index} as \kbd{listpop0},
+assuming that $L$ is a \typ{LIST\_RAW}.
+
+\fun{GEN}{listput}{GEN list, GEN object, long index} as \kbd{listput0},
+assuming that $L$ is a \typ{LIST\_RAW}.
+
 
 \section{Protection of non-interruptible code}
 
