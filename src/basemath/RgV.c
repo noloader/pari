@@ -526,6 +526,8 @@ RgM_mul(GEN x, GEN y)
   lx = lg(x);
   if (lx != lgcols(y)) pari_err_OP("operation 'RgM_mul'", x,y);
   if (lx == 1) return zeromat(0,ly-1);
+  if (RgM_is_ZM(x) && RgM_is_ZM(y))
+    return ZM_mul(x, y);
   if (is_modular_mul(x,y,&z)) return gerepileupto(av, z);
   if (RgM_is_FFM(x, &ffx) && RgM_is_FFM(y, &ffy)) {
     if (!FF_samefield(ffx, ffy))
@@ -628,6 +630,7 @@ RgM_sqr(GEN x)
   GEN z, ffx = NULL;
   if (lx == 1) return cgetg(1, t_MAT);
   if (lx != lgcols(x)) pari_err_OP("operation 'RgM_mul'", x,x);
+  if (RgM_is_ZM(x))         return ZM_sqr(x);
   if (is_modular_sqr(x,&z)) return gerepileupto(av, z);
   if (RgM_is_FFM(x, &ffx))  return FFM_mul(x, x, ffx);
   z = cgetg(lx, t_MAT);
