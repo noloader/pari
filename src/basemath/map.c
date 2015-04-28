@@ -83,7 +83,7 @@ static void
 treekeys_i_r(GEN t, long i, GEN V, long *n, long mode)
 {
   if (i==0) return;
-  treekeys_r(t, tleft(i), V, n, mode);
+  treekeys_i_r(t, tleft(i), V, n, mode);
   gel(V, ++*n) = mode == 0 ? tvalue(i): gel(tvalue(i),1);
   treekeys_r(t, tright(i), V, n, mode);
 }
@@ -129,7 +129,7 @@ static void
 treemat_i_r(GEN t, long i, GEN V, long *n)
 {
   if (i==0) return;
-  treemat_r(t, tleft(i), V, n);
+  treemat_i_r(t, tleft(i), V, n);
   ++*n;
   gmael(V, 1, *n) = gel(tvalue(i), 1);
   gmael(V, 2, *n) = gel(tvalue(i), 2);
