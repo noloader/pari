@@ -23,6 +23,19 @@ Doc: initialize tables for Monien summation of a series $\sum_{n\geq n_0}
  Note that $\kbd{asymp} = [\alpha, \alpha]$ is equivalent to
  $\kbd{asymp}=\alpha$.
 
+ \bprog
+ ? \p38
+ ? s = sumnum(n = 1, sin(1/sqrt(n)) / n)
+ %1 = 2.3979771206715998375659850036324914714
+
+ ? sumnummon(n = 1, sin(1/sqrt(n)) / n) - s
+ %2 = -0.001[...] \\ completely wrong !
+
+ ? t = sumnummoninit([1/2,1]);  \\ f(n) = \sum_i 1 / n^(i/2+1)
+ ? sumnummon(n = 1, sin(1/sqrt(n)) / n, t) - s
+ %3 = 0.E-37  \\ now correct
+ @eprog
+
  The argument $w$ is used to sum expressions of the form
  $$ \sum_{n\geq n_0} f(n) w(n),$$
  for varying $f$ \emph{as above}, and fixed weight function $w$, where we

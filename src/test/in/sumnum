@@ -35,6 +35,12 @@ check(sumnummon(n=1, 1/n^3, tab), zeta(3))
 tab=sumnummoninit([1,1/2]);
 check(sumnummon(n=1, 1/n^(3/2), tab), zeta(3/2))
 
+localprec(57); V = sumnum(n=[1,-3/2], sin(1/sqrt(n))/n);
+
+tmon=sumnummoninit([1/2,1]);
+check(sumnummon(n=1, sin(1/sqrt(n))/n, tmon), V)
+check(sumnum(n=[1,-3/2], sin(1/sqrt(n))/n), V)
+
 \p 308
 a = sumpos(n=1, 1/(n^3+n+1));
 b = sumpos(n=1, 1/(n^3+n+1), 1);
