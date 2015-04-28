@@ -134,4 +134,7 @@ Doc: Numerical summation of $f(n)$ at high accuracy using Euler-MacLaurin,
  %8 = 1.000[...] \\ perfect
  ? sumpos(n=1, 2^-n)
  %9 = 1.000[...] \\ perfect and instantaneous
- @eprog\noindent
+ @eprog
+
+ \synt{sumnum}{(void *E, GEN (*eval)(void*, GEN), GEN a, GEN tab, long prec)}
+ where an omitted \var{tab} is coded as \kbd{NULL}.
