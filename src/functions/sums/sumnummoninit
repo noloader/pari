@@ -20,35 +20,55 @@ Doc: initialize tables for Monien summation of a series $\sum_{n\geq n_0}
  \item a vector $[\alpha,\beta]$ of reals, where we must have $\alpha > 0$
  and $\alpha + \beta > 1$ to ensure convergence, means that
   $$f(n) = \sum_{i\geq 1} a_i / n^{\alpha i + \beta}$$
- Note that $\kbd{asymp} = [\alpha, \alpha]$ is equivalent to $\alpha$.
+ Note that $\kbd{asymp} = [\alpha, \alpha]$ is equivalent to
+ $\kbd{asymp}=\alpha$.
 
  The argument $w$ is used to sum expressions of the form
  $$ \sum_{n\geq n_0} f(n) w(n),$$
  for varying $f$ \emph{as above}, and fixed weight function $w$, where we
  further assume that the auxiliary sums
  $$g_w(m) = \sum_{n\geq n_0} w(n) / n^{\alpha m + \beta} $$
- converges for all $m\geq 1$. Note that for non-negative integers $k$,
+ converge for all $m\geq 1$. Note that for non-negative integers $k$,
  and weight $w(n) = (\log n)^k$, the function $g_w(m) = \zeta^{(k)}(\alpha m +
  \beta)$ has a simple expression; for general weights, $g_w$ is
- computed using \kbd{sumnum}.
+ computed using \kbd{sumnum}. The following variants are available
 
- The following variants are available
-
- \item an integer $k \geq 0$, to code $w(n) = (\log n)^k$. Currently,
- only the cases $k = 0,1$ are implemented;
+ \item an integer $k \geq 0$, to code $w(n) = (\log n)^k$;
+ only the cases $k = 0,1$ are presently implemented; due to a poor
+ implementation of $\zeta$ derivatives, it is not currently worth it
+ to exploit the special shape of $g_w$ when $k > 0$;
 
  \item a \typ{CLOSURE} computing the values $w(n)$, where we
- assume the $w(n) = O(n^\epsilon)$ for all $\epsilon > 0$;
+ assume that $w(n) = O(n^\epsilon)$ for all $\epsilon > 0$;
 
  \item a vector $[w, \kbd{fast}]$, where $w$ is a closure as above
  and \kbd{fast} is a scalar;
- we assume that $w(n) = O(n^{\kbd{fast}+\epsilon})$;
+ we assume that $w(n) = O(n^{\kbd{fast}+\epsilon})$; note that
+ $\kbd{w} = [w, 0]$ is equivalent to $\kbd{w} = w$.
 
- \item a vector $[w, \kbd{oo}]$, where $w$ is a closure as above
+ \item a vector $[w, \kbd{oo}]$, where $w$ is a closure as above;
  we assume that $w(n)$ decreases exponentially. Note that in this case,
  \kbd{sumnummon} is provided for completeness and comparison purposes only:
  one of \kbd{suminf} or \kbd{sumpos} should be preferred in practice.
 
- The cases where $w$ is a closure are the only ones where $n_0$ is taken into
- account and stored in the result. The subsequent call to \kbd{sumnummon}
- \emph{must} use the same value.
+ The cases where $w$ is a closure or $w(n) = \log n$ are the only ones where
+ $n_0$ is taken into account and stored in the result. The subsequent call to
+ \kbd{sumnummon} \emph{must} use the same value.
+
+ \bprog
+ ? \p300
+ ? sumnummon(n = 1, n^-2*log(n)) + zeta'(2)
+ time = 536 ms.
+ %1 = -1.323[...]E-6 \\ completely wrong, f does not satisfy hypotheses !
+ ? tab = sumnummoninit(, 1); \\ codes w(n) = log(n)
+ time = 18,316 ms.
+ ? sumnummon(n = 1, n^-2, tab) + zeta'(2)
+ time = 44 ms.
+ %3 = -5.562684646268003458 E-309  \\ now perfect
+
+ ? tab = sumnummoninit(, n->log(n)); \\ generic, about as fast
+ time = 18,693 ms.
+ ? sumnummon(n = 1, n^-2, tab) + zeta'(2)
+ time = 40 ms.
+ %5 = -5.562684646268003458 E-309  \\ identical result
+ @eprog
