@@ -465,15 +465,22 @@ ZM_transmul(GEN x, GEN y)
   }
   return M;
 }
+
+static GEN
+ZM_sqr_i(GEN x, long l)
+{
+  if (l <= ZM_sw_bound)
+    return ZM_mul_classical(x, x, l, l, l);
+  else
+    return ZM_mul_sw(x, x, l - 1, l - 1, l - 1);
+}
+
 GEN
 ZM_sqr(GEN x)
 {
-  long j, l, lx=lg(x);
-  GEN z;
+  long lx=lg(x);
   if (lx==1) return cgetg(1,t_MAT);
-  l = lgcols(x); z = cgetg(lx,t_MAT);
-  for (j=1; j<lx; j++) gel(z,j) = ZM_ZC_mul_i(x, gel(x,j), lx, l);
-  return z;
+  return ZM_sqr_i(x, lx);
 }
 GEN
 ZM_ZC_mul(GEN x, GEN y)
@@ -564,7 +571,7 @@ _ZM_mul(void *data /*ignored*/, GEN x, GEN y)
 { (void)data; return ZM_mul(x,y); }
 static GEN
 _ZM_sqr(void *data /*ignored*/, GEN x)
-{ (void)data; return ZM_mul(x,x); }
+{ (void)data; return ZM_sqr(x); }
 GEN
 ZM_pow(GEN x, GEN n)
 {
