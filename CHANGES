@@ -135,6 +135,7 @@ VBr83- [darwin] remove obsolete linker options that cause crashes [#1623]
    99- div_scal_rfrac could create an invalid t_POL [#1651]
   100- polroots(t_POL with leading coeff = 0) -> fp exception or error [#1690]
   101- \r cannot deal with very long filenames [#1616]
+  102- rnfisabelian(nf, non monic t_POL) -> SEGV [#1693]
 
   Added
     1- add optional argument to sumdigits to specify the base
