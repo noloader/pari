@@ -24,7 +24,7 @@ lift(1/2 + O(2))
 
 s=3+3^2+O(3^5)
 t=2+2^2+O(2^5)
-f=[cosh,sinh,tanh];
+f=[cosh,sinh,tanh,cotanh];
 {
 for (i=1,#f,
   print(f[i](s));

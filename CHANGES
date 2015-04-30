@@ -265,7 +265,7 @@ PB 90- Faster matrix multiplication over finite fields
    91- allow content(t_VECSMALL)
    92- [libpari] ZX_div_by_X_1
 HC 93- intnumgauss / intnumgaussinit: Gauss-Legendre quadrature
-LGr94- sinc GP function
+LGr94- GP function sinc
 HC 95- contfracinit / contfraceval functions
 HC 96- limitnum / asympnum
 BA 97- [libpari] functions FlxV_prod, RgV_prod
@@ -277,6 +277,7 @@ HC102- GP function zetamult
 PB103- ZM_mul: Add Strassen-Winograd algorithm
   104- GP functions sumnummonien/sumnummonieninit
   105- [libpari] RgM_gram_schmidt, RgM_Babai
+BA106- GP function cotanh
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]

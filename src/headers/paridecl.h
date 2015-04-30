@@ -3758,6 +3758,7 @@ GEN     expIr(GEN x);
 GEN     exp1r_abs(GEN x);
 GEN     gcos(GEN x, long prec);
 GEN     gcotan(GEN x, long prec);
+GEN     gcotanh(GEN x, long prec);
 GEN     gexp(GEN x, long prec);
 GEN     gexpm1(GEN x, long prec);
 GEN     glog(GEN x, long prec);

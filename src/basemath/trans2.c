@@ -497,6 +497,57 @@ gtanh(GEN x, long prec)
   }
   return trans_eval("tanh",gtanh,x,prec);
 }
+
+static GEN
+mpcotanh(GEN x)
+{
+  long lx, s = signe(x);
+  GEN y;
+
+  if (!s) pari_err_DOMAIN("cotan", "argument", "=", gen_0, x);
+
+  lx = realprec(x);
+  if (absr_cmp(x, stor(prec2nbits(lx), LOWDEFAULTPREC)) >= 0) {
+    y = real_1(lx);
+  } else {
+    pari_sp av = avma;
+    long ex = expo(x);
+    GEN t;
+    if (ex < 1 - BITS_IN_LONG) x = rtor(x, lx + nbits2extraprec(-ex)-1);
+    t = exp1r_abs(gmul2n(x,1)); /* exp(|2x|) - 1 */
+    y = gerepileuptoleaf(av, divrr(addsr(2,t), t));
+  }
+  if (s < 0) togglesign(y); /* cotanh is odd */
+  return y;
+}
+
+GEN
+gcotanh(GEN x, long prec)
+{
+  pari_sp av;
+  GEN y, t;
+
+  switch(typ(x))
+  {
+    case t_REAL: return mpcotanh(x);
+    case t_COMPLEX:
+      if (isintzero(gel(x,1))) retmkcomplex(gen_0, gcotan(gel(x,2),prec));
+      /* fall through */
+    case t_PADIC:
+      av = avma;
+      t = gexp(gmul2n(x,1),prec);
+      t = gdivsg(2, gsubgs(t,1));
+      return gerepileupto(av, gaddsg(1,t));
+    default:
+      av = avma; if (!(y = toser_i(x))) break;
+      if (gequal0(y)) return gerepilecopy(av, y);
+      t = gexp(gmul2n(y, 1),prec);
+      t = gdivsg(2, gsubgs(t,1));
+      return gerepileupto(av, gaddsg(1,t));
+  }
+  return trans_eval("cotanh",gcotanh,x,prec);
+}
+
 /********************************************************************/
 /**                                                                **/
 /**                     AREA HYPERBOLIC SINE                       **/

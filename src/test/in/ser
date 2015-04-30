@@ -1,6 +1,6 @@
 default(realprecision,38);
 s=x+x^2+O(x^5)
-f=[atan,asin,acos,cosh,sinh,tanh,acosh,asinh,atanh];
+f=[atan,asin,acos,cosh,sinh,tanh,cotanh,acosh,asinh,atanh];
 {
 for (i=1,#f,
   print(f[i](s));
