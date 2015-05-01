@@ -70,14 +70,23 @@ ZG_Z_mul(GEN x, GEN c)
 GEN
 ZG_mul(GEN x, GEN y)
 {
+  pari_sp av;
   GEN z, XG, XE;
   long i, l;
   if (typ(x) == t_INT) return ZG_Z_mul(y, x);
   if (typ(y) == t_INT) return ZG_Z_mul(x, y);
+  av = avma;
   XG = gel(x,1); XE = gel(x,2); l = lg(XG);
   z = ZG_Z_mul(G_ZG_mul(gel(XG,1), y), gel(XE,1));
   for (i = 2; i < l; i++)
+  {
     z = ZG_add(z, ZG_Z_mul(G_ZG_mul(gel(XG,i), y), gel(XE,i)));
+    if (gc_needed(av,3))
+    {
+      if(DEBUGMEM>1) pari_warn(warnmem,"ZG_mul, i = %ld/%ld",i,l-1);
+      z = gerepilecopy(av, z);
+    }
+  }
   return z;
 }
 #if 0
