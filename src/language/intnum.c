@@ -1472,21 +1472,19 @@ contfraceval(GEN CF, GEN t, long nlim)
 static GEN
 monrefine(GEN Q, GEN QP, GEN z, long prec)
 {
+  pari_sp av = avma;
   GEN pr = poleval(Q, z);
   for(;;)
   {
     GEN prnew;
     z = gsub(z, gdiv(pr, poleval(QP, z)));
     prnew = poleval(Q, z);
-    if (gcmp(gabs(prnew, prec), gabs(pr, prec)) < 0)
-      pr = prnew;
-    else
-    {
-      z = gprec_w(z, 2*prec-2);
-      return gsub(z, gdiv(poleval(Q, z), poleval(QP, z)));
-    }
+    if (gcmp(gabs(prnew, prec), gabs(pr, prec)) >= 0) break;
+    pr = prnew;
   }
-  return NULL;
+  z = gprec_w(z, 2*prec-2);
+  z = gsub(z, gdiv(poleval(Q, z), poleval(QP, z)));
+  return gerepileupto(av, z);
 }
 /* (real) roots of Q, assuming QP = Q' and that half the roots are close to
  * k+1, ..., k+m, m = deg(Q)/2-1. N.B. All roots are real and >= 1 */
@@ -1504,6 +1502,7 @@ monroots(GEN Q, GEN QP, long k, long prec)
 static void
 Pade(GEN M, GEN *pP, GEN *pQ)
 {
+  pari_sp av = avma;
   long n = lg(M)-2, i;
   GEN v = contfracinit_i(M, n), P = pol_0(0), Q = pol_1(0);
   /* evaluate continued fraction => Pade approximants */
@@ -1511,6 +1510,11 @@ Pade(GEN M, GEN *pP, GEN *pQ)
   { /* S = P/Q: S -> v[i]*x / (1+S) */
     GEN R = RgX_shift_shallow(RgX_Rg_mul(Q,gel(v,i)), 1);
     Q = RgX_add(P,Q); P = R;
+    if (gc_needed(av, 3))
+    {
+      if (DEBUGMEM>1) pari_warn(warnmem,"Pade, %ld/%ld",i,n-1);
+      gerepileall(av, 3, &P, &Q, &v);
+    }
   }
   /* S -> 1+S */
   *pP = RgX_add(P,Q);
@@ -1611,7 +1615,7 @@ wrapmonw2(void* E, GEN x)
 static GEN
 sumnummoninit_w(GEN w, GEN wfast, GEN a, GEN b, GEN n0, long prec)
 {
-  GEN c, M, tab, P, Q, vr, vabs, vwt, R;
+  GEN c, M, P, Q, vr, vabs, vwt, R;
   long bitprec = prec2nbits(prec), j, n;
   double D = bitprec*LOG2/gtodouble(a);
   struct mon_w S;
@@ -1623,10 +1627,10 @@ sumnummoninit_w(GEN w, GEN wfast, GEN a, GEN b, GEN n0, long prec)
   S.b = b = gprec_w(b, 2*prec-2);
   S.n = n;
   S.prec = prec;
-  /* M[j] = */
+  /* M[j] = sum(n >= n0, w(n) / n^(a*(j+n)+b) */
   if (typ(wfast) == t_INFINITY)
   {
-    tab = sumnuminit(gen_1, prec);
+    GEN tab = sumnuminit(gen_1, prec);
     S.j = 1;
     M = sumnum((void*)&S, wrapmonw, n0, tab, prec);
   }
