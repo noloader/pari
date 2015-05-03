@@ -360,7 +360,7 @@ polgraeffe(GEN p)
 /**                                                                **/
 /********************************************************************/
 
-/* Quick approximation to log2(|x); first define y s.t. |y-x| < 2^-32 then
+/* Quick approximation to log2(|x|); first define y s.t. |y-x| < 2^-32 then
  * return y rounded to 2 ulp. In particular, if result < 2^21, absolute error
  * is bounded by 2^-31. If result > 2^21, it is correct to 2 ulp */
 static double
@@ -407,6 +407,7 @@ dbllog2(GEN z)
   switch(typ(z))
   {
     case t_INT: return mydbllog2i(z);
+    case t_FRAC: return mydbllog2i(gel(z,1))-mydbllog2i(gel(z,2));
     case t_REAL: return mydbllog2r(z);
     default: /*t_COMPLEX*/
       x = dbllog2mp(gel(z,1));

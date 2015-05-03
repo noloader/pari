@@ -1407,7 +1407,7 @@ bernreal(long n, long prec)
 GEN
 zetaBorweinRecycled(long s, long h, long N, long prec)
 {
-  pari_sp av = avma, lim = stack_lim(av,3);
+  pari_sp av = avma;
   const long n = ceil(2 + prec2nbits_mul(prec, LOG2/1.7627));
   long j, k;
   GEN c, d, z = zerovec(N);
@@ -1426,9 +1426,9 @@ zetaBorweinRecycled(long s, long h, long N, long prec)
     c = muluui(k,2*k-1,c);
     c = diviuuexact(c, 2*(n-k+1),n+k-1);
     d = addii(d,c);
-    if (low_stack(lim,stack_lim(av,3)))
+    if (gc_needed(av,3))
     {
-      if(DEBUGMEM>1) pari_warn(warnmem,"zetaBorweinRecycled");
+      if(DEBUGMEM>1) pari_warn(warnmem,"zetaBorweinRecycled, k = %ld", k);
       gerepileall(av, 3, &c,&d,&z);
     }
   }
@@ -1443,7 +1443,7 @@ zetaBorweinRecycled(long s, long h, long N, long prec)
 static GEN
 zetaBorwein(long s, long prec)
 {
-  pari_sp av = avma, lim = stack_lim(av,3);
+  pari_sp av = avma;
   const long n = ceil(2 + prec2nbits_mul(prec, LOG2/1.7627));
   long k;
   GEN c, d, z = gen_0;
@@ -1455,9 +1455,9 @@ zetaBorwein(long s, long prec)
     c = muluui(k,2*k-1,c);
     c = diviuuexact(c, 2*(n-k+1),n+k-1);
     d = addii(d,c);
-    if (low_stack(lim,stack_lim(av,3)))
+    if (gc_needed(av,3))
     {
-      if(DEBUGMEM>1) pari_warn(warnmem,"zetaBorwein");
+      if(DEBUGMEM>1) pari_warn(warnmem,"zetaBorwein, k = %ld", k);
       gerepileall(av, 3, &c,&d,&z);
     }
   }

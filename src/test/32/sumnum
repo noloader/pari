@@ -12,7 +12,7 @@
 -36
 -38
 (n)->lngamma(1+1/n)/n
-+oo
+-37
 +oo
 (n)->sin(1/sqrt(n))/n^(3/2)
 -36
@@ -39,4 +39,4 @@
   ***   at top-level: sumnum(n=1,1/n^2,"bug")
   ***                            ^------------
   ***   incorrect type in sumnum (t_STR).
-Total time spent: 4452
+Total time spent: 4924

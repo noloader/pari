@@ -31,3 +31,5 @@ lngamma(2^301 + 2*I)
 lngamma(2^301 + 200*I)
 default(realprecision,154);
 lngamma(2^301 + 2000*I)
+
+gamma(1+10^-30)

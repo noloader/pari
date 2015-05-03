@@ -1003,6 +1003,26 @@ red_mod_2z(GEN x, GEN z)
 }
 #endif
 
+/* lngamma(1+z) = -Euler*z + sum_{i > 1} zeta(i)/i (-z)^i
+ * at relative precision prec, |z| < 1 is small */
+static GEN
+lngamma1(GEN z, long prec)
+{ /* sum_{i > l} |z|^(i-1) = |z|^l / (1-|z|) < 2^-B
+   * for l > (B+1) / |log2(|z|)| */
+  long i, l = ceil((bit_accuracy(prec) + 1) / - dbllog2(z));
+  GEN zet, me = mpeuler(prec), s = gen_0;
+  setsigne(me, -1); /* -Euler */
+  if (l <= 1) return gmul(me, z);
+  zet = zetaBorweinRecycled(2, 1, l-1, prec); /* z[i] = zeta(i+1) */
+  for (i = l; i > 1; i--)
+  {
+    GEN c = divru(gel(zet,i-1), i);
+    if (odd(i)) setsigne(c, -1);
+    s = gadd(gmul(s,z), c);
+  }
+  return gmul(z, gadd(gmul(s,z), me));
+}
+
 static GEN
 cxgamma(GEN s0, int dolog, long prec)
 {
@@ -1066,15 +1086,14 @@ cxgamma(GEN s0, int dolog, long prec)
     double st = typ(s) == t_REAL? 0.0: rtodbl(imag_i(s));
     double la, l,l2,u,v, rlogs, ilogs;
 
-    if (dolog)
-    {
-      /* loggamma(1+u) ~ - Euler * u: cancellation if u is small */
-      if (fabs(ssig-1) + fabs(st) < 0.0001)
-      { /* s ~ 1, take care */
-        long e = gexpo(gsubgs(s,1));
-        prec += nbits2nlong(-e);
-        s = gprec_w(s, prec);
-      }
+    if (fabs(ssig-1) + fabs(st) < 0.0001)
+    { /* s ~ 1: loggamma(1+u) ~ - Euler * u, cancellation */
+      if (funeq) /* s0 ~ 0: use lngamma(s0)+log(s0) = lngamma(s0+1) */
+        y = gsub(lngamma1(s0,prec), glog(s0,prec));
+      else
+        y = lngamma1(gsubgs(s0,1),prec);
+      if (!dolog) y = gexp(y,prec);
+      avma = av; return affc_fixlg(y, res);
     }
     dcxlog(ssig,st, &rlogs,&ilogs);
     /* Re (s - 1/2) log(s) */
@@ -1409,7 +1428,6 @@ GEN
 ggamma(GEN x, long prec)
 {
   pari_sp av;
-  long m;
   GEN y, z;
 
   switch(typ(x))
@@ -1425,14 +1443,32 @@ ggamma(GEN x, long prec)
       return cxgamma(x, 0, prec);
 
     case t_FRAC:
-      if (!equaliu(gel(x,2),2)) break;
-      z = gel(x,1); /* true argument is z/2 */
-      if (is_bigint(z) || labs(m = itos(z)) > 962354)
+    {
+      GEN a = gel(x,1), b = gel(x,2), c;
+      long m;
+      if (equaliu(b,2))
       {
-        pari_err_OVERFLOW("gamma");
-        return NULL; /* not reached */
+        if (is_bigint(a) || labs(m = itos(a)) > 962354)
+        {
+          pari_err_OVERFLOW("gamma");
+          return NULL; /* not reached */
+        }
+        return gammahs(m-1, prec);
       }
-      return gammahs(m-1, prec);
+      av = avma; c = subii(a,b);
+      if (expi(c) - expi(b) < -10)
+      {
+        x = mkfrac(c,b);
+        if (lgefint(b) >= prec) x = fractor(x,prec);
+        y = mpexp(lngamma1(x, prec));
+      }
+      else
+      {
+        x = fractor(x, prec);
+        y = cxgamma(x, 0, prec);
+      }
+      return gerepileupto(av, y);
+    }
 
     case t_PADIC: return Qp_gamma(x);
     default:
@@ -1482,7 +1518,7 @@ mpfactr(long n, long prec)
 GEN
 glngamma(GEN x, long prec)
 {
-  pari_sp av;
+  pari_sp av = avma;
   GEN y, p1;
 
   switch(typ(x))
@@ -1493,33 +1529,37 @@ glngamma(GEN x, long prec)
                          strtoGENstr("non-positive integer"), x);
       if (cmpiu(x,200 + 50*(prec-2)) > 0) /* heuristic */
         return cxgamma(x, 1, prec);
-      av = avma;
       return gerepileuptoleaf(av, logr_abs( itor(mpfact(itos(x) - 1), prec) ));
     case t_FRAC:
     {
-      GEN a, b;
-      long e1, e2;
-      av = avma;
-      a = gel(x,1);
-      b = gel(x,2);
-      e1 = expi(subii(a,b)); e2 = expi(b);
-      if (e2 > e1) prec += nbits2nlong(e2 - e1);
-      x = fractor(x, prec);
-      return gerepileupto(av, cxgamma(x, 1, prec));
+      GEN a = gel(x,1), b = gel(x,2), c = subii(a,b);
+      long e = expi(b) - expi(c);
+      if (e > 10)
+      {
+        x = mkfrac(c,b);
+        if (lgefint(b) >= prec) x = fractor(x,prec + nbits2nlong(e));
+        y = lngamma1(x, prec);
+      }
+      else
+      {
+        x = fractor(x, e > 1? prec+EXTRAPRECWORD: prec);
+        y = cxgamma(x, 1, prec);
+      }
+      return gerepileupto(av, y);
     }
 
     case t_REAL: case t_COMPLEX:
       return cxgamma(x, 1, prec);
 
     default:
-      av = avma; if (!(y = toser_i(x))) break;
+      if (!(y = toser_i(x))) break;
       if (valp(y)) pari_err_DOMAIN("lngamma","valuation", "!=", gen_0, x);
       /* (lngamma y)' = y' psi(y) */
       p1 = integser(gmul(derivser(y), gpsi(y, prec)));
       if (!gequal1(gel(y,2))) p1 = gadd(p1, glngamma(gel(y,2),prec));
       return gerepileupto(av, p1);
 
-    case t_PADIC: av = avma; return gerepileupto(av, Qp_log(Qp_gamma(x)));
+    case t_PADIC: return gerepileupto(av, Qp_log(Qp_gamma(x)));
   }
   return trans_eval("lngamma",glngamma,x,prec);
 }

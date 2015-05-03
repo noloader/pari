@@ -10,7 +10,7 @@ sumnummon(n=3, 1/n^2, tab)
 TEST=[n->1/(n^2+1), n->log(1+1/n)/n, n->lngamma(1+1/n)/n, n->sin(1/sqrt(n))/n^(3/2)];
 FUN=[f->sumnum(n=1,f(n)), f->sumnummon(n=1,f(n))];
 
-localprec(57); V=vector(#TEST,i, sumnum(n=1,TEST[i](n)));
+localprec(57); V=[sumnummon(n=1,f(n)) | f<-TEST];
 
 {
   for (i = 1, #TEST,
