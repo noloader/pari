@@ -1800,8 +1800,8 @@ sumnuminit(GEN fast, long prec)
     long j;
     for (j = m; j <= k2; j++)
     { /* s[X^(2j-1)] * binomial(2*j-1, j-m) / (2d)^(2j-1) */
-      GEN d = gmul(gmul(gel(s,2*j+1), gcoeff(C, 2*j,j-m+1)), gel(D, 2*j));
-      S = odd(j)? gsub(S,d): gadd(S,d);
+      GEN t = gmul(gmul(gel(s,2*j+1), gcoeff(C, 2*j,j-m+1)), gel(D, 2*j));
+      S = odd(j)? gsub(S,t): gadd(S,t);
     }
     if (odd(m)) S = gneg(S);
     gel(v,m) = gerepileupto(av, S);
