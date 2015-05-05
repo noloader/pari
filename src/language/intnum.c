@@ -1774,13 +1774,14 @@ get_oo(GEN fast) { return mkvec2(mkoo(), fast); }
 GEN
 sumnuminit(GEN fast, long prec)
 {
-  pari_sp av = avma;
-  GEN s, v, tab, d, C, D;
+  pari_sp av;
+  GEN s, v, d, C, D, res = cgetg(6, t_VEC);
   long bitprec = prec2nbits(prec), N, k, k2, m;
   double w;
 
-  if (!fast) fast = get_oo(gen_0);
-  d = ginv(stoi(4));
+  d = mkfrac(gen_1, utoipos(4)); /* 1/4 */
+  gel(res, 1) = d;
+  av = avma;
   w = gtodouble(glambertW(ginv(d), LOWDEFAULTPREC));
   N = (long)ceil(LOG2*bitprec/(w*(1+w))+5);
   k = (long)ceil(N*w); if (k&1) k--;
@@ -1807,8 +1808,12 @@ sumnuminit(GEN fast, long prec)
     gel(v,m) = gerepileupto(av, S);
   }
   v = RgC_gtofp(v,prec); settyp(v, t_VEC);
-  tab = intnuminit(stoi(N), fast, 0, prec);
-  return gerepilecopy(av, mkvec5(d, stoi(N), stoi(k), v, tab));
+  gel(res, 4) = gerepileupto(av, v);
+  gel(res, 2) = utoi(N);
+  gel(res, 3) = utoi(k);
+  if (!fast) fast = get_oo(gen_0);
+  gel(res, 5) = intnuminit(gel(res,2), fast, 0, prec);
+  return res;
 }
 
 static int
