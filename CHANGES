@@ -136,6 +136,8 @@ VBr83- [darwin] remove obsolete linker options that cause crashes [#1623]
   100- polroots(t_POL with leading coeff = 0) -> fp exception or error [#1690]
   101- \r cannot deal with very long filenames [#1616]
   102- rnfisabelian(nf, non monic t_POL) -> SEGV [#1693]
+  103- Vecrev(x,n) / Colrev(x,n) when 'n' is not omitted: it wasn't true
+       that Colrev/Polrev were inverse functions [#1698]
 
   Added
     1- add optional argument to sumdigits to specify the base

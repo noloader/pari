@@ -7,8 +7,8 @@ Help: Vecrev(x, {n}): transforms the object x into a vector of dimension n
 Description:
  (gen):vec     gtovecrev($1)
 Doc:
- as $\kbd{Vec}(x, n)$, then reverse the result. In particular
- In this case, \kbd{Vecrev} is the reciprocal function of \kbd{Polrev}: the
+ as $\kbd{Vec}(x, -n)$, then reverse the result. In particular,
+ \kbd{Vecrev} is the reciprocal function of \kbd{Polrev}: the
  coefficients of the vector start with the constant coefficient of the
  polynomial and the others follow by increasing degree.
 Variant: \fun{GEN}{gtovecrev}{GEN x} is also available.

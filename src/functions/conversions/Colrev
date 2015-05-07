@@ -8,5 +8,8 @@ Help: Colrev(x, {n}): transforms the object x into a column vector of
 Description:
  (gen):vec     gtocolrev($1)
 Doc:
- as $\kbd{Col}(x, n)$, then reverse the result. In particular
+ as $\kbd{Col}(x, -n)$, then reverse the result. In particular,
+ \kbd{Colrev} is the reciprocal function of \kbd{Polrev}: the
+ coefficients of the vector start with the constant coefficient of the
+ polynomial and the others follow by increasing degree.
 Variant: \fun{GEN}{gtocolrev}{GEN x} is also available.

@@ -2935,7 +2935,7 @@ gtovec(GEN x)
 GEN
 gtovecrev0(GEN x, long n)
 {
-  GEN y = gtovec0(x, n);
+  GEN y = gtovec0(x, -n);
   vecreverse_inplace(y);
   return y;
 }
@@ -2969,7 +2969,7 @@ gtocol(GEN x)
 GEN
 gtocolrev0(GEN x, long n)
 {
-  GEN y = gtocol0(x, n);
+  GEN y = gtocol0(x, -n);
   long ly = lg(y), lim = ly>>1, i;
   for (i = 1; i <= lim; i++) swap(gel(y,i), gel(y,ly-i));
   return y;
