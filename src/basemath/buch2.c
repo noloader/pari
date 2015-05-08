@@ -3934,7 +3934,8 @@ Buchall_param(GEN P, double cbach, double cbach2, long nbrelpid, long flun, long
   long MAXDEPSIZESFB, MAXDEPSFB;
   long nreldep, sfb_trials, need, old_need, precdouble = 0, precadd = 0;
   long done_small, small_fail, fail_limit, squash_index, small_norm_prec;
-  double lim, drc, LOGD, LOGD2;
+  long lim;
+  double LOGD, LOGD2;
   GEN computed = NULL, zu, nf, M_sn, D, A, W, R, h, PERM, fu = NULL /*-Wall*/;
   GEN small_multiplier;
   GEN res, L, invhr, B, C, C0, lambda, dep, clg1, clg2, Vbase;
@@ -3974,11 +3975,13 @@ Buchall_param(GEN P, double cbach, double cbach2, long nbrelpid, long flun, long
   nf_get_sign(nf, &R1, &R2); RU = R1+R2;
   compute_vecG(nf, &F, minss(RU, 9));
   if (DEBUGLEVEL) timer_printf(&T, "weighted G matrices");
-  D = absi(nf_get_disc(nf)); drc = gtodouble(D);
+  D = absi(nf_get_disc(nf));
   if (DEBUGLEVEL) err_printf("R1 = %ld, R2 = %ld\nD = %Ps\n",R1,R2, D);
-  LOGD = log(drc); LOGD2 = LOGD*LOGD;
-  lim = exp(-N + R2 * log(4/M_PI)) * sqrt(2*M_PI*N*drc);
-  if (lim < 3.) lim = 3.;
+  LOGD = dbllog2(D) * LOG2; LOGD2 = LOGD*LOGD;
+  if (expi(D) < 1024)
+    lim = maxuu(3, exp(-N + R2 * log(4/M_PI) + LOGD/2) * sqrt(2*M_PI*N));
+  else
+    lim = LONG_MAX;
   if (cbach > 12.) {
     if (cbach2 < cbach) cbach2 = cbach;
     cbach = 12.;
@@ -4067,7 +4070,7 @@ START:
   M_sn = nf_get_M(nf);
   if (small_norm_prec < PRECREG) M_sn = gprec_w(M_sn, small_norm_prec);
   else if (precdouble) M_sn = gcopy(M_sn);
-  subFBgen(&F,nf,auts,cyclic,mindd(lim,LIMC2) + 0.5,MINSFB);
+  subFBgen(&F,nf,auts,cyclic,minss(lim,LIMC2),MINSFB);
   if (DEBUGLEVEL)
   {
     if (lg(F.subFB) > 1)
