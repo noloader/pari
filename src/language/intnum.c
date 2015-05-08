@@ -1857,7 +1857,7 @@ sumnum(void *E, GEN (*eval)(void*, GEN), GEN a, GEN tab, long prec)
     S = gadd(S, gmul(gel(v,m), s));
   }
   S = gadd(S, intnum(E, eval,stoi(N), fast, tabint, prec2));
-  return gerepileupto(av, gprec_w(S, prec));
+  return gerepilecopy(av, gprec_w(S, prec));
 }
 
 GEN
