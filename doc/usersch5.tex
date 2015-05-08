@@ -7097,6 +7097,16 @@ invertible \typ{MAT} with \typ{INT} or \typ{REAL} coefficients, returns
 matrix from the $QR$ decomposition of $x$, renormalized to accomodate
 \kbd{qfgaussred} conventions. Not memory clean.
 
+\fun{GEN}{RgM_gram_schmidt}{GEN e, GEN *ptB} naive (unstable) Gram-Schmidt
+orthogonalization of the basis $(e_i)$ given by the columns of \typ{MAT} $e$.
+Return the $e_i^*$ (as columns of a \typ{MAT}) and set \kbd{*ptB} to the
+vector of squared lengths $|e_i^*|^2$.
+
+\fun{GEN}{RgM_Babai}{GEN M, GEN y} given an LLL-reduced \typ{MAT} $M$ and
+a \typ{COL} $y$ of the same dimension, apply Babai's nearest plane algorithm
+to return an \emph{integral} $x$ such that $y - Mx$ has small $L_2$ norm.
+This yields an approximate solution to the closest vector problem.
+
 \subsec{\kbd{ZG}}
 
 Let $G$ be a multiplicative group with neutral element $1_G$ whose

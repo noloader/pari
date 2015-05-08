@@ -141,27 +141,6 @@ idealsqrtn(GEN nf, GEN x, GEN gn, int strict)
   return q? q: gen_1;
 }
 
-/* Assume B an LLL-reduced basis, t a vector. Apply Babai's nearest plane
- * algorithm to (B,t) */
-static GEN
-Babai(GEN B, GEN t)
-{
-  GEN C, N, G = gram_schmidt(B, &N), b = t;
-  long j, n = lg(B)-1;
-
-  C = cgetg(n+1,t_COL);
-  for (j = n; j > 0; j--)
-  {
-    GEN c = gdiv( RgV_dotproduct(b, gel(G,j)), gel(N,j) );
-    long e;
-    c = grndtoi(c,&e);
-    if (e >= 0) return NULL;
-    if (signe(c)) b = RgC_sub(b, RgC_Rg_mul(gel(G,j), c));
-    gel(C,j) = c;
-  }
-  return C;
-}
-
 static GEN
 reducebeta(GEN bnfz, GEN be, GEN ell)
 {
@@ -188,7 +167,7 @@ reducebeta(GEN bnfz, GEN be, GEN ell)
     GEN emb, z = get_arch_real(nf, be, &emb, prec);
     if (z)
     {
-      GEN ex = Babai(elllogfu, z);
+      GEN ex = RgM_Babai(elllogfu, z);
       if (ex)
       {
         be = nfdiv(nf, be, nffactorback(nf, fu, RgC_Rg_mul(ex,ell)));

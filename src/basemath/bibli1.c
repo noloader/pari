@@ -224,7 +224,7 @@ R_from_QR(GEN x, long prec)
 /* return Gram-Schmidt orthogonal basis (f) associated to (e), B is the
  * vector of the (f_i . f_i)*/
 GEN
-gram_schmidt(GEN e, GEN *ptB)
+RgM_gram_schmidt(GEN e, GEN *ptB)
 {
   long i,j,lx = lg(e);
   GEN f = RgM_shallowcopy(e), B, iB;
@@ -248,6 +248,27 @@ gram_schmidt(GEN e, GEN *ptB)
     gel(iB,i) = ginv(gel(B,i));
   }
   *ptB = B; return f;
+}
+
+/* Assume B an LLL-reduced basis, t a vector. Apply Babai's nearest plane
+ * algorithm to (B,t) */
+GEN
+RgM_Babai(GEN B, GEN t)
+{
+  GEN C, N, G = RgM_gram_schmidt(B, &N), b = t;
+  long j, n = lg(B)-1;
+
+  C = cgetg(n+1,t_COL);
+  for (j = n; j > 0; j--)
+  {
+    GEN c = gdiv( RgV_dotproduct(b, gel(G,j)), gel(N,j) );
+    long e;
+    c = grndtoi(c,&e);
+    if (e >= 0) return NULL;
+    if (signe(c)) b = RgC_sub(b, RgC_Rg_mul(gel(G,j), c));
+    gel(C,j) = c;
+  }
+  return C;
 }
 
 /********************************************************************/
