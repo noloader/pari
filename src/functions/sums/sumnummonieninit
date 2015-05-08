@@ -1,8 +1,8 @@
-Function: sumnummoninit
+Function: sumnummonieninit
 Section: sums
-C-Name: sumnummoninit
+C-Name: sumnummonieninit
 Prototype: DGDGDGp
-Help: sumnummoninit({asymp},{w},{n0 = 1}): initialize tables for Monien summation of a series with positive terms.
+Help: sumnummonieninit({asymp},{w},{n0 = 1}): initialize tables for Monien summation of a series with positive terms.
 Doc: initialize tables for Monien summation of a series $\sum_{n\geq n_0}
  f(n)$ where $f(1/z)$ has a complex analytic continuation in a (complex)
  neighbourhood of the segment $[0,1]$.
@@ -28,11 +28,11 @@ Doc: initialize tables for Monien summation of a series $\sum_{n\geq n_0}
  ? s = sumnum(n = 1, sin(1/sqrt(n)) / n)
  %1 = 2.3979771206715998375659850036324914714
 
- ? sumnummon(n = 1, sin(1/sqrt(n)) / n) - s
+ ? sumnummonien(n = 1, sin(1/sqrt(n)) / n) - s
  %2 = -0.001[...] \\ completely wrong !
 
- ? t = sumnummoninit([1/2,1]);  \\ f(n) = \sum_i 1 / n^(i/2+1)
- ? sumnummon(n = 1, sin(1/sqrt(n)) / n, t) - s
+ ? t = sumnummonieninit([1/2,1]);  \\ f(n) = \sum_i 1 / n^(i/2+1)
+ ? sumnummonien(n = 1, sin(1/sqrt(n)) / n, t) - s
  %3 = 0.E-37  \\ now correct
  @eprog
 
@@ -61,27 +61,27 @@ Doc: initialize tables for Monien summation of a series $\sum_{n\geq n_0}
 
  \item a vector $[w, \kbd{oo}]$, where $w$ is a closure as above;
  we assume that $w(n)$ decreases exponentially. Note that in this case,
- \kbd{sumnummon} is provided for completeness and comparison purposes only:
+ \kbd{sumnummonien} is provided for completeness and comparison purposes only:
  one of \kbd{suminf} or \kbd{sumpos} should be preferred in practice.
 
  The cases where $w$ is a closure or $w(n) = \log n$ are the only ones where
  $n_0$ is taken into account and stored in the result. The subsequent call to
- \kbd{sumnummon} \emph{must} use the same value.
+ \kbd{sumnummonien} \emph{must} use the same value.
 
  \bprog
  ? \p300
- ? sumnummon(n = 1, n^-2*log(n)) + zeta'(2)
+ ? sumnummonien(n = 1, n^-2*log(n)) + zeta'(2)
  time = 536 ms.
  %1 = -1.323[...]E-6 \\ completely wrong, f does not satisfy hypotheses !
- ? tab = sumnummoninit(, 1); \\ codes w(n) = log(n)
+ ? tab = sumnummonieninit(, 1); \\ codes w(n) = log(n)
  time = 18,316 ms.
- ? sumnummon(n = 1, n^-2, tab) + zeta'(2)
+ ? sumnummonien(n = 1, n^-2, tab) + zeta'(2)
  time = 44 ms.
  %3 = -5.562684646268003458 E-309  \\ now perfect
 
- ? tab = sumnummoninit(, n->log(n)); \\ generic, about as fast
+ ? tab = sumnummonieninit(, n->log(n)); \\ generic, about as fast
  time = 18,693 ms.
- ? sumnummon(n = 1, n^-2, tab) + zeta'(2)
+ ? sumnummonien(n = 1, n^-2, tab) + zeta'(2)
  time = 40 ms.
  %5 = -5.562684646268003458 E-309  \\ identical result
  @eprog

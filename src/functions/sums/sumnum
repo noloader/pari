@@ -33,10 +33,10 @@ Doc: Numerical summation of $f(n)$ at high accuracy using Euler-MacLaurin,
  then one of \kbd{suminf} or \kbd{sumpos} should be preferred.
  If $f$ satisfies the stronger hypotheses required for Monien summation,
  i.e. if $f(1/z)$ is holomorphic in a complex neighbourhood of $[0,1]$,
- then \tet{sumnummon} will be faster since it only requires $O(D/\log D)$
+ then \tet{sumnummonien} will be faster since it only requires $O(D/\log D)$
  evaluations:
  \bprog
- ? sumnummon(n = 1, 1/n^3) - z3
+ ? sumnummonien(n = 1, 1/n^3) - z3
  time = 1,985 ms.
  %3 = 0.E-500
  @eprog\noindent The \kbd{tab} argument precomputes technical data
@@ -49,9 +49,9 @@ Doc: Numerical summation of $f(n)$ at high accuracy using Euler-MacLaurin,
  time = 40 ms.
  %5 = 0.E-500
 
- ? tabmon = sumnummoninit(); \\ Monien summation allows precomputations too
+ ? tabmon = sumnummonieninit(); \\ Monien summation allows precomputations too
  time = 1,781 ms.
- ? sumnummon(n = 1, 1/n^3, tabmon) - z3
+ ? sumnummonien(n = 1, 1/n^3, tabmon) - z3
  time = 2 ms.
  %7 = 0.E-500
  @eprog\noindent The speedup due to precomputations becomes less impressive
@@ -60,7 +60,7 @@ Doc: Numerical summation of $f(n)$ at high accuracy using Euler-MacLaurin,
  ? sumnum(n = 1, lngamma(1+1/n)/n, tab);
  time = 14,180 ms.
 
- ? sumnummon(n = 1, lngamma(1+1/n)/n, tabmon); \\ fewer function evaluations!
+ ? sumnummonien(n = 1, lngamma(1+1/n)/n, tabmon); \\ fewer function evaluations!
  time = 717 ms.
  @eprog
 

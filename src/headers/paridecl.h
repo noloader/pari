@@ -3137,8 +3137,8 @@ GEN     intnuminit(GEN a, GEN b, long m, long prec);
 GEN     intnumromb(void *E, GEN (*eval) (void *, GEN), GEN a, GEN b, long flag, long prec);
 GEN     sumnum(void *E, GEN (*eval)(void*, GEN), GEN a, GEN tab, long prec);
 GEN     sumnuminit(GEN fast, long prec);
-GEN     sumnummon(void *E, GEN (*eval)(void*, GEN), GEN a, GEN tab, long prec);
-GEN     sumnummoninit(GEN asymp, GEN w, GEN n0, long prec);
+GEN     sumnummonien(void *E, GEN (*eval)(void*, GEN), GEN a, GEN tab, long prec);
+GEN     sumnummonieninit(GEN asymp, GEN w, GEN n0, long prec);
 
 /* krasner.c */
 

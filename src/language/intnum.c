@@ -1531,7 +1531,7 @@ gzetaprime(GEN s, long prec)
 
 /* f(n) ~ \sum_{i > 0} f_i log(n)^k / n^(a*i + b); a > 0, a+b > 1 */
 static GEN
-sumnummoninit0(GEN a, GEN b, long k, long prec)
+sumnummonieninit0(GEN a, GEN b, long k, long prec)
 {
   GEN c, M, vr, P, Q, Qp, R, vabs, vwt;
   long bitprec = prec2nbits(prec), m, j, n;
@@ -1539,7 +1539,7 @@ sumnummoninit0(GEN a, GEN b, long k, long prec)
 
   n = (long)ceil(D/(log(D)-1));
   prec = maxss(2*prec-2, nbits2prec((long)ceil((2*n+1)/LOG10_2)));
-  if (k && k != 1) pari_err_IMPL("log power > 1 in sumnummoninit");
+  if (k && k != 1) pari_err_IMPL("log power > 1 in sumnummonieninit");
   a = gprec_w(a, 2*prec-2);
   b = gprec_w(b, 2*prec-2);
   M = cgetg(2*n+3, t_VEC);
@@ -1613,7 +1613,7 @@ wrapmonw2(void* E, GEN x)
 }
 
 static GEN
-sumnummoninit_w(GEN w, GEN wfast, GEN a, GEN b, GEN n0, long prec)
+sumnummonieninit_w(GEN w, GEN wfast, GEN a, GEN b, GEN n0, long prec)
 {
   GEN c, M, P, Q, vr, vabs, vwt, R;
   long bitprec = prec2nbits(prec), j, n;
@@ -1675,13 +1675,13 @@ sumnummoninit_w(GEN w, GEN wfast, GEN a, GEN b, GEN n0, long prec)
 }
 
 static GEN
-sumnummoninit_i(GEN asymp, GEN w, GEN n0, long prec)
+sumnummonieninit_i(GEN asymp, GEN w, GEN n0, long prec)
 {
-  const char *fun = "sumnummoninit";
+  const char *fun = "sumnummonieninit";
   GEN a, b, wfast = gen_0;
   if (!w)
   {
-    if (!asymp) return sumnummoninit0(gen_1,gen_1,0,prec);
+    if (!asymp) return sumnummonieninit0(gen_1,gen_1,0,prec);
     w = gen_0;
   }
   if (asymp)
@@ -1707,7 +1707,7 @@ sumnummoninit_i(GEN asymp, GEN w, GEN n0, long prec)
     case t_INT:
       if (cmpiu(n0, 2) <= 0)
       {
-        GEN tab = sumnummoninit0(a, b, itos(w), prec);
+        GEN tab = sumnummonieninit0(a, b, itos(w), prec);
         return shallowconcat(tab,n0);
       }
       w = strtofunction("log");
@@ -1721,13 +1721,13 @@ sumnummoninit_i(GEN asymp, GEN w, GEN n0, long prec)
       break;
     default: pari_err_TYPE(fun, w);
   }
-  return sumnummoninit_w(w, wfast, a, b, n0, prec);
+  return sumnummonieninit_w(w, wfast, a, b, n0, prec);
 }
 GEN
-sumnummoninit(GEN asymp, GEN w, GEN n0, long prec)
+sumnummonieninit(GEN asymp, GEN w, GEN n0, long prec)
 {
   pari_sp av = avma;
-  return gerepilecopy(av, sumnummoninit_i(asymp,w,n0,prec));
+  return gerepilecopy(av, sumnummonieninit_i(asymp,w,n0,prec));
 }
 
 /* add 'a' to all components of v */
@@ -1741,14 +1741,14 @@ RgV_Rg_addall(GEN v, GEN a)
 }
 
 GEN
-sumnummon(void *E, GEN (*eval)(void*,GEN), GEN n0, GEN tab, long prec)
+sumnummonien(void *E, GEN (*eval)(void*,GEN), GEN n0, GEN tab, long prec)
 {
   pari_sp av = avma;
   GEN vabs, vwt, S;
   long l, i;
-  if (typ(n0) != t_INT) pari_err_TYPE("sumnummon", n0);
+  if (typ(n0) != t_INT) pari_err_TYPE("sumnummonien", n0);
   if (!tab)
-    tab = sumnummoninit0(gen_1,gen_1,0,prec);
+    tab = sumnummonieninit0(gen_1,gen_1,0,prec);
   else switch(lg(tab))
   {
     case 4:
@@ -1756,12 +1756,12 @@ sumnummon(void *E, GEN (*eval)(void*,GEN), GEN n0, GEN tab, long prec)
         pari_err(e_MISC, "incompatible initial value %Ps != %Ps", gel(tab,3),n0);
     case 3:
       if (typ(tab) == t_VEC) break;
-    default: pari_err_TYPE("sumnummon", tab);
+    default: pari_err_TYPE("sumnummonien", tab);
   }
   vabs= gel(tab,1); l = lg(vabs);
   vwt = gel(tab,2);
   if (typ(vabs) != t_VEC || typ(vwt) != t_VEC || lg(vwt) != l)
-    pari_err_TYPE("sumnummon", tab);
+    pari_err_TYPE("sumnummonien", tab);
   if (!isint1(n0)) vabs = RgV_Rg_addall(vabs, subis(n0,1));
   S = gen_0;
   for (i = 1; i < l; i++) S = gadd(S, gmul(gel(vwt,i), eval(E, gel(vabs,i))));
@@ -1861,8 +1861,8 @@ sumnum(void *E, GEN (*eval)(void*, GEN), GEN a, GEN tab, long prec)
 }
 
 GEN
-sumnummon0(GEN a, GEN code, GEN tab, long prec)
-{ EXPR_WRAP(code, sumnummon(EXPR_ARG, a, tab, prec)); }
+sumnummonien0(GEN a, GEN code, GEN tab, long prec)
+{ EXPR_WRAP(code, sumnummonien(EXPR_ARG, a, tab, prec)); }
 GEN
 sumnum0(GEN a, GEN code, GEN tab, long prec)
 { EXPR_WRAP(code, sumnum(EXPR_ARG, a, tab, prec)); }
