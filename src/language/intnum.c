@@ -1542,22 +1542,14 @@ sumnummonieninit0(GEN a, GEN b, long k, long prec)
   if (k && k != 1) pari_err_IMPL("log power > 1 in sumnummonieninit");
   a = gprec_w(a, 2*prec-2);
   b = gprec_w(b, 2*prec-2);
-  M = cgetg(2*n+3, t_VEC);
   if (k == 0)
-  {
-    if (typ(a) == t_INT && typ(b) == t_INT)
-    { /* shortcut */
-      long aa = itos(a), bb = itos(b);
-      M = zetaBorweinRecycled(aa+bb, aa, 2*n+2, prec);
-    }
-    else
-      for (m = 1; m <= 2*n+2; m++)
-        gel(M,m) = gzeta(gadd(gmulsg(m,a), b), prec);
-    M = RgV_neg(M);
-  }
+    M = RgV_neg(veczeta(a, gadd(a,b), 2*n+2, prec));
   else
+  {
+    M = cgetg(2*n+3, t_VEC);
     for (m = 1; m <= 2*n+2; m++)
       gel(M,m) = gzetaprime(gadd(gmulsg(m,a), b), prec);
+  }
   Pade(M, &P,&Q);
   Qp = RgX_deriv(Q);
   if (gequal1(a))

@@ -1403,50 +1403,9 @@ bernreal(long n, long prec)
   return B;
 }
 
-/* zeta(a*j+b), j=0..N-1, b>1, using sumalt */
-GEN
-veczeta(GEN a, GEN b, long N, long prec)
-{
-  pari_sp av = avma;
-  const long n = ceil(2 + prec2nbits_mul(prec, LOG2/1.7627));
-  long j, k;
-  GEN L, c, d, z = zerovec(N);
-  c = d = int2n(2*n-1);
-  for (k = n; k; k--)
-  {
-    GEN u, t;
-    L = logr_abs(utor(k, prec)); /* log(k) */
-    t = gdiv(d, gexp(gmul(b, L), prec)); /* d / k^b */
-    if (!odd(k)) t = gneg(t);
-    gel(z,1) = gadd(gel(z,1), t);
-    u = gexp(gmul(a, L), prec);
-    for (j = 1; j < N; j++)
-    {
-      t = gdiv(t,u); if (gexpo(t) < 0) break;
-      gel(z,j+1) = gadd(gel(z,j+1), t);
-    }
-    c = muluui(k,2*k-1,c);
-    c = diviuuexact(c, 2*(n-k+1),n+k-1);
-    d = addii(d,c);
-    if (gc_needed(av,3))
-    {
-      if(DEBUGMEM>1) pari_warn(warnmem,"veczeta, k = %ld", k);
-      gerepileall(av, 3, &c,&d,&z);
-    }
-  }
-  L = mplog2(prec);
-  for (j = 0; j < N; j++)
-  {
-    GEN u = gsubgs(gadd(b, gmulgs(a,j)), 1);
-    GEN w = gexp(gmul(u, L), prec); /* 2^u */
-    gel(z,j+1) = gdiv(gmul(gel(z,j+1), w), gmul(d,gsubgs(w,1)));
-  }
-  return gerepilecopy(av, z);
-}
-
 /* zeta(a*j+b), j=0..N-1, b>1, using sumalt. Johansonn'b thesis, Algo 4.7.1 */
-GEN
-zetaBorweinRecycled(long b, long a, long N, long prec)
+static GEN
+veczetas(long a, long b, long N, long prec)
 {
   pari_sp av = avma;
   const long n = ceil(2 + prec2nbits_mul(prec, LOG2/1.7627));
@@ -1480,6 +1439,50 @@ zetaBorweinRecycled(long b, long a, long N, long prec)
   }
   return gerepilecopy(av, z);
 }
+/* zeta(a*j+b), j=0..N-1, b>1, using sumalt */
+GEN
+veczeta(GEN a, GEN b, long N, long prec)
+{
+  pari_sp av;
+  long n, j, k;
+  GEN L, c, d, z;
+  if (typ(a) == t_INT && typ(b) == t_INT)
+    return veczetas(itos(a),  itos(b), N, prec);
+  av = avma; z = zerovec(N);
+  n = ceil(2 + prec2nbits_mul(prec, LOG2/1.7627));
+  c = d = int2n(2*n-1);
+  for (k = n; k; k--)
+  {
+    GEN u, t;
+    L = logr_abs(utor(k, prec)); /* log(k) */
+    t = gdiv(d, gexp(gmul(b, L), prec)); /* d / k^b */
+    if (!odd(k)) t = gneg(t);
+    gel(z,1) = gadd(gel(z,1), t);
+    u = gexp(gmul(a, L), prec);
+    for (j = 1; j < N; j++)
+    {
+      t = gdiv(t,u); if (gexpo(t) < 0) break;
+      gel(z,j+1) = gadd(gel(z,j+1), t);
+    }
+    c = muluui(k,2*k-1,c);
+    c = diviuuexact(c, 2*(n-k+1),n+k-1);
+    d = addii(d,c);
+    if (gc_needed(av,3))
+    {
+      if(DEBUGMEM>1) pari_warn(warnmem,"veczeta, k = %ld", k);
+      gerepileall(av, 3, &c,&d,&z);
+    }
+  }
+  L = mplog2(prec);
+  for (j = 0; j < N; j++)
+  {
+    GEN u = gsubgs(gadd(b, gmulgs(a,j)), 1);
+    GEN w = gexp(gmul(u, L), prec); /* 2^u */
+    gel(z,j+1) = gdiv(gmul(gel(z,j+1), w), gmul(d,gsubgs(w,1)));
+  }
+  return gerepilecopy(av, z);
+}
+
 /* zeta(s) using sumalt, case h=0,N=1. Assume s > 1 */
 static GEN
 zetaBorwein(long s, long prec)

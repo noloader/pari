@@ -3867,7 +3867,6 @@ GEN     weber0(GEN x, long flag,long prec);
 GEN     weberf(GEN x, long prec);
 GEN     weberf1(GEN x, long prec);
 GEN     weberf2(GEN x, long prec);
-GEN     zetaBorweinRecycled(long s, long h, long N, long prec);
 
 /* modsym.c */
 GEN     Eisenstein_symbol(GEN W, GEN c);

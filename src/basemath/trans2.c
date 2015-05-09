@@ -1064,7 +1064,7 @@ lngamma1(GEN z, long prec)
   GEN zet, me = mpeuler(prec), s = gen_0;
   setsigne(me, -1); /* -Euler */
   if (l <= 1) return gmul(me, z);
-  zet = zetaBorweinRecycled(2, 1, l-1, prec); /* z[i] = zeta(i+1) */
+  zet = veczeta(gen_1, gen_2, l-1, prec); /* z[i] = zeta(i+1) */
   for (i = l; i > 1; i--)
   {
     GEN c = divru(gel(zet,i-1), i);
@@ -1715,7 +1715,7 @@ serpsi1(long n, long v, long prec)
   GEN z, g, s = cgetg(l, t_SER);
   s[1] = evalsigne(1)|evalvalp(0)|evalvarn(v);
   g = mpeuler(prec); setsigne(g, -1);
-  z = zetaBorweinRecycled(2, 1, n, prec); /* zeta(2..n) */
+  z = veczeta(gen_1, gen_2, n, prec); /* zeta(2..n) */
   gel(s,2) = g;
   for (i = 2; i < l-1; i++)
   {
