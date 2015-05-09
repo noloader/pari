@@ -587,6 +587,13 @@ cmprfrac(GEN a, GEN y)
   int r = cmpri(mulri(a, d), c);
   avma = av; return r;
 }
+static int
+cmpgen(GEN x, GEN y)
+{
+  pari_sp av = avma;
+  int s = gsigne(gsub(x,y));
+  avma = av; return s;
+}
 
 /* returns the sign of x - y when it makes sense. 0 otherwise */
 int
@@ -600,6 +607,7 @@ gcmp(GEN x, GEN y)
       case t_INT:  return cmpii(x, y);
       case t_REAL: return cmprr(x, y);
       case t_FRAC: return cmpfrac(x, y);
+      case t_QUAD: return cmpgen(x, y);
       case t_STR:  return cmp_str(GSTR(x), GSTR(y));
       case t_INFINITY:
       {
@@ -609,6 +617,7 @@ gcmp(GEN x, GEN y)
         return 0;
       }
     }
+  if (ty == t_INFINITY) return -inf_get_sign(y);
   switch(tx)
   {
     case t_INT:
@@ -616,7 +625,7 @@ gcmp(GEN x, GEN y)
       {
         case t_REAL: return cmpir(x, y);
         case t_FRAC: return cmpifrac(x, y);
-        case t_INFINITY: return inf_get_sign(y) == 1? -1: 1;
+        case t_QUAD: return cmpgen(x, y);
       }
       break;
     case t_REAL:
@@ -624,7 +633,7 @@ gcmp(GEN x, GEN y)
       {
         case t_INT:  return cmpri(x, y);
         case t_FRAC: return cmprfrac(x, y);
-        case t_INFINITY: return inf_get_sign(y) == 1? -1: 1;
+        case t_QUAD: return cmpgen(x, y);
       }
       break;
     case t_FRAC:
@@ -632,10 +641,12 @@ gcmp(GEN x, GEN y)
       {
         case t_INT:  return -cmpifrac(y, x);
         case t_REAL: return -cmprfrac(y, x);
-        case t_INFINITY: return inf_get_sign(y) == 1? -1: 1;
+        case t_QUAD: return cmpgen(x, y);
       }
       break;
-    case t_INFINITY: return inf_get_sign(x) == 1? 1: -1;
+    case t_QUAD:
+      return cmpgen(x, y);
+    case t_INFINITY: return inf_get_sign(x);
   }
   pari_err_TYPE2("comparison",x,y);
   return 0;/*not reached*/

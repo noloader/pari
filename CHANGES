@@ -278,6 +278,8 @@ PB103- ZM_mul: Add Strassen-Winograd algorithm
   105- [libpari] RgM_gram_schmidt, RgM_Babai
 BA106- GP function cotanh
   107- support sign(t_QUAD with positive discriminant)
+  108- comparison operators (<,>,<=,>=): support t_QUAD with *same* positive
+       discriminant
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]
