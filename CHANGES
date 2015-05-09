@@ -5,8 +5,7 @@ Done for version 2.8.0 (released ??/??/2015):
 
   Fixed
     1- make install fails on OS/X: ln -s libpari.dylib libpari.dylib fails
-    2- Q_pvalrem(t_FRAC) => wrong result
-    3- [] == 0 but []~ != 0  (now []~ == 0 as well) [#1560]
+    2- Q_pvalrem(t_FRAC) => wrong result 3- [] == 0 but []~ != 0  (now []~ == 0 as well) [#1560]
 BA  4- test-kernel did not work when using --mt=pthread
 BA  5- ellheegner was using too much memory in some case
     6- ellap can overflow on 32-bit machine [#1558]
@@ -278,6 +277,7 @@ PB103- ZM_mul: Add Strassen-Winograd algorithm
   104- GP functions sumnummonien/sumnummonieninit
   105- [libpari] RgM_gram_schmidt, RgM_Babai
 BA106- GP function cotanh
+  107- support sign(t_QUAD with positive discriminant)
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]

@@ -9,3 +9,8 @@ norm(w)
 norml2(w)
 trace(w)
 trace(1+0*w)
+
+test(a)=[sign(z) | z<-[a,a-1,a-2,1-a,2-a]]
+test(w)
+test(quadgen(8))
+sign(quadgen(-8))

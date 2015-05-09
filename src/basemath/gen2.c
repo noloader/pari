@@ -2603,6 +2603,21 @@ gsigne(GEN x)
   {
     case t_INT: case t_REAL: return signe(x);
     case t_FRAC: return signe(gel(x,1));
+    case t_QUAD:
+    {
+      pari_sp av = avma;
+      GEN T = gel(x,1), a = gel(x,2), b = gel(x,3);
+      long sa, sb;
+      if (signe(gel(T,2)) > 0) break;
+      a = gmul2n(a,1);
+      if (signe(gel(T,3))) a = gadd(a,b);
+      /* a + b sqrt(D) > 0 ? */
+      sa = gsigne(a);
+      sb = gsigne(b); if (sa == sb) { avma = av; return sa; }
+      /* different signs, take conjugate expression */
+      sb = gsigne(gsub(gsqr(a), gmul(quad_disc(x), gsqr(b))));
+      avma = av; return sb * sa;
+    }
     case t_INFINITY: return inf_get_sign(x);
   }
   pari_err_TYPE("gsigne",x);

@@ -481,8 +481,9 @@ used for \typ{INT}, \typ{REAL}, \typ{POL} and \typ{SER} (for the last two
 types, only 0 or 1 are possible).
 
 \fun{long}{gsigne}{GEN x} returns the sign of a real number $x$,
-valid for \typ{INT}, \typ{REAL} as \kbd{signe}, but also for \typ{FRAC}.
-Raise a type error if \kbd{typ(x)} is not among those three.
+valid for \typ{INT}, \typ{REAL} as \kbd{signe}, but also for \typ{FRAC}
+and \typ{QUAD} of positive discriminants. Raise a type error if \kbd{typ(x)}
+is not among those.
 
 \fun{long}{expi}{GEN x} returns the binary exponent of the real number equal
 to the \typ{INT}~\kbd{x}. This is a special case of \kbd{gexpo}.
