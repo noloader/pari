@@ -943,7 +943,7 @@ ZX_squff(GEN f, GEN *ex)
   setlg(e,i); *ex = e; return P;
 }
 
-GEN
+static GEN
 fact_from_DDF(GEN fa, GEN e, long n)
 {
   GEN v,w, y = cgetg(3, t_MAT);
