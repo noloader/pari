@@ -13,9 +13,19 @@ in version \vers. It should be noted that many of these functions accept
 quite different types as arguments, but others are more restricted. The list
 of acceptable types will be given for each function or class of functions.
 Except when stated otherwise, it is understood that a function or operation
-which should make natural sense is legal. In this chapter, we will describe
-the functions according to a rough classification. The general entry looks
-something like:
+which should make natural sense is legal.
+
+On the other hand, many routines list explicit preconditions for some of their
+argument, e.g. $p$ is a prime number, or $q$ is a positive definite quadratic
+form. For reasons of efficiency, all trust the user input and only perform
+minimal sanity checks. When a precondition is not satisfied, any of the
+following may occur: a regular exception is raised, the PARI stack overflows, a
+\kbd{SIGSEGV} or \kbd{SIGBUS} signal is generated, or we enter an infinite
+loop. The function can also quietly return a mathematically meaningless
+result: junk in, junk out.
+
+In this chapter, we will describe the functions according to a rough
+classification. The general entry looks something like:
 
 \key{foo}$(x,\{\fl=0\})$: short description.
 
