@@ -51,4 +51,6 @@ Doc: in its basic form, creates an intmod or a polmod $(a \mod b)$; $b$ must
  %1 = 5
  ? x = Mod(4,5); x + 1
  %2 = Mod(0,5)
- @eprog
+ @eprog Note that such ``modular'' objects can be lifted via \tet{lift} or
+ \tet{centerlift}. The modulus of a \typ{INTMOD} or \typ{POLMOD} $z$ can
+ be recovered via \kbd{$z$.mod}.
