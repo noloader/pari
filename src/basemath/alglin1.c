@@ -967,14 +967,14 @@ FlxqM_det(GEN a, GEN T, ulong p)
 }
 
 GEN
-FlxqM_FlxqC_mul(GEN A, GEN B, GEN T, unsigned long p) {
+FlxqM_FlxqC_mul(GEN A, GEN B, GEN T, ulong p) {
   void *E;
   const struct bb_field *ff = get_Flxq_field(&E, T, p);
   return gen_matcolmul(A, B, E, ff);
 }
 
 GEN
-FlxqM_mul(GEN A, GEN B, GEN T, unsigned long p) {
+FlxqM_mul(GEN A, GEN B, GEN T, ulong p) {
   void *E;
   const struct bb_field *ff;
   long n = lg(A) - 1;
