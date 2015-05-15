@@ -143,6 +143,8 @@ VBr83- [darwin] remove obsolete linker options that cause crashes [#1623]
         p=10^100+267; q=10^120+79;
         T=polcompositum(x^2-p,x^2-q,2);
         nfdisc([T,[2,p,q]])
+  105- wrong dim(Ker) returned by ZM_pivot => SEGV in Z-linear algebra routines.
+       E.g. setrand(1);quadclassunit(-612556842419) [#1700]
 
   Added
     1- add optional argument to sumdigits to specify the base
