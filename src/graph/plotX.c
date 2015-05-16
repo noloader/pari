@@ -279,7 +279,7 @@ EXIT:
 }
 
 void
-PARI_get_plot()
+PARI_get_plot(void)
 {
   Display *display;
   int screen;

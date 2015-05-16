@@ -99,7 +99,7 @@ void rectdraw0(long *w, long *x, long *y, long lw)
 }
 
 void
-PARI_get_plot()
+PARI_get_plot(void)
 {
   HDC hdc;
   TEXTMETRIC tm;

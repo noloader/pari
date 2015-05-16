@@ -215,7 +215,7 @@ rectdraw0(long *w, long *x, long *y, long lw)
 }
 
 void
-PARI_get_plot()
+PARI_get_plot(void)
 /* This function initialises the structure rect.h: pari_plot */
 {
     if (pari_plot.init) return;      // pari_plot is already set

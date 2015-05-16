@@ -24,5 +24,5 @@ rectdraw0(long *w, long *x, long *y, long lw)
 }
 
 void
-PARI_get_plot()
+PARI_get_plot(void)
 { pari_err(e_MISC,"high resolution graphics disabled"); }
