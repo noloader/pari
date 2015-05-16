@@ -23,8 +23,8 @@ fi
 cat > $file << EOT
 /*  This file was created by Configure. Any change made to it will be lost
  *  next time Configure is run. */
-#ifndef __CONFIG_H__
-#define __CONFIG_H__
+#ifndef __PARICFG_H__
+#define __PARICFG_H__
 EOT
 
 cat >> $file << EOT
