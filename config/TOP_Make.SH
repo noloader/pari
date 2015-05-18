@@ -100,13 +100,15 @@ bench.gcov::
 distrib:
 	$config_dir/settar \$(VERS) $__status__
 
-alpha:
+setdoc:
+	cd doc && \$(MAKE) usersch3.tex
+alpha: setdoc
 	$config_dir/settar \$(VERS) alpha
-beta:
+beta: setdoc
 	$config_dir/settar \$(VERS) beta
-release:
+release: setdoc
 	$config_dir/settar \$(VERS) released
-snapshot:
+snapshot: setdoc
 	$config_dir/settar \$(VERS) snapshot
 
 dosdistrib: gpman
