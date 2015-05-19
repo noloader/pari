@@ -146,6 +146,7 @@ VBr83- [darwin] remove obsolete linker options that cause crashes [#1623]
   105- wrong dim(Ker) returned by ZM_pivot => SEGV in Z-linear algebra routines.
        E.g. setrand(1);quadclassunit(-612556842419) [#1700]
   106- moebius(factor(18)) -> 1 instead of 0 [#1702]
+  107- ispower(-167^10) => domain error [#1703]
 
   Added
     1- add optional argument to sumdigits to specify the base
