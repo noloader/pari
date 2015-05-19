@@ -421,10 +421,9 @@ install-cfg::
 	   \$(INSTALL_DATA) $desc/PARI/822.pm \$(DATADIR)/PARI;\
 	   \$(INSTALL_DATA) $desc/\$(DESC) \$(DATADIR); fi
 
-install-doc::
-	-mkdir -p \$(BINDIR) \$(DOCDIR)
-	-cd $doc; \$(MAKE) all
-	-\$(INSTALL_PROGRAM) $doc/gphelp    \$(BINDIR)
+install-doc: install-gphelp install-docdvi
+	-mkdir -p \$(DOCDIR)
+	-cd $doc; \$(MAKE) usersch3.tex
 	-\$(INSTALL_DATA) $doc/translations \$(DOCDIR)
 	-\$(INSTALL_DATA) $doc/appa.tex     \$(DOCDIR)
 	-\$(INSTALL_DATA) $doc/appb.tex     \$(DOCDIR)
@@ -441,6 +440,14 @@ install-doc::
 	-\$(INSTALL_DATA) $doc/usersch4.tex \$(DOCDIR)
 	-\$(INSTALL_DATA) $doc/usersch5.tex \$(DOCDIR)
 	-\$(INSTALL_DATA) $doc/paricfg.tex  \$(DOCDIR)
+
+install-gphelp::
+	-mkdir -p \$(BINDIR)
+	-\$(INSTALL_PROGRAM) $doc/gphelp    \$(BINDIR)
+
+install-docdvi::
+	-mkdir -p \$(DOCDIR)
+	-cd $doc; \$(MAKE) doc
 	-\$(INSTALL_DATA) $doc/develop.dvi  \$(DOCDIR)
 	-\$(INSTALL_DATA) $doc/libpari.dvi  \$(DOCDIR)
 	-\$(INSTALL_DATA) $doc/users.dvi    \$(DOCDIR)
@@ -449,7 +456,7 @@ install-doc::
 	-\$(INSTALL_DATA) $doc/refcard.ps   \$(DOCDIR)
 
 install-docpdf::
-	-mkdir -p \$(BINDIR) \$(DOCDIR)
+	-mkdir -p \$(DOCDIR)
 	-cd $doc; \$(MAKE) docpdf
 	-\$(INSTALL_DATA) $doc/libpari.pdf  \$(DOCDIR)
 	-\$(INSTALL_DATA) $doc/users.pdf    \$(DOCDIR)
