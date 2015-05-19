@@ -382,13 +382,11 @@ matadjoint0(GEN x, long flag)
 /* The following section implement a mix of Ozello and Storjohann algorithms
 
 P. Ozello, doctoral thesis (in French):
-Calcul exact des formes de Jordan et de Frobenius d'une matrice
-Chapitre 2
+Calcul exact des formes de Jordan et de Frobenius d'une matrice, Chapitre 2
 http://tel.archives-ouvertes.fr/tel-00323705
 
 A. Storjohann,  Diss. ETH No. 13922
-Algorithms for Matrix Canonical Forms
-Chapter 9
+Algorithms for Matrix Canonical Forms, Chapter 9
 https://cs.uwaterloo.ca/~astorjoh/diss2up.pdf
 
 We use Storjohann Lemma 9.14 (step1, step2, step3) Ozello theorem 4,
@@ -489,7 +487,6 @@ gerepilemat2_inplace(pari_sp av, GEN M, GEN P)
 }
 
 /* Lemma 9.14 */
-
 static long
 weakfrobenius_step1(GEN M, GEN P, long j0)
 {
@@ -497,20 +494,18 @@ weakfrobenius_step1(GEN M, GEN P, long j0)
   long n = lg(M)-1, k, j;
   for (j = j0; j < n; ++j)
   {
-    if (gequal0(gcoeff(M, j + 1, j)))
+    if (gequal0(gcoeff(M, j+1, j)))
     {
       for (k = j+2; k <= n; ++k)
-        if (!gequal0(gcoeff(M, k, j)))
-          break;
-      if (k > n)
-        return j;
-      transS(M, P, k, j + 1);
+        if (!gequal0(gcoeff(M,k,j))) break;
+      if (k > n) return j;
+      transS(M, P, k, j+1);
     }
-    if (!gequal1(gcoeff(M, j + 1, j)))
-      transD(M, P, gcoeff(M, j + 1, j), j + 1);
+    if (!gequal1(gcoeff(M, j+1, j)))
+      transD(M, P, gcoeff(M, j+1, j), j+1);
     for (k = 1; k <= n; ++k)
-      if (k != j + 1 && !gequal0(gcoeff(M, k, j)))
-        transL(M, P, gneg(gcoeff(M, k, j)), k, j + 1);
+      if (k != j+1 && !gequal0(gcoeff(M,k,j)))
+        transL(M, P, gneg(gcoeff(M,k,j)), k, j+1);
     if (gc_needed(av,1))
     {
       if (DEBUGMEM > 1)
@@ -548,16 +543,15 @@ weakfrobenius_step3(GEN M, GEN P, long j0, long j)
   if (gequal0(gcoeff(M, j0, j+1)))
   {
     for (k=j+2; k<=n; k++)
-      if (!gequal0(gcoeff(M, j0, k)))
-        break;
+      if (!gequal0(gcoeff(M, j0, k))) break;
     if (k > n) return 0;
     transS(M, P, k, j+1);
   }
-  if (!gequal1(gcoeff(M, j0, j + 1)))
-    transD(M, P, gcoeff(M, j0, j + 1), j + 1);
+  if (!gequal1(gcoeff(M, j0, j+1)))
+    transD(M, P, gcoeff(M, j0, j+1), j+1);
   for (i=j+2; i<=n; i++)
-      if (!gequal0(gcoeff(M, j0, i)))
-        transL(M, P, gcoeff(M, j0, i),j + 1, i);
+    if (!gequal0(gcoeff(M, j0, i)))
+      transL(M, P, gcoeff(M, j0, i),j+1, i);
   return 1;
 }
 
