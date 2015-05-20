@@ -395,29 +395,35 @@ and Storjohann Lemma 9.18
 
 /* Elementary transforms */
 
+/* M <- U^(-1) M U, U = E_{i,j}(k) => U^(-1) = E{i,j}(-k)
+ * P = U * P */
 static void
 transL(GEN M, GEN P, GEN k, long i, long j)
 {
   long l, n = lg(M)-1;
-  for(l=1; l<=n; l++)
+  for(l=1; l<=n; l++) /* M[,j]-=k*M[,i] */
     gcoeff(M,l,j) = gsub(gcoeff(M,l,j), gmul(gcoeff(M,l,i), k));
-  for(l=1; l<=n; l++)
+  for(l=1; l<=n; l++) /* M[i,]+=k*M[j,] */
     gcoeff(M,i,l) = gadd(gcoeff(M,i,l), gmul(gcoeff(M,j,l), k));
   if (P)
     for(l=1; l<=n; l++)
       gcoeff(P,i,l) = gadd(gcoeff(P,i,l), gmul(gcoeff(P,j,l), k));
 }
 
+/* j = a or b */
 static void
-transD(GEN M, GEN P, GEN k, long j)
+transD(GEN M, GEN P, long a, long b, long j)
 {
-  long l, n = lg(M)-1;
-  GEN ki = ginv(k);
+  long l, n;
+  GEN k = gcoeff(M,a,b), ki;
+
+  if (gcmp1(k)) return;
+  ki = ginv(k); n = lg(M)-1;
   for(l=1; l<=n; l++)
     if (l!=j)
     {
       gcoeff(M,l,j) = gmul(gcoeff(M,l,j), k);
-      gcoeff(M,j,l) = gmul(gcoeff(M,j,l), ki);
+      gcoeff(M,j,l) = (j==a && l==b)? gen_1: gmul(gcoeff(M,j,l), ki);
     }
   if (P)
     for(l=1; l<=n; l++)
@@ -501,11 +507,14 @@ weakfrobenius_step1(GEN M, GEN P, long j0)
       if (k > n) return j;
       transS(M, P, k, j+1);
     }
-    if (!gequal1(gcoeff(M, j+1, j)))
-      transD(M, P, gcoeff(M, j+1, j), j+1);
+    transD(M, P, j+1, j, j+1);
+    /* Now M[j+1,j] = 1 */
     for (k = 1; k <= n; ++k)
-      if (k != j+1 && !gequal0(gcoeff(M,k,j)))
+      if (k != j+1 && !gequal0(gcoeff(M,k,j))) /* zero M[k,j] */
+      {
         transL(M, P, gneg(gcoeff(M,k,j)), k, j+1);
+        gcoeff(M,k,j) = gen_0; /* avoid approximate 0 */
+      }
     if (gc_needed(av,1))
     {
       if (DEBUGMEM > 1)
@@ -547,8 +556,7 @@ weakfrobenius_step3(GEN M, GEN P, long j0, long j)
     if (k > n) return 0;
     transS(M, P, k, j+1);
   }
-  if (!gequal1(gcoeff(M, j0, j+1)))
-    transD(M, P, gcoeff(M, j0, j+1), j+1);
+  transD(M, P, j0, j+1, j+1);
   for (i=j+2; i<=n; i++)
     if (!gequal0(gcoeff(M, j0, i)))
       transL(M, P, gcoeff(M, j0, i),j+1, i);
