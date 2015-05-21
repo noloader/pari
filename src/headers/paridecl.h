@@ -220,6 +220,8 @@ void    Flv_inv_inplace(GEN x, ulong p);
 void    Flv_inv_pre_inplace(GEN x, ulong p, ulong pi);
 GEN     Flv_inv_pre(GEN x, ulong p, ulong pi);
 GEN     Flv_polint(GEN xa, GEN ya, ulong p, long vs);
+ulong   Flv_prod(GEN v, ulong p);
+ulong   Flv_prod_pre(GEN x, ulong p, ulong pi);
 GEN     Flv_roots_to_pol(GEN a, ulong p, long vs);
 GEN     Flv_to_Flx(GEN x, long vs);
 GEN     Fly_to_FlxY(GEN B, long v);

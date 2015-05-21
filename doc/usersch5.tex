@@ -3740,7 +3740,13 @@ of \kbd{x} and \kbd{y}
 \fun{ulong}{Flv_dotproduct_pre}{GEN x, GEN y, ulong p} returns the scalar product
 of \kbd{x} and \kbd{y} assuming $pi$ is the pseudo inverse of $p$.
 
-\fun{ulong}{Flv_sum}{GEN x, ulong p} returns the sums of the components of $x$.
+\fun{ulong}{Flv_sum}{GEN x, ulong p} returns the sum of the components of $x$.
+
+\fun{ulong}{Flv_prod}{GEN x, ulong p} returns the product of the components of
+$x$.
+
+\fun{ulong}{Flv_prod_pre}{GEN x, ulong p, ulong pi} as \kbd{Flv\_prod}
+assuming $pi$ is the pseudo inverse of $p$.
 
 \fun{GEN}{Flv_inv}{GEN x, ulong p} returns the vector of inverses of the elements
 of $x$ (as a \kbd{Flv}). Use Montgomery trick.

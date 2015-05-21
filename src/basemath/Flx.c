@@ -2013,6 +2013,37 @@ _Flx_mul(void *p, GEN a, GEN b)
   return Flx_mul(a,b, *(ulong*)p);
 }
 
+ulong
+Flv_prod_pre(GEN x, ulong p, ulong pi)
+{
+  pari_sp ltop = avma;
+  GEN v;
+  long i,k,lx = lg(x);
+  ulong r;
+  if (lx == 1) return 1UL;
+  if (lx == 2) return uel(x,1);
+  v = cgetg(1+(lx << 1), t_VECSMALL);
+  k = 1;
+  for (i=1; i<lx-1; i+=2)
+    uel(v,k++) = Fl_mul_pre(uel(x,i), uel(x,i+1), p, pi);
+  if (i < lx) uel(v,k++) = uel(x,i);
+  while (k > 2)
+  {
+    lx = k; k = 1;
+    for (i=1; i<lx-1; i+=2)
+      uel(v,k++) = Fl_mul_pre(uel(v,i), uel(v,i+1), p, pi);
+    if (i < lx) uel(v,k++) = uel(v,i);
+  }
+  r = uel(v,1);
+  avma = ltop; return r;
+}
+
+ulong
+Flv_prod(GEN v, ulong p)
+{
+  return Flv_prod_pre(v, p, get_Fl_red(p));
+}
+
 GEN
 FlxV_prod(GEN V, ulong p)
 {
