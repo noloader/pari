@@ -315,15 +315,31 @@ Flm_Fl_mul(GEN y, ulong x, ulong p)
     }
   return z;
 }
+
+GEN
+Flv_neg(GEN v, ulong p)
+{
+  long i, m = lg(v);
+  GEN c = cgetg(m, t_VECSMALL);
+  for(i=1; i<m; i++) uel(c,i) = Fl_neg(uel(v,i), p);
+  return c;
+}
+
+void
+Flv_neg_inplace(GEN v, ulong p)
+{
+  long i;
+  for (i = 1; i < lg(v); ++i)
+    v[i] = Fl_neg(v[i], p);
+}
+
 GEN
 Flm_neg(GEN y, ulong p)
 {
   long i, j, m = lgcols(y), l = lg(y);
   GEN z = cgetg(l, t_MAT);
-  for(j=1; j<l; j++) {
-    GEN c = cgetg(m, t_VECSMALL); gel(z,j) = c;
-    for(i=1; i<m; i++) c[i] = Fl_neg(ucoeff(y,i,j), p);
-  }
+  for(j=1; j<l; j++)
+    gel(z,j) = Flv_neg(gel(y,j), p);
   return z;
 }
 

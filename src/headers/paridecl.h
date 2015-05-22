@@ -665,6 +665,8 @@ void    Flv_add_inplace(GEN x, GEN y, ulong p);
 ulong   Flv_dotproduct(GEN x, GEN y, ulong p);
 ulong   Flv_dotproduct_pre(GEN x, GEN y, ulong p, ulong pi);
 GEN     Flv_center(GEN z, ulong p, ulong ps2);
+GEN     Flv_neg(GEN v, ulong p);
+void    Flv_neg_inplace(GEN v, ulong p);
 GEN     Flv_sub(GEN x, GEN y, ulong p);
 void    Flv_sub_inplace(GEN x, GEN y, ulong p);
 ulong   Flv_sum(GEN x, ulong p);

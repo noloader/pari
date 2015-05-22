@@ -3729,10 +3729,13 @@ no-op if $v = 0$), and gerepile-safe.
 \fun{void}{Flv_add_inplace}{GEN x, GEN y, ulong p} replaces
 $x$ by $x+y$.
 
+\fun{GEN}{Flv_neg}{GEN x, ulong p} returns $-x$.
+
+\fun{void}{Flv_neg_inplace}{GEN x, ulong p} replaces $x$ by $-x$.
+
 \fun{GEN}{Flv_sub}{GEN x, GEN y, ulong p} subtracts \kbd{y} to \kbd{x}.
 
-\fun{void}{Flv_sub_inplace}{GEN x, GEN y, ulong p} replaces
-$x$ by $x-y$.
+\fun{void}{Flv_sub_inplace}{GEN x, GEN y, ulong p} replaces $x$ by $x-y$.
 
 \fun{ulong}{Flv_dotproduct}{GEN x, GEN y, ulong p} returns the scalar product
 of \kbd{x} and \kbd{y}
