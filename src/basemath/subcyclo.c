@@ -587,10 +587,14 @@ galoissubcyclo(GEN N, GEN sg, long flag, long v)
         Z = N;
         if (typ(gen)!=t_VEC) pari_err_TYPE("galoissubcyclo",gen);
         if (lg(gen) == 1) n = 1;
-        else
+        else if (typ(gel(gen,1)) == t_INTMOD)
         {
           GEN z = gel(gen,1);
           n = itos(gel(z,1));
+        } else
+        {
+          pari_err_TYPE("galoissubcyclo",N);
+          return NULL;/*Not reached*/
         }
         break;
       }

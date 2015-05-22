@@ -314,6 +314,9 @@
   ***   at top-level: galoissubcyclo(znsta
   ***                 ^--------------------
   *** galoissubcyclo: inconsistent dimensions in galoissubcyclo.
+  ***   at top-level: galoissubcyclo([3,[3
+  ***                 ^--------------------
+  *** galoissubcyclo: incorrect type in galoissubcyclo (t_VEC).
   ***   at top-level: galoissubcyclo(bnrin
   ***                 ^--------------------
   *** galoissubcyclo: domain error in bnr_to_znstar: bnr != Q
@@ -594,4 +597,4 @@ INFINITY
   ***   at top-level: trap(e_INV,INFINITY,log(0))
   ***                                     ^-------
   *** log: domain error in log: argument = 0
-Total time spent: 12
+Total time spent: 16
