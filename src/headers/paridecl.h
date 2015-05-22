@@ -2172,10 +2172,6 @@ long    nfhilbert0(GEN bnf,GEN a,GEN b,GEN p);
 long    hyperell_locally_soluble(GEN pol,GEN p);
 long    nf_hyperell_locally_soluble(GEN nf,GEN pol,GEN p);
 
-/* classpoly.c */
-
-GEN     polclass(GEN D, long xvar);
-
 /* compile.c */
 
 GEN     closure_deriv(GEN G);
@@ -3246,14 +3242,6 @@ GEN     member_tu(GEN x);
 GEN     member_zk(GEN x);
 GEN     member_zkst(GEN bid);
 
-/* modpoly.c */
-
-GEN     Flm_Fl_polmodular_evalx(GEN phi, long L, ulong j, ulong p, ulong pi);
-GEN     Fp_polmodular_evalx(long L, GEN J, GEN P, long v, int compute_derivs);
-GEN     polmodular_ZM(long L);
-GEN     polmodular_ZXX(long L, long xvar, long yvar);
-GEN     polmodular(long L, GEN x, long yvar, int compute_derivs);
-
 /* mp.c */
 
 GEN     addmulii(GEN x, GEN y, GEN z);
@@ -3611,6 +3599,18 @@ const struct bb_field *get_Fq_field(void **E, GEN T, GEN p);
 GEN     init_Fq(GEN p, long n, long v);
 GEN     pol_x_powers(long N, long v);
 GEN     residual_characteristic(GEN x);
+
+/* polclass.c */
+
+GEN     polclass(GEN D, long xvar);
+
+/* polmodular.c */
+
+GEN     Flm_Fl_polmodular_evalx(GEN phi, long L, ulong j, ulong p, ulong pi);
+GEN     Fp_polmodular_evalx(long L, GEN J, GEN P, long v, int compute_derivs);
+GEN     polmodular(long L, GEN x, long yvar, int compute_derivs);
+GEN     polmodular_ZM(long L);
+GEN     polmodular_ZXX(long L, long xvar, long yvar);
 
 /* prime.c */
 
