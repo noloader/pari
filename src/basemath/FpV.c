@@ -336,7 +336,7 @@ Flv_neg_inplace(GEN v, ulong p)
 GEN
 Flm_neg(GEN y, ulong p)
 {
-  long i, j, m = lgcols(y), l = lg(y);
+  long j, l = lg(y);
   GEN z = cgetg(l, t_MAT);
   for(j=1; j<l; j++)
     gel(z,j) = Flv_neg(gel(y,j), p);
