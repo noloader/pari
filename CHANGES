@@ -148,6 +148,7 @@ VBr83- [darwin] remove obsolete linker options that cause crashes [#1623]
   106- moebius(factor(18)) -> 1 instead of 0 [#1702]
   107- ispower(-167^10) => domain error [#1703]
   108- ispowerful(factor(0)) != ispowerful(0)
+  109- expm1(2*I) => wrong result
 
   Added
     1- add optional argument to sumdigits to specify the base
