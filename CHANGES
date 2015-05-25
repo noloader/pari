@@ -149,6 +149,7 @@ VBr83- [darwin] remove obsolete linker options that cause crashes [#1623]
   107- ispower(-167^10) => domain error [#1703]
   108- ispowerful(factor(0)) != ispowerful(0)
   109- expm1(2*I) => wrong result
+  110- gamma(1+a*x+O(x^2)) => error [#1707]
 
   Added
     1- add optional argument to sumdigits to specify the base
