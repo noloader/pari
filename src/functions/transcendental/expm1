@@ -6,7 +6,7 @@ Help: expm1(x): exp(x)-1.
 Description:
  (real):real         mpexpm1($1)
 Doc: return $\exp(x)-1$, computed in a way that is also accurate
- when the real part of $x$ is near $0$. Only accept real or complex arguments.
+ when the real part of $x$ is near $0$.
  A naive direct computation would suffer from catastrophic cancellation;
  PARI's direct computation of $\exp(x)$ alleviates this well known problem at
  the expense of computing $\exp(x)$ to a higher accuracy when $x$ is small.

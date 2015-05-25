@@ -1862,6 +1862,7 @@ mpexpm1(GEN x)
   return gerepileupto(av, divrr(y, z));
 }
 
+static GEN serexp(GEN x, long prec);
 GEN
 gexpm1(GEN x, long prec)
 {
@@ -1869,6 +1870,26 @@ gexpm1(GEN x, long prec)
   {
     case t_REAL: return mpexpm1(x);
     case t_COMPLEX: return cxexpm1(x,prec);
+    case t_PADIC: return gsubgs(Qp_exp(x), 1);
+    default:
+    {
+      pari_sp av = avma;
+      long ey;
+      GEN y;
+      if (!(y = toser_i(x))) break;
+      ey = valp(y);
+      if (ey < 0) pari_err_DOMAIN("expm1","valuation", "<", gen_0, x);
+      if (gequal0(y)) return gcopy(y);
+      if (ey)
+        return gerepileupto(av, gsubgs(serexp(y,prec), 1));
+      else
+      {
+        GEN e1 = gexpm1(gel(y,2), prec), e = gaddgs(e1,1);
+        y = gmul(e, serexp(serchop0(y),prec));
+        gel(y,2) = e1;
+        return gerepilecopy(av, y);
+      }
+    }
   }
   return trans_eval("expm1",gexpm1,x,prec);
 }
