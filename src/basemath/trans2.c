@@ -535,15 +535,13 @@ gcotanh(GEN x, long prec)
       /* fall through */
     case t_PADIC:
       av = avma;
-      t = gexp(gmul2n(x,1),prec);
-      t = gdivsg(2, gsubgs(t,1));
-      return gerepileupto(av, gaddsg(1,t));
+      t = gexpm1(gmul2n(x,1),prec);
+      return gerepileupto(av, gaddsg(1, gdivsg(2,t)));
     default:
       av = avma; if (!(y = toser_i(x))) break;
       if (gequal0(y)) return gerepilecopy(av, y);
-      t = gexp(gmul2n(y, 1),prec);
-      t = gdivsg(2, gsubgs(t,1));
-      return gerepileupto(av, gaddsg(1,t));
+      t = gexpm1(gmul2n(y,1),prec);
+      return gerepileupto(av, gaddsg(1, gdivsg(2,t)));
   }
   return trans_eval("cotanh",gcotanh,x,prec);
 }
