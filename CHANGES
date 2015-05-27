@@ -150,6 +150,8 @@ VBr83- [darwin] remove obsolete linker options that cause crashes [#1623]
   108- ispowerful(factor(0)) != ispowerful(0)
   109- expm1(2*I) => wrong result
   110- gamma(1+a*x+O(x^2)) => error [#1707]
+  111- printsep() printed its argument in random format, instead of f_RAW as
+       print() [#1708]
 
   Added
     1- add optional argument to sumdigits to specify the base
