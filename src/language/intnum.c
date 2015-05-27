@@ -1534,11 +1534,10 @@ static GEN
 sumnummonieninit0(GEN a, GEN b, long k, long prec)
 {
   GEN c, M, vr, P, Q, Qp, R, vabs, vwt;
-  long bitprec = prec2nbits(prec), m, j, n;
-  double D = bitprec*LOG2/gtodouble(a);
+  double bit = prec2nbits(prec) / gtodouble(a), D = bit*LOG2;
+  long m, j, n = (long)ceil(D/(log(D)-1));
 
-  n = (long)ceil(D/(log(D)-1));
-  prec = maxss(2*prec-2, nbits2prec((long)ceil((2*n+1)/LOG10_2)));
+  prec = nbits2prec(maxdd(2*bit, ceil((2*n+1)/LOG10_2)));
   if (k && k != 1) pari_err_IMPL("log power > 1 in sumnummonieninit");
   a = gprec_w(a, 2*prec-2);
   b = gprec_w(b, 2*prec-2);
@@ -1608,12 +1607,11 @@ static GEN
 sumnummonieninit_w(GEN w, GEN wfast, GEN a, GEN b, GEN n0, long prec)
 {
   GEN c, M, P, Q, vr, vabs, vwt, R;
-  long bitprec = prec2nbits(prec), j, n;
-  double D = bitprec*LOG2/gtodouble(a);
+  double bit = prec2nbits(prec) / gtodouble(a), D = bit*LOG2;
+  long j, n = (long)ceil(D/(log(D)-1));
   struct mon_w S;
 
-  n = (long)ceil(D/(log(D)-1));
-  prec = maxss(2*prec-2, nbits2prec((long)ceil((2*n+1)/LOG10_2)));
+  prec = nbits2prec(maxdd(2*bit, ceil((2*n+1)/LOG10_2)));
   S.w = w;
   S.a = a = gprec_w(a, 2*prec-2);
   S.b = b = gprec_w(b, 2*prec-2);

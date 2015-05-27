@@ -41,6 +41,12 @@ tmon=sumnummonieninit([1/2,1]);
 check(sumnummonien(n=1, sin(1/sqrt(n))/n, tmon), V)
 check(sumnum(n=[1,-3/2], sin(1/sqrt(n))/n), V)
 
+{
+ localprec(77);
+ tmon=sumnummonieninit([1/2,1]);
+ check(sumnummonien(n=1,n^(-3/2), tmon), zeta(3/2))
+}
+
 \p 308
 a = sumpos(n=1, 1/(n^3+n+1));
 b = sumpos(n=1, 1/(n^3+n+1), 1);

@@ -23,6 +23,7 @@
 +oo
 +oo
 -36
++oo
    realprecision = 308 significant digits
 -307
 -307
@@ -39,4 +40,4 @@
   ***   at top-level: sumnum(n=1,1/n^2,"bug")
   ***                            ^------------
   ***   incorrect type in sumnum (t_STR).
-Total time spent: 4372
+Total time spent: 5224
