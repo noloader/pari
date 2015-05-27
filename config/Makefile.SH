@@ -735,8 +735,7 @@ for dir in basemath modules language gp graph systems mt; do
   plotQt4)
     cflags="$cflags \$(PLOTCFLAGS)"
     depend="$RECT_H"
-    compile="\$(MOC) \$(PLOTCFLAGS) -o plotQt4.moc.cpp $src/graph/plotQt4.c
-&& \$(CXX)"
+    compile="\$(MOC) \$(PLOTCFLAGS) -o plotQt4.moc.cpp $src/graph/plotQt4.c && \$(CXX)"
     ;;
   plotfltk)
     cflags="$cflags \$(PLOTCFLAGS)"
