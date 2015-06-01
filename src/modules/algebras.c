@@ -330,10 +330,10 @@ extchinese(GEN nf, GEN x, GEN y, GEN pl, GEN* red)
 static GEN
 backtrackfacto(GEN y0, long n, GEN red, GEN pl, GEN nf, GEN data, int (*test)(GEN,GEN,GEN), GEN* fa, GEN N, GEN I)
 {
-  pari_sp av = avma;
   long b, i;
   GEN y1, y2, ny, fan;
-  long v[n+1];
+  long *v = new_chunk(n+1);
+  pari_sp av = avma;
   for (b = 0;; b = b+(2*b)/(3*n)+1)
   {
     avma = av;
@@ -3961,7 +3961,7 @@ computesplitting(GEN al, long d, long v)
   gel(al,6) = gen_0;
   check_and_build_nfabs(rnf, nf_get_prec(nf));
 
-  //TODO check whether should change polabs and generator here !!!
+  /*TODO check whether should change polabs and generator here !!! */
 
   /* construct splitting data */
   Lbasis = cgetg(d+1, t_MAT);
