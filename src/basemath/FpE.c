@@ -682,7 +682,7 @@ Fp_ellcard_Shanks(GEN c4, GEN c6, GEN p)
     return gerepileuptoint(av, subii(addiu(p,1), ap));
   }
 
-  if (DEBUGLEVEL) timer_start(&T);
+  if (DEBUGLEVEL >= 6) timer_start(&T);
   /* once #E(Fp) is know mod B >= pordmin, it is completely determined */
   pordmin = addis(sqrti(gmul2n(p,4)), 1); /* ceil( 4sqrt(p) ) */
   p1p = addsi(1, p);
@@ -785,7 +785,8 @@ Fp_ellcard_Shanks(GEN c4, GEN c6, GEN p)
     }
     P = FpE_add(gel(pts,j-1),mfh,a4,p); /* = (s-1).F */
     if (ell_is_inf(P)) { h = mului(s-1,B); goto FOUND; }
-    if (DEBUGLEVEL) timer_printf(&T, "[Fp_ellcard_Shanks] baby steps, s = %ld",s);
+    if (DEBUGLEVEL >= 6)
+      timer_printf(&T, "[Fp_ellcard_Shanks] baby steps, s = %ld",s);
 
     /* giant steps: fg = s.F */
     fg = FpE_add(P,F,a4,p);
@@ -800,7 +801,7 @@ Fp_ellcard_Shanks(GEN c4, GEN c6, GEN p)
     /* tx is sorted. ti = ty sorted */
     for (i=1; i<=s; i++) { ty[i] = ti[i]; ti[i] = p1[i]; }
     /* ty is sorted. ti = permutation sorting tx */
-    if (DEBUGLEVEL) timer_printf(&T, "[Fp_ellcard_Shanks] sorting");
+    if (DEBUGLEVEL >= 6) timer_printf(&T, "[Fp_ellcard_Shanks] sorting");
     avma = av2;
 
     gaffect(fg, gel(pts,1));
@@ -836,7 +837,8 @@ Fp_ellcard_Shanks(GEN c4, GEN c6, GEN p)
           if (ty[r] == k2 || ty[r] == pfinal - k2)
           { /* [h+j2] f == +/- ftest (= [i.s] f)? */
             j2 = ti[r] - 1;
-            if (DEBUGLEVEL) timer_printf(&T, "[Fp_ellcard_Shanks] giant steps, i = %ld",i);
+            if (DEBUGLEVEL >=6)
+              timer_printf(&T, "[Fp_ellcard_Shanks] giant steps, i = %ld",i);
             P = FpE_add(FpE_mul(F,stoi(j2),a4,p),fh,a4,p);
             if (equalii(gel(P,1), gel(ftest,1)))
             {

@@ -1196,7 +1196,7 @@ FlxqE_find_order(GEN f, GEN h, GEN bound, GEN B, GEN a4, GEN T, ulong p)
   GEN fh = FlxqE_mul(f, h, a4, T, p);
   GEN F, P = fh, fg;
   long i;
-  if (DEBUGLEVEL) timer_start(&Ti);
+  if (DEBUGLEVEL >= 6) timer_start(&Ti);
   if (ell_is_inf(fh)) return h;
   F = FlxqE_mul(f, B, a4, T, p);
   if (s < 3)
@@ -1220,17 +1220,17 @@ FlxqE_find_order(GEN f, GEN h, GEN bound, GEN B, GEN a4, GEN T, ulong p)
     if (ell_is_inf(P)) return gerepileupto(av, addii(h, mului(i,B)));
     if (gc_needed(av1,3))
     {
-      if(DEBUGMEM>1) pari_warn(warnmem,"[ellap3] baby steps, i=%ld",i);
+      if(DEBUGMEM>1) pari_warn(warnmem,"[Flxq_ellcard] baby steps, i=%ld",i);
       P = gerepileupto(av1,P);
     }
   }
-  if (DEBUGLEVEL) timer_printf(&Ti, "[ellap3] baby steps, s = %ld",s);
+  if (DEBUGLEVEL >= 6) timer_printf(&Ti, "[Flxq_ellcard] baby steps, s = %ld",s);
   /* giant steps: fg = s.F */
   fg = gerepileupto(av1, FlxqE_sub(P, fh, a4, T, p));
   if (ell_is_inf(fg)) return gerepileupto(av,mului(s,B));
   ti = vecsmall_indexsort(tx); /* = permutation sorting tx */
   tx = perm_mul(tx,ti);
-  if (DEBUGLEVEL) timer_printf(&Ti, "[ellap3] sorting");
+  if (DEBUGLEVEL >= 6) timer_printf(&Ti, "[Flxq_ellcard] sorting");
   av1 = avma;
   for (P=fg, i=1; ; i++)
   {
@@ -1243,7 +1243,8 @@ FlxqE_find_order(GEN f, GEN h, GEN bound, GEN B, GEN a4, GEN T, ulong p)
       {
         long j = ti[r]-1;
         GEN Q = FlxqE_add(FlxqE_mul(F, stoi(j), a4, T, p), fh, a4, T, p);
-        if (DEBUGLEVEL) timer_printf(&Ti, "[ellap3] giant steps, i = %ld",i);
+        if (DEBUGLEVEL >= 6)
+          timer_printf(&Ti, "[Flxq_ellcard] giant steps, i = %ld",i);
         if (Flx_equal(gel(P,1), gel(Q,1)))
         {
           if (Flx_equal(gel(P,2), gel(Q,2))) i = -i;
@@ -1254,7 +1255,7 @@ FlxqE_find_order(GEN f, GEN h, GEN bound, GEN B, GEN a4, GEN T, ulong p)
     P = FlxqE_add(P,fg,a4,T,p);
     if (gc_needed(av1,3))
     {
-      if(DEBUGMEM>1) pari_warn(warnmem,"[ellap3] giants steps, i=%ld",i);
+      if(DEBUGMEM>1) pari_warn(warnmem,"[Flxq_ellcard] giants steps, i=%ld",i);
       P = gerepileupto(av1,P);
     }
   }
