@@ -3538,6 +3538,29 @@ FlxY_evalx(GEN Q, ulong x, ulong p)
 }
 
 GEN
+FlxY_Flx_translate(GEN P, GEN c, ulong p)
+{
+  pari_sp av = avma;
+  GEN Q;
+  long i, k, n;
+
+  if (!signe(P) || gequal0(c)) return RgX_copy(P);
+  Q = leafcopy(P); n = degpol(P);
+  for (i=1; i<=n; i++)
+  {
+    for (k=n-i; k<n; k++)
+      gel(Q,2+k) = Flx_add(gel(Q,2+k), Flx_mul(gel(Q,2+k+1), c, p), p);
+    if (gc_needed(av,2))
+    {
+      if(DEBUGMEM>1)
+        pari_warn(warnmem,"FlxY_Flx_translate, i = %ld/%ld", i,n);
+      Q = gerepilecopy(av, Q);
+    }
+  }
+  return gerepilecopy(av, Q);
+}
+
+GEN
 FlxY_evalx_powers_pre(GEN pol, GEN ypowers, ulong p, ulong pi)
 {
   long i, len = lg(pol);
