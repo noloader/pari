@@ -152,6 +152,7 @@ VBr83- [darwin] remove obsolete linker options that cause crashes [#1623]
   110- gamma(1+a*x+O(x^2)) => error [#1707]
   111- printsep() printed its argument in random format, instead of f_RAW as
        print() [#1708]
+  112- nfdisc(x^10 - 29080*x^5 - 25772600) -> oo loop [#1710]
 
   Added
     1- add optional argument to sumdigits to specify the base
