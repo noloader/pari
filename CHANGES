@@ -299,6 +299,7 @@ BA106- GP function cotanh
 BA109- [libpari] Flv_prod, Flv_prod_pre
 BA110- [libpari] Flv_neg, Flv_neg_inplace
 ED111- mingw64 support
+BA112- [parallel] new GP function parforvec
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]

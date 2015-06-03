@@ -1756,6 +1756,48 @@ parforprime0(GEN a, GEN b, GEN code, GEN code2)
 }
 
 void
+parforvec(GEN x, GEN code, long flag, void *E, long call(void*, GEN, GEN))
+{
+  pari_sp av = avma, av2;
+  long running, pending = 0;
+  long status = br_NONE;
+  GEN worker = snm_closure(is_entry("_parfor_worker"), mkvec(code));
+  GEN done, stop = NULL;
+  struct pari_mt pt;
+  forvec_t T;
+  GEN a, v = gen_0;
+
+  if (!forvec_init(&T, x, flag)) { avma = av; return; }
+  mt_queue_start(&pt, worker);
+  a = mkvec(gen_0);
+  av2 = avma;
+  while ((running = (!stop && v && (v = forvec_next(&T)))) || pending)
+  {
+    gel(a, 1) = v;
+    mt_queue_submit(&pt, 0, running ? a: NULL);
+    done = mt_queue_get(&pt, NULL, &pending);
+    if (call && done && (!stop || lexcmp(gel(done,1),stop) < 0))
+      if (call(E, gel(done,1), gel(done,2)))
+      {
+        status = br_status;
+        br_status = br_NONE;
+        stop = gerepilecopy(av2, gel(done,1));
+      }
+    if (!stop) avma = av2;
+  }
+  avma = av2;
+  mt_queue_end(&pt);
+  br_status = status;
+  avma = av;
+}
+
+void
+parforvec0(GEN x, GEN code, GEN code2, long flag)
+{
+  parforvec(x, code, flag, (void*)code2, code2? gp_evalvoid2: NULL);
+}
+
+void
 closure_callvoid1(GEN C, GEN x)
 {
   long i, ar = closure_arity(C);

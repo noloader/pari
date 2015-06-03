@@ -133,6 +133,7 @@ GEN  pareval_worker(GEN code);
 void parfor0(GEN a, GEN b, GEN code, GEN code2);
 GEN  parfor_worker(GEN i, GEN C);
 void parforprime0(GEN a, GEN b, GEN code, GEN code2);
+void parforvec0(GEN a, GEN code, GEN code2, long flag);
 GEN  parvector_worker(GEN i, GEN C);
 
 /* multiprecision */

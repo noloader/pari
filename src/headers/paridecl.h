@@ -1378,6 +1378,7 @@ GEN     matslice0(GEN A, long x1, long x2, long y1, long y2);
 GEN     parapply(GEN V, GEN C);
 void    parfor(GEN a, GEN b, GEN code, void *E, long call(void*, GEN, GEN));
 void    parforprime(GEN a, GEN b, GEN code, void *E, long call(void*, GEN, GEN));
+void    parforvec(GEN x, GEN code, long flag, void *E, long call(void*, GEN, GEN));
 GEN     parselect(GEN C, GEN D, long flag);
 GEN     select0(GEN A, GEN f, long flag);
 GEN     shallowextract(GEN x, GEN L);
