@@ -4536,6 +4536,18 @@ static const struct bb_group qfi_group={ qfi_comp,qfb_pow,NULL,hash_GEN,
                                          gidentical,qfb_is_1,NULL};
 
 GEN
+qfi_order(GEN q, GEN o)
+{
+  return gen_order(q, o, NULL, &qfi_group);
+}
+
+GEN
+qfi_log(GEN a, GEN g, GEN o)
+{
+  return gen_PH_log(a, g, o, NULL, &qfi_group);
+}
+
+GEN
 qfbclassno0(GEN x,long flag)
 {
   switch(flag)

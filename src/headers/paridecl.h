@@ -1452,6 +1452,8 @@ GEN     qfbredsl2(GEN q, GEN S);
 GEN     qfbsolve(GEN Q, GEN n);
 GEN     qfi(GEN x, GEN y, GEN z);
 GEN     qfi_1(GEN x);
+GEN     qfi_log(GEN a, GEN g, GEN o);
+GEN     qfi_order(GEN q, GEN o);
 GEN     qficomp(GEN x, GEN y);
 GEN     qficompraw(GEN x, GEN y);
 GEN     qfipowraw(GEN x, long n);
