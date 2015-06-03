@@ -4532,15 +4532,7 @@ static GEN qfb_pow(void *E, GEN f, GEN n)
 { return E? nupow(f,n,(GEN)E): powgi(f,n); }
 static GEN qfi_comp(void *E, GEN f, GEN g)
 { return E? nucomp(f,g,(GEN)E): qficomp(f,g); }
-static ulong qfb_hash(GEN x)
-{
-  GEN a = gel(x,1);
-  GEN b = gel(x,2);
-  ulong A = mod2BIL(a);
-  ulong B = signe(b)? mod2BIL(b): 0;
-  return (A  << BITS_IN_HALFULONG) | B;
-}
-static const struct bb_group qfi_group={ qfi_comp,qfb_pow,NULL,qfb_hash,
+static const struct bb_group qfi_group={ qfi_comp,qfb_pow,NULL,hash_GEN,
                                          gidentical,qfb_is_1,NULL};
 
 GEN
