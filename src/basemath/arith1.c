@@ -4527,13 +4527,15 @@ quadregulator(GEN x, long prec)
 /**                            CLASS NUMBER                             **/
 /**                                                                     **/
 /*************************************************************************/
-static int qfb_is_1(GEN f) { return equali1(gel(f,1)); }
-static GEN qfb_pow(void *E, GEN f, GEN n)
+
+int qfi_equal1(GEN f) { return equali1(gel(f,1)); }
+
+static GEN qfi_pow(void *E, GEN f, GEN n)
 { return E? nupow(f,n,(GEN)E): powgi(f,n); }
 static GEN qfi_comp(void *E, GEN f, GEN g)
 { return E? nucomp(f,g,(GEN)E): qficomp(f,g); }
-static const struct bb_group qfi_group={ qfi_comp,qfb_pow,NULL,hash_GEN,
-                                         gidentical,qfb_is_1,NULL};
+static const struct bb_group qfi_group={ qfi_comp,qfi_pow,NULL,hash_GEN,
+                                         gidentical,qfi_equal1,NULL};
 
 GEN
 qfi_order(GEN q, GEN o)
