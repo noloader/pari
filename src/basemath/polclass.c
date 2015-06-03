@@ -14,19 +14,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #include "pari.h"
 #include "paripriv.h"
 
-
-#define dbg_printf0(lvl, fmt) \
-  do { if ((lvl) <= DEBUGLEVEL) err_printf(fmt "\n"); } while (0)
-#define dbg_printf1(lvl, fmt, a1) \
-  do { if ((lvl) <= DEBUGLEVEL) err_printf(fmt "\n", (a1)); } while (0)
-#define dbg_printf2(lvl, fmt, a1, a2) \
-  do { if ((lvl) <= DEBUGLEVEL) err_printf(fmt "\n", (a1), (a2)); } while (0)
-#define dbg_printf3(lvl, fmt, a1, a2, a3) \
-  do { if ((lvl) <= DEBUGLEVEL) err_printf(fmt "\n", (a1), (a2), (a3)); } while (0)
-#define dbg_printf4(lvl, fmt, a1, a2, a3, a4) \
-  do { if ((lvl) <= DEBUGLEVEL) err_printf(fmt  "\n", (a1), (a2), (a3), (a4)); } while (0)
-#define dbg_printf dbg_printf1
-#define dbg_puts(lvl, str) dbg_printf0(lvl, str)
+#define dbg_printf(lvl) if (DEBUGLEVEL >= (lvl)) err_printf
 
 /**
  * SECTION: Functions dedicated to finding a j-invariant with a given
@@ -590,7 +578,7 @@ select_classpoly_prime_pool(
     /* v_bound_aux = -4 z H(-D). */
     double v_bound_aux = -4.0 * z * hurwitz;
     ulong v;
-    dbg_printf(1, "z = %.2f", z);
+    dbg_printf(1)("z = %.2f\n", z);
     for (v = 1; ; ++v) {
       ulong pcount = 0, t, t_max, factors;
       ulong m_vsqr_D = v * v * (ulong)(-D);
@@ -635,12 +623,12 @@ select_classpoly_prime_pool(
       t_min[v] = t_max + 1;
 
       if (pcount) {
-        dbg_printf2(2, "  Found %lu primes for v = %lu.", pcount, v);
+        dbg_printf(2)("  Found %lu primes for v = %lu.\n", pcount, v);
         if (gc_needed(av, 2))
           res = gerepilecopy(av, res);
       }
       if (prime_bits > min_prime_bits) {
-        dbg_printf2(1, "Found %ld primes; total size %.2f bits.",
+        dbg_printf(1)("Found %ld primes; total size %.2f bits.\n",
                     glength(res), prime_bits);
         return gerepilecopy(av, res);
       }
@@ -676,7 +664,7 @@ select_classpoly_primes(
     pari_err_BUG("select_suitable_primes");
 
   b = upper_bound_on_classpoly_coeffs(D, pcp);
-  dbg_printf(1, "b = %.2f", b);
+  dbg_printf(1)("b = %.2f\n", b);
   min_prime_bits = k * b;
 
   prime_pool = select_classpoly_prime_pool(D, min_prime_bits, delta, pcp);
@@ -691,7 +679,7 @@ select_classpoly_primes(
     if (prime_bits > b)
       break;
   }
-  dbg_printf(1, "Selected %ld primes.", i);
+  dbg_printf(1)("Selected %ld primes.\n", i);
   return gerepilecopy(av, vecslice0(prime_pool, 1, i));
 }
 
@@ -1033,7 +1021,7 @@ polclass0(
   norm_eqn_t ne;
 
   setup_norm_eqn(ne, D, u, norm_eqn);
-  dbg_printf3(2, "p = %ld, t = %ld, v = %ld", ne->p, ne->t, ne->v);
+  dbg_printf(2)("p = %ld, t = %ld, v = %ld\n", ne->p, ne->t, ne->v);
 
   do {
     do {
@@ -1044,14 +1032,14 @@ polclass0(
         pari_err_BUG("polclass0: "
                      "Couldn't find j-invariant with given trace.");
       }
-      dbg_printf4(2, "  j-invariant %ld has trace +/-%ld (%ld tries, 1/rho = %ld)",
+      dbg_printf(2)("  j-invariant %ld has trace +/-%ld (%ld tries, 1/rho = %ld)\n",
                   j_t, ne->t, trace_tries, rho_inv);
       *total_curves_tested += trace_tries;
 
       found_j_endo = oneroot_of_classpoly(&j_endo, j_t, ne, mpdb);
       if ( ! found_j_endo) {
-        dbg_printf(1, "Couldn't find j-invariant isogenous to %lu with "
-                   "given endo ring; trying again...", j_t);
+        dbg_printf(1)("Couldn't find j-invariant isogenous to %lu with "
+                   "given endo ring; trying again...\n", j_t);
       }
       ++endo_tries;
     } while ( ! found_j_endo);
@@ -1059,12 +1047,12 @@ polclass0(
     res = enum_j_with_endo_ring(j_endo, ne, mpdb, pcp, pcp_order(pcp));
   } while ( ! res);
 
-  dbg_printf2(2, "  j-invariant %ld has correct endomorphism ring "
-              "(%ld tries)", j_endo, endo_tries);
-  dbg_printf(3, "  all such j-invariants: %Ps", res);
+  dbg_printf(2)("  j-invariant %ld has correct endomorphism ring "
+              "(%ld tries)\n", j_endo, endo_tries);
+  dbg_printf(3)("  all such j-invariants: %Ps\n", res);
 
   pol = gerepileupto(av, Flv_roots_to_pol(res, ne->p, xvar));
-  dbg_printf2(3, "  Hilbert polynomial mod %ld: %Ps", ne->p, pol);
+  dbg_printf(3)("  Hilbert polynomial mod %ld: %Ps\n", ne->p, pol);
 
   stab = ZX_incremental_CRT(hilb, pol, P, ne->p);
   return stab;
@@ -1098,7 +1086,7 @@ polclass(GEN DD, long xvar)
   (void) corediscs(D, &u);
   classno = classno_wrapper(D);
 
-  dbg_printf2(1, "D = %ld, conductor = %ld", D, u);
+  dbg_printf(1)("D = %ld, conductor = %ld\n", D, u);
 
   pcp = minimal_polycyclic_presentation(classno, D, u);
 
@@ -1121,7 +1109,7 @@ polclass(GEN DD, long xvar)
 #endif
   }
 
-  dbg_printf(1, "Total number of curves tested: %lu",
+  dbg_printf(1)("Total number of curves tested: %lu\n",
              total_curves_tested);
 
   polmodular_db_clear(mpdb);

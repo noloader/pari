@@ -14,18 +14,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #include "pari.h"
 #include "paripriv.h"
 
-#define dbg_printf0(lvl, fmt) \
-  do { if ((lvl) <= DEBUGLEVEL) err_printf(fmt "\n"); } while (0)
-#define dbg_printf1(lvl, fmt, a1) \
-  do { if ((lvl) <= DEBUGLEVEL) err_printf(fmt "\n", (a1)); } while (0)
-#define dbg_printf2(lvl, fmt, a1, a2) \
-  do { if ((lvl) <= DEBUGLEVEL) err_printf(fmt "\n", (a1), (a2)); } while (0)
-#define dbg_printf3(lvl, fmt, a1, a2, a3) \
-  do { if ((lvl) <= DEBUGLEVEL) err_printf(fmt "\n", (a1), (a2), (a3)); } while (0)
-#define dbg_printf4(lvl, fmt, a1, a2, a3, a4) \
-  do { if ((lvl) <= DEBUGLEVEL) err_printf(fmt  "\n", (a1), (a2), (a3), (a4)); } while (0)
-#define dbg_printf dbg_printf1
-#define dbg_puts(lvl, str) dbg_printf0(lvl, str)
+#define dbg_printf(lvl) if (DEBUGLEVEL >= (lvl)) err_printf
 
 /**
  * SECTION: Fixed-length dot-product-like functions on Fl's with
@@ -852,7 +841,7 @@ select_modpoly_primes(
 
   *vec = evaltyp(t_VECSMALL) | evallg(veclen);
   avma = (pari_sp)vec;
-  dbg_printf(1, "Threw away %.2f%% of primes because of high L-valuation",
+  dbg_printf(1)("Threw away %.2f%% of primes because of high L-valuation\n",
              100 * lost_primes / (double)(lost_primes + veclen));
   return (GEN)vec;
 }
@@ -1131,7 +1120,7 @@ polmodular_split_p_evalx_Flv(
 
   j_ik = concat(nhbrs_of_ji, L2_cycle_containing_ji_pr);
   modpoly_at_ji = Flv_roots_to_pol(j_ik, pp, 0);
-  dbg_printf4(3, "    Phi_%lu(X, %lu) (mod %lu) = %Ps\n",
+  dbg_printf(3)("    Phi_%lu(X, %lu) (mod %lu) = %Ps\n",
               dinfo->L, j_invs[j_idx], pp, modpoly_at_ji);
 
   return gerepileupto(av, modpoly_at_ji);
@@ -1238,7 +1227,7 @@ polmodular_split_p_Flm(
   setlg(j_invs, L + 2 + 1);
   interpolate_coeffs(modpoly_modp, L, p, j_invs, coeff_mat);
 
-  dbg_printf3(3, "  Phi_%lu(X, Y) (mod %lu) = %Ps\n",
+  dbg_printf(3)("  Phi_%lu(X, Y) (mod %lu) = %Ps\n",
              L, p, modpoly_modp);
 
   avma = av;
@@ -1318,21 +1307,21 @@ polmodular0_ZM(
   GEN factu;
   const modpoly_disc_info *dinfo;
 
-  dbg_printf1(1, "Calculating modular polynomial of level %lu", L);
+  dbg_printf(1)("Calculating modular polynomial of level %lu\n", L);
   dinfo = discriminant_with_classno_at_least(&D, &cond, &v, L);
   factu = factoru(cond);
 
   av = avma;
   mpdb = polmodular_db_init(0);
 
-  dbg_printf2(1, "Selected discriminant D = %ld which has conductor u = %ld.",
+  dbg_printf(1)("Selected discriminant D = %ld which has conductor u = %ld.\n",
               D, cond);
 
   filter = 0; /* Don't filter anything. */
   pt_pairs = select_modpoly_primes(v, L, D, min_prime_bits, filter);
   pt_pairs_len = lg(pt_pairs) - 1;
 
-  dbg_printf3(1, "Selected %ld primes in [%ld, %ld]",
+  dbg_printf(1)("Selected %ld primes in [%ld, %ld]\n",
               pt_pairs_len / 2, pt_pairs[pt_pairs_len - 1], pt_pairs[1]);
 
   DK = D / (long)(cond * cond);
@@ -2216,7 +2205,7 @@ discriminant_with_classno_at_least(
   avma = av;
 
   *v = (-*D % 8 == 7) ? 2 : 1;
-  dbg_printf2(2, "-D %% 8 == %lu, selecting vsqr = %lu",
+  dbg_printf(2)("-D %% 8 == %lu, selecting vsqr = %lu\n",
               -*D % 8, *v * *v);
   return dinfo;
 }
