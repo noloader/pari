@@ -134,7 +134,7 @@ ascend_volcano(
   /* path will never hold more than max_len elements, and max_len <
    * depth always. */
   GEN path_g = cgetg(depth + 2, t_VECSMALL);
-  ulong *path = (ulong *)&path_g[1];
+  ulong *path = zv_to_ulongptr(path_g);
   long max_len = depth - level;
   int first_iter = 1;
 
@@ -237,7 +237,7 @@ descend_volcano(
 
   max_len = depth - level;
   path_g = cgetg(max_len + 1 + 1, t_VECSMALL);
-  path = (ulong *)&path_g[1];
+  path = zv_to_ulongptr(path_g);
   path[0] = j;
   /* level = 0 means we're on the volcano surface... */
   if ( ! level) {

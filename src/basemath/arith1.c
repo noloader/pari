@@ -4559,6 +4559,30 @@ qfi_log(GEN a, GEN g, GEN o)
 }
 
 GEN
+qfi_Shanks(GEN a, GEN g, long n)
+{
+  pari_sp av = avma;
+  GEN T, X;
+  long rt_n, c;
+
+  a = redimag(a);
+  g = redimag(g);
+
+  rt_n = sqrt(n);
+  c = n / rt_n;
+  c = (c * rt_n < n + 1) ? c + 1 : c;
+
+  T = gen_Shanks_init(g, rt_n, NULL, &qfi_group);
+  X = gen_Shanks(T, a, c, NULL, &qfi_group);
+
+  if ( ! X) {
+    avma = av;
+    return X;
+  }
+  return gerepilecopy(av, X);
+}
+
+GEN
 qfbclassno0(GEN x,long flag)
 {
   switch(flag)

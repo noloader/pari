@@ -1458,6 +1458,7 @@ GEN     qfbredsl2(GEN q, GEN S);
 GEN     qfbsolve(GEN Q, GEN n);
 GEN     qfi(GEN x, GEN y, GEN z);
 GEN     qfi_1(GEN x);
+GEN     qfi_Shanks(GEN a, GEN g, long n);
 int     qfi_equal1(GEN f);
 GEN     qfi_log(GEN a, GEN g, GEN o);
 GEN     qfi_order(GEN q, GEN o);
@@ -3620,7 +3621,7 @@ GEN     residual_characteristic(GEN x);
 
 /* polclass.c */
 
-GEN     polclass(GEN D, long xvar);
+GEN     polclass(GEN D, long inv, long xvar);
 
 /* polmodular.c */
 

@@ -21,7 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
  * trace.
  */
 
-/* FIXME: This code is shared with
+/* TODO: This code is shared with
  * torsion_compatible_with_characteristic() in 'torsion.c'. */
 static void
 hasse_bounds(long *low, long *high, long p)
@@ -109,8 +109,7 @@ test_curve_order(
 
     pt = random_Flj_pre(a4, a6, p, pi);
     Q = Flj_mulu_pre(pt, m0, a4, p, pi);
-    /* FIXME: This is wasteful -- try to work out how to go back to
-     * using the e0. */
+    /* TODO: Work out how to avoid this copying. */
     tmp = gcopy(n0);
     famatsmall_divexact(tmp, factoru(m0));
     n_s = Flj_order_ufact(Q, N0 / m0, tmp, a4, p, pi);
@@ -220,10 +219,8 @@ find_j_inv_with_given_trace(
   tx = cgetg(batch_size + 1, t_VECSMALL);
   ty = cgetg(batch_size + 1, t_VECSMALL);
 
-  if (DEBUGLEVEL > 1) {
-    err_printf("  Selected torsion constraint m = %lu and batch "
-               "size = %ld\n", m, batch_size);
-  }
+  dbg_printf(2)("  Selected torsion constraint m = %lu and batch "
+             "size = %ld\n", m, batch_size);
 
   hasse_bounds(&hasse[0], &hasse[1], p);
 
@@ -282,14 +279,14 @@ INLINE ulong
 pcp_order(GEN P) { return zv_prod(PCP_REL_ORDERS(P)); }
 
 static GEN
-next_prime_generator(GEN DD, long D, ulong u, ulong *p)
+next_prime_generator(GEN DD, long D, ulong u, long inv_lvl, ulong *p)
 {
   pari_sp av = avma, av1;
   GEN gen, genred;
   long norm;
   while (1) {
     *p = unextprime(*p + 1);
-    if (kross(D, (long)*p) != -1 && u % *p != 0) {
+    if (kross(D, (long)*p) != -1 && u % *p != 0 && inv_lvl % *p != 0) {
       gen = primeform_u(DD, *p);
       av1 = avma;
 
@@ -337,12 +334,15 @@ gequal_wrapper(void *x, void *y)
  * This is Sutherland 2009, Algorithm 2.2 (p16).
  */
 static GEN
-minimal_polycyclic_presentation(ulong h, long D, ulong u)
+minimal_polycyclic_presentation(ulong h, long D, ulong u, long inv)
 {
   pari_sp av = avma;
-  ulong curr_p = 1, nelts = 1, i;
+  ulong i, curr_p = 1, nelts = 1;
+  long lvl = inv_level(inv);
   GEN DD, pcp, ident, T;
   hashtable *tbl;
+  GEN gen_norms;
+  long L1, L2, ngens;
 
   pcp = cgetg(5, t_VEC);
 
@@ -367,7 +367,7 @@ minimal_polycyclic_presentation(ulong h, long D, ulong u)
   hash_insert(tbl, ident, gen_1);
 
   while (nelts < h) {
-    GEN gamma_i = next_prime_generator(DD, D, u, &curr_p);
+    GEN gamma_i = next_prime_generator(DD, D, u, lvl, &curr_p);
     GEN beta = redimag(gamma_i);
     hashentry *e;
     ulong N = glength(T), Tlen = N, ri = 1, si;
@@ -403,6 +403,16 @@ minimal_polycyclic_presentation(ulong h, long D, ulong u)
   /* Put the a-values in gel(pcp, 4). */
   for (i = 2; i <= h; ++i)
     gel(pcp, 4)[i] = itou(gmael(T, i, 1));
+
+  /* The norms of the last one or two generators. */
+  gen_norms = PCP_GEN_NORMS(pcp);
+  ngens = glength(gen_norms);
+  L1 = gen_norms[ngens];
+  L2 = ngens > 1 ? gen_norms[ngens - 1] : 1;
+  /* 4 * L1^2 * L2^2 must fit in a ulong */
+  if (2 * (1 + log2(L1) + log2(L2)) >= BITS_IN_LONG)
+    pari_err_IMPL("minimal_polycyclic_presentation");
+
   return gerepileupto(av, pcp);
 }
 
@@ -501,8 +511,8 @@ upper_bound_on_classpoly_coeffs(long D, GEN pcp)
 #define V_MAX 1200
 
 #define NSMALL_PRIMES 11
-static const long small_primes[11] = {
-    2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31
+static const long SMALL_PRIMES[11] = {
+  2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31
 };
 
 static long
@@ -511,9 +521,9 @@ is_smooth_enough(ulong *factors, long v)
   long i;
   *factors = 0;
   for (i = 0; i < NSMALL_PRIMES; ++i) {
-    long p = small_primes[i];
+    long p = SMALL_PRIMES[i];
     if (v % p == 0)
-      *factors |= 1 << i;
+      *factors |= 1UL << i;
     while (v % p == 0)
       v /= p;
     if (v == 1)
@@ -550,7 +560,7 @@ hclassno_wrapper(long D, GEN pcp)
  */
 static GEN
 select_classpoly_prime_pool(
-  long D, double min_prime_bits, double delta, GEN pcp)
+  long D, long inv, double min_prime_bits, double delta, GEN pcp)
 {
   pari_sp av;
   double prime_bits = 0.0, hurwitz, z;
@@ -580,7 +590,7 @@ select_classpoly_prime_pool(
     ulong v;
     dbg_printf(1)("z = %.2f\n", z);
     for (v = 1; ; ++v) {
-      ulong pcount = 0, t, t_max, factors;
+      ulong pcount = 0, t, t_max, vfactors;
       ulong m_vsqr_D = v * v * (ulong)(-D);
       /* hurwitz_ratio_bound = 11 * log(log(v + 4))^2 */
       double hurwitz_ratio_bound = log(log(v + 4.0)), max_p, H;
@@ -589,7 +599,7 @@ select_classpoly_prime_pool(
       if (v >= v_bound_aux * hurwitz_ratio_bound / D || v >= V_MAX)
         break;
 
-      if ( ! is_smooth_enough(&factors, v))
+      if ( ! is_smooth_enough(&vfactors, v))
         continue;
       H = hclassno_wrapper(m_vsqr_D, 0);
 
@@ -606,13 +616,12 @@ select_classpoly_prime_pool(
         ulong possible_4p = t * t + m_vsqr_D;
         if (possible_4p % 4 == 0) {
           ulong possible_p = possible_4p / 4;
-          if (uisprime(possible_p)) {
+          if (uisprime(possible_p) && inv_good_prime(possible_p, inv)) {
             long p = possible_p;
-            double rho_inv;
+            double rho_inv = p / H;
             GEN hit;
 
-            rho_inv = p / H;
-            hit = mkvecsmall4(p, t, v, (long)rho_inv);
+            hit = mkvecsmall5(p, t, v, (long)rho_inv, vfactors);
             /* FIXME: Avoid doing GC for every prime as here. */
             res = gerepileupto(av, concat(res, hit));
             prime_bits += log2(p);
@@ -642,44 +651,77 @@ select_classpoly_prime_pool(
   }
 }
 
+INLINE int
+cmp_small(long a, long b)
+{
+  return a>b? 1: (a<b? -1: 0);
+}
 
 static int
 primecmp(void *data, GEN v1, GEN v2)
 {
   (void)data;
-  return v1[4] - v2[4];
+  return cmp_small(v1[4], v2[4]);
+}
+
+
+static long
+height_margin(long inv, long D)
+{
+  (void)D;
+  /* NB: avs just uses a height margin of 256 for everyone and everything. */
+  if (inv == INV_F)
+    return 64;  /* Verified for "many" discriminants up to about -350000 */
+  if (inv == INV_G2)
+    return 5;
+  return 0;
 }
 
 
 static GEN
 select_classpoly_primes(
-  long D, long k, double delta, GEN pcp)
+  ulong *vfactors, ulong *biggest_v, long D, long inv, long k, double delta, GEN pcp)
 {
   pari_sp av = avma;
-  long i;
+  long i, s;
+  ulong biggest_p;
   double prime_bits, min_prime_bits, b;
   GEN prime_pool;
+
 
   if (k < 2)
     pari_err_BUG("select_suitable_primes");
 
   b = upper_bound_on_classpoly_coeffs(D, pcp);
+  s = inv_height_factor(inv);
+  b = b / s + height_margin(inv, D);
   dbg_printf(1)("b = %.2f\n", b);
   min_prime_bits = k * b;
 
-  prime_pool = select_classpoly_prime_pool(D, min_prime_bits, delta, pcp);
+  prime_pool = select_classpoly_prime_pool(D, inv, min_prime_bits, delta, pcp);
 
   /* FIXME: Apply torsion constraints */
   /* FIXME: Rank elts of res according to cost/benefit ratio */
   prime_pool = gen_sort(prime_pool, 0, primecmp);
 
   prime_bits = 0.0;
+  biggest_p = gel(prime_pool, 1)[1];
+  *biggest_v = gel(prime_pool, 1)[3];
+  *vfactors = 0;
   for (i = 1; i < lg(prime_pool); ++i) {
-    prime_bits += log2(gel(prime_pool, i)[1]);
+    ulong p = gel(prime_pool, i)[1];
+    ulong v = gel(prime_pool, i)[3];
+    prime_bits += log2(p);
+    *vfactors |= gel(prime_pool, i)[5];
+    if (p > biggest_p)
+      biggest_p = p;
+    if (v > *biggest_v)
+      *biggest_v = v;
     if (prime_bits > b)
       break;
   }
-  dbg_printf(1)("Selected %ld primes.\n", i);
+  dbg_printf(1)("Selected %ld primes; largest is %lu ~ 2^%.2f\n",
+             i, biggest_p, log2(biggest_p));
   return gerepilecopy(av, vecslice0(prime_pool, 1, i));
 }
 
@@ -688,26 +730,30 @@ select_classpoly_primes(
  * This is Sutherland 2009 Algorithm 1.2.
  */
 static long
-oneroot_of_classpoly(ulong *j_endo, ulong j, norm_eqn_t ne, GEN *mpdb)
+oneroot_of_classpoly(ulong *j_endo, int *endo_cert, ulong j, norm_eqn_t ne, GEN jdb)
 {
-  /* FIXME: Return u_compl as an indication as to whether we know that
-   * *j_endo is correct, rather than just probably correct. */
-
   long nfactors, L_bound, i;
   ulong p = ne->p, pi = ne->pi;
-  GEN factors, u_levels, vdepths;
+  GEN factw, factors, u_levels, vdepths;
 
   if (j == 0 || j == 1728 % p)
     pari_err_BUG("oneroot_of_classpoly");
-  if (ne->w == 1) {
+
+  *endo_cert = 1;
+  if (ne->u * ne->v == 1) {
     *j_endo = j;
     return 1;
   }
 
-  factors = gel(ne->factw, 1);
-  u_levels = ne->u_levels;
-  vdepths = ne->vdepths;
+  /* TODO: Precalculate all this data further up */
+  factw = factoru(ne->u * ne->v);
+  factors = gel(factw, 1);
   nfactors = lg(factors) - 1;
+  u_levels = cgetg(nfactors + 1, t_VECSMALL);
+  for (i = 1; i <= nfactors; ++i)
+    u_levels[i] = z_lval(ne->u, gel(factw, 1)[i]);
+  vdepths = gel(factw, 2);
+
   L_bound = maxdd(log(-ne->D), (double)ne->v);
 
   /* Iterate over the primes L dividing w */
@@ -716,20 +762,18 @@ oneroot_of_classpoly(ulong *j_endo, ulong j, norm_eqn_t ne, GEN *mpdb)
     GEN phi;
     long jlvl, lvl_diff, depth = vdepths[i];
     long L = factors[i];
-    if (L > L_bound)
+    if (L > L_bound) {
+      *endo_cert = 0;
       break;
+    }
 
-    phi = polmodular_db_getp(mpdb, L, p);
+    phi = polmodular_db_getp(jdb, L, p);
 
-    /* FIXME: Can I reuse paths created in j_level_in_volcano() later
-     * in {ascend,descend}_volcano()? */
+    /* TODO: See if I can reuse paths created in j_level_in_volcano()
+     * later in {ascend,descend}_volcano(), perhaps by combining the
+     * functions into one "adjust_level" function. */
     jlvl = j_level_in_volcano(phi, j, p, pi, L, depth);
     lvl_diff = u_levels[i] - jlvl;
-
-    /*
-    while (vLu--)
-      u_compl /= L;
-    */
 
     if (lvl_diff < 0) {
       /* j's level is less than v(u) so we must ascend */
@@ -758,19 +802,20 @@ oneroot_of_classpoly(ulong *j_endo, ulong j, norm_eqn_t ne, GEN *mpdb)
 static long
 enum_j_with_endo_ring_small_disc_r(
   ulong *res, long scale, long offset, norm_eqn_t ne,
-  GEN *mpdb, GEN pcp, long k)
+  GEN fdb, GEN pcp, long k)
 {
   long L = PCP_GEN_NORMS(pcp)[k];
   long r = PCP_REL_ORDERS(pcp)[k];
-  long d = z_lval(ne->w, L); /* volcano_depth(L, u, v); */
+  /* TODO: Precalculate all volcano depths */
+  long d = z_lval(ne->u * ne->v, L); /* volcano_depth(L, u, v); */
   long i, j_idx;
   ulong p = ne->p, pi = ne->pi;
 
   pari_sp av = avma;
   long plen;
-  GEN phi = polmodular_db_getp(mpdb, L, p);
+  GEN phi = polmodular_db_getp(fdb, L, p);
   GEN jpath_g = cgetg(d + r + 1, t_VECSMALL);
-  ulong *jpath = (ulong *) &jpath_g[1];
+  ulong *jpath = zv_to_ulongptr(jpath_g);
   jpath[0] = res[offset];
   plen = walk_surface_path(jpath, phi, p, pi, L, d, r - 1);
   if (plen != r - 1) {
@@ -791,7 +836,7 @@ enum_j_with_endo_ring_small_disc_r(
     /* j_idx = scale * i + offset */
     for (i = 0, j_idx = offset; i < r; ++i, j_idx += scale) {
       long ok = enum_j_with_endo_ring_small_disc_r(
-        res, scale, j_idx, ne, mpdb, pcp, k);
+        res, scale, j_idx, ne, fdb, pcp, k);
       if ( ! ok)
         return 0;
     }
@@ -799,24 +844,25 @@ enum_j_with_endo_ring_small_disc_r(
   return 1;
 }
 
-
-INLINE GEN
-enum_j_with_endo_ring_small_disc(
-  ulong j0, norm_eqn_t ne, GEN *mpdb, GEN pcp, long max_elts)
+INLINE long
+carray_isin(ulong *v, long n, ulong x)
 {
-  pari_sp av = avma;
+  long i;
+  for (i = 0; i < n; ++i)
+    if (v[i] == x)
+      break;
+  return i;
+}
+
+INLINE long
+enum_j_with_endo_ring_small_disc(
+  ulong res[], norm_eqn_t ne, GEN fdb, GEN pcp, long max_elts)
+{
   long ngens = PCP_NGENS(pcp);
-  GEN res = cgetg(max_elts + 1, t_VECSMALL);
-  res[1] = j0;
-  if (ngens > 0) {
-    long ok = enum_j_with_endo_ring_small_disc_r(
-      (ulong *)&res[1], max_elts, 0, ne, mpdb, pcp, ngens);
-    if ( ! ok) {
-      avma = av;
-      return NULL;
-    }
-  }
-  return res;
+  if (ngens == 0)
+    pari_err_BUG("enum_j_with_endo_ring_small_disc");
+  return enum_j_with_endo_ring_small_disc_r(
+    res, max_elts, 0, ne, fdb, pcp, ngens);
 }
 
 
@@ -882,15 +928,15 @@ fill_parallel_path(ulong box[], ulong p, ulong pi,
 
 static long
 fill_box(
-  ulong box[], norm_eqn_t ne, GEN *mpdb, GEN pcp, ulong max_elts)
+  ulong box[], norm_eqn_t ne, GEN fdb, GEN pcp, ulong max_elts)
 {
   pari_sp av = avma;
   ulong ngens = PCP_NGENS(pcp);
-  long *gen_norms = &PCP_GEN_NORMS(pcp)[1];
-  long *rel_ords = &PCP_REL_ORDERS(pcp)[1];
+  long *gen_norms = zv_to_longptr(PCP_GEN_NORMS(pcp));
+  long *rel_ords = zv_to_longptr(PCP_REL_ORDERS(pcp));
   ulong *m = (ulong *) new_chunk(ngens);
   ulong i, p = ne->p, pi = ne->pi;
-  long w = ne->w, k, plen;
+  long w = ne->u * ne->v, k, plen;
   m[0] = 1;
   for (i = 1; i < ngens; ++i)
     m[i] = m[i - 1] * rel_ords[i - 1];
@@ -901,7 +947,7 @@ fill_box(
     /* FIXME: We should already know d from an earlier calculation. */
     ulong d = u_lval(w, L); /* volcano_depth(L, u, v); */
     ulong g;
-    GEN phi_L = polmodular_db_getp(mpdb, L, p);
+    GEN phi_L = polmodular_db_getp(fdb, L, p);
     pari_sp av2 = avma;
 
     ulong *jpath = (ulong *) new_chunk(d + r);
@@ -922,7 +968,7 @@ fill_box(
      * thread. */
     for (g = ngens - 1; g > (ulong)k; --g) {
       ulong LL = gen_norms[g];
-      GEN phi_LL = polmodular_db_getp(mpdb, LL, p);
+      GEN phi_LL = polmodular_db_getp(fdb, LL, p);
       for (i = m[g]; i < max_elts; i += m[g]) {
         if ((g == ngens - 1) || (i % m[g + 1] != 0)) {
           if ( ! fill_parallel_path(box, p, pi, phi_LL, phi_L,
@@ -942,34 +988,42 @@ fill_box(
 
 GEN
 enum_j_with_endo_ring(
-  ulong j0, norm_eqn_t ne, GEN *mpdb, GEN pcp, long max_elts)
+  ulong j0, int endo_cert, norm_eqn_t ne, GEN fdb, GEN pcp, long max_elts)
 {
-  /* res is a matrix (or rather, a *volume*) for which the (j0, j2,
+  /* res is a matrix (or rather, a *volume*) for which the (j0, j1,
    * .., jk)th entry is located at j0 * R1k + j1 * R2k + ... + jk
-   * where, if (r0, r2, .., rk) are the relative orders of the
+   * where, if (r0, r1, .., rk) are the relative orders of the
    * polycyclic presentation, Rik denotes the product of ri, .., rk. */
   pari_sp av = avma;
   GEN gen_norms = PCP_GEN_NORMS(pcp);
-  long ngens = PCP_NGENS(pcp);
-  GEN res = cgetg(max_elts + 1, t_VECSMALL);
-  res[1] = j0;
+  long ngens = PCP_NGENS(pcp), ok = 0;
+  long L1, L2, h;
+  GEN res_ = cgetg(max_elts + 1, t_VECSMALL);
+  ulong *res = zv_to_ulongptr(res_);
+  res[0] = j0;
 
   if (ngens == 0)
-    return res;
+    return res_;
 
-  if (ngens > 1) {
-    /* The norms of the last two generators. */
-    long L1 = gen_norms[ngens];
-    long L2 = gen_norms[ngens - 1];
-    /* If 4 L1^2 L2^2 > |D|, */
-    if (4 * L1 * L1 * L2 * L2 > -ne->D)
-      return enum_j_with_endo_ring_small_disc(j0, ne, mpdb, pcp, max_elts);
+  /* The norms of the last one or two generators. */
+  L1 = gen_norms[ngens];
+  L2 = ngens > 1 ? gen_norms[ngens - 1] : 1;
+
+  /* If 4 L1^2 L2^2 > |D|, we can't use the GCD enumeration method. */
+  if (4 * L1 * L1 * L2 * L2 > -ne->D)
+    ok = enum_j_with_endo_ring_small_disc(res, ne, fdb, pcp, max_elts);
+  else
+    ok = fill_box(res, ne, fdb, pcp, max_elts);
+
+  h = pcp_order(pcp);
+  /* If we didn't determine the endomorphism ring of j0 definitively
+   * (endo_cert == 0), then verify that it was okay by checking that
+   * there are no cycles in res. */
+  if ( ! ok || ( ! endo_cert && carray_isin(&res[1], h - 1, res[0]) < h - 1)) {
+    avma = av;
+    return NULL;
   }
-
-  if (fill_box((ulong *)&res[1], ne, mpdb, pcp, max_elts))
-    return res;
-  avma = av;
-  return NULL;
+  return res_;
 }
 
 
@@ -987,139 +1041,266 @@ select_twisting_param(ulong p)
 INLINE void
 setup_norm_eqn(norm_eqn_t ne, long D, long u, GEN norm_eqn)
 {
-  GEN factw;
-  long i, nfactors;
-
   ne->D = D;
   ne->u = u;
   ne->t = norm_eqn[2];
   ne->v = norm_eqn[3];
-  ne->w = u * ne->v;
   ne->p = (ulong) norm_eqn[1];
   ne->pi = get_Fl_red(ne->p);
   ne->T = select_twisting_param(ne->p);
-  ne->factw = factw = factoru(u * ne->v);
-  nfactors = lg(gel(factw, 1)) - 1;
-  ne->u_levels = cgetg(nfactors + 1, t_VECSMALL);
-  for (i = 1; i <= nfactors; ++i)
-    ne->u_levels[i] = z_lval(u, gel(factw, 1)[i]);
-  ne->vdepths = gel(factw, 2);
+}
+
+INLINE ulong
+Flv_powsum_pre(GEN v, ulong n, ulong p, ulong pi)
+{
+  long i;
+  ulong psum = 0;
+  for (i = 1; i < lg(v); ++i)
+    psum += Fl_powu_pre(v[i], n, p, pi);
+  return psum;
+}
+
+INLINE void
+adjust_signs(GEN js, norm_eqn_t ne, long inv, GEN T, long e)
+{
+  if (inv == INV_F) {
+    long negate = 0;
+    long h = lg(js) - 1;
+    ulong p = ne->p;
+    if (h & 1) {
+      ulong prod = Flv_prod_pre(js, p, ne->pi);
+      if (prod != p - 1) {
+        if (prod != 1)
+          pari_err_BUG("adjust_signs: constant term is not +/-1");
+        negate = 1;
+      }
+    } else {
+      ulong tp, t;
+      tp = umodiu(T, p);
+      t = Fl_div(Flv_powsum_pre(js, e, p, ne->pi), e % p, p);
+      if (t != tp) {
+        if (Fl_neg(t, p) != tp)
+          pari_err_BUG("adjust_signs: incorrect trace");
+        negate = 1;
+      }
+    }
+    if (negate)
+      Flv_neg_inplace(js, p);
+  }
+}
+
+
+static ulong
+find_jinv(
+  long *trace_tries, long *endo_tries, int *cert,
+  norm_eqn_t ne, long inv, long rho_inv, GEN jdb)
+{
+  long found;
+  ulong j;
+  do {
+    long tries;
+    ulong j_t = 0;
+    /* TODO: Set batch size according to expected number of tries and
+     * experimental cost/benefit analysis. */
+    tries = find_j_inv_with_given_trace(&j_t, ne, rho_inv, 0);
+    if (j_t == 0)
+      pari_err_BUG("polclass0: Couldn't find j-invariant with given trace.");
+    dbg_printf(2)("  j-invariant %ld has trace +/-%ld (%ld tries, 1/rho = %ld)\n",
+               j_t, ne->t, tries, rho_inv);
+    *trace_tries += tries;
+
+    found = oneroot_of_classpoly(&j, cert, j_t, ne, jdb);
+    ++*endo_tries;
+  } while ( ! found);
+
+  return modfn_root(j, ne, inv);
 }
 
 
 static int
-polclass0(
-  ulong *total_curves_tested,
-  GEN norm_eqn, GEN *hilb, GEN *P, long D, long u, GEN pcp, GEN *mpdb,
-  long xvar)
+polclass_update_crt(
+  long *n_trace_curves,
+  GEN norm_eqn, GEN *hilb, GEN *P, long D, long u, long inv, GEN pcp,
+  GEN db, long xvar, GEN T, long e, long only_trace)
 {
   pari_sp av = avma;
-  ulong j_t = 0, j_endo = 0;
-  long found_j_endo, trace_tries = 0, endo_tries = 0, rho_inv = norm_eqn[4];
-  int stab;
+  ulong j = 0, p;
+  long endo_tries = 0, rho_inv = norm_eqn[4];
+  int stab, endo_cert;
   GEN res, pol;
+  GEN jdb, fdb;
   norm_eqn_t ne;
 
+  jdb = polmodular_db_for_inv(db, INV_J);
+  fdb = polmodular_db_for_inv(db, inv);
+
   setup_norm_eqn(ne, D, u, norm_eqn);
-  dbg_printf(2)("p = %ld, t = %ld, v = %ld\n", ne->p, ne->t, ne->v);
+  p = ne->p;
+  dbg_printf(2)("p = %ld, t = %ld, v = %ld\n", p, ne->t, ne->v);
 
   do {
-    do {
-      /* FIXME: Set batch size according to expected number of tries and
-       * experimental cost/benefit analysis. */
-      trace_tries = find_j_inv_with_given_trace(&j_t, ne, rho_inv, 0);
-      if (j_t == 0) {
-        pari_err_BUG("polclass0: "
-                     "Couldn't find j-invariant with given trace.");
-      }
-      dbg_printf(2)("  j-invariant %ld has trace +/-%ld (%ld tries, 1/rho = %ld)\n",
-                  j_t, ne->t, trace_tries, rho_inv);
-      *total_curves_tested += trace_tries;
-
-      found_j_endo = oneroot_of_classpoly(&j_endo, j_t, ne, mpdb);
-      if ( ! found_j_endo) {
-        dbg_printf(1)("Couldn't find j-invariant isogenous to %lu with "
-                   "given endo ring; trying again...\n", j_t);
-      }
-      ++endo_tries;
-    } while ( ! found_j_endo);
-
-    res = enum_j_with_endo_ring(j_endo, ne, mpdb, pcp, pcp_order(pcp));
+    j = find_jinv(n_trace_curves, &endo_tries, &endo_cert, ne, inv, rho_inv, jdb);
+    res = enum_j_with_endo_ring(j, endo_cert, ne, fdb, pcp, pcp_order(pcp));
   } while ( ! res);
 
   dbg_printf(2)("  j-invariant %ld has correct endomorphism ring "
-              "(%ld tries)\n", j_endo, endo_tries);
-  dbg_printf(3)("  all such j-invariants: %Ps\n", res);
+             "(%ld tries)\n", j, endo_tries);
+  dbg_printf(4)("  all such j-invariants: %Ps\n", res);
 
-  pol = gerepileupto(av, Flv_roots_to_pol(res, ne->p, xvar));
-  dbg_printf(3)("  Hilbert polynomial mod %ld: %Ps\n", ne->p, pol);
-
-  stab = ZX_incremental_CRT(hilb, pol, P, ne->p);
+  /* TODO: Clean this up; it's super ugly */
+  if (only_trace) {
+    ulong tr = Fl_div(Flv_powsum_pre(res, e, p, ne->pi), e % p, p);
+    stab = Z_incremental_CRT(hilb, Fl_sqr_pre(tr, p, ne->pi), P, p);
+  } else {
+    adjust_signs(res, ne, inv, T, e); /* FIXME */
+    pol = gerepileupto(av, Flv_roots_to_pol(res, p, xvar));
+    dbg_printf(4)("  Hilbert polynomial mod %ld: %Ps\n", p, pol);
+    stab = ZX_incremental_CRT(hilb, pol, P, p);
+  }
   return stab;
 }
 
+
+static void
+precalculate_coeff(
+  GEN *T, long *d,
+  GEN prime_lst, long *n_curves_tested, long D, ulong u, ulong h, long inv, GEN pcp, GEN db, long xvar)
+{
+  /* Number of consecutive CRT stabilisations before we assume we have
+   * the correct answer. */
+  enum { MIN_STAB_CNT = 3 };
+
+  if (inv == INV_F) {
+    pari_sp av = avma;
+    GEN Tsqr, P;
+    long i, e, stabcnt, nprimes = lg(prime_lst) - 1;
+
+    if (h & 1) {
+      *T = gen_1;
+      *d = 0;
+      return;
+    }
+
+    e = -1;
+    do {
+      e += 2;
+      Tsqr = Z_init_CRT(0, 1);
+      P = gen_1;
+      for (i = 1, stabcnt = 0; stabcnt < MIN_STAB_CNT && i <= nprimes; ++i) {
+        long stab = polclass_update_crt(n_curves_tested, gel(prime_lst, i),
+            &Tsqr, &P, D, u, inv, pcp, db, xvar, NULL, e, 1);
+        if (stab)
+          ++stabcnt;
+        else
+          stabcnt = 0;
+        if (gc_needed(av, 2))
+          gerepileall(av, 2, &Tsqr, &P);
+      }
+      if (stabcnt < MIN_STAB_CNT && nprimes >= MIN_STAB_CNT)
+        pari_err_BUG("polclass: square of trace did not stabilise");
+    } while (gequal0(Tsqr));
+    if ( ! Z_issquareall(Tsqr, T))
+      pari_err_BUG("polclass: square of trace is not square");
+
+    dbg_printf(1)("Classpoly trace (e = %ld) is %Ps; found with %.2f%% of the primes\n",
+               e, *T, 100 * (i - 1) / (double) nprimes);
+    *T = gerepileupto(av, *T);
+    *d = e;
+  } else {
+    *T = NULL;
+    *d = -1;
+  }
+}
+
+
+/*
+ * TODO: Remove use of xvar; do CRT of polynomial coefficients and
+ * convert to a polynomial at the end.
+ */
 GEN
-polclass(GEN DD, long xvar)
+polclass0(long D, long inv, long xvar, GEN *db)
 {
   pari_sp ltop = avma, btop;
-  long D, dummy;
   GEN prime_lst;
-  ulong total_curves_tested = 0;
-  long nprimes, i;
-  GEN hilb = 0;  /* The Hilbert class polynomial */
+  long n_curves_tested = 0;
+  long nprimes, i, e;
+  GEN H, T;
   GEN P; /* P is the product of all the p */
-  ulong u, classno;
-  GEN pcp, mpdb;
+  ulong u, h, L, maxL, vfactors, biggest_v;
+  GEN pcp;
   static const long k = 2;
   static const double delta = 0.5;
-  long inv = 0; /* INV_J */
 
-  if (xvar < 0)
-    xvar = 0;
-  check_quaddisc_imag(DD, &dummy, "polclass");
-
-  D = itos(DD);
+  /* TODO: H_{-4}(x) = x - 12 for INV_G2 and H_{-4}(x) = x - 1 for INV_F */
+  /* TODO: put this in find_jinv */
   if (D == -3) /* x */
     return pol_x(xvar);
   if (D == -4) /* x - 1728 */
     return gerepileupto(ltop, deg1pol(gen_1, stoi(-1728), xvar));
 
   (void) corediscs(D, &u);
-  classno = classno_wrapper(D);
+  h = classno_wrapper(D);
 
-  dbg_printf(1)("D = %ld, conductor = %ld\n", D, u);
+  dbg_printf(1)("D = %ld, conductor = %ld, inv = %ld\n", D, u, inv);
 
-  pcp = minimal_polycyclic_presentation(classno, D, u);
+  pcp = minimal_polycyclic_presentation(h, D, u, inv);
+  prime_lst = select_classpoly_primes(&vfactors, &biggest_v, D, inv, k, delta, pcp);
 
-  prime_lst = select_classpoly_primes(D, k, delta, pcp);
-  mpdb = polmodular_db_init(0, inv);
-
-  hilb = ZX_init_CRT(pol_0(xvar), 1L, xvar);
-  P = gen_1;
+  /* Prepopulate *db with all the modpolys we might need */
+  /* TODO: Clean this up; in particular, note that u is factored later on. */
+  maxL = maxdd(log(-D), (double)biggest_v); /* This comes from L_bound in oneroot_of_classpoly() above */
+  if (u > 1) {
+    for (L = 2; L <= maxL; L = unextprime(L + 1))
+      if ( ! (u % L))
+        polmodular_db_add_level(db, L, INV_J);
+  }
+  for (i = 0; vfactors; ++i) {
+    if (vfactors & 1UL)
+      polmodular_db_add_level(db, SMALL_PRIMES[i], INV_J);
+    vfactors >>= 1;
+  }
+  polmodular_db_add_levels(db, PCP_GEN_NORMS(pcp), inv);
 
   nprimes = lg(prime_lst) - 1;
+  precalculate_coeff(&T, &e, prime_lst, &n_curves_tested, D, u, h, inv, pcp, *db, xvar);
+
+  H = ZX_init_CRT(pol_0(xvar), 1L, xvar);
+  P = gen_1;
+
   btop = avma;
   for (i = 1; i <= nprimes; ++i) {
-    (void) polclass0(&total_curves_tested, gel(prime_lst, i),
-                      &hilb, &P, D, u, pcp, &mpdb, xvar);
+    (void) polclass_update_crt(&n_curves_tested, gel(prime_lst, i),
+        &H, &P, D, u, inv, pcp, *db, xvar, T, e, 0);
     if (gc_needed(btop, 2))
-      gerepileall(btop, 2, &hilb, &P);
-#if 0
-    if (quit_on_first_stabilisation && stab)
-      break;
-#endif
+      gerepileall(btop, 2, &H, &P);
   }
 
-  dbg_printf(1)("Total number of curves tested: %lu\n",
-             total_curves_tested);
+  dbg_printf(1)("Total number of curves tested: %ld\n", n_curves_tested);
+  dbg_printf(1)("Result height: %.2f\n",
+             dbllog2r(itor(gsupnorm(H, DEFAULTPREC), DEFAULTPREC)));
+  return gerepileupto(ltop, H);
+}
 
-  polmodular_db_clear(mpdb);
-  /* According to Sutherland, 2009, Section 6.3, the coefficients of
-   * the class polynomial lie in the interval (-P/2, P/2) when the
-   * modulus P with respect to which we are computing the class
-   * polynomial is greater than the product of all the small primes.
-   * This is called the "centred representative" and is precisely the
-   * value maintained by ZX_incremental_CRT().  We can therefore
-   * return hilb directly. */
-  return gerepilecopy(ltop, hilb);
+
+GEN
+polclass(GEN DD, long inv, long xvar)
+{
+  GEN db, H;
+  long dummy, D;
+
+  if (xvar < 0)
+    xvar = 0;
+  check_quaddisc_imag(DD, &dummy, "polclass");
+
+  if (inv < 0)
+    inv = INV_J;
+
+  D = itos(DD);
+  if ( ! inv_good_discriminant(D, inv) || (D >= -4 && inv != INV_J))
+    pari_err_DOMAIN("polclass", "D", "incompatible with given invariant", stoi(inv), DD);
+
+  db = polmodular_db_init(inv);
+  H = polclass0(D, inv, xvar, &db);
+  gunclone_deep(db);
+  return H;
 }

@@ -264,21 +264,17 @@ enum { fupb_NONE, fupb_RELAT, fupb_LARGE, fupb_PRECI };
  *
  * t is the absolute trace, so always > 0.
  * T is a twisting parameter, which satisfies (T|p) == -1.
- * factw is the factorisation of w
- * u_levels[i] is the valuation of u at the ith factor of w,
- * i.e. the level of D in the ith volcano.
- * vdepths[i] is the depth of the ith volcano.
  */
 typedef struct {
   long D;
-  long t, u, v, w;
+  long t, u, v;
   ulong p, pi;
   ulong T;
-  GEN factw;
-  GEN u_levels;
-  GEN vdepths;
 } norm_eqn_struct;
 typedef norm_eqn_struct norm_eqn_t[1];
+
+#define zv_to_longptr(v) (&((v)[1]))
+#define zv_to_ulongptr(v) ((ulong *)&((v)[1]))
 
 /* Isogeny volcanos */
 long j_level_in_volcano(
@@ -293,13 +289,37 @@ long walk_surface_path(
   ulong path[], GEN phi, ulong p, ulong pi, long L, long depth,
   long max_len);
 GEN enum_j_with_endo_ring(
-  ulong j0, norm_eqn_t ne, GEN *mpdb, GEN pcp, long max_elts);
+  ulong j0, int endo_cert, norm_eqn_t ne, GEN db, GEN pcp, long max_elts);
+
+/* Modular invariants */
+#define INV_J 0
+#define INV_F 1
+#define INV_F2 2
+#define INV_F3 3
+#define INV_F4 4
+#define INV_G2 5
+
+long inv_level(long inv);
+long inv_degree(long *p1, long *p2, long inv);
+double inv_height_factor(long inv);
+int inv_good_discriminant(long D, long inv);
+int inv_good_prime(long p, long inv);
+ulong modfn_root(ulong j, norm_eqn_t ne, long inv);
+
+/* Internal polclass and polmodular functions, to allow sharing
+ * modular polynomial cache */
+GEN polclass0(long D, long inv, long xvar, GEN *db);
+GEN polmodular0_ZM(
+  long L, long inv, GEN J, GEN Q, int compute_derivs, GEN *db);
+
 
 /* Polmodular database maintenance */
-GEN polmodular_db_init(GEN levels, long inv);
+GEN polmodular_db_init(long inv);
 void polmodular_db_clear(GEN db);
-GEN polmodular_db_get(GEN *db, long L);
-GEN polmodular_db_getp(GEN *db, long L, ulong p);
+void polmodular_db_add_level(GEN *db, long L, long inv);
+void polmodular_db_add_levels(GEN *db, GEN levels, long inv);
+GEN polmodular_db_for_inv(GEN db, long inv);
+GEN polmodular_db_getp(GEN fdb, long L, ulong p);
 
 void random_curves_with_m_torsion(
   ulong *a4, ulong *a6, ulong *tx, ulong *ty,

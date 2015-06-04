@@ -47,18 +47,35 @@ modpoly_hashes = [
 16279119036202003022,
 9091292905489559584
 ];
-
 }
 
-check_modpoly(L) =
+check_modpoly(L, hash, inv = 0) =
 {
-    if (hash_ZXX(polmodular(L)) != modpoly_hashes[lvl_idx[L]],
-        error("Bad modpoly"));
+   if (hash_ZXX(polmodular(L, inv)) != hash,
+       error("Bad modpoly"));
 }
 
+default(parisize, "32M");
 {
 MAX_LEVEL = 23;  \\ This already gives 89% coverage in 1.2s
-forprime(L = 2, MAX_LEVEL, check_modpoly(L));
+forprime(L = 2, MAX_LEVEL, check_modpoly(L, modpoly_hashes[lvl_idx[L]]));
+
+modfn_in = [[2, 5, 7818678061185],
+            [5, 1, 14017670839540699521],
+            [5, 5, 10135583858468178383],
+            [7, 1, 6937006200180283618],
+            [7, 5, 9634555674574853739],
+            [19, 1, 11245295902670825360],
+            [29, 1, 16325532180637558646],
+            [47, 1, 5045713438637349850],
+            [61, 5, 5614541323969591564],
+            [71, 0, 8840690212199031415],
+            [101, 1, 18403372459340572304],
+            [139, 1, 4966835288214143418],
+            [359, 1, 15999826932501894898] \\ takes 3s, no smaller example though :(
+           ];
+for (i = 1, #modfn_in, my (in = modfn_in[i]); check_modpoly(in[1], in[3], in[2]));
+
 
 \\ Check that specifying variables works
 my (phi7 = polmodular(7));
@@ -86,10 +103,6 @@ iferr (polmodular(6), err, got_err = 1, errname(err) == "e_IMPL");
 if ( ! got_err, error("No error from composite level"));
 
 got_err = 0;
-iferr (polmodular(nextprime(5000)), err, got_err = 1, errname(err) == "e_IMPL");
-if ( ! got_err, error("No error from huge level"));
-
-got_err = 0;
 iferr (polmodular(7, , 'x, 'y, 1), err, got_err = 1, errname(err) == "e_FLAG");
 if ( ! got_err, error("No error from inappropriate flag"));
 
@@ -100,6 +113,10 @@ if ( ! got_err, error("No error from same variables"));
 got_err = 0;
 iferr (polmodular(7, , 'y, 'x), err, got_err = 1, errname(err) == "e_PRIORITY");
 if ( ! got_err, error("No error from bad variables"));
+
+got_err = 0;
+iferr (polmodular(3, 5); polmodular(2, 1), err, got_err = 1, errname(err) == "e_DOMAIN");
+if ( ! got_err, error("No error from incompatible level/invariant pair"));
 }
 
 all(v) = { my (r = 1); for (i = 1, #v, r = r && v[i]); r; }
