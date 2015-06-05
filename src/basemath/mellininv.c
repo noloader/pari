@@ -18,10 +18,96 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 /*               Computation of inverse Mellin                     */
 /*               transforms of gamma products.                     */
 /*******************************************************************/
-
 #ifndef M_E
 #define M_E 2.7182818284590452354
 #endif
+
+/* rough approximation to W0(a > -1/e), < 1% relative error */
+double
+dbllambertW0(double a)
+{
+  if (a < -0.2583)
+  {
+    const double c2 = -1./3, c3 = 11./72, c4 = -43./540, c5 = 769./17280;
+    double p = sqrt(2*(M_E*a+1));
+    if (a < -0.3243) return -1+p*(1+p*(c2+p*c3));
+    return -1+p*(1+p*(c2+p*(c3+p*(c4+p*c5))));
+  }
+  else
+  {
+    double Wd = log(1.+a);
+    Wd *= (1.-log(Wd/a))/(1.+Wd);
+    if (a < 0.6482 && a > -0.1838) return Wd;
+    return Wd*(1.-log(Wd/a))/(1.+Wd);
+  }
+}
+
+/* rough approximation to W_{-1}(0 > a > -1/e), < 1% relative error */
+double
+dbllambertW_1(double a)
+{
+  if (a < -0.2464)
+  {
+    const double c2 = -1./3, c3 = 11./72, c4 = -43./540, c5 = 769./17280;
+    double p = -sqrt(2*(M_E*a+1));
+    if (a < -0.3243) return -1+p*(1+p*(c2+p*c3));
+    return -1+p*(1+p*(c2+p*(c3+p*(c4+p*c5))));
+  }
+  else
+  {
+    double Wd;
+    a = -a; Wd = -log(a);
+    Wd *= (1.-log(Wd/a))/(1.-Wd);
+    if (a < 0.0056) return -Wd;
+    return -Wd*(1.-log(Wd/a))/(1.-Wd);
+  }
+}
+
+/* ac != 0 */
+static double
+lemma526_i(double ac, double c, double t, double B)
+{
+  double D = -B/ac;
+  if (D < 0)
+  {
+    double x = pow(t, c);
+    if (D > -100)
+      D = dbllambertW_1(-exp(D) / t);
+    else
+    { /* avoid underflow, use asymptotic expansion */
+      double U = D - log(t);
+      D = U - log(-U);
+    }
+    return maxdd(x, pow(-t * D, c));
+  }
+  else
+  {
+    if (D < 100)
+      D = dbllambertW0(-exp(D) / t);
+    else
+    { /* avoid overflow, use asymptotic expansion */
+      double U = D - log(-t);
+      D = U - log(U);
+    }
+    return pow(-t * D, c);
+  }
+}
+/* b > 0, c > 0, B > 0; solve x^a exp(-b x^(1/c)) < e^(-B) */
+double
+dbllemma526(double a, double b, double c, long B)
+{
+  double ac;
+  if (!a) return pow(B/b, c);
+  ac = a*c;
+  return lemma526_i(ac, c, ac/b, B);
+}
+/* Same, special case b/c = 2Pi, the only one needed: for c = d/2 */
+double
+dblcoro526(double a, double c, long B)
+{
+  if (!a) return pow(B/(2*M_PI*c), c);
+  return lemma526_i(a*c, c, a/(2*M_PI), B);
+}
 
 static const double MELLININV_CUTOFF = 121.; /* C*C */
 
@@ -84,7 +170,7 @@ Kderivsmallinit(GEN Vga, long m, long bitprec)
     gel(mj,j) = gsubsg(2, vecmin(L));
   }
   prec = nbits2prec((long)(1+bitprec*(1+M_PI*d/C2)));
-  limn = ceil(2*LOG2*bitprec/(d*rtodbl(mplambertW(dbltor(C2/(M_PI*M_E))))));
+  limn = ceil(2*LOG2*bitprec/(d*dbllambertW0(C2/(M_PI*M_E))));
   mat = cgetg(N+1, t_VEC);
   l = limn + 2;
   for (j=1; j <= N; j++)
@@ -169,17 +255,15 @@ Kderivsmall(GEN K, GEN x, GEN x2d, long bitprec)
   GEN lj = gel(VS,1), mj = gel(VS,2), mat = gel(VS,3);
   GEN d2, Lx, x2, x2i, A, S, pi;
   long prec, d, N, j, k, limn, m = itos(gel(K, 3));
-  double Ed, xd, Wd, Wd0;
+  double Ed, xd, Wd;
 
   N = lg(lj)-1; d = lg(Vga)-1; A = vecsum(Vga);
   Ed = LOG2*bitprec / d;
   xd = maxdd(M_PI*dblmodulus(x2d), 1E-13); /* pi |x|^2/d unless x tiny */
   if (xd > Ed) pari_err_BUG("Kderivsmall (x2d too large)");
-  Wd0 = Ed/(M_E*xd); /* >= 1/e */
-  Wd = log(1.+Wd0);
-  Wd *= (1.-log(Wd/Wd0))/(1.+Wd);
-  Wd *= (1.-log(Wd/Wd0))/(1.+Wd);
-  /* Wd solution of w exp(-w) = w0 */
+  /* Lemma 5.2.6 (2), a = 1 + log(Pi x^(2/d)) = log(e / xd),
+   * B = log(2)*bitprec / d = Ed */
+  Wd = dbllambertW0( Ed / (M_E*xd) ); /* solution of w exp(w) = B exp(-a)*/
   limn = (long) ceil(2*Ed/Wd);
   prec = nbits2prec((long) ceil(bitprec+d*xd/LOG2));
   if (!gequal0(imag_i(x2d)) && !RgV_is_ZV(Vga))

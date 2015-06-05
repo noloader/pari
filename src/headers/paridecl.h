@@ -3204,6 +3204,10 @@ GEN     maptomat_shallow(GEN T);
 
 /* mellininv.c */
 
+double  dbllambertW0(double a);
+double  dbllambertW_1(double a);
+double  dbllemma526(double a, double b, double c, long B);
+double  dblcoro526(double a, double c, long B);
 GEN     gammamellininv(GEN Vga, GEN s, long m, long prec);
 GEN     gammamellininv_bitprec(GEN Vga, GEN s, long m, long bitprec);
 GEN     gammamellininvasymp(GEN Vga, long nlimmax, long m);
