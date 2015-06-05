@@ -215,7 +215,7 @@ BA 43- GP function powers and libpari function gpowers
 BA 45- [libpari] functions FpX_Frobenius, FpX_matFrobenius, Flx_Frobenius,
        Flx_matFrobenius, ZpX_Frobenius
    46- [libpari] function ser_isexactzero
-BA 47- [libpari] functions ZV_chinese, Z_ZV_mod, Z_nv_mod, nmV_chinese
+BA 47- [libpari] functions ZV_chinese, Z_ZV_mod, Z_nv_mod, nmV_chinese_center
 BA 48- GP function fromdigits
 BA 49- [libpari] functions Zp_sqrt, ZpXQ_sqrt
    50- GP functions mscuspidal, mseisenstein, msnew, mssplit, msqexpansion,
