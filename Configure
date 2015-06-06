@@ -33,6 +33,7 @@ cd $config_dir
 . ./get_head # do we need head -n # or head -# ?
 . ./version
 echo "Configuring pari-$pari_release_verbose $patchlevel_verbose"
+command_line0="$0 $@"
 . ./get_config_options
 ####################### CONFIGURE - SHELL ###################################
 . ./get_nl # how to get echo without \n ? (for config questions)
@@ -60,7 +61,7 @@ cat > $config_log<< EOT
 This file contains messages produced while configuring
   pari-$pari_release $patchlevel_verbose
 to aid debugging if Configure makes a mistake. Command line was
-  > $0 $@
+  > $command_line0
 
 EOT
 exec 5>> $config_log
