@@ -259,6 +259,7 @@ u_forprime_arith_init(forprime_t *T, ulong a, ulong b, ulong c, ulong q)
   T->c = c;
   T->strategy = 0; /* unknown */
   T->sieve = NULL; /* unused for now */
+  if (!odd(b) && b > 2) b--;
   T->b = b;
   if (maxp >= b) { /* [a,b] \subset prime table */
     u_forprime_set_prime_table(T, a);
@@ -292,7 +293,6 @@ u_forprime_arith_init(forprime_t *T, ulong a, ulong b, ulong c, ulong q)
     sieveb = b;
     if (maxp2 && maxp2 < b) sieveb = maxp2;
     if (!T->strategy) T->strategy = 2;
-    if (!odd(sieveb)) sieveb--;
     sieve_init(T, maxuu(maxp+2, a), sieveb);
   }
   return 1;
@@ -450,8 +450,11 @@ NEXT_CHUNK:
       }
     }
 
-    if (T->end >= T->sieveb) /* done */
+    if (T->maxpos && T->end >= T->sieveb) /* done with sieves ? */
+    {
+      if (T->sieveb == T->b && T->b != ULONG_MAX) return 0;
       T->strategy = 3;
+    }
     else
     { /* initialize next chunk */
       if (T->maxpos == 0)
