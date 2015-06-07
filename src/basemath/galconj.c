@@ -1145,8 +1145,6 @@ notgalois(long p, struct galois_analysis *ga)
   ga->deg = 0;
 }
 
-#define numberof(x) (long)(sizeof(x) / sizeof((x)[0]))
-
 /*Gather information about the group*/
 static long
 init_group(long n, long np, GEN Fp, GEN Fe, long *porder)

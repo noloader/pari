@@ -1922,7 +1922,7 @@ str_ulong(outString *S, ulong e)
   if (e == 0) str_putc(S, '0');
   else
   {
-    char buf[21], *p = buf + sizeof(buf)/sizeof(*buf);
+    char buf[21], *p = buf + numberof(buf);
     *--p = 0;
     if (e > 9) {
       do

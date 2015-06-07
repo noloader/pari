@@ -19,8 +19,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #include <pari.h>
 #include <paripriv.h>
 
-#define numberof(x) (sizeof(x) / sizeof((x)[0]))
-
 int option_trace = 0;
 double Step_Factor = .01; /* small steps by default */
 ulong DFLT_mod1, DFLT_hmod, DFLT_mod2;

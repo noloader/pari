@@ -100,7 +100,7 @@ pari_rand(void) { return rand64(); }
 void
 setrand(GEN x)
 {
-  const int r2 = sizeof(state)/sizeof(ulong);
+  const int r2 = numberof(state);
   ulong useed;
   long i;
   GEN xp;
@@ -124,7 +124,7 @@ setrand(GEN x)
 GEN
 getrand(void)
 {
-  const int r2 = sizeof(state)/sizeof(ulong);
+  const int r2 = numberof(state);
   GEN x;
   ulong *xp;
   long i;

@@ -824,7 +824,7 @@ static struct {
   {200000000507, 8007105083},
 #endif
 };
-static const int prime_table_len = sizeof(prime_table)/sizeof(prime_table[0]);
+static const int prime_table_len = numberof(prime_table);
 
 /* find prime closest to n in prime_table. */
 static long

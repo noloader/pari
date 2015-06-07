@@ -411,7 +411,6 @@ filter_quotes(const char *s)
 static int
 nl_read(char *s) { size_t l = strlen(s); return s[l-1] == '\n'; }
 
-#define nbof(a) sizeof(a) / sizeof(a[0])
 /* query external help program for s. num < 0 [keyword] or chapter number */
 static void
 external_help(const char *s, int num)
@@ -441,7 +440,7 @@ external_help(const char *s, int num)
                                                SHELL_Q,t,ar,SHELL_Q);
   z = try_pipe(str,0); f = z->file;
   pari_free(t);
-  while (fgets(buf, nbof(buf), f))
+  while (fgets(buf, numberof(buf), f))
   {
     if (!strncmp("ugly_kludge_done",buf,16)) break;
     pari_puts(buf);

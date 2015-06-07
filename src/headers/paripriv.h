@@ -23,6 +23,8 @@ typedef int (*QSCOMP)(const void *, const void *);
 #define umael(a,i,j)   (((ulong**)(a))[i][j])
 #define uel(a,i)       (((ulong*)(a))[i])
 
+#define numberof(x) (sizeof(x) / sizeof((x)[0]))
+
 /* to manipulate 'blocs' */
 #define BL_HEAD 4
 #define bl_base(x) (void*)((x) - BL_HEAD)

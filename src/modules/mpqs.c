@@ -350,7 +350,7 @@ mpqs_find_k(mpqs_handle_t *h)
   } cache[MPQS_POSSIBLE_MULTIPLIERS];
   ulong p, i, j, nbk;
 
-  for (i = j = 0; i < sizeof(cand_multipliers)/sizeof(mpqs_multiplier_t); i++)
+  for (i = j = 0; i < numberof(cand_multipliers); i++)
   {
     const mpqs_multiplier_t *cand_k = &cand_multipliers[i];
     long k = cand_k->k;
