@@ -363,6 +363,9 @@ mpqs_find_k(mpqs_handle_t *h)
     cache[nbk].value = v;
     if (++nbk == MPQS_POSSIBLE_MULTIPLIERS) break; /* enough */
   }
+  /* next test is an impossible situation: kills spurious gcc-5.1 warnings
+   * "array subscript is above array bounds" */
+  if (nbk > MPQS_POSSIBLE_MULTIPLIERS) nbk = MPQS_POSSIBLE_MULTIPLIERS;
   u_forprime_init(&S, 2, ULONG_MAX);
   while ( (p = u_forprime_next(&S)) )
   {
