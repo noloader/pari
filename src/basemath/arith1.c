@@ -2556,15 +2556,15 @@ ZV_polint_tree(GEN T, GEN R, GEN xa, GEN ya)
 }
 
 static GEN
-ZV_polint_center_tree(GEN T, GEN R, GEN xa, GEN ya)
+ZV_polint_center_tree(GEN T, GEN R, GEN xa, GEN ya, GEN m2)
 {
   GEN mod = gmael(T, lg(T)-1, 1);
   GEN a = ZV_polint_tree(T, R, xa, ya);
-  return Fp_center(a, mod, shifti(mod,-1));
+  return Fp_center(a, mod, m2);
 }
 
 static GEN
-ncV_polint_center_tree(GEN T, GEN R, GEN xa, GEN Va)
+ncV_polint_center_tree(GEN T, GEN R, GEN xa, GEN Va, GEN m2)
 {
   long i, j, l = lg(gel(Va,1)), n = lg(xa);
   GEN V = cgetg(l, t_COL);
@@ -2574,13 +2574,13 @@ ncV_polint_center_tree(GEN T, GEN R, GEN xa, GEN Va)
     GEN ya = cgetg(n, t_VECSMALL);
     for(j=1; j < n; j++)
       ya[j] = mael(Va,j,i);
-    gel(V,i) = gerepilecopy(av, ZV_polint_center_tree(T, R, xa, ya));
+    gel(V,i) = gerepilecopy(av, ZV_polint_center_tree(T, R, xa, ya, m2));
   }
   return V;
 }
 
 static GEN
-nmV_polint_center_tree(GEN T, GEN R, GEN xa, GEN Ma)
+nmV_polint_center_tree(GEN T, GEN R, GEN xa, GEN Ma, GEN m2)
 {
   long i, j, l = lg(gel(Ma,1)), n = lg(xa);
   GEN ya = cgetg(n, t_VEC);
@@ -2589,7 +2589,7 @@ nmV_polint_center_tree(GEN T, GEN R, GEN xa, GEN Ma)
   {
     for(j=1; j < n; j++)
       gel(ya,j) = gmael(Ma,j,i);
-    gel(M,i) = ncV_polint_center_tree(T, R, xa, ya);
+    gel(M,i) = ncV_polint_center_tree(T, R, xa, ya, m2);
   }
   return M;
 }
@@ -2722,7 +2722,8 @@ nmV_chinese_center(GEN A, GEN P, GEN *pt_mod)
   pari_sp av = avma;
   GEN T = ZV_producttree(P);
   GEN R = ZV_chinesetree(T, P);
-  GEN a = nmV_polint_center_tree(T, R, P, A);
+  GEN m2 = shifti(gmael(T, lg(T)-1, 1), -1);
+  GEN a = nmV_polint_center_tree(T, R, P, A, m2);
   if (!pt_mod)
     return gerepileupto(av, a);
   else
