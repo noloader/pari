@@ -1928,6 +1928,9 @@ assuming $pi$ is the pseudo inverse of $p$.
 \fun{ulong}{Fl_mul_pre}{ulong x, ulong y, ulong p, ulong pi} returns $x\*y$
 modulo $p$, assuming $pi$ is the pseudo inverse of $p$.
 
+\fun{ulong}{Fl_addmulmul_pre}{ulong x0, ulong y0, ulong x1, ulong y1, ulong p,  ulong pi}
+returns $x0*y0+x1*y1$ modulo $p$, assuming $pi$ is the pseudo inverse of $p$.
+
 \fun{ulong}{Fl_powu_pre}{ulong x, ulong n, ulong p, ulong pi} returns
 $x^n$ modulo $p$, assuming $pi$ is the pseudo inverse of $p$.
 

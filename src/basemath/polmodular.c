@@ -29,13 +29,7 @@ Fl_addmul2(
   ulong x0, ulong x1, ulong y0, ulong y1,
   ulong p, ulong pi)
 {
-  ulong l0, l1, h0, h1;
-  LOCAL_OVERFLOW;
-  LOCAL_HIREMAINDER;
-  l0 = mulll(x0, y1); h0 = hiremainder;
-  l1 = mulll(x1, y0); h1 = hiremainder;
-  l0 = addll(l0, l1); h0 = addllx(h0, h1);
-  return remll_pre(h0, l0, p, pi);
+  return Fl_addmulmul_pre(x0,y1,y0,x1,p,pi);
 }
 
 

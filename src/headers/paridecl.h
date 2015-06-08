@@ -3907,6 +3907,7 @@ GEN zetamult(GEN avec, long prec);
 /* level1.h */
 
 INLINE ulong  Fl_add(ulong a, ulong b, ulong p);
+INLINE ulong  Fl_addmulmul_pre(ulong x0, ulong y0, ulong x1, ulong y1, ulong p, ulong pi);
 INLINE long   Fl_center(ulong u, ulong p, ulong ps2);
 INLINE ulong  Fl_div(ulong a, ulong b, ulong p);
 INLINE ulong  Fl_double(ulong a, ulong p);

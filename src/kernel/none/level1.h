@@ -907,6 +907,18 @@ Fl_mul_pre(ulong a, ulong b, ulong p, ulong pi)
 }
 
 INLINE ulong
+Fl_addmulmul_pre(ulong x0, ulong y0, ulong x1, ulong y1, ulong p, ulong pi)
+{
+  ulong l0, l1, h0, h1;
+  LOCAL_OVERFLOW;
+  LOCAL_HIREMAINDER;
+  l0 = mulll(x0, y0); h0 = hiremainder;
+  l1 = mulll(x1, y1); h1 = hiremainder;
+  l0 = addll(l0, l1); h0 = addllx(h0, h1);
+  return overflow ? remlll_pre(1, h0, l0, p, pi): remll_pre(h0, l0, p, pi);
+}
+
+INLINE ulong
 Fl_ellj_pre(ulong a4, ulong a6, ulong p, ulong pi)
 {
   /* a43 = 4 a4^3 */
