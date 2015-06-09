@@ -1723,16 +1723,18 @@ parforprime(GEN a, GEN b, GEN code, void *E, long call(void*, GEN, GEN))
   long running, pending = 0;
   long status = br_NONE;
   GEN worker = snm_closure(is_entry("_parfor_worker"), mkvec(code));
-  GEN done, stop = NULL;
+  GEN v, done, stop = NULL;
   struct pari_mt pt;
   forprime_t T;
 
   if (!forprime_init(&T, a,b)) { avma = av; return; }
   mt_queue_start(&pt, worker);
+  v = mkvec(gen_0);
   av2 = avma;
   while ((running = (!stop && forprime_next(&T))) || pending)
   {
-    mt_queue_submit(&pt, 0, running ? mkvec(T.pp): NULL);
+    gel(v, 1) = T.pp;
+    mt_queue_submit(&pt, 0, running ? v: NULL);
     done = mt_queue_get(&pt, NULL, &pending);
     if (call && done && (!stop || cmpii(gel(done,1),stop) < 0))
       if (call(E, gel(done,1), gel(done,2)))
