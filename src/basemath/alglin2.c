@@ -1523,6 +1523,11 @@ gaussred(GEN a, long signature)
           gcoeff(a,i,j) = gsub(gcoeff(a,i,j), gmul(c,gcoeff(a,k,j)));
       }
       gcoeff(a,k,k) = p;
+      if (gc_needed(av1,1))
+      {
+        if(DEBUGMEM>1) pari_warn(warnmem,"gaussred (t = %ld)", t);
+        a = gerepilecopy(av1, a);
+      }
     }
     else
     { /* all remaining diagonal coeffs are currently 0 */
