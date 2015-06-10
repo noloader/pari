@@ -266,8 +266,6 @@ Kderivsmall(GEN K, GEN x, GEN x2d, long bitprec)
   Wd = dbllambertW0( Ed / (M_E*xd) ); /* solution of w exp(w) = B exp(-a)*/
   limn = (long) ceil(2*Ed/Wd);
   prec = nbits2prec((long) ceil(bitprec+d*xd/LOG2));
-  if (!gequal0(imag_i(x2d)) && !RgV_is_ZV(Vga))
-    pari_err_IMPL("complex argument in gammamellininv with nonintegral Vga");
   pi = mppi(prec);
   d2 = gdivsg(d,gen_2);
   if (x)
