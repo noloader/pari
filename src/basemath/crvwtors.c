@@ -114,8 +114,8 @@ map_X1_points(
   Flv_inv_pre_inplace(sd, p, pi);
 
   for (i = 1; i <= ncurves; ++i) {
-    r[i] = Fl_add(Fl_mul_pre(rn[i], rd[i], p, pi), X1->rplus1, p);
-    s[i] = Fl_add(Fl_mul_pre(sn[i], sd[i], p, pi), X1->splus1, p);
+    r[i] = Fl_addmul_pre(rn[i], rd[i], X1->rplus1, p, pi);
+    s[i] = Fl_addmul_pre(sn[i], sd[i], X1->splus1, p, pi);
   }
   avma = ltop;
 }
@@ -160,7 +160,7 @@ a1a3_to_a4a6(
   t1 = Fl_mul_pre(c3_on_3, Fl_sub(t1, a3, p), p, pi);
 
   *a4 = Fl_mul_pre(c, Fl_sub(a3, c3_on_3, p), p, pi);
-  *a6 = Fl_add(t1, Fl_mul_pre(inv4, Fl_sqr_pre(a3, p, pi), p, pi), p);
+  *a6 = Fl_addmul_pre(inv4, Fl_sqr_pre(a3, p, pi), t1, p, pi);
 }
 
 
@@ -221,7 +221,7 @@ tq_to_a4a6_and_tors(
 {
   ulong A2, A4;
   ulong t2 = Fl_sqr_pre(t, p, pi);
-  ulong qtp1 = Fl_add(Fl_mul_pre(q, t, p, pi), 1L, p);
+  ulong qtp1 = Fl_addmul_pre(q, t, 1L, p, pi);
   /* a2 = t^2-2*(q*t+1), a4 = (1-t^2)*(q*t+1)^2 */
   A2 = Fl_sub(t2, Fl_double(qtp1, p), p);
   A4 = Fl_mul_pre(Fl_sub(1L, t2, p), Fl_sqr_pre(qtp1, p, pi), p, pi);
@@ -231,7 +231,7 @@ tq_to_a4a6_and_tors(
   *tx = Fl_mul_pre(Fl_add(t, 1L, p), qtp1, p, pi);
   *ty = Fl_mul_pre(t, *tx, p, pi);
   /* Map to isomorphic curve */
-  *tx = Fl_add(*tx, Fl_mul_pre(A2, inv3, p, pi), p);
+  *tx = Fl_addmul_pre(A2, inv3, *tx, p, pi);
 }
 
 
@@ -261,8 +261,8 @@ qt_to_a4a6_and_tors(
    * (x, y) |--> (3(12x + 4b + 1), 108(2y + x + b)) */
   *ty = Fl_mul_pre(c_108, Fl_add(Fl_double(*ty, p),
                                  Fl_add(b, *tx, p), p), p, pi);
-  *tx = Fl_triple(Fl_add(Fl_mul_pre(c_12, *tx, p, pi),
-                         Fl_add(Fl_double(bb, p), 1L, p), p), p);
+  *tx = Fl_triple(Fl_addmul_pre(c_12, *tx,
+                         Fl_add(Fl_double(bb, p), 1L, p), p, pi), p);
 }
 
 
@@ -275,16 +275,15 @@ t_to_a4a6_and_tors(
   ulong a1, a3, qt = Fl_mul_pre(q, t, p, pi), t1;
   /* a1 = q*t+t+(2-q), a3 = (q*t)*(t-1)+t */
   a1 = Fl_add(Fl_add(qt, t, p), Fl_sub(2L, q, p), p);
-  a3 = Fl_add(Fl_mul_pre(qt, Fl_sub(t, 1L, p), p, pi), t, p);
+  a3 = Fl_addmul_pre(qt, Fl_sub(t, 1L, p), t, p, pi);
   a1a3_to_a4a6(a4, a6, a1, a3, inv3, inv4, inv9, p, pi);
   *tx = Fl_neg(t, p);
   *ty = Fl_sqr_pre(t, p, pi);
   /* Map to isomorphic curve:
    * (x, y) |--> (x + 1/12*a1^2, 1/2*a1*x + (y + 1/2*a3))  */
   t1 = Fl_halve(a1, p);
-  *ty = Fl_add(Fl_mul_pre(*tx, t1, p, pi),
-               Fl_add(*ty, Fl_halve(a3, p), p), p);
-  *tx = Fl_add(*tx, Fl_mul_pre(inv3, Fl_sqr_pre(t1, p, pi), p, pi), p);
+  *ty = Fl_addmul_pre(*tx, t1, Fl_add(*ty, Fl_halve(a3, p), p), p, pi);
+  *tx = Fl_addmul_pre(inv3, Fl_sqr_pre(t1, p, pi), *tx, p, pi);
 }
 
 
@@ -387,7 +386,7 @@ random_curves_with_11_torsion(
     Q = random_Fle_pre(A4, A6, p, pi);
 
     /* den = 6x + 72 */
-    den = Fl_add(Fl_mul_pre(c_6, Q[1], p, pi), c_72, p);
+    den = Fl_addmul_pre(c_6, Q[1], c_72, p, pi);
     if (den == 0)
       continue;
 
@@ -605,7 +604,7 @@ random_curves_with_12_torsion(
     t1 = Fl_sub(tau, 1, p);
     /* M = (3 tau - 3 tau^2 - 1)/(tau - 1) = -(3 tau + 1/(tau - 1)) */
     t2 = Fl_inv(t1, p);
-    M = Fl_neg(Fl_add(Fl_mul_pre(tau, 3, p, pi), t2, p), p);
+    M = Fl_neg(Fl_add(Fl_triple(tau, p), t2, p), p);
     /* f = M/(1 - tau) = -M / (tau - 1) */
     f = Fl_neg(Fl_mul_pre(M, t2, p, pi), p);
     /* d = M + tau */
