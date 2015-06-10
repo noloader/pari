@@ -907,6 +907,16 @@ Fl_mul_pre(ulong a, ulong b, ulong p, ulong pi)
 }
 
 INLINE ulong
+Fl_addmul_pre(ulong x0, ulong x1, ulong y0, ulong p, ulong pi)
+{
+  ulong l0, h0;
+  LOCAL_HIREMAINDER;
+  hiremainder = y0;
+  l0 = addmul(x0, x1); h0 = hiremainder;
+  return remll_pre(h0, l0, p, pi);
+}
+
+INLINE ulong
 Fl_addmulmul_pre(ulong x0, ulong y0, ulong x1, ulong y1, ulong p, ulong pi)
 {
   ulong l0, l1, h0, h1;
