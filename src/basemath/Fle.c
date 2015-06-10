@@ -54,8 +54,7 @@ Flj_dbl_indir_pre(GEN P, GEN Q, ulong a4, ulong p, ulong pi)
   ZZ = Fl_sqr_pre(Z1, p, pi);
   S = Fl_double(Fl_sub(Fl_sqr_pre(Fl_add(X1, YY, p), p, pi),
                        Fl_add(XX, YYYY, p), p), p);
-  M = Fl_add(Fl_triple(XX, p),
-             Fl_mul_pre(a4, Fl_sqr_pre(ZZ, p, pi), p, pi), p);
+  M = Fl_addmul_pre(a4, Fl_sqr_pre(ZZ, p, pi), Fl_triple(XX, p),  p, pi);
   T = Fl_sub(Fl_sqr_pre(M, p, pi), Fl_double(S, p), p);
   Q[1] = T;
   Q[2] = Fl_sub(Fl_mul_pre(M, Fl_sub(S, T, p), p, pi),
@@ -310,7 +309,7 @@ random_Fle_pre_indir(ulong a4, ulong a6, ulong p, ulong pi,
   {
     x   = random_Fl(p); /*  x^3+a4*x+a6 = x*(x^2+a4)+a6  */
     x2  = Fl_sqr_pre(x, p, pi);
-    rhs = Fl_add(Fl_mul_pre(x, Fl_add(x2, a4, p), p, pi), a6, p);
+    rhs = Fl_addmul_pre(x, Fl_add(x2, a4, p), a6, p, pi);
   } while ((!rhs && !Fl_add(Fl_triple(x2,p),a4,p)) || krouu(rhs, p) < 0);
   y = Fl_sqrt_pre(rhs, p, pi);
   *pt_x = x; *pt_y = y;

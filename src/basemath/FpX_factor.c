@@ -423,7 +423,7 @@ Flx_cubic_root(GEN ff, ulong p)
   ulong a = f[4], b=f[3], c=f[2], p3 = p%3==1 ? (2*p+1)/3 :(p+1)/3;
   ulong t = Fl_mul_pre(a, p3, p, pi), t2 = Fl_sqr_pre(t, p, pi);
   ulong A = Fl_sub(b, Fl_triple(t2, p), p);
-  ulong B = Fl_add(Fl_mul_pre(t, Fl_sub(Fl_double(t2, p), b, p), p ,pi), c, p);
+  ulong B = Fl_addmul_pre(t, Fl_sub(Fl_double(t2, p), b, p), c, p, pi);
   ulong A3 =  Fl_mul_pre(A, p3, p, pi);
   ulong A32 = Fl_sqr_pre(A3, p, pi), A33 = Fl_mul_pre(A3, A32, p, pi);
   ulong S = Fl_neg(B,p), P = Fl_neg(A3,p);

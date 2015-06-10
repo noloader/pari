@@ -615,7 +615,7 @@ Flx_mullimb(GEN x, GEN y, ulong p, ulong pi, long a, long b)
   long i;
   for (i=a; i<b; i++)
     if (y[i])
-      p1 = Fl_add(p1, Fl_mul_pre(y[i],x[-i],p, pi), p);
+      p1 = Fl_addmul_pre(y[i],x[-i], p1, p, pi);
   return p1;
 }
 
@@ -1226,14 +1226,14 @@ Flx_rem_basecase(GEN x, GEN y, ulong p)
     {
       p1 = p - x[i]; /* compute -p1 instead of p1 (pb with ulongs otherwise) */
       for (j=i-dy+1; j<=i && j<=dz; j++)
-        p1 = Fl_add(p1, Fl_mul_pre(z[j],y[i-j],p,pi), p);
+        p1 = Fl_addmul_pre(z[j], y[i-j], p1, p, pi);
       z[i-dy] = p1? Fl_mul_pre(p - p1, inv, p, pi): 0;
     }
     for (i=0; i<dy; i++)
     {
       p1 = Fl_mul_pre(z[0],y[i],p,pi);
       for (j=1; j<=i && j<=dz; j++)
-        p1 = Fl_add(p1, Fl_mul_pre(z[j],y[i-j],p,pi), p);
+        p1 = Fl_addmul_pre(z[j],y[i-j],p1, p,pi);
       c[i] = Fl_sub(x[i], p1, p);
     }
   }
@@ -1982,7 +1982,7 @@ Flx_eval_pre_i(GEN x, ulong y, ulong p, ulong pi)
     return (i==2)? x[2]: 0;
   p1 = x[i];
   for (i--; i>=2; i--)
-    p1 = Fl_add(uel(x,i), Fl_mul_pre(p1, y, p, pi), p);
+    p1 = Fl_addmul_pre(p1, y, uel(x,i), p, pi);
   return p1;
 }
 
