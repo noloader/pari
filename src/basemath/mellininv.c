@@ -290,26 +290,26 @@ Kderivsmall(GEN K, GEN x, GEN x2d, long bitprec)
   return gerepileupto(ltop, gtofp(S, nbits2prec(bitprec)));
 }
 
+/* if (abs), absolute error rather than relative */
 static void
-Kderivlarge_optim(GEN K, GEN t2d, long bitprec, long *pprec, long *pnlim)
+Kderivlarge_optim(GEN K, long abs, GEN t2d, long *pbitprec, long *pnlim)
 {
   GEN Vga = gel(K,2), VL = gel(K,5), A2 = gel(VL,3);
-  long prec, d = lg(Vga)-1;
+  long bitprec = *pbitprec, d = lg(Vga)-1;
   double a, td = dblmodulus(t2d);
   double E = LOG2*bitprec;
   double CC = d <= 2 ? 81. : 101.; /* heuristic */
 
   a = BITS_IN_LONG + ceil((gtodouble(A2)*log(td)/2 - M_PI*d*td)/LOG2);
-  if (a > 0) bitprec += a;
-  prec = nbits2prec(bitprec);
-  if (prec < LOWDEFAULTPREC) prec = LOWDEFAULTPREC;
-  *pprec = prec;
+  if (abs || a > 0) bitprec += a;
+  *pbitprec = bitprec;
   *pnlim = ceil(E*E / (CC*td));
 }
 
 /* Compute m-th derivative of inverse Mellin at t by continued fraction of
- * asymptotic expansion; t2d = t^(2/d); t is possibly NULL (don't bother
- * about complex branches)*/
+ * asymptotic expansion; t2d = t^(2/d). If t is NULL, "lfun" mode: don't
+ * bother about complex branches + use absolute (rather than relative)
+ * accuracy */
 static GEN
 Kderivlarge(GEN K, GEN t, GEN t2d, long bitprec)
 {
@@ -319,7 +319,9 @@ Kderivlarge(GEN K, GEN t, GEN t2d, long bitprec)
   GEN M, VL = gel(K,5), Ms = gel(VL,1), cd = gel(VL,2), A2 = gel(VL,3);
   long status, prec, nlim, m = itos(gel(K, 3));
 
-  Kderivlarge_optim(K, t2d, bitprec, &prec, &nlim);
+  Kderivlarge_optim(K, !t, t2d, &bitprec, &nlim);
+  if (bitprec <= 0) return gen_0;
+  prec = nbits2prec(bitprec);
   t2d = gtofp(t2d, prec);
   if (t)
     tdA = gpow(t, gdivgs(A2,d), prec);
