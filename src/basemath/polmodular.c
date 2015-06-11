@@ -1598,11 +1598,72 @@ eval_modpoly_modp(
   return tmp;
 }
 
+/* Parallel interface */
+
+static void
+vne_to_ne(norm_eqn_t ne, GEN vne)
+{
+  ne->D = vne[1];
+  ne->u = vne[2];
+}
+
+static GEN
+ne_to_vne(norm_eqn_t ne)
+{
+  return mkvecsmall2(ne->D, ne->u);
+}
+
+static void
+vinfo_to_dinfo(modpoly_disc_info *dinfo, GEN vinfo)
+{
+  dinfo->L  = vinfo[1];
+  dinfo->D0 = vinfo[2];
+  dinfo->D1 = vinfo[3];
+  dinfo->L0 = vinfo[4];
+  dinfo->L1 = vinfo[5];
+  dinfo->n1 = vinfo[6];
+  dinfo->n2 = vinfo[7];
+  dinfo->nprimes = vinfo[8];
+  dinfo->dl1     = vinfo[9];
+  dinfo->dl2_0   = vinfo[10];
+  dinfo->dl2_1   = vinfo[11];
+  dinfo->dl2_1   = vinfo[11];
+  dinfo->inv     = vinfo[12];
+}
+
+static GEN
+dinfo_to_vinfo(const modpoly_disc_info *dinfo)
+{
+  return mkvecsmalln(12,  dinfo->L, dinfo->D0, dinfo->D1, dinfo->L0, dinfo->L1,
+         dinfo->n1, dinfo->n2, dinfo->nprimes, dinfo->dl1, dinfo->dl2_0,
+         dinfo->dl2_1, dinfo->inv);
+}
+
+GEN
+polmodular_worker(ulong p, ulong t,
+                  ulong L, GEN hilb, GEN factu, GEN vne, GEN vinfo,
+                  GEN J, long compute_derivs, GEN j_powers, GEN fdb)
+{
+  pari_sp av = avma;
+  GEN modpoly_modp;
+  modpoly_disc_info dinfo;
+  norm_eqn_t ne;
+  vinfo_to_dinfo(&dinfo, vinfo);
+  vne_to_ne(ne, vne);
+  norm_eqn_update(ne, t, p, L);
+  modpoly_modp = polmodular_split_p_Flm(L, hilb, factu, ne, fdb, &dinfo);
+  if (J != gen_0) {
+    modpoly_modp = eval_modpoly_modp(modpoly_modp, j_powers, ne, compute_derivs);
+    modpoly_modp = gerepileupto(av, modpoly_modp);
+  }
+  return modpoly_modp;
+}
 
 /* The largest level of the "hand written" modular polynomials */
 #define MAX_INTERNAL_MODPOLY_LEVEL 5
 
 /* NB: Result not suitable for gerepileupto(). */
+
 static GEN
 sympol_to_ZM(GEN phi, long L)
 {
@@ -1792,7 +1853,7 @@ polmodular0_ZM(
   for (d = 0; d < Dcnt; ++d) nprimes += Ds[d].nprimes;
   modpoly = cgetg(nprimes+1, t_VEC);
   plist = cgetg(nprimes+1, t_VECSMALL);
-  k=1;
+  k = 1;
 
   for (d = 0; d < Dcnt; ++d) {
     long D, DK, i;
@@ -1800,6 +1861,9 @@ polmodular0_ZM(
     GEN j_powers, factu, hilb;
     norm_eqn_t ne;
     modpoly_disc_info *dinfo = &Ds[d];
+    GEN worker;
+    struct pari_mt pt;
+    long pending = 0;
 
     polmodular_db_add_level(db, dinfo->L0, inv);
     if (dinfo->L1)
@@ -1822,29 +1886,32 @@ polmodular0_ZM(
     dbg_printf(1)("n1 = %lu, n2 = %lu, dl1 = %lu, dl2_0 = %lu, dl2_1 = %lu\n",
           dinfo->n1, dinfo->n2, dinfo->dl1, dinfo->dl2_0, dinfo->dl2_1);
 
-    j_powers = NULL;
+    j_powers = gen_0;
     if (J) {
       compute_derivs = !!compute_derivs;
       j_powers = Fp_powers(J, L + 1, Q);
     }
-
-    for (i = 0; i < dinfo->nprimes; ++i, k++) {
-      pari_sp av = avma;
+    worker = strtoclosure("_polmodular_worker", 9, utoi(L), hilb, factu, ne_to_vne(ne),
+        dinfo_to_vinfo(dinfo),
+        J? J : gen_0, stoi(compute_derivs), j_powers, *db);
+    mt_queue_start(&pt, worker);
+    for (i = 0; i < dinfo->nprimes || pending; ++i)
+    {
+      GEN done;
+      long workid;
       ulong p = dinfo->primes[i];
       ulong t = dinfo->traces[i];
-      GEN modpoly_modp;
-
-      norm_eqn_update(ne, t, p, L);
-
-      av = avma;
-      modpoly_modp = polmodular_split_p_Flm(L, hilb, factu, ne, *db, dinfo);
-      if (J) {
-        modpoly_modp = eval_modpoly_modp(modpoly_modp, j_powers, ne, compute_derivs);
-        modpoly_modp = gerepileupto(av, modpoly_modp);
+      mt_queue_submit(&pt, p, i < dinfo-> nprimes? mkvec2(utoi(p), utoi(t)): NULL);
+      done = mt_queue_get(&pt, &workid, &pending);
+      if (done)
+      {
+        gel(modpoly, k) = done;
+        plist[k] = workid;
+        k++;
+        if (DEBUGLEVEL) err_printf("%ld%% ", k*100/nprimes);
       }
-      gel(modpoly, k) = modpoly_modp;
-      plist[k] = p;
     }
+    mt_queue_end(&pt);
     modpoly_disc_info_clear(dinfo);
   }
   modpoly = nmV_chinese_center(modpoly, plist, NULL);

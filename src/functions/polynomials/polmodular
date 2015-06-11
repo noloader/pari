@@ -37,3 +37,10 @@ Variant: Also available are
  at $J$ modulo $P$ in the variable $v$ (if \kbd{compute\_derivs} is
  non-zero, returns a vector containing the modular polynomial and its
  first and second derivatives, all evaluted at $J$ modulo $P$).
+
+Function: _polmodular_worker
+Section: programming/internals
+C-Name: polmodular_worker
+Prototype: UUUGGGGGLGG
+Help: used by polmodular
+Doc: used by polmodular
