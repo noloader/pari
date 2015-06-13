@@ -1154,7 +1154,7 @@ init_group(long n, long np, GEN Fp, GEN Fe, long *porder)
   long i, phi_order = 1, order = 1, group = 0;
 
  /* non-WSS groups of this order? */
-  for (i=0; i < numberof(prim_nonss_orders); i++)
+  for (i=0; i < (long)numberof(prim_nonss_orders); i++)
     if (n % prim_nonss_orders[i] == 0) { group |= ga_non_wss; break; }
   if (np == 2 && Fp[2] == 3 && Fe[2] == 1 && Fe[1] > 2) group |= ga_ext_2;
 
