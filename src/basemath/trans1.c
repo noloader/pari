@@ -1072,6 +1072,32 @@ ser_powfrac(GEN x, GEN q, long prec)
   setvalp(y, e); return y;
 }
 
+static GEN
+gpow0(GEN x, GEN n, long prec)
+{
+  pari_sp av = avma;
+  long i, lx;
+  GEN y;
+  switch(typ(n))
+  {
+    case t_INT: case t_REAL: case t_FRAC: case t_COMPLEX: case t_QUAD:
+      break;
+    case t_VEC: case t_COL: case t_MAT:
+      y = cgetg_copy(n, &lx);
+      for (i=1; i<lx; i++) gel(y,i) = gpow0(x,gel(n,i),prec);
+      return y;
+    default: pari_err_TYPE("gpow(0,n)", n);
+  }
+  n = real_i(n);
+  if (gsigne(n) <= 0) pari_err_DOMAIN("gpow(0,n)", "n", "<=", gen_0, n);
+  if (!precision(x)) return gcopy(x);
+
+  x = ground(gmulsg(gexpo(x),n));
+  if (is_bigint(x) || uel(x,2) >= HIGHEXPOBIT)
+    pari_err_OVERFLOW("gpow");
+  avma = av; return real_0_bit(itos(x));
+}
+
 GEN
 gpow(GEN x, GEN n, long prec)
 {
@@ -1099,23 +1125,7 @@ gpow(GEN x, GEN n, long prec)
       if (lg(x) == 2) return gerepilecopy(av, x); /* O(1) */
       return gerepileupto(av, ser_pow(x, n, prec));
   }
-  if (gequal0(x))
-  {
-    switch(tn)
-    {
-      case t_REAL: case t_FRAC: case t_COMPLEX: case t_QUAD:
-        break;
-      default: pari_err_TYPE("gpow(0,n)", n);
-    }
-    n = real_i(n);
-    if (gsigne(n) <= 0) pari_err_DOMAIN("gpow(0,n)", "n", "<=", gen_0, n);
-    if (!precision(x)) return gcopy(x);
-
-    x = ground(gmulsg(gexpo(x),n));
-    if (is_bigint(x) || uel(x,2) >= HIGHEXPOBIT)
-      pari_err_OVERFLOW("gpow");
-    avma = av; return real_0_bit(itos(x));
-  }
+  if (gequal0(x)) return gpow0(x, n, prec);
   if (tn == t_FRAC)
   {
     GEN z, d = gel(n,2), a = gel(n,1);

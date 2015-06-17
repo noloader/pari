@@ -155,6 +155,7 @@ VBr83- [darwin] remove obsolete linker options that cause crashes [#1623]
   112- nfdisc(x^10 - 29080*x^5 - 25772600) -> oo loop [#1710]
   113- forprime engine could skip (fast) sieve in favour of (slow)
        nextprime [#1711]
+  114- 0^[1] -> domain error [#1713]
 
   Added
     1- add optional argument to sumdigits to specify the base
