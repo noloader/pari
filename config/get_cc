@@ -72,8 +72,9 @@ if test -z "$__gnuc__"; then
   . log_cmd
   if $RUNTEST $exe; then
     # avoid internationalization trouble by setting LANG=C
-    __gnuc__=`env LANG=C LC_ALL=C LC_MESSAGES=C $CC -v 2>&1 |\
-      grep ' version ' | tr '\n' , | sed -e 's/,$//'`
+    __gnuc__=`env LANG=C LC_ALL=C LC_MESSAGES=C PATH=$PATH $CC -v 2>&1 |\
+      grep ' version ' | tr '\n' ,`
+    __gnuc__=`echo $__gnuc__ | sed -e 's/ *,$//'`
     echo GNU compatible compiler: $__gnuc__
   fi
   rm -f $exe $exe$exe_suff
