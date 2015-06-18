@@ -339,7 +339,7 @@ Kderivlarge(GEN K, GEN t, GEN t2d, long bitprec)
     S = poleval(RgV_to_RgX(M, 0), ginv(z));
   else
   {
-    S = contfraceval(M, ginv(z), nlim/2);
+    S = contfraceval_inv(M, z, nlim/2);
     if (status == 1) S = gmul(S, gsubsg(1, ginv(gmul(z, pi))));
   }
   return gerepileupto(ltop, gmul(P, S));
