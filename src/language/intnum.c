@@ -1421,14 +1421,15 @@ contfracinit(GEN M, long lim)
   return gerepilecopy(ltop, contfrac_Euler(c));
 }
 
-/* Evaluate at t the nlim first terms of the continued fraction output by
+/* Evaluate at 1/tinv the nlim first terms of the continued fraction output by
  * contfracinit. */
+/* Not stack clean */
 GEN
-contfraceval(GEN CF, GEN t, long nlim)
+contfraceval_inv(GEN CF, GEN tinv, long nlim)
 {
-  pari_sp ltop = avma, btop;
+  pari_sp btop;
   long j;
-  GEN S = gen_0, S1, S2, A, B, tinv = ginv(t);
+  GEN S = gen_0, S1, S2, A, B;
   if (typ(CF) != t_VEC || lg(CF) != 3) pari_err_TYPE("contfraceval", CF);
   A = gel(CF, 1); if (typ(A) != t_VEC) pari_err_TYPE("contfraceval", CF);
   B = gel(CF, 2); if (typ(B) != t_VEC) pari_err_TYPE("contfraceval", CF);
@@ -1439,7 +1440,7 @@ contfraceval(GEN CF, GEN t, long nlim)
   if (lg(B)+1 <= nlim)
     pari_err_COMPONENT("contfraceval", ">", stoi(lg(B)), stoi(nlim));
   btop = avma;
-  if (nlim <= 1) return gerepileupto(ltop, gdiv(tinv, gadd(gel(A, 1), tinv)));
+  if (nlim <= 1) return gdiv(tinv, gadd(gel(A, 1), tinv));
   switch(nlim % 3)
   {
     case 2:
@@ -1462,8 +1463,14 @@ contfraceval(GEN CF, GEN t, long nlim)
     S = gdiv(gmul(gel(B, j-3), S2), S3);
     if (gc_needed(btop, 3)) S = gerepilecopy(btop, S);
   }
-  S = gdiv(tinv, gadd(gadd(gel(A, 1), tinv), S));
-  return gerepileupto(ltop, S);
+  return gdiv(tinv, gadd(gadd(gel(A, 1), tinv), S));
+}
+
+GEN
+contfraceval(GEN CF, GEN t, long nlim)
+{
+  pari_sp ltop = avma;
+  return gerepileupto(ltop, contfraceval_inv(CF, ginv(t), nlim));
 }
 
 /* MONIEN SUMMATION */

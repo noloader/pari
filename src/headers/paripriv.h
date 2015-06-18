@@ -632,6 +632,10 @@ GEN     pollardbrent(GEN n);
 ulong   snextpr(ulong p, byteptr *d, long *rcn, long *q, long k);
 GEN     squfof(GEN n);
 
+/* intnum.c */
+
+GEN     contfraceval_inv(GEN CF, GEN tinv, long nlim);
+
 /* prime.c */
 
 long    BPSW_psp_nosmalldiv(GEN N);
