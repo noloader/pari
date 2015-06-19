@@ -15,10 +15,6 @@ new is aliased to:
 
 sin(x): sine of x.
 
-addii: installed function
-library name: addii
-prototype: GG
-
 test1
 
 test2
@@ -161,4 +157,4 @@ f =
 g =
   ()->0
 
-Total time spent: 4
+Total time spent: 0
