@@ -290,20 +290,43 @@ Kderivsmall(GEN K, GEN x, GEN x2d, long bitprec)
   return gerepileupto(ltop, gtofp(S, nbits2prec(bitprec)));
 }
 
+/* In Klarge, we conpute K(t) as (asymptotic) * F(z), where F ~ 1 is given by
+ * a continued fraction and z = Pi t^(2/d). If we take 2n terms in F (n terms
+ * in Euler form), F_n(z) - F(z) is experimentally in exp(- C sqrt(n*z))
+ * where C ~ 8 for d > 2 [HEURISTIC] and C = 4 (theorem) for d = 1 or d = 2
+ * and vga = [0,1]. For e^(-E) absolute error, we want
+ *   exp(-C sqrt(nz)) < e^-(E+a), where a ~ ln(asymptotic)
+ * i.e.  2n > (E+a)^2 / t^(2/d) * 2/(C^2 Pi); C^2*Pi/2 ~ 100.5 ~ 101
+ *
+ * In fact, this model becomes wrong for z large: we use instead
+ *
+ *   exp(- sqrt(D * nz/log(z+1))) < e^-(E+a),
+ * i.e.  2n > (E+a)^2 * log(1 + Pi t^(2/d))/ t^(2/d) * 2/(D Pi); */
+static double
+get_D(long d) { return d <= 2 ? 157. : 180.; }
 /* if (abs), absolute error rather than relative */
 static void
-Kderivlarge_optim(GEN K, long abs, GEN t2d, long *pbitprec, long *pnlim)
+Kderivlarge_optim(GEN K, long abs, GEN t2d,GEN gcd, long *pbitprec, long *pnlim)
 {
   GEN Vga = gel(K,2), VL = gel(K,5), A2 = gel(VL,3);
   long bitprec = *pbitprec, d = lg(Vga)-1;
-  double a, td = dblmodulus(t2d);
-  double E = LOG2*bitprec;
-  double CC = d <= 2 ? 81. : 101.; /* heuristic */
+  const double D = get_D(d), td = dblmodulus(t2d), cd = gtodouble(gcd);
+  double a, rtd, E = LOG2*bitprec;
 
-  a = BITS_IN_LONG + ceil((gtodouble(A2)*log(td)/2 - M_PI*d*td)/LOG2);
-  if (abs || a > 0) bitprec += a;
+  rtd = (typ(t2d) == t_COMPLEX)? gtodouble(gel(t2d,1)): td;
+
+  /* A2/2 = A, log(td) = (2/d)*log t */
+  a = d*gtodouble(A2)*log2(td)/2 - (M_PI/LOG2)*d*rtd + log2(cd); /*log2 K(t)~a*/
+
+  /* if bitprec <= 0, caller should return K(t) ~ 0 */
+  bitprec += 64;
+  if (abs)
+  {
+    bitprec += ceil(a);
+    if (a <= -65) E = LOG2*bitprec; /* guarantees E <= initial E */
+  }
   *pbitprec = bitprec;
-  *pnlim = ceil(E*E / (CC*td));
+  *pnlim = ceil(E*E * log2(1+M_PI*td) / (D*td));
 }
 
 /* Compute m-th derivative of inverse Mellin at t by continued fraction of
@@ -311,15 +334,15 @@ Kderivlarge_optim(GEN K, long abs, GEN t2d, long *pbitprec, long *pnlim)
  * bother about complex branches + use absolute (rather than relative)
  * accuracy */
 static GEN
-Kderivlarge(GEN K, GEN t, GEN t2d, long bitprec)
+Kderivlarge(GEN K, GEN t, GEN t2d, long bitprec0)
 {
   pari_sp ltop = avma;
   GEN tdA, P, S, pi, z, Vga = gel(K,2);
   const long d = lg(Vga)-1;
   GEN M, VL = gel(K,5), Ms = gel(VL,1), cd = gel(VL,2), A2 = gel(VL,3);
-  long status, prec, nlim, m = itos(gel(K, 3));
+  long status, prec, nlim, m = itos(gel(K, 3)), bitprec = bitprec0;
 
-  Kderivlarge_optim(K, !t, t2d, &bitprec, &nlim);
+  Kderivlarge_optim(K, !t, t2d, cd, &bitprec, &nlim);
   if (bitprec <= 0) return gen_0;
   prec = nbits2prec(bitprec);
   t2d = gtofp(t2d, prec);
@@ -336,10 +359,22 @@ Kderivlarge(GEN K, GEN t, GEN t2d, long bitprec)
   M = gel(Ms,1);
   status = itos(gel(Ms,2));
   if (status == 2)
-    S = poleval(RgV_to_RgX(M, 0), ginv(z));
+  {
+    if (lg(M) == 2) /* shortcut: continued fraction is constant */
+      S = gel(M,1);
+    else
+      S = poleval(RgV_to_RgX(M, 0), ginv(z));
+  }
   else
   {
     S = contfraceval_inv(M, z, nlim/2);
+    if (DEBUGLEVEL>3)
+    {
+      GEN S0 = contfraceval_inv(M, z, nlim/2 + 20);
+      long e = gexpo(gmul(P, gabs(gsub(S,S0),0)));
+      if (-e < bitprec0)
+        err_printf("Kderivlarge: e = %ld, bit = %ld\n",e,bitprec0);
+    }
     if (status == 1) S = gmul(S, gsubsg(1, ginv(gmul(z, pi))));
   }
   return gerepileupto(ltop, gmul(P, S));
@@ -501,14 +536,14 @@ gammamellininvinit_bitprec(GEN Vga, long m, long bitprec)
   pari_sp ltop = avma;
   GEN A2, M, VS, VL, cd;
   long d = lg(Vga)-1, status;
-  double tmax = LOG2*bitprec / MELLININV_CUTOFF;
-  const double C2 = MELLININV_CUTOFF, CC = d <= 2 ? 81. : 101.;
-  const long nlimmax = ceil(bitprec*C2*LOG2/CC);
+  const double C2 = MELLININV_CUTOFF, D = get_D(d);
+  double E = LOG2*bitprec, tmax = E / C2;
+  const long nlimmax = ceil(E*log2(1+M_PI*tmax)*C2/D);
 
   if (!is_vec_t(typ(Vga))) pari_err_TYPE("gammamellininvinit",Vga);
   A2 = gaddsg(m*(2-d) + 1-d, vecsum(Vga));
   cd = (d <= 2)? gen_2: gsqrt(gdivgs(int2n(d+1), d), nbits2prec(bitprec));
-  /* if in Klarge, we have |t| > tmax = LOG2*D/C2, thus nlim < LOG2*D*C2/CC. */
+  /* if in Klarge, we have |t| > tmax = E/C2, thus nlim < E*C2/D. */
   M = gammamellininvasymp_i(Vga, nlimmax, m, &status);
   if (status == 2)
   {
