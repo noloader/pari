@@ -75,6 +75,27 @@ FpE_changepointinv(GEN x, GEN ch, GEN p)
 }
 
 static GEN
+nonsquare_Fp(GEN p)
+{
+  pari_sp av = avma;
+  GEN a;
+  do
+  {
+    avma = av;
+    a = randomi(p);
+  } while (kronecker(a, p) >= 0);
+  return a;
+}
+
+void
+Fp_elltwist(GEN a4, GEN a6, GEN p, GEN *pt_a4, GEN *pt_a6)
+{
+  GEN d = nonsquare_Fp(p), d2 = Fp_sqr(d, p), d3 = Fp_mul(d2, d, p);
+  *pt_a4 = Fp_mul(a4, d2, p);
+  *pt_a6 = Fp_mul(a6, d3, p);
+}
+
+static GEN
 FpE_dbl_slope(GEN P, GEN a4, GEN p, GEN *slope)
 {
   GEN x, y, Q;
@@ -1284,6 +1305,35 @@ FpXQE_changepointinv(GEN x, GEN ch, GEN T, GEN p)
   gel(z,1) = FpX_add(u2X,r, p);
   gel(z,2) = FpX_add(FpXQ_mul(u3,Y, T, p), FpX_add(FpXQ_mul(s,u2X, T, p), t, p), p);
   return z;
+}
+
+static GEN
+nonsquare_FpXQ(GEN T, GEN p)
+{
+  pari_sp av = avma;
+  long n = degpol(T), v = varn(T);
+  GEN a;
+  if (odd(n))
+  {
+    GEN z = cgetg(3, t_POL);
+    z[1] = evalsigne(1) | evalvarn(v);
+    gel(z,2) = nonsquare_Fp(p); return z;
+  }
+  do
+  {
+    avma = av;
+    a = random_FpX(n, v, p);
+  } while (FpXQ_issquare(a, T, p));
+  return a;
+}
+
+void
+FpXQ_elltwist(GEN a4, GEN a6, GEN T, GEN p, GEN *pt_a4, GEN *pt_a6)
+{
+  GEN d = nonsquare_FpXQ(T, p);
+  GEN d2 = FpXQ_sqr(d, T, p), d3 = FpXQ_mul(d2, d, T, p);
+  *pt_a4 = FpXQ_mul(a4, d2, T, p);
+  *pt_a6 = FpXQ_mul(a6, d3, T, p);
 }
 
 static GEN

@@ -68,6 +68,48 @@ FlxqE_changepointinv(GEN x, GEN ch, GEN T, ulong p)
   return z;
 }
 
+static ulong
+nonsquare_Fl(ulong p)
+{
+  ulong a;
+  do
+    a = random_Fl(p);
+  while (krouu(a, p) >= 0);
+  return a;
+}
+
+static GEN
+nonsquare_Flxq(GEN T, ulong p)
+{
+  pari_sp av = avma;
+  long n = degpol(T), vs = T[1];
+  GEN a;
+  if (odd(n))
+    return mkvecsmall2(vs, nonsquare_Fl(p));
+  do
+  {
+    avma = av;
+    a = random_Flx(n, vs, p);
+  } while (Flxq_issquare(a, T, p));
+  return a;
+}
+
+void
+Flxq_elltwist(GEN a, GEN a6, GEN T, ulong p, GEN *pt_a, GEN *pt_a6)
+{
+  GEN d = nonsquare_Flxq(T, p);
+  GEN d2 = Flxq_sqr(d, T, p), d3 = Flxq_mul(d2, d, T, p);
+  if (typ(a)==t_VECSMALL)
+  {
+    *pt_a  = Flxq_mul(a,  d2, T, p);
+    *pt_a6 = Flxq_mul(a6, d3, T, p);
+  } else
+  {
+    *pt_a  = mkvec(Flxq_mul(gel(a,1), d, T, p));
+    *pt_a6 = Flxq_mul(a6, d3, T, p);
+  }
+}
+
 static GEN
 FlxqE_dbl_slope(GEN P, GEN a4, GEN T, ulong p, GEN *slope)
 {

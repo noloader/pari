@@ -71,6 +71,39 @@ F2xqE_changepointinv(GEN x, GEN ch, GEN T)
 }
 
 static GEN
+nonzerotrace_F2xq(GEN T)
+{
+  pari_sp av = avma;
+  long n = F2x_degree(T), vs = T[1];
+  GEN a;
+  if (odd(n))
+    return pol1_F2x(vs);
+  do
+  {
+    avma = av;
+    a = random_F2x(n, vs);
+  } while (F2xq_trace(a, T)==0);
+  return a;
+}
+
+void
+F2xq_elltwist(GEN a, GEN a6, GEN T, GEN *pt_a, GEN *pt_a6)
+{
+  pari_sp av = avma;
+  GEN n = nonzerotrace_F2xq(T);
+  if (typ(a)==t_VECSMALL)
+  {
+    *pt_a = gerepileuptoleaf(av, F2x_add(n, a));
+    *pt_a6 = vecsmall_copy(a6);
+  } else
+  {
+    GEN a6t = F2x_add(a6, F2xq_mul(n, F2xq_sqr(gel(a,1), T), T));
+    *pt_a6 = gerepileuptoleaf(av, a6t);
+    *pt_a = vecsmall_copy(a);
+  }
+}
+
+static GEN
 F2xqE_dbl_slope(GEN P, GEN a, GEN T, GEN *slope)
 {
   GEN x, y, Q;

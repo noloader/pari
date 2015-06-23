@@ -436,6 +436,9 @@ generators of the group $E(\F_p)$ with the base change \kbd{ch} (see
 \fun{GEN}{Fp_elldivpol}{GEN a4, GEN a6, long n, GEN p} returns the $n$-division
 polynomial of the elliptic curve $E$.
 
+\fun{void}{Fp_elltwist}{GEN a4, GEN a6, GEN p, GEN *a4t, GEN *a6t}
+Set \kbd{*a4t} and \kbd{*a6t} to the parameters of the quadratic twist of $E$.
+
 \subsec{\kbd{FpE}}
 
 \fun{GEN}{FpE_add}{GEN P, GEN Q, GEN a4, GEN p} returns the sum $P+Q$
@@ -595,6 +598,9 @@ Returns generators of the group $E(\F_2[X]/(T))$ with the base change \kbd{ch}
 (see \kbd{F2xqE\_changepoint}), where $D$ and $m$ are as returned by
 \kbd{F2xq\_ellgroup}.
 
+\fun{void}{F2xq_elltwist}{GEN a4, GEN a6, GEN T, GEN *a4t, GEN *a6t}
+Set \kbd{*a4t} and \kbd{*a6t} to the parameters of the quadratic twist of $E$.
+
 \subsec{\kbd{F2xqE}}
 
 \fun{GEN}{F2xqE_changepoint}{GEN P, GEN m, GEN a2, GEN T} returns the image
@@ -663,6 +669,9 @@ which is assumed to be of order $N$ and set $*pt_m=m$.
 returns generators of the group $E(\F_p[X]/(T))$ with the base change \kbd{ch}
 (see \kbd{FlxqE\_changepoint}), where $D$ and $m$ are as returned by
 \kbd{Flxq\_ellgroup}.
+
+\fun{void}{Flxq_elltwist}{GEN a4, GEN a6, GEN T, ulong p, GEN *a4t, GEN *a6t}
+Set \kbd{*a4t} and \kbd{*a6t} to the parameters of the quadratic twist of $E$.
 
 \subsec{\kbd{FlxqE}}
 
@@ -739,6 +748,9 @@ $n$-division polynomial of the elliptic curve $E$.
 \fun{GEN}{Fq_elldivpolmod}{GEN a4,GEN a6, long n, GEN h, GEN T, GEN p}
 returns the $n$-division polynomial of the elliptic curve $E$ modulo the
 polynomial $h$.
+
+\fun{void}{FpXQ_elltwist}{GEN a4, GEN a6, GEN T, GEN p, GEN *a4t, GEN *a6t}
+Set \kbd{*a4t} and \kbd{*a6t} to the parameters of the quadratic twist of $E$.
 
 \subsec{\kbd{FpXQE}}
 
