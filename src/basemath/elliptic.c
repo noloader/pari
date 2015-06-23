@@ -1359,6 +1359,111 @@ elltwist(GEN E, GEN P)
   return gerepilecopy(av, V);
 }
 
+static ulong
+smod2BIL(GEN x)
+{
+  long s = signe(x);
+  return s==0 ? 0: s==1 ? *int_LSW(x) : -*int_LSW(x);
+}
+
+static long
+safe_Z_pval(GEN n, GEN p)
+{
+  return signe(n)==0? -1: Z_pval(n, p);
+}
+
+/* Return D such that E_D has minimal discriminant.
+   It also has minimal conductor in Z[1/2]
+Reference:
+Ian Connell, Elliptic Curve Handbook,
+http://www.math.mcgill.ca/connell/
+*/
+GEN
+ellminimaltwist(GEN e)
+{
+  pari_sp av = avma;
+  GEN c4, c6, disc;
+  GEN D = gen_1;
+  GEN N, M, F, E;
+  long i, lF;
+  E = ellminimalmodel(e, NULL);
+  c4 = ell_get_c4(E);
+  c6 = ell_get_c6(E);
+  disc = ell_get_disc(E);
+  ellQ_get_Nfa(E, &N, &M);
+  F = gel(M, 1); lF = lg(F);
+  for(i=1; i < lF; i++)
+  {
+    GEN p = gel(F, i);
+    long v4 = safe_Z_pval(c4, p), v6 = safe_Z_pval(c6,p), vD = Z_pval(disc,p);
+    long l = v4<0 ? minss(2*v6, vD): v6<0 ? minss(3*v4, vD): minss(minss(3*v4, 2*v6), vD);
+    if (cmpiu(p, 3)>0)
+    {
+      if (l>=6) D = mulii(D,mod4(p)==1 ? p: negi(p));
+    }
+    else if (equaliu(p, 3))
+    {
+      if (l>=6 && v6!=5) D = mulis(D,-3);
+    }
+    else /* p == 2*/
+    {
+      if ((v4==4 && v6==6 && vD>=12) || ((v4<0 || v4>=8) && v6==9 && vD==12))
+        D = mulis(D,-4);
+      else if (v4==6 && v6==9 && vD>=18)
+        D = mulis(D, ((smod2BIL(c6)>>9)&3UL) == 1 ? -8: 8);
+      else if ((v4<0 || v4>=6) && v6==6 && vD==6)
+        D = mulis(D, ((smod2BIL(c6)>>6)&3UL) == 1 ? 8: -8);
+      else
+        if (!(v4==4 || v4==5 || v6==3 || v6==5 || v6==7 || (v4==0 && v6==0)))
+          D = mulis(D, -8);
+    }
+  }
+  return gerepileuptoleaf(av, D);
+}
+
+/*
+Reference:
+William A. Stein and Mark Watkins
+A Database of Elliptic Curves-First Report
+ANTS 5
+<http://modular.math.washington.edu/papers/stein-watkins/ants.pdf>
+*/
+GEN
+ellminimaltwistcond(GEN e)
+{
+  pari_sp av = avma;
+  GEN D = ellminimaltwist(e);
+  GEN E = ellinit(elltwist(e, D), NULL, DEFAULTPREC);
+  GEN R = elllocalred(E, gen_2);
+  long f = itos(gel(R,1)), v = vali(D);
+  obj_free(E);
+  if (f==4) D = negi(v==3 ? D: shifti(D, v==0? 2: -2));
+  else if (f==6)
+  {
+    if (v < 3) D = shifti(D, v==0? 3: 1);
+    else
+    {
+      long si = (mod32(D)>>3)==1? 1: -1;
+      D = shifti(D, signe(D)==si ? -3: -1);
+    }
+  }
+  return gerepileuptoleaf(av, D);
+}
+
+GEN
+ellminimaltwist0(GEN e, long flag)
+{
+  switch(flag)
+  {
+    case 0:
+      return ellminimaltwist(e);
+    case 1:
+      return ellminimaltwistcond(e);
+  }
+  pari_err_FLAG("ellminimaltwist");
+  return NULL; /* NOT REACHED */
+}
+
 static long
 ellexpo(GEN E)
 {
