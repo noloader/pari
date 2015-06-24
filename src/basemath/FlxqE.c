@@ -1116,7 +1116,7 @@ Flxq_ellcard_Harley(GEN a4, GEN a6, GEN T, ulong p)
   GEN J1,A40,A41,A60,A61, sqx,Xm;
   GEN pol, h1, H;
   GEN c2, tc2, c2p, Nc2, Np;
-  long ispcyc = DEBUGVAR && zx_is_pcyc(get_Flx_mod(T));
+  long ispcyc = zx_is_pcyc(get_Flx_mod(T));
   timer_start(&ti);
   if (!ispcyc)
   {
