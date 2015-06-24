@@ -396,8 +396,10 @@ gequal1(GEN x)
       if (!s) return expo(x) >= 0;
       return s > 0 ? absrnz_equal1(x): 0;
     }
-    case t_INTMOD: case t_POLMOD:
-      return gequal1(gel(x,2));
+    case t_INTMOD:
+      return is_pm1(gel(x,2)) || is_pm1(gel(x,1));
+    case t_POLMOD:
+      return gequal1(gel(x,2)) || gequal1(gel(x,1));
 
     case t_FFELT:
       return FF_equal1(x);
@@ -463,7 +465,7 @@ gequalm1(GEN x)
 
     case t_POLMOD:
       av=avma; p1 = gaddgs(gel(x,2), 1);
-      y = signe(p1) && !gequal(p1,gel(x,1)); avma=av; return !y;
+      y = gequal0(p1) || gequal(p1,gel(x,1)); avma=av; return y;
 
     case t_POL: return is_monomial_test(x, 0, &gequalm1);
     case t_SER: return is_monomial_test(x, valp(x), &gequalm1);
