@@ -92,7 +92,7 @@ test_curve_order(
 
   /* [a4, a6] is the given curve and [a4t, a6t] is its quadratic
    * twist. */
-  Fl_elltwist(a4, a6, T, p, &a4t, &a6t);
+  Fl_elltwist_disc(a4, a6, T, p, &a4t, &a6t);
 
   m0 = m1 = 1;
 

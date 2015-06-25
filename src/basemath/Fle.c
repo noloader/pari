@@ -573,10 +573,26 @@ Fl_elldisc(ulong a4, ulong a6, ulong p)
     return Fl_elldisc_pre(a4, a6, p, get_Fl_red(p));
 }
 
+static ulong
+nonsquare_Fl(ulong p)
+{
+  ulong a;
+  do
+    a = random_Fl(p);
+  while (krouu(a, p) >= 0);
+  return a;
+}
+
 void
-Fl_elltwist(ulong a4, ulong a6, ulong D, ulong p, ulong *pt_a4, ulong *pt_a6)
+Fl_elltwist_disc(ulong a4, ulong a6, ulong D, ulong p, ulong *pt_a4, ulong *pt_a6)
 {
   ulong D2 = Fl_sqr(D, p);
   *pt_a4 = Fl_mul(a4, D2, p);
   *pt_a6 = Fl_mul(a6, Fl_mul(D, D2, p), p);
+}
+
+void
+Fl_elltwist(ulong a4, ulong a6, ulong p, ulong *pt_a4, ulong *pt_a6)
+{
+  Fl_elltwist_disc(a4, a6, nonsquare_Fl(p), p, pt_a4, pt_a6);
 }

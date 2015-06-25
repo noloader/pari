@@ -894,7 +894,7 @@ select_curve_with_L_tors_point(
   }
 
   Fl_ellj_to_a4a6(j, p, &A4, &A6);
-  Fl_elltwist(A4, A6, ne->T, p, &A4t, &A6t);
+  Fl_elltwist_disc(A4, A6, ne->T, p, &A4t, &A6t);
 
   /* Either E = [a4, a6] or its twist has cardinality divisible by L
    * because of the choice of p and t earlier on.  We find out which

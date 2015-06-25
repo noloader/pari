@@ -515,7 +515,11 @@ of $p$.
 Set \kbd{*pt\_a4} to $a_4$ and \kbd{*pt\_a6} to $a_6$ where $a_4$ and $a_6$
 define a fixed elliptic curve with $j$-invariant $j$.
 
-\fun{void}{Fl_elltwist}{ulong a4, ulong a6, ulong D, ulong p, ulong *pt_a4, ulong *pt_a6}
+\fun{void}{Fl_elltwist}{ulong a4, ulong a6, ulong p, ulong *pt_a4, ulong *pt_a6}
+Set \kbd{*pt\_a4} to $a'_4$ and \kbd{*pt\_a6} to $a'_6$ where $a'_4$ and $a'_6$
+define the twist of $E$.
+
+\fun{void}{Fl_elltwist_disc}{ulong a4, ulong a6, ulong D, ulong p, ulong *pt_a4, ulong *pt_a6}
 Set \kbd{*pt\_a4} to $a'_4$ and \kbd{*pt\_a6} to $a'_6$ where $a'_4$ and $a'_6$
 define the twist of $E$ by the discriminant $D$.
 
