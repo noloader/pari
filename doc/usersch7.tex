@@ -352,6 +352,9 @@ In this subsection, we assume that \tet{ell_get_type}$(E)$ is \tet{t_ELL_Fq}.
 (As noted above, a curve defined over $\Z/p\Z$ can be represented as a
 \tet{t_ELL_Fq}.)
 
+\fun{GEN}{FF_elltwist}{GEN E} returns the coefficients
+$[a_1,a_2,a_3,a_4,a_6]$ of the quadratic twist of $E$.
+
 \fun{GEN}{FF_ellmul}{GEN E, GEN P, GEN n} returns $[n]P$ where $n$ is an
 integer and $P$ is a point on the curve $E$.
 

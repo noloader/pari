@@ -1121,6 +1121,35 @@ FF_ellinit(GEN E, GEN fg)
   return y;
 }
 
+GEN
+FF_elltwist(GEN E)
+{
+  pari_sp av = avma;
+  GEN fg = ellff_get_field(E), e = ellff_get_a4a6(E);
+  GEN T, p, a, a6, V;
+  ulong pp;
+  _getFF(fg,&T,&p,&pp);
+  switch (fg[1])
+  {
+  case t_FF_FpXQ:
+    FpXQ_elltwist(gel(e,1), gel(e,2), T, p, &a, &a6);
+    V = mkvec5(gen_0, gen_0, gen_0, mkFF_i(fg, a), mkFF_i(fg, a6));
+    break;
+  case t_FF_F2xq:
+    F2xq_elltwist(gel(e,1), gel(e,2), T, &a, &a6);
+    V = typ(a)==t_VECSMALL ?
+          mkvec5(gen_1, mkFF_i(fg, a), gen_0, gen_0, mkFF_i(fg, a6)):
+          mkvec5(gen_0, gen_0, mkFF_i(fg, gel(a,1)), mkFF_i(fg, gel(a,2)), mkFF_i(fg, a6));
+    break;
+  default:
+    Flxq_elltwist(gel(e,1), gel(e,2), T, pp, &a, &a6);
+    V = typ(a)==t_VECSMALL ?
+          mkvec5(gen_0, gen_0, gen_0, mkFF_i(fg, a), mkFF_i(fg, a6)):
+          mkvec5(gen_0, mkFF_i(fg, gel(a,1)), gen_0, gen_0, mkFF_i(fg, a6));
+  }
+  return gerepilecopy(av, V);
+}
+
 static long
 F3x_equalm1(GEN x)
 { return degpol(x)==0 && x[2] == 2; }
