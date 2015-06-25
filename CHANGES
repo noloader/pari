@@ -156,6 +156,7 @@ VBr83- [darwin] remove obsolete linker options that cause crashes [#1623]
   113- forprime engine could skip (fast) sieve in favour of (slow)
        nextprime [#1711]
   114- 0^[1] -> domain error [#1713]
+  115- memory leaks (clones) in ellchangecurve [#1716]
 
   Added
     1- add optional argument to sumdigits to specify the base

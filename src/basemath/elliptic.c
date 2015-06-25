@@ -1081,7 +1081,7 @@ ch_Qp(GEN E, GEN e, GEN w)
   if ((S = obj_check(e, Qp_ROOT)))
   {
     if (!u2) u2 = gsqr(u);
-    obj_insert(E, Qp_ROOT, gdiv(gsub(S, r), u2));
+    obj_insert_shallow(E, Qp_ROOT, gdiv(gsub(S, r), u2));
   }
   if ((S = obj_check(e, Qp_TATE)))
   {
@@ -1090,7 +1090,7 @@ ch_Qp(GEN E, GEN e, GEN w)
     U2 = gmul(U2, u2);
     U = gmul(U, u);
     AB = gdiv(AB, u2);
-    obj_insert(E, Qp_TATE, mkvec4(U2,U,Q,AB));
+    obj_insert_shallow(E, Qp_TATE, mkvec4(U2,U,Q,AB));
   }
   return E;
 }
@@ -1131,14 +1131,14 @@ ch_Q(GEN E, GEN e, GEN w)
   if (base_ring(E, &p, &prec) != t_FRAC) return ellinit(E, p, prec);
   ch_R(E, e, w);
   if ((S = obj_check(e, Q_GROUPGEN)))
-    S = obj_insert(E, Q_GROUPGEN, ellchangepoint(S, w));
+    S = obj_insert_shallow(E, Q_GROUPGEN, ellchangepoint(S, w));
   if ((S = obj_check(e, Q_MINIMALMODEL)))
   {
     if (lg(S) == 2)
     { /* model was minimal */
       if (!is_trivial_change(w)) /* no longer minimal */
         S = mkvec3(gel(S,1), ellchangeinvert(w), e);
-      (void)obj_insert(E, Q_MINIMALMODEL, S);
+      (void)obj_insert_shallow(E, Q_MINIMALMODEL, S);
     }
     else
     {
@@ -1152,13 +1152,13 @@ ch_Q(GEN E, GEN e, GEN w)
         S = leafcopy(S); /* don't modify S in place: would corrupt e */
         gel(S,2) = v;
       }
-      (void)obj_insert(E, Q_MINIMALMODEL, S);
+      (void)obj_insert_shallow(E, Q_MINIMALMODEL, S);
     }
   }
   if ((S = obj_check(e, Q_GLOBALRED)))
-    S = obj_insert(E, Q_GLOBALRED, S);
+    S = obj_insert_shallow(E, Q_GLOBALRED, S);
   if ((S = obj_check(e, Q_ROOTNO)))
-    S = obj_insert(E, Q_ROOTNO, S);
+    S = obj_insert_shallow(E, Q_ROOTNO, S);
   return E;
 }
 
@@ -1167,13 +1167,13 @@ ch_FF(GEN E, GEN e, GEN w)
 {
   GEN S;
   if ((S = obj_check(e, FF_CARD)))
-    S = obj_insert(E, FF_CARD, S);
+    S = obj_insert_shallow(E, FF_CARD, S);
   if ((S = obj_check(e, FF_GROUP)))
-    S = obj_insert(E, FF_GROUP, S);
+    S = obj_insert_shallow(E, FF_GROUP, S);
   if ((S = obj_check(e, FF_GROUPGEN)))
-    S = obj_insert(E, FF_GROUPGEN, ellchangepoint(S, w));
+    S = obj_insert_shallow(E, FF_GROUPGEN, ellchangepoint(S, w));
   if ((S = obj_check(e, FF_O)))
-    S = obj_insert(E, FF_O, S);
+    S = obj_insert_shallow(E, FF_O, S);
 }
 
 /* FF_CARD, FF_GROUP, FF_O are invariant */
@@ -1209,17 +1209,19 @@ ellchangecurve(GEN e, GEN w)
   if (equali1(w)) return gcopy(e);
   checkcoordch(w);
   E = coordch(leafcopy(e), w);
-  if (lg(E) == 6) return gerepilecopy(av, E);
-  ell_reset(E); E = gerepilecopy(av, E);
-  switch(ell_get_type(E))
+  if (lg(E) != 6)
   {
-    case t_ELL_Qp: E = ch_Qp(E,e,w); break;
-    case t_ELL_Fp: E = ch_Fp(E,e,w); break;
-    case t_ELL_Fq: E = ch_Fq(E,e,w); break;
-    case t_ELL_Q:  E = ch_Q(E,e,w);  break;
-    case t_ELL_Rg: E = ch_Rg(E,e,w); break;
+    ell_reset(E);
+    switch(ell_get_type(E))
+    {
+      case t_ELL_Qp: E = ch_Qp(E,e,w); break;
+      case t_ELL_Fp: E = ch_Fp(E,e,w); break;
+      case t_ELL_Fq: E = ch_Fq(E,e,w); break;
+      case t_ELL_Q:  E = ch_Q(E,e,w);  break;
+      case t_ELL_Rg: E = ch_Rg(E,e,w); break;
+    }
   }
-  return E;
+  return gerepilecopy(av, E);
 }
 
 static void
@@ -4284,7 +4286,6 @@ get_u(GEN E, GEN *pc4c6P, GEN P)
 static GEN
 ellminimalmodel_i(GEN E, GEN *ptv)
 {
-  pari_sp av = avma;
   GEN S, y, e, v, v0, u;
   GEN c4c6P;
   ellmin_t M;
@@ -4311,25 +4312,29 @@ ellminimalmodel_i(GEN E, GEN *ptv)
   v = min_get_v(&M, e);
   if (v0) { gcomposev(&v0, v); v = v0; }
   if (is_trivial_change(v))
+  {
+    v = init_ch();
     S = mkvec(c4c6P);
+  }
   else
     S = mkvec3(c4c6P, v, y);
-  S = gclone(S);
-  y = gerepilecopy(av, y);
-  obj_insert_shallow(E, Q_MINIMALMODEL, S);
-  *ptv = lg(S) == 2? init_ch(): gel(S,2);
-  return y;
+  obj_insert(E, Q_MINIMALMODEL, S);
+  *ptv = v; return y;
 }
 GEN
 ellminimalmodel(GEN E, GEN *ptv)
 {
+  pari_sp av = avma;
   GEN S, y, v;
   checkell_Q(E);
   y = ellminimalmodel_i(E, &v);
   if (!is_trivial_change(v)) ch_Q(y, E, v);
-  if (ptv) *ptv = gcopy(v);
   S = obj_check(E, Q_MINIMALMODEL);
-  obj_insert(y, Q_MINIMALMODEL, mkvec(gel(S,1)));
+  obj_insert_shallow(y, Q_MINIMALMODEL, mkvec(gel(S,1)));
+  if (!ptv)
+    y = gerepilecopy(av, y);
+  else
+  { *ptv = v; gerepileall(av, 2, &y, ptv); }
   return y;
 }
 
