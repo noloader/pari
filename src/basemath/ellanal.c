@@ -935,19 +935,10 @@ lift_points(GEN N, GEN listQ, GEN f, GEN *pt, GEN *pQ)
 /***************************/
 
 static GEN
-twistcurve(GEN e, GEN D)
-{
-  GEN D2 = sqri(D);
-  GEN a4 = mulii(mulsi(-27, D2), ell_get_c4(e));
-  GEN a6 = mulii(mulsi(-54, mulii(D, D2)), ell_get_c6(e));
-  return ellinit(mkvec2(a4,a6),NULL,DEFAULTPREC);
-}
-
-static GEN
 ltwist1(GEN E, GEN d, long bitprec)
 {
   pari_sp av = avma;
-  GEN Ed = twistcurve(E, d);
+  GEN Ed = ellinit(elltwist(E, d), NULL, DEFAULTPREC);
   GEN z = ellL1_bitprec(Ed, 0, bitprec);
   obj_free(Ed); return gerepileuptoleaf(av, z);
 }
