@@ -1319,8 +1319,8 @@ elltwist(GEN E, GEN P)
   checkell(E);
   if (!P)
   {
-    checkell_Fq(E);
     GEN a4, a6;
+    checkell_Fq(E);
     switch (ell_get_type(E))
     {
       case t_ELL_Fp:
