@@ -1212,10 +1212,8 @@ get_xinf(double beta)
     x0 = x1;
   }
 }
-/* optimize for zeta( s + it, prec ), assume
- * 1) |s-1| > 0.1 (guaranteed since if gexpo(u = s-1) < -5, we use the
- * functional equation s->1-s)
- * 2) s > 0 if t = 0 [ we use the functional equation otherwise ] */
+/* optimize for zeta( s + it, prec ), assume |s-1| > 0.1
+ * (if gexpo(u = s-1) < -5, we use the functional equation s->1-s) */
 static void
 optim_zeta(GEN S, long prec, long *pp, long *pn)
 {
@@ -1230,9 +1228,8 @@ optim_zeta(GEN S, long prec, long *pp, long *pn)
   }
 
   B = prec2nbits_mul(prec, LOG2);
-  if (!t) /* real input */
+  if (s > 0 && !t) /* positive real input */
   {
-    double sn = fabs(s);
     beta = B + 0.61 + s*(log2PI - log(s));
     if (beta > 0)
     {
@@ -1242,7 +1239,7 @@ optim_zeta(GEN S, long prec, long *pp, long *pn)
     else
     {
       p = 0;
-      n = exp((B - LOG2 + log(sn/s)) / s);
+      n = exp((B - LOG2) / s);
     }
   }
   else if (s <= 0 || t < 0.01) /* s < 0 may occur if s ~ 0 */
@@ -1581,7 +1578,8 @@ czeta(GEN s0, long prec)
   if (typ(s0) == t_INT) return gerepileupto(av, gzeta(s0, prec));
   if (!signe(tau)) /* real */
   {
-    if (signe(sig) <= 0 || expo(sig) < -1)
+    long e = expo(sig);
+    if (e >= -5 && (signe(sig) <= 0 || e < -1))
     { /* s < 1/2 */
       s = subsr(1, s);
       funeq_factor = gen_1;
