@@ -1391,6 +1391,7 @@ ellminimaltwist(GEN e)
   c6 = ell_get_c6(E);
   disc = ell_get_disc(E);
   ellQ_get_Nfa(E, &N, &M);
+  obj_free(E);
   F = gel(M, 1); lF = lg(F);
   for(i=1; i < lF; i++)
   {
