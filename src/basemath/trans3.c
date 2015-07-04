@@ -2754,7 +2754,7 @@ aut_factor(GEN U, GEN z)
  * \sum_{n = -1}^{N-1} c(n) (-10n \sigma_3(N-n) + 21 \sigma_5(N-n))
  * = c(N) (N+1)/24 */
 static GEN
-ser_j(long prec)
+ser_j(long prec, long v)
 {
   GEN j, J, K = mkvecsmall2(3,5), S = cgetg(prec+1, t_VEC);
   long i, n;
@@ -2765,7 +2765,7 @@ ser_j(long prec)
     gel(S,n) = s;
   }
   J = cgetg(prec+2, t_SER),
-  J[1] = evalvarn(0)|evalsigne(1)|evalvalp(-1);
+  J[1] = evalvarn(v)|evalsigne(1)|evalvalp(-1);
   j = J+3;
   gel(j,-1) = gen_1;
   gel(j,0) = utoipos(744);
@@ -2794,11 +2794,13 @@ jell(GEN x, long prec)
 
   if (!is_scalar_t(tx))
   {
-    if (gequalX(x)) { h = ser_j(precdl); setvarn(h, varn(x)); return h; }
-    q = toser_i(x);
-    if (!q) pari_err_TYPE("ellj",x);
-    h = ser_j(lg(q) - 2);
-    return gerepileupto(av, gsubst(h, 0, q));
+    long v;
+    if (gequalX(x)) return ser_j(precdl, varn(x));
+    q = toser_i(x); if (!q) pari_err_TYPE("ellj",x);
+    v = fetch_var_higher();
+    h = ser_j(lg(q)-2, v);
+    h = gsubst(h, v, q);
+    delete_var(); return gerepileupto(av, h);
   }
   if (tx == t_PADIC)
   {

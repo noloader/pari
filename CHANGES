@@ -158,6 +158,7 @@ VBr83- [darwin] remove obsolete linker options that cause crashes [#1623]
   114- 0^[1] -> domain error [#1713]
   115- memory leaks (clones) in ellchangecurve [#1716]
   116- zeta inaccurate around 0 [ from 2.7 ], [#1714]
+  117- ellj(simple t_SER in 'x) much slower than in other variable [#1720]
 
   Added
     1- add optional argument to sumdigits to specify the base
