@@ -89,7 +89,7 @@ list_to_pol(GEN list, long vx, long vy)
 
 struct meqn {
   char type;
-  GEN eq;
+  GEN eq, eval;
   long vx,vy;
 };
 
@@ -98,16 +98,27 @@ get_modular_eqn(struct meqn *M, ulong ell, long vx, long vy)
 {
   GEN eqn;
   long idx = uprimepi(ell)-1;
-  if (!modular_eqn && !get_seadata(0)) pari_err_PACKAGE("seadata");
-  if (idx && idx<lg(modular_eqn))
+  if (!modular_eqn && !get_seadata(0))
+    eqn = NULL;
+  else if (idx && idx<lg(modular_eqn))
     eqn = gel(modular_eqn, idx);
   else
     eqn = get_seadata(ell);
-  if (!eqn) { M->type = 0; M->eq = NULL; return 0; }
-  M->type = *GSTR(gel(eqn, 2));
-  M->eq = list_to_pol(gel(eqn, 3), vx, vy);
   M->vx = vx;
-  M->vy = vy; return 1;
+  M->vy = vy;
+  M->eval = gen_0;
+  if (!eqn)
+  {
+    M->type = 'J';
+    M->eq = polmodular_ZXX(ell, ell==3? 0: 5, vx, vy);
+    return 0;
+  }
+  else
+  {
+    M->type = *GSTR(gel(eqn, 2));
+    M->eq = list_to_pol(gel(eqn, 3), vx, vy);
+    return 1;
+  }
 }
 
 static void
@@ -777,6 +788,169 @@ find_isogenous_from_canonical(GEN a4, GEN a6, ulong ell, struct meqn *MEQN, GEN 
 }
 
 static GEN
+corr(GEN c4, GEN c6, GEN T, GEN p, GEN pp, long e)
+{
+  GEN c46 = Zq_div(Fq_sqr(c4, T, p), c6, T, p, pp, e);
+  GEN c64 = Zq_div(c6, c4, T, p, pp, e);
+  GEN a = Fp_div(gen_2, utoi(3), p);
+  return Fq_add(Fq_halve(c46, T, p), Fq_mul(a, c64, T, p), T, p);
+}
+
+static GEN
+RgXY_deflatex(GEN H, long n, long d)
+{
+  long i, l = lg(H);
+  GEN R = cgetg(l, t_POL);
+  R[1] = H[1];
+  for(i = 2; i < l; i++)
+  {
+    GEN Hi = gel(H, i);
+    gel(R,i) = typ(Hi)==t_POL? RgX_deflate(RgX_shift_shallow(Hi, d), n): Hi;
+  }
+  return RgX_renormalize_lg(R, l);
+}
+
+static GEN
+Fq_polmodular_eval(GEN meqn, GEN j, long N, GEN T, GEN p, long vJ)
+{
+  pari_sp av = avma;
+  GEN R, dR, ddR;
+  long t0 = N%3 == 1 ? 2: 0;
+  long t2 = N%3 == 1 ? 0: 2;
+  if (N == 3)
+  {
+    GEN P = FpXX_red(meqn, p);
+    GEN dP = deriv(P, -1), ddP = deriv(dP, -1);
+    R = FpXY_Fq_evaly(P, j, T, p, vJ);
+    dR = FpXY_Fq_evaly(dP, j, T, p, vJ);
+    ddR = FpXY_Fq_evaly(ddP, j, T, p, vJ);
+    return gerepilecopy(av, mkvec3(R,dR,ddR));
+  }
+  else
+  {
+    GEN P5 = FpXX_red(meqn, p);
+    GEN H = RgX_splitting(P5, 3);
+    GEN H0 = RgXY_deflatex(gel(H,1), 3, -t0);
+    GEN H1 = RgXY_deflatex(gel(H,2), 3, -1);
+    GEN H2 = RgXY_deflatex(gel(H,3), 3, -t2);
+    GEN h0 = FpXY_Fq_evaly(H0, j, T, p, vJ);
+    GEN h1 = FpXY_Fq_evaly(H1, j, T, p, vJ);
+    GEN h2 = FpXY_Fq_evaly(H2, j, T, p, vJ);
+    GEN dH0 = RgX_deriv(H0);
+    GEN dH1 = RgX_deriv(H1);
+    GEN dH2 = RgX_deriv(H2);
+    GEN ddH0 = RgX_deriv(dH0);
+    GEN ddH1 = RgX_deriv(dH1);
+    GEN ddH2 = RgX_deriv(dH2);
+    GEN d0 = FpXY_Fq_evaly(dH0, j, T, p, vJ);
+    GEN d1 = FpXY_Fq_evaly(dH1, j, T, p, vJ);
+    GEN d2 = FpXY_Fq_evaly(dH2, j, T, p, vJ);
+    GEN dd0 = FpXY_Fq_evaly(ddH0, j, T, p, vJ);
+    GEN dd1 = FpXY_Fq_evaly(ddH1, j, T, p, vJ);
+    GEN dd2 = FpXY_Fq_evaly(ddH2, j, T, p, vJ);
+    GEN h02, h12, h22, h03, h13, h23, h012, dh03, dh13, dh23, dh012;
+    GEN ddh03, ddh13, ddh23, ddh012;
+    GEN R1, dR1, ddR1, ddR2;
+    h02 = FqX_sqr(h0, T, p);
+    h12 = FqX_sqr(h1, T, p);
+    h22 = FqX_sqr(h2, T, p);
+    h03 = FqX_mul(h0, h02, T, p);
+    h13 = FqX_mul(h1, h12, T, p);
+    h23 = FqX_mul(h2, h22, T, p);
+    h012 = FqX_mul(FqX_mul(h0, h1, T, p), h2, T, p);
+    dh03 = FqX_mul(FqX_mulu(d0, 3, T, p), h02, T, p);
+    dh13 = FqX_mul(FqX_mulu(d1, 3, T, p), h12, T, p);
+    dh23 = FqX_mul(FqX_mulu(d2, 3, T, p), h22, T, p);
+    dh012 = FqX_add(FqX_add(FqX_mul(FqX_mul(d0, h1, T, p), h2, T, p), FqX_mul(FqX_mul(h0, d1, T, p), h2, T, p), T, p), FqX_mul(FqX_mul(h0, h1, T, p), d2, T, p), T, p);
+    R1 = FqX_sub(h13, FqX_mulu(h012, 3, T, p), T, p);
+    R = FqX_add(FqX_add(FqX_Fq_mul(RgX_shift_shallow(h23, t2), Fq_sqr(j, T, p), T, p), FqX_Fq_mul(RgX_shift_shallow(R1, 1), j, T, p), T, p), RgX_shift_shallow(h03, t0), T, p);
+    dR1 = FqX_sub(dh13, FqX_mulu(dh012, 3, T, p), T, p);
+    dR = FqX_add(FqX_add(RgX_shift_shallow(FqX_add(FqX_Fq_mul(dh23, Fq_sqr(j, T, p), T, p), FqX_Fq_mul(h23, Fq_mulu(j, 2, T, p), T, p), T, p), t2), RgX_shift_shallow(FqX_add(FqX_Fq_mul(dR1, j, T, p), R1, T, p), 1), T, p), RgX_shift_shallow(dh03, t0), T, p);
+    ddh03 = FqX_mulu(FqX_add(FqX_mul(dd0, h02, T, p), FqX_mul(FqX_mulu(FqX_sqr(d0, T, p), 2, T, p), h0, T, p), T, p), 3, T, p);
+    ddh13 = FqX_mulu(FqX_add(FqX_mul(dd1, h12, T, p), FqX_mul(FqX_mulu(FqX_sqr(d1, T, p), 2, T, p), h1, T, p), T, p), 3, T, p);
+    ddh23 = FqX_mulu(FqX_add(FqX_mul(dd2, h22, T, p), FqX_mul(FqX_mulu(FqX_sqr(d2, T, p), 2, T, p), h2, T, p), T, p), 3, T, p);
+    ddh012 = FqX_add(FqX_add(FqX_add(FqX_mul(FqX_mul(dd0, h1, T, p), h2, T, p), FqX_mul(FqX_mul(h0, dd1, T, p), h2, T, p), T, p), FqX_mul(FqX_mul(h0, h1, T, p), dd2, T, p), T, p), FqX_mulu(FqX_add(FqX_add(FqX_mul(FqX_mul(d0, d1, T, p), h2, T, p), FqX_mul(FqX_mul(d0, h1, T, p), d2, T, p), T, p), FqX_mul(FqX_mul(h0, d1, T, p), d2, T, p), T, p), 2, T, p), T, p);
+    ddR1 = FqX_sub(ddh13, FqX_mulu(ddh012, 3, T, p), T, p);
+    ddR2 = FqX_add(FqX_add(FqX_Fq_mul(ddh23, Fq_sqr(j, T, p), T, p), FqX_Fq_mul(dh23, Fq_mulu(j, 4, T, p), T, p), T, p), FqX_mulu(h23, 2, T, p), T, p);
+    ddR = FqX_add(FqX_add(RgX_shift_shallow(ddR2, t2), RgX_shift_shallow(FqX_add(FqX_mulu(dR1, 2, T, p), FqX_Fq_mul(ddR1, j, T, p), T, p), 1), T, p), RgX_shift_shallow(ddh03, t0), T, p);
+    return gerepilecopy(av, mkvec3(R ,dR ,ddR));
+  }
+}
+
+static GEN
+meqn_j(struct meqn *MEQN, GEN j, long ell, GEN T, GEN p)
+{
+  if (MEQN->type=='J')
+  {
+    MEQN->eval = Fq_polmodular_eval(MEQN->eq, j, ell, T, p, MEQN->vy);
+    return gel(MEQN->eval, 1);
+  }
+  else
+    return FqXY_evalx(MEQN->eq, j, T, p);
+}
+
+static GEN
+find_isogenous_from_J(GEN a4, GEN a6, ulong ell, struct meqn *MEQN, GEN g, GEN T, GEN pp, long e)
+{
+  pari_sp ltop = avma;
+  GEN meqn = MEQN->eval;
+  GEN p = e==1 ? pp: powiu(pp, e);
+  GEN h;
+  GEN C4, C6, C4t, C6t;
+  GEN j, jp, jtp, jtp2, jtp3;
+  GEN Py, Pxy, Pyy, Pxj, Pyj, Pxxj, Pxyj, Pyyj;
+  GEN s0, s1, s2, s3;
+  GEN den, D, co, cot, c0, p_1, a4tilde, a6tilde;
+  if (signe(g) == 0 || signe(Fq_sub(g, utoi(1728), T, p)) == 0)
+  {
+    if (DEBUGLEVEL>0) err_printf("[J: g=%ld]",signe(g)==0 ?0: 1728);
+    avma = ltop; return NULL;
+  }
+  C4 = Fq_mul(a4, stoi(-48), T, p);
+  C6 = Fq_mul(a6, stoi(-864), T, p);
+  if (signe(C4)==0 || signe(C6)==0)
+  {
+    if (DEBUGLEVEL>0) err_printf("[J: C%ld=0]",signe(C4)==0 ?4: 6);
+    avma = ltop; return NULL;
+  }
+  j = Zq_ellj(a4, a6, T, p, pp, e);
+  jp = Fq_mul(j, Zq_div(C6, C4, T, p, pp, e), T, p);
+  co = corr(C4, C6, T, p, pp, e);
+  Py = RgX_deriv(gel(meqn, 1));
+  Pxy = RgX_deriv(gel(meqn,2));
+  Pyy = RgX_deriv(Py);
+  Pxj = FqX_eval(gel(meqn, 2), g, T, p);
+  if (signe(Pxj)==0)
+  {
+    if (DEBUGLEVEL>0) err_printf("[J: Pxj=0]");
+    avma = ltop; return NULL;
+  }
+  Pyj = FqX_eval(Py, g, T, p);
+  Pxxj = FqX_eval(gel(meqn, 3), g, T, p);
+  Pxyj = FqX_eval(Pxy, g, T, p);
+  Pyyj = FqX_eval(Pyy, g, T, p);
+  jtp = Fq_div(Fq_mul(jp, Zq_div(Pxj, Pyj, T, p, pp, e), T, p), negi(utoi(ell)), T, p);
+  jtp2 = Fq_sqr(jtp,T,p);
+  jtp3 = Fq_mul(jtp,jtp2,T,p);
+  den = Fq_mul(Fq_sqr(g,T,p),Fq_sub(g,utoi(1728),T,p),T, p);
+  D  =  Zq_inv(den,T,p,pp, e);
+  C4t = Fq_mul(jtp2,Fq_mul(g, D, T, p), T, p);
+  C6t = Fq_mul(jtp3, D, T, p);
+  s0 = Fq_mul(Fq_sqr(jp, T, p), Pxxj, T, p);
+  s1 = Fq_mul(Fq_mulu(Fq_mul(jp,jtp,T,p),2*ell,T,p), Pxyj, T, p);
+  s2 = Fq_mul(Fq_mulu(jtp2,ell*ell,T,p), Pyyj, T, p);
+  s3 = Zq_div(Fq_add(s0, Fq_add(s1, s2, T, p), T, p),Fq_mul(jp, Pxj, T, p),T,p,pp,e);
+  cot = corr(C4t, C6t, T, p, pp, e);
+  c0 = Fq_sub(co,Fq_mulu(cot,ell,T,p),T,p);
+  p_1 = Fq_div(Fq_mulu(Fq_add(s3, c0, T, p),ell,T,p),stoi(-4),T,p);
+  a4tilde = Fq_mul(Fq_div(C4t, stoi(-48), T, p),powuu(ell,4), T, p);
+  a6tilde = Fq_mul(Fq_div(C6t, stoi(-864), T, p),powuu(ell,6), T, p);
+  h = find_kernel(a4, a6, ell, a4tilde, a6tilde, p_1, T, p, pp, e);
+  if (!h) return NULL;
+  return gerepilecopy(ltop, mkvec3(a4tilde, a6tilde, h));
+}
+
+static GEN
 find_isogenous(GEN a4,GEN a6, ulong ell, struct meqn *MEQN, GEN g, GEN T,GEN p)
 {
   ulong pp = itou_or_0(p);
@@ -784,12 +958,14 @@ find_isogenous(GEN a4,GEN a6, ulong ell, struct meqn *MEQN, GEN g, GEN T,GEN p)
   if (e > 1)
   {
     GEN pe = powiu(p, e);
-    GEN meqnj = FqXY_evalx(MEQN->eq, Zq_ellj(a4, a6, T, pe, p, e), T, pe);
+    GEN meqnj = meqn_j(MEQN, Zq_ellj(a4, a6, T, pe, p, e), ell, T, pe);
     g = ZpXQX_liftroot(meqnj, g, T, p, e);
   }
   return (MEQN->type == 'C')
     ? find_isogenous_from_canonical(a4, a6, ell, MEQN, g, T, p, e)
-    : find_isogenous_from_Atkin(a4, a6, ell, MEQN, g, T, p, e);
+    : (MEQN->type == 'A')
+    ? find_isogenous_from_Atkin(a4, a6, ell, MEQN, g, T, p, e)
+    : find_isogenous_from_J(a4, a6, ell, MEQN, g, T, p, e);
 }
 
 static GEN
@@ -825,7 +1001,7 @@ find_kernel_power(GEN Eba4, GEN Eba6, GEN Eca4, GEN Eca6, ulong ell, struct meqn
   pari_sp ltop = avma, btop;
   GEN a4t, a6t, gtmp;
   GEN num_iso = FqX_numer_isog_abscissa(kpoly, Eba4, Eba6, T, p, 0);
-  GEN mpoly = FqXY_evalx(MEQN->eq, Fq_ellj(Eca4, Eca6, T, p), T, p);
+  GEN mpoly = meqn_j(MEQN, Fq_ellj(Eca4, Eca6, T, p), ell, T, p);
   GEN mroots = FqX_roots(mpoly, T, p);
   GEN kpoly2 = FqX_sqr(kpoly, T, p);
   long i, l1 = lg(mroots);
@@ -1079,10 +1255,10 @@ find_trace(GEN a4, GEN a6, GEN j, ulong ell, GEN q, GEN T, GEN p, long *ptr_kt,
     }
   }
   kt = k;
-  if (!get_modular_eqn(&MEQN, ell, vx, vy)) err_modular_eqn(ell);
   if (DEBUGLEVEL)
   { err_printf("Process prime %5ld. ", ell); timer_start(&ti); }
-  meqnj = FqXY_evalx(MEQN.eq, j, T, p);
+  (void) get_modular_eqn(&MEQN, ell, vx, vy);
+  meqnj = meqn_j(&MEQN, j, ell, T, p);
   g = study_modular_eqn(ell, meqnj, T, p, &mt, &r);
   /* If l is an Elkies prime, search for a factor of the l-division polynomial.
   * Then deduce the trace by looking for eigenvalues of the Frobenius by
@@ -1572,7 +1748,6 @@ Fq_ellcard_SEA(GEN a4, GEN a6, GEN q, GEN T, GEN p, long smallfact)
   forprime_t TT;
   void *E;
 
-  if (!modular_eqn && !get_seadata(0)) return NULL;
   j = Fq_ellj(a4, a6, T, p);
   if (typ(j)==t_INT && (signe(j)==0 || equaliu(j, umodui(1728, p))))
     return T ? FpXQ_ellcard(Fq_to_FpXQ(a4, T, p), Fq_to_FpXQ(a6, T, p), T, p)
