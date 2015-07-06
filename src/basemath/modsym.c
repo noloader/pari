@@ -1799,7 +1799,7 @@ M2_log_trivial(GEN V, GEN W, GEN M)
   {
     GEN U, B, P, Q, PQ;
     long i, l;
-    if (!signe(c)) return Q_log_trivial(V,W,gdiv(b,d));
+    if (!signe(c)) { Q_log_trivial(V,W,gdiv(b,d)); return; }
     (void)bezout(a,c,&u,&v);
     B = addii(mulii(b,u), mulii(d,v));
     /* [u,v;-c,a] [a,b; c,d] = [1,B; 0,D], i.e. M = U [1,B;0,D] */
