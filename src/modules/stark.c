@@ -223,7 +223,9 @@ get_Char(GEN chi, GEN initc, GEN U, long prec)
   GEN d, chic = get_chic(chi, gel(initc,2));
   if (U) chic = ZV_ZM_mul(chic, U);
   d = ZV_content(chic);
-  if (is_pm1(d)) d = gel(initc,1);
+  if (!signe(d))
+    d = gen_1;
+  else if (is_pm1(d)) d = gel(initc,1);
   else
   {
     GEN t = gred_frac2(gel(initc,1), d);
