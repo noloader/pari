@@ -1530,11 +1530,11 @@ sumpos(void *E, GEN (*eval)(void *, GEN), GEN a, long prec)
   if (typ(a) != t_INT) pari_err_TYPE("sumpos",a);
   a = subiu(a,1);
   N = (ulong)(0.4*(prec2nbits(prec) + 7));
+  if (odd(N)) N++; /* extra precision for free */
   d = powru(addsr(3, sqrtr(stor(8,prec))), N);
   d = shiftr(addrr(d, invr(d)),-1);
   az = gen_m1; c = d;
 
-  if (odd(N)) N++; /* extra precision for free */
   S = sumpos_init(E, eval, a, N, prec);
   s = gen_0;
   for (k=0; k<N; k++)

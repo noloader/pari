@@ -75,3 +75,7 @@ sumpos(n=1,g(1/n))
 sumpos(n=0,0)
 
 sumnum(n=1,1/n^2,"bug");
+
+\\#1729
+\p19
+sumpos(n=1,1/n^2)
