@@ -139,4 +139,5 @@ dim=8
   ***   at top-level: qfsolve([1,0,0;0,1,1
   ***                 ^--------------------
   *** qfsolve: incorrect type in qfsolve [not symmetric] (t_MAT).
-Total time spent: 2220
+[1, 1, -1, -2, 0, 0, -1]~
+Total time spent: 2148

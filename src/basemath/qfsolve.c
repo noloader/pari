@@ -218,11 +218,12 @@ partialgaussred(GEN a)
  * Then finishes by looking for trivial solution */
 static GEN qftriv(GEN G, GEN z, long base);
 static GEN
-qflllgram_indef(GEN G, long base)
+qflllgram_indef(GEN G, long base, int *fail)
 {
   GEN M, R, g, DM, S, dR;
   long i, j, n = lg(G)-1;
 
+  *fail = 0;
   R = partialgaussred(G);
   if (typ(R) == t_INT) return qftriv(G, R, base);
   R = Q_remove_denom(R, &dR); /* avoid rational arithmetic */
@@ -251,7 +252,7 @@ qflllgram_indef(GEN G, long base)
   switch(typ(R))
   {
     case t_COL: return ZM_ZC_mul(S,R);
-    case t_MAT: return mkvec2(R, S);
+    case t_MAT: *fail = 1; return mkvec2(R, S);
     default:
       gel(R,2) = ZM_mul(S, gel(R,2));
       return R;
@@ -278,9 +279,10 @@ qflllgram_indefgoon(GEN G)
 {
   GEN red, U, A, U1,U2,U3,U5,U6, V, B, G2,G3,G4,G5, G6, a, g;
   long i, j, n = lg(G)-1;
+  int fail;
 
-  red = qflllgram_indef(G,1);
-  if (typ(red)==t_MAT) return red; /*no isotropic vector found: nothing to do*/
+  red = qflllgram_indef(G,1, &fail);
+  if (fail) return red; /*no isotropic vector found: nothing to do*/
   /* otherwise a solution is found: */
   U1 = gel(red,2);
   G2 = gel(red,1); /* G2[1,1] = 0 */
@@ -344,8 +346,9 @@ static GEN
 qflllgram_indefgoon2(GEN G)
 {
   GEN red, G2, a, b, c, d, e, f, u, v, r, r3, U2, G3;
+  int fail;
 
-  red = qflllgram_indef(G,1); /* always find an isotropic vector. */
+  red = qflllgram_indef(G,1,&fail); /* always find an isotropic vector. */
   G2 = qf_apply_tau(gel(red,1),1,3); /* G2[3,3] = 0 */
   r = row(gel(red,2), 3);
   swap(gel(r,1), gel(r,3)); /* apply tau_{1,3} */
@@ -832,6 +835,7 @@ qfsolve_i(GEN G)
   GEN M, signG, Min, U, G1, M1, G2, M2, solG2, P, E;
   GEN solG1, sol, Q, d, dQ, detG2, fam2detG;
   long n, np, codim, dim;
+  int fail;
 
   if (typ(G) != t_MAT) pari_err_TYPE("qfsolve", G);
   n = lg(G)-1;
@@ -862,7 +866,7 @@ qfsolve_i(GEN G)
   }
 
   /* 1st reduction of the coefficients of G */
-  M = qflllgram_indef(G,0);
+  M = qflllgram_indef(G,0,&fail);
   if (typ(M) == t_COL) return M;
   G = gel(M,1);
   M = gel(M,2);
@@ -898,7 +902,7 @@ qfsolve_i(GEN G)
 
   /* Reduction of G and search for trivial solutions. */
   /* When |det G|=1, such trivial solutions always exist. */
-  U = qflllgram_indef(G,0);
+  U = qflllgram_indef(G,0,&fail);
   if(typ(U) == t_COL) return Q_primpart(RgM_RgC_mul(M,U));
   G = gel(U,1);
   M = RgM_mul(M, gel(U,2));
@@ -1072,10 +1076,11 @@ qfparam(GEN G, GEN sol, long fl)
   if (fl)
   {
     GEN v = row(sol,fl);
+    int fail;
     a = gel(v,1);
     b = gmul2n(gel(v,2),-1);
     c = gel(v,3);
-    U = qflllgram_indef(mkmat2(mkcol2(a,b),mkcol2(b,c)), 1);
+    U = qflllgram_indef(mkmat2(mkcol2(a,b),mkcol2(b,c)), 1, &fail);
     U = gel(U,2);
     a = gcoeff(U,1,1); b = gcoeff(U,1,2);
     c = gcoeff(U,2,1); d = gcoeff(U,2,2);
