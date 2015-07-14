@@ -1140,7 +1140,10 @@ cxgamma(GEN s0, int dolog, long prec)
       if (funeq) /* s0 ~ 0: use lngamma(s0)+log(s0) = lngamma(s0+1) */
         y = gsub(lngamma1(s0,prec), glog(s0,prec));
       else
+      {
+        if (isint1(s0)) { avma = av; return real_0(prec); }
         y = lngamma1(gsubgs(s0,1),prec);
+      }
       if (!dolog) y = gexp(y,prec);
       avma = av; return affc_fixlg(y, res);
     }
