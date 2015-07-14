@@ -38,13 +38,13 @@ while (<FILE>)
         $v =~ s/\[\]/[\\,]/g;
         $v =~ s/(\w\w+)/\\var{$1}/g;
         $v =~ s/\^([a-z])/\\hbox{\\kbd{\\pow}}$1/g;
-        $v =~ s/\\var{flag}/\\fl/g;
-        $v =~ s/\\var{(\d+)}/{$1}/g;
+        $v =~ s/\\var\{flag\}/\\fl/g;
+        $v =~ s/\\var\{(\d+)\}/{$1}/g;
         $v =~ s/_/\\_/g; # don't merge with first subst: \var{} rule kills it
 
         $v = "\$($v)\$";
       }
-      if ($doc !~ /\\syn\w*{/ && $sec !~ /programming\/control/) {
+      if ($doc !~ /\\syn\w*\{/ && $sec !~ /programming\/control/) {
         $doc .= library_syntax($fun, $args);
       }
       s/_def_//;
