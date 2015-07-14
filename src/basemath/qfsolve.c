@@ -284,7 +284,7 @@ qflllgram_indefgoon(GEN G)
   /* otherwise a solution is found: */
   U1 = gel(red,2);
   G2 = gel(red,1); /* G2[1,1] = 0 */
-  U2 = gel(mathnf0(row(G2,1), 4), 2);
+  U2 = gel(ZV_extgcd(row(G2,1)), 2);
   G3 = qf_apply_ZM(G2,U2);
   U = ZM_mul(U1,U2); /* qf_apply(G,U) = G3 */
   /* G3[1,] = [0,...,0,g], g^2 | det G */
