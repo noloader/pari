@@ -160,7 +160,6 @@ VBr83- [darwin] remove obsolete linker options that cause crashes [#1623]
   116- zeta inaccurate around 0 [ from 2.7 ], [#1714]
   117- ellj(simple t_SER in 'x) much slower than in other variable [#1720]
   118- bnrrootnumber did not support the trivial character in the form [0,..,0]
-  119- qfsolve(matdiagonal([1,1,1,1,1,1,-7])) -> div. by 0 [#1725]
 
   Added
     1- add optional argument to sumdigits to specify the base
