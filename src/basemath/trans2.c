@@ -1141,7 +1141,7 @@ cxgamma(GEN s0, int dolog, long prec)
         y = gsub(lngamma1(s0,prec), glog(s0,prec));
       else
       {
-        if (isint1(s0)) { avma = av; return real_0(prec); }
+        if (isint1(s0)) { avma = av; return dolog? real_0(prec): real_1(prec); }
         y = lngamma1(gsubgs(s0,1),prec);
       }
       if (!dolog) y = gexp(y,prec);
