@@ -562,3 +562,433 @@ ellisogeny(GEN E, GEN G, long only_image, long vx, long vy)
   }
   return gerepilecopy(av, z);
 }
+
+static GEN
+RgXY_eval(GEN P, GEN x, GEN y)
+{
+  return poleval(poleval(P,x), y);
+}
+
+/* Kohel formula, again */
+
+static GEN
+ellisog_by_2(GEN a4, GEN a6, GEN z)
+{
+  GEN a4t = gadd(gmulgs(gsqr(z),-15),gmulgs(a4,-4));
+  GEN a6t = gadd(gmulgs(gmul(a4,z),14),gmulgs(a6,22));
+  GEN c4t = gmulgs(a4t, -48), c6t = gmulgs(a6t, -864);
+  GEN c4t3 = gpowgs(c4t, 3);
+  GEN jt = gdiv(gmulgs(c4t3,1728),gsub(c4t3, gsqr(c6t)));
+  return mkvec3(c4t, c6t, jt);
+}
+
+static GEN
+ellisograph2_iso(GEN nf, GEN e, GEN z)
+{
+  long i, r;
+  GEN R, V;
+  GEN c4 = gel(e,1), c6 = gel(e, 2);
+  GEN a4 = gdivgs(c4, -48), a6 = gdivgs(c6, -864);
+  GEN P = mkpoln(4, gen_1, gen_0, a4, a6);
+  R = nfroots(nf, z ? gdiv(P, deg1pol(gen_1, gneg(z), varn(P))): P);
+  r = lg(R);
+  V = cgetg(r, t_VEC);
+  for (i=1; i < r; i++)
+    gel(V, i) = ellisog_by_2(a4, a6, gel(R, i));
+  return mkvec2(V, R);
+}
+
+static GEN
+ellisograph2_r(GEN nf, GEN e, GEN z)
+{
+  GEN W = ellisograph2_iso(nf, e, z);
+  GEN iso = gel(W, 1), R = gel(W, 2);
+  long i, r = lg(iso);
+  GEN V = cgetg(r, t_VEC);
+  for (i=1; i < r; i++)
+    gel(V, i) = ellisograph2_r(nf, gel(iso, i), gmulgs(gel(R, i), -2));
+  return mkvec2(e, V);
+}
+
+static GEN
+ellisog_by_3(GEN a4, GEN a6, GEN z)
+{
+  GEN z2  = gsqr(z), z3 = gmul(z, z2);
+  GEN a4t = gadd(gmulgs(z2,-30),gmulgs(a4,-9));
+  GEN a6t = gadd(gmulgs(z3,-70),gadd(gmulgs(gmul(a4,z),-42),gmulgs(a6,-27)));
+  GEN c4t = gmulgs(a4t, -48), c6t = gmulgs(a6t, -864);
+  GEN c4t3 = gpowgs(c4t, 3);
+  GEN jt = gdiv(gmulgs(c4t3,1728),gsub(c4t3, gsqr(c6t)));
+  return mkvec3(c4t, c6t, jt);
+}
+
+static GEN
+ellisograph3_iso(GEN nf, GEN e, GEN z)
+{
+  long i, r;
+  GEN R, V;
+  GEN c4 = gel(e,1), c6 = gel(e, 2);
+  GEN a4 = gdivgs(c4, -48), a6 = gdivgs(c6, -864);
+  GEN P = mkpoln(5, utoi(3), gen_0, gmulgs(a4, 6) , gmulgs(a6,12), gneg(gsqr(a4)));
+  R = nfroots(nf,z ? gdiv(P, deg1pol(gen_1, gneg(z), varn(P))): P);
+  r = lg(R);
+  V = cgetg(r, t_VEC);
+  for (i=1; i < r; i++)
+    gel(V, i) = ellisog_by_3(a4, a6, gel(R, i));
+  return mkvec2(V, R);
+}
+
+static GEN
+ellisograph3_r(GEN nf, GEN e, GEN z)
+{
+  GEN W = ellisograph3_iso(nf, e, z);
+  GEN iso = gel(W, 1), R = gel(W, 2);
+  long i, r = lg(iso);
+  GEN V = cgetg(r, t_VEC);
+  for (i=1; i < r; i++)
+    gel(V, i) = ellisograph3_r(nf, gel(iso, i), gmulgs(gel(R, i), -3));
+  return mkvec2(e, V);
+}
+
+static GEN
+ellisog_by_jt(GEN c4, GEN c6, GEN jt, GEN jtpt, long n)
+{
+  GEN jtp = gmul(gdiv(c6, c4), gdivgs(jtpt, -n));
+  GEN jtp2 = gsqr(jtp), den = gmul(jt, gsubgs(jt, 1728));
+  GEN c4t = gdiv(jtp2, den);
+  GEN c6t = gdiv(gmul(jtp, c4t), jt);
+  return mkvec3(c4t, c6t, jt);
+}
+
+/*
+Based on
+RENE SCHOOF
+Counting points on elliptic curves over finite fields
+Journal de Theorie des Nombres de Bordeaux,
+tome 7, no 1 (1995), p. 219-254.
+<http://www.numdam.org/item?id=JTNB_1995__7_1_219_0>
+*/
+
+static GEN
+ellisog_by_j(GEN c4, GEN c6, GEN j, GEN jt, long n, GEN P)
+{
+  pari_sp av = avma;
+  GEN Px = deriv(P, 0), Py = deriv(P, 1);
+  GEN Pxj = RgXY_eval(Px, j, jt), Pyj = RgXY_eval(Py, j, jt);
+  GEN jtpt = gmul(j, gdiv(Pxj, Pyj));
+  GEN e = ellisog_by_jt(c4, c6, jt, jtpt, n);
+  return gerepilecopy(av, e);
+}
+
+static GEN
+ellisograph_iso(GEN nf, GEN e, ulong p, GEN P, GEN oe)
+{
+  long i, r;
+  GEN Pj, R, V;
+  GEN c4  = gel(e,1), c6 = gel(e, 2), j = gel(e, 3);
+  Pj = poleval(P,j);
+  R = nfroots(nf,oe ? gdiv(Pj, deg1pol(gen_1, gneg(gel(oe,3)), varn(Pj))):Pj);
+  r = lg(R);
+  V = cgetg(r, t_VEC);
+  for (i=1; i < r; i++)
+    gel(V, i) = ellisog_by_j(c4,c6,j, gel(R, i), p, P);
+  return V;
+}
+
+static GEN
+ellisograph_r(GEN nf, GEN e, ulong p, GEN P, GEN oe)
+{
+  GEN iso = ellisograph_iso(nf, e, p, P, oe);
+  long i, r = lg(iso);
+  GEN V = cgetg(r, t_VEC);
+  for (i=1; i < r; i++)
+    gel(V, i) = ellisograph_r(nf, gel(iso, i), p, P, e);
+  return mkvec2(e, V);
+}
+
+static GEN
+ellisograph_dummy(GEN c4, GEN c6, GEN j, long n, GEN jt, GEN jtt)
+{
+  GEN jtp = gmul(jt, jtt);
+  GEN iso = ellisog_by_jt(c4, c6, jt, jtp, n);
+  GEN v = mkvec2(iso, cgetg(1, t_VEC));
+  return mkvec2(mkvec3(c4,c6,j), mkvec(v));
+}
+
+static GEN
+ellisograph_p(GEN nf, GEN c4, GEN c6, GEN j, ulong p)
+{
+  pari_sp av = avma;
+  GEN iso, e = mkvec3(c4, c6, j);
+  if (p == 2)
+    iso = ellisograph2_r(nf, e, NULL);
+  else if (p == 3)
+    iso = ellisograph3_r(nf, e, NULL);
+  else
+  {
+    GEN P = polmodular_ZXX(p, 0, 0, 1);
+    iso = ellisograph_r(nf, e, p, P, NULL);
+  }
+  return gerepilecopy(av, iso);
+}
+
+static long
+etree_nbnodes(GEN T)
+{
+  GEN F = gel(T,2);
+  long n = 1, i, l = lg(F);
+  for (i = 1; i < l; i++)
+    n += etree_nbnodes(gel(F, i));
+  return n;
+}
+
+static long
+etree_listr(GEN T, GEN V, long n)
+{
+  GEN E = gel(T, 1), F = gel(T,2);
+  long i, l = lg(F);
+  gel(V, n) = E;
+  for (i = 1; i < l; i++)
+    n = etree_listr(gel(F, i), V, n + 1);
+  return n;
+}
+
+static GEN
+etree_list(GEN T)
+{
+  long n = etree_nbnodes(T);
+  GEN V = cgetg(n+1, t_VEC);
+  (void) etree_listr(T, V, 1);
+  return V;
+}
+
+static long
+etree_distmatr(GEN T, GEN M, long n)
+{
+  GEN F = gel(T,2);
+  long i, j, lF = lg(F), m = n + 1;
+  GEN V = cgetg(lF, t_VECSMALL);
+  mael(M, n, n) = 0;
+  for(i = 1; i < lF; i++)
+    V[i] = m = etree_distmatr(gel(F,i), M, m);
+  for(i = 1; i < lF; i++)
+  {
+    long mi = i==1 ? n+1: V[i-1];
+    for(j = mi; j < V[i]; j++)
+    {
+      mael(M,n,j) = 1 + mael(M, mi, j);
+      mael(M,j,n) = 1 + mael(M, j, mi);
+    }
+    for(j = 1; j < lF; j++)
+      if (i != j)
+      {
+        long i1, j1, mj = j==1 ? n+1: V[j-1];
+        for (i1 = mi; i1 < V[i]; i1++)
+          for(j1 = mj; j1 < V[j]; j1++)
+            mael(M,i1,j1) = 2 + mael(M,mj,j1) + mael(M,i1,mi);
+      }
+  }
+  return m;
+}
+
+static GEN
+etree_distmat(GEN T)
+{
+  long i, n = etree_nbnodes(T);
+  GEN M = cgetg(n+1, t_MAT);
+  for(i = 1; i <= n; i++)
+    gel(M,i) = cgetg(n+1, t_VECSMALL);
+  (void)etree_distmatr(T, M, 1);
+  return M;
+}
+
+static GEN
+list_to_crv(GEN L)
+{
+  long i, l;
+  GEN V = cgetg_copy(L, &l);
+  for(i=1; i < l; i++)
+    gel(V, i) = mkvec2(gdivgs(gmael(L,i,1), -48), gdivgs(gmael(L,i,2), -864));
+  return V;
+}
+
+static GEN
+distmat_pow(GEN E, ulong p)
+{
+  long i, j, n = lg(E)-1;
+  GEN M = cgetg(n+1, t_MAT);
+  for(i = 1; i <= n; i++)
+  {
+    gel(M,i) = cgetg(n+1, t_VEC);
+    for(j = 1; j <= n; j++)
+      gmael(M,i,j) = powuu(p,mael(E,i,j));
+  }
+  return M;
+}
+
+/* Assume there is a single p-isogeny */
+
+static GEN
+isomatdbl(GEN nf, GEN L, GEN M, ulong p)
+{
+  long i, j, n = lg(L) -1;
+  GEN P = p>2 ? polmodular_ZXX(p, 0, 0, 1): NULL;
+  GEN V = cgetg(2*n+1, t_VEC);
+  GEN N = cgetg(2*n+1, t_MAT);
+  for(i=1; i <= n; i++)
+    gel(V, i) = gel(L, i);
+  for(i=1; i <= n; i++)
+  {
+    GEN e = gel(L, i);
+    GEN iso;
+    if (p==2)
+      iso = gel(ellisograph2_iso(nf, e, NULL), 1);
+    else if (p==3)
+      iso = gel(ellisograph3_iso(nf, e, NULL), 1);
+    else
+      iso = ellisograph_iso(nf, e, p, P, NULL);
+    if (lg(iso) != 2) pari_err_BUG("isomatdbl");
+    gel(V, i+n) = gel(iso, 1);
+  }
+  for(i=1; i <= 2*n; i++)
+    gel(N, i) = cgetg(2*n+1, t_COL);
+  for(i=1; i <= n; i++)
+    for(j=1; j <= n; j++)
+    {
+      gcoeff(N,i,j) = gcoeff(N,i+n,j+n) = gcoeff(M,i,j);
+      gcoeff(N,i,j+n) = gcoeff(N,i+n,j) = muliu(gcoeff(M,i,j), p);
+    }
+  return mkvec2(list_to_crv(V), N);
+}
+
+static ulong
+ellQ_exceptional_iso(GEN j, GEN *jt, GEN *jtp)
+{
+  *jt = j; *jtp = gen_1;
+  if (typ(j)==t_INT)
+  {
+    long js = itos_or_0(j);
+    GEN j37;
+    if (js==-32768)
+      return 11;
+    if (js==-121)
+      { *jt = stoi(-24729001) ; *jtp = mkfrac(utoi(4973),utoi(5633)); return 11;}
+    if (js==-24729001)
+      { *jt = stoi(-121); *jtp = mkfrac(utoi(5633),utoi(4973)); return 11;}
+    if (js==-884736)
+      return 19;
+    j37 = mulsi(-7,powuu(137*2083,3));
+    if (js==-9317)
+    {
+      *jt = j37;
+      *jtp = mkfrac(utoi(1984136099UL),utoi(496260169));
+      return 37;
+    }
+    if (equalii(j, j37))
+    {
+      *jt = stoi(-9317);
+      *jtp = mkfrac(utoi(496260169),utoi(1984136099UL));
+      return 37;
+    }
+    if (js==-884736000)
+      return 43;
+    if (equalii(j, negi(powuu(5280,3))))
+      return 67;
+    if (equalii(j, negi(powuu(640320,3))))
+      return 163;
+  } else
+  {
+    GEN j1 = mkfrac(stoi(-297756989), gen_2);
+    GEN j2 = mkfrac(stoi(-882216989), int2n(17));
+    if (gequal(j, j1))
+    {
+      *jt = j2; *jtp = mkfrac(utoi(1503991),utoi(2878441));
+      return 17;
+    }
+    if (gequal(j, j2))
+    {
+      *jt = j1; *jtp = mkfrac(utoi(2878441),utoi(1503991));
+      return 17;
+    }
+  }
+  return 0;
+}
+
+static GEN
+mkisomat(ulong p, GEN T)
+{
+  pari_sp av = avma;
+  GEN L = list_to_crv(etree_list(T));
+  GEN M = distmat_pow(etree_distmat(T), p);
+  return gerepilecopy(av, mkvec2(L, M));
+}
+
+static GEN
+mkisomatdbl(ulong p, GEN T, ulong p2, GEN T2)
+{
+  GEN L = etree_list(T);
+  GEN M = distmat_pow(etree_distmat(T), p);
+  return isomatdbl(NULL, L, M, p2);
+}
+
+/*
+See
+M.A Kenku
+On the number of Q-isomorphism classes of elliptic curves in each Q-isogeny class
+Journal of Number Theory
+Volume 15, Issue 2, October 1982, Pages 199-202
+http://www.sciencedirect.com/science/article/pii/0022314X82900257
+*/
+
+static GEN
+ellQ_isomat(GEN c4, GEN c6, GEN j)
+{
+  GEN K = NULL;
+  GEN T2, T3, T5, T7, T13;
+  long n2, n3, n5, n7, n13;
+  GEN jt, jtp;
+  long l = ellQ_exceptional_iso(j, &jt, &jtp);
+  if (l)
+  {
+#if 1
+      return mkisomat(l, ellisograph_dummy(c4, c6, j, l, jt, jtp));
+#else
+      return mkisomat(l, ellisograph_p(K, c4, c6, j, l));
+#endif
+  }
+  T2 = ellisograph_p(K, c4, c6, j, 2);
+  n2 = etree_nbnodes(T2);
+  if (n2>4 || gequalgs(j, 1728) || gequalgs(j, 287496))
+    return mkisomat(2, T2);
+  T3 = ellisograph_p(K, c4, c6, j, 3);
+  n3 = etree_nbnodes(T3);
+  if (n3>1 && n2==2) return mkisomatdbl(3,T3,2,T2);
+  if (n3==2 && n2>1)  return mkisomatdbl(2,T2,3,T3);
+  if (n3>2 || gequal0(j)) return mkisomat(3, T3);
+  T5 = ellisograph_p(K, c4, c6, j, 5);
+  n5 = etree_nbnodes(T5);
+  if (n5>1 && n2>1) return mkisomatdbl(2,T2,5,T5);
+  if (n5>1 && n3>1) return mkisomatdbl(3,T3,5,T5);
+  if (n5>1) return mkisomat(5, T5);
+  T7 = ellisograph_p(K, c4, c6, j, 7);
+  n7 = etree_nbnodes(T7);
+  if (n7>1 && n2>1) return mkisomatdbl(2,T2,7,T7);
+  if (n7>1 && n3>1) return mkisomatdbl(3,T3,7,T7);
+  if (n7>1) return mkisomat(7,T7);
+  if (n2>1) return mkisomat(2,T2);
+  if (n3>1) return mkisomat(3,T3);
+  T13 = ellisograph_p(K, c4, c6, j, 13);
+  n13 = etree_nbnodes(T13);
+  if (n13>1) return mkisomat(13,T13);
+  retmkvec2(list_to_crv(mkvec(mkvec3(c4, c6, j))), matid(1));
+}
+
+GEN
+ellisomat(GEN E)
+{
+  pari_sp av = avma;
+  GEN LM;
+  checkell_Q(E);
+  LM = ellQ_isomat(ell_get_c4(E), ell_get_c6(E), ell_get_j(E));
+  return gerepilecopy(av, LM);
+}
