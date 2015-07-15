@@ -21,3 +21,6 @@ binary(I)
 vector(10, i, sumdigits(123456789, i+1))
 digits(2^128+3, 2^64)
 sumdigits(2^128+3, 2^64)
+
+0x12345
+0b11011011

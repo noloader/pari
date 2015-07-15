@@ -2067,8 +2067,10 @@ to \kbd{prec} words of accuracy.
 to \kbd{prec} words of accuracy.
 
 \fun{GEN}{strtoi}{char *s} convert the character string \kbd{s} to a
-non-negative \typ{INT}. The string \kbd{s} consists exclusively of digits: no
-leading sign, no whitespace. Leading zeroes are discarded.
+non-negative \typ{INT}.
+Decimal numbers, hexadecimal numbers prefixed by \kbd{0x} and binary numbers prefixed
+by \kbd{0b} are allowed.  The string \kbd{s} consists exclusively of digits:
+no leading sign, no whitespace. Leading zeroes are discarded.
 
 \fun{GEN}{strtor}{char *s, long prec} convert the character string \kbd{s} to
 a non-negative \typ{REAL} of precision \kbd{prec}. The string \kbd{s}

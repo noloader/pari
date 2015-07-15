@@ -436,10 +436,38 @@ type0(GEN x)
 /*******************************************************************/
 
 #ifdef LONG_IS_64BIT
-static const long MAX_DIGITS = 19;
+static const long MAX_DIGITS  = 19;
+static const long MAX_XDIGITS = 15;
+static const long MAX_BDIGITS = 63;
 #else
-static const long MAX_DIGITS = 9;
+static const long MAX_DIGITS  = 9;
+static const long MAX_XDIGITS = 7;
+static const long MAX_BDIGITS = 31;
 #endif
+
+static int
+ishex(const char **s)
+{
+  if (**s == '0' && ((*s)[1] == 'x' || (*s)[1] == 'X' ))
+  {
+    *s += 2;
+    return 1;
+  }
+  else
+    return 0;
+}
+
+static int
+isbin(const char **s)
+{
+  if (**s == '0' && ((*s)[1] == 'b' || (*s)[1] == 'B' ))
+  {
+    *s += 2;
+    return 1;
+  }
+  else
+    return 0;
+}
 
 static ulong
 number(int *n, const char **s)
@@ -447,6 +475,43 @@ number(int *n, const char **s)
   ulong m = 0;
   for (*n = 0; *n < MAX_DIGITS && isdigit((int)**s); (*n)++,(*s)++)
     m = 10*m + (**s - '0');
+  return m;
+}
+
+static ulong
+hexnumber(int *n, const char **s)
+{
+  ulong m = 0;
+  for(*n = 0; *n < MAX_XDIGITS; (*n)++,(*s)++)
+  {
+    if( **s >= '0' && **s <= '9') {
+        m = 16*m + (**s - '0');
+        continue;
+    }
+    if( **s >= 'A' && **s <= 'F') {
+        m = 16*m + (**s - 'A' + 10);
+        continue;
+    }
+    if( **s >= 'a' && **s <= 'f') {
+        m = 16*m + (**s - 'a' + 10);
+        continue;
+    }
+    break;
+  }
+  return m;
+}
+
+static ulong
+binnumber(int *n, const char **s)
+{
+  ulong m = 0;
+  for(*n = 0; *n < MAX_BDIGITS; (*n)++,(*s)++)
+  {
+    if( **s == '0' || **s == '1') {
+        m = 2*m + (**s - '0');
+    } else
+        break;
+  }
   return m;
 }
 
@@ -490,6 +555,34 @@ int_read_more(GEN y, const char **ps)
     ulong m = number(&nb, ps);
     if (avma != av && ++i > 4) { avma = av; i = 0; } /* HACK gerepile */
     y = addumului(m, u_pow10(nb), y);
+  }
+  return y;
+}
+
+static GEN
+hex_read_more(GEN y, const char **ps)
+{
+  pari_sp av = avma;
+  int i = 0, nb;
+  while (isxdigit((int)**ps))
+  {
+    ulong m = hexnumber(&nb, ps);
+    if (avma != av && ++i > 4) { avma = av; i = 0; } /* HACK gerepile */
+    y = addumului(m, 1UL << (nb*4), y);
+  }
+  return y;
+}
+
+static GEN
+bin_read_more(GEN y, const char **ps)
+{
+  pari_sp av = avma;
+  int i = 0, nb;
+  while (**ps == '0' || **ps == '1')
+  {
+    ulong m = binnumber(&nb, ps);
+    if (avma != av && ++i > 4) { avma = av; i = 0; } /* HACK gerepile */
+    y = addumului(m, 1UL << nb, y);
   }
   return y;
 }
@@ -563,8 +656,19 @@ static GEN
 int_read(const char **s)
 {
   int nb;
-  GEN y = utoi(number(&nb, s));
-  if (nb == MAX_DIGITS) y = int_read_more(y, s);
+  GEN y;
+  if (isbin(s)) {
+    y = utoi(binnumber(&nb, s));
+    if (nb == MAX_BDIGITS) y = bin_read_more(y, s);
+  } else
+  if (ishex(s)) {
+    y = utoi(hexnumber(&nb, s));
+    if (nb == MAX_XDIGITS) y = hex_read_more(y, s);
+  } else
+  {
+    y = utoi(number(&nb, s));
+    if (nb == MAX_DIGITS) y = int_read_more(y, s);
+  }
   return y;
 }
 
@@ -687,6 +791,16 @@ pari_lex(union token_value *yylval, struct node_loc *yylloc, char **lex)
     ++*lex;
     yylloc->end=*lex;
     return '.';
+  }
+  if (isbin((const char**)lex))
+  {
+    while (**lex=='0' || **lex=='1') ++*lex;
+    return KINTEGER;
+  }
+  if (ishex((const char**)lex))
+  {
+    while (isxdigit((int)**lex)) ++*lex;
+    return KINTEGER;
   }
   if (isdigit((int)**lex))
   {
