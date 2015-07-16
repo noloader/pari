@@ -24,4 +24,6 @@ subst(1,x,Mat([1,2]))
 subst(x^2+x^3+O(x^4),x, 2*y+O(y^2))
 
 substpol(1+O(x^2),x^2,x)
+substpol(x^2+O(x^4),x^2,x)
+substpol(x+O(x^4),x^2,x)
 substpol(1,x^2,x)
