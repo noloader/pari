@@ -464,21 +464,25 @@ sd_log(const char *v, long flag)
       "(on with colors)",
       "(TeX output)", NULL
   };
-  ulong oldstyle = logstyle;
-  GEN res = sd_ulong(v,flag,"log", &logstyle, 0, 3, msg);
+  ulong s = logstyle;
+  GEN res = sd_ulong(v,flag,"log", &s, 0, 3, msg);
 
-  if (!oldstyle != !logstyle)                /* Compare converts to boolean */
+  if (!s != !logstyle) /* Compare converts to boolean */
   { /* toggled LOG */
-    if (oldstyle)
+    if (logstyle)
     { /* close log */
       if (flag == d_ACKNOWLEDGE)
         pari_printf("   [logfile was \"%s\"]\n", current_logfile);
-      fclose(pari_logfile); pari_logfile = NULL;
+      if (pari_logfile) /* paranoia */
+      {
+        fclose(pari_logfile);
+        pari_logfile = NULL;
+      }
     }
     else
       pari_logfile = open_logfile(current_logfile);
   }
-  if (pari_logfile && oldstyle != logstyle && logstyle == logstyle_TeX)
+  if (pari_logfile && s != logstyle && s == logstyle_TeX)
   {
     TeX_define("PARIbreak",
                "\\hskip 0pt plus \\hsize\\relax\\discretionary{}{}{}");
@@ -488,7 +492,8 @@ sd_log(const char *v, long flag)
     TeX_define2("PARIout",
                 "\\vskip\\smallskipamount$\\displaystyle{\\tt\\%#1} = #2$");
   }
-  return res;
+  /* don't record new value until we are sure everything is fine */
+  logstyle = s; return res;
 }
 
 GEN
