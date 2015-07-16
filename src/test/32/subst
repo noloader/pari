@@ -21,4 +21,6 @@ x^2 + y^2*x^3 + O(x^4)
   ***                 ^--------------------
   *** subst: forbidden substitution t_INT , t_MAT (1x2).
 4*y^2 + O(y^3)
+1 + O(x)
+1
 Total time spent: 0

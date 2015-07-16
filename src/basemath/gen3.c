@@ -1170,6 +1170,7 @@ gsubstpol(GEN x, GEN T, GEN y)
   return gsubst_expr(x,T,y);
 }
 
+/* assume x non-constant */
 static long
 checkdeflate(GEN x)
 {
@@ -1192,7 +1193,6 @@ vdeflate(GEN x, long v, long d)
     if (!z[i]) return NULL;
   }
   return z;
-
 }
 
 /* don't return NULL if substitution fails (fallback won't be able to handle
@@ -1200,7 +1200,7 @@ vdeflate(GEN x, long v, long d)
 static GEN
 serdeflate(GEN x, long v, long d)
 {
-  long V, lx, vx = varn(x);
+  long V, dy, lx, vx = varn(x);
   pari_sp av;
   GEN y;
   if (varncmp(vx, v) < 0) return vdeflate(x,v,d);
@@ -1210,12 +1210,14 @@ serdeflate(GEN x, long v, long d)
   lx = lg(x);
   if (lx == 2) return zeroser(v, V / d);
   y = ser2pol_i(x, lx);
-  if (V % d != 0 || checkdeflate(y) % d != 0)
+  dy = degpol(y);
+  if (V % d != 0 || (dy > 0 && checkdeflate(y) % d != 0))
   {
     const char *s = stack_sprintf("valuation(x) %% %ld", d);
     pari_err_DOMAIN("gdeflate", s, "!=", gen_0,x);
   }
-  y = poltoser(RgX_deflate(y, d), v, 1 + (lx-3)/d);
+  if (dy > 0) y = RgX_deflate(y, d);
+  y = poltoser(y, v, 1 + (lx-3)/d);
   setvalp(y, V/d); return gerepilecopy(av, y);
 }
 static GEN
@@ -1224,8 +1226,9 @@ poldeflate(GEN x, long v, long d)
   long vx = varn(x);
   pari_sp av;
   if (varncmp(vx, v) < 0) return vdeflate(x,v,d);
-  if (varncmp(vx, v) > 0) return gcopy(x);
+  if (varncmp(vx, v) > 0 || degpol(x) <= 0) return gcopy(x);
   av = avma;
+  /* x non-constant */
   if (checkdeflate(x) % d != 0) return NULL;
   return gerepilecopy(av, RgX_deflate(x,d));
 }

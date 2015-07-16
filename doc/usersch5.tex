@@ -7804,9 +7804,9 @@ $P$, i.e. $X^{\deg P} P(1/X)$.
 form $Q(X^d)$, return $Q$. Shallow function, not suitable for
 \kbd{gerepileupto}.
 
-\fun{long}{RgX_deflate_max}{GEN P, long *d} sets \kbd{d} to the largest exponent
-such that $P$ is of the form $P(x^d)$ (use \kbd{gequal0} to check
-whether coefficients are 0), $0$ if $P$ is the zero polynomial. Returns
+\fun{long}{RgX_deflate_max}{GEN P, long *d} given a non-constant polynomial
+$P$, sets \kbd{d} to the largest exponent such that $P$ is of the form
+$P(x^d)$ (use \kbd{gequal0} to check whether coefficients are 0). Returns
 \kbd{RgX\_deflate(P,d)}. Shallow function.
 
 \fun{GEN}{RgX_inflate}{GEN P, long d} return $P(X^d)$. Shallow function, not
