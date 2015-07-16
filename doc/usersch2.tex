@@ -951,7 +951,11 @@ non trivial information from the error context:
 \kbdsidx{t_INFINITY}
 
 There are only two objects of this type \kbd{+oo} and \kbd{-oo}, representing
-$\pm\infty$.
+$\pm\infty$. This type only contain only two elements \kbd{oo} and \kbd{-oo},
+They are used in functions sur as \kbd{intnum} or \kbd{polrootsreal}, to
+encode infinite real intervals. These objects can only be negated and
+compared to real numbers (\typ{INT}, \typ{REAL}, \typ{FRAC}), but not
+included in any computation, i.e.~\kbd{1+oo} is an error, not kbd{oo} again.
 
 \section{GP operators}\label{se:operators}
 
