@@ -722,8 +722,8 @@ GEN
 dirdiv(GEN x, GEN y)
 {
   pari_sp av = avma, av2;
-  long nx,ny,nz,dx,dy,i,j;
-  GEN z,p1;
+  long nx,ny,nz, dx,dy, i,j,k;
+  GEN p1;
 
   if (typ(x)!=t_VEC) pari_err_TYPE("dirdiv",x);
   if (typ(y)!=t_VEC) pari_err_TYPE("dirdiv",y);
@@ -732,37 +732,28 @@ dirdiv(GEN x, GEN y)
   if (dy != 1 || !ny) pari_err_INV("dirdiv",y);
   nz = minss(nx,ny*dx); p1 = gel(y,1);
   if (!gequal1(p1))
-  {
-    y = gdiv(y,p1);
-    av2 = avma;
-    x = gdiv(x,p1);
-  } else
-  {
-    av2 = avma;
-    x = leafcopy(x);
-  }
+  { y = gdiv(y,p1); av2 = avma; x = gdiv(x,p1); }
+  else
+  { av2 = avma; x = leafcopy(x); }
+  for (j=1; j<dx; j++) gel(x,j) = gen_0;
+  setlg(x,nz+1);
   for (j=dx; j<=nz; j++)
   {
     GEN c = gel(x,j);
     if (gequal0(c)) continue;
     if (gequal1(c))
-      for (i=j+j; i<=nz; i+=j) gel(x,i) = gsub(gel(x,i),gel(y,i/j));
+      for (i=j+j,k=2; i<=nz; i+=j,k++) gel(x,i) = gsub(gel(x,i),gel(y,k));
     else if (gequalm1(c))
-      for (i=j+j; i<=nz; i+=j) gel(x,i) = gadd(gel(x,i),gel(y,i/j));
+      for (i=j+j,k=2; i<=nz; i+=j,k++) gel(x,i) = gadd(gel(x,i),gel(y,k));
     else
-      for (i=j+j; i<=nz; i+=j) gel(x,i) = gsub(gel(x,i),gmul(c,gel(y,i/j)));
+      for (i=j+j,k=2; i<=nz; i+=j,k++) gel(x,i) = gsub(gel(x,i),gmul(c,gel(y,k)));
     if (gc_needed(av2,2))
     {
       if (DEBUGMEM>1) pari_warn(warnmem,"dirdiv, %ld/%ld",j,nz);
       x = gerepilecopy(av2,x);
     }
   }
-  z = cgetg(nz+1,t_VEC);
-  for (j=1; j<dx; j++)
-   gel(z,j) = gen_0;
-  for (j=dx; j<=nz; j++)
-   gel(z,j) = gel(x,j);
-  return gerepilecopy(av,z);
+  return gerepilecopy(av,x);
 }
 
 /*******************************************************************/
