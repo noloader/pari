@@ -1417,6 +1417,13 @@ Qp_gamma_Dwork(GEN x, long p)
   long k = padic_to_Fl(x, p);
   GEN p1;
   long j;
+  long px = precp(x);
+  if (p==2 && px)
+  {
+    x = shallowcopy(x);
+    setprecp(x, px+1);
+    gel(x,3) = shifti(gel(x,3),1);
+  }
   if (k)
   {
     GEN x_k = gsubgs(x,k);
@@ -1466,6 +1473,7 @@ Qp_gamma(GEN x)
 {
   GEN n, m, N, p = gel(x,2);
   long s, e = precp(x);
+  if (equaliu(p, 2) && e == 2) e = 1;
   if (valp(x) < 0) pari_err_DOMAIN("gamma","v_p(x)", "<", gen_0, x);
   n = gtrunc(x);
   m = gtrunc(gneg(x));
