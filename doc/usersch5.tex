@@ -3250,6 +3250,9 @@ where $x_1$, $x_2$ are the two halves of $x$.
 
 \subsec{Miscellaneous arithmetic functions}
 
+\fun{long}{bigomegau}{ulong n} returns the number of prime divisors of $n >
+0$, counted with multiplicity.
+
 \fun{ulong}{coreu}{ulong n}, unique squarefree integer $d$ dividing $n$ such
 that $n/d$ is a square.
 
@@ -3267,6 +3270,8 @@ discriminant $D$ such that $d=D*f^2$ and set \kbd{*pt\_f} to $f$
 
 \fun{GEN}{divisorsu}{ulong n}, returns the divisors of $n$ in a
 \typ{VECSMALL}, sorted by increasing order.
+
+\fun{long}{omegau}{ulong n} returns the number of prime divisors of $n > 0$.
 
 \fun{long}{uissquarefree}{ulong n} returns $1$ if \kbd{n}
 is square-free, and $0$ otherwise.

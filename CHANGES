@@ -312,6 +312,7 @@ BA113- [libpari] Fl_addmul_pre, Fl_addmulmul_pre
 BA114- [libpari] Fl_eltwist, Fp_elltwist, FpXQ_elltwist, Flxq_elltwist,
                  F2xq_elltwist
 BA115- GP functions elltwist, ellminimaltwist
+  116- [libpari] omegau, bigomegau
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]

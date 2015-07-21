@@ -1012,9 +1012,18 @@ GEN
 coredisc0(GEN n,long flag) { return flag? coredisc2(n): coredisc(n); }
 
 long
+omegau(ulong n)
+{
+  pari_sp av;
+  GEN F;
+  if (n == 1UL) return 0;
+  av = avma; F = factoru(n);
+  avma = av; return lg(gel(F,1))-1;
+}
+long
 omega(GEN n)
 {
-  pari_sp av = avma;
+  pari_sp av;
   GEN F, P;
   if ((F = check_arith_non0(n,"omega"))) {
     long n;
@@ -1022,16 +1031,21 @@ omega(GEN n)
     if (n && equalim1(gel(P,1))) n--;
     return n;
   }
-  else if (lgefint(n) == 3)
-  {
-    if (n[2] == 1) return 0;
-    F = factoru(n[2]);
-  }
-  else
-    F = absi_factor(n);
+  if (lgefint(n) == 3) return omegau(n[2]);
+  av = avma;
+  F = absi_factor(n);
   P = gel(F,1); avma = av; return lg(P)-1;
 }
 
+long
+bigomegau(ulong n)
+{
+  pari_sp av;
+  GEN F;
+  if (n == 1) return 0;
+  av = avma; F = factoru(n);
+  avma = av; return zv_sum(gel(F,2));
+}
 long
 bigomega(GEN n)
 {
@@ -1043,16 +1057,12 @@ bigomega(GEN n)
     long n = lg(P)-1;
     E = gel(F,2);
     if (n && equalim1(gel(P,1))) E = vecslice(E,2,n);
-    E = ZV_to_zv(E);
   }
   else if (lgefint(n) == 3)
-  {
-    if (n[2] == 1) return 0;
-    F = factoru(n[2]);
-    E = gel(F,2);
-  }
+    return bigomegau(n[2]);
   else
-    E = ZV_to_zv(gel(absi_factor(n), 2));
+    E = gel(absi_factor(n), 2);
+  E = ZV_to_zv(E);
   avma = av; return zv_sum(E);
 }
 
