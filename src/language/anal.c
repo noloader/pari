@@ -653,6 +653,15 @@ real_read(pari_sp av, const char **s, GEN y, long prec)
 }
 
 static GEN
+int_read_dec(const char **s)
+{
+  int nb;
+  GEN y = utoi(number(&nb, s));
+  if (nb == MAX_DIGITS) y = int_read_more(y, s);
+  return y;
+}
+
+static GEN
 int_read(const char **s)
 {
   int nb;
@@ -666,8 +675,7 @@ int_read(const char **s)
     if (nb == MAX_XDIGITS) y = hex_read_more(y, s);
   } else
   {
-    y = utoi(number(&nb, s));
-    if (nb == MAX_DIGITS) y = int_read_more(y, s);
+    y = int_read_dec(s);
   }
   return y;
 }
@@ -679,7 +687,7 @@ GEN
 strtor(const char *s, long prec)
 {
   pari_sp av = avma;
-  GEN y = int_read(&s);
+  GEN y = int_read_dec(&s);
   y = real_read(av, &s, y, prec);
   if (typ(y) == t_REAL) return y;
   return gerepileuptoleaf(av, itor(y, prec));
