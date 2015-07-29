@@ -1802,10 +1802,7 @@ over the domain D (inferred from coefficients if omitted).
   ***   not a function in function call
 A function with that name existed in GP-1.39.15. Please update your script.
 
-New syntax: initzeta(x) ===> zetakinit(x)
-
-zetakinit(bnf): compute number field information necessary to use zetak. bnf 
-may also be an irreducible polynomial.
+This function no longer exists
 
 
   ***   at top-level: integ()
@@ -2248,12 +2245,7 @@ This function no longer exists
   ***   not a function in function call
 A function with that name existed in GP-1.39.15. Please update your script.
 
-New syntax: lambdak(nfz,s) ===> zetak(nfz,s,1)
-
-zetak(nfz,x,{flag=0}): Dedekind zeta function of the number field nfz at x, 
-where nfz is the vector computed by zetakinit (NOT by nfinit); flag is 
-optional, and can be 0: default, compute zetak, or non-zero: compute the 
-lambdak function, i.e. with the gamma factors.
+This function no longer exists
 
 
   ***   at top-level: laplace()
@@ -4575,4 +4567,4 @@ New syntax: texprint(x) ===> printtex(x)
 printtex({str}*): outputs its string arguments in TeX format.
 
 
-Total time spent: 16
+Total time spent: 20

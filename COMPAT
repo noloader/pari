@@ -48,6 +48,15 @@ This file lists the incompatible changes between Version 2.x and older versions
   - remove optional flag to intfuncinit: misleading and only affords
     a 2 x speedup in an 'init' function (maybe reimplement later in a
     more general form...)
+  - remove badly implemented functions zetakinit / zetak: the interface did not
+    make sense (it is impossible to initialize for Dedekind zeta without
+    specifying a domain where the function is to be evaluated). Closest
+    equivalent to zetakinit:
+        L = lfuninit(x^2+1, [c, w, h]);
+    to compute zeta_Q(i)(s) for |Re(s - c)| < w, |Im(s)| < h. Then
+        lfun(L, s)
+    as an analog to zetak(). Or directly lfun(x^2+1, s) if a single value
+    is needed. [closes #368, #1647]
 
 * Specific to the PARI library:
 ===============================

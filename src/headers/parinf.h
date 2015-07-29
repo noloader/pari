@@ -216,8 +216,3 @@ GEN    unnf_minus_x(GEN x);
 GEN    ideallog_sgn(GEN nf, GEN x, GEN sgn, GEN bid);
 GEN    zlog_units(GEN nf, GEN U, GEN sgnU, GEN bid);
 GEN    zlog_units_noarch(GEN nf, GEN U, GEN bid);
-
-/* Dedekind zeta */
-GEN  zeta_get_limx(long r1, long r2, long bit);
-long zeta_get_i0(long r1, long r2, long bit, GEN limx);
-long zeta_get_N0(GEN C,  GEN limx);

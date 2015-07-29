@@ -1657,10 +1657,6 @@ ulong   sumdigitsu(ulong n);
 
 /* DedekZeta.c */
 
-GEN     glambdak(GEN nfz, GEN s, long prec);
-GEN     gzetak(GEN nfz, GEN s, long prec);
-GEN     gzetakall(GEN nfz, GEN s, long flag, long prec);
-GEN     initzeta(GEN pol, long prec);
 GEN     dirzetak(GEN nf, GEN b);
 
 /* base1.c */
@@ -3174,6 +3170,7 @@ GEN     padicfields(GEN p, long m, long d, long flag);
 GEN     rnfkummer(GEN bnr, GEN subgroup, long all, long prec);
 
 /* lll.c */
+
 GEN     ZM_lll_norms(GEN x, double D, long flag, GEN *B);
 GEN     kerint(GEN x);
 GEN     lll(GEN x);

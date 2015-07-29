@@ -2247,6 +2247,71 @@ init_cScT(ST_t *T, GEN dtcr, long N, long prec)
   clear_cScT(T, N);
 }
 
+/* return a t_REAL */
+static GEN
+zeta_get_limx(long r1, long r2, long bit)
+{
+  pari_sp av = avma;
+  GEN p1, p2, c0, c1, A0;
+  long r = r1 + r2, N = r + r2;
+
+  /* c1 = N 2^(-2r2 / N) */
+  c1 = mulrs(powrfrac(real2n(1, DEFAULTPREC), -2*r2, N), N);
+
+  p1 = powru(Pi2n(1, DEFAULTPREC), r - 1);
+  p2 = mulir(powuu(N,r), p1); shiftr_inplace(p2, -r2);
+  c0 = sqrtr( divrr(p2, powru(c1, r+1)) );
+
+  A0 = logr_abs( gmul2n(c0, bit) ); p2 = divrr(A0, c1);
+  p1 = divrr(mulur(N*(r+1), logr_abs(p2)), addsr(2*(r+1), gmul2n(A0,2)));
+  return gerepileuptoleaf(av, divrr(addrs(p1, 1), powruhalf(p2, N)));
+}
+/* N_0 = floor( C_K / limx ). Large */
+static long
+zeta_get_N0(GEN C,  GEN limx)
+{
+  long e;
+  pari_sp av = avma;
+  GEN z = gcvtoi(gdiv(C, limx), &e); /* avoid truncation error */
+  if (e >= 0 || is_bigint(z))
+    pari_err_OVERFLOW("zeta_get_N0 [need too many primes]");
+  if (DEBUGLEVEL>1) err_printf("\ninitzeta: N0 = %Ps\n", z);
+  avma = av; return itos(z);
+}
+
+/* even i such that limx^i ( (i\2)! )^r1 ( i! )^r2 ~ B. Small. */
+static long
+get_i0(long r1, long r2, GEN B, GEN limx)
+{
+  long imin = 1, imax = 1400;
+  while(imax - imin >= 4)
+  {
+    long i = (imax + imin) >> 1;
+    GEN t = powru(limx, i);
+    if (!r1)      t = mulrr(t, powru(mpfactr(i  , DEFAULTPREC), r2));
+    else if (!r2) t = mulrr(t, powru(mpfactr(i/2, DEFAULTPREC), r1));
+    else {
+      GEN u1 = mpfactr(i/2, DEFAULTPREC);
+      GEN u2 = mpfactr(i,   DEFAULTPREC);
+      if (r1 == r2) t = mulrr(t, powru(mulrr(u1,u2), r1));
+      else t = mulrr(t, mulrr(powru(u1,r1), powru(u2,r2)));
+    }
+    if (mpcmp(t, B) >= 0) imax = i; else imin = i;
+  }
+  return imax & ~1; /* make it even */
+}
+/* assume limx = zeta_get_limx(r1, r2, bit), a t_REAL */
+static long
+zeta_get_i0(long r1, long r2, long bit, GEN limx)
+{
+  pari_sp av = avma;
+  GEN B = gmul(sqrtr( divrr(powrs(mppi(DEFAULTPREC), r2-3), limx) ),
+               gmul2n(powuu(5, r1), bit + r2));
+  long i0 = get_i0(r1, r2, B, limx);
+  if (DEBUGLEVEL>1) { err_printf("i0 = %ld\n",i0); err_flush(); }
+  avma = av; return i0;
+}
+
 static void
 GetST0(GEN bnr, GEN *pS, GEN *pT, GEN dataCR, GEN vChar, long prec)
 {
