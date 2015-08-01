@@ -4,4 +4,5 @@
   ***   at top-level: ellisogenyapply([f,g
   ***                 ^--------------------
   *** ellisogenyapply: incorrect type in checkellpt (t_INT).
-Total time spent: 112
+1
+Total time spent: 88

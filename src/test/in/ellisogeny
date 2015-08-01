@@ -284,3 +284,10 @@ isog_satisfies_eqns(E, F[1], F[2]);
 
 ellisogenyapply(x,x)
 ellisogenyapply([f,g,h],1)
+
+E = ellinit([-11/16,-445/32]);
+[e2,iso2] = ellisogeny(E,[5/2,0]);
+[e4,iso4] = ellisogeny(E,[27/4,17]);
+E2 = ellinit(e2);
+[e4p,iso2p] = ellisogeny(E2,[11, 0]);
+[e4,iso4] == [e4p,ellisogenyapply(iso2p,iso2)]

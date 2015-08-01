@@ -58,24 +58,23 @@ static GEN
 ellcompisog(GEN F, GEN G)
 {
   pari_sp av = avma;
-  GEN Gh, Gh2, Gh3, f, g, h, z, numz, denz, denz2, in, comp;
+  GEN Fv, Gh, Gh2, Gh3, f, g, h, h2, h3, in, comp, c2, c3;
+  long v;
 
   checkellisog(F);
   checkellisog(G);
+  v = fetch_var_higher();
+  Fv = shallowcopy(gel(F,3)); setvarn(Fv, v);
   Gh = gel(G,3); Gh2 = gsqr(Gh); Gh3 = gmul(Gh, Gh2);
+  h = gmul(polresultant0(Fv, deg1pol(gneg(Gh2),gel(G,1), v), v, 0), Gh);
+  delete_var();
+  h = RgX_normalize(RgX_div(h, RgX_gcd(h,deriv(h,0))));
+  h2 = gsqr(h); h3 = gmul(h, h2);
   in = mkvec2(gdiv(gel(G,1), Gh2), gdiv(gel(G,2), Gh3));
   comp = substvec(F, get_isog_vars(F), in);
-  f = gel(comp,1);
-  g = gel(comp,2);
-  z = gel(comp,3); numz = numer(z); denz = denom(z);
-  if (!issquareall(denom(f), &h))
-    pari_err_BUG("ellcompisog (denominator of composite abscissa not square)");
-  h  = RgX_mul(h, numz);
-  h = RgX_Rg_div(h, leading_term(h));
-
-  denz2 = gsqr(denz);
-  f = RgX_mul(numer(f), denz2);
-  g = RgX_mul(numer(g), gmul(denz,denz2));
+  c2 = gsqr(gel(comp,3)); c3 = gmul(c2, gel(comp,3));
+  f = gdiv(gmul(gel(comp,1), h2), c2);
+  g = gdiv(gmul(gel(comp,2), h3), c3);
   return gerepilecopy(av, mkvec3(f,g,h));
 }
 
