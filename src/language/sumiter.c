@@ -1597,8 +1597,9 @@ zbrent(void *E, GEN (*eval)(void *, GEN), GEN a, GEN b, long prec)
   pari_sp av = avma;
   GEN c, d, e, tol, fa, fb, fc;
 
-  a = gtofp(a, prec);
-  b = gtofp(b, prec); sig = cmprr(b, a);
+  if (typ(a) != t_REAL || realprec(a) < prec) a = gtofp(a, prec);
+  if (typ(b) != t_REAL || realprec(b) < prec) b = gtofp(b, prec);
+  sig = cmprr(b, a);
   if (!sig) return gerepileupto(av, a);
   if (sig < 0) {c = a; a = b; b = c;} else c = b;
   fa = eval(E, a);
@@ -1653,6 +1654,7 @@ zbrent(void *E, GEN (*eval)(void *, GEN), GEN a, GEN b, long prec)
     if (gcmp(gabs(d, 0), tol1) > 0) b = gadd(b, d);
     else if (gsigne(xm) > 0)      b = addrr(b, tol1);
     else                          b = subrr(b, tol1);
+    if (realprec(b) < prec) b = rtor(b, prec);
     fb = eval(E, b);
   }
   if (iter > itmax) pari_err_IMPL("solve recovery [too many iterations]");
