@@ -894,3 +894,15 @@ RgM_det_triangular(GEN mat)
   return av==avma? gcopy(s): gerepileupto(av,s);
 }
 
+GEN
+RgV_kill0(GEN v)
+{
+  long i, l;
+  GEN w = cgetg_copy(v, &l);
+  for (i = 1; i < l; i++)
+  {
+    GEN a = gel(v,i);
+    gel(w,i) = gequal0(a) ? NULL: a;
+  }
+  return w;
+}
