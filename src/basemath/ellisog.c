@@ -39,7 +39,7 @@ get_isog_vars(GEN phi)
 {
   long vx = varn(gel(phi, 1));
   long vy = varn(gel(phi, 2));
-  if (vy == vx) vy = varn(leading_term(gel(phi, 2)));
+  if (vy == vx) vy = gvar2(gel(phi,2));
   return mkvecsmall2(vx, vy);
 }
 
