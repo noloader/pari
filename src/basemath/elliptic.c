@@ -1434,10 +1434,11 @@ ellminimaltwistcond(GEN e)
 {
   pari_sp av = avma;
   GEN D = ellminimaltwist(e);
-  GEN E = ellinit(elltwist(e, D), NULL, DEFAULTPREC);
+  GEN eD = ellinit(elltwist(e, D), NULL, DEFAULTPREC);
+  GEN E = ellminimalmodel(eD, NULL);
   GEN R = elllocalred(E, gen_2);
   long f = itos(gel(R,1)), v = vali(D);
-  obj_free(E);
+  obj_free(eD); obj_free(E);
   if (f==4) D = negi(v==3 ? D: shifti(D, v==0? 2: -2));
   else if (f==6)
   {
