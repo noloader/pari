@@ -568,7 +568,7 @@ trivial_isogeny(void)
   return mkvec3(pol_x(0), scalarpol(pol_x(1), 0), pol_1(0));
 }
 
-GEN
+static GEN
 isogeny_a4a6(GEN E)
 {
   GEN a1 = ell_get_a1(E), a3 = ell_get_a3(E), b2 = ell_get_b2(E);
