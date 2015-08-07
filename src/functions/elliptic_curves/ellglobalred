@@ -5,7 +5,8 @@ Prototype: G
 Help: ellglobalred(E): E being an elliptic curve, returns [N,[u,r,s,t],c,
  faN,L], where N is the conductor of E, [u,r,s,t] leads to the standard model
  for E, c is the product of the local Tamagawa numbers c_p, faN is factor(N)
- and L[i] is elllocalred(E, faN[i,1]).
+ and L[i] is elllocalred(E, faN[i,1]),
+ where the local coordinate change has been deleted and replaced by a 0.
 Description:
  (gen):gen        ellglobalred($1)
 Doc:
@@ -26,4 +27,4 @@ Doc:
 
  \item $L$ is a vector, whose $i$-th entry contains the local data
  at the $i$-th prime divisor of $N$, i.e. \kbd{L[i] = elllocalred(E,F[i,1])},
- where the local coordinate change has been deleted, and replaced by a $0$.
+ where the local coordinate change has been deleted and replaced by a 0.
