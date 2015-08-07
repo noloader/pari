@@ -971,6 +971,17 @@ polequal(GEN x, GEN y)
   return 1;
 }
 
+/* x,y t_POL */
+static int
+serequal(GEN x, GEN y)
+{
+  long lx;
+  if ((x[1] ^ y[1]) & (VARNBITS | SIGNBITS | VALPBITS)) return 0;
+  lx = minss(lg(x), lg(y));
+  for (lx--; lx >= 2; lx--) if (!gequal(gel(x,lx), gel(y,lx))) return 0;
+  return 1;
+}
+
 /* typ(x) = typ(y) = t_VEC/COL/MAT */
 static int
 vecequal(GEN x, GEN y)
@@ -1032,6 +1043,8 @@ gequal(GEN x, GEN y)
         return gequal(gel(x,2),gel(y,2)) && RgX_equal_var(gel(x,1),gel(y,1));
       case t_POL:
         return polequal(x,y);
+      case t_SER:
+        return serequal(x,y);
 
       case t_FFELT:
         return FF_equal(x,y);

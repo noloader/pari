@@ -162,6 +162,8 @@ VBr83- [darwin] remove obsolete linker options that cause crashes [#1623]
   118- bnrrootnumber did not support the trivial character in the form [0,..,0]
   119- default(log,1) when logfile is write-protected later lead to SEGV [#1730]
 BA120- 2-adic gamma function: fix accuracy loss
+  121- A==A -> 0 for A a t_SER of huge accuracy (so that A-A overflows
+       valuation) [#1734]
 
   Added
     1- add optional argument to sumdigits to specify the base
