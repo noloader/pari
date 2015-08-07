@@ -891,7 +891,7 @@ distmat_pow(GEN E, ulong p)
 /* Assume there is a single p-isogeny */
 
 static GEN
-isomatdbl(GEN nf, GEN L, GEN M, ulong p)
+isomatdbl(GEN nf, GEN L, GEN M, ulong p, GEN T2)
 {
   long i, j, n = lg(L) -1;
   GEN P = p > 3 ? polmodular_ZXX(p, 0, 0, 1): NULL;
@@ -903,11 +903,16 @@ isomatdbl(GEN nf, GEN L, GEN M, ulong p)
   {
     GEN e = gel(L, i);
     GEN F, E, iso;
-    if (p > 3)
-      F = ellisograph_iso(nf, e, p, P, NULL);
+    if (i == 1)
+      F = gmael(T2, 2, 1);
     else
-      F = gel(ellisograph_Kohel_iso(nf, e, p, NULL), 1);
-    if (lg(F) != 2) pari_err_BUG("isomatdbl");
+    {
+      if (p > 3)
+        F = ellisograph_iso(nf, e, p, P, NULL);
+      else
+        F = gel(ellisograph_Kohel_iso(nf, e, p, NULL), 1);
+      if (lg(F) != 2) pari_err_BUG("isomatdbl");
+    }
     E = gel(F, 1);
     iso = ellisogenyapply(gel(E,4), gel(e, 4));
     gel(V, i+n) = mkvec4(gel(E,1), gel(E,2), gel(E,3), iso);
@@ -1001,7 +1006,7 @@ mkisomatdbl(ulong p, GEN T, ulong p2, GEN T2)
 {
   GEN L = etree_list(T);
   GEN M = distmat_pow(etree_distmat(T), p);
-  return isomatdbl(NULL, L, M, p2);
+  return isomatdbl(NULL, L, M, p2, T2);
 }
 
 /*
