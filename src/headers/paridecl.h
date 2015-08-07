@@ -2424,7 +2424,7 @@ GEN ellpadicL(GEN E, GEN p, long n, long r, GEN D, GEN C);
 
 GEN     ellisogenyapply(GEN f, GEN P);
 GEN     ellisogeny(GEN e, GEN G, long only_image, long vx, long vy);
-GEN     ellisomat(GEN E);
+GEN     ellisomat(GEN E, long flag);
 
 /* ellsea.c */
 

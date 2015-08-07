@@ -15,7 +15,8 @@ check(V)=
   for(i=1,#V,
     my(E=ellinit(ellfromj(V[i])));
     my(Et=ellinit(elltwist(E,ellminimaltwist(E,1))));
-    my([L,M]=ellisomat(Et));
+    my([L,M]=ellisomat(Et), [L2, M2] = ellisomat(Et, 1));
+    if (M!=M2, error("ellisomat:",i));
     print(V[i],":",M,":",checkisov(Et,L)));
 }
 
