@@ -27,3 +27,6 @@ substpol(1+O(x^2),x^2,x)
 substpol(x^2+O(x^4),x^2,x)
 substpol(x+O(x^4),x^2,x)
 substpol(1,x^2,x)
+
+\\#1727
+substvec(1+x+y+x*y+O(x^2), [x,y],[x,y])

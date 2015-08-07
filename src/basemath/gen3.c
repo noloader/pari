@@ -1451,7 +1451,10 @@ gsubst(GEN x, long v, GEN y)
           y = (ty == t_RFRAC)? rfractoser(y, vy, n): poltoser(y, vy, n);
           x = ser2pol_i(x, lx);
           x = primitive_part(x, &cx);
-          z = RgXn_eval(x, ser2rfrac_i(y), n);
+          if (varncmp(vy,vx) > 0)
+            z = poleval(x, y);
+          else
+            z = RgXn_eval(x, ser2rfrac_i(y), n);
           z = RgX_to_ser(z, n+2);
           if (cx) z = gmul(z, cx);
           if (!ex && !cx) return gerepilecopy(av, z);
