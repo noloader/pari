@@ -1225,7 +1225,8 @@ New syntax: globalred(x,y) ===> ellglobalred(x,y)
 ellglobalred(E): E being an elliptic curve, returns [N,[u,r,s,t],c, faN,L], 
 where N is the conductor of E, [u,r,s,t] leads to the standard model for E, c 
 is the product of the local Tamagawa numbers c_p, faN is factor(N) and L[i] is 
-elllocalred(E, faN[i,1]).
+elllocalred(E, faN[i,1]), where the local coordinate change has been deleted 
+and replaced by a 0.
 
 
   ***   at top-level: goto()
@@ -4574,4 +4575,4 @@ New syntax: texprint(x) ===> printtex(x)
 printtex({str}*): outputs its string arguments in TeX format.
 
 
-Total time spent: 8
+Total time spent: 25
