@@ -41,8 +41,8 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: algdep2(x,n,dec) ===> algdep(x,n,dec)
 
-algdep(x,k,{flag=0}): algebraic relations up to degree n of x, using 
-lindep([1,x,...,x^(k-1)], flag).
+algdep(z,k,{flag=0}): algebraic relations up to degree n of z, using 
+lindep([1,z,...,z^(k-1)], flag).
 
 
   ***   at top-level: algtobasis()
@@ -4575,4 +4575,4 @@ New syntax: texprint(x) ===> printtex(x)
 printtex({str}*): outputs its string arguments in TeX format.
 
 
-Total time spent: 25
+Total time spent: 16
