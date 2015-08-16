@@ -2234,17 +2234,16 @@ qform_primeform2(long p, long D)
 {
   pari_sp ltop = avma, av;
   GEN M;
-  long a, b, c;
   register long k;
 
   M = factor_pn_1(stoi(p), 1);
   av = avma;
-  for (k = D & 1; k <= p; k += 2) {
+  for (k = D & 1; k <= p; k += 2)
+  {
     GEN Q;
-    long ord;
-    c = (k * k - D) / 4;
-    if ( !(c % p))
-      continue;
+    long ord, a, b, c = (k * k - D) / 4;
+
+    if (!(c % p)) continue;
     a = p * p;
     b = k * p;
     Q = redimag(mkqfis(a, b, c));
@@ -2258,15 +2257,12 @@ qform_primeform2(long p, long D)
        * should be removed when gen_order is replaced with something
        * with fastorder semantics. */
       GEN tst = gpowgs(Q, p - 1);
-      if (qfi_equal1(tst))
+      if (qfi_equal1(tst)) { avma = ltop; return mkqfis(a, b, c); }
         break;
     }
     avma = av;
   }
-  avma = ltop;
-  if (k > p)
-    return NULL;
-  return mkqfis(a, b, c);
+  avma = ltop; return NULL;
 }
 
 #define divides(a,b) (!((b) % (a)))
