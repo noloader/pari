@@ -14,7 +14,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #include "pari.h"
 #include "paripriv.h"
 
-#define dbg_printf(lvl) if (DEBUGLEVEL >= (lvl)) err_printf
+#define dbg_printf(lvl) if (DEBUGLEVEL >= (lvl) + 3) err_printf
 
 /**
  * START Code from AVSs "class_inv.h"
@@ -1845,7 +1845,6 @@ polmodular0_ZM(
                     "incompatible with", stoi(L), stoi(lvl));
   }
 
-  dbg_printf(1)("Calculating modular polynomial of level %lu\n", L);
   if (L <= MAX_INTERNAL_MODPOLY_LEVEL)
     return polmodular_small_ZM(L, inv, db);
 
@@ -1885,6 +1884,7 @@ polmodular0_ZM(
     dbg_printf(1)("D = %ld, L0 = %lu, L1 = %lu, ", dinfo->D1, dinfo->L0, dinfo->L1);
     dbg_printf(1)("n1 = %lu, n2 = %lu, dl1 = %lu, dl2_0 = %lu, dl2_1 = %lu\n",
           dinfo->n1, dinfo->n2, dinfo->dl1, dinfo->dl2_0, dinfo->dl2_1);
+    dbg_printf(0)("Calculating modular polynomial of level %lu:", L);
 
     j_powers = gen_0;
     if (J) {
@@ -1908,9 +1908,10 @@ polmodular0_ZM(
         gel(modpoly, k) = done;
         plist[k] = workid;
         k++;
-        if (DEBUGLEVEL) err_printf("%ld%% ", k*100/nprimes);
+        dbg_printf(0)(" %ld%%", k*100/nprimes);
       }
     }
+    dbg_printf(0)("\n");
     mt_queue_end(&pt);
     modpoly_disc_info_clear(dinfo);
   }
@@ -2908,7 +2909,7 @@ modpoly_pickD(
       Ds[i].dl1 = dl;
     }
   }
-  if (DEBUGLEVEL > 1) {
+  if (DEBUGLEVEL > 1+3) {
     err_printf("Selected %ld discriminants using %ld msecs\n", Dcnt, timer_delay(&T));
     for (i = 0 ; i < Dcnt ; i++) {
       /* TODO: Reuse the calculation from the D_entry */
@@ -3322,7 +3323,7 @@ discriminant_with_classno_at_least(
       }
       maxD *= 2;
       minD += 4;
-      if (DEBUGLEVEL > 0) {
+      if (DEBUGLEVEL > 3) {
         err_printf("  Doubling discriminant search space (closest: %.1f%%, cost ratio: %.1f)...\n",
             eps*100, cost/(double)(d*(L-1)));
       }
@@ -3330,7 +3331,7 @@ discriminant_with_classno_at_least(
     max_max_D *= 2;
   }
 
-  if (DEBUGLEVEL > 0) {
+  if (DEBUGLEVEL > 3) {
     err_printf("Found discriminant(s):\n");
     for (i = 0; i < best_cnt; ++i) {
       av = avma;

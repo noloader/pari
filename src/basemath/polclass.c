@@ -14,7 +14,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #include "pari.h"
 #include "paripriv.h"
 
-#define dbg_printf(lvl) if (DEBUGLEVEL >= (lvl)) err_printf
+#define dbg_printf(lvl) if (DEBUGLEVEL >= (lvl) + 3) err_printf
 
 /**
  * SECTION: Functions dedicated to finding a j-invariant with a given
@@ -1244,7 +1244,7 @@ polclass0(long D, long inv, long xvar, GEN *db)
     vfactors >>= 1;
   }
   polmodular_db_add_levels(db, PCP_GEN_NORMS(pcp), inv);
-
+  dbg_printf(0)("Calculating class polynomial for disc %ld:", D);
   nprimes = lg(primes) - 1;
   H = cgetg(nprimes + 1, t_VEC);
   plist = cgetg(nprimes + 1, t_VECSMALL);
@@ -1258,10 +1258,10 @@ polclass0(long D, long inv, long xvar, GEN *db)
       polclass_roots_modp(&n_curves_tested, ne, rho_inv, inv, pcp, *db);
     uel(plist, i) = ne->p;
     uel(pilist, i) = ne->pi;
-    if (DEBUGLEVEL && (i & 3L)==0)
-      err_printf("%ld%% ", i*100/nprimes);
+    if (DEBUGLEVEL>2 && (i & 3L)==0)
+      err_printf(" %ld%%", i*100/nprimes);
   }
-  if (DEBUGLEVEL) err_printf("\n");
+  dbg_printf(0)("\n");
 
   polclass_psum(&psum, &e, H, plist, pilist, h, inv);
 

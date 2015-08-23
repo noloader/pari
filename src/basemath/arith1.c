@@ -2590,7 +2590,7 @@ nmV_polint_center_tree(GEN T, GEN R, GEN xa, GEN Ma, GEN m2)
   worker = snm_closure(is_entry("_polint_worker"), mkvec4(T, R, xa, m2));
   va = mkvec(gen_0);
   M = cgetg(l, t_MAT);
-  if (DEBUGLEVEL) err_printf("Start parallel Chinese remainder: ");
+  if (DEBUGLEVEL>2) err_printf("Start parallel Chinese remainder: ");
   mt_queue_start(&pt, worker);
   for (i=1; i<l || pending; i++)
   {
@@ -2602,10 +2602,10 @@ nmV_polint_center_tree(GEN T, GEN R, GEN xa, GEN Ma, GEN m2)
     if (done)
     {
       gel(M,workid) = done;
-      if (DEBUGLEVEL) err_printf("%ld%% ",(++cnt)*100/(l-1));
+      if (DEBUGLEVEL>2) err_printf("%ld%% ",(++cnt)*100/(l-1));
     }
   }
-  if (DEBUGLEVEL) err_printf("\n");
+  if (DEBUGLEVEL>2) err_printf("\n");
   mt_queue_end(&pt);
   return M;
 }
