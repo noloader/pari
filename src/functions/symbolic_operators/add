@@ -20,3 +20,12 @@ Description:
  (gen, small):gen                gaddgs($1, $2)
  (small, gen):gen                gaddsg($1, $2)
  (gen, gen):gen                  gadd($1, $2)
+
+ (Fp, Fp):Fp                     Fp_add($1, $2, p)
+ (FpX, Fp):FpX                   FpX_Fp_add($1, $2, p)
+ (Fp, FpX):FpX                   FpX_Fp_add($2, $1, p)
+ (FpX, FpX):FpX                  FpX_add($1, $2, p)
+ (Fq, Fq):Fq                     Fq_add($1, $2, T, p)
+ (FqX, Fq):FqX                   FqX_Fq_add($1, $2, T, p)
+ (Fq, FqX):FqX                   FqX_Fq_add($2, $1, T, p)
+ (FqX, FqX):FqX                  FqX_add($1, $2, T, p)

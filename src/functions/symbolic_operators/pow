@@ -21,6 +21,21 @@ Description:
  (gen, int):gen              powgi($1, $2)
  (gen, gen):gen:prec         gpow($1, $2, $prec)
 
+ (Fp, 2):Fp                  Fp_sqr($1, p)
+ (Fp, usmall):Fp             Fp_powu($1, $2, p)
+ (Fp, small):Fp              Fp_pows($1, $2, p)
+ (Fp, int):Fp                Fp_pow($1, $2, p)
+ (FpX, 2):FpX                FpX_sqr($1, p)
+ (FpX, usmall):FpX           FpX_powu($1, $2, p)
+ (Fq, 2):Fq                  Fq_sqr($1, T, p)
+ (Fq, usmall):Fq             Fq_powu($1, $2, T, p)
+ (Fq, int):Fq                Fq_pow($1, $2, T, p)
+ (Fq, 2):Fq                  Fq_sqr($1, T, p)
+ (Fq, usmall):Fq             Fq_powu($1, $2, T, p)
+ (Fq, int):Fq                Fq_pow($1, $2, T, p)
+ (FqX, 2):FqX                FqX_sqr($1, T, p)
+ (FqX, usmall):FqX           FqX_powu($1, $2, T, p)
+
 Function: _^s
 Help: return x^n where n is a small integer
 Section: programming/internals

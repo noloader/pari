@@ -22,6 +22,8 @@ Description:
  (empty, prid, vec)
  (empty, gal, vec)
  (empty, var, pol, gen)
+ (empty, Fp, Fq, gen)
+ (empty, FpX, FqX, gen)
 
 Function: _cast
 Class: gp2c_internal
@@ -126,6 +128,10 @@ Description:
  (genstr):gen
  (error):gen
  (closure):gen
+ (Fp):gen
+ (FpX):gen
+ (Fq):gen
+ (FqX):gen
 
  (gen):genstr GENtoGENstr($1)
  (str):genstr strtoGENstr($1)
@@ -149,3 +155,5 @@ Description:
  (gen):ell
  (gen):gal
  (gen):prid
+
+ (Fp):Fq

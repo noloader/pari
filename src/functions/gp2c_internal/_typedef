@@ -61,6 +61,10 @@ Description:
  (clgp)         GEN
  (prid)         GEN
  (gal)          GEN
+ (Fp)           GEN
+ (FpX)          GEN
+ (Fq)           GEN
+ (FqX)          GEN
 
 Function: _proto_ret
 Class: gp2c_internal

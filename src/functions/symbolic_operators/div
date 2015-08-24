@@ -16,3 +16,8 @@ Description:
  (gen, small):gen                gdivgs($1, $2)
  (small, gen):gen                gdivsg($1, $2)
  (gen, gen):gen                  gdiv($1, $2)
+
+ (Fp, 2):Fp                       Fp_halve($1, p)
+ (Fp, Fp):Fp                     Fp_div($1, $2, p)
+ (Fq, 2):Fq                       Fq_halve($1, T, p)
+ (Fq, Fq):Fq                     Fq_div($1, $2, T, p)
