@@ -1390,7 +1390,7 @@ vstar(GEN p,GEN h, long *L, long *E)
       first = 0;
     }
   }
-  /* v/k = max_j ( v_p(h_{m-j}) / j ) */
+  /* v/k = min_j ( v_p(h_{m-j}) / j ) */
   w = (long)ugcd(v,k);
   *L = v/w;
   *E = k/w;
