@@ -32,7 +32,7 @@ inv_level(long inv)
   case INV_F:
     return 6;
   default:
-    pari_err_BUG("inv_level");
+    pari_err_IMPL("this polmodular type");
   }
   return 0;
 }
