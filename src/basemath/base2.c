@@ -1264,7 +1264,7 @@ typedef struct {
   long vDinvnu; /* v_p(Dinvnu) */
   GEN prc, psc; /* reduced discriminant of chi, stability precision for chi */
   long vpsc; /* v_p(p_c) */
-  GEN ns, precns; /* cached Newton sums and their precision */
+  GEN ns, nsf, precns; /* cached Newton sums for nsf and their precision */
 } decomp_t;
 
 static long
@@ -1541,13 +1541,14 @@ manage_cache(decomp_t *S, GEN f, GEN pp)
   GEN t = S->precns;
 
   if (!t) t = mulii(S->pmf, powiu(S->p, S->df));
-  t = gmax(t, pp);
+  if (cmpii(t, pp) < 0) t = pp;
 
-  if (! S->precns || cmpii(S->precns, t) < 0)
+  if (!S->precns || !RgX_equal(f, S->nsf) || cmpii(S->precns, t) < 0)
   {
     if (DEBUGLEVEL>4)
-      err_printf("  Precision for cached Newton sums: %Ps -> %Ps\n",
-                 S->precns? S->precns: gen_0, t);
+      err_printf("  Precision for cached Newton sums for %Ps: %Ps -> %Ps\n",
+                 f, S->precns? S->precns: gen_0, t);
+    S->nsf = f;
     S->ns = polsymmodp(f, t);
     S->precns = t;
   }
@@ -1570,7 +1571,7 @@ mycaract(decomp_t *S, GEN f, GEN a, GEN pp, GEN pdr)
     prec1 = mulii(prec1, powiu(S->p, factorial_lval(n, itou(S->p))));
   if (d)
   {
-    GEN p1 = powiu(d, n-1);
+    GEN p1 = powiu(d, n);
     prec2 = mulii(prec1, p1);
     prec3 = mulii(prec1, gmin(mulii(p1, d), pdr));
   }
@@ -1654,9 +1655,6 @@ getprime(decomp_t *S, GEN phi, GEN chip, GEN nup, long *Lp, long *Ep,
   return signe(z)? z: NULL;
 }
 
-static void
-kill_cache(decomp_t *S) { S->precns = NULL; }
-
 static int
 update_phi(decomp_t *S)
 {
@@ -1664,7 +1662,6 @@ update_phi(decomp_t *S)
   long k;
   for (k = 1;; k++)
   {
-    kill_cache(S);
     prc = ZpX_reduced_resultant_fast(S->chi, ZX_deriv(S->chi), S->p, S->vpsc);
     if (!equalii(prc, S->psc)) break;
 
@@ -1672,17 +1669,24 @@ update_phi(decomp_t *S)
     S->vpsc = maxss(S->vpsf, S->vpsc + 1);
     S->psc = (S->vpsc == S->vpsf)? S->psf: mulii(S->psc, S->p);
 
-    PHI = S->phi0? compmod(S->p, S->phi, S->phi0, S->f, S->psc, 0)
-                 : S->phi;
+    PHI = S->phi;
+    if (S->phi0) PHI = compmod(S->p, PHI, S->phi0, S->f, S->psc, 0);
     PHI = gadd(PHI, ZX_Z_mul(X, mului(k, S->p)));
     S->chi = mycaract(S, S->f, PHI, S->psc, S->pdf);
   }
   psc = mulii(sqri(prc), S->p);
-  S->chi = FpX_red(S->chi, psc);
+
   if (!PHI) /* ok above for k = 1 */
-    PHI = S->phi0? compmod(S->p, S->phi, S->phi0, S->f, psc, 0)
-                 : S->phi;
+  {
+    PHI = S->phi;
+    if (S->phi0)
+    {
+      PHI = compmod(S->p, PHI, S->phi0, S->f, psc, 0);
+      S->chi = mycaract(S, S->f, PHI, psc, S->pdf);
+    }
+  }
   S->phi = PHI;
+  S->chi = FpX_red(S->chi, psc);
 
   /* may happen if p is unramified */
   if (is_pm1(prc)) return 0;
@@ -1909,7 +1913,7 @@ loop(decomp_t *S, long Ea)
     if (gc_needed(av,1))
     {
       if (DEBUGMEM > 1) pari_warn(warnmem, "nilord");
-      gerepileall(av, S->invnu? 5: 3, &beta, &(S->precns), &(S->ns), &(S->invnu), &(S->Dinvnu));
+      gerepileall(av, S->invnu? 6: 4, &beta, &(S->precns), &(S->ns), &(S->nsf), &(S->invnu), &(S->Dinvnu));
     }
   }
 }
@@ -1932,7 +1936,6 @@ loop_init(decomp_t *S, GEN *popa, long *poE)
     S->phi = typ(opa) == t_INT? RgX_Rg_add_shallow(S->phi, opa)
                               : RgX_add(S->phi, opa);
     /* recompute char. poly. chi from scratch */
-    kill_cache(S);
     S->chi = mycaract(S, S->f, S->phi, S->psf, S->pdf);
     S->nu = get_nu(S->chi, S->p, &l);
     if (l > 1) return l; /* we can get a decomposition */

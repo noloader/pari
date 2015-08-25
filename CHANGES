@@ -164,6 +164,8 @@ VBr83- [darwin] remove obsolete linker options that cause crashes [#1623]
 BA120- 2-adic gamma function: fix accuracy loss
   121- A==A -> 0 for A a t_SER of huge accuracy (so that A-A overflows
        valuation) [#1734]
+XR122- P=[1,-2,12,-12,-181,-4,-6899,9780,6360,702,-45]; setrand(3); nfdisc(P)
+       -> wrong answer [ crash if setrand(138) ] [#1735]
 
   Added
     1- add optional argument to sumdigits to specify the base
