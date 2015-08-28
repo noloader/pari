@@ -574,6 +574,7 @@ int     FpX_is_totally_split(GEN f, GEN p);
 GEN     FpX_factor(GEN f, GEN p);
 GEN     FpX_factorff(GEN P, GEN T, GEN p);
 long    FpX_nbfact(GEN f, GEN p);
+long    FpX_nbfact_Frobenius(GEN T, GEN XP, GEN p);
 long    FpX_nbroots(GEN f, GEN p);
 GEN     FpX_oneroot(GEN f, GEN p);
 GEN     FpX_roots(GEN f, GEN p);
