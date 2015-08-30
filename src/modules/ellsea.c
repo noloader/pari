@@ -878,13 +878,13 @@ Flxq_study_eqn(long ell, GEN mpoly, GEN T, ulong p, long *pt_dG, long *pt_r)
 static GEN
 Fp_study_eqn(long ell, GEN mpoly, GEN p, long *pt_dG, long *pt_r)
 {
-  GEN XP = FpX_Frobenius(mpoly, p);
+  GEN T  = FpX_get_red(mpoly, p);
+  GEN XP = FpX_Frobenius(T, p);
   GEN G  = FpX_gcd(FpX_sub(XP, pol_x(0), p), mpoly, p);
   *pt_dG = degpol(G);
   if (!*pt_dG)
   {
-    GEN L = FpXQ_matrix_pow(XP, ell+1, ell+1, mpoly, p);
-    long s = ell + 1 - FpM_rank(RgM_Rg_add_shallow(L, gen_m1), p);
+    long s = FpX_nbfact_Frobenius(T, XP, p);
     *pt_r = (ell + 1)/s;
     return NULL;
   }
