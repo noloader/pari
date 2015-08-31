@@ -272,7 +272,7 @@ treedelete_r(GEN T, GEN x, long i, long mode, long *dead)
 {
   long b, c;
   if (i==0 || !list_data(T))
-    return 0;
+    return -1;
   c = mode == 0 ? cmp_universal(x, value(i)):
                   cmp_universal(x, gel(value(i),1));
   if (c < 0)
@@ -335,10 +335,10 @@ treedelete(GEN T, GEN x, long mode)
   GEN  d = list_data(T);
   long dead, l;
   long r = treedelete_r(T, x, 1, mode, &dead);
+  if (r < 0) return 0;
   if (r > 1)
   {
     /* By convention we want the root to be 1 */
-    if (r==0) pari_err_BUG("treedelete0");
     swap(gel(d,1), gel(d,r));
     if (left(1) == 1) left(1) = r;
     else if (right(1) == 1) right(1) = r;
@@ -355,7 +355,7 @@ treedelete(GEN T, GEN x, long mode)
     swap(gel(d, dead),gel(d, l));
   }
   listpop(T, 0);
-  return 0;
+  return 1;
 }
 
 void
@@ -376,9 +376,11 @@ void
 mapdelete(GEN T, GEN a)
 {
   pari_sp av = avma;
+  long s;
   if (typ(T)!=t_LIST || list_typ(T)!=t_LIST_MAP)
     pari_err_TYPE("mapdelete",T);
-  treedelete(T, a, 1);
+  s = treedelete(T, a, 1);
+  if (!s) pari_err_COMPONENT("mapdelete", "not in", strtoGENstr("map"), a);
   avma = av;
 }
 
