@@ -291,7 +291,7 @@ Zq_ellj(GEN a4, GEN a6, GEN T, GEN p, GEN pp, long e)
 struct eigen_ellinit
 {
   GEN a4, h, T, p;
-  GEN RHS, DRHS, X12, Gr, nGr,O;
+  GEN RHS, DRHS, X12, Gy, nGy, O;
   ulong pp;
 };
 
@@ -305,10 +305,10 @@ init_eigen(struct eigen_ellinit *Edat, GEN a4, GEN a6, GEN h, GEN T, GEN p)
   GEN C = FqX_sub(FqXQ_mul(lambda, DRHS, h, T, p), monomial(gen_2,1,0), T, p);
   GEN D = FqXQ_mul(FqX_mulu(lambda, 2, T, p),FqX_sub(pol_x(0), C, T, p), h, T, p);
   GEN X12 = mkvec2(C, FqX_Fq_add(D, gen_m1, T, p));
-  GEN Gr = T ? FpXQXQ_halfFrobenius(RHS, h, T, p):
+  GEN Gy = T ? FpXQXQ_halfFrobenius(RHS, h, T, p):
                FpXQ_pow(RHS, shifti(p, -1), h, p);
-  GEN nGr = FqX_neg(Gr, T, p);
-  gerepileall(ltop, 5, &RHS, &DRHS, &X12, &Gr, &nGr);
+  GEN nGy = FqX_neg(Gy, T, p);
+  gerepileall(ltop, 5, &RHS, &DRHS, &X12, &Gy, &nGy);
   Edat->a4    = gcopy(a4);
   Edat->h     = gcopy(h);
   Edat->T     = T;
@@ -317,8 +317,8 @@ init_eigen(struct eigen_ellinit *Edat, GEN a4, GEN a6, GEN h, GEN T, GEN p)
   Edat->RHS   = RHS;
   Edat->DRHS  = DRHS;
   Edat->X12   = X12;
-  Edat->Gr    = Gr;
-  Edat->nGr   = nGr;
+  Edat->Gy    = Gy;
+  Edat->nGy   = nGy;
   Edat->O     = mkvec2(pol_x(0), pol_1(0));
 }
 
@@ -334,10 +334,10 @@ init_eigenu(struct eigen_ellinit *Edat, GEN a4, GEN a6, GEN h, GEN T, ulong p)
   GEN C = FlxX_sub(FlxqXQ_mul(lambda, DRHS, h, T, p), monomial(Fl_to_Flx(2,vT),1,0), p);
   GEN D = FlxqXQ_mul(FlxX_double(lambda, p),FlxX_sub(pol_x(0), C, p), h, T, p);
   GEN X12 = mkvec2(C, FlxX_Flx_add(D, Fl_to_Flx(p-1,vT), p));
-  GEN Gr = FlxqXQ_halfFrobenius(RHS,h,T,p);
-  GEN nGr = FlxX_neg(Gr, p);
+  GEN Gy = FlxqXQ_halfFrobenius(RHS,h,T,p);
+  GEN nGy = FlxX_neg(Gy, p);
   GEN O = mkvec2(monomial(g1,1,0), monomial(g1,0,0));
-  gerepileall(ltop, 6, &RHS, &DRHS, &X12, &Gr, &nGr, &O);
+  gerepileall(ltop, 6, &RHS, &DRHS, &X12, &Gy, &nGy, &O);
   Edat->a4    = gcopy(a4);
   Edat->h     = gcopy(h);
   Edat->T     = T;
@@ -346,8 +346,8 @@ init_eigenu(struct eigen_ellinit *Edat, GEN a4, GEN a6, GEN h, GEN T, ulong p)
   Edat->RHS   = RHS;
   Edat->DRHS  = DRHS;
   Edat->X12   = X12;
-  Edat->Gr    = Gr;
-  Edat->nGr   = nGr;
+  Edat->Gy    = Gy;
+  Edat->nGy   = nGy;
   Edat->O     = O;
 }
 static GEN
@@ -490,15 +490,15 @@ find_eigen_value(GEN a4, GEN a6, ulong ell, GEN h, GEN T, GEN p, GEN tr)
   else
     init_eigen(&Edat, a4, a6, h, T, p);
   Dr = BP = Edat.O;
-  /*[0,Gr], BP, Dr are not points on the curve. */
+  /*[Gx,Gy], BP, Dr are not points on the curve. */
   /*To obtain the corresponding points, multiply the y-coordinates by Y */
   if (!tr)
   {
     pari_sp btop = avma;
     for (t = 1; t <= (ell>>1); t++)
     {
-      if (gequal(gel(Dr,2), Edat.Gr))  { avma = ltop; return t; }
-      if (gequal(gel(Dr,2), Edat.nGr)) { avma = ltop; return ell-t; }
+      if (gequal(gel(Dr,2), Edat.Gy))  { avma = ltop; return t; }
+      if (gequal(gel(Dr,2), Edat.nGy)) { avma = ltop; return ell-t; }
       Dr = pp ? eigenu_elladd(&Edat, Dr, BP): eigen_elladd(&Edat, Dr, BP);
       Dr = gerepileupto(btop, Dr);
     }
@@ -508,8 +508,8 @@ find_eigen_value(GEN a4, GEN a6, ulong ell, GEN h, GEN T, GEN p, GEN tr)
     t = Fl_div(tr[1], 2, ell);
     if (t < (ell>>1)) t = ell - t;
     Dr = eigen_ellmulu(&Edat, BP, t);
-    if (gequal(gel(Dr,2), Edat.Gr)) { avma = ltop; return t; }
-    if (gequal(gel(Dr,2), Edat.nGr)) { avma = ltop; return ell - t; }
+    if (gequal(gel(Dr,2), Edat.Gy)) { avma = ltop; return t; }
+    if (gequal(gel(Dr,2), Edat.nGy)) { avma = ltop; return ell - t; }
   }
   pari_err_BUG("find_eigen_value"); return 0; /* NOT REACHED */
 }
@@ -522,8 +522,8 @@ find_eigen_value_power(GEN a4, GEN a6, ulong ell, long k, GEN h, ulong lambda, G
   pari_sp ltop = avma;
   pari_sp btop;
   struct eigen_ellinit Edat;
-  GEN BP, Dr, Gr, nGr;
-  /*[0,Gr], BP, Dr are not points on the curve. */
+  GEN BP, Dr, Gy, nGy;
+  /*[Gx,Gy], BP, Dr are not points on the curve. */
   /*To obtain the corresponding points, multiply the y-coordinates by Y */
   ulong t, ellk1 = upowuu(ell, k-1), ellk = ell*ellk1;
   ulong pp = T ?itou_or_0(p): 0;
@@ -534,13 +534,13 @@ find_eigen_value_power(GEN a4, GEN a6, ulong ell, long k, GEN h, ulong lambda, G
     init_eigen(&Edat, a4, a6, h, T, p);
   BP = eigen_ellmulu(&Edat, Edat.O, ellk1);
   Dr = eigen_ellmulu(&Edat, Edat.O, lambda);
-  Gr = Edat.Gr; nGr = Edat.nGr;
+  Gy = Edat.Gy; nGy = Edat.nGy;
 
   btop = avma;
   for (t = 0; t < ellk; t += ellk1)
   {
-    if (gequal(gel(Dr,2), Gr))  { avma = ltop; return t+lambda; }
-    if (gequal(gel(Dr,2), nGr)) { avma = ltop; return ellk-(t+lambda); }
+    if (gequal(gel(Dr,2), Gy))  { avma = ltop; return t+lambda; }
+    if (gequal(gel(Dr,2), nGy)) { avma = ltop; return ellk-(t+lambda); }
     Dr = pp ? eigenu_elladd(&Edat, Dr, BP): eigen_elladd(&Edat, Dr, BP);
     if (gc_needed(btop, 1))
       Dr = gerepileupto(btop, Dr);
