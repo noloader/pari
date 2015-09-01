@@ -2328,16 +2328,8 @@ ZM_detmult(GEN A)
       {
         /* improve further; at this point c[i] is set for all i != t */
         gcoeff(B,t,t) = piv; v = centermod(gel(B,t), det);
-        av1 = avma;
         for ( ; k<=n; k++)
-        {
           det = gcdii(det, ZV_dotproduct(v, gel(A,k)));
-          if (gc_needed(av1,1))
-          {
-            if(DEBUGMEM>1) pari_warn(warnmem,"detint end. k=%ld",k);
-            det = gerepileuptoint(av1, det);
-          }
-        }
       }
       return gerepileuptoint(av, det);
     }
@@ -3754,15 +3746,11 @@ det_simple_gauss(GEN a, GEN data, pivot_fun pivot)
 
       m = gdiv(m,p);
       for (j=i+1; j<=nbco; j++)
-      {
         gcoeff(a,j,k) = gsub(gcoeff(a,j,k), gmul(m,gcoeff(a,j,i)));
-        if (gc_needed(av,3))
-        {
-          if(DEBUGMEM>1) pari_warn(warnmem,"det. col = %ld",i);
-          gerepileall(av,2, &a,&x);
-          p = gcoeff(a,i,i);
-          m = gcoeff(a,i,k); m = gdiv(m, p);
-        }
+      if (gc_needed(av,3))
+      {
+        if(DEBUGMEM>1) pari_warn(warnmem,"det. col = %ld",i);
+        gerepileall(av,2, &a,&x);
       }
     }
   }
@@ -3805,7 +3793,7 @@ det_bareiss(GEN a)
   a = RgM_shallowcopy(a);
   for (pprec=gen_1,i=1; i<nbco; i++,pprec=p)
   {
-    GEN ci, ck, m;
+    GEN ci;
     int diveuc = (gequal1(pprec)==0);
 
     p = gcoeff(a,i,i);
@@ -3819,7 +3807,7 @@ det_bareiss(GEN a)
     ci = gel(a,i);
     for (k=i+1; k<=nbco; k++)
     {
-      ck = gel(a,k); m = gel(ck,i);
+      GEN ck = gel(a,k), m = gel(ck,i);
       if (gequal0(m))
       {
         if (gequal1(p))
@@ -3836,22 +3824,19 @@ det_bareiss(GEN a)
           }
       }
       else
-      {
         for (j=i+1; j<=nbco; j++)
         {
           pari_sp av2 = avma;
           GEN p1 = gsub(gmul(p,gel(ck,j)), gmul(m,gel(ci,j)));
           if (diveuc) p1 = mydiv(p1,pprec);
           gel(ck,j) = gerepileupto(av2, p1);
-          if (gc_needed(av,2))
-          {
-            if(DEBUGMEM>1) pari_warn(warnmem,"det. col = %ld",i);
-            gerepileall(av,2, &a,&pprec);
-            ci = gel(a,i);
-            ck = gel(a,k); m = gel(ck,i);
-            p = gcoeff(a,i,i);
-          }
         }
+      if (gc_needed(av,2))
+      {
+        if(DEBUGMEM>1) pari_warn(warnmem,"det. col = %ld",i);
+        gerepileall(av,2, &a,&pprec);
+        ci = gel(a,i);
+        p = gcoeff(a,i,i);
       }
     }
   }
