@@ -57,5 +57,5 @@ if test ! -r $exe; then
   X11_LIBS=
   X11_INC=
 fi
-rm -f $exe $exe$exe_suff;
+. cleanup_exe
 echo ..."X11 libraries: $X11_LIBS"

@@ -14,4 +14,4 @@ else
   echo "### FLTK not found. Building without FLTK support"
   FLTK_LIBS=
 fi
-rm -f $exe
+. cleanup_exe

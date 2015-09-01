@@ -14,4 +14,4 @@ for fun in $list; do
   fi
   eval "has_$fun=no"; echo ..."I did not find $fun."
 done
-rm -f $exe
+. cleanup_exe

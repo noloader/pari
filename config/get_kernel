@@ -44,7 +44,7 @@ case "$arch" in
         asmarch=none;
       fi;
       echo "$asmarch"
-      rm -f $exe;;
+      . cleanup_exe;;
     8) asmarch=none;;
     esac; prettya=$arch;;
   m68k)          asmarch=m68k;          prettya='Motorola 68k';;

@@ -63,7 +63,7 @@ if test $? != 0 -o ! -s $exe; then cat << EOT
 EOT
   exit 1;
 fi
-rm -f $exe $exe$exe_suff
+. cleanup_exe
 
 if test "$CC" != "$gcc"; then __gnuc__=; fi
 if test -z "$__gnuc__"; then
@@ -77,7 +77,7 @@ if test -z "$__gnuc__"; then
     __gnuc__=`echo $__gnuc__ | sed -e 's/ *,$//'`
     echo GNU compatible compiler: $__gnuc__
   fi
-  rm -f $exe $exe$exe_suff
+  . cleanup_exe
 fi
 
 # Which Flags for Compiler ?
@@ -94,7 +94,7 @@ if test -n "$__gnuc__"; then
   if test -s $exe; then
     OPTFLAGS="$OPTFLAGS -fno-strict-aliasing"
   fi
-  rm -f $exe $exe$exe_suff
+  . cleanup_exe
   KERNELCFLAGS=-funroll-loops
 
   DBGFLAGS=${DBGFLAGS:-"-g $warn"}

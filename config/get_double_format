@@ -7,7 +7,7 @@ else
   echo "Cannot compile endian.c. Aborting. PLEASE REPORT!"
   exit 1
 fi
-rm -f $exe $exe$exe_suff
+. cleanup_exe
 case "$doubleformat" in
   *IEEE*)
     echo "***************************************************************"

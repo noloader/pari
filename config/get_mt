@@ -7,7 +7,7 @@ pthread)
   cmd="$CC $CFLAGS $extraflag -o $exe $file $MT_LIBS"
   . log_cmd
   if test -r $exe; then
-    rm -f $exe $exe$exe_suff
+    . cleanup_exe
     enable_tls="yes"
   else
     echo "### --mt=pthread requires the library pthread"
@@ -18,7 +18,7 @@ mpi)
   cmd="$CC $CFLAGS $extraflag -o $exe $file"
   . log_cmd
   if test -r $exe; then
-    rm -f $exe $exe$exe_suff
+    . cleanup_exe
   else
     echo "### --mt=mpi requires to use mpicc"
     echo "### Please use 'env CC=mpicc ./Configure --mt=mpi'"
