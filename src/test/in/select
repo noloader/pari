@@ -7,3 +7,7 @@ select(x->!x, [0,1,2;0,2,0])
 
 [x|x<-List(),x%2]
 [x|x<-List([1..4]), x%2]
+
+v=Vecsmall([1,2,3]);
+select(x->x,v,1)
+select(x->x,v)

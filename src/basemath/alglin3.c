@@ -499,15 +499,19 @@ genindexselect(void *E, long (*f)(void* E, GEN x), GEN A)
   GEN v, z;
   pari_sp av;
   clone_lock(A);
-  if (typ(A) == t_LIST)
+  switch(typ(A))
   {
-    z = list_data(A);
-    l = z? lg(z): 1;
-  }
-  else
-  {
-    l = lg(A);
-    z = A;
+    case t_LIST:
+      z = list_data(A);
+      l = z? lg(z): 1;
+      break;
+    case t_VEC: case t_COL: case t_MAT:
+      l = lg(A);
+      z = A;
+      break;
+    default:
+      pari_err_TYPE("select",A);
+      return NULL;/*not reached*/
   }
   v = cgetg(l, t_VECSMALL);
   av = avma;
