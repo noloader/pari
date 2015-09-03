@@ -321,6 +321,7 @@ BA115- GP functions elltwist, ellminimaltwist
   116- [libpari] omegau, bigomegau
 VB117- GP support for 0xffff and 0b1111
 BA118- GP functions ellisomat
+HC119- GP function tauramanujan
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]
