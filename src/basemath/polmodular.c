@@ -20,7 +20,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
  * START Code from AVSs "class_inv.h"
  */
 
-/* actually just returns the square-free part of the level, which is all we care about */
+/* actually just returns the square-free part of the level, which is
+ * all we care about */
 long
 inv_level(long inv)
 {
@@ -28,12 +29,38 @@ inv_level(long inv)
   case INV_J:
     return 1;
   case INV_G2:
+  case INV_W3W3E2:
     return 3;
   case INV_F:
+  case INV_F2:
+  case INV_F4:
+  case INV_F8:
     return 6;
-  default:
-    pari_err_IMPL("this polmodular type");
+  case INV_F3:
+    return 2;
+  case INV_W3W3:
+    return 6;
+  case INV_W2W7E2:
+  case INV_W2W7:
+    return 14;
+  case INV_W3W5:
+    return 15;
+  case INV_W2W3E2:
+  case INV_W2W3:
+    return 6;
+  case INV_W2W5E2:
+  case INV_W2W5:
+    return 30;
+  case INV_W2W13:
+    return 26;
+  case INV_W3W7:
+    return 42;
+  case INV_W5W7:
+    return 35;
+  case INV_W3W13:
+    return 39;
   }
+  pari_err_BUG("inv_level");
   return 0;
 }
 
@@ -41,90 +68,40 @@ inv_level(long inv)
  * related to the same f are N-isogenous, and 0 otherwise.  This is
  * often (but not necessarily) equal to the level. */
 long
-inv_degree(long *p1, long *p2, long inv)
+inv_degree(long *P1, long *P2, long inv)
 {
+  long *p1, *p2, ignored;
+
+  p1 = P1 ? P1 : &ignored;
+  p2 = P2 ? P2 : &ignored;
   *p1 = 1;
   *p2 = 1;
+
   switch (inv) {
-  case INV_J:
-  case INV_G2:
-  case INV_F:
-    break;
-  default:
-    pari_err_BUG("inv_degree");
+  case INV_W3W5:
+    return (*p1 = 3) * (*p2 = 5);
+  case INV_W2W3E2:
+  case INV_W2W3:
+    return (*p1 = 2) * (*p2 = 3);
+  case INV_W2W5E2:
+  case INV_W2W5:
+    return (*p1 = 2) * (*p2 = 5);
+  case INV_W2W7E2:
+  case INV_W2W7:
+    return (*p1 = 2) * (*p2 = 7);
+  case INV_W2W13:
+    return (*p1 = 2) * (*p2 = 13);
+  case INV_W3W7:
+    return (*p1 = 3) * (*p2 = 7);
+  case INV_W3W3E2:
+  case INV_W3W3:
+    return (*p1 = 3) * (*p2 = 3);
+  case INV_W5W7:
+    return (*p1 = 5) * (*p2 = 7);
+  case INV_W3W13:
+    return (*p1 = 3) * (*p2 = 13);
   }
-  return 0;
-}
 
-
-double
-inv_height_factor(long inv)
-{
-  switch (inv) {
-  case INV_J:
-    return 1.0;
-  case INV_G2:
-    return 3.0;
-  case INV_F:
-    return 72.0;
-  default:
-    pari_err_BUG("inv_height_factor");
-  }
-  return 0.0;
-}
-
-
-INLINE long
-inv_sparse_factor(long inv)
-{
-  switch (inv) {
-  case INV_J:
-    return 1;
-  case INV_G2:
-    return 3;
-  case INV_F:
-    return 24;
-  default:
-    pari_err_BUG("inv_sparse_factor");
-  }
-  return 0;
-}
-
-#define IQ_FILTER_1MOD3 1
-#define IQ_FILTER_2MOD3 2
-#define IQ_FILTER_1MOD4 4
-#define IQ_FILTER_3MOD4 8
-
-INLINE long
-inv_pfilter(long inv)
-{
-  switch (inv) {
-  case INV_J:
-    return 0;
-  case INV_G2:
-    return IQ_FILTER_1MOD3; /* ensure unique cube roots */
-  case INV_F:
-    /* also ensure at most two 4th/8th roots */
-    return IQ_FILTER_1MOD3 | IQ_FILTER_1MOD4;
-  default:
-    pari_err_BUG("inv_pfilter");
-  }
-  return -1;
-}
-
-int
-inv_good_discriminant(long D, long inv)
-{
-  switch (inv) {
-  case INV_J:
-    return 1;
-  case INV_G2:
-    return !!(D % 3);
-  case INV_F:
-    return (D % 3) && ((-D & 7) == 7);
-  default:
-    pari_err_BUG("inv_good_discriminant");
-  }
   return 0;
 }
 
@@ -136,7 +113,125 @@ inv_odd_conductor(long inv)
 {
   switch (inv) {
   case INV_F:
+  case INV_W3W3:
+  case INV_W3W7:
     return 1;
+  }
+  return 0;
+}
+
+double
+inv_height_factor(long inv)
+{
+  switch (inv) {
+  case INV_J:
+    return 1.0;
+  case INV_G2:
+    return 3.0;
+  case INV_F:
+    return 72.0;
+  case INV_F2:
+    return 36.0;
+  case INV_F3:
+    return 24.0;
+  case INV_F4:
+    return 18.0;
+  case INV_F8:
+    return 9.0;
+  case INV_W2W3:
+    return 72.0;
+  case INV_W3W3:
+    return 36.0;
+  case INV_W2W5:
+    return 54.0;
+  case INV_W2W7:
+    return 48.0;
+  case INV_W3W5:
+    return 36.0;
+  case INV_W2W13:
+    return 42.0;
+  case INV_W3W7:
+    return 32.0;
+  case INV_W2W3E2:
+    return 36.0;
+  case INV_W2W5E2:
+    return 27.0;
+  case INV_W2W7E2:
+    return 24.0;
+  case INV_W3W3E2:
+    return 18.0;
+  case INV_W5W7:
+    return 24.0;
+  case INV_W3W13:
+    return 28.0;
+  default:
+    pari_err_BUG("inv_height_factor");
+  }
+  return 0.0;
+}
+
+
+INLINE long
+inv_sparse_factor(long inv)
+{
+  switch (inv) {
+  case INV_G2:
+  case INV_F8:
+  case INV_W3W5:
+  case INV_W2W5E2:
+  case INV_W3W3E2:
+    return 3;
+  case INV_F:
+    return 24;
+  case INV_F2:
+  case INV_W2W3:
+    return 12;
+  case INV_F3:
+    return 8;
+  case INV_F4:
+  case INV_W2W3E2:
+  case INV_W2W5:
+  case INV_W3W3:
+    return 6;
+  case INV_W2W7:
+    return 4;
+  case INV_W2W7E2:
+  case INV_W2W13:
+  case INV_W3W7:
+    return 2;
+  }
+  return 1;
+}
+
+#define IQ_FILTER_1MOD3 1
+#define IQ_FILTER_2MOD3 2
+#define IQ_FILTER_1MOD4 4
+#define IQ_FILTER_3MOD4 8
+
+INLINE long
+inv_pfilter(long inv)
+{
+  switch (inv) {
+  case INV_G2:
+  case INV_W3W3:
+  case INV_W3W3E2:
+  case INV_W3W5:
+  case INV_W2W5:
+  case INV_W2W3E2:
+  case INV_W2W5E2:
+  case INV_W5W7:
+  case INV_W3W13:
+    return IQ_FILTER_1MOD3; /* ensure unique cube roots */
+  case INV_W2W7:
+  case INV_F3:
+    return IQ_FILTER_1MOD4; /* ensure at most two 4th/8th roots */
+  case INV_F:
+  case INV_F2:
+  case INV_F4:
+  case INV_F8:
+  case INV_W2W3:
+    /* Ensure unique cube roots and at most two 4th/8th roots */
+    return IQ_FILTER_1MOD3 | IQ_FILTER_1MOD4;
   }
   return 0;
 }
@@ -145,20 +240,629 @@ int
 inv_good_prime(long p, long inv)
 {
   switch (inv) {
+  case INV_G2:
+  case INV_W2W3E2:
+  case INV_W3W3:
+  case INV_W3W3E2:
+  case INV_W3W5:
+  case INV_W2W5E2:
+  case INV_W2W5:
+    return (p % 3) == 2;
+  case INV_W2W7:
+  case INV_F3:
+    return (p & 3) != 1;
+  case INV_F2:
+  case INV_F4:
+  case INV_F8:
+  case INV_F:
+  case INV_W2W3:
+    return ((p % 3) == 2) && (p & 3) != 1;
+  }
+  return 1;
+}
+
+/* Returns true if the prime p does not divide the conductor of D
+ * (assumes p is prime). */
+INLINE int
+prime_to_conductor(long D, long p)
+{
+  long b;
+  if (p > 2)
+    return (D % (p * p));
+  /* if 2 divides the conductor of D then D=0 mod 16 (when D_0 is 0
+   * mod 4) or D=4 mod 16 (when D_0 is 1 mod 4) */
+  b = D & 0xF;
+  return (b && b != 4);
+
+}
+
+INLINE GEN
+red_primeform(long D, long p)
+{
+  pari_sp av = avma;
+  GEN P;
+
+  if ( ! prime_to_conductor(D, p))
+    return NULL;
+  P = primeform_u(stoi(D), p);
+  /* Check that P is primitive */
+  if (gequal(gel(P, 1), gel(P, 2)) && dvdis(gel(P, 3), p)) {
+    avma = av;
+    return NULL;
+  }
+  return gerepileupto(av, redimag(P));
+}
+
+/* Computes product of primeforms over primes appearing in the prime
+ * factorization of n (including multiplicity) */
+GEN
+qfb_nform(long D, long n)
+{
+  pari_sp av = avma;
+  GEN N = NULL, fact, ps, es;
+  long i;
+
+  fact = factoru(n);
+  ps = gel(fact, 1);
+  es = gel(fact, 2);
+  for (i = 1; i < lg(ps); ++i) {
+    long j, e;
+    GEN Q = red_primeform(D, ps[i]);
+    if ( ! Q) {
+      avma = av;
+      return NULL;
+    }
+    e = es[i];
+    for (j = 0; j < e; ++j) {
+      if ((i-1) || j)
+        N = qficomp(Q, N);
+      else
+        N = Q;
+    }
+  }
+  return gerepileupto(av, N);
+}
+
+INLINE int
+qfb_is_two_torsion(GEN x)
+{
+  return gequal1(gel(x, 1)) || gequal0(gel(x, 2))
+    || gequal(gel(x, 1), gel(x, 2)) || gequal(gel(x, 1), gel(x, 3));
+}
+
+/* Returns true iff the products p1*p2, p1*p2^-1, p1^-1*p2, and
+ * p1^-1*p2^-1 are all distinct in cl(D) */
+INLINE int
+qfb_distinct_prods(long D, long p1, long p2)
+{
+  pari_sp av = avma;
+  GEN P1, P2;
+  int x;
+
+  P1 = red_primeform(D, p1);
+  if ( ! P1) {
+    avma = av;
+    return 0;
+  }
+  P1 = qfisqr(P1);
+
+  P2 = red_primeform(D, p2);
+  if ( ! P2) {
+    avma = av;
+    return 0;
+  }
+  P2 = qfisqr(P2);
+
+  x = ! (gequal(gel(P1, 1), gel(P2, 1))
+      && (gequal(gel(P1, 2), gel(P2, 2))
+          || gequal(gel(P1, 2), gneg(gel(P2, 2)))));
+  avma = av;
+  return x;
+}
+
+INLINE int
+inv_double_eta_good_disc(long D, long inv)
+{
+  pari_sp av = avma;
+  GEN P;
+  long i1, i2, p1, p2, N;
+
+  /* By Corollary 3.1 of Enge-Schertz Constructing elliptic curves
+   * over finite fields using double eta-quotients, we need p1 != p2
+   * to both be non-inert and prime to the conductor, and if p1=p2=p
+   * we want p split and prime to the conductor.  We exclude the case
+   * that p1=p2 divides the conductor, even though this does yield
+   * class invariants */
+  N = inv_degree(&p1, &p2, inv);
+  if ( ! N)
+    return 0;
+  i1 = kross(D, p1);
+  if (i1 < 0)
+    return 0;
+  /* Exclude ramified case for w_{p,p} */
+  if (p1 == p2 && !i1)
+    return 0;
+  i2 = kross(D, p2);
+  if (i2 < 0)
+    return 0;
+  /* this also verifies that p1 is prime to the conductor */
+  P = red_primeform(D, p1);
+  if ( ! P
+      || gequal1(gel(P, 1)) /* don't allow p1 to be principal */
+      /* if p1 is unramified, require it to have order > 2 */
+      || (i1 && qfb_is_two_torsion(P))) {
+    avma = av;
+    return 0;
+  }
+  if (p1 == p2) {
+    /* if p1=p2 we need p1*p1 to be distinct from its inverse */
+    int not_2tors = ! qfb_is_two_torsion(qfisqr(P));
+    avma = av;
+    return not_2tors;
+  }
+  /* this also verifies that p2 is prime to the conductor */
+  P = red_primeform(D, p2);
+  if ( ! P
+      || gequal1(gel(P, 1)) /* don't allow p2 to be principal */
+      /* if p2 is unramified, require it to have order > 2 */
+      || (i2 && qfb_is_two_torsion(P))) {
+    avma = av;
+    return 0;
+  }
+  avma = av;
+
+  if (i1 > 0 && i2 > 0) {
+    /* if p1 and p2 are split, we also require p1*p2,
+     * p1*p2^-1,p1^-1*p2, and p1^-1*p2^-1 to be distinct */
+    if ( ! qfb_distinct_prods(D, p1, p2))
+      return 0;
+  }
+  if (!i1 && !i2) {
+    /* if both p1 and p2 are ramified, make sure their product is not
+     * principal */
+    P = qfb_nform(D, N);
+    if (gequal1(gel(P, 1))) {
+      avma = av;
+      return 0;
+    }
+    avma = av;
+  }
+  return 1;
+}
+
+/* Assumes D is a good discriminant for inv, which implies that the
+ * level is prime to the conductor */
+long
+inv_ramified(long D, long inv)
+{
+  long p1, p2, N;
+
+  N = inv_degree(&p1, &p2, inv);
+  if (N <= 1)
+    return 0;
+  return !(D % p1) && !(D % p2);
+}
+
+int
+inv_good_discriminant(long D, long inv)
+{
+  switch (inv) {
   case INV_J:
     return 1;
   case INV_G2:
-    return (p % 3) == 2;
+    return !!(D % 3);
+  case INV_F3:
+    return (-D & 7) == 7;
   case INV_F:
-    if ((p % 3) == 2)
-      return (p & 3) != 1;
-    return 0;
+  case INV_F2:
+  case INV_F4:
+  case INV_F8:
+    return ((-D & 7) == 7) && (D % 3);
+  case INV_W3W5:
+    return (D % 3) && inv_double_eta_good_disc(D, inv);
+  case INV_W3W3E2:
+    return (D % 3) && inv_double_eta_good_disc(D, inv);
+  case INV_W3W3:
+    return (D & 1) && (D % 3) && inv_double_eta_good_disc(D, inv);
+  case INV_W2W3E2:
+    return (D % 3) && inv_double_eta_good_disc(D, inv);
+  case INV_W2W3:
+    return ((-D & 7) == 7) && (D % 3) && inv_double_eta_good_disc(D, inv);
+  case INV_W2W5:
+    return ((-D % 80) != 20) && (D % 3) && inv_double_eta_good_disc(D, inv);
+  case INV_W2W5E2:
+    return (D % 3) && inv_double_eta_good_disc(D, inv);
+  case INV_W2W7E2:
+    return ((-D % 112) != 84) && inv_double_eta_good_disc(D, inv);
+  case INV_W2W7:
+    return ((-D & 7) == 7) && inv_double_eta_good_disc(D, inv);
+  case INV_W2W13:
+    return ((-D % 208) != 52) && inv_double_eta_good_disc(D, inv);
+  case INV_W3W7:
+    return (D & 1) && (-D % 21) && inv_double_eta_good_disc(D, inv);
+  case INV_W5W7:
+    /* NB: This is a guess; avs doesn't have an entry */
+    return (D % 3) && inv_double_eta_good_disc(D, inv);
+  case INV_W3W13:
+    /* NB: This is a guess; avs doesn't have an entry */
+    return (D & 1) && (D % 3) && inv_double_eta_good_disc(D, inv);
   default:
-    pari_err_BUG("inv_good_prime");
+    pari_err_BUG("inv_good_discriminant");
   }
   return 0;
 }
+
+int
+inv_weber(long inv)
+{
+  return inv == INV_F || inv == INV_F2 || inv == INV_F3 || inv == INV_F4
+    || inv == INV_F8;
+}
+
+int
+inv_double_eta(long inv)
+{
+  switch (inv) {
+  case INV_W2W3:
+  case INV_W2W3E2:
+  case INV_W2W5:
+  case INV_W2W5E2:
+  case INV_W2W7:
+  case INV_W2W7E2:
+  case INV_W2W13:
+  case INV_W3W3:
+  case INV_W3W3E2:
+  case INV_W3W5:
+  case INV_W3W7:
+  case INV_W5W7:
+  case INV_W3W13:
+    return 1;
+  }
+  return 0;
+}
+
 /* END Code from "class_inv.h" */
+
+INLINE int
+safe_abs_sqrt(ulong *r, ulong x, ulong p, ulong pi)
+{
+  if (krouu(x, p) == -1) {
+    if (p%4 == 1) return 0;
+    x = Fl_neg(x, p);
+  }
+  *r = Fl_sqrt_pre(x, p, pi);
+  return 1;
+}
+
+INLINE int
+eighth_root(ulong *r, ulong x, ulong p, ulong pi)
+{
+  ulong s;
+  if (krouu(x, p) == -1)
+    return 0;
+  s = Fl_sqrt_pre(x, p, pi);
+  return safe_abs_sqrt(&s, s, p, pi) && safe_abs_sqrt(r, s, p, pi);
+}
+
+INLINE ulong
+inv_f_from_j(ulong j, ulong p, ulong pi, long only_residue)
+{
+  pari_sp av = avma;
+  GEN pol, rts;
+  long i;
+  ulong g2, f = ULONG_MAX;
+
+  /* f^8 must be a root of X^3 - \gamma_2 X - 16 */
+  g2 = Fl_sqrtl_pre(j, 3, p, pi);
+
+  pol = mkvecsmall5(0UL, Fl_neg(16 % p, p), Fl_neg(g2, p), 0UL, 1UL);
+  rts = Flx_roots(pol, p);
+  for (i = 1; i < lg(rts); ++i) {
+    if (only_residue) {
+      if (krouu(rts[i], p) != -1) {
+        f = rts[i];
+        break;
+      } else
+        continue;
+    } else if (eighth_root(&f, rts[i], p, pi))
+      break;
+  }
+  if (i == lg(rts))
+    pari_err_BUG("inv_f_from_j");
+  avma = av;
+  return f;
+}
+
+INLINE ulong
+inv_f3_from_j(ulong j, ulong p, ulong pi)
+{
+  pari_sp av = avma;
+  GEN pol, rts;
+  long i;
+  ulong f = ULONG_MAX;
+
+  pol = mkvecsmall5(0UL,
+      Fl_neg(4096 % p, p), Fl_sub(768 % p, j, p), Fl_neg(48 % p, p), 1UL);
+  rts = Flx_roots(pol, p);
+  for (i = 1; i < lg(rts); ++i) {
+    if (eighth_root(&f, rts[i], p, pi))
+      break;
+  }
+  if (i == lg(rts))
+    pari_err_BUG("inv_f3_from_j");
+  avma = av;
+  return f;
+}
+
+/* Return the exponent e for the double-eta "invariant" w such that
+ * w^e is a class invariant.  For example w2w3^12 is a class
+ * invariant, so inv_exponent(INV_W2W3) is 12 and
+ * inv_exponent(INV_W2W3E2) is 6. */
+INLINE ulong
+inv_exponent(int inv)
+{
+  switch (inv) {
+  case INV_W2W3:
+    return 12;
+  case INV_W2W3E2:
+  case INV_W2W5:
+  case INV_W3W3:
+    return 6;
+  case INV_W2W7:
+    return 4;
+  case INV_W3W5:
+  case INV_W2W5E2:
+  case INV_W3W3E2:
+    return 3;
+  case INV_W2W7E2:
+  case INV_W2W13:
+  case INV_W3W7:
+    return 2;
+  default:
+    return 1;
+  }
+}
+
+INLINE ulong
+inv_power(long inv, ulong w, ulong p, ulong pi)
+{
+  return Fl_powu_pre(w, inv_exponent(inv), p, pi);
+}
+
+
+/* Assuming p = 2 (mod 3) and p = 3 (mod 4): if the two 12th roots of
+ * x (mod p) exist, set *r to one of them and return 1, otherwise
+ * return 0 (without touching *r). */
+INLINE int
+twelth_root(ulong *r, ulong x, ulong p, ulong pi)
+{
+  register ulong t;
+
+  t = Fl_sqrtl_pre(x, 3, p, pi);
+  if (krouu(t, p) == -1)
+    return 0;
+  t = Fl_sqrt_pre(t, p, pi);
+  return safe_abs_sqrt(r, t, p, pi);
+}
+
+INLINE int
+sixth_root(ulong *r, ulong x, ulong p, ulong pi)
+{
+  register ulong t;
+
+  t = Fl_sqrtl_pre(x, 3, p, pi);
+  if (krouu(t, p) == -1)
+    return 0;
+  *r = Fl_sqrt_pre(t, p, pi);
+  return 1;
+}
+
+INLINE int
+fourth_root(ulong *r, ulong x, ulong p, ulong pi)
+{
+  register ulong s;
+  if (krouu(x, p) == -1)
+    return 0;
+  s = Fl_sqrt_pre(x, p, pi);
+  return safe_abs_sqrt(r, s, p, pi);
+}
+
+INLINE int
+inv_root(long inv, ulong *r, ulong w, ulong p, ulong pi)
+{
+  switch (inv_exponent(inv)) {
+  case 12: return twelth_root(r, w, p, pi);
+  case 6: return sixth_root(r, w, p, pi);
+  case 4: return fourth_root(r, w, p, pi);
+  case 3: *r = Fl_sqrtl_pre(w, 3, p, pi); return 1;
+  case 2: return krouu(w, p) != -1 && !!(*r = Fl_sqrt_pre(w, p, pi));
+  case 1: *r = w; return 1;
+  }
+  pari_err_BUG("inv_root");
+  return 0;
+}
+
+
+/* TODO: Organise things better so that this forward decl is
+ * unnecessary. */
+static GEN
+Flx_double_eta_xpoly(long inv, ulong j, ulong p, ulong pi);
+
+static GEN
+Flx_double_eta_jpoly(long inv, ulong x, ulong p, ulong pi);
+
+/* Go through the roots of Psi(X,j) until one has an
+ * inv_exponent(inv)-th root, and return that root. */
+INLINE ulong
+inv_double_eta_from_j(long inv, ulong j, ulong p, ulong pi)
+{
+  pari_sp av = avma;
+  long i;
+  ulong f = ULONG_MAX;
+  GEN a = Flx_double_eta_xpoly(inv, j, p, pi);
+  a = Flx_roots(a, p);
+  for (i = 1; i < lg(a); ++i) {
+    if (inv_root(inv, &f, uel(a, i), p, pi))
+      break;
+  }
+  if (i == lg(a))
+    pari_err_BUG("inv_double_eta_from_j");
+  avma = av;
+  return f;
+}
+
+/* TODO: Check whether I can use this to refactor something */
+long
+inv_double_eta_from_2j(
+  ulong *r, long inv, ulong j1, ulong j2, ulong p, ulong pi)
+{
+  pari_sp av = avma;
+  GEN f, g, d;
+  if (j2 == j1)
+    pari_err_BUG("inv_double_eta_from_2j");
+
+  /* TODO: Avoid wasteful repeated reductions */
+  f = Flx_double_eta_xpoly(inv, j1, p, pi);
+  g = Flx_double_eta_xpoly(inv, j2, p, pi);
+  d = Flx_gcd(f, g, p);
+
+  /* NB: Morally the next conditional should be written as follows,
+   * but, I think because of the case when j1 or j2 may not have the
+   * correct endomorphism ring, we need to use the less strict
+   * conditional underneath. */
+#if 0
+  if (degpol(d) != 1
+      || (*r = Flx_oneroot(d, p)) == p
+      || ! inv_root(inv, r, *r, p, pi)) {
+    pari_err_BUG("inv_double_eta_from_2j");
+  }
+#endif
+  if (degpol(d) > 2
+      || (*r = Flx_oneroot(d, p)) == p
+      || ! inv_root(inv, r, *r, p, pi)) {
+    return 0;
+  }
+  avma = av;
+  return 1;
+}
+
+long
+modfn_unambiguous_root(ulong *r, long inv, ulong j0, norm_eqn_t ne, GEN jdb)
+{
+  pari_sp av = avma;
+  long p1, p2, v = ne->v, p1_depth;
+  ulong j1, p = ne->p, pi = ne->pi;
+  GEN phi;
+
+  (void) inv_degree(&p1, &p2, inv);
+  p1_depth = u_lval(v, p1);
+
+  phi = polmodular_db_getp(jdb, p1, p);
+  if ( ! next_surface_nbr(&j1, phi, p1, p1_depth, j0, NULL, p, pi))
+    pari_err_BUG("modfn_unambiguous_root");
+  if (p2 == p1) {
+    if ( ! next_surface_nbr(&j1, phi, p1, p1_depth, j1, &j0, p, pi))
+      pari_err_BUG("modfn_unambiguous_root");
+  } else {
+    long p2_depth = u_lval(v, p2);
+    phi = polmodular_db_getp(jdb, p2, p);
+    if ( ! next_surface_nbr(&j1, phi, p2, p2_depth, j1, NULL, p, pi))
+      pari_err_BUG("modfn_unambiguous_root");
+  }
+  avma = av;
+  return j1 != j0 && inv_double_eta_from_2j(r, inv, j0, j1, p, pi);
+}
+
+ulong
+modfn_root(ulong j, norm_eqn_t ne, long inv)
+{
+  ulong f, p = ne->p, pi = ne->pi;
+  switch (inv) {
+  case INV_J:
+    return j;
+  case INV_G2:
+    return Fl_sqrtl_pre(j, 3, p, pi);
+  case INV_F:
+    return inv_f_from_j(j, p, pi, 0);
+  case INV_F2:
+    f = inv_f_from_j(j, p, pi, 0);
+    return Fl_sqr_pre(f, p, pi);
+  case INV_F3:
+    return inv_f3_from_j(j, p, pi);
+  case INV_F4:
+    f = inv_f_from_j(j, p, pi, 0);
+    return Fl_sqr_pre(Fl_sqr_pre(f, p, pi), p, pi);
+  case INV_F8:
+    return inv_f_from_j(j, p, pi, 1);
+  }
+  if (inv_double_eta(inv))
+    return inv_double_eta_from_j(inv, j, p, pi);
+  pari_err_BUG("modfn_root");
+  return ULONG_MAX;
+}
+
+INLINE ulong
+inv_j_from_f(ulong x, ulong n, ulong p, ulong pi)
+{
+  /* If x satisfies (X^24 - 16)^3 - X^24 * j = 0
+   * then j = (x^24 - 16)^3 / x^24 */
+  ulong x24 = Fl_powu_pre(x, 24 / n, p, pi);
+  return Fl_div(Fl_powu_pre(Fl_sub(x24, 16 % p, p), 3, p, pi), x24, p);
+}
+
+/* TODO: Check whether I can use this to refactor something */
+long
+inv_j_from_2double_eta(
+  long inv, ulong *j, ulong x0, ulong x1, ulong p, ulong pi)
+{
+  GEN f, g, d;
+
+  x0 = inv_power(inv, x0, p, pi);
+  x1 = inv_power(inv, x1, p, pi);
+  /* FIXME: This "reads in" and reduces the double eta jpoly twice */
+  f = Flx_double_eta_jpoly(inv, x0, p, pi);
+  g = Flx_double_eta_jpoly(inv, x1, p, pi);
+  d = Flx_gcd(f, g, p);
+  if (degpol(d) > 1)
+    pari_err_BUG("inv_j_from_2double_eta");
+  else if (degpol(d) < 1)
+    return 0;
+  if (j)
+    *j = Flx_deg1_root(d, p);
+  return 1;
+}
+
+INLINE ulong
+modfn_preimage(ulong x, norm_eqn_t ne, long inv)
+{
+  ulong p = ne->p, pi = ne->pi;
+  switch (inv) {
+  case INV_J:
+    return x;
+  case INV_G2:
+    return Fl_powu_pre(x, 3, p, pi);
+  case INV_F:
+    /* NB: We could replace these with a single call
+     *
+     *   inv_j_from_f(x, inv, p, pi),
+     *
+     * but it's probably better to avoid the dependence on the actual
+     * value of inv and assume it could change. */
+    return inv_j_from_f(x, 1, p, pi);
+  case INV_F2:
+    return inv_j_from_f(x, 2, p, pi);
+  case INV_F3:
+    return inv_j_from_f(x, 3, p, pi);
+  case INV_F4:
+    return inv_j_from_f(x, 4, p, pi);
+  case INV_F8:
+    return inv_j_from_f(x, 8, p, pi);
+  }
+  /* NB: This function should never be called if inv_double_eta(inv) is
+   * true */
+  pari_err_BUG("modfn_preimage");
+  return ULONG_MAX;
+}
 
 
 /**
@@ -320,10 +1024,10 @@ polmodular_db_add_level(GEN *DB, long L, long inv)
 
 
 void
-polmodular_db_add_levels(GEN *db, GEN levels, long inv)
+polmodular_db_add_levels(GEN *db, long *levels, long k, long inv)
 {
   long i;
-  for (i = 1; i < lg(levels); ++i)
+  for (i = 0; i < k; ++i)
     polmodular_db_add_level(db, levels[i], inv);
 }
 
@@ -379,11 +1083,17 @@ modpoly_disc_info_clear(modpoly_disc_info *dinfo)
 
 #define MODPOLY_MAX_DCNT    64
 
+
+/* Flag for last parameter of discriminant_with_classno_at_least.
+ * Warning: ignoring the sparse factor makes everything slower by
+ * something like (sparse factor)^3. */
+#define USE_SPARSE_FACTOR 0
+#define IGNORE_SPARSE_FACTOR 1
+
 static long
 discriminant_with_classno_at_least(
-  modpoly_disc_info Ds[MODPOLY_MAX_DCNT], long L, long inv);
-
-/* NB: The actual table is included at the end of the file. */
+  modpoly_disc_info Ds[MODPOLY_MAX_DCNT], long L, long inv,
+  long ignore_sparse);
 
 
 /**
@@ -531,282 +1241,13 @@ Flm_Fl_polmodular_evalx(GEN phi, long L, ulong j, ulong p, ulong pi)
   case 3:
     return Flm_Fl_phi3_evalx(phi, j, p, pi);
   case 5:
-    /* This is, very surprisingly, not obviously faster than the
-     * original code. :(
-    if ( ! coeff(phi, 1, 1))
-      return Flm_Fl_phi5_s24_evalx(phi, j, p, pi);
-    */
     return Flm_Fl_phi5_evalx(phi, j, p, pi);
   }
   j_powers = Fl_powers_pre(j, L + 1, p, pi);
+  /* FIXME: We're obliged to do a full copy (in Flv_to_Flx) to return
+   * an Flx here in one of the hottest parts of the code.  What joy. */
   modpol = Flv_to_Flx(Flm_Flc_mul_pre(phi, j_powers, p, pi), 0);
   return gerepileupto(av, modpol);
-}
-
-
-INLINE GEN
-Flm_Fl_phi2_qevalx(GEN phi, ulong a, ulong b, ulong p, ulong pi)
-{
-    ulong J0, J1, J2, t1;
-    GEN f = cgetg(6, t_VECSMALL);
-
-    f[1] = 0;
-
-    t1 = Fl_sqr_pre(b, p, pi);
-    J1 = Fl_mul_pre(t1, a, p, pi);
-    J0 = Fl_mul_pre(t1, b, p, pi);
-    t1 = Fl_sqr_pre(a, p, pi);
-    J2 = Fl_mul_pre(t1, b, p, pi);
-
-    f[2] = Fl_addmul4(J0, J1, J2, t1, a,
-                      coeff(phi, 1, 3), coeff(phi, 1, 2), coeff(phi, 1, 1),
-                      p, pi);
-    f[3] = Fl_addmul3(J0, J1, J2,
-                      coeff(phi, 2, 3), coeff(phi, 2, 2), coeff(phi, 2, 1),
-                      p, pi);
-    t1 = Fl_addmul2(J0, J1, coeff(phi, 3, 2), coeff(phi, 3, 1), p, pi);
-    f[4] = Fl_sub(t1, J2, p);
-    f[5] = J0;
-
-    return f;
-}
-
-
-/* Get pointer to coeffs of f as a ulong*. */
-#define Flx_coeffs(f) ((ulong *)((f) + 2))
-/* Get coefficient of x^d in f, assuming f is nonzero. */
-#define Flx_coeff(f, d) ((f)[(d) + 2])
-
-
-/* Based on Sutherland's ffpolysmall.h:ff_poly_mgcd_linear_n_3().
- *
- * f and g are monic polynomials, f of degree greater than 3, g of
- * degree 3.
- */
-INLINE GEN
-Flx_mgcd_linear_n_3(GEN f, GEN g, ulong p, ulong pi)
-{
-  long i, d = degpol(f);
-  ulong s0, s1, s2, t0, t1, t2, t3, t, u;
-  GEN h = cgetg(4, t_VECSMALL);
-
-  h[1] = 0;
-
-  s0 = Flx_coeff(g, 0);
-  s1 = Flx_coeff(g, 1);
-  s2 = Flx_coeff(g, 2);
-  /* NB: Sutherland's version also handles deg(f) = 3, but we don't
-   * need it, since f will always be the evaluation of a modular
-   * polynomial of level > 2, hence of degree > 3. */
-  if (d == 4) {
-    t3 = Fl_sub(Flx_coeff(f, 3), s2, p);
-    t2 = Fl_sub(s1, Flx_coeff(f, 2), p);
-    t = Fl_mul_pre(t3, s2, p, pi);
-    t2 = Fl_add(t2, t, p);
-    t1 = Fl_sub(Flx_coeff(f, 1), s0, p);
-    t = Fl_mul_pre(t3, s1, p, pi);
-    t1 = Fl_sub(t1, t, p);
-    t = Fl_mul_pre(t3, s0, p, pi);
-    t0 = Fl_sub(Flx_coeff(f, 0), t, p);
-
-    t = Fl_mul_pre(t2, s2, p, pi);
-    s2 = Fl_add(t, t1, p);
-    t = Fl_mul_pre(t2, s1, p, pi);
-    s1 = Fl_add(t, t0, p);
-    Flx_coeff(h, 1) = Fl_addmul2(s1, s2, t1, t2, p, pi);
-    t = Fl_mul_pre(t2, s0, p, pi);
-    Flx_coeff(h, 0) = Fl_addmul2(t, s2, t0, t2, p, pi);
-    return h;
-  }
-
-  t2 = Fl_sub(Flx_coeff(f, d - 1), s2, p);
-  t1 = Fl_sub(Flx_coeff(f, d - 2), s1, p);
-  t = Fl_mul_pre(t2, s2, p, pi);
-  t1 = Fl_sub(t1, t, p);
-  t0 = Fl_sub(Flx_coeff(f, d - 3), s0, p);
-  t = Fl_addmul2(t1, t2, s1, s2, p, pi);
-  t0 = Fl_sub(t0, t, p);
-  for (i = d - 4; i > 1; --i) {
-    t = Fl_addmul3(t0, t1, t2, s0, s1, s2, p, pi);
-    t2 = t1;
-    t1 = t0;
-    t0 = Fl_sub(Flx_coeff(f, i), t, p);
-  }
-  t = Fl_addmul2(t1, t2, s0, s1, p, pi);
-  t2 = Fl_neg(t0, p);
-  u = Fl_mul_pre(t1, s0, p, pi);
-  t1 = Fl_sub(Flx_coeff(f, 1), t, p);
-  t0 = Fl_sub(Flx_coeff(f, 0), u, p);
-
-  t = Fl_mul_pre(t2, s2, p, pi);
-  s2 = Fl_add(t, t1, p);
-  t = Fl_mul_pre(t2, s1, p, pi);
-  s1 = Fl_add(t, t0, p);
-  Flx_coeff(h, 1) = Fl_addmul2(s1, s2, t1, t2, p, pi);
-  t = Fl_mul_pre(t2, s0, p, pi);
-  Flx_coeff(h, 0) = Fl_addmul2(t, s2, t0, t2, p, pi);
-  return h;
-}
-
-
-/* Based on Sutherland's ff_poly code,
- * ffpolysmall.h:ff_poly_gcd_linear_n_2() */
-/* f deg d_f > 2, g deg 2, f monic, f and g are not
- * modified. */
-INLINE GEN
-Flx_gcd_linear_n_2(GEN f_, GEN g_, ulong p, ulong pi)
-{
-  long i;
-  ulong s0, s1, s2, t0, t1, t, d = degpol(f_);
-  ulong *f = Flx_coeffs(f_);
-  ulong *g = Flx_coeffs(g_);
-  GEN h = cgetg(4, t_VECSMALL);
-  h[1] = 0;
-
-  s0 = Fl_neg(g[0], p);
-  s1 = Fl_neg(g[1], p);
-  s2 = Fl_sqr_pre(g[2], p, pi);
-  s0 = Fl_mul_pre(s0, g[2], p, pi);
-  t1 = Fl_addmul_pre(g[2], f[d - 1], s1, p, pi);
-  t0 = Fl_addmul2(s1, s2, f[d - 2], t1, p, pi);
-  t0 = Fl_add(t0, s0, p);
-  for (i = d - 3; i > 0; --i) {
-    s2 = Fl_mul_pre(s2, g[2], p, pi);
-    t = Fl_addmul3(s0, s1, s2, f[i], t0, t1, p, pi);
-    t1 = t0;
-    t0 = t;
-  }
-  h[3] = t0;
-  s0 = Fl_neg(g[0], p);
-  h[2] = Fl_addmul2(s0, s2, f[0], t1, p, pi);
-
-  return h;
-}
-
-/* Computes s^2*g/(x-r/s) assuming g(r/s)=0 for a cubic g (not assumed
- * monic) Based on Sutherland's classpoly code,
- * phi_gcd.c:ff_poly_remove_qroot_3(). */
-INLINE GEN
-Flx_remove_cubic_qroot(GEN g, ulong r, ulong s, ulong p, ulong pi)
-{
-  ulong t1, t2;
-  GEN f = cgetg(5, t_VECSMALL);
-
-  f[1] = 0;
-
-  t2 = Fl_sqr_pre(s, p, pi);
-  t1 = Fl_addmul2(Flx_coeff(g, 2), Flx_coeff(g, 3), r, s, p, pi);
-  Flx_coeff(f, 0) = Fl_addmul2(t1, t2, Flx_coeff(g, 1), r, p, pi);
-  Flx_coeff(f, 1) = Fl_mul_pre(s, t1, p, pi);
-  Flx_coeff(f, 2) = Fl_mul_pre(t2, Flx_coeff(g, 3), p, pi);
-
-  return f;
-}
-
-
-/* Based on Sutherland's classpoly code,
- * phi_gcd.c:phi_surface_qgcd_cycle_2_p2().
- *
- * box must point to space for 2n ulongs, the first n of which must
- * point to a (surface) 2-cycle of length n, and box[n] and box[n+1]
- * should be L-isogenous to box[0] and box[1] (with box[1] correctly
- * oriented using gcds. */
-static void
-fill_parallel_path(
-  ulong box[],
-  long n, GEN phi_2, GEN phi_L, long L, ulong p, ulong pi)
-{
-  enum { BATCH_INVERTS = 128, E = 2 };
-  long i, j;
-  ulong d[BATCH_INVERTS + 2];
-  ulong *twocycl = box, *ppath = box + n;
-
-  i = 0;
-  j = E;
-
-  /* TODO: Handle avs' strange case "r == r2", I think for
-   * enumerating surface elements */
-  i = j;
-
-  d[0] = 1;
-  while (j < n) {
-    long m, j0, k;
-    d[1] = 1;
-    m = minss(BATCH_INVERTS, n - j);
-    j0 = j - 2;
-    for (k = 2; k <= m + 1; ++i, ++j, ++k) {
-      pari_sp av = avma;
-      GEN f, g, h;
-      f = Flm_Fl_polmodular_evalx(phi_L, L, twocycl[i], p, pi);
-      g = Flm_Fl_phi2_qevalx(phi_2, ppath[j - 1], d[k - 1], p, pi);
-      g = Flx_remove_cubic_qroot(g, ppath[j - 2], d[k - 2], p, pi);
-      h = Flx_gcd_linear_n_2(f, g, p, pi);
-      ppath[j] = Fl_neg(Flx_coeff(h, 0), p);
-      d[k] = Flx_coeff(h, 1);
-      avma = av;
-    }
-    /* Make &d[1] into a vecsmall of m elements. Calculates the
-     * inverse of d[2] up to d[m + 2]. */
-    d[1] = evaltyp(t_VECSMALL) | _evallg(m + 1);
-    Flv_inv_pre_inplace((GEN)&d[1], p, pi);
-    for (k = 2; k <= m + 1; ++k)
-      ppath[j0 + k] = Fl_mul_pre(ppath[j0 + k], d[k], p, pi);
-  }
-}
-
-
-/* Put the common neighbour of box[1] and box[r] into box[r+1] */
-INLINE void
-fill_corner(
-  ulong box[], long r, long L, GEN phi_2, GEN phi_L, ulong p, ulong pi)
-{
-  ulong left = box[1], up = box[r];
-  GEN f, g, h;
-  f = Flm_Fl_polmodular_evalx(phi_L, L, left, p, pi);
-  g = Flm_Fl_phi2_evalx(phi_2, up, p, pi);
-  h = Flx_mgcd_linear_n_3(f, g, p, pi);
-  if (degpol(h) != 1)
-    pari_err_BUG("fill_corner: Wrong number of roots");
-  box[r + 1] = Fl_neg(Flx_coeff(h, 0), p);
-  if (Flx_coeff(h, 1) != 1)
-    box[r + 1] = Fl_div(box[r + 1], Flx_coeff(h, 1), p);
-}
-
-
-/* d is the depth of the 2-volcano, r is the order of [2] in cl(O). */
-INLINE void
-fill_box(
-  ulong box[], long L, long d2, long dL, long r,
-  GEN fdb, ulong p, ulong pi)
-{
-  pari_sp av = avma;
-  GEN phi_2 = polmodular_db_getp(fdb, 2, p);
-  GEN phi_L = polmodular_db_getp(fdb, L, p);
-  ulong *sidestep = (ulong *)new_chunk(2 + dL);
-
-  walk_surface_path(box, phi_2, p, pi, 2, d2, r - 1);
-  sidestep[0] = box[0];
-  walk_surface_path(sidestep, phi_L, p, pi, L, dL, 1);
-  box[r] = sidestep[1];
-  fill_corner(box, r, L, phi_2, phi_L, p, pi);
-  fill_parallel_path(box, r, phi_2, phi_L, L, p, pi);
-
-  avma = av;
-}
-
-
-static GEN
-enum_j_fast(
-  ulong j0, long D, long L1, long d2, long dL, long r,
-  GEN fdb, ulong p, ulong pi)
-{
-  enum { L0 = 2 };
-  GEN res = cgetg(2 * r + 1, t_VECSMALL);
-  if (4 * L0 * L0 * L1 * L1 > -D || d2 > r || dL + 2 > r)
-    pari_err_BUG("enum_j_fast: invalid parameters");
-  res[1] = j0;
-  fill_box(zv_to_ulongptr(res), L1, d2, dL, r, fdb, p, pi);
-  return res;
 }
 
 
@@ -845,24 +1286,9 @@ Fl_mul7(ulong x, ulong p)
   return Fl_sub(Fl_mul8(x, p), x, p);
 }
 
-INLINE ulong
-uQ_calc(ulong a4, ulong a6, ulong xQ, ulong p, ulong pi)
-{
-  /* uQ = 4 xQ^3 + b2 xQ^2 + 2 b4 xQ + b6
-   *    = 4 xQ^3 + 4 a4 xQ + 4 a6
-   *    = 4 ((xQ^2 + a4) xQ + a6)
-   * (since b2 = 0, b4 = 2 a4 and b6 = 4 a6) */
-  ulong t1 = Fl_add(Fl_sqr_pre(xQ, p, pi), a4, p);
-  return Fl_mul4(Fl_add(Fl_mul_pre(t1, xQ, p, pi), a6, p), p);
-}
-
-
 /*
  * Given an elliptic curve E = [a4, a6] over F_p and a non-zero point
  * pt on E, return the quotient E' = E/<P> = [a4_img, a6_img].
- *
- * TODO: Compare with an apparently simpler version of this algorithm in
- * Sutherland 2012, Section 6.4.
  */
 static void
 Fle_quotient_from_kernel_generator(
@@ -871,24 +1297,26 @@ Fle_quotient_from_kernel_generator(
   pari_sp av = avma;
   ulong t = 0, w = 0;
   GEN Q;
-  ulong xQ, tQ, uQ;
+  ulong xQ, yQ, tQ, uQ;
 
   Q = gcopy(pt);
   /* Note that, as L is odd, say L = 2n + 1, we necessarily have
    * [(L - 1)/2]P = [n]P = [n - L]P = -[n + 1]P = -[(L + 1)/2]P.  This is
    * what the condition Q[1] != xQ tests, so the loop will execute n times. */
   do {
-    xQ = Q[1];
+    xQ = uel(Q, 1);
+    yQ = uel(Q, 2);
     /* tQ = 6 xQ^2 + b2 xQ + b4
      *    = 6 xQ^2 + 2 a4 (since b2 = 0 and b4 = 2 a4) */
     tQ = Fl_add(Fl_mul6(Fl_sqr_pre(xQ, p, pi), p), Fl_double(a4, p), p);
-    t = Fl_add(t, tQ, p);
+    uQ = Fl_add(Fl_mul4(Fl_sqr_pre(yQ, p, pi), p),
+                Fl_mul_pre(tQ, xQ, p, pi), p);
 
-    uQ = uQ_calc(a4, a6, xQ, p, pi);
-    /* w += uQ + tQ * xQ */
-    w = Fl_add(w, Fl_add(uQ, Fl_mul_pre(tQ, xQ, p, pi), p), p);
-    Q = Fle_add(pt, Q, a4, p);
-  } while ((ulong)Q[1] != xQ);
+    t = Fl_add(t, tQ, p);
+    w = Fl_add(w, uQ, p);
+    Q = gerepileupto(av, Fle_add(pt, Q, a4, p));
+  } while (uel(Q, 1) != xQ);
+
   avma = av;
   /* a4_img = a4 - 5 * t */
   *a4_img = Fl_sub(a4, Fl_mul5(t, p), p);
@@ -977,9 +1405,6 @@ select_curve_with_L_tors_point(
  * cyclic, return 0 if it is not cyclic with "high" probability (I
  * guess around 1/L^3 chance it is still cyclic when we return 0).
  *
- * NB: A return value of 1 means that [a4, a6] (mod p) is on the floor
- * of its L-volcano.
- *
  * This code is based on Sutherland's
  * velu.c:velu_verify_Sylow_cyclic() in classpoly-1.0.1.
  */
@@ -1009,7 +1434,7 @@ verify_L_sylow_is_cyclic(
 static ulong
 find_noniso_L_isogenous_curve(
   ulong L, ulong n,
-  norm_eqn_t ne, long e, ulong val, ulong a4, ulong a6, GEN init_pt)
+  norm_eqn_t ne, long e, ulong val, ulong a4, ulong a6, GEN init_pt, long verify)
 {
   pari_sp ltop, av;
   ulong p = ne->p, pi = ne->pi, j_res = 0;
@@ -1026,7 +1451,7 @@ find_noniso_L_isogenous_curve(
 
     /* d. If j(E') = j_res has a different endo ring to j(E), then
      *    return j(E').  Otherwise, go to b. */
-    if (verify_L_sylow_is_cyclic(e, a4_img, a6_img, p, pi)) {
+    if (!verify || verify_L_sylow_is_cyclic(e, a4_img, a6_img, p, pi)) {
       j_res = Fl_ellj_pre(a4_img, a6_img, p, pi);
       break;
     }
@@ -1048,29 +1473,19 @@ find_noniso_L_isogenous_curve(
 INLINE ulong
 compute_L_isogenous_curve(
   ulong L, ulong n, norm_eqn_t ne,
-  ulong j, ulong card, ulong val)
+  ulong j, ulong card, ulong val, long verify)
 {
   ulong a4, a6;
   long e;
   GEN pt;
 
-  if (ne->p < 5 || j == 0 || j == 1728 % ne->p) {
-    char *err = stack_sprintf("compute_L_isogenous_curve: "
-                              "Invalid params j = %lu, p = %lu", j, ne->p);
-    pari_err_BUG(err);
-  }
-
+  if (ne->p < 5 || j == 0 || j == 1728 % ne->p)
+    pari_err_BUG("compute_L_isogenous_curve");
   pt = select_curve_with_L_tors_point(&a4, &a6, L, j, n, card, val, ne);
-
   e = card / L;
-  if (e * L != card) {
-    char *err = stack_sprintf("compute_L_isogenous_curve: "
-                              "L = %lu must divide p + 1 - t = %lu",
-                              L, card);
-    pari_err_BUG(err);
-  }
+  if (e * L != card) pari_err_BUG("compute_L_isogenous_curve");
 
-  return find_noniso_L_isogenous_curve(L, n, ne, e, val, a4, a6, pt);
+  return find_noniso_L_isogenous_curve(L, n, ne, e, val, a4, a6, pt, verify);
 }
 
 INLINE GEN
@@ -1133,63 +1548,79 @@ oneroot_of_classpoly(
   return j0;
 }
 
+/* TODO: Precompute the classgp_pcp_t structs and link them to dinfo */
+INLINE void
+make_pcp_surface(const modpoly_disc_info *dinfo, classgp_pcp_t G)
+{
+  long k = 1, datalen = 3 * k;
+
+  memset(G, 0, sizeof *G);
+
+  G->_data = cgetg(datalen + 1, t_VECSMALL);
+  G->L = G->_data + 1;
+  G->n = G->L + k;
+  G->o = G->L + k;
+
+  G->k = k;
+  G->h = G->enum_cnt = dinfo->n1;
+  G->L[0] = dinfo->L0;
+  G->n[0] = dinfo->n1;
+  G->o[0] = dinfo->n1;
+}
+
+INLINE void
+make_pcp_floor(const modpoly_disc_info *dinfo, classgp_pcp_t G)
+{
+  long k = dinfo->L1 ? 2 : 1, datalen = 3 * k;
+
+  memset(G, 0, sizeof *G);
+  G->_data = cgetg(datalen + 1, t_VECSMALL);
+  G->L = G->_data + 1;
+  G->n = G->L + k;
+  G->o = G->L + k;
+
+  G->k = k;
+  G->h = G->enum_cnt = dinfo->n2 * k;
+  G->L[0] = dinfo->L0;
+  G->n[0] = dinfo->n2;
+  G->o[0] = dinfo->n2;
+  if (dinfo->L1) {
+    G->L[1] = dinfo->L1;
+    G->n[1] = 2;
+    G->o[1] = 2;
+  }
+}
 
 INLINE GEN
 enum_volcano_surface(
   const modpoly_disc_info *dinfo, norm_eqn_t ne, ulong j0, GEN fdb)
 {
   pari_sp av = avma;
-  GEN pcp = mkvec2(mkvecsmall(dinfo->L0), mkvecsmall(dinfo->n1));
-  return gerepileupto(av, enum_j_with_endo_ring(j0, 1, ne, fdb, pcp, dinfo->n1));
+  classgp_pcp_t G;
+  make_pcp_surface(dinfo, G);
+  return gerepileupto(av, enum_roots(j0, ne, fdb, G));
 }
 
 
 INLINE GEN
-enum_floor_curves(
+enum_volcano_floor(
   long L, norm_eqn_t ne, ulong j0_pr, GEN fdb,
   const modpoly_disc_info *dinfo)
 {
+  pari_sp av = avma;
   /* L^2 D is the discriminant for the order R = Z + L OO. */
   long DR = L * L * ne->D;
   long R_cond = L * ne->u; /* conductor(DR); */
   long w = R_cond * ne->v;
-  if (dinfo->L0 == 2 && dinfo->L1 != 0) {
-    /* TODO: Calculate these once and for all in polmodular0_ZM(). */
-    long d2 = z_lval(w, 2);
-    long dL = z_lval(w, dinfo->L1);
-    return enum_j_fast(j0_pr, DR, dinfo->L1, d2, dL, dinfo->n2, fdb,
-        ne->p, ne->pi);
-  } else {
-    pari_sp av = avma;
-    /* TODO: Calculate these once and for all in polmodular0_ZM(). */
-    GEN pcp;
-    long max_elts;
-    norm_eqn_t eqn;
-    memcpy(eqn, ne, sizeof *ne);
-    eqn->D = DR;
-    eqn->u = R_cond;
-    eqn->v = w;
-    if (dinfo->L1) {
-      pcp = mkvec2(
-        mkvecsmall2(dinfo->L0, dinfo->L1),
-        mkvecsmall2(dinfo->n2, 2));
-      max_elts = 2 * dinfo->n2;
-    } else {
-      pcp = mkvec2(mkvecsmall(dinfo->L0), mkvecsmall(dinfo->n2));
-      max_elts = dinfo->n2;
-    }
-    return gerepileupto(av, enum_j_with_endo_ring(j0_pr, 1, eqn, fdb, pcp, max_elts));
-  }
-}
-
-
-INLINE long
-carray_isin(long *arr, long n, long el)
-{
-  long i = 0;
-  while (el != *arr++ && ++i < n)
-    ;
-  return i;
+  /* TODO: Calculate these once and for all in polmodular0_ZM(). */
+  classgp_pcp_t G;
+  norm_eqn_t eqn;
+  memcpy(eqn, ne, sizeof *ne);
+  eqn->D = DR;
+  eqn->u = R_cond;
+  eqn->v = w;
+  make_pcp_floor(dinfo, G);
+  return gerepileupto(av, enum_roots(j0_pr, eqn, fdb, G));
 }
 
 INLINE void
@@ -1243,31 +1674,52 @@ vecsmall_pick(GEN res, GEN v, GEN indices)
  * same direction as floor_js. */
 INLINE GEN
 root_matrix(
-  long L, ulong p, const modpoly_disc_info *dinfo,
-  long njinvs, GEN surface_js, GEN floor_js, ulong j1pr_rt)
+  long L, const modpoly_disc_info *dinfo,
+  long njinvs, GEN surface_js, GEN floor_js,
+  ulong n, ulong card, ulong val, norm_eqn_t ne)
 {
   pari_sp av;
-  long i, m = dinfo->dl1, njs = lg(surface_js) - 1;
+  long i, m = dinfo->dl1, njs = lg(surface_js) - 1, inv = dinfo->inv, rev;
   GEN rt_mat = zero_Flm_copy(L + 1, njinvs), rts, cyc;
   av = avma;
 
-  /* i = 1 */
+  i = 1;
   cyc = get_Lsqr_cycle(dinfo);
-  rts = gel(rt_mat, 1);
+  rts = gel(rt_mat, i);
   vecsmall_pick(rts, floor_js, cyc);
-  append_neighbours(rts, surface_js, njs, L, m, 1);
+  append_neighbours(rts, surface_js, njs, L, m, i);
 
-  /* i = 2 */
+  i = 2;
   update_Lsqr_cycle(cyc, dinfo);
-  rts = gel(rt_mat, 2);
+  rts = gel(rt_mat, i);
   vecsmall_pick(rts, floor_js, cyc);
+
   /* Fix orientation if necessary */
-  /* TODO: Check if the second condition predicts whether we get the
-   * correct coeff of X^L Y^L first time or not. */
-  if (carray_isin(rts + 1, L - 1, j1pr_rt) == L - 1
-      && (dinfo->inv != INV_F || carray_isin(rts + 1, L - 1, Fl_neg(j1pr_rt, p)) == L - 1))
-    carray_reverse_inplace(surface_js + 2, lg(surface_js) - 2);
-  append_neighbours(rts, surface_js, njs, L, m, 2);
+  if (inv_double_eta(inv)) {
+    /* TODO: There is potential for refactoring between this,
+     * double_eta_initial_js and modfn_preimage. */
+    pari_sp av = avma;
+    ulong p = ne->p, pi = ne->pi, j;
+    ulong r1 = inv_power(inv, uel(rts, 1), p, pi);
+    GEN r, f = Flx_double_eta_jpoly(inv, r1, p, pi);
+    if ((j = Flx_oneroot(f, p)) == p) pari_err_BUG("root_matrix");
+    j = compute_L_isogenous_curve(L, n, ne, j, card, val, 0);
+    avma = av;
+    r1 = inv_power(inv, uel(surface_js, i), p, pi);
+    f = Flx_double_eta_jpoly(inv, r1, p, pi);
+    r = Flx_roots(f, p);
+    if (glength(r) != 2) pari_err_BUG("root_matrix");
+    rev = (j != uel(r, 1)) && (j != uel(r, 2));
+    avma = av;
+  } else {
+    ulong j1pr, j1;
+    j1pr = modfn_preimage(uel(rts, 1), ne, dinfo->inv);
+    j1 = compute_L_isogenous_curve(L, n, ne, j1pr, card, val, 0);
+    rev = j1 != modfn_preimage(uel(surface_js, i), ne, dinfo->inv);
+  }
+  if (rev)
+    carray_reverse_inplace(surface_js + 2, njs - 1);
+  append_neighbours(rts, surface_js, njs, L, m, i);
 
   for (i = 3; i <= njinvs; ++i) {
     update_Lsqr_cycle(cyc, dinfo);
@@ -1340,86 +1792,6 @@ inflate_polys(GEN phi, long L, long s)
   }
 }
 
-INLINE int
-safe_abs_sqrt(ulong *r, ulong x, ulong p, ulong pi)
-{
-  if (krouu(x, p) == -1) {
-    if (p%4 == 1) return 0;
-    x = Fl_neg(x, p);
-  }
-  *r = Fl_sqrt_pre(x, p, pi);
-  return 1;
-}
-
-INLINE int
-eighth_root(ulong *r, ulong x, ulong p, ulong pi)
-{
-  ulong s;
-  if (krouu(x, p) == -1)
-    return 0;
-  s = Fl_sqrt_pre(x, p, pi);
-  if ( ! safe_abs_sqrt(&s, s, p, pi))
-    return 0;
-  return safe_abs_sqrt(r, s, p, pi);
-}
-
-
-ulong
-modfn_root(ulong j, norm_eqn_t ne, long inv)
-{
-  pari_sp av;
-  GEN pol, rts;
-  long i;
-  ulong g2, f = 0, p = ne->p, pi = ne->pi;
-  switch (inv) {
-  case INV_J:
-    return j;
-  case INV_G2:
-    return Fl_sqrtl_pre(j, 3, p, pi);
-  case INV_F:
-    av = avma;
-    /* f^8 must be a root of X^3 - \gamma_2 X - 16 */
-    g2 = Fl_sqrtl_pre(j, 3, p, pi);
-
-    pol = mkvecsmall5(0UL, Fl_neg(16 % p, p), Fl_neg(g2, p), 0UL, 1UL);
-    rts = Flx_roots(pol, p);
-    for (i = 1; i < lg(rts); ++i) {
-      if (eighth_root(&f, rts[i], p, pi))
-        break;
-    }
-    if (i == lg(rts))
-      pari_err_BUG("modfn_root");
-    avma = av;
-    return f;
-  default:
-    pari_err_BUG("modfn_root");
-  }
-  return ULONG_MAX;
-}
-
-INLINE ulong
-modfn_preimage(ulong x, norm_eqn_t ne, long inv)
-{
-  ulong x24, p, pi;
-  switch (inv) {
-  case INV_J:
-    return x;
-  case INV_G2:
-    return Fl_powu_pre(x, 3, ne->p, ne->pi);
-  case INV_F:
-    /* If x satisfies (X^24 - 16)^3 - X^24 * j = 0
-     * then j = (x^24 - 16)^3 / x^24 */
-    p = ne->p;
-    pi = ne->pi;
-    x24 = Fl_powu_pre(x, 24, p, pi);
-    return Fl_div(Fl_powu_pre(Fl_sub(x24, 16 % p, p), 3, p, pi), x24, p);
-  default:
-    pari_err_BUG("modfn_preimage");
-  }
-  return ULONG_MAX;
-}
-
-
 INLINE void
 Flv_powu_inplace_pre(GEN v, ulong n, ulong p, ulong pi)
 {
@@ -1434,8 +1806,11 @@ normalise_coeffs(GEN coeffs, GEN js, long L, long s, ulong p, ulong pi)
   pari_sp av = avma;
   long k;
   GEN pows, inv_js;
-  if (s == 1)
-    return;
+
+  /* NB: In fact it would be correct to return the coefficients "as
+   * is" when s = 1, but we make that an error anyway since this
+   * function should never be called with s = 1. */
+  if (s <= 1) pari_err_BUG("normalise_coeffs");
 
   /* pows[i + 1] contains 1 / js[i + 1]^i for i = 0, ..., s - 1. */
   pows = cgetg(s + 1, t_VEC);
@@ -1460,6 +1835,34 @@ normalise_coeffs(GEN coeffs, GEN js, long L, long s, ulong p, ulong pi)
   avma = av;
 }
 
+INLINE void
+double_eta_initial_js(
+  ulong *x0, ulong *x0pr, ulong j0, ulong j0pr, norm_eqn_t ne,
+  long inv, ulong L, ulong n, ulong card, ulong val)
+{
+  pari_sp av = avma;
+  ulong p = ne->p, pi = ne->pi;
+  ulong j1pr, j1, r, t;
+  GEN f, g;
+
+  *x0pr = inv_double_eta_from_j(inv, j0pr, p, pi);
+  t = inv_power(inv, *x0pr, p, pi);
+  f = Flx_div_by_X_x(Flx_double_eta_jpoly(inv, t, p, pi), j0pr, p, &r);
+  if (r) pari_err_BUG("double_eta_initial_js");
+  j1pr = Flx_deg1_root(f, p);
+  avma = av;
+
+  j1 = compute_L_isogenous_curve(L, n, ne, j1pr, card, val, 0);
+  f = Flx_double_eta_xpoly(inv, j0, p, pi);
+  g = Flx_double_eta_xpoly(inv, j1, p, pi);
+  /* x0 is the unique common root of f and g */
+  *x0 = Flx_deg1_root(Flx_gcd(f, g, p), p);
+  avma = av;
+
+  if ( ! inv_root(inv, x0, *x0, p, pi))
+    pari_err_BUG("double_eta_initial_js");
+}
+
 /*
  * This is Sutherland 2012, Algorithm 2.1, p16.
  */
@@ -1469,7 +1872,7 @@ polmodular_split_p_Flm(
   const modpoly_disc_info *dinfo)
 {
   pari_sp ltop = avma;
-  ulong j0, j0_rt, j0pr, j0pr_rt, j1, j1pr, j1pr_rt;
+  ulong j0, j0_rt, j0pr, j0pr_rt;
   ulong n, card, val, p = ne->p, pi = ne->pi;
   long s = inv_sparse_factor(dinfo->inv);
   long nj_selected = ceil((L + 1)/(double)s) + 1;
@@ -1486,19 +1889,18 @@ polmodular_split_p_Flm(
   val = u_lvalrem(card, L, &n); /* n = card / L^{v_L(card)} */
 
   j0 = oneroot_of_classpoly(hilb, factu, ne, jdb);
-  j0_rt = modfn_root(j0, ne, dinfo->inv);
+  j0pr = compute_L_isogenous_curve(L, n, ne, j0, card, val, 1);
+  if (inv_double_eta(dinfo->inv)) {
+    double_eta_initial_js(&j0_rt, &j0pr_rt, j0, j0pr, ne, dinfo->inv,
+        L, n, card, val);
+  } else {
+    j0_rt = modfn_root(j0, ne, dinfo->inv);
+    j0pr_rt = modfn_root(j0pr, ne, dinfo->inv);
+  }
   surface_js = enum_volcano_surface(dinfo, ne, j0_rt, fdb);
-  j0pr = compute_L_isogenous_curve(L, n, ne, j0, card, val);
-  j0pr_rt = modfn_root(j0pr, ne, dinfo->inv);
-  floor_js = enum_floor_curves(L, ne, j0pr_rt, fdb, dinfo);
-
-  /* NB: Not sure this is the correct way to orient the surface and
-   * floor but it seems to work. */
-  j1 = modfn_preimage(surface_js[2], ne, dinfo->inv);
-  j1pr = compute_L_isogenous_curve(L, n, ne, j1, card, val);
-  j1pr_rt = modfn_root(j1pr, ne, dinfo->inv);
-  rts = root_matrix(L, p, dinfo, nj_selected, surface_js, floor_js, j1pr_rt);
-
+  floor_js = enum_volcano_floor(L, ne, j0pr_rt, fdb, dinfo);
+  rts = root_matrix(L, dinfo, nj_selected, surface_js, floor_js,
+                    n, card, val, ne);
   do {
     pari_sp btop = avma;
     long i;
@@ -1515,11 +1917,14 @@ polmodular_split_p_Flm(
     if (s > 1)
       inflate_polys(phi_modp, L, s);
 
+    /* TODO: Calculate just this coefficient of X^L Y^L, so we can do
+     * this test, then calculate the other coefficients; at the moment
+     * we are sometimes doing all the roots-to-coeffs, normalisation
+     * and interpolation work twice. */
     if (ucoeff(phi_modp, L + 1, L + 1) == p - 1)
       break;
 
-    if (switched_signs)
-      pari_err_BUG("polmodular_split_p_Flm");
+    if (switched_signs) pari_err_BUG("polmodular_split_p_Flm");
 
     avma = btop;
     for (i = 1; i < lg(rts); ++i) {
@@ -1556,14 +1961,11 @@ norm_eqn_update(norm_eqn_t ne, ulong t, ulong p, long L)
 
   vL_sqr = (4 * p - t * t) / -ne->D;
   res = uissquareall(vL_sqr, &vL);
-  if ( ! res || vL % L)
-    pari_err_BUG("norm_eqn_update");
-
+  if ( ! res || vL % L) pari_err_BUG("norm_eqn_update");
   ne->v = vL;
 
   /* Select twisting parameter. */
-  do
-    ne->T = random_Fl(p);
+  do ne->T = random_Fl(p);
   while (krouu(ne->T, p) != -1);
 }
 
@@ -1659,14 +2061,10 @@ polmodular_worker(ulong p, ulong t,
   return modpoly_modp;
 }
 
-/* The largest level of the "hand written" modular polynomials */
-#define MAX_INTERNAL_MODPOLY_LEVEL 5
-
-/* NB: Result not suitable for gerepileupto(). */
-
 static GEN
 sympol_to_ZM(GEN phi, long L)
 {
+  pari_sp av = avma;
   GEN res = zeromatcopy(L + 2, L + 2);
   long i, j, c = 1;
   for (i = 1; i <= L + 1; ++i) {
@@ -1674,161 +2072,48 @@ sympol_to_ZM(GEN phi, long L)
       gcoeff(res, i, j) = gcoeff(res, j, i) = gel(phi, c);
   }
   gcoeff(res, L + 2, 1) = gcoeff(res, 1, L + 2) = gen_1;
-  return res;
-}
-
-
-static long
-simple_find_disc(long L, long inv, long L0)
-{
-  pari_sp av = avma;
-  long d;
-
-  /* Need inv_N coprime to D. */
-  for (d = 39; ; d += 4) { /* d = unextprime(d + 1)) { */
-    long h;
-    GEN D, H;
-    if (kross(-d, L0) == 1 && kross(-d, L) == 1
-        && unegisfundamental(d)
-        && inv_good_discriminant(-d, inv)) {
-      D = stoi(-d);
-      H = classno(D);
-      h = itos(H);
-      /* Usually we'd want to limit how big h is, but this function is
-       * only called for a few small L and it turns out that picking
-       * the first h that's big enough works satisfactorily. */
-      if (h >= L + 1) {
-        long n = itos(qfi_order(redimag(primeform_u(D, L0)), H));
-        if (n == h)
-          break;
-      }
-    }
-    avma = av;
-  }
-  avma = av;
-  return -d;
-}
-
-
-static long select_L0(long, long, long);
-static double modpoly_height_bound(long, long);
-static long modpoly_pickD_primes(
-  ulong *primes, ulong *traces, long max, ulong *xprimes, long xcnt, long *totbits, long minbits,
-  modpoly_disc_info *Dinfo);
-
-static GEN
-pick_primes_no_pcp(long D, double ht, long L, long inv)
-{
-  pari_sp av = avma;
-  double prime_bits = 0.0;
-  ulong v;
-  GEN res = vecsmalltrunc_init(ceil(ht / log2(-D)) + 1);
-  for (v = 1; v < 100 && prime_bits < ht; ++v) {
-    ulong t, m_vLsqr_D = v * v * L * L * (ulong)(-D);
-    if ((v & 1) && (D & 7) == 1)
-      continue;
-    for (t = 2; prime_bits < ht; ++t) {
-      ulong possible_4p = t * t + m_vLsqr_D;
-      if (possible_4p % 4 == 0) {
-        ulong p = possible_4p / 4;
-        if (p > (1UL << (BITS_IN_LONG - 2)))
-          break;
-        if (inv_good_prime(p, inv) && uisprime(p)) {
-          vecsmalltrunc_append(res, p);
-          prime_bits += log2(p);
-        }
-      }
-    }
-  }
-  if (prime_bits < ht)
-    pari_err_BUG("pick_primes_level2: insufficient primes");
-
-  return gerepileupto(av, res);
-}
-
-INLINE void
-Flv_modfn_roots(GEN v, norm_eqn_t ne, long inv)
-{
-  long i, n = lg(v);
-  for (i = 1; i < n; ++i)
-    v[i] = modfn_root(v[i], ne, inv);
-}
-
-static GEN
-polmodular0_generic_ZM(long L, long inv, GEN *db)
-{
-  pari_sp ltop = avma, av;
-  long s, D, L0, nprimes, N;
-  double ht;
-  GEN mp, pol, P, H;
-
-  GEN primes;
-  L0 = select_L0(L, inv, 0);
-  D = simple_find_disc(L, inv, L0);
-  ht = modpoly_height_bound(L, inv);
-  H = polclass0(D, INV_J, 0, db);
-  mp = polmodular0_ZM(L, INV_J, NULL, NULL, 0, db);
-
-  /* TODO: Use sparsity factor N = ceil((L + 1)/s) + 1 ?  Probably not
-   * worth the increase in complexity. */
-  N = L + 2;
-
-  primes = pick_primes_no_pcp(D, ht, L, inv);
-  nprimes = lg(primes);
-
-  av = avma;
-  pol = ZM_init_CRT(zero_Flm_copy(N, L + 2), 1);
-  P = gen_1;
-  for (s = 1; s < nprimes; ++s) {
-    pari_sp av1, av2;
-    ulong p = primes[s], pi = get_Fl_red(p);
-    long i;
-    GEN Hrts, Hp, Phip, coeff_mat, phi_modp;
-    norm_eqn_t ne;
-    ne->p = p;
-    ne->pi = pi;
-
-    phi_modp = zero_Flm_copy(N, L + 2);
-    av1 = avma;
-    Hp = ZX_to_Flx(H, p);
-    Hrts = Flx_roots(Hp, p);
-    Phip = ZM_to_Flm(mp, p);
-    coeff_mat = zero_Flm_copy(N, L + 2);
-    av2 = avma;
-    for (i = 1; i <= N; ++i) {
-      long k;
-      GEN jpows, modpoly_at_ji, mprts;
-
-      jpows = Fl_powers_pre(Hrts[i], L + 1, p, pi);
-      modpoly_at_ji = Flm_Flc_mul_pre(Phip, jpows, p, pi);
-      mprts = Flx_roots(Flv_to_Flx(modpoly_at_ji, 0), p);
-      if (lg(mprts) != L + 2)
-        pari_err_BUG("polmodular0_generic_ZM");
-
-      Flv_modfn_roots(mprts, ne, inv);
-      modpoly_at_ji = Flv_roots_to_pol(mprts, p, 0);
-
-      for (k = 1; k <= L + 2; ++k)
-        coeff(coeff_mat, i, k) = modpoly_at_ji[k + 1];
-      avma = av2;
-    }
-
-    setlg(Hrts, N + 1);
-    Flv_modfn_roots(Hrts, ne, inv);
-
-    interpolate_coeffs(phi_modp, p, Hrts, coeff_mat);
-    avma = av1;
-
-    (void) ZM_incremental_CRT(&pol, phi_modp, &P, p);
-    if (gc_needed(av, 2))
-      gerepileall(av, 2, &pol, &P);
-  }
-
-  return gerepilecopy(ltop, pol);
+  return gerepilecopy(av, res);
 }
 
 static GEN
 polmodular_small_ZM(long L, long inv, GEN *db);
+
+INLINE long
+inv_max_internal_level(long inv)
+{
+  switch (inv) {
+  case INV_J:
+    return 5;
+  case INV_G2:
+    return 2;
+  case INV_F:
+  case INV_F2:
+  case INV_F4:
+  case INV_F8:
+    return 5;
+  case INV_W2W5:
+  case INV_W2W5E2:
+    return 7;
+  case INV_W2W3:
+  case INV_W2W3E2:
+  case INV_W3W3:
+  case INV_W3W7:
+    return 5;
+  case INV_W3W3E2:
+    return 2;
+  case INV_F3:
+  case INV_W2W7:
+  case INV_W2W7E2:
+  case INV_W2W13:
+    return 3;
+  case INV_W3W5:
+  case INV_W5W7:
+  case INV_W3W13:
+    return 2;
+  }
+  pari_err_BUG("inv_max_internal_level");
+  return LONG_MAX;
+}
 
 GEN
 polmodular0_ZM(
@@ -1845,10 +2130,11 @@ polmodular0_ZM(
                     "incompatible with", stoi(L), stoi(lvl));
   }
 
-  if (L <= MAX_INTERNAL_MODPOLY_LEVEL)
+  dbg_printf(1)("Calculating modular polynomial of level %lu for invariant %d\n", L, inv);
+  if (L <= inv_max_internal_level(inv))
     return polmodular_small_ZM(L, inv, db);
 
-  Dcnt = discriminant_with_classno_at_least(Ds, L, inv);
+  Dcnt = discriminant_with_classno_at_least(Ds, L, inv, USE_SPARSE_FACTOR);
   for (d = 0; d < Dcnt; ++d) nprimes += Ds[d].nprimes;
   modpoly = cgetg(nprimes+1, t_VEC);
   plist = cgetg(nprimes+1, t_VECSMALL);
@@ -1879,7 +2165,7 @@ polmodular0_ZM(
     norm_eqn_init(ne, D, cond);
 
     if (cond > 1)
-      polmodular_db_add_levels(db, gel(factu, 1), INV_J);
+      polmodular_db_add_levels(db, zv_to_longptr(gel(factu, 1)), glength(gel(factu, 1)), INV_J);
 
     dbg_printf(1)("D = %ld, L0 = %lu, L1 = %lu, ", dinfo->D1, dinfo->L0, dinfo->L1);
     dbg_printf(1)("n1 = %lu, n2 = %lu, dl1 = %lu, dl2_0 = %lu, dl2_1 = %lu\n",
@@ -1976,7 +2262,7 @@ Fp_polmodular_evalx(
   pari_sp av = avma;
   GEN db, phi;
 
-  if (L <= MAX_INTERNAL_MODPOLY_LEVEL) {
+  if (L <= inv_max_internal_level(inv)) {
     GEN tmp;
     GEN phi = RgM_to_FpM(polmodular_ZM(L, inv), P);
     GEN j_powers = Fp_powers(J, L + 1, P);
@@ -2008,6 +2294,8 @@ polmodular(long L, long inv, GEN x, long v, long compute_derivs)
   long tx;
   GEN J = NULL, P = NULL, res = NULL, one = NULL;
 
+  if ( ! inv_is_valid(inv))
+    pari_err_DOMAIN("polmodular", "inv", "invalid invariant", stoi(inv), gen_0);
   if ( ! x || gequalX(x)) {
     long xv = 0;
     if (x)
@@ -2163,58 +2451,1086 @@ phi5_ZV(void)
 static GEN
 phi5_f_ZV(void)
 {
-  GEN phi5_f = const_vec(22, gen_0);
-  gel(phi5_f, 3) = stoi(4);
-  gel(phi5_f, 21) = gen_m1;
-  return phi5_f;
+  GEN phi = zerovec(21);
+  gel(phi, 3) = stoi(4);
+  gel(phi, 21) = gen_m1;
+  return phi;
 }
-
-typedef GEN (*phi_fn)(void);
 
 static GEN
-bad_level(void)
+phi3_f3_ZV(void)
 {
-  return (GEN)NULL;
+  GEN phi = zerovec(10);
+  gel(phi, 3) = stoi(8);
+  gel(phi, 10) = gen_m1;
+  return phi;
 }
 
-static const phi_fn INTERNAL_MODPOLY_DB[6][3] = {
-  {   phi2_ZV,   phi3_ZV,   phi5_ZV }, /* INV_J */
-  { bad_level, bad_level, phi5_f_ZV }, /* INV_F */
-  { bad_level, bad_level,      NULL }, /* INV_F2 */
-  { bad_level, bad_level,      NULL }, /* INV_F3 */
-  { bad_level, bad_level,      NULL }, /* INV_F4 */
-  {      NULL, bad_level,      NULL }  /* INV_G2 */
-};
+static GEN
+phi2_g2_ZV(void)
+{
+  GEN phi = zerovec(6);
+  gel(phi, 1) = stoi(-54000);
+  gel(phi, 3) = stoi(495);
+  gel(phi, 6) = gen_m1;
+  return phi;
+}
 
+static GEN
+phi5_w2w3_ZV(void)
+{
+  GEN phi = zerovec(21);
+  gel(phi, 3) = gen_m1;
+  gel(phi, 10) = stoi(5);
+  gel(phi, 21) = gen_m1;
+  return phi;
+}
+
+static GEN
+phi7_w2w5_ZV(void)
+{
+  GEN phi = zerovec(36);
+  gel(phi, 3) = gen_m1;
+  gel(phi, 15) = stoi(56);
+  gel(phi, 19) = stoi(42);
+  gel(phi, 24) = stoi(21);
+  gel(phi, 30) = stoi(7);
+  gel(phi, 36) = gen_m1;
+  return phi;
+}
+
+static GEN
+phi5_w3w3_ZV(void)
+{
+  GEN phi = zerovec(21);
+  gel(phi, 3) = stoi(9);
+  gel(phi, 6) = stoi(-15);
+  gel(phi, 15) = stoi(5);
+  gel(phi, 21) = gen_m1;
+  return phi;
+}
+
+static GEN
+phi3_w2w7_ZV(void)
+{
+  GEN phi = zerovec(10);
+  gel(phi, 3) = gen_m1;
+  gel(phi, 6) = stoi(3);
+  gel(phi, 10) = gen_m1;
+  return phi;
+}
+
+static GEN
+phi2_w3w5_ZV(void)
+{
+  GEN phi = zerovec(6);
+  gel(phi, 3) = gen_1;
+  gel(phi, 6) = gen_m1;
+  return phi;
+}
+
+static GEN
+phi5_w3w7_ZV(void)
+{
+  GEN phi = zerovec(21);
+  gel(phi, 3) = gen_m1;
+  gel(phi, 6) = stoi(10);
+  gel(phi, 8) = stoi(5);
+  gel(phi, 10) = stoi(35);
+  gel(phi, 13) = stoi(20);
+  gel(phi, 15) = stoi(10);
+  gel(phi, 17) = stoi(5);
+  gel(phi, 19) = stoi(5);
+  gel(phi, 21) = gen_m1;
+  return phi;
+}
+
+static GEN
+phi3_w2w13_ZV(void)
+{
+  GEN phi = zerovec(10);
+  gel(phi, 3) = gen_m1;
+  gel(phi, 6) = stoi(3);
+  gel(phi, 8) = stoi(3);
+  gel(phi, 10) = gen_m1;
+  return phi;
+}
+
+static GEN
+phi2_w3w3e2_ZV(void)
+{
+  GEN phi = zerovec(6);
+  gel(phi, 3) = stoi(3);
+  gel(phi, 6) = gen_m1;
+  return phi;
+}
+
+static GEN
+phi2_w5w7_ZV(void)
+{
+  GEN phi = zerovec(6);
+  gel(phi, 3) = gen_1;
+  gel(phi, 5) = gen_2;
+  gel(phi, 6) = gen_m1;
+  return phi;
+}
+
+static GEN
+phi2_w3w13_ZV(void)
+{
+  GEN phi = zerovec(6);
+  gel(phi, 3) = gen_m1;
+  gel(phi, 5) = gen_2;
+  gel(phi, 6) = gen_m1;
+  return phi;
+}
+
+INLINE long
+inv_parent(long inv)
+{
+  switch (inv) {
+  case INV_F2:
+  case INV_F4:
+  case INV_F8:
+    return INV_F;
+  case INV_W2W3E2:
+    return INV_W2W3;
+  case INV_W2W5E2:
+    return INV_W2W5;
+  case INV_W2W7E2:
+    return INV_W2W7;
+  case INV_W3W3E2:
+    return INV_W3W3;
+  default:
+    pari_err_BUG("inv_parent");
+  }
+  return -1;
+}
+
+/* TODO: Think of a better name than "parent power"; sheesh. */
+INLINE long
+inv_parent_power(long inv)
+{
+  switch (inv) {
+  case INV_F4:
+    return 4;
+  case INV_F8:
+    return 8;
+  case INV_F2:
+  case INV_W2W3E2:
+  case INV_W2W5E2:
+  case INV_W2W7E2:
+  case INV_W3W3E2:
+    return 2;
+  default:
+    pari_err_BUG("inv_parent_power");
+  }
+  return -1;
+}
+
+static GEN
+polmodular0_powerup_ZM(long L, long inv, GEN *db)
+{
+  pari_sp ltop = avma, av;
+  long s, D, nprimes, N;
+  GEN mp, pol, P, H;
+  GEN primes;
+
+  long parent = inv_parent(inv);
+  long e = inv_parent_power(inv);
+
+  modpoly_disc_info Ds[MODPOLY_MAX_DCNT];
+  /* FIXME: We throw away the table of fundamental discriminants here. */
+  long nDs = discriminant_with_classno_at_least(Ds, L, inv, IGNORE_SPARSE_FACTOR);
+  if (nDs != 1) pari_err_BUG("polmodular0_powerup_ZM");
+  D = Ds[0].D1;
+  /* FIXME: Stupid copying */
+  nprimes = Ds[0].nprimes + 1;
+  primes = cgetg(nprimes, t_VECSMALL);
+  for (s = 1; s < nprimes; ++s)
+    uel(primes, s) = Ds[0].primes[s - 1];
+  mp = polmodular0_ZM(L, parent, NULL, NULL, 0, db);
+  H = polclass0(D, parent, 0, db);
+
+  N = L + 2;
+  if (degpol(H) < N) pari_err_BUG("polmodular0_powerup_ZM");
+
+  av = avma;
+  pol = ZM_init_CRT(zero_Flm_copy(N, L + 2), 1);
+  P = gen_1;
+  for (s = 1; s < nprimes; ++s) {
+    pari_sp av1, av2;
+    ulong p = primes[s], pi = get_Fl_red(p);
+    long i;
+    GEN Hrts, js, Hp, Phip, coeff_mat, phi_modp;
+
+    phi_modp = zero_Flm_copy(N, L + 2);
+    av1 = avma;
+    Hp = ZX_to_Flx(H, p);
+    Hrts = Flx_roots(Hp, p);
+    if (glength(Hrts) < N) pari_err_BUG("polmodular0_powerup_ZM");
+    js = cgetg(N + 1, t_VECSMALL);
+    for (i = 1; i <= N; ++i)
+      uel(js, i) = Fl_powu_pre(uel(Hrts, i), e, p, pi);
+
+    Phip = ZM_to_Flm(mp, p);
+    coeff_mat = zero_Flm_copy(N, L + 2);
+    av2 = avma;
+    for (i = 1; i <= N; ++i) {
+      long k;
+      GEN phi_at_ji, mprts;
+
+      phi_at_ji = Flm_Fl_polmodular_evalx(Phip, L, uel(Hrts, i), p, pi);
+      mprts = Flx_roots(phi_at_ji, p);
+      if (lg(mprts) != L + 2) pari_err_BUG("polmodular0_powerup_ZM");
+
+      Flv_powu_inplace_pre(mprts, e, p, pi);
+      phi_at_ji = Flv_roots_to_pol(mprts, p, 0);
+
+      for (k = 1; k <= L + 2; ++k)
+        ucoeff(coeff_mat, i, k) = uel(phi_at_ji, k + 1);
+      avma = av2;
+    }
+
+    interpolate_coeffs(phi_modp, p, js, coeff_mat);
+    avma = av1;
+
+    (void) ZM_incremental_CRT(&pol, phi_modp, &P, p);
+    if (gc_needed(av, 2))
+      gerepileall(av, 2, &pol, &P);
+  }
+
+  return gerepileupto(ltop, pol);
+}
+
+/* Returns the modular polynomial with the smallest level for the
+ * given invariant, except if inv is INV_J, in which case return the
+ * modular polynomial of level L in {2,3,5}.  NULL is returned if the
+ * modular polynomial can be calculated using polmodular0_powerup_ZM. */
+INLINE GEN
+internal_db(long L, long inv)
+{
+  switch (inv) {
+  case INV_J: {
+    switch (L) {
+    case 2: return phi2_ZV();
+    case 3: return phi3_ZV();
+    case 5: return phi5_ZV();
+    default: break;
+    }
+  }
+  case INV_F: return phi5_f_ZV();
+  case INV_F2: return NULL;
+  case INV_F3: return phi3_f3_ZV();
+  case INV_F4: return NULL;
+  case INV_G2: return phi2_g2_ZV();
+  case INV_W2W3: return phi5_w2w3_ZV();
+  case INV_F8: return NULL;
+  case INV_W3W3: return phi5_w3w3_ZV();
+  case INV_W2W5: return phi7_w2w5_ZV();
+  case INV_W2W7: return phi3_w2w7_ZV();
+  case INV_W3W5: return phi2_w3w5_ZV();
+  case INV_W3W7: return phi5_w3w7_ZV();
+  case INV_W2W3E2: return NULL;
+  case INV_W2W5E2: return NULL;
+  case INV_W2W13: return phi3_w2w13_ZV();
+  case INV_W2W7E2: return NULL;
+  case INV_W3W3E2: return phi2_w3w3e2_ZV();
+  case INV_W5W7: return phi2_w5w7_ZV();
+  case INV_W3W13: return phi2_w3w13_ZV();
+  }
+  pari_err_BUG("internal_db");
+  return NULL;
+}
+
+/* NB: Should only be called if L <= inv_max_internal_level(inv) */
 static GEN
 polmodular_small_ZM(long L, long inv, GEN *db)
 {
-  pari_sp av = avma;
-  phi_fn f = NULL;
-  GEN mp = NULL;
-
-  switch (L) {
-  case 2:
-    f = INTERNAL_MODPOLY_DB[inv][0]; break;
-  case 3:
-    f = INTERNAL_MODPOLY_DB[inv][1]; break;
-  case 5:
-    f = INTERNAL_MODPOLY_DB[inv][2]; break;
-  default:
-    pari_err_BUG("polmodular_small_ZM");
-  }
-
-  if (f == bad_level) {
-    pari_err_BUG("polmodular_small_ZM");
-  } else if (f == NULL) {
-    mp = polmodular0_generic_ZM(L, inv, db);
-  } else {
-    mp = sympol_to_ZM(f(), L);
-  }
-
-  return gerepilecopy(av, mp);
+  GEN f = internal_db(L, inv);
+  if ( ! f)
+    return polmodular0_powerup_ZM(L, inv, db);
+  return sympol_to_ZM(f, L);
 }
 
+
+/* Each function phi_w?w?_j() returns a vector V containing two
+ * vectors u and v, and a scalar k, which together represent the
+ * bivariate polnomial
+ *
+ *   phi(X, Y) = \sum_i u[i] X^i + Y \sum_i v[i] X^i + Y^2 X^k
+ */
+static GEN
+phi_w2w3_j(void)
+{
+  GEN phi, phi0, phi1;
+  phi = cgetg(4, t_VEC);
+
+  phi0 = cgetg(14, t_VEC);
+  gel(phi0, 1) = gen_1;
+  gel(phi0, 2) = utoi(0x3cUL); setsigne(gel(phi0, 2), -1);
+  gel(phi0, 3) = utoi(0x702UL);
+  gel(phi0, 4) = utoi(0x797cUL); setsigne(gel(phi0, 4), -1);
+  gel(phi0, 5) = utoi(0x5046fUL);
+  gel(phi0, 6) = utoi(0x1be0b8UL); setsigne(gel(phi0, 6), -1);
+  gel(phi0, 7) = utoi(0x28ef9cUL);
+  gel(phi0, 8) = utoi(0x15e2968UL);
+  gel(phi0, 9) = utoi(0x1b8136fUL);
+  gel(phi0, 10) = utoi(0xa67674UL);
+  gel(phi0, 11) = utoi(0x23982UL);
+  gel(phi0, 12) = utoi(0x294UL);
+  gel(phi0, 13) = gen_1;
+
+  phi1 = cgetg(13, t_VEC);
+  gel(phi1, 1) = gen_0;
+  gel(phi1, 2) = gen_0;
+  gel(phi1, 3) = gen_m1;
+  gel(phi1, 4) = utoi(0x23UL);
+  gel(phi1, 5) = utoi(0xaeUL); setsigne(gel(phi1, 5), -1);
+  gel(phi1, 6) = utoi(0x5b8UL); setsigne(gel(phi1, 6), -1);
+  gel(phi1, 7) = utoi(0x12d7UL);
+  gel(phi1, 8) = utoi(0x7c86UL); setsigne(gel(phi1, 8), -1);
+  gel(phi1, 9) = utoi(0x37c8UL);
+  gel(phi1, 10) = utoi(0x69cUL); setsigne(gel(phi1, 10), -1);
+  gel(phi1, 11) = utoi(0x48UL);
+  gel(phi1, 12) = gen_m1;
+
+  gel(phi, 1) = phi0;
+  gel(phi, 2) = phi1;
+  gel(phi, 3) = stoi(5);
+
+  return phi;
+}
+
+static GEN
+phi_w3w3_j(void)
+{
+  GEN phi, phi0, phi1;
+  phi = cgetg(4, t_VEC);
+
+  phi0 = cgetg(14, t_VEC);
+  gel(phi0, 1) = utoi(0x2d9UL);
+  gel(phi0, 2) = utoi(0x4fbcUL);
+  gel(phi0, 3) = utoi(0x5828aUL);
+  gel(phi0, 4) = utoi(0x3a7a3cUL);
+  gel(phi0, 5) = utoi(0x1bd8edfUL);
+  gel(phi0, 6) = utoi(0x8348838UL);
+  gel(phi0, 7) = utoi(0x1983f8acUL);
+  gel(phi0, 8) = utoi(0x14e4e098UL);
+  gel(phi0, 9) = utoi(0x69ed1a7UL);
+  gel(phi0, 10) = utoi(0xc3828cUL);
+  gel(phi0, 11) = utoi(0x2696aUL);
+  gel(phi0, 12) = utoi(0x2acUL);
+  gel(phi0, 13) = gen_1;
+
+  phi1 = cgetg(13, t_VEC);
+  gel(phi1, 1) = gen_0;
+  gel(phi1, 2) = utoi(0x1bUL); setsigne(gel(phi1, 2), -1);
+  gel(phi1, 3) = utoi(0x5d6UL); setsigne(gel(phi1, 3), -1);
+  gel(phi1, 4) = utoi(0x1c7bUL); setsigne(gel(phi1, 4), -1);
+  gel(phi1, 5) = utoi(0x7980UL);
+  gel(phi1, 6) = utoi(0x12168UL);
+  gel(phi1, 7) = utoi(0x3528UL); setsigne(gel(phi1, 7), -1);
+  gel(phi1, 8) = utoi(0x6174UL); setsigne(gel(phi1, 8), -1);
+  gel(phi1, 9) = utoi(0x2208UL);
+  gel(phi1, 10) = utoi(0x41dUL); setsigne(gel(phi1, 10), -1);
+  gel(phi1, 11) = utoi(0x36UL);
+  gel(phi1, 12) = gen_m1;
+
+  gel(phi, 1) = phi0;
+  gel(phi, 2) = phi1;
+  gel(phi, 3) = utoi(2);
+
+  return phi;
+}
+
+static GEN
+phi_w2w5_j(void)
+{
+  GEN phi, phi0, phi1;
+  phi = cgetg(4, t_VEC);
+
+  phi0 = cgetg(20, t_VEC);
+  gel(phi0, 1) = gen_1;
+  gel(phi0, 2) = utoi(0x2aUL); setsigne(gel(phi0, 2), -1);
+  gel(phi0, 3) = utoi(0x549UL);
+  gel(phi0, 4) = utoi(0x6530UL); setsigne(gel(phi0, 4), -1);
+  gel(phi0, 5) = utoi(0x60504UL);
+  gel(phi0, 6) = utoi(0x3cbbc8UL); setsigne(gel(phi0, 6), -1);
+  gel(phi0, 7) = utoi(0x1d1ee74UL);
+  gel(phi0, 8) = utoi(0x7ef9ab0UL); setsigne(gel(phi0, 8), -1);
+  gel(phi0, 9) = utoi(0x12b888beUL);
+  gel(phi0, 10) = utoi(0x15fa174cUL); setsigne(gel(phi0, 10), -1);
+  gel(phi0, 11) = utoi(0x615d9feUL);
+  gel(phi0, 12) = utoi(0xbeca070UL);
+  gel(phi0, 13) = utoi(0x88de74cUL); setsigne(gel(phi0, 13), -1);
+  gel(phi0, 14) = utoi(0x2b3a268UL); setsigne(gel(phi0, 14), -1);
+  gel(phi0, 15) = utoi(0x24b3244UL);
+  gel(phi0, 16) = utoi(0xb56270UL);
+  gel(phi0, 17) = utoi(0x25989UL);
+  gel(phi0, 18) = utoi(0x2a6UL);
+  gel(phi0, 19) = gen_1;
+
+  phi1 = cgetg(19, t_VEC);
+  gel(phi1, 1) = gen_0;
+  gel(phi1, 2) = gen_0;
+  gel(phi1, 3) = gen_m1;
+  gel(phi1, 4) = utoi(0x1eUL);
+  gel(phi1, 5) = utoi(0xffUL); setsigne(gel(phi1, 5), -1);
+  gel(phi1, 6) = utoi(0x243UL);
+  gel(phi1, 7) = utoi(0xf3UL); setsigne(gel(phi1, 7), -1);
+  gel(phi1, 8) = utoi(0x5c4UL); setsigne(gel(phi1, 8), -1);
+  gel(phi1, 9) = utoi(0x107bUL);
+  gel(phi1, 10) = utoi(0x11b2fUL); setsigne(gel(phi1, 10), -1);
+  gel(phi1, 11) = utoi(0x48fa8UL);
+  gel(phi1, 12) = utoi(0x6ff7cUL); setsigne(gel(phi1, 12), -1);
+  gel(phi1, 13) = utoi(0x4bf48UL);
+  gel(phi1, 14) = utoi(0x187efUL); setsigne(gel(phi1, 14), -1);
+  gel(phi1, 15) = utoi(0x404cUL);
+  gel(phi1, 16) = utoi(0x582UL); setsigne(gel(phi1, 16), -1);
+  gel(phi1, 17) = utoi(0x3cUL);
+  gel(phi1, 18) = gen_m1;
+
+  gel(phi, 1) = phi0;
+  gel(phi, 2) = phi1;
+  gel(phi, 3) = utoi(7);
+
+  return phi;
+}
+
+static GEN
+phi_w2w7_j(void)
+{
+  GEN phi, phi0, phi1;
+  phi = cgetg(4, t_VEC);
+
+  phi0 = cgetg(26, t_VEC);
+  gel(phi0, 1) = gen_1;
+  gel(phi0, 2) = utoi(0x24UL); setsigne(gel(phi0, 2), -1);
+  gel(phi0, 3) = utoi(0x4ceUL);
+  gel(phi0, 4) = utoi(0x5d60UL); setsigne(gel(phi0, 4), -1);
+  gel(phi0, 5) = utoi(0x62b05UL);
+  gel(phi0, 6) = utoi(0x47be78UL); setsigne(gel(phi0, 6), -1);
+  gel(phi0, 7) = utoi(0x2a3880aUL);
+  gel(phi0, 8) = utoi(0x114bccf4UL); setsigne(gel(phi0, 8), -1);
+  gel(phi0, 9) = utoi(0x4b95e79aUL);
+  gel(phi0, 10) = utoi(0xe2cfee1cUL); setsigne(gel(phi0, 10), -1);
+  gel(phi0, 11) = uu32toi(0x1UL, 0xe43d1126UL);
+  gel(phi0, 12) = uu32toi(0x2UL, 0xf04dc6f8UL); setsigne(gel(phi0, 12), -1);
+  gel(phi0, 13) = uu32toi(0x3UL, 0x5384987dUL);
+  gel(phi0, 14) = uu32toi(0x2UL, 0xa5ccbe18UL); setsigne(gel(phi0, 14), -1);
+  gel(phi0, 15) = uu32toi(0x1UL, 0x4c52c8a6UL);
+  gel(phi0, 16) = utoi(0x2643fdecUL); setsigne(gel(phi0, 16), -1);
+  gel(phi0, 17) = utoi(0x49f5ab66UL); setsigne(gel(phi0, 17), -1);
+  gel(phi0, 18) = utoi(0x33074d3cUL);
+  gel(phi0, 19) = utoi(0x6a3e376UL); setsigne(gel(phi0, 19), -1);
+  gel(phi0, 20) = utoi(0x675aa58UL); setsigne(gel(phi0, 20), -1);
+  gel(phi0, 21) = utoi(0x2674005UL);
+  gel(phi0, 22) = utoi(0xba5be0UL);
+  gel(phi0, 23) = utoi(0x2644eUL);
+  gel(phi0, 24) = utoi(0x2acUL);
+  gel(phi0, 25) = gen_1;
+
+  phi1 = cgetg(25, t_VEC);
+  gel(phi1, 1) = gen_0;
+  gel(phi1, 2) = gen_0;
+  gel(phi1, 3) = gen_m1;
+  gel(phi1, 4) = utoi(0x1cUL);
+  gel(phi1, 5) = utoi(0x10aUL); setsigne(gel(phi1, 5), -1);
+  gel(phi1, 6) = utoi(0x3f0UL);
+  gel(phi1, 7) = utoi(0x5d3UL); setsigne(gel(phi1, 7), -1);
+  gel(phi1, 8) = utoi(0x3efUL);
+  gel(phi1, 9) = utoi(0x102UL); setsigne(gel(phi1, 9), -1);
+  gel(phi1, 10) = utoi(0x5c8UL); setsigne(gel(phi1, 10), -1);
+  gel(phi1, 11) = utoi(0x102fUL);
+  gel(phi1, 12) = utoi(0x13f8aUL); setsigne(gel(phi1, 12), -1);
+  gel(phi1, 13) = utoi(0x86538UL);
+  gel(phi1, 14) = utoi(0x1bbd10UL); setsigne(gel(phi1, 14), -1);
+  gel(phi1, 15) = utoi(0x3614e8UL);
+  gel(phi1, 16) = utoi(0x42f793UL); setsigne(gel(phi1, 16), -1);
+  gel(phi1, 17) = utoi(0x364698UL);
+  gel(phi1, 18) = utoi(0x1c7a10UL); setsigne(gel(phi1, 18), -1);
+  gel(phi1, 19) = utoi(0x97cc8UL);
+  gel(phi1, 20) = utoi(0x1fc8aUL); setsigne(gel(phi1, 20), -1);
+  gel(phi1, 21) = utoi(0x4210UL);
+  gel(phi1, 22) = utoi(0x524UL); setsigne(gel(phi1, 22), -1);
+  gel(phi1, 23) = utoi(0x38UL);
+  gel(phi1, 24) = gen_m1;
+
+  gel(phi, 1) = phi0;
+  gel(phi, 2) = phi1;
+  gel(phi, 3) = utoi(9);
+
+  return phi;
+}
+
+static GEN
+phi_w2w13_j(void)
+{
+  GEN phi, phi0, phi1;
+  phi = cgetg(4, t_VEC);
+
+  phi0 = cgetg(44, t_VEC);
+  gel(phi0, 1) = gen_1;
+  gel(phi0, 2) = utoi(0x1eUL); setsigne(gel(phi0, 2), -1);
+  gel(phi0, 3) = utoi(0x45fUL);
+  gel(phi0, 4) = utoi(0x5590UL); setsigne(gel(phi0, 4), -1);
+  gel(phi0, 5) = utoi(0x64407UL);
+  gel(phi0, 6) = utoi(0x53a792UL); setsigne(gel(phi0, 6), -1);
+  gel(phi0, 7) = utoi(0x3b21af3UL);
+  gel(phi0, 8) = utoi(0x20d056d0UL); setsigne(gel(phi0, 8), -1);
+  gel(phi0, 9) = utoi(0xe02db4a6UL);
+  gel(phi0, 10) = uu32toi(0x4UL, 0xb23400b0UL); setsigne(gel(phi0, 10), -1);
+  gel(phi0, 11) = uu32toi(0x14UL, 0x57fbb906UL);
+  gel(phi0, 12) = uu32toi(0x49UL, 0xcf80c00UL); setsigne(gel(phi0, 12), -1);
+  gel(phi0, 13) = uu32toi(0xdeUL, 0x84ff421UL);
+  gel(phi0, 14) = uu32toi(0x244UL, 0xc500c156UL); setsigne(gel(phi0, 14), -1);
+  gel(phi0, 15) = uu32toi(0x52cUL, 0x79162979UL);
+  gel(phi0, 16) = uu32toi(0xa64UL, 0x8edc5650UL); setsigne(gel(phi0, 16), -1);
+  gel(phi0, 17) = uu32toi(0x1289UL, 0x4225bb41UL);
+  gel(phi0, 18) = uu32toi(0x1d89UL, 0x2a15229aUL); setsigne(gel(phi0, 18), -1);
+  gel(phi0, 19) = uu32toi(0x2a3eUL, 0x4539f1ebUL);
+  gel(phi0, 20) = uu32toi(0x366aUL, 0xa5ea1130UL); setsigne(gel(phi0, 20), -1);
+  gel(phi0, 21) = uu32toi(0x3f47UL, 0xa19fecb4UL);
+  gel(phi0, 22) = uu32toi(0x4282UL, 0x91a3c4a0UL); setsigne(gel(phi0, 22), -1);
+  gel(phi0, 23) = uu32toi(0x3f30UL, 0xbaa305b4UL);
+  gel(phi0, 24) = uu32toi(0x3635UL, 0xd11c2530UL); setsigne(gel(phi0, 24), -1);
+  gel(phi0, 25) = uu32toi(0x29e2UL, 0x89df27ebUL);
+  gel(phi0, 26) = uu32toi(0x1d03UL, 0x6509d48aUL); setsigne(gel(phi0, 26), -1);
+  gel(phi0, 27) = uu32toi(0x11e2UL, 0x272cc601UL);
+  gel(phi0, 28) = uu32toi(0x9b0UL, 0xacd58ff0UL); setsigne(gel(phi0, 28), -1);
+  gel(phi0, 29) = uu32toi(0x485UL, 0x608d7db9UL);
+  gel(phi0, 30) = uu32toi(0x1bfUL, 0xa941546UL); setsigne(gel(phi0, 30), -1);
+  gel(phi0, 31) = uu32toi(0x82UL, 0x56e48b21UL);
+  gel(phi0, 32) = uu32toi(0x13UL, 0xc36b2340UL); setsigne(gel(phi0, 32), -1);
+  gel(phi0, 33) = uu32toi(0x5UL, 0x6637257aUL); setsigne(gel(phi0, 33), -1);
+  gel(phi0, 34) = uu32toi(0x5UL, 0x40f70bd0UL);
+  gel(phi0, 35) = uu32toi(0x1UL, 0xf70842daUL); setsigne(gel(phi0, 35), -1);
+  gel(phi0, 36) = utoi(0x53eea5f0UL);
+  gel(phi0, 37) = utoi(0xda17bf3UL);
+  gel(phi0, 38) = utoi(0xaf246c2UL); setsigne(gel(phi0, 38), -1);
+  gel(phi0, 39) = utoi(0x278f847UL);
+  gel(phi0, 40) = utoi(0xbf5550UL);
+  gel(phi0, 41) = utoi(0x26f1fUL);
+  gel(phi0, 42) = utoi(0x2b2UL);
+  gel(phi0, 43) = gen_1;
+
+  phi1 = cgetg(43, t_VEC);
+  gel(phi1, 1) = gen_0;
+  gel(phi1, 2) = gen_0;
+  gel(phi1, 3) = gen_m1;
+  gel(phi1, 4) = utoi(0x1aUL);
+  gel(phi1, 5) = utoi(0x111UL); setsigne(gel(phi1, 5), -1);
+  gel(phi1, 6) = utoi(0x5e4UL);
+  gel(phi1, 7) = utoi(0x1318UL); setsigne(gel(phi1, 7), -1);
+  gel(phi1, 8) = utoi(0x2804UL);
+  gel(phi1, 9) = utoi(0x3cd6UL); setsigne(gel(phi1, 9), -1);
+  gel(phi1, 10) = utoi(0x467cUL);
+  gel(phi1, 11) = utoi(0x3cd6UL); setsigne(gel(phi1, 11), -1);
+  gel(phi1, 12) = utoi(0x2804UL);
+  gel(phi1, 13) = utoi(0x1318UL); setsigne(gel(phi1, 13), -1);
+  gel(phi1, 14) = utoi(0x5e3UL);
+  gel(phi1, 15) = utoi(0x10dUL); setsigne(gel(phi1, 15), -1);
+  gel(phi1, 16) = utoi(0x5ccUL); setsigne(gel(phi1, 16), -1);
+  gel(phi1, 17) = utoi(0x100bUL);
+  gel(phi1, 18) = utoi(0x160e1UL); setsigne(gel(phi1, 18), -1);
+  gel(phi1, 19) = utoi(0xd2cb0UL);
+  gel(phi1, 20) = utoi(0x4c85fcUL); setsigne(gel(phi1, 20), -1);
+  gel(phi1, 21) = utoi(0x137cb98UL);
+  gel(phi1, 22) = utoi(0x3c75568UL); setsigne(gel(phi1, 22), -1);
+  gel(phi1, 23) = utoi(0x95c69c8UL);
+  gel(phi1, 24) = utoi(0x131557bcUL); setsigne(gel(phi1, 24), -1);
+  gel(phi1, 25) = utoi(0x20aacfd0UL);
+  gel(phi1, 26) = utoi(0x2f9164e6UL); setsigne(gel(phi1, 26), -1);
+  gel(phi1, 27) = utoi(0x3b6a5e40UL);
+  gel(phi1, 28) = utoi(0x3ff54344UL); setsigne(gel(phi1, 28), -1);
+  gel(phi1, 29) = utoi(0x3b6a9140UL);
+  gel(phi1, 30) = utoi(0x2f927fa6UL); setsigne(gel(phi1, 30), -1);
+  gel(phi1, 31) = utoi(0x20ae6450UL);
+  gel(phi1, 32) = utoi(0x131cd87cUL); setsigne(gel(phi1, 32), -1);
+  gel(phi1, 33) = utoi(0x967d1e8UL);
+  gel(phi1, 34) = utoi(0x3d48ca8UL); setsigne(gel(phi1, 34), -1);
+  gel(phi1, 35) = utoi(0x14333b8UL);
+  gel(phi1, 36) = utoi(0x5406bcUL); setsigne(gel(phi1, 36), -1);
+  gel(phi1, 37) = utoi(0x10c130UL);
+  gel(phi1, 38) = utoi(0x27ba1UL); setsigne(gel(phi1, 38), -1);
+  gel(phi1, 39) = utoi(0x433cUL);
+  gel(phi1, 40) = utoi(0x4c6UL); setsigne(gel(phi1, 40), -1);
+  gel(phi1, 41) = utoi(0x34UL);
+  gel(phi1, 42) = gen_m1;
+
+  gel(phi, 1) = phi0;
+  gel(phi, 2) = phi1;
+  gel(phi, 3) = utoi(15);
+
+  return phi;
+}
+
+static GEN
+phi_w3w5_j(void)
+{
+  GEN phi, phi0, phi1;
+  phi = cgetg(4, t_VEC);
+
+  phi0 = cgetg(26, t_VEC);
+  gel(phi0, 1) = gen_1;
+  gel(phi0, 2) = utoi(0x18UL);
+  gel(phi0, 3) = utoi(0xb4UL);
+  gel(phi0, 4) = utoi(0x178UL); setsigne(gel(phi0, 4), -1);
+  gel(phi0, 5) = utoi(0x2d7eUL); setsigne(gel(phi0, 5), -1);
+  gel(phi0, 6) = utoi(0x89b8UL); setsigne(gel(phi0, 6), -1);
+  gel(phi0, 7) = utoi(0x35c24UL);
+  gel(phi0, 8) = utoi(0x128a18UL);
+  gel(phi0, 9) = utoi(0x12a911UL); setsigne(gel(phi0, 9), -1);
+  gel(phi0, 10) = utoi(0xcc0190UL); setsigne(gel(phi0, 10), -1);
+  gel(phi0, 11) = utoi(0x94368UL);
+  gel(phi0, 12) = utoi(0x1439d0UL);
+  gel(phi0, 13) = utoi(0x96f931cUL);
+  gel(phi0, 14) = utoi(0x1f59ff0UL); setsigne(gel(phi0, 14), -1);
+  gel(phi0, 15) = utoi(0x20e7e8UL);
+  gel(phi0, 16) = utoi(0x25fdf150UL); setsigne(gel(phi0, 16), -1);
+  gel(phi0, 17) = utoi(0x7091511UL); setsigne(gel(phi0, 17), -1);
+  gel(phi0, 18) = utoi(0x1ef52f8UL);
+  gel(phi0, 19) = utoi(0x341f2de4UL);
+  gel(phi0, 20) = utoi(0x25d72c28UL);
+  gel(phi0, 21) = utoi(0x95d2082UL);
+  gel(phi0, 22) = utoi(0xd2d828UL);
+  gel(phi0, 23) = utoi(0x281f4UL);
+  gel(phi0, 24) = utoi(0x2b8UL);
+  gel(phi0, 25) = gen_1;
+
+  phi1 = cgetg(25, t_VEC);
+  gel(phi1, 1) = gen_0;
+  gel(phi1, 2) = gen_0;
+  gel(phi1, 3) = gen_0;
+  gel(phi1, 4) = gen_1;
+  gel(phi1, 5) = utoi(0xfUL);
+  gel(phi1, 6) = utoi(0x2eUL);
+  gel(phi1, 7) = utoi(0x1fUL); setsigne(gel(phi1, 7), -1);
+  gel(phi1, 8) = utoi(0x2dUL); setsigne(gel(phi1, 8), -1);
+  gel(phi1, 9) = utoi(0x5caUL); setsigne(gel(phi1, 9), -1);
+  gel(phi1, 10) = utoi(0x358UL); setsigne(gel(phi1, 10), -1);
+  gel(phi1, 11) = utoi(0x2f1cUL);
+  gel(phi1, 12) = utoi(0xd8eaUL);
+  gel(phi1, 13) = utoi(0x38c70UL); setsigne(gel(phi1, 13), -1);
+  gel(phi1, 14) = utoi(0x1a964UL); setsigne(gel(phi1, 14), -1);
+  gel(phi1, 15) = utoi(0x93512UL);
+  gel(phi1, 16) = utoi(0x58f2UL); setsigne(gel(phi1, 16), -1);
+  gel(phi1, 17) = utoi(0x5af1eUL); setsigne(gel(phi1, 17), -1);
+  gel(phi1, 18) = utoi(0x1afb8UL);
+  gel(phi1, 19) = utoi(0xc084UL);
+  gel(phi1, 20) = utoi(0x7fcbUL); setsigne(gel(phi1, 20), -1);
+  gel(phi1, 21) = utoi(0x1c89UL);
+  gel(phi1, 22) = utoi(0x32aUL); setsigne(gel(phi1, 22), -1);
+  gel(phi1, 23) = utoi(0x2dUL);
+  gel(phi1, 24) = gen_m1;
+
+  gel(phi, 1) = phi0;
+  gel(phi, 2) = phi1;
+  gel(phi, 3) = utoi(8);
+
+  return phi;
+}
+
+static GEN
+phi_w3w7_j(void)
+{
+  GEN phi, phi0, phi1;
+  phi = cgetg(4, t_VEC);
+
+  phi0 = cgetg(34, t_VEC);
+  gel(phi0, 1) = gen_1;
+  gel(phi0, 2) = utoi(0x14UL); setsigne(gel(phi0, 2), -1);
+  gel(phi0, 3) = utoi(0x82UL);
+  gel(phi0, 4) = utoi(0x1f8UL);
+  gel(phi0, 5) = utoi(0x2a45UL); setsigne(gel(phi0, 5), -1);
+  gel(phi0, 6) = utoi(0x9300UL);
+  gel(phi0, 7) = utoi(0x32abeUL);
+  gel(phi0, 8) = utoi(0x19c91cUL); setsigne(gel(phi0, 8), -1);
+  gel(phi0, 9) = utoi(0xc1ba9UL);
+  gel(phi0, 10) = utoi(0x1788f68UL);
+  gel(phi0, 11) = utoi(0x2b1989cUL); setsigne(gel(phi0, 11), -1);
+  gel(phi0, 12) = utoi(0x7a92408UL); setsigne(gel(phi0, 12), -1);
+  gel(phi0, 13) = utoi(0x1238d56eUL);
+  gel(phi0, 14) = utoi(0x13dd66a0UL);
+  gel(phi0, 15) = utoi(0x2dbedca8UL); setsigne(gel(phi0, 15), -1);
+  gel(phi0, 16) = utoi(0x34282eb8UL); setsigne(gel(phi0, 16), -1);
+  gel(phi0, 17) = utoi(0x2c2a54d2UL);
+  gel(phi0, 18) = utoi(0x98db81a8UL);
+  gel(phi0, 19) = utoi(0x4088be8UL); setsigne(gel(phi0, 19), -1);
+  gel(phi0, 20) = utoi(0xe424a220UL); setsigne(gel(phi0, 20), -1);
+  gel(phi0, 21) = utoi(0x67bbb232UL); setsigne(gel(phi0, 21), -1);
+  gel(phi0, 22) = utoi(0x7dd8bb98UL);
+  gel(phi0, 23) = uu32toi(0x1UL, 0xcaff744UL);
+  gel(phi0, 24) = utoi(0x1d46a378UL); setsigne(gel(phi0, 24), -1);
+  gel(phi0, 25) = utoi(0x82fa50f7UL); setsigne(gel(phi0, 25), -1);
+  gel(phi0, 26) = utoi(0x700ef38cUL); setsigne(gel(phi0, 26), -1);
+  gel(phi0, 27) = utoi(0x20aa202eUL);
+  gel(phi0, 28) = utoi(0x299b3440UL);
+  gel(phi0, 29) = utoi(0xa476c4bUL);
+  gel(phi0, 30) = utoi(0xd80558UL);
+  gel(phi0, 31) = utoi(0x28a32UL);
+  gel(phi0, 32) = utoi(0x2bcUL);
+  gel(phi0, 33) = gen_1;
+
+  phi1 = cgetg(33, t_VEC);
+  gel(phi1, 1) = gen_0;
+  gel(phi1, 2) = gen_0;
+  gel(phi1, 3) = gen_0;
+  gel(phi1, 4) = gen_m1;
+  gel(phi1, 5) = utoi(0xeUL);
+  gel(phi1, 6) = utoi(0x31UL); setsigne(gel(phi1, 6), -1);
+  gel(phi1, 7) = utoi(0xeUL); setsigne(gel(phi1, 7), -1);
+  gel(phi1, 8) = utoi(0x99UL);
+  gel(phi1, 9) = utoi(0x8UL); setsigne(gel(phi1, 9), -1);
+  gel(phi1, 10) = utoi(0x2eUL); setsigne(gel(phi1, 10), -1);
+  gel(phi1, 11) = utoi(0x5ccUL); setsigne(gel(phi1, 11), -1);
+  gel(phi1, 12) = utoi(0x308UL);
+  gel(phi1, 13) = utoi(0x2904UL);
+  gel(phi1, 14) = utoi(0x15700UL); setsigne(gel(phi1, 14), -1);
+  gel(phi1, 15) = utoi(0x2b9ecUL); setsigne(gel(phi1, 15), -1);
+  gel(phi1, 16) = utoi(0xf0966UL);
+  gel(phi1, 17) = utoi(0xb3cc8UL);
+  gel(phi1, 18) = utoi(0x38241cUL); setsigne(gel(phi1, 18), -1);
+  gel(phi1, 19) = utoi(0x8604cUL); setsigne(gel(phi1, 19), -1);
+  gel(phi1, 20) = utoi(0x578a64UL);
+  gel(phi1, 21) = utoi(0x11a798UL); setsigne(gel(phi1, 21), -1);
+  gel(phi1, 22) = utoi(0x39c85eUL); setsigne(gel(phi1, 22), -1);
+  gel(phi1, 23) = utoi(0x1a5084UL);
+  gel(phi1, 24) = utoi(0xcdeb4UL);
+  gel(phi1, 25) = utoi(0xb0364UL); setsigne(gel(phi1, 25), -1);
+  gel(phi1, 26) = utoi(0x129d4UL);
+  gel(phi1, 27) = utoi(0x126fcUL);
+  gel(phi1, 28) = utoi(0x8649UL); setsigne(gel(phi1, 28), -1);
+  gel(phi1, 29) = utoi(0x1aa2UL);
+  gel(phi1, 30) = utoi(0x2dfUL); setsigne(gel(phi1, 30), -1);
+  gel(phi1, 31) = utoi(0x2aUL);
+  gel(phi1, 32) = gen_m1;
+
+  gel(phi, 1) = phi0;
+  gel(phi, 2) = phi1;
+  gel(phi, 3) = utoi(10);
+
+  return phi;
+}
+
+static GEN
+phi_w3w13_j(void)
+{
+  GEN phi, phi0, phi1;
+  phi = cgetg(4, t_VEC);
+
+  phi0 = cgetg(58, t_VEC);
+  gel(phi0, 1) = gen_1;
+  gel(phi0, 2) = utoi(0x10UL); setsigne(gel(phi0, 2), -1);
+  gel(phi0, 3) = utoi(0x58UL);
+  gel(phi0, 4) = utoi(0x258UL);
+  gel(phi0, 5) = utoi(0x270cUL); setsigne(gel(phi0, 5), -1);
+  gel(phi0, 6) = utoi(0x9c00UL);
+  gel(phi0, 7) = utoi(0x2b40cUL);
+  gel(phi0, 8) = utoi(0x20e250UL); setsigne(gel(phi0, 8), -1);
+  gel(phi0, 9) = utoi(0x4f46baUL);
+  gel(phi0, 10) = utoi(0x1869448UL);
+  gel(phi0, 11) = utoi(0xa49ab68UL); setsigne(gel(phi0, 11), -1);
+  gel(phi0, 12) = utoi(0x96c7630UL);
+  gel(phi0, 13) = utoi(0x4f7e0af6UL);
+  gel(phi0, 14) = utoi(0xea093590UL); setsigne(gel(phi0, 14), -1);
+  gel(phi0, 15) = utoi(0x6735bc50UL); setsigne(gel(phi0, 15), -1);
+  gel(phi0, 16) = uu32toi(0x5UL, 0x971a2e08UL);
+  gel(phi0, 17) = uu32toi(0x6UL, 0x29c9d965UL); setsigne(gel(phi0, 17), -1);
+  gel(phi0, 18) = uu32toi(0xdUL, 0xeb9aa360UL); setsigne(gel(phi0, 18), -1);
+  gel(phi0, 19) = uu32toi(0x26UL, 0xe9c0584UL);
+  gel(phi0, 20) = uu32toi(0x1UL, 0xb0cadce8UL); setsigne(gel(phi0, 20), -1);
+  gel(phi0, 21) = uu32toi(0x62UL, 0x73586014UL); setsigne(gel(phi0, 21), -1);
+  gel(phi0, 22) = uu32toi(0x66UL, 0xaf672e38UL);
+  gel(phi0, 23) = uu32toi(0x6bUL, 0x93c28cdcUL);
+  gel(phi0, 24) = uu32toi(0x11eUL, 0x4f633080UL); setsigne(gel(phi0, 24), -1);
+  gel(phi0, 25) = uu32toi(0x3cUL, 0xcc42461bUL);
+  gel(phi0, 26) = uu32toi(0x17bUL, 0xdec0a78UL);
+  gel(phi0, 27) = uu32toi(0x166UL, 0x910d8bd0UL); setsigne(gel(phi0, 27), -1);
+  gel(phi0, 28) = uu32toi(0xd4UL, 0x47873030UL); setsigne(gel(phi0, 28), -1);
+  gel(phi0, 29) = uu32toi(0x204UL, 0x811828baUL);
+  gel(phi0, 30) = uu32toi(0x50UL, 0x5d713960UL); setsigne(gel(phi0, 30), -1);
+  gel(phi0, 31) = uu32toi(0x198UL, 0xa27e42b0UL); setsigne(gel(phi0, 31), -1);
+  gel(phi0, 32) = uu32toi(0xe1UL, 0x25685138UL);
+  gel(phi0, 33) = uu32toi(0xe3UL, 0xaa5774bbUL);
+  gel(phi0, 34) = uu32toi(0xcfUL, 0x392a9a00UL); setsigne(gel(phi0, 34), -1);
+  gel(phi0, 35) = uu32toi(0x81UL, 0xfb334d04UL); setsigne(gel(phi0, 35), -1);
+  gel(phi0, 36) = uu32toi(0xabUL, 0x59594a68UL);
+  gel(phi0, 37) = uu32toi(0x42UL, 0x356993acUL);
+  gel(phi0, 38) = uu32toi(0x86UL, 0x307ba678UL); setsigne(gel(phi0, 38), -1);
+  gel(phi0, 39) = uu32toi(0xbUL, 0x7a9e59dcUL); setsigne(gel(phi0, 39), -1);
+  gel(phi0, 40) = uu32toi(0x4cUL, 0x27935f20UL);
+  gel(phi0, 41) = uu32toi(0x2UL, 0xe0ac9045UL); setsigne(gel(phi0, 41), -1);
+  gel(phi0, 42) = uu32toi(0x24UL, 0x14495758UL); setsigne(gel(phi0, 42), -1);
+  gel(phi0, 43) = utoi(0x20973410UL);
+  gel(phi0, 44) = uu32toi(0x13UL, 0x99ff4e00UL);
+  gel(phi0, 45) = uu32toi(0x1UL, 0xa710d34aUL); setsigne(gel(phi0, 45), -1);
+  gel(phi0, 46) = uu32toi(0x7UL, 0xfe5405c0UL); setsigne(gel(phi0, 46), -1);
+  gel(phi0, 47) = uu32toi(0x1UL, 0xcdee0f8UL);
+  gel(phi0, 48) = uu32toi(0x2UL, 0x660c92a8UL);
+  gel(phi0, 49) = utoi(0x3f13a35aUL);
+  gel(phi0, 50) = utoi(0xe4eb4ba0UL); setsigne(gel(phi0, 50), -1);
+  gel(phi0, 51) = utoi(0x6420f4UL); setsigne(gel(phi0, 51), -1);
+  gel(phi0, 52) = utoi(0x2c624370UL);
+  gel(phi0, 53) = utoi(0xb31b814UL);
+  gel(phi0, 54) = utoi(0xdd3ad8UL);
+  gel(phi0, 55) = utoi(0x29278UL);
+  gel(phi0, 56) = utoi(0x2c0UL);
+  gel(phi0, 57) = gen_1;
+
+  phi1 = cgetg(57, t_VEC);
+  gel(phi1, 1) = gen_0;
+  gel(phi1, 2) = gen_0;
+  gel(phi1, 3) = gen_0;
+  gel(phi1, 4) = gen_m1;
+  gel(phi1, 5) = utoi(0xdUL);
+  gel(phi1, 6) = utoi(0x34UL); setsigne(gel(phi1, 6), -1);
+  gel(phi1, 7) = utoi(0x1aUL);
+  gel(phi1, 8) = utoi(0xf7UL);
+  gel(phi1, 9) = utoi(0x16cUL); setsigne(gel(phi1, 9), -1);
+  gel(phi1, 10) = utoi(0xddUL); setsigne(gel(phi1, 10), -1);
+  gel(phi1, 11) = utoi(0x28aUL);
+  gel(phi1, 12) = utoi(0xddUL); setsigne(gel(phi1, 12), -1);
+  gel(phi1, 13) = utoi(0x16cUL); setsigne(gel(phi1, 13), -1);
+  gel(phi1, 14) = utoi(0xf6UL);
+  gel(phi1, 15) = utoi(0x1dUL);
+  gel(phi1, 16) = utoi(0x31UL); setsigne(gel(phi1, 16), -1);
+  gel(phi1, 17) = utoi(0x5ceUL); setsigne(gel(phi1, 17), -1);
+  gel(phi1, 18) = utoi(0x2e4UL);
+  gel(phi1, 19) = utoi(0x252cUL);
+  gel(phi1, 20) = utoi(0x1b34cUL); setsigne(gel(phi1, 20), -1);
+  gel(phi1, 21) = utoi(0xaf80UL);
+  gel(phi1, 22) = utoi(0x1cc5f9UL);
+  gel(phi1, 23) = utoi(0x3e1aa5UL); setsigne(gel(phi1, 23), -1);
+  gel(phi1, 24) = utoi(0x86d17aUL); setsigne(gel(phi1, 24), -1);
+  gel(phi1, 25) = utoi(0x2427264UL);
+  gel(phi1, 26) = utoi(0x691c1fUL); setsigne(gel(phi1, 26), -1);
+  gel(phi1, 27) = utoi(0x862ad4eUL); setsigne(gel(phi1, 27), -1);
+  gel(phi1, 28) = utoi(0xab21e1fUL);
+  gel(phi1, 29) = utoi(0xbc19ddcUL);
+  gel(phi1, 30) = utoi(0x24331db8UL); setsigne(gel(phi1, 30), -1);
+  gel(phi1, 31) = utoi(0x972c105UL);
+  gel(phi1, 32) = utoi(0x363d7107UL);
+  gel(phi1, 33) = utoi(0x39696450UL); setsigne(gel(phi1, 33), -1);
+  gel(phi1, 34) = utoi(0x1bce7c48UL); setsigne(gel(phi1, 34), -1);
+  gel(phi1, 35) = utoi(0x552ecba0UL);
+  gel(phi1, 36) = utoi(0x1c7771b8UL); setsigne(gel(phi1, 36), -1);
+  gel(phi1, 37) = utoi(0x393029b8UL); setsigne(gel(phi1, 37), -1);
+  gel(phi1, 38) = utoi(0x3755be97UL);
+  gel(phi1, 39) = utoi(0x83402a9UL);
+  gel(phi1, 40) = utoi(0x24d5be62UL); setsigne(gel(phi1, 40), -1);
+  gel(phi1, 41) = utoi(0xdb6d90aUL);
+  gel(phi1, 42) = utoi(0xa0ef177UL);
+  gel(phi1, 43) = utoi(0x99ff162UL); setsigne(gel(phi1, 43), -1);
+  gel(phi1, 44) = utoi(0xb09e27UL);
+  gel(phi1, 45) = utoi(0x26a7adcUL);
+  gel(phi1, 46) = utoi(0x116e2fcUL); setsigne(gel(phi1, 46), -1);
+  gel(phi1, 47) = utoi(0x1383b5UL); setsigne(gel(phi1, 47), -1);
+  gel(phi1, 48) = utoi(0x35a9e7UL);
+  gel(phi1, 49) = utoi(0x1082a0UL); setsigne(gel(phi1, 49), -1);
+  gel(phi1, 50) = utoi(0x4696UL); setsigne(gel(phi1, 50), -1);
+  gel(phi1, 51) = utoi(0x19f98UL);
+  gel(phi1, 52) = utoi(0x8bb3UL); setsigne(gel(phi1, 52), -1);
+  gel(phi1, 53) = utoi(0x18bbUL);
+  gel(phi1, 54) = utoi(0x297UL); setsigne(gel(phi1, 54), -1);
+  gel(phi1, 55) = utoi(0x27UL);
+  gel(phi1, 56) = gen_m1;
+
+  gel(phi, 1) = phi0;
+  gel(phi, 2) = phi1;
+  gel(phi, 3) = utoi(16);
+
+  return phi;
+}
+
+static GEN
+phi_w5w7_j(void)
+{
+  GEN phi, phi0, phi1;
+  phi = cgetg(4, t_VEC);
+
+  phi0 = cgetg(50, t_VEC);
+  gel(phi0, 1) = gen_1;
+  gel(phi0, 2) = utoi(0xcUL);
+  gel(phi0, 3) = utoi(0x2aUL);
+  gel(phi0, 4) = utoi(0x10UL);
+  gel(phi0, 5) = utoi(0x69UL); setsigne(gel(phi0, 5), -1);
+  gel(phi0, 6) = utoi(0x318UL); setsigne(gel(phi0, 6), -1);
+  gel(phi0, 7) = utoi(0x148aUL); setsigne(gel(phi0, 7), -1);
+  gel(phi0, 8) = utoi(0x17c4UL); setsigne(gel(phi0, 8), -1);
+  gel(phi0, 9) = utoi(0x1a73UL);
+  gel(phi0, 10) = gen_0;
+  gel(phi0, 11) = utoi(0x338a0UL);
+  gel(phi0, 12) = utoi(0x61698UL);
+  gel(phi0, 13) = utoi(0x96e8UL); setsigne(gel(phi0, 13), -1);
+  gel(phi0, 14) = utoi(0x140910UL);
+  gel(phi0, 15) = utoi(0x45f6b4UL); setsigne(gel(phi0, 15), -1);
+  gel(phi0, 16) = utoi(0x309f50UL); setsigne(gel(phi0, 16), -1);
+  gel(phi0, 17) = utoi(0xef9f8bUL); setsigne(gel(phi0, 17), -1);
+  gel(phi0, 18) = utoi(0x283167cUL); setsigne(gel(phi0, 18), -1);
+  gel(phi0, 19) = utoi(0x625e20aUL);
+  gel(phi0, 20) = utoi(0x16186350UL); setsigne(gel(phi0, 20), -1);
+  gel(phi0, 21) = utoi(0x46861281UL);
+  gel(phi0, 22) = utoi(0x754b96a0UL); setsigne(gel(phi0, 22), -1);
+  gel(phi0, 23) = uu32toi(0x1UL, 0x421ca02aUL);
+  gel(phi0, 24) = uu32toi(0x2UL, 0xdb76a5cUL); setsigne(gel(phi0, 24), -1);
+  gel(phi0, 25) = uu32toi(0x4UL, 0xf6afd8eUL);
+  gel(phi0, 26) = uu32toi(0x6UL, 0xaafd3cb4UL); setsigne(gel(phi0, 26), -1);
+  gel(phi0, 27) = uu32toi(0x8UL, 0xda2539caUL);
+  gel(phi0, 28) = uu32toi(0xfUL, 0x84343790UL); setsigne(gel(phi0, 28), -1);
+  gel(phi0, 29) = uu32toi(0xfUL, 0x914ff421UL);
+  gel(phi0, 30) = uu32toi(0x19UL, 0x3c123950UL); setsigne(gel(phi0, 30), -1);
+  gel(phi0, 31) = uu32toi(0x15UL, 0x381f722aUL);
+  gel(phi0, 32) = uu32toi(0x15UL, 0xe01c0c24UL); setsigne(gel(phi0, 32), -1);
+  gel(phi0, 33) = uu32toi(0x19UL, 0x3360b375UL);
+  gel(phi0, 34) = utoi(0x59fda9c0UL); setsigne(gel(phi0, 34), -1);
+  gel(phi0, 35) = uu32toi(0x20UL, 0xff55024cUL);
+  gel(phi0, 36) = uu32toi(0x16UL, 0xcc600800UL);
+  gel(phi0, 37) = uu32toi(0x24UL, 0x1879c898UL);
+  gel(phi0, 38) = uu32toi(0x1cUL, 0x37f97498UL);
+  gel(phi0, 39) = uu32toi(0x19UL, 0x39ec4b60UL);
+  gel(phi0, 40) = uu32toi(0x10UL, 0x52c660d0UL);
+  gel(phi0, 41) = uu32toi(0x9UL, 0xcab00333UL);
+  gel(phi0, 42) = uu32toi(0x4UL, 0x7fe69be4UL);
+  gel(phi0, 43) = uu32toi(0x1UL, 0xa0c6f116UL);
+  gel(phi0, 44) = utoi(0x69244638UL);
+  gel(phi0, 45) = utoi(0xed560f7UL);
+  gel(phi0, 46) = utoi(0xe7b660UL);
+  gel(phi0, 47) = utoi(0x29d8aUL);
+  gel(phi0, 48) = utoi(0x2c4UL);
+  gel(phi0, 49) = gen_1;
+
+  phi1 = cgetg(49, t_VEC);
+  gel(phi1, 1) = gen_0;
+  gel(phi1, 2) = gen_0;
+  gel(phi1, 3) = gen_0;
+  gel(phi1, 4) = gen_0;
+  gel(phi1, 5) = gen_0;
+  gel(phi1, 6) = gen_1;
+  gel(phi1, 7) = utoi(0x7UL);
+  gel(phi1, 8) = utoi(0x8UL);
+  gel(phi1, 9) = utoi(0x9UL); setsigne(gel(phi1, 9), -1);
+  gel(phi1, 10) = gen_0;
+  gel(phi1, 11) = utoi(0x13UL); setsigne(gel(phi1, 11), -1);
+  gel(phi1, 12) = utoi(0x7UL); setsigne(gel(phi1, 12), -1);
+  gel(phi1, 13) = utoi(0x5ceUL); setsigne(gel(phi1, 13), -1);
+  gel(phi1, 14) = utoi(0xb0UL); setsigne(gel(phi1, 14), -1);
+  gel(phi1, 15) = utoi(0x460UL);
+  gel(phi1, 16) = utoi(0x194bUL); setsigne(gel(phi1, 16), -1);
+  gel(phi1, 17) = utoi(0x87c3UL);
+  gel(phi1, 18) = utoi(0x3cdeUL);
+  gel(phi1, 19) = utoi(0xd683UL); setsigne(gel(phi1, 19), -1);
+  gel(phi1, 20) = utoi(0x6099bUL);
+  gel(phi1, 21) = utoi(0x111ea8UL); setsigne(gel(phi1, 21), -1);
+  gel(phi1, 22) = utoi(0xfa113UL);
+  gel(phi1, 23) = utoi(0x1a6561UL); setsigne(gel(phi1, 23), -1);
+  gel(phi1, 24) = utoi(0x1e997UL); setsigne(gel(phi1, 24), -1);
+  gel(phi1, 25) = utoi(0x214e54UL);
+  gel(phi1, 26) = utoi(0x29c3f4UL); setsigne(gel(phi1, 26), -1);
+  gel(phi1, 27) = utoi(0x67e102UL);
+  gel(phi1, 28) = utoi(0x227eaaUL); setsigne(gel(phi1, 28), -1);
+  gel(phi1, 29) = utoi(0x191d10UL);
+  gel(phi1, 30) = utoi(0x1a9cd5UL);
+  gel(phi1, 31) = utoi(0x58386fUL); setsigne(gel(phi1, 31), -1);
+  gel(phi1, 32) = utoi(0x2e49f6UL);
+  gel(phi1, 33) = utoi(0x31194bUL); setsigne(gel(phi1, 33), -1);
+  gel(phi1, 34) = utoi(0x9e07aUL);
+  gel(phi1, 35) = utoi(0x260d59UL);
+  gel(phi1, 36) = utoi(0x189921UL); setsigne(gel(phi1, 36), -1);
+  gel(phi1, 37) = utoi(0xeca4aUL);
+  gel(phi1, 38) = utoi(0xa3d9cUL); setsigne(gel(phi1, 38), -1);
+  gel(phi1, 39) = utoi(0x426daUL); setsigne(gel(phi1, 39), -1);
+  gel(phi1, 40) = utoi(0x91875UL);
+  gel(phi1, 41) = utoi(0x3b55bUL); setsigne(gel(phi1, 41), -1);
+  gel(phi1, 42) = utoi(0x56f4UL); setsigne(gel(phi1, 42), -1);
+  gel(phi1, 43) = utoi(0xcd1bUL);
+  gel(phi1, 44) = utoi(0x5159UL); setsigne(gel(phi1, 44), -1);
+  gel(phi1, 45) = utoi(0x10f4UL);
+  gel(phi1, 46) = utoi(0x20dUL); setsigne(gel(phi1, 46), -1);
+  gel(phi1, 47) = utoi(0x23UL);
+  gel(phi1, 48) = gen_m1;
+
+  gel(phi, 1) = phi0;
+  gel(phi, 2) = phi1;
+  gel(phi, 3) = utoi(12);
+
+  return phi;
+}
+
+INLINE GEN
+double_eta_raw(long inv)
+{
+  switch (inv) {
+  case INV_W2W3:
+  case INV_W2W3E2:
+    return phi_w2w3_j();
+  case INV_W3W3:
+  case INV_W3W3E2:
+    return phi_w3w3_j();
+  case INV_W2W5:
+  case INV_W2W5E2:
+    return phi_w2w5_j();
+  case INV_W2W7:
+  case INV_W2W7E2:
+    return phi_w2w7_j();
+  case INV_W3W5:
+    return phi_w3w5_j();
+  case INV_W3W7:
+    return phi_w3w7_j();
+  case INV_W2W13:
+    return phi_w2w13_j();
+  case INV_W3W13:
+    return phi_w3w13_j();
+  case INV_W5W7:
+    return phi_w5w7_j();
+  default:
+    pari_err_BUG("double_eta_raw");
+  }
+  return NULL;
+}
+
+static GEN
+Flx_double_eta_xpoly(long inv, ulong j, ulong p, ulong pi)
+{
+  pari_sp av = avma;
+  GEN f, u, v;
+  long i, k;
+
+  f = double_eta_raw(inv);
+
+  /* u is always longest and the length is bigger than k */
+  u = ZV_to_Flv(gel(f, 1), p);
+  v = ZV_to_Flv(gel(f, 2), p);
+  for (i = 1; i < lg(v); ++i)
+    uel(u, i) = Fl_add(uel(u, i), Fl_mul_pre(j, uel(v, i), p, pi), p);
+
+  k = itos(gel(f, 3));
+  uel(u, k + 1) = Fl_add(uel(u, k + 1), Fl_sqr_pre(j, p, pi), p);
+  return gerepileupto(av, Flv_to_Flx(u, 0));
+}
+
+static GEN
+Flx_double_eta_jpoly(long inv, ulong x, ulong p, ulong pi)
+{
+  pari_sp av = avma;
+  GEN f, u, v, xs;
+  long k;
+  ulong a, b, c;
+
+  f = double_eta_raw(inv);
+
+  /* u is always longest and the length is bigger than k */
+  u = ZV_to_Flv(gel(f, 1), p);
+  v = ZV_to_Flv(gel(f, 2), p);
+  xs = Fl_powers_pre(x, lg(u) - 1, p, pi);
+  c = Flv_dotproduct_pre(u, xs, p, pi);
+  b = Flv_dotproduct_pre(v, xs, p, pi);
+  k = itos(gel(f, 3));
+  a = uel(xs, k + 1);
+  avma = av;
+  return mkvecsmall4(0, c, b, a);
+}
 
 /**
  * SECTION: Select discriminant for given modpoly level.
@@ -2228,6 +3544,7 @@ polmodular_small_ZM(long L, long inv, GEN *db)
 /* don't use any auxilliary primes - needed to handle small L for
  * certain invariants (but not for j) */
 #define MODPOLY_NO_AUX_L  4
+#define MODPOLY_IGNORE_SPARSE_FACTOR 8
 
 INLINE double
 modpoly_height_bound(long L, long inv)
@@ -2289,7 +3606,7 @@ static const long PRIMES[] = {
 
 #define MAX_L1      255
 
-typedef struct {
+typedef struct D_entry_struct {
   ulong m;
   long D, h;
 } D_entry;
@@ -2378,29 +3695,55 @@ static long
 select_L0(long L, long inv, long initial_L0)
 {
   long inv_N;
-  long L0 = unextprime(initial_L0 + 1);
+  long L0;
 
   inv_N = inv_level(inv);
   if (divides(L, inv_N))
     pari_err_BUG("select_L0");
 
-  /* inv_level(INV_F3) = 2, but L0=3 does not work properly for
-   * INV_F3, so pick L0 = 5. */
-  if (inv == INV_F3)
-    return 5;
+  /* TODO: Clean up these anomolous L0 choices */
 
-  /* I've no idea why 5 doesn't work for 19 and 29, nor why 7 and 11
-   * don't work for 19 either. */
-  if (inv == INV_F) {
+  /* I've no idea why the discriminant-finding code fails with L0=5
+   * when L=19 and L=29, nor why L0=7 and L0=11 don't work for L=19
+   * either, nor why this happens for the otherwise unrelated
+   * invariants Weber-f and (2,3) double-eta. */
+  if (inv == INV_W3W3E2 && L == 5)
+    return 2;
+
+  if (inv == INV_F || inv == INV_F2 || inv == INV_F4 || inv == INV_F8
+      || inv == INV_W2W3 || inv == INV_W2W3E2
+      || inv == INV_W3W3 /* || inv == INV_W3W3E2 */) {
     if (L == 19)
       return 13;
-    else if (L == 29)
+    else if (L == 29 || L == 5)
       return 7;
     return 5;
   }
+  if ((inv == INV_W2W5 || inv == INV_W2W5E2)
+      && (L == 7 || L == 19))
+    return 13;
+  if ((inv == INV_W2W7 || inv == INV_W2W7E2)
+      && L == 11)
+    return 13;
+  if (inv == INV_W3W5) {
+    if (L == 7)
+      return 13;
+    else if (L == 17)
+      return 7;
+  }
+  if (inv == INV_W3W7) {
+    if (L == 29 || L == 101)
+      return 11;
+    if (L == 11 || L == 19)
+      return 13;
+  }
+  if (inv == INV_W5W7 && L == 17)
+    return 3;
 
   /* L0 is the smallest small prime different from L that doesn't divide inv_N. */
-  for ( ; L0 == L || divides(L0, inv_N); L0 = unextprime(L0 + 1))
+  for (L0 = unextprime(initial_L0 + 1);
+       L0 == L || divides(L0, inv_N);
+       L0 = unextprime(L0 + 1))
     ;
   return L0;
 }
@@ -2507,6 +3850,173 @@ check_generators(
   return 1;
 }
 
+/*
+ * Calculate solutions (p, t) to the norm equation
+ *
+ *   4 p = t^2 - v^2 L^2 D   (*)
+ *
+ * corresponding to the descriminant described by Dinfo.
+ *
+ * INPUT:
+ * - max: length of primes and traces
+ * - xprimes: p to exclude from primes (if they arise)
+ * - xcnt: length of xprimes
+ * - minbits: sum of log2(p) must be larger than this
+ * - Dinfo: discriminant, invariant and L for which we seek solutions
+ *   to (*)
+ *
+ * OUTPUT:
+ * - primes: array of p in (*)
+ * - traces: array of t in (*)
+ * - totbits: sum of log2(p) for p in primes.
+ *
+ * RETURN:
+ * - the number of primes and traces found (these are always the same).
+ *
+ * NOTE: Any of primes, traces and totbits can be zero, in which case
+ * these values are discarded after calculation (however it is not
+ * permitted for traces to be zero if primes is non-zero).  xprimes
+ * can be zero, in which case it is treated as empty.
+ */
+static long
+modpoly_pickD_primes(
+  ulong *primes, ulong *traces, long max, ulong *xprimes, long xcnt,
+  long *totbits, long minbits, modpoly_disc_info *Dinfo)
+{
+  double bits;
+  long D, m, n, vcnt, pfilter, one_prime, inv;
+  ulong maxp;
+  register ulong a1, a2, v, t, p, a1_start, a1_delta, L0, L1, L, absD;
+  /* FF_BITS = BITS_IN_LONG - NAIL_BITS (latter is 2 or 7) */
+  ulong FF_BITS = BITS_IN_LONG - 2;
+
+  D = Dinfo->D1;
+  L0 = Dinfo->L0;
+  L1 = Dinfo->L1;
+  L = Dinfo->L;
+  inv = Dinfo->inv;
+
+  absD = -D;
+
+  /* make sure pfilter and D don't preclude the possibility of p=(t^2-v^2D)/4 being prime */
+  pfilter = inv_pfilter(inv);
+  if ((pfilter & IQ_FILTER_1MOD3) && ! (D % 3))
+    return 0;
+  if ((pfilter & IQ_FILTER_1MOD4) && ! (D & 0xF))
+    return 0;
+
+  /* Naively estimate the number of primes satisfying 4p=t^2-L^2D
+   * with t=2 mod L and pfilter using the PNT this is roughly #{t:
+   * t^2 < max p and t=2 mod L} / pi(max p) * filter_density, where
+   * filter_density is 1, 2, or 4 depending on pfilter.  If this
+   * quantity is already more than twice the number of bits we need,
+   * assume that, barring some obstruction, we should have no problem
+   * getting enough primes.  In this case we just verify we can get
+   * one prime (which should always be true, assuming we chose D
+   * properly). */
+  one_prime = 0;
+  if (totbits)
+    *totbits = 0;
+  if (max <= 1 && ! one_prime) {
+    p = ((pfilter & IQ_FILTER_1MOD3) ? 2 : 1) * ((pfilter & IQ_FILTER_1MOD4) ? 2 : 1);
+    one_prime = (1UL << ((FF_BITS+1)/2)) * (log2(L*L*(-D))-1)
+        > p*L*minbits*FF_BITS*LOG2;
+    if (one_prime && totbits)
+      *totbits = minbits+1;   /* lie */
+  }
+
+  m = n = 0;
+  bits = 0.0;
+  maxp = 0;
+  for (v = 1; v < 100 && bits < minbits; v++) {
+    /* Don't allow v dividing the conductor. */
+    if (ugcd(absD, v) != 1)
+      continue;
+    /* can't get odd p with D=1 mod 8 unless v is even */
+    if ((v & 1) && (D & 7) == 1)
+      continue;
+    /* don't use v divisible by 4 for L0=2 (we could remove this restriction, for a cost) */
+    if (L0 == 2 && !(v & 3))
+      continue;
+    /* can't get p=3mod4 if v^2D is 0 mod 16 */
+    if ((pfilter & IQ_FILTER_1MOD4) && !((v*v*D) & 0xF))
+      continue;
+    if ((pfilter & IQ_FILTER_1MOD3) && !(v%3) )
+      continue;
+    /* avoid L0-volcanos with non-zero height */
+    if (L0 != 2 && ! (v % L0))
+      continue;
+    /* ditto for L1 */
+    if (L1 && !(v % L1))
+      continue;
+    vcnt = 0;
+    if ((v*v*absD)/4 > (1L<<FF_BITS)/(L*L))
+      break;
+    if (((v*D) & 1)) {
+      a1_start = 1;
+      a1_delta = 2;
+    } else {
+      a1_start = (((v*v*D) & 7) ? 2 : 0 );
+      a1_delta = 4;
+    }
+    for (a1 = a1_start; bits < minbits; a1 += a1_delta) {
+      a2 = (a1*a1 + v*v*absD) >> 2;
+      if ( !(a2 % L))
+        continue;
+      t = a1*L + 2;
+      p = a2*L*L + t - 1;
+      if ( !(p & 1))
+        pari_err_BUG("modpoly_pickD_primes");
+      /* double check calculation just in case of overflow or other weirdness */
+      if (t*t + v*v*L*L*absD != 4*p)
+        pari_err_BUG("modpoly_pickD_primes");
+      if (p > (1UL<<FF_BITS))
+        break;
+      if (xprimes) {
+        while (m < xcnt && xprimes[m] < p)
+          m++;
+        if (m < xcnt && p == xprimes[m]) {
+          dbg_printf(1)("skipping duplicate prime %ld\n", p);
+          continue;
+        }
+      }
+      if ( ! uisprime(p))
+        continue;
+      if ( ! inv_good_prime(p, inv))
+        continue;
+      if (primes) {
+        /* ulong vLp, vLm; */
+        if (n >= max)
+          goto done;
+        /* TODO: Implement test to filter primes that lead to
+         * L-valuation != 2 */
+        primes[n] = p;
+        traces[n] = t;
+      }
+      n++;
+      vcnt++;
+      bits += log2(p);
+      if (p > maxp)
+        maxp = p;
+      if (one_prime)
+        goto done;
+    }
+    if (vcnt)
+      dbg_printf(3)("%ld primes with v=%ld, maxp=%ld (%.2f bits)\n",
+                 vcnt, v, maxp, log2(maxp));
+  }
+done:
+  if ( ! n) {
+    dbg_printf(3)("check_primes failed completely for D=%ld\n", D);
+    return 0;
+  }
+  dbg_printf(3)("D=%ld: Found %ld primes totalling %0.2f of %ld bits\n",
+             D, n, bits, minbits);
+  if (totbits && ! *totbits)
+    *totbits = (long)bits;
+  return n;
+}
+
 #define MAX_VOLCANO_FLOOR_SIZE 100000000
 
 static long
@@ -2588,6 +4098,8 @@ calc_primes_for_discriminants(modpoly_disc_info Ds[], long Dcnt, long L, long mi
  * following values:
  * - MODPOLY_USE_L1: force use of second class group generator
  * - MODPOLY_NO_AUX_L: don't use auxillary class group elements
+ * - MODPOLY_IGNORE_SPARSE_FACTOR: obtain D for which h(D) > L + 1
+ *   rather than h(D) > (L + 1)/s
  */
 static long
 modpoly_pickD(
@@ -2610,7 +4122,7 @@ modpoly_pickD(
     pari_err_BUG("modpoly_pickD");
 
   timer_start(&T);
-  d = inv_sparse_factor(inv);
+  d = (flags & MODPOLY_IGNORE_SPARSE_FACTOR) ? 1 : inv_sparse_factor(inv);
   /*d = ui_ceil_ratio(L + 1, d) + 1; */
   tmp = (L + 1) / d;
   d = ((tmp * d < (L + 1)) ? tmp + 1 : tmp);
@@ -2665,13 +4177,15 @@ modpoly_pickD(
 
     /* Look for L1: for each smooth prime p */
     for (i = 1 ; i <= SMOOTH_PRIMES; i++) {
+      if (PRIMES[i] <= L0)
+        continue;
       /* If 1 + (D0 | p) == 1, i.e. if (D0 | p) == 0, i.e. if p | D0. */
       if (((D0_entry.m >> (2*i)) & 3) == 1) {
         /* set L1 = p if it's not L0, it's less than the maximum,
          * it doesn't divide inv_N, and (L1 | L) == -1. */
         /* XXX: Why do we want (L1 | L) == -1?  Presumably so (L^2 v^2 D0 | L1) == -1? */
         L1 = PRIMES[i];
-        if (L1 != L0 && L1 <= max_L1 && (inv_N % L1) && kross(L1, L) < 0)
+        if (L1 <= max_L1 && (inv_N % L1) && kross(L1, L) < 0)
           break;
       }
     }
@@ -2927,173 +4441,6 @@ modpoly_pickD(
   return Dcnt;
 }
 
-/*
- * Calculate solutions (p, t) to the norm equation
- *
- *   4 p = t^2 - v^2 L^2 D   (*)
- *
- * corresponding to the descriminant described by Dinfo.
- *
- * INPUT:
- * - max: length of primes and traces
- * - xprimes: p to exclude from primes (if they arise)
- * - xcnt: length of xprimes
- * - minbits: sum of log2(p) must be larger than this
- * - Dinfo: discriminant, invariant and L for which we seek solutions
- *   to (*)
- *
- * OUTPUT:
- * - primes: array of p in (*)
- * - traces: array of t in (*)
- * - totbits: sum of log2(p) for p in primes.
- *
- * RETURN:
- * - the number of primes and traces found (these are always the same).
- *
- * NOTE: Any of primes, traces and totbits can be zero, in which case
- * these values are discarded after calculation (however it is not
- * permitted for traces to be zero if primes is non-zero).  xprimes
- * can be zero, in which case it is treated as empty.
- */
-static long
-modpoly_pickD_primes(
-  ulong *primes, ulong *traces, long max, ulong *xprimes, long xcnt,
-  long *totbits, long minbits, modpoly_disc_info *Dinfo)
-{
-  double bits;
-  long D, m, n, vcnt, pfilter, one_prime, inv;
-  ulong maxp;
-  register ulong a1, a2, v, t, p, a1_start, a1_delta, L0, L1, L, absD;
-  /* FF_BITS = BITS_IN_LONG - NAIL_BITS (latter is 2 or 7) */
-  ulong FF_BITS = BITS_IN_LONG - 2;
-
-  D = Dinfo->D1;
-  L0 = Dinfo->L0;
-  L1 = Dinfo->L1;
-  L = Dinfo->L;
-  inv = Dinfo->inv;
-
-  absD = -D;
-
-  /* make sure pfilter and D don't preclude the possibility of p=(t^2-v^2D)/4 being prime */
-  pfilter = inv_pfilter(inv);
-  if ((pfilter & IQ_FILTER_1MOD3) && ! (D % 3))
-    return 0;
-  if ((pfilter & IQ_FILTER_1MOD4) && ! (D & 0xF))
-    return 0;
-
-  /* Naively estimate the number of primes satisfying 4p=t^2-L^2D
-   * with t=2 mod L and pfilter using the PNT this is roughly #{t:
-   * t^2 < max p and t=2 mod L} / pi(max p) * filter_density, where
-   * filter_density is 1, 2, or 4 depending on pfilter.  If this
-   * quantity is already more than twice the number of bits we need,
-   * assume that, barring some obstruction, we should have no problem
-   * getting enough primes.  In this case we just verify we can get
-   * one prime (which should always be true, assumingly we chose D
-   * properly). */
-  one_prime = 0;
-  if (totbits)
-    *totbits = 0;
-  if (max <= 1 && ! one_prime) {
-    p = ((pfilter & IQ_FILTER_1MOD3) ? 2 : 1) * ((pfilter & IQ_FILTER_1MOD4) ? 2 : 1);
-    one_prime = (1UL << ((FF_BITS+1)/2)) * (log2(L*L*(-D))-1)
-        > p*L*minbits*FF_BITS*LOG2;
-    if (one_prime && totbits)
-      *totbits = minbits+1;   /* lie */
-  }
-
-  m = n = 0;
-  bits = 0.0;
-  maxp = 0;
-  for (v = 1; v < 100 && bits < minbits; v++) {
-    /* Don't allow v dividing the conductor. */
-    if (ugcd(absD, v) != 1)
-      continue;
-    /* can't get odd p with D=1 mod 8 unless v is even */
-    if ((v & 1) && (D & 7) == 1)
-      continue;
-    /* don't use v divisible by 4 for L0=2 (we could remove this restriction, for a cost) */
-    if (L0 == 2 && !(v & 3))
-      continue;
-    /* can't get p=3mod4 if v^2D is 0 mod 16 */
-    if ((pfilter & IQ_FILTER_1MOD4) && !((v*v*D) & 0xF))
-      continue;
-    if ((pfilter & IQ_FILTER_1MOD3) && !(v%3) )
-      continue;
-    /* avoid L0-volcanos with non-zero height */
-    if (L0 != 2 && ! (v % L0))
-      continue;
-    /* ditto for L1 */
-    if (L1 && !(v % L1))
-      continue;
-    vcnt = 0;
-    if ((v*v*absD)/4 > (1L<<FF_BITS)/(L*L))
-      break;
-    if (((v*D) & 1)) {
-      a1_start = 1;
-      a1_delta = 2;
-    } else {
-      a1_start = (((v*v*D) & 7) ? 2 : 0 );
-      a1_delta = 4;
-    }
-    for (a1 = a1_start; bits < minbits; a1 += a1_delta) {
-      a2 = (a1*a1 + v*v*absD) >> 2;
-      if ( !(a2 % L))
-        continue;
-      t = a1*L + 2;
-      p = a2*L*L + t - 1;
-      if ( !(p & 1))
-        pari_err_BUG("modpoly_pickD_primes");
-      /* double check calculation just in case of overflow or other weirdness */
-      if (t*t + v*v*L*L*absD != 4*p)
-        pari_err_BUG("modpoly_pickD_primes");
-      if (p > (1UL<<FF_BITS))
-        break;
-      if (xprimes) {
-        while (m < xcnt && xprimes[m] < p)
-          m++;
-        if (m < xcnt && p == xprimes[m]) {
-          dbg_printf(1)("skipping duplicate prime %ld\n", p);
-          continue;
-        }
-      }
-      if ( ! uisprime(p))
-        continue;
-      if ( ! inv_good_prime(p, inv))
-        continue;
-      if (primes) {
-        /* ulong vLp, vLm; */
-        if (n >= max)
-          goto done;
-        /* TODO: Implement test to filter primes that lead to
-         * L-valuation != 2 */
-        primes[n] = p;
-        traces[n] = t;
-      }
-      n++;
-      vcnt++;
-      bits += log2(p);
-      if (p > maxp)
-        maxp = p;
-      if (one_prime)
-        goto done;
-    }
-    if (vcnt)
-      dbg_printf(3)("%ld primes with v=%ld, maxp=%ld (%.2f bits)\n",
-                 vcnt, v, maxp, log2(maxp));
-  }
-done:
-  if ( ! n) {
-    dbg_printf(3)("check_primes failed completely for D=%ld\n", D);
-    return 0;
-  }
-  dbg_printf(3)("D=%ld: Found %ld primes totalling %0.2f of %ld bits\n",
-             D, n, bits, minbits);
-  if (totbits && ! *totbits)
-    *totbits = (long)bits;
-  return n;
-}
-
 static int
 _qsort_cmp(const void *a, const void *b)
 {
@@ -3256,7 +4603,7 @@ scanD0(long *tablelen, long *minD, long maxD, long maxh, long L0)
  */
 static long
 discriminant_with_classno_at_least(
-  modpoly_disc_info Ds[MODPOLY_MAX_DCNT], long L, long inv)
+  modpoly_disc_info Ds[MODPOLY_MAX_DCNT], long L, long inv, long ignore_sparse)
 {
   enum { SMALL_L_BOUND = 101 };
   long max_max_D = 160000 * (inv ? 2 : 1);
@@ -3281,10 +4628,12 @@ discriminant_with_classno_at_least(
    * under 250ms in most cases. */
   maxD = 10000;
   /* Allow the class number to overshoot L by 50%.  Must be at least
-   * 1.1*L, and higher values don't seem to provide much benefit. */
-  maxh = 1.5 * L;
+   * 1.1*L, and higher values don't seem to provide much benefit,
+   * except when L is small, in which case it's necessary to get any
+   * discriminant at all in some cases. */
+  maxh = (L / s < SMALL_L_BOUND) ? 10 * L : 1.5 * L;
 
-  flags = 0;
+  flags = ignore_sparse ? MODPOLY_IGNORE_SPARSE_FACTOR : 0;
   L0 = select_L0(L, inv, 0);
   max_L1 = L / 2 + 2;    /* for L=11 we need L1=7 for j */
   minbits = modpoly_height_bound(L, inv);

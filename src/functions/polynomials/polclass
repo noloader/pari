@@ -1,8 +1,9 @@
 Function: polclass
 Section: polynomials
 C-Name: polclass
-Prototype: GD-1,L,Dn
-Help: polclass(D, {inv = 0}, {x = 'x}): return the Hilbert class polynomial for the discriminant D.
+Prototype: GD0,L,Dn
+Help: polclass(D, {inv = 0}, {x = 'x}): return the Hilbert class polynomial for
+ the discriminant D.
 Doc:
  Return the Hilbert class polynomial for the imaginary quadratic
  discriminant $D$ in the variable $x$.  If $inv$ is 0 (the default),
