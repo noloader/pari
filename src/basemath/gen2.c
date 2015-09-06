@@ -359,8 +359,7 @@ static int
 col_test(GEN x, int(*test)(GEN))
 {
   long i, l = lg(x);
-  if (l == 1) return 1;
-  if (!test(gel(x,1))) return 0;
+  if (l == 1 || !test(gel(x,1))) return 0;
   for (i = 2; i < l; i++)
     if (!gequal0(gel(x,i))) return 0;
   return 1;
