@@ -2639,6 +2639,8 @@ gsigne(GEN x)
       /* a + b sqrt(D) > 0 ? */
       sa = gsigne(a);
       sb = gsigne(b); if (sa == sb) { avma = av; return sa; }
+      if (sa == 0) { avma = av; return sb; }
+      if (sb == 0) { avma = av; return sa; }
       /* different signs, take conjugate expression */
       sb = gsigne(gsub(gsqr(a), gmul(quad_disc(x), gsqr(b))));
       avma = av; return sb * sa;
