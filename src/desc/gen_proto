@@ -11,6 +11,7 @@ $i = 1;
   'transcendental'        => $i++,
   'number_theoretical'    => $i++,
   'elliptic_curves'       => $i++,
+  'l_functions'           => $i++,
   'modular_forms'         => $i++,
   'number_fields'         => $i++,
   'algebras'              => $i++,

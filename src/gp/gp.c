@@ -111,7 +111,7 @@ gp_head(void)
   print_text("PARI/GP is free software, covered by the GNU General Public \
 License, and comes WITHOUT ANY WARRANTY WHATSOEVER.");
   pari_puts("\nType ? for help, \\q to quit.\n");
-  print_text("Type ?14 for how to get moral (and possibly technical) support.");
+  print_text("Type ?15 for how to get moral (and possibly technical) support.");
   if (pari_mainstack->vsize)
     pari_printf("\nparisizemax = %lu, primelimit = %lu",
                 pari_mainstack->vsize,GP_DATA->primelimit);

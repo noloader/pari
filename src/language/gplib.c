@@ -166,7 +166,7 @@ print_fun_list(char **list, long nbli)
   if (i) pari_putc('\n');
 }
 
-static const long MAX_SECTION = 13;
+static const long MAX_SECTION = 14;
 static void
 commands(long n)
 {
@@ -272,16 +272,16 @@ menu_commands(void)
   3: TRANSCENDENTAL functions\n\
   4: NUMBER THEORETICAL functions\n\
   5: Functions related to ELLIPTIC CURVES\n\
-  6: Functions related to MODULAR FORMS and MODULAR SYMBOLS\n\
-  7: Functions related to general NUMBER FIELDS\n\
-  8: Functions related to central simple ALGEBRAS\n\
-  9: POLYNOMIALS and power series\n\
- 10: Vectors, matrices, LINEAR ALGEBRA and sets\n\
- 11: SUMS, products, integrals and similar functions\n\
- 12: GRAPHIC functions\n\
- 13: PROGRAMMING under GP\n\
- 14: The PARI community\n\
-\n\
+  6: Functions related to L-FUNCTIONS\n\
+  7: Functions related to MODULAR FORMS and MODULAR SYMBOLS\n\
+  8: Functions related to general NUMBER FIELDS\n\
+  9: Functions related to associative ALGEBRAS\n\
+ 10: POLYNOMIALS and power series\n\
+ 11: Vectors, matrices, LINEAR ALGEBRA and sets\n\
+ 12: SUMS, products, integrals and similar functions\n\
+ 13: GRAPHIC functions\n\
+ 14: PROGRAMMING under GP\n\
+ 15: The PARI community\n\
 Also:\n\
   ? functionname (short on-line help)\n\
   ?\\             (keyboard shortcuts)\n\
