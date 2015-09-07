@@ -340,14 +340,14 @@ glambda(GEN t, GEN vec, GEN h, long real, long prec)
   /* assume vec is a grid */
   ehs = gexp(gmul(gen_I(),gmul(h, t)), prec);
   elhs = (real == 1) ? gen_1 : mkcomplex(gen_0, gen_m1);
-  r = greal(gmul(greal(gel(vec, 1)), elhs)); /* FIXME: sure ? */
+  r = gmul2n(greal(gmul(greal(gel(vec, 1)), elhs)), -1);
   /* FIXME: summing backward may be more stable */
   for (l = 2; l <= L; ++l)
   {
     elhs = gmul(elhs, ehs);
-    r = gadd(r, gmulsg(2, greal(gmul(gel(vec, l), elhs))));
+    r = gadd(r, greal(gmul(gel(vec, l), elhs)));
   }
-  return gmul(mulsr(2, h), r);
+  return gmul(mulsr(4, h), r);
 }
 
 static GEN
