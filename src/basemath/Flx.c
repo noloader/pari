@@ -1179,7 +1179,7 @@ Flx_rem_basecase(GEN x, GEN y, ulong p)
 {
   pari_sp av;
   GEN z, c;
-  long dx,dy,dz,i,j;
+  long dx,dy,dy1,dz,i,j;
   ulong p1,inv;
   long vs=x[1];
 
@@ -1189,6 +1189,7 @@ Flx_rem_basecase(GEN x, GEN y, ulong p)
   x += 2; y += 2;
   inv = y[dy];
   if (inv != 1UL) inv = Fl_inv(inv,p);
+  for (dy1=dy-1; dy1>=0 && !y[dy1]; dy1--);
 
   c = cgetg(dy+3, t_VECSMALL); c[1]=vs; c += 2; av=avma;
   z = cgetg(dz+3, t_VECSMALL); z[1]=vs; z += 2;
@@ -1199,7 +1200,7 @@ Flx_rem_basecase(GEN x, GEN y, ulong p)
     for (i=dx-1; i>=dy; --i)
     {
       p1 = p - x[i]; /* compute -p1 instead of p1 (pb with ulongs otherwise) */
-      for (j=i-dy+1; j<=i && j<=dz; j++)
+      for (j=i-dy1; j<=i && j<=dz; j++)
       {
         p1 += z[j]*y[i-j];
         if (p1 & HIGHBIT) p1 %= p;
@@ -1210,7 +1211,7 @@ Flx_rem_basecase(GEN x, GEN y, ulong p)
     for (i=0; i<dy; i++)
     {
       p1 = z[0]*y[i];
-      for (j=1; j<=i && j<=dz; j++)
+      for (j=maxss(1,i-dy1); j<=i && j<=dz; j++)
       {
         p1 += z[j]*y[i-j];
         if (p1 & HIGHBIT) p1 %= p;
@@ -1225,14 +1226,14 @@ Flx_rem_basecase(GEN x, GEN y, ulong p)
     for (i=dx-1; i>=dy; --i)
     {
       p1 = p - x[i]; /* compute -p1 instead of p1 (pb with ulongs otherwise) */
-      for (j=i-dy+1; j<=i && j<=dz; j++)
+      for (j=i-dy1; j<=i && j<=dz; j++)
         p1 = Fl_addmul_pre(z[j], y[i-j], p1, p, pi);
       z[i-dy] = p1? Fl_mul_pre(p - p1, inv, p, pi): 0;
     }
     for (i=0; i<dy; i++)
     {
       p1 = Fl_mul_pre(z[0],y[i],p,pi);
-      for (j=1; j<=i && j<=dz; j++)
+      for (j=maxss(1,i-dy1); j<=i && j<=dz; j++)
         p1 = Fl_addmul_pre(z[j],y[i-j],p1, p,pi);
       c[i] = Fl_sub(x[i], p1, p);
     }
@@ -1248,7 +1249,7 @@ static GEN
 Flx_divrem_basecase(GEN x, GEN y, ulong p, GEN *pr)
 {
   GEN z,q,c;
-  long dx,dy,dz,i,j;
+  long dx,dy,dy1,dz,i,j;
   ulong p1,inv;
   long sv=x[1];
 
@@ -1274,6 +1275,7 @@ Flx_divrem_basecase(GEN x, GEN y, ulong p, GEN *pr)
   z = cgetg(dz + 3, t_VECSMALL); z[1] = sv; z += 2;
   inv = uel(y, dy);
   if (inv != 1UL) inv = Fl_inv(inv,p);
+  for (dy1=dy-1; dy1>=0 && !y[dy1]; dy1--);
 
   if (SMALL_ULONG(p))
   {
@@ -1281,7 +1283,7 @@ Flx_divrem_basecase(GEN x, GEN y, ulong p, GEN *pr)
     for (i=dx-1; i>=dy; --i)
     {
       p1 = p - x[i]; /* compute -p1 instead of p1 (pb with ulongs otherwise) */
-      for (j=i-dy+1; j<=i && j<=dz; j++)
+      for (j=i-dy1; j<=i && j<=dz; j++)
       {
         p1 += z[j]*y[i-j];
         if (p1 & HIGHBIT) p1 %= p;
@@ -1296,7 +1298,7 @@ Flx_divrem_basecase(GEN x, GEN y, ulong p, GEN *pr)
     for (i=dx-1; i>=dy; --i)
     { /* compute -p1 instead of p1 (pb with ulongs otherwise) */
       p1 = p - uel(x,i);
-      for (j=i-dy+1; j<=i && j<=dz; j++)
+      for (j=i-dy1; j<=i && j<=dz; j++)
         p1 = Fl_add(p1, Fl_mul(z[j],y[i-j],p), p);
       z[i-dy] = p1? Fl_mul(p - p1, inv, p): 0;
     }
@@ -1310,7 +1312,7 @@ Flx_divrem_basecase(GEN x, GEN y, ulong p, GEN *pr)
     for (i=0; i<dy; i++)
     {
       p1 = (ulong)z[0]*y[i];
-      for (j=1; j<=i && j<=dz; j++)
+      for (j=maxss(1,i-dy1); j<=i && j<=dz; j++)
       {
         p1 += (ulong)z[j]*y[i-j];
         if (p1 & HIGHBIT) p1 %= p;
@@ -1323,7 +1325,7 @@ Flx_divrem_basecase(GEN x, GEN y, ulong p, GEN *pr)
     for (i=0; i<dy; i++)
     {
       p1 = Fl_mul(z[0],y[i],p);
-      for (j=1; j<=i && j<=dz; j++)
+      for (j=maxss(1,i-dy1); j<=i && j<=dz; j++)
         p1 = Fl_add(p1, Fl_mul(z[j],y[i-j],p), p);
       c[i] = Fl_sub(x[i], p1, p);
     }

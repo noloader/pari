@@ -321,7 +321,7 @@ FpXQX_FpXQ_mul(GEN P, GEN U, GEN T, GEN p)
 static GEN
 FpXQX_divrem_basecase(GEN x, GEN y, GEN T, GEN p, GEN *pr)
 {
-  long vx, dx, dy, dz, i, j, sx, lr;
+  long vx, dx, dy, dy1, dz, i, j, sx, lr;
   pari_sp av0, av, tetpil;
   GEN z,p1,rem,lead;
 
@@ -373,13 +373,14 @@ FpXQX_divrem_basecase(GEN x, GEN y, GEN T, GEN p, GEN *pr)
   avma = av0;
   z = cgetg(dz+3,t_POL); z[1] = x[1];
   x += 2; y += 2; z += 2;
+  for (dy1=dy-1; dy1>=0 && !signe(gel(y, dy1)); dy1--);
 
   p1 = gel(x,dx); av = avma;
   gel(z,dz) = lead? gerepileupto(av, Fq_mul(p1,lead, T, p)): gcopy(p1);
   for (i=dx-1; i>=dy; i--)
   {
     av=avma; p1=gel(x,i);
-    for (j=i-dy+1; j<=i && j<=dz; j++)
+    for (j=i-dy1; j<=i && j<=dz; j++)
       p1 = Fq_sub(p1, Fq_mul(gel(z,j),gel(y,i-j),NULL,p),NULL,p);
     if (lead) p1 = Fq_mul(p1, lead, NULL,p);
     tetpil=avma; gel(z,i-dy) = gerepile(av,tetpil,Fq_red(p1,T,p));
@@ -390,7 +391,7 @@ FpXQX_divrem_basecase(GEN x, GEN y, GEN T, GEN p, GEN *pr)
   for (sx=0; ; i--)
   {
     p1 = gel(x,i);
-    for (j=0; j<=i && j<=dz; j++)
+    for (j=maxss(0,i-dy1); j<=i && j<=dz; j++)
       p1 = Fq_sub(p1, Fq_mul(gel(z,j),gel(y,i-j),NULL,p),NULL,p);
     tetpil=avma; p1 = Fq_red(p1, T, p); if (signe(p1)) { sx = 1; break; }
     if (!i) break;
@@ -410,7 +411,7 @@ FpXQX_divrem_basecase(GEN x, GEN y, GEN T, GEN p, GEN *pr)
   for (i--; i>=0; i--)
   {
     av=avma; p1 = gel(x,i);
-    for (j=0; j<=i && j<=dz; j++)
+    for (j=maxss(0,i-dy1); j<=i && j<=dz; j++)
       p1 = Fq_sub(p1, Fq_mul(gel(z,j),gel(y,i-j), NULL,p), NULL,p);
     tetpil=avma; gel(rem,i) = gerepile(av,tetpil, Fq_red(p1, T, p));
   }
