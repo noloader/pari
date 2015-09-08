@@ -1238,25 +1238,14 @@ find_trace(GEN a4, GEN a6, GEN j, ulong ell, GEN q, GEN T, GEN p, long *ptr_kt,
 {
   pari_sp ltop = avma;
   GEN g, meqnj, tr, tr2;
-  long k = 1, kt, r;
+  long kt, r;
   enum mod_type mt;
   struct meqn MEQN;
   pari_timer ti;
 
-  if (ell <= 13)
-  {
-    long lp = expi(q);
-    switch(ell)
-    {
-      case 3: k = 3 + (lp > 160) + (lp > 350); break;
-      case 5: k = 2 + (lp > 260); break;
-      case 7: k = 2 + (lp > 390); break;
-      default:k = 1 + (lp > 260);
-    }
-  }
-  kt = k;
+  kt = maxss((long)(log(expi(q)*LOG2)/log(ell)), 1);
   if (DEBUGLEVEL)
-  { err_printf("Process prime %5ld. ", ell); timer_start(&ti); }
+  { err_printf("SEA: Prime %5ld ", ell); timer_start(&ti); }
   (void) get_modular_eqn(&MEQN, ell, vx, vy);
   meqnj = meqn_j(&MEQN, j, ell, T, p);
   g = study_modular_eqn(ell, meqnj, T, p, &mt, &r);
@@ -1267,17 +1256,17 @@ find_trace(GEN a4, GEN a6, GEN j, ulong ell, GEN q, GEN T, GEN p, long *ptr_kt,
   {
   case MTone_root:
     tr2 = find_trace_one_root(ell, q);
-    kt = k = 1;
+    kt = 1;
     /* Must take k = 1 because we can't apply Hensel: no guarantee that a
      * root mod ell^2 exists */
-    tr = find_trace_Elkies_power(a4,a6,ell, k, &MEQN, g, tr2, q, T, p, smallfact, &ti);
+    tr = find_trace_Elkies_power(a4,a6,ell, kt, &MEQN, g, tr2, q, T, p, smallfact, &ti);
     if (!tr) tr = tr2;
     break;
   case MTElkies:
     /* Contrary to MTone_root, may look mod higher powers of ell */
     if (cmpiu(p, 2*ell+3) <= 0)
-      kt = k = 1; /* Not implemented in this case */
-    tr = find_trace_Elkies_power(a4,a6,ell, k, &MEQN, g, NULL, q, T, p, smallfact, &ti);
+      kt = 1; /* Not implemented in this case */
+    tr = find_trace_Elkies_power(a4,a6,ell, kt, &MEQN, g, NULL, q, T, p, smallfact, &ti);
     if (!tr)
     {
       if (DEBUGLEVEL) err_printf("[fail]\n");
@@ -1290,7 +1279,7 @@ find_trace(GEN a4, GEN a6, GEN j, ulong ell, GEN q, GEN T, GEN p, long *ptr_kt,
     break;
   case MTAtkin:
     tr = find_trace_Atkin(ell, r, q);
-    if (lg(tr)==1) pari_err_PRIME("ellsea",p);
+    if (lg(tr)==1) pari_err_PRIME("ellap",p);
     kt = 1;
     break;
   default: /* case MTpathological: */
@@ -1303,7 +1292,7 @@ find_trace(GEN a4, GEN a6, GEN j, ulong ell, GEN q, GEN T, GEN p, long *ptr_kt,
       err_printf("%3ld trace(s)",n);
       if (DEBUGLEVEL>1) err_printf(" [%ld ms]", timer_delay(&ti));
     }
-    err_printf("\n");
+    if (n > 1) err_printf("\n");
   }
   *ptr_kt = kt;
   return gerepileupto(ltop, tr);
@@ -1805,6 +1794,8 @@ Fq_ellcard_SEA(GEN a4, GEN a6, GEN q, GEN T, GEN p, long smallfact)
         }
       }
       (void)Z_incremental_CRT(&TR, t_mod_ellkt, &TR_mod, ellkt);
+      if (DEBUGLEVEL)
+        err_printf(", missing %ld bits\n",expi(bound)-expi(TR_mod));
     }
     else
     {
