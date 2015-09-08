@@ -191,7 +191,7 @@ ComputeLift(GEN dataC)
 static GEN
 init_get_chic(GEN c)
 {
-  long i, l = lg(c); /* > 1 */
+  long i, l = lg(c);
   GEN C, D = cgetg(l, t_VEC);
   if (l == 1) C = gen_1;
   else
@@ -207,8 +207,10 @@ get_chic(GEN chi, GEN D)
 {
   long i, l = lg(chi);
   GEN chic = cgetg(l, t_VEC);
-  gel(chic,1) = gel(chi,1);
-  for (i = 2; i < l; i++) gel(chic,i) = mulii(gel(chi,i), gel(D,i));
+  if (l > 1) {
+    gel(chic,1) = gel(chi,1);
+    for (i = 2; i < l; i++) gel(chic,i) = mulii(gel(chi,i), gel(D,i));
+  }
   return chic;
 }
 
