@@ -2482,7 +2482,7 @@ fix_pol(GEN x, long v, long v0)
   vx = varn(x);
   if (v == vx)
   {
-    if (v) { x = leafcopy(x); setvarn(x, v0); }
+    if (v0 != v) { x = leafcopy(x); setvarn(x, v0); }
     return x;
   }
   if (varncmp(v, vx) > 0)
