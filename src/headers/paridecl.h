@@ -3755,6 +3755,7 @@ int     u_forprime_init(forprime_t *T, ulong a, ulong b);
 void    u_forprime_restrict(forprime_t *T, ulong c);
 int     u_forprime_arith_init(forprime_t *T, ulong a, ulong b, ulong c, ulong q);
 GEN     zbrent(void *E, GEN (*eval)(void *, GEN), GEN a, GEN b, long prec);
+GEN     solvestep(void *E, GEN (*eval)(void *, GEN), GEN a, GEN b, GEN step, long flag, long prec);
 
 /* thue.c */
 

@@ -1672,6 +1672,60 @@ zbrent0(GEN a, GEN b, GEN code, long prec)
  * }
  * return D.res; */
 
+/* Find zeros of a function in the real interval [a,b] by interval splitting */
+GEN
+solvestep(void *E, GEN (*f)(void *,GEN), GEN a, GEN b, GEN step, long flag, long prec)
+{
+  const long ITMAX = 10;
+  pari_sp av = avma;
+  GEN fa, ainit, binit, v = NULL;
+  long it, ct = 0, s = gcmp(a,b);
+
+  if (!s) return gequal0(f(E, a)) ? gcopy(mkvec(a)): v;
+  if (s > 0) swap(a, b);
+  if (flag&4)
+  {
+    if (gcmpgs(step,1)<=0) pari_err_DOMAIN("solvestep","step","<=",gen_1,step);
+    if (gsigne(a) <= 0) pari_err_DOMAIN("solvestep","a","<=",gen_0,a);
+  }
+  else if (gsigne(step) <= 0)
+    pari_err_DOMAIN("solvestep","step","<=",gen_0,step);
+  ainit = a = gtofp(a, prec); fa = f(E, a);
+  binit = b = gtofp(b, prec); step = gtofp(step, prec);
+  for (it = 0; it < ITMAX; it++)
+  {
+    pari_sp av2 = avma;
+    a = ainit;
+    b = binit;
+    v = cgetg(1, t_VEC);
+    while (gcmp(a,b) < 0)
+    {
+      GEN fc, c = (flag&4)? gmul(a, step): gadd(a, step);
+      if (gcmp(c,b) > 0) c = b;
+      fc = f(E, c);
+      if (gsigne(fa)*gsigne(fc) < 0)
+      {
+        long e;
+        GEN z = zbrent(E, f, a, c, prec);
+        (void)grndtoi(z, &e);
+        if (e  <= -prec/2) ct++;
+        if ((flag&1) && ((!(flag&8)) || ct)) return gerepileupto(av, z);
+        v = concat(v, z);
+      }
+      a = c; fa = fc;
+    }
+    if ((!(flag&2) || lg(v) > 1) && (!(flag&8) || ct)) break; /* DONE */
+    step = (flag&4)? sqrtr(sqrtr(step)): gmul2n(step, -2);
+    gerepileall(av2, 2, &fa, &step);
+  }
+  if (it == ITMAX) pari_err_IMPL("solvestep recovery [too many iterations]");
+  return gerepilecopy(av, v);
+}
+
+GEN
+solvestep0(GEN a, GEN b, GEN step, GEN code, long flag, long prec)
+{ EXPR_WRAP(code, solvestep(EXPR_ARG, a,b, step, flag, prec)); }
+
 /********************************************************************/
 /**                     Numerical derivation                       **/
 /********************************************************************/

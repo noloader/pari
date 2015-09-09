@@ -124,6 +124,7 @@ GEN  vecteursmall(GEN nmax, GEN code);
 GEN  vecteur(GEN nmax, GEN n);
 GEN  vvecteur(GEN nmax, GEN n);
 GEN  zbrent0(GEN a, GEN b, GEN code, long prec);
+GEN  solvestep0(GEN a, GEN b, GEN step, GEN code, long flag, long prec);
 
 /* mt */
 void mt_sigint(void);
