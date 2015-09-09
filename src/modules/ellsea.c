@@ -1735,7 +1735,6 @@ Fq_ellcard_SEA(GEN a4, GEN a6, GEN q, GEN T, GEN p, long smallfact)
   double bound_gr = 1.;
   const double growth_factor = 1.26;
   forprime_t TT;
-  void *E;
 
   j = Fq_ellj(a4, a6, T, p);
   if (typ(j)==t_INT && (signe(j)==0 || equaliu(j, umodui(1728, p))))
@@ -1765,7 +1764,7 @@ Fq_ellcard_SEA(GEN a4, GEN a6, GEN q, GEN T, GEN p, long smallfact)
 
   /* compile_atkin is a vector containing informations about Atkin primes,
    * informations about Elkies primes lie in Mod(TR, TR_mod). */
-  u_forprime_init(&TT, 3, 1000); /* way beyond what seadata provides */
+  u_forprime_init(&TT, 3, ULONG_MAX);
   bound = sqrti(shifti(q, 4));
   bound_bsgs = get_bound_bsgs(expi(q));
   compile_atkin = zerovec(MAX_ATKIN); nb_atkin = 0;
@@ -1825,6 +1824,7 @@ Fq_ellcard_SEA(GEN a4, GEN a6, GEN q, GEN T, GEN p, long smallfact)
         {
           GEN res, cat = shallowextract(compile_atkin, gel(champ,1));
           const struct bb_group *grp;
+          void *E;
           if (DEBUGLEVEL)
             err_printf("Match and sort for %Ps possibilities.\n", max_traces);
           grp = get_FqE_group(&E,a4,a6,T,p);
