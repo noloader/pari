@@ -693,21 +693,21 @@ static GEN
 _vecan_nv_cmul(void *E, GEN P, long a, GEN x)
 {
   GEN vroots = (GEN)E;
-  return (a==0)? gen_0: gmul(gmul(gel(vroots,a), gel(P, a)), x);
+  return (a==0 || !gel(P,a))? gen_0: gmul(gmul(gel(vroots,a), gel(P,a)), x);
 }
 /* al = 1 */
 static GEN
 _vecan_n_cmul(void *E, GEN P, long a, GEN x)
 {
   (void)E;
-  return (a==0)? gen_0: gmul(gmulsg(a,gel(P,a)), x);
+  return (a==0 || !gel(P,a))? gen_0: gmul(gmulsg(a,gel(P,a)), x);
 }
 /* al = 0 */
 static GEN
 _vecan_cmul(void *E, GEN P, long a, GEN x)
 {
   (void)E;
-  return (a==0)? gen_0: gmul(gel(P,a), x);
+  return (a==0 || !gel(P,a))? gen_0: gmul(gel(P,a), x);
 }
 /* d=2, 2 sum_{n <= limt} a_n (n t)^al q^n, q = exp(-2pi t) */
 static GEN
@@ -954,7 +954,7 @@ lfuninit_vecc2(GEN theta, GEN h, struct lfunp *Q)
   GEN ldata = linit_get_ldata(theta);
   GEN a = vecmin(ldata_get_gammavec(ldata));
   GEN thetainit = linit_get_tech(theta);
-  GEN vecan = theta_get_an(thetainit);
+  GEN vecan = RgV_kill0( theta_get_an(thetainit) );
   GEN sqN = theta_get_sqrtN(thetainit);
   GEN qk = powersshift(mpexp(h), M, ginv(sqN));
   GEN v = cgetg(M + 2, t_VEC);
