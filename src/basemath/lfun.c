@@ -709,7 +709,7 @@ _vecan_cmul(void *E, GEN P, long a, GEN x)
   (void)E;
   return (a==0)? gen_0: gmul(gel(P,a), x);
 }
-/* d=2, sum_{n <= limt} a_n (n t)^al q^n, q = exp(-2pi t) */
+/* d=2, 2 sum_{n <= limt} a_n (n t)^al q^n, q = exp(-2pi t) */
 static GEN
 theta2(GEN vecan, long limt, GEN t, GEN al, long prec)
 {
@@ -740,10 +740,10 @@ theta2(GEN vecan, long limt, GEN t, GEN al, long prec)
     case 1: S = gmul(t, S); break;
     case 2: S = gmul(gpow(t,al,prec), S);
   }
-  return S;
+  return gmul2n(S,1);
 }
 
-/* d=1, sum_{n <= limt} a_n (n t)^al q^(n^2), q = exp(-pi t^2) */
+/* d=1, 2 sum_{n <= limt} a_n (n t)^al q^(n^2), q = exp(-pi t^2) */
 static GEN
 theta1(GEN vecan, long limt, GEN t, GEN al, long prec)
 {
@@ -783,7 +783,7 @@ theta1(GEN vecan, long limt, GEN t, GEN al, long prec)
     }
     S = gmul(S, gpow(t,al,prec));
   }
-  return S;
+  return gmul2n(S,1);
 }
 
 /* If m > 0, compute m-th derivative of theta(t) = theta0(t/sqrt(N))
@@ -810,12 +810,12 @@ lfuntheta_bitprec(GEN data, GEN t, long m, long bitprec)
   if (m == 0 && d == 1)
   {
     S = theta1(vecan, limt, t, gel(Vga,1), prec);
-    return gerepileupto(ltop, gmulsg(2, S));
+    return gerepileupto(ltop, S);
   }
   if (m == 0 && lfunisvgaell(Vga, 1))
   {
     S = theta2(vecan, limt, t, vecmin(Vga), prec);
-    return gerepileupto(ltop, gmulsg(2, S));
+    return gerepileupto(ltop, S);
   }
   else
   {
@@ -934,30 +934,6 @@ lfunparams(GEN ldata, long der, long bitprec, struct lfunp *S)
                S->Dmax,S->D,S->M,S->nmax, S->m0);
 }
 
-/* d=2 and Vga = [a,a+1] */
-static GEN
-lfuninit_vecc2(GEN theta, GEN h, struct lfunp *Q)
-{
-  const long M = Q->M, prec = Q->precmax;
-  GEN L = Q->L;
-  GEN qk = gpowers(mpexp(h), M);
-  GEN ldata = linit_get_ldata(theta);
-  GEN a = vecmin(ldata_get_gammavec(ldata));
-  GEN thetainit = linit_get_tech(theta);
-  GEN vecan = theta_get_an(thetainit);
-  GEN sqN = theta_get_sqrtN(thetainit);
-  GEN v = cgetg(M + 2, t_VEC);
-  long m, L0 = lg(vecan)-1;
-  for (m = 0; m <= M; m++)
-  {
-    pari_sp av = avma;
-    GEN t = gdiv(gel(qk, m+1), sqN);
-    GEN S = theta2(vecan, minss(L[m+1],L0), t, a, prec);
-    gel(v, m+1) = gerepileupto(av, gmul2n(S, 1)); /* theta(exp(mh)) */
-  }
-  return v;
-}
-
 /* x0 * [1,x,..., x^n] */
 static GEN
 powersshift(GEN x, long n, GEN x0)
@@ -968,6 +944,31 @@ powersshift(GEN x, long n, GEN x0)
   for(i = 2; i < l; i++) gel(V,i) = gmul(gel(V,i-1),x);
   return V;
 }
+
+/* d=2 and Vga = [a,a+1] */
+static GEN
+lfuninit_vecc2(GEN theta, GEN h, struct lfunp *Q)
+{
+  const long M = Q->M, prec = Q->precmax;
+  GEN L = Q->L;
+  GEN ldata = linit_get_ldata(theta);
+  GEN a = vecmin(ldata_get_gammavec(ldata));
+  GEN thetainit = linit_get_tech(theta);
+  GEN vecan = theta_get_an(thetainit);
+  GEN sqN = theta_get_sqrtN(thetainit);
+  GEN qk = powersshift(mpexp(h), M, ginv(sqN));
+  GEN v = cgetg(M + 2, t_VEC);
+  long m, L0 = lg(vecan)-1;
+  for (m = 0; m <= M; m++)
+  {
+    pari_sp av = avma;
+    GEN t = gel(qk, m+1);
+    GEN S = theta2(vecan, minss(L[m+1],L0), t, a, prec);
+    gel(v, m+1) = gerepileupto(av, S); /* theta(exp(mh)) */
+  }
+  return v;
+}
+
 /* return [\theta(exp(mh)), m=0..M], theta(t) = sum a(n) K(n/sqrt(N) t),
  * h = log(2)/m0 */
 static GEN
