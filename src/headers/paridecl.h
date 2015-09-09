@@ -2278,6 +2278,11 @@ void gp_help(const char *s, long flag);
 void gp_echo_and_log(const char *prompt, const char *s);
 void print_fun_list(char **list, long nbli);
 
+/* dirichlet.c */
+
+GEN     direxpand(GEN a, long L);
+GEN     direuler(void *E, GEN (*eval)(void *, GEN), GEN a, GEN b, GEN c);
+
 /* ellanal.c */
 
 GEN     ellanalyticrank(GEN e, GEN eps, long prec);
@@ -3733,7 +3738,6 @@ GEN     bnrstark(GEN bnr, GEN subgroup, long prec);
 GEN     asympnum(void *E, GEN (*f)(void *,GEN,long), long muli, GEN alpha, long prec);
 GEN     derivnum(void *E, GEN (*eval)(void *, GEN, long prec), GEN x, long prec);
 GEN     derivfun(void *E, GEN (*eval)(void *, GEN, long prec), GEN x, long prec);
-GEN     direuler(void *E, GEN (*eval)(void *, GEN), GEN ga, GEN gb, GEN c);
 int     forcomposite_init(forcomposite_t *C, GEN a, GEN b);
 GEN     forcomposite_next(forcomposite_t *C);
 GEN     forprime_next(forprime_t *T);
