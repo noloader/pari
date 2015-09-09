@@ -688,59 +688,59 @@ lfunisvgaell(GEN Vga, long flag)
   else return (gequal0(al1) && gequal1(al2)) || (gequal0(al2) && gequal1(al1));
 }
 
-struct vecan_nt { GEN t, vroots; };
-
 /* generic */
 static GEN
-_vecan_ntv_cmul(void *E, GEN P, long a, GEN x)
+_vecan_nv_cmul(void *E, GEN P, long a, GEN x)
 {
-  const struct vecan_nt *D = (struct vecan_nt *) E;
-  GEN ntv;
-  if (a == 0) return gen_0;
-  ntv = gmul(gel(D->vroots,a), D->t);
-  return gmul(gmul(ntv, gel(P, a)), x);
+  GEN vroots = (GEN)E;
+  return (a==0)? gen_0: gmul(gmul(gel(vroots,a), gel(P, a)), x);
 }
 /* al = 1 */
 static GEN
-_vecan_nt_cmul(void *E, GEN P, long a, GEN x)
+_vecan_n_cmul(void *E, GEN P, long a, GEN x)
 {
-  const struct vecan_nt *D = (struct vecan_nt *) E;
-  GEN nt;
-  if (a == 0) return gen_0;
-  nt = gmulsg(a, D->t);
-  return gmul(gmul(nt,gel(P,a)), x);
+  (void)E;
+  return (a==0)? gen_0: gmul(gmulsg(a,gel(P,a)), x);
 }
 /* al = 0 */
 static GEN
 _vecan_cmul(void *E, GEN P, long a, GEN x)
 {
   (void)E;
-  return a==0 ? gen_0: gmul(gel(P,a), x);
+  return (a==0)? gen_0: gmul(gel(P,a), x);
 }
 /* d=2, sum_{n <= limt} a_n (n t)^al q^n, q = exp(-2pi t) */
 static GEN
 theta2(GEN vecan, long limt, GEN t, GEN al, long prec)
 {
-  GEN q, pi2 = Pi2n(1,prec);
+  GEN S, q, pi2 = Pi2n(1,prec), vroots = NULL;
   const struct bb_algebra *alg = get_Rg_algebra();
-  struct vecan_nt __D, *D = &__D;
   GEN (*cmul)(void *, GEN, long, GEN);
-  if (gequal0(al)) {
-    D = NULL;
+  long flag;
+  if (gequal0(al))
+  {
     cmul = _vecan_cmul;
+    flag = 0;
   }
-  else if (gequal1(al)) {
-    D->t = t;
-    cmul = _vecan_nt_cmul;
+  else if (gequal1(al))
+  {
+    cmul = _vecan_n_cmul;
+    flag = 1;
   }
   else
   {
-    D->t = gpow(t, al, prec);
-    D->vroots = mkvpow(al, limt, prec);
-    cmul = _vecan_ntv_cmul;
+    vroots = mkvpow(al, limt, prec);
+    cmul = _vecan_nv_cmul;
+    flag = 2;
   }
   setsigne(pi2,-1); q = gexp(gmul(pi2, t), prec);
-  return gen_bkeval(vecan, limt, q, 1, D, alg, cmul);
+  S = gen_bkeval(vecan, limt, q, 1, (void*)vroots, alg, cmul);
+  switch (flag)
+  {
+    case 1: S = gmul(t, S); break;
+    case 2: S = gmul(gpow(t,al,prec), S);
+  }
+  return S;
 }
 
 /* d=1, sum_{n <= limt} a_n (n t)^al q^(n^2), q = exp(-pi t^2) */
@@ -760,24 +760,28 @@ theta1(GEN vecan, long limt, GEN t, GEN al, long prec)
       if (gc_needed(av, 3)) S = gerepileupto(av, S);
     }
   else if (gcmp1(al))
+  {
     for (n = 1; n <= limt; ++n)
     {
       GEN an = gel(vecan, n);
       if (gequal0(an)) continue;
-      S = gadd(S, gmul(gmul(an, gmulsg(n, t)), gel(vexp, n)));
+      S = gadd(S, gmul(gmulgs(an, n), gel(vexp, n)));
       if (gc_needed(av, 3)) S = gerepileupto(av, S);
     }
+    S = gmul(S,t);
+  }
   else
   {
-    GEN T = gpow(t, al, prec), vroots = mkvpow(al, limt, prec);
+    GEN vroots = mkvpow(al, limt, prec);
     av = avma;
     for (n = 1; n <= limt; ++n)
     {
       GEN an = gel(vecan, n);
       if (gequal0(an)) continue;
-      S = gadd(S, gmul(gmul(an, gel(vroots,n)), gmul(T, gel(vexp, n))));
+      S = gadd(S, gmul(gmul(an, gel(vroots,n)), gel(vexp, n)));
       if (gc_needed(av, 3)) S = gerepileupto(av, S);
     }
+    S = gmul(S, gpow(t,al,prec));
   }
   return S;
 }
