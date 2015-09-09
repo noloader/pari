@@ -1283,20 +1283,22 @@ lfunsymsqspec(GEN lmisc, long prec)
 }
 
 static GEN
-mfpeters(GEN ldata2, GEN fudge, GEN N, long k, long prec)
+mfpeters(GEN ldata2, GEN fudge, GEN N, long k, long bitprec)
 {
-  GEN t, L = greal(lfun(ldata2, stoi(k), prec));
+  GEN t, L = greal(lfun_bitprec(ldata2, stoi(k), bitprec));
+  long prec = nbits2prec(bitprec);
   t = powrs(mppi(prec), k+1); shiftr_inplace(t, 2*k-1); /* Pi/2 * (4Pi)^k */
   return gmul(gdiv(gmul(mulii(N,mpfact(k-1)), fudge), t), L);
 }
 /* Petersson square of modular form. ldata must be the
    data of the modular form itself. */
 GEN
-lfunmfpeters(GEN ldata, long prec)
+lfunmfpeters_bitprec(GEN ldata, long bitprec)
 {
   pari_sp av = avma;
   GEN ldata2, veceuler, N, fudge = gen_1;
   long k, j;
+  long prec = nbits2prec(bitprec);
 
   ldata = lfunmisc_to_ldata_shallow(ldata);
   if (!lfunisvgaell(ldata_get_gammavec(ldata),0))
@@ -1310,11 +1312,15 @@ lfunmfpeters(GEN ldata, long prec)
     GEN v = gel(veceuler, j), p = gel(v,1), q = powis(p,1-k), s = gel(v,2);
     if (dvdii(N, sqri(p))) fudge = gmul(fudge, gaddsg(1, gmul(s, q)));
   }
-  return gerepileupto(av, mfpeters(ldata2,fudge,N,k,prec));
+  return gerepileupto(av, mfpeters(ldata2,fudge,N,k,bitprec));
 }
 
 GEN
-lfunellmfpeters(GEN E, long prec)
+lfunmfpeters(GEN ldata, long prec)
+{ return lfunmfpeters_bitprec(ldata, prec2nbits(prec)); }
+
+static GEN
+lfunellmfpeters_bitprec(GEN E, long bitprec)
 {
   pari_sp av = avma;
   GEN ldata2, veceuler, N = ellQ_get_N(E), fudge = gen_1;
@@ -1328,7 +1334,7 @@ lfunellmfpeters(GEN E, long prec)
     long s = signe(gel(v,2));
     if (s) fudge = gmul(fudge, s==1 ? gaddsg(1, q): gsubsg(1, q));
   }
-  return gerepileupto(av, mfpeters(ldata2,fudge,N,k,prec));
+  return gerepileupto(av, mfpeters(ldata2,fudge,N,k,bitprec));
 }
 
 /* From Christophe Delaunay, http://delaunay.perso.math.cnrs.fr/these.pdf */
@@ -1371,14 +1377,15 @@ GEN
 ellmoddegree(GEN e, long prec)
 {
   pari_sp ltop = avma;
+  long bitprec = prec2nbits(prec);
   GEN E = ellminimalmodel(e, NULL);
   GEN D = ellminimaltwistcond(E);
   GEN Etr = ellinit(elltwist(E, D), NULL, prec);
   GEN Et = ellminimalmodel(Etr, NULL);
-  GEN nor = lfunellmfpeters(Et, prec);
+  GEN nor = lfunellmfpeters_bitprec(Et, bitprec);
   GEN degt = gdiv(gmul(nor, sqrr(Pi2n(1,prec))), member_area(E));
   GEN deg = gmul(degt, elldiscfix(E, Et, D));
-  GEN degr = bestappr(deg, NULL);
+  GEN degr = bestappr(deg, int2n(bitprec>>1));
   long err = gexpo(gsub(gen_1, gdiv(deg,degr)));
   obj_free(Etr); obj_free(Et); obj_free(E);
   return gerepilecopy(ltop, mkvec2(degr, stoi(err)));
