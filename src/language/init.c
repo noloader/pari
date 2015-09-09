@@ -858,6 +858,7 @@ pari_init_opts(size_t parisize, ulong maxprime, ulong init_opts)
 {
   ulong u;
 
+  pari_mt_nbthreads = 0;
   cb_pari_quit = dflt_pari_quit;
   cb_pari_init_histfile = NULL;
   cb_pari_get_line_interactive = NULL;

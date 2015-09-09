@@ -229,7 +229,7 @@ pari_mt_init(void)
     MPI_Comm_size(MPI_COMM_WORLD, &pari_MPI_size);
     MPI_Comm_rank(MPI_COMM_WORLD, &pari_MPI_rank);
     if (pari_MPI_rank) pari_MPI_child();
-    pari_mt_nbthreads = pari_MPI_size-1;
+    if (!pari_mt_nbthreads) pari_mt_nbthreads = pari_MPI_size-1;
   }
   else
   {

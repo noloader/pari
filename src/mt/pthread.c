@@ -100,7 +100,7 @@ void pari_mt_init(void)
 {
   pari_mt = NULL;
 #ifdef _SC_NPROCESSORS_CONF
-  pari_mt_nbthreads = sysconf(_SC_NPROCESSORS_CONF);
+  if (!pari_mt_nbthreads) pari_mt_nbthreads = sysconf(_SC_NPROCESSORS_CONF);
 #else
   pari_mt_nbthreads = 1;
 #endif
