@@ -2218,7 +2218,7 @@ parse_maxcond(GEN maxcond, GEN *pm, GEN *pM)
     M = maxcond;
   m = (typ(m) == t_INT)? gsub(m,ghalf): gfloor(m);
   if (signe(m) <= 0) m = ghalf;
-  if (typ(M) != t_INT) M = gfloor(M);
+  M = (typ(M) == t_INT)? addiu(M, 1): gceil(M);
   *pm = m;
   *pM = M;
 }
