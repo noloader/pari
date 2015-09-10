@@ -253,3 +253,5 @@ lfun(L,2)
 
 L=lfuninit(polcyclo(3), [1/2,0,0]);
 lfuncheckfeq(L)
+
+lfuntheta(1,0)

@@ -382,6 +382,7 @@ get_cone(GEN t, double *r, double *a)
     *r = fabs(gtodouble(t));
     *a = 0.;
   }
+  if (!*r && !*a) pari_err_DOMAIN("lfunthetainit","t","=",gen_0,t);
 }
 /* slightly larger cone than necessary, to avoid round-off problems */
 static void
