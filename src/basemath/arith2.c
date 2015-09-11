@@ -1501,6 +1501,8 @@ fromdigits(GEN x, GEN B)
   if (typ(x)!=t_VEC || !RgV_is_ZV(x)) pari_err_TYPE("fromdigits",x);
   B = check_basis(B);
   if (lg(x)==1) { avma = av; return gen_0; }
+  if (Z_ispow2(B))
+    return fromdigits_2k(x, expi(B));
   x = vecreverse(x);
   return gerepileupto(av, gen_fromdigits(x, B, NULL, &Z_ring));
 }

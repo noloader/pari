@@ -81,6 +81,117 @@ bits_to_u(GEN v, long l)
   return u;
 }
 
+/* set BITS_IN_LONG bits starting at word *w plus *r bits,
+ * clearing subsequent bits in the last word touched */
+INLINE void
+int_set_ulong(ulong a, GEN *w, long *r)
+{
+  if (*r) {
+    **w |= (a << *r);
+    *w = int_nextW(*w);
+    **w = (a >> (BITS_IN_LONG - *r));
+  } else {
+    **w = a;
+    *w = int_nextW(*w);
+  }
+}
+
+/* set k bits starting at word *w plus *r bits,
+ * clearing subsequent bits in the last word touched */
+INLINE void
+int_set_bits(ulong a, long k, GEN *w, long *r)
+{
+  if (*r) {
+    **w |= a << *r;
+    a >>= BITS_IN_LONG - *r;
+  } else {
+    **w = a;
+    a = 0;
+  }
+  *r += k;
+  if (*r >= BITS_IN_LONG) {
+    *w = int_nextW(*w);
+    *r -= BITS_IN_LONG;
+    for (; *r >= BITS_IN_LONG; *r -= BITS_IN_LONG) {
+      **w = a;
+      a = 0;
+      *w = int_nextW(*w);
+    }
+    if (*r)
+      **w = a;
+  }
+}
+
+/* set k bits from z (t_INT) starting at word *w plus *r bits,
+ * clearing subsequent bits in the last word touched */
+INLINE void
+int_set_int(GEN z, long k, GEN *w, long *r)
+{
+  long l = lgefint(z) - 2;
+  GEN y;
+  if (!l) {
+    int_set_bits(0, k, w, r);
+    return;
+  }
+  y = int_LSW(z);
+  for (; l > 1; l--) {
+    int_set_ulong((ulong) *y, w, r);
+    y = int_nextW(y);
+    k -= BITS_IN_LONG;
+  }
+  if (k)
+    int_set_bits((ulong) *y, k, w, r);
+}
+
+GEN
+nv_fromdigits_2k(GEN x, long k)
+{
+  long l = lg(x) - 1, r;
+  GEN w, z;
+  if (k == 1) return bits_to_int(x, l);
+  if (!l) return gen_0;
+  z = cgetipos(nbits2lg(k * l));
+  w = int_LSW(z);
+  r = 0;
+  for (; l; l--)
+    int_set_bits(uel(x, l), k, &w, &r);
+  return int_normalize(z, 0);
+}
+
+GEN
+fromdigits_2k(GEN x, long k)
+{
+  long l, m;
+  GEN w, y, z;
+  for (l = lg(x) - 1; l && !signe(gel(x, 1)); x++, l--);
+  if (!l) return gen_0;
+  m = expi(gel(x, 1)) + 1;
+  z = cgetipos(nbits2lg(k * (l - 1) + m));
+  w = int_LSW(z);
+  if (!(k & (BITS_IN_LONG - 1))) {
+    long i, j, t = k >> TWOPOTBITS_IN_LONG;
+    for (; l; l--) {
+      j = lgefint(gel(x, l)) - 2;
+      y = int_LSW(gel(x, l));
+      for (i = 0; i < j; i++) {
+        *w = *y;
+        y = int_nextW(y);
+        w = int_nextW(w);
+      }
+      for (; i < t; i++) {
+        *w = 0;
+        w = int_nextW(w);
+      }
+    }
+  } else {
+    long r = 0;
+    for (; l > 1; l--)
+      int_set_int(gel(x, l), k, &w, &r);
+    int_set_int(gel(x, 1), m, &w, &r);
+  }
+  return int_normalize(z, 0);
+}
+
 GEN
 binaire(GEN x)
 {
@@ -139,41 +250,101 @@ binaire(GEN x)
   return y;
 }
 
+/* extract k bits (as ulong) starting at word *w plus *r bits */
+INLINE ulong
+int_get_bits(long k, GEN *w, long *r)
+{
+  ulong mask = (1UL << k) - 1;
+  ulong a = (((ulong) **w) >> *r) & mask;
+  *r += k;
+  if (*r >= BITS_IN_LONG) {
+    *r -= BITS_IN_LONG;
+    *w = int_nextW(*w);
+    if (*r)
+      a |= (**w << (k - *r)) & mask;
+  }
+  return a;
+}
+
+/* extract BITS_IN_LONG bits starting at word *w plus *r bits */
+INLINE ulong
+int_get_ulong(GEN *w, long *r)
+{
+  ulong a = ((ulong) **w) >> *r;
+  *w = int_nextW(*w);
+  if (*r)
+    a |= (**w << (BITS_IN_LONG - *r));
+  return a;
+}
+
+/* extract k bits (as t_INT) starting at word *w plus *r bits */
+INLINE GEN
+int_get_int(long k, GEN *w, long *r)
+{
+  GEN z = cgetipos(nbits2lg(k));
+  GEN y = int_LSW(z);
+  for (; k >= BITS_IN_LONG; k -= BITS_IN_LONG) {
+    *y = int_get_ulong(w, r);
+    y = int_nextW(y);
+  }
+  if (k)
+    *y = int_get_bits(k, w, r);
+  return int_normalize(z, 0);
+}
+
 /* assume k < BITS_IN_LONG */
 GEN
 binary_2k_zv(GEN x, long k)
 {
-  long iv, j, n, nmodk, nk;
-  GEN v, vk;
+  long l, n, r;
+  GEN v, w;
   if (k == 1) return binary_zv(x);
-  if (!signe(x)) return cgetg(1,t_VECSMALL);
-  v = binary_zv(x);
-  n = lg(v)-1;
-  nk = n / k; nmodk = n % k;
-  if (nmodk) nk++;
-  vk = cgetg(nk+1, t_VECSMALL);
-  iv = n - k;
-  if (!nmodk) nmodk = k;
-  for (j = nk; j >= 2; j--,iv-=k) vk[j] = bits_to_u(v+iv, k);
-  vk[1] = bits_to_u(v,nmodk);
-  return vk;
+  if (!signe(x)) return cgetg(1, t_VECSMALL);
+  n = expi(x) + 1;
+  l = (n + k - 1) / k;
+  v = cgetg(l + 1, t_VECSMALL);
+  w = int_LSW(x);
+  r = 0;
+  for (; l > 1; l--) {
+    uel(v, l) = int_get_bits(k, &w, &r);
+    n -= k;
+  }
+  uel(v, 1) = int_get_bits(n, &w, &r);
+  return v;
 }
+
 GEN
 binary_2k(GEN x, long k)
 {
-  long iv, j, n, nmodk, nk;
-  GEN v, vk;
-  if (!signe(x)) return cgetg(1,t_VEC);
-  v = binary_zv(x);
-  n = lg(v)-1;
-  nk = n / k; nmodk = n % k;
-  if (nmodk) nk++;
-  vk = cgetg(nk+1, t_VEC);
-  iv = n - k;
-  if (!nmodk) nmodk = k;
-  for (j = nk; j >= 2; j--,iv-=k) gel(vk,j) = bits_to_int(v+iv, k);
-  gel(vk,1) = bits_to_int(v, nmodk);
-  return vk;
+  long l, n;
+  GEN v, w, y, z;
+  if (k == 1) return binaire(x);
+  if (!signe(x)) return cgetg(1, t_VEC);
+  n = expi(x) + 1;
+  l = (n + k - 1) / k;
+  v = cgetg(l + 1, t_VEC);
+  w = int_LSW(x);
+  if (!(k & (BITS_IN_LONG - 1))) {
+    long m, t = k >> TWOPOTBITS_IN_LONG, u = lgefint(x) - 2;
+    for (; l; l--) {
+      m = minss(t, u);
+      z = cgetipos(m + 2);
+      y = int_LSW(z);
+      for (; m; m--) {
+        *y = *w;
+        y = int_nextW(y);
+        w = int_nextW(w);
+      }
+      gel(v, l) = int_normalize(z, 0);
+      u -= t;
+    }
+  } else {
+    long r = 0;
+    for (; l > 1; l--, n -= k)
+      gel(v, l) = int_get_int(k, &w, &r);
+    gel(v, 1) = int_get_int(n, &w, &r);
+  }
+  return v;
 }
 
 /* return 1 if bit n of x is set, 0 otherwise */

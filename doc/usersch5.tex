@@ -2347,7 +2347,7 @@ shifts the mantissa
 $$f, s[m], s[m+1],\ldots s[M]$$
 right by $n$ bits.
 
-\subsec{From \typ{INT} to bits}
+\subsec{From \typ{INT} to bits or digits in base $2^k$ and back}
 
 \fun{GEN}{binary_zv}{GEN x} given a \typ{INT} $x$, return a \typ{VECSMALL} of
 bits, from most significant to least significant.
@@ -2367,6 +2367,17 @@ proper \kbd{GEN}), return the integer $\sum_{i = 1}^l x[i] 2^{l-i}$, as a
 
 \fun{ulong}{bits_to_u}{GEN v, long l} same as \tet{bits_to_int}, where
 $l < \tet{BITS_IN_LONG}$, so we can return an \kbd{ulong}.
+
+\fun{GEN}{fromdigits_2k}{GEN x, long k} converse of \tet{binary_2k};
+given a \typ{VEC} $x$ of length $l$ and a positive \kbd{long} $k$,
+where each $x[i]$ is a \typ{INT} with $0\leq x[i] < 2^k$, return the
+integer $\sum_{i = 1}^l x[i] 2^{k(l-i)}$, as a \typ{INT}.
+
+\fun{GEN}{nv_fromdigits_2k}{GEN x, long k} as \tet{fromdigits_2k}, but
+with $x$ being a \typ{VECSMALL} and each $x[i]$ being a \kbd{ulong}
+with $0\leq x[i] < 2^{\min\{k,\tet{BITS_IN_LONG}\}}$.  Here $k$ may be
+any positive \kbd{long}, and the $x[i]$ are regarded as $k$-bit
+integers by truncating or extending with zeroes.
 
 \subsec{Integer valuation}
 For integers $x$ and $p$, such that $x\neq 0$ and $|p| > 1$, we define

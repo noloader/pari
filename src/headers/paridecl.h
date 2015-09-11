@@ -2100,6 +2100,7 @@ GEN     binary_zv(GEN x);
 GEN     binary_2k(GEN x, long k);
 GEN     binary_2k_zv(GEN x, long k);
 long    bittest(GEN x, long n);
+GEN     fromdigits_2k(GEN x, long k);
 GEN     gbitand(GEN x, GEN y);
 GEN     gbitneg(GEN x, long n);
 GEN     gbitnegimply(GEN x, GEN y);
@@ -2111,6 +2112,7 @@ GEN     ibitand(GEN x, GEN y);
 GEN     ibitnegimply(GEN x, GEN y);
 GEN     ibitor(GEN x, GEN y);
 GEN     ibitxor(GEN x, GEN y);
+GEN     nv_fromdigits_2k(GEN x, long k);
 
 /* buch1.c */
 
