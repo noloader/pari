@@ -205,4 +205,12 @@ check all formats
   ***   at top-level: lfuntheta(1,0)
   ***                 ^--------------
   *** lfuntheta: domain error in lfunthetainit: t = 0
-Total time spent: 5800
+1
+[17, 857]
+1
+5077
+[0.5465728811499063616, 6.649346083071585048, 1]
+725.0000000000000000
+24217.00000000000000
+28614069.00000000000
+Total time spent: 6772

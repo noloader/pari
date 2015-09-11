@@ -256,3 +256,36 @@ lfuncheckfeq(L)
 
 lfunconductor(1,1)
 lfuntheta(1,0)
+
+/* lfunconductor */
+
+default(realprecision,38);
+lfunconductor(1)
+lfunconductor(857)
+default(realprecision,19)
+lfunconductor(1,[1/2,10])
+/* guess small conductor */
+e1=ellinit([0, 0, 1, -7, 6]);
+lfunconductor(e1)
+
+lfunrootres(x^3+x^2-3*x-1)
+
+lim=30000;
+nf725=dirzetak(nfinit(x^4-x^3-3*x^2+x+1),lim);
+nf725z=dirdiv(nf725,vector(lim,k,1));
+lnf725=lfuncreate([n->nf725z[1..n],0,[0,0,0],1,725,1]);
+lfunconductor(lnf725,,1)
+
+/* bigger one.
+ * remark: should be able to search in a big range
+ * with few coefficients, would be faster
+ */
+lim=100000;
+nf24217=dirzetak(nfinit(x^5-5*x^3-x^2+3*x+1),lim);
+nf24217z=dirdiv(nf24217,vector(lim,k,1));
+lnf24217=lfuncreate([n->nf24217z[1..n],0,[0,0,0,0],1,24217,1]);
+lfunconductor(lnf24217,10^5,1)
+
+e2=ellinit([3,-27,-18,24,9]);
+le2=lfuncreate([n->ellan(e2,n),0,[0,1],2,0,-1]);
+lfunconductor(le2,10^9,1)
