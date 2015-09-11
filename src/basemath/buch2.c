@@ -565,7 +565,7 @@ primeneeded(long N, long R1, long R2, double LOGD)
 {
   const double lim = 0.25; /* should be log(2)/2 == 0.34657... */
   const double al2K =  0.3526*LOGD - 0.8212*N + 4.5007;
-  const double  rKm = -1.0155*LOGD + 2.1041*N - 8.3419;
+  const double  rKm = -1.0155*LOGD + 2.1042*N - 8.3419;
   const double  rKM = -0.5   *LOGD + 1.2076*N + 1;
   const double r1Km = -       LOGD + 1.4150*N;
   const double r1KM = -       LOGD + 1.9851*N;
