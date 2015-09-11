@@ -1601,7 +1601,7 @@ ulong   rootsof1_Fl(ulong n, ulong p);
 GEN     rootsof1_Fp(GEN n, GEN p);
 GEN     rootsof1u_Fp(ulong n, GEN p);
 GEN     sqrtint(GEN a);
-GEN     tauramanujan(GEN n);
+GEN     ramanujantau(GEN n);
 ulong   ugcd(ulong a,ulong b);
 long    uisprimepower(ulong n, ulong *p);
 long    uissquare(ulong A);

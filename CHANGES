@@ -324,7 +324,7 @@ BA115- GP functions elltwist, ellminimaltwist
   116- [libpari] omegau, bigomegau
 VB117- GP support for 0xffff and 0b1111
 BA118- GP functions ellisomat
-HC119- GP function tauramanujan
+HC119- GP function ramanujantau
 PB120- Speed up {Flx,FpX,FpXQX}_divrem_basecase for modulus of the form
        x^n+O(x^m) with m small
 HC121- GP function solvestep

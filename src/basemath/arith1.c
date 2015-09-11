@@ -5153,13 +5153,13 @@ tauprime(GEN p)
 
 /* Ramanujan tau function */
 GEN
-tauramanujan(GEN n)
+ramanujantau(GEN n)
 {
   pari_sp ltop = avma;
   GEN T, F, P, E;
   long j, lP;
 
-  if (!(F = check_arith_pos(n,"tauramanujan"))) F = Z_factor(n);
+  if (!(F = check_arith_pos(n,"ramanujantau"))) F = Z_factor(n);
   P = gel(F,1);
   E = gel(F,2); lP = lg(P);
   T = gen_1;
