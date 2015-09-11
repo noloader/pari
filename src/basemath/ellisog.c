@@ -592,9 +592,19 @@ static GEN
 isogeny_a4a6(GEN E)
 {
   GEN a1 = ell_get_a1(E), a3 = ell_get_a3(E), b2 = ell_get_b2(E);
-  return mkvec3(deg1pol(gen_1, gdivgs(b2, 12), 0),
-                deg1pol(gdivgs(a1,2), deg1pol(gen_1, gdivgs(a3,2), 1), 0),
-                pol_1(0));
+  retmkvec3(deg1pol(gen_1, gdivgs(b2, 12), 0),
+            deg1pol(gdivgs(a1,2), deg1pol(gen_1, gdivgs(a3,2), 1), 0),
+            pol_1(0));
+}
+
+static GEN
+invisogeny_a4a6(GEN E)
+{
+  GEN a1 = ell_get_a1(E), a3 = ell_get_a3(E), b2 = ell_get_b2(E);
+  retmkvec3(deg1pol(gen_1, gdivgs(b2, -12), 0),
+            deg1pol(gdivgs(a1,-2),
+              deg1pol(gen_1, gadd(gdivgs(a3,-2), gdivgs(gmul(b2,a1), 24)), 1), 0),
+            pol_1(0));
 }
 
 static GEN
@@ -604,19 +614,33 @@ RgXY_eval(GEN P, GEN x, GEN y)
 }
 
 static GEN
-ellisog_by_Kohel(GEN a4, GEN a6, GEN ker, long flag)
+twistisogeny(GEN iso, GEN d)
+{
+  GEN d2 = gsqr(d), d3 = gmul(d, d2);
+  return mkvec3(gdiv(gel(iso,1), d2), gdiv(gel(iso,2), d3), gel(iso, 3));
+}
+
+static GEN
+ellisog_by_Kohel(GEN a4, GEN a6, long n, GEN ker, GEN kert, long flag)
 {
   GEN E = ellinit(mkvec2(a4, a6), NULL, DEFAULTPREC);
   GEN F = isogeny_from_kernel_poly(E, ker, flag, 0, 1);
   GEN Et = ellinit(flag ? F: gel(F, 1), NULL, DEFAULTPREC);
   GEN c4t = ell_get_c4(Et), c6t = ell_get_c6(Et), jt = ell_get_j(Et);
-  return flag ? mkvec3(c4t, c6t, jt): mkvec4(c4t, c6t, jt, gel(F,2));
+  if (!flag)
+  {
+    GEN Ft = isogeny_from_kernel_poly(Et, kert, flag, 0, 1);
+    GEN isot = twistisogeny(gel(Ft, 2), stoi(n));
+    return mkvec5(c4t, c6t, jt, gel(F, 2), isot);
+  }
+  else return mkvec3(c4t, c6t, jt);
 }
 
 static GEN
-ellisog_by_roots(GEN a4, GEN a6, GEN z, long flag)
+ellisog_by_roots(GEN a4, GEN a6, long n, GEN z, long flag)
 {
-  return ellisog_by_Kohel(a4, a6, deg1pol(gen_1, gneg(z), 0), flag);
+  return ellisog_by_Kohel(a4, a6, n, deg1pol(gen_1, gneg(z), 0),
+                                  deg1pol(gen_1, gmulsg(n, z), 0), flag);
 }
 
 static GEN
@@ -645,7 +669,7 @@ ellisograph_Kohel_iso(GEN nf, GEN e, long n, GEN z, long flag)
   r = lg(R);
   V = cgetg(r, t_VEC);
   for (i=1; i < r; i++)
-    gel(V, i) = ellisog_by_roots(a4, a6, gel(R, i), flag);
+    gel(V, i) = ellisog_by_roots(a4, a6, n, gel(R, i), flag);
   return mkvec2(V, R);
 }
 
@@ -727,7 +751,10 @@ ellisog_by_jt(GEN c4, GEN c6, GEN jt, GEN jtp, GEN s0, long n, long flag)
     GEN a4  = gdivgs(c4, -48), a6 = gdivgs(c6, -864);
     GEN a4t = gmul(gdivgs(c4t, -48), powuu(n,4)), a6t = gmul(gdivgs(c6t, -864), powuu(n,6));
     GEN ker = elkies98(a4, a6, n, s, a4t, a6t);
-    return ellisog_by_Kohel(a4, a6, ker, flag);
+    GEN st = gmulgs(s, -n);
+    GEN a4tt = gmul(a4,powuu(n,4)), a6tt = gmul(a6,powuu(n,6));
+    GEN kert = elkies98(a4t, a6t, n, st, a4tt, a6tt);
+    return ellisog_by_Kohel(a4, a6, n, ker, kert, flag);
   }
 }
 
@@ -789,25 +816,29 @@ ellisograph_r(GEN nf, GEN e, ulong p, GEN P, GEN oj, long flag)
 }
 
 static GEN
-ellisograph_dummy(GEN E, long n, GEN jt, GEN jtt, GEN s0, long flag)
+ellisograph_a4a6(GEN E, long flag)
 {
   GEN c4 = ell_get_c4(E), c6 = ell_get_c6(E), j = ell_get_j(E);
+  return flag ? mkvec3(c4, c6, j):
+                mkvec5(c4, c6, j, isogeny_a4a6(E), invisogeny_a4a6(E));
+}
+
+static GEN
+ellisograph_dummy(GEN E, long n, GEN jt, GEN jtt, GEN s0, long flag)
+{
+  GEN c4 = ell_get_c4(E), c6 = ell_get_c6(E);
   GEN c6c4 = gdiv(c6, c4);
   GEN jtp = gmul(c6c4, gdivgs(gmul(jt, jtt), -n));
   GEN iso = ellisog_by_jt(c4, c6, jt, jtp, gmul(s0, c6c4), n, flag);
   GEN v = mkvec2(iso, cgetg(1, t_VEC));
-  if (flag)
-    return mkvec2(mkvec3(c4, c6, j), mkvec(v));
-  else
-    return mkvec2(mkvec4(c4, c6, j, isogeny_a4a6(E)), mkvec(v));
+  return mkvec2(ellisograph_a4a6(E, flag), mkvec(v));
 }
 
 static GEN
 ellisograph_p(GEN nf, GEN E, ulong p, long flag)
 {
   pari_sp av = avma;
-  GEN c4 = ell_get_c4(E), c6 = ell_get_c6(E), j = ell_get_j(E);
-  GEN iso, e = flag ? mkvec3(c4, c6, j): mkvec4(c4, c6, j, isogeny_a4a6(E));
+  GEN iso, e = ellisograph_a4a6(E, flag);
   if (p > 3)
   {
     GEN P = polmodular_ZXX(p, 0, 0, 1);
@@ -829,22 +860,23 @@ etree_nbnodes(GEN T)
 }
 
 static long
-etree_listr(GEN T, GEN V, long n, GEN u)
+etree_listr(GEN T, GEN V, long n, GEN u, GEN ut)
 {
   GEN E = gel(T, 1), F = gel(T,2);
   long i, l = lg(F);
-  GEN iso;
-  if (lg(E)==5)
+  GEN iso, isot = NULL;
+  if (lg(E) == 6)
   {
-    iso = ellisogenyapply(gel(E,4), u);
-    gel(V, n) = mkvec4(gel(E,1), gel(E,2), gel(E,3), iso);
+    iso  = ellisogenyapply(gel(E,4), u);
+    isot = ellisogenyapply(ut, gel(E,5));
+    gel(V, n) = mkvec5(gel(E,1), gel(E,2), gel(E,3), iso, isot);
   } else
   {
     gel(V, n) = mkvec3(gel(E,1), gel(E,2), gel(E,3));
     iso = u;
   }
   for (i = 1; i < l; i++)
-    n = etree_listr(gel(F, i), V, n + 1, iso);
+    n = etree_listr(gel(F, i), V, n + 1, iso, isot);
   return n;
 }
 
@@ -853,7 +885,7 @@ etree_list(GEN T)
 {
   long n = etree_nbnodes(T);
   GEN V = cgetg(n+1, t_VEC);
-  (void) etree_listr(T, V, 1, trivial_isogeny());
+  (void) etree_listr(T, V, 1, trivial_isogeny(), trivial_isogeny());
   return V;
 }
 
@@ -906,7 +938,7 @@ list_to_crv(GEN L)
   {
     GEN Li = gel(L, i);
     GEN e = mkvec2(gdivgs(gel(Li,1), -48), gdivgs(gel(Li,2), -864));
-    gel(V, i) = lg(Li)==5 ? mkvec2(e, gel(Li,4)): e;
+    gel(V, i) = lg(Li)==6 ? mkvec3(e, gel(Li,4), gel(Li,5)): e;
   }
   return V;
 }
@@ -939,7 +971,7 @@ isomatdbl(GEN nf, GEN L, GEN M, ulong p, GEN T2, long flag)
   for(i=1; i <= n; i++)
   {
     GEN e = gel(L, i);
-    GEN F, E, iso;
+    GEN F, E;
     if (i == 1)
       F = gmael(T2, 2, 1);
     else
@@ -955,8 +987,9 @@ isomatdbl(GEN nf, GEN L, GEN M, ulong p, GEN T2, long flag)
       gel(V, i+n) = mkvec3(gel(E,1), gel(E,2), gel(E,3));
     else
     {
-      iso = ellisogenyapply(gel(E,4), gel(e, 4));
-      gel(V, i+n) = mkvec4(gel(E,1), gel(E,2), gel(E,3), iso);
+      GEN iso = ellisogenyapply(gel(E,4), gel(e, 4));
+      GEN isot = ellisogenyapply(gel(e,5), gel(E, 5));
+      gel(V, i+n) = mkvec5(gel(E,1), gel(E,2), gel(E,3), iso, isot);
     }
   }
   for(i=1; i <= 2*n; i++)
@@ -1104,7 +1137,7 @@ ellQ_isomat(GEN E, long flag)
   if (flag)
     retmkvec2(list_to_crv(mkvec(mkvec3(c4, c6, j))), matid(1));
   else
-    retmkvec2(list_to_crv(mkvec(mkvec4(c4, c6, j, isogeny_a4a6(E)))), matid(1));
+    retmkvec2(list_to_crv(mkvec(mkvec5(c4, c6, j, isogeny_a4a6(E), invisogeny_a4a6(E)))), matid(1));
 }
 
 GEN

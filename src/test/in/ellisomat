@@ -1,4 +1,4 @@
-default(parisize,"36M");
+default(parisize,"48M");
 checkiso(E1,E2,iso)=
 {
   my([x,y,z]=substvec(iso,['x,'y],[X,Y])*Mod(1,Y^2-(X^3+E1.a4*X+E1.a6)));
