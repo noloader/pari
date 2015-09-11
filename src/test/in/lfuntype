@@ -24,7 +24,7 @@ lfunsymsq(ellinit("11a1")),
 lfunmul(-4,-3),
 lfundiv(x^3-x-1,1),
 bnfinit(x^4+2*x^2+5),
-[bnrinit(bnfinit(x^2+23),1,1),[1]],
+[bnrinit(bnfinit(x^3+x^2+2*x+1),4,1),[1]],
 Z(2),
 lfunqf(matid(4))
 ];
@@ -34,8 +34,8 @@ chk(s,i,a,b) =
 {
   my(e);
   round((a-b)/b,&e);
-  if(e>-124,
-    error("bug in lfuntype:",s,":",i)
+  if(e>-123,
+    error("bug in lfuntype:", s, ":", i, ":", e)
    ,print(i," (",s,"): ",a));
 }
 
