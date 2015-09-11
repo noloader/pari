@@ -44,11 +44,14 @@ gen_RgXQ_eval_powers(GEN P, GEN V, long a, long n, void *E, const struct bb_alge
   pari_sp av = avma;
   long i;
   GEN z = cmul(E,P,a,ff->one(E));
+  if (!z) z = gen_0;
   for (i=1; i<=n; i++)
   {
-    z = ff->add(E, z, cmul(E,P,a+i,gel(V,i+1)));
-    if (gc_needed(av,2))
-      z = gerepileupto(av, z);
+    GEN t = cmul(E,P,a+i,gel(V,i+1));
+    if (t) {
+      z = ff->add(E, z, t);
+      if (gc_needed(av,2)) z = gerepileupto(av, z);
+    }
   }
   return ff->red(E,z);
 }

@@ -691,24 +691,24 @@ lfunisvgaell(GEN Vga, long flag)
 
 /* generic */
 static GEN
-_vecan_nv_cmul(void *E, GEN P, long a, GEN x)
+vecan_nv_cmul(void *E, GEN P, long a, GEN x)
 {
   GEN vroots = (GEN)E;
-  return (a==0 || !gel(P,a))? gen_0: gmul(gmul(gel(vroots,a), gel(P,a)), x);
+  return (a==0 || !gel(P,a))? NULL: gmul(gmul(gel(vroots,a), gel(P,a)), x);
 }
 /* al = 1 */
 static GEN
-_vecan_n_cmul(void *E, GEN P, long a, GEN x)
+vecan_n_cmul(void *E, GEN P, long a, GEN x)
 {
   (void)E;
-  return (a==0 || !gel(P,a))? gen_0: gmul(gmulsg(a,gel(P,a)), x);
+  return (a==0 || !gel(P,a))? NULL: gmul(gmulsg(a,gel(P,a)), x);
 }
 /* al = 0 */
 static GEN
-_vecan_cmul(void *E, GEN P, long a, GEN x)
+vecan_cmul(void *E, GEN P, long a, GEN x)
 {
   (void)E;
-  return (a==0 || !gel(P,a))? gen_0: gmul(gel(P,a), x);
+  return (a==0 || !gel(P,a))? NULL: gmul(gel(P,a), x);
 }
 /* d=2, 2 sum_{n <= limt} a_n (n t)^al q^n, q = exp(-2pi t) */
 static GEN
@@ -720,18 +720,18 @@ theta2(GEN vecan, long limt, GEN t, GEN al, long prec)
   long flag;
   if (gequal0(al))
   {
-    cmul = _vecan_cmul;
+    cmul = vecan_cmul;
     flag = 0;
   }
   else if (gequal1(al))
   {
-    cmul = _vecan_n_cmul;
+    cmul = vecan_n_cmul;
     flag = 1;
   }
   else
   {
     vroots = mkvpow(al, limt, prec);
-    cmul = _vecan_nv_cmul;
+    cmul = vecan_nv_cmul;
     flag = 2;
   }
   setsigne(pi2,-1); q = gexp(gmul(pi2, t), prec);

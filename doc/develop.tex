@@ -535,7 +535,8 @@ black box algebra:
 $x$ being an element of the black box algebra, and $P$ some black box
 polynomial of degree $d$ over the base field,  returns $P(x)$. The function
 \kbd{cmul(E,P,a,y)} must return the coefficient of degree $a$ of $P$
-multiplied by $y$. \kbd{cmul} is allowed to return a non canonical form.
+multiplied by $y$. \kbd{cmul} is allowed to return a non canonical form;
+it is also allowed to return \kbd{NULL} instead of an exact $0$.
 
 The flag \kbd{use\_sqr} has the same meaning as for \kbd{gen\_powers}. This
 implements an algorithm of Brent and Kung (1978).
