@@ -650,7 +650,7 @@ fix_size(size_t a)
 {
   size_t ps = PARI_STACK_ALIGN;
   size_t b = a & ~(ps - 1); /* Align */
-  if (b < a) b += ps;
+  if (b < a && b < ~(ps - 1)) b += ps;
   if (b < MIN_STACK) b = MIN_STACK;
   return b;
 }
@@ -659,15 +659,16 @@ static void
 pari_mainstack_alloc(struct pari_mainstack *st, size_t rsize, size_t vsize)
 {
   size_t sizemax = vsize ? vsize: rsize, s = fix_size(sizemax);
-  for (;; s>>=1)
+  for (;;)
   {
-    if (s < MIN_STACK) pari_err(e_MEM); /* no way out. Die */
     st->vbot = (pari_sp)pari_mainstack_malloc(s);
     if (st->vbot) break;
-    pari_warn(warnstack, s>>1);
+    if (s == MIN_STACK) pari_err(e_MEM); /* no way out. Die */
+    s = fix_size(s >> 1);
+    pari_warn(warnstack, s);
   }
   st->vsize = vsize ? s: 0;
-  st->rsize = minss(rsize, s);
+  st->rsize = minuu(rsize, s);
   st->size = st->rsize;
   st->top = st->vbot+s;
   st->bot = st->top - st->size;
