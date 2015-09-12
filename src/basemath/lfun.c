@@ -629,22 +629,6 @@ mkvroots(long d, long lim, long prec)
   return mkvpow(gdivgs(gen_2,d), lim, prec);
 }
 
-/* return [x^1,x^4,...,x^{n^2}] */
-static GEN
-gsqrpowers(GEN q, long n)
-{
-  pari_sp av = avma;
-  GEN q1 = q, q2 = gsqr(q), v = cgetg(n+1, t_VEC);
-  long i;
-  gel(v, 1) = q;
-  for (i = 2; i <= n ; ++i)
-  {
-    q1 = gmul(q1, q2); q = gmul(q, q1);
-    gel(v, i) = q;
-  }
-  return gerepilecopy(av, v);
-}
-
 GEN
 lfunthetacheckinit(GEN data, GEN t, long m, long *pbitprec, long fl)
 {

@@ -1169,6 +1169,22 @@ gpowers(GEN x, long n)
   return gen_powers(x, n, 1, (void*)x, &_sqr, &_mul, &_one);
 }
 
+/* return [q^1,q^4,...,q^{n^2}] */
+GEN
+gsqrpowers(GEN q, long n)
+{
+  pari_sp av = avma;
+  GEN q1 = q, q2 = gsqr(q), v = cgetg(n+1, t_VEC);
+  long i;
+  gel(v, 1) = q;
+  for (i = 2; i <= n ; ++i)
+  {
+    q1 = gmul(q1, q2); /* q^(2i-1) */
+    gel(v, i) = q = gmul(q, q1); /* q^(i^2) */
+  }
+  return gerepilecopy(av, v);
+}
+
 /********************************************************************/
 /**                                                                **/
 /**                        RACINE CARREE                           **/

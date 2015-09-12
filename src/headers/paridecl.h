@@ -3906,6 +3906,7 @@ GEN     gpowgs(GEN x, long n);
 GEN     gsin(GEN x, long prec);
 GEN     gsinc(GEN x, long prec);
 void    gsincos(GEN x, GEN *s, GEN *c, long prec);
+GEN     gsqrpowers(GEN q, long n);
 GEN     gsqrt(GEN x, long prec);
 GEN     gsqrtn(GEN x, GEN n, GEN *zetan, long prec);
 GEN     gtan(GEN x, long prec);
