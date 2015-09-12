@@ -70,60 +70,6 @@ lfuncreate(GEN data)
 /********************************************************************/
 /**                     Simple constructors                        **/
 /********************************************************************/
-enum { t_LFUNMISC_POL, t_LFUNMISC_CHI, t_LFUNMISC_CHIGEN,
-       t_LFUNMISC_ELLINIT, t_LFUNMISC_ETAQUO };
-static long
-lfundatatype(GEN data)
-{
-  long l;
-  switch(typ(data))
-  {
-    case t_INT: return t_LFUNMISC_CHI;
-    case t_POL: return t_LFUNMISC_POL;
-    case t_VEC:
-      if (checknf_i(data)) return t_LFUNMISC_POL;
-      l = lg(data);
-      if (l == 17) return t_LFUNMISC_ELLINIT;
-      if (l == 3 && typ(gel(data,2)) == t_VEC)
-        switch(typ(gel(data,1)))
-        {
-          case t_INT: return t_LFUNMISC_CHI;
-          case t_VEC: return t_LFUNMISC_CHIGEN;
-        }
-      break;
-  }
-  return -1;
-}
-static GEN
-lfunmisc_to_ldata_i(GEN ldata, long shallow)
-{
-  long lx;
-  if (is_linit(ldata)) ldata = linit_get_ldata(ldata);
-  lx = lg(ldata);
-  if (typ(ldata)==t_VEC && (lx == 7 || lx == 8) && is_tagged(ldata))
-  {
-    if (!shallow) ldata = gcopy(ldata);
-    checkldata(ldata); return ldata;
-  }
-  switch (lfundatatype(ldata))
-  {
-    case t_LFUNMISC_POL: return lfunzetak(ldata);
-    case t_LFUNMISC_CHI: return lfunchi(ldata);
-    case t_LFUNMISC_CHIGEN: return lfunchigen(gel(ldata,1), gel(ldata,2));
-    case t_LFUNMISC_ELLINIT: return lfunell(ldata);
-  }
-  pari_err_TYPE("lfunmisc_to_ldata",ldata);
-  return NULL; /* NOT REACHED */
-}
-
-GEN
-lfunmisc_to_ldata(GEN ldata)
-{ return lfunmisc_to_ldata_i(ldata, 0); }
-
-GEN
-lfunmisc_to_ldata_shallow(GEN ldata)
-{ return lfunmisc_to_ldata_i(ldata, 1); }
-
 GEN
 vecan_mul(GEN an, long n, long prec)
 {
@@ -364,7 +310,7 @@ lfunchitype(GEN CHI)
   }
 }
 
-GEN
+static GEN
 lfunchi(GEN CHI)
 {
   switch(lfunchitype(CHI))
@@ -484,7 +430,7 @@ vec01(long r1, long r2)
   return v;
 }
 /* CHI primitive character */
-GEN
+static GEN
 lfunchigen(GEN bnr, GEN CHI)
 {
   pari_sp av = avma;
@@ -646,7 +592,7 @@ lfunzetak_i(GEN T)
   Vga = vec01(r1+r2,r2);
   return mkvecn(7, tag(T,t_LFUN_NF), gen_0, Vga, gen_1, N, gen_1, r);
 }
-GEN
+static GEN
 lfunzetak(GEN T)
 { pari_sp ltop = avma; return gerepilecopy(ltop, lfunzetak_i(T)); }
 
@@ -883,7 +829,7 @@ lfunzetakinit(GEN pol, GEN dom, long der, long flag, long prec)
 /*             Elliptic Curves and Modular Forms               */
 /***************************************************************/
 
-GEN
+static GEN
 lfunell(GEN e)
 {
   pari_sp av = avma;
@@ -1208,7 +1154,7 @@ lfunsymsq(GEN ldata, GEN known, long prec)
   return gerepilecopy(ltop, L);
 }
 
-GEN
+static GEN
 lfunellsymsq(GEN E)
 {
   pari_sp ltop = avma;
@@ -1570,3 +1516,58 @@ lfunqf(GEN M)
       gen_0, mkvec2(gen_0, gen_1), stoi(k), d, gen_1, gen_0);
   return gerepilecopy(ltop, Ldata);
 }
+
+enum { t_LFUNMISC_POL, t_LFUNMISC_CHI, t_LFUNMISC_CHIGEN,
+       t_LFUNMISC_ELLINIT, t_LFUNMISC_ETAQUO };
+static long
+lfundatatype(GEN data)
+{
+  long l;
+  switch(typ(data))
+  {
+    case t_INT: return t_LFUNMISC_CHI;
+    case t_POL: return t_LFUNMISC_POL;
+    case t_VEC:
+      if (checknf_i(data)) return t_LFUNMISC_POL;
+      l = lg(data);
+      if (l == 17) return t_LFUNMISC_ELLINIT;
+      if (l == 3 && typ(gel(data,2)) == t_VEC)
+        switch(typ(gel(data,1)))
+        {
+          case t_INT: return t_LFUNMISC_CHI;
+          case t_VEC: return t_LFUNMISC_CHIGEN;
+        }
+      break;
+  }
+  return -1;
+}
+static GEN
+lfunmisc_to_ldata_i(GEN ldata, long shallow)
+{
+  long lx;
+  if (is_linit(ldata)) ldata = linit_get_ldata(ldata);
+  lx = lg(ldata);
+  if (typ(ldata)==t_VEC && (lx == 7 || lx == 8) && is_tagged(ldata))
+  {
+    if (!shallow) ldata = gcopy(ldata);
+    checkldata(ldata); return ldata;
+  }
+  switch (lfundatatype(ldata))
+  {
+    case t_LFUNMISC_POL: return lfunzetak(ldata);
+    case t_LFUNMISC_CHI: return lfunchi(ldata);
+    case t_LFUNMISC_CHIGEN: return lfunchigen(gel(ldata,1), gel(ldata,2));
+    case t_LFUNMISC_ELLINIT: return lfunell(ldata);
+  }
+  pari_err_TYPE("lfunmisc_to_ldata",ldata);
+  return NULL; /* NOT REACHED */
+}
+
+GEN
+lfunmisc_to_ldata(GEN ldata)
+{ return lfunmisc_to_ldata_i(ldata, 0); }
+
+GEN
+lfunmisc_to_ldata_shallow(GEN ldata)
+{ return lfunmisc_to_ldata_i(ldata, 1); }
+
