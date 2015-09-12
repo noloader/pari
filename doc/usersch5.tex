@@ -10045,10 +10045,6 @@ that $C > 0$ is a \typ{REAL} and that \kbd{eC} is \kbd{NULL} or \kbd{mpexp(C)}.
 \fun{GEN}{mpeint1}{GEN x, GEN expx} returns \kbd{eint1}$(x)$, for a \typ{REAL}
 $x\geq 0$, assuming that \kbd{expx} is \kbd{mpexp}$(x)$.
 
-\fun{GEN}{szeta}{long s, long prec} returns the value of Riemann's zeta
-function at the (possibly negative) integer $s\neq 1$, in relative accuracy
-\kbd{prec}.
-
 \fun{GEN}{mplambertW}{GEN y} solution $x$ of the implicit equation
 $x \exp(x) = y$, for $y > 0$ a \typ{REAL}.
 
@@ -10061,6 +10057,17 @@ $x \exp(x) = y$, for $y > 0$ a \typ{REAL}.
 \fun{GEN}{exp1r_abs}{GEN x} returns $\exp(|x|) - 1$, assuming $x \neq 0$.
 
 \fun{GEN}{logr_abs}{GEN x} returns $\log(|x|)$, assuming $x \neq 0$.
+
+\subsec{Other complex transcendental functions}
+
+\fun{GEN}{szeta}{long s, long prec} returns the value of Riemann's zeta
+function at the (possibly negative) integer $s\neq 1$, in relative accuracy
+\kbd{prec}.
+
+\fun{GEN}{veczeta}{GEN a, GEN b, long N, long prec} returns the vector
+of $\zeta(aj + b)$, $j = 0, 1, \dots, N-1$, where $a$ and $b$ are real
+numbers (of arbitrary type, although \typ{INT} is treated more efficiently)
+and $b > 1$.
 
 \noindent A few variants on sin and cos:
 
