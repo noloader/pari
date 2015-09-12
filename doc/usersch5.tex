@@ -2741,7 +2741,10 @@ returns $x$ itself and not a copy if $yu = 0$. Not suitable for
 \fun{GEN}{submuliu}{GEN x, GEN y, ulong u} returns $x -yu$.
 
 \fun{GEN}{mulu_interval}{ulong a, ulong b} returns $a(a+1)\cdots b$, assuming
-that $a \leq b$. Very inefficient when $a = 0$.
+that $a \leq b$.
+
+\fun{GEN}{muls_interval}{long a, long b} returns $a(a+1)\cdots b$, assuming
+that $a \leq b$.
 
 \fun{GEN}{invr}{GEN x} returns the inverse of the non-zero \typ{REAL}~$x$.
 

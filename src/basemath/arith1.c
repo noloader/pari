@@ -3788,10 +3788,12 @@ GEN
 mulu_interval(ulong a, ulong b)
 {
   pari_sp av = avma;
-  ulong k, l, N, n = b - a + 1;
+  ulong k, l, N, n;
   long lx;
   GEN x;
 
+  if (!a) return gen_0;
+  n = b - a + 1;
   if (n < 61)
   {
     x = utoi(a);
@@ -3806,6 +3808,31 @@ mulu_interval(ulong a, ulong b)
     gel(x,lx++) = muluu(k,l);
   }
   if (l == k) gel(x,lx++) = utoipos(k);
+  setlg(x, lx);
+  return gerepileuptoint(av, ZV_prod(x));
+}
+GEN
+muls_interval(long a, long b)
+{
+  pari_sp av = avma;
+  long lx, k, l, N, n = b - a + 1;
+  GEN x;
+
+  if (a <= 0 && b >= 0) return gen_0;
+  if (n < 61)
+  {
+    x = stoi(a);
+    for (k=a+1; k<=b; k++) x = mulsi(k,x);
+    return gerepileuptoint(av, x);
+  }
+  lx = 1; x = cgetg(2 + n/2, t_VEC);
+  N = b + a;
+  for (k = a;; k++)
+  {
+    l = N - k; if (l <= k) break;
+    gel(x,lx++) = mulss(k,l);
+  }
+  if (l == k) gel(x,lx++) = stoi(k);
   setlg(x, lx);
   return gerepileuptoint(av, ZV_prod(x));
 }

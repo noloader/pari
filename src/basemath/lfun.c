@@ -1451,16 +1451,6 @@ sersplit1(GEN s, GEN *head)
   return normalize(y);
 }
 
-static GEN
-muls_interval(long a, long b)
-{
-  pari_sp av = avma;
-  long k;
-  GEN x = stoi(a);
-  for (k=a+1; k<=b; k++) x = mulsi(k,x);
-  return gerepileuptoint(av, x);
-}
-
 /* n-th derivative of t_SER x */
 static GEN
 derivnser(GEN x, long n)
