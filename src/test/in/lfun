@@ -12,6 +12,8 @@ L121=lfuninit(e121,[1,0,100],2);
 lfun(L121,1+100*I)
 lfun(L121,1+x+O(x^3))
 
+lfun(1,1+x+O(x^4),1)
+
 lfun(polcyclo(12),2)
 
 \\ check for loss in accuracy in lfunthetaspec
