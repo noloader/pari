@@ -894,7 +894,7 @@ lfunparams(GEN ldata, long der, long bitprec, struct lfunp *S)
     }
   }
   S->sub = sub;
-  M = 100000;
+  M = 1000;
   L = cgetg(M+2, t_VECSMALL);
   a = S->k1 + S->A;
   nmax = 0;
