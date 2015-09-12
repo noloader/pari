@@ -3237,7 +3237,6 @@ GEN     lfunzeros(GEN ldata, GEN lim, long divz, long prec);
 GEN     lfunzeros_bitprec(GEN ldata, GEN lim, long divz, long bitprec);
 int     sdomain_isincl(GEN dom, GEN dom0);
 GEN     theta_get_an(GEN tdata);
-long    theta_get_L(GEN tdata);
 GEN     theta_get_K(GEN tdata);
 GEN     theta_get_R(GEN tdata);
 long    theta_get_bitprec(GEN tdata);

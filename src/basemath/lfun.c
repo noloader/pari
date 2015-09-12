@@ -116,25 +116,16 @@ lfunprod_get_fact(GEN tech)  { return gel(tech, 2); }
 
 GEN
 theta_get_an(GEN tdata)        { return gel(tdata, 1);}
-
-long
-theta_get_L(GEN tdata)         { return (lg(gel(tdata, 1)) - 1);}
-
 GEN
 theta_get_K(GEN tdata)         { return gel(tdata, 2);}
-
 GEN
 theta_get_R(GEN tdata)         { return gel(tdata, 3);}
-
 long
 theta_get_bitprec(GEN tdata)   { return itos(gel(tdata, 4));}
-
 long
 theta_get_m(GEN tdata)         { return itos(gel(tdata, 5));}
-
 GEN
 theta_get_tdom(GEN tdata)      { return gel(tdata, 6);}
-
 GEN
 theta_get_sqrtN(GEN tdata)     { return gel(tdata, 7);}
 
