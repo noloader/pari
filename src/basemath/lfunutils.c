@@ -273,7 +273,7 @@ lfundiv(GEN ldata1, GEN ldata2, long prec)
 /*  L-series of Dirichlet characters.                            */
 /*****************************************************************/
 
-GEN
+static GEN
 lfunzeta(void)
 {
   GEN zet = mkvecn(7, NULL, gen_0, NULL, gen_1, gen_1, gen_1, gen_1);
@@ -281,7 +281,6 @@ lfunzeta(void)
   gel(zet,3) = mkvec(gen_0);
   return zet;
 }
-
 static GEN
 lfunzetainit_bitprec(GEN dom, long der, long bitprec)
 { return lfuninit_bitprec(lfunzeta(), dom, der, bitprec); }

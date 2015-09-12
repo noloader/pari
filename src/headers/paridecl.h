@@ -3255,7 +3255,6 @@ GEN     lfunconvol(GEN a1, GEN a2);
 GEN     lfunchi(GEN CHI);
 GEN     lfunchigen(GEN bnr, GEN CHI);
 GEN     lfundiv(GEN ldata1, GEN ldata2, long prec);
-GEN     lfunzeta(void);
 GEN     lfunzetakinit(GEN pol, GEN dom, long der, long flag, long prec);
 GEN     lfunzetakinit_bitprec(GEN pol, GEN dom, long der, long flag, long bitprec);
 GEN     lfunzetak(GEN pol);
