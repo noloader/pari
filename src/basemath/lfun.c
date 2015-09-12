@@ -325,39 +325,6 @@ gammavec_expo(long d, double suma) { return (1 - d + suma) / d; }
 /*       First part: computations only involving Theta(t)          */
 /*******************************************************************/
 
-/* van is the output of ldata_get_an: return a_1,...a_L at precision prec */
-GEN
-ldata_vecan(GEN van, long L, long prec)
-{
-  GEN an = gel(van, 2);
-  if (DEBUGLEVEL >= 1)
-    err_printf("Lfun: computing %ld coeffs to prec %ld.\n", L, prec);
-  switch (mael(van,1,1))
-  {
-    long n;
-    case t_LFUN_GENERIC:
-      push_localprec(prec); an = direxpand(an, L); pop_localprec();
-      n = lg(an)-1;
-      if (n < L)
-        pari_warn(warner, "#an = %ld < %ld, results may be imprecise", n, L);
-      return an;
-    case t_LFUN_ZETA: retconst_vec(L, gen_1);
-    case t_LFUN_NF:  return dirzetak(an, stoi(L));
-    case t_LFUN_ELL: return anell(an, L);
-    case t_LFUN_KRONECKER: return vecan_Kronecker(an, L);
-    case t_LFUN_CHIVEC: return vecan_chivec(an, L, prec);
-    case t_LFUN_CHIGEN: return vecan_chigen(an, L, prec);
-    case t_LFUN_ETA: return vecan_eta(an, L);
-    case t_LFUN_QF: return vecan_qf(an, L);
-    case t_LFUN_DIV: return vecan_div(an, L, prec);
-    case t_LFUN_MUL: return vecan_mul(an, L, prec);
-    case t_LFUN_SYMSQ: return vecan_symsq(an, L, prec);
-    case t_LFUN_SYMSQ_ELL: return vecan_ellsymsq(an, L);
-    default: pari_err_TYPE("ldata_vecan", van);
-  }
-  return NULL; /* NOT REACHED */
-}
-
 static void
 get_cone(GEN t, double *r, double *a)
 {

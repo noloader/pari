@@ -70,7 +70,7 @@ lfuncreate(GEN data)
 /********************************************************************/
 /**                     Simple constructors                        **/
 /********************************************************************/
-GEN
+static GEN
 vecan_mul(GEN an, long n, long prec)
 {
   pari_sp ltop = avma;
@@ -83,7 +83,7 @@ GEN
 lfunconvol(GEN a1, GEN a2)
 { return tag(mkvec2(a1, a2), t_LFUN_MUL); }
 
-GEN
+static GEN
 vecan_div(GEN an, long n, long prec)
 {
   pari_sp ltop = avma;
@@ -231,7 +231,7 @@ static GEN
 lfunzetainit_bitprec(GEN dom, long der, long bitprec)
 { return lfuninit_bitprec(lfunzeta(), dom, der, bitprec); }
 
-GEN
+static GEN
 vecan_chivec(GEN an, long n, long prec)
 {
   pari_sp ltop = avma;
@@ -273,7 +273,7 @@ lfunchivec(GEN CHI)
   return gerepilecopy(ltop, r);
 }
 
-GEN
+static GEN
 vecan_Kronecker(GEN D, long n)
 {
   GEN v = cgetg(n+1, t_VEC);
@@ -381,7 +381,7 @@ chigeneval(GEN bnr, GEN CHI, GEN x, long ssd, long prec)
   return gerepileupto(ltop, res);
 }
 
-GEN
+static GEN
 vecan_chigen(GEN an, long n, long prec)
 {
   pari_sp ltop = avma;
@@ -889,7 +889,7 @@ lfunmfspec(GEN lmisc, long prec)
 /* Symmetric square of a Hecke eigenform, cuspform. Assume ldata is the ldata
 of such a cusp form. Find the ldata of its symmetric square, and in particular
 the conductor and bad Euler factors. */
-GEN
+static GEN
 vecan_symsq(GEN an, long nn, long prec)
 {
   pari_sp ltop = avma;
@@ -1005,7 +1005,7 @@ ellsymsq(void *D, GEN p)
   }
   return mkrfrac(gen_1,T);
 }
-GEN
+static GEN
 vecan_ellsymsq(GEN an, long n)
 { GEN nn = stoi(n); return direuler((void*)an, &ellsymsq, gen_2, nn, nn); }
 
@@ -1361,7 +1361,7 @@ eta_inflate_ZXn(long m, long v)
   return RgX_to_ser(P, m+2);
 }
 
-GEN
+static GEN
 vecan_eta(GEN eta, long L)
 {
   pari_sp ltop = avma;
@@ -1478,11 +1478,9 @@ lfunetaquo(GEN eta)
   return gerepilecopy(ltop, Ldata);
 }
 
-GEN
+static GEN
 vecan_qf(GEN Q, long L)
-{
-  return gmul2n(gtovec(qfrep0(Q, utoi(L), 1)), 1);
-}
+{ return gmul2n(gtovec(qfrep0(Q, utoi(L), 1)), 1); }
 
 static long
 qf_iseven(GEN M)
@@ -1517,6 +1515,9 @@ lfunqf(GEN M)
   return gerepilecopy(ltop, Ldata);
 }
 
+/********************************************************************/
+/**                    High-level Constructors                     **/
+/********************************************************************/
 enum { t_LFUNMISC_POL, t_LFUNMISC_CHI, t_LFUNMISC_CHIGEN,
        t_LFUNMISC_ELLINIT, t_LFUNMISC_ETAQUO };
 static long
@@ -1571,3 +1572,38 @@ GEN
 lfunmisc_to_ldata_shallow(GEN ldata)
 { return lfunmisc_to_ldata_i(ldata, 1); }
 
+/********************************************************************/
+/**                    High-level an expansion                     **/
+/********************************************************************/
+/* van is the output of ldata_get_an: return a_1,...a_L at precision prec */
+GEN
+ldata_vecan(GEN van, long L, long prec)
+{
+  GEN an = gel(van, 2);
+  if (DEBUGLEVEL >= 1)
+    err_printf("Lfun: computing %ld coeffs to prec %ld.\n", L, prec);
+  switch (mael(van,1,1))
+  {
+    long n;
+    case t_LFUN_GENERIC:
+      push_localprec(prec); an = direxpand(an, L); pop_localprec();
+      n = lg(an)-1;
+      if (n < L)
+        pari_warn(warner, "#an = %ld < %ld, results may be imprecise", n, L);
+      return an;
+    case t_LFUN_ZETA: retconst_vec(L, gen_1);
+    case t_LFUN_NF:  return dirzetak(an, stoi(L));
+    case t_LFUN_ELL: return anell(an, L);
+    case t_LFUN_KRONECKER: return vecan_Kronecker(an, L);
+    case t_LFUN_CHIVEC: return vecan_chivec(an, L, prec);
+    case t_LFUN_CHIGEN: return vecan_chigen(an, L, prec);
+    case t_LFUN_ETA: return vecan_eta(an, L);
+    case t_LFUN_QF: return vecan_qf(an, L);
+    case t_LFUN_DIV: return vecan_div(an, L, prec);
+    case t_LFUN_MUL: return vecan_mul(an, L, prec);
+    case t_LFUN_SYMSQ: return vecan_symsq(an, L, prec);
+    case t_LFUN_SYMSQ_ELL: return vecan_ellsymsq(an, L);
+    default: pari_err_TYPE("ldata_vecan", van);
+  }
+  return NULL; /* NOT REACHED */
+}

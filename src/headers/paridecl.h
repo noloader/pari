@@ -3263,15 +3263,6 @@ GEN     lfunmul(GEN ldata1, GEN ldata2, long prec);
 GEN     lfunqf(GEN ldata);
 GEN     lfunsymsq(GEN ldata, GEN known, long prec);
 GEN     lfunsymsqspec(GEN ldata, long prec);
-GEN     vecan_chigen(GEN an, long n, long prec);
-GEN     vecan_chivec(GEN an, long n, long prec);
-GEN     vecan_div(GEN an, long n, long prec);
-GEN     vecan_ellsymsq(GEN an, long n);
-GEN     vecan_eta(GEN mateta, long L);
-GEN     vecan_mul(GEN an, long n, long prec);
-GEN     vecan_qf(GEN Q, long L);
-GEN     vecan_Kronecker(GEN D, long n);
-GEN     vecan_symsq(GEN an, long n, long prec);
 
 /* lll.c */
 
