@@ -1199,7 +1199,7 @@ long    localhasse(GEN rnf, GEN nf2, GEN cnd, GEN pl, GEN auts, GEN b, long k);
 GEN     nfgrunwaldwang(GEN nf0, GEN Lpr, GEN Ld, GEN pl, long var);
 GEN     nfgwkummer(GEN nf, GEN Lpr, GEN Ld, GEN pl, long var);
 /*to     be moved elsewhere*/
-GEN     extchinese(GEN nf, GEN x, GEN y, GEN pl, GEN* red);
+GEN     idealextchinese(GEN nf, GEN x, GEN y, GEN pl, GEN* red);
 GEN     factoredextchinese(GEN nf, GEN x, GEN y, GEN pl, GEN* fa);
 GEN     factoredextchinesetest(GEN nf, GEN x, GEN y, GEN pl, GEN* fa, GEN data, int (*test)(GEN,GEN,GEN));
 
@@ -1804,6 +1804,7 @@ GEN     nfdivrem(GEN nf, GEN a, GEN b);
 GEN     nfembed(GEN nf, GEN x, long k);
 GEN     nfinv(GEN nf, GEN x);
 GEN     nfinvmodideal(GEN nf, GEN x, GEN ideal);
+int     nfispositive(GEN nf, GEN x, GEN pl);
 GEN     nfmod(GEN nf, GEN a, GEN b);
 GEN     nfmul(GEN nf,GEN x,GEN y);
 GEN     nfmuli(GEN nf,GEN x,GEN y);

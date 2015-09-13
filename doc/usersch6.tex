@@ -795,6 +795,13 @@ $\var{nf}$ indexed by the ideals in $x$, computes an element $b$ such that
 $v_\wp(b - y_\wp) \geq v_\wp(x)$ for all prime ideals in $x$ and $v_\wp(b)\geq
 0$ for all other $\wp$.
 
+\fun{GEN}{idealextchinese}{GEN nf, GEN x, GEN y, GEN pl, GEN* red}
+let $x$ and $y$ be as in \kbd{idealchinese} and \var{pl} be a \typ{VECSMALL}
+with $r_1$ components, all of which are in $\{-1,0,1\}$. Returns a $b$
+satisfying the \kbd{idealchinese} congruences such that its real embeddings
+satisfy further $\sigma_i(b)\var{pl}[i]\geq 0$ for all $i$. If \kbd{red}
+is not \kbd{NULL} set it to a $T_2$-reduced basis of $x$.
+
 \subsec{Maximal ideals}
 
 The PARI structure associated to maximal ideals is a \tev{prid} (for
@@ -957,9 +964,9 @@ representations for the Archimedean part of divisors (GP: $0/1$ vectors,
 library: list of indices):
 
 \fun{GEN}{vec01_to_indices}{GEN v} given a \typ{VEC} $v$ with \typ{INT} entries
-equal to $0$ or $1$, return as a \typ{VECSMALL} the list of indices $i$
-such that $v[i] = 1$. If $v$ is already a \typ{VECSMALL}, return it
-(not suitable for \kbd{gerepile} in this case).
+return as a \typ{VECSMALL} the list of indices $i$ such that $v[i] \neq 0$.
+(Typically used with $0,1$-vectors but not necessarily so.) If $v$ is already
+a \typ{VECSMALL}, return it: not suitable for \kbd{gerepile} in this case.
 
 \fun{GEN}{vecsmall01_to_indices}{GEN v} as
 \bprog
@@ -987,6 +994,10 @@ distinct real places, either in \kbd{vec01} (\typ{VEC} with \kbd{gen\_0} or
 \kbd{gen\_1} entries) or \kbd{indices} (\typ{VECSMALL}) form (see
 \tet{vec01_to_indices}), returns the signs of $x$ at the corresponding
 places. This is the low-level function underlying \kbd{nfsign}.
+
+\fun{int}{nfispositive}{GEN nf, GEN x, GEN pl} \var{pl} is a
+\typ{VECSMALL} with $r_1$ components, all of which are in $\{-1,0,1\}$.
+Return $1$ if $\sigma_i(x) \var{pl}[i] \geq 0$ for all $i$, and $0$ otherwise.
 
 \fun{GEN}{nfsign_units}{GEN bnf, GEN archp, int add_tu}
 \kbd{archp} being a divisor at infinity in \kbd{indices} form

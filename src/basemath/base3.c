@@ -1168,20 +1168,48 @@ eval_sign(GEN M, GEN x, long k)
   return signe(z);
 }
 
-/* sigma_k(x) */
+/* sigma_k(x), assuming x not rational (or nf != Q) */
+static GEN
+nfembed_i(GEN nf, GEN x, long k)
+{
+  long i, l;
+  GEN z, M;
+  M = nf_get_M(nf); l = lg(M); /* > 2 */
+  z = gel(x,1);
+  for (i=2; i<l; i++) z = gadd(z, gmul(gcoeff(M,k,i), gel(x,i)));
+  return z;
+}
 GEN
 nfembed(GEN nf, GEN x, long k)
 {
   pari_sp av = avma;
-  long i, l;
-  GEN z, M;
   nf = checknf(nf);
   x = nf_to_scalar_or_basis(nf,x);
   if (typ(x) != t_COL) return gerepilecopy(av, x);
-  M = nf_get_M(nf); l = lg(M); /* > 2 */
-  z = gel(x,1);
-  for (i=2; i<l; i++) z = gadd(z, gmul(gcoeff(M,k,i), gel(x,i)));
-  return gerepileupto(av, z);
+  return gerepileupto(av, nfembed_i(nf,x,k));
+}
+
+/* pl : requested signs for real embeddings, 0 = no sign constraint */
+/* FIXME: not rigorous */
+int
+nfispositive(GEN nf, GEN x, GEN pl)
+{
+  pari_sp av = avma;
+  long l = lg(pl), i;
+  nf = checknf(nf);
+  x = nf_to_scalar_or_basis(nf,x);
+  if (typ(x) != t_COL)
+  {
+    long s = gsigne(x);
+    for (i = 1; i < l; i++)
+      if (pl[i] && pl[i] != s) { avma = av; return 0; }
+  }
+  else
+  {
+    for (i = 1; i < l; i++)
+      if (pl[i] && pl[i] != gsigne(nfembed_i(nf,x,i))) { avma = av; return 0; }
+  }
+  avma = av; return 1;
 }
 
 GEN

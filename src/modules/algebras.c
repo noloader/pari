@@ -270,60 +270,12 @@ alg_get_tracebasis(GEN al) { return gel(al,11); }
 static long
 rnfrealdec(GEN rnf, long k)
 {
+  pari_sp av = avma;
   GEN nf = rnf_get_nf(rnf), pol = rnf_get_pol(rnf);
-  long i, l = lg(pol);
+  long r, i, l = lg(pol);
   pol = shallowcopy(pol);
   for (i=2; i<l; i++) gel(pol,i) = nfembed(nf, gel(pol,i), k);
-  return sturm(pol);
-}
-
-/* pl : requested signs for real embeddings, 0 = no sign constraint */
-/* FIXME: not rigorous */
-static long
-ispositive(GEN nf, GEN x, GEN pl)
-{
-  long l = lg(pl), i;
-  for (i = 1; i < l; i++)
-    if (pl[i] && pl[i] != gsigne(nfembed(nf,x,i))) return 0;
-  return 1;
-}
-
-/** IDEALCHINESE **/
-
-GEN
-extchinese(GEN nf, GEN x, GEN y, GEN pl, GEN* red)
-{
-  pari_sp av = avma;
-  long i, r, e;
-  GEN y0, G, I,x0, Mr, MI, lambda, mlambda, C, sol, nz;
-
-  y0 = idealchinese(nf, x, y);
-  I = factorbackprime(nf, gel(x,1), gel(x,2));
-  G = nf_get_roundG(nf);
-  *red = ZM_mul(I,ZM_lll(ZM_mul(G,I), 0.99, LLL_IM));
-  y0 = ZC_reducemodmatrix(y0,*red);
-
-  if (ispositive(nf, y0, pl)) {
-    gerepileall(av, 2, &y0, red);
-    return y0;
-  }
-
-  nz = vecsmall01_to_indices(pl);
-  Mr = rowpermute(nf_get_M(nf), nz);
-  MI = RgM_mul(Mr,*red);
-  lambda = gdivgs(matrixnorm(MI,DEFAULTPREC), 2);
-  mlambda = gneg(lambda);
-
-  r = lg(nz); C = cgetg(r, t_COL);
-  for (i = 1; i < r; i++) gel(C,i) = pl[nz[i]] < 0? mlambda: lambda;
-  C = RgC_sub(C, RgM_RgC_mul(Mr,y0));
-
-  sol = inverseimage(MI, C);
-  x0 = ZM_ZC_mul(*red, grndtoi(sol, &e));
-  y0 = ZC_add(y0,x0);
-
-  gerepileall(av, 2, &y0, red);
-  return y0;
+  r = sturm(pol); avma = av; return r;
 }
 
 /* no garbage collection */
@@ -356,7 +308,7 @@ backtrackfacto(GEN y0, long n, GEN red, GEN pl, GEN nf, GEN data, int (*test)(GE
       y1 = y0;
       for (i=1; i<=n; i++) y1 = nfadd(nf, y1, ZC_z_mul(gel(red,i), v[i]));
 
-      if (!ispositive(nf, y1, pl)) continue;
+      if (!nfispositive(nf, y1, pl)) continue;
 
       ny = absi(nfnorm(nf, y1));
       if (!signe(ny)) continue;
@@ -381,7 +333,7 @@ factoredextchinesetest(GEN nf, GEN x, GEN y, GEN pl, GEN* fa, GEN data, int (*te
   long n,i;
   GEN y0, y1, red, N, I, vals;
   n = nf_get_degree(nf);
-  y0 = extchinese(nf, x, y, pl, &red);
+  y0 = idealextchinese(nf, x, y, pl, &red);
 
   vals = shallowcopy(gel(x,2));
   if (!gequal0(y0))
@@ -459,7 +411,7 @@ TODO:
 Karim :
 - test p-maximality before launching general algorithm
 - easy maximal order when pr unramified in L/K
-- precompute projectors and LLL-reduced basis in extchinese
+- precompute projectors and LLL-reduced basis in idealextchinese
 */
 
 /* assumes same center and same variable */
@@ -2726,13 +2678,13 @@ GEN
 bnrconj(GEN bnr, long i)
 {
   pari_sp av = avma;
-  GEN x,y, nf = bnr_get_nf(bnr), I = gel(bnr_get_bid(bnr),3), pl, red;
+  GEN x,y, nf = bnr_get_nf(bnr), I = gel(bnr_get_bid(bnr),3), pl;
   long r1 = nf_get_r1(nf), n = nbrows(I);
 
   pl = const_vecsmall(r1,1);
   pl[i] = -1;
   y = const_vec(n, gen_1);
-  x = extchinese(nf,I,y,pl,&red);
+  x = idealextchinese(nf,I,y,pl,NULL);
   return gerepileupto(av, isprincipalray(bnr,x));
 }
 
@@ -2766,7 +2718,7 @@ nfgwkummer(GEN nf, GEN Lpr, GEN Ld, GEN pl, long var)
   pari_sp av = avma;
   ulong ell;
   long i, v;
-  GEN cnd, y, x, red, pol;
+  GEN cnd, y, x, pol;
   v = uisprimepower(n, &ell);
   cnd = zeromatcopy(lg(Lpr)-1,2);
 
@@ -2784,7 +2736,7 @@ nfgwkummer(GEN nf, GEN Lpr, GEN Ld, GEN pl, long var)
     gel(y,i) = localextdeg(nf, pr, idealpow(nf,pr,E), Ld[i], ell, n);
   }
 
-  x = extchinese(nf, cnd, y, pl, &red); /* TODO use a factoredextchinese to ease computations afterwards ? */
+  x = idealextchinese(nf, cnd, y, pl, NULL); /* TODO use a factoredextchinese to ease computations afterwards ? */
   x = basistoalg(nf,x);
   pol = gsub(gpowgs(pol_x(var),n),x);
 

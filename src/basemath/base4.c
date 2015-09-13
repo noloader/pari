@@ -2459,6 +2459,40 @@ idealchinese(GEN nf, GEN x, GEN w)
   return gerepileupto(av, den? RgC_Rg_div(y,den): y);
 }
 
+GEN
+idealextchinese(GEN nf, GEN x, GEN y, GEN pl, GEN *pred)
+{
+  pari_sp av = avma;
+  GEN y0, G, I, red;
+
+  nf = checknf(nf);
+  y0 = idealchinese(nf, x, y);
+  I = factorbackprime(nf, gel(x,1), gel(x,2));
+  G = nf_get_roundG(nf);
+  red = ZM_mul(I,ZM_lll(ZM_mul(G,I), 0.99, LLL_IM));
+  y0 = ZC_reducemodmatrix(y0,red);
+  if (!nfispositive(nf, y0, pl))
+  {
+    GEN nz = vecsmall01_to_indices(pl);
+    GEN Mr = rowpermute(nf_get_M(nf), nz);
+    GEN MI = RgM_mul(Mr,red);
+    GEN lambda = gmul2n(matrixnorm(MI,DEFAULTPREC), -1);
+    GEN C, sol, x0, mlambda = gneg(lambda);
+    long i, r, e;
+
+    r = lg(nz); C = cgetg(r, t_COL);
+    for (i = 1; i < r; i++) gel(C,i) = pl[nz[i]] < 0? mlambda: lambda;
+    C = RgC_sub(C, RgM_RgC_mul(Mr,y0));
+
+    sol = inverseimage(MI, C);
+    x0 = ZM_ZC_mul(red, grndtoi(sol, &e));
+    y0 = ZC_add(y0,x0);
+  }
+  if (pred) *pred = red;
+  gerepileall(av, pred? 2: 1, &y0, pred);
+  return y0;
+}
+
 static GEN
 mat_ideal_two_elt2(GEN nf, GEN x, GEN a)
 {
