@@ -2571,7 +2571,7 @@ get_phi0(GEN bnr, GEN Lpr, GEN Ld, GEN pl, long *pr, long *pn)
     long L;
     if (i<=nbfrob)
     {
-      X = isprincipalray(bnr,gel(Lpr,i));
+      X = gel(Lpr,i);
       L = Ld[i];
     }
     else
@@ -2579,7 +2579,7 @@ get_phi0(GEN bnr, GEN Lpr, GEN Ld, GEN pl, long *pr, long *pn)
       X = bnrconj(bnr,real[i-nbfrob-1]);
       L = 2;
     }
-    X = ZV_to_Flv(X, n);
+    X = ZV_to_Flv(isprincipalray(bnr,X), n);
     for (nz=0,j=1; j<=r; j++)
     {
       ulong c = (X[j] * G[j]) % L;
@@ -2674,18 +2674,17 @@ bnfgwgeneric(GEN bnf, GEN Lpr, GEN Ld, GEN pl, long var)
   return NULL;/*not reached*/
 }
 
+/* compute x = 1 (mod f), negative at i-th real place and positive at all
+ * others */
 GEN
 bnrconj(GEN bnr, long i)
 {
-  pari_sp av = avma;
-  GEN x,y, nf = bnr_get_nf(bnr), I = gel(bnr_get_bid(bnr),3), pl;
+  GEN y, nf = bnr_get_nf(bnr), I = gel(bnr_get_bid(bnr),3), pl;
   long r1 = nf_get_r1(nf), n = nbrows(I);
 
-  pl = const_vecsmall(r1,1);
-  pl[i] = -1;
+  pl = const_vecsmall(r1,1); pl[i] = -1;
   y = const_vec(n, gen_1);
-  x = idealextchinese(nf,I,y,pl,NULL);
-  return gerepileupto(av, isprincipalray(bnr,x));
+  return idealextchinese(nf,I,y,pl,NULL);
 }
 
 /* no garbage collection */
