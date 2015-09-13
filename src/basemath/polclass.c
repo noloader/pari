@@ -1117,16 +1117,16 @@ find_jinv(
 }
 
 
-static int
-polclass_update_crt(
+static GEN
+polclass_modp(
   long *n_trace_curves,
-  GEN norm_eqn, GEN *hilb, GEN *P, long D, long u, long inv, GEN pcp,
-  GEN db, long xvar, GEN T, long e, long only_trace)
+  GEN norm_eqn, long D, long u, long inv, GEN pcp,
+  GEN db, long xvar, GEN T, long e)
 {
   pari_sp av = avma;
   ulong j = 0, p;
   long endo_tries = 0, rho_inv = norm_eqn[4];
-  int stab, endo_cert;
+  int endo_cert;
   GEN res, pol;
   GEN jdb, fdb;
   norm_eqn_t ne;
@@ -1147,16 +1147,46 @@ polclass_update_crt(
              "(%ld tries)\n", j, endo_tries);
   dbg_printf(4)("  all such j-invariants: %Ps\n", res);
 
-  /* TODO: Clean this up; it's super ugly */
-  if (only_trace) {
-    ulong tr = Fl_div(Flv_powsum_pre(res, e, p, ne->pi), e % p, p);
-    stab = Z_incremental_CRT(hilb, Fl_sqr_pre(tr, p, ne->pi), P, p);
-  } else {
-    adjust_signs(res, ne, inv, T, e); /* FIXME */
-    pol = gerepileupto(av, Flv_roots_to_pol(res, p, xvar));
-    dbg_printf(4)("  Hilbert polynomial mod %ld: %Ps\n", p, pol);
-    stab = ZX_incremental_CRT(hilb, pol, P, p);
-  }
+  adjust_signs(res, ne, inv, T, e); /* FIXME */
+  pol = Flv_roots_to_pol(res, p, xvar);
+  dbg_printf(4)("  Hilbert polynomial mod %ld: %Ps\n", p, pol);
+  return gerepileupto(av, Flx_to_Flv(pol, lg(pol) - 2));
+}
+
+
+static int
+trace_update_crt(
+  long *n_trace_curves,
+  GEN norm_eqn, GEN *T, GEN *P, long D, long u, long inv, GEN pcp,
+  GEN db, long e)
+{
+  pari_sp av = avma;
+  ulong j = 0, tr, p;
+  long endo_tries = 0, rho_inv = norm_eqn[4];
+  int stab, endo_cert;
+  GEN res;
+  GEN jdb, fdb;
+  norm_eqn_t ne;
+
+  jdb = polmodular_db_for_inv(db, INV_J);
+  fdb = polmodular_db_for_inv(db, inv);
+
+  setup_norm_eqn(ne, D, u, norm_eqn);
+  p = ne->p;
+  dbg_printf(2)("p = %ld, t = %ld, v = %ld\n", p, ne->t, ne->v);
+
+  do {
+    j = find_jinv(n_trace_curves, &endo_tries, &endo_cert, ne, inv, rho_inv, jdb);
+    res = enum_j_with_endo_ring(j, endo_cert, ne, fdb, pcp, pcp_order(pcp));
+  } while ( ! res);
+
+  dbg_printf(2)("  j-invariant %ld has correct endomorphism ring "
+             "(%ld tries)\n", j, endo_tries);
+  dbg_printf(4)("  all such j-invariants: %Ps\n", res);
+
+  tr = Fl_div(Flv_powsum_pre(res, e, p, ne->pi), e % p, p);
+  avma = av; /* TODO: Don't throw away res */
+  stab = Z_incremental_CRT(T, Fl_sqr_pre(tr, p, ne->pi), P, p);
   return stab;
 }
 
@@ -1164,7 +1194,7 @@ polclass_update_crt(
 static void
 precalculate_coeff(
   GEN *T, long *d,
-  GEN prime_lst, long *n_curves_tested, long D, ulong u, ulong h, long inv, GEN pcp, GEN db, long xvar)
+  GEN prime_lst, long *n_curves_tested, long D, ulong u, ulong h, long inv, GEN pcp, GEN db)
 {
   /* Number of consecutive CRT stabilisations before we assume we have
    * the correct answer. */
@@ -1187,8 +1217,8 @@ precalculate_coeff(
       Tsqr = Z_init_CRT(0, 1);
       P = gen_1;
       for (i = 1, stabcnt = 0; stabcnt < MIN_STAB_CNT && i <= nprimes; ++i) {
-        long stab = polclass_update_crt(n_curves_tested, gel(prime_lst, i),
-            &Tsqr, &P, D, u, inv, pcp, db, xvar, NULL, e, 1);
+        long stab = trace_update_crt(n_curves_tested, gel(prime_lst, i),
+            &Tsqr, &P, D, u, inv, pcp, db, e);
         if (stab)
           ++stabcnt;
         else
@@ -1220,12 +1250,11 @@ precalculate_coeff(
 GEN
 polclass0(long D, long inv, long xvar, GEN *db)
 {
-  pari_sp ltop = avma, btop;
+  pari_sp av = avma;
   GEN prime_lst;
   long n_curves_tested = 0;
   long nprimes, i, e;
-  GEN H, T;
-  GEN P; /* P is the product of all the p */
+  GEN T, P, H, plist;
   ulong u, h, L, maxL, vfactors, biggest_v;
   GEN pcp;
   static const long k = 2;
@@ -1236,7 +1265,7 @@ polclass0(long D, long inv, long xvar, GEN *db)
   if (D == -3) /* x */
     return pol_x(xvar);
   if (D == -4) /* x - 1728 */
-    return gerepileupto(ltop, deg1pol(gen_1, stoi(-1728), xvar));
+    return gerepileupto(av, deg1pol(gen_1, stoi(-1728), xvar));
 
   (void) corediscs(D, &u);
   h = classno_wrapper(D);
@@ -1262,23 +1291,28 @@ polclass0(long D, long inv, long xvar, GEN *db)
   polmodular_db_add_levels(db, PCP_GEN_NORMS(pcp), inv);
 
   nprimes = lg(prime_lst) - 1;
-  precalculate_coeff(&T, &e, prime_lst, &n_curves_tested, D, u, h, inv, pcp, *db, xvar);
+  precalculate_coeff(&T, &e, prime_lst, &n_curves_tested, D, u, h, inv, pcp, *db);
 
-  H = ZX_init_CRT(pol_0(xvar), 1L, xvar);
-  P = gen_1;
-
-  btop = avma;
+  nprimes = lg(prime_lst) - 1;
+  H = cgetg(nprimes + 1, t_VEC);
+  plist = cgetg(nprimes + 1, t_VECSMALL);
   for (i = 1; i <= nprimes; ++i) {
-    (void) polclass_update_crt(&n_curves_tested, gel(prime_lst, i),
-        &H, &P, D, u, inv, pcp, *db, xvar, T, e, 0);
-    if (gc_needed(btop, 2))
-      gerepileall(btop, 2, &H, &P);
+    GEN ne = gel(prime_lst, i);
+    GEN pol;
+    gel(H, i) = cgetg(2, t_VEC);
+    pol = polclass_modp(&n_curves_tested, ne, D, u, inv, pcp, *db, xvar, T, e);
+    gmael(H, i, 1) = pol;
+    plist[i] = ne[1];
+    if (DEBUGLEVEL && (i & 3L)==0)
+      err_printf("%ld%% ", i*100/nprimes);
   }
+  if (DEBUGLEVEL) err_printf("\n");
 
   dbg_printf(1)("Total number of curves tested: %ld\n", n_curves_tested);
   dbg_printf(1)("Result height: %.2f\n",
              dbllog2r(itor(gsupnorm(H, DEFAULTPREC), DEFAULTPREC)));
-  return gerepileupto(ltop, H);
+  H = nmV_chinese_center(H, plist, &P);
+  return gerepilecopy(av, RgV_to_RgX(gel(H, 1), xvar));
 }
 
 
