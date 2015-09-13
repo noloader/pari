@@ -243,11 +243,6 @@ lf=[1,-7,-3,25,3,21,-9,-63,6,-21,-4,-75,-3,63,-9,169,37,-42,-75,75,27,28,10,189,
 L=lfuncreate([lf,0,[-1,0,0,1],4,61,1]);
 lfuninit(L,[2,1,0]);
 
-ellmoddegree(ellinit("27a1"))
-ellmoddegree(ellinit("45a1"))
-ellmoddegree(ellinit("999a1"))
-
-
 K=bnfinit(y^2+47);
 rel=x^5+2*x^4+2*x^3+x^2-1;
 T=rnfequation(K.pol, rel);

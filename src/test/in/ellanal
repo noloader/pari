@@ -26,3 +26,12 @@ ellL1(L)
 ellL1(L,1)
 ellL1(L,3)
 ellL1(ellinit([0,1,1,-2,0]),2)
+
+default(realprecision,19);
+ellmoddegree(ellinit([0,1,0,-4,-4]))
+ellmoddegree(ellinit([-4,0]))
+ellmoddegree(ellinit([0,-1,0,4,-4]))
+ellmoddegree(ellinit([0,-1,0,-8,-16]))
+ellmoddegree(ellinit([0,0,1,0,-7]))
+ellmoddegree(ellinit([1,-1,0,0,-5]))
+ellmoddegree(ellinit([1,-1,0,-69,-208]))
