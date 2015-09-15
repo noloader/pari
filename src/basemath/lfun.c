@@ -1524,6 +1524,12 @@ lfunhardy_bitprec(GEN lmisc, GEN t, long bitprec)
   long prec = nbits2prec(bitprec), k, d;
   GEN argz, z, linit, ldata, tech, dom, w2, k2, expot, h, a;
 
+  switch(typ(t))
+  {
+    case t_INT: case t_FRAC: case t_REAL: break;
+    default: pari_err_TYPE("lfunhardy",t);
+  }
+
   ldata = lfunmisc_to_ldata_shallow(lmisc);
   if (!is_linit(lmisc)) lmisc = ldata;
   k = ldata_get_k(ldata);

@@ -254,6 +254,7 @@ lfuncheckfeq(L)
 
 lfunconductor(1,1)
 lfuntheta(1,0)
+lfunhardy(1,I)
 
 /* lfunconductor */
 
