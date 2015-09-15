@@ -1061,14 +1061,13 @@ Flv_powsum_pre(GEN v, ulong n, ulong p, ulong pi)
 }
 
 INLINE void
-adjust_signs(GEN js, norm_eqn_t ne, long inv, GEN T, long e)
+adjust_signs(GEN js, ulong p, ulong pi, long inv, GEN T, long e)
 {
   if (inv == INV_F) {
     long negate = 0;
     long h = lg(js) - 1;
-    ulong p = ne->p;
     if (h & 1) {
-      ulong prod = Flv_prod_pre(js, p, ne->pi);
+      ulong prod = Flv_prod_pre(js, p, pi);
       if (prod != p - 1) {
         if (prod != 1)
           pari_err_BUG("adjust_signs: constant term is not +/-1");
@@ -1077,7 +1076,7 @@ adjust_signs(GEN js, norm_eqn_t ne, long inv, GEN T, long e)
     } else {
       ulong tp, t;
       tp = umodiu(T, p);
-      t = Fl_div(Flv_powsum_pre(js, e, p, ne->pi), e % p, p);
+      t = Fl_div(Flv_powsum_pre(js, e, p, pi), e % p, p);
       if (t != tp) {
         if (Fl_neg(t, p) != tp)
           pari_err_BUG("adjust_signs: incorrect trace");
@@ -1118,25 +1117,20 @@ find_jinv(
 
 
 static GEN
-polclass_modp(
+polclass_roots_modp(
   long *n_trace_curves,
-  GEN norm_eqn, long D, long u, long inv, GEN pcp,
-  GEN db, long xvar, GEN T, long e)
+  norm_eqn_t ne, long rho_inv, long D, long u, long inv, GEN pcp, GEN db)
 {
   pari_sp av = avma;
-  ulong j = 0, p;
-  long endo_tries = 0, rho_inv = norm_eqn[4];
+  ulong j = 0;
+  long endo_tries = 0;
   int endo_cert;
-  GEN res, pol;
-  GEN jdb, fdb;
-  norm_eqn_t ne;
+  GEN res, jdb, fdb;
 
   jdb = polmodular_db_for_inv(db, INV_J);
   fdb = polmodular_db_for_inv(db, inv);
 
-  setup_norm_eqn(ne, D, u, norm_eqn);
-  p = ne->p;
-  dbg_printf(2)("p = %ld, t = %ld, v = %ld\n", p, ne->t, ne->v);
+  dbg_printf(2)("p = %ld, t = %ld, v = %ld\n", ne->p, ne->t, ne->v);
 
   do {
     j = find_jinv(n_trace_curves, &endo_tries, &endo_cert, ne, inv, rho_inv, jdb);
@@ -1146,55 +1140,14 @@ polclass_modp(
   dbg_printf(2)("  j-invariant %ld has correct endomorphism ring "
              "(%ld tries)\n", j, endo_tries);
   dbg_printf(4)("  all such j-invariants: %Ps\n", res);
-
-  adjust_signs(res, ne, inv, T, e); /* FIXME */
-  pol = Flv_roots_to_pol(res, p, xvar);
-  dbg_printf(4)("  Hilbert polynomial mod %ld: %Ps\n", p, pol);
-  return gerepileupto(av, Flx_to_Flv(pol, lg(pol) - 2));
-}
-
-
-static int
-trace_update_crt(
-  long *n_trace_curves,
-  GEN norm_eqn, GEN *T, GEN *P, long D, long u, long inv, GEN pcp,
-  GEN db, long e)
-{
-  pari_sp av = avma;
-  ulong j = 0, tr, p;
-  long endo_tries = 0, rho_inv = norm_eqn[4];
-  int stab, endo_cert;
-  GEN res;
-  GEN jdb, fdb;
-  norm_eqn_t ne;
-
-  jdb = polmodular_db_for_inv(db, INV_J);
-  fdb = polmodular_db_for_inv(db, inv);
-
-  setup_norm_eqn(ne, D, u, norm_eqn);
-  p = ne->p;
-  dbg_printf(2)("p = %ld, t = %ld, v = %ld\n", p, ne->t, ne->v);
-
-  do {
-    j = find_jinv(n_trace_curves, &endo_tries, &endo_cert, ne, inv, rho_inv, jdb);
-    res = enum_j_with_endo_ring(j, endo_cert, ne, fdb, pcp, pcp_order(pcp));
-  } while ( ! res);
-
-  dbg_printf(2)("  j-invariant %ld has correct endomorphism ring "
-             "(%ld tries)\n", j, endo_tries);
-  dbg_printf(4)("  all such j-invariants: %Ps\n", res);
-
-  tr = Fl_div(Flv_powsum_pre(res, e, p, ne->pi), e % p, p);
-  avma = av; /* TODO: Don't throw away res */
-  stab = Z_incremental_CRT(T, Fl_sqr_pre(tr, p, ne->pi), P, p);
-  return stab;
+  return gerepileupto(av, res);
 }
 
 
 static void
-precalculate_coeff(
-  GEN *T, long *d,
-  GEN prime_lst, long *n_curves_tested, long D, ulong u, ulong h, long inv, GEN pcp, GEN db)
+polclass_psum(
+  GEN *psum, long *d,
+  GEN roots, GEN primes, GEN pilist, long D, ulong u, ulong h, long inv, GEN pcp, GEN db)
 {
   /* Number of consecutive CRT stabilisations before we assume we have
    * the correct answer. */
@@ -1202,11 +1155,11 @@ precalculate_coeff(
 
   if (inv == INV_F) {
     pari_sp av = avma;
-    GEN Tsqr, P;
-    long i, e, stabcnt, nprimes = lg(prime_lst) - 1;
+    GEN psum_sqr, P;
+    long i, e, stabcnt, nprimes = lg(primes) - 1;
 
     if (h & 1) {
-      *T = gen_1;
+      *psum = gen_1;
       *d = 0;
       return;
     }
@@ -1214,47 +1167,51 @@ precalculate_coeff(
     e = -1;
     do {
       e += 2;
-      Tsqr = Z_init_CRT(0, 1);
+      psum_sqr = Z_init_CRT(0, 1);
       P = gen_1;
       for (i = 1, stabcnt = 0; stabcnt < MIN_STAB_CNT && i <= nprimes; ++i) {
-        long stab = trace_update_crt(n_curves_tested, gel(prime_lst, i),
-            &Tsqr, &P, D, u, inv, pcp, db, e);
+        GEN roots_modp;
+        ulong ps, p, pi;
+        long stab;
+
+        roots_modp = gmael(roots, i, 1);
+        p = uel(primes, i);
+        pi = uel(pilist, i);
+        ps = Fl_div(Flv_powsum_pre(roots_modp, e, p, pi), e % p, p);
+        stab = Z_incremental_CRT(&psum_sqr, Fl_sqr_pre(ps, p, pi), &P, p);
+
         if (stab)
           ++stabcnt;
         else
           stabcnt = 0;
         if (gc_needed(av, 2))
-          gerepileall(av, 2, &Tsqr, &P);
+          gerepileall(av, 2, &psum_sqr, &P);
       }
       if (stabcnt < MIN_STAB_CNT && nprimes >= MIN_STAB_CNT)
-        pari_err_BUG("polclass: square of trace did not stabilise");
-    } while (gequal0(Tsqr));
-    if ( ! Z_issquareall(Tsqr, T))
-      pari_err_BUG("polclass: square of trace is not square");
+        pari_err_BUG("polclass: square of power sum did not stabilise");
+    } while (gequal0(psum_sqr));
+    if ( ! Z_issquareall(psum_sqr, psum))
+      pari_err_BUG("polclass: square of power sum is not square");
 
-    dbg_printf(1)("Classpoly trace (e = %ld) is %Ps; found with %.2f%% of the primes\n",
-               e, *T, 100 * (i - 1) / (double) nprimes);
-    *T = gerepileupto(av, *T);
+    dbg_printf(1)("Classpoly power sum (e = %ld) is %Ps; found with %.2f%% of the primes\n",
+               e, *psum, 100 * (i - 1) / (double) nprimes);
+    *psum = gerepileupto(av, *psum);
     *d = e;
   } else {
-    *T = NULL;
+    *psum = NULL;
     *d = -1;
   }
 }
 
 
-/*
- * TODO: Remove use of xvar; do CRT of polynomial coefficients and
- * convert to a polynomial at the end.
- */
 GEN
 polclass0(long D, long inv, long xvar, GEN *db)
 {
   pari_sp av = avma;
-  GEN prime_lst;
+  GEN primes;
   long n_curves_tested = 0;
   long nprimes, i, e;
-  GEN T, P, H, plist;
+  GEN psum, P, H, plist, pilist;
   ulong u, h, L, maxL, vfactors, biggest_v;
   GEN pcp;
   static const long k = 2;
@@ -1273,7 +1230,7 @@ polclass0(long D, long inv, long xvar, GEN *db)
   dbg_printf(1)("D = %ld, conductor = %ld, inv = %ld\n", D, u, inv);
 
   pcp = minimal_polycyclic_presentation(h, D, u, inv);
-  prime_lst = select_classpoly_primes(&vfactors, &biggest_v, D, inv, k, delta, pcp);
+  primes = select_classpoly_primes(&vfactors, &biggest_v, D, inv, k, delta, pcp);
 
   /* Prepopulate *db with all the modpolys we might need */
   /* TODO: Clean this up; in particular, note that u is factored later on. */
@@ -1290,23 +1247,36 @@ polclass0(long D, long inv, long xvar, GEN *db)
   }
   polmodular_db_add_levels(db, PCP_GEN_NORMS(pcp), inv);
 
-  nprimes = lg(prime_lst) - 1;
-  precalculate_coeff(&T, &e, prime_lst, &n_curves_tested, D, u, h, inv, pcp, *db);
-
-  nprimes = lg(prime_lst) - 1;
+  nprimes = lg(primes) - 1;
   H = cgetg(nprimes + 1, t_VEC);
   plist = cgetg(nprimes + 1, t_VECSMALL);
+  pilist = cgetg(nprimes + 1, t_VECSMALL);
   for (i = 1; i <= nprimes; ++i) {
-    GEN ne = gel(prime_lst, i);
-    GEN pol;
+    long rho_inv = gel(primes, i)[4];
+    norm_eqn_t ne;
+    setup_norm_eqn(ne, D, u, gel(primes, i));
+
     gel(H, i) = cgetg(2, t_VEC);
-    pol = polclass_modp(&n_curves_tested, ne, D, u, inv, pcp, *db, xvar, T, e);
-    gmael(H, i, 1) = pol;
-    plist[i] = ne[1];
+    gmael(H, i, 1) =
+      polclass_roots_modp(&n_curves_tested, ne, rho_inv, D, u, inv, pcp, *db);
+    uel(plist, i) = ne->p;
+    uel(pilist, i) = ne->pi;
     if (DEBUGLEVEL && (i & 3L)==0)
       err_printf("%ld%% ", i*100/nprimes);
   }
   if (DEBUGLEVEL) err_printf("\n");
+
+  polclass_psum(&psum, &e, H, plist, pilist, D, u, h, inv, pcp, *db);
+
+  for (i = 1; i <= nprimes; ++i) {
+    GEN v = gmael(H, i, 1);
+    GEN pol;
+    ulong p = uel(plist, i), pi = uel(pilist, i);
+
+    adjust_signs(v, p, pi, inv, psum, e);
+    pol = Flv_roots_to_pol(v, p, xvar);
+    gmael(H, i, 1) = Flx_to_Flv(pol, lg(pol) - 2);
+  }
 
   dbg_printf(1)("Total number of curves tested: %ld\n", n_curves_tested);
   dbg_printf(1)("Result height: %.2f\n",
