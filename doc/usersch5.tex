@@ -5593,13 +5593,22 @@ set \kbd{*pt\_mod} to $M$
 as \kbd{ZV\_chinese}, where $T$ is assumed to be the tree created by
 \kbd{ZV\_producttree(P)}.
 
+\fun{GEN}{ncV_chinese_center}{GEN A, GEN P, GEN *pt_mod}
+where $A$ is a vector of \kbd{VECSMALL}s (seen as vectors of unsigned integers)
+and $P$ a \typ{VECSMALL} of the same length $n\ge 1$, the elements of $P$
+being pairwise coprime, and $M$ being the product of the elements of $P$,
+returns the \typ{COL} whose entries are integers in $[-M/2, M/2[$ congruent to $A[i]$
+mod $P[i]$ for all $1\leq i\leq n$.
+If \kbd{pt\_mod} is not \kbd{NULL}, set \kbd{*pt\_mod} to $M$.
+
 \fun{GEN}{nmV_chinese_center}{GEN A, GEN P, GEN *pt_mod}
 where $A$ is a vector of \kbd{MATSMALL}s (seen as matrices of unsigned integers)
  and $P$ a \typ{VECSMALL} of the same length $n\ge 1$, the elements of $P$
 being pairwise coprime, and $M$ being the product of the elements of $P$,
 returns the matrix whose entries are integers in $[-M/2, M/2[$ congruent to $A[i]$
 mod $P[i]$ for all $1\leq i\leq n$.
-If \kbd{pt\_mod} is not \kbd{NULL}, set \kbd{*pt\_mod} to $M$
+If \kbd{pt\_mod} is not \kbd{NULL}, set \kbd{*pt\_mod} to $M$.
+NB: this function uses the parallel GP interface.
 
 \fun{GEN}{Z_ZV_mod}{GEN A, GEN P}
 $P$ being a vector of integers of length $n\ge 1$, the elements of $P$ being

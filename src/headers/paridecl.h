@@ -1590,6 +1590,7 @@ long    logint0(GEN B, GEN y, GEN *ptq);
 GEN     mpfact(long n);
 GEN     muls_interval(long a, long b);
 GEN     mulu_interval(ulong a, ulong b);
+GEN     ncV_chinese_center(GEN A, GEN P, GEN *pt_mod);
 GEN     nmV_chinese_center(GEN A, GEN P, GEN *pt_mod);
 GEN     odd_prime_divisors(GEN q);
 GEN     order(GEN x);
