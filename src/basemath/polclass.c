@@ -1174,7 +1174,7 @@ polclass_psum(
         ulong ps, p, pi;
         long stab;
 
-        roots_modp = gmael(roots, i, 1);
+        roots_modp = gel(roots, i);
         p = uel(primes, i);
         pi = uel(pilist, i);
         ps = Fl_div(Flv_powsum_pre(roots_modp, e, p, pi), e % p, p);
@@ -1256,8 +1256,7 @@ polclass0(long D, long inv, long xvar, GEN *db)
     norm_eqn_t ne;
     setup_norm_eqn(ne, D, u, gel(primes, i));
 
-    gel(H, i) = cgetg(2, t_VEC);
-    gmael(H, i, 1) =
+    gel(H, i) =
       polclass_roots_modp(&n_curves_tested, ne, rho_inv, D, u, inv, pcp, *db);
     uel(plist, i) = ne->p;
     uel(pilist, i) = ne->pi;
@@ -1269,20 +1268,20 @@ polclass0(long D, long inv, long xvar, GEN *db)
   polclass_psum(&psum, &e, H, plist, pilist, D, u, h, inv, pcp, *db);
 
   for (i = 1; i <= nprimes; ++i) {
-    GEN v = gmael(H, i, 1);
+    GEN v = gel(H, i);
     GEN pol;
     ulong p = uel(plist, i), pi = uel(pilist, i);
 
     adjust_signs(v, p, pi, inv, psum, e);
     pol = Flv_roots_to_pol(v, p, xvar);
-    gmael(H, i, 1) = Flx_to_Flv(pol, lg(pol) - 2);
+    gel(H, i) = Flx_to_Flv(pol, lg(pol) - 2);
   }
 
   dbg_printf(1)("Total number of curves tested: %ld\n", n_curves_tested);
   dbg_printf(1)("Result height: %.2f\n",
              dbllog2r(itor(gsupnorm(H, DEFAULTPREC), DEFAULTPREC)));
-  H = nmV_chinese_center(H, plist, &P);
-  return gerepilecopy(av, RgV_to_RgX(gel(H, 1), xvar));
+  H = ncV_chinese_center(H, plist, &P);
+  return gerepilecopy(av, RgV_to_RgX(H, xvar));
 }
 
 
