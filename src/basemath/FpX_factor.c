@@ -184,6 +184,9 @@ static GEN FpX_roots_i(GEN f, GEN p);
 static GEN Flx_roots_i(GEN f, ulong p);
 static GEN FpX_Berlekamp_i(GEN f, GEN pp, long flag);
 
+static int
+cmpGuGu(GEN a, GEN b) { return (ulong)a < (ulong)b? -1: (a == b? 0: 1); }
+
 /* Generic driver to computes the roots of f modulo pp, using 'Roots' when
  * pp is a small prime.
  * if (gpwrap), check types thoroughly and return t_INTMODs, otherwise
@@ -839,8 +842,9 @@ FpX_ddf(GEN T, GEN XP, GEN p)
   pari_timer ti;
   n = get_FpX_degree(T); v = get_FpX_var(T);
   if (n == 0) return cgetg(1, t_VEC);
+  if (n == 1) return mkvec(get_FpX_mod(T));
   B = n/2;
-  l = (long) sqrt((double)B);
+  l = usqrt(B);
   m = (B+l-1)/l;
   T = FpX_get_red(T, p);
   b = cgetg(l+2, t_VEC);
@@ -896,6 +900,188 @@ FpX_ddf(GEN T, GEN XP, GEN p)
   if (DEBUGLEVEL>=6) timer_printf(&ti,"f");
   if (degpol(Tr)) gel(f, degpol(Tr)) = Tr;
   return gerepilecopy(av, f);
+}
+
+static void
+FpX_edf(GEN Tp, GEN XP, long d, GEN p, GEN V, long idx)
+{
+  long n = degpol(Tp), r = n/d;
+  GEN T, f, ff;
+  GEN p2;
+  if (r==1) { gel(V, idx) = Tp; return; }
+  p2 = shifti(p,-1);
+  T = FpX_get_red(Tp, p);
+  XP = FpX_rem(XP, T, p);
+  while (1)
+  {
+    pari_sp btop = avma;
+    long i;
+    GEN g = random_FpX(n, varn(Tp), p);
+    GEN t = gel(FpXQ_auttrace(mkvec2(XP, g), d, T, p), 2);
+    if (signe(t) == 0) continue;
+    for(i=1; i<=10; i++)
+    {
+      pari_sp btop2 = avma;
+      GEN R = FpXQ_pow(FpX_Fp_add(t, randomi(p), p), p2, T, p);
+      f = FpX_gcd(FpX_Fp_sub(R, gen_1, p), Tp, p);
+      if (degpol(f) > 0 && degpol(f) < n) break;
+      avma = btop2;
+    }
+    if (degpol(f) > 0 && degpol(f) < n) break;
+    avma = btop;
+  }
+  f = FpX_normalize(f, p);
+  ff = FpX_div(Tp, f ,p);
+  FpX_edf(f, XP, d, p, V, idx);
+  FpX_edf(ff, XP, d, p, V, idx+degpol(f)/d);
+}
+
+static GEN
+FpX_factor_Shoup(GEN T, GEN p)
+{
+  long i, n, s = 0;
+  GEN XP, D, V;
+  pari_timer ti;
+  n = get_FpX_degree(T);
+  T = FpX_get_red(T, p);
+  if (DEBUGLEVEL) timer_start(&ti);
+  XP = FpX_Frobenius(T, p);
+  if (DEBUGLEVEL) timer_printf(&ti,"FpX_Frobenius");
+  D = FpX_ddf(T, XP, p);
+  if (DEBUGLEVEL) timer_printf(&ti,"FpX_ddf");
+  for (i = 1; i <= n; i++)
+    s += degpol(gel(D,i))/i;
+  V = cgetg(s+1, t_COL);
+  for (i = 1, s = 1; i <= n; i++)
+  {
+    GEN Di = gel(D,i);
+    long ni = degpol(Di);
+    if (ni == 0) continue;
+    Di = FpX_normalize(Di, p);
+    if (ni == i) { gel(V, s++) = Di; continue; }
+    FpX_edf(Di, XP, i, p, V, s);
+    if (DEBUGLEVEL) timer_printf(&ti,"FpX_edf(%ld)",i);
+    s += ni/i;
+  }
+  return V;
+}
+
+static GEN
+FpX_simplefact_Shoup(GEN T, GEN p)
+{
+  long i, n, s = 0, j = 1, k;
+  GEN XP, D, V;
+  pari_timer ti;
+  n = get_FpX_degree(T);
+  T = FpX_get_red(T, p);
+  if (DEBUGLEVEL) timer_start(&ti);
+  XP = FpX_Frobenius(T, p);
+  if (DEBUGLEVEL) timer_printf(&ti,"FpX_Frobenius");
+  D = FpX_ddf(T, XP, p);
+  if (DEBUGLEVEL) timer_printf(&ti,"FpX_ddf");
+  for (i = 1; i <= n; i++)
+    s += degpol(gel(D,i))/i;
+  V = cgetg(s+1, t_VEC);
+  for (i = 1; i <= n; i++)
+  {
+    long ni = degpol(gel(D,i)), ri = ni/i;
+    if (ni == 0) continue;
+    for (k = 1; k <= ri; k++)
+      gel(V, j++) = utoi(i);
+  }
+  return V;
+}
+
+
+static GEN
+FpX_factor_Yun(GEN T, GEN p)
+{
+  pari_sp av = avma;
+  long n = degpol(T);
+  long i = 1;
+  GEN d = FpX_deriv(T, p);
+  GEN a, b, c;
+  GEN V = cgetg(n+1,t_VEC);
+  a = FpX_gcd(T, d, p);
+  if (degpol(a) == 0) return mkvec(T);
+  b = FpX_div(T, a, p);
+  do
+  {
+    c = FpX_div(d, a, p);
+    d = FpX_sub(c, FpX_deriv(b, p), p);
+    a = FpX_normalize(FpX_gcd(b, d, p), p);
+    gel(V, i++) = a;
+    b = FpX_div(b, a, p);
+  } while (degpol(b));
+  setlg(V, i);
+  return gerepilecopy(av, V);
+}
+
+static GEN
+FpX_factor_Cantor(GEN T, GEN p)
+{
+  GEN E, F, M, V;
+  long i, j, s, l;
+  V = FpX_factor_Yun(T, p);
+  l = lg(V);
+  for (s=0, i=1; i < l; i++)
+    s += !!degpol(gel(V,i));
+  F = cgetg(s+1, t_VEC);
+  E = cgetg(s+1, t_VEC);
+  for (i=1, j=1; i < l; i++)
+    if (degpol(gel(V,i)))
+    {
+      GEN Fj = FpX_factor_Shoup(gel(V,i), p);
+      gel(F, j) = Fj;
+      gel(E, j) = const_vecsmall(lg(Fj)-1, i);
+      j++;
+    }
+  M = mkvec2(shallowconcat1(F), shallowconcat1(E));
+  return sort_factor_pol(M, cmpii);
+}
+
+static GEN
+FpX_simplefact_Cantor(GEN T, GEN p)
+{
+  GEN E, F, M, V;
+  long i, j, s, l;
+  V = FpX_factor_Yun(get_FpX_mod(T), p);
+  l = lg(V);
+  for (s=0, i=1; i < l; i++)
+    s += !!degpol(gel(V,i));
+  F = cgetg(s+1, t_VEC);
+  E = cgetg(s+1, t_VEC);
+  for (i=1, j=1; i < l; i++)
+    if (degpol(gel(V,i)))
+    {
+      GEN Fj = FpX_simplefact_Shoup(gel(V,i), p);
+      gel(F, j) = Fj;
+      gel(E, j) = const_vecsmall(lg(Fj)-1, i);
+      j++;
+    }
+  M = mkvec2(shallowconcat1(F), shallowconcat1(E));
+  return sort_factor(M, (void*)&cmpGuGu, cmp_nodata);
+}
+
+static int
+FpX_isirred_Cantor(GEN Tp, GEN p)
+{
+  pari_sp av = avma;
+  long n, d;
+  GEN T = get_FpX_mod(Tp);
+  GEN dT = FpX_deriv(T, p);
+  GEN XP, D;
+  pari_timer ti;
+  if (degpol(FpX_gcd(T, dT, p)) != 0) { avma = av; return 0; }
+  n = get_FpX_degree(T);
+  T = FpX_get_red(Tp, p);
+  if (DEBUGLEVEL) timer_start(&ti);
+  XP = FpX_Frobenius(T, p);
+  if (DEBUGLEVEL) timer_printf(&ti,"FpX_Frobenius");
+  D = FpX_ddf(T, XP, p);
+  if (DEBUGLEVEL) timer_printf(&ti,"FpX_ddf");
+  d = degpol(gel(D, n));
+  avma = av; return d==n;
 }
 
 long
@@ -1028,9 +1214,6 @@ FpX_split(GEN *t, long d, GEN  p, GEN q, long r)
   FpX_split(t+l,d,p,q,r);
   FpX_split(t,  d,p,q,r);
 }
-
-static int
-cmpGuGu(GEN a, GEN b) { return (ulong)a < (ulong)b? -1: (a == b? 0: 1); }
 
 /* p > 2 */
 static GEN
