@@ -828,18 +828,20 @@ Flx_nbroots(GEN f, ulong p)
   avma = av; return degpol(z);
 }
 
+/* See <http://www.shoup.net/papers/factorimpl.pdf> */
 static GEN
 FpX_ddf(GEN T, GEN XP, GEN p)
 {
   pari_sp av = avma;
   GEN b, g, h, F, f, Tr, xq;
   long i, j, n, v;
-  long l, m;
+  long B, l, m;
   pari_timer ti;
   n = get_FpX_degree(T); v = get_FpX_var(T);
   if (n == 0) return cgetg(1, t_VEC);
-  l = (long) (2*sqrt((double)n));
-  m = (n+2*l-1)/(2*l);
+  B = n/2;
+  l = (long) sqrt((double)B);
+  m = (B+l-1)/l;
   T = FpX_get_red(T, p);
   b = cgetg(l+2, t_VEC);
   gel(b, 1) = pol_x(v);
