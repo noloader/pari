@@ -4481,8 +4481,15 @@ assuming $a=\sigma(X)$ where $\sigma$ is an automorphism of the algebra
 $\F_p[X]/T(X)$.
 
 \fun{GEN}{FpXQ_autsum}{GEN a, ulong n, GEN T, GEN p}
+$a$ being a two-component vector,
 $\sigma$ being the automorphism defined by $\sigma(X)=a[1]\pmod{T(X)}$,
 returns the vector $[\sigma^n(X),b\sigma(b)\ldots\sigma^{n-1}(b)]$
+where $b=a[2]$.
+
+\fun{GEN}{FpXQ_auttrace}{GEN a, ulong n, GEN T, GEN p}
+$a$ being a two-component vector,
+$\sigma$ being the automorphism defined by $\sigma(X)=a[1]\pmod{T(X)}$,
+returns the vector $[\sigma^n(X),b+\sigma(b)+\ldots+\sigma^{n-1}(b)]$
 where $b=a[2]$.
 
 \fun{GEN}{FpXQ_autpowers}{GEN S, long n, GEN T, GEN p} returns

@@ -513,6 +513,7 @@ GEN     FpXM_FpXQV_eval(GEN Q, GEN x, GEN T, GEN p);
 GEN     FpXQ_autpow(GEN x, ulong n, GEN T, GEN p);
 GEN     FpXQ_autpowers(GEN aut, long f, GEN T, GEN p);
 GEN     FpXQ_autsum(GEN x, ulong n, GEN T, GEN p);
+GEN     FpXQ_auttrace(GEN x, ulong n, GEN T, GEN p);
 GEN     FpXQ_charpoly(GEN x, GEN T, GEN p);
 GEN     FpXQ_conjvec(GEN x, GEN T, GEN p);
 GEN     FpXQ_div(GEN x,GEN y,GEN T,GEN p);
