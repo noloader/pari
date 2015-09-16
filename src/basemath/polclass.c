@@ -1118,8 +1118,7 @@ find_jinv(
 
 static GEN
 polclass_roots_modp(
-  long *n_trace_curves,
-  norm_eqn_t ne, long rho_inv, long D, long u, long inv, GEN pcp, GEN db)
+  long *n_trace_curves, norm_eqn_t ne, long rho_inv, long inv, GEN pcp, GEN db)
 {
   pari_sp av = avma;
   ulong j = 0;
@@ -1146,8 +1145,7 @@ polclass_roots_modp(
 
 static void
 polclass_psum(
-  GEN *psum, long *d,
-  GEN roots, GEN primes, GEN pilist, long D, ulong u, ulong h, long inv, GEN pcp, GEN db)
+  GEN *psum, long *d, GEN roots, GEN primes, GEN pilist, ulong h, long inv)
 {
   /* Number of consecutive CRT stabilisations before we assume we have
    * the correct answer. */
@@ -1257,7 +1255,7 @@ polclass0(long D, long inv, long xvar, GEN *db)
     setup_norm_eqn(ne, D, u, gel(primes, i));
 
     gel(H, i) =
-      polclass_roots_modp(&n_curves_tested, ne, rho_inv, D, u, inv, pcp, *db);
+      polclass_roots_modp(&n_curves_tested, ne, rho_inv, inv, pcp, *db);
     uel(plist, i) = ne->p;
     uel(pilist, i) = ne->pi;
     if (DEBUGLEVEL && (i & 3L)==0)
@@ -1265,7 +1263,7 @@ polclass0(long D, long inv, long xvar, GEN *db)
   }
   if (DEBUGLEVEL) err_printf("\n");
 
-  polclass_psum(&psum, &e, H, plist, pilist, D, u, h, inv, pcp, *db);
+  polclass_psum(&psum, &e, H, plist, pilist, h, inv);
 
   for (i = 1; i <= nprimes; ++i) {
     GEN v = gel(H, i);
