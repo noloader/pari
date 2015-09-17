@@ -1067,11 +1067,11 @@ static int
 FpX_isirred_Cantor(GEN Tp, GEN p)
 {
   pari_sp av = avma;
+  pari_timer ti;
   long n, d;
   GEN T = get_FpX_mod(Tp);
   GEN dT = FpX_deriv(T, p);
   GEN XP, D;
-  pari_timer ti;
   if (degpol(FpX_gcd(T, dT, p)) != 0) { avma = av; return 0; }
   n = get_FpX_degree(T);
   T = FpX_get_red(Tp, p);
@@ -1102,21 +1102,6 @@ FpX_nbfact(GEN T, GEN p)
   GEN XP = FpX_Frobenius(T, p);
   long n = FpX_nbfact_Frobenius(T, XP, p);
   avma = av; return n;
-}
-
-static GEN
-try_pow(GEN w0, GEN pol, GEN p, GEN q, long r)
-{
-  GEN w2, w = FpXQ_pow(w0,q, pol,p);
-  long s;
-  if (gequal1(w)) return w0;
-  for (s=1; s<r; s++,w=w2)
-  {
-    w2 = gsqr(w);
-    w2 = FpX_rem(w2, pol, p);
-    if (gequal1(w2)) break;
-  }
-  return gequalm1(w)? NULL: w;
 }
 
 static GEN
@@ -1186,33 +1171,6 @@ Flx_split(GEN *t, long d, ulong p, GEN q, long r)
   l /= d; t[l]=Flx_div(*t,w,p); *t=w;
   Flx_split(t+l,d,p,q,r);
   Flx_split(t,  d,p,q,r);
-}
-
-
-static void
-FpX_split(GEN *t, long d, GEN  p, GEN q, long r)
-{
-  long l, v, dv = degpol(*t);
-  pari_sp av;
-  GEN w;
-
-  if (dv==d) return;
-  v = varn(*t);
-  av = avma;
-  for(;; avma = av)
-  {
-    w = random_FpX(dv, v, p);
-    w = try_pow(w,*t,p,q,r);
-    if (!w) continue;
-    w = FpX_Fp_sub_shallow(w, gen_1, p);
-    w = FpX_gcd(*t,w, p); l=degpol(w);
-    if (l && l!=dv) break;
-  }
-  w = FpX_normalize(w, p);
-  w = gerepileupto(av, w);
-  l /= d; t[l]=FpX_div(*t,w,p); *t=w;
-  FpX_split(t+l,d,p,q,r);
-  FpX_split(t,  d,p,q,r);
 }
 
 /* p > 2 */
@@ -1758,10 +1716,7 @@ Flx_is_irred(GEN f, ulong p) { return !!Flx_factcantor_i(f,p,2); }
 static GEN
 FpX_factcantor_i(GEN f, GEN pp, long flag)
 {
-  long j, nbfact, d = degpol(f);
-  ulong k;
-  GEN X, E,y,f2,g,g1,v,q;
-  GEN t;
+  long d;
   if (typ(f) == t_VECSMALL)
   { /* lgefint(pp) = 3 */
     GEN F;
@@ -1776,73 +1731,14 @@ FpX_factcantor_i(GEN f, GEN pp, long flag)
     return F;
   }
   /*Now, we can assume that p is large and odd*/
+  d = degpol(f);
   if (d <= 2) return FpX_factor_deg2(f,pp,d,flag);
-
-  /* to hold factors and exponents */
-  t = cgetg(d+1, flag? t_VECSMALL: t_VEC);
-  E = cgetg(d+1, t_VECSMALL);
-  X = pol_x(varn(f)); nbfact = 1;
-  f2 = FpX_gcd(f,ZX_deriv(f), pp);
-  if (flag == 2 && degpol(f2)) return NULL;
-  g1 = degpol(f2)? FpX_div(f,f2,pp): f; /* squarefree */
-  k = 0;
-  while (degpol(g1)>0)
+  switch(flag)
   {
-    long du,dg;
-    GEN u, S;
-    k++;
-    u = g1; g1 = FpX_gcd(f2,g1, pp);
-    if (degpol(g1)>0)
-    {
-      u = FpX_div( u,g1,pp);
-      f2= FpX_div(f2,g1,pp);
-    }
-    du = degpol(u);
-    if (du <= 0) continue;
-
-    /* here u is square-free (product of irred. of multiplicity e * k) */
-    v=X;
-    S = du==1 ?  cgetg(1, t_VEC): FpXQ_powers(FpX_Frobenius(u, pp), du-1, u, pp);
-    for (d=1; d <= du>>1; d++)
-    {
-      v = FpX_FpXQV_eval(v, S, u, pp);
-      g = FpX_gcd(ZX_sub(v, X), u, pp);
-      dg = degpol(g);
-      if (dg <= 0) continue;
-
-      /* g is a product of irred. pols, all of which have degree d */
-      j = nbfact+dg/d;
-      if (flag)
-      {
-        if (flag == 2) return NULL;
-        for ( ; nbfact<j; nbfact++) { t[nbfact]=d; E[nbfact]=k; }
-      }
-      else
-      {
-        GEN pd = powiu(pp,d);
-        long r;
-        g = FpX_normalize(g, pp);
-        gel(t,nbfact) = g; q = subis(pd,1);
-        r = vali(q); q = shifti(q,-r);
-        FpX_split(&gel(t,nbfact),d,pp,q,r);
-        for (; nbfact<j; nbfact++) E[nbfact]=k;
-      }
-      du -= dg;
-      u = FpX_div(u,g,pp);
-      v = FpX_rem(v,u,pp);
-    }
-    if (du)
-    {
-      if (flag) t[nbfact] = du;
-      else gel(t,nbfact) = FpX_normalize(u, pp);
-      E[nbfact++]=k;
-    }
+    default: return FpX_factor_Cantor(f, pp);
+    case 1: return FpX_simplefact_Cantor(f, pp);
+    case 2: return FpX_isirred_Cantor(f, pp)? gen_1: NULL;
   }
-  if (flag == 2) return gen_1; /* irreducible */
-  setlg(t, nbfact);
-  setlg(E, nbfact); y = mkvec2(t, E);
-  return flag ? sort_factor(y, (void*)&cmpGuGu, cmp_nodata)
-              : sort_factor_pol(y, cmpii);
 }
 GEN
 FpX_factcantor(GEN f, GEN pp, long flag)
