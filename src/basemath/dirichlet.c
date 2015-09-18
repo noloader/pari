@@ -23,119 +23,141 @@ static void
 err_direuler(GEN x)
 { pari_err_DOMAIN("direuler","constant term","!=", gen_1,x); }
 
-/* Multiply x in place by Euler factor s at prime p, using temporary space y
- * (for numerator) */
-static void
-dirmuleuler(GEN x, ulong p, GEN s, GEN y)
+static long
+dirmuleuler_small(GEN V, GEN v, long n, ulong p, GEN s)
 {
-  ulong i, k, n = lg(x) - 1;
-  GEN c, N = numer(s), D = denom(s);
-  long j, tx, lx;
+  long d = lg(s)-2, b = lg(V)-1;
+  long i,j;
+  long m = n;
+  long q = 1;
+  for (i=1, q=p; i<=d; i++, q*=p)
+  {
+    GEN aq = gel(s,i+1);
+    if (gequal0(aq)) continue;
+    for(j=1; j<=m; j++)
+    {
+      long nj = v[j]*q;
+      GEN Vj = gel(V,v[j]);
+      if (nj > b) continue;
+      gel(V,nj) = gmul(aq, Vj);
+      v[++n] = nj;
+    }
+  }
+  return n;
+}
 
-  tx = typ(N);
-  if (is_scalar_t(tx))
+static void
+dirmuleuler_large(GEN x, ulong p, GEN ap)
+{
+  if (!gequal0(ap))
   {
-    if (!gequal1(N))
-    {
-      if (!gequalm1(N)) err_direuler(N);
-      D = gneg(D);
-    }
-  }
-  else
-  {
-    ulong k1, q, qlim;
-    if (tx != t_POL) pari_err_TYPE("direuler",N);
-    lx = degpol(N);
-    if (lx < 0) err_direuler(N);
-    c = gel(N,2);
-    if (!gequal1(c))
-    {
-      if (!gequalm1(c)) err_direuler(N);
-      N = gneg(N);
-      D = gneg(D);
-    }
-    for (i=1; i<=n; i++) gel(y,i) = gel(x,i);
-    q = p; qlim = n/p;
-    for (j = 1; q<=n && j<=lx; j++)
-    {
-      c = gel(N,j+2);
-      if (!gequal0(c))
-        for (k=1,k1=q; k1<=n; k1+=q,k++)
-          gel(x,k1) = gadd(gel(x,k1), gmul(c,gel(y,k)));
-      if (q > qlim) break;
-      q *= p;
-    }
-  }
-  tx = typ(D);
-  if (is_scalar_t(tx))
-  {
-    if (!gequal1(D)) err_direuler(D);
-  }
-  else
-  {
-    if (tx != t_POL) pari_err_TYPE("direuler",D);
-    c = gel(D,2);
-    if (!gequal1(c)) err_direuler(D);
-    lx = degpol(D);
-    for (i=p; i<=n; i+=p)
-    {
-      s = gen_0; k = i;
-      for (j = 1; !(k%p) && j<=lx; j++)
-      {
-        c = gel(D,j+2); k /= p;
-        if (!gequal0(c)) s = gadd(s, gmul(c,gel(x,k)));
-      }
-      gel(x,i) = gsub(gel(x,i),s);
-    }
+    long b = lg(x)-1, j, m = b/p;
+    gel(x,p) = ap;
+    for(j = 2; j <= m; j++)
+      gel(x,j*p) = gmul(ap, gel(x,j));
   }
 }
 
-/* Euler product on primes coprime to Sbad */
 static GEN
+eulerfact_raw(GEN s, long p, long l)
+{
+  long j, n, q;
+  GEN V;
+  for (n = 1, q = p; q <= l; q*=p, n++);
+  s = gtoser(s, gvar(s), n);
+  if (signe(s)==0 || valp(s)!=0 || !gequal1(gel(s,2)))
+    err_direuler(s);
+  n = minss(n, lg(s)-2);
+  V = cgetg(n+1, t_VEC);
+  for(j=1; j<=n; j++)
+    gel(V, j) = gel(s,j+1);
+  return V;
+}
+
+static GEN
+eulerfact_bad(GEN s, long p, long l)
+{
+  pari_sp av = avma;
+  return gerepilecopy(av, eulerfact_raw(s, p, l));
+}
+
+static GEN
+eulerfact_small(void *E, GEN (*eval)(void *, GEN), long p, long l)
+{
+  pari_sp av = avma;
+  GEN s = eval(E, utoi(p));
+  return gerepilecopy(av, eulerfact_raw(s, p, l));
+}
+
+static GEN
+eulerfact_large(void *E, GEN (*eval)(void *, GEN), long p, long l)
+{
+  pari_sp av = avma;
+  GEN s = eval(E, utoi(p));
+  s = gtoser(s, gvar(s), 2);
+  if (signe(s)==0 || valp(s)!=0 || !gequal1(gel(s,2)))
+    err_direuler(s);
+  return gerepilecopy(av, lg(s)>=4 ? gel(s,3): gen_0);
+}
+
+ulong
+direulertou(GEN a, GEN fl(GEN))
+{
+  ulong au;
+  if (typ(a) != t_INT)
+  {
+    a = fl(a);
+    if (typ(a) != t_INT) pari_err_TYPE("direuler", a);
+  }
+  return signe(a)<=0 ? 0: itou(a);
+}
+
+GEN
 direuler_bad(void *E, GEN (*eval)(void *, GEN), GEN a, GEN b, GEN c, GEN Sbad)
 {
   ulong n;
-  pari_sp av0 = avma, av;
-  GEN x, y, prime;
+  pari_sp av0 = avma;
+  GEN v, V;
   forprime_t T;
-
-  if (typ(b) != t_INT)
-  { b = gfloor(b); if (typ(b) != t_INT) pari_err_TYPE("direuler",b); }
-  if (typ(a) != t_INT)
-  { a = gceil(a); if (typ(a) != t_INT) pari_err_TYPE("direuler",a); }
-  if (c)
+  long i, au, bu, cu;
+  ulong p, bb;
+  au = direulertou(a, gceil);
+  bu = direulertou(b, gfloor);
+  cu = c ? direulertou(c, gfloor): bu;
+  if (cu == 0) return cgetg(1,t_VEC);
+  if (bu > cu) bu = cu;
+  bb = usqrt(cu);
+  if (!u_forprime_init(&T, au, bu))
+    { avma = av0; return mkvec(gen_1); }
+  v = cgetg(cu+1,t_VECSMALL);
+  V = zerovec(cu);
+  gel(V,1) = gen_1; v[1] = 1; n = 1; p = 1;
+  if (Sbad)
   {
-    if (typ(c) != t_INT)
-    { c = gfloor(c); if (typ(c) != t_INT) pari_err_TYPE("direuler", c); }
-    if (signe(c) <= 0) { avma = av0; return cgetg(1,t_VEC); }
-    if (cmpii(c, b) < 0) b = c;
-  }
-  if (lgefint(b) > 3) pari_err_OVERFLOW("direuler");
-  if (!forprime_init(&T, a,b)) { avma = av0; return mkvec(gen_1); }
-  n = itou(b);
-  y = cgetg(n+1,t_VEC); av = avma;
-  x = zerovec(n); gel(x,1) = gen_1;
-  while ( (prime = forprime_next(&T)) )
-  {
-    ulong p = prime[2];
-    if (Sbad && !umodiu(Sbad, p)) continue;
-    dirmuleuler(x, p, eval(E,prime), y);
-    if (gc_needed(av,1))
+    long l = lg(Sbad)-1;
+    GEN pbad = gen_1;
+    for(i=1; i<=l; i++)
     {
-      if (DEBUGMEM>1) pari_warn(warnmem,"direuler");
-      x = gerepilecopy(av, x);
+      GEN ai = gel(Sbad,i), s = ginv(gel(ai,2));
+      ulong p = gtou(gel(ai, 1));
+      if (p > cu)
+        pari_err_DOMAIN("direxpand [exceptional prime]","p",">", b, gel(ai,1));
+      n = dirmuleuler_small(V, v, n, p, eulerfact_bad(s, p, cu));
+      pbad = muliu(pbad, p);
     }
+    Sbad = pbad;
   }
-  return gerepilecopy(av0,x);
-}
-
-/* in place */
-static void
-dirseteuler(GEN v, ulong p, GEN s, GEN y)
-{
-  ulong lv = lg(v), k;
-  for (k = p; k < lv; k += p) gel(v,k) = gen_0;
-  dirmuleuler(v, p, s, y);
+  while ( p <= bb && (p = u_forprime_next(&T)) )
+  {
+    if (Sbad && !umodiu(Sbad, p)) continue;
+    n = dirmuleuler_small(V, v, n, p, eulerfact_small(E,eval,p, cu));
+  }
+  while ( (p = u_forprime_next(&T)) )
+  {
+    if (Sbad && !umodiu(Sbad, p)) continue;
+    dirmuleuler_large(V, p, eulerfact_large(E,eval,p, cu));
+  }
+  return gerepilecopy(av0,V);
 }
 
 static GEN
@@ -149,7 +171,7 @@ direxpand_bad(GEN a, long L, GEN Sbad)
 {
   pari_sp ltop = avma;
   long ta = typ(a), la, tv, i;
-  GEN an, v, y;
+  GEN an, v;
 
   if (ta == t_CLOSURE) switch(closure_arity(a))
   {
@@ -174,24 +196,12 @@ direxpand_bad(GEN a, long L, GEN Sbad)
     return an;
   }
   /* vector [an, [p1, 1/L_{p1}], ..., [pk, 1/L_{pk}}]]: exceptional primes */
-  if (!Sbad) Sbad = gen_1;
-  for (i = 2; i < la; i++)
+  if (la > 1)
   {
-    GEN ai = gel(a,i), p;
-    if (typ(ai) != t_VEC || lg(ai) != 3)
-      pari_err_TYPE("direxpand [exceptional prime]", ai);
-    p = gel(ai,1);
-    if (!isprime(p)) pari_err_TYPE("direxpand [exceptional prime]", ai);
-    Sbad = mulii(Sbad, p);
+    Sbad = cgetg(la-1, t_VEC);
+    for (i = 2; i < la; i++) gel(Sbad, i-1) = gel(a, i);
   }
   an = direxpand_bad(v, L, Sbad);
-  y = cgetg(L+1, t_VEC); /* scratch space */
-  for (i = 2; i < la; i++)
-  {
-    GEN ai = gel(a,i), s = ginv(gel(ai,2));
-    ulong p = itou(gel(ai,1));
-    dirseteuler(an, p, s, y);
-  }
   return gerepilecopy(ltop, an);
 }
 GEN
