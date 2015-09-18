@@ -2691,6 +2691,7 @@ scalarser(GEN x, long v, long prec)
   if (gequal0(x))
   {
     if (isrationalzero(x)) return zeroser(v, prec);
+    if (!isexactzero(x)) prec--;
     y = cgetg(3, t_SER);
     y[1] = evalsigne(0) | _evalvalp(prec) | evalvarn(v);
     gel(y,2) = gcopy(x); return y;

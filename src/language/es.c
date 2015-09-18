@@ -2801,7 +2801,7 @@ bruti_intern(GEN g, pariout_t *T, outString *S, int addsign)
       if (l)
       {
         /* See normalize(): Mod(0,2)*x^i*(1+O(x)), has valp = i+1 */
-        if (l == 1 && !signe(g)) i--;
+        if (l == 1 && !signe(g) && isexactzero(gel(g,2))) i--;
         /* hack: we want g[i] = coeff of degree i */
         l += i; g -= i-2;
         wr_lead_monome(T,S,gel(g,i),v,i,addsign);
