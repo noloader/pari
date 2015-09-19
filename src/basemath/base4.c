@@ -2375,20 +2375,21 @@ idealappr0(GEN nf, GEN x, long fl) {
   return fl? idealapprfact(nf, x): idealappr(nf, x);
 }
 
-/* merge a^e b^f. Assume a and b sorted. Keep 0 exponents */
+/* merge a^e b^f. Assume a and b sorted. Keep 0 exponents and *append* new
+ * entries from b [ result not sorted ] */
 static void
 merge_fact(GEN *pa, GEN *pe, GEN b, GEN f)
 {
   GEN A, E, a = *pa, e = *pe;
   long k, i, la = lg(a), lb = lg(b), l = la+lb-1;
 
-  A = cgetg(l, t_COL);
-  E = cgetg(l, t_COL);
+  *pa = A = cgetg(l, t_COL);
+  *pe = E = cgetg(l, t_COL);
   k = 1;
   for (i=1; i<la; i++)
   {
-    A[i] = a[i];
-    E[i] = e[i];
+    gel(A,i) = gel(a,i);
+    gel(E,i) = gel(e,i);
     if (k < lb && gequal(gel(A,i), gel(b,k)))
     {
       gel(E,i) = addii(gel(E,i), gel(f,k));
@@ -2397,11 +2398,11 @@ merge_fact(GEN *pa, GEN *pe, GEN b, GEN f)
   }
   for (; k < lb; i++,k++)
   {
-    A[i] = b[k];
-    E[i] = f[k];
+    gel(A,i) = gel(b,k);
+    gel(E,i) = gel(f,k);
   }
-  setlg(A, i); *pa = A;
-  setlg(E, i); *pe = E;
+  setlg(A, i);
+  setlg(E, i);
 }
 
 /* Given a prime ideal factorization x with possibly zero or negative exponents,
