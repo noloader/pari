@@ -315,6 +315,7 @@ GEN     FlxY_evalx_powers_pre(GEN pol, GEN ypowers, ulong p, ulong pi);
 GEN     FlxYqq_pow(GEN x, GEN n, GEN S, GEN T, ulong p);
 GEN     Flxq_autpow(GEN x, ulong n, GEN T, ulong p);
 GEN     Flxq_autsum(GEN x, ulong n, GEN T, ulong p);
+GEN     Flxq_auttrace(GEN x, ulong n, GEN T, ulong p);
 GEN     Flxq_charpoly(GEN x, GEN T, ulong p);
 GEN     Flxq_conjvec(GEN x, GEN T, ulong p);
 GEN     Flxq_div(GEN x, GEN y, GEN T, ulong p);
