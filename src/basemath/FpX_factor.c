@@ -1084,6 +1084,22 @@ FpX_isirred_Cantor(GEN Tp, GEN p)
   avma = av; return d==n;
 }
 
+static GEN FpX_factor_deg2(GEN f, GEN p, long d, long flag);
+
+/*Assume that p is large and odd*/
+static GEN
+FpX_factcantor_i(GEN f, GEN pp, long flag)
+{
+  long d = degpol(f);
+  if (d <= 2) return FpX_factor_deg2(f,pp,d,flag);
+  switch(flag)
+  {
+    default: return FpX_factor_Cantor(f, pp);
+    case 1: return FpX_simplefact_Cantor(f, pp);
+    case 2: return FpX_isirred_Cantor(f, pp)? gen_1: NULL;
+  }
+}
+
 long
 FpX_nbfact_Frobenius(GEN T, GEN XP, GEN p)
 {
@@ -1714,9 +1730,8 @@ Flx_is_irred(GEN f, ulong p) { return !!Flx_factcantor_i(f,p,2); }
  * flag = 2: return NULL if f is not irreducible.
  * Not gerepile-safe */
 static GEN
-FpX_factcantor_i(GEN f, GEN pp, long flag)
+factcantor_i(GEN f, GEN pp, long flag)
 {
-  long d;
   if (typ(f) == t_VECSMALL)
   { /* lgefint(pp) = 3 */
     GEN F;
@@ -1730,15 +1745,7 @@ FpX_factcantor_i(GEN f, GEN pp, long flag)
     }
     return F;
   }
-  /*Now, we can assume that p is large and odd*/
-  d = degpol(f);
-  if (d <= 2) return FpX_factor_deg2(f,pp,d,flag);
-  switch(flag)
-  {
-    default: return FpX_factor_Cantor(f, pp);
-    case 1: return FpX_simplefact_Cantor(f, pp);
-    case 2: return FpX_isirred_Cantor(f, pp)? gen_1: NULL;
-  }
+  return FpX_factcantor_i(f, pp, flag);
 }
 GEN
 FpX_factcantor(GEN f, GEN pp, long flag)
@@ -1746,7 +1753,7 @@ FpX_factcantor(GEN f, GEN pp, long flag)
   pari_sp av = avma;
   GEN z;
   ZX_factmod_init(&f,pp);
-  z = FpX_factcantor_i(f,pp,flag);
+  z = factcantor_i(f,pp,flag);
   if (flag == 2) { avma = av; return z; }
   return gerepilecopy(av, z);
 }
@@ -1784,7 +1791,7 @@ factmod_aux(GEN f, GEN p, GEN (*Factor)(GEN,GEN,long), long flag)
 }
 GEN
 factcantor0(GEN f, GEN p, long flag)
-{ return factmod_aux(f, p, &FpX_factcantor_i, flag); }
+{ return factmod_aux(f, p, &factcantor_i, flag); }
 GEN
 factmod(GEN f, GEN p)
 { return factmod_aux(f, p, &FpX_Berlekamp_i, 0); }
@@ -1794,14 +1801,14 @@ factmod(GEN f, GEN p)
 int
 FpX_is_irred(GEN f, GEN p) {
   ZX_factmod_init(&f,p);
-  return !!FpX_factcantor_i(f,p,2);
+  return !!factcantor_i(f,p,2);
 }
 GEN
 FpX_degfact(GEN f, GEN p) {
   pari_sp av = avma;
   GEN z;
   ZX_factmod_init(&f,p);
-  z = FpX_factcantor_i(f,p,1);
+  z = factcantor_i(f,p,1);
   return gerepilecopy(av, z);
 }
 GEN
