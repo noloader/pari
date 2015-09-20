@@ -269,14 +269,14 @@ pol_0(long v)
 }
 #define retconst_vec(n,x)\
   do { long _i, _n = (n);\
-       GEN _v = cgetg(n+1, t_VEC), _x = (x);\
+       GEN _v = cgetg(_n+1, t_VEC), _x = (x);\
        for (_i = 1; _i <= _n; _i++) gel(_v,_i) = _x;\
        return _v; } while(0)
 INLINE GEN
 const_vec(long n, GEN x) { retconst_vec(n, x); }
 #define retconst_col(n,x)\
   do { long _i, _n = (n);\
-       GEN _v = cgetg(n+1, t_COL), _x = (x);\
+       GEN _v = cgetg(_n+1, t_COL), _x = (x);\
        for (_i = 1; _i <= _n; _i++) gel(_v,_i) = _x;\
        return _v; } while(0)
 INLINE GEN
