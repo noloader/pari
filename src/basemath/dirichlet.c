@@ -100,7 +100,7 @@ eulerfact_large(void *E, GEN (*eval)(void *, GEN), long p)
   return gerepilecopy(av, lg(s)>=4 ? gel(s,3): gen_0);
 }
 
-ulong
+static ulong
 direulertou(GEN a, GEN fl(GEN))
 {
   if (typ(a) != t_INT)
@@ -111,7 +111,7 @@ direulertou(GEN a, GEN fl(GEN))
   return signe(a)<=0 ? 0: itou(a);
 }
 
-GEN
+static GEN
 direuler_bad(void *E, GEN (*eval)(void *, GEN), GEN a, GEN b, GEN c, GEN Sbad)
 {
   ulong n;
