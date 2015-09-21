@@ -90,7 +90,7 @@ eulerfact_small(void *E, GEN (*eval)(void *, GEN), long p, long l)
 }
 
 static GEN
-eulerfact_large(void *E, GEN (*eval)(void *, GEN), long p, long l)
+eulerfact_large(void *E, GEN (*eval)(void *, GEN), long p)
 {
   pari_sp av = avma;
   GEN s = eval(E, utoi(p));
@@ -103,7 +103,6 @@ eulerfact_large(void *E, GEN (*eval)(void *, GEN), long p, long l)
 ulong
 direulertou(GEN a, GEN fl(GEN))
 {
-  ulong au;
   if (typ(a) != t_INT)
   {
     a = fl(a);
@@ -119,7 +118,8 @@ direuler_bad(void *E, GEN (*eval)(void *, GEN), GEN a, GEN b, GEN c, GEN Sbad)
   pari_sp av0 = avma;
   GEN v, V;
   forprime_t T;
-  long i, au, bu, cu;
+  long i;
+  ulong au, bu, cu;
   ulong p, bb;
   au = direulertou(a, gceil);
   bu = direulertou(b, gfloor);
@@ -155,7 +155,7 @@ direuler_bad(void *E, GEN (*eval)(void *, GEN), GEN a, GEN b, GEN c, GEN Sbad)
   while ( (p = u_forprime_next(&T)) )
   {
     if (Sbad && !umodiu(Sbad, p)) continue;
-    dirmuleuler_large(V, p, eulerfact_large(E,eval,p, cu));
+    dirmuleuler_large(V, p, eulerfact_large(E,eval,p));
   }
   return gerepilecopy(av0,V);
 }
