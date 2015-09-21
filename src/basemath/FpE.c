@@ -1986,6 +1986,7 @@ Fq_elldivpolmod(GEN a4, GEN a6, long n, GEN h, GEN T, GEN p)
   struct divpol_red r;
   pari_sp ltop = avma;
   GEN t, rhs, r2;
+  if (n == 0) return scalarpol(gen_0,0);
   if (n <= 2) return scalarpol(gen_1,0);
   r.h=h; r.T=T;
   r.p=p;
