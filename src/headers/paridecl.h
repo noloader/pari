@@ -3126,6 +3126,7 @@ char *  pari_err2str(GEN err);
 void    pari_init_opts(size_t parisize, ulong maxprime, ulong init_opts);
 void    pari_init(size_t parisize, ulong maxprime);
 void    pari_stackcheck_init(void *pari_stack_base);
+void    pari_sighandler(int sig);
 void    pari_sig_init(void (*f)(int));
 void    pari_thread_alloc(struct pari_thread *t, size_t s, GEN arg);
 void    pari_thread_close(void);

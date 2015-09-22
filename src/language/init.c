@@ -349,7 +349,6 @@ pari_daemon(void)
 /*********************************************************************/
 static int try_to_recover = 0;
 THREAD VOLATILE int PARI_SIGINT_block = 0, PARI_SIGINT_pending = 0;
-static void pari_sighandler(int sig);
 
 /*********************************************************************/
 /*                         SIGNAL HANDLERS                           */
@@ -377,7 +376,7 @@ pari_handle_SIGINT(void)
 #endif
 }
 
-static void
+void
 pari_sighandler(int sig)
 {
   const char *msg;

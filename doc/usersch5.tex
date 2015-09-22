@@ -102,6 +102,10 @@ engine.
 (see \kbd{signal(2)}): the signals \kbd{SIGBUS}, \kbd{SIGFPE}, \kbd{SIGINT},
 \kbd{SIGBREAK}, \kbd{SIGPIPE} and \kbd{SIGSEGV} are concerned.
 
+\fun{void}{pari_sighandler}{int signum} the actual signal handler that
+PARI uses. This can be used as argument to \kbd{pari\_sig\_init} or
+\kbd{signal(2)}.
+
 \fun{void}{pari_stackcheck_init}{void *stackbase} controls the system stack
 exhaustion checking code in the GP interpreter. This should be used when the
 system stack base address change or when the address seen by \kbd{pari\_init}
