@@ -246,9 +246,9 @@ gp_read_stream_buf(FILE *fi, Buffer *b)
 
   init_filtre(&F, b);
 
-  IM.file = fi;
-  IM.fgets= &fgets;
-  IM.getline= &file_input;
+  IM.file = (void*)fi;
+  IM.fgets = (fgets_t)&fgets;
+  IM.getline = &file_input;
   IM.free = 0;
   return input_loop(&F,&IM);
 }
@@ -259,6 +259,21 @@ gp_read_stream(FILE *fi)
   Buffer *b = new_buffer();
   GEN x = gp_read_stream_buf(fi, b)? readseq(b->buf): gnil;
   delete_buffer(b); return x;
+}
+
+static GEN
+gp_read_from_input(input_method* IM, int loop)
+{
+  Buffer *b = new_buffer();
+  GEN x = gnil;
+  filtre_t F;
+  do {
+    init_filtre(&F, b);
+    if (!input_loop(&F, IM)) break;
+    if (*(b->buf)) x = readseq(b->buf);
+  } while (loop);
+  delete_buffer(b);
+  return x;
 }
 
 GEN
@@ -281,6 +296,41 @@ gp_read_file(const char *s)
     delete_buffer(b);
   }
   popinfile(); return x;
+}
+
+static char*
+string_gets(char *s, int size, const char **ptr)
+{
+  /* f is actually a const char** */
+  const char *in = *ptr;
+  int i;
+  char c;
+
+  /* Copy from in to s */
+  for (i = 0; i+1 < size && in[i] != 0;)
+  {
+    s[i] = c = in[i]; i++;
+    if (c == '\n') break;
+  }
+  s[i] = 0;  /* Terminating 0 byte */
+  if (i == 0) return NULL;
+
+  *ptr += i;
+  return s;
+}
+
+GEN
+gp_read_str_multiline(const char *s)
+{
+  input_method IM;
+  const char *ptr = s;
+
+  IM.file = (void*)(&ptr);
+  IM.fgets = (fgets_t)&string_gets;
+  IM.getline = &file_input;
+  IM.free = 0;
+
+  return gp_read_from_input(&IM, 1);
 }
 
 GEN
@@ -4165,8 +4215,8 @@ get_lines(FILE *F)
   GEN z = cgetg(nz + 1, t_VEC);
   Buffer *b = new_buffer();
   input_method IM;
-  IM.fgets = &fgets;
-  IM.file = F;
+  IM.fgets = (fgets_t)&fgets;
+  IM.file = (void*)F;
   for(i = 1;;)
   {
     char *s = b->buf, *e;

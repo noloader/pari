@@ -1694,15 +1694,27 @@ library mode: input and output of PARI objects.
 \subsec{Input}
 
 \noindent
-For \idx{input}, PARI provides a powerful high level function
-which enables you to input your objects as if you were under \kbd{gp}. In fact,
+For \idx{input}, PARI provides several powerful high level functions
+which enable you to input your objects as if you were under \kbd{gp}. In fact,
 it \emph{is} essentially the GP syntactical parser.
-It has the following syntax:\label{se:gp_read_str}
 
-\fun{GEN}{gp_read_str}{const char *s}
+There are two similar functions available to parse a string:
+
+\fun{GEN}{gp_read_str}{const char *s}\label{se:gp_read_str}
+
+\fun{GEN}{gp_read_str_multiline}{const char *s}
 
 \noindent
-Note that \kbd{gp}'s metacommands \emph{are} recognized.
+Both functions read the whole string \kbd{s}. The function
+\kbd{gp\_read\_str} ignores newlines: it assumes that the input is one
+expression and returns the result of this expression.
+
+The function \kbd{gp\_read\_str\_multiline} processes the text in the
+same way as the GP command \tet{read}: newlines are significant and can
+be used to separate expressions.
+The return value is that of the last non-empty expression evaluated.
+
+For both functions, \kbd{gp}'s metacommands \emph{are} recognized.
 
 \misctitle{Note} The obsolete form
 

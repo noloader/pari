@@ -482,15 +482,17 @@ void gp_expand_path(gp_path *p);
 const char *pari_default_path(void);
 int path_is_absolute(char *s);
 
+typedef char *(*fgets_t)(char *, int, void*);
+
 typedef struct input_method {
+/* optional */
+  fgets_t fgets;  /* like libc fgets() but last argument is (void*) */
 /* mandatory */
-  char * (*fgets)(char *,int,FILE*);
   char * (*getline)(char**, int f, struct input_method*, filtre_t *F);
   int free; /* boolean: must we free the output of getline() ? */
-/* for interactive methods */
+/* optional */
   const char *prompt, *prompt_cont;
-/* for non-interactive methods */
-  FILE *file;
+  void *file;  /* can be used as last argument for fgets() */
 } input_method;
 
 int input_loop(filtre_t *F, input_method *IM);
