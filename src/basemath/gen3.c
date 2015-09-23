@@ -1454,8 +1454,11 @@ gsubst(GEN x, long v, GEN y)
           if (varncmp(vy,vx) > 0)
             z = poleval(x, y);
           else
+          {
             z = RgXn_eval(x, ser2rfrac_i(y), n);
-          z = RgX_to_ser(z, n+2);
+            if (varn(z) == vy) z = RgX_to_ser(z, n+2);
+          }
+          if (typ(z) != t_SER || varn(z) != vy) z = scalarser(z, vy, n);
           if (cx) z = gmul(z, cx);
           if (!ex && !cx) return gerepilecopy(av, z);
           if (ex) z = gmul(z, gpowgs(y,ex));
