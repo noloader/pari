@@ -202,6 +202,7 @@ enum ga_code {ga_all_normal=1,ga_ext_2=2,ga_non_wss=4};
 struct galois_analysis {
   long p; /* prime to be lifted */
   long deg; /* degree of the lift */
+  long mindeg; /* minimal acceptable degree */
   long ord;
   long l; /* l: prime number such that T is totally split mod l */
   long p4;
@@ -1288,6 +1289,7 @@ galoisanalysis(GEN T, struct galois_analysis *ga, long calcul_l)
   }
   ga->group = (enum ga_code)group;
   ga->deg = deg;
+  ga->mindeg =  n == 135 ? 15: 0; /* otherwise the second phase is too slow */
   ga->ord = order;
   ga->l  = O[1];
   ga->p4 = n >= 4 ? O[4] : 0;
@@ -1900,6 +1902,13 @@ galoisfindfrobenius(GEN T, GEN L, GEN den, struct galois_frobenius *gf,
     if (frob)
     {
       GEN *gptr[3];
+      if (gf->deg < ga->mindeg)
+      {
+        if (DEBUGLEVEL >= 4)
+          err_printf("GaloisConj: lift degree too small %ld < %ld\n",
+                     gf->deg, ga->mindeg);
+        continue;
+      }
       gf->Tmod = gcopy(Ti);
       gptr[0]=&gf->Tmod; gptr[1]=&gf->psi; gptr[2]=&frob;
       gerepilemanysp(ltop,lbot,gptr,3); return frob;
