@@ -3751,6 +3751,7 @@ det_simple_gauss(GEN a, GEN data, pivot_fun pivot)
       {
         if(DEBUGMEM>1) pari_warn(warnmem,"det. col = %ld",i);
         gerepileall(av,2, &a,&x);
+        p = gcoeff(a,i,i);
       }
     }
   }
