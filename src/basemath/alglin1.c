@@ -3747,12 +3747,11 @@ det_simple_gauss(GEN a, GEN data, pivot_fun pivot)
       m = gdiv(m,p);
       for (j=i+1; j<=nbco; j++)
         gcoeff(a,j,k) = gsub(gcoeff(a,j,k), gmul(m,gcoeff(a,j,i)));
-      if (gc_needed(av,3))
-      {
-        if(DEBUGMEM>1) pari_warn(warnmem,"det. col = %ld",i);
-        gerepileall(av,2, &a,&x);
-        p = gcoeff(a,i,i);
-      }
+    }
+    if (gc_needed(av,2))
+    {
+      if(DEBUGMEM>1) pari_warn(warnmem,"det. col = %ld",i);
+      gerepileall(av,2, &a,&x);
     }
   }
   if (s < 0) x = gneg_i(x);
