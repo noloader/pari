@@ -369,7 +369,7 @@ matrixnorm(GEN M, long prec)
 static GEN
 galoisborne(GEN T, GEN dn, struct galois_borne *gb, long d)
 {
-  pari_sp ltop = avma, av2;
+  pari_sp ltop, av2;
   GEN borne, borneroots, borneabs;
   long prec;
   GEN L, M, prep, den;
@@ -377,7 +377,8 @@ galoisborne(GEN T, GEN dn, struct galois_borne *gb, long d)
 
   prec = nbits2prec(bit_accuracy(ZX_max_lg(T)));
   den = initgaloisborne(T,dn,prec, &L,&prep,NULL);
-  if (!dn) den = gclone(den);
+  if (!dn) dn = den;
+  ltop = avma;
   if (DEBUGLEVEL>=4) timer_start(&ti);
   M = vandermondeinverse(L, RgX_gtofp(T, prec), den, prep);
   if (DEBUGLEVEL>=4) timer_printf(&ti,"vandermondeinverse");
@@ -398,7 +399,6 @@ galoisborne(GEN T, GEN dn, struct galois_borne *gb, long d)
     err_printf("GaloisConj: Bound %Ps\n",borneroots);
   gb->ladicsol = powiu(gb->l, gb->valsol);
   gb->ladicabs = powiu(gb->l, gb->valabs);
-  if (!dn) { dn = icopy(den); gunclone(den); }
   return dn;
 }
 
