@@ -1149,13 +1149,12 @@ notgalois(long p, struct galois_analysis *ga)
 static long
 init_group(long n, long np, GEN Fp, GEN Fe, long *porder)
 {
-  /*TODO: complete the table to at least 200*/
-  const long prim_nonss_orders[] = { 36,48,56,60,72,75,80,96,108,120,132 };
+  const long prim_nonwss_orders[] = { 36,48,56,60,75,80,196,200 };
   long i, phi_order = 1, order = 1, group = 0;
 
  /* non-WSS groups of this order? */
-  for (i=0; i < (long)numberof(prim_nonss_orders); i++)
-    if (n % prim_nonss_orders[i] == 0) { group |= ga_non_wss; break; }
+  for (i=0; i < (long)numberof(prim_nonwss_orders); i++)
+    if (n % prim_nonwss_orders[i] == 0) { group |= ga_non_wss; break; }
   if (np == 2 && Fp[2] == 3 && Fe[2] == 1 && Fe[1] > 2) group |= ga_ext_2;
 
   for (i = np; i > 0; i--)
