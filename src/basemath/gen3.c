@@ -1441,14 +1441,16 @@ gsubst(GEN x, long v, GEN y)
 
         case t_POL: case t_RFRAC:
         {
-          long n = lx-2;
+          long N, n = lx-2;
           GEN cx;
           vy = gvar(y); ey = gval(y,vy);
           if (ey == LONG_MAX) return n? scalarser(gel(x,2),v,n): gcopy(x);
           if (ey < 1 || n == 0) return zeroser(vy, ey*(ex+n));
           av = avma;
           n *= ey;
-          y = (ty == t_RFRAC)? rfractoser(y, vy, n): poltoser(y, vy, n);
+          N = ex? n: maxss(n-1,1);
+          y = (ty == t_RFRAC)? rfractoser(y, vy, N): poltoser(y, vy, N);
+          if (lg(y)-2 > n) setlg(y, n+2);
           x = ser2pol_i(x, lx);
           x = primitive_part(x, &cx);
           if (varncmp(vy,vx) > 0)
@@ -1458,7 +1460,13 @@ gsubst(GEN x, long v, GEN y)
             z = RgXn_eval(x, ser2rfrac_i(y), n);
             if (varn(z) == vy) z = RgX_to_ser(z, n+2);
           }
-          if (typ(z) != t_SER || varn(z) != vy) z = scalarser(z, vy, n);
+          switch(typ(z))
+          {
+            case t_SER:
+            case t_POL:
+              if (varncmp(varn(z),vy) <= 0) break;
+            default: z = scalarser(z, vy, n);
+          }
           if (cx) z = gmul(z, cx);
           if (!ex && !cx) return gerepilecopy(av, z);
           if (ex) z = gmul(z, gpowgs(y,ex));
