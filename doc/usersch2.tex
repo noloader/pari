@@ -498,8 +498,11 @@ printed in the same way and not be equal; however, \kbd{gp} will refuse to add
 or multiply them for example.
 
 Since the order is $\Z + \kbd{w}\Z$, any other element can be input
-as \kbd{$x$+$y$*w} for some integers $x$ and $y$. In fact, you may work in
+as \kbd{z = $x$+$y$*w} for some integers $x$ and $y$. In fact, you may work in
 its fraction field $\Q(\sqrt{d})$ and use \typ{FRAC} values for $x$ and $y$.
+
+The member function \kbd{z.disc} retrieves the discriminant $d$; $x$ and $y$
+are obtained via \kbd{real(z)} and \kbd{imag(z)} respectively.
 
 \subsec{Polmods (\typ{POLMOD})}%
 \sidx{polmod}\kbdsidx{t_POLMOD}
@@ -657,10 +660,19 @@ here.
 (\typ{QFR} and \typ{QFI})}%
 \sidx{binary quadratic form}\kbdsidx{t_QFR}\kbdsidx{t_QFI}
 These are input using the function \kbd{Qfb}. For example \kbd{Qfb(1,2,3)}
-creates the binary form $x^2+2xy+3y^2$. It is imaginary (of internal type
+creates the binary form $q = x^2+2xy+3y^2$. It is imaginary (of internal type
 \typ{QFI}) since its discriminant $2^2 - 4\times 3 = -8$ is negative.
 Although imaginary forms could be positive or negative definite, only
 positive definite forms are implemented.
+
+The discriminant can be retrieved via \kbd{poldisc} or \kbd{q.disc}. The
+individual components are obtained via either of
+\bprog
+  [a,b,c] = Vec(q);
+  a = component(q,1);
+  b = component(q,2);
+  c = component(q,3);
+@eprog
 
 In the case of forms with positive discriminant (\typ{QFR}), you may add an
 optional fourth component (related to the regulator, more precisely to Shanks
