@@ -7,7 +7,7 @@ L148=lfuncreate([n->dirzetak(K,n),0,[0,0,0],1,D,1,K.reg*4/sqrt(D)]);
 for(i=1,10,print(i,":",lfun(L148,-i)))
 L117=lfuncreate([n->dirdiv(dirzetak(nfinit('x^4-'x^3-'x^2+'x+1),n),zetaan(n)),0,[0,1,1],1,117,1]); /* [0,0,1,1]-[0] */
 for(i=1,10,print(i,":",lfun(L117,i)))
-e121=ellinit("121a1");
+e121=ellinit([1,1,1,-30,-76]);  \\ 121a1
 L121=lfuninit(e121,[1,0,100],2);
 lfun(L121,1+100*I)
 lfun(L121,1+x+O(x^3))
@@ -206,7 +206,7 @@ lfun(L,2)/(Pi^2/6*Catalan)
 lfunhardy(L,2)
 lfun(lfunetaquo([1,1;3,1;5,1;15,1]),2)
 lfun(lfunetaquo(Mat([1,24])),2)
-lfun(ellinit("15a1"),2)
+lfun(ellinit([1,1,1,-10,-10]),2)  \\ 15a1
 
 \\ residue 2*Pi/sqrt(23) at 1
 L=lfuncreate([n->Vec(qfrep([2,1;1,12],n,1))*2,0,[0,1],1,23,1,0]);
