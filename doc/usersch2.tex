@@ -1251,22 +1251,22 @@ variables \kbd{X1}, \kbd{X2}, \kbd{X3}, \dots, you might equally well store
 their values in \kbd{X[1]}, \kbd{X[2]}, \kbd{X[3]}, \dots
 
 \subsec{Variables and polynomials}\sidx{free variable}
-What happens when you use a valid variable name,\kbd{t} say, for the first
-time \emph{before} assigning a value into it? This registers a new
-\emph{free variable} with the interpreter (which will be written as \kbd{t}),
-and evaluates to a monomial of degree $1$ in the said variable \kbd{t}. It is
-important to understand that PARI/GP is \emph{not} a symbolic manipulation
-package: even free variables already have default values%
-\footnote{*}{More generally, any expression has a value, and is
-\emph{replaced} by its value as soon as it is read; it never stays in an
-abstract form.}%
-, there is no such thing as an ``unbound'' variable in GP.
-You have access to this default value using the quote operator: \kbd{'t}
-always evaluates to the above monomial of degree~$1$, independently of
-assignments made since then (e.g. \kbd{t = 1}).
+The quote operator \kbd{'t} registers a new \emph{free variable} with the
+interpreter, which will be written as \kbd{t}, and evaluates to a monomial
+of degree $1$ in the said variable.
+
+\misctitle{Caveat}
+For reasons of backward compatibility, there is no such thing as an
+``unbound'' (uninitialized) variable in GP. If you use a valid variable name
+in an expression, \kbd{t} say, for the first time \emph{before} assigning a
+value into it, it is interpreted as \kbd{'t} rather than raising an
+exception. One should not rely on this feature in serious programs, which
+would otherwise break if some unexpected assignment (e.g. \kbd{t = 1})
+occurs: use \kbd{'t} directly or \kbd{t = 't} first, then \kbd{t}.
+A statement like \kbd{t = 't} in effect restores \kbd{t} as a free variable.
 %
 \bprog
-? t^2 + 1
+? t = 't; t^2 + 1  
 %1 = t^2 + 1
 ? t = 2; t^2 + 1
 %2 = 5
@@ -1275,15 +1275,16 @@ assignments made since then (e.g. \kbd{t = 1}).
 ? eval(%1)
 %4 = 5
 @eprog\noindent
-In the above, \kbd{t} is initially a free variable, later bound to $2$. We
-see that assigning a value to a variable does not affect previous expressions
-involving it; to take into account the new variable's value, one must force a
-new evaluation, using the function \kbd{eval} (see \secref{se:eval}). It is
-preferable to leave alone your ``polynomial variables'', never assigning
-values to them, and to use \kbd{subst} and its more powerful variants rather
-than \kbd{eval}. You will avoid the following kind of problems:
+In the above, we initialize \kbd{t} to a monomial, then bind it to $2$.
+Assigning a value to a polynomial variable does not affect previous
+expressions involving it; to take into account the new variable's value, one
+must force a new evaluation, using the function \kbd{eval} (see
+\secref{se:eval}).
+
+\misctitle{Caveat2}
+The use of an explicit quote operator avoids the following kind of problems:
 \bprog
-? p = t^2 + 1; subst(p, t, 2)
+? t = 't; p = t^2 + 1; subst(p, t, 2)
 %1 = 5
 ? t = 2;
 ? subst(p, t, 3)    \\@com \kbd{t} is no longer free: it evaluates to 2
@@ -1292,8 +1293,7 @@ than \kbd{eval}. You will avoid the following kind of problems:
   ***   variable name expected.
 ? subst(p, 't, 3)   \\ OK
 %3 = 10
-@eprog\noindent
-A statement like \kbd{x = 'x} in effect restores \kbd{x} as a free variable.
+@eprog
 
 \subsec{Variable priorities, multivariate objects}\sidx{variable (priority)}\label{se:priority}
 A multivariate polynomial in PARI is just a polynomial (in one variable),
@@ -1303,7 +1303,7 @@ representation for polynomials, listing only non-zero monomials.) All
 computations are then done formally on the coefficients as if the
 polynomial was univariate.
 
-This is not symmetrical. So if I enter \kbd{x + y} in a clean session,
+This is not symmetrical. So if I enter \kbd{'x + 'y} in a clean session,
 what happens? This is understood as
 $$ x^1 + (y^1 + 0*y^0)*x^0 \in (\Z[y])[x] $$
 but how do we know that $x$ is ``more important'' than $y$ ? Why not $y^1 +
@@ -1329,19 +1329,20 @@ In any case, if you are working with expressions involving several variables
 and want to have them ordered in a specific manner in the internal
 representation just described, the simplest is just to write down the
 variables one after the other under \kbd{gp} before starting any real
-computations. You could also define variables from your \tet{gprc} to have a
+computations. You may also define variables from your \tet{gprc} to have a
 consistent ordering of common variable names in all your \kbd{gp} sessions,
 e.g read in a file \kbd{variables.gp} containing
 \bprog
-x;y;z;t;a;b;c;d;
-@eprog
+'x; 'y; 'z; 't; 'a;
+@eprog\noindent There is no way to change the priority of existing variables,
+but you may always create new ones with well-defined priorities using
+\kbd{varhigher} or \kbd{varlower}.
 
 \misctitle{Important note} PARI allows Euclidean division of multivariate
 polynomials, but assumes that the computation takes place in the fraction
 field of the coefficient ring (if it is not an integral domain, the result
-will a priori not make sense). This can become tricky; for instance
-assume $x$ has highest priority (which is always the case), then
-$y$:
+will a priori not make sense). This can become tricky. For instance
+assume $x$ has highest priority, then $y$:
 \bprog
 ? x % y
 %1 = 0
@@ -1470,7 +1471,7 @@ present on the stack since the control flow has not left \kbd{h} yet.
 \subsec{Scoping rules}
 
 Named parameters in a function definition, as well as all loop
-indices\footnote{*}{
+indices\footnote{**}{
 More generally, in all iterative constructs which use a variable name
 (\kbd{for}, \kbd{prod}, \kbd{sum}, \kbd{vector}, \kbd{matrix},
 \kbd{plot}, etc.) the given variable is lexically scoped to the construct's
