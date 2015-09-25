@@ -195,6 +195,7 @@ lfuncheckfeq(le4)
 lfuncheckfeq(le21)
 lfuncheckfeq(le31)
 lfuncheckfeq(le41)
+lfunan(le41,10)
 \\ zeta(s)*zeta(s-(k-1)), single pole at k if k even >= 4
 f(k) = lfuncreate([n->vector(n,i,sigma(i,k-1)),0,[0,1],k,1,I^k,zeta(k)]);
 lfun(f(4),5)-zeta(5)*zeta(2)

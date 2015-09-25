@@ -138,12 +138,17 @@ direuler_bad(void *E, GEN (*eval)(void *, GEN), GEN a, GEN b, GEN c, GEN Sbad)
     GEN pbad = gen_1;
     for(i=1; i<=l; i++)
     {
-      GEN ai = gel(Sbad,i), s = ginv(gel(ai,2));
-      ulong p = gtou(gel(ai, 1));
-      if (p > cu)
-        pari_err_DOMAIN("direxpand [exceptional prime]","p",">", b, gel(ai,1));
-      n = dirmuleuler_small(V, v, n, p, eulerfact_bad(s, p, cu));
-      pbad = muliu(pbad, p);
+      ulong p;
+      GEN ai = gel(Sbad,i), s;
+      if (typ(ai)!=t_VEC || lg(ai)!=3)
+        pari_err_TYPE("direuler [bad primes]",ai);
+      p = gtou(gel(ai, 1));
+      s = ginv(gel(ai, 2));
+      if (p <= cu)
+      {
+        n = dirmuleuler_small(V, v, n, p, eulerfact_bad(s, p, cu));
+        pbad = muliu(pbad, p);
+      }
     }
     Sbad = pbad;
   }
