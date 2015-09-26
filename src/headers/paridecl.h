@@ -101,6 +101,7 @@ GEN     F2x_deflate(GEN x0, long d);
 long    F2x_degree(GEN x);
 GEN     F2x_deriv(GEN x);
 GEN     F2x_divrem(GEN x, GEN y, GEN *pr);
+ulong   F2x_eval(GEN P, ulong x);
 void    F2x_even_odd(GEN p, GEN *pe, GEN *po);
 GEN     F2x_extgcd(GEN a, GEN b, GEN *ptu, GEN *ptv);
 GEN     F2x_gcd(GEN a, GEN b);
