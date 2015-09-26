@@ -1975,6 +1975,7 @@ subres_step(GEN *u, GEN *v, GEN *g, GEN *h, GEN *uze, GEN *um1, long *signh)
   GEN u0, c, r, q = RgX_pseudodivrem(*u,*v, &r);
   long du, dv, dr, degq;
 
+  if (gequal0(leading_term(r))) r = RgX_renormalize(r);
   dr = lg(r); if (!signe(r)) { *u = NULL; return 0; }
   du = degpol(*u);
   dv = degpol(*v);

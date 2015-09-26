@@ -33,3 +33,7 @@ modreverse(Mod(0,Pol(1)))
 modreverse(Mod(1,x+1))
 norm(Mod(2^65,3*x+1))
 norm(Mod('a,3*x+1))
+
+\\#1743
+pi=Mod(z^7-1,z^24 +763670323290*z^16+335841304485*z^8+1);
+liftall(1/(pi*(1+O(2^20))))
