@@ -619,19 +619,30 @@ nfhyperellpadicfrobenius(GEN H, GEN T, ulong p, long n)
 }
 
 static GEN
+F2x_genus2charpoly_naive(GEN P, GEN Q)
+{
+  long a, b = 1, c = 0;
+  GEN T = mkvecsmall2(P[1], 7);
+  GEN PT = F2x_rem(P, T), QT = F2x_rem(Q, T);
+  long q0 = F2x_eval(Q, 0), q1 = F2x_eval(Q, 1);
+  long dP = F2x_degree(P), dQ = F2x_degree(Q);
+  a= dQ<3 ? 0: dP==5 ? 1: -1;
+  a += (q0? F2x_eval(P, 0)? -1: 1: 0) + (q1? F2x_eval(P, 1)? -1: 1: 0);
+  b += q0 + q1;
+  if (lgpol(QT))
+    c = (F2xq_trace(F2xq_div(PT, F2xq_sqr(QT, T), T), T)==0 ? 1: -1);
+  return mkvecsmalln(6, 0UL, 4, 2*a, (b+2*c+a*a)>>1, a, 1UL);
+}
+
+static GEN
 Flx_genus2charpoly_naive(GEN H, ulong p)
 {
   pari_sp av = avma;
   ulong pi = get_Fl_red(p);
   ulong i, j, p2 = p>>1, D = 2, e = ((p&2UL) == 0) ? -1 : 1;
   long a, b, c = 0;
-  if (degpol(H) == 5)
-    a = b = 0;
-  else
-  {
-    a = krouu(Flx_lead(H), p);
-    b = 1;
-  }
+  b = degpol(H) == 5 ? 0 : 1;
+  a = b ? krouu(Flx_lead(H), p): 0;
   while (krouu(D, p) >= 0) D++;
   for (i=0; i < p; i++)
   {
@@ -651,19 +662,39 @@ Flx_genus2charpoly_naive(GEN H, ulong p)
 }
 
 GEN
-hyperellcharpoly(GEN H)
+hyperellcharpoly(GEN PQ)
 {
   pari_sp av = avma;
-  GEN M, R, T=NULL, pp=NULL;
+  GEN H, M, R, T=NULL, pp=NULL;
   long d, n, eps = 0;
   ulong p;
-  if (is_vec_t(typ(H)) && lg(H)==3)
-    H = gadd(gsqr(gel(H, 2)), gmul2n(gel(H, 1), 2));
+  if (is_vec_t(typ(PQ)) && lg(PQ)==3)
+    H = gadd(gsqr(gel(PQ, 2)), gmul2n(gel(PQ, 1), 2));
+  else
+    H = PQ;
   if (typ(H)!=t_POL || !RgX_is_FpXQX(H, &T, &pp) || !pp)
     pari_err_TYPE("hyperellcharpoly",H);
   p = itou(pp);
   if (!T)
   {
+    if (p==2 && is_vec_t(typ(PQ)))
+    {
+      long dP, dQ, v = varn(H);
+      GEN P = gel(PQ,1), Q = gel(PQ,2);
+      if (typ(P)!=t_POL)  P = scalarpol(P, v);
+      if (typ(Q)!=t_POL)  Q = scalarpol(Q, v);
+      dP = degpol(P); dQ = degpol(Q);
+      if (dP<=6 && dQ <=3 && (dQ==3 || dP>=5))
+      {
+        GEN P2 = RgX_to_F2x(P), Q2 = RgX_to_F2x(Q);
+        GEN D = F2x_add(F2x_mul(P2, F2x_sqr(F2x_deriv(Q2))), F2x_sqr(F2x_deriv(P2)));
+        if (F2x_degree(F2x_gcd(D, Q2))) is_sing(PQ, 2);
+        if (dP==6 && dQ<3 && F2x_coeff(P2,5)==F2x_coeff(Q2,2))
+          is_sing(PQ, 2); /* The curve is singular at infinity */
+        R = zx_to_ZX(F2x_genus2charpoly_naive(P2, Q2));
+        return gerepileupto(av, R);
+      }
+    }
     H = RgX_to_FpX(H, pp);
     d = degpol(H);
     if (p > 2 && ((d == 5 && p < 3000) || (d == 6 && p < 5500)))
