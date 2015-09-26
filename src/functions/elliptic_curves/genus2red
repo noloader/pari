@@ -74,7 +74,7 @@ Doc: Let $P$ be a polynomial with integer coefficients.
 
  \item 5: the union of two elliptic curves $E_1$ and $E_2$ intersecting
  transversally at one point; \var{vecj} contains their modular invariants
- $j_1$ and $j_2$, which may live in a quadratic extension of $\F_p$ are need
+ $j_1$ and $j_2$, which may live in a quadratic extension of $\F_p$ and need
  not be distinct. The Jacobian $J(C)$ has potentially good reduction,
  isomorphic to the product of the reductions of $E_1$ and $E_2$.
 
@@ -107,8 +107,8 @@ Doc: Let $P$ be a polynomial with integer coefficients.
 
  \misctitle{Notes about Namikawa-Ueno types}
 
- \item A lower index is denoted between braces: for instance, \kbd{[I\obr
-  2\cbr-II-5]} means \kbd{[I\_2-II-5]}.
+ \item A lower index is denoted between braces: for instance,
+  \kbd{[I\obr2\cbr-II-5]} means \kbd{[I\_2-II-5]}.
 
  \item If $K$ and $K'$ are Kodaira symbols for singular fibers of elliptic
  curves, \kbd{[$K$-$K'$-m]} and \kbd{[$K'$-$K$-m]} are the same.
