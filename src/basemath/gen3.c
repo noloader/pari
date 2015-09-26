@@ -1448,7 +1448,7 @@ gsubst(GEN x, long v, GEN y)
           if (ey < 1 || n == 0) return zeroser(vy, ey*(ex+n));
           av = avma;
           n *= ey;
-          N = ex? n: maxss(n-1,1);
+          N = ex? n: maxss(n-ey,1);
           y = (ty == t_RFRAC)? rfractoser(y, vy, N): poltoser(y, vy, N);
           if (lg(y)-2 > n) setlg(y, n+2);
           x = ser2pol_i(x, lx);
