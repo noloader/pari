@@ -2030,7 +2030,11 @@ subresext_i(GEN x, GEN y, GEN *U, GEN *V)
   if (varn(x) != varn(y))
     return varncmp(varn(x), varn(y)) < 0? scalar_res(x,y,U,V)
                                         : scalar_res(y,x,V,U);
-  dx = degpol(x); dy = degpol(y); signh = 1;
+  if (gequal0(leading_term(x))) x = RgX_renormalize(x);
+  if (gequal0(leading_term(y))) y = RgX_renormalize(y);
+  dx = degpol(x);
+  dy = degpol(y);
+  signh = 1;
   if (dx < dy)
   {
     pswap(U,V); lswap(dx,dy); swap(x,y);
