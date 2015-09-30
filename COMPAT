@@ -82,6 +82,7 @@ This file lists the incompatible changes between Version 2.x and older versions
   - nucomp now takes L = floor(|D|^(1/4)) as a 3rd argument. Former
     nucomp(x,n) is nucomp(x,n,NULL).
   - divide_conquer_assoc renamed to gen_product, divide_conquer_prod removed
+  - rename concat to gconcat, concat1 to gconcat1
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%% VERSION 2.6 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

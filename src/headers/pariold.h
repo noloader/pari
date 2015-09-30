@@ -99,6 +99,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #define pariflush pari_flush
 #define ellap0(e,p,flag) ellap(e,p)
 #define apell2(e,p) ellap(e,p)
+#define concat gconcat
+#define concat1 gconcat1
 
 /* Following deprecated for a long time now, obsoleted in 2.3.* (2007) */
 #ifdef PARI_OLD_NAMES
