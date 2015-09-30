@@ -100,6 +100,9 @@ x^2 - 2
 x^2 - x - 4
 x^2 - x - 2
 x^2 - 2*x - 2
+x^2 - 2
+x^2 - 4
+x^2 - 2
   ***   at top-level: hyperellcharpoly((25
   ***                 ^--------------------
   *** hyperellcharpoly: domain error in hyperellpadicfrobenius: H is singular at 5

@@ -626,7 +626,7 @@ F2x_genus2charpoly_naive(GEN P, GEN Q)
   GEN PT = F2x_rem(P, T), QT = F2x_rem(Q, T);
   long q0 = F2x_eval(Q, 0), q1 = F2x_eval(Q, 1);
   long dP = F2x_degree(P), dQ = F2x_degree(Q);
-  a= dQ<3 ? 0: dP==5 ? 1: -1;
+  a= dQ<3 ? 0: dP<=5 ? 1: -1;
   a += (q0? F2x_eval(P, 0)? -1: 1: 0) + (q1? F2x_eval(P, 1)? -1: 1: 0);
   b += q0 + q1;
   if (lgpol(QT))
