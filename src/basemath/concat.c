@@ -325,7 +325,7 @@ shallowconcat1(GEN x)
 }
 
 GEN
-concat1(GEN x)
+gconcat1(GEN x)
 {
   pari_sp av = avma;
   return gerepilecopy(av, shallowconcat1(x));
@@ -458,12 +458,12 @@ matconcat(GEN v)
 }
 
 GEN
-concat(GEN x, GEN y)
+gconcat(GEN x, GEN y)
 {
   long tx, lx,ty,ly,i;
   GEN z,p1;
 
-  if (!y) return concat1(x);
+  if (!y) return gconcat1(x);
   tx = typ(x);
   ty = typ(y);
   if (tx==t_STR  || ty==t_STR)
@@ -536,12 +536,12 @@ concat(GEN x, GEN y)
       switch(ty)
       {
         case t_COL:
-          if (lx<=2) return (lx==1)? gcopy(y): concat(gel(x,1),y);
+          if (lx<=2) return (lx==1)? gcopy(y): gconcat(gel(x,1),y);
           if (ly>=3) break;
-          return (ly==1)? gcopy(x): concat(x,gel(y,1));
+          return (ly==1)? gcopy(x): gconcat(x,gel(y,1));
         case t_MAT:
           z=cgetg(ly,t_MAT); if (lx != ly) break;
-          for (i=1; i<ly; i++) gel(z,i) = concat(gel(x,i),gel(y,i));
+          for (i=1; i<ly; i++) gel(z,i) = gconcat(gel(x,i),gel(y,i));
           return z;
       }
       break;
@@ -550,9 +550,9 @@ concat(GEN x, GEN y)
       switch(ty)
       {
         case t_VEC:
-          if (lx<=2) return (lx==1)? gcopy(y): concat(gel(x,1),y);
+          if (lx<=2) return (lx==1)? gcopy(y): gconcat(gel(x,1),y);
           if (ly>=3) break;
-          return (ly==1)? gcopy(x): concat(x,gel(y,1));
+          return (ly==1)? gcopy(x): gconcat(x,gel(y,1));
         case t_MAT:
           if (lx != lgcols(y)) break;
           z=cgetg(ly+1,t_MAT); gel(z,1) = gcopy(x);
@@ -566,7 +566,7 @@ concat(GEN x, GEN y)
       {
         case t_VEC:
           z=cgetg(lx,t_MAT); if (ly != lx) break;
-          for (i=1; i<lx; i++) gel(z,i) = concat(gel(x,i),gel(y,i));
+          for (i=1; i<lx; i++) gel(z,i) = gconcat(gel(x,i),gel(y,i));
           return z;
         case t_COL:
           if (ly != lgcols(x)) break;

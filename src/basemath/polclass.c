@@ -623,7 +623,7 @@ select_classpoly_prime_pool(
 
             hit = mkvecsmall5(p, t, v, (long)rho_inv, vfactors);
             /* FIXME: Avoid doing GC for every prime as here. */
-            res = gerepileupto(av, concat(res, hit));
+            res = gerepileupto(av, gconcat(res, hit));
             prime_bits += log2(p);
             ++pcount;
           }

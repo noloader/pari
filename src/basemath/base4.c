@@ -936,7 +936,7 @@ famat_add(GEN f, GEN x)
   else
   {
     gel(h,1) = append(gel(f,1), x); /* x may be a t_COL */
-    gel(h,2) = concat(gel(f,2), gen_1);
+    gel(h,2) = gconcat(gel(f,2), gen_1);
   }
   return h;
 }
@@ -955,8 +955,8 @@ famat_mul(GEN f, GEN g)
   if (lg(f) == 1) return gcopy(g);
   if (lg(g) == 1) return gcopy(f);
   h = cgetg(3,t_MAT);
-  gel(h,1) = concat(gel(f,1), gel(g,1));
-  gel(h,2) = concat(gel(f,2), gel(g,2));
+  gel(h,1) = gconcat(gel(f,1), gel(g,1));
+  gel(h,2) = gconcat(gel(f,2), gel(g,2));
   return h;
 }
 

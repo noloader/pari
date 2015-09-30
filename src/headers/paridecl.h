@@ -2194,8 +2194,8 @@ GEN     strtofunction(const char *s);
 
 /* concat.c */
 
-GEN     concat(GEN x, GEN y);
-GEN     concat1(GEN x);
+GEN     gconcat(GEN x, GEN y);
+GEN     gconcat1(GEN x);
 GEN     matconcat(GEN v);
 GEN     shallowconcat(GEN x, GEN y);
 GEN     shallowconcat1(GEN x);

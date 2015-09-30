@@ -438,6 +438,7 @@ BA 56- Rename row_Flm -> Flm_row, row_zm -> zm_row
 BA 59- divide_conquer_assoc renamed to gen_product
    60- sumnum algorithm (replace Abel-Plana by Euler-Mac Laurin). Changed
        the interface !
+BA 61- [libpari] concat, concat1 renamed to gconcat, gconcat1
 
 Removed
    1- deprecated functions nfbasis0, nfdisc0, factorpadic0

@@ -638,7 +638,7 @@ bnfissunit(GEN bnf,GEN bnfS,GEN x)
   v = NULL;
   if ( (w = make_unit(nf, bnfS, &x)) ) v = bnfisunit(bnf, x);
   if (!v || lg(v) == 1) { avma = av; return cgetg(1,t_COL); }
-  return gerepileupto(av, concat(v, w));
+  return gerepileupto(av, gconcat(v, w));
 }
 
 static void

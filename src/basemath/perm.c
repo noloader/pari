@@ -844,10 +844,10 @@ group_subgroups(GEN G)
   sg2 = cgetg(lM, t_VEC);
   /* Loop over all subgroups of G/H */
   for (j = 1; j < lM; ++j) gel(sg2,j) = liftsubgroup(C, H, gel(M,j));
-  p1 = concat(sg1, shallowconcat1(sg2));
+  p1 = gconcat(sg1, shallowconcat1(sg2));
   if (sg3)
   {
-    p1 = concat(p1, sg3);
+    p1 = gconcat(p1, sg3);
     if (n==5) /*ensure that the D4 subgroups of S4 are in supersolvable format*/
       for(j = 3; j <= 5; j++)
       {

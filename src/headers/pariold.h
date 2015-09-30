@@ -273,7 +273,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #define lch     (long)gcosh
 #define lchangevar (long)changevar
 #define lclone  (long)gclone
-#define lconcat (long)concat
+#define lconcat (long)gconcat
 #define lconj   (long)gconj
 #define lcontent (long)content
 #define lcopy   (long)gcopy

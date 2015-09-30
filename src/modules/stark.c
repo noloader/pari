@@ -383,7 +383,7 @@ IsGoodSubgroup(GEN H, GEN bnr, GEN map)
   mod0 = gel(mod,1);
   mod1 = gel(mod,2);
 
-  p1 = concat(map, H);
+  p1 = gconcat(map, H);
   p2 = ZM_hnfall(p1, &p3, 0);
   setlg(p3, lg(H));
   for (j = 1; j < lg(p3); j++) setlg(p3[j], lg(H));

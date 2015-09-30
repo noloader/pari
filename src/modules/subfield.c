@@ -868,7 +868,7 @@ subfieldsall(GEN nf)
       B.size  = dg[i];
       B.d = N / B.size;
       NLSB = subfields_of_given_degree(&B);
-      if (NLSB) { LSB = concat(LSB, NLSB); gunclone(NLSB); }
+      if (NLSB) { LSB = gconcat(LSB, NLSB); gunclone(NLSB); }
     }
     (void)delete_var(); /* from choose_prime */
   }

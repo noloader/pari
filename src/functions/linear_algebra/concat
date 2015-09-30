@@ -1,6 +1,6 @@
 Function: concat
 Section: linear_algebra
-C-Name: concat
+C-Name: gconcat
 Prototype: GDG
 Help: concat(x,{y}): concatenation of x and y, which can be scalars, vectors
  or matrices, or lists (in this last case, both x and y have to be lists). If
@@ -98,4 +98,4 @@ Doc: concatenation of $x$ and $y$. If $x$ or $y$ is
 
  [1 2 3 4]
  @eprog
-Variant: \fun{GEN}{concat1}{GEN x} is a shortcut for \kbd{concat(x,NULL)}.
+Variant: \fun{GEN}{gconcat1}{GEN x} is a shortcut for \kbd{gconcat(x,NULL)}.

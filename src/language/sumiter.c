@@ -1599,7 +1599,7 @@ solvestep(void *E, GEN (*f)(void *,GEN), GEN a, GEN b, GEN step, long flag, long
         (void)grndtoi(z, &e);
         if (e  <= -prec/2) ct++;
         if ((flag&1) && ((!(flag&8)) || ct)) return gerepileupto(av, z);
-        v = concat(v, z);
+        v = gconcat(v, z);
       }
       a = c; fa = fc;
     }

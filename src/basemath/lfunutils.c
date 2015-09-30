@@ -145,7 +145,7 @@ lfunmul(GEN ldata1, GEN ldata2, long prec)
     pari_err_OP("lfunmul [weight]",ldata1, ldata2);
   r = lfunmulpoles(ldata1, ldata2, prec);
   N = gmul(ldata_get_conductor(ldata1), ldata_get_conductor(ldata2));
-  Vga = vecsort0(concat(ldata_get_gammavec(ldata1), ldata_get_gammavec(ldata2)), NULL, 0);
+  Vga = vecsort0(gconcat(ldata_get_gammavec(ldata1), ldata_get_gammavec(ldata2)), NULL, 0);
   eno = gmul(ldata_get_rootno(ldata1), ldata_get_rootno(ldata2));
   sd = stoi((ldata_get_selfdual(ldata1) + ldata_get_selfdual(ldata2) + 1)/2);
   a1a2 = lfunconvol(ldata_get_an(ldata1), ldata_get_an(ldata2));
@@ -1124,7 +1124,7 @@ lfunsymsqfind(GEN ldata, long flall/*=0*/, long prec)
         {
           GEN z = mkvec2(M2, lexsort(veceul));
           if (!flall) return gerepilecopy(ltop, z);
-          vres = concat(vres, mkvec(z));
+          vres = gconcat(vres, mkvec(z));
         }
       }
     }

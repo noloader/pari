@@ -2690,7 +2690,7 @@ ZX_uspensky(GEN P, GEN ab, long flag, long bitprec)
       return ZX_uspensky_cst_pol(nbz, flag, bitprec);
     }
     if (flag >= 2) { avma = av; return utoi(nbz+1); }
-    sol = concat(zerocol(nbz), mkcol(sol));
+    sol = gconcat(zerocol(nbz), mkcol(sol));
     if (flag == 1) sol = RgC_gtofp(sol, nbits2prec(bitprec));
     return gerepilecopy(av, sol);
   }
@@ -2754,7 +2754,7 @@ ZX_uspensky(GEN P, GEN ab, long flag, long bitprec)
       Pcur = Pdiv;
       deg--;
       if (flag <= 1)
-        sol = concat(sol, b);
+        sol = gconcat(sol, b);
       else
         nbz++;
     }
@@ -2776,7 +2776,7 @@ ZX_uspensky(GEN P, GEN ab, long flag, long bitprec)
         if (den) z = gdiv(z, den);
         gel(unscaledres, i) = z;
       }
-      sol = concat(sol, unscaledres);
+      sol = gconcat(sol, unscaledres);
     }
     else
       nbz += lg(unscaledres) - 1;
@@ -2789,7 +2789,7 @@ ZX_uspensky(GEN P, GEN ab, long flag, long bitprec)
     Pcurp = ZX_unscale2n(Pcur, bp);
     unscaledres = usp(Pcurp, deg, &nb_done, flag, bitprec);
     if (flag <= 1)
-      sol = concat(sol, gmul2n(unscaledres, bp));
+      sol = gconcat(sol, gmul2n(unscaledres, bp));
     else
       nbz += lg(unscaledres) - 1;
   }
@@ -2809,7 +2809,7 @@ ZX_uspensky(GEN P, GEN ab, long flag, long bitprec)
         if (typ(z) == t_VEC) swap(gel(z, 1), gel(z, 2));
         gel(unscaledres, i) = z;
       }
-      sol = concat(unscaledres, sol);
+      sol = gconcat(unscaledres, sol);
     }
     else
       nbz += lg(unscaledres) - 1;
