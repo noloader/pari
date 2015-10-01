@@ -7,14 +7,16 @@ Help: concat(x,{y}): concatenation of x and y, which can be scalars, vectors
  y is omitted, x has to be a list or row vector and its elements are
  concatenated.
 Description:
- (mp,mp):vec           concat($1, $2)
- (vec,mp):vec          concat($1, $2)
- (mp,vec):vec          concat($1, $2)
- (vec,vec):vec         concat($1, $2)
- (list,list):list      concat($1, $2)
- (genstr,gen):genstr   concat($1, $2)
- (gen,genstr):genstr   concat($1, $2)
- (gen,?gen):gen        concat($1, $2)
+ (mp,mp):vec           gconcat($1, $2)
+ (vec,mp):vec          gconcat($1, $2)
+ (mp,vec):vec          gconcat($1, $2)
+ (vec,vec):vec         gconcat($1, $2)
+ (list,list):list      gconcat($1, $2)
+ (genstr,gen):genstr   gconcat($1, $2)
+ (gen,genstr):genstr   gconcat($1, $2)
+ (gen):gen             gconcat1($1)
+ (gen,):gen            gconcat1($1)
+ (gen,gen):gen         gconcat($1, $2)
 Doc: concatenation of $x$ and $y$. If $x$ or $y$ is
  not a vector or matrix, it is considered as a one-dimensional vector. All
  types are allowed for $x$ and $y$, but the sizes must be compatible. Note
