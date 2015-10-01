@@ -589,10 +589,10 @@ RgV_to_RgX_reverse(GEN x, long v)
   long j, k, l = lg(x);
   GEN p;
 
-  for (k = 2; k < l; k++)
+  for (k = 1; k < l; k++)
     if (!gequal0(gel(x,k))) break;
   if (k == l) return pol_0(v);
-  k -= 2;
+  k -= 1;
   l -= k;
   x += k;
   p = cgetg(l+1,t_POL);
