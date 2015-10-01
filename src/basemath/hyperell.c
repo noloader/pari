@@ -637,27 +637,32 @@ F2x_genus2charpoly_naive(GEN P, GEN Q)
 static GEN
 Flx_genus2charpoly_naive(GEN H, ulong p)
 {
-  pari_sp av = avma;
+  pari_sp av = avma, av2;
   ulong pi = get_Fl_red(p);
   ulong i, j, p2 = p>>1, D = 2, e = ((p&2UL) == 0) ? -1 : 1;
   long a, b, c = 0;
+  GEN k = const_vecsmall(p, -1);
+  k[1] = 0;
+  for (i=1, j=1; i < p; i += 2, j = Fl_add(j, i, p)) k[j+1] = 1;
+  while (k[1+D] >= 0) D++;
   b = degpol(H) == 5 ? 0 : 1;
-  a = b ? krouu(Flx_lead(H), p): 0;
-  while (krouu(D, p) >= 0) D++;
+  a = b ? k[1+Flx_lead(H)]: 0;
+  av2 = avma;
   for (i=0; i < p; i++)
   {
     ulong v = Flx_eval(H, i, p);
-    a += krouu(v, p);
+    a += k[1+v];
     b += !!v;
     for (j=1; j <= p2; j++)
     {
       GEN r2 = Flx_Fl2_eval_pre(H, mkvecsmall2(i, j), D, p, pi);
       c += uel(r2,2) ?
-           (uel(r2,1) ? krouu(Fl2_norm_pre(r2, D, p, pi), p): e)
+           (uel(r2,1) ? k[1+Fl2_norm_pre(r2, D, p, pi)]: e)
          : !!uel(r2,1);
-      avma = av;
+      avma = av2;
     }
   }
+  avma = av;
   return mkvecsmalln(6, 0UL, p*p, a*p, (b+2*c+a*a)>>1, a, 1UL);
 }
 
