@@ -1276,9 +1276,9 @@ polclass0(long D, long inv, long xvar, GEN *db)
   }
 
   dbg_printf(1)("Total number of curves tested: %ld\n", n_curves_tested);
+  H = ncV_chinese_center(H, plist, &P);
   dbg_printf(1)("Result height: %.2f\n",
              dbllog2r(itor(gsupnorm(H, DEFAULTPREC), DEFAULTPREC)));
-  H = ncV_chinese_center(H, plist, &P);
   return gerepilecopy(av, RgV_to_RgX(H, xvar));
 }
 
