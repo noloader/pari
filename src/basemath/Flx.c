@@ -4229,6 +4229,18 @@ kron_pack_Flx_spec_3(GEN x, long l) {
 }
 
 static GEN
+kron_pack_Flx_spec_bits(GEN x, long b, long l) {
+  GEN y;
+  long i;
+  if (l == 0)
+    return gen_0;
+  y = cgetg(l + 1, t_VECSMALL);
+  for(i = 1; i <= l; i++)
+    y[i] = x[l - i];
+  return nv_fromdigits_2k(y, b);
+}
+
+static GEN
 kron_unpack_Flx(GEN z, ulong p)
 {
   long i, l = lgefint(z);
@@ -4250,6 +4262,37 @@ kron_unpack_Flx_3(GEN x, ulong p) {
   return Z_mod2BIL_Flx_3(x, d, p);
 }
 
+/* assume b < BITS_IN_LONG */
+static GEN
+kron_unpack_Flx_bits_narrow(GEN z, long b, ulong p) {
+  GEN v = binary_2k_zv(z, b), x;
+  long i, l = lg(v) + 1;
+  x = cgetg(l, t_VECSMALL);
+  for (i = 2; i < l; i++)
+    x[i] = v[l - i] % p;
+  return Flx_renormalize(x, l);
+}
+
+static GEN
+kron_unpack_Flx_bits_wide(GEN z, long b, ulong p, ulong pi) {
+  GEN v = binary_2k(z, b), x, y;
+  long i, l = lg(v) + 1, ly;
+  x = cgetg(l, t_VECSMALL);
+  for (i = 2; i < l; i++) {
+    y = gel(v, l - i);
+    ly = lgefint(y);
+    switch (ly) {
+    case 2: x[i] = 0; break;
+    case 3: x[i] = *int_W_lg(y, 0, ly) % p; break;
+    case 4: x[i] = remll_pre(*int_W_lg(y, 1, ly), *int_W_lg(y, 0, ly), p, pi); break;
+    case 5: x[i] = remlll_pre(*int_W_lg(y, 2, ly), *int_W_lg(y, 1, ly),
+                              *int_W_lg(y, 0, ly), p, pi); break;
+    default: x[i] = umodiu(gel(v, l - i), p);
+    }
+  }
+  return Flx_renormalize(x, l);
+}
+
 static GEN
 FlxM_pack_ZM(GEN M, GEN (*pack)(GEN, long)) {
   long i, j, l, lc;
@@ -4262,6 +4305,24 @@ FlxM_pack_ZM(GEN M, GEN (*pack)(GEN, long)) {
     for (i = 1; i < lc; i++) {
       x = gcoeff(M, i, j);
       gcoeff(N, i, j) = pack(x + 2, lgpol(x));
+    }
+  }
+  return N;
+}
+
+static GEN
+FlxM_pack_ZM_bits(GEN M, long b)
+{
+  long i, j, l, lc;
+  GEN N = cgetg_copy(M, &l), x;
+  if (l == 1)
+    return N;
+  lc = lgcols(M);
+  for (j = 1; j < l; j++) {
+    gel(N, j) = cgetg(lc, t_COL);
+    for (i = 1; i < lc; i++) {
+      x = gcoeff(M, i, j);
+      gcoeff(N, i, j) = kron_pack_Flx_spec_bits(x + 2, b, lgpol(x));
     }
   }
   return N;
@@ -4286,44 +4347,82 @@ ZM_unpack_FlxqM(GEN M, GEN T, ulong p, GEN (*unpack)(GEN, ulong))
   return N;
 }
 
+static GEN
+ZM_unpack_FlxqM_bits(GEN M, long b, GEN T, ulong p)
+{
+  long i, j, l, lc, sv = get_Flx_var(T);
+  GEN N = cgetg_copy(M, &l), x;
+  if (l == 1)
+    return N;
+  lc = lgcols(M);
+  if (b < BITS_IN_LONG) {
+    for (j = 1; j < l; j++) {
+      gel(N, j) = cgetg(lc, t_COL);
+      for (i = 1; i < lc; i++) {
+        x = kron_unpack_Flx_bits_narrow(gcoeff(M, i, j), b, p);
+        x[1] = sv;
+        gcoeff(N, i, j) = Flx_rem(x, T, p);
+      }
+    }
+  } else {
+    ulong pi = get_Fl_red(p);
+    for (j = 1; j < l; j++) {
+      gel(N, j) = cgetg(lc, t_COL);
+      for (i = 1; i < lc; i++) {
+        x = kron_unpack_Flx_bits_wide(gcoeff(M, i, j), b, p, pi);
+        x[1] = sv;
+        gcoeff(N, i, j) = Flx_rem(x, T, p);
+      }
+    }
+  }
+  return N;
+}
+
 GEN
 FlxqM_mul_Kronecker(GEN A, GEN B, GEN T, ulong p)
 {
   pari_sp av = avma;
-  long l, n = lg(A) - 1;
+  long b, d = degpol(T), n = lg(A) - 1;
   GEN C, D, z;
   GEN (*pack)(GEN, long), (*unpack)(GEN, ulong);
   int is_sqr = A==B;
 
-  /*
-    cf. Flx_mulspec(), maxlengthcoeffpol()
-    z  can be 1, 2, 3 or (theoretically) 4 words long
-  */
-  z = muliu(muliu(sqru(p - 1), degpol(T)), n);
-  l = lgefint(z);
+  z = muliu(muliu(sqru(p - 1), d), n);
+  b = expi(z) + 1;
+  /* only do expensive bit-packing if it saves at least 1 limb */
+  if (b <= BITS_IN_HALFULONG) {
+    if (nbits2lg(d*b) - 2 == (d + 1)/2)
+      b = BITS_IN_HALFULONG;
+  } else {
+    long l = lgefint(z) - 2;
+    if (nbits2lg(d*b) - 2 == d*l)
+      b = l*BITS_IN_LONG;
+  }
   avma = av;
 
-  switch (l - 2) {
-  case 1:
-    if (HIGHWORD(z[2]) == 0) {
-      pack = kron_pack_Flx_spec_half;
-      unpack = int_to_Flx_half;
-    } else {
-      pack = kron_pack_Flx_spec;
-      unpack = kron_unpack_Flx;
-    }
+  switch (b) {
+  case BITS_IN_HALFULONG:
+    pack = kron_pack_Flx_spec_half;
+    unpack = int_to_Flx_half;
     break;
-  case 2:
+  case BITS_IN_LONG:
+    pack = kron_pack_Flx_spec;
+    unpack = kron_unpack_Flx;
+    break;
+  case 2*BITS_IN_LONG:
     pack = kron_pack_Flx_spec_2;
     unpack = kron_unpack_Flx_2;
     break;
-  case 3:
+  case 3*BITS_IN_LONG:
     pack = kron_pack_Flx_spec_3;
     unpack = kron_unpack_Flx_3;
     break;
   default:
-    /* not implemented, probably won't occur in practice */
-    return NULL;
+    A = FlxM_pack_ZM_bits(A, b);
+    B = is_sqr? A: FlxM_pack_ZM_bits(B, b);
+    C = ZM_mul(A, B);
+    D = ZM_unpack_FlxqM_bits(C, b, T, p);
+    return gerepilecopy(av, D);
   }
   A = FlxM_pack_ZM(A, pack);
   B = is_sqr? A: FlxM_pack_ZM(B, pack);

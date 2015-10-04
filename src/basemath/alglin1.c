@@ -981,11 +981,8 @@ FlxqM_mul(GEN A, GEN B, GEN T, ulong p) {
 
   if (n == 0)
     return cgetg(1, t_MAT);
-  if (n > 1) {
-    GEN C = FlxqM_mul_Kronecker(A, B, T, p);
-    if (C != NULL)
-      return C;
-  }
+  if (n > 1)
+    return FlxqM_mul_Kronecker(A, B, T, p);
   ff = get_Flxq_field(&E, T, p);
   return gen_matmul(A, B, E, ff);
 }
