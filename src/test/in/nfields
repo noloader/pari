@@ -1,4 +1,4 @@
-HEAP=[166, if(precision(1.)==38,70220,71832)];
+HEAP=[166, if(precision(1.)==38,70213,71825)];
 default(realprecision,154); Pi; default(realprecision,38);
 dobnf(T,flag=0,tech=[])= setrand(1); my(K = bnfinit(T,flag,tech)); [K.cyc,K.fu];
 \e
