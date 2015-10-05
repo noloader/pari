@@ -635,32 +635,88 @@ F2x_genus2charpoly_naive(GEN P, GEN Q)
 }
 
 static GEN
+Flx_translate1(GEN P, ulong p)
+{
+  long i, k, n = degpol(P);
+  GEN R = Flx_copy(P);
+  for (i=1; i<=n; i++)
+    for (k=n-i; k<n; k++)
+      uel(R,k+2) = Fl_add(uel(R,k+2), uel(R,k+3), p);
+  return R;
+}
+
+static GEN
+Flx_diff1(GEN P, ulong p)
+{
+  return Flx_sub(Flx_translate1(P, p), P, p);
+}
+
+static GEN
+Flx_difftable(GEN P, ulong p)
+{
+  long i, n = degpol(P);
+  GEN V = cgetg(n+2, t_VEC);
+  gel(V, n+1) = P;
+  for(i = n; i >= 1; i--)
+    gel(V, i) = Flx_diff1(gel(V, i+1), p);
+  return V;
+}
+
+static GEN
+FlxV_Fl2_eval_pre(GEN V, GEN x, ulong D, ulong p, ulong pi)
+{
+  long i, n = lg(V)-1;
+  GEN r = cgetg(n+1, t_VEC);
+  for (i = 1; i <= n; i++)
+    gel(r, i) = Flx_Fl2_eval_pre(gel(V, i), x, D, p, pi);
+  return r;
+}
+
+static GEN
+Fl2V_next(GEN V, ulong p)
+{
+  long i, n = lg(V)-1;
+  GEN r = cgetg(n+1, t_VEC);
+  gel(r, 1) = gel(V, 1);
+  for (i = 2; i <= n; i++)
+    gel(r, i) = Flv_add(gel(V, i), gel(V, i-1), p);
+  return r;
+}
+
+static GEN
 Flx_genus2charpoly_naive(GEN H, ulong p)
 {
   pari_sp av = avma, av2;
   ulong pi = get_Fl_red(p);
   ulong i, j, p2 = p>>1, D = 2, e = ((p&2UL) == 0) ? -1 : 1;
-  long a, b, c = 0;
-  GEN k = const_vecsmall(p, -1);
+  long a, b, c = 0, n = degpol(H);
+  GEN t, k = const_vecsmall(p, -1);
   k[1] = 0;
   for (i=1, j=1; i < p; i += 2, j = Fl_add(j, i, p)) k[j+1] = 1;
   while (k[1+D] >= 0) D++;
-  b = degpol(H) == 5 ? 0 : 1;
+  b = n == 5 ? 0 : 1;
   a = b ? k[1+Flx_lead(H)]: 0;
+  t = Flx_difftable(H, p);
   av2 = avma;
   for (i=0; i < p; i++)
   {
     ulong v = Flx_eval(H, i, p);
     a += k[1+v];
     b += !!v;
-    for (j=1; j <= p2; j++)
+  }
+  for (j=1; j <= p2; j++)
+  {
+    GEN V = FlxV_Fl2_eval_pre(t, mkvecsmall2(0, j), D, p, pi);
+    for (i=0;; i++)
     {
-      GEN r2 = Flx_Fl2_eval_pre(H, mkvecsmall2(i, j), D, p, pi);
+      GEN r2 = gel(V, n+1);
       c += uel(r2,2) ?
-           (uel(r2,1) ? k[1+Fl2_norm_pre(r2, D, p, pi)]: e)
+        (uel(r2,1) ? k[1+Fl2_norm_pre(r2, D, p, pi)]: e)
          : !!uel(r2,1);
-      avma = av2;
+      if (i == p-1) break;
+      V = Fl2V_next(V, p);
     }
+    avma = av2;
   }
   avma = av;
   return mkvecsmalln(6, 0UL, p*p, a*p, (b+2*c+a*a)>>1, a, 1UL);
@@ -702,7 +758,7 @@ hyperellcharpoly(GEN PQ)
     }
     H = RgX_to_FpX(H, pp);
     d = degpol(H);
-    if (p > 2 && ((d == 5 && p < 3000) || (d == 6 && p < 5500)))
+    if (p > 2 && ((d == 5 && p < 20000) || (d == 6 && p < 45000)))
     {
       GEN Hp = ZX_to_Flx(H, p);
       if (!Flx_is_squarefree(Hp, p)) is_sing(H, p);
