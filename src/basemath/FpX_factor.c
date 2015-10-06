@@ -717,92 +717,6 @@ FpX_is_totally_split(GEN f, GEN p)
   avma = av; return gequalX(FpX_Frobenius(f, p));
 }
 
-/* Flv_Flx( Flm_Flc_mul(x, Flx_Flv(y), p) ) */
-static GEN
-Flm_Flx_mul(GEN x, GEN y, ulong p)
-{
-  long i,k,l, ly = lg(y)-1;
-  GEN z;
-  long vs=y[1];
-  if (ly==1) return zero_Flx(vs);
-  l = lgcols(x);
-  y++;
-  z = zero_zv(l) + 1;
-  if (SMALL_ULONG(p))
-  {
-    for (k=1; k<ly; k++)
-    {
-      GEN c;
-      if (!y[k]) continue;
-      c = gel(x,k);
-      if (y[k] == 1)
-        for (i=1; i<l; i++)
-        {
-          z[i] += c[i];
-          if (z[i] & HIGHBIT) z[i] %= p;
-        }
-      else
-        for (i=1; i<l; i++)
-        {
-          z[i] += c[i] * y[k];
-          if (z[i] & HIGHBIT) z[i] %= p;
-        }
-    }
-    for (i=1; i<l; i++) z[i] %= p;
-  }
-  else
-  {
-    for (k=1; k<ly; k++)
-    {
-      GEN c;
-      if (!y[k]) continue;
-      c = gel(x,k);
-      if (y[k] == 1)
-        for (i=1; i<l; i++)
-          z[i] = Fl_add(z[i], c[i], p);
-      else
-        for (i=1; i<l; i++)
-          z[i] = Fl_add(z[i], Fl_mul(c[i],y[k],p), p);
-    }
-  }
-  while (--l && !z[l]);
-  if (!l) return zero_Flx(vs);
-  *z-- = vs; return z;
-}
-
-/* z must be squarefree mod p*/
-GEN
-Flx_nbfact_by_degree(GEN z, long *nb, ulong p)
-{
-  long lgg, d = 0, e = degpol(z);
-  GEN D = zero_zv(e);
-  pari_sp av = avma;
-  GEN g, w, PolX = polx_Flx(z[1]);
-  GEN MP = Flx_matFrobenius(z, p);
-
-  w = PolX; *nb = 0;
-  while (d < (e>>1))
-  { /* here e = degpol(z) */
-    d++;
-    w = Flm_Flx_mul(MP, w, p); /* w^p mod (z,p) */
-    g = Flx_gcd(z, Flx_sub(w, PolX, p), p);
-    lgg = degpol(g); if (!lgg) continue;
-
-    e -= lgg;
-    D[d] = lgg/d; *nb += D[d];
-    if (DEBUGLEVEL>5) err_printf("   %3ld fact. of degree %3ld\n", D[d], d);
-    if (!e) break;
-    z = Flx_div(z, g, p);
-    w = Flx_rem(w, z, p);
-  }
-  if (e)
-  {
-    if (DEBUGLEVEL>5) err_printf("   %3ld fact. of degree %3ld\n",1,e);
-    D[e] = 1; (*nb)++;
-  }
-  avma = av; return D;
-}
-
 long
 Flx_nbroots(GEN f, ulong p)
 {
@@ -1873,6 +1787,30 @@ Flx_degfact(GEN f, ulong p)
   pari_sp av = avma;
   GEN z = Flx_factcantor_i(Flx_normalize(f,p),p,1);
   return gerepilecopy(av, z);
+}
+
+/* T must be squarefree mod p*/
+GEN
+Flx_nbfact_by_degree(GEN T, long *nb, ulong p)
+{
+  GEN XP, D;
+  pari_timer ti;
+  long i, s, n = get_Flx_degree(T);
+  GEN V = const_vecsmall(n, 0);
+  pari_sp av = avma;
+  T = Flx_get_red(T, p);
+  if (DEBUGLEVEL>=6) timer_start(&ti);
+  XP = Flx_Frobenius(T, p);
+  if (DEBUGLEVEL>=6) timer_printf(&ti,"Flx_Frobenius");
+  D = Flx_ddf(T, XP, p);
+  if (DEBUGLEVEL>=6) timer_printf(&ti,"Flx_ddf");
+  for (i = 1, s = 0; i <= n; i++)
+  {
+    V[i] = degpol(gel(D,i))/i;
+    s += V[i];
+  }
+  *nb = s;
+  avma = av; return V;
 }
 
 long
