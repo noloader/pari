@@ -755,19 +755,19 @@ FpX_ddf(GEN T, GEN XP, GEN p)
   b = cgetg(l+2, t_VEC);
   gel(b, 1) = pol_x(v);
   gel(b, 2) = XP;
-  if (DEBUGLEVEL>=6) timer_start(&ti);
+  if (DEBUGLEVEL>=7) timer_start(&ti);
   xq = FpXQ_powers(gel(b, 2), brent_kung_optpow(n, l-1, 1),  T, p);
-  if (DEBUGLEVEL>=6) timer_printf(&ti,"xq baby");
+  if (DEBUGLEVEL>=7) timer_printf(&ti,"FpX_ddf: xq baby");
   for (i = 3; i <= l+1; i++)
     gel(b, i) = FpX_FpXQV_eval(gel(b, i-1), xq, T, p);
-  if (DEBUGLEVEL>=6) timer_printf(&ti,"baby");
+  if (DEBUGLEVEL>=7) timer_printf(&ti,"FpX_ddf: baby");
   xq = FpXQ_powers(gel(b, l+1), brent_kung_optpow(n, m-1, 1),  T, p);
-  if (DEBUGLEVEL>=6) timer_printf(&ti,"xq giant");
+  if (DEBUGLEVEL>=7) timer_printf(&ti,"FpX_ddf: xq giant");
   g = cgetg(m+1, t_VEC);
   gel(g, 1) = gel(xq, 2);
   for(i = 2; i <= m; i++)
     gel(g, i) = FpX_FpXQV_eval(gel(g, i-1), xq, T, p);
-  if (DEBUGLEVEL>=6) timer_printf(&ti,"giant");
+  if (DEBUGLEVEL>=7) timer_printf(&ti,"FpX_ddf: giant");
   h = cgetg(m+1, t_VEC);
   for (j = 1; j <= m; j++)
   {
@@ -778,7 +778,7 @@ FpX_ddf(GEN T, GEN XP, GEN p)
       e = FpXQ_mul(e, FpX_sub(gj, gel(b, i), p), T, p);
     gel(h, j) = gerepileupto(av, e);
   }
-  if (DEBUGLEVEL>=6) timer_printf(&ti,"diff");
+  if (DEBUGLEVEL>=7) timer_printf(&ti,"FpX_ddf: diff");
   Tr = get_FpX_mod(T);
   F = cgetg(m+1, t_VEC);
   for (j = 1; j <= m; j++)
@@ -786,7 +786,7 @@ FpX_ddf(GEN T, GEN XP, GEN p)
     gel(F, j) = FpX_gcd(Tr, gel(h, j), p);
     Tr = FpX_div(Tr, gel(F,j), p);
   }
-  if (DEBUGLEVEL>=6) timer_printf(&ti,"F");
+  if (DEBUGLEVEL>=7) timer_printf(&ti,"FpX_ddf: F");
   f = const_vec(n, pol_1(v));
   for (j = 1; j <= m; j++)
   {
@@ -802,7 +802,7 @@ FpX_ddf(GEN T, GEN XP, GEN p)
       if (!degpol(e)) break;
     }
   }
-  if (DEBUGLEVEL>=6) timer_printf(&ti,"f");
+  if (DEBUGLEVEL>=7) timer_printf(&ti,"FpX_ddf: f");
   if (degpol(Tr)) gel(f, degpol(Tr)) = Tr;
   return gerepilecopy(av, f);
 }
@@ -849,11 +849,11 @@ FpX_factor_Shoup(GEN T, GEN p)
   pari_timer ti;
   n = get_FpX_degree(T);
   T = FpX_get_red(T, p);
-  if (DEBUGLEVEL) timer_start(&ti);
+  if (DEBUGLEVEL>=6) timer_start(&ti);
   XP = FpX_Frobenius(T, p);
-  if (DEBUGLEVEL) timer_printf(&ti,"FpX_Frobenius");
+  if (DEBUGLEVEL>=6) timer_printf(&ti,"FpX_Frobenius");
   D = FpX_ddf(T, XP, p);
-  if (DEBUGLEVEL) timer_printf(&ti,"FpX_ddf");
+  if (DEBUGLEVEL>=6) timer_printf(&ti,"FpX_ddf");
   for (i = 1; i <= n; i++)
     s += degpol(gel(D,i))/i;
   V = cgetg(s+1, t_COL);
@@ -865,7 +865,7 @@ FpX_factor_Shoup(GEN T, GEN p)
     Di = FpX_normalize(Di, p);
     if (ni == i) { gel(V, s++) = Di; continue; }
     FpX_edf(Di, XP, i, p, V, s);
-    if (DEBUGLEVEL) timer_printf(&ti,"FpX_edf(%ld)",i);
+    if (DEBUGLEVEL>=6) timer_printf(&ti,"FpX_edf(%ld)",i);
     s += ni/i;
   }
   return V;
@@ -879,11 +879,11 @@ FpX_simplefact_Shoup(GEN T, GEN p)
   pari_timer ti;
   n = get_FpX_degree(T);
   T = FpX_get_red(T, p);
-  if (DEBUGLEVEL) timer_start(&ti);
+  if (DEBUGLEVEL>=6) timer_start(&ti);
   XP = FpX_Frobenius(T, p);
-  if (DEBUGLEVEL) timer_printf(&ti,"FpX_Frobenius");
+  if (DEBUGLEVEL>=6) timer_printf(&ti,"FpX_Frobenius");
   D = FpX_ddf(T, XP, p);
-  if (DEBUGLEVEL) timer_printf(&ti,"FpX_ddf");
+  if (DEBUGLEVEL>=6) timer_printf(&ti,"FpX_ddf");
   for (i = 1; i <= n; i++)
     s += degpol(gel(D,i))/i;
   V = cgetg(s+1, t_VEC);
@@ -981,11 +981,11 @@ FpX_isirred_Cantor(GEN Tp, GEN p)
   if (degpol(FpX_gcd(T, dT, p)) != 0) { avma = av; return 0; }
   n = get_FpX_degree(T);
   T = FpX_get_red(Tp, p);
-  if (DEBUGLEVEL) timer_start(&ti);
+  if (DEBUGLEVEL>=6) timer_start(&ti);
   XP = FpX_Frobenius(T, p);
-  if (DEBUGLEVEL) timer_printf(&ti,"FpX_Frobenius");
+  if (DEBUGLEVEL>=6) timer_printf(&ti,"FpX_Frobenius");
   D = FpX_ddf(T, XP, p);
-  if (DEBUGLEVEL) timer_printf(&ti,"FpX_ddf");
+  if (DEBUGLEVEL>=6) timer_printf(&ti,"FpX_ddf");
   d = degpol(gel(D, n));
   avma = av; return d==n;
 }
@@ -1538,25 +1538,25 @@ Flx_ddf(GEN T, GEN XP, ulong p)
   gel(b, 2) = XP;
   bo = brent_kung_optpow(n, l-1, 1);
   ro = (bo-1) + (l-1)*((n-1)/bo);
-  if (DEBUGLEVEL>=6) timer_start(&ti);
+  if (DEBUGLEVEL>=7) timer_start(&ti);
   if (expu(p) <= ro)
     for (i = 3; i <= l+1; i++)
       gel(b, i) = Flxq_powu(gel(b, i-1), p, T, p);
   else
   {
     xq = Flxq_powers(gel(b, 2), bo,  T, p);
-    if (DEBUGLEVEL>=6) timer_printf(&ti,"xq baby");
+    if (DEBUGLEVEL>=7) timer_printf(&ti,"Flx_ddf: xq baby");
     for (i = 3; i <= l+1; i++)
       gel(b, i) = Flx_FlxqV_eval(gel(b, i-1), xq, T, p);
   }
-  if (DEBUGLEVEL>=6) timer_printf(&ti,"baby");
+  if (DEBUGLEVEL>=7) timer_printf(&ti,"Flx_ddf: baby");
   xq = Flxq_powers(gel(b, l+1), brent_kung_optpow(n, m-1, 1),  T, p);
-  if (DEBUGLEVEL>=6) timer_printf(&ti,"xq giant");
+  if (DEBUGLEVEL>=7) timer_printf(&ti,"Flx_ddf: xq giant");
   g = cgetg(m+1, t_VEC);
   gel(g, 1) = gel(xq, 2);
   for(i = 2; i <= m; i++)
     gel(g, i) = Flx_FlxqV_eval(gel(g, i-1), xq, T, p);
-  if (DEBUGLEVEL>=6) timer_printf(&ti,"giant");
+  if (DEBUGLEVEL>=7) timer_printf(&ti,"Flx_ddf: giant");
   h = cgetg(m+1, t_VEC);
   for (j = 1; j <= m; j++)
   {
@@ -1567,7 +1567,7 @@ Flx_ddf(GEN T, GEN XP, ulong p)
       e = Flxq_mul(e, Flx_sub(gj, gel(b, i), p), T, p);
     gel(h, j) = gerepileupto(av, e);
   }
-  if (DEBUGLEVEL>=6) timer_printf(&ti,"diff");
+  if (DEBUGLEVEL>=7) timer_printf(&ti,"Flx_ddf: diff");
   Tr = get_Flx_mod(T);
   F = cgetg(m+1, t_VEC);
   for (j = 1; j <= m; j++)
@@ -1575,7 +1575,7 @@ Flx_ddf(GEN T, GEN XP, ulong p)
     gel(F, j) = Flx_gcd(Tr, gel(h, j), p);
     Tr = Flx_div(Tr, gel(F,j), p);
   }
-  if (DEBUGLEVEL>=6) timer_printf(&ti,"F");
+  if (DEBUGLEVEL>=7) timer_printf(&ti,"Flx_ddf: F");
   f = const_vec(n, pol1_Flx(v));
   for (j = 1; j <= m; j++)
   {
@@ -1591,7 +1591,7 @@ Flx_ddf(GEN T, GEN XP, ulong p)
       if (!degpol(e)) break;
     }
   }
-  if (DEBUGLEVEL>=6) timer_printf(&ti,"f");
+  if (DEBUGLEVEL>=7) timer_printf(&ti,"Flx_ddf: f");
   if (degpol(Tr)) gel(f, degpol(Tr)) = Tr;
   return gerepilecopy(av, f);
 }
@@ -1638,11 +1638,11 @@ Flx_factor_Shoup(GEN T, ulong p)
   pari_timer ti;
   n = get_Flx_degree(T);
   T = Flx_get_red(T, p);
-  if (DEBUGLEVEL) timer_start(&ti);
+  if (DEBUGLEVEL>=6) timer_start(&ti);
   XP = Flx_Frobenius(T, p);
-  if (DEBUGLEVEL) timer_printf(&ti,"Flx_Frobenius");
+  if (DEBUGLEVEL>=6) timer_printf(&ti,"Flx_Frobenius");
   D = Flx_ddf(T, XP, p);
-  if (DEBUGLEVEL) timer_printf(&ti,"Flx_ddf");
+  if (DEBUGLEVEL>=6) timer_printf(&ti,"Flx_ddf");
   for (i = 1; i <= n; i++)
     s += degpol(gel(D,i))/i;
   V = cgetg(s+1, t_COL);
@@ -1668,11 +1668,11 @@ Flx_simplefact_Shoup(GEN T, ulong p)
   pari_timer ti;
   n = get_Flx_degree(T);
   T = Flx_get_red(T, p);
-  if (DEBUGLEVEL) timer_start(&ti);
+  if (DEBUGLEVEL>=6) timer_start(&ti);
   XP = Flx_Frobenius(T, p);
-  if (DEBUGLEVEL) timer_printf(&ti,"Flx_Frobenius");
+  if (DEBUGLEVEL>=6) timer_printf(&ti,"Flx_Frobenius");
   D = Flx_ddf(T, XP, p);
-  if (DEBUGLEVEL) timer_printf(&ti,"Flx_ddf");
+  if (DEBUGLEVEL>=6) timer_printf(&ti,"Flx_ddf");
   for (i = 1; i <= n; i++)
     s += degpol(gel(D,i))/i;
   V = cgetg(s+1, t_VECSMALL);
@@ -1744,11 +1744,11 @@ Flx_isirred_Cantor(GEN Tp, ulong p)
   if (degpol(Flx_gcd(T, dT, p)) != 0) { avma = av; return 0; }
   n = get_Flx_degree(T);
   T = Flx_get_red(Tp, p);
-  if (DEBUGLEVEL) timer_start(&ti);
+  if (DEBUGLEVEL>=6) timer_start(&ti);
   XP = Flx_Frobenius(T, p);
-  if (DEBUGLEVEL) timer_printf(&ti,"Flx_Frobenius");
+  if (DEBUGLEVEL>=6) timer_printf(&ti,"Flx_Frobenius");
   D = Flx_ddf(T, XP, p);
-  if (DEBUGLEVEL) timer_printf(&ti,"Flx_ddf");
+  if (DEBUGLEVEL>=6) timer_printf(&ti,"Flx_ddf");
   d = degpol(gel(D, n));
   avma = av; return d==n;
 }
