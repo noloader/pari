@@ -597,14 +597,26 @@ Fp_elljissupersingular(GEN j, GEN p)
 /**                                                                   **/
 /***********************************************************************/
 
-/*assume a4,a6 reduced mod p and 3 < p < 1627 */
+/*assume a4,a6 reduced mod p odd */
 static ulong
 Fl_ellcard_naive(ulong a4, ulong a6, ulong p)
 {
-  ulong i;
+  ulong i, j;
   long a = p+1;
-  for(i=0; i<p; i++)
-    a += krouu((i*i+a4)*i+a6,p); /* no overflow */
+  long d0, d1, d2, d3;
+  GEN k = const_vecsmall(p, -1);
+  k[1] = 0;
+  for (i=1, j=1; i < p; i += 2, j = Fl_add(j, i, p))
+    k[j+1] = 1;
+  d0 = 6%p; d1 = d0; d2 = Fl_add(a4, 1, p); d3 = a6;
+  for(i=0;; i++)
+  {
+    a += k[1+d3];
+    if (i==p-1) break;
+    d3 = Fl_add(d3, d2, p);
+    d2 = Fl_add(d2, d1, p);
+    d1 = Fl_add(d1, d0, p);
+  }
   return a;
 }
 
@@ -1183,7 +1195,7 @@ Fp_ellcard(GEN a4, GEN a6, GEN p)
 {
   long lp = expi(p);
   ulong pp = p[2];
-  if (lp < 7)
+  if (lp < 11)
     return utoi(Fl_ellcard_naive(umodiu(a4,pp), umodiu(a6,pp), pp));
   { GEN a = Fp_ellcard_CM(a4,a6,p); if (a) return a; }
   if (lp >= 56)
@@ -1200,7 +1212,7 @@ Fl_elltrace(ulong a4, ulong a6, ulong p)
   pari_sp av;
   long lp;
   GEN a;
-  if (p < 127) return p+1-Fl_ellcard_naive(a4, a6, p);
+  if (p < (1<<11)) return p+1-Fl_ellcard_naive(a4, a6, p);
   lp = expu(p);
   if (lp <= minss(56, BITS_IN_LONG-2)) return p+1-Fl_ellcard_Shanks(a4, a6, p);
   av = avma; a = subui(p+1, Fp_ellcard(utoi(a4), utoi(a6), utoipos(p)));
@@ -1212,7 +1224,7 @@ Fl_elltrace_CM(long CM, ulong a4, ulong a6, ulong p)
   pari_sp av;
   GEN a;
   if (!CM) return Fl_elltrace(a4,a6,p);
-  if (p < 127) return p+1-Fl_ellcard_naive(a4, a6, p);
+  if (p < (1<<11)) return p+1-Fl_ellcard_naive(a4, a6, p);
   av = avma; a = ec_ap_cm(CM, utoi(a4), utoi(a6), utoipos(p));
   avma = av; return itos(a);
 }
