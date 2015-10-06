@@ -1609,7 +1609,7 @@ Flx_ddf(GEN T, GEN XP, ulong p)
 {
   pari_sp av = avma;
   GEN b, g, h, F, f, Tr, xq;
-  long i, j, n, v;
+  long i, j, n, v, bo, ro;
   long B, l, m;
   pari_timer ti;
   n = get_Flx_degree(T); v = get_Flx_var(T);
@@ -1622,11 +1622,19 @@ Flx_ddf(GEN T, GEN XP, ulong p)
   b = cgetg(l+2, t_VEC);
   gel(b, 1) = polx_Flx(v);
   gel(b, 2) = XP;
+  bo = brent_kung_optpow(n, l-1, 1);
+  ro = (bo-1) + (l-1)*((n-1)/bo);
   if (DEBUGLEVEL>=6) timer_start(&ti);
-  xq = Flxq_powers(gel(b, 2), brent_kung_optpow(n, l-1, 1),  T, p);
-  if (DEBUGLEVEL>=6) timer_printf(&ti,"xq baby");
-  for (i = 3; i <= l+1; i++)
-    gel(b, i) = Flx_FlxqV_eval(gel(b, i-1), xq, T, p);
+  if (expu(p) <= ro)
+    for (i = 3; i <= l+1; i++)
+      gel(b, i) = Flxq_powu(gel(b, i-1), p, T, p);
+  else
+  {
+    xq = Flxq_powers(gel(b, 2), bo,  T, p);
+    if (DEBUGLEVEL>=6) timer_printf(&ti,"xq baby");
+    for (i = 3; i <= l+1; i++)
+      gel(b, i) = Flx_FlxqV_eval(gel(b, i-1), xq, T, p);
+  }
   if (DEBUGLEVEL>=6) timer_printf(&ti,"baby");
   xq = Flxq_powers(gel(b, l+1), brent_kung_optpow(n, m-1, 1),  T, p);
   if (DEBUGLEVEL>=6) timer_printf(&ti,"xq giant");
