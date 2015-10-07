@@ -984,6 +984,20 @@ addcolumntomatrix(GEN V, GEN invp, GEN L)
   return 1;
 }
 
+static GEN
+ZC_canon(GEN V)
+{
+  long l = lg(V), j;
+  for (j = 1; j < l  &&  signe(gel(V,j)) == 0; ++j);
+  return (j < l  &&  signe(gel(V,j)) < 0)? ZC_neg(V): V;
+}
+
+static GEN
+ZM_zc_mul_canon(GEN u, GEN x)
+{
+  return ZC_canon(ZM_zc_mul(u,x));
+}
+
 struct qfvec
 {
   GEN a, r, u;
@@ -1094,7 +1108,7 @@ _gp_forqf(void *E, GEN u, GEN x, double p/*unused*/)
 {
   pari_sp av = avma;
   (void)p;
-  set_lex(-1, ZM_zc_mul(u, x));
+  set_lex(-1, ZM_zc_mul_canon(u, x));
   closure_evalvoid((GEN)E);
   avma = av;
   return loop_break();
@@ -1273,7 +1287,9 @@ minim0_dolll(GEN a, GEN BORNE, GEN STOCKMAX, long flag, long dolll)
     switch(flag)
     {
       case min_FIRST:
-        return gerepilecopy(av, mkvec2(roundr(dbltor(p)), ZM_zc_mul(u,x)));
+        if (dolll)
+          x = ZM_zc_mul_canon(u,x);
+        return gerepilecopy(av, mkvec2(roundr(dbltor(p)), x));
 
       case min_ALL:
         if (s > maxrank && stockall) /* overflow */
@@ -1344,7 +1360,7 @@ minim0_dolll(GEN a, GEN BORNE, GEN STOCKMAX, long flag, long dolll)
   L[0] = evaltyp(t_MAT) | evallg(k + 1);
   if (dolll)
     for (j=1; j<=k; j++)
-      gel(L,j) = ZM_zc_mul(u, gel(L,j));
+      gel(L,j) = ZM_zc_mul_canon(u, gel(L,j));
   return gerepilecopy(av, mkvec3(stoi(s<<1), r, L));
 }
 
