@@ -1654,7 +1654,7 @@ Flx_factor_Shoup(GEN T, ulong p)
     Di = Flx_normalize(Di, p);
     if (ni == i) { gel(V, s++) = Di; continue; }
     Flx_edf(Di, XP, i, p, V, s);
-    if (DEBUGLEVEL) timer_printf(&ti,"Flx_edf(%ld)",i);
+    if (DEBUGLEVEL>=6) timer_printf(&ti,"Flx_edf(%ld)",i);
     s += ni/i;
   }
   return V;
