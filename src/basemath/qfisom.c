@@ -70,7 +70,6 @@ zm_divmod(GEN A, GEN B, ulong p)
   return gerepileupto(av, C);
 }
 
-
 static int
 zv_canon(GEN V)
 {
@@ -83,6 +82,16 @@ zv_canon(GEN V)
     return -1;
   }
   return 1;
+}
+
+static GEN
+ZM_to_zm_canon(GEN V)
+{
+  GEN W = ZM_to_zm(V);
+  long i, l = lg(W);
+  for(i=1; i<l; i++)
+    (void)zv_canon(gel(W,i));
+  return W;
 }
 
 /********************************************************************/
@@ -1138,14 +1147,11 @@ init_qfauto(GEN F, long max, struct qfauto *qf, GEN norm)
   long i, j, k;
   GEN W, v;
   GEN M = minim(zm_to_ZM(gel(F,1)), stoi(max), NULL);
-  GEN V = ZM_to_zm(gel(M, 3));
+  GEN V = ZM_to_zm_canon(gel(M, 3));
   long n = lg(V)-1, f = lg(F)-1, dim = lg(gel(F,1))-1;
   for (i = 1; i <= n; ++i)
   {
     GEN Vi = gel(V,i);
-    if (typ(Vi)!=t_VECSMALL)
-      pari_err_TYPE("init_qfauto",Vi);
-    zv_canon(Vi);
     for (k = 1; k <= dim; ++k)
     {
       long l = labs(Vi[k]);
