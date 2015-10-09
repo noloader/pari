@@ -1903,21 +1903,95 @@ FpXQ_charpoly(GEN x, GEN T, GEN p)
   (void)delete_var(); return gerepileupto(ltop,R);
 }
 
+/* Computing minimal polynomial :                         */
+/* cf Shoup 'Efficient Computation of Minimal Polynomials */
+/*          in Algebraic Extensions of Finite Fields'     */
+
+static GEN
+FpXn_mul(GEN a, GEN b, long n, GEN p)
+{
+  return FpX_red(RgXn_red_shallow(ZX_mul(a, b), n), p);
+}
+
+/* Let v a linear form, return the linear form z->v(tau*z)
+   that is, v*(M_tau) */
+
+static GEN
+FpXQ_transmul_init(GEN tau, GEN T, GEN p)
+{
+  GEN bht;
+  GEN h, Tp = get_FpX_red(T, &h);
+  long n = degpol(Tp), vT = varn(Tp);
+  GEN ft = FpX_recipspec(Tp+2, n+1, n+1);
+  GEN bt = FpX_recipspec(tau+2, lgpol(tau), n);
+  setvarn(ft, vT); setvarn(bt, vT);
+  if (h)
+    bht = FpXn_mul(bt, h, n-1, p);
+  else
+  {
+    GEN bh = FpX_div(RgX_shift_shallow(tau, n-1), T, p);
+    bht = FpX_recipspec(bh+2, lgpol(bh), n-1);
+    setvarn(bht, vT);
+  }
+  return mkvec3(bt, bht, ft);
+}
+
+static GEN
+FpXQ_transmul(GEN tau, GEN a, long n, GEN p)
+{
+  pari_sp ltop = avma;
+  GEN t1, t2, t3, vec;
+  GEN bt = gel(tau, 1), bht = gel(tau, 2), ft = gel(tau, 3);
+  if (signe(a)==0) return pol_0(varn(a));
+  t2 = RgX_shift_shallow(FpX_mul(bt, a, p),1-n);
+  if (signe(bht)==0) return gerepilecopy(ltop, t2);
+  t1 = RgX_shift_shallow(FpX_mul(ft, a, p),-n);
+  t3 = FpXn_mul(t1, bht, n-1, p);
+  vec = FpX_sub(t2, RgX_shift_shallow(t3, 1), p);
+  return gerepileupto(ltop, vec);
+}
+
 GEN
 FpXQ_minpoly(GEN x, GEN T, GEN p)
 {
-  pari_sp ltop=avma;
-  GEN G,R=FpXQ_charpoly(x, T, p);
-  GEN dR=FpX_deriv(R,p);
-  while (signe(dR)==0)
+  pari_sp ltop = avma;
+  long vT = get_FpX_var(T), n = get_FpX_degree(T);
+  GEN v_x;
+  GEN g = pol_1(vT), tau = pol_1(vT);
+  T = FpX_get_red(T, p);
+  x = FpXQ_red(x, T, p);
+  v_x = FpXQ_powers(x, usqrt(2*n), T, p);
+  while(signe(tau) != 0)
   {
-    R  = RgX_deflate(R,itos(p));
-    dR = FpX_deriv(R,p);
+    long i, j, m, k1;
+    GEN M, v, tr;
+    GEN g_prime, c;
+    if (degpol(g) == n) { tau = pol_1(vT); g = pol_1(vT); }
+    v = random_FpX(n, vT, p);
+    tr = FpXQ_transmul_init(tau, T, p);
+    v = FpXQ_transmul(tr, v, n, p);
+    m = 2*(n-degpol(g));
+    k1 = usqrt(m);
+    tr = FpXQ_transmul_init(gel(v_x,k1+1), T, p);
+    c = cgetg(m+2,t_POL);
+    c[1] = evalsigne(1)|evalvarn(vT);
+    for (i=0; i<m; i+=k1)
+    {
+      long mj = minss(m-i, k1);
+      for (j=0; j<mj; j++)
+        gel(c,m+1-(i+j)) = FpX_dotproduct(v, gel(v_x,j+1), p);
+      v = FpXQ_transmul(tr, v, n, p);
+    }
+    c = FpX_renormalize(c, m+2);
+    /* now c contains <v,x^i> , i = 0..m-1  */
+    M = FpX_halfgcd(monomial(gen_1, m, vT), c, p);
+    g_prime = gmael(M, 2, 2);
+    if (degpol(g_prime) < 1) continue;
+    g = FpX_mul(g, g_prime, p);
+    tau = FpXQ_mul(tau, FpX_FpXQV_eval(g_prime, v_x, T, p), T, p);
   }
-  G=FpX_gcd(R,dR,p);
-  G=FpX_normalize(G,p);
-  G=FpX_div(R,G,p);
-  return gerepileupto(ltop,G);
+  g = FpX_normalize(g,p);
+  return gerepilecopy(ltop,g);
 }
 
 GEN
