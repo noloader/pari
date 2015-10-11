@@ -6991,6 +6991,7 @@ a column matrix $n\times 1$, error otherwise.
 \dots, \kbd{x}^\kbd{n}]$ as a \typ{VEC} of \kbd{RgM}s.
 
 \smallskip
+
 \fun{GEN}{RgV_sum}{GEN v} sum of the entries of $v$
 
 \fun{GEN}{RgV_prod}{GEN v} product of the entries of $v$, using
@@ -7009,6 +7010,12 @@ when $m > n$.
 \fun{GEN}{RgV_dotproduct}{GEN x,GEN y} returns the scalar product of $x$ and $y$
 
 \fun{GEN}{RgV_dotsquare}{GEN x} returns the scalar product of $x$ with itself.
+
+\fun{GEN}{RgV_kill0}{GEN v} returns a shallow copy of $v$ where entries
+matched by \kbd{gequal0} are replaced by \kbd{NULL}. The return value
+is not a valid \kbd{GEN} and must be handled specially. The idea is
+to pre-treat a vector of coefficients to speed up later linear combinations
+or scalar products.
 
 \fun{GEN}{gram_matrix}{GEN v} returns the \idx{Gram matrix} $(v_i\cdot v_j)$
 associated to the entries of $v$ (matrix, or vector of vectors).
