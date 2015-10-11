@@ -411,7 +411,7 @@ Karim :
 /* assumes same center and same variable */
 /* currently only works for coprime degrees */
 GEN
-algtensor(GEN al1, GEN al2, int maxord) {
+algtensor(GEN al1, GEN al2, long maxord) {
   pari_sp av = avma;
   long v, k, d1, d2;
   GEN nf, P1, P2, aut1, aut2, b1, b2, C, rnf, aut, b, x1, x2, al;
@@ -3165,7 +3165,7 @@ pr_primes(GEN v)
 }
 
 static GEN
-alg_complete0(GEN rnf, GEN aut, GEN hf, GEN hi, int maxord)
+alg_complete0(GEN rnf, GEN aut, GEN hf, GEN hi, long maxord)
 {
   pari_sp av = avma;
   GEN nf, pl, pl2, cnd, prcnd, cnds, y, Lpr, auts, nf2, b, fa, data, hfe;
@@ -3248,7 +3248,7 @@ alg_complete0(GEN rnf, GEN aut, GEN hf, GEN hi, int maxord)
 }
 
 GEN
-alg_complete(GEN rnf, GEN aut, GEN hf, GEN hi, int maxord)
+alg_complete(GEN rnf, GEN aut, GEN hf, GEN hi, long maxord)
 {
   long n = rnf_get_degree(rnf);
   return alg_complete0(rnf,aut,hasseconvert(hf,n),hasseconvert(hi,n), maxord);
@@ -3791,7 +3791,7 @@ alg_maximal_primes(GEN al, GEN P)
 }
 
 GEN
-alg_cyclic(GEN rnf, GEN aut, GEN b, int maxord)
+alg_cyclic(GEN rnf, GEN aut, GEN b, long maxord)
 {
   pari_sp av = avma;
   GEN al, nf;
@@ -3937,7 +3937,7 @@ computesplitting(GEN al, long d, long v)
 
 /* assumes that mt defines a central simple algebra over nf */
 GEN
-alg_csa_table(GEN nf, GEN mt0, long v, int maxord)
+alg_csa_table(GEN nf, GEN mt0, long v, long maxord)
 {
   pari_sp av = avma;
   GEN al, mt;

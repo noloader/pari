@@ -2173,11 +2173,32 @@ Suitable for \kbd{gerepileupto}, but does not collect garbage.
 
 \section{Central simple algebras}
 
-\fun{void}{checkalg}{GEN a} raise an exception if $a$ was not initialized
-by \tet{alinit}.
+\subsec{Initialization}
 
-\fun{long}{alg_type}{GEN al} internal function called by \tet{altype}: assume
-\kbd{al} was created by \tet{alinit} (thereby saving a call to \kbd{checkal}).
+Low-level routines underlying \kbd{alginit}.
+
+\fun{GEN}{alg_csa_table}{GEN nf, GEN mt, long v, long flag}
+algebra defined by a multiplication table.
+
+\fun{GEN}{alg_cyclic}{GEN rnf, GEN aut, GEN b, long flag}
+cyclic algebra.
+
+\fun{GEN}{alg_hasse}{GEN nf, long d, GEN hi, GEN hf, long v, long flag}
+algebra defined by local Hasse invariants.
+
+\fun{GEN}{alg_hilbert}{GEN nf, GEN a, GEN b, long v, long flag}
+quaternion algebra.
+
+\fun{GEN}{alg_matrix}{GEN nf, long n, long v, GEN L, long flag}
+matrix algebra.
+
+\subsec{Type checks}
+
+\fun{void}{checkalg}{GEN a} raise an exception if $a$ was not initialized
+by \tet{alginit}.
+
+\fun{long}{alg_type}{GEN al} internal function called by \tet{algtype}: assume
+\kbd{al} was created by \tet{alinit} (thereby saving a call to \kbd{checkalg}).
 Return values are symbolic rather than numeric:
 
 \item \kbd{al\_NULL}: not a valid algebra.
@@ -2261,16 +2282,6 @@ the matrix \var{Lbasinv} from \kbd{algsplittingdata}.
 
 \fun{GEN}{alg_get_tracebasis}{GEN al} returns the traces of the
 basis elements; used by \kbd{algtrace}.
-
-\fun{GEN}{alg_csa_table}{GEN nf, GEN mt, long v, int maxord}
-
-\fun{GEN}{alg_cyclic}{GEN rnf, GEN aut, GEN b, int maxord}
-
-\fun{GEN}{alg_hasse}{GEN nf, long n, GEN hi, GEN hf, long var, long flag}
-
-\fun{GEN}{alg_hilbert}{GEN nf, GEN a, GEN b, long v, long flag}
-
-\fun{GEN}{alg_matrix}{GEN nf, long n, long v, GEN L, long flag}
 
 % TODO
 
