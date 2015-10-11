@@ -37,9 +37,9 @@ checkalg_i(GEN al)
   if (typ(al) != t_VEC || lg(al) != 12) return 0;
   mt = alg_get_multable(al);
   if (typ(mt) != t_VEC || lg(mt) == 1 || typ(gel(mt,1)) != t_MAT) return 0;
-  if (!isintzero(alg_get_splitting(al)) && gequal0(alg_get_char(al))) {
+  if (!isintzero(alg_get_splittingfield(al)) && gequal0(alg_get_char(al))) {
     if (typ(gel(al,2)) != t_VEC || lg(gel(al,2)) == 1) return 0;
-    checkrnf(alg_get_splitting(al));
+    checkrnf(alg_get_splittingfield(al));
   }
   return 1;
 }
@@ -51,7 +51,7 @@ checkalg(GEN al)
 long
 alg_type(GEN al)
 {
-  if (isintzero(alg_get_splitting(al)) || !gequal0(alg_get_char(al))) return al_TABLE;
+  if (isintzero(alg_get_splittingfield(al)) || !gequal0(alg_get_char(al))) return al_TABLE;
   switch(typ(gmael(al,2,1))) {
     case t_MAT: return al_CSA;
     case t_INT:
@@ -90,7 +90,7 @@ alg_get_absdim(GEN al)
     case al_TABLE: return lg(alg_get_multable(al))-1;
     case al_CSA: return alg_get_dim(al)*nf_get_degree(alg_get_center(al));
     case al_CYCLIC:
-      return rnf_get_absdegree(alg_get_splitting(al))*alg_get_degree(al);
+      return rnf_get_absdegree(alg_get_splittingfield(al))*alg_get_degree(al);
     default: pari_err_TYPE("alg_get_absdim", al);
   }
   return -1;/*not reached*/
@@ -162,7 +162,7 @@ alg_get_splittingbasisinv(GEN al)
 
 /* only cyclic and CSA */
 GEN
-alg_get_splitting(GEN al) { return gel(al,1); }
+alg_get_splittingfield(GEN al) { return gel(al,1); }
 GEN
 algsplittingfield(GEN al)
 {
@@ -171,7 +171,7 @@ algsplittingfield(GEN al)
   ta = alg_type(al);
   if (ta != al_CYCLIC && ta != al_CSA)
     pari_err_TYPE("alg_get_splittingfield [use alginit]",al);
-  return alg_get_splitting(al);
+  return alg_get_splittingfield(al);
 }
 long
 alg_get_degree(GEN al)
@@ -180,7 +180,7 @@ alg_get_degree(GEN al)
   ta = alg_type(al);
   if (ta != al_CYCLIC && ta != al_CSA)
     pari_err_TYPE("alg_get_degree [use alginit]",al);
-  return rnf_get_degree(alg_get_splitting(al));
+  return rnf_get_degree(alg_get_splittingfield(al));
 }
 long
 algdegree(GEN al)
@@ -196,13 +196,7 @@ alg_get_center(GEN al)
   ta = alg_type(al);
   if (ta != al_CSA && ta != al_CYCLIC)
     pari_err_TYPE("alg_get_center [use alginit]",al);
-  return rnf_get_nf(alg_get_splitting(al));
-}
-GEN
-alggetcenter(GEN al)
-{
-  checkalg(al);
-  return alg_get_center(al);
+  return rnf_get_nf(alg_get_splittingfield(al));
 }
 GEN
 alg_get_splitpol(GEN al)
@@ -210,7 +204,7 @@ alg_get_splitpol(GEN al)
   long ta = alg_type(al);
   if (ta != al_CYCLIC && ta != al_CSA)
     pari_err_TYPE("alg_get_splitpol [use alginit]",al);
-  return rnf_get_pol(alg_get_splitting(al));
+  return rnf_get_pol(alg_get_splittingfield(al));
 }
 GEN
 alg_get_abssplitting(GEN al)
@@ -219,7 +213,7 @@ alg_get_abssplitting(GEN al)
   if (ta != al_CYCLIC && ta != al_CSA)
     pari_err_TYPE("alg_get_abssplitting [use alginit]",al);
   prec = nf_get_prec(alg_get_center(al));
-  return check_and_build_nfabs(alg_get_splitting(al), prec);
+  return check_and_build_nfabs(alg_get_splittingfield(al), prec);
 }
 GEN
 alg_get_hasse_i(GEN al)
@@ -246,17 +240,15 @@ alghassef(GEN al) { checkalg(al); return alg_get_hasse_f(al); }
 
 /* all types */
 GEN
-alg_get_ord(GEN al) { return gel(al,7); }
+alg_get_basis(GEN al) { return gel(al,7); }
 GEN
-algbasis(GEN al) { checkalg(al); return alg_get_ord(al); }
+algbasis(GEN al) { checkalg(al); return alg_get_basis(al); }
 GEN
-alg_get_invord(GEN al) { return gel(al,8); }
+alg_get_invbasis(GEN al) { return gel(al,8); }
 GEN
-alginvbasis(GEN al) { checkalg(al); return alg_get_invord(al); }
+alginvbasis(GEN al) { checkalg(al); return alg_get_invbasis(al); }
 GEN
 alg_get_multable(GEN al) { return gel(al,9); }
-GEN
-alggetmultable(GEN al) { checkalg(al); return alg_get_multable(al); }
 GEN
 alg_get_char(GEN al) { return gel(al,10); }
 GEN
@@ -529,6 +521,8 @@ algradical(GEN al)
   return Flm_to_ZM(I);
 }
 
+static GEN algleftmultable(GEN al, GEN x);
+
 static GEN
 alg_quotient0(GEN al, GEN S, GEN Si, long nq, GEN p, int maps)
 {
@@ -536,7 +530,7 @@ alg_quotient0(GEN al, GEN S, GEN Si, long nq, GEN p, int maps)
   long i;
   for (i=1; i<=nq; i++)
   {
-    GEN mti = algmultable(al,gel(S,i));
+    GEN mti = algleftmultable(al,gel(S,i));
     if (signe(p)) gel(mt,i) = FpM_mul(Si, FpM_mul(mti,S,p), p);
     else          gel(mt,i) = RgM_mul(Si, RgM_mul(mti,S));
   }
@@ -588,7 +582,7 @@ alg_centralproj(GEN al, GEN z, int maps)
   S = cgetg(lz,t_VEC); /*S[i] = Im(z_i)*/
   for (i=1; i<lz; i++)
   {
-    GEN mti = algmultable(al, gel(z,i));
+    GEN mti = algleftmultable(al, gel(z,i));
     if (signe(p)) gel(S,i) = FpM_image(mti,p);
     else          gel(S,i) = image(mti);
   }
@@ -609,13 +603,14 @@ alg_centralproj(GEN al, GEN z, int maps)
   return gerepilecopy(av, alq);
 }
 
+/* al is an al_TABLE */
 GEN
-algcenter(GEN al)
+algtablecenter(GEN al)
 {
   pari_sp av = avma;
   long n, i, j, k, ic;
   GEN C, cij, mt, p;
-  checkalg(al);
+
   n = alg_get_absdim(al);
   mt = alg_get_multable(al);
   p = alg_get_char(al);
@@ -634,11 +629,12 @@ algcenter(GEN al)
   else          return gerepileupto(av, ker(C));
 }
 
-GEN gp_algcenter(GEN al)
+GEN
+algcenter(GEN al)
 {
   checkalg(al);
-  if(alg_type(al)==al_TABLE) return algcenter(al);
-  return alggetcenter(al);
+  if(alg_type(al)==al_TABLE) return algtablecenter(al);
+  return alg_get_center(al);
 }
 
 /* Only in positive characteristic. Assumes that al is semisimple. */
@@ -652,7 +648,7 @@ algprimesubalg(GEN al)
   p = alg_get_char(al);
   if (!signe(p)) pari_err_DOMAIN("algprimesubalg","characteristic","=",gen_0,p);
 
-  Z = algcenter(al);
+  Z = algtablecenter(al);
   nz = lg(Z)-1;
   if (nz==1) return Z;
 
@@ -702,7 +698,7 @@ alg_decompose0(GEN al, GEN x, GEN fa, GEN Z, int mini)
     Q = factorback(v2);
     P = RgX_mul(P, RgXQ_inv(P,Q));
   }
-  mx = algmultable(al, x);
+  mx = algleftmultable(al, x);
   P = algpoleval(al, P, mx);
   if (signe(p)) Q = FpC_sub(col_ei(lg(P)-1,1), P, p);
   else          Q = gsub(gen_1, P);
@@ -890,7 +886,7 @@ algsimpledec(GEN al, int maps)
   checkalg(al);
   p = alg_get_char(al);
   if (signe(p)) Z = algprimesubalg(al);
-  else          Z = algcenter(al);
+  else          Z = algtablecenter(al);
 
   if (lg(Z) == 2) {/*dim Z = 1*/
     n = alg_get_absdim(al);
@@ -1022,7 +1018,7 @@ algissimple(GEN al, long ss)
 
   p = alg_get_char(al);
   if (signe(p)) Z = algprimesubalg(al);
-  else          Z = algcenter(al);
+  else          Z = algtablecenter(al);
 
   if (lg(Z) == 2) {/*dim Z = 1*/
     avma = av;
@@ -1371,7 +1367,7 @@ algalgmul_cyc(GEN al, GEN x, GEN y)
   pari_sp av = avma;
   long n = alg_get_degree(al), i, k;
   GEN xalg, yalg, res, rnf, auts, sum, b, prod, autx;
-  rnf = alg_get_splitting(al);
+  rnf = alg_get_splittingfield(al);
   auts = alg_get_auts(al);
   b = alg_get_b(al);
 
@@ -1597,7 +1593,7 @@ static GEN
 algmtK2Z_cyc(GEN al, GEN m)
 {
   pari_sp av = avma;
-  GEN nf = alg_get_abssplitting(al), res, mt, rnf = alg_get_splitting(al), c, dc;
+  GEN nf = alg_get_abssplitting(al), res, mt, rnf = alg_get_splittingfield(al), c, dc;
   long n = alg_get_degree(al), N = nf_get_degree(nf), Nn, i, j, i1, j1;
   Nn = N*n;
   res = zeromatcopy(Nn,Nn);
@@ -1661,7 +1657,7 @@ algalgmultable_cyc(GEN al, GEN x)
   pari_sp av = avma;
   long n = alg_get_degree(al), i, j;
   GEN res, rnf, auts, b, pol;
-  rnf = alg_get_splitting(al);
+  rnf = alg_get_splittingfield(al);
   auts = alg_get_auts(al);
   b = alg_get_b(al);
   pol = rnf_get_pol(rnf);
@@ -1895,13 +1891,13 @@ algmultable_mat(GEN al, GEN M)
 }
 
 /* left multiplication table on elements of the same model as x */
-GEN
-algmultable(GEN al, GEN x)
+static GEN
+algleftmultable(GEN al, GEN x)
 {
   pari_sp av = avma;
   long tx;
   GEN res;
-  checkalg(al);
+
   tx = alg_model(al,x);
   switch(tx) {
     case al_TRIVIAL : res = mkmatcopy(mkcol(gel(x,1))); break;
@@ -1914,17 +1910,18 @@ algmultable(GEN al, GEN x)
 }
 
 GEN
-gp_algmultable(GEN al, GEN x)
+algmultable(GEN al, GEN x)
 {
-  if(x) return algmultable(al,x);
-  return alggetmultable(al);
+  checkalg(al);
+  if (x) return algleftmultable(al,x);
+  return alg_get_multable(al);
 }
 
 static GEN
 algbasissplittingmatrix_csa(GEN al, GEN x)
 {
   long d = alg_get_degree(al), i, j;
-  GEN rnf = alg_get_splitting(al), splba = alg_get_splittingbasis(al), splbainv = alg_get_splittingbasisinv(al), M;
+  GEN rnf = alg_get_splittingfield(al), splba = alg_get_splittingbasis(al), splbainv = alg_get_splittingbasisinv(al), M;
   M = algbasismultable(al,x);
   M = RgM_mul(M, splba); /* TODO best order ? big matrix /Q vs small matrix /nf */
   M = RgM_mul(splbainv, M);
@@ -1976,8 +1973,8 @@ algdivl_i(GEN al, GEN x, GEN y, long tx, long ty) {
     if (ty==al_ALGEBRAIC) y = algalgtobasis(al,y);
   }
   if (ty == al_MATRIX) y = algmat2basis(al,y);
-  if (signe(p)) res = FpM_FpC_invimage(algmultable(al,x),y,p);
-  else          res = inverseimage(algmultable(al,x),y);
+  if (signe(p)) res = FpM_FpC_invimage(algleftmultable(al,x),y,p);
+  else          res = inverseimage(algleftmultable(al,x),y);
   if (!res || lg(res)==1) { avma = av; return NULL; }
   if (tx == al_MATRIX) {
     res = algbasis2mat(al, res, lg(x)-1);
@@ -2115,7 +2112,7 @@ algpow(GEN al, GEN x, GEN n)
 static GEN
 algredcharpoly_i(GEN al, GEN x, long v)
 {
-  GEN rnf = alg_get_splitting(al);
+  GEN rnf = alg_get_splittingfield(al);
   GEN cp = charpoly(algsplittingmatrix(al,x),v);
   long i, m = lg(cp);
   for (i=2; i<m; i++) gel(cp,i) = rnfeltdown(rnf, gel(cp,i));
@@ -2197,7 +2194,7 @@ algredtrace(GEN al, GEN x)
       switch(alg_type(al))
       {
         case al_CYCLIC:
-          res = rnfelttrace(alg_get_splitting(al),gel(x,1));
+          res = rnfelttrace(alg_get_splittingfield(al),gel(x,1));
           break;
         case al_CSA:
           res = gtrace(algalgmultable_csa(al,x));
@@ -2303,7 +2300,7 @@ algnorm(GEN al, GEN x)
 
   switch(alg_type(al)) {
     case al_CYCLIC: case al_CSA:
-      rnf = alg_get_splitting(al);
+      rnf = alg_get_splittingfield(al);
       res = rnfeltdown(rnf, det(algsplittingmatrix(al,x)));
       break;
     case al_TABLE:
@@ -2320,7 +2317,7 @@ static GEN
 algalgtonat_cyc(GEN al, GEN x)
 {
   pari_sp av = avma;
-  GEN nf = alg_get_abssplitting(al), rnf = alg_get_splitting(al), res, c;
+  GEN nf = alg_get_abssplitting(al), rnf = alg_get_splittingfield(al), res, c;
   long n = alg_get_degree(al), N = nf_get_degree(nf), i, i1;
   res = zerocol(N*n);
   for (i=0; i<n; i++) {
@@ -2367,7 +2364,7 @@ static GEN
 algnattoalg_cyc(GEN al, GEN x)
 {
   pari_sp av = avma;
-  GEN nf = alg_get_abssplitting(al), rnf = alg_get_splitting(al), res, c;
+  GEN nf = alg_get_abssplitting(al), rnf = alg_get_splittingfield(al), res, c;
   long n = alg_get_degree(al), N = nf_get_degree(nf), i, i1;
   res = zerocol(n);
   c = zerocol(N);
@@ -2433,7 +2430,7 @@ algalgtobasis(GEN al, GEN x)
   if (tx==al_MATRIX) return algalgtobasis_mat(al,x);
   av = avma;
   x = algalgtonat(al,x);
-  x = RgM_RgC_mul(alg_get_invord(al),x);
+  x = RgM_RgC_mul(alg_get_invbasis(al),x);
   return gerepileupto(av, x);
 }
 
@@ -2464,7 +2461,7 @@ algbasistoalg(GEN al, GEN x)
   if (tx==al_ALGEBRAIC) return gcopy(x);
   if (tx==al_MATRIX) return algbasistoalg_mat(al,x);
   av = avma;
-  x = RgM_RgC_mul(alg_get_ord(al),x);
+  x = RgM_RgC_mul(alg_get_basis(al),x);
   x = algnattoalg(al,x);
   return gerepileupto(av, x);
 }
@@ -2502,7 +2499,7 @@ algpoleval(GEN al, GEN pol, GEN x)
   checkalg(al);
   p = alg_get_char(al);
   if (typ(pol) != t_POL) pari_err_TYPE("algpoleval",pol);
-  mx = (typ(x) == t_MAT)? x: algmultable(al,x);
+  mx = (typ(x) == t_MAT)? x: algleftmultable(al,x);
   res = zerocol(lg(mx)-1);
   if (signe(p)) {
     for (i=lg(pol)-1; i>1; i--)
@@ -3690,7 +3687,7 @@ algcomputehasse(GEN al)
   GEN rnf, nf, b, fab, disc2, cnd, fad, auts, nf2, pr, pl, perm;
   GEN hi, PH, H, L;
 
-  rnf = alg_get_splitting(al);
+  rnf = alg_get_splittingfield(al);
   n = rnf_get_degree(rnf);
   nf = rnf_get_nf(rnf);
   b = alg_get_b(al);
@@ -4180,7 +4177,7 @@ algpdecompose(GEN al, GEN p)
 #endif
 
 /* ord is assumed to be in hnf wrt the integral basis of al. */
-/* assumes that alg_get_invord(al) is integral. */
+/* assumes that alg_get_invbasis(al) is integral. */
 GEN
 alg_change_overorder_shallow(GEN al, GEN ord)
 {

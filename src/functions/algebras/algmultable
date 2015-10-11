@@ -1,8 +1,8 @@
 Function: algmultable
 Section: algebras
-C-Name: gp_algmultable
+C-Name: algmultable
 Prototype: GDG
-Help: algmultable(al,x): left multiplication table of x.
+Help: algmultable(al,{x}): left multiplication table of x.
 Doc: Given an element \var{x} in \var{al}, computes its left multiplication
  table. If \var{x} is given in basis form, returns its multiplication table on
  the integral basis; if \var{x} is given in algebraic form, returns its

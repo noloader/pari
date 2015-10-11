@@ -2173,10 +2173,118 @@ Suitable for \kbd{gerepileupto}, but does not collect garbage.
 
 \section{Central simple algebras}
 
-\fun{void}{checkal}{GEN a} raise an exception if $a$ was not initialized
+\fun{void}{checkalg}{GEN a} raise an exception if $a$ was not initialized
 by \tet{alinit}.
 
 \fun{long}{al_type}{GEN al} internal function called by \tet{altype}: assume
 \kbd{al} was created by \tet{alinit} (thereby saving a call to \kbd{checkal}).
+
+\subsec{Shallow accessors}
+
+All these routines assume their argument was initialized by \tet{alinit}
+and provide minor speedups compared to the GP equivalent. The routines
+returning a \kbd{GEN} are shallow.
+
+\fun{long}{alg_get_absdim}{GEN al} low-level version of \kbd{algabsdim}.
+
+\fun{long}{alg_get_dim}{GEN al} low-level version of \kbd{algdim}.
+
+\fun{long}{alg_get_degree}{GEN al} low-level version of \kbd{algdegree}.
+
+\fun{GEN}{alg_get_aut}{GEN al} low-level version of \kbd{algaut}.
+
+\fun{GEN}{alg_get_auts}{GEN al}, given a cyclic algebra $\var{al} =
+(L/K,\sigma,b)$ of degree $n$, returns the vector of $\sigma^i$,
+$1 \leq i < n$.
+
+\fun{GEN}{alg_get_b}{GEN al} low-level version of \kbd{algaut}.
+
+\fun{GEN}{alg_get_basis}{GEN al} low-level version of \kbd{albasis}.
+
+\fun{GEN}{alg_get_center}{GEN al} low-level version of \kbd{algcenter}.
+
+\fun{GEN}{alg_get_char}{GEN al} low-level version of \kbd{algchar}.
+
+\fun{GEN}{alg_get_hasse_f}{GEN al} low-level version of \kbd{alghassef}.
+
+\fun{GEN}{alg_get_hasse_i}{GEN al} low-level version of \kbd{alghassei}.
+
+\fun{GEN}{alg_get_invbasis}{GEN al} low-level version of \kbd{alginvbasis}.
+
+\fun{GEN}{alg_get_multable}{GEN al} low-level version of \kbd{algmultable}.
+
+\fun{GEN}{alg_get_relmultable}{GEN al} low-level version of
+\kbd{algrelmultable}.
+
+\fun{GEN}{alg_get_splittingfield}{GEN al}
+low-level version of \kbd{algsplittingfield}.
+
+\fun{GEN}{alg_get_abssplitting}{GEN al} returns the absolute \var{nf}
+structure associated to the \var{rnf} returned by \kbd{algsplittingfield}.
+
+\fun{GEN}{alg_get_splitpol}{GEN al}  returns the relative polynomial
+defining the \var{rnf} returned by \kbd{algsplittingfield}.
+
+\fun{GEN}{alg_get_splittingdata}{GEN al}
+low-level version of \kbd{algsplittingdata}.
+
+\fun{GEN}{alg_get_splittingbasis}{GEN al}
+the matrix \var{Lbas} from \kbd{algsplittingdata}
+
+\fun{GEN}{alg_get_splittingbasisinv}{GEN al}
+the matrix \var{Lbasinv} from \kbd{algsplittingdata}.
+
+\fun{GEN}{alg_get_tracebasis}{GEN al} returns the traces of the
+basis elements; used by \kbd{algtrace}.
+
+% TODO
+
+\fun{GEN}{alg_change_overorder_shallow}{GEN al, GEN ord}
+
+\fun{GEN}{alg_complete}{GEN rnf, GEN aut, GEN hi, GEN hf, int maxord}
+
+\fun{GEN}{alg_csa_table}{GEN nf, GEN mt, long v, int maxord}
+
+\fun{GEN}{alg_cyclic}{GEN rnf, GEN aut, GEN b, int maxord}
+
+\fun{GEN}{alg_hasse}{GEN nf, long n, GEN hi, GEN hf, long var, long flag}
+
+\fun{GEN}{alg_hilbert}{GEN nf, GEN a, GEN b, long v, long flag}
+
+\fun{GEN}{alg_matrix}{GEN nf, long n, long v, GEN L, long flag}
+
+\fun{long}{alg_model}{GEN al, GEN x}
+
+\fun{GEN}{alg_ordermodp}{GEN al, GEN p}
+
+\fun{long}{alg_type}{GEN al}
+
+\fun{GEN}{algbasischarpoly}{GEN al, GEN x, long v}
+
+\fun{GEN}{algbasismul}{GEN al, GEN x, GEN y}
+
+\fun{GEN}{algbasismultable}{GEN al, GEN x}
+
+\fun{GEN}{algbasismultable_Flm}{GEN mt, GEN x, ulong m}
+
+\fun{GEN}{algleftordermodp}{GEN al, GEN Ip, GEN p}
+
+\fun{GEN}{bnfgwgeneric}{GEN bnf, GEN Lpr, GEN Ld, GEN pl, long var}
+
+\fun{GEN}{bnrgwsearch}{GEN bnr, GEN Lpr, GEN Ld, GEN pl}
+
+\fun{void}{checkhasse}{GEN nf, GEN hi, GEN hf, long n}
+
+\fun{long}{cyclicrelfrob}{GEN rnf, GEN nf2, GEN auts, GEN pr}
+
+\fun{GEN}{hassecoprime}{GEN hi, GEN hf, long n}
+
+\fun{GEN}{hassedown}{GEN nf, long n, GEN hi, GEN hf}
+
+\fun{GEN}{hassewedderburn}{GEN hi, GEN hf, long n}
+
+\fun{long}{localhasse}{GEN rnf, GEN nf2, GEN cnd, GEN pl, GEN auts, GEN b, long k}
+
+\fun{GEN}{nfgwkummer}{GEN nf, GEN Lpr, GEN Ld, GEN pl, long var}
 
 \newpage

@@ -1,6 +1,6 @@
 Function: algcenter
 Section: algebras
-C-Name: gp_algcenter
+C-Name: algcenter
 Prototype: G
 Help: algcenter(al): center of the algebra al.
 Doc: If \var{al} is a table algebra output by \tet{algtableinit}, returns a
