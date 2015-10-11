@@ -2617,6 +2617,12 @@ rnf_get_map(GEN rnf) { return gel(rnf,11); }
 INLINE GEN
 rnf_get_invzk(GEN rnf) { return gel(rnf,8); }
 
+/* I integral ZM (not HNF), G ZM, rounded Cholesky form of a weighted
+ * T2 matrix. Reduce I wrt G */
+INLINE GEN
+idealpseudored(GEN I, GEN G)
+{ return ZM_mul(I, ZM_lll(ZM_mul(G, I), 0.99, LLL_IM)); }
+
 /* I integral (not necessarily HNF), G ZM, rounded Cholesky form of a weighted
  * T2 matrix. Return m in I with T2(m) small */
 INLINE GEN
@@ -2643,6 +2649,10 @@ idealred_elt(GEN nf, GEN I) {
 }
 INLINE GEN
 idealred(GEN nf, GEN I) { return idealred0(nf, I, NULL); }
+
+INLINE GEN
+idealchineseinit(GEN nf, GEN x)
+{ return idealchinese(nf,x,NULL); }
 
 /*******************************************************************/
 /*                                                                 */

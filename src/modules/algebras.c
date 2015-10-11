@@ -307,8 +307,7 @@ backtrackfacto(GEN y0, long n, GEN red, GEN pl, GEN nf, GEN data, int (*test)(GE
 
       y1 = y0;
       for (i=1; i<=n; i++) y1 = nfadd(nf, y1, ZC_z_mul(gel(red,i), v[i]));
-
-      if (!nfispositive(nf, y1, pl)) continue;
+      if (!nfchecksigns(nf, y1, pl)) continue;
 
       ny = absi(nfnorm(nf, y1));
       if (!signe(ny)) continue;
@@ -326,36 +325,40 @@ backtrackfacto(GEN y0, long n, GEN red, GEN pl, GEN nf, GEN data, int (*test)(GE
 
 /* if data == gen_0, the test is skipped */
 /* in the test, the factorization does not contain the known factors */
-GEN
+static GEN
 factoredextchinesetest(GEN nf, GEN x, GEN y, GEN pl, GEN* fa, GEN data, int (*test)(GEN,GEN,GEN))
 {
   pari_sp av = avma;
   long n,i;
-  GEN y0, y1, red, N, I, vals;
+  GEN x1, y0, y1, red, N, I, P = gel(x,1), E = gel(x,2);
   n = nf_get_degree(nf);
-  y0 = idealextchinese(nf, x, y, pl, &red);
+  x = idealchineseinit(nf, mkvec2(x,pl));
+  x1 = gel(x,1);
+  red = lg(x1) == 1? matid(n): gel(x1,1);
+  y0 = idealchinese(nf, x, y);
 
-  vals = shallowcopy(gel(x,2));
+  E = shallowcopy(E);
   if (!gequal0(y0))
-    for (i=1; i<lg(vals); i++) {
-      gel(vals,i) = stoi(nfval(nf,y0,gcoeff(x,i,1)));
-      if (cmpii(gel(vals,i),gcoeff(x,i,2))>0) gel(vals,i) = gcoeff(x,i,2);
+    for (i=1; i<lg(E); i++)
+    {
+      long v = nfval(nf,y0,gel(P,i));
+      if (cmpsi(v, gel(E,i)) < 0) gel(E,i) = stoi(v);
     }
   /* N and I : known factors */
-  I = factorbackprime(nf, gel(x,1), vals);
+  I = factorbackprime(nf, P, E);
   N = idealnorm(nf,I);
 
   y1 = backtrackfacto(y0, n, red, pl, nf, data, test, fa, N, I);
 
   /* restore known factors */
-  for (i=1; i<lg(vals); i++) gel(vals,i) = stoi(nfval(nf,y1,gcoeff(x,i,1)));
-  *fa = famat_reduce(famat_mul_shallow(*fa, mkmat2(gel(x,1), vals)));
+  for (i=1; i<lg(E); i++) gel(E,i) = stoi(nfval(nf,y1,gel(P,i)));
+  *fa = famat_reduce(famat_mul_shallow(*fa, mkmat2(P, E)));
 
   gerepileall(av, 2, &y1, fa);
   return y1;
 }
 
-GEN
+static GEN
 factoredextchinese(GEN nf, GEN x, GEN y, GEN pl, GEN* fa)
 { return factoredextchinesetest(nf,x,y,pl,fa,gen_0,NULL); }
 
@@ -411,7 +414,6 @@ TODO:
 Karim :
 - test p-maximality before launching general algorithm
 - easy maximal order when pr unramified in L/K
-- precompute projectors and LLL-reduced basis in idealextchinese
 */
 
 /* assumes same center and same variable */
@@ -2539,18 +2541,36 @@ get_phi0(GEN bnr, GEN Lpr, GEN Ld, GEN pl, long *pr, long *pn)
   const long NTRY = 10; /* FIXME: magic constant */
   const long n = (lg(Ld)==1)? 2: vecsmall_max(Ld);
   GEN S = bnr_get_cyc(bnr);
-  GEN Sst, G, globGmod, loc, X, Rglob, Rloc, H, U, real;
-  long i, j, r, nbreal=0, nbfrob, nbloc, nz, t;
+  GEN Sst, G, globGmod, loc, X, Rglob, Rloc, H, U, Lconj;
+  long i, j, r, nbfrob, nbloc, nz, t;
 
   *pn = n;
   *pr = r = lg(S)-1;
   if (!r) return NULL;
-  real = new_chunk(lg(pl)-1);
+  Lconj = NULL;
+  nbloc = nbfrob = lg(Lpr)-1;
   if (uispow2(n))
-    for (i=1; i<lg(pl); i++)
-      if (pl[i]==-1) real[nbreal++] = i;
-  nbfrob = lg(Lpr)-1;
-  nbloc = nbfrob+nbreal;
+  {
+    long l = lg(pl), k = 1;
+    GEN real = cgetg(l, t_VECSMALL);
+    for (i=1; i<l; i++)
+      if (pl[i]==-1) real[k++] = i;
+    if (k > 1)
+    {
+      GEN nf = bnr_get_nf(bnr), I = gel(bnr_get_bid(bnr),3);
+      GEN v, y, C = idealchineseinit(bnr, I);
+      long r1 = nf_get_r1(nf), n = nbrows(I);
+      nbloc += k-1;
+      Lconj = cgetg(k, t_VEC);
+      v = const_vecsmall(r1,1);
+      y = const_vec(n, gen_1);
+      for (i = 1; i < k; i++)
+      {
+        v[i] = -1; gel(Lconj,i) = idealchinese(nf,mkvec2(C,v),y);
+        v[i] = 1;
+      }
+    }
+  }
 
   /* compute Z/n-dual */
   Sst = cgetg(r+1, t_VECSMALL);
@@ -2575,8 +2595,8 @@ get_phi0(GEN bnr, GEN Lpr, GEN Ld, GEN pl, long *pr, long *pn)
       L = Ld[i];
     }
     else
-    {
-      X = bnrconj(bnr,real[i-nbfrob-1]);
+    { /* X = 1 (mod f), sigma_i(x) < 0, positive at all other real places */
+      X = gel(Lconj,i-nbfrob);
       L = 2;
     }
     X = ZV_to_Flv(isprincipalray(bnr,X), n);
@@ -2674,19 +2694,6 @@ bnfgwgeneric(GEN bnf, GEN Lpr, GEN Ld, GEN pl, long var)
   return NULL;/*not reached*/
 }
 
-/* compute x = 1 (mod f), negative at i-th real place and positive at all
- * others */
-GEN
-bnrconj(GEN bnr, long i)
-{
-  GEN y, nf = bnr_get_nf(bnr), I = gel(bnr_get_bid(bnr),3), pl;
-  long r1 = nf_get_r1(nf), n = nbrows(I);
-
-  pl = const_vecsmall(r1,1); pl[i] = -1;
-  y = const_vec(n, gen_1);
-  return idealextchinese(nf,I,y,pl,NULL);
-}
-
 /* no garbage collection */
 static GEN
 localextdeg(GEN nf, GEN pr, GEN cnd, long d, long ell, long n)
@@ -2735,7 +2742,8 @@ nfgwkummer(GEN nf, GEN Lpr, GEN Ld, GEN pl, long var)
     gel(y,i) = localextdeg(nf, pr, idealpow(nf,pr,E), Ld[i], ell, n);
   }
 
-  x = idealextchinese(nf, cnd, y, pl, NULL); /* TODO use a factoredextchinese to ease computations afterwards ? */
+  /* TODO use a factoredextchinese to ease computations afterwards ? */
+  x = idealchinese(nf, mkvec2(cnd,pl), y);
   x = basistoalg(nf,x);
   pol = gsub(gpowgs(pol_x(var),n),x);
 
@@ -4286,6 +4294,7 @@ algcenter_precompute(GEN al, GEN p)
   gel(fa,2) = cgetg(np+1, t_COL);
   for(i=1; i<=np; i++) gcoeff(fa,i,2) = gen_1;
   nfprad = idealfactorback(nf,fa,NULL,0);
+  fa = idealchineseinit(nf, fa);
   projs = cgetg(np+1, t_VEC);
   for(i=1; i<=np; i++) gel(projs, i) = idealchinese(nf, fa, vec_ei(np,i));
   return mkvec2(nfprad, projs);

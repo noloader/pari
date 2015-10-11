@@ -337,9 +337,11 @@ HC121- GP function solvestep
    lfuncheckfeq        lfuninit            lfunqf              lfunzeros
    lfunconductor       lfunlambda          lfunrootres
    lfuncreate          lfunmfpeters        lfunsymsq
-  123- [libpari] nfispositive, idealextchinese
+  123- [libpari] nfchecksigns, idealchineseinit
 JD124- [libpari] gp_read_str_multiline
 BA125- [libpari] Flx_nbfact_Frobenius, FpX_nbfact_Frobenius
+  126- extend idealchinese() to impose sign conditions at specified real
+       places [#1501]
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]

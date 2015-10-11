@@ -788,19 +788,9 @@ $\alpha x$ is an integral ideal coprime to $y$.
 \tet{idealcoprime}, except that $y$ is given in factored form, as from
 \tet{idealfactor}.
 
-\fun{GEN}{idealchinese}{GEN nf, GEN x, GEN y} $x$ being a prime ideal
-factorization (i.e.~a 2 by 2 matrix whose first column contain prime ideals,
-and the second column integral exponents), $y$ a vector of elements in
-$\var{nf}$ indexed by the ideals in $x$, computes an element $b$ such that
-$v_\wp(b - y_\wp) \geq v_\wp(x)$ for all prime ideals in $x$ and $v_\wp(b)\geq
-0$ for all other $\wp$.
+\fun{GEN}{idealchinese}{GEN nf, GEN x, GEN y}
 
-\fun{GEN}{idealextchinese}{GEN nf, GEN x, GEN y, GEN pl, GEN* red}
-let $x$ and $y$ be as in \kbd{idealchinese} and \var{pl} be a \typ{VECSMALL}
-with $r_1$ components, all of which are in $\{-1,0,1\}$. Returns a $b$
-satisfying the \kbd{idealchinese} congruences such that its real embeddings
-satisfy further $\sigma_i(b)\var{pl}[i]\geq 0$ for all $i$. If \kbd{red}
-is not \kbd{NULL} set it to a $T_2$-reduced basis of $x$.
+\fun{GEN}{idealchineseinit}{GEN nf, GEN x}
 
 \subsec{Maximal ideals}
 
@@ -995,7 +985,7 @@ distinct real places, either in \kbd{vec01} (\typ{VEC} with \kbd{gen\_0} or
 \tet{vec01_to_indices}), returns the signs of $x$ at the corresponding
 places. This is the low-level function underlying \kbd{nfsign}.
 
-\fun{int}{nfispositive}{GEN nf, GEN x, GEN pl} \var{pl} is a
+\fun{int}{nfchecksigns}{GEN nf, GEN x, GEN pl} \var{pl} is a
 \typ{VECSMALL} with $r_1$ components, all of which are in $\{-1,0,1\}$.
 Return $1$ if $\sigma_i(x) \var{pl}[i] \geq 0$ for all $i$, and $0$ otherwise.
 

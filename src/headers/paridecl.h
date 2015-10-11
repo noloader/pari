@@ -1189,7 +1189,6 @@ GEN     algtensor(GEN al1, GEN al2, int maxord);
 GEN     algtrace(GEN al, GEN x);
 long    algtype(GEN al);
 GEN     bnfgwgeneric(GEN bnf, GEN Lpr, GEN Ld, GEN pl, long var);
-GEN     bnrconj(GEN bnr, long i);
 GEN     bnrgwsearch(GEN bnr, GEN Lpr, GEN Ld, GEN pl);
 void    checkalg(GEN x);
 void    checkhasse(GEN nf, GEN hi, GEN hf, long n);
@@ -1202,10 +1201,6 @@ GEN     hassewedderburn(GEN hi, GEN hf, long n);
 long    localhasse(GEN rnf, GEN nf2, GEN cnd, GEN pl, GEN auts, GEN b, long k);
 GEN     nfgrunwaldwang(GEN nf0, GEN Lpr, GEN Ld, GEN pl, long var);
 GEN     nfgwkummer(GEN nf, GEN Lpr, GEN Ld, GEN pl, long var);
-/*to     be moved elsewhere*/
-GEN     idealextchinese(GEN nf, GEN x, GEN y, GEN pl, GEN* red);
-GEN     factoredextchinese(GEN nf, GEN x, GEN y, GEN pl, GEN* fa);
-GEN     factoredextchinesetest(GEN nf, GEN x, GEN y, GEN pl, GEN* fa, GEN data, int (*test)(GEN,GEN,GEN));
 
 /* alglin1.c */
 
@@ -1809,7 +1804,7 @@ GEN     nfdivrem(GEN nf, GEN a, GEN b);
 GEN     nfembed(GEN nf, GEN x, long k);
 GEN     nfinv(GEN nf, GEN x);
 GEN     nfinvmodideal(GEN nf, GEN x, GEN ideal);
-int     nfispositive(GEN nf, GEN x, GEN pl);
+int     nfchecksigns(GEN nf, GEN x, GEN pl);
 GEN     nfmod(GEN nf, GEN a, GEN b);
 GEN     nfmul(GEN nf,GEN x,GEN y);
 GEN     nfmuli(GEN nf,GEN x,GEN y);
@@ -4345,8 +4340,10 @@ INLINE GEN    gal_get_den(GEN gal);
 INLINE GEN    gal_get_group(GEN gal);
 INLINE GEN    gal_get_gen(GEN gal);
 INLINE GEN    gal_get_orders(GEN gal);
+INLINE GEN    idealchineseinit(GEN nf, GEN x);
 INLINE GEN    idealpseudomin(GEN I, GEN G);
 INLINE GEN    idealpseudomin_nonscalar(GEN I, GEN G);
+INLINE GEN    idealpseudored(GEN I, GEN G);
 INLINE GEN    idealred_elt(GEN nf, GEN I);
 INLINE GEN    idealred(GEN nf, GEN I);
 INLINE GEN    modpr_get_pr(GEN x);

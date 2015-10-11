@@ -1192,7 +1192,7 @@ nfembed(GEN nf, GEN x, long k)
 /* pl : requested signs for real embeddings, 0 = no sign constraint */
 /* FIXME: not rigorous */
 int
-nfispositive(GEN nf, GEN x, GEN pl)
+nfchecksigns(GEN nf, GEN x, GEN pl)
 {
   pari_sp av = avma;
   long l = lg(pl), i;

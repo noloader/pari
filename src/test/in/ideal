@@ -73,6 +73,16 @@ v = nfeltval(nf, 12, P, &y); [v,y]
 v = nfeltval(nf, (2/5*(1-x))^3, P, &y); [v,y]
 v = nfeltval(nf, nfeltpow(nf,P.gen[2],4), P, &y); [v,y]
 
+K = nfinit(t^2-2);
+fa = idealfactor(K, 2^2*3);
+C = idealchinese(K, [fa, [1,1]]);
+idealchinese(K, C, [1,t])
+idealchinese(K, C, [-1,t])
+C = idealchinese(K, fa);
+idealchinese(K, C, [1,t])
+C = idealchinese(K, [C,[-1,-1]]);
+idealchinese(K, C, [1,t])
+
 \\ #1643
 K=nfinit(x^8-1310*x^6+575380*x^4-93689568*x^2+3644295424);
 idealprimedec(K,17,1)
