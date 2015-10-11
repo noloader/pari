@@ -2176,8 +2176,33 @@ Suitable for \kbd{gerepileupto}, but does not collect garbage.
 \fun{void}{checkalg}{GEN a} raise an exception if $a$ was not initialized
 by \tet{alinit}.
 
-\fun{long}{al_type}{GEN al} internal function called by \tet{altype}: assume
+\fun{long}{alg_type}{GEN al} internal function called by \tet{altype}: assume
 \kbd{al} was created by \tet{alinit} (thereby saving a call to \kbd{checkal}).
+Return values are symbolic rather than numeric:
+
+\item \kbd{al\_NULL}: not a valid algebra.
+
+\item \kbd{al\_TABLE}: table algebra output by \kbd{algtableinit}.
+
+\item \kbd{al\_CSA}: central simple algebra output by \kbd{alginit} and
+represented by a multiplication table over its center.
+
+\item \kbd{al\_CYCLIC}: central  simple  algebra  output  by \kbd{alginit} and
+represented by a cyclic algebra.
+
+\fun{long}{alg_model}{GEN al, GEN x} given an element $x$ in algebra \var{al},
+check for inconsistencies (raise a type error) and return the representation
+model used for $x$:
+
+\item \kbd{al\_ALGEBRAIC}: \kbd{basistoalg} form, algebraic representation.
+
+\item \kbd{al\_BASIS}: \kbd{algtobasis} form, column vector on the integral
+basis.
+
+\item \kbd{al\_MATRIX}: left multiplication table.
+
+\item \kbd{al\_TRIVIAL}: trivial algebra of degree $1$; can be understood
+as both basis or algebraic form (since $e_1 = 1$).
 
 \subsec{Shallow accessors}
 
@@ -2237,12 +2262,6 @@ the matrix \var{Lbasinv} from \kbd{algsplittingdata}.
 \fun{GEN}{alg_get_tracebasis}{GEN al} returns the traces of the
 basis elements; used by \kbd{algtrace}.
 
-% TODO
-
-\fun{GEN}{alg_change_overorder_shallow}{GEN al, GEN ord}
-
-\fun{GEN}{alg_complete}{GEN rnf, GEN aut, GEN hi, GEN hf, int maxord}
-
 \fun{GEN}{alg_csa_table}{GEN nf, GEN mt, long v, int maxord}
 
 \fun{GEN}{alg_cyclic}{GEN rnf, GEN aut, GEN b, int maxord}
@@ -2253,11 +2272,13 @@ basis elements; used by \kbd{algtrace}.
 
 \fun{GEN}{alg_matrix}{GEN nf, long n, long v, GEN L, long flag}
 
-\fun{long}{alg_model}{GEN al, GEN x}
+% TODO
+
+\fun{GEN}{alg_change_overorder_shallow}{GEN al, GEN ord}
+
+\fun{GEN}{alg_complete}{GEN rnf, GEN aut, GEN hi, GEN hf, int maxord}
 
 \fun{GEN}{alg_ordermodp}{GEN al, GEN p}
-
-\fun{long}{alg_type}{GEN al}
 
 \fun{GEN}{algbasischarpoly}{GEN al, GEN x, long v}
 

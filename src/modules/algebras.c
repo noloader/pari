@@ -1270,12 +1270,12 @@ checkalgx(GEN x, long model)
   }
 }
 
-long alg_model(GEN al, GEN x)
+long
+alg_model(GEN al, GEN x)
 {
   long res = alg_model0(al, x);
   if(res == al_INVALID) pari_err_TYPE("alg_model", x);
-  checkalgx(x, res);
-  return res;
+  checkalgx(x, res); return res;
 }
 
 static GEN
