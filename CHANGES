@@ -342,6 +342,7 @@ JD124- [libpari] gp_read_str_multiline
 BA125- [libpari] Flx_nbfact_Frobenius, FpX_nbfact_Frobenius
   126- extend idealchinese() to impose sign conditions at specified real
        places [#1501]
+  127- [libpari] qfb_equal1, qfi_order, qfi_log, qfi_Shanks
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]

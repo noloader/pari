@@ -2324,7 +2324,7 @@ qform_primeform2(long p, long D)
        * should be removed when gen_order is replaced with something
        * with fastorder semantics. */
       GEN tst = gpowgs(Q, p - 1);
-      if (qfi_equal1(tst)) { avma = ltop; return mkqfis(a, b, c); }
+      if (qfb_equal1(tst)) { avma = ltop; return mkqfis(a, b, c); }
         break;
     }
     avma = av;

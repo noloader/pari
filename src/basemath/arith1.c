@@ -4588,26 +4588,23 @@ quadregulator(GEN x, long prec)
 /**                                                                     **/
 /*************************************************************************/
 
-int qfi_equal1(GEN f) { return equali1(gel(f,1)); }
+int
+qfb_equal1(GEN f) { return equali1(gel(f,1)); }
 
 static GEN qfi_pow(void *E, GEN f, GEN n)
 { return E? nupow(f,n,(GEN)E): powgi(f,n); }
 static GEN qfi_comp(void *E, GEN f, GEN g)
 { return E? nucomp(f,g,(GEN)E): qficomp(f,g); }
 static const struct bb_group qfi_group={ qfi_comp,qfi_pow,NULL,hash_GEN,
-                                         gidentical,qfi_equal1,NULL};
+                                         gidentical,qfb_equal1,NULL};
 
 GEN
 qfi_order(GEN q, GEN o)
-{
-  return gen_order(q, o, NULL, &qfi_group);
-}
+{ return gen_order(q, o, NULL, &qfi_group); }
 
 GEN
 qfi_log(GEN a, GEN g, GEN o)
-{
-  return gen_PH_log(a, g, o, NULL, &qfi_group);
-}
+{ return gen_PH_log(a, g, o, NULL, &qfi_group); }
 
 GEN
 qfi_Shanks(GEN a, GEN g, long n)
@@ -4626,11 +4623,8 @@ qfi_Shanks(GEN a, GEN g, long n)
   T = gen_Shanks_init(g, rt_n, NULL, &qfi_group);
   X = gen_Shanks(T, a, c, NULL, &qfi_group);
 
-  if ( ! X) {
-    avma = av;
-    return X;
-  }
-  return gerepilecopy(av, X);
+  if (!X) { avma = av; return X; }
+  return gerepileuptoint(av, X);
 }
 
 GEN

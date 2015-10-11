@@ -1637,6 +1637,9 @@ with distance component $d$.
 
 \fun{GEN}{qfi_1}{GEN q} given a \typ{QFI} $q$, return the unit form $q^0$.
 
+\fun{int}{qfb_equal1}{GEN q} returns 1 if the \typ{QFI} or \typ{QFR}
+$q$ is the unit form.
+
 \subsubsec{Composition}
 
 \fun{GEN}{qficomp}{GEN x, GEN y} compose the two \typ{QFI} $x$ and $y$,
@@ -1677,6 +1680,27 @@ reduction), for a \typ{QFI} or \typ{QFR} $x$.
 \fun{GEN}{qfipowraw}{GEN x, long n} as \tet{qfbpowraw}, for a \typ{QFI} $x$.
 
 \fun{GEN}{qfrpowraw}{GEN x, long n} as \tet{qfbpowraw}, for a \typ{QFR} $x$.
+
+\subsubsec{Order, discrete log}
+
+\fun{GEN}{qfi_order}{GEN q, GEN o}
+assuming that the \typ{QFI} $q$ has order dividing $o$, compute its
+order in the class group. The order can be given in all formats allowed by
+generic discrete log functions, the preferred format being \kbd{[ord, fa]}
+(\typ{INT} and its factorization).
+
+\fun{GEN}{qfi_log}{GEN a, GEN g, GEN o} given a \typ{QFI} $a$ and assuming
+that the \typ{QFI} $g$ has order $o$, compute an integer $k$ such that $a^k =
+g$. Return \kbd{cgetg(1, t\_VEC)} if there are no solutions. Uses a generic
+Pollig-Hellman algorithm, then either Shanks (small $o$) or Pollard rho
+(large $o$) method. The order can be given in all formats allowed by generic
+discrete log functions, the preferred format being \kbd{[ord, fa]}
+(\typ{INT} and its factorization).
+
+\fun{GEN}{qfi_Shanks}{GEN a, GEN g, long n} given given a \typ{QFI} $a$ and
+assuming that the \typ{QFI} $g$ has (small) order $n$, compute an integer $k$
+such that $a^k = g$. Return \kbd{cgetg(1, t\_VEC)} if there are no solutions.
+Directly uses Shanks algorithm, which is inefficient when $n$ is composite.
 
 \subsubsec{Solve, Cornacchia}
 
