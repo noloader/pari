@@ -808,26 +808,90 @@ FpX_ddf(GEN T, GEN XP, GEN p)
 }
 
 static void
+FpX_edf_simple(GEN Tp, GEN XP, long d, GEN p, GEN V, long idx)
+{
+  long n = degpol(Tp), r = n/d;
+  GEN T, f, ff;
+  GEN p2;
+  if (r==1) { gel(V, idx) = Tp; return; }
+  p2 = shifti(p,-1);
+  T = FpX_get_red(Tp, p);
+  XP = FpX_rem(XP, T, p);
+  while (1)
+  {
+    pari_sp btop = avma;
+    long i;
+    GEN g = random_FpX(n, varn(Tp), p);
+    GEN t = gel(FpXQ_auttrace(mkvec2(XP, g), d, T, p), 2);
+    if (signe(t) == 0) continue;
+    for(i=1; i<=10; i++)
+    {
+      pari_sp btop2 = avma;
+      GEN R = FpXQ_pow(FpX_Fp_add(t, randomi(p), p), p2, T, p);
+      f = FpX_gcd(FpX_Fp_sub(R, gen_1, p), Tp, p);
+      if (degpol(f) > 0 && degpol(f) < n) break;
+      avma = btop2;
+    }
+    if (degpol(f) > 0 && degpol(f) < n) break;
+    avma = btop;
+  }
+  f = FpX_normalize(f, p);
+  ff = FpX_div(Tp, f ,p);
+  FpX_edf_simple(f, XP, d, p, V, idx);
+  FpX_edf_simple(ff, XP, d, p, V, idx+degpol(f)/d);
+}
+
+static void
+FpX_edf_rec(GEN T, GEN hp, GEN t, long d, GEN p2, GEN p, GEN V, long idx)
+{
+  pari_sp av;
+  GEN Tp = get_FpX_mod(T);
+  long n = degpol(hp), vT = varn(Tp);
+  GEN u1, u2, f1, f2;
+  GEN R, h;
+  h = FpX_get_red(hp, p);
+  t = FpX_rem(t, T, p);
+  av = avma;
+  do
+  {
+    avma = av;
+    R = FpXQ_pow(deg1pol(gen_1, randomi(p), vT), p2, h, p);
+    u1 = FpX_gcd(FpX_Fp_sub(R, gen_1, p), hp, p);
+  } while (degpol(u1)==0 || degpol(u1)==n);
+  f1 = FpX_gcd(FpX_FpXQ_eval(u1, t, T, p), Tp, p);
+  f1 = FpX_normalize(f1, p);
+  u2 = FpX_div(hp, u1, p);
+  f2 = FpX_div(Tp, f1, p);
+  if (degpol(u1)==1)
+    gel(V, idx) = f1;
+  else
+    FpX_edf_rec(FpX_get_red(f1, p), u1, t, d, p2, p, V, idx);
+  idx += degpol(f1)/d;
+  if (degpol(u2)==1)
+    gel(V, idx) = f2;
+  else
+    FpX_edf_rec(FpX_get_red(f2, p), u2, t, d, p2, p, V, idx);
+}
+
+static void
 FpX_edf(GEN Tp, GEN XP, long d, GEN p, GEN V, long idx)
 {
   long n = degpol(Tp), r = n/d, vT = varn(Tp);
-  long i;
-  GEN T, h, t, R;
+  GEN T, h, t;
+  pari_timer ti;
   if (r==1) { gel(V, idx) = Tp; return; }
   T = FpX_get_red(Tp, p);
   XP = FpX_rem(XP, T, p);
+  if (DEBUGLEVEL>=7) timer_start(&ti);
   do
   {
     GEN g = random_FpX(n, vT, p);
     t = gel(FpXQ_auttrace(mkvec2(XP, g), d, T, p), 2);
+    if (DEBUGLEVEL>=7) timer_printf(&ti,"FpX_edf: FpXQ_auttrace");
     h = FpXQ_minpoly(t, T, p);
+    if (DEBUGLEVEL>=7) timer_printf(&ti,"FpX_edf: FpXQ_minpoly");
   } while (degpol(h) != r);
-  R = FpX_roots_i(h, p);
-  for (i=1; i<=r; i++)
-  {
-    GEN f = FpX_gcd(Tp, FpX_Fp_sub(t, gel(R,i), p), p);
-    gel(V,idx+i-1) = FpX_normalize(f, p);
-  }
+  FpX_edf_rec(T, h, t, d, shifti(p, -1), p, V, idx);
 }
 
 static GEN
@@ -835,6 +899,7 @@ FpX_factor_Shoup(GEN T, GEN p)
 {
   long i, n, s = 0;
   GEN XP, D, V;
+  long e = expi(p);
   pari_timer ti;
   n = get_FpX_degree(T);
   T = FpX_get_red(T, p);
@@ -849,13 +914,16 @@ FpX_factor_Shoup(GEN T, GEN p)
   for (i = 1, s = 1; i <= n; i++)
   {
     GEN Di = gel(D,i);
-    long ni = degpol(Di);
+    long ni = degpol(Di), ri = ni/i;
     if (ni == 0) continue;
     Di = FpX_normalize(Di, p);
     if (ni == i) { gel(V, s++) = Di; continue; }
-    FpX_edf(Di, XP, i, p, V, s);
+    if (ri <= e*expu(e))
+      FpX_edf(Di, XP, i, p, V, s);
+    else
+      FpX_edf_simple(Di, XP, i, p, V, s);
     if (DEBUGLEVEL>=6) timer_printf(&ti,"FpX_edf(%ld)",i);
-    s += ni/i;
+    s += ri;
   }
   return V;
 }
