@@ -250,6 +250,8 @@ alginvbasis(GEN al) { checkalg(al); return alg_get_invbasis(al); }
 GEN
 alg_get_multable(GEN al) { return gel(al,9); }
 GEN
+algmultable(GEN al) { checkalg(al); return alg_get_multable(al); }
+GEN
 alg_get_char(GEN al) { return gel(al,10); }
 GEN
 algchar(GEN al) { checkalg(al); return alg_get_char(al); }
@@ -520,8 +522,6 @@ algradical(GEN al)
   }
   return Flm_to_ZM(I);
 }
-
-static GEN algleftmultable(GEN al, GEN x);
 
 static GEN
 alg_quotient0(GEN al, GEN S, GEN Si, long nq, GEN p, int maps)
@@ -1875,12 +1875,12 @@ algmatbasis_ei(GEN al, long ijk, long N)
 
 /* FIXME lazy implementation ! */
 static GEN
-algmultable_mat(GEN al, GEN M)
+algleftmultable_mat(GEN al, GEN M)
 {
   long N = lg(M)-1, n = alg_get_absdim(al), D = N*N*n, j;
   GEN res, x, Mx;
   if (N == 0) return cgetg(1, t_MAT);
-  if (N != nbrows(M)) pari_err_DIM("algmultable_mat (nonsquare)");
+  if (N != nbrows(M)) pari_err_DIM("algleftmultable_mat (nonsquare)");
   res = cgetg(D+1, t_MAT);
   for(j=1; j<=D; j++) {
     x = algmatbasis_ei(al, j, N);
@@ -1891,30 +1891,23 @@ algmultable_mat(GEN al, GEN M)
 }
 
 /* left multiplication table on elements of the same model as x */
-static GEN
+GEN
 algleftmultable(GEN al, GEN x)
 {
   pari_sp av = avma;
   long tx;
   GEN res;
 
+  checkalg(al);
   tx = alg_model(al,x);
   switch(tx) {
     case al_TRIVIAL : res = mkmatcopy(mkcol(gel(x,1))); break;
     case al_ALGEBRAIC : res = algalgmultable(al,x); break;
     case al_BASIS : res = algbasismultable(al,x); break;
-    case al_MATRIX : res = algmultable_mat(al,x); break;
+    case al_MATRIX : res = algleftmultable_mat(al,x); break;
     default : return NULL; /* not reached */
   }
   return gerepileupto(av,res);
-}
-
-GEN
-algmultable(GEN al, GEN x)
-{
-  checkalg(al);
-  if (x) return algleftmultable(al,x);
-  return alg_get_multable(al);
 }
 
 static GEN
@@ -2138,7 +2131,7 @@ algbasischarpoly(GEN al, GEN x, long v)
 {
   pari_sp av = avma;
   GEN p = alg_get_char(al), mx;
-  if (alg_model(al,x) == al_MATRIX) mx = algmultable_mat(al,x);
+  if (alg_model(al,x) == al_MATRIX) mx = algleftmultable_mat(al,x);
   else                              mx = algbasismultable(al,x);
   if (signe(p)) {
     GEN res = FpM_charpoly(mx,p);
@@ -2292,7 +2285,7 @@ algnorm(GEN al, GEN x)
   p = alg_get_char(al);
   tx = alg_model(al,x);
   if (signe(p)) {
-    if (tx == al_MATRIX)    mx = algmultable_mat(al,x);
+    if (tx == al_MATRIX)    mx = algleftmultable_mat(al,x);
     else                    mx = algbasismultable(al,x);
     return gerepileupto(av, FpM_det(mx,p));
   }
@@ -2304,7 +2297,7 @@ algnorm(GEN al, GEN x)
       res = rnfeltdown(rnf, det(algsplittingmatrix(al,x)));
       break;
     case al_TABLE:
-      if (tx == al_MATRIX)  mx = algmultable_mat(al,x);
+      if (tx == al_MATRIX)  mx = algleftmultable_mat(al,x);
       else                  mx = algbasismultable(al,x);
       res = det(mx);
       break;

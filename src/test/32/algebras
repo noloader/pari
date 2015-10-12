@@ -397,8 +397,8 @@ absdim: 1
 iscommutative: 1
 issemisimple: 1
 issimple: 1
-algmultable w+ww: 1
-algmultable w*ww: 1
+algleftmultable w+ww: 1
+algleftmultable w*ww: 1
 alg(basis(w)): 1
 alg(basis(ww)): 1
 basis(w)+ww: 1
@@ -469,8 +469,8 @@ radical: 1
 iscommutative cyc 3: 1
 issemisimple cyc 3: 1
 issimple cyc 3: 1
-algmultable/Q w+ww: 1
-algmultable/Q w*ww: 1
+algleftmultable/Q w+ww: 1
+algleftmultable/Q w*ww: 1
 alg(basis(w))/Q: 1
 alg(basis(ww))/Q: 1
 basis(w)+ww/Q: 1
@@ -1209,9 +1209,9 @@ sub alM: 1
 add alM: 1
 algtobasis basistoalg alM 1: 1
 algtobasis basistoalg alM 2: 1
-algmultable add alM: 1
-algmultable mul alM: 1
-algmultable sqr alM: 1
+algleftmultable add alM: 1
+algleftmultable mul alM: 1
+algleftmultable sqr alM: 1
 algsplitm add alM: 1
 algsplitm mul alM: 1
 algsplitm sqr alM: 1
@@ -1270,9 +1270,9 @@ inv alM t 2: 1
 neg alM t: 1
 sub alM t: 1
 add alM t: 1
-algmultable add alM t: 1
-algmultable mul alM t: 1
-algmultable sqr alM t: 1
+algleftmultable add alM t: 1
+algleftmultable mul alM t: 1
+algleftmultable sqr alM t: 1
 algtrace alM t: 1
 algtrace alM t 2: 1
 algtrace prod alM t: 1
@@ -2641,9 +2641,9 @@ x - 12
   ***   at top-level: algmul(almt,a,b)
   ***                 ^----------------
   *** algmul: incorrect type in alg_model (t_COL).
-  ***   at top-level: algmultable(almt,a)
-  ***                 ^-------------------
-  *** algmultable: incorrect type in alg_model (t_COL).
+  ***   at top-level: algleftmultable(almt
+  ***                 ^--------------------
+  *** algleftmultable: incorrect type in alg_model (t_COL).
   ***   at top-level: alginv(almt,a)
   ***                 ^--------------
   *** alginv: incorrect type in alg_model (t_COL).
@@ -2689,9 +2689,9 @@ x - 12
   ***   at top-level: alginv(almt,m)
   ***                 ^--------------
   *** alginv: inconsistent dimensions in alginv_i (nonsquare).
-  ***   at top-level: algmultable(almt,m)
-  ***                 ^-------------------
-  *** algmultable: inconsistent dimensions in algmultable_mat (nonsquare).
+  ***   at top-level: algleftmultable(almt
+  ***                 ^--------------------
+  *** algleftmultable: inconsistent dimensions in algleftmultable_mat (nonsquare).
   ***   at top-level: algpow(almt,m,3)
   ***                 ^----------------
   *** algpow: inconsistent dimensions in alM_mul.
@@ -2700,13 +2700,13 @@ x - 12
   *** algtrace: inconsistent dimensions in algtrace_mat (nonsquare).
   ***   at top-level: algcharpoly(almt,m)
   ***                 ^-------------------
-  *** algcharpoly: inconsistent dimensions in algmultable_mat (nonsquare).
+  *** algcharpoly: inconsistent dimensions in algleftmultable_mat (nonsquare).
   ***   at top-level: algcharpoly(alginit(
   ***                 ^--------------------
   *** algcharpoly: incorrect type in easychar (t_MAT).
   ***   at top-level: algnorm(almt,m)
   ***                 ^---------------
-  *** algnorm: inconsistent dimensions in algmultable_mat (nonsquare).
+  *** algnorm: inconsistent dimensions in algleftmultable_mat (nonsquare).
   ***   at top-level: algnorm(alginit(nfin
   ***                 ^--------------------
   *** algnorm: inconsistent dimensions in det.
@@ -3257,4 +3257,4 @@ testing simplify: quatalg csa over Q
 1
 1
 1
-Total time spent: 7332
+Total time spent: 8365

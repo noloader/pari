@@ -114,8 +114,8 @@ operations() = gusuite("operations", ()->{
   do("inverse", ()->alginv(al,u)==algsub(al,un,n));
   do("powers", ()->algpow(al,u,124)==algadd(al,un,algmul(al,[124,0]~,n)));
   do("negative powers", ()->algpow(al,j,-56)==un);
-  do("multiplication table j", ()->algmultable(al,j)==[0,ii;1,0]);
-  do("multiplication table", ()->algmultable(al,u)==[1-ss,-1-ii;ii-1,1+ss]);
+  do("multiplication table j", ()->algleftmultable(al,j)==[0,ii;1,0]);
+  do("multiplication table", ()->algleftmultable(al,u)==[1-ss,-1-ii;ii-1,1+ss]);
   do("characteristic polynomial", ()->algcharpoly(al,u,'y)==y^2-2*y+1);
   do("characteristic polynomial j", ()->algcharpoly(al,j,'y)==y^2-nfii);
   do("trace zero", ()->algtrace(al,n)==0);
@@ -415,8 +415,8 @@ moreoperations() = gusuite("more operations", ()->{
   ww = [-x^2*y, 1/13+y+x+4*x^2, (-2+y)*x^2+(y/3+1/5)*x]~*mul;
   ord = algbasis(al);
   invord = alginvbasis(al);
-  do("algmultable w+ww", ()->algmultable(al,algadd(al,w,ww))==(algmultable(al,w)+algmultable(al,ww)));
-  do("algmultable w*ww", ()->algmultable(al,algmul(al,w,ww))==(algmultable(al,w)*algmultable(al,ww)));
+  do("algleftmultable w+ww", ()->algleftmultable(al,algadd(al,w,ww))==(algleftmultable(al,w)+algleftmultable(al,ww)));
+  do("algleftmultable w*ww", ()->algleftmultable(al,algmul(al,w,ww))==(algleftmultable(al,w)*algleftmultable(al,ww)));
   do("alg(basis(w))", ()->algbasistoalg(al,algalgtobasis(al,w))==w);
   do("alg(basis(ww))", ()->algbasistoalg(al,algalgtobasis(al,ww))==ww);
   do("basis(w)+ww", ()->algadd(al,algalgtobasis(al,w),ww)==algalgtobasis(al,algadd(al,w,ww)));
@@ -507,8 +507,8 @@ moreoperations() = gusuite("more operations", ()->{
   ww = [-x^2*4, 1/13+x+4*x^2]~*mul;
   ord = algbasis(al);
   invord = alginvbasis(al);
-  do("algmultable/Q w+ww", ()->algmultable(al,algadd(al,w,ww))==(algmultable(al,w)+algmultable(al,ww)));
-  do("algmultable/Q w*ww", ()->algmultable(al,algmul(al,w,ww))==(algmultable(al,w)*algmultable(al,ww)));
+  do("algleftmultable/Q w+ww", ()->algleftmultable(al,algadd(al,w,ww))==(algleftmultable(al,w)+algleftmultable(al,ww)));
+  do("algleftmultable/Q w*ww", ()->algleftmultable(al,algmul(al,w,ww))==(algleftmultable(al,w)*algleftmultable(al,ww)));
   do("alg(basis(w))/Q", ()->algbasistoalg(al,algalgtobasis(al,w))==w);
   do("alg(basis(ww))/Q", ()->algbasistoalg(al,algalgtobasis(al,ww))==ww);
   do("basis(w)+ww/Q", ()->algadd(al,algalgtobasis(al,w),ww)==algalgtobasis(al,algadd(al,w,ww)));
@@ -565,8 +565,8 @@ tablealg() = gusuite("table algebra", ()->{
   do("e^691691 0", ()->algpow(al,e,691691)==[1,691691,0]~);
   d = [1,0,1]~;
   do("d^101 0", ()->algpow(al,d,101)==[1,0,2^101-1]~);
-  do("multable(a) 0", ()->algmultable(al,a)==[1,0,0;0,1,0;-1,0,0]);
-  do("multable(b) 0", ()->algmultable(al,b)==[0,0,0;-1,0,-1;1,0,1]);
+  do("multable(a) 0", ()->algleftmultable(al,a)==[1,0,0;0,1,0;-1,0,0]);
+  do("multable(b) 0", ()->algleftmultable(al,b)==[0,0,0;-1,0,-1;1,0,1]);
   do("divl(d,a) 0", ()->algdivl(al,d,a)==a);
   do("divl(d,b) 0", ()->algdivl(al,d,b)==[0,-1,1/2]~);
   do("d^-1 0", ()->alginv(al,d)==[1,0,-1/2]~);
@@ -611,8 +611,8 @@ tablealg() = gusuite("table algebra", ()->{
   do("b*a 2", ()->algmul(al,b,a)==[0,0,0]~);
   do("a^2 2", ()->algsqr(al,a)==a*Mod(1,p));
   do("b^2 2", ()->algsqr(al,b)==b*Mod(1,p));
-  do("multable(a) 2", ()->algmultable(al,a)==[1,0,0;0,1,0;-1,0,0]*Mod(1,p));
-  do("multable(b) 2", ()->algmultable(al,b)==[0,0,0;-1,0,-1;1,0,1]*Mod(1,p));
+  do("multable(a) 2", ()->algleftmultable(al,a)==[1,0,0;0,1,0;-1,0,0]*Mod(1,p));
+  do("multable(b) 2", ()->algleftmultable(al,b)==[0,0,0;-1,0,-1;1,0,1]*Mod(1,p));
   do("divl(un,a) 2", ()->algdivl(al,un,a)==a*Mod(1,p));
   do("divl(un,b) 2", ()->algdivl(al,un,b)==b*Mod(1,p));
   do("un^-1 2", ()->alginv(al,un)==un);
@@ -660,8 +660,8 @@ tablealg() = gusuite("table algebra", ()->{
   do("a^2 3", ()->algsqr(al,a)==[1,1]~);
   do("b^2 3", ()->algsqr(al,b)==[0,0]~);
   do("a^691691 3", ()->algpow(al,a,691691)==[1,-691691]~*Mod(1,p));
-  do("multable(a) 3", ()->algmultable(al,a)==[1,0;-1,1]*Mod(1,p));
-  do("multable(b) 3", ()->algmultable(al,b)==[0,0;1,0]);
+  do("multable(a) 3", ()->algleftmultable(al,a)==[1,0;-1,1]*Mod(1,p));
+  do("multable(b) 3", ()->algleftmultable(al,b)==[0,0;1,0]);
   do("algdivl(a,b) 3", ()->algdivl(al,a,b)==b);
   do("a^-1 3", ()->alginv(al,a)==[1,1]~);
   do("algdivr(b,a) 3", ()->algdivr(al,b,a)==b);
@@ -699,8 +699,8 @@ tablealg() = gusuite("table algebra", ()->{
   do("a^2 3c", ()->algsqr(al,a)==[1,1,1]~);
   do("b^2 3c", ()->algsqr(al,b)==[0,0,1]~);
   do("a^691691 3c", ()->algpow(al,a,691691)==[1,-691691,(691691*691690)\2]~*Mod(1,p));
-  do("multable(a) 3c", ()->algmultable(al,a)==[1,0,0;-1,1,0;0,-1,1]*Mod(1,p));
-  do("multable(b) 3c", ()->algmultable(al,b)==[0,0,0;1,0,0;0,1,0]);
+  do("multable(a) 3c", ()->algleftmultable(al,a)==[1,0,0;-1,1,0;0,-1,1]*Mod(1,p));
+  do("multable(b) 3c", ()->algleftmultable(al,b)==[0,0,0;1,0,0;0,1,0]);
   do("algdivl(a,b) 3c", ()->algdivl(al,a,b)==[0,1,1]~);
   do("a^-1 3c", ()->alginv(al,a)==[1,1,1]~);
   do("algdivr(b,a) 3c", ()->algdivr(al,b,a)==[0,1,1]~);
@@ -738,8 +738,8 @@ tablealg() = gusuite("table algebra", ()->{
   do("a^2 2b", ()->algsqr(al,a)==b);
   do("b^2 2b", ()->algsqr(al,b)==a);
   do("a^691691 2b", ()->algpow(al,a,691691)==b);
-  do("multable(a) 2b", ()->algmultable(al,a)==[0,1;1,1]);
-  do("multable(b) 2b", ()->algmultable(al,b)==[1,1;1,0]);
+  do("multable(a) 2b", ()->algleftmultable(al,a)==[0,1;1,1]);
+  do("multable(b) 2b", ()->algleftmultable(al,b)==[1,1;1,0]);
   do("divl(a,b) 2b", ()->algdivl(al,a,b)==a);
   do("a^-1 2b", ()->alginv(al,a)==b);
   do("divr(b,a) 2b", ()->algdivr(al,b,a)==a);
@@ -790,8 +790,8 @@ tablealg() = gusuite("table algebra", ()->{
   do("b^2 3b", ()->algsqr(al,b)==-b*Mod(1,p));
   do("a^691691 3b", ()->algpow(al,a,691691)==a*Mod(1,p));
   do("b^691691 3b", ()->algpow(al,b,691691)==b);
-  do("multable(a) 3b", ()->algmultable(al,a)==[0,1,0,1;1,0,0,1;2,1,1,0;0,0,0,2]);
-  do("multable(b) 3b", ()->algmultable(al,b)==[1,1,2,0;1,1,1,0;0,0,2,0;1,1,0,0]);
+  do("multable(a) 3b", ()->algleftmultable(al,a)==[0,1,0,1;1,0,0,1;2,1,1,0;0,0,0,2]);
+  do("multable(b) 3b", ()->algleftmultable(al,b)==[1,1,2,0;1,1,1,0;0,0,2,0;1,1,0,0]);
   do("divl(a,b) 3b", ()->algdivl(al,a,b)==[2,2,0,2]~);
   do("a^-1 3b", ()->alginv(al,a)==[0,1,2,0]~);
   do("divr(b,a) 3b", ()->algdivr(al,b,a)==[2,0,1,1]~);
@@ -844,8 +844,8 @@ tablealg() = gusuite("table algebra", ()->{
   do("a^691691 2c", ()->algpow(al,a,691691)==[0,0,0,0]~);
   do("b^691691 2c", ()->algpow(al,b,691691)==b);
   do("c^691691 2c", ()->algpow(al,c,691691)==[0,1,1,1]~);
-  do("multable(a) 2c", ()->algmultable(al,a)==[0,0,1,0;1,0,0,1;0,0,0,0;0,0,1,0]);
-  do("multable(b) 2c", ()->algmultable(al,b)==[1,0,0,0;0,1,0,0;0,0,0,0;1,0,0,0]);
+  do("multable(a) 2c", ()->algleftmultable(al,a)==[0,0,1,0;1,0,0,1;0,0,0,0;0,0,1,0]);
+  do("multable(b) 2c", ()->algleftmultable(al,b)==[1,0,0,0;0,1,0,0;0,0,0,0;1,0,0,0]);
   do("divl(c,a) 2c", ()->algdivl(al,c,a)==[0,0,0,1]~);
   do("divl(c,b) 2c", ()->algdivl(al,c,b)==[0,0,1,0]~);
   do("c^-1 2c", ()->alginv(al,c)==[0,1,1,1]~);
@@ -881,8 +881,8 @@ tablealg() = gusuite("table algebra", ()->{
   do("a^2 5", ()->algsqr(al,a)==[Mod(4,p)]~);
   do("b^2 5", ()->algsqr(al,b)==[Mod(-1,p)]~);
   do("a^691691 5", ()->algpow(al,a,691691)==b);
-  do("multable(a) 5", ()->algmultable(al,a)==Mat(Mod(2,p)));
-  do("multable(b) 5", ()->algmultable(al,b)==Mat(Mod(3,p)));
+  do("multable(a) 5", ()->algleftmultable(al,a)==Mat(Mod(2,p)));
+  do("multable(b) 5", ()->algleftmultable(al,b)==Mat(Mod(3,p)));
   do("divl(a,b) 5", ()->algdivl(al,a,b)==[Mod(4,p)]~);
   do("a^-1 5", ()->alginv(al,a)==[Mod(3,p)]~);
   do("divr(a,b) 5", ()->algdivr(al,a,b)==[Mod(4,p)]~);
@@ -941,13 +941,13 @@ tablealg() = gusuite("table algebra", ()->{
   do("b^2 0b", ()->algsqr(al,b)==[1,2,0,0,1]~);
   do("a^691691 0b", ()->algpow(al,a,691691)==a);
   do("b^691 0b", ()->algpow(al,b,691)==[1,691,0,0,2^691-1-691]~);
-  do("multable(a) 0b", ()->algmultable(al,a)==
+  do("multable(a) 0b", ()->algleftmultable(al,a)==
       [1,0,0,0,0;
        0,1,0,0,0;
        0,0,1,0,0;
        0,0,0,1,0;
        -1,-1,0,0,0]);
-  do("multable(b) 0b", ()->algmultable(al,b)==
+  do("multable(b) 0b", ()->algleftmultable(al,b)==
       [1,0,1,0,0;
        1,1,0,1,0;
        0,0,1,0,0;
@@ -987,13 +987,13 @@ tablealg() = gusuite("table algebra", ()->{
   do("b^2 3d", ()->algsqr(al,b)==[1,2,0,0,1]~);
   do("a^691691 3d", ()->algpow(al,a,691691)==a*Mod(1,p));
   do("b^691 3d", ()->algpow(al,b,691)==[1,691,0,0,2^691-1-691]~*Mod(1,p));
-  do("multable(a) 3d", ()->algmultable(al,a)==
+  do("multable(a) 3d", ()->algleftmultable(al,a)==
       [1,0,0,0,0;
        0,1,0,0,0;
        0,0,1,0,0;
        0,0,0,1,0;
        -1,-1,0,0,0]*Mod(1,p));
-  do("multable(b) 3d", ()->algmultable(al,b)==
+  do("multable(b) 3d", ()->algleftmultable(al,b)==
       [1,0,1,0,0;
        1,1,0,1,0;
        0,0,1,0,0;
@@ -1081,7 +1081,7 @@ print("spl multiplicative: ", algsplittingmatrix(al,x1) * algsplittingmatrix(al,
 print("changebasis bug 1: ", algalgtobasis(al,algbasistoalg(al,algmul(al,x1,x2)))==algmul(al,x1,x2));
 print("changebasis bug 2: ", algalgtobasis(al0,algmul(al0,ax1,ax2)) == algmul(al0,nx1,nx2));
 print("changebasis bug 3: ", invord*algmul(al0,nx1,nx2) == algmul(al,x1,x2));
-print("changebasis bug 4: ", algmultable(al,x1) == invord*algmultable(al0,nx1)*ord);
+print("changebasis bug 4: ", algleftmultable(al,x1) == invord*algleftmultable(al0,nx1)*ord);
 
 print("algtableinit segfault bug: ");
 alt = algtableinit(al[9]);
@@ -1169,7 +1169,7 @@ print("csa mul: ", algmul(al,a,b) == [Mod(y,T), 0, 0, Mod(2*y-2,T)]~);
 print("csa mul 2: ", algmul(al,b,a) == [Mod(y,T), 0, 0, Mod(2-2*y,T)]~);
 print("csa sqr: ", algsqr(al,a) == [Mod(-y^2,T),0,0,0]~);
 print("csa sqr 2: ", algsqr(al,b) == [Mod(-1-4*y^4,T),0,0,0]~);
-print("csa mt: ", algmultable(al,b) == -m_i + Mod(2*y^2,T)*m_j);
+print("csa mt: ", algleftmultable(al,b) == -m_i + Mod(2*y^2,T)*m_j);
 print("csa inv: ", alginv(al,a) == -1/y^2*a);
 print("csa inv 2: ", alginv(al,b) == -1/Mod(1+4*y^4,T)*b);
 print("csa divl: ", algdivl(al,1+a+b,b) == algmul(al, alginv(al, 1+a+b), b));
@@ -1350,7 +1350,7 @@ algbasis(A)
 algmultable(A)
 alginv(A,[1,1,0,0]~)
 algmul(A,[1,1,0,0]~,[0,0,2,1]~)
-algmultable(A,[0,1,0,0]~)
+algleftmultable(A,[0,1,0,0]~)
 algneg(A,[1,1,0,0]~)
 algsplittingmatrix(A,[0,0,0,2]~)
 algpow(A,[1,1,0,0]~,7)
@@ -1430,12 +1430,9 @@ print("algtobasis basistoalg alM 1: ", algalgtobasis(al, algbasistoalg(al, M1)) 
  M1);
 print("algtobasis basistoalg alM 2: ", algalgtobasis(al, algbasistoalg(al, M2)) ==
  M2);
-print("algmultable add alM: ", algmultable(al, M1)+algmultable(al,M2) ==
- algmultable(al, algadd(al, M1, M2)));
-print("algmultable mul alM: ", algmultable(al, M1)*algmultable(al,M2) ==
- algmultable(al, algmul(al, M1, M2)));
-{print("algmultable sqr alM: ", algmultable(al, M1)^2 == algmultable(al,
- algsqr(al, M1)));}
+print("algleftmultable add alM: ", algleftmultable(al, M1)+algleftmultable(al,M2) == algleftmultable(al, algadd(al, M1, M2)));
+print("algleftmultable mul alM: ", algleftmultable(al, M1)*algleftmultable(al,M2) == algleftmultable(al, algmul(al, M1, M2)));
+{print("algleftmultable sqr alM: ", algleftmultable(al, M1)^2 == algleftmultable(al, algsqr(al, M1)));}
 print("algsplitm add alM: ", algsplittingmatrix(al, M1)+algsplittingmatrix(al,M2) ==
  algsplittingmatrix(al, algadd(al, M1, M2)));
 print("algsplitm mul alM: ", algsplittingmatrix(al, M1)*algsplittingmatrix(al,M2) ==
@@ -1495,12 +1492,9 @@ un = [1,0,0,0]~; zero = [0,0,0,0]~; id = [un,zero;zero,un];
 print("neg alM t: ", algneg(al,M1) == -M1);
 print("sub alM t: ", algsub(al,M1,M2) == M1-M2);
 print("add alM t: ", algadd(al,M1,M2) == M1+M2);
-print("algmultable add alM t: ", algmultable(al,M1) + algmultable(al,M2) ==
- algmultable(al, algadd(al,M1,M2)));
-print("algmultable mul alM t: ", algmultable(al,M1) * algmultable(al,M2) ==
- algmultable(al, algmul(al,M1,M2)));
-{print("algmultable sqr alM t: ", algmultable(al, M1)^2 == algmultable(al,
- algsqr(al, M1)));}
+print("algleftmultable add alM t: ", algleftmultable(al,M1) + algleftmultable(al,M2) == algleftmultable(al, algadd(al,M1,M2)));
+print("algleftmultable mul alM t: ", algleftmultable(al,M1) * algleftmultable(al,M2) == algleftmultable(al, algmul(al,M1,M2)));
+print("algleftmultable sqr alM t: ", algleftmultable(al, M1)^2 == algleftmultable(al, algsqr(al, M1)));
 {print("algtrace alM t: ", algtrace(al,M1) == 2*(algtrace(al,M1[1,1]) +
  algtrace(al,M1[2,2])));}
 {print("algtrace alM t 2: ", algtrace(al,M2) == 2*(algtrace(al,M2[1,1]) +
@@ -1553,7 +1547,7 @@ algdivl(al,b,c)
 algdivr(al,c,b)
 alginv(al,a)
 algalgtobasis(al,b)
-algmultable(al,a)
+algleftmultable(al,a)
 algcharpoly(al,b)
 algtrace(al,c)
 algnorm(al,c)
@@ -1581,7 +1575,7 @@ algdivl(al,b,c)
 algdivr(al,c,b)
 alginv(al,a)
 algalgtobasis(al,b)
-algmultable(al,a)
+algleftmultable(al,a)
 algcharpoly(al,b)
 algtrace(al,c)
 algnorm(al,c)
@@ -1626,7 +1620,7 @@ print("-v: ", algneg(al,[;]) == [;]);
 print("v^(-1): ", alginv(al,[;]) == [;]);
 print("v^n: ", algpow(al, [;], 13) == [;]);
 print("v^0: ", algpow(al, [;], 0) == [;]);
-print("mt(v)", algmultable(al, [;]) == [;]);
+print("mt(v)", algleftmultable(al, [;]) == [;]);
 print("spl(v)", algsplittingmatrix(al, [;]) == [;]);
 print("trace(v): ", algtrace(al, [;]) == 0);
 print("norm(v): ", algnorm(al, [;]) == 1);
@@ -1655,7 +1649,7 @@ algdivl(almt0,a,b)
 algtrace(almt0,a)
 algnorm(almt0,b)
 algcharpoly(almt0,a)
-algmultable(almt0,b)
+algleftmultable(almt0,b)
 algpow(almt0,a,0)
 algiscommutative(almt0)
 algissemisimple(almt0)
@@ -1692,7 +1686,7 @@ algtensor(1,z,1)
 algisassociative([1],0)
 algisassociative([[1,0;0,2],[0,0;0,0]])
 algmul(almt,a,b)
-algmultable(almt,a)
+algleftmultable(almt,a)
 alginv(almt,a)
 algsplittingmatrix(almt,[0,0,0,0]~)
 algalgtobasis(almt,a)
@@ -1709,7 +1703,7 @@ algdivl(almt, m, zero);
 algdivl(almt, m, [zero,zero;zero,zero]);
 algdivl(almt, m, m);
 alginv(almt, m);
-algmultable(almt, m);
+algleftmultable(almt, m);
 algpow(almt, m, 3);
 algtrace(almt, m);
 algcharpoly(almt, m);
@@ -2043,7 +2037,7 @@ test(str,al)={
  print(algsplittingmatrix(al,x) == algsplittingmatrix(sal,x));
  print(algcharpoly(al,x) == algcharpoly(sal,x));
  print(algnorm(al,x) == algnorm(sal,x));
- print(algmultable(al,x) == algmultable(sal,x));
+ print(algleftmultable(al,x) == algleftmultable(sal,x));
  print(algtrace(al,x) == algtrace(sal,x));
  print(alginv(al,x) == alginv(sal,x));
  print(algpow(al,x,42) == algpow(sal,x,42));
@@ -2058,7 +2052,7 @@ test(str,al)={
  print(algsplittingmatrix(al,x) == algsplittingmatrix(sal,x));
  print(algcharpoly(al,x) == algcharpoly(sal,x));
  print(algnorm(al,x) == algnorm(sal,x));
- print(algmultable(al,x) == algmultable(sal,x));
+ print(algleftmultable(al,x) == algleftmultable(sal,x));
  print(algtrace(al,x) == algtrace(sal,x));
  print(alginv(al,x) == alginv(sal,x));
  print(algpow(al,x,42) == algpow(sal,x,42));

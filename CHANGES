@@ -272,21 +272,21 @@ BA 73- GP function fold()
    79- new binary flag to polcompositum: assume fields are linearly disjoint
    80- GP function nfcompositum
 AP 81- [GP] associative and central simple algebra package, functions
-    algabsdim           algdisc            algisramified     algrelmultable
-    algadd              algdivl            algissemisimple   algsimpledec
-    algalgtobasis       algdivr            algissimple       algsplittingdata
-    algaut              alghasse           algissplit        algsplittingfield
-    algb                alghassef          algmul            algsplittingmatrix
-    algbasis            alghassei          algmultable       algsqr
-    algbasistoalg       algindex           algneg            algsub
-    algcenter           alginit            algnorm           algsubalg
-    algcentralproj      alginv             algpoleval        algtableinit
-    algchar             alginvbasis        algpow            algtensor
-    algcharpoly         algisassociative   algprimesubalg    algtrace
-    algdecomposition    algiscommutative   algquotient       algtype
-    algdegree           algisdivision      algradical
-    algdim              algisdivl          algramifiedplaces
-                        algisinv           algrandom
+   algabsdim         algdisc           algisramified     algrandom
+   algadd            algdivl           algissemisimple   algrelmultable
+   algalgtobasis     algdivr           algissimple       algsimpledec
+   algaut            alghasse          algissplit        algsplittingdata
+   algb              alghassef         algleftmultable   algsplittingfield
+   algbasis          alghassei         algmul            algsplittingmatrix
+   algbasistoalg     algindex          algmultable       algsqr
+   algcenter         alginit           algneg            algsub
+   algcentralproj    alginv            algnorm           algsubalg
+   algchar           alginvbasis       algpoleval        algtableinit
+   algcharpoly       algisassociative  algpow            algtensor
+   algdecomposition  algiscommutative  algprimesubalg    algtrace
+   algdegree         algisdivision     algquotient       algtype
+   algdim            algisdivl         algradical
+                     algisinv          algramifiedplaces
    82- [libpari] functions rnf_get_alpha, rnf_get_idealdisc, rnf_get_k
    83- [libpari] functions ZC_is_ei, RgC_is_ei, ZM_Z_div, ZMV_to_FlmV, checkal
    84- [libpari] functions cbrtr, cbrtr_abs
