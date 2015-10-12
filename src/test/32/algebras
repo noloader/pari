@@ -2721,13 +2721,13 @@ x - 12
   *** alginit: domain error in checkhasse: sum(Hasse invariants) != 0
   ***   at top-level: alginit(y,[2,[[],[]]
   ***                 ^--------------------
-  *** alginit: incorrect type in alinit3 (t_POL).
+  *** alginit: incorrect type in alginit (t_POL).
   ***   at top-level: alginit(nfinit(y),y)
   ***                 ^--------------------
-  *** alginit: incorrect type in alinit1 (t_POL).
+  *** alginit: incorrect type in alginit (t_POL).
   ***   at top-level: alginit(nfinit(y),[1
   ***                 ^--------------------
-  *** alginit: incorrect type in alinit1 (t_VEC).
+  *** alginit: incorrect type in alginit (t_VEC).
   ***   at top-level: algtableinit(mt,y)
   ***                 ^------------------
   *** algtableinit: incorrect type in algtableinit (t_POL).
@@ -2877,10 +2877,10 @@ x - 12
   *** nfgrunwaldwang: incorrect type in nfgrunwaldwang (t_INT).
   ***   at top-level: alginit(rnfinit(nfin
   ***                 ^--------------------
-  *** alginit: incorrect type in alinit2 (t_INT).
+  *** alginit: incorrect type in alginit (t_INT).
   ***   at top-level: alginit(rnfinit(nfin
   ***                 ^--------------------
-  *** alginit: incorrect type in alinit2 (t_VEC).
+  *** alginit: incorrect type in alginit (t_VEC).
   ***   at top-level: alginit(nfinit(y),[m
   ***                 ^--------------------
   *** alginit: incorrect type in alg_csa_table (t_VEC).
@@ -3257,4 +3257,4 @@ testing simplify: quatalg csa over Q
 1
 1
 1
-Total time spent: 7104
+Total time spent: 7332

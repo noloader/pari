@@ -3655,13 +3655,13 @@ alginit(GEN A, GEN B, long v, long flag)
             case 3: return alg_hasse(A, itos(gel(B,1)),gel(B,2),gel(B,3),v,flag);
           }
       }
-      pari_err_TYPE("alinit1", B); break;
+      pari_err_TYPE("alginit", B); break;
 
     case typ_RNF:
-      if (typ(B) != t_VEC || lg(B) != 3) pari_err_TYPE("alinit2", B);
+      if (typ(B) != t_VEC || lg(B) != 3) pari_err_TYPE("alginit", B);
       return alg_cyclic(A,gel(B,1),gel(B,2),flag);
   }
-  pari_err_TYPE("alinit3", A);
+  pari_err_TYPE("alginit", A);
   return NULL;/*not reached*/
 }
 

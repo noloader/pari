@@ -2198,7 +2198,7 @@ matrix algebra.
 by \tet{alginit}.
 
 \fun{long}{alg_type}{GEN al} internal function called by \tet{algtype}: assume
-\kbd{al} was created by \tet{alinit} (thereby saving a call to \kbd{checkalg}).
+\kbd{al} was created by \tet{alginit} (thereby saving a call to \kbd{checkalg}).
 Return values are symbolic rather than numeric:
 
 \item \kbd{al\_NULL}: not a valid algebra.
@@ -2227,7 +2227,7 @@ as both basis or algebraic form (since $e_1 = 1$).
 
 \subsec{Shallow accessors}
 
-All these routines assume their argument was initialized by \tet{alinit}
+All these routines assume their argument was initialized by \tet{alginit}
 and provide minor speedups compared to the GP equivalent. The routines
 returning a \kbd{GEN} are shallow.
 
