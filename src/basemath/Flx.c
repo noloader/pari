@@ -2850,8 +2850,10 @@ Flxq_charpoly(GEN x, GEN TB, ulong p)
 {
   pari_sp ltop=avma;
   GEN T = get_Flx_mod(TB);
-  GEN xm1 = deg1pol_shallow(pol1_Flx(x[1]),Flx_neg(x,p),evalvarn(fetch_var()));
+  long vs = evalvarn(fetch_var());
+  GEN xm1 = deg1pol_shallow(pol1_Flx(x[1]),Flx_neg(x,p),vs);
   GEN r = Flx_FlxY_resultant(T, xm1, p);
+  r[1] = x[1];
   (void)delete_var(); return gerepileupto(ltop, r);
 }
 
