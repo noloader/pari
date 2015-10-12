@@ -2855,21 +2855,106 @@ Flxq_charpoly(GEN x, GEN TB, ulong p)
   (void)delete_var(); return gerepileupto(ltop, r);
 }
 
+/* Computing minimal polynomial :                         */
+/* cf Shoup 'Efficient Computation of Minimal Polynomials */
+/*          in Algebraic Extensions of Finite Fields'     */
+
+static GEN
+Flxn_mul(GEN a, GEN b, long n, ulong p)
+{
+  GEN c = Flx_mul(a, b, p);
+  return vecsmall_shorten(c, minss(lg(c)-1,n+1));
+}
+
+/* Let v a linear form, return the linear form z->v(tau*z)
+   that is, v*(M_tau) */
+
+static GEN
+Flxq_transmul_init(GEN tau, GEN T, ulong p)
+{
+  GEN bht;
+  GEN h, Tp = get_Flx_red(T, &h);
+  long n = degpol(Tp), vT = Tp[1];
+  GEN ft = Flx_recipspec(Tp+2, n+1, n+1);
+  GEN bt = Flx_recipspec(tau+2, lgpol(tau), n);
+  ft[1] = vT; bt[1] = vT;
+  if (h)
+    bht = Flxn_mul(bt, h, n-1, p);
+  else
+  {
+    GEN bh = Flx_div(Flx_shift(tau, n-1), T, p);
+    bht = Flx_recipspec(bh+2, lgpol(bh), n-1);
+    bht[1] = vT;
+  }
+  return mkvec3(bt, bht, ft);
+}
+
+static GEN
+Flxq_transmul(GEN tau, GEN a, long n, ulong p)
+{
+  pari_sp ltop = avma;
+  GEN t1, t2, t3, vec;
+  GEN bt = gel(tau, 1), bht = gel(tau, 2), ft = gel(tau, 3);
+  if (lgpol(a)==0) return pol0_Flx(a[1]);
+  t2  = Flx_shift(Flx_mul(bt, a, p),1-n);
+  if (lgpol(bht)==0) return gerepileuptoleaf(ltop, t2);
+  t1  = Flx_shift(Flx_mul(ft, a, p),-n);
+  t3  = Flxn_mul(t1, bht, n-1, p);
+  vec = Flx_sub(t2, Flx_shift(t3, 1), p);
+  return gerepileuptoleaf(ltop, vec);
+}
+
+/* a X^d */
+GEN
+monomial_Flx(ulong a, long d, long vs)
+{
+  GEN P;
+  if (a==0) return pol0_Flx(vs);
+  P = const_vecsmall(d+2, 0);
+  P[1] = vs; P[d+2] = a;
+  return P;
+}
+
 GEN
 Flxq_minpoly(GEN x, GEN T, ulong p)
 {
-  pari_sp ltop=avma;
-  GEN G, R=Flxq_charpoly(x, T, p);
-  GEN dR=Flx_deriv(R,p);
-  while (!lgpol(dR))
+  pari_sp ltop = avma;
+  long vT = get_Flx_var(T), n = get_Flx_degree(T);
+  GEN v_x;
+  GEN g = pol1_Flx(vT), tau = pol1_Flx(vT);
+  T = Flx_get_red(T, p);
+  v_x = Flxq_powers(x, usqrt(2*n), T, p);
+  while (lgpol(tau) != 0)
   {
-    R  = Flx_deflate(R,p);
-    dR = Flx_deriv(R,p);
+    long i, j, m, k1;
+    GEN M, v, tr;
+    GEN g_prime, c;
+    if (degpol(g) == n) { tau = pol1_Flx(vT); g = pol1_Flx(vT); }
+    v = random_Flx(n, vT, p);
+    tr = Flxq_transmul_init(tau, T, p);
+    v = Flxq_transmul(tr, v, n, p);
+    m = 2*(n-degpol(g));
+    k1 = usqrt(m);
+    tr = Flxq_transmul_init(gel(v_x,k1+1), T, p);
+    c = cgetg(m+2,t_VECSMALL);
+    c[1] = T[1];
+    for (i=0; i<m; i+=k1)
+    {
+      long mj = minss(m-i, k1);
+      for (j=0; j<mj; j++)
+        uel(c,m+1-(i+j)) = Flx_dotproduct(v, gel(v_x,j+1), p);
+      v = Flxq_transmul(tr, v, n, p);
+    }
+    c = Flx_renormalize(c, m+2);
+    /* now c contains <v,x^i> , i = 0..m-1  */
+    M = Flx_halfgcd(monomial_Flx(1, m, vT), c, p);
+    g_prime = gmael(M, 2, 2);
+    if (degpol(g_prime) < 1) continue;
+    g = Flx_mul(g, g_prime, p);
+    tau = Flxq_mul(tau, Flx_FlxqV_eval(g_prime, v_x, T, p), T, p);
   }
-  G=Flx_gcd(R,dR,p);
-  G=Flx_normalize(G,p);
-  G=Flx_div(R,G,p);
-  return gerepileupto(ltop,G);
+  g = Flx_normalize(g,p);
+  return gerepileuptoleaf(ltop,g);
 }
 
 GEN

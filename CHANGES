@@ -346,7 +346,8 @@ BA125- [libpari] Flx_nbfact_Frobenius, FpX_nbfact_Frobenius
   128- [libpari] RgV_kill0
 BA129- factorcantor: use Shoup-Kaltofen algorithm (much faster)
 BA130- [libpari] FpX_dotproduct, Flx_dotproduct
-JK131- FpXQ_minpoly: use Shoup algorithm (much faster)
+JK131- FpXQ_minpoly/Flxq_minpoly: use Shoup algorithm (much faster), and do
+       not assume modulus is irreducible
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]
