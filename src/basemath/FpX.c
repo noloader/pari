@@ -807,6 +807,18 @@ random_FpX(long d1, long v, GEN p)
   return FpX_renormalize(y,d);
 }
 
+GEN
+FpX_dotproduct(GEN x, GEN y, GEN p)
+{
+  long i, l = minss(lg(x), lg(y));
+  pari_sp av;
+  GEN c;
+  if (l == 2) return gen_0;
+  av = avma; c = mulii(gel(x,2),gel(y,2));
+  for (i=3; i<l; i++) c = addii(c, mulii(gel(x,i),gel(y,i)));
+  return gerepileuptoint(av, modii(c,p));
+}
+
 /* Evaluation in Fp
  * x a ZX and y an Fp, return x(y) mod p
  *
