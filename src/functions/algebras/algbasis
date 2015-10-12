@@ -1,7 +1,7 @@
 Function: algbasis
 Section: algebras
 C-Name: algbasis
-Prototype: G
+Prototype: mG
 Help: algbasis(al): basis of the stored order of the central simple algebra al.
 Doc: Given an central simple algebra \var{al} output by \tet{alginit}, returns
  a $\Z$-basis of the order~${\cal O}_0$ stored in \var{al} with respect to the

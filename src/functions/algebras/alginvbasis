@@ -1,7 +1,7 @@
 Function: alginvbasis
 Section: algebras
 C-Name: alginvbasis
-Prototype: G
+Prototype: mG
 Help: alginvbasis(al): basis of the natural order of the central simple algebra
  al in terms of the stored order.
 Doc: Given an central simple algebra \var{al} output by \tet{alginit}, returns

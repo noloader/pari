@@ -1,7 +1,7 @@
 Function: alghassei
 Section: algebras
 C-Name: alghassei
-Prototype: G
+Prototype: mG
 Help: alghassei(al): the hasse invariant of the central simple algebra al
  at infinite places.
 Doc: Given a central simple algebra \var{al} output by \tet{alginit}, returns

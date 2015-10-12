@@ -1,7 +1,7 @@
 Function: algaut
 Section: algebras
 C-Name: algaut
-Prototype: G
+Prototype: mG
 Help: algaut(al): the stored automorphism of the splitting field of the
  cyclic algebra al.
 Doc: Given a cyclic algebra $\var{al} = (L/K,\sigma,b)$ output by

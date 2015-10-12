@@ -1,7 +1,7 @@
 Function: alghassef
 Section: algebras
 C-Name: alghassef
-Prototype: G
+Prototype: mG
 Help: alghassef(al): the hasse invariant of the central simple algebra al at finite places.
 Doc: Given a central simple algebra \var{al} output by \tet{alginit}, returns
  a \typ{VEC} $[\kbd{PR}, h_f]$ describing the local Hasse invariants at the

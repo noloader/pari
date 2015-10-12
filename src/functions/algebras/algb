@@ -1,7 +1,7 @@
 Function: algb
 Section: algebras
 C-Name: algb
-Prototype: G
+Prototype: mG
 Help: algb(al): the element b of the center of the cyclic algebra al used
  to define it.
 Doc: Given a cyclic algebra $\var{al} = (L/K,\sigma,b)$ output by

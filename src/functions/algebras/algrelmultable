@@ -1,7 +1,7 @@
 Function: algrelmultable
 Section: algebras
 C-Name: algrelmultable
-Prototype: G
+Prototype: mG
 Help: algrelmultable(al): multiplication table of the central simple
  algebra al over its center.
 Doc: Given a central simple algebra \var{al} output by \tet{alginit} defined by a multiplication table over its center (a number field), returns this multiplication table.

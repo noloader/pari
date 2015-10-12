@@ -1,7 +1,7 @@
 Function: algsplittingdata
 Section: algebras
 C-Name: algsplittingdata
-Prototype: G
+Prototype: mG
 Help: algsplittingdata(al): data stored in the central simple algebra al to
  compute a splitting of al over an extension.
 Doc: Given a central simple algebra \var{al} output by \tet{alginit} defined

@@ -1,7 +1,7 @@
 Function: algsplittingfield
 Section: algebras
 C-Name: algsplittingfield
-Prototype: G
+Prototype: mG
 Help: algsplittingfield(al): the stored splitting field of the central simple
  algebra al.
 Doc: Given a central simple algebra \var{al} output by \tet{alginit}, returns
