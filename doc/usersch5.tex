@@ -5039,6 +5039,9 @@ assuming $pi$ is the pseudo inverse of $p$.
 \fun{ulong}{Flx_Flv_multieval}{GEN P, GEN v, ulong y, ulong p} returns the vector
 $[P(v[1]),\ldots,P(v[n])]$ as a \kbd{Flv}.
 
+\fun{ulong}{Flx_dotproduct}{GEN x, GEN y, ulong p} returns the scalar product
+of the coefficients of $x$ and $y$.
+
 \fun{GEN}{Flx_deflate}{GEN P, long d} assuming $P$ is a polynomial of the
 form $Q(X^d)$, return $Q$.
 

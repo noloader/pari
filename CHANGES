@@ -345,7 +345,7 @@ BA125- [libpari] Flx_nbfact_Frobenius, FpX_nbfact_Frobenius
   127- [libpari] qfb_equal1, qfi_order, qfi_log, qfi_Shanks
   128- [libpari] RgV_kill0
 BA129- factorcantor: use Shoup-Kaltofen algorithm (much faster)
-BA130- [libpari] FpX_dotproduct
+BA130- [libpari] FpX_dotproduct, Flx_dotproduct
 JK131- FpXQ_minpoly: use Shoup algorithm (much faster)
 
   Changed

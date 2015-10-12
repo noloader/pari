@@ -682,6 +682,7 @@ void    Flv_neg_inplace(GEN v, ulong p);
 GEN     Flv_sub(GEN x, GEN y, ulong p);
 void    Flv_sub_inplace(GEN x, GEN y, ulong p);
 ulong   Flv_sum(GEN x, ulong p);
+ulong   Flx_dotproduct(GEN x, GEN y, ulong p);
 GEN     Fp_to_mod(GEN z, GEN p);
 GEN     FpC_FpV_mul(GEN x, GEN y, GEN p);
 GEN     FpC_Fp_mul(GEN x, GEN y, GEN p);

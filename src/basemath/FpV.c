@@ -646,11 +646,11 @@ FpV_dotsquare(GEN x, GEN p)
 }
 
 INLINE ulong
-Flv_dotproduct_SMALL(GEN x, GEN y, ulong p, long lx)
+Flv_dotproductspec_SMALL(GEN x, GEN y, ulong p, long lx)
 {
-  ulong c = uel(x,1) * uel(y,1);
+  ulong c = uel(x,0) * uel(y,0);
   long k;
-  for (k = 2; k < lx; k++) {
+  for (k = 1; k < lx; k++) {
     c += uel(x,k) * uel(y,k);
     if (c & HIGHBIT) c %= p;
   }
@@ -658,10 +658,10 @@ Flv_dotproduct_SMALL(GEN x, GEN y, ulong p, long lx)
 }
 
 INLINE ulong
-Flv_dotproduct_i(GEN x, GEN y, ulong p, ulong pi, long lx)
+Flv_dotproductspec_i(GEN x, GEN y, ulong p, ulong pi, long lx)
 {
   ulong l0, l1, v1, h0, h1;
-  long i = 1;
+  long i = 0;
   LOCAL_OVERFLOW;
   LOCAL_HIREMAINDER;
   l1 = mulll(uel(x,i), uel(y,i)); h1 = hiremainder; v1 = 0;
@@ -676,23 +676,34 @@ Flv_dotproduct_i(GEN x, GEN y, ulong p, ulong pi, long lx)
 ulong
 Flv_dotproduct(GEN x, GEN y, ulong p)
 {
-  long lx = lg(x);
+  long lx = lg(x)-1;
   if (lx == 1) return 0;
   if (SMALL_ULONG(p))
-    return Flv_dotproduct_SMALL(x, y, p, lx);
+    return Flv_dotproductspec_SMALL(x+1, y+1, p, lx);
   else
-    return Flv_dotproduct_i(x, y, p, get_Fl_red(p), lx);
+    return Flv_dotproductspec_i(x+1, y+1, p, get_Fl_red(p), lx);
 }
 
 ulong
 Flv_dotproduct_pre(GEN x, GEN y, ulong p, ulong pi)
 {
-  long lx = lg(x);
+  long lx = lg(x)-1;
   if (lx == 1) return 0;
   if (SMALL_ULONG(p))
-    return Flv_dotproduct_SMALL(x, y, p, lx);
+    return Flv_dotproductspec_SMALL(x+1, y+1, p, lx);
   else
-    return Flv_dotproduct_i(x, y, p, pi, lx);
+    return Flv_dotproductspec_i(x+1, y+1, p, pi, lx);
+}
+
+ulong
+Flx_dotproduct(GEN x, GEN y, ulong p)
+{
+  long lx = minss(lgpol(x), lgpol(y));
+  if (lx == 0) return 0;
+  if (SMALL_ULONG(p))
+    return Flv_dotproductspec_SMALL(x+2, y+2, p, lx);
+  else
+    return Flv_dotproductspec_i(x+2, y+2, p, get_Fl_red(p), lx);
 }
 
 ulong
