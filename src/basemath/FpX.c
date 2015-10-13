@@ -1955,9 +1955,18 @@ GEN
 FpXQ_minpoly(GEN x, GEN T, GEN p)
 {
   pari_sp ltop = avma;
-  long vT = get_FpX_var(T), n = get_FpX_degree(T);
-  GEN v_x;
-  GEN g = pol_1(vT), tau = pol_1(vT);
+  long vT, n;
+  GEN v_x, g, tau;
+  if (lgefint(p)==3)
+  {
+    ulong pp = to_Flxq(&x, &T, p);
+    GEN g = Flxq_minpoly(x, T, pp);
+    return gerepileupto(ltop, Flx_to_ZX(g));
+  }
+  vT = get_FpX_var(T);
+  n = get_FpX_degree(T);
+  g = pol_1(vT);
+  tau = pol_1(vT);
   T = FpX_get_red(T, p);
   x = FpXQ_red(x, T, p);
   v_x = FpXQ_powers(x, usqrt(2*n), T, p);
