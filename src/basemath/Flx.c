@@ -200,6 +200,17 @@ Fl_to_Flx(ulong x, long sv)
   return x? mkvecsmall2(sv, x): pol0_Flx(sv);
 }
 
+/* a X^d */
+GEN
+monomial_Flx(ulong a, long d, long vs)
+{
+  GEN P;
+  if (a==0) return pol0_Flx(vs);
+  P = const_vecsmall(d+2, 0);
+  P[1] = vs; P[d+2] = a;
+  return P;
+}
+
 GEN
 Z_to_Flx(GEN x, ulong p, long v)
 {
@@ -2904,17 +2915,6 @@ Flxq_transmul(GEN tau, GEN a, long n, ulong p)
   t3  = Flxn_mul(t1, bht, n-1, p);
   vec = Flx_sub(t2, Flx_shift(t3, 1), p);
   return gerepileuptoleaf(ltop, vec);
-}
-
-/* a X^d */
-GEN
-monomial_Flx(ulong a, long d, long vs)
-{
-  GEN P;
-  if (a==0) return pol0_Flx(vs);
-  P = const_vecsmall(d+2, 0);
-  P[1] = vs; P[d+2] = a;
-  return P;
 }
 
 GEN

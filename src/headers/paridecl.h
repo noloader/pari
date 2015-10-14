@@ -204,7 +204,6 @@ GEN     random_Flj_pre(ulong a4, ulong a6, ulong p, ulong pi);
 
 /* Flx.c */
 
-const struct bb_group * get_Flxq_star(void **E, GEN T, ulong p);
 GEN     Fl_to_Flx(ulong x, long sv);
 int     Fl2_equal1(GEN x);
 GEN     Fl2_inv_pre(GEN x, ulong D, ulong p, ulong pi);
@@ -380,6 +379,8 @@ long    get_Flx_degree(GEN T);
 GEN     get_Flx_mod(GEN T);
 long    get_Flx_var(GEN T);
 const struct bb_field *get_Flxq_field(void **E, GEN T, ulong p);
+const struct bb_group *get_Flxq_star(void **E, GEN T, ulong p);
+GEN     monomial_Flx(ulong a, long d, long vs);
 GEN     pol1_FlxX(long v, long sv);
 GEN     polx_FlxX(long v, long sv);
 GEN     random_Flx(long d1, long v, ulong p);
