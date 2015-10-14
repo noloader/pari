@@ -2556,34 +2556,24 @@ texexpo(outString *S, long e)
 }
 static void
 wrexpo(outString *S, long e)
-{
-  if (e != 1) { str_putc(S, '^'); str_long(S, e); }
-}
+{ if (e != 1) { str_putc(S, '^'); str_long(S, e); } }
 
 /* v^e */
 static void
 VpowE(outString *S, const char *v, long e) { str_puts(S, v); wrexpo(S,e); }
 static void
-texVpowE(outString *S, const char *v, long e) {
-  str_puts(S, v); texexpo(S,e);
-}
+texVpowE(outString *S, const char *v, long e) { str_puts(S, v); texexpo(S,e); }
 static void
 monome(outString *S, const char *v, long e)
-{
-  if (e) VpowE(S, v, e); else str_putc(S, '1');
-}
+{ if (e) VpowE(S, v, e); else str_putc(S, '1'); }
 static void
 texnome(outString *S, const char *v, long e)
-{
-  if (e) texVpowE(S, v, e); else str_putc(S, '1');
-}
+{ if (e) texVpowE(S, v, e); else str_putc(S, '1'); }
 
 /* ( a ) */
 static void
 paren(pariout_t *T, outString *S, GEN a)
-{
-  str_putc(S, '('); bruti(a,T,S); str_putc(S, ')');
-}
+{ str_putc(S, '('); bruti(a,T,S); str_putc(S, ')'); }
 static void
 texparen(pariout_t *T, outString *S, GEN a)
 {
@@ -2601,14 +2591,10 @@ texparen(pariout_t *T, outString *S, GEN a)
 /* * v^d */
 static void
 times_texnome(outString *S, const char *v, long d)
-{
-  if (d) { str_puts(S, "\\*"); texnome(S,v,d); }
-}
+{ if (d) { str_puts(S, "\\*"); texnome(S,v,d); } }
 static void
 times_monome(outString *S, const char *v, long d)
-{
-  if (d) { str_putc(S, '*'); monome(S,v,d); }
-}
+{ if (d) { str_putc(S, '*'); monome(S,v,d); } }
 
 /* write a * v^d */
 static void
