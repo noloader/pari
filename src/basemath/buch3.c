@@ -1409,7 +1409,7 @@ rnfnormgroup_i(GEN bnr, GEN polrel)
   u_forprime_init(&S, 2, ULONG_MAX);
   while ( (p = u_forprime_next(&S)) )
   {
-    long oldf = -1, lfa;
+    long oldf, nfa;
     /* If all pr are unramified and have the same residue degree, p =prod pr
      * and including last pr^f or p^f is the same, but the last isprincipal
      * is much easier! oldf is used to track this */
@@ -1417,8 +1417,12 @@ rnfnormgroup_i(GEN bnr, GEN polrel)
     if (!umodiu(index, p)) continue; /* can't be treated efficiently */
 
     /* primes of degree 1 are enough, and simpler */
-    fa = idealprimedec_limit_f(nf, utoipos(p), 1); lfa = lg(fa)-1;
-    for (i=1; i<=lfa; i++)
+    fa = idealprimedec_limit_f(nf, utoipos(p), 1);
+    nfa = lg(fa)-1;
+    if (!nfa) continue;
+    /* all primes above p included ? */
+    oldf = (nfa == reldeg)? -1: 0;
+    for (i=1; i<=nfa; i++)
     {
       GEN pr = gel(fa,i), pp, T, polr, modpr;
       long f;
@@ -1438,7 +1442,7 @@ rnfnormgroup_i(GEN bnr, GEN polrel)
       if (oldf < 0) oldf = f; else if (oldf != f) oldf = 0;
       if (f == reldeg) continue; /* reldeg-th powers already included */
 
-      if (oldf && i == lfa && !umodiu(discnf, p)) pr = utoipos(p);
+      if (oldf && reldeg == nfa*f && !umodiu(discnf, p)) pr = utoipos(p);
 
       /* pr^f = N P, P | pr, hence is in norm group */
       col = bnrisprincipal(bnr,pr,0);
