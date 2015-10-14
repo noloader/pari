@@ -277,7 +277,8 @@ static GEN
 vecan_Kronecker(GEN D, long n)
 {
   GEN v = cgetg(n+1, t_VEC);
-  long i, d = minss(itou_or_0(D), n);
+  ulong Du = itou_or_0(D);
+  long i, d = Du ? minuu(Du, n): n;
   for (i = 1; i <= d; i++) gel(v, i) = stoi(krois(D,i));
   for (; i <= n; ++i) gel(v, i) = gel(v, (i-1)%d + 1);
   return v;
