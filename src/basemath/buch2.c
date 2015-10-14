@@ -3014,11 +3014,13 @@ compute_R(GEN lambda, GEN z, GEN *ptL, GEN *ptkR, pari_timer *T)
     return fupb_PRECI;
   }
   L = Q_muli_to_int(lambda, den);
-  H = ZM_hnf(L); r = lg(H)-1;
-
-  /* tentative regulator */
-  R = gmul(*ptkR, gdiv(ZM_det_triangular(H), powiu(den, r)));
-  /* R > 0.2 uniformly */
+  H = ZM_hnf(L);
+  r = lg(H)-1;
+  if (r && r != nbrows(H))
+    R = gen_0; /* wrong rank */
+  else
+    R = gmul(*ptkR, gdiv(ZM_det_triangular(H), powiu(den, r)));
+  /* R = tentative regulator; regulator > 0.2 uniformly */
   if (gexpo(R) < -3) {
     if (DEBUGLEVEL)
     {

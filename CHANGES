@@ -169,6 +169,7 @@ XR122- P=[1,-2,12,-12,-181,-4,-6899,9780,6360,702,-45]; setrand(3); nfdisc(P)
   123- select(x->x,Vecsmall([1,2,3]),1) -> crash [#1737]
   124- (1./x+O(1))-(1./x+O(1)) -> 0.E-38*x^-2+O(x^-1) [#1741]
 BA125- [libpari] RgV_to_RgX_reverse did not work if v[1] or v[2] was 0
+  126- bnfinit(x^3-87156*x^2-6728799*x-456533) [#1736]
 
   Added
     1- add optional argument to sumdigits to specify the base
