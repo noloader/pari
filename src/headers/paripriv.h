@@ -92,6 +92,7 @@ GEN  asympnum0(GEN u, long muli, GEN alpha, long prec);
 GEN  derivnum0(GEN a, GEN code, long prec);
 GEN  derivfun0(GEN code, GEN args, long prec);
 GEN  direuler0(GEN a, GEN b, GEN code, GEN c);
+GEN  direuler_bad(void *E, GEN (*eval)(void *, GEN), GEN a, GEN b, GEN c, GEN Sbad);
 void forcomposite(GEN a, GEN b, GEN code);
 void fordiv(GEN a, GEN code);
 void forell0(long a, long b, GEN code);

@@ -111,7 +111,7 @@ direulertou(GEN a, GEN fl(GEN))
   return signe(a)<=0 ? 0: itou(a);
 }
 
-static GEN
+GEN
 direuler_bad(void *E, GEN (*eval)(void *, GEN), GEN a, GEN b, GEN c, GEN Sbad)
 {
   ulong n;
