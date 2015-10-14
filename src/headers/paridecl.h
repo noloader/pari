@@ -1684,6 +1684,7 @@ GEN     get_nf(GEN x, long *t);
 GEN     get_nfpol(GEN x, GEN *nf);
 GEN     get_prid(GEN x);
 GEN     idealfrobenius(GEN nf, GEN gal, GEN pr);
+GEN     idealramfrobenius(GEN nf, GEN gal, GEN pr, GEN ram);
 GEN     idealramgroups(GEN nf, GEN gal, GEN pr);
 GEN     nf_get_allroots(GEN nf);
 long    nf_get_prec(GEN x);

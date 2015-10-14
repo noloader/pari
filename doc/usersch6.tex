@@ -838,6 +838,15 @@ limiting the list to primes of residual degree $\leq f$ if $f$ is non-zero.
 \tet{idealprimedec}, limiting the list to primes of norm $\leq B$, which
 must be a positive \typ{INT}.
 
+\subsec{Decomposition group}
+
+\fun{GEN}{idealramfrobenius}{GEN nf, GEN gal, GEN pr, GEN ram}
+\kbd{nf} being a number field Galois over $\Q$, \kbd{gal} its Galois group
+as output by \kbd{galoisinit}, \kbd{pr} a ramified maximal ideal, \kbd{ram}
+its list of ramification groups as output by \kbd{idealramgroups},
+return an automorphism $\sigma$ in the decomposition group of \kbd{pr}
+such that $\sigma(x) = x^q \pmod{pr}$ where $q$ is the norm of \kbd{pr}.
+
 \subsec{Reducing modulo maximal ideals}
 
 \fun{GEN}{nfmodprinit}{GEN nf, GEN pr} returns an abstract \kbd{modpr}
