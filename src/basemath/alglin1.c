@@ -1548,17 +1548,13 @@ RgM_solve(GEN a, GEN b)
 
   if (lg(a)-1 == 2 && nbrows(a) == 2) {
     /* 2x2 matrix, start by inverting a */
-    GEN detinv = ginv(det (a));
-    GEN ainv = cgetg(3, t_MAT);
-    for (j = 1; j <= 2; j++)
-      gel (ainv, j) = cgetg (3, t_COL);
-    gcoeff(ainv, 1, 1) = gcoeff(a, 2, 2);
-    gcoeff(ainv, 2, 2) = gcoeff(a, 1, 1);
-    gcoeff(ainv, 1, 2) = gneg(gcoeff (a, 1, 2));
-    gcoeff(ainv, 2, 1) = gneg(gcoeff (a, 2, 1));
-    ainv = gmul(ainv, detinv);
-    if (b != NULL)
-      ainv = gmul(ainv, b);
+    GEN u = gcoeff(a,1,1), v = gcoeff(a,1,2);
+    GEN w = gcoeff(a,2,1), x = gcoeff(a,2,2);
+    GEN D = gsub(gmul(u,x), gmul(v,w)), ainv;
+    if (gcmp0(D)) return NULL;
+    ainv = mkmat2(mkcol2(x, gneg(w)), mkcol2(gneg(v), u));
+    ainv = gmul(ainv, ginv(D));
+    if (b) ainv = gmul(ainv, b);
     return gerepileupto(av, ainv);
   }
 
