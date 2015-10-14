@@ -3260,10 +3260,9 @@ GEN     dirzetak(GEN nf, GEN b);
 GEN     ellmoddegree(GEN e, long prec);
 GEN     lfunabelianrelinit(GEN bnfabs, GEN bnf, GEN polrel, GEN dom, long der, long prec);
 GEN     lfunabelianrelinit_bitprec(GEN bnfabs, GEN bnf, GEN polrel, GEN dom, long der, long bitprec);
+GEN     lfunartin(GEN N, GEN G, GEN M, GEN o);
 GEN     lfunconvol(GEN a1, GEN a2);
 GEN     lfundiv(GEN ldata1, GEN ldata2, long prec);
-GEN     lfunzetakinit(GEN pol, GEN dom, long der, long flag, long prec);
-GEN     lfunzetakinit_bitprec(GEN pol, GEN dom, long der, long flag, long bitprec);
 GEN     lfunetaquo(GEN ldata);
 GEN     lfunmfspec(GEN ldata, long prec);
 GEN     lfunmfpeters(GEN ldata, long prec);
@@ -3272,6 +3271,8 @@ GEN     lfunmul(GEN ldata1, GEN ldata2, long prec);
 GEN     lfunqf(GEN ldata);
 GEN     lfunsymsq(GEN ldata, GEN known, long prec);
 GEN     lfunsymsqspec(GEN ldata, long prec);
+GEN     lfunzetakinit(GEN pol, GEN dom, long der, long flag, long prec);
+GEN     lfunzetakinit_bitprec(GEN pol, GEN dom, long der, long flag, long bitprec);
 
 /* lll.c */
 

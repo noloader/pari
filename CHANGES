@@ -338,7 +338,7 @@ HC121- GP function solvestep
    lfunabelianrelinit  lfunetaquo          lfunmul             lfuntheta
    lfunan              lfunhardy           lfunorderzero       lfunthetainit
    lfuncheckfeq        lfuninit            lfunqf              lfunzeros
-   lfunconductor       lfunlambda          lfunrootres
+   lfunconductor       lfunlambda          lfunrootres         lfunartin
    lfuncreate          lfunmfpeters        lfunsymsq
   123- [libpari] nfchecksigns, idealchineseinit
 JD124- [libpari] gp_read_str_multiline
