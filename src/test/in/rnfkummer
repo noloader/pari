@@ -6,7 +6,8 @@ do(nf,f, H = 0, flag = 0)=
 
 do(y^4+12*y^3+15*y^2+15*y-15,1)
 do(y^4-13*y^3+2*y^2+2*y-15,1)
-do(y^4-y^3-2404*y^2+2404*y+1154401, 5, matdiagonal([5,1]))
+P=do(y^4-y^3-2404*y^2+2404*y+1154401, 5, matdiagonal([5,1]));
+if(polcoeff(polcoeff(P, 0), 0)<0,-subst(P,x,-x),P)
 do(quadpoly(-8,y), 11, [5,2;0,1])
 \\ behaviour depend on kernel (bnfinit(Kz) too complicated
 \\do(quadpoly(181433,y),1)

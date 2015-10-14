@@ -1654,7 +1654,7 @@ Flx_ddf(GEN T, GEN XP, ulong p)
 }
 
 static void
-Flx_edf(GEN Tp, GEN XP, long d, ulong p, GEN V, long idx)
+Flx_edf_simple(GEN Tp, GEN XP, long d, ulong p, GEN V, long idx)
 {
   long n = degpol(Tp), r = n/d;
   GEN T, f, ff;
@@ -1683,8 +1683,74 @@ Flx_edf(GEN Tp, GEN XP, long d, ulong p, GEN V, long idx)
   }
   f = Flx_normalize(f, p);
   ff = Flx_div(Tp, f ,p);
-  Flx_edf(f, XP, d, p, V, idx);
-  Flx_edf(ff, XP, d, p, V, idx+degpol(f)/d);
+  Flx_edf_simple(f, XP, d, p, V, idx);
+  Flx_edf_simple(ff, XP, d, p, V, idx+degpol(f)/d);
+}
+static void
+Flx_edf(GEN Tp, GEN XP, long d, ulong p, GEN V, long idx);
+
+static void
+Flx_edf_rec(GEN T, GEN XP, GEN hp, GEN t, long d, ulong p, GEN V, long idx)
+{
+  pari_sp av;
+  GEN Tp = get_Flx_mod(T);
+  long n = degpol(hp), vT = Tp[1];
+  GEN u1, u2, f1, f2;
+  ulong p2 = p>>1;
+  GEN R, h;
+  h = Flx_get_red(hp, p);
+  t = Flx_rem(t, T, p);
+  av = avma;
+  do
+  {
+    avma = av;
+    R = Flxq_powu(mkvecsmall3(vT, random_Fl(p), 1), p2, h, p);
+    u1 = Flx_gcd(Flx_Fl_add(R, p-1, p), hp, p);
+  } while (degpol(u1)==0 || degpol(u1)==n);
+  f1 = Flx_gcd(Flx_Flxq_eval(u1, t, T, p), Tp, p);
+  f1 = Flx_normalize(f1, p);
+  u2 = Flx_div(hp, u1, p);
+  f2 = Flx_div(Tp, f1, p);
+  if (degpol(u1)==1)
+  {
+    if (degpol(f1)==d)
+      gel(V, idx) = f1;
+    else
+      Flx_edf(f1, XP, d, p, V, idx);
+  }
+  else
+    Flx_edf_rec(Flx_get_red(f1, p), XP, u1, t, d, p, V, idx);
+  idx += degpol(f1)/d;
+  if (degpol(u2)==1)
+  {
+    if (degpol(f2)==d)
+      gel(V, idx) = f2;
+    else
+      Flx_edf(f2, XP, d, p, V, idx);
+  }
+  else
+    Flx_edf_rec(Flx_get_red(f2, p), XP, u2, t, d, p, V, idx);
+}
+
+static void
+Flx_edf(GEN Tp, GEN XP, long d, ulong p, GEN V, long idx)
+{
+  long n = degpol(Tp), r = n/d, vT = Tp[1];
+  GEN T, h, t;
+  pari_timer ti;
+  if (r==1) { gel(V, idx) = Tp; return; }
+  T = Flx_get_red(Tp, p);
+  XP = Flx_rem(XP, T, p);
+  if (DEBUGLEVEL>=7) timer_start(&ti);
+  do
+  {
+    GEN g = random_Flx(n, vT, p);
+    t = gel(Flxq_auttrace(mkvec2(XP, g), d, T, p), 2);
+    if (DEBUGLEVEL>=7) timer_printf(&ti,"Flx_edf: Flxq_auttrace");
+    h = Flxq_minpoly(t, T, p);
+    if (DEBUGLEVEL>=7) timer_printf(&ti,"Flx_edf: Flxq_minpoly");
+  } while (degpol(h) <= 1);
+  Flx_edf_rec(T, XP, h, t, d, p, V, idx);
 }
 
 static GEN
@@ -1692,6 +1758,7 @@ Flx_factor_Shoup(GEN T, ulong p)
 {
   long i, n, s = 0;
   GEN XP, D, V;
+  long e = expu(p);
   pari_timer ti;
   n = get_Flx_degree(T);
   T = Flx_get_red(T, p);
@@ -1706,13 +1773,16 @@ Flx_factor_Shoup(GEN T, ulong p)
   for (i = 1, s = 1; i <= n; i++)
   {
     GEN Di = gel(D,i);
-    long ni = degpol(Di);
+    long ni = degpol(Di), ri = ni/i;
     if (ni == 0) continue;
     Di = Flx_normalize(Di, p);
     if (ni == i) { gel(V, s++) = Di; continue; }
-    Flx_edf(Di, XP, i, p, V, s);
+    if (ri <= e*expu(e))
+      Flx_edf(Di, XP, i, p, V, s);
+    else
+      Flx_edf_simple(Di, XP, i, p, V, s);
     if (DEBUGLEVEL>=6) timer_printf(&ti,"Flx_edf(%ld)",i);
-    s += ni/i;
+    s += ri;
   }
   return V;
 }
