@@ -980,6 +980,7 @@ lfuninit_vecc(GEN theta, GEN h, struct lfunp *S)
     {
       if (!gel(an,n)) continue;
       s = gadd(s, gmul(gel(an,n), gmael(vK,m+1,n)));
+      if (gc_needed(av, 3)) s = gerepileupto(av, s);
     }
     gel(vecc,m+1) = gerepileupto(av, s);
   }
