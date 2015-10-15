@@ -1581,9 +1581,10 @@ GEN
 ldata_vecan(GEN van, long L, long prec)
 {
   GEN an = gel(van, 2);
+  long t = mael(van,1,1);
   if (DEBUGLEVEL >= 1)
-    err_printf("Lfun: computing %ld coeffs to prec %ld.\n", L, prec);
-  switch (mael(van,1,1))
+    err_printf("Lfun: computing %ld coeffs, prec %ld, type %ld\n", L, prec, t);
+  switch (t)
   {
     long n;
     case t_LFUN_GENERIC:
