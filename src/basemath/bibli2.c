@@ -688,7 +688,7 @@ dirval(GEN x)
 GEN
 dirmul(GEN x, GEN y)
 {
-  pari_sp av = avma;
+  pari_sp av = avma, av2;
   long nx, ny, nz, dx, dy, i, j, k;
   GEN z;
 
@@ -698,21 +698,32 @@ dirmul(GEN x, GEN y)
   dy = dirval(y); ny = lg(y)-1;
   if (ny-dy < nx-dx) { swap(x,y); lswap(nx,ny); lswap(dx,dy); }
   nz = minss(nx*dy,ny*dx);
+  y = RgV_kill0(y);
+  av2 = avma;
   z = zerovec(nz);
   for (j=dx; j<=nx; j++)
   {
     GEN c = gel(x,j);
     if (gequal0(c)) continue;
     if (gequal1(c))
-      for (k=dy,i=j*dy; i<=nz; i+=j,k++) gel(z,i) = gadd(gel(z,i),gel(y,k));
+    {
+      for (k=dy,i=j*dy; i<=nz; i+=j,k++)
+        if (gel(y,k)) gel(z,i) = gadd(gel(z,i),gel(y,k));
+    }
     else if (gequalm1(c))
-      for (k=dy,i=j*dy; i<=nz; i+=j,k++) gel(z,i) = gsub(gel(z,i),gel(y,k));
+    {
+      for (k=dy,i=j*dy; i<=nz; i+=j,k++)
+        if (gel(y,k)) gel(z,i) = gsub(gel(z,i),gel(y,k));
+    }
     else
-      for (k=dy,i=j*dy; i<=nz; i+=j,k++) gel(z,i) = gadd(gel(z,i),gmul(c,gel(y,k)));
-    if (gc_needed(av,2))
+    {
+      for (k=dy,i=j*dy; i<=nz; i+=j,k++)
+        if (gel(y,k)) gel(z,i) = gadd(gel(z,i),gmul(c,gel(y,k)));
+    }
+    if (gc_needed(av2,3))
     {
       if (DEBUGMEM>1) pari_warn(warnmem,"dirmul, %ld/%ld",j,nx);
-      z = gerepilecopy(av,z);
+      z = gerepilecopy(av2,z);
     }
   }
   return gerepilecopy(av,z);
