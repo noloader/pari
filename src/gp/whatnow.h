@@ -130,7 +130,7 @@ static const whatnow_t whatnowlist[]={
 {"bernreal",_SAME},
 {"bernvec",_SAME},
 {"bestappr",_SAME},
-{"bezout",_SAME},
+{"bezout","gcdext","(a,b)","(a,b)"},
 {"bezoutres",_SAME},
 {"bigomega",_SAME},
 {"bilhell","ellbil","(e,z1,z2)","(e,z1,z2)"},
@@ -615,7 +615,7 @@ static const whatnow_t whatnowlist[]={
 {"while",_SAME},
 {"zell","ellpointtoz","(e,P)","(e,P)"},
 {"zeta",_SAME},
-{"zetak",_REMOV},
+{"zetak","lfun","(nfz,s)","(L,s)"},
 {"zideallog","ideallog","(nf,x,bid)","(nf,x,bid)"},
 {"zidealstar","idealstar","(nf,I)","(nf,I)"},
 {"zidealstarinit","idealstar","(nf,id)","(nf,id,1)"},
@@ -662,5 +662,13 @@ static const whatnow_t whatnowlist[]={
 {"string","plotstring","(w,x)","(w,x)"},
 {"texprint","printtex","(x)","(x)"},
 {"type",_SAME},
+/* not in  1.39.15 */
+{"intfouriercos",_REMOV},
+{"intfouriersin",_REMOV},
+{"intfourierexp",_REMOV},
+{"intlaplaceinv",_REMOV},
+{"intmellininv",_REMOV},
+{"intmellininvshort",_REMOV},
+{"zetakinit","lfuninit","(T)","(T,sdom)"},
 {NULL,_SAME}
 };
