@@ -841,11 +841,19 @@ must be a positive \typ{INT}.
 \subsec{Decomposition group}
 
 \fun{GEN}{idealramfrobenius}{GEN nf, GEN gal, GEN pr, GEN ram}
-\kbd{nf} being a number field Galois over $\Q$, \kbd{gal} its Galois group
-as output by \kbd{galoisinit}, \kbd{pr} a ramified maximal ideal, \kbd{ram}
-its list of ramification groups as output by \kbd{idealramgroups},
-return an automorphism $\sigma$ in the decomposition group of \kbd{pr}
-such that $\sigma(x) = x^q \pmod{pr}$ where $q$ is the norm of \kbd{pr}.
+Let $K$ be the number field defined by $nf$ and assume $K/\Q$ be a
+Galois extension with Galois group given \kbd{gal=galoisinit(nf)},
+and that $pr$ is the prime ideal $\goth{P}$ in prid format, and that
+$\goth{P}$ is ramified, and \kbd{ram} is its list of ramification groups as
+output by \kbd{idealramgroups}.
+This function returns a permutation of \kbd{gal.group} which defines an
+automorphism $\sigma$ in the decomposition group of $\goth{P}$
+such that if $p$ is the unique prime number
+in $\goth{P}$, then $\sigma(x)\equiv x^p\mod\P$ for all $x\in\Z_K$.
+
+\fun{GEN}{idealfrobenius_aut}{GEN nf, GEN gal, GEN aut, GEN pr}
+faster version of \tet{idealfrobenius(nf, gal, pr} where
+\kbd{aut} must be equal to \kbd{nfgaloispermtobasis(nf, gal)}.
 
 \subsec{Reducing modulo maximal ideals}
 
@@ -1605,6 +1613,10 @@ documentation of \tet{galoisinit} for the meaning of the member functions.
 \fun{GEN}{gal_get_orders}{GEN gal} returns \kbd{gal.orders}.
 
 \subsec{Miscellaneous functions}
+
+\fun{GEN}{nfgaloispermtobasis}{GEN nf, GEN gal}
+return the images of the field generator by the automorphisms
+\kbd{gal.orders} expressed on the integral basis \kbd{nf.zk}.
 
 \fun{GEN}{nfgaloismatrix}{GEN nf, GEN s} returns the \kbd{ZM} associated to
 the automorphism $s$, seen as a linear operator expressend on the number

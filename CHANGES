@@ -351,6 +351,7 @@ BA129- factorcantor: use Shoup-Kaltofen algorithm (much faster)
 BA130- [libpari] FpX_dotproduct, Flx_dotproduct
 JK131- FpXQ_minpoly/Flxq_minpoly: use Shoup algorithm (much faster), and do
        not assume modulus is irreducible
+BA132- [libpari] idealramfrobenius, idealfrobenius_aut, nfgaloispermtobasis
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]
