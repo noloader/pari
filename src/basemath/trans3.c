@@ -1425,7 +1425,7 @@ veczetas(long a, long b, long N, long prec)
     d = addii(d,c);
     if (gc_needed(av,3))
     {
-      if(DEBUGMEM>1) pari_warn(warnmem,"zetaBorweinRecycled, k = %ld", k);
+      if(DEBUGMEM>1) pari_warn(warnmem,"zetaBorwein, k = %ld", k);
       gerepileall(av, 3, &c,&d,&z);
     }
   }
