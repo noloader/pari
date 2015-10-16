@@ -14,3 +14,7 @@ K=nfinit(polcyclo(24));
 G=galoisinit(K);
 P=idealprimedec(K,2)[1];
 idealramgroups(K,G,P)
+
+\\#1755
+P=x^8-12*x^6+36*x^4-36*x^2+9;N=nfinit(P);G=galoisinit(N);
+idealramgroups(N,G,idealprimedec(N,3)[1])

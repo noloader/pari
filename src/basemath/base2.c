@@ -2789,9 +2789,11 @@ Rg_to_ff(GEN nf, GEN x0, GEN modpr)
       }
       x = Q_remove_denom(x, &den);
       x = poltobasis(nf, x);
+      /* content(x) and den may not be coprime */
       break;
     case t_COL:
       x = Q_remove_denom(x, &den);
+      /* content(x) and den are coprime */
       if (lg(x) == lg(nf_get_zk(nf))) break;
     default: pari_err_TYPE("Rg_to_ff",x);
       return NULL;
@@ -2801,13 +2803,17 @@ Rg_to_ff(GEN nf, GEN x0, GEN modpr)
     long v = Z_pvalrem(den, p, &den);
     if (v)
     {
-      GEN tau = modpr_TAU(modpr);
-      long w;
-      if (!tau) pari_err_TYPE("zk_to_ff", x0);
-      x = nfmuli(nf,x, nfpow_u(nf, tau, v));
-      w = ZV_pvalrem(x, p, &x);
-      if (w < v) pari_err_INV("Rg_to_ff", mkintmod(gen_0,p));
-      if (w != v) return gen_0;
+      if (tx == t_POL) v -= ZV_pvalrem(x, p, &x);
+      /* now v = valuation(true denominator of x) */
+      if (v > 0)
+      {
+        GEN tau = modpr_TAU(modpr);
+        if (!tau) pari_err_TYPE("zk_to_ff", x0);
+        x = nfmuli(nf,x, nfpow_u(nf, tau, v));
+        v -= ZV_pvalrem(x, p, &x);
+      }
+      if (v > 0) pari_err_INV("Rg_to_ff", mkintmod(gen_0,p));
+      if (v) return gen_0;
     }
     if (!is_pm1(den)) x = ZC_Z_mul(x, Fp_inv(den, p));
     x = FpC_red(x, p);
