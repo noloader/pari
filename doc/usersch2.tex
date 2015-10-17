@@ -298,6 +298,23 @@ decimal digits of your integer. No decimal point!
 %3 = 1.000000000000000000000000000
 @eprog
 
+Integers can be input in hexadecimal notation by prefixing them with
+\kbd{0x}; hexadecimal digits ($a, \dots, f$) can be input either in lowercase
+or in uppercase:
+\bprog
+? 0xF
+%4 = 15
+? 0x1abcd
+%5 = 109517
+@eprog
+
+Integers can also be input in binary by prefixing them with
+\kbd{0b}:
+\bprog
+? 0b010101
+%6 = 21
+@eprog
+
 \subsec{Real numbers (\typ{REAL})}%
 \sidx{real number}\kbdsidx{t_REAL}
 
