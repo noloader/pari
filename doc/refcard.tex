@@ -277,13 +277,12 @@ To exit \kbd{gp}, type \kbd{quit}, \kbd{\\q}, or \kbd{<C-D>} at prompt.\hfill
 \li{one-line comment, rest of line ignored}{\\\\ \dots}
 
 \section{Metacommands \& Defaults}
-\li{set default $d$ to \var{val}} {default$(\{d\},\{\var{val}\},\{\fl\})$}
+\li{set default $d$ to \var{val}} {default$(\{d\},\{\var{val}\})$}
 \li{toggle timer on/off}{\#}
 \li{print time for last result}{\#\#}
 \li{print defaults}{\\d}
 \li{set debug level to $n$}{\\g $n$}
 \li{set memory debug level to $n$}{\\gm $n$}
-\li{set output mode (raw=0, default=1)}{\\o $n$}
 \li{set $n$ significant digits}{\\p $n$}
 \li{set $n$ terms in series}{\\ps $n$}
 \li{quit GP}{\\q}
@@ -297,7 +296,8 @@ To exit \kbd{gp}, type \kbd{quit}, \kbd{\\q}, or \kbd{<C-D>} at prompt.\hfill
 \li{examine object $o$}{dbg\_x$(o)$}
 
 \section{PARI Types \& Input Formats}
-\li{\typ{INT}/\typ{REAL}. Integers, Reals}{$\pm n$, $\pm n.ddd$}
+\li{\typ{INT}. Integers; hex, binary}{$\pm n$; $\pm $0x$n$, $\pm$0b$n$}
+\li{\typ{REAL}. Reals}{$\pm n.ddd$}
 \li{\typ{INTMOD}. Integers modulo $m$}{Mod$(n,m)$}
 \li{\typ{FRAC}. Rational Numbers}{$n/m$}
 \li{\typ{FFELT}. Elt in finite field $\F_q$}{ffgen(q)}
