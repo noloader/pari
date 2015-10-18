@@ -326,7 +326,7 @@ BA114- [libpari] Fl_eltwist, Fp_elltwist, FpXQ_elltwist, Flxq_elltwist,
                  F2xq_elltwist
 BA115- GP functions elltwist, ellminimaltwist
   116- [libpari] omegau, bigomegau
-VB117- GP support for 0xffff and 0b1111
+VB117- GP support for 0xffff and 0b1111 (input t_INT in binary or hex notation)
 BA118- GP functions ellisomat
 HC119- GP function ramanujantau
 PB120- Speed up {Flx,FpX,FpXQX}_divrem_basecase for modulus of the form
@@ -350,7 +350,6 @@ BA129- factorcantor: use Shoup-Kaltofen algorithm (much faster)
 BA130- [libpari] FpX_dotproduct, Flx_dotproduct
 JK131- FpXQ_minpoly/Flxq_minpoly: use Shoup algorithm (much faster), and do
        not assume modulus is irreducible
-BA132- allow to input integers in binary or hexadecimal notation: 0b0101, 0xF
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]
