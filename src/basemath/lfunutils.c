@@ -1582,8 +1582,10 @@ ldata_vecan(GEN van, long L, long prec)
 {
   GEN an = gel(van, 2);
   long t = mael(van,1,1);
+  pari_timer ti;
   if (DEBUGLEVEL >= 1)
     err_printf("Lfun: computing %ld coeffs, prec %ld, type %ld\n", L, prec, t);
+  if (DEBUGLEVEL >= 2) timer_start(&ti);
   switch (t)
   {
     long n;
@@ -1592,20 +1594,21 @@ ldata_vecan(GEN van, long L, long prec)
       n = lg(an)-1;
       if (n < L)
         pari_warn(warner, "#an = %ld < %ld, results may be imprecise", n, L);
-      return an;
-    case t_LFUN_ZETA: retconst_vec(L, gen_1);
-    case t_LFUN_NF:  return dirzetak(an, stoi(L));
-    case t_LFUN_ELL: return anell(an, L);
-    case t_LFUN_KRONECKER: return vecan_Kronecker(an, L);
-    case t_LFUN_CHIVEC: return vecan_chivec(an, L, prec);
-    case t_LFUN_CHIGEN: return vecan_chigen(an, L, prec);
-    case t_LFUN_ETA: return vecan_eta(an, L);
-    case t_LFUN_QF: return vecan_qf(an, L);
-    case t_LFUN_DIV: return vecan_div(an, L, prec);
-    case t_LFUN_MUL: return vecan_mul(an, L, prec);
-    case t_LFUN_SYMSQ: return vecan_symsq(an, L, prec);
-    case t_LFUN_SYMSQ_ELL: return vecan_ellsymsq(an, L);
+      break;
+    case t_LFUN_ZETA: an = const_vec(L, gen_1); break;
+    case t_LFUN_NF:  an = dirzetak(an, stoi(L)); break;
+    case t_LFUN_ELL: an = anell(an, L); break;
+    case t_LFUN_KRONECKER: an = vecan_Kronecker(an, L); break;
+    case t_LFUN_CHIVEC: an = vecan_chivec(an, L, prec); break;
+    case t_LFUN_CHIGEN: an = vecan_chigen(an, L, prec); break;
+    case t_LFUN_ETA: an = vecan_eta(an, L); break;
+    case t_LFUN_QF: an = vecan_qf(an, L); break;
+    case t_LFUN_DIV: an = vecan_div(an, L, prec); break;
+    case t_LFUN_MUL: an = vecan_mul(an, L, prec); break;
+    case t_LFUN_SYMSQ: an = vecan_symsq(an, L, prec); break;
+    case t_LFUN_SYMSQ_ELL: an = vecan_ellsymsq(an, L); break;
     default: pari_err_TYPE("ldata_vecan", van);
   }
-  return NULL; /* NOT REACHED */
+  if (DEBUGLEVEL >= 2) timer_printf(&ti, "ldata_vecan");
+  return an;
 }
