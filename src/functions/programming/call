@@ -3,7 +3,7 @@ Section: programming/specific
 C-Name: call0
 Prototype: GG
 Help: call(f, A): A being a vector, evaluate f(A[1],...,A[#A])
-Doc: $A=[a_1,\dots, a_n]$ being a and $f$ being a function, return the
+Doc: $A=[a_1,\dots, a_n]$ being a vector and $f$ being a function, return the
  evaluation of $f(a_1,\dots,a_n)$.
  $f$ can also be the name of a built-in GP function.
  If $f$ is variadic, the variadic arguments must grouped in a vector in
