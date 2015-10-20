@@ -17,6 +17,7 @@ Doc: $A=[a_1,\dots, a_n]$ being a and $f$ being a function, return the
  @eprog
 
  \item when dealing with function arguments with unspecified arity
+
  The function below implements a global memoization interface:
  \bprog
  memo=Map();
