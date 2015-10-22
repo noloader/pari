@@ -172,6 +172,7 @@ BA125- [libpari] RgV_to_RgX_reverse did not work if v[1] or v[2] was 0
   126- bnfinit(x^3-87156*x^2-6728799*x-456533) [#1736]
   127- Rg_to_ff: incorrect type in zk_to_ff [#1755]
 BA128- nfsubfields could fail [#1758]
+  129- rare SEGV in ArtinNumber [#1759]
 
   Added
     1- add optional argument to sumdigits to specify the base

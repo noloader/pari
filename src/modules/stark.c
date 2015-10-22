@@ -691,7 +691,7 @@ ArtinNumber(GEN bnr, GEN LCHI, long check, long prec)
     muslambda = nfinv(nf, lambda);
   }
   muslambda = Q_remove_denom(muslambda, &den);
-  z = InitRU(den, prec);
+  z = den? InitRU(den, prec): NULL;
 
   /* compute a system of generators of (Ok/cond)^*, we'll make them
    * cond1-positive in the main loop */
@@ -729,7 +729,7 @@ ArtinNumber(GEN bnr, GEN LCHI, long check, long prec)
 
   av2 = avma;
   vB = const_vec(nz, gen_1);
-  s0 = powgi(z, modii(gel(vt,1), den)); /* for beta = 1 */
+  s0 = z? powgi(z, modii(gel(vt,1), den)): gen_1; /* for beta = 1 */
   s = const_vec(nChar, s0);
 
   while ( (i = NextElt(&G)) )
@@ -745,7 +745,7 @@ ArtinNumber(GEN bnr, GEN LCHI, long check, long prec)
     }
 
     gel(vB,i) = set_sign_mod_divisor(nf, NULL, gel(vB,i), cond,sarch);
-    s0 = powgi(z, FpV_dotproduct(vt, gel(vB,i), den));
+    s0 = z? powgi(z, FpV_dotproduct(vt, gel(vB,i), den)): gen_1;
     for (ic = 1; ic <= nChar; ic++)
     {
       GEN n = gel(vN,ic), val = lC[ic]->val[ n[i] ];
