@@ -26,23 +26,22 @@ Doc: returns the Ldata structure associated to the
  We show numerically some identities involving Dedekind $\zeta$ functions and
  Hecke $L$ series.
  \bprog
- ? P=quadhilbert(-47);Q=nfsplitting(P);
- ? N=nfinit(Q);G=galoisinit(N);
- ? L1=lfunartin(N,G,[[a,0;0,a^-1],[0,1;1,0]],5);
- ? L2=lfunartin(N,G,[[a^2,0;0,a^-2],[0,1;1,0]],5);
- ? lfun(1,1)*lfun(-47,1)*lfun(L1,1)^2*lfun(L2,1)^2 - lfun(Q,1)
- %5 ~ 0
- ? lfun(1,1)*lfun(L1,1)*lfun(L2,1) - lfun(P,1)
+ ? P = quadhilbert(-47);
+ ? N = nfinit(nfsplitting(P));
+ ? G = galoisinit(N);
+ ? L1 = lfunartin(N,G, [[a,0;0,a^-1],[0,1;1,0]], 5);
+ ? L2 = lfunartin(N,G, [[a^2,0;0,a^-2],[0,1;1,0]], 5);
+ ? lfun(1,1)*lfun(-47,1)*lfun(L1,1)^2*lfun(L2,1)^2 - lfun(N,1)
  %6 ~ 0
- ? bnf=bnfinit(x^2+47);bnr=bnrinit(bnf,1,1);
- ? lfun([bnr,[1]],1) - lfun(L1,1)
+ ? lfun(1,1)*lfun(L1,1)*lfun(L2,1) - lfun(P,1)
  %7 ~ 0
- ? lfun([bnr,[2]],1) - lfun(L2,1)
- %8 ~ 0
- ? lfun(1,1)*lfun([bnr,[1]],1)*lfun([bnr,[2]],1) - lfun(P,1)
+ ? bnr = bnrinit(bnfinit(x^2+47),1,1);
+ ? lfun([bnr,[1]], 1) - lfun(L1, 1)
  %9 ~ 0
+ ? lfun([bnr,[2]], 1) - lfun(L2, 1)
+ %10 ~ 0
  @eprog
- The first identity is the factorisation of the regular representation of $D_{10}$,
- the second the factorisation of the natural representation of $D_{10}\subset S_5$,
- the next two are the expressions of the degree-$2$ representations as induced from
- degree-$1$ representations. The last one is a collorary of the others.
+ The first identity is the factorisation of the regular representation of
+ $D_{10}$, the second the factorisation of the natural representation of
+ $D_{10}\subset S_5$, the next two are the expressions of the degree-$2$
+ representations as induced from degree-$1$ representations.
