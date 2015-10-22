@@ -4,15 +4,15 @@ C-Name: gammamellininvinit
 Prototype: GD0,L,p
 Help: gammamellininvinit(A,{m=0}): initialize data for the computation by
  gammamellininv() of the m-th derivative of the inverse Mellin transform
- of the function f(s) = gamma_R(s+a1)*...*gamma_R(s+ad), where
- A is the vector [a1,...,ad] and gamma_R(s) = Pi^(-s/2)*gamma(s/2).
+ of the function f(s) = Gamma_R(s+a1)*...*Gamma_R(s+ad), where
+ A is the vector [a1,...,ad] and Gamma_R(s) = Pi^(-s/2)*gamma(s/2).
 Doc: initialize data for the computation by \tet{gammamellininv} of
  the $m$-th derivative of the inverse Mellin transform of the function
  $$f(s) = \Gamma_\R(s+a_1)\*\ldots\*\Gamma_\R(s+a_d)$$
  where \kbd{A} is the vector $[a_1,\ldots,a_d]$ and
- $\Gamma_\R(s)=\pi^{-s/2}\*\Gamma(s/2)$. This is the special case of Meijer's
- $G$ functions used to compute $L$-values via the approximate functional
- equation.
+ $\Gamma_\R(s)=\pi^{-s/2}\*\Gamma(s/2)$ (Euler's \kbd{gamma}). This is the
+ special case of Meijer's $G$ functions used to compute $L$-values via the
+ approximate functional equation.
 
  \misctitle{Caveat} Contrary to the PARI convention, this function
  guarantees an \emph{absolute} (rather than relative) error bound.
