@@ -2358,7 +2358,7 @@ most significant to least significant.
 
 \fun{GEN}{binary_2k_zv}{GEN x, long k} given a \typ{INT} $x$, and $0 < k <
 \tet{BITS_IN_LONG}$, return a \typ{VECSMALL} of digits of $x$ in base $2^k$, as
-\typ{ulong}s, from most significant to least significant.
+\kbd{ulong}s, from most significant to least significant.
 
 \fun{GEN}{bits_to_int}{GEN x, long l} given a vector $x$ of $l$ bits (as a
 \typ{VECSMALL} or even a pointer to a part of a larger vector, so not a
@@ -2901,11 +2901,11 @@ computes the Euclidean quotient and remainder of $x$ by $y$. As
 \kbd{sdivss\_rem} otherwise.
 
 \fun{GEN}{divsi_rem}{long s, GEN y, long *r} computes the Euclidean quotient
-and remainder of the \typ{long}~\kbd{s} by the \kbd{GEN}~\kbd{y}. As
+and remainder of the \kbd{long}~\kbd{s} by the \kbd{GEN}~\kbd{y}. As
 \kbd{sdivss\_rem} otherwise.
 
 \fun{GEN}{divss_rem}{long x, long y, long *r} computes the Euclidean quotient
-and remainder of the \typ{long}~\kbd{x} by the \kbd{long}~\kbd{y}. As
+and remainder of the \kbd{long}~\kbd{x} by the \kbd{long}~\kbd{y}. As
 \kbd{sdivss\_rem} otherwise.
 \smallskip
 \fun{GEN}{truedvmdii}{GEN x, GEN y, GEN *r}, as \kbd{dvmdii} but with a
