@@ -998,7 +998,7 @@ InitChar(GEN bnr, GEN listCR, long prec)
     }
 
     ch_chi(dtcr) = chi; /* the character */
-    ch_CHI(dtcr) = get_Char(chi,initc,NULL,prec); /* associated to bnr(m) */
+    ch_CHI(dtcr) = get_Char(chi,initc,NULL,prec2); /* associated to bnr(m) */
     ch_comp(dtcr) = gen_1; /* compute this character (by default) */
     chi = GetPrimChar(chi, bnr, ch_bnr(dtcr), prec2);
     if (!chi) chi = ch_CHI(dtcr);
