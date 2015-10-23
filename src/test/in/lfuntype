@@ -34,8 +34,10 @@ L=lfunartin(N,G,[['a,0;0,'a^-1],[0,1;1,0]],5))
 
 chk(s,i,a,b) =
 {
-  my(e);
+  my(e,eps);
   round((a-b)/b,&e);
+  eps=10^(-precision(1.));
+  if(type(a)=="t_COMPLEX" && abs(imag(a))<eps, a = real(a));
   if(e>-123,
     error("bug in lfuntype:", s, ":", i, ":", e)
    ,print(i," (",s,"): ",a));
