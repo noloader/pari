@@ -1462,7 +1462,7 @@ lfunqf(GEN M)
   pari_sp ltop = avma;
   long n, k;
   GEN d, Mi;
-  GEN Ldata;
+  GEN Ldata, poles, res;
 
   if (typ(M) != t_MAT) pari_err_TYPE("lfunqf", M);
   if (!RgM_is_ZM(M))   pari_err_TYPE("lfunqf [not integral]", M);
@@ -1473,9 +1473,12 @@ lfunqf(GEN M)
   if (!qf_iseven(M)) M = gmul2n(M, 1);
   Mi = ginv(M); d = denom(Mi);
   Mi = gmul(Mi, d);
-  if (!qf_iseven(Mi)) d = gmul2n(d,1);
-  Ldata = mkvecn(7, tag(M, t_LFUN_QF),
-      gen_0, mkvec2(gen_0, gen_1), stoi(k), d, gen_1, gen_0);
+  res = RgX_to_ser(deg1pol_shallow(gen_2, gen_0, 0), 3);
+  setvalp(res, -1);
+  poles = mkcol2(mkvec2(stoi(k),res), mkvec2(gen_0,gneg(res)));
+  if (!qf_iseven(Mi)) { d = gmul2n(d,1); Mi = gmul2n(Mi, 1); }
+  Ldata = mkvecn(7, tag(M, t_LFUN_QF), tag(Mi, t_LFUN_QF),
+       mkvec2(gen_0, gen_1), stoi(k), d, gen_1, poles);
   return gerepilecopy(ltop, Ldata);
 }
 
