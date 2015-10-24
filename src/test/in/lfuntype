@@ -34,7 +34,9 @@ bnfinit(x^4+2*x^2+5),
 Z(2),
 lfunqf(matid(4)),
    if(1,my(N=nfinit(x^10-2*x^8-9*x^6+57*x^4-69*x^2+47),G=galoisinit(N));
-L=lfunartin(N,G,[['a,0;0,'a^4],[0,1;1,0]],5))
+L=lfunartin(N,G,[['a,0;0,'a^4],[0,1;1,0]],5)),
+if(1,my(E1=ellinit("37a1"),E2=ellinit("37b1"));
+  lfuncreate([n->lfunan(E1,n)+lfunan(E2,n),n->-lfunan(E1,n)+lfunan(E2,n),[0,1],2,37,1]))
 ];
 }
 

@@ -61,6 +61,8 @@ lfuncreate(GEN data)
     { /* tag first component as t_LFUN_GENERIC */
       ldata = gcopy(data);
       gel(ldata, 1) = tag(gel(ldata,1), t_LFUN_GENERIC);
+      if (typ(gel(ldata, 2))!=t_INT)
+        gel(ldata, 2) = tag(gel(ldata,2), t_LFUN_GENERIC);
     }
     checkldata(ldata); return ldata;
   }
