@@ -889,7 +889,7 @@ to evaluate $L$ of conductor $N$ at $s = \sigma + i t$.
 We now describe the available high-level constructors, for built-in $L$
 functions.
 
-\subsec{Dirichlet $L$-functions}
+\subsec{Dirichlet $L$-functions} %GPHELPskip
 
 Given a Dirichlet character $\chi:(\Z/N\Z)^*\to \C$, we let
 $$L(\chi, s) = \sum_{n\geq 1} \chi(n) n^{-s}.$$
@@ -905,14 +905,15 @@ for all $1 \leq j \leq N$, $(j,N) = 1$.
 For general characters of large conductor, use Hecke characters over $K = \Q$
 (see below).
 
-\subsec{Hecke $L$-functions}
+\subsec{Hecke $L$-functions} %GPHELPskip
+
+The Dedekind zeta function of a number field $K = \Q[X]/(T)$ is encoded
+either by the defining polynomial $T$, or any absolute number fields
+structure (preferably at least a \var{bnf}).
 
 Given a finite order Hecke character $\chi: Cl_f(K)\to \C$, we let
 $$L(\chi, s) = \sum_{A \subset O_K} \chi(A)\, \left(N_{K/\Q}A\right)^{-s}.$$
-Only primitive characters are supported. If $T$ is an irreducible rational
-polynomial or any absolute number field structure (preferably at least
-a \var{bnf}), then $T$ is associated to the Dedekind zeta function (trivial
-$f$ and $\chi$).
+Only primitive characters are supported.
 
 Let $Cl_f(K) = \oplus (\Z/d_i\Z) g_i$ given by a \var{bnr} structure with
 generators: the $d_i$ are given by \kbd{K.cyc} and the $g_i$ by \kbd{K.gen}.
@@ -940,17 +941,32 @@ For even characters, replace by \kbd{bnrinit(K, N)}. Note that if the
 character is quadratic or $N$ is small, the simpler direct construction in the
 previous section will be more efficient.
 
-\subsec{Hasse-Weil $L$-functions}
+\subsec{Artin $L$ functions} %GPHELPskip
+
+Given a Galois number field $N/\Q$ with group $G = \kbd{galoisinit}(N)$,
+a representation $\rho$ of $G$ over the cyclotomic field $\Q(\zeta_n)$
+is specified by the matrices giving the images of $\kbd{G.gen}$ by $\rho$.
+The corresponding Artin $L$ function is created using \tet{lfunartin}.
+\bprog
+   P = quadhilbert(-47); \\  degree 5, Galois group D_5
+   N = nfinit(nfsplitting(P)); \\ Galois closure
+   G = galoisinit(N);
+   [s,t] = G.gen; \\ order 5 and 2
+   L = lfunartin(N,G, [[x,0;0,x^-1],[0,1;1,0]], 5); \\ irr. degree 2
+@eprog\noindent In the above, the polynomial variable (here \kbd{x}) represents
+$\zeta_5 := \exp(2i\pi/5)$ and the two matrices given the images of
+$s$ and $t$.
+
+\subsec{$L$-functions of algebraic varieties} %GPHELPskip
 
 For the time being, only elliptic curves over $\Q$ are supported. More
 general hyperelliptic curves over number fields will be added later.
-
 \bprog
 ? E = ellinit([1,1]);
-? L = lfuncreate(E);
+? L = lfuncreate(E);  \\ L-function of E/Q
 @eprog
 
-\subsec{Eta quotients / Modular forms}
+\subsec{Eta quotients / Modular forms} %GPHELPskip
 
 An Eta quotient is created by applying \tet{lfunetaquo} to a matrix with
 2 columns $[m, r_m]$ representing
@@ -966,7 +982,7 @@ associated to Ramanujan's $\Delta$ function is encoded as follows
 
 More general modular forms defined by modular symbols will be added later.
 
-\subsec{Low-level Ldata format}
+\subsec{Low-level Ldata format} %GPHELPskip
 
 When no direct constructor is available, you can still input an $L$ function
 directly by supplying $[a, a^*,A, k, N, \epsilon, r]$ to \kbd{lfuncreate}
@@ -976,7 +992,7 @@ It is \emph{strongly} suggested to first check consistency of the created
 $L$-function:
 \bprog
 ? L = lfuncreate([a, as, A, k, N, eps, r]);
-? lfunchecfeq(L)
+? lfuncheckfeq(L)  \\ check functional equation
 @eprog
 
 %SECTION: l_functions

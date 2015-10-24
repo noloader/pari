@@ -428,7 +428,7 @@ sub tex { my ($first) = @_;
   print TEX $first;
   while (<DOC>)
   {
-    last if /^\\(section|sub[sub]*sec)/i;
+    last if (/^\\(section|sub[sub]*sec)/i && !/\%GPHELPskip/);
     print TEX;
   }
 }
@@ -654,7 +654,7 @@ sub detex {
   if ($_) { s/^ *://; &presubst(); }
   while (<DOC>)
   {
-    last if /^\\(section|sub[sub]*sec)/i;
+    last if (/^\\(section|sub[sub]*sec)/i && !/\%GPHELPskip/);
     &presubst();
   }
   if ($raw) { print join("\n", @text); return; }
