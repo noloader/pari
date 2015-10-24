@@ -1268,7 +1268,7 @@ lfun_genproduct(GEN data, GEN s, long bitprec,
       r = gmul(r, gpowgs(gconj(fc), C[i]));
     }
   }
-  if ((ldata_get_selfdual(ldata)==0 && gequal0(gimag(s)))) r = greal(r);
+  if ((ldata_isreal(ldata) && gequal0(gimag(s)))) r = greal(r);
   return gerepileupto(av, r);
 }
 
@@ -1592,7 +1592,7 @@ long
 lfuncheckfeq_bitprec(GEN lmisc, GEN t0, long bitprec)
 {
   GEN ldata, theta, t0i, S0, S0i, w, eno;
-  long e, k, sd, prec;
+  long e, k, prec;
   pari_sp av;
 
   if (is_linit(lmisc) && linit_get_type(lmisc)==t_LDESC_PRODUCT)
@@ -1621,8 +1621,7 @@ lfuncheckfeq_bitprec(GEN lmisc, GEN t0, long bitprec)
   theta = lfunthetacheckinit(lmisc, t0i, 0, &bitprec, 0);
   ldata = linit_get_ldata(theta);
   k = ldata_get_k(ldata);
-  sd = ldata_get_selfdual(ldata);
-  if (sd)
+  if (!ldata_isreal(ldata))
     S0 = gconj(lfuntheta_bitprec(theta, gconj(t0), 0, bitprec));
   else
     S0 = lfuntheta_bitprec(theta, t0, 0, bitprec);
@@ -1932,7 +1931,7 @@ lfunorderzero_bitprec(GEN lmisc, long bitprec)
   eno = ldata_get_rootno(ldata);
   G = -bitprec/2;
   c0 = 0; st = 1;
-  if (!ldata_get_selfdual(ldata))
+  if (ldata_isreal(ldata))
   {
     if (!gequal1(eno)) c0 = 1;
     st = 2;

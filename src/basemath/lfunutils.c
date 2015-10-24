@@ -147,7 +147,7 @@ lfunmul(GEN ldata1, GEN ldata2, long prec)
   N = gmul(ldata_get_conductor(ldata1), ldata_get_conductor(ldata2));
   Vga = vecsort0(gconcat(ldata_get_gammavec(ldata1), ldata_get_gammavec(ldata2)), NULL, 0);
   eno = gmul(ldata_get_rootno(ldata1), ldata_get_rootno(ldata2));
-  sd = stoi((ldata_get_selfdual(ldata1) + ldata_get_selfdual(ldata2) + 1)/2);
+  sd = stoi(ldata_isreal(ldata1) && ldata_isreal(ldata2));
   a1a2 = lfunconvol(ldata_get_an(ldata1), ldata_get_an(ldata2));
   LD = mkvecn(7, a1a2, sd, Vga, stoi(k), N, eno, r);
   if (!r) setlg(LD,7);
@@ -192,7 +192,7 @@ lfundiv(GEN ldata1, GEN ldata2, long prec)
   N = gdiv(ldata_get_conductor(ldata1), ldata_get_conductor(ldata2));
   if (typ(N) != t_INT) pari_err_OP("lfundiv [conductor]",ldata1, ldata2);
   a1a2 = lfunconvolinv(ldata_get_an(ldata1), ldata_get_an(ldata2));
-  sd = stoi((ldata_get_selfdual(ldata1) + ldata_get_selfdual(ldata2) + 1)/2);
+  sd = stoi(ldata_isreal(ldata1) && ldata_isreal(ldata2));
   eno = gdiv(ldata_get_rootno(ldata1), ldata_get_rootno(ldata2));
   v1 = shallowcopy(ldata_get_gammavec(ldata1));
   v2 = ldata_get_gammavec(ldata2);
@@ -849,7 +849,7 @@ lfunmfspec(GEN lmisc, long prec)
 {
   pari_sp ltop = avma;
   GEN Vga, linit, ldataf, veven, vodd, om, op, eps, dom;
-  long k, k2, sd, j;
+  long k, k2, j;
 
   ldataf = lfunmisc_to_ldata_shallow(lmisc);
   k = ldata_get_k(ldataf);
@@ -859,9 +859,8 @@ lfunmfspec(GEN lmisc, long prec)
     linit = lmisc;
   else
     linit = lfuninit(ldataf, dom, 0, prec);
-  sd = ldata_get_selfdual(ldataf);
   Vga = ldata_get_gammavec(ldataf);
-  if (sd || !gequal(Vga, mkvec2(gen_0,gen_1)))
+  if (!ldata_isreal(ldataf) || !gequal(Vga, mkvec2(gen_0,gen_1)))
     pari_err_TYPE("lfunmfspec", lmisc);
   if (odd(k)) pari_err_IMPL("odd weight in lfunmfspec");
   k2 = k/2;
