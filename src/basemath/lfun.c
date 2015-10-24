@@ -37,8 +37,8 @@ ldata_get_type(GEN ldata) { return mael3(ldata, 1, 1, 1); }
 GEN
 ldata_get_an(GEN ldata) { return gel(ldata, 1); }
 
-long
-ldata_get_selfdual(GEN ldata) { return itos(gel(ldata, 2)); }
+GEN
+ldata_get_dual(GEN ldata) { return gel(ldata, 2); }
 
 long
 ldata_isreal(GEN ldata) {return gequal0(gel(ldata, 2));}
