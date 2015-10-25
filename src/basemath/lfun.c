@@ -41,7 +41,7 @@ GEN
 ldata_get_dual(GEN ldata) { return gel(ldata, 2); }
 
 long
-ldata_isreal(GEN ldata) {return gequal0(gel(ldata, 2));}
+ldata_isreal(GEN ldata) { return isintzero(gel(ldata, 2)); }
 
 GEN
 ldata_get_gammavec(GEN ldata) { return gel(ldata, 3); }
