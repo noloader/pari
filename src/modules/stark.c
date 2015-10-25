@@ -2216,7 +2216,7 @@ get_cS_cT(ST_t *T, long n)
       s = _addmulrr(s, gel(Z,j),gel(B,j));
       t = _addmulrr(t, gel(Z,j),gel(A,j));
     }
-  s = _addrr(s, T->b? mulrr(csurn, gel(T->powracpi,T->b)): csurn);
+  s = _addrr(s, T->b? mulrr(csurn, gel(T->powracpi,T->b+1)): csurn);
   if (!s) s = gen_0;
   if (!t) t = gen_0;
   gel(T->cS,n) = gclone(s);
@@ -2319,8 +2319,8 @@ GetST0(GEN bnr, GEN *pS, GEN *pT, GEN dataCR, GEN vChar, long prec)
 {
   pari_sp av = avma, av1, av2;
   long ncond, n, j, k, jc, n0, prec2, i0, r1, r2;
-  GEN nf = checknf(bnr), racpi, powracpi;
-  GEN N0, C, T = *pT, S = *pS, an, degs, limx;
+  GEN nf = checknf(bnr), T = *pT, S = *pS;
+  GEN N0, C, an, degs, limx;
   LISTray LIST;
   ST_t cScT;
 
@@ -2344,11 +2344,7 @@ GetST0(GEN bnr, GEN *pS, GEN *pT, GEN dataCR, GEN vChar, long prec)
   InitPrimes(bnr, n0, &LIST);
 
   prec2 = precdbl(prec) + EXTRA_PREC;
-  racpi = sqrtr(mppi(prec2));
-  powracpi = cgetg(r1+2,t_VEC);
-  gel(powracpi,1) = racpi;
-  for (j=2; j<=r1; j++) gel(powracpi,j) = mulrr(gel(powracpi,j-1), racpi);
-  cScT.powracpi = powracpi;
+  cScT.powracpi = powersr(sqrtr(mppi(prec2)), r1);
 
   cScT.cS = cgetg(n0+1, t_VEC);
   cScT.cT = cgetg(n0+1, t_VEC);
