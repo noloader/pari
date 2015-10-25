@@ -1635,7 +1635,7 @@ lfuncheckfeq_bitprec(GEN lmisc, GEN t0, long bitprec)
     {
       GEN v, r;
       if (ldata_get_type(ldata) == t_LFUN_NF)
-      { /* inefficient since theta not neeeded; no need to optimize for this
+      { /* inefficient since theta not needed; no need to optimize for this
            (artificial) query [e.g. lfuncheckfeq(t_POL)] */
         GEN T = gel(ldata_get_an(ldata), 2);
         GEN L = lfunzetakinit_bitprec(T,zerovec(3),0,0,bitprec);
