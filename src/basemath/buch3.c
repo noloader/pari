@@ -1380,7 +1380,7 @@ bnrisconductor(GEN bnr, GEN H0)
 static GEN
 rnfnormgroup_i(GEN bnr, GEN polrel)
 {
-  long i, j, reldeg, nfac, k;
+  long i, j, reldeg, k;
   GEN bnf, index, discnf, nf, G, detG, fa, greldeg;
   GEN fac, col, cnd;
   forprime_t S;
@@ -1425,7 +1425,7 @@ rnfnormgroup_i(GEN bnr, GEN polrel)
     for (i=1; i<=nfa; i++)
     {
       GEN pr = gel(fa,i), pp, T, polr, modpr;
-      long f;
+      long f, nfac;
       /* if pr (probably) ramified, we have to use all (non-ram) P | pr */
       if (idealval(nf,cnd,pr)) { oldf = 0; continue; }
       modpr = zk_to_Fq_init(nf, &pr, &T, &pp); /* T = NULL, pp ignored */
@@ -1435,14 +1435,16 @@ rnfnormgroup_i(GEN bnr, GEN polrel)
 
       fac = gel(Flx_factor(polr, p), 1);
       f = degpol(gel(fac,1));
+      if (f == reldeg) continue; /* reldeg-th powers already included */
       nfac = lg(fac)-1;
       /* check decomposition of pr has Galois type */
       for (j=2; j<=nfac; j++)
         if (degpol(gel(fac,j)) != f) return NULL;
       if (oldf < 0) oldf = f; else if (oldf != f) oldf = 0;
-      if (f == reldeg) continue; /* reldeg-th powers already included */
 
-      if (oldf && reldeg == nfa*f && !umodiu(discnf, p)) pr = utoipos(p);
+      /* last prime & all pr^f, pr | p, included. Include p^f instead */
+      if (oldf && i == nfa && reldeg == nfa*f && !umodiu(discnf, p))
+        pr = utoipos(p);
 
       /* pr^f = N P, P | pr, hence is in norm group */
       col = bnrisprincipal(bnr,pr,0);
