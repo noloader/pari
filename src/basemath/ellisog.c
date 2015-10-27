@@ -34,48 +34,70 @@ make_velu_curve(GEN E, GEN t, GEN w)
 
 /* If phi = (f(x)/h(x)^2, g(x,y)/h(x)^3) is an isogeny, return the
  * variables x and y in a vecsmall */
-INLINE GEN
-get_isog_vars(GEN phi)
+INLINE void
+get_isog_vars(GEN phi, long *vx, long *vy)
 {
-  long vx = varn(gel(phi, 1));
-  long vy = varn(gel(phi, 2));
-  if (vy == vx) vy = gvar2(gel(phi,2));
-  return mkvecsmall2(vx, vy);
+  *vx = varn(gel(phi, 1));
+  *vy = varn(gel(phi, 2));
+  if (*vy == *vx) *vy = gvar2(gel(phi,2));
 }
 
-INLINE GEN
-substvec(GEN target, GEN vars, GEN in)
+static GEN
+RgX_homogenous_evalpow(GEN P, GEN A, GEN B)
 {
-  long nvars = lg(vars) - 1, i;
-  GEN res = target;
-  for (i = 1; i <= nvars; ++i)
-    res = gsubst(res, vars[i], gel(in, i));
-  return res;
+  pari_sp av = avma;
+  long d, i, v;
+  GEN s;
+  if (typ(P)!=t_POL)
+    return mkvec2(P, gen_1);
+  d = degpol(P); v = varn(A);
+  s = scalarpol_shallow(gel(P, d+2), v);
+  for (i = d-1; i >= 0; i--)
+  {
+    s = gadd(gmul(s, A), gmul(gel(B,d+1-i), gel(P,i+2)));
+    if (gc_needed(av,1))
+    {
+      if(DEBUGMEM>1) pari_warn(warnmem,"RgX_homogenous_eval(%ld)",i);
+      s = gerepileupto(av, s);
+    }
+  }
+  s = gerepileupto(av, s);
+  return mkvec2(s, gel(B,d+1));
 }
+
 /* Given isogenies F:E' -> E and G:E'' -> E', return the composite
  * isogeny F o G:E'' -> E */
 static GEN
 ellcompisog(GEN F, GEN G)
 {
   pari_sp av = avma;
-  GEN Fv, Gh, Gh2, Gh3, f, g, h, h2, h3, in, comp, c2, c3;
-  long v;
-
+  GEN Fv, Gh, Gh2, Gh3, f, g, h, h2, h3, den, num;
+  GEN K, K2, K3, F0, F1, g0, g1, Gp;
+  long v, vx, vy, d;
   checkellisog(F);
   checkellisog(G);
+  get_isog_vars(F, &vx, &vy);
   v = fetch_var_higher();
   Fv = shallowcopy(gel(F,3)); setvarn(Fv, v);
   Gh = gel(G,3); Gh2 = gsqr(Gh); Gh3 = gmul(Gh, Gh2);
-  h = gmul(polresultant0(Fv, deg1pol(gneg(Gh2),gel(G,1), v), v, 0), Gh);
+  K = gmul(polresultant0(Fv, deg1pol(gneg(Gh2),gel(G,1), v), v, 0), Gh);
   delete_var();
-  h = RgX_normalize(RgX_div(h, RgX_gcd(h,deriv(h,0))));
-  h2 = gsqr(h); h3 = gmul(h, h2);
-  in = mkvec2(gdiv(gel(G,1), Gh2), gdiv(gel(G,2), Gh3));
-  comp = substvec(F, get_isog_vars(F), in);
-  c2 = gsqr(gel(comp,3)); c3 = gmul(c2, gel(comp,3));
-  f = gdiv(gmul(gel(comp,1), h2), c2);
-  g = gdiv(gmul(gel(comp,2), h3), c3);
-  return gerepilecopy(av, mkvec3(f,g,h));
+  K = RgX_normalize(RgX_div(K, RgX_gcd(K,deriv(K,0))));
+  K2 = gsqr(K); K3 = gmul(K, K2);
+  F0 = polcoeff0(gel(F,2), 0, vy); F1 = polcoeff0(gel(F,2), 1, vy);
+  d = maxss(maxss(degpol(gel(F,1)),degpol(gel(F,3))),maxss(degpol(F0),degpol(F1)));
+  Gp = gpowers(Gh2, d);
+  f  = RgX_homogenous_evalpow(gel(F,1), gel(G,1), Gp);
+  g0 = RgX_homogenous_evalpow(F0, gel(G,1), Gp);
+  g1 = RgX_homogenous_evalpow(F1, gel(G,1), Gp);
+  h =  RgX_homogenous_evalpow(gel(F,3), gel(G,1), Gp);
+  h2 = mkvec2(gsqr(gel(h,1)), gsqr(gel(h,2)));
+  h3 = mkvec2(gmul(gel(h,1),gel(h2,1)), gmul(gel(h,2),gel(h2,2)));
+  f  = gdiv(gmul(gmul(K2, gel(f,1)),gel(h2,2)), gmul(gel(f,2), gel(h2,1)));
+  den = gmul(Gh3, gel(g1,2));
+  num = gadd(gmul(gel(g0,1),den), gmul(gmul(gel(G,2),gel(g1,1)),gel(g0,2)));
+  g = gdiv(gmul(gmul(K3,num),gel(h3,2)),gmul(gmul(gel(g0,2),den), gel(h3,1)));
+  return gerepilecopy(av, mkvec3(f,g,K));
 }
 
 /* Given an isogeny phi from ellisogeny() and a point P in the domain of phi,
@@ -84,7 +106,7 @@ GEN
 ellisogenyapply(GEN phi, GEN P)
 {
   pari_sp ltop = avma;
-  GEN f, g, h, img_f, img_g, img_h, img_h2, img_h3, img, vars, tmp;
+  GEN f, g, h, img_f, img_g, img_h, img_h2, img_h3, img, tmp;
   long vx, vy;
   if (lg(P) == 4) return ellcompisog(phi,P);
   checkellisog(phi);
@@ -93,9 +115,7 @@ ellisogenyapply(GEN phi, GEN P)
   f = gel(phi, 1);
   g = gel(phi, 2);
   h = gel(phi, 3);
-  vars = get_isog_vars(phi);
-  vx = vars[1];
-  vy = vars[2];
+  get_isog_vars(phi, &vx, &vy);
   img_h = poleval(h, gel(P, 1));
   if (gequal0(img_h)) { avma = ltop; return ellinf(); }
 
