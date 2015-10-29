@@ -1380,32 +1380,34 @@ bnrisconductor(GEN bnr, GEN H0)
 static GEN
 rnfnormgroup_i(GEN bnr, GEN polrel)
 {
-  long i, j, reldeg, k;
-  GEN bnf, index, discnf, nf, G, detG, fa, greldeg;
+  long i, j, degrel, degnf, k;
+  GEN bnf, index, discnf, nf, G, detG, fa, gdegrel;
   GEN fac, col, cnd;
   forprime_t S;
   ulong p;
 
   checkbnr(bnr); bnf = bnr_get_bnf(bnr);
-  nf = bnf_get_nf(bnf); cnd = gel(bnr_get_mod(bnr), 1);
+  nf = bnf_get_nf(bnf);
+  cnd = gel(bnr_get_mod(bnr), 1);
   polrel = RgX_nffix("rnfnormgroup", nf_get_pol(nf),polrel,1);
   if (!gequal1(leading_term(polrel)))
     pari_err_IMPL("rnfnormgroup for non-monic polynomials");
 
-  reldeg = degpol(polrel);
-  /* reldeg-th powers are in norm group */
-  greldeg = utoipos(reldeg);
-  G = FpC_red(bnr_get_cyc(bnr), greldeg);
+  degrel = degpol(polrel);
+  /* degrel-th powers are in norm group */
+  gdegrel = utoipos(degrel);
+  G = FpC_red(bnr_get_cyc(bnr), gdegrel);
   for (i=1; i<lg(G); i++)
-    if (!signe(gel(G,i))) gel(G,i) = greldeg;
+    if (!signe(gel(G,i))) gel(G,i) = gdegrel;
   detG = ZV_prod(G);
-  k = cmpiu(detG,reldeg);
+  k = cmpiu(detG,degrel);
   if (k < 0) return NULL;
   if (!k) return diagonal(G);
 
   G = diagonal_shallow(G);
   discnf = nf_get_disc(nf);
   index  = nf_get_index(nf);
+  degnf = nf_get_degree(nf);
   u_forprime_init(&S, 2, ULONG_MAX);
   while ( (p = u_forprime_next(&S)) )
   {
@@ -1421,7 +1423,7 @@ rnfnormgroup_i(GEN bnr, GEN polrel)
     nfa = lg(fa)-1;
     if (!nfa) continue;
     /* all primes above p included ? */
-    oldf = (nfa == reldeg)? -1: 0;
+    oldf = (nfa == degnf)? -1: 0;
     for (i=1; i<=nfa; i++)
     {
       GEN pr = gel(fa,i), pp, T, polr, modpr;
@@ -1435,7 +1437,7 @@ rnfnormgroup_i(GEN bnr, GEN polrel)
 
       fac = gel(Flx_factor(polr, p), 1);
       f = degpol(gel(fac,1));
-      if (f == reldeg) continue; /* reldeg-th powers already included */
+      if (f == degrel) continue; /* degrel-th powers already included */
       nfac = lg(fac)-1;
       /* check decomposition of pr has Galois type */
       for (j=2; j<=nfac; j++)
@@ -1443,7 +1445,7 @@ rnfnormgroup_i(GEN bnr, GEN polrel)
       if (oldf < 0) oldf = f; else if (oldf != f) oldf = 0;
 
       /* last prime & all pr^f, pr | p, included. Include p^f instead */
-      if (oldf && i == nfa && reldeg == nfa*f && !umodiu(discnf, p))
+      if (oldf && i == nfa && degrel == nfa*f && !umodiu(discnf, p))
         pr = utoipos(p);
 
       /* pr^f = N P, P | pr, hence is in norm group */
@@ -1451,7 +1453,7 @@ rnfnormgroup_i(GEN bnr, GEN polrel)
       if (f > 1) col = ZC_z_mul(col, f);
       G = ZM_hnf(shallowconcat(G, col));
       detG = ZM_det_triangular(G);
-      k = cmpiu(detG,reldeg);
+      k = cmpiu(detG,degrel);
       if (k < 0) return NULL;
       if (!k) { cgiv(detG); return G; }
     }
