@@ -1468,7 +1468,7 @@ digits(GEN x, GEN B)
     if (k < BITS_IN_LONG)
     {
       (void)new_chunk(4*(expi(x) + 2)); /* HACK */
-      z = binary_2k_zv(x, k);
+      z = binary_2k_nv(x, k);
       avma = av; return Flv_to_ZV(z);
     }
     else
@@ -1616,7 +1616,7 @@ sumdigits0(GEN x, GEN B)
     if (k == 1) { avma = av; return utoi(hammingweight(x)); }
     if (k < BITS_IN_LONG)
     {
-      GEN z = binary_2k_zv(x, k);
+      GEN z = binary_2k_nv(x, k);
       if (lg(z)-1 > 1<<(BITS_IN_LONG-k)) /* may overflow */
         return gerepileuptoint(av, ZV_sum(Flv_to_ZV(z)));
       avma = av; return utoi(zv_sum(z));

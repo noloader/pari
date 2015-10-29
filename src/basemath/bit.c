@@ -294,7 +294,7 @@ int_get_int(long k, GEN *w, long *r)
 
 /* assume k < BITS_IN_LONG */
 GEN
-binary_2k_zv(GEN x, long k)
+binary_2k_nv(GEN x, long k)
 {
   long l, n, r;
   GEN v, w;

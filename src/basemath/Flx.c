@@ -4265,7 +4265,7 @@ kron_unpack_Flx_3(GEN x, ulong p) {
 /* assume b < BITS_IN_LONG */
 static GEN
 kron_unpack_Flx_bits_narrow(GEN z, long b, ulong p) {
-  GEN v = binary_2k_zv(z, b), x;
+  GEN v = binary_2k_nv(z, b), x;
   long i, l = lg(v) + 1;
   x = cgetg(l, t_VECSMALL);
   for (i = 2; i < l; i++)

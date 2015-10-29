@@ -176,7 +176,7 @@ BA128- nfsubfields could fail [#1758]
 
   Added
     1- add optional argument to sumdigits to specify the base
-    2- [libpari] bits_to_int,bits_to_u,binary_zv,binary_2k,binary_2k_zv
+    2- [libpari] bits_to_int,bits_to_u,binary_zv,binary_2k,binary_2k_nv
 BA  3- [GP] support for variadic GP functions (f(v[..])=expr)
     4- nfeltval(K, x, pr, &y) now takes an optional 4th argument, containing
        the part of x coprime to pr.
