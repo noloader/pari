@@ -19,6 +19,15 @@ Doc:
 
  [-1 -1/2]
  @eprog\noindent This means that $2xy = (1/2)(x+y)^2 - (1/2)(x-y)^2$.
+ Singular matrices are supported, in which case some diagonal coefficients
+ will vanish:
+ \bprog
+ ? qfgaussred([1,1;1,1])
+ %1 =
+ [1 1]
+
+ [1 0]
+ @eprog\noindent This means that $x^2 + 2xy + y^2 = (x+y)^2$.
 
 Variant: \fun{GEN}{qfgaussred_positive}{GEN q} assumes that $q$ is
   positive definite and is a little faster; returns \kbd{NULL} if a vector
