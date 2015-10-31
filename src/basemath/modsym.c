@@ -2286,6 +2286,21 @@ getMorphism(GEN W1, GEN W2, GEN v)
   }
   return M;
 }
+/* return op(phi) */
+static GEN
+getMorphism_single(GEN phi, GEN act)
+{
+  long i, lv = lg(act);
+  GEN T = NULL;
+  for (i = 1; i < lv; i++)
+  {
+    pari_sp av = avma;
+    GEN t = dual_act(gel(act,i), phi);
+    T = T? gerepileupto(av, RgC_add(T,t)): t;
+  }
+  if (!T) T = zerocol(lg(phi)-1);
+  return T; /* = (phi|op)(G_1,...,G_d2) */
+}
 
 static GEN
 msendo(GEN W, GEN v) { return getMorphism(W, W, v); }
@@ -2995,4 +3010,354 @@ msfromell(GEN E, long sign)
   gmael(W,2,1) = gen_0;
   gmael(W,2,3) = Qevproj_init(cgetg(1,t_MAT));
   return gerepilecopy(av, mkvec2(W, RgC_Rg_mul(x, scale)));
+}
+
+/* OVERCONVERGENT MODULAR SYMBOLS */
+
+/* f in M_2(Z) \cap GL_2(Q), p \nmid a [ and for the result to mean anything
+ * p | c, but not needed here]. Return the matrix M in M_D(Z), D = M+k-1
+ * such that, if v = \int x^i d mu, i < D, is a vector of D moments of mu,
+ * then M * v is the vector of moments of mu | f  mod p^D */
+static GEN
+moments_act(void *E, GEN f)
+{
+  struct m_act *S = (struct m_act*)E;
+  long k = S->k, D = S->dim;
+  GEN a = gcoeff(f,1,1), b = gcoeff(f,1,2);
+  GEN c = gcoeff(f,2,1), d = gcoeff(f,2,2);
+  GEN u,z, q = S->q, den = deg1pol(c,a,0), num = deg1pol(d,b,0);
+  GEN mat = cgetg(D+1, t_MAT);
+  long j;
+
+  u = RgXn_inv(gmodulo(den, q), D);
+  u = RgXn_mul(num, u, D); /* = (b+dx) / (a+cx) mod (q,x^D) */
+  z = gpowgs(den, k-2); /* (a+cx)^(k-2) */
+  u = liftint_shallow(u);
+  for (j = 1; j <= D; j++)
+  {
+    z = FpX_red(z, q);
+    gel(mat,j) = RgX_to_RgC(z, D); /* (a+cx)^(k-2) * ((b+dx)/(a+cx))^(j-1) */
+    if (j != D) z = RgXn_mul(z, u, D);
+  }
+  return shallowtrans(mat);
+}
+
+static GEN
+init_moments_act(GEN W1, GEN W2, long p, long M, GEN q, GEN v)
+{
+  struct m_act S;
+  long k = msk_get_weight(W2);
+  S.p = p;
+  S.k = k;
+  S.q = q;
+  S.dim = M+k-1;
+  return init_dual_act(v,W1,W2,(void*)&S, moments_act);
+}
+
+static void
+clean_tail(GEN phi, long c, GEN q, long flag)
+{
+  long a, l = lg(phi);
+  GEN den;
+  if (flag)
+  {
+    phi = Q_remove_denom(phi, &den);
+    if (!den)
+      flag = 0;
+    else
+      q = mulii(q, den);
+  }
+  for (a = 1; a < l; a++)
+  {
+    GEN P = FpV_red(gel(phi,a), q); /* phi(G_a) = vector of moments */
+    long j, lP = lg(P);
+    for (j = c; j < lP; j++) gel(P,j) = gen_0; /* reset garbage to 0 */
+    if (flag) P = gdiv(P, den);
+    gel(phi,a) = P;
+  }
+
+}
+/* concat z to all phi[i] */
+static GEN
+concat2(GEN phi, GEN z)
+{
+  long i, l;
+  GEN v = cgetg_copy(phi,&l);
+  for (i = 1; i < l; i++) gel(v,i) = shallowconcat(gel(phi,i), z);
+  return v;
+}
+static GEN
+red_mod_FilM(GEN phi, ulong p, long k, long flag)
+{
+  long a, l;
+  GEN den = gen_1, v = cgetg_copy(phi, &l);
+  if (flag)
+  {
+    phi = Q_remove_denom(phi, &den);
+    if (!den) { den = gen_1; flag = 0; }
+  }
+  for (a = 1; a < l; a++)
+  {
+    GEN P = gel(phi,a), q = den;
+    long j;
+    for (j = lg(P)-1; j >= k+1; j--)
+    {
+      q = muliu(q,p);
+      gel(P,j) = modii(gel(P,j),q);
+    }
+    q = muliu(q,p);
+    for (     ; j >= 1; j--)
+      gel(P,j) = modii(gel(P,j),q);
+    gel(v,a) = P;
+  }
+  if (flag) v = gdiv(v, den);
+  return v;
+}
+
+static GEN
+oms_supersingular(GEN phi, GEN W, long p, long M, GEN C)
+{
+  long t, i, k = msk_get_weight(W);
+  GEN v = Up_matrices(p), q = powuu(p,M), phi1 = gel(phi,1), phi2 = gel(phi,2);
+  GEN act = init_moments_act(W, W, p, M, q, v);
+  GEN ap = gcoeff(C,1,1), a,b,c,d;
+
+  t = signe(ap)? Z_lval(ap,p) : k-1;
+  C = ginv(ZM_sqr(C));
+  a = gcoeff(C,1,1);
+  b = gcoeff(C,1,2);
+  c = gcoeff(C,2,1);
+  d = gcoeff(C,2,2);
+
+  phi1 = concat2(phi1, zerovec(M));
+  phi2 = concat2(phi2, zerovec(M));
+  for (i = 1; i <= M; i++)
+  {
+    GEN z;
+    phi1 = getMorphism_single(phi1, act);
+    phi1 = getMorphism_single(phi1, act);
+
+    phi2 = getMorphism_single(phi2, act);
+    phi2 = getMorphism_single(phi2, act);
+    z = phi1;
+    phi1 = gadd(gmul(a, z), gmul(b, phi2));
+    phi2 = gadd(gmul(c, z), gmul(d, phi2));
+
+    clean_tail(phi1, k + i*t, q, 1);
+    clean_tail(phi2, k + i*t, q, 1);
+  }
+  phi1 = red_mod_FilM(phi1, p, k, 1);
+  phi2 = red_mod_FilM(phi2, p, k, 1);
+  return mkvec2(phi1,phi2);
+}
+
+static GEN
+oms_ordinary(GEN W, GEN phi, GEN alpha, long p, long M)
+{
+  long i, k = msk_get_weight(W);
+  GEN v = Up_matrices(p), q = powuu(p,M);
+  GEN act = init_moments_act(W, W, p, M, q, v);
+  phi = concat2(phi, zerovec(M));
+  for (i = 1; i <= M; i++)
+  {
+    phi = getMorphism_single(phi, act);
+    clean_tail(phi, k + i, q, 0);
+  }
+  phi = gmul(lift(gpowgs(alpha,M)), phi);
+  phi = red_mod_FilM(phi, p, k, 0);
+  return mkvec(phi);
+}
+
+/* lift polynomial P in RgX[X,Y]_{k-2} to a distribution \mu such that
+ * \int (Y - X z)^(k-2) d\mu(z) = P(X,Y)
+ * Return the k-1 first moments of \mu: \int z^i d\mu(z), i < k-1.
+ *   \sum_j (-1)^(k-2-j) binomial(k-2,j) Y^j \int z^(k-2-j) d\mu(z) = P(1,Y)
+ * Input is P(1,Y), bin = vecbinome(k-2): bin[j] = binomial(k-2,j-1) */
+static GEN
+RgX_to_moments(GEN P, GEN bin)
+{
+  long j, k = lg(bin);
+  GEN Pd, Bd;
+  if (typ(P) != t_POL) P = scalarpol(P,0);
+  P = RgX_to_RgC(P, k-1); /* deg <= k-2 */
+  settyp(P, t_VEC);
+  Pd = P+1;  /* Pd[i] = coeff(P,i) */
+  Bd = bin+1;/* Bd[i] = binomial(k-2,i) */
+  for (j = 1; j < k-2; j++)
+  {
+    GEN c = gel(Pd,j);
+    if (odd(j)) c = gneg(c);
+    gel(Pd,j) = gdiv(c, gel(Bd,j));
+  }
+  return vecreverse(P);
+}
+static GEN
+RgXC_to_moments(GEN v, GEN bin)
+{
+  long i, l;
+  GEN w = cgetg_copy(v,&l);
+  for (i=1; i<l; i++) gel(w,i) = RgX_to_moments(gel(v,i),bin);
+  return w;
+}
+
+GEN
+omseval(GEN O, GEN path)
+{
+  pari_sp av = avma;
+  struct m_act S;
+  GEN v, L, W, vecphi, data, q, act, T = NULL;
+  long p, n, a, k, lvec;
+
+  W = gel(O,1); /* possibly in level N*p */
+  k = msk_get_weight(W);
+  vecphi = gel(O,2);
+  data = gel(O,3);
+  p = itos(gel(data,3));
+  n = itos(gel(data,4));
+  L = M2_log(W, path);
+
+  q = powuu(p,n);
+  S.p = p;
+  S.k = k;
+  S.q = q;
+  S.dim = n+k-1;
+
+  v = cgetg_copy(vecphi, &lvec);
+  L = ZGl2QC_star(L); /* lambda_{i,j}^* */
+  act = ZGl2QC_to_act((void*)&S, moments_act, L); /* as operators on V */
+  for (a = 1; a < lvec; a++)
+  {
+    GEN phi = gel(vecphi,a);
+    long i;
+    for (i = 1; i < lg(phi); i ++)
+    {
+      GEN t = RgM_RgC_mul(gel(act,i), gel(phi,i));
+      T = T? gadd(T,t): t;
+    }
+    gel(v,a) = FpC_red(T,q);
+  }
+  return gerepilecopy(av, v);
+}
+
+/* W = msinit(N,k,...); phi = T_p/U_p - eigensymbol */
+GEN
+mstooms(GEN W, GEN phi, long p, long n)
+{
+  pari_sp av = avma;
+  long N = ms_get_N(W), k = msk_get_weight(W);
+  GEN bin = vecbinome(k-2), T, gp;
+  GEN c, alpha, ap, phi0;
+
+  phi = Q_remove_denom(phi, &c);
+  phi = Qevproj_init0(phi);
+  T = mshecke(W, p,  phi);
+  ap = gcoeff(T,1,1);
+  phi = gmael(phi,1,1); /* t_COL, modular symbol in term of W's basis */
+  gp = utoipos(p);
+
+  if (N % p == 0)
+  {
+    if (!umodiu(ap, p)) pari_err_IMPL("mspadicmoments when p | a_p");
+    alpha = ap;
+    alpha = ginv(alpha);
+    phi0 = mseval(W, phi, NULL);
+    phi0 = RgXC_to_moments(phi0, bin);
+    phi = oms_ordinary(W, phi0, alpha, p, n);
+  }
+  else
+  { /* p-stabilize */
+    GEN Wp = mskinit(N*p, k, 0);
+    GEN M1, M2, phi1, phi2, c1, c2;
+
+    /* FIXME: compute image of unique symbol, not whole basis
+     * + represent phi[12] as G_i -> P_i not in terms of basis */
+    M1 = getMorphism(W, Wp, mat2(1,0,0,1));
+    M2 = getMorphism(W, Wp, mat2(p,0,0,1));
+    phi1 = RgM_RgC_mul(M1, phi);
+    phi2 = RgM_RgC_mul(M2, phi);
+    phi1 = mseval(Wp, phi1, NULL);
+    phi2 = mseval(Wp, phi2, NULL);
+
+    phi1 = RgXC_to_moments(phi1, bin);
+    phi2 = RgXC_to_moments(phi2, bin);
+
+    phi1 = Q_remove_denom(phi1, &c1);
+    phi2 = Q_remove_denom(phi2, &c2);
+    c = mul_denom(c,mul_denom(c1,c2));
+    if (c1 && c2)
+    {
+      GEN d = gcdii(c1,c2);
+      c = diviiexact(c, d); /* lcm(c1,c2) */
+      phi1 = gmul(phi1, diviiexact(c,c1));
+      phi2 = gmul(phi2, diviiexact(c,c2));
+    }
+    /* all polynomials multiplied by c */
+    W = Wp;
+    if (umodiu(ap, p))
+    {
+      alpha = ms_unit_eigenvalue(ap, k, gp, n);
+      alpha = ginv(alpha);
+      phi0 = gsub(phi1, gmul(lift(alpha),phi2));
+      phi = oms_ordinary(W, phi0, alpha, p, n);
+    }
+    else
+    { /* p | ap */
+      alpha = mkmat2(mkcol2(ap, powuu(p, k-1)), mkcol2(gen_m1,gen_0));
+      phi = oms_supersingular(mkvec2(phi1,phi2),W,p,n, alpha);
+      alpha = ginv(alpha);
+    }
+  }
+  if (!c) c = gen_1;
+  return gerepilecopy(av, mkvec3(W,phi, mkvec4(c,alpha,stoi(p),stoi(n))));
+}
+
+/* W = msinit(N), phi eigensymbol. Return C(x) mod FilM */
+GEN
+mspadicmoments(GEN W, GEN phi, long p, long n)
+{
+  pari_sp av = avma;
+  long a, b, lvec;
+  GEN v, vecphi, bin, gp = stoi(p), pn, O, P, data;
+
+  O = mstooms(W, phi, p, n);
+  W = gel(O,1); /* possibly in level N*p */
+  vecphi = gel(O,2);
+  data = gel(O,3);
+
+  v = cgetg_copy(vecphi, &lvec);
+  for (b = 1; b < lvec; b++) gel(v,b) = cgetg(p, t_VEC);
+  bin = matpascal(n);
+  P = gpowers(gp, n);
+  pn = gel(P, n+1);
+  for (a = 1; a < p; a++)
+  {
+    GEN ga = utoipos(a), t = cgetg(n+2, t_VEC);
+    GEN at = Zp_teichmuller(ga, gp, n, pn);
+    GEN powa = Fp_powers(subii(ga,at), n, pn);
+    GEN path = mkmat2(mkcol2(gen_1,gen_0), mkcol2(ga, gp));
+    GEN vca = omseval(O, path);
+    /* ca[r+1] = c_r(a/p) = \Phi([a/p] - [oo])(z^r) */
+    for (b = 1; b < lg(vca); b++)
+    {
+      GEN ca = gel(vca,b);
+      long j;
+      gmael(v,b,a) = t;
+      for (j = 0; j <= n; j++)
+      {
+        GEN s = gen_0;
+        long r;
+        for (r = 0; r <= j; r++)
+        {
+          GEN C = gcoeff(bin,j+1,r+1);
+          C = mulii(C, gel(P,r+1));
+          C = Fp_mul(C, gel(powa, j-r+1), pn);
+          C = Fp_mul(C, gel(ca,r+1), pn);
+          s = addii(s, C);
+        }
+        /* \sum_{0<=r<=j} binomial(j,r)*p^r*(a-w(a))^(j-r)*c_r(a/p) */
+        gel(t, j+1) = modii(s, pn);
+      }
+    }
+  }
+  return gerepilecopy(av, mkvec2(v, data));
 }

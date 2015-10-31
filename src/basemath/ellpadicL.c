@@ -111,6 +111,53 @@ loopLpn(GEN W, GEN xpm, ulong D, ulong p, long m, long R, GEN q)
   }
   return mkvec2(u,u1);
 }
+static GEN
+loopLpn_moments(GEN W, GEN xpm, ulong D, ulong p, long m, long R, GEN q)
+{
+  pari_sp av;
+  ulong a;
+  GEN q1 = diviuexact(q,p);
+  GEN Dq1= mului(D,q1), Dq = muliu(Dq1,p);
+  GEN nc = icopy(gen_1);
+  GEN c = mkfrac(nc, Dq), c1 = mkfrac(nc, Dq1);
+  GEN u = zerovec(R);
+  GEN v = zerovec(R);
+  ulong A = itou(shifti(Dq,-1));
+
+  av = avma;
+  for (a = 1; a <= A; a++)
+  {
+    GEN x,x1, ai;
+    long s, i;
+    if (a % p == 0 || !(s = krouu(D,a))) continue;
+    nc[2] = (long)a;
+    x = Q_xpm(W,xpm, c); /* xpm(a / Dq) */
+    x1= Q_xpm(W,xpm, c1);/* xpm(a / D(q/p)) */
+    if (!signe(x) && !signe(x1)) continue;
+    ai = gen_1;
+    for (i = 1; i <= R; i++)
+    {
+      GEN z, z1;
+      z = Fp_mul(x,ai,q);
+      z1= Fp_mul(x1,ai,q);
+      if (s < 0) {
+        gel(u,i) = subii(gel(u,i), z);
+        gel(v,i) = subii(gel(v,i), z1);
+      }
+      else {
+        gel(u,i) = addii(gel(u,i), z);
+        gel(v,i) = addii(gel(v,i), z1);
+      }
+      ai = modii(muliu(ai, a), q);
+    }
+    if (gc_needed(av,2))
+    {
+      if (DEBUGMEM>1) pari_warn(warnmem,"loopLp: a = %ld / %ld",a,A);
+      gerepileall(av, 2, &u,&v);
+    }
+  }
+  return mkvec2(u,v);
+}
 
 /* p coprime to ap, return unit root of x^2 - ap*x + p^(k-1), accuracy p^n */
 GEN
@@ -120,6 +167,53 @@ ms_unit_eigenvalue(GEN ap, long k, GEN p, long n)
   if (equaliu(p,2)) n++;
   sqrtD = Zp_sqrtlift(D, ap, p, n); /* congruent to ap mod p */
   return gmul2n(gadd(ap, cvtop(sqrtD,p,n)), -1);
+}
+
+GEN
+ellpadicmoments(GEN E, GEN pp, long n, long r, GEN DD)
+{
+  pari_sp av = avma;
+  GEN ap, scale, L, W, xpm;
+  ulong p, D;
+
+  if (DD && !Z_isfundamental(DD))
+    pari_err_DOMAIN("ellpadicL", "isfundamental(D)", "=", gen_0, DD);
+  if (DD && signe(DD) <= 0) pari_err_DOMAIN("ellpadicL", "D", "<=", gen_0, DD);
+  if (typ(pp) != t_INT) pari_err_TYPE("ellpadicL",pp);
+  if (cmpis(pp,2) < 0) pari_err_PRIME("ellpadicL",pp);
+  if (n <= 0) pari_err_DOMAIN("ellpadicL","precision","<=",gen_0,stoi(n));
+  if (r < 0) pari_err_DOMAIN("ellpadicL","r","<",gen_0,stoi(r));
+
+  W = msfromell(E, 1);
+  xpm = gel(W,2);
+  W = gel(W,1);
+  p = itou(pp);
+  D = DD? itou(DD): 1;
+
+  xpm = Q_primitive_part(xpm,&scale);
+  if (!scale) scale = gen_1;
+  n -= Q_pval(scale, pp);
+  scale = cvtop(scale, pp, n);
+
+  ap = ellap(E,pp);
+  if (umodiu(ap,p))
+  { /* ordinary */
+    long N = n+1;
+    GEN pn = powuu(p, N);
+    GEN u,v, uv = loopLpn_moments(W,xpm, D, p,N,r,pn); /* correct mod p^n */
+    GEN al = ginv( ms_unit_eigenvalue(ap, 2, pp, n) );
+    al = gel(al,4); /* lift to Z */
+    u = FpV_red(gel(uv,1), pn);
+    v = FpV_red(gel(uv,2), pn);
+    L = FpV_sub(u, FpC_Fp_mul(v,al,pn), pn);
+    L = FpC_Fp_mul(L, Fp_powu(al, N, pn), pn);
+  }
+  else
+  { /* supersingular */
+    pari_err_IMPL("supersingular case");
+    L = NULL;
+  }
+  return gerepileupto(av, gmul(L, gmul2n(scale,1)));
 }
 
 /* TODO: C corresponds to Teichmuller, currently allways NULL */

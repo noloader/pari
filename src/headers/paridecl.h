@@ -2429,6 +2429,7 @@ long    ellisdivisible(GEN E, GEN P, GEN n, GEN *Q);
 
 /* ellpadicL.c */
 GEN ellpadicL(GEN E, GEN p, long n, long r, GEN D, GEN C);
+GEN ellpadicmoments(GEN E, GEN pp, long n, long r, GEN DD);
 
 /* ellisogeny.c */
 
@@ -4014,6 +4015,7 @@ GEN     Qevproj_init(GEN M);
 GEN     RgX_act_Gl2Q(GEN g, long k);
 GEN     RgX_act_ZGl2Q(GEN z, long k);
 void    checkms(GEN W);
+GEN     msfromcusp(GEN W, GEN c);
 GEN     msfromell(GEN E, long signe);
 GEN     msatkinlehner(GEN W, long Q, GEN);
 GEN     mscuspidal(GEN W, long flag);
@@ -4022,12 +4024,15 @@ GEN     mseval(GEN W, GEN s, GEN p);
 GEN     mshecke(GEN W, long p, GEN H);
 GEN     msinit(GEN N, GEN k, long sign);
 long    msissymbol(GEN W, GEN s);
+GEN     mspadicmoments(GEN W, GEN phi, long p, long n);
 GEN     mspathgens(GEN W);
 GEN     mspathlog(GEN W, GEN path);
 GEN     msnew(GEN W);
 GEN     msstar(GEN W, GEN);
 GEN     msqexpansion(GEN W, GEN proV, ulong B);
 GEN     mssplit(GEN W, GEN H);
+GEN     mstooms(GEN W, GEN phi, long p, long n);
+GEN     omseval(GEN O, GEN path);
 
 /* zetamult.c */
 GEN zetamult(GEN avec, long prec);
