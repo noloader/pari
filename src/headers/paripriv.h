@@ -766,4 +766,7 @@ GEN     polylogd0(long m, GEN x, long flag, long prec);
 GEN     trueE2(GEN tau, long prec);
 GEN     twistpartialzeta(GEN q, long f, long c, GEN va, GEN cff);
 
+/* ellpadicL.c */
+GEN ms_unit_eigenvalue(GEN ap, long k, GEN p, long n);
+
 ENDEXTERN

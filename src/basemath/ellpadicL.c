@@ -112,11 +112,11 @@ loopLpn(GEN W, GEN xpm, ulong D, ulong p, long m, long R, GEN q)
   return mkvec2(u,u1);
 }
 
-/* p \nmid ap, return unit root of x^2 - ap*x + p, accuracy p^n */
-static GEN
-unit_eigenvalue(GEN ap, GEN p, long n)
+/* p coprime to ap, return unit root of x^2 - ap*x + p^(k-1), accuracy p^n */
+GEN
+ms_unit_eigenvalue(GEN ap, long k, GEN p, long n)
 {
-  GEN sqrtD, D = subii(sqri(ap), shifti(p,2));
+  GEN sqrtD, D = subii(sqri(ap), shifti(powiu(p,k-1),2));
   if (equaliu(p,2)) n++;
   sqrtD = Zp_sqrtlift(D, ap, p, n); /* congruent to ap mod p */
   return gmul2n(gadd(ap, cvtop(sqrtD,p,n)), -1);
@@ -156,7 +156,7 @@ ellpadicL(GEN E, GEN pp, long n, long r, GEN DD, GEN C)
     long N = n+2;
     GEN pn = powuu(p, N);
     GEN u,v, uv = loopLpn(W,xpm, D, p,N,r,pn); /* correct mod p^n */
-    GEN al = ginv( unit_eigenvalue(ap, pp, n) );
+    GEN al = ginv( ms_unit_eigenvalue(ap, 2, pp, n) );
     al = gel(al,4); /* lift to Z */
     u = modii(gel(uv,1), pn);
     v = modii(gel(uv,2), pn);

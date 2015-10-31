@@ -22,4 +22,13 @@ Doc:
  %3 = [1, -2, -1, 2, 1, 2, -2, 0, -2, -2, 1, -2, 4, 4, -1, -4, -2, 4, 0, 2]
  ? ellan(ellinit("11a1"), 20)
  %4 = [1, -2, -1, 2, 1, 2, -2, 0, -2, -2, 1, -2, 4, 4, -1, -4, -2, 4, 0, 2]
+ @eprog\noindent The shortcut \kbd{msqexpansion(M, s, B)} is available for
+ a symbol $s$, provided it is a Hecke eigenvector:
+ \bprog
+ ? E = ellinit("11a1");
+ ? [M,s]=msfromell(E);
+ ? msqexpansion(M,s,10)
+ %3 = [1, 3, 4, 7, 6, 12, 8, 15, 13, 18]
+ ? ellan(E, 10)
+ %4 = [1, -2, -1, 2, 1, 2, -2, 0, -2, -2]
  @eprog
