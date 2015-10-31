@@ -112,7 +112,7 @@ ZG_G_mul(GEN x, GEN y)
 {
   long i, l;
   GEN z, X;
-  if (typ(x) == t_INT) return to_famat_shallow(y, x);
+  if (typ(x) == t_INT) return signe(x)? to_famat_shallow(y, x): gen_0;
   X = gel(x,1);
   z = cgetg_copy(X, &l);
   for (i = 1; i < l; i++) gel(z,i) = gmul(gel(X,i), y);
