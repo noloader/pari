@@ -99,3 +99,19 @@ vector(#G,i,mspathlog(W,G[i]))
 W=msinit(96,6,1);
 matsize(msnew(W)[1])
 */
+
+check(N,k)=
+{
+  M=msinit(N,k,1);
+  S=mssplit(M,msnew(M));
+  for(i=1, #S,
+    f = msqexpansion(M,S[i],2)[1];
+    mod = if(type(f)=="t_INT", x, f.mod);
+    if(polsturm(mod)!=poldegree(mod), error([N,k,i],":",f,": not real"));
+    print(poldegree(mod));
+  );
+}
+check(49,4)
+check(49,6)
+check(64,4)
+check(64,6)
