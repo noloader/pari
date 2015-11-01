@@ -813,9 +813,9 @@ GEN
 msnew(GEN W)
 {
   pari_sp av = avma;
+  GEN S = mscuspidal(W, 0);
   ulong N = ms_get_N(W);
   long s = msk_get_sign(W);
-  GEN S = mscuspidal(W, 0);
   if (!uisprime(N))
   {
     GEN p1N = ms_get_p1N(W), P = gel(p1N_get_fa(p1N), 1);
@@ -2518,12 +2518,13 @@ mscuspidal(GEN W, long flag)
 {
   pari_sp av = avma;
   GEN S, E, M, T, TE, chS;
-  long k = msk_get_weight(W), bit;
+  long k, bit;
   forprime_t F;
   ulong p, N;
   pari_timer ti;
 
   E = mseisenstein(W);
+  k = msk_get_weight(W);
   N = ms_get_N(W);
   (void)u_forprime_init(&F, 2, ULONG_MAX);
   while ((p = u_forprime_next(&F)))
