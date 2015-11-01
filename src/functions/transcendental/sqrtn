@@ -11,11 +11,11 @@ Doc: principal branch of the $n$th root of $x$,
 
  If $z$ is present, it is set to a suitable root of unity allowing to
  recover all the other roots. If it was not possible, z is
- set to zero. In the case this argument is present and no square root exist,
+ set to zero. In the case this argument is present and no $n$th root exist,
  $0$ is returned instead or raising an error.
  \bprog
  ? sqrtn(Mod(2,7), 2)
- %1 = Mod(4, 7)
+ %1 = Mod(3, 7)
  ? sqrtn(Mod(2,7), 2, &z); z
  %2 = Mod(6, 7)
  ? sqrtn(Mod(2,7), 3)
