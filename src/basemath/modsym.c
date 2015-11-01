@@ -2202,7 +2202,10 @@ msissymbol(GEN W, GEN s)
       break;
     case t_COL:
       if (msk_get_sign(W))
-        return lg(msk_get_starproj(W)) == lg(s);
+      {
+        GEN star = gel(msk_get_starproj(W), 1);
+        if (lg(star) == lg(s)) return 1;
+      }
       if (k == 2) /* on the dual basis of (g_i) */
       {
         if (lg(s)-1 != nbgen) return 0;
@@ -2843,7 +2846,10 @@ mseval(GEN W, GEN s, GEN p)
       break;
     case t_COL:
       if (msk_get_sign(W))
-        s = RgM_RgC_mul(gel(msk_get_starproj(W), 1), s);
+      {
+        GEN star = gel(msk_get_starproj(W), 1);
+        if (lg(star) == lg(s)) s = RgM_RgC_mul(star, s);
+      }
       if (k == 2) /* on the dual basis of (g_i) */
       {
         if (lg(s)-1 != ms_get_nbE1(W)) pari_err_TYPE("mseval",s);

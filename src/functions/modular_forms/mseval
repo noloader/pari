@@ -14,7 +14,10 @@ Doc: Let $\Delta:=\text{Div}^0(\P^1 (\Q))$.
  The symbol $s$ is either
 
  \item a \typ{COL} coding an element of a modular symbol subspace in terms of
- the fixed basis of $\text{Hom}_G(\Delta,V)$ chosen in $M$;
+ the fixed basis of $\text{Hom}_G(\Delta,V)$ chosen in $M$; if $M$ was
+ initialized with a non-zero \emph{sign} ($+$ or $-$), then either the
+ basis for the full symbol space or the $\pm$-part can be used (the dimension
+ being used to distinguish the two).
 
  \item a \typ{VEC} $(v_i)$ of elements of $V$, where the $v_i = s(g_i)$ give
  the image of the generators $g_i$ of $\Delta$, see \tet{mspathgens}.
@@ -27,9 +30,10 @@ Doc: Let $\Delta:=\text{Div}^0(\P^1 (\Q))$.
  ? M = msinit(2,8,1); \\ M_8(Gamma_0(2))^+
  ? g = mspathgens(M)[1]
  %2 = [[+oo, 0], [0, 1]]
- ? N = msnew(M)[1]; \\ Q-basis of new subspace
+ ? N = msnew(M)[1]; #N \\ Q-basis of new subspace, dimension 1
+ %3 = 1
  ? s = N[,1]         \\ t_COL representation
- %4 = [3, 30, 6, -8]~
+ %4 = [-3, 6, -8]~
  ? S = mseval(M, s)   \\ t_VEC representation
  %5 = [64*x^6-272*x^4+136*x^2-8, 384*x^5+960*x^4+192*x^3-672*x^2-432*x-72]
  ? mseval(M,s, g[1])

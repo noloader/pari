@@ -238,7 +238,7 @@ BA 48- GP function fromdigits
 BA 49- [libpari] functions Zp_sqrt, ZpXQ_sqrt
    50- GP functions mscuspidal, mseisenstein, msnew, mssplit, msqexpansion,
        mshecke, ellmsinit, msatkinlehner, msstar, mseval, mspathgens, mspathlog,
-       msissymbol
+       msissymbol, msfromcusp, msfromell
 BA 51- GP declaration localprec()
 HIL52- [libpari] functions Fl_powers_pre, Fl_ellj_pre, Fl_elldisc_pre,
                            Fl_elltwist_disc

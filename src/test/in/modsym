@@ -56,6 +56,9 @@ T = mshecke(W, 3);
 [S,E] = mscuspidal(W, 1)
 E == mseisenstein(W)
 S == mscuspidal(W)
+msfromcusp(W,1)
+msfromcusp(W,oo)
+msfromcusp(W,1/2)
 
 W = msinit(23,2, 1);
 V = mssplit(W, msnew(W));
@@ -115,3 +118,5 @@ check(49,4)
 check(49,6)
 check(64,4)
 check(64,6)
+
+
