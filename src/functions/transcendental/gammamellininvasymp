@@ -8,8 +8,8 @@ Help: gammamellininvasymp(A,n,{m=0}): return the first n terms of the
  f(s)=Gamma_R(s+a_1)*...*Gamma_R(s+a_d), where Vga is the vector [a_1,...,a_d]
  and Gamma_R(s)=Pi^(-s/2)*gamma(s/2). The result is a vector [M[1]...M[n]]
  with M[1]=1, such that
- K^m(t) = \sqrt{2^{d+1}/d}t^{a+m(2/d-1)}e^{-d pi t^{2/d}}\sum_{n\ge0}M[n+1]t^{-2n/d}
- with a = (1-d+sum_ja_j)/d.
+ K^m(t) = \sqrt{2^{d+1}/d}t^{a+m(2/d-1)}e^{-d pi t^{2/d}}\sum_{n\ge0}M[n+1]
+ (pi t^{2n/d})^{-n}, with a = (1-d+sum_ja_j)/d.
 Doc: Return the first $n$ terms of the asymptotic expansion at infinity
  of the $m$-th derivative $K^{(m)}(t)$ of the inverse Mellin transform of the
  function
@@ -19,5 +19,5 @@ Doc: Return the first $n$ terms of the asymptotic expansion at infinity
  The result is a vector
  $[M[1]...M[n]]$ with M[1]=1, such that
  $$K^{(m)}(t)=\sqrt{2^{d+1}/d}t^{a+m(2/d-1)}e^{-d\pi t^{2/d}}
-    \sum_{n\ge0} M[n+1]t^{-2n/d}$$
+    \sum_{n\ge0} M[n+1] (\pi t^{2/d})^{-n} $$
  with $a=(1-d+\sum_{1\le j\le d}a_j)/d$.
