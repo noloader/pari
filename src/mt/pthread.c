@@ -141,6 +141,9 @@ mt_queue_run(void *arg)
       pthread_cond_signal(mq->pcond);
     } UNLOCK(mq->pmut);
   }
+#ifdef __GNUC__
+  return NULL; /* NOT REACHED */
+#endif
 }
 
 static long
