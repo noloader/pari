@@ -2541,6 +2541,7 @@ mscuspidal(GEN W, long flag)
   if (!msk_get_sign(W) && !issquareall(chS, &chS))
     pari_err_BUG("mscuspidal [char (Tp | S) not a square]");
   if (DEBUGLEVEL) timer_printf(&ti,"charpoly sqrt");
+  (void)ZX_gcd_all(chS, ZX_deriv(chS), &chS);
   M = RgX_RgM_eval(chS, T);
   if (DEBUGLEVEL) timer_printf(&ti,"P(T_p)");
   S = Qevproj_init(QM_ker(M));
