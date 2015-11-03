@@ -112,7 +112,7 @@ loopLpn(GEN W, GEN xpm, ulong D, ulong p, long m, long R, GEN q)
   return mkvec2(u,u1);
 }
 static GEN
-loopLpn_moments(GEN W, GEN xpm, ulong D, ulong p, long m, long R, GEN q)
+loopLpn_moments(GEN W, GEN xpm, ulong D, ulong p, long R, GEN q)
 {
   pari_sp av;
   ulong a;
@@ -200,7 +200,7 @@ ellpadicmoments(GEN E, GEN pp, long n, long r, GEN DD)
   { /* ordinary */
     long N = n+1;
     GEN pn = powuu(p, N);
-    GEN u,v, uv = loopLpn_moments(W,xpm, D, p,N,r,pn); /* correct mod p^n */
+    GEN u,v, uv = loopLpn_moments(W,xpm, D, p,r,pn); /* correct mod p^n */
     GEN al = ginv( ms_unit_eigenvalue(ap, 2, pp, n) );
     al = gel(al,4); /* lift to Z */
     u = FpV_red(gel(uv,1), pn);
