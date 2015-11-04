@@ -501,14 +501,14 @@ F2m_ker_sp(GEN x, long deplin)
 }
 
 static void /* assume m < p */
-_Fl_submul(GEN b, long k, long i, ulong m, ulong p)
+_Fl_addmul(GEN b, long k, long i, ulong m, ulong p, ulong pi)
 {
-  uel(b,k) = Fl_sub(uel(b,k), Fl_mul(m, uel(b,i), p), p);
+  uel(b,k) = Fl_addmul_pre(m, uel(b,i), uel(b,k), p, pi);
 }
 static void /* same m = 1 */
-_Fl_sub(GEN b, long k, long i, ulong p)
+_Fl_add(GEN b, long k, long i, ulong p)
 {
-  uel(b,k) = Fl_sub(uel(b,k), uel(b,i), p);
+  uel(b,k) = Fl_add(uel(b,k), uel(b,i), p);
 }
 static void /* assume m < p && SMALL_ULONG(p) && (! (b[i] & b[k] & HIGHMASK)) */
 _Fl_addmul_OK(GEN b, long k, long i, ulong m, ulong p)
@@ -522,17 +522,6 @@ _Fl_add_OK(GEN b, long k, long i, ulong p)
   uel(b,k) += uel(b,i);
   if (uel(b,k) & HIGHMASK) uel(b,k) %= p;
 }
-static void /* assume m < p */
-_Fl_addmul(GEN b, long k, long i, ulong m, ulong p)
-{
-  uel(b,i) %= p;
-  uel(b,k) = Fl_add(uel(b,k), Fl_mul(m, uel(b,i), p), p);
-}
-static void /* same m = 1 */
-_Fl_add(GEN b, long k, long i, ulong p)
-{
-  uel(b,k) = Fl_add(uel(b,k), uel(b,i), p);
-}
 
 /* in place, destroy x */
 GEN
@@ -542,6 +531,7 @@ Flm_ker_sp(GEN x, ulong p, long deplin)
   long i, j, k, r, t, m, n;
   ulong a;
   const int OK_ulong = SMALL_ULONG(p);
+  ulong pi = get_Fl_red(p);
 
   n = lg(x)-1;
   m=nbrows(x); r=0;
@@ -594,7 +584,7 @@ Flm_ker_sp(GEN x, ulong p, long deplin)
           if (piv == 1)
             for (i=k+1; i<=n; i++) _Fl_add(gel(x,i),t,j,p);
           else
-            for (i=k+1; i<=n; i++) _Fl_addmul(gel(x,i),t,j,piv,p);
+            for (i=k+1; i<=n; i++) _Fl_addmul(gel(x,i),t,j,piv,p, pi);
         }
       }
     }
@@ -1853,6 +1843,7 @@ Flm_gauss_sp(GEN a, GEN b, ulong *detp, ulong p)
   const int OK_ulong = SMALL_ULONG(p);
   ulong det = 1;
   GEN u;
+  ulong pi = get_Fl_red(p);
 
   if (!aco) { if (detp) *detp = 1; return cgetg(1,t_MAT); }
   li = nbrows(a);
@@ -1887,7 +1878,7 @@ Flm_gauss_sp(GEN a, GEN b, ulong *detp, ulong p)
         if (piv)
         {
           ucoeff(a,k,i) = Fl_inv(piv, p);
-          if (detp) det = Fl_mul(det, piv, p);
+          if (detp) det = Fl_mul_pre(det, piv, p, pi);
           break;
         }
       }
@@ -1902,16 +1893,15 @@ Flm_gauss_sp(GEN a, GEN b, ulong *detp, ulong p)
     }
     if (i == aco) break;
 
-    invpiv = ucoeff(a,i,i); /* 1/piv mod p */
+    invpiv = Fl_neg(ucoeff(a,i,i), p); /* -1/piv mod p */
     for (k=i+1; k<=li; k++)
     {
       ulong m = ( ucoeff(a,k,i) %= p );
       if (!m) continue;
 
-      m = Fl_mul(m, invpiv, p);
+      m = Fl_mul_pre(m, invpiv, p, pi);
       if (OK_ulong)
       {
-        m = p - m; /* = -m */
         if (m == 1) {
           for (j=i+1; j<=aco; j++) _Fl_add_OK(gel(a,j),k,i, p);
           for (j=1;   j<=bco; j++) _Fl_add_OK(gel(b,j),k,i, p);
@@ -1921,11 +1911,11 @@ Flm_gauss_sp(GEN a, GEN b, ulong *detp, ulong p)
         }
       } else {
         if (m == 1) {
-          for (j=i+1; j<=aco; j++) _Fl_sub(gel(a,j),k,i, p);
-          for (j=1;   j<=bco; j++) _Fl_sub(gel(b,j),k,i, p);
+          for (j=i+1; j<=aco; j++) _Fl_add(gel(a,j),k,i, p);
+          for (j=1;   j<=bco; j++) _Fl_add(gel(b,j),k,i, p);
         } else {
-          for (j=i+1; j<=aco; j++) _Fl_submul(gel(a,j),k,i,m, p);
-          for (j=1;   j<=bco; j++) _Fl_submul(gel(b,j),k,i,m, p);
+          for (j=i+1; j<=aco; j++) _Fl_addmul(gel(a,j),k,i,m, p, pi);
+          for (j=1;   j<=bco; j++) _Fl_addmul(gel(b,j),k,i,m, p, pi);
         }
       }
     }
