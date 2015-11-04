@@ -1688,7 +1688,7 @@ lfunartin(GEN N, GEN G, GEN M, GEN o)
   pari_sp ltop = avma;
   GEN bc, R, V, aut, Ldata;
   long i, l;
-  checknf(N);
+  N = checknf(N);
   checkgal(G);
   if (!is_vec_t(typ(M))) pari_err_TYPE("lfunartin",M);
   if (typ(o)!=t_INT) pari_err_TYPE("lfunartin",o);

@@ -955,19 +955,18 @@ idealfrobenius_aut(GEN nf, GEN gal, GEN pr, GEN aut)
   GEN S=NULL, g=NULL; /*-Wall*/
   GEN T, p, a, b, modpr;
   long f, n, s;
-  nf = checknf(nf);
-  checkgal(gal);
-  checkprid(pr);
-  gal_check_pol("idealfrobenius",nf_get_pol(nf),gal_get_pol(gal));
-  if (pr_get_e(pr)>1) pari_err_DOMAIN("idealfrobenius","pr.e", ">", gen_1,pr);
   f = pr_get_f(pr); n = nf_get_degree(nf);
   if (f==1) { avma = av; return identity_perm(n); }
-  modpr = zk_to_Fq_init(nf,&pr,&T,&p);
   g = idealquasifrob(nf, gal, gal_get_group(gal), pr, NULL, &S, aut);
+  if (f==2) return gerepileupto(av, g);
+  modpr = zk_to_Fq_init(nf,&pr,&T,&p);
   a = pol_x(nf_get_varn(nf));
   b = nf_to_Fq(nf, QX_galoisapplymod(nf, modpr_genFq(modpr), S, p), modpr);
-  for (s=0; !ZX_equal(a, b); s++)
+  for (s = 1; s < f-1; s++)
+  {
     a = Fq_pow(a, p, T, p);
+    if (ZX_equal(a, b)) break;
+  }
   g = perm_pow(g, Fl_inv(s, f));
   return gerepileupto(av, g);
 }
@@ -975,6 +974,11 @@ idealfrobenius_aut(GEN nf, GEN gal, GEN pr, GEN aut)
 GEN
 idealfrobenius(GEN nf, GEN gal, GEN pr)
 {
+  nf = checknf(nf);
+  checkgal(gal);
+  checkprid(pr);
+  gal_check_pol("idealfrobenius",nf_get_pol(nf),gal_get_pol(gal));
+  if (pr_get_e(pr)>1) pari_err_DOMAIN("idealfrobenius","pr.e", ">", gen_1,pr);
   return idealfrobenius_aut(nf, gal, pr, NULL);
 }
 
