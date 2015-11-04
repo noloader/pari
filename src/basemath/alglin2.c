@@ -908,7 +908,7 @@ ZX_CRT(GEN *H, GEN Hp, GEN *q, ulong p, long bit)
   {
     int stable = ZX_incremental_CRT(H, Hp, q,p);
     if (DEBUGLEVEL>5)
-      err_printf("charpoly mod %lu (stable=%ld), bound = 2^%ld",
+      err_printf("charpoly mod %lu (stable=%ld), bound = 2^%ld\n",
                  p, stable, expi(*q));
     if (stable && expi(*q) > bit) return 1;
   }
