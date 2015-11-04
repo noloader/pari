@@ -523,15 +523,12 @@ _Fl_add_OK(GEN b, long k, long i, ulong p)
   if (uel(b,k) & HIGHMASK) uel(b,k) %= p;
 }
 
-/* in place, destroy x */
-GEN
-Flm_ker_sp(GEN x, ulong p, long deplin)
+static GEN
+Flm_ker_sp_OK(GEN x, ulong p, long deplin)
 {
   GEN y, c, d;
   long i, j, k, r, t, m, n;
   ulong a;
-  const int OK_ulong = SMALL_ULONG(p);
-  ulong pi = get_Fl_red(p);
 
   n = lg(x)-1;
   m=nbrows(x); r=0;
@@ -562,30 +559,18 @@ Flm_ker_sp(GEN x, ulong p, long deplin)
       ulong piv = p - Fl_inv(a, p); /* -1/a */
       c[j] = k; d[k] = j;
       ucoeff(x,j,k) = p-1;
-      if (piv == 1) { /* nothing */ }
-      else if (OK_ulong)
+      if (piv != 1)
         for (i=k+1; i<=n; i++) ucoeff(x,j,i) = (piv * ucoeff(x,j,i)) % p;
-      else
-        for (i=k+1; i<=n; i++) ucoeff(x,j,i) = Fl_mul(piv, ucoeff(x,j,i), p);
       for (t=1; t<=m; t++)
       {
         if (t == j) continue;
 
         piv = ( ucoeff(x,t,k) %= p );
         if (!piv) continue;
-
-        if (OK_ulong)
-        {
-          if (piv == 1)
-            for (i=k+1; i<=n; i++) _Fl_add_OK(gel(x,i),t,j, p);
-          else
-            for (i=k+1; i<=n; i++) _Fl_addmul_OK(gel(x,i),t,j,piv, p);
-        } else {
-          if (piv == 1)
-            for (i=k+1; i<=n; i++) _Fl_add(gel(x,i),t,j,p);
-          else
-            for (i=k+1; i<=n; i++) _Fl_addmul(gel(x,i),t,j,piv,p, pi);
-        }
+        if (piv == 1)
+          for (i=k+1; i<=n; i++) _Fl_add_OK(gel(x,i),t,j, p);
+        else
+          for (i=k+1; i<=n; i++) _Fl_addmul_OK(gel(x,i),t,j,piv, p);
       }
     }
   }
@@ -600,6 +585,79 @@ Flm_ker_sp(GEN x, ulong p, long deplin)
     for (i=1; i<k; i++)
       if (d[i])
         uel(C,i) = ucoeff(x,d[i],k) % p;
+      else
+        uel(C,i) = 0UL;
+    uel(C,k) = 1UL; for (i=k+1; i<=n; i++) uel(C,i) = 0UL;
+  }
+  return y;
+}
+
+/* in place, destroy x */
+GEN
+Flm_ker_sp(GEN x, ulong p, long deplin)
+{
+  GEN y, c, d;
+  long i, j, k, r, t, m, n;
+  ulong a, pi;
+  if (SMALL_ULONG(p)) return Flm_ker_sp_OK(x, p, deplin);
+  pi = get_Fl_red(p);
+
+  n = lg(x)-1;
+  m=nbrows(x); r=0;
+
+  c = zero_zv(m);
+  d = new_chunk(n+1);
+  a = 0; /* for gcc -Wall */
+  for (k=1; k<=n; k++)
+  {
+    for (j=1; j<=m; j++)
+      if (!c[j])
+      {
+        a = ucoeff(x,j,k);
+        if (a) break;
+      }
+    if (j > m)
+    {
+      if (deplin) {
+        c = cgetg(n+1, t_VECSMALL);
+        for (i=1; i<k; i++) c[i] = ucoeff(x,d[i],k);
+        c[k] = 1; for (i=k+1; i<=n; i++) c[i] = 0;
+        return c;
+      }
+      r++; d[k] = 0;
+    }
+    else
+    {
+      ulong piv = p - Fl_inv(a, p); /* -1/a */
+      c[j] = k; d[k] = j;
+      ucoeff(x,j,k) = p-1;
+      if (piv != 1)
+        for (i=k+1; i<=n; i++)
+          ucoeff(x,j,i) = Fl_mul_pre(piv, ucoeff(x,j,i), p, pi);
+      for (t=1; t<=m; t++)
+      {
+        if (t == j) continue;
+
+        piv = ucoeff(x,t,k);
+        if (!piv) continue;
+        if (piv == 1)
+          for (i=k+1; i<=n; i++) _Fl_add(gel(x,i),t,j,p);
+        else
+          for (i=k+1; i<=n; i++) _Fl_addmul(gel(x,i),t,j,piv,p, pi);
+      }
+    }
+  }
+  if (deplin) return NULL;
+
+  y = cgetg(r+1, t_MAT);
+  for (j=k=1; j<=r; j++,k++)
+  {
+    GEN C = cgetg(n+1, t_VECSMALL);
+
+    gel(y,j) = C; while (d[k]) k++;
+    for (i=1; i<k; i++)
+      if (d[i])
+        uel(C,i) = ucoeff(x,d[i],k);
       else
         uel(C,i) = 0UL;
     uel(C,k) = 1UL; for (i=k+1; i<=n; i++) uel(C,i) = 0UL;
@@ -1837,50 +1895,31 @@ F2m_inv(GEN a)
 
 /* destroy a, b */
 static GEN
-Flm_gauss_sp(GEN a, GEN b, ulong *detp, ulong p)
+Flm_gauss_sp_OK(GEN a, GEN b, ulong *detp, ulong p)
 {
   long i, j, k, li, bco, aco = lg(a)-1, s = 1;
-  const int OK_ulong = SMALL_ULONG(p);
   ulong det = 1;
   GEN u;
-  ulong pi = get_Fl_red(p);
 
-  if (!aco) { if (detp) *detp = 1; return cgetg(1,t_MAT); }
   li = nbrows(a);
   bco = lg(b)-1;
   for (i=1; i<=aco; i++)
   {
     ulong invpiv;
     /* Fl_get_col wants 0 <= a[i,j] < p for all i,j */
-    if (OK_ulong)
+    for (k = 1; k < i; k++) ucoeff(a,k,i) %= p;
+    for (k = i; k <= li; k++)
     {
-      for (k = 1; k < i; k++) ucoeff(a,k,i) %= p;
-      for (k = i; k <= li; k++)
+      ulong piv = ( ucoeff(a,k,i) %= p );
+      if (piv)
       {
-        ulong piv = ( ucoeff(a,k,i) %= p );
-        if (piv)
+        ucoeff(a,k,i) = Fl_inv(piv, p);
+        if (detp)
         {
-          ucoeff(a,k,i) = Fl_inv(piv, p);
-          if (detp)
-          {
-            if (det & HIGHMASK) det %= p;
-            det *= piv;
-          }
-          break;
+          if (det & HIGHMASK) det %= p;
+          det *= piv;
         }
-      }
-    }
-    else
-    {
-      for (k = i; k <= li; k++)
-      {
-        ulong piv = ucoeff(a,k,i);
-        if (piv)
-        {
-          ucoeff(a,k,i) = Fl_inv(piv, p);
-          if (detp) det = Fl_mul_pre(det, piv, p, pi);
-          break;
-        }
+        break;
       }
     }
     /* found a pivot on line k */
@@ -1893,30 +1932,19 @@ Flm_gauss_sp(GEN a, GEN b, ulong *detp, ulong p)
     }
     if (i == aco) break;
 
-    invpiv = Fl_neg(ucoeff(a,i,i), p); /* -1/piv mod p */
+    invpiv = p - ucoeff(a,i,i); /* -1/piv mod p */
     for (k=i+1; k<=li; k++)
     {
       ulong m = ( ucoeff(a,k,i) %= p );
       if (!m) continue;
 
-      m = Fl_mul_pre(m, invpiv, p, pi);
-      if (OK_ulong)
-      {
-        if (m == 1) {
-          for (j=i+1; j<=aco; j++) _Fl_add_OK(gel(a,j),k,i, p);
-          for (j=1;   j<=bco; j++) _Fl_add_OK(gel(b,j),k,i, p);
-        } else {
-          for (j=i+1; j<=aco; j++) _Fl_addmul_OK(gel(a,j),k,i,m, p);
-          for (j=1;   j<=bco; j++) _Fl_addmul_OK(gel(b,j),k,i,m, p);
-        }
+      m = Fl_mul(m, invpiv, p);
+      if (m == 1) {
+        for (j=i+1; j<=aco; j++) _Fl_add_OK(gel(a,j),k,i, p);
+        for (j=1;   j<=bco; j++) _Fl_add_OK(gel(b,j),k,i, p);
       } else {
-        if (m == 1) {
-          for (j=i+1; j<=aco; j++) _Fl_add(gel(a,j),k,i, p);
-          for (j=1;   j<=bco; j++) _Fl_add(gel(b,j),k,i, p);
-        } else {
-          for (j=i+1; j<=aco; j++) _Fl_addmul(gel(a,j),k,i,m, p, pi);
-          for (j=1;   j<=bco; j++) _Fl_addmul(gel(b,j),k,i,m, p, pi);
-        }
+        for (j=i+1; j<=aco; j++) _Fl_addmul_OK(gel(a,j),k,i,m, p);
+        for (j=1;   j<=bco; j++) _Fl_addmul_OK(gel(b,j),k,i,m, p);
       }
     }
   }
@@ -1927,10 +1955,70 @@ Flm_gauss_sp(GEN a, GEN b, ulong *detp, ulong p)
     *detp = det;
   }
   u = cgetg(bco+1,t_MAT);
-  if (OK_ulong)
-    for (j=1; j<=bco; j++) gel(u,j) = Fl_get_col_OK(a,gel(b,j), aco,p);
-  else
-    for (j=1; j<=bco; j++) gel(u,j) = Fl_get_col(a,gel(b,j), aco,p);
+  for (j=1; j<=bco; j++) gel(u,j) = Fl_get_col_OK(a,gel(b,j), aco,p);
+  return u;
+}
+
+/* destroy a, b */
+static GEN
+Flm_gauss_sp(GEN a, GEN b, ulong *detp, ulong p)
+{
+  long i, j, k, li, bco, aco = lg(a)-1, s = 1;
+  ulong det = 1;
+  GEN u;
+  ulong pi;
+  if (!aco) { if (detp) *detp = 1; return cgetg(1,t_MAT); }
+  if (SMALL_ULONG(p)) return Flm_gauss_sp_OK(a, b, detp, p);
+  pi = get_Fl_red(p);
+  li = nbrows(a);
+  bco = lg(b)-1;
+  for (i=1; i<=aco; i++)
+  {
+    ulong invpiv;
+    /* Fl_get_col wants 0 <= a[i,j] < p for all i,j */
+    for (k = i; k <= li; k++)
+    {
+      ulong piv = ucoeff(a,k,i);
+      if (piv)
+      {
+        ucoeff(a,k,i) = Fl_inv(piv, p);
+        if (detp) det = Fl_mul_pre(det, piv, p, pi);
+        break;
+      }
+    }
+    /* found a pivot on line k */
+    if (k > li) return NULL;
+    if (k != i)
+    { /* swap lines so that k = i */
+      s = -s;
+      for (j=i; j<=aco; j++) swap(gcoeff(a,i,j), gcoeff(a,k,j));
+      for (j=1; j<=bco; j++) swap(gcoeff(b,i,j), gcoeff(b,k,j));
+    }
+    if (i == aco) break;
+
+    invpiv = p - ucoeff(a,i,i); /* -1/piv mod p */
+    for (k=i+1; k<=li; k++)
+    {
+      ulong m = ucoeff(a,k,i);
+      if (!m) continue;
+
+      m = Fl_mul_pre(m, invpiv, p, pi);
+      if (m == 1) {
+        for (j=i+1; j<=aco; j++) _Fl_add(gel(a,j),k,i, p);
+        for (j=1;   j<=bco; j++) _Fl_add(gel(b,j),k,i, p);
+      } else {
+        for (j=i+1; j<=aco; j++) _Fl_addmul(gel(a,j),k,i,m, p, pi);
+        for (j=1;   j<=bco; j++) _Fl_addmul(gel(b,j),k,i,m, p, pi);
+      }
+    }
+  }
+  if (detp)
+  {
+    if (s < 0 && det) det = p - det;
+    *detp = det;
+  }
+  u = cgetg(bco+1,t_MAT);
+  for (j=1; j<=bco; j++) gel(u,j) = Fl_get_col(a,gel(b,j), aco,p);
   return u;
 }
 
