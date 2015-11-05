@@ -3263,7 +3263,7 @@ GEN     dirzetak(GEN nf, GEN b);
 GEN     ellmoddegree(GEN e, long prec);
 GEN     lfunabelianrelinit(GEN bnfabs, GEN bnf, GEN polrel, GEN dom, long der, long prec);
 GEN     lfunabelianrelinit_bitprec(GEN bnfabs, GEN bnf, GEN polrel, GEN dom, long der, long bitprec);
-GEN     lfunartin(GEN N, GEN G, GEN M, GEN o);
+GEN     lfunartin(GEN N, GEN G, GEN M, long o);
 GEN     lfunconvol(GEN a1, GEN a2);
 GEN     lfundiv(GEN ldata1, GEN ldata2, long prec);
 GEN     lfunetaquo(GEN ldata);

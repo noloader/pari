@@ -1683,23 +1683,23 @@ vecan_artin(GEN an, long L, long prec)
 }
 
 GEN
-lfunartin(GEN N, GEN G, GEN M, GEN o)
+lfunartin(GEN N, GEN G, GEN M, long o)
 {
   pari_sp ltop = avma;
-  GEN bc, R, V, aut, Ldata;
+  GEN m, bc, R, V, aut, Ldata;
   long i, l;
   N = checknf(N);
   checkgal(G);
   if (!is_vec_t(typ(M))) pari_err_TYPE("lfunartin",M);
-  if (typ(o)!=t_INT) pari_err_TYPE("lfunartin",o);
   R = artin_repfromgens(G,M);
   l = lg(R)-1;
   bc = artin_badprimes(N,G,R);
+  m = gmodulo(gen_1, polcyclo(o, gvar(R)));
   V = cgetg(l+1, t_VEC);
   for (i = 1; i <= l; ++i)
-    gel(V, i) = RgX_recip(charpoly(gel(R, i), 0));
+    gel(V, i) = RgX_recip(charpoly(gmul(gel(R, i), m), 0));
   aut = nfgaloispermtobasis(N, G);
-  Ldata = mkvecn(6, tag(mkcol6(N, G, V, aut, gel(bc, 2), o), t_LFUN_ARTIN),
+  Ldata = mkvecn(6, tag(mkcol6(N, G, V, aut, gel(bc, 2), stoi(o)), t_LFUN_ARTIN),
       gen_1, artin_gamma(N, G, R), gen_1, gel(bc,1), gen_0);
   return gerepilecopy(ltop, Ldata);
 }

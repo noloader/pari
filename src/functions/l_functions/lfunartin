@@ -1,7 +1,7 @@
 Function: lfunartin
 Section: l_functions
 C-Name: lfunartin
-Prototype: GGGG
+Prototype: GGGL
 Help: lfunartin(nf,gal,M,n): returns the Ldata structure associated to the
  Artin L-function associated to the representation R of the Galois group
  of the extension K/Q, defined over the cyclotomic field Q(zeta_n),
