@@ -2319,7 +2319,7 @@ ZM_inv(GEN M, GEN dM)
     if (DEBUGLEVEL>5) err_printf("inverse mod %ld (stable=%ld)\n", p,stable);
     if (stable) {/* DONE ? */
       if (dM != gen_1)
-      { if (RgM_isscalar(ZM_mul(M, H), dM)) break; }
+      { if (ZM_isscalar(ZM_mul(M, H), dM)) break; }
       else
       { if (ZM_isidentity(ZM_mul(M, H))) break; }
     }
@@ -2336,6 +2336,54 @@ ZM_inv(GEN M, GEN dM)
     return gerepileupto(av, ZM_neg(H));
   else
     return gerepilecopy(av, H);
+}
+
+/* to be used when denom(M^(-1)) << det(M) and a sharp multiple is
+ * not available. Return H primitive such that M*H = den*Id */
+GEN
+ZM_inv_ratlift(GEN M, GEN *pden)
+{
+  pari_sp av2, av = avma;
+  GEN Hp, q, H;
+  ulong p;
+  long lM = lg(M);
+  forprime_t S;
+  if (lM == 1) { *pden = gen_1; return cgetg(1,t_MAT); }
+
+  init_modular(&S);
+  av2 = avma;
+  H = NULL;
+  while ((p = u_forprime_next(&S)))
+  {
+    GEN Mp, B, Hr;
+    Mp = ZM_to_Flm(M,p);
+    Hp = Flm_inv_sp(Mp, NULL, p);
+    if (!H)
+    {
+      H = ZM_init_CRT(Hp, p);
+      q = utoipos(p);
+    }
+    else
+      ZM_incremental_CRT(&H, Hp, &q, p);
+    B = sqrti(shifti(q,-1));
+    Hr = FpM_ratlift(H,q,B,B,NULL);
+    if (DEBUGLEVEL>5) err_printf("ZM_inv mod %ld (ratlift=%ld)\n", p,!!Hr);
+    if (Hr) {/* DONE ? */
+      GEN Hl = Q_remove_denom(Hr, pden);
+      if (*pden)
+      { if (ZM_isscalar(ZM_mul(M, Hl), *pden)) { H = Hl; break; }}
+      else
+      { if (ZM_isidentity(ZM_mul(M, Hl))) { H = Hl; *pden = gen_1; break; } }
+    }
+
+    if (gc_needed(av,2))
+    {
+      if (DEBUGMEM>1) pari_warn(warnmem,"ZM_inv_ratlift");
+      gerepileall(av2, 2, &H, &q);
+    }
+  }
+  gerepileall(av, 2, &H, pden);
+  return H;
 }
 
 /* same as above, M rational */

@@ -1112,17 +1112,37 @@ ZM_isidentity(GEN x)
   if (lx != lgcols(x)) return 0;
   for (j=1; j<lx; j++)
   {
-    GEN c = gel(x,j), t;
+    GEN c = gel(x,j);
     for (i=1; i<j; )
       if (signe(gel(c,i++))) return 0;
     /* i = j */
-    t = gel(c,i++);
-      if (!is_pm1(t) || signe(t) < 0) return 0;
+      if (!equali1(gel(c,i++))) return 0;
     for (   ; i<lx; )
       if (signe(gel(c,i++))) return 0;
   }
   return 1;
 }
+int
+ZM_isscalar(GEN x, GEN s)
+{
+  long i, j, lx = lg(x);
+
+  if (lx == 1) return 1;
+  if (lx != lgcols(x)) return 0;
+  if (!s) s = gcoeff(x,1,1);
+  for (j=1; j<lx; j++)
+  {
+    GEN c = gel(x,j);
+    for (i=1; i<j; )
+      if (signe(gel(c,i++))) return 0;
+    /* i = j */
+      if (!equalii(gel(c,i++), s)) return 0;
+    for (   ; i<lx; )
+      if (signe(gel(c,i++))) return 0;
+  }
+  return 1;
+}
+
 
 long
 ZC_is_ei(GEN x)

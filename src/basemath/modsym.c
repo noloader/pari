@@ -432,10 +432,8 @@ cusp_index(GEN c, GEN S)
 static GEN
 ZM_inv_denom(GEN M)
 {
-  GEN ciM = ZM_det(M);
-  GEN c, iM = Q_primitive_part(ZM_inv(M, ciM), &c);
-  if (c) ciM = diviiexact(ciM, c);
-  return mkvec2(iM, ciM);
+  GEN diM, iM = ZM_inv_ratlift(M, &diM);
+  return mkvec2(iM, diM);
 }
 /* return M^(-1) v, dinv = ZM_inv_denom(M) OR Qevproj_init(M) */
 static GEN
