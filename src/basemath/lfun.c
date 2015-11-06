@@ -1977,7 +1977,8 @@ lfunzeros_bitprec(GEN ldata, GEN lim, long divz, long bitprec)
     GEN v, M = gmael(linit_get_tech(ldata), 2,1);
     long l = lg(M);
     v = cgetg(l, t_VEC);
-    for (i = 1; i < l; i++) v = lfunzeros_bitprec(gel(M,i), lim, divz, bitprec);
+    for (i = 1; i < l; i++)
+      gel(v,i) = lfunzeros_bitprec(gel(M,i), lim, divz, bitprec);
     return gerepileupto(ltop, vecsort0(shallowconcat1(v), NULL, 0));
   }
   S.linit = linit = lfuncenterinit_bitprec(ldata, maxt, bitprec);
