@@ -2507,24 +2507,30 @@ mseisenstein(GEN W)
 
 /* upper bound for log_2 |charpoly(T_p|S)|, where S is a cuspidal subspace of
  * dimension d, k is the weight */
+#if 0
 static long
 TpS_char_bound(ulong p, long k, long d)
 { /* |eigenvalue| <= 2 p^(k-1)/2 */
   return d * (2 + (log2((double)p)*(k-1))/2);
+}
+#endif
+long
+TpE_char_bound(ulong p, long k, long d)
+{ /* |eigenvalue| <= 2 p^(k-1) */
+  return d * (2 + log2((double)p)*(k-1));
 }
 
 GEN
 mscuspidal(GEN W, long flag)
 {
   pari_sp av = avma;
-  GEN S, E, M, T, TE, chS;
-  long k, bit;
+  GEN S, E, M, T, TE, chE;
+  long bit;
   forprime_t F;
   ulong p, N;
   pari_timer ti;
 
   E = mseisenstein(W);
-  k = msk_get_weight(W);
   N = ms_get_N(W);
   (void)u_forprime_init(&F, 2, ULONG_MAX);
   while ((p = u_forprime_next(&F)))
@@ -2534,17 +2540,11 @@ mscuspidal(GEN W, long flag)
   if (DEBUGLEVEL) timer_printf(&ti,"Tp, p = %ld", p);
   TE = Qevproj_apply(T, E); /* T_p | E */
   if (DEBUGLEVEL) timer_printf(&ti,"Qevproj_init(E)");
-  bit = TpS_char_bound(p, k, lg(T)-1);
-  chS = QM_charpoly_ZX2_bound(T,TE,bit); /* charpoly(T_p | S_k) */
-  if (DEBUGLEVEL) timer_printf(&ti,"charpoly");
-  /* chS is a square */
-  if (!msk_get_sign(W) && !issquareall(chS, &chS))
-    pari_err_BUG("mscuspidal [char (Tp | S) not a square]");
-  if (DEBUGLEVEL) timer_printf(&ti,"charpoly sqrt");
-  (void)ZX_gcd_all(chS, ZX_deriv(chS), &chS);
-  M = RgX_RgM_eval(chS, T);
-  if (DEBUGLEVEL) timer_printf(&ti,"P(T_p)");
-  S = Qevproj_init(QM_ker(M));
+  bit = TpE_char_bound(p, msk_get_weight(W), lg(TE)-1);
+  chE = QM_charpoly_ZX_bound(TE, bit);
+  (void)ZX_gcd_all(chE, ZX_deriv(chE), &chE);
+  M = RgX_RgM_eval(chE, T);
+  S = Qevproj_init(QM_image(M));
   return gerepilecopy(av, flag? mkvec2(S,E): S);
 }
 
