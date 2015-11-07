@@ -2358,6 +2358,7 @@ ZM_inv_ratlift(GEN M, GEN *pden)
     GEN Mp, B, Hr;
     Mp = ZM_to_Flm(M,p);
     Hp = Flm_inv_sp(Mp, NULL, p);
+    if (!Hp) continue;
     if (!H)
     {
       H = ZM_init_CRT(Hp, p);
