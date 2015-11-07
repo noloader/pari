@@ -462,13 +462,11 @@ ZC_apply_dinv(GEN dinv, GEN v)
 GEN
 Qevproj_init(GEN M)
 {
-  GEN v, perm, MM, dinv, iM, ciM;
+  GEN v, perm, MM, iM, diM;
   v = ZM_indexrank(M); perm = gel(v,1);
   MM = rowpermute(M, perm); /* square invertible */
-  dinv = ZM_inv_denom(MM);
-  iM = gel(dinv,1);
-  ciM= gel(dinv,2);
-  return mkvec4(M, iM, ciM, perm);
+  iM = ZM_inv_ratlift(MM, &diM);
+  return mkvec4(M, iM, diM, perm);
 }
 /* same with typechecks */
 static GEN
@@ -643,7 +641,7 @@ msqexpansion_i(GEN W, GEN proV, ulong B)
   ulong p, N = ms_get_N(W), sqrtB;
   long i, d, k = msk_get_weight(W);
   forprime_t S;
-  GEN T1=NULL, T2=NULL, TV=NULL, ch=NULL, v, dTiv, Tiv, dinv, ciM, iM, L;
+  GEN T1=NULL, T2=NULL, TV=NULL, ch=NULL, v, dTiv, Tiv, diM, iM, L;
   switch(B)
   {
     case 0: return cgetg(1,t_VEC);
@@ -677,10 +675,8 @@ msqexpansion_i(GEN W, GEN proV, ulong B)
   gel(Tiv, 1) = v;
   for (i = 2; i <= d; i++) gel(Tiv, i) = RgM_RgC_mul(TV, gel(Tiv,i-1));
   Tiv = Q_remove_denom(Tiv, &dTiv);
-  dinv = ZM_inv_denom(Tiv);
-  iM = gel(dinv,1);
-  ciM = gel(dinv,2);
-  if (dTiv) ciM = gdiv(ciM, dTiv);
+  iM = ZM_inv_ratlift(Tiv, &diM);
+  if (dTiv) diM = gdiv(diM, dTiv);
   L = const_vec(B,NULL);
   sqrtB = (ulong)sqrt(B);
   gel(L,1) = d > 1? mkpolmod(gen_1,ch): gen_1;
@@ -693,7 +689,7 @@ msqexpansion_i(GEN W, GEN proV, ulong B)
     T = mshecke(W, p, NULL);
     Tv = Qevproj_apply_vecei(T, proV, 1); /* Tp.v */
     /* Write Tp.v = \sum u_i T^i v */
-    u = RgC_Rg_div(RgM_RgC_mul(iM, Tv), ciM);
+    u = RgC_Rg_div(RgM_RgC_mul(iM, Tv), diM);
     ap = gerepilecopy(av, RgV_to_RgX(u, 0));
     if (d > 1)
       ap = mkpolmod(ap,ch);
