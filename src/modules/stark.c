@@ -45,13 +45,17 @@ typedef struct {
 /********************************************************************/
 /*                    Miscellaneous functions                       */
 /********************************************************************/
-/* exp(2iPi/den), assume den a t_INT */
+/* exp(2iPi/d), assume d a t_INT */
 static GEN
-InitRU(GEN den, long prec)
+InitRU(GEN d, long prec)
 {
   GEN c, s;
-  if (equaliu(den, 2)) return gen_m1;
-  gsincos(divri(Pi2n(1, prec), den), &s, &c, prec);
+  switch(itou_or_0(d))
+  {
+    case 1: return gen_1;
+    case 2: return gen_m1;
+  }
+  gsincos(divri(Pi2n(1, prec), d), &s, &c, prec);
   return mkcomplex(c, s);
 }
 /* Compute the image of logelt by character chi, as a complex number */
@@ -201,7 +205,9 @@ init_get_chic(GEN c)
   }
   return mkvec2(C, D);
 }
-
+/* D from init_get_chic(): D[i] = cyc[i]/cyc[1]; chi character:
+ * chi( g_i ) = e(chi[i] / cyc[i])
+ *            = e(chic[i]/ cyc[1]) */
 static GEN
 get_chic(GEN chi, GEN D)
 {
@@ -230,14 +236,14 @@ get_Char(GEN chi, GEN initc, GEN U, long prec)
   else if (is_pm1(d)) d = gel(initc,1);
   else
   {
-    GEN t = gred_frac2(gel(initc,1), d);
+    GEN C = gel(initc,1), t = gred_frac2(C, d);
     chic = ZC_Z_divexact(chic, d);
     if (typ(t) == t_INT)
       d = t;
     else
     {
       d = gel(t,1);
-      chic = gmul(gel(t,2), chic);
+      chic = ZC_Z_mul(chic, gel(t,2));
     }
   }
   return mkvec3(chic, InitRU(d, prec), d);
