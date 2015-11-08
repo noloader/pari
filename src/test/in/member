@@ -88,3 +88,4 @@ print("MODPR"); test(nfmodprinit(NF,P))
 A=idealpow(NF,P,2);
 print("BID"); test(idealstar(NF,A,2))
 print("BID (nogen)"); test(idealstar(NF,idealpow(NF,A,1)))
+nfinit(y^3-2).codiff

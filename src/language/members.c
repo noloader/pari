@@ -255,7 +255,7 @@ member_codiff(GEN x) /* codifferent */
   T = gel(y,4);
   D = absi(nf_get_disc(nf));
   DinvT = ZM_inv(T,D);
-  return gdiv(ZM_hnfmod(DinvT, D), D);
+  return gdiv(ZM_hnfmodid(DinvT, D), D);
 }
 
 GEN
