@@ -1816,11 +1816,11 @@ qforbits(GEN G, GEN V)
   w = zero_zv(n);
   orb = cgetg(n+1, t_VEC);
   o = cgetg(n+1, t_VECSMALL);
-  if (lg(v) != lg(V)) return 0;
+  if (lg(v) != lg(V)) return gen_0;
   for (i=1; i<=n; i++)
   {
     long cnd, no = 1;
-    GEN or;
+    GEN T;
     if (w[i]) continue;
     w[i] = ++nborbits;
     o[1] = i;
@@ -1838,9 +1838,9 @@ qforbits(GEN G, GEN V)
           w[k] = nborbits;
         }
       }
-    or = cgetg(no+1, t_VEC);
-    for (j=1; j<=no; j++) gel(or,j) = gel(V,p[o[j]]);
-    gel(orb, nborbits) = or;
+    T = cgetg(no+1, t_VEC);
+    for (j=1; j<=no; j++) gel(T,j) = gel(V,p[o[j]]);
+    gel(orb, nborbits) = T;
   }
   setlg(orb, nborbits+1);
   return gerepilecopy(av, orb);
