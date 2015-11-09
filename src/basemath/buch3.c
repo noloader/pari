@@ -1669,7 +1669,7 @@ cyc_normalize(GEN c)
   }
   return mkvec2(C, D);
 }
-/* Shallow; D from cyc_normalize(): D[i] = cyc[i]/cyc[1]; chi character, 
+/* Shallow; D from cyc_normalize(): D[i] = cyc[i]/cyc[1]; chi character,
  * return c such that: chi( g_i ) = e(chi[i] / cyc[i]) = e(c[i]/ cyc[1]) */
 GEN
 char_normalize(GEN chi, GEN D)
