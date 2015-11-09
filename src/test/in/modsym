@@ -119,4 +119,7 @@ check(49,6)
 check(64,4)
 check(64,6)
 
-
+M=msinit(14,2,1);
+S=mscuspidal(M);
+mshecke(M,2)
+mshecke(M,2,S)

@@ -26,13 +26,12 @@ Doc: $M$ being a full modular symbol space, as given by \kbd{msinit},
 
  [-1 -2]
 
- ? N = msnew(M)[1]; \\ Q-basis of new cuspidal subspace
+ ? N = msnew(M)[1] \\ Q-basis of new cuspidal subspace
  %5 =
- [ 0]
+ [-2]
 
- [-1]
+ [-5]
 
- [-1]
  ? p = 1009; mshecke(M, p, N) \\ action of T_1009 on N
  %6 =
  [-10]

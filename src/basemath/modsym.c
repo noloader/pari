@@ -2304,10 +2304,8 @@ msendo(GEN W, GEN v) { return getMorphism(W, W, v); }
 static GEN
 endo_project(GEN W, GEN e, GEN H)
 {
-  if (H) H = Qevproj_init0(H);
-  else if (msk_get_sign(W))
-    H = msk_get_starproj(W);
-  if (H) e = Qevproj_apply(e, H);
+  if (msk_get_sign(W)) e = Qevproj_apply(e, msk_get_starproj(W));
+  if (H) e = Qevproj_apply(e, Qevproj_init0(H));
   return e;
 }
 static GEN
