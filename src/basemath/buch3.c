@@ -1655,28 +1655,50 @@ GEN
 discrayabscond(GEN bnr, GEN H)
 { return bnrdisc(bnr,H,rnf_COND); }
 
+/* Shallow; return c[1],  [c[1]/c[1] = 1,...,c[1]/c[n]] */
+GEN
+cyc_normalize(GEN c)
+{
+  long i, l = lg(c);
+  GEN C, D = cgetg(l, t_VEC);
+  if (l == 1) C = gen_1;
+  else
+  {
+    C = gel(c,1); gel(D,1) = gen_1;
+    for (i = 2; i < l; i++) gel(D,i) = diviiexact(C, gel(c,i));
+  }
+  return mkvec2(C, D);
+}
+/* Shallow; D from cyc_normalize(): D[i] = cyc[i]/cyc[1]; chi character, 
+ * return c such that: chi( g_i ) = e(chi[i] / cyc[i]) = e(c[i]/ cyc[1]) */
+GEN
+char_normalize(GEN chi, GEN D)
+{
+  long i, l = lg(chi);
+  GEN chic = cgetg(l, t_VEC);
+  if (l > 1) {
+    gel(chic,1) = gel(chi,1);
+    for (i = 2; i < l; i++) gel(chic,i) = mulii(gel(chi,i), gel(D,i));
+  }
+  return chic;
+}
+
 /* chi character of abelian G: chi[i] = chi(z_i), where G = \oplus Z/cyc[i] z_i.
  * Return Ker chi [ NULL = trivial subgroup of G ] */
 static GEN
 KerChar(GEN chi, GEN cyc)
 {
   long i, l = lg(cyc);
-  GEN m, U, d1;
+  GEN CD, m, U;
 
-  if (typ(chi) != t_VEC) pari_err_TYPE("KerChar",chi);
+  if (typ(chi) != t_VEC || !RgV_is_ZV(chi)) pari_err_TYPE("KerChar",chi);
   if (lg(chi) != l) pari_err_DIM("KerChar [incorrect character length]");
   if (l == 1) return NULL; /* trivial subgroup */
-  d1 = gel(cyc,1); m = cgetg(l+1,t_MAT);
-  for (i=1; i<l; i++)
-  {
-    GEN c = gel(chi,i);
-    if (typ(c) != t_INT) pari_err_TYPE("conductorofchar", c);
-    gel(m,i) = mkcol(mulii(c, diviiexact(d1, gel(cyc,i))));
-  }
-  gel(m,i) = mkcol(d1);
-  (void)ZM_hnfall(m, &U, 1);
+  CD = cyc_normalize(cyc);
+  m = shallowconcat(char_normalize(chi, gel(CD,2)), gel(CD,1));
+  U = gel(ZV_extgcd(m), 2); setlg(U,l);
   for (i = 1; i < l; i++) setlg(U[i], l);
-  setlg(U,l); return U;
+  return U;
 }
 
 /* Given a number field bnf=bnr[1], a ray class group structure bnr and a

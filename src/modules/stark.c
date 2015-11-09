@@ -191,35 +191,6 @@ ComputeLift(GEN dataC)
   return gerepileupto(av, elt);
 }
 
-/* Return c[1],  [c[1]/c[1] = 1,...,c[1]/c[n]] */
-static GEN
-init_get_chic(GEN c)
-{
-  long i, l = lg(c);
-  GEN C, D = cgetg(l, t_VEC);
-  if (l == 1) C = gen_1;
-  else
-  {
-    C = gel(c,1); gel(D,1) = gen_1;
-    for (i = 2; i < l; i++) gel(D,i) = diviiexact(C, gel(c,i));
-  }
-  return mkvec2(C, D);
-}
-/* D from init_get_chic(): D[i] = cyc[i]/cyc[1]; chi character:
- * chi( g_i ) = e(chi[i] / cyc[i])
- *            = e(chic[i]/ cyc[1]) */
-static GEN
-get_chic(GEN chi, GEN D)
-{
-  long i, l = lg(chi);
-  GEN chic = cgetg(l, t_VEC);
-  if (l > 1) {
-    gel(chic,1) = gel(chi,1);
-    for (i = 2; i < l; i++) gel(chic,i) = mulii(gel(chi,i), gel(D,i));
-  }
-  return chic;
-}
-
 /* A character is given by a vector [(c_i), z, d] such that
    chi(id) = z ^ sum(c_i * a_i) where
      a_i= log(id) on the generators of bnr
@@ -228,7 +199,7 @@ get_chic(GEN chi, GEN D)
 static GEN
 get_Char(GEN chi, GEN initc, GEN U, long prec)
 {
-  GEN d, chic = get_chic(chi, gel(initc,2));
+  GEN d, chic = char_normalize(chi, gel(initc,2));
   if (U) chic = ZV_ZM_mul(chic, U);
   d = ZV_content(chic);
   if (!signe(d))
@@ -277,7 +248,7 @@ GetPrimChar(GEN chi, GEN bnr, GEN bnrc, long prec)
   cond  = bnr_get_mod(bnr);
   condc = bnr_get_mod(bnrc); if (gequal(cond, condc)) return NULL;
 
-  initc = init_get_chic(bnr_get_cyc(bnr));
+  initc = cyc_normalize(bnr_get_cyc(bnr));
   Mrc   = diagonal_shallow(bnr_get_cyc(bnrc));
   M = bnrsurjection(bnr, bnrc);
   (void)ZM_hnfall(shallowconcat(M, Mrc), &U, 1);
@@ -322,7 +293,7 @@ InitQuotient(GEN C)
 {
   long junk;
   GEN U, D = ZM_snfall_i(C, &U, NULL, 1), h = detcyc(D, &junk);
-  return mkvec4(h, D, U, C);
+  return mkvec5(h, D, U, C, cyc_normalize(D));
 }
 
 /* Let s: A -> B given by P, and let cycA, cycB be the cyclic structure of
@@ -832,7 +803,7 @@ bnrrootnumber(GEN bnr, GEN chi, long flag, long prec)
 
   if (flag)
   {
-    GEN initc = init_get_chic(cyc);
+    GEN initc = cyc_normalize(cyc);
     bnrc = bnr;
     CHI = get_Char(chi, initc, NULL, prec);
   }
@@ -847,22 +818,22 @@ bnrrootnumber(GEN bnr, GEN chi, long flag, long prec)
 /********************************************************************/
 /*               3rd part: initialize the characters                */
 /********************************************************************/
-/* returns a ZV */
+/* returns a ZV, CD from cyc_normalize */
 static GEN
-LiftChar(GEN cyc, GEN Mat, GEN chi, GEN D)
+LiftChar(GEN cyc, GEN Mat, GEN chi, GEN CD)
 {
   long lm = lg(cyc), l  = lg(chi), i, j;
-  GEN lchi = cgetg(lm, t_VEC);
+  GEN lchi = cgetg(lm, t_VEC), C = gel(CD,1), D = gel(CD,2);
   for (i = 1; i < lm; i++)
   {
     pari_sp av = avma;
     GEN t, s  = mulii(gel(chi,1), gcoeff(Mat, 1, i));
     for (j = 2; j < l; j++)
-    { /* rarely exercised: D[1]/D[j] could be precomputed */
-      t = mulii(gel(chi,j), diviiexact(gel(D,1), gel(D,j)));
+    {
+      t = mulii(gel(chi,j), gel(D,j));
       s = addii(s, mulii(t, gcoeff(Mat, j, i)));
     }
-    t = diviiexact(mulii(s, gel(cyc,i)), gel(D,1));
+    t = diviiexact(mulii(s, gel(cyc,i)), C);
     gel(lchi,i) = gerepileuptoint(av, modii(t, gel(cyc,i)));
   }
   return lchi;
@@ -962,7 +933,7 @@ InitChar(GEN bnr, GEN listCR, long prec)
   nf_get_sign(nf, &r1,&r2);
   prec2 = precdbl(prec) + EXTRA_PREC;
   C     = gmul2n(sqrtr_abs(divir(dk, powru(mppi(prec2),N))), -r2);
-  initc = init_get_chic( bnr_get_cyc(bnr) );
+  initc = cyc_normalize( bnr_get_cyc(bnr) );
 
   dataCR = cgetg_copy(listCR, &l);
   for (i = 1; i < l; i++)
@@ -1038,7 +1009,7 @@ get_listCR(GEN bnr, GEN dtQ)
   for (i = 1; tnc <= h; i++)
   {
     /* lift a character of D in Clk(m) */
-    lchi = LiftChar(Mr, Surj, gel(vecchi,i), MrD);
+    lchi = LiftChar(Mr, Surj, gel(vecchi,i), gel(dtQ,5));
 
     for (j = 1; j < tnc; j++)
       if (ZV_equal(lchi, gel(allCR,j))) break;
@@ -2765,7 +2736,7 @@ bnrL1(GEN bnr, GEN subgp, long flag, long prec)
   for (i = 1; i < cl; i++)
   {
     /* lift to a character on Cl(bnr) */
-    GEN lchi = LiftChar(cyc, gel(Qt,3), gel(allCR,i), gel(Qt,2));
+    GEN lchi = LiftChar(cyc, gel(Qt,3), gel(allCR,i), gel(Qt,5));
     GEN clchi = ConjChar(lchi, cyc);
     long j, a = 0;
     for (j = 1; j <= nc; j++)

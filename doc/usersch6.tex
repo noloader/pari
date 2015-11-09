@@ -2026,6 +2026,33 @@ $[U,V,D]$, $D$ diagonal, such that $UAV = D$.
 \kbd{gsmithall} (delete elementary divisors equal to $1$, updating base
 change matrices).
 
+\subsec{Finite abelian groups and characters}
+
+A finite abelian group $G$ in GP format is given by its Smith
+Normal Form as a pair $[h,d]$ or triple $[h,d,g]$.
+Here $h$ is the cardinality of $G$, $(d_i)$ is the vector of elementary
+divisors, and $(g_i)$ is a vector of generators. In short,
+$G = \oplus_{i\leq n} (\Z/d_i\Z) g_i$, with $d_n \mid \dots \mid d_2 \mid d_1$
+and $\prod d_i = h$.
+
+A \tev{character} on the abelian group $\oplus (\Z/d_j\Z) g_j$
+is given by a row vector $\chi = [a_1,\ldots,a_n]$ such that
+$\chi(\prod g_j^{n_j}) = \exp(2\pi i\sum a_j n_j / d_j)$.
+
+\fun{GEN}{cyc_normalize}{GEN d} shallow function. Given a vector $(d_i)$
+of elementary divisors for a finite group (no $d_i$ vanish), returns the vector
+$[C,D]$ where $C$ is the groupe exponent ($= d_1$ unless $d$ is empty)
+and $D_i = C/c_i$. This will allow to define characters as
+$\chi(\prod g_j^{n_j}) = \exp(2\pi i\sum_j a_j n_j D_j / C)$.
+Note that the $D_j$ only depend on the group and not on the individual
+character.
+
+\fun{GEN}{char_normalize}{GEN chi, GEN D} shallow function. Given a character
+\kbd{chi} $ = (a_j)$ and $D$ from \kbd{cyc\_normalize} above, returns the
+normalized vector $(A_j)$, wherre $A_j = a_jD_j$. This allows to define
+characters as $\chi(\prod g_j^{n_j}) = \zeta_C^{\sum_j A_j n_j}$,
+where $\zeta_C = \exp(2i\pi/C)$.
+
 \subsec{The LLL algorithm}\sidx{LLL}
 
 The basic GP functions and their immediate variants are normally not very

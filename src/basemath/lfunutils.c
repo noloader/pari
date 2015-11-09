@@ -346,11 +346,9 @@ chigencheck(GEN G, GEN chi)
 static GEN
 cyc_get_d1(GEN cyc) {return lg(cyc) == 1 ? gen_1 : gel(cyc, 1);}
 
-/* Value of CHI on x. bnr is either a 6 component vector output by bnrinit(,,1)
-   or a 2 component vector [nf, bid] where bid is output by idealstar with
-   nonzero flag. */
-/* If prec = 0, return exponent of zeta_d1, otherwise complex value. */
-/* if ssd < 0, consider that the result is real. */
+/* Value of CHI on x.
+ * If prec = 0, return exponent of zeta_d1, otherwise complex value.
+ * if ssd < 0, consider that the result is real. */
 static GEN
 chigeneval(GEN bnr, GEN CHI, GEN x, long ssd, long prec)
 {
