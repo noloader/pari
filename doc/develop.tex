@@ -785,6 +785,10 @@ value.
 
 \fun{long}{get_localprec}{void} returns the current local precision.
 
+\fun{void}{localprec}{long p} trivial wrapper around \kbd{push\_localprec}
+(sanity checks and convert from decimal digits to a number of codewords).
+Use \kbd{push\_localprec}.
+
 \subsec{Functions related to the GP evaluator}
 
 The prototype code \kbd{C} instructs the GP compiler to save the current
