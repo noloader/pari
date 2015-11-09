@@ -759,7 +759,7 @@ pari_self(void)
 {
   long fun = s_trace.n - 1;
   if (fun > 0) while (lg(trace[fun].closure)==6) fun--;
-  return trace[fun].closure;
+  return fun >= 0 ? trace[fun].closure: NULL;
 }
 
 long
