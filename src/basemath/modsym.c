@@ -2508,7 +2508,7 @@ TpS_char_bound(ulong p, long k, long d)
   return d * (2 + (log2((double)p)*(k-1))/2);
 }
 #endif
-long
+static long
 TpE_char_bound(ulong p, long k, long d)
 { /* |eigenvalue| <= 2 p^(k-1) */
   return d * (2 + log2((double)p)*(k-1));
