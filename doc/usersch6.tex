@@ -2047,9 +2047,9 @@ $\chi(\prod g_j^{n_j}) = \exp(2\pi i\sum_j a_j n_j D_j / C)$.
 Note that the $D_j$ only depend on the group and not on the individual
 character.
 
-\fun{GEN}{char_normalize}{GEN chi, GEN D} shallow function. Given a character
-\kbd{chi} $ = (a_j)$ and $D$ from \kbd{cyc\_normalize} above, returns the
-normalized vector $(A_j)$, wherre $A_j = a_jD_j$. This allows to define
+\fun{GEN}{char_normalize}{GEN chi, GEN CD} shallow function. Given a character
+\kbd{chi} $ = (a_j)$ and \var{CD} from \kbd{cyc\_normalize} above, returns the
+normalized vector $(A_j)$, where $A_j = a_jD_j$. This allows to define
 characters as $\chi(\prod g_j^{n_j}) = \zeta_C^{\sum_j A_j n_j}$,
 where $\zeta_C = \exp(2i\pi/C)$.
 

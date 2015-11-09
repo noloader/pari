@@ -1669,18 +1669,18 @@ cyc_normalize(GEN c)
   }
   return mkvec2(C, D);
 }
-/* Shallow; D from cyc_normalize(): D[i] = cyc[i]/cyc[1]; chi character,
+/* Shallow; CD from cyc_normalize(): D[i] = cyc[i]/cyc[1]; chi character,
  * return c such that: chi( g_i ) = e(chi[i] / cyc[i]) = e(c[i]/ cyc[1]) */
 GEN
-char_normalize(GEN chi, GEN D)
+char_normalize(GEN chi, GEN CD)
 {
   long i, l = lg(chi);
-  GEN chic = cgetg(l, t_VEC);
+  GEN c = cgetg(l, t_VEC), D = gel(CD,2);
   if (l > 1) {
-    gel(chic,1) = gel(chi,1);
-    for (i = 2; i < l; i++) gel(chic,i) = mulii(gel(chi,i), gel(D,i));
+    gel(c,1) = gel(chi,1);
+    for (i = 2; i < l; i++) gel(c,i) = mulii(gel(chi,i), gel(D,i));
   }
-  return chic;
+  return c;
 }
 
 /* chi character of abelian G: chi[i] = chi(z_i), where G = \oplus Z/cyc[i] z_i.
@@ -1695,7 +1695,7 @@ KerChar(GEN chi, GEN cyc)
   if (lg(chi) != l) pari_err_DIM("KerChar [incorrect character length]");
   if (l == 1) return NULL; /* trivial subgroup */
   CD = cyc_normalize(cyc);
-  m = shallowconcat(char_normalize(chi, gel(CD,2)), gel(CD,1));
+  m = shallowconcat(char_normalize(chi, CD), gel(CD,1));
   U = gel(ZV_extgcd(m), 2); setlg(U,l);
   for (i = 1; i < l; i++) setlg(U[i], l);
   return U;

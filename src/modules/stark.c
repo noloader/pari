@@ -194,30 +194,28 @@ ComputeLift(GEN dataC)
 /* A character is given by a vector [(c_i), z, d] such that
    chi(id) = z ^ sum(c_i * a_i) where
      a_i= log(id) on the generators of bnr
-     z  = exp(2i * Pi / d) */
-/* U is NULL or a ZM */
+     z  = exp(2i * Pi / d); c = normalized character */
 static GEN
-get_Char(GEN chi, GEN initc, GEN U, long prec)
+get_Char(GEN c, GEN CD, long prec)
 {
-  GEN d, chic = char_normalize(chi, gel(initc,2));
-  if (U) chic = ZV_ZM_mul(chic, U);
-  d = ZV_content(chic);
+  GEN d, C = gel(CD,1);
+  d = ZV_content(c);
   if (!signe(d))
     d = gen_1;
-  else if (is_pm1(d)) d = gel(initc,1);
+  else if (is_pm1(d)) d = C;
   else
   {
-    GEN C = gel(initc,1), t = gred_frac2(C, d);
-    chic = ZC_Z_divexact(chic, d);
+    GEN t = gred_frac2(C, d);
+    c = ZC_Z_divexact(c, d);
     if (typ(t) == t_INT)
       d = t;
     else
     {
       d = gel(t,1);
-      chic = ZC_Z_mul(chic, gel(t,2));
+      c = ZC_Z_mul(c, gel(t,2));
     }
   }
-  return mkvec3(chic, InitRU(d, prec), d);
+  return mkvec3(c, InitRU(d, prec), d);
 }
 
 /* prime divisors of conductor */
@@ -243,18 +241,19 @@ GetPrimChar(GEN chi, GEN bnr, GEN bnrc, long prec)
 {
   long l;
   pari_sp av = avma;
-  GEN U, M, cond, condc, initc, Mrc;
+  GEN c, U, M, cond, condc, CD, Mrc;
 
   cond  = bnr_get_mod(bnr);
   condc = bnr_get_mod(bnrc); if (gequal(cond, condc)) return NULL;
 
-  initc = cyc_normalize(bnr_get_cyc(bnr));
-  Mrc   = diagonal_shallow(bnr_get_cyc(bnrc));
+  Mrc = diagonal_shallow(bnr_get_cyc(bnrc));
   M = bnrsurjection(bnr, bnrc);
   (void)ZM_hnfall(shallowconcat(M, Mrc), &U, 1);
   l = lg(M);
   U = matslice(U,1,l-1, l,lg(U)-1);
-  return gerepilecopy(av, get_Char(chi, initc, U, prec));
+  CD = cyc_normalize(bnr_get_cyc(bnr));
+  c = ZV_ZM_mul(char_normalize(chi, CD), U);
+  return gerepilecopy(av, get_Char(c, CD, prec));
 }
 
 #define ch_chi(x)  gel(x,1)
@@ -803,9 +802,9 @@ bnrrootnumber(GEN bnr, GEN chi, long flag, long prec)
 
   if (flag)
   {
-    GEN initc = cyc_normalize(cyc);
+    GEN CD = cyc_normalize(cyc);
     bnrc = bnr;
-    CHI = get_Char(chi, initc, NULL, prec);
+    CHI = get_Char(char_normalize(chi,CD), CD, prec);
   }
   else
   {
@@ -923,7 +922,7 @@ static GEN
 InitChar(GEN bnr, GEN listCR, long prec)
 {
   GEN bnf = checkbnf(bnr), nf = bnf_get_nf(bnf);
-  GEN modul, dk, C, dataCR, chi, cond, initc;
+  GEN modul, dk, C, dataCR, chi, cond, CD;
   long N, r1, r2, prec2, i, j, l;
   pari_sp av = avma;
 
@@ -933,7 +932,7 @@ InitChar(GEN bnr, GEN listCR, long prec)
   nf_get_sign(nf, &r1,&r2);
   prec2 = precdbl(prec) + EXTRA_PREC;
   C     = gmul2n(sqrtr_abs(divir(dk, powru(mppi(prec2),N))), -r2);
-  initc = cyc_normalize( bnr_get_cyc(bnr) );
+  CD = cyc_normalize( bnr_get_cyc(bnr) );
 
   dataCR = cgetg_copy(listCR, &l);
   for (i = 1; i < l; i++)
@@ -975,7 +974,7 @@ InitChar(GEN bnr, GEN listCR, long prec)
     }
 
     ch_chi(dtcr) = chi; /* the character */
-    ch_CHI(dtcr) = get_Char(chi,initc,NULL,prec2); /* associated to bnr(m) */
+    ch_CHI(dtcr) = get_Char(char_normalize(chi,CD),CD,prec2); /* on bnr(m) */
     ch_comp(dtcr) = gen_1; /* compute this character (by default) */
     chi = GetPrimChar(chi, bnr, ch_bnr(dtcr), prec2);
     if (!chi) chi = ch_CHI(dtcr);

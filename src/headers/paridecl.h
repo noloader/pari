@@ -2166,7 +2166,7 @@ GEN     bnrsurjection(GEN bnr1, GEN bnr2);
 GEN     buchnarrow(GEN bignf);
 long    bnfcertify(GEN bnf);
 long    bnfcertify0(GEN bnf, long flag);
-GEN     char_normalize(GEN chi, GEN D);
+GEN     char_normalize(GEN chi, GEN CD);
 GEN     cyc_normalize(GEN c);
 GEN     decodemodule(GEN nf, GEN fa);
 GEN     discrayabslist(GEN bnf,GEN listes);
