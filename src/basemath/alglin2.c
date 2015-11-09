@@ -900,7 +900,7 @@ ZX_CRT(GEN *H, GEN Hp, GEN *q, ulong p, long bit)
   {
     *H = ZX_init_CRT(Hp, p, 0);
     if (DEBUGLEVEL>5)
-      err_printf("charpoly mod %lu, bound = 2^%ld", p, expu(p));
+      err_printf("charpoly mod %lu, bound = 2^%ld\n", p, expu(p));
     if (expu(p) > bit) return 1;
     *q = utoipos(p);
   }
