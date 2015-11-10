@@ -1866,13 +1866,13 @@ Rtor(GEN a, GEN R, GEN ldata, long prec)
   return gdiv(R, gmul(Na, gammafactproduct(FVga, a, prec)));
 }
 
-/* v = theta(t), vi = theta(1/t) */
+/* v = theta~(t), vi = theta(1/t) */
 static GEN
 get_eno(GEN R, long k, GEN t, GEN v, GEN vi, long vx, long bitprec)
 {
   long prec = nbits2prec(bitprec);
   GEN a0, a1;
-  GEN S = deg1pol(gmul(gpowgs(t,k), gneg(gconj(v))), vi, vx);
+  GEN S = deg1pol(gmul(gpowgs(t,k), gneg(v)), vi, vx);
 
   S = theta_add_polar_part(S, R, t, prec);
   if (typ(S) != t_POL || degpol(S) != 1) return NULL;
@@ -1886,7 +1886,7 @@ get_eno(GEN R, long k, GEN t, GEN v, GEN vi, long vx, long bitprec)
 GEN
 lfunrootno(GEN linit, long bitprec)
 {
-  GEN ldata, t, eno, v, vi, R;
+  GEN ldata, t, eno, v, vi, R, thetad;
   long k, prec = nbits2prec(bitprec), vx = fetch_var();
   pari_sp av;
 
@@ -1898,18 +1898,22 @@ lfunrootno(GEN linit, long bitprec)
                               : cgetg(1, t_VEC);
   t = gen_1;
   v = lfuntheta(linit, t, 0, bitprec);
-  eno = get_eno(R,k,t,v,v, vx, bitprec);
-  if (!eno)
+  thetad = theta_dual(linit, ldata_get_dual(ldata));
+  vi = !thetad ? gconj(v):
+       lfuntheta(thetad, t, 0, bitprec);
+  eno = get_eno(R,k,t,vi,v, vx, bitprec);
+  if (!eno && !thetad)
   { /* t = sqrt(2), vi = theta(1/t), v = theta(t) */
     lfunthetaspec(linit, bitprec, &vi, &v);
     t = sqrtr(utor(2, prec));
-    eno = get_eno(R,k,t,v,vi, vx, bitprec);
+    eno = get_eno(R,k,t,gconj(v),vi, vx, bitprec);
   }
   av = avma;
   while (!eno)
   {
     t = addsr(1, shiftr(utor(pari_rand(), prec), -66)); /* in [1,1.25[ */
-    v = lfuntheta(linit, t, 0, bitprec);
+    v = !thetad ?  gconj(lfuntheta(linit, t, 0, bitprec)):
+          lfuntheta(thetad, t, 0, bitprec);
     vi= lfuntheta(linit, ginv(t), 0, bitprec);
     eno = get_eno(R,k,t,v,vi, vx, bitprec);
     avma = av;
