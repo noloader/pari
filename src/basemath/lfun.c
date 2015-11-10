@@ -1679,7 +1679,11 @@ lfunhardy(GEN lmisc, GEN t, long bitprec)
   prec = precision(argz);
   a = gsub(gmulsg(d, gmul(t, gmul2n(argz,-1))),
            gmul(expot,glog(gnorm(z),prec)));
-  h = mulreal(lfunlambda_OK(linit, z, bitprec), w2);
+  h = lfunlambda_OK(linit, z, bitprec);
+  if (typ(ldata_get_dual(ldata))==t_INT)
+    h = mulreal(h, w2);
+  else
+    h = gmul(h, w2);
   return gerepileupto(ltop, gmul(h, gexp(a, prec)));
 }
 
