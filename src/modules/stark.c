@@ -233,15 +233,14 @@ get_prdiff(GEN bnr, GEN condc)
   setlg(prdiff, nd); return prdiff;
 }
 
-#define ch_chi(x)  gel(x,1)
-#define ch_C(x)    gel(x,2)
-#define ch_bnr(x)  gel(x,3)
-#define ch_4(x)    gel(x,4)
-#define ch_CHI(x)  gel(x,5)
-#define ch_diff(x) gel(x,6)
-#define ch_cond(x) gel(x,7)
-#define ch_CHI0(x) gel(x,8)
-#define ch_comp(x) gel(x,9)
+#define ch_C(x)    gel(x,1)
+#define ch_bnr(x)  gel(x,2)
+#define ch_4(x)    gel(x,3)
+#define ch_CHI(x)  gel(x,4)
+#define ch_diff(x) gel(x,5)
+#define ch_cond(x) gel(x,6)
+#define ch_CHI0(x) gel(x,7)
+#define ch_comp(x) gel(x,8)
 
 static GEN
 GetDeg(GEN dataCR)
@@ -899,7 +898,7 @@ InitChar(GEN bnr, GEN listCR, long prec)
   dataCR = cgetg_copy(listCR, &l);
   for (i = 1; i < l; i++)
   {
-    GEN bnrc, olddtcr, dtcr = cgetg(10, t_VEC);
+    GEN bnrc, olddtcr, dtcr = cgetg(9, t_VEC);
     gel(dataCR,i) = dtcr;
 
     chi  = gmael(listCR, i, 1);
@@ -935,7 +934,6 @@ InitChar(GEN bnr, GEN listCR, long prec)
       ch_cond(dtcr) = ch_cond(olddtcr);
     }
 
-    ch_chi(dtcr) = chi; /* the character [unused] */
     chi = char_normalize(chi,CD);
     ch_CHI(dtcr) = get_Char(chi,CD,prec2);
     ch_comp(dtcr) = gen_1; /* compute this character (by default) */
@@ -1998,7 +1996,7 @@ QuadGetST(GEN bnr, GEN *pS, GEN *pT, GEN dataCR, GEN vChar, long prec)
     gel(C,j) = c;
     q = p1[1];
 
-    nf_get_sign(bnr_get_nf(gel(dtcr, 3)), &r1, &r2);
+    nf_get_sign(bnr_get_nf(ch_bnr(dtcr)), &r1, &r2);
     if (r1 == 2) /* real quadratic */
     {
       cs[j] = 2 + q;
