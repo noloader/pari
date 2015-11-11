@@ -1568,7 +1568,7 @@ solvestep(void *E, GEN (*f)(void *,GEN), GEN a, GEN b, GEN step, long flag, long
   const long ITMAX = 10;
   pari_sp av = avma;
   GEN fa, ainit, binit, v = NULL;
-  long it, ct = 0, s = gcmp(a,b);
+  long it, bit = bit_accuracy(prec) / 2, ct = 0, s = gcmp(a,b);
 
   if (!s) return gequal0(f(E, a)) ? gcopy(mkvec(a)): v;
   if (s > 0) swap(a, b);
@@ -1590,14 +1590,16 @@ solvestep(void *E, GEN (*f)(void *,GEN), GEN a, GEN b, GEN step, long flag, long
     while (gcmp(a,b) < 0)
     {
       GEN fc, c = (flag&4)? gmul(a, step): gadd(a, step);
+      long sc;
       if (gcmp(c,b) > 0) c = b;
-      fc = f(E, c);
-      if (gsigne(fa)*gsigne(fc) < 0)
+      fc = f(E, c); sc = gsigne(fc);
+      if (!sc || gsigne(fa)*sc < 0)
       {
         long e;
-        GEN z = zbrent(E, f, a, c, prec);
+        GEN z;
+        z = sc? zbrent(E, f, a, c, prec): c;
         (void)grndtoi(z, &e);
-        if (e  <= -prec/2) ct++;
+        if (e  <= -bit) ct = 1;
         if ((flag&1) && ((!(flag&8)) || ct)) return gerepileupto(av, z);
         v = gconcat(v, z);
       }
