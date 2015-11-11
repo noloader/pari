@@ -2164,8 +2164,8 @@ END:
 /*******************************************************************/
 struct huntcond_t {
   long k;
-  GEN data;
-  GEN *pM, *psqrtM;
+  GEN data, thetad;
+  GEN *pM, *psqrtM, *pMd, *psqrtMd;
 };
 
 /* M should eventually converge to N, the conductor. L has no pole. */
@@ -2182,9 +2182,15 @@ wrap1(void *E, GEN M)
   prec = nbits2prec(bitprec);
   *(S->pM) = M;
   *(S->psqrtM) = gsqrt(M, prec);
-
   tk = gpowgs(t, S->k);
-  p1 = lfuntheta(data, t, 0, bitprec);
+  if (S->thetad)
+  {
+    *(S->pMd) = M;
+    *(S->psqrtMd) = *(S->psqrtM);
+    p1 = lfuntheta(S->thetad, t, 0, bitprec);
+  }
+  else
+    p1 = lfuntheta(data, t, 0, bitprec);
   p1inv = lfuntheta(data, ginv(t), 0, bitprec);
   return glog(gabs(gmul(tk, gdiv(p1, p1inv)), prec), prec);
 }
@@ -2284,7 +2290,7 @@ lfunconductor(GEN data, GEN maxcond, long flag, long bitprec)
 {
   struct huntcond_t S;
   pari_sp ltop = avma;
-  GEN ld, r, v, ldata, theta, m, M, tdom;
+  GEN ld, r, v, ldata, theta, thetad, m, M, tdom;
   GEN (*eval)(void *, GEN);
   bitprec = 3*bitprec/2;
   ldata = lfunmisc_to_ldata_shallow(data);
@@ -2302,11 +2308,18 @@ lfunconductor(GEN data, GEN maxcond, long flag, long bitprec)
   ld = shallowcopy(ldata);
   gel(ld, 5) = M;
   theta = lfunthetainit_i(ld, tdom, 0, bitprec);
+  thetad = theta_dual(theta, ldata_get_dual(ldata));
   gel(theta,3) = shallowcopy(linit_get_tech(theta));
   S.k = ldata_get_k(ldata);
   S.data = theta;
+  S.thetad = thetad;
   S.pM = &gel(linit_get_ldata(theta),5);
   S.psqrtM = &gel(linit_get_tech(theta),7);
+  if (thetad)
+  {
+    S.pMd = &gel(linit_get_ldata(thetad),5);
+    S.psqrtMd = &gel(linit_get_tech(thetad),7);
+  }
   v = solvestep((void*)&S, eval, m, M, gen_2, 14, nbits2prec(bitprec));
   return gerepilecopy(ltop, checkconductor(v, bitprec/2, flag));
 }
