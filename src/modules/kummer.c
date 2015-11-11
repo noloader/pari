@@ -1237,7 +1237,7 @@ _rnfkummer(GEN bnr, GEN subgroup, long all, long prec)
   polnf = nf_get_pol(nf); vnf = varn(polnf);
   if (!vnf) pari_err_PRIORITY("rnfkummer", polnf, "=", 0);
   /* step 7 */
-  p1 = bnrconductor(bnr, subgroup, 2);
+  p1 = bnrconductor_i(bnr, subgroup, 2);
   if (DEBUGLEVEL) timer_printf(&t, "[rnfkummer] conductor");
   bnr      = gel(p1,2);
   subgroup = gel(p1,3);
@@ -1343,7 +1343,7 @@ _rnfkummer(GEN bnr, GEN subgroup, long all, long prec)
   { /* ell | N(ideal) */
     GEN bnrz = Buchray(bnfz, idealz, nf_INIT|nf_GEN);
     GEN subgroupz = invimsubgroup(bnrz, bnr, subgroup, &T);
-    gothf = bnrconductor(bnrz,subgroupz,0);
+    gothf = bnrconductor_i(bnrz,subgroupz,0);
   }
   /* step 9, 10, 11 */
   if (DEBUGLEVEL>2) err_printf("Step 9, 10 and 11\n");

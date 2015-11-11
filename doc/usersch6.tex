@@ -1378,9 +1378,22 @@ group that stored in our \var{bnr}. You may also code the trivial subgroup by
 \fun{GEN}{bnrconductor}{GEN bnr, GEN H, long flag} see the documentation of
 the GP function.
 
+\fun{GEN}{bnrconductor_i}{GEN bnr, GEN H, long flag} shallow
+variant of \kbd{bnrconductor}. Useful when $\fl=2$ and the conductor
+is the \kbd{bnr} modulus: avoids copying the \kbd{bnr} (wasteful).
+
 \fun{long}{bnrisconductor}{GEN bnr, GEN H} returns 1 is the class field
 defined by the subgroup $H$ (of the ray class group mod $f$ coded in \kbd{bnr})
 has conductor $f$. Returns 0 otherwise.
+
+\fun{GEN}{bnrchar_primitive}{GEN bnr, GEN chi, GEN bnrc}
+Given a normalized (see \tev{char_normalize}) \kbd{chi} on \kbd{bnr.clgp} of
+conductor \kbd{bnrc.mod},  compute the primitive character \kbd{chic} on
+\kbd{bnrc.clgp} equivalent to \kbd{chi}, still normalized with respect to
+\kbd{bnr}: \kbd{chic(bnrc.gen[i])} is $\zeta_C^{n_i}$,
+where $n_i$ is \kbd{chic[i]} and $C$ is the exponent of
+\kbd{bnr.cyc}. It is easier to use \kbd{bnrconductor\_i(bnr,chi,2)}, but
+the latter recomputes \kbd{bnrc} for each new character.
 
 \fun{GEN}{bnrdisc}{GEN bnr, GEN H, long flag} returns the discriminant and
 signature of the class field defined by \kbd{bnr} and $H$. See the description
@@ -2052,6 +2065,9 @@ character.
 normalized vector $(A_j)$, where $A_j = a_jD_j$. This allows to define
 characters as $\chi(\prod g_j^{n_j}) = \zeta_C^{\sum_j A_j n_j}$,
 where $\zeta_C = \exp(2i\pi/C)$.
+
+\fun{int}{char_check}{GEN cyc, GEN chi} return $1$ if \kbd{chi} is a character
+compatible with cyclic factors \kbd{cyc}, and $0$ otherwise.
 
 \subsec{The LLL algorithm}\sidx{LLL}
 

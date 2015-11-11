@@ -200,8 +200,7 @@ get_Char(GEN c, GEN CD, long prec)
 {
   GEN d, C = gel(CD,1);
   d = ZV_content(c);
-  if (!signe(d))
-    d = gen_1;
+  if (!signe(d)) d = gen_1;
   else if (is_pm1(d)) d = C;
   else
   {
@@ -232,28 +231,6 @@ get_prdiff(GEN bnr, GEN condc)
   for (nd=1, i=1; i < l; i++)
     if (!idealval(nf, M, gel(D,i))) gel(prdiff,nd++) = gel(D,i);
   setlg(prdiff, nd); return prdiff;
-}
-
-/* Let chi a character defined over bnr and primitive over bnrc, compute the
- * corresponding primitive character. Returns NULL if bnr = bnrc */
-static GEN
-GetPrimChar(GEN chi, GEN bnr, GEN bnrc, long prec)
-{
-  long l;
-  pari_sp av = avma;
-  GEN c, U, M, cond, condc, CD, Mrc;
-
-  cond  = bnr_get_mod(bnr);
-  condc = bnr_get_mod(bnrc); if (gequal(cond, condc)) return NULL;
-
-  Mrc = diagonal_shallow(bnr_get_cyc(bnrc));
-  M = bnrsurjection(bnr, bnrc);
-  (void)ZM_hnfall(shallowconcat(M, Mrc), &U, 1);
-  l = lg(M);
-  U = matslice(U,1,l-1, l,lg(U)-1);
-  CD = cyc_normalize(bnr_get_cyc(bnr));
-  c = ZV_ZM_mul(char_normalize(chi, CD), U);
-  return gerepilecopy(av, get_Char(c, CD, prec));
 }
 
 #define ch_chi(x)  gel(x,1)
@@ -364,7 +341,7 @@ IsGoodSubgroup(GEN H, GEN bnr, GEN map)
   setlg(p3, lg(H));
   for (j = 1; j < lg(p3); j++) setlg(p3[j], lg(H));
   p1 = ZM_hnfmodid(p3, bnr_get_cyc(bnr)); /* H as a subgroup of bnr */
-  modH = bnrconductor(bnr, p1, 0);
+  modH = bnrconductor_i(bnr, p1, 0);
 
   /* is the signature correct? */
   if (!gequal(gel(modH, 2), mod1)) { avma = av; return 0; }
@@ -779,39 +756,24 @@ SingleArtinNumber(GEN bnr, GEN chi, long prec)
 GEN
 bnrrootnumber(GEN bnr, GEN chi, long flag, long prec)
 {
-  long l;
   pari_sp av = avma;
-  GEN cond, condc, bnrc, CHI, cyc;
+  GEN cyc, CD;
 
   if (flag < 0 || flag > 1) pari_err_FLAG("bnrrootnumber");
-
   checkbnr(bnr);
   cyc = bnr_get_cyc(bnr);
-  cond = bnr_get_mod(bnr);
-  l    = lg(cyc);
-
-  if (typ(chi) != t_VEC || lg(chi) != l)
-    pari_err_TYPE("bnrrootnumber [character]", chi);
-
-  if (flag) condc = NULL;
-  else
-  {
-    condc = bnrconductorofchar(bnr, chi);
-    if (gequal(cond, condc)) flag = 1;
-  }
-
   if (flag)
-  {
-    GEN CD = cyc_normalize(cyc);
-    bnrc = bnr;
-    CHI = get_Char(char_normalize(chi,CD), CD, prec);
-  }
+  { if (!char_check(cyc,chi)) pari_err_TYPE("bnrrootnumber [character]", chi); }
   else
   {
-    bnrc = Buchray(bnr_get_bnf(bnr), condc, nf_INIT|nf_GEN);
-    CHI = GetPrimChar(chi, bnr, bnrc, prec);
+    GEN z = bnrconductor_i(bnr, chi, 2);
+    bnr = gel(z,2);
+    chi = gel(z,3);
   }
-  return gerepilecopy(av, SingleArtinNumber(bnrc, CHI, prec));
+  CD = cyc_normalize(cyc);
+  chi = char_normalize(chi,CD);
+  chi = get_Char(chi, CD, prec);
+  return gerepilecopy(av, SingleArtinNumber(bnr, chi, prec));
 }
 
 /********************************************************************/
@@ -937,7 +899,7 @@ InitChar(GEN bnr, GEN listCR, long prec)
   dataCR = cgetg_copy(listCR, &l);
   for (i = 1; i < l; i++)
   {
-    GEN olddtcr, dtcr = cgetg(10, t_VEC);
+    GEN bnrc, olddtcr, dtcr = cgetg(10, t_VEC);
     gel(dataCR,i) = dtcr;
 
     chi  = gmael(listCR, i, 1);
@@ -973,12 +935,19 @@ InitChar(GEN bnr, GEN listCR, long prec)
       ch_cond(dtcr) = ch_cond(olddtcr);
     }
 
-    ch_chi(dtcr) = chi; /* the character */
-    ch_CHI(dtcr) = get_Char(char_normalize(chi,CD),CD,prec2); /* on bnr(m) */
+    ch_chi(dtcr) = chi; /* the character [unused] */
+    chi = char_normalize(chi,CD);
+    ch_CHI(dtcr) = get_Char(chi,CD,prec2);
     ch_comp(dtcr) = gen_1; /* compute this character (by default) */
-    chi = GetPrimChar(chi, bnr, ch_bnr(dtcr), prec2);
-    if (!chi) chi = ch_CHI(dtcr);
-    ch_CHI0(dtcr) = chi;
+
+    bnrc = ch_bnr(dtcr);
+    if (gequal(bnr_get_mod(bnr), bnr_get_mod(bnrc)))
+      ch_CHI0(dtcr) = ch_CHI(dtcr);
+    else
+    {
+      chi = bnrchar_primitive(bnr, chi, bnrc);
+      ch_CHI0(dtcr) = get_Char(chi,CD,prec2);
+    }
   }
 
   return gerepilecopy(av, dataCR);
@@ -2662,7 +2631,7 @@ bnrstark(GEN bnr, GEN subgrp, long prec)
   subgrp = get_subgroup(subgrp,bnr_get_cyc(bnr),"bnrstark");
 
   /* compute bnr(conductor) */
-  p1     = bnrconductor(bnr, subgrp, 2);
+  p1     = bnrconductor_i(bnr, subgrp, 2);
   bnr    = gel(p1,2); cycbnr = bnr_get_cyc(bnr);
   subgrp = gel(p1,3);
   if (gequal1( ZM_det_triangular(subgrp) )) { avma = av; return pol_x(0); }
@@ -3676,7 +3645,7 @@ quadray(GEN D, GEN f, long prec)
     y = bnrstark(bnr,NULL,prec);
   else
   {
-    bnr = gel(bnrconductor(bnr,NULL,2), 2);
+    bnr = gel(bnrconductor_i(bnr,NULL,2), 2);
     y = treatspecialsigma(bnr);
     if (!y) y = computeP2(bnr, prec);
   }

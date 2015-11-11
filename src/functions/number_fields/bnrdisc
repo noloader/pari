@@ -13,6 +13,7 @@ Help: bnrdisc(A,{B},{C},{flag=0}): absolute or relative [N,R1,discf] of
 Doc: $A$, $B$, $C$ defining a class field $L$ over a ground field $K$
  (of type \kbd{[\var{bnr}]},
  \kbd{[\var{bnr}, \var{subgroup}]},
+ \kbd{[\var{bnr}, \var{character}]},
  \kbd{[\var{bnf}, \var{modulus}]} or
  \kbd{[\var{bnf}, \var{modulus}, \var{subgroup}]},
  \secref{se:CFT}), outputs data $[N,r_1,D]$ giving the discriminant and

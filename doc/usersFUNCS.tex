@@ -1212,8 +1212,11 @@ technical data needed to solve discrete log problems.
 
 Finally we explain how to input ray number fields (or \var{bnr}), using class
 field theory. These are defined by a triple $A$, $B$, $C$, where the
-defining set $[A,B,C]$ can have any of the following forms: $[\var{bnr}]$,
-$[\var{bnr},\var{subgroup}]$, $[\var{bnf},\var{mod}]$,
+defining set $[A,B,C]$ can have any of the following forms:
+$[\var{bnr}]$,
+$[\var{bnr},\var{subgroup}]$,
+$[\var{bnr},\var{character}]$,
+$[\var{bnf},\var{mod}]$,
 $[\var{bnf},\var{mod},\var{subgroup}]$. The last two forms are kept for
 backward compatibility, but no longer serve any real purpose (see example
 below); no newly written function will accept them.
@@ -1239,6 +1242,7 @@ modulo $\goth{f}$, fixed by the given subgroup.
   %3 = [36, [12, 3]]
   ? bnrdisc(bnr); \\ discriminant of the full ray class field
   ? bnrdisc(bnr, [3,1;0,1]); \\ discriminant of cyclic cubic extension of K
+  ? bnrconductor(bnr, [3,1]); \\ conductor of chi: g1->zeta_12^3, g2->zeta_3
 @eprog\noindent
 We could have written directly
 \bprog

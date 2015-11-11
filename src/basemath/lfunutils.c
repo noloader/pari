@@ -328,21 +328,6 @@ lfunchi(GEN CHI)
    If clgp = [h,[d1,...,dk],[g1,...,gk]] with dk|...|d2|d1, a character chi
    is given by [a1,a2,...,ak] such that chi(gi)=\zeta_di^ai. */
 
-/* Is character chi compatible with the group G.
- * Here G can be any finite abelian group [h, cyc, gens]. */
-static void
-chigencheck(GEN G, GEN chi)
-{
-  GEN cyc;
-  long lcyc, i;
-  if (lg(G) < 4) pari_err_TYPE("chigencheck [no generators]", chi);
-  cyc = abgrp_get_cyc(G); lcyc = lg(cyc);
-  if (typ(chi) != t_VEC || lg(chi) != lcyc) pari_err_TYPE("chigencheck", chi);
-  for (i = 1; i < lcyc; ++i)
-    if (typ(gel(chi,i)) != t_INT) pari_err_TYPE("chigencheck", chi);
-}
-
-
 static GEN
 cyc_get_d1(GEN cyc) {return lg(cyc) == 1 ? gen_1 : gel(cyc, 1);}
 
@@ -433,20 +418,22 @@ static GEN
 lfunchigen(GEN bnr, GEN CHI)
 {
   pari_sp av = avma;
-  GEN N, sd, ssd, sig, Ldchi, nf, G, cyc, NN;
+  GEN N, sd, ssd, sig, Ldchi, nf, cyc, NN;
   long r1, r2, n1, l, i;
+
   checkbnrgen(bnr);
   nf = bnr_get_nf(bnr);
-  G = bnr_get_clgp(bnr); chigencheck(G, CHI);
+  cyc = bnr_get_cyc(bnr);
+  if (!char_check(cyc,CHI)) pari_err_TYPE("lfunchigen", CHI);
   N = bnr_get_mod(bnr);
   n1 = lg(vec01_to_indices(gel(N,2))) - 1; /* vecsum(N[2]) */
   N = gel(N,1);
   NN = mulii(idealnorm(nf, N), absi(nf_get_disc(nf)));
   if (equali1(NN)) return gerepileupto(av, lfunzeta());
   if (gequal0(CHI)) return gerepilecopy(av, lfunzetak_i(bnr));
-  nf_get_sign(nf,&r1,&r2);
-  sig = vec01(r1+r2-n1,r2+n1);
-  cyc = gel(G, 2); l = lg(cyc); sd = gen_0; ssd = gen_m1;
+  nf_get_sign(nf, &r1, &r2);
+  sig = vec01(r1+r2-n1, r2+n1);
+  l = lg(cyc); sd = gen_0; ssd = gen_m1;
   for (i = 1; i < l; ++i)
     if (signe(modii(shifti(gel(CHI,i), 1), gel(cyc,i))))
     {
@@ -457,31 +444,16 @@ lfunchigen(GEN bnr, GEN CHI)
   return gerepilecopy(av, Ldchi);
 }
 
-/* HNF of kernel of CHI on clgp. */
-static GEN
-chigenker(GEN clgp, GEN CHI)
-{
-  GEN cyc, d1, v, U;
-  long lcyc, j;
-  chigencheck(clgp, CHI); cyc = gel(clgp, 2); lcyc = lg(cyc);
-  if (lcyc == 1) return cgetg(1, t_MAT);
-  d1 = gel(cyc,1); v = cgetg(lcyc+1, t_VEC);
-  for (j=1; j < lcyc; j++) gel(v,j) = mulii(gel(CHI,j), divii(d1,gel(cyc,j)));
-  gel(v, j) = d1;
-  U = gel(ZV_extgcd(v), 2); setlg(U, lcyc);
-  for (j=1; j < lcyc; j++) setlg(gel(U,j), lcyc);
-  return ZM_hnf(shallowconcat(U, scalarmat_shallow(d1,lcyc-1)));
-}
-
 /* Find all characters of clgp whose kernel contain group given by HNF HB. */
 static GEN
 chigenkerfind(GEN G, GEN HB)
 {
-  GEN cyc, res, cnj, chi, chc;
+  GEN CYC, cyc, res, cnj, chi, chc;
   long lcyc, i, k, m, h = itos(abgrp_get_no(G));
 
   if (h == 1) return mkvec2(cgetg(1,t_VEC), cgetg(1,t_VECSMALL));
-  cyc = vec_to_vecsmall(abgrp_get_cyc(G));
+  CYC = abgrp_get_cyc(G);
+  cyc = vec_to_vecsmall(CYC);
   lcyc = lg(cyc);
   res = cgetg(h+1, t_VEC);
   cnj = cgetg(h+1, t_VECSMALL);
@@ -504,7 +476,7 @@ chigenkerfind(GEN G, GEN HB)
     if (isc < 0) continue;
     CHI = vecsmall_to_vec(chi);
     av = avma;
-    if (hnfdivide(chigenker(G,CHI), HB))
+    if (hnfdivide(charker(CYC,CHI), HB))
     {
       gel(res, k) = CHI;
       cnj[k] = isc; k++;
@@ -513,56 +485,6 @@ chigenkerfind(GEN G, GEN HB)
   }
   setlg(res, k);
   setlg(cnj, k); return mkvec2(res, cnj);
-}
-
-/* Compute primitive character equivalent to CHI. */
-static GEN
-chigenbnrtobnrs(GEN bnr, GEN bnrs)
-{
-  GEN G, gen, Gs, cycs, A, H, U, U2;
-  long l, ls, j;
-  G = bnr_get_clgp(bnr);   gen = abgrp_get_gen(G);   l = lg(gen);
-  Gs= bnr_get_clgp(bnrs); cycs = abgrp_get_cyc(Gs); ls = lg(cycs);
-  A = cgetg(l, t_MAT);
-  for (j = 1; j < l; ++j) gel(A,j) = bnrisprincipal(bnrs, gel(gen,j), 0);
-  H = ZM_hnfall(shallowconcat(A, diagonal_shallow(cycs)), &U, 1);
-  if (!ZM_isidentity(H)) pari_err_BUG("chigenbnrtobnrs [non invertible H]");
-  U2 = cgetg(ls, t_MAT);
-  for (j = 1; j < ls; ++j)
-  {
-    GEN c = gel(U, j+l-1); setlg(c, l);
-    gel(U2,j) = c;
-  }
-  return U2;
-}
-
-static GEN
-chigenprimitive(GEN bnr, GEN CHI)
-{
-  GEN id, bnf, G, bid, idele, CHIs;
-  GEN bnrs, Gs, gens, cycs, cyc, A, B;
-  long l, ls, i;
-
-  G = bnr_get_clgp(bnr); cyc = gel(G, 2); l = lg(cyc);
-  id = bnrconductorofchar(bnr, CHI);
-  bnf = bnr_get_bnf(bnr);
-  bid = bnr_get_bid(bnr); idele = gel(bid, 1);
-  if (gequal(id, idele)) return mkvec2(bnr, CHI);
-  bnrs = Buchray(bnf, id, nf_INIT|nf_GEN);
-  Gs = bnr_get_clgp(bnrs);
-  cycs = abgrp_get_cyc(Gs);
-  gens = abgrp_get_gen(Gs); ls = lg(gens);
-  CHIs = cgetg(ls, t_VEC);
-  A = cgetg(l, t_VEC);
-  for (i = 1; i < l; ++i) gel(A,i) = gdiv(gel(CHI,i), gel(cyc,i));
-  B = gmul(A, chigenbnrtobnrs(bnr,bnrs));
-  for (i = 1; i < ls; ++i)
-  {
-    GEN d = gel(cycs, i), c = gmul(d, gel(B,i));
-    if (typ(c) != t_INT) pari_err_BUG("chigenprimitive");
-    gel(CHIs, i) = modii(c, d);
-  }
-  return mkvec2(bnrs, CHIs);
 }
 
 static GEN
@@ -619,8 +541,8 @@ lfunabelianrelinit_bitprec(GEN nfabs, GEN bnf, GEN polrel, GEN dom, long der, lo
   res = cgetg(l, t_VEC);
   for (i = 1; i < l; ++i)
   {
-    GEN v = chigenprimitive(bnr, gel(chi, i));
-    GEN L = lfunchigen(gel(v,1), gel(v,2));
+    GEN v = bnrconductor_i(bnr, gel(chi,i), 2);
+    GEN L = lfunchigen(gel(v,2), gel(v,3));
     gel(res, i) = lfuninit_bitprec(L, dom, der, bitprec);
   }
   if (v >= 0) delete_var();

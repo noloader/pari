@@ -327,19 +327,26 @@ compute_raygen(GEN nf, GEN u1, GEN gen, GEN bid)
 /**                                                                **/
 /********************************************************************/
 static GEN
-check_subgroup(GEN bnr, GEN H, GEN *clhray, int triv_is_NULL)
+check_subgroup(GEN bnr, GEN H, GEN *clhray)
 {
-  GEN h, cyc = bnr_get_cyc(bnr);
-  if (H && gequal0(H)) H = NULL;
+  GEN cyc = bnr_get_cyc(bnr);
+  *clhray = bnr_get_no(bnr);
+  if (H && isintzero(H)) H = NULL;
+  if (H) switch(typ(H))
+  {
+    case t_MAT:
+      RgM_check_ZM(H, "check_subgroup");
+      H = ZM_hnfmodid(H, cyc);
+      break;
+    case t_VEC:
+      if (char_check(cyc, H)) { H = charker(cyc, H); break; }
+    default: pari_err_TYPE("check_subgroup", H);
+  }
   if (H)
   {
-    if (typ(H) != t_MAT) pari_err_TYPE("check_subgroup",H);
-    RgM_check_ZM(H, "check_subgroup");
-    H = ZM_hnfmodid(H, cyc);
-    h = ZM_det_triangular(H);
+    GEN h = ZM_det_triangular(H);
     if (equalii(h, *clhray)) H = NULL; else *clhray = h;
   }
-  if (!H && !triv_is_NULL) H = diagonal_shallow(cyc);
   return H;
 }
 
@@ -534,8 +541,7 @@ bnrclassno0(GEN A, GEN B, GEN C)
     }
   else checkbnf(A);/*error*/
 
-  h = bnr_get_no(A);
-  H = check_subgroup(A, H, &h, 1);
+  H = check_subgroup(A, H, &h);
   if (!H) { avma = av; return icopy(h); }
   return gerepileuptoint(av, h);
 }
@@ -1203,6 +1209,22 @@ bnrsurjection(GEN bnr1, GEN bnr2)
   return M;
 }
 
+/* Given normalized chi on bnr.clgp of conductor bnrc.mod,
+ * compute primitive character chic on bnrc.clgp equivalent to chi,
+ * still normalized wrt. bnr:
+ *   chic(genc[i]) = zeta_C^chic[i]), C = cyc_normalize(bnr.cyc)[1] */
+GEN
+bnrchar_primitive(GEN bnr, GEN chi, GEN bnrc)
+{
+  GEN Mc, U, M = bnrsurjection(bnr, bnrc);
+  long l = lg(M);
+
+  Mc = diagonal_shallow(bnr_get_cyc(bnrc));
+  (void)ZM_hnfall(shallowconcat(M, Mc), &U, 1); /* identity */
+  U = matslice(U,1,l-1, l,lg(U)-1);
+  return ZV_ZM_mul(chi, U);
+}
+
 /* s: <gen> = Cl_f --> Cl_f2 --> 0, H subgroup of Cl_f (generators given as
  * HNF on [gen]). Return subgroup s(H) in Cl_f2. bnr must include generators */
 static GEN
@@ -1212,6 +1234,26 @@ imageofgroup(GEN bnr, GEN bnr2, GEN H)
   if (!H) return diagonal_shallow(cyc2);
   H2 = ZM_mul(bnrsurjection(bnr, bnr2), H);
   return ZM_hnfmodid(H2, cyc2); /* s(H) in Cl_n */
+}
+static GEN
+imageofchar(GEN bnr, GEN bnrc, GEN chi)
+{
+  GEN CD = cyc_normalize(bnr_get_cyc(bnr));
+  GEN chic = bnrchar_primitive(bnr, char_normalize(chi, CD), bnrc);
+  GEN cycc, C;
+  long i, l;
+  /* chic(genc[i]) = zeta_C^chic[i]) */
+
+  /* denormalize: express chic(genc[i]) in terms of zeta_{cycc[i]} */
+  cycc = bnr_get_cyc(bnrc); l = lg(cycc);
+  C = gel(CD,1);
+  for (i = 1; i < l; ++i)
+  {
+    GEN di = gel(cycc, i), c = gdiv(mulii(di, gel(chic,i)), C);
+    if (typ(c) != t_INT) pari_err_BUG("imageofchar");
+    gel(chic, i) = modii(c, di);
+  }
+  return chic;
 }
 
 /* convert A,B,C to [bnr, H] */
@@ -1234,8 +1276,9 @@ ABC_to_bnr(GEN A, GEN B, GEN C, GEN *H, int gen)
 GEN
 bnrconductor0(GEN A, GEN B, GEN C, long flag)
 {
+  pari_sp av = avma;
   GEN H, bnr = ABC_to_bnr(A,B,C,&H, flag > 0);
-  return bnrconductor(bnr, H, flag);
+  return gerepilecopy(av, bnrconductor_i(bnr, H, flag));
 }
 
 long
@@ -1290,20 +1333,18 @@ contains(GEN H, GEN A)
  * if flag = 1: [[ideal,arch],[hm,cyc,gen],H']
  * if flag = 2: [[ideal,arch],newbnr,H'] */
 GEN
-bnrconductor(GEN bnr, GEN H0, long flag)
+bnrconductor_i(GEN bnr, GEN H0, long flag)
 {
-  pari_sp av = avma;
   long j, k, l;
-  GEN bnf, nf, bid, ideal, archp, clhray, bnr2, e2, e, mod, H;
-  int iscond0 = 1, iscondinf = 1;
+  GEN bnf, nf, bid, ideal, archp, clhray, bnrc, e2, e, cond, H;
+  int iscond0 = 1, iscondinf = 1, ischi;
   zlog_S S;
 
   checkbnr(bnr);
   bnf = bnr_get_bnf(bnr);
   bid = bnr_get_bid(bnr); init_zlog_bid(&S, bid);
-  clhray = bnr_get_no(bnr);
   nf = bnf_get_nf(bnf);
-  H = check_subgroup(bnr, H0, &clhray, 1);
+  H = check_subgroup(bnr, H0, &clhray);
 
   archp = S.archp;
   e     = S.e; l = lg(e);
@@ -1331,21 +1372,38 @@ bnrconductor(GEN bnr, GEN H0, long flag)
     setlg(archp, j);
   }
   ideal = iscond0? bid_get_ideal(bid): factorbackprime(nf, S.P, e2);
-  mod = mkvec2(ideal, indices_to_vec01(archp, nf_get_r1(nf)));
-  if (!flag) return gerepilecopy(av, mod);
+  cond = mkvec2(ideal, indices_to_vec01(archp, nf_get_r1(nf)));
+  if (!flag) return cond;
 
+  /* character or subgroup ? */
+  ischi = H0 && typ(H0) == t_VEC;
   if (iscond0 && iscondinf)
   {
-    bnr2 = bnr;
-    if (!H) H = diagonal_shallow(bnr_get_cyc(bnr));
+    bnrc = bnr;
+    if (ischi)
+      H = H0;
+    else if (!H)
+      H = diagonal_shallow(bnr_get_cyc(bnr));
   }
   else
   {
-    bnr2 = Buchray(bnf, mod, nf_INIT | nf_GEN);
-    H = imageofgroup(bnr, bnr2, H);
+    bnrc = Buchray(bnf, cond, nf_INIT | nf_GEN);
+    if (ischi)
+      H = imageofchar(bnr, bnrc, H0);
+    else
+      H = imageofgroup(bnr, bnrc, H);
   }
-  return gerepilecopy(av, mkvec3(mod, (flag == 1)? gel(bnr2,5): bnr2, H));
+
+  if (flag == 1) bnrc = bnr_get_clgp(bnrc);
+  return mkvec3(cond, bnrc, H);
 }
+GEN
+bnrconductor(GEN bnr, GEN H0, long flag)
+{
+  pari_sp av = avma;
+  return gerepilecopy(av, bnrconductor_i(bnr,H0,flag));
+}
+
 long
 bnrisconductor(GEN bnr, GEN H0)
 {
@@ -1357,9 +1415,8 @@ bnrisconductor(GEN bnr, GEN H0)
   checkbnr(bnr);
   bnf = bnr_get_bnf(bnr);
   bid = bnr_get_bid(bnr); init_zlog_bid(&S, bid);
-  clhray = bnr_get_no(bnr);
   nf = bnf_get_nf(bnf);
-  H = check_subgroup(bnr, H0, &clhray, 1);
+  H = check_subgroup(bnr, H0, &clhray);
 
   archp = S.archp;
   e     = S.e; l = lg(e);
@@ -1559,7 +1616,7 @@ rnfconductor(GEN bnf, GEN polrel)
   bnr   = Buchray(bnf,module,nf_INIT | nf_GEN);
   group = rnfnormgroup(bnr,polrel);
   if (!group) { avma = av; return gen_0; }
-  return gerepileupto(av, bnrconductor(bnr,group,1));
+  return gerepilecopy(av, bnrconductor_i(bnr,group,1));
 }
 
 /* Given a number field bnf=bnr[1], a ray class group structure bnr, and a
@@ -1578,10 +1635,10 @@ Discrayrel(GEN bnr, GEN H0, long flag)
   checkbnr(bnr);
   bnf = bnr_get_bnf(bnr);
   bid = bnr_get_bid(bnr); init_zlog_bid(&S, bid);
-  clhray = bnr_get_no(bnr);
   nf = bnf_get_nf(bnf);
   ideal= bid_get_ideal(bid);
-  H0 = check_subgroup(bnr, H0, &clhray, 0);
+  H0 = check_subgroup(bnr, H0, &clhray);
+  if (!H0) H0 = diagonal_shallow(bnr_get_cyc(bnr));
   archp = S.archp;
   P     = S.P;
   e     = S.e; l = lg(e);
@@ -1683,22 +1740,31 @@ char_normalize(GEN chi, GEN CD)
   return c;
 }
 
+int
+char_check(GEN cyc, GEN chi)
+{ return typ(chi) == t_VEC && lg(chi) == lg(cyc) && RgV_is_ZV(chi); }
+
 /* chi character of abelian G: chi[i] = chi(z_i), where G = \oplus Z/cyc[i] z_i.
- * Return Ker chi [ NULL = trivial subgroup of G ] */
-static GEN
-KerChar(GEN chi, GEN cyc)
+ * Return Ker chi */
+GEN
+charker(GEN cyc, GEN chi)
 {
   long i, l = lg(cyc);
-  GEN CD, m, U;
+  GEN CD, C, m, U;
 
-  if (typ(chi) != t_VEC || !RgV_is_ZV(chi)) pari_err_TYPE("KerChar",chi);
-  if (lg(chi) != l) pari_err_DIM("KerChar [incorrect character length]");
-  if (l == 1) return NULL; /* trivial subgroup */
-  CD = cyc_normalize(cyc);
-  m = shallowconcat(char_normalize(chi, CD), gel(CD,1));
+  if (l == 1) return cgetg(1,t_MAT); /* trivial subgroup */
+  CD = cyc_normalize(cyc); C = gel(CD,1);
+  m = shallowconcat(char_normalize(chi, CD), C);
   U = gel(ZV_extgcd(m), 2); setlg(U,l);
   for (i = 1; i < l; i++) setlg(U[i], l);
-  return U;
+  return hnfmodid(U, C);
+}
+GEN
+charker0(GEN x, GEN chi)
+{
+  if (typ(x) != t_VEC || !RgV_is_ZV(x)) x = member_cyc(x);
+  if (!char_check(x, chi)) pari_err_TYPE("charker", chi);
+  return charker(x, chi);
 }
 
 /* Given a number field bnf=bnr[1], a ray class group structure bnr and a
@@ -1707,8 +1773,13 @@ KerChar(GEN chi, GEN cyc)
 GEN
 bnrconductorofchar(GEN bnr, GEN chi)
 {
-  pari_sp av = avma; checkbnr(bnr);
-  return gerepileupto(av, bnrconductor(bnr, KerChar(chi, bnr_get_cyc(bnr)), 0));
+  pari_sp av = avma;
+  GEN cyc, K;
+  checkbnr(bnr);
+  cyc = bnr_get_cyc(bnr);
+  if (!char_check(cyc,chi)) pari_err_TYPE("bnrconductorofchar",chi);
+  K = charker(cyc,chi); if (lg(K) == 1) K = NULL;
+  return gerepilecopy(av, bnrconductor_i(bnr, K, 0));
 }
 
 /* t = [bid,U], h = #Cl(K) */
