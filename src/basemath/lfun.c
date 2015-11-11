@@ -2192,5 +2192,5 @@ lfunconductor(GEN data, GEN maxcond, long flag, long prec)
   S.pM = &gel(linit_get_ldata(theta),5);
   S.psqrtM = &gel(linit_get_tech(theta),7);
   v = solvestep((void*)&S, eval, m, M, gen_2, 14, nbits2prec(bitprec));
-  return gerepilecopy(ltop, checkconductor(v, bitprec/3, flag));
+  return gerepilecopy(ltop, checkconductor(v, bitprec/2, flag));
 }
