@@ -1584,7 +1584,10 @@ solvestep(void *E, GEN (*f)(void *,GEN), GEN a, GEN b, GEN step, long flag, long
   for (it = 0; it < ITMAX; it++)
   {
     pari_sp av2 = avma;
+    long sa;
     a = ainit;
+    sa = gsigne(fa);
+    if (gexpo(fa) < -bit) sa = 0;
     b = binit;
     v = cgetg(1, t_VEC);
     while (gcmp(a,b) < 0)
@@ -1592,8 +1595,10 @@ solvestep(void *E, GEN (*f)(void *,GEN), GEN a, GEN b, GEN step, long flag, long
       GEN fc, c = (flag&4)? gmul(a, step): gadd(a, step);
       long sc;
       if (gcmp(c,b) > 0) c = b;
-      fc = f(E, c); sc = gsigne(fc);
-      if (!sc || gsigne(fa)*sc < 0)
+      fc = f(E, c);
+      sc = gsigne(fc);
+      if (gexpo(fc) < -bit) sc = 0;
+      if (!sc || sa*sc < 0)
       {
         long e;
         GEN z;
@@ -1603,7 +1608,7 @@ solvestep(void *E, GEN (*f)(void *,GEN), GEN a, GEN b, GEN step, long flag, long
         if ((flag&1) && ((!(flag&8)) || ct)) return gerepileupto(av, z);
         v = gconcat(v, z);
       }
-      a = c; fa = fc;
+      a = c; fa = fc; sa = sc;
     }
     if ((!(flag&2) || lg(v) > 1) && (!(flag&8) || ct)) break; /* DONE */
     step = (flag&4)? sqrtr(sqrtr(step)): gmul2n(step, -2);
