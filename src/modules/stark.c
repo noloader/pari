@@ -45,6 +45,9 @@ typedef struct {
 /********************************************************************/
 /*                    Miscellaneous functions                       */
 /********************************************************************/
+static long
+chi_get_deg(GEN chi) { return itou(gel(chi,3)); }
+
 /* exp(2iPi/d), assume d a t_INT */
 static GEN
 InitRU(GEN d, long prec)
@@ -63,9 +66,9 @@ static GEN
 ComputeImagebyChar(GEN chi, GEN logelt)
 {
   GEN gn = ZV_dotproduct(gel(chi,1), logelt), x = gel(chi,2);
-  long d = itos(gel(chi,3)), n = smodis(gn, d);
+  long d = chi_get_deg(chi), n = smodis(gn, d);
   /* x^d = 1 and, if d even, x^(d/2) = -1 */
-  if ((d & 1) == 0)
+  if (!odd(d))
   {
     d /= 2;
     if (n >= d) return gneg(gpowgs(x, n-d));
@@ -90,11 +93,14 @@ EvalChar(CHI_t *C, GEN logelt)
 static void
 init_CHI(CHI_t *c, GEN CHI, GEN z)
 {
-  long i, d = itos(gel(CHI,3));
+  long i, d = chi_get_deg(CHI);
   GEN *v = (GEN*)new_chunk(d);
   v[0] = gen_1;
-  v[1] = z;
-  for (i=2; i<d; i++) v[i] = gmul(v[i-1], z);
+  if (d != 1)
+  {
+    v[1] = z;
+    for (i=2; i<d; i++) v[i] = gmul(v[i-1], z);
+  }
   c->chi = gel(CHI,1);
   c->ord = d;
   c->val = v;
@@ -102,7 +108,7 @@ init_CHI(CHI_t *c, GEN CHI, GEN z)
 /* as t_POLMOD */
 static void
 init_CHI_alg(CHI_t *c, GEN CHI) {
-  long d = itos(gel(CHI,3));
+  long d = chi_get_deg(CHI);
   GEN z;
   switch(d)
   {
@@ -192,26 +198,20 @@ ComputeLift(GEN dataC)
 }
 
 /* A character is given by a vector [(c_i), z, d] such that
-   chi(id) = z ^ sum(c_i * a_i) where
-     a_i= log(id) on the generators of bnr
-     z  = exp(2i * Pi / d); c = normalized character */
+ * chi(x) = e((sum_i c_i * a_i) / d) where
+ *   a_i= log(x) on the generators of bnr, c = normalized character */
 static GEN
 get_Char(GEN c, GEN CD, long prec)
 {
-  GEN d, C = gel(CD,1);
-  d = ZV_content(c);
-  if (!signe(d)) d = gen_1;
-  else if (is_pm1(d)) d = C;
+  GEN d = gel(CD,1);
+  if (lg(c) == 1) d = gen_1;
   else
   {
-    GEN t = gred_frac2(C, d);
-    c = ZC_Z_divexact(c, d);
-    if (typ(t) == t_INT)
-      d = t;
-    else
+    GEN t = gcdii(d, ZV_content(c));
+    if (!equali1(t))
     {
-      d = gel(t,1);
-      c = ZC_Z_mul(c, gel(t,2));
+      c = ZC_Z_divexact(c, t);
+      d = diviiexact(d, t);
     }
   }
   return mkvec3(c, InitRU(d, prec), d);
@@ -241,14 +241,15 @@ get_prdiff(GEN bnr, GEN condc)
 #define ch_cond(x) gel(x,6)
 #define ch_CHI0(x) gel(x,7)
 #define ch_comp(x) gel(x,8)
+static long
+ch_deg(GEN dtcr) { return chi_get_deg(ch_CHI(dtcr)); }
 
 static GEN
 GetDeg(GEN dataCR)
 {
   long i, l = lg(dataCR);
   GEN degs = cgetg(l, t_VECSMALL);
-
-  for (i = 1; i < l; i++) degs[i] = eulerphiu(itou(gel(ch_CHI(gel(dataCR, i)), 3)));
+  for (i = 1; i < l; i++) degs[i] = eulerphiu(ch_deg(gel(dataCR,i)));
   return degs;
 }
 
@@ -601,7 +602,7 @@ ArtinNumber(GEN bnr, GEN LCHI, long check, long prec)
   for (ic = 0, i = 1; i <= nChar; i++)
   {
     GEN CHI = gel(LCHI,i);
-    if (cmpui(2, gel(CHI,3)) >= 0) { gel(W,i) = gen_1; continue; } /* trivial case */
+    if (chi_get_deg(CHI) <= 2) { gel(W,i) = gen_1; continue; }
     ic++; indW[ic] = i;
     lC[ic] = (CHI_t*)new_chunk(sizeof(CHI_t));
     init_CHI_C(lC[ic], CHI);
@@ -648,8 +649,8 @@ ArtinNumber(GEN bnr, GEN LCHI, long check, long prec)
   /* compute a system of generators of (Ok/cond)^*, we'll make them
    * cond1-positive in the main loop */
   zid = Idealstar(nf, cond0, nf_GEN);
-  cyc = gel(zid, 2);
-  gen = gel(zid, 3);
+  cyc = abgrp_get_cyc(zid);
+  gen = abgrp_get_gen(zid);
   nz = lg(gen) - 1;
 
   nchi = cgetg(nChar+1, t_VEC);
@@ -1091,11 +1092,10 @@ InitReduction(GEN CHI, long deg)
   long j;
   pari_sp av = avma;
   int **A;
-  GEN d, polmod, pol;
+  GEN polmod, pol;
 
   A   = (int**)pari_malloc(deg*sizeof(int*));
-  d   = gel(CHI,3);
-  pol = polcyclo(itos(d), 0);
+  pol = polcyclo(chi_get_deg(CHI), 0);
   for (j = 0; j < deg; j++)
   {
     A[j] = (int*)pari_malloc(deg*sizeof(int));
@@ -2532,7 +2532,7 @@ LABDOUB:
     {
       GEN dtcr = gel(dataCR,j), CHI = ch_CHI(dtcr);
       GEN t = mulreal(gel(Lp,j), ComputeImagebyChar(CHI, sig));
-      if (itos(gel(CHI,3)) != 2) t = gmul2n(t, 1); /* character not real */
+      if (chi_get_deg(CHI) != 2) t = gmul2n(t, 1); /* character not real */
       z = gadd(z, t);
     }
     gel(veczeta,i) = gdivgs(z, den);

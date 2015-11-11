@@ -328,30 +328,21 @@ lfunchi(GEN CHI)
    If clgp = [h,[d1,...,dk],[g1,...,gk]] with dk|...|d2|d1, a character chi
    is given by [a1,a2,...,ak] such that chi(gi)=\zeta_di^ai. */
 
-static GEN
-cyc_get_d1(GEN cyc) {return lg(cyc) == 1 ? gen_1 : gel(cyc, 1);}
-
 /* Value of CHI on x.
- * If prec = 0, return exponent of zeta_d1, otherwise complex value.
- * if ssd < 0, consider that the result is real. */
+ * If prec = 0, return exponent of zeta_d1, otherwise complex value. */
 static GEN
-chigeneval(GEN bnr, GEN CHI, GEN x, long ssd, long prec)
+chigeneval(GEN bnr, GEN CHI, GEN x, long real, long prec)
 {
   pari_sp ltop = avma;
-  GEN N, p1, e, nf, G, cyc, d1, res;
+  GEN N, p1, e, nf, cyc, d1, res;
   long i;
 
   nf = bnr_get_nf(bnr);
-  G = bnr_get_clgp(bnr);
   N = gel(bnr_get_mod(bnr), 1);
-  if (!gequal1(idealnorm(nf, idealadd(nf, x, N))))
-  {
-    if (!ssd) pari_err_COPRIME("chigeneval",x,N);
-    return gen_0;
-  }
-  cyc = abgrp_get_cyc(G);
-  if (lg(cyc) == 1) return ssd ? gen_1 : gen_0;
-  d1 = cyc_get_d1(cyc);
+  if (!gequal1(idealnorm(nf, idealadd(nf, x, N)))) return gen_0;
+  cyc = bnr_get_cyc(bnr);
+  if (lg(cyc) == 1) return gen_1;
+  d1 = gel(cyc,1);
   e = isprincipalray(bnr, x);
   p1 = gen_0;
   for (i = 1; i < lg(e); ++i)
@@ -360,7 +351,7 @@ chigeneval(GEN bnr, GEN CHI, GEN x, long ssd, long prec)
   else
   {
     GEN a = divri(mulri(Pi2n(1,prec), p1), d1);
-    res = (ssd < 0) ? gcos(a, prec) : expIr(a);
+    res = real ? gcos(a, prec) : expIr(a);
   }
   return gerepileupto(ltop, res);
 }
@@ -418,8 +409,9 @@ static GEN
 lfunchigen(GEN bnr, GEN CHI)
 {
   pari_sp av = avma;
-  GEN N, sd, ssd, sig, Ldchi, nf, cyc, NN;
+  GEN N, sig, Ldchi, nf, cyc, NN;
   long r1, r2, n1, l, i;
+  int real = 1;
 
   checkbnrgen(bnr);
   nf = bnr_get_nf(bnr);
@@ -433,14 +425,11 @@ lfunchigen(GEN bnr, GEN CHI)
   if (gequal0(CHI)) return gerepilecopy(av, lfunzetak_i(bnr));
   nf_get_sign(nf, &r1, &r2);
   sig = vec01(r1+r2-n1, r2+n1);
-  l = lg(cyc); sd = gen_0; ssd = gen_m1;
+  l = lg(cyc);
   for (i = 1; i < l; ++i)
-    if (signe(modii(shifti(gel(CHI,i), 1), gel(cyc,i))))
-    {
-      sd = gen_1; ssd = gen_1; break;
-    }
-  Ldchi = mkvecn(6, tag(mkvec3(bnr,CHI,ssd), t_LFUN_CHIGEN),
-                    sd, sig, gen_1, NN, gen_0);
+    if (signe(modii(shifti(gel(CHI,i), 1), gel(cyc,i)))) { real = 0; break; }
+  Ldchi = mkvecn(6, tag(mkvec3(bnr,CHI, stoi(real)), t_LFUN_CHIGEN),
+                    real? gen_0: gen_1, sig, gen_1, NN, gen_0);
   return gerepilecopy(av, Ldchi);
 }
 
