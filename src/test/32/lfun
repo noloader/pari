@@ -212,7 +212,7 @@ check all formats
   ***                 ^--------------
   *** lfunhardy: incorrect type in lfunhardy (t_COMPLEX).
 1
-[17, 857]
+857
 1
 5077
 [0.5465728811499063616, 6.649346083071585048, 1]
@@ -220,4 +220,4 @@ check all formats
 24217.00000000000000
 28614069.00000000000
 4
-Total time spent: 7159
+Total time spent: 6060

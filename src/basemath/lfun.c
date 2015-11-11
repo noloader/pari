@@ -2126,7 +2126,7 @@ flag = 1, return the approximations, not the integers. If flag = 2,
 return all, even nonintegers. */
 
 static GEN
-checkconductor(GEN v, long flag)
+checkconductor(GEN v, long bit, long flag)
 {
   GEN w;
   long e, j, k, l = lg(v);
@@ -2135,7 +2135,7 @@ checkconductor(GEN v, long flag)
   for (j = k = 1; j < l; j++)
   {
     GEN N = grndtoi(gel(v,j), &e);
-    if (e < -13) gel(w,k++) = flag ? gel(v,j): N;
+    if (e < -bit) gel(w,k++) = flag ? gel(v,j): N;
   }
   if (k == 2) return gel(w,1);
   setlg(w,k); return w;
@@ -2192,5 +2192,5 @@ lfunconductor(GEN data, GEN maxcond, long flag, long prec)
   S.pM = &gel(linit_get_ldata(theta),5);
   S.psqrtM = &gel(linit_get_tech(theta),7);
   v = solvestep((void*)&S, eval, m, M, gen_2, 14, nbits2prec(bitprec));
-  return gerepilecopy(ltop, checkconductor(v, flag));
+  return gerepilecopy(ltop, checkconductor(v, bitprec/3, flag));
 }
