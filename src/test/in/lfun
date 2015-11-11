@@ -264,7 +264,11 @@ lfunhardy(1,I)
 
 default(realprecision,38);
 lfunconductor(1)
+lfunconductor(-4)
 lfunconductor(857)
+lfunconductor(120)
+lfunconductor(428)
+
 default(realprecision,19)
 lfunconductor(1,[1/2,10])
 /* guess small conductor */
@@ -292,5 +296,3 @@ lfunconductor(lnf24217,10^5,1)
 e2=ellinit([3,-27,-18,24,9]);
 le2=lfuncreate([n->ellan(e2,n),0,[0,1],2,0,-1]);
 lfunconductor(le2,10^9,1)
-
-lfunconductor(-4)

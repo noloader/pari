@@ -1567,10 +1567,10 @@ solvestep(void *E, GEN (*f)(void *,GEN), GEN a, GEN b, GEN step, long flag, long
 {
   const long ITMAX = 10;
   pari_sp av = avma;
-  GEN fa, ainit, binit, v = NULL;
-  long it, bit = bit_accuracy(prec) / 2, ct = 0, s = gcmp(a,b);
+  GEN fa, ainit, binit;
+  long sainit, it, bit = bit_accuracy(prec) / 2, ct = 0, s = gcmp(a,b);
 
-  if (!s) return gequal0(f(E, a)) ? gcopy(mkvec(a)): v;
+  if (!s) return gequal0(f(E, a)) ? gcopy(mkvec(a)): cgetg(1,t_VEC);
   if (s > 0) swap(a, b);
   if (flag&4)
   {
@@ -1581,15 +1581,16 @@ solvestep(void *E, GEN (*f)(void *,GEN), GEN a, GEN b, GEN step, long flag, long
     pari_err_DOMAIN("solvestep","step","<=",gen_0,step);
   ainit = a = gtofp(a, prec); fa = f(E, a);
   binit = b = gtofp(b, prec); step = gtofp(step, prec);
+  sainit = gsigne(fa);
+  if (gexpo(fa) < -bit) sainit = 0;
   for (it = 0; it < ITMAX; it++)
   {
     pari_sp av2 = avma;
+    GEN v = cgetg(1, t_VEC);
     long sa;
     a = ainit;
-    sa = gsigne(fa);
-    if (gexpo(fa) < -bit) sa = 0;
     b = binit;
-    v = cgetg(1, t_VEC);
+    sa = sainit;
     while (gcmp(a,b) < 0)
     {
       GEN fc, c = (flag&4)? gmul(a, step): gadd(a, step);
@@ -1610,12 +1611,13 @@ solvestep(void *E, GEN (*f)(void *,GEN), GEN a, GEN b, GEN step, long flag, long
       }
       a = c; fa = fc; sa = sc;
     }
-    if ((!(flag&2) || lg(v) > 1) && (!(flag&8) || ct)) break; /* DONE */
+    if ((!(flag&2) || lg(v) > 1) && (!(flag&8) || ct))
+      return gerepilecopy(av, v);
     step = (flag&4)? sqrtr(sqrtr(step)): gmul2n(step, -2);
     gerepileall(av2, 2, &fa, &step);
   }
   if (it == ITMAX) pari_err_IMPL("solvestep recovery [too many iterations]");
-  return gerepilecopy(av, v);
+  return NULL;
 }
 
 GEN

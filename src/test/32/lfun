@@ -212,12 +212,14 @@ check all formats
   ***                 ^--------------
   *** lfunhardy: incorrect type in lfunhardy (t_COMPLEX).
 1
+4
 857
+120
+[8, 428]
 1
 5077
 [0.5465728811499063616, 6.649346083071585048, 1]
 725.0000000000000000
 24217.00000000000000
 28614069.00000000000
-4
-Total time spent: 6060
+Total time spent: 6136
