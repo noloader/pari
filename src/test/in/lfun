@@ -267,7 +267,7 @@ lfunconductor(1)
 lfunconductor(-4)
 lfunconductor(857)
 lfunconductor(120)
-lfunconductor(428)
+lfunconductor(2108)
 
 default(realprecision,19)
 lfunconductor(1,[1/2,10])
