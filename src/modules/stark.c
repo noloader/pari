@@ -2347,11 +2347,9 @@ GetST(GEN bnr, GEN *pS, GEN *pT, GEN dataCR, GEN vChar, long prec)
     gel(T,j) = cgetc(prec);
   }
   if (nf_get_degree(nf) == 2)
-  {
     QuadGetST(bnr, pS, pT, dataCR, vChar, prec);
-    return;
-  }
-  GetST0(bnr, pS, pT, dataCR, vChar, prec);
+  else
+    GetST0(bnr, pS, pT, dataCR, vChar, prec);
 }
 
 /*******************************************************************/
