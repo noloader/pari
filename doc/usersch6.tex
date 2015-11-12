@@ -2068,6 +2068,9 @@ $\chi(\prod g_j^{x_j}) = \zeta_d^{\sum_j n_j x_j}$, where $\zeta_d =
 \fun{int}{char_check}{GEN cyc, GEN chi} return $1$ if \kbd{chi} is a character
 compatible with cyclic factors \kbd{cyc}, and $0$ otherwise.
 
+\fun{GEN}{char_rootof1}{GEN d, long prec} return $\exp(2i\pi/d)$ at precision
+\kbd{prec}.
+
 \subsec{The LLL algorithm}\sidx{LLL}
 
 The basic GP functions and their immediate variants are normally not very

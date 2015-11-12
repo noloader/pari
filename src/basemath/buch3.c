@@ -1762,6 +1762,21 @@ int
 char_check(GEN cyc, GEN chi)
 { return typ(chi) == t_VEC && lg(chi) == lg(cyc) && RgV_is_ZV(chi); }
 
+/* exp(2iPi/d), assume d a t_INT */
+GEN
+char_rootof1(GEN d, long prec)
+{
+  GEN c, s;
+  switch(itou_or_0(d))
+  {
+    case 1: return gen_1;
+    case 2: return gen_m1;
+    case 4: return gen_I();
+  }
+  gsincos(divri(Pi2n(1, prec), d), &s, &c, prec);
+  return mkcomplex(c, s);
+}
+
 /* chi character of abelian G: chi[i] = chi(z_i), where G = \oplus Z/cyc[i] z_i.
  * Return Ker chi */
 GEN

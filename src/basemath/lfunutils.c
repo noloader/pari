@@ -235,21 +235,18 @@ static GEN
 vecan_chivec(GEN an, long n, long prec)
 {
   pari_sp ltop = avma;
-  long N, i;
-  ulong ord = itou(gel(an,1));
-  GEN c, chi = gel(an,2), z = gpowers(expIr(divru(Pi2n(1,prec), ord)), ord);
+  GEN ord = gel(an,1), chi = gel(an,2);
+  GEN c = cgetg(n+1, t_VEC);
+  GEN z = gpowers(char_rootof1(ord, prec), itou(ord));
+  long i, iN, N = lg(chi)-1;
 
-  N = lg(chi)-1;
-  c = cgetg(n+1, t_VEC);
-  for (i = 1; i <= n; ++i)
+  for (i = iN = 1; i <= n; i++,iN++)
   {
-    if (ugcd(i, N) > 1)
+    if (iN > N) iN = 1; /* iN = (i-1) % N + 1  [ = i mod N, in [1,N] ]*/
+    if (ugcd(N, iN) > 1)
       gel(c,i) = gen_0;
     else
-    {
-      ulong ind = 1 + itou(gel(chi, (i-1)%N + 1)) % ord;
-      gel(c,i) = gel(z,ind);
-    }
+      gel(c,i) = gel(z, chi[iN]+1);
   }
   return gerepilecopy(ltop, c);
 }
@@ -263,11 +260,13 @@ lfunchivec(GEN CHI)
 
   if (N == 1) return lfunzeta();
   n = itos(gel(CHI,1)); /* order(chi) */
-  s = Fl_double(umodiu(ZV_content(chi), n), n);
-  rn = umodiu(gel(chi, N-1), n); /* chi(-1) = zeta^rn */
+  chi = ZV_to_Flv(chi, n);
+  s = Fl_double(zv_content(chi), n);
+  rn = chi[N-1]; /* chi(-1) = zeta^rn */
   if (rn == 0) sig = gen_0;
   else if (2*rn == n) sig = gen_1;
   else pari_err_TYPE("lfunchivec [abs(chi(-1)) != 1]", CHI);
+  CHI = mkvec2(gel(CHI,1), chi);
   an = tag(CHI, t_LFUN_CHIVEC);
   r = mkvecn(6, an, (s? gen_1: gen_0), mkvec(sig), gen_1, stoi(N), gen_0);
   return gerepilecopy(ltop, r);
@@ -278,9 +277,18 @@ vecan_Kronecker(GEN D, long n)
 {
   GEN v = cgetg(n+1, t_VEC);
   ulong Du = itou_or_0(D);
-  long i, d = Du ? minuu(Du, n): n;
-  for (i = 1; i <= d; i++) gel(v, i) = stoi(krois(D,i));
-  for (; i <= n; ++i) gel(v, i) = gel(v, (i-1)%d + 1);
+  long i, id, d = Du ? minuu(Du, n): n;
+  for (i = 1; i <= d; i++) switch(krois(D,i))
+  {
+    case 1:  gel(v,i) = gen_1; break;
+    case -1: gel(v,i) = gen_m1; break;
+    default: gel(v,i) = gen_0; break;
+  }
+  for (id = i; i <= n; i++,id++)
+  {
+    if (id > d) id = 1;
+    gel(v, i) = gel(v, id);
+  }
   return v;
 }
 

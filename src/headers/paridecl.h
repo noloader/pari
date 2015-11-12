@@ -2172,6 +2172,7 @@ int     char_check(GEN cyc, GEN chi);
 GEN     charker(GEN cyc, GEN chi);
 GEN     charker0(GEN cyc, GEN chi);
 GEN     char_normalize(GEN chi, GEN ncyc);
+GEN     char_rootof1(GEN d, long prec);
 GEN     cyc_normalize(GEN c);
 GEN     decodemodule(GEN nf, GEN fa);
 GEN     discrayabslist(GEN bnf,GEN listes);

@@ -52,19 +52,6 @@ chi_get_gdeg(GEN chi) { return gmael(chi,1,1); }
 static long
 chi_get_deg(GEN chi) { return itou(chi_get_gdeg(chi)); }
 
-/* exp(2iPi/d), assume d a t_INT */
-static GEN
-InitRU(GEN d, long prec)
-{
-  GEN c, s;
-  switch(itou_or_0(d))
-  {
-    case 1: return gen_1;
-    case 2: return gen_m1;
-  }
-  gsincos(divri(Pi2n(1, prec), d), &s, &c, prec);
-  return mkcomplex(c, s);
-}
 /* Compute the image of logelt by character chi, as a complex number */
 static GEN
 ComputeImagebyChar(GEN chi, GEN logelt)
@@ -205,7 +192,7 @@ ComputeLift(GEN dataC)
  * such that chi(x) = e((c . log(x)) / d) where log(x) on bnr.gen */
 static GEN
 get_Char(GEN nchi, long prec)
-{ return mkvec2(nchi, InitRU(gel(nchi,1), prec)); }
+{ return mkvec2(nchi, char_rootof1(gel(nchi,1), prec)); }
 
 /* prime divisors of conductor */
 static GEN
@@ -634,7 +621,7 @@ ArtinNumber(GEN bnr, GEN LCHI, long check, long prec)
     muslambda = nfinv(nf, lambda);
   }
   muslambda = Q_remove_denom(muslambda, &den);
-  z = den? InitRU(den, prec): NULL;
+  z = den? char_rootof1(den, prec): NULL;
 
   /* compute a system of generators of (Ok/cond)^*, we'll make them
    * cond1-positive in the main loop */
