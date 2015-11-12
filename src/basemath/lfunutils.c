@@ -336,32 +336,20 @@ lfunchi(GEN CHI)
    If clgp = [h,[d1,...,dk],[g1,...,gk]] with dk|...|d2|d1, a character chi
    is given by [a1,a2,...,ak] such that chi(gi)=\zeta_di^ai. */
 
-/* Value of CHI on x.
- * If prec = 0, return exponent of zeta_d1, otherwise complex value. */
+/* Value of CHI on x */
 static GEN
-chigeneval(GEN bnr, GEN CHI, GEN x, long real, long prec)
+chigeneval(GEN bnr, GEN nchi, GEN x, long real, long prec)
 {
   pari_sp ltop = avma;
-  GEN N, p1, e, nf, cyc, d1, res;
-  long i;
+  GEN a, e, I, d, N = gel(bnr_get_mod(bnr), 1);
 
-  nf = bnr_get_nf(bnr);
-  N = gel(bnr_get_mod(bnr), 1);
-  if (!gequal1(idealnorm(nf, idealadd(nf, x, N)))) return gen_0;
-  cyc = bnr_get_cyc(bnr);
-  if (lg(cyc) == 1) return gen_1;
-  d1 = gel(cyc,1);
-  e = isprincipalray(bnr, x);
-  p1 = gen_0;
-  for (i = 1; i < lg(e); ++i)
-    p1 = addii(p1, mulii(mulii(gel(CHI,i), gel(e,i)), divii(d1, gel(cyc,i))));
-  if (!prec) res = modii(p1, d1);
-  else
-  {
-    GEN a = divri(mulri(Pi2n(1,prec), p1), d1);
-    res = real ? gcos(a, prec) : expIr(a);
-  }
-  return gerepileupto(ltop, res);
+  I = idealadd(bnr_get_nf(bnr), x, N);
+  if (!equali1(gcoeff(I,1,1))) return NULL;
+  d = gel(nchi,1);
+  e = FpV_dotproduct(gel(nchi,2), isprincipalray(bnr,x), d);
+  a = divri(mulri(Pi2n(1,prec), e), d);
+  a = real ? gcos(a, prec) : expIr(a);
+  return gerepileupto(ltop, a);
 }
 
 static GEN
@@ -369,7 +357,7 @@ vecan_chigen(GEN an, long n, long prec)
 {
   pari_sp ltop = avma;
   forprime_t iter;
-  GEN bnr = gel(an,1), CHI = gel(an,2), gp = cgetipos(3);
+  GEN bnr = gel(an,1), nchi = gel(an,2), gp = cgetipos(3);
   GEN nf = bnr_get_nf(bnr);
   GEN v = vec_ei(n, 1);
   long ssd = itos(gel(an, 3));
@@ -378,8 +366,10 @@ vecan_chigen(GEN an, long n, long prec)
   if (nf_get_degree(nf) == 1)
     while ((gp[2] = u_forprime_next(&iter)))
     {
-      GEN ch = chigeneval(bnr, CHI, gp, ssd, prec);
-      ulong k, p = gp[2];
+      GEN ch = chigeneval(bnr, nchi, gp, ssd, prec);
+      ulong k, p;
+      if (!ch) continue;
+      p = gp[2];
       for (k = p; k <= (ulong)n; k += p)
         gel(v, k) = gadd(gel(v, k), gmul(ch, gel(v, k/p)));
     }
@@ -392,8 +382,10 @@ vecan_chigen(GEN an, long n, long prec)
       long j;
       for (j = 1; j < lg(L); j++)
       {
-        GEN pr = gel(L, j), ch = chigeneval(bnr, CHI, pr, ssd, prec);
-        ulong k, q = itou(pr_norm(pr));
+        GEN pr = gel(L, j), ch = chigeneval(bnr, nchi, pr, ssd, prec);
+        ulong k, q;
+        if (!ch) continue;
+        q = itou(pr_norm(pr));
         for (k = q; k <= (ulong)n; k += q)
           gel(v, k) = gadd(gel(v, k), gmul(ch, gel(v, k/q)));
       }
@@ -417,9 +409,9 @@ static GEN
 lfunchigen(GEN bnr, GEN CHI)
 {
   pari_sp av = avma;
-  GEN N, sig, Ldchi, nf, cyc, NN;
-  long r1, r2, n1, l, i;
-  int real = 1;
+  GEN N, sig, Ldchi, nf, cyc, nchi, NN;
+  long r1, r2, n1;
+  int real;
 
   checkbnrgen(bnr);
   nf = bnr_get_nf(bnr);
@@ -433,10 +425,9 @@ lfunchigen(GEN bnr, GEN CHI)
   if (gequal0(CHI)) return gerepilecopy(av, lfunzetak_i(bnr));
   nf_get_sign(nf, &r1, &r2);
   sig = vec01(r1+r2-n1, r2+n1);
-  l = lg(cyc);
-  for (i = 1; i < l; ++i)
-    if (signe(modii(shifti(gel(CHI,i), 1), gel(cyc,i)))) { real = 0; break; }
-  Ldchi = mkvecn(6, tag(mkvec3(bnr,CHI, stoi(real)), t_LFUN_CHIGEN),
+  nchi = char_normalize(CHI, cyc_normalize(cyc));
+  real = cmpiu(gel(nchi,1), 2) <= 0;
+  Ldchi = mkvecn(6, tag(mkvec3(bnr, nchi, stoi(real)), t_LFUN_CHIGEN),
                     real? gen_0: gen_1, sig, gen_1, NN, gen_0);
   return gerepilecopy(av, Ldchi);
 }
