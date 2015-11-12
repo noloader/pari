@@ -72,6 +72,15 @@ lfuncreate(GEN data)
 /********************************************************************/
 /**                     Simple constructors                        **/
 /********************************************************************/
+
+static GEN
+vecan_conj(GEN an, long n, long prec)
+{
+  pari_sp ltop = avma;
+  GEN p1 = ldata_vecan(gel(an,1), n, prec);
+  return gerepileupto(ltop, gconj(p1));
+}
+
 static GEN
 vecan_mul(GEN an, long n, long prec)
 {
@@ -97,6 +106,25 @@ vecan_div(GEN an, long n, long prec)
 static GEN
 lfunconvolinv(GEN a1, GEN a2)
 { return tag(mkvec2(a1,a2), t_LFUN_DIV); }
+
+static GEN
+lfunconj(GEN a1)
+{ return tag(mkvec(a1), t_LFUN_CONJ); }
+
+static GEN
+lfuncombdual(GEN fun(GEN, GEN), GEN ldata1, GEN ldata2)
+{
+  GEN a1 = ldata_get_an(ldata1), a2 = ldata_get_an(ldata2);
+  GEN b1 = ldata_get_dual(ldata1), b2 = ldata_get_dual(ldata2);
+  if (typ(b1)==t_INT && typ(b2)==t_INT)
+    return utoi(signe(b1) && signe(b2));
+  else
+  {
+    if (typ(b1)==t_INT) b1 = signe(b1) ? lfunconj(a1): a1;
+    if (typ(b2)==t_INT) b2 = signe(b2) ? lfunconj(a2): a2;
+    return fun(b1, b2);
+  }
+}
 
 static GEN
 lfunmulpoles(GEN ldata1, GEN ldata2, long bitprec)
@@ -138,7 +166,7 @@ GEN
 lfunmul(GEN ldata1, GEN ldata2, long bitprec)
 {
   pari_sp ltop = avma;
-  GEN r, N, Vga, sd, eno, a1a2, LD;
+  GEN r, N, Vga, eno, a1a2, b1b2, LD;
   long k;
   ldata1 = lfunmisc_to_ldata_shallow(ldata1);
   ldata2 = lfunmisc_to_ldata_shallow(ldata2);
@@ -149,9 +177,9 @@ lfunmul(GEN ldata1, GEN ldata2, long bitprec)
   N = gmul(ldata_get_conductor(ldata1), ldata_get_conductor(ldata2));
   Vga = vecsort0(gconcat(ldata_get_gammavec(ldata1), ldata_get_gammavec(ldata2)), NULL, 0);
   eno = gmul(ldata_get_rootno(ldata1), ldata_get_rootno(ldata2));
-  sd = (ldata_isreal(ldata1) && ldata_isreal(ldata2))? gen_0: gen_1;
   a1a2 = lfunconvol(ldata_get_an(ldata1), ldata_get_an(ldata2));
-  LD = mkvecn(7, a1a2, sd, Vga, stoi(k), N, eno, r);
+  b1b2 = lfuncombdual(lfunconvol, ldata1, ldata2);
+  LD = mkvecn(7, a1a2, b1b2, Vga, stoi(k), N, eno, r);
   if (!r) setlg(LD,7);
   return gerepilecopy(ltop, LD);
 }
@@ -183,7 +211,7 @@ GEN
 lfundiv(GEN ldata1, GEN ldata2, long bitprec)
 {
   pari_sp ltop = avma;
-  GEN r, N, v, v1, v2, sd, eno, a1a2, LD;
+  GEN r, N, v, v1, v2, eno, a1a2, b1b2, LD;
   long k, j, j1, j2, l1, l2;
   ldata1 = lfunmisc_to_ldata_shallow(ldata1);
   ldata2 = lfunmisc_to_ldata_shallow(ldata2);
@@ -194,7 +222,7 @@ lfundiv(GEN ldata1, GEN ldata2, long bitprec)
   N = gdiv(ldata_get_conductor(ldata1), ldata_get_conductor(ldata2));
   if (typ(N) != t_INT) pari_err_OP("lfundiv [conductor]",ldata1, ldata2);
   a1a2 = lfunconvolinv(ldata_get_an(ldata1), ldata_get_an(ldata2));
-  sd = (ldata_isreal(ldata1) && ldata_isreal(ldata2))? gen_0: gen_1;
+  b1b2 = lfuncombdual(lfunconvolinv, ldata1, ldata2);
   eno = gdiv(ldata_get_rootno(ldata1), ldata_get_rootno(ldata2));
   v1 = shallowcopy(ldata_get_gammavec(ldata1));
   v2 = ldata_get_gammavec(ldata2);
@@ -212,7 +240,7 @@ lfundiv(GEN ldata1, GEN ldata2, long bitprec)
   for (j1 = j = 1; j1 < l1; j1++)
     if (gel(v1, j1)) gel(v,j++) = gel(v1,j1);
 
-  LD = mkvecn(7, a1a2, sd, v, stoi(k), N, eno, r);
+  LD = mkvecn(7, a1a2, b1b2, v, stoi(k), N, eno, r);
   if (!r) setlg(LD,7);
   return gerepilecopy(ltop, LD);
 }
@@ -1967,6 +1995,7 @@ ldata_vecan(GEN van, long L, long prec)
     case t_LFUN_QF: an = vecan_qf(an, L); break;
     case t_LFUN_DIV: an = vecan_div(an, L, prec); break;
     case t_LFUN_MUL: an = vecan_mul(an, L, prec); break;
+    case t_LFUN_CONJ: an = vecan_conj(an, L, prec); break;
     case t_LFUN_SYMSQ: an = vecan_symsq(an, L, prec); break;
     case t_LFUN_SYMSQ_ELL: an = vecan_ellsymsq(an, L); break;
     case t_LFUN_GENUS2: an = vecan_genus2(an, L); break;
