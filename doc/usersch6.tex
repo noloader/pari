@@ -1387,13 +1387,12 @@ defined by the subgroup $H$ (of the ray class group mod $f$ coded in \kbd{bnr})
 has conductor $f$. Returns 0 otherwise.
 
 \fun{GEN}{bnrchar_primitive}{GEN bnr, GEN chi, GEN bnrc}
-Given a normalized (see \tev{char_normalize}) \kbd{chi} on \kbd{bnr.clgp} of
-conductor \kbd{bnrc.mod},  compute the primitive character \kbd{chic} on
-\kbd{bnrc.clgp} equivalent to \kbd{chi}, still normalized with respect to
-\kbd{bnr}: \kbd{chic(bnrc.gen[i])} is $\zeta_C^{n_i}$,
-where $n_i$ is \kbd{chic[i]} and $C$ is the exponent of
-\kbd{bnr.cyc}. It is easier to use \kbd{bnrconductor\_i(bnr,chi,2)}, but
-the latter recomputes \kbd{bnrc} for each new character.
+Given a normalized (see \tev{char_normalize}) $\kbd{chi} = [d,c]$ on
+\kbd{bnr.clgp} of conductor \kbd{bnrc.mod},  compute the primitive character
+\kbd{chic} on \kbd{bnrc.clgp} equivalent to \kbd{chi}, given as a normalized
+character $[D,C]$ : \kbd{chic(bnrc.gen[i])} is $\zeta_D^{C[i]}$,
+where $D$ is minimal. It is easier to use \kbd{bnrconductor\_i(bnr,chi,2)},
+but the latter recomputes \kbd{bnrc} for each new character.
 
 \fun{GEN}{bnrdisc}{GEN bnr, GEN H, long flag} returns the discriminant and
 signature of the class field defined by \kbd{bnr} and $H$. See the description
@@ -2052,19 +2051,19 @@ A \tev{character} on the abelian group $\oplus (\Z/d_j\Z) g_j$
 is given by a row vector $\chi = [a_1,\ldots,a_n]$ such that
 $\chi(\prod g_j^{n_j}) = \exp(2\pi i\sum a_j n_j / d_j)$.
 
-\fun{GEN}{cyc_normalize}{GEN d} shallow function. Given a vector $(d_i)$
+\fun{GEN}{cyc_normalize}{GEN d} shallow function. Given a vector
+$(d_i)_{i \leq n}$
 of elementary divisors for a finite group (no $d_i$ vanish), returns the vector
-$[C,D]$ where $C$ is the groupe exponent ($= d_1$ unless $d$ is empty)
-and $D_i = C/c_i$. This will allow to define characters as
-$\chi(\prod g_j^{n_j}) = \exp(2\pi i\sum_j a_j n_j D_j / C)$.
-Note that the $D_j$ only depend on the group and not on the individual
-character.
+$D = [1]$ if $n = 0$ (trivial group) and
+ $[d_1, d_1/d_2, \dots, d_1/d_n]$ otherwise. This will allow to define
+characters as $\chi(\prod g_j^{x_j}) = \exp(2\pi i\sum_j x_j a_j D_j / D_1)$,
+see \tev{char_normalize}.
 
-\fun{GEN}{char_normalize}{GEN chi, GEN CD} shallow function. Given a character
-\kbd{chi} $ = (a_j)$ and \var{CD} from \kbd{cyc\_normalize} above, returns the
-normalized vector $(A_j)$, where $A_j = a_jD_j$. This allows to define
-characters as $\chi(\prod g_j^{n_j}) = \zeta_C^{\sum_j A_j n_j}$,
-where $\zeta_C = \exp(2i\pi/C)$.
+\fun{GEN}{char_normalize}{GEN chi, GEN ncyc} shallow function. Given a
+character \kbd{chi} $ = (a_j)$ and \var{ncyc} from \kbd{cyc\_normalize}
+above, returns the normalized representation $[d, (n_j)]$, such that
+$\chi(\prod g_j^{x_j}) = \zeta_d^{\sum_j n_j x_j}$, where $\zeta_d =
+\exp(2i\pi/d)$ and $d$ is \emph{minimal}.
 
 \fun{int}{char_check}{GEN cyc, GEN chi} return $1$ if \kbd{chi} is a character
 compatible with cyclic factors \kbd{cyc}, and $0$ otherwise.

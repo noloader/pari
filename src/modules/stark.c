@@ -45,8 +45,12 @@ typedef struct {
 /********************************************************************/
 /*                    Miscellaneous functions                       */
 /********************************************************************/
+static GEN
+chi_get_c(GEN chi) { return gmael(chi,1,2); }
+static GEN
+chi_get_gdeg(GEN chi) { return gmael(chi,1,1); }
 static long
-chi_get_deg(GEN chi) { return itou(gel(chi,3)); }
+chi_get_deg(GEN chi) { return itou(chi_get_gdeg(chi)); }
 
 /* exp(2iPi/d), assume d a t_INT */
 static GEN
@@ -65,7 +69,7 @@ InitRU(GEN d, long prec)
 static GEN
 ComputeImagebyChar(GEN chi, GEN logelt)
 {
-  GEN gn = ZV_dotproduct(gel(chi,1), logelt), x = gel(chi,2);
+  GEN gn = ZV_dotproduct(chi_get_c(chi), logelt), x = gel(chi,2);
   long d = chi_get_deg(chi), n = smodis(gn, d);
   /* x^d = 1 and, if d even, x^(d/2) = -1 */
   if (!odd(d))
@@ -101,7 +105,7 @@ init_CHI(CHI_t *c, GEN CHI, GEN z)
     v[1] = z;
     for (i=2; i<d; i++) v[i] = gmul(v[i-1], z);
   }
-  c->chi = gel(CHI,1);
+  c->chi = chi_get_c(CHI);
   c->ord = d;
   c->val = v;
 }
@@ -197,25 +201,11 @@ ComputeLift(GEN dataC)
   return gerepileupto(av, elt);
 }
 
-/* A character is given by a vector [(c_i), z, d] such that
- * chi(x) = e((sum_i c_i * a_i) / d) where
- *   a_i= log(x) on the generators of bnr, c = normalized character */
+/* nchi: a character given by a vector [d, (c_i)], e.g. from char_normalize
+ * such that chi(x) = e((c . log(x)) / d) where log(x) on bnr.gen */
 static GEN
-get_Char(GEN c, GEN CD, long prec)
-{
-  GEN d = gel(CD,1);
-  if (lg(c) == 1) d = gen_1;
-  else
-  {
-    GEN t = gcdii(d, ZV_content(c));
-    if (!equali1(t))
-    {
-      c = ZC_Z_divexact(c, t);
-      d = diviiexact(d, t);
-    }
-  }
-  return mkvec3(c, InitRU(d, prec), d);
-}
+get_Char(GEN nchi, long prec)
+{ return mkvec2(nchi, InitRU(gel(nchi,1), prec)); }
 
 /* prime divisors of conductor */
 static GEN
@@ -757,7 +747,7 @@ GEN
 bnrrootnumber(GEN bnr, GEN chi, long flag, long prec)
 {
   pari_sp av = avma;
-  GEN cyc, CD;
+  GEN cyc;
 
   if (flag < 0 || flag > 1) pari_err_FLAG("bnrrootnumber");
   checkbnr(bnr);
@@ -770,28 +760,27 @@ bnrrootnumber(GEN bnr, GEN chi, long flag, long prec)
     bnr = gel(z,2);
     chi = gel(z,3);
   }
-  CD = cyc_normalize(cyc);
-  chi = char_normalize(chi,CD);
-  chi = get_Char(chi, CD, prec);
+  chi = char_normalize(chi, cyc_normalize(cyc));
+  chi = get_Char(chi, prec);
   return gerepilecopy(av, SingleArtinNumber(bnr, chi, prec));
 }
 
 /********************************************************************/
 /*               3rd part: initialize the characters                */
 /********************************************************************/
-/* returns a ZV, CD from cyc_normalize */
+/* returns a ZV, ncyc from cyc_normalize */
 static GEN
-LiftChar(GEN cyc, GEN Mat, GEN chi, GEN CD)
+LiftChar(GEN cyc, GEN Mat, GEN chi, GEN ncyc)
 {
   long lm = lg(cyc), l  = lg(chi), i, j;
-  GEN lchi = cgetg(lm, t_VEC), C = gel(CD,1), D = gel(CD,2);
+  GEN lchi = cgetg(lm, t_VEC), C = gel(ncyc,1);
   for (i = 1; i < lm; i++)
   {
     pari_sp av = avma;
     GEN t, s  = mulii(gel(chi,1), gcoeff(Mat, 1, i));
     for (j = 2; j < l; j++)
     {
-      t = mulii(gel(chi,j), gel(D,j));
+      t = mulii(gel(chi,j), gel(ncyc,j));
       s = addii(s, mulii(t, gcoeff(Mat, j, i)));
     }
     t = diviiexact(mulii(s, gel(cyc,i)), C);
@@ -884,7 +873,7 @@ static GEN
 InitChar(GEN bnr, GEN listCR, long prec)
 {
   GEN bnf = checkbnf(bnr), nf = bnf_get_nf(bnf);
-  GEN modul, dk, C, dataCR, chi, cond, CD;
+  GEN modul, dk, C, dataCR, chi, cond, ncyc;
   long N, r1, r2, prec2, i, j, l;
   pari_sp av = avma;
 
@@ -894,7 +883,7 @@ InitChar(GEN bnr, GEN listCR, long prec)
   nf_get_sign(nf, &r1,&r2);
   prec2 = precdbl(prec) + EXTRA_PREC;
   C     = gmul2n(sqrtr_abs(divir(dk, powru(mppi(prec2),N))), -r2);
-  CD = cyc_normalize( bnr_get_cyc(bnr) );
+  ncyc = cyc_normalize( bnr_get_cyc(bnr) );
 
   dataCR = cgetg_copy(listCR, &l);
   for (i = 1; i < l; i++)
@@ -935,8 +924,8 @@ InitChar(GEN bnr, GEN listCR, long prec)
       ch_cond(dtcr) = ch_cond(olddtcr);
     }
 
-    chi = char_normalize(chi,CD);
-    ch_CHI(dtcr) = get_Char(chi,CD,prec2);
+    chi = char_normalize(chi,ncyc);
+    ch_CHI(dtcr) = get_Char(chi, prec2);
     ch_comp(dtcr) = gen_1; /* compute this character (by default) */
 
     bnrc = ch_bnr(dtcr);
@@ -945,7 +934,7 @@ InitChar(GEN bnr, GEN listCR, long prec)
     else
     {
       chi = bnrchar_primitive(bnr, chi, bnrc);
-      ch_CHI0(dtcr) = get_Char(chi,CD,prec2);
+      ch_CHI0(dtcr) = get_Char(chi, prec2);
     }
   }
 
@@ -1001,7 +990,7 @@ get_listCR(GEN bnr, GEN dtQ)
 static GEN
 CharNewPrec(GEN dataCR, GEN nf, long prec)
 {
-  GEN dk, C, p1;
+  GEN dk, C;
   long N, l, j, prec2;
 
   dk    =  nf_get_disc(nf);
@@ -1018,8 +1007,8 @@ CharNewPrec(GEN dataCR, GEN nf, long prec)
 
     gmael(ch_bnr(dtcr), 1, 7) = nf;
 
-    p1 = ch_CHI( dtcr); gel(p1,2) = InitRU(gel(p1,3), prec2);
-    p1 = ch_CHI0(dtcr); gel(p1,2) = InitRU(gel(p1,3), prec2);
+    ch_CHI( dtcr) = get_Char(gel(ch_CHI(dtcr), 1), prec2);
+    ch_CHI0(dtcr) = get_Char(gel(ch_CHI0(dtcr),1), prec2);
   }
 
   return dataCR;
@@ -1087,7 +1076,7 @@ FreeMat(int **A, long n)
 
 /* initialize Coeff reduction */
 static int**
-InitReduction(GEN CHI, long deg)
+InitReduction(long d, long deg)
 {
   long j;
   pari_sp av = avma;
@@ -1095,7 +1084,7 @@ InitReduction(GEN CHI, long deg)
   GEN polmod, pol;
 
   A   = (int**)pari_malloc(deg*sizeof(int*));
-  pol = polcyclo(chi_get_deg(CHI), 0);
+  pol = polcyclo(d, 0);
   for (j = 0; j < deg; j++)
   {
     A[j] = (int*)pari_malloc(deg*sizeof(int));
@@ -1312,7 +1301,7 @@ ComputeCoeff(GEN dtcr, LISTray *R, long n, long deg)
 
   an  = InitMatAn(n, deg, 0);
   an2 = InitMatAn(n, deg, 0);
-  reduc  = InitReduction(CHI, deg);
+  reduc  = InitReduction(C.ord, deg);
   av2 = avma;
 
   L = R->L1; l = lg(L);
@@ -1610,7 +1599,7 @@ GetValue(GEN dtcr, GEN W, GEN S, GEN T, long fl, long prec)
   pari_sp av = avma;
   GEN cf, z, p1;
   long q, b, c, r;
-  int isreal = (itos(gel(ch_CHI0(dtcr), 3)) <= 2);
+  int isreal = (chi_get_deg(ch_CHI0(dtcr)) <= 2);
 
   p1 = ch_4(dtcr);
   q = p1[1];
@@ -1881,7 +1870,7 @@ computean(GEN dtcr, LISTray *R, long n, long deg)
   condZ= R->condZ;
 
   an = InitMatAn(n, deg, 1);
-  reduc = InitReduction(CHI, deg);
+  reduc = InitReduction(C.ord, deg);
   av2 = avma;
 
   /* all pr | p divide cond */

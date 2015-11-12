@@ -1209,12 +1209,31 @@ bnrsurjection(GEN bnr1, GEN bnr2)
   return M;
 }
 
+/* chi character [D,C] given by chi(g_i) = \zeta_D^C[i] for all i, return
+ * [d,c] such that chi(g_i) = \zeta_d^c[i] for all i and d minimal */
+static GEN
+char_simplify(GEN D, GEN C)
+{
+  GEN d = D;
+  if (lg(C) == 1) d = gen_1;
+  else
+  {
+    GEN t = gcdii(d, ZV_content(C));
+    if (!equali1(t))
+    {
+      C = ZC_Z_divexact(C, t);
+      d = diviiexact(d, t);
+    }
+  }
+  return mkvec2(d,C);
+}
+
 /* Given normalized chi on bnr.clgp of conductor bnrc.mod,
  * compute primitive character chic on bnrc.clgp equivalent to chi,
  * still normalized wrt. bnr:
  *   chic(genc[i]) = zeta_C^chic[i]), C = cyc_normalize(bnr.cyc)[1] */
 GEN
-bnrchar_primitive(GEN bnr, GEN chi, GEN bnrc)
+bnrchar_primitive(GEN bnr, GEN nchi, GEN bnrc)
 {
   GEN Mc, U, M = bnrsurjection(bnr, bnrc);
   long l = lg(M);
@@ -1222,7 +1241,7 @@ bnrchar_primitive(GEN bnr, GEN chi, GEN bnrc)
   Mc = diagonal_shallow(bnr_get_cyc(bnrc));
   (void)ZM_hnfall(shallowconcat(M, Mc), &U, 1); /* identity */
   U = matslice(U,1,l-1, l,lg(U)-1);
-  return ZV_ZM_mul(chi, U);
+  return char_simplify(gel(nchi,1), ZV_ZM_mul(gel(nchi,2), U));
 }
 
 /* s: <gen> = Cl_f --> Cl_f2 --> 0, H subgroup of Cl_f (generators given as
@@ -1238,20 +1257,20 @@ imageofgroup(GEN bnr, GEN bnr2, GEN H)
 static GEN
 imageofchar(GEN bnr, GEN bnrc, GEN chi)
 {
-  GEN CD = cyc_normalize(bnr_get_cyc(bnr));
-  GEN chic = bnrchar_primitive(bnr, char_normalize(chi, CD), bnrc);
-  GEN cycc, C;
-  long i, l;
-  /* chic(genc[i]) = zeta_C^chic[i]) */
+  GEN nchi = char_normalize(chi, cyc_normalize(bnr_get_cyc(bnr)));
+  GEN chic, D, DC = bnrchar_primitive(bnr, nchi, bnrc);
+  GEN cycc = bnr_get_cyc(bnrc);
+  long i, l = lg(cycc);
 
+  D = gel(DC,1);
+  chic = gel(DC,2);
+  /* chic(genc[i]) = zeta_D^chic[i]) */
   /* denormalize: express chic(genc[i]) in terms of zeta_{cycc[i]} */
-  cycc = bnr_get_cyc(bnrc); l = lg(cycc);
-  C = gel(CD,1);
   for (i = 1; i < l; ++i)
   {
-    GEN di = gel(cycc, i), c = gdiv(mulii(di, gel(chic,i)), C);
-    if (typ(c) != t_INT) pari_err_BUG("imageofchar");
-    gel(chic, i) = modii(c, di);
+    GEN di = gel(cycc, i), t = gdiv(mulii(di, gel(chic,i)), D);
+    if (typ(t) != t_INT) pari_err_BUG("imageofchar");
+    gel(chic, i) = modii(t, di);
   }
   return chic;
 }
@@ -1712,32 +1731,31 @@ GEN
 discrayabscond(GEN bnr, GEN H)
 { return bnrdisc(bnr,H,rnf_COND); }
 
-/* Shallow; return c[1],  [c[1]/c[1] = 1,...,c[1]/c[n]] */
+/* Shallow; return [ d[1],  d[1]/d[2],...,d[1]/d[n] ] */
 GEN
-cyc_normalize(GEN c)
+cyc_normalize(GEN d)
 {
-  long i, l = lg(c);
-  GEN C, D = cgetg(l, t_VEC);
-  if (l == 1) C = gen_1;
-  else
-  {
-    C = gel(c,1); gel(D,1) = gen_1;
-    for (i = 2; i < l; i++) gel(D,i) = diviiexact(C, gel(c,i));
-  }
-  return mkvec2(C, D);
+  long i, l = lg(d);
+  GEN C, D;
+  if (l == 1) return mkvec(gen_1);
+  D = cgetg(l, t_VEC); gel(D,1) = C = gel(d,1);
+  for (i = 2; i < l; i++) gel(D,i) = diviiexact(C, gel(d,i));
+  return D;
 }
-/* Shallow; CD from cyc_normalize(): D[i] = cyc[i]/cyc[1]; chi character,
- * return c such that: chi( g_i ) = e(chi[i] / cyc[i]) = e(c[i]/ cyc[1]) */
+
+/* Shallow; ncyc from cyc_normalize(): ncyc[1] = cyc[1],
+ * ncyc[i] = cyc[i]/cyc[1] for i > 1; chi character on G ~ cyc.
+ * Return [d,c] such that: chi( g_i ) = e(chi[i] / cyc[i]) = e(c[i]/ d) */
 GEN
-char_normalize(GEN chi, GEN CD)
+char_normalize(GEN chi, GEN ncyc)
 {
   long i, l = lg(chi);
-  GEN c = cgetg(l, t_VEC), D = gel(CD,2);
+  GEN c = cgetg(l, t_VEC);
   if (l > 1) {
     gel(c,1) = gel(chi,1);
-    for (i = 2; i < l; i++) gel(c,i) = mulii(gel(chi,i), gel(D,i));
+    for (i = 2; i < l; i++) gel(c,i) = mulii(gel(chi,i), gel(ncyc,i));
   }
-  return c;
+  return char_simplify(gel(ncyc,1), c);
 }
 
 int
@@ -1750,14 +1768,15 @@ GEN
 charker(GEN cyc, GEN chi)
 {
   long i, l = lg(cyc);
-  GEN CD, C, m, U;
+  GEN nchi, ncyc, m, U;
 
   if (l == 1) return cgetg(1,t_MAT); /* trivial subgroup */
-  CD = cyc_normalize(cyc); C = gel(CD,1);
-  m = shallowconcat(char_normalize(chi, CD), C);
+  ncyc = cyc_normalize(cyc);
+  nchi = char_normalize(chi, ncyc);
+  m = shallowconcat(gel(nchi,2), gel(nchi,1));
   U = gel(ZV_extgcd(m), 2); setlg(U,l);
   for (i = 1; i < l; i++) setlg(U[i], l);
-  return hnfmodid(U, C);
+  return hnfmodid(U, gel(ncyc,1));
 }
 GEN
 charker0(GEN x, GEN chi)

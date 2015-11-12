@@ -2171,7 +2171,7 @@ long    bnfcertify0(GEN bnf, long flag);
 int     char_check(GEN cyc, GEN chi);
 GEN     charker(GEN cyc, GEN chi);
 GEN     charker0(GEN cyc, GEN chi);
-GEN     char_normalize(GEN chi, GEN CD);
+GEN     char_normalize(GEN chi, GEN ncyc);
 GEN     cyc_normalize(GEN c);
 GEN     decodemodule(GEN nf, GEN fa);
 GEN     discrayabslist(GEN bnf,GEN listes);
