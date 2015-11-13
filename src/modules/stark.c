@@ -53,11 +53,18 @@ static long
 chi_get_deg(GEN chi) { return itou(chi_get_gdeg(chi)); }
 
 /* Compute the image of logelt by character chi, as a complex number */
-static GEN
-ComputeImagebyChar(GEN chi, GEN logelt)
+static ulong
+CharEval_n(GEN chi, GEN logelt)
 {
-  GEN gn = ZV_dotproduct(chi_get_c(chi), logelt), x = gel(chi,2);
-  long d = chi_get_deg(chi), n = smodis(gn, d);
+  GEN gn = ZV_dotproduct(chi_get_c(chi), logelt);
+  return umodiu(gn, chi_get_deg(chi));
+}
+/* Compute the image of logelt by character chi, as a complex number */
+static GEN
+CharEval(GEN chi, GEN logelt)
+{
+  ulong n = CharEval_n(chi, logelt), d = chi_get_deg(chi);
+  GEN x = gel(chi,2);
   /* x^d = 1 and, if d even, x^(d/2) = -1 */
   if (!odd(d))
   {
@@ -69,16 +76,16 @@ ComputeImagebyChar(GEN chi, GEN logelt)
 
 /* return n such that C(elt) = z^n */
 static ulong
-EvalChar_n(CHI_t *C, GEN logelt)
+CHI_eval_n(CHI_t *C, GEN logelt)
 {
   GEN n = ZV_dotproduct(C->chi, logelt);
   return umodiu(n, C->ord);
 }
 /* return C(elt) */
 static GEN
-EvalChar(CHI_t *C, GEN logelt)
+CHI_eval(CHI_t *C, GEN logelt)
 {
-  return C->val[EvalChar_n(C, logelt)];
+  return C->val[CHI_eval_n(C, logelt)];
 }
 
 static void
@@ -641,7 +648,7 @@ ArtinNumber(GEN bnr, GEN LCHI, long check, long prec)
     classe = isprincipalray(bnr, gel(gen,i));
     for (ic = 1; ic <= nChar; ic++) {
       GEN n = gel(nchi,ic);
-      n[i] = EvalChar_n(lC[ic], classe);
+      n[i] = CHI_eval_n(lC[ic], classe);
     }
   }
 
@@ -694,7 +701,7 @@ ArtinNumber(GEN bnr, GEN LCHI, long check, long prec)
 
   for (ic = 1; ic <= nChar; ic++)
   {
-    s0 = gmul(gel(s,ic), EvalChar(lC[ic], classe));
+    s0 = gmul(gel(s,ic), CHI_eval(lC[ic], classe));
     s0 = gdiv(s0, sqrtnc);
     if (check && - expo(subrs(gnorm(s0), 1)) < prec2nbits(prec) >> 1)
       pari_err_BUG("ArtinNumber");
@@ -757,8 +764,9 @@ bnrrootnumber(GEN bnr, GEN chi, long flag, long prec)
 /********************************************************************/
 /* returns a ZV, ncyc from cyc_normalize */
 static GEN
-LiftChar(GEN cyc, GEN Mat, GEN chi, GEN ncyc)
+LiftChar(GEN Qt, GEN cyc, GEN chi)
 {
+  GEN ncyc = gel(Qt,5), Mat = gel(Qt,3);
   long lm = lg(cyc), l  = lg(chi), i, j;
   GEN lchi = cgetg(lm, t_VEC), C = gel(ncyc,1);
   for (i = 1; i < lm; i++)
@@ -782,19 +790,14 @@ LiftChar(GEN cyc, GEN Mat, GEN chi, GEN ncyc)
 static GEN
 ComputeAChi(GEN dtcr, long *r, long flag, long prec)
 {
-  long l, i;
-  GEN A, diff, chi, bnrc;
+  GEN A, diff = ch_diff(dtcr), bnrc = ch_bnr(dtcr), chi  = ch_CHI0(dtcr);
+  long i, l = lg(diff);
 
-  bnrc = ch_bnr(dtcr);
-  diff = ch_diff(dtcr); l = lg(diff);
-  chi  = ch_CHI0(dtcr);
-
-  A = gen_1;
-  *r = 0;
+  A = gen_1; *r = 0;
   for (i = 1; i < l; i++)
   {
     GEN pr = gel(diff,i), B;
-    GEN z = ComputeImagebyChar(chi, isprincipalray(bnrc, pr));
+    GEN z = CharEval(chi, isprincipalray(bnrc, pr));
 
     if (flag)
       B = gsubsg(1, gdiv(z, pr_norm(pr)));
@@ -813,17 +816,13 @@ ComputeAChi(GEN dtcr, long *r, long flag, long prec)
 static int
 L_vanishes_at_0(GEN dtcr)
 {
-  long l, i;
-  GEN diff, chi, bnrc;
+  GEN diff = ch_diff(dtcr), bnrc = ch_bnr(dtcr), chi  = ch_CHI0(dtcr);
+  long i, l = lg(diff);
 
-  bnrc = ch_bnr(dtcr);
-  diff = ch_diff(dtcr); l = lg(diff);
-  chi  = ch_CHI0(dtcr);
   for (i = 1; i < l; i++)
   {
     GEN pr = gel(diff,i);
-    GEN z = ComputeImagebyChar(chi, isprincipalray(bnrc, pr));
-    if (gequal1(z)) return 1;
+    if (! CharEval_n(chi, isprincipalray(bnrc, pr))) return 1;
   }
   return 0;
 }
@@ -933,10 +932,9 @@ InitChar(GEN bnr, GEN listCR, long prec)
 static GEN
 get_listCR(GEN bnr, GEN dtQ)
 {
-  GEN MrD, listCR, vecchi, lchi, Surj, cond, Mr, d, allCR;
+  GEN MrD, listCR, vecchi, lchi, cond, Mr, d, allCR;
   long hD, h, nc, i, j, tnc;
 
-  Surj = gel(dtQ,3);
   MrD  = gel(dtQ,2);
   Mr   = bnr_get_cyc(bnr);
   hD   = itos(gel(dtQ,1));
@@ -952,7 +950,7 @@ get_listCR(GEN bnr, GEN dtQ)
   for (i = 1; tnc <= h; i++)
   {
     /* lift a character of D in Clk(m) */
-    lchi = LiftChar(Mr, Surj, gel(vecchi,i), gel(dtQ,5));
+    lchi = LiftChar(dtQ, Mr, gel(vecchi,i));
 
     for (j = 1; j < tnc; j++)
       if (ZV_equal(lchi, gel(allCR,j))) break;
@@ -1266,7 +1264,7 @@ CorrectCoeff(GEN dtcr, int** an, int** reduc, long n, long deg)
     pr = gel(diff,j);
     np = itos( pr_norm(pr) );
 
-    chi  = EvalChar(&C, isprincipalray(bnrc, pr));
+    chi  = CHI_eval(&C, isprincipalray(bnrc, pr));
 
     an_AddMul(an,an2,np,n,deg,chi,reduc);
     avma = av1;
@@ -1295,7 +1293,7 @@ ComputeCoeff(GEN dtcr, LISTray *R, long n, long deg)
   for (i=1; i<l; i++, avma = av2)
   {
     np = L[i];
-    chi  = EvalChar(&C, gel(R->L1ray,i));
+    chi  = CHI_eval(&C, gel(R->L1ray,i));
     an_AddMul(an,an2,np,n,deg,chi,reduc);
   }
   FreeMat(an2, n);
@@ -1870,7 +1868,7 @@ computean(GEN dtcr, LISTray *R, long n, long deg)
   {
     p = L[i];
     if (condZ == 1) chi = C.val[0]; /* 1 */
-    else            chi = EvalChar(&C, gel(R->rayZ, p%condZ));
+    else            chi = CHI_eval(&C, gel(R->rayZ, p%condZ));
     chi1 = chi;
     for (q=p;;)
     {
@@ -1888,7 +1886,7 @@ computean(GEN dtcr, LISTray *R, long n, long deg)
   for (i=1; i<l; i++, avma = av2)
   {
     p = L[i];
-    chi = EvalChar(&C, gel(R->L1ray,i));
+    chi = CHI_eval(&C, gel(R->L1ray,i));
     chi1 = chi;
     for(q=p;;)
     {
@@ -1909,8 +1907,8 @@ computean(GEN dtcr, LISTray *R, long n, long deg)
       ray2 = ZC_neg(ray1);
     else
       ray2 = ZC_sub(gel(R->rayZ, p%condZ),  ray1);
-    chi11 = EvalChar(&C, ray1);
-    chi12 = EvalChar(&C, ray2);
+    chi11 = CHI_eval(&C, ray1);
+    chi12 = CHI_eval(&C, ray2);
 
     chi1 = gadd(chi11, chi12);
     chi2 = chi12;
@@ -2505,7 +2503,7 @@ LABDOUB:
     for (j = 1; j <= cl; j++)
     {
       GEN dtcr = gel(dataCR,j), CHI = ch_CHI(dtcr);
-      GEN t = mulreal(gel(Lp,j), ComputeImagebyChar(CHI, sig));
+      GEN t = mulreal(gel(Lp,j), CharEval(CHI, sig));
       if (chi_get_deg(CHI) != 2) t = gmul2n(t, 1); /* character not real */
       z = gadd(z, t);
     }
@@ -2676,7 +2674,7 @@ bnrL1(GEN bnr, GEN subgp, long flag, long prec)
   for (i = 1; i < cl; i++)
   {
     /* lift to a character on Cl(bnr) */
-    GEN lchi = LiftChar(cyc, gel(Qt,3), gel(allCR,i), gel(Qt,5));
+    GEN lchi = LiftChar(Qt, cyc, gel(allCR,i));
     GEN clchi = ConjChar(lchi, cyc);
     long j, a = 0;
     for (j = 1; j <= nc; j++)
