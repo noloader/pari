@@ -64,14 +64,11 @@ static GEN
 CharEval(GEN chi, GEN logelt)
 {
   ulong n = CharEval_n(chi, logelt), d = chi_get_deg(chi);
+  long nn = Fl_center(n,d,d>>1);
   GEN x = gel(chi,2);
-  /* x^d = 1 and, if d even, x^(d/2) = -1 */
-  if (!odd(d))
-  {
-    d /= 2;
-    if (n >= d) return gneg(gpowgs(x, n-d));
-  }
-  return gpowgs(x, n);
+  x = gpowgs(x, labs(nn));
+  if (nn < 0) x = gconj(x);
+  return x;
 }
 
 /* return n such that C(elt) = z^n */
