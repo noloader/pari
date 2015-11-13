@@ -1268,8 +1268,7 @@ imageofchar(GEN bnr, GEN bnrc, GEN chi)
   /* denormalize: express chic(genc[i]) in terms of zeta_{cycc[i]} */
   for (i = 1; i < l; ++i)
   {
-    GEN di = gel(cycc, i), t = gdiv(mulii(di, gel(chic,i)), D);
-    if (typ(t) != t_INT) pari_err_BUG("imageofchar");
+    GEN di = gel(cycc, i), t = diviiexact(mulii(di, gel(chic,i)), D);
     gel(chic, i) = modii(t, di);
   }
   return chic;

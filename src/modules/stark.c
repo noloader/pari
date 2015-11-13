@@ -247,7 +247,7 @@ static GEN AllStark(GEN data, GEN nf, long flag, long prec);
  * 1) order
  * 2) structure
  * 3) the matrix A ->> A/C
- * 4) the group C */
+ * 4) the subgroup C */
 static GEN
 InitQuotient(GEN C)
 {
@@ -762,24 +762,18 @@ bnrrootnumber(GEN bnr, GEN chi, long flag, long prec)
 /********************************************************************/
 /*               3rd part: initialize the characters                */
 /********************************************************************/
-/* returns a ZV, ncyc from cyc_normalize */
 static GEN
 LiftChar(GEN Qt, GEN cyc, GEN chi)
 {
-  GEN ncyc = gel(Qt,5), Mat = gel(Qt,3);
-  long lm = lg(cyc), l  = lg(chi), i, j;
-  GEN lchi = cgetg(lm, t_VEC), C = gel(ncyc,1);
-  for (i = 1; i < lm; i++)
+  GEN ncyc = gel(Qt,5), U = gel(Qt,3);
+  GEN nchi = char_normalize(chi, ncyc);
+  GEN c = ZV_ZM_mul(gel(nchi,2), U), d = gel(nchi,1);
+  long l = lg(cyc), i;
+  GEN lchi = cgetg(l, t_VEC);
+  for (i = 1; i < l; i++)
   {
-    pari_sp av = avma;
-    GEN t, s  = mulii(gel(chi,1), gcoeff(Mat, 1, i));
-    for (j = 2; j < l; j++)
-    {
-      t = mulii(gel(chi,j), gel(ncyc,j));
-      s = addii(s, mulii(t, gcoeff(Mat, j, i)));
-    }
-    t = diviiexact(mulii(s, gel(cyc,i)), C);
-    gel(lchi,i) = gerepileuptoint(av, modii(t, gel(cyc,i)));
+    GEN di = gel(cyc,i), t = diviiexact(mulii(gel(c,i), di), d);
+    gel(lchi,i) = modii(t, di);
   }
   return lchi;
 }
@@ -932,24 +926,20 @@ InitChar(GEN bnr, GEN listCR, long prec)
 static GEN
 get_listCR(GEN bnr, GEN dtQ)
 {
-  GEN MrD, listCR, vecchi, lchi, cond, Mr, d, allCR;
+  GEN listCR, vecchi, lchi, cond, Mr, d, allCR;
   long hD, h, nc, i, j, tnc;
 
-  MrD  = gel(dtQ,2);
-  Mr   = bnr_get_cyc(bnr);
-  hD   = itos(gel(dtQ,1));
-  h    = hD >> 1;
+  Mr = bnr_get_cyc(bnr);
+  hD = itos(gel(dtQ,1));
+  h  = hD >> 1;
 
-  listCR = cgetg(h + 1, t_VEC); /* non-conjugate characters */
-  nc  = 1;
-  allCR  = cgetg(h + 1, t_VEC); /* all characters, including conjugates */
-  tnc = 1;
+  listCR = cgetg(h+1, t_VEC); nc = 1; /* non-conjugate chars */
+  allCR  = cgetg(h+1, t_VEC);tnc = 1; /* all chars, including conjugates */
 
-  vecchi = EltsOfGroup(hD, MrD);
+  vecchi = EltsOfGroup(hD, gel(dtQ,2));
 
   for (i = 1; tnc <= h; i++)
-  {
-    /* lift a character of D in Clk(m) */
+  { /* lift a character of D in Clk(m) */
     lchi = LiftChar(dtQ, Mr, gel(vecchi,i));
 
     for (j = 1; j < tnc; j++)
@@ -965,8 +955,7 @@ get_listCR(GEN bnr, GEN dtQ)
 
     /* if chi is not real, add its conjugate character to allCR */
     d = Order(Mr, lchi);
-    if (!equaliu(d, 2))
-      gel(allCR,tnc++) = ConjChar(lchi, Mr);
+    if (!equaliu(d,2)) gel(allCR,tnc++) = ConjChar(lchi, Mr);
   }
   setlg(listCR, nc); return listCR;
 }
@@ -2661,8 +2650,8 @@ bnrL1(GEN bnr, GEN subgp, long flag, long prec)
   cyc  = bnr_get_cyc(bnr);
   subgp = get_subgroup(subgp, cyc, "bnrL1");
 
-  cl = itou( ZM_det_triangular(subgp) );
   Qt = InitQuotient(subgp);
+  cl = itou(gel(Qt,1));
 
   /* compute all characters */
   allCR = EltsOfGroup(cl, gel(Qt,2));
