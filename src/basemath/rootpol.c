@@ -890,19 +890,15 @@ fft(GEN Omega, GEN p, GEN f, long step, long l)
 
 /* e(1/N) */
 static GEN
-RUgen(long N, long bit)
-{
-  if (N == 2) return gen_m1;
-  if (N == 4) return gen_I();
-  return expIr(divru(Pi2n(1, nbits2prec(bit)), N));
-}
+RUgen(long N, long bit) { return char_rootof1_u(N, nbits2prec(bit)); }
 
-/* N=2^k. returns a vector RU which contains exp(2*i*k*Pi/N), k=0..N-1 */
+/* 8 | N. returns a vector RU which contains exp(2*i*k*Pi/N), k=0..N-1 */
 static GEN
 initRU(long N, long bit)
 {
   GEN *RU, z = RUgen(N, bit);
   long i, N2 = (N>>1), N4 = (N>>2), N8 = (N>>3);
+  /* z^N2 = -1, z^N4 = I; if z^k = a+I*b, then z^(N4-k) = I*conj(z) = b+a*I */
 
   RU = (GEN*)cgetg(N+1,t_VEC); RU++;
 

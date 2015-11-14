@@ -1775,6 +1775,20 @@ char_rootof1(GEN d, long prec)
   gsincos(divri(Pi2n(1, prec), d), &s, &c, prec);
   return mkcomplex(c, s);
 }
+/* exp(2iPi/d), assume d a t_INT */
+GEN
+char_rootof1_u(ulong d, long prec)
+{
+  GEN c, s;
+  switch(d)
+  {
+    case 1: return gen_1;
+    case 2: return gen_m1;
+    case 4: return gen_I();
+  }
+  gsincos(divru(Pi2n(1, prec), d), &s, &c, prec);
+  return mkcomplex(c, s);
+}
 
 /* chi character of abelian G: chi[i] = chi(z_i), where G = \oplus Z/cyc[i] z_i.
  * Return Ker chi */

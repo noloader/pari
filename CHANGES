@@ -356,7 +356,7 @@ JK131- FpXQ_minpoly/Flxq_minpoly: use Shoup algorithm (much faster), and do
 BA132- [libpari] idealramfrobenius, idealfrobenius_aut, nfgaloispermtobasis
   133- Allow ??lfun, ??Lmath, etc. [#1753]
   134- [libpari] cyc_normalize, char_normalize, char_check, char_rootof1,
-       bnrchar_primitive, bnrconductor_i
+       char_rootof1_u, bnrchar_primitive, bnrconductor_i
   135- GP function charker
   136- bnrconductor(bnr, chi) as a shortcut for bnrconductor(bnr, Ker chi);
        same for bnrisconductor, bnrdisc and bnrclassno
