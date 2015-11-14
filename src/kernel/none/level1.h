@@ -348,6 +348,8 @@ real_0_bit(long bitprec) { GEN x=cgetr(2); x[1]=evalexpo(bitprec); return x; }
 INLINE GEN
 real_0(long prec) { return real_0_bit(-prec2nbits(prec)); }
 INLINE GEN
+real_1_bit(long bit) { return real_1(nbits2prec(bit)); }
+INLINE GEN
 real_1(long prec) {
   GEN x = cgetr(prec);
   long i;

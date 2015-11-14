@@ -412,7 +412,7 @@ static GEN
 mpexp0(GEN x)
 {
   long e = expo(x);
-  return e >= 0? real_0_bit(e): real_1(nbits2prec(-e));
+  return e >= 0? real_0_bit(e): real_1_bit(-e);
 }
 static GEN
 powr0(GEN x)
@@ -2979,7 +2979,7 @@ mpsincos(GEN x, GEN *s, GEN *c)
   {
     long e = expo(x);
     *s = real_0_bit(e);
-    *c = e >= 0? real_0_bit(e): real_1(nbits2prec(-e));
+    *c = e >= 0? real_0_bit(e): real_1_bit(-e);
     return;
   }
 

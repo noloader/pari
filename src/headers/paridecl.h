@@ -4231,6 +4231,7 @@ INLINE GEN    real_m2n(long n, long prec);
 INLINE GEN    real_0(long prec);
 INLINE GEN    real_0_bit(long bitprec);
 INLINE GEN    real_1(long prec);
+INLINE GEN    real_1_bit(long bit);
 INLINE GEN    real_m1(long prec);
 INLINE GEN    remii(GEN a, GEN b);
 INLINE void   remiiz(GEN x, GEN y, GEN z);

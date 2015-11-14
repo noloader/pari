@@ -500,13 +500,6 @@ myshiftic(GEN z, long e)
   return signe(z)? mpshift(z,e): gen_0;
 }
 
-/* as real_1 with precision in bits, not in words */
-static GEN
-myreal_1(long bit)
-{
-  if (bit < 0) bit = 0;
-  return real_1(nbits2prec(bit));
-}
 static GEN
 RgX_gtofp_bit(GEN q, long bit)
 {
@@ -668,7 +661,7 @@ logmax_modulus(GEN p, double tau)
 
   eps = - 1/log(1.5*tau2); /* > 0 */
   bit = (long) ((double) n*log2(1./tau2)+3*log2((double) n))+1;
-  gunr = myreal_1(bit+2*n);
+  gunr = real_1_bit(bit+2*n);
   aux = gdiv(gunr, gel(p,2+n));
   q = RgX_Rg_mul(p, aux); gel(q,2+n) = gunr;
   e = findpower(q);
@@ -899,7 +892,7 @@ fft(GEN Omega, GEN p, GEN f, long step, long l)
 static GEN
 RUgen(long N, long bit)
 {
-  if (N == 2) return real_m1(nbits2prec(bit));
+  if (N == 2) return gen_m1;
   if (N == 4) return gen_I();
   return expIr(divru(Pi2n(1, nbits2prec(bit)), N));
 }
@@ -913,7 +906,7 @@ initRU(long N, long bit)
 
   RU = (GEN*)cgetg(N+1,t_VEC); RU++;
 
-  RU[0] = myreal_1(bit);
+  RU[0] = gen_1;
   RU[1] = z;
   for (i=1; i<N8; i++)
   {
@@ -1005,7 +998,7 @@ static void
 parameters(GEN p, long *LMAX, double *mu, double *gamma,
            int polreal, double param, double param2)
 {
-  GEN q, pc, Omega, A, RU, prim, g, ONE,TWO;
+  GEN q, pc, Omega, A, RU, prim, g, TWO;
   long n = degpol(p), bit, NN, K, i, j, Lmax;
   pari_sp av2, av = avma;
 
@@ -1027,10 +1020,9 @@ parameters(GEN p, long *LMAX, double *mu, double *gamma,
 
   *mu = pariINFINITY;
   g = real_0_bit(-bit);
-  ONE = real_1(DEFAULTPREC);
   TWO = real2n(1, DEFAULTPREC);
   av2 = avma;
-  RU = myreal_1(bit);
+  RU = gen_1;
   for (i=0; i<K; i++)
   {
     if (i) {
@@ -1047,7 +1039,7 @@ parameters(GEN p, long *LMAX, double *mu, double *gamma,
     if (polreal && i>0 && i<K-1)
       for (j=0; j<Lmax; j++) g = addrr(g, divrr(TWO, abs_update(gel(A,j),mu)));
     else
-      for (j=0; j<Lmax; j++) g = addrr(g, divrr(ONE, abs_update(gel(A,j),mu)));
+      for (j=0; j<Lmax; j++) g = addrr(g, invr(abs_update(gel(A,j),mu)));
     RU = gmul(RU, prim);
     if (gc_needed(av,1))
     {
@@ -1089,7 +1081,7 @@ dft(GEN p, long k, long NN, long Lmax, long bit, GEN F, GEN H, long polreal)
   for (i=1; i<=k; i++) gel(W,i) = gel(U,i) = gen_0;
 
   gel(RU,0) = gen_1;
-  prim2 = myreal_1(bit);
+  prim2 = gen_1;
   for (i=0; i<K; i++)
   {
     gel(RU,1) = prim2;
@@ -1311,7 +1303,7 @@ conformal_pol(GEN p, GEN a, long bit)
   long n = degpol(p), i;
   pari_sp av = avma;
 
-  z = mkpoln(2, ca, negr(myreal_1(bit)));
+  z = mkpoln(2, ca, gen_m1);
   r = scalarpol(gel(p,2+n), 0);
   for (i=n-1; ; i--)
   {
@@ -1520,7 +1512,7 @@ static void
 split_1(GEN p, long bit, GEN *F, GEN *G)
 {
   long i, imax, n = degpol(p), polreal = isreal(p), ep = gexpo(p), bit2 = bit+n;
-  GEN TWO, ctr, q, qq, FF, GG, v, gr, r, newq;
+  GEN ctr, q, qq, FF, GG, v, gr, r, newq;
   double lrmin, lrmax, lthick;
   const double LOG3 = 1.098613;
 
@@ -1529,10 +1521,9 @@ split_1(GEN p, long bit, GEN *F, GEN *G)
   q = scalepol(p,gr,bit2);
 
   bit2 = bit + gexpo(q) - ep + (long)((double)n*2.*log2(3.)+1);
-  TWO = myreal_1(bit2); setexpo(TWO,1);
   v = cgetg(5,t_VEC);
-  gel(v,1) = TWO;
-  gel(v,2) = negr(TWO);
+  gel(v,1) = gen_2;
+  gel(v,2) = gen_m2;
   gel(v,3) = mkcomplex(gen_0, gel(v,1));
   gel(v,4) = mkcomplex(gen_0, gel(v,2));
   q = mygprec(q,bit2); lthick = 0;
@@ -1586,7 +1577,7 @@ split_0_2(GEN p, long bit, GEN *F, GEN *G)
   {
     if (k > n/2) k = n/2;
     bit2 += k<<1;
-    FF = monomial(myreal_1(bit2), k, 0);
+    FF = monomial(gen_1, k, 0);
     GG = RgX_shift_shallow(q, -k);
   }
   else
@@ -1632,7 +1623,7 @@ split_0(GEN p, long bit, GEN *F, GEN *G)
   if (k > 0)
   {
     if (k > n/2) k = n/2;
-    *F = monomial(myreal_1(bit), k, 0);
+    *F = monomial(gen_1, k, 0);
     *G = RgX_shift_shallow(p, -k);
   }
   else

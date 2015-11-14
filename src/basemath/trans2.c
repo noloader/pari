@@ -370,7 +370,7 @@ mpcosh(GEN x)
 
   if (!signe(x)) { /* 1 + x */
     long e = expo(x);
-    return e >= 0? real_0_bit(e): real_1(nbits2prec(-e));
+    return e >= 0? real_0_bit(e): real_1_bit(-e);
   }
   av = avma;
   z = mpexp(x); z = addrr(z, invr(z)); shiftr_inplace(z, -1);
