@@ -888,51 +888,11 @@ fft(GEN Omega, GEN p, GEN f, long step, long l)
   for (i=0; i<l; i++) f[i] = ff[i+1];
 }
 
-/* e(1/N) */
-static GEN
-RUgen(long N, long bit) { return char_rootof1_u(N, nbits2prec(bit)); }
-
-/* 8 | N. returns a vector RU which contains exp(2*i*k*Pi/N), k=0..N-1 */
-static GEN
-initRU(long N, long bit)
-{
-  GEN *RU, z = RUgen(N, bit);
-  long i, N2 = (N>>1), N4 = (N>>2), N8 = (N>>3);
-  /* z^N2 = -1, z^N4 = I; if z^k = a+I*b, then z^(N4-k) = I*conj(z) = b+a*I */
-
-  RU = (GEN*)cgetg(N+1,t_VEC); RU++;
-
-  RU[0] = gen_1;
-  RU[1] = z;
-  for (i=1; i<N8; i++)
-  {
-    GEN t = RU[i];
-    RU[i+1] = gmul(z, t);
-    RU[N4-i] = mkcomplex(gel(t,2), gel(t,1));
-  }
-  for (i=0; i<N4; i++) RU[i+N4] = mulcxI(RU[i]);
-  for (i=0; i<N2; i++) RU[i+N2] = gneg(RU[i]);
-  return (GEN)RU;
-}
-
-/* as above, N arbitrary */
-static GEN
-initRUgen(long N, long bit)
-{
-  GEN *RU = (GEN*)cgetg(N+1,t_VEC), z = RUgen(N,bit);
-  long i, k = (N+3)>>1;
-  RU[0] = gen_1;
-  RU[1] = z;
-  for (i=2; i<k; i++) RU[i] = gmul(z, RU[i-1]);
-  for (   ; i<N; i++) RU[i] = gconj(RU[N-i]);
-  return (GEN)RU;
-}
-
 GEN
 FFTinit(long k, long prec)
 {
   if (k <= 0) pari_err_DOMAIN("FFTinit", "k", "<=", gen_0, stoi(k));
-  return initRU(1L << k, prec2nbits(prec)) - 1;
+  return grootsof1(1L << k, prec);
 }
 
 GEN
@@ -991,6 +951,14 @@ abs_update(GEN x, double *mu) {
 }
 
 static void
+initdft(GEN *Omega, GEN *prim, long N, long Lmax, long bit)
+{
+  long prec = nbits2prec(bit);
+  *Omega = grootsof1(Lmax, prec) + 1;
+  *prim = char_rootof1_u(N, prec);
+}
+
+static void
 parameters(GEN p, long *LMAX, double *mu, double *gamma,
            int polreal, double param, double param2)
 {
@@ -1005,9 +973,7 @@ parameters(GEN p, long *LMAX, double *mu, double *gamma,
   NN = Lmax*K;
   if (polreal) K = K/2+1;
 
-  Omega = initRU(Lmax,bit);
-  prim = RUgen(NN, bit);
-
+  initdft(&Omega, &prim, NN, Lmax, bit);
   q = mygprec(p,bit) + 2;
   A = cgetg(Lmax+1,t_VEC); A++;
   pc= cgetg(Lmax+1,t_VEC); pc++;
@@ -1055,9 +1021,8 @@ dft(GEN p, long k, long NN, long Lmax, long bit, GEN F, GEN H, long polreal)
   long n = degpol(p), i, j, K;
   pari_sp ltop;
 
-  Omega = initRU(Lmax,bit);
-  prim = RUgen(NN, bit);
-  RU = cgetg(n+2,t_VEC); RU++;
+  initdft(&Omega, &prim, NN, Lmax, bit);
+  RU = cgetg(n+2,t_VEC) + 1;
 
   K = NN/Lmax; if (polreal) K = K/2+1;
   q = mygprec(p,bit);
@@ -1921,8 +1886,8 @@ fix_roots(GEN r, GEN *m, long h, long bit)
   long i, j, k, l, prec;
   GEN allr, ro1;
   if (h == 1) return fix_roots1(r);
-  ro1 = initRUgen(h, bit);
   prec = nbits2prec(bit);
+  ro1 = grootsof1(h, prec) + 1;
   l = lg(r)-1;
   allr = cgetg(h*l+1, t_VEC);
   for (k=1,i=1; i<=l; i++)

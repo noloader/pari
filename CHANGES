@@ -360,7 +360,7 @@ BA132- [libpari] idealramfrobenius, idealfrobenius_aut, nfgaloispermtobasis
   135- GP function charker
   136- bnrconductor(bnr, chi) as a shortcut for bnrconductor(bnr, Ker chi);
        same for bnrisconductor, bnrdisc and bnrclassno
-  137- real_1_bit()
+  137- [libpari] real_1_bit(), grootsof1()
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]

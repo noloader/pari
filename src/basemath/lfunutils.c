@@ -236,9 +236,7 @@ vecan_chivec(GEN an, long n, long prec)
 {
   pari_sp ltop = avma;
   ulong ord = itou(gel(an,1));
-  GEN chi = gel(an,2);
-  GEN c = cgetg(n+1, t_VEC);
-  GEN z = gpowers(char_rootof1_u(ord, prec), ord-1);
+  GEN chi = gel(an,2), c = cgetg(n+1, t_VEC), z = grootsof1(ord, prec);
   long i, iN, N = lg(chi)-1;
 
   for (i = iN = 1; i <= n; i++,iN++)
@@ -368,7 +366,7 @@ vecan_chigen(GEN an, long n, long prec)
   long ord = itos_or_0(gord);
 
   if (n > (ord>>3))
-    z = gpowers(char_rootof1_u(ord,prec), ord-1);
+    z = grootsof1(ord, prec);
   else
     z = char_rootof1(gord, prec);
 

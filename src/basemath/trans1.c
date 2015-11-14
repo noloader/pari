@@ -1185,6 +1185,44 @@ gsqrpowers(GEN q, long n)
   return gerepilecopy(av, v);
 }
 
+/* 4 | N. returns a vector RU which contains exp(2*i*k*Pi/N), k=0..N-1 */
+static GEN
+grootsof1_4(long N, long prec)
+{
+  GEN z, RU = cgetg(N+1,t_VEC), *v  = ((GEN*)RU) + 1;
+  long i, N2 = (N>>1), N4 = (N>>2), N8 = (N>>3);
+  /* z^N2 = -1, z^N4 = I; if z^k = a+I*b, then z^(N4-k) = I*conj(z) = b+a*I */
+
+  v[0] = gen_1; v[1] = z = char_rootof1_u(N, prec);
+  if (odd(N4)) N8++;
+  for (i=1; i<N8; i++)
+  {
+    GEN t = v[i];
+    v[i+1] = gmul(z, t);
+    v[N4-i] = mkcomplex(gel(t,2), gel(t,1));
+  }
+  for (i=0; i<N4; i++) v[i+N4] = mulcxI(v[i]);
+  for (i=0; i<N2; i++) v[i+N2] = gneg(v[i]);
+  return RU;
+}
+
+/* as above, N arbitrary */
+GEN
+grootsof1(long N, long prec)
+{
+  GEN z, RU, *v;
+  long i, k;
+
+  if ((N & 3) == 0) return grootsof1_4(N, prec);
+  k = (N+3)>>1;
+  RU = cgetg(N+1,t_VEC);
+  v  = ((GEN*)RU) + 1;
+  v[0] = gen_1; v[1] = z = char_rootof1_u(N, prec);
+  for (i=2; i<k; i++) v[i] = gmul(z, v[i-1]);
+  for (   ; i<N; i++) v[i] = gconj(v[N-i]);
+  return RU;
+}
+
 /********************************************************************/
 /**                                                                **/
 /**                        RACINE CARREE                           **/
