@@ -237,7 +237,7 @@ vecan_chivec(GEN an, long n, long prec)
   pari_sp ltop = avma;
   GEN ord = gel(an,1), chi = gel(an,2);
   GEN c = cgetg(n+1, t_VEC);
-  GEN z = gpowers(char_rootof1(ord, prec), itou(ord));
+  GEN z = gpowers(char_rootof1(ord, prec), itou(ord)-1);
   long i, iN, N = lg(chi)-1;
 
   for (i = iN = 1; i <= n; i++,iN++)
@@ -338,18 +338,22 @@ lfunchi(GEN CHI)
 
 /* Value of CHI on x */
 static GEN
-chigeneval(GEN bnr, GEN nchi, GEN x, long real, long prec)
+chigeneval(GEN bnr, GEN nchi, GEN x, GEN z, long prec)
 {
-  pari_sp ltop = avma;
+  pari_sp av = avma;
   GEN a, e, I, d, N = gel(bnr_get_mod(bnr), 1);
 
   I = idealadd(bnr_get_nf(bnr), x, N);
   if (!equali1(gcoeff(I,1,1))) return NULL;
   d = gel(nchi,1);
   e = FpV_dotproduct(gel(nchi,2), isprincipalray(bnr,x), d);
+  if (typ(z) == t_VEC)
+  {
+    ulong i = itou(e);
+    avma = av; return gel(z, i+1);
+  }
   a = divri(mulri(Pi2n(1,prec), e), d);
-  a = real ? gcos(a, prec) : expIr(a);
-  return gerepileupto(ltop, a);
+  return gerepileupto(av, expIr(a));
 }
 
 static GEN
@@ -357,16 +361,19 @@ vecan_chigen(GEN an, long n, long prec)
 {
   pari_sp ltop = avma;
   forprime_t iter;
-  GEN bnr = gel(an,1), nchi = gel(an,2), gp = cgetipos(3);
-  GEN nf = bnr_get_nf(bnr);
-  GEN v = vec_ei(n, 1);
-  long ssd = itos(gel(an, 3));
+  GEN bnr = gel(an,1), nf = bnr_get_nf(bnr);
+  GEN nchi = gel(an,2), gord = gel(nchi,1), z;
+  GEN gp = cgetipos(3), v = vec_ei(n, 1);
+  long ord = itos_or_0(gord);
+
+  z = char_rootof1(gord, prec);
+  if (n > (ord>>3)) z = gpowers(z, ord-1);
 
   u_forprime_init(&iter, 2, n);
   if (nf_get_degree(nf) == 1)
     while ((gp[2] = u_forprime_next(&iter)))
     {
-      GEN ch = chigeneval(bnr, nchi, gp, ssd, prec);
+      GEN ch = chigeneval(bnr, nchi, gp, z, prec);
       ulong k, p;
       if (!ch) continue;
       p = gp[2];
@@ -382,7 +389,7 @@ vecan_chigen(GEN an, long n, long prec)
       long j;
       for (j = 1; j < lg(L); j++)
       {
-        GEN pr = gel(L, j), ch = chigeneval(bnr, nchi, pr, ssd, prec);
+        GEN pr = gel(L, j), ch = chigeneval(bnr, nchi, pr, z, prec);
         ulong k, q;
         if (!ch) continue;
         q = itou(pr_norm(pr));
