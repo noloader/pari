@@ -335,24 +335,20 @@ lfunchi(GEN CHI)
    If clgp = [h,[d1,...,dk],[g1,...,gk]] with dk|...|d2|d1, a character chi
    is given by [a1,a2,...,ak] such that chi(gi)=\zeta_di^ai. */
 
-/* Value of CHI on x */
+/* Value of CHI on x, coprime to bnr.mod */
 static GEN
 chigeneval(GEN bnr, GEN nchi, GEN x, GEN z, long prec)
 {
   pari_sp av = avma;
-  GEN a, e, I, d, N = gel(bnr_get_mod(bnr), 1);
-
-  I = idealadd(bnr_get_nf(bnr), x, N);
-  if (!equali1(gcoeff(I,1,1))) return NULL;
-  d = gel(nchi,1);
-  e = FpV_dotproduct(gel(nchi,2), isprincipalray(bnr,x), d);
-  if (typ(z) == t_VEC)
+  GEN d = gel(nchi,1);
+  GEN e = FpV_dotproduct(gel(nchi,2), isprincipalray(bnr,x), d);
+  if (typ(z) != t_VEC)
+    return gerepileupto(av, gpow(z, e, prec));
+  else
   {
     ulong i = itou(e);
     avma = av; return gel(z, i+1);
   }
-  a = divri(mulri(Pi2n(1,prec), e), d);
-  return gerepileupto(av, expIr(a));
 }
 
 static GEN
@@ -363,36 +359,43 @@ vecan_chigen(GEN an, long n, long prec)
   GEN bnr = gel(an,1), nf = bnr_get_nf(bnr);
   GEN nchi = gel(an,2), gord = gel(nchi,1), z;
   GEN gp = cgetipos(3), v = vec_ei(n, 1);
+  GEN N = gel(bnr_get_mod(bnr), 1), NZ = gcoeff(N,1,1);
   long ord = itos_or_0(gord);
+  ulong p;
 
-  if (n > (ord>>3))
+  if (ord && n > (ord>>4))
     z = grootsof1(ord, prec);
   else
     z = char_rootof1(gord, prec);
 
   u_forprime_init(&iter, 2, n);
   if (nf_get_degree(nf) == 1)
-    while ((gp[2] = u_forprime_next(&iter)))
+    while ((p = u_forprime_next(&iter)))
     {
-      GEN ch = chigeneval(bnr, nchi, gp, z, prec);
-      ulong k, p;
-      if (!ch) continue;
-      p = gp[2];
+      GEN ch;
+      ulong k;
+      if (!umodiu(NZ,p)) continue;
+      gp[2] = p;
+      ch = chigeneval(bnr, nchi, gp, z, prec);
       for (k = p; k <= (ulong)n; k += p)
         gel(v, k) = gadd(gel(v, k), gmul(ch, gel(v, k/p)));
     }
   else
   {
     GEN BOUND = stoi(n);
-    while ((gp[2] = u_forprime_next(&iter)))
+    while ((p = u_forprime_next(&iter)))
     {
-      GEN L = idealprimedec_limit_norm(nf, gp, BOUND);
+      GEN L;
       long j;
+      int check = !umodiu(NZ,p);
+      gp[2] = p;
+      L = idealprimedec_limit_norm(nf, gp, BOUND);
       for (j = 1; j < lg(L); j++)
       {
-        GEN pr = gel(L, j), ch = chigeneval(bnr, nchi, pr, z, prec);
+        GEN pr = gel(L, j), ch;
         ulong k, q;
-        if (!ch) continue;
+        if (check && idealval(nf, N, pr)) continue;
+        ch = chigeneval(bnr, nchi, pr, z, prec);
         q = itou(pr_norm(pr));
         for (k = q; k <= (ulong)n; k += q)
           gel(v, k) = gadd(gel(v, k), gmul(ch, gel(v, k/q)));
