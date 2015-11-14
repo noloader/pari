@@ -1595,7 +1595,7 @@ vecan_artin(GEN an, long L, long prec)
   GEN A;
   d.N = gel(an,1); d.G = gel(an,2); d.V = gel(an,3); d.aut = gel(an,4);
   A = lift(direuler_bad(&d, dirartin, gen_2, stoi(L), NULL, gel(an, 5)));
-  return gsubst(A, gvar(A), expIr(divri(Pi2n(1, prec), gel(an,  6))));
+  return gsubst(A, gvar(A), char_rootof1(gel(an,6), prec));
 }
 
 GEN

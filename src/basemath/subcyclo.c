@@ -330,9 +330,8 @@ static GEN
 polsubcyclo_powz(GEN powz, long ex)
 {
   long m = lg(gel(powz,1))-1, q = ex/m, r = ex%m; /*ex=m*q+r*/
-  GEN z = gmul(gmael(powz,1,r+1), gmael(powz,2,q+1));
-  if (lg(powz) == 4) z = greal(z);
-  return z;
+  GEN g = gmael(powz,1,r+1), G = gmael(powz,2,q+1);
+  return (lg(powz)==4)? mulreal(g,G): gmul(g,G);
 }
 
 static GEN
@@ -451,7 +450,7 @@ polsubcyclo_complex_roots(long n, long real, long prec)
 
   bab = cgetg(m+1,t_VEC);
   gel(bab,1) = gen_1;
-  gel(bab,2) = expIr(divru(Pi2n(1, prec), n)); /* = e_n(1) */
+  gel(bab,2) = char_rootof1_u(n, prec); /* = e_n(1) */
   for (i=3; i<=m; i++) gel(bab,i) = gmul(gel(bab,2),gel(bab,i-1));
   gig = cgetg(m+1,t_VEC);
   gel(gig,1) = gen_1;

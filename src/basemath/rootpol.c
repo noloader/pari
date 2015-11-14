@@ -1064,16 +1064,16 @@ dft(GEN p, long k, long NN, long Lmax, long bit, GEN F, GEN H, long polreal)
       {
         for (j=1; j<=k; j++)
         {
-          gel(W,j) = gadd(gel(W,j), gshift(real_i(gmul(gel(A,j+1),gel(RU,j+1))),1));
-          gel(U,j) = gadd(gel(U,j), gshift(real_i(gmul(gel(B,j),gel(RU,j))),1));
+          gel(W,j) = gadd(gel(W,j), gshift(mulreal(gel(A,j+1),gel(RU,j+1)),1));
+          gel(U,j) = gadd(gel(U,j), gshift(mulreal(gel(B,j),gel(RU,j)),1));
         }
       }
       else
       {
         for (j=1; j<=k; j++)
         {
-          gel(W,j) = gadd(gel(W,j), real_i(gmul(gel(A,j+1),gel(RU,j+1))));
-          gel(U,j) = gadd(gel(U,j), real_i(gmul(gel(B,j),gel(RU,j))));
+          gel(W,j) = gadd(gel(W,j), mulreal(gel(A,j+1),gel(RU,j+1)));
+          gel(U,j) = gadd(gel(U,j), mulreal(gel(B,j),gel(RU,j)));
         }
       }
     }
