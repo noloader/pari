@@ -2285,7 +2285,7 @@ chinese1(GEN x) { return gen_chinese(x,chinese); }
 GEN
 chinese(GEN x, GEN y)
 {
-  pari_sp av,tetpil;
+  pari_sp av;
   long tx = typ(x);
   GEN z,p1,p2,d,u,v;
 
@@ -2297,14 +2297,8 @@ chinese(GEN x, GEN y)
     {
       GEN A = gel(x,1), B = gel(y,1);
       GEN a = gel(x,2), b = gel(y,2);
-      z = cgetg(3, t_POLMOD);
       if (varn(A)!=varn(B)) pari_err_VAR("chinese",A,B);
-      if (RgX_equal(A,B))  /* same modulus */
-      {
-        gel(z,1) = gcopy(A);
-        gel(z,2) = chinese(a,b);
-        return z;
-      }
+      if (RgX_equal(A,B)) retmkpolmod(chinese(a,b), gcopy(A)); /*same modulus*/
       av = avma;
       d = RgX_extgcd(A,B,&u,&v);
       p2 = gsub(b, a);
@@ -2312,10 +2306,10 @@ chinese(GEN x, GEN y)
       p1 = gdiv(A,d);
       p2 = gadd(a, gmul(gmul(u,p1), p2));
 
-      tetpil = avma;
+      z = cgetg(3, t_POLMOD);
       gel(z,1) = gmul(p1,B);
       gel(z,2) = gmod(p2,gel(z,1));
-      gerepilecoeffssp(av,tetpil,z+1,2); return z;
+      return gerepileupto(av, z);
     }
     case t_INTMOD:
     {
