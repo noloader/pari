@@ -175,6 +175,8 @@ BA128- nfsubfields could fail [#1758]
   129- rare SEGV in ArtinNumber [#1759]
   130- K.codiff incorrect if [K:Q] > 2
   131- chinese([]) -> '1' instead of Mod(0,1)
+  132- m1=Mod(0,1);m2=Mod(1,x^2+1); chinese(m1,m2) -> m1; chinese(m2,m1) -> m2
+       [instead of error]
 
   Added
     1- add optional argument to sumdigits to specify the base

@@ -2290,7 +2290,7 @@ chinese(GEN x, GEN y)
   GEN z,p1,p2,d,u,v;
 
   if (!y) return chinese1(x);
-  if (gequal(x,y)) return gcopy(x);
+  if (gidentical(x,y)) return gcopy(x);
   if (tx == typ(y)) switch(tx)
   {
     case t_POLMOD:
