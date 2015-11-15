@@ -147,7 +147,7 @@ lfunmul(GEN ldata1, GEN ldata2, long prec)
   N = gmul(ldata_get_conductor(ldata1), ldata_get_conductor(ldata2));
   Vga = vecsort0(gconcat(ldata_get_gammavec(ldata1), ldata_get_gammavec(ldata2)), NULL, 0);
   eno = gmul(ldata_get_rootno(ldata1), ldata_get_rootno(ldata2));
-  sd = stoi(ldata_isreal(ldata1) && ldata_isreal(ldata2));
+  sd = (ldata_isreal(ldata1) && ldata_isreal(ldata2))? gen_0: gen_1;
   a1a2 = lfunconvol(ldata_get_an(ldata1), ldata_get_an(ldata2));
   LD = mkvecn(7, a1a2, sd, Vga, stoi(k), N, eno, r);
   if (!r) setlg(LD,7);
@@ -192,7 +192,7 @@ lfundiv(GEN ldata1, GEN ldata2, long prec)
   N = gdiv(ldata_get_conductor(ldata1), ldata_get_conductor(ldata2));
   if (typ(N) != t_INT) pari_err_OP("lfundiv [conductor]",ldata1, ldata2);
   a1a2 = lfunconvolinv(ldata_get_an(ldata1), ldata_get_an(ldata2));
-  sd = stoi(ldata_isreal(ldata1) && ldata_isreal(ldata2));
+  sd = (ldata_isreal(ldata1) && ldata_isreal(ldata2))? gen_0: gen_1;
   eno = gdiv(ldata_get_rootno(ldata1), ldata_get_rootno(ldata2));
   v1 = shallowcopy(ldata_get_gammavec(ldata1));
   v2 = ldata_get_gammavec(ldata2);
