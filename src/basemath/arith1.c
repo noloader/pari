@@ -2258,26 +2258,18 @@ lcmii(GEN x, GEN y)
 /**                                                                 **/
 /*********************************************************************/
 
-/*  P.M. & M.H.
+/* Chinese Remainder Theorem.  x and y must have the same type (integermod,
+ * polymod, or polynomial/vector/matrix recursively constructed with these
+ * as coefficients). Creates (with the same type) a z in the same residue
+ * class as x and the same residue class as y, if it is possible.
  *
- *  Chinese Remainder Theorem.  x and y must have the same type (integermod,
- *  polymod, or polynomial/vector/matrix recursively constructed with these
- *  as coefficients). Creates (with the same type) a z in the same residue
- *  class as x and the same residue class as y, if it is possible.
+ * We also allow (during recursion) two identical objects even if they are
+ * not integermod or polymod. For example:
  *
- *  We also allow (during recursion) two identical objects even if they are
- *  not integermod or polymod. For example, if
- *
- *    x = [1. mod(5, 11), mod(X + mod(2, 7), X^2 + 1)]
- *    y = [1, mod(7, 17), mod(X + mod(0, 3), X^2 + 1)],
- *
- *  then chinese(x, y) returns
- *
- *    [1, mod(16, 187), mod(X + mod(9, 21), X^2 + 1)]
- *
- *  Someone else may want to allow power series, complex numbers, and
- *  quadratic numbers.
- */
+ * ? x = [1, Mod(5, 11), Mod(X + Mod(2, 7), X^2 + 1)];
+ * ? y = [1, Mod(7, 17), Mod(X + Mod(0, 3), X^2 + 1)];
+ * ? chinese(x, y)
+ * %3 = [1, Mod(16, 187), Mod(X + mod(9, 21), X^2 + 1)] */
 
 GEN
 chinese1(GEN x) { return gassoc_proto(chinese,x,NULL); }
