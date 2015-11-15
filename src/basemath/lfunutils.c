@@ -351,6 +351,21 @@ chigeneval(GEN bnr, GEN nchi, GEN x, GEN z, long prec)
   }
 }
 
+/* return x + yz; y != 0; z = 0,1 "often"; x = 0 "often" */
+static GEN
+gaddmul(GEN x, GEN y, GEN z)
+{
+  pari_sp av;
+  if (typ(z) == t_INT)
+  {
+    if (!signe(z)) return x;
+    if (equali1(z)) return gadd(x,y);
+  }
+  if (isintzero(x)) return gmul(y,z);
+  av = avma;
+  return gerepileupto(av, gadd(x, gmul(y,z)));
+}
+
 static GEN
 vecan_chigen(GEN an, long n, long prec)
 {
@@ -377,8 +392,9 @@ vecan_chigen(GEN an, long n, long prec)
       if (!umodiu(NZ,p)) continue;
       gp[2] = p;
       ch = chigeneval(bnr, nchi, gp, z, prec);
-      for (k = p; k <= (ulong)n; k += p)
-        gel(v, k) = gadd(gel(v, k), gmul(ch, gel(v, k/p)));
+      gel(v, p)  = ch;
+      for (k = 2*p; k <= (ulong)n; k += p)
+        gel(v, k) = gaddmul(gel(v, k), ch, gel(v, k/p));
     }
   else
   {
@@ -398,7 +414,7 @@ vecan_chigen(GEN an, long n, long prec)
         ch = chigeneval(bnr, nchi, pr, z, prec);
         q = itou(pr_norm(pr));
         for (k = q; k <= (ulong)n; k += q)
-          gel(v, k) = gadd(gel(v, k), gmul(ch, gel(v, k/q)));
+          gel(v, k) = gaddmul(gel(v, k), ch, gel(v, k/q));
       }
     }
   }
