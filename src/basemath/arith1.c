@@ -2271,8 +2271,16 @@ lcmii(GEN x, GEN y)
  * ? chinese(x, y)
  * %3 = [1, Mod(16, 187), Mod(X + mod(9, 21), X^2 + 1)] */
 
+static GEN
+gen_chinese(GEN x, GEN(*f)(GEN,GEN))
+{
+  GEN z = gassoc_proto(f,x,NULL);
+  if (z == gen_1) retmkintmod(gen_0,gen_1);
+  return z;
+}
+
 GEN
-chinese1(GEN x) { return gassoc_proto(chinese,x,NULL); }
+chinese1(GEN x) { return gen_chinese(x,chinese); }
 
 GEN
 chinese(GEN x, GEN y)
@@ -2407,7 +2415,7 @@ chinese1_coprime_Z_aux(GEN x, GEN y)
   gel(z,1) = C; return z;
 }
 GEN
-chinese1_coprime_Z(GEN x) {return gassoc_proto(chinese1_coprime_Z_aux,x,NULL);}
+chinese1_coprime_Z(GEN x) {return gen_chinese(x,chinese1_coprime_Z_aux);}
 
 /*********************************************************************/
 /**                                                                 **/

@@ -5,4 +5,5 @@ Mod(2, 3)*x^2 + Mod(1, 6)*x + Mod(1, 6)
   ***   at top-level: chinese(1)
   ***                 ^----------
   *** chinese: incorrect type in association (t_INT).
+Mod(0, 1)
 Total time spent: 4
