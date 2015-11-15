@@ -549,6 +549,13 @@ void
 push_localprec(long p)
 {
   long n = pari_stack_new(&s_prec);
+  precs[n] = prec2nbits(p);
+}
+
+void
+push_localbitprec(long p)
+{
+  long n = pari_stack_new(&s_prec);
   precs[n] = p;
 }
 
@@ -559,18 +566,34 @@ pop_localprec(void)
 }
 
 long
+get_localbitprec(void)
+{
+  return s_prec.n? precs[s_prec.n-1]: precreal;
+}
+
+long
 get_localprec(void)
 {
-  return s_prec.n? precs[s_prec.n-1]: nbits2prec(precreal);
+  return nbits2prec(get_localbitprec());
 }
 
 void
 localprec(long p)
 {
+  long pmax = prec2ndec(LGBITS);
   if (p < 1) pari_err_DOMAIN("localprec", "p", "<", gen_1, stoi(p));
-  if (p > prec2ndec(LGBITS))
-    pari_err_DOMAIN("localprec", "p", "==", utoi(LONG_MAX), stoi(p));
+  if (p > pmax)
+    pari_err_DOMAIN("localprec", "p", ">", utoi(pmax), stoi(p));
   push_localprec(ndec2prec(p));
+}
+
+void
+localbitprec(long p)
+{
+  if (p < 1) pari_err_DOMAIN("localprec", "p", "<", gen_1, stoi(p));
+  if (p > LGBITS)
+    pari_err_DOMAIN("localbitprec", "p", ">", utoi(LGBITS), stoi(p));
+  push_localbitprec(p);
 }
 
 INLINE GEN
@@ -970,6 +993,9 @@ closure_eval(GEN C)
       }
     case OCprecreal:
       st[sp++]=get_localprec();
+      break;
+    case OCbitprecreal:
+      st[sp++]=get_localbitprec();
       break;
     case OCprecdl:
       st[sp++]=precdl;
@@ -2066,6 +2092,9 @@ closure_disassemble(GEN C)
     case OCprecreal:
       pari_printf("precreal\n");
       break;
+    case OCbitprecreal:
+      pari_printf("bitprecreal\n");
+      break;
     case OCprecdl:
       pari_printf("precdl\n");
       break;
@@ -2245,6 +2274,7 @@ opcode_need_relink(op_code opcode)
   case OCstackgen:
   case OCendptr:
   case OCprecreal:
+  case OCbitprecreal:
   case OCprecdl:
   case OCstoi:
   case OCutoi:

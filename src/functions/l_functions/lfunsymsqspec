@@ -1,7 +1,7 @@
 Function: lfunsymsqspec
 Section: l_functions
-C-Name: lfunsymsqspec
-Prototype: Gp
+C-Name: lfunsymsqspec_bitprec
+Prototype: Gb
 Help: lfunsymsqspec(ldata): ldata corresponding either to a normalized
   eigenform or to the output of lfunsymsq, returns [val, om2], where val
   is the vector of special values of the symmetric square of the modular form

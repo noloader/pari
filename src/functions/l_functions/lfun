@@ -1,7 +1,7 @@
 Function: lfun
 Section: l_functions
-C-Name: lfun0
-Prototype: GGD0,L,p
+C-Name: lfun0_bitprec
+Prototype: GGD0,L,b
 Help: lfun(L,s,{D=0}): compute the L-function value L(s), or
  if D is set, the derivative of order D at s. L is either an
  Lmath, an Ldata or an Linit.

@@ -1,7 +1,7 @@
 Function: lfunmfspec
 Section: l_functions
-C-Name: lfunmfspec
-Prototype: Gp
+C-Name: lfunmfspec_bitprec
+Prototype: Gb
 Help: lfunmfspec(ldata): ldata corresponding to a modular form, returns
   [valeven,valodd,omminus,omplus], where valeven (resp., valodd) is the vector
   of even (resp., odd) periods, and omminus and omplus the corresponding

@@ -1,7 +1,7 @@
 Function: lfuninit
 Section: l_functions
-C-Name: lfuninit
-Prototype: GGD0,L,p
+C-Name: lfuninit_bitprec
+Prototype: GGD0,L,b
 Help: lfuninit(ldata,sdom,{der=0}): precompute data
  for evaluating the L function given by ldata (and its derivatives
  of order der, if set) in rectangular domain sdom = [center,w,h]

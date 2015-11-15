@@ -1,7 +1,7 @@
 Function: lfunabelianrelinit
 Section: l_functions
-C-Name: lfunabelianrelinit
-Prototype: GGGGD0,L,p
+C-Name: lfunabelianrelinit_bitprec
+Prototype: GGGGD0,L,b
 Help: lfunabelianrelinit(bnfL,bnfK,polrel,sdom,{der=0}): returns the
   Linit structure associated to the Dedekind zeta function of the number field
   L, given a subfield K such that L/K is abelian, where polrel defines

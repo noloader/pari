@@ -1,7 +1,7 @@
 Function: lfuncheckfeq
 Section: l_functions
-C-Name: lfuncheckfeq
-Prototype: lGDGp
+C-Name: lfuncheckfeq_bitprec
+Prototype: lGDGb
 Help: lfuncheckfeq(L,{t}): given an L-function (Lmath, Ldata or Linit),
  check whether the functional equation is satisfied. If the function has
  poles, the polar part must be specified. The program returns a bit accuracy

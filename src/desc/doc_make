@@ -82,6 +82,7 @@ sub library_syntax { my ($fun, $args) = @_;
     if ($c =~ /^[rs]$/) {$args .= ", const char *" . shift(@ARGS); next;}
 
     if ($c eq 'p') {$args .= ", long prec"; next;}
+    if ($c eq 'b') {$args .= ", long bitprec"; next;}
     if ($c eq 'P') {$args .= ", long precdl"; next;}
     if ($c eq 'C') {$args .= ", GEN ctx"; next;}
     if ($c eq '') { next; }

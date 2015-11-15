@@ -1,7 +1,7 @@
 Function: lfunmfpeters
 Section: l_functions
-C-Name: lfunmfpeters
-Prototype: Gp
+C-Name: lfunmfpeters_bitprec
+Prototype: Gb
 Help: lfunmfpeters(ldata): ldata corresponding to a normalized
   eigenform but NOT to the output of lfunsymsq, returns the Petersson
   square of the form, computed using the symmetric square.

@@ -1,7 +1,7 @@
 Function: lfunhardy
 Section: l_functions
-C-Name: lfunhardy
-Prototype: GGp
+C-Name: lfunhardy_bitprec
+Prototype: GGb
 Help: lfunhardy(ldata,t): Variant of the Hardy L-function corresponding to
  ldata, used for plotting on the critical line, see ??lfunhardy for the precise
  definition.

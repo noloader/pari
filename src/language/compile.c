@@ -472,6 +472,7 @@ parseproto(char const **q, char *c, const char *str)
     break;
   case 'C':
   case 'p':
+  case 'b':
   case 'P':
   case 'f':
     *c=*p;
@@ -1504,6 +1505,9 @@ compilefunc(entree *ep, long n, int mode, long flag)
         case 'p':
           op_push(OCprecreal,0,n);
           break;
+        case 'b':
+          op_push(OCbitprecreal,0,n);
+          break;
         case 'P':
           op_push(OCprecdl,0,n);
           break;
@@ -1709,6 +1713,9 @@ genclosure(entree *ep, const char *loc, long  nbdata, int check)
       {
       case 'p':
         op_push_loc(OCprecreal,0,loc);
+        break;
+      case 'b':
+        op_push_loc(OCbitprecreal,0,loc);
         break;
       case 'P':
         op_push_loc(OCprecdl,0,loc);

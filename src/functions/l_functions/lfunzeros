@@ -1,7 +1,7 @@
 Function: lfunzeros
 Section: l_functions
-C-Name: lfunzeros
-Prototype: GGD8,L,p
+C-Name: lfunzeros_bitprec
+Prototype: GGD8,L,b
 Help: lfunzeros(ldata,lim,{divz=8}): lim being
  either an upper limit or a real interval, computes an ordered list of
  zeros of L(s) on the critical line up to the given upper limit or in the

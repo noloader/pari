@@ -33,6 +33,7 @@ typedef enum {OCpushlong='A',OCpushgnil,OCpushgen,OCpushreal,OCpushstoi,OCpushva
               OCavma,OCgerepile,
               OCcowvardyn,OCcowvarlex,
               OCdup,OCstoreptr,OCcheckuserargs,
-              OCitou,OCutoi,OCdefaultulong} op_code;
+              OCitou,OCutoi,OCdefaultulong,
+              OCbitprecreal='@'} op_code;
 
 ENDEXTERN

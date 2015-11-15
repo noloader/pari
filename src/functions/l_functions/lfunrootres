@@ -1,7 +1,7 @@
 Function: lfunrootres
 Section: l_functions
-C-Name: lfunrootres
-Prototype: Gp
+C-Name: lfunrootres_bitprec
+Prototype: Gb
 Help: lfunrootres(data): given the Ldata associated to an L-function (or the
  output of lfunthetainit), compute the root number and the
  residues. In the present implementation, if the polar part is not already
