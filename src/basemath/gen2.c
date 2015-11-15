@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 /**                                                                 **/
 /*********************************************************************/
 GEN
-map_proto_G(GEN f(GEN), GEN x)
+map_proto_G(GEN (*f)(GEN), GEN x)
 {
   if (is_matvec_t(typ(x)))
   {
@@ -39,7 +39,7 @@ map_proto_G(GEN f(GEN), GEN x)
 }
 
 GEN
-map_proto_lG(long f(GEN), GEN x)
+map_proto_lG(long (*f)(GEN), GEN x)
 {
   if (is_matvec_t(typ(x)))
   {
@@ -52,7 +52,7 @@ map_proto_lG(long f(GEN), GEN x)
 }
 
 GEN
-map_proto_lGL(long f(GEN,long), GEN x, long y)
+map_proto_lGL(long (*f)(GEN,long), GEN x, long y)
 {
   if (is_matvec_t(typ(x)))
   {
@@ -72,7 +72,7 @@ _domul(void *data, GEN x, GEN y)
 }
 
 GEN
-gassoc_proto(GEN f(GEN,GEN), GEN x, GEN y)
+gassoc_proto(GEN (*f)(GEN,GEN), GEN x, GEN y)
 {
   if (!y)
   {
