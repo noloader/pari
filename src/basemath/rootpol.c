@@ -1258,7 +1258,7 @@ scalepol(GEN p, GEN R, long bit)
 
 /* return (conj(a)X-1)^n * p[ (X-a) / (conj(a)X-1) ] */
 static GEN
-conformal_pol(GEN p, GEN a, long bit)
+conformal_pol(GEN p, GEN a)
 {
   GEN z, r, ma = gneg(a), ca = gconj(a);
   long n = degpol(p), i;
@@ -1356,7 +1356,7 @@ conformal_mapping(double *radii, GEN ctr, GEN p, long k, long bit,
   a = gmul(mygprec(a,bit2), mygprec(ctr,bit2)); /* a = -ctr/2sqrt(3) */
 
   av = avma;
-  q = conformal_pol(mygprec(p,bit2), a, bit2);
+  q = conformal_pol(mygprec(p,bit2), a);
   for (i=1; i<=n; i++)
     if (radii[i] != UNDEF) /* update array radii */
     {
@@ -1381,8 +1381,8 @@ conformal_mapping(double *radii, GEN ctr, GEN p, long k, long bit,
   GG = scalepol(GG,R,bit2);
 
   a = mygprec(a,bit2);
-  FF = conformal_pol(FF,a,bit2);
-  GG = conformal_pol(GG,a,bit2);
+  FF = conformal_pol(FF,a);
+  GG = conformal_pol(GG,a);
 
   a = invr(subsr(1, gnorm(a)));
   FF = RgX_Rg_mul(FF, powru(a,k));
