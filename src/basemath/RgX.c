@@ -138,6 +138,19 @@ RgX_Rg_eval_bk(GEN Q, GEN x)
   return gen_bkeval(Q, degpol(Q), x, 1, NULL, &Rg_algebra, _gen_cmul);
 }
 
+GEN
+RgXV_RgV_eval(GEN Q, GEN x)
+{
+  long i, l = lg(Q), vQ = gvar(Q);
+  GEN v = cgetg(l, t_VEC);
+  for (i = 1; i < l; i++)
+  {
+    GEN Qi = gel(Q, i);
+    gel(v, i) = typ(Qi)==t_POL && varn(Qi)==vQ? RgX_RgV_eval(Qi, x): gcopy(Qi);
+  }
+  return v;
+}
+
 const struct bb_algebra *
 get_Rg_algebra(void)
 {

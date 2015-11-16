@@ -313,7 +313,7 @@ HC 96- limitnum / asympnum
 BA 97- [libpari] functions FlxV_prod, RgV_prod
 BA 98- GP function ellfromeqn
 HC 99- gammamellininv, gammamellininvasymp, gammamellininvinit
-BA100- [libpari] RgX_Rg_eval_bk, RgX_RgV_eval
+BA100- [libpari] RgX_Rg_eval_bk, RgX_RgV_eval, RgXV_RgV_eval
   101- [libpari] RgX_cxeval
 HC102- GP function zetamult
 PB103- ZM_mul: Add Strassen-Winograd algorithm

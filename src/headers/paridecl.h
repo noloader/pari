@@ -916,6 +916,7 @@ GEN     RgXQX_pseudorem(GEN x, GEN y, GEN T);
 GEN     RgXQX_red(GEN P, GEN T);
 GEN     RgXQX_sqr(GEN x, GEN T);
 GEN     RgXQX_translate(GEN P, GEN c, GEN T);
+GEN     RgXV_RgV_eval(GEN Q, GEN x);
 GEN     RgXV_to_RgM(GEN v, long n);
 GEN     RgXV_unscale(GEN v, GEN h);
 GEN     RgXX_to_RgM(GEN v, long n);

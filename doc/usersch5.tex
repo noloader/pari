@@ -7970,6 +7970,9 @@ Brent and Kung algorithm. (Use \tet{poleval} for Horner algorithm.)
 \fun{GEN}{RgX_RgV_eval}{GEN f, GEN V} as \kbd{RgX\_Rg\_eval\_bk(f, x)},
 assuming $V$ was output by \kbd{gpowers(x, n)} for some $n\geq 1$.
 
+\fun{GEN}{RgXV_RgV_eval}{GEN f, GEN V} apply \kbd{RgX\_RgV\_eval\_bk(, V)}
+to all the components of the vector $f$.
+
 \fun{GEN}{RgX_normalize}{GEN x} divides $x$ by its
 leading coefficient. If the latter is~$1$, $x$ itself is returned, not a
 copy. Leading coefficients equal to $0$ are stripped, e.g.
