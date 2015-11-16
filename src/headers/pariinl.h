@@ -1442,6 +1442,8 @@ INLINE long
 ndec2nlong(long x) { return 1 + (long)((x)*(LOG2_10/BITS_IN_LONG)); }
 INLINE long
 ndec2prec(long x) { return 2 + ndec2nlong(x); }
+INLINE long
+ndec2nbits(long x) { return ndec2nlong(x) << TWOPOTBITS_IN_LONG; }
 /* Fast implementation of ceil(x / (8*sizeof(long))); typecast to (ulong)
  * to avoid overflow. Faster than 1 + ((x-1)>>TWOPOTBITS_IN_LONG)) :
  *   addl, shrl instead of subl, sarl, addl */
@@ -1481,6 +1483,8 @@ INLINE long
 prec2nbits(long x) { return bit_accuracy(x); }
 INLINE long
 prec2ndec(long x) { return (long)prec2nbits_mul(x, LOG10_2); }
+INLINE long
+nbits2ndec(long x) { return (long)(x * LOG10_2); }
 INLINE long
 precdbl(long x) {return (x - 1) << 1;}
 INLINE long
