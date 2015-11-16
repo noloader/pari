@@ -1612,9 +1612,10 @@ vecan_artin(GEN an, long L, long prec)
 {
   struct dir_artin d;
   GEN A;
+  long n = itos(gel(an, 6));
   d.N = gel(an,1); d.G = gel(an,2); d.V = gel(an,3); d.aut = gel(an,4);
   A = lift(direuler_bad(&d, dirartin, gen_2, stoi(L), NULL, gel(an, 5)));
-  return gsubst(A, gvar(A), char_rootof1(gel(an,6), prec));
+  return RgXV_RgV_eval(A, grootsof1(n, prec));
 }
 
 GEN
