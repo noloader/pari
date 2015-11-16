@@ -126,7 +126,8 @@ long
 setrealprecision(long n, long *prec)
 {
   GP_DATA->fmt->sigd = n;
-  *prec = precreal = ndec2prec(n);
+  *prec = ndec2prec(n);
+  precreal = prec2nbits(*prec);
   return n;
 }
 
@@ -210,14 +211,14 @@ sd_realprecision(const char *v, long flag)
     sd_ulong_init(v, "realprecision", &newnb, 1, prec2ndec(LGBITS));
     if (fmt->sigd == (long)newnb) return gnil;
     if (fmt->sigd >= 0) fmt->sigd = newnb;
-    prec = ndec2prec(newnb);
+    prec = ndec2nbits(newnb);
     if (prec == precreal) return gnil;
     precreal = prec;
   }
-  if (flag == d_RETURN) return stoi(prec2ndec(precreal));
+  if (flag == d_RETURN) return stoi(nbits2ndec(precreal));
   if (flag == d_ACKNOWLEDGE)
   {
-    long n = prec2ndec(precreal);
+    long n = nbits2ndec(precreal);
     pari_printf("   realprecision = %ld significant digits", n);
     if (fmt->sigd < 0)
       pari_puts(" (all digits displayed)");

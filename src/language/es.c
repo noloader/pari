@@ -1119,7 +1119,7 @@ static long
 get_sigd(GEN gvalue, char ch, int maxwidth)
 {
   long sigd, e;
-  if (maxwidth < 0) return prec2ndec(precreal);
+  if (maxwidth < 0) return nbits2ndec(precreal);
   switch(ch)
   {
     case 'E':

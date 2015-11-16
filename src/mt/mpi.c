@@ -311,7 +311,7 @@ mt_queue_start(struct pari_mt *pt, GEN worker)
     {
       send_request_long(PMPI_parisize, mtparisize, i);
       send_request_long(PMPI_parisizemax, mtparisizemax, i);
-      send_request_long(PMPI_precreal, get_localprec(), i);
+      send_request_long(PMPI_precreal, prec2nbits(get_localprec()), i);
       send_request_GEN(PMPI_worker, worker, i);
     }
     mt->n = n;

@@ -496,9 +496,9 @@ pari_init_defaults(void)
   initout(1);
 
 #ifdef LONG_IS_64BIT
-  precreal = 4;
+  precreal = 128;
 #else
-  precreal = 5;
+  precreal = 96;
 #endif
 
   precdl = 16;

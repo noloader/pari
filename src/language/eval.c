@@ -561,7 +561,7 @@ pop_localprec(void)
 long
 get_localprec(void)
 {
-  return s_prec.n? precs[s_prec.n-1]: precreal;
+  return s_prec.n? precs[s_prec.n-1]: nbits2prec(precreal);
 }
 
 void
