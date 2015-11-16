@@ -454,7 +454,7 @@ lfunchigen(GEN bnr, GEN CHI)
   sig = vec01(r1+r2-n1, r2+n1);
   nchi = char_normalize(CHI, cyc_normalize(cyc));
   real = cmpiu(gel(nchi,1), 2) <= 0;
-  Ldchi = mkvecn(6, tag(mkvec3(bnr, nchi, stoi(real)), t_LFUN_CHIGEN),
+  Ldchi = mkvecn(6, tag(mkvec2(bnr, nchi), t_LFUN_CHIGEN),
                     real? gen_0: gen_1, sig, gen_1, NN, gen_0);
   return gerepilecopy(av, Ldchi);
 }
