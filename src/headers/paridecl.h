@@ -3281,6 +3281,7 @@ GEN     lfunconvol(GEN a1, GEN a2);
 GEN     lfundiv(GEN ldata1, GEN ldata2, long prec);
 GEN     lfunetaquo(GEN ldata);
 GEN     lfunmfspec(GEN ldata, long prec);
+GEN     lfunmfspec_bitprec(GEN lmisc, long bitprec);
 GEN     lfunmfpeters(GEN ldata, long prec);
 GEN     lfunmfpeters_bitprec(GEN ldata, long bitprec);
 GEN     lfunmul(GEN ldata1, GEN ldata2, long prec);
