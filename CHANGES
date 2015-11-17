@@ -364,6 +364,7 @@ BA132- [libpari] idealramfrobenius, idealfrobenius_aut, nfgaloispermtobasis
   136- bnrconductor(bnr, chi) as a shortcut for bnrconductor(bnr, Ker chi);
        same for bnrisconductor, bnrdisc and bnrclassno
   137- [libpari] real_1_bit(), grootsof1()
+PB138- [libpari] Flm_sub, FpM_sub
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]

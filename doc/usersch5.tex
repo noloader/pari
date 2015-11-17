@@ -3579,6 +3579,10 @@ the \kbd{ZC} $x$ and reduce modulo $p$ to obtain an \kbd{FpC}.
 \fun{GEN}{FpV_sub}{GEN x, GEN y, GEN p} same as \kbd{FpC\_sub}, returning and
 \kbd{FpV}.
 
+\fun{GEN}{FpM_sub}{GEN x, GEN y, GEN p} subtracts the two \kbd{ZM}s~\kbd{x}
+and \kbd{y} (assumed to have compatible dimensions), and reduce modulo
+\kbd{p} to obtain an \kbd{FpM}.
+
 \fun{GEN}{FpC_Fp_mul}{GEN x, GEN y, GEN p} multiplies the \kbd{ZC}~\kbd{x}
 (seen as a column vector) by the \typ{INT}~\kbd{y} and reduce modulo \kbd{p} to
 obtain an \kbd{FpC}.
@@ -3811,6 +3815,9 @@ $0$.
 \kbd{Flm} $A$.
 
 \fun{GEN}{Flm_add}{GEN x, GEN y, ulong p} adds \kbd{x} and \kbd{y}
+(assumed to have compatible dimensions).
+
+\fun{GEN}{Flm_sub}{GEN x, GEN y, ulong p} subtracts \kbd{x} and \kbd{y}
 (assumed to have compatible dimensions).
 
 \fun{GEN}{Flm_mul}{GEN x, GEN y, ulong p} multiplies  \kbd{x} and \kbd{y}

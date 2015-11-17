@@ -186,6 +186,15 @@ FpV_sub(GEN x, GEN y, GEN p)
 }
 
 GEN
+FpM_sub(GEN x, GEN y, GEN p)
+{
+  long i, l = lg(x);
+  GEN z = cgetg(l, t_MAT);
+  for (i = 1; i < l; i++) gel(z, i) = FpC_sub(gel(x, i), gel(y, i), p);
+  return z;
+}
+
+GEN
 Flv_sub(GEN x, GEN y, ulong p)
 {
   long i, l = lg(x);
@@ -225,6 +234,15 @@ Flm_add(GEN x, GEN y, ulong p)
   long i, l = lg(x);
   GEN z = cgetg(l,t_MAT);
   for (i = 1; i < l; i++) gel(z,i) = Flv_add(gel(x,i),gel(y,i),p);
+  return z;
+}
+
+GEN
+Flm_sub(GEN x, GEN y, ulong p)
+{
+  long i, l = lg(x);
+  GEN z = cgetg(l, t_MAT);
+  for (i = 1; i < l; i++) gel(z, i) = Flv_sub(gel(x, i), gel(y, i), p);
   return z;
 }
 
