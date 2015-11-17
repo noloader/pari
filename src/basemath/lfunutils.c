@@ -549,7 +549,7 @@ lfunabelianrelinit_bitprec(GEN nfabs, GEN bnf, GEN polrel, GEN dom, long der, lo
   }
   if (typ(polrel) != t_POL) pari_err_TYPE("lfunabelianrelinit", polrel);
   cond = rnfconductor(bnf, polrel);
-  chi = chigenkerfind(gel(cond,2), gel(cond,3));
+  chi = chigenkerfind(bnr_get_clgp(gel(cond,2)), gel(cond,3));
   cnj = gel(chi,2);
   chi = gel(chi,1); l = lg(chi);
   bnr = Buchray(bnf, gel(cond,1), nf_INIT|nf_GEN);

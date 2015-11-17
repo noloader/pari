@@ -465,6 +465,7 @@ BA 59- divide_conquer_assoc renamed to gen_product
    60- sumnum algorithm (replace Abel-Plana by Euler-Mac Laurin). Changed
        the interface !
 BA 61- [libpari] concat, concat1 renamed to gconcat, gconcat1
+   62- rnfconductor now returns [cond, bnr, H] instead of [cond, bnr.clgp, H]
 
 Removed
    1- deprecated functions nfbasis0, nfdisc0, factorpadic0

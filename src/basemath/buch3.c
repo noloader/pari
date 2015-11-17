@@ -1634,7 +1634,7 @@ rnfconductor(GEN bnf, GEN polrel)
   bnr   = Buchray(bnf,module,nf_INIT | nf_GEN);
   group = rnfnormgroup(bnr,polrel);
   if (!group) { avma = av; return gen_0; }
-  return gerepilecopy(av, bnrconductor_i(bnr,group,1));
+  return gerepilecopy(av, bnrconductor_i(bnr,group,2));
 }
 
 /* Given a number field bnf=bnr[1], a ray class group structure bnr, and a
