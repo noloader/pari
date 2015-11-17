@@ -79,7 +79,7 @@ vecan_mul(GEN an, long n, long prec)
   return gerepileupto(ltop, dirmul(p1, p2));
 }
 
-GEN
+static GEN
 lfunconvol(GEN a1, GEN a2)
 { return tag(mkvec2(a1, a2), t_LFUN_MUL); }
 
