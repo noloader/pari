@@ -3280,6 +3280,7 @@ GEN     lfunabelianrelinit_bitprec(GEN bnfabs, GEN bnf, GEN polrel, GEN dom, lon
 GEN     lfunartin(GEN N, GEN G, GEN M, long o);
 GEN     lfunconvol(GEN a1, GEN a2);
 GEN     lfundiv(GEN ldata1, GEN ldata2, long prec);
+GEN     lfunellmfpeters_bitprec(GEN E, long bitprec);
 GEN     lfunetaquo(GEN ldata);
 GEN     lfunmfspec(GEN ldata, long prec);
 GEN     lfunmfspec_bitprec(GEN lmisc, long bitprec);
