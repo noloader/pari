@@ -146,7 +146,7 @@ FpX_ratlift(GEN P, GEN mod, GEN amax, GEN bmax, GEN denom)
  * rarely succeed, and even if it does the polynomial we get has sensible
  * coefficients, so the full division will not be too costly.
  *
- * If not NULL, den must a a multiple of the denominator of the gcd,
+ * If not NULL, den must be a multiple of the denominator of the gcd,
  * for example the discriminant of T.
  *
  * NOTE: if T is not irreducible, nfgcd may loop forever, esp. if gcd | T */
