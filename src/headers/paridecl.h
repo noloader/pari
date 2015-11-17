@@ -3274,6 +3274,7 @@ GEN     theta_get_sqrtN(GEN tdata);
 
 GEN     dirzetak(GEN nf, GEN b);
 GEN     ellmoddegree(GEN e, long prec);
+GEN     ellmoddegree_bitprec(GEN e, long bitprec);
 GEN     lfunabelianrelinit(GEN bnfabs, GEN bnf, GEN polrel, GEN dom, long der, long prec);
 GEN     lfunabelianrelinit_bitprec(GEN bnfabs, GEN bnf, GEN polrel, GEN dom, long der, long bitprec);
 GEN     lfunartin(GEN N, GEN G, GEN M, long o);
