@@ -6191,7 +6191,7 @@ ellxn(GEN e, long n, long v)
     else
     { A = f2; u = RgX_mul(u,d2); }
     /* A = psi_n^2, u = psi_{n-1} psi_{n+1} */
-    B = RgX_sub(RgX_mulXn(A,1), u);
+    B = RgX_sub(RgX_shift(A,1), u);
   }
   return gerepilecopy(av, mkvec2(B,A));
 }
