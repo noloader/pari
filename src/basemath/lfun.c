@@ -520,20 +520,27 @@ lfunthetainit0_bitprec(GEN ldata, GEN tdom, GEN vecan, long m,
 
 /* tdom: 1) positive real number r, t real, t >= r; or
  *       2) [r,a], describing the cone |t| >= r, |arg(t)| <= a */
-GEN
-lfunthetainit_bitprec(GEN data, GEN tdom, long m, long bitprec)
+static GEN
+lfunthetainit_i(GEN data, GEN tdom, long m, long bitprec)
 {
   GEN ldata = lfunmisc_to_ldata_shallow(data);
   long L = lfunthetaneed_bitprec(ldata, tdom, m, bitprec);
   GEN vecan = ldata_vecan(ldata_get_an(ldata), L, nbits2prec(bitprec));
   return lfunthetainit0_bitprec(ldata, tdom, vecan, m, bitprec, 32);
 }
+
+GEN
+lfunthetainit_bitprec(GEN ldata, GEN tdom, long m, long bitprec)
+{
+  pari_sp av = avma;
+  GEN S = lfunthetainit_i(ldata, tdom? tdom: gen_1, m, bitprec);
+  return gerepilecopy(av, S);
+}
+
 GEN
 lfunthetainit(GEN ldata, GEN tdom, long m, long prec)
 {
-  pari_sp av = avma;
-  GEN S = lfunthetainit_bitprec(ldata, tdom? tdom: gen_1, m, prec2nbits(prec));
-  return gerepilecopy(av, S);
+  return lfunthetainit_bitprec(ldata, tdom, m, prec2nbits(prec));
 }
 
 GEN
@@ -617,7 +624,7 @@ lfunthetacheckinit(GEN data, GEN t, long m, long *pbitprec, long fl)
   }
 INIT:
   if (fl) { bitprec += BITS_IN_LONG; *pbitprec = bitprec; }
-  return lfunthetainit_bitprec(data, t, m, bitprec);
+  return lfunthetainit_i(data, t, m, bitprec);
 }
 
 long
@@ -2185,7 +2192,7 @@ lfunconductor(GEN data, GEN maxcond, long flag, long prec)
   { eval = wrap2; tdom = mkfrac(stoi(11), stoi(13)); }
   ld = shallowcopy(ldata);
   gel(ld, 5) = M;
-  theta = lfunthetainit_bitprec(ld, tdom, 0, bitprec);
+  theta = lfunthetainit_i(ld, tdom, 0, bitprec);
   gel(theta,3) = shallowcopy(linit_get_tech(theta));
   S.k = ldata_get_k(ldata);
   S.data = theta;
