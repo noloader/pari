@@ -3288,6 +3288,7 @@ GEN     lfunmul(GEN ldata1, GEN ldata2, long prec);
 GEN     lfunqf(GEN ldata);
 GEN     lfunsymsq(GEN ldata, GEN known, long prec);
 GEN     lfunsymsqspec(GEN ldata, long prec);
+GEN     lfunsymsqspec_bitprec(GEN lmisc, long bitprec);
 GEN     lfunzetakinit(GEN pol, GEN dom, long der, long flag, long prec);
 GEN     lfunzetakinit_bitprec(GEN pol, GEN dom, long der, long flag, long bitprec);
 

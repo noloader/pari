@@ -1118,11 +1118,11 @@ lfunissymsq(GEN Vga)
 { return (lg(Vga) == 4) && lfunisvgaell(mkvec2(gel(Vga,2), gel(Vga,3)), 0); }
 
 GEN
-lfunsymsqspec(GEN lmisc, long prec)
+lfunsymsqspec_bitprec(GEN lmisc, long bitprec)
 {
   pari_sp ltop = avma;
   GEN veven, vpi, om2, M, Vga, ldata;
-  long k, l1, j, fl = 2;
+  long k, l1, j, fl = 2, prec = nbits2prec(bitprec);
   ldata = lfunmisc_to_ldata_shallow(lmisc);
   Vga = ldata_get_gammavec(ldata);
   /* fl = 0: OK, 1: perform lfuninit, 2: perform lfunsymsq + lfuninit */
@@ -1148,7 +1148,7 @@ lfunsymsqspec(GEN lmisc, long prec)
     case 1: /* now ldata is a symsq */
       k = ldata_get_k(ldata);
       dom = mkvec3(dbltor((k+1)/2.), dbltor(3*(k+1)/4.), gen_0);
-      ldata = lfuninit(ldata, dom, 0, prec);
+      ldata = lfuninit_bitprec(ldata, dom, 0, bitprec);
       break;
     default:
       ldata = lmisc;
@@ -1157,17 +1157,23 @@ lfunsymsqspec(GEN lmisc, long prec)
   /* Warning: k is the weight of the symmetric square, not of the form. */
   l1 = (k+1)/4;
   veven = cgetg(l1+1, t_VEC);
-  om2 = greal(lfunlambda(ldata, stoi((k+1)/2), prec));
+  om2 = greal(lfunlambda_bitprec(ldata, stoi((k+1)/2), bitprec));
   vpi = gpowers(mppi(prec), l1); /* could be powersshift(,om2) */
   gel(veven,1) = gen_1;
-  M = int2n(prec2nbits(prec)/4);
+  M = int2n(bitprec/4);
   for (j = 2; j <= l1; ++j)
   {
-    GEN Lj = greal(lfunlambda(ldata, stoi(2*j + (k-3)/2), prec));
+    GEN Lj = greal(lfunlambda_bitprec(ldata, stoi(2*j + (k-3)/2), bitprec));
     Lj = gdiv(Lj, gmul(gel(vpi,j), om2));
     gel(veven, j) = bestappr(Lj, M);
   }
   return gerepilecopy(ltop, mkvec2(veven, om2));
+}
+
+GEN
+lfunsymsqspec(GEN lmisc, long prec)
+{
+  return lfunsymsqspec_bitprec(lmisc, prec2nbits(prec));
 }
 
 static GEN
