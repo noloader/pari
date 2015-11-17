@@ -228,8 +228,8 @@ nfissquarefree(GEN nf, GEN x)
   else
   {
     GEN T = get_nfpol(nf,&nf);
-    x = liftpol_shallow(x);
-    y = liftpol_shallow(y);
+    x = Q_primpart( liftpol_shallow(x) );
+    y = Q_primpart( liftpol_shallow(y) );
     g = nfgcd(x, y, T, nf? nf_get_index(nf): NULL);
   }
   avma = av; return (degpol(g) == 0);
