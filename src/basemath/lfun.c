@@ -2170,14 +2170,13 @@ parse_maxcond(GEN maxcond, GEN *pm, GEN *pM)
 }
 
 GEN
-lfunconductor(GEN data, GEN maxcond, long flag, long prec)
+lfunconductor_bitprec(GEN data, GEN maxcond, long flag, long bitprec)
 {
   struct huntcond_t S;
   pari_sp ltop = avma;
-  long bitprec = 3*prec2nbits(prec)/2;
   GEN ld, r, v, ldata, theta, m, M, tdom;
   GEN (*eval)(void *, GEN);
-
+  bitprec = 3*bitprec/2;
   ldata = lfunmisc_to_ldata_shallow(data);
   parse_maxcond(maxcond, &m,&M);
   r = ldata_get_residue(ldata);
@@ -2201,3 +2200,10 @@ lfunconductor(GEN data, GEN maxcond, long flag, long prec)
   v = solvestep((void*)&S, eval, m, M, gen_2, 14, nbits2prec(bitprec));
   return gerepilecopy(ltop, checkconductor(v, bitprec/2, flag));
 }
+
+GEN
+lfunconductor(GEN data, GEN maxcond, long flag, long prec)
+{
+  return lfunconductor_bitprec(data, maxcond, flag, prec2nbits(prec));
+}
+
