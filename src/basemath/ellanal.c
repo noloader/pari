@@ -392,7 +392,7 @@ ellL1_der(GEN e, GEN vec, struct lcritical *C, GEN t, long der, long prec)
   return gmul(r, mpfact(der));
 }
 
-static GEN
+GEN
 ellL1_bitprec(GEN E, long r, long bitprec)
 {
   pari_sp av = avma;
@@ -412,25 +412,25 @@ ellL1_bitprec(GEN E, long r, long bitprec)
 GEN
 ellL1(GEN E, long r, long prec) { return ellL1_bitprec(E, r, prec2nbits(prec)); }
 
-static GEN
-ellanalyticrank_bprec(GEN E, GEN eps, long bprec)
+GEN
+ellanalyticrank_bitprec(GEN E, GEN eps, long bitprec)
 {
   pari_sp av = avma, av2;
-  long prec = nbits2prec(bprec);
+  long prec = nbits2prec(bitprec);
   struct lcritical C;
   pari_timer ti;
   GEN e, vec;
   long rk;
   if (DEBUGLEVEL) timer_start(&ti);
   if (!eps)
-    eps = real2n(-bprec/2+1, DEFAULTPREC);
+    eps = real2n(-bitprec/2+1, DEFAULTPREC);
   else
     if (typ(eps) != t_REAL) {
       eps = gtofp(eps, DEFAULTPREC);
       if (typ(eps) != t_REAL) pari_err_TYPE("ellanalyticrank", eps);
     }
   e = ellanal_globalred(E, NULL);
-  vec = Lpoints(&C, e, gen_0, bprec);
+  vec = Lpoints(&C, e, gen_0, bitprec);
   if (DEBUGLEVEL) timer_printf(&ti, "init L");
   av2 = avma;
   for (rk = C.real>0 ? 0: 1;  ; rk += 2)
@@ -449,7 +449,7 @@ ellanalyticrank_bprec(GEN E, GEN eps, long bprec)
 GEN
 ellanalyticrank(GEN E, GEN eps, long prec)
 {
-  return ellanalyticrank_bprec(E, eps, prec2nbits(prec));
+  return ellanalyticrank_bitprec(E, eps, prec2nbits(prec));
 }
 
 /*        Heegner point computation

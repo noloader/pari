@@ -2303,9 +2303,11 @@ GEN     direuler(void *E, GEN (*eval)(void *, GEN), GEN a, GEN b, GEN c);
 /* ellanal.c */
 
 GEN     ellanalyticrank(GEN e, GEN eps, long prec);
+GEN     ellanalyticrank_bitprec(GEN e, GEN eps, long bitprec);
 GEN     ellanal_globalred_all(GEN e, GEN *N, GEN *cb, GEN *tam);
 GEN     ellheegner(GEN e);
 GEN     ellL1(GEN e, long r, long prec);
+GEN     ellL1_bitprec(GEN E, long r, long bitprec);
 
 /* elldata.c */
 
