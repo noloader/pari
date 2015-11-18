@@ -1520,7 +1520,7 @@ FpXQ_auttrace_mul(void *E, GEN x, GEN y)
   GEN T = D->T, p = D->p;
   GEN phi1 = gel(x,1), a1 = gel(x,2);
   GEN phi2 = gel(y,1), a2 = gel(y,2);
-  ulong d = brent_kung_optpow(maxss(degpol(phi1),degpol(a1)),2,1);
+  ulong d = brent_kung_optpow(maxss(degpol(phi2),degpol(a2)),2,1);
   GEN V1 = FpXQ_powers(phi1, d, T, p);
   GEN phi3 = FpX_FpXQV_eval(phi2, V1, T, p);
   GEN aphi = FpX_FpXQV_eval(a2, V1, T, p);
@@ -1547,7 +1547,7 @@ FpXQ_autsum_mul(void *E, GEN x, GEN y)
   GEN T = D->T, p = D->p;
   GEN phi1 = gel(x,1), a1 = gel(x,2);
   GEN phi2 = gel(y,1), a2 = gel(y,2);
-  ulong d = brent_kung_optpow(maxss(degpol(phi1),degpol(a1)),2,1);
+  ulong d = brent_kung_optpow(maxss(degpol(phi2),degpol(a2)),2,1);
   GEN V1 = FpXQ_powers(phi1, d, T, p);
   GEN phi3 = FpX_FpXQV_eval(phi2, V1, T, p);
   GEN aphi = FpX_FpXQV_eval(a2, V1, T, p);
