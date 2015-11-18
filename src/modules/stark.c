@@ -320,7 +320,7 @@ IsGoodSubgroup(GEN H, GEN bnr, GEN map)
   p1 = gconcat(map, H);
   p2 = ZM_hnfall(p1, &p3, 0);
   setlg(p3, lg(H));
-  for (j = 1; j < lg(p3); j++) setlg(p3[j], lg(H));
+  for (j = 1; j < lg(p3); j++) setlg(gel(p3,j), lg(H));
   p1 = ZM_hnfmodid(p3, bnr_get_cyc(bnr)); /* H as a subgroup of bnr */
   modH = bnrconductor_i(bnr, p1, 0);
 
@@ -341,23 +341,19 @@ IsGoodSubgroup(GEN H, GEN bnr, GEN map)
   /* H as a subgroup of bnrH */
   iH = ZM_hnfmodid(p2, cycH);
   qH = InitQuotient(iH);
-
   for (j = 1; j < lg(p4); j++)
   {
     GEN pr = gel(p4, j);
     /* if pr divides modH0, it is ramified, so it's good */
     if (!idealval(bnf, modH0, pr))
-    {
-      /* we compute the inertia degree of pr in bnr(modH)/H*/
+    { /* we compute the inertia degree of pr in bnr(modH)/H*/
       p1 = ZM_ZC_mul(gel(qH, 3), isprincipalray(bnrH, pr));
       p2 = gel(qH, 2);
       f  = itos(Order(p2, p1));
       if (f == 1) { avma = av; return 0; }
     }
   }
-
-  avma = av;
-  return 1;
+  avma = av; return 1;
 }
 
 static GEN get_listCR(GEN bnr, GEN dtQ);
@@ -408,11 +404,10 @@ static GEN
 FindModulus(GEN bnr, GEN dtQ, long *newprec)
 {
   const long limnorm = 400;
-  long n, i, narch, maxnorm, minnorm, N, nbidnn, s, c, j, k, nbcand;
+  long n, i, narch, maxnorm, minnorm, N, s, c, k;
   long first = 1, pr, rb, oldcpl = -1, iscyc = 0;
-  pari_sp av = avma, av1;
-  GEN bnf, nf, f, arch, m, listid, idnormn, bnrm, ImC, rep = NULL;
-  GEN candD, p2;
+  pari_sp av = avma;
+  GEN bnf, nf, f, arch, m, bnrm, ImC, rep = NULL;
 
   bnf = bnr_get_bnf(bnr);
   nf  = bnf_get_nf(bnf);
@@ -442,22 +437,21 @@ FindModulus(GEN bnr, GEN dtQ, long *newprec)
 
   for(;;)
   {
-    listid = ideallist(nf, maxnorm); /* all ideals of norm <= maxnorm */
-
-    av1 = avma;
-    for (n = minnorm; n <= maxnorm; n++)
+    GEN listid = ideallist(nf, maxnorm); /* all ideals of norm <= maxnorm */
+    pari_sp av1 = avma;
+    for (n = minnorm; n <= maxnorm; n++, avma = av1)
     {
+      GEN idnormn = gel(listid,n);
+      long nbidnn  = lg(idnormn) - 1;
       if (DEBUGLEVEL>1) err_printf(" %ld", n);
-      avma = av1;
-
-      idnormn = gel(listid,n);
-      nbidnn  = lg(idnormn) - 1;
       for (i = 1; i <= nbidnn; i++)
       { /* finite part of the conductor */
         gel(m,1) = idealmul(nf, f, gel(idnormn,i));
 
         for (s = 1; s <= narch; s++)
         { /* infinite part */
+          GEN candD;
+          long nbcand;
           gel(arch,N+1-s) = gen_0;
 
           /* compute Clk(m), check if m is a conductor */
@@ -474,50 +468,40 @@ FindModulus(GEN bnr, GEN dtQ, long *newprec)
           nbcand = lg(candD) - 1;
           for (c = 1; c <= nbcand; c++)
           {
-            GEN D  = gel(candD,c);
+            GEN D  = gel(candD,c); /* check if the conductor is suitable */
             long cpl;
+            GEN p1 = InitQuotient(D), p2;
+            GEN ord = gel(p1,1), cyc = gel(p1,2), map = gel(p1,3);
+            GEN lH = subgrouplist(cyc, NULL), IK = NULL;
 
-            /* check if the conductor is suitable */
+            /* if the extension is cyclic, then it's suitable */
+            if (lg(cyc) > 2 && !gequal1(gel(cyc, 2)))
             {
-              GEN p1 = InitQuotient(D), p2, ord = gel(p1, 1);
-              GEN map = gel(p1, 3), cyc = gel(p1, 2), H;
-              GEN lH = subgrouplist(cyc, NULL), IK = NULL;
-              long ok = 0;
-
-              /* if the extension is cyclic, then it's suitable */
-              if ((lg(cyc) > 2) && !gequal1(gel(cyc, 2)))
+              long j, ok = 0;
+              for (j = 1; j < lg(lH); j++)
               {
-                for (j = 1; j < lg(lH); j++)
+                GEN H = gel(lH, j);
+                /* if IK != NULL and H > IK, no need to test H */
+                if (IK)
                 {
-                  H = gel(lH, j);
-                  /* if IK != NULL and H > IK, no need to test H */
-                  if (IK)
-                  {
-                    p1 = RgM_mul(IK, RgM_inv_upper(H));
-                    if (RgM_is_ZM(p1)) continue;
-                  }
-                  if (IsGoodSubgroup(H, bnrm, map))
-                  {
-                    if (!IK)
-                      IK = H;
-                    else
-                    {
-                      /* compute the intersection of IK and H */
-                      p1 = shallowconcat(IK, H);
-                      p1 = ZM_hnfall(p1, &p2, 1);
-                      setlg(p2, lg(IK));
-                      for (k = 1; k < lg(p2); k++) setlg(p2[k], lg(p1));
-                      IK = ZM_mul(IK, p2);
-                      IK = ZM_hnf(shallowconcat(IK, diagonal(cyc)));
-                    }
-                    if (gequal(ord, ZM_det_triangular(IK)))
-                    {
-                      ok = 1; break;
-                    }
-                  }
+                  p1 = RgM_mul(IK, RgM_inv_upper(H));
+                  if (RgM_is_ZM(p1)) continue;
                 }
-                if (!ok) continue;
+                if (IsGoodSubgroup(H, bnrm, map))
+                {
+                  if (!IK) IK = H;
+                  else
+                  { /* compute the intersection of IK and H */
+                    p1 = shallowconcat(IK, H);
+                    p1 = ZM_hnfall(p1, &p2, 1);
+                    setlg(p2, lg(IK));
+                    for (k = 1; k < lg(p2); k++) setlg(gel(p2,k), lg(p1));
+                    IK = ZM_hnfmodid(ZM_mul(IK,p2), cyc);
+                  }
+                  if (gequal(ord, ZM_det_triangular(IK))) { ok = 1; break; }
+                }
               }
+              if (!ok) continue;
             }
 
             p2 = cgetg(6, t_VEC); /* p2[5] filled in CplxModulus */
@@ -1228,29 +1212,27 @@ static void
 CorrectCoeff(GEN dtcr, int** an, int** reduc, long n, long deg)
 {
   pari_sp av = avma;
-  long lg, j, np;
+  long lg, j;
   pari_sp av1;
   int **an2;
-  GEN bnrc, diff, chi, pr;
+  GEN bnrc, diff;
   CHI_t C;
 
   diff = ch_diff(dtcr); lg = lg(diff) - 1;
   if (!lg) return;
 
   if (DEBUGLEVEL>2) err_printf("diff(CHI) = %Ps", diff);
-  bnrc =  ch_bnr(dtcr);
+  bnrc = ch_bnr(dtcr);
   init_CHI_alg(&C, ch_CHI0(dtcr));
 
   an2 = InitMatAn(n, deg, 0);
   av1 = avma;
   for (j = 1; j <= lg; j++)
   {
-    pr = gel(diff,j);
-    np = itos( pr_norm(pr) );
-
-    chi  = CHI_eval(&C, isprincipalray(bnrc, pr));
-
-    an_AddMul(an,an2,np,n,deg,chi,reduc);
+    GEN pr = gel(diff,j);
+    long Np = itos( pr_norm(pr) );
+    GEN chi  = CHI_eval(&C, isprincipalray(bnrc, pr));
+    an_AddMul(an,an2,Np,n,deg,chi,reduc);
     avma = av1;
   }
   FreeMat(an2, n); avma = av;
@@ -1261,13 +1243,12 @@ static int**
 ComputeCoeff(GEN dtcr, LISTray *R, long n, long deg)
 {
   pari_sp av = avma, av2;
-  long i, l, np;
+  long i, l;
   int **an, **reduc, **an2;
-  GEN L, CHI, chi;
+  GEN L;
   CHI_t C;
 
-  CHI = ch_CHI(dtcr); init_CHI_alg(&C, CHI);
-
+  init_CHI_alg(&C, ch_CHI(dtcr));
   an  = InitMatAn(n, deg, 0);
   an2 = InitMatAn(n, deg, 0);
   reduc  = InitReduction(C.ord, deg);
@@ -1276,8 +1257,8 @@ ComputeCoeff(GEN dtcr, LISTray *R, long n, long deg)
   L = R->L1; l = lg(L);
   for (i=1; i<l; i++, avma = av2)
   {
-    np = L[i];
-    chi  = CHI_eval(&C, gel(R->L1ray,i));
+    long np = L[i];
+    GEN chi  = CHI_eval(&C, gel(R->L1ray,i));
     an_AddMul(an,an2,np,n,deg,chi,reduc);
   }
   FreeMat(an2, n);
@@ -1832,10 +1813,10 @@ computean(GEN dtcr, LISTray *R, long n, long deg)
   pari_sp av = avma, av2;
   long i, p, q, condZ, l;
   int **an, **reduc;
-  GEN L, CHI, chi, chi1;
+  GEN L, chi, chi1;
   CHI_t C;
 
-  CHI = ch_CHI(dtcr); init_CHI_alg(&C, CHI);
+  init_CHI_alg(&C, ch_CHI(dtcr));
   condZ= R->condZ;
 
   an = InitMatAn(n, deg, 1);
