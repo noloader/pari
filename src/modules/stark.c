@@ -657,9 +657,7 @@ ArtinNumber(GEN bnr, GEN LCHI, long check, long prec)
   G.cyc = gtovecsmall(cyc);
   G.r = nz;
   G.j = zero_zv(nz);
-
-  vN = cgetg(nChar+1, t_VEC);
-  for (ic = 1; ic <= nChar; ic++) gel(vN,ic) = zero_zv(nz);
+  vN = zero_Flm_copy(nz, nChar);
 
   av2 = avma;
   vB = const_vec(nz, gen_1);
