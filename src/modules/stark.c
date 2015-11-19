@@ -391,6 +391,20 @@ CplxModulus(GEN data, long *newprec)
   *newprec = dprec; return ex;
 }
 
+/* return A \cap B in abelian group defined by cyc. NULL = whole group */
+static GEN
+subgp_intersect(GEN cyc, GEN A, GEN B)
+{
+  GEN H, U;
+  long k;
+  if (!A) return B;
+  if (!B) return A;
+  H = ZM_hnfall(shallowconcat(A,B), &U, 1);
+  setlg(U, lg(A));
+  for (k = 1; k < lg(U); k++) setlg(gel(U,k), lg(H));
+  return ZM_hnfmodid(ZM_mul(A,U), cyc);
+}
+
  /* Let f be a conductor without infinite part and let C be a
    congruence group modulo f, compute (m,D) such that D is a
    congruence group of conductor m where m is a multiple of f
@@ -404,10 +418,10 @@ static GEN
 FindModulus(GEN bnr, GEN dtQ, long *newprec)
 {
   const long limnorm = 400;
-  long n, i, narch, maxnorm, minnorm, N, s, c, k;
+  long n, i, narch, maxnorm, minnorm, N;
   long first = 1, pr, rb, oldcpl = -1, iscyc = 0;
   pari_sp av = avma;
-  GEN bnf, nf, f, arch, m, bnrm, ImC, rep = NULL;
+  GEN bnf, nf, f, arch, m, rep = NULL;
 
   bnf = bnr_get_bnf(bnr);
   nf  = bnf_get_nf(bnf);
@@ -446,12 +460,13 @@ FindModulus(GEN bnr, GEN dtQ, long *newprec)
       if (DEBUGLEVEL>1) err_printf(" %ld", n);
       for (i = 1; i <= nbidnn; i++)
       { /* finite part of the conductor */
-        gel(m,1) = idealmul(nf, f, gel(idnormn,i));
+        long s;
 
+        gel(m,1) = idealmul(nf, f, gel(idnormn,i));
         for (s = 1; s <= narch; s++)
         { /* infinite part */
-          GEN candD;
-          long nbcand;
+          GEN candD, ImC, bnrm;
+          long nbcand, c;
           gel(arch,N+1-s) = gen_0;
 
           /* compute Clk(m), check if m is a conductor */
@@ -472,33 +487,21 @@ FindModulus(GEN bnr, GEN dtQ, long *newprec)
             long cpl;
             GEN p1 = InitQuotient(D), p2;
             GEN ord = gel(p1,1), cyc = gel(p1,2), map = gel(p1,3);
-            GEN lH = subgrouplist(cyc, NULL), IK = NULL;
 
             /* if the extension is cyclic, then it's suitable */
             if (lg(cyc) > 2 && !gequal1(gel(cyc, 2)))
-            {
+            { /* non-cyclic */
+              GEN lH = subgrouplist(cyc, NULL), IK = NULL;
               long j, ok = 0;
               for (j = 1; j < lg(lH); j++)
               {
                 GEN H = gel(lH, j);
-                /* if IK != NULL and H > IK, no need to test H */
-                if (IK)
-                {
-                  p1 = RgM_mul(IK, RgM_inv_upper(H));
-                  if (RgM_is_ZM(p1)) continue;
-                }
+                /* if H > IK, no need to test H */
+                if (IK && hnfdivide(H, IK)) continue;
                 if (IsGoodSubgroup(H, bnrm, map))
                 {
-                  if (!IK) IK = H;
-                  else
-                  { /* compute the intersection of IK and H */
-                    p1 = shallowconcat(IK, H);
-                    p1 = ZM_hnfall(p1, &p2, 1);
-                    setlg(p2, lg(IK));
-                    for (k = 1; k < lg(p2); k++) setlg(gel(p2,k), lg(p1));
-                    IK = ZM_hnfmodid(ZM_mul(IK,p2), cyc);
-                  }
-                  if (gequal(ord, ZM_det_triangular(IK))) { ok = 1; break; }
+                  IK = subgp_intersect(cyc, IK, H);
+                  if (equalii(ord, ZM_det_triangular(IK))) { ok = 1; break; }
                 }
               }
               if (!ok) continue;
