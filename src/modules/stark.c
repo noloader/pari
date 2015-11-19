@@ -410,10 +410,10 @@ subgp_intersect(GEN cyc, GEN A, GEN B)
    congruence group of conductor m where m is a multiple of f
    divisible by all the infinite places but one, D is a subgroup of
    index 2 of Im(C) in Clk(m), and m is such that the intersection
-   of the subgroups H of Clk(n)/Im(C) such that the quotient is
+   of the subgroups H of Clk(m)/D such that the quotient is
    cyclic and no prime divding m, but the one infinite prime, is
-   totally split in the extension corresponding to H is trival.
-   Return bnr(m), D, the quotient Ck(m)/D and Clk(m)/C */
+   totally split in the extension corresponding to H is trivial.
+   Return bnr(m), D, the quotient Ck(m)/D and Clk(m)/Im(C) */
 static GEN
 FindModulus(GEN bnr, GEN dtQ, long *newprec)
 {
