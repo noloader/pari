@@ -294,6 +294,9 @@ Order(GEN cyc, GEN x)
   return gerepileuptoint(av, f);
 }
 
+static long
+cyc_is_cyclic(GEN cyc) { return lg(cyc) <= 2 || equali1(gel(cyc,2)); }
+
 /* Let H be a subgroup of cl(bnr)/sugbroup, return 1 if
    cl(bnr)/subgoup/H is cyclic and the signature of the
    corresponding field is equal to sig and no finite prime
@@ -303,55 +306,43 @@ static long
 IsGoodSubgroup(GEN H, GEN bnr, GEN map)
 {
   pari_sp av = avma;
-  long j, f;
-  GEN bnf, mod, mod0, mod1, modH, modH0, p1, p2, p3, p4;
-  GEN bnrH, cycH, iH, qH;
+  GEN mod, modH, p1, p2, U, P, PH, bnrH, iH, qH;
+  long j;
 
   p1 = InitQuotient(H);
-  p2 = gel(p1, 2);
   /* quotient is non cyclic */
-  if ((lg(p2) > 2) && !gequal1(gel(p2, 2))) { avma = av; return 0; }
+  if (!cyc_is_cyclic(gel(p1,2))) { avma = av; return 0; }
 
-  bnf  = bnr_get_bnf(bnr);
-  mod  = bnr_get_mod(bnr);
-  mod0 = gel(mod,1);
-  mod1 = gel(mod,2);
-
-  p1 = gconcat(map, H);
-  p2 = ZM_hnfall(p1, &p3, 0);
-  setlg(p3, lg(H));
-  for (j = 1; j < lg(p3); j++) setlg(gel(p3,j), lg(H));
-  p1 = ZM_hnfmodid(p3, bnr_get_cyc(bnr)); /* H as a subgroup of bnr */
+  p2 = ZM_hnfall(shallowconcat(map,H), &U, 0);
+  setlg(U, lg(H));
+  for (j = 1; j < lg(U); j++) setlg(gel(U,j), lg(H));
+  p1 = ZM_hnfmodid(U, bnr_get_cyc(bnr)); /* H as a subgroup of bnr */
   modH = bnrconductor_i(bnr, p1, 0);
+  mod  = bnr_get_mod(bnr);
 
   /* is the signature correct? */
-  if (!gequal(gel(modH, 2), mod1)) { avma = av; return 0; }
+  if (!gequal(gel(modH,2), gel(mod,2))) { avma = av; return 0; }
 
-  /* if the finite part are the same, then it's good */
-  if (gequal(gel(modH, 1), mod0)) { avma = av; return 1; }
+  /* finite part are the same: OK */
+  if (gequal(gel(modH,1), gel(mod,1))) { avma = av; return 1; }
 
-  /* we need to check the splitting of primes dividing mod0/p2 */
-  modH0 = gel(modH, 1);
-  p3 = idealdivexact(bnf, mod0, modH0);
-  p4 = gel(idealfactor(bnf, p3), 1);
-
-  bnrH = Buchray(bnf, mkvec2(modH, mod1), nf_INIT|nf_GEN);
-  cycH = bnr_get_cyc(bnrH);
+  /* need to check the splitting of primes dividing mod but not modH */
+  bnrH = Buchray(bnr, modH, nf_INIT|nf_GEN);
+  P = divcond(bnr);
+  PH = divcond(bnrH);
   p2 = ZM_mul(bnrsurjection(bnr, bnrH), p1);
   /* H as a subgroup of bnrH */
-  iH = ZM_hnfmodid(p2, cycH);
+  iH = ZM_hnfmodid(p2,  bnr_get_cyc(bnrH));
   qH = InitQuotient(iH);
-  for (j = 1; j < lg(p4); j++)
+  for (j = 1; j < lg(P); j++)
   {
-    GEN pr = gel(p4, j);
-    /* if pr divides modH0, it is ramified, so it's good */
-    if (!idealval(bnf, modH0, pr))
-    { /* we compute the inertia degree of pr in bnr(modH)/H*/
-      p1 = ZM_ZC_mul(gel(qH, 3), isprincipalray(bnrH, pr));
-      p2 = gel(qH, 2);
-      f  = itos(Order(p2, p1));
-      if (f == 1) { avma = av; return 0; }
-    }
+    GEN pr = gel(P, j), e;
+    /* if pr divides modH, it is ramified, so it's good */
+    if (tablesearch(PH, pr, cmp_prime_ideal)) continue;
+    /* inertia degree of pr in bnr(modH)/H is Order(e, cycH) */
+    e = ZM_ZC_mul(gel(qH,3), isprincipalray(bnrH, pr));
+    e = vecmodii(e, gel(qH,2));
+    if (ZV_equal0(e)) { avma = av; return 0; } /* f = 1 */
   }
   avma = av; return 1;
 }
@@ -419,7 +410,7 @@ FindModulus(GEN bnr, GEN dtQ, long *newprec)
 {
   const long limnorm = 400;
   long n, i, narch, maxnorm, minnorm, N;
-  long first = 1, pr, rb, oldcpl = -1, iscyc = 0;
+  long first = 1, pr, rb, oldcpl = -1, iscyc;
   pari_sp av = avma;
   GEN bnf, nf, f, arch, m, rep = NULL;
 
@@ -444,7 +435,7 @@ FindModulus(GEN bnr, GEN dtQ, long *newprec)
   minnorm = 1;
 
   /* if the extension is cyclic then we _must_ find a suitable conductor */
-  if (lg(gel(dtQ,2)) == 2 || gequal1(gmael(dtQ,2,2))) iscyc = 1;
+  iscyc = cyc_is_cyclic(gel(dtQ,2));
 
   if (DEBUGLEVEL>1)
     err_printf("Looking for a modulus of norm: ");
@@ -488,9 +479,8 @@ FindModulus(GEN bnr, GEN dtQ, long *newprec)
             GEN p1 = InitQuotient(D), p2;
             GEN ord = gel(p1,1), cyc = gel(p1,2), map = gel(p1,3);
 
-            /* if the extension is cyclic, then it's suitable */
-            if (lg(cyc) > 2 && !gequal1(gel(cyc, 2)))
-            { /* non-cyclic */
+            if (!cyc_is_cyclic(cyc)) /* cyclic => suitable, else test */
+            {
               GEN lH = subgrouplist(cyc, NULL), IK = NULL;
               long j, ok = 0;
               for (j = 1; j < lg(lH); j++)
