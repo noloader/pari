@@ -396,12 +396,12 @@ static GEN
 subgp_intersect(GEN cyc, GEN A, GEN B)
 {
   GEN H, U;
-  long k;
+  long k, lH;
   if (!A) return B;
   if (!B) return A;
   H = ZM_hnfall(shallowconcat(A,B), &U, 1);
-  setlg(U, lg(A));
-  for (k = 1; k < lg(U); k++) setlg(gel(U,k), lg(H));
+  setlg(U, lg(A)); lH = lg(H);
+  for (k = 1; k < lg(U); k++) setlg(gel(U,k), lH);
   return ZM_hnfmodid(ZM_mul(A,U), cyc);
 }
 
@@ -495,12 +495,12 @@ FindModulus(GEN bnr, GEN dtQ, long *newprec)
               long j, ok = 0;
               for (j = 1; j < lg(lH); j++)
               {
-                GEN H = gel(lH, j);
+                GEN H = gel(lH, j), IH = subgp_intersect(cyc, IK, H);
                 /* if H > IK, no need to test H */
-                if (IK && hnfdivide(H, IK)) continue;
+                if (IK && gidentical(IH, IK)) continue;
                 if (IsGoodSubgroup(H, bnrm, map))
                 {
-                  IK = subgp_intersect(cyc, IK, H);
+                  IK = IH;
                   if (equalii(ord, ZM_det_triangular(IK))) { ok = 1; break; }
                 }
               }
