@@ -253,6 +253,23 @@ InitQuotient(GEN C)
   return mkvec5(h, D, U, C, cyc_normalize(D));
 }
 
+/* lift chi character on A/C [Qt from InitQuotient] to character on A [cyc]*/
+static GEN
+LiftChar(GEN Qt, GEN cyc, GEN chi)
+{
+  GEN ncyc = gel(Qt,5), U = gel(Qt,3);
+  GEN nchi = char_normalize(chi, ncyc);
+  GEN c = ZV_ZM_mul(gel(nchi,2), U), d = gel(nchi,1);
+  long l = lg(cyc), i;
+  GEN lchi = cgetg(l, t_VEC);
+  for (i = 1; i < l; i++)
+  {
+    GEN di = gel(cyc,i), t = diviiexact(mulii(gel(c,i), di), d);
+    gel(lchi,i) = modii(t, di);
+  }
+  return lchi;
+}
+
 /* Let s: A -> B given by P, and let cycA, cycB be the cyclic structure of
  * A and B, compute the kernel of s. */
 static GEN
@@ -347,7 +364,44 @@ IsGoodSubgroup(GEN H, GEN bnr, GEN map)
   avma = av; return 1;
 }
 
-static GEN get_listCR(GEN bnr, GEN dtQ);
+/* compute the list of characters to consider for AllStark and
+   initialize precision-independent data to compute with them */
+static GEN
+get_listCR(GEN bnr, GEN dtQ)
+{
+  GEN listCR, vecchi, Mr;
+  long hD, h, nc, i, tnc;
+  hashtable *S;
+
+  Mr = bnr_get_cyc(bnr);
+  hD = itos(gel(dtQ,1));
+  h  = hD >> 1;
+
+  listCR = cgetg(h+1, t_VEC); /* non-conjugate chars */
+  nc = tnc = 1;
+  vecchi = EltsOfGroup(hD, gel(dtQ,2));
+  S = hash_create(h, (ulong(*)(void*))&hash_GEN,
+                     (int(*)(void*,void*))&ZV_equal, 1);
+  for (i = 1; tnc <= h; i++)
+  { /* lift a character of D in Clk(m) */
+    GEN cond, lchi = LiftChar(dtQ, Mr, gel(vecchi,i));
+    if (hash_search(S, lchi)) continue;
+    cond = bnrconductorofchar(bnr, lchi);
+    if (gequal0(gel(cond,2))) continue;
+    /* the infinite part of chi is non trivial */
+    gel(listCR,nc++) = mkvec2(lchi, cond);
+
+    /* if chi is not real, add its conjugate character to S */
+    if (equaliu(Order(Mr,lchi), 2)) tnc++;
+    else
+    {
+      hash_insert(S, ConjChar(lchi, Mr), (void*)1);
+      tnc+=2;
+    }
+  }
+  setlg(listCR, nc); return listCR;
+}
+
 static GEN InitChar(GEN bnr, GEN listCR, long prec);
 
 /* Given a conductor and a subgroups, return the corresponding
@@ -734,21 +788,6 @@ bnrrootnumber(GEN bnr, GEN chi, long flag, long prec)
 /********************************************************************/
 /*               3rd part: initialize the characters                */
 /********************************************************************/
-static GEN
-LiftChar(GEN Qt, GEN cyc, GEN chi)
-{
-  GEN ncyc = gel(Qt,5), U = gel(Qt,3);
-  GEN nchi = char_normalize(chi, ncyc);
-  GEN c = ZV_ZM_mul(gel(nchi,2), U), d = gel(nchi,1);
-  long l = lg(cyc), i;
-  GEN lchi = cgetg(l, t_VEC);
-  for (i = 1; i < l; i++)
-  {
-    GEN di = gel(cyc,i), t = diviiexact(mulii(gel(c,i), di), d);
-    gel(lchi,i) = modii(t, di);
-  }
-  return lchi;
-}
 
 /* Let chi be a character, A(chi) corresponding to the primes dividing diff
    at s = flag. If s = 0, returns [r, A] where r is the order of vanishing
@@ -891,45 +930,6 @@ InitChar(GEN bnr, GEN listCR, long prec)
   }
 
   return gerepilecopy(av, dataCR);
-}
-
-/* compute the list of characters to consider for AllStark and
-   initialize precision-independent data to compute with them */
-static GEN
-get_listCR(GEN bnr, GEN dtQ)
-{
-  GEN listCR, vecchi, lchi, cond, Mr, d, allCR;
-  long hD, h, nc, i, j, tnc;
-
-  Mr = bnr_get_cyc(bnr);
-  hD = itos(gel(dtQ,1));
-  h  = hD >> 1;
-
-  listCR = cgetg(h+1, t_VEC); nc = 1; /* non-conjugate chars */
-  allCR  = cgetg(h+1, t_VEC);tnc = 1; /* all chars, including conjugates */
-
-  vecchi = EltsOfGroup(hD, gel(dtQ,2));
-
-  for (i = 1; tnc <= h; i++)
-  { /* lift a character of D in Clk(m) */
-    lchi = LiftChar(dtQ, Mr, gel(vecchi,i));
-
-    for (j = 1; j < tnc; j++)
-      if (ZV_equal(lchi, gel(allCR,j))) break;
-    if (j != tnc) continue;
-
-    cond = bnrconductorofchar(bnr, lchi);
-    if (gequal0(gel(cond,2))) continue;
-
-    /* the infinite part of chi is non trivial */
-    gel(listCR,nc++) = mkvec2(lchi, cond);
-    gel(allCR,tnc++) = lchi;
-
-    /* if chi is not real, add its conjugate character to allCR */
-    d = Order(Mr, lchi);
-    if (!equaliu(d,2)) gel(allCR,tnc++) = ConjChar(lchi, Mr);
-  }
-  setlg(listCR, nc); return listCR;
 }
 
 /* recompute dataCR with the new precision */
