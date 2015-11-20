@@ -1314,11 +1314,23 @@ set_sign_mod_divisor(GEN nf, GEN x, GEN y, GEN divisor, GEN sarch)
   if (nba == 1) return y;
 
   archp = vec01_to_indices(gel(divisor,2));
+  y = nf_to_scalar_or_basis(nf, y);
   s = nfsign_arch(nf, y, archp);
   if (x) Flv_add_inplace(s, nfsign_arch(nf, x, archp), 2);
   s = Flm_Flc_mul(gel(sarch,3), s, 2);
   for (i=1; i<nba; i++)
+    if (!s[i]) break;
+  if (i==nba && typ(y) == t_INT)
+  {
+    GEN fZ = gcoeff(gel(divisor,1), 1,1);
+    long sy = signe(y);
+    y = modii(y, fZ); if (sy > 0) y = subii(y, fZ);
+    return scalarcol_shallow(y, nf_get_degree(nf));
+  }
+
+  for (i=1; i<nba; i++)
     if (s[i]) y = nfmul(nf,y,gel(gen,i));
+  if (typ(y) != t_COL) y = scalarcol_shallow(y, nf_get_degree(nf));
   return y;
 }
 
