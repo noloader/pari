@@ -639,7 +639,11 @@ static GEN
 check_prime(GEN p)
 {
   if (BPSW_isprime_small(p)) return gen_1;
-  if (expi(p) <= 250) return isprimePL(p);
+  if (expi(p) <= 250)
+  {
+    GEN c = isprimePL(p);
+    return c == gen_0? NULL: c;
+  }
   return isprimeAPRCL(p)? gen_2: NULL;
 }
 /* initialize Selfridge / Pocklington-Lehmer test, return 0
