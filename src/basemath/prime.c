@@ -726,24 +726,19 @@ BPSW_isprime_big(GEN N)
   long n = lg(P)-1;
 
   p = gel(P,n);
-  /* fully factored */
-  if (cmpiu(p,B) <= 0 ||
-      (BPSW_psp_nosmalldiv(p)
-      && (BPSW_isprime_small(N) || BPSW_isprime_big(p))))
+  /* if p prime, then N-1 is fully factored */
+  if (cmpii(p,sqru(B)) <= 0 || (BPSW_psp_nosmalldiv(p) && BPSW_isprime(p)))
     return isprimeSelfridge(N,P, n);
 
   E = gel(fa,2);
   U = powii(p, gel(E,n)); /* unfactored part of N-1 */
-  /* n >= 2, since 2 and p divide  N-1 */
-  if (n == 2)
-    F = powii(gel(P,1), gel(E,1));
-  else
-    F = diviiexact(N_1,  U);
+  /* factored part of N-1; n >= 2 since 2p | N-1 */
+  F = (n == 2)? powii(gel(P,1), gel(E,1)): diviiexact(N_1,  U);
 
-  /* N-1 = F U, F factored, U possibly composite */
-  if (cmpii(F, U) >= 0) /* 1/2-smooth */
+  /* N-1 = F U, F factored, U possibly composite, (U,F) = 1 */
+  if (cmpii(F, U) > 0) /* 1/2-smooth */
     return isprimeSelfridge(N,P, n-1);
-  if (cmpii(sqri(F), U) >= 0) /* 1/3-smooth */
+  if (cmpii(sqri(F), U) > 0) /* 1/3-smooth */
     return BLS_test(N, F) && isprimeSelfridge(N,P, n-1);
   return isprimeAPRCL(N);
 }
