@@ -975,7 +975,15 @@ static int
 serequal(GEN x, GEN y)
 {
   long lx;
-  if ((x[1] ^ y[1]) & (VARNBITS | SIGNBITS | VALPBITS)) return 0;
+  if (varn(x) != varn(y)) return 0;
+  if (!signe(x))
+  {
+    if (!signe(y)) return 1;
+    return valp(y) >= valp(x);
+  }
+  if (!signe(y))
+    return valp(x) >= valp(y);
+  if ((x[1] ^ y[1]) & VALPBITS) return 0;
   lx = minss(lg(x), lg(y));
   for (lx--; lx >= 2; lx--) if (!gequal(gel(x,lx), gel(y,lx))) return 0;
   return 1;

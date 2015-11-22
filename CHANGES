@@ -177,6 +177,7 @@ BA128- nfsubfields could fail [#1758]
   131- chinese([]) -> '1' instead of Mod(0,1)
   132- m1=Mod(0,1);m2=Mod(1,x^2+1); chinese(m1,m2) -> m1; chinese(m2,m1) -> m2
        [instead of error]
+  133- O(1) == O(x) returned 0 [#1765]
 
   Added
     1- add optional argument to sumdigits to specify the base

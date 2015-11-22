@@ -57,3 +57,6 @@ a=Mod(1,2)/x+O(1);a-a
 
 subst(1+O(x),x,y)
 subst(1+x+O(x^2),x,y^2)
+O(1)==O(x)
+O(1)==x
+O(x)==1
