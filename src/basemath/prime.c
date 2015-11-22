@@ -612,25 +612,24 @@ BLS_test(GEN N, GEN f)
   return ! Z_issquare(subii(sqri(c1), shifti(c2,2)));
 }
 
-/*assume N>1, p^e || N-1. Find a witness a(p) such that
- * a^(N-1) = 1 (mod N)
- * a^(N-1)/p - 1 invertible mod N.
- * Proves that any divisor of N is 1 mod p^e */
+/* Assume N > 1, p^e || N-1, p prime. Find a witness a(p) such that
+ *   a^(N-1) = 1 (mod N)
+ *   a^(N-1)/p - 1 invertible mod N.
+ * Proves that any divisor of N is 1 mod p^e. Return 0 if N is composite */
 static ulong
 pl831(GEN N, GEN p)
 {
-  pari_sp ltop = avma, av;
+  GEN b, c, g, Nmunp = diviiexact(addis(N,-1), p);
+  pari_sp av = avma;
   ulong a;
-  GEN Nmunp = diviiexact(addis(N,-1), p);
-  av = avma;
   for(a = 2;; a++, avma = av)
   {
-    GEN b = Fp_pow(utoipos(a), Nmunp, N);
-    GEN c = Fp_pow(b,p,N), g = gcdii(addis(b,-1), N);
-    if (!is_pm1(c)) return 0;
-    if (is_pm1(g)) { avma=ltop; return a; }
-    if (!equalii(g,N)) return 0;
+    b = Fp_pow(utoipos(a), Nmunp, N);
+    if (!equali1(b)) break;
   }
+  c = Fp_pow(b,p,N);
+  g = gcdii(addis(b,-1), N); /* 0 < g < N */
+  return (equali1(c) && equali1(g))? a: 0;
 }
 /* Assume x BPSW pseudoprime. Return NULL if not prime, and a primality
  * certificate otherwise */
