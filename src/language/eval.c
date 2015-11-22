@@ -1844,11 +1844,13 @@ closure_callgen2(GEN C, GEN x, GEN y)
 GEN
 closure_callgenvec(GEN C, GEN args)
 {
-  long i, l = lg(args), ar = closure_arity(C);
+  long i, l = lg(args)-1, ar = closure_arity(C);
   st_alloc(ar);
-  if (l-1 > ar)
+  if (l > ar)
     pari_err(e_MISC,"too many parameters in user-defined function call");
-  for (i = 1; i < l;   i++) gel(st,sp++) = gel(args,i);
+  if (closure_is_variadic(C) && l==ar && typ(gel(args,l))!=t_VEC)
+    pari_err_TYPE("call", gel(args,l));
+  for (i = 1; i <= l;  i++) gel(st,sp++) = gel(args,i);
   for(      ; i <= ar; i++) gel(st,sp++) = NULL;
   return closure_returnupto(C);
 }
