@@ -3815,8 +3815,8 @@ Z_factor_until(GEN n, GEN limit)
   pari_sp av2, av = avma;
   ulong B = tridiv_bound(n);
   GEN q, part, F = ifactor(n, B, decomp_default_hint);
-  GEN P = gel(F,1), E = gel(F,2), P2, E2, F2;
-  long l = lg(P), l2;
+  GEN P = gel(F,1), E = gel(F,2);
+  long l = lg(P);
 
   av2 = avma;
   q = gel(P,l-1);
@@ -3829,10 +3829,10 @@ Z_factor_until(GEN n, GEN limit)
   setlg(P,l-1);
   if (cmpii(q, limit) > 0)
   { /* factor further */
-    l2 = expi(q)+1;
-    P2 = vectrunc_init(l2);
-    E2 = vectrunc_init(l2);
-    F2 = mkmat2(P2,E2);
+    long l2 = expi(q)+1;
+    GEN P2 = vectrunc_init(l2);
+    GEN E2 = vectrunc_init(l2);
+    GEN F2 = mkmat2(P2,E2);
     part = ifac_start(q, 0);
     for(;;)
     {
