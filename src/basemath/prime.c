@@ -343,8 +343,8 @@ uislucaspsp(ulong n)
   }
   return 0;
 }
-/* check that N not a square first (taken care of here, but inefficient)
- * assume N > 3 */
+/* N > 3. Caller should check that N is not a square first (taken care of here,
+ * but inefficient) */
 static int
 IsLucasPsP(GEN N)
 {
@@ -353,10 +353,10 @@ IsLucasPsP(GEN N)
   long i, v;
   ulong b;
 
-  for (b=3, i=0;; b+=2, i++)
+  for (b=3;; b+=2)
   {
     ulong c = b*b - 4; /* = 1 mod 4 */
-    if (i == 64 && Z_issquare(N)) return 0; /* avoid oo loop if N = m^2 */
+    if (b == 129 && Z_issquare(N)) return 0; /* avoid oo loop if N = m^2 */
     if (krouu(umodiu(N,c), c) < 0) break;
   }
   m = addis(N,1); v = vali(m); m = shifti(m,-v);
