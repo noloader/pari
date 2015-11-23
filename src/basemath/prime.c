@@ -596,22 +596,6 @@ BPSW_isprime_small(GEN x)
 #endif
 }
 
-/* Brillhart, Lehmer, Selfridge test (Crandall & Pomerance, Th 4.1.5)
- * N^(1/3) <= f fully factored, f | N-1. If pl831(p) is true for
- * any prime divisor p of f, then any divisor of N is 1 mod f.
- * In that case return 1 iff N is prime */
-static int
-BLS_test(GEN N, GEN f)
-{
-  GEN c1, c2, r, q;
-  q = dvmdii(N, f, &r);
-  if (!is_pm1(r)) return 0;
-  c2 = dvmdii(q, f, &c1);
-  /* N = 1 + f c1 + f^2 c2, 0 <= c_i < f; check whether it is of the form
-   * (1 + f a)(1 + fb) */
-  return ! Z_issquare(subii(sqri(c1), shifti(c2,2)));
-}
-
 /* Assume N > 1, p^e || N-1, p prime. Find a witness a(p) such that
  *   a^(N-1) = 1 (mod N)
  *   a^(N-1)/p - 1 invertible mod N.
@@ -631,97 +615,29 @@ pl831(GEN N, GEN p)
   g = gcdii(addis(b,-1), N); /* 0 < g < N */
   return (equali1(c) && equali1(g))? a: 0;
 }
-/* Assume x BPSW pseudoprime. Return NULL if not prime, and a primality
- * certificate otherwise */
-static GEN isprimePL(GEN N);
-static GEN
-check_prime(GEN p)
-{
-  if (BPSW_isprime_small(p)) return gen_1;
-  if (expi(p) <= 250)
-  {
-    GEN c = isprimePL(p);
-    return c == gen_0? NULL: c;
-  }
-  return isprimeAPRCL(p)? gen_2: NULL;
-}
-/* initialize Selfridge / Pocklington-Lehmer test, return 0
- * if proven composite */
+
+/* Brillhart, Lehmer, Selfridge test (Crandall & Pomerance, Th 4.1.5)
+ * N^(1/3) <= f fully factored, f | N-1. If pl831(p) is true for
+ * any prime divisor p of f, then any divisor of N is 1 mod f.
+ * In that case return 1 iff N is prime */
 static int
-selfridge_init(GEN N, GEN *pF, GEN *pf)
+BLS_test(GEN N, GEN f)
 {
-  GEN cbrtN = sqrtnint(N, 3);
-  GEN N_1 = addis(N,-1);
-  GEN F = Z_factor_until(N_1, sqri(cbrtN));
-  GEN f = factorback(F); /* factored part of N-1, f^3 > N */
-  *pF = gel(F,1);
-  *pf = f;
-  /* smooth or N^(1/2)-smooth (Pocklington) or N^(1/3)-smooth (BLS) */
-  return equalii(f, N_1) || cmpii(sqri(f), N) > 0 || BLS_test(N,f);
+  GEN c1, c2, r, q;
+  q = dvmdii(N, f, &r);
+  if (!is_pm1(r)) return 0;
+  c2 = dvmdii(q, f, &c1);
+  /* N = 1 + f c1 + f^2 c2, 0 <= c_i < f; check whether it is of the form
+   * (1 + fa)(1 + fb) */
+  return ! Z_issquare(subii(sqri(c1), shifti(c2,2)));
 }
-/* Assume N is a strong BPSW pseudoprime, Pocklington-Lehmer primality proof.
- *
- * return gen_0 (non-prime), gen_1 (small prime), matrix (large prime)
- *
- * The matrix has 3 columns, [a,b,c] with
- * a[i] prime factor of N-1,
- * b[i] witness for a[i] as in pl831
- * c[i] isprimePL(a[i]) */
+
+/* BPSW_psp(N) && !BPSW_isprime_small(N). Decide between Pocklington-Lehmer
+ * and APRCL. Return a vector of (small) primes such that PL-witnesses
+ * guarantee the primality of N. Return NULL if PL is likely too expensive.
+ * Return gen_0 if BLS test finds N to be composite */
 static GEN
-isprimePL(GEN N)
-{
-  pari_sp ltop = avma;
-  long i, l;
-  int eps;
-  GEN P, W, R, F, f;
-
-  if (typ(N) != t_INT) pari_err_TYPE("isprimePL",N);
-  eps = cmpis(N,2);
-  if (eps <= 0) return eps? gen_0: gen_1;
-  /* N > 2 */
-  if (!selfridge_init(N, &F, &f)) { avma = ltop; return gen_0; }
-  if (DEBUGLEVEL>3)
-  {
-    err_printf("Pocklington-Lehmer: proving primality of N = %Ps\n", N);
-    err_printf("Pocklington-Lehmer: N-1 factored up to %Ps! (%.3Ps%%)\n", f, divri(itor(f,LOWDEFAULTPREC), N));
-    err_printf("Pocklington-Lehmer: N-1 smooth enough! Computing certificate\n");
-  }
-  l = lg(F);
-  P = cgetg(l,t_COL);
-  W = cgetg(l,t_COL);
-  R = cgetg(l,t_COL);
-  for(i=1; i<l; i++)
-  {
-    GEN p = gel(F,i);
-    ulong witness = pl831(N,p);
-
-    if (!witness) { avma = ltop; return gen_0; }
-    gel(P,i) = p;
-    gel(W,i) = utoipos(witness);
-    gel(R,i) = check_prime(p);
-    if (!gel(R,i))
-    { /* composite in prime factorisation ! */
-      err_printf("Not a prime: %Ps", p);
-      pari_err_BUG("isprimePL [false prime number]");
-    }
-  }
-  return gerepilecopy(ltop, mkmat3(P,W,R));
-}
-
-/* F is a vector whose n first entries are primes. For each of them,
- * find a PL witness */
-static long
-isprimeSelfridge(GEN N, GEN F, long n)
-{
-  long i;
-  for(i = 1; i <= n; i++)
-    if (! pl831(N, gel(F,i))) return 0;
-  return 1;
-}
-
-/* BPSW_psp(N) && !BPSW_isprime_small(N). Prove N prime  */
-static long
-BPSW_isprime_big(GEN N)
+BPSW_try_PL(GEN N)
 {
   ulong B = minuu(1UL<<19, maxprime());
   GEN E, p, U, F, N_1 = subiu(N,1);
@@ -731,30 +647,120 @@ BPSW_isprime_big(GEN N)
   p = gel(P,n);
   /* if p prime, then N-1 is fully factored */
   if (cmpii(p,sqru(B)) <= 0 || (BPSW_psp_nosmalldiv(p) && BPSW_isprime(p)))
-    return isprimeSelfridge(N,P, n);
+    return P;
 
   E = gel(fa,2);
   U = powii(p, gel(E,n)); /* unfactored part of N-1 */
   /* factored part of N-1; n >= 2 since 2p | N-1 */
   F = (n == 2)? powii(gel(P,1), gel(E,1)): diviiexact(N_1,  U);
+  setlg(P, n); /* remove last (composite) entry */
 
   /* N-1 = F U, F factored, U possibly composite, (U,F) = 1 */
-  if (cmpii(F, U) > 0) /* 1/2-smooth */
-    return isprimeSelfridge(N,P, n-1);
-  if (cmpii(sqri(F), U) > 0) /* 1/3-smooth */
-    return BLS_test(N, F) && isprimeSelfridge(N,P, n-1);
-  return isprimeAPRCL(N);
+  if (cmpii(F, U) > 0) return P; /* 1/2-smooth */
+  if (cmpii(sqri(F), U) > 0) return BLS_test(N,F)? P: gen_0; /* 1/3-smooth */
+  return NULL; /* not smooth enough */
 }
 
-/* assume N a BPSW pseudoprime, in particular, it is odd > 2 */
+static GEN isprimePL(GEN N);
+static GEN PL_certificate(GEN N, GEN F);
+/* Assume N a BPSW pseudoprime. Return 0 if not prime, and a primality label
+ * otherwise: 1 (small), 2 (APRCL), or PL-certificate  */
+static GEN
+check_prime(GEN N)
+{
+  GEN P;
+  if (BPSW_isprime_small(N)) return gen_1;
+  /* PL for small N: APRCL is faster but we prefer a certificate */
+  if (expi(N) <= 250) return isprimePL(N);
+  P = BPSW_try_PL(N);
+  /* if PL likely too expensive: give up certificate and use APRCL */
+  if (!P) return isprimeAPRCL(N)? gen_2: gen_0;
+  return typ(P) != t_INT? PL_certificate(N,P): gen_0;
+}
+
+/* F is a vector whose entries are primes. For each of them, find a PL
+ * witness. Return 0 if caller lied and F contains a composite */
+static long
+PL_certify(GEN N, GEN F)
+{
+  long i, l = lg(F);
+  for(i = 1; i < l; i++)
+    if (! pl831(N, gel(F,i))) return 0;
+  return 1;
+}
+/* F is a vector whose entries are *believed* to be primes. For each of them,
+ * recording a witness and recursive primality certificate */
+static GEN
+PL_certificate(GEN N, GEN F)
+{
+  long i, l = lg(F);
+  GEN W = cgetg(l,t_COL);
+  GEN R = cgetg(l,t_COL);
+  for(i=1; i<l; i++)
+  {
+    GEN p = gel(F,i);
+    ulong witness = pl831(N,p);
+    if (!witness) return gen_0;
+    gel(W,i) = utoipos(witness);
+    gel(R,i) = check_prime(p);
+    if (isintzero(gel(R,i)))
+    { /* composite in prime factorisation ! */
+      err_printf("Not a prime: %Ps", p);
+      pari_err_BUG("PL_certificate [false prime number]");
+    }
+  }
+  return mkmat3(F, W, R);
+}
+/* Assume N is a strong BPSW pseudoprime, Pocklington-Lehmer primality proof.
+ * Return gen_0 (non-prime), gen_1 (small prime), matrix (large prime)
+ *
+ * The matrix has 3 columns, [a,b,c] with
+ * a[i] prime factor of N-1,
+ * b[i] witness for a[i] as in pl831
+ * c[i] check_prime(a[i]) */
+static GEN
+isprimePL(GEN N)
+{
+  pari_sp ltop = avma;
+  GEN cbrtN, N_1, F, f;
+
+  if (typ(N) != t_INT) pari_err_TYPE("isprimePL",N);
+  switch(cmpis(N,2))
+  {
+    case -1:return gen_0;
+    case 0: return gen_1;
+  }
+  /* N > 2 */
+  cbrtN = sqrtnint(N, 3);
+  N_1 = addis(N,-1);
+  F = Z_factor_until(N_1, sqri(cbrtN));
+  f = factorback(F); /* factored part of N-1, f^3 > N */
+  if (DEBUGLEVEL>3)
+  {
+    GEN r = divri(itor(f,LOWDEFAULTPREC), N);
+    err_printf("Pocklington-Lehmer: proving primality of N = %Ps\n", N);
+    err_printf("Pocklington-Lehmer: N-1 factored up to %Ps! (%.3Ps%%)\n", f, r);
+  }
+  /* if N-1 is only N^(1/3)-smooth, BLS test */
+  if (!equalii(f,N_1) && cmpii(sqri(f),N) <= 0 && !BLS_test(N,f))
+  { avma = ltop; return gen_0; } /* Failed, N is composite */
+  return gerepilecopy(ltop, PL_certificate(N, gel(F,1)));
+}
+
+/* assume N a BPSW pseudoprime, in particular, it is odd > 2. Prove N prime */
 long
 BPSW_isprime(GEN N)
 {
   pari_sp av;
-  long res;
+  long t;
+  GEN P;
   if (BPSW_isprime_small(N)) return 1;
-  av = avma; res = BPSW_isprime_big(N);
-  avma = av; return res;
+  av = avma; P = BPSW_try_PL(N);
+  if (!P)
+    t = isprimeAPRCL(N); /* not smooth enough */
+  else
+    t = (typ(P) == t_INT)? 0: PL_certify(N,P);
+  avma = av; return t;
 }
 
 GEN
