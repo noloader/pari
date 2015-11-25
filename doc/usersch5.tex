@@ -4720,6 +4720,39 @@ inverse of $y$. Returns the quotient and set \kbd{*pr} to the remainder.
 \fun{GEN}{FpXQX_FpXQXQ_eval}{GEN f,GEN x,GEN S, GEN T,GEN p} returns
 $\kbd{f}(\kbd{x})$.
 
+\subsec{\kbd{FpXQXQ}, \kbd{FqXQ}}
+
+A \kbd{FpXQXQ} is a \typ{FpXQX} which represents an element of the ring
+$(Fp[X]/T(X))[Y]/S(X,Y)$, where $T$ is a \kbd{FpX} and $S$ a \kbd{FpXQX}
+modulo $T$.  A \kbd{FqXQ} is identical except that $T$ is allowed to be
+\kbd{NULL} in which case $S$ must be a \kbd{FpX}.
+
+\subsubsec{Preconditioned reduction}
+
+For faster reduction, the modulus \kbd{S} can be replaced by an extended
+modulus, which is an \kbd{FpXQXT}, in all \kbd{FpXQXQ}- and \kbd{FqXQ}-classes
+functions, and in \kbd{FpX\_rem} and \kbd{FpX\_divrem}.
+
+\fun{GEN}{FpXQX_get_red}{GEN S, GEN T, GEN p} returns the extended modulus
+\kbd{eS}.
+
+\fun{GEN}{FqX_get_red}{GEN S, GEN T, GEN p} identical, but allow $T$ to
+be \kbd{NULL}, in which case it returns \kbd{FpX\_get\_red(S,p)}.
+
+To write code that works both with plain and extended moduli, the following
+accessors are defined:
+
+\fun{GEN}{get_FpXQX_mod}{GEN eS} returns the underlying modulus \kbd{S}.
+
+\fun{GEN}{get_FpXQX_var}{GEN eS} returns the variable number of the modulus.
+
+\fun{GEN}{get_FpXQX_degree}{GEN eS} returns the degree of the modulus.
+
+%Furthermore, \kbd{ZXXT\_to\_FlxxT} allows to convert an extended modulus for
+%a \kbd{FpXQX} to an extended modulus for the corresponding \kbd{FlxqX}.
+
+\subsubsec{basic operations}
+
 \fun{GEN}{FpXQX_FpXQXQV_eval}{GEN f,GEN V,GEN S,GEN T,GEN p} returns
 $\kbd{f}(\kbd{x})$, assuming that \kbd{V} was computed by
 $\kbd{FpXQXQ\_powers}(\kbd{x}, n, \kbd{S}, \kbd{T}, \kbd{p})$.

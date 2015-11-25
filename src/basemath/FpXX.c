@@ -158,6 +158,22 @@ FpXX_mulu(GEN P, ulong u, GEN p)
 /*                                                                 */
 /*******************************************************************/
 
+static GEN
+get_FpXQX_red(GEN T, GEN *B)
+{
+  if (typ(T)!=t_VEC) { *B=NULL; return T; }
+  *B = gel(T,1); return gel(T,2);
+}
+
+GEN
+get_FpXQX_mod(GEN T) { return typ(T)==t_VEC? gel(T,2): T; }
+
+long
+get_FpXQX_var(GEN T) { return typ(T)==t_VEC? varn(gel(T,2)): varn(T); }
+
+long
+get_FpXQX_degree(GEN T) { return typ(T)==t_VEC? degpol(gel(T,2)): degpol(T); }
+
 GEN
 random_FpXQX(long d1, long v, GEN T, GEN p)
 {
@@ -586,6 +602,7 @@ FpXQX_invBarrett_Newton(GEN S, GEN T, GEN p)
 const long FpXQX_INVBARRETT_LIMIT = 50;
 const long FpXQX_DIVREM_BARRETT_LIMIT = 50;
 const long FpXQX_REM_BARRETT_LIMIT = 50;
+const long FpXQX_BARRETT_LIMIT = 50;
 
 /* 1/polrecip(S)+O(x^(deg(S)-1)) */
 GEN
@@ -610,6 +627,14 @@ FpXQX_invBarrett(GEN S, GEN T, GEN p)
   else
     r = FpXQX_invBarrett_Newton(S, T, p);
   return gerepileupto(ltop, r);
+}
+
+GEN
+FpXQX_get_red(GEN S, GEN T, GEN p)
+{
+  if (typ(S)==t_POL && lg(S)>FpXQX_BARRETT_LIMIT)
+    retmkvec2(FpXQX_invBarrett(S,T,p),S);
+  return S;
 }
 
 /* Compute x mod S where 2 <= degpol(S) <= l+1 <= 2*(degpol(S)-1)
@@ -709,16 +734,17 @@ FpXQX_divrem_Barrett(GEN x, GEN B, GEN S, GEN T, GEN p, GEN *pr)
 }
 
 GEN
-FpXQX_divrem(GEN x, GEN y, GEN T, GEN p, GEN *pr)
+FpXQX_divrem(GEN x, GEN S, GEN T, GEN p, GEN *pr)
 {
+  GEN B, y = get_FpXQX_red(S, &B);
   long dy = degpol(y), dx = degpol(x), d = dx-dy;
   if (pr==ONLY_REM) return FpXQX_rem(x, y, T, p);
-  if (d+3 < FpXQX_DIVREM_BARRETT_LIMIT)
+  if (!B && d+3 < FpXQX_DIVREM_BARRETT_LIMIT)
     return FpXQX_divrem_basecase(x,y,T,p,pr);
   else
   {
     pari_sp av=avma;
-    GEN mg = FpXQX_invBarrett(y, T, p);
+    GEN mg = B? B: FpXQX_invBarrett(y, T, p);
     GEN q = FpXQX_divrem_Barrett_noGC(x,mg,y,T,p,pr);
     if (!q) {avma=av; return NULL;}
     if (!pr || pr==ONLY_DIVIDES) return gerepilecopy(av, q);
@@ -728,16 +754,17 @@ FpXQX_divrem(GEN x, GEN y, GEN T, GEN p, GEN *pr)
 }
 
 GEN
-FpXQX_rem(GEN x, GEN y, GEN T, GEN p)
+FpXQX_rem(GEN x, GEN S, GEN T, GEN p)
 {
+  GEN B, y = get_FpXQX_red(S, &B);
   long dy = degpol(y), dx = degpol(x), d = dx-dy;
   if (d < 0) return FpXQX_red(x, T, p);
-  if (d+3 < FpXQX_REM_BARRETT_LIMIT)
+  if (!B && d+3 < FpXQX_REM_BARRETT_LIMIT)
     return FpXQX_divrem_basecase(x,y, T, p, ONLY_REM);
   else
   {
     pari_sp av=avma;
-    GEN mg = FpXQX_invBarrett(y, T, p);
+    GEN mg = B? B: FpXQX_invBarrett(y, T, p);
     GEN r = FpXQX_divrem_Barrett_noGC(x, mg, y, T, p, ONLY_REM);
     return gerepileupto(av, r);
   }
@@ -986,7 +1013,7 @@ FpXQXQ_sqr(GEN x, GEN S, GEN T, GEN p) {
 GEN
 FpXQXQ_invsafe(GEN x, GEN S, GEN T, GEN p)
 {
-  GEN V, z = FpXQX_extgcd(S, x, T, p, NULL, &V);
+  GEN V, z = FpXQX_extgcd(get_FpXQX_mod(S), x, T, p, NULL, &V);
   if (degpol(z)) return NULL;
   z = gel(z,2);
   z = typ(z)==t_INT ? Fp_invsafe(z,p) : FpXQ_invsafe(z,T,p);
@@ -1045,13 +1072,13 @@ _FpXQXQ_sqr(void *data, GEN x) {
 static GEN
 _FpXQXQ_one(void *data) {
   FpXQXQ_muldata *d = (FpXQXQ_muldata*) data;
-  return pol_1(varn(d->S));
+  return pol_1(get_FpXQX_var(d->S));
 }
 
 static GEN
 _FpXQXQ_zero(void *data) {
   FpXQXQ_muldata *d = (FpXQXQ_muldata*) data;
-  return pol_0(varn(d->S));
+  return pol_0(get_FpXQX_var(d->S));
 }
 
 static struct bb_algebra FpXQXQ_algebra = { _FpXQXQ_red,_FpXQXQ_add,_FpXQXQ_mul,_FpXQXQ_sqr,_FpXQXQ_one,_FpXQXQ_zero };
@@ -1075,6 +1102,8 @@ FpXQXQ_pow(GEN x, GEN n, GEN S, GEN T, GEN p)
   }
   else
   {
+    T = FpX_get_red(T, p);
+    S = FpXQX_get_red(S, T, p);
     D.S = S; D.T = T; D.p = p;
     if (s < 0) x = FpXQXQ_inv(x,S,T,p);
     y = gen_pow(x, n, (void*)&D,&_FpXQXQ_sqr,&_FpXQXQ_mul);
@@ -1087,7 +1116,9 @@ GEN
 FpXQXQ_powers(GEN x, long l, GEN S, GEN T, GEN p)
 {
   FpXQXQ_muldata D;
-  int use_sqr = (degpol(x)<<1) >= degpol(S);
+  int use_sqr = (degpol(x)<<1) >= get_FpXQX_degree(S);
+  T = FpX_get_red(T, p);
+  S = FpXQX_get_red(S, T, p);
   D.S = S; D.T = T; D.p = p;
   return gen_powers(x, l, use_sqr, (void*)&D, &_FpXQXQ_sqr, &_FpXQXQ_mul,&_FpXQXQ_one);
 }
@@ -1102,6 +1133,8 @@ GEN
 FpXQX_FpXQXQV_eval(GEN P, GEN V, GEN S, GEN T, GEN p)
 {
   FpXQXQ_muldata D;
+  T = FpX_get_red(T, p);
+  S = FpXQX_get_red(S, T, p);
   D.S=S; D.T=T; D.p=p;
   return gen_bkeval_powers(P, degpol(P), V, (void*)&D, &FpXQXQ_algebra,
                                                    _FpXQXQ_cmul);
@@ -1111,10 +1144,12 @@ GEN
 FpXQX_FpXQXQ_eval(GEN Q, GEN x, GEN S, GEN T, GEN p)
 {
   FpXQXQ_muldata D;
-  int use_sqr = (degpol(x)<<1) >= degpol(S);
+  int use_sqr = (degpol(x)<<1) >= get_FpXQX_degree(S);
+  T = FpX_get_red(T, p);
+  S = FpXQX_get_red(S, T, p);
   D.S=S; D.T=T; D.p=p;
   return gen_bkeval(Q, degpol(Q), x, use_sqr, (void*)&D, &FpXQXQ_algebra,
-                                                    _FpXQXQ_cmul);
+      _FpXQXQ_cmul);
 }
 
 static GEN
@@ -1150,6 +1185,8 @@ GEN
 FpXQXQV_autpow(GEN aut, long n, GEN S, GEN T, GEN p)
 {
   FpXQXQ_muldata D;
+  T = FpX_get_red(T, p);
+  S = FpXQX_get_red(S, T, p);
   D.S=S; D.T=T; D.p=p;
   return gen_powu(aut,n,&D,FpXQXQ_autpow_sqr,FpXQXQ_autpow_mul);
 }
@@ -1166,7 +1203,7 @@ FpXQXQ_autsum_mul(void *E, GEN x, GEN y)
   GEN phi3 = FpX_FpXQV_eval(phi1, V2, T, p);
   GEN Sphi = FpXY_FpXQV_evalx(S1, V2, T, p);
   GEN aphi = FpXY_FpXQV_evalx(a1, V2, T, p);
-  long n = brent_kung_optpow(degpol(D->S)-1,2,1);
+  long n = brent_kung_optpow(maxss(degpol(Sphi),degpol(aphi)),2,1);
   GEN V = FpXQXQ_powers(S2, n, D->S, T, p);
   GEN S3 = FpXQX_FpXQXQV_eval(Sphi, V, D->S, T, p);
   GEN aS = FpXQX_FpXQXQV_eval(aphi, V, D->S, T, p);
@@ -1182,6 +1219,8 @@ GEN
 FpXQXQV_autsum(GEN aut, long n, GEN S, GEN T, GEN p)
 {
   FpXQXQ_muldata D;
+  T = FpX_get_red(T, p);
+  S = FpXQX_get_red(S, T, p);
   D.S=S; D.T=T; D.p=p;
   return gen_powu(aut,n,&D,FpXQXQ_autsum_sqr,FpXQXQ_autsum_mul);
 }

@@ -2137,6 +2137,9 @@ INLINE GEN
 FqX_div(GEN x, GEN y, GEN T, GEN p)
 { return T? FpXQX_divrem(x,y,T,p,NULL): FpX_divrem(x,y,p,NULL); }
 INLINE GEN
+FqX_get_red(GEN S, GEN T, GEN p)
+{ return T? FpXQX_get_red(S,T,p): FpX_get_red(S,p); }
+INLINE GEN
 FqX_rem(GEN x, GEN y, GEN T, GEN p)
 { return T? FpXQX_rem(x,y,T,p): FpX_rem(x,y,p); }
 INLINE GEN

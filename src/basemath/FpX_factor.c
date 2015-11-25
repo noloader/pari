@@ -2670,10 +2670,13 @@ FpXQXQ_halfFrobenius(GEN a, GEN S, GEN T, GEN p)
   }
   else
   {
-    GEN xp = FpX_Frobenius(T, p);
-    GEN Xp = FpXQXQ_pow(pol_x(varn(S)), p, S, T, p);
-    GEN ap2 = FpXQXQ_pow(a,shifti(p,-1), S, T, p);
-    GEN V = FpXQXQV_autsum(mkvec3(xp,Xp,ap2), get_FpX_degree(T), S, T, p);
+    GEN xp, Xp, ap2, V;
+    T = FpX_get_red(T, p);
+    S = FpXQX_get_red(S, T, p);
+    xp = FpX_Frobenius(T, p);
+    Xp = FpXQXQ_pow(pol_x(get_FpXQX_var(S)), p, S, T, p);
+    ap2 = FpXQXQ_pow(a,shifti(p,-1), S, T, p);
+    V = FpXQXQV_autsum(mkvec3(xp,Xp,ap2), get_FpX_degree(T), S, T, p);
     return gel(V,3);
   }
 }
