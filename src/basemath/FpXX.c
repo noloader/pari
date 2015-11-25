@@ -157,6 +157,17 @@ FpXX_mulu(GEN P, ulong u, GEN p)
 /*                             (Fp[X]/(Q))[Y]                      */
 /*                                                                 */
 /*******************************************************************/
+
+GEN
+random_FpXQX(long d1, long v, GEN T, GEN p)
+{
+  long dT = get_FpX_degree(T), vT = get_FpX_var(T);
+  long i, d = d1+2;
+  GEN y = cgetg(d,t_POL); y[1] = evalsigne(1) | evalvarn(v);
+  for (i=2; i<d; i++) gel(y,i) = random_FpX(dT, vT, p);
+  return FpXQX_renormalize(y,d);
+}
+
 /*Not stack clean*/
 GEN
 Kronecker_to_FpXQX(GEN Z, GEN T, GEN p)

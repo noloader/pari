@@ -648,6 +648,7 @@ GEN     Kronecker_to_FpXQX(GEN z, GEN pol, GEN p);
 GEN     Kronecker_to_ZXX(GEN z, long N, long v);
 GEN     ZXX_mul_Kronecker(GEN x, GEN y, long n);
 GEN     ZXX_sqr_Kronecker(GEN x, long n);
+GEN     random_FpXQX(long d1, long v, GEN T, GEN p);
 
 /* FpV.c */
 

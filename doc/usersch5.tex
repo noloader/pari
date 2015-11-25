@@ -4667,6 +4667,9 @@ element of $\F_q[X][Y]$. Returns the \kbd{Fq} $Q(x,y)$.
 \fun{GEN}{FqXY_evalx}{GEN Q, GEN x, GEN T, GEN p} $Q$ being an \kbd{FqXY},
 returns the \kbd{FqX} $Q(x,Y)$, where $Y$ is the main variable of $Q$.
 
+\fun{GEN}{random_FpXQX}{long d, long v, GEN T, GEN p} returns a random
+\kbd{FpXQ} in variable \kbd{v}, of degree less than~\kbd{d}.
+
 \fun{GEN}{FpXQX_renormalize}{GEN x, long lx}
 
 \fun{GEN}{FpXQX_red}{GEN z, GEN T, GEN p} \kbd{z} a \typ{POL} whose
