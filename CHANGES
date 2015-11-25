@@ -494,4 +494,4 @@ BA 7- divide_conquer_prod: use gen_product instead
         lfun(L, s)
       as an analog to zetak(). Or directly lfun(x^2+1, s) if a single value
       is needed. [#368, #1647]
-BA10- [libpari] FpXQX_rem_Barrett: use FpXQX_get_red
+BA10- [libpari] FpXQX_rem_Barrett, FpXQX_divrem_Barrett: use FpXQX_get_red

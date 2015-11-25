@@ -718,17 +718,6 @@ FpXQX_divrem_Barrett_noGC(GEN x, GEN mg, GEN S, GEN T, GEN p, GEN *pr)
 }
 
 GEN
-FpXQX_divrem_Barrett(GEN x, GEN B, GEN S, GEN T, GEN p, GEN *pr)
-{
-  pari_sp av = avma;
-  GEN q = FpXQX_divrem_Barrett_noGC(x,B,S,T,p,pr);
-  if (!q) {avma=av; return NULL;}
-  if (!pr || pr==ONLY_REM || pr==ONLY_DIVIDES) return gerepilecopy(av, q);
-  gerepileall(av,2,&q,pr);
-  return q;
-}
-
-GEN
 FpXQX_divrem(GEN x, GEN S, GEN T, GEN p, GEN *pr)
 {
   GEN B, y = get_FpXQX_red(S, &B);

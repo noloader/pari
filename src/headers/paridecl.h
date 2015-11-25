@@ -608,7 +608,6 @@ GEN     FpXQX_FpXQXQV_eval(GEN P, GEN V, GEN S, GEN T, GEN p);
 GEN     FpXQX_FpXQXQ_eval(GEN P, GEN x, GEN S, GEN T, GEN p);
 GEN     FpXQX_div_by_X_x(GEN a, GEN x, GEN T, GEN p, GEN *pr);
 GEN     FpXQX_divrem(GEN x, GEN y, GEN T, GEN p, GEN *pr);
-GEN     FpXQX_divrem_Barrett(GEN x, GEN B, GEN S, GEN T, GEN p, GEN *pr);
 GEN     FpXQX_digits(GEN x, GEN B, GEN T, GEN p);
 GEN     FpXQX_extgcd(GEN x, GEN y, GEN T, GEN p, GEN *ptu, GEN *ptv);
 GEN     FpXQX_fromdigits(GEN x, GEN B, GEN T, GEN p);
