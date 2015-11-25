@@ -488,7 +488,7 @@ find_eigen_value(GEN a4, GEN a6, ulong ell, GEN h, GEN T, GEN p, GEN tr)
     init_eigenu(&Edat, Fq_to_Flx(a4, T, pp), Fq_to_Flx(a6, T, pp),
                        ZXX_to_FlxX(h,pp, get_FpX_var(T)), ZXT_to_FlxT(T,pp), pp);
   else
-    init_eigen(&Edat, a4, a6, h, T, p);
+    init_eigen(&Edat, a4, a6, FqX_get_red(h, T, p), T, p);
   Dr = BP = Edat.O;
   /*[Gx,Gy], BP, Dr are not points on the curve. */
   /*To obtain the corresponding points, multiply the y-coordinates by Y */
