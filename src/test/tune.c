@@ -39,7 +39,7 @@ typedef struct {
   long *var, *var_disable, *var_enable, var_enable_min,  size, enabled;
   GEN x, y;
   ulong l;
-  GEN p;
+  GEN T, p;
 } speed_param;
 
 typedef double (*speed_function_t)(speed_param *s);
@@ -106,6 +106,13 @@ rand_Flx(long n, ulong l)
   return x;
 }
 
+static GEN
+rand_FpXQX(long n, GEN T)
+{
+  GEN x;
+  do x = random_FpXQX(n+1, 0, T, LARGE_mod); while (degpol(x) < n);
+  return x;
+}
 /* normalized Fpx, degree n */
 static GEN
 rand_NFpX(long n)
@@ -124,6 +131,14 @@ rand_NFlx(long n, ulong l)
   return gerepileuptoleaf(av, x);
 }
 
+/* normalized Fpx, degree n */
+static GEN
+rand_NFpXQX(long n, GEN T)
+{
+  pari_sp av = avma;
+  GEN x = gadd(monomial(gen_1,n,0), random_FpXQX(n, 0, T, LARGE_mod));
+  return gerepileupto(av, x);
+}
 #define t_Fhx   100
 #define t_Flx   101
 #define t_Fl1x  102
@@ -134,11 +149,14 @@ rand_NFlx(long n, ulong l)
 #define t_NFl2x 113
 #define t_FpX   200
 #define t_NFpX  210
+#define t_FpXQX   300
+#define t_NFpXQX  310
 
 static GEN
-rand_g(long n, long type)
+rand_g(speed_param *s)
 {
-  switch (type) {
+  long n = s->size;
+  switch (s->type) {
     case t_INT:  return rand_INT(n);
     case t_REAL: return rand_REAL(n);
     case t_Fhx:  return rand_Flx(n,DFLT_hmod);
@@ -150,9 +168,19 @@ rand_g(long n, long type)
     case t_NFl1x: return rand_NFlx(n,DFLT_mod1);
     case t_NFl2x: return rand_NFlx(n,DFLT_mod2);
     case t_FpX:  return rand_FpX(n);
+    case t_FpXQX: return rand_FpXQX(n, s->T);
     case t_NFpX: return rand_NFpX(n);
+    case t_NFpXQX: return rand_NFpXQX(n, s->T);
   }
   return NULL;
+}
+
+static void
+dftpolmod(speed_param *s)
+{
+  s->T = rand_NFpX(10);
+  setvarn(s->T, 1);
+  s->T = FpX_get_red(s->T, s->p);
 }
 
 static void
@@ -168,7 +196,9 @@ dftmod(speed_param *s)
     case t_NFl1x: s->l=DFLT_mod1;  return;
     case t_NFl2x: s->l=DFLT_mod2;  return;
     case t_FpX:  s->p=LARGE_mod; return;
+    case t_FpXQX: s->p=LARGE_mod; dftpolmod(s); return;
     case t_NFpX: s->p=LARGE_mod; return;
+    case t_NFpXQX: s->p=LARGE_mod; dftpolmod(s); return;
   }
 }
 
@@ -302,6 +332,27 @@ static double speed_FpX_gcd(speed_param *s)
 static double speed_FpX_extgcd(speed_param *s)
 { GEN u,v; TIME_FUN(FpX_extgcd(s->x, s->y, s->p, &u, &v)); }
 
+static double speed_FpXQX_inv(speed_param *s)
+{ TIME_FUN(FpXQX_invBarrett(s->x, s->T, s->p)); }
+
+static double speed_FpXQX_divrem(speed_param *s)
+{
+  GEN r, x = rand_NFpXQX((degpol(s->x)-1)*2, s->T);
+  TIME_FUN(FpXQX_divrem(x, s->x, s->T, s->p, &r));
+}
+
+static double speed_FpXQX_rem(speed_param *s)
+{
+  GEN x = rand_NFpXQX((degpol(s->x)-1)*2, s->T);
+  TIME_FUN(FpXQX_rem(x, s->x, s->T, s->p));
+}
+
+static double speed_FpXQXQ_red(speed_param *s) {
+  GEN x = rand_NFpXQX((degpol(s->x)-1)*2, s->T);
+  GEN q = FpXQX_get_red(s->x, s->T, s->p);
+  TIME_FUN(FpXQX_rem(x, q, s->T, s->p));
+}
+
 /* small coeffs: earlier thresholds for more complicated rings */
 static double speed_RgX_sqr(speed_param *s)
 { TIME_FUN(RgX_sqr(s->x)); }
@@ -376,6 +427,10 @@ static tune_param param[] = {
 {0,  var(FpX_HALFGCD_LIMIT),       t_FpX,10,0, speed_FpX_halfgcd},
 {0,  var(FpX_GCD_LIMIT),           t_FpX,10,0, speed_FpX_gcd,0.1},
 {0,  var(FpX_EXTGCD_LIMIT),        t_FpX,10,0, speed_FpX_extgcd},
+{0,  var(FpXQX_BARRETT_LIMIT),   t_NFpXQX,10,0, speed_FpXQXQ_red,0.05},
+{0,  var(FpXQX_INVBARRETT_LIMIT),t_NFpXQX,10,0, speed_FpXQX_inv,0.05},
+{0,  var(FpXQX_DIVREM_BARRETT_LIMIT), t_NFpXQX,10,0, speed_FpXQX_divrem,0.05},
+{0,  var(FpXQX_REM_BARRETT_LIMIT), t_NFpXQX,10,0, speed_FpXQX_rem,0.05},
 {0,  var(RgX_MUL_LIMIT),           t_FpX, 4,0, speed_RgX_mul},
 {0,  var(RgX_SQR_LIMIT),           t_FpX, 4,0, speed_RgX_sqr},
 };
@@ -502,6 +557,7 @@ Test(tune_param *param)
   speed_param s;
   long save_var_disable = -1;
   pari_timer T;
+  pari_sp av=avma;
 
   if (param->kernel == AVOID) { print_define(param->name, -1); return; }
 
@@ -534,8 +590,8 @@ Test(tune_param *param)
   {
     pari_sp av=avma;
     double t1, t2, d;
-    s.x = rand_g(s.size, s.type);
-    s.y = rand_g(s.size, s.type);
+    s.x = rand_g(&s);
+    s.y = rand_g(&s);
     t1 = time_fun(param->fun, &s, 0);
     t2 = time_fun(param->fun, &s, 1);
     avma = av;
@@ -593,6 +649,7 @@ Test(tune_param *param)
   *(param->var) = thresh; /* set to optimal value for next tests */
   if (param->var_disable) *(param->var_disable) = save_var_disable;
   if (param->var_enable) *(param->var_enable) = s.var_enable_min;
+  avma = av;
 }
 
 void error(char **argv) {

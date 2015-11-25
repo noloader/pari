@@ -26,6 +26,10 @@
 #define __Flx_SQR_KARATSUBA_LIMIT        330
 #define __Flx_SQR_SQRI2_LIMIT            8
 #define __Flx_SQR_SQRI_LIMIT             5
+#define __FpXQX_BARRETT_LIMIT            12
+#define __FpXQX_DIVREM_BARRETT_LIMIT     30
+#define __FpXQX_INVBARRETT_LIMIT         40
+#define __FpXQX_REM_BARRETT_LIMIT        30
 #define __FpX_BARRETT_LIMIT              85
 #define __FpX_DIVREM_BARRETT_LIMIT       292
 #define __FpX_EXTGCD_LIMIT               117
@@ -74,6 +78,10 @@
 #define __Flx_SQR_KARATSUBA_LIMIT        159
 #define __Flx_SQR_SQRI2_LIMIT            4139
 #define __Flx_SQR_SQRI_LIMIT             1276
+#define __FpXQX_BARRETT_LIMIT            12
+#define __FpXQX_DIVREM_BARRETT_LIMIT     30
+#define __FpXQX_INVBARRETT_LIMIT         40
+#define __FpXQX_REM_BARRETT_LIMIT        30
 #define __FpX_BARRETT_LIMIT              144
 #define __FpX_DIVREM_BARRETT_LIMIT       306
 #define __FpX_EXTGCD_LIMIT               238
