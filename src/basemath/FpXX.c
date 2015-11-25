@@ -717,13 +717,6 @@ FpXQX_divrem(GEN x, GEN y, GEN T, GEN p, GEN *pr)
 }
 
 GEN
-FpXQX_rem_Barrett(GEN x, GEN mg, GEN S, GEN T, GEN p)
-{
-  pari_sp av = avma;
-  return gerepileupto(av, FpXQX_divrem_Barrett_noGC(x,mg,S, T, p, ONLY_REM));
-}
-
-GEN
 FpXQX_rem(GEN x, GEN y, GEN T, GEN p)
 {
   long dy = degpol(y), dx = degpol(x), d = dx-dy;
