@@ -4727,7 +4727,7 @@ modulo $T$.  A \kbd{FqXQ} is identical except that $T$ is allowed to be
 
 For faster reduction, the modulus \kbd{S} can be replaced by an extended
 modulus, which is an \kbd{FpXQXT}, in all \kbd{FpXQXQ}- and \kbd{FqXQ}-classes
-functions, and in \kbd{FpX\_rem} and \kbd{FpX\_divrem}.
+functions, and in \kbd{FpXQX\_rem} and \kbd{FpXQX\_divrem}.
 
 \fun{GEN}{FpXQX_get_red}{GEN S, GEN T, GEN p} returns the extended modulus
 \kbd{eS}.
@@ -5312,6 +5312,26 @@ in the main variable of \kbd{b}.
 
 \subsec{\kbd{FlxqX}} See \kbd{FpXQX} operations.
 
+\subsubsec{Preconditioned reduction}
+
+For faster reduction, the modulus \kbd{S} can be replaced by an extended
+modulus, which is an \kbd{FlxqXT}, in all \kbd{FlxqXQ}-classes
+functions, and in \kbd{FlxqX\_rem} and \kbd{FlxqX\_divrem}.
+
+\fun{GEN}{FlxqX_get_red}{GEN S, GEN T, ulong p} returns the extended modulus
+\kbd{eS}.
+
+To write code that works both with plain and extended moduli, the following
+accessors are defined:
+
+\fun{GEN}{get_FlxqX_mod}{GEN eS} returns the underlying modulus \kbd{S}.
+
+\fun{GEN}{get_FlxqX_var}{GEN eS} returns the variable number of the modulus.
+
+\fun{GEN}{get_FlxqX_degree}{GEN eS} returns the degree of the modulus.
+
+\subsubsec{basic functions}
+
 \fun{GEN}{random_FlxqX}{long d, long v, GEN T, ulong p} returns a random
 \kbd{FlxqX} in variable \kbd{v}, of degree less than~\kbd{d}.
 
@@ -5350,8 +5370,6 @@ particular $U\neq 0$).
 \fun{GEN}{FlxqX_rem}{GEN x, GEN y, GEN T, ulong p}
 
 \fun{GEN}{FlxqX_invBarrett}{GEN T, GEN Q, ulong p}
-
-\fun{GEN}{FlxqX_rem_Barrett}{GEN x, GEN mg, GEN T, GEN Q, ulong p}
 
 \fun{GEN}{FlxqX_gcd}{GEN x, GEN y, ulong p} returns a (not necessarily monic)
 greatest common divisor of $x$  and $y$.

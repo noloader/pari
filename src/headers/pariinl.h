@@ -2102,8 +2102,6 @@ gener_Fq_local(GEN T, GEN p, GEN L)
 INLINE GEN
 FpXQX_div(GEN x, GEN y, GEN T, GEN p) { return FpXQX_divrem(x, y, T, p, NULL); }
 INLINE GEN
-FlxqX_rem(GEN x, GEN y, GEN T, ulong p) { return FlxqX_divrem(x, y, T, p, ONLY_REM); }
-INLINE GEN
 FlxqX_div(GEN x, GEN y, GEN T, ulong p) { return FlxqX_divrem(x, y, T, p, NULL); }
 
 /* FqX */

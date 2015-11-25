@@ -3786,6 +3786,22 @@ FlxX_recipspec(GEN x, long l, long n, long vs)
 /**                                                                   **/
 /***********************************************************************/
 
+static GEN
+get_FlxqX_red(GEN T, GEN *B)
+{
+  if (typ(T)!=t_VEC) { *B=NULL; return T; }
+  *B = gel(T,1); return gel(T,2);
+}
+
+GEN
+get_FlxqX_mod(GEN T) { return typ(T)==t_VEC? gel(T,2): T; }
+
+long
+get_FlxqX_var(GEN T) { return typ(T)==t_VEC? varn(gel(T,2)): varn(T); }
+
+long
+get_FlxqX_degree(GEN T) { return typ(T)==t_VEC? degpol(gel(T,2)): degpol(T); }
+
 
 /* FlxqX are t_POL with Flxq coefficients.
  * Normally the variable ordering should be respected.*/
@@ -3898,8 +3914,8 @@ FlxqX_normalize(GEN z, GEN T, ulong p)
 }
 
 /* x and y in Z[Y][X]. Assume T irreducible mod p */
-GEN
-FlxqX_divrem(GEN x, GEN y, GEN T, ulong p, GEN *pr)
+static GEN
+FlxqX_divrem_basecase(GEN x, GEN y, GEN T, ulong p, GEN *pr)
 {
   long vx, dx, dy, dz, i, j, sx, lr;
   pari_sp av0, av, tetpil;
@@ -3912,11 +3928,7 @@ FlxqX_divrem(GEN x, GEN y, GEN T, ulong p, GEN *pr)
     if (pr)
     {
       av0 = avma; x = FlxqX_red(x, T, p);
-      if (pr == ONLY_DIVIDES)
-      {
-        avma=av0;
-        return signe(x)? NULL: pol_0(vx);
-      }
+      if (pr == ONLY_DIVIDES) { avma=av0; return signe(x)? NULL: pol_0(vx); }
       if (pr == ONLY_REM) return x;
       *pr = x;
     }
@@ -3931,8 +3943,8 @@ FlxqX_divrem(GEN x, GEN y, GEN T, ulong p, GEN *pr)
       *pr = pol_0(vx);
     }
     if (Flx_equal1(lead)) return gcopy(x);
-    av0 = avma;
-    return gerepileupto(av0,FlxqX_Flxq_mul(x,Flxq_inv(lead,T,p),T,p));
+    av0 = avma; x = FlxqX_Flxq_mul(x,Flxq_inv(lead,T,p),T,p);
+    return gerepileupto(av0,x);
   }
   av0 = avma; dz = dx-dy;
   lead = Flx_equal1(lead)? NULL: gclone(Flxq_inv(lead,T,p));
@@ -4074,6 +4086,9 @@ FlxqX_invBarrett_Newton(GEN S, GEN T, ulong p)
 }
 
 static const long FlxqX_INVBARRETT_LIMIT = 5;
+static const long FlxqX_BARRETT_LIMIT = 5;
+static const long FlxqX_REM_BARRETT_LIMIT = 5;
+static const long FlxqX_DIVREM_BARRETT_LIMIT = 5;
 
 /* x/polrecip(P)+O(x^n) */
 GEN
@@ -4100,27 +4115,133 @@ FlxqX_invBarrett(GEN T, GEN Q, ulong p)
 }
 
 GEN
-FlxqX_rem_Barrett(GEN x, GEN mg, GEN T, GEN Q, ulong p)
+FlxqX_get_red(GEN S, GEN T, ulong p)
 {
-  pari_sp ltop=avma;
-  GEN z;
-  long vs = get_Flx_var(Q);
-  long l=lgpol(x);
-  long lt=degpol(T); /*We discard the leading term*/
+  if (typ(S)==t_POL && lg(S)>FlxqX_BARRETT_LIMIT)
+    retmkvec2(FlxqX_invBarrett(S, T, p), S);
+  return S;
+}
+
+/* Compute x mod S where 2 <= degpol(S) <= l+1 <= 2*(degpol(S)-1)
+ *  * and mg is the Barrett inverse of S. */
+static GEN
+FlxqX_divrem_Barrettspec(GEN x, long l, GEN mg, GEN S, GEN T, ulong p, GEN *pr)
+{
+  GEN q, r;
+  long lt = degpol(S); /*We discard the leading term*/
   long ld, lm, lT, lmg;
-  if (l<=lt)
-    return gcopy(x);
   ld = l-lt;
   lm = minss(ld, lgpol(mg));
-  lT  = FlxX_lgrenormalizespec(T+2,lt);
+  lT  = FlxX_lgrenormalizespec(S+2,lt);
   lmg = FlxX_lgrenormalizespec(mg+2,lm);
-  z = FlxX_recipspec(x+2+lt,ld,ld,vs);         /* z = rec(x)       lz<=ld*/
-  z = FlxqX_mulspec(z+2,mg+2,Q,p,lgpol(z),lmg); /* z = rec(x) * mg lz<=ld+lm*/
-  z = FlxX_recipspec(z+2,minss(ld,lgpol(z)),ld,vs);/*z= rec(rec(x)*mg) lz<=ld*/
-  z = FlxqX_mulspec(z+2,T+2,Q,p,lgpol(z),lT);    /* z*= pol        lz<=ld+lt*/
-  z = FlxX_subspec(x+2,z+2,p,lt,minss(lt,lgpol(z)));/*z = x - z    lz<=lt */
-  setvarn(z,varn(x));
-  return gerepileupto(ltop,z);
+  q = FlxX_recipspec(x+lt,ld,ld,0);               /* q = rec(x)     lq<=ld*/
+  q = FlxqX_mulspec(q+2,mg+2,T,p,lgpol(q),lmg);   /* q = rec(x) * mg lq<=ld+lm*/
+  q = FlxX_recipspec(q+2,minss(ld,lgpol(q)),ld,0);/* q = rec (rec(x) * mg) lq<=ld*/
+  if (!pr) return q;
+  r = FlxqX_mulspec(q+2,S+2,T,p,lgpol(q),lT);     /* r = q*pol        lr<=ld+lt*/
+  r = FlxX_subspec(x,r+2,p,lt,minss(lt,lgpol(r)));/* r = x - r   lr<=lt */
+  if (pr == ONLY_REM) return r;
+  *pr = r; return q;
+}
+
+static GEN
+FlxqX_divrem_Barrett_noGC(GEN x, GEN mg, GEN S, GEN T, ulong p, GEN *pr)
+{
+  long l = lgpol(x), lt = degpol(S), lm = 2*lt-1;
+  GEN q = NULL, r;
+  long i;
+  if (l <= lt)
+  {
+    if (pr == ONLY_REM) return RgX_copy(x);
+    if (pr == ONLY_DIVIDES) return signe(x)? NULL: pol_0(varn(x));
+    if (pr) *pr =  RgX_copy(x);
+    return pol_0(varn(x));
+  }
+  if (lt <= 1)
+    return FlxqX_divrem_basecase(x,S,T,p,pr);
+  if (pr != ONLY_REM && l>lm)
+  {
+    q = cgetg(l-lt+2, t_POL);
+    for (i=0;i<l-lt;i++) gel(q+2,i) = gen_0;
+  }
+  r = l>lm ? shallowcopy(x): x;
+  while (l>lm)
+  {
+    GEN zr, zq = FlxqX_divrem_Barrettspec(r+2+l-lm,lm,mg,S,T,p,&zr);
+    long lz = lgpol(zr);
+    if (pr != ONLY_REM)
+    {
+      long lq = lgpol(zq);
+      for(i=0; i<lq; i++) gel(q+2+l-lm,i) = gel(zq,2+i);
+    }
+    for(i=0; i<lz; i++) gel(r+2+l-lm,i) = gel(zr,2+i);
+    l = l-lm+lz;
+  }
+  if (pr != ONLY_REM)
+  {
+    if (l > lt)
+    {
+      GEN zq = FlxqX_divrem_Barrettspec(r+2,l,mg,S,T,p,&r);
+      if (!q) q = zq;
+      else
+      {
+        long lq = lgpol(zq);
+        for(i=0; i<lq; i++) gel(q+2,i) = gel(zq,2+i);
+      }
+    }
+    else
+    { setlg(r, l+2); r = RgX_copy(r); }
+  }
+  else
+  {
+    if (l > lt)
+      (void) FlxqX_divrem_Barrettspec(r+2,l,mg,S,T,p,&r);
+    else
+    { setlg(r, l+2); r = RgX_copy(r); }
+    r[1] = x[1]; return FlxX_renormalize(r, lg(r));
+  }
+  if (pr) { r[1] = x[1]; r = FlxX_renormalize(r, lg(r)); }
+  q[1] = x[1]; q = FlxX_renormalize(q, lg(q));
+  if (pr == ONLY_DIVIDES) return signe(r)? NULL: q;
+  if (pr) *pr = r;
+  return q;
+}
+
+GEN
+FlxqX_divrem(GEN x, GEN S, GEN T, ulong p, GEN *pr)
+{
+  GEN B, y = get_FlxqX_red(S, &B);
+  long dy = degpol(y), dx = degpol(x), d = dx-dy;
+  if (pr==ONLY_REM) return FlxqX_rem(x, y, T, p);
+  if (!B && d+3 < FlxqX_DIVREM_BARRETT_LIMIT)
+    return FlxqX_divrem_basecase(x,y,T,p,pr);
+  else
+  {
+    pari_sp av=avma;
+    GEN mg = B? B: FlxqX_invBarrett(y, T, p);
+    GEN q = FlxqX_divrem_Barrett_noGC(x,mg,y,T,p,pr);
+    if (!q) {avma=av; return NULL;}
+    if (!pr || pr==ONLY_DIVIDES) return gerepilecopy(av, q);
+    gerepileall(av,2,&q,pr);
+    return q;
+  }
+}
+
+GEN
+FlxqX_rem(GEN x, GEN S, GEN T, ulong p)
+{
+  GEN B, y = get_FlxqX_red(S, &B);
+  long dy = degpol(y), dx = degpol(x), d = dx-dy;
+  if (d < 0) return FlxqX_red(x, T, p);
+  if (!B && d+3 < FlxqX_REM_BARRETT_LIMIT)
+    return FlxqX_divrem_basecase(x,y, T, p, ONLY_REM);
+  else
+  {
+    pari_sp av=avma;
+    GEN mg = B? B: FlxqX_invBarrett(y, T, p);
+    GEN r = FlxqX_divrem_Barrett_noGC(x, mg, y, T, p, ONLY_REM);
+    return gerepileupto(av, r);
+  }
 }
 
 GEN
@@ -4495,24 +4616,8 @@ FlxqXQ_div(GEN x, GEN y, GEN S, GEN T, ulong p) {
   return FlxqXQ_mul(x, FlxqXQ_inv(y,S,T,p),S,T,p);
 }
 
-static GEN
-FlxqXQ_mul_mg(GEN x,GEN y,GEN mg, GEN S, GEN T,ulong p)
-{
-  GEN z = FlxqX_mul(x,y,T,p);
-  if (lg(S) > lg(z)) return z;
-  return FlxqX_rem_Barrett(z, mg, S, T, p);
-}
-
-static GEN
-FlxqXQ_sqr_mg(GEN y,GEN mg,GEN S, GEN T,ulong p)
-{
-  GEN z = FlxqX_sqr(y,T,p);
-  if (lg(S) > lg(z)) return z;
-  return FlxqX_rem_Barrett(z, mg, S, T, p);
-}
-
 typedef struct {
-  GEN T, S, mg;
+  GEN T, S;
   ulong p;
 } FlxqXQ_muldata;
 static GEN
@@ -4533,12 +4638,12 @@ _FlxqXQ_red(void *data, GEN x) {
 static GEN
 _FlxqXQ_mul(void *data, GEN x, GEN y) {
   FlxqXQ_muldata *d = (FlxqXQ_muldata*) data;
-  return FlxqXQ_mul_mg(x,y, d->mg, d->S,d->T, d->p);
+  return FlxqXQ_mul(x,y, d->S,d->T, d->p);
 }
 static GEN
 _FlxqXQ_sqr(void *data, GEN x) {
   FlxqXQ_muldata *d = (FlxqXQ_muldata*) data;
-  return FlxqXQ_sqr_mg(x, d->mg, d->S,d->T, d->p);
+  return FlxqXQ_sqr(x, d->S,d->T, d->p);
 }
 
 static GEN
@@ -4565,7 +4670,8 @@ FlxqXQ_pow(GEN x, GEN n, GEN S, GEN T, ulong p)
   if (s < 0) x = FlxqXQ_inv(x,S,T,p);
   if (is_pm1(n)) return s < 0 ? x : gcopy(x);
   if (degpol(x)>=degpol(S)) x = FlxqX_rem(x,S,T,p);
-  D.mg = FlxqX_invBarrett(S,T,p);
+  T = Flx_get_red(T, p);
+  S = FlxqX_get_red(S, T, p);
   D.S = S;
   D.T = T;
   D.p = p;
@@ -4579,7 +4685,8 @@ FlxqXQ_powers(GEN x, long l, GEN S, GEN T, ulong p)
   int use_sqr;
   if (degpol(x)>=degpol(S)) x = FlxqX_rem(x,S,T,p);
   use_sqr = (degpol(x)<<1)>=degpol(S);
-  D.mg = FlxqX_invBarrett(S,T,p);
+  T = Flx_get_red(T, p);
+  S = FlxqX_get_red(S, T, p);
   D.S = S; D.T = T; D.p = p;
   return gen_powers(x, l, use_sqr, (void*)&D, &_FlxqXQ_sqr, &_FlxqXQ_mul,&_FlxqXQ_one);
 }
@@ -4594,7 +4701,8 @@ GEN
 FlxqX_FlxqXQV_eval(GEN P, GEN V, GEN S, GEN T, ulong p)
 {
   FlxqXQ_muldata D;
-  D.mg = FlxqX_invBarrett(S,T,p);
+  T = Flx_get_red(T, p);
+  S = FlxqX_get_red(S, T, p);
   D.S=S; D.T=T; D.p=p;
   return gen_bkeval_powers(P, degpol(P), V, (void*)&D, &FlxqXQ_algebra,
                                                    _FlxqXQ_cmul);
@@ -4605,7 +4713,8 @@ FlxqX_FlxqXQ_eval(GEN Q, GEN x, GEN S, GEN T, ulong p)
 {
   FlxqXQ_muldata D;
   int use_sqr = (degpol(x)<<1) >= degpol(S);
-  D.mg = FlxqX_invBarrett(S,T,p);
+  T = Flx_get_red(T, p);
+  S = FlxqX_get_red(S, T, p);
   D.S=S; D.T=T; D.p=p;
   return gen_bkeval(Q, degpol(Q), x, use_sqr, (void*)&D, &FlxqXQ_algebra,
                                                     _FlxqXQ_cmul);
@@ -4646,6 +4755,8 @@ GEN
 FlxqXQV_autpow(GEN aut, long n, GEN S, GEN T, ulong p)
 {
   FlxqXQ_muldata D;
+  T = Flx_get_red(T, p);
+  S = FlxqX_get_red(S, T, p);
   D.S=S; D.T=T; D.p=p;
   return gen_powu(aut,n,&D,FlxqXQ_autpow_sqr,FlxqXQ_autpow_mul);
 }
@@ -4680,6 +4791,8 @@ GEN
 FlxqXQV_autsum(GEN aut, long n, GEN S, GEN T, ulong p)
 {
   FlxqXQ_muldata D;
+  T = Flx_get_red(T, p);
+  S = FlxqX_get_red(S, T, p);
   D.S=S; D.T=T; D.p=p;
   return gen_powu(aut,n,&D,FlxqXQ_autsum_sqr,FlxqXQ_autsum_mul);
 }
