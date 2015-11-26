@@ -352,7 +352,6 @@ FpXQX_divrem_basecase(GEN x, GEN y, GEN T, GEN p, GEN *pr)
   pari_sp av0, av, tetpil;
   GEN z,p1,rem,lead;
 
-  if (!T) return FpX_divrem(x,y,p,pr);
   if (!signe(y)) pari_err_INV("FpX_divrem",y);
   vx=varn(x); dy=degpol(y); dx=degpol(x);
   if (dx < dy)
