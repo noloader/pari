@@ -4668,7 +4668,7 @@ element of $\F_q[X][Y]$. Returns the \kbd{Fq} $Q(x,y)$.
 returns the \kbd{FqX} $Q(x,Y)$, where $Y$ is the main variable of $Q$.
 
 \fun{GEN}{random_FpXQX}{long d, long v, GEN T, GEN p} returns a random
-\kbd{FpXQ} in variable \kbd{v}, of degree less than~\kbd{d}.
+\kbd{FpXQX} in variable \kbd{v}, of degree less than~\kbd{d}.
 
 \fun{GEN}{FpXQX_renormalize}{GEN x, long lx}
 
@@ -5311,6 +5311,9 @@ in the main variable of \kbd{b}.
 \kbd{FpXYQQ\_pow}.
 
 \subsec{\kbd{FlxqX}} See \kbd{FpXQX} operations.
+
+\fun{GEN}{random_FlxqX}{long d, long v, GEN T, ulong p} returns a random
+\kbd{FlxqX} in variable \kbd{v}, of degree less than~\kbd{d}.
 
 \fun{GEN}{zxX_to_Kronecker}{GEN P, GEN Q} assuming $P(X,Y)$ is a polynomial
 of degree in $X$ strictly less than $n$, returns $P(X,X^{2*n-1})$, the

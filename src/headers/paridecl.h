@@ -383,6 +383,7 @@ GEN     monomial_Flx(ulong a, long d, long vs);
 GEN     pol1_FlxX(long v, long sv);
 GEN     polx_FlxX(long v, long sv);
 GEN     random_Flx(long d1, long v, ulong p);
+GEN     random_FlxqX(long d1, long v, GEN T, ulong p);
 GEN     zx_to_Flx(GEN x, ulong p);
 GEN     zxX_to_FlxX(GEN B, ulong p);
 GEN     zxX_to_Kronecker(GEN P, GEN Q);

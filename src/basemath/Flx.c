@@ -3776,6 +3776,16 @@ FlxX_recipspec(GEN x, long l, long n, long vs)
 /* FlxqX are t_POL with Flxq coefficients.
  * Normally the variable ordering should be respected.*/
 
+GEN
+random_FlxqX(long d1, long v, GEN T, ulong p)
+{
+  long dT = get_Flx_degree(T), vT = get_Flx_var(T);
+  long i, d = d1+2;
+  GEN y = cgetg(d,t_POL); y[1] = evalsigne(1) | evalvarn(v);
+  for (i=2; i<d; i++) gel(y,i) = random_Flx(dT, vT, p);
+  return FlxX_renormalize(y,d);
+}
+
 /*Not stack clean*/
 GEN
 Kronecker_to_FlxqX(GEN z, GEN T, ulong p)
