@@ -2642,7 +2642,7 @@ FlxqXQ_halfFrobenius(GEN a, GEN S, GEN T, ulong p)
 {
   long vT = get_Flx_var(T);
   GEN xp = Flx_Frobenius(T, p);
-  GEN Xp = FlxqXQ_pow(polx_FlxX(varn(S), vT), utoi(p), S, T, p);
+  GEN Xp = FlxqXQ_pow(polx_FlxX(get_FlxqX_var(S), vT), utoi(p), S, T, p);
   GEN ap2 = FlxqXQ_pow(a,utoi(p>>1), S, T, p);
   GEN V = FlxqXQV_autsum(mkvec3(xp, Xp, ap2), get_Flx_degree(T), S, T, p);
   return gel(V,3);
@@ -2655,7 +2655,7 @@ FpXQXQ_halfFrobenius(GEN a, GEN S, GEN T, GEN p)
   {
     ulong pp = p[2];
     long v = get_FpX_var(T);
-    GEN Tp = ZXT_to_FlxT(T,pp), Sp = ZXX_to_FlxX(S, pp, v);
+    GEN Tp = ZXT_to_FlxT(T,pp), Sp = ZXXT_to_FlxXT(S, pp, v);
     return FlxX_to_ZXX(FlxqXQ_halfFrobenius(ZXX_to_FlxX(a,pp,v),Sp,Tp,pp));
   }
   else
@@ -2676,7 +2676,7 @@ FlxqX_Frobenius(GEN S, GEN T, ulong p)
 {
   pari_sp av = avma;
   long n = get_Flx_degree(T), vT = get_Flx_var(T);
-  GEN X  = polx_FlxX(varn(S), vT);
+  GEN X  = polx_FlxX(get_FlxqX_var(S), vT);
   GEN xp = Flx_Frobenius(T, p);
   GEN Xp = FlxqXQ_pow(X, utoi(p), S, T, p);
   GEN Xq = gel(FlxqXQV_autpow(mkvec2(xp,Xp), n, S, T, p), 2);
@@ -2688,7 +2688,7 @@ FpXQX_Frobenius(GEN S, GEN T, GEN p)
 {
   pari_sp av = avma;
   long n = get_FpX_degree(T);
-  GEN X  = pol_x(varn(S));
+  GEN X  = pol_x(get_FpXQX_var(S));
   GEN xp = FpX_Frobenius(T, p);
   GEN Xp = FpXQXQ_pow(X, p, S, T, p);
   GEN Xq = gel(FpXQXQV_autpow(mkvec2(xp,Xp), n, S, T, p), 2);
@@ -2698,11 +2698,11 @@ FpXQX_Frobenius(GEN S, GEN T, GEN p)
 static GEN
 FqX_Frobenius_powers(GEN S, GEN T, GEN p)
 {
-  long N = degpol(S);
+  long N = get_FpXQX_degree(S);
   if (lgefint(p)==3)
   {
     ulong pp = p[2];
-    GEN Tp = ZXT_to_FlxT(T, pp), Sp = ZXX_to_FlxX(S, pp, get_FpX_var(T));
+    GEN Tp = ZXT_to_FlxT(T, pp), Sp = ZXXT_to_FlxXT(S, pp, get_FpX_var(T));
     GEN Xq = FlxqX_Frobenius(Sp, Tp, pp);
     return FlxqXQ_powers(Xq, N-1, Sp, Tp, pp);
   } else
@@ -2719,7 +2719,7 @@ FqX_Frobenius_eval(GEN x, GEN V, GEN S, GEN T, GEN p)
   {
     ulong pp = p[2];
     long v = get_FpX_var(T);
-    GEN Tp = ZXT_to_FlxT(T, pp), Sp = ZXX_to_FlxX(S, pp, v);
+    GEN Tp = ZXT_to_FlxT(T, pp), Sp = ZXXT_to_FlxXT(S, pp, v);
     GEN xp = ZXX_to_FlxX(x, pp, v);
     return FlxX_to_ZXX(FlxqX_FlxqXQV_eval(xp, V, Sp, Tp, pp));
   }
@@ -2779,32 +2779,32 @@ FlxqX_nbroots(GEN f, GEN T, ulong p)
 }
 
 GEN
-FlxqX_Berlekamp_ker(GEN u, GEN T, ulong p)
+FlxqX_Berlekamp_ker(GEN S, GEN T, ulong p)
 {
   pari_sp ltop=avma;
-  long j,N = degpol(u);
-  GEN Xq = FlxqX_Frobenius(u,T,p);
-  GEN Q  = FlxqXQ_matrix_pow(Xq,N,N,u,T,p);
+  long j, N = get_FlxqX_degree(S);
+  GEN Xq = FlxqX_Frobenius(S,T,p);
+  GEN Q  = FlxqXQ_matrix_pow(Xq,N,N,S,T,p);
   for (j=1; j<=N; j++)
     gcoeff(Q,j,j) = Flx_Fl_add(gcoeff(Q,j,j), p-1, p);
   return gerepileupto(ltop, FlxqM_ker(Q,T,p));
 }
 
 GEN
-FpXQX_Berlekamp_ker(GEN u, GEN T, GEN p)
+FpXQX_Berlekamp_ker(GEN S, GEN T, GEN p)
 {
   if (lgefint(p)==3)
   {
     ulong pp=p[2];
     long v = get_FpX_var(T);
-    GEN Tp = ZXT_to_FlxT(T,pp), Sp = ZXX_to_FlxX(u,pp,v);
+    GEN Tp = ZXT_to_FlxT(T,pp), Sp = ZXX_to_FlxX(S,pp,v);
     return FlxM_to_ZXM(FlxqX_Berlekamp_ker(Sp, Tp, pp));
   } else
   {
     pari_sp ltop=avma;
-    long j,N = degpol(u);
-    GEN Xq = FpXQX_Frobenius(u,T,p);
-    GEN Q  = FpXQXQ_matrix_pow(Xq,N,N,u,T,p);
+    long j,N = get_FpXQX_degree(S);
+    GEN Xq = FpXQX_Frobenius(S,T,p);
+    GEN Q  = FpXQXQ_matrix_pow(Xq,N,N,S,T,p);
     for (j=1; j<=N; j++)
       gcoeff(Q,j,j) = Fq_sub(gcoeff(Q,j,j), gen_1, T, p);
     return gerepileupto(ltop, FqM_ker(Q,T,p));

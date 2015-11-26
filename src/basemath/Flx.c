@@ -4595,7 +4595,7 @@ FlxqXQ_sqr(GEN x, GEN S, GEN T, ulong p) {
 GEN
 FlxqXQ_invsafe(GEN x, GEN S, GEN T, ulong p)
 {
-  GEN V, z = FlxqX_extgcd(S, x, T, p, NULL, &V);
+  GEN V, z = FlxqX_extgcd(get_FlxqX_mod(S), x, T, p, NULL, &V);
   if (degpol(z)) return NULL;
   z = Flxq_invsafe(gel(z,2),T,p);
   if (!z) return NULL;
@@ -4666,7 +4666,7 @@ FlxqXQ_pow(GEN x, GEN n, GEN S, GEN T, ulong p)
 {
   FlxqXQ_muldata D;
   long s = signe(n);
-  if (!s) return pol1_FlxX(varn(S),get_Flx_var(T));
+  if (!s) return pol1_FlxX(get_FlxqX_var(S),get_Flx_var(T));
   if (s < 0) x = FlxqXQ_inv(x,S,T,p);
   if (is_pm1(n)) return s < 0 ? x : gcopy(x);
   if (degpol(x)>=degpol(S)) x = FlxqX_rem(x,S,T,p);
@@ -4682,9 +4682,7 @@ GEN
 FlxqXQ_powers(GEN x, long l, GEN S, GEN T, ulong p)
 {
   FlxqXQ_muldata D;
-  int use_sqr;
-  if (degpol(x)>=degpol(S)) x = FlxqX_rem(x,S,T,p);
-  use_sqr = (degpol(x)<<1)>=degpol(S);
+  int use_sqr = (degpol(x)<<1) >= get_FlxqX_degree(S);
   T = Flx_get_red(T, p);
   S = FlxqX_get_red(S, T, p);
   D.S = S; D.T = T; D.p = p;
@@ -4774,7 +4772,7 @@ FlxqXQ_autsum_mul(void *E, GEN x, GEN y)
   GEN phi3 = Flx_FlxqV_eval(phi1, V2, T, p);
   GEN Sphi = FlxY_FlxqV_evalx(S1, V2, T, p);
   GEN aphi = FlxY_FlxqV_evalx(a1, V2, T, p);
-  long n = brent_kung_optpow(degpol(D->S)-1,2,1);
+  long n = brent_kung_optpow(maxss(degpol(Sphi),degpol(aphi)),2,1);
   GEN V = FlxqXQ_powers(S2, n, D->S, T, p);
   GEN S3 = FlxqX_FlxqXQV_eval(Sphi, V, D->S, T, p);
   GEN aS = FlxqX_FlxqXQV_eval(aphi, V, D->S, T, p);
