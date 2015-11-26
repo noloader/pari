@@ -485,8 +485,12 @@ find_eigen_value(GEN a4, GEN a6, ulong ell, GEN h, GEN T, GEN p, GEN tr)
   struct eigen_ellinit Edat;
   ulong pp = T ?itou_or_0(p): 0;
   if (pp)
+  {
+    GEN Tp = ZXT_to_FlxT(T, pp);
+    GEN hp  = ZXXT_to_FlxXT(h, pp, get_FpX_var(T));
     init_eigenu(&Edat, Fq_to_Flx(a4, T, pp), Fq_to_Flx(a6, T, pp),
-                       ZXX_to_FlxX(h,pp, get_FpX_var(T)), ZXT_to_FlxT(T,pp), pp);
+        FlxqX_get_red(hp, Tp, pp), Tp, pp);
+  }
   else
     init_eigen(&Edat, a4, a6, FqX_get_red(h, T, p), T, p);
   Dr = BP = Edat.O;
@@ -528,10 +532,14 @@ find_eigen_value_power(GEN a4, GEN a6, ulong ell, long k, GEN h, ulong lambda, G
   ulong t, ellk1 = upowuu(ell, k-1), ellk = ell*ellk1;
   ulong pp = T ?itou_or_0(p): 0;
   if (pp)
+  {
+    GEN Tp = ZXT_to_FlxT(T, pp);
+    GEN hp  = ZXXT_to_FlxXT(h, pp, get_FpX_var(T));
     init_eigenu(&Edat, Fq_to_Flx(a4, T, pp), Fq_to_Flx(a6, T, pp),
-        ZXX_to_FlxX(h, pp, get_FpX_var(T)), ZXT_to_FlxT(T,pp), pp);
+        FlxqX_get_red(hp, Tp, pp), Tp, pp);
+  }
   else
-    init_eigen(&Edat, a4, a6, h, T, p);
+    init_eigen(&Edat, a4, a6, FqX_get_red(h, T, p), T, p);
   BP = eigen_ellmulu(&Edat, Edat.O, ellk1);
   Dr = eigen_ellmulu(&Edat, Edat.O, lambda);
   Gy = Edat.Gy; nGy = Edat.nGy;
