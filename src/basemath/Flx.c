@@ -4085,11 +4085,6 @@ FlxqX_invBarrett_Newton(GEN S, GEN T, ulong p)
   return gerepilecopy(av, x);
 }
 
-static const long FlxqX_INVBARRETT_LIMIT = 5;
-static const long FlxqX_BARRETT_LIMIT = 5;
-static const long FlxqX_REM_BARRETT_LIMIT = 5;
-static const long FlxqX_DIVREM_BARRETT_LIMIT = 5;
-
 /* x/polrecip(P)+O(x^n) */
 GEN
 FlxqX_invBarrett(GEN T, GEN Q, ulong p)
