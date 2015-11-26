@@ -2073,16 +2073,6 @@ Flx_addmul_inplace(GEN gx, GEN gy, ulong c, ulong p)
     for (i=2; i<ly;  i++) x[i] = Fl_add(x[i], Fl_mul(c,y[i],p),p);
 }
 
-/* return a random polynomial in F_q[v], degree < d1 */
-GEN
-FqX_rand(long d1, long v, GEN T, GEN p)
-{
-  long i, d = d1+2, k = get_FpX_degree(T), w = get_FpX_var(T);
-  GEN y = cgetg(d,t_POL); y[1] = evalsigne(1) | evalvarn(v);
-  for (i=2; i<d; i++) gel(y,i) = random_FpX(k, w, p);
-  (void)normalizepol_lg(y,d); return y;
-}
-
 #define set_irred(i) { if ((i)>ir) swap(t[i],t[ir]); ir++;}
 /* assume x1 != 0 */
 static GEN
@@ -2896,7 +2886,7 @@ FqX_split(GEN *t, long d, GEN q, GEN S, GEN T, GEN p)
   av = avma; is2 = equaliu(p, 2);
   for(cnt = 1;;cnt++, avma = av)
   { /* splits *t with probability ~ 1 - 2^(1-r) */
-    w = w0 = FqX_rand(dt,v, T,p);
+    w = w0 = random_FpXQX(dt,v, T,p);
     if (degpol(w) <= 0) continue;
     for (l=1; l<d; l++) /* sum_{0<i<d} w^(q^i), result in (F_q)^r */
       w = RgX_add(w0, FqX_Frobenius_eval(w, S, u, T, p));
