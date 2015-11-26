@@ -3427,6 +3427,20 @@ ZXXV_to_FlxXV(GEN V, ulong p, long v)
 }
 
 GEN
+ZXXT_to_FlxXT(GEN z, ulong p, long v)
+{
+  if (typ(z) == t_POL)
+    return ZXX_to_FlxX(z, p, v);
+  else
+  {
+    long i,l = lg(z);
+    GEN x = cgetg(l, t_VEC);
+    for (i=1; i<l; i++) gel(x,i) = ZXXT_to_FlxXT(gel(z,i), p, v);
+    return x;
+  }
+}
+
+GEN
 FlxX_to_FlxC(GEN x, long N, long sv)
 {
   long i, l;

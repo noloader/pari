@@ -4744,8 +4744,8 @@ accessors are defined:
 
 \fun{GEN}{get_FpXQX_degree}{GEN eS} returns the degree of the modulus.
 
-%Furthermore, \kbd{ZXXT\_to\_FlxxT} allows to convert an extended modulus for
-%a \kbd{FpXQX} to an extended modulus for the corresponding \kbd{FlxqX}.
+Furthermore, \kbd{ZXXT\_to\_FlxXT} allows to convert an extended modulus for
+a \kbd{FpXQX} to an extended modulus for the corresponding \kbd{FlxqX}.
 
 \subsubsec{basic operations}
 
@@ -6088,6 +6088,9 @@ repeatedly called on the polynomial's coefficients.
 
 \fun{GEN}{ZXXV_to_FlxXV}{GEN V, ulong p, long v}, as \kbd{ZXX\_to\_FlxX},
 repeatedly called on the vector's coefficients.
+
+\fun{GEN}{ZXXT_to_FlxXT}{GEN V, ulong p, long v}, as \kbd{ZXX\_to\_FlxX},
+repeatedly called on the tree leaves.
 
 \fun{GEN}{RgC_to_Flc}{GEN x, ulong p} reduce the \typ{VEC}/\typ{COL}
 $x$ modulo $p$, yielding a \typ{VECSMALL}.
