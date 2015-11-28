@@ -20,7 +20,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #include "paripriv.h"
 
 static const long EXTRA_PREC = DEFAULTPREC-2;
-static const long EXTRA_BITS = 64;
 
 /* ComputeCoeff */
 typedef struct {
@@ -2503,6 +2502,7 @@ LABDOUB:
   }
   if (!polrel) /* FAILED */
   {
+    const long EXTRA_BITS = 64;
     long incr_pr;
     if (++cpt >= 3) pari_err_PREC( "stark (computation impossible)");
     /* estimate needed precision */
