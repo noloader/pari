@@ -710,7 +710,7 @@ ArtinNumber(GEN bnr, GEN LCHI, long check, long prec)
     s0 = z? powgi(z, FpV_dotproduct(vt, gel(vB,i), den)): gen_1;
     for (ic = 1; ic <= nChar; ic++)
     {
-      GEN n = gel(vN,ic), val = lC[ic]->val[ n[i] ];
+      GEN v = gel(vN,ic), val = lC[ic]->val[ v[i] ];
       gel(s,ic) = gadd(gel(s,ic), gmul(val, s0));
     }
 
