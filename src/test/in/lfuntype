@@ -24,7 +24,7 @@ lfunsymsq(ellinit([0,-1,1,-10,-20])),  \\ 11a1
 lfunmul(-4,-3),
 lfundiv(x^3-x-1,1),
 bnfinit(x^4+2*x^2+5),
-[bnrinit(bnfinit(x^3+x^2+2*x+1),4,1),[1]],
+[bnrinit(bnfinit(x^3+x^2+2*x+1),4),[1]],
 Z(2),
 lfunqf(matid(4)),
    if(1,my(N=nfinit(x^10-2*x^8-9*x^6+57*x^4-69*x^2+47),G=galoisinit(N));

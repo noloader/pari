@@ -913,13 +913,13 @@ structure (preferably at least a \var{bnf}).
 
 Given a finite order Hecke character $\chi: Cl_f(K)\to \C$, we let
 $$L(\chi, s) = \sum_{A \subset O_K} \chi(A)\, \left(N_{K/\Q}A\right)^{-s}.$$
-Only primitive characters are supported.
 
 Let $Cl_f(K) = \oplus (\Z/d_i\Z) g_i$ given by a \var{bnr} structure with
 generators: the $d_i$ are given by \kbd{K.cyc} and the $g_i$ by \kbd{K.gen}.
 A \tev{character} $\chi$ on the ray class group is given by a row vector
 $v = [a_1,\ldots,a_n]$ such that $\chi(\prod g_i^{n_i}) = \exp(2\pi i\sum
-a_i n_i / d_i)$. The pair $[\var{bnr}, v]$ encodes $\chi$.
+a_i n_i / d_i)$. The pair $[\var{bnr}, v]$ encodes the \emph{primitive}
+character associated to $\chi$.
 
 \bprog
 ? K  = bnfinit(x^2-60);

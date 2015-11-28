@@ -436,14 +436,15 @@ static GEN
 lfunchigen(GEN bnr, GEN CHI)
 {
   pari_sp av = avma;
-  GEN N, sig, Ldchi, nf, cyc, nchi, NN;
+  GEN v = bnrconductor_i(bnr, CHI, 2);
+  GEN N, sig, Ldchi, nf, nchi, NN;
   long r1, r2, n1;
   int real;
 
-  checkbnrgen(bnr);
+  bnr = gel(v,2);
+  CHI = gel(v,3);
+
   nf = bnr_get_nf(bnr);
-  cyc = bnr_get_cyc(bnr);
-  if (!char_check(cyc,CHI)) pari_err_TYPE("lfunchigen", CHI);
   N = bnr_get_mod(bnr);
   n1 = lg(vec01_to_indices(gel(N,2))) - 1; /* vecsum(N[2]) */
   N = gel(N,1);
@@ -452,7 +453,7 @@ lfunchigen(GEN bnr, GEN CHI)
   if (gequal0(CHI)) return gerepilecopy(av, lfunzetak_i(bnr));
   nf_get_sign(nf, &r1, &r2);
   sig = vec01(r1+r2-n1, r2+n1);
-  nchi = char_normalize(CHI, cyc_normalize(cyc));
+  nchi = char_normalize(CHI, cyc_normalize(bnr_get_cyc(bnr)));
   real = cmpiu(gel(nchi,1), 2) <= 0;
   Ldchi = mkvecn(6, tag(mkvec2(bnr, nchi), t_LFUN_CHIGEN),
                     real? gen_0: gen_1, sig, gen_1, NN, gen_0);
@@ -556,8 +557,7 @@ lfunabelianrelinit_bitprec(GEN nfabs, GEN bnf, GEN polrel, GEN dom, long der, lo
   res = cgetg(l, t_VEC);
   for (i = 1; i < l; ++i)
   {
-    GEN v = bnrconductor_i(bnr, gel(chi,i), 2);
-    GEN L = lfunchigen(gel(v,2), gel(v,3));
+    GEN L = lfunchigen(bnr, gel(chi,i));
     gel(res, i) = lfuninit_bitprec(L, dom, der, bitprec);
   }
   if (v >= 0) delete_var();
