@@ -1617,8 +1617,7 @@ rnfisabelian(GEN nf, GEN pol)
 
 /* Given bnf and polrel defining an abelian relative extension, compute the
  * corresponding conductor and congruence subgroup. Return
- * [[ideal,arch],[hm,cyc,gen],group] where [ideal,arch] is the conductor, and
- * [hm,cyc,gen] is the corresponding ray class group. */
+ * [cond,bnr(cond),group] where cond=[ideal,arch] is the conductor. */
 GEN
 rnfconductor(GEN bnf, GEN polrel)
 {
