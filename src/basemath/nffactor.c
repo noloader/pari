@@ -2134,19 +2134,33 @@ rootsof1(GEN nf)
   for (i = 1; i < l; i++)
   {
     long p = LP[i];
-    /* Cheap test: can Q(zeta_{2p}) be a subset of K ? */
+    /* Degree and ramification test: find largest k such that Q(zeta_{p^k})
+     * may be a subfield of K. Q(zeta_p^k) has degree (p-1)p^(k-1)
+     * and v_p(discriminant) = ((p-1)k-1)p^(k-1); so we must have
+     * v_p(disc_K) >= ((p-1)k-1) * n / (p-1) = kn - q, where q = n/(p-1) */
     if (p == 2)
-    { /* 2 | n and v_p(disc K) >= n/2 ? */
+    { /* the test simplifies a little in that case */
+      long v, vnf, k;
       if (LE[i] == 1) continue;
-      if (!odd(nfdegree) && vali(disc) >= nfdegree / 2) continue;
+      vnf = vals(nfdegree);
+      v = vali(disc);
+      for (k = minss(LE[i], vnf+1); k >= 1; k--)
+        if (v >= nfdegree*(k-1)) { nbguessed >>= LE[i]-k; LE[i] = k; break; }
+      /* N.B the test above always works for k = 1: LE[i] >= 1 */
     }
     else
-    { /* p-1 | n and v_p(disc K) >= (p-2) n/(p-1) ? */
+    {
+      long v, vnf, k;
       ulong r, q = udivuu_rem(nfdegree, p-1, &r);
-      if (r == 0 && (ulong)Z_lval(disc, p) >= q * (p-2)) continue;
+      if (r) { nbguessed /= upowuu(p, LE[i]); LE[i] = 0; continue; }
+      /* q = n/(p-1) */
+      vnf = u_lval(q, p);
+      v = Z_lval(disc, p);
+      for (k = minss(LE[i], vnf+1); k >= 0; k--)
+        if (v >= nfdegree*k-q)
+        { nbguessed /= upowuu(p, LE[i]-k); LE[i] = k; break; }
+      /* N.B the test above always works for k = 0: LE[i] >= 0 */
     }
-    nbguessed /= upowuu(p, LE[i]);
-    LE[i] = 0;
   }
   if (DEBUGLEVEL>2)
     timer_printf(&ti, "after ramification conditions [guess = %ld]", nbguessed);

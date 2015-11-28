@@ -178,6 +178,7 @@ BA128- nfsubfields could fail [#1758]
   132- m1=Mod(0,1);m2=Mod(1,x^2+1); chinese(m1,m2) -> m1; chinese(m2,m1) -> m2
        [instead of error]
   133- O(1) == O(x) returned 0 [#1765]
+  134- nfrootsof1(polcyclo(85)) -> 85 instead of 170 [#1766]
 
   Added
     1- add optional argument to sumdigits to specify the base
@@ -472,6 +473,8 @@ BA 59- divide_conquer_assoc renamed to gen_product
        the interface !
 BA 61- [libpari] concat, concat1 renamed to gconcat, gconcat1
    62- rnfconductor now returns [cond, bnr, H] instead of [cond, bnr.clgp, H]
+   63- nfrootsof1(), more stringent ramification tests: looking
+       for a subfield Q(zeta_p^k) is now faster.
 
 Removed
    1- deprecated functions nfbasis0, nfdisc0, factorpadic0
