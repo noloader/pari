@@ -752,7 +752,7 @@ ComputeAllArtinNumbers(GEN dataCR, GEN vChar, int check, long prec)
     LCHI = cgetg(l, t_VEC);
     for (k = 1; k < l; k++) gel(LCHI,k) = ch_CHI0(gel(ldata,k));
     WbyCond = ArtinNumber(bnr, LCHI, check, prec);
-    for (k = 1; k < l; k++) W[LChar[k]] = WbyCond[k];
+    for (k = 1; k < l; k++) gel(W,LChar[k]) = gel(WbyCond,k);
   }
   return W;
 }
