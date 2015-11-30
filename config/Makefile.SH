@@ -439,6 +439,9 @@ install-doc: install-gphelp install-docdvi
 	-\$(INSTALL_DATA) $doc/usersch3.tex \$(DOCDIR)
 	-\$(INSTALL_DATA) $doc/usersch4.tex \$(DOCDIR)
 	-\$(INSTALL_DATA) $doc/usersch5.tex \$(DOCDIR)
+	-\$(INSTALL_DATA) $doc/usersch6.tex \$(DOCDIR)
+	-\$(INSTALL_DATA) $doc/usersch7.tex \$(DOCDIR)
+	-\$(INSTALL_DATA) $doc/usersch8.tex \$(DOCDIR)
 	-\$(INSTALL_DATA) $doc/paricfg.tex  \$(DOCDIR)
 
 install-gphelp::
