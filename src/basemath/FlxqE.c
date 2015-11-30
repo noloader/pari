@@ -1661,7 +1661,7 @@ Flxq_ellcard(GEN a4, GEN a6, GEN T, ulong p)
     r = Flxq_ellcard_Satoh(a4, a6, J, T, p);
   else if (cmpis(q,100)<0)
     r = utoi(Flxq_ellcard_naive(a4, a6, T, p));
-  else if (p <= 13 || (7*p <= (ulong)10*n && (BITS_IN_LONG==64 || p <= 31)))
+  else if (p <= 13 || (7*p <= (ulong)10*n && (BITS_IN_LONG==64 || p <= 103)))
     r = Flxq_ellcard_Satoh(a4, a6, J, T, p);
   else if (p <= (ulong)2*n)
     r = Flxq_ellcard_Kedlaya(a4, a6, T, p);
