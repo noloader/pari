@@ -180,6 +180,8 @@ BA128- nfsubfields could fail [#1758]
   133- O(1) == O(x) returned 0 [#1765]
   134- nfrootsof1(polcyclo(85)) -> 85 instead of 170 [#1766]
   135- at \p19, polroots((x+1)^2 * (x-1)^7 * (x^2-x+1)^5 * 1.0) -> SEGV [#1767]
+BA136- ellsea returned the trace instead of the cardinal as documented.
+BA137- ellsea(,,1)  could return a wrong result [#1768]
 
   Added
     1- add optional argument to sumdigits to specify the base

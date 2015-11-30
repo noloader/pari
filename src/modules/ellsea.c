@@ -1861,5 +1861,5 @@ ellsea(GEN E, GEN p, long smallfact)
   GEN a6 = modii(mulis(Rg_to_Fp(gel(E,11), p), -54), p);
   GEN card = Fp_ellcard_SEA(a4, a6, p, smallfact);
   if (!card) pari_err_PACKAGE("seadata");
-  return gerepileuptoint(av, subii(addis(p,1),card));
+  return gerepileuptoint(av, card);
 }
