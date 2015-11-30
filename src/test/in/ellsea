@@ -31,6 +31,9 @@ g=ffgen(nextprime(2^32)^2);E=ellinit([g,3]);ellap(E)
 b=ffgen(37^18,'b);E=ellinit(ellfromj(b));ellap(E)
 
 alias("ellsea","_ellsea");
-p = 1048845330395786101209709; E = ellinit([1,56],p);
-ellsea(E, p, 1)
-ellsea(E, p, 2)
+p = 1048845330395786101209709; E = ellinit([1,56]);
+ellsea(E, p)
+ellsea(ellinit(E, p),, 2)
+a=ffgen(ffinit(nextprime(2^30),3),'a); E = ellinit([1,a]);
+ellsea(E)
+ellsea(E,,2)

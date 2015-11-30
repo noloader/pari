@@ -367,6 +367,11 @@ $P$, where $o$ is a multiple of the order of $P$, or its factorization.
 
 \fun{GEN}{FF_ellcard}{GEN E} returns $\#E(\F_q)$.
 
+\fun{GEN}{FF_ellcard_SEA}{GEN E, long s}
+This function returns $\#E(\F_q)$, using the Schoof-Elkies-Atkin
+algorithm.  Assume $p\neq 2,3$.
+The parameter $s$ has the same meaning as in \kbd{Fp\_ellcard\_SEA}.
+
 \fun{GEN}{FF_ellgens}{GEN E} returns the generators of the group $E(\F_q)$.
 
 \fun{GEN}{FF_elllog}{GEN E, GEN P, GEN G, GEN o} Let \kbd{G} be a point of

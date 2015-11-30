@@ -1852,14 +1852,3 @@ Fp_ellcard_SEA(GEN a4, GEN a6, GEN p, long smallfact)
 {
   return Fq_ellcard_SEA(a4, a6, p, NULL, p, smallfact);
 }
-
-GEN
-ellsea(GEN E, GEN p, long smallfact)
-{
-  pari_sp av = avma;
-  GEN a4 = modii(mulis(Rg_to_Fp(gel(E,10), p), -27), p);
-  GEN a6 = modii(mulis(Rg_to_Fp(gel(E,11), p), -54), p);
-  GEN card = Fp_ellcard_SEA(a4, a6, p, smallfact);
-  if (!card) pari_err_PACKAGE("seadata");
-  return gerepileuptoint(av, card);
-}

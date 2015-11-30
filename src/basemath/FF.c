@@ -1015,6 +1015,32 @@ FF_ellcard(GEN E)
   }
 }
 
+GEN
+FF_ellcard_SEA(GEN E, long smallfact)
+{
+  pari_sp av = avma;
+  GEN T,p;
+  ulong pp;
+  GEN e = ellff_get_a4a6(E), a4, a6, card;
+  GEN fg = ellff_get_field(E);
+  _getFF(fg,&T,&p,&pp);
+  switch(fg[1])
+  {
+  case t_FF_FpXQ:
+    a4 = Fq_to_FpXQ(gel(e,1), T, p);
+    a6 = Fq_to_FpXQ(gel(e,2), T, p);
+    card = Fq_ellcard_SEA(a4, a6, powiu(p,degpol(T)), T,p, smallfact);
+    break;
+  case t_FF_F2xq:
+    pari_err_IMPL("SEA for char 2");
+  default:
+    a4 = Flx_to_ZX(gel(e,1));
+    a6 = Flx_to_ZX(gel(e,2));
+    card = Fq_ellcard_SEA(a4, a6, powuu(pp,degpol(T)), Flx_to_ZX(T), p, smallfact);
+  }
+  return gerepileuptoint(av, card);
+}
+
 /* return [G,m] */
 GEN
 FF_ellgroup(GEN E)

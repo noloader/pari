@@ -5766,6 +5766,34 @@ ellap(GEN E, GEN p)
   return gerepileuptoint(av, subii(addiu(q,1), card));
 }
 
+GEN
+ellsea(GEN E, GEN p, long smallfact)
+{
+  p = checkellp(E, p, "ellsea");
+  switch(ell_get_type(E))
+  {
+  case t_ELL_Q:
+    {
+      GEN a4, a6, D = Rg_to_Fp(ell_get_disc(E), p);
+      if (!signe(D))
+        pari_err_DOMAIN("ellsea", "E", "is singular at", p, E);
+      ell_to_a4a6(E,p,&a4,&a6);
+      return Fp_ellcard_SEA(a4, a6, p, smallfact);
+    }
+  case t_ELL_Fp:
+    {
+      GEN fg = ellff_get_field(E);
+      GEN e = ellff_get_a4a6(E);
+      return Fp_ellcard_SEA(gel(e,1), gel(e,2), fg, smallfact);
+    }
+  case t_ELL_Fq:
+    return FF_ellcard_SEA(E, smallfact);
+  default:
+    pari_err_TYPE("ellsea",E);
+    return NULL; /*NOT REACHED*/
+  }
+}
+
 static GEN
 doellcard(GEN E)
 {
