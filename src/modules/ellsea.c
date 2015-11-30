@@ -1792,7 +1792,7 @@ Fq_ellcard_SEA(GEN a4, GEN a6, GEN q, GEN T, GEN p, long smallfact)
       long t_mod_ellkt = trace_mod[1];
       if (smallfact && ell > smallfact)
       { /* does ell divide q + 1 - t ? */
-        long card_mod_ell = (umodiu(q,ell) + 1 - t_mod_ellkt) % ell ;
+        long card_mod_ell = umodsu(umodiu(q,ell) + 1 - t_mod_ellkt, ell) ;
         if (!card_mod_ell)
         {
           if (DEBUGLEVEL)
