@@ -43,3 +43,6 @@ polsturm(33*x^2-4*x-1)
 polrootsreal(4*x)
 polsturm(-4*x)
 polsturm((x^4-2)^2)
+
+default(realprecision,19);
+#polroots((x+1)^2 * (x-1)^7 * (x^2-x+1)^5 * 1.0)

@@ -646,12 +646,26 @@ lower_bound(GEN p, long *k, double eps)
   avma = ltop; return R;
 }
 
+/* p(0) != 0 but we may have (p/lc(p))(0) = 0 due to inexact 0. Prevent this */
+static GEN
+fix_pol(GEN p)
+{
+  GEN c = gel(p,2), cr, ci;
+  if (typ(c) != t_COMPLEX) return p;
+  cr = gel(c,1);
+  ci = gel(c,2);
+  if (!signe(cr)) c = mkcomplex(gen_0,ci);
+  else if (!signe(ci)) c = cr;
+  else c = NULL;
+  if (c) { p = shallowcopy(p); gel(p,2) = c; }
+  return p;
+}
 /* log of modulus of the largest root of p with relative error tau. Assume
  * P(0) != 0 and P non constant */
 static double
 logmax_modulus(GEN p, double tau)
 {
-  GEN r,q,aux,gunr;
+  GEN r, q, aux, gunr;
   pari_sp av, ltop = avma;
   long i,k,n=degpol(p),nn,bit,M,e;
   double rho,eps, tau2 = (tau > 3.0)? 0.5: tau/6.;
@@ -663,6 +677,7 @@ logmax_modulus(GEN p, double tau)
   bit = (long) ((double) n*log2(1./tau2)+3*log2((double) n))+1;
   gunr = real_1_bit(bit+2*n);
   aux = gdiv(gunr, gel(p,2+n));
+  p = fix_pol(p);
   q = RgX_Rg_mul(p, aux); gel(q,2+n) = gunr;
   e = findpower(q);
   homothetie2n(q,e);
