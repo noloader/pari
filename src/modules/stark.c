@@ -171,24 +171,21 @@ EltsOfGroup(long order, GEN cyc)
   return rep;
 }
 
-/* Let dataC as given by InitQuotient, compute a system of
+/* Let Qt as given by InitQuotient, compute a system of
    representatives of the quotient */
 static GEN
-ComputeLift(GEN dataC)
+ComputeLift(GEN Qt)
 {
-  long order, i;
-  pari_sp av = avma;
-  GEN cyc, surj, eltq, elt;
+  GEN e, U = gel(Qt,3);
+  long i, h = itos(gel(Qt,1));
 
-  order = itos(gel(dataC,1));
-  cyc   = gel(dataC,2);
-  surj  = gel(dataC,3);
-
-  eltq = EltsOfGroup(order, cyc);
-  elt = cgetg(order + 1, t_VEC);
-  for (i = 1; i <= order; i++) gel(elt,i) = inverseimage(surj, gel(eltq,i));
-
-  return gerepileupto(av, elt);
+  e = EltsOfGroup(h, gel(Qt,2));
+  if (!RgM_isidentity(U))
+  {
+    GEN Ui = ZM_inv(U, gen_1);
+    for (i = 1; i <= h; i++) gel(e,i) = ZM_ZC_mul(Ui, gel(e,i));
+  }
+  return e;
 }
 
 /* nchi: a character given by a vector [d, (c_i)], e.g. from char_normalize
