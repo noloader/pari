@@ -414,8 +414,8 @@ $j$-invariant of a supersingular curve over $\F_p$, $0$ otherwise.
 group $E(\F_p)$.
 
 \fun{GEN}{Fp_ellcard_SEA}{GEN a4, GEN a6, GEN p, long s}
-available if the \kbd{seadata} package is installed. This function returns
-$\#E(\F_p)$, using the Schoof-Elkies-Atkin algorithm.
+This function returns $\#E(\F_p)$, using the Schoof-Elkies-Atkin algorithm.
+If the \kbd{seadata} package is installed, the function will be faster.
 
 The extra flag \kbd{s}, if set to a non-zero value, causes the computation to
 return \kbd{gen\_0} (an impossible cardinality) if one of the small primes
@@ -718,8 +718,8 @@ obtained by applying \kbd{Rg\_to\_Flxq} coefficientwise.
 \subsec{Elliptic curves over $\F_q$, large characteristic }
 
 Let $p$ be a prime number, $T$ an irreducible polynomial mod $p$, and $E$ the
-elliptic curve given by the equation $E:y^2=x^3+a_4\*x+a_6$ with $a_4$ and $a_6$
-in $\F_p[X]/(T)$.  A \kbd{FpXQE} is a point of $E(\F_p[X]/(T))$.
+elliptic curve given by the equation $E:y^2=x^3+a_4\*x+a_6$ with $a_4$ and
+$a_6$ in $\F_p[X]/(T)$.  A \kbd{FpXQE} is a point of $E(\F_p[X]/(T))$.
 
 \fun{GEN}{FpXQ_ellj}{GEN a4, GEN a6, GEN T, GEN p}
 returns the $j$-invariant of the curve $E$.
@@ -731,10 +731,11 @@ the $j$-invariant of a supersingular curve over $\F_p[X]/(T)$, $0$ otherwise.
 returns the order of $E(\F_p[X]/(T))$.
 
 \fun{GEN}{Fq_ellcard_SEA}{GEN a4, GEN a6, GEN q, GEN T, GEN p, long s}
-available if the \kbd{seadata} package is installed. This function returns
-$\#E(\F_p[X]/(T))$, using the Schoof-Elkies-Atkin algorithm.
+This function returns $\#E(\F_p[X]/(T))$, using the Schoof-Elkies-Atkin
+algorithm.
 Assume $p\neq 2,3$, and $q$ is the cardinality of $\F_p[X]/(T)$.
 The parameter $s$ has the same meaning as in \kbd{Fp\_ellcard\_SEA}.
+If the \kbd{seadata} package is installed, the function will be faster.
 
 \fun{GEN}{FpXQ_ellgroup}{GEN a4, GEN a6, GEN N, GEN T, GEN p, GEN *pt_m}
 Return the group structure $D$ of the group $E(\F_p[X]/(T))$,

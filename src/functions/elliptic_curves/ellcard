@@ -10,6 +10,9 @@ Doc: Let $E$ be an \var{ell} structure as output by \kbd{ellinit}, defined over
  This function computes the order of the group $E(\F_q)$ (as would be
  computed by \tet{ellgroup}).
 
+ When the characteristic of the finite field is large, the availability of
+ the \kbd{seadata} package will speed the computation.
+
  If the curve is defined over $\Q$, $p$ must be explicitly given and the
  function computes the cardinality of the reduction over $\F_p$; the
  equation need not be minimal at $p$, but a minimal model will be more

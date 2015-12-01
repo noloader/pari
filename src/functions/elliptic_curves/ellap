@@ -11,6 +11,9 @@ Doc:
  This function computes the trace of Frobenius $t$ for the elliptic curve $E$,
  defined by the equation $\#E(\F_q) = q+1 - t$.
 
+ When the characteristic of the finite field is large, the availability of
+ the \kbd{seadata} package will speed the computation.
+
  If the curve is defined over $\Q$, $p$ must be explicitly given and the
  function computes the trace of the reduction over $\F_p$.
  The trace of Frobenius is also the $a_p$ coefficient in the curve $L$-series
