@@ -94,6 +94,21 @@ ZM_to_zm_canon(GEN V)
   return W;
 }
 
+static GEN
+zm_apply_zm(GEN M, GEN U)
+{
+  return zm_mul(zm_transpose(U),zm_mul(M, U));
+}
+
+static GEN
+zmV_apply_zm(GEN v, GEN U)
+{
+  long i, l;
+  GEN V = cgetg_copy(v, &l);
+  for(i=1; i<l; i++) gel(V,i) = zm_apply_zm(gel(v,i), U);
+  return V;
+}
+
 /********************************************************************/
 /**                                                                **/
 /**      QFAUTO/QFISOM ported from B. Souvignier ISOM program      **/
@@ -128,7 +143,7 @@ struct fingerprint
 struct qfauto
 {
   long dim;
-  GEN F, V, W, v;
+  GEN F, U, V, W, v;
   ulong p;
 };
 
@@ -1142,7 +1157,7 @@ zm_maxdiag(GEN A)
 }
 
 static GEN
-init_qfauto(GEN F, long max, struct qfauto *qf, GEN norm)
+init_qfauto(GEN F, GEN U, long max, struct qfauto *qf, GEN norm)
 {
   long i, j, k;
   GEN W, v;
@@ -1196,7 +1211,7 @@ init_qfauto(GEN F, long max, struct qfauto *qf, GEN norm)
       }
     }
   }
-  qf->dim = dim; qf->F = F; qf->V = V; qf->W = W; qf->v = v;
+  qf->dim = dim; qf->F = F; qf->V = V; qf->W = W; qf->v = v; qf->U = U;
   return norm;
 }
 
@@ -1400,7 +1415,7 @@ init_flags(struct qfcand *cand, GEN A, struct fingerprint *fp,
 }
 
 static GEN
-gen_group(struct group *G)
+gen_group(struct group *G, GEN U)
 {
   GEN V;
   long i, j, n=1, dim = lg(G->ord)-1;
@@ -1412,7 +1427,8 @@ gen_group(struct group *G)
   V = cgetg(n, t_VEC); n = 1;
   for (i = 1; i <= dim; ++i)
     for (j=G->nsg[i]+1; j<=G->ng[i]; j++)
-      gel(V,n++) = gmael(G->g,i,j);
+      gel(V,n++) = U ? zm_mul(gel(U,1), zm_mul(gmael(G->g,i,j), gel(U,2)))
+                     : gmael(G->g,i,j);
   return mkvec2(o, V);
 }
 
@@ -1433,6 +1449,7 @@ unpack_qfisominit(GEN F, GEN *norm, struct qfauto *qf,
   qf->W = gel(QF,3);
   qf->v = gel(QF,4);
   qf->p = itou(gel(QF,5));
+  qf->U = lg(QF)>6 ? gel(QF,6):NULL;
   QF = gel(F,4);
   fp->diag = gel(QF,1);
   fp->per  = gel(QF,2);
@@ -1443,14 +1460,33 @@ unpack_qfisominit(GEN F, GEN *norm, struct qfauto *qf,
   cand->bacher_pol = gel(QF,3);
   *norm = gel(F,2);
   qf->dim = lg(gmael(F,1,1))-1;
-  return gel(F,1);
+  return qf->F;
+}
+
+static GEN
+qfisom_bestmat(GEN A, long *pt_max)
+{
+  long max = zm_maxdiag(A), max2;
+  GEN A1 = zm_to_ZM(A), A2;
+  GEN U = lllgramint(A1);
+  if (lg(U) != lg(A1))
+    pari_err_DOMAIN("qfisom","form","is not", strtoGENstr("positive definite"), A1);
+  A2 = ZM_to_zm(qf_apply_ZM(A1, U));
+  max2 = zm_maxdiag(A2);
+  if (max2 < max)
+  {
+    *pt_max = max2; return mkvec2(ZM_to_zm(U),ZM_to_zm(ZM_inv(U, gen_1)));
+  } else
+  {
+    *pt_max = max; return NULL;
+  }
 }
 
 static GEN
 init_qfisom(GEN F, struct fingerprint *fp, struct qfcand *cand,
                    struct qfauto *qf, GEN flags, long *max)
 {
-  GEN A, norm;
+  GEN U, A, norm;
   if (is_qfisom(F))
   {
     F = unpack_qfisominit(F, &norm, qf, fp, cand);
@@ -1464,9 +1500,10 @@ init_qfisom(GEN F, struct fingerprint *fp, struct qfcand *cand,
     if (lg(F)<2) pari_err_TYPE("qfisom",F);
     A = gel(F,1);
     if (lg(A)<2) pari_err_TYPE("qfisom",A);
-    *max = zm_maxdiag(A);
+    U = qfisom_bestmat(A, max);
     if (DEBUGLEVEL) err_printf("max=%ld\n",*max);
-    norm=init_qfauto(F, *max, qf, NULL);
+    if (U) F = zmV_apply_zm(F, gel(U,1));
+    norm = init_qfauto(F, U, *max, qf, NULL);
     fingerprint(fp, qf);
     if (DEBUGLEVEL) err_printf("fp=%Ps\n",fp->diag);
     init_flags(cand, A, fp, qf, flags);
@@ -1486,7 +1523,7 @@ qfauto(GEN F, GEN flags)
   (void)init_qfisom(F, &fp, &cand, &qf, flags, &max);
   init_qfgroup(&G, &fp, &qf);
   autom(&G, &qf, &fp, &cand);
-  return gerepilecopy(av, gen_group(&G));
+  return gerepilecopy(av, gen_group(&G, qf.U));
 }
 
 static GEN
@@ -1686,7 +1723,8 @@ qfisominit(GEN F, GEN flags)
   struct qfcand cand;
   long max;
   GEN norm = init_qfisom(F, &fp, &cand, &qf, flags, &max);
-  return gerepilecopy(av, mkvec5(F, norm, mkvec5(qf.F, qf.V, qf.W, qf.v, utoi(qf.p)),
+  return gerepilecopy(av, mkvec5(F, norm,
+                          mkvecn(qf.U?6:5, qf.F, qf.V, qf.W, qf.v, utoi(qf.p), qf.U),
                           mkvec3(fp.diag, fp.per, fp.e),
                           mkvec3(stoi(cand.cdep),cand.comb?cand.comb:cgetg(1,t_VEC),
                                  cand.bacher_pol)));
@@ -1711,14 +1749,14 @@ qfisom(GEN F, GEN FF, GEN flags)
   struct qfcand cand;
   long max;
   GEN norm = init_qfisom(F, &fp, &cand, &qf, flags, &max);
-  init_qfauto(FF, max, &qff, norm);
+  init_qfauto(FF, NULL, max, &qff, norm);
   if (lg(qf.W)!=lg(qff.W)
       || !zvV_equal(vecvecsmall_sort(qf.W), vecvecsmall_sort(qff.W)))
     { avma=av; return gen_0; }
   G = mkvec(scalar_Flm(-1, qff.dim));
   res = isometry(&qf, &qff, &fp, G, &cand);
   if (!res) { avma=av; return gen_0; }
-  return gerepilecopy(av, zm_to_ZM(res));
+  return gerepilecopy(av, zm_to_ZM(qf.U? zm_mul(res,gel(qf.U, 2)):res));
 }
 
 GEN
