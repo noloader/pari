@@ -775,7 +775,14 @@ genfold(void *E, GEN (*f)(void* E, GEN x, GEN y), GEN x)
   clone_lock(x);
   z = gel(x,1);
   for (i=2; i<l; i++)
+  {
     z = f(E,z,gel(x,i));
+    if (gc_needed(av, 2))
+    {
+      if (DEBUGMEM>1) pari_warn(warnmem,"fold");
+      z = gerepilecopy(av, z);
+    }
+  }
   clone_unlock(x);
   return gerepilecopy(av, z);
 }
