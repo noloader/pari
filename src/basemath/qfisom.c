@@ -326,7 +326,7 @@ bacher(long I, long S, struct qfauto *qf)
   for (i = 1; i <= nlist; ++i)
     coef[1+counts[i] - mind] += 1;
   if (DEBUGLEVEL)
-    err_printf("mind=%ld maxd=%ld sum=%ld\n",mind,maxd,sum);
+    err_printf("QFIsom: mind=%ld maxd=%ld sum=%ld\n",mind,maxd,sum);
   /* the Bacher-polynomial is now: sum from i=mind to maxd over
      coef[i - mind] * X^i */
   return gerepilecopy(av, mkvec2(mkvecsmall3(sum, mind, maxd),coef));
@@ -1501,11 +1501,11 @@ init_qfisom(GEN F, struct fingerprint *fp, struct qfcand *cand,
     A = gel(F,1);
     if (lg(A)<2) pari_err_TYPE("qfisom",A);
     U = qfisom_bestmat(A, max);
-    if (DEBUGLEVEL) err_printf("max=%ld\n",*max);
+    if (DEBUGLEVEL) err_printf("QFIsom: max=%ld\n",*max);
     if (U) F = zmV_apply_zm(F, gel(U,1));
     norm = init_qfauto(F, U, *max, qf, NULL);
     fingerprint(fp, qf);
-    if (DEBUGLEVEL) err_printf("fp=%Ps\n",fp->diag);
+    if (DEBUGLEVEL) err_printf("QFIsom: fp=%Ps\n",fp->diag);
     init_flags(cand, A, fp, qf, flags);
   }
   return norm;
