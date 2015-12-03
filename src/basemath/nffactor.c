@@ -2157,7 +2157,7 @@ rootsof1(GEN nf)
       vnf = u_lval(q, p);
       v = Z_lval(disc, p);
       for (k = minss(LE[i], vnf+1); k >= 0; k--)
-        if (v >= nfdegree*k-q)
+        if (v >= nfdegree*k-(long)q)
         { nbguessed /= upowuu(p, LE[i]-k); LE[i] = k; break; }
       /* N.B the test above always works for k = 0: LE[i] >= 0 */
     }
