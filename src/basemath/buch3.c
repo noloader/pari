@@ -1469,6 +1469,7 @@ rnfnormgroup_i(GEN bnr, GEN polrel)
     pari_err_IMPL("rnfnormgroup for non-monic polynomials");
 
   degrel = degpol(polrel);
+  if (umodiu(bnr_get_no(bnr), degrel)) return NULL;
   /* degrel-th powers are in norm group */
   gdegrel = utoipos(degrel);
   G = FpC_red(bnr_get_cyc(bnr), gdegrel);
@@ -1631,7 +1632,7 @@ rnfconductor(GEN bnf, GEN polrel)
   (void)rnfallbase(nf,&polrel, &D, NULL, NULL);
   module = mkvec2(D, const_vec(nf_get_r1(nf), gen_1));
   bnr   = Buchray(bnf,module,nf_INIT | nf_GEN);
-  group = rnfnormgroup(bnr,polrel);
+  group = rnfnormgroup_i(bnr,polrel);
   if (!group) { avma = av; return gen_0; }
   return gerepilecopy(av, bnrconductor_i(bnr,group,2));
 }

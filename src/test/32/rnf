@@ -810,4 +810,5 @@ error("inconsistent operation 'RgV_RgC_mul' t_VEC (3 elts) , t_COL (2 elts).
   ***   at top-level: rnfidealtwoelt(L,[[1
   ***                 ^--------------------
   *** rnfidealtwoelt: incorrect type in idealtyp [non-square t_MAT] (t_MAT).
-Total time spent: 436
+0
+Total time spent: 275

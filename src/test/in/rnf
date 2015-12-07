@@ -145,3 +145,7 @@ K=nfinit(y); L=rnfinit(K,x^3-2); rnfeltdown(L,Mod(Mod(1,K.pol),L.polabs))
 \\#1530
 L=rnfinit(nfinit(y^2-3),x^2+23);
 rnfidealtwoelt(L, [[1;0], [1/104]])
+
+k1=bnfinit(y^3+y^2-2*y-1);
+u=x^3+y*x^2+(y-2)*x+(y^2-y-1);
+rnfconductor(k1,u)

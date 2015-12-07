@@ -182,6 +182,7 @@ BA128- nfsubfields could fail [#1758]
   135- at \p19, polroots((x+1)^2 * (x-1)^7 * (x^2-x+1)^5 * 1.0) -> SEGV [#1767]
 BA136- ellsea returned the trace instead of the cardinal as documented.
 BA137- ellsea(,,1)  could return a wrong result [#1768]
+  138- rnfconductor: sanity checks were not taken into account
 
   Added
     1- add optional argument to sumdigits to specify the base
