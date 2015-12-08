@@ -67,13 +67,11 @@ Doc: This low-level routine creates \tet{Ldata} structures, needed by
  (as opposed to real) arguments, determination problems occur which may
  give wrong results when the $\alpha_j$ are not integral.
 
- \item \kbd{V[4]=k} is the (classical) \emph{weight}, assumed to be
- a positive integer. The functional equation relates values at $s$
- and $k-s$. For instance the weight of an Artin $L$-series such
- as a Dedekind zeta function is $1$, that of an elliptic curve is $2$,
- and that of a modular form of weight $k$ is $k$. For motivic $L$-functions,
- the classical weight is related to the \emph{motivic} weight $w$ by
- the equation $w = k-1$.
+ \item \kbd{V[4]=k} is a positive integer $k$. The functional equation relates
+ values at $s$ and $k-s$. For instance, for an Artin $L$-series such as a
+ Dedekind zeta function we have $k = 1$, for an elliptic curve $k = 2$, and
+ for a modular form, $k$ is its weight. For motivic $L$-functions, the
+ \emph{motivic} weight $w$ is $w = k-1$.
 
  \item \kbd{V[5]=N} is the conductor, an integer $N\ge1$, such that
  $\Lambda(s)=N^{s/2}\gamma_A(s)L(s)$ with $\gamma_A(s)$ as above.
