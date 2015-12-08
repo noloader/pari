@@ -8,7 +8,7 @@ Help: ellinit(x,{D=1}): let x be a vector [a1,a2,a3,a4,a6], or [a4,a6] if
  retrieved from the elldata database, if available. This function initializes
  an elliptic curve over the domain D (inferred from coefficients if omitted).
 Description:
- (gen, gen, small):ell:prec  ellinit($1, $2, prec)
+ (gen, gen, small):ell:prec  ellinit($1, $2, $prec)
 Doc:
  initialize an \tet{ell} structure, associated to the elliptic curve $E$.
  $E$ is either

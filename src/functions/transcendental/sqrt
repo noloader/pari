@@ -5,7 +5,7 @@ Prototype: Gp
 Help: sqrt(x): square root of x.
 Description:
  (real):gen           sqrtr($1)
- (gen):gen:prec       gsqrt($1, prec)
+ (gen):gen:prec       gsqrt($1, $prec)
 Doc: principal branch of the square root of $x$, defined as $\sqrt{x} =
  \exp(\log x / 2)$. In particular, we have
  $\text{Arg}(\text{sqrt}(x))\in{} ]-\pi/2, \pi/2]$, and if $x\in \R$ and $x<0$,

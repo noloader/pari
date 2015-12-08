@@ -7,7 +7,7 @@ Help: default({key},{val}): returns the current value of the
  given, print a list of all defaults as well as their values.
 Description:
  ("realprecision"):small:prec              getrealprecision()
- ("realprecision",small):small:prec        setrealprecision($2, &prec)
+ ("realprecision",small):small:prec        setrealprecision($2, &$prec)
  ("seriesprecision"):small                 precdl
  ("seriesprecision",small):small:parens    precdl = $2
  ("debug"):small                           DEBUGLEVEL

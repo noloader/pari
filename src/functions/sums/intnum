@@ -8,7 +8,7 @@ Help: intnum(X=a,b,expr,{tab}): numerical integration of expr from a to b with
  integer m (choose integration step 1/2^m), or data precomputed with intnuminit.
 Wrapper: (,,G)
 Description:
-  (gen,gen,gen,?gen):gen:prec intnum(${3 cookie}, ${3 wrapper}, $1, $2, $4, prec)
+  (gen,gen,gen,?gen):gen:prec intnum(${3 cookie}, ${3 wrapper}, $1, $2, $4, $prec)
 Doc: numerical integration
  of \var{expr} on $]a,b[$ with respect to $X$, using the
  double-exponential method, and thus $O(D\log D)$ evaluation of

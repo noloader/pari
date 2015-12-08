@@ -8,7 +8,7 @@ Help: intnumgauss(X=a,b,expr,{tab}): numerical integration of expr from
  precomputed with intnumgaussinit.
 Wrapper: (,,G)
 Description:
-  (gen,gen,gen,?gen):gen:prec intnumgauss(${3 cookie}, ${3 wrapper}, $1, $2, $4, prec)
+  (gen,gen,gen,?gen):gen:prec intnumgauss(${3 cookie}, ${3 wrapper}, $1, $2, $4, $prec)
 Doc: numerical integration of \var{expr} on the compact interval $[a,b]$ with
  respect to $X$ using Gauss-Legendre quadrature; \kbd{tab} is either omitted
  or precomputed with \kbd{intnumgaussinit}. As a convenience, it can be an
