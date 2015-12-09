@@ -5,6 +5,10 @@ Prototype: GGD0,L,b
 Help: lfun(L,s,{D=0}): compute the L-function value L(s), or
  if D is set, the derivative of order D at s. L is either an
  Lmath, an Ldata or an Linit.
+Description:
+ (gen,gen):gen:prec       lfun_bitprec($1, $2, $bitprec)
+ (gen,gen,?0):gen:prec    lfun_bitprec($1, $2, $bitprec)
+ (gen,gen,small):gen:prec lfun0_bitprec($1, $2, $3, $bitprec)
 Doc: compute the L-function value $L(s)$, or if \kbd{D} is set, the
  derivative of order \kbd{D} at $s$. The parameter
  \kbd{L} is either an Lmath, an Ldata (created by \kbd{lfuncreate} or an
