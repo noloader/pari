@@ -2621,6 +2621,7 @@ GEN     parvector(long n, GEN code);
 void    pop_lex(long n);
 void    pop_localprec(void);
 void    push_lex(GEN a, GEN C);
+void    push_localbitprec(long p);
 void    push_localprec(long p);
 GEN     return0(GEN x);
 void    set_lex(long vn, GEN x);

@@ -780,10 +780,14 @@ calling the GP interpretor.
 
 \fun{void}{push_localprec}{long p} set the local precision to $p$.
 
+\fun{void}{push_localbitprec}{long b} set the local precision to $b$ bits.
+
 \fun{void}{pop_localprec}{void} reset the local precision to the previous
 value.
 
 \fun{long}{get_localprec}{void} returns the current local precision.
+
+\fun{long}{get_localbitprec}{void} returns the current local precision in bits.
 
 \fun{void}{localprec}{long p} trivial wrapper around \kbd{push\_localprec}
 (sanity checks and convert from decimal digits to a number of codewords).
