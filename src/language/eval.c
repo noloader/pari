@@ -591,7 +591,7 @@ void
 localbitprec(long p)
 {
   if (p < 1) pari_err_DOMAIN("localprec", "p", "<", gen_1, stoi(p));
-  if (p > LGBITS)
+  if (p > (long)LGBITS)
     pari_err_DOMAIN("localbitprec", "p", ">", utoi(LGBITS), stoi(p));
   push_localbitprec(p);
 }

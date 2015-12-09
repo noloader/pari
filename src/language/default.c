@@ -241,8 +241,8 @@ sd_realbitprecision(const char *v, long flag)
     n = nbits2ndec(newnb);
     if (fmt->sigd == n) return gnil;
     if (fmt->sigd >= 0) fmt->sigd = n;
-    if (newnb == precreal) return gnil;
-    precreal = newnb;
+    if ((long) newnb == precreal) return gnil;
+    precreal = (long) newnb;
   }
   if (flag == d_RETURN) return stoi(precreal);
   if (flag == d_ACKNOWLEDGE)
