@@ -1217,7 +1217,7 @@ static GEN
 bnrchar_i(GEN bnr, GEN g, GEN v)
 {
   long i, h, l = lg(g);
-  GEN CH, D, U, U2, H, cyc, cycD, dv, dvU2, dchi;
+  GEN CH, D, U, U2, H, cyc, cycD, dv, dchi;
   checkbnr(bnr);
   switch(typ(g))
   {
@@ -1264,24 +1264,20 @@ bnrchar_i(GEN bnr, GEN g, GEN v)
    * Z^#H / (H) = Z^#H / (D) ~ \oplus (Z/diZ) */
   D = ZM_snfall_i(H, &U, NULL, 1);
   cycD = cyc_normalize(D); gel(cycD,1) = gen_1; /* cycD[i] = d1/di */
+  dchi = gel(D,1);
   U2 = ZM_diag_mul(cycD, U);
-  CH = cyc2elts(D);
   if (v)
   {
     GEN Ui = ZM_inv(U,gen_1); /* U^(-1) */
     GEN Z = hnf_solve(H, ZM_mul_diag(Ui, D));
-    dchi = mulii(gel(D,1), dv);
-    dvU2 = ZM_Z_mul(U2, dv);
     v = ZV_ZM_mul(ZV_ZM_mul(v, Z), U2);
+    dchi = mulii(dchi, dv);
+    U2 = ZM_Z_mul(U2, dv);
   }
-  else
-  {
-    dchi = gel(D,1);
-    dvU2 = U2;
-  }
+  CH = cyc2elts(D);
   for (i = 1; i <= h; i++)
   {
-    GEN c = zv_ZM_mul(gel(CH,i), dvU2);
+    GEN c = zv_ZM_mul(gel(CH,i), U2);
     if (v) c = ZC_add(c, v);
     gel(CH,i) = char_denormalize(dchi, c, cyc);
   }
