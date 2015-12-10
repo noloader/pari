@@ -1279,10 +1279,9 @@ bnrchar_i(GEN bnr, GEN g, GEN v)
     dchi = gel(D,1);
     dvU2 = U2;
   }
-  dvU2 = shallowtrans(dvU2);
   for (i = 1; i <= h; i++)
   {
-    GEN c = ZM_zc_mul(dvU2, gel(CH,i));
+    GEN c = zv_ZM_mul(gel(CH,i), dvU2);
     if (v) c = ZC_add(c, v);
     gel(CH,i) = char_denormalize(dchi, c, cyc);
   }

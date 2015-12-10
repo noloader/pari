@@ -154,7 +154,7 @@ zv_ZM_mul(GEN x, GEN y) {
     GEN s = mulsi(x[1], gcoeff(y,1,j));
     for (i=2; i<lx; i++)
       if (x[i]) s = addii(s, mulsi(x[i], gcoeff(y,i,j)));
-    gel(z,i) = gerepileuptoint(av,s);
+    gel(z,j) = gerepileuptoint(av,s);
   }
   return z;
 }
