@@ -623,7 +623,7 @@ lfunthetacheckinit(GEN data, GEN t, long m, long *pbitprec, long fl)
     al= rtodbl(gel(tdom,2)); if (rt >= r && alt <= al) return data;
   }
 INIT:
-  if (fl) { bitprec += BITS_IN_LONG; *pbitprec = bitprec; }
+  if (fl) { bitprec += 5; *pbitprec = bitprec; }
   return lfunthetainit_i(data, t, m, bitprec);
 }
 
