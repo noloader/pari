@@ -171,6 +171,29 @@ EltsOfGroup(long order, GEN cyc)
   return rep;
 }
 
+/* enumerate all group elements */
+GEN
+cyc2elts(GEN cyc)
+{
+  long i, n;
+  GEN rep;
+  GROUP_t G;
+
+  G.cyc = typ(cyc)==t_VECSMALL? cyc: gtovecsmall(cyc);
+  n = zv_prod(G.cyc);
+  G.r = lg(cyc)-1;
+  G.j = zero_zv(G.r);
+
+  rep = cgetg(n+1, t_VEC);
+  gel(rep,n) = leafcopy(G.j); /* trivial elt comes last */
+  for  (i = 1; i < n; i++)
+  {
+    (void)NextElt(&G);
+    gel(rep,i) = leafcopy(G.j);
+  }
+  return rep;
+}
+
 /* Let Qt as given by InitQuotient, compute a system of
    representatives of the quotient */
 static GEN
@@ -256,14 +279,7 @@ LiftChar(GEN Qt, GEN cyc, GEN chi)
   GEN ncyc = gel(Qt,5), U = gel(Qt,3);
   GEN nchi = char_normalize(chi, ncyc);
   GEN c = ZV_ZM_mul(gel(nchi,2), U), d = gel(nchi,1);
-  long l = lg(cyc), i;
-  GEN lchi = cgetg(l, t_VEC);
-  for (i = 1; i < l; i++)
-  {
-    GEN di = gel(cyc,i), t = diviiexact(mulii(gel(c,i), di), d);
-    gel(lchi,i) = modii(t, di);
-  }
-  return lchi;
+  return char_denormalize(d, c, cyc);
 }
 
 /* Let s: A -> B given by P, and let cycA, cycB be the cyclic structure of

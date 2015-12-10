@@ -1197,6 +1197,104 @@ bnfcertify(GEN bnf) { return bnfcertify0(bnf, 0); }
 /*        RAY CLASS FIELDS: CONDUCTORS AND DISCRIMINANTS           */
 /*                                                                 */
 /*******************************************************************/
+/* \chi(gen[i]) = zeta_D^chic[i])
+ * denormalize: express chi(gen[i]) in terms of zeta_{cyc[i]} */
+GEN
+char_denormalize(GEN D, GEN chic, GEN cyc)
+{
+  long i, l = lg(chic);
+  GEN chi = cgetg(l, t_VEC);
+  /* \chi(gen[i]) = e(chic[i] / D) = e(chi[i] / cyc[i])
+   * hence chi[i] = chic[i]cyc[i]/ D  mod cyc[i] */
+  for (i = 1; i < l; ++i)
+  {
+    GEN di = gel(cyc, i), t = diviiexact(mulii(di, gel(chic,i)), D);
+    gel(chi, i) = modii(t, di);
+  }
+  return chi;
+}
+static GEN
+bnrchar_i(GEN bnr, GEN g, GEN v)
+{
+  long i, h, l = lg(g);
+  GEN CH, D, U, U2, H, cyc, cycD, dv, dvU2, dchi;
+  checkbnr(bnr);
+  switch(typ(g))
+  {
+    GEN G;
+    case t_VEC:
+      G = cgetg(l, t_MAT);
+      for (i = 1; i < l; i++) gel(G,i) = isprincipalray(bnr, gel(g,i));
+      g = G; break;
+    case t_MAT:
+      if (RgM_is_ZM(g)) break;
+    default:
+      pari_err_TYPE("bnrchar",g);
+  }
+  cyc = bnr_get_cyc(bnr);
+  H = ZM_hnfall(shallowconcat(g,diagonal_shallow(cyc)), &U, 1);
+  U = rowslice(U, 1, l-1);
+  dv = NULL;
+  if (v)
+  {
+    GEN w = Q_remove_denom(v, &dv);
+    if (typ(v)!=t_VEC || lg(v)!=l || !RgV_is_ZV(w)) pari_err_TYPE("bnrchar",v);
+    if (!dv) v = NULL;
+    else
+    {
+      w = FpV_red(ZV_ZM_mul(w, U), dv);
+      for (i = 1; i < l; i++)
+        if (signe(gel(w,i))) pari_err_TYPE("bnrchar [inconsistent values]",v);
+      v = vecslice(w,l,lg(w)-1);
+    }
+  }
+  /* chi defined on subgroup H, chi(H[i]) = e(v[i] / dv)
+   * unless v = NULL: chi|H = 1*/
+  h = itos( ZM_det_triangular(H) ); /* #(clgp/H) = number of chars */
+  if (h == 1) /* unique character, H = Id */
+  {
+    if (v)
+      v = char_denormalize(dv,v,cyc);
+    else
+      v = zerovec(lg(cyc)-1); /* trivial char */
+    return mkvec(v);
+  }
+
+  /* chi defined on a subgroup of index h > 1; U H V = D diagonal,
+   * Z^#H / (H) = Z^#H / (D) ~ \oplus (Z/diZ) */
+  D = ZM_snfall_i(H, &U, NULL, 1);
+  cycD = cyc_normalize(D); gel(cycD,1) = gen_1; /* cycD[i] = d1/di */
+  U2 = ZM_diag_mul(cycD, U);
+  CH = cyc2elts(D);
+  if (v)
+  {
+    GEN Ui = ZM_inv(U,gen_1); /* U^(-1) */
+    GEN Z = hnf_solve(H, ZM_mul_diag(Ui, D));
+    dchi = mulii(gel(D,1), dv);
+    dvU2 = ZM_Z_mul(U2, dv);
+    v = ZV_ZM_mul(ZV_ZM_mul(v, Z), U2);
+  }
+  else
+  {
+    dchi = gel(D,1);
+    dvU2 = U2;
+  }
+  dvU2 = shallowtrans(dvU2);
+  for (i = 1; i <= h; i++)
+  {
+    GEN c = ZM_zc_mul(dvU2, gel(CH,i));
+    if (v) c = ZC_add(c, v);
+    gel(CH,i) = char_denormalize(dchi, c, cyc);
+  }
+  return CH;
+}
+GEN
+bnrchar(GEN bnr, GEN g, GEN v)
+{
+  pari_sp av = avma;
+  return gerepilecopy(av, bnrchar_i(bnr,g,v));
+}
+
 /* Let bnr1 with generators, bnr2 be such that mod(bnr2) | mod(bnr1), compute
  * the matrix of the surjective map Cl(bnr1) ->> Cl(bnr2) */
 GEN
@@ -1258,20 +1356,8 @@ static GEN
 imageofchar(GEN bnr, GEN bnrc, GEN chi)
 {
   GEN nchi = char_normalize(chi, cyc_normalize(bnr_get_cyc(bnr)));
-  GEN chic, D, DC = bnrchar_primitive(bnr, nchi, bnrc);
-  GEN cycc = bnr_get_cyc(bnrc);
-  long i, l = lg(cycc);
-
-  D = gel(DC,1);
-  chic = gel(DC,2);
-  /* chic(genc[i]) = zeta_D^chic[i]) */
-  /* denormalize: express chic(genc[i]) in terms of zeta_{cycc[i]} */
-  for (i = 1; i < l; ++i)
-  {
-    GEN di = gel(cycc, i), t = diviiexact(mulii(di, gel(chic,i)), D);
-    gel(chic, i) = modii(t, di);
-  }
-  return chic;
+  GEN DC = bnrchar_primitive(bnr, nchi, bnrc);
+  return char_denormalize(gel(DC,1), gel(DC,2), bnr_get_cyc(bnrc));
 }
 
 /* convert A,B,C to [bnr, H] */

@@ -122,12 +122,12 @@ static GEN
 ZM_zc_mul_i(GEN x, GEN y, long c, long l)
 {
   long i, j;
-  pari_sp av;
-  GEN z = cgetg(l,t_COL), s;
+  GEN z = cgetg(l,t_COL);
 
   for (i=1; i<l; i++)
   {
-    av = avma; s = mulis(gcoeff(x,i,1),y[1]);
+    pari_sp av = avma;
+    GEN s = mulis(gcoeff(x,i,1),y[1]);
     for (j=2; j<c; j++)
       if (y[j]) s = addii(s, mulis(gcoeff(x,i,j),y[j]));
     gel(z,i) = gerepileuptoint(av,s);
@@ -139,6 +139,24 @@ ZM_zc_mul(GEN x, GEN y) {
   long l = lg(x);
   if (l == 1) return cgetg(1, t_COL);
   return ZM_zc_mul_i(x,y, l, lgcols(x));
+}
+
+/* y non-empty ZM, x a compatible zv (dimension > 0). */
+GEN
+zv_ZM_mul(GEN x, GEN y) {
+  long i,j, lx = lg(x), ly = lg(y);
+  GEN z;
+  if (lx == 1) return zerovec(ly-1);
+  z = cgetg(ly,t_VEC);
+  for (j=1; j<ly; j++)
+  {
+    pari_sp av = avma;
+    GEN s = mulsi(x[1], gcoeff(y,1,j));
+    for (i=2; i<lx; i++)
+      if (x[i]) s = addii(s, mulsi(x[i], gcoeff(y,i,j)));
+    gel(z,i) = gerepileuptoint(av,s);
+  }
+  return z;
 }
 
 /* x ZM, y a compatible zm (dimension > 0). */
@@ -409,6 +427,37 @@ ZM_multosym(GEN x, GEN y)
     gel(M,j) = z;
   }
   return M;
+}
+
+/* compute m*diagonal(d), assume lg(d) = lg(m). Shallow */
+GEN
+ZM_mul_diag(GEN m, GEN d)
+{
+  long j, l;
+  GEN y = cgetg_copy(m, &l);
+  for (j=1; j<l; j++)
+  {
+    GEN c = gel(d,j);
+    gel(y,j) = equali1(c)? gel(m,j): ZC_Z_mul(gel(m,j), c);
+  }
+  return y;
+}
+/* compute diagonal(d)*m, assume lg(d) = lg(m~). Shallow */
+GEN
+ZM_diag_mul(GEN d, GEN m)
+{
+  long i, j, l = lg(d);
+  GEN y = cgetg(l, t_MAT);
+  for (j=1; j<l; j++) gel(y,j) = cgetg(l, t_COL);
+  for (i=1; i<l; i++)
+  {
+    GEN c = gel(d,i);
+    if (equali1(c))
+      for (j=1; j<l; j++) gcoeff(y,i,j) = gcoeff(m,i,j);
+    else
+      for (j=1; j<l; j++) gcoeff(y,i,j) = mulii(gcoeff(m,i,j), c);
+  }
+  return y;
 }
 
 /* assume lx > 1 is lg(x) = lg(y) */

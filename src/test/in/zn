@@ -53,3 +53,15 @@ p=2^80+13; znlog(Mod(3,p),Mod(2,p))
 g=Mod(3,11);
 v=[I,-1,Mat(1),matid(2)/2,Mat([5,1])];
 a=Mod(-1,11); for(i=1,#v, print(iferr(znlog(a,g,v[i]),E,E)));
+
+bnr = bnrinit(bnfinit(x), [160,[1]], 1);
+g = bnr.gen;
+bnrchar(bnr, g, [1/2,0,0])
+bnrchar(bnr, [g[1],g[3]])
+bnrchar(bnr, [1,0,0;0,1,0;0,0,2])
+H=[4,1,0; 0,1,0; 0,0,2];
+bnrchar(bnr, H)
+bnrchar(bnr, H, [0,1/2,0])
+H=[8,4,2;0,2,1;0,0,1];
+bnrchar(bnr, H, [0,1/2,1/2])
+bnrchar(bnr, H, [0,0,1/2])

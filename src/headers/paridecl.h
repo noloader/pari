@@ -997,6 +997,7 @@ GEN     ZM_Z_mul(GEN X, GEN c);
 GEN     ZM_add(GEN x, GEN y);
 GEN     ZM_copy(GEN x);
 GEN     ZM_det_triangular(GEN mat);
+GEN     ZM_diag_mul(GEN m, GEN d);
 int     ZM_equal(GEN A, GEN B);
 GEN     ZM_hnfdivrem(GEN x, GEN y, GEN *Q);
 int     ZM_ishnf(GEN x);
@@ -1004,6 +1005,7 @@ int     ZM_isidentity(GEN x);
 int     ZM_isscalar(GEN x, GEN s);
 long    ZM_max_lg(GEN x);
 GEN     ZM_mul(GEN x, GEN y);
+GEN     ZM_mul_diag(GEN m, GEN d);
 GEN     ZM_multosym(GEN x, GEN y);
 GEN     ZM_neg(GEN x);
 GEN     ZM_nm_mul(GEN x, GEN y);
@@ -1056,6 +1058,7 @@ GEN     zv_prod_Z(GEN v);
 long    zv_sum(GEN v);
 GEN     zv_to_Flv(GEN z, ulong p);
 GEN     zv_z_mul(GEN v, long n);
+GEN     zv_ZM_mul(GEN x, GEN y);
 int     zvV_equal(GEN V, GEN W);
 
 /* ZX.c */
@@ -2158,6 +2161,7 @@ GEN     nfsign_units(GEN bnf, GEN archp, int add_zu);
 GEN     ABC_to_bnr(GEN A, GEN B, GEN C, GEN *H, int gen);
 GEN     Buchray(GEN bnf, GEN module, long flag);
 GEN     bnrautmatrix(GEN bnr, GEN aut);
+GEN     bnrchar(GEN bnr, GEN g, GEN v);
 GEN     bnrchar_primitive(GEN bnr, GEN chi, GEN bnrc);
 GEN     bnrclassno(GEN bignf,GEN ideal);
 GEN     bnrclassno0(GEN A,GEN B,GEN C);
@@ -2183,6 +2187,7 @@ long    bnfcertify0(GEN bnf, long flag);
 int     char_check(GEN cyc, GEN chi);
 GEN     charker(GEN cyc, GEN chi);
 GEN     charker0(GEN cyc, GEN chi);
+GEN     char_denormalize(GEN D, GEN chic, GEN cyc);
 GEN     char_normalize(GEN chi, GEN ncyc);
 GEN     char_rootof1(GEN d, long prec);
 GEN     char_rootof1_u(ulong d, long prec);
@@ -3870,6 +3875,7 @@ void    forsubgroup(void *E, long fun(void*,GEN), GEN cyc, GEN B);
 GEN     bnrL1(GEN bnr, GEN sbgrp, long flag, long prec);
 GEN     bnrrootnumber(GEN bnr, GEN chi, long flag, long prec);
 GEN     bnrstark(GEN bnr, GEN subgroup, long prec);
+GEN     cyc2elts(GEN cyc);
 
 /* sumiter.c */
 
