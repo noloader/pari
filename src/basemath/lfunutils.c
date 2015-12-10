@@ -431,7 +431,6 @@ vec01(long r1, long r2)
   for (     ; i <= d;  i++) gel(v,i) = gen_1;
   return v;
 }
-/* CHI primitive character */
 static GEN
 lfunchigen(GEN bnr, GEN CHI)
 {
@@ -442,7 +441,7 @@ lfunchigen(GEN bnr, GEN CHI)
   int real;
 
   bnr = gel(v,2);
-  CHI = gel(v,3);
+  CHI = gel(v,3); /* now CHI is primitive wrt bnr */
 
   nf = bnr_get_nf(bnr);
   N = bnr_get_mod(bnr);
@@ -450,7 +449,7 @@ lfunchigen(GEN bnr, GEN CHI)
   N = gel(N,1);
   NN = mulii(idealnorm(nf, N), absi(nf_get_disc(nf)));
   if (equali1(NN)) return gerepileupto(av, lfunzeta());
-  if (gequal0(CHI)) return gerepilecopy(av, lfunzetak_i(bnr));
+  if (ZV_equal0(CHI)) return gerepilecopy(av, lfunzetak_i(bnr));
   nf_get_sign(nf, &r1, &r2);
   sig = vec01(r1+r2-n1, r2+n1);
   nchi = char_normalize(CHI, cyc_normalize(bnr_get_cyc(bnr)));
