@@ -237,15 +237,14 @@ vecan_chivec(GEN an, long n, long prec)
   pari_sp ltop = avma;
   ulong ord = itou(gel(an,1));
   GEN chi = gel(an,2), c = cgetg(n+1, t_VEC), z = grootsof1(ord, prec);
-  long i, iN, N = lg(chi)-1;
+  long i, iN, N = lg(chi)-1, d = minuu(N, n);
 
-  for (i = iN = 1; i <= n; i++,iN++)
+  for (i = 1; i <= d; i++)
+    gel(c,i) = (ugcd(N, i) > 1)? gen_0: gel(z, chi[i]+1);
+  for (iN = 1; i <= n; i++,iN++)
   {
     if (iN > N) iN = 1; /* iN = (i-1) % N + 1  [ = i mod N, in [1,N] ]*/
-    if (ugcd(N, iN) > 1)
-      gel(c,i) = gen_0;
-    else
-      gel(c,i) = gel(z, chi[iN]+1);
+    gel(c,i) = gel(c,iN);
   }
   return gerepilecopy(ltop, c);
 }
