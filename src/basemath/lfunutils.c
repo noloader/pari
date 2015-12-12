@@ -283,7 +283,7 @@ vecan_Kronecker(GEN D, long n)
     case -1: gel(v,i) = gen_m1; break;
     default: gel(v,i) = gen_0; break;
   }
-  for (id = i; i <= n; i++,id++)
+  for (id = i; i <= n; i++,id++) /* periodic mod d */
   {
     if (id > d) id = 1;
     gel(v, i) = gel(v, id);
