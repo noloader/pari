@@ -383,8 +383,11 @@ vecan_chigen(GEN an, long n, long prec)
   else
     z = char_rootof1(gord, prec);
 
-  u_forprime_init(&iter, 2, n);
   if (nf_get_degree(nf) == 1)
+  {
+    ulong Nu = itou_or_0(NZ);
+    long i, id, d = Nu ? minuu(Nu, n): n;
+    u_forprime_init(&iter, 2, d);
     while ((p = u_forprime_next(&iter)))
     {
       GEN ch;
@@ -393,12 +396,19 @@ vecan_chigen(GEN an, long n, long prec)
       gp[2] = p;
       ch = chigeneval(bnr, nchi, gp, z, prec);
       gel(v, p)  = ch;
-      for (k = 2*p; k <= (ulong)n; k += p)
+      for (k = 2*p; k <= (ulong)d; k += p)
         gel(v, k) = gaddmul(gel(v, k), ch, gel(v, k/p));
     }
+    for (id = i = d+1; i <= n; i++,id++) /* periodic mod d */
+    {
+      if (id > d) id = 1;
+      gel(v, i) = gel(v, id);
+    }
+  }
   else
   {
     GEN BOUND = stoi(n);
+    u_forprime_init(&iter, 2, n);
     while ((p = u_forprime_next(&iter)))
     {
       GEN L;
