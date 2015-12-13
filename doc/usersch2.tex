@@ -340,10 +340,10 @@ After an (optional) leading \kbd{+} or \kbd{-}, type a number with a decimal
 point. Leading zeroes may be omitted, up to the decimal point, but trailing
 zeroes are important: your \typ{REAL} is assigned an internal precision,
 which is the supremum of the input precision, one more than the number of
-decimal digits input, and the default precision. For example, if the default
-precision is 28 digits, typing \kbd{2.} yields a precision of 28 digits, but
-\kbd{2.0\dots0} with 45 zeros gives a number with internal precision at least
-45, although less may be printed.
+decimal digits input, and the default \tet{realprecision}. For example, if
+the default precision is 28 digits, typing \kbd{2.} yields a precision of 28
+digits, but \kbd{2.0\dots0} with 45 zeros gives a number with internal
+precision at least 45, although less may be printed.
 
 You can also use scientific notation with the letter \kbd{E} or
 \kbd{e}. As usual, \kbd{e$n$} is interpreted as $\times 10^n$ for all
@@ -356,6 +356,11 @@ By definition, \kbd{0.E $n$} returns a real $0$ of exponent $n$, whereas
 $-\tet{realprecision}$), see \secref{se:whatzero}, behaving like the machine
 epsilon for the current default accuracy: any float of smaller absolute value
 is indistinguishable from $0$.
+
+\misctitle{Technical note} The internal precision is actually expressed in
+bits and can be viewed and manipulated indifferently via \kbd{realprecision}
+(decimal digits, as explained above; shortcut \kbd{\bs p}) or
+\kbd{realbitprecision} (bits; shortcup \kbd{\bs ps}).
 
 \misctitle{Note on output formats} A zero real number is printed in \kbd{e}
 format as $0.Exx$ where $xx$ is the (usually negative) \emph{decimal}
@@ -2848,8 +2853,11 @@ If a \var{logfile} argument is given, change the default logfile name to
 \subsec{\b{o} $\{n\}$} Sets \tet{output} mode to $n$ ($0$: raw, $1$:
 prettymatrix, $3$: external prettyprint).
 
-\subsec{\b{p} $\{n\}$} Sets \tet{realprecision} to $n$ decimal
-digits. Prints its current value if $n$ is omitted.
+\subsec{\b{p} $\{n\}$} Sets \tet{realprecision} to $n$ decimal digits.
+Prints its current value if $n$ is omitted.
+
+\subsec{\b{pb} $\{n\}$} Sets \tet{realbitprecision} to $n$ bits.
+Prints its current value if $n$ is omitted.
 
 \subsec{\b{ps} $\{n\}$} Sets \tet{seriesprecision} to $n$ significant terms.
 Prints its current value if $n$ is omitted.

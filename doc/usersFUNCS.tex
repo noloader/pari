@@ -408,18 +408,25 @@ value.
 
 \item If the argument is either an integer, a rational, an exact complex
 number or a quadratic number, it is first converted to a real
-or complex number using the current \idx{precision} held in the default
-\tet{realprecision}.  This precision (the number of decimal digits) can be
-changed using \b{p} or \kbd{default(realprecision,...)}).
+or complex number using the current \idx{precision}, which can be
+view and manipulated using the defaults \tet{realprecision} (in decimal
+digits) or \tet{realbitprecision} (in bits). This precision can be changed
+indifferently
+
+\item in decimal digits: use \b{p} or \kbd{default(realprecision,...)}.
+
+\item in bits: use \b{pb} or \kbd{default(realbitprecision,...)}.
+
 After this conversion, the computation proceeds as above for real or complex
 arguments.
 
 In library mode, the \kbd{realprecision} does not matter; instead the
 precision is taken from the \kbd{prec} parameter which every transcendental
-function has.  As in \kbd{gp}, this \kbd{prec} is not used when the
-argument to a function is already inexact.
-Note that the argument \var{prec} stands for the length in words of a real
-number, including codewords. Hence we must have $\var{prec} \geq 3$.
+function has. As in \kbd{gp}, this \kbd{prec} is not used when the argument
+to a function is already inexact. Note that the argument \var{prec} stands
+for the length in words of a real number, including codewords. Hence we must
+have $\var{prec} \geq 3$. (Some functions allow a \kbd{bitprec} argument
+instead which allow finer granularity.)
 
 Some accuracies attainable on 32-bit machines cannot be attained
 on 64-bit machines for parity reasons. For example the default \kbd{gp} accuracy

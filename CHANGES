@@ -376,6 +376,7 @@ BA138- [libpari] get_FpXQX_mod, get_FpXQX_degree, get_FpXQX_var,
 BA139- [libpari] get_FlxqX_mod, get_FlxqX_degree, get_FlxqX_var,
        FlxqX_get_red, random_FlxqX
 BA140- Prototype code 'b' and default 'realbitprecision'
+  141- \pb shortcut [ manipulate realbitprecision ]
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]

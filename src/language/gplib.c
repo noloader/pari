@@ -313,6 +313,7 @@ slash_commands(void)
 \\m {n}  : print result in prettymatrix format\n\
 \\o {n}  : set output method (0=raw, 1=prettymatrix, 2=prettyprint, 3=2-dim)\n\
 \\p {n}  : change real precision\n\
+\\pb{n}  : change real bit precision\n\
 \\ps{n}  : change series precision\n\
 \\q      : quit completely this GP session\n\
 \\r {f}  : read in a file\n\
@@ -1749,6 +1750,8 @@ escape(const char *tch, int ismain)
       {
         case 's': s++;
           (void)sd_seriesprecision(*s? s: NULL,d_ACKNOWLEDGE); break;
+        case 'b' : s++;
+          (void)sd_realbitprecision(*s? s: NULL,d_ACKNOWLEDGE); break;
         default :
           (void)sd_realprecision(*s? s: NULL,d_ACKNOWLEDGE); break;
       }
