@@ -1232,8 +1232,7 @@ bnrchar_i(GEN bnr, GEN g, GEN v)
       pari_err_TYPE("bnrchar",g);
   }
   cyc = bnr_get_cyc(bnr);
-  H = ZM_hnfall(shallowconcat(g,diagonal_shallow(cyc)), &U, 1);
-  U = rowslice(U, 1, l-1);
+  H = ZM_hnfall(shallowconcat(g,diagonal_shallow(cyc)), v? &U: NULL, 1);
   dv = NULL;
   if (v)
   {
@@ -1242,6 +1241,7 @@ bnrchar_i(GEN bnr, GEN g, GEN v)
     if (!dv) v = NULL;
     else
     {
+      U = rowslice(U, 1, l-1);
       w = FpV_red(ZV_ZM_mul(w, U), dv);
       for (i = 1; i < l; i++)
         if (signe(gel(w,i))) pari_err_TYPE("bnrchar [inconsistent values]",v);

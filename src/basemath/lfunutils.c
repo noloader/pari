@@ -468,47 +468,26 @@ lfunchigen(GEN bnr, GEN CHI)
   return gerepilecopy(av, Ldchi);
 }
 
-/* Find all characters of clgp whose kernel contain group given by HNF HB. */
+/* Find all characters of clgp whose kernel contain group given by HNF H.
+ * Set *pcnj[i] if chi[i] is not real */
 static GEN
-chigenkerfind(GEN G, GEN HB)
+chigenkerfind(GEN bnr, GEN H, GEN *pcnj)
 {
-  GEN CYC, cyc, res, cnj, chi, chc;
-  long lcyc, i, k, m, h = itos(abgrp_get_no(G));
+  GEN res, cnj, L = bnrchar(bnr, H, NULL), cyc = bnr_get_cyc(bnr);
+  long i, k, l = lg(L);
 
-  if (h == 1) return mkvec2(cgetg(1,t_VEC), cgetg(1,t_VECSMALL));
-  CYC = abgrp_get_cyc(G);
-  cyc = vec_to_vecsmall(CYC);
-  lcyc = lg(cyc);
-  res = cgetg(h+1, t_VEC);
-  cnj = cgetg(h+1, t_VECSMALL);
-  chi = cgetg(lcyc, t_VECSMALL);
-  chc = cgetg(lcyc, t_VECSMALL);
-  for (m = 0, k = 1; m < h; m++)
+  res = cgetg(l, t_VEC);
+  *pcnj = cnj = cgetg(l, t_VECSMALL);
+  for (i = k = 1; i < l; i++)
   {
-    long isc, n = m;
-    pari_sp av;
-    GEN CHI;
-    for (i = 1; i < lcyc; ++i)
-    {
-      long d = cyc[i];
-      long n0 = n % d;
-      n = n / d;
-      chi[i] = n0;
-      chc[i] = n0 ? d-n0: 0;
-    }
-    isc = vecsmall_lexcmp(chc, chi);
-    if (isc < 0) continue;
-    CHI = vecsmall_to_vec(chi);
-    av = avma;
-    if (hnfdivide(charker(CYC,CHI), HB))
-    {
-      gel(res, k) = CHI;
-      cnj[k] = isc; k++;
-    }
-    avma = av;
+    GEN chi = gel(L,i), c = char_conj(cyc, chi);
+    long fl = ZV_cmp(c, chi);
+    if (fl < 0) continue; /* keep one char in pair of conjugates */
+    gel(res, k) = chi;
+    cnj[k] = fl; k++;
   }
-  setlg(res, k);
-  setlg(cnj, k); return mkvec2(res, cnj);
+  setlg(cnj, k);
+  setlg(res, k); return res;
 }
 
 static GEN
@@ -558,11 +537,9 @@ lfunabelianrelinit_bitprec(GEN nfabs, GEN bnf, GEN polrel, GEN dom, long der, lo
   }
   if (typ(polrel) != t_POL) pari_err_TYPE("lfunabelianrelinit", polrel);
   cond = rnfconductor(bnf, polrel);
-  chi = chigenkerfind(bnr_get_clgp(gel(cond,2)), gel(cond,3));
-  cnj = gel(chi,2);
-  chi = gel(chi,1); l = lg(chi);
+  chi = chigenkerfind(gel(cond,2), gel(cond,3), &cnj);
   bnr = Buchray(bnf, gel(cond,1), nf_INIT|nf_GEN);
-  res = cgetg(l, t_VEC);
+  l = lg(chi); res = cgetg(l, t_VEC);
   for (i = 1; i < l; ++i)
   {
     GEN L = lfunchigen(bnr, gel(chi,i));
