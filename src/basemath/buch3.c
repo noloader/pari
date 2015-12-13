@@ -1200,7 +1200,7 @@ bnfcertify(GEN bnf) { return bnfcertify0(bnf, 0); }
 /* \chi(gen[i]) = zeta_D^chic[i])
  * denormalize: express chi(gen[i]) in terms of zeta_{cyc[i]} */
 GEN
-char_denormalize(GEN D, GEN chic, GEN cyc)
+char_denormalize(GEN cyc, GEN D, GEN chic)
 {
   long i, l = lg(chic);
   GEN chi = cgetg(l, t_VEC);
@@ -1254,7 +1254,7 @@ bnrchar_i(GEN bnr, GEN g, GEN v)
   if (h == 1) /* unique character, H = Id */
   {
     if (v)
-      v = char_denormalize(dv,v,cyc);
+      v = char_denormalize(cyc,dv,v);
     else
       v = zerovec(lg(cyc)-1); /* trivial char */
     return mkvec(v);
@@ -1279,7 +1279,7 @@ bnrchar_i(GEN bnr, GEN g, GEN v)
   {
     GEN c = zv_ZM_mul(gel(CH,i), U2);
     if (v) c = ZC_add(c, v);
-    gel(CH,i) = char_denormalize(dchi, c, cyc);
+    gel(CH,i) = char_denormalize(cyc, dchi, c);
   }
   return CH;
 }
@@ -1352,7 +1352,7 @@ imageofchar(GEN bnr, GEN bnrc, GEN chi)
 {
   GEN nchi = char_normalize(chi, cyc_normalize(bnr_get_cyc(bnr)));
   GEN DC = bnrchar_primitive(bnr, nchi, bnrc);
-  return char_denormalize(gel(DC,1), gel(DC,2), bnr_get_cyc(bnrc));
+  return char_denormalize(bnr_get_cyc(bnrc), gel(DC,1), gel(DC,2));
 }
 
 /* convert A,B,C to [bnr, H] */
@@ -1836,6 +1836,20 @@ char_normalize(GEN chi, GEN ncyc)
     for (i = 2; i < l; i++) gel(c,i) = mulii(gel(chi,i), gel(ncyc,i));
   }
   return char_simplify(gel(ncyc,1), c);
+}
+
+/* conjugate character [ZV] */
+GEN
+char_conj(GEN cyc, GEN chi)
+{
+  long i, l = lg(chi);
+  GEN z = cgetg(l, t_VEC);
+  for (i = 1; i < l; i++)
+  {
+    GEN c = gel(chi,i);
+    gel(z,i) = signe(c)? subii(gel(cyc,i), c): gen_0;
+  }
+  return z;
 }
 
 int

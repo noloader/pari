@@ -118,17 +118,6 @@ init_CHI_C(CHI_t *c, GEN CHI) {
   init_CHI(c,CHI, gel(CHI,2));
 }
 
-/* Compute the conjugate character [ZV] */
-static GEN
-ConjChar(GEN chi, GEN cyc)
-{
-  long i, l = lg(chi);
-  GEN z = cgetg(l, t_VEC);
-  for (i = 1; i < l; i++)
-    gel(z,i) = signe(gel(chi,i))? subii(gel(cyc,i), gel(chi,i)): gen_0;
-  return z;
-}
-
 typedef struct {
   long r; /* rank = lg(gen) */
   GEN j; /* current elt is gen[1]^j[1] ... gen[r]^j[r] */
@@ -279,7 +268,7 @@ LiftChar(GEN Qt, GEN cyc, GEN chi)
   GEN ncyc = gel(Qt,5), U = gel(Qt,3);
   GEN nchi = char_normalize(chi, ncyc);
   GEN c = ZV_ZM_mul(gel(nchi,2), U), d = gel(nchi,1);
-  return char_denormalize(d, c, cyc);
+  return char_denormalize(cyc, d, c);
 }
 
 /* Let s: A -> B given by P, and let cycA, cycB be the cyclic structure of
@@ -407,7 +396,7 @@ get_listCR(GEN bnr, GEN dtQ)
     if (equaliu(Order(Mr,lchi), 2)) tnc++;
     else
     {
-      hash_insert(S, ConjChar(lchi, Mr), (void*)1);
+      hash_insert(S, char_conj(Mr, lchi), (void*)1);
       tnc+=2;
     }
   }
@@ -2646,7 +2635,7 @@ bnrL1(GEN bnr, GEN subgp, long flag, long prec)
   {
     /* lift to a character on Cl(bnr) */
     GEN lchi = LiftChar(Qt, cyc, gel(allCR,i));
-    GEN clchi = ConjChar(lchi, cyc);
+    GEN clchi = char_conj(cyc, lchi);
     long j, a = 0;
     for (j = 1; j <= nc; j++)
       if (ZV_equal(gmael(listCR, j, 1), clchi)) { a = j; break; }

@@ -2065,11 +2065,14 @@ above, returns the normalized representation $[d, (n_j)]$, such that
 $\chi(\prod g_j^{x_j}) = \zeta_d^{\sum_j n_j x_j}$, where $\zeta_d =
 \exp(2i\pi/d)$ and $d$ is \emph{minimal}.
 
-\fun{GEN}{char_denormalize}{GEN d, GEN n, GEN cyc} given a normalized
+\fun{GEN}{char_denormalize}{GEN cyc, GEN d, GEN n} given a normalized
 representation $[d, n]$ (where $d$ need not be minimal) of a character on the
 abelian group with abelian divisors \kbd{cyc}, return the associated character
 (where the image of each generator $g_i$ is given in terms of roots
 of unity of different orders $\kbd{cyc}[i]$).
+
+\fun{GEN}{char_conj}{GEN cyc, GEN chi} return the complex conjugate of
+\kbd{chi}.
 
 \fun{int}{char_check}{GEN cyc, GEN chi} return $1$ if \kbd{chi} is a character
 compatible with cyclic factors \kbd{cyc}, and $0$ otherwise.
