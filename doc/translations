@@ -158,7 +158,6 @@ modulus         @Class field theory
 CFT             @Class field theory
 bid             @Class field theory
 prototype       @GP prototypes, parser codes@5
-lfun            @Data structures describing $L$ and Theta functions
 Lmath           @Data structures describing $L$ and Theta functions
 Ldata           @Data structures describing $L$ and Theta functions
 Linit           @Data structures describing $L$ and Theta functions
