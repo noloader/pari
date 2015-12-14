@@ -235,13 +235,13 @@ sd_realbitprecision(const char *v, long flag)
   pariout_t *fmt = GP_DATA->fmt;
   if (v)
   {
-    ulong newnb = ndec2nbits(fmt->sigd);
+    ulong newnb = precreal;
     long n;
     sd_ulong_init(v, "realbitprecision", &newnb, 1, prec2nbits(LGBITS));
+    if ((long)newnb == precreal) return gnil;
     n = nbits2ndec(newnb);
-    if (fmt->sigd == n) return gnil;
+    if (!n) n = 1;
     if (fmt->sigd >= 0) fmt->sigd = n;
-    if ((long) newnb == precreal) return gnil;
     precreal = (long) newnb;
   }
   if (flag == d_RETURN) return stoi(precreal);
@@ -250,8 +250,8 @@ sd_realbitprecision(const char *v, long flag)
     pari_printf("   realbitprecision = %ld significant bits", precreal);
     if (fmt->sigd < 0)
       pari_puts(" (all digits displayed)");
-    else if (nbits2ndec(precreal) != fmt->sigd)
-      pari_printf(" (%ld digits displayed)", fmt->sigd);
+    else
+      pari_printf(" (%ld decimal digits displayed)", fmt->sigd);
     pari_putc('\n');
   }
   return gnil;
