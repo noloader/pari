@@ -804,6 +804,14 @@ conjectures, so all numerical results should be taken with a grain of salt.
 One can always increase \kbd{realprecision} and recompute: the difference
 estimates the actual absolute error in the original output.
 
+\misctitle{Note} The requested precision has a major impact on runtimes.
+Because of this, most $L$-function routines, in particular \kbd{lfun} itself,
+specify the requested precision in \emph{bits}, not in decimal digits.
+This is transparent for the user once \tet{realprecision} or
+\tet{realbitprecision} are set. We advise to manipulate precision via
+\tet{realbitprecision} as it allows finer granularity: \kbd{realprecision}
+increases by increments of 64 bits, i.e. 19 decimal digits at a time.
+
 \subsec{Theta functions}
 
 Given an $L$-function as above, we define an associated Theta function

@@ -15,11 +15,16 @@ Doc: compute the L-function value $L(s)$, or if \kbd{D} is set, the
  Linit (created by \kbd{lfuninit}), preferrably the latter if many values
  are to be computed.
 
- The result is given with absolute error less than $10^{-P}$, where $P =
- \text{realprecision}$.
- The argument $s$ is also allowed to be a power series;
- for instance, if $s = \alpha + x + O(x^n)$, the function returns the Taylor
- expansion of order $n$ around $\alpha$.
+ The argument $s$ is also allowed to be a power series; for instance, if $s =
+ \alpha + x + O(x^n)$, the function returns the Taylor expansion of order $n$
+ around $\alpha$. The result is given with absolute error less than $2^{-B}$,
+ where $B = \text{realbitprecision}$.
+
+ \misctitle{Caveat} The requested precision has a major impact on runtimes.
+ It is advised to manipulate precision via \tet{realbitprecision} as
+  explained above instead of \tet{realprecision} as the latter allows less
+ granularity: \kbd{realprecision} increases by increments of 64 bits, i.e. 19
+ decimal digits at a time.
 
  \bprog
  ? lfun(x^2+1, 2)  \\ Lmath: Dedekind zeta for Q(i) at 2
