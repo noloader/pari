@@ -482,6 +482,7 @@ BA 61- [libpari] concat, concat1 renamed to gconcat, gconcat1
    62- rnfconductor now returns [cond, bnr, H] instead of [cond, bnr.clgp, H]
    63- nfrootsof1(), more stringent ramification tests: looking
        for a subfield Q(zeta_p^k) is now faster.
+   64- intnumromb to use realbitprecision
 
 Removed
    1- deprecated functions nfbasis0, nfdisc0, factorpadic0

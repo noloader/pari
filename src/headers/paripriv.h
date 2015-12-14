@@ -105,7 +105,7 @@ GEN  intcirc0(GEN a, GEN R, GEN code, GEN tab, long prec);
 GEN  intfuncinit0(GEN a, GEN b, GEN code, long m, long prec);
 GEN  intnum0(GEN a, GEN b, GEN code, GEN tab, long prec);
 GEN  intnumgauss0(GEN a, GEN b, GEN code, GEN tab, long prec);
-GEN  intnumromb0(GEN a, GEN b, GEN code, long flag, long prec);
+GEN  intnumromb0_bitprec(GEN a, GEN b, GEN code, long flag, long bit);
 GEN  limitnum0(GEN u, long muli, GEN alpha, long prec);
 GEN  matrice(GEN nlig, GEN ncol, GEN code);
 GEN  prodeuler0(GEN a, GEN b, GEN code, long prec);

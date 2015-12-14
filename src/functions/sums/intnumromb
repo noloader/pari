@@ -1,7 +1,7 @@
 Function: intnumromb
 Section: sums
-C-Name: intnumromb0
-Prototype: V=GGED0,L,p
+C-Name: intnumromb0_bitprec
+Prototype: V=GGED0,L,b
 Help: intnumromb(X=a,b,expr,{flag=0}): numerical integration of expr (smooth in
  ]a,b[) from a to b with respect to X. flag is optional and mean 0: default.
  expr can be evaluated exactly on [a,b]; 1: general function; 2: a or b can be
@@ -9,7 +9,7 @@ Help: intnumromb(X=a,b,expr,{flag=0}): numerical integration of expr (smooth in
  limits at a or b.
 Wrapper: (,,G)
 Description:
-  (gen,gen,gen,?small):gen:prec intnumromb(${3 cookie}, ${3 wrapper}, $1, $2, $4, $prec)
+  (gen,gen,gen,?small):gen:prec intnumromb(${3 cookie}, ${3 wrapper}, $1, $2, $4, $bitprec)
 Doc: numerical integration of \var{expr} (smooth in $]a,b[$), with respect to
  $X$. Suitable for low accuracy; if \var{expr} is very regular (e.g. analytic
  in a large region) and high accuracy is desired, try \tet{intnum} first.
@@ -21,20 +21,23 @@ Doc: numerical integration of \var{expr} (smooth in $]a,b[$), with respect to
  If $\fl=1$, uses a general driver routine for doing numerical integration,
  making no particular assumption (slow).
 
- $\fl=2$ is tailored for being used when $a$ or $b$ are infinite. One
- \emph{must} have $ab>0$, and in fact if for example $b=+\infty$, then it is
- preferable to have $a$ as large as possible, at least $a\ge1$.
+ $\fl=2$ is tailored for being used when $a$ or $b$ are infinite using the
+ change of variable $t = 1/X$. One \emph{must} have $ab>0$, and in fact if
+ for example $b=+\infty$, then it is preferable to have $a$ as large as
+ possible, at least $a\ge1$.
 
- If $\fl=3$, the function is allowed to be undefined (but continuous) at $a$
- or $b$, for example the function $\sin(x)/x$ at $x=0$.
+ If $\fl=3$, the function is allowed to be undefined
+ at $a$ (but right continuous) or $b$ (left continuous),
+ for example the function $\sin(x)/x$ between $x=0$ and $1$.
 
- The user should not require too much accuracy: 18 or 28 decimal digits is OK,
+ The user should not require too much accuracy: \tet{realprecision} about
+ 30 decimal digits (\tet{realbitprecision} about 100 bits) is OK,
  but not much more. In addition, analytical cleanup of the integral must have
  been done: there must be no singularities in the interval or at the
- boundaries. In practice this can be accomplished with a simple change of
+ boundaries. In practice this can be accomplished with a change of
  variable. Furthermore, for improper integrals, where one or both of the
  limits of integration are plus or minus infinity, the function must decrease
- sufficiently rapidly at infinity. This can often be accomplished through
+ sufficiently rapidly at infinity, which can often be accomplished through
  integration by parts. Finally, the function to be integrated should not be
  very small (compared to the current precision) on the entire interval. This
  can of course be accomplished by just multiplying by an appropriate constant.

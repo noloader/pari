@@ -39,6 +39,10 @@ _invf(void *E, GEN x)
   return gmul(S->f(S->E, y), gsqr(y));
 }
 
+/* h and s are arrays of the same length. The h[i] are (quickly decreasing)
+ * step sizes, s[i] is the computed Riemann sum for step size h[i].
+ * Interpolate the last KLOC+1 values so that s ~ polynomial in h of degree
+ * KLOC. Guess that limit_{h->0} = s(0) */
 static GEN
 interp(GEN h, GEN s, long j, long lim, long KLOC)
 {
@@ -54,11 +58,11 @@ interp(GEN h, GEN s, long j, long lim, long KLOC)
 }
 
 static GEN
-qrom3(void *E, GEN (*eval)(void *, GEN), GEN a, GEN b, long prec)
+qrom3(void *E, GEN (*eval)(void *, GEN), GEN a, GEN b, long bit)
 {
   const long JMAX = 25, KLOC = 4;
   GEN ss,s,h,p1,p2,qlint,del,x,sum;
-  long j, j1, it, sig;
+  long j, j1, it, sig, prec = nbits2prec(bit);
 
   a = gtofp(a,prec);
   b = gtofp(b,prec);
@@ -89,18 +93,19 @@ qrom3(void *E, GEN (*eval)(void *, GEN), GEN a, GEN b, long prec)
     gel(s,j) = gerepileupto(av, gmul2n(gadd(gel(s,j-1), sum), -1));
     if (DEBUGLEVEL>3) err_printf("qrom3: iteration %ld: %Ps\n", j,s[j]);
 
-    if (j >= KLOC && (ss = interp(h, s, j, prec2nbits(prec)-j-6, KLOC)))
+    if (j >= KLOC && (ss = interp(h, s, j, bit-j-6, KLOC)))
       return gmulsg(sig,ss);
   }
+  pari_err_IMPL("intnumromb recovery [too many iterations]");
   return NULL;
 }
 
 static GEN
-qrom2(void *E, GEN (*eval)(void *, GEN), GEN a, GEN b, long prec)
+qrom2(void *E, GEN (*eval)(void *, GEN), GEN a, GEN b, long bit)
 {
   const long JMAX = 16, KLOC = 4;
   GEN ss,s,h,p1,qlint,del,ddel,x,sum;
-  long j, j1, it, sig;
+  long j, j1, it, sig, prec = nbits2prec(bit);
 
   a = gtofp(a, prec);
   b = gtofp(b, prec);
@@ -131,35 +136,36 @@ qrom2(void *E, GEN (*eval)(void *, GEN), GEN a, GEN b, long prec)
     gel(s,j) = gerepileupto(av, gadd(p1,sum));
     if (DEBUGLEVEL>3) err_printf("qrom2: iteration %ld: %Ps\n", j,s[j]);
 
-    if (j >= KLOC && (ss = interp(h, s, j, prec2nbits(prec)-(3*j/2)-6, KLOC)))
+    if (j >= KLOC && (ss = interp(h, s, j, bit-(3*j/2)+3, KLOC)))
       return gmulsg(sig, ss);
   }
+  pari_err_IMPL("intnumromb recovery [too many iterations]");
   return NULL;
 }
 
 /* integrate after change of variables x --> 1/x */
 static GEN
-qromi(void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, long prec)
+qromi(void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, long bit)
 {
   GEN A = ginv(b), B = ginv(a);
   invfun S;
   S.f = eval;
-  S.E = E; return qrom2(&S, &_invf, A, B, prec);
+  S.E = E; return qrom2(&S, &_invf, A, B, bit);
 }
 
 /* a < b, assume b "small" (< 100 say) */
 static GEN
-rom_bsmall(void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, long prec)
+rom_bsmall(void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, long bit)
 {
-  if (gcmpgs(a,-100) >= 0) return qrom2(E,eval,a,b,prec);
-  if (gcmpgs(b, -1) < 0)   return qromi(E,eval,a,b,prec); /* a<-100, b<-1 */
+  if (gcmpgs(a,-100) >= 0) return qrom2(E,eval,a,b,bit);
+  if (gcmpgs(b, -1) < 0)   return qromi(E,eval,a,b,bit); /* a<-100, b<-1 */
   /* a<-100, b>=-1, split at -1 */
-  return gadd(qromi(E,eval,a,gen_m1,prec),
-              qrom2(E,eval,gen_m1,b,prec));
+  return gadd(qromi(E,eval,a,gen_m1,bit),
+              qrom2(E,eval,gen_m1,b,bit));
 }
 
 static GEN
-rombint(void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, long prec)
+rombint(void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, long bit)
 {
   long l = gcmp(b,a);
   GEN z;
@@ -169,12 +175,12 @@ rombint(void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, long prec)
   if (gcmpgs(b,100) >= 0)
   {
     if (gcmpgs(a,1) >= 0)
-      z = qromi(E,eval,a,b,prec);
+      z = qromi(E,eval,a,b,bit);
     else /* split at 1 */
-      z = gadd(rom_bsmall(E,eval,a,gen_1,prec), qromi(E,eval,gen_1,b,prec));
+      z = gadd(rom_bsmall(E,eval,a,gen_1,bit), qromi(E,eval,gen_1,b,bit));
   }
   else
-    z = rom_bsmall(E,eval,a,b,prec);
+    z = rom_bsmall(E,eval,a,b,bit);
   if (l < 0) z = gneg(z);
   return z;
 }
@@ -1233,25 +1239,27 @@ intcirc(void *E, GEN (*eval)(void*, GEN), GEN a, GEN R, GEN tab, long prec)
 }
 
 GEN
-intnumromb(void *E, GEN (*eval)(void *, GEN), GEN a, GEN b, long flag, long prec)
+intnumromb_bitprec(void *E, GEN (*eval)(void *, GEN), GEN a, GEN b, long flag, long bit)
 {
   pari_sp av = avma;
   GEN z;
   switch(flag)
   {
-    case 0: z = qrom3  (E, eval, a, b, prec); break;
-    case 1: z = rombint(E, eval, a, b, prec); break;
-    case 2: z = qromi  (E, eval, a, b, prec); break;
-    case 3: z = qrom2  (E, eval, a, b, prec); break;
+    case 0: z = qrom3  (E, eval, a, b, bit); break;
+    case 1: z = rombint(E, eval, a, b, bit); break;
+    case 2: z = qromi  (E, eval, a, b, bit); break;
+    case 3: z = qrom2  (E, eval, a, b, bit); break;
     default: pari_err_FLAG("intnumromb"); return NULL; /* not reached */
   }
-  if (!z) pari_err_IMPL("intnumromb recovery [too many iterations]");
   return gerepileupto(av, z);
 }
+GEN
+intnumromb(void *E, GEN (*eval)(void *, GEN), GEN a, GEN b, long flag, long prec)
+{ return intnumromb_bitprec(E,eval,a,b,flag,prec2nbits(prec));}
 
 GEN
-intnumromb0(GEN a, GEN b, GEN code, long flag, long prec)
-{ EXPR_WRAP(code, intnumromb(EXPR_ARG, a, b, flag, prec)); }
+intnumromb0_bitprec(GEN a, GEN b, GEN code, long flag, long bit)
+{ EXPR_WRAP(code, intnumromb_bitprec(EXPR_ARG, a, b, flag, bit)); }
 GEN
 intnum0(GEN a, GEN b, GEN code, GEN tab, long prec)
 { EXPR_WRAP(code, intnum(EXPR_ARG, a, b, tab, prec)); }
