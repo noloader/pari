@@ -104,6 +104,7 @@ zkst : structure of (Z_K/m)*         bid,                     bnr
 \m {n}  : print result in prettymatrix format
 \o {n}  : set output method (0=raw, 1=prettymatrix, 2=prettyprint, 3=2-dim)
 \p {n}  : change real precision
+\pb{n}  : change real bit precision
 \ps{n}  : change series precision
 \q      : quit completely this GP session
 \r {f}  : read in a file
@@ -157,4 +158,4 @@ f =
 g =
   ()->0
 
-Total time spent: 0
+Total time spent: 4
