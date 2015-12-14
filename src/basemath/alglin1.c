@@ -3652,10 +3652,10 @@ fill_wcol(GEN M, GEN iscol, GEN Wrow, long *w, GEN wcol)
 */
 
 void
-RgMs_structelim(GEN M, long nbrow, GEN A, GEN *p_col, GEN *p_row)
+RgMs_structelim_col(GEN M, long nbcol, long nbrow, GEN A, GEN *p_col, GEN *p_row)
 {
   long i,j,k;
-  long nbcol = lg(M)-1, lA = lg(A);
+  long lA = lg(A);
   GEN prow = cgetg(nbrow+1, t_VECSMALL);
   GEN pcol = zero_zv(nbcol);
   pari_sp av = avma;
@@ -3698,6 +3698,12 @@ RgMs_structelim(GEN M, long nbrow, GEN A, GEN *p_col, GEN *p_row)
     prow[i] = Wrow[i] ? k++: 0;
   avma = av;
   *p_col = pcol; *p_row = prow;
+}
+
+void
+RgMs_structelim(GEN M, long nbrow, GEN A, GEN *p_col, GEN *p_row)
+{
+  return RgMs_structelim_col(M, lg(M)-1, nbrow, A, p_col, p_row);
 }
 
 /*******************************************************************/

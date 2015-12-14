@@ -1300,7 +1300,7 @@ GEN     RgM_inv_upper(GEN a);
 GEN     RgM_invimage(GEN A, GEN B);
 GEN     RgM_solve(GEN a, GEN b);
 GEN     RgM_solve_realimag(GEN x, GEN y);
-void    RgMs_structelim(GEN M, long N, GEN A, GEN *p_col, GEN *p_lin);
+void    RgMs_structelim(GEN M, long nbrow, GEN A, GEN *p_col, GEN *p_lin);
 GEN     ZM_det(GEN a);
 GEN     ZM_detmult(GEN A);
 GEN     ZM_gauss(GEN a, GEN b);

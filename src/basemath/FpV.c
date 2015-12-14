@@ -1411,20 +1411,19 @@ FpMs_structelim_back(GEN M, GEN V, GEN prow, GEN p)
 
 /* Return a linear form Y such that YM is essentially 0 */
 GEN
-FpMs_leftkernel_elt(GEN M, long nbrow, GEN p)
+FpMs_leftkernel_elt_col(GEN M, long nbcol, long nbrow, GEN p)
 {
   pari_sp av = avma, av2;
   GEN pcol, prow;
-  long nbi=lg(M)-1;
   long i, n;
   GEN Mp, B, MB, R, Rp;
   pari_timer ti;
   struct wrapper_modp_s W;
   if (DEBUGLEVEL) timer_start(&ti);
-  RgMs_structelim(M, nbrow, cgetg(1,t_VECSMALL), &pcol, &prow);
+  RgMs_structelim_col(M, nbcol, nbrow, cgetg(1,t_VECSMALL), &pcol, &prow);
   if (!pcol) { avma = av; return NULL; }
   if (DEBUGLEVEL)
-    timer_printf(&ti,"structured elimination (%ld -> %ld)",nbi,lg(pcol)-1);
+    timer_printf(&ti,"structured elimination (%ld -> %ld)",nbcol,lg(pcol)-1);
   n = lg(pcol)-1;
   Mp = cgetg(n+1, t_MAT);
   for(i=1; i<=n; i++)
@@ -1462,4 +1461,10 @@ FpMs_leftkernel_elt(GEN M, long nbrow, GEN p)
     if (DEBUGLEVEL) timer_printf(&ti,"Wiedemann left kernel");
     return gerepilecopy(av, R);
   }
+}
+
+GEN
+FpMs_leftkernel_elt(GEN M, long nbrow, GEN p)
+{
+  return FpMs_leftkernel_elt_col(M, lg(M)-1, nbrow, p);
 }

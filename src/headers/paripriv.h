@@ -510,9 +510,11 @@ GEN     redrealsl2step(GEN A, GEN d, GEN rd);
 GEN     redtausl2(GEN t, GEN *U);
 
 /* alglin1.c */
+
 typedef long (*pivot_fun)(GEN,GEN,long,GEN);
 GEN ZM_pivots(GEN x0, long *rr);
 GEN RgM_pivots(GEN x0, GEN data, long *rr, pivot_fun pivot);
+void RgMs_structelim_col(GEN M, long nbcol, long nbrow, GEN A, GEN *p_col, GEN *p_lin);
 
 /* arith1.c */
 
@@ -605,6 +607,10 @@ int Flxq_log_use_index(GEN m, GEN T0, ulong p);
 
 GEN     ZpXQ_norm_pcyc(GEN x, GEN T, GEN q, GEN p);
 long    zx_is_pcyc(GEN T);
+
+/* FpV.c */
+
+GEN FpMs_leftkernel_elt_col(GEN M, long nbcol, long nbrow, GEN p);
 
 /* galconj.c */
 

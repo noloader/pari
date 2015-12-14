@@ -3380,32 +3380,42 @@ opt_param(GEN x, long prec)
 }
 
 static GEN
-check_kernel(long N, long prmax, GEN C, GEN M, GEN p, GEN m)
+check_kernel(long nbg, long N, long prmax, GEN C, GEN M, GEN p, GEN m)
 {
   pari_sp av = avma;
-  GEN K = FpMs_leftkernel_elt(M, N, m);
-  long i, f=0;
-  long l = lg(K), lm = lgefint(m);
-  GEN idx = diviiexact(subis(p,1),m), g;
-  pari_timer ti;
-  if (DEBUGLEVEL) timer_start(&ti);
-  for(i=1; i<l; i++)
-    if (signe(gel(K,i)))
-      break;
-  g = utoi(i);
-  K = FpC_Fp_mul(K, Fp_inv(gel(K,i), m), m);
-  for(i=1; i<l; i++)
+  long lM = lg(M)-1, nbcol = lM;
+  for (;;)
   {
-    GEN k = gel(K,i);
-    GEN j = i<=prmax ? utoi(i): addis(C,i-(prmax+1));
-    if (signe(k)==0 || !equalii(Fp_pow(g, mulii(k,idx), p),
-                                Fp_pow(j, idx, p)))
-      gel(K,i) = cgetineg(lm);
-    else
-      f++;
+    GEN K = FpMs_leftkernel_elt_col(M, nbcol, N, m);
+    long i, f=0;
+    long l = lg(K), lm = lgefint(m);
+    GEN idx = diviiexact(subis(p,1),m), g;
+    pari_timer ti;
+    if (DEBUGLEVEL) timer_start(&ti);
+    for(i=1; i<l; i++)
+      if (signe(gel(K,i)))
+        break;
+    g = utoi(i);
+    K = FpC_Fp_mul(K, Fp_inv(gel(K,i), m), m);
+    for(i=1; i<l; i++)
+    {
+      GEN k = gel(K,i);
+      GEN j = i<=prmax ? utoi(i): addis(C,i-(prmax+1));
+      if (signe(k)==0 || !equalii(Fp_pow(g, mulii(k,idx), p),
+            Fp_pow(j, idx, p)))
+        gel(K,i) = cgetineg(lm);
+      else
+        f++;
+    }
+    if (DEBUGLEVEL) timer_printf(&ti,"found %ld logs", f);
+    if(f > (nbg>>1)) return gerepileupto(av, K);
+    for(i=1; i<=nbcol; i++)
+    {
+      long a = 1+random_Fl(lM);
+      swap(gel(M,a),gel(M,i));
+    }
+    if (4*nbcol>5*nbg) nbcol = nbcol*9/10;
   }
-  if (DEBUGLEVEL) timer_printf(&ti,"found %ld logs", f);
-  return gerepileupto(av, K);
 }
 
 static GEN
@@ -3484,7 +3494,7 @@ Fp_log_index(GEN a, GEN b, GEN m, GEN p)
   }
   setlg(r.rel,r.nbrel+1);
   r.rel = gerepileupto(av2, r.rel);
-  K = check_kernel(nbrow, r.prmax, C, r.rel, p, m);
+  K = check_kernel(nbi+nbrow-r.prmax, nbrow, r.prmax, C, r.rel, p, m);
   if (DEBUGLEVEL) timer_start(&ti);
   Ao = Fp_log_find_ind(a, K, r.prmax, C, p, m);
   if (DEBUGLEVEL) timer_printf(&ti," log element");
