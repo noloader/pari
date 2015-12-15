@@ -357,11 +357,6 @@ $-\tet{realprecision}$), see \secref{se:whatzero}, behaving like the machine
 epsilon for the current default accuracy: any float of smaller absolute value
 is indistinguishable from $0$.
 
-\misctitle{Technical note} The internal precision is actually expressed in
-bits and can be viewed and manipulated indifferently via \kbd{realprecision}
-(decimal digits, as explained above; shortcut \kbd{\bs p}) or
-\kbd{realbitprecision} (bits; shortcup \kbd{\bs ps}).
-
 \misctitle{Note on output formats} A zero real number is printed in \kbd{e}
 format as $0.Exx$ where $xx$ is the (usually negative) \emph{decimal}
 exponent of the number (cf.~\secref{se:whatzero}). This allows the user to
@@ -370,6 +365,14 @@ check the accuracy of that particular zero.
 When the integer part of a real number $x$ is not known exactly because the
 exponent of $x$ is greater than the internal precision, the real number is
 printed in \kbd{e} format.
+
+\misctitle{Technical note} The internal \emph{precision} is actually
+expressed in bits and can be viewed and manipulated globally in interactive
+use via \kbd{realprecision} (decimal digits, as explained above; shortcut
+\kbd{\bs p}) or \kbd{realbitprecision} (bits; shortcut \kbd{\bs ps}), the
+latter allowing finer granularity. See \secref{se:trans} for details. In
+programs we advise to leave this global variable alone and adapt precision
+locally for a given sequence of computations using \tet{localbitprec}.
 
 \subsec{Intmods (\typ{INTMOD})}%
 \sidx{intmod}\kbdsidx{t_INTMOD}
