@@ -94,8 +94,10 @@ intnumromb(x=0,1,sin(x))
 intnumromb(x=0,1,sin(x), 1)
 intnumromb(x=1,100,exp(-x^2), 2)
 intnumromb(x=0,1,sinc(x), 3)
+\\ wrong result at this accuracy
 intnumromb(x=0,110,x, 1)
-intnumromb(x=-110,90,x, 1)
+\\ wrong result
+abs(intnumromb(x=-110,90,x, 1)+1998.3) < 1e-1
 intnumromb(x=2,1,x, 1)
 
 intnuminit([oo,1+I],[oo,""])

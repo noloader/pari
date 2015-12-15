@@ -131,8 +131,8 @@
 0.946083
 ? intnumromb(x=0,110,x,1)
 6048.32
-? intnumromb(x=-110,90,x,1)
--1998.32
+? abs(intnumromb(x=-110,90,x,1)+1998.3)<1e-1
+1
 ? intnumromb(x=2,1,x,1)
 -1.50000
 ? intnuminit([oo,1+I],[oo,""])
@@ -147,4 +147,4 @@
   ***   Warning: integral from -oo to -oo.
 0
 ? print("Total time spent: ",gettime);
-Total time spent: 1648
+Total time spent: 3596
