@@ -117,7 +117,7 @@ compute_fact(GEN nf, GEN u1, GEN gen)
 static int
 too_big(GEN nf, GEN bet)
 {
-  GEN x = gnorm(coltoalg(nf,bet));
+  GEN x = nfnorm(nf,bet);
   switch (typ(x))
   {
     case t_INT: return absi_cmp(x, gen_1);
