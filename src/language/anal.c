@@ -955,13 +955,13 @@ varentries_unset(long v)
     if (!e) pari_err_BUG("varentries_unset [unknown var]");
     varentries[v] = NULL;
     pari_free(e);
-    if (v <= nvar && is_entry(ep->name))
-    { /* known to the GP interpreter */
+    if (v <= nvar && ep == is_entry(ep->name))
+    { /* known to the GP interpreter; entree in functions_hash is permanent */
       GEN p = (GEN)initial_value(ep);
       if (ep->value == p) { ep->value = NULL; ep->valence = EpNEW; }
       *p = 0;
     }
-    else /* from fetch_user_var() */
+    else /* from name_var() or a direct pari_var_create() */
       pari_free(ep);
  }
 }
