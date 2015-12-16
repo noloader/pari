@@ -1639,7 +1639,7 @@ RecCoeff3(GEN nf, RC_data *d, long prec)
   GEN A, M, nB, cand, p1, B2, C2, tB, beta2, nf2, Bd;
   GEN beta = d->beta, B = d->B;
   long N = d->N, v = d->v, e, BIG;
-  long i, j, k, l, ct = 0, prec2;
+  long i, j, k, ct = 0, prec2;
   FP_chk_fun chk = { &chk_reccoeff, &chk_reccoeff_init, NULL, NULL, 0 };
   chk.data = (void*)d;
 
@@ -1693,9 +1693,8 @@ LABrcf: ct++;
     goto LABrcf;
   }
 
-  cand = gel(cand,1); l = lg(cand) - 1;
-  if (l == 1)
-    return coltoalg(nf, gel(cand,1));
+  cand = gel(cand,1);
+  if (lg(cand) == 2) return gel(cand,1);
 
   if (DEBUGLEVEL>1) err_printf("RecCoeff3: no solution found!\n");
   return NULL;
@@ -1724,7 +1723,7 @@ RecCoeff2(GEN nf,  RC_data *d,  long prec)
     *++v = evaltyp(t_COL) | evallg(lM);
     v = grndtoi(gdiv(v, z), &e);
     if (e > 0) break;
-    if (TestOne(gmul(M, v), d)) return coltoalg(nf, v);
+    if (TestOne(gmul(M, v), d)) return v;
   }
   /* failure */
   return RecCoeff3(nf,d,prec);
@@ -1763,7 +1762,7 @@ RecCoeff(GEN nf,  GEN pol,  long v, long prec)
     d.beta = real_i( gel(pol,cf+2) );
     d.B    = bound;
     if (! (t = RecCoeff2(nf, &d, prec)) ) return NULL;
-    gel(pol, cf+2) = t;
+    gel(pol, cf+2) = coltoalg(nf,t);
   }
   gel(pol,cl+2) = gen_1;
   return gerepilecopy(av, pol);
