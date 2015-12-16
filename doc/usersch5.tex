@@ -6818,6 +6818,12 @@ by the \typ{INT}~\kbd{y}.
 by the \kbd{ZC}~\kbd{y} (seen as a column vector, assumed to have compatible
 dimensions).
 
+\fun{GEN}{ZM_diag_mul}{GEN d, GEN m} given a vector $d$ with integer entries
+and a \kbd{ZM} $m$ of compatible dimensions, return \kbd{diagonal(d) * m}.
+
+\fun{GEN}{ZM_mul_diag}{GEN m, GEN d} given a vector $d$ with integer entries
+ and a \kbd{ZM} $m$ of compatible dimensions, return \kbd{m * diagonal(d)}.
+
 \fun{GEN}{ZM_multosym}{GEN x, GEN y}
 
 \fun{GEN}{ZM_transmultosym}{GEN x, GEN y}
