@@ -3395,13 +3395,13 @@ check_kernel(long nbg, long N, long prmax, GEN C, GEN M, GEN p, GEN m)
     for(i=1; i<l; i++)
       if (signe(gel(K,i)))
         break;
-    g = utoi(i);
+    g = Fp_pow(utoi(i), idx, p);
     K = FpC_Fp_mul(K, Fp_inv(gel(K,i), m), m);
     for(i=1; i<l; i++)
     {
       GEN k = gel(K,i);
       GEN j = i<=prmax ? utoi(i): addis(C,i-(prmax+1));
-      if (signe(k)==0 || !equalii(Fp_pow(g, mulii(k,idx), p),
+      if (signe(k)==0 || !equalii(Fp_pow(g, k, p),
             Fp_pow(j, idx, p)))
         gel(K,i) = cgetineg(lm);
       else

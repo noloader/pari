@@ -1250,15 +1250,15 @@ check_kernel(long N, GEN M, GEN T, GEN m)
   GEN K = FpMs_leftkernel_elt(M, N, m);
   long i, f=0;
   long l = lg(K), lm = lgefint(m);
-  GEN g = polx_F2x(T[1]);
   GEN idx = diviiexact(subis(int2n(F2x_degree(T)),1),m);
+  GEN g = F2xq_pow(polx_F2x(T[1]), idx, T);
   pari_timer ti;
   if (DEBUGLEVEL) timer_start(&ti);
   K = FpC_Fp_mul(K, Fp_inv(gel(K,g[2]), m), m);
   for(i=1; i<l; i++)
   {
     GEN k = gel(K,i);
-    if (signe(k)==0 || !F2x_equal(F2xq_pow(g, mulii(k,idx), T),
+    if (signe(k)==0 || !F2x_equal(F2xq_pow(g, k, T),
                                   F2xq_pow(mkF2(i,T[1]), idx, T)))
       gel(K,i) = cgetineg(lm);
     else
