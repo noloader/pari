@@ -604,7 +604,7 @@ alg_centralproj(GEN al, GEN z, int maps)
 }
 
 /* al is an al_TABLE */
-GEN
+static GEN
 algtablecenter(GEN al)
 {
   pari_sp av = avma;
