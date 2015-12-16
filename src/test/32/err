@@ -597,4 +597,8 @@ INFINITY
   ***   at top-level: trap(e_INV,INFINITY,log(0))
   ***                                     ^-------
   *** log: domain error in log: argument = 0
-Total time spent: 16
+  ***   at top-level: notafunc('a)
+  ***                 ^------------
+  ***   not a function in function call
+1
+Total time spent: 12

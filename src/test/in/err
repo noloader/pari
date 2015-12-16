@@ -254,3 +254,6 @@ inv(x) = trap (e_INV, INFINITY, 1/x)
 inv(2)
 inv(0)
 trap (e_INV, INFINITY, log(0))
+a=1;
+notafunc('a)
+a
