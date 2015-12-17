@@ -255,7 +255,11 @@ bitprecision0(GEN x, long n)
   long a;
   if (n < 0)
     pari_err_DOMAIN("bitprecision", "bitprecision", "<", gen_0, stoi(n));
-  if (n) return gprec_w(x, nbits2prec(n));
+  if (n) {
+    pari_sp av = avma;
+    GEN y = gprec_w(x, nbits2prec(n));
+    return gerepilecopy(av, y);
+  }
   a = gprecision(x);
   return utoi(a ? prec2nbits(a): LONG_MAX);
 }

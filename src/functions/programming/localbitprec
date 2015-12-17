@@ -27,19 +27,25 @@ Doc: set the real precision to $p$ bits in the dynamic scope. All computations
  \tet{local}, not \tet{my}: a subroutine called from \kbd{localbitprec} scope
  uses the local accuracy:
  \bprog
- ? f()=precision(1.); \\ precision() is expressed in decimal digits
+ ? f()=bitprecision(1.0);
  ? f()
- %2 = 38
+ %2 = 128
  ? localbitprec(1000); f()
- %3 = 308
- @eprog\noindent
+ %3 = 1024
+ @eprog\noindent Note that the bit precision of \emph{data} (\kbd{1.0} in the
+ above example increases by steps of 64 (32 on a 32-bit machine) so we get
+ $1024$ instead of the expected $1000$; \kbd{localbitprec} bounds the
+ relative error exactly as specified in functions that support that
+ granularity (e.g.~\kbd{lfun}), and rounded to the next multiple of 64
+ (resp.~32) everywhere else.
+
  \misctitle{Warning} Changing \kbd{realbitprecision} or \kbd{realprecision}
  in programs is deprecated in favor of \kbd{localbitprec} and
- \kbd{localprec}. Think about the
- \kbd{realprecision} and \kbd{realbitprecision} defaults as interactive
- commands for the \kbd{gp}
- interpreter, best left out of GP programs. Indeed, the above rules
- imply that mixing both constructs yields surprising results:
+ \kbd{localprec}. Think about the \kbd{realprecision} and
+ \kbd{realbitprecision} defaults as interactive commands for the \kbd{gp}
+ interpreter, best left out of GP programs. Indeed, the above rules imply that
+ mixing both constructs yields surprising results:
+
  \bprog
  ? \p38
  ? localprec(19); default(realprecision,1000);  Pi
