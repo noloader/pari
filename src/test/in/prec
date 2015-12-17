@@ -10,6 +10,7 @@ default(realprecision,38);
 t=(precision(1.,77)*x+1);
 precision(t)
 localprec(57);precision(1.)
+localbitprec(128);bitprecision(1.)
 precision(1./t)
 precision(Qfb(1,0,-2));
 

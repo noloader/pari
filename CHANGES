@@ -249,7 +249,7 @@ BA 49- [libpari] functions Zp_sqrt, ZpXQ_sqrt
    50- GP functions mscuspidal, mseisenstein, msnew, mssplit, msqexpansion,
        mshecke, ellmsinit, msatkinlehner, msstar, mseval, mspathgens, mspathlog,
        msissymbol, msfromcusp, msfromell
-BA 51- GP declaration localprec(), localbitprec
+BA 51- GP declaration localprec(), localbitprec()
 HIL52- [libpari] functions Fl_powers_pre, Fl_ellj_pre, Fl_elldisc_pre,
                            Fl_elltwist_disc
 BA 53- [libpari] functions Fl_powers, Fp_powers, Fl_ellj, Fl_elldisc,
@@ -378,6 +378,7 @@ BA139- [libpari] get_FlxqX_mod, get_FlxqX_degree, get_FlxqX_var,
 BA140- Prototype code 'b' and default 'realbitprecision'
   141- \pb shortcut [ manipulate realbitprecision ]
 BA142- [GP] Map, matget, mapput, mapisdefined, mapdelete
+BA143- [GP] bitprecision
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]
