@@ -1214,6 +1214,7 @@ grootsof1(long N, long prec)
   long i, k;
 
   if ((N & 3) == 0) return grootsof1_4(N, prec);
+  if (N == 1) return mkvec(gen_1);
   k = (N+3)>>1;
   RU = cgetg(N+1,t_VEC);
   v  = ((GEN*)RU) + 1;
