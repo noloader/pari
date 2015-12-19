@@ -2,8 +2,8 @@ Function: ellcard
 Section: elliptic_curves
 C-Name: ellcard
 Prototype: GDG
-Help: ellcard(E,{p}): computes the order of the group E(Fp)
- for the elliptic curve E, defined over Q or a finite field.
+Help: ellcard(E,{p}): computes the order of the group E(Fq)
+ for the elliptic curve E, defined over Q (for q=p) or a finite field.
 Doc: Let $E$ be an \var{ell} structure as output by \kbd{ellinit}, defined over
  $\Q$ or a finite field $\F_q$. The argument $p$ is best left omitted if the
  curve is defined over a finite field, and must be a prime number otherwise.
