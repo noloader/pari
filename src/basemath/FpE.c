@@ -1199,10 +1199,9 @@ Fp_ellcard(GEN a4, GEN a6, GEN p)
     return utoi(pp+1 - Fl_elltrace_naive(umodiu(a4,pp), umodiu(a6,pp), pp));
   { GEN a = Fp_ellcard_CM(a4,a6,p); if (a) return a; }
   if (lp >= 56)
-  { GEN a = Fp_ellcard_SEA(a4, a6, p, 0); if (a) return a; }
+    return Fp_ellcard_SEA(a4, a6, p, 0);
   if (lp <= BITS_IN_LONG-2)
     return utoi(Fl_ellcard_Shanks(umodiu(a4,pp), umodiu(a6,pp), pp));
-  if (lp >= 90) pari_err_PACKAGE("seadata");
   return Fp_ellcard_Shanks(a4, a6, p);
 }
 
@@ -1848,10 +1847,7 @@ FpXQ_ellcard(GEN a4, GEN a6, GEN T, GEN p)
   else if (degpol(J=FpXQ_ellj(a4,a6,T,p))<=0)
     r = FpXQ_ellcardj(a4,a6,constant_term(J),T,q,p,n);
   else
-  {
     r = Fq_ellcard_SEA(a4, a6, q, T, p, 0);
-    if (!r) pari_err_PACKAGE("seadata");
-  }
   return gerepileuptoint(av, r);
 }
 

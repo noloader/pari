@@ -1668,9 +1668,6 @@ Flxq_ellcard(GEN a4, GEN a6, GEN T, ulong p)
   else if (expi(q)<=62)
     r = Flxq_ellcard_Shanks(a4, a6, q, T, p);
   else
-  {
     r = Fq_ellcard_SEA(Flx_to_ZX(a4),Flx_to_ZX(a6),q,Flx_to_ZX(T),utoi(p),0);
-    if (!r) pari_err_PACKAGE("seadata");
-  }
   return gerepileuptoint(av, r);
 }
