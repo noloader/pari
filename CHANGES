@@ -468,6 +468,7 @@ BA 177- libpari support for low-res plot()
    180- [libpari] function sertoser
    181- ellan(E, n) for E/K number field
    182- [libpari] function gisexactzero
+BA 183- GP function ellsea
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]
@@ -605,6 +606,7 @@ BA 75- rename FlxqX_pow to FlxqX_powu
        precision([O(2),O(3),O(x)], 10) -> [O(2^10),O(3^10),O(x^10)]
    80- infinite slopes of newtonpoly replaced by "+oo" (instead of 2^63-1)
    81- rename anell -> ellan, anellsmall -> ellanQ_zv
+BA 82- Fp_ellcard_SEA/Fq_ellcard_SEA meaning of flag has changed.
 
 Removed
    1- deprecated functions nfbasis0, nfdisc0, factorpadic0

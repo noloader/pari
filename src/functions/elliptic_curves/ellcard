@@ -20,9 +20,3 @@ Doc: Let $E$ be an \kbd{ell} structure as output by \kbd{ellinit}, defined over
  of the group of non-singular points in this case.
 Variant: Also available is \fun{GEN}{ellcard}{GEN E, GEN p} where $p$ is not
  \kbd{NULL}.
-
-Function: _ellsea
-Section: programming/internals
-C-Name: ellsea
-Prototype: GDGD1,L,
-Help: ellsea(E,{p},{s})

@@ -1256,7 +1256,7 @@ find_trace_Elkies_power(GEN a4, GEN a6, ulong ell, long k, struct meqn *MEQN, GE
   lambda = tr ? find_eigen_value_oneroot(a4, a6, ell, tr, kpoly, T, p):
                 find_eigen_value_power(a4, a6, ell, 1, 1, kpoly, T, p);
   if (DEBUGLEVEL>1) err_printf(" [%ld ms]", timer_delay(ti));
-  if (smallfact && ell>smallfact)
+  if (smallfact && smallfact%ell!=0)
   {
     ulong pell = pellk%ell;
     ulong ap = Fl_add(lambda, Fl_div(pell, lambda, ell), ell);
@@ -1828,11 +1828,11 @@ get_FqE_group(void ** pt_E, GEN a4, GEN a6, GEN T, GEN p)
 /* E is an elliptic curve defined over Z or over Fp in ellinit format, defined
  * by the equation E: y^2 + a1*x*y + a2*y = x^3 + a2*x^2 + a4*x + a6
  * p is a prime number
- * set smallfact to stop whenever a small factor > smallfact of the order is
- * detected. Useful when searching for a good curve for cryptographic
+ * set smallfact to stop whenever a small factor of the order, not dividing smallfact,
+ * is detected. Useful when searching for a good curve for cryptographic
  * applications */
 GEN
-Fq_ellcard_SEA(GEN a4, GEN a6, GEN q, GEN T, GEN p, long smallfact)
+Fq_ellcard_SEA(GEN a4, GEN a6, GEN q, GEN T, GEN p, ulong smallfact)
 {
   const long MAX_ATKIN = 21;
   pari_sp ltop = avma, btop;
@@ -1862,7 +1862,7 @@ Fq_ellcard_SEA(GEN a4, GEN a6, GEN q, GEN T, GEN p, long smallfact)
     TR_mod = gen_2;
     TR = gen_1; break;
   }
-  if (smallfact == 1 && !mpodd(TR))
+  if (odd(smallfact) && !mpodd(TR))
   {
     if (DEBUGLEVEL) err_printf("Aborting: #E(Fq) divisible by 2\n");
     avma = ltop; return gen_0;
@@ -1890,7 +1890,7 @@ Fq_ellcard_SEA(GEN a4, GEN a6, GEN q, GEN T, GEN p, long smallfact)
     if (nbtrace == 1)
     {
       long t_mod_ellkt = trace_mod[1];
-      if (smallfact && ell > smallfact)
+      if (smallfact && smallfact%ell!=0)
       { /* does ell divide q + 1 - t ? */
         long card_mod_ell = umodsu(umodiu(q,ell) + 1 - t_mod_ellkt, ell) ;
         if (!card_mod_ell)
@@ -1949,7 +1949,7 @@ Fq_ellcard_SEA(GEN a4, GEN a6, GEN q, GEN T, GEN p, long smallfact)
 }
 
 GEN
-Fp_ellcard_SEA(GEN a4, GEN a6, GEN p, long smallfact)
+Fp_ellcard_SEA(GEN a4, GEN a6, GEN p, ulong smallfact)
 {
   return Fq_ellcard_SEA(a4, a6, p, NULL, p, smallfact);
 }
