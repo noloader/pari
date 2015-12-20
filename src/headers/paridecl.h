@@ -851,6 +851,7 @@ GEN     scalarmat_s(long x, long n);
 
 GEN     Kronecker_to_mod(GEN z, GEN pol);
 GEN     QX_ZXQV_eval(GEN P, GEN V, GEN dV);
+GEN     QXQ_charpoly(GEN A, GEN T, long v);
 GEN     QXQ_powers(GEN a, long n, GEN T);
 GEN     QXQX_to_mod_shallow(GEN z, GEN T);
 GEN     QXQV_to_mod(GEN V, GEN T);

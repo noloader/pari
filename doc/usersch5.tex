@@ -7767,6 +7767,11 @@ a \kbd{QX} $B$, just use
 desired, it is much more efficient to replace $B$ by \kbd{Q\_primpart$(B)$}
 once and for all.
 
+\fun{GEN}{QXQ_charpoly}{GEN A, GEN T, long v} where \kbd{A} is a \kbd{QX} and
+\kbd{T} is a \kbd{ZX}, returns the characteristic polynomial of \kbd{Mod(A, T)}.
+If the result is known to be a \kbd{ZX}, then calling \kbd{ZXQ\_charpoly} will
+be faster.
+
 \fun{GEN}{QXQ_powers}{GEN x, long n, GEN T} returns $[\kbd{x}^0, \dots,
 \kbd{x}^\kbd{n}]$ as \kbd{RgXQ\_powers} would, but in a more efficient way when
 $x$ has a huge integer denominator (we start by removing that denominator).

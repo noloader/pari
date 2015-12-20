@@ -2448,6 +2448,15 @@ ZXQ_charpoly(GEN A, GEN T, long v)
   return (degpol(T) < 16) ? RgXQ_charpoly(A,T,v): ZXQ_charpoly_sqf(A,T, NULL, v);
 }
 
+GEN
+QXQ_charpoly(GEN A, GEN T, long v)
+{
+  pari_sp av = avma;
+  GEN den, B = Q_remove_denom(A, &den);
+  GEN P = ZXQ_charpoly(B, T, v);
+  return gerepilecopy(av, den ? RgX_rescale(P, ginv(den)): P);
+}
+
 static GEN
 trivial_case(GEN A, GEN B)
 {
