@@ -3258,14 +3258,20 @@ inv_polmod(GEN T, GEN x)
         a = FpX_to_mod(a, p);
         a = gerepileupto(av, a);
       }
+      else if (RgX_is_ZX(T) && RgX_is_QX(x))
+      {
+        avma = av;
+        a = QXQ_inv(x, T);
+      }
       else {
         avma = av;
-        a = RgXQ_inv(x, gel(z,1));
+        a = RgXQ_inv(x, T);
       }
     }
   }
   gel(z,2) = a; return z;
 }
+
 GEN
 ginv(GEN x)
 {
