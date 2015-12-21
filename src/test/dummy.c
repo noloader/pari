@@ -21,3 +21,4 @@ void pari_err_PREC(){}
 void pari_warn(){}
 void quadratic_prec_mask(){}
 void prec2nbits(){}
+void nbits2prec(){}

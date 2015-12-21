@@ -8,6 +8,7 @@ const double LOG10_2 = 0.;
 const long lontyp[] = {0};
 THREAD VOLATILE int PARI_SIGINT_block, PARI_SIGINT_pending;
 struct pari_mainstack * pari_mainstack;
+long    *varpriority;
 
 void mt_sigint_block(void) { }
 void mt_sigint_unblock(void) { }
