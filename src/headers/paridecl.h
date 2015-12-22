@@ -3855,7 +3855,7 @@ GEN     roots(GEN x,long l);
 GEN     realroots(GEN P, GEN ab, long prec);
 long    ZX_sturm(GEN P);
 long    ZX_sturmpart(GEN P, GEN ab);
-GEN     ZX_uspensky(GEN P, GEN ab, long flag, long prec);
+GEN     ZX_Uspensky(GEN P, GEN ab, long flag, long prec);
 
 /* subcyclo.c */
 

@@ -2570,7 +2570,7 @@ usp(GEN Q0, long deg, long *nb_donep, long flag, long bitprec)
     if (gc_needed(av, 2))
     {
       gerepileall(av, 6, &Q0, &Q, &c, &Lc, &Lk, &sol);
-      if (DEBUGMEM > 1) pari_warn(warnmem, "ZX_uspensky", avma);
+      if (DEBUGMEM > 1) pari_warn(warnmem, "ZX_Uspensky", avma);
     }
   }
 
@@ -2580,7 +2580,7 @@ usp(GEN Q0, long deg, long *nb_donep, long flag, long bitprec)
 }
 
 static GEN
-ZX_uspensky_cst_pol(long nbz, long flag, long bitprec)
+ZX_Uspensky_cst_pol(long nbz, long flag, long bitprec)
 {
   switch(flag)
   {
@@ -2591,7 +2591,7 @@ ZX_uspensky_cst_pol(long nbz, long flag, long bitprec)
 }
 
 GEN
-ZX_uspensky(GEN P, GEN ab, long flag, long bitprec)
+ZX_Uspensky(GEN P, GEN ab, long flag, long bitprec)
 {
   pari_sp av = avma;
   GEN a, b, sol = NULL, Pcur;
@@ -2604,7 +2604,7 @@ ZX_uspensky(GEN P, GEN ab, long flag, long bitprec)
   {
     if (typ(ab) == t_VEC)
     {
-      if (lg(ab) != 3) pari_err_DIM("ZX_uspensky");
+      if (lg(ab) != 3) pari_err_DIM("ZX_Uspensky");
       a = gel(ab, 1);
       b = gel(ab, 2);
     }
@@ -2632,14 +2632,14 @@ ZX_uspensky(GEN P, GEN ab, long flag, long bitprec)
   deg -= nbz;
   if (!nbz) Pcur = P;
   if (nbz && (gsigne(a) > 0 || gsigne(b) < 0)) nbz = 0;
-  if (deg == 0) { avma = av; return ZX_uspensky_cst_pol(nbz, flag, bitprec); }
+  if (deg == 0) { avma = av; return ZX_Uspensky_cst_pol(nbz, flag, bitprec); }
   if (deg == 1)
   {
     sol = gdiv(gneg(gel(Pcur, 2)), pollead(Pcur, -1));
     if (gcmp(a, sol) > 0 || gcmp(sol, b) > 0)
     {
       avma = av;
-      return ZX_uspensky_cst_pol(nbz, flag, bitprec);
+      return ZX_Uspensky_cst_pol(nbz, flag, bitprec);
     }
     if (flag >= 2) { avma = av; return utoi(nbz+1); }
     sol = gconcat(zerocol(nbz), mkcol(sol));
@@ -2768,7 +2768,7 @@ ZX_uspensky(GEN P, GEN ab, long flag, long bitprec)
   }
 
   if (DEBUGLEVEL > 4)
-    err_printf("ZX_uspensky: Number of visited nodes: %d\n", nb_done);
+    err_printf("ZX_Uspensky: Number of visited nodes: %d\n", nb_done);
 
   if (flag >= 2) return utoi(nbz);
   if (flag)
@@ -2840,7 +2840,7 @@ realroots(GEN P, GEN ab, long prec)
     }
     else
       nbz = 0;
-    soli = ZX_uspensky(Pi, h%2 ? ab: gen_0, 1, prec2nbits(prec));
+    soli = ZX_Uspensky(Pi, h%2 ? ab: gen_0, 1, prec2nbits(prec));
     n = lg(soli);
     if (!(h % 2)) soli2 = cgetg(n, t_COL);
     for (j = 1; j < n; j++)
@@ -2892,9 +2892,9 @@ ZX_sturm(GEN P)
   long h, r;
   P = RgX_deflate_max(P, &h);
   if (odd(h))
-    r = itos(ZX_uspensky(P, NULL, 2, 0));
+    r = itos(ZX_Uspensky(P, NULL, 2, 0));
   else
-    r = 2*itos(ZX_uspensky(P, gen_0, 2, 0));
+    r = 2*itos(ZX_Uspensky(P, gen_0, 2, 0));
   avma = av; return r;
 }
 /* P non-constant, squarefree ZX */
@@ -2904,6 +2904,6 @@ ZX_sturmpart(GEN P, GEN ab)
   pari_sp av = avma;
   long r;
   if (!check_ab(ab)) return ZX_sturm(P);
-  r = itos(ZX_uspensky(P, ab, 2, 0));
+  r = itos(ZX_Uspensky(P, ab, 2, 0));
   avma = av; return r;
 }

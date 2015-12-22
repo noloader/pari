@@ -203,7 +203,7 @@ intnumgaussinit(long n, long prec)
   p1 = Q_remove_denom(RgX_deflate(L, 2), &dp1);
   d1 = vali(dp1);
   p2 = ZX_deriv(p1); /* L_n' = 2x p2(x^2) / 2^d1 */
-  R = ZX_uspensky(p1, gen_0, 1, 3*bitprec/2 + 32); /* positive roots of p1 */
+  R = ZX_Uspensky(p1, gen_0, 1, 3*bitprec/2 + 32); /* positive roots of p1 */
   n >>= 1;
   W = cgetg(n+1, t_VEC);
   for (i = 1; i <= n; ++i)
