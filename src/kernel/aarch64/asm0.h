@@ -37,6 +37,26 @@ __extension__ ({ ulong __value, __arg1 = (a), __arg2 = (b); \
  __value; \
 })
 
+#define addllx8(a,b,c,overflow) \
+do { long *__arg1 = a, *__arg2 = b, *__out = c; \
+     ulong __temp1, __temp2; \
+     __asm__( \
+"subs xzr,%6,#1\n\t" \
+" ldr %0, [%3]     \n\t ldr %1, [%4]    \n\t adcs %1, %0, %1\n\t str %1, [%5]    \n\t" \
+" ldr %0, [%3,-8]  \n\t ldr %1, [%4,-8] \n\t adcs %1, %0, %1\n\t str %1, [%5,-8] \n\t" \
+" ldr %0, [%3,-16] \n\t ldr %1, [%4,-16]\n\t adcs %1, %0, %1\n\t str %1, [%5,-16]\n\t" \
+" ldr %0, [%3,-24] \n\t ldr %1, [%4,-24]\n\t adcs %1, %0, %1\n\t str %1, [%5,-24]\n\t" \
+" ldr %0, [%3,-32] \n\t ldr %1, [%4,-32]\n\t adcs %1, %0, %1\n\t str %1, [%5,-32]\n\t" \
+" ldr %0, [%3,-40] \n\t ldr %1, [%4,-40]\n\t adcs %1, %0, %1\n\t str %1, [%5,-40]\n\t" \
+" ldr %0, [%3,-48] \n\t ldr %1, [%4,-48]\n\t adcs %1, %0, %1\n\t str %1, [%5,-48]\n\t" \
+" ldr %0, [%3,-56] \n\t ldr %1, [%4,-56]\n\t adcs %1, %0, %1\n\t str %1, [%5,-56]\n\t" \
+"adc %2,xzr,xzr\n\t" \
+        : "=&r" (__temp1), "=&r" (__temp2), "=&r" (overflow) \
+        : "r" (__arg1), "r" (__arg2), "r" (__out), "r" (overflow), \
+          "0" ((ulong)0), "1" ((ulong)0) \
+        : "cc"); \
+} while(0)
+
 #define subll(a, b) \
 __extension__ ({ ulong __value, __arg1 = (a), __arg2 = (b); \
  __asm__ ("subs %0,%2,%3\n\tngc %1,xzr\n\tsub %1,xzr,%1\n\t" \
@@ -52,6 +72,26 @@ __extension__ ({ ulong __value, __arg1 = (a), __arg2 = (b); \
    : "r" (__arg1), "r" (__arg2), "r" (overflow): "cc"); \
  __value; \
 })
+
+#define subllx8(a,b,c,overflow) \
+do { long *__arg1 = a, *__arg2 = b, *__out = c; \
+     ulong __temp1, __temp2; \
+     __asm__( \
+"subs xzr,xzr,%6\n\t" \
+" ldr %0, [%3]     \n\t ldr %1, [%4]    \n\t sbcs %1, %0, %1\n\t str %1, [%5]    \n\t" \
+" ldr %0, [%3,-8]  \n\t ldr %1, [%4,-8] \n\t sbcs %1, %0, %1\n\t str %1, [%5,-8] \n\t" \
+" ldr %0, [%3,-16] \n\t ldr %1, [%4,-16]\n\t sbcs %1, %0, %1\n\t str %1, [%5,-16]\n\t" \
+" ldr %0, [%3,-24] \n\t ldr %1, [%4,-24]\n\t sbcs %1, %0, %1\n\t str %1, [%5,-24]\n\t" \
+" ldr %0, [%3,-32] \n\t ldr %1, [%4,-32]\n\t sbcs %1, %0, %1\n\t str %1, [%5,-32]\n\t" \
+" ldr %0, [%3,-40] \n\t ldr %1, [%4,-40]\n\t sbcs %1, %0, %1\n\t str %1, [%5,-40]\n\t" \
+" ldr %0, [%3,-48] \n\t ldr %1, [%4,-48]\n\t sbcs %1, %0, %1\n\t str %1, [%5,-48]\n\t" \
+" ldr %0, [%3,-56] \n\t ldr %1, [%4,-56]\n\t sbcs %1, %0, %1\n\t str %1, [%5,-56]\n\t" \
+"ngc %2,xzr\n\tsub %2,xzr,%2\n\t" \
+        : "=&r" (__temp1), "=&r" (__temp2), "=&r" (overflow) \
+        : "r" (__arg1), "r" (__arg2), "r" (__out), "r" (overflow), \
+          "0" ((ulong)0), "1" ((ulong)0) \
+        : "cc"); \
+} while(0)
 
 #define mulll(a, b) \
 __extension__ ({ ulong __value, __arg1 = (a), __arg2 = (b); \
