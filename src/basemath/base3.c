@@ -2302,8 +2302,7 @@ join_bid(GEN nf, GEN bid1, GEN bid2)
   cyc2 = abgrp_get_cyc(G2); l2 = lg(cyc2);
   gen = (lg(G1)>3 && lg(G2)>3)? gen_1: NULL;
   nbgen = l1+l2-2;
-  cyc = ZM_snf_group(diagonal_shallow(shallowconcat(cyc1,cyc2)),
-                     &U, gen? &u1: NULL);
+  cyc = ZV_snf_group(shallowconcat(cyc1,cyc2), &U, gen? &u1: NULL);
   if (nbgen) {
     GEN U1 = gel(bid1,5), U2 = gel(bid2,5);
     U1 = l1 == 1? zeromat(nbgen,lg(U1)-1): ZM_mul(vecslice(U, 1, l1-1),   U1);

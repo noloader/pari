@@ -1933,9 +1933,12 @@ integral, and \kbd{NULL} if it is not.
 elementary divisors) of the \kbd{ZM} $x$.
 
 \fun{GEN}{ZM_snfall}{GEN x, GEN *U, GEN *V} returns
-\kbd{ZM\_smith(x)} and sets $U$ and $V$ to unimodular matrices such that $U\,
+\kbd{ZM\_snf(x)} and sets $U$ and $V$ to unimodular matrices such that $U\,
 x\, V = D$ (diagonal matrix of elementary divisors). Either (or both) $U$ or
 $V$ may be \kbd{NULL} in which case the corresponding matrix is not computed.
+
+\fun{GEN}{ZV_snfall}{GEN d, GEN *U, GEN *V} here $d$ is a \kbd{ZV}; same as
+\tet{ZM_snfall} applied to \kbd{diagonal(d)}, but faster.
 
 \fun{GEN}{ZM_snfall_i}{GEN x, GEN *U, GEN *V, int returnvec} same as
 \kbd{ZM\_snfall}, except that, depending on the value of \kbd{returnvec}, we
@@ -1978,6 +1981,9 @@ The function returns the vector of elementary divisors $(d_i)$; if \kbd{U} is
 not \kbd{NULL}, it is set to $U$; if \kbd{Uinv} is not \kbd{NULL} it is
 set to $U_{\text{inv}}$. The function is not memory clean.
 
+\fun{GEN}{ZV_snf_group}{GEN d, GEN *newU, GEN *newUi}, here $d$ is a
+\kbd{ZV}; same as \tet{ZM_snf_group} applied to \kbd{diagonal(d)}, but faster.
+
 
 The following 3 routines underly the various \tet{matrixqz} variants.
 In all case the $m\times n$ \typ{MAT} $x$ is assumed to have rational
@@ -2018,10 +2024,10 @@ U]$. Normally useless in library mode.
 $[H, U, P]$. Normally useless in library mode.
 
 \fun{GEN}{smith}{GEN x} checks whether $x$ is a \kbd{ZM}, then calls
-\kbd{ZM\_smith}. Normally useless in library mode.
+\kbd{ZM\_snf}. Normally useless in library mode.
 
 \fun{GEN}{smithall}{GEN x} checks whether $x$ is a \kbd{ZM}, then calls
-\kbd{ZM\_smithall(x, \&U, \&V)} and returns $[U,V,D]$. Normally useless in
+\kbd{ZM\_snfall(x, \&U, \&V)} and returns $[U,V,D]$. Normally useless in
 library mode.
 
 \noindent Some related functions over $K[X]$, $K$ a field:

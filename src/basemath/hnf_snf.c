@@ -2554,15 +2554,10 @@ gsmith(GEN x) { return gsmithall_i(x,0); }
 GEN
 gsmithall(GEN x) { return gsmithall_i(x,1); }
 
-/* H relation matrix among row of generators g in HNF.  Let URV = D its SNF,
- * newU R newV = newD its clean SNF (no 1 in Dnew). Return the diagonal of
- * newD, newU and newUi such that  1/U = (newUi, ?).
- * Rationale: let (G,0) = g Ui be the new generators then
- * 0 = G U R --> G D = 0,  g = G newU  and  G = g newUi */
-GEN
-ZM_snf_group(GEN H, GEN *newU, GEN *newUi)
+/* H is a relation matrix, either in HNF or a t_VEC (diagonal HNF) */
+static GEN
+snf_group(GEN H, GEN D, GEN *newU, GEN *newUi)
 {
-  GEN D = ZM_snfall_i(H, newU, newUi, 1);
   long i, j, l;
 
   ZM_snfclean(D, newU? *newU: NULL, newUi? *newUi: NULL);
@@ -2581,11 +2576,94 @@ ZM_snf_group(GEN H, GEN *newU, GEN *newUi)
     if (l > 1)
     { /* Ui = ZM_inv(U, gen_1); setlg(Ui, l); */
       GEN V = FpM_red(*newUi, gel(D,1));
-      GEN Ui = ZM_mul(H, V);
+      GEN Ui = typ(H) == t_VEC? ZM_diag_mul(H, V): ZM_mul(H, V);
       for (i = 1; i < l; i++) gel(Ui,i) = ZC_Z_divexact(gel(Ui,i), gel(D,i));
-      *newUi = ZM_hnfrem(Ui, H);
+      if (typ(H) == t_VEC)
+      { for (i = 1; i < l; i++) gel(Ui,i) = vecmodii(gel(Ui,i), H); }
+      else
+        *newUi = ZM_hnfrem(Ui, H);
     }
   }
   return D;
 }
+/* H relation matrix among row of generators g in HNF.  Let URV = D its SNF,
+ * newU R newV = newD its clean SNF (no 1 in Dnew). Return the diagonal of
+ * newD, newU and newUi such that  1/U = (newUi, ?).
+ * Rationale: let (G,0) = g Ui be the new generators then
+ * 0 = G U R --> G D = 0,  g = G newU  and  G = g newUi */
+GEN
+ZM_snf_group(GEN H, GEN *newU, GEN *newUi)
+{
+  GEN D = ZM_snfall_i(H, newU, newUi, 1);
+  return snf_group(H, D, newU, newUi);
+}
 
+/* D a ZV: SNF for matdiagonal(D). Faster because we only ensure elementary
+ * divisors condition: d[n] | ... | d[1] and need not convert D to matrix form*/
+GEN
+ZV_snfall(GEN D, GEN *pU, GEN *pV)
+{
+  pari_sp av = avma;
+  long j, n = lg(D)-1;
+  GEN U = pU? matid(n): NULL;
+  GEN V = pV? matid(n): NULL;
+  GEN p;
+
+  D = leafcopy(D);
+  for (j = n; j > 0; j--)
+  {
+    GEN b = gel(D,j);
+    if (signe(b) < 0)
+    {
+      gel(D,j) = absi(b);
+      if (V) ZV_togglesign(gel(V,j));
+    }
+  }
+  /* entries are non-negative integers */
+  p = gen_indexsort(D, NULL, &negcmpii);
+  D = vecpermute(D, p);
+  if (U) U = vecpermute(U, p);
+  if (V) V = vecpermute(V, p);
+  /* entries are sorted by decreasing value */
+  for (j = n; j > 0; j--)
+  {
+    GEN b = gel(D,j);
+    long i;
+    for (i = j-1; i > 0; i--)
+    { /* invariant: a >= b. If au+bv = d is a Bezout relation, A=a/d and B=b/d
+       * we have [B,-A;u,v]*diag(a,b)*[1-u*A,1; -u*A,1]] = diag(Ab, d) */
+      GEN a = gel(D,i), u,v, d = bezout(a,b, &u,&v), A, Wi, Wj;
+      if (equalii(d,b)) continue;
+      A = diviiexact(a,d);
+      if (V)
+      {
+        GEN t = mulii(u,A);
+        Wi = ZC_lincomb(subui(1,t), negi(t), gel(V,i), gel(V,j));
+        Wj = ZC_add(gel(V,i), gel(V,j));
+        gel(V,i) = Wi;
+        gel(V,j) = Wj;
+      }
+      if (U)
+      {
+        GEN B = diviiexact(b,d);
+        Wi = ZC_lincomb(B, negi(A), gel(U,i), gel(U,j));
+        Wj = ZC_lincomb(u, v, gel(U,i), gel(U,j));
+        gel(U,i) = Wi;
+        gel(U,j) = Wj;
+      }
+      gel(D,i) = mulii(A,b); /* lcm(a,b) */
+      gel(D,j) = d; /* gcd(a,b) */
+      b = gel(D,j); if (equali1(b)) break;
+    }
+  }
+  snf_pile(av, &D,&U,&V);
+  if (U) *pU = shallowtrans(U);
+  if (V) *pV = V;
+  return D;
+}
+GEN
+ZV_snf_group(GEN d, GEN *newU, GEN *newUi)
+{
+  GEN D = ZV_snfall(d, newU, newUi);
+  return snf_group(d, D, newU, newUi);
+}

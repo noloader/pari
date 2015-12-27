@@ -446,16 +446,16 @@ ZM_mul_diag(GEN m, GEN d)
 GEN
 ZM_diag_mul(GEN d, GEN m)
 {
-  long i, j, l = lg(d);
-  GEN y = cgetg(l, t_MAT);
-  for (j=1; j<l; j++) gel(y,j) = cgetg(l, t_COL);
+  long i, j, l = lg(d), lm = lg(m);
+  GEN y = cgetg(lm, t_MAT);
+  for (j=1; j<lm; j++) gel(y,j) = cgetg(l, t_COL);
   for (i=1; i<l; i++)
   {
     GEN c = gel(d,i);
     if (equali1(c))
-      for (j=1; j<l; j++) gcoeff(y,i,j) = gcoeff(m,i,j);
+      for (j=1; j<lm; j++) gcoeff(y,i,j) = gcoeff(m,i,j);
     else
-      for (j=1; j<l; j++) gcoeff(y,i,j) = mulii(gcoeff(m,i,j), c);
+      for (j=1; j<lm; j++) gcoeff(y,i,j) = mulii(gcoeff(m,i,j), c);
   }
   return y;
 }

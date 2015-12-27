@@ -380,6 +380,7 @@ BA140- Prototype code 'b' and default 'realbitprecision'
 BA142- [GP] Map, matget, mapput, mapisdefined, mapdelete
 BA143- [GP] bitprecision
 BA143- [arm64] add aarch64 assembly kernel
+  144- [libpari] ZV_snf_group, ZV_snfall
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]

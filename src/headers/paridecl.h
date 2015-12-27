@@ -3036,6 +3036,8 @@ GEN     ZM_hnfall(GEN A, GEN *ptB, long remove);
 GEN     ZM_hnfcenter(GEN M);
 GEN     ZM_hnflll(GEN A, GEN *ptB, int remove);
 GEN     ZV_extgcd(GEN A);
+GEN     ZV_snfall(GEN D, GEN *pU, GEN *pV);
+GEN     ZV_snf_group(GEN d, GEN *newU, GEN *newUi);
 GEN     ZM_hnfmod(GEN x, GEN d);
 GEN     ZM_hnfmodall(GEN x, GEN dm, long flag);
 GEN     ZM_hnfmodid(GEN x, GEN d);
