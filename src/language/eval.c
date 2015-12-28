@@ -1873,6 +1873,58 @@ parfor(GEN a, GEN b, GEN code, void *E, long call(void*, GEN, GEN))
   set_avma(av);
 }
 
+static void
+parforiter_init(struct parfor_iter *T, GEN code)
+{
+  T->pending = 0;
+  T->worker = snm_closure(is_entry("_parfor_worker"), mkvec(code));
+  mt_queue_start(&T->pt, T->worker);
+}
+
+static GEN
+parforiter_next(struct parfor_iter *T, GEN v)
+{
+  mt_queue_submit(&T->pt, 0, v);
+  return mt_queue_get(&T->pt, NULL, &T->pending);
+}
+
+static void
+parforiter_stop(struct parfor_iter *T)
+{
+  while (T->pending)
+  {
+    mt_queue_submit(&T->pt, 0, NULL);
+    (void) mt_queue_get(&T->pt, NULL, &T->pending);
+  }
+  mt_queue_end(&T->pt);
+}
+
+void
+parfor_init(parfor_t *T, GEN a, GEN b, GEN code)
+{
+  if (typ(a) != t_INT) pari_err_TYPE("parfor",a);
+  T->b = b ? gfloor(b): NULL;
+  T->a = mkvec(setloop(a));
+  parforiter_init(&T->iter, code);
+}
+
+GEN
+parfor_next(parfor_t *T)
+{
+  long running;
+  while ((running=((!T->b || cmpii(gel(T->a,1),T->b) <= 0))) || T->iter.pending)
+  {
+    GEN done = parforiter_next(&T->iter, running ? T->a: NULL);
+    gel(T->a,1) = incloop(gel(T->a,1));
+    if (done) return done;
+  }
+  mt_queue_end(&T->iter.pt);
+  return NULL;
+}
+
+void
+parfor_stop(parfor_t *T) { parforiter_stop(&T->iter); }
+
 static long
 gp_evalvoid2(void *E, GEN x, GEN y)
 {

@@ -1,9 +1,27 @@
+Function: _parfor_init
+Class: gp2c_internal
+Help: Initializes parameters for parfor.
+Description:
+ (parfor, gen, gen, gen):void    parfor_init(&$1, $2, $3, $4)
+
+Function: _parfor_next
+Class: gp2c_internal
+Help: Next value for parfor.
+Description:
+ (parfor):gen    parfor_next(&$1)
+
+Function: _parfor_stop
+Class: gp2c_internal
+Help: Stop function for parfor.
+Description:
+ (parfor):void    parfor_stop(&$1)
+
 Function: parfor
 Section: programming/parallel
 C-Name: parfor0
 Prototype: vV=GDGJDVDI
-Description:
- (gen,gen,closure):void parfor($1, $2, $3, NULL, NULL)
+Iterator:
+ (gen,gen,?gen,closure,?notype) (parfor, _parfor_init, _parfor_next, _parfor_stop)
 Help: parfor(i=a,{b},expr1,{r},{expr2}):
  evaluates the expression expr1 in parallel for all i between a and b
  (if b is set to +oo, the loop will not stop), resulting in as many

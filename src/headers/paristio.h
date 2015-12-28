@@ -239,6 +239,19 @@ struct pari_mt
   void (*end)(void);
 };
 
+struct parfor_iter
+{
+  long pending;
+  GEN worker;
+  struct pari_mt pt;
+};
+
+typedef struct
+{
+  GEN a, b;
+  struct parfor_iter iter;
+} parfor_t;
+
 typedef struct PariOUT {
   void (*putch)(char);
   void (*puts)(const char*);
