@@ -316,7 +316,7 @@ znstar(GEN N)
     long e = itos(gel(E,j));
     GEN p = gel(P,j), q = powiu(p, e-1), Q = mulii(p, q);
     gel(cyc,i) = subii(Q, q); /* phi(p^e) */
-    gel(gen,i) = e > 1? pgener_Zp(p): pgener_Fp(p);
+    gel(gen,i) = pgener_Zp(p);/* Conrey normalization, for e = 1 also */
     gel(mod,i) = Q;
   }
   /* gen[i] has order cyc[i] and generates (Z/mod[i]Z)^* */
