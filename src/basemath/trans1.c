@@ -1497,15 +1497,25 @@ rootsof1padic(GEN n, GEN y)
 static GEN
 palogaux(GEN x)
 {
-  long k, e, pp;
+  long i, k, e, pp, t;
   GEN y,s,y2, p = gel(x,2);
+  int is2 = equaliu(p,2);
 
-  if (equalii(gen_1, gel(x,4)))
+  y = subiu(gel(x,4), 1);
+  if (!signe(y))
   {
     long v = valp(x)+precp(x);
-    if (equaliu(p,2)) v--;
+    if (is2) v--;
     return zeropadic(p, v);
   }
+  /* optimize t: log(x) = log(x^(p^t)) / p^t */
+  e = Z_pval(y, p); /* valp(y) = e >= 1; precp(y) = precp(x)-e */
+  if (is2)
+    t = sqrt( (double)(precp(x)-e) / e ); /* instead of (2*e) */
+  else
+    t = sqrt( (double)(precp(x)-e) / (e * (expi(p) + hammingweight(p))) );
+  for (i = 0; i < t; i++) x = gpow(x, p, 0);
+
   y = gdiv(gaddgs(x,-1), gaddgs(x,1));
   e = valp(y); /* > 0 */
   if (e <= 0) {
@@ -1513,7 +1523,7 @@ palogaux(GEN x)
     pari_err_BUG("log_p");
   }
   pp = precp(y) + e;
-  if (equaliu(p,2)) pp--;
+  if (is2) pp--;
   else
   {
     GEN p1;
@@ -1521,14 +1531,20 @@ palogaux(GEN x)
     pp -= 2;
   }
   k = pp/e; if (!odd(k)) k--;
-  if (k == 1) return y;
-  y2 = gsqr(y); s = gdivgs(gen_1,k);
-  while (k > 2)
+  if (DEBUGLEVEL>5)
+    err_printf("logp: [pp,k,e,t] = [%ld,%ld,%ld,%ld]\n",pp,k,e,t);
+  if (k > 1)
   {
-    k -= 2;
-    s = gadd(gmul(y2,s), gdivgs(gen_1,k));
+    y2 = gsqr(y); s = gdivgs(gen_1,k);
+    while (k > 2)
+    {
+      k -= 2;
+      s = gadd(gmul(y2,s), gdivgs(gen_1,k));
+    }
+    y = gmul(s,y);
   }
-  return gmul(s,y);
+  if (t) setvalp(y, valp(y) - t);
+  return y;
 }
 
 GEN

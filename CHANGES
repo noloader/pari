@@ -491,6 +491,8 @@ BA 61- [libpari] concat, concat1 renamed to gconcat, gconcat1
    64- intnumromb to use realbitprecision
    65- idealstar / ideallog: allow omitting 'nf' argument (for nf = Q; use
        znstar and znlog internally)
+   66- improved p-adic log at high accuracy (O(sqrt(padicprec)) algorithm
+       instead of O(padicprec))
 
 Removed
    1- deprecated functions nfbasis0, nfdisc0, factorpadic0
