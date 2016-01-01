@@ -98,7 +98,7 @@ GEN
 checkbid_i(GEN bid)
 {
   GEN f;
-  if (typ(bid)!=t_VEC || lg(bid)!=6) return NULL;
+  if (typ(bid)!=t_VEC || lg(bid)!=6 || typ(gel(bid,3)) != t_MAT) return NULL;
   f = bid_get_mod(bid);
   if (typ(f)!=t_VEC || lg(f)!=3) return NULL;
   return bid;

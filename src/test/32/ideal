@@ -15,8 +15,8 @@
   ***   at top-level: idealaddtoone(Q,[1,[
   ***                 ^--------------------
   *** idealaddtoone: incorrect type in idealaddmultoone [integer matrix] (t_MAT).
-  ***   at top-level: ideallog(Q,2,idealst
-  ***                 ^--------------------
+  ***   at top-level: ideallog(Q,2,zQ)
+  ***                 ^----------------
   *** ideallog: elements not coprime in zlog_pk:
     2
     [2, [2]~, 1, 1, 1]
@@ -36,6 +36,12 @@
   *** ideallog: elements not coprime in Zideallog_pk:
     3
     6
+  ***   at top-level: ideallog(Q,3,z)
+  ***                 ^---------------
+  *** ideallog: incorrect type in checkbid (t_VEC).
+  ***   at top-level: ideallog(,3,zQ)
+  ***                 ^---------------
+  *** ideallog: incorrect type in ideallog (t_VEC).
   ***   at top-level: idealstar(Qi,matdiag
   ***                 ^--------------------
   *** idealstar: elements not coprime in idealaddtoone:
@@ -169,4 +175,4 @@
 []
   *** nfinit: Warning: non-monic polynomial. Result of the form [nf,c].
 [[2, [0, 1]~, 2, 1, [0, -2; 1, 0]]]
-Total time spent: 21
+Total time spent: 20

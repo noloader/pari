@@ -464,7 +464,9 @@ Zideallog(GEN x, GEN bid)
   GEN N, L, F, P,E, y, U, pe, fao, gen, lo;
   long i, l;
   if (typ(x) != t_INT) pari_err_TYPE("ideallog", x);
-  if (!checkbid_i(bid)) pari_err_TYPE("ideallog", bid);
+  if (typ(bid) != t_VEC || lg(bid) != 6 || typ(gel(bid,3)) != t_VEC
+      || typ(gel(bid,1)) != t_VEC || lg(gel(bid,1)) != 3)
+    pari_err_TYPE("ideallog", bid);
   N = bid_get_ideal(bid);
   if (typ(N) != t_INT) pari_err_TYPE("ideallog", N);
   if (equali1(N)) return cgetg(1, t_COL);
