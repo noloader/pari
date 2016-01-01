@@ -3603,13 +3603,13 @@ znlog_rec(GEN h, GEN g, GEN N, GEN P, GEN E, GEN PHI)
       /* v_p(order g mod pe) */
       vpogpe = equali1(gpe)? 0: e - Z_pval(subis(gpe,1), p);
       /* v_p(order h mod pe) */
-      vpohpe = equali1(gpe)? 0: e - Z_pval(subis(hpe,1), p);
+      vpohpe = equali1(hpe)? 0: e - Z_pval(subis(hpe,1), p);
       if (vpohpe > vpogpe) return NULL;
 
       ogpe = mulii(ogp, powiu(p, vpogpe)); /* order g mod p^e */
       if (is_pm1(gpe)) return is_pm1(hpe)? a: NULL;
       b = gdiv(Qp_log(cvtop(hpe, p, e)), Qp_log(cvtop(gpe, p, e)));
-      a = addii(a, mulii(ogp, gtrunc(b)));
+      a = addii(a, mulii(ogp, padic_to_Q(b)));
     }
   }
   /* gp^a = hp => x = a mod ogpe => generalized Pohlig-Hellman strategy */
