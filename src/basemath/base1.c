@@ -139,6 +139,18 @@ check_ZKmodule(GEN x, const char *s)
   if (lg(gel(x,2)) != lgcols(x)) pari_err_DIM(s);
 }
 
+static long
+typv6(GEN x)
+{
+  if (typ(gel(x,1)) == t_VEC && lg(gel(x,3)) == 3)
+  {
+    long t = typ(gel(x,3));
+    return (t == t_MAT || t == t_VEC)? typ_BID: typ_NULL;
+  }
+  if (typ(gel(x,2)) == t_COL && typ(gel(x,3)) == t_INT) return typ_PRID;
+  return typ_NULL;
+}
+
 GEN
 get_bnf(GEN x, long *t)
 {
@@ -150,12 +162,7 @@ get_bnf(GEN x, long *t)
       switch(lg(x))
       {
         case 5: *t = typ_QUA; return NULL;
-        case 6:
-          if (typ(gel(x,1)) == t_VEC && typ(gel(x,3)) == t_MAT)
-          { *t = typ_BID; return NULL; }
-          if (typ(gel(x,2)) == t_COL && typ(gel(x,3)) == t_INT)
-          { *t = typ_PRID; return NULL; }
-          break;
+        case 6: *t = typv6(x); return NULL;
         case 7:  *t = typ_BNR;
           x = bnr_get_bnf(x); if (typ(x)!=t_VEC || lg(x)!=11) break;
           return x;
@@ -190,12 +197,7 @@ get_nf(GEN x, long *t)
           if (typ(gel(x,2)) != t_POLMOD) break;
           return get_nf(gel(x,1),t);
         case 5: *t = typ_QUA; return NULL;
-        case 6:
-          if (typ(gel(x,1)) == t_VEC && typ(gel(x,3)) == t_MAT)
-          { *t = typ_BID; return NULL; }
-          if (typ(gel(x,2)) == t_COL && typ(gel(x,3)) == t_INT)
-          { *t = typ_PRID; return NULL; }
-          break;
+        case 6: *t = typv6(x); return NULL;
         case 7: *t = typ_BNR;
           x = bnr_get_bnf(x); if (typ(x)!=t_VEC || lg(x)!=11) break;
           x = bnf_get_nf(x);  if (typ(x)!=t_VEC || lg(x)!=10) break;
@@ -241,8 +243,7 @@ nftyp(GEN x)
           x = bnf_get_nf(x);  if (typ(x)!=t_VEC || lg(x)!=10) break;
           return typ_BNR;
         case 6:
-          if (typ(gel(x,1)) != t_VEC || typ(gel(x,3)) != t_MAT) break;
-          return typ_BID;
+          return typv6(x);
         case 9:
           x = gel(x,2);
           if (typ(x) == t_VEC && lg(x) == 4) return typ_GAL;

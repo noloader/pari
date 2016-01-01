@@ -403,7 +403,7 @@ znstar0(GEN N, long flag)
     }
     else
       G = mkvec2(ZV_prod(cyc), cyc);
-    G = mkvec5(mkvec2(N,mkvec(0)), G, F, mkvec4(mod, fao, U, gen), Ui);
+    G = mkvec5(mkvec2(N,mkvec(gen_0)), G, F, mkvec4(mod, fao, U, gen), Ui);
   }
   return gerepilecopy(av, G);
 }
@@ -454,7 +454,7 @@ Zideallog(GEN x, GEN bid)
   N = bid_get_ideal(bid);
   if (typ(N) != t_INT) pari_err_TYPE("ideallog", N);
   if (equali1(N)) return cgetg(1, t_COL);
-  if (!signe(x)) pari_err_TYPE("ideallog", x);
+  if (!signe(x)) pari_err_COPRIME("Zideallog", x, N);
   L = gel(bid,4);
   F = gel(bid,3); /* factor(N) */
   P = gel(F, 1); /* prime divisors of N */
@@ -475,13 +475,13 @@ Zideallog(GEN x, GEN bid)
     {
       case 1: gel(y,i++) = gen_0; break;
       case 3: gel(y,i++) = gen_1; x2 = subii(int2n(e-1), x2); break;
-      default: pari_err_TYPE("ideallog", x);
+      default: pari_err_COPRIME("Zideallog_2k", x, N);
     }
     /* x2 = 1 mod 4 */
     if (e >= 3)
     {
       GEN a = Zideallog_2k(x2, gel(gen,i), e, q2);
-      if (!a) pari_err_COPRIME("Zideallog_2k", x, gen_2);
+      if (!a) pari_err_COPRIME("Zideallog_2k", x, N);
       gel(y, i++) = a;
       E--; /* two generators at 2 so all other arrays have offset 1 */
       P--;
@@ -491,7 +491,7 @@ Zideallog(GEN x, GEN bid)
   {
     GEN p = gel(P,i), q = gel(pe,i), xpe = modii(x, q);
     GEN a = Zideallog_pk(xpe, gel(gen,i), p, E[i], q, gel(fao,i));
-    if (!a) pari_err_COPRIME("Zideallog_pk", x, p);
+    if (!a) pari_err_COPRIME("Zideallog_pk", x, N);
     gel(y, i++) = a;
   }
   return ZM_ZC_mul(U, y);
