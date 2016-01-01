@@ -1497,7 +1497,7 @@ rootsof1padic(GEN n, GEN y)
 static GEN
 palogaux(GEN x)
 {
-  long k,e,pp;
+  long k, e, pp;
   GEN y,s,y2, p = gel(x,2);
 
   if (equalii(gen_1, gel(x,4)))
@@ -1512,7 +1512,7 @@ palogaux(GEN x)
     if (!BPSW_psp(p)) pari_err_PRIME("p-adic log",p);
     pari_err_BUG("log_p");
   }
-  pp = e+precp(y);
+  pp = precp(y) + e;
   if (equaliu(p,2)) pp--;
   else
   {
@@ -1521,10 +1521,12 @@ palogaux(GEN x)
     pp -= 2;
   }
   k = pp/e; if (!odd(k)) k--;
+  if (k == 1) return y;
   y2 = gsqr(y); s = gdivgs(gen_1,k);
   while (k > 2)
   {
-    k -= 2; s = gadd(gmul(y2,s), gdivgs(gen_1,k));
+    k -= 2;
+    s = gadd(gmul(y2,s), gdivgs(gen_1,k));
   }
   return gmul(s,y);
 }
