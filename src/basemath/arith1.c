@@ -389,12 +389,24 @@ znstar0(GEN N, long flag)
   }
   else
   { /* keep matrices between generators, return an 'init' structure */
-    GEN U, Ui, fao = cgetg(l, t_VEC);
+    GEN U, Ui, fao = cgetg(l, t_VEC), lo = cgetg(l, t_VEC);
     F = mkvec2(P, E);
     cyc = ZV_snf_group(cyc,&U,&Ui);
-    if (equaliu(gel(P,1), 2) && E[1] >= 3) { gel(fao,1) = gen_0; i = 2; P--; }
+    if (equaliu(gel(P,1), 2) && E[1] >= 3)
+    { gel(fao,1) = gel(lo,1) = gen_0; i = 2; P--; }
     else i = 1;
-    for (; i < l; i++) gel(fao,i) = dlog_get_ordfa(subis(gel(P,i), 1));
+    for (; i < l; i++)
+    {
+      GEN t = gen_0, p = gel(P,i), p_1 = subiu(p,1);
+      long e = E[i];
+      gel(fao,i) = dlog_get_ordfa(p_1);
+      if (e > 2 && !equaliu(p,2))
+      {
+        GEN g = gel(gen,i), pe = gel(mod,i);
+        t = ginv(Qp_log(cvtop(Fp_pow(g,p_1,pe),p,e)));
+      }
+      gel(lo,i) = t;
+    }
     if (dogen)
     {
       G = cgetg(l, t_VEC);
@@ -403,7 +415,7 @@ znstar0(GEN N, long flag)
     }
     else
       G = mkvec2(ZV_prod(cyc), cyc);
-    G = mkvec5(mkvec2(N,mkvec(gen_0)), G, F, mkvec4(mod, fao, U, gen), Ui);
+    G = mkvec5(mkvec2(N,mkvec(gen_0)), G, F, mkvec5(mod, fao, U, gen, lo), Ui);
   }
   return gerepilecopy(av, G);
 }
@@ -420,9 +432,9 @@ Zideallog_2k(GEN h, GEN g, long e, GEN pe)
 }
 
 /* ord = dlog_get_ordfa(p-1), simplified form of znlog_rec: g is known
- * to be a primitive root mod p^e */
+ * to be a primitive root mod p^e; lo = 1/log() */
 static GEN
-Zideallog_pk(GEN h, GEN g, GEN p, long e, GEN pe, GEN ord)
+Zideallog_pk(GEN h, GEN g, GEN p, long e, GEN pe, GEN ord, GEN lo)
 {
   GEN gp = (e == 1)? g: modii(g, p);
   GEN hp = (e == 1)? h: modii(h, p);
@@ -433,12 +445,14 @@ Zideallog_pk(GEN h, GEN g, GEN p, long e, GEN pe, GEN ord)
     /* use p-adic log: O(log p + e) mul*/
     GEN b, p_1 = gel(ord,1);
     h = Fp_mul(h, Fp_pow(g, negi(a), pe), pe);
-    g = Fp_pow(g, p_1, pe);
     /* g,h = 1 mod p; compute b s.t. h = g^b */
     if (e == 2)
+    {
+      g = Fp_pow(g, p_1, pe);
       b = Fp_div(diviiexact(subis(h,1), p), diviiexact(subis(g,1), p), p);
+    }
     else
-      b = padic_to_Q(gdiv(Qp_log(cvtop(h, p, e)), Qp_log(cvtop(g, p, e))));
+      b = padic_to_Q(gmul(Qp_log(cvtop(h, p, e)), lo));
     a = addii(a, mulii(p_1, b));
   }
   return a;
@@ -447,7 +461,7 @@ Zideallog_pk(GEN h, GEN g, GEN p, long e, GEN pe, GEN ord)
 GEN
 Zideallog(GEN x, GEN bid)
 {
-  GEN N, L, F, P,E, y, U, pe, fao, gen;
+  GEN N, L, F, P,E, y, U, pe, fao, gen, lo;
   long i, l;
   if (typ(x) != t_INT) pari_err_TYPE("ideallog", x);
   if (!checkbid_i(bid)) pari_err_TYPE("ideallog", bid);
@@ -462,6 +476,7 @@ Zideallog(GEN x, GEN bid)
   pe = gel(L,1);
   fao = gel(L,2);
   gen = gel(L,4); /* local generators of (Z/p^k)^* */
+  lo = gel(L,5); /* 1/log_p((g_i)^(p_i-1)) */
   U = gel(bid,5);
 
   l = lg(gen); i = 1;
@@ -490,7 +505,7 @@ Zideallog(GEN x, GEN bid)
   for (; i < l; i++)
   {
     GEN p = gel(P,i), q = gel(pe,i), xpe = modii(x, q);
-    GEN a = Zideallog_pk(xpe, gel(gen,i), p, E[i], q, gel(fao,i));
+    GEN a = Zideallog_pk(xpe, gel(gen,i), p, E[i], q, gel(fao,i), gel(lo,i));
     if (!a) pari_err_COPRIME("Zideallog_pk", x, N);
     gel(y, i++) = a;
   }
