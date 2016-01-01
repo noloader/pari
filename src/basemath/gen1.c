@@ -619,19 +619,19 @@ addsub_pp(GEN x, GEN y, GEN (*op)(GEN,GEN))
   gel(z,3) = icopy(mod);
   gel(z,4) = icopy(u); return z;
 }
-
+/* Rg_to_Fp(t_FRAC) without GC */
+static GEN
+Q_to_Fp(GEN x, GEN p)
+{ return mulii(gel(x,1), Fp_inv(gel(x,2),p)); }
 /* return x + y, where y t_PADIC and x is a non-zero t_INT or t_FRAC */
 static GEN
 addQp(GEN x, GEN y)
 {
   pari_sp av = avma;
-  long tx,d,r,e, vy = valp(y), py = precp(y);
-  GEN z,q,p1,p2,mod,u, p = gel(y,2);
+  long d, r, e, vy = valp(y), py = precp(y);
+  GEN z, q, mod, u, p = gel(y,2);
 
-  tx = typ(x);
-  e = (tx == t_INT)? Z_pvalrem(x,p,&p1)
-                   : Z_pvalrem(gel(x,1),p,&p1) -
-                     Z_pvalrem(gel(x,2),p,&p2);
+  e = Q_pvalrem(x, p, &x);
   d = vy - e; r = d + py;
   if (r <= 0) { avma = av; return gcopy(y); }
   mod = gel(y,3);
@@ -642,23 +642,21 @@ addQp(GEN x, GEN y)
   {
     q = powiu(p,d);
     mod = mulii(mod, q);
-    u   = mulii(u, q);
-    if (tx != t_INT && !is_pm1(p2)) p1 = mulii(p1, Fp_inv(p2,mod));
-    u = addii(u, p1);
+    if (typ(x) != t_INT) x = Q_to_Fp(x, mod);
+    u = addii(x,  mulii(u, q));
   }
   else if (d < 0)
   {
     q = powiu(p,-d);
-    if (tx != t_INT && !is_pm1(p2)) p1 = mulii(p1, Fp_inv(p2,mod));
-    p1 = mulii(p1, q);
-    u = addii(u, p1);
+    if (typ(x) != t_INT) x = Q_to_Fp(x, mod);
+    u = addii(u, mulii(x, q));
     r = py; e = vy;
   }
   else
   {
     long c;
-    if (tx != t_INT && !is_pm1(p2)) p1 = mulii(p1, Fp_inv(p2,mod));
-    u = addii(u, p1);
+    if (typ(x) != t_INT) x = Q_to_Fp(x, mod);
+    u = addii(u, x);
     if (!signe(u) || (c = Z_pvalrem(u,p,&u)) >= r)
     {
       avma = av; return zeropadic(p,e+r);
@@ -670,8 +668,8 @@ addQp(GEN x, GEN y)
       e += c;
     }
   }
-  u = modii(u, mod);
-  avma = av; z = cgetg(5,t_PADIC);
+  u = modii(u, mod); avma = av;
+  z = cgetg(5,t_PADIC);
   z[1] = evalprecp(r) | evalvalp(e);
   gel(z,2) = icopy(p);
   gel(z,3) = icopy(mod);
