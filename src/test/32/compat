@@ -4169,10 +4169,11 @@ modulus (an ideal in any form or a vector [f0, foo], where f0 is an ideal and
 foo is a {0,1}-vector with r1 components. flag is optional, and can be 0: 
 simply gives the structure as an abelian group, i.e. a 3-component vector 
 [h,d,g] where h is the order, d the orders of the cyclic factors and g the 
-generators; if flag=1 (default), gives a bid structure without generators, used 
-in ideallog to compute discrete logarithms; if flag=2, same as with flag=1 
-except that the generators are also given. If nf is omitted, N must be an 
-integer and we return the structure of (Z/NZ)^*.
+generators; if flag=1 (default), gives a bid structure used in ideallog to 
+compute discrete logarithms; underlying generators are well-defined but not 
+explicitly computed, which saves time; if flag=2, same as with flag=1 except 
+that the generators are also given. If nf is omitted, N must be an integer and 
+we return the structure of (Z/NZ)^*.
 
 
   ***   at top-level: zidealstarinit()
@@ -4187,10 +4188,11 @@ modulus (an ideal in any form or a vector [f0, foo], where f0 is an ideal and
 foo is a {0,1}-vector with r1 components. flag is optional, and can be 0: 
 simply gives the structure as an abelian group, i.e. a 3-component vector 
 [h,d,g] where h is the order, d the orders of the cyclic factors and g the 
-generators; if flag=1 (default), gives a bid structure without generators, used 
-in ideallog to compute discrete logarithms; if flag=2, same as with flag=1 
-except that the generators are also given. If nf is omitted, N must be an 
-integer and we return the structure of (Z/NZ)^*.
+generators; if flag=1 (default), gives a bid structure used in ideallog to 
+compute discrete logarithms; underlying generators are well-defined but not 
+explicitly computed, which saves time; if flag=2, same as with flag=1 except 
+that the generators are also given. If nf is omitted, N must be an integer and 
+we return the structure of (Z/NZ)^*.
 
 
   ***   at top-level: zidealstarinitgen()
@@ -4205,10 +4207,11 @@ modulus (an ideal in any form or a vector [f0, foo], where f0 is an ideal and
 foo is a {0,1}-vector with r1 components. flag is optional, and can be 0: 
 simply gives the structure as an abelian group, i.e. a 3-component vector 
 [h,d,g] where h is the order, d the orders of the cyclic factors and g the 
-generators; if flag=1 (default), gives a bid structure without generators, used 
-in ideallog to compute discrete logarithms; if flag=2, same as with flag=1 
-except that the generators are also given. If nf is omitted, N must be an 
-integer and we return the structure of (Z/NZ)^*.
+generators; if flag=1 (default), gives a bid structure used in ideallog to 
+compute discrete logarithms; underlying generators are well-defined but not 
+explicitly computed, which saves time; if flag=2, same as with flag=1 except 
+that the generators are also given. If nf is omitted, N must be an integer and 
+we return the structure of (Z/NZ)^*.
 
 
   ***   at top-level: box()
@@ -4569,4 +4572,4 @@ New syntax: texprint(x) ===> printtex(x)
 printtex({str}*): outputs its string arguments in TeX format.
 
 
-Total time spent: 21
+Total time spent: 16
