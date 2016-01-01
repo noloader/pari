@@ -1,10 +1,10 @@
 Function: ideallog
 Section: number_fields
 C-Name: ideallog
-Prototype: GGG
-Help: ideallog(nf,x,bid): if bid is a big ideal, as given by
- idealstar(nf,I,1) or idealstar(nf,I,2), gives the vector of exponents on the
- generators bid[2][3] (even if these generators have not been computed).
+Prototype: DGGG
+Help: ideallog({nf},x,bid): if bid is a big ideal, as given by
+ idealstar(nf,D,...), gives the vector of exponents on the generators bid.gen
+ (even if these generators have not been explicitly computed).
 Doc: $\var{nf}$ is a number field,
  \var{bid} is as output by \kbd{idealstar(nf, D, \dots)} and $x$ a
  non-necessarily integral element of \var{nf} which must have valuation
@@ -18,3 +18,6 @@ Doc: $\var{nf}$ is a number field,
  congruence implies also sign conditions on the associated real embeddings.
  See \tet{znlog} for the limitations of the underlying discrete log algorithms.
 
+ When \var{nf} is omitted, take it to be the rational number field. In that
+ case, $x$ must be a \typ{INT} and \var{bid} must have been initialized by
+ \kbd{idealstar(,N)}.

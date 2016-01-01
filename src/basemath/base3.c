@@ -1959,6 +1959,7 @@ Idealstar(GEN nf, GEN ideal, long flag)
   long i, j, k, nbp, R1, nbgen;
   GEN t, y, cyc, U, u1 = NULL, fa, lists, x, arch, archp, E, P, sarch, gen;
 
+  if (!nf) return znstar0(ideal, flag);
   nf = checknf(nf);
   R1 = nf_get_r1(nf);
   if (typ(ideal) == t_VEC && lg(ideal) == 3)
@@ -2265,7 +2266,11 @@ END:
   return gerepileupto(av, vecmodii(y, cyc));
 }
 GEN
-ideallog(GEN nf, GEN x, GEN bid) { return ideallog_sgn(nf, x, NULL, bid); }
+ideallog(GEN nf, GEN x, GEN bid)
+{
+  if (!nf) return Zideallog(x, bid);
+  return ideallog_sgn(nf, x, NULL, bid);
+}
 
 /*************************************************************************/
 /**                                                                     **/

@@ -771,6 +771,10 @@ static GEN
 mul(void *a, GEN x, GEN y) { (void)a; return gmul(x,y);}
 static GEN
 powi(void *a, GEN x, GEN y) { (void)a; return powgi(x,y);}
+static GEN
+Fpmul(void *a, GEN x, GEN y) { return Fp_mul(x,y,(GEN)a); }
+static GEN
+Fppow(void *a, GEN x, GEN n) { return Fp_pow(x,n,(GEN)a); }
 
 #if 0
 static GEN
@@ -847,6 +851,10 @@ idealfactorback(GEN nf, GEN L, GEN e, int red)
 GEN
 nffactorback(GEN nf, GEN L, GEN e)
 { return gen_factorback(L, e, &eltmul, &eltpow, (void*)checknf(nf)); }
+
+GEN
+FpV_factorback(GEN L, GEN e, GEN p)
+{ return gen_factorback(L, e, &Fpmul, &Fppow, (void*)p); }
 
 GEN
 factorback2(GEN L, GEN e) { return gen_factorback(L, e, &mul, &powi, NULL); }

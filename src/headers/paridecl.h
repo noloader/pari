@@ -1558,6 +1558,7 @@ GEN     ZV_chinese(GEN A, GEN P, GEN *pt_mod);
 GEN     ZV_chinese_tree(GEN A, GEN P, GEN tree, GEN *pt_mod);
 GEN     ZV_producttree(GEN xa);
 GEN     ZX_nv_mod_tree(GEN P, GEN xa, GEN T);
+GEN     Zideallog(GEN bid, GEN N);
 long    Zp_issquare(GEN a, GEN p);
 GEN     bestappr(GEN x, GEN k);
 GEN     bestapprPade(GEN x, long B);
@@ -1631,6 +1632,7 @@ GEN     znlog(GEN x, GEN g, GEN o);
 GEN     znorder(GEN x, GEN o);
 GEN     znprimroot(GEN m);
 GEN     znstar(GEN x);
+GEN     znstar0(GEN N, long flag);
 
 /* arith2.c */
 
@@ -3611,6 +3613,7 @@ GEN     rootpadic(GEN f, GEN p, long r);
 
 /* polarit2.c */
 
+GEN     FpV_factorback(GEN L, GEN e, GEN p);
 GEN     Q_content(GEN x);
 GEN     Q_denom(GEN x);
 GEN     Q_div_to_int(GEN x, GEN c);

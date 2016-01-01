@@ -262,11 +262,12 @@ rootsof1_Fl(ulong n, ulong p)
 }
 
 GEN
-znstar(GEN N)
+znstar0(GEN N, long flag)
 {
-  GEN F = NULL, P, E, cyc, gen, mod;
-  long i, j, nbp, sizeh;
+  GEN F = NULL, P, E, cyc, gen, mod, G;
+  long i, j, l, lP;
   pari_sp av = avma;
+  const long dogen = flag & nf_GEN;
 
   if ((F = check_arith_all(N,"znstar")))
   {
@@ -276,94 +277,224 @@ znstar(GEN N)
   if (!signe(N))
   {
     avma = av;
-    retmkvec3(gen_2, mkvec(gen_2), mkvec(gen_m1));
+    if (flag & nf_GEN)
+      retmkvec3(gen_2, mkvec(gen_2), mkvec(gen_m1));
+    else
+      retmkvec2(gen_2, mkvec(gen_2));
   }
   if (signe(N) < 0) N = absi(N);
   if (cmpiu(N,2) <= 0)
   {
     avma = av;
-    retmkvec3(gen_1, cgetg(1,t_VEC), cgetg(1,t_VEC));
+    if (flag & nf_GEN)
+      retmkvec3(gen_1, cgetg(1,t_VEC), cgetg(1,t_VEC));
+    else
+      retmkvec2(gen_1, cgetg(1,t_VEC));
   }
   if (!F) F = Z_factor(N);
-  P = gel(F,1);
-  E = gel(F,2); nbp = lg(P)-1;
-  cyc = cgetg(nbp+2,t_VEC);
-  gen = cgetg(nbp+2,t_VEC);
-  mod = cgetg(nbp+2,t_VEC);
+  P = gel(F,1); lP = lg(P);
+  E = ZV_to_nv( gel(F,2) );
   switch(mod8(N))
   {
-    case 0: {
-      long v2 = itos(gel(E,1));
-      gel(cyc,1) = int2n(v2-2);
-      gel(cyc,2) = gen_2;
-      gel(gen,1) = utoipos(5);
-      gel(gen,2) = addis(int2n(v2-1), -1);
-      gel(mod,1) = gel(mod,2) = int2n(v2);
-      sizeh = nbp+1; i = 3; j = 2; break;
-    }
-    case 4:
-      gel(cyc,1) = gen_2;
-      gel(gen,1) = utoipos(3);
-      gel(mod,1) = utoipos(4);
-      sizeh = nbp; i = j = 2; break;
-    case 2: case 6:
-      sizeh = nbp-1; i=1; j=2; break;
-    default: /* 1, 3, 5, 7 */
-      sizeh = nbp; i = j = 1;
+    case 0: l = lP+1; i = 3; j = 2; break;
+    case 4: l = lP; i = j = 2; break;
+    case 2:
+    case 6: l = lP-1; i = 1; j = 2; break;
+    default:l = lP; i = j = 1; /* 1, 3, 5, 7 */
   }
-  for ( ; j<=nbp; i++,j++)
+  cyc = cgetg(l,t_VEC);
+  gen = cgetg(l,t_VEC);
+  mod = cgetg(l,t_VEC);
+  /* treat 2 first */
+  if (i == 3)
   {
-    long e = itos(gel(E,j));
+    long v2 = E[1];
+    gel(cyc,1) = gen_2;
+    gel(cyc,2) = int2n(v2-2);
+    gel(gen,1) = addis(int2n(v2-1), -1);
+    gel(gen,2) = utoipos(5);
+    gel(mod,1) = gel(mod,2) = int2n(v2);
+  }
+  else if (i == 2)
+  {
+    gel(cyc,1) = gen_2;
+    gel(gen,1) = utoipos(3);
+    gel(mod,1) = utoipos(4);
+  }
+  /* odd primes */
+  for ( ; j<lP; i++,j++)
+  {
+    long e = E[j];
     GEN p = gel(P,j), q = powiu(p, e-1), Q = mulii(p, q);
     gel(cyc,i) = subii(Q, q); /* phi(p^e) */
     gel(gen,i) = pgener_Zp(p);/* Conrey normalization, for e = 1 also */
     gel(mod,i) = Q;
   }
   /* gen[i] has order cyc[i] and generates (Z/mod[i]Z)^* */
-  setlg(gen, sizeh+1);
-  setlg(cyc, sizeh+1);
-  if (nbp > 1)
-    for (i=1; i<=sizeh; i++)
+  if (dogen && lP > 2) /* lift all generators to (Z/NZ)^*, = 1 mod N/mod[i] */
+    for (i=1; i<l; i++)
     {
       GEN Q = gel(mod,i), g = gel(gen,i), qinv = Fp_inv(Q, diviiexact(N,Q));
       g = addii(g, mulii(mulii(subsi(1,g),qinv),Q));
       gel(gen,i) = modii(g, N);
     }
 
-  /*The cyc[i] are > 1 and remain so in the loop, gen[i] = 1 mod (N/mod[i]) */
-  for (i=sizeh; i>=2; i--)
-  {
-    GEN ci = gel(cyc,i), gi = gel(gen,i);
-    for (j=i-1; j>=1; j--) /* we want cyc[i] | cyc[j] */
+  /* cyc[i] > 1 and remain so in the loop, gen[i] = 1 mod (N/mod[i]) */
+  if (!(flag & nf_INIT))
+  { /* update generators in place; about twice faster */
+    G = gen;
+    for (i=l-1; i>=2; i--)
     {
-      GEN cj = gel(cyc,j), gj, qj, v, d;
+      GEN ci = gel(cyc,i), gi = dogen? gel(G,i): NULL;
+      for (j=i-1; j>=1; j--) /* we want cyc[i] | cyc[j] */
+      {
+        GEN cj = gel(cyc,j), qj, v, d;
 
-      d = bezout(ci,cj,NULL,&v); /* > 1 */
-      if (absi_equal(ci, d)) continue; /* ci | cj */
-      if (absi_equal(cj, d)) { /* cj | ci */
-        swap(gel(gen,j),gel(gen,i)); gi = gel(gen,i);
-        swap(gel(cyc,j),gel(cyc,i)); ci = gel(cyc,i); continue;
+        d = dogen? bezout(ci,cj,NULL,&v): gcdii(ci,cj); /* > 1 */
+        if (absi_equal(ci, d)) continue; /* ci | cj */
+        if (absi_equal(cj, d)) { /* cj | ci */
+          if (dogen)
+          {
+            swap(gel(G,j),gel(G,i));
+            gi = gel(G,i);
+          }
+          swap(gel(cyc,j),gel(cyc,i));
+          ci = gel(cyc,i); continue;
+        }
+
+        qj = diviiexact(cj,d);
+        gel(cyc,j) = mulii(ci,qj);
+        gel(cyc,i) = d;
+
+        /* [1,v*cj/d; 0,1]*[1,0;-1,1]*diag(cj,ci)*[ci/d,-v; cj/d,u]
+         * = diag(lcm,gcd), with u ci + v cj = d */
+        if (dogen)
+        {
+          GEN gj = gel(G,j);
+          /* (gj, gi) *= [1,0; -1,1]^-1 */
+          gj = Fp_mul(gj, gi, N); /* order ci*qj = lcm(ci,cj) */
+          /* (gj,gi) *= [1,v*qj; 0,1]^-1 */
+          togglesign_safe(&v);
+          if (signe(v) < 0) v = modii(v,ci); /* >= 0 to avoid inversions */
+          gel(G,i) = gi = Fp_mul(gi, Fp_pow(gj, mulii(qj, v), N), N);
+          gel(G,j) = gj;
+        }
+        ci = d; if (equaliu(ci, 2)) break;
       }
+    }
+    if (dogen)
+      G = mkvec3(ZV_prod(cyc), cyc, FpV_to_mod(G,N));
+    else
+      G = mkvec2(ZV_prod(cyc), cyc);
+  }
+  else
+  { /* keep matrices between generators, return an 'init' structure */
+    GEN U, Ui, fao = cgetg(l, t_VEC);
+    F = mkvec2(P, E);
+    cyc = ZV_snf_group(cyc,&U,&Ui);
+    if (equaliu(gel(P,1), 2) && E[1] >= 3) { gel(fao,1) = gen_0; i = 2; P--; }
+    else i = 1;
+    for (; i < l; i++) gel(fao,i) = dlog_get_ordfa(subis(gel(P,i), 1));
+    if (dogen)
+    {
+      G = cgetg(l, t_VEC);
+      for (i = 1; i < l; i++) gel(G,i) = FpV_factorback(gen, gel(Ui,i), N);
+      G = mkvec3(ZV_prod(cyc), cyc, G);
+    }
+    else
+      G = mkvec2(ZV_prod(cyc), cyc);
+    G = mkvec5(mkvec2(N,mkvec(0)), G, F, mkvec4(mod, fao, U, gen), Ui);
+  }
+  return gerepilecopy(av, G);
+}
+GEN
+znstar(GEN N) { return znstar0(N, nf_GEN); }
 
-      gj = gel(gen,j);
-      qj = diviiexact(cj,d);
-      gel(cyc,j) = mulii(ci,qj);
-      gel(cyc,i) = d;
-      /* [1,v*cj/d; 0,1]*[1,0;-1,1]*diag(cj,ci)*[ci/d,-v; cj/d,u]
-       * = diag(lcm,gcd), with u ci + v cj = d */
+/* g has order 2^(e-2), g,h = 1 (mod 4); return x s.t. g^x = h (mod 2^e) */
+static GEN
+Zideallog_2k(GEN h, GEN g, long e, GEN pe)
+{
+  GEN a = Fp_log(h, g, int2n(e-2), pe);
+  if (typ(a) != t_INT) return NULL;
+  return a;
+}
 
-      /* (gj, gi) *= [1,0; -1,1]^-1 */
-      gj = Fp_mul(gj, gi, N); /* order ci*qj = lcm(ci,cj) */
-      /* (gj,gi) *= [1,v*qj; 0,1]^-1 */
-      togglesign_safe(&v);
-      if (signe(v) < 0) v = modii(v,ci); /* >= 0 to avoid inversions */
-      gi = Fp_mul(gi, Fp_pow(gj, mulii(qj, v), N), N);
-      gel(gen,i) = gi;
-      gel(gen,j) = gj;
-      ci = d; if (equaliu(ci, 2)) break;
+/* ord = dlog_get_ordfa(p-1), simplified form of znlog_rec: g is known
+ * to be a primitive root mod p^e */
+static GEN
+Zideallog_pk(GEN h, GEN g, GEN p, long e, GEN pe, GEN ord)
+{
+  GEN gp = (e == 1)? g: modii(g, p);
+  GEN hp = (e == 1)? h: modii(h, p);
+  GEN a = Fp_log(hp, gp, ord, p);
+  if (typ(a) != t_INT) return NULL;
+  if (e > 1)
+  { /* find a s.t. g^a = h (mod p^e), p odd prime, e > 0, (h,p) = 1 */
+    /* use p-adic log: O(log p + e) mul*/
+    GEN b, p_1 = gel(ord,1);
+    h = Fp_mul(h, Fp_pow(g, negi(a), pe), pe);
+    g = Fp_pow(g, p_1, pe);
+    /* g,h = 1 mod p; compute b s.t. h = g^b */
+    if (e == 2)
+      b = Fp_div(diviiexact(subis(h,1), p), diviiexact(subis(g,1), p), p);
+    else
+      b = padic_to_Q(gdiv(Qp_log(cvtop(h, p, e)), Qp_log(cvtop(g, p, e))));
+    a = addii(a, mulii(p_1, b));
+  }
+  return a;
+}
+
+GEN
+Zideallog(GEN x, GEN bid)
+{
+  GEN N, L, F, P,E, y, U, pe, fao, gen;
+  long i, l;
+  if (typ(x) != t_INT) pari_err_TYPE("ideallog", x);
+  if (!checkbid_i(bid)) pari_err_TYPE("ideallog", bid);
+  N = bid_get_ideal(bid);
+  if (typ(N) != t_INT) pari_err_TYPE("ideallog", N);
+  if (equali1(N)) return cgetg(1, t_COL);
+  if (!signe(x)) pari_err_TYPE("ideallog", x);
+  L = gel(bid,4);
+  F = gel(bid,3); /* factor(N) */
+  P = gel(F, 1); /* prime divisors of N */
+  E = gel(F, 2); /* exponents */
+  pe = gel(L,1);
+  fao = gel(L,2);
+  gen = gel(L,4); /* local generators of (Z/p^k)^* */
+  U = gel(bid,5);
+
+  l = lg(gen); i = 1;
+  y = cgetg(l, t_COL);
+  if (equaliu(gel(P,1), 2) && E[1] >= 2)
+  {
+    GEN x2, q2 = gel(pe,1);
+    long e = E[1];
+    x2 = modii(x, q2);
+    switch(mod4(x))
+    {
+      case 1: gel(y,i++) = gen_0; break;
+      case 3: gel(y,i++) = gen_1; x2 = subii(int2n(e-1), x2); break;
+      default: pari_err_TYPE("ideallog", x);
+    }
+    /* x2 = 1 mod 4 */
+    if (e >= 3)
+    {
+      GEN a = Zideallog_2k(x2, gel(gen,i), e, q2);
+      if (!a) pari_err_COPRIME("Zideallog_2k", x, gen_2);
+      gel(y, i++) = a;
+      E--; /* two generators at 2 so all other arrays have offset 1 */
+      P--;
     }
   }
-  return gerepilecopy(av, mkvec3(ZV_prod(cyc), cyc, FpV_to_mod(gen,N)));
+  for (; i < l; i++)
+  {
+    GEN p = gel(P,i), q = gel(pe,i), xpe = modii(x, q);
+    GEN a = Zideallog_pk(xpe, gel(gen,i), p, E[i], q, gel(fao,i));
+    if (!a) pari_err_COPRIME("Zideallog_pk", x, p);
+    gel(y, i++) = a;
+  }
+  return ZM_ZC_mul(U, y);
 }
 
 /*********************************************************************/

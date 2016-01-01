@@ -381,6 +381,9 @@ BA142- [GP] Map, matget, mapput, mapisdefined, mapdelete
 BA143- [GP] bitprecision
 BA143- [arm64] add aarch64 assembly kernel
   144- [libpari] ZV_snf_group, ZV_snfall
+  145- [libpari] znstar0 with Idealstar semantic; could be made available under
+       GP as default znstar, but current znstar/idealstar have incompatible
+       defaults. Called by idealstar(,N).
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]
@@ -486,6 +489,8 @@ BA 61- [libpari] concat, concat1 renamed to gconcat, gconcat1
    63- nfrootsof1(), more stringent ramification tests: looking
        for a subfield Q(zeta_p^k) is now faster.
    64- intnumromb to use realbitprecision
+   65- idealstar / ideallog: allow omitting 'nf' argument (for nf = Q; use
+       znstar and znlog internally)
 
 Removed
    1- deprecated functions nfbasis0, nfdisc0, factorpadic0
