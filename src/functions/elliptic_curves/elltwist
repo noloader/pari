@@ -4,16 +4,18 @@ C-Name: elltwist
 Prototype: GDG
 Help: elltwist(E,{P}): returns the coefficients [a1,a2,a3,a4,a6] of
  the twist of the elliptic curve E by the quadratic extension defined by
- the polynomial P of degree 2. If E is defined over a finite field, then
- P can be omited.
+ P (when P is a polynomial of degree 2) or quadpoly(P) (when P is an integer).
+ If E is defined over a finite field, then P can be omited.
 Doc: returns the coefficients $[a_1,a_2,a_3,a_4,a_6]$ of the twist of the
- elliptic curve $E$ by the quadratic extension defined by the polynomial $P$ of
- degree $2$. If $E$ is defined over a finite field, then $P$ can be omited.
+ elliptic curve $E$ by the quadratic extension of the coefficient ring
+ defined by $P$ (when $P$ is a polynomial) or \kbd{quadpoly(P)} when P is an
+ integer.  If $E$ is defined over a finite field, then $P$ can be omited,
+ in which case a random model of the unique non-trivial twist is returned.
 
- Example: Twist by an extension of discriminant $D$:
+ Example: Twist by discriminant $-3$:
  \bprog
- ? elltwist(ellinit([0,a2,0,a4,a6]),x^2-D/4)
- %1 = [0,D*a2,0,D^2*a4,D^3*a6]
+ ? elltwist(ellinit([0,a2,0,a4,a6]),-3)
+ %1 = [0,-3*a2,0,9*a4,-27*a6]
  @eprog
  Twist by the Artin-Shreier extension given by $x^2+x+T$ in
  characteristic $2$:
