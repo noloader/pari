@@ -28,7 +28,7 @@
     6
   ***   at top-level: ideallog(,2,z)
   ***                 ^--------------
-  *** ideallog: elements not coprime in Zideallog_pk:
+  *** ideallog: elements not coprime in Zideallog:
     2
     6
   ***   at top-level: ideallog(,3,z)
@@ -42,6 +42,17 @@
   ***   at top-level: ideallog(,3,zQ)
   ***                 ^---------------
   *** ideallog: incorrect type in ideallog (t_VEC).
+
+[1 0 0 0 0]
+
+[0 1 0 0 0]
+
+[0 0 1 0 0]
+
+[0 0 0 1 0]
+
+[0 0 0 0 1]
+
   ***   at top-level: idealstar(Qi,matdiag
   ***                 ^--------------------
   *** idealstar: elements not coprime in idealaddtoone:
@@ -175,4 +186,4 @@
 []
   *** nfinit: Warning: non-monic polynomial. Result of the form [nf,c].
 [[2, [0, 1]~, 2, 1, [0, -2; 1, 0]]]
-Total time spent: 20
+Total time spent: 16

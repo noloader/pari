@@ -18,6 +18,9 @@ ideallog(Q,3,z)
 ideallog(,3,zQ)
 p=19;N=19^4;z=idealstar(,N,2);g=Mod(z.gen[1],N);
 for(i=1,1000,if (i%p && g^ideallog(,i,z)[1] != i, error(i)))
+z=idealstar(,3120,2);
+Mat(vector(#z,i,ideallog(,z.gen[i],z)))
+
 idealstar(Qi,matdiagonal([6,12]))
 P = idealprimedec(Qi,2)[1];
 idealprincipalunits(Qi,P,10)
