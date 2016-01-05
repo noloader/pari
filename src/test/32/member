@@ -290,6 +290,9 @@ PRID
 .f: 1
 .gen: [2, [-1, 1]~]
 .p: 2
+PADIC
+.mod: 9
+.p: 3
 MODPR
 .e: 1
 .f: 1
@@ -321,4 +324,4 @@ ll([])], Mat([1/2, -1/2])]], [[], [], []]], Mat([0, 1])]
 
 [  0   0 1/6]
 
-Total time spent: 60
+Total time spent: 26

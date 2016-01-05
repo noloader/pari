@@ -84,6 +84,7 @@ print("QFB");test( Qfb(1,2,3) )
 print("QUAD"); test( quadgen(-4) )
 P=idealprimedec(NF,2)[1];
 print("PRID"); test(P)
+print("PADIC"); test(2 + O(3^2))
 print("MODPR"); test(nfmodprinit(NF,P))
 A=idealpow(NF,P,2);
 print("BID"); test(idealstar(NF,A,2))
