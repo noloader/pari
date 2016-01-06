@@ -6,7 +6,7 @@ Help: znconreychar(bid,m): Dirichlet character associated to m in (Z/qZ)*
  in Conrey's notation, where bid is znstar(q, 2)
 Doc: Given a \var{bid} associated to $(\Z/q\Z)^*$ (as per
  \kbd{bid = idealstar(,q)}), this function returns the Dirichlet character
- associated to $m \in (\Z/q\Z)^*$ via Conrey's logarithm, which 
+ associated to $m \in (\Z/q\Z)^*$ via Conrey's logarithm, which
  establishes a ``canonical'' bijection between $(\Z/q\Z)^*$ and its dual.
 
  Let $q = \prod_p p^{e_p}$ be the factorization of $q$ into distinct primes,
@@ -34,7 +34,7 @@ Doc: Given a \var{bid} associated to $(\Z/q\Z)^*$ (as per
  if $e_2 \geq 3$. Note that the $g_p$ are in general \emph{not} SNF
  generators as produced by \kbd{znstar} or \kbd{idealstar} whenever
  $\omega(q) \geq 2$, although their number is the same. They however allow
- to handle the finite abelian group $(\Z/q\Z)^*$ in a fast(er) and elegant 
+ to handle the finite abelian group $(\Z/q\Z)^*$ in a fast(er) and elegant
  way. (Which unfortunately does not generalize to ray class groups or Hecke
  characters.)
 
@@ -64,7 +64,7 @@ Doc: Given a \var{bid} associated to $(\Z/q\Z)^*$ (as per
      2
      8
    ***   Break loop: type 'break' to go back to GP prompt
- break> 
+ break>
 
  ? znconreychar(G,3)
  %5 = [0, 1]

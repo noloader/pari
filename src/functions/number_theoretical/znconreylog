@@ -36,7 +36,7 @@ Doc: Given a \var{bid} associated to $(\Z/q\Z)^*$ (as per \kbd{bid =
  if $e_2 \geq 3$. Note that the $g_p$ are in general \emph{not} SNF
  generators as produced by \kbd{znstar} or \kbd{idealstar} whenever
  $\omega(q) \geq 2$, although their number is the same. They however allow
- to handle the finite abelian group $(\Z/q\Z)^*$ in a fast(er) and elegant 
+ to handle the finite abelian group $(\Z/q\Z)^*$ in a fast(er) and elegant
  way. (Which unfortunately does not generalize to ray class groups or Hecke
  characters.)
 
@@ -53,7 +53,7 @@ Doc: Given a \var{bid} associated to $(\Z/q\Z)^*$ (as per \kbd{bid =
      2
      126000
    ***   Break loop: type 'break' to go back to GP prompt
- break> 
+ break>
  ? znconreylog(G,11) \\ wrt. Conrey generators
  %5 = [0, 3, 1, 76, 4]~
  ? log11 = ideallog(,11,G)   \\ wrt. SNF generators
