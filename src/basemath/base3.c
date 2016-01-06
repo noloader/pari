@@ -1759,7 +1759,7 @@ famat_zlog(GEN nf, GEN fa, GEN sgn, GEN bid)
   GEN g = gel(fa,1), e = gel(fa,2);
   GEN vp = gmael(bid, 3,1), ep = gmael(bid, 3,2);
   GEN arch = bid_get_arch(bid);
-  GEN cyc = bid_get_cyc(bid), lists = gel(bid,4), U = gel(bid,5);
+  GEN cyc = bid_get_cyc(bid), lists = gel(bid,4), U = bid_get_U(bid);
   GEN y0, x, y, EX = gel(cyc,1);
   long i, l;
 
@@ -1821,7 +1821,7 @@ init_zlog(zlog_S *S, long n, GEN P, GEN e, GEN arch, GEN lists, GEN U)
 void
 init_zlog_bid(zlog_S *S, GEN bid)
 {
-  GEN fa = gel(bid,3), lists = gel(bid,4), U = gel(bid,5);
+  GEN fa = bid_get_fact(bid), lists = gel(bid,4), U = bid_get_U(bid);
   GEN arch = gel(bid_get_mod(bid), 2);
   init_zlog(S, lg(U)-1, gel(fa,1), gel(fa,2), arch, lists, U);
 }
@@ -2262,13 +2262,13 @@ ideallog_sgn(GEN nf, GEN x, GEN sgn, GEN bid)
     y = zlog(nf, x, sgn, &S);
   }
 END:
-  y = ZM_ZC_mul(gel(bid,5), y);
+  y = ZM_ZC_mul(bid_get_U(bid), y);
   return gerepileupto(av, vecmodii(y, cyc));
 }
 GEN
 ideallog(GEN nf, GEN x, GEN bid)
 {
-  if (!nf) return Zideallog(x, bid);
+  if (!nf) return Zideallog(bid, x);
   return ideallog_sgn(nf, x, NULL, bid);
 }
 
@@ -2483,7 +2483,7 @@ Ideallist(GEN bnf, ulong bound, long flag)
     long l = lg(s);
     for (j = 1; j < l; j++) {
       GEN v = gel(s,j), bid = gel(v,1);
-      gel(v,2) = ZM_mul(gel(bid,5), gel(v,2));
+      gel(v,2) = ZM_mul(bid_get_U(bid), gel(v,2));
     }
   }
   return gerepilecopy(av0, z);
@@ -2530,9 +2530,9 @@ join_arch(ideal_data *D, GEN x) {
 }
 static GEN
 join_archunit(ideal_data *D, GEN x) {
-  GEN bid = join_arch(D, gel(x,1)), U = gel(x,2);
-  U = ZM_mul(gel(bid,5), vconcat(U, zm_to_ZM(zlog_unitsarch(D->sgnU, bid))));
-  return mkvec2(bid, U);
+  GEN bid = join_arch(D, gel(x,1)), u = gel(x,2);
+  u = ZM_mul(bid_get_U(bid), vconcat(u, zm_to_ZM(zlog_unitsarch(D->sgnU,bid))));
+  return mkvec2(bid, u);
 }
 
 /* L from ideallist, add archimedean part */
