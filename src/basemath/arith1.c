@@ -285,11 +285,19 @@ znstar0(GEN N, long flag)
   if (signe(N) < 0) N = absi(N);
   if (cmpiu(N,2) <= 0)
   {
-    avma = av;
     if (flag & nf_GEN)
-      retmkvec3(gen_1, cgetg(1,t_VEC), cgetg(1,t_VEC));
+      G = mkvec3(gen_1, cgetg(1,t_VEC), cgetg(1,t_VEC));
     else
-      retmkvec2(gen_1, cgetg(1,t_VEC));
+      G = mkvec2(gen_1, cgetg(1,t_VEC));
+    if (flag & nf_INIT)
+    {
+      GEN v = const_vec(6,cgetg(1,t_VEC));
+      gel(v,3) = cgetg(1,t_MAT);
+      F = equali1(N)? mkvec2(cgetg(1,t_COL),cgetg(1,t_VECSMALL))
+                    : mkvec2(mkcol(gen_2), mkvecsmall(1));
+      G = mkvec5(mkvec2(N,mkvec(gen_0)), G, F, v, cgetg(1,t_MAT));
+    }
+    return gerepilecopy(av,G);
   }
   if (!F) F = Z_factor(N);
   P = gel(F,1); nbprimes = lg(P)-1;
@@ -408,9 +416,9 @@ znstar0(GEN N, long flag)
   }
   else
   { /* keep matrices between generators, return an 'init' structure */
-    GEN U, Ui, fao = cgetg(l, t_VEC), lo = cgetg(l, t_VEC);
+    GEN D, U, Ui, fao = cgetg(l, t_VEC), lo = cgetg(l, t_VEC);
     F = mkvec2(P, E);
-    cyc = ZV_snf_group(cyc,&U,&Ui);
+    D = ZV_snf_group(cyc,&U,&Ui);
     for (i = 1; i < l; i++)
     {
       GEN t = gen_0, p = gel(P,i), p_1 = subiu(p,1);
@@ -418,11 +426,11 @@ znstar0(GEN N, long flag)
       gel(fao,i) = dlog_get_ordfa(p_1);
       if (e >= 2 && !equaliu(p,2))
       {
-        GEN g = gel(gen,i);
+        GEN q = gel(mod,i), g = Fp_pow(gel(gen,i),p_1,q);
         if (e == 2)
           t = Fp_inv(diviiexact(subiu(g,1), p), p);
         else
-          t = ginv(Qp_log(cvtop(Fp_pow(g,p_1,gel(mod,i)),p,e)));
+          t = ginv(Qp_log(cvtop(g,p,e)));
       }
       gel(lo,i) = t;
     }
@@ -430,11 +438,12 @@ znstar0(GEN N, long flag)
     {
       G = cgetg(l, t_VEC);
       for (i = 1; i < l; i++) gel(G,i) = FpV_factorback(gen, gel(Ui,i), N);
-      G = mkvec3(ZV_prod(cyc), cyc, G);
+      G = mkvec3(ZV_prod(D), D, G);
     }
     else
-      G = mkvec2(ZV_prod(cyc), cyc);
-    G = mkvec5(mkvec2(N,mkvec(gen_0)), G, F, mkvec5(mod, fao, Ui, gen, lo), U);
+      G = mkvec2(ZV_prod(D), D);
+    G = mkvec5(mkvec2(N,mkvec(gen_0)), G, F,
+               mkvecn(6,mod,fao,Ui,gen,cyc,lo), U);
   }
   return gerepilecopy(av, G);
 }
@@ -474,45 +483,65 @@ Zideallog_pk(GEN h, GEN g, GEN p, long e, GEN pe, GEN ord, GEN lo)
   return a;
 }
 
-GEN
-Zideallog(GEN x, GEN bid)
+static int
+checkbidZ_i(GEN G)
 {
-  GEN N, L, F, P,E, y, U, pe, fao, gen, lo;
+  return (typ(G) == t_VEC && lg(G) == 6
+      && typ(bid_get_fact(G)) == t_VEC
+      && typ(bid_get_mod(G)) == t_VEC && lg(bid_get_mod(G)) == 3);
+}
+
+/* discrete log on canonical "primitive root" generators
+ * Allow log(x) instead of x [usual discrete log on bid's generators */
+GEN
+znconreylog(GEN bid, GEN x)
+{
+  pari_sp av = avma;
+  GEN N, L, F, P,E, y, pe, fao, gen, lo, cycg;
   long i, l;
-  if (typ(x) != t_INT) pari_err_TYPE("ideallog", x);
-  if (typ(bid) != t_VEC || lg(bid) != 6 || typ(gel(bid,3)) != t_VEC
-      || typ(gel(bid,1)) != t_VEC || lg(gel(bid,1)) != 3)
-    pari_err_TYPE("ideallog", bid);
+  if (!checkbidZ_i(bid)) pari_err_TYPE("ideallog", bid);
   N = bid_get_ideal(bid);
   if (typ(N) != t_INT) pari_err_TYPE("ideallog", N);
-  if (equali1(N)) return cgetg(1, t_COL);
-  if (!signe(x)) pari_err_COPRIME("Zideallog", x, N);
+  if (cmpiu(N, 2) <= 0) return cgetg(1, t_COL);
   L = gel(bid,4);
-  F = gel(bid,3); /* factor(N) */
+  cycg = gel(L,5);
+  switch(typ(x))
+  {
+    GEN Ui;
+    case t_INT:
+      if (!signe(x)) pari_err_COPRIME("Zideallog", x, N);
+      break;
+    case t_COL: /* log_bid(x) */
+      Ui = gel(L,3);
+      if (!RgV_is_ZV(x) || lg(x) != lg(Ui)) pari_err_TYPE("znconreylog", x);
+      return gerepileupto(av, vecmodii(ZM_ZC_mul(Ui,x), cycg));
+    default: pari_err_TYPE("znconreylog", x);
+  }
+  F = bid_get_fact(bid); /* factor(N) */
   P = gel(F, 1); /* prime divisors of N */
   E = gel(F, 2); /* exponents */
   pe = gel(L,1);
   fao = gel(L,2);
   gen = gel(L,4); /* local generators of (Z/p^k)^* */
-  lo = gel(L,5); /* 1/log_p((g_i)^(p_i-1)) */
-  U = gel(bid,5);
+  lo = gel(L,6); /* 1/log_p((g_i)^(p_i-1)) */
 
   l = lg(gen); i = 1;
   y = cgetg(l, t_COL);
   if (!mod2(N) && !mod2(x)) pari_err_COPRIME("Zideallog", x, N);
   if (equaliu(gel(P,1), 2) && E[1] >= 2)
   {
-    GEN x2, q2 = gel(pe,1);
-    long e = E[1];
-    x2 = modii(x, q2);
-    if (mod8(x) <= 3) /* 1 or 3 */
-      gel(y,i++) = gen_0;
-    else /* 5 or 7 */
-    { gel(y,i++) = gen_1; x2 = subii(q2, x2); }
-    /* x2 = 3^x mod q  [i.e x2 is 1 or 3 mod 8] */
-    if (e >= 3)
+    if (E[1] == 2)
+      gel(y,i++) = mod4(x) == 1? gen_0: gen_1;
+    else
     {
-      GEN a = Zideallog_2k(x2, gel(gen,i), e, q2);
+      GEN a, x2, q2 = gel(pe,1);
+      x2 = modii(x, q2);
+      if (mod8(x) <= 3) /* 1 or 3 */
+        gel(y,i++) = gen_0;
+      else /* 5 or 7 */
+      { gel(y,i++) = gen_1; x2 = subii(q2, x2); }
+      /* x2 = 3^x mod q  [i.e x2 is 1 or 3 mod 8] */
+      a = Zideallog_2k(x2, gel(gen,i), E[1], q2);
       if (!a) pari_err_COPRIME("Zideallog_2k", x, N);
       gel(y, i++) = a;
     }
@@ -524,7 +553,152 @@ Zideallog(GEN x, GEN bid)
     if (!a) pari_err_COPRIME("Zideallog_pk", x, N);
     gel(y, i++) = a;
   }
-  return ZM_ZC_mul(U, y);
+  return gerepilecopy(av, y);
+}
+GEN
+Zideallog(GEN bid, GEN x)
+{
+  pari_sp av = avma;
+  GEN y = znconreylog(bid, x), U = bid_get_U(bid);
+  return gerepileupto(av, ZM_ZC_mul(U, y));
+}
+
+/* m a Conrey log [on the canonical primitive roots], cycg the primitive
+ * roots orders */
+GEN
+conrey_normalize(GEN m, GEN cycg)
+{
+  long i, l = lg(m);
+  GEN d;
+  if (typ(cycg) != t_VEC || lg(cycg) != l)
+    pari_err_TYPE("conrey_normalize",mkvec2(m,cycg));
+  for (i = 1; i < l; i++) gel(m,i) = gdiv(gel(m,i), gel(cycg,i));
+  /* m[i]: image of primroot generators g_i in Q/Z */
+  m = Q_remove_denom(m, &d);
+  return mkvec2(d? d: gen_1, m);
+}
+/* Return Dirichlet character \chi_q(m,.), where bid = znstar(q).
+ * Allow log(m) instead of m; m is either a t_INT, or a t_COL [its usual, not
+ * Conrey's discrete log in bid], or a t_VEC [usual character on bid] */
+GEN
+znconreychar(GEN bid, GEN m)
+{
+  pari_sp av = avma;
+  GEN d, c = znconreylog(bid,m);
+  GEN L = gel(bid,4), cycg = gel(L,5);
+  GEN nchi = conrey_normalize(c, cycg); /* images of primroot gens */
+  d = gel(nchi,1);
+  c = ZV_ZM_mul(gel(nchi,2), bid_get_U(bid)); /* images of bid gens */
+  return gerepilecopy(av, char_denormalize(bid_get_cyc(bid),d,c));
+}
+
+GEN
+znconreyfromchar(GEN bid, GEN chi)
+{
+  GEN nchi, U = bid_get_U(bid), L = gel(bid,4), cycg = gel(L,5);
+  long l = lg(chi);
+  if (l == 1) return chi;
+  if (!RgV_is_ZV(chi) || lgcols(U) != l)
+    pari_err_TYPE("lfunchiZ", chi);
+  nchi = char_normalize(chi, cyc_normalize(bid_get_cyc(bid)));
+  return char_denormalize(cycg, gel(nchi,1), ZV_ZM_mul(gel(nchi,2),U));
+}
+
+/* chi a t_INT or Conrey log describing a character. Return conductor, as an
+ * integer if primitive; as a t_VEC [N,factor(N)] if not. Set *pm=m to the
+ * associated primitive character: chi(g_i) = m[i]/ord(g_i)
+ * Caller should use conrey_normalize(m, cycg(BID)), once BID(conductor) is
+ * computed (wasteful to do it here since BID is shared by many characters) */
+GEN
+znconreyconductor(GEN bid, GEN chi, GEN *pm)
+{
+  pari_sp av = avma;
+  GEN q, m, F, P, E;
+  long i, j, l;
+  int e2, primitive = 1;
+
+  if (!checkbidZ_i(bid)) pari_err_TYPE("znconreyconductor", bid);
+  if (typ(chi) == t_INT)
+    chi = znconreylog(bid, chi);
+  else if (!RgV_is_ZV(chi)) pari_err_TYPE("znconreyconductor",chi);
+  l = lg(chi);
+  F = bid_get_fact(bid);
+  P = gel(F,1);
+  E = gel(F,2);
+  if (l == 1)
+  {
+    avma = av;
+    if (pm) *pm = cgetg(1,t_COL);
+    if (lg(P) == 1) return gen_1;
+    retmkvec2(gen_1, trivial_fact());
+  }
+  P = leafcopy(P);
+  E = leafcopy(E);
+  m = cgetg(l, t_VEC);
+  e2 = (E[1] >= 3 && equaliu(gel(P,1),2));
+  i = 1;
+  if (e2)
+  { /* two generators at p=2 */
+    GEN a1 = gel(chi,1), a = gel(chi,2);
+    if (!signe(a))
+    {
+      if (signe(a1))
+      { /* lose one generator */
+        P = vecslice(P,2, l-1);
+        E = vecslice(E,2, l-1);
+        m = vecslice(m,2, l-1);
+        E[1] = 2;
+        gel(m,1) = a1; i = 2;
+      }
+      else /* lose both */
+      {
+        P = vecslice(P,3, l-1);
+        E = vecslice(E,3, l-1);
+        m = vecslice(m,3, l-1);
+      }
+      primitive = 0;
+      e2 = 0; /* primitive char no longer has two components at 2 */
+    }
+    else
+    {
+      long v = Z_pvalrem(a, gen_2, &a);
+      if (v) { E[1] -= v; primitive = 0; }
+      gel(m,1) = a1;
+      gel(m,2) = a; i = 3;
+    }
+  }
+  l = lg(P);
+  for (j = i; i < l; i++)
+  {
+    GEN p = gel(P,i), a = gel(chi,i);
+    /* image of g_i in Q/Z is a/cycg[i], cycg[i] = order(g_i) */
+    if (!signe(a)) primitive = 0;
+    else
+    {
+      long v = Z_pvalrem(a, p, &a);
+      E[j] = E[i]; if (v) { E[j] -= v; primitive = 0; }
+      gel(P,j) = gel(P,i);
+      gel(m,j) = a; j++;
+    }
+  }
+  setlg(m,j);
+  setlg(P,j);
+  setlg(E,j);
+  if (pm) *pm = m; /* associated primitive  character */
+  if (primitive)
+    q = bid_get_ideal(bid);
+  else
+  {
+    if (e2)
+    { /* remove duplicate p=2 row from factorization */
+      P = vecslice(P,2, l-1);
+      E = vecslice(E,2, l-1);
+    }
+    E = zv_to_ZV(E);
+    q = mkvec2(factorback2(P,E), mkmat2(P,E));
+  }
+  gerepileall(av, pm? 2: 1, &q, pm);
+  return q;
 }
 
 /*********************************************************************/

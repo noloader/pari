@@ -1,0 +1,33 @@
+Function: znconreyconductor
+Section: number_theoretical
+C-Name: znconreyconductor
+Prototype: GGD&
+Help: znconreyconductor(bid,chi, {&chi0}): Let bid be idealstar(,q) and chi
+ be a Dirichlet character on (Z/qZ)* given by its Conrey logarithm. Return
+ the conductor of chi, and set chi0 to (the Conrey logarithm of) the
+ associated primitive character
+Doc: Let \var{bid} be associated to $(\Z/q\Z)^*$ (as per \kbd{bid =
+ idealstar(,q)}) and \kbd{chi} be a Dirichlet character on $(\Z/q\Z)^*$,
+ given by
+
+ \item a \typ{VEC}: a standard character on \kbd{bid.gen},
+
+ \item a \typ{INT} or a \typ{COL}: a Conrey index in $(\Z/q\Z)^*$ or its
+ Conrey logarithm (see \tet{znconreychar} and \tet{znconreylog}).
+
+ Return the conductor of \kbd{chi}, as the \typ{INT} \kbd{bid.mod}
+ if \kbd{chi} is primitive, and as a pair \kbd{[N, faN]} (with \kbd{faN} the
+ factorization of $N$) otherwise.
+
+ If \kbd{chi0} is present, set it to the Conrey logarithm of the associated
+ primitive character.
+
+ \bprog
+ ? G = idealstar(,126000)
+ ? znconreyconductor(G,11)   \\ primitive
+ %2 = 126000
+ ? znconreyconductor(G,1)    \\ trivial character, not primitive!
+ %3 = [1, matrix(0,2)]
+ ? znconreyconductor(G,1009) \\ character mod 5^3
+ %4 = [125, Mat([5, 3])]
+ @eprog\noindent

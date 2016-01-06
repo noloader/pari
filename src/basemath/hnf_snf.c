@@ -2572,16 +2572,18 @@ snf_group(GEN H, GEN D, GEN *newU, GEN *newUi)
     }
     *newU = U;
   }
-  if (newUi) { /* UHV=D -> U^-1 = HVD^-1 -> U^-1 = H(VD^-1 mod 1) mod H */
+  if (newUi) { /* UHV=D -> U^-1 = (HV)D^-1 -> U^-1 = H(VD^-1 mod 1) mod H */
     if (l > 1)
     { /* Ui = ZM_inv(U, gen_1); setlg(Ui, l); */
-      GEN V = FpM_red(*newUi, gel(D,1));
-      GEN Ui = typ(H) == t_VEC? ZM_diag_mul(H, V): ZM_mul(H, V);
+      GEN V = *newUi, Ui;
+      for (i = 1; i < l; i++) gel(V,i) = FpC_red(gel(V,i), gel(D,i));
+      Ui = typ(H) == t_VEC? ZM_diag_mul(H, V): ZM_mul(H, V);
       for (i = 1; i < l; i++) gel(Ui,i) = ZC_Z_divexact(gel(Ui,i), gel(D,i));
       if (typ(H) == t_VEC)
       { for (i = 1; i < l; i++) gel(Ui,i) = vecmodii(gel(Ui,i), H); }
       else
-        *newUi = ZM_hnfrem(Ui, H);
+        Ui = ZM_hnfrem(Ui, H);
+      *newUi = Ui;
     }
   }
   return D;

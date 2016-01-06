@@ -66,3 +66,40 @@ bnrchar(bnr, H, [0,1/2,0])
 H=[8,4,2;0,2,1;0,0,1];
 bnrchar(bnr, H, [0,1/2,1/2])
 bnrchar(bnr, H, [0,0,1/2])
+
+G=idealstar(,8);
+znconreychar(G,2) \\error
+znconreychar(G,1)
+znconreychar(G,3)
+znconreychar(G,5)
+znconreychar(G,7)
+G=idealstar(,5);
+vector(4,i,znconreychar(G,i))
+G=idealstar(,75);
+znconreychar(G,1)
+znconreychar(G,2)
+znconreychar(G,11)
+znconreychar(G,71)
+log11 = ideallog(, 11, G);
+znconreychar(G,log11)
+znconreylog(G,log11)
+znconreylog(G,11)
+
+znconreyconductor(G, 1)
+znconreyconductor(G, 4)
+znconreyconductor(G, 2)
+znconreyconductor(G, 2, &chi)
+chi
+{
+for (i=1,75,
+  if (gcd(i,75)==1,
+    f = znconreyconductor(G,i,&chi0);
+     if (f != 75, print(i,":",f,":", chi0))))
+}
+
+G=idealstar(,1);
+znconreychar(G,1)
+znconreylog(G,1)
+znconreyconductor(G,1)
+znconreyconductor(G,1,&chi)
+chi

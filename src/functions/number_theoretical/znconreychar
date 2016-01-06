@@ -1,0 +1,87 @@
+Function: znconreychar
+Section: number_theoretical
+C-Name: znconreychar
+Prototype: GG
+Help: znconreychar(bid,m): Dirichlet character associated to m in (Z/qZ)*
+ in Conrey's notation, where bid is znstar(q, 2)
+Doc: Given a \var{bid} associated to $(\Z/q\Z)^*$ (as per
+ \kbd{bid = idealstar(,q)}), this function returns the Dirichlet character
+ associated to $m \in (\Z/q\Z)^*$ via Conrey's logarithm, which 
+ establishes a ``canonical'' bijection between $(\Z/q\Z)^*$ and its dual.
+
+ Let $q = \prod_p p^{e_p}$ be the factorization of $q$ into distinct primes,
+ where we assume $e_2 = 0$ or $e_2 \geq 2$.
+ For all $p$ with $e_p > 0$, let $g_p$ be the element in $(\Z/q\Z)^*$ which is
+
+ \item congruent to $1$ mod $q/p^{e_p}$,
+
+ \item congruent mod $p^{e_p}$ to the smallest integer whose order
+ is $\phi(p^{e_p})$ for $p$ odd,
+
+ \item $g_2 = 3 \mod 2^{e_2}$ for $e_2 \geq 2$.
+
+ When $e_2\geq 3$, we let further $g_{-1}$ the element in $(\Z/q\Z)^*$ which is
+
+ \item congruent to $1$ mod $q/2^{e_2}$,
+
+ \item congruent to $-1$ mod $2^{e_2}$.
+
+ Then the $g_p$ (and the extra $g_{-1}$ if $e_2\geq 3$) are independent
+ generators of $\Z/q\Z^*$, i.e. every $m$ in $(\Z/q\Z)^*$ can be written
+ uniquely as $\prod_p g_p^{m_p}$, where $m_p$ is defined modulo the order
+ $o_p$ of $g_p$
+ and $p \in S_q$, the set of prime divisors of $q$ together with $-1$
+ if $e_2 \geq 3$. Note that the $g_p$ are in general \emph{not} SNF
+ generators as produced by \kbd{znstar} or \kbd{idealstar} whenever
+ $\omega(q) \geq 2$, although their number is the same. They however allow
+ to handle the finite abelian group $(\Z/q\Z)^*$ in a fast(er) and elegant 
+ way. (Which unfortunately does not generalize to ray class groups or Hecke
+ characters.)
+
+ The Conrey logarithm of $m$ is the vector $(m_p)_{p\in S_q}$, obtained
+ via \tet{znconreylog}. The Conrey character associated to $m$ mod $q$ maps
+ each $g_p$, $p\in S_q$ to $e(m_p / o_p)$, where $e(x) = \exp(2i\pi x)$.
+ It is expressed in the standard PARI way in terms of the SNF generators
+ \kbd{bid.gen}.
+
+ \misctitle{Note} It is useless to include the generators
+ in the \var{bid}, except for debugging purposes: they are well defined from
+ elementary matrix operations and Chinese remaindering, their explicit value
+ as elements in $(\Z/q\Z)^*$ is never used.
+
+ \bprog
+ ? G = idealstar(,8, /*add generators for debugging:*/2);
+ ? G.cyc
+ %2 = [2, 2]  \\ Z/2 x Z/2
+ ? G.gen
+ %3 = [7, 3]
+ ? znconreychar(G,1)  \\ 1 is always the trivial character
+ %4 = [0, 0]
+ ? znconreychar(G,2)  \\ 2 is not coprime to 8 !!!
+   ***   at top-level: znconreychar(G,2)
+   ***                 ^-----------------
+   *** znconreychar: elements not coprime in Zideallog:
+     2
+     8
+   ***   Break loop: type 'break' to go back to GP prompt
+ break> 
+
+ ? znconreychar(G,3)
+ %5 = [0, 1]
+ ? znconreychar(G,5)
+ %6 = [1, 1]
+ ? znconreychar(G,7)
+ %7 = [1, 0]
+ @eprog\noindent We indeed get all 4 characters of $(\Z/8\Z)^*$.
+
+ For convenience, we allow to input the ordinary discrete log of $m$,
+ $\kbd{ideallog(,m,bid)}$, instead of $m$:
+ \bprog
+ ? G = idealstar(,55);
+ ? log7 = ideallog(, 7, G)
+ %2 = [9, 7]~
+ ? znconreychar(G,7)
+ %3 = [15, 0]
+ ? znconreychar(G,log7)
+ %4 = [15, 0]
+ @eprog
