@@ -184,7 +184,8 @@ member_mod(GEN x) /* modulus */
   switch(t) {
     case typ_GAL: return gal_get_mod(x);
     case typ_BNR: return bnr_get_mod(x);
-    case typ_BID: return gel(x,1);
+    case typ_BID: return typ(gel(x,3)) == t_MAT? bid_get_mod(x)
+                                               : bid_get_ideal(x);
   }
   switch(typ(x))
   {

@@ -913,13 +913,34 @@ Only primitive characters are supported. Given a fundamental discriminant
 $D$, the function $L((D/.), s)$ is encoded by the \typ{INT} $D$. This
 includes Riemann $\zeta$ function via the special case $D = 1$.
 
-Non-quadratic (primitive) characters of small conductor $N$ can be represented
-by a vector with two components $[n,v]$, where $n$ is the order of the
-character, $N = \kbd{\#}v$ and $\chi(j) = \exp(2\pi i \cdot v[j]/n)$
-for all $1 \leq j \leq N$, $(j,N) = 1$.
+More general characters can be represented in a variety of way:
 
-For general characters of large conductor, use Hecke characters over $K = \Q$
-(see below).
+\item via Conrey notation (see \tet{znconreychar}): $\chi_N(m,\cdot)$
+can be given as the \typ{INTMOD} \kbd{Mod(m,N)}.
+
+\item via a \var{bid} structure describing the abelian  group $(\Z/N\Z)^*$,
+where the character is given in terms of the \var{bid} generators:
+\bprog
+  ? bid = idealstar(,100); \\ (Z/100Z)^*
+  ? bid.cyc \\ ~ Z/20 . g1  + Z/2 . g2 for some generators g1 and g2
+  %2 = [20, 2]
+  ? chi = [a, b]  \\ maps g1 to e(a/20) and g2 to e(b/2);  e(x) = exp(2ipi x)
+@eprog\noindent
+More generally, let $(\Z/N\Z)^* = \oplus (\Z/d_i\Z) g_i$ be given via a
+\var{bid} structure $G$ (\kbd{G.cyc} give the $d_i$ and \kbd{G.gen} the
+$g_i$). A \tev{character} $\chi$ on $G$ is given by a row vector
+$v = [a_1,\ldots,a_n]$ such that $\chi(\prod g_i^{n_i}) = \exp(2\pi i\sum a_i
+n_i / d_i)$. The pair $[\var{bid}, v]$ encodes the \emph{primitive} character
+associated to $\chi$.
+
+\item in fact, this construction $[\var{bid}, m]$ describing a character
+is more general: $m$ is also allowed to be a Conrey index as seen above,
+or a Conrey logarithm (see \tet{znconreylog}), and the latter format is
+actually the fastest one.
+
+\item it is also possible to view Dirichlet characters as Hecke characters
+over $K = \Q$ (see below), for a modulus $[N, [1]]$ but this is both more
+complicated and less efficient.
 
 \subsec{Hecke $L$-functions} %GPHELPskip
 
@@ -953,9 +974,8 @@ where $K = \Q$:
 ? Q  = bnfinit(x);
 ? Cf = bnrinit(Q, [N, [1]]); \\ for odd characters on (Z/NZ)*
 @eprog\noindent
-For even characters, replace by \kbd{bnrinit(K, N)}. Note that if the
-character is quadratic or $N$ is small, the simpler direct construction in the
-previous section will be more efficient.
+For even characters, replace by \kbd{bnrinit(K, N)}. Note that the simpler
+direct construction in the previous section will be more efficient.
 
 \subsec{Artin $L$ functions} %GPHELPskip
 

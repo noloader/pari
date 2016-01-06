@@ -232,45 +232,6 @@ lfunzetainit_bitprec(GEN dom, long der, long bitprec)
 { return lfuninit_bitprec(lfunzeta(), dom, der, bitprec); }
 
 static GEN
-vecan_chivec(GEN an, long n, long prec)
-{
-  pari_sp ltop = avma;
-  ulong ord = itou(gel(an,1));
-  GEN chi = gel(an,2), c = cgetg(n+1, t_VEC), z = grootsof1(ord, prec);
-  long i, iN, N = lg(chi)-1, d = minuu(N, n);
-
-  for (i = 1; i <= d; i++)
-    gel(c,i) = (ugcd(N, i) > 1)? gen_0: gel(z, chi[i]+1);
-  for (iN = 1; i <= n; i++,iN++)
-  {
-    if (iN > N) iN = 1; /* iN = (i-1) % N + 1  [ = i mod N, in [1,N] ]*/
-    gel(c,i) = gel(c,iN);
-  }
-  return gerepilecopy(ltop, c);
-}
-
-static GEN
-lfunchivec(GEN CHI)
-{
-  pari_sp ltop = avma;
-  GEN sig = NULL, an, r, chi = gel(CHI,2);
-  long n, rn, s, N = lg(chi) - 1;
-
-  if (N == 1) return lfunzeta();
-  n = itos(gel(CHI,1)); /* order(chi) */
-  chi = ZV_to_Flv(chi, n);
-  s = Fl_double(zv_content(chi), n);
-  rn = chi[N-1]; /* chi(-1) = zeta^rn */
-  if (rn == 0) sig = gen_0;
-  else if (2*rn == n) sig = gen_1;
-  else pari_err_TYPE("lfunchivec [abs(chi(-1)) != 1]", CHI);
-  CHI = mkvec2(gel(CHI,1), chi);
-  an = tag(CHI, t_LFUN_CHIVEC);
-  r = mkvecn(6, an, (s? gen_1: gen_0), mkvec(sig), gen_1, stoi(N), gen_0);
-  return gerepilecopy(ltop, r);
-}
-
-static GEN
 vecan_Kronecker(GEN D, long n)
 {
   GEN v = cgetg(n+1, t_VEC);
@@ -303,32 +264,6 @@ lfunchiquad(GEN D)
   return r;
 }
 
-/* Quad: 0, Vec: 1, else: -1 */
-static long
-lfunchitype(GEN CHI)
-{
-  switch(typ(CHI))
-  {
-    case t_INT: return 0;
-    case t_VEC:
-      if (lg(CHI) == 3 && typ(gel(CHI,1)) == t_INT
-        && typ(gel(CHI,2)) == t_VEC && RgV_is_ZV(gel(CHI,2))) return 1;
-    default: return -1;
-  }
-}
-
-static GEN
-lfunchi(GEN CHI)
-{
-  switch(lfunchitype(CHI))
-  {
-    case 0: return lfunchiquad(CHI);
-    case 1: return lfunchivec(CHI);
-  }
-  pari_err_TYPE("lfunchi", CHI);
-  return NULL;
-}
-
 /* Begin Hecke characters. Here a character is assumed to be given by a
    vector on the generators of the ray class group clgp of CL_m(K).
    If clgp = [h,[d1,...,dk],[g1,...,gk]] with dk|...|d2|d1, a character chi
@@ -336,11 +271,11 @@ lfunchi(GEN CHI)
 
 /* Value of CHI on x, coprime to bnr.mod */
 static GEN
-chigeneval(GEN bnr, GEN nchi, GEN x, GEN z, long prec)
+chigeneval(GEN logx, GEN nchi, GEN z, long prec)
 {
   pari_sp av = avma;
   GEN d = gel(nchi,1);
-  GEN e = FpV_dotproduct(gel(nchi,2), isprincipalray(bnr,x), d);
+  GEN e = FpV_dotproduct(gel(nchi,2), logx, d);
   if (typ(z) != t_VEC)
     return gerepileupto(av, gpow(z, e, prec));
   else
@@ -363,6 +298,45 @@ gaddmul(GEN x, GEN y, GEN z)
   if (isintzero(x)) return gmul(y,z);
   av = avma;
   return gerepileupto(av, gadd(x, gmul(y,z)));
+}
+
+static GEN
+vecan_chiZ(GEN an, long n, long prec)
+{
+  pari_sp ltop = avma;
+  forprime_t iter;
+  GEN bid = gel(an,1);
+  GEN nchi = gel(an,2), gord = gel(nchi,1), z;
+  GEN gp = cgetipos(3), v = vec_ei(n, 1);
+  GEN N = bid_get_ideal(bid);
+  long ord = itos_or_0(gord);
+  ulong Nu = itou_or_0(N);
+  long i, id, d = Nu ? minuu(Nu, n): n;
+  ulong p;
+
+  if (ord && n > (ord>>4))
+    z = grootsof1(ord, prec);
+  else
+    z = char_rootof1(gord, prec);
+
+  u_forprime_init(&iter, 2, d);
+  while ((p = u_forprime_next(&iter)))
+  {
+    GEN ch;
+    ulong k;
+    if (!umodiu(N,p)) continue;
+    gp[2] = p;
+    ch = chigeneval(znconreylog(bid, gp), nchi, z, prec);
+    gel(v, p)  = ch;
+    for (k = 2*p; k <= (ulong)d; k += p)
+      gel(v, k) = gaddmul(gel(v, k), ch, gel(v, k/p));
+  }
+  for (id = i = d+1; i <= n; i++,id++) /* periodic mod d */
+  {
+    if (id > d) id = 1;
+    gel(v, i) = gel(v, id);
+  }
+  return gerepilecopy(ltop, v);
 }
 
 static GEN
@@ -393,7 +367,7 @@ vecan_chigen(GEN an, long n, long prec)
       ulong k;
       if (!umodiu(NZ,p)) continue;
       gp[2] = p;
-      ch = chigeneval(bnr, nchi, gp, z, prec);
+      ch = chigeneval(isprincipalray(bnr,gp), nchi, z, prec);
       gel(v, p)  = ch;
       for (k = 2*p; k <= (ulong)d; k += p)
         gel(v, k) = gaddmul(gel(v, k), ch, gel(v, k/p));
@@ -420,7 +394,7 @@ vecan_chigen(GEN an, long n, long prec)
         GEN pr = gel(L, j), ch;
         ulong k, q;
         if (check && idealval(nf, N, pr)) continue;
-        ch = chigeneval(bnr, nchi, pr, z, prec);
+        ch = chigeneval(isprincipalray(bnr,pr), nchi, z, prec);
         q = itou(pr_norm(pr));
         for (k = q; k <= (ulong)n; k += q)
           gel(v, k) = gaddmul(gel(v, k), ch, gel(v, k/q));
@@ -440,15 +414,51 @@ vec01(long r1, long r2)
   for (     ; i <= d;  i++) gel(v,i) = gen_1;
   return v;
 }
+
+/* bid has nftyp typ_BID */
+static GEN
+lfunchiZ(GEN bid, GEN chi)
+{
+  pari_sp av = avma;
+  GEN sig = NULL;
+  GEN N = bid_get_ideal(bid), L, cycg, nchi, r;
+  int real;
+
+  if (typ(N) != t_INT) pari_err_TYPE("lfunchiZ", bid);
+  if (equali1(N)) return lfunzeta();
+  if (typ(chi) == t_VEC) /* ordinary char (on bid.gen) */
+    chi = znconreyfromchar(bid,chi);
+  else
+    chi = znconreylog(bid,chi);
+  N = znconreyconductor(bid, chi, &chi);
+  if (typ(N) != t_INT)
+  {
+    if (equali1(gel(N,1))) { avma = av; return lfunzeta(); }
+    bid = znstar0(N, nf_INIT);
+    N = gel(N,1);
+  }
+  /* chi now primitive on bid */
+  sig = mkvec( mpodd(ZV_sum(chi))? gen_1: gen_0 );
+  L = gel(bid,4); cycg = gel(L,5);
+  nchi = conrey_normalize(chi, cycg);
+  real = cmpiu(gel(nchi,1), 2) <= 0;
+  r = mkvecn(6, tag(mkvec2(bid,nchi), t_LFUN_CHIZ),
+                real? gen_0: gen_1, sig, gen_1, N, gen_0);
+  return gerepilecopy(av, r);
+}
+
 static GEN
 lfunchigen(GEN bnr, GEN CHI)
 {
   pari_sp av = avma;
-  GEN v = bnrconductor_i(bnr, CHI, 2);
+  GEN v;
   GEN N, sig, Ldchi, nf, nchi, NN;
   long r1, r2, n1;
   int real;
 
+  if (nftyp(bnr) == typ_BID) return lfunchiZ(bnr, CHI);
+
+  v = bnrconductor_i(bnr, CHI, 2);
   bnr = gel(v,2);
   CHI = gel(v,3); /* now CHI is primitive wrt bnr */
 
@@ -1588,26 +1598,22 @@ lfunartin(GEN N, GEN G, GEN M, long o)
 /********************************************************************/
 /**                    High-level Constructors                     **/
 /********************************************************************/
-enum { t_LFUNMISC_POL, t_LFUNMISC_CHI, t_LFUNMISC_CHIGEN,
-       t_LFUNMISC_ELLINIT, t_LFUNMISC_ETAQUO };
+enum { t_LFUNMISC_POL, t_LFUNMISC_CHIQUAD, t_LFUNMISC_CHICONREY,
+       t_LFUNMISC_CHIGEN, t_LFUNMISC_ELLINIT, t_LFUNMISC_ETAQUO };
 static long
 lfundatatype(GEN data)
 {
   long l;
   switch(typ(data))
   {
-    case t_INT: return t_LFUNMISC_CHI;
+    case t_INT: return t_LFUNMISC_CHIQUAD;
+    case t_INTMOD: return t_LFUNMISC_CHICONREY;
     case t_POL: return t_LFUNMISC_POL;
     case t_VEC:
       if (checknf_i(data)) return t_LFUNMISC_POL;
       l = lg(data);
       if (l == 17) return t_LFUNMISC_ELLINIT;
-      if (l == 3 && typ(gel(data,2)) == t_VEC)
-        switch(typ(gel(data,1)))
-        {
-          case t_INT: return t_LFUNMISC_CHI;
-          case t_VEC: return t_LFUNMISC_CHIGEN;
-        }
+      if (l == 3 && typ(gel(data,1)) == t_VEC) return t_LFUNMISC_CHIGEN;
       break;
   }
   return -1;
@@ -1626,7 +1632,12 @@ lfunmisc_to_ldata_i(GEN ldata, long shallow)
   switch (lfundatatype(ldata))
   {
     case t_LFUNMISC_POL: return lfunzetak(ldata);
-    case t_LFUNMISC_CHI: return lfunchi(ldata);
+    case t_LFUNMISC_CHIQUAD: return lfunchiquad(ldata);
+    case t_LFUNMISC_CHICONREY:
+    {
+      GEN G = znstar0(gel(ldata,1), nf_INIT);
+      return lfunchiZ(G, gel(ldata,2));
+    }
     case t_LFUNMISC_CHIGEN: return lfunchigen(gel(ldata,1), gel(ldata,2));
     case t_LFUNMISC_ELLINIT: return lfunell(ldata);
   }
@@ -1668,7 +1679,7 @@ ldata_vecan(GEN van, long L, long prec)
     case t_LFUN_NF:  an = dirzetak(an, stoi(L)); break;
     case t_LFUN_ELL: an = anell(an, L); break;
     case t_LFUN_KRONECKER: an = vecan_Kronecker(an, L); break;
-    case t_LFUN_CHIVEC: an = vecan_chivec(an, L, prec); break;
+    case t_LFUN_CHIZ: an = vecan_chiZ(an, L, prec); break;
     case t_LFUN_CHIGEN: an = vecan_chigen(an, L, prec); break;
     case t_LFUN_ARTIN: an = vecan_artin(an, L, prec); break;
     case t_LFUN_ETA: an = vecan_eta(an, L); break;
