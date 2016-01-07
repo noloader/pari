@@ -489,7 +489,7 @@ padicappr(GEN f, GEN a)
   getprec(T, &prec, &p); if (!p) pari_err_TYPE("padicappr",T);
   f = QpXQX_to_ZXY(f, p);
   if (typ(a) != t_POL) a = scalarpol_shallow(a, varn(T));
-  a = QpX_to_ZX(a,p);
+  a = ZpX_to_ZX(a,p);
   T = QpX_to_ZX(T,p);
   z = ZXY_ZpQ_root(f, a, T, p, prec);
   return gerepilecopy(av, ZXV_to_ZpXQV(z, T, p, prec));
