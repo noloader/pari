@@ -41,14 +41,14 @@ _invf(void *E, GEN x)
 
 /* h and s are arrays of the same length. The h[i] are (quickly decreasing)
  * step sizes, s[i] is the computed Riemann sum for step size h[i].
- * Interpolate the last KLOC+1 values so that s ~ polynomial in h of degree
- * KLOC. Guess that limit_{h->0} = s(0) */
+ * Interpolate the last D+1 values so that s ~ polynomial in h of degree
+ * D. Guess that limit_{h->0} = s(0) */
 static GEN
-interp(GEN h, GEN s, long j, long lim, long KLOC)
+interp(GEN h, GEN s, long j, long lim, long D)
 {
   pari_sp av = avma;
   long e1,e2;
-  GEN dss, ss = polint_i(h+j-KLOC,s+j-KLOC,gen_0,KLOC+1,&dss);
+  GEN dss, ss = polint_i(h + j-D,s + j-D, gen_0, D+1, &dss);
 
   e1 = gexpo(ss);
   e2 = gexpo(dss);
