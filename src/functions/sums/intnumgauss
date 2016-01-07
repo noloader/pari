@@ -32,6 +32,6 @@ Doc: numerical integration of \var{expr} on the compact interval $[a,b]$ with
  \bprog
  ? f(x) = 1/(1+x^2);
  ? a = 0; b = 100;
- ? intnum(x = 0, 1, f(x)) + intnum(x = 1, 1/b, f(1/x)*(-1/x^2)) - atan(100)
- %3 = 0.E-38 \\ perfect with default n
+ ? intnumgauss(x=0,1, f(x)) + intnumgauss(x=1,1/b, f(1/x)*(-1/x^2)) - atan(100)
+ %3 = -1.0579449157400587572 E-37
  @eprog
