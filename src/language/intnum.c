@@ -39,20 +39,25 @@ _invf(void *E, GEN x)
   return gmul(S->f(S->E, y), gsqr(y));
 }
 
-/* h and s are arrays of the same length. The h[i] are (quickly decreasing)
+/* h and s are arrays of the same length L > D. The h[i] are (decreasing)
  * step sizes, s[i] is the computed Riemann sum for step size h[i].
- * Interpolate the last D+1 values so that s ~ polynomial in h of degree
- * D. Guess that limit_{h->0} = s(0) */
+ * Interpolate the last D+1 values so that s ~ polynomial in h of degree D.
+ * Guess that limit_{h->0} = s(0) */
 static GEN
-interp(GEN h, GEN s, long j, long lim, long D)
+interp(GEN h, GEN s, long L, long bit, long D)
 {
   pari_sp av = avma;
   long e1,e2;
-  GEN dss, ss = polint_i(h + j-D,s + j-D, gen_0, D+1, &dss);
+  GEN dss, ss = polint_i(h + L-D,s + L-D, gen_0, D+1, &dss);
 
   e1 = gexpo(ss);
   e2 = gexpo(dss);
-  if (e1-e2 <= lim && (j <= 10 || e1 >= -lim)) { avma = av; return NULL; }
+  if (DEBUGLEVEL>2)
+  {
+    err_printf("romb: iteration %ld, guess: %Ps\n", L,ss);
+    err_printf("romb: relative error < 2^-%ld [target %ld bits]\n",e1-e2,bit);
+  }
+  if (e1-e2 <= bit && (L <= 10 || e1 >= -bit)) { avma = av; return NULL; }
   if (typ(ss) == t_COMPLEX && gequal0(gel(ss,2))) ss = gel(ss,1);
   return ss;
 }
@@ -91,8 +96,6 @@ qrom3(void *E, GEN (*eval)(void *, GEN), GEN a, GEN b, long bit)
     }
     sum = gmul(sum,del);
     gel(s,j) = gerepileupto(av, gmul2n(gadd(gel(s,j-1), sum), -1));
-    if (DEBUGLEVEL>3) err_printf("qrom3: iteration %ld: %Ps\n", j,s[j]);
-
     if (j >= KLOC && (ss = interp(h, s, j, bit-j-6, KLOC)))
       return gmulsg(sig,ss);
   }
@@ -134,8 +137,6 @@ qrom2(void *E, GEN (*eval)(void *, GEN), GEN a, GEN b, long bit)
     }
     sum = gmul(sum,del); p1 = gdivgs(gel(s,j-1),3);
     gel(s,j) = gerepileupto(av, gadd(p1,sum));
-    if (DEBUGLEVEL>3) err_printf("qrom2: iteration %ld: %Ps\n", j,s[j]);
-
     if (j >= KLOC && (ss = interp(h, s, j, bit-(3*j/2)+3, KLOC)))
       return gmulsg(sig, ss);
   }
