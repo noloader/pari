@@ -1491,6 +1491,12 @@ rootsof1padic(GEN n, GEN y)
   affii(z, gel(r,4)); avma = av; return r;
 }
 
+static void
+bug_logp(GEN p)
+{
+  if (!BPSW_psp(p)) pari_err_PRIME("p-adic log",p);
+  pari_err_BUG("log_p");
+}
 /* Let x = 1 mod p and y := (x-1)/(x+1) = 0 (p). Then
  * log(x) = log(1+y) - log(1-y) = 2 \sum_{k odd} y^k / k.
  * palogaux(x) returns the last sum (not multiplied by 2) */
@@ -1510,6 +1516,7 @@ palogaux(GEN x)
   }
   /* optimize t: log(x) = log(x^(p^t)) / p^t */
   e = Z_pval(y, p); /* valp(y) = e >= 1; precp(y) = precp(x)-e */
+  if (!e) bug_logp(p);
   if (is2)
     t = sqrt( (double)(precp(x)-e) / e ); /* instead of (2*e) */
   else
@@ -1518,10 +1525,7 @@ palogaux(GEN x)
 
   y = gdiv(gaddgs(x,-1), gaddgs(x,1));
   e = valp(y); /* > 0 */
-  if (e <= 0) {
-    if (!BPSW_psp(p)) pari_err_PRIME("p-adic log",p);
-    pari_err_BUG("log_p");
-  }
+  if (e <= 0) bug_logp(p);
   pp = precp(y) + e;
   if (is2) pp--;
   else
