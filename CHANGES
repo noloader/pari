@@ -385,6 +385,7 @@ BA143- [arm64] add aarch64 assembly kernel
        GP as default znstar, but current znstar/idealstar have incompatible
        defaults. Called by idealstar(,N).
   146- [GP] znconreychar, znconreylog, znconreyconductor
+BA147- [GP] call (for calling closures).
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]
