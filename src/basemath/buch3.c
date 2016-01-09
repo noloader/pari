@@ -1870,7 +1870,7 @@ char_rootof1(GEN d, long prec)
   gsincos(divri(Pi2n(1, prec), d), &s, &c, prec);
   return mkcomplex(c, s);
 }
-/* exp(2iPi/d), assume d a t_INT */
+/* exp(2iPi/d) */
 GEN
 char_rootof1_u(ulong d, long prec)
 {
