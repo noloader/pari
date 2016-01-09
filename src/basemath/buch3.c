@@ -1840,7 +1840,7 @@ char_normalize(GEN chi, GEN ncyc)
 
 /* conjugate character [ZV] */
 GEN
-char_conj(GEN cyc, GEN chi)
+charconj(GEN cyc, GEN chi)
 {
   long i, l = lg(chi);
   GEN z = cgetg(l, t_VEC);
@@ -1850,6 +1850,59 @@ char_conj(GEN cyc, GEN chi)
     gel(z,i) = signe(c)? subii(gel(cyc,i), c): gen_0;
   }
   return z;
+}
+GEN
+charconj0(GEN x, GEN chi)
+{
+  if (typ(x) != t_VEC || !RgV_is_ZV(x)) x = member_cyc(x);
+  if (!char_check(x, chi)) pari_err_TYPE("charconj", chi);
+  return charconj(x, chi);
+}
+
+GEN
+charorder(GEN cyc, GEN x)
+{
+  pari_sp av = avma;
+  long i, l = lg(cyc);
+  GEN f = gen_1;
+  for (i = 1; i < l; i++)
+  {
+    GEN o = gel(cyc,i), c = gcdii(o, gel(x,i));
+    if (!is_pm1(c)) o = diviiexact(o,c);
+    f = lcmii(f, o);
+  }
+  return gerepileuptoint(av, f);
+}
+GEN
+charorder0(GEN x, GEN chi)
+{
+  if (typ(x) != t_VEC || !RgV_is_ZV(x)) x = member_cyc(x);
+  if (!char_check(x, chi)) pari_err_TYPE("charorder", chi);
+  return charorder(x, chi);
+}
+
+/* chi character of abelian G: chi[i] = chi(z_i), where G = \oplus Z/cyc[i] z_i.
+ * Return Ker chi */
+GEN
+charker(GEN cyc, GEN chi)
+{
+  long i, l = lg(cyc);
+  GEN nchi, ncyc, m, U;
+
+  if (l == 1) return cgetg(1,t_MAT); /* trivial subgroup */
+  ncyc = cyc_normalize(cyc);
+  nchi = char_normalize(chi, ncyc);
+  m = shallowconcat(gel(nchi,2), gel(nchi,1));
+  U = gel(ZV_extgcd(m), 2); setlg(U,l);
+  for (i = 1; i < l; i++) setlg(U[i], l);
+  return hnfmodid(U, gel(ncyc,1));
+}
+GEN
+charker0(GEN x, GEN chi)
+{
+  if (typ(x) != t_VEC || !RgV_is_ZV(x)) x = member_cyc(x);
+  if (!char_check(x, chi)) pari_err_TYPE("charker", chi);
+  return charker(x, chi);
 }
 
 int
@@ -1883,30 +1936,6 @@ char_rootof1_u(ulong d, long prec)
   }
   gsincos(divru(Pi2n(1, prec), d), &s, &c, prec);
   return mkcomplex(c, s);
-}
-
-/* chi character of abelian G: chi[i] = chi(z_i), where G = \oplus Z/cyc[i] z_i.
- * Return Ker chi */
-GEN
-charker(GEN cyc, GEN chi)
-{
-  long i, l = lg(cyc);
-  GEN nchi, ncyc, m, U;
-
-  if (l == 1) return cgetg(1,t_MAT); /* trivial subgroup */
-  ncyc = cyc_normalize(cyc);
-  nchi = char_normalize(chi, ncyc);
-  m = shallowconcat(gel(nchi,2), gel(nchi,1));
-  U = gel(ZV_extgcd(m), 2); setlg(U,l);
-  for (i = 1; i < l; i++) setlg(U[i], l);
-  return hnfmodid(U, gel(ncyc,1));
-}
-GEN
-charker0(GEN x, GEN chi)
-{
-  if (typ(x) != t_VEC || !RgV_is_ZV(x)) x = member_cyc(x);
-  if (!char_check(x, chi)) pari_err_TYPE("charker", chi);
-  return charker(x, chi);
 }
 
 /* Given a number field bnf=bnr[1], a ray class group structure bnr and a

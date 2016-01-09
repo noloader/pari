@@ -490,7 +490,7 @@ chigenkerfind(GEN bnr, GEN H, GEN *pcnj)
   *pcnj = cnj = cgetg(l, t_VECSMALL);
   for (i = k = 1; i < l; i++)
   {
-    GEN chi = gel(L,i), c = char_conj(cyc, chi);
+    GEN chi = gel(L,i), c = charconj(cyc, chi);
     long fl = ZV_cmp(c, chi);
     if (fl < 0) continue; /* keep one char in pair of conjugates */
     gel(res, k) = chi;

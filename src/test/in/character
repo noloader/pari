@@ -1,0 +1,9 @@
+G=[15,5]; chi=[1,1];
+charker(G,chi)
+charconj(G,chi)
+charorder(G,chi)
+
+G=idealstar(,100); chi=[1,0];
+charker(G,chi)
+charconj(G,chi)
+charorder(G,chi)

@@ -296,22 +296,6 @@ ComputeKernel(GEN bnrm, GEN bnrn, GEN dtQ)
   return gerepileupto(av, ComputeKernel0(P, bnr_get_cyc(bnrm), gel(dtQ,2)));
 }
 
-static GEN
-Order(GEN cyc, GEN x)
-{
-  pari_sp av = avma;
-  long i, l = lg(cyc);
-  GEN c,o,f = gen_1;
-  for (i = 1; i < l; i++)
-  {
-    o = gel(cyc,i);
-    c = gcdii(o, gel(x,i));
-    if (!is_pm1(c)) o = diviiexact(o,c);
-    f = lcmii(f, o);
-  }
-  return gerepileuptoint(av, f);
-}
-
 static long
 cyc_is_cyclic(GEN cyc) { return lg(cyc) <= 2 || equali1(gel(cyc,2)); }
 
@@ -357,7 +341,7 @@ IsGoodSubgroup(GEN H, GEN bnr, GEN map)
     GEN pr = gel(P, j), e;
     /* if pr divides modH, it is ramified, so it's good */
     if (tablesearch(PH, pr, cmp_prime_ideal)) continue;
-    /* inertia degree of pr in bnr(modH)/H is Order(e, cycH) */
+    /* inertia degree of pr in bnr(modH)/H is charorder(e, cycH) */
     e = ZM_ZC_mul(gel(qH,3), isprincipalray(bnrH, pr));
     e = vecmodii(e, gel(qH,2));
     if (ZV_equal0(e)) { avma = av; return 0; } /* f = 1 */
@@ -393,10 +377,10 @@ get_listCR(GEN bnr, GEN dtQ)
     gel(listCR,nc++) = mkvec2(lchi, cond);
 
     /* if chi is not real, add its conjugate character to S */
-    if (equaliu(Order(Mr,lchi), 2)) tnc++;
+    if (equaliu(charorder(Mr,lchi), 2)) tnc++;
     else
     {
-      hash_insert(S, char_conj(Mr, lchi), (void*)1);
+      hash_insert(S, charconj(Mr, lchi), (void*)1);
       tnc+=2;
     }
   }
@@ -2634,7 +2618,7 @@ bnrL1(GEN bnr, GEN subgp, long flag, long prec)
   {
     /* lift to a character on Cl(bnr) */
     GEN lchi = LiftChar(Qt, cyc, gel(allCR,i));
-    GEN clchi = char_conj(cyc, lchi);
+    GEN clchi = charconj(cyc, lchi);
     long j, a = 0;
     for (j = 1; j <= nc; j++)
       if (ZV_equal(gmael(listCR, j, 1), clchi)) { a = j; break; }
