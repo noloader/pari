@@ -69,4 +69,5 @@ Doc: Given a \var{bid} associated to $(\Z/q\Z)^*$ (as per \kbd{bid =
  time = 596 ms.
  ? for(i=1,10^5,znconreylog(G,log11))
  time = 84 ms.
- @eprog
+ @eprog\noindent We also allow a character (\typ{VEC}) on \kbd{bid.gen} and
+ return its representation on the Conrey generators.

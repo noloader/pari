@@ -491,6 +491,17 @@ checkbidZ_i(GEN G)
       && typ(bid_get_mod(G)) == t_VEC && lg(bid_get_mod(G)) == 3);
 }
 
+GEN
+znconreyfromchar(GEN bid, GEN chi)
+{
+  GEN nchi, U = bid_get_U(bid), L = gel(bid,4), cycg = gel(L,5);
+  long l = lg(chi);
+  if (l == 1) return chi;
+  if (!RgV_is_ZV(chi) || lgcols(U) != l) pari_err_TYPE("lfunchiZ", chi);
+  nchi = char_normalize(chi, cyc_normalize(bid_get_cyc(bid)));
+  return char_denormalize(cycg, gel(nchi,1), ZV_ZM_mul(gel(nchi,2),U));
+}
+
 /* discrete log on canonical "primitive root" generators
  * Allow log(x) instead of x [usual discrete log on bid's generators */
 GEN
@@ -515,6 +526,8 @@ znconreylog(GEN bid, GEN x)
       Ui = gel(L,3);
       if (!RgV_is_ZV(x) || lg(x) != lg(Ui)) pari_err_TYPE("znconreylog", x);
       return gerepileupto(av, vecmodii(ZM_ZC_mul(Ui,x), cycg));
+    case t_VEC:
+      return gerepilecopy(av, znconreyfromchar(bid, x));
     default: pari_err_TYPE("znconreylog", x);
   }
   F = bid_get_fact(bid); /* factor(N) */
@@ -592,18 +605,6 @@ znconreychar(GEN bid, GEN m)
   return gerepilecopy(av, char_denormalize(bid_get_cyc(bid),d,c));
 }
 
-GEN
-znconreyfromchar(GEN bid, GEN chi)
-{
-  GEN nchi, U = bid_get_U(bid), L = gel(bid,4), cycg = gel(L,5);
-  long l = lg(chi);
-  if (l == 1) return chi;
-  if (!RgV_is_ZV(chi) || lgcols(U) != l)
-    pari_err_TYPE("lfunchiZ", chi);
-  nchi = char_normalize(chi, cyc_normalize(bid_get_cyc(bid)));
-  return char_denormalize(cycg, gel(nchi,1), ZV_ZM_mul(gel(nchi,2),U));
-}
-
 /* chi a t_INT or Conrey log describing a character. Return conductor, as an
  * integer if primitive; as a t_VEC [N,factor(N)] if not. Set *pm=m to the
  * associated primitive character: chi(g_i) = m[i]/ord(g_i)
@@ -618,9 +619,10 @@ znconreyconductor(GEN bid, GEN chi, GEN *pm)
   int e2, primitive = 1;
 
   if (!checkbidZ_i(bid)) pari_err_TYPE("znconreyconductor", bid);
-  if (typ(chi) == t_INT)
+  if (typ(chi) == t_COL)
+  { if (!RgV_is_ZV(chi)) pari_err_TYPE("znconreyconductor",chi); }
+  else
     chi = znconreylog(bid, chi);
-  else if (!RgV_is_ZV(chi)) pari_err_TYPE("znconreyconductor",chi);
   l = lg(chi);
   F = bid_get_fact(bid);
   P = gel(F,1);
