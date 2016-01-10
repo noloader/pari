@@ -5,4 +5,4 @@ Prototype: lGb
 Help: lfunorderzero(ldata): computes the order of the possible zero
  of the L-function at the center k/2 of the critical strip.
 Doc: Computes the order of the possible zero of the $L$-function at the
- center $k/2$ of the critical strip ($0$ if $L(k/2)$ does not vanish).
+ center $k/2$ of the critical strip; return $0$ if $L(k/2)$ does not vanish.

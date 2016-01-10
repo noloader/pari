@@ -38,7 +38,7 @@ Doc:  Compute the conductor of the given $L$-function
         857.00000000000000000000000000000000000]
   @eprog
 
-  \misctitle{Note} this program should only be used if the primes dividing the
+  \misctitle{Note} This program should only be used if the primes dividing the
   conductor are unknown, which is rare. If they are known, a direct
   search through possible prime exponents using \kbd{lfuncheckfeq} will
   be more efficient and rigorous:

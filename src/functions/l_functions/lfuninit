@@ -25,10 +25,10 @@ Doc: fundamental initalization function for all functions linked to the
  elliptic curves, Dirichlet or Hecke characters, eta quotients, etc.
 
  The height $h$ of the domain is a \emph{crucial} parameter: if you only
- need $L(s)$ for real $s$, set $h$ to 0.
+ need $L(s)$ for real $s$, set $h$ to~0.
  The running time is roughly proportional to
- $$(D\log(10)/d+\pi h/4)^{d/2+3}N^{1/2},$$
- where $D$ is the default accuracy in decimal digits, $d$ is the degree of the
+ $$(B / d+\pi h/4)^{d/2+3}N^{1/2},$$
+ where $B$ is the default bit accuracy, $d$ is the degree of the
  $L$-function, and $N$ is the conductor (the exponent $d/2+3$ is reduced
  to $d/2+2$ when $d=1$ and $d=2$). There is also a dependency on $w$,
  which is less crucial, but make sure to use the smallest rectangular
@@ -42,7 +42,8 @@ Doc: fundamental initalization function for all functions linked to the
  The output is a three-component vector \kbd{[code,ldataf,vv]}: \kbd{ldataf} is
  the same as \kbd{ldata} except that all the missing parameters (usually the
  root number and/or the residues) have been filled; ``f'' is for full (note
- that the root number will be set exactly equal to $\pm1$ if it is extremely
+ that the root number will be set exactly equal to $\pm1$ if its absolute value
+ is extremely
  close to $1$). \kbd{code} and \kbd{vv} are technical, but \kbd{vv[1]}
  is set to \kbd{[sdom,Vecsmall([der,bitprec])]}, where \kbd{sdom} and \kbd{der}
  are as given in the function call, and \kbd{bitprec} is the bit accuracy.

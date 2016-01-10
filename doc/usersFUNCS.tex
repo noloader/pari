@@ -801,7 +801,7 @@ return proven results in such a generic framework, without more detailed
 information about the $L$ function. The intended use of the $L$-function
 package is not to prove theorems, but to experiment and formulate
 conjectures, so all numerical results should be taken with a grain of salt.
-One can always increase \kbd{realprecision} and recompute: the difference
+One can always increase \kbd{realbitprecision} and recompute: the difference
 estimates the actual absolute error in the original output.
 
 \misctitle{Note} The requested precision has a major impact on runtimes.
@@ -851,7 +851,7 @@ This is obtained via the function \tet{lfuncreate}. N.B. For motivic
 $L$-functions, the motivic weight $w$ is $w = k-1$; but we also support
 non-motivic $L$-functions.
 
-\misctitle{Design problem} all components of an \kbd{Ldata} should be given
+\misctitle{Design problem} All components of an \kbd{Ldata} should be given
 exactly since the accuracy to which they must be computed is not bounded a
 priori; but this is not always possible, in particular for $\epsilon$ and $r$.
 
@@ -910,13 +910,14 @@ functions.
 Given a Dirichlet character $\chi:(\Z/N\Z)^*\to \C$, we let
 $$L(\chi, s) = \sum_{n\geq 1} \chi(n) n^{-s}.$$
 Only primitive characters are supported. Given a fundamental discriminant
-$D$, the function $L((D/.), s)$ is encoded by the \typ{INT} $D$. This
-includes Riemann $\zeta$ function via the special case $D = 1$.
+$D$, the function $L((D/.), s)$, for the quadratic Kronecker symbol, is encoded
+by the \typ{INT} $D$. This includes Riemann $\zeta$ function via the special
+case $D = 1$.
 
-More general characters can be represented in a variety of way:
+More general characters can be represented in a variety of ways:
 
 \item via Conrey notation (see \tet{znconreychar}): $\chi_N(m,\cdot)$
-can be given as the \typ{INTMOD} \kbd{Mod(m,N)}.
+is given as the \typ{INTMOD} \kbd{Mod(m,N)}.
 
 \item via a \var{bid} structure describing the abelian  group $(\Z/N\Z)^*$,
 where the character is given in terms of the \var{bid} generators:
@@ -990,7 +991,7 @@ The corresponding Artin $L$ function is created using \tet{lfunartin}.
    [s,t] = G.gen; \\ order 5 and 2
    L = lfunartin(N,G, [[x,0;0,x^-1],[0,1;1,0]], 5); \\ irr. degree 2
 @eprog\noindent In the above, the polynomial variable (here \kbd{x}) represents
-$\zeta_5 := \exp(2i\pi/5)$ and the two matrices given the images of
+$\zeta_5 := \exp(2i\pi/5)$ and the two matrices give the images of
 $s$ and $t$.
 
 \subsec{$L$-functions of algebraic varieties} %GPHELPskip

@@ -19,19 +19,19 @@ Doc: Given the data associated to an $L$-function (\kbd{Lmath}, \kbd{Ldata}
  the root number contained in \kbd{data}, and $\hat{w}$ is a computed value
  derived from $\overline{\theta}(t)$ and $\theta(1/t)$ at some $t\neq 0$ and
  the assumed functional equation. Of course, a large negative value of the
- order of \kbd{realprecision} $\times \log_2(10)$ is expected.
+ order of \kbd{realbitprecision} is expected.
 
  If $t$ is given, it should be close to the unit disc for efficiency and
  such that $\overline{\theta}(t) \neq 0$. We then check the functional
  equation at that $t$.
  \bprog
- ? \p38
- ? floor(38*log(10)/log(2))
- %1 = 126       \\ 126 bits of accuracy
+ ? \pb 128       \\ 128 bits of accuracy
+ ? default(realbitprecision)
+ %1 = 128
  ? L = lfuncreate(1);  \\ Riemann zeta
  ? lfuncheckfeq(L)
  %3 = -124
- @eprog\noindent i.e. the given data is consistent to within 2 ulps for the
+ @eprog\noindent i.e. the given data is consistent to within 4 ulps for the
  particular check consisting of estimating the root number from all other
  given quantities. Checking away from the unit disc will either fail with
  a precision error, or give disappointing results (if $\theta(1/t)$ is
