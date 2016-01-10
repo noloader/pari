@@ -2,12 +2,12 @@ Function: lfunqf
 Section: l_functions
 C-Name: lfunqf
 Prototype: G
-Help: lfunqf(Q): returns the Linit structure associated to the
+Help: lfunqf(Q): returns the Ldata structure associated to the
  theta function of the lattice associated to the definite positive quadratic
  form Q. This function assumes that the associated L function is self-dual,
  but not necessarily the lattice itself. In particular, if Q is
  two-dimensional, then L is always self-dual.
-Doc: returns the \kbd{Linit} structure associated to the $\Theta$ function
+Doc: returns the \kbd{Ldata} structure associated to the $\Theta$ function
  of the lattice associated to the definite positive quadratic form $Q$.
  This function assumes that the associated L function is self-dual,
  but not necessarily the lattice itself. In particular, if Q is
