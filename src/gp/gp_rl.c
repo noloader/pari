@@ -24,7 +24,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #include "gp.h"
 
 typedef int (*RLCI)(int, int); /* rl_complete and rl_insert functions */
-typedef char* (*GF)(const char*, int); /* generator function */
 
 BEGINEXTERN
 /* otherwise C++ compilers will choke on rl_message() prototype */
@@ -35,9 +34,8 @@ BEGINEXTERN
 ENDEXTERN
 
 /**************************************************************************/
-static int pari_rl_back;
+static pari_rl_interface pari_rl;
 static int did_init_matched = 0;
-static entree *current_ep = NULL;
 
 static int
 change_state(const char *msg, ulong flag, int count)
@@ -71,7 +69,7 @@ pari_rl_complete(int count, int key)
 {
   int ret;
 
-  pari_rl_back = 0;
+  pari_rl.back = 0;
   if (count <= 0)
     return change_state("complete args", DO_ARGS_COMPLETE, count);
 
@@ -79,8 +77,8 @@ pari_rl_complete(int count, int key)
   if (rl_last_func == pari_rl_complete)
     rl_last_func = (RLCI) rl_complete; /* Make repeated TABs different */
   ret = ((RLCI)rl_complete)(count,key);
-  if (pari_rl_back && (pari_rl_back <= rl_point))
-    rl_point -= pari_rl_back;
+  if (pari_rl.back && (pari_rl.back <= rl_point))
+    rl_point -= pari_rl.back;
   rl_end_undo_group(); return ret;
 }
 
@@ -214,218 +212,6 @@ pari_rl_backward_sexp(int count, int key)
   return pari_rl_forward_sexp(-count, key);
 }
 
-/* do we add () at the end of completed word? (is it a function?) */
-static int
-add_paren(int end)
-{
-  entree *ep;
-  const char *s;
-
-  if (end < 0 || rl_line_buffer[end] == '(')
-    return 0; /* not from command_generator or already there */
-  ep = do_alias(current_ep); /* current_ep set in command_generator */
-  if (EpVALENCE(ep) < EpNEW)
-  { /* is it a constant masked as a function (e.g Pi)? */
-    s = ep->help; if (!s) return 1;
-    while (is_keyword_char(*s)) s++;
-    return (*s != '=');
-  }
-  switch(EpVALENCE(ep))
-  {
-    case EpVAR: return typ((GEN)ep->value) == t_CLOSURE;
-    case EpINSTALL: return 1;
-  }
-  return 0;
-}
-
-static void
-match_concat(char **matches, const char *s)
-{
-  matches[0] = (char*)pari_realloc((void*)matches[0],
-                                strlen(matches[0])+strlen(s)+1);
-  strcat(matches[0],s);
-}
-
-#define add_comma(x) (x==-2) /* from default_generator */
-
-/* a single match, possibly modify matches[0] in place */
-static void
-treat_single(int code, char **matches)
-{
-  if (add_paren(code))
-  {
-    match_concat(matches,"()");
-    pari_rl_back = 1;
-    if (rl_point == rl_end)
-    rl_completion_append_character = '\0'; /* Do not append space. */
-  }
-  else if (add_comma(code))
-    match_concat(matches,",");
-}
-#undef add_comma
-
-
-static char **
-matches_for_emacs(const char *text, char **matches)
-{
-  if (!matches) printf("@");
-  else
-  {
-    int i;
-    printf("%s@", matches[0] + strlen(text));
-    if (matches[1]) print_fun_list(matches+1,0);
-
-   /* we don't want readline to do anything, but insert some junk
-    * which will be erased by emacs.
-    */
-    for (i=0; matches[i]; i++) pari_free(matches[i]);
-    pari_free(matches);
-  }
-  matches = (char **) pari_malloc(2*sizeof(char *));
-  matches[0] = (char*)pari_malloc(2); sprintf(matches[0],"_");
-  matches[1] = NULL; printf("@E_N_D"); pari_flush();
-  return matches;
-}
-
-/* Attempt to complete on the contents of TEXT. 'code' is used to
- * differentiate between callers when a single match is found.
- * Return the array of matches, NULL if there are none. */
-static char **
-get_matches(int code, const char *text, GF f)
-{
-  char **matches = rl_completion_matches(text, f);
-  if (matches && !matches[1]) treat_single(code, matches);
-  if (GP_DATA->flags & gpd_EMACS) matches = matches_for_emacs(text,matches);
-  return matches;
-}
-
-static char *
-add_prefix(const char *name, const char *text, long junk)
-{
-  char *s = strncpy((char*)pari_malloc(strlen(name)+1+junk),text,junk);
-  strcpy(s+junk,name); return s;
-}
-static void
-init_prefix(const char *text, int *len, int *junk, char **TEXT)
-{
-  long l = strlen(text), j = l-1;
-  while (j >= 0 && is_keyword_char(text[j])) j--;
-  j++;
-  *TEXT = (char*)text + j;
-  *junk = j;
-  *len  = l - j;
-}
-
-static int
-is_internal(entree *ep) { return *ep->name == '_'; }
-
-/* Generator function for command completion.  STATE lets us know whether
- * to start from scratch; without any state (i.e. STATE == 0), then we
- * start at the top of the list. */
-static char *
-hashtable_generator(const char *text, int state, entree **hash)
-{
-  static int hashpos, len, junk;
-  static entree* ep;
-  static char *TEXT;
-
- /* If this is a new word to complete, initialize now:
-  *  + indexes hashpos (GP hash list) and n (keywords specific to long help).
-  *  + file completion and keyword completion use different word boundaries,
-  *    have TEXT point to the keyword start.
-  *  + save the length of TEXT for efficiency.
-  */
-  if (!state)
-  {
-    hashpos = 0; ep = hash[hashpos];
-    init_prefix(text, &len, &junk, &TEXT);
-  }
-
-  /* Return the next name which partially matches from the command list. */
-  for(;;)
-    if (!ep)
-    {
-      if (++hashpos >= functions_tblsz) return NULL; /* no names matched */
-      ep = hash[hashpos];
-    }
-    else if (is_internal(ep) || strncmp(ep->name,TEXT,len))
-      ep = ep->next;
-    else
-      break;
-  current_ep = ep; ep = ep->next;
-  return add_prefix(current_ep->name,text,junk);
-}
-/* Generator function for member completion.  STATE lets us know whether
- * to start from scratch; without any state (i.e. STATE == 0), then we
- * start at the top of the list. */
-static char *
-member_generator(const char *text, int state)
-{
-  static int hashpos, len, junk;
-  static entree* ep;
-  static char *TEXT;
-  entree **hash=functions_hash;
-
- /* If this is a new word to complete, initialize now:
-  *  + indexes hashpos (GP hash list) and n (keywords specific to long help).
-  *  + file completion and keyword completion use different word boundaries,
-  *    have TEXT point to the keyword start.
-  *  + save the length of TEXT for efficiency.
-  */
-  if (!state)
-  {
-    hashpos = 0; ep = hash[hashpos];
-    init_prefix(text, &len, &junk, &TEXT);
-  }
-
-  /* Return the next name which partially matches from the command list. */
-  for(;;)
-    if (!ep)
-    {
-      if (++hashpos >= functions_tblsz) return NULL; /* no names matched */
-      ep = hash[hashpos];
-    }
-    else if (ep->name[0]=='_' && ep->name[1]=='.'
-             && !strncmp(ep->name+2,TEXT,len))
-        break;
-    else
-        ep = ep->next;
-  current_ep = ep; ep = ep->next;
-  return add_prefix(current_ep->name+2,text,junk);
-}
-static char *
-command_generator(const char *text, int state)
-{ return hashtable_generator(text,state, functions_hash); }
-static char *
-default_generator(const char *text,int state)
-{ return hashtable_generator(text,state, defaults_hash); }
-
-static char *
-ext_help_generator(const char *text, int state)
-{
-  static int len, junk, n, def, key;
-  static char *TEXT;
-  if (!state) {
-    n = 0;
-    def = key = 1;
-    init_prefix(text, &len, &junk, &TEXT);
-  }
-  if (def)
-  {
-    char *s = default_generator(TEXT, state);
-    if (s) return add_prefix(s, text, junk);
-    def = 0;
-  }
-  if (key)
-  {
-    for ( ; keyword_list[n]; n++)
-      if (!strncmp(keyword_list[n],TEXT,len))
-        return add_prefix(keyword_list[n++], text, junk);
-    key = 0; state = 0;
-  }
-  return command_generator(text, state);
-}
-
 static void
 rl_print_aide(char *s, int flag)
 {
@@ -440,117 +226,6 @@ rl_print_aide(char *s, int flag)
   rl_point = p; rl_end = e; pari_outfile = save;
   rl_clear_message();
   rl_refresh_line(0,0);
-}
-
-/* add a space between \<char> and following text. Attempting completion now
- * would delete char. Hitting <TAB> again will complete properly */
-static char **
-add_space(int start)
-{
-  char **m;
-  int p = rl_point + 1;
-  rl_point = start + 2;
-  rl_insert(1, ' '); rl_point = p;
-  /*better: fake an empty completion, but don't append ' ' after it! */
-  rl_completion_append_character = '\0';
-  m = (char**)pari_malloc(2 * sizeof(char*));
-  m[0] = (char*)pari_malloc(1); *(m[0]) = 0;
-  m[1] = NULL; return m;
-}
-
-char **
-pari_completion(char *text, int START, int END)
-{
-  int i, first=0, start=START;
-
-  rl_completion_append_character = ' ';
-  current_ep = NULL;
-/* If the line does not begin by a backslash, then it is:
- * . an old command ( if preceded by "whatnow(" ).
- * . a default ( if preceded by "default(" ).
- * . a member function ( if preceded by "." + keyword_chars )
- * . a file name (in current directory) ( if preceded by 'read' or 'writexx' )
- * . a command */
-  if (start >=1 && rl_line_buffer[start] != '~') start--;
-  while (start && is_keyword_char(rl_line_buffer[start])) start--;
-  if (rl_line_buffer[start] == '~')
-  {
-    GF f = (GF)rl_username_completion_function;
-    for(i=start+1;i<=END;i++)
-      if (rl_line_buffer[i] == '/') { f = (GF)rl_filename_completion_function; break; }
-    return get_matches(-1, text, f);
-  }
-
-  while (rl_line_buffer[first] && isspace((int)rl_line_buffer[first])) first++;
-  switch (rl_line_buffer[first])
-  {
-    case '\\':
-      if (first == start) return add_space(start);
-      return get_matches(-1, text, rl_filename_completion_function);
-    case '?':
-      if (rl_line_buffer[first+1] == '?')
-        return get_matches(-1, text, ext_help_generator);
-      return get_matches(-1, text, command_generator);
-  }
-
-  while (start && rl_line_buffer[start] != '('
-               && rl_line_buffer[start] != ',') start--;
-  if (rl_line_buffer[start] == '(' && start)
-  {
-    int iend, j,k;
-    entree *ep;
-    char buf[200];
-
-    i = start;
-
-    while (i && isspace((int)rl_line_buffer[i-1])) i--;
-    iend = i;
-    while (i && is_keyword_char(rl_line_buffer[i-1])) i--;
-
-    if (strncmp(rl_line_buffer + i,"default",7) == 0)
-      return get_matches(-2, text, default_generator);
-    if ( strncmp(rl_line_buffer + i,"read",4)  == 0
-      || strncmp(rl_line_buffer + i,"write",5) == 0)
-      return get_matches(-1, text, rl_filename_completion_function);
-
-    j = start + 1;
-    while (j <= END && isspace((int)rl_line_buffer[j])) j++;
-    k = END;
-    while (k > j && isspace((int)rl_line_buffer[k])) k--;
-    /* If we are in empty parens, insert the default arguments */
-    if ((GP_DATA->readline_state & DO_ARGS_COMPLETE) && k == j
-         && (rl_line_buffer[j] == ')' || !rl_line_buffer[j])
-         && (iend - i < (long)sizeof(buf))
-         && ( strncpy(buf, rl_line_buffer + i, iend - i),
-              buf[iend - i] = 0, 1)
-         && (ep = is_entry(buf)) && ep->help)
-    {
-      const char *s = ep->help;
-      while (is_keyword_char(*s)) s++;
-      if (*s++ == '(')
-      { /* function call: insert arguments */
-        const char *e = s;
-        while (*e && *e != ')' && *e != '(') e++;
-        if (*e == ')')
-        { /* we just skipped over the arguments in short help text */
-          char *str = strncpy((char*)pari_malloc(e-s + 1), s, e-s);
-          char **ret = (char**)pari_malloc(sizeof(char*)*2);
-          str[e-s] = 0;
-          ret[0] = str; ret[1] = NULL;
-          if (GP_DATA->flags & gpd_EMACS) ret = matches_for_emacs("",ret);
-          return ret;
-        }
-      }
-    }
-  }
-  for(i = END-1; i >= start; i--)
-    if (!is_keyword_char(rl_line_buffer[i]))
-    {
-      if (rl_line_buffer[i] == '.')
-        return get_matches(-1, text, member_generator);
-      break;
-    }
-  return get_matches(END, text, command_generator);
 }
 
 /* long help if count < 0 */
@@ -680,12 +355,21 @@ get_line_from_readline(const char *prompt, const char *prompt_cont, filtre_t *F)
   return 1;
 }
 
+static char**
+gp_completion(char *text, int START, int END)
+{
+  return pari_completion(&pari_rl, text, START, END);
+}
+
 void
 init_readline(void)
 {
   static int init_done = 0;
 
   if (init_done) return;
+
+  pari_use_readline(pari_rl);
+
   if (! GP_DATA->use_readline) GP_DATA->readline_state = 0;
   init_done = 1;
   init_histfile();
@@ -700,7 +384,7 @@ init_readline(void)
   rl_special_prefixes = "~";
 
   /* custom completer */
-  rl_attempted_completion_function = (rl_completion_func_t*) pari_completion;
+  rl_attempted_completion_function = (rl_completion_func_t*) gp_completion;
 
   /* we always want the whole list of completions under emacs */
   if (GP_DATA->flags & gpd_EMACS) rl_completion_query_items = 0x8fff;

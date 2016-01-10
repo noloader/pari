@@ -500,6 +500,47 @@ int input_loop(filtre_t *F, input_method *IM);
 char *file_input(char **s0, int junk, input_method *IM, filtre_t *F);
 char *file_getline(Buffer *b, char **s0, input_method *IM);
 
+/* readline */
+typedef struct {
+  /* pointers to readline variables/functions */
+  char **line_buffer;
+  int *point;
+  int *end;
+  char **(*completion_matches)(const char *, char *(*)(const char*, int));
+  char *(*filename_completion_function)(const char *, int);
+  char *(*username_completion_function)(const char *, int);
+  int (*insert)(int, int);
+  int *completion_append_character;
+
+  /* PARI-specific */
+  int back;  /* rewind the cursor by this number of chars */
+} pari_rl_interface;
+
+/* Code which wants to use readline needs to do the following:
+
+#include <readline.h>
+#include <paripriv.h>
+pari_rl_interface pari_rl;
+pari_use_readline(pari_rl);
+
+This will initialize the pari_rl structure. A pointer to this structure
+must be given as first argument to all PARI readline functions. */
+
+/* IMPLEMENTATION NOTE: this really must be a macro (not a function),
+ * since we refer to readline symbols. */
+#define pari_use_readline(pari_rl) \
+    (pari_rl).line_buffer = &rl_line_buffer, \
+    (pari_rl).point = &rl_point, \
+    (pari_rl).end = &rl_end, \
+    (pari_rl).completion_matches = &rl_completion_matches, \
+    (pari_rl).filename_completion_function = &rl_filename_completion_function, \
+    (pari_rl).username_completion_function = &rl_username_completion_function, \
+    (pari_rl).insert = &rl_insert, \
+    (pari_rl).completion_append_character = &rl_completion_append_character, \
+    (pari_rl).back = 0, \
+    (pari_rl)
+
+
 /* By files */
 
 /* Qfb.c */
@@ -640,6 +681,10 @@ GEN     gsubst_expr(GEN pol, GEN from, GEN to);
 GEN     poltoser(GEN x, long v, long prec);
 GEN     rfractoser(GEN x, long v, long prec);
 
+/* gplib.c */
+
+extern const char *keyword_list[];
+
 /* hyperell.c */
 
 GEN     ZlXQX_hyperellpadicfrobenius(GEN H, GEN T, ulong p, long n);
@@ -726,6 +771,12 @@ GEN     polint_triv(GEN xa, GEN ya);
 /* random.c */
 
 void    pari_init_rand(void);
+
+/* readline.c */
+
+char**  pari_completion(pari_rl_interface *pari_rl, char *text, int START, int END);
+char*   pari_completion_word(pari_rl_interface *pari_rl, long end);
+char**  pari_completion_matches(pari_rl_interface *pari_rl, const char *s, long pos, long *wordpos);
 
 /* rootpol.c */
 

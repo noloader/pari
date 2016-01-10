@@ -21,9 +21,6 @@ void init_emacs(void);
 void init_readline(void);
 void init_texmacs(void);
 
-/* readline completions */
-extern const char *keyword_list[];
-
 /* gp specific routines */
 void dbg_down(long k);
 void dbg_up(long k);

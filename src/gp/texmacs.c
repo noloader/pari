@@ -30,8 +30,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 /*                      READLINE INTERFACE                         */
 /*                                                                 */
 /*******************************************************************/
+static pari_rl_interface pari_rl;
 static int did_complete = 0;
-char **pari_completion(char *text, int START, int END);
 
 #ifdef READLINE
 BEGINEXTERN
@@ -59,37 +59,6 @@ print_escape_string(char *s)
   *t = '\0'; puts(t0); pari_free(t0);
 }
 
-static char *
-completion_word(long end)
-{
-  char *s = rl_line_buffer + end, *found_quote = NULL;
-  long i;
-  /* truncate at cursor position */
-  *s = 0;
-  /* first look for unclosed string */
-  for (i=0; i < end; i++)
-  {
-    switch(rl_line_buffer[i])
-    {
-      case '"':
-        found_quote = found_quote? NULL: rl_line_buffer + i;
-        break;
-
-      case '\\': i++; break;
-    }
-
-  }
-  if (found_quote) return found_quote + 1; /* return next char after quote */
-
-  /* else find beginning of word */
-  while (s >  rl_line_buffer)
-  {
-    s--;
-    if (!is_keyword_char(*s)) { s++; break; }
-  }
-  return s;
-}
-
 /* completion required, cursor on s + pos. Complete wrt strict left prefix */
 static void
 tm_completion(const char *s, long pos)
@@ -98,11 +67,11 @@ tm_completion(const char *s, long pos)
 
   if (rl_line_buffer) pari_free(rl_line_buffer);
   rl_line_buffer = pari_strdup(s);
-  text = completion_word(pos);
+  text = pari_completion_word(&pari_rl, pos);
   /* text = start of expression we complete */
   rl_end = strlen(s)-1;
   rl_point = pos;
-  matches = pari_completion(text, text - rl_line_buffer, pos);
+  matches = pari_completion(&pari_rl, text, text - rl_line_buffer, pos);
   printf("%cscheme:(tuple",DATA_BEGIN);
   if (matches)
   {
@@ -255,6 +224,7 @@ init_texmacs(void)
 #ifdef READLINE
   printf("%ccommand:(cas-supports-completions-set! \"pari\")%c\n",
          DATA_BEGIN, DATA_END);
+  pari_use_readline(pari_rl);
 #endif
   cb_pari_fgets_interactive = tm_fgets;
   cb_pari_get_line_interactive = tm_get_line;
