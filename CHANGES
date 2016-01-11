@@ -386,6 +386,7 @@ BA143- [arm64] add aarch64 assembly kernel
        defaults. Called by idealstar(,N).
   146- [GP] znconreychar, znconreylog, znconreyconductor, charorder, charconj
 BA147- [GP] call (for calling closures).
+  148- [GP] optional flag to forell [ loop over isogeny classes ]
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]

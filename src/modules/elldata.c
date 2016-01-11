@@ -228,7 +228,7 @@ elldatagenerators(GEN E)
 }
 
 void
-forell(void *E, long call(void*, GEN), long a, long b)
+forell(void *E, long call(void*, GEN), long a, long b, long flag)
 {
   long ca=a/1000, cb=b/1000;
   long i, j, k;
@@ -247,7 +247,15 @@ forell(void *E, long call(void*, GEN), long a, long b)
       if (i==cb && cond>b) break;
       for(k=2; k<lg(ells); k++)
       {
-        if (call(E, gel(ells, k))) return;
+        GEN e = gel(ells,k);
+        if (flag) {
+          GEN n = gel(e,1); /* Cremona label */
+          long f, c, x;
+          if (!ellparsename(GSTR(n),&f,&c,&x))
+            pari_err_TYPE("ellconvertname", n);
+          if (x != 1) continue;
+        }
+        if (call(E, e)) return;
       }
     }
     avma = ltop;
@@ -255,9 +263,9 @@ forell(void *E, long call(void*, GEN), long a, long b)
 }
 
 void
-forell0(long a, long b, GEN code)
+forell0(long a, long b, GEN code, long flag)
 {
   push_lex(gen_0, code);
-  forell((void*)code, &gp_evalvoid, a, b);
+  forell((void*)code, &gp_evalvoid, a, b, flag);
   pop_lex(1);
 }

@@ -2343,7 +2343,7 @@ GEN     elldatagenerators(GEN E);
 GEN     ellidentify(GEN E);
 GEN     ellsearch(GEN A);
 GEN     ellsearchcurve(GEN name);
-void    forell(void *E, long call(void*, GEN), long a, long b);
+void    forell(void *E, long call(void*, GEN), long a, long b, long flag);
 
 /* ellfromeqn.c */
 

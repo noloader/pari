@@ -20,3 +20,5 @@ iferr(ellsearch([0,0,0,0]),E,E)
 iferr(ellsearch([0,0,0]),E,E)
 iferr(ellsearch("curve"),E,E)
 iferr(ellsearch(I),E,E)
+c=0;forell(E,1,100,c++); c
+c=0;forell(E,1,100,c++,1); c

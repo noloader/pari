@@ -17,4 +17,6 @@ error("incorrect type in ellsearch (t_VEC).")
 error("domain error in ellsearch: conductor <= 0")
 error("incorrect type in ellsearch (t_STR).")
 error("incorrect type in ellsearch (t_COMPLEX).")
-Total time spent: 1240
+306
+93
+Total time spent: 1343
