@@ -15,7 +15,16 @@ Doc: defining polynomial for the splitting field of \var{nf};
  %2 = x^6 + 108
  ?  nfsplitting(x^8-2)
  %3 = x^16 + 272*x^8 + 64
- @eprog\noindent
+ @eprog
+ \noindent
+ Specifying the degree of the splitting field can make the computation faster.
+ \bprog
+ ? nfsplitting(x^17-123);
+ time = 3,607 ms.
+ ? nfsplitting(x^17-123,272);
+ time = 150 ms.
+ @eprog
+ \noindent
  The complexity of the algorithm is polynomial in the degree $d$ of the
  splitting field and the bitsize of $T$; if $d$ is large the result will
  likely be unusable, e.g. \kbd{nfinit} will not be an option:
