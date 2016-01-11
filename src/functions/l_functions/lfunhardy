@@ -2,10 +2,10 @@ Function: lfunhardy
 Section: l_functions
 C-Name: lfunhardy_bitprec
 Prototype: GGb
-Help: lfunhardy(ldata,t): Variant of the Hardy L-function corresponding to
- ldata, used for plotting on the critical line, see ??lfunhardy for the precise
+Help: lfunhardy(L,t): Variant of the Hardy L-function corresponding to
+ L, used for plotting on the critical line, see ??lfunhardy for the precise
  definition.
-Doc: Variant of the Hardy $Z$-function corresponding to \kbd{ldata}, used for
+Doc: Variant of the Hardy $Z$-function given by \kbd{L}, used for
  plotting or locating zeros of $L(k/2+it)$ on the critical line.
  The precise definition is as
  follows: if as usual $k/2$ is the center of the critical strip, $d$ is the

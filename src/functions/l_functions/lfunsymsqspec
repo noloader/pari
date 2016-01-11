@@ -2,12 +2,12 @@ Function: lfunsymsqspec
 Section: l_functions
 C-Name: lfunsymsqspec_bitprec
 Prototype: Gb
-Help: lfunsymsqspec(ldata): ldata corresponding either to a normalized
+Help: lfunsymsqspec(L): Ldata corresponding either to a normalized
   eigenform or to the output of lfunsymsq, returns [val, om2], where val
   is the vector of special values of the symmetric square of the modular form
   on the right of the critical strip, and om2 is a period, not canonically
   normalized. For the moment, only for modular forms of even weight.
-Doc: \kbd{ldata} corresponding either to a normalized eigenform or to the
+Doc: \kbd{L} corresponding either to a normalized eigenform or to the
   output of \kbd{lfunsymsq}, returns \kbd{[val, om2]}, where \kbd{val} is
   the vector of special values of the symmetric square of the modular form
   on the right of the critical strip, and \kbd{om2} is a period, not

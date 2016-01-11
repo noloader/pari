@@ -9,7 +9,7 @@ Help: lfunrootres(data): given the Ldata associated to an L-function (or the
  The output is a 3-component vector [r,R,w], where r is the residue of L(s)
  at the unique pole (0 if no pole), R is the residue of Lambda(s), and w is
  the root number.
-Doc: Given the Ldata associated to an $L$-function (or the output of
+Doc: Given the \kbd{Ldata} associated to an $L$-function (or the output of
  \kbd{lfunthetainit}), compute the root number and the residues.
  The output is a 3-component vector $[r,R,w]$, where $r$ is the
  residue of $L(s)$ at the unique pole, $R$ is the residue of $\Lambda(s)$,

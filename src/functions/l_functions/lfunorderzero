@@ -2,7 +2,7 @@ Function: lfunorderzero
 Section: l_functions
 C-Name: lfunorderzero_bitprec
 Prototype: lGb
-Help: lfunorderzero(ldata): computes the order of the possible zero
+Help: lfunorderzero(L): computes the order of the possible zero
  of the L-function at the center k/2 of the critical strip.
 Doc: Computes the order of the possible zero of the $L$-function at the
  center $k/2$ of the critical strip; return $0$ if $L(k/2)$ does not vanish.

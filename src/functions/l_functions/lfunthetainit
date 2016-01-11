@@ -2,7 +2,7 @@ Function: lfunthetainit
 Section: l_functions
 C-Name: lfunthetainit_bitprec
 Prototype: GDGD0,L,b
-Help: lfunthetainit(ldata,{tdom},{m=0}): precompute data for evaluating
+Help: lfunthetainit(L,{tdom},{m=0}): precompute data for evaluating
   the m-th derivative of theta functions with argument in domain tdom
   (by default t is real >= 1).
 Doc: Initalization function for evaluating the $m$-th derivative of theta

@@ -17,7 +17,7 @@ Help: lfunconductor(L,{ab=[1,10000]},{flag=0}): give the conductor
 Doc:  Compute the conductor of the given $L$-function
   (if the structure contains a conductor, it is ignored);
   $\kbd{ab} = [a,b]$ is the interval where we expect to find the conductor;
-  if may be given as a single scalar $b$, in which case we look in $[1,b]$.
+  it may be given as a single scalar $b$, in which case we look in $[1,b]$.
   Increasing \kbd{ab} slows down the program but gives better accuracy for the
   result.
 
@@ -33,7 +33,7 @@ Doc:  Compute the conductor of the given $L$-function
   ? L = lfuncreate(857); \\ Dirichlet L function for kronecker(857,.)
   ? lfunconductor(L)
   %2 = [17, 857]
-  ? lfunconductor(lfuncreate(857),,1) \\ don't round
+  ? lfunconductor(L,,1) \\ don't round
   %3 = [16.999999999999999993212378261571896376, \
         857.00000000000000000000000000000000000]
   @eprog

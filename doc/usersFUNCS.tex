@@ -814,7 +814,7 @@ increases by increments of 64 bits, i.e. 19 decimal digits at a time.
 
 \subsec{Theta functions}
 
-Given an $L$-function as above, we define an associated Theta function
+Given an $L$-function as above, we define an associated theta function
 via Mellin inversion: for any positive real $t > 0$, we let
 $$ \theta(a,t) := \dfrac{1}{2\pi i}\int_{\Re(s) = c} t^{-s} \Lambda(s)\, ds $$
 where $c$ is any positive real number $c > k_1+1$ such that $c + \Re(a) > 0$
@@ -833,7 +833,7 @@ $\theta(t)$ are generally easier to compute than the $L(s)$, and this
 functional equation provides a fast way to guess possible values for
 missing invariants in the $L$-function definition.
 
-\subsec{Data structures describing $L$ and Theta functions}
+\subsec{Data structures describing $L$ and theta functions}
 
 We have 3 levels of description:
 
@@ -863,7 +863,7 @@ the range of arguments ($t$ or $s$, respectively to certain cones and
 rectangular regions) and the output accuracy. This is obtained via the
 functions \tet{lfuninit} or \tet{lfunthetainit}.
 
-All the functions which are specific to $L$ or Theta functions share the
+All the functions which are specific to $L$ or theta functions share the
 prefix \kbd{lfun}. They take as first argument either an \kbd{Lmath}, an
 \kbd{Ldata}, or an \kbd{Linit}. If a single value is to be computed,
 this makes no difference, but when many values are needed (e.g. for plots or
@@ -894,8 +894,8 @@ above example could equally have skipped the \kbd{lfuncreate}:
 @eprog\noindent In fact, when computing a single value, you can even skip
 \kbd{lfuninit}:
 \bprog
-? L = lfuninit(1, 1/2, 1); \\ zeta'(1/2)
-? L = lfuninit(1, 1+x+O(x^5)); \\ first 5 terms of Taylor development at 1
+? L = lfun(1, 1/2, 1); \\ zeta'(1/2)
+? L = lfun(1, 1+x+O(x^5)); \\ first 5 terms of Taylor development at 1
 @eprog\noindent Both give the desired results with no warning.
 
 \misctitle{Complexity}
@@ -922,13 +922,15 @@ is given as the \typ{INTMOD} \kbd{Mod(m,N)}.
 \item via a \var{bid} structure describing the abelian  group $(\Z/N\Z)^*$,
 where the character is given in terms of the \var{bid} generators:
 \bprog
-  ? bid = idealstar(,100); \\ (Z/100Z)^*
+  ? bid = idealstar(,100,2); \\ (Z/100Z)^*
   ? bid.cyc \\ ~ Z/20 . g1  + Z/2 . g2 for some generators g1 and g2
   %2 = [20, 2]
+  ? bid.gen
+  %3 = [77, 51]
   ? chi = [a, b]  \\ maps g1 to e(a/20) and g2 to e(b/2);  e(x) = exp(2ipi x)
 @eprog\noindent
 More generally, let $(\Z/N\Z)^* = \oplus (\Z/d_i\Z) g_i$ be given via a
-\var{bid} structure $G$ (\kbd{G.cyc} give the $d_i$ and \kbd{G.gen} the
+\var{bid} structure $G$ (\kbd{G.cyc} gives the $d_i$ and \kbd{G.gen} the
 $g_i$). A \tev{character} $\chi$ on $G$ is given by a row vector
 $v = [a_1,\ldots,a_n]$ such that $\chi(\prod g_i^{n_i}) = \exp(2\pi i\sum a_i
 n_i / d_i)$. The pair $[\var{bid}, v]$ encodes the \emph{primitive} character
@@ -989,10 +991,11 @@ The corresponding Artin $L$ function is created using \tet{lfunartin}.
    N = nfinit(nfsplitting(P)); \\ Galois closure
    G = galoisinit(N);
    [s,t] = G.gen; \\ order 5 and 2
-   L = lfunartin(N,G, [[x,0;0,x^-1],[0,1;1,0]], 5); \\ irr. degree 2
-@eprog\noindent In the above, the polynomial variable (here \kbd{x}) represents
+   L = lfunartin(N,G, [[a,0;0,a^-1],[0,1;1,0]], 5); \\ irr. degree 2
+@eprog\noindent In the above, the polynomial variable (here \kbd{a}) represents
 $\zeta_5 := \exp(2i\pi/5)$ and the two matrices give the images of
-$s$ and $t$.
+$s$ and $t$. Here, priority of \kbd{a} must be lower than the priority
+of \kbd{x}.
 
 \subsec{$L$-functions of algebraic varieties} %GPHELPskip
 
@@ -1005,7 +1008,7 @@ general hyperelliptic curves over number fields will be added later.
 
 \subsec{Eta quotients / Modular forms} %GPHELPskip
 
-An Eta quotient is created by applying \tet{lfunetaquo} to a matrix with
+An eta quotient is created by applying \tet{lfunetaquo} to a matrix with
 2 columns $[m, r_m]$ representing
 $$ f(\tau) := \prod_m \eta(m\tau)^{r_m}. $$
 It is currently assumed that $f$ is a self-dual cuspidal form on

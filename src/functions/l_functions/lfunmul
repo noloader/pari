@@ -2,9 +2,9 @@ Function: lfunmul
 Section: l_functions
 C-Name: lfunmul
 Prototype: GGp
-Help: lfunmul(ldata1,ldata2): creates the ldata structure (without
+Help: lfunmul(L1,L2): creates the Ldata structure (without
   initialization) corresponding to the product of the Dirichlet series
-  given by ldata1 and ldata2.
-Doc: creates the ldata structure (without initialization) corresponding
-  to the product of the Dirichlet series given by \kbd{ldata1} and
-  \kbd{ldata2}.
+  given by L1 and L2.
+Doc: creates the \kbd{Ldata} structure (without initialization) corresponding
+  to the product of the Dirichlet series given by \kbd{L1} and
+  \kbd{L2}.

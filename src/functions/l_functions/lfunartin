@@ -20,9 +20,9 @@ Doc: returns the Ldata structure associated to the
  is understood as the complex number $\exp(2\*i\*\pi/n)$.
 
  In the following example we build the Artin $L$-functions associated to the two
- irreducible degree-$2$ representations of the dihedral group $D_{10}$ defined
- over $\Q(\zeta_5)$, for the
- extension $H/Q$ where $H$ is the Hilbert class field of $\Q(\sqrt{-47})$.
+ irreducible degree $2$ representations of the dihedral group $D_{10}$ defined
+ over $\Q(\zeta_5)$, for the extension $H/\Q$ where $H$ is the Hilbert class
+ field of $\Q(\sqrt{-47})$.
  We show numerically some identities involving Dedekind $\zeta$ functions and
  Hecke $L$ series.
  \bprog
@@ -31,17 +31,18 @@ Doc: returns the Ldata structure associated to the
  ? G = galoisinit(N);
  ? L1 = lfunartin(N,G, [[a,0;0,a^-1],[0,1;1,0]], 5);
  ? L2 = lfunartin(N,G, [[a^2,0;0,a^-2],[0,1;1,0]], 5);
- ? lfun(1,1)*lfun(-47,1)*lfun(L1,1)^2*lfun(L2,1)^2 - lfun(N,1)
+ ? s = 1 + x + O(x^4);
+ ? lfun(1,s)*lfun(-47,s)*lfun(L1,s)^2*lfun(L2,s)^2 - lfun(N,s)
  %6 ~ 0
- ? lfun(1,1)*lfun(L1,1)*lfun(L2,1) - lfun(P,1)
+ ? lfun(1,s)*lfun(L1,s)*lfun(L2,s) - lfun(P,s)
  %7 ~ 0
  ? bnr = bnrinit(bnfinit(x^2+47),1,1);
- ? lfun([bnr,[1]], 1) - lfun(L1, 1)
+ ? lfun([bnr,[1]], s) - lfun(L1, s)
  %9 ~ 0
- ? lfun([bnr,[2]], 1) - lfun(L2, 1)
+ ? lfun([bnr,[1]], s) - lfun(L1, s)
  %10 ~ 0
  @eprog
  The first identity is the factorisation of the regular representation of
  $D_{10}$, the second the factorisation of the natural representation of
- $D_{10}\subset S_5$, the next two are the expressions of the degree-$2$
- representations as induced from degree-$1$ representations.
+ $D_{10}\subset S_5$, the next two are the expressions of the degree $2$
+ representations as induced from degree $1$ representations.
