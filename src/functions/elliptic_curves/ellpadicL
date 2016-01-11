@@ -10,7 +10,7 @@ Doc:
   The $p$-adic $L$ function is defined on the set of continuous characters
   of $\text{Gal}(\Q(\mu_{p^{\infty}})/ \Q)$, identified to $\Z_p^*$
   via the cyclotomic character $\chi_p$ with values in $\overline{Q_p}^*$.
-  Denote by $tau:\Z_p^*\to\Z_p^*$ the Teichm\"uller character.
+  Denote by $\tau:\Z_p^*\to\Z_p^*$ the Teichm\"uller character.
 
   When $E$ has good supersingular reduction, the $L$ function takes its
   values in $\Q_p \otimes H^1_{dR}(E/\Q)$ and satisfies
