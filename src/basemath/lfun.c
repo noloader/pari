@@ -884,17 +884,6 @@ lfunparams(GEN ldata, long der, long bitprec, struct lfunp *S)
                S->Dmax,S->D,S->M,S->nmax, S->m0);
 }
 
-/* x0 * [1,x,..., x^n] */
-static GEN
-powersshift(GEN x, long n, GEN x0)
-{
-  long i, l = n+2;
-  GEN V = cgetg(l, t_VEC);
-  gel(V,1) = x0;
-  for(i = 2; i < l; i++) gel(V,i) = gmul(gel(V,i-1),x);
-  return V;
-}
-
 /* d=2 and Vga = [a,a+1] */
 static GEN
 lfuninit_vecc2(GEN theta, GEN h, struct lfunp *Q)
@@ -906,7 +895,7 @@ lfuninit_vecc2(GEN theta, GEN h, struct lfunp *Q)
   GEN thetainit = linit_get_tech(theta);
   GEN vecan = RgV_kill0( theta_get_an(thetainit) );
   GEN sqN = theta_get_sqrtN(thetainit);
-  GEN qk = powersshift(mpexp(h), M, ginv(sqN));
+  GEN qk = gpowers0(mpexp(h), M, ginv(sqN));
   GEN v = cgetg(M + 2, t_VEC);
   long m, L0 = lg(vecan)-1;
   for (m = 0; m <= M; m++)
@@ -950,7 +939,7 @@ lfuninit_vecc(GEN theta, GEN h, struct lfunp *S)
   d2 = gdivgs(gen_2, d);
   eh2d = gexp(gmul(d2,h), prec); /* exp(2h/d) */
   /* peh2d[m+1] = (exp(mh)/sqrt(N))^(2/d) */
-  peh2d = powersshift(eh2d, M, invr(gpow(sqN, d2, prec)));
+  peh2d = gpowers0(eh2d, M, invr(gpow(sqN, d2, prec)));
   neval = 0;
   /* vK[m+1,n] will contain k[m,n]. For each 0 <= m <= M, sum for n<=L[m+1] */
   vK = cgetg(M+2, t_VEC);

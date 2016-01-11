@@ -3958,6 +3958,7 @@ GEN     gexpm1(GEN x, long prec);
 GEN     glog(GEN x, long prec);
 GEN     gpow(GEN x, GEN n, long prec);
 GEN     gpowers(GEN x, long n);
+GEN     gpowers0(GEN x, long n, GEN x0);
 GEN     gpowgs(GEN x, long n);
 GEN     grootsof1(long N, long prec);
 GEN     gsin(GEN x, long prec);

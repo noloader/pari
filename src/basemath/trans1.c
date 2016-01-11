@@ -1162,10 +1162,21 @@ gpow(GEN x, GEN n, long prec)
 }
 
 GEN
+gpowers0(GEN x, long n, GEN x0)
+{
+  long i, l;
+  GEN V;
+  if (!x0) return gpowers(x,n);
+  if (n < 0) return cgetg(1,t_VEC);
+  l = n+2; V = cgetg(l, t_VEC); gel(V,1) = gcopy(x0);
+  for (i = 2; i < l; i++) gel(V,i) = gmul(gel(V,i-1),x);
+  return V;
+}
+
+GEN
 gpowers(GEN x, long n)
 {
-  if (n < 0)
-    pari_err_DOMAIN("powers", "n", "<", gen_0, stoi(n));
+  if (n < 0) return cgetg(1,t_VEC);
   return gen_powers(x, n, 1, (void*)x, &_sqr, &_mul, &_one);
 }
 

@@ -40,3 +40,6 @@ sqrt(Mod(2,4))
 
 powers(Mod(2,11),10)
 powers(Pi,7)
+powers(3, 5, 2)
+powers(3,-1)
+powers(3,0)
