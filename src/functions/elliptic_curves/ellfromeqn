@@ -17,7 +17,7 @@ Doc:
  The function implements the $f \mapsto f^*$ formulae of Artin, Tate and
  Villegas (Advances in Math. 198 (2005), pp. 366--382).
 
- In the example below, the function is used to convert between twisted Edwards
+ In the example below, the function is used to convert between twisted Edward
  coordinates and Weierstrass coordinates.
 
  \bprog
