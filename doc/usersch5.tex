@@ -11042,9 +11042,9 @@ $x, y$}.
 
 \subsubsec{e\_INV} Tried to invert a non-invertible object $x$.
 \bprog
-  pari_err(e_INV, GEN x)
-  pari_err_INV(GEN x)
-@eprog\noindent prints the error message: \kbd{impossible inverse: $x$}.
+  pari_err(e_INV, const char *s, GEN x)
+  pari_err_INV(const char *s, GEN x)
+@eprog\noindent prints the error message: \kbd{impossible inverse in $s$: $x$}.
 If $x = \kbd{Mod}(a,b)$ is a \typ{INTMOD} and $a$ is not $0$ mod $b$, this
 allows to factor the modulus, as \kbd{gcd}$(a,b)$ is a non-trivial divisor of
 $b$.
