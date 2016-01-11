@@ -2082,3 +2082,32 @@ m_k = [0, 0, 0, -1;
        1, 0, 0, 0];
 mt = [matid(4), m_i, m_j, m_k];}
 test("quatalg csa over Q", alginit(nfinit(y), mt));
+
+\\tests for lattices
+al = alginit(nfinit(y^2+7), [-1,-1]);
+alglathnf(al,0);
+alglathnf(al,Mat([0,0,0,0,0,0,0,0]));
+alglathnf(al,[0;0;0;0;0;0;0;0]);
+fakemat = matid(8);
+fakemat[5,6] = []
+alglathnf(al,fakemat);
+alglathnf(al,matid(8)*0);
+fakemat = matid(8);
+fakemat[1,1] = 0;
+alglathnf(al,fakemat);
+a = [1,1,-1/2,1,1/3,-1,1,1]~;
+mt = algleftmultable(al,a);
+lat = alglathnf(al,mt);
+print(type(lat)=="t_VEC");
+print(#lat == 2);
+print(type(lat[1])=="t_MAT");
+print(type(lat[2])=="t_FRAC");
+print(type(lat[1][1,1])=="t_INT");
+print(lat[1][2,1]==0);
+a = [1,1,-1,1,0,-1,1,1]~;
+mt = algleftmultable(al,a);
+lat = alglathnf(al,mt);
+print(lat[2]==1);
+lat = alglathnf(al,matid(8)*2);
+print(lat[2]==2);
+

@@ -1192,6 +1192,7 @@ int     algisinv(GEN al, GEN x, GEN* ptix);
 GEN     algleftordermodp(GEN al, GEN Ip, GEN p);
 GEN     algmul(GEN al, GEN x, GEN y);
 GEN     algmultable(GEN al);
+GEN     alglathnf(GEN al, GEN m);
 GEN     algleftmultable(GEN al, GEN x);
 GEN     algneg(GEN al, GEN x);
 GEN     algnorm(GEN al, GEN x);
