@@ -10,12 +10,12 @@ Help: nfcompositum(nf,P,Q,{flag=0}): vector of all possible compositums
  such that al2+k*al1 is the chosen root of R; 2: assume that the number
  fields defined by P and Q are linearly disjoint.
 
-Doc: Let \var{nf} be a number field structure associated to the field $K$
+Doc: Let \var{nf} be a number field structure attached to the field $K$
  and let \sidx{compositum} $P$ and $Q$
  be squarefree polynomials in $K[X]$ in the same variable. Outputs
- the simple factors of the \'etale $K$-algebra $A = K(X, Y) / (P(X), Q(Y))$.
- The factors are given by a list of polynomials $R$ in $K[X]$, associated to
- the number field $K(X)/ (R)$, and sorted by increasing degree (with respect
+ the simple factors of the \'etale $K$-algebra $A = K[X, Y] / (P(X), Q(Y))$.
+ The factors are given by a list of polynomials $R$ in $K[X]$, attached to
+ the number field $K[X]/ (R)$, and sorted by increasing degree (with respect
  to lexicographic ordering for factors of equal degrees). Returns an error if
  one of the polynomials is not squarefree.
 
@@ -31,10 +31,10 @@ Doc: Let \var{nf} be a number field structure associated to the field $K$
  1: outputs a vector of 4-component vectors $[R,a,b,k]$, where $R$
  ranges through the list of all possible compositums as above, and $a$
  (resp. $b$) expresses the root of $P$ (resp. $Q$) as an element of
- $K(X)/(R)$. Finally, $k$ is a small integer such that $b + ka = X$ modulo
+ $K[X]/(R)$. Finally, $k$ is a small integer such that $b + ka = X$ modulo
  $R$.
 
- 2: assume that $P$ and $Q$ define number fields which are linearly disjoint:
+ 2: assume that $P$ and $Q$ define number fields that are linearly disjoint:
  both polynomials are irreducible and the corresponding number fields
  have no common subfield besides $K$. This allows to save a costly
  factorization over $K$. In this case return the single simple factor
@@ -42,7 +42,7 @@ Doc: Let \var{nf} be a number field structure associated to the field $K$
 
  A compositum is often defined by a complicated polynomial, which it is
  advisable to reduce before further work. Here is an example involving
- the field $K(\zeta_5, 5^{1/5})$, $K=\Q(\sqrt{5})$:
+ the field $K(\zeta_5, 5^{1/10})$, $K=\Q(\sqrt{5})$:
  \bprog
  ? K = nfinit(y^2-5);
  ? L = nfcompositum(K, x^5 - y, polcyclo(5), 1); \\@com list of $[R,a,b,k]$
