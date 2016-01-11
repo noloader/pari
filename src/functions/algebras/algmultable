@@ -2,7 +2,7 @@ Function: algmultable
 Section: algebras
 C-Name: algmultable
 Prototype: mG
-Help: algmultable(al}): multiplication table of al over its prime subfield.
+Help: algmultable(al): multiplication table of al over its prime subfield.
 Doc:
  returns a multiplication table of \var{al} over its
  prime subfield ($\Q$ or $\F_p$), as a \typ{VEC} of \typ{MAT}: the left
