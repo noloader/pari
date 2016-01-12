@@ -242,9 +242,9 @@ mkmatcopy(GEN x) { GEN v = cgetg(2, t_MAT); gel(v,1) = gcopy(x); return v; }
 INLINE GEN
 mkerr(long x) { GEN v = cgetg(2, t_ERROR); v[1] = x; return v; }
 INLINE GEN
-mkoo() { GEN v = cgetg(2, t_INFINITY); gel(v,1) = gen_1; return v; }
+mkoo(void) { GEN v = cgetg(2, t_INFINITY); gel(v,1) = gen_1; return v; }
 INLINE GEN
-mkmoo() { GEN v = cgetg(2, t_INFINITY); gel(v,1) = gen_m1; return v; }
+mkmoo(void) { GEN v = cgetg(2, t_INFINITY); gel(v,1) = gen_m1; return v; }
 INLINE long
 inf_get_sign(GEN x) { return signe(gel(x,1)); }
 /* pol */
