@@ -9,7 +9,7 @@ Help: ellperiods(w, {flag = 0}): w describes a complex period lattice ([w1,w2]
  [[W1,W2], [eta1,eta2]], where eta1, eta2 are the quasi-periods associated to
  [W1,W2], satisfying eta1 W2 - eta2 W1 = 2 I Pi.
 Doc: Let $w$ describe a complex period lattice ($w = [w_1,w_2]$
- or an ellinit structure). Returns normalized periods $[W_1,W_2]$ generating
+ or an \kbd{ellinit} structure). Returns normalized periods $[W_1,W_2]$ generating
  the same lattice such that $\tau := W_1/W_2$ has positive imaginary part
  and lies in the standard fundamental domain for $\text{SL}_2(\Z)$.
 

@@ -5,7 +5,7 @@ Prototype: GDG
 Help: ellap(E,{p}): computes the trace of Frobenius a_p for the elliptic
  curve E, defined over Q or a finite field.
 Doc:
- Let $E$ be an \var{ell} structure as output by \kbd{ellinit}, defined over
+ Let $E$ be an \kbd{ell} structure as output by \kbd{ellinit}, defined over
  $\Q$ or a finite field $\F_q$. The argument $p$ is best left omitted if the
  curve is defined over a finite field, and must be a prime number otherwise.
  This function computes the trace of Frobenius $t$ for the elliptic curve $E$,

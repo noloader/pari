@@ -25,7 +25,7 @@ Doc: Given \var{nf} a number field in \var{nf} or \var{bnf} format,
  is restricted to be a prime power for the search, and to be prime for the
  construction because of the \kbd{rnfkummer} restrictions.
 
- When \var{nf} is $\Q$, prime integers are accepted instead of \var{prid}
+ When \var{nf} is $\Q$, prime integers are accepted instead of \kbd{prid}
  structures. However, their primality is not checked and the behaviour is
  undefined if you provide a composite number.
 

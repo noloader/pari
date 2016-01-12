@@ -90,7 +90,7 @@ Doc: \var{pol} being a non-constant,
  monic one, then reduce it (see $\fl=3$). It is allowed, though not very
  useful given the existence of \tet{nfnewprec}, to input a \var{nf} or a
  \var{bnf} instead of a polynomial. It is also allowed to
- input a \var{rnf}, in which case an \var{nf} structure associated to the
+ input a \var{rnf}, in which case an \kbd{nf} structure associated to the
  absolute defining polynomial \kbd{polabs} is returned (\fl is then ignored).
 
  \bprog

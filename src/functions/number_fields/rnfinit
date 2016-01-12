@@ -22,7 +22,7 @@ Doc: $\var{nf}$ being a number field in \kbd{nfinit}
  data organization specified below will change in the future.
 
  Note that a subsequent \kbd{nfinit}$(\var{rnf})$ will explicitly add an
- \var{nf} structure associated to $L$ to \var{rnf} (and return it as well).
+ \kbd{nf} structure associated to $L$ to \var{rnf} (and return it as well).
  This is likely to be very expensive if the absolute degree $mn$ is large,
  but fixes an integer basis for $\Z_L$ as a $\Z$-module and allows to input
  and output elements of $L$ in absolute form: as \typ{COL} for elements,

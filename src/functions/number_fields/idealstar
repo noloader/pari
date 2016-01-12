@@ -14,7 +14,7 @@ Help: idealstar({nf},N,{flag=1}): gives the structure of (Z_K/N)^*, where N is
  that the generators are also given.
  If nf is omitted, N must be an integer and
  we return the structure of (Z/NZ)^*.
-Doc: outputs a \var{bid} structure,
+Doc: outputs a \kbd{bid} structure,
  necessary for computing in the finite abelian group $G = (\Z_K/N)^*$. Here,
  \var{nf} is a number field and $N$ is a \var{modulus}: either an ideal in any
  form, or a row vector whose first component is an ideal and whose second
@@ -29,7 +29,7 @@ Doc: outputs a \var{bid} structure,
  \kbd{\var{bid}.cyc} (elementary divisors) and
  \kbd{\var{bid}.gen} (generators).
 
- If $\fl=1$ (default), the result is a \var{bid} structure without
+ If $\fl=1$ (default), the result is a \kbd{bid} structure without
  generators: they are well defined but not explicitly computed, which saves
  time.
 

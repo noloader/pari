@@ -13,7 +13,7 @@ Description:
  (gen, 1):bnf:prec        Buchall($1, nf_FORCE, $prec)
  (gen, ?small, ?gen):bnf:prec        bnfinit0($1, $2, $3, $prec)
 Doc: initializes a
- \var{bnf} structure. Used in programs such as \kbd{bnfisprincipal},
+ \kbd{bnf} structure. Used in programs such as \kbd{bnfisprincipal},
  \kbd{bnfisunit} or \kbd{bnfnarrow}. By default, the results are conditional
  on the GRH, see \ref{se:GRHbnf}. The result is a
  10-component vector \var{bnf}.

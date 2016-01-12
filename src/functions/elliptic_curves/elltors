@@ -10,7 +10,7 @@ Doc:
  where \kbd{t} is the order of the torsion group, \kbd{v1} gives the structure
  of the torsion group as a product of cyclic groups (sorted by decreasing
  order), and \kbd{v2} gives generators for these cyclic groups. $E$ must be an
- \var{ell} structure as output by \kbd{ellinit}.
+ \kbd{ell} structure as output by \kbd{ellinit}.
  \bprog
  ?  E = ellinit([-1,0]);
  ?  elltors(E)

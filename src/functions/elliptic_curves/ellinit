@@ -50,9 +50,9 @@ Doc:
  \kbd{precision}$(x)$. If no such argument is given, the value of
  \kbd{realprecision} at the time \kbd{ellinit} is called will be used.
 
- \item a number field $K$, given by a \var{nf} or \var{bnf} structure.
+ \item a number field $K$, given by a \kbd{nf} or \kbd{bnf} structure.
 
- \item a prime ideal $\goth{p}$, given by a \var{prid} structure; valid if
+ \item a prime ideal $\goth{p}$, given by a \kbd{prid} structure; valid if
  $x$ is a curve defined over a number field $K$ and the equation is integral
  and minimal at $\goth{p}$.
 

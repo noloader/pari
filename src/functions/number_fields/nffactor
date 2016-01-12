@@ -28,5 +28,5 @@ Doc: factorization of the univariate
  compute the field discriminant due to integer factorization difficulties. In
  the latter case, if you must use a partial discriminant factorization (as
  allowed by both \tet{nfdisc} or \tet{nfbasis}) to build a partially correct
- \var{nf} structure, always input \kbd{nf.pol} to \kbd{nffactor}, and not your
+ \kbd{nf} structure, always input \kbd{nf.pol} to \kbd{nffactor}, and not your
  makeshift \var{nf}: otherwise factors could be missed.

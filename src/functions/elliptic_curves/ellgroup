@@ -4,7 +4,7 @@ C-Name: ellgroup0
 Prototype: GDGD0,L,
 Help: ellgroup(E,{p},{flag}): computes the structure of the group E(Fp)
  If flag is 1, return also generators.
-Doc: Let $E$ be an \var{ell} structure as output by \kbd{ellinit}, defined over
+Doc: Let $E$ be an \kbd{ell} structure as output by \kbd{ellinit}, defined over
  $\Q$ or a finite field $\F_q$. The argument $p$ is best left omitted if the
  curve is defined over a finite field, and must be a prime number otherwise.
  This function computes the structure of the group $E(\F_q) \sim \Z/d_1\Z

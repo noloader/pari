@@ -12,7 +12,7 @@ Description:
 Doc:
  calculates the arithmetic conductor, the global
  minimal model of $E$ and the global \idx{Tamagawa number} $c$.
- $E$ must be an \var{ell} structure as output by \kbd{ellinit}, defined over
+ $E$ must be an \kbd{ell} structure as output by \kbd{ellinit}, defined over
  $\Q$. The result is a vector $[N,v,c,F,L]$, where
 
  \item $N$ is the arithmetic conductor of the curve,

@@ -10,7 +10,7 @@ Help: lfunartin(nf,gal,M,n): returns the Ldata structure associated to the
  of the image of the generators G.gen by R. The elements of M are matrices
  with polynomial entries, whose variable is understood as the complex
  number exp(2*I*Pi/n).
-Doc: returns the Ldata structure associated to the
+Doc: returns the \kbd{Ldata} structure associated to the
  Artin $L$-function associated to the representation $\rho$ of the Galois group
  of the extension $K/\Q$, defined over the cyclotomic field $\Q(\zeta_n)$,
  where \var{nf} is the nfinit structure associated to $K$,

@@ -27,7 +27,7 @@ Doc: Given a \var{bid} associated to $(\Z/q\Z)^*$ (as per
  \item congruent to $-1$ mod $2^{e_2}$.
 
  Then the $g_p$ (and the extra $g_{-1}$ if $e_2\geq 3$) are independent
- generators of $\Z/q\Z^*$, i.e. every $m$ in $(\Z/q\Z)^*$ can be written
+ generators of $(\Z/q\Z)^*$, i.e. every $m$ in $(\Z/q\Z)^*$ can be written
  uniquely as $\prod_p g_p^{m_p}$, where $m_p$ is defined modulo the order
  $o_p$ of $g_p$
  and $p \in S_q$, the set of prime divisors of $q$ together with $-1$
@@ -50,7 +50,7 @@ Doc: Given a \var{bid} associated to $(\Z/q\Z)^*$ (as per
  as elements in $(\Z/q\Z)^*$ is never used.
 
  \bprog
- ? G = idealstar(,8, /*add generators for debugging:*/2);
+ ? G = idealstar(,8,2); /*add generators for debugging:*/
  ? G.cyc
  %2 = [2, 2]  \\ Z/2 x Z/2
  ? G.gen
