@@ -53,12 +53,11 @@ Doc: $\var{bnf}$ being the \sidx{principal ideal}
  @eprog
 
  \item $2$: It may not be possible to recover $t$, given the initial accuracy
- to which \kbd{bnf} was computed. In that case, a warning is printed and $t$ is
- set equal to the empty vector \kbd{[]\til}. If this bit is set,
- increase the precision and recompute needed quantities until $t$ can be
- computed. Warning: setting this may induce \emph{very} lengthy computations.
+ to which the \kbd{bnf} structure was computed. In that case, a warning is
+ printed and $t$ is set equal to the empty vector \kbd{[]\til}. If this bit is
+ set, increase the precision and recompute needed quantities until $t$ can be
+ computed. Warning: setting this may induce \emph{lengthy} computations.
 Variant: Instead of the above hardcoded numerical flags, one should
  rather use an or-ed combination of the symbolic flags \tet{nf_GEN} (include
  generators, possibly a place holder if too difficult) and \tet{nf_FORCE}
  (insist on finding the generators).
-
