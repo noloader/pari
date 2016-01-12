@@ -1113,6 +1113,7 @@ GEN
 diviiexact(GEN x, GEN y)
 {
   /*TODO: use mpn_bdivmod instead*/
+  if (!signe(y)) pari_err_INV("diviiexact",y);
   return divii(x,y);
 }
 #endif
