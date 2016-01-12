@@ -1185,15 +1185,12 @@ GEN
 gsqrpowers(GEN q, long n)
 {
   pari_sp av = avma;
-  GEN q1 = q, q2 = gsqr(q), v = cgetg(n+1, t_VEC);
+  GEN L = gpowers0(gsqr(q), n, q); /* L[i] = q^(2i - 1), i <= n+1 */
+  GEN v = cgetg(n+1, t_VEC);
   long i;
-  gel(v, 1) = q;
-  for (i = 2; i <= n ; ++i)
-  {
-    q1 = gmul(q1, q2); /* q^(2i-1) */
-    gel(v, i) = q = gmul(q, q1); /* q^(i^2) */
-  }
-  return gerepilecopy(av, v);
+  gel(v, 1) = gcopy(q);
+  for (i = 2; i <= n ; ++i) gel(v, i) = q = gmul(q, gel(L,i)); /* q^(i^2) */
+  return gerepileupto(av, v);
 }
 
 /* 4 | N. returns a vector RU which contains exp(2*i*k*Pi/N), k=0..N-1 */
