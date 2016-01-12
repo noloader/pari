@@ -31,11 +31,17 @@ Doc:  Compute the conductor of the given $L$-function
   proven in any way:
   \bprog
   ? L = lfuncreate(857); \\ Dirichlet L function for kronecker(857,.)
+  ? \p19
+    realprecision = 19 significant digits
   ? lfunconductor(L)
   %2 = [17, 857]
   ? lfunconductor(L,,1) \\ don't round
-  %3 = [16.999999999999999993212378261571896376, \
-        857.00000000000000000000000000000000000]
+  %3 = [16.99999999999999999, 857.0000000000000000]
+
+  ? \p38
+    realprecision = 38 significant digits
+  ? lfunconductor(L)
+  %4 = 857
   @eprog
 
   \misctitle{Note} This program should only be used if the primes dividing the
