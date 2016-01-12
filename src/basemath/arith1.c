@@ -638,26 +638,19 @@ znconreyconductor(GEN bid, GEN chi, GEN *pm)
   E = leafcopy(E);
   m = cgetg(l, t_VEC);
   e2 = (E[1] >= 3 && equaliu(gel(P,1),2));
-  i = 1;
+  i = j = 1;
   if (e2)
   { /* two generators at p=2 */
     GEN a1 = gel(chi,1), a = gel(chi,2);
+    i = 3;
     if (!signe(a))
     {
       if (signe(a1))
       { /* lose one generator */
-        P = vecslice(P,2, l-1);
-        E = vecslice(E,2, l-1);
-        m = vecslice(m,2, l-1);
         E[1] = 2;
-        gel(m,1) = a1; i = 2;
-      }
-      else /* lose both */
-      {
-        P = vecslice(P,3, l-1);
-        E = vecslice(E,3, l-1);
-        m = vecslice(m,3, l-1);
-      }
+        gel(m,1) = a1;
+        j = 2;
+      } /* else lose both */
       primitive = 0;
       e2 = 0; /* primitive char no longer has two components at 2 */
     }
@@ -666,11 +659,12 @@ znconreyconductor(GEN bid, GEN chi, GEN *pm)
       long v = Z_pvalrem(a, gen_2, &a);
       if (v) { E[1] -= v; primitive = 0; }
       gel(m,1) = a1;
-      gel(m,2) = a; i = 3;
+      gel(m,2) = a;
+      j = 3;
     }
   }
   l = lg(P);
-  for (j = i; i < l; i++)
+  for (; i < l; i++)
   {
     GEN p = gel(P,i), a = gel(chi,i);
     /* image of g_i in Q/Z is a/cycg[i], cycg[i] = order(g_i) */
