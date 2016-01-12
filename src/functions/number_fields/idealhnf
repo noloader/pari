@@ -6,7 +6,7 @@ Help: idealhnf(nf,u,{v}): hermite normal form of the ideal u in the number
  field nf if v is omitted. If called as idealhnf(nf,u,v), the ideal
  is given as uZ_K + vZ_K in the number field K defined by nf.
 Doc: gives the \idx{Hermite normal form} of the ideal $u\Z_K+v\Z_K$, where $u$
- and $v$ are elements of the number field $K$ defined by \kbd{nf}.
+ and $v$ are elements of the number field $K$ defined by \var{nf}.
  \bprog
  ? nf = nfinit(y^3 - 2);
  ? idealhnf(nf, 2, y+1)

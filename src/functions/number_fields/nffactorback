@@ -4,7 +4,7 @@ C-Name: nffactorback
 Prototype: GGDG
 Help: nffactorback(nf,f,{e}): given a factorisation f, returns
  the factored object back as an nf element.
-Doc: gives back the \kbd{nf} element corresponding to a factorization.
+Doc: gives back the \var{nf} element corresponding to a factorization.
  The integer $1$ corresponds to the empty factorization.
 
  If $e$ is present, $e$ and $f$ must be vectors of the same length ($e$ being
