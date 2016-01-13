@@ -9,7 +9,7 @@ Help: ellpadicL(E, p, n, {r = 0}, {D}, {char}): returns the value
 Doc:
   The $p$-adic $L$ function is defined on the set of continuous characters
   of $\text{Gal}(\Q(\mu_{p^{\infty}})/ \Q)$, identified to $\Z_p^*$
-  via the cyclotomic character $\chi_p$ with values in $\overline{Q_p}^*$.
+  via the cyclotomic character $\chi_p$ with values in $\overline{\Q_p}^*$.
   Denote by $\tau:\Z_p^*\to\Z_p^*$ the Teichm\"uller character.
 
   When $E$ has good supersingular reduction, the $L$ function takes its
@@ -42,23 +42,23 @@ Doc:
   ? L = ellpadicL(e,p,4);
   ? F = [0,-p;1,ellap(e,p)]; \\ Frobenius matrix in the basis (omega,F(omega)
   ? (1-p^(-1)*F)^-2 * L~ / cxL(e)
-  %4 = [1 + O(3^4), O(3^4)]~
+  %5 = [1 + O(3^4), O(3^4)]~
 
   ? p=5; ap = ellap(e,p); \\ ordinary
   ? L = ellpadicL(e,p,4);
   ? al = padicappr(x^2 - ap*x + p, ap + O(p^7))[1];
   ? (1-al^(-1))^(-2) * L / cxL(e)
-  %8 = 1 + O(5^4)
+  %10 = 1 + O(5^4)
 
   ? e = ellinit("116a1"); p=3; \\ supersingular
   ? L = ellpadicL(e,p,4);
   ? F = [0,-p; 1,ellap(e,p)];
   ? (1-p^(-1)*F)^-2*L~ / cxL(e)
-  %12 = [1 + O(3^4), O(3^5)]~
+  %15 = [1 + O(3^4), O(3^5)]~
 
   ? e = ellinit("26b1"); p=3;
   ? L = ellpadicL(e,p,4);
   ? F = [0,-p;1,ellap(e,p)];
   ? (1-p^(-1)*F)^-2*L~ / cxL(e)
-  %16 = [1 + O(3^4), O(3^5)]~
+  %20 = [1 + O(3^4), O(3^5)]~
   @eprog

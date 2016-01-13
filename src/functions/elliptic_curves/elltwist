@@ -8,7 +8,7 @@ Help: elltwist(E,{P}): returns the coefficients [a1,a2,a3,a4,a6] of
  If E is defined over a finite field, then P can be omitted.
 Doc: returns the coefficients $[a_1,a_2,a_3,a_4,a_6]$ of the twist of the
  elliptic curve $E$ by the quadratic extension of the coefficient ring
- defined by $P$ (when $P$ is a polynomial) or \kbd{quadpoly(P)} when P is an
+ defined by $P$ (when $P$ is a polynomial) or \kbd{quadpoly(P)} when $P$ is an
  integer.  If $E$ is defined over a finite field, then $P$ can be omitted,
  in which case a random model of the unique non-trivial twist is returned.
 

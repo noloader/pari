@@ -14,4 +14,4 @@ Doc:
  $\omega = dx/(2\*y)$ is the invariant differential, where $g$ is the genus of
  $X$ (either $d=2\*g+1$ or $d=2\*g+2$).  The characteristic polynomial of
  $\varphi$ is the numerator of the zeta-function of the reduction of the curve
- $X$ modlo $p$. The matrix is computed to absolute $p$-adic precision $p^n$.
+ $X$ modulo $p$. The matrix is computed to absolute $p$-adic precision $p^n$.

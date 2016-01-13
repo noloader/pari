@@ -6,12 +6,12 @@ Help: ellisomat(E, {fl=0}): E being an elliptic curve over Q, return a list of
  representatives of the isomorphism classes of elliptic curves isogenous to E,
  with the corresponding isogenies from E and their dual, and the matrix of the
  degrees of the isogenies between the curves. If the flag fl is 1, the
- isogenies are not computed, which speed up the computation.
+ isogenies are not computed, which speeds up the computation.
 Doc:
  Given an elliptic curve $E$ defined over $\Q$, compute representatives of the
  isomorphism classes of elliptic curves $\Q$-isogenous to $E$. The function
  returns a vector $[L,M]$ where $L$ is a list of couples $[E_i, f_i, g_i]$, where
- $E_i$ is an elliptic curve, $f_i$ is a rationale isogeny from $E$ to $E_i$,
+ $E_i$ is an elliptic curve, $f_i$ is a rational isogeny from $E$ to $E_i$,
  and $g_i$ is the dual isogeny of $f_i$ from $E_i$ to $E$,
  and $M$ is the matrix such that $M_{i,j}$ is the degree of the isogeny between
  $E_i$ and $E_j$.
@@ -23,17 +23,17 @@ Doc:
  ? [L,M]=ellisomat(E);
  ? L
  ? apply(x->x[1],L)
- %3 = [[215/48,-5291/864],[-675/16,6831/32],[-8185/48,-742643/864],
+ %4 = [[215/48,-5291/864],[-675/16,6831/32],[-8185/48,-742643/864],
       [-1705/48,-57707/864],[-13635/16,306207/32],[-131065/48,-47449331/864]]
  ? L[2][2]
- %4 = [x^3+3/4*x^2+19/2*x-311/12,
+ %5 = [x^3+3/4*x^2+19/2*x-311/12,
        1/2*x^4+(y+1)*x^3+(y-4)*x^2+(-9*y+23)*x+(55*y+55/2),x+1/3]
  ? L[2][3]
- %5 = [1/9*x^3-1/4*x^2-141/16*x+5613/64,
+ %6 = [1/9*x^3-1/4*x^2-141/16*x+5613/64,
        -1/18*x^4+(1/27*y-1/3)*x^3+(-1/12*y+87/16)*x^2+(49/16*y-48)*x
        +(-3601/64*y+16947/512),x-3/4]
  ? M
- %6 = [1,3,3,2,6,6;3,1,9,6,2,18;3,9,1,6,18,2;2,6,6,1,3,3;6,2,18,3,1,9;6,18,2,3,9,1]
+ %7 = [1,3,3,2,6,6;3,1,9,6,2,18;3,9,1,6,18,2;2,6,6,1,3,3;6,2,18,3,1,9;6,18,2,3,9,1]
  ? apply(E->ellidentify(ellinit(E[1]))[1][1],L)
- %7 = ["14a1","14a4","14a3","14a2","14a6","14a5"]
+ %8 = ["14a1","14a4","14a3","14a2","14a6","14a5"]
  @eprog
