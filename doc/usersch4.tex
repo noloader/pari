@@ -1702,7 +1702,7 @@ There are two similar functions available to parse a string:
 
 \fun{GEN}{gp_read_str}{const char *s}\label{se:gp_read_str}
 
-\fun{GEN}{gp_read_str_multiline}{const char *s}
+\fun{GEN}{gp_read_str_multiline}{const char *s, char *last}
 
 \noindent
 Both functions read the whole string \kbd{s}. The function
@@ -1713,6 +1713,12 @@ The function \kbd{gp\_read\_str\_multiline} processes the text in the
 same way as the GP command \tet{read}: newlines are significant and can
 be used to separate expressions.
 The return value is that of the last non-empty expression evaluated.
+
+In \kbd{gp\_read\_str\_multiline}, if \kbd{last} is non-\kbd{NULL},
+then \kbd{*last} receives the last character from the \emph{filtered}
+input: this can be used to check if the last character was a semi-colon
+(to hide the output in interactive usage). If (and only if) the
+input contains no statements, then \kbd{*last} is set to \kbd{0}.
 
 For both functions, \kbd{gp}'s metacommands \emph{are} recognized.
 
