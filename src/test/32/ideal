@@ -23,17 +23,17 @@
 [2, [2], [5]]
   ***   at top-level: ideallog(,0,z)
   ***                 ^--------------
-  *** ideallog: elements not coprime in Zideallog:
+  *** ideallog: elements not coprime in znconreylog:
     0
     6
   ***   at top-level: ideallog(,2,z)
   ***                 ^--------------
-  *** ideallog: elements not coprime in Zideallog:
+  *** ideallog: elements not coprime in znconreylog:
     2
     6
   ***   at top-level: ideallog(,3,z)
   ***                 ^--------------
-  *** ideallog: elements not coprime in Zideallog_pk:
+  *** ideallog: elements not coprime in znconreylog:
     3
     6
   ***   at top-level: ideallog(Q,3,z)
@@ -41,7 +41,7 @@
   *** ideallog: incorrect type in checkbid (t_VEC).
   ***   at top-level: ideallog(,3,zQ)
   ***                 ^---------------
-  *** ideallog: incorrect type in ideallog (t_VEC).
+  *** ideallog: incorrect type in znconreylog (t_VEC).
 
 [1 0 0 0 0]
 
