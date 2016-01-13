@@ -101,6 +101,12 @@ znconreyconductor(G,1009,&chi0)
 chi0
 znconreyconductor(G,82127,&chi0)
 chi0
+znconreyexp(G, znconreylog(G, 1009))
+znconreyexp(G, znconreylog(G, 82127))
+chi=[100,1,0,1,0];
+l=znconreylog(G, chi)
+znconreychar(G,l) == chi
+znconreyexp(G,l)
 
 G=idealstar(,1);
 znconreychar(G,1)

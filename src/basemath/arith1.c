@@ -494,12 +494,13 @@ checkbidZ_i(GEN G)
 GEN
 znconreyfromchar(GEN bid, GEN chi)
 {
-  GEN nchi, U = bid_get_U(bid), L = gel(bid,4), cycg = gel(L,5);
+  GEN v, nchi, U = bid_get_U(bid), L = gel(bid,4), cycg = gel(L,5);
   long l = lg(chi);
   if (l == 1) return chi;
   if (!RgV_is_ZV(chi) || lgcols(U) != l) pari_err_TYPE("lfunchiZ", chi);
   nchi = char_normalize(chi, cyc_normalize(bid_get_cyc(bid)));
-  return char_denormalize(cycg, gel(nchi,1), ZV_ZM_mul(gel(nchi,2),U));
+  v = char_denormalize(cycg, gel(nchi,1), ZV_ZM_mul(gel(nchi,2),U));
+  settyp(v, t_COL); return v;
 }
 
 /* discrete log on canonical "primitive root" generators
@@ -510,9 +511,9 @@ znconreylog(GEN bid, GEN x)
   pari_sp av = avma;
   GEN N, L, F, P,E, y, pe, fao, gen, lo, cycg;
   long i, l;
-  if (!checkbidZ_i(bid)) pari_err_TYPE("ideallog", bid);
+  if (!checkbidZ_i(bid)) pari_err_TYPE("znconreylog", bid);
   N = bid_get_ideal(bid);
-  if (typ(N) != t_INT) pari_err_TYPE("ideallog", N);
+  if (typ(N) != t_INT) pari_err_TYPE("znconreylog", N);
   if (cmpiu(N, 2) <= 0) return cgetg(1, t_COL);
   L = gel(bid,4);
   cycg = gel(L,5);
@@ -520,7 +521,7 @@ znconreylog(GEN bid, GEN x)
   {
     GEN Ui;
     case t_INT:
-      if (!signe(x)) pari_err_COPRIME("Zideallog", x, N);
+      if (!signe(x)) pari_err_COPRIME("znconreylog", x, N);
       break;
     case t_COL: /* log_bid(x) */
       Ui = gel(L,3);
@@ -540,7 +541,7 @@ znconreylog(GEN bid, GEN x)
 
   l = lg(gen); i = 1;
   y = cgetg(l, t_COL);
-  if (!mod2(N) && !mod2(x)) pari_err_COPRIME("Zideallog", x, N);
+  if (!mod2(N) && !mod2(x)) pari_err_COPRIME("znconreylog", x, N);
   if (equaliu(gel(P,1), 2) && E[1] >= 2)
   {
     if (E[1] == 2)
@@ -555,7 +556,7 @@ znconreylog(GEN bid, GEN x)
       { gel(y,i++) = gen_1; x2 = subii(q2, x2); }
       /* x2 = 3^x mod q  [i.e x2 is 1 or 3 mod 8] */
       a = Zideallog_2k(x2, gel(gen,i), E[1], q2);
-      if (!a) pari_err_COPRIME("Zideallog_2k", x, N);
+      if (!a) pari_err_COPRIME("znconreylog", x, N);
       gel(y, i++) = a;
     }
   }
@@ -563,7 +564,7 @@ znconreylog(GEN bid, GEN x)
   {
     GEN p = gel(P,i), q = gel(pe,i), xpe = modii(x, q);
     GEN a = Zideallog_pk(xpe, gel(gen,i), p, E[i], q, gel(fao,i), gel(lo,i));
-    if (!a) pari_err_COPRIME("Zideallog_pk", x, N);
+    if (!a) pari_err_COPRIME("znconreylog", x, N);
     gel(y, i++) = a;
   }
   return gerepilecopy(av, y);
@@ -576,32 +577,82 @@ Zideallog(GEN bid, GEN x)
   return gerepileupto(av, ZM_ZC_mul(U, y));
 }
 
+GEN
+znconreyexp(GEN bid, GEN x)
+{
+  pari_sp av = avma;
+  long i, l;
+  GEN L, pe, gen, cycg, v;
+  int e2;
+  switch(typ(x))
+  {
+    case t_VEC:
+      x = znconreylog(bid, x);
+      break;
+    case t_COL:
+      if (!checkbidZ_i(bid)) pari_err_TYPE("znconreyexp", bid);
+      if (RgV_is_ZV(x)) break;
+    default: pari_err_TYPE("znconreyexp",x);
+  }
+  L = gel(bid,4);
+  pe = gel(L,1);
+  gen = gel(L,4); /* local generators of (Z/p^k)^* */
+  cycg = gel(L,5);
+  l = lg(x); v = cgetg(l, t_VEC);
+  e2 = (l > 3 && !mod2(gel(pe,2))); /* 2 generators at p = 2 */
+  for (i = 1; i < l; i++)
+  {
+    GEN q, g, m;
+    if (i == 1 && e2) { gel(v,1) = NULL; continue; }
+    q = gel(pe,i);
+    g = gel(gen,i);
+    m = modii(gel(x,i), gel(cycg,i));
+    m = Fp_pow(g, m, q);
+    if (i == 2 && e2 && signe(gel(x,1))) m = Fp_neg(m, q);
+    gel(v,i) = mkintmod(m, q);
+  }
+  if (e2) v = vecslice(v, 2, l-1);
+  v = chinese1_coprime_Z(v);
+  return gerepilecopy(av, gel(v,2));
+}
+
 /* m a Conrey log [on the canonical primitive roots], cycg the primitive
  * roots orders */
 GEN
 conrey_normalize(GEN m, GEN cycg)
 {
-  long i, l = lg(m);
-  GEN d;
+  long i, l;
+  GEN d, M = cgetg_copy(m, &l);
   if (typ(cycg) != t_VEC || lg(cycg) != l)
     pari_err_TYPE("conrey_normalize",mkvec2(m,cycg));
-  for (i = 1; i < l; i++) gel(m,i) = gdiv(gel(m,i), gel(cycg,i));
+  for (i = 1; i < l; i++) gel(M,i) = gdiv(gel(m,i), gel(cycg,i));
   /* m[i]: image of primroot generators g_i in Q/Z */
-  m = Q_remove_denom(m, &d);
-  return mkvec2(d? d: gen_1, m);
+  M = Q_remove_denom(M, &d);
+  return mkvec2(d? d: gen_1, M);
 }
 /* Return Dirichlet character \chi_q(m,.), where bid = znstar(q).
  * Allow log(m) instead of m; m is either a t_INT, or a t_COL [its usual, not
- * Conrey's discrete log in bid], or a t_VEC [usual character on bid] */
+ * Conrey's discrete log in bid] */
 GEN
 znconreychar(GEN bid, GEN m)
 {
   pari_sp av = avma;
-  GEN d, c = znconreylog(bid,m);
-  GEN L = gel(bid,4), cycg = gel(L,5);
-  GEN nchi = conrey_normalize(c, cycg); /* images of primroot gens */
+  GEN c, d, L, Ui, cycg, nchi;
+
+  switch(typ(m))
+  {
+    case t_COL:
+    case t_INT:
+      m = znconreylog(bid,m); break;
+    default:
+      pari_err_TYPE("znconreychar",m);
+  }
+  L = gel(bid,4);
+  Ui = gel(L,3);
+  cycg = gel(L,5);
+  nchi = conrey_normalize(m, cycg); /* images of primroot gens */
   d = gel(nchi,1);
-  c = ZV_ZM_mul(gel(nchi,2), bid_get_U(bid)); /* images of bid gens */
+  c = ZV_ZM_mul(gel(nchi,2), Ui); /* images of bid gens */
   return gerepilecopy(av, char_denormalize(bid_get_cyc(bid),d,c));
 }
 

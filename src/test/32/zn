@@ -63,7 +63,7 @@ _MAT).")
 ], [7, 3, 0], [0, 0, 1]]
   ***   at top-level: znconreychar(G,2)
   ***                 ^-----------------
-  *** znconreychar: elements not coprime in Zideallog:
+  *** znconreychar: elements not coprime in znconreylog:
     2
     8
 [0, 0]
@@ -111,9 +111,14 @@ _MAT).")
 [14]
 [31500, [2, 2; 3, 2; 5, 3; 7, 1]]
 [1, 1, 1, 1]
+1009
+82127
+[0, 3, 3, 0, 2]~
+0
+18251
 []
 []~
 1
 1
 []~
-Total time spent: 1465
+Total time spent: 1422

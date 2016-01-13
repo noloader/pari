@@ -1632,6 +1632,7 @@ long    unegisfundamental(ulong x);
 long    uposisfundamental(ulong x);
 GEN     znconreychar(GEN bid, GEN m);
 GEN     znconreyconductor(GEN bid, GEN co, GEN *pm);
+GEN     znconreyexp(GEN bid, GEN x);
 GEN     znconreyfromchar(GEN bid, GEN chi);
 GEN     znconreylog(GEN bid, GEN x);
 GEN     znlog(GEN x, GEN g, GEN o);

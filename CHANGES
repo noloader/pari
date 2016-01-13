@@ -384,7 +384,8 @@ BA143- [arm64] add aarch64 assembly kernel
   145- [libpari] znstar0 with Idealstar semantic; could be made available under
        GP as default znstar, but current znstar/idealstar have incompatible
        defaults. Called by idealstar(,N).
-  146- [GP] znconreychar, znconreylog, znconreyconductor, charorder, charconj
+  146- [GP] znconreychar, znconreyexp, znconreylog, znconreyconductor,
+       charorder, charconj
 BA147- [GP] call (for calling closures).
   148- [GP] optional flag to forell [ loop over isogeny classes ]
 
