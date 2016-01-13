@@ -36,7 +36,7 @@ Variant: Also available are
  v, int compute_derivs} which returns the modular polynomial evaluated
  at $J$ modulo $P$ in the variable $v$ (if \kbd{compute\_derivs} is
  non-zero, returns a vector containing the modular polynomial and its
- first and second derivatives, all evaluted at $J$ modulo $P$).
+ first and second derivatives, all evaluated at $J$ modulo $P$).
 
 Function: _polmodular_worker
 Section: programming/internals

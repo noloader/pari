@@ -25,7 +25,7 @@ Doc: conductor $f$ of the subfield of a ray class field as defined by $[A,B,C]$
  In place of a subgroup $H$, this function also accepts a character
  \var{chi}  $=(a_j)$, expressed as usual in terms of the generators
  \kbd{bnr.gen}: $\chi(g_j) = \exp(2i\pi a_j / d_j)$, where $g_j$ has
- has order $d_j = \kbd{bnr.cyc[j]}$. In which case, the function returns
+ order $d_j = \kbd{bnr.cyc[j]}$. In which case, the function returns
  respectively
 
  If $\fl = 0$, the conductor $f$ of $\text{Ker} \chi$.

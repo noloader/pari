@@ -23,7 +23,7 @@ Doc: Let \var{bid} be associated to $(\Z/q\Z)^*$ (as per \kbd{bid =
  primitive character.
 
  \bprog
- ? G = idealstar(,126000)
+ ? G = idealstar(,126000);
  ? znconreyconductor(G,11)   \\ primitive
  %2 = 126000
  ? znconreyconductor(G,1)    \\ trivial character, not primitive!
