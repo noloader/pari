@@ -2009,7 +2009,7 @@ lfunzeros_bitprec(GEN ldata, GEN lim, long divz, long bitprec)
     GEN r = ldata_get_residue(ldataf);
     if (!r || gequal0(r))
     {
-      ct = lfunorderzero(linit, precinit);
+      ct = lfunorderzero_bitprec(linit, bitprec);
       if (ct) T = real2n(-prec2nbits(prec)/(2*ct), prec);
     }
   }
