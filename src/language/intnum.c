@@ -1550,10 +1550,12 @@ static GEN
 sumnummonieninit0(GEN a, GEN b, long k, long prec)
 {
   GEN c, M, vr, P, Q, Qp, R, vabs, vwt;
-  double bit = prec2nbits(prec) / gtodouble(a), D = bit*LOG2;
-  long m, j, n = (long)ceil(D/(log(D)-1));
+  double bit0, bit = prec2nbits(prec) / gtodouble(a), D = bit*LOG2;
+  long prec2, m, j, n = (long)ceil(D/(log(D)-1));
 
-  prec = nbits2prec(maxdd(2*bit, ceil((2*n+1)/LOG10_2)));
+  bit0 = ceil((2*n+1)*LOG2_10);
+  prec = nbits2prec(maxdd(2.05*bit, bit0));
+  prec2 = nbits2prec(maxdd(1.3*bit, bit0));
   if (k && k != 1) pari_err_IMPL("log power > 1 in sumnummonieninit");
   a = gprec_w(a, 2*prec-2);
   b = gprec_w(b, 2*prec-2);
@@ -1569,15 +1571,15 @@ sumnummonieninit0(GEN a, GEN b, long k, long prec)
   Qp = RgX_deriv(Q);
   if (gequal1(a))
   {
-    vabs = vr = monroots(Q, Qp, k, prec);
+    vabs = vr = monroots(Q, Qp, k, prec2);
     c = b;
   }
   else
   {
     GEN ai = ginv(a);
-    vr = real_i(roots(Q, prec));
+    vr = real_i(roots(Q, prec2));
     vabs = cgetg(n+1, t_VEC);
-    for (j = 1; j <= n; ++j) gel(vabs,j) = gpow(gel(vr,j), ai, prec);
+    for (j = 1; j <= n; ++j) gel(vabs,j) = gpow(gel(vr,j), ai, prec2);
     c = gdiv(b,a);
   }
   c = gsubgs(c,1); if (gequal0(c)) c = NULL;
@@ -1586,7 +1588,7 @@ sumnummonieninit0(GEN a, GEN b, long k, long prec)
   for (j = 1; j <= n; ++j)
   {
     GEN r = gel(vr,j), t = poleval(R,r);
-    if (c) t = gmul(t, gpow(r, c, prec));
+    if (c) t = gmul(t, gpow(r, c, prec2));
     gel(vwt,j) = t;
   }
   return mkvec2(vabs,vwt);
