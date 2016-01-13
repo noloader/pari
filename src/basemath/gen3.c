@@ -2851,6 +2851,7 @@ gtovecpost(GEN x, long n)
       for (i=1; i<=imax; i++) gel(y,i) = gcopy(gel(x,i));
       return y;
     case t_LIST:
+      if (list_typ(x) == t_LIST_MAP) pari_err_TYPE("gtovec",x);
       x = list_data(x); lx = x? lg(x): 1;
       imax = minss(lx-1, n);
       for (i=1; i<=imax; i++) gel(y,i) = gcopy(gel(x,i));
@@ -2896,6 +2897,7 @@ gtovecpre(GEN x, long n)
       for (i=1; i<=imax; i++) gel(y0,i) = gcopy(gel(x,i));
       return y;
     case t_LIST:
+      if (list_typ(x) == t_LIST_MAP) pari_err_TYPE("gtovec",x);
       x = list_data(x); lx = x? lg(x): 1;
       y0 = init_vectopre(lx-1, n, y, &imax);
       for (i=1; i<=imax; i++) gel(y0,i) = gcopy(gel(x,i));

@@ -40,6 +40,7 @@ if(tablelogdel(g,5^5-1),error("mapdelete"));
 
 M=Map([1,2;3,4;5,6])
 Vec(M)
+Vecrev(M)
 Mat(M)
 apply(sqr,M)
 for(i=0,2,mapput(M, 2*i+1, -mapget(M,2*i+1)));M
@@ -56,3 +57,5 @@ MV=[M0,M1,M2,M3,M4];
 M=Map([1,2;3,4;5,6]);
 mapget(M,7)
 mapdelete(M,7)
+Vec(M,1)
+Vec(M,-1)
