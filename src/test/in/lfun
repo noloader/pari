@@ -76,6 +76,8 @@ eno=0.97034015094661129913823708385122933694622592079653600382731368527378397016
 L=lfuncreate([n->my(V=charinit(101));vector(n,i,if(i%101,V[i%101])),1,[1],1,101,eno]);
 L=lfuninit(L,[1,1,1]);
 lfuncheckfeq(L)
+L=lfuninit(L,[1,1,1]);
+lfuncheckfeq(L)
 lfuncheckfeq(L,11/10)
 lfuncheckfeq(L,9/10)
 lfun(L,1)

@@ -1179,8 +1179,20 @@ lfuninit_bitprec(GEN lmisc, GEN dom, long der, long bitprec)
 GEN
 lfuninit(GEN lmisc, GEN dom, long der, long prec)
 {
-  GEN z = lfuninit_bitprec(lmisc, dom, der, prec2nbits(prec));
+  return lfuninit_bitprec(lmisc, dom, der, prec2nbits(prec));
+}
+
+GEN
+lfuninit0_bitprec(GEN lmisc, GEN dom, long der, long bitprec)
+{
+  GEN z = lfuninit_bitprec(lmisc, dom, der, bitprec);
   return z == lmisc? gcopy(z): z;
+}
+
+GEN
+lfuninit0(GEN lmisc, GEN dom, long der, long prec)
+{
+  return lfuninit0_bitprec(lmisc, dom, der, prec2nbits(prec));
 }
 
 /* If s is a pole of Lambda, return polar part at s; else return NULL */

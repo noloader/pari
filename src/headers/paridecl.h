@@ -3277,6 +3277,8 @@ GEN     lfunhardy(GEN ldata, GEN t, long prec);
 GEN     lfunhardy_bitprec(GEN ldata, GEN t, long bitprec);
 GEN     lfuninit(GEN ldata, GEN dom, long der, long prec);
 GEN     lfuninit_bitprec(GEN ldata, GEN dom, long der, long bitprec);
+GEN     lfuninit0(GEN ldata, GEN dom, long der, long prec);
+GEN     lfuninit0_bitprec(GEN ldata, GEN dom, long der, long bitprec);
 GEN     lfuninit_make(long t, GEN ldata, GEN molin, GEN domain);
 long    lfunisvgaell(GEN Vga, long flag);
 GEN     lfunlambda(GEN ldata, GEN s, long prec);
