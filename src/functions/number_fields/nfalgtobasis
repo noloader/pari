@@ -15,6 +15,6 @@ Doc: Given an algebraic number $x$ in the number field $\var{nf}$,
  ? nfalgtobasis(nf, y)
  %4 = [0, 2]~
  ? nfalgtobasis(nf, Mod(y, y^2+4))
- %4 = [0, 2]~
+ %5 = [0, 2]~
  @eprog
  This is the inverse function of \kbd{nfbasistoalg}.

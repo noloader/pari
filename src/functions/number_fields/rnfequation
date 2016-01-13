@@ -42,13 +42,13 @@ Doc: given a number field
  ? T = y^3-2; pol = x^2 +x*y + y^2;
  ? [z,a,k] = rnfequation(T, pol, 1);
  ? z
- %4 = x^6 + 108
+ %3 = x^6 + 108
  ? subst(T, y, a)
- %5 = 0
+ %4 = 0
  ? alpha= Mod(y, T);
  ? beta = Mod(x*Mod(1,T), pol);
  ? subst(z, x, beta + k*alpha)
- %8 = 0
+ %7 = 0
  @eprog
 
 Variant: Also available are

@@ -36,5 +36,5 @@ Doc:
  ? La = ideallistarch(bnf, L, [1,1]);
  ? H = bnrclassnolist(bnf, La);
  ? H[98];
- %6 = [2, 12, 2]
+ %4 = [2, 12, 2]
  @eprog

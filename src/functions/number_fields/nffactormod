@@ -21,6 +21,7 @@ Doc: factors the univariate polynomial $Q$ modulo the prime ideal \var{pr} in
  [x + (2*y + 2) 1]
  ? P = nfmodprinit(K, P);  \\ convert to nfmodprinit format
  ? nffactormod(K, x^2 + y*x + 18*y+1)
+ %5 =
  [x + (2*y + 1) 1]
 
  [x + (2*y + 2) 1]

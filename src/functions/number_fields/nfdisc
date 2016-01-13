@@ -25,11 +25,11 @@ Doc: \idx{field discriminant} of the number field defined by the integral,
  \bprog
  ? padicdisc(T,p) = p^valuation(nfdisc(T,[p]), p);
  ? nfdisc(x^2 + 6)
- %1 = -24
+ %2 = -24
  ? padicdisc(x^2 + 6, 2)
- %2 = 8
+ %3 = 8
  ? padicdisc(x^2 + 6, 3)
- %3 = 3
+ %4 = 3
  @eprog
 
  \synt{nfdisc}{GEN T} (\kbd{listP = NULL}). Also available is

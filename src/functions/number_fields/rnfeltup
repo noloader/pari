@@ -13,9 +13,9 @@ Doc: $\var{rnf}$ being a relative number field extension $L/K$ as output by
  ? L.pol
  %2 = x^4 + 1
  ? rnfeltup(L, Mod(y, K.pol))
- %4 = Mod(x^2, x^4 + 1)
+ %3 = Mod(x^2, x^4 + 1)
  ? rnfeltup(L, y)
- %5 = Mod(x^2, x^4 + 1)
+ %4 = Mod(x^2, x^4 + 1)
  ? rnfeltup(L, [1,2]~) \\ in terms of K.zk
- %6 = Mod(2*x^2 + 1, x^4 + 1)
+ %5 = Mod(2*x^2 + 1, x^4 + 1)
  @eprog

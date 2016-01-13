@@ -21,9 +21,9 @@ Doc: let $\var{nf}$ be a
   %4 = Mod(-x, x^2 + 1)
   ? P = idealprimedec(nf,5); /* prime ideals above 5 */
   ? nfgaloisapply(nf, aut, P[2]) == P[1]
-  %7 = 0 \\ !!!!
+  %6 = 0 \\ !!!!
   ? idealval(nf, nfgaloisapply(nf, aut, P[2]), P[1])
-  %8 = 1
+  %7 = 1
  @eprog\noindent The surprising failure of the equality test (\kbd{\%7}) is
  due to the fact that although the corresponding prime ideals are equal, their
  representations are not. (A prime ideal is specified by a uniformizer, and

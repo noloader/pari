@@ -48,19 +48,19 @@ Doc: Let \var{nf} be a number field structure attached to the field $K$
  ? L = nfcompositum(K, x^5 - y, polcyclo(5), 1); \\@com list of $[R,a,b,k]$
  ? [R, a] = L[1];  \\@com pick the single factor, extract $R,a$ (ignore $b,k$)
  ? lift(R)         \\@com defines the compositum
- %3 = x^10 + (-5/2*y + 5/2)*x^9 + (-5*y + 20)*x^8 + (-20*y + 30)*x^7 + \
+ %4 = x^10 + (-5/2*y + 5/2)*x^9 + (-5*y + 20)*x^8 + (-20*y + 30)*x^7 + \
  (-45/2*y + 145/2)*x^6 + (-71/2*y + 121/2)*x^5 + (-20*y + 60)*x^4 +    \
  (-25*y + 5)*x^3 + 45*x^2 + (-5*y + 15)*x + (-2*y + 6)
  ? a^5 - y         \\@com a fifth root of $y$
- %4 = 0
+ %5 = 0
  ? [T, X] = rnfpolredbest(K, R, 1);
  ? lift(T)     \\@com simpler defining polynomial for $K[x]/(R)$
- %6 = x^10 + (-11/2*y + 25/2)
+ %7 = x^10 + (-11/2*y + 25/2)
  ? liftall(X)  \\ @com root of $R$ in $K[x]/(T(x))$
- %7 = (3/4*y + 7/4)*x^7 + (-1/2*y - 1)*x^5 + 1/2*x^2 + (1/4*y - 1/4)
+ %8 = (3/4*y + 7/4)*x^7 + (-1/2*y - 1)*x^5 + 1/2*x^2 + (1/4*y - 1/4)
  ? a = subst(a.pol, 'x, X);  \\@com \kbd{a} in the new coordinates
  ? liftall(a)
- %8 = (-3/4*y - 7/4)*x^7 - 1/2*x^2
+ %10 = (-3/4*y - 7/4)*x^7 - 1/2*x^2
  ? a^5 - y
- %9 = 0
+ %11 = 0
  @eprog

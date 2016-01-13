@@ -15,6 +15,6 @@ Doc: Given an algebraic number $x$ in the number field \var{nf}, transforms it
  ? nfbasistoalg(nf, y)
  %4 = Mod(y, y^2 + 4)
  ? nfbasistoalg(nf, Mod(y, y^2+4))
- %4 = Mod(y, y^2 + 4)
+ %5 = Mod(y, y^2 + 4)
  @eprog
  This is the inverse function of \kbd{nfalgtobasis}.
