@@ -13,11 +13,11 @@ Doc: If $E$ is an elliptic curve, return the coordinates $x(t), y(t)$ in the
  Return $n$ terms (\tet{seriesprecision} by default) of these two power
  series, whose coefficients are in $\Z[a_1,a_2,a_3,a_4,a_6]$.
  \bprog
- ? E = ellinit([0,0,1,-1,0]); [x,y] = ellformalpoint(E,8);
+ ? E = ellinit([0,0,1,-1,0]); [x,y] = ellformalpoint(E,8,'t);
  ? x
- %2 = x^-2 - x + x^2 - x^4 + 2*x^5 + O(x^6)
+ %2 = t^-2 - t + t^2 - t^4 + 2*t^5 + O(t^6)
  ? y
- %3 = -x^-3 + 1 - x + x^3 - 2*x^4 + O(x^5)
+ %3 = -t^-3 + 1 - t + t^3 - 2*t^4 + O(t^5)
  ? E = ellinit([0,1/2]); ellformalpoint(E,7)
  %4 = [x^-2 - 1/2*x^4 + O(x^5), -x^-3 + 1/2*x^3 + O(x^4)]
  @eprog

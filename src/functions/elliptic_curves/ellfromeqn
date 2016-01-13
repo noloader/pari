@@ -22,7 +22,7 @@ Doc:
 
  \bprog
  ? e = ellfromeqn(a*x^2+y^2-(1+d*x^2*y^2))
- %1 = [0,-a-d,0,-4*d*a,4*d*a^2+4*d^2*a]
+ %1 = [0, -a - d, 0, -4*d*a, 4*d*a^2 + 4*d^2*a]
  ? E = ellinit(ellfromeqn(y^2-x^2 - 1 +(121665/121666*x^2*y^2)),2^255-19);
  ? ellcard(E)
  %2 = 57896044618658097711785492504343953926856930875039260848015607506283634007912
@@ -31,7 +31,7 @@ Doc:
  The elliptic curve associated to the sum of two cubes is given by
  \bprog
  ? ellfromeqn(x^3+y^3-a)
- %1 = [0,0,-9*a,0,-27*a^2]
+ %1 = [0, 0, -9*a, 0, -27*a^2]
  @eprog
 
  \misctitle{Congruent number problem:}
@@ -42,11 +42,11 @@ Doc:
  We set $x=a$, $y=a\*c$.
  \bprog
  ? ellfromeqn((x^2+(2*n/x)^2-(y/x)^2)*x^2)
- %1 = [0,0,0,-16*n^2,0]
+ %1 = [0, 0, 0, -16*n^2, 0]
  @eprog
  For example $23$ is congruent since the curve has a point of infinite order,
  namely:
  \bprog
  ? ellheegner(ellinit(subst([0,0,0,-16*n^2,0],n,23)))
- %2 = [168100/289,68053440/4913]
+ %2 = [168100/289, 68053440/4913]
  @eprog

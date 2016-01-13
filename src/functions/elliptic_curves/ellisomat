@@ -12,7 +12,7 @@ Doc:
  isomorphism classes of elliptic curves $\Q$-isogenous to $E$. The function
  returns a vector $[L,M]$ where $L$ is a list of couples $[E_i, f_i, g_i]$, where
  $E_i$ is an elliptic curve, $f_i$ is a rational isogeny from $E$ to $E_i$,
- and $g_i$ is the dual isogeny of $f_i$ from $E_i$ to $E$,
+ $g_i$ is the dual isogeny of $f_i$ from $E_i$ to $E$,
  and $M$ is the matrix such that $M_{i,j}$ is the degree of the isogeny between
  $E_i$ and $E_j$.
  Furthermore the first curve $E_1$ is isomorphic to $E$ by $f_1$.

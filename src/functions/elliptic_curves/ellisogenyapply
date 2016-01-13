@@ -3,15 +3,15 @@ Section: elliptic_curves
 C-Name: ellisogenyapply
 Prototype: GG
 Help: ellisogenyapply(f, g): Given an isogeny f and g either a point P (in the
- domain of f) or an isogeny, apply f to x: return the image of P under f or
- the composite isogeny fog.
+ domain of f) or an isogeny, apply f to g: return the image of P under f or
+ the composite isogeny f o g.
 Doc:
  Given an isogeny of elliptic curves $f:E'\to E$ (being the result of a call
- to \tet{ellisogeny}), apply $f$ to $x$:
+ to \tet{ellisogeny}), apply $f$ to $g$:
 
- \item if $x$ is a point $P$ in the domain of $f$, return the image $f(P)$;
+ \item if $g$ is a point $P$ in the domain of $f$, return the image $f(P)$;
 
- \item if $x$ is a compatible isogeny $g:E''\to E'$, return the composite
+ \item if $g:E''\to E'$ is a compatible isogeny, return the composite
  isogeny $f \circ g:  E''\to E$.
 
  \bprog
@@ -26,7 +26,7 @@ Doc:
  ? F = ellinit(F);
  ? Q = [89, 44] * one;
  ? ellorder(F, Q)
- %9 = 2;
+ %9 = 2
  ? [G, g] = ellisogeny(F, Q); \\  g: F->G = F/<Q>
  ? gof = ellisogenyapply(g, f); \\ gof: E -> G
  @eprog
