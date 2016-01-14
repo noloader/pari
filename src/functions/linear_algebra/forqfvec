@@ -2,10 +2,11 @@ Function: forqfvec
 Section: linear_algebra
 C-Name: forqfvec0
 Prototype: vVGDGI
-Help:forqfvec(v,q,b,expr): q being a square and symmetric matrix
- representing a positive definite quadratic form, evaluate expr for all
- vector v such that q(v)<=b.
-Doc: $q$ being a square and symmetric matrix representing a positive definite
+Help:forqfvec(v,q,b,expr): q being a square and symmetric integral matrix
+ representing an positive definite quadratic form, evaluate expr
+ for all vectors v such that q(v)<=b.
+Doc: $q$ being a square and symmetric integral matrix representing a positive
+ definite
  quadratic form, evaluate \kbd{expr} for all vector $v$ such that $q(v)\leq b$.
  The formal variable $v$ runs through all such vectors in turn.
  \bprog
