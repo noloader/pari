@@ -698,7 +698,7 @@ pari_mainstack_use(struct pari_mainstack *st)
   avma = st->top;
 }
 
-void
+static void
 paristack_alloc(size_t rsize, size_t vsize)
 {
   pari_mainstack_alloc(pari_mainstack, rsize, vsize);

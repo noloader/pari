@@ -3195,7 +3195,6 @@ GEN     pari_thread_start(struct pari_thread *t);
 void    pari_thread_valloc(struct pari_thread *t, size_t s, size_t v, GEN arg);
 GEN     pari_version(void);
 void    pari_warn(int numerr, ...);
-void    paristack_alloc(size_t rsize, size_t vsize);
 void    paristack_newrsize(ulong newsize);
 void    paristack_resize(ulong newsize);
 void    paristack_setsize(size_t rsize, size_t vsize);
