@@ -1025,8 +1025,8 @@ units of the field.
 
 \fun{GEN}{set_sign_mod_divisor}{GEN nf, GEN x, GEN y, GEN module, GEN sarch}
 let $f = f_0f_\infty$ be the divisor represented by \kbd{module}, $x$, $y$ two
-number field elements. Returns $yt$ with $t = 1 \text{mod}^* f$ such that $x$
-and $ty$ have the same signs at $f_\infty$; if $x =
+number field elements. Returns $yt$ with $t$ integral, $t = 1 \text{mod}^*
+f_0$ such that $x$ and $ty$ have the same signs at $f_\infty$; if $x =
 \kbd{NULL}$, make $ty$ totally positive at $f_\infty$. \kbd{sarch} is the
 output of \kbd{nfarchstar(nf, f0, finf)}.
 
