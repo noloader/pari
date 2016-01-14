@@ -2,8 +2,8 @@ Function: mapput
 Section: programming/specific
 C-Name: mapput
 Prototype: vWGG
-Help: mapput(M,x,y): associate x to y in the map M
-Doc: associate $x$ to $y$ in the map $M$. The value $y$ can the be retrieved
+Help: mapput(M,x,y): associates x to y in the map M.
+Doc: Associates $x$ to $y$ in the map $M$. The value $y$ can be retrieved
  with \tet{mapget}.
  \bprog
  ? M = Map();
