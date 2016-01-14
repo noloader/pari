@@ -7,13 +7,14 @@
 
 test -d config || cd ..
 test -d config || exit 1
+test -d src64 && rm -rf src64
 
-fileList="`find src -name "*.[ch]"`"
+cd src
+for file in `find . -type f -name "*.[chy]"` ; do
 
-for file in $fileList; do
-
-    echo converting file: $file
-
+    outfile="../src64/$file"
+    mkdir -p `dirname $outfile`
+    echo "converting file: $file -> $outfile"
     # Add LL to the end of any constant with 10 or more numbers
     sed 's/\([-+({ ][0-9]\{10,\}\)\([,;:)} ]\)/\1LL\2/g' < $file > TMP
 
@@ -24,15 +25,16 @@ for file in $fileList; do
     # Convert all hexadecimal constants ending in L or UL.
     sed -e 's/\(0x[0-9a-fA-F][0-9a-fA-F]*\)[lL]\{1,2\}/\1LL/g' -e 's/\(0x[0-9a-fA-F][0-9a-fA-F]*\)[uU][lL]\{1,2\}/\1ULL/g' < TMP2 > TMP
 
-    # String formatting conversions: %ld -> %lld, %lu -> %llu, %lx -> %llx.  This will also handle cases like %+2ld and %0*lx
+    # String formatting conversions: %ld -> %lld, %lu -> %llu, %lx -> %llx.
+    # This will also handle cases like %+2ld and %0*lx
 
-    # Replace formatting with microsoft ll convention, but only inside regular printfs (and it's variants)
+    # Replace formatting with microsoft ll convention, but only inside regular printfs
+    # (and its variants)
     # Do nothing inside of pari_printf() or pari_sprintf().
-    sed -e '/\"/ s/\(%[-+]\{0,1\}[0-9]*\)ld/\1lld/g' -e '/\"/ s/\(%[-+]\{0,1\}[0-9]*\)lu/\1llu/g' -e '/\"/ s/\(%[-+]\{0,1\}[0-9]*\)lx/\1llx/g' -e '/\"/ s/\(%[0-9]\*\)lx/\1llx/g' < TMP > $file
+    sed -e '/\"/ s/\(%[-+]\{0,1\}[0-9]*\)ld/\1lld/g' -e '/\"/ s/\(%[-+]\{0,1\}[0-9]*\)lu/\1llu/g' -e '/\"/ s/\(%[-+]\{0,1\}[0-9]*\)lx/\1llx/g' -e '/\"/ s/\(%[0-9]\*\)lx/\1llx/g' < TMP > $outfile
 
     # clean up
-    rm TMP TMP2
-
+    rm TMP TMP2;
 done
 
 echo "Done."

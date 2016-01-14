@@ -143,7 +143,7 @@ case "$sizeof_long" in
   4) numbits=32;;
   8) numbits=64;;
 esac
-dotest="env \"RUNTEST=\$(RUNTEST)\" \"LD_LIBRARY_PATH=.$dir_sep\$\$LD_LIBRARY_PATH\" \$(SHELL) $src/test/dotest $numbits"
+dotest="env \"RUNTEST=\$(RUNTEST)\" \"LD_LIBRARY_PATH=.$dir_sep\$\$LD_LIBRARY_PATH\" \$(SHELL) ../src/test/dotest $numbits"
 case "$static" in
   n) dft=dyn; libdft=lib-dyn;;
   y) dft=sta; libdft= ;;
@@ -671,14 +671,14 @@ echo "$HUGELINE" >> $file
 fi
 
 # Level 0
-f=$src_dir/kernel/$kernlvl0/MakeLVL0.SH
+f=src/kernel/$kernlvl0/MakeLVL0.SH
 if test -s $f; then
   . $f
 else
   cat >> $file <<EOT
 L0MODS=$kern0/asm0.h $knone/addll.h $knone/mulll.h $knone/bfffo.h $knone/divll.h
 parilvl0.h: \$(L0MODS)
-	$cfg/genkernel $kern0/asm0.h > parilvl0.h
+	$cfg/genkernel $src $kern0/asm0.h > parilvl0.h
 EOT
 fi
 
@@ -691,7 +691,7 @@ EOT
 fi
 
 # Level 1
-f=$src_dir/kernel/$kernlvl1/MakeLVL1.SH
+f=src/kernel/$kernlvl1/MakeLVL1.SH
 if test -s $f; then . $f; fi
 
 ANAL_H=$src/language/anal.h

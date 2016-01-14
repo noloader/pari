@@ -1,3 +1,10 @@
+if test "$osname" = mingw && test "$sizeof_long" = 8; then
+  src_dir="src64"
+  echo $n "Patching PARI source for LLP64 mode...  $c"
+  ./config/convertllp64 > /dev/null
+  echo done
+fi
+
 flist=`ls $config_dir/*.SH`
 for file in $flist; do
   . ./$file
