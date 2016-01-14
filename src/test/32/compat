@@ -2635,8 +2635,8 @@ a positive definite quadratic form, this function deals with the vectors of x
 whose norm is less than or equal to b, enumerated using the Fincke-Pohst 
 algorithm, storing at most m vectors (no limit if m is omitted). The function 
 searches for the minimal non-zero vectors if b is omitted. The precise behavior 
-depends on flag. 0: seeks at most 2m vectors (unless m omitted), returns 
-[N,M,mat] where N is the number of vectors found, M the maximum norm among 
+depends on flag. 0: returns at most 2m vectors (unless m omitted), returns 
+[N,M,mat] where N is the number of vectors enumerated, M the maximum norm among 
 these, and mat lists half the vectors (the other half is given by -mat). 1: 
 ignores m and returns the first vector whose norm is less than b. 2: as 0 but 
 uses a more robust, slower implementation, valid for non integral quadratic 
@@ -2655,8 +2655,8 @@ a positive definite quadratic form, this function deals with the vectors of x
 whose norm is less than or equal to b, enumerated using the Fincke-Pohst 
 algorithm, storing at most m vectors (no limit if m is omitted). The function 
 searches for the minimal non-zero vectors if b is omitted. The precise behavior 
-depends on flag. 0: seeks at most 2m vectors (unless m omitted), returns 
-[N,M,mat] where N is the number of vectors found, M the maximum norm among 
+depends on flag. 0: returns at most 2m vectors (unless m omitted), returns 
+[N,M,mat] where N is the number of vectors enumerated, M the maximum norm among 
 these, and mat lists half the vectors (the other half is given by -mat). 1: 
 ignores m and returns the first vector whose norm is less than b. 2: as 0 but 
 uses a more robust, slower implementation, valid for non integral quadratic 
@@ -4572,4 +4572,4 @@ New syntax: texprint(x) ===> printtex(x)
 printtex({str}*): outputs its string arguments in TeX format.
 
 
-Total time spent: 16
+Total time spent: 23
