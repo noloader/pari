@@ -114,7 +114,7 @@ Rg_is_Fp(GEN x, GEN *pp)
     if (!*pp) *pp = mod;
     else if (mod != *pp && !equalii(mod, *pp))
     {
-      if (DEBUGMEM) pari_warn(warner,"different moduli in Rg_is_Fp");
+      if (DEBUGLEVEL) pari_warn(warner,"different moduli in Rg_is_Fp");
       return 0;
     }
     return 1;
@@ -170,7 +170,7 @@ Rg_is_FpXQ(GEN x, GEN *pT, GEN *pp)
     if (!*pT) *pT = mod;
     if ((p != *pp && !equalii(p, *pp)) || (mod != *pT && !gequal(mod, *pT)))
     {
-      if (DEBUGMEM) pari_warn(warner,"different moduli in Rg_is_FpXQ");
+      if (DEBUGLEVEL) pari_warn(warner,"different moduli in Rg_is_FpXQ");
       return 0;
     }
     return 1;
@@ -185,7 +185,7 @@ Rg_is_FpXQ(GEN x, GEN *pT, GEN *pp)
     if (!*pT) *pT = mod;
     else if (mod != *pT && !gequal(mod, *pT))
     {
-      if (DEBUGMEM) pari_warn(warner,"different moduli in Rg_is_FpXQ");
+      if (DEBUGLEVEL) pari_warn(warner,"different moduli in Rg_is_FpXQ");
       return 0;
     }
     return 1;
