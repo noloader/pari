@@ -69,15 +69,6 @@ Misc:
 -  add an optional argument to content, denominator, numerator to specify
    the main variable
 
-3  zetak is very inefficient, unable to handle most fields of degree > 8, and
-   gives mostly bogus results at high precision. E.g.
-   \p300
-   zetak(zetakinit(x^2-2),2) --> ~ 1e183
-   Also, also close to (but not at) rationnal integers:
-   ? zetak(zetakinit(x),3-1e-38)
-   %1 = 7.41787592 E21
-   To be rewritten...
-
 2  decent (non-prime) finite field package [ esp. in small characteristic ]
 
 2  rnfkummer (non-prime degree)
