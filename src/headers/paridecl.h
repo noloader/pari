@@ -2021,6 +2021,7 @@ GEN     RgM_gram_schmidt(GEN e, GEN *ptB);
 GEN     Xadic_lindep(GEN x);
 GEN     algdep(GEN x, long n);
 GEN     algdep0(GEN x, long n, long bit);
+void    forqfvec(void *E, long (*fun)(void *, GEN, GEN, double), GEN a, GEN BORNE);
 void    forqfvec0(GEN a, GEN BORNE, GEN code);
 GEN     gaussred_from_QR(GEN x, long prec);
 GEN     lindep0(GEN x, long flag);

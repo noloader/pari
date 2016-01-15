@@ -1040,7 +1040,7 @@ forqfvec_init(struct qfvec *qv, GEN a)
 }
 
 static void
-forqfvec(void *E, long (*fun)(void *, GEN, GEN, double), struct qfvec *qv, GEN BORNE)
+forqfvec_i(void *E, long (*fun)(void *, GEN, GEN, double), struct qfvec *qv, GEN BORNE)
 {
   GEN x, a = qv->a, r = qv->r, u = qv->u;
   long n = lg(a), i, j, k;
@@ -1103,6 +1103,16 @@ forqfvec(void *E, long (*fun)(void *, GEN, GEN, double), struct qfvec *qv, GEN B
   }
 }
 
+void
+forqfvec(void *E, long (*fun)(void *, GEN, GEN, double), GEN a, GEN BORNE)
+{
+  pari_sp av = avma;
+  struct qfvec qv;
+  forqfvec_init(&qv, a);
+  forqfvec_i(E, fun, &qv, BORNE);
+  avma = av;
+}
+
 static long
 _gp_forqf(void *E, GEN u, GEN x, double p/*unused*/)
 {
@@ -1121,7 +1131,7 @@ forqfvec0(GEN a, GEN BORNE, GEN code)
   struct qfvec qv;
   forqfvec_init(&qv, a);
   push_lex(gen_0, code);
-  forqfvec((void*) code, &_gp_forqf, &qv, BORNE);
+  forqfvec_i((void*) code, &_gp_forqf, &qv, BORNE);
   pop_lex(1);
   avma = av;
 }
