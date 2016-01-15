@@ -31,7 +31,7 @@ Doc: $x$ being a prime ideal factorization
  $s_i$ in $\{-1,0,1\}$:
  if $\sigma_i$ denotes the $i$-th real embedding of the number field,
  the element $b$ returned satisfies further
- $s_i \kbd{sign}(\sigma_(b)) \geq 0$ for all $i$. In other words, the sign is
+ $s_i \kbd{sign}(\sigma_i(b)) \geq 0$ for all $i$. In other words, the sign is
  fixed to $s_i$ at the $i$-th embedding whenever $s_i$ is non-zero.
  \bprog
  ? idealchinese(K, [x, [1,1]], y)
