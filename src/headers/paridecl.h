@@ -3271,6 +3271,8 @@ long    lfuncheckfeq(GEN data, GEN t0, long prec);
 long    lfuncheckfeq_bitprec(GEN data, GEN t0, long bitprec);
 GEN     lfunconductor(GEN data, GEN maxcond, long flag, long prec);
 GEN     lfunconductor_bitprec(GEN data, GEN maxcond, long flag, long bitprec);
+GEN     lfuncost(GEN lmisc, GEN dom, long der, long bitprec);
+GEN     lfuncost0(GEN L, GEN dom, long der, long bitprec);
 GEN     lfuncreate(GEN obj);
 GEN     lfunan(GEN ldata, long L, long prec);
 GEN     lfunhardy(GEN ldata, GEN t, long prec);

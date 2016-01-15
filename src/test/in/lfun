@@ -4,6 +4,8 @@ default("realprecision",38);
 zetaan(n)=vector(n,i,1);
 K=bnfinit('x^3+'x^2-3*'x-1); D=abs(K.disc); /* 2^r1 h/w = 4 */
 L148=lfuncreate([n->dirzetak(K,n),0,[0,0,0],1,D,1,K.reg*4/sqrt(D)]);
+lfuncost(L148, [20])
+lfunthetacost(L148)
 for(i=1,10,print(i,":",lfun(L148,-i)))
 L117=lfuncreate([n->dirdiv(dirzetak(nfinit('x^4-'x^3-'x^2+'x+1),n),zetaan(n)),0,[0,1,1],1,117,1]); /* [0,0,1,1]-[0] */
 for(i=1,10,print(i,":",lfun(L117,i)))
@@ -50,6 +52,7 @@ t^2*lfuntheta(L121,t)
 lfuntheta(L121,1/t)
 vv=lfunthetainit(L121,1/t);
 lfuntheta(vv,1/t)
+lfunthetacost(vv)
 
 vv=lfunthetainit(L117,[1,2/5]);
 lfuntheta(vv,1)
@@ -254,9 +257,11 @@ rel=x^5+2*x^4+2*x^3+x^2-1;
 T=rnfequation(K.pol, rel);
 L=lfunabelianrelinit(T,K,rel,[2,0,0]);
 lfun(L,2)
+lfuncost(L)
 
 L=lfuninit(polcyclo(3), [1/2,0,0]);
 lfuncheckfeq(L)
+lfuncost(L)
 
 lfunconductor(1,1)
 lfuntheta(1,0)
@@ -304,3 +309,7 @@ L=lfunartin(N,G,[[-1,1;-1,0],[0,1;1,0]],1);
 if(lfunan(L,100)!=lfunan(lfundiv(x^3-3*x^2+2*x-1,1),100),error("lfunartin"));
 
 localbitprec(20); lfunzeros('x^2-2,6)
+
+lfuncost(1, [100], 5)
+L = lfuninit(polcyclo(5), [1/2,1/2,50]);
+lfuncost(L)

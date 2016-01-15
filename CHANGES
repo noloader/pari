@@ -390,7 +390,7 @@ BA143- [arm64] add aarch64 assembly kernel
        charorder, charconj
 BA147- [GP] call (for calling closures).
   148- [GP] optional flag to forell [ loop over isogeny classes ]
-  149- lfunthetacost
+  149- lfunthetacost, lfuncost
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]

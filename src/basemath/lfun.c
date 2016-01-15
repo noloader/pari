@@ -393,10 +393,20 @@ lfunthetacost(GEN ldata, GEN tdom, long m, long bitprec)
 long
 lfunthetacost0(GEN L, GEN tdom, long m, long bitprec)
 {
-  pari_sp av = avma;
-  GEN ldata = lfunmisc_to_ldata_shallow(L);
-  long n = lfunthetacost(ldata, tdom? tdom: gen_1, m, bitprec);
-  avma = av; return n;
+  long n;
+  if (is_linit(L) && linit_get_type(L)==t_LDESC_THETA)
+  {
+    GEN tech = linit_get_tech(L);
+    n = lg(theta_get_an(tech))-1;
+  }
+  else
+  {
+    pari_sp av = avma;
+    GEN ldata = lfunmisc_to_ldata_shallow(L);
+    n = lfunthetacost(ldata, tdom? tdom: gen_1, m, bitprec);
+    avma = av;
+  }
+  return n;
 }
 
 static long
@@ -1133,6 +1143,48 @@ lfun_init_theta(GEN ldata, GEN eno, struct lfunp *S)
 }
 
 GEN
+lfuncost(GEN L, GEN dom, long der, long bitprec)
+{
+  pari_sp av = avma;
+  GEN ldata = lfunmisc_to_ldata_shallow(L);
+  long k = ldata_get_k(ldata);
+  struct lfunp S;
+
+  parse_dom(k, dom, &S);
+  lfunparams(ldata, der, bitprec, &S);
+  avma = av; return mkvecsmall2(S.nmax, S.Dmax);
+}
+GEN
+lfuncost0(GEN L, GEN dom, long der, long bitprec)
+{
+  pari_sp av = avma;
+  GEN C;
+
+  if (is_linit(L) && linit_get_type(L) == t_LDESC_PRODUCT)
+  {
+    GEN tech = linit_get_tech(L);
+    GEN domain = lfun_get_domain(tech);
+    GEN v = lfunprod_get_fact(linit_get_tech(L));
+    GEN F = gel(v,1);
+    long i, l = lg(F);
+    dom = domain_get_dom(domain);
+    der = domain_get_der(domain);
+    bitprec = domain_get_bitprec(domain);
+    C = cgetg(l, t_VEC);
+    for (i = 1; i < l; ++i)
+      gel(C, i) = zv_to_ZV( lfuncost(gel(F,i), dom, der, bitprec) );
+    C = gerepilecopy(av, C);
+  }
+  else
+  {
+    if (!dom) pari_err_TYPE("lfuncost [missing s domain]", L);
+    C = lfuncost(L,dom,der,bitprec);
+    C = gerepileupto(av, zv_to_ZV(C));
+  }
+  return C;
+}
+
+GEN
 lfuninit_bitprec(GEN lmisc, GEN dom, long der, long bitprec)
 {
   pari_sp ltop = avma;
@@ -1281,12 +1333,13 @@ lfunsumcoth(GEN R, GEN s, GEN h, long prec)
   return gmul2n(S, -1);
 }
 
+/* L is a t_LDESC_PRODUCT Linit */
 static GEN
-lfun_genproduct(GEN data, GEN s, long bitprec,
+lfun_genproduct(GEN L, GEN s, long bitprec,
                 GEN (*fun)(GEN ldata, GEN s, long bitprec))
 {
   pari_sp av = avma;
-  GEN ldata = linit_get_ldata(data), v = lfunprod_get_fact(linit_get_tech(data));
+  GEN ldata = linit_get_ldata(L), v = lfunprod_get_fact(linit_get_tech(L));
   GEN r = gen_1, F = gel(v, 1), E = gel(v, 2), C = gel(v, 3);
   long i, l = lg(F);
   GEN cs = gconj(s);
