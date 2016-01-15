@@ -17,7 +17,7 @@ Doc: $q$ being a square and symmetric integral matrix representing a positive
  @eprog
 Variant: The following function is also available:
  \fun{void}{forqfvec}{void *E, long (*fun)(void *, GEN, GEN, double), GEN q, GEN b}:
- Evaluate \kbd{fun(E,w,u,m)} on all $w$ such that $q(u*w)<b$, where $w$ is a
+ Evaluate \kbd{fun(E,w,v,m)} on all $v$ such that $q(v)<b$, where $v$ is a
  \typ{VECSMALL} and $m=q(v)$ is a C double. The function \kbd{fun} must
  return $0$, unless \kbd{forqfvec} should stop, in which case, it should
  return $1$.
