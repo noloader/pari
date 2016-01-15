@@ -353,8 +353,8 @@ get_cone_fuzz(GEN t, double *r, double *a)
  * - a complex number t: compute at t;
  * N is the conductor (either the true one from ldata or a guess from
  * lfunconductor) */
-static long
-lfunthetaneed_bitprec(GEN ldata, GEN tdom, long m, long bitprec)
+long
+lfunthetacost(GEN ldata, GEN tdom, long m, long bitprec)
 {
   pari_sp av = avma;
   GEN Vga = ldata_get_gammavec(ldata);
@@ -389,6 +389,14 @@ lfunthetaneed_bitprec(GEN ldata, GEN tdom, long m, long bitprec)
   else
     B = dblcoro526(a,c,B) / rho;
   return ceil(B * sqrt(N));
+}
+long
+lfunthetacost0(GEN L, GEN tdom, long m, long bitprec)
+{
+  pari_sp av = avma;
+  GEN ldata = lfunmisc_to_ldata_shallow(L);
+  long n = lfunthetacost(ldata, tdom? tdom: gen_1, m, bitprec);
+  avma = av; return n;
 }
 
 static long
@@ -524,7 +532,7 @@ static GEN
 lfunthetainit_i(GEN data, GEN tdom, long m, long bitprec)
 {
   GEN ldata = lfunmisc_to_ldata_shallow(data);
-  long L = lfunthetaneed_bitprec(ldata, tdom, m, bitprec);
+  long L = lfunthetacost(ldata, tdom, m, bitprec);
   GEN vecan = ldata_vecan(ldata_get_an(ldata), L, nbits2prec(bitprec));
   return lfunthetainit0_bitprec(ldata, tdom, vecan, m, bitprec, 32);
 }
@@ -753,7 +761,7 @@ lfuntheta_bitprec(GEN data, GEN t, long m, long bitprec)
   sqN = theta_get_sqrtN(thetainit);
   limt = lg(vecan)-1;
   if (theta == data)
-    limt = minss(limt, lfunthetaneed_bitprec(ldata, t, m, bitprec));
+    limt = minss(limt, lfunthetacost(ldata, t, m, bitprec));
   t = gdiv(t, sqN);
   Vga = ldata_get_gammavec(ldata);
   d = lg(Vga) - 1;
@@ -1117,7 +1125,7 @@ lfun_init_theta(GEN ldata, GEN eno, struct lfunp *S)
   else
   {
     tdom = dbltor(sqrt(0.5));
-    L = maxss(S->nmax, lfunthetaneed_bitprec(ldata, tdom, 0, S->D));
+    L = maxss(S->nmax, lfunthetacost(ldata, tdom, 0, S->D));
   }
   an = ldata_vecan(ldata_get_an(ldata), L, S->precmax);
   lfunparams2(ldata, an, S);

@@ -3297,6 +3297,8 @@ GEN     lfunrootres_bitprec(GEN data, long bitprec);
 GEN     lfunrtopoles(GEN r);
 GEN     lfuntheta(GEN data, GEN t, long m, long prec);
 GEN     lfuntheta_bitprec(GEN data, GEN t, long m, long bitprec);
+long    lfunthetacost0(GEN L, GEN tdom, long m, long bitprec);
+long    lfunthetacost(GEN ldata, GEN tdom, long m, long bitprec);
 GEN     lfunthetainit(GEN ldata, GEN tinf, long m, long prec);
 GEN     lfunthetainit_bitprec(GEN ldata, GEN tdom, long m, long bitprec);
 GEN     lfunthetacheckinit(GEN data, GEN tinf, long m, long *ptbitprec, long fl);
