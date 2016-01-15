@@ -24,7 +24,7 @@ Major contributors (large modules written or rewritten from scratch):
     subcyclo, black-box groups, elliptic curves, the elldata and galdata
     package, multithread model, PARI description system, FLTK support,
     Bug tracking system, administration of pari.math.u-bordeaux.fr, the
-    http://pari.math.u-bordeaux.fr website
+    http://pari.math.u-bordeaux.fr website, Lfun package
   Christian BATUT: 68k multiprecision kernel, Linear algebra, lattices
   Karim BELABAS: current project leader, native multiprecision kernel, modular
     kernel, polynomial arithmetic, polynomial factorization (finite fields,
@@ -33,12 +33,13 @@ Major contributors (large modules written or rewritten from scratch):
     functions, install(), extension of the GP language (next/break/return,
     local, op=, default()), gphelp, Configure, readline, man pages,
     documentation layout, reference card and user's manuals, the FAQ, the
-    http://pari.math.u-bordeaux.fr website.
+    http://pari.math.u-bordeaux.fr website, Lfun package
   Dominique BERNARDI: the original gp interpreter, ECM, original
     elliptic curves implementation
   Henri COHEN: original designer and project leader, native multiprecision
     kernel, arithmetic functions, LLL, transcendental functions, number fields,
-    original elliptic curves implementation
+    original elliptic curves implementation, numerical integration and
+    summation, Lfun package
   Francisco DIAZ Y DIAZ: number fields (class groups, units)
   Yves EICHENLAUB: original polgalois implementation
   Xavier GOURDON: polroots, initial Karatsuba/Toom Cook/fft implementations
@@ -50,6 +51,7 @@ Major contributors (large modules written or rewritten from scratch):
   Guillaume HANROT: thue, zncoppersmith, initial polrootsreal implementation
   Pascal LETARD: basic number fields (round2, initial round4)
   Jean-Francois MESTRE: original elliptic curves implementation
+  Pascal MOLIN: Lfun package, numerical integration
   Gerhard NIKLASCH: binary powering, integer extended gcd and rational
     reconstruction, primality and compositeness test, integer factorization,
     documentation layout, AIX and Solaris support, first PARI web site.
