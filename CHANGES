@@ -184,6 +184,7 @@ BA136- ellsea returned the trace instead of the cardinal as documented.
 BA137- ellsea(,,1)  could return a wrong result [#1768]
   138- rnfconductor: sanity checks were not taken into account
   139- memory leak in pari_close: sopath not freed
+HC140- incgam(30,60) < 0. More generally, wrong results for s >> 1 [#1689]
 
   Added
     1- add optional argument to sumdigits to specify the base

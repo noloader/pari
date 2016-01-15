@@ -677,18 +677,43 @@ incgam_0(GEN x, GEN expx)
   }
 }
 
+/* Is s very close to a non-positive integer ? */
+static int
+isgammapole(GEN s, long bitprec)
+{
+  pari_sp av = avma;
+  GEN t = imag_i(s);
+  long e, b = bitprec - 10;
+
+  if (gexpo(t) > - b) return 0;
+  s = real_i(s);
+  if (gsigne(s) > 0 && gexpo(s) > -b) return 0;
+  (void)grndtoi(s, &e); avma = av; return (e < -b);
+}
+
 /* incgam using the continued fraction. x a t_REAL or t_COMPLEX, mx ~ |x|.
  * Assume precision(s), precision(x) >= prec */
 static GEN
 incgam_cf(GEN s, GEN x, double mx, long prec)
 {
   GEN x_s, S, y;
-  long n, i;
+  long n, i, LS, bitprec = prec2nbits(prec);
   pari_sp av = avma, av2;
-  double m;
+  double m, LGS, addbitprec;
+  double ds = gtodouble(real_i(s));
 
-  m = (prec2nbits_mul(prec,LOG2) + mx)/4;
+  S = gprec_w(s, LOWDEFAULTPREC);
+  LGS = gtodouble(real_i(glngamma(S, LOWDEFAULTPREC)));
+  LS = (isgammapole(s, bitprec) || LGS <= 0)? 0: ceil(LGS);
+  addbitprec = (LGS - (ds-1)*log(mx) + mx)/LOG2;
+  m = (bitprec*LOG2 + LS + LOG2 + mx)/4;
   n = (long)(1+m*m/mx);
+  if (addbitprec > 0)
+  {
+    prec = nbits2prec(bitprec + (long)addbitprec);
+    s = gprec_w(s, prec);
+    x = gprec_w(x, prec);
+  }
   if (typ(s) == t_INT) /* y = x^(s-1) exp(-x) */
     y = gmul(gexp(gneg(x), prec), powgi(x,subis(s,1)));
   else
@@ -756,16 +781,17 @@ incgam_asymp(GEN s, GEN x, long prec)
 {
   pari_sp av = avma, av2;
   GEN S, q, cox, invx;
-  long oldeq = LONG_MAX, eq, esx, j;
+  long oldeq = LONG_MAX, eq, esx, j, flint = 0;
   invx = ginv(x);
   esx = -prec2nbits(prec);
   av2 = avma;
+  if (typ(s) == t_INT && signe(s) > 0) flint = 1;
   q = gmul(gsubgs(s, 1), invx);
   S = gaddgs(q, 1);
   for (j = 2;; j++)
   {
     eq = gexpo(q); if (eq < esx) break;
-    if ((j & 3) == 0)
+    if (!flint && (j & 3) == 0)
     { /* guard against divergence */
       if (eq > oldeq) { avma = av; return NULL; } /* regressing, abort */
       oldeq = eq;
@@ -897,13 +923,22 @@ incgam0(GEN s, GEN x, GEN g, long prec)
   /* avoid overflow in dblmodulus */
   if (gexpo(x) > E) mx = E; else mx = dblmodulus(x);
   /* use asymptotic expansion */
-  if (2*mx > E)
+  if (2*mx > E || (typ(s) == t_INT && signe(s) > 0))
   {
     z = incgam_asymp(s, x, l);
-    if (z) return z;
+    if (z)
+    {
+      if (DEBUGLEVEL > 2) err_printf("incgam: using asymp\n");
+      return z;
+    }
   }
   /* use continued fraction */
-  if (12.1*mx > E) return incgam_cf(s, x, mx, l);
+  if (12.1*mx > E)
+  {
+    if (DEBUGLEVEL > 2) err_printf("incgam: using cf\n");
+    return incgam_cf(s, x, mx, l);
+  }
+  else if (DEBUGLEVEL > 2) err_printf("incgam: using power series\n");
   rs = real_i(s);
   if (gsigne(rs) > 0 && gexpo(rs) >= -1)
   { /* use complementary incomplete gamma */
