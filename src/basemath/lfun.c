@@ -984,22 +984,39 @@ lfuninit_vecc(GEN theta, GEN h, struct lfunp *S)
 }
 
 static void
-parse_dom(GEN dom, struct lfunp *S)
+parse_dom(long k, GEN dom, struct lfunp *S)
 {
-  if (typ(dom)!=t_VEC || lg(dom)!=4) pari_err_TYPE("lfuninit [domain]", dom);
-  S->dc = gtodouble(gel(dom,1));
-  S->dw = gtodouble(gel(dom,2));
-  S->dh = gtodouble(gel(dom,3));
+  long l = lg(dom);
+  if (typ(dom)!=t_VEC) pari_err_TYPE("lfuninit [domain]", dom);
+  if (l == 2)
+  {
+    S->dc = k/2.;
+    S->dw = 0.;
+    S->dh = gtodouble(gel(dom,1));
+  }
+  else if (l == 3)
+  {
+    S->dc = k/2.;
+    S->dw = gtodouble(gel(dom,1));
+    S->dh = gtodouble(gel(dom,2));
+  }
+  else if (l == 4)
+  {
+    S->dc = gtodouble(gel(dom,1));
+    S->dw = gtodouble(gel(dom,2));
+    S->dh = gtodouble(gel(dom,3));
+  }
+  else pari_err_TYPE("lfuninit [domain]", dom);
   if (S->dw < 0 || S->dh < 0) pari_err_TYPE("lfuninit [domain]", dom);
 }
 
 /* do we have dom \subset dom0 ? dom = [center, width, height] */
 int
-sdomain_isincl(GEN dom, GEN dom0)
+sdomain_isincl(long k, GEN dom, GEN dom0)
 {
   struct lfunp S0, S;
-  parse_dom(dom, &S);
-  parse_dom(dom0, &S0);
+  parse_dom(k, dom, &S);
+  parse_dom(k, dom0, &S0);
   return S0.dc - S0.dw <= S.dc - S.dw
       && S0.dc + S0.dw >= S.dc + S.dw && S0.dh >= S.dh;
 }
@@ -1007,10 +1024,11 @@ sdomain_isincl(GEN dom, GEN dom0)
 static int
 checklfuninit(GEN linit, GEN dom, long der, long bitprec)
 {
+  GEN ldata = linit_get_ldata(linit);
   GEN domain = lfun_get_domain(linit_get_tech(linit));
   return domain_get_der(domain) >= der
     && domain_get_bitprec(domain) >= bitprec
-    && sdomain_isincl(dom, domain_get_dom(domain));
+    && sdomain_isincl(ldata_get_k(ldata), dom, domain_get_dom(domain));
 }
 
 GEN
@@ -1130,7 +1148,8 @@ lfuninit_bitprec(GEN lmisc, GEN dom, long der, long bitprec)
     GEN T = gel(ldata_get_an(ldata), 2);
     return lfunzetakinit_bitprec(T, dom, der, 0, bitprec);
   }
-  parse_dom(dom, &S);
+  k = ldata_get_k(ldata);
+  parse_dom(k, dom, &S);
   lfunparams(ldata, der, bitprec, &S);
   r = ldata_get_residue(ldata);
   /* Note: all guesses should already have been performed (thetainit more
@@ -1162,7 +1181,6 @@ lfuninit_bitprec(GEN lmisc, GEN dom, long der, long bitprec)
   }
   h = divru(mplog2(S.precmax), S.m0);
   vecc = lfuninit_vecc(theta, h, &S);
-  k = ldata_get_k(ldata);
   qk = gprec_w(mpexp(gmul2n(gmulsg(k,h), -1)), S.precmax); /* exp(kh/2) */
   M = S.M;
   poqk = gpowers(qk, M);
@@ -1910,11 +1928,11 @@ lfuncenterinit_bitprec(GEN lmisc, double h, long bitprec)
 {
   GEN ldata = lfunmisc_to_ldata_shallow(lmisc);
   long k = ldata_get_k(ldata);
-  GEN dom = mkvec3(dbltor(k/2.), gen_0, dbltor(h));
+  GEN dom = mkvec(dbltor(h));
   if (is_linit(lmisc) && linit_get_type(lmisc) == t_LDESC_INIT)
   {
     GEN tech = linit_get_tech(lmisc);
-    if (sdomain_isincl(dom, lfun_get_dom(tech))) return lmisc;
+    if (sdomain_isincl(k, dom, lfun_get_dom(tech))) return lmisc;
   }
   /* initialize for zero of order <= 4 */
   return lfuninit_bitprec(ldata, dom, 4, bitprec);

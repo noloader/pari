@@ -3302,7 +3302,7 @@ GEN     lfunthetainit_bitprec(GEN ldata, GEN tdom, long m, long bitprec);
 GEN     lfunthetacheckinit(GEN data, GEN tinf, long m, long *ptbitprec, long fl);
 GEN     lfunzeros(GEN ldata, GEN lim, long divz, long prec);
 GEN     lfunzeros_bitprec(GEN ldata, GEN lim, long divz, long bitprec);
-int     sdomain_isincl(GEN dom, GEN dom0);
+int     sdomain_isincl(long k, GEN dom, GEN dom0);
 GEN     theta_get_an(GEN tdata);
 GEN     theta_get_K(GEN tdata);
 GEN     theta_get_R(GEN tdata);

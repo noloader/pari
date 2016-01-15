@@ -23,7 +23,7 @@ Doc: Variant of the Hardy $Z$-function given by \kbd{L}, used for
 
  \bprog
  ? T = 100; \\ maximal height
- ? L = lfuninit(1, [1/2, 0, T]); \\ initialize for zeta(1/2+it), |t|<T
+ ? L = lfuninit(1, [T]); \\ initialize for zeta(1/2+it), |t|<T
  ? \p19 \\ no need for large accuracy
  ? ploth(t = 0, T, lfunhardy(L,t))
  @eprog\noindent Using \kbd{lfuninit} is critical for this particular

@@ -782,7 +782,7 @@ lfunmfspec_bitprec(GEN lmisc, long bitprec)
   k = ldata_get_k(ldataf);
   dom = mkvec3(dbltor(k/2.), dbltor((k-2)/2.), gen_0);
   if (is_linit(lmisc) && linit_get_type(lmisc) == t_LDESC_INIT
-      && sdomain_isincl(dom, lfun_get_dom(linit_get_tech(lmisc))))
+      && sdomain_isincl(k, dom, lfun_get_dom(linit_get_tech(lmisc))))
     linit = lmisc;
   else
     linit = lfuninit_bitprec(ldataf, dom, 0, bitprec);
