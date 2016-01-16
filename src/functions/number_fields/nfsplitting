@@ -2,13 +2,13 @@ Function: nfsplitting
 Section: number_fields
 C-Name: nfsplitting
 Prototype: GDG
-Help: nfsplitting(nf,{d}): defining polynomial for the splitting field of
+Help: nfsplitting(nf,{d}): defining polynomial over Q for the splitting field of
  the number field nf; if d is given, it must be the degree of the splitting
  field
-Doc: defining polynomial for the splitting field of \var{nf};
- if $d$ is given, it must be the degree of the splitting field. It
- is possible to input a defining polynomial $T$ instead but this is in
- general less efficient.
+Doc: defining polynomial over~$\Q$ for the splitting field of \var{nf};
+ if $d$ is given, it must be the degree of the splitting field. Instead
+ of~\kbd{nf}, it is possible to input an irreducible defining polynomial
+ for~\kbd{nf}, but in general this is less efficient.
  \bprog
  ? K = nfinit(x^3-2);
  ? nfsplitting(K)
