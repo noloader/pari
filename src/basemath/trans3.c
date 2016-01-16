@@ -699,14 +699,25 @@ incgam_cf(GEN s, GEN x, double mx, long prec)
   GEN x_s, S, y;
   long n, i, LS, bitprec = prec2nbits(prec);
   pari_sp av = avma, av2;
-  double m, LGS, addbitprec;
-  double ds = gtodouble(real_i(s));
+  double rs, is, m, LGS, addbitprec;
+
+  if (typ(s) == t_COMPLEX)
+  {
+    rs = gtodouble(gel(s,1));
+    is = gtodouble(gel(s,2));
+  }
+  else
+  {
+    rs = gtodouble(s);
+    is = 0.;
+  }
 
   S = gprec_w(s, LOWDEFAULTPREC);
   LGS = gtodouble(real_i(glngamma(S, LOWDEFAULTPREC)));
   LS = (isgammapole(s, bitprec) || LGS <= 0)? 0: ceil(LGS);
-  addbitprec = (LGS - (ds-1)*log(mx) + mx)/LOG2;
-  m = (bitprec*LOG2 + LS + LOG2 + mx)/4;
+  addbitprec = (LGS - (rs-1)*log(mx) + mx)/LOG2;
+  /* |ln(2*gamma(s)*sin(s*Pi))| <= ln(2) + |lngamma(s)| + |Im(s)*Pi|*/
+  m = (bitprec*LOG2 + LS + LOG2 + fabs(is)*M_PI + mx)/4;
   n = (long)(1+m*m/mx);
   if (addbitprec > 0)
   {
