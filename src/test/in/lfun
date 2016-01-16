@@ -308,7 +308,7 @@ N=nfinit(x^6-3*x^5+5*x^4-5*x^3+5*x^2-3*x+1);G=galoisinit(N);
 L=lfunartin(N,G,[[-1,1;-1,0],[0,1;1,0]],1);
 if(lfunan(L,100)!=lfunan(lfundiv(x^3-3*x^2+2*x-1,1),100),error("lfunartin"));
 
-localbitprec(20); lfunzeros('x^2-2,6)
+localbitprec(20); #lfunzeros('x^2-2,6)
 
 lfuncost(1, [100], 5)
 L = lfuninit(polcyclo(5), [1/2,1/2,50]);
