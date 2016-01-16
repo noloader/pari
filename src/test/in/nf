@@ -106,3 +106,9 @@ q=10^42+63;
 nf=nfinit([polcompositum(x^2-p,x^2-q,2), [2,p,q]]);
 idealprimedec(nf,25339)[1].gen \\ overflow in get_norm
 
+\\#1777
+nfcompositum(nfinit(x-1),x^3-2,x^3-1)
+nfcompositum(nfinit(x^2+1),x^3-2,x^3-1)
+nfcompositum(nfinit(x-1),y^3-2,y^3-1)
+nfcompositum(nfinit(y-1),x^3-2,x^3-1)
+

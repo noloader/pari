@@ -312,10 +312,12 @@ testgwa(nf,[p2,p3,p5,p7,p11,p13,p17],Vecsmall([5,5,5,5,5,5,5]),Vecsmall([0,0])))
 });
 
 alfromhasse() = gusuite("algebra from Hasse invariants", ()->{
-  my(nf, pr7, pr13, finvm, finv, finv1, finv2, iinvm, iinv, iinv1, iinv2, d1, d2, d, dm, mai, al);
+  my(nf, pr7, pr13, finvm, finv, finv1, finv2, iinvm, iinv, iinv1, iinv2, d1,\
+    d2, d, dm, mai, al);
   nf = nfinit(y^3+y^2-2*y-1);
   pr7 = idealprimedec(nf,7);
   pr13 = idealprimedec(nf,13);
+  J = varhigher("J");
 
   al = alginit(nf,3,J);
   do("matrix algebra invariants", ()->altriv(al));

@@ -3529,7 +3529,6 @@ alg_hasse(GEN nf, long n, GEN hf, GEN hi, long var, long maxord)
   GEN primary, al = gen_0, al2, rnf, hil, hfl, Ld, pl, pol, nf2, Lpr, aut;
   long i, lk, j;
   primary = hassecoprime(hf, hi, n);
-  if (var < 0) var = 0;
   for (i=1; i<lg(primary); i++) {
     lk = itos(gmael(primary,i,3));
     hfl = gmael(primary,i,1);

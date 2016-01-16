@@ -3753,6 +3753,7 @@ nfcompositum(GEN nf, GEN A, GEN B, long flag)
   if (degpol(A)<=0 || degpol(B)<=0) pari_err_CONSTPOL("polcompositum");
   v = varn(A);
   if (varn(B) != v) pari_err_VAR("polcompositum", A,B);
+  if (nf && v == varn(nf_get_pol(nf))) pari_err_PRIORITY("polcompositum", nf, "==",  v);
   same = (A == B || RgX_equal(A,B));
   A = compositum_fix(nf,A);
   if (!same) B = compositum_fix(nf,B);

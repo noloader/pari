@@ -64,3 +64,6 @@ Doc: Let \var{nf} be a number field structure attached to the field $K$
  ? a^5 - y
  %11 = 0
  @eprog
+
+ The main variables of $P$ and $Q$ must be the same and have higher priority
+ than that of \var{nf} (see~\kbd{varhigher} and~\kbd{varlower}).
