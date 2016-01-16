@@ -492,14 +492,22 @@ checkbidZ_i(GEN G)
 }
 
 GEN
-znconreyfromchar(GEN bid, GEN chi)
+znconreyfromchar_normalized(GEN bid, GEN chi)
 {
-  GEN v, nchi, U = bid_get_U(bid), L = gel(bid,4), cycg = gel(L,5);
+  GEN nchi, U = bid_get_U(bid);
   long l = lg(chi);
   if (l == 1) return chi;
   if (!RgV_is_ZV(chi) || lgcols(U) != l) pari_err_TYPE("lfunchiZ", chi);
   nchi = char_normalize(chi, cyc_normalize(bid_get_cyc(bid)));
-  v = char_denormalize(cycg, gel(nchi,1), ZV_ZM_mul(gel(nchi,2),U));
+  gel(nchi,2) = ZV_ZM_mul(gel(nchi,2),U); return nchi;
+}
+
+GEN
+znconreyfromchar(GEN bid, GEN chi)
+{
+  GEN nchi = znconreyfromchar_normalized(bid, chi);
+  GEN L = gel(bid,4), cycg = gel(L,5);
+  GEN v = char_denormalize(cycg, gel(nchi,1), gel(nchi,2));
   settyp(v, t_COL); return v;
 }
 
@@ -746,6 +754,70 @@ znconreyconductor(GEN bid, GEN chi, GEN *pm)
   }
   gerepileall(av, pm? 2: 1, &q, pm);
   return q;
+}
+
+GEN
+znchareval(GEN G, GEN chi, GEN n, GEN z)
+{
+  pari_sp av = avma;
+  GEN nchi, a, b, N, o, q, r;
+  if (!checkbidZ_i(G)) pari_err_TYPE("znchareval", G);
+  N = bid_get_ideal(G);
+  switch(typ(n))
+  {
+    case t_INT: n = modii(n, N); break;
+    case t_INTMOD: n = Rg_to_Fp(n, N); break;
+    default: pari_err_TYPE("znchareval", n);
+  }
+  if (!equali1(gcdii(n, N)))
+    return (!z || typ(z) == t_INT)? gen_m1: gen_0;
+  switch(typ(chi))
+  {
+    case t_INT: /* Conrey label */
+      chi = znconreylog(G, chi); /* fall through */
+    case t_COL: /* Conrey log */
+      if (RgV_is_ZV(chi))
+      {
+        GEN L = gel(G,4), cycg = gel(L,5);
+        nchi = conrey_normalize(chi, cycg);
+        break;
+      } /* fall through */
+    case t_VEC: /* char on G.gen */
+      if (RgV_is_ZV(chi))
+      {
+        nchi = znconreyfromchar_normalized(G, chi);
+        break;
+      }
+    default: pari_err_TYPE("znchareval",chi);
+             return NULL;/* not reached */
+  }
+  /* nchi: normalized character on Conrey generators */
+  b = gel(nchi,1);
+  a = FpV_dotproduct(gel(nchi,2), znconreylog(G, n), b);
+  /* image is a/b in Q/Z */
+  if (!z) return gerepileupto(av, gdiv(a,b));
+  if (typ(z) == t_INT)
+  {
+    o = z;
+    q = dvmdii(o, b, &r);
+    if (signe(r)) pari_err_TYPE("znchareval", z);
+    return gerepileuptoint(av, mulii(a, q));
+  }
+  /* return z^(a*o/b), assuming z^o = 1 and b | o */
+  if (typ(z) != t_VEC || lg(z) != 3) pari_err_TYPE("znchareval", z);
+  o = gel(z,2); if (typ(o) != t_INT) pari_err_TYPE("znchareval", z);
+  q = dvmdii(o, b, &r);
+  if (signe(r)) pari_err_TYPE("znchareval", z);
+  q = mulii(a, q); /* in [0, o[ since a is reduced mod b */
+  z = gel(z,1);
+  if (typ(z) == t_VEC)
+  {
+    long lq = itos_or_0(q);
+    if (lq != lg(z)-1) pari_err_TYPE("znchareval", z);
+    avma = av; return gcopy(gel(z, lq));
+  }
+  else
+    return gerepileupto(av, gpow(z, q, DEFAULTPREC));
 }
 
 /*********************************************************************/
