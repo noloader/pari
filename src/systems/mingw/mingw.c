@@ -186,3 +186,20 @@ win32_alarm(unsigned int s)
         (WAITORTIMERCALLBACK)win32_cb_alarm, &arg , s*1000, 0, 0);
   }
 }
+
+#define WIN32_FILETIME_PER_MILLISECOND  10000
+
+long
+win32_timer(void)
+{
+  FILETIME lpCreation, lpExit, lpKernel, lpUser;
+  LARGE_INTEGER time;
+  GetProcessTimes(
+    GetCurrentProcess(),
+    &lpCreation, &lpExit, &lpKernel, &lpUser
+    );
+  time.HighPart = lpUser.dwHighDateTime;
+  time.LowPart = lpUser.dwLowDateTime;
+  time.QuadPart /= WIN32_FILETIME_PER_MILLISECOND;
+  return time.LowPart;
+}

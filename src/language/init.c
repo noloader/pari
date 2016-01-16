@@ -2377,6 +2377,13 @@ pari_init_timer(void) { }
 void
 timer_start(pari_timer *T)
 { _get_time(T, GetTickCount(), 1000); }
+# elif defined(_WIN32)
+static void
+pari_init_timer(void) { }
+
+void
+timer_start(pari_timer *T)
+{ _get_time(T, win32_timer(), 1000); }
 # else
 #  include <time.h>
 #  ifndef CLOCKS_PER_SEC
