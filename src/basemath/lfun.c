@@ -1024,7 +1024,11 @@ parse_dom(long k, GEN dom, struct lfunp *S)
     S->dw = gtodouble(gel(dom,2));
     S->dh = gtodouble(gel(dom,3));
   }
-  else pari_err_TYPE("lfuninit [domain]", dom);
+  else
+  {
+    pari_err_TYPE("lfuninit [domain]", dom);
+    S->dc = S->dw = S->dh = 0; /*-Wall*/
+  }
   if (S->dw < 0 || S->dh < 0) pari_err_TYPE("lfuninit [domain]", dom);
 }
 
