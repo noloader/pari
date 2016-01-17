@@ -883,6 +883,8 @@ cmp_algebra(GEN x, GEN y)
 {
   long d = alg_get_dim(x) - alg_get_dim(y);
   if (d) return d < 0? -1: 1;
+  d = lg(algtablecenter(x))-lg(algtablecenter(y));/* TODO precompute and store, don't compute every time when sorting */
+  if (d) return d < 0? -1: 1;
   return cmp_universal(alg_get_multable(x), alg_get_multable(y));
 }
 static int

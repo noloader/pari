@@ -11,6 +11,8 @@ Doc: \var{al} being the output of \tet{algtableinit} representing a semisimple
  $[\var{al}_i,\var{proj}_i,\var{lift}_i]$ where $\var{proj}_i$
  and~$\var{lift}_i$ are matrices respectively representing the projection map
  on the $i$-th factor and a section of it. The factors are sorted by
- increasing dimension, and the ordering is deterministic.
+ increasing dimension, then increasing dimension of the center. This ensures
+ that the ordering of the isomorphism classes of the factors is deterministic
+ over finite fields, but not necessarily over~$\Q$.
 
  \misctitle{Warning} The images of the $\var{lift}_i$ are not guaranteed to form a direct sum.

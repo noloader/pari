@@ -2085,6 +2085,46 @@ m_k = [0, 0, 0, -1;
 mt = [matid(4), m_i, m_j, m_k];}
 test("quatalg csa over Q", alginit(nfinit(y), mt));
 
+\\test ordering in simpledec
+Sn(n) = {
+ [[1+permtonum(Vec(Vecsmall(numtoperm(n,i-1))*Vecsmall(numtoperm(n,j-1)))) |
+   j<-[1..n!]] | i <- [1..n!]]; \\docu pb? 1..n! ou 0..n!-1 ?
+}
+D2n(n) = {
+ my(gen,G);
+ if(n<=2, return(Sn(n)));
+ gen = [Vecsmall([i%n+1 | i <- [1..n]]),Vecsmall([n+1-i | i<-[1..n]])];
+ G = gen;
+ while(#G<2*n, G = Set(concat([G,[gen[1]*g | g <- G],[gen[2]*g | g <- G]])));
+ [[setsearch(G,g*G[i]) | i<-[1..#G]] | g <- G]
+}
+alggp(G,p=0) = {
+ my(mt);
+ mt = [matrix(#v,#v, i,j, v[j]==i) | v <- G];
+ algtableinit(mt,p);
+}
+testordering(al)={
+ my(jac, ss, dec);
+ jac=algradical(al);
+ if(jac==0, ss=al, ss=algquotient(al,jac));
+ dec=algsimpledec(ss);
+ print(apply(algdim,dec));
+ print([#algcenter(x) | x<-dec]);
+}
+setrand(1);
+{for(n=1,4,
+  print("S",n);
+  al = alggp(Sn(n),7); \\FIXME pb en char 0: algquotient fait apparaitre un
+                       \\denominateur dans la table de multiplication
+  testordering(al);
+);}
+{for(n=4,22,
+  print("D",2*n);
+  al = alggp(D2n(n),691); \\FIXME pb en char 0: algquotient fait apparaitre un
+                          \\denominateur dans la table de multiplication
+  testordering(al);
+);}
+
 \\tests for lattices
 al = alginit(nfinit(y^2+7), [-1,-1]);
 alglathnf(al,0);
