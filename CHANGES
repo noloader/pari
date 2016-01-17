@@ -321,76 +321,77 @@ HC 96- limitnum / asympnum
 BA 97- [libpari] functions FlxV_prod, RgV_prod
 BA 98- GP function ellfromeqn
 HC 99- gammamellininv, gammamellininvasymp, gammamellininvinit
-BA100- [libpari] RgX_Rg_eval_bk, RgX_RgV_eval, RgXV_RgV_eval
-  101- [libpari] RgX_cxeval
-HC102- GP function zetamult
-PB103- ZM_mul: Add Strassen-Winograd algorithm
-  104- GP functions sumnummonien/sumnummonieninit
-  105- [libpari] RgM_gram_schmidt, RgM_Babai
-BA106- GP function cotanh
-  107- support sign(t_QUAD with positive discriminant)
-  108- comparison operators (<,>,<=,>=): support t_QUAD with *same* positive
-       discriminant
-BA109- [libpari] Flv_prod, Flv_prod_pre
-BA110- [libpari] Flv_neg, Flv_neg_inplace
-ED111- mingw64 support
-BA112- [parallel] new GP function parforvec
-BA113- [libpari] Fl_addmul_pre, Fl_addmulmul_pre
-BA114- [libpari] Fl_eltwist, Fp_elltwist, FpXQ_elltwist, Flxq_elltwist,
-                 F2xq_elltwist
-BA115- GP functions elltwist, ellminimaltwist
-  116- [libpari] omegau, bigomegau
-VB117- GP support for 0xffff and 0b1111 (input t_INT in binary or hex notation)
-BA118- GP functions ellisomat
-HC119- GP function ramanujantau
-PB120- Speed up {Flx,FpX,FpXQX}_divrem_basecase for modulus of the form
-       x^n+O(x^m) with m small
-HC121- GP function solvestep
-  122- [GP] New lfun family of functions
+BA 100- [libpari] RgX_Rg_eval_bk, RgX_RgV_eval, RgXV_RgV_eval
+   101- [libpari] RgX_cxeval
+HC 102- GP function zetamult
+PB 103- ZM_mul: Add Strassen-Winograd algorithm
+   104- GP functions sumnummonien/sumnummonieninit
+   105- [libpari] RgM_gram_schmidt, RgM_Babai
+BA 106- GP function cotanh
+   107- support sign(t_QUAD with positive discriminant)
+   108- comparison operators (<,>,<=,>=): support t_QUAD with *same* positive
+        discriminant
+BA 109- [libpari] Flv_prod, Flv_prod_pre
+BA 110- [libpari] Flv_neg, Flv_neg_inplace
+ED 111- mingw64 support
+BA 112- [parallel] new GP function parforvec
+BA 113- [libpari] Fl_addmul_pre, Fl_addmulmul_pre
+BA 114- [libpari] Fl_eltwist, Fp_elltwist, FpXQ_elltwist, Flxq_elltwist,
+                  F2xq_elltwist
+BA 115- GP functions elltwist, ellminimaltwist
+   116- [libpari] omegau, bigomegau
+VB 117- GP support for 0xffff and 0b1111 (input t_INT in binary or hex notation)
+BA 118- GP functions ellisomat
+HC 119- GP function ramanujantau
+PB 120- Speed up {Flx,FpX,FpXQX}_divrem_basecase for modulus of the form
+        x^n+O(x^m) with m small
+HC 121- GP function solvestep
+   122- [GP] New lfun family of functions
    lfun                lfundiv             lfunmfspec          lfunsymsqspec
    lfunabelianrelinit  lfunetaquo          lfunmul             lfuntheta
    lfunan              lfunhardy           lfunorderzero       lfunthetainit
    lfuncheckfeq        lfuninit            lfunqf              lfunzeros
    lfunconductor       lfunlambda          lfunrootres         lfunartin
    lfuncreate          lfunmfpeters        lfunsymsq
-  123- [libpari] nfchecksigns, idealchineseinit
-JD124- [libpari] gp_read_str_multiline
-BA125- [libpari] Flx_nbfact_Frobenius, FpX_nbfact_Frobenius
-  126- extend idealchinese() to impose sign conditions at specified real
-       places [#1501]
-  127- [libpari] qfb_equal1, qfi_order, qfi_log, qfi_Shanks
-  128- [libpari] RgV_kill0
-BA129- factorcantor: use Shoup-Kaltofen algorithm (much faster)
-BA130- [libpari] FpX_dotproduct, Flx_dotproduct
-JK131- FpXQ_minpoly/Flxq_minpoly: use Shoup algorithm (much faster), and do
-       not assume modulus is irreducible
-BA132- [libpari] idealramfrobenius, idealfrobenius_aut, nfgaloispermtobasis
-  133- Allow ??lfun, ??Lmath, etc. [#1753]
-  134- [libpari] cyc_normalize, char_normalize, char_check, char_rootof1,
-       char_rootof1_u, bnrchar_primitive, bnrconductor_i
-  135- GP functions charker, bnrchar
-  136- bnrconductor(bnr, chi) as a shortcut for bnrconductor(bnr, Ker chi);
-       same for bnrisconductor, bnrdisc and bnrclassno
-  137- [libpari] real_1_bit(), grootsof1()
-PB138- [libpari] Flm_sub, FpM_sub
-BA138- [libpari] get_FpXQX_mod, get_FpXQX_degree, get_FpXQX_var,
-       FpXQX_get_red, FqX_get_red, random_FpXQX
-BA139- [libpari] get_FlxqX_mod, get_FlxqX_degree, get_FlxqX_var,
-       FlxqX_get_red, random_FlxqX
-BA140- Prototype code 'b' and default 'realbitprecision'
-  141- \pb shortcut [ manipulate realbitprecision ]
-BA142- [GP] Map, matget, mapput, mapisdefined, mapdelete
-BA143- [GP] bitprecision
-BA143- [arm64] add aarch64 assembly kernel
-  144- [libpari] ZV_snf_group, ZV_snfall
-  145- [libpari] znstar0 with Idealstar semantic; could be made available under
-       GP as default znstar, but current znstar/idealstar have incompatible
-       defaults. Called by idealstar(,N).
-  146- [GP] znconreychar, znconreyexp, znconreylog, znconreyconductor,
-       charorder, charconj
-BA147- [GP] call (for calling closures).
-  148- [GP] optional flag to forell [ loop over isogeny classes ]
-  149- lfunthetacost, lfuncost
+   123- [libpari] nfchecksigns, idealchineseinit
+JD 124- [libpari] gp_read_str_multiline
+BA 125- [libpari] Flx_nbfact_Frobenius, FpX_nbfact_Frobenius
+   126- extend idealchinese() to impose sign conditions at specified real
+        places [#1501]
+   127- [libpari] qfb_equal1, qfi_order, qfi_log, qfi_Shanks
+   128- [libpari] RgV_kill0
+BA 129- factorcantor: use Shoup-Kaltofen algorithm (much faster)
+BA 130- [libpari] FpX_dotproduct, Flx_dotproduct
+JK 131- FpXQ_minpoly/Flxq_minpoly: use Shoup algorithm (much faster), and do
+        not assume modulus is irreducible
+BA 132- [libpari] idealramfrobenius, idealfrobenius_aut, nfgaloispermtobasis
+   133- Allow ??lfun, ??Lmath, etc. [#1753]
+   134- [libpari] cyc_normalize, char_normalize, char_check, char_rootof1,
+        char_rootof1_u, bnrchar_primitive, bnrconductor_i
+   135- GP functions charker, bnrchar
+   136- bnrconductor(bnr, chi) as a shortcut for bnrconductor(bnr, Ker chi);
+        same for bnrisconductor, bnrdisc and bnrclassno
+   137- [libpari] real_1_bit(), grootsof1()
+PB 138- [libpari] Flm_sub, FpM_sub
+BA 138- [libpari] get_FpXQX_mod, get_FpXQX_degree, get_FpXQX_var,
+        FpXQX_get_red, FqX_get_red, random_FpXQX
+BA 139- [libpari] get_FlxqX_mod, get_FlxqX_degree, get_FlxqX_var,
+        FlxqX_get_red, random_FlxqX
+BA 140- Prototype code 'b' and default 'realbitprecision'
+   141- \pb shortcut [ manipulate realbitprecision ]
+BA 142- [GP] Map, matget, mapput, mapisdefined, mapdelete
+BA 143- [GP] bitprecision
+BA 143- [arm64] add aarch64 assembly kernel
+   144- [libpari] ZV_snf_group, ZV_snfall
+   145- [libpari] znstar0 with Idealstar semantic; could be made available under
+        GP as default znstar, but current znstar/idealstar have incompatible
+        defaults. Called by idealstar(,N).
+   146- [GP] znconreychar, znconreyexp, znconreylog, znconreyconductor,
+        charorder, charconj
+BA 147- [GP] call (for calling closures).
+   148- [GP] optional flag to forell [ loop over isogeny classes ]
+   149- lfunthetacost, lfuncost
+SCh150- [mingw] timer: support for user time
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]
