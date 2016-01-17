@@ -718,7 +718,7 @@ i.e.~in terms of \kbd{a}. We will see this in more detail in the number
 field section.
 
 An important special case of the above construction allows to work in finite
-fields, by choosing an irreductible polynomial $T$ of degree $f$ over $\F_p$
+fields, by choosing an irreducible polynomial $T$ of degree $f$ over $\F_p$
 and considering $\F_p[t]/(T)$. As in
 \bprog
   T = ffinit(5, 6, 't); \\ @com degree 6, irreducible over $\F_5$
@@ -2322,7 +2322,7 @@ the order be $p$-maximal for a certain number of primes $p$ --- but then, we
 may not be able to use functions which require a genuine \kbd{nf}. The
 function \kbd{nfbasis} specifically computes the integral basis and is not
 much quicker than \kbd{nfinit} so is not very useful in its standard use. But
-we can optionnally provide a list of primes: this returns a basis of an order
+we can optionally provide a list of primes: this returns a basis of an order
 which is $p$-maximal at the given primes. For example coming back to our
 initial polynomial $T$, the discriminant of the polynomial is
 $3^7\cdot7^6\cdot19\cdot37$. If we only want a $7$-maximal order, we simply
@@ -2343,7 +2343,7 @@ the maximal order! We can then input the resulting basis to \kbd{nfinit}, as
 \kbd{nfinit([T, bas])}. Better: the $[T, \var{listP}]$ format can be
 directly used with nfinit, where \var{listP} specifies a finite list of
 primes in one of the above ways (explicit list or primes up to some bound),
-and the result can be unconditionnally certified, independently of the
+and the result can be unconditionally certified, independently of the
 \var{listP} parameter:
 \bprog
   T = polcompositum(x^7-2, polcyclo(5))[1];
@@ -2352,7 +2352,7 @@ and the result can be unconditionnally certified, independently of the
 @eprog\noindent The output is a list of composite integers whose complete
 factorization must be computed in order to certify the result (which may be
 very hard, hence is not done on the spot). When the list is empty, as here,
-the result is unconditionnal
+the result is unconditional
 
 \kbd{nfcertify(nf)}
 
@@ -2776,15 +2776,15 @@ field of $Q(x^2)$.  We can check that with
 
 \section{Working with associative algebras}
 
-Beyond the realm of number fields, we can even perform operations with
-arbitrary associative algebras, that need not even be commutative! Of course some
-things become slightly more complicated. We have two different structures: the
-first one allows us to manipulate any associative algebra that is
-finite-dimensional over a prime field ($\Q$ or $\F_p$ for some prime~$p$), and
-the second one is dedicated to central simple algebras over number fields, which
-are some nice algebras that behave a lot like number fields. Like in other parts
-of~\kbd{gp}, every function that has to do with associative algebras begins with
-the same prefix:~\kbd{alg}.
+Beyond the realm of number fields, we can perform operations with more
+general associative algebras, that need not even be commutative! Of course
+things become more complicated. We have two different structures: the first
+one allows us to manipulate any associative algebra that is
+finite-dimensional over a prime field ($\Q$ or $\F_p$ for some prime~$p$),
+and the second one is dedicated to central simple algebras over number
+fields, which are some nice algebras that behave a lot like number fields.
+Like in other parts of~\kbd{gp}, every function that has to do with
+associative algebras begins with the same prefix:~\kbd{alg}.
 
 \subsec{Arbitrary associative algebras}
 
@@ -2793,43 +2793,47 @@ multiply elements. We do this by providing a \emph{multiplication table} for the
 algebra, in the form of the matrix of left multiplication by each basis element,
 and use the function~\kbd{algtableinit}.
 
-For instance, suppose that we want to represent~$\F_3[x]/(x^2)$. Of course, we
-could use polmods of mods to represents elements in this algebra, but let's
-start with this simple example! This algebra has a basis with two elements:~$1$
+For instance, let us work in~$\F_3[x]/(x^2)$. Of course, we
+could use polmods of intmods to represent elements in this algebra, but let's
+introduce the general mechanism  with this simple example!
+his algebra has a basis with two elements:~$1$
 and~$\epsilon$, the image of~$x$ in the quotient. By the way,~\kbd{gp} will
 only accept your multiplication table if the first basis vector is~$1$. The
 multiplication matrix of~$1$ is the~$2\times 2$ identity matrix, and
 since~$\epsilon\cdot 1 = \epsilon$ and~$\epsilon\cdot\epsilon = 0$, the left
-multiplication table of~$\epsilon$ is~$\pmatrix{0 & 0 \cr 1 & 0}$. So the
-multiplication table we want to use is
+multiplication table of~$\epsilon$ is~$\pmatrix{0 & 0 \cr 1 & 0}$. So we
+use the following multiplication table:
 \bprog
-mt1 = [matid(2),[0,0;1,0]]
+mt1 = [matid(2), [0,0;1,0]]
 @eprog\noindent
 Since
 we want our algebra to be over~$\F_3$, we have to specify the characteristic
 and create the algebra with
 \bprog
-al1 = algtableinit(mt1,3);
+al1 = algtableinit(mt1, 3);
 @eprog\noindent
-Let's do another one to practice: the algebra of upper-triangular~$2\times 2$
+Let's create another one: the algebra of upper-triangular~$2\times 2$
 matrices over~$\Q$. This algebra has dimension~$3$, with basis~$1$, $a =
 \pmatrix{0 & 1 \cr 0 & 0}$ and~$b = \pmatrix{0 & 0 \cr 0 & 1}$, and these
 elements satisfy~$a^2=0$, $ab = a$, $ba=0$ and~$b^2=b$. Watch out, even
 though~$a$ and~$b$ are~$2\times 2$ matrices, their left multiplication tables
-are~$3\times 3$ matrices! The left multiplication table of~$a$ is~$\pmatrix{0 &
-0 & 0 \cr 1 &  0 & 1 \cr 0 & 0 & 0}$, and that of~$b$ is~$\pmatrix{0 & 0 & 0 \cr
-0 & 0 & 0 \cr 1 & 0 & 1}$. The multiplication table of our second algebra
-is therefore
+are~$3\times 3$ matrices! The left multiplication tables of~$a$
+and~$b$ are respectively
 \bprog
-mt2 = [matid(3),[0,0,0;1,0,1;0,0,0],[0,0,0;0,0,0;1,0,1]]
+ma = [0,0,0; 1,0,1; 0,0,0];
+mb = [0,0,0; 0,0,0; 1,0,1];
+@eprog\noindent
+The multiplication table of our second algebra is therefore
+\bprog
+mt2 = [matid(3), ma, mb];
 @eprog\noindent
 and we can create the algebra with
 \bprog
-al2 = algtableinit(mt2,0)
+al2 = algtableinit(mt2,0);
 @eprog\noindent
 In fact, we can omit the second argument and type
 \bprog
-al2 = algtableinit(mt2)
+al2 = algtableinit(mt2);
 @eprog\noindent
 and the
 characteristic of the algebra will implicitly be~$0$. Warning: in
@@ -2846,7 +2850,7 @@ with
 \bprog
 algisassociative(mt1,3)
 @eprog\noindent
-After creating the algebra, you can get the
+After creating the algebra, you can get back the
 multiplication table that you provided with~\kbd{algmultable(al2)}, the
 characteristic with~\kbd{algchar(al1)} and the dimension with~\kbd{algdim(al2)}.
 
@@ -2863,35 +2867,35 @@ c = [2,1,-1]~
 @eprog\noindent
 We can also draw random elements in a box using
 \bprog
-algrandom(al2,10)
+algrandom(al2, 10)
 @eprog\noindent
 You can compute any elementary operation: try various combinations
 of~\kbd{algadd}, \kbd{algsub}, \kbd{algneg}, \kbd{algmul}, \kbd{alginv},
 \kbd{algsqr}, \kbd{algpow}, using the syntax
 \bprog
-algmul(al2,b,a)
-algpow(al2,c,10)
+algmul(al2, b, a)
+algpow(al2, c, 10)
 @eprog\noindent
 and the natural variants. In every algebra we have the left regular
 representation, which sends every element~$x$ to the matrix of left
 multiplication by~$x$. In~\kbd{gp} we access it by calling
 \bprog
-algleftmultable(al2,c)
+algleftmultable(al2, c)
 @eprog\noindent
 For every element~$x$ in an associative algebra, the trace of that matrix is
 called the \emph{trace} of~$x$, the determinant is called the \emph{norm}
 of~$x$, and the characteristic polynomial is called the \emph{characteristic
 polynomial} of~$x$. We can compute them:
 \bprog
-algtrace(al2,a)
-algnorm(al2,c)
-algcharpoly(al2,b)
+algtrace(al2, a)
+algnorm(al2, c)
+algcharpoly(al2, b)
 @eprog
 
 \subsubsec{Properties}
 
 Now let's try to compute some interesting properties of our algebras. Maybe the
-simplest one we want to test is whether an algebra is commutative.
+simplest one we want to test is whether an algebra is commutative;
 \kbd{algiscommutative} does that for us: you can use it to check that~\kbd{al1}
 is of course commutative, but~\kbd{al2} is not since for instance~$ab=a\neq 0 =
 ba$. More precisely, we can compute a basis of the center of an algebra
@@ -2913,14 +2917,10 @@ the element~$\epsilon$. Indeed, in a commutative algebra the Jacobson
 radical is equal to the set of nilpotent elements. The radical of~\kbd{al2} has
 basis~$a$: it is the subspace of strictly upper-triangular~$2\times 2$ matrices.
 You can also directly test whether an algebra is semisimple
-using~\kbd{algissemisimple}. Let's compute the semisimplification of our second
-algebra: first compute
+using~\kbd{algissemisimple}. Let's compute the semisimplification of our
+second algebra by quotienting out its radical:
 \bprog
-j2 = algradical(al2)
-@eprog\noindent
-and then quotient out by the radical by doing
-\bprog
-al3 = algquotient(al2,j2);
+al3 = algquotient(al2, algradical(al2));
 @eprog\noindent
 Check that~\kbd{al3} is indeed semisimple now that you know how to do it!
 
@@ -2929,12 +2929,14 @@ is a field, the group algebra~$F[G]$ is semisimple if and only if the
 characteristic of~$F$ does not divide the order of~$G$. Let's try it!
 
 \bprog
-G = galoisinit(nfsplitting(x^3-x+1)).group; \\ S3
-mt4 = apply(v->matrix(#v,#v,i,j,v[j]==i),G);
-al4 = algtableinit(mt4,5);
+K = nfsplitting(x^3-x+1); \\ Galois closure -> S_3
+G = galoisinit(K).group;
+\\ multiplication tables for permutation group
+mt4 = [matrix(#v,#v, i,j, v[j]==i) | v <- G];
+al4 = algtableinit(mt4, 5); \\ F_5(S_3)
 algissemisimple(al4)
 @eprog\noindent
-Check what happens when you change the characteristic of of the algebra!
+Check what happens when you change the characteristic of the algebra.
 
 The building blocks of semisimple algebras are \emph{simple} algebras:
 algebras with no nontrivial two-sided ideals. Since the Jacobson radical is a
@@ -2948,25 +2950,25 @@ semisimple. Instead we can test whether~\kbd{al3} is simple, and since we
 already know that it is semisimple we can prevent~\kbd{gp} from checking it
 again by using the optional second argument:
 \bprog
-algissimple(al3,1)
+algissimple(al3, 1)
 @eprog\noindent
 We see that~\kbd{al3} is not simple, and this implies that we can decompose it
 further. Indeed, every semisimple algebra is isomorphic to a product of simple algebras.
 We can obtain this decomposition with
 \bprog
-dec3 = algsimpledec(al3)
-apply(algdim,dec3)
+dec3 = algsimpledec(al3);
+apply(algdim, dec3)
 @eprog\noindent
 We see that~\kbd{al3} is isomorphic to~$\Q\times\Q$. Similarly, we can
 decompose~\kbd{al4}.
 \bprog
-dec4 = algsimpledec(al4)
-apply(algdim,dec4)
+dec4 = algsimpledec(al4);
+apply(algdim, dec4)
 @eprog\noindent
 We see that~\kbd{al4} is isomorphic to~$\F_5\times\F_5\times A$ where~$A$ is a
-mysterious simple algebra. However every simple algebra over a finite field is
-isomorphic to a matrix algebra over a possibly larger finite field. By computing
-the center
+mysterious 4-dimensional simple algebra. However every simple algebra over a
+finite field is isomorphic to a matrix algebra over a possibly larger finite
+field. By computing the center
 \bprog
 algcenter(dec4[3])
 @eprog\noindent
@@ -2981,7 +2983,7 @@ algebra over a field~$F$ is \emph{central} if its center is~$F$. The most
 natural noncommutative generalization of a number field is a \emph{division
 algebra} over~$\Q$: an algebra in which every nonzero element is invertible.
 Since the center of a division algebra over~$\Q$ is a number field, we do not
-loose any generality by considering central division algebras over number
+lose any generality by considering central division algebras over number
 fields. However, the tensor product of two central division algebras is not
 always a division algebra, but division algebras are always simple and central
 simple algebras are closed under tensor products, giving a much nicer global
@@ -2991,15 +2993,15 @@ noncommutative generalization of number fields.
 \subsubsec{Creation}
 
 Let's create our first central simple algebras! A well-known construction is
-that of \emph{quaternion algebras}. The construction proceeds as follows:
-let~$F$ be a number field, and let~$a,b\in F^\times$. The quaternion
-algebra~$(a,b)_F$ is the algebra generated by two elements~$i$ and~$j$
-satisfying~$i^2=a$, $j^2=b$ and~$ij=-ji$. So the famous quaternion algebra of
-Hamilton corresponds to the choice~$a=b=-1$, but it is not the only possible
+that of \emph{quaternion algebras}, which proceeds as follows.
+Let~$F$ be a number field, and let~$a,b\in F^\times$; the quaternion
+algebra~$(a,b)_F$ is the $F$-algebra generated by two elements~$i$ and~$j$
+satisfying~$i^2=a$, $j^2=b$ and~$ij=-ji$. Hamilton's quaternions
+correspond to the choice~$a=b=-1$, but it is not the only possible
 one! Here is our first quaternion algebra:
 \bprog
 Q = nfinit(y);
-al1 = alginit(Q,[-2,-1]);
+al1 = alginit(Q,[-2,-1]); \\  (-2,-1)_Q
 @eprog\noindent
 Note that we represented the rationals~$\Q$ with an~\kbd{nf} structure and used
 the variable~$y$ in that structure. The reason for this variable choice will
@@ -3009,11 +3011,10 @@ fact that you can check in our example:
 \bprog
 algdim(al1)
 @eprog\noindent
-
-There is a nice generalisation of the quaternion algebra construction: cyclic
-algebras. Let~$F$ be a number field and~$K/F$ a cyclic extension of degree~$d$
+Cyclic algebras generalize the quaternion algebra construction.
+Let~$F$ be a number field and~$K/F$ a cyclic extension of degree~$d$
 with~$\sigma\in\text{Gal}(K/F)$ an automorphism of order~$d$, and let~$b\in
-F^\times$. The \emph{cyclic algebra}~$(K/F,\sigma,b)$ is the
+F^\times$; the \emph{cyclic algebra}~$(K/F,\sigma,b)$ is the
 algebra~$\bigoplus_{i=0}^{d-1}u^iK$ with~$u^d=b$ and~$k u = u \sigma(k)$
 for all~$k\in K$. It is a central simple algebra of dimension~$d^2$ over~$F$.
 Let's construct one. First, start with a cyclic extension of number fields. A
@@ -3025,13 +3026,13 @@ K = rnfinit(Q,T);
 aut = Mod(x^2,T)
 @eprog\noindent
 Here the variable of~\kbd{T} must have higher priority than that of~\kbd{Q} to
-build the~\kbd{rnf} structure! Now choose an element~$b\in\Q^\times$, say~$3$.
+build the~\kbd{rnf} structure. Now choose an element~$b\in\Q^\times$, say~$3$.
 \bprog
 b = 3
 @eprog\noindent
 Now we can create the algebra and check that it has the right dimension:~$16$.
 \bprog
-al2 = alginit(K,[aut,b]);
+al2 = alginit(K, [aut,b]);
 algdim(al2)
 @eprog\noindent
 We can recover the field~\kbd{K}, the automorphism~\kbd{aut} and the
@@ -3055,7 +3056,8 @@ writing~$\Q+\Q i+\Q j+\Q ij = \Q(i) + j\Q(i)$.
 A nice feature of central simple algebras over a given number field is that they
 are completely classified up to isomorphism, in terms of certain invariants. We
 therefore provide functions to create an algebra directly from its invariants.
-The first basic invariant is the dimension of the algebra. In fact, the
+The first basic invariant is the dimension of the algebra over its center.
+In fact, the
 dimension of a central simple algebra is always a square, and we call the square
 root of the dimension the \emph{degree} of the algebra. For instance, a
 quaternion algebra has degree~$2$. We can access the degree with
@@ -3085,14 +3087,13 @@ and a vector of integers of the same length representing the Hasse invariants at
 finite places. We learn that~\kbd{al1} has invariant~$1/2$ at~$2$ and~$0$ at
 every other finite place, and that~\kbd{al2} has invariant~$-1/3$ at~$3$,
 invariant~$1/3$ at~$5$, and~$0$ at every other finite place.
-
-In fact, these invariants give a complete classification of central simple
+These invariants give a complete classification of central simple
 algebras over~$F$:
 
  \item two central simple algebras over~$F$ are isomorphic if and only if they
    have the same invariants;
 
- \item the sum of the Hasse invariants is~$0$;
+ \item the sum of the Hasse invariants is~$0$ in $\Q/\Z$;
 
  \item for every degree~$d$ and finite collection of Hasse invariants satisfying
    the conditions above, there exists a central simple algebra over~$F$ having
@@ -3106,22 +3107,22 @@ p3 = idealprimedec(nf,3)[1]
 p17 = idealprimedec(nf,17)[1]
 @eprog\noindent
 Now let's construct an algebra of degree~$6$. The following Hasse invariants
-satisfy the correct conditions since~$1/2+1/3+1/6=1=0$ in~$\Q/\Z$:
+satisfy the correct conditions since~$1/3+1/6+1/2=0$ in~$\Q/\Z$:
 \bprog
-hf = [[p3,p17],[1/3,1/6]]
-hi = [1/2,0] \\ nf has 2 real places
+hf = [[p3,p17],[1/3,1/6]]; hi = [1/2,0]; \\ nf has 2 real places
 @eprog\noindent
 Finally we can create the algebra:
 \bprog
 al3 = alginit(nf,[6,hf,hi]);
 @eprog\noindent
-Be patient, this is an algebra of dimension~$2\times 6^2 = 72$ over~$\Q$ and we
-are doing a nontrivial computation in the initialisation! You can check that the
+This will require less than half a minute but a lot of memory:
+this is an algebra of dimension~$2\times 6^2 = 72$ over~$\Q$ and we
+are doing a nontrivial computation in the initialization! You can check that the
 dimension over~$\Q$ is what we expect:
 \bprog
 algabsdim(al3)
 @eprog\noindent
-During the initialisation, \kbd{gp} computes an integral multiplication table
+During the initialization, \kbd{gp} computes an integral multiplication table
 for the algebra. This allows us to recreate a table version of the algebra:
 \bprog
 mt3 = algmultable(al3);
@@ -3154,7 +3155,7 @@ i = [x,0]~
 j = [0,1]~
 k = [0,-x]~
 @eprog\noindent
-We can check that the usual relations are satisfied:
+The expected equalities hold:
 \bprog
 algsqr(al1,i) == -2*one
 algsqr(al1,j) == -1*one
@@ -3165,29 +3166,30 @@ algmul(al1,j,i) == -k
 
 Like~\kbd{nfinit} for number fields, the~\kbd{alginit} function computes an
 integral basis of
-the algebra being initialised. More precisely, an \emph{order} in
+the algebra being initialized. More precisely, an \emph{order} in
 a~$\Q$-algebra~$A$ is a subring~${\cal O}\subset A$ that is finitely generated
-as a~$\Z$-module and such that~$\Q{\cal O} = A$. In an algebra structure
+as a~$\Z$-module and such that~$\Q\otimes_\Z{\cal O} = A$. In an algebra
+structure
 computed with~\kbd{alginit}, we store a basis of an order~${\cal O}_0$, which we
 will call the integral basis of the algebra. There is no canonical choice for
 such a basis, and not every integral element has integral coordinates with
 respect to that basis (the set of integral elements in~$A$ does not form a
 ring in general). By default, ${\cal O}_0$ is a maximal order and hence behaves
 in a way similar to the ring of integers in a number field. You can disable the
-computation of a maximal order with an optional argument:
+(costly) computation of a maximal order with an optional argument:
 \bprog
 al5 = alginit(nf,[6,hf,hi],,0);
 @eprog\noindent
-This command should be faster than the initialisation of~\kbd{al3}.
+This command should be faster than the initialization of~\kbd{al3}.
 As in number fields, you can represent elements of central simple algebras in
 \emph{algebraic form}, which means the cyclic algebra representation we
 described above, or in \emph{basis form}, which means as a~$\Q$-linear
 combination of the integral basis. You can switch between the two
 representations:
 \bprog
-algalgtobasis(al2,a)
-algalgtobasis(al1,j)
-algbasistoalg(al3,algrandom(al3,1))
+algalgtobasis(al2, a)
+algalgtobasis(al1, j)
+algbasistoalg(al3, algrandom(al3,1))
 @eprog\noindent
 As usual you can compute any elementary operation: try various combinations
 of~\kbd{algadd}, \kbd{algsub}, \kbd{algneg}, \kbd{algmul}, \kbd{alginv},
@@ -3198,17 +3200,17 @@ field}, that is an extension~$K/F$ such that~$A\otimes_F K\cong M_d(K)$. We
 always store such a splitting in an~\kbd{alginit} structure, and you can access
 it using
 \bprog
-algsplittingfield(al1) \\K as an rnf structure
-algsplittingmatrix(al1,k) \\image of k by the splitting isomorphism
+algsplittingfield(al1) \\ K as an rnf structure
+algsplittingmatrix(al1, k) \\ image of k by the splitting isomorphism
 @eprog\noindent
 For any~$x\in A$, the trace (resp. determinant, characteristic polynomial)
 of that matrix is in~$K$ (resp.~$K$,~$K[X]$) and are called the
 \emph{reduced trace} (resp. \emph{reduced norm}, \emph{reduced characteristic
 polynomial}) of~$x$. You can compute them using
 \bprog
-algtrace(al3,vector(72,i,i==3)~)
-algnorm(al2,a)
-algcharpoly(al1,-1+i+j+2*k)
+algtrace(al3, vector(72,i,i==3)~)
+algnorm(al2, a)
+algcharpoly(al1, -1+i+j+2*k)
 @eprog
 
 \section{Plotting}
@@ -3670,7 +3672,7 @@ section in the User's manual. We strongly advise to set \kbd{parisizemax} to
 a large non-zero value, about what you believe your machine can stand: this
 both limits the amount of memory PARI will use for its computation (thereby
 keeping your machine usable), and let PARI increases its stack size (up to
-this limit) to accomodate large computations. If you regularly see \kbd{PARI
+this limit) to accommodate large computations. If you regularly see \kbd{PARI
 stack overflows} messages, think about this one!
 
 For clarity, it is advisable  to declare local variables in user functions
