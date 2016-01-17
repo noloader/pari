@@ -752,9 +752,10 @@ ulong
 Flm_det_sp(GEN a, ulong p)
 {
   long i,j,k, s = 1, nbco = lg(a)-1;
-  ulong q, x = 1;
+  ulong pi, q, x = 1;
 
   if (SMALL_ULONG(p)) return Flm_det_sp_OK(a, nbco, p);
+  pi = get_Fl_red(p);
   for (i=1; i<nbco; i++)
   {
     for(k=i; k<=nbco; k++)
@@ -767,16 +768,16 @@ Flm_det_sp(GEN a, ulong p)
     }
     q = ucoeff(a,i,i);
 
-    x = Fl_mul(x,q,p);
+    x = Fl_mul_pre(x, q, p, pi);
     q = Fl_inv(q,p);
     for (k=i+1; k<=nbco; k++)
     {
       ulong m = ucoeff(a,i,k);
       if (!m) continue;
 
-      m = Fl_mul(m, q, p);
+      m = Fl_mul_pre(m, q, p, pi);
       for (j=i+1; j<=nbco; j++)
-        ucoeff(a,j,k) = Fl_sub(ucoeff(a,j,k), Fl_mul(m,ucoeff(a,j,i), p), p);
+        ucoeff(a,j,k) = Fl_sub(ucoeff(a,j,k), Fl_mul_pre(m,ucoeff(a,j,i), p, pi), p);
     }
   }
   if (s < 0) x = Fl_neg(x, p);
