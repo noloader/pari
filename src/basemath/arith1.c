@@ -687,7 +687,7 @@ znconreyconductor(GEN bid, GEN chi, GEN *pm)
   }
   P = leafcopy(P);
   E = leafcopy(E);
-  m = cgetg(l, t_VEC);
+  m = cgetg(l, t_COL);
   e2 = (E[1] >= 3 && equaliu(gel(P,1),2));
   i = j = 1;
   if (e2)
