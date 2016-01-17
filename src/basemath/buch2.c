@@ -3667,8 +3667,8 @@ init_rel(RELCACHE_t *cache, FB_t *F, long add_need)
  * - z^a - 1,  n/(a,n) not a prime power, a \nmid n unless a=1,  1 <= a < n/2
  * - (Z^a - 1)/(Z - 1),  p^k || n, Z = z^{n/p^k}, (p,a) = 1, 1 < a <= (p^k-1)/2
  */
-static GEN
-cyclotomic_units(GEN nf, GEN zu)
+GEN
+nfcyclotomicunits(GEN nf, GEN zu)
 {
   long n = itos(gel(zu, 1)), n2, lP, i, a;
   GEN z, fa, P, E, L, mz, powz;
@@ -3708,7 +3708,7 @@ static void
 add_cyclotomic_units(GEN nf, GEN zu, RELCACHE_t *cache, FB_t *F)
 {
   pari_sp av = avma;
-  GEN L = cyclotomic_units(nf, zu);
+  GEN L = nfcyclotomicunits(nf, zu);
   long i, l = lg(L);
   if (l > 1)
   {

@@ -1520,6 +1520,16 @@ multiple for the number of  $\Q$-automorphism of the (integral, monic)
 actual number of conjugates. Of course, you should use \tet{nfgaloisconj}
 to be sure.
 
+\subsec{Cyclotomics units}
+
+\fun{GEN}{nfrootsof1}{GEN nf} returns a two-component vector $[w,z]$ where $w$
+is the number of roots of unity in the number field \var{nf}, and $z$ is a
+primitive $w$-th root of unity.
+
+\fun{GEN}{nfcyclotomicunits}{GEN nf, GEN zu} where \kbd{zu} is as output by
+\kbd{nfrootsof1(nf)}, return the vector of the cyclotomic units in \kbd{nf}
+expressed over the integral basis.
+
 \subsec{Obsolete routines}
 
 Still provided for backward compatibility, but should not be used in new
