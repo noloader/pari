@@ -22,3 +22,9 @@ Doc: resultant of the two
 
  If $\fl=1$, uses the determinant of Sylvester's matrix instead; this should
  always be slower than the default.
+
+Function: _ZX_resultant_worker
+C-Name: ZX_resultant_worker
+Prototype: GGGG
+Section: programming/internals
+Help: worker for ZX_resultant

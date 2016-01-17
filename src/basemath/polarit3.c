@@ -2581,6 +2581,14 @@ ZX_resultant_slice(GEN A, GEN B, GEN dB, GEN P, GEN *mod)
   return H;
 }
 
+GEN
+ZX_resultant_worker(GEN P, GEN A, GEN B, GEN dB)
+{
+  GEN V = cgetg(3, t_VEC);
+  gel(V,1) = ZX_resultant_slice(A,B==gen_0?NULL:B,dB==gen_0?NULL:dB,P,&gel(V,2));
+  return V;
+}
+
 static GEN
 primelist_disc(ulong *p, long n, GEN dB)
 {
@@ -2639,20 +2647,32 @@ ZX_resultant_all(GEN A, GEN B, GEN dB, ulong bound)
   }
   else
   {
-    long i, s = n/m, r = n - m*s;
+    long i, s = n/m, r = n - m*s, di = 0;
+    GEN worker = strtoclosure("_ZX_resultant_worker", 3, A, B?B:gen_0, dB?dB:gen_0);
+    struct pari_mt pt;
+    long pending;
     if (DEBUGLEVEL > 4)
       err_printf("ZX_resultant: bound 2^%ld, nb primes: %ld\n",bound, n);
     H = cgetg(m+1+!!r, t_VEC); P = cgetg(m+1+!!r, t_VEC);
-    for (i=1; i<=m; i++)
+    mt_queue_start(&pt, worker);
+    for (i=1; i<=m || pending; i++)
     {
-      GEN Ps = primelist_disc(&p, s, dB);
-      gel(H, i) = ZX_resultant_slice(A, B, dB, Ps, &gel(P, i));
-      if (DEBUGLEVEL>5) err_printf("%ld%% ",100*i/m);
+      GEN done;
+      mt_queue_submit(&pt, i, i<=m ? mkvec(primelist_disc(&p, s, dB)): NULL);
+      done = mt_queue_get(&pt, NULL, &pending);
+      if (done)
+      {
+        di++;
+        gel(H, di) = gel(done,1);
+        gel(P, di) = gel(done,2);
+        if (DEBUGLEVEL>5) err_printf("%ld%% ",100*di/m);
+      }
     }
+    mt_queue_end(&pt);
     if (r)
     {
       GEN Pr = primelist_disc(&p, r, dB);
-      gel(H, i) = ZX_resultant_slice(A, B, dB, Pr, &gel(P, i));
+      gel(H, m+1) = ZX_resultant_slice(A, B, dB, Pr, &gel(P, m+1));
     }
     H = ZV_chinese(H, P, &mod);
     if (DEBUGLEVEL>5) err_printf("done\n");

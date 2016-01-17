@@ -142,6 +142,7 @@ GEN  parvector_worker(GEN i, GEN C);
 GEN  polmodular_worker(ulong p, ulong t, ulong L, GEN hilb, GEN factu,
        GEN vne, GEN vinfo, GEN J, long compute_derivs, GEN j_powers, GEN fdb);
 GEN  nmV_polint_center_tree_worker(GEN Va, GEN T, GEN R, GEN xa, GEN m2);
+GEN  ZX_resultant_worker(GEN P, GEN A, GEN B, GEN dB);
 
 /* multiprecision */
 GEN   addrex01(GEN x);
