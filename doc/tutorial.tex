@@ -2931,7 +2931,7 @@ characteristic of~$F$ does not divide the order of~$G$. Let's try it!
 \bprog
 K = nfsplitting(x^3-x+1); \\ Galois closure -> S_3
 G = galoisinit(K).group;
-\\ multiplication tables for permutation group
+\\ multiplication tables for permutation group in regular representation
 mt4 = [matrix(#v,#v, i,j, v[j]==i) | v <- G];
 al4 = algtableinit(mt4, 5); \\ F_5(S_3)
 algissemisimple(al4)
@@ -3204,7 +3204,7 @@ algsplittingfield(al1) \\ K as an rnf structure
 algsplittingmatrix(al1, k) \\ image of k by the splitting isomorphism
 @eprog\noindent
 For any~$x\in A$, the trace (resp. determinant, characteristic polynomial)
-of that matrix is in~$K$ (resp.~$K$,~$K[X]$) and are called the
+of that matrix is in~$K$ (resp.~$K$,~$K[X]$) and is called the
 \emph{reduced trace} (resp. \emph{reduced norm}, \emph{reduced characteristic
 polynomial}) of~$x$. You can compute them using
 \bprog

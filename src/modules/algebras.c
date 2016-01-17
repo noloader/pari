@@ -381,6 +381,7 @@ al:
 8* dn^2*dn^2 matrix expressing the natural basis in terms of the integral basis
 9* VEC of dn^2 matrices giving the dn^2*dn^2 left multiplication tables of the integral basis
 10* characteristic of the base field (used only for algebras given by a multiplication table)
+11* trace of basis elements
 
 If al is given by a multiplication table, only the * fields are present.
 */
