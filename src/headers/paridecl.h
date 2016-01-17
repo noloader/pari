@@ -2149,21 +2149,21 @@ GEN     quadray(GEN bnf, GEN f, long prec);
 
 /* buch2.c */
 
+GEN     Buchall(GEN P, long flag, long prec);
+GEN     Buchall_param(GEN P, double bach, double bach2, long nbrelpid, long flun, long prec);
 GEN     bnfcompress(GEN bnf);
 GEN     bnfinit0(GEN P,long flag,GEN data,long prec);
+GEN     bnfisprincipal0(GEN bnf, GEN x,long flall);
+GEN     bnfisunit(GEN bignf, GEN x);
 GEN     bnfnewprec(GEN nf, long prec);
 GEN     bnfnewprec_shallow(GEN nf, long prec);
 GEN     bnrnewprec(GEN bnr, long prec);
 GEN     bnrnewprec_shallow(GEN bnr, long prec);
-GEN     Buchall(GEN P, long flag, long prec);
-GEN     Buchall_param(GEN P, double bach, double bach2, long nbrelpid, long flun, long prec);
-GEN     isprincipal(GEN bnf, GEN x);
-GEN     bnfisprincipal0(GEN bnf, GEN x,long flall);
 GEN     isprincipalfact(GEN bnf, GEN C, GEN L, GEN f, long flag);
 GEN     isprincipalfact_or_fail(GEN bnf, GEN C, GEN P, GEN e);
-GEN     bnfisunit(GEN bignf, GEN x);
-GEN     signunits(GEN bignf);
+GEN     isprincipal(GEN bnf, GEN x);
 GEN     nfsign_units(GEN bnf, GEN archp, int add_zu);
+GEN     signunits(GEN bignf);
 
 /* buch3.c */
 
