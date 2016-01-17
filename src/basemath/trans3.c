@@ -696,10 +696,10 @@ isgammapole(GEN s, long bitprec)
 static GEN
 incgam_cf(GEN s, GEN x, double mx, long prec)
 {
-  GEN x_s, S, y;
+  GEN x_s, y, S;
   long n, i, LS, bitprec = prec2nbits(prec);
   pari_sp av = avma, av2;
-  double rs, is, m, LGS, addbitprec;
+  double rs, is, m;
 
   if (typ(s) == t_COMPLEX)
   {
@@ -712,19 +712,23 @@ incgam_cf(GEN s, GEN x, double mx, long prec)
     is = 0.;
   }
 
-  S = gprec_w(s, LOWDEFAULTPREC);
-  LGS = gtodouble(real_i(glngamma(S, LOWDEFAULTPREC)));
-  LS = (isgammapole(s, bitprec) || LGS <= 0)? 0: ceil(LGS);
-  addbitprec = (LGS - (rs-1)*log(mx) + mx)/LOG2;
+  if (isgammapole(s, bitprec)) LS = 0;
+  else
+  {
+    GEN ss = gprec_w(s, LOWDEFAULTPREC);
+    double bit,  LGS = gtodouble(real_i(glngamma(ss, LOWDEFAULTPREC)));
+    LS = LGS <= 0 ? 0: ceil(LGS);
+    bit = (LGS - (rs-1)*log(mx) + mx)/LOG2;
+    if (bit > 0)
+    {
+      prec = nbits2prec(bitprec + (long)bit);
+      s = gprec_w(s, prec);
+      x = gprec_w(x, prec);
+    }
+  }
   /* |ln(2*gamma(s)*sin(s*Pi))| <= ln(2) + |lngamma(s)| + |Im(s)*Pi|*/
   m = (bitprec*LOG2 + LS + LOG2 + fabs(is)*M_PI + mx)/4;
   n = (long)(1+m*m/mx);
-  if (addbitprec > 0)
-  {
-    prec = nbits2prec(bitprec + (long)addbitprec);
-    s = gprec_w(s, prec);
-    x = gprec_w(x, prec);
-  }
   if (typ(s) == t_INT) /* y = x^(s-1) exp(-x) */
     y = gmul(gexp(gneg(x), prec), powgi(x,subis(s,1)));
   else

@@ -38,6 +38,8 @@ test(incgam, 38)
 test(incgam, 76)
 
 incgam(1/2,10^8)
+incgam(-3,20)
+
 eint1(-0.3-95*I)
 eint1(100)
 incgam(-10+1e-100,1)
