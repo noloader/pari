@@ -20,6 +20,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
          (Current).end    = (Rhs)[N].end)
 #include "parsec.h"
 #define NOARG(x) newnode(Fnoarg,-1,-1,&(x))
+#define NORANGE(x) newnode(Fnorange,-1,-1,&(x))
 %}
 %error-verbose
 %name-prefix "pari_"
@@ -91,10 +92,10 @@ seq: /**/ %prec SEQ  {$$=NOARG(@$);}
    | seq ';' expr    {$$=newnode(Fseq,$1,$3,&@$);}
 ;
 
-range: /* */          { $$=newnode(Frange,NOARG(@$),NOARG(@$),&@$); }
-     | expr           { $$=newnode(Frange,$1,NOARG(@$),&@$); }
+range: /* */          { $$=newnode(Frange,NORANGE(@$),NORANGE(@$),&@$); }
+     | expr           { $$=newnode(Frange,$1,NORANGE(@$),&@$); }
      | expr ".." expr { $$=newnode(Frange,$1,$3,&@$); }
-     | '^' expr       { $$=newnode(Frange,NOARG(@$),$2,&@$); }
+     | '^' expr       { $$=newnode(Frange,NORANGE(@$),$2,&@$); }
 ;
 
 matrix_index: '[' range ',' range ']' {$$=newnode(Fmatrix,$2,$4,&@$);}

@@ -350,18 +350,18 @@ static long
 vecslice_parse_arg(long lA, long *y1, long *y2, long *skip)
 {
   *skip=0;
-  if (!*y1)
+  if (*y1==LONG_MAX)
   {
-    if (*y2)
+    if (*y2!=LONG_MAX)
     {
       if (*y2<0) *y2 += lA;
-      if (*y2<=0 || *y2>=lA)
+      if (*y2<0 || *y2==LONG_MAX || *y2>=lA)
         pari_err_DIM("_[..]");
       *skip=*y2;
     }
     *y1 = 1; *y2 = lA-1;
   }
-  else if (!*y2) *y2 = *y1;
+  else if (*y2==LONG_MAX) *y2 = *y1;
   if (*y1<0) *y1 += lA;
   if (*y2<0) *y2 += lA;
   if (*y1<=0 || *y1>*y2 || *y2>=lA) pari_err_DIM("_[..]");
@@ -441,7 +441,8 @@ matslice0(GEN A, long x1, long x2, long y1, long y2)
 {
   GEN B;
   long i, lB, lA = lg(A), t, skip, rskip, rlB;
-  long is_col = y1 && !y2, is_row = x1 && !x2;
+  long is_col = y1!=LONG_MAX && y2==LONG_MAX;
+  long is_row = x1!=LONG_MAX && x2==LONG_MAX;
   GEN (*slice)(GEN A, long t, long lB, long y1, long skip);
   if (typ(A)!=t_MAT) pari_err_TYPE("_[_.._,_.._]",A);
   lB = vecslice_parse_arg(lA, &y1, &y2, &skip);

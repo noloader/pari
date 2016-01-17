@@ -716,17 +716,18 @@ matindex_type(long n)
   long fxx = tree[tree[x].x].f, fxy = tree[tree[x].y].f;
   if (y==-1)
   {
-    if (fxy!=Fnoarg) return MAT_range;
-    if (fxx==Fnoarg) compile_err("missing index",tree[n].str);
+    if (fxy!=Fnorange) return MAT_range;
+    if (fxx==Fnorange) compile_err("missing index",tree[n].str);
     return VEC_std;
   }
   else
   {
     long fyx = tree[tree[y].x].f, fyy = tree[tree[y].y].f;
-    if (fxy!=Fnoarg || fyy!=Fnoarg) return MAT_range;
-    if (fxx==Fnoarg && fyx==Fnoarg) compile_err("missing index",tree[n].str);
-    if (fxx==Fnoarg) return MAT_column;
-    if (fyx==Fnoarg) return MAT_line;
+    if (fxy!=Fnorange || fyy!=Fnorange) return MAT_range;
+    if (fxx==Fnorange && fyx==Fnorange)
+      compile_err("missing index",tree[n].str);
+    if (fxx==Fnorange) return MAT_column;
+    if (fyx==Fnorange) return MAT_line;
     return MAT_std;
   }
 }
@@ -2157,6 +2158,10 @@ compilenode(long n, int mode, long flag)
   case Fnoarg:
     compilecast(n,Gvoid,mode);
     return;
+  case Fnorange:
+    op_push(OCpushlong,LONG_MAX,n);
+    compilecast(n,Gsmall,mode);
+    return;
   default:
     pari_err_BUG("compilenode");
   }
@@ -2463,6 +2468,7 @@ optimizenode(long n)
     tree[n].flags=0;
     break;
   case Fnoarg:
+  case Fnorange:
   case Fsmall:
   case Fconst:
   case Fentry:
