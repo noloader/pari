@@ -37,6 +37,7 @@ test(fun, prec)=
 test(incgam, 38)
 test(incgam, 76)
 
+default(realprecision, 38);
 incgam(1/2,10^8)
 incgam(-3,20)
 
