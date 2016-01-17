@@ -29,6 +29,15 @@ Doc: Let \var{bid} be associated to $(\Z/q\Z)^*$ (as per \kbd{bid =
  %2 = 126000
  ? znconreyconductor(G,1)    \\ trivial character, not primitive!
  %3 = [1, matrix(0,2)]
- ? znconreyconductor(G,1009) \\ character mod 5^3
+ ? N0 = znconreyconductor(G,1009, &chi0) \\ character mod 5^3
  %4 = [125, Mat([5, 3])]
- @eprog\noindent
+ ? chi0
+ %5 = [14]~
+ ? G0 = idealstar(,N0);      \\ format [N,factor(N)] accepted
+ ? znconreyexp(G0, chi0)
+ %7 = 9
+ ? znconreyconductor(G0, chi0) \\ now primitive, as expected
+ %8 = 125
+ @eprog\noindent The group \kbd{G0} is not computed as part of
+ \kbd{znconreyconductor} because it needs to be computed only once per
+ conductor, not once per character.
