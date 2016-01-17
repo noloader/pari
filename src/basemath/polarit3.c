@@ -2549,29 +2549,22 @@ ZX_resultant_prime(GEN a, GEN b, GEN dB, long degA, long degB, ulong p)
 
 /* If B=NULL, assume B=A' */
 static GEN
-ZX_resultant_slice(GEN A, GEN B, GEN dB, ulong p, long n, ulong *plast, GEN *mod)
+ZX_resultant_slice(GEN A, GEN B, GEN dB, GEN P, GEN *mod)
 {
   pari_sp av = avma;
-  long degA, degB, i;
-  GEN H, P, T;
+  long degA, degB, i, n = lg(P)-1;
+  GEN H, T;
 
   degA = degpol(A);
   degB = B ? degpol(B): degA - 1;
   if (n == 1)
   {
-    ulong Hp;
+    ulong Hp, p = uel(P,1);
     GEN a, b;
-    if (dB) while (umodiu(dB, p)==0) p = unextprime(p+1);
     a = ZX_to_Flx(A, p), b = B ? ZX_to_Flx(B, p): NULL;
     Hp = ZX_resultant_prime(a, b, dB, degA, degB, p);
     avma = av;
-    *plast = unextprime(p+1); *mod = utoi(p); return utoi(Hp);
-  }
-  P = cgetg(n+1, t_VECSMALL);
-  for (i=1; i <= n; i++, p = unextprime(p+1))
-  {
-    if (dB && umodiu(dB, p)==0) { i--; continue; }
-    P[i] = p;
+    *mod = utoi(p); return utoi(Hp);
   }
   T = ZV_producttree(P);
   A = ZX_nv_mod_tree(A, P, T);
@@ -2583,9 +2576,22 @@ ZX_resultant_slice(GEN A, GEN B, GEN dB, ulong p, long n, ulong *plast, GEN *mod
     GEN a = gel(A, i), b = B ? gel(B, i): NULL;
     H[i] = ZX_resultant_prime(a, b, dB, degA, degB, p);
   }
-  H = ZV_chinese_tree(H, P, T, mod); *plast=p;
+  H = ZV_chinese_tree(H, P, T, mod);
   gerepileall(av, 2, &H, mod);
   return H;
+}
+
+static GEN
+primelist_disc(ulong *p, long n, GEN dB)
+{
+  GEN P = cgetg(n+1, t_VECSMALL);
+  long i;
+  for (i=1; i <= n; i++, *p = unextprime(*p+1))
+  {
+    if (dB && umodiu(dB, *p)==0) { i--; continue; }
+    P[i] = *p;
+  }
+  return P;
 }
 
 /* Res(A, B/dB), assuming the A,B in Z[X] and result is integer */
@@ -2627,7 +2633,10 @@ ZX_resultant_all(GEN A, GEN B, GEN dB, ulong bound)
     B = NULL;
   m = minss(degpol(A)+(B ? degpol(B): 0), n);
   if (m == 1)
-    H = ZX_resultant_slice(A, B, dB, p, n, &p, &mod);
+  {
+    GEN P = primelist_disc(&p, n, dB);
+    H = ZX_resultant_slice(A, B, dB, P, &mod);
+  }
   else
   {
     long i, s = n/m, r = n - m*s;
@@ -2636,11 +2645,15 @@ ZX_resultant_all(GEN A, GEN B, GEN dB, ulong bound)
     H = cgetg(m+1+!!r, t_VEC); P = cgetg(m+1+!!r, t_VEC);
     for (i=1; i<=m; i++)
     {
-      gel(H, i) = ZX_resultant_slice(A, B, dB, p, s, &p, &gel(P, i));
+      GEN Ps = primelist_disc(&p, s, dB);
+      gel(H, i) = ZX_resultant_slice(A, B, dB, Ps, &gel(P, i));
       if (DEBUGLEVEL>5) err_printf("%ld%% ",100*i/m);
     }
     if (r)
-      gel(H, i) = ZX_resultant_slice(A, B, dB, p, r, &p, &gel(P, i));
+    {
+      GEN Pr = primelist_disc(&p, r, dB);
+      gel(H, i) = ZX_resultant_slice(A, B, dB, Pr, &gel(P, i));
+    }
     H = ZV_chinese(H, P, &mod);
     if (DEBUGLEVEL>5) err_printf("done\n");
   }
