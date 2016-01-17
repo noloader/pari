@@ -877,6 +877,17 @@ algsubalg(GEN al, GEN basis)
   return gerepileupto(av, alg_subalg(al,basis));
 }
 
+static int
+cmp_algebra(GEN x, GEN y)
+{
+  long d = alg_get_dim(x) - alg_get_dim(y);
+  if (d) return d < 0? -1: 1;
+  return cmp_universal(alg_get_multable(x), alg_get_multable(y));
+}
+static int
+cmp_algebra_maps(GEN x, GEN y)
+{ return cmp_algebra(gel(x,1), gel(y,1)); }
+
 GEN
 algsimpledec(GEN al, int maps)
 {
@@ -895,6 +906,8 @@ algsimpledec(GEN al, int maps)
     retmkvec(mkvec3(gcopy(al), matid(n), matid(n)));
   }
   res = alg_decompose_total(al, Z, maps);
+  gen_sort_inplace(res, (void*)(maps? &cmp_algebra_maps: &cmp_algebra),
+                   &cmp_nodata, NULL);
   return gerepilecopy(av, res);
 }
 
