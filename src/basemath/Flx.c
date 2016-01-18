@@ -594,6 +594,12 @@ Flx_shiftip(pari_sp av, GEN x, long v)
   avma = (pari_sp)y; return y;
 }
 
+#define BITS_IN_QUARTULONG (BITS_IN_HALFULONG >> 1)
+#define QUARTMASK ((1UL<<BITS_IN_QUARTULONG)-1UL)
+#define LLQUARTWORD(x) ((x) & QUARTMASK)
+#define HLQUARTWORD(x) (((x) >> BITS_IN_QUARTULONG) & QUARTMASK)
+#define LHQUARTWORD(x) (((x) >> (2*BITS_IN_QUARTULONG)) & QUARTMASK)
+#define HHQUARTWORD(x) (((x) >> (3*BITS_IN_QUARTULONG)) & QUARTMASK)
 INLINE long
 maxlengthcoeffpol(ulong p, long n)
 {
@@ -601,7 +607,11 @@ maxlengthcoeffpol(ulong p, long n)
   GEN z = muliu(sqru(p-1), n);
   long l = lgefint(z);
   avma = ltop;
-  if (l==3 && HIGHWORD(z[2])==0) return 0;
+  if (l==3 && HIGHWORD(z[2])==0)
+  {
+    if (HLQUARTWORD(z[2]) == 0) return -1;
+    else return 0;
+  }
   return l-2;
 }
 
@@ -708,6 +718,57 @@ Flx_mulspec_halfmulii(GEN a, GEN b, ulong p, long na, long nb)
   return int_to_Flx_half(z,p);
 }
 
+static GEN
+Flx_to_int_quartspec(GEN a, long na)
+{
+  long j;
+  long n = (na+3)>>2UL;
+  GEN V = cgetipos(2+n);
+  GEN w;
+  for (w = int_LSW(V), j=0; j+3<na; j+=4, w=int_nextW(w))
+    *w = a[j]|(a[j+1]<<BITS_IN_QUARTULONG)|(a[j+2]<<(2*BITS_IN_QUARTULONG))|(a[j+3]<<(3*BITS_IN_QUARTULONG));
+  switch (na-j)
+  {
+  case 3:
+    *w = a[j]|(a[j+1]<<BITS_IN_QUARTULONG)|(a[j+2]<<(2*BITS_IN_QUARTULONG));
+    break;
+  case 2:
+    *w = a[j]|(a[j+1]<<BITS_IN_QUARTULONG);
+    break;
+  case 1:
+    *w = a[j];
+    break;
+  case 0:
+    break;
+  }
+  return V;
+}
+
+static GEN
+int_to_Flx_quart(GEN z, ulong p)
+{
+  long i;
+  long lx = (lgefint(z)-2)*4+2;
+  GEN w, x = cgetg(lx, t_VECSMALL);
+  for (w = int_LSW(z), i=2; i<lx; i+=4, w=int_nextW(w))
+  {
+    x[i]   = LLQUARTWORD((ulong)*w)%p;
+    x[i+1] = HLQUARTWORD((ulong)*w)%p;
+    x[i+2] = LHQUARTWORD((ulong)*w)%p;
+    x[i+3] = HHQUARTWORD((ulong)*w)%p;
+  }
+  return Flx_renormalize(x, lx);
+}
+
+static GEN
+Flx_mulspec_quartmulii(GEN a, GEN b, ulong p, long na, long nb)
+{
+  GEN A = Flx_to_int_quartspec(a,na);
+  GEN B = Flx_to_int_quartspec(b,nb);
+  GEN z = mulii(A,B);
+  return int_to_Flx_quart(z,p);
+}
+
 /*Eval x in 2^(k*BIL) in linear time, k==2 or 3*/
 static GEN
 Flx_eval2BILspec(GEN x, long k, long l)
@@ -766,6 +827,7 @@ Flx_mulspec_mulii_inflate(GEN x, GEN y, long N, ulong p, long nx, long ny)
   return gerepileupto(av, Z_mod2BIL_Flx(z, N, nx+ny-2, p));
 }
 
+#define Flx_MUL_QUARTMULII_LIMIT Flx_MUL_HALFMULII_LIMIT
 /* fast product (Karatsuba) of polynomials a,b. These are not real GENs, a+2,
  * b+2 were sent instead. na, nb = number of terms of a, b.
  * Only c, c0, c1, c2 are genuine GEN.
@@ -785,6 +847,10 @@ Flx_mulspec(GEN a, GEN b, ulong p, long na, long nb)
   av = avma;
   switch (maxlengthcoeffpol(p,nb))
   {
+  case -1:
+    if (na>=Flx_MUL_QUARTMULII_LIMIT)
+      return Flx_shiftip(av,Flx_mulspec_quartmulii(a,b,p,na,nb), v);
+    break;
   case 0:
     if (na>=Flx_MUL_HALFMULII_LIMIT)
       return Flx_shiftip(av,Flx_mulspec_halfmulii(a,b,p,na,nb), v);
@@ -910,6 +976,13 @@ Flx_sqrspec_halfsqri(GEN a, ulong p, long na)
 }
 
 static GEN
+Flx_sqrspec_quartsqri(GEN a, ulong p, long na)
+{
+  GEN z = sqri(Flx_to_int_quartspec(a,na));
+  return int_to_Flx_quart(z,p);
+}
+
+static GEN
 Flx_sqrspec_sqri_inflate(GEN x, long N, ulong p, long nx)
 {
   pari_sp av = avma;
@@ -917,6 +990,7 @@ Flx_sqrspec_sqri_inflate(GEN x, long N, ulong p, long nx)
   return gerepileupto(av, Z_mod2BIL_Flx(z, N, (nx-1)*2, p));
 }
 
+#define Flx_SQR_QUARTSQRI_LIMIT Flx_SQR_HALFSQRI_LIMIT
 static GEN
 Flx_sqrspec(GEN a, ulong p, long na)
 {
@@ -930,6 +1004,10 @@ Flx_sqrspec(GEN a, ulong p, long na)
   av = avma;
   switch(maxlengthcoeffpol(p,na))
   {
+  case -1:
+    if (na>=Flx_SQR_QUARTSQRI_LIMIT)
+      return Flx_shiftip(av, Flx_sqrspec_quartsqri(a,p,na), v);
+    break;
   case 0:
     if (na>=Flx_SQR_HALFSQRI_LIMIT)
       return Flx_shiftip(av, Flx_sqrspec_halfsqri(a,p,na), v);
@@ -1033,6 +1111,11 @@ Flx_multhreshold(GEN T, ulong p, long half, long mul, long mul2, long kara)
   long na = lgpol(T);
   switch (maxlengthcoeffpol(p,na))
   {
+  case -1:
+    /* To be fixed for quart */
+    if (na>=Flx_MUL_QUARTMULII_LIMIT)
+      return na>=half;
+    break;
   case 0:
     if (na>=Flx_MUL_HALFMULII_LIMIT)
       return na>=half;
