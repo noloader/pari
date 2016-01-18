@@ -17,11 +17,13 @@ Flx_INVBARRETT_HALFMULII_LIMIT     898     240     424     231
 Flx_INVBARRETT_KARATSUBA_LIMIT    3471    3600    5120    5067
 Flx_INVBARRETT_MULII2_LIMIT       3672    1815      36      26
 Flx_INVBARRETT_MULII_LIMIT        4196    1293    3840    1154
+Flx_MUL_QUARTMULII_LIMIT             8       7       5       5
 Flx_MUL_HALFMULII_LIMIT              8       7       5       5
 Flx_MUL_KARATSUBA_LIMIT             85      90     147     142
 Flx_MUL_MULII2_LIMIT              3755     152       5       5
 Flx_MUL_MULII_LIMIT                698       8    1639       7
 Flx_REM_BARRETT_LIMIT             3942     689    3577    1266
+Flx_SQR_QUARTSQRI_LIMIT              6       4       3       3
 Flx_SQR_HALFSQRI_LIMIT               6       4       3       3
 Flx_SQR_KARATSUBA_LIMIT            159     159     330     316
 Flx_SQR_SQRI2_LIMIT               4139     470       8       7

@@ -21,7 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 
 int option_trace = 0;
 double Step_Factor = .01; /* small steps by default */
-ulong DFLT_mod1, DFLT_hmod, DFLT_mod2;
+ulong DFLT_mod1, DFLT_hmod, DFLT_qmod, DFLT_mod2;
 GEN LARGE_mod;
 
 #ifdef LONG_IS_64BIT
@@ -155,14 +155,16 @@ rand_NFpXQX(long n, GEN T)
   return gerepileupto(av, x);
 }
 
-#define t_Fhx     100
-#define t_Flx     101
-#define t_Fl1x    102
-#define t_Fl2x    103
-#define t_NFhx    110
-#define t_NFlx    111
-#define t_NFl1x   112
-#define t_NFl2x   113
+#define t_Fqx     100
+#define t_Fhx     101
+#define t_Flx     102
+#define t_Fl1x    103
+#define t_Fl2x    104
+#define t_NFqx    110
+#define t_NFhx    111
+#define t_NFlx    112
+#define t_NFl1x   113
+#define t_NFl2x   114
 #define t_FpX     200
 #define t_NFpX    210
 #define t_FlxqX   300
@@ -177,10 +179,12 @@ rand_g(speed_param *s)
   switch (s->type) {
     case t_INT:  return rand_INT(n);
     case t_REAL: return rand_REAL(n);
+    case t_Fqx:  return rand_Flx(n,DFLT_qmod);
     case t_Fhx:  return rand_Flx(n,DFLT_hmod);
     case t_Flx:  return rand_Flx(n,DFLT_mod);
     case t_Fl1x: return rand_Flx(n,DFLT_mod1);
     case t_Fl2x: return rand_Flx(n,DFLT_mod2);
+    case t_NFqx: return rand_NFlx(n,DFLT_qmod);
     case t_NFhx: return rand_NFlx(n,DFLT_hmod);
     case t_NFlx: return rand_NFlx(n,DFLT_mod);
     case t_NFl1x: return rand_NFlx(n,DFLT_mod1);
@@ -215,10 +219,12 @@ static void
 dftmod(speed_param *s)
 {
   switch (s->type) {
+    case t_Fqx:  s->l=DFLT_qmod; return;
     case t_Fhx:  s->l=DFLT_hmod; return;
     case t_Flx:  s->l=DFLT_mod;  return;
     case t_Fl1x: s->l=DFLT_mod1; return;
     case t_Fl2x: s->l=DFLT_mod2; return;
+    case t_NFqx: s->l=DFLT_qmod;  return;
     case t_NFhx: s->l=DFLT_hmod;  return;
     case t_NFlx: s->l=DFLT_mod;  return;
     case t_NFl1x: s->l=DFLT_mod1;  return;
@@ -438,6 +444,8 @@ static tune_param param[] = {
 {GMP, var(INVMOD_GMP_LIMIT),       t_INT, 3,0, speed_invmod},
 {0,   var(Flx_MUL_KARATSUBA_LIMIT),t_Flx,5,0, speed_Flx_mul,0,0,&Fmod_MUL_MULII_LIMIT},
 {0,   var(Flx_SQR_KARATSUBA_LIMIT),t_Flx,5,0, speed_Flx_sqr,0,0,&Fmod_SQR_SQRI_LIMIT},
+{0,   var(Flx_MUL_QUARTMULII_LIMIT),t_Fqx,3,0, speed_Flx_mul},
+{0,   var(Flx_SQR_QUARTSQRI_LIMIT), t_Fqx,3,0, speed_Flx_sqr},
 {0,   var(Flx_MUL_HALFMULII_LIMIT),t_Fhx,3,0, speed_Flx_mul},
 {0,   var(Flx_SQR_HALFSQRI_LIMIT), t_Fhx,3,0, speed_Flx_sqr},
 {0,   var(Flx_MUL_MULII_LIMIT),    t_Fl1x,5,0, speed_Flx_mul},
@@ -733,9 +741,11 @@ main(int argc, char **argv)
   DFLT_mod = 27449;
   LARGE_mod=subis(powuu(3,128),62);
 #ifdef LONG_IS_64BIT
+  DFLT_qmod = 3;
   DFLT_hmod = 257;
   DFLT_mod2 = 281474976710677UL;
 #else
+  DFLT_qmod = 3;
   DFLT_hmod = 3;
   DFLT_mod1 = 1031UL;
 #endif

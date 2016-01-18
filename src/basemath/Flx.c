@@ -827,7 +827,6 @@ Flx_mulspec_mulii_inflate(GEN x, GEN y, long N, ulong p, long nx, long ny)
   return gerepileupto(av, Z_mod2BIL_Flx(z, N, nx+ny-2, p));
 }
 
-#define Flx_MUL_QUARTMULII_LIMIT Flx_MUL_HALFMULII_LIMIT
 /* fast product (Karatsuba) of polynomials a,b. These are not real GENs, a+2,
  * b+2 were sent instead. na, nb = number of terms of a, b.
  * Only c, c0, c1, c2 are genuine GEN.
@@ -990,7 +989,6 @@ Flx_sqrspec_sqri_inflate(GEN x, long N, ulong p, long nx)
   return gerepileupto(av, Z_mod2BIL_Flx(z, N, (nx-1)*2, p));
 }
 
-#define Flx_SQR_QUARTSQRI_LIMIT Flx_SQR_HALFSQRI_LIMIT
 static GEN
 Flx_sqrspec(GEN a, ulong p, long na)
 {
