@@ -3266,13 +3266,19 @@ mstooms(GEN W, GEN phi, long p, long n)
   }
   else
   { /* p-stabilize */
-    GEN Wp = mskinit(N*p, k, 0);
+    long s = msk_get_sign(W);
+    GEN Wp = mskinit(N*p, k, s);
     GEN M1, M2, phi1, phi2, c1, c2;
 
     /* FIXME: compute image of unique symbol, not whole basis
      * + represent phi[12] as G_i -> P_i not in terms of basis */
     M1 = getMorphism(W, Wp, mat2(1,0,0,1));
     M2 = getMorphism(W, Wp, mat2(p,0,0,1));
+    if (s)
+    {
+      M1 = Qevproj_apply2(M1, msk_get_starproj(W), msk_get_starproj(Wp));
+      M2 = Qevproj_apply2(M2, msk_get_starproj(W), msk_get_starproj(Wp));
+    }
     phi1 = RgM_RgC_mul(M1, phi);
     phi2 = RgM_RgC_mul(M2, phi);
     phi1 = mseval(Wp, phi1, NULL);
