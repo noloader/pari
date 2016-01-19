@@ -79,7 +79,7 @@ loopLpn(GEN W, GEN xpm, ulong D, ulong p, long m, long R, GEN q)
   ulong a;
   GEN q1 = diviuexact(q,p);
   GEN Dq1= mului(D,q1), Dq = muliu(Dq1,p);
-  GEN u = gen_0, u1 = gen_0, nc = icopy(gen_1);
+  GEN u = gen_0, v = gen_0, nc = icopy(gen_1);
   GEN c = mkfrac(nc, Dq), c1 = mkfrac(nc, Dq1);
   GEN C = R? initQplog(p, q, m): NULL;
   ulong A = itou(shifti(Dq,-1));
@@ -101,15 +101,15 @@ loopLpn(GEN W, GEN xpm, ulong D, ulong p, long m, long R, GEN q)
       x = mulii(x, logpR);
       x1= mulii(x1,logpR);
     }
-    if (s < 0) { u = subii(u, x); u1= subii(u1,x1); }
-    else       { u = addii(u, x); u1= addii(u1,x1); }
+    if (s < 0) { u = subii(u, x); v= subii(v,x1); }
+    else       { u = addii(u, x); v= addii(v,x1); }
     if (gc_needed(av,2))
     {
       if (DEBUGMEM>1) pari_warn(warnmem,"loopLp: a = %ld / %ld",a,A);
-      gerepileall(av, 2, &u,&u1);
+      gerepileall(av, 2, &u,&v);
     }
   }
-  return mkvec2(u,u1);
+  return mkvec2(u,v);
 }
 static GEN
 loopLpn_moments(GEN W, GEN xpm, ulong D, ulong p, long R, GEN q)
@@ -122,7 +122,7 @@ loopLpn_moments(GEN W, GEN xpm, ulong D, ulong p, long R, GEN q)
   GEN c = mkfrac(nc, Dq), c1 = mkfrac(nc, Dq1);
   GEN u = zerovec(R);
   GEN v = zerovec(R);
-  ulong A = itou(shifti(Dq,-1));
+  ulong A = itou(Dq);
 
   av = avma;
   for (a = 1; a <= A; a++)
@@ -213,7 +213,7 @@ ellpadicmoments(GEN E, GEN pp, long n, long r, GEN DD)
     pari_err_IMPL("supersingular case");
     L = NULL;
   }
-  return gerepileupto(av, gmul(L, gmul2n(scale,1)));
+  return gerepileupto(av, gmul(L, scale));
 }
 
 /* TODO: C corresponds to Teichmuller, currently allways NULL */
@@ -254,7 +254,7 @@ ellpadicL(GEN E, GEN pp, long n, long r, GEN DD, GEN C)
     al = gel(al,4); /* lift to Z */
     u = modii(gel(uv,1), pn);
     v = modii(gel(uv,2), pn);
-    L = Fp_sub(u, Fp_mul(al,v,pn), pn);
+    L = Fp_sub(u, Fp_mul(v,al,pn), pn);
     L = Fp_mul(L, Fp_powu(al, N, pn), pn);
     if (!signe(L)) L = zeropadic_shallow(pp, n);
   }
