@@ -1104,15 +1104,14 @@ Flx_rescale(GEN P, ulong h, ulong p)
 }
 
 static long
-Flx_multhreshold(GEN T, ulong p, long half, long mul, long mul2, long kara)
+Flx_multhreshold(GEN T, ulong p, long quart, long half, long mul, long mul2, long kara)
 {
   long na = lgpol(T);
   switch (maxlengthcoeffpol(p,na))
   {
   case -1:
-    /* To be fixed for quart */
     if (na>=Flx_MUL_QUARTMULII_LIMIT)
-      return na>=half;
+      return na>=quart;
     break;
   case 0:
     if (na>=Flx_MUL_HALFMULII_LIMIT)
@@ -1232,7 +1231,8 @@ Flx_invBarrett(GEN T, ulong p)
   long l=lg(T);
   GEN r;
   if (l<5) return pol0_Flx(T[1]);
-  if (!Flx_multhreshold(T,p, Flx_INVBARRETT_HALFMULII_LIMIT,
+  if (!Flx_multhreshold(T,p, Flx_INVBARRETT_QUARTMULII_LIMIT,
+                             Flx_INVBARRETT_HALFMULII_LIMIT,
                              Flx_INVBARRETT_MULII_LIMIT,
                              Flx_INVBARRETT_MULII2_LIMIT,
                              Flx_INVBARRETT_KARATSUBA_LIMIT))
@@ -1257,6 +1257,7 @@ GEN
 Flx_get_red(GEN T, ulong p)
 {
   if (typ(T)!=t_VECSMALL || !Flx_multhreshold(T,p,
+                         Flx_BARRETT_QUARTMULII_LIMIT,
                          Flx_BARRETT_HALFMULII_LIMIT,
                          Flx_BARRETT_MULII_LIMIT,
                          Flx_BARRETT_MULII2_LIMIT,
@@ -1781,7 +1782,9 @@ if [a',b']~=M*[a,b]~ then degpol(a')>= (lgpol(a)>>1) >degpol(b')
 static GEN
 Flx_halfgcd_i(GEN x, GEN y, ulong p)
 {
-  if (!Flx_multhreshold(x,p, Flx_HALFGCD_HALFMULII_LIMIT,
+  if (!Flx_multhreshold(x,p,
+                             Flx_HALFGCD_QUARTMULII_LIMIT,
+                             Flx_HALFGCD_HALFMULII_LIMIT,
                              Flx_HALFGCD_MULII_LIMIT,
                              Flx_HALFGCD_MULII2_LIMIT,
                              Flx_HALFGCD_KARATSUBA_LIMIT))

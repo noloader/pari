@@ -6,6 +6,7 @@
 #define __Flx_BARRETT_KARATSUBA_LIMIT    1172
 #define __Flx_BARRETT_MULII2_LIMIT       16
 #define __Flx_BARRETT_MULII_LIMIT        448
+#define __Flx_BARRETT_QUARTMULII_LIMIT   23
 #define __Flx_DIVREM_BARRETT_LIMIT       768
 #define __Flx_EXTGCD_LIMIT               241
 #define __Flx_GCD_LIMIT                  1017
@@ -13,10 +14,12 @@
 #define __Flx_HALFGCD_KARATSUBA_LIMIT    77
 #define __Flx_HALFGCD_MULII2_LIMIT       25
 #define __Flx_HALFGCD_MULII_LIMIT        71
+#define __Flx_HALFGCD_QUARTMULII_LIMIT   52
 #define __Flx_INVBARRETT_HALFMULII_LIMIT 231
 #define __Flx_INVBARRETT_KARATSUBA_LIMIT 5067
 #define __Flx_INVBARRETT_MULII2_LIMIT    26
 #define __Flx_INVBARRETT_MULII_LIMIT     1154
+#define __Flx_INVBARRETT_QUARTMULII_LIMIT 139
 #define __Flx_MUL_HALFMULII_LIMIT        5
 #define __Flx_MUL_KARATSUBA_LIMIT        142
 #define __Flx_MUL_MULII2_LIMIT           5
@@ -64,6 +67,7 @@
 #define __Flx_BARRETT_KARATSUBA_LIMIT    905
 #define __Flx_BARRETT_MULII2_LIMIT       647
 #define __Flx_BARRETT_MULII_LIMIT        433
+#define __Flx_BARRETT_QUARTMULII_LIMIT   20
 #define __Flx_DIVREM_BARRETT_LIMIT       1289
 #define __Flx_EXTGCD_LIMIT               632
 #define __Flx_GCD_LIMIT                  2514
@@ -71,10 +75,12 @@
 #define __Flx_HALFGCD_KARATSUBA_LIMIT    139
 #define __Flx_HALFGCD_MULII2_LIMIT       537
 #define __Flx_HALFGCD_MULII_LIMIT        91
+#define __Flx_HALFGCD_QUARTMULII_LIMIT   37
 #define __Flx_INVBARRETT_HALFMULII_LIMIT 240
 #define __Flx_INVBARRETT_KARATSUBA_LIMIT 3600
 #define __Flx_INVBARRETT_MULII2_LIMIT    1815
 #define __Flx_INVBARRETT_MULII_LIMIT     1293
+#define __Flx_INVBARRETT_QUARTMULII_LIMIT 73
 #define __Flx_MUL_HALFMULII_LIMIT        7
 #define __Flx_MUL_KARATSUBA_LIMIT        90
 #define __Flx_MUL_MULII2_LIMIT           152
