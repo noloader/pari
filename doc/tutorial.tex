@@ -2930,10 +2930,8 @@ characteristic of~$F$ does not divide the order of~$G$. Let's try it!
 
 \bprog
 K = nfsplitting(x^3-x+1); \\ Galois closure -> S_3
-G = galoisinit(K).group;
-\\ multiplication tables for permutation group in regular representation
-mt4 = [matrix(#v,#v, i,j, v[j]==i) | v <- G];
-al4 = algtableinit(mt4, 5); \\ F_5(S_3)
+G = galoisinit(K)
+al4 = alggroup(G, 5) \\ F_5(S_3)
 algissemisimple(al4)
 @eprog\noindent
 Check what happens when you change the characteristic of the algebra.

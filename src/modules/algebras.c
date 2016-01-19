@@ -4004,6 +4004,85 @@ algtableinit(GEN mt0, GEN p)
   return gerepilecopy(av, al);
 }
 
+int
+is_gal_or_grp(GEN gal)
+{
+  if(lg(gal)==9 && typ(gel(gal,1))==t_POL) return 1;
+  if(lg(gal)==3 && typ(gel(gal,1))==t_VEC && typ(gel(gal,2))==t_VEC) return 1;
+  return 0;
+}
+
+static int
+cmp_perm(GEN x, GEN y)
+{
+  long i,d;
+  d = lg(x) - lg(y);
+  if(d) return d<0? -1: 1;
+  for(i=1; i<lg(x); i++) {
+    d = x[i]-y[i];
+    if(d) return d<0? -1: 1;
+  }
+  return 0;
+}
+
+static GEN
+list_to_regular_rep(GEN elts, long n)
+{
+  GEN reg, elts2, g;
+  long i,j;
+  elts = gen_sort(elts, (void*)&cmp_perm, &cmp_nodata);
+  reg = cgetg(n+1, t_VEC);
+  gel(reg,1) = identity_perm(n);
+  for(i=2; i<=n; i++) {
+    g = perm_inv(gel(elts,i));
+    elts2 = cgetg(n+1, t_VEC);
+    for(j=1; j<=n; j++) gel(elts2,j) = perm_mul(g,gel(elts,j));
+    gen_sort_inplace(elts2, (void*)&cmp_perm, &cmp_nodata, &gel(reg,i));
+  }
+  return reg;
+}
+
+static GEN
+matrix_perm(GEN perm, long n)
+{
+  GEN m;
+  long j;
+  m = cgetg(n+1, t_MAT);
+  for(j=1; j<=n; j++) {
+    gel(m,j) = col_ei(n,perm[j]);
+  }
+  return m;
+}
+
+/*
+ gal = galoisinit structure or smallgroup or permutation group
+ */
+GEN
+alggroup(GEN gal, GEN p)
+{
+  pari_sp av = avma;
+  GEN G, elts, mt;
+  long n, i;
+  if(typ(gal)!=t_VEC) pari_err_TYPE("alggroup", gal);
+  if(is_gal_or_grp(gal)) {
+    G = checkgroup(gal, &elts);
+    if(!elts) elts = group_elts(G, group_domain(G));
+  }
+  else elts = gal;
+  n = lg(elts)-1;
+  for(i=1; i<=n; i++) {
+    if(typ(gel(elts,i)) != t_VECSMALL)
+      pari_err_TYPE("alggroup (element)", gel(elts,i));
+    if(lg(gel(elts,i))!=lg(gel(elts,1)))
+      pari_err_DIM("alggroup [length of permutations]");
+  }
+  elts = list_to_regular_rep(elts,n);
+  mt = cgetg(n+1, t_VEC);
+  for(i=1; i<=n; i++)
+    gel(mt,i) = matrix_perm(gel(elts,i),n);
+  return gerepilecopy(av, algtableinit(mt,p));
+}
+
 /** MAXIMAL ORDER **/
 
 static GEN
