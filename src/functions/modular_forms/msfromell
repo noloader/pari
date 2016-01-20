@@ -22,7 +22,7 @@ Doc: Let $E/\Q$ be an elliptic curve of conductor $N$. For $\varepsilon =
  period of the twist $E^{(d)}$.
 
  This function returns the pair $[M, x]$, where $M$ is
- \kbd{msinit}$(N,2)$ and $x$ is $x^\var{sign}$ as above when $\var{sign}=
+ \kbd{msinit}$(N,2)$ and $x$ is $x^{\var{sign}}$ as above when $\var{sign}=
  \pm1$, and $x = [x^+,x^-]$ when \var{sign} is $0$.
  The modular symbols $x^\pm$ are given as a \typ{COL} (in terms
  of the fixed basis of $\text{Hom}_G(\Delta,\Q)$ chosen in $M$).
