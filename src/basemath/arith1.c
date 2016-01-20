@@ -3749,7 +3749,7 @@ static GEN
 _psi(void*E, GEN y)
 {
   GEN lx = (GEN) E;
-  long prec = lg(lx);
+  long prec = realprec(lx);
   GEN ly = glog(y, prec);
   GEN u = gdiv(lx, ly);
   return gsub(gdiv(y ,ly), gpow(u, u, prec));
