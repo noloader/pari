@@ -2946,13 +2946,14 @@ get_Q(GEN E)
   return gdivgs(mulii(tam,sqri(n)), t2);
 }
 
-/* return C such that C*L(E,1)_{xpm} = L(E,1) / w1 */
+/* Let C such that C*L(E,1)_{xpm} = L(E,1) / w1; return C * xpm */
 static GEN
 ell_get_scale(GEN E, GEN W, GEN xpm, long s)
 {
   GEN Q, X = NULL;
   long d, N = ms_get_N(W);
 
+  xpm = Q_primpart(xpm);
   /* find D = s*d such that twist by D has rank 0 */
   for (d = 1; d < LONG_MAX; d++)
   {
@@ -2969,26 +2970,34 @@ ell_get_scale(GEN E, GEN W, GEN xpm, long s)
   if (d == LONG_MAX) pari_err_BUG("msfromell (no suitable twist)");
   if (s < 0) d = -d;
   Q = get_Q(twistcurve(E, stoi(d)));
-  return gdiv(gmulsg(get_alpha_d(E,d), Q), X);
+  return RgC_Rg_mul(xpm, gdiv(gmulsg(get_alpha_d(E,d), Q), X));
 }
 
 GEN
 msfromell(GEN E, long sign)
 {
   pari_sp av = avma;
-  GEN cond;
-  GEN W, K, x, scale;
+  GEN cond, W, K, x, star;
+  long dim;
   ulong p, N;
   forprime_t T;
 
-  if (labs(sign) != 1)
-    pari_err_DOMAIN("msfromell","abs(sign)","!=",gen_1,stoi(sign));
   E = ellminimalmodel(E, NULL);
   cond = gel(ellglobalred(E), 1);
   N = itou(cond);
-  W = mskinit(N, 2, sign);
-  /* linear form = 0 on Im(S - sign) */
-  K = keri(gsubgs(msk_get_star(W), sign));
+  W = mskinit(N, 2, 0);
+  star = msstar_i(W);
+  if (sign)
+  {
+    /* linear form = 0 on Im(S - sign) */
+    K = keri(gsubgs(star, sign));
+    dim = 1;
+  }
+  else
+  {
+    K = NULL; /* identity */
+    dim = 2;
+  }
 
   /* loop for p <= count_Manin_symbols(N) / 6 would be enough */
   (void)u_forprime_init(&T, 2, ULONG_MAX);
@@ -2999,17 +3008,36 @@ msfromell(GEN E, long sign)
     Tp = mshecke_i(W, p);
     ap = ellap(E, utoipos(p));
     M = RgM_Rg_add_shallow(Tp, negi(ap));
-    K2 = keri( ZM_mul(M, K) );
-    if (lg(K2) < lg(K)) K = ZM_mul(K, K2);
-    if (lg(K2)-1 == 1) break;
+    if (K) M = ZM_mul(M, K);
+    K2 = keri(M);
+    if (!K) K = K2;
+    else if (lg(K2) < lg(K)) K = ZM_mul(K, K2);
+    if (lg(K2)-1 == dim) break;
   }
   if (!p) pari_err_BUG("msfromell: ran out of primes");
-  /* linear form = 0 on all Im(Tp - ap) and Im(S - sign) */
-  x = Q_primpart(gel(K,1));
-  scale = ell_get_scale(E, W, x, sign);
-  gmael(W,2,1) = gen_0;
-  gmael(W,2,3) = Qevproj_init(cgetg(1,t_MAT));
-  return gerepilecopy(av, mkvec2(W, RgC_Rg_mul(x, scale)));
+  /* linear form = 0 on all Im(Tp - ap) and Im(S - sign) if sign != 0 */
+  if (sign)
+    x = ell_get_scale(E, W, gel(K,1), sign);
+  else
+  { /* dim = 2 */
+    GEN a = gel(K,1), Sa = ZM_ZC_mul(star,a);
+    GEN b = gel(K,2);
+    GEN t = ZC_add(a, Sa), xp, xm;
+    if (ZV_equal0(t))
+    {
+      xm = a;
+      xp = ZC_add(b,ZM_ZC_mul(star,b));
+    }
+    else
+    {
+      xp = t; t = ZC_sub(a, Sa);
+      xm = ZV_equal0(t)? ZC_sub(b, ZM_ZC_mul(star,b)): t;
+    }
+    xp = ell_get_scale(E, W, xp, 1);
+    xm = ell_get_scale(E, W, xm,-1);
+    x = mkvec2(xp, xm);
+  }
+  return gerepilecopy(av, mkvec2(W, x));
 }
 
 /* OVERCONVERGENT MODULAR SYMBOLS */
