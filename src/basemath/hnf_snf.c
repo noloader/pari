@@ -1352,7 +1352,7 @@ ZM_hnfcenter(GEN M)
         for (i = 1; i <= j; i++) gel(Mk,i) = subii(gel(Mk,i), mulii(q,gel(Mj,i)));
       if (gc_needed(av,1))
       {
-        if (DEBUGMEM) pari_warn(warnmem,"ZM_hnfcenter, j = %ld",j);
+        if (DEBUGMEM>1) pari_warn(warnmem,"ZM_hnfcenter, j = %ld",j);
         M = gerepilecopy(av, M);
       }
     }
@@ -1533,7 +1533,7 @@ ZM_hnflll(GEN A, GEN *ptB, int remove)
         if (gc_needed(av,3))
         {
           GEN b = D-1;
-          if (DEBUGMEM) pari_warn(warnmem,"hnflll (reducing), kmax = %ld",kmax);
+          if (DEBUGMEM>1) pari_warn(warnmem,"hnflll (reducing), kmax = %ld",kmax);
           gerepileall(av, B? 4: 3, &A, &lambda, &b, &B);
           D = b+1;
         }
@@ -1543,7 +1543,7 @@ ZM_hnflll(GEN A, GEN *ptB, int remove)
     if (gc_needed(av,3))
     {
       GEN b = D-1;
-      if (DEBUGMEM) pari_warn(warnmem,"hnflll, kmax = %ld / %ld",kmax,n-1);
+      if (DEBUGMEM>1) pari_warn(warnmem,"hnflll, kmax = %ld / %ld",kmax,n-1);
       gerepileall(av, B? 4: 3, &A, &lambda, &b, &B);
       D = b+1;
     }
