@@ -661,17 +661,23 @@ Zfa_pr_append(GEN nf,GEN rel,GEN N,GEN *prod,GEN *S1,GEN *S2)
     for (i=1; i<l; i++) pr_append(nf,rel,gel(v,i),prod,S1,S2);
   }
 }
-/* N a t_INT or t_FRAC */
+/* N a t_INT or t_FRAC or ideal in HNF*/
 static void
 fa_pr_append(GEN nf,GEN rel,GEN N,GEN *prod,GEN *S1,GEN *S2)
 {
-  if (typ(N) == t_FRAC)
+  switch(typ(N))
   {
-    Zfa_pr_append(nf,rel,gel(N,1),prod,S1,S2);
-    Zfa_pr_append(nf,rel,gel(N,2),prod,S1,S2);
+    case t_INT:
+      Zfa_pr_append(nf,rel,N,prod,S1,S2);
+      break;
+    case t_FRAC:
+      Zfa_pr_append(nf,rel,gel(N,1),prod,S1,S2);
+      Zfa_pr_append(nf,rel,gel(N,2),prod,S1,S2);
+      break;
+    default: /*t_MAT*/
+      Zfa_pr_append(nf,rel,gcoeff(N,1,1),prod,S1,S2);
+      break;
   }
-  else
-    Zfa_pr_append(nf,rel,N,prod,S1,S2);
 }
 
 /* apply lift(rnfeltup) to all coeffs, without rnf structure */
@@ -797,7 +803,9 @@ rnfisnorm(GEN T, GEN x, long flag)
   else if (flag < 0)
     Zfa_pr_append(nf,rel, utoipos(-flag),&prod,&S1,&S2);
   /* overkill: prime ideals dividing x would be enough */
-  fa_pr_append(nf,rel,idealnorm(nf,x), &prod,&S1,&S2);
+  A = idealnumden(nf, x);
+  fa_pr_append(nf,rel,gel(A,1), &prod,&S1,&S2);
+  fa_pr_append(nf,rel,gel(A,2), &prod,&S1,&S2);
 
   /* computation on T-units */
   futu = shallowconcat(bnf_get_fu(rel), bnf_get_tuU(rel));

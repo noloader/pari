@@ -37,7 +37,7 @@ rnfisabelian(4*a^2+1, 9*x^2 + (12*a+3)*x + 2*a)
 pol = y^3+y^2-2*y-1;
 bnf = bnfinit(pol);
 T=rnfisnorminit(bnf, x^3-y);
-do(T,u,flag=0)=lift(lift(rnfisnorm(T,u,flag)));
+do(T,u,flag=0)=liftpol(rnfisnorm(T,u,flag));
 do(T,y)
 do(T,2,100)
 do(T,2,-2*3*5*7)
@@ -48,6 +48,12 @@ do(T,2,100)
 
 \\#1157
 rnfisnorminit(y,x^2-Mod(2+y,y));
+
+\\#1778
+K = bnfinit(x^4-2*x^3-27*x^2+28*x+53);
+t = varhigher("t");
+L = rnfisnorminit(K,t^2-310*x^3+465*x^2+11005*x-274660);
+liftpol(rnfisnorm(L,-28124/93*x^3+14062/31*x^2+562480/93*x+166769/31))
 
 \\#1255
 K = nfinit(z^3+z^2-2*z-1); rnf = rnfinit(K, x^2+Mod(-z,z^3+z^2-2*z-1)*x+1);
