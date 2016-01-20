@@ -203,3 +203,11 @@ win32_timer(void)
   time.QuadPart /= WIN32_FILETIME_PER_MILLISECOND;
   return time.LowPart;
 }
+
+long
+win32_nbthreads(void)
+{
+  SYSTEM_INFO system_info;
+  GetSystemInfo(&system_info);
+  return system_info.dwNumberOfProcessors;
+}

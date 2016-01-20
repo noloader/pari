@@ -14,6 +14,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #include "pari.h"
 #include "paripriv.h"
 #include "mt.h"
+#if defined(_WIN32)
+#  include "../systems/mingw/mingw.h"
+#endif
 
 struct mt_queue
 {
@@ -101,6 +104,8 @@ void pari_mt_init(void)
   pari_mt = NULL;
 #ifdef _SC_NPROCESSORS_CONF
   if (!pari_mt_nbthreads) pari_mt_nbthreads = sysconf(_SC_NPROCESSORS_CONF);
+#elif defined(_WIN32)
+  if (!pari_mt_nbthreads) pari_mt_nbthreads = win32_nbthreads();
 #else
   pari_mt_nbthreads = 1;
 #endif

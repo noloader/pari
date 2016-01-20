@@ -19,3 +19,4 @@ int win32_terminal_height(void);
 void win32_set_pdf_viewer(void);
 void win32_alarm(unsigned int s);
 long win32_timer(void);
+long win32_nbthreads(void);

@@ -393,6 +393,7 @@ BA 147- [GP] call (for calling closures).
    149- lfunthetacost, lfuncost
 SCh150- [mingw] timer: support for user time
 JD 151- [libpari] pari_completion interface for readline
+SCh152- [mingw+pthread]: default nbthreads support
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]
