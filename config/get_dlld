@@ -20,7 +20,7 @@ case "$osname" in
   irix) soname= ; sodest= ;;
   os2|cygwin|mingw)soname= ; sodest= ; DLSUFFIX=dll
     if test "x$DLLTOOL" = x; then
-      if dlltool --version 2>&1 >/dev/null; then
+      if dlltool --version >/dev/null 2>&1; then
         DLLTOOL=dlltool
       else
         DLLTOOL=`$CC -dumpmachine`-dlltool
