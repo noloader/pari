@@ -35,6 +35,13 @@ wrtab () {
 confdir=../config
 testdir=../src/test
 execdir=.
+
+. $confdir/arch-osname # arch, osname
+case $osname in
+   cygwin*|mingw*|msys*) crlf=OK ;;
+   *) crlf= ;;
+esac
+
 if test -f /bin/rm ; then RM=/bin/rm; else RM=rm ; fi
 if sh -c 'test -x /bin/sh' 2>&-; then x=-x; else x=-r; fi
 (echo "hi there\c" ; echo " ") > echotmp
@@ -80,8 +87,15 @@ for testdata in $testlist; do
     for suf in $SUF; do
       file_diff=$testname-$suf.dif
       gp=$execdir/gp-$suf
-      (echo 'gettime();0;'; cat $file_in; echo 'print("Total time spent: ",gettime);') | $RUNTEST $gp -q --test  > $file_test 2>&1
-      diff -c $file_out $file_test > $file_diff
+      (echo 'gettime();0;'; cat $file_in; \
+       echo 'print("Total time spent: ",gettime);') \
+       | $RUNTEST $gp -q --test  > $file_test 2>&1
+      if test -n "$crlf"; then
+        # when building on windows, remove extra cr so diff's will match
+        cat $file_test | tr -d '\r' | diff -c $file_out - > $file_diff
+      else
+        diff -c $file_out $file_test > $file_diff
+      fi
       pat=`grep "^[-+!] " $file_diff | grep -v "Total time"`
       time=`${tail}1 $file_test | sed -n 's,.*Total time spent: \(.*\),\1,p'`
       if test -n "$time"; then
