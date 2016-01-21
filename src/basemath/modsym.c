@@ -1580,9 +1580,8 @@ RgX_act_Gl2Q(GEN g, long k)
 }
 /* z in Z[Gl2(Q)], return the matrix of z acting on V */
 static GEN
-act_ZGl2Q(GEN z, void *vE, GEN(*act)(void*,GEN))
+act_ZGl2Q(GEN z, struct m_act *T, GEN(*act)(struct m_act*,GEN))
 {
-  struct m_act *T = (struct m_act*)vE;
   long l, j;
   GEN S = NULL, G, E;
   if (typ(z) == t_INT) return scalarmat_shallow(z, T->dim);
@@ -1595,7 +1594,7 @@ act_ZGl2Q(GEN z, void *vE, GEN(*act)(void*,GEN))
       M = scalarmat_shallow(n, T->dim);
     else
     {
-      M = act(vE, g);
+      M = act(T, g);
       if (is_pm1(n))
       { if (signe(n) < 0) M = RgM_neg(M);
       } else
@@ -1606,11 +1605,7 @@ act_ZGl2Q(GEN z, void *vE, GEN(*act)(void*,GEN))
   return S;
 }
 static GEN
-_RgX_act_Gl2Q(void *E, GEN z)
-{
-  struct m_act *S = (struct m_act*)E;
-  return RgX_act_Gl2Q(z, S->k);
-}
+_RgX_act_Gl2Q(struct m_act *S, GEN z) { return RgX_act_Gl2Q(z, S->k); }
 /* acting on (X^{k-2},...,Y^{k-2}) */
 GEN
 RgX_act_ZGl2Q(GEN z, long k)
@@ -1618,17 +1613,17 @@ RgX_act_ZGl2Q(GEN z, long k)
   struct m_act T;
   T.k = k;
   T.dim = k-1;
-  return act_ZGl2Q(z, (void*)&T, _RgX_act_Gl2Q);
+  return act_ZGl2Q(z, &T, _RgX_act_Gl2Q);
 }
 
 /* Given a vector of elements in Z[G], return it as vector of operators on V
  * (given by t_MAT) */
 static GEN
-ZGl2QC_to_act(void *E, GEN(*act2)(void*,GEN), GEN v)
+ZGl2QC_to_act(struct m_act *S, GEN(*act)(struct m_act*,GEN), GEN v)
 {
   long i, l;
   GEN w = cgetg_copy(v, &l);
-  for (i = 1; i < l; i++) gel(w,i) = act_ZGl2Q(gel(v,i), E, act2);
+  for (i = 1; i < l; i++) gel(w,i) = act_ZGl2Q(gel(v,i), S, act);
   return w;
 }
 
@@ -1977,10 +1972,14 @@ getMorphism_trivial(GEN WW1, GEN WW2, GEN v)
  *                 = \sum_i phi(g_i) | \mu_{i,j}
  * Return the \mu_{i,j} matrix as operators on V (t_MAT) */
 static GEN
-init_dual_act_f(GEN f, GEN W1, GEN W2, void *E, GEN(*act2)(void*,GEN))
+init_dual_act_f(GEN f, GEN W1, GEN W2, struct m_act *S,
+                GEN(*act)(struct m_act*,GEN))
 {
   GEN section = ms_get_section(W2), gen = ms_get_genindex(W2);
-  long j, dim = msk_get_weight(W2) == 2? ms_get_nbE1(W2): lg(gen)-1;
+  /* HACK: the actions we consider in dimension 1 are trivial and in
+   * characteristic != 2, 3 => torsion generators are 0
+   * [satisfy e.g. (1+gamma).g = 0 => \phi(g) | 1+gamma  = 0 => \phi(g) = 0 */
+  long j, dim = S->dim == 1? ms_get_nbE1(W2): lg(gen)-1;
   GEN T = cgetg(dim+1, t_MAT), F;
   if (typ(gel(f,1)) == t_VEC)
   {
@@ -1997,21 +1996,22 @@ init_dual_act_f(GEN f, GEN W1, GEN W2, void *E, GEN(*act2)(void*,GEN))
     GEN l = mspathlog_i(W1, Gl2Q_act_path(f, w)); /* lambda_{i,j} */
     l = ZGl2QC_star(l); /* lambda_{i,j}^* */
     l = ZGC_G_mul(l, F); /* mu_{i,j} */
-    l = ZGl2QC_to_act(E, act2, l);
+    l = ZGl2QC_to_act(S, act, l);
     gel(T,j) = gerepilecopy(av, l); /* as operators on V */
   }
   return T;
 }
 static GEN
-init_dual_act(GEN v, GEN W1, GEN W2, void *E, GEN(*act)(void*,GEN))
+init_dual_act(GEN v, GEN W1, GEN W2, struct m_act *S,
+              GEN(*act)(struct m_act *,GEN))
 {
   long i, lv;
-  GEN S;
+  GEN L;
   if (typ(v) != t_VEC) v = mkvec(v);
-  lv = lg(v); S = cgetg(lv, t_MAT);
+  lv = lg(v); L = cgetg(lv, t_MAT);
   for (i = 1; i < lv; i++)
-    gel(S,i) = init_dual_act_f(gel(v,i), W1, W2, E, act);
-  return S;
+    gel(L,i) = init_dual_act_f(gel(v,i), W1, W2, S, act);
+  return L;
 }
 
 /* phi in Hom_Gamma1(Delta, V), return the matrix whose colums are the
@@ -3047,9 +3047,8 @@ msfromell(GEN E, long sign)
  * such that, if v = \int x^i d mu, i < D, is a vector of D moments of mu,
  * then M * v is the vector of moments of mu | f  mod p^D */
 static GEN
-moments_act(void *E, GEN f)
+moments_act(struct m_act*S, GEN f)
 {
-  struct m_act *S = (struct m_act*)E;
   long k = S->k, D = S->dim;
   GEN a = gcoeff(f,1,1), b = gcoeff(f,1,2);
   GEN c = gcoeff(f,2,1), d = gcoeff(f,2,2);
@@ -3079,7 +3078,7 @@ init_moments_act(GEN W1, GEN W2, long p, long M, GEN q, GEN v)
   S.k = k;
   S.q = q;
   S.dim = M+k-1;
-  return init_dual_act(v,W1,W2,(void*)&S, moments_act);
+  return init_dual_act(v,W1,W2,&S, moments_act);
 }
 
 static void
@@ -3252,7 +3251,7 @@ omseval(GEN O, GEN path)
 
   v = cgetg_copy(vecphi, &lvec);
   L = ZGl2QC_star(L); /* lambda_{i,j}^* */
-  act = ZGl2QC_to_act((void*)&S, moments_act, L); /* as operators on V */
+  act = ZGl2QC_to_act(&S, moments_act, L); /* as operators on V */
   for (a = 1; a < lvec; a++)
   {
     GEN phi = gel(vecphi,a);
