@@ -4004,7 +4004,7 @@ algtableinit(GEN mt0, GEN p)
   return gerepilecopy(av, al);
 }
 
-int
+static int
 is_gal_or_grp(GEN gal)
 {
   if(lg(gal)==9 && typ(gel(gal,1))==t_POL) return 1;
