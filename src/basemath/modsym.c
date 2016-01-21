@@ -2287,11 +2287,11 @@ getMorphism(GEN W1, GEN W2, GEN v)
 static GEN
 getMorphism_single(GEN phi, GEN act)
 {
+  pari_sp av = avma;
   long i, lv = lg(act);
   GEN T = NULL;
   for (i = 1; i < lv; i++)
   {
-    pari_sp av = avma;
     GEN t = dual_act(gel(act,i), phi);
     T = T? gerepileupto(av, RgC_add(T,t)): t;
   }
