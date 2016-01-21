@@ -204,8 +204,14 @@ ellpadicmoments(GEN E, GEN pp, long n, long r, GEN DD)
     GEN al = ginv( ms_unit_eigenvalue(ap, 2, pp, n) );
     al = gel(al,4); /* lift to Z */
     u = FpV_red(gel(uv,1), pn);
-    v = FpV_red(gel(uv,2), pn);
-    L = FpV_sub(u, FpC_Fp_mul(v,al,pn), pn);
+    if (umodiu(ellQ_get_N(E), p))
+    {
+      v = FpV_red(gel(uv,2), pn);
+      L = FpV_sub(u, FpC_Fp_mul(v,al,pn), pn);
+    }
+    else /* p | N */
+      L = u;
+
     L = FpC_Fp_mul(L, Fp_powu(al, N, pn), pn);
   }
   else
