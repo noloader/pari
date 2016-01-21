@@ -227,7 +227,7 @@ GEN
 ellpadicL(GEN E, GEN pp, long n, long r, GEN DD, GEN C)
 {
   pari_sp av = avma;
-  GEN ap, scale, L, W, xpm;
+  GEN ap, scale, L, W, xpm, NE;
   ulong p, D;
 
   if (DD && !Z_isfundamental(DD))
@@ -244,6 +244,9 @@ ellpadicL(GEN E, GEN pp, long n, long r, GEN DD, GEN C)
   W = gel(W,1);
   p = itou(pp);
   D = DD? itou(DD): 1;
+  NE = ellQ_get_N(E);
+  if (dvdii(NE, sqri(pp)))
+    pari_err_IMPL("ellpadicL [additive reduction at p]");
 
   xpm = Q_primitive_part(xpm,&scale);
   if (!scale) scale = gen_1;
@@ -259,8 +262,14 @@ ellpadicL(GEN E, GEN pp, long n, long r, GEN DD, GEN C)
     GEN al = ginv( ms_unit_eigenvalue(ap, 2, pp, n) );
     al = gel(al,4); /* lift to Z */
     u = modii(gel(uv,1), pn);
-    v = modii(gel(uv,2), pn);
-    L = Fp_sub(u, Fp_mul(v,al,pn), pn);
+    if (umodiu(ellQ_get_N(E), p))
+    {
+      v = modii(gel(uv,2), pn);
+      L = Fp_sub(u, Fp_mul(v,al,pn), pn);
+    }
+    else /* p | N */
+      L = u;
+
     L = Fp_mul(L, Fp_powu(al, N, pn), pn);
     if (!signe(L)) L = zeropadic_shallow(pp, n);
   }
