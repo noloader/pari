@@ -3198,7 +3198,7 @@ oms_ordinary(GEN W, GEN phi, GEN alpha, long p, long M)
 
 /* lift polynomial P in RgX[X,Y]_{k-2} to a distribution \mu such that
  * \int (Y - X z)^(k-2) d\mu(z) = P(X,Y)
- * Return the k-1 first moments of \mu: \int z^i d\mu(z), i < k-1.
+ * Return the t_VEC of k-1 first moments of \mu: \int z^i d\mu(z), 0<= i < k-1.
  *   \sum_j (-1)^(k-2-j) binomial(k-2,j) Y^j \int z^(k-2-j) d\mu(z) = P(1,Y)
  * Input is P(1,Y), bin = vecbinome(k-2): bin[j] = binomial(k-2,j-1) */
 static GEN
@@ -3345,31 +3345,38 @@ mstooms(GEN W, GEN phi, long p, long n)
   return gerepilecopy(av, mkvec3(W,phi, mkvec4(c,alpha,stoi(p),stoi(n))));
 }
 
-/* W = msinit(N), phi eigensymbol. Return C(x) mod FilM */
+/* W = msinit(N), phi eigensymbol, p \nmid D. Return C(x) mod FilM */
 GEN
-mspadicmoments(GEN W, GEN phi, long p, long n)
+mspadicmoments(GEN W, GEN phi, long p, long n, long D)
 {
   pari_sp av = avma;
-  long a, b, lvec;
-  GEN v, vecphi, bin, gp = stoi(p), pn, O, P, data;
+  long a, b, A, lvec;
+  GEN v, vecphi, bin, gp = stoi(p), gA, pn, O, P, data, teich;
 
   O = mstooms(W, phi, p, n);
   W = gel(O,1); /* possibly in level N*p */
   vecphi = gel(O,2);
   data = gel(O,3);
 
+  gA = mulss(p, labs(D));
+  A = itou(gA); /* |pD| or error */
   v = cgetg_copy(vecphi, &lvec);
-  for (b = 1; b < lvec; b++) gel(v,b) = cgetg(p, t_VEC);
+  for (b = 1; b < lvec; b++) gel(v,b) = cgetg(A, t_VEC);
   bin = matpascal(n);
   P = gpowers(gp, n);
   pn = gel(P, n+1);
-  for (a = 1; a < p; a++)
+  teich = teichmullerinit(p, n);
+
+  for (a = 1; a < A; a++)
   {
-    GEN ga = utoipos(a), t = cgetg(n+2, t_VEC);
-    GEN at = Zp_teichmuller(ga, gp, n, pn);
-    GEN powa = Fp_powers(subii(ga,at), n, pn);
-    GEN path = mkmat2(mkcol2(gen_1,gen_0), mkcol2(ga, gp));
-    GEN vca = omseval(O, path);
+    GEN ga, t, powa, path, vca;
+    long ap = a % p;
+    if (!ap) continue;
+    ga = utoipos(a);
+    t = cgetg(n+2, t_VEC);
+    powa = Fp_powers(subsi(a, gel(teich,ap)), n, pn);
+    path = mkmat2(mkcol2(gen_1,gen_0), mkcol2(ga, gp));
+    vca = omseval(O, path);
     /* ca[r+1] = c_r(a/p) = \Phi([a/p] - [oo])(z^r) */
     for (b = 1; b < lg(vca); b++)
     {

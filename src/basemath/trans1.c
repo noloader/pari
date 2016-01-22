@@ -2695,6 +2695,36 @@ Zp_teichmuller(GEN x, GEN p, long e, GEN pe)
 }
 
 GEN
+teichmullerinit(long p, long n)
+{
+  GEN t, pn, g, v;
+  ulong gp, tp;
+  long a, m;
+
+  if (p == 2) return mkvec(gen_1);
+  if (!uisprime(p)) pari_err_PRIME("teichmullerinit",utoipos(p));
+
+  m = p >> 1; /* (p-1)/2 */
+  tp= gp= pgener_Fl(p); /* order (p-1), gp^m = -1 */
+  pn = powuu(p, n);
+  v = cgetg(p, t_VEC);
+  t = g = Zp_teichmuller(utoipos(gp), utoipos(p), n, pn);
+  gel(v, 1) = gen_1;
+  gel(v, p-1) = subiu(pn,1);
+  for (a = 1; a < m; a++)
+  {
+    gel(v, tp) = t;
+    gel(v, p - tp) = Fp_neg(t, pn); /* g^(m+a) = -g^a */
+    if (a < m-1)
+    {
+      t = Fp_mul(t, g, pn); /* g^(a+1) */
+      tp = Fl_mul(tp, gp, p); /* t mod p  */
+    }
+  }
+  return v;
+}
+
+GEN
 teich(GEN x)
 {
   GEN p, q, y, z;
