@@ -2476,7 +2476,6 @@ long    ellisdivisible(GEN E, GEN P, GEN n, GEN *Q);
 
 /* ellpadicL.c */
 GEN ellpadicL(GEN E, GEN p, long n, long r, GEN D, GEN C);
-GEN ellpadicmoments(GEN E, GEN pp, long n, long r, GEN DD);
 
 /* ellisogeny.c */
 
