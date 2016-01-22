@@ -3145,7 +3145,8 @@ static GEN
 oms_supersingular(GEN phi, GEN W, long p, long M, GEN C)
 {
   long t, i, k = msk_get_weight(W);
-  GEN v = Up_matrices(p), q = powuu(p,M), phi1 = gel(phi,1), phi2 = gel(phi,2);
+  GEN phi1 = gel(phi,1), phi2 = gel(phi,2);
+  GEN v = Up_matrices(p), q = powuu(p, k*M);
   GEN act = init_moments_act(W, W, p, M, q, v);
   GEN ap = gcoeff(C,1,1), a,b,c,d;
 
