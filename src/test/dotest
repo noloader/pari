@@ -36,9 +36,8 @@ confdir=../config
 testdir=../src/test
 execdir=.
 
-. $confdir/arch-osname # arch, osname
-case $osname in
-   cygwin*|mingw*|msys*) crlf=OK ;;
+case `$confdir/arch-osname` in
+   *-cygwin*|*-mingw*|*-msys*) crlf=OK ;;
    *) crlf= ;;
 esac
 
