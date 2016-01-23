@@ -26,6 +26,33 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #    include <process.h>
 #  endif
 #endif
+#include "paricfg.h"
+#if defined(STACK_CHECK) && !defined(__EMX__)
+#  include <sys/types.h>
+#  include <sys/time.h>
+#  include <sys/resource.h>
+#endif
+#if defined(HAS_WAITPID) && defined(HAS_SETSID)
+#  include <sys/wait.h>
+#endif
+#ifdef HAS_MMAP
+#  include <sys/mman.h>
+#endif
+#if defined(USE_GETTIMEOFDAY) || defined(USE_GETRUSAGE) || defined(USE_TIMES)
+#  include <sys/time.h>
+#endif
+#if defined(USE_GETRUSAGE)
+#  include <sys/resource.h>
+#endif
+#if defined(USE_FTIME) || defined(USE_FTIMEFORWALLTIME)
+#  include <sys/timeb.h>
+#endif
+#if defined(USE_CLOCK_GETTIME) || defined(USE_TIMES)
+#  include <time.h>
+#endif
+#if defined(USE_TIMES)
+#  include <sys/times.h>
+#endif
 #include "pari.h"
 #include "paripriv.h"
 #include "anal.h"
@@ -252,10 +279,6 @@ pari_stackcheck_init(void *pari_stack_base)
   PARI_stack_limit = get_stack(1./16, 32*1024);
 }
 #  else /* !__EMX__ */
-#include <sys/types.h>
-#include <sys/time.h>
-#include <sys/resource.h>
-
 /* Set PARI_stack_limit to (a little above) the lowest safe address that can be
  * used on the stack. Leave PARI_stack_limit at its initial value (NULL) to
  * show no check should be made [init failed]. Assume stack grows downward. */
@@ -312,7 +335,6 @@ traverseheap( void(*f)(GEN, void *), void *data )
 /*                          DAEMON / FORK                            */
 /*********************************************************************/
 #if defined(HAS_WAITPID) && defined(HAS_SETSID)
-#  include <sys/wait.h>
 /* Properly fork a process, detaching from main process group without creating
  * zombies on exit. Parent returns 1, son returns 0 */
 int
@@ -599,7 +621,6 @@ pari_add_defaults_module(entree *ep)
 /*********************************************************************/
 
 #ifdef HAS_MMAP
-#include <sys/mman.h>
 #define PARI_STACK_ALIGN (sysconf(_SC_PAGE_SIZE))
 #ifndef MAP_ANONYMOUS
 #define MAP_ANONYMOUS MAP_ANON
@@ -2272,18 +2293,6 @@ getstack(void) { return pari_mainstack->top-avma; }
 /*                                                                 */
 /*******************************************************************/
 
-#if defined(USE_GETTIMEOFDAY) || defined(USE_GETRUSAGE)
-#include <sys/time.h>
-#endif
-
-#if defined(USE_FTIME) || defined(USE_FTIMEFORWALLTIME)
-#include <sys/timeb.h>
-#endif
-
-#if defined(USE_CLOCK_GETTIME)
-#include <time.h>
-#endif
-
 #if defined(USE_CLOCK_GETTIME)
 #if defined(_POSIX_THREAD_CPUTIME)
 static THREAD clockid_t time_type = CLOCK_THREAD_CPUTIME_ID;
@@ -2307,7 +2316,6 @@ timer_start(pari_timer *T)
   T->s  = t.tv_sec;
 }
 #elif defined(USE_GETRUSAGE)
-# include <sys/resource.h>
 #ifdef RUSAGE_THREAD
 static THREAD int rusage_type = RUSAGE_THREAD;
 #else
@@ -2353,9 +2361,6 @@ _get_time(pari_timer *T, long Ticks, long TickPerSecond)
 }
 
 # ifdef USE_TIMES
-#  include <sys/times.h>
-#  include <sys/time.h>
-#  include <time.h>
 static void
 pari_init_timer(void) { }
 
