@@ -3963,7 +3963,10 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: teich(x) ===> teichmuller(x)
 
-teichmuller(x): teichmuller character of p-adic number x.
+teichmuller(x,{tab}): teichmuller character of p-adic number x. If x = [p,n], 
+return the lifts of all teichmuller(i + O(p^n)) for i = 1, ..., p-1. Such a 
+vector can be fed back to teichmuller, as the optional argument tab, to speed 
+up later computations.
 
 
   ***   at top-level: threetotwo()
@@ -4572,4 +4575,4 @@ New syntax: texprint(x) ===> printtex(x)
 printtex({str}*): outputs its string arguments in TeX format.
 
 
-Total time spent: 23
+Total time spent: 12
