@@ -5840,6 +5840,9 @@ $1$ congruent to $x$ modulo $p$, modulo $p^e$. For convenience, $p = 2$ is
 also allowed and we return $1$ ($x$ is $1$ mod $4$) or $2^e - 1$ ($x$ is $3$
 mod $4$).
 
+\fun{GEN}{teichmullerinit}{long p, long n} returns the values of
+\tet{Zp_teichmuller} at all $x = 1, \dots, p-1$.
+
 \subsec{ZpX}
 
 \fun{GEN}{ZpX_roots}{GEN f, GEN p, long e} $f$ a \kbd{ZX} with leading

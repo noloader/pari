@@ -394,6 +394,8 @@ BA 147- [GP] call (for calling closures).
 SCh150- [mingw] timer: support for user time
 JD 151- [libpari] pari_completion interface for readline
 SCh152- [mingw+pthread]: default nbthreads support
+   153- teichmuller([p,n]) to cache all value at i + O(p^n), 1 <= i < p
+   154- optional argument 'tab' to teichmuller(x)
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]

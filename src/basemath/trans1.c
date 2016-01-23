@@ -2724,13 +2724,25 @@ teichmullerinit(long p, long n)
   return v;
 }
 
+/* tab from teichmullerinit or NULL */
 GEN
-teich(GEN x)
+teichmuller(GEN x, GEN tab)
 {
   GEN p, q, y, z;
-  long n;
+  long n, tx = typ(x);
 
-  if (typ(x)!=t_PADIC) pari_err_TYPE("teichmuller",x);
+  if (!tab)
+  {
+    if (tx == t_VEC && lg(x) == 3)
+    {
+      p = gel(x,1);
+      q = gel(x,2);
+      if (typ(p) == t_INT && typ(q) == t_INT)
+        return teichmullerinit(itos(p), itos(q));
+    }
+  }
+  else if (typ(tab) != t_VEC) pari_err_TYPE("teichmuller",tab);
+  if (tx!=t_PADIC) pari_err_TYPE("teichmuller",x);
   z = gel(x,4);
   if (!signe(z)) return gcopy(x);
   p = gel(x,2);
@@ -2740,9 +2752,21 @@ teich(GEN x)
   y[1] = evalprecp(n) | _evalvalp(0);
   gel(y,2) = icopy(p);
   gel(y,3) = icopy(q);
-  gel(y,4) = Zp_teichmuller(z, p, n, q);
+  if (tab)
+  {
+    ulong pp = itou_or_0(p);
+    if (lg(tab) != (long)pp) pari_err_TYPE("teichmuller",tab);
+    z = gel(tab, umodiu(z, pp));
+    if (typ(z) != t_INT) pari_err_TYPE("teichmuller",tab);
+    z = remii(z, q);
+  }
+  else
+    z = Zp_teichmuller(z, p, n, q);
+  gel(y,4) = z;
   return y;
 }
+GEN
+teich(GEN x) { return teichmuller(x, NULL); }
 
 GEN
 glog(GEN x, long prec)
