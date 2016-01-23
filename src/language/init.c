@@ -22,9 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #include <string.h>
 #if defined(_WIN32) || defined(__CYGWIN32__)
 #  include "../systems/mingw/mingw.h"
-#  ifndef WINCE
-#    include <process.h>
-#  endif
+#  include <process.h>
 #endif
 #include "paricfg.h"
 #if defined(STACK_CHECK) && !defined(__EMX__)
@@ -2375,13 +2373,6 @@ timer_start(pari_timer *T)
   struct tms t; times(&t);
   _get_time(T, t.tms_utime, tck);
 }
-# elif defined(WINCE)
-static void
-pari_init_timer(void) { }
-
-void
-timer_start(pari_timer *T)
-{ _get_time(T, GetTickCount(), 1000); }
 # elif defined(_WIN32)
 static void
 pari_init_timer(void) { }

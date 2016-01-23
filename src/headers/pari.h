@@ -21,17 +21,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #  include <sys/types.h> /* size_t */
 #endif
 
-#ifdef WINCE
-#  include <windows.h>
-#else
-#  include <signal.h>
-#  include <stdio.h>
-#endif
-
+#include <signal.h>
+#include <stdio.h>
 #include <stdarg.h>
 #include <setjmp.h>
 #include <string.h>
-#if !defined(_WIN32) && !defined(WINCE)
+#if !defined(_WIN32)
 #  include <unistd.h>
 #else
 #  include <io.h>
@@ -40,9 +35,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #include <memory.h>
 #include <ctype.h>
 
-#ifdef WINCE
-#  include "pariCE.h"
-#endif
 #include "parisys.h"
 #include "parigen.h"
 #include "paricast.h"

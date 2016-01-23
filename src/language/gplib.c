@@ -19,9 +19,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #ifdef _WIN32
 #  include <windows.h>
 #  include "../systems/mingw/mingw.h"
-#  ifndef WINCE
-#    include <process.h>
-#  endif
+#  include <process.h>
 #endif
 
 #include "pari.h"

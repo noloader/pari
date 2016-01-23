@@ -825,7 +825,7 @@ static char *
 mpqs_get_filename(char *dir, const char *s)
 {
   char *buf = stack_malloc(strlen(dir) + strlen(s) + 2);
-#if defined(__EMX__) || defined(WINCE)
+#if defined(__EMX__)
   sprintf(buf, "%s\\%s", dir,s);
 #else
   sprintf(buf, "%s/%s", dir,s);

@@ -478,9 +478,7 @@ static FILE *
 open_logfile(const char *s) {
   FILE *log = fopen(s, "a");
   if (!log) pari_err_FILE("logfile",s);
-#ifndef WINCE
   setbuf(log,(char *)NULL);
-#endif
   return log;
 }
 

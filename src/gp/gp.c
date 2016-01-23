@@ -529,18 +529,9 @@ cyg_environment(int argc, char ** argv)
 }
 #endif
 
-#ifndef WINCE
 int
 main(int argc, char **argv)
 {
-#else
-int
-WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
-        LPWSTR lpCmdLine, int nShowCmd)
-{
-  char **argv = NULL;
-  int argc = 1;
-#endif
   char **A;
   pari_stack s_A;
 

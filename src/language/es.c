@@ -3656,8 +3656,6 @@ os_signal(int sig, pari_sighandler_t f)
 
   if (sigaction(sig, &sa, &oldsa)) return NULL;
   return oldsa.sa_handler;
-#elif defined(WINCE)
-  return SIG_IGN;
 #else
   return signal(sig,f);
 #endif
@@ -3667,36 +3665,18 @@ os_signal(int sig, pari_sighandler_t f)
 void
 os_close(long fd)
 {
-#ifdef WINCE
-  CloseHandle((HANDLE)fd);
-#else
   close(fd);
-#endif
 }
 void
 os_read(long fd, char ch[], long s)
 {
-#ifdef WINCE
-  DWORD chRead;
-  ReadFile((HANDLE)fd, ch, s, &chRead, NULL);
-#else
   (void)read(fd,ch,s);
-#endif
 }
 long
 os_open(const char *s, int mode)
 {
   long fd;
-#ifdef WINCE
-  HANDLE h;
-  short ws[256];
-  if (mode != O_RDONLY) pari_err_IMPL("generic open for Windows");
-  MultiByteToWideChar(CP_ACP, 0, s, strlen(s)+1, ws, 256);
-  h = CreateFile(ws,GENERIC_READ,FILE_SHARE_READ,NULL,OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL,NULL);
-  fd = (h == INVALID_HANDLE_VALUE)? (long)-1: (long)h;
-#else
   fd = open(s,mode);
-#endif
   return fd;
 }
 #endif
@@ -4893,10 +4873,6 @@ static const char*
 pari_tmp_dir(void)
 {
   char *s;
-#ifdef WINCE
-  s = env_ok("TEMP"); if (s) return s;
-  return "\\temp";
-#endif
   s = env_ok("GPTMPDIR"); if (s) return s;
   s = env_ok("TMPDIR"); if (s) return s;
 #if defined(_WIN32) || defined(__EMX__)
@@ -4928,7 +4904,7 @@ get_file(char *buf, int test(const char *))
   return 0;
 }
 
-#if defined(__EMX__) || defined(WINCE) || defined(_WIN32)
+#if defined(__EMX__) || defined(_WIN32)
 static void
 swap_slash(char *s)
 {
@@ -4960,7 +4936,7 @@ init_unique(const char *s)
   buf = (char*) pari_malloc(lpre + 1 + 8 + lsuf + 1);
   strcpy(buf, pre);
   if (buf[lpre-1] != '/') { (void)strcat(buf, "/"); lpre++; }
-#if defined(__EMX__) || defined(WINCE) || defined(_WIN32)
+#if defined(__EMX__) || defined(_WIN32)
   swap_slash(buf);
 #endif
 
@@ -5086,14 +5062,6 @@ static void *
 install0(const char *name, const char *lib)
 {
   HMODULE handle;
-#ifdef WINCE
-  short wlib[256], wname[256];
-
-  MultiByteToWideChar(CP_ACP, 0, lib, strlen(lib)+1, wlib, 256);
-  MultiByteToWideChar(CP_ACP, 0, name, strlen(name)+1, wname, 256);
-  lib = wlib;
-  name = wname;
-#endif
 
   handle = gp_LoadLibrary(lib);
   if (!handle)
