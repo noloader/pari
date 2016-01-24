@@ -46,6 +46,16 @@ bnrclassno(bnf, idealprimedec(bnf,5)[1])
 bnr=bnrinit(bnf,[7,[1,1]],1);
 bnrrootnumber(bnr, [2,1])
 bnrrootnumber(bnr, [0,0])
+bnrconductor(bnr,[0,0])
+chi=[1,0];
+bnrconductor(bnr,chi)
+charorder(bnf,[1])
+chareval(bnf,[1], idealprimedec(bnf,3)[1])
+charorder(bnr,chi)
+chareval(bnr,chi,2)
+chareval(bnr,chi,1/7)
+chareval(bnr,chi,x+1)
+chareval(1,chi,1)
 
 bnr=bnrinit(bnfinit(x^2-97),1,1); bnrrootnumber(bnr,[])
 

@@ -627,8 +627,9 @@ znconreyexp(GEN bid, GEN x)
 /* m a Conrey log [on the canonical primitive roots], cycg the primitive
  * roots orders */
 GEN
-conrey_normalize(GEN m, GEN cycg)
+conrey_normalize(GEN G, GEN m)
 {
+  GEN L = gel(G,4), cycg = gel(L,5);
   long i, l;
   GEN d, M = cgetg_copy(m, &l);
   if (typ(cycg) != t_VEC || lg(cycg) != l)
@@ -645,7 +646,7 @@ GEN
 znconreychar(GEN bid, GEN m)
 {
   pari_sp av = avma;
-  GEN c, d, L, Ui, cycg, nchi;
+  GEN c, d, L, Ui, nchi;
 
   switch(typ(m))
   {
@@ -657,8 +658,7 @@ znconreychar(GEN bid, GEN m)
   }
   L = gel(bid,4);
   Ui = gel(L,3);
-  cycg = gel(L,5);
-  nchi = conrey_normalize(m, cycg); /* images of primroot gens */
+  nchi = conrey_normalize(bid, m); /* images of primroot gens */
   d = gel(nchi,1);
   c = ZV_ZM_mul(gel(nchi,2), Ui); /* images of bid gens */
   return gerepilecopy(av, char_denormalize(bid_get_cyc(bid),d,c));
@@ -667,7 +667,7 @@ znconreychar(GEN bid, GEN m)
 /* chi a t_INT or Conrey log describing a character. Return conductor, as an
  * integer if primitive; as a t_VEC [N,factor(N)] if not. Set *pm=m to the
  * associated primitive character: chi(g_i) = m[i]/ord(g_i)
- * Caller should use conrey_normalize(m, cycg(BID)), once BID(conductor) is
+ * Caller should use conrey_normalize(BID, m), once BID(conductor) is
  * computed (wasteful to do it here since BID is shared by many characters) */
 GEN
 znconreyconductor(GEN bid, GEN chi, GEN *pm)
@@ -756,68 +756,122 @@ znconreyconductor(GEN bid, GEN chi, GEN *pm)
   return q;
 }
 
+/* return normalized character on Conrey generators associated to chi: Conrey
+ * label (t_INT), char on (SNF) G.gen* (t_VEC), or Conrey log (t_COL) */
 GEN
-znchareval(GEN G, GEN chi, GEN n, GEN z)
+znconrey_normalized(GEN G, GEN chi)
 {
-  pari_sp av = avma;
-  GEN nchi, a, b, N, o, q, r;
-  if (!checkbidZ_i(G)) pari_err_TYPE("znchareval", G);
-  N = bid_get_ideal(G);
-  switch(typ(n))
-  {
-    case t_INT: n = modii(n, N); break;
-    case t_INTMOD: n = Rg_to_Fp(n, N); break;
-    default: pari_err_TYPE("znchareval", n);
-  }
-  if (!equali1(gcdii(n, N)))
-    return (!z || typ(z) == t_INT)? gen_m1: gen_0;
   switch(typ(chi))
   {
     case t_INT: /* Conrey label */
-      chi = znconreylog(G, chi); /* fall through */
+      return conrey_normalize(G, znconreylog(G, chi));
     case t_COL: /* Conrey log */
-      if (RgV_is_ZV(chi))
-      {
-        GEN L = gel(G,4), cycg = gel(L,5);
-        nchi = conrey_normalize(chi, cycg);
-        break;
-      } /* fall through */
+      if (!RgV_is_ZV(chi)) break;
+      return conrey_normalize(G, chi);
     case t_VEC: /* char on G.gen */
-      if (RgV_is_ZV(chi))
-      {
-        nchi = znconreyfromchar_normalized(G, chi);
-        break;
-      }
-    default: pari_err_TYPE("znchareval",chi);
-             return NULL;/* not reached */
+      if (!RgV_is_ZV(chi)) break;
+      return znconreyfromchar_normalized(G, chi);
   }
-  /* nchi: normalized character on Conrey generators */
-  b = gel(nchi,1);
-  a = FpV_dotproduct(gel(nchi,2), znconreylog(G, n), b);
+  pari_err_TYPE("znchareval",chi);
+  return NULL;/* not reached */
+}
+
+GEN
+chareval_i(GEN nchi, GEN dlog, GEN z)
+{
+  GEN o, q, r, b = gel(nchi,1);
+  GEN a = FpV_dotproduct(gel(nchi,2), dlog, b);
   /* image is a/b in Q/Z */
-  if (!z) return gerepileupto(av, gdiv(a,b));
+  if (!z) return gdiv(a,b);
   if (typ(z) == t_INT)
   {
-    o = z;
-    q = dvmdii(o, b, &r);
+    q = dvmdii(z, b, &r);
     if (signe(r)) pari_err_TYPE("znchareval", z);
-    return gerepileuptoint(av, mulii(a, q));
+    return mulii(a, q);
   }
   /* return z^(a*o/b), assuming z^o = 1 and b | o */
   if (typ(z) != t_VEC || lg(z) != 3) pari_err_TYPE("znchareval", z);
   o = gel(z,2); if (typ(o) != t_INT) pari_err_TYPE("znchareval", z);
-  q = dvmdii(o, b, &r);
-  if (signe(r)) pari_err_TYPE("znchareval", z);
+  q = dvmdii(o, b, &r); if (signe(r)) pari_err_TYPE("znchareval", z);
   q = mulii(a, q); /* in [0, o[ since a is reduced mod b */
   z = gel(z,1);
   if (typ(z) == t_VEC)
   {
-    long lq = itos_or_0(q);
-    if (lq != lg(z)-1) pari_err_TYPE("znchareval", z);
-    avma = av; return gcopy(gel(z, lq));
+    if (itos_or_0(o) != lg(z)-1) pari_err_TYPE("znchareval", z);
+    return gcopy(gel(z, itos(q)));
   }
   else
-    return gerepileupto(av, gpow(z, q, DEFAULTPREC));
+    return gpow(z, q, DEFAULTPREC);
+}
+
+static GEN
+not_coprime(GEN z)
+{ return (!z || typ(z) == t_INT)? gen_m1: gen_0; }
+
+/* G a bidZ, not stack clean */
+GEN
+znchareval(GEN G, GEN chi, GEN n, GEN z)
+{
+  GEN nchi, N = bid_get_ideal(G);
+  /* avoid division by 0 */
+  if (typ(n) == t_FRAC && !equali1(gcdii(gel(n,2), N))) return not_coprime(z);
+  n = Rg_to_Fp(n, N);
+  if (!equali1(gcdii(n, N))) return not_coprime(z);
+  /* nchi: normalized character on Conrey generators */
+  nchi = znconrey_normalized(G, chi);
+  return chareval_i(nchi, znconreylog(G,n), z);
+}
+
+static GEN
+get_chi(GEN cyc, GEN chi)
+{
+  if (typ(chi) != t_VEC || !RgV_is_ZV(chi) || lg(cyc) != lg(chi))
+    pari_err_TYPE("chareval", chi);
+  return char_normalize(chi, cyc_normalize(cyc));
+}
+/* G a bnr.  FIXME: horribly inefficient to check that (x,N)=1, what to do ? */
+static int
+bnr_coprime(GEN G, GEN x)
+{
+  GEN t, N = gel(bnr_get_mod(G), 1);
+  if (typ(x) == t_INT) /* shortcut */
+  {
+    t = gcdii(gcoeff(N,1,1), x);
+    if (equali1(t)) return 1;
+    t = idealadd(G, N, x);
+    return equali1(gcoeff(t,1,1));
+  }
+  x = idealnumden(G, x);
+  t = idealadd(G, N, gel(x,1));
+  if (!equali1(gcoeff(t,1,1))) return 0;
+  t = idealadd(G, N, gel(x,2));
+  return equali1(gcoeff(t,1,1));
+}
+GEN
+chareval(GEN G, GEN chi, GEN x, GEN z)
+{
+  pari_sp av = avma;
+  GEN nchi, L;
+
+  switch(nftyp(G))
+  {
+    case typ_BNR:
+      if (!bnr_coprime(G, x)) return not_coprime(z);
+      L = isprincipalray(G, x);
+      nchi = get_chi(bnr_get_cyc(G), chi);
+      break;
+    case typ_BNF:
+      L = isprincipal(G, x);
+      nchi = get_chi(bnf_get_cyc(G), chi);
+      break;
+    case typ_BID:
+      if (checkbidZ_i(G)) return gerepileupto(av, znchareval(G, chi, x, z));
+      /* don't implement chars on general bid: need an nf... */
+    default:
+      pari_err_TYPE("chareval", G);
+      return NULL;/* not reached */
+  }
+  return gerepileupto(av, chareval_i(nchi, L, z));
 }
 
 /*********************************************************************/

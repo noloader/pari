@@ -421,7 +421,7 @@ lfunchiZ(GEN bid, GEN chi)
 {
   pari_sp av = avma;
   GEN sig = NULL;
-  GEN N = bid_get_ideal(bid), L, cycg, nchi, r;
+  GEN N = bid_get_ideal(bid), nchi, r;
   int real;
 
   if (typ(N) != t_INT) pari_err_TYPE("lfunchiZ", bid);
@@ -436,8 +436,7 @@ lfunchiZ(GEN bid, GEN chi)
   }
   /* chi now primitive on bid */
   sig = mkvec( mpodd(ZV_sum(chi))? gen_1: gen_0 );
-  L = gel(bid,4); cycg = gel(L,5);
-  nchi = conrey_normalize(chi, cycg);
+  nchi = conrey_normalize(bid, chi);
   real = cmpiu(gel(nchi,1), 2) <= 0;
   r = mkvecn(6, tag(mkvec2(bid,nchi), t_LFUN_CHIZ),
                 real? gen_0: gen_1, sig, gen_1, N, gen_0);
