@@ -639,9 +639,8 @@ conrey_normalize(GEN G, GEN m)
   M = Q_remove_denom(M, &d);
   return mkvec2(d? d: gen_1, M);
 }
-/* Return Dirichlet character \chi_q(m,.), where bid = znstar(q).
- * Allow log(m) instead of m; m is either a t_INT, or a t_COL [its usual, not
- * Conrey's discrete log in bid] */
+/* Return Dirichlet character \chi_q(m,.), where bid = znstar(q);
+ * m is either a t_INT, or a t_COL [Conrey logarithm] */
 GEN
 znconreychar(GEN bid, GEN m)
 {
@@ -652,13 +651,14 @@ znconreychar(GEN bid, GEN m)
   {
     case t_COL:
     case t_INT:
-      m = znconreylog(bid,m); break;
+      nchi = znconrey_normalized(bid,m); /* images of primroot gens */
+      break;
     default:
       pari_err_TYPE("znconreychar",m);
+      return NULL;/*not reached*/
   }
   L = gel(bid,4);
   Ui = gel(L,3);
-  nchi = conrey_normalize(bid, m); /* images of primroot gens */
   d = gel(nchi,1);
   c = ZV_ZM_mul(gel(nchi,2), Ui); /* images of bid gens */
   return gerepilecopy(av, char_denormalize(bid_get_cyc(bid),d,c));

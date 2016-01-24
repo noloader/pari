@@ -44,7 +44,7 @@ Doc: Given a \var{bid} associated to $(\Z/q\Z)^*$ (as per \kbd{bid =
  function \tet{znconreyexp} recovers the Conrey label $m$ from a character.
 
  \bprog
- ? G = idealstar(,126000)
+ ? G = idealstar(,126000);
  ? znconreylog(G,1)
  %2 = [0, 0, 0, 0, 0]~
  ? znconreyexp(G, %)
@@ -64,13 +64,20 @@ Doc: Given a \var{bid} associated to $(\Z/q\Z)^*$ (as per \kbd{bid =
  @eprog\noindent
 
  For convenience, we allow to input the ordinary discrete log of $m$,
- $\kbd{ideallog(,m,bid)}$, which is faster than using $m$:
+ $\kbd{ideallog(,m,bid)}$
  \bprog
  ? znconreylog(G, log11)
  %7 = [0, 3, 1, 76, 4]~
- ? for(i=1,10^5,znconreylog(G,11))
- time = 596 ms.
- ? for(i=1,10^5,znconreylog(G,log11))
- time = 84 ms.
  @eprog\noindent We also allow a character (\typ{VEC}) on \kbd{bid.gen} and
  return its representation on the Conrey generators.
+ \bprog
+ ? G.cyc
+ %8 = [300, 12, 2, 2, 2]
+ ? chi = [10,1,0,1,1];
+ ? znconreylog(G, chi)
+ %10 = [1, 3, 3, 10, 2]~
+ ? n = znconreyexp(G, chi)
+ %11 = 84149
+ ? znconreychar(G, n)
+ %12 = [10, 1, 0, 1, 1]
+ @eprog
