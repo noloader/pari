@@ -2293,9 +2293,9 @@ getMorphism_single(GEN phi, GEN act)
   for (i = 1; i < lv; i++)
   {
     GEN t = dual_act(gel(act,i), phi);
-    T = T? gerepileupto(av, RgC_add(T,t)): t;
+    T = T? gerepileupto(av, RgV_add(T,t)): t;
   }
-  if (!T) T = zerocol(lg(phi)-1);
+  if (!T) T = zerovec(lg(phi)-1);
   return T; /* = (phi|op)(G_1,...,G_d2) */
 }
 
@@ -3228,10 +3228,10 @@ RgXC_to_moments(GEN v, GEN bin)
   return w;
 }
 
-GEN
-omseval(GEN O, GEN path)
+/* assume O[2] is integral, den is the cancelled denominator or NULL */
+static GEN
+omseval_int(GEN O, GEN path, GEN den)
 {
-  pari_sp av = avma;
   struct m_act S;
   GEN v, L, W, PHI, data, q, act, T = NULL;
   long p, n, a, k, lvec;
@@ -3245,6 +3245,7 @@ omseval(GEN O, GEN path)
   L = M2_log(W, path);
 
   q = powuu(p,n);
+  if (den) q = mulii(q,den);
   S.p = p;
   S.k = k;
   S.q = q;
@@ -3264,9 +3265,23 @@ omseval(GEN O, GEN path)
     }
     gel(v,a) = FpC_red(T,q);
   }
-  return gerepilecopy(av, v);
+  return v;
 }
 
+GEN
+omseval(GEN O, GEN path)
+{
+  pari_sp av = avma;
+  GEN den, v, PHI = gel(O,2);
+  PHI = Q_remove_denom(PHI, &den);
+  if (den)
+  {
+    O = leafcopy(O);
+    gel(O,2) = PHI;
+  }
+  v = omseval_int(O, path, den);
+  return den? gerepileupto(av, gdiv(v,den)): gerepilecopy(av, v);
+}
 /* W = msinit(N,k,...); phi = T_p/U_p - eigensymbol */
 GEN
 mstooms(GEN W, GEN phi, long p, long n)
@@ -3360,17 +3375,19 @@ mspadicmoments(GEN W, GEN phi, long p, long n, long D)
 {
   pari_sp av = avma;
   long a, b, lvec, k = msk_get_weight(W);
-  GEN v, PHI, bin, gp = stoi(p), pn, O, P, data, teich;
+  GEN v, den, PHI, bin, gp = stoi(p), pn, O, P, data, teich;
 
   O = mstooms(W, phi, p, n);
   W = gel(O,1); /* possibly in level N*p */
   PHI = gel(O,2);
+  gel(O,2) = Q_remove_denom(PHI, &den);
   data = gel(O,3);
 
   bin = matpascal(n);
   P = gpowers(gp, n);
   pn = gel(P, n+1);
-  teich = teichmullerinit(p, n);
+  if (den) pn = gmul(pn, den);
+  teich = teichmullerinit(p, den? n + Z_lval(den, p): n);
   if (D != 1)
   {
     GEN act = init_moments_act(W, W, p, n, pn, twist_matrices(D));
@@ -3378,7 +3395,7 @@ mspadicmoments(GEN W, GEN phi, long p, long n, long D)
     for (i = 1; i < l; i++)
     {
       GEN t = getMorphism_single(gel(PHI,i), act);
-      gel(PHI,i) = red_mod_FilM(t, p, k, 0);
+      gel(PHI,i) = red_mod_FilM(t, p, k, 1);
     }
   }
 
@@ -3387,14 +3404,13 @@ mspadicmoments(GEN W, GEN phi, long p, long n, long D)
   for (a = 1; a < p; a++)
   {
     GEN powa, path, vca, ga = utoipos(a);
-    GEN t = cgetg(n+2, t_VEC);
     powa = Fp_powers(subsi(a, gel(teich,a)), n, pn);
     path = mkmat2(mkcol2(gen_1,gen_0), mkcol2(ga, gp));
-    vca = omseval(O, path);
+    vca = omseval_int(O, path, den);
     /* ca[r+1] = c_r(a/p) = \Phi([a/p] - [oo])(z^r) */
     for (b = 1; b < lg(vca); b++)
     {
-      GEN ca = gel(vca,b);
+      GEN t = cgetg(n+2, t_VEC), ca = gel(vca,b);
       long j;
       gmael(v,b,a) = t;
       for (j = 0; j <= n; j++)
@@ -3414,5 +3430,6 @@ mspadicmoments(GEN W, GEN phi, long p, long n, long D)
       }
     }
   }
+  if (den) v = gdiv(v, den);
   return gerepilecopy(av, mkvec2(v, data));
 }
