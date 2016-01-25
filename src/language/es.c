@@ -340,6 +340,37 @@ gp_read_str_multiline(const char *s, char *last)
   return gp_read_from_input(&IM, 1, last);
 }
 
+void
+gp_embedded_init(long rsize, long vsize)
+{
+  pari_init(rsize, 500000);
+  paristack_setsize(rsize, vsize);
+}
+
+char *
+gp_embedded(const char *s)
+{
+  char last, *res;
+  struct gp_context state;
+  gp_context_save(&state);
+  pari_CATCH(CATCH_ALL)
+  {
+    GENbin* err = copy_bin(pari_err_last());
+    gp_context_restore(&state);
+    res = pari_err2str(bin_copy(err));
+  } pari_TRY {
+    GEN z = gp_read_str_multiline(s, &last);
+    ulong n;
+    pari_add_hist(z, 0);
+    n = pari_nb_hist();
+    parivstack_reset();
+    res = (z==gnil || last==';') ? "" :
+          stack_sprintf("%%%lu = %Ps", n, pari_get_hist(n));
+  } pari_ENDCATCH;
+  avma = pari_mainstack->top;
+  return res;
+}
+
 GEN
 gp_readvec_stream(FILE *fi)
 {

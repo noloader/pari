@@ -1439,6 +1439,8 @@ long    fetch_user_var(const char *s);
 long    fetch_var(void);
 long    fetch_var_higher(void);
 GEN     fetch_var_value(long vx, GEN t);
+char *  gp_embedded(const char *s);
+void    gp_embedded_init(long rsize, long vsize);
 GEN     gp_read_str(const char *t);
 entree* install(void *f, const char *name, const char *code);
 entree* is_entry(const char *s);

@@ -831,6 +831,18 @@ signal \kbd{sig}, using \tet{sigaction} with flag \tet{SA_NODEFER}. If
 \kbd{sigaction} is not available use \tet{signal}. If even the latter is not
 available, just return \tet{SIG_IGN}. Use \tet{sigaction}.
 
+\section{Embedded GP interpretor}
+These function provide a simplified interface to embed a GP
+interpretor in a program.
+
+\fun{void}{gp_embedded_init}{long rsize, long vsize}
+Initialize the GP interpretor (like \kbd{pari\_init} does) with
+\kbd{parisize=rsize} \kbd{rsize} and \kbd{parisizemax=vsize}.
+
+\fun{char *}{gp_embedded}{const char *s}
+Evaluate the string \kbd{s} with GP and return the result as a string,
+in a format similar to what GP displays (with the history index).
+
 \chapter{Regression tests, benches}
 
 This chapter documents how to write an automated test module, say \kbd{fun},
