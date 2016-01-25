@@ -3183,8 +3183,8 @@ static GEN
 oms_ordinary(GEN W, GEN phi, GEN alpha, long p, long M)
 {
   long i, k = msk_get_weight(W);
-  GEN v = Up_matrices(p), q = powuu(p,M);
-  GEN act = init_moments_act(W, W, p, M, q, v);
+  GEN q = powuu(p,M);
+  GEN act = init_moments_act(W, W, p, M, q, Up_matrices(p));
   phi = concat2(phi, zerovec(M));
   for (i = 1; i <= M; i++)
   {
@@ -3233,12 +3233,12 @@ omseval(GEN O, GEN path)
 {
   pari_sp av = avma;
   struct m_act S;
-  GEN v, L, W, vecphi, data, q, act, T = NULL;
+  GEN v, L, W, PHI, data, q, act, T = NULL;
   long p, n, a, k, lvec;
 
   W = gel(O,1); /* possibly in level N*p */
   k = msk_get_weight(W);
-  vecphi = gel(O,2);
+  PHI = gel(O,2);
   data = gel(O,3);
   p = itos(gel(data,3));
   n = itos(gel(data,4));
@@ -3250,12 +3250,12 @@ omseval(GEN O, GEN path)
   S.q = q;
   S.dim = n+k-1;
 
-  v = cgetg_copy(vecphi, &lvec);
+  v = cgetg_copy(PHI, &lvec);
   L = ZGl2QC_star(L); /* lambda_{i,j}^* */
   act = ZGl2QC_to_act(&S, moments_act, L); /* as operators on V */
   for (a = 1; a < lvec; a++)
   {
-    GEN phi = gel(vecphi,a);
+    GEN phi = gel(PHI,a);
     long i;
     for (i = 1; i < lg(phi); i ++)
     {
@@ -3345,36 +3345,50 @@ mstooms(GEN W, GEN phi, long p, long n)
   return gerepilecopy(av, mkvec3(W,phi, mkvec4(c,alpha,stoi(p),stoi(n))));
 }
 
+static GEN
+twist_matrices(long D)
+{
+  long i, aD = labs(D);
+  GEN v = cgetg(D+1, t_VEC);
+  for (i = 1; i <= aD; i++) gel(v,i) = mat2(aD, i-1, 0, aD);
+  return v;
+}
+
 /* W = msinit(N), phi eigensymbol, p \nmid D. Return C(x) mod FilM */
 GEN
 mspadicmoments(GEN W, GEN phi, long p, long n, long D)
 {
   pari_sp av = avma;
-  long a, b, A, lvec;
-  GEN v, vecphi, bin, gp = stoi(p), gA, pn, O, P, data, teich;
+  long a, b, lvec, k = msk_get_weight(W);
+  GEN v, PHI, bin, gp = stoi(p), pn, O, P, data, teich;
 
   O = mstooms(W, phi, p, n);
   W = gel(O,1); /* possibly in level N*p */
-  vecphi = gel(O,2);
+  PHI = gel(O,2);
   data = gel(O,3);
 
-  gA = mulss(p, labs(D));
-  A = itou(gA); /* |pD| or error */
-  v = cgetg_copy(vecphi, &lvec);
-  for (b = 1; b < lvec; b++) gel(v,b) = zerovec(A-1);
   bin = matpascal(n);
   P = gpowers(gp, n);
   pn = gel(P, n+1);
   teich = teichmullerinit(p, n);
-
-  for (a = 1; a < A; a++)
+  if (D != 1)
   {
-    GEN ga, t, powa, path, vca;
-    long ap = a % p;
-    if (!ap) continue;
-    ga = utoipos(a);
-    t = cgetg(n+2, t_VEC);
-    powa = Fp_powers(subsi(a, gel(teich,ap)), n, pn);
+    GEN act = init_moments_act(W, W, p, n, pn, twist_matrices(D));
+    long i, l = lg(PHI);
+    for (i = 1; i < l; i++)
+    {
+      GEN t = getMorphism_single(gel(PHI,i), act);
+      gel(PHI,i) = red_mod_FilM(t, p, k, 0);
+    }
+  }
+
+  v = cgetg_copy(PHI, &lvec);
+  for (b = 1; b < lvec; b++) gel(v,b) = cgetg(p, t_VEC);
+  for (a = 1; a < p; a++)
+  {
+    GEN powa, path, vca, ga = utoipos(a);
+    GEN t = cgetg(n+2, t_VEC);
+    powa = Fp_powers(subsi(a, gel(teich,a)), n, pn);
     path = mkmat2(mkcol2(gen_1,gen_0), mkcol2(ga, gp));
     vca = omseval(O, path);
     /* ca[r+1] = c_r(a/p) = \Phi([a/p] - [oo])(z^r) */
