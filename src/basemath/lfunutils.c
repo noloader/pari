@@ -426,7 +426,7 @@ lfunchiZ(GEN bid, GEN chi)
 
   if (typ(N) != t_INT) pari_err_TYPE("lfunchiZ", bid);
   if (equali1(N)) return lfunzeta();
-  chi = znconreylog(bid,chi);
+  if (typ(chi) != t_COL) chi = znconreylog(bid,chi);
   N = znconreyconductor(bid, chi, &chi);
   if (typ(N) != t_INT)
   {
