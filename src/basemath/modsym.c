@@ -3361,7 +3361,7 @@ mspadicmoments(GEN W, GEN phi, long p, long n, long D)
   gA = mulss(p, labs(D));
   A = itou(gA); /* |pD| or error */
   v = cgetg_copy(vecphi, &lvec);
-  for (b = 1; b < lvec; b++) gel(v,b) = cgetg(A, t_VEC);
+  for (b = 1; b < lvec; b++) gel(v,b) = zerovec(A-1);
   bin = matpascal(n);
   P = gpowers(gp, n);
   pn = gel(P, n+1);
