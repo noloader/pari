@@ -528,17 +528,16 @@ must be given as first argument to all PARI readline functions. */
 
 /* IMPLEMENTATION NOTE: this really must be a macro (not a function),
  * since we refer to readline symbols. */
-#define pari_use_readline(pari_rl) \
-    (pari_rl).line_buffer = &rl_line_buffer, \
-    (pari_rl).point = &rl_point, \
-    (pari_rl).end = &rl_end, \
-    (pari_rl).completion_matches = &rl_completion_matches, \
-    (pari_rl).filename_completion_function = &rl_filename_completion_function, \
-    (pari_rl).username_completion_function = &rl_username_completion_function, \
-    (pari_rl).insert = &rl_insert, \
-    (pari_rl).completion_append_character = &rl_completion_append_character, \
-    (pari_rl).back = 0, \
-    (pari_rl)
+#define pari_use_readline(pari_rl) do {\
+    (pari_rl).line_buffer = &rl_line_buffer; \
+    (pari_rl).point = &rl_point; \
+    (pari_rl).end = &rl_end; \
+    (pari_rl).completion_matches = &rl_completion_matches; \
+    (pari_rl).filename_completion_function = &rl_filename_completion_function; \
+    (pari_rl).username_completion_function = &rl_username_completion_function; \
+    (pari_rl).insert = &rl_insert; \
+    (pari_rl).completion_append_character = &rl_completion_append_character; \
+    (pari_rl).back = 0; } while(0)
 
 
 /* By files */
