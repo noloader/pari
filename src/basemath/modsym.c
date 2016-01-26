@@ -3385,7 +3385,7 @@ static GEN
 twist_matrices(long D)
 {
   long i, aD = labs(D);
-  GEN v = cgetg(D+1, t_VEC);
+  GEN v = cgetg(aD+1, t_VEC);
   for (i = 1; i <= aD; i++) gel(v,i) = mat2(aD, i-1, 0, aD);
   return v;
 }
