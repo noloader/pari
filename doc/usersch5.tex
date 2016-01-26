@@ -125,6 +125,24 @@ int thread_start (...)
 process group. The function returns 1 in the parent, and 0 in the
 forked son.
 
+\fun{void}{paristack_setsize}{size_t rsize, size_t vsize}
+Set the default \kbd{parisize} to \kbd{rsize} and the
+default \kbd{parisizemax} to \kbd{vsize}, and reallocate the
+stack to match these value, destroying its content.
+Generally used just after \kbd{pari\_init}.
+
+\fun{void}{paristack_resize}{ulong newsize}
+Change the current stack size to \kbd{newsize}
+(double it if \kbd{newsize} is 0).
+The new size is clipped to be at least the current stack size and
+at most \kbd{parisizemax}. The stack content is not affected
+by this operation.
+
+\fun{void}{parivstack_reset}{void}
+Reset the current stack to its default size \kbd{parisize},
+destroying its content. Used to recover memory after a
+computation that enlarged the stack.
+
 \subsec{Notions specific to the GP interpreter}
 
 An \kbd{entree} is the generic object associated to an identifier (a name)
