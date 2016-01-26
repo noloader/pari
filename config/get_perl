@@ -10,7 +10,7 @@ if test -n "$perl"; then
     echo "###"
     perl=
   fi
-  if test "$res" = OK; then add_funclist=../src/funclist; fi
+  if test "$res" = OK; then add_funclist=yes; fi
 fi
 if test -z "$runtime_perl"; then
   runtime_perl=$perl

@@ -16,6 +16,10 @@ knone=$src/kernel/none
 kern0=$src/kernel/$kernlvl0
 kern1=$src/kernel/$kernlvl1
 
+if test -n "$add_funclist"; then
+  add_funclist=$src/funclist
+fi
+
 #
 # File lists
 #
@@ -631,7 +635,7 @@ if test -n "$add_funclist"; then
 # files generated using external scripts
 HUGELINE="
 $src/funclist::
-	@-$cfg/genfunclist $desc"
+	@-$cfg/genfunclist $src/funclist $desc"
 suffix='$$$$-$(TMPSUF)'
 list="funclist init default gp_init highlvl"
 for name in $list; do
@@ -639,7 +643,7 @@ for name in $list; do
   funclist)
     target="$desc/\$(DESC)"
     depend="$src/funclist $desc/merge_822 $desc/PARI/822.pm"
-    script="merge_822 ../funclist"
+    script="merge_822 ../$src/funclist"
   ;;
   init)
     target=$src/language/init.h
