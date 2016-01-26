@@ -1,0 +1,42 @@
+default(parisize,60M);
+
+W = msinit(50,4,1);
+phi = mssplit(W, msnew(W))[1][1][,1];
+Wp = mspadicinit(W, 3, 6, 1);
+phi = mstooms(Wp, phi);
+mspadicmoments(Wp, phi)
+
+test2ord(s, p, n, D = 1) =
+{
+  my(e = ellinit(s));
+  my([M,xp] = msfromell(e,1));
+  Wp = mspadicinit(M, p, n, 1);
+  mspadicmoments(Wp, xp, D);
+}
+test2ss(s, p, n) =
+{
+  my(e = ellinit(s));
+  my([M,xp] = msfromell(e,1));
+  Wp = mspadicinit(M, p, n, 0);
+  mspadicmoments(Wp,xp);
+}
+
+test2ord("11a1", 7, 4)
+test2ord("17a1", 7, 4)
+test2ss("17a1", 3, 4)
+test2ord("14a1", 7, 4)
+
+e=ellinit("11a1");
+[M,xpm]=msfromell(e,1);
+Wp = mspadicinit(M, 3, 4, 1);
+mspadicmoments(Wp, xpm, 5)
+Wp = mspadicinit(M, 5, 4, 1);
+mspadicmoments(Wp, xpm, -3)
+
+[M,xpm]=msfromell(e,-1);
+Wp = mspadicinit(M, 3, 4, 1);
+mspadicmoments(Wp, xpm, 5)
+Wp = mspadicinit(M, 5, 4, 1);
+mspadicmoments(Wp, xpm, -3)
+
+test2ord("43a1", 3, 4, 29)

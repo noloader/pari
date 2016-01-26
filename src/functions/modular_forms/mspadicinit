@@ -1,0 +1,22 @@
+Function: mspadicinit
+Section: modular_forms
+C-Name: mspadicinit
+Prototype: GLLD0,L,
+Help: mspadicinit(M, p, n, {flag = 0}): given a msinit M, initialize
+ technical data needed to compute with overconvergent modular symbols
+ (modulo p^n). If flag is 1, initialize only for ordinary symbols,
+ such that Tp(s) = ap * s, with (ap,p) = 1.
+Doc: given a msinit $M$, initialize
+ technical data needed to compute with overconvergent modular symbols,
+ modulo $p^n$. If $\fl = 1$, initialize only for ordinary symbols,
+ such that $T_p(s) = a_p s$, with $(a_p,p) = 1$, which is faster.
+ When $\fl = 0$, we also allow supersingular eigensymbols such that
+ $p\mid a_p$, provided $p$ does not divide the level.
+ \bprog
+ ? E = ellinit("11a1");
+ ? [M,xpm] = msfromell(E,1);
+ ? ellap(E,3)
+ %3 = -1
+ ? Mp = mspadicinit(M, 3, 10, 1); \\ commit to ordinary symbols
+ ? XPM = mstooms(Mp,xpm);
+ @eprog

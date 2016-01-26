@@ -420,6 +420,7 @@ SCh152- [mingw+pthread]: default nbthreads support
    160- [libpari] Z2_sqrt, divisorsu_fact, usumdiv_fact, usumdivk_fact
    161- gphelp -detex: new flag -utf8 to allow utf-8 encoding in output, e.g.
         render \'{e} as &eacute; (the actual eight-bit char) instead of 'e
+   162- GP function msfromhecke, msgetlevel, msgetweight, msgetsign
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]

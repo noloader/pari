@@ -1,0 +1,13 @@
+Function: mspadicmoments
+Section: modular_forms
+C-Name: mspadicmoments
+Prototype: GGD1,L,
+Help: mspadicmoments(Mp, PHI, {D = 1}): given Mp from mspadicinit and
+ an overconvergent eigensymbol PHI, return the moments of the p-1 distributions
+ PHI([0]-[oo]) | (a + pZp), 0 < a < p.
+Doc: given \kbd{Mp} from \kbd{mspadicinit} and an overconvergent
+ eigensymbol \kbd{PHI}.
+
+
+ We also allow \kbd{PHI} to be given as a classical symbol, which is then
+ lifted to an overconvergent symbol by \kbd{mstooms}.

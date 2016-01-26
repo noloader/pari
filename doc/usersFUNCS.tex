@@ -714,12 +714,15 @@ is real, it is the first component.
 
 \item \tet{omega}: $[\omega_1,\omega_2]$, periods forming a basis of the
 complex lattice defining $E$. The first component $\omega_1$ is the
-(positive) real period, in other words the integral of $dx/(2y+a_1x+a_3)$
+(positive) real period, in other words the integral of the N\'eron
+differential $dx/(2y+a_1x+a_3)$
 over the connected component of the identity component of $E(\R)$.
 The second component $\omega_2$ is a complex period, such that
 $\tau=\dfrac{\omega_1}{\omega_2}$ belongs to Poincar\'e's
 half-plane (positive imaginary part); not necessarily to the standard
-fundamental domain.
+fundamental domain. It is normalized so that $\Im(\omega_2) < 0$
+and either $\Re(\omega_2) = 0$, when \kbd{E.disc > 0} ($E(\R)$ has two connected
+components), or $\Re(\omega_2) = \omega_1/2$
 
 \item \tet{eta} is a row vector containing the quasi-periods $\eta_1$ and
 $\eta_2$ such that $\eta_i = 2\zeta(\omega_i/2)$, where $\zeta$ is the

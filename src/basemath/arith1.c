@@ -3706,6 +3706,12 @@ unegisfundamental(ulong x)
   }
 }
 long
+sisfundamental(long x)
+{
+  return x < 0? unegisfundamental((ulong)labs(x)): uposisfundamental(x);
+}
+
+long
 Z_isfundamental(GEN x)
 {
   long r;

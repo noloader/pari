@@ -1,0 +1,14 @@
+Function: msgetsign
+Section: modular_forms
+C-Name: msgetsign
+Prototype: lG
+Help: msgetsign(M): given a msinit M, return its sign.
+Doc: given a msinit $M$, return its sign: $\pm1$ or 0 (unset).
+ \bprog
+ ? M = msinit(11,4, 1);
+ ? msgetsign(M)
+ %2 = 1
+ ? M = msinit(11,4);
+ ? msgetsign(M)
+ %4 = 0
+ @eprog
