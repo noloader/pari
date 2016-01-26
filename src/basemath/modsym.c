@@ -2283,7 +2283,7 @@ getMorphism(GEN W1, GEN W2, GEN v)
   }
   return M;
 }
-/* return op(phi) */
+/* return op(phi), op = \sum_i [act[i]] */
 static GEN
 getMorphism_single(GEN phi, GEN act)
 {
@@ -2294,6 +2294,27 @@ getMorphism_single(GEN phi, GEN act)
   {
     GEN t = dual_act(gel(act,i), phi);
     T = T? gerepileupto(av, RgV_add(T,t)): t;
+  }
+  if (!T) T = zerovec(lg(phi)-1);
+  return T; /* = (phi|op)(G_1,...,G_d2) */
+}
+/* return op(phi), op = sum \chi_D(i) act[i] */
+static GEN
+getMorphism_single_twist(GEN phi, GEN act, long D)
+{
+  pari_sp av = avma;
+  long i, lv = lg(act);
+  GEN T = NULL;
+  for (i = 1; i < lv; i++)
+  {
+    GEN t;
+    long s = kross(i,D);
+    if (!s) continue;
+    t = dual_act(gel(act,i), phi);
+    if (!T)
+      T = s>0? t: RgV_neg(t);
+    else
+      T = gerepileupto(av, s > 0? RgV_add(T,t): RgV_sub(T,t));
   }
   if (!T) T = zerovec(lg(phi)-1);
   return T; /* = (phi|op)(G_1,...,G_d2) */
@@ -3391,10 +3412,12 @@ mspadicmoments(GEN W, GEN phi, long p, long n, long D)
   if (D != 1)
   {
     GEN act = init_moments_act(W, W, p, n, pn, twist_matrices(D));
+    GEN Dk = Fp_pows(stoi(D), 2-k, pn);
     long i, l = lg(PHI);
     for (i = 1; i < l; i++)
     {
-      GEN t = getMorphism_single(gel(PHI,i), act);
+      GEN t = getMorphism_single_twist(gel(PHI,i), act, D);
+      if (k != 2) t = gmul(t, Dk);
       gel(PHI,i) = red_mod_FilM(t, p, k, 1);
     }
   }
