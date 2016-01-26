@@ -30,7 +30,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 /*                      READLINE INTERFACE                         */
 /*                                                                 */
 /*******************************************************************/
+#ifdef READLINE
 static pari_rl_interface pari_rl;
+#endif
 static int did_complete = 0;
 
 #ifdef READLINE
