@@ -150,10 +150,10 @@ if test -n "$add_funclist"; then
   cat >> doc/Makefile << EOT
 
 $src/funclist::
-	@-$cfg/genfunclist $desc
+	@-$cfg/genfunclist $src/funclist $desc
 
 $desc/\$(DESC): $src/funclist $desc/merge_822 $desc/PARI/822.pm
-	cd $desc && \$(PERL) merge_822 ../funclist > def\$(TMPSUF)
+	cd $desc && \$(PERL) merge_822 ../$src/funclist > def\$(TMPSUF)
 	mv $desc/def\$(TMPSUF) \$@
 
 usersch3.tex: $desc/\$(DESC) ../src/desc/doc_make usersFUNCS.tex
