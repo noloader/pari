@@ -261,7 +261,7 @@ int_get_bits(long k, GEN *w, long *r)
     *r -= BITS_IN_LONG;
     *w = int_nextW(*w);
     if (*r)
-      a |= (**w << (k - *r)) & mask;
+      a |= ((ulong)**w << (k - *r)) & mask;
   }
   return a;
 }
@@ -273,7 +273,7 @@ int_get_ulong(GEN *w, long *r)
   ulong a = ((ulong) **w) >> *r;
   *w = int_nextW(*w);
   if (*r)
-    a |= (**w << (BITS_IN_LONG - *r));
+    a |= ((ulong)**w << (BITS_IN_LONG - *r));
   return a;
 }
 
