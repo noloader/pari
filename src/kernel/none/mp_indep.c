@@ -823,7 +823,7 @@ int2n(long n) {
   l = dvmdsBIL(n, &m) + 3;
   z = cgetipos(l);
   for (i = 2; i < l; i++) z[i] = 0;
-  *int_MSW(z) = 1L << m; return z;
+  *int_MSW(z) = 1UL << m; return z;
 }
 /* To avoid problems when 2^(BIL-1) < n. Overflow cleanly, where int2n
  * returns gen_0 */
@@ -836,7 +836,7 @@ int2u(ulong n) {
   l = dvmduBIL(n, &m) + 3;
   z = cgetipos(l);
   for (i = 2; i < l; i++) z[i] = 0;
-  *int_MSW(z) = 1L << m; return z;
+  *int_MSW(z) = 1UL << m; return z;
 }
 
 GEN
