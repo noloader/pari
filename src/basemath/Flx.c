@@ -1145,15 +1145,17 @@ Flx_invBarrett_basecase(GEN T, ulong p)
   if (SMALL_ULONG(p))
     for (i=3;i<lr;i++)
     {
-      ulong u = T[l-i+2];
-      for (k=3;k<i;k++) { u += T[l-i+k] * r[k]; if (u & HIGHBIT) u %= p; }
+      ulong u = uel(T, l-i+2);
+      for (k=3; k<i; k++)
+        { u += uel(T,l-i+k) * uel(r, k); if (u & HIGHBIT) u %= p; }
       r[i] = Fl_neg(u % p, p);
     }
   else
     for (i=3;i<lr;i++)
     {
-      ulong u = Fl_neg(T[l-i+2], p);
-      for (k=3;k<i;k++) u = Fl_sub(u, Fl_mul(T[l-i+k],r[k],p),p);
+      ulong u = Fl_neg(uel(T,l-i+2), p);
+      for (k=3; k<i; k++)
+        u = Fl_sub(u, Fl_mul(uel(T,l-i+k), uel(r,k), p), p);
       r[i] = u;
     }
   return Flx_renormalize(r,lr);
