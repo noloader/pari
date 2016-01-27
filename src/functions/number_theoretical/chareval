@@ -4,14 +4,6 @@ C-Name: chareval
 Prototype: GGGDG
 Help: chareval(G,chi, x, {z})):
 Doc:
-
-
- Let \var{bid} be attached to $G = (\Z/q\Z)^*$ (as per \kbd{bid =
- idealstar(,q)}) and let $n$ be an integer. The Dirichlet
- character \var{chi} is given in one of the usual 3 formats: a \typ{VEC} in
- terms of \kbd{bid.gen}, a \typ{COL} in terms of the Conrey generators, or a
- \typ{INT} (Conrey label); see \kbd{??znconreylog} and \kbd{??znconreychar}.
-
  Let $G$ be an abelian group structure affording a discrete logarithm
  method, e.g $G = \kbd{idealstar}(,N)$ for $(\Z/N\Z)^*$ or a \kbd{bnr}
  structure, let $x$ be an element of $G$ and let \var{chi} be a character of
@@ -31,23 +23,34 @@ Doc:
  \zeta^{c_i (o/o_i)}$ for all $i$. Classical Dirichlet characters have values
   in $K = \C$ and we can take $\zeta = \exp(2i\pi/o)$.
 
+ \misctitle{Note on Dirichlet characters}
+ In the special case where \var{bid} is attached to $G = (\Z/q\Z)^*$
+ (as per \kbd{bid = idealstar(,q)}), the Dirichlet
+ character \var{chi} can be written in one of the usual 3 formats: a \typ{VEC}
+ in terms of \kbd{bid.gen} as above, a \typ{COL} in terms of the Conrey
+ generators, or a \typ{INT} (Conrey label); see \kbd{??znconreylog} and
+ \kbd{??znconreychar}.
 
  The character value is encoded as follows, depending on the optional
  argument $z$:
 
- \item If $z$ is omitted: return the rational number $c(n)/o$ for $n$ coprime
- to $q$, where we normalize $0\leq c(n) < o$. If $n$ is not coprime to $q$
- we return the sentinel value $-1$.
+ \item If $z$ is omitted: return the rational number $c(x)/o$ for $x$ coprime
+ to $q$, where we normalize $0\leq c(x) < o$. If $x$ can not be mapped to the
+ group (e.g. $x$ is not coprime to the conductor of a Dirichlet or Hecke
+ character) we return the sentinel value $-1$.
 
  \item If $z$ is an integer $o$, then we assume that $o$ is a multiple of the
- character order and we return the integer $c(n)$ when $n$ is coprime to $q$
- and $-1$ otherwise.
+ character order and we return the integer $c(x)$ when $x$ belongs
+ to the group, and the sentinel value $-1$ otherwise.
 
  \item $z$ can be of the form $[\var{zeta}, o]$, where \var{zeta}
  is an $o$-th root of $1$ and $o$ is a multiple of the character order.
- We return $\zeta^{c(n)}$.
+ We return $\zeta^{c(x)}$ if $x$ belongs to the group, and the sentinel
+ value $0$ otherwise. (Note that this coincides  with the usual extension
+ of Dirichlet characters to $\Z$, or of Hecke characters to general ideals.)
 
  \item Finally, $z$ can be of the form $[\var{vzeta}, o]$, where
  \var{vzeta} is a vector of powers $\zeta^0, \dots, \zeta^{o-1}$
  of some $o$-th root of $1$ and $o$ is a multiple of the character order.
- As above, we return $\zeta^{c(n)}$ after a table lookup.
+ As above, we return $\zeta^{c(x)}$ after a table lookup. Or the sentinel
+ value $0$.
