@@ -2549,7 +2549,7 @@ GEN
 Flxq_powers(GEN x, long l, GEN T, ulong p)
 {
   struct _Flxq D;
-  int use_sqr = (degpol(x)<<1) >= get_Flx_degree(T);
+  int use_sqr = 2*degpol(x) >= get_Flx_degree(T);
   D.T = Flx_get_red(T, p); D.p = p;
   return gen_powers(x, l, use_sqr, (void*)&D, &_Flxq_sqr, &_Flxq_mul, &_Flxq_one);
 }
@@ -2586,7 +2586,7 @@ Flx_FlxqV_eval(GEN Q, GEN x, GEN T, ulong p)
 GEN
 Flx_Flxq_eval(GEN Q, GEN x, GEN T, ulong p)
 {
-  int use_sqr = (degpol(x)<<1) >= get_Flx_degree(T);
+  int use_sqr = 2*degpol(x) >= get_Flx_degree(T);
   struct _Flxq D;
   D.T = Flx_get_red(T, p); D.p=p;
   return gen_bkeval(Q,degpol(Q),x,use_sqr,(void*)&D,&Flxq_algebra,_Flxq_cmul);
@@ -4763,7 +4763,7 @@ GEN
 FlxqXQ_powers(GEN x, long l, GEN S, GEN T, ulong p)
 {
   FlxqXQ_muldata D;
-  int use_sqr = (degpol(x)<<1) >= get_FlxqX_degree(S);
+  int use_sqr = 2*degpol(x) >= get_FlxqX_degree(S);
   T = Flx_get_red(T, p);
   S = FlxqX_get_red(S, T, p);
   D.S = S; D.T = T; D.p = p;
@@ -4791,7 +4791,7 @@ GEN
 FlxqX_FlxqXQ_eval(GEN Q, GEN x, GEN S, GEN T, ulong p)
 {
   FlxqXQ_muldata D;
-  int use_sqr = (degpol(x)<<1) >= degpol(S);
+  int use_sqr = 2*degpol(x) >= degpol(S);
   T = Flx_get_red(T, p);
   S = FlxqX_get_red(S, T, p);
   D.S=S; D.T=T; D.p=p;

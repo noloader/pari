@@ -2067,7 +2067,7 @@ RgX_RgXQV_eval(GEN Q, GEN x, GEN T)
 GEN
 RgX_RgXQ_eval(GEN Q, GEN x, GEN T)
 {
-  int use_sqr = (degpol(x)<<1) >= degpol(T);
+  int use_sqr = 2*degpol(x) >= degpol(T);
   return gen_bkeval(Q,degpol(Q),x,use_sqr,(void*)T,&RgXQ_algebra,_cmul);
 }
 
@@ -2119,7 +2119,7 @@ RgX_RgXnV_eval(GEN Q, GEN x, long n)
 GEN
 RgX_RgXn_eval(GEN Q, GEN x, long n)
 {
-  int use_sqr = (degpol(x)<<1) >= n;
+  int use_sqr = 2*degpol(x) >= n;
   struct modXn S;
   S.v = varn(x); S.n = n;
   return gen_bkeval(Q,degpol(Q),x,use_sqr,(void*)&S,&RgXn_algebra,_cmul);
@@ -2281,7 +2281,7 @@ RgXQ_pow(GEN x, GEN n, GEN T)
 GEN
 RgXQ_powers(GEN x, long l, GEN T)
 {
-  int use_sqr = (degpol(x)<<1) >= degpol(T);
+  int use_sqr = 2*degpol(x) >= degpol(T);
   return gen_powers(x, l, use_sqr, (void *)T,_sqr,_mul,_one);
 }
 

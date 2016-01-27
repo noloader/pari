@@ -868,7 +868,7 @@ F2xq_powu(GEN x, ulong n, GEN pol)
 GEN
 F2xq_powers(GEN x, long l, GEN T)
 {
-  int use_sqr = (F2x_degree(x)<<1) >= F2x_degree(T);
+  int use_sqr = 2*F2x_degree(x) >= F2x_degree(T);
   return gen_powers(x, l, use_sqr, (void*)T, &_F2xq_sqr, &_F2xq_mul, &_F2xq_one);
 }
 
@@ -891,7 +891,7 @@ GEN
 F2x_F2xq_eval(GEN Q, GEN x, GEN T)
 {
   long d = F2x_degree(Q);
-  int use_sqr = (F2x_degree(x)<<1) >= F2x_degree(T);
+  int use_sqr = 2*F2x_degree(x) >= F2x_degree(T);
   return gen_bkeval(Q, d, x, use_sqr, (void*)T, &F2xq_algebra, _F2xq_cmul);
 }
 

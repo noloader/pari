@@ -1099,7 +1099,7 @@ GEN
 FpXQXQ_powers(GEN x, long l, GEN S, GEN T, GEN p)
 {
   FpXQXQ_muldata D;
-  int use_sqr = (degpol(x)<<1) >= get_FpXQX_degree(S);
+  int use_sqr = 2*degpol(x) >= get_FpXQX_degree(S);
   T = FpX_get_red(T, p);
   S = FpXQX_get_red(S, T, p);
   D.S = S; D.T = T; D.p = p;
@@ -1127,7 +1127,7 @@ GEN
 FpXQX_FpXQXQ_eval(GEN Q, GEN x, GEN S, GEN T, GEN p)
 {
   FpXQXQ_muldata D;
-  int use_sqr = (degpol(x)<<1) >= get_FpXQX_degree(S);
+  int use_sqr = 2*degpol(x) >= get_FpXQX_degree(S);
   T = FpX_get_red(T, p);
   S = FpXQX_get_red(S, T, p);
   D.S=S; D.T=T; D.p=p;

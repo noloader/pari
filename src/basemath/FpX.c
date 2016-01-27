@@ -1402,7 +1402,7 @@ FpXQ_powers(GEN x, long l, GEN T, GEN p)
     GEN z = FlxV_to_ZXV(Flxq_powers(x, l, T, pp));
     return gerepileupto(av, z);
   }
-  use_sqr = (degpol(x)<<1)>=get_FpX_degree(T);
+  use_sqr = 2*degpol(x)>=get_FpX_degree(T);
   D.T = FpX_get_red(T,p); D.p = p;
   return gen_powers(x, l, use_sqr, (void*)&D, &_FpXQ_sqr, &_FpXQ_mul,&_FpXQ_one);
 }
@@ -1446,7 +1446,7 @@ FpX_FpXQ_eval(GEN Q, GEN x, GEN T, GEN p)
     GEN z = Flx_Flxq_eval(ZX_to_Flx(Q, pp), x, T, pp);
     return Flx_to_ZX_inplace(gerepileuptoleaf(av, z));
   }
-  use_sqr = (degpol(x)<<1) >= get_FpX_degree(T);
+  use_sqr = 2*degpol(x) >= get_FpX_degree(T);
   D.T = FpX_get_red(T,p); D.p = p;
   return gen_bkeval(Q,degpol(Q),x,use_sqr,(void*)&D,&FpXQ_algebra,_FpXQ_cmul);
 }
