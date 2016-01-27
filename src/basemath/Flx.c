@@ -1145,7 +1145,7 @@ Flx_invBarrett_basecase(GEN T, ulong p)
   if (SMALL_ULONG(p))
     for (i=3;i<lr;i++)
     {
-      long u = T[l-i+2];
+      ulong u = T[l-i+2];
       for (k=3;k<i;k++) { u += T[l-i+k] * r[k]; if (u & HIGHBIT) u %= p; }
       r[i] = Fl_neg(u % p, p);
     }
