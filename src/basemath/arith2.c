@@ -1617,7 +1617,7 @@ sumdigits0(GEN x, GEN B)
     if (k < BITS_IN_LONG)
     {
       GEN z = binary_2k_nv(x, k);
-      if (lg(z)-1 > 1UL<<(BITS_IN_LONG-k)) /* may overflow */
+      if (lg(z)-1 > 1L<<(BITS_IN_LONG-k)) /* may overflow */
         return gerepileuptoint(av, ZV_sum(Flv_to_ZV(z)));
       avma = av; return utoi(zv_sum(z));
     }
