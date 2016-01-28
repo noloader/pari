@@ -1146,7 +1146,7 @@ shift_left(GEN z2, GEN z1, long imin, long imax, ulong f,  ulong sh)
     *te-- = (l << sh) | k;
     k     = l >> m;
   }
-  *te = (*se << sh) | k;
+  *te = (((ulong)*se) << sh) | k;
 }
 /* z2[imin..imax] := f.z1[imin..imax-1] shifted right sh bits
  * (feeding f from the left). Assume sh > 0 */
@@ -1227,7 +1227,7 @@ affsr(long x, GEN y)
     sh = bfffo(x);
     y[1] = evalsigne(1) | _evalexpo((BITS_IN_LONG-1)-sh);
   }
-  y[2] = x<<sh; for (i=3; i<ly; i++) y[i]=0;
+  y[2] = ((ulong)x)<<sh; for (i=3; i<ly; i++) y[i]=0;
 }
 
 INLINE void
