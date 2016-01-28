@@ -260,7 +260,7 @@ LucasMod(GEN n, ulong P, GEN N)
   pari_sp av = avma;
   GEN nd = int_MSW(n);
   ulong m = *nd;
-  long i, j = 1+bfffo((ulong)m);
+  long i, j = 1+bfffo(m);
   GEN v = utoipos(P), v1 = utoipos(P*P - 2);
 
   m <<= j; j = BITS_IN_LONG - j;
