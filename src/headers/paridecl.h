@@ -1253,6 +1253,7 @@ GEN     Flm_gauss(GEN a, GEN b, ulong p);
 GEN     Flm_image(GEN x, ulong p);
 GEN     Flm_invimage(GEN m, GEN v, ulong p);
 GEN     Flm_indexrank(GEN x, ulong p);
+GEN     Flm_intersect(GEN x, GEN y, ulong p);
 GEN     Flm_inv(GEN x, ulong p);
 GEN     Flm_ker(GEN x, ulong p);
 GEN     Flm_ker_sp(GEN x, ulong p, long deplin);

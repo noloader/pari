@@ -677,6 +677,18 @@ FpM_intersect(GEN x, GEN y, GEN p)
   for (j=lg(z)-1; j; j--) setlg(gel(z,j),lx);
   return gerepileupto(av, FpM_mul(x,z,p));
 }
+GEN
+Flm_intersect(GEN x, GEN y, ulong p)
+{
+  pari_sp av = avma;
+  long j, lx = lg(x);
+  GEN z;
+
+  if (lx==1 || lg(y)==1) return cgetg(1,t_MAT);
+  z = Flm_ker(shallowconcat(x,y), p);
+  for (j=lg(z)-1; j; j--) setlg(gel(z,j),lx);
+  return gerepileupto(av, Flm_mul(x,z,p));
+}
 
 /* not memory clean */
 GEN
