@@ -701,21 +701,6 @@ znconreyexp(GEN bid, GEN x)
   return gerepilecopy(av, gel(v,2));
 }
 
-/* m a Conrey log [on the canonical primitive roots], cycg the primitive
- * roots orders */
-GEN
-conrey_normalize(GEN G, GEN m)
-{
-  GEN cycg = bidZ_get_cycg(G);
-  long i, l;
-  GEN d, M = cgetg_copy(m, &l);
-  if (typ(cycg) != t_VEC || lg(cycg) != l)
-    pari_err_TYPE("conrey_normalize",mkvec2(m,cycg));
-  for (i = 1; i < l; i++) gel(M,i) = gdiv(gel(m,i), gel(cycg,i));
-  /* m[i]: image of primroot generators g_i in Q/Z */
-  M = Q_remove_denom(M, &d);
-  return mkvec2(d? d: gen_1, M);
-}
 /* Return Dirichlet character \chi_q(m,.), where bid = znstar(q);
  * m is either a t_INT, or a t_COL [Conrey logarithm] */
 GEN
@@ -744,7 +729,7 @@ znconreychar(GEN bid, GEN m)
 /* chi a t_INT or Conrey log describing a character. Return conductor, as an
  * integer if primitive; as a t_VEC [N,factor(N)] if not. Set *pm=m to the
  * associated primitive character: chi(g_i) = m[i]/ord(g_i)
- * Caller should use conrey_normalize(BID, m), once BID(conductor) is
+ * Caller should use znconreylog_normalize(BID, m), once BID(conductor) is
  * computed (wasteful to do it here since BID is shared by many characters) */
 GEN
 znconreyconductor(GEN bid, GEN chi, GEN *pm)
@@ -833,6 +818,22 @@ znconreyconductor(GEN bid, GEN chi, GEN *pm)
   return q;
 }
 
+/* m a Conrey log [on the canonical primitive roots], cycg the primitive
+ * roots orders */
+GEN
+znconreylog_normalize(GEN G, GEN m)
+{
+  GEN cycg = bidZ_get_cycg(G);
+  long i, l;
+  GEN d, M = cgetg_copy(m, &l);
+  if (typ(cycg) != t_VEC || lg(cycg) != l)
+    pari_err_TYPE("znconreylog_normalize",mkvec2(m,cycg));
+  for (i = 1; i < l; i++) gel(M,i) = gdiv(gel(m,i), gel(cycg,i));
+  /* m[i]: image of primroot generators g_i in Q/Z */
+  M = Q_remove_denom(M, &d);
+  return mkvec2(d? d: gen_1, M);
+}
+
 /* return normalized character on Conrey generators associated to chi: Conrey
  * label (t_INT), char on (SNF) G.gen* (t_VEC), or Conrey log (t_COL) */
 GEN
@@ -841,10 +842,10 @@ znconrey_normalized(GEN G, GEN chi)
   switch(typ(chi))
   {
     case t_INT: /* Conrey label */
-      return conrey_normalize(G, znconreylog(G, chi));
+      return znconreylog_normalize(G, znconreylog(G, chi));
     case t_COL: /* Conrey log */
       if (!RgV_is_ZV(chi)) break;
-      return conrey_normalize(G, chi);
+      return znconreylog_normalize(G, chi);
     case t_VEC: /* char on G.gen */
       if (!RgV_is_ZV(chi)) break;
       return znconreyfromchar_normalized(G, chi);
