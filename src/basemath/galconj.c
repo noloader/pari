@@ -589,7 +589,7 @@ frobeniusliftall(GEN sg, long el, GEN *psi, struct galois_lift *gl,
   pari_sp av, ltop2, ltop = avma;
   long i,j,k, c = lg(sg)-1, n = lg(gl->L)-1, m = gt->g, d = m / c;
   GEN pf, u, v, C, Cd, SG, cache;
-  long N1, N2, R1, Ni, Z, ord = gt->f, c_idx = gt->g-1;
+  long N1, N2, R1, Ni, ord = gt->f, c_idx = gt->g-1;
   ulong headcache;
   long hop = 0;
   GEN NN, NQ;
