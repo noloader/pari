@@ -2866,10 +2866,10 @@ mpcosm1(GEN x, long *ptmod8)
   }
   /* a < 0 */
   b = signe(x); *ptmod8 = (b < 0)? 4 + n: n;
-  if (!b) return real_0_bit((expo(x)<<1) - 1);
+  if (!b) return real_0_bit(expo(x)*2 - 1);
 
   b = prec2nbits(l);
-  if (b + (a<<1) <= 0) {
+  if (b + 2*a <= 0) {
     y = sqrr(x); shiftr_inplace(y, -1); setsigne(y, -1);
     return y;
   }

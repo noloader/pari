@@ -1914,7 +1914,7 @@ mpqs_eval_cand(mpqs_handle_t *h, long number_of_cand,
 #endif
 
     /* A_2x_plus_B = (A*(2x)+B), Qx = (A*(2x)+B)^2/(4*A) = Q(x) */
-    A_2x_plus_B = addii(mulis(A, x_minus_M << 1), B);
+    A_2x_plus_B = addii(mulis(A, 2 * x_minus_M), B);
     Y = absi(A_2x_plus_B);
 
     Qx = subii(sqri(A_2x_plus_B), h->kN);

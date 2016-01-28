@@ -512,7 +512,7 @@ gauss_factor(GEN x)
       w = is2? mkcomplex(gen_1,gen_1): gauss_factor_p(p);
       gel(P,i) = w;
       if (is2)
-        gel(E,i) = stoi(e << 1);
+        gel(E,i) = stoi(2*e);
       else
       {
         P = shallowconcat(P, gauss_normal( gconj(w) ));

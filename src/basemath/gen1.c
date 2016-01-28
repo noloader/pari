@@ -2209,7 +2209,7 @@ gsqr(GEN x)
       z = cgetg(5,t_PADIC);
       i = (equaliu(gel(x,2), 2) && signe(gel(x,4)))? 1: 0;
       if (i && precp(x) == 1) i = 2; /* (1 + O(2))^2 = 1 + O(2^3) */
-      z[1] = evalprecp(precp(x)+i) | evalvalp(valp(x) << 1);
+      z[1] = evalprecp(precp(x)+i) | evalvalp(valp(x)*2);
       gel(z,2) = icopy(gel(x,2));
       gel(z,3) = shifti(gel(x,3), i); av = avma;
       gel(z,4) = gerepileuptoint(av, remii(sqri(gel(x,4)), gel(z,3)));

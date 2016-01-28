@@ -154,7 +154,7 @@ INLINE GEN
 mul0r(GEN x)
 {
   long l = lg(x), e = expo(x);
-  e = (l > 2)? -bit_accuracy(l) + e: (e < 0? (e<<1): 0);
+  e = (l > 2)? -bit_accuracy(l) + e: (e < 0? 2*e: 0);
   return real_0_bit(e);
 }
 /* lg(x) > 2 */
@@ -244,7 +244,7 @@ mulrrz_3end(GEN z, long sz, long ez, ulong garde)
 INLINE void
 sqrz_i(GEN z, GEN x, long lz)
 {
-  long ez = expo(x) << 1;
+  long ez = 2*expo(x);
   long i, j, lzz, p1;
   ulong garde;
   GEN x1;
