@@ -1631,14 +1631,6 @@ long    uissquare(ulong A);
 long    uissquareall(ulong A, ulong *sqrtA);
 long    unegisfundamental(ulong x);
 long    uposisfundamental(ulong x);
-GEN     znchareval(GEN G, GEN chi, GEN n, GEN z);
-GEN     znconrey_normalized(GEN G, GEN chi);
-GEN     znconreychar(GEN bid, GEN m);
-GEN     znconreyfromchar_normalized(GEN bid, GEN chi);
-GEN     znconreyconductor(GEN bid, GEN co, GEN *pm);
-GEN     znconreyexp(GEN bid, GEN x);
-GEN     znconreyfromchar(GEN bid, GEN chi);
-GEN     znconreylog(GEN bid, GEN x);
 GEN     znlog(GEN x, GEN g, GEN o);
 GEN     znorder(GEN x, GEN o);
 GEN     znprimroot(GEN m);
@@ -2243,6 +2235,13 @@ GEN     zncharconj(GEN G, GEN chi);
 GEN     zncharker(GEN G, GEN chi);
 GEN     znchareval(GEN G, GEN chi, GEN n, GEN z);
 GEN     zncharorder(GEN G,  GEN chi);
+GEN     znconrey_normalized(GEN G, GEN chi);
+GEN     znconreychar(GEN bid, GEN m);
+GEN     znconreyfromchar_normalized(GEN bid, GEN chi);
+GEN     znconreyconductor(GEN bid, GEN co, GEN *pm);
+GEN     znconreyexp(GEN bid, GEN x);
+GEN     znconreyfromchar(GEN bid, GEN chi);
+GEN     znconreylog(GEN bid, GEN x);
 
 /* compile.c */
 
