@@ -551,7 +551,7 @@ inittestlift(GEN plift, GEN Tmod, struct galois_lift *gl,
  * So we compute z = - sum b_i [mod 2^B] and check if 0 <= z <= n. */
 
 /* Assume 0 <= x < mod. */
-static long
+static ulong
 intheadlong(GEN x, GEN mod)
 {
   pari_sp av = avma;
@@ -574,7 +574,7 @@ matheadlong(GEN W, GEN mod)
   for(i=1; i<l; i++) gel(V,i) = vecheadlong(gel(W,i), mod);
   return V;
 }
-static long
+static ulong
 polheadlong(GEN P, long n, GEN mod)
 {
   return (lg(P)>n+2)? intheadlong(gel(P,n+2),mod): 0;
@@ -590,6 +590,7 @@ frobeniusliftall(GEN sg, long el, GEN *psi, struct galois_lift *gl,
   long i,j,k, c = lg(sg)-1, n = lg(gl->L)-1, m = gt->g, d = m / c;
   GEN pf, u, v, C, Cd, SG, cache;
   long N1, N2, R1, Ni, Z, ord = gt->f, c_idx = gt->g-1;
+  ulong headcache;
   long hop = 0;
   GEN NN, NQ;
   pari_timer ti;
@@ -617,7 +618,7 @@ frobeniusliftall(GEN sg, long el, GEN *psi, struct galois_lift *gl,
   SG = cgetg(lg(sg),t_VECSMALL);
   for(i=1; i<lg(SG); i++) SG[i] = (el*sg[i])%ord + 1;
   cache = cgetg(m+1,t_VECSMALL); cache[m] = polheadlong(v,1,gl->Q);
-  Z = polheadlong(v,2,gl->Q);
+  headcache = polheadlong(v,2,gl->Q);
   for (i = 1; i < m; i++) pf[i] = 1 + i/d;
   av = avma;
   for (Ni = 0, i = 0; ;i++)
@@ -638,9 +639,9 @@ frobeniusliftall(GEN sg, long el, GEN *psi, struct galois_lift *gl,
     }
     if (headlongisint(uel(cache,1),n))
     {
-      long ZZ = Z;
-      for (j = 1; j < m; j++) ZZ += polheadlong(gmael(C,SG[pf[j]],j),2,gl->Q);
-      if (headlongisint(ZZ,n))
+      ulong head = headcache;
+      for (j = 1; j < m; j++) head += polheadlong(gmael(C,SG[pf[j]],j),2,gl->Q);
+      if (headlongisint(head,n))
       {
         u = v;
         for (j = 1; j < m; j++) u = ZX_add(u, gmael(C,SG[pf[j]],j));
@@ -742,9 +743,9 @@ galois_test_perm(struct galois_test *td, GEN pf)
     GEN PW = gel(td->PV, ord);
     if (PW)
     {
-      ulong Z = umael(PW,1,pf[1]);
-      for (j = 2; j <= n; j++) Z += umael(PW,j,pf[j]);
-      if (!headlongisint(Z,n)) break;
+      ulong head = umael(PW,1,pf[1]);
+      for (j = 2; j <= n; j++) head += umael(PW,j,pf[j]);
+      if (!headlongisint(head,n)) break;
     } else
     {
       if (!P) P = vecpermute(td->L, pf);
