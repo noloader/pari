@@ -691,7 +691,8 @@ divrs(GEN x, long y)
 GEN
 divru(GEN x, ulong y)
 {
-  long i, lx, garde, sh, e, s = signe(x);
+  long i, lx, sh, e, s = signe(x);
+  ulong garde;
   GEN z;
   LOCAL_HIREMAINDER;
 
