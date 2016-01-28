@@ -4,6 +4,14 @@ charconj(G,chi)
 charorder(G,chi)
 
 G=idealstar(,100); chi=[1,0];
+CHI=znconreylog(G,chi);
+m=znconreyexp(G,chi);
 charker(G,chi)
+charker(G,CHI)
+charker(G,m)
 charconj(G,chi)
+charconj(G,CHI)
+charconj(G,m)
 charorder(G,chi)
+charorder(G,CHI)
+charorder(G,m)

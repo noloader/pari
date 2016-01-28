@@ -1565,7 +1565,6 @@ long    Zp_issquare(GEN a, GEN p);
 GEN     bestappr(GEN x, GEN k);
 GEN     bestapprPade(GEN x, long B);
 long    cgcd(long a,long b);
-GEN     chareval(GEN G, GEN chi, GEN n, GEN z);
 GEN     chinese(GEN x, GEN y);
 GEN     chinese1(GEN x);
 GEN     chinese1_coprime_Z(GEN x);
@@ -2199,18 +2198,6 @@ GEN     bnrsurjection(GEN bnr1, GEN bnr2);
 GEN     buchnarrow(GEN bignf);
 long    bnfcertify(GEN bnf);
 long    bnfcertify0(GEN bnf, long flag);
-int     char_check(GEN cyc, GEN chi);
-GEN     charker(GEN cyc, GEN chi);
-GEN     charker0(GEN cyc, GEN chi);
-GEN     charconj(GEN cyc, GEN chi);
-GEN     charconj0(GEN cyc, GEN chi);
-GEN     charorder(GEN cyc, GEN x);
-GEN     charorder0(GEN x, GEN chi);
-GEN     char_denormalize(GEN cyc, GEN D, GEN chic);
-GEN     char_normalize(GEN chi, GEN ncyc);
-GEN     char_rootof1(GEN d, long prec);
-GEN     char_rootof1_u(ulong d, long prec);
-GEN     cyc_normalize(GEN c);
 GEN     decodemodule(GEN nf, GEN fa);
 GEN     discrayabslist(GEN bnf,GEN listes);
 GEN     discrayabslistarch(GEN bnf, GEN arch, ulong bound);
@@ -2234,6 +2221,28 @@ long    nfhilbert(GEN bnf,GEN a,GEN b);
 long    nfhilbert0(GEN bnf,GEN a,GEN b,GEN p);
 long    hyperell_locally_soluble(GEN pol,GEN p);
 long    nf_hyperell_locally_soluble(GEN nf,GEN pol,GEN p);
+
+/* char.c */
+
+int     char_check(GEN cyc, GEN chi);
+GEN     charconj(GEN cyc, GEN chi);
+GEN     charconj0(GEN cyc, GEN chi);
+GEN     chareval(GEN G, GEN chi, GEN n, GEN z);
+GEN     charker(GEN cyc, GEN chi);
+GEN     charker0(GEN cyc, GEN chi);
+GEN     charorder(GEN cyc, GEN x);
+GEN     charorder0(GEN x, GEN chi);
+GEN     char_denormalize(GEN cyc, GEN D, GEN chic);
+GEN     char_normalize(GEN chi, GEN ncyc);
+GEN     char_rootof1(GEN d, long prec);
+GEN     char_rootof1_u(ulong d, long prec);
+GEN     char_simplify(GEN D, GEN C);
+GEN     cyc_normalize(GEN c);
+int     zncharcheck(GEN G, GEN chi);
+GEN     zncharconj(GEN G, GEN chi);
+GEN     zncharker(GEN G, GEN chi);
+GEN     znchareval(GEN G, GEN chi, GEN n, GEN z);
+GEN     zncharorder(GEN G,  GEN chi);
 
 /* compile.c */
 
