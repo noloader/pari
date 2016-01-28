@@ -3,15 +3,31 @@ charker(G,chi)
 charconj(G,chi)
 charorder(G,chi)
 
-G=idealstar(,100); chi=[1,0];
-CHI=znconreylog(G,chi);
-m=znconreyexp(G,chi);
-charker(G,chi)
-charker(G,CHI)
+G=idealstar(,100); a=[1,0];
+A=znconreylog(G,a);
+m=znconreyexp(G,a);
+charker(G,a)
+charker(G,A)
 charker(G,m)
-charconj(G,chi)
-charconj(G,CHI)
+charconj(G,a)
+charconj(G,A)
 charconj(G,m)
-charorder(G,chi)
-charorder(G,CHI)
+charorder(G,a)
+charorder(G,A)
 charorder(G,m)
+b=[12,1];
+B=znconreylog(G,b);
+n=znconreyexp(G,b);
+charmul(G,n,m)
+charmul(G,a,b)
+charmul(G,A,B)
+charmul(G,a,B)
+charmul(G,a,n)
+charmul(G,m,B)
+
+chardiv(G,n,m)
+chardiv(G,a,b)
+chardiv(G,A,B)
+chardiv(G,a,B)
+chardiv(G,a,n)
+chardiv(G,m,B)

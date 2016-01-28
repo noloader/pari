@@ -78,6 +78,25 @@ char_normalize(GEN chi, GEN ncyc)
   return char_simplify(gel(ncyc,1), c);
 }
 
+/* Called by function 's'. x is a group object affording ".cyc" method, and
+ * chi an abelian character. Return NULL if the group is (Z/nZ)^* [special
+ * case more character types allowed] and x.cyc otherwise */
+static GEN
+get_cyc(GEN x, GEN chi, const char *s)
+{
+  if (nftyp(x) == typ_BID && checkbidZ_i(x))
+  {
+    if (!zncharcheck(x, chi)) pari_err_TYPE(s, chi);
+    return NULL;
+  }
+  else
+  {
+    if (typ(x) != t_VEC || !RgV_is_ZV(x)) x = member_cyc(x);
+    if (!char_check(x, chi)) pari_err_TYPE(s, chi);
+    return x;
+  }
+}
+
 /* conjugate character [ZV/ZC] */
 GEN
 charconj(GEN cyc, GEN chi)
@@ -94,14 +113,8 @@ charconj(GEN cyc, GEN chi)
 GEN
 charconj0(GEN x, GEN chi)
 {
-  if (nftyp(x) == typ_BID && checkbidZ_i(x))
-  {
-    if (!zncharcheck(x, chi)) pari_err_TYPE("charconj", chi);
-    return zncharconj(x, chi);
-  }
-  if (typ(x) != t_VEC || !RgV_is_ZV(x)) x = member_cyc(x);
-  if (!char_check(x, chi)) pari_err_TYPE("charconj", chi);
-  return charconj(x, chi);
+  GEN cyc = get_cyc(x, chi, "charconj");
+  return cyc? charconj(cyc, chi): zncharconj(x, chi);
 }
 
 /* exp(2iPi/d), assume d a t_INT */
@@ -150,14 +163,8 @@ charorder(GEN cyc, GEN x)
 GEN
 charorder0(GEN x, GEN chi)
 {
-  if (nftyp(x) == typ_BID && checkbidZ_i(x))
-  {
-    if (!zncharcheck(x, chi)) pari_err_TYPE("charorder", chi);
-    return zncharorder(x, chi);
-  }
-  if (typ(x) != t_VEC || !RgV_is_ZV(x)) x = member_cyc(x);
-  if (!char_check(x, chi)) pari_err_TYPE("charorder", chi);
-  return charorder(x, chi);
+  GEN cyc = get_cyc(x, chi, "charorder");
+  return cyc? charorder(x, chi): zncharorder(x, chi);
 }
 
 /* chi character of abelian G: chi[i] = chi(z_i), where G = \oplus Z/cyc[i] z_i.
@@ -179,14 +186,57 @@ charker(GEN cyc, GEN chi)
 GEN
 charker0(GEN x, GEN chi)
 {
-  if (nftyp(x) == typ_BID && checkbidZ_i(x))
+  GEN cyc = get_cyc(x, chi, "charker");
+  return cyc? charker(cyc, chi): zncharker(x, chi);
+}
+
+GEN
+charmul(GEN cyc, GEN a, GEN b)
+{
+  long i, l;
+  GEN v = cgetg_copy(a, &l);
+  for (i = 1; i < l; i++) gel(v,i) = Fp_add(gel(a,i), gel(b,i), gel(cyc,i));
+  return v;
+}
+GEN
+chardiv(GEN cyc, GEN a, GEN b)
+{
+  long i, l;
+  GEN v = cgetg_copy(a, &l);
+  for (i = 1; i < l; i++) gel(v,i) = Fp_sub(gel(a,i), gel(b,i), gel(cyc,i));
+  return v;
+}
+GEN
+charmul0(GEN x, GEN a, GEN b)
+{
+  const char *s = "charmul";
+  GEN cyc = get_cyc(x, a, s);
+  if (!cyc)
   {
-    if (!zncharcheck(x, chi)) pari_err_TYPE("charker", chi);
-    return zncharker(x, chi);
+    if (!zncharcheck(x, b)) pari_err_TYPE(s, b);
+    return zncharmul(x, a, b);
   }
-  if (typ(x) != t_VEC || !RgV_is_ZV(x)) x = member_cyc(x);
-  if (!char_check(x, chi)) pari_err_TYPE("charker", chi);
-  return charker(x, chi);
+  else
+  {
+    if (!char_check(cyc, b)) pari_err_TYPE(s, b);
+    return charmul(cyc, a, b);
+  }
+}
+GEN
+chardiv0(GEN x, GEN a, GEN b)
+{
+  const char *s = "chardiv";
+  GEN cyc = get_cyc(x, a, s);
+  if (!cyc)
+  {
+    if (!zncharcheck(x, b)) pari_err_TYPE(s, b);
+    return znchardiv(x, a, b);
+  }
+  else
+  {
+    if (!char_check(cyc, b)) pari_err_TYPE(s, b);
+    return chardiv(cyc, a, b);
+  }
 }
 
 static GEN
@@ -851,4 +901,40 @@ zncharker(GEN G, GEN chi)
 {
   if (typ(chi) != t_VEC) chi = znconreychar(G, chi);
   return charker(bid_get_cyc(G), chi);
+}
+
+/* G is a bidZ, 'a' and 'b' are Dirichlet character */
+GEN
+zncharmul(GEN G, GEN a, GEN b)
+{
+  long ta = typ(a), tb = typ(b);
+  if (ta == tb) switch(ta)
+  {
+    case t_INT: return Fp_mul(a, b, bid_get_ideal(G));
+    case t_VEC: return charmul(bid_get_cyc(G), a, b);
+    case t_COL: return charmul(bidZ_get_cycg(G), a, b);
+    default: pari_err_TYPE("zncharmul",a);
+             return NULL; /* not reached */
+  }
+  if (ta != t_COL) a = znconreylog(G, a);
+  if (tb != t_COL) b = znconreylog(G, b);
+  return charmul(bidZ_get_cycg(G), a, b);
+}
+
+/* G is a bidZ, 'a' and 'b' are Dirichlet character */
+GEN
+znchardiv(GEN G, GEN a, GEN b)
+{
+  long ta = typ(a), tb = typ(b);
+  if (ta == tb) switch(ta)
+  {
+    case t_INT: return Fp_div(a, b, bid_get_ideal(G));
+    case t_VEC: return chardiv(bid_get_cyc(G), a, b);
+    case t_COL: return chardiv(bidZ_get_cycg(G), a, b);
+    default: pari_err_TYPE("znchardiv",a);
+             return NULL; /* not reached */
+  }
+  if (ta != t_COL) a = znconreylog(G, a);
+  if (tb != t_COL) b = znconreylog(G, b);
+  return chardiv(bidZ_get_cycg(G), a, b);
 }
