@@ -776,7 +776,7 @@ znconrey_normalized(GEN G, GEN chi)
   return NULL;/* not reached */
 }
 
-GEN
+static GEN
 chareval_i(GEN nchi, GEN dlog, GEN z)
 {
   GEN o, q, r, b = gel(nchi,1);
