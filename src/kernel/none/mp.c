@@ -93,7 +93,7 @@ static GEN
 incneg(GEN a)
 {
   long i, l = lgefint(a)-1;
-  if (a[l]--)
+  if (uel(a,l)--)
   {
     if (l == 2 && !a[2])
     {
@@ -104,7 +104,7 @@ incneg(GEN a)
     return a;
   }
   for (i = l-1;; i--) /* finishes since a[2] != 0 */
-    if (a[i]--) break;
+    if (uel(a,i)--) break;
   if (!a[2])
   {
     a++; /* save one cell */
@@ -294,7 +294,7 @@ affir(GEN x, GEN y)
     }
     shift_left(y,x,2,ly-1, x[ly],sh);
     /* lx > ly: round properly */
-    if ((x[ly]<<sh) & HIGHBIT) roundr_up_ip(y, ly);
+    if ((uel(x,ly)<<sh) & HIGHBIT) roundr_up_ip(y, ly);
   }
   else {
     if (lx <= ly)
@@ -305,7 +305,7 @@ affir(GEN x, GEN y)
     }
     for (i=2; i<ly; i++) y[i]=x[i];
     /* lx > ly: round properly */
-    if (x[ly] & HIGHBIT) roundr_up_ip(y, ly);
+    if (uel(x,ly) & HIGHBIT) roundr_up_ip(y, ly);
   }
 }
 
@@ -404,14 +404,14 @@ floorr(GEN x)
   else
   {
     shift_right(y,x, 2,d,0, BITS_IN_LONG - m);
-    if (x[d-1]<<m == 0)
+    if (uel(x,d-1)<<m == 0)
     {
       i=d; while (i<lx && !x[i]) i++;
       if (i==lx) goto END;
     }
   }
   /* set y:=y+1 */
-  for (i=d-1; i>=2; i--) { y[i]++; if (y[i]) goto END; }
+  for (i=d-1; i>=2; i--) { uel(y,i)++; if (y[i]) goto END; }
   y=new_chunk(1); y[2]=1; d++;
 END:
   y[1] = evalsigne(-1) | evallgefint(d);
@@ -720,7 +720,7 @@ divrr(GEN x, GEN y)
         r1[1] -= hiremainder;
         while (r1[1])
         {
-          qp++; if (!qp) { j=i; do ((ulong*)r)[--j]++; while (j && !r[j]); }
+          qp++; if (!qp) { j=i; do uel(r,--j)++; while (j && !r[j]); }
           j = lr-i-(lr-i>=ly); r1[j] = subll(r1[j],y[j]);
           for (j--; j>1; j--) r1[j] = subllx(r1[j],y[j]);
           r1[1] -= overflow;
@@ -1081,7 +1081,7 @@ diviuexact_i(GEN x, ulong y)
 
   while (x0 > x0min)
   {
-    *--z0 = q = yinv*((ulong)*--x0); /* i-th quotient */
+    *--z0 = q = yinv*uel(--x0,0); /* i-th quotient */
     if (!q) continue;
     /* x := x - q * y */
     { /* update neither lowest word (could set it to 0) nor highest ones */
@@ -1090,13 +1090,13 @@ diviuexact_i(GEN x, ulong y)
       (void)mulll(q,y);
       if (hiremainder)
       {
-        if ((ulong)*x1 < hiremainder)
+        if (uel(x1,0) < hiremainder)
         {
-          *x1 -= hiremainder;
-          do (*--x1)--; while ((ulong)*x1 == ULONG_MAX);
+          uel(x1,0) -= hiremainder;
+          do uel(--x1,0)--; while (uel(x1,0) == ULONG_MAX);
         }
         else
-          *x1 -= hiremainder;
+          uel(x1,0) -= hiremainder;
       }
     }
   }

@@ -229,11 +229,11 @@ mulrrz_3end(GEN z, long sz, long ez, ulong garde)
   }
   else
   {
-    z[2] = (z[2]<<1) | (garde>>(BITS_IN_LONG-1));
+    uel(z,2) = (uel(z,2)<<1) | (garde>>(BITS_IN_LONG-1));
     if (garde & (1UL<<(BITS_IN_LONG-2)))
     {
-      z[2]++; /* round properly, z2+1 can overflow */
-      if (!z[2]) { z[2] = (long)HIGHBIT; ez++; }
+      uel(z,2)++; /* round properly, z2+1 can overflow */
+      if (!uel(z,2)) { uel(z,2) = HIGHBIT; ez++; }
     }
   }
   z[1] = evalsigne(sz)|evalexpo(ez);

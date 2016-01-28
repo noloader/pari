@@ -157,7 +157,7 @@ incpos(GEN a)
 {
   long i, l = lgefint(a);
   for (i=2; i<l; i++)
-    if (++a[i]) return a;
+    if (++uel(a,i)) return a;
   a[l] = 1; l++;
   a[0]=evaltyp(t_INT) | _evallg(l);
   a[1]=evalsigne(1) | evallgefint(l);
@@ -169,7 +169,7 @@ static GEN
 incneg(GEN a)
 {
   long i, l = lgefint(a)-1;
-  if (a[2]--)
+  if (uel(a,2)--)
   {
     if (!a[l]) /* implies l = 2 */
     {
@@ -179,7 +179,7 @@ incneg(GEN a)
     return a;
   }
   for (i=3; i<=l; i++)
-    if (a[i]--) break;
+    if (uel(a,i)--) break;
   if (!a[l])
   {
     a[0] = evaltyp(t_INT) | _evallg(l);
@@ -313,10 +313,10 @@ affir(GEN x, GEN y)
       return;
     }
     mpn_lshift(LIMBS(y),LIMBS(x)+lx-ly,ly-2,sh);
-    y[2] |= uel(x,lx-ly+1) >> (BITS_IN_LONG-sh);
+    uel(y,2) |= uel(x,lx-ly+1) >> (BITS_IN_LONG-sh);
     xmpn_mirror(LIMBS(y),ly-2);
     /* lx > ly: round properly */
-    if ((x[lx-ly+1]<<sh) & HIGHBIT) roundr_up_ip(y, ly);
+    if ((uel(x,lx-ly+1)<<sh) & HIGHBIT) roundr_up_ip(y, ly);
   }
   else {
     GEN xd=int_MSW(x);
@@ -328,7 +328,7 @@ affir(GEN x, GEN y)
     }
     for (i=2; i<ly; i++,xd=int_precW(xd)) y[i]=*xd;
     /* lx > ly: round properly */
-    if (x[lx-ly+1] & HIGHBIT) roundr_up_ip(y, ly);
+    if (uel(x,lx-ly+1) & HIGHBIT) roundr_up_ip(y, ly);
   }
 }
 
@@ -475,7 +475,7 @@ floorr(GEN x)
     GEN z=cgeti(d);
     for (i=2; i<d; i++) z[d-i+1]=x[i];
     mpn_rshift(LIMBS(y),LIMBS(z),d-2,BITS_IN_LONG-m);
-    if (x[d-1]<<m == 0)
+    if (uel(x,d-1)<<m == 0)
     {
       i=d; while (i<lx && !x[i]) i++;
       if (i==lx) goto END;
@@ -772,7 +772,7 @@ divrr(GEN x, GEN y)
         GEN y1 = y+1;
         j = lr-i; r1[j] = subll(r1[j],y1[j]);
         for (j--; j>0; j--) r1[j] = subllx(r1[j],y1[j]);
-        j=i; do ((ulong*)r)[--j]++; while (j && !r[j]);
+        j=i; do uel(r,--j)++; while (j && !r[j]);
       }
       hiremainder = r1[1]; overflow = 0;
       qp = divll(r1[2],y0); k = hiremainder;
@@ -807,13 +807,13 @@ divrr(GEN x, GEN y)
       }
       else
       {
-        r1[1] -= hiremainder;
+        uel(r1,1) -= hiremainder;
         while (r1[1])
         {
-          qp++; if (!qp) { j=i; do ((ulong*)r)[--j]++; while (j && !r[j]); }
+          qp++; if (!qp) { j=i; do uel(r,--j)++; while (j && !r[j]); }
           j = lr-i-(lr-i>=ly); r1[j] = subll(r1[j],y[j]);
           for (j--; j>1; j--) r1[j] = subllx(r1[j],y[j]);
-          r1[1] -= overflow;
+          uel(r1,1) -= overflow;
         }
       }
     }
@@ -823,7 +823,7 @@ divrr(GEN x, GEN y)
   /* round correctly */
   if (uel(r1,1) > (y0>>1))
   {
-    j=i; do r[--j]++; while (j && !r[j]);
+    j=i; do uel(r,--j)++; while (j && !r[j]);
   }
   r1 = r-1; for (j=i; j>=2; j--) r[j]=r1[j];
   if (r[0] == 0) e--;
