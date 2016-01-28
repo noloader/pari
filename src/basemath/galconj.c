@@ -551,7 +551,7 @@ inittestlift(GEN plift, GEN Tmod, struct galois_lift *gl,
  * So we compute z = - sum b_i [mod 2^B] and check if 0 <= z <= n. */
 
 /* Assume 0 <= x < mod. */
-long
+static long
 intheadlong(GEN x, GEN mod)
 {
   pari_sp av = avma;
@@ -566,7 +566,7 @@ vecheadlong(GEN W, GEN mod)
   for(i=1; i<l; i++) V[i] = intheadlong(gel(W,i), mod);
   return V;
 }
-GEN
+static GEN
 matheadlong(GEN W, GEN mod)
 {
   long i, l = lg(W);
@@ -574,7 +574,7 @@ matheadlong(GEN W, GEN mod)
   for(i=1; i<l; i++) gel(V,i) = vecheadlong(gel(W,i), mod);
   return V;
 }
-long
+static long
 polheadlong(GEN P, long n, GEN mod)
 {
   return (lg(P)>n+2)? intheadlong(gel(P,n+2),mod): 0;

@@ -655,11 +655,8 @@ GEN FpMs_leftkernel_elt_col(GEN M, long nbcol, long nbrow, GEN p);
 /* galconj.c */
 
 GEN     galoiscosets(GEN O, GEN perm);
-long    intheadlong(GEN x, GEN mod);
 GEN     listznstarelts(long m, long p);
-GEN     matheadlong(GEN W, GEN mod);
 GEN     matrixnorm(GEN M, long prec);
-long    polheadlong(GEN P, long n, GEN mod);
 GEN     vandermondeinverseprep(GEN L);
 
 /* galois.c */
