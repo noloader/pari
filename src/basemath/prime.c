@@ -259,7 +259,8 @@ LucasMod(GEN n, ulong P, GEN N)
 {
   pari_sp av = avma;
   GEN nd = int_MSW(n);
-  long i, m = *nd, j = 1+bfffo((ulong)m);
+  ulong m = *nd;
+  long i, j = 1+bfffo((ulong)m);
   GEN v = utoipos(P), v1 = utoipos(P*P - 2);
 
   m <<= j; j = BITS_IN_LONG - j;
@@ -267,7 +268,7 @@ LucasMod(GEN n, ulong P, GEN N)
   {
     for (; j; m<<=1,j--)
     { /* v = v_k, v1 = v_{k+1} */
-      if (m < 0)
+      if (m&HIGHBIT)
       { /* set v = v_{2k+1}, v1 = v_{2k+2} */
         v = subis(mulii(v,v1), (long)P);
         v1= subis(sqri(v1), 2);
