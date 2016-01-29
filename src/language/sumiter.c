@@ -268,10 +268,8 @@ u_forprime_arith_init(forprime_t *T, ulong a, ulong b, ulong c, ulong q)
   /* b > maxp */
   if (a >= maxp)
   {
-    if (T->q == 1)
-      T->p = a - 1;
-    else
-      arith_set(T);
+    T->p = a - 1;
+    if (T->q > 1) arith_set(T);
   }
   else
     u_forprime_set_prime_table(T, a);
