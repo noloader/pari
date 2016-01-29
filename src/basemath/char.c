@@ -164,7 +164,7 @@ GEN
 charorder0(GEN x, GEN chi)
 {
   GEN cyc = get_cyc(x, chi, "charorder");
-  return cyc? charorder(x, chi): zncharorder(x, chi);
+  return cyc? charorder(cyc, chi): zncharorder(x, chi);
 }
 
 /* chi character of abelian G: chi[i] = chi(z_i), where G = \oplus Z/cyc[i] z_i.
