@@ -110,6 +110,15 @@ for (i=1,75,
     f = znconreyconductor(G,i,&chi0);
      if (f != 75, print(i,":",f,":", chi0))))
 }
+G = idealstar(,8);
+znconreyconductor(G,1,&chi0)
+chi0
+znconreyconductor(G,3,&chi0)
+chi0
+znconreyconductor(G,5,&chi0)
+chi0
+znconreyconductor(G,7,&chi0)
+chi0
 G = idealstar(,126000);
 znconreyconductor(G,1009,&chi0)
 chi0

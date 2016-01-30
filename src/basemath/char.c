@@ -767,13 +767,31 @@ znconreyconductor(GEN bid, GEN chi, GEN *pm)
     if (!signe(a))
     {
       if (signe(a1))
-      { /* lose one generator */
-        E[1] = 2;
+      { /* cannot lose one generator, they both map to 3 in (Z/4Z)^* */
+        if (E[1] > 3) primitive = 0;
+        E[1] = E[2] = 3;
         gel(m,1) = a1;
+        gel(m,2) = gen_0;
+        j = 3;
+      }
+      else /* lose both */
+        e2 = primitive = 0;
+    }
+    else if (E[1] == 3)
+    {
+      if (signe(a1)) /* lose one generator */
+      {
+        e2 = primitive = 0;
+        E[1] = 2;
+        gel(m,1) = gen_1;
         j = 2;
-      } /* else lose both */
-      primitive = 0;
-      e2 = 0; /* primitive char no longer has two components at 2 */
+      }
+      else
+      {
+        gel(m,1) = gen_0;
+        gel(m,2) = gen_1;
+        j = 3;
+      }
     }
     else
     {
