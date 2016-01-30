@@ -96,6 +96,9 @@ entries: $[N,\var{cyc}]$ or $[N,\var{cyc}, \var{gen}]$.
 \fun{void}{checkmodpr}{GEN modpr} Raise an exception if the argument is not a
 \kbd{modpr} structure (from \kbd{nfmodprinit}).
 
+\fun{GEN}{get_modpr}{GEN x} return $x$ if it is a \kbd{modpr} structure
+and \kbd{NULL} otherwise.
+
 \fun{GEN}{checknfelt_mod}{GEN nf, GEN x, const char *s} given an \var{nf}
 structure \kbd{nf} and a \typ{POLMOD} \kbd{x}, return the attached
 polynomial representative (shallow) if \kbd{x} and \kbd{nf} are compatible.
