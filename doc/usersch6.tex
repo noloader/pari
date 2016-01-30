@@ -359,6 +359,10 @@ generators.
 checking whether generators are present. Do not use this unless
 you initialize the \var{bid} yourself!
 
+\fun{GEN}{bid_get_U}{GEN bid} return the matrix with integral coefficients
+relating the local generators (from chinese remainders) to the global
+SNF generators (\kbd{\var{bid}.gen}).
+
 \subsec{Increasing accuracy}
 
 \fun{GEN}{nfnewprec}{GEN x, long prec}. Raise an exception if \kbd{x}
