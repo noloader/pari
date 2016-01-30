@@ -1566,7 +1566,7 @@ solvestep(void *E, GEN (*f)(void *,GEN), GEN a, GEN b, GEN step, long flag, long
   const long ITMAX = 10;
   pari_sp av = avma;
   GEN fa, ainit, binit;
-  long sainit, it, bit = bit_accuracy(prec) / 2, ct = 0, s = gcmp(a,b);
+  long sainit, it, bit = prec2nbits(prec) / 2, ct = 0, s = gcmp(a,b);
 
   if (!s) return gequal0(f(E, a)) ? gcopy(mkvec(a)): cgetg(1,t_VEC);
   if (s > 0) swap(a, b);

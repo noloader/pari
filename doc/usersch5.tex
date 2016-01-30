@@ -456,24 +456,54 @@ of words. Returns $ 1 + \kbd{floor}(x \times \B \log_2 10)$.
 \fun{long}{ndec2prec}{long x} converts a number of decimal digits to a number
 of codewords. This is equal to 2 + \kbd{ndec2nlong(x)}.
 
-\fun{long}{prec2ndec}{long x} converts a number of of codewords to a
+\fun{long}{ndec2nbits}{long x} convers a number of decimal digits to a
+number of bits.
+
+\fun{long}{prec2ndec}{long x} converts a number of codewords to a
 number of decimal digits.
 
 \fun{long}{nbits2nlong}{long x} converts a number of bits to a number of
 words. Returns the smallest word count containing $x$ bits, i.e $
 \kbd{ceil}(x / \B)$.
 
+\fun{long}{nbits2ndec}{long x} converts a number of bits to a number of
+decimal digits.
+
+\fun{long}{nbits2lg}{long x} converts a number of bits to a length
+in code words. Currently  an alias for \kbd{nbits2nlong}.
+
 \fun{long}{nbits2prec}{long x} converts a number of bits to a number of
 codewords. This is equal to 2 + \kbd{nbits2nlong(x)}.
+
+\fun{long}{nbits2extraprec}{long x} converts a number of bits to the mantissa
+length of a \typ{REAL} in codewords. This is currently an alias to
+\kbd{nbits2nlong(x)}.
 
 \fun{long}{nchar2nlong}{long x} converts a number of bytes to number of
 words. Returns the smallest word count containing $x$ bytes, i.e
 $\kbd{ceil}(x / \kbd{sizeof(long)})$.
 
-\fun{long}{bit_accuracy}{long x} converts a \typ{REAL} length into a number
-of significant bits. Returns $(x - 2)\B$.
+\fun{long}{prec2nbits}{long x} converts a \typ{REAL} length into a number
+of significant bits; returns $(x - 2)\B$.
 
-\fun{double}{bit_accuracy_mul}{long x, double y} returns $(x - 2)\B \times y$.
+\fun{double}{prec2nbits_mul}{long x, double y} returns
+\kbd{prec2nbits}$(x)\times y$.
+
+\fun{long}{bit_accuracy}{long x} converts a length into a number
+of significant bits; currently an alias for \kbd{prec2nbits}.
+
+\fun{double}{bit_accuracy_mul}{long x, double y} returns
+\kbd{bit\_accuracy}$(x)\times y$.
+
+\fun{long}{realprec}{GEN x} length of a \typ{REAL} in words; currently an alias
+for \kbd{lg}.
+
+\fun{long}{bit_prec}{GEN x} length of a \typ{REAL} in bits.
+
+\fun{long}{precdbl}{long prec} given a length in words corresponding to a
+\typ{REAL} precision, return the length corresponding to doubling the
+precision. Due to the presence of 2 code words, this is
+ $2(\kbd{prec} - 2) + 2$.
 
 \subsec{Read type-dependent information}
 
@@ -2077,7 +2107,7 @@ exponent $-\kbd{bit}$.
 
 \fun{GEN}{real_0}{long prec} is a shorthand for
 \bprog
-  real_0_bit( -bit_accuracy(prec) )
+  real_0_bit( -prec2nbits(prec) )
 @eprog
 
 \fun{GEN}{int2n}{long n} creates a \typ{INT} equal to \kbd{1<<n} (i.e

@@ -207,7 +207,7 @@ subrex01(GEN x)
   else
   { for (i = 2; i < lx-k+2; i++) y[i] = x[k-2 + i]; }
   for (i = lx-k+2; i < ly; i++) y[i] = 0;
-  y[1] = evalsigne(1) | evalexpo(- (bit_accuracy(k) + sh));
+  y[1] = evalsigne(1) | evalexpo(- (prec2nbits(k) + sh));
   return y;
 }
 
@@ -314,7 +314,7 @@ addrr_sign(GEN x, long sx, GEN y, long sy)
   else
   {
     i = 2; while (i < lx && x[i] == y[i]) i++;
-    if (i==lx) return real_0_bit(ey+1 - bit_accuracy(lx));
+    if (i==lx) return real_0_bit(ey+1 - prec2nbits(lx));
     f2 = (uel(y,i) > uel(x,i));
   }
   /* result is non-zero. f2 = (y > x) */

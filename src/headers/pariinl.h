@@ -1472,15 +1472,15 @@ nchar2nlong(long x) {
   return (long)(((ulong)x+sizeof(long)-1) >> (TWOPOTBITS_IN_LONG-3L));
 }
 INLINE long
-bit_accuracy(long x) { return (x-2) * BITS_IN_LONG; }
+prec2nbits(long x) { return (x-2) * BITS_IN_LONG; }
 INLINE double
 bit_accuracy_mul(long x, double y) { return (x-2) * (BITS_IN_LONG*y); }
 INLINE double
 prec2nbits_mul(long x, double y) { return (x-2) * (BITS_IN_LONG*y); }
 INLINE long
-bit_prec(GEN x) { return bit_accuracy(realprec(x)); }
+bit_prec(GEN x) { return prec2nbits(realprec(x)); }
 INLINE long
-prec2nbits(long x) { return bit_accuracy(x); }
+bit_accuracy(long x) { return prec2nbits(x); }
 INLINE long
 prec2ndec(long x) { return (long)prec2nbits_mul(x, LOG10_2); }
 INLINE long

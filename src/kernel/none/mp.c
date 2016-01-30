@@ -279,7 +279,7 @@ affir(GEN x, GEN y)
 
   if (!s)
   {
-    y[1] = evalexpo(-bit_accuracy(ly));
+    y[1] = evalexpo(-prec2nbits(ly));
     return;
   }
 
