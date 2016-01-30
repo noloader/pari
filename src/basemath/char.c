@@ -777,10 +777,12 @@ znconreyconductor(GEN bid, GEN chi, GEN *pm)
       else /* lose both */
         e2 = primitive = 0;
     }
-    else if (E[1] == 3)
+    else
     {
-      if (signe(a1)) /* lose one generator */
-      {
+      long v = Z_pvalrem(a, gen_2, &a);
+      if (v) { E[1] -= v; primitive = 0; }
+      if (E[1] == 3 && equalii(a,a1))
+      { /* lose one generator */
         e2 = primitive = 0;
         E[1] = 2;
         gel(m,1) = gen_1;
@@ -788,18 +790,10 @@ znconreyconductor(GEN bid, GEN chi, GEN *pm)
       }
       else
       {
-        gel(m,1) = gen_0;
-        gel(m,2) = gen_1;
+        gel(m,1) = a1;
+        gel(m,2) = a;
         j = 3;
       }
-    }
-    else
-    {
-      long v = Z_pvalrem(a, gen_2, &a);
-      if (v) { E[1] -= v; primitive = 0; }
-      gel(m,1) = a1;
-      gel(m,2) = a;
-      j = 3;
     }
   }
   l = lg(P);
@@ -834,6 +828,82 @@ znconreyconductor(GEN bid, GEN chi, GEN *pm)
   }
   gerepileall(av, pm? 2: 1, &q, pm);
   return q;
+}
+
+GEN
+zncharinduce(GEN G, GEN chi, GEN N)
+{
+  pari_sp av = avma;
+  GEN q, faq, P, E, Pq, Eq, CHI;
+  long i, j, l;
+  int e2;
+
+  if (!checkbidZ_i(G)) pari_err_TYPE("zncharinduce", G);
+  if (!zncharcheck(G, chi)) pari_err_TYPE("zncharinduce", chi);
+  faq = bid_get_fact(G);
+  q = bid_get_ideal(G);
+  if (typ(chi) != t_COL) chi = znconreylog(G, chi);
+  if (checkbidZ_i(N))
+  {
+    GEN faN = bid_get_fact(N);
+    P = gel(faN,1); l = lg(P);
+    E = gel(faN,2);
+
+    if (l > 2 && equalii(gel(P,1),gel(P,2)))
+    { /* remove duplicate 2 */
+      l--;
+      P = vecslice(P,2,l);
+      E = vecslice(E,2,l);
+    }
+  }
+  else
+  {
+    GEN faN = check_arith_pos(N, "zncharinduce");
+    if (!faN) faN = Z_factor(N);
+    else
+      N = (typ(N) == t_VEC)? gel(N,1): factorback(faN);
+    P = gel(faN,1); l = lg(P);
+    E = ZV_to_zv(gel(faN,2));
+  }
+  if (!dvdii(N,q)) pari_err_DOMAIN("zncharinduce", "N % q", "!=", gen_0, N);
+  if (l == 1) { avma = av; return cgetg(1, t_COL); } /* trivial group */
+  Pq = gel(faq,1);
+
+  e2 = (E[1] >= 3 && equaliu(gel(P,1),2)); /* 2 generators at 2 mod N */
+  if (ZV_equal0(chi)) { avma = av; return zerocol(l+e2 - 1); }
+
+  Eq = gel(faq,2);
+  i = 1;
+  CHI = cgetg(l+e2, t_COL);
+  i = j = 1;
+  if (e2)
+  {
+    i = 2; j = 3;
+    if (equaliu(gel(Pq,1), 2))
+    {
+      if (Eq[1] >= 3)
+      { /* 2 generators at 2 mod q */
+        gel(CHI,1) = gel(chi,1);
+        gel(CHI,2) = shifti(gel(chi,2), E[1]-Eq[1]);
+      }
+      else if (Eq[1] == 2)
+      { /* 1 generator at 2 mod q */
+        gel(CHI,1) = gel(chi,1);
+        gel(CHI,2) = shifti(gel(chi,1), E[1]-3);
+      }
+      else
+        gel(CHI,1) = gel(CHI,2) = gen_0;
+    }
+    else
+      gel(CHI,1) = gel(CHI,2) = gen_0;
+  }
+  for (; i < l; i++,j++)
+  {
+    GEN p = gel(P,i);
+    long k = ZV_search(Pq, p);
+    gel(CHI,j) = k? mulii(gel(chi,k), powiu(p, E[i]-Eq[k])): gen_0;
+  }
+  return gerepilecopy(av, CHI);
 }
 
 /* m a Conrey log [on the canonical primitive roots], cycg the primitive

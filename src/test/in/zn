@@ -110,20 +110,26 @@ for (i=1,75,
     f = znconreyconductor(G,i,&chi0);
      if (f != 75, print(i,":",f,":", chi0))))
 }
+test(G, chi)=
+{
+  N = znconreyconductor(G, chi);
+  N0 = znconreyconductor(G, chi, &chi0);
+  if (N != N0, error(chi));
+  print([N0, chi0]);
+  G0 = idealstar(,N0); L = znconreylog(G,chi);
+  if (zncharinduce(G0, chi0, G.mod) != L, error(chi));
+  if (zncharinduce(G0, chi0, G) != L, error(chi));
+}
 G = idealstar(,8);
-znconreyconductor(G,1,&chi0)
-chi0
-znconreyconductor(G,3,&chi0)
-chi0
-znconreyconductor(G,5,&chi0)
-chi0
-znconreyconductor(G,7,&chi0)
-chi0
+test(G,1)
+test(G,3)
+test(G,5)
+test(G,7)
+
 G = idealstar(,126000);
-znconreyconductor(G,1009,&chi0)
-chi0
-znconreyconductor(G,82127,&chi0)
-chi0
+test(G,1009)
+test(G,82127)
+
 znconreyexp(G, znconreylog(G, 1009))
 znconreyexp(G, znconreylog(G, 82127))
 chi=[100,1,0,1,0];
@@ -134,6 +140,4 @@ znconreyexp(G,l)
 G=idealstar(,1);
 znconreychar(G,1)
 znconreylog(G,1)
-znconreyconductor(G,1)
-znconreyconductor(G,1,&chi)
-chi
+test(G,1)

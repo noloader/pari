@@ -2239,6 +2239,7 @@ GEN     zncharconj(GEN G, GEN chi);
 GEN     znchardiv(GEN x, GEN a, GEN b);
 GEN     zncharker(GEN G, GEN chi);
 GEN     znchareval(GEN G, GEN chi, GEN n, GEN z);
+GEN     zncharinduce(GEN G, GEN chi, GEN N);
 GEN     zncharmul(GEN x, GEN a, GEN b);
 GEN     zncharorder(GEN G,  GEN chi);
 GEN     znconreylog_normalize(GEN G, GEN m);
