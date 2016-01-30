@@ -574,7 +574,7 @@ znconreyfromchar_normalized(GEN bid, GEN chi)
 {
   GEN nchi, U = bid_get_U(bid);
   long l = lg(chi);
-  if (l == 1) return chi;
+  if (l == 1) retmkvec2(gen_1,cgetg(1,t_VEC));
   if (!RgV_is_ZV(chi) || lgcols(U) != l) pari_err_TYPE("lfunchiZ", chi);
   nchi = char_normalize(chi, cyc_normalize(bid_get_cyc(bid)));
   gel(nchi,2) = ZV_ZM_mul(gel(nchi,2),U); return nchi;

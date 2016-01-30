@@ -135,11 +135,17 @@ x^2
 []~
 [1, []~]
 0
+0
+0
 []
 []~
 [[1, matrix(0,2)], []~]
 -1
+-1
+0
+-1
+0
   ***   at top-level: zncharinduce(G,[]~,3
   ***                 ^--------------------
   *** zncharinduce: domain error in zncharinduce: N % q != 0
-Total time spent: 1292
+Total time spent: 1276
