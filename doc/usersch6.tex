@@ -97,7 +97,7 @@ entries: $[N,\var{cyc}]$ or $[N,\var{cyc}, \var{gen}]$.
 \kbd{modpr} structure (from \kbd{nfmodprinit}).
 
 \fun{GEN}{checknfelt_mod}{GEN nf, GEN x, const char *s} given an \var{nf}
-structure \kbd{nf} and a \typ{POLMOD} \kbd{x}, return the associated
+structure \kbd{nf} and a \typ{POLMOD} \kbd{x}, return the attached
 polynomial representative (shallow) if \kbd{x} and \kbd{nf} are compatible.
 Raise an exception otherwise. Set $s$ to the name of the caller for a
 meaningful error message.
@@ -122,7 +122,7 @@ matrix component.
 
 \subsec{Extracting info from a \kbd{nf} structure}
 
-These functions expect a true \var{nf} argument associated to a number field
+These functions expect a true \var{nf} argument attached to a number field
 $K = \Q[x]/(T)$, e.g.~a \var{bnf} will not work. Let $n = [K:\Q]$ be the
 field degree.
 
@@ -261,15 +261,15 @@ generators.
 checking whether generators are present. Do not use this unless
 you initialize the \var{bnr} yourself!
 
-\fun{GEN}{bnr_get_bid}{GEN bnr} returns the \var{bid} associated
+\fun{GEN}{bnr_get_bid}{GEN bnr} returns the \var{bid} attached
 to the \var{bnr} modulus.
 
-\fun{GEN}{bnr_get_mod}{GEN bnr} returns the modulus associated
+\fun{GEN}{bnr_get_mod}{GEN bnr} returns the modulus attached
 to the \var{bnr}.
 
 \subsec{Extracting info from an \kbd{rnf} structure}
 
-These functions expect a true \var{rnf} argument, associated to an extension
+These functions expect a true \var{rnf} argument, attached to an extension
 $L/K$, $K = \Q[y]/(T)$, $L = K[x]/(P)$.
 
 \fun{long}{rnf_get_degree}{GEN rnf} returns the \emph{relative} degree
@@ -287,7 +287,7 @@ structure.
 \fun{GEN}{rnf_get_nfpol}{GEN rnf} returns the polynomial $T$ defining the
 base field $K$.
 
-\fun{long}{rnf_get_nfvarn}{GEN rnf} returns the variable $y$ associated to the
+\fun{long}{rnf_get_nfvarn}{GEN rnf} returns the variable $y$ attached to the
 base field $K$.
 
 \fun{void}{rnf_get_nfzk}{GEN rnf, GEN *b, GEN *cb} returns the integer basis
@@ -296,7 +296,7 @@ of the base field $K$.
 \fun{GEN}{rnf_get_pol}{GEN rnf} returns the relative polynomial defining
 $L/K$.
 
-\fun{long}{rnf_get_varn}{GEN rnf} returns the variable $x$ associated to $L$.
+\fun{long}{rnf_get_varn}{GEN rnf} returns the variable $x$ attached to $L$.
 
 \fun{GEN}{rnf_get_zk}{GEN nf} returns the relative integer basis generating
 $\Z_L$ as a $\Z_K$-module, as a pseudo-matrix $(A,I)$ in HNF.
@@ -324,19 +324,19 @@ as in \tet{rnf_get_alpha} (cf.~also \kbd{rnfequation}).
 \fun{GEN}{rnf_get_invzk}{GEN rnf} contains $A^{-1}$, where $(A,I)$
 is the chosen pseudo-basis for $\Z_L$ over $\Z_K$.
 
-\fun{GEN}{rnf_get_map}{GEN rnf} returns technical data associated to the map
+\fun{GEN}{rnf_get_map}{GEN rnf} returns technical data attached to the map
 $K\to L$. Currently, this contains data from \kbd{rnfequation},
 as well as the polynomials $T$ and $P$.
 
 \subsec{Extracting info from a \kbd{bid} structure}
 
-These functions expect a true \var{bid} argument, associated to a modulus $I$
+These functions expect a true \var{bid} argument, attached to a modulus $I$
 in a number field $K$.
 
-\fun{GEN}{bid_get_mod}{GEN bid} returns the modulus associated to the \var{bid}.
+\fun{GEN}{bid_get_mod}{GEN bid} returns the modulus attached to the \var{bid}.
 
-\fun{GEN}{bid_get_grp}{GEN bid} returns the Abelian group associated
-to $(\Z_K/I)^*$modulus associated to the \var{bid}.
+\fun{GEN}{bid_get_grp}{GEN bid} returns the Abelian group attached
+to $(\Z_K/I)^*$modulus attached to the \var{bid}.
 
 \fun{GEN}{bid_get_ideal}{GEN bid} return the finite part of the \var{bid}
 modulus (an integer ideal).
@@ -436,7 +436,7 @@ return their result in \typ{COL} form.
 \fun{GEN}{nfsqr}{GEN nf,GEN x} returns $x^2$.
 
 \fun{long}{nfval}{GEN nf, GEN x, GEN pr} returns the valuation of $x$ at the
-maximal ideal $\goth{p}$ associated to the \var{prid} \kbd{pr}.
+maximal ideal $\goth{p}$ attached to the \var{prid} \kbd{pr}.
 Returns \kbd{LONG\_MAX} is $x$ is $0$.
 
 \fun{GEN}{nfnorm}{GEN nf,GEN x} absolute norm of $x$.
@@ -726,12 +726,12 @@ if either $x$ or $y$ is an extended ideal.
 
 \fun{GEN}{idealdivpowprime}{GEN nf, GEN x, GEN pr, GEN n} returns $x
 \goth{p}^{-n}$, assuming $x$ is an ideal in HNF, and \kbd{pr}
-a \var{prid} associated to $\goth{p}$. Not suitable for \tet{gerepileupto}
+a \var{prid} attached to $\goth{p}$. Not suitable for \tet{gerepileupto}
 since it returns $x$ when $n = 0$.
 
 \fun{GEN}{idealmulpowprime}{GEN nf, GEN x, GEN pr, GEN n} returns $x
 \goth{p}^{n}$, assuming $x$ is an ideal in HNF, and \kbd{pr} a \var{prid}
-associated to $\goth{p}$. Not suitable for \tet{gerepileupto} since it
+attached to $\goth{p}$. Not suitable for \tet{gerepileupto} since it
 retunrs $x$ when $n = 0$.
 
 \fun{GEN}{idealprodprime}{GEN nf, GEN P} given a list $P$ of prime ideals
@@ -777,7 +777,7 @@ such that $v(x) > 0$, and $v(\alpha) \geq 0$ at all others.
 \fun{GEN}{idealapprfact}{GEN nf, GEN fx} same as \tet{idealappr}, $x$ being
 given in factored form, as after \kbd{fx = idealfactor(nf,x)}, except that we
 allow $0$ exponents in the factorization. Returns an algebraic number
-$\alpha$ such that $v(x) = v(\alpha)$ for all valuations associated to the
+$\alpha$ such that $v(x) = v(\alpha)$ for all valuations attached to the
 prime ideal decomposition of $x$, and $v(\alpha) \geq 0$ at all others.
 
 \fun{GEN}{idealcoprime}{GEN nf, GEN x, GEN y}. Given 2 integral ideals $x$ and
@@ -794,12 +794,12 @@ $\alpha x$ is an integral ideal coprime to $y$.
 
 \subsec{Maximal ideals}
 
-The PARI structure associated to maximal ideals is a \tev{prid} (for
+The PARI structure attached to maximal ideals is a \tev{prid} (for
 \emph{pr}ime \emph{id}eal), usually produced by \tet{idealprimedec}
 and \tet{idealfactor}. In this section, we describe the format; other sections
 will deal with their daily use.
 
-A \var{prid} associated to a maximal ideal $\goth{p}$ stores the following
+A \var{prid} attached to a maximal ideal $\goth{p}$ stores the following
 data: the underlying rational prime $p$, the ramification degree $e\geq 1$,
 the residue field degree $f\geq 1$, a $p$-uniformizer $\pi$ with valuation
 $1$ at $\goth{p}$ and valuation $0$ at all other primes dividing $p$ and
@@ -858,7 +858,7 @@ faster version of \tet{idealfrobenius(nf, gal, pr} where
 \subsec{Reducing modulo maximal ideals}
 
 \fun{GEN}{nfmodprinit}{GEN nf, GEN pr} returns an abstract \kbd{modpr}
-structure, associated to reduction modulo the maximal ideal \kbd{pr}, in
+structure, attached to reduction modulo the maximal ideal \kbd{pr}, in
 \kbd{idealprimedec} format. From this data we can quickly project any
 \kbd{pr}-integral number field element to the residue field.
 
@@ -889,7 +889,7 @@ In short, this receives (or initializes) a \kbd{modpr} structure, and
 extracts from it $T$, $p$ and $\goth{p}$.
 
 \fun{GEN}{nf_to_Fq}{GEN nf, GEN x, GEN modpr} returns an \kbd{Fq} congruent
-to $x$ modulo the maximal ideal associated to \kbd{modpr}. The output is
+to $x$ modulo the maximal ideal attached to \kbd{modpr}. The output is
 canonical: all elements in a given residue class are represented by the same
 \kbd{Fq}.
 
@@ -984,7 +984,7 @@ a \typ{VECSMALL}, return it: not suitable for \kbd{gerepile} in this case.
 $n$ with ones exactly at the positions $p[1], p[2], \ldots$
 
 \fun{GEN}{nfembed}{GEN nf, GEN x, long k} returns a floating point
-approximation of the $k$-th embedding of $x$ (associated to the $k$-th
+approximation of the $k$-th embedding of $x$ (attached to the $k$-th
 complex root in \kbd{nf.roots}).
 
 \fun{GEN}{nfsign}{GEN nf,GEN x} $x$ being a number field element and \kbd{nf}
@@ -1185,7 +1185,7 @@ decision can be taken at the place where it is most likely to be correct.
 
 \subsec{Floating point embeddings, the $T_2$ quadratic form}
 
-We assume the \var{nf} is a true \kbd{nf} structure, associated to a number
+We assume the \var{nf} is a true \kbd{nf} structure, attached to a number
 field $K$ of degree $n$ and signature $(r_1,r_2)$. We saw that
 
 \fun{GEN}{nf_get_M}{GEN nf} returns the $(r_1+r_2)\times n$ matrix $M$
@@ -1228,7 +1228,7 @@ approximation of) the norm of $v$.
 
 \subsec{Ideal reduction, low level}
 
-In the following routines \var{nf} is a true \kbd{nf}, associated to a number
+In the following routines \var{nf} is a true \kbd{nf}, attached to a number
 field $K$ of degree $n$:
 
 \fun{GEN}{nf_get_Gtwist}{GEN nf, GEN v} assuming $v$ is a \typ{VECSMALL}
@@ -1250,7 +1250,7 @@ returns a rescaled copy of $G_v$, rounded to nearest integers, specifically
 Suitable for \kbd{gerepileupto}, but does not collect garbage.
 
 \fun{GEN}{nf_get_Gtwist1}{GEN nf, long i}. Simple special case. Returns the
-twisted $G$ matrix associated to the vector $v$ whose entries are all $0$
+twisted $G$ matrix attached to the vector $v$ whose entries are all $0$
 except the $i$-th one, which is equal to $10$.
 
 \fun{GEN}{idealpseudomin}{GEN x, GEN G}. Let $x$, $G$ be two \kbd{ZM}s,
@@ -1302,15 +1302,15 @@ given only an \var{nf} (once a \var{bnf} structure is available,
 directly \tet{idealred_elt}.
 
 \fun{GEN}{idealmoddivisor}{GEN bnr, GEN x} A proof-of-concept implementation,
-useless in practice. If \kbd{bnr} is associated to some modulus $f$, returns a
+useless in practice. If \kbd{bnr} is attached to some modulus $f$, returns a
 ``small'' ideal in the same class as $x$ in the ray class group modulo $f$.
 The reason why this is useless is that using extended ideals with principal
 part in a computation, there is a simple way to reduce them: simply reduce
 the generator of the principal part in $(\Z_K/f)^*$.
 
 \fun{GEN}{famat_to_nf_moddivisor}{GEN nf, GEN g, GEN e, GEN bid}
-given a true \var{nf} associated to a number field $K$, a \var{bid} structure
-associated to a modulus $f$, and an algebraic number in factored form $\prod
+given a true \var{nf} attached to a number field $K$, a \var{bid} structure
+attached to a modulus $f$, and an algebraic number in factored form $\prod
 g[i]^{e[i]}$, such that $(g[i],f) = 1$ for all $i$, returns a small element in
 $\Z_K$ congruent to it mod $f$. Note that if $f$ contains places at infinity,
 this includes sign conditions at the specified places.
@@ -1332,7 +1332,7 @@ to decide whether an element is a square in a residue field for instance!
 What to do when the $g[i]$ are not coprime to $f$, but only $\prod
 g[i]^{e[i]}$ is? Then the situation is more complicated, and we advise to
 solve it one prime divisor of $f$ at a time. Let $v$ the valuation
-associated to a maximal ideal \kbd{pr} and assume $v(f) = k > 0$:
+attached to a maximal ideal \kbd{pr} and assume $v(f) = k > 0$:
 
 \fun{GEN}{famat_makecoprime}{GEN nf, GEN g, GEN e, GEN pr, GEN prk, GEN expo}
 returns an element in $(\Z_K/\kbd{pr}^k)^*$ congruent to the product
@@ -1411,7 +1411,7 @@ group generators of \kbd{BNR} in terms of the ones in \kbd{bnr}).
 quick conversion function designed to go from the too general (inefficient)
 $A$, $B$, $C$ form to the preferred \var{bnr}, $H$ form for class fields.
 Given $A$, $B$, $C$ as explained above (omitted entries coded by \kbd{NULL}),
-return the associated \var{bnr}, and set $H$ to the associated subgroup. If
+return the attached \var{bnr}, and set $H$ to the attached subgroup. If
 \kbd{addgen} is $1$, make sure that if the \var{bnr} needed to be computed,
 then it contains generators.
 
@@ -1431,7 +1431,7 @@ and $b$ of $B$, and $k$ is a small rational integer. Set \kbd{*pk} to $k$.
 
 If \kbd{pLPRS} is not \kbd{NULL} set it to $[h_0, h_1]$, $h_i\in \Q[X]$,
 where $h_0+h_1 Y$ is the last non-constant polynomial in the pseudo-Euclidean
-remainder sequence associated to $A(Y)$ and $B(X-kY)$, leading to $C =
+remainder sequence attached to $A(Y)$ and $B(X-kY)$, leading to $C =
 \text{Res}_Y(A(Y), B(Y-kX))$. In particular $a := -h_0/h_1$ is a root of $A$
 in $\Q[X]/(C)$, and $X - ka$ is a root of $B$.
 
@@ -1640,7 +1640,7 @@ documentation of \tet{galoisinit} for the meaning of the member functions.
 return the images of the field generator by the automorphisms
 \kbd{gal.orders} expressed on the integral basis \kbd{nf.zk}.
 
-\fun{GEN}{nfgaloismatrix}{GEN nf, GEN s} returns the \kbd{ZM} associated to
+\fun{GEN}{nfgaloismatrix}{GEN nf, GEN s} returns the \kbd{ZM} attached to
 the automorphism $s$, seen as a linear operator expressend on the number
 field integer basis. This allows to use
 \bprog
@@ -1900,7 +1900,7 @@ $H = P A U$ of the matrix $P A$, where $P$ is a suitable permutation matrix,
 and $U\in \text{Gl}_n(\Z)$. $P$ is chosen so as to (heuristically) minimize the
 size of $U$; in this respect it is less efficient than \kbd{ZM\_hnflll}
 but usually faster. Set \kbd{*ptU} to $U$ and \kbd{*pterm} to a \typ{VECSMALL}
-representing the row permutation associated to $P = (\delta_{i,\kbd{perm}[i]}$.
+representing the row permutation attached to $P = (\delta_{i,\kbd{perm}[i]}$.
 If \kbd{ptU} is set to \kbd{NULL}, $U$ is not computed, saving some time;
 although useless, setting \kbd{ptperm} to \kbd{NULL} is also allowed.
 
@@ -2054,56 +2054,6 @@ $[U,V,D]$, $D$ diagonal, such that $UAV = D$.
 \kbd{gsmithall} (delete elementary divisors equal to $1$, updating base
 change matrices).
 
-\subsec{Finite abelian groups and characters}
-
-A finite abelian group $G$ in GP format is given by its Smith
-Normal Form as a pair $[h,d]$ or triple $[h,d,g]$.
-Here $h$ is the cardinality of $G$, $(d_i)$ is the vector of elementary
-divisors, and $(g_i)$ is a vector of generators. In short,
-$G = \oplus_{i\leq n} (\Z/d_i\Z) g_i$, with $d_n \mid \dots \mid d_2 \mid d_1$
-and $\prod d_i = h$.
-
-A \tev{character} on the abelian group $\oplus (\Z/d_j\Z) g_j$
-is given by a row vector $\chi = [a_1,\ldots,a_n]$ such that
-$\chi(\prod g_j^{n_j}) = \exp(2\pi i\sum a_j n_j / d_j)$.
-
-\fun{GEN}{cyc_normalize}{GEN d} shallow function. Given a vector
-$(d_i)_{i \leq n}$
-of elementary divisors for a finite group (no $d_i$ vanish), returns the vector
-$D = [1]$ if $n = 0$ (trivial group) and
- $[d_1, d_1/d_2, \dots, d_1/d_n]$ otherwise. This will allow to define
-characters as $\chi(\prod g_j^{x_j}) = \exp(2\pi i\sum_j x_j a_j D_j / D_1)$,
-see \tev{char_normalize}.
-
-\fun{GEN}{char_normalize}{GEN chi, GEN ncyc} shallow function. Given a
-character \kbd{chi} $ = (a_j)$ and \var{ncyc} from \kbd{cyc\_normalize}
-above, returns the normalized representation $[d, (n_j)]$, such that
-$\chi(\prod g_j^{x_j}) = \zeta_d^{\sum_j n_j x_j}$, where $\zeta_d =
-\exp(2i\pi/d)$ and $d$ is \emph{minimal}.
-
-\fun{GEN}{char_denormalize}{GEN cyc, GEN d, GEN n} given a normalized
-representation $[d, n]$ (where $d$ need not be minimal) of a character on the
-abelian group with abelian divisors \kbd{cyc}, return the associated character
-(where the image of each generator $g_i$ is given in terms of roots
-of unity of different orders $\kbd{cyc}[i]$).
-
-\fun{GEN}{charconj}{GEN cyc, GEN chi} return the complex conjugate of
-\kbd{chi}.
-
-\fun{int}{char_check}{GEN cyc, GEN chi} return $1$ if \kbd{chi} is a character
-compatible with cyclic factors \kbd{cyc}, and $0$ otherwise.
-
-\fun{GEN}{char_rootof1}{GEN d, long prec} return $\exp(2i\pi/d)$ at precision
-\kbd{prec}.
-
-\fun{GEN}{char_rootof1_u}{ulong d, long prec} return $\exp(2i\pi/d)$ at
-precision \kbd{prec}.
-
-\fun{GEN}{cyc2elts}{GEN d} given a \typ{VEC} $d = (d_1,\dots,d_n)$
-of non-negative integers, return the vector of all \typ{VECSMALL}s of length
-$n$ whose $i$-th entry lies in $[0,d_i]$. Assumes that the product
-of the $d_i$ fits in a \kbd{long}.
-
 \subsec{The LLL algorithm}\sidx{LLL}
 
 The basic GP functions and their immediate variants are normally not very
@@ -2187,12 +2137,12 @@ with inexact entries: $x$ is a matrix with real coefficients (types
 \typ{INT}, \typ{FRAC} and \typ{REAL}), $D$ and $\fl$ are as in \tet{ZM_lll}.
 The matrix is rescaled, rounded to nearest integers, then fed to
 \kbd{ZM\_lll}. The flag \kbd{LLL\_INPLACE} is still accepted but less useful
-(it returns an LLL-reduced basis associated to rounded input, instead of an
+(it returns an LLL-reduced basis attached to rounded input, instead of an
 exact base change matrix).
 
 \fun{GEN}{ZM_lll_norms}{GEN x, double D, long flag, GEN *ptB} slightly more
 general version of \kbd{ZM\_lll}, setting \kbd{*ptB} to a vector containing
-the squared norms of the Gram-Schmidt vectors $(b_i^*)$ associated to the
+the squared norms of the Gram-Schmidt vectors $(b_i^*)$ attached to the
 output basis $(b_i)$, $b_i^* = b_i + \sum_{j < i} \mu_{i,j} b_j^*$.
 
 
@@ -2205,6 +2155,14 @@ bases.
 \fun{GEN}{lllintpartial}{GEN x} as \kbd{lllintpartial\_inplace}, but returns
 the base change matrix $U$ from the canonical basis to the $b_i$, i.e. $x U$
 is the output of \kbd{lllintpartial\_inplace}.
+
+\fun{GEN}{RM_round_maxrank}{GEN G} given a matrix $G$ with real floating
+point entries and independent columns, let $G_e$ be the
+rescaled matrix $2^e G$ rounded to nearest integers, for $e \geq 0$.
+Finds a small $e$ such that the rank of $G_e$ is equal to the rank of $G$
+(its number of columns) and return $G_e$. This is useful as a preconditioning
+step to speed up LLL reductions, see \tet{nf_get_Gtwist}.
+Suitable for \kbd{gerepileupto}, but does not collect garbage.
 
 \subsec{Reduction modulo matrices}
 
@@ -2260,15 +2218,121 @@ the columns of $y$, which is close to $x$.
 and call \kbd{reducemodinvertible} to find a small representative of $x$ mod $y
 \Z^n$. Suitable for \kbd{gerepileupto}, but does not collect garbage.
 
-\subsec{Miscellaneous}
+\section{Finite abelian groups and characters}
 
-\fun{GEN}{RM_round_maxrank}{GEN G} given a matrix $G$ with real floating
-point entries and independent columns, let $G_e$ be the
-rescaled matrix $2^e G$ rounded to nearest integers, for $e \geq 0$.
-Finds a small $e$ such that the rank of $G_e$ is equal to the rank of $G$
-(its number of columns) and return $G_e$. This is useful as a preconditioning
-step to speed up LLL reductions, see \tet{nf_get_Gtwist}.
-Suitable for \kbd{gerepileupto}, but does not collect garbage.
+\subsec{Abstract groups}
+
+A finite abelian group $G$ in GP format is given by its Smith
+Normal Form as a pair $[h,d]$ or triple $[h,d,g]$.
+Here $h$ is the cardinality of $G$, $(d_i)$ is the vector of elementary
+divisors, and $(g_i)$ is a vector of generators. In short,
+$G = \oplus_{i\leq n} (\Z/d_i\Z) g_i$, with $d_n \mid \dots \mid d_2 \mid d_1$
+and $\prod d_i = h$.
+
+Let $e(x) := \exp(2i\pi x)$. For ease of exposition, we restrict to
+complex-valued characters, but everything applies to more general fields $K$
+where $e$ denotes a morphism $(\Q,+) \to (K^*,\times)$ such that $e(a/b)$
+denotes a $b$-th root of unity.
+
+A \tev{character} on the abelian group $\oplus (\Z/d_j\Z) g_j$
+is given by a row vector $\chi = [a_1,\ldots,a_n]$ such that
+$\chi(\prod g_j^{n_j}) = e(\sum a_j n_j / d_j)$.
+
+\fun{GEN}{cyc_normalize}{GEN d} shallow function. Given a vector
+$(d_i)_{i \leq n}$
+of elementary divisors for a finite group (no $d_i$ vanish), returns the vector
+$D = [1]$ if $n = 0$ (trivial group) and
+ $[d_1, d_1/d_2, \dots, d_1/d_n]$ otherwise. This will allow to define
+characters as $\chi(\prod g_j^{x_j}) = e(\sum_j x_j a_j D_j / D_1)$,
+see \tev{char_normalize}.
+
+\fun{GEN}{char_normalize}{GEN chi, GEN ncyc} shallow function. Given a
+character \kbd{chi} $ = (a_j)$ and \var{ncyc} from \kbd{cyc\_normalize}
+above, returns the normalized representation $[d, (n_j)]$, such that
+$\chi(\prod g_j^{x_j}) = \zeta_d^{\sum_j n_j x_j}$, where $\zeta_d =
+\exp(1/d)$ and $d$ is \emph{minimal}. In particular, $d$ is the order
+of \kbd{chi}. Shallow function.
+
+\fun{GEN}{char_simplify}{GEN D, GEN N} given a quasi-normalized character
+$[D, (N_j)]$ such that $\chi(\prod g_j^{x_j}) = \zeta_D^{\sum_j N_j x_j}$,
+but where we only  assume that $D$ is a multiple of the character
+order, return a normalized character $[d, (n_j)]$ with $d$ \emph{minimal}.
+Shallow function.
+
+\fun{GEN}{char_denormalize}{GEN cyc, GEN d, GEN n} given a normalized
+representation $[d, n]$ (where $d$ need not be minimal) of a character on the
+abelian group with abelian divisors \kbd{cyc}, return the attached character
+(where the image of each generator $g_i$ is given in terms of roots
+of unity of different orders $\kbd{cyc}[i]$).
+
+\fun{GEN}{charconj}{GEN cyc, GEN chi} return the complex conjugate of
+\kbd{chi}.
+
+\fun{GEN}{charmul}{GEN cyc, GEN a, GEN b} return the product character $a\times
+b$.
+
+\fun{GEN}{chardiv}{GEN cyc, GEN a, GEN b} returns the character
+$a / b = a \times \overline{b}$.
+
+\fun{int}{char_check}{GEN cyc, GEN chi} return $1$ if \kbd{chi} is a character
+compatible with cyclic factors \kbd{cyc}, and $0$ otherwise.
+
+\fun{GEN}{char_rootof1}{GEN d, long prec} return $\exp(2i\pi/d)$ at precision
+\kbd{prec}. Shallow function.
+
+\fun{GEN}{char_rootof1_u}{ulong d, long prec} return $\exp(2i\pi/d)$ at
+precision \kbd{prec}. Shallow function.
+
+\fun{GEN}{cyc2elts}{GEN d} given a \typ{VEC} $d = (d_1,\dots,d_n)$
+of non-negative integers, return the vector of all \typ{VECSMALL}s of length
+$n$ whose $i$-th entry lies in $[0,d_i]$. Assumes that the product
+of the $d_i$ fits in a \kbd{long}.
+
+\subsec{Dirichlet characters}
+
+The functions in this section are  specific to characters on $(\Z/N\Z)^*$.
+The argument $G$ is a special \kbd{bid} structure as returned by
+\kbd{znstar0(N, nf\_INIT)}. In this case, there are additional ways
+to input character via Conrey's representation. The character \kbd{chi} is
+either a \typ{INT} (Conrey label), a \typ{COL} (a Conrey logarithm) or a
+\typ{VEC} (generic character on \kbd{bid.gen} as explained in the previous
+subsection). The following low-level functions are called by GP's generic
+character functions.
+
+\fun{int}{zncharcheck}{GEN G, GEN chi} return $1$ if \kbd{chi} is
+a valid character and $0$ otherwise.
+
+\fun{GEN}{zncharconj}{GEN G, GEN chi} as \kbd{charconj}.
+
+\fun{GEN}{znchardiv}{GEN G, GEN a, GEN b} as \kbd{chardiv}.
+
+\fun{GEN}{zncharker}{GEN G, GEN chi} as \kbd{charker}.
+
+\fun{GEN}{znchareval}{GEN G, GEN chi, GEN n, GEN z} as \kbd{chareval}.
+
+\fun{GEN}{zncharmul}{GEN G, GEN a, GEN b} as \kbd{charmul}.
+
+\fun{GEN}{zncharorder}{GEN G,  GEN chi} as \kbd{charorder}.
+
+The following functions handle characters in Conrey notation (attached to
+Conrey generators, not \kbd{G.gen}):
+
+\fun{int}{znconrey_check}{GEN cyc, GEN chi} return $1$ if \kbd{chi} is
+a valid Conrey logarithm and $0$ otherwise.
+
+\fun{GEN}{znconrey_normalized}{GEN G, GEN chi} return normalized character
+attached to \kbd{chi}, as in \kbd{char\_normalize} but on Conrey generators.
+
+\fun{GEN}{znconreyfromchar}{GEN G, GEN chi} return Conrey logarithm
+attached to the generic (\typ{VEC}, on \kbd{G.gen})
+
+\fun{GEN}{znconreyfromchar_normalized}{GEN G, GEN chi} return normalized
+Conrey character attached to the generic (\typ{VEC}, on \kbd{G.gen})
+character \kbd{chi}.
+
+\fun{GEN}{znconreylog_normalize}{GEN G, GEN m} given a Conrey logarithm $m$
+(\typ{COL}), return the attached normalized Conrey character, as in
+\kbd{char\_normalize} but on Conrey generators.
 
 \section{Central simple algebras}
 
@@ -2365,7 +2429,7 @@ $1 \leq i < n$.
 low-level version of \kbd{algsplittingfield}.
 
 \fun{GEN}{alg_get_abssplitting}{GEN al} returns the absolute \var{nf}
-structure associated to the \var{rnf} returned by \kbd{algsplittingfield}.
+structure attached to the \var{rnf} returned by \kbd{algsplittingfield}.
 
 \fun{GEN}{alg_get_splitpol}{GEN al}  returns the relative polynomial
 defining the \var{rnf} returned by \kbd{algsplittingfield}.

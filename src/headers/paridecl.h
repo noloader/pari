@@ -2236,13 +2236,13 @@ GEN     char_simplify(GEN D, GEN C);
 GEN     cyc_normalize(GEN c);
 int     zncharcheck(GEN G, GEN chi);
 GEN     zncharconj(GEN G, GEN chi);
-GEN     znchardiv(GEN x, GEN a, GEN b);
+GEN     znchardiv(GEN G, GEN a, GEN b);
 GEN     zncharker(GEN G, GEN chi);
 GEN     znchareval(GEN G, GEN chi, GEN n, GEN z);
 GEN     zncharinduce(GEN G, GEN chi, GEN N);
-GEN     zncharmul(GEN x, GEN a, GEN b);
+GEN     zncharmul(GEN G, GEN a, GEN b);
 GEN     zncharorder(GEN G,  GEN chi);
-GEN     znconreylog_normalize(GEN G, GEN m);
+int     znconrey_check(GEN cyc, GEN chi);
 GEN     znconrey_normalized(GEN G, GEN chi);
 GEN     znconreychar(GEN bid, GEN m);
 GEN     znconreyfromchar_normalized(GEN bid, GEN chi);
@@ -2250,6 +2250,7 @@ GEN     znconreyconductor(GEN bid, GEN co, GEN *pm);
 GEN     znconreyexp(GEN bid, GEN x);
 GEN     znconreyfromchar(GEN bid, GEN chi);
 GEN     znconreylog(GEN bid, GEN x);
+GEN     znconreylog_normalize(GEN G, GEN m);
 
 /* compile.c */
 
