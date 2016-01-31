@@ -840,7 +840,6 @@ zncharinduce(GEN G, GEN chi, GEN N)
 
   if (!checkbidZ_i(G)) pari_err_TYPE("zncharinduce", G);
   if (!zncharcheck(G, chi)) pari_err_TYPE("zncharinduce", chi);
-  faq = bid_get_fact(G);
   q = bid_get_ideal(G);
   if (typ(chi) != t_COL) chi = znconreylog(G, chi);
   if (checkbidZ_i(N))
@@ -849,12 +848,11 @@ zncharinduce(GEN G, GEN chi, GEN N)
     P = gel(faN,1); l = lg(P);
     E = gel(faN,2);
     N = bid_get_ideal(N);
-
     if (l > 2 && equalii(gel(P,1),gel(P,2)))
     { /* remove duplicate 2 */
       l--;
-      P = vecslice(P,2,l);
-      E = vecslice(E,2,l);
+      P = vecsplice(P,1);
+      E = vecsplice(E,1);
     }
   }
   else
@@ -863,20 +861,33 @@ zncharinduce(GEN G, GEN chi, GEN N)
     if (!faN) faN = Z_factor(N);
     else
       N = (typ(N) == t_VEC)? gel(N,1): factorback(faN);
-    P = gel(faN,1); l = lg(P);
-    E = ZV_to_zv(gel(faN,2));
+    P = gel(faN,1);
+    E = gel(faN,2);
   }
-  if (equalii(N,q)) return gerepilecopy(av, chi);
   if (!dvdii(N,q)) pari_err_DOMAIN("zncharinduce", "N % q", "!=", gen_0, N);
+  if (mod4(N) == 2)
+  { /* remove 2 */
+    if (lg(P) > 1 && equaliu(gel(P,1), 2))
+    {
+      P = vecsplice(P,1);
+      E = vecsplice(E,1);
+    }
+    N = shifti(N,-1);
+  }
+  l = lg(P);
+  /* q = N or q = 2N, N odd */
+  if (cmpii(N,q) <= 0) return gerepilecopy(av, chi);
   /* N > 1 => l > 1*/
-  Pq = gel(faq,1);
+  if (typ(E) != t_VECSMALL) E = ZV_to_zv(E);
   e2 = (E[1] >= 3 && equaliu(gel(P,1),2)); /* 2 generators at 2 mod N */
   if (ZV_equal0(chi))
   {
     avma = av;
-    return (cmpiu(N, 2) <= 0)? cgetg(1, t_COL): zerocol(l+e2 - 1);
+    return equali1(N)? cgetg(1, t_COL): zerocol(l+e2 - 1);
   }
 
+  faq = bid_get_fact(G);
+  Pq = gel(faq,1);
   Eq = gel(faq,2);
   i = 1;
   CHI = cgetg(l+e2, t_COL);

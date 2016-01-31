@@ -137,6 +137,7 @@ l=znconreylog(G, chi)
 znconreychar(G,l) == chi
 znconreyexp(G,l)
 
+G2=idealstar(,6);
 G=idealstar(,1);
 znconreychar(G,1)
 znconreylog(G,1)
@@ -144,6 +145,8 @@ test(G,1)
 chareval(G,[]~,1)
 chareval(G,[],1)
 chareval(G,1,1)
+zncharinduce(G,1,6)
+zncharinduce(G,1,G2)
 
 G=idealstar(,2);
 znconreychar(G,1)
@@ -155,3 +158,6 @@ chareval(G,[],1)
 chareval(G,1,2)
 chareval(G,1,1)
 zncharinduce(G,[]~,3)
+zncharinduce(G,1,6)
+zncharinduce(G,1,G2)
+
