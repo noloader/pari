@@ -125,6 +125,8 @@ test(G,1)
 test(G,3)
 test(G,5)
 test(G,7)
+G = idealstar(,48);
+for(i=1,48,if(gcd(i,48)==1,test(G,i)))
 
 G = idealstar(,126000);
 test(G,1009)

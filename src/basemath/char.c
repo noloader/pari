@@ -780,7 +780,7 @@ znconreyconductor(GEN bid, GEN chi, GEN *pm)
     else
     {
       long v = Z_pvalrem(a, gen_2, &a);
-      if (v) { E[1] -= v; primitive = 0; }
+      if (v) { E[1] -= v; E[2] = E[1]; primitive = 0; }
       if (E[1] == 3 && equalii(a,a1))
       { /* lose one generator */
         e2 = primitive = 0;
@@ -820,8 +820,8 @@ znconreyconductor(GEN bid, GEN chi, GEN *pm)
   {
     if (e2)
     { /* remove duplicate p=2 row from factorization */
-      P = vecslice(P,2, l-1);
-      E = vecslice(E,2, l-1);
+      P = vecsplice(P,1);
+      E = vecsplice(E,1);
     }
     E = zv_to_ZV(E);
     q = mkvec2(factorback2(P,E), mkmat2(P,E));
