@@ -163,3 +163,5 @@ zncharinduce(G,[]~,3)
 zncharinduce(G,1,6)
 zncharinduce(G,1,G2)
 
+G=idealstar(,30);
+znconreyconductor(G, 29)

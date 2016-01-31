@@ -815,8 +815,11 @@ znconreyconductor(GEN bid, GEN chi, GEN *pm)
   setlg(E,j);
   if (pm) *pm = m; /* associated primitive  character */
   if (primitive)
+  {
     q = bid_get_ideal(bid);
-  else
+    if (mod4(q) == 2) primitive = 0;
+  }
+  if (!primitive)
   {
     if (e2)
     { /* remove duplicate p=2 row from factorization */
