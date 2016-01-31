@@ -507,6 +507,7 @@ BA 61- [libpari] concat, concat1 renamed to gconcat, gconcat1
        znstar and znlog internally)
    66- improved p-adic log at high accuracy (O(sqrt(padicprec)) algorithm
        instead of O(padicprec))
+   67- allow genus2red to handle (rational) non integral models
 
 Removed
    1- deprecated functions nfbasis0, nfdisc0, factorpadic0

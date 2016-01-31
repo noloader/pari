@@ -2194,10 +2194,11 @@ genus2red(GEN PQ, GEN p)
 {
   pari_sp av = avma;
   struct igusa I;
-  GEN P, Q;
+  GEN P, Q, D;
   GEN j22, j42, j2j6, a0,a1,a2,a3,a4,a5,a6, V,polr,facto,factp, vecmini, cond;
   long i, l, dd, vP,vQ;
 
+  PQ = Q_remove_denom(PQ, &D);
   if (typ(PQ) == t_VEC && lg(PQ) == 3)
   {
     P = gel(PQ,1);
@@ -2218,6 +2219,7 @@ genus2red(GEN PQ, GEN p)
   }
   else if (vQ < 0) Q = scalarpol(Q,vP);
   if (p && typ(p) != t_INT) pari_err_TYPE("genus2red", p);
+  if (D) P = ZX_Z_mul(P,D);
 
   polr = ZX_add(ZX_sqr(Q), gmul2n(P,2)); /* ZX */
   switch(degpol(polr))

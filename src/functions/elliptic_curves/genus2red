@@ -2,11 +2,11 @@ Function: genus2red
 Section: elliptic_curves
 C-Name: genus2red
 Prototype: GDG
-Help: genus2red(P,{p}): let P be a polynomial with integer coefficients.
+Help: genus2red(P,{p}): let P be a polynomial with rational coefficients.
  Determines the reduction at p > 2 of the
  (proper, smooth) hyperelliptic curve C/Q: y^2 = P, of genus 2.
  (The special fiber X_p of the minimal regular model X of C over Z.)
-Doc: Let $P$ be a polynomial with integer coefficients.
+Doc: Let $P$ be a polynomial with rational coefficients.
  Determines the reduction at $p > 2$ of the (proper, smooth) genus~2
  curve $C/\Q$, defined by the hyperelliptic equation $y^2 = P$. (The
  special fiber $X_p$ of the minimal regular model $X$ of $C$ over $\Z$.)
