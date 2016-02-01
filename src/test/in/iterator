@@ -2,6 +2,7 @@ default(realprecision,38);
 N = 1<<64;
 for(a=N-2, N+2, print(a))
 for(a=-N-2, -N+2, print(a))
+for(n=2,oo,if(n>10,break);print(n))
 
 forprime(p=2^32-50,2^32+30,print(p))
 forprime(p=2^64-70,2^64+50,print(p))

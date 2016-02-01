@@ -57,7 +57,7 @@ forparii(GEN a, GEN b, GEN code)
   pari_sp av, av0 = avma;
   GEN aa;
   if (gcmp(b,a) < 0) return;
-  b = gfloor(b);
+  if (typ(b) != t_INFINITY) b = gfloor(b);
   aa = a = setloop(a);
   av=avma;
   push_lex(a,code);
