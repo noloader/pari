@@ -1,0 +1,23 @@
+Function: mffromlfun
+Section: modular_forms
+C-Name: mffromlfun
+Prototype: Gp
+Help: mffromlfun(L): L being an L-function representing a real eigenform,
+ output the corresponding modular form.
+Doc: $L$ being an $L$-function in any of the \kbd{lfun} formats representing
+ a real eigenform, output the corresponding modular form.
+
+ This is very primitive implementation and may fail.
+ \bprog
+ ? L = lfuncreate(x^2+1);
+ ? L[2..7]
+ %2 = [0, [0, 1], 1, 4, 1, 0]
+ ? lfunan(L,10)
+ %3 = [1, 1, 0, 1, 2, 0, 0, 1, 1, 2]
+ ? -lfun(L,0)
+ %4 = 0.25000000000000000000000000000000000000
+ ? F = mffromlfun(L); mfparams(F)
+ %5 = [4, 1, -4]
+ ? mfcoefs(F,10)
+ %6 = [1/4, 1, 1, 0, 1, 2, 0, 0, 1, 1, 2]
+ @eprog

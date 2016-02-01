@@ -168,7 +168,7 @@ print_fun_list(char **list, long nbli)
   if (i) pari_putc('\n');
 }
 
-static const long MAX_SECTION = 15;
+static const long MAX_SECTION = 16;
 static void
 commands(long n)
 {
@@ -277,7 +277,7 @@ menu_commands(void)
   "NUMBER THEORETICAL functions",
   "ELLIPTIC CURVES",
   "L-FUNCTIONS",
-  /* "MODULAR FORMS", */
+  "MODULAR FORMS",
   "MODULAR SYMBOLS",
   "General NUMBER FIELDS",
   "Associative and central simple ALGEBRAS",

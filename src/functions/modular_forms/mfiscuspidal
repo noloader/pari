@@ -1,0 +1,12 @@
+Function: mfiscuspidal
+Section: modular_forms
+C-Name: mfiscuspidal
+Prototype: lG
+Help: mfiscuspidal(F): Checks whether the modular forms F is cuspidal or not.
+Doc:  Checks whether the modular forms $F$ is cuspidal or not.
+ \bprog
+ ? mfiscuspidal(mfDelta())
+ %1 = 1
+ ? mfiscuspidal(mfEk(12))
+ %2 = 0
+ @eprog

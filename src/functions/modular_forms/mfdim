@@ -1,0 +1,68 @@
+Function: mfdim
+Section: modular_forms
+C-Name: mfdim
+Prototype: GD0,L,
+Help: mfdim(NK,{space=0}): If NK=[N,k,CHI] as in
+ mfinit, gives the dimension of the corresponding subspace of
+ M_k(G_0(N),chi). The parameter space is by default 0, coding the newspace,
+ and can also be 1 for the cuspidal space, 2 for the oldspace, 3 for the full
+ space M_k and 4 the space of Eisenstein series. NK can also be the output of
+ mfinit, in which case space must be omitted.
+Doc: If $NK=[N,k,\var{CHI}]$ as in \kbd{mfinit}, gives the dimension of the
+ corresponding subspace of $M_k(\Gamma_0(N),\chi)$. $NK$ can also be the
+ output of \kbd{mfinit}, in which case space must be omitted.
+
+ The parameter \kbd{space} is as in \kbd{mfinit}: by default $0$, coding the
+ newspace $S_k^{\text{new}}(\Gamma_0(N),\chi)$, and can also be $1$ for the
+ cuspidal space $S_k$, $2$ for the oldspace $S_k^{\text{old}}$, $3$ for the
+ full space $M_k$ and $4$ for the space of Eisenstein series $E_k$.
+
+ \misctitle{Wildcards}
+ As in \kbd{mfinit}, \var{CHI} may be the wildcard 0
+ (all Galois orbits of characters); in this case, the output is a vector of
+ $[\var{order},\var{conrey},\var{dim},\var{dimdih}]$ corresponding
+ to the non-trivial spaces, where
+
+ \item \var{order} is the order of the character,
+
+ \item \var{conrey} its Conrey label from which the character may be recovered
+ via \kbd{znchar}$(\var{conrey})$,
+
+ \item \var{dim} the dimension of the corresponding space,
+
+ \item \var{dimdih} the dimension of the subspace of dihedral forms
+ corresponding to Hecke characters if $k = 1$ (this is not implemented for
+ the old space and set to $-1$ for the time being) and 0 otherwise.
+
+ The spaces are sorted by increasing order of the character; the characters are
+ taken up to Galois conjugation and the Conrey number is the minimal one among
+ Galois conjugates. In weight $1$, this is only implemented when
+ the space is 0 (newspace), 1 (cusp space) or 2(old space).
+
+ \misctitle{Wildcards for sets of characters} \var{CHI} may be a set
+ of characters, and we return the set of $[\var{dim},\var{dimdih}]$.
+
+ \misctitle{Wildcard for $S_k(\Gamma_1(N))$}
+ Additionally, the wildcard $\var{CHI} = -1$ is available in which case we
+ output the total dimension of
+ $S_k(\Gamma_1(N))$. In weight $1$, this is only implemented when
+ the space is 0 (newspace), 1 (cusp space), or 2(old space).
+
+ \bprog
+ ? mfdim([23,2])
+ %1 = 2
+ ? mfdim([96,6])
+ %2 = 10
+ ? mfdim([10^9,4], 4)  \\ Eisenstein space
+ %1 = 40000
+ ? mfdim([10^9+7,4], 4)
+ %2 = 2
+ ? mfdim([68,1,-1])
+ %3 = 3
+ ? mfdim([68,1,0])
+ %4 = [[4, Mod(47, 68), 1, 1], [2, Mod(67, 68), 1, 1]]
+ ? mfdim([124,1,0])
+ %5 = [[6, Mod(67, 124), 2, 0]]
+ @eprog
+ This last example shows that there exists a nondihedral form of weight 1
+ in level 124.

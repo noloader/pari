@@ -1007,6 +1007,7 @@ pari_close_opts(ulong init_opts)
     }
   }
   pari_var_close();
+  pari_close_mf();
   pari_thread_close();
   pari_close_files();
   pari_close_homedir();

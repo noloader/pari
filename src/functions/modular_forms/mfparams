@@ -1,0 +1,19 @@
+Function: mfparams
+Section: modular_forms
+C-Name: mfparams
+Prototype: G
+Help: mfparams(F): Returns [N,k,CHI], level, weight, and character:
+ F is either a modular form space or a modular form; in the latter case
+ the program searches though the tree which created the modular form, and
+ the level N may be a multiple of the level of F.
+Doc: Returns \kbd{[N,k,CHI]}, level, weight, and character:
+ \kbd{F} is either a modular form space  or a modular form; in the latter case
+ the program searches though the tree which created the modular form, and
+ the level N may be a multiple of the level of F. If you want the true
+ level of F from this result, use \kbd{mfconductor(mfinit([N,k,CHI],3),F)}.
+ \bprog
+ ? E1 = mfeisen(4,-3,-4); E2 = mfeisen(3,5,-7); E3 = mfmul(E1,E2);
+ ? E4 = mfderivE2(E3,3);
+ ? apply(params, [E1,E2,E3,E4])
+ %1 = [[12, 4, 12], [35, 3, -35], [420, 7, -420], [420, 13, -420]]
+  @eprog

@@ -1,0 +1,25 @@
+Function: mfbasis
+Section: modular_forms
+C-Name: mfbasis
+Prototype: G
+Help: mfbasis(mf): basis of the modular form space mf output by mfinit before
+ splitting, as a vector of modular forms. To obtain the eigenforms use
+ mfeigenbasis.
+Doc: basis of the modular form space \kbd{mf} output by \kbd{mfinit} before
+ splitting, as a vector of modular forms. To obtain the eigenforms, use
+ \kbd{mfeigenbasis}. If \kbd{mf} is a full space $M_k$, the output is the
+ union of first, a basis of the space of Eisenstein series, and second, a
+ basis of the cuspidal space.
+ \bprog
+ ? see(L) = apply(f->mfcoefs(f,3), L);
+ ? mf = mfinit([35,2]);
+ ? see( mfbasis(mf) )
+ %2 = [[0, 3, -1, 0], [0, -1, 9, -8], [0, 0, -8, 10]]
+ ? see( mfeigenbasis(mfsplit(mf)) )
+ %3 = [[0, 1, 0, 1], [Mod(0, z^2 - z - 4), Mod(1, z^2 - z - 4), \
+        Mod(-z, z^2 - z - 4), Mod(z - 1, z^2 - z - 4)]]
+ ? mf = mfinit([35,2], 3);
+ ? see( mfbasis(mf) )
+ %5 = [[1/6, 1, 3, 4], [1/4, 1, 3, 4], [17/12, 1, 3, 4], \
+        [0, 3, -1, 0], [0, -1, 9, -8], [0, 0, -8, 10]]
+ @eprog

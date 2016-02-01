@@ -5177,6 +5177,18 @@ END:
   return gerepileuptoint(av, shifti(mulii(d1,Hf), r2));
 }
 
+GEN
+quadclassno(GEN x)
+{
+  pari_sp av = avma;
+  GEN Hf, D;
+  long s, r;
+  check_quaddisc(x, &s, &r, "quadclassno");
+  if (s < 0 && cmpiu(x,12) <= 0) return gen_1;
+  Hf = conductor_part(x, r, &D, NULL);
+  return gerepileuptoint(av, mulii(Hf, gel(quadclassunit0(D,0,NULL,0),1)));
+}
+
 /* use Euler products */
 GEN
 classno2(GEN x)
@@ -5240,8 +5252,26 @@ classno2(GEN x)
   return gerepileuptoint(av, mulii(Hf, roundr(S)));
 }
 
+/* 1 + q + ... + q^v, v > 0 */
 static GEN
-hclassno2(GEN x)
+geomsumu(ulong q, long v)
+{
+  GEN u = utoipos(1+q);
+  for (; v > 1; v--) u = addui(1, mului(q, u));
+  return u;
+}
+static GEN
+geomsum(GEN q, long v)
+{
+  GEN u;
+  if (lgefint(q) == 3) return geomsumu(q[2], v);
+  u = addiu(q,1);
+  for (; v > 1; v--) u = addui(1, mulii(q, u));
+  return u;
+}
+
+static GEN
+hclassno6_large(GEN x)
 {
   long i, l, s, xmod4;
   GEN Q, H, D, P, E;
@@ -5256,109 +5286,61 @@ hclassno2(GEN x)
   /* H \prod_{p^e||f}  (1 + (p^e-1)/(p-1))[ p - (D/p) ] */
   for (i=1; i<l; i++)
   {
-    long e = E[i];
-    if (e)
-    {
-      GEN p = gel(P,i), t = subis(p, kronecker(D,p));
-      if (e > 1) t = mulii(t, diviiexact(subiu(powiu(p,e), 1), subiu(p,1)));
-      H = mulii(H, addui(1, t));
-    }
+    long e = E[i], s;
+    GEN p, t;
+    if (!e) continue;
+    p = gel(P,i); s = kronecker(D,p);
+    if (e == 1) t = addiu(p, 1-s);
+    else if (s == 1) t = powiu(p,e);
+    else t = addui(1, mulii(subis(p, s), geomsum(p,e-1)));
+    H = mulii(H,t);
   }
   switch( itou_or_0(D) )
   {
-    case 3: H = gdivgs(H, 3); break;
-    case 4: H = gdivgs(H, 2); break;
+    case 3: H = shifti(H,1);break;
+    case 4: H = muliu(H,3); break;
+    default:H = muliu(H,6); break;
   }
   return H;
+}
+
+/* x > 0, x = 0,3 (mod 4). Return 6*hclassno(x), an integer */
+GEN
+hclassno6(GEN x)
+{
+  ulong d = itou_or_0(x);
+  if (!d || d > 500000) return hclassno6_large(x);
+  return utoipos(hclassno6u(d));
 }
 
 GEN
 hclassno(GEN x)
 {
-  ulong a, b, b2, d, h;
-  long s;
-  int f;
-
+  long a, s;
   if (typ(x) != t_INT) pari_err_TYPE("hclassno",x);
   s = signe(x);
   if (s < 0) return gen_0;
   if (!s) return gdivgs(gen_1, -12);
-
   a = mod4(x); if (a == 1 || a == 2) return gen_0;
-
-  d = itou_or_0(x);
-  if (!d || d > 500000) return hclassno2(x);
-
-  h = 0; b = d&1; b2 = (1+d)>>2; f=0;
-  if (!b)
-  {
-    for (a=1; a*a<b2; a++)
-      if (b2%a == 0) h++;
-    f = (a*a==b2); b=2; b2=(4+d)>>2;
-  }
-  while (b2*3 < d)
-  {
-    if (b2%b == 0) h++;
-    for (a=b+1; a*a < b2; a++)
-      if (b2%a == 0) h += 2;
-    if (a*a == b2) h++;
-    b += 2; b2 = (b*b+d)>>2;
-  }
-  if (b2*3 == d) retmkfrac(utoipos(3*h+1), utoipos(3));
-  if (f) retmkfrac(utoipos(2*h+1), gen_2);
-  return utoipos(h);
+  return gdivgs(hclassno6(x), 6);
 }
-
 /******************************************************************/
 /*                                                                */
 /*                 RAMANUJAN's TAU FUNCTION                       */
 /*                                                                */
 /******************************************************************/
-
-/* h(D) / (w(D)/2), D fundamental */
-static GEN
-myh(GEN D)
-{
-  GEN Q;
-  if (equalis(D, -3)) return mkfrac(gen_1, utoipos(3));
-  if (equalis(D, -4)) return ghalf;
-  Q = quadclassunit0(D, 0, NULL, 0); return gel(Q,1);
-}
-
-/* 1 + q + ... + q^v */
-static GEN
-geomsum(GEN q, long v)
-{
-  GEN u;
-  if (v == 0) return gen_1;
-  u = addui(1, q);
-  for (; v > 1; v--) u = addui(1, mulii(q, u));
-  return u;
-}
-
-/* 4|N, not fundamental at 2; Hurwitz class number in level 2,
- * equal to H(N)+2H(N/4), H=qfbhclassno */
+/* 4|N > 0, not fundamental at 2; 6 * Hurwitz class number in level 2,
+ * equal to 6*(H(N)+2H(N/4)), H=qfbhclassno */
 static GEN
 Hspec(GEN N)
 {
-  GEN D0, P, E, H, s;
-  long j, lP;
-
-  corediscfact(negi(N), 0, &D0, &P, &E);
-  H = myh(D0);
-  lP = lg(P); /* E[1] > 0 since N not fundamental at */
-  s = addui(3, muliu(subiu(int2n(E[1]+1), 3), 2 - kroiu(D0,2)));
-  for (j = 2; j < lP; j++)
-  {
-    long e = E[j];
-    if (e)
-    {
-      ulong p = itou(gel(P,j));
-      GEN q = geomsum(utoipos(p), e-1);
-      s = mulii(s, addui(1, muliu(q, p - kroiu(D0,p))));
-    }
-  }
-  return gmul(H,s);
+  long v2 = Z_lvalrem(N, 2, &N), v2f = v2 >> 1;
+  GEN t;
+  if (odd(v2)) { v2f--; N = shifti(N,3); }
+  else if (mod4(N)!=3) { v2f--; N = shifti(N,2); }
+  /* N fundamental at 2, v2f = v2(f) s.t. N = f^2 D, D fundamental */
+  t = addui(3, muliu(subiu(int2n(v2f+1), 3), 2 - kroiu(N,2)));
+  return mulii(t, hclassno6(N));
 }
 
 /* Ramanujan tau function for p prime */
@@ -5366,28 +5348,31 @@ static GEN
 tauprime(GEN p)
 {
   pari_sp av = avma, av2;
-  GEN s, p_27, p_9, T;
+  GEN s, p2, p2_7, p_9, T;
   ulong lim, t, tin;
 
   if (absequaliu(p, 2)) return utoineg(24);
   /* p > 2 */
-  p_27 = mulsi(7, sqri(p));
-  p_9 = mulsi(9, p);
+  p2 = sqri(p);
+  p2_7 = mului(7, p2);
+  p_9 = mului(9, p);
   av2 = avma;
   lim = itou(sqrtint(p));
   tin = mod4(p) == 3? 1: 0;
   s = gen_0;
   for (t = 1; t <= lim; ++t)
   {
-    GEN p2, t2 = sqru(t), t3 = shifti(subii(p, t2), 2); /* 4(p-t^2) */
-    /* t mod 2 != tin <=> t3 not fundamental at 2 */
-    p2 = ((t&1) == tin) ? hclassno(t3) : Hspec(t3);
-    s = gadd(s, gmul(mulii(powiu(t2,3), addii(p_27, mulii(t2, subii(mulsi(4, t2), p_9)))), p2));
-    if (!(t & 255)) s = gerepileupto(av2, s);
+    GEN h, a, t2 = sqru(t), D = shifti(subii(p, t2), 2); /* 4(p-t^2) */
+    /* t mod 2 != tin <=> D not fundamental at 2 */
+    h = ((t&1UL) == tin)? hclassno6(D): Hspec(D);
+    a = mulii(powiu(t2,3), addii(p2_7, mulii(t2, subii(shifti(t2,2), p_9))));
+    s = addii(s, mulii(a,h));
+    if (!(t & 255)) s = gerepileuptoint(av2, s);
   }
   /* 28p^3 - 28p^2 - 90p - 35 */
-  T = subiu(mulii(p, subiu(mulii(p, subiu(mului(28, p), 28)), 90)), 35);
-  return gerepileupto(av, subii(mulii(powiu(p,3),T), addui(1, gmulsg(128, s))));
+  T = subii(shifti(mulii(p2_7, subiu(p,1)), 2), addiu(mului(90,p), 35));
+  s = shifti(diviuexact(s, 3), 6);
+  return gerepileuptoint(av, subii(mulii(mulii(p2,p),T), addui(1, s)));
 }
 
 /* Ramanujan tau function, return 0 for <= 0 */

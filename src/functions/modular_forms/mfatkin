@@ -1,0 +1,23 @@
+Function: mfatkin
+Section: modular_forms
+C-Name: mfatkin
+Prototype: GGGb
+Help: mfatkin(mf,F,Q): computes F|W_Q. Instead of the
+ primitive divisor Q | N, one can input a pair [M,A] from mfmatatkin(mf, Q).
+Doc: given a modular form space \kbd{mf} and a modular form $F$, returns
+ the modular form $F|W_Q$, where $W_Q$ is the Atkink-Lehner involution.
+ Instead of the primitive divisor $Q \mid N$, one can input $[M,A]$, where
+ \bprog
+   M = mfmatatkin(mf, Q, &A);
+ @eprog
+ \bprog
+ ? mf = mfinit([35,2]); vecF = mfbasis(mf); F = vecF[1];
+ ? mfcoefs(F, 4)
+ %2 = [0, 3, -1, 0, 3]
+ ? wF = mfatkin(mf, 7, F);
+ ? mfcoefs(wF, 4)
+ %4 = [0, 1, -1, -2, 7]
+ ? mQ = mfmatatkin(mf, 7);
+ ? mfcoefs(mfatkin(mf, mQ, F), 4)
+ %6 = [0, 1, -1, -2, 7]
+ @eprog

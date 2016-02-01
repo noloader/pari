@@ -1,0 +1,53 @@
+Function: mfsplit
+Section: modular_forms
+C-Name: mfsplit
+Prototype: GD0,L,D0,L,
+Help: mfsplit(mf,{dimlim=0},{flag=0}): mf being in the cuspidal space (either
+ the newspace or the full cuspidal space), split the space into Galois orbits
+ of eigenforms of the newspace. If dimlim is set and mf is the newspace, only
+ the Galois orbits of dimension <= dimlim are computed (i.e. the rational
+ eigenforms if dimlim = 1 and the character is real). Flag is used to avoid
+ long computations when the dimension is large: if flag = -d < 0, when the
+ dimension of the eigenspace is > d, only the Galois polynomial is computed.
+ If flag = d > 0, when the dimension of the eigenspace is > d, the Galois
+ polynomial and a nonnormalized eigenform is computed.
+Doc: \kbd{mf} from \kbd{mfinit} being in the cuspidal space (either the
+ newspace or the full cuspidal space), split the space into Galois orbits of
+ eigenforms of the newspace. As a shortcut, one can input
+ \kbd{mfsplit(NK,\dots)} instead of \kbd{mfsplit(mfinit(NK),\dots)}; note
+ that this initializes and splits the newspace: if one requires the
+ full cuspidal space one must explicitly use
+ \kbd{mfsplit(mfinit(NK,1),\dots)}.
+
+ If \kbd{dimlim} is set and \kbd{mf} is the
+ newspace, only the Galois orbits of dimension $\leq \kbd{dimlim}$ are computed
+ (i.e. the rational eigenforms if $\kbd{dimlim} = 1$ and the character is real).
+ This can considerably speed up the function when a Galois orbit is defined
+ over a large field. \kbd{flag} is used to avoid long computations when the
+ dimension is large: if $flag=-d<0$, when the dimension of the eigenspace is
+ $>d$, only the Galois polynomial is computed. If $flag=d>0$, when the
+ dimension of the eigenspace is $>d$, the Galois polynomial and a
+ nonnormalized eigenform is computed.
+
+
+ The resulting structure is a valid modular form space with extra components:
+ if now supports \kbd{mfeigenbasis} (list of all eigenforms) and
+ \kbd{mffields} (list of polynomials defining each Galois orbit).
+ \bprog
+ ? mf=mfsplit([11,2]); mfcoefs(mfeigenbasis(mf)[1],16)
+ %1 = [0, 1, -2, -1, ...]
+ ? mf=mfsplit([23,2]); mfcoefs(mfeigenbasis(mf)[1],16)
+ %2 = [Mod(0, z^2 - z - 1), Mod(1, z^2 - z - 1), Mod(-z, z^2 - z - 1), ...]
+ ? mf=mfsplit([179,2]); apply(poldegree, mffields(mf))
+ %3 = [1, 3, 11]
+ ? mf=mfsplit([719,2]);  \\ slow !
+ time = 6,881 ms.
+ ? apply(poldegree, mffields(mf)) \\ degree 45 is large
+ %5 = [5, 10, 45]
+ ? mf=mfsplit([719,2], 5); \\ faster when restricting to small orbits
+ time = 1,240 ms.
+ ? mf=mfinit([105,2],1); mfdim(mf) \\ full cuspidal space has dim 13
+ %7 = 13
+ ? mffields(mfsplit(mf))
+ %8 = [y, y^2 - y - 1] \\ ... but newspace has dimension 3
+ @eprog

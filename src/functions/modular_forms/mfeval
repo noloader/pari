@@ -1,0 +1,26 @@
+Function: mfeval
+Section: modular_forms
+C-Name: mfeval
+Prototype: GGb
+Help: mfeval(F,vtau): Computes the numerical value of the modular form F
+ at the point vtau or the vector vtau of points in the upper-half plane.
+ If $F$ has polmod coefficients, it must be embedded first using mfembed.
+Doc: Computes the numerical value of the modular form $F$ at the complex
+ number \kbd{vtau} or the vector \kbd{vtau} of complex numbers in the
+ upper-half plane. If $F$ has polmod coefficients, it must be embedded first
+ using \kbd{mfembed}.
+ \bprog
+ ? mf = mfinit([11,2]); F = mfbasis(mf)[1];
+ ? mfeval(F,I/2)
+ %2 = 0.039405471130100890402470386372028382117
+ ? mf = mfsplit([35,2]); F = mfeigenbasis(mf)[2];
+ ? mfcoefs(F,2)
+ %5 = [Mod(0, y^2 - y - 4), Mod(1, y^2 - y - 4), Mod(-y, y^2 - y - 4)]
+ ? mfeval(F,I)  \\ non rational and not embedded !
+  ***   at top-level: mfeval(mf,F,I)
+  ***                 ^--------------
+  *** mfeval: incorrect type in mfeval [use mfembed first] (t_VEC).
+ ? F1 = mfembed(F)[1]; \\ one embedding
+ ? mfeval(F1,I)
+ %7 = 0.0018728717244406706154258944738677007976
+ @eprog

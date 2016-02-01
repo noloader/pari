@@ -1,0 +1,34 @@
+Function: mflfuncreate
+Section: modular_forms
+C-Name: mflfuncreate
+Prototype: GD0,L,b
+Help: mflfuncreate(mf,{flag=0}): If mf is an eigenform which is already
+ embedded in C, outputs the corresponding L-function. If
+ mf is a space, output the L-functions corresponding to all
+ eigenforms, and in that case mf must be a split new space. The binary
+ digits of flag mean 1: assume the form is real (resp. all eigenforms are
+ real); 2: assume the form is cuspidal.
+Doc: If \kbd{mf} is an eigenform which is already embedded in $\C$, outputs
+ the corresponding L-function, ready for use with \kbd{lfunxxx} programs.
+ The binary digits of \fl mean
+
+ \item $1$: assume the form is real;
+
+ \item $2$: assume the form is cuspidal.
+
+ If \kbd{mf} is a space, it must be a split new space; output the
+ vector of \kbd{lfuncreate}s attached to all eigenforms. The result
+ is a vector whose length is the dimension of the space: each Galois orbit of
+ dimension $d$ has $d$ corresponding \kbd{lfuncreate}s, one for each
+ embedding.
+
+ \bprog
+ ? mf = mfsplit([35,2]); F = mfeigenbasis(mf)[2]; mffields(mf)
+ %1 = [z, z^2 - z - 4]
+ ? f = mfembed(F)[2];
+ ? L = mflfuncreate(f);
+ ? lfun(L,1)
+ %4 = 0.46007635204895314548435893464149369804
+ ? [ lfun(L,1) | L <- mflfuncreate(mf) ]
+ %5 = [0.70291..., 0.81018..., 0.46007...]
+ @eprog

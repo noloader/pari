@@ -33,14 +33,14 @@ Major contributors (large modules written or rewritten from scratch):
     functions, install(), extension of the GP language (next/break/return,
     local, op=, default()), gphelp, gphtml fork, Configure, readline, man pages,
     documentation layout, reference card and user's manuals, the FAQ, the
-    http://pari.math.u-bordeaux.fr website, Lfun package
+    http://pari.math.u-bordeaux.fr website, Lfun package, ModularForms package
   Dominique BERNARDI: the original gp interpreter, ECM, original
     elliptic curves implementation
   Peter BRUIN: asymptotically fast linear algebra over finite fields
   Henri COHEN: original designer and project leader, native multiprecision
     kernel, arithmetic functions, LLL, transcendental functions, number fields,
     original elliptic curves implementation, numerical integration and
-    summation, Lfun package
+    summation, Lfun package, ModularForms package
   Jeroen DEMEYER: SVG support
   Francisco DIAZ Y DIAZ: number fields (class groups, units)
   Yves EICHENLAUB: original polgalois implementation

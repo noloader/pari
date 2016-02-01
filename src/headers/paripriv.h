@@ -169,7 +169,7 @@ GEN FF_elldata(GEN E, GEN fg);
 enum { t_LFUN_GENERIC, t_LFUN_ZETA, t_LFUN_NF, t_LFUN_ELL, t_LFUN_KRONECKER,
        t_LFUN_CHIZ, t_LFUN_CHIGEN, t_LFUN_ETA,
        t_LFUN_DIV, t_LFUN_MUL, t_LFUN_CONJ,
-       t_LFUN_SYMSQ_ELL, t_LFUN_QF, t_LFUN_ARTIN,
+       t_LFUN_SYMSQ_ELL, t_LFUN_QF, t_LFUN_ARTIN, t_LFUN_MFCLOS,
        t_LFUN_GENUS2 };
 enum { t_LDESC_INIT, t_LDESC_THETA, t_LDESC_PRODUCT };
 
@@ -726,6 +726,22 @@ ulong   snextpr(ulong p, byteptr *d, long *rcn, long *q, long k);
 /* intnum.c */
 
 GEN     contfraceval_inv(GEN CF, GEN tinv, long nlim);
+
+/* mftrace.c */
+
+void pari_close_mf(void);
+GEN mfreltoabs(GEN F);
+GEN mfchartovec(GEN CHI);
+GEN sqrtmtnmodN(long N, long t, long n);
+GEN mfcharcxeval(GEN CHI, long m, long prec);
+GEN doublecharsum(GEN CHI1, GEN CHI2, GEN cusp, long e, long a1, long a2);
+GEN mftsteisencusp(GEN CHI1, GEN CHI2, GEN cusp, long e, long k, long lim);
+GEN mfeisenchi1chi2cusp(GEN CHI1, GEN CHI2, GEN cusp, long e, long k, long lim);
+long polishomogeneous(GEN P);
+GEN mfqk(long k, long N);
+GEN mfsk(GEN CHI, GEN Q, long k);
+GEN mfheckeU(GEN F, long d);
+GEN charLFwtk(long k, GEN CHI);
 
 /* prime.c */
 

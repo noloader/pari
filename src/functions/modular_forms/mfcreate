@@ -1,0 +1,45 @@
+Function: mfcreate
+Section: modular_forms
+C-Name: mfcreate
+Prototype: G
+Help: mfcreate(F): create a modular form from data F
+Doc: Create a modular form from data $F$. Three types of input are accepted
+ for $F$:
+
+ \item a \typ{CLOSURE} of arity 1: $n \mapsto a(n)$ computing individual
+ Fourier coefficients;
+
+ \item a \typ{CLOSURE} of arity 2: $(n,d) \mapsto [a(0),a(d),\dots a(nd)]$
+ computing all coefficients at once in an arithmetic progression;
+
+ \item finitely many coefficients, extended by infinitely many zeros; here
+ we allow a scalar (for $c + O(q^n)$), a \typ{POL} or \typ{SER}, or a vector
+ of coefficients.
+
+ \bprog
+ ? f = mfcreate(ramanujantau); mfcoefs(f,5)
+ %1 = [0, 1, -24, 252, -1472, 4830]
+
+ ? D(n,d) = my(e = eta('x + O('x^(n*d))), v = Vec(e^24)); \
+            concat(0, vector(n,i,v[i*d]));
+ ? g = mfcreate(D); mfcoefs(g,5)
+ %2 = [0, 1, -24, 252, -1472, 4830]
+
+ ? N = 10^5;
+ ? mfcoefs(f, N);
+ time = 2,506 ms.
+ ? mfcoefs(g, N);
+ time = 337 ms.
+ ? mfcoefs(mfDelta(), N);
+ time = 186 ms.
+ @eprog
+
+ \bprog
+ ? mfcoefs(mfcreate(2),10)
+ %1 = [2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+ ? mfcoefs(mfcreate(3*q+q^2),10)
+ %2 = [0, 3, 1, 0, 0, 0, 0, 0, 0, 0, 0]
+ ? mfcoefs(mfcreate([1,2,3,4]),10)
+ %3 = [1, 2, 3, 4, 0, 0, 0, 0, 0, 0, 0]
+ @eprog\noindent This variant allows to define a pseudo-modular form when
+ only finitely many coefficients are known.

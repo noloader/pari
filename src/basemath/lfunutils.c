@@ -1437,7 +1437,7 @@ lfungenus2(GEN G)
 /* m >= 1 representing f(\tau)=\prod_m\eta(m\tau)^{r_m}.     */
 /*************************************************************/
 
-static GEN
+GEN
 eta_inflate_ZXn(long m, long v)
 {
   long n, k;
@@ -1572,7 +1572,7 @@ static GEN
 vecan_qf(GEN Q, long L)
 { return gmul2n(gtovec(qfrep0(Q, utoi(L), 1)), 1); }
 
-static long
+long
 qf_iseven(GEN M)
 {
   long i, n = lg(M) - 1;
@@ -2073,6 +2073,7 @@ ldata_vecan(GEN van, long L, long prec)
     case t_LFUN_CONJ: an = vecan_conj(an, L, prec); break;
     case t_LFUN_SYMSQ_ELL: an = vecan_ellsymsq(an, L); break;
     case t_LFUN_GENUS2: an = vecan_genus2(an, L); break;
+    case t_LFUN_MFCLOS: an = mftovecslice(an, 1, L); break;
     default: pari_err_TYPE("ldata_vecan", van);
   }
   if (DEBUGLEVEL >= 2) timer_printf(&ti, "ldata_vecan");

@@ -211,6 +211,22 @@ BA   84- [libpari] FlxqX_is_squarefree, FlxqX_nbfact, RgX_to_FlxqX
 BA   86- GP functions galoischardet, galoischarpoly
      87- [libpari] mulcxpowIs
 BA   88- [libpari] function RgXn_sqrt
+KB+HC89- new package 'mf' for modular forms; new GP functions
+     getcache           mfDelta            mfEk               mfatkin
+     mfatkineigenvalues mfbasis            mfbd               mfcoef
+     mfcoefs            mfconductor        mfcreate           mfcuspexpansion
+     mfcuspisregular    mfcusps            mfcuspwidth        mfderiv
+     mfderivE2          mfdim              mfdiv              mfeigenbasis
+     mfeisen            mfembed            mfetaquo           mfeval
+     mffields           mffromell          mffromlfun         mffromqf
+     mfgaloistype       mfhecke            mfinit             mfinteg
+     mfisCM             mfiscuspidal       mfisequal          mfisselfdual
+     mflfuncreate       mflinear           mfmatatkin         mfmathecke
+     mfmul              mfmulRC            mfnumcusps         mfparams
+     mfperiodpol        mfperiodpolbasis   mfpow              mfsearch
+     mfshift            mfspace            mfsplit            mfsturm
+     mftaylor           mftobasis          mftonew            mftraceform
+     mftwist            mfval
 
   Changed
       1- rewrite bnfnarrow

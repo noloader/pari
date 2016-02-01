@@ -1,0 +1,23 @@
+Function: mfinteg
+Section: modular_forms
+C-Name: mfinteg
+Prototype: GD1,L,
+Help: mfinteg(F,{k=1}): k-th formal integration of the power series
+ corresponding to the modular form F, with respect to the differential operator
+ q.d/dq. Only forms with no constant term can be integrated
+ (default k=1).
+Doc: $k$-th formal integration of the power series corresponding to
+ the modular form $F$, with respect to the differential operator
+ $qd/dq$. Only forms with no constant term can be integrated
+ (default $k=1$).
+ \bprog
+ ? D = mfDelta(); E4 = mfEk(4);
+ ? mfcoefs(mfinteg(D), 4)
+ %1 = [0, 1, -12, 84, -368]
+ ? mfinteg(E4)
+  ***   at top-level: mfinteg(E4)
+  ***                 ^---------------
+  *** mfinteg: domain error in mfinteg: F(0) != 0
+ ? mfcoefs(mfinteg(mfshift(E4,-1)), 4)
+ %2 = [0, 1, 120, 720, 1680]
+ @eprog

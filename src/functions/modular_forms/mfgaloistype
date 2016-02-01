@@ -1,0 +1,42 @@
+Function: mfgaloistype
+Section: modular_forms
+C-Name: mfgaloistype
+Prototype: GDGD0,L,
+Help: mfgaloistype(NK,{F},{lim=200}): NK being either [N,1,CHI] or an mf
+ output by mfinit in weight 1 (split or not), gives the vector of
+ guesses of the type of Galois representations attached to each eigenform,
+ unless the modular form F is specified, in which case only for F (note that
+ it is not tested whether F belongs to the correct modular form space).
+ Types A_4, S_4, A_5 are represented by minus their cardinality -12, -24,
+ or -60, and type D_n is represented by m, where m is a divisor of n. If the
+ answer is one of the three exotic types, it is correct, but if it is dihedral,
+ it MAY in very rare cases be wrong, but this can be corrected by
+ increasing lim.
+Doc: \kbd{NK} being either \kbd{[N,1,CHI]} or an \kbd{mf} output by
+ \kbd{mfinit} in weight $1$ (split or not), gives the vector of
+ guesses of the type of Galois representations attached to each eigenform,
+ unless the modular form \kbd{F} is specified, in which case only for \kbd{F}
+ (not that it is not tested whether \kbd{F} belongs to the correct modular
+ form space). Types $A_4$, $S_4$, $A_5$ are represented by minus their
+ cardinality $-12$, $-24$, or $-60$, and type $D_n$ is represented by $m$,
+ where $m\mid n$, and $m=n$ if \kbd{lim} is sufficiently large. If the answer
+ is one of the three exotic types, it is correct, but if it is dihedral, it
+ MAY in very rare cases be wrong, but this can be corrected by increasing
+ \kbd{lim}.
+ \bprog
+ ? mfgaloistype([124,1, Mod(67,124)])
+ %1 = [-12]
+ ? mfgaloistype([148,1, Mod(105,148)])
+ %2 = [-24]
+ ? mfgaloistype([633,1, Mod(71,633)])
+ %3 = [10, -60]
+ ? mfgaloistype([239,1, -239])
+ %4 = [6, 10, 30]
+ ? mfgaloistype([227,1, -227])
+ %5 = [10]
+ ? mfgaloistype([71,1, -71]);
+ %6 = [14]
+ ? mf = mfsplit([239,1, -239]);
+ ? mfgaloistype(mf, mfeigenbasis(mf)[2])
+ %8 = 10
+ @eprog

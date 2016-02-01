@@ -1,0 +1,16 @@
+Function: mfval
+Section: modular_forms
+C-Name: mfval
+Prototype: lG
+Help: mfval(F): Valuation of the power series corresponding to the
+ form F.
+Doc: Valuation of the power series corresponding to the
+ form $F$.
+ \bprog
+ ? D=mfDelta();mfval(D)
+ %1 = 1
+ ? E4=mfEk(4);mfval(E4)
+ %2 = 0
+ ? E4S=mfshift(E4,-2);mfval(E4S)
+ %3 = 2
+ @eprog

@@ -1,0 +1,16 @@
+Function: mfperiodpol
+Section: modular_forms
+C-Name: mfperiodpol
+Prototype: GD0,L,D0,L,b
+Help: mfperiodpol(F,{flag=0},{der=0}): period polynomial of the eigenform F.
+ If flag=1 or -1, odd or even period polynomial. If der>0, use the der'th
+ derivative of lambda instead of lambda itself in the period polynomial
+Doc: period polynomial of the eigenform $F$. If flag=1 or $-1$, odd or even
+ period polynomial. If $der>0$, use the $der$-th derivative of $\Lambda(s)$
+ instead of $\Lambda(s)$ itself in the period polynomial.
+ \bprog
+ ? PP=mfperiodpol(mfDelta(),-1);PP/=polcoeff(PP,1);bestappr(PP)
+ %1 = x^9 - 25/4*x^7 + 21/2*x^5 - 25/4*x^3 + x
+ ? PM=mfperiodpol(mfDelta(),1);PM/=polcoeff(PM,0);bestappr(PM)
+ -x^10 + 691/36*x^8 - 691/12*x^6 + 691/12*x^4 - 691/36*x^2 + 1
+ @eprog

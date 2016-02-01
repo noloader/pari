@@ -1,0 +1,15 @@
+Function: mfisselfdual
+Section: modular_forms
+C-Name: mfisselfdual
+Prototype: lG
+Help: mfisselfdual(F): Checks whether the modular forms F is selfdual or not,
+ in other words if it is an eigenform of the Fricke involution.
+Doc:  Checks whether the modular forms $F$ is selfdual or not, in other words
+ if it is an eigenform of the Fricke involution
+ \bprog
+ ? mf = mfsplit([35,4]);
+ ? apply(mfisselfdual, mfbasis(mf))
+ %1 = [0, 0, 0, 0, 0, 0]
+ ? apply(mfisselfdual, mfeigenbasis(mf))
+ %2 = [1, 1, 1]
+ @eprog

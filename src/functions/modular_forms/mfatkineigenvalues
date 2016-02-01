@@ -1,0 +1,20 @@
+Function: mfatkineigenvalues
+Section: modular_forms
+C-Name: mfatkineigenvalues
+Prototype: GLb
+Help: mfatkineigenvalues(mf,Q): Only applies to mf output by mfsplit corresponding to
+ a split space, and for (trivial or) quadratic characters defined modulo N/Q.
+ Outputs the Atkin-Lehner eigenvalues of the eigenforms for the primitive
+ divisor Q of the level. The result is +-1 in even weight and +-i in odd weight.
+Doc: Let $Q$ be a primitive divisor of the level $N$, and let \kbd{mf} be a
+ split space for (trivial or) quadratic characters defined modulo $N/Q$.
+ Outputs the Atkin-Lehner eigenvalues of the eigenforms for the primitive
+ divisor $Q$ of the level. The result is always $\pm1$ in even weight, and
+ also $\pm i$ in odd weight.
+ \bprog
+ ? mf = mfsplit([35,2]); mfatkineigenvalues(mf,5)
+ %1 = [[1], [-1, -1]]
+ ? CHI = Mod(3,4); mf = mfsplit([12,7,CHI]);
+ ? mfatkineigenvalues(mf,3)
+ %3 = [[-I, I, -I, I, -I, I]]
+ @eprog

@@ -986,29 +986,33 @@ znchartokronecker(GEN G, GEN chi, long flag)
   return gerepileuptoint(av, F);
 }
 
+/* (D/.) as a character mod N */
+GEN
+znchar_quad(GEN N, GEN D)
+{
+  GEN G = (typ(N) == t_INT)? znstar0(N, 1): N;
+  GEN cyc = znstar_get_conreycyc(G);
+  GEN gen = znstar_get_conreygen(G);
+  long i, l = lg(cyc);
+  GEN chi = cgetg(l, t_COL);
+  for (i = 1; i < l; i++)
+  {
+    long k = kronecker(D, gel(gen,i));
+    gel(chi,i) = (k==1)? gen_0: shifti(gel(cyc,i), -1);
+  }
+  return mkvec2(G, chi);
+}
+
 GEN
 znchar(GEN D)
 {
   pari_sp av = avma;
   GEN G, chi;
-  long l, i;
   switch(typ(D))
   {
     case t_INT:
-    {
-      GEN gen, cyc;
       if (!signe(D) || Mod4(D) > 1) pari_err_TYPE("znchar", D);
-      G = znstar0(D, 1);
-      cyc = znstar_get_conreycyc(G);
-      gen = znstar_get_conreygen(G);
-      l = lg(cyc); chi = cgetg(l, t_COL);
-      for (i = 1; i < l; ++i)
-      {
-        long k = kronecker(D, gel(gen, i));
-        gel(chi, i) = (k == 1) ? gen_0: shifti(gel(cyc, i), -1);
-      }
-      break;
-    }
+      return gerepilecopy(av, znchar_quad(D, D));
     case t_INTMOD:
       G = znstar0(gel(D,1), 1);
       chi = znconreylog(G, gel(D,2));

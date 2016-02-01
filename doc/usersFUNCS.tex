@@ -1158,12 +1158,73 @@ $L$-function:
 
 %SECTION: l_functions
 
-%\section{Modular forms}
-%
-%This section is currently empty but with be populated during the 2.8 cycle
-%with functions from the \kbd{kb-mftrace} branch.
-%
-%%SECTION: modular_forms
+\section{Modular forms}
+
+This section describes routines for working with modular forms and modular
+form spaces.
+
+\subsec{Modular form spaces}
+
+Supported modular form \emph{spaces} with corresponding flags are the
+following:
+
+\item The full modular form space $M_k(\Gamma_0(N),\chi)$, where $k$ is an
+integer and $\chi$ a Dirichlet character modulo $N$ (flag $3$).
+
+\item The cuspidal space $S_k(\Gamma_0(N),\chi)$ (flag $1$).
+
+\item The Eisenstein space ${\cal E}_k(\Gamma_0(N),\chi)$ (flag $4$), so
+that $M_k={\cal E}_k\oplus S_k$.
+
+\item The new space $S_k^{\text{new}}(\Gamma_0(N),\chi)$ (flag $0$, always the
+default).
+
+\item The old space $S_k^{\text{old}}(\Gamma_0(N),\chi)$ (flag $2$), so that
+$S_k=S_k^{\text{new}}\oplus S_k^{\text{old}}$.
+
+These spaces first contain a basis of modular forms, which is accessed
+by the function \kbd{mfbasis}; the elements of this basis are guaranteed
+to have Fourier coefficients in the cyclotomic field $\Q(\chi)$, and no
+larger. Second, apart from the Eisenstein space, the other spaces contain
+information which enables to work efficiently in the space, when they
+are initialized by the \kbd{mfinit} command, as is the case for all
+Pari functions of the form \kbd{xxxinit}.
+
+In addition, since in general one works with eigenforms, a space can be
+\emph{split}, using the command \kbd{mfsplit}. Because of multiplicity 1,
+only a newspace can be split; however for implementation reasons in weight $1$
+\kbd{mfsplit} of a cuspidal space is tolerated, but the result concerns
+only the split of the new space.
+
+The basis of eigenforms is obtained by the function \kbd{mfeigenbasis}:
+the elements of this basis now have Fourier coefficients in a relative field
+extension of $\Q(\chi)$, so are usually polmods of polmods, so one must
+take care in handling these coefficients.
+
+\subsec{Modular forms}
+
+A modular form is represented in a special internal format giving the
+possibility to compute an arbitrary (but reasonable) number of terms of its
+Fourier coefficients at infinity $[a(0),a(1),...,a(n)]$ using the function
+\kbd{mfcoefs}. Modular forms can be obtained either directly from other
+mathematical objects, e.g., elliptic curves, or by a specfic formula,
+e.g., Eisenstein series or Ramanujan's Delta function, or by applying
+unary, binary, or more general operators to existing forms. Thus
+the internal format of a general form will be a \emph{tree}, which can be
+thought of as representing the form in direct Polish notation. A function
+\kbd{mfparams} is provided so that one can recover the level, weight, and
+character corresponding to a given complicated modular form.
+
+A large number of creation functions and operations are provided. It is however
+important to note that strictly speaking some of these operations create
+objects which are \emph{not quite} modular forms: typical examples are
+derivation or integration of modular forms, the Eisenstein series $E_2$,
+eta quotients, or quotients of modular forms. These objects are nonetheless
+very important in the theory, so are not considered as errors; however the
+user must be aware that no attempt is made to check that the objects that
+he handles are really modular.
+
+%SECTION: modular_forms
 
 \section{Modular symbols}
 

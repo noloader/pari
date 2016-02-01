@@ -1,0 +1,31 @@
+Function: mffromqf
+Section: modular_forms
+C-Name: mffromqf
+Prototype: GDG
+Help: mffromqf(Q,{P}): Q being an even positive definite quadratic form of
+ even dimension and P a homogeneous spherical polynomial for Q, computes
+ a 3-component vector [mf,F,coeffs], where F is the theta function
+ corresponding to (Q, P), mf is the corresponding space of modular forms
+ from mfinit, and coeffs are the coefficients of F on mfbasis(mf).
+Doc: $Q$ being an even integral positive definite quadratic form of
+ even dimension and $P$ a homogeneous spherical polynomial for $Q$, computes
+ a 3-component vector \kbd{[mf,F,coeffs]}, where $F$ is the theta function
+ corresponding to $(Q,P)$, \kbd{mf} is the corresponding space of modular
+ forms (from \kbd{mfinit}; so that \kbd{mfparams(mf)} gives level, weight,
+ character), and \kbd{coeffs} are the coefficients of $F$ on \kbd{mfbasis(mf)}.
+ \bprog
+ ? [mf,F,res]=mffromqf(2*matid(10));res
+ %1 = [64/5, 4/5, 32/5]~
+ ? mfcoefs(F, 5)
+ %2 = [1, 20, 180, 960, 3380, 8424]
+ ? mfcoef(F, 10000); \\ number of ways of writing 10000 as sum of 10 squares
+ %3 = 128205250571893636
+ ? mfcoefs(F, 10000);  \\ very fast !
+ time = 220ms
+ ? [mf,F,res]=mffromqf([2,0;0,2],x^4-6*x^2*y^2+y^4);
+ ? mfcoefs(F,10)
+ %6 = [0, 4, -16, 0, 64, -56, 0, 0, -256, 324, 224]
+ ? mfcoef(F,100000)  \\ almost instantaneous
+ time = 26 ms.
+ %7 = 41304367104
+ @eprog

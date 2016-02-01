@@ -13,8 +13,140 @@
 \input refmacro.tex
 
 \section{Modular Forms}
+\subsec{Dirichlet characters} Characters are encoded in three different ways:
 
-To be completed later.
+\item a \typ{INT} $D\equiv 0,1\mod 4$: the quadratic character $(D/\cdot)$;
+
+\item a \typ{INTMOD} \kbd{Mod}$(m,q)$, $m\in(\ZZ/q)^*$
+using a canonical bijection with the dual group (the Conrey character
+$\chi_q(m,\cdot)$);
+
+\item a pair $[G,\kbd{chi}]$, where $G = \kbd{znstar}(q,1)$ encodes
+$(\ZZ/q\ZZ)^* = \sum_{j \leq k} (\ZZ/d_j\ZZ) \cdot g_j$ and the vector
+$\kbd{chi} = [c_1,\dots,c_k]$ encodes the character such that $\chi(g_j) =
+e(c_j/d_j)$.
+\medskip
+
+\li{initialize $G = (\ZZ/q\ZZ)^*$}{G = znstar$(q,1)$}
+\li{convert datum $D$ to $[G,\chi]$}{znchar$(D)$}
+\li{Galois orbits of Dirichlet characters}{znchargalois$(G)$}
+
+\subsec{Spaces of modular forms}
+Arguments of the form $[N,k,\chi]$
+give the level weight and nebentypus $\chi$; $\chi$ can be omitted: $[N,k]$
+means trivial $\chi$:\hfil\break
+\li{initialize $S_k^{\text{new}}(\Gamma_0(N),\chi)$}{mfinit$([N,k,\chi])$}
+\li{initialize $S_k(\Gamma_0(N),\chi)$}{mfinit$([N,k,\chi],1)$}
+\li{initialize $S_k^{\text{old}}(\Gamma_0(N),\chi)$}{mfinit$([N,k,\chi],2)$}
+\li{initialize $M_k(\Gamma_0(N),\chi)$}{mfinit$([N,k,\chi],3)$}
+\li{initialize $E_k(\Gamma_0(N),\chi)$}{mfinit$([N,k,\chi],4)$}
+\li{split $S_k^{\text{new}}$ into eigenspaces}{mfsplit$(M)$}
+\li{statistics on self-growing caches}{getcache$()$}
+\smallskip
+
+We let $M$ = \kbd{mfinit}$(\dots)$ denote a modular space and let $T$ =
+\kbd{mfsplit}$(M)$ be its splitting. All functions accepting $M$ also
+allow $T$.
+\hfil\break
+\li{recover $(N,k,\chi)$}{mfparams$(M)$}
+\li{\dots the space identifіer (0 to 4)}{mfspace$(M)$}
+\li{\dots the dimension of $M$ over $\CC$}{mfdim$(M)$}
+\li{\dots a $\CC$-basis $(f_i)$ of $M$}{mfbasis$(M)$}
+\li{\dots a basis $(F_j)$ of eigenforms}{mfeigenbasis$(T)$}
+\li{\dots polynomials defining $\QQ(\chi)(F_j)/\QQ(\chi)$}{mffields$(T)$}
+\smallskip
+\li{matrix of Hecke operator $T_n$ on $(f_i)$}{mfmathecke$(M,n)$}
+\li{\dots of Atkin--Lehner $w_Q$ on $(f_i)$}{mfmatatkin$(T,Q)$}
+\li{eigenvalues of $w_Q$}{mfatkineigenvalues$(T,Q)$}
+\li{period polynomial of eigenform $F$}{mfperiodpol$(F)$}
+\li{basis of period poynomials for weight $k$}{mfperiodpolbasis$(k)$}
+\smallskip
+Useful data can also be obtained a priori, without computing a complete
+modular space:
+\hfil\break
+\li{dimension of $S_k^{\text{new}}(\Gamma_0(N),\chi)$}{mfdim$([N,k,\chi])$}
+\li{dimension of $S_k(\Gamma_0(N),\chi)$}{mfdim$([N,k,\chi],1)$}
+\li{dimension of $S_k^{\text{old}}(\Gamma_0(N),\chi)$}{mfdim$([N,k,\chi],2)$}
+\li{dimension of $M_k(\Gamma_0(N),\chi)$}{mfdim$([N,k,\chi],3)$}
+\li{dimension of $E_k(\Gamma_0(N),\chi)$}{mfdim$([N,k,\chi],4)$}
+\li{Sturm's bound for $M_k(\Gamma_0(N),\chi)$}{mfsturm$(N,k)$}
+
+\subsec{Cusps} a cusp is given by a rational number or \kbd{oo}.\hfil\break
+\li{lists of cusps of $\Gamma_0(N)$}{mfcusps$(N)$}
+\li{number of cusps of $\Gamma_0(N)$}{mfnumcusps$(N)$}
+\li{width of cusp $c$ of $\Gamma_0(N)$}{mfcuspwidth$(N,c)$}
+\li{is cusp $c$ regular for $M_k(\Gamma_0(N),\chi)$?}
+   {mfcuspisregular$([N,k,\chi], c)$}
+
+\subsec{Create an individual modular form} Besides \kbd{mfbasis} and
+\kbd{mfeigenbasis}, an individual modular form can be created by a recipe to
+compute its coefficients.\hfil\break
+\li{modular form from coefficients}{mfcreate($n$->$a(n)$)}
+\smallskip
+
+There are also many predefined ones:\hfil\break
+\li{Eisenstein series $E_k$ on $Sl_2(\ZZ)$}{mfEk$(k)$}
+\li{Ramanujan's $\Delta$}{mfDelta$()$}
+\li{$E_k(\chi)$}{mfeisen$(k,\chi)$}
+\li{$E_k(\chi_1,\chi_2)$}{mfeisen$(k,\chi_1,\chi_2)$}
+\li{eta quotient $\prod_i \eta(a_{i,1} \cdot z)^{a_{i,2}}$}{mfetaquo$(a)$}
+\li{newform attached to ell. curve $E/\QQ$}{mffromell$(E)$}
+\li{identify an $L$-function as a eigenform}{mffromlfun$(L)$}
+\li{$\theta$ function attached to $Q > 0$}{mffromqf$(Q)$}
+\li{trace form in $S_k^{\text{new}}(\Gamma_0(N),\chi)$}
+   {mftraceform$([N,k,\chi])$}
+\li{trace form in $S_k(\Gamma_0(N),\chi)$}
+   {mftraceform$([N,k,\chi], 1)$}
+
+\subsec{Operations on modular forms} In this section, $f$, $g$ and
+the $F[i]$ are modular forms\hfil\break
+\li{$f\times g$}{mfmul$(f,g)$}
+\li{$f / g$}{mfdiv$(f,g)$}
+\li{$f^n$}{mfpow$(f,n)$}
+\li{$f(q)/q^v$}{mfshift$(f,v)$}
+\li{$\sum_{i\leq k} \lambda_i F[i]$, $L = [\lambda_1,\dots,\lambda_k]$}
+   {mflinear$(F,L)$}
+\li{$f = g$?}{mfisequal(f,g)}
+\li{expanding operator $B_d(f)$}{mfbd$(f,d)$}
+\li{Hecke operator $T_n f$}{mfhecke$(f,n)$}
+\li{Atkin--Lehner operator $w_Q f$}{mfatkin$(T,f,Q)$}
+\li{twist by the quadratic char $(D/\cdot)$}{mftwist$(f,D)$}
+\li{derivative wrt. $q \cdot d/dq$}{mfderiv$(f)$}
+\li{integration wrt. $q \cdot d/dq$}{mfinteg$(f)$}
+\li{Serre derivative $(q \cdot d/dq)f - k E_2 f/12$}{mfderivE2$(f)$}
+\li{Rankin-Cohen bracket $[f,g]_n$}{mfmulRC$(f,g,n)$}
+\li{complex embeddings of $f$}{mfembed$(f)$}
+
+\subsec{Properties of modular forms} In this section, $f = \sum_n f_n q^n$
+is a modular form
+in some space $M$ with parameters $N,k,\chi$; an argument $T$ is
+\kbd{mfsplit}$(M)$\hfil\break
+\li{$(N,k,\chi)$ for form $f$}{mfparams$(f)$}
+\li{the space identifіer (0 to 4) for $f$}{mfspace$(f)$}
+\li{$f_0,\dots,f_n$}{mfcoefs$(f, n)$}
+\li{$f_n$}{mfcoef$(f,n)$}
+\li{$v_\infty(f)$}{mfval$(f)$}
+\li{is $f$ cuspidal?}{mfiscuspidal$(f)$}
+\li{is $f$ an eigenform of Fricke's $w_N$?}{mfisselfdual$(f)$}
+\li{Galois rep. attached to $(1,\chi)$-eigenform}
+   {mfgaloistype$(M,F)$}
+\li{Galois rep. attached to all $(1,\chi)$ eigenforms}
+   {mfgaloistype$(M)$}
+
+\li{decompose $f$ on \kbd{mfbasis}$(M)$}{mftobasis$(M,f)$}
+\li{smallest level on which $f$ is defined}{mfconductor$(M,f)$}
+\li{decompose $f$ on $\oplus S_k^{\text{new}}(\Gamma_0(d))$, $d\mid N$}
+   {mftonew$(M,f)$}
+\li{Fourier expansion of $f$ at cusp $c$}{mfcuspexpansion$(T, f, c, n)$}
+\li{$n$-Taylor expansion of $f$ at $i$}{mftaylor$(f,n)$}
+\li{all rational eigenforms matching criteria}{mfsearch}
+\subsec{Forms embedded into $\CC$} In this section $F=\sigma(f)$ is the
+complex embedding of some modular form $f$ for some
+$\sigma\colon \Q(f)\to \CC$ obtained via \kbd{mfembed}.\hfill\break
+\li{evaluate $F$ at $\tau\in{\cal H}$}{mfeval$(F,\tau)$}
+\li{$L$-function attached to $F$}{mflfuncreate$(F)$}
+\li{\dots eigenforms of split new space $T$}{mflfuncreate$(T)$}
+
 \bigskip
 
 \section{Modular Symbols}

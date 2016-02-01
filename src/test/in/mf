@@ -1,0 +1,356 @@
+default(parisize, "160M");
+'z;'t;
+default(realprecision, 38);
+\\\\\\\\\\\\\\\\\\\\\
+Z4=znstar(4,1);
+Z5=znstar(5,1);
+Z7=znstar(7,1);
+Z8=znstar(8,1);
+{C=[
+  [Z5,2],
+  [Z5,3],
+  [12,5],
+  [Z8,3],
+  [Z8,5],
+  [Z5,2],
+  Mod(12,13),
+  [Z4,3]
+];}
+G = znstar(300,1);
+L = znchargalois(G,2);
+vector(#L, i, charorder(G,L[i]))
+
+vec(f)=mfcoefs(f,15);
+mfcoefs(mfeisen(2,C[1]),16)
+vec(mfeisen(3,C[1]))
+vec(mfeisen(2,C[4],C[5]))
+vec(mfeisen(3,C[4],C[5]))
+mfinit([12,2],4);
+mfdim([10^9,4], 4)
+mfdim([10^9,1,Mod(3,4)], 4)
+Th=1+2*sum(n=1,8,q^(n^2),O(q^80));
+mf=mfinit([4,2],3);mftobasis(mf,Th^4)
+mf=mfinit([4,3,C[8]],3);mftobasis(mf,Th^6)
+mf=mfinit([4,4],3);mftobasis(mf,Th^8)
+mf=mfinit([4,5,C[8]],3);mftobasis(mf,Th^10)
+D=q*eta(q)^24;
+mf=mfinit([4,12],1);
+mftobasis(mf,D+O(q^2),1)
+mftobasis(mf,D+O(q^3),1)
+mftobasis(mf,D+O(q^4),1)
+mftobasis(mf,D+O(q^5),1)
+
+apply(mfdim, mfinit([1,0,0], 1))
+apply(mfdim, mfinit([1,0,0], 3))
+mfdim(mfinit([1,0,1], 1))
+mfdim(mfinit([1,0,1], 3))
+mfdim(mfinit([4,0,-4], 1))
+mfdim(mfinit([4,0,-4], 3))
+mfdim([1,0],1)
+mfdim([1,0],3)
+mfdim([1,0,0],1)
+mfdim([1,0,0],3)
+mfdim([1,0,1],1)
+mfdim([1,0,1],3)
+mfdim([4,0,-4],1)
+mfdim([4,0,-4],3)
+mfdim([4,0,[1,-4,-4,1]],1)
+mfdim([4,0,[1,-4,-4,1]],3)
+
+mf=mfinit([155,2]);
+mffields(mfsplit(mf, 1))
+mffields(mfsplit(mf, 2))
+mffields(mfsplit(mf, 3))
+mffields(mfsplit(mf, 4))
+
+mf=mfsplit([35,2]);
+/*
+listF = mfeigenbasis(mf);
+F = mfembed(listF[2])[1];
+mfeigeneval(F, I/2)
+mfeigeneval(mf, I/2)
+*/
+
+mfadd(F,G) = mflinear([F,G],[1,1]);
+
+mfcoefs(mf[3][1],19)
+mfcoefs(mf[3][2],19)
+vec(mfadd(mf[3][1],mf[3][2]))
+vec(mfmul(mf[3][1],mf[3][2]))
+vec(mflinear([mf[3][1],mf[3][2]],[1,2]))
+mfcoefs(mf[3][1],49)
+mfcoefs(mf[3][1],49)
+vec(mfhecke(mf[3][2],3))
+vec(mfbd(mf[3][1],2))
+vec(mftwist(mf[3][1],-7))
+mfcusps(96)
+mfnumcusps(96)
+mfnumcusps(2^64)
+mfnumcusps(factor(6^64))
+mfsturm([96,6])
+mfdim([96,6])
+mfdim([96,6],3)
+T=mftraceform([96,6],1);
+[mfcoef(T,2), mfcoef(T,3)]
+vec(mftraceform([96,6],1))
+T=mftraceform([96,6]);
+[mfcoef(T,2), mfcoef(T,3)]
+vec(T)
+mf=mfinit([96,6],1);#mf[3]
+mf=mfinit([96,6],2);#mf[3]
+#mfinit([96,6],4)[2]+#mf[3]
+mf=mfsplit([96,6]);#mf[3]
+P=mffields(mf)
+vector(#P,j,poldegree(P[j]))
+LC=mfeigenbasis(mf);
+for(i=1,#LC,print(mfcoefs(LC[i],9)))
+mfsturm(mf)
+F=mflinear([mf[3][1],mf[3][2],mf[3][3]],[4,-7,11]);
+mftobasis(mf,F)
+mf1=mfinit([96,6]);mfsplit(mf1)[6..7]
+mfmathecke(mf,2)
+mfmathecke(mf,3)
+mfmathecke(mf, [9,15,25])
+for(i=1,#mf[3],print(mfeval(mf[3][i],I/2)))
+mfatkineigenvalues(mf,32)
+mQ=mfmatatkin(mf,32,&A)
+mfmatatkin(mfsplit([12,11,-3]), 4)
+vec(mfatkin(mf,mf[3][1],32))
+vec(mfatkin(mf,mf[3][1],[mQ,A]))
+mf2=mfinit([96,6],1);
+F=mflinear([mf2[3][1],mf2[3][2]],[4,7]);
+V=mftonew(mf2,F);
+for (i=1,#V,v=V[i];print([v[1],v[2],mfcoefs(v[3],9)]))
+mfconductor(mf2,F)
+cu=[1/96,1/32,0,1/3];
+v=mfbasis(mf);
+for(i=1,#v,for(j=1,4,print(mfcuspexpansion(mf,v[i],cu[j], 15))))
+L=[lfuninit(x,[3,4,0],1) | x<-mflfuncreate(mf)];
+vector(#L,i,lfun(L[i],2))
+vector(#L,i,lfun(L[i],1))
+vector(#L,i,lfun(L[i],0,1))
+vector(#L,i,lfun(L[i],-1,1))
+e=ellinit([0,0,0,-1,1]);
+[mf3,F,coe]=mffromell(e);coe
+vec(F)
+[mf4,F,coe]=mffromqf(2*matid(10));coe
+vec(F)
+[mf5,F,coe]=mffromqf(2*matid(2),x^4-6*x^2*y^2+y^4); vec(F)
+mfser(F)=Ser(mfcoefs(F,31));
+mfwt1all(mf)=
+{ my(res = []);
+  for(i=1,#mf,
+    my(CHI=mf[i][1][3], vtf=mf[i][3]);
+    if (!#vtf, next);
+    my(chi = znconreyexp(CHI[1],CHI[2]));
+    res = concat(res,[[chi,vector(#vtf,j,mfser(vtf[j]))]])
+  );res;
+}
+for(N=1,150,my(mf=mfinit([N,1,0],1));if(#mf,print(N,": ",mfwt1all(mf))));
+for(N=1,150,print1([N,mfdim([N,1,-1],1),mfdim([N,1,-1])]," "));
+mfdim([23,1,0],0)
+mfdim([23,1,0],1)
+mfdim([23,1,0],2)
+G=znstar(23,1); w=[[G,v] | v<-znchargalois(G)];
+mfdim([23,1,w],0)
+mfdim([23,1,w],1)
+mfdim([23,1,w],2)
+mfdim([96,2,-1],0)
+mfdim([96,2,-1],1)
+mfdim([96,2,-1],2)
+mfdim([96,2,-1],3)
+mfdim([96,2,-1],4)
+mfdim([96,2,0],0)
+mfdim([96,2,0],1)
+mfdim([96,2,0],2)
+mfdim([96,2,0],3)
+mfdim([96,2,0],4)
+G=znstar(96,1); w=[[G,v] | v<-znchargalois(G)];
+mfdim([96,2,w],0)
+mfdim([96,2,w],1)
+mfdim([96,2,w],2)
+mfdim([96,2,w],3)
+mfdim([96,2,w],4)
+
+mfdim([240,1,-1],1)
+\\ regressions
+mfdim(mfinit([154,1,0],1)[1])
+mfinit([248,1,0],1);
+
+C31=mfcreate(3*x); vec(C31)
+C0=mfcreate(0); vec(C0)
+mfval(C0)
+E=mfEk(10); vec(E)
+D=mfDelta(); vec(D)
+mfval(D)
+vec(mfshift(D,1))
+mfcoefs(mfinteg(D),6)
+mftaylor(D,10)
+E4=mfEk(4);
+E6=mfEk(6);
+N=mflinear([mfmul(mfmul(E4,E4),E4), mfmul(E6,E6)], [1,-1]);
+vec(mfdiv(N, D))
+N=mflinear([mfpow(E4,3), mfpow(E6,2)], [1,-1]);
+vec(N)
+mfcoefs(mfderiv(E6),6)
+mfcoefs(mfderivE2(E6),6)
+Delta=mfcreate(ramanujantau);
+vec(Delta)
+mfcoefs(mfmulRC(E4,E6,1),10)/(-3456)
+\\ regressions
+CHI=[Z7,6];mfsplit([7,3,CHI]);
+mf=mfsplit([5,4]);
+F=mfeigenbasis(mf); #F
+liftpol(mfcoefs(mfeigenbasis(mf)[1], 9))
+mf=mfsplit([10,7,[Z5,2]]);
+mffields(mf)
+mfparams(mf)
+#mfbasis(mf)
+liftpol(mfcoefs(mfbasis(mf)[1], 9))
+F = mfeigenbasis(mf); #F
+liftpol(mfcoefs(F[1], 9))
+liftpol(mfcoefs(F[2], 9))
+mfcoefs(mfetaquo([1,2;11,2]),10)
+
+mfdim(mfinit([24,4,Mod(23,24)],1),1)
+
+data = [63,2, Mod(46,63)];
+B=mfbasis(mfinit(data,4));
+MF = mfinit(data,3);
+lift(mftobasis(MF,B[3]))
+mfsturm(MF)
+charpoly(mfmathecke(MF,2))
+mfsturm(mfinit([1,4],3))
+
+mfgaloistype([11,1,1])
+mfgaloistype([148,1,Mod(105,148)])
+mfgaloistype([71,1, -71])
+\\ slow: ~ 10s, but needed to reproduce regression
+/*
+mf=mfsplit(mfinit([633,1,Mod(71,633)],1));
+mfgaloistype(mf, mfeigenbasis(mf)[2])
+mf=mfsplit(mfinit([675,1,Mod(161,675)],1));
+mfgaloistype(mf, mfeigenbasis(mf)[1])
+*/
+
+mf=mfsplit([15,3,[Z5,2]]);F=mfeigenbasis(mf)[1];
+V=mfcoefs(F,4)
+T=V[1].mod; t=polcoeff(T,0).mod; rnf=rnfinit(nfinit(t), T);
+apply(x->rnfeltreltoabs(rnf,x),V)
+see(L) = for(i=1,#L, my(f=L[i][2]); print([mfparams(f), mfcoefs(f,10)]));
+L=mfsearch([40,2],[[2,1],[3,-1]]); see(L)
+L=mfsearch([40,2],[[2,Mod(1,3)],[3,Mod(2,4)]]); see(L)
+L=mfsearch([38,2],[[2,-1],[11,-6]]); see(L)
+L=mfsearch([16,3],[[2,0]]); see(L)
+
+charpoly(mfmathecke(mfinit([106,2],1),2))
+
+G=znstar(164,1); L=[chi | chi <- znchargalois(G,164), zncharisodd(G,chi)];
+apply(chi->charorder(G,chi),L)
+mfdim([164, 1, apply(x->[G,x], L)])
+mfdim([667, 1, [Mod(45,667)]])
+mfdim([329, 1, [Mod(46,329)]])
+mfdim([484, 1, [Mod(3,484)]])
+mfdim([191, 1, [Mod(190,191)]])
+mfdim([195, 1, [Mod(194,195)]])
+
+/* regressions */
+mf=mfsplit([77,1, Mod(20,77)]);
+lift(mfcoefs(mf[3][1],10))
+mfgaloistype(mf)
+mf=mfinit([196,1,Mod(67,196)]);mfdim(mf)
+mf=mfsplit([297,1, Mod(10,297)]);
+lift(mfcoefs(mf[3][1],10))
+mfgaloistype(mf)
+mf=mfinit([416,1, Mod(159,416)],1);mfdim(mf)
+\\ oo loop in Zab_indexrank
+mf=mfinit([72,2,Mod(11,72)]);mfdim(mf)
+\\ division by 1 in mfmatheckewt1
+mfdim(mfinit([283,1,-283]))
+
+/*
+install(mftsteisencusp, GGGLLL);
+cusp = oo;
+e = 1;
+k = 4;
+mftsteisencusp(1,1,cusp,e,k,10)
+mftsteisencusp(-4,-4,cusp,e,k,10)
+mftsteisencusp(-4,-4,0,e,k,10)
+mftsteisencusp(-4,-4,1/2,e,k,5)
+
+install(mfqk,LL)
+mfqk(1,10)
+mfqk(2,10)
+mfqk(3,10)
+
+install(mfsk,GGL)
+k = 3;
+Q = mfqk(k, 4); mfsk(-4, Q, k)
+Q = mfqk(k, 3); mfsk(-3, Q, k)
+mfsk(-12, Q, k)
+*/
+
+\\ Tests mflfun
+E4=mfEk(4);E6=mfEk(6);D=mfDelta();
+mf4=mfinit([1,4],3);
+L4=mflfuncreate(E4,1);
+[lfun(L4,0),lfun(L4,1)*60*Pi^2/zeta(3),lfun(L4,4)/zeta(4)]
+L12=mflfuncreate(D,3);omp=lfunlambda(L12,3)
+vector(6,i,bestappr(lfunlambda(L12,2*i-1)/omp))
+omm=lfunlambda(L12,2)
+vector(5,i,bestappr(lfunlambda(L12,2*i)/omm))
+L18=mflfuncreate(mfmul(D,E6),3);omp=lfunlambda(L18,3);
+vector(9,i,bestappr(lfunlambda(L18,2*i-1)/omp))
+omm=lfunlambda(L18,2)
+vector(8,i,bestappr(lfunlambda(L18,2*i)/omm))
+PP=mfperiodpol(D,-1);cP=polcoeff(PP,1)
+PP/=cP;bestappr(PP)
+PM=mfperiodpol(D,1);cM=polcoeff(PM,0)
+PM/=cM;bestappr(PM)
+mfperiodpolbasis(12)
+
+D=mfDelta();F=mfderiv(D);
+G=mfmul(D,mfEk(2));mfisequal(F,G)
+
+p(f) = concat(mfparams(f), mfspace(f));
+p(mfcreate(3))
+F2=mfeisen(7,-3); p(F2)
+F3=mfeisen(7,-3,5); p(F3)
+F4=mfEk(4); p(F4)
+F5=mffromqf([2,1;1,6])[2]; p(F5)
+F6=mfDelta(); p(F6)
+F7=mfetaquo([1,2;11,2]); p(F7)
+F8=mffromell(ellinit([0,1,1,9,1]))[2]; p(F8)
+F11=mfadd(F7,F8); p(F11)
+F12=mfmul(F2,F3); p(F12)
+F13=mfmulRC(F4,F4,2); p(F13)
+F14=mflinear([F7,F8],[1,-1]); p(F14)
+F15=mfdiv(F3,F2); p(F15)
+F16=mfshift(F6,1); p(F16)
+F17=mfderiv(F4,1); p(F17)
+F18=mfderivE2(F4,4); p(F18)
+F19=mfinteg(F6,1); p(F19)
+F20=mfembed(F6)[1]; p(F20)
+F21=mftwist(F4,5); p(F21)
+F22=mfhecke(F6,5); p(F22)
+F23=mfbd(F4,3); p(F23)
+mf=mfinit([23,1,-23]); f=mfbasis(mf)[1]; mfparams(f) /* mfspace broken */
+mf=mfinit([96,2],3); L=mfbasis(mf); mf0=mfinit([96,2]);
+mftobasis(mf0,L[1],1)
+
+F=mffromlfun(lfuncreate(x^2+1)); mfparams(F)
+F=mffromell(ellinit([0,1]))[2]; mfisCM(F)
+mf = mfsplit([39,1,-39]); F=mfeigenbasis(mf)[1]; mfisCM(F)
+
+\\ ERRORS, leave at end of bench
+mftobasis(mf0,L[1])
+
+mfparams(mfadd(F2,F3))
+mfparams(mfadd(F4,F6))
+
+mfinit([23,1,Mod(22,45)]);
+mfinit([23,2,Mod(22,45)]);
+
+mfdim([23,1,0],3)
+mfdim([23,1,0],4)
+mfgaloistype([11,1,Mod(2,11)], mfeisen(1,1,Mod(2,11)))
