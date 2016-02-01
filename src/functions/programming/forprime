@@ -56,9 +56,9 @@ Doc: evaluates \var{seq},
  ? forprime(p = 4, 10, print(p))
  5
  7
- @eprog\noindent Omitting $b$ means we will run through all primes $\geq a$,
- starting an infinite loop; it is expected that the user will break out of
- the loop himself at some point, using \kbd{break} or \kbd{return}.
+ @eprog\noindent Setting $b$ to \kbd{+oo} means we will run through all primes
+ $\geq a$, starting an infinite loop; it is expected that the caller will break
+ out of the loop itself at some point, using \kbd{break} or \kbd{return}.
 
  Note that the value of $p$ cannot be modified within \var{seq}:
  \bprog

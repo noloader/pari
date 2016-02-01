@@ -311,7 +311,7 @@ forprime_init(forprime_t *T, GEN a, GEN b)
   long lb;
   a = gceil(a); if (typ(a) != t_INT) pari_err_TYPE("forprime_init",a);
   if (signe(a) <= 0) a = gen_1;
-  if (b)
+  if (b && typ(b) != t_INFINITY)
   {
     b = gfloor(b);
     if (typ(b) != t_INT) pari_err_TYPE("forprime_init",b);
@@ -324,8 +324,15 @@ forprime_init(forprime_t *T, GEN a, GEN b)
     }
     lb = lgefint(b);
   }
-  else
+  else if (!b || inf_get_sign(b) > 0)
     lb = lgefint(a) + 4;
+  else /* b == -oo */
+  {
+    T->strategy = 4; /* paranoia */
+    T->bb = gen_0;
+    T->pp = gen_0;
+    return 0;
+  }
   T->bb = b;
   T->pp = cgeti(lb);
   /* a, b are positive integers, a <= b */

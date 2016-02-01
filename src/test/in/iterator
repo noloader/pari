@@ -5,6 +5,8 @@ for(a=-N-2, -N+2, print(a))
 
 forprime(p=2^32-50,2^32+30,print(p))
 forprime(p=2^64-70,2^64+50,print(p))
+forprime(n=2,,if(n>10,break);print(n)) /*backward compat */
+forprime(n=2,oo,if(n>10,break);print(n))
 
 for(a=0.5,3,print(a))
 for(a=1,10, print(a+=2))
