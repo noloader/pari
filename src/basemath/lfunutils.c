@@ -1224,6 +1224,285 @@ lfunellmfpeters_bitprec(GEN E, long bitprec)
 }
 
 /*************************************************************/
+/*               genus 2 curves                              */
+/*************************************************************/
+
+static GEN
+dirgenus2(void *E, GEN p)
+{
+  pari_sp av = avma;
+  GEN Q = (GEN) E;
+  GEN f = RgX_recip(hyperellcharpoly(gmul(Q,gmodulo(gen_1, p))));
+  return gerepileupto(av, ginv(f));
+}
+
+static GEN
+vecan_genus2(GEN an, long L)
+{
+  GEN Q = gel(an,1), bad = gel(an, 2);
+  return direuler_bad((void*)Q, dirgenus2, gen_2, stoi(L), NULL, bad);
+}
+
+static GEN
+genus2_redmodel(GEN P, GEN p)
+{
+  GEN M = FpX_factor(P, p);
+  GEN F = gel(M,1), E = gel(M,2);
+  long i, k, r = lg(F);
+  GEN U = scalarpol(leading_term(P), varn(P));
+  GEN G = cgetg(r, t_COL);
+  for (i=1, k=0; i<r; i++)
+  {
+    if (E[i]>1)
+      gel(G,++k) = gel(F,i);
+    if (odd(E[i]))
+      U = FpX_mul(U, gel(F,i), p);
+  }
+  setlg(G,++k);
+  return mkvec2(G,U);
+}
+
+static GEN
+oneminusxd(long d)
+{
+  return gsub(gen_1, monomial(gen_1, d, 0));
+}
+
+static GEN
+ellfromeqncharpoly(GEN P, GEN Q, GEN p)
+{
+  long v;
+  GEN E, F, t, y;
+  v = fetch_var();
+  y = pol_x(v);
+  F = gsub(gadd(ZX_sqr(y), gmul(y, Q)), P);
+  E = ellinit(ellfromeqn(F), p, DEFAULTPREC);
+  delete_var();
+  t = ellap(E, p);
+  obj_free(E);
+  return mkpoln(3, gen_1, negi(t), p);
+}
+
+static GEN
+genus2_eulerfact(GEN P, GEN p)
+{
+  pari_sp av = avma;
+  GEN Pp = FpX_red(P, p);
+  GEN GU = genus2_redmodel(Pp, p);
+  long d = 6-degpol(Pp), v = d/2, w = odd(d);
+  GEN abe, tor;
+  GEN ki, kp = pol_1(0), kq = pol_1(0);
+  GEN F = gel(GU,1), Q = gel(GU,2);
+  long dQ = degpol(Q), lF = lg(F)-1;
+
+  abe = dQ >= 5 ? RgX_recip(hyperellcharpoly(gmul(Q,gmodulo(gen_1,p))))
+      : dQ >= 3 ? RgX_recip(ellfromeqncharpoly(Q,gen_0,p))
+                : pol_1(0);
+  ki = dQ > 0 ? oneminusxd(1)
+              : Fp_issquare(gel(Q,2),p) ? ZX_sqr(oneminusxd(1))
+                                        : oneminusxd(2);
+  if (lF)
+  {
+    long i;
+    for(i=1; i <= lF; i++)
+    {
+      GEN Fi = gel(F, i);
+      long d = degpol(Fi);
+      GEN e = FpX_rem(Q, Fi, p);
+      GEN kqf = lgpol(e)==0 ? oneminusxd(d):
+                FpXQ_issquare(e, Fi, p) ? ZX_sqr(oneminusxd(d))
+                                          : oneminusxd(2*d);
+      kp = gmul(kp, oneminusxd(d));
+      kq = gmul(kq, kqf);
+    }
+  }
+  if (v)
+  {
+    GEN kqoo = w==1 ? oneminusxd(1):
+               Fp_issquare(leading_term(Q), p)? ZX_sqr(oneminusxd(1))
+                                              : oneminusxd(2);
+    kp = gmul(kp, oneminusxd(1));
+    kq = gmul(kq, kqoo);
+  }
+  tor = RgX_div(ZX_mul(oneminusxd(1), kq), ZX_mul(ki, kp));
+  return gerepileupto(av, ZX_mul(abe, tor));
+}
+
+static GEN
+F2x_genus2_find_trans(GEN P, GEN Q, GEN F)
+{
+  pari_sp av = avma;
+  long i, d = F2x_degree(F), v = P[1];
+  GEN M, C, V;
+  M = cgetg(d+1, t_MAT);
+  for (i=1; i<=d; i++)
+  {
+    GEN Mi = F2x_rem(F2x_add(F2x_shift(Q,i-1), monomial_F2x(2*i-2,v)), F);
+    gel(M,i) = F2x_to_F2v(Mi, d);
+  }
+  C = F2x_to_F2v(F2x_rem(P, F), d);
+  V = F2m_F2c_invimage(M, C);
+  return gerepileuptoleaf(av, F2v_to_F2x(V, v));
+}
+
+static GEN
+F2x_genus2_trans(GEN P, GEN Q, GEN H)
+{
+  return F2x_add(P,F2x_add(F2x_mul(H,Q), F2x_sqr(H)));
+}
+
+static GEN
+F2x_genus_redoo(GEN P, GEN Q, long k)
+{
+  if (F2x_degree(P)==2*k)
+  {
+    long c = F2x_coeff(P,2*k-1), dQ = F2x_degree(Q);
+    if ((dQ==k-1 && c==1) || (dQ<k-1 && c==0))
+     return F2x_genus2_trans(P, Q, monomial_F2x(k, P[1]));
+  }
+  return P;
+}
+
+static GEN
+F2x_pseudodisc(GEN P, GEN Q)
+{
+  GEN dP = F2x_deriv(P), dQ = F2x_deriv(Q);
+  return F2x_gcd(Q, F2x_add(F2x_mul(P, F2x_sqr(dQ)), F2x_sqr(dP)));
+}
+
+static GEN
+F2x_genus_red(GEN P, GEN Q)
+{
+  long dP, dQ;
+  GEN F, FF;
+  P = F2x_genus_redoo(P, Q, 3);
+  P = F2x_genus_redoo(P, Q, 2);
+  P = F2x_genus_redoo(P, Q, 1);
+  dP = F2x_degree(P);
+  dQ = F2x_degree(Q);
+  FF = F = F2x_pseudodisc(P,Q);
+  while(F2x_degree(F)>0)
+  {
+    GEN M = gel(F2x_factor(F),1);
+    long i, l = lg(M);
+    for(i=1; i<l; i++)
+    {
+      GEN R = F2x_sqr(gel(M,i));
+      GEN H = F2x_genus2_find_trans(P, Q, R);
+      P = F2x_div(F2x_genus2_trans(P, Q, H), R);
+      Q = F2x_div(Q, gel(M,i));
+    }
+    F = F2x_pseudodisc(P, Q);
+  }
+  return mkvec4(P,Q,FF,mkvecsmall2(dP,dQ));
+}
+
+/* Number of solutions of x^2+b*x+c */
+static long
+F2xqX_quad_nbroots(GEN b, GEN c, GEN T)
+{
+  if (lgpol(b) > 0)
+  {
+    GEN d = F2xq_div(c, F2xq_sqr(b, T), T);
+    return F2xq_trace(d, T)? 0: 2;
+  }
+  else
+    return 1;
+}
+
+static GEN
+genus2_redmodel2(GEN P)
+{
+  GEN Q = pol_0(varn(P));
+  GEN P2 = ZX_to_F2x(P);
+  while (F2x_issquare(P2))
+  {
+    GEN H = F2x_to_ZX(F2x_sqrt(P2));
+    GEN P1 = ZX_sub(P, ZX_sqr(H));
+    GEN Q1 = ZX_add(Q, ZX_mulu(H, 2));
+    if ((signe(P1)==0 ||  ZX_lval(P1,2)>=2)
+     && (signe(Q1)==0 ||  ZX_lval(Q1,2)>=1))
+    {
+      P = ZX_shifti(P1, -2);
+      Q = ZX_shifti(Q1, -1);
+      P2= ZX_to_F2x(P);
+    } else break;
+  }
+  return mkvec2(P,Q);
+}
+
+static GEN
+genus2_eulerfact2(GEN PQ)
+{
+  pari_sp av = avma;
+  GEN V = F2x_genus_red(ZX_to_F2x(gel(PQ, 1)), ZX_to_F2x(gel(PQ, 2)));
+  GEN P = gel(V, 1), Q = gel(V, 2);
+  GEN F = gel(V, 3), v = gel(V, 4);
+  GEN abe, tor;
+  GEN ki, kp = pol_1(0), kq = pol_1(0);
+  long dP = F2x_degree(P), dQ = F2x_degree(Q), d = maxss(dP, 2*dQ);
+  if (!lgpol(F)) return pol_1(0);
+  ki = dQ!=0 || dP>0 ? oneminusxd(1):
+      dP==-1 ? ZX_sqr(oneminusxd(1)): oneminusxd(2);
+  abe = d>=5? RgX_recip(hyperellcharpoly(gmul(PQ,gmodulss(1,2)))):
+        d>=3? RgX_recip(ellfromeqncharpoly(F2x_to_ZX(P), F2x_to_ZX(Q), gen_2)):
+        pol_1(0);
+  if (lgpol(F))
+  {
+    GEN M = gel(F2x_factor(F), 1);
+    long i, lF = lg(M)-1;
+    for(i=1; i <= lF; i++)
+    {
+      GEN Fi = gel(M, i);
+      long d = F2x_degree(Fi);
+      long nb  = F2xqX_quad_nbroots(F2x_rem(Q, Fi), F2x_rem(P, Fi), Fi);
+      GEN kqf = nb==1 ? oneminusxd(d):
+                nb==2 ? ZX_sqr(oneminusxd(d))
+                      : oneminusxd(2*d);
+      kp = gmul(kp, oneminusxd(d));
+      kq = gmul(kq, kqf);
+    }
+  }
+  if (maxss(v[1],2*v[2])<5)
+  {
+    GEN kqoo = v[1]>2*v[2] ? oneminusxd(1):
+               v[1]<2*v[2] ? ZX_sqr(oneminusxd(1))
+                           : oneminusxd(2);
+    kp = gmul(kp, oneminusxd(1));
+    kq = gmul(kq, kqoo);
+  }
+  tor = RgX_div(ZX_mul(oneminusxd(1),kq), ZX_mul(ki, kp));
+  return gerepileupto(av, ZX_mul(abe, tor));
+}
+
+GEN
+lfungenus2(GEN G)
+{
+  pari_sp ltop = avma;
+  GEN Ldata;
+  GEN gr = genus2red(G, NULL);
+  GEN N  = gel(gr, 1), M = gel(gr, 2), Q = gel(gr, 3), L = gel(gr, 4);
+  GEN PQ = genus2_redmodel2(Q);
+  GEN e;
+  long i, lL = lg(L), ram2;
+  ram2 = equaliu(gmael(M,1,1),2);
+  if (ram2 && equalis(gmael(M,2,1),-1))
+    pari_warn(warner,"unknown valuation of conductor at 2");
+  e = cgetg(lL+(ram2?0:1), t_VEC);
+  gel(e,1) = mkvec2(gen_2, ram2 ? genus2_eulerfact2(PQ)
+           : RgX_recip(hyperellcharpoly(gmul(PQ,gmodulss(1,2)))));
+  for(i = ram2? 2: 1; i < lL; i++)
+  {
+    GEN Li = gel(L, i);
+    GEN p = gel(Li, 1);
+    gel(e, ram2 ? i: i+1) = mkvec2(p, genus2_eulerfact(Q,p));
+  }
+  Ldata = mkvecn(6, tag(mkvec2(Q,e), t_LFUN_GENUS2),
+      gen_0, mkvec4(gen_0, gen_0, gen_1, gen_1), gen_2, N, gen_0);
+  return gerepilecopy(ltop, Ldata);
+}
+
+/*************************************************************/
 /*                        ETA QUOTIENTS                      */
 /* An eta quotient is a matrix with 2 columns [m, r_m] with  */
 /* m >= 1 representing f(\tau)=\prod_m\eta(m\tau)^{r_m}.     */
@@ -1685,6 +1964,7 @@ ldata_vecan(GEN van, long L, long prec)
     case t_LFUN_MUL: an = vecan_mul(an, L, prec); break;
     case t_LFUN_SYMSQ: an = vecan_symsq(an, L, prec); break;
     case t_LFUN_SYMSQ_ELL: an = vecan_ellsymsq(an, L); break;
+    case t_LFUN_GENUS2: an = vecan_genus2(an, L); break;
     default: pari_err_TYPE("ldata_vecan", van);
   }
   if (DEBUGLEVEL >= 2) timer_printf(&ti, "ldata_vecan");

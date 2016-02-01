@@ -3357,7 +3357,8 @@ GEN     lfunabelianrelinit_bitprec(GEN bnfabs, GEN bnf, GEN polrel, GEN dom, lon
 GEN     lfunartin(GEN N, GEN G, GEN M, long o);
 GEN     lfundiv(GEN ldata1, GEN ldata2, long prec);
 GEN     lfunellmfpeters_bitprec(GEN E, long bitprec);
-GEN     lfunetaquo(GEN ldata);
+GEN     lfunetaquo(GEN eta);
+GEN     lfungenus2(GEN PS);
 GEN     lfunmfspec(GEN ldata, long prec);
 GEN     lfunmfspec_bitprec(GEN lmisc, long bitprec);
 GEN     lfunmfpeters(GEN ldata, long prec);
