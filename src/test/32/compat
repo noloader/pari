@@ -672,7 +672,7 @@ New syntax: degree(x) ===> poldegree(x)
 
 poldegree(x,{v}): degree of the polynomial or rational function x with respect 
 to main variable if v is omitted, with respect to v otherwise. For scalar x, 
-return 0 is x is non-zero and -oo otherwise.
+return 0 if x is non-zero and -oo otherwise.
 
 
   ***   at top-level: denom()
