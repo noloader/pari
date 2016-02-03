@@ -2240,6 +2240,7 @@ GEN     znchardiv(GEN G, GEN a, GEN b);
 GEN     zncharker(GEN G, GEN chi);
 GEN     znchareval(GEN G, GEN chi, GEN n, GEN z);
 GEN     zncharinduce(GEN G, GEN chi, GEN N);
+long    zncharisodd(GEN G, GEN chi);
 GEN     zncharmul(GEN G, GEN a, GEN b);
 GEN     zncharorder(GEN G,  GEN chi);
 int     znconrey_check(GEN cyc, GEN chi);

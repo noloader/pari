@@ -435,7 +435,7 @@ lfunchiZ(GEN bid, GEN chi)
     N = gel(N,1);
   }
   /* chi now primitive on bid */
-  sig = mkvec( mpodd(ZV_sum(chi))? gen_1: gen_0 );
+  sig = mkvec( zncharisodd(bid, chi)? gen_1: gen_0 );
   nchi = znconreylog_normalize(bid, chi);
   real = cmpiu(gel(nchi,1), 2) <= 0;
   r = mkvecn(6, tag(mkvec2(bid,nchi), t_LFUN_CHIZ),

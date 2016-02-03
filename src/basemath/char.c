@@ -244,18 +244,18 @@ chareval_i(GEN nchi, GEN dlog, GEN z)
   if (typ(z) == t_INT)
   {
     q = dvmdii(z, b, &r);
-    if (signe(r)) pari_err_TYPE("znchareval", z);
+    if (signe(r)) pari_err_TYPE("chareval", z);
     return mulii(a, q);
   }
   /* return z^(a*o/b), assuming z^o = 1 and b | o */
-  if (typ(z) != t_VEC || lg(z) != 3) pari_err_TYPE("znchareval", z);
-  o = gel(z,2); if (typ(o) != t_INT) pari_err_TYPE("znchareval", z);
-  q = dvmdii(o, b, &r); if (signe(r)) pari_err_TYPE("znchareval", z);
+  if (typ(z) != t_VEC || lg(z) != 3) pari_err_TYPE("chareval", z);
+  o = gel(z,2); if (typ(o) != t_INT) pari_err_TYPE("chareval", z);
+  q = dvmdii(o, b, &r); if (signe(r)) pari_err_TYPE("chareval", z);
   q = mulii(a, q); /* in [0, o[ since a is reduced mod b */
   z = gel(z,1);
   if (typ(z) == t_VEC)
   {
-    if (itos_or_0(o) != lg(z)-1) pari_err_TYPE("znchareval", z);
+    if (itos_or_0(o) != lg(z)-1) pari_err_TYPE("chareval", z);
     return gcopy(gel(z, itos(q)));
   }
   else
@@ -954,6 +954,29 @@ znconrey_normalized(GEN G, GEN chi)
   }
   pari_err_TYPE("znchareval",chi);
   return NULL;/* not reached */
+}
+
+/* return 1 iff chi(-1) = -1, and 0 otherwise */
+long
+zncharisodd(GEN G, GEN chi)
+{
+  long i, l, s;
+  GEN N;
+  if (!checkbidZ_i(G)) pari_err_TYPE("zncharisodd", G);
+  if (!zncharcheck(G, chi)) pari_err_TYPE("zncharisodd", chi);
+  if (typ(chi) != t_COL) chi = znconreylog(G, chi);
+  N = bid_get_ideal(G);
+  l = lg(chi);
+  s = 0;
+  if (!mod8(N))
+  {
+    s = mpodd(gel(chi,1));
+    i = 3;
+  }
+  else
+    i = 1;
+  for (; i < l; i++) s += mpodd(gel(chi,i));
+  return odd(s);
 }
 
 /* G a bidZ, not stack clean */
