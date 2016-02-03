@@ -72,7 +72,11 @@ lemma526_i(double ac, double c, double t, double B)
   {
     double x = pow(t, c);
     if (D > -100)
-      D = dbllambertW_1(-exp(D) / t);
+    {
+      D = -exp(D) / t;
+      if (D < - 1/M_E) return 0;
+      D = dbllambertW_1(D);
+    }
     else
     { /* avoid underflow, use asymptotic expansion */
       double U = D - log(t);
@@ -525,7 +529,7 @@ ishankelspec(GEN Vga, GEN M)
   status = 0;
   /* Heuristic: if 6 first terms in contfracinit don't fail, assume it's OK */
   pari_CATCH(e_INV) { status = 1; }
-  pari_TRY { contfracinit(M, 6); }
+  pari_TRY { contfracinit(M, minss(lg(M)-2,6)); }
   pari_ENDCATCH; return status;
 }
 

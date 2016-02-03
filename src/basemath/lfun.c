@@ -890,6 +890,12 @@ lfunparams(GEN ldata, long der, long bitprec, struct lfunp *S)
     L[m+1] = n;
     if (n == 0) { if (++flag == 2) break; } else flag = 0;
   }
+  if (m < 4) /* can happen for tiny bitprec */
+  {
+    m = 4;
+    nmax = 1;
+    L[1] = 1;
+  }
   S->M = m-2; setlg(L, S->M+1);
   S->L = L;
   S->nmax = nmax;
