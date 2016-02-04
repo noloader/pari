@@ -74,8 +74,11 @@ znconreychar(G,3)
 znconreychar(G,5)
 znconreychar(G,7)
 vector(4, i, zncharisodd(G,2*i-1))
+forstep(i=1,8,2,if(znconreyexp(G, znconreylog(G, i)) != i, error(i)));
+
 G=idealstar(,5);
 vector(4,i,znconreychar(G,i))
+
 G=idealstar(,75);
 for(i=1, G.mod,\
   if (gcd(i,G.mod)==1 && 2*chareval(G,i,-1) != zncharisodd(G,i),error(i)))

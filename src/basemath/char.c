@@ -679,7 +679,7 @@ znconreyexp(GEN bid, GEN x)
   gen = gel(L,4); /* local generators of (Z/p^k)^* */
   cycg = bidZ_get_cycg(bid);
   l = lg(x); v = cgetg(l, t_VEC);
-  e2 = (l > 3 && !mod2(gel(pe,2))); /* 2 generators at p = 2 */
+  e2 = !mod8(bid_get_ideal(bid)); /* 2 generators at p = 2 */
   for (i = 1; i < l; i++)
   {
     GEN q, g, m;
@@ -691,7 +691,7 @@ znconreyexp(GEN bid, GEN x)
     if (i == 2 && e2 && signe(gel(x,1))) m = Fp_neg(m, q);
     gel(v,i) = mkintmod(m, q);
   }
-  if (e2) v = vecslice(v, 2, l-1);
+  if (e2) v = vecsplice(v, 1);
   v = chinese1_coprime_Z(v);
   return gerepilecopy(av, gel(v,2));
 }
