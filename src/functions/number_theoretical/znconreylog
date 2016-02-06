@@ -21,8 +21,8 @@ Doc: Given a \var{bid} associated to $(\Z/q\Z)^*$ (as per \kbd{bid =
  \item congruent mod $p^{e_p}$ to the smallest integer whose order
  is $\phi(p^{e_p})$ for $p$ odd,
 
- For $p = 2$, we let $g_4$ (if $2^{e_2} \geq 4) and $g_8$ (if furthermore
- (2^{e_2} \geq 8$) be the elements in $(\Z/q\Z)^*$ which
+ For $p = 2$, we let $g_4$ (if $2^{e_2} \geq 4$) and $g_8$ (if furthermore
+ ($2^{e_2} \geq 8$) be the elements in $(\Z/q\Z)^*$ which
  are
 
  \item congruent to $1$ mod $q/2^{e_2}$,
