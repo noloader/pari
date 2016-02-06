@@ -20,8 +20,8 @@ Doc: Let $G$ be associated to $(\Z/N\Z)^*$ (as per \kbd{G =
  ? G = idealstar(,8);
  ? zncharisodd(G, 1)  \\ trivial character
  %2 = 0
- ? zncharisodd(G, 5)
+ ? zncharisodd(G, 3)
  %3 = 1
- ? chareval(G, 5, -1)
+ ? chareval(G, 3, -1)
  %4 = 1/2
  @eprog

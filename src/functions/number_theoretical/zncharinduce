@@ -31,7 +31,7 @@ Doc: Let $G$ be associated to $(\Z/q\Z)^*$ (as per \kbd{G =
  %4 = [0, 0, 0]~
 
  ? chi = zncharinduce(G, 3, G2)  \\ induce the non-trivial character mod 4
- %5 = [1, 2, 0]~
+ %5 = [1, 0, 0]~
  ? znconreyconductor(G2, chi, &chi0)
  %6 = [4, Mat([2, 2])]
  ? chi0

@@ -13,30 +13,35 @@ Doc: Given a \var{bid} associated to $(\Z/q\Z)^*$ (as per \kbd{bid =
  from the factorization, as if we replaced $q$ by $q/2$, since $(\Z/q\Z)^*
  \sim (\Z/(q/2)\Z)^*$.)
 
- For all $p$ with $e_p > 0$, let $g_p$ be the element in $(\Z/q\Z)^*$ which is
+ For all odd  $p$ with $e_p > 0$, let $g_p$ be the element in $(\Z/q\Z)^*$
+ which is
 
  \item congruent to $1$ mod $q/p^{e_p}$,
 
  \item congruent mod $p^{e_p}$ to the smallest integer whose order
  is $\phi(p^{e_p})$ for $p$ odd,
 
- \item $g_2 = 3 \mod 2^{e_2}$ for $e_2 \geq 2$.
-
- When $e_2\geq 3$, we let further $g_{-1}$ the element in $(\Z/q\Z)^*$ which is
+ For $p = 2$, we let $g_4$ (if $2^{e_2} \geq 4) and $g_8$ (if furthermore
+ (2^{e_2} \geq 8$) be the elements in $(\Z/q\Z)^*$ which
+ are
 
  \item congruent to $1$ mod $q/2^{e_2}$,
 
- \item congruent to $-1$ mod $2^{e_2}$.
+ \item $g_4 = -1 \mod 2^{e_2}$,
 
- Then the $g_p$ (and the extra $g_{-1}$ if $e_2\geq 3$) are independent
+ \item $g_8 = 5 \mod 2^{e_2}$.
+
+ Then the $g_p$ (and the extra $g_4$ and $g_8$ if $2^{e_2}\geq 2$) are
+ independent
  generators of $\Z/q\Z^*$, i.e. every $m$ in $(\Z/q\Z)^*$ can be written
  uniquely as $\prod_p g_p^{m_p}$, where $m_p$ is defined modulo the
  order $o_p$ of $g_p$
- and $p \in S_q$, the set of prime divisors of $q$ together with $-1$
- if $e_2 \geq 3$. Note that the $g_p$ are in general \emph{not} SNF
+ and $p \in S_q$, the set of prime divisors of $q$ together with $4$
+ if $4 \mid q$ and $8$ if $8 \mid q$.
+ Note that the $g_p$ are in general \emph{not} SNF
  generators as produced by \kbd{znstar} or \kbd{idealstar} whenever
  $\omega(q) \geq 2$, although their number is the same. They however allow
- to handle the finite abelian group $(\Z/q\Z)^*$ in a fast(er) and elegant
+ to handle the finite abelian group $(\Z/q\Z)^*$ in a fast and elegant
  way. (Which unfortunately does not generalize to ray class groups or Hecke
  characters.)
 
@@ -64,7 +69,8 @@ Doc: Given a \var{bid} associated to $(\Z/q\Z)^*$ (as per \kbd{bid =
  @eprog\noindent
 
  For convenience, we allow to input the ordinary discrete log of $m$,
- $\kbd{ideallog(,m,bid)}$
+ $\kbd{ideallog(,m,bid)}$, which allows to convert discrete logs
+ from \kbd{bid.gen} generators to Conrey generators.
  \bprog
  ? znconreylog(G, log11)
  %7 = [0, 3, 1, 76, 4]~

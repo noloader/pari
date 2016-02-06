@@ -162,3 +162,4 @@ Lmath           @Data structures describing $L$ and Theta functions
 Ldata           @Data structures describing $L$ and Theta functions
 Linit           @Data structures describing $L$ and Theta functions
 L-function      @Data structures describing $L$ and Theta functions
+character       @Dirichlet characters

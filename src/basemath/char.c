@@ -396,7 +396,7 @@ znstar0(GEN N, long flag)
     gel(gen,1) = subiu(q,1); /* -1 */
     gel(mod,1) = q;
     gel(cyc,2) = int2n(v2-2);
-    gel(gen,2) = utoipos(3); /* Conrey normalization */
+    gel(gen,2) = utoipos(5); /* Conrey normalization */
     gel(mod,2) = q;
     i0 = 3;
   }
@@ -630,11 +630,11 @@ znconreylog(GEN bid, GEN x)
     {
       GEN a, x2, q2 = gel(pe,1);
       x2 = modii(x, q2);
-      if (mod8(x) <= 3) /* 1 or 3 */
+      if (mod4(x) == 1) /* 1 or 5 mod 8*/
         gel(y,i++) = gen_0;
-      else /* 5 or 7 */
+      else /* 3 or 7 */
       { gel(y,i++) = gen_1; x2 = subii(q2, x2); }
-      /* x2 = 3^x mod q  [i.e x2 is 1 or 3 mod 8] */
+      /* x2 = 5^x mod q */
       a = Zideallog_2k(x2, gel(gen,i), E[1], q2);
       if (!a) pari_err_COPRIME("znconreylog", x, N);
       gel(y, i++) = a;
@@ -736,7 +736,10 @@ znconreyconductor(GEN bid, GEN chi, GEN *pm)
 
   if (!checkbidZ_i(bid)) pari_err_TYPE("znconreyconductor", bid);
   if (typ(chi) == t_COL)
-  { if (!RgV_is_ZV(chi)) pari_err_TYPE("znconreyconductor",chi); }
+  {
+    if (!znconrey_check(bidZ_get_cycg(bid), chi))
+      pari_err_TYPE("znconreyconductor",chi);
+  }
   else
     chi = znconreylog(bid, chi);
   l = lg(chi);
@@ -761,34 +764,22 @@ znconreyconductor(GEN bid, GEN chi, GEN *pm)
     i = 3;
     if (!signe(a))
     {
+      e2 =  primitive = 0;
       if (signe(a1))
-      { /* cannot lose one generator, they both map to 3 in (Z/4Z)^* */
-        if (E[1] > 3) primitive = 0;
-        E[1] = E[2] = 3;
+      { /* lose one generator */
+        E[1] = 2;
         gel(m,1) = a1;
-        gel(m,2) = gen_0;
-        j = 3;
+        j = 2;
       }
-      else /* lose both */
-        e2 = primitive = 0;
+      /* else lose both */
     }
     else
     {
       long v = Z_pvalrem(a, gen_2, &a);
       if (v) { E[1] -= v; E[2] = E[1]; primitive = 0; }
-      if (E[1] == 3 && equalii(a,a1))
-      { /* lose one generator */
-        e2 = primitive = 0;
-        E[1] = 2;
-        gel(m,1) = gen_1;
-        j = 2;
-      }
-      else
-      {
-        gel(m,1) = a1;
-        gel(m,2) = a;
-        j = 3;
-      }
+      gel(m,1) = a1;
+      gel(m,2) = a;
+      j = 3;
     }
   }
   l = lg(P);
@@ -903,7 +894,7 @@ zncharinduce(GEN G, GEN chi, GEN N)
       else if (Eq[1] == 2)
       { /* 1 generator at 2 mod q */
         gel(CHI,1) = gel(chi,1);
-        gel(CHI,2) = shifti(gel(chi,1), E[1]-3);
+        gel(CHI,2) = gen_0;
       }
       else
         gel(CHI,1) = gel(CHI,2) = gen_0;
