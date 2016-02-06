@@ -1894,6 +1894,7 @@ F2m_F2c_gauss(GEN a, GEN b)
 {
   pari_sp av = avma;
   GEN z = F2m_gauss(a, mkmat(b));
+  if (!z) { avma = av; return NULL; }
   if (lg(z) == 1) { avma = av; return cgetg(1,t_VECSMALL); }
   return gerepileuptoleaf(av, gel(z,1));
 }
@@ -2052,6 +2053,7 @@ GEN
 Flm_Flc_gauss(GEN a, GEN b, ulong p) {
   pari_sp av = avma;
   GEN z = Flm_gauss(a, mkmat(b), p);
+  if (!z) { avma = av; return NULL; }
   if (lg(z) == 1) { avma = av; return cgetg(1,t_VECSMALL); }
   return gerepileuptoleaf(av, gel(z,1));
 }
