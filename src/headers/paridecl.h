@@ -2333,6 +2333,7 @@ GEN sd_timer(const char *v, long flag);
 void pari_hit_return(void);
 void gp_load_gprc(void);
 int  gp_meta(const char *buf, int ismain);
+const char **gphelp_keyword_list(void);
 void pari_center(const char *s);
 void pari_print_version(void);
 const char *gp_format_time(long delay);

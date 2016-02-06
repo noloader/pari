@@ -448,7 +448,10 @@ external_help(const char *s, int num)
   pari_fclose(z);
 }
 
-const char *keyword_list[]={
+const char **
+gphelp_keyword_list(void)
+{
+  static const char *L[]={
   "operator",
   "libpari",
   "member",
@@ -465,19 +468,25 @@ const char *keyword_list[]={
   "bid",
   "modulus",
   "prototype",
-  NULL
-};
+  "Lmath",
+  "Ldata",
+  "Linit",
+  NULL};
+  return L;
+}
 
 static int
 ok_external_help(char **s)
 {
+  const char **L;
   long n;
   if (!**s) return 1;
   if (!isalpha((int)**s)) return 3; /* operator or section number */
   if (!strncmp(*s,"t_",2)) { *s += 2; return 2; } /* type name */
 
-  for (n=0; keyword_list[n]; n++)
-    if (!strcmp(*s,keyword_list[n])) return 3;
+  L = gphelp_keyword_list();
+  for (n=0; L[n]; n++)
+    if (!strcmp(*s,L[n])) return 3;
   return 0;
 }
 

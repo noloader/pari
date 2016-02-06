@@ -340,6 +340,11 @@ on the value of \fl:
 
 \item \tet{h_APROPOS}, a propos help (\kbd{??}).
 
+\fun{const char **}{gphelp_keyword_list}{void} return a
+\kbd{NULL}-terminated array a strings, containing keywords known to
+\kbd{gphelp} besides GP functions (e.g. \kbd{modulus} or \kbd{operator}).
+Used by the online help system and the contextual completion engine.
+
 \fun{void}{gp_echo_and_log}{const char *p, const char *s} given a prompt
 $p$ and associated input command $s$, update logfile and possibly
 print on standard output if \tet{echo} is set and we are not in interactive

@@ -677,10 +677,6 @@ GEN     gsubst_expr(GEN pol, GEN from, GEN to);
 GEN     poltoser(GEN x, long v, long prec);
 GEN     rfractoser(GEN x, long v, long prec);
 
-/* gplib.c */
-
-extern const char *keyword_list[];
-
 /* hyperell.c */
 
 GEN     ZlXQX_hyperellpadicfrobenius(GEN H, GEN T, ulong p, long n);

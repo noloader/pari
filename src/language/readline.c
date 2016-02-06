@@ -226,9 +226,10 @@ ext_help_generator(const char *text, int state)
   }
   if (key)
   {
-    for ( ; keyword_list[n]; n++)
-      if (!strncmp(keyword_list[n],TEXT,len))
-        return add_prefix(keyword_list[n++], text, junk);
+    const char **L = gphelp_keyword_list();
+    for ( ; L[n]; n++)
+      if (!strncmp(L[n],TEXT,len))
+        return add_prefix(L[n++], text, junk);
     key = 0; state = 0;
   }
   return command_generator(text, state);
