@@ -750,28 +750,57 @@ incgam_cf(GEN s, GEN x, double mx, long prec)
 }
 #endif
 
+/* real(z*log(z)-z) */
+static double
+mygamma(double x, double y)
+{
+  if (x == 0.) return -(M_PI/2)*fabs(y);
+  return (x/2)*log(x*x+y*y)-x-y*atan(y/x);
+}
+
+static double
+findextraincgam(GEN s, GEN x)
+{
+  double sig = gtodouble(real_i(s)), t = gtodouble(imag_i(s));
+  double xr = gtodouble(real_i(x)), xi = gtodouble(imag_i(x));
+  double exd = 0., Nx = xr*xr + xi*xi, D = Nx - t*t;
+  long n;
+
+  if (xr < 0)
+  {
+    long ex = gexpo(x);
+    if (ex > 0 && ex > gexpo(s))
+    {
+      double X = dblmodulus(x);
+      exd = X*log(X);
+    }
+  }
+  if (D <= 0.) return exd;
+  n = (long)(sqrt(D)-sig);
+  if (n <= 0) return exd;
+  return maxdd(exd, (n*log(Nx)/2 - mygamma(sig+n, t) + mygamma(sig, t)) / LOG2);
+}
+
 /* use exp(-x) * (x^s/s) * sum_{k >= 0} x^k / prod(i=1, k, s+i) */
 GEN
 incgamc(GEN s, GEN x, long prec)
 {
   GEN S, t, y;
   long l, n, i;
+  double exd;
   pari_sp av = avma, av2;
 
   if (typ(x) != t_REAL) x = gtofp(x, prec);
   if (gequal0(x)) return gcopy(x);
 
-  l = precision(x); n = -prec2nbits(l)-1;
-  if (typ(x) != t_REAL || signe(x) < 0)
-  { /* take cancellation into account */
-    long ex = gexpo(x);
-    if (ex > 0 && ex > gexpo(s))
-    {
-      double X = dblmodulus(x);
-      long p = l + (long)nbits2extraprec(X*log(X));
-      x = gtofp(x, p);
-      if (isinexactreal(s)) s = gtofp(s, p);
-    }
+  l = precision(x);
+  n = -prec2nbits(l)-1;
+  exd = findextraincgam(s, x);
+  if (exd > 0)
+  {
+    long p = l + (long)nbits2extraprec(exd);
+    x = gtofp(x, p);
+    if (isinexactreal(s)) s = gtofp(s, p);
   }
   av2 = avma;
   S = gdiv(x, gaddsg(1,s));
@@ -1040,8 +1069,7 @@ cxeint1(GEN x, long prec)
   S2 = gneg(logx);
   if (ex > 0)
   { /* take cancellation into account, log2(\sum |x|^n / n!) = |x| / log(2) */
-    long p = LOWDEFAULTPREC;
-    double X = rtodbl(gabs(gtofp(x, p), p));
+    double X = dblmodulus(x);
     x = gtofp(x, prec + nbits2extraprec(X / LOG2));
   }
   q = S3 = x; n = 1; mx = gneg(x);
