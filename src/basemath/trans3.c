@@ -753,21 +753,23 @@ GEN
 incgamc(GEN s, GEN x, long prec)
 {
   GEN S, t, y;
-  long l, n, i, ex;
+  long l, n, i;
   pari_sp av = avma, av2;
 
   if (typ(x) != t_REAL) x = gtofp(x, prec);
   if (gequal0(x)) return gcopy(x);
 
   l = precision(x); n = -prec2nbits(l)-1;
-  ex = gexpo(x);
-  if (ex > 0 && ex > gexpo(s))
+  if (typ(x) != t_REAL || signe(x) < 0)
   { /* take cancellation into account */
-    long p = LOWDEFAULTPREC;
-    double X = rtodbl(gabs(gtofp(x, p), p));
-    p = l + (long)nbits2extraprec(X*log(X));
-    x = gtofp(x, p);
-    if (isinexactreal(s)) s = gtofp(s, p);
+    long ex = gexpo(x);
+    if (ex > 0 && ex > gexpo(s))
+    {
+      double X = dblmodulus(x);
+      long p = l + (long)nbits2extraprec(X*log(X));
+      x = gtofp(x, p);
+      if (isinexactreal(s)) s = gtofp(s, p);
+    }
   }
   av2 = avma;
   S = gdiv(x, gaddsg(1,s));
