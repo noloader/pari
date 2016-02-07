@@ -677,6 +677,7 @@ incgam_0(GEN x, GEN expx)
   }
 }
 
+#if 0
 /* Is s very close to a non-positive integer ? */
 static int
 isgammapole(GEN s, long bitprec)
@@ -747,6 +748,7 @@ incgam_cf(GEN s, GEN x, double mx, long prec)
   }
   return gerepileupto(av, gmul(y, gaddsg(1,S)));
 }
+#endif
 
 /* use exp(-x) * (x^s/s) * sum_{k >= 0} x^k / prod(i=1, k, s+i) */
 GEN
@@ -822,6 +824,31 @@ incgam_asymp(GEN s, GEN x, long prec)
   else
     cox = gexp(gsub(gmul(gsubgs(s, 1), glog(x,prec)), x), prec);
   return gerepileupto(av, gmul(cox, S));
+}
+
+/* s not an integer, gasx = incgam(s-n,x). Compute
+ * incgam(s,x) = (s-1)(s-2)...(s-n)gasx + exp(-x)x^(s-1)
+ * x (1 + (s-1)/x + ... + (s-1)(s-2)...(s-n+1)/x^(n-1)) */
+static GEN
+incgam_asymp_partial(GEN s, GEN x, GEN gasx, long n, long prec)
+{
+  pari_sp av;
+  GEN S, q, cox, invx, s1 = gsubgs(s, 1), sprod;
+  long j;
+  cox = gexp(gsub(gmul(s1, glog(x,prec)), x), prec);
+  if (n == 1) return gadd(cox, gmul(s1, gasx));
+  invx = ginv(x);
+  av = avma;
+  q = gmul(s1, invx);
+  S = gaddgs(q, 1);
+  for (j = 2; j < n; j++)
+  {
+    q = gmul(q, gmul(gsubgs(s, j), invx));
+    S = gadd(S, q);
+    if (gc_needed(av, 2)) gerepileall(av, 2, &S, &q);
+  }
+  sprod = gmul(gmul(q, gpowgs(x, n-1)), gsubgs(s, n));
+  return gadd(gmul(cox, S), gmul(sprod, gasx));
 }
 
 static GEN
@@ -926,7 +953,7 @@ GEN
 incgam0(GEN s, GEN x, GEN g, long prec)
 {
   pari_sp av;
-  long E, es, l;
+  long E, es, l, n;
   double mx;
   GEN z, rs;
 
@@ -949,13 +976,6 @@ incgam0(GEN s, GEN x, GEN g, long prec)
       return z;
     }
   }
-  /* use continued fraction */
-  if (12.1*mx > E)
-  {
-    if (DEBUGLEVEL > 2) err_printf("incgam: using cf\n");
-    return incgam_cf(s, x, mx, l);
-  }
-  else if (DEBUGLEVEL > 2) err_printf("incgam: using power series\n");
   rs = real_i(s);
   if (gsigne(rs) > 0 && gexpo(rs) >= -1)
   { /* use complementary incomplete gamma */
@@ -965,11 +985,28 @@ incgam0(GEN s, GEN x, GEN g, long prec)
       s = gtofp(s, l);
       x = gtofp(x, l);
     }
+    n = itos(gceil(rs));
+    if (n > 100)
+    {
+      GEN gasx;
+      n -= 100;
+      gasx = incgam0(gsubgs(s, n), x, NULL, prec);
+      return gerepileupto(av, incgam_asymp_partial(s, x, gasx, n, prec));
+    }
+    if (DEBUGLEVEL > 2) err_printf("incgam: using power series 1\n");
     if (!g) g = ggamma(s,l);
+    es = -gexpo(g);
+    if (es < 0) {
+      l += nbits2extraprec(-es) + 1;
+      s = gtofp(s, l);
+      x = gtofp(x, l);
+      g = ggamma(s,l);
+    }
     z = gsub(g, incgamc(s,x,l));
     return gerepileupto(av, z);
   }
   /* use power series */
+  if (DEBUGLEVEL > 2) err_printf("incgam: using power series 2\n");
   return gerepilecopy(av, incgamspec(s, x, g, l));
 }
 
