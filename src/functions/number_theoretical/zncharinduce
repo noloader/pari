@@ -12,7 +12,8 @@ Doc: Let $G$ be associated to $(\Z/q\Z)^*$ (as per \kbd{G =
  \item a \typ{VEC}: a standard character on \kbd{bid.gen},
 
  \item a \typ{INT} or a \typ{COL}: a Conrey index in $(\Z/q\Z)^*$ or its
- Conrey logarithm (see \tet{znconreychar} and \tet{znconreylog}).
+ Conrey logarithm;
+ see \secref{se:dirichletchar} or \kbd{??character}.
 
  Let $N$ be a multiple of $q$, return the character modulo $N$ induced by
  \kbd{chi}. As usual for arithmetic functions, the new modulus $N$ can be

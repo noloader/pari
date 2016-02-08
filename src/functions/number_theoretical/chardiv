@@ -24,8 +24,9 @@ Doc: let \var{cyc} represent a finite abelian group by its elementary
  ? chardiv(bnf, [1], [2])
  %5 = [2]
  @eprog\noindent For Dirichlet characters on  $(\Z/N\Z)^*$, additional
- representations are available (Conrey labels, Conrey logarithm), see
- \kbd{znconreylog}. If the two characters are in the same format, the
+ representations are available (Conrey labels, Conrey logarithm),
+ see \secref{se:dirichletchar} or \kbd{??character}.
+ If the two characters are in the same format, the
  result is given in the same format, otherwise a Conrey logarithm is used.
  \bprog
  ? G = idealstar(,100);

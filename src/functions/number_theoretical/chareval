@@ -28,8 +28,8 @@ Doc:
  (as per \kbd{bid = idealstar(,q)}), the Dirichlet
  character \var{chi} can be written in one of the usual 3 formats: a \typ{VEC}
  in terms of \kbd{bid.gen} as above, a \typ{COL} in terms of the Conrey
- generators, or a \typ{INT} (Conrey label); see \kbd{??znconreylog} and
- \kbd{??znconreychar}.
+ generators, or a \typ{INT} (Conrey label);
+ see \secref{se:dirichletchar} or \kbd{??character}.
 
  The character value is encoded as follows, depending on the optional
  argument $z$:

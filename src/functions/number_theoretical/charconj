@@ -22,6 +22,16 @@ Doc: let \var{cyc} represent a finite abelian group by its elementary
  %4 = [3]
  ? charconj(bnf, [1])
  %5 = [2]
+ @eprog\noindent For Dirichlet characters (when \kbd{cyc} is
+ \kbd{idealstar(,q)}), characters in Conrey representation are available,
+ see \secref{se:dirichletchar} or \kbd{??character}:
+ \bprog
+ ? G = idealstar(,8);  \\ (Z/8Z)^*
+ ? charorder(G, 3)  \\ Conrey label
+ %2 = 2
+ ? chi = znconreylog(G, 3);
+ ? charorder(G, chi)  \\ Conrey logarithm
+ %4 = 2
  @eprog
 
 Variant: Also available is

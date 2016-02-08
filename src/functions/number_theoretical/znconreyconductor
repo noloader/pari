@@ -14,7 +14,8 @@ Doc: Let \var{bid} be associated to $(\Z/q\Z)^*$ (as per \kbd{bid =
  \item a \typ{VEC}: a standard character on \kbd{bid.gen},
 
  \item a \typ{INT} or a \typ{COL}: a Conrey index in $(\Z/q\Z)^*$ or its
- Conrey logarithm (see \tet{znconreychar} and \tet{znconreylog}).
+ Conrey logarithm;
+ see \secref{se:dirichletchar} or \kbd{??character}.
 
  Return the conductor of \kbd{chi}, as the \typ{INT} \kbd{bid.mod}
  if \kbd{chi} is primitive, and as a pair \kbd{[N, faN]} (with \kbd{faN} the

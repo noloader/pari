@@ -12,7 +12,8 @@ Doc: Let $G$ be associated to $(\Z/N\Z)^*$ (as per \kbd{G =
  \item a \typ{VEC}: a standard character on \kbd{bid.gen},
 
  \item a \typ{INT} or a \typ{COL}: a Conrey index in $(\Z/q\Z)^*$ or its
- Conrey logarithm (see \tet{znconreychar} and \tet{znconreylog}).
+ Conrey logarithm;
+ see \secref{se:dirichletchar} or \kbd{??character}.
 
  Return $1$ if and only if \kbd{chi}$(-1) = -1$ and $0$ otherwise.
 
