@@ -890,13 +890,6 @@ incgam_asymp_partial(GEN s, GEN x, GEN gasx, long n, long prec)
   return gadd(gmul(cox, S), gmul(sprod, gasx));
 }
 
-static GEN
-gexp1(GEN x, long prec)
-{
-  if (typ(x) != t_REAL) x = gtofp(x, prec);
-  return mpexpm1(x);
-}
-
 /* assume s != 0 */
 static GEN
 incgamspec(GEN s, GEN x, GEN g, long prec)
@@ -938,8 +931,8 @@ incgamspec(GEN s, GEN x, GEN g, long prec)
   else if (2*esk > -prec2nbits(prec) - 4)
   {
     if (typ(sk) != t_REAL) sk = gtofp(sk, prec);
-    S1 = gdiv(gexp1(glngamma(gaddgs(sk, 1), prec), prec), sk);
-    F3 = gexp1(gmul(sk, logx), prec);
+    S1 = gdiv(gexpm1(glngamma(gaddgs(sk, 1), prec), prec), sk);
+    F3 = gexpm1(gmul(sk, logx), prec);
     F2 = gneg(gdiv(F3, sk));
     F3 = gaddsg(1, F3);
   }
