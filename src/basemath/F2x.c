@@ -47,6 +47,16 @@ F2x_degree(GEN x)
 }
 
 GEN
+monomial_F2x(long d, long vs)
+{
+  long l=nbits2lg(d+1);
+  GEN z = zero_zv(l-1);
+  z[1] = vs;
+  F2x_set(z,d);
+  return z;
+}
+
+GEN
 F2x_to_ZX(GEN x)
 {
   long l=3+F2x_degree(x);
