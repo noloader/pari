@@ -128,3 +128,5 @@ issquare(Mod(3,22))
 
 \\#1703
 ispower(-167^10)
+\\#1782
+isprimepower(30011^(17*3))

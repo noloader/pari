@@ -1167,7 +1167,7 @@ Z_isanypower_nosmalldiv(GEN *px)
     if (DEBUGLEVEL>4) err_printf("Z_isanypower: now k=%ld, x=%ld-bit\n", k, expi(x));
     xmodQ = umodiu(x, Q);
     /* test Q | x, just in case */
-    if (!xmodQ) return k * split_exponent(Z_lval(x,Q), px);
+    if (!xmodQ) { *px = x; return k * split_exponent(Z_lval(x,Q), px); }
     /* x^(1/p) < 2^31 */
     p = T.p;
     if (p <= e2)
