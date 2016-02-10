@@ -802,7 +802,7 @@ incgamc_i(GEN s, GEN x, double *ptexd, long prec)
   if (ptexd) *ptexd = exd;
   if (exd > 0)
   {
-    long p = l + (long)nbits2extraprec(exd);
+    long p = l + (long)nbits2extraprec((long)exd);
     x = gtofp(x, p);
     if (isinexactreal(s)) s = gtofp(s, p);
   }
@@ -895,13 +895,12 @@ static GEN
 incgamspec(GEN s, GEN x, GEN g, long prec)
 {
   pari_sp av = avma;
-  GEN q, S, cox, P, sk, S1, S2, S3, F2, F3, logx, mx;
-  long esk, n, k = itos(ground(gneg(real_i(s))));
+  GEN q, S, cox = gen_0, P, sk, S1, S2, S3, F2, F3, logx, mx;
+  long n, esk, k = itos(ground(gneg(real_i(s)))), E;
 
-  sk = gaddgs(s, k);
+  sk = gaddgs(s, k); /* |Re(sk)| <= 1/2 */
   logx = glog(x, prec);
   mx = gneg(x);
-  cox = gexp(gadd(mx, gmul(s, logx)), prec); /* x^s exp(-x) */
   if (k == 0) { S = gen_0; P = gen_1; }
   else
   {
@@ -914,45 +913,52 @@ incgamspec(GEN s, GEN x, GEN g, long prec)
       S = gadd(S, q);
       P = gmul(P, sj);
     }
+    cox = gexp(gadd(mx, gmul(s, logx)), prec); /* x^s exp(-x) */
     S = gmul(S, gneg(cox));
   }
   if (k && gequal0(sk))
     return gerepileupto(av, gadd(S, gdiv(eint1(x, prec), P)));
-
   esk = gexpo(sk);
   if (esk > -7)
   {
     GEN a, b, PG = gmul(sk, P);
     if (g) g = gmul(g, PG);
     a = incgam0(gaddgs(sk,1), x, g, prec);
+    if (k == 0) cox = gexp(gadd(mx, gmul(s, logx)), prec); /* x^s exp(-x) */
     b = gmul(gpowgs(x, k), cox);
     return gerepileupto(av, gadd(S, gdiv(gsub(a, b), PG)));
   }
-  else if (2*esk > -prec2nbits(prec) - 4)
+  E = prec2nbits(prec) + 1;
+  if (gexpo(x) > 0)
+  {
+    long X = (long)(dblmodulus(x)/LOG2);
+    prec += 2*nbits2extraprec(X);
+    x = gtofp(x, prec); mx = gneg(x);
+    logx = glog(x, prec); sk = gtofp(sk, prec);
+    E += X;
+  }
+  if (2*esk > -prec2nbits(prec) - 4)
   {
     if (typ(sk) != t_REAL) sk = gtofp(sk, prec);
-    S1 = gdiv(gexpm1(glngamma(gaddgs(sk, 1), prec), prec), sk);
     F3 = gexpm1(gmul(sk, logx), prec);
-    F2 = gneg(gdiv(F3, sk));
-    F3 = gaddsg(1, F3);
+    S1 = gdiv(gsub(gexpm1(glngamma(gaddgs(sk, 1), prec), prec), F3), sk);
   }
   else
   {
     GEN EUL = mpeuler(prec);
     S1 = gadd(negr(EUL), gmul(gdivgs(sk, 2), addrr(szeta(2,prec), sqrr(EUL))));
     F2 = gmul(gneg(logx), gaddsg(1, gmul(gdivgs(sk, 2), logx)));
-    F3 = gexp(gmul(sk, logx), prec);
+    S1 = gadd(S1, F2);
+    F3 = gexpm1(gmul(sk, logx), prec);
   }
-  S2 = gmul(F2, gadd(gexp(mx, prec),
-                     gdiv(incgamc(gaddgs(sk,1), x, prec), F3)));
-  S3 = gdiv(x, gaddsg(1,sk));
-  q = x; n = 1;
-  while (gexpo(q) > -prec2nbits(prec))
+  q = x; S3 = gadd(S1, gdiv(x, gaddsg(1,sk)));
+  for (n = 2; gexpo(q) - gexpo(S3) > -E; ++n)
   {
-    n++; q = gmul(q, gdivgs(mx, n));
+    q = gmul(q, gdivgs(mx, n));
     S3 = gadd(S3, gdiv(q, gaddsg(n, sk)));
   }
-  return gerepileupto(av, gadd(S, gdiv(gadd(gadd(S1, S2), S3), P)));
+  S2 = gadd(S3, gmul(F3, S3));
+  return gerepileupto(av, gadd(S, gdiv(S2, P)));
 }
 
 #if 0
@@ -1037,7 +1043,7 @@ incgam0(GEN s, GEN x, GEN g, long prec)
     z = incgamc_i(s, x, &exd, l);
     if (exd > 0)
     {
-      l += (long)nbits2extraprec(exd);
+      l += (long)nbits2extraprec((long)exd);
       if (isinexactreal(s)) s = gtofp(s, l);
       g = NULL;
     }
@@ -1064,8 +1070,9 @@ mpeint1(GEN x, GEN expx)
 static GEN
 cxeint1(GEN x, long prec)
 {
-  pari_sp av = avma;
-  GEN q, S1, S2, S3, mx;
+  pari_sp av = avma, av2;
+  GEN q, S3;
+  GEN run, z, H;
   long n, E = prec2nbits(prec) + 1, ex = gexpo(x);
 
   if (ex > E || 4*dblmodulus(x) > 3*E)
@@ -1079,21 +1086,23 @@ cxeint1(GEN x, long prec)
   }
   if (ex > 0)
   { /* take cancellation into account, log2(\sum |x|^n / n!) = |x| / log(2) */
-    double X = dblmodulus(x);
-    prec += nbits2extraprec(X / LOG2);
-    x = gtofp(x, prec);
-    E += (long)(X/LOG2);
+    double dbx = dblmodulus(x);
+    long X = (long)((dbx + log(dbx))/LOG2 + 10);
+    prec += nbits2extraprec(X);
+    x = gtofp(x, prec); E += X;
   }
   if (DEBUGLEVEL > 2) err_printf("eint1: using power series\n");
-  S1 = negr(mpeuler(prec));
-  S2 = gneg(glog(x, prec));
-  q = S3 = x; n = 1; mx = gneg(x);
-  while (gexpo(q) - gexpo(S3) > -E)
+  run = real_1(prec);
+  av2 = avma;
+  S3 = z = q = H = run;
+  for (n = 2; gexpo(q) - gexpo(S3) >= -E; n++)
   {
-    n++; q = gmul(q, gdivgs(mx, n));
-    S3 = gadd(S3, gdivgs(q, n));
+    H = addrr(H, divru(run, n)); /* H = sum_{k<=n} 1/k */
+    z = gdivgs(gmul(x,z), n);   /* z = x^(n-1)/n! */
+    q = gmul(z, H); S3 = gadd(S3, q);
+    if ((n & 0x1ff) == 0) gerepileall(av2, 4, &z, &q, &S3, &H);
   }
-  return gerepileupto(av, gadd(gadd(S1, S2), S3));
+  return gerepileupto(av, gsub(gmul(x, gdiv(S3, gexp(x, prec))), gadd(glog(x, prec), mpeuler(prec))));
 }
 
 GEN
@@ -1103,9 +1112,11 @@ eint1(GEN x, long prec)
   pari_sp av;
   GEN p1, t, S, y, res;
 
-  if (typ(x) != t_REAL) {
-    x = gtofp(x, prec);
-    if (typ(x) != t_REAL) return cxeint1(x, prec);
+  switch(typ(x))
+  {
+    case t_COMPLEX: return cxeint1(x, prec);
+    case t_REAL: break;
+    default: x = gtofp(x, prec);
   }
   if (signe(x) >= 0) return mpeint1(x,NULL);
   /* rewritten from code contributed by Manfred Radimersky */
