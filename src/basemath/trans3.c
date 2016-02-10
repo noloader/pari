@@ -832,6 +832,18 @@ incgamc(GEN s, GEN x, long prec)
   return incgamc_i(s, x, NULL, prec);
 }
 
+/* x^s exp(-x) */
+static GEN
+expmx_xs(GEN s, GEN x, GEN logx, long prec)
+{
+  GEN z;
+  long ts = typ(s);
+  if (ts == t_INT || (ts == t_FRAC && equaliu(gel(s,2), 2)))
+    z = gmul(gexp(gneg(x), prec), gpow(x, s, prec));
+  else
+    z = gexp(gsub(gmul(s, glog(x,prec)), x), prec);
+  return z;
+}
 /* incgamma using asymptotic expansion:
  *   exp(-x)x^(s-1)(1 + (s-1)/x + (s-1)(s-2)/x^2 + ...) */
 static GEN
@@ -839,12 +851,13 @@ incgam_asymp(GEN s, GEN x, long prec)
 {
   pari_sp av = avma, av2;
   GEN S, q, cox, invx;
-  long oldeq = LONG_MAX, eq, esx, j, flint = 0;
+  long oldeq = LONG_MAX, eq, esx, j;
+  int flint = (typ(s) == t_INT && signe(s) > 0);
+
   invx = ginv(x);
   esx = -prec2nbits(prec);
   av2 = avma;
-  if (typ(s) == t_INT && signe(s) > 0) flint = 1;
-  q = gmul(gsubgs(s, 1), invx);
+  q = gmul(gsubgs(s,1), invx);
   S = gaddgs(q, 1);
   for (j = 2;; j++)
   {
@@ -854,14 +867,11 @@ incgam_asymp(GEN s, GEN x, long prec)
       if (eq > oldeq) { avma = av; return NULL; } /* regressing, abort */
       oldeq = eq;
     }
-    q = gmul(q, gmul(gsubgs(s, j), invx));
+    q = gmul(q, gmul(gsubgs(s,j), invx));
     S = gadd(S, q);
     if (gc_needed(av2, 1)) gerepileall(av2, 2, &S, &q);
   }
-  if (typ(s) == t_INT) /* exp(-x) x^(s-1) */
-    cox = gmul(gexp(gneg(x), prec), powgi(x, subis(s, 1)));
-  else
-    cox = gexp(gsub(gmul(gsubgs(s, 1), glog(x,prec)), x), prec);
+  cox = expmx_xs(gsubgs(s,1), x, NULL, prec);
   return gerepileupto(av, gmul(cox, S));
 }
 
@@ -874,7 +884,7 @@ incgam_asymp_partial(GEN s, GEN x, GEN gasx, long n, long prec)
   pari_sp av;
   GEN S, q, cox, invx, s1 = gsubgs(s, 1), sprod;
   long j;
-  cox = gexp(gsub(gmul(s1, glog(x,prec)), x), prec);
+  cox = expmx_xs(s1, x, NULL, prec);
   if (n == 1) return gadd(cox, gmul(s1, gasx));
   invx = ginv(x);
   av = avma;
@@ -913,7 +923,7 @@ incgamspec(GEN s, GEN x, GEN g, long prec)
       S = gadd(S, q);
       P = gmul(P, sj);
     }
-    cox = gexp(gadd(mx, gmul(s, logx)), prec); /* x^s exp(-x) */
+    cox = expmx_xs(s, x, logx, prec); /* x^s exp(-x) */
     S = gmul(S, gneg(cox));
   }
   if (k && gequal0(sk))
@@ -924,7 +934,7 @@ incgamspec(GEN s, GEN x, GEN g, long prec)
     GEN a, b, PG = gmul(sk, P);
     if (g) g = gmul(g, PG);
     a = incgam0(gaddgs(sk,1), x, g, prec);
-    if (k == 0) cox = gexp(gadd(mx, gmul(s, logx)), prec); /* x^s exp(-x) */
+    if (k == 0) cox = expmx_xs(s, x, logx, prec);
     b = gmul(gpowgs(x, k), cox);
     return gerepileupto(av, gadd(S, gdiv(gsub(a, b), PG)));
   }
