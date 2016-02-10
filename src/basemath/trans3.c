@@ -898,10 +898,10 @@ incgam_asymp_partial(GEN s, GEN x, GEN gasx, long n, long prec)
 static GEN
 incgamspec(GEN s, GEN x, GEN g, long prec)
 {
-  pari_sp av = avma;
   GEN q, S, cox = gen_0, P, sk, S1, S2, S3, F2, F3, logx, mx;
   long n, esk, k = itos(ground(gneg(real_i(s)))), E;
 
+  x = gtofp(x, precision(x) + EXTRAPRECWORD);
   sk = gaddgs(s, k); /* |Re(sk)| <= 1/2 */
   logx = glog(x, prec);
   mx = gneg(x);
@@ -921,7 +921,7 @@ incgamspec(GEN s, GEN x, GEN g, long prec)
     S = gmul(S, gneg(cox));
   }
   if (k && gequal0(sk))
-    return gerepileupto(av, gadd(S, gdiv(eint1(x, prec), P)));
+    return gadd(S, gdiv(eint1(x, prec), P));
   esk = gexpo(sk);
   if (esk > -7)
   {
@@ -930,7 +930,7 @@ incgamspec(GEN s, GEN x, GEN g, long prec)
     a = incgam0(gaddgs(sk,1), x, g, prec);
     if (k == 0) cox = expmx_xs(s, x, logx, prec);
     b = gmul(gpowgs(x, k), cox);
-    return gerepileupto(av, gadd(S, gdiv(gsub(a, b), PG)));
+    return gadd(S, gdiv(gsub(a, b), PG));
   }
   E = prec2nbits(prec) + 1;
   if (gexpo(x) > 0)
@@ -962,7 +962,7 @@ incgamspec(GEN s, GEN x, GEN g, long prec)
     S3 = gadd(S3, gdiv(q, gaddsg(n, sk)));
   }
   S2 = gadd(S3, gmul(F3, S3));
-  return gerepileupto(av, gadd(S, gdiv(S2, P)));
+  return gadd(S, gdiv(S2, P));
 }
 
 #if 0
@@ -1055,7 +1055,7 @@ incgam0(GEN s, GEN x, GEN g, long prec)
     return gerepileupto(av, gsub(g,z));
   }
   if (DEBUGLEVEL > 2) err_printf("incgam: using power series 2\n");
-  return gerepilecopy(av, incgamspec(s, x, g, l));
+  return gerepileupto(av, incgamspec(s, x, g, l));
 }
 
 GEN
