@@ -847,7 +847,7 @@ incgam_asymp(GEN s, GEN x, long prec)
   long oldeq = LONG_MAX, eq, esx, j;
   int flint = (typ(s) == t_INT && signe(s) > 0);
 
-  if (isinexact(x)) x = gtofp(x,prec+EXTRAPRECWORD);
+  x = gtofp(x,prec+EXTRAPRECWORD);
   invx = ginv(x);
   esx = -prec2nbits(prec);
   av2 = avma;
@@ -900,8 +900,10 @@ incgamspec(GEN s, GEN x, GEN g, long prec)
 {
   GEN q, S, cox = gen_0, P, sk, S1, S2, S3, F2, F3, logx, mx;
   long n, esk, k = itos(ground(gneg(real_i(s)))), E;
+  long l = precision(x);
 
-  x = gtofp(x, precision(x) + EXTRAPRECWORD);
+  if (!l) l = prec;
+  x = gtofp(x, l + EXTRAPRECWORD);
   sk = gaddgs(s, k); /* |Re(sk)| <= 1/2 */
   logx = glog(x, prec);
   mx = gneg(x);
@@ -1005,7 +1007,6 @@ incgam0(GEN s, GEN x, GEN g, long prec)
   l = precision(s);
   if (!l) l = prec;
   E = prec2nbits(l) + 1;
-  if (typ(x) != t_REAL) x = gtofp(x, l);
   /* avoid overflow in dblmodulus */
   if (gexpo(x) > E) mx = E; else mx = dblmodulus(x);
   /* use asymptotic expansion */
