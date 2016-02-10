@@ -9,8 +9,8 @@ test(fun, p) =
       my (v,w, s = Vs[i], x = Vx[j]);
       localprec(p);      v = fun(s, x);
       localprec(p + 38); w = fun(s, x);
-\\      e = abs((v-w)/w);
-      e = if (abs(w) < 1, abs(v-w), abs((v-w)/w));
+      e = abs((v-w)/w);
+\\      e = if (abs(w) < 1, abs(v-w), abs((v-w)/w));
       if (e > P, printf("%9s, %13s: %.1e\n", s,x,e));
     )
   );
@@ -20,7 +20,7 @@ test(incgam, 19)
 test(incgam, 38)
 test(incgam, 96)
 
-Vs=[1/10+1/5*I,-1/10,-1/10,-1/10+2/5*I,2/5*I,-2/5*I,-1,-20,-200001/10000];
+Vs=[1/10+1/5*I,-1/10,-1/10+2/5*I,2/5*I,-2/5*I,-1,-20,-200001/10000];
 Vx=[11/10,13/10,1/10000];
 
 test(incgam, 38)
