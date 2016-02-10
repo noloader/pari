@@ -1135,7 +1135,8 @@ eint1(GEN x, long prec)
   av = avma;
   l  = realprec(x);
   n  = prec2nbits(l);
-  y  = negr(x);
+  y  = rtor(x, l + EXTRAPRECWORD);
+  setsigne(y,1);
   if (cmprs(y, (3*n)/4) < 0) {
     p1 = t = S = y;
     for (i = 2; expo(t) - expo(S) >= -n; i++) {
@@ -1144,10 +1145,10 @@ eint1(GEN x, long prec)
       S = addrr(S, t);
     }
     y  = addrr(S, addrr(logr_abs(x), mpeuler(l)));
-  } else { /* asymptotic expansion */
+  } else { /* ~incgam_asymp: asymptotic expansion */
     p1 = t = invr(y);
     S = addrs(t, 1);
-    for (i = 2; expo(t) - expo(S) >= -n; i++) {
+    for (i = 2; expo(t) >= -n; i++) {
       t = mulrr(p1, mulru(t, i));
       S = addrr(S, t);
     }
