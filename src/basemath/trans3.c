@@ -799,13 +799,13 @@ incgamc_i(GEN s, GEN x, double *ptexd, long prec)
   double exd;
   pari_sp av = avma, av2;
 
-  if (typ(x) != t_REAL) x = gtofp(x, prec);
   if (gequal0(x))
   {
     if (ptexd) *ptexd = 0.;
-    return gcopy(x);
+    return gtofp(x, prec);
   }
   l = precision(x);
+  if (!l) l = prec;
   n = -prec2nbits(l)-1;
   exd = findextraincgam(s, x);
   if (ptexd) *ptexd = exd;
@@ -815,6 +815,7 @@ incgamc_i(GEN s, GEN x, double *ptexd, long prec)
     x = gtofp(x, p);
     if (isinexactreal(s)) s = gtofp(s, p);
   }
+  else x = gtofp(x, l+EXTRAPRECWORD);
   av2 = avma;
   S = gdiv(x, gaddsg(1,s));
   t = gaddsg(1, S);

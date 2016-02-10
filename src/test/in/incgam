@@ -20,20 +20,9 @@ test(incgam, 19)
 test(incgam, 38)
 test(incgam, 96)
 
-mylog(x)=if(x==0, "oo", round(log(abs(x))/log(10)));
+Vs=[1/10+1/5*I,-1/10,-1/10,-1/10+2/5*I,2/5*I,-2/5*I,-1,-20,-200001/10000];
+Vx=[11/10,13/10,1/10000];
 
-Vs=[1/10+1/5*I,-1/10,-1/10,-1/10+2/5*I,-1/10+2/5*I,2/5*I,2/5*I,-2/5*I,-2/5*I,-1,-1,-20,-200001/10000];
-Vx=[13/10,1/10000,13/10,13/10,1/10000,11/10,1/10000,11/10,1/10000,1/10000,11/10,11/10,11/10];
-
-localprec(100); VR = vector(#Vs,j,incgam(Vs[j]*1.,Vx[j]*1.));
-test(fun, prec)=
-{
-  localprec(prec);
-  for(j=1,#Vs,
-    res = fun(Vs[j]*1.,Vx[j]*1.) - VR[j];
-    print(j, ": ", mylog(res))
-  );
-}
 test(incgam, 38)
 test(incgam, 76)
 
