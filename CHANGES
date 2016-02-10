@@ -187,6 +187,8 @@ MC139- memory leak in pari_close: sopath not freed
 HC140- incgam(30,60) < 0. More generally, wrong results for s >> 1 [#1689]
 HC141- excessive loss of accuracy in incgam, incgamc, eint1
   142- isprimepower(30011^(3*17)) returned 0
+  143- a = Mod(1,x); z = Mod(0,Pol(1)); chinese(a, z) works
+       but chinese(a, simplify(z)) failed
 
   Added
     1- add optional argument to sumdigits to specify the base

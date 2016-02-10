@@ -6,7 +6,7 @@ Mod(2, 3)*x^2 + Mod(1, 6)*x + Mod(1, 6)
   ***                 ^----------
   *** chinese: incorrect type in association (t_INT).
 Mod(0, 1)
-  ***   at top-level: ...Mod(0,1);m2=Mod(1,x^2+1);chinese(m1,m2)
-  ***                                             ^--------------
-  *** chinese: inconsistent chinese t_INTMOD , t_POLMOD.
-Total time spent: 4
+Mod(x + 1, x^2)
+Mod(x + 1, 2*x^2)
+Mod(x + 1, x^2)
+Total time spent: 0

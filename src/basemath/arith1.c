@@ -2174,6 +2174,16 @@ gen_chinese(GEN x, GEN(*f)(GEN,GEN))
   return z;
 }
 
+/* x t_INTMOD, y t_POLMOD; promote x to t_POLMOD mod Pol(x.mod) then
+ * call chinese: makes Mod(0,1) a better "neutral" element */
+static GEN
+chinese_intpol(GEN x,GEN y)
+{
+  pari_sp av = avma;
+  GEN z = mkpolmod(gel(x,2), scalarpol_shallow(gel(x,1), varn(gel(y,1))));
+  return gerepileupto(av, chinese(z, y));
+}
+
 GEN
 chinese1(GEN x) { return gen_chinese(x,chinese); }
 
@@ -2181,12 +2191,13 @@ GEN
 chinese(GEN x, GEN y)
 {
   pari_sp av;
-  long tx = typ(x);
+  long tx = typ(x), ty;
   GEN z,p1,p2,d,u,v;
 
   if (!y) return chinese1(x);
   if (gidentical(x,y)) return gcopy(x);
-  if (tx == typ(y)) switch(tx)
+  ty = typ(y);
+  if (tx == ty) switch(tx)
   {
     case t_POLMOD:
     {
@@ -2237,6 +2248,8 @@ chinese(GEN x, GEN y)
       return z;
     }
   }
+  if (tx == t_POLMOD && ty == t_INTMOD) return chinese_intpol(y,x);
+  if (ty == t_POLMOD && tx == t_INTMOD) return chinese_intpol(x,y);
   pari_err_OP("chinese",x,y);
   return NULL; /* not reached */
 }
