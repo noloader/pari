@@ -769,16 +769,25 @@ findextraincgam(GEN s, GEN x)
   if (xr < 0)
   {
     long ex = gexpo(x);
-    if (ex > 0 && ex > gexpo(s))
-    {
-      double X = dblmodulus(x);
-      exd = X*log(X);
-    }
+    if (ex > 0 && ex > gexpo(s)) exd = sqrt(Nx)*log(Nx)/2; /* |x| log |x| */
   }
   if (D <= 0.) return exd;
   n = (long)(sqrt(D)-sig);
   if (n <= 0) return exd;
   return maxdd(exd, (n*log(Nx)/2 - mygamma(sig+n, t) + mygamma(sig, t)) / LOG2);
+}
+
+/* x^s exp(-x) */
+static GEN
+expmx_xs(GEN s, GEN x, GEN logx, long prec)
+{
+  GEN z;
+  long ts = typ(s);
+  if (ts == t_INT || (ts == t_FRAC && equaliu(gel(s,2), 2)))
+    z = gmul(gexp(gneg(x), prec), gpow(x, s, prec));
+  else
+    z = gexp(gsub(gmul(s, glog(x,prec)), x), prec);
+  return z;
 }
 
 /* use exp(-x) * (x^s/s) * sum_{k >= 0} x^k / prod(i=1, k, s+i) */
@@ -819,31 +828,14 @@ incgamc_i(GEN s, GEN x, double *ptexd, long prec)
       gerepileall(av2, 2, &S, &t);
     }
   }
-  if (typ(s)==t_INT)
-    y = gmul(gexp(gneg(x), prec), powgi(x,s));
-  else
-    y = gexp(gsub(gmul(s, glog(x, prec)), x), prec);
+  y = expmx_xs(s, x, NULL, prec);
   return gerepileupto(av, gmul(gdiv(y,s), t));
 }
 
 GEN
 incgamc(GEN s, GEN x, long prec)
-{
-  return incgamc_i(s, x, NULL, prec);
-}
+{ return incgamc_i(s, x, NULL, prec); }
 
-/* x^s exp(-x) */
-static GEN
-expmx_xs(GEN s, GEN x, GEN logx, long prec)
-{
-  GEN z;
-  long ts = typ(s);
-  if (ts == t_INT || (ts == t_FRAC && equaliu(gel(s,2), 2)))
-    z = gmul(gexp(gneg(x), prec), gpow(x, s, prec));
-  else
-    z = gexp(gsub(gmul(s, glog(x,prec)), x), prec);
-  return z;
-}
 /* incgamma using asymptotic expansion:
  *   exp(-x)x^(s-1)(1 + (s-1)/x + (s-1)(s-2)/x^2 + ...) */
 static GEN
