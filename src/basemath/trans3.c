@@ -854,6 +854,7 @@ incgam_asymp(GEN s, GEN x, long prec)
   long oldeq = LONG_MAX, eq, esx, j;
   int flint = (typ(s) == t_INT && signe(s) > 0);
 
+  if (isinexact(x)) x = gtofp(x,prec+EXTRAPRECWORD);
   invx = ginv(x);
   esx = -prec2nbits(prec);
   av2 = avma;
