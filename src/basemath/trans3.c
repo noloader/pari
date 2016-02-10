@@ -1051,7 +1051,7 @@ incgam0(GEN s, GEN x, GEN g, long prec)
       if (isinexactreal(s)) s = gtofp(s, l);
       g = NULL;
     }
-    if (!g) g = ggamma(s,l);
+    if (!g) g = ggamma(s, maxss(l,precision(z)));
     return gerepileupto(av, gsub(g,z));
   }
   if (DEBUGLEVEL > 2) err_printf("incgam: using power series 2\n");
