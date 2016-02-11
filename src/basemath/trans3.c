@@ -900,10 +900,16 @@ incgamspec(GEN s, GEN x, GEN g, long prec)
 {
   GEN q, S, cox = gen_0, P, sk, S1, S2, S3, F2, F3, logx, mx;
   long n, esk, k = itos(ground(gneg(real_i(s)))), E;
-  long l = precision(x);
 
-  if (!l) l = prec;
-  x = gtofp(x, l + EXTRAPRECWORD);
+  if (k && gexpo(x) > 0)
+  {
+    GEN xk = gdivgs(x, k);
+    long bitprec = prec2nbits(prec);
+    double mx = (gexpo(xk) > bitprec)? bitprec*LOG2: log(dblmodulus(xk));
+    prec += nbits2extraprec((long)k*(mx + 1)/LOG2);
+    if (isinexactreal(s)) s = gtofp(s, prec);
+  }
+  x = gtofp(x, maxss(precision(x), prec) + EXTRAPRECWORD);
   sk = gaddgs(s, k); /* |Re(sk)| <= 1/2 */
   logx = glog(x, prec);
   mx = gneg(x);
