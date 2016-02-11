@@ -1052,6 +1052,8 @@ incgam0(GEN s, GEN x, GEN g, long prec)
       g = NULL;
     }
     z = incgamc_i(s, x, &exd, l);
+    /* gamma(s) negligible ? */
+    if (es + gexpo(z) > prec2nbits(l)) return gerepileupto(av, gneg(z));
     if (exd > 0)
     {
       l += (long)nbits2extraprec((long)exd);
