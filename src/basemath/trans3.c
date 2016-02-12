@@ -792,11 +792,10 @@ expmx_xs(GEN s, GEN x, GEN logx, long prec)
 
 /* use exp(-x) * (x^s/s) * sum_{k >= 0} x^k / prod(i=1, k, s+i) */
 static GEN
-incgamc_i(GEN s, GEN x, double *ptexd, long prec)
+incgamc_i(GEN s, GEN x, long *ptexd, long prec)
 {
   GEN S, t, y;
-  long l, n, i;
-  double exd;
+  long l, n, i, exd;
   pari_sp av = avma, av2;
 
   if (gequal0(x))
@@ -807,11 +806,11 @@ incgamc_i(GEN s, GEN x, double *ptexd, long prec)
   l = precision(x);
   if (!l) l = prec;
   n = -prec2nbits(l)-1;
-  exd = findextraincgam(s, x);
+  exd = (long)findextraincgam(s, x);
   if (ptexd) *ptexd = exd;
   if (exd > 0)
   {
-    long p = l + (long)nbits2extraprec((long)exd);
+    long p = l + nbits2extraprec(exd);
     x = gtofp(x, p);
     if (isinexactreal(s)) s = gtofp(s, p);
   }
@@ -865,6 +864,7 @@ incgam_asymp(GEN s, GEN x, long prec)
     S = gadd(S, q);
     if (gc_needed(av2, 1)) gerepileall(av2, 2, &S, &q);
   }
+  if (DEBUGLEVEL > 2) err_printf("incgam: using asymp\n");
   cox = expmx_xs(gsubgs(s,1), x, NULL, prec);
   return gerepileupto(av, gmul(cox, S));
 }
@@ -1003,8 +1003,8 @@ GEN
 incgam0(GEN s, GEN x, GEN g, long prec)
 {
   pari_sp av;
-  long E, es, l, n;
-  double mx, exd;
+  long E, l;
+  double mx;
   GEN z, rs;
 
   if (gequal0(x)) return g? gcopy(g): ggamma(s,prec);
@@ -1016,19 +1016,13 @@ incgam0(GEN s, GEN x, GEN g, long prec)
   /* avoid overflow in dblmodulus */
   if (gexpo(x) > E) mx = E; else mx = dblmodulus(x);
   /* use asymptotic expansion */
-  if (4*mx > 3*E || (typ(s) == t_INT && signe(s) > 0))
-  {
-    z = incgam_asymp(s, x, l);
-    if (z)
-    {
-      if (DEBUGLEVEL > 2) err_printf("incgam: using asymp\n");
-      return z;
-    }
-  }
+  if ((4*mx > 3*E || (typ(s) == t_INT && signe(s) > 0))
+      && (z = incgam_asymp(s, x, l))) return z;
   rs = real_i(s);
   if (gsigne(rs) > 0 && gexpo(rs) >= -1)
   { /* use complementary incomplete gamma */
-    es = gexpo(s);
+    long n, egs, exd, precg, es = gexpo(s);
+    GEN is;
     if (es < 0) {
       l += nbits2extraprec(-es) + 1;
       x = gtofp(x, l);
@@ -1042,24 +1036,34 @@ incgam0(GEN s, GEN x, GEN g, long prec)
       gasx = incgam0(gsubgs(s, n), x, NULL, prec);
       return gerepileupto(av, incgam_asymp_partial(s, x, gasx, n, prec));
     }
+    is = imag_i(s);
     if (DEBUGLEVEL > 2) err_printf("incgam: using power series 1\n");
-    if (!g) g = ggamma(s,l);
-    es = -gexpo(g);
-    if (es < 0) {
-      l += nbits2extraprec(-es) + 1;
+    /* egs ~ expo(gamma(s)) */
+    precg = g? precision(g): 0;
+    egs = g? gexpo(g): (long)(mygamma(gtodouble(rs), gtodouble(is)) / LOG2);
+    if (egs > 0) {
+      l += nbits2extraprec(egs) + 1;
       x = gtofp(x, l);
       if (isinexactreal(s)) s = gtofp(s, l);
-      g = NULL;
+      if (precg < l) g = NULL;
     }
     z = incgamc_i(s, x, &exd, l);
-    /* gamma(s) negligible ? */
-    if (es + gexpo(z) > prec2nbits(l)) return gerepileupto(av, gneg(z));
     if (exd > 0)
     {
-      l += (long)nbits2extraprec((long)exd);
+      l += nbits2extraprec(exd);
       if (isinexactreal(s)) s = gtofp(s, l);
-      g = NULL;
+      if (precg < l) g = NULL;
     }
+    else
+    { /* gamma(s) negligible ? Compute to lower accuracy */
+      long e = gexpo(z) - egs;
+      if (e > 3)
+      {
+        E -= e;
+        if (E <= 0) g = gen_0; else if (!g) g = ggamma(s, nbits2prec(E));
+      }
+    }
+    /* worry about possible cancellation */
     if (!g) g = ggamma(s, maxss(l,precision(z)));
     return gerepileupto(av, gsub(g,z));
   }
@@ -1088,15 +1092,8 @@ cxeint1(GEN x, long prec)
   GEN run, z, H;
   long n, E = prec2nbits(prec) + 1, ex = gexpo(x);
 
-  if (ex > E || 4*dblmodulus(x) > 3*E)
-  {
-    GEN z = incgam_asymp(gen_0, x, prec);
-    if (z)
-    {
-      if (DEBUGLEVEL > 2) err_printf("eint1: using asymp\n");
-      return z;
-    }
-  }
+  if ((ex > E || 4*dblmodulus(x) > 3*E)
+      && (z = incgam_asymp(gen_0, x, prec))) return z;
   if (ex > 0)
   { /* take cancellation into account, log2(\sum |x|^n / n!) = |x| / log(2) */
     double dbx = dblmodulus(x);
