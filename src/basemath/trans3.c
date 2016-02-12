@@ -963,13 +963,13 @@ incgamspec(GEN s, GEN x, GEN g, long prec)
     S1 = gadd(S1, F2);
     F3 = gexpm1(gmul(sk, logx), prec);
   }
-  q = x; S3 = gadd(S1, gdiv(x, gaddsg(1,sk)));
+  q = x; S3 = gdiv(x, gaddsg(1,sk));
   for (n = 2; gexpo(q) - gexpo(S3) > -E; ++n)
   {
     q = gmul(q, gdivgs(mx, n));
     S3 = gadd(S3, gdiv(q, gaddsg(n, sk)));
   }
-  S2 = gadd(S3, gmul(F3, S3));
+  S2 = gadd(gadd(S1, S3), gmul(F3, S3));
   return gadd(S, gdiv(S2, P));
 }
 
