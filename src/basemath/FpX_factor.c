@@ -3104,7 +3104,7 @@ static GEN
 F2xqX_quad_roots(GEN P, GEN T)
 {
   GEN b= gel(P,3), c = gel(P,2);
-  if (degpol(b)>=0)
+  if (lgpol(b))
   {
     GEN z, d = F2xq_div(c, F2xq_sqr(b,T),T);
     if (F2xq_trace(d,T))
