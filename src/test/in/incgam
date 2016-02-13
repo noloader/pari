@@ -18,7 +18,9 @@ test(fun, p) =
 
 test(incgam, 19)
 test(incgam, 38)
+test(incgam, 77)
 test(incgam, 96)
+test(incgam, 115)
 
 Vs=[1/10+1/5*I,-1/10,-1/10+2/5*I,2/5*I,-2/5*I,-1,-20,-200001/10000];
 Vx=[11/10,13/10,1/10000];

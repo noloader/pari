@@ -898,7 +898,7 @@ incgam_asymp_partial(GEN s, GEN x, GEN gasx, long n, long prec)
 static GEN
 incgamspec(GEN s, GEN x, GEN g, long prec)
 {
-  GEN q, S, cox = gen_0, P, sk, S1, S2, S3, F2, F3, logx, mx;
+  GEN q, S, cox = gen_0, P, sk, S1, S2, S3, F3, logx, mx;
   long n, esk, k = itos(ground(gneg(real_i(s)))), E;
 
   if (k && gexpo(x) > 0)
@@ -940,6 +940,7 @@ incgamspec(GEN s, GEN x, GEN g, long prec)
     b = gmul(gpowgs(x, k), cox);
     return gadd(S, gdiv(gsub(a, b), PG));
   }
+  /* |sk| < 2^-7 is small */
   E = prec2nbits(prec) + 1;
   if (gexpo(x) > 0)
   {
@@ -950,16 +951,16 @@ incgamspec(GEN s, GEN x, GEN g, long prec)
     E += X;
   }
   if (2*esk > -prec2nbits(prec) - 4)
-  {
-    if (typ(sk) != t_REAL) sk = gtofp(sk, prec);
+  { /* ... but moderately large */
+    if (isinexactreal(sk)) sk = gtofp(sk, prec);
     F3 = gexpm1(gmul(sk, logx), prec);
-    S1 = gdiv(gsub(gexpm1(glngamma(gaddgs(sk, 1), prec), prec), F3), sk);
+    S1 = gdiv(gsub(gexpm1(glngamma(gaddgs(sk,1), prec), prec), F3), sk);
   }
   else
-  {
-    GEN EUL = mpeuler(prec);
-    S1 = gadd(negr(EUL), gmul(gdivgs(sk, 2), addrr(szeta(2,prec), sqrr(EUL))));
-    F2 = gmul(gneg(logx), gaddsg(1, gmul(gdivgs(sk, 2), logx)));
+  { /* ... in fact tiny */
+    GEN F2, sk2 = gmul2n(sk,-1), EUL = mpeuler(prec);
+    S1 = gsub(gmul(sk2, addrr(szeta(2,prec), sqrr(EUL))), EUL);
+    F2 = gmul(gneg(logx), gaddsg(1, gmul(sk2, logx)));
     S1 = gadd(S1, F2);
     F3 = gexpm1(gmul(sk, logx), prec);
   }
