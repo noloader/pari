@@ -940,7 +940,6 @@ incgamspec(GEN s, GEN x, GEN g, long prec)
     b = gmul(gpowgs(x, k), cox);
     return gadd(S, gdiv(gsub(a, b), PG));
   }
-  /* |sk| < 2^-7 is small */
   E = prec2nbits(prec) + 1;
   if (gexpo(x) > 0)
   {
@@ -950,20 +949,11 @@ incgamspec(GEN s, GEN x, GEN g, long prec)
     logx = glog(x, prec); sk = gtofp(sk, prec);
     E += X;
   }
-  if (2*esk > -prec2nbits(prec) - 4)
-  { /* ... but moderately large */
-    if (isinexactreal(sk)) sk = gtofp(sk, prec);
-    F3 = gexpm1(gmul(sk, logx), prec);
-    S1 = gdiv(gsub(gexpm1(glngamma(gaddgs(sk,1), prec), prec), F3), sk);
-  }
-  else
-  { /* ... in fact tiny */
-    GEN F2, sk2 = gmul2n(sk,-1), EUL = mpeuler(prec);
-    S1 = gsub(gmul(sk2, addrr(szeta(2,prec), sqrr(EUL))), EUL);
-    F2 = gmul(gneg(logx), gaddsg(1, gmul(sk2, logx)));
-    S1 = gadd(S1, F2);
-    F3 = gexpm1(gmul(sk, logx), prec);
-  }
+  if (isinexactreal(sk)) sk = gtofp(sk, prec);
+  /* |sk| < 2^-7 is small, guard against cancellation */
+  F3 = gexpm1(gmul(sk, logx), prec);
+  /* ( (gamma(1+sk)-1) - (exp(sk log(x))-1) ) / sk */
+  S1 = gdiv(gsub(ggamma1m1(sk, prec), F3), sk);
   q = x; S3 = gdiv(x, gaddsg(1,sk));
   for (n = 2; gexpo(q) - gexpo(S3) > -E; ++n)
   {

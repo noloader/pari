@@ -1484,6 +1484,10 @@ Qp_gamma(GEN x)
   return Qp_gamma_Dwork(x, itos(p));
 }
 
+/* gamma(1+x) - 1, |x| < 1 is "small" */
+GEN
+ggamma1m1(GEN x, long prec) { return gexpm1(lngamma1(x, prec), prec); }
+
 GEN
 ggamma(GEN x, long prec)
 {

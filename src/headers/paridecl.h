@@ -4047,6 +4047,7 @@ GEN     gatanh(GEN x, long prec);
 GEN     gcosh(GEN x, long prec);
 GEN     ggammah(GEN x, long prec);
 GEN     ggamma(GEN x, long prec);
+GEN     ggamma1m1(GEN x, long prec);
 GEN     glngamma(GEN x, long prec);
 GEN     gpsi(GEN x, long prec);
 GEN     gsinh(GEN x, long prec);

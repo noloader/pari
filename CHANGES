@@ -402,6 +402,7 @@ SCh152- [mingw+pthread]: default nbthreads support
    154- optional argument 'tab' to teichmuller(x)
    155- [GP] function chareval, charmul, chardiv, zncharinduce, zncharisodd
    156- [libpari] Flm_intersect
+   157- [libpari] ggamma1m1
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]
