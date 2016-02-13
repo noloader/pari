@@ -3113,7 +3113,7 @@ F2m_F2c_invimage(GEN A, GEN y)
 
   x = gel(M,i);
   if (!F2v_coeff(x,l)) { avma = av; return NULL; }
-  x[1]--; /* remove last coord */
+  F2v_clear(x, x[1]); x[1]--; /* remove last coord */
   return gerepileuptoleaf(av, x);
 }
 
