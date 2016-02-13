@@ -35,7 +35,9 @@ static struct mt_mstate *pari_mt;
 static void
 send_long(long a, long dest)
 {
+  BLOCK_SIGINT_START
   MPI_Send(&a, 1, MPI_LONG, dest, 0, MPI_COMM_WORLD);
+  BLOCK_SIGINT_END
 }
 
 static void
@@ -52,7 +54,11 @@ send_GEN(GEN elt, int dest)
   GEN reloc = copybin_unlink(elt);
   GENbin *buf = copy_bin(mkvec2(elt,reloc));
   size = sizeof(GENbin) + buf->len*sizeof(ulong);
-  MPI_Send(buf, size, MPI_CHAR, dest, 0, MPI_COMM_WORLD);
+  {
+    BLOCK_SIGINT_START
+    MPI_Send(buf, size, MPI_CHAR, dest, 0, MPI_COMM_WORLD);
+    BLOCK_SIGINT_END
+  }
   pari_free(buf); avma = av;
 }
 
@@ -74,7 +80,9 @@ static long
 recvfrom_long(int src)
 {
   long a;
+  BLOCK_SIGINT_START
   MPI_Recv(&a, 1, MPI_LONG, src, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+  BLOCK_SIGINT_END
   return a;
 }
 
@@ -89,11 +97,13 @@ recvstatus_buf(int source, MPI_Status *status)
 {
   int size;
   GENbin *buf;
+  BLOCK_SIGINT_START
 
   MPI_Get_count(status, MPI_CHAR, &size);
   buf = (GENbin *)pari_malloc(size);
   MPI_Recv(buf, size, MPI_CHAR, source, 0/* tag */,
           MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+  BLOCK_SIGINT_END
   return buf;
 }
 
@@ -117,7 +127,9 @@ static GEN
 recvfrom_GEN(int src)
 {
   MPI_Status status;
+  BLOCK_SIGINT_START
   MPI_Probe(src, 0, MPI_COMM_WORLD, &status);
+  BLOCK_SIGINT_END
   return recvstatus_GEN(src, &status);
 }
 
@@ -125,8 +137,10 @@ static GEN
 recvany_GEN(int *source)
 {
   MPI_Status status;
+  BLOCK_SIGINT_START
   MPI_Probe(MPI_ANY_SOURCE, 0 /* tag */, MPI_COMM_WORLD, &status);
   *source = status.MPI_SOURCE;
+  BLOCK_SIGINT_END
   return recvstatus_GEN(*source, &status);
 }
 
@@ -134,8 +148,10 @@ static void
 recvany_void(int *source)
 {
   MPI_Status status;
+  BLOCK_SIGINT_START
   MPI_Probe(MPI_ANY_SOURCE, 0 /* tag */, MPI_COMM_WORLD, &status);
   *source = status.MPI_SOURCE;
+  BLOCK_SIGINT_END
   recvstatus_void(*source, &status);
 }
 

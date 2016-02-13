@@ -189,6 +189,7 @@ HC141- excessive loss of accuracy in incgam, incgamc, eint1
   142- isprimepower(30011^(3*17)) returned 0
   143- a = Mod(1,x); z = Mod(0,Pol(1)); chinese(a, z) works
        but chinese(a, simplify(z)) failed
+BA144- [mpi] interrupt/alarm could cause a crash
 
   Added
     1- add optional argument to sumdigits to specify the base
