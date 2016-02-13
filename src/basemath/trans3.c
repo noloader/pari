@@ -949,11 +949,11 @@ incgamspec(GEN s, GEN x, GEN g, long prec)
     logx = glog(x, prec); sk = gtofp(sk, prec);
     E += X;
   }
-  if (isinexactreal(sk)) sk = gtofp(sk, prec);
+  if (isinexactreal(sk)) sk = gtofp(sk, prec+EXTRAPRECWORD);
   /* |sk| < 2^-7 is small, guard against cancellation */
   F3 = gexpm1(gmul(sk, logx), prec);
-  /* ( (gamma(1+sk)-1) - (exp(sk log(x))-1) ) / sk */
-  S1 = gdiv(gsub(ggamma1m1(sk, prec), F3), sk);
+  /* ( gamma(1+sk) - exp(sk log(x))) ) / sk */
+  S1 = gdiv(gsub(ggamma1m1(sk, prec+EXTRAPRECWORD), F3), sk);
   q = x; S3 = gdiv(x, gaddsg(1,sk));
   for (n = 2; gexpo(q) - gexpo(S3) > -E; ++n)
   {
