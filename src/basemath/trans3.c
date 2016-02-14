@@ -677,7 +677,32 @@ incgam_0(GEN x, GEN expx)
   }
 }
 
-#if 0
+/* real(z*log(z)-z) */
+static double
+mygamma(double x, double y)
+{
+  if (x == 0.) return -(M_PI/2)*fabs(y);
+  return (x/2)*log(x*x+y*y)-x-y*atan(y/x);
+}
+
+/* x^s exp(-x) */
+static GEN
+expmx_xs(GEN s, GEN x, GEN logx, long prec)
+{
+  GEN z;
+  long ts = typ(s);
+  if (ts == t_INT || (ts == t_FRAC && equaliu(gel(s,2), 2)))
+    z = gmul(gexp(gneg(x), prec), gpow(x, s, prec));
+  else
+    z = gexp(gsub(gmul(s, logx? logx: glog(x,prec+EXTRAPRECWORD)), x), prec);
+  return z;
+}
+
+/* Not yet: doesn't work at low accuracy
+#define INCGAM_CF
+*/
+
+#ifdef INCGAM_CF
 /* Is s very close to a non-positive integer ? */
 static int
 isgammapole(GEN s, long bitprec)
@@ -697,9 +722,8 @@ isgammapole(GEN s, long bitprec)
 static GEN
 incgam_cf(GEN s, GEN x, double mx, long prec)
 {
-  GEN x_s, y, S;
-  long n, i, LS, bitprec = prec2nbits(prec);
-  pari_sp av = avma, av2;
+  GEN ms, y, S;
+  long n, i, j, LS, bitprec = prec2nbits(prec);
   double rs, is, m;
 
   if (typ(s) == t_COMPLEX)
@@ -712,51 +736,56 @@ incgam_cf(GEN s, GEN x, double mx, long prec)
     rs = gtodouble(s);
     is = 0.;
   }
-
   if (isgammapole(s, bitprec)) LS = 0;
   else
   {
-    GEN ss = gprec_w(s, LOWDEFAULTPREC);
-    double bit,  LGS = gtodouble(real_i(glngamma(ss, LOWDEFAULTPREC)));
+    double bit,  LGS = mygamma(rs,is);
     LS = LGS <= 0 ? 0: ceil(LGS);
     bit = (LGS - (rs-1)*log(mx) + mx)/LOG2;
     if (bit > 0)
     {
-      prec = nbits2prec(bitprec + (long)bit);
-      s = gprec_w(s, prec);
-      x = gprec_w(x, prec);
+      prec += nbits2extraprec((long)bit);
+      x = gtofp(x, prec);
+      if (isinexactreal(s)) s = gtofp(s, prec);
     }
   }
   /* |ln(2*gamma(s)*sin(s*Pi))| <= ln(2) + |lngamma(s)| + |Im(s)*Pi|*/
-  m = (bitprec*LOG2 + LS + LOG2 + fabs(is)*M_PI + mx)/4;
-  n = (long)(1+m*m/mx);
-  if (typ(s) == t_INT) /* y = x^(s-1) exp(-x) */
-    y = gmul(gexp(gneg(x), prec), powgi(x,subis(s,1)));
-  else
-    y = gexp(gsub(gmul(gsubgs(s,1), glog(x, prec)), x), prec);
-  x_s = gsub(x, s);
-  av2 = avma;
-  S = gdiv(gsubgs(s,n), gaddgs(x_s,n<<1));
-  for (i=n-1; i >= 1; i--)
+  m = bitprec*LOG2 + LS + LOG2 + fabs(is)*M_PI + mx;
+  if (rs < 1) m += (1 - rs)*log(mx);
+  m /= 4;
+  n = (long)(1 + m*m/mx);
+  y = expmx_xs(gsubgs(s,1), x, NULL, prec);
+  if (rs >= 0 && bitprec >= 512)
   {
-    S = gdiv(gsubgs(s,i), gadd(gaddgs(x_s,i<<1),gmulsg(i,S)));
-    if (gc_needed(av2,3))
+    GEN A = cgetg(n+1, t_VEC), B = cgetg(n+1, t_VEC);
+    ms = gsubsg(1, s);
+    for (j = 1; j <= n; ++j)
     {
-      if(DEBUGMEM>1) pari_warn(warnmem,"incgam_cf");
-      S = gerepileupto(av2, S);
+      gel(A,j) = ms;
+      gel(B,j) = gmulsg(j, gsubgs(s,j));
+      ms = gaddgs(ms, 2);
     }
+    S = contfraceval_inv(mkvec2(A,B), x, -1);
   }
-  return gerepileupto(av, gmul(y, gaddsg(1,S)));
+  else
+  {
+    GEN x_s = gsub(x, s);
+    pari_sp av2 = avma;
+    S = gdiv(gsubgs(s,n), gaddgs(x_s,n<<1));
+    for (i=n-1; i >= 1; i--)
+    {
+      S = gdiv(gsubgs(s,i), gadd(gaddgs(x_s,i<<1),gmulsg(i,S)));
+      if (gc_needed(av2,3))
+      {
+        if(DEBUGMEM>1) pari_warn(warnmem,"incgam_cf");
+        S = gerepileupto(av2, S);
+      }
+    }
+    S = gaddgs(S,1);
+  }
+  return gmul(y, S);
 }
 #endif
-
-/* real(z*log(z)-z) */
-static double
-mygamma(double x, double y)
-{
-  if (x == 0.) return -(M_PI/2)*fabs(y);
-  return (x/2)*log(x*x+y*y)-x-y*atan(y/x);
-}
 
 static double
 findextraincgam(GEN s, GEN x)
@@ -775,19 +804,6 @@ findextraincgam(GEN s, GEN x)
   n = (long)(sqrt(D)-sig);
   if (n <= 0) return exd;
   return maxdd(exd, (n*log(Nx)/2 - mygamma(sig+n, t) + mygamma(sig, t)) / LOG2);
-}
-
-/* x^s exp(-x) */
-static GEN
-expmx_xs(GEN s, GEN x, GEN logx, long prec)
-{
-  GEN z;
-  long ts = typ(s);
-  if (ts == t_INT || (ts == t_FRAC && equaliu(gel(s,2), 2)))
-    z = gmul(gexp(gneg(x), prec), gpow(x, s, prec));
-  else
-    z = gexp(gsub(gmul(s, logx? logx: glog(x,prec+EXTRAPRECWORD)), x), prec);
-  return z;
 }
 
 /* use exp(-x) * (x^s/s) * sum_{k >= 0} x^k / prod(i=1, k, s+i) */
@@ -996,7 +1012,7 @@ incgam0(GEN s, GEN x, GEN g, long prec)
   pari_sp av;
   long E, l;
   double mx;
-  GEN z, rs;
+  GEN z, rs, is;
 
   if (gequal0(x)) return g? gcopy(g): ggamma(s,prec);
   if (gequal0(s)) return eint1(x, prec);
@@ -1010,10 +1026,30 @@ incgam0(GEN s, GEN x, GEN g, long prec)
   if ((4*mx > 3*E || (typ(s) == t_INT && signe(s) > 0))
       && (z = incgam_asymp(s, x, l))) return z;
   rs = real_i(s);
+  is = imag_i(s);
+#ifdef INCGAM_CF
+  /* Can one use continued fraction ? */
+  if (gequal0(is) && gequal0(imag_i(x)) && gsigne(x) > 0)
+  {
+    double sd = gtodouble(rs), LB, UB;
+    double xd = gtodouble(real_i(x));
+    if (sd > 0) {
+      LB = 15 + 0.1205*E;
+      UB = 5 + 0.752*E;
+    } else {
+      LB = -6 + 0.1205*E;
+      UB = 5 + 0.752*E + fabs(sd)/54.;
+    }
+    if (xd >= LB && xd <= UB)
+    {
+      if (DEBUGLEVEL > 2) err_printf("incgam: using continued fraction\n");
+      return gerepileupto(av, incgam_cf(s, x, xd, prec));
+    }
+  }
+#endif
   if (gsigne(rs) > 0 && gexpo(rs) >= -1)
   { /* use complementary incomplete gamma */
     long n, egs, exd, precg, es = gexpo(s);
-    GEN is;
     if (es < 0) {
       l += nbits2extraprec(-es) + 1;
       x = gtofp(x, l);
@@ -1027,7 +1063,6 @@ incgam0(GEN s, GEN x, GEN g, long prec)
       gasx = incgam0(gsubgs(s, n), x, NULL, prec);
       return gerepileupto(av, incgam_asymp_partial(s, x, gasx, n, prec));
     }
-    is = imag_i(s);
     if (DEBUGLEVEL > 2) err_printf("incgam: using power series 1\n");
     /* egs ~ expo(gamma(s)) */
     precg = g? precision(g): 0;
