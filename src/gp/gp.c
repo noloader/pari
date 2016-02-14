@@ -275,6 +275,7 @@ init_test(void)
 {
   disable_color = 1;
   init_linewrap(76);
+  pari_errfile = stdout;
   cb_gp_output = test_output;
   cb_pari_is_interactive = test_is_interactive;
 }
