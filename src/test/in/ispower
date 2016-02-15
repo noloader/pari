@@ -130,3 +130,13 @@ issquare(Mod(3,22))
 ispower(-167^10)
 \\#1782
 isprimepower(30011^(17*3))
+
+do(f,k) = ispower(f,k,&z) && z^k == f;
+test(t) =
+{ my(T = x^3+x^2+t);
+  [do(T,3), do(T^6,3), do(T^9,3), do(T^18,3), do(T^18,9), do(T^18,18)];
+}
+test(Mod(1,2))
+test(ffgen(2^3,'t))
+test(ffgen(3^3,'t))
+test(Mod(Mod(1,2),y^3+y^2+1))

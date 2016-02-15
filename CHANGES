@@ -191,6 +191,8 @@ HC141- excessive loss of accuracy in incgam, incgamc, eint1
        but chinese(a, simplify(z)) failed
 BA144- [mpi] interrupt/alarm could caused a crash
 BA145- [mpi] relinking empty t_LIST caused a crash
+  146- ispower(t_POL) didn't work in small characteristic [#1779]; make it work
+       over finite fields
 
   Added
     1- add optional argument to sumdigits to specify the base
@@ -405,6 +407,9 @@ SCh152- [mingw+pthread]: default nbthreads support
    155- [GP] function chareval, charmul, chardiv, zncharinduce, zncharisodd
    156- [libpari] Flm_intersect
    157- [libpari] ggamma1m1
+   158- allow ispower(t_POLMOD representing a finite field element)
+   159- [libpari] Fq_ispower, FqX_ispower, RgX_deflate_order, Fq_to_FF,
+        FqX_to_FFX
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]

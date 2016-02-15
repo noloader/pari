@@ -1185,9 +1185,8 @@ gsubstpol(GEN x, GEN T, GEN y)
   return gsubst_expr(x,T,y);
 }
 
-/* assume x non-constant */
-static long
-checkdeflate(GEN x)
+long
+RgX_deflate_order(GEN x)
 {
   ulong d = 0, i, lx = (ulong)lg(x);
   for (i=3; i<lx; i++)
@@ -1226,7 +1225,7 @@ serdeflate(GEN x, long v, long d)
   if (lx == 2) return zeroser(v, V / d);
   y = ser2pol_i(x, lx);
   dy = degpol(y);
-  if (V % d != 0 || (dy > 0 && checkdeflate(y) % d != 0))
+  if (V % d != 0 || (dy > 0 && RgX_deflate_order(y) % d != 0))
   {
     const char *s = stack_sprintf("valuation(x) %% %ld", d);
     pari_err_DOMAIN("gdeflate", s, "!=", gen_0,x);
@@ -1244,7 +1243,7 @@ poldeflate(GEN x, long v, long d)
   if (varncmp(vx, v) > 0 || degpol(x) <= 0) return gcopy(x);
   av = avma;
   /* x non-constant */
-  if (checkdeflate(x) % d != 0) return NULL;
+  if (RgX_deflate_order(x) % d != 0) return NULL;
   return gerepilecopy(av, RgX_deflate(x,d));
 }
 static GEN
@@ -1292,7 +1291,7 @@ gdeflate(GEN x, long v, long d)
 GEN
 RgX_deflate_max(GEN x, long *m)
 {
-  *m = checkdeflate(x);
+  *m = RgX_deflate_order(x);
   return RgX_deflate(x, *m);
 }
 

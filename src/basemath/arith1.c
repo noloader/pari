@@ -895,7 +895,7 @@ static long
 polispower(GEN x, GEN K, GEN *pt)
 {
   pari_sp av;
-  long v, k = itos(K);
+  long v, d, k = itos(K);
   GEN y, a, b;
 
   if (!signe(x))
@@ -905,18 +905,53 @@ polispower(GEN x, GEN K, GEN *pt)
   }
   if (degpol(x) % k) return 0; /* degree not multiple of k */
   av = avma;
+  y = NULL; /*-Wall*/
   v = RgX_valrem(x, &x);
   if (v % k) return 0;
+  v /= k;
   a = gel(x,2); b = NULL;
   if (!ispower(a, K, &b)) { avma = av; return 0; }
-  if (degpol(x))
+  d = degpol(x);
+  if (d)
   {
-    x = RgX_Rg_div(x,a);
+    GEN p = characteristic(x);
+    a = leading_term(x);
+    if (!ispower(a, K, &b)) { avma = av; return 0; }
+    x = RgX_normalize(x);
+    if (signe(p))
+    {
+      GEN T0, T = NULL;
+      if (!BPSW_isprime(p))
+        pari_err_IMPL("ispower in non-prime characteristic");
+      if (RgX_is_FpXQX(x,&T,&p))
+      { /* over Fq */
+        T0 = T;
+        if (T && typ(T) == t_FFELT) T = FF_mod(T);
+        x = RgX_to_FqX(x,T,p);
+        if (!FqX_ispower(x, k, T,p, pt)) { avma = av; return 0; }
+        if (pt)
+        {
+          y = *pt;
+          if (!T) y = FpX_to_mod(y, p);
+          else if (typ(T0) == t_FFELT)
+            y = FqX_to_FFX(y, T0);
+          else
+          {
+            T = FpX_to_mod(T, p);
+            y = gmul(y, gmodulsg(1,T));
+          }
+        }
+        goto END;
+      }
+      if (cmpii(p,K) <= 0)
+        pari_err_IMPL("ispower(general t_POL) in small characteristic");
+    }
     y = gtrunc(gsqrtn(RgX_to_ser(x,lg(x)), K, NULL, 0));
     if (!RgX_equal(powgi(y, K), x)) { avma = av; return 0; }
   }
   else
     y = pol_1(varn(x));
+END:
   if (pt)
   {
     if (!gequal1(a))
@@ -924,7 +959,8 @@ polispower(GEN x, GEN K, GEN *pt)
       if (!b) b = gsqrtn(a, K, NULL, DEFAULTPREC);
       y = gmul(b,y);
     }
-    *pt = v? gerepilecopy(av, RgX_shift_shallow(y, v/k)): gerepileupto(av, y);
+    if (v) y = RgX_shift_shallow(y, v);
+    *pt = gerepilecopy(av, y);
   }
   else avma = av;
   return 1;
@@ -1001,6 +1037,33 @@ Zn_issquare(GEN d, GEN fn)
   return 1;
 }
 
+static long
+Qp_ispower(GEN x, GEN K, GEN *pt)
+{
+  pari_sp av = avma;
+  GEN z = Qp_sqrtn(x, K, NULL);
+  if (!z) { avma = av; return 0; }
+  if (pt) *pt = z;
+  return 1;
+}
+
+static long
+polmodispower(GEN x, GEN K, GEN *pt)
+{
+  pari_sp av = avma;
+  GEN p = NULL, T = NULL;
+  if (Rg_is_FpXQ(x, &T,&p))
+  {
+    x = liftall_shallow(x);
+    if (!Fq_ispower(x, K, T, p)) { avma = av; return 0; }
+    if (!pt) { avma = av; return 1; }
+    *pt = Fq_sqrtn(x, K, T,p, NULL);
+    return 1;
+  }
+  pari_err_IMPL("ispower for general t_POLMOD");
+  return 0;
+}
+
 long
 ispower(GEN x, GEN K, GEN *pt)
 {
@@ -1032,11 +1095,9 @@ ispower(GEN x, GEN K, GEN *pt)
       return FF_ispower(x, K, pt);
 
     case t_PADIC:
-      z = Qp_sqrtn(x, K, NULL);
-      if (!z) return 0;
-      if (pt) *pt = z;
-      return 1;
-
+      return Qp_ispower(x, K, pt);
+    case t_POLMOD:
+      return polmodispower(x, K, pt);
     case t_POL:
       return polispower(x, K, pt);
     case t_RFRAC: {
@@ -1061,10 +1122,9 @@ ispower(GEN x, GEN K, GEN *pt)
         return 0;
       if (pt) *pt = gsqrtn(x, K, NULL, DEFAULTPREC);
       return 1;
-
-    default: pari_err_TYPE("ispower",x);
-    return 0; /* not reached */
   }
+  pari_err_TYPE("ispower",x);
+  return 0; /* not reached */
 }
 
 long

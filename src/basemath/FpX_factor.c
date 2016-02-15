@@ -2925,13 +2925,20 @@ FqX_split(GEN *t, long d, GEN q, GEN S, GEN T, GEN p)
 /*                                                                 */
 /*******************************************************************/
 static GEN
-FqX_frob_deflate(GEN f, GEN T, GEN p)
+FqX_frobinv_inplace(GEN F, GEN T, GEN p)
 {
-  GEN F = RgX_deflate(f, itos(p)), frobinv = powiu(p, degpol(T)-1);
-  long i, l = lg(F);
-  for (i=2; i<l; i++) gel(F,i) = Fq_pow(gel(F,i), frobinv, T,p);
+  if (T)
+  {
+    GEN frobinv = powiu(p, degpol(T)-1);
+    long i, l = lg(F);
+    for (i=2; i<l; i++) gel(F,i) = Fq_pow(gel(F,i), frobinv, T,p);
+  }
   return F;
 }
+static GEN
+FqX_frob_deflate(GEN f, GEN T, GEN p)
+{ return FqX_frobinv_inplace(RgX_deflate(f, itos(p)), T, p); }
+
 /* Factor _sqfree_ polynomial a on the finite field Fp[X]/(T). Assumes
  * varncmp (varn(T), varn(A)) > 0 */
 static GEN
@@ -3344,6 +3351,65 @@ FqX_factor_i(GEN f, GEN T, GEN p)
   }
   setlg(t, k+1);
   setlg(E, k+1); return mkvec2(t, E);
+}
+
+long
+FqX_ispower(GEN f, ulong k, GEN T, GEN p, GEN *pt)
+{
+  pari_sp av = avma;
+  long v, w;
+  ulong pp;
+  GEN lc, F;
+
+  if (degpol(f) % k) return 0;
+  lc = leading_term(f);
+  lc = Fq_sqrtn(lc, stoi(k), T, p, NULL);
+  if (!lc) { av = avma; return 0; }
+  pp = itou_or_0(p);
+  f = FqX_normalize(f, T, p);
+  v = pp? u_lvalrem(k,pp,&k): 0;
+  if (v)
+  {
+    long i;
+    w = u_lval(RgX_deflate_order(f), pp);
+    if (w < v) { avma = av; return 0; }
+    /* deflate as much as possible using frobenius, unless k reduced to 1 */
+    if (k == 1) w = v;
+    f = RgX_deflate(f, upowuu(pp,w));
+    if (T) for (i = 0; i < w; i++) f = FqX_frobinv_inplace(f, T, p);
+    w -= v;
+  }
+  else
+    w = 0;
+  /* k coprime to p; true f we're testing is f^(p^w) */
+  if (k == 1)
+    F = f;
+  else
+  {
+    ulong pow = upowuu(pp,w);
+    F = pt? pol_1(varn(f)): NULL;
+    while (degpol(f) > 0)
+    {
+      GEN gk, g, df = FqX_deriv(f, T, p);
+      long v;
+      if (!signe(df)) { pow *= pp; f = FqX_frob_deflate(f, T, p); continue; }
+      g = FqX_div(f, FqX_normalize(FqX_gcd(f,df,T,p),T,p), T,p);
+      /* g | f is squarefree,monic; remove (g^k)^oo from f */
+      gk = FqX_powu(g, k, T,p);
+      v = 0;
+      for(v = 0;; v++)
+      {
+        GEN q = FqX_divrem(f, gk, T,p, ONLY_DIVIDES);
+        if (!q) break;
+        f = q;
+      }
+      /* some factor from g remains in f ? */
+      if (!v || degpol(FqX_gcd(f,g,T,p))) { avma = av; return 0; }
+      if (F) F = FqX_mul(F, FqX_powu(g, v*pow, T,p), T,p);
+    }
+  }
+  if (pt) *pt = gerepileupto(av, FqX_Fq_mul(F, lc, T,p));
+  return 1;
 }
 
 static void

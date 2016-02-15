@@ -693,7 +693,7 @@ Fq_sqrtn(GEN x, GEN n, GEN T, GEN p, GEN *zeta)
           return Fp_sqrtn(x,n,p,zeta);
       }
     }
-    x = scalarpol_shallow(x, get_FpX_var(T));
+    x = scalarpol(x, get_FpX_var(T)); /* left on stack */
   }
   return FpXQ_sqrtn(x,n,T,p,zeta);
 }

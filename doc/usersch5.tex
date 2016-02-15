@@ -4508,8 +4508,13 @@ Allow $T = \kbd{NULL}$ (discrete log over $\F_p$), otherwise
 assume that \kbd{T} is irreducible mod \kbd{p}.
 
 \fun{int}{Fq_issquare}{GEN x, GEN T, GEN p} returns $1$ if $x$ is a square
-and $0$ otherwise. Assumes that \kbd{T} is irreducible mod \kbd{p}. $T =
-\kbd{NULL}$ is forbidden unless $x$ is an \kbd{Fp}.
+and $0$ otherwise. Assumes that \kbd{T} is irreducible mod \kbd{p} and that
+$p$ is prime; $T = \kbd{NULL}$ is forbidden unless $x$ is an \kbd{Fp}.
+
+\fun{long}{Fq_ispower}{GEN x, GEN n, GEN T, GEN p} returns $1$ is $x$
+is a $n$-th power and $0$ otherwise. Assumes that \kbd{T} is irreducible mod
+\kbd{p} and that $p$ is prime; $T = \kbd{NULL}$ is forbidden unless $x$ is an
+\kbd{Fp}.
 
 \fun{GEN}{Fq_sqrt}{GEN x, GEN T, GEN p} returns a square root of \kbd{x}.
 Return \kbd{NULL} if \kbd{x} is not a square.
@@ -4895,6 +4900,10 @@ $\F_p[X]/(T)$. Assumes \kbd{p} is prime and \kbd{T} irreducible in $\F_p[X]$.
 \fun{GEN}{FqX_factor}{GEN x, GEN T, GEN p} same output convention as
 \kbd{FpX\_factor}. Assumes \kbd{p} is prime and \kbd{T} irreducible
 in $\F_p[X]$.
+
+\fun{long}{FqX_ispower}{GEN f, ulong k, GEN T, GEN p, GEN *pt} return
+returns 1 if \kbd{FqX} $f$ is a $K$-th power Return $0$
+otherwise. If \kbd{py} is not \kbd{NULL}, set it to $g$ such that $g^K = f$.
 
 \fun{GEN}{FpX_factorff}{GEN P, GEN T, GEN p}. Assumes \kbd{p} prime
 and \kbd{T} irreducible in $\F_p[X]$. Factor the \kbd{FpX} \kbd{P}
@@ -8020,10 +8029,13 @@ $P$, i.e. $X^{\deg P} P(1/X)$.
 form $Q(X^d)$, return $Q$. Shallow function, not suitable for
 \kbd{gerepileupto}.
 
+\fun{long}{RgX_deflate_order}{GEN P} given a non-constant polynomial
+$P$, returns the largest exponent $d$ such that $P$ is of the form $P(x^d)$
+(use \kbd{gequal0} to check whether coefficients are 0).
+
 \fun{long}{RgX_deflate_max}{GEN P, long *d} given a non-constant polynomial
-$P$, sets \kbd{d} to the largest exponent such that $P$ is of the form
-$P(x^d)$ (use \kbd{gequal0} to check whether coefficients are 0). Returns
-\kbd{RgX\_deflate(P,d)}. Shallow function.
+$P$, sets \kbd{d} to \kbd{RgX\_deflate\_order(P)} and
+returns \kbd{RgX\_deflate(P,d)}. Shallow function.
 
 \fun{GEN}{RgX_inflate}{GEN P, long d} return $P(X^d)$. Shallow function, not
 suitable for \kbd{gerepileupto}.
@@ -10046,6 +10058,16 @@ finite field $\Z/p\Z$. Useful for generic code that wants to handle
 finite field $\F_p/(T)$, where $T$ is a \kbd{ZX}, assumed to be irreducible
 modulo $p$, or \kbd{NULL} in which case the routine acts as \tet{p_to_FF(p,0)}.
 No checks.
+
+\fun{GEN}{Fq_to_FF}{GEN x, GEN ff} returns a \typ{FFELT} equal to $x$
+in the finite field defined by the \typ{FFELT} \kbd{ff}, where
+$x$ is an \kbd{Fq} (either a \typ{INT} or a \kbd{ZX}: a \typ{POL} with
+\typ{INT} coefficients). No checks.
+
+\fun{GEN}{FqX_to_FFX}{GEN x, GEN ff} given an \kbd{FqX} $x$,
+return the polynomial with \typ{FFELT} coefficients obtained by
+applying \tet{Fq_to_FF} coefficientwise. No checks, and no normalization
+if the leading coefficient maps to $0$.
 
 \fun{GEN}{FF_1}{GEN a} returns the unity in the definition field of the
 \typ{FFELT} element \kbd{a}.

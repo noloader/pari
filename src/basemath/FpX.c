@@ -1683,6 +1683,21 @@ Fq_issquare(GEN x, GEN T, GEN p)
   return (T && ! odd(get_FpX_degree(T))) || Fp_issquare(x, p);
 }
 
+long
+Fq_ispower(GEN x, GEN K, GEN T, GEN p)
+{
+  pari_sp av = avma;
+  long d;
+  GEN Q;
+  if (!T) return Fp_ispower(x,K,p);
+  d = get_FpX_degree(T);
+  if (!umodui(d, K)) return 1;
+  Q = subiu(powiu(p,d), 1);
+  Q = diviiexact(Q, gcdii(Q, K));
+  d = gequal1(Fq_pow(x, Q, T,p));
+  avma = av; return d;
+}
+
 /* discrete log in FpXQ for a in Fp^*, g in FpXQ^* of order ord */
 GEN
 Fp_FpXQ_log(GEN a, GEN g, GEN o, GEN T, GEN p)

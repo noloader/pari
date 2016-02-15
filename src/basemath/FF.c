@@ -1366,8 +1366,8 @@ FF_elltatepairing(GEN E, GEN P, GEN Q, GEN m)
   return _mkFF(fg,z,r);
 }
 
-static GEN
-to_FF(GEN x, GEN ff)
+GEN
+Fq_to_FF(GEN x, GEN ff)
 {
   ulong pp;
   GEN r, T, p, z=_initFF(ff,&T,&p,&pp);
@@ -1393,15 +1393,24 @@ to_FFX(GEN x, GEN ff)
 {
   long i, lx = lg(x);
   if (typ(x) != t_POL) pari_err_TYPE("to_FFX",x);
-  for (i=2; i<lx; i++) gel(x,i) = to_FF(gel(x,i), ff);
+  for (i=2; i<lx; i++) gel(x,i) = Fq_to_FF(gel(x,i), ff);
   return x;
+}
+GEN
+FqX_to_FFX(GEN x, GEN ff)
+{
+  long i, lx;
+  GEN y =  cgetg_copy(x,&lx);
+  y[1] = x[1];
+  for (i=2; i<lx; i++) gel(y,i) = Fq_to_FF(gel(x,i), ff);
+  return y;
 }
 /* in place */
 static GEN
 to_FFC(GEN x, GEN ff)
 {
   long i, lx = lg(x);
-  for (i=1; i<lx; i++) gel(x,i) = to_FF(gel(x,i), ff);
+  for (i=1; i<lx; i++) gel(x,i) = Fq_to_FF(gel(x,i), ff);
   return x;
 }
 
