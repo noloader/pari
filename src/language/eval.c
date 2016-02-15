@@ -2358,7 +2358,7 @@ gen_relink(GEN x, hashtable *table)
       if (lg(x)==8) gen_relink(closure_get_frame(x), table);
       break;
     case t_LIST:
-      gen_relink(list_data(x), table);
+      if (list_data(x)) gen_relink(list_data(x), table);
       break;
     case t_VEC: case t_COL: case t_MAT: case t_ERROR:
       lx = lg(x);
@@ -2400,7 +2400,7 @@ gen_unlink(GEN x)
       if (lg(x)==8) gen_unlink(closure_get_frame(x));
       break;
     case t_LIST:
-      gen_unlink(list_data(x));
+      if (list_data(x)) gen_unlink(list_data(x));
       break;
     case t_VEC: case t_COL: case t_MAT: case t_ERROR:
       lx = lg(x);

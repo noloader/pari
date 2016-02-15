@@ -35,7 +35,7 @@ uninline();
 
 my(N=1);until(type(A)=="t_ERROR",A=alarm(1,parfor(i=1,10,for(i=1,N,isprime(i))));N*=2);
 
-my(s);parfor(x=1,10,x!,f,s+=f);s
+my(s,L=List());parfor(x=1,10,x!,f,s+=f);s
 my(s);parforprime(p=2,20,p!,f,s+=f);s
 my(s);parforvec(v=[[1,3],[1,3]],factorback(v),f,s+=f);s
 my(s);parforvec(v=[[1,4],[1,4]],factorback(v),f,s+=f,1);s
