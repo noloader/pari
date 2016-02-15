@@ -21,6 +21,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #include "paripriv.h"
 
 #define HALF_E 1.3591409 /* Exponential / 2 */
+static const long EXTRAPREC =
+#ifdef LONG_IS_64BIT
+  1;
+#else
+  2;
+#endif
 
 /***********************************************************************/
 /**                                                                   **/
@@ -694,7 +700,7 @@ expmx_xs(GEN s, GEN x, GEN logx, long prec)
   if (ts == t_INT || (ts == t_FRAC && equaliu(gel(s,2), 2)))
     z = gmul(gexp(gneg(x), prec), gpow(x, s, prec));
   else
-    z = gexp(gsub(gmul(s, logx? logx: glog(x,prec+EXTRAPRECWORD)), x), prec);
+    z = gexp(gsub(gmul(s, logx? logx: glog(x,prec+EXTRAPREC)), x), prec);
   return z;
 }
 
@@ -830,7 +836,7 @@ incgamc_i(GEN s, GEN x, long *ptexd, long prec)
     x = gtofp(x, p);
     if (isinexactreal(s)) s = gtofp(s, p);
   }
-  else x = gtofp(x, l+EXTRAPRECWORD);
+  else x = gtofp(x, l+EXTRAPREC);
   av2 = avma;
   S = gdiv(x, gaddsg(1,s));
   t = gaddsg(1, S);
@@ -862,7 +868,7 @@ incgam_asymp(GEN s, GEN x, long prec)
   long oldeq = LONG_MAX, eq, esx, j;
   int flint = (typ(s) == t_INT && signe(s) > 0);
 
-  x = gtofp(x,prec+EXTRAPRECWORD);
+  x = gtofp(x,prec+EXTRAPREC);
   invx = ginv(x);
   esx = -prec2nbits(prec);
   av2 = avma;
@@ -925,7 +931,7 @@ incgamspec(GEN s, GEN x, GEN g, long prec)
     prec += nbits2extraprec((long)k*(mx + 1)/LOG2);
     if (isinexactreal(s)) s = gtofp(s, prec);
   }
-  x = gtofp(x, maxss(precision(x), prec) + EXTRAPRECWORD);
+  x = gtofp(x, maxss(precision(x), prec) + EXTRAPREC);
   sk = gaddgs(s, k); /* |Re(sk)| <= 1/2 */
   logx = glog(x, prec);
   mx = gneg(x);
@@ -965,11 +971,11 @@ incgamspec(GEN s, GEN x, GEN g, long prec)
     logx = glog(x, prec); sk = gtofp(sk, prec);
     E += X;
   }
-  if (isinexactreal(sk)) sk = gtofp(sk, prec+EXTRAPRECWORD);
+  if (isinexactreal(sk)) sk = gtofp(sk, prec+EXTRAPREC);
   /* |sk| < 2^-7 is small, guard against cancellation */
   F3 = gexpm1(gmul(sk, logx), prec);
   /* ( gamma(1+sk) - exp(sk log(x))) ) / sk */
-  S1 = gdiv(gsub(ggamma1m1(sk, prec+EXTRAPRECWORD), F3), sk);
+  S1 = gdiv(gsub(ggamma1m1(sk, prec+EXTRAPREC), F3), sk);
   q = x; S3 = gdiv(x, gaddsg(1,sk));
   for (n = 2; gexpo(q) - gexpo(S3) > -E; ++n)
   {
@@ -1160,7 +1166,7 @@ eint1(GEN x, long prec)
   av = avma;
   l  = realprec(x);
   n  = prec2nbits(l);
-  y  = rtor(x, l + EXTRAPRECWORD);
+  y  = rtor(x, l + EXTRAPREC);
   setsigne(y,1);
   if (cmprs(y, (3*n)/4) < 0) {
     p1 = t = S = y;
@@ -1364,7 +1370,7 @@ gerfc(GEN x, long prec)
     */
     /* NOT gsubsg(2, ...) : would create a result of
      * huge accuracy if re(x)>>1, rounded to 2 by subsequent affc_fixlg... */
-    z = gsub(real2n(1,prec+EXTRAPRECWORD), gerfc(gneg(x), prec));
+    z = gsub(real2n(1,prec+EXTRAPREC), gerfc(gneg(x), prec));
   }
   avma = av; return affc_fixlg(z, res);
 }
