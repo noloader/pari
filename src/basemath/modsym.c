@@ -2940,25 +2940,15 @@ get_X(GEN W, GEN xpm, long D)
   }
   return t;
 }
-/* quotient of the Neron periods of E^(d) and E, divided by sqrt(d) */
-static long
-get_alpha_d(GEN E, long d)
-{
-  if (odd(d)) return 1;
-  if (!mpodd(ell_get_c4(E))) return 2; /* additive reduction at 2 */
-  /* reduction not additive */
-  return (d % 8 == 0 && !mpodd(ell_get_a1(E)))? 2: 1;
-}
-/* write L(E,1) = Q*w1, return the rational Q */
+/* E of rank 0, write L(E,1) = Q*w1(E) != 0, where w1 is the real period.
+ * Return the rational Q */
 static GEN
-get_Q(GEN E)
+get_Q(GEN E, GEN w1, GEN tam)
 {
-  GEN L, N, tam, T, n, w1;
+  GEN L, T, n;
   long ex, t, t2;
-  E = ellanal_globalred_all(E, NULL, &N, &tam);
-  T = elltors(E); t = itos(gel(T,1)); t2 = t*t;
-  w1 = gel(ellR_omega(E,DEFAULTPREC), 1);
 
+  T = elltors(E); t = itos(gel(T,1)); t2 = t*t;
   /* |Sha| = n^2 */
   L = ellL1(E, 0, DEFAULTPREC);
   n = sqrtr(divrr(mulru(L, t2), mulri(w1,tam)));
@@ -2967,31 +2957,55 @@ get_Q(GEN E)
   return gdivgs(mulii(tam,sqri(n)), t2);
 }
 
-/* Let C such that C*L(E,1)_{xpm} = L(E,1) / w1; return C * xpm */
+static GEN
+ell_get_scale_d(GEN E, GEN W, GEN xpm, long D)
+{
+  GEN N, Q, tam, A, om, w, wd, Ed, X = get_X(W, xpm, D);
+  long e;
+
+  if (!signe(X)) return NULL;
+  Ed = twistcurve(E, stoi(D));
+  Ed = ellanal_globalred_all(Ed,NULL, &N, &tam);
+  wd = gel(ellR_omega(Ed,DEFAULTPREC), 1);
+  Q =  get_Q(Ed, wd, tam);
+
+  om = ellR_omega(E,DEFAULTPREC);
+  w = D < 0? imag_i(gel(om,2)): gel(om,1);
+  A = mulrr(wd, sqrtr(utor(labs(D),DEFAULTPREC)));
+  if (D < 0) setsigne(A,-1);
+  A = divrr(w, A);
+  A = grndtoi(shiftr(A,1), &e);
+  if (D > 0 || signe(ell_get_disc(Ed)) > 0) A = gmul2n(A,-1);
+  obj_free(Ed);
+  if (e > -20) pari_err_BUG("msfromell [ell_get_scale]");
+  return gdiv(gmul(A,Q), X);
+}
+
+/* Let W = msinit(conductor(E), 2), xpm a modular symbol with the same
+ * eigenvalues as L_E. There exist a unique C such that
+ *   C*L(E_D,1)_{xpm} = L(E_D,1) / w1(E_D) != 0, for all D fundamental,
+ * sign(D) = s, and such that E_D has rank 0. Return the normalized symbol
+ * C * xpm */
 static GEN
 ell_get_scale(GEN E, GEN W, GEN xpm, long s)
 {
-  GEN Q, X = NULL;
-  long d, N = ms_get_N(W);
-
+  long d;
   xpm = Q_primpart(xpm);
   /* find D = s*d such that twist by D has rank 0 */
   for (d = 1; d < LONG_MAX; d++)
   {
     pari_sp av = avma;
-    if (cgcd(N, d) != 1) continue;
+    GEN C;
     if (s < 0)
     { if (!unegisfundamental(d)) continue; }
     else
     { if (!uposisfundamental(d)) continue; }
-    X = get_X(W, xpm, s < 0? -d: d);
-    if (signe(X)) break;
+    C = ell_get_scale_d(E, W, xpm, s > 0? d: -d);
+    if (C) return RgC_Rg_mul(xpm, C);
     avma = av;
   }
-  if (d == LONG_MAX) pari_err_BUG("msfromell (no suitable twist)");
-  if (s < 0) d = -d;
-  Q = get_Q(twistcurve(E, stoi(d)));
-  return RgC_Rg_mul(xpm, gdiv(gmulsg(get_alpha_d(E,d), Q), X));
+  pari_err_BUG("msfromell (no suitable twist)");
+  return NULL;
 }
 
 GEN

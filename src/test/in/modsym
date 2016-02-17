@@ -19,6 +19,11 @@ E=ellinit([1,-1,1,-1,-14]);
 mseval(W,xpm)
 mseval(W,xpm,[0,1/3])
 
+E=ellinit([0,1]);
+msfromell(E)[2]
+E=ellinit([0,-1,1,-7,10]);
+msfromell(E)[2]
+
 N = 227;
 W = msinit(N,2,1);
 mssplit(W, msnew(W))
