@@ -2960,7 +2960,7 @@ get_Q(GEN E, GEN w1, GEN tam)
 static GEN
 ell_get_scale_d(GEN E, GEN W, GEN xpm, long D)
 {
-  GEN N, Q, tam, A, om, w, wd, Ed, X = get_X(W, xpm, D);
+  GEN N, Q, tam, u, om, w, wd, Ed, X = get_X(W, xpm, D);
   long e;
 
   if (!signe(X)) return NULL;
@@ -2971,14 +2971,13 @@ ell_get_scale_d(GEN E, GEN W, GEN xpm, long D)
 
   om = ellR_omega(E,DEFAULTPREC);
   w = D < 0? imag_i(gel(om,2)): gel(om,1);
-  A = mulrr(wd, sqrtr(utor(labs(D),DEFAULTPREC)));
-  if (D < 0) setsigne(A,-1);
-  A = divrr(w, A);
-  A = grndtoi(shiftr(A,1), &e);
-  if (D > 0 || signe(ell_get_disc(Ed)) > 0) A = gmul2n(A,-1);
+  u = divrr(mulrr(wd, sqrtr(utor(labs(D),DEFAULTPREC))), w);
+  if (D < 0) togglesign(u);
+  u = gmul2n(grndtoi(shiftr(u,1), &e), -1);
+  if (D < 0 &&  signe(ell_get_disc(Ed)) < 0) u = gmul2n(u,-1);
   obj_free(Ed);
   if (e > -20) pari_err_BUG("msfromell [ell_get_scale]");
-  return gdiv(gmul(A,Q), X);
+  return gdiv(Q, gmul(u,X));
 }
 
 /* Let W = msinit(conductor(E), 2), xpm a modular symbol with the same
