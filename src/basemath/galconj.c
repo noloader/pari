@@ -32,7 +32,7 @@ static int is2sparse(GEN x)
 static GEN
 galoisconj1(GEN nf)
 {
-  GEN x = get_nfpol(nf, &nf), y, z;
+  GEN x = get_nfpol(nf, &nf), f = nf? nf : x, y, z;
   long i, lz, v = varn(x), nbmax;
   pari_sp av = avma;
   RgX_check_ZX(x, "nfgaloisconj");
@@ -50,9 +50,8 @@ galoisconj1(GEN nf)
     gel(res,2) = pol_x(v);
     return res;
   }
-  y = x;
   x = leafcopy(x); setvarn(x, fetch_var_higher());
-  z = nfroots(y, x); lz = lg(z);
+  z = nfroots(f, x); lz = lg(z);
   y = cgetg(lz, t_COL);
   for (i = 1; i < lz; i++)
   {
