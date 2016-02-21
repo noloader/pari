@@ -23,7 +23,7 @@ treesearch(GEN T, GEN x, long mode)
 {
   long i = 1;
   GEN t = list_data(T);
-  if (!t) return NULL;
+  if (!t || lg(t)==1) return NULL;
   while(i)
   {
     long c = mode == 0 ? cmp_universal(x, tvalue(i)):
@@ -73,7 +73,7 @@ treekeys(GEN T, long mode)
   long n = 0;
   GEN t = list_data(T);
   GEN V;
-  if (!t) return cgetg(1, t_VEC);
+  if (!t || lg(t)==1) return cgetg(1, t_VEC);
   V = cgetg(lg(t), t_VEC);
   treekeys_r(t, 1, V, &n, mode);
   return V;
@@ -94,7 +94,7 @@ treekeys_i(GEN T, long mode)
   long n = 0;
   GEN t = list_data(T);
   GEN V;
-  if (!t) return cgetg(1, t_VEC);
+  if (!t || lg(t)==1) return cgetg(1, t_VEC);
   V = cgetg(lg(t), t_VEC);
   treekeys_i_r(t, 1, V, &n, mode);
   return V;
@@ -117,7 +117,7 @@ treemat(GEN T)
   long n = 0;
   GEN t = list_data(T);
   GEN V;
-  if (!t) return cgetg(1, t_MAT);
+  if (!t || lg(t)==1) return cgetg(1, t_MAT);
   V = cgetg(3, t_MAT);
   gel(V,1) = cgetg(lg(t), t_COL);
   gel(V,2) = cgetg(lg(t), t_COL);
@@ -142,7 +142,7 @@ treemat_i(GEN T)
   long n = 0;
   GEN t = list_data(T);
   GEN V;
-  if (!t) return cgetg(1, t_MAT);
+  if (!t || lg(t)==1) return cgetg(1, t_MAT);
   V = cgetg(3, t_MAT);
   gel(V,1) = cgetg(lg(t), t_COL);
   gel(V,2) = cgetg(lg(t), t_COL);
@@ -215,7 +215,7 @@ static long
 treeinsert_r(GEN T, GEN x, long i, long *d, long mode)
 {
   long b, c;
-  if (i==0 || !list_data(T))
+  if (i==0 || !list_data(T) || lg(list_data(T))==1)
     return new_leaf(T, x);
   c = mode == 0 ? cmp_universal(x, value(i)):
                   cmp_universal(gel(x,1), gel(value(i),1));
@@ -271,7 +271,7 @@ static long
 treedelete_r(GEN T, GEN x, long i, long mode, long *dead)
 {
   long b, c;
-  if (i==0 || !list_data(T))
+  if (i==0 || !list_data(T) || lg(list_data(T))==1)
     return -1;
   c = mode == 0 ? cmp_universal(x, value(i)):
                   cmp_universal(x, gel(value(i),1));

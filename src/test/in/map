@@ -54,6 +54,13 @@ MV=[M0,M1,M2,M3,M4];
 [a==b|a<-MV;b<-MV]
 [a===b|a<-MV;b<-MV]
 
+M=Map();
+mapput(M,2,3);
+mapdelete(M,2);
+M
+mapisdefined(M,2)
+mapput(M,2,3);M
+
 M=Map([1,2;3,4;5,6]);
 mapget(M,7)
 mapdelete(M,7)
