@@ -177,21 +177,20 @@ BA128- nfsubfields could fail [#1758]
   131- chinese([]) -> '1' instead of Mod(0,1)
   132- m1=Mod(0,1);m2=Mod(1,x^2+1); chinese(m1,m2) -> m1; chinese(m2,m1) -> m2
        [instead of error]
-  133- O(1) == O(x) returned 0 [#1765]
-  134- nfrootsof1(polcyclo(85)) -> 85 instead of 170 [#1766]
-  135- at \p19, polroots((x+1)^2 * (x-1)^7 * (x^2-x+1)^5 * 1.0) -> SEGV [#1767]
-BA136- ellsea returned the trace instead of the cardinal as documented.
-BA137- ellsea(,,1)  could return a wrong result [#1768]
-  138- rnfconductor: sanity checks were not taken into account
-MC139- memory leak in pari_close: sopath not freed
-HC140- incgam(30,60) < 0. More generally, wrong results for s >> 1 [#1689]
-HC141- excessive loss of accuracy in incgam, incgamc, eint1
-  142- isprimepower(30011^(3*17)) returned 0
-  143- a = Mod(1,x); z = Mod(0,Pol(1)); chinese(a, z) works
+  133- nfrootsof1(polcyclo(85)) -> 85 instead of 170 [#1766]
+  134- at \p19, polroots((x+1)^2 * (x-1)^7 * (x^2-x+1)^5 * 1.0) -> SEGV [#1767]
+BA135- ellsea returned the trace instead of the cardinal as documented.
+BA136- ellsea(,,1)  could return a wrong result [#1768]
+  137- rnfconductor: sanity checks were not taken into account
+MC138- memory leak in pari_close: sopath not freed
+HC139- incgam(30,60) < 0. More generally, wrong results for s >> 1 [#1689]
+HC140- excessive loss of accuracy in incgam, incgamc, eint1
+  141- isprimepower(30011^(3*17)) returned 0
+  142- a = Mod(1,x); z = Mod(0,Pol(1)); chinese(a, z) works
        but chinese(a, simplify(z)) failed
-BA144- [mpi] interrupt/alarm could caused a crash
-BA145- [mpi] relinking empty t_LIST caused a crash
-  146- ispower(t_POL) didn't work in small characteristic [#1779]; make it work
+BA143- [mpi] interrupt/alarm could caused a crash
+BA144- [mpi] relinking empty t_LIST caused a crash
+  145- ispower(t_POL) didn't work in small characteristic [#1779]; make it work
        over finite fields
 
   Added
