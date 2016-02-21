@@ -17,6 +17,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #define tvalue(i)  gmael(t,(i),1)
 #define tleft(i)   mael3(t,(i),2,1)
 #define tright(i)  mael3(t,(i),2,2)
+#define theight(i) mael3(t,(i),2,3)
 
 static GEN
 treesearch(GEN T, GEN x, long mode)
@@ -148,6 +149,34 @@ treemat_i(GEN T)
   gel(V,2) = cgetg(lg(t), t_COL);
   treemat_i_r(t, 1, V, &n);
   return V;
+}
+
+static void
+treemap_i_r(GEN t, long i, long a, long c, GEN p, GEN M)
+{
+  long b = (a+c)>>1;
+  GEN x = mkvec2(gcopy(gmael(M, 1, p[b])), gcopy(gmael(M, 2, p[b])));
+  if (a == c)
+    gel(t, i) = mkvec2(x, mkvecsmall3(0, 0, 1));
+  else if (a+1 == c)
+  {
+    treemap_i_r(t, i+1, a+1, c, p, M);
+    gel(t, i) = mkvec2(x, mkvecsmall3(0, i+1, theight(i+1) + 1));
+  }
+  else
+  {
+    long l = i+1, r = l + b - a, h;
+    treemap_i_r(t, l, a, b-1, p, M);
+    treemap_i_r(t, r, b+1, c, p, M);
+    h = maxss(theight(l), theight(r))+1;
+    gel(t, i) = mkvec2(x, mkvecsmall3(l, r, h));
+  }
+}
+
+static void
+treemap_i(GEN t, GEN p, GEN M)
+{
+  treemap_i_r(t, 1, 1, lg(p)-1, p, M);
 }
 
 #define value(i)  gmael(list_data(T),(i),1)
@@ -447,13 +476,18 @@ gtomap(GEN x)
   {
   case t_MAT:
     {
-      long i, n, l = lg(x);
-      GEN M = listcreate_typ(t_LIST_MAP);
-      if (l == 1) return M;
+      long n, l = lg(x);
+      GEN M, p;
+      if (l == 1 || lgcols(x)==1) return listcreate_typ(t_LIST_MAP);
       if (l != 3) pari_err_TYPE("Map",x);
-      n = lgcols(x);
-      for (i=1; i < n; i++)
-        mapput(M, gcoeff(x,i,1), gcoeff(x,i,2));
+      p = gen_indexsort_uniq(gel(x,1), cmp_universal, cmp_nodata);
+      if (lg(p) != lgcols(x))
+        pari_err_DOMAIN("Map","x","is not",strtoGENstr("one-to-one"),x);
+      n = lg(p)-1;
+      M = cgetg(3, t_LIST);
+      M[1] = evaltyp(t_LIST_MAP)|evallg(n);
+      list_data(M) = cgetg(n+1, t_VEC);
+      treemap_i(list_data(M), p, x);
       return M;
     }
   default:
