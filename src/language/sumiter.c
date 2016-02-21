@@ -145,7 +145,7 @@ forstep(GEN a, GEN b, GEN s, GEN code)
   GEN v = NULL;
   int (*cmp)(GEN,GEN);
 
-  b = gcopy(b); av=avma;
+  b = gcopy(b); s = gcopy(s); av=avma;
   push_lex(a,code);
   if (is_vec_t(typ(s)))
   {

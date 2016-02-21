@@ -192,6 +192,7 @@ BA143- [mpi] interrupt/alarm could caused a crash
 BA144- [mpi] relinking empty t_LIST caused a crash
   145- ispower(t_POL) didn't work in small characteristic [#1779]; make it work
        over finite fields
+BA146- my(s=1,a=0);forstep(i=1,20,s,s++;a+=i);a -> wrong result
 
   Added
     1- add optional argument to sumdigits to specify the base
