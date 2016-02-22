@@ -410,6 +410,7 @@ SCh152- [mingw+pthread]: default nbthreads support
    158- allow ispower(t_POLMOD representing a finite field element)
    159- [libpari] Fq_ispower, FqX_ispower, RgX_deflate_order, Fq_to_FF,
         FqX_to_FFX
+   160- [libpari] Z2_sqrt, divisorsu_fact, usumdiv_fact, usumdivk_fact
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]

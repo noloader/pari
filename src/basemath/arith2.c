@@ -893,24 +893,25 @@ divisors(GEN n)
 }
 
 GEN
-divisorsu(ulong n)
+divisorsu_fact(GEN P, GEN E)
 {
-  pari_sp av = avma;
-  long i, j, l;
-  ulong nbdiv;
-  GEN d, t, t1, t2, t3, P, e, fa = factoru(n);
-
-  P = gel(fa,1); l = lg(P);
-  e = gel(fa,2);
-  nbdiv = 1;
-  for (i=1; i<l; i++) nbdiv *= 1+e[i];
+  long i, j, l = lg(P);
+  ulong nbdiv = 1;
+  GEN d, t, t1, t2, t3;
+  for (i=1; i<l; i++) nbdiv *= 1+E[i];
   d = t = cgetg(nbdiv+1,t_VECSMALL);
   *++d = 1;
   for (i=1; i<l; i++)
-    for (t1=t,j=e[i]; j; j--,t1=t2)
+    for (t1=t,j=E[i]; j; j--,t1=t2)
       for (t2=d, t3=t1; t3<t2; ) *(++d) = *(++t3) * P[i];
-  vecsmall_sort(t);
-  return gerepileupto(av, t);
+  vecsmall_sort(t); return t;
+}
+GEN
+divisorsu(ulong n)
+{
+  pari_sp av = avma;
+  GEN fa = factoru(n);
+  return gerepileupto(av, divisorsu_fact(gel(fa,1), gel(fa,2)));
 }
 
 static GEN
@@ -1180,10 +1181,6 @@ euler_sumdiv(GEN q, long v)
   for (; v > 1; v--) u = addui(1, mulii(q, u));
   return u;
 }
-static GEN
-u_euler_sumdivk(ulong p, long v, long k) { return euler_sumdiv(powuu(p,k), v); }
-static GEN
-euler_sumdivk(GEN p, long v, long k) { return euler_sumdiv(powiu(p,k), v); }
 
 static GEN
 sumdiv_aux(GEN F)
@@ -1192,31 +1189,28 @@ sumdiv_aux(GEN F)
   long i, l = lg(P);
   x = cgetg(l, t_VEC);
   for (i=1; i<l; i++) gel(x,i) = euler_sumdiv(gel(P,i), itou(gel(E,i)));
-  return x;
+  return ZV_prod(x);
 }
 GEN
 sumdiv(GEN n)
 {
   pari_sp av = avma;
-  GEN F, P, E;
-  long i, l;
+  GEN F, v;
 
   if ((F = check_arith_non0(n,"sumdiv")))
   {
     F = clean_Z_factor(F);
-    P = sumdiv_aux(F);
+    v = sumdiv_aux(F);
   }
   else if (lgefint(n) == 3)
   {
     if (n[2] == 1) return gen_1;
     F = factoru(n[2]);
-    P = gel(F,1);
-    E = gel(F,2); l = lg(P);
-    for (i=1; i<l; i++) gel(P,i) = u_euler_sumdiv(P[i], E[i]);
+    v = usumdiv_fact(F);
   }
   else
-    P = sumdiv_aux(absi_factor(n));
-  return gerepileuptoint(av, ZV_prod(P));
+    v = sumdiv_aux(absi_factor(n));
+  return gerepileuptoint(av, v);
 }
 
 static GEN
@@ -1225,15 +1219,15 @@ sumdivk_aux(GEN F, long k)
   GEN x, P = gel(F,1), E = gel(F,2);
   long i, l = lg(P);
   x = cgetg(l, t_VEC);
-  for (i=1; i<l; i++) gel(x,i) = euler_sumdivk(gel(P,i), gel(E,i)[2], k);
-  return x;
+  for (i=1; i<l; i++) gel(x,i) = euler_sumdiv(powiu(gel(P,i),k), gel(E,i)[2]);
+  return ZV_prod(x);
 }
 GEN
 sumdivk(GEN n, long k)
 {
   pari_sp av = avma;
-  GEN E, F, P;
-  long i, l, k1;
+  GEN F, v;
+  long k1;
 
   if (!k) return numdiv(n);
   if (k == 1) return sumdiv(n);
@@ -1243,39 +1237,37 @@ sumdivk(GEN n, long k)
   if ((F = check_arith_non0(n,"sumdivk")))
   {
     F = clean_Z_factor(F);
-    P = sumdivk_aux(F,k);
+    v = sumdivk_aux(F,k);
   }
   else if (lgefint(n) == 3)
   {
     if (n[2] == 1) return gen_1;
     F = factoru(n[2]);
-    P = gel(F,1);
-    E = gel(F,2); l = lg(P);
-    for (i=1; i<l; i++) gel(P,i) = u_euler_sumdivk(P[i], E[i], k);
+    v = usumdivk_fact(F,k);
   }
   else
-    P = sumdivk_aux(absi_factor(n), k);
-  P = ZV_prod(P);
-  if (k1 > 0) return gerepileuptoint(av, P);
-  return gerepileupto(av, gdiv(P, powiu(n,k)));
+    v = sumdivk_aux(absi_factor(n), k);
+  if (k1 > 0) return gerepileuptoint(av, v);
+  return gerepileupto(av, gdiv(v, powiu(n,k)));
 }
 
-/* K t_VECSMALL of k >= 0 */
 GEN
-usumdivkvec(ulong n, GEN K)
+usumdiv_fact(GEN f)
 {
-  pari_sp av = avma;
-  GEN F = factoru(n), P = gel(F,1), E = gel(F,2), Z, S;
-  long i,j, l = lg(P), lK = lg(K);
-  Z = cgetg(l, t_VEC);
-  S = cgetg(lK, t_VEC);
-  for (j=1; j<lK; j++)
-  {
-    long k = K[j];
-    for (i=1; i<l; i++) gel(Z,i) = u_euler_sumdivk(P[i], E[i], k);
-    gel(S,j) = ZV_prod(Z);
-  }
-  return gerepilecopy(av, S);
+  GEN P = gel(f,1), E = gel(f,2);
+  long i, l = lg(P);
+  GEN v = cgetg(l, t_VEC);
+  for (i=1; i<l; i++) gel(v,i) = u_euler_sumdiv(P[i],E[i]);
+  return ZV_prod(v);
+}
+GEN
+usumdivk_fact(GEN f, ulong k)
+{
+  GEN P = gel(f,1), E = gel(f,2);
+  long i, l = lg(P);
+  GEN v = cgetg(l, t_VEC);
+  for (i=1; i<l; i++) gel(v,i) = euler_sumdiv(powuu(P[i],k),E[i]);
+  return ZV_prod(v);
 }
 
 long

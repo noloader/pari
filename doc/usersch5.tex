@@ -3347,6 +3347,9 @@ discriminant $D$ such that $d=D*f^2$ and set \kbd{*pt\_f} to $f$
 \fun{GEN}{divisorsu}{ulong n}, returns the divisors of $n$ in a
 \typ{VECSMALL}, sorted by increasing order.
 
+\fun{ulong}{divisorsu_fact}{GEN fa}, as \kbd{divisorsu(n)}
+where \kbd{fa} is \kbd{factoru(n)}.
+
 \fun{long}{omegau}{ulong n} returns the number of prime divisors of $n > 0$.
 
 \fun{long}{uissquarefree}{ulong n} returns $1$ if \kbd{n}
@@ -3379,6 +3382,12 @@ compositeness test (it thus may be prime or composite), and $0$ otherwise
 
 \fun{GEN}{usumdivkvec}{ulong n, GEN K} $K$ being a \typ{VECSMALL} of
 positive integers. Returns the vector of \kbd{sumdivk}$(n, K[i])$.
+
+\fun{GEN}{usumdiv_fact}{GEN fa}, sum of divisors of \kbd{ulong} $n$, where
+\kbd{fa} is \kbd{factoru(n)}.
+
+\fun{GEN}{usumdivk_fact}{GEN fa, ulong k}, sum of $k$-th powers of divisors
+of \kbd{ulong} $n$, where \kbd{fa} is \kbd{factoru(n)}.
 
 \fun{GEN}{hilbertii}{GEN x, GEN y, GEN p}, returns the Hilbert symbol
 $(x,y)$ at the prime $p$ (\kbd{NULL} for the place at infinity); $x$ and $y$

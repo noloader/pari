@@ -1664,6 +1664,7 @@ long    corediscs(long D, ulong *f);
 GEN     digits(GEN N, GEN B);
 GEN     divisors(GEN n);
 GEN     divisorsu(ulong n);
+GEN     divisorsu_fact(GEN P, GEN e);
 GEN     factor_pn_1(GEN p, ulong n);
 GEN     factor_pn_1_limit(GEN p, long n, ulong lim);
 GEN     factoru_pow(ulong n);
@@ -1686,6 +1687,8 @@ void    maxprime_check(ulong c);
 GEN     sumdigits(GEN n);
 GEN     sumdigits0(GEN n, GEN B);
 ulong   sumdigitsu(ulong n);
+GEN     usumdiv_fact(GEN f);
+GEN     usumdivk_fact(GEN f, ulong k);
 
 /* base1.c */
 

@@ -2942,13 +2942,13 @@ aut_factor(GEN U, GEN z)
 static GEN
 ser_j(long prec, long v)
 {
-  GEN j, J, K = mkvecsmall2(3,5), S = cgetg(prec+1, t_VEC);
+  GEN j, J, S3 = cgetg(prec+1, t_VEC), S5 = cgetg(prec+1,t_VEC);
   long i, n;
   for (n = 1; n <= prec; n++)
   {
-    GEN s = usumdivkvec(n, K);
-    gel(s,2) = mului(21, gel(s,2));
-    gel(S,n) = s;
+    GEN fa = factoru(n);
+    gel(S3,n) = mului(10, usumdivk_fact(fa,3));
+    gel(S5,n) = mului(21, usumdivk_fact(fa,5));
   }
   J = cgetg(prec+2, t_SER),
   J[1] = evalvarn(v)|evalsigne(1)|evalvalp(-1);
@@ -2959,12 +2959,12 @@ ser_j(long prec, long v)
   for (n = 2; n < prec; n++)
   {
     pari_sp av = avma;
-    GEN c, s = gel(S,n+1), s3 = gel(s,1), s5 = gel(s,2);
-    c = addii(mului(10, s3), s5);
+    GEN c, s3 = gel(S3,n+1), s5 = gel(S5,n+1);
+    c = addii(s3, s5);
     for (i = 0; i < n; i++)
     {
-      s = gel(S,n-i); s3 = gel(s,1); s5 = gel(s,2);
-      c = addii(c, mulii(gel(j,i), addii(mulsi(-10*i,s3), s5)));
+      s3 = gel(S3,n-i); s5 = gel(S5,n-i);
+      c = addii(c, mulii(gel(j,i), subii(s5, mului(i,s3))));
     }
     gel(j,n) = gerepileuptoint(av, diviuexact(muliu(c,24), n+1));
   }
