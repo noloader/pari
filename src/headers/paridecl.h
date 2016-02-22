@@ -749,6 +749,7 @@ GEN     ZMV_to_FlmV(GEN z, ulong m);
 
 /* Hensel.c */
 
+GEN     Z2_sqrt(GEN x, long e);
 GEN     Zp_sqrt(GEN x, GEN p, long e);
 GEN     Zp_sqrtlift(GEN b, GEN a, GEN p, long e);
 GEN     Zp_sqrtnlift(GEN b, GEN n, GEN a, GEN p, long e);

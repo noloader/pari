@@ -5889,7 +5889,11 @@ The functions is not stack clean if one coefficients of $M$ is negative
 \subsec{Zp}
 
 \fun{GEN}{Zp_sqrt}{GEN b, GEN p, long e} $b$ and $p$ being \typ{INT}s, with $p$
-a odd prime, returns a \typ{INT} $a$ such that $a^2 \equiv b \mod p^e$.
+a prime (possibly $2$), returns a \typ{INT} $a$ such that $a^2 \equiv b \mod
+p^e$.
+
+\fun{GEN}{Z2_sqrt}{GEN b, long e} $b$ being a \typ{INT}s
+returns a \typ{INT} $a$ such that $a^2 \equiv b \mod 2^e$.
 
 \fun{GEN}{Zp_sqrtlift}{GEN b, GEN a, GEN p, long e} let
 $a,b,p$ be \typ{INT}s, with $p > 1$ odd, such that $a^2\equiv b\mod p$.

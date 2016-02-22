@@ -586,8 +586,11 @@ Zp_sqrtlift(GEN b, GEN a, GEN p, long e)
 GEN
 Zp_sqrt(GEN x, GEN p, long e)
 {
-  pari_sp av = avma;
-  GEN z = Fp_sqrt(Fp_red(x, p), p);
+  pari_sp av;
+  GEN z;
+  if (equaliu(p,2)) return Z2_sqrt(x,e);
+  av = avma;
+  z = Fp_sqrt(Fp_red(x, p), p);
   if (!z) return NULL;
   if (e > 1) z = Zp_sqrtlift(x, z, p, e);
   return gerepileuptoint(av, z);

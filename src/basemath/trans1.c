@@ -1237,30 +1237,36 @@ grootsof1(long N, long prec)
 /**                        RACINE CARREE                           **/
 /**                                                                **/
 /********************************************************************/
-/* assume x unit, precp(x) = pp > 3 */
-static GEN
-sqrt_2adic(GEN x, long pp)
+/* assume x unit, e = precp(x) */
+GEN
+Z2_sqrt(GEN x, long e)
 {
-  GEN z = mod16(x)==(signe(x)>=0?1:15)?gen_1: utoipos(3);
-  long zp;
+  ulong r = signe(x)>=0?mod16(x):16-mod16(x);
+  GEN z;
+  long ez;
   pari_sp av;
 
-  if (pp == 4) return z;
-  zp = 3; /* number of correct bits in z (compared to sqrt(x)) */
-
-  av = avma;
+  switch(e)
+  {
+    case 1: return gen_1;
+    case 2: return (r & 3UL) == 1? gen_1: NULL;
+    case 3: return (r & 7UL) == 1? gen_1: NULL;
+    case 4: if (r == 1) return gen_1;
+            else return (r == 9)? utoipos(3): NULL;
+    default: if ((r&7UL) != 1) return NULL;
+  }
+  av = avma; z = (r==1)? gen_1: utoipos(3);
+  ez = 3; /* number of correct bits in z (compared to sqrt(x)) */
   for(;;)
   {
     GEN mod;
-    zp = (zp<<1) - 1;
-    if (zp > pp) zp = pp;
-    mod = int2n(zp);
-    z = addii(z, remi2n(mulii(x, Fp_inv(z,mod)), zp));
+    ez = (ez<<1) - 1;
+    if (ez > e) ez = e;
+    mod = int2n(ez);
+    z = addii(z, remi2n(mulii(x, Fp_inv(z,mod)), ez));
     z = shifti(z, -1); /* (z + x/z) / 2 */
-    if (pp == zp) return z;
-
-    if (zp < pp) zp--;
-
+    if (e == ez) return gerepileuptoint(av, z);
+    if (ez < e) ez--;
     if (gc_needed(av,2))
     {
       if (DEBUGMEM > 1) pari_warn(warnmem,"Qp_sqrt");
@@ -1270,34 +1276,6 @@ sqrt_2adic(GEN x, long pp)
 }
 
 /* x unit defined modulo p^e, e > 0 */
-static GEN
-Up_sqrt(GEN x, GEN p, long e)
-{
-  pari_sp av = avma;
-  if (equaliu(p,2))
-  {
-    long r = signe(x)>=0?mod8(x):8-mod8(x);
-    if (e <= 3)
-    {
-      switch(e) {
-      case 1: break;
-      case 2: if ((r&3) == 1) break;
-              return NULL;
-      case 3: if (r == 1) break;
-              return NULL;
-      }
-      return gen_1;
-    }
-    else
-    {
-      if (r != 1) return NULL;
-      return gerepileuptoint(av, sqrt_2adic(x, e));
-    }
-  }
-  else
-    return Zp_sqrt(x, p, e);
-}
-
 GEN
 Qp_sqrt(GEN x)
 {
@@ -1312,7 +1290,7 @@ Qp_sqrt(GEN x)
   mod = gel(x,3);
   z   = gel(x,4); /* lift to t_INT */
   e >>= 1;
-  z = Up_sqrt(z, p, pp);
+  z = Zp_sqrt(z, p, pp);
   if (!z) return NULL;
   if (equaliu(p,2))
   {
@@ -1349,7 +1327,7 @@ Zn_sqrt(GEN d, GEN fn)
     else
     {
       if (odd(v)) return NULL;
-      bp = Up_sqrt(r, p, e-v);
+      bp = Zp_sqrt(r, p, e-v);
       if (!bp)    return NULL;
       if (v) bp = mulii(bp, powiu(p, v>>1L));
     }
