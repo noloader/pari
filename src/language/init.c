@@ -242,7 +242,8 @@ gunclone_deep(GEN x)
     case t_LIST:
       v = list_data(x); lx = v? lg(v): 1;
       for (i=1;i<lx;i++) gunclone_deep(gel(v,i));
-      pari_free(v); break;
+      if (v) killblock(v);
+      break;
   }
   if (isclone(x)) gunclone(x);
   BLOCK_SIGINT_END;
@@ -1635,7 +1636,7 @@ list_internal_copy(GEN z, long nmax)
   GEN a;
   if (!z) return NULL;
   l = lg(z);
-  a = (GEN)pari_malloc((nmax+1) * sizeof(long));
+  a = newblock(nmax+1);
   for (i = 1; i < l; i++) gel(a,i) = gel(z,i)? gclone(gel(z,i)): gen_0;
   a[0] = z[0]; return a;
 }

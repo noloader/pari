@@ -2669,21 +2669,25 @@ gsigne(GEN x)
 static void
 ensure_nb(GEN L, long l)
 {
-  long nmax = list_nmax(L);
-  GEN v;
+  long nmax = list_nmax(L), i, lw;
+  GEN v, w;
   if (l <= nmax) return;
   if (nmax)
   {
     nmax <<= 1;
     if (l > nmax) nmax = l;
-    v = (GEN)pari_realloc(list_data(L), (nmax+1) * sizeof(long));
+    w = list_data(L); lw = lg(w);
+    v = newblock(nmax+1);
+    v[0] = w[0];
+    for (i=1; i < lw; i++) gel(v,i) = gel(w, i);
+    killblock(w);
   }
   else /* unallocated */
   {
     nmax = 32;
     if (list_data(L))
       pari_err(e_MISC, "store list in variable before appending elements");
-    v = (GEN)pari_malloc((nmax+1) * sizeof(long));
+    v = newblock(nmax+1);
     v[0] = evaltyp(t_VEC) | _evallg(1);
   }
   list_data(L) = v;
@@ -2699,7 +2703,7 @@ listkill(GEN L)
     GEN v = list_data(L);
     long i, l = lg(v);
     for (i=1; i<l; i++) gunclone_deep(gel(v,i));
-    pari_free(v);
+    killblock(v);
     L[1] = evaltyp(list_typ(L));
     list_data(L) = NULL;
   }
