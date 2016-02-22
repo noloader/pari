@@ -263,7 +263,7 @@ LucasMod(GEN n, ulong P, GEN N)
   long i, j = 1+bfffo(m);
   GEN v = utoipos(P), v1 = utoipos(P*P - 2);
 
-  m <<= j; j = BITS_IN_LONG - j;
+  m = j==BITS_IN_LONG ? 0 : m<<j; j = BITS_IN_LONG - j;
   for (i=lgefint(n)-2;;) /* cf. leftright_pow */
   {
     for (; j; m<<=1,j--)
@@ -299,9 +299,9 @@ static ulong
 u_LucasMod(ulong n, ulong P, ulong N)
 {
   long j = 1 + bfffo(n);
-  ulong v = P, v1 = P*P - 2, mP = N - P, m2 = N - 2, m = n << j;
+  ulong v = P, v1 = P*P - 2, mP = N - P, m2 = N - 2, m;
+  m = j==BITS_IN_LONG ? 0 : n<<j; j = BITS_IN_LONG - j;
 
-  j = BITS_IN_LONG - j;
   for (; j; m<<=1,j--)
   { /* v = v_k, v1 = v_{k+1} */
     if (m & HIGHBIT)

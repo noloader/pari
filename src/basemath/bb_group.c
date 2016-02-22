@@ -239,7 +239,7 @@ gen_pow_fold_i(GEN x, GEN N, void *E, GEN (*sqr)(void*,GEN),
     pari_sp av = avma;
 
     /* normalize, i.e set highest bit to 1 (we know n != 0) */
-    n<<=j; j = BITS_IN_LONG-j;
+    n = j==BITS_IN_LONG ? 0 : n<<j; j = BITS_IN_LONG - j;
     /* first bit is now implicit */
     for (i=ln-2;;)
     {
