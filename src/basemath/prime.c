@@ -260,23 +260,29 @@ LucasMod(GEN n, ulong P, GEN N)
   pari_sp av = avma;
   GEN nd = int_MSW(n);
   ulong m = *nd;
-  long i, j = 1+bfffo(m);
+  long i, j;
   GEN v = utoipos(P), v1 = utoipos(P*P - 2);
 
-  m = j==BITS_IN_LONG ? 0 : m<<j; j = BITS_IN_LONG - j;
+  if (m == 1)
+    j = 0;
+  else
+  {
+    j = 1+bfffo(m); /* < BIL */
+    m <<= j; j = BITS_IN_LONG - j;
+  }
   for (i=lgefint(n)-2;;) /* cf. leftright_pow */
   {
     for (; j; m<<=1,j--)
     { /* v = v_k, v1 = v_{k+1} */
       if (m&HIGHBIT)
       { /* set v = v_{2k+1}, v1 = v_{2k+2} */
-        v = subis(mulii(v,v1), (long)P);
-        v1= subis(sqri(v1), 2);
+        v = subiu(mulii(v,v1), P);
+        v1= subiu(sqri(v1), 2);
       }
       else
       {/* set v = v_{2k}, v1 = v_{2k+1} */
-        v1= subis(mulii(v,v1), (long)P);
-        v = subis(sqri(v), 2);
+        v1= subiu(mulii(v,v1), P);
+        v = subiu(sqri(v), 2);
       }
       v = modii(v, N);
       v1= modii(v1,N);
@@ -298,10 +304,13 @@ LucasMod(GEN n, ulong P, GEN N)
 static ulong
 u_LucasMod(ulong n, ulong P, ulong N)
 {
-  long j = 1 + bfffo(n);
-  ulong v = P, v1 = P*P - 2, mP = N - P, m2 = N - 2, m;
-  m = j==BITS_IN_LONG ? 0 : n<<j; j = BITS_IN_LONG - j;
+  ulong v, v1, mP, m2, m;
+  long j;
 
+  if (n == 1) return P;
+  j = 1 + bfffo(n); /* < BIL */
+  v = P; v1 = P*P - 2; mP = N - P; m2 = N - 2;
+  m = n<<j; j = BITS_IN_LONG - j;
   for (; j; m<<=1,j--)
   { /* v = v_k, v1 = v_{k+1} */
     if (m & HIGHBIT)

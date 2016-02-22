@@ -125,7 +125,7 @@ leftright_binary_powu(GEN x, ulong n, void *E, GEN (*sqr)(void*,GEN),
   GEN  y;
   int j;
 
-  if (n == 1) return gcopy(x);
+  if (n == 1) return x;
   y = x; j = 1+bfffo(n);
   /* normalize, i.e set highest bit to 1 (we know n != 0) */
   n<<=j; j = BITS_IN_LONG-j;
@@ -148,7 +148,7 @@ gen_powu_i(GEN x, ulong n, void *E, GEN (*sqr)(void*,GEN),
                                     GEN (*mul)(void*,GEN,GEN))
 {
   long l;
-  if (n == 1) return gcopy(x);
+  if (n == 1) return x;
   l = expu(n);
   if (l<=8)
     return leftright_binary_powu(x, n, E, sqr, mul);
@@ -197,7 +197,7 @@ gen_powu_fold_i(GEN x, ulong n, void *E, GEN  (*sqr)(void*,GEN),
   GEN y;
   int j;
 
-  if (n == 1) return gcopy(x);
+  if (n == 1) return x;
   y = x; j = 1+bfffo(n);
   /* normalize, i.e set highest bit to 1 (we know n != 0) */
   n<<=j; j = BITS_IN_LONG-j;
@@ -235,11 +235,17 @@ gen_pow_fold_i(GEN x, GEN N, void *E, GEN (*sqr)(void*,GEN),
     GEN nd = int_MSW(N), y = x;
     ulong n = *nd;
     long i;
-    int j = 1+bfffo(n);
+    int j;
     pari_sp av = avma;
 
-    /* normalize, i.e set highest bit to 1 (we know n != 0) */
-    n = j==BITS_IN_LONG ? 0 : n<<j; j = BITS_IN_LONG - j;
+    if (n == 1)
+      j = 0;
+    else
+    {
+      j = 1+bfffo(n); /* < BIL */
+      /* normalize, i.e set highest bit to 1 (we know n != 0) */
+      n <<= j; j = BITS_IN_LONG - j;
+    }
     /* first bit is now implicit */
     for (i=ln-2;;)
     {
