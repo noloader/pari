@@ -1045,7 +1045,7 @@ lfunsymsqfind(GEN ldata, long flall/*=0*/, long prec)
       forvec_init(&iter2, vforexptmp, 0);
       while ((vexp = forvec_next(&iter2)))
       {
-        GEN V = cgetg(i2, t_VEC), M2 = sqri(diviiexact(N,M)), L;
+        GEN V = cgetg(i2, t_COL), M2 = sqri(diviiexact(N,M)), L;
         long m;
         for (m = 1; m < i2; m++)
         {

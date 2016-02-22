@@ -46,6 +46,8 @@ lfunzeros(L5077,20)
 ltau=lfuncreate([n->Vec(eta('x+O('x^n))^24),0,[0,1],12,1,1]);
 lfunmfspec(ltau)
 
+lfunmfpeters(ellinit([0, 1, 0, 4, 4]))
+
 /* other functions */
 t = 4+I/5;
 t^2*lfuntheta(L121,t)
