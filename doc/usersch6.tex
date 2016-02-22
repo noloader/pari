@@ -1271,12 +1271,17 @@ the $T_2$ quadratic form as returned by \tet{nf_get_Gtwist}, and we return
 a small element $a$ in the lattice $(x,T_2)$. This is used to implement
 \tet{idealred}.
 
+
 \fun{GEN}{idealpseudomin_nonscalar}{GEN x, GEN G}. As \tet{idealpseudomin},
 but we insist of returning a non-scalar $a$ (\kbd{ZV\_isscalar} is false), if
 the dimension of $x$ is $> 1$.
 
 In the interpretation where $x$ defines an integral ideal on a fixed $\Z_K$
 basis whose first element is $1$, this means that $a$ is not rational.
+
+\fun{GEN}{idealpseudored}{GEN x, GEN G}. As \tet{idealpseudomin} but we
+return the full reduced $\Z$-basis of $x$ as a \typ{MAT} instead of a single
+vector.
 
 \fun{GEN}{idealred_elt}{GEN nf, GEN x} shortcut for
 \bprog
