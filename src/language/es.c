@@ -364,7 +364,7 @@ gp_embedded(const char *s)
     pari_add_hist(z, 0);
     n = pari_nb_hist();
     parivstack_reset();
-    res = (z==gnil || last==';') ? strdup(""):
+    res = (z==gnil || last==';') ? stack_strdup(""):
           stack_sprintf("%%%lu = %Ps", n, pari_get_hist(n));
   } pari_ENDCATCH;
   avma = pari_mainstack->top;
