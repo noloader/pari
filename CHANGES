@@ -193,6 +193,8 @@ BA144- [mpi] relinking empty t_LIST caused a crash
   145- ispower(t_POL) didn't work in small characteristic [#1779]; make it work
        over finite fields
 BA146- my(s=1,a=0);forstep(i=1,20,s,s++;a+=i);a -> wrong result
+KR147- gphelp -detex: accented letters counted as 1 char for line splitting
+       but rendered as 2
 
   Added
     1- add optional argument to sumdigits to specify the base
@@ -411,6 +413,8 @@ SCh152- [mingw+pthread]: default nbthreads support
    159- [libpari] Fq_ispower, FqX_ispower, RgX_deflate_order, Fq_to_FF,
         FqX_to_FFX
    160- [libpari] Z2_sqrt, divisorsu_fact, usumdiv_fact, usumdivk_fact
+   161- gphelp -detex: new flag -utf8 to allow utf-8 encoding in output, e.g.
+        render \'{e} as &eacute; (the actual eight-bit char) instead of 'e
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]
@@ -521,6 +525,7 @@ BA 61- [libpari] concat, concat1 renamed to gconcat, gconcat1
    66- improved p-adic log at high accuracy (O(sqrt(padicprec)) algorithm
        instead of O(padicprec))
    67- allow genus2red to handle (rational) non integral models
+KR 68- new version of misc/xgp
 
 Removed
    1- deprecated functions nfbasis0, nfdisc0, factorpadic0

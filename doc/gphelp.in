@@ -33,6 +33,7 @@
 #  -to_pod file		convert file to POD (should be the only args)
 #
 #  -to_dumbpod file	same, but without nested formating
+#  -utf8  in detex mode, use UFT-8 encoding for output
 #
 # Granted environment variables (override):
 #  GPTMPDIR: where temporary files will go (/tmp by default).
@@ -83,7 +84,7 @@ sub help {
 }
 
 sub options {
-  $raw = $detex = $fromgp = $apropos = 0;
+  $utf8 = $raw = $detex = $fromgp = $apropos = 0;
   $ch = $cb = $cu = '';
   while ($_ = $ARGV[0])
   {
@@ -99,6 +100,8 @@ sub options {
       { $detex = 1; }
     elsif ($_ eq "-raw")
       { $raw = $detex = 1; }
+    elsif ($_ eq "-utf8")
+      { $utf8 = 1; }
     elsif ($_ eq "-color_help" || $_ eq "-ch")
       { $ch = &color(shift(@ARGV)); }
     elsif ($_ eq "-color_bold" || $_ eq "-cb")
@@ -546,8 +549,14 @@ sub split_words { my ($txt) = @_;
     s/\Q$tr{nbrk}/ /g;
     my ($w) = $_;
     # these codes will be replaced by 1 character
-    s/\@\[(obr|cbr|ouml|uuml|agrav|eacute|ldollar|lt|gt|\{|\})]/\@/g;
-    s/\@\[pm]/+\/-/g;
+    s/\@\[(obr|cbr|ldollar|lt|gt|\{|\})]/\@/g;
+    if ($utf8)
+    { s/\@\[(ouml|uuml|agrav|aacute|eacute|pm)]/\@/g; } # one char
+    else
+    {
+      s/\@\[(ouml|uuml|agrav|aacute|eacute)]/\@\@/g;  # two chars
+      s/\@\[pm]/+\/-/g; # three chars
+    }
     # the rest will be replaced by zero-width characters
     s/\@\[\w+\]//g;
     my ($l) = length($_);
@@ -666,7 +675,7 @@ sub detex {
 # We use the special char @ to transmit special sequences
 sub inittr {
   @ou = qw( dollar nbrk startbold endbold startcode endcode
-	    obr cbr uuml ouml agrave eacute
+	    obr cbr uuml ouml agrave aacute eacute
 	    startpodcode endpodcode startlink endlink
 	    startbcode endbcode startbi endbi startit endit
 	    startword endword startlword endlword pm empty gt lt podleader );
@@ -709,6 +718,7 @@ sub inittr {
 	  uuml => 'E<uuml>',
 	  eacute => 'E<eacute>',
 	  agrave => 'E<agrave>',
+	  aacute => 'E<aacute>',
 	  empty => 'Z<>',
 	  podleader => '=',
 	);
@@ -760,6 +770,7 @@ sub basic_subst {
   s/\\(~|tilde)/~/g;
 
   s/\\(equiv)(?![a-zA-Z])/ = /g;
+  s/\\'a/$tr{aacute}/; s/\\'\{a\}/$tr{aacute}/;
   s/\\`a/$tr{agrave}/; s/\\`\{a\}/$tr{agrave}/;
   s/\\"o/$tr{ouml}/;   s/\\"\{o\}/$tr{ouml}/;
   s/\\"u/$tr{uuml}/;   s/\\"\{u\}/$tr{uuml}/;
@@ -1173,16 +1184,29 @@ sub TeXprint {
   local($_) = $_[0];
   s/\@\[obr\]/{/g;
   s/\@\[cbr\]/}/g;
-  s/\@\[ouml\]/"o/g;
-  s/\@\[uuml\]/"u/g;
-  s/\@\[agrave\]/`a/g;
-  s/\@\[eacute\]/'e/g;
+  if ($utf8)
+  {
+    s/\@\[ouml\]/ö/g;
+    s/\@\[uuml\]/ü/g;
+    s/\@\[aacute\]/á/g;
+    s/\@\[agrave\]/à/g;
+    s/\@\[eacute\]/é/g;
+    s/\@\[pm\]/±/g;
+  }
+  else
+  {
+    s/\@\[ouml\]/"o/g;
+    s/\@\[uuml\]/"u/g;
+    s/\@\[aacute\]/'a/g;
+    s/\@\[agrave\]/`a/g;
+    s/\@\[eacute\]/'e/g;
+    s/\@\[pm\]/+\/-/g;
+  }
   s/\@\[ldollar\]/\$/g;
   s/\@\[end(bold|code|bcode|bi|it)\]/$ch/g;
   s/\@\[start(bold|code|bcode|bi)\]/$cb/g;
   s/\@\[startit\]/$cu/g;
   s/\@\[(dollar|empty|endl?word|endpodcode|startl?word|startpodcode)\]//g;
-  s/\@\[pm\]/+\/-/g;
   s/\@\[lt\]/</g;
   s/\@\[gt\]/>/g;
   s/\\([\{\}])/$1/g;

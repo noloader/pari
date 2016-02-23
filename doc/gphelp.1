@@ -7,6 +7,7 @@ gphelp \- GP-PARI online help script
 .IR file ]
 [-raw]
 [-detex]
+[-utf8]
 [-k]
 [-ch
 .IR c1 ]
@@ -123,6 +124,12 @@ Use
 .B detex
 mode. The TeX file is converted to readable screen output that is directly
 written to the terminal; don't use tex or xdvi.
+
+.TP
+.BI \-utf8
+In
+.B detex
+mode, use UTF-8 encoding for characters, .e.g. use é (&eacute;) instead of 'e.
 
 .TP
 .BI \-k
