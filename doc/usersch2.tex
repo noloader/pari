@@ -2235,7 +2235,7 @@ in string context:
 \+&\tet{trap} (first argument)\cr
 \+&\tet{whatnow}\cr
 
-\subsec{Useful examples} The function \kbd{Str} converts its arguments into
+\subsec{Useful example} The function \kbd{Str} converts its arguments into
 strings and concatenate them. Coupled with \tet{eval}, it is very powerful.
 The following example creates generic matrices\sidx{generic
 matrix}\sidx{matrix}:
@@ -2245,14 +2245,6 @@ matrix}\sidx{matrix}:
 %1 =
 [x11 + m11 x12 + m12 x13 + m13]
 [x21 + m21 x22 + m22 x23 + m23]
-@eprog\noindent
-
-Two last examples: \kbd{hist(10,20)} returns all \idx{history} entries from
-\kbd{\%10} to \kbd{\%20} neatly packed into a single
-vector; \kbd{histlast(10)} returns the last $10$ history entries:
-\bprog
-  hist(a,b) = vector(b-a+1, i, eval(Str("%", a-1+i)))
-  histlast(n) = vector(n, i, eval(Str("%", %#-i+1)))
 @eprog
 
 \section{Errors and error recovery}
