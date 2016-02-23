@@ -241,13 +241,14 @@ vandermondeinverse(GEN L, GEN T, GEN den, GEN prep)
   long i, n = lg(L)-1;
   GEN M, P;
   if (!prep) prep = vandermondeinverseprep(L);
+  if (den && !equali1(den)) T = RgX_Rg_mul(T,den);
   M = cgetg(n+1, t_MAT);
   for (i = 1; i <= n; i++)
   {
     P = RgX_Rg_div(RgX_div_by_X_x(T, gel(L,i), NULL), gel(prep,i));
     gel(M,i) = RgX_to_RgC(P,n);
   }
-  return den? gerepileupto(ltop, gmul(den, M)): gerepilecopy(ltop, M);
+  return gerepilecopy(ltop, M);
 }
 
 /* #r = r1 + r2 */
