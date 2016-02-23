@@ -480,7 +480,7 @@ gtomap(GEN x)
       GEN M, p;
       if (l == 1 || lgcols(x)==1) return listcreate_typ(t_LIST_MAP);
       if (l != 3) pari_err_TYPE("Map",x);
-      p = gen_indexsort_uniq(gel(x,1), cmp_universal, cmp_nodata);
+      p = gen_indexsort_uniq(gel(x,1),(void*)&cmp_universal, cmp_nodata);
       if (lg(p) != lgcols(x))
         pari_err_DOMAIN("Map","x","is not",strtoGENstr("one-to-one"),x);
       n = lg(p)-1;
