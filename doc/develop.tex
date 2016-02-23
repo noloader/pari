@@ -842,6 +842,8 @@ Initialize the GP interpretor (like \kbd{pari\_init} does) with
 \fun{char *}{gp_embedded}{const char *s}
 Evaluate the string \kbd{s} with GP and return the result as a string,
 in a format similar to what GP displays (with the history index).
+The resulting string is allocated on the PARI stack, so subsequent call
+to \kbd{gp\_embedded} will destroy it.
 
 \chapter{Regression tests, benches}
 
