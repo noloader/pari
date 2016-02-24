@@ -2936,14 +2936,70 @@ aut_factor(GEN U, GEN z)
 }
 #endif
 
+/* eta(q) = 1 + \sum_{n>0} (-1)^n * (q^(n(3n-1)/2) + q^(n(3n+1)/2)) */
+static GEN
+ser_eta(long prec)
+{
+  GEN e = cgetg(prec+2, t_SER), ed = e+2;
+  long n, j;
+  e[1] = evalsigne(1)|_evalvalp(0)|evalvarn(0);
+  gel(ed,0) = gen_1;
+  for (n = 1; n < prec; n++) gel(ed,n) = gen_0;
+  for (n = 1, j = 0; n < prec; n++)
+  {
+    GEN s;
+    j += 3*n-2; /* = n*(3*n-1) / 2 */;
+    if (j >= prec) break;
+    s = odd(n)? gen_m1: gen_1;
+    gel(ed, j) = s;
+    if (j+n >= prec) break;
+    gel(ed, j+n) = s;
+  }
+  return e;
+}
+
+static GEN
+coeffEu(ulong n)
+{
+  pari_sp av = avma;
+  return gerepileuptoint(av, mului(65520, usumdivk_fact(factoru(n+1),11)));
+}
+/* E12 = 1 + q*E/691 */
+static GEN
+ser_E(long prec)
+{
+  GEN e = cgetg(prec+2, t_SER), ed = e+2;
+  long n;
+  e[1] = evalsigne(1)|_evalvalp(0)|evalvarn(0);
+  gel(ed,0) = utoipos(65520);
+  for (n = 1; n < prec; n++) gel(ed,n) = coeffEu(n);
+  return e;
+}
+/* j = E12/Delta + 432000/691, E12 = 1 + q*E/691 */
+GEN
+ser_j2(long prec, long v)
+{
+  pari_sp av = avma;
+  GEN iD = gpowgs(ginv(ser_eta(prec)), 24); /* q/Delta */
+  GEN J = gmul(ser_E(prec), iD);
+  setvalp(iD,-1); /* now 1/Delta */
+  J = gadd(gdivgs(J, 691), iD);
+  J = gerepileupto(av, J);
+  if (prec > 1) gel(J,3) = utoipos(744);
+  setvarn(J,v); return J;
+}
+
 /* j(q) = \sum_{n >= -1} c(n)q^n,
  * \sum_{n = -1}^{N-1} c(n) (-10n \sigma_3(N-n) + 21 \sigma_5(N-n))
  * = c(N) (N+1)/24 */
 static GEN
 ser_j(long prec, long v)
 {
-  GEN j, J, S3 = cgetg(prec+1, t_VEC), S5 = cgetg(prec+1,t_VEC);
+  GEN j, J, S3, S5;
   long i, n;
+  if (prec > 64) return ser_j2(prec, v);
+  S3 = cgetg(prec+1, t_VEC);
+  S5 = cgetg(prec+1,t_VEC);
   for (n = 1; n <= prec; n++)
   {
     GEN fa = factoru(n);
