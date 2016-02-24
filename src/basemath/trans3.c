@@ -2976,7 +2976,7 @@ ser_E(long prec)
   return e;
 }
 /* j = E12/Delta + 432000/691, E12 = 1 + q*E/691 */
-GEN
+static GEN
 ser_j2(long prec, long v)
 {
   pari_sp av = avma;
