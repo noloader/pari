@@ -145,7 +145,7 @@ easychar(GEN x, long v)
     case t_POLMOD:
     {
       GEN A = gel(x,2), T = gel(x,1);
-      if (RgX_is_QX(A) && RgX_is_ZX(T))
+      if (typ(A)==t_POL && RgX_is_QX(A) && RgX_is_ZX(T))
         return QXQ_charpoly(A, T, v);
       else
         return RgXQ_charpoly(A, T, v);
