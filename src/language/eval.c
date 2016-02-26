@@ -1699,10 +1699,18 @@ parfor(GEN a, GEN b, GEN code, void *E, long call(void*, GEN, GEN))
   GEN done, stop = NULL;
   struct pari_mt pt;
   if (typ(a) != t_INT) pari_err_TYPE("parfor",a);
-  if (b && gcmp(b,a) < 0) return;
-
+  if (b)
+  {
+    if (gcmp(b,a) < 0) return;
+    if (typ(b) == t_INFINITY)
+    {
+      if (inf_get_sign(b) < 0) return;
+      b = NULL;
+    }
+    else
+      b = gfloor(b);
+  }
   mt_queue_start(&pt, worker);
-  b = b ? gfloor(b): NULL;
   a = mkvec(setloop(a));
   av2 = avma;
   while ((running = (!stop && (!b || cmpii(gel(a,1),b) <= 0))) || pending)
