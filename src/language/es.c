@@ -3757,9 +3757,9 @@ pari_get_homedir(const char *user)
   {
     p = getpwnam(user);
     if (p) dir = p->pw_dir;
+    /* warn, but don't kill session on startup (when expanding path) */
+    if (!dir) pari_warn(warner,"can't expand ~%s", user? user: "");
   }
-  /* warn, but don't kill session on startup (when expanding path) */
-  if (!dir) pari_warn(warner,"can't expand ~%s", user? user: "");
   return dir;
 }
 #else
