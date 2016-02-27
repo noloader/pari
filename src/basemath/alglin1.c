@@ -2290,6 +2290,7 @@ ZM_inv(GEN M, GEN dM)
   long lM = lg(M), stable = 0;
   int negate = 0;
   forprime_t S;
+  pari_timer ti;
 
   if (lM == 1) return cgetg(1,t_MAT);
 
@@ -2304,6 +2305,7 @@ ZM_inv(GEN M, GEN dM)
   init_modular(&S);
   av2 = avma;
   H = NULL;
+  if (DEBUGLEVEL>5) timer_start(&ti);
   while ((p = u_forprime_next(&S)))
   {
     ulong dMp;
@@ -2331,7 +2333,7 @@ ZM_inv(GEN M, GEN dM)
     }
     else
       stable = ZM_incremental_CRT(&H, Hp, &q, p);
-    if (DEBUGLEVEL>5) err_printf("inverse mod %ld (stable=%ld)\n", p,stable);
+    if (DEBUGLEVEL>5) timer_printf(&ti, "ZM_inv mod %ld (stable=%ld)", p,stable);
     if (stable) {/* DONE ? */
       if (dM != gen_1)
       { if (ZM_isscalar(ZM_mul(M, H), dM)) break; }
