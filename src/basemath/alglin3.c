@@ -362,9 +362,9 @@ vecslice_parse_arg(long lA, long *y1, long *y2, long *skip)
     *y1 = 1; *y2 = lA-1;
   }
   else if (*y2==LONG_MAX) *y2 = *y1;
-  if (*y1<0) *y1 += lA;
+  if (*y1<=0) *y1 += lA;
   if (*y2<0) *y2 += lA;
-  if (*y1<=0 || *y1>*y2 || *y2>=lA) pari_err_DIM("_[..]");
+  if (*y1<=0 || *y1>*y2+1 || *y2>=lA) pari_err_DIM("_[..]");
   return *y2 - *y1 + 2 - !!*skip;
 }
 
