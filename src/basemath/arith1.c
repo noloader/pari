@@ -5145,7 +5145,7 @@ tauprime(GEN p)
   return gerepileupto(av, subii(mulii(powiu(p,3),T), addsi(1, gmulsg(128, s))));
 }
 
-/* Ramanujan tau function */
+/* Ramanujan tau function, return 0 for <= 0 */
 GEN
 ramanujantau(GEN n)
 {
@@ -5153,7 +5153,17 @@ ramanujantau(GEN n)
   GEN T, F, P, E;
   long j, lP;
 
-  if (!(F = check_arith_pos(n,"ramanujantau"))) F = Z_factor(n);
+  if (!(F = check_arith_all(n,"ramanujantau")))
+  {
+    if (signe(n) <= 0) return gen_0;
+    F = Z_factor(n);
+  }
+  else
+  {
+    P = gel(F,1);
+    if (lg(P) == 1 || signe(gel(P,1)) <= 0) return gen_0;
+  }
+
   P = gel(F,1);
   E = gel(F,2); lP = lg(P);
   T = gen_1;
