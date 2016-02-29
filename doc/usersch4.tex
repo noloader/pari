@@ -1710,6 +1710,14 @@ input contains no statements, then \kbd{*last} is set to \kbd{0}.
 
 For both functions, \kbd{gp}'s metacommands \emph{are} recognized.
 
+Two variants of \kbd{gp_read_str} exist:
+
+\fun{GEN}{gp_read_str_prec}{const char *s, long prec}
+As \kbd{gp_read_str}, but set the precision to \kbd{prec} words while evaluating $s$.
+
+\fun{GEN}{gp_read_str_bitprec}{const char *s, long bitprec}
+As \kbd{gp_read_str}, but set the precision to \kbd{bitprec} bits while evaluating $s$.
+
 \misctitle{Note} The obsolete form
 
 \fun{GEN}{readseq}{char *t}

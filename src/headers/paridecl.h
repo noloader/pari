@@ -1777,6 +1777,8 @@ GEN     fetch_var_value(long vx, GEN t);
 char *  gp_embedded(const char *s);
 void    gp_embedded_init(long rsize, long vsize);
 GEN     gp_read_str(const char *t);
+GEN     gp_read_str_bitprec(const char *s, long bitprec);
+GEN     gp_read_str_prec(const char *s, long prec);
 entree* install(void *f, const char *name, const char *code);
 entree* is_entry(const char *s);
 void    kill0(const char *e);

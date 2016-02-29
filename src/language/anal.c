@@ -196,6 +196,20 @@ gp_read_str(const char *s)
 GEN
 compile_str(const char *s) { return pari_compile_str(gp_filter(s)); }
 
+GEN
+gp_read_str_bitprec(const char *s, long bitprec)
+{
+  GEN x;
+  push_localbitprec(bitprec);
+  x = gp_read_str(s);
+  pop_localprec();
+  return x;
+}
+
+GEN
+gp_read_str_prec(const char *s, long prec)
+{ return gp_read_str_bitprec(s, prec2nbits(prec)); }
+
 static long
 check_proto(const char *code)
 {
