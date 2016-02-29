@@ -195,6 +195,7 @@ BA144- [mpi] relinking empty t_LIST caused a crash
 BA146- my(s=1,a=0);forstep(i=1,20,s,s++;a+=i);a -> wrong result
 KR147- gphelp -detex: accented letters counted as 1 char for line splitting
        but rendered as 2
+  148- sqrt(0) -> loss of accuracy (sqrtn was correct)
 
   Added
     1- add optional argument to sumdigits to specify the base

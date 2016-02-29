@@ -1391,6 +1391,9 @@ gsqrt(GEN x, long prec)
 
   switch(typ(x))
   {
+    case t_INT:
+      if (!signe(x)) return real_0(prec); /* no loss of accuracy */
+      x = itor(x,prec); /* fall through */
     case t_REAL: return sqrtr(x);
 
     case t_INTMOD:
