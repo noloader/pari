@@ -296,19 +296,36 @@ FpE_log(GEN a, GEN b, GEN o, GEN a4, GEN p)
 /* Derived from APIP from and by Jerome Milan, 2012 */
 
 static GEN
-FpE_vert(GEN P, GEN Q, GEN p)
+FpE_vert(GEN P, GEN Q, GEN a4, GEN p)
 {
   if (ell_is_inf(P))
     return gen_1;
-  return Fp_sub(gel(Q, 1), gel(P, 1), p);
+  if (!equalii(gel(Q, 1), gel(P, 1)))
+    return Fp_sub(gel(Q, 1), gel(P, 1), p);
+  if (signe(gel(P,2))!=0) return gen_1;
+  return Fp_inv(Fp_add(Fp_mulu(Fp_sqr(gel(P,1),p), 3, p), a4, p), p);
 }
 
 static GEN
-FpE_Miller_line(GEN R, GEN Q, GEN slope, GEN p)
+FpE_Miller_line(GEN R, GEN Q, GEN slope, GEN a4, GEN p)
 {
-  GEN tmp1 = Fp_sub(gel(Q, 1), gel(R, 1), p);
+  GEN x = gel(Q, 1), y = gel(Q, 2);
+  GEN tmp1 = Fp_sub(x, gel(R, 1), p);
   GEN tmp2 = Fp_add(Fp_mul(tmp1, slope, p), gel(R,2), p);
-  return Fp_sub(gel(Q, 2), tmp2, p);
+  if (!equalii(y, tmp2))
+    return Fp_sub(y, tmp2, p);
+  if (signe(y) == 0)
+    return gen_1;
+  else
+  {
+    GEN s1, s2;
+    GEN y2i = Fp_inv(Fp_mulu(y, 2, p), p);
+    s1 = Fp_mul(Fp_add(Fp_mulu(Fp_sqr(x, p), 3, p), a4, p), y2i, p);
+    if (!equalii(s1, slope))
+      return Fp_sub(s1, slope, p);
+    s2 = Fp_mul(Fp_sub(Fp_mulu(x, 3, p), Fp_sqr(s1, p), p), y2i, p);
+    return signe(s2)!=0 ? s2: y2i;
+  }
 }
 
 /* Computes the equation of the line tangent to R and returns its
@@ -326,11 +343,11 @@ FpE_tangent_update(GEN R, GEN Q, GEN a4, GEN p, GEN *pt_R)
   else if (signe(gel(R,2)) == 0)
   {
     *pt_R = ellinf();
-    return FpE_vert(R, Q, p);
+    return FpE_vert(R, Q, a4, p);
   } else {
     GEN slope;
     *pt_R = FpE_dbl_slope(R, a4, p, &slope);
-    return FpE_Miller_line(R, Q, slope, p);
+    return FpE_Miller_line(R, Q, slope, a4, p);
   }
 }
 
@@ -344,12 +361,12 @@ FpE_chord_update(GEN R, GEN P, GEN Q, GEN a4, GEN p, GEN *pt_R)
   if (ell_is_inf(R))
   {
     *pt_R = gcopy(P);
-    return FpE_vert(P, Q, p);
+    return FpE_vert(P, Q, a4, p);
   }
   else if (ell_is_inf(P))
   {
     *pt_R = gcopy(R);
-    return FpE_vert(R, Q, p);
+    return FpE_vert(R, Q, a4, p);
   }
   else if (equalii(gel(P, 1), gel(R, 1)))
   {
@@ -357,12 +374,12 @@ FpE_chord_update(GEN R, GEN P, GEN Q, GEN a4, GEN p, GEN *pt_R)
       return FpE_tangent_update(R, Q, a4, p, pt_R);
     else {
       *pt_R = ellinf();
-      return FpE_vert(R, Q, p);
+      return FpE_vert(R, Q, a4, p);
     }
   } else {
     GEN slope;
     *pt_R = FpE_add_slope(P, R, a4, p, &slope);
-    return FpE_Miller_line(R, Q, slope, p);
+    return FpE_Miller_line(R, Q, slope, a4, p);
   }
 }
 
@@ -386,7 +403,7 @@ FpE_Miller_dbl(void* E, GEN d)
   GEN point = gel(d,3);
   line = FpE_tangent_update(point, P, a4, p, &point);
   num  = Fp_mul(num, line, p);
-  v = FpE_vert(point, P, p);
+  v = FpE_vert(point, P, a4, p);
   denom = Fp_mul(denom, v, p);
   return mkvec3(num, denom, point);
 }
@@ -403,7 +420,7 @@ FpE_Miller_add(void* E, GEN va, GEN vb)
   GEN denom = Fp_mul(da, db, p);
   line = FpE_chord_update(pa, pb, P, a4, p, &point);
   num  = Fp_mul(num, line, p);
-  v = FpE_vert(point, P, p);
+  v = FpE_vert(point, P, a4, p);
   denom = Fp_mul(denom, v, p);
   return mkvec3(num, denom, point);
 }
@@ -418,7 +435,6 @@ FpE_Miller(GEN Q, GEN P, GEN m, GEN a4, GEN p)
   d.a4 = a4; d.p = p; d.P = P;
   v = gen_pow(mkvec3(gen_1,gen_1,Q), m, (void*)&d, FpE_Miller_dbl, FpE_Miller_add);
   num = gel(v,1); denom = gel(v,2);
-  if (!signe(num) || !signe(denom)) { avma = ltop; return NULL; }
   return gerepileupto(ltop, Fp_div(num, denom, p));
 }
 
@@ -430,9 +446,7 @@ FpE_weilpairing(GEN P, GEN Q, GEN m, GEN a4, GEN p)
   if (ell_is_inf(P) || ell_is_inf(Q) || ZV_equal(P,Q))
     return gen_1;
   num    = FpE_Miller(P, Q, m, a4, p);
-  if (!num) return gen_1;
   denom  = FpE_Miller(Q, P, m, a4, p);
-  if (!denom) { avma = ltop; return gen_1; }
   result = Fp_div(num, denom, p);
   if (mpodd(m))
     result  = Fp_neg(result, p);
@@ -442,11 +456,9 @@ FpE_weilpairing(GEN P, GEN Q, GEN m, GEN a4, GEN p)
 GEN
 FpE_tatepairing(GEN P, GEN Q, GEN m, GEN a4, GEN p)
 {
-  GEN num;
   if (ell_is_inf(P) || ell_is_inf(Q))
     return gen_1;
-  num = FpE_Miller(P, Q, m, a4, p);
-  return num? num: gen_1;
+  return FpE_Miller(P, Q, m, a4, p);
 }
 
 /***********************************************************************/
@@ -1533,19 +1545,39 @@ FpXQE_log(GEN a, GEN b, GEN o, GEN a4, GEN T, GEN p)
 /* Derived from APIP from and by Jerome Milan, 2012 */
 
 static GEN
-FpXQE_vert(GEN P, GEN Q, GEN T, GEN p)
+FpXQE_vert(GEN P, GEN Q, GEN a4, GEN T, GEN p)
 {
+  long vT = get_FpX_var(T);
   if (ell_is_inf(P))
     return pol_1(get_FpX_var(T));
-  return FpX_sub(gel(Q, 1), gel(P, 1), p);
+  if (!ZX_equal(gel(Q, 1), gel(P, 1)))
+    return FpX_sub(gel(Q, 1), gel(P, 1), p);
+  if (signe(gel(P,2))!=0) return pol_1(vT);
+  return FpXQ_inv(FpX_add(FpX_mulu(FpXQ_sqr(gel(P,1), T, p), 3, p),
+                  a4, p), T, p);
 }
 
 static GEN
-FpXQE_Miller_line(GEN R, GEN Q, GEN slope, GEN T, GEN p)
+FpXQE_Miller_line(GEN R, GEN Q, GEN slope, GEN a4, GEN T, GEN p)
 {
-  GEN tmp1  = FpX_sub(gel(Q, 1), gel(R, 1), p);
+  long vT = get_FpX_var(T);
+  GEN x = gel(Q, 1), y = gel(Q, 2);
+  GEN tmp1  = FpX_sub(x, gel(R, 1), p);
   GEN tmp2  = FpX_add(FpXQ_mul(tmp1, slope, T, p), gel(R, 2), p);
-  return FpX_sub(gel(Q, 2), tmp2, p);
+  if (!ZX_equal(y, tmp2))
+    return FpX_sub(y, tmp2, p);
+  if (signe(y) == 0)
+    return pol_1(vT);
+  else
+  {
+    GEN s1, s2;
+    GEN y2i = FpXQ_inv(FpX_mulu(y, 2, p), T, p);
+    s1 = FpXQ_mul(FpX_add(FpX_mulu(FpXQ_sqr(x, T, p), 3, p), a4, p), y2i, T, p);
+    if (!ZX_equal(s1, slope))
+      return FpX_sub(s1, slope, p);
+    s2 = FpXQ_mul(FpX_sub(FpX_mulu(x, 3, p), FpXQ_sqr(s1, T, p), p), y2i, T, p);
+    return signe(s2)!=0 ? s2: y2i;
+  }
 }
 
 /* Computes the equation of the line tangent to R and returns its
@@ -1563,11 +1595,11 @@ FpXQE_tangent_update(GEN R, GEN Q, GEN a4, GEN T, GEN p, GEN *pt_R)
   else if (!signe(gel(R,2)))
   {
     *pt_R = ellinf();
-    return FpXQE_vert(R, Q, T, p);
+    return FpXQE_vert(R, Q, a4, T, p);
   } else {
     GEN slope;
     *pt_R = FpXQE_dbl_slope(R, a4, T, p, &slope);
-    return FpXQE_Miller_line(R, Q, slope, T, p);
+    return FpXQE_Miller_line(R, Q, slope, a4, T, p);
   }
 }
 
@@ -1581,12 +1613,12 @@ FpXQE_chord_update(GEN R, GEN P, GEN Q, GEN a4, GEN T, GEN p, GEN *pt_R)
   if (ell_is_inf(R))
   {
     *pt_R = gcopy(P);
-    return FpXQE_vert(P, Q, T, p);
+    return FpXQE_vert(P, Q, a4, T, p);
   }
   else if (ell_is_inf(P))
   {
     *pt_R = gcopy(R);
-    return FpXQE_vert(R, Q, T, p);
+    return FpXQE_vert(R, Q, a4, T, p);
   }
   else if (ZX_equal(gel(P, 1), gel(R, 1)))
   {
@@ -1595,12 +1627,12 @@ FpXQE_chord_update(GEN R, GEN P, GEN Q, GEN a4, GEN T, GEN p, GEN *pt_R)
     else
     {
       *pt_R = ellinf();
-      return FpXQE_vert(R, Q, T, p);
+      return FpXQE_vert(R, Q, a4, T, p);
     }
   } else {
     GEN slope;
     *pt_R = FpXQE_add_slope(P, R, a4, T, p, &slope);
-    return FpXQE_Miller_line(R, Q, slope, T, p);
+    return FpXQE_Miller_line(R, Q, slope, a4, T, p);
   }
 }
 
@@ -1626,7 +1658,7 @@ FpXQE_Miller_dbl(void* E, GEN d)
   GEN point = gel(d,3);
   line = FpXQE_tangent_update(point, P, a4, T, p, &point);
   num  = FpXQ_mul(num, line, T, p);
-  v = FpXQE_vert(point, P, T, p);
+  v = FpXQE_vert(point, P, a4, T, p);
   denom = FpXQ_mul(denom, v, T, p);
   return mkvec3(num, denom, point);
 }
@@ -1644,7 +1676,7 @@ FpXQE_Miller_add(void* E, GEN va, GEN vb)
   GEN denom = FpXQ_mul(da, db, T, p);
   line = FpXQE_chord_update(pa, pb, P, a4, T, p, &point);
   num  = FpXQ_mul(num, line, T, p);
-  v = FpXQE_vert(point, P, T, p);
+  v = FpXQE_vert(point, P, a4, T, p);
   denom = FpXQ_mul(denom, v, T, p);
   return mkvec3(num, denom, point);
 }
@@ -1660,7 +1692,6 @@ FpXQE_Miller(GEN Q, GEN P, GEN m, GEN a4, GEN T, GEN p)
   g1 = pol_1(get_FpX_var(T));
   v = gen_pow(mkvec3(g1,g1,Q), m, (void*)&d, FpXQE_Miller_dbl, FpXQE_Miller_add);
   num = gel(v,1); denom = gel(v,2);
-  if (!signe(num) || !signe(denom)) { avma = ltop; return NULL; }
   return gerepileupto(ltop, FpXQ_div(num, denom, T, p));
 }
 
@@ -1672,9 +1703,7 @@ FpXQE_weilpairing(GEN P, GEN Q, GEN m, GEN a4, GEN T, GEN p)
   if (ell_is_inf(P) || ell_is_inf(Q) || ZXV_equal(P,Q))
     return pol_1(get_FpX_var(T));
   num    = FpXQE_Miller(P, Q, m, a4, T, p);
-  if (!num) return pol_1(get_FpX_var(T));
   denom  = FpXQE_Miller(Q, P, m, a4, T, p);
-  if (!denom) { avma = ltop; return pol_1(get_FpX_var(T)); }
   result = FpXQ_div(num, denom, T, p);
   if (mpodd(m))
     result  = FpX_neg(result, p);
@@ -1684,11 +1713,9 @@ FpXQE_weilpairing(GEN P, GEN Q, GEN m, GEN a4, GEN T, GEN p)
 GEN
 FpXQE_tatepairing(GEN P, GEN Q, GEN m, GEN a4, GEN T, GEN p)
 {
-  GEN num;
   if (ell_is_inf(P) || ell_is_inf(Q))
     return pol_1(get_FpX_var(T));
-  num = FpXQE_Miller(P, Q, m, a4, T, p);
-  return num? num: pol_1(get_FpX_var(T));
+  return FpXQE_Miller(P, Q, m, a4, T, p);
 }
 
 /***********************************************************************/

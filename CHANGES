@@ -198,6 +198,7 @@ KR147- gphelp -detex: accented letters counted as 1 char for line splitting
   148- sqrt(0) -> loss of accuracy (sqrtn was correct)
   149- nfgaloisconj(t_POL T) was unnecessary slow when large divisors
        of disc(T) were internally detected (and subsequently ignored)
+BA150- elltatepairing could return wrong results [#1784]
 
   Added
     1- add optional argument to sumdigits to specify the base
