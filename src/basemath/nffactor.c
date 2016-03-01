@@ -303,39 +303,49 @@ static GEN
 proper_nf(GEN nf)
 { return (lg(nf) == 3)? gel(nf,1): nf; }
 
+/* if *pnf = NULL replace if by a "quick" K = nfinit(T), ensuring maximality
+ * by small primes only. Return a multiplicative bound for the denominator of
+ * algebraic integers in Z_K in terms of K.zk */
 static GEN
 fix_nf(GEN *pnf, GEN *pT, GEN *pA)
 {
-  GEN den = gen_1;
-  if (!*pnf)
-  {
-    GEN fa, P, q, D, T = *pT;
-    GEN nf, NF = nfinitall(T, nf_PARTIALFACT, DEFAULTPREC);
-    *pnf = nf = proper_nf(NF);
-    if (nf != NF) { /* t_POL defining base field changed (not monic) */
-      long i, l;
-      GEN A = *pA, a = cgetg_copy(A, &l);
-      GEN rev = gel(NF,2), pow, dpow;
+  GEN nf, NF, fa, P, Q, q, D, T = *pT;
+  long i, l;
 
-      *pT = T = nf_get_pol(nf); /* need to update T */
-      pow = QXQ_powers(lift_intern(rev), degpol(T)-1, T);
-      pow = Q_remove_denom(pow, &dpow);
-      a[1] = A[1];
-      for (i=2; i<l; i++) {
-        GEN c = gel(A,i);
-        if (typ(c) == t_POL) c = QX_ZXQV_eval(c, pow, dpow);
-        gel(a,i) = c;
-      }
-      *pA = Q_primpart(a); /* need to update A */
+  if (*pnf) return gen_1;
+  NF = nfinitall(T, nf_PARTIALFACT, DEFAULTPREC);
+  *pnf = nf = proper_nf(NF);
+  if (nf != NF) { /* t_POL defining base field changed (not monic) */
+    GEN A = *pA, a = cgetg_copy(A, &l);
+    GEN rev = gel(NF,2), pow, dpow;
+
+    *pT = T = nf_get_pol(nf); /* need to update T */
+    pow = QXQ_powers(lift_intern(rev), degpol(T)-1, T);
+    pow = Q_remove_denom(pow, &dpow);
+    a[1] = A[1];
+    for (i=2; i<l; i++) {
+      GEN c = gel(A,i);
+      if (typ(c) == t_POL) c = QX_ZXQV_eval(c, pow, dpow);
+      gel(a,i) = c;
     }
-
-    D = nf_get_disc(nf);
-    if (is_pm1(D)) return gen_1;
-    fa = absi_factor_limit(D, 0);
-    P = gel(fa,1); q = gel(P, lg(P)-1);
-    if (!BPSW_psp(q)) den = q; /* nf_get_disc(nf) may be incorrect */
+    *pA = Q_primpart(a); /* need to update A */
   }
-  return den;
+
+  D = nf_get_disc(nf);
+  if (is_pm1(D)) return gen_1;
+  fa = absi_factor_limit(D, 0);
+  P = gel(fa,1); q = gel(P, lg(P)-1);
+  if (BPSW_psp(q)) return gen_1;
+  /* nf_get_disc(nf) may be incorrect */
+  P = nf_get_ramified_primes(nf);
+  l = lg(P);
+  Q = q; q = gen_1;
+  for (i = 1; i < l; i++)
+  {
+    GEN p = gel(P,i);
+    if (Z_pvalrem(Q, p, &Q) && !BPSW_psp(p)) q = mulii(q, p);
+  }
+  return q;
 }
 
 /* set B = A/gcd(A,A'), squarefree */

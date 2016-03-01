@@ -196,6 +196,8 @@ BA146- my(s=1,a=0);forstep(i=1,20,s,s++;a+=i);a -> wrong result
 KR147- gphelp -detex: accented letters counted as 1 char for line splitting
        but rendered as 2
   148- sqrt(0) -> loss of accuracy (sqrtn was correct)
+  149- nfgaloisconj(t_POL T) was unnecessary slow when large divisors
+       of disc(T) were internally detected (and subsequently ignored)
 
   Added
     1- add optional argument to sumdigits to specify the base
