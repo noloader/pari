@@ -49,6 +49,24 @@ Q=[t^5+t^3+t^2,t^5+t^4+t^3+t^2+t+1];
 ellweilpairing(E,P,Q,3)
 elltatepairing(E,P,Q,3)
 
+t=ffgen(ffinit(3,6),'t);
+E=ellinit([0,0,0,1,0],t);
+P=[2*t^5+2*t^4+t^2+2*t+2,2*t^5+t^4+t^3+2*t^2+1];
+Q=[t^4+t^3+t^2+t+2,t^5+2*t^4+2*t^2+t];
+ellweilpairing(E,P,Q,28)
+elltatepairing(E,P,Q,28)
+elltatepairing(E,P,P,28)
+elltatepairing(E,Q,Q,28)
+
+t=ffgen(ffinit(5,6),'t);
+E=ellinit([0,0,1,0,0],t);
+P=[4*t^5+4*t^4+3*t^3+2*t^2+2*t,4*t^5+4*t^4+2*t^3+2*t^2+4];
+Q=[t^5+2*t^4+4*t^3+2*t^2+4*t+1,2*t^5+t^4+3*t+1];
+ellweilpairing(E,P,Q,126)
+elltatepairing(E,P,Q,126)
+elltatepairing(E,P,P,126)
+elltatepairing(E,Q,Q,126)
+
 test(p) =
 {
   forvec(v=vector(5,i,[0,p-1]),
