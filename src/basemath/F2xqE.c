@@ -327,6 +327,14 @@ F2xqE_vert(GEN P, GEN Q, GEN T)
   return F2x_add(gel(Q, 1), gel(P, 1));
 }
 
+static GEN
+F2xqE_Miller_line(GEN R, GEN Q, GEN slope, GEN T)
+{
+  GEN tmp1 = F2x_add(gel(Q, 1), gel(R, 1));
+  GEN tmp2 = F2x_add(F2xq_mul(tmp1, slope, T), gel(R, 2));
+  return F2x_add(gel(Q, 2), tmp2);
+}
+
 /* Computes the equation of the line tangent to R and returns its
    evaluation at the point Q. Also doubles the point R.
  */
@@ -344,11 +352,9 @@ F2xqE_tangent_update(GEN R, GEN Q, GEN a2, GEN T, GEN *pt_R)
     *pt_R = ellinf();
     return F2xqE_vert(R, Q, T);
   } else {
-    GEN slope = NULL, tmp1, tmp2;
+    GEN slope;
     *pt_R = F2xqE_dbl_slope(R, a2, T, &slope);
-    tmp1 = F2x_add(gel(Q, 1), gel(R, 1));
-    tmp2 = F2x_add(F2xq_mul(tmp1, slope, T), gel(R,2));
-    return F2x_add(gel(Q, 2), tmp2);
+    return F2xqE_Miller_line(R, Q, slope, T);
   }
 }
 
@@ -379,11 +385,9 @@ F2xqE_chord_update(GEN R, GEN P, GEN Q, GEN a2, GEN T, GEN *pt_R)
       return F2xqE_vert(R, Q, T);
     }
   } else {
-    GEN slope = NULL, tmp1, tmp2;
+    GEN slope;
     *pt_R = F2xqE_add_slope(P, R, a2, T, &slope);
-    tmp1  = F2xq_mul(F2x_add(gel(Q, 1), gel(R, 1)), slope, T);
-    tmp2  = F2x_add(tmp1, gel(R, 2));
-    return F2x_add(gel(Q, 2), tmp2);
+    return F2xqE_Miller_line(R, Q, slope, T);
   }
 }
 

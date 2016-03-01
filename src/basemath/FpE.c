@@ -303,6 +303,14 @@ FpE_vert(GEN P, GEN Q, GEN p)
   return Fp_sub(gel(Q, 1), gel(P, 1), p);
 }
 
+static GEN
+FpE_Miller_line(GEN R, GEN Q, GEN slope, GEN p)
+{
+  GEN tmp1 = Fp_sub(gel(Q, 1), gel(R, 1), p);
+  GEN tmp2 = Fp_add(Fp_mul(tmp1, slope, p), gel(R,2), p);
+  return Fp_sub(gel(Q, 2), tmp2, p);
+}
+
 /* Computes the equation of the line tangent to R and returns its
    evaluation at the point Q. Also doubles the point R.
  */
@@ -320,11 +328,9 @@ FpE_tangent_update(GEN R, GEN Q, GEN a4, GEN p, GEN *pt_R)
     *pt_R = ellinf();
     return FpE_vert(R, Q, p);
   } else {
-    GEN slope, tmp1, tmp2;
+    GEN slope;
     *pt_R = FpE_dbl_slope(R, a4, p, &slope);
-    tmp1 = Fp_sub(gel(Q, 1), gel(R, 1), p);
-    tmp2 = Fp_add(Fp_mul(tmp1, slope, p), gel(R,2), p);
-    return Fp_sub(gel(Q, 2), tmp2, p);
+    return FpE_Miller_line(R, Q, slope, p);
   }
 }
 
@@ -354,11 +360,9 @@ FpE_chord_update(GEN R, GEN P, GEN Q, GEN a4, GEN p, GEN *pt_R)
       return FpE_vert(R, Q, p);
     }
   } else {
-    GEN slope, tmp1, tmp2;
+    GEN slope;
     *pt_R = FpE_add_slope(P, R, a4, p, &slope);
-    tmp1  = Fp_mul(Fp_sub(gel(Q, 1), gel(R, 1), p), slope, p);
-    tmp2  = Fp_add(tmp1, gel(R, 2), p);
-    return Fp_sub(gel(Q, 2), tmp2, p);
+    return FpE_Miller_line(R, Q, slope, p);
   }
 }
 
@@ -1536,6 +1540,14 @@ FpXQE_vert(GEN P, GEN Q, GEN T, GEN p)
   return FpX_sub(gel(Q, 1), gel(P, 1), p);
 }
 
+static GEN
+FpXQE_Miller_line(GEN R, GEN Q, GEN slope, GEN T, GEN p)
+{
+  GEN tmp1  = FpX_sub(gel(Q, 1), gel(R, 1), p);
+  GEN tmp2  = FpX_add(FpXQ_mul(tmp1, slope, T, p), gel(R, 2), p);
+  return FpX_sub(gel(Q, 2), tmp2, p);
+}
+
 /* Computes the equation of the line tangent to R and returns its
    evaluation at the point Q. Also doubles the point R.
  */
@@ -1553,11 +1565,9 @@ FpXQE_tangent_update(GEN R, GEN Q, GEN a4, GEN T, GEN p, GEN *pt_R)
     *pt_R = ellinf();
     return FpXQE_vert(R, Q, T, p);
   } else {
-    GEN slope, tmp1, tmp2;
+    GEN slope;
     *pt_R = FpXQE_dbl_slope(R, a4, T, p, &slope);
-    tmp1 = FpX_sub(gel(Q, 1), gel(R, 1), p);
-    tmp2 = FpX_add(FpXQ_mul(tmp1, slope, T, p), gel(R,2), p);
-    return FpX_sub(gel(Q, 2), tmp2, p);
+    return FpXQE_Miller_line(R, Q, slope, T, p);
   }
 }
 
@@ -1588,11 +1598,9 @@ FpXQE_chord_update(GEN R, GEN P, GEN Q, GEN a4, GEN T, GEN p, GEN *pt_R)
       return FpXQE_vert(R, Q, T, p);
     }
   } else {
-    GEN slope, tmp1, tmp2;
+    GEN slope;
     *pt_R = FpXQE_add_slope(P, R, a4, T, p, &slope);
-    tmp1  = FpXQ_mul(FpX_sub(gel(Q, 1), gel(R, 1), p), slope, T, p);
-    tmp2  = FpX_add(tmp1, gel(R, 2), p);
-    return FpX_sub(gel(Q, 2), tmp2, p);
+    return FpXQE_Miller_line(R, Q, slope, T, p);
   }
 }
 
