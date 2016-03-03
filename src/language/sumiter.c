@@ -208,10 +208,12 @@ sieve_init(forprime_t *T, ulong a, ulong b)
   T->pos = T->maxpos = 0;
 }
 
+enum {PRST_none, PRST_diffptr, PRST_sieve, PRST_unextprime, PRST_nextprime};
+
 static void
 u_forprime_set_prime_table(forprime_t *T, ulong a)
 {
-  T->strategy = 1;
+  T->strategy = PRST_diffptr;
   if (a < 3)
   {
     T->p = 0;
@@ -243,7 +245,7 @@ u_forprime_arith_init(forprime_t *T, ulong a, ulong b, ulong c, ulong q)
   ulong maxp, maxp2;
   if (a > b || b < 2)
   {
-    T->strategy = 1; /* paranoia */
+    T->strategy = PRST_diffptr; /* paranoia */
     T->p = 0; /* empty */
     T->b = 0; /* empty */
     T->d = diffptr;
@@ -257,7 +259,7 @@ u_forprime_arith_init(forprime_t *T, ulong a, ulong b, ulong c, ulong q)
   }
   T->q = q;
   T->c = c;
-  T->strategy = 0; /* unknown */
+  T->strategy = PRST_none; /* unknown */
   T->sieve = NULL; /* unused for now */
   if (!odd(b) && b > 2) b--;
   T->b = b;
@@ -278,7 +280,7 @@ u_forprime_arith_init(forprime_t *T, ulong a, ulong b, ulong c, ulong q)
   /* FIXME: should sieve as well if q != 1, adapt sieve code */
   if (q != 1 || (maxp2 && maxp2 <= a)
              || T->b - maxuu(a,maxp) < maxp / expu(b))
-  { if (!T->strategy) T->strategy = 3; }
+  { if (T->strategy==PRST_none) T->strategy = PRST_unextprime; }
   else
   { /* worth sieving */
 #ifdef LONG_IS_64BIT
@@ -290,7 +292,7 @@ u_forprime_arith_init(forprime_t *T, ulong a, ulong b, ulong c, ulong q)
     if (b > UPRIME_MAX) b = UPRIME_MAX;
     sieveb = b;
     if (maxp2 && maxp2 < b) sieveb = maxp2;
-    if (!T->strategy) T->strategy = 2;
+    if (T->strategy==PRST_none) T->strategy = PRST_sieve;
     sieve_init(T, maxuu(maxp+2, a), sieveb);
   }
   return 1;
@@ -317,7 +319,7 @@ forprime_init(forprime_t *T, GEN a, GEN b)
     if (typ(b) != t_INT) pari_err_TYPE("forprime_init",b);
     if (signe(b) < 0 || cmpii(a,b) > 0)
     {
-      T->strategy = 4; /* paranoia */
+      T->strategy = PRST_nextprime; /* paranoia */
       T->bb = gen_0;
       T->pp = gen_0;
       return 0;
@@ -328,7 +330,7 @@ forprime_init(forprime_t *T, GEN a, GEN b)
     lb = lgefint(a) + 4;
   else /* b == -oo */
   {
-    T->strategy = 4; /* paranoia */
+    T->strategy = PRST_nextprime; /* paranoia */
     T->bb = gen_0;
     T->pp = gen_0;
     return 0;
@@ -338,7 +340,7 @@ forprime_init(forprime_t *T, GEN a, GEN b)
   /* a, b are positive integers, a <= b */
   if (lgefint(a) == 3) /* lb == 3 implies b != NULL */
     return u_forprime_init(T, uel(a,2), lb == 3? uel(b,2): ULONG_MAX);
-  T->strategy = 4;
+  T->strategy = PRST_nextprime;
   affii(subiu(a,1), T->pp);
   return 1;
 }
@@ -389,13 +391,13 @@ shift_cache(forprime_t *T)
 ulong
 u_forprime_next(forprime_t *T)
 {
-  if (T->strategy == 1)
+  if (T->strategy == PRST_diffptr)
   {
     for(;;)
     {
       if (!*(T->d))
       {
-        T->strategy = T->sieve? 2: 3;
+        T->strategy = T->sieve? PRST_sieve: PRST_unextprime;
         if (T->q != 1) { arith_set(T); if (!T->p) return 0; }
         /* T->p possibly not a prime if q != 1 */
         break;
@@ -408,7 +410,7 @@ u_forprime_next(forprime_t *T)
       }
     }
   }
-  if (T->strategy == 2)
+  if (T->strategy == PRST_sieve)
   {
     ulong n;
     if (T->cache[0]) return shift_cache(T);
@@ -458,7 +460,7 @@ NEXT_CHUNK:
     if (T->maxpos && T->end >= T->sieveb) /* done with sieves ? */
     {
       if (T->sieveb == T->b && T->b != ULONG_MAX) return 0;
-      T->strategy = 3;
+      T->strategy = PRST_unextprime;
     }
     else
     { /* initialize next chunk */
@@ -476,7 +478,7 @@ NEXT_CHUNK:
       goto NEXT_CHUNK;
     }
   }
-  if (T->strategy == 3)
+  if (T->strategy == PRST_unextprime)
   {
     if (T->q == 1)
       T->p = unextprime(T->p + 1);
@@ -488,7 +490,7 @@ NEXT_CHUNK:
       } while (!uisprime(T->p));
     }
     if (!T->p) /* overflow ulong, switch to GEN */
-      T->strategy = 4;
+      T->strategy = PRST_nextprime;
     else
     {
       if (T->p > T->b) return 0;
@@ -503,12 +505,12 @@ forprime_next(forprime_t *T)
 {
   pari_sp av;
   GEN p;
-  if (T->strategy <= 3)
+  if (T->strategy != PRST_nextprime)
   {
     ulong q = u_forprime_next(T);
     if (q) { affui(q, T->pp); return T->pp; }
     /* failure */
-    if (T->strategy <= 3) return NULL; /* we're done */
+    if (T->strategy != PRST_nextprime) return NULL; /* we're done */
     /* overflow ulong, switch to GEN */
     affui(ULONG_MAX, T->pp); /* initialize */
   }
