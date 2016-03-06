@@ -990,18 +990,19 @@ gp_load_gprc(void)
 /*                             PROMPTS                              */
 /*                                                                  */
 /********************************************************************/
-#ifndef _WIN32
 /* if prompt is coloured, tell readline to ignore the ANSI escape sequences */
 /* s must be able to store 14 chars (including final \0) */
 #ifdef READLINE
 static void
 readline_prompt_color(char *s, int c)
 {
+#ifndef _WIN32
   *s++ = '\001'; /*RL_PROMPT_START_IGNORE*/
   term_get_color(s, c);
   s += strlen(s);
   *s++ = '\002'; /*RL_PROMPT_END_IGNORE*/
   *s = 0;
+#endif
 }
 #endif
 /* s must be able to store 14 chars (including final \0) */
@@ -1031,10 +1032,6 @@ color_prompt(const char *prompt)
   brace_color(s, c_INPUT, 1);
   return t;
 }
-#else
-static const char *
-color_prompt(const char *prompt) { return stack_strdup(prompt); }
-#endif
 
 const char *
 gp_format_prompt(const char *prompt)
