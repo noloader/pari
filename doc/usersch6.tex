@@ -1752,7 +1752,7 @@ Pollig-Hellman algorithm, then either Shanks (small $o$) or Pollard rho
 discrete log functions, the preferred format being \kbd{[ord, fa]}
 (\typ{INT} and its factorization).
 
-\fun{GEN}{qfi_Shanks}{GEN a, GEN g, long n} given given a \typ{QFI} $a$ and
+\fun{GEN}{qfi_Shanks}{GEN a, GEN g, long n} given a \typ{QFI} $a$ and
 assuming that the \typ{QFI} $g$ has (small) order $n$, compute an integer $k$
 such that $a^k = g$. Return \kbd{cgetg(1, t\_VEC)} if there are no solutions.
 Directly uses Shanks algorithm, which is inefficient when $n$ is composite.

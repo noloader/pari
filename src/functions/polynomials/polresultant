@@ -15,7 +15,7 @@ Doc: resultant of the two
  the $u$ and $v$ such that $x*u + y*v = \text{Res}(x,y)$, use the
  \tet{polresultantext} function.
 
- If $\fl=0$ (default), uses the the algorithm best suited to the inputs,
+ If $\fl=0$ (default), uses the algorithm best suited to the inputs,
  either the \idx{subresultant algorithm} (Lazard/Ducos variant, generic case),
  a modular algorithm (inputs in $\Q[X]$) or Sylvester's matrix (inexact
  inputs).

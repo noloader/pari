@@ -112,7 +112,7 @@ variables defined in the scope the closure was defined. To access it, use
 \subsec{Debugging information in closure}\label{se:dbgclosure}
 
 Every \typ{CLOSURE} object \kbd{z} has a component \kbd{dbg=z[5]}
-which which hold extra data needed for error-reporting and debugging.
+which hold extra data needed for error-reporting and debugging.
 The object \kbd{dbg} is a \typ{VEC} with $3$ components:
 
 \kbd{dbg[1]} is a \typ{VECSMALL} of the same length than \kbd{z[3]}. For each
@@ -392,7 +392,7 @@ Theses functions handle groups of rank at most $2$ equipped with a family of
 bilinear pairings which behave like the Weil pairing on elliptic curves over
 finite field.
 
-The function \kbd{pairorder(E, P, Q, m, F)} must return the order of of the $m$-pairing
+The function \kbd{pairorder(E, P, Q, m, F)} must return the order of the $m$-pairing
 of $P$ and $Q$, both of order dividing $m$, where $F$ is the factorisation matrix
 of a multiple of $m$.
 

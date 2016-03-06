@@ -6,7 +6,7 @@ Prototype:
 Help:
 Doc: this toggle is either 1 (on) or 0 (off). If on,
  the integer factorization machinery calls \tet{addprimes} on primes
- factor that were difficult to find (larger than $2^24$), so they are
+ factor that were difficult to find (larger than $2^{24}$), so they are
  automatically tried first in other factorizations. If a routine is performing
  (or has performed) a factorization and is interrupted by an error or via
  Control-C, this lets you recover the prime factors already found. The

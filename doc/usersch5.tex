@@ -4974,7 +4974,7 @@ $A(X)^{(q-1)/2}\pmod{S(X)}$ over the finite field $\F_q$ defined by $T$
 and $p$, thus $q=p^n$ where $n$ is the degree of $T$.
 
 \subsec{\kbd{Flx}} Let \kbd{p} an understood \kbd{ulong}, assumed to be
-prime, to be given the the function arguments; an \kbd{Fl} is an \kbd{ulong}
+prime, to be given the function arguments; an \kbd{Fl} is an \kbd{ulong}
 belonging to $[0,\kbd{p}-1]$, an \kbd{Flx}~\kbd{z} is a \typ{VECSMALL}
 representing a polynomial with small integer coefficients. Specifically
 \kbd{z[0]} is the usual codeword, \kbd{z[1] = evalvarn($v$)} for some
@@ -5986,7 +5986,7 @@ $$ (f\Z_p[X] + g\Z_p[X])\cap \Z_p. $$
 Return the reduced resultant modulo $p^m$.
 
 \fun{GEN}{ZpX_reduced_resultant_fast}{GEN f, GEN g, GEN p, long M} $f$
-a monic \kbd{ZX}, $g$ a \kbd{ZX}, $p$ a prime. Returns the
+a monic \kbd{ZX}, $g$ a \kbd{ZX}, $p$ a prime. Returns
 the $p$-adic reduced resultant of $f$ and $g$ modulo $p^M$. This function
 computes resultants for a sequence of increasing $p$-adic accuracies
 (up to $M$ $p$-adic digits), returning as soon as it obtains a non-zero
@@ -8289,7 +8289,7 @@ Karatsuba algorithm (Mulders, Hanrot-Zimmermann variant).
 where $a$ is a \typ{POL} in the variable $X$ and $n \geq 0$. Uses
 Karatsuba algorithm (Mulders, Hanrot-Zimmermann variant).
 
-\fun{GEN}{RgXn_inv}{GEN a, long n} returns $a^-1$ modulo $X^n$,
+\fun{GEN}{RgXn_inv}{GEN a, long n} returns $a^{-1}$ modulo $X^n$,
 where $a$ is a \typ{POL} in the variable $X$ and $n \geq 0$. Uses
 Newton-Raphson algorithm.
 
@@ -9806,7 +9806,7 @@ root computation can be skipped.
 
 \fun{GEN}{gnorml1}{GEN x, long prec} The norm of a scalar is its complex
 modulus, the norm of a recursive type is the sum of the norms of its components.
-For polynomials, vectors or matrices of complex numbers one recovers the
+For polynomials, vectors or matrices of complex numbers one recovers
 the usual $L^1$ norm. One must include a real precision \kbd{prec} in case
 the inputs include \typ{COMPLEX} or \typ{QUAD} with exact rational components:
 a square root must be computed and we must choose an accuracy.
@@ -10534,7 +10534,7 @@ to $i$.
 \fun{long}{group_order}{GEN grp} returns the order of the small group
 \var{grp} (which is the product of the relative orders).
 
-\fun{long}{group_isabelian}{GEN grp} returns $1$ the the small group
+\fun{long}{group_isabelian}{GEN grp} returns $1$ if the small group
 \var{grp} is Abelian, else $0$.
 
 \fun{GEN}{group_abelianHNF}{GEN grp, GEN elts} if \var{grp} is not Abelian,
@@ -10554,15 +10554,15 @@ small group $G$, returns $1$ if $H$ is normal in $G$, else $0$.
 $0$ else. This is mainly to deal with the idiosyncrasy of the format.
 
 \fun{GEN}{group_leftcoset}{GEN G, GEN g} where $G$ is a small group and $g$ a
-permutation of the same domain, the the left coset $gG$ as a vector of
+permutation of the same domain, the left coset $gG$ as a vector of
 permutations.
 
 \fun{GEN}{group_rightcoset}{GEN G, GEN g} where $G$ is a small group and $g$ a
-permutation of the same domain, the the right coset $Gg$  as a vector of
+permutation of the same domain, the right coset $Gg$  as a vector of
 permutations.
 
 \fun{long}{group_perm_normalize}{GEN G, GEN g} where $G$ is a small group and
-$g$ a permutation of the same domain, return $1$ if $gGg^-1=G$, else $0$.
+$g$ a permutation of the same domain, return $1$ if $gGg^{-1}=G$, else $0$.
 
 \fun{GEN}{group_quotient}{GEN G, GEN H}, where $G$ is a small group and
 $H$ is a subgroup of $G$, returns the quotient map $G\rightarrow G/H$
@@ -10885,7 +10885,7 @@ a symbolic link exists, regardless of where it points to.
 
 \subsec{Temporary files}
 
-PARI has its own idea of the system temp directory derived from from an
+PARI has its own idea of the system temp directory derived from an
 environment variable (\kbd{\$GPTMPDIR}, else \kbd{\$TMPDIR}), or the first
 writable directory among \kbd{/tmp}, \kbd{/var/tmp} and \kbd{.}.
 

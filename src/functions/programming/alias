@@ -4,7 +4,7 @@ C-Name: alias0
 Prototype: vrr
 Help: alias(newsym,sym): defines the symbol newsym as an alias for the symbol
  sym.
-Doc: defines the symbol \var{newsym} as an alias for the the symbol \var{sym}:
+Doc: defines the symbol \var{newsym} as an alias for the symbol \var{sym}:
  \bprog
  ? alias("det", "matdet");
  ? det([1,2;3,4])

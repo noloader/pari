@@ -11,7 +11,7 @@ Doc: computes the $k$-th power of
  updated: i.e. raising $[I,t]$ to the $k$-th power, yields $[I^k, t^k]$.
 
  If $\fl$ is non-zero, reduce the result using \kbd{idealred}, \emph{throughout
- the (binary) powering process}; in particular, this is \emph{not} the same as
+ the (binary) powering process}; in particular, this is \emph{not} the same
  as $\kbd{idealpow}(\var{nf},x,k)$ followed by reduction.
 
 Variant:

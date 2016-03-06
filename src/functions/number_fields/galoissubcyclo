@@ -32,7 +32,7 @@ Doc: computes the subextension
  an integer, then it is not a subgroup of $(\Z/n\Z)^*$, but of its quotient by
  $\{\pm 1\}$.
 
- If $fl=0$, compute a polynomial (in the variable \var{v}) defining the
+ If $fl=0$, compute a polynomial (in the variable \var{v}) defining
  the subfield of $\Q(\zeta_n)$ fixed by the subgroup \var{H} of $(\Z/n\Z)^*$.
 
  If $fl=1$, compute only the conductor of the abelian extension, as a module.

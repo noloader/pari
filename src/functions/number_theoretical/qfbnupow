@@ -10,5 +10,5 @@ Doc: $n$-th power of the primitive positive definite
  the discriminant of $x$.
 
  The current implementation is slower than the generic routine for small
- discriminant $D$, and becomes faster for $D \approx 2^45$.
+ discriminant $D$, and becomes faster for $D \approx 2^{45}$.
 
