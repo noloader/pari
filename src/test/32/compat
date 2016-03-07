@@ -1498,11 +1498,11 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: ideallistarchgen(nf,list,arch) ===> ideallistarch(nf,list,arch)
 
-ideallistarch(nf,list,arch): list is a vector of vectors of of bid's as output 
-by ideallist. Return a vector of vectors with the same number of components as 
-the original list. The leaves give information about moduli whose finite part 
-is as in original list, in the same order, and Archimedean part is now arch. 
-The information contained is of the same kind as was present in the input.
+ideallistarch(nf,list,arch): list is a vector of vectors of bid's as output by 
+ideallist. Return a vector of vectors with the same number of components as the 
+original list. The leaves give information about moduli whose finite part is as 
+in original list, in the same order, and Archimedean part is now arch. The 
+information contained is of the same kind as was present in the input.
 
 
   ***   at top-level: ideallistunit()
@@ -1525,11 +1525,11 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: ideallistunitarch ===> ideallistarch(nf,list,arch)
 
-ideallistarch(nf,list,arch): list is a vector of vectors of of bid's as output 
-by ideallist. Return a vector of vectors with the same number of components as 
-the original list. The leaves give information about moduli whose finite part 
-is as in original list, in the same order, and Archimedean part is now arch. 
-The information contained is of the same kind as was present in the input.
+ideallistarch(nf,list,arch): list is a vector of vectors of bid's as output by 
+ideallist. Return a vector of vectors with the same number of components as the 
+original list. The leaves give information about moduli whose finite part is as 
+in original list, in the same order, and Archimedean part is now arch. The 
+information contained is of the same kind as was present in the input.
 
 
   ***   at top-level: ideallistunitarchgen
@@ -1539,11 +1539,11 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: ideallistunitarchgen ===> ideallistarch(nf,list,arch)
 
-ideallistarch(nf,list,arch): list is a vector of vectors of of bid's as output 
-by ideallist. Return a vector of vectors with the same number of components as 
-the original list. The leaves give information about moduli whose finite part 
-is as in original list, in the same order, and Archimedean part is now arch. 
-The information contained is of the same kind as was present in the input.
+ideallistarch(nf,list,arch): list is a vector of vectors of bid's as output by 
+ideallist. Return a vector of vectors with the same number of components as the 
+original list. The leaves give information about moduli whose finite part is as 
+in original list, in the same order, and Archimedean part is now arch. The 
+information contained is of the same kind as was present in the input.
 
 
   ***   at top-level: ideallistunitgen()
@@ -4575,4 +4575,4 @@ New syntax: texprint(x) ===> printtex(x)
 printtex({str}*): outputs its string arguments in TeX format.
 
 
-Total time spent: 12
+Total time spent: 4
