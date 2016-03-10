@@ -2051,7 +2051,7 @@ lfunzeros_bitprec(GEN ldata, GEN lim, long divz, long bitprec)
   GEN ldataf, linit, N, pi2, cN, pi2div, w, T, Vga, h1, h2;
   long i, d, W, NEWD, precinit, ct, s, prec = nbits2prec(bitprec);
   double maxt;
-  GEN maxtr;
+  GEN maxtr, maxtr1;
   struct lhardyz_t S;
 
   h1 = gen_0;
@@ -2079,7 +2079,7 @@ lfunzeros_bitprec(GEN ldata, GEN lim, long divz, long bitprec)
       gel(v,i) = lfunzeros_bitprec(gel(M,i), lim, divz, bitprec);
     return gerepileupto(ltop, vecsort0(shallowconcat1(v), NULL, 0));
   }
-  S.linit = linit = lfuncenterinit_bitprec(ldata, maxt, bitprec);
+  S.linit = linit = lfuncenterinit_bitprec(ldata, maxt + 1, bitprec);
   S.bitprec = bitprec;
   S.prec = prec;
   ldataf = linit_get_ldata(linit);
@@ -2107,8 +2107,8 @@ lfunzeros_bitprec(GEN ldata, GEN lim, long divz, long bitprec)
   W = 100 + ct; w = cgetg(W+1,t_VEC);
   for (i=1; i<=ct; i++) gel(w,i) = gen_0;
   s = gsigne(lfunhardyzeros(&S, T));
-  maxtr = dbltor(maxt);
-  while (gcmp(T, maxtr) < 0)
+  maxtr = dbltor(maxt); maxtr1 = addsr(1, maxtr);
+  while (gcmp(T, maxtr1) < 0)
   {
     pari_sp av = avma;
     GEN T0 = T, z;
@@ -2121,7 +2121,7 @@ lfunzeros_bitprec(GEN ldata, GEN lim, long divz, long bitprec)
       else
         L = cN;
       T = gadd(T, gdiv(pi2div, L));
-      if (gcmp(T, maxtr) > 0) goto END;
+      if (gcmp(T, maxtr1) > 0) goto END;
       s0 = gsigne(lfunhardyzeros(&S, T));
       if (s0 != s) { s = s0; break; }
     }
