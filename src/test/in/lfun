@@ -33,6 +33,7 @@ lfun(lzeta,1/2+200*I)
 lfun(lzeta,.5+200*I)
 lfun(lzeta,0,1)
 lfun(lzeta,x)
+lfunzeros(lzeta,14.5)
 lfunzeros(lzeta,30)
 lzeta[6]=0; lfun(lzeta,2)
 /* odd Dirichlet char */
