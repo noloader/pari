@@ -974,8 +974,7 @@ lfunsymsqfind_ell(GEN e)
 
 /* Find conductor and missing Euler factors in symmetric square.
  * If flall is set, output all possibilities, otherwise only the first. */
-/* static GEN */
-GEN
+static GEN
 lfunsymsqfind(GEN ldata, long flall/*=0*/, long prec)
 {
   pari_sp ltop = avma;
