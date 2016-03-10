@@ -57,3 +57,8 @@ liftall( padicappr(phi, Mod(-2+O(p^prec),  v[1])) )
 
 T = teichmuller([17,10]);
 for(i=1,16,if (teichmuller(i+O(17^10),T) != teichmuller(i+O(17^10)), error(i)))
+
+\\#1793
+padicappr(x^3+1,-2+O(2^5))
+padicappr(x^3+1,Mod(-2+O(2^5),y^3+3))
+

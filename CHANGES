@@ -199,6 +199,7 @@ KR147- gphelp -detex: accented letters counted as 1 char for line splitting
   149- nfgaloisconj(t_POL T) was unnecessary slow when large divisors
        of disc(T) were internally detected (and subsequently ignored)
 BA150- elltatepairing could return wrong results [#1784]
+  151- padicappr(x^3+1,-2+O(2^5)) -> SEGV [mod a root mod p] [#1793]
 
   Added
     1- add optional argument to sumdigits to specify the base

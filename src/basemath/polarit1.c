@@ -340,20 +340,20 @@ ZX_Zp_root(GEN f, GEN a, GEN p, long prec)
   setlg(z,j); return z;
 }
 
-/* a t_PADIC, return vector of p-adic roots of f equal to a (mod p)
- * We assume 1) f(a) = 0 mod p,
- *           2) leading coeff prime to p. */
+/* a t_PADIC, return vector of p-adic roots of f equal to a (mod p) */
 GEN
 Zp_appr(GEN f, GEN a)
 {
   pari_sp av = avma;
-  long prec;
-  GEN z, p;
-  p = gel(a,2); prec = gequal0(a)? valp(a): precp(a);
+  GEN z, p = gel(a,2);
+  long prec = gequal0(a)? valp(a): precp(a);
+
   f = QpX_to_ZX(f, p);
   if (degpol(f) <= 0) pari_err_CONSTPOL("Zp_appr");
   (void)ZX_gcd_all(f, ZX_deriv(f), &f);
-  z = ZX_Zp_root(f, gtrunc(a), p, prec);
+  a = padic_to_Q(a);
+  if (signe(FpX_eval(f,a,p))) { avma = av; return cgetg(1,t_COL); }
+  z = ZX_Zp_root(f, a, p, prec);
   return gerepilecopy(av, ZV_to_ZpV(z, p, prec));
 }
 /* vector of p-adic roots of the ZX f, leading term prime to p. Shallow */
@@ -443,6 +443,7 @@ getprec(GEN x, long *pprec, GEN *pp)
     for (i = lg(x)-1; i>1; i--) scalar_getprec(gel(x,i), pprec, pp);
 }
 
+/* assume f(a) = 0 (mod T,p) */
 static GEN
 ZXY_ZpQ_root(GEN f, GEN a, GEN T, GEN p, long prec)
 {
@@ -466,7 +467,7 @@ ZXY_ZpQ_root(GEN f, GEN a, GEN T, GEN p, long prec)
 }
 
 /* a belongs to finite extension of Q_p, return all roots of f equal to a
- * mod p. We assume f(a) = 0 (mod p) [mod 4 if p=2] */
+ * mod p. Don't assume f(a) = 0 (mod p) */
 GEN
 padicappr(GEN f, GEN a)
 {
@@ -483,7 +484,8 @@ padicappr(GEN f, GEN a)
   if (gequal0(f)) pari_err_ROOTS0("padicappr");
   z = RgX_gcd(f, RgX_deriv(f));
   if (degpol(z) > 0) f = RgX_div(f,z);
-  T = gel(a,1); a = gel(a,2);
+  T = gel(a,1);
+  a = gel(a,2);
   p = NULL; prec = LONG_MAX;
   getprec(a, &prec, &p);
   getprec(T, &prec, &p); if (!p) pari_err_TYPE("padicappr",T);
@@ -491,6 +493,8 @@ padicappr(GEN f, GEN a)
   if (typ(a) != t_POL) a = scalarpol_shallow(a, varn(T));
   a = ZpX_to_ZX(a,p);
   T = QpX_to_ZX(T,p);
+  if (!gequal0(FqX_eval(FqX_red(f,T,p), a, T,p))) /* check f(a) = 0 (mod p,T) */
+  { avma = av; return cgetg(1,t_COL); }
   z = ZXY_ZpQ_root(f, a, T, p, prec);
   return gerepilecopy(av, ZXV_to_ZpXQV(z, T, p, prec));
 }
