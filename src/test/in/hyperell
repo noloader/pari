@@ -50,6 +50,7 @@ P=hyperellcharpoly([x^6+x+1,x^3]*Mod(1,2));checkfeq(P,2)
 P=hyperellcharpoly([x^2+x+1,x^3]*Mod(1,2));checkfeq(P,2)
 P=hyperellcharpoly([x^3+x+1,x^3]*Mod(1,2));checkfeq(P,2)
 P=hyperellcharpoly([x^4+x+1,x^3]*Mod(1,2));checkfeq(P,2)
+g=ffgen(ffinit(7,3),'g);P=hyperellcharpoly(x^5+g);checkfeq(P,7^3)
 
 hyperellcharpoly((256*a^5+5)*Mod(1,5))
 hyperellcharpoly((256*a^5+5)*ffgen(5^2))

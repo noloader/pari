@@ -558,7 +558,7 @@ ZXX_to_FpXC(GEN x, long N, GEN p, long v)
     GEN xi = gel(x, i);
     gel(z,i) = typ(xi)==t_INT? scalarpol(Fp_red(xi, p), v): FpX_red(xi, p);
   }
-  for (   ; i<l ; i++)
+  for (   ; i<=N ; i++)
     gel(z,i) = pol_0(v);
   return z;
 }
