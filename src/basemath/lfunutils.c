@@ -1195,8 +1195,8 @@ lfunmfpeters_bitprec(GEN ldata, long bitprec)
   veceuler = gmael3(ldata2, 1, 2, 1);
   for (j = 1; j < lg(veceuler); ++j)
   {
-    GEN v = gel(veceuler, j), p = gel(v,1), q = powis(p,-k), s = gel(v,2);
-    if (dvdii(N, sqri(p))) fudge = gmul(fudge, gsubsg(1, gmul(s, q)));
+    GEN v = gel(veceuler, j), p = gel(v,1), s = gel(v,2);
+    if (dvdii(N, sqri(p))) fudge = gmul(fudge, gsubsg(1, gdiv(s, powiu(p,k))));
   }
   return gerepileupto(av, mfpeters(ldata2,fudge,N,k,bitprec));
 }
