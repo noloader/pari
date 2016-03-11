@@ -1175,8 +1175,9 @@ lfunmfpeters(GEN ldata, long bitprec)
   return gerepileupto(av, mfpeters(ldata2,fudge,N,k,bitprec));
 }
 
-GEN
-lfunellmfpeters(GEN E, long bitprec)
+/* Assume E to be twist-minimal */
+static GEN
+lfunellmfpetersmintwist(GEN E, long bitprec)
 {
   pari_sp av = avma;
   GEN ldata2, veceuler, N = ellQ_get_N(E), fudge = gen_1;
@@ -1191,6 +1192,54 @@ lfunellmfpeters(GEN E, long bitprec)
     if (s) fudge = gmul(fudge, s==1 ? gaddsg(1, q): gsubsg(1, q));
   }
   return gerepileupto(av, mfpeters(ldata2,fudge,N,k,bitprec));
+}
+
+/* From Christophe Delaunay, http://delaunay.perso.math.cnrs.fr/these.pdf */
+static GEN
+elldiscfix(GEN E, GEN Et, GEN D)
+{
+  GEN N = ellQ_get_N(E), Nt = ellQ_get_N(Et);
+  GEN P = gel(Z_factor(absi(D)), 1);
+  GEN f = gen_1;
+  long i, l = lg(P);
+  for (i=1; i < l; i++)
+  {
+    GEN r, p = gel(P,i);
+    long v = Z_pval(N, p), vt = Z_pval(Nt, p);
+    if (v <= vt) continue;
+    /* v > vt */
+    if (equaliu(p, 2))
+    {
+      if (vt == 0 && v >= 4)
+        r = shifti(subsi(9, sqri(ellap(Et, p))), v-3);  /* 9=(2+1)^2 */
+      else if (vt == 1)
+        r = gmul2n(utoipos(3), v-3);  /* not in Z if v=2 */
+      else if (vt >= 2)
+        r = int2n(v-vt);
+      else
+        r = gen_1; /* vt = 0, 1 <= v <= 3 */
+    }
+    else if (vt >= 1)
+      r = gdiv(subis(sqri(p), 1), p);
+    else
+      r = gdiv(mulii(subis(p, 1), subii(sqri(addis(p, 1)), sqri(ellap(Et, p)))), p);
+    f = gmul(f, r);
+  }
+  return f;
+}
+
+GEN
+lfunellmfpeters(GEN E, long bitprec)
+{
+  pari_sp ltop = avma;
+  long prec = nbits2prec(bitprec);
+  GEN D = ellminimaltwistcond(E);
+  GEN Etr = ellinit(elltwist(E, D), NULL, prec);
+  GEN Et = ellminimalmodel(Etr, NULL);
+  GEN nor = lfunellmfpetersmintwist(Et, bitprec);
+  GEN nor2 = gmul(nor, elldiscfix(E, Et, D));
+  obj_free(Etr); obj_free(Et);
+  return gerepilecopy(ltop, nor2);
 }
 
 /*************************************************************/
