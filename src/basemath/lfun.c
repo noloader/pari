@@ -2054,21 +2054,20 @@ lfunzeros_bitprec(GEN ldata, GEN lim, long divz, long bitprec)
   GEN maxtr, maxtr1;
   struct lhardyz_t S;
 
-  h1 = gen_0;
   if (typ(lim) == t_VEC)
   {
-    if (lg(lim) != 3) pari_err_TYPE("lfunzeros",lim);
-    h1 = gel(lim,1);
-    h2 = gel(lim,2);
-    maxt = maxdd(fabs(gtodouble(h1)), fabs(gtodouble(h2)));
+    if (lg(lim) != 3 || gcmp(gel(lim,1),gel(lim,2)) >= 0
+                     || gcmp(gel(lim,1),gen_0) <= 0)
+      pari_err_TYPE("lfunzeros",lim);
+    h1 = gel(lim,1); h2 = gel(lim,2);
   }
   else
   {
-    h2 = lim;
-    maxt = fabs(gtodouble(h2));
+    if (gcmp(lim,gen_0) <= 0)
+      pari_err_TYPE("lfunzeros",lim);
+    h1 = gen_0; h2 = lim;
   }
-  if (!is_rational_t(typ(h1))) h1 = bestappr(h1, int2n(64));
-  if (!is_rational_t(typ(h2))) h2 = bestappr(h2, int2n(64));
+  maxt = gtodouble(h2);
 
   if (is_linit(ldata) && linit_get_type(ldata) == t_LDESC_PRODUCT)
   {
@@ -2107,7 +2106,7 @@ lfunzeros_bitprec(GEN ldata, GEN lim, long divz, long bitprec)
   W = 100 + ct; w = cgetg(W+1,t_VEC);
   for (i=1; i<=ct; i++) gel(w,i) = gen_0;
   s = gsigne(lfunhardyzeros(&S, T));
-  maxtr = dbltor(maxt); maxtr1 = addsr(1, maxtr);
+  maxtr = h2; maxtr1 = gaddsg(1, maxtr);
   while (gcmp(T, maxtr1) < 0)
   {
     pari_sp av = avma;
