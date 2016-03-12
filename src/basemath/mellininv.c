@@ -535,7 +535,7 @@ ishankelspec(GEN Vga, GEN M)
 
 /* Initialize data for computing m-th derivative of inverse Mellin */
 GEN
-gammamellininvinit_bitprec(GEN Vga, long m, long bitprec)
+gammamellininvinit(GEN Vga, long m, long bitprec)
 {
   pari_sp ltop = avma;
   GEN A2, M, VS, VL, cd;
@@ -574,16 +574,13 @@ gammamellininvinit_bitprec(GEN Vga, long m, long bitprec)
   VL = mkvec3(mkvec2(M, stoi(status)), cd, A2);
   return gerepilecopy(ltop, mkvec5(dbltor(tmax), Vga, stoi(m), VS, VL));
 }
-GEN
-gammamellininvinit(GEN Vga, long m, long prec)
-{ return gammamellininvinit_bitprec(Vga, m, prec2nbits(prec)); }
 
 /* Compute m-th derivative of inverse Mellin at s2d = s^(d/2) using
  * initialization data. Use Taylor expansion at 0 for |s2d| < tmax, and
  * asymptotic expansion at oo otherwise. WARNING: assume that accuracy
  * has been increased according to tmax by the CALLING program. */
 GEN
-gammamellininvrt_bitprec(GEN K, GEN s2d, long bitprec)
+gammamellininvrt(GEN K, GEN s2d, long bitprec)
 {
   GEN tmax = gel(K,1);
   if (dblmodulus(s2d) < rtodbl(tmax))
@@ -591,21 +588,18 @@ gammamellininvrt_bitprec(GEN K, GEN s2d, long bitprec)
   else
     return Kderivlarge(K, NULL, s2d, bitprec);
 }
-GEN
-gammamellininvrt(GEN K, GEN s2d, long prec)
-{ return gammamellininvrt_bitprec(K, s2d, prec2nbits(prec)); }
 
 /* Compute inverse Mellin at s. K from gammamellininv OR a Vga, in which
  * case the initialization data is computed. */
 GEN
-gammamellininv_bitprec(GEN K, GEN s, long m, long bitprec)
+gammamellininv(GEN K, GEN s, long m, long bitprec)
 {
   pari_sp av = avma;
   GEN z, s2d, tmax;
   long d;
   if (!is_vec_t(typ(K))) pari_err_TYPE("gammamellininvinit",K);
   if (lg(K) != 6 || !is_vec_t(typ(gel(K,2))))
-    K = gammamellininvinit_bitprec(K, m, bitprec);
+    K = gammamellininvinit(K, m, bitprec);
   tmax = gel(K,1);
   d = lg(gel(K,2))-1;
   s2d = gpow(s, gdivgs(gen_2, d), nbits2prec(bitprec));
@@ -615,6 +609,3 @@ gammamellininv_bitprec(GEN K, GEN s, long m, long bitprec)
     z = Kderivlarge(K, s, s2d, bitprec);
   return gerepileupto(av, z);
 }
-GEN
-gammamellininv(GEN Vga, GEN s, long m, long prec)
-{ return gammamellininv_bitprec(Vga, s, m, prec2nbits(prec)); }

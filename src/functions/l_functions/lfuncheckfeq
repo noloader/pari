@@ -1,6 +1,6 @@
 Function: lfuncheckfeq
 Section: l_functions
-C-Name: lfuncheckfeq_bitprec
+C-Name: lfuncheckfeq
 Prototype: lGDGb
 Help: lfuncheckfeq(L,{t}): given an L-function (Lmath, Ldata or Linit),
  check whether the functional equation is satisfied. If the function has

@@ -1,6 +1,6 @@
 Function: gammamellininvinit
 Section: transcendental
-C-Name: gammamellininvinit_bitprec
+C-Name: gammamellininvinit
 Prototype: GD0,L,b
 Help: gammamellininvinit(A,{m=0}): initialize data for the computation by
  gammamellininv() of the m-th derivative of the inverse Mellin transform

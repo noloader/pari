@@ -1,6 +1,6 @@
 Function: gammamellininv
 Section: transcendental
-C-Name: gammamellininv_bitprec
+C-Name: gammamellininv
 Prototype: GGD0,L,b
 Help: gammamellininv(G,t,{m=0}): returns G(t), where G is as output
  by gammamellininvinit. The alternative syntax gammamellininv(A,t,m)

@@ -1,6 +1,6 @@
 Function: lfunabelianrelinit
 Section: l_functions
-C-Name: lfunabelianrelinit_bitprec
+C-Name: lfunabelianrelinit
 Prototype: GGGGD0,L,b
 Help: lfunabelianrelinit(bnfL,bnfK,polrel,sdom,{der=0}): returns the
   Linit structure associated to the Dedekind zeta function of the number field

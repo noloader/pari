@@ -1361,7 +1361,7 @@ elldiscfix(GEN E, GEN Et, GEN D)
 /* Modular degree of elliptic curve e over Q, assuming Manin constant = 1
    (otherwise multiply by square of Manin constant). */
 GEN
-ellmoddegree_bitprec(GEN e, long bitprec)
+ellmoddegree(GEN e, long bitprec)
 {
   pari_sp ltop = avma;
   long prec = nbits2prec(bitprec);
@@ -1369,17 +1369,11 @@ ellmoddegree_bitprec(GEN e, long bitprec)
   GEN D = ellminimaltwistcond(E);
   GEN Etr = ellinit(elltwist(E, D), NULL, prec);
   GEN Et = ellminimalmodel(Etr, NULL);
-  GEN nor = lfunellmfpeters_bitprec(Et, bitprec);
+  GEN nor = lfunellmfpeters(Et, bitprec);
   GEN degt = gdiv(gmul(nor, sqrr(Pi2n(1,prec))), member_area(E));
   GEN deg = gmul(degt, elldiscfix(E, Et, D));
   GEN degr = bestappr(deg, int2n(bitprec>>1));
   long err = gexpo(gsub(gen_1, gdiv(deg,degr)));
   obj_free(Etr); obj_free(Et); obj_free(E);
   return gerepilecopy(ltop, mkvec2(degr, stoi(err)));
-}
-
-GEN
-ellmoddegree(GEN e, long prec)
-{
-  return ellmoddegree_bitprec(e, prec2nbits(prec));
 }

@@ -1,6 +1,6 @@
 Function: lfunconductor
 Section: l_functions
-C-Name: lfunconductor_bitprec
+C-Name: lfunconductor
 Prototype: GDGD0,L,b
 Help: lfunconductor(L,{ab=[1,10000]},{flag=0}): give the conductor
   of the given L-function; ab = [a,b] is the interval where we expect

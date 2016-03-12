@@ -1,6 +1,6 @@
 Function: lfunrootres
 Section: l_functions
-C-Name: lfunrootres_bitprec
+C-Name: lfunrootres
 Prototype: Gb
 Help: lfunrootres(data): given the Ldata associated to an L-function (or the
  output of lfunthetainit), compute the root number and the

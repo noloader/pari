@@ -228,8 +228,8 @@ lfunzeta(void)
   return zet;
 }
 static GEN
-lfunzetainit_bitprec(GEN dom, long der, long bitprec)
-{ return lfuninit_bitprec(lfunzeta(), dom, der, bitprec); }
+lfunzetainit(GEN dom, long der, long bitprec)
+{ return lfuninit(lfunzeta(), dom, der, bitprec); }
 
 static GEN
 vecan_Kronecker(GEN D, long n)
@@ -529,7 +529,7 @@ lfunzetak(GEN T)
 
 /* bnf = NULL: base field = Q */
 GEN
-lfunabelianrelinit_bitprec(GEN nfabs, GEN bnf, GEN polrel, GEN dom, long der, long bitprec)
+lfunabelianrelinit(GEN nfabs, GEN bnf, GEN polrel, GEN dom, long der, long bitprec)
 {
   pari_sp ltop = avma;
   GEN cond, chi, cnj, res, bnr, M, domain;
@@ -550,18 +550,12 @@ lfunabelianrelinit_bitprec(GEN nfabs, GEN bnf, GEN polrel, GEN dom, long der, lo
   for (i = 1; i < l; ++i)
   {
     GEN L = lfunchigen(bnr, gel(chi,i));
-    gel(res, i) = lfuninit_bitprec(L, dom, der, bitprec);
+    gel(res, i) = lfuninit(L, dom, der, bitprec);
   }
   if (v >= 0) delete_var();
   M = mkvec3(res, const_vecsmall(l-1, 1), cnj);
   domain = mkvec2(dom, mkvecsmall2(der, bitprec));
   return gerepilecopy(ltop, lfuninit_make(t_LDESC_PRODUCT, lfunzetak_i(nfabs), M, domain));
-}
-
-GEN
-lfunabelianrelinit(GEN nfabs, GEN bnf, GEN polrel, GEN dom, long der, long prec)
-{
-  return lfunabelianrelinit_bitprec(nfabs, bnf, polrel, dom, der, prec2nbits(prec));
 }
 
 /*****************************************************************/
@@ -662,11 +656,11 @@ lfunproduct(GEN ldata, GEN linit1, GEN linit2, GEN domain)
 
 /* Initialization without assuming Artin's conjecture. */
 static GEN
-lfunzetaKinit_bitprec(GEN T, GEN dom, long der, long bitprec)
+lfunzetaKinit(GEN T, GEN dom, long der, long bitprec)
 {
   pari_sp ltop = avma;
   GEN ldata = lfunzetak_i(T);
-  return gerepileupto(ltop, lfuninit_bitprec(ldata, dom, der, bitprec));
+  return gerepileupto(ltop, lfuninit(ldata, dom, der, bitprec));
 }
 
 /* From now on we assume the Artin conjecture that z_K(s) is divisible by
@@ -674,27 +668,27 @@ lfunzetaKinit_bitprec(GEN T, GEN dom, long der, long bitprec)
 * vector of lfuninits (including d=1), of which we must take the product.
 * nf is a true nf */
 static GEN
-lfunzetaKQinit_bitprec(GEN nf, GEN dom, long der, long bitprec)
+lfunzetaKQinit(GEN nf, GEN dom, long der, long bitprec)
 {
   pari_sp ltop = avma;
   GEN an, Vga, ldata, N, LKQ, LQ, domain, T = nf_get_pol(nf);
   long r1, r2;
 
-  LQ = lfunzetainit_bitprec(dom, der, bitprec);
+  LQ = lfunzetainit(dom, der, bitprec);
   if (degpol(T) == 1) return LQ;
   N = absi(nf_get_disc(nf));
   nf_get_sign(nf,&r1,&r2);
   Vga = vec01(r1+r2-1,r2);
   an = tag(mkvec2(tag(nf, t_LFUN_NF), tag(gen_1, t_LFUN_ZETA)), t_LFUN_DIV);
   ldata = mkvecn(6, an, gen_0, Vga, gen_1, N, gen_1);
-  LKQ = lfuninit_bitprec(ldata, dom, der, bitprec); /* zeta_K/zeta */
+  LKQ = lfuninit(ldata, dom, der, bitprec); /* zeta_K/zeta */
   domain = mkvec2(dom, mkvecsmall2(der, bitprec));
   return gerepilecopy(ltop, lfunproduct(lfunzetak_i(nf), LKQ, LQ, domain));
 }
 
 /* nf is a true nf */
 static GEN
-lfunzetaKkinit_bitprec(GEN nf, GEN dom, long der, long bitprec)
+lfunzetaKkinit(GEN nf, GEN dom, long der, long bitprec)
 {
   pari_sp av = avma;
   GEN an, nfs, polk, nfk, Vga, ldata, N, Lk, LKk, domain;
@@ -703,17 +697,17 @@ lfunzetaKkinit_bitprec(GEN nf, GEN dom, long der, long bitprec)
   nfs = nfsubfields(nf, 0);
   nsub = lg(nfs)-1;
   if (nsub <= 2)
-    return gerepilecopy(av, lfunzetaKQinit_bitprec(nf, dom, der, bitprec));
+    return gerepilecopy(av, lfunzetaKQinit(nf, dom, der, bitprec));
   nf_get_sign(nf,&r1,&r2);
   polk = gel(gel(nfs, nsub-1), 1); /* k largest strict subfield, != Q */
   nfk = nfinit(polk, nbits2prec(bitprec));
-  Lk = lfunzetakinit_bitprec(nfk, dom, der, 0, bitprec); /* zeta_k */
+  Lk = lfunzetakinit(nfk, dom, der, 0, bitprec); /* zeta_k */
   nf_get_sign(nfk,&r1k,&r2k);
   Vga = vec01((r1+r2) - (r1k+r2k), r2-r2k);
   N = absi(diviiexact(nf_get_disc(nf), nf_get_disc(nfk)));
   an = tag(mkvec2(tag(nf,t_LFUN_NF), tag(nfk,t_LFUN_NF)), t_LFUN_DIV);
   ldata = mkvecn(6, an, gen_0, Vga, gen_1, N, gen_1);
-  LKk = lfuninit_bitprec(ldata, dom, der, bitprec); /* zeta_K/zeta_k */
+  LKk = lfuninit(ldata, dom, der, bitprec); /* zeta_K/zeta_k */
   domain = mkvec2(dom, mkvecsmall2(der, bitprec));
   return gerepilecopy(av, lfunproduct(lfunzetak_i(nf), Lk, LKk, domain));
 }
@@ -724,10 +718,10 @@ lfunzetaKkinit_bitprec(GEN nf, GEN dom, long der, long bitprec)
    If flag<0, do not assume anything and the output is the same as lfuninit,
    so can be used directly. */
 GEN
-lfunzetakinit_bitprec(GEN NF, GEN dom, long der, long flag, long bitprec)
+lfunzetakinit(GEN NF, GEN dom, long der, long flag, long bitprec)
 {
   GEN nf = checknf(NF), T = nf_get_pol(nf);
-  if (degpol(T) == 1) return lfunzetainit_bitprec(dom, der, bitprec);
+  if (degpol(T) == 1) return lfunzetainit(dom, der, bitprec);
   if (flag < 0)
     flag = 2;
   else if (flag != 4)
@@ -738,19 +732,13 @@ lfunzetakinit_bitprec(GEN NF, GEN dom, long der, long flag, long bitprec)
   }
   switch(flag)
   {
-    case 0: return lfunzetaKkinit_bitprec(nf, dom, der, bitprec);
-    case 1: return lfunzetaKQinit_bitprec(nf, dom, der, bitprec);
-    case 2: return lfunzetaKinit_bitprec(NF, dom, der, bitprec);
-    case 4: return lfunabelianrelinit_bitprec(nf, NULL, T, dom, der, bitprec);
+    case 0: return lfunzetaKkinit(nf, dom, der, bitprec);
+    case 1: return lfunzetaKQinit(nf, dom, der, bitprec);
+    case 2: return lfunzetaKinit(NF, dom, der, bitprec);
+    case 4: return lfunabelianrelinit(nf, NULL, T, dom, der, bitprec);
   }
   pari_err_FLAG("lfunzetakinit");
   return NULL;
-}
-
-GEN
-lfunzetakinit(GEN pol, GEN dom, long der, long flag, long prec)
-{
-  return lfunzetakinit_bitprec(pol, dom, der, flag, prec2nbits(prec));
 }
 
 /***************************************************************/
@@ -772,7 +760,7 @@ lfunell(GEN e)
 }
 
 GEN
-lfunmfspec_bitprec(GEN lmisc, long bitprec)
+lfunmfspec(GEN lmisc, long bitprec)
 {
   pari_sp ltop = avma;
   GEN Vga, linit, ldataf, veven, vodd, om, op, eps, dom;
@@ -785,7 +773,7 @@ lfunmfspec_bitprec(GEN lmisc, long bitprec)
       && sdomain_isincl(k, dom, lfun_get_dom(linit_get_tech(lmisc))))
     linit = lmisc;
   else
-    linit = lfuninit_bitprec(ldataf, dom, 0, bitprec);
+    linit = lfuninit(ldataf, dom, 0, bitprec);
   Vga = ldata_get_gammavec(ldataf);
   if (!ldata_isreal(ldataf) || !gequal(Vga, mkvec2(gen_0,gen_1)))
     pari_err_TYPE("lfunmfspec", lmisc);
@@ -793,10 +781,8 @@ lfunmfspec_bitprec(GEN lmisc, long bitprec)
   k2 = k/2;
   vodd = cgetg(k2+1, t_VEC);
   veven = cgetg(k2, t_VEC);
-  for (j = 1; j <= k2; ++j)
-    gel(vodd,j) = lfunlambda_bitprec(linit, stoi(2*j-1), bitprec);
-  for (j = 1; j < k2; ++j)
-    gel(veven,j) = lfunlambda_bitprec(linit, stoi(2*j), bitprec);
+  for (j=1; j <= k2; ++j) gel(vodd,j) = lfunlambda(linit, stoi(2*j-1), bitprec);
+  for (j=1; j < k2; ++j) gel(veven,j) = lfunlambda(linit, stoi(2*j), bitprec);
   if (k > 2)
   {
     om = gel(veven,1);
@@ -813,12 +799,6 @@ lfunmfspec_bitprec(GEN lmisc, long bitprec)
   veven= bestappr(veven, eps);
   vodd = bestappr(vodd, eps);
   return gerepilecopy(ltop, mkvec4(veven, vodd, om, op));
-}
-
-GEN
-lfunmfspec(GEN lmisc, long prec)
-{
-  return lfunmfspec_bitprec(lmisc, prec2nbits(prec));
 }
 
 /* Symmetric square of a Hecke eigenform, cuspform. Assume ldata is the ldata
@@ -1055,7 +1035,7 @@ lfunsymsqfind(GEN ldata, long flall/*=0*/, long prec)
         veceul = shallowconcat(P1, V);
         L = mkvecn(6, tag(mkvec2(veceul, ldata), t_LFUN_SYMSQ),
               gen_0, mkvec3(stoi(2-k), gen_0, gen_1), stoi(2*k-1), M2, gen_1);
-        if (lfuncheckfeq_bitprec(L, NULL, bitprec)  < -bitprec/2)
+        if (lfuncheckfeq(L, NULL, bitprec)  < -bitprec/2)
         {
           GEN z = mkvec2(M2, lexsort(veceul));
           if (!flall) return gerepilecopy(ltop, z);
@@ -1110,7 +1090,7 @@ lfunissymsq(GEN Vga)
 { return (lg(Vga) == 4) && lfunisvgaell(mkvec2(gel(Vga,2), gel(Vga,3)), 0); }
 
 GEN
-lfunsymsqspec_bitprec(GEN lmisc, long bitprec)
+lfunsymsqspec(GEN lmisc, long bitprec)
 {
   pari_sp ltop = avma;
   GEN veven, vpi, om2, M, Vga, ldata;
@@ -1140,7 +1120,7 @@ lfunsymsqspec_bitprec(GEN lmisc, long bitprec)
     case 1: /* now ldata is a symsq */
       k = ldata_get_k(ldata);
       dom = mkvec3(dbltor((k+1)/2.), dbltor(3*(k+1)/4.), gen_0);
-      ldata = lfuninit_bitprec(ldata, dom, 0, bitprec);
+      ldata = lfuninit(ldata, dom, 0, bitprec);
       break;
     default:
       ldata = lmisc;
@@ -1149,29 +1129,23 @@ lfunsymsqspec_bitprec(GEN lmisc, long bitprec)
   /* Warning: k is the weight of the symmetric square, not of the form. */
   l1 = (k+1)/4;
   veven = cgetg(l1+1, t_VEC);
-  om2 = greal(lfunlambda_bitprec(ldata, stoi((k+1)/2), bitprec));
+  om2 = greal(lfunlambda(ldata, stoi((k+1)/2), bitprec));
   vpi = gpowers(mppi(prec), l1); /* could be powersshift(,om2) */
   gel(veven,1) = gen_1;
   M = int2n(bitprec/4);
   for (j = 2; j <= l1; ++j)
   {
-    GEN Lj = greal(lfunlambda_bitprec(ldata, stoi(2*j + (k-3)/2), bitprec));
+    GEN Lj = greal(lfunlambda(ldata, stoi(2*j + (k-3)/2), bitprec));
     Lj = gdiv(Lj, gmul(gel(vpi,j), om2));
     gel(veven, j) = bestappr(Lj, M);
   }
   return gerepilecopy(ltop, mkvec2(veven, om2));
 }
 
-GEN
-lfunsymsqspec(GEN lmisc, long prec)
-{
-  return lfunsymsqspec_bitprec(lmisc, prec2nbits(prec));
-}
-
 static GEN
 mfpeters(GEN ldata2, GEN fudge, GEN N, long k, long bitprec)
 {
-  GEN t, L = greal(lfun_bitprec(ldata2, stoi(k), bitprec));
+  GEN t, L = greal(lfun(ldata2, stoi(k), bitprec));
   long prec = nbits2prec(bitprec);
   t = powrs(mppi(prec), k+1); shiftr_inplace(t, 2*k-1); /* Pi/2 * (4Pi)^k */
   return gmul(gdiv(gmul(mulii(N,mpfact(k-1)), fudge), t), L);
@@ -1179,7 +1153,7 @@ mfpeters(GEN ldata2, GEN fudge, GEN N, long k, long bitprec)
 /* Petersson square of modular form. ldata must be the
    data of the modular form itself. */
 GEN
-lfunmfpeters_bitprec(GEN ldata, long bitprec)
+lfunmfpeters(GEN ldata, long bitprec)
 {
   pari_sp av = avma;
   GEN ldata2, veceuler, N, fudge = gen_1;
@@ -1202,11 +1176,7 @@ lfunmfpeters_bitprec(GEN ldata, long bitprec)
 }
 
 GEN
-lfunmfpeters(GEN ldata, long prec)
-{ return lfunmfpeters_bitprec(ldata, prec2nbits(prec)); }
-
-GEN
-lfunellmfpeters_bitprec(GEN E, long bitprec)
+lfunellmfpeters(GEN E, long bitprec)
 {
   pari_sp av = avma;
   GEN ldata2, veceuler, N = ellQ_get_N(E), fudge = gen_1;

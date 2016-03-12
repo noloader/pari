@@ -1,6 +1,6 @@
 Function: lfunzeros
 Section: l_functions
-C-Name: lfunzeros_bitprec
+C-Name: lfunzeros
 Prototype: GGD8,L,b
 Help: lfunzeros(L,lim,{divz=8}): lim being
  either an upper limit or a real interval, computes an ordered list of

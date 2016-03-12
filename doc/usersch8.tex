@@ -92,75 +92,34 @@
 
 \section{Variants of GP functions}
 
-\fun{GEN}{lfun}{GEN ldata, GEN s, long prec}
-
-\fun{GEN}{lfun_bitprec}{GEN ldata, GEN s, long bitprec}
-
-\fun{GEN}{lfun0_bitprec}{GEN ldata, GEN s, long der, long bitprec}
-
-\fun{long}{lfuncheckfeq_bitprec}{GEN data, GEN t0, long bitprec}
-
-\fun{GEN}{lfunhardy_bitprec}{GEN ldata, GEN t, long bitprec}
-
-\fun{GEN}{lfuninit_bitprec}{GEN ldata, GEN dom, long der, long bitprec}
+\fun{GEN}{lfun}{GEN ldata, GEN s, long bitprec}
 
 \fun{GEN}{lfuninit}{GEN ldata, GEN dom, long der, long bitprec}
 
-\fun{GEN}{lfuninit0_bitprec}{GEN ldata, GEN dom, long der, long bitprec}
-
 \fun{GEN}{lfuninit_make}{long t, GEN ldata, GEN molin, GEN domain}
 
-\fun{GEN}{lfunlambda}{GEN ldata, GEN s, long prec}
-
-\fun{GEN}{lfunlambda_bitprec}{GEN ldata, GEN s, long bitprec}
-
-\fun{GEN}{lfunlambda0_bitprec}{GEN ldata, GEN s, long der, long bitprec}
-
-\fun{long}{lfunorderzero_bitprec}{GEN ldata, long bitprec}
-
-\fun{GEN}{lfunrootno}{GEN data, long prec}
-
-\fun{GEN}{lfunrootno_bitprec}{GEN data, long bitprec}
-
-\fun{GEN}{lfunrootres_bitprec}{GEN data, long bitprec}
-
-\fun{GEN}{lfuntheta_bitprec}{GEN data, GEN t, long m, long bitprec}
-
-\fun{GEN}{lfunthetainit_bitprec}{GEN ldata, GEN tdom, long m, long bitprec}
+\fun{GEN}{lfunlambda}{GEN ldata, GEN s, long bitprec}
 
 \fun{long}{lfunthetacost}{GEN ldata, GEN tdom, long m, long bitprec}:
  \kbd{lfunthetacost0} when the first argument is known to be an \kbd{Ldata}.
 
-
 \fun{GEN}{lfunthetacheckinit}{GEN data, GEN tinf, long m, long *ptbitprec, long fl}
 
-\fun{GEN}{lfunzeros_bitprec}{GEN ldata, GEN lim, long divz, long bitprec}
+\fun{GEN}{lfunzetakinit}{GEN pol, GEN dom, long der, long flag, long bitprec}
 
-\fun{GEN}{lfunabelianrelinit_bitprec}{GEN bnfabs, GEN bnf, GEN polrel, GEN dom, long der, long bitprec}
-
-\fun{GEN}{lfunzetakinit}{GEN pol, GEN dom, long der, long flag, long prec}
-
-\fun{GEN}{lfunzetakinit_bitprec}{GEN pol, GEN dom, long der, long flag, long bitprec}
-
-\fun{GEN}{lfunmfpeters_bitprec}{GEN ldata, long bitprec}
-
-\fun{GEN}{lfunellmfpeters_bitprec}{GEN E, long bitprec}
+\fun{GEN}{lfunellmfpeters}{GEN E, long bitprec}
 
 \fun{GEN}{ellanalyticrank_bitprec}{GEN E, long bitprec}
 
 \fun{GEN}{ellL1_bitprec}{GEN E, long bitprec}
 
-\fun{GEN}{ellmoddegree_bitprec}{GEN E, long bitprec}
-
 \section{Inverse Mellin transforms of Gamma products}
 
-\fun{GEN}{gammamellininv_bitprec}{GEN Vga, GEN s, long m, long bitprec}
+\fun{GEN}{gammamellininv}{GEN Vga, GEN s, long m, long bitprec}
 
-\fun{GEN}{gammamellininvinit_bitprec}{GEN Vga, long m, long bitprec}
+\fun{GEN}{gammamellininvinit}{GEN Vga, long m, long bitprec}
 
-\fun{GEN}{gammamellininvrt}{GEN K, GEN x, long prec}
-
-\fun{GEN}{gammamellininvrt_bitprec}{GEN K, GEN s, long bitprec}
+\fun{GEN}{gammamellininvrt}{GEN K, GEN s, long bitprec}
 
 \fun{double}{dbllambertW0}{double a}
 

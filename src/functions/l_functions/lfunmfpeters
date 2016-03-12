@@ -1,6 +1,6 @@
 Function: lfunmfpeters
 Section: l_functions
-C-Name: lfunmfpeters_bitprec
+C-Name: lfunmfpeters
 Prototype: Gb
 Help: lfunmfpeters(L): L corresponding to a normalized
   eigenform but NOT to the output of lfunsymsq, returns the Petersson

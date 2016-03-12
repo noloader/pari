@@ -517,13 +517,13 @@ lfunrtoR(GEN ldata, long prec)
 
 /* thetainit using {an: n <= L} */
 static GEN
-lfunthetainit0_bitprec(GEN ldata, GEN tdom, GEN vecan, long m,
+lfunthetainit0(GEN ldata, GEN tdom, GEN vecan, long m,
     long bitprec, long extrabit)
 {
   long prec = nbits2prec(bitprec);
   GEN tech, N = ldata_get_conductor(ldata);
   GEN Vga = ldata_get_gammavec(ldata);
-  GEN K = gammamellininvinit_bitprec(Vga, m, bitprec + extrabit);
+  GEN K = gammamellininvinit(Vga, m, bitprec + extrabit);
   GEN R = lfunrtoR(ldata, prec);
   if (!tdom) tdom = gen_1;
   if (typ(tdom) != t_VEC)
@@ -544,21 +544,15 @@ lfunthetainit_i(GEN data, GEN tdom, long m, long bitprec)
   GEN ldata = lfunmisc_to_ldata_shallow(data);
   long L = lfunthetacost(ldata, tdom, m, bitprec);
   GEN vecan = ldata_vecan(ldata_get_an(ldata), L, nbits2prec(bitprec));
-  return lfunthetainit0_bitprec(ldata, tdom, vecan, m, bitprec, 32);
+  return lfunthetainit0(ldata, tdom, vecan, m, bitprec, 32);
 }
 
 GEN
-lfunthetainit_bitprec(GEN ldata, GEN tdom, long m, long bitprec)
+lfunthetainit(GEN ldata, GEN tdom, long m, long bitprec)
 {
   pari_sp av = avma;
   GEN S = lfunthetainit_i(ldata, tdom? tdom: gen_1, m, bitprec);
   return gerepilecopy(av, S);
-}
-
-GEN
-lfunthetainit(GEN ldata, GEN tdom, long m, long prec)
-{
-  return lfunthetainit_bitprec(ldata, tdom, m, prec2nbits(prec));
 }
 
 GEN
@@ -755,9 +749,9 @@ theta1(GEN vecan, long limt, GEN t, GEN al, long prec)
 }
 
 /* If m > 0, compute m-th derivative of theta(t) = theta0(t/sqrt(N))
- * with absolute error 2^-bitprec */
+ * with absolute error 2^-bitprec; theta(t)=\sum_{n\ge1}a(n)K(nt/N^(1/2)) */
 GEN
-lfuntheta_bitprec(GEN data, GEN t, long m, long bitprec)
+lfuntheta(GEN data, GEN t, long m, long bitprec)
 {
   pari_sp ltop = avma;
   long limt, d;
@@ -797,17 +791,12 @@ lfuntheta_bitprec(GEN data, GEN t, long m, long bitprec)
       if (gequal0(an)) continue;
       nt = gmul(gel(vroots,n), t);
       if (m) an = gmul(an, powuu(n, m));
-      S = gadd(S, gmul(an, gammamellininvrt_bitprec(K, nt, bitprecnew)));
+      S = gadd(S, gmul(an, gammamellininvrt(K, nt, bitprecnew)));
     }
     if (m) S = gdiv(S, gpowgs(sqN, m));
     return gerepileupto(ltop, S);
   }
 }
-
-/* theta(t)=\sum_{n\ge1}a(n)K(nt/N^(1/2)) */
-GEN
-lfuntheta(GEN data, GEN t, long m, long prec)
-{ return lfuntheta_bitprec(data, t, m, prec2nbits(prec)); }
 
 /*******************************************************************/
 /* Second part: Computation of L-Functions.                        */
@@ -983,7 +972,7 @@ lfuninit_vecc(GEN theta, GEN h, struct lfunp *S)
       if (!p) continue; /* a_{n 2^v} = 0 for all v in range */
       t2d = mpmul(gel(vroots, n), gel(peh2d,m+1)); /*(n exp(mh)/sqrt(N))^(2/d)*/
       neval++;
-      kmn = gammamellininvrt_bitprec(K, t2d, p);
+      kmn = gammamellininvrt(K, t2d, p);
       for (mm=m,nn=n; mm>=0 && nn <= L[mm+1]; nn<<=1,mm-=m0)
         gmael(vK,mm+1,nn) = kmn;
     }
@@ -1149,7 +1138,7 @@ lfun_init_theta(GEN ldata, GEN eno, struct lfunp *S)
   }
   an = ldata_vecan(ldata_get_an(ldata), L, S->precmax);
   lfunparams2(ldata, an, S);
-  return lfunthetainit0_bitprec(ldata, tdom, an, 0, S->Dmax, 0);
+  return lfunthetainit0(ldata, tdom, an, 0, S->Dmax, 0);
 }
 
 GEN
@@ -1195,7 +1184,7 @@ lfuncost0(GEN L, GEN dom, long der, long bitprec)
 }
 
 GEN
-lfuninit_bitprec(GEN lmisc, GEN dom, long der, long bitprec)
+lfuninit(GEN lmisc, GEN dom, long der, long bitprec)
 {
   pari_sp ltop = avma;
   GEN R, h, theta, ldata, qk, poqk, pol, eno, r, vecc, domain, molin;
@@ -1216,7 +1205,7 @@ lfuninit_bitprec(GEN lmisc, GEN dom, long der, long bitprec)
   if (ldata_get_type(ldata)==t_LFUN_NF)
   {
     GEN T = gel(ldata_get_an(ldata), 2);
-    return lfunzetakinit_bitprec(T, dom, der, 0, bitprec);
+    return lfunzetakinit(T, dom, der, 0, bitprec);
   }
   k = ldata_get_k(ldata);
   parse_dom(k, dom, &S);
@@ -1239,7 +1228,7 @@ lfuninit_bitprec(GEN lmisc, GEN dom, long der, long bitprec)
     R = theta_get_R(linit_get_tech(theta));
   else
   {
-    GEN v = lfunrootres_bitprec(theta, S.D);
+    GEN v = lfunrootres(theta, S.D);
     ldata = shallowcopy(ldata);
     gel(ldata, 6) = gel(v,3);
     r = gel(v,1);
@@ -1265,22 +1254,10 @@ lfuninit_bitprec(GEN lmisc, GEN dom, long der, long bitprec)
 }
 
 GEN
-lfuninit(GEN lmisc, GEN dom, long der, long prec)
+lfuninit0(GEN lmisc, GEN dom, long der, long bitprec)
 {
-  return lfuninit_bitprec(lmisc, dom, der, prec2nbits(prec));
-}
-
-GEN
-lfuninit0_bitprec(GEN lmisc, GEN dom, long der, long bitprec)
-{
-  GEN z = lfuninit_bitprec(lmisc, dom, der, bitprec);
+  GEN z = lfuninit(lmisc, dom, der, bitprec);
   return z == lmisc? gcopy(z): z;
-}
-
-GEN
-lfuninit0(GEN lmisc, GEN dom, long der, long prec)
-{
-  return lfuninit0_bitprec(lmisc, dom, der, prec2nbits(prec));
 }
 
 /* If s is a pole of Lambda, return polar part at s; else return NULL */
@@ -1398,14 +1375,14 @@ get_domain(GEN s, GEN *dom, long *der)
 /* assume lmisc is an linit, s went through get_domain and s/bitprec belong
  * to domain */
 static GEN
-lfunlambda_bitprec_OK(GEN linit, GEN s, long bitprec)
+lfunlambda_OK(GEN linit, GEN s, long bitprec)
 {
   GEN eno, ldata, tech, h, pol;
   GEN S, S0 = NULL, k2;
   long prec;
 
   if (linit_get_type(linit) == t_LDESC_PRODUCT)
-    return lfun_genproduct(linit, s, bitprec, lfunlambda_bitprec_OK);
+    return lfun_genproduct(linit, s, bitprec, lfunlambda_OK);
   ldata = linit_get_ldata(linit);
   eno = ldata_get_rootno(ldata);
   tech = linit_get_tech(linit);
@@ -1436,30 +1413,27 @@ lfunlambda_bitprec_OK(GEN linit, GEN s, long bitprec)
   return gprec_w(gmul(S,h), nbits2prec(bitprec));
 }
 GEN
-lfunlambda_bitprec(GEN lmisc, GEN s, long bitprec)
+lfunlambda(GEN lmisc, GEN s, long bitprec)
 {
   pari_sp av = avma;
   GEN linit, dom, z;
   long der;
   s = get_domain(s, &dom, &der);
-  linit = lfuninit_bitprec(lmisc, dom, der, bitprec);
-  z = lfunlambda_bitprec_OK(linit,s,bitprec);
+  linit = lfuninit(lmisc, dom, der, bitprec);
+  z = lfunlambda_OK(linit,s,bitprec);
   return gerepilecopy(av, z);
 }
-GEN
-lfunlambda(GEN lmisc, GEN s, long prec)
-{ return lfunlambda_bitprec(lmisc, s, prec2nbits(prec)); }
 
 /* assume lmisc is an linit, s went through get_domain and s/bitprec belong
  * to domain */
 static GEN
-lfun_bitprec_OK(GEN linit, GEN s, long bitprec)
+lfun_OK(GEN linit, GEN s, long bitprec)
 {
   GEN N, gas, S, FVga, res;
   long prec = nbits2prec(bitprec);
 
   FVga = lfun_get_factgammavec(linit_get_tech(linit));
-  S = lfunlambda_bitprec_OK(linit, s, bitprec);
+  S = lfunlambda_OK(linit, s, bitprec);
   gas = gammafactproduct(FVga, s, prec);
   N = ldata_get_conductor(linit_get_ldata(linit));
   res = gdiv(S, gmul(gpow(N, gdivgs(s, 2), prec), gas));
@@ -1472,19 +1446,16 @@ lfun_bitprec_OK(GEN linit, GEN s, long bitprec)
   return gprec_w(res, prec);
 }
 GEN
-lfun_bitprec(GEN lmisc, GEN s, long bitprec)
+lfun(GEN lmisc, GEN s, long bitprec)
 {
   pari_sp av = avma;
   GEN linit, dom, z;
   long der;
   s = get_domain(s, &dom, &der);
-  linit = lfuninit_bitprec(lmisc, dom, der, bitprec);
-  z = lfun_bitprec_OK(linit,s,bitprec);
+  linit = lfuninit(lmisc, dom, der, bitprec);
+  z = lfun_OK(linit,s,bitprec);
   return gerepilecopy(av, z);
 }
-GEN
-lfun(GEN lmisc, GEN s, long prec)
-{ return lfun_bitprec(lmisc, s, prec2nbits(prec)); }
 
 /* given a t_SER a+x*s(x), return x*s(x), shallow */
 static GEN
@@ -1553,13 +1524,13 @@ lfunlambdaord(GEN linit, GEN s)
 
 /* derivative of order m > 0 of L (flag = 0) or Lambda (flag = 1) */
 static GEN
-lfunderiv_bitprec(GEN lmisc, long m, GEN s, long flag, long bitprec)
+lfunderiv(GEN lmisc, long m, GEN s, long flag, long bitprec)
 {
   pari_sp ltop = avma;
   GEN res, S = NULL, linit, dom;
   long der, prec = nbits2prec(bitprec);
   s = get_domain(s, &dom, &der);
-  linit = lfuninit_bitprec(lmisc, dom, der + m, bitprec);
+  linit = lfuninit(lmisc, dom, der + m, bitprec);
   if (typ(s) == t_SER)
   {
     long v, l = lg(s)-1;
@@ -1575,8 +1546,8 @@ lfunderiv_bitprec(GEN lmisc, long m, GEN s, long flag, long bitprec)
     /* HACK: pretend lfuninit was done to right accuracy */
     s = deg1ser_shallow(gen_1, s, 0, m+1+ex);
   }
-  res = flag ? lfunlambda_bitprec_OK(linit, s, bitprec):
-               lfun_bitprec_OK(linit, s, bitprec);
+  res = flag ? lfunlambda_OK(linit, s, bitprec):
+               lfun_OK(linit, s, bitprec);
   if (S)
     res = gsubst(derivnser(res, m), varn(S), S);
   else if (typ(res)==t_SER)
@@ -1592,31 +1563,21 @@ lfunderiv_bitprec(GEN lmisc, long m, GEN s, long flag, long bitprec)
 }
 
 GEN
-lfunlambda0_bitprec(GEN lmisc, GEN s, long der, long bitprec)
+lfunlambda0(GEN lmisc, GEN s, long der, long bitprec)
 {
-  return der ? lfunderiv_bitprec(lmisc, der, s, 1, bitprec):
-               lfunlambda_bitprec(lmisc, s, bitprec);
+  return der ? lfunderiv(lmisc, der, s, 1, bitprec):
+               lfunlambda(lmisc, s, bitprec);
 }
 
 GEN
-lfunlambda0(GEN lmisc, GEN s, long der, long prec)
+lfun0(GEN lmisc, GEN s, long der, long bitprec)
 {
-  return lfunlambda0_bitprec(lmisc, s, der, prec2nbits(prec));
+  return der ? lfunderiv(lmisc, der, s, 0, bitprec):
+               lfun(lmisc, s, bitprec);
 }
 
 GEN
-lfun0_bitprec(GEN lmisc, GEN s, long der, long bitprec)
-{
-  return der ? lfunderiv_bitprec(lmisc, der, s, 0, bitprec):
-               lfun_bitprec(lmisc, s, bitprec);
-}
-
-GEN
-lfun0(GEN lmisc, GEN s, long der, long prec)
-{ return lfun0_bitprec(lmisc, s, der, prec2nbits(prec)); }
-
-GEN
-lfunhardy_bitprec(GEN lmisc, GEN t, long bitprec)
+lfunhardy(GEN lmisc, GEN t, long bitprec)
 {
   pari_sp ltop = avma;
   long prec = nbits2prec(bitprec), k, d;
@@ -1633,7 +1594,7 @@ lfunhardy_bitprec(GEN lmisc, GEN t, long bitprec)
   k = ldata_get_k(ldata);
   d = ldata_get_degree(ldata);
   dom = mkvec3(dbltor(k/2.), gen_0, gabs(t,LOWDEFAULTPREC));
-  linit = lfuninit_bitprec(lmisc, dom, 0, bitprec);
+  linit = lfuninit(lmisc, dom, 0, bitprec);
   tech = linit_get_tech(linit);
   w2 = lfun_get_w2(tech);
   k2 = lfun_get_k2(tech);
@@ -1644,14 +1605,8 @@ lfunhardy_bitprec(GEN lmisc, GEN t, long bitprec)
   prec = precision(argz);
   a = gsub(gmulsg(d, gmul(t, gmul2n(argz,-1))),
            gmul(expot,glog(gnorm(z),prec)));
-  h = mulreal(lfunlambda_bitprec_OK(linit, z, bitprec), w2);
+  h = mulreal(lfunlambda_OK(linit, z, bitprec), w2);
   return gerepileupto(ltop, gmul(h, gexp(a, prec)));
-}
-
-GEN
-lfunhardy(GEN lmisc, GEN s, long prec)
-{
-  return lfunhardy_bitprec(lmisc, s, prec2nbits(prec));
 }
 
 /* L = log(t); return  \sum_{i = 0}^{v-1}  R[-i-1] L^i/i! */
@@ -1686,7 +1641,7 @@ theta_add_polar_part(GEN S, GEN R, GEN t, long prec)
  * number are compatible with the functional equation at t0 and 1/t0.
  * Different from lfunrootres. */
 long
-lfuncheckfeq_bitprec(GEN lmisc, GEN t0, long bitprec)
+lfuncheckfeq(GEN lmisc, GEN t0, long bitprec)
 {
   GEN ldata, theta, t0i, S0, S0i, w, eno;
   long e, k, prec;
@@ -1697,7 +1652,7 @@ lfuncheckfeq_bitprec(GEN lmisc, GEN t0, long bitprec)
     GEN v = lfunprod_get_fact(linit_get_tech(lmisc)), F = gel(v,1);
     long i, b = -bitprec, l = lg(F);
     for (i = 1; i < l; i++)
-      b = maxss(b, lfuncheckfeq_bitprec(gel(F,i), t0, bitprec));
+      b = maxss(b, lfuncheckfeq(gel(F,i), t0, bitprec));
     return b;
   }
   av = avma;
@@ -1719,10 +1674,10 @@ lfuncheckfeq_bitprec(GEN lmisc, GEN t0, long bitprec)
   ldata = linit_get_ldata(theta);
   k = ldata_get_k(ldata);
   if (!ldata_isreal(ldata))
-    S0 = gconj(lfuntheta_bitprec(theta, gconj(t0), 0, bitprec));
+    S0 = gconj(lfuntheta(theta, gconj(t0), 0, bitprec));
   else
-    S0 = lfuntheta_bitprec(theta, t0, 0, bitprec);
-  S0i = lfuntheta_bitprec(theta, t0i, 0, bitprec);
+    S0 = lfuntheta(theta, t0, 0, bitprec);
+  S0i = lfuntheta(theta, t0i, 0, bitprec);
 
   eno = ldata_get_rootno(ldata);
   if (ldata_get_residue(ldata))
@@ -1735,11 +1690,11 @@ lfuncheckfeq_bitprec(GEN lmisc, GEN t0, long bitprec)
       { /* inefficient since theta not needed; no need to optimize for this
            (artificial) query [e.g. lfuncheckfeq(t_POL)] */
         GEN T = gel(ldata_get_an(ldata), 2);
-        GEN L = lfunzetakinit_bitprec(T,zerovec(3),0,0,bitprec);
-        long e = lfuncheckfeq_bitprec(L,t0,bitprec);
+        GEN L = lfunzetakinit(T,zerovec(3),0,0,bitprec);
+        long e = lfuncheckfeq(L,t0,bitprec);
         avma = av; return e;
       }
-      v = lfunrootres_bitprec(theta, bitprec);
+      v = lfunrootres(theta, bitprec);
       r = gel(v,1);
       if (gequal0(eno)) eno = gel(v,3);
       R = lfunrtoR_i(ldata, r, eno, nbits2prec(bitprec));
@@ -1749,14 +1704,10 @@ lfuncheckfeq_bitprec(GEN lmisc, GEN t0, long bitprec)
   if (gcmp0(S0i) || gcmp0(S0)) pari_err_PREC("lfuncheckfeq");
   w = gdiv(S0i, gmul(S0, gpowgs(t0, k)));
   /* missing rootno: guess it */
-  if (gequal0(eno)) eno = lfunrootno_bitprec(theta, bitprec);
+  if (gequal0(eno)) eno = lfunrootno(theta, bitprec);
   e = gexpo(gsub(w, eno));
   avma = av; return e;
 }
-
-long
-lfuncheckfeq(GEN data, GEN t0, long prec)
-{ return lfuncheckfeq_bitprec(data, t0, prec2nbits(prec)); }
 
 /*******************************************************************/
 /*       Compute root number and residues                          */
@@ -1773,7 +1724,7 @@ ropm1(GEN eno, long prec)
 /* theta for t=1/sqrt(2) and t2==2t simultaneously, saving 25% of the work.
  * Assume correct initialization (no thetacheck) */
 static void
-lfunthetaspec_bitprec(GEN linit, long bitprec, GEN *pv, GEN *pv2)
+lfunthetaspec(GEN linit, long bitprec, GEN *pv, GEN *pv2)
 {
   pari_sp av = avma;
   GEN t, Vga, an, K, ldata, thetainit, v, v2, vroots;
@@ -1787,8 +1738,8 @@ lfunthetaspec_bitprec(GEN linit, long bitprec, GEN *pv, GEN *pv2)
   {
     GEN v2 = sqrtr(real2n(1, nbits2prec(bitprec)));
     GEN v = shiftr(v2,-1);
-    *pv = lfuntheta_bitprec(linit, v,  0, bitprec);
-    *pv2= lfuntheta_bitprec(linit, v2, 0, bitprec);
+    *pv = lfuntheta(linit, v,  0, bitprec);
+    *pv2= lfuntheta(linit, v2, 0, bitprec);
     return;
   }
   an = RgV_kill0( theta_get_an(thetainit) );
@@ -1809,7 +1760,7 @@ lfunthetaspec_bitprec(GEN linit, long bitprec, GEN *pv, GEN *pv2)
 
     if (!a) continue;
     tn = gmul(t, gel(vroots,n));
-    Kn = gammamellininvrt_bitprec(K, tn, bitprec);
+    Kn = gammamellininvrt(K, tn, bitprec);
     v = gadd(v, gmul(a,Kn));
   }
   /* v += \sum_{n <= L, n even} a_n K(nt), v2 = \sum_{n <= L/2} a_n K(2n t) */
@@ -1819,7 +1770,7 @@ lfunthetaspec_bitprec(GEN linit, long bitprec, GEN *pv, GEN *pv2)
 
     if (!a && !a2) continue;
     t2n = gmul(t, gel(vroots,2*n));
-    K2n = gammamellininvrt_bitprec(K, t2n, bitprec);
+    K2n = gammamellininvrt(K, t2n, bitprec);
     if (a) v2 = gadd(v2, gmul(a, K2n));
     if (a2) v = gadd(v,  gmul(a2,K2n));
   }
@@ -1854,7 +1805,7 @@ get_eno(GEN R, long k, GEN t, GEN v, GEN vi, long vx, long bitprec)
 /* Return w using theta(1/t) - w t^k \bar{theta}(t) = polar_part(t,w).
  * The full Taylor development of L must be known */
 GEN
-lfunrootno_bitprec(GEN linit, long bitprec)
+lfunrootno(GEN linit, long bitprec)
 {
   GEN ldata, t, eno, v, vi, R;
   long k, prec = nbits2prec(bitprec), vx = fetch_var();
@@ -1867,11 +1818,11 @@ lfunrootno_bitprec(GEN linit, long bitprec)
   R = ldata_get_residue(ldata)? lfunrtoR_eno(ldata, pol_x(vx), prec)
                               : cgetg(1, t_VEC);
   t = gen_1;
-  v = lfuntheta_bitprec(linit, t, 0, bitprec);
+  v = lfuntheta(linit, t, 0, bitprec);
   eno = get_eno(R,k,t,v,v, vx, bitprec);
   if (!eno)
   { /* t = sqrt(2), vi = theta(1/t), v = theta(t) */
-    lfunthetaspec_bitprec(linit, bitprec, &vi, &v);
+    lfunthetaspec(linit, bitprec, &vi, &v);
     t = sqrtr(utor(2, prec));
     eno = get_eno(R,k,t,v,vi, vx, bitprec);
   }
@@ -1879,16 +1830,13 @@ lfunrootno_bitprec(GEN linit, long bitprec)
   while (!eno)
   {
     t = addsr(1, shiftr(utor(pari_rand(), prec), -66)); /* in [1,1.25[ */
-    v = lfuntheta_bitprec(linit, t, 0, bitprec);
-    vi= lfuntheta_bitprec(linit, ginv(t), 0, bitprec);
+    v = lfuntheta(linit, t, 0, bitprec);
+    vi= lfuntheta(linit, ginv(t), 0, bitprec);
     eno = get_eno(R,k,t,v,vi, vx, bitprec);
     avma = av;
   }
   delete_var(); return ropm1(eno,prec);
 }
-GEN
-lfunrootno(GEN L, long prec)
-{ return lfunrootno_bitprec(L, prec2nbits(prec)); }
 
 static int
 residues_known(GEN r)
@@ -1902,7 +1850,7 @@ residues_known(GEN r)
 /* Find root number and/or residues when L-function coefficients and
    conductor are known. For the moment at most a single residue allowed. */
 GEN
-lfunrootres_bitprec(GEN data, long bitprec)
+lfunrootres(GEN data, long bitprec)
 {
   pari_sp ltop = avma;
   GEN w, r, R, a, b, c, d, e, f, dete, th1, th2;
@@ -1915,7 +1863,7 @@ lfunrootres_bitprec(GEN data, long bitprec)
   if (r && typ(r) != t_VEC) r = mkvec(mkvec2(stoi(k), simple_pole(r)));
   if (!r || residues_known(r))
   {
-    w = lfunrootno_bitprec(data, bitprec);
+    w = lfunrootno(data, bitprec);
     if (!r)
       r = R = gen_0;
     else
@@ -1930,11 +1878,11 @@ lfunrootres_bitprec(GEN data, long bitprec)
   w = ldata_get_rootno(ldata);
   if (ldata_isreal(ldata) && gequalm1(w))
   {
-    GEN R = lfuntheta_bitprec(linit, gen_1, 0, bitprec);
+    GEN R = lfuntheta(linit, gen_1, 0, bitprec);
     r = Rtor(be, R, ldata, prec);
     return gerepilecopy(ltop, mkvec3(r, R, gen_m1));
   }
-  lfunthetaspec_bitprec(linit, bitprec, &v2, &v);
+  lfunthetaspec(linit, bitprec, &v2, &v);
   if (gequalgs(gmulsg(2, be), k)) pari_err_IMPL("pole at k/2 in lfunrootres");
   if (gequalgs(be, k))
   {
@@ -1956,8 +1904,8 @@ lfunrootres_bitprec(GEN data, long bitprec)
   else
   { /* Now residue unknown, r = [[be,0]], and w unknown. */
     t0  = mkfrac(stoi(11),stoi(10));
-    th1 = lfuntheta_bitprec(linit, t0,  0, bitprec);
-    th2 = lfuntheta_bitprec(linit, ginv(t0), 0, bitprec);
+    th1 = lfuntheta(linit, t0,  0, bitprec);
+    th2 = lfuntheta(linit, ginv(t0), 0, bitprec);
     tbe = gpow(t0, gmulsg(2, be), prec);
     tkbe = gpow(t0, gsubsg(k, be), prec);
     tk2 = gpowgs(t0, k);
@@ -1972,10 +1920,6 @@ lfunrootres_bitprec(GEN data, long bitprec)
   return gerepilecopy(ltop, mkvec3(r, R, ropm1(w, prec)));
 }
 
-GEN
-lfunrootres(GEN data, long prec)
-{ return lfunrootres_bitprec(data, prec2nbits(prec)); }
-
 /*******************************************************************/
 /*                           Zeros                                 */
 /*******************************************************************/
@@ -1989,13 +1933,13 @@ lfunhardyzeros(void *E, GEN t)
 {
   struct lhardyz_t *S = (struct lhardyz_t*)E;
   long prec = S->prec;
-  GEN h = lfunhardy_bitprec(S->linit, t, S->bitprec);
+  GEN h = lfunhardy(S->linit, t, S->bitprec);
   if (typ(h) == t_REAL && realprec(h) < prec) h = gprec_w(h, prec);
   return h;
 }
 
 static GEN
-lfuncenterinit_bitprec(GEN lmisc, double h, long bitprec)
+lfuncenterinit(GEN lmisc, double h, long bitprec)
 {
   GEN ldata = lfunmisc_to_ldata_shallow(lmisc);
   long k = ldata_get_k(ldata);
@@ -2006,11 +1950,11 @@ lfuncenterinit_bitprec(GEN lmisc, double h, long bitprec)
     if (sdomain_isincl(k, dom, lfun_get_dom(tech))) return lmisc;
   }
   /* initialize for zero of order <= 4 */
-  return lfuninit_bitprec(ldata, dom, 4, bitprec);
+  return lfuninit(ldata, dom, 4, bitprec);
 }
 
 long
-lfunorderzero_bitprec(GEN lmisc, long bitprec)
+lfunorderzero(GEN lmisc, long bitprec)
 {
   pari_sp ltop = avma;
   GEN eno, ldata, linit, k2;
@@ -2020,10 +1964,10 @@ lfunorderzero_bitprec(GEN lmisc, long bitprec)
   {
     GEN M = gmael(linit_get_tech(lmisc), 2,1);
     long i;
-    for (c=0,i=1; i < lg(M); i++) c += lfunorderzero_bitprec(gel(M,i), bitprec);
+    for (c=0,i=1; i < lg(M); i++) c += lfunorderzero(gel(M,i), bitprec);
     return c;
   }
-  linit = lfuncenterinit_bitprec(lmisc, 0, bitprec);
+  linit = lfuncenterinit(lmisc, 0, bitprec);
   ldata = linit_get_ldata(linit);
   eno = ldata_get_rootno(ldata);
   G = -bitprec/2;
@@ -2036,16 +1980,12 @@ lfunorderzero_bitprec(GEN lmisc, long bitprec)
   k = ldata_get_k(ldata);
   k2 = gdivgs(stoi(k), 2);
   for (c = c0;; c += st)
-    if (gexpo(lfun0_bitprec(linit, k2, c, bitprec)) > G) break;
+    if (gexpo(lfun0(linit, k2, c, bitprec)) > G) break;
   avma = ltop; return c;
 }
 
-long
-lfunorderzero(GEN ldata, long prec)
-{ return lfunorderzero_bitprec(ldata, prec2nbits(prec)); }
-
 GEN
-lfunzeros_bitprec(GEN ldata, GEN lim, long divz, long bitprec)
+lfunzeros(GEN ldata, GEN lim, long divz, long bitprec)
 {
   pari_sp ltop = avma;
   GEN ldataf, linit, N, pi2, cN, pi2div, w, T, Vga, h1, h2;
@@ -2075,10 +2015,10 @@ lfunzeros_bitprec(GEN ldata, GEN lim, long divz, long bitprec)
     long l = lg(M);
     v = cgetg(l, t_VEC);
     for (i = 1; i < l; i++)
-      gel(v,i) = lfunzeros_bitprec(gel(M,i), lim, divz, bitprec);
+      gel(v,i) = lfunzeros(gel(M,i), lim, divz, bitprec);
     return gerepileupto(ltop, vecsort0(shallowconcat1(v), NULL, 0));
   }
-  S.linit = linit = lfuncenterinit_bitprec(ldata, maxt + 1, bitprec);
+  S.linit = linit = lfuncenterinit(ldata, maxt + 1, bitprec);
   S.bitprec = bitprec;
   S.prec = prec;
   ldataf = linit_get_ldata(linit);
@@ -2098,7 +2038,7 @@ lfunzeros_bitprec(GEN ldata, GEN lim, long divz, long bitprec)
     GEN r = ldata_get_residue(ldataf);
     if (!r || gequal0(r))
     {
-      ct = lfunorderzero_bitprec(linit, bitprec);
+      ct = lfunorderzero(linit, bitprec);
       if (ct) T = real2n(-prec2nbits(prec)/(2*ct), prec);
     }
   }
@@ -2136,10 +2076,6 @@ END:
   setlg(w, ct+1); return gerepilecopy(ltop, w);
 }
 
-GEN
-lfunzeros(GEN ldata, GEN lim, long divz, long prec)
-{ return lfunzeros_bitprec(ldata, lim, divz, prec2nbits(prec)); }
-
 /*******************************************************************/
 /*       Guess conductor                                           */
 /*******************************************************************/
@@ -2165,8 +2101,8 @@ wrap1(void *E, GEN M)
   *(S->psqrtM) = gsqrt(M, prec);
 
   tk = gpowgs(t, S->k);
-  p1 = lfuntheta_bitprec(data, t, 0, bitprec);
-  p1inv = lfuntheta_bitprec(data, ginv(t), 0, bitprec);
+  p1 = lfuntheta(data, t, 0, bitprec);
+  p1inv = lfuntheta(data, ginv(t), 0, bitprec);
   return glog(gabs(gmul(tk, gdiv(p1, p1inv)), prec), prec);
 }
 
@@ -2188,10 +2124,10 @@ wrap2(void *E, GEN M)
   *(S->pM) = M;
   *(S->psqrtM) = gsqrt(M, prec);
 
-  p1 = lfuntheta_bitprec(data, t1, 0, bitprec);
-  p2 = lfuntheta_bitprec(data, t2, 0, bitprec);
-  p1inv = lfuntheta_bitprec(data, ginv(t1), 0, bitprec);
-  p2inv = lfuntheta_bitprec(data, ginv(t2), 0, bitprec);
+  p1 = lfuntheta(data, t1, 0, bitprec);
+  p2 = lfuntheta(data, t2, 0, bitprec);
+  p1inv = lfuntheta(data, ginv(t1), 0, bitprec);
+  p2inv = lfuntheta(data, ginv(t2), 0, bitprec);
   t1k = gpowgs(t1, k);
   t2k = gpowgs(t2, k);
   R = theta_get_R(thetainit);
@@ -2261,7 +2197,7 @@ parse_maxcond(GEN maxcond, GEN *pm, GEN *pM)
 }
 
 GEN
-lfunconductor_bitprec(GEN data, GEN maxcond, long flag, long bitprec)
+lfunconductor(GEN data, GEN maxcond, long flag, long bitprec)
 {
   struct huntcond_t S;
   pari_sp ltop = avma;
@@ -2291,10 +2227,3 @@ lfunconductor_bitprec(GEN data, GEN maxcond, long flag, long bitprec)
   v = solvestep((void*)&S, eval, m, M, gen_2, 14, nbits2prec(bitprec));
   return gerepilecopy(ltop, checkconductor(v, bitprec/2, flag));
 }
-
-GEN
-lfunconductor(GEN data, GEN maxcond, long flag, long prec)
-{
-  return lfunconductor_bitprec(data, maxcond, flag, prec2nbits(prec));
-}
-

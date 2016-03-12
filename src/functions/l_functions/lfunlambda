@@ -1,6 +1,6 @@
 Function: lfunlambda
 Section: l_functions
-C-Name: lfunlambda0_bitprec
+C-Name: lfunlambda0
 Prototype: GGD0,L,b
 Help: lfunlambda(L,s,{D=0}): compute the completed L function Lambda(s),
  or if D is set, the derivative of order D at s. L is either

@@ -1,6 +1,6 @@
 Function: lfunthetainit
 Section: l_functions
-C-Name: lfunthetainit_bitprec
+C-Name: lfunthetainit
 Prototype: GDGD0,L,b
 Help: lfunthetainit(L,{tdom},{m=0}): precompute data for evaluating
   the m-th derivative of theta functions with argument in domain tdom

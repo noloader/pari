@@ -1,6 +1,6 @@
 Function: lfunmfspec
 Section: l_functions
-C-Name: lfunmfspec_bitprec
+C-Name: lfunmfspec
 Prototype: Gb
 Help: lfunmfspec(L): L corresponding to a modular form, returns
   [valeven,valodd,omminus,omplus], where valeven (resp., valodd) is the vector

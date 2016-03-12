@@ -1,6 +1,6 @@
 Function: lfunsymsqspec
 Section: l_functions
-C-Name: lfunsymsqspec_bitprec
+C-Name: lfunsymsqspec
 Prototype: Gb
 Help: lfunsymsqspec(L): Ldata corresponding either to a normalized
   eigenform or to the output of lfunsymsq, returns [val, om2], where val

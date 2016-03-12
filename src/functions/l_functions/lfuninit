@@ -1,6 +1,6 @@
 Function: lfuninit
 Section: l_functions
-C-Name: lfuninit0_bitprec
+C-Name: lfuninit0
 Prototype: GGD0,L,b
 Help: lfuninit(L,sdom,{der=0}): precompute data
  for evaluating the L-function given by 'L' (and its derivatives
