@@ -892,7 +892,7 @@ ellsymsq_badp(GEN c4, GEN c6, GEN p, long e, long *pb)
 static GEN
 ellsymsq(void *D, GEN p)
 {
-  GEN E = gel((GEN)D, 2);
+  GEN E = (GEN)D;
   GEN T, ap = sqri(ellap(E, p));
   long e = Z_pval(ellQ_get_N(E), p);
   if (e)
@@ -900,8 +900,7 @@ ellsymsq(void *D, GEN p)
     if (e == 1)
       T = deg1pol_shallow(negi(ap),gen_1,0);
     else
-    { /* N.B. Could get 'a' from veceul = D[1]: vector of pairs [p,a], e >= 2,
-       * but cheaper to rederive */
+    {
       GEN c4 = ell_get_c4(E);
       GEN c6 = ell_get_c6(E);
       long junk, a = ellsymsq_badp(c4, c6, p, e, &junk);
@@ -1080,9 +1079,9 @@ lfunellsymsq(GEN E)
   known = lfunsymsqfind_ell(E);
   N = gel(known,1);
   V = gel(known,2);
-  ld = mkvecn(6, tag(mkvec2(V, E), t_LFUN_SYMSQ_ELL), gen_0,
+  ld = mkvecn(6, tag(E, t_LFUN_SYMSQ_ELL), gen_0,
                  mkvec3(stoi(2-k), gen_0, gen_1), stoi(2*k-1), N, gen_1);
-  return gerepilecopy(ltop, ld);
+  return gerepilecopy(ltop, mkvec2(ld, V));
 }
 
 static long
@@ -1180,18 +1179,17 @@ static GEN
 lfunellmfpetersmintwist(GEN E, long bitprec)
 {
   pari_sp av = avma;
-  GEN ldata2, veceuler, N = ellQ_get_N(E), fudge = gen_1;
+  GEN symsq, veceuler, N = ellQ_get_N(E), fudge = gen_1;
   long j, k = 2;
-
-  ldata2 = lfunellsymsq(E);
-  veceuler = gmael3(ldata2, 1, 2, 1);
+  symsq = lfunellsymsq(E);
+  veceuler = gel(symsq,2);
   for (j = 1; j < lg(veceuler); j++)
   {
     GEN v = gel(veceuler,j), p = gel(v,1), q = powis(p,1-k);
     long s = signe(gel(v,2));
     if (s) fudge = gmul(fudge, s==1 ? gaddsg(1, q): gsubsg(1, q));
   }
-  return gerepileupto(av, mfpeters(ldata2,fudge,N,k,bitprec));
+  return gerepileupto(av, mfpeters(gel(symsq,1),fudge,N,k,bitprec));
 }
 
 /* From Christophe Delaunay, http://delaunay.perso.math.cnrs.fr/these.pdf */
