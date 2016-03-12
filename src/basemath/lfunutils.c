@@ -924,12 +924,12 @@ vecan_ellsymsq(GEN an, long n)
 { GEN nn = stoi(n); return direuler((void*)an, &ellsymsq, gen_2, nn, nn); }
 
 static GEN
-lfunsymsqfind_ell(GEN e)
+lfunellsymsqmintwist(GEN e)
 {
   pari_sp av = avma;
-  GEN B, N, Nfa, P, E, V, c4, c6;
+  GEN B, N, Nfa, P, E, V, c4, c6, ld;
   long i, l, k;
-
+  checkell_Q(e);
   e = ellminimalmodel(e, NULL);
   ellQ_get_Nfa(e, &N, &Nfa);
   c4 = ell_get_c4(e);
@@ -948,7 +948,9 @@ lfunsymsqfind_ell(GEN e)
     gel(V,k++) = mkvec2(p, stoi(a));
   }
   setlg(V, k);
-  return gerepilecopy(av, mkvec2(sqri(B), V));
+  ld = mkvecn(6, tag(e, t_LFUN_SYMSQ_ELL), gen_0,
+                 mkvec3(gen_0, gen_0, gen_1), stoi(3), sqri(B), gen_1);
+  return gerepilecopy(av, mkvec2(ld, V));
 }
 
 /* Find conductor and missing Euler factors in symmetric square.
@@ -1068,22 +1070,6 @@ lfunsymsq(GEN ldata, GEN known, long prec)
   return gerepilecopy(ltop, L);
 }
 
-static GEN
-lfunellsymsq(GEN E)
-{
-  pari_sp ltop = avma;
-  long k = 2;
-  GEN ld, known, N, V;
-  checkell_Q(E);
-  E = ellanal_globalred(E, NULL);
-  known = lfunsymsqfind_ell(E);
-  N = gel(known,1);
-  V = gel(known,2);
-  ld = mkvecn(6, tag(E, t_LFUN_SYMSQ_ELL), gen_0,
-                 mkvec3(stoi(2-k), gen_0, gen_1), stoi(2*k-1), N, gen_1);
-  return gerepilecopy(ltop, mkvec2(ld, V));
-}
-
 static long
 lfunissymsq(GEN Vga)
 { return (lg(Vga) == 4) && lfunisvgaell(mkvec2(gel(Vga,2), gel(Vga,3)), 0); }
@@ -1181,7 +1167,7 @@ lfunellmfpetersmintwist(GEN E, long bitprec)
   pari_sp av = avma;
   GEN symsq, veceuler, N = ellQ_get_N(E), fudge = gen_1;
   long j, k = 2;
-  symsq = lfunellsymsq(E);
+  symsq = lfunellsymsqmintwist(E);
   veceuler = gel(symsq,2);
   for (j = 1; j < lg(veceuler); j++)
   {
