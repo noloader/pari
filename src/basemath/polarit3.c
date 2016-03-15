@@ -307,7 +307,7 @@ RgM_to_FpM(GEN x, GEN p)
   return z;
 }
 GEN
-RgC_to_Flc(GEN x, ulong p)
+RgV_to_Flv(GEN x, ulong p)
 {
   long l = lg(x), i;
   GEN a = cgetg(l, t_VECSMALL);
@@ -319,7 +319,7 @@ RgM_to_Flm(GEN x, ulong p)
 {
   long l, i;
   GEN a = cgetg_copy(x, &l);
-  for (i=1; i<l; i++) gel(a,i) = RgC_to_Flc(gel(x,i), p);
+  for (i=1; i<l; i++) gel(a,i) = RgV_to_Flv(gel(x,i), p);
   return a;
 }
 

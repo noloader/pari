@@ -95,7 +95,7 @@ point_to_a4a6_Fl(GEN E, GEN P, ulong p, ulong *pa4)
 {
   ulong c4 = Rg_to_Fl(ell_get_c4(E),p);
   *pa4 = Fl_c4_to_a4(c4, p);
-  return Fle_changepointinv(RgC_to_Flc(P,p), a4a6_ch_Fl(E,p), p);
+  return Fle_changepointinv(RgV_to_Flv(P,p), a4a6_ch_Fl(E,p), p);
 }
 
 void

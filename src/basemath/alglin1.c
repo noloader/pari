@@ -1542,7 +1542,7 @@ is_modular_solve(GEN a, GEN b, GEN *u)
         if (a) a = F2c_to_mod(a);
         break;
       default:
-        b = RgC_to_Flc(b, pp);
+        b = RgV_to_Flv(b, pp);
         a = Flm_Flc_gauss(a,b,pp);
         if (a) a = Flc_to_mod(a, pp);
         break;
@@ -3023,7 +3023,7 @@ RgM_RgC_invimage(GEN A, GEN y)
       if (x) x = F2c_to_mod(x);
       break;
     default:
-      y = RgC_to_Flc(y,pp);
+      y = RgV_to_Flv(y,pp);
       x = Flm_Flc_invimage(A, y, pp);
       if (x) x = Flc_to_mod(x,pp);
     }
