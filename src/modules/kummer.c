@@ -529,18 +529,18 @@ fix_kernel(GEN K, GEN M, GEN vecMsup, long lW, long ell)
     if (j != --idx) swap(gel(K, j), gel(K, idx));
     Kidx[idx] = i;
     if (coeff(K,i,idx) != 1)
-      Flc_Fl_div_inplace(gel(K,idx), coeff(K,i,idx), ell);
+      Flv_Fl_div_inplace(gel(K,idx), coeff(K,i,idx), ell);
     Ki = gel(K,idx);
     if (coeff(K,i,dK) != 1)
     {
       ulong t = Fl_sub(coeff(K,i,dK), 1, ell);
-      Flv_sub_inplace(gel(K,dK), Flc_Fl_mul(Ki, t, ell), ell);
+      Flv_sub_inplace(gel(K,dK), Flv_Fl_mul(Ki, t, ell), ell);
     }
     for (j = dK; --j > 0; )
     {
       if (j == idx) continue;
       if (coeff(K,i,j))
-        Flv_sub_inplace(gel(K,j), Flc_Fl_mul(Ki, coeff(K,i,j), ell), ell);
+        Flv_sub_inplace(gel(K,j), Flv_Fl_mul(Ki, coeff(K,i,j), ell), ell);
     }
   }
   /* ffree = first vector that is not "free" for the scalar products */
@@ -559,7 +559,7 @@ fix_kernel(GEN K, GEN M, GEN vecMsup, long lW, long ell)
       if (dotprod)
       {
         if (j != --ffree) swap(gel(K, j), gel(K, ffree));
-        if (dotprod != 1) Flc_Fl_div_inplace(gel(K, ffree), dotprod, ell);
+        if (dotprod != 1) Flv_Fl_div_inplace(gel(K, ffree), dotprod, ell);
         break;
       }
     }
@@ -579,13 +579,13 @@ fix_kernel(GEN K, GEN M, GEN vecMsup, long lW, long ell)
     if (dotprod != 1)
     {
       ulong t = Fl_sub(dotprod,1,ell);
-      Flv_sub_inplace(gel(K,dK), Flc_Fl_mul(Ki,t,ell), ell);
+      Flv_sub_inplace(gel(K,dK), Flv_Fl_mul(Ki,t,ell), ell);
     }
     for (j = dK; --j > 0; )
     {
       if (j == ffree) continue;
       dotprod = Flv_dotproduct(Msup, gel(K,j), ell);
-      if (dotprod) Flv_sub_inplace(gel(K,j), Flc_Fl_mul(Ki,dotprod,ell), ell);
+      if (dotprod) Flv_sub_inplace(gel(K,j), Flv_Fl_mul(Ki,dotprod,ell), ell);
     }
   }
   if (ell == 2)
@@ -850,7 +850,7 @@ FOUND:  X = Flm_Flc_mul(K, y, ell);
                 if (lg(K2) != 2) pari_err_BUG("linear algebra");
                 K2 = gel(K2,1);
                 if (K2[1] != K2[2])
-                  Flc_Fl_mul_inplace(colgrp, Fl_div(K2[2],K2[1],ell), ell);
+                  Flv_Fl_mul_inplace(colgrp, Fl_div(K2[2],K2[1],ell), ell);
               }
             }
             Flv_fill(gel(matgrp,rk), colgrp);

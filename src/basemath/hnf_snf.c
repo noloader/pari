@@ -1105,7 +1105,7 @@ zlm_echelon(GEN x, long early_abort, ulong p, ulong pm)
     /* pivot has valuation vmin */
     umin %= q;
     if (umin != 1)
-      Flc_Fl_mul_part_inplace(gel(x,def), Fl_inv(umin,q), pm, i-1);
+      Flv_Fl_mul_part_inplace(gel(x,def), Fl_inv(umin,q), pm, i-1);
     ucoeff(x, i, def) = pvmin = upowuu(p, vmin);
     for (j = def-1; j; j--)
     { /* zero x[i, 1..def-1] using x[i,def] = pvmin */

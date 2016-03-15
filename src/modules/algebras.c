@@ -1502,7 +1502,7 @@ _tablemul_ej_Fl(GEN mt, GEN x, long j, ulong p)
     ulong c = x[i];
     if (c) {
       GEN My = gel(gel(mt,i),j);
-      GEN t = Flc_Fl_mul(My,c, p);
+      GEN t = Flv_Fl_mul(My,c, p);
       res = res? Flv_add(res,t, p): t;
     }
   }

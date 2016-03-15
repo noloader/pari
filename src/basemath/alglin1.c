@@ -3090,7 +3090,7 @@ Flm_Flc_invimage(GEN A, GEN y, ulong p)
   if (!t) { avma = av; return NULL; }
 
   setlg(x,l); t = Fl_inv(Fl_neg(t,p),p);
-  if (t!=1) x = Flc_Fl_mul(x, t, p);
+  if (t!=1) x = Flv_Fl_mul(x, t, p);
   return gerepileuptoleaf(av, x);
 }
 GEN

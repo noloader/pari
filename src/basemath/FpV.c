@@ -260,7 +260,7 @@ FpC_Fp_mul(GEN x, GEN y, GEN p)
   return z;
 }
 GEN
-Flc_Fl_mul(GEN x, ulong y, ulong p)
+Flv_Fl_mul(GEN x, ulong y, ulong p)
 {
   long i, l = lg(x);
   GEN z = cgetg(l, t_VECSMALL);
@@ -268,14 +268,14 @@ Flc_Fl_mul(GEN x, ulong y, ulong p)
   return z;
 }
 GEN
-Flc_Fl_div(GEN x, ulong y, ulong p)
+Flv_Fl_div(GEN x, ulong y, ulong p)
 {
-  return Flc_Fl_mul(x, Fl_inv(y, p), p);
+  return Flv_Fl_mul(x, Fl_inv(y, p), p);
 }
 void
-Flc_Fl_div_inplace(GEN x, ulong y, ulong p)
+Flv_Fl_div_inplace(GEN x, ulong y, ulong p)
 {
-  Flc_Fl_mul_inplace(x, Fl_inv(y, p), p);
+  Flv_Fl_mul_inplace(x, Fl_inv(y, p), p);
 }
 GEN
 FpM_Fp_mul(GEN X, GEN c, GEN p) {
@@ -294,14 +294,14 @@ FpM_Fp_mul(GEN X, GEN c, GEN p) {
 
 /* x *= y */
 void
-Flc_Fl_mul_part_inplace(GEN x, ulong y, ulong p, long l)
+Flv_Fl_mul_part_inplace(GEN x, ulong y, ulong p, long l)
 {
   long i;
   for (i=1;i<=l;i++) x[i] = Fl_mul(x[i], y, p);
 }
 void
-Flc_Fl_mul_inplace(GEN x, ulong y, ulong p)
-{ Flc_Fl_mul_part_inplace(x, y, p, lg(x)-1); }
+Flv_Fl_mul_inplace(GEN x, ulong y, ulong p)
+{ Flv_Fl_mul_part_inplace(x, y, p, lg(x)-1); }
 
 /* set y *= x */
 void

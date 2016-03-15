@@ -3805,19 +3805,19 @@ pseudo inverse of $p$.
 \fun{void}{Flm_Fl_mul_inplace}{GEN x, ulong y, ulong p} replaces
 the \kbd{Flm} \kbd{x} by $\kbd{x}*\kbd{y}$.
 
-\fun{GEN}{Flc_Fl_mul}{GEN x, ulong y, ulong p} multiplies the \kbd{Flv}
+\fun{GEN}{Flv_Fl_mul}{GEN x, ulong y, ulong p} multiplies the \kbd{Flv}
 \kbd{x} by \kbd{y}.
 
-\fun{void}{Flc_Fl_mul_inplace}{GEN x, ulong y, ulong p} replaces
+\fun{void}{Flv_Fl_mul_inplace}{GEN x, ulong y, ulong p} replaces
 the \kbd{Flc} \kbd{x} by $\kbd{x}*\kbd{y}$.
 
-\fun{void}{Flc_Fl_mul_part_inplace}{GEN x, ulong y, ulong p, long l}
+\fun{void}{Flv_Fl_mul_part_inplace}{GEN x, ulong y, ulong p, long l}
 multiplies $x[1..l]$ by $y$ modulo $p$. In place.
 
-\fun{GEN}{Flc_Fl_div}{GEN x, ulong y, ulong p} divides the \kbd{Flv}
+\fun{GEN}{Flv_Fl_div}{GEN x, ulong y, ulong p} divides the \kbd{Flv}
 \kbd{x} by \kbd{y}.
 
-\fun{void}{Flc_Fl_div_inplace}{GEN x, ulong y, ulong p} replaces
+\fun{void}{Flv_Fl_div_inplace}{GEN x, ulong y, ulong p} replaces
 the \kbd{Flv} \kbd{x} by $\kbd{x}/\kbd{y}$.
 
 \fun{void}{Flc_lincomb1_inplace}{GEN X, GEN Y, ulong v, ulong q}
