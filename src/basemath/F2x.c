@@ -1656,6 +1656,16 @@ Flm_to_F2m(GEN x)
   return y;
 }
 
+GEN
+const_F2v(long m)
+{
+  long i, l = nbits2lg(m);
+  GEN c = cgetg(l, t_VECSMALL);
+  for (i = 2; i <= l; i++) c[i] = -1;
+  if (remsBIL(m)) c[l] = (1UL<<remsBIL(m))-1UL;
+  return c;
+}
+
 /* Allow lg(y)<lg(x) */
 void
 F2v_add_inplace(GEN x, GEN y)

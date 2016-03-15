@@ -454,10 +454,7 @@ F2m_ker_sp(GEN x, long deplin)
   m = mael(x,1,1); r=0;
 
   d = cgetg(n+1, t_VECSMALL);
-  c = zero_F2v(m);
-  l = lg(c)-1;
-  for (i = 2; i <= l; i++) c[i] = -1;
-  if (remsBIL(m)) c[l] = (1uL<<remsBIL(m))-1uL;
+  c = const_F2v(m); l = lg(c)-1;
   for (k=1; k<=n; k++)
   {
     GEN xk = gel(x,k);
@@ -858,10 +855,7 @@ F2m_gauss_pivot(GEN x, long *rr)
   m = mael(x,1,1); r=0;
 
   d = cgetg(n+1, t_VECSMALL);
-  c = zero_F2v(m);
-  l = lg(c)-1;
-  for (i = 2; i <= l; i++) c[i] = -1;
-  if (remsBIL(m)) c[l] = (1uL<<remsBIL(m))-1uL;
+  c = const_F2v(m); l = lg(c)-1;
   for (k=1; k<=n; k++)
   {
     GEN xk = gel(x,k);

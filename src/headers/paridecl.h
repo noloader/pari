@@ -149,6 +149,7 @@ GEN     ZM_to_F2m(GEN x);
 GEN     ZV_to_F2v(GEN x);
 GEN     ZX_to_F2x(GEN x);
 GEN     ZXX_to_F2xX(GEN B, long v);
+GEN     const_F2v(long m);
 GEN     gener_F2xq(GEN T, GEN *po);
 const struct bb_field *get_F2xq_field(void **E, GEN T);
 GEN     monomial_F2x(long d, long vs);
