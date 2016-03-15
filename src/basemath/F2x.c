@@ -1561,7 +1561,7 @@ F2m_to_mod(GEN z)
 }
 
 GEN
-F2c_to_Flc(GEN x)
+F2v_to_Flv(GEN x)
 {
   long l=x[1]+1;
   GEN  z=cgetg(l, t_VECSMALL);
@@ -1577,7 +1577,7 @@ F2m_to_Flm(GEN z)
 {
   long i, l = lg(z);
   GEN x = cgetg(l,t_MAT);
-  for (i=1; i<l; i++) gel(x,i) = F2c_to_Flc(gel(z,i));
+  for (i=1; i<l; i++) gel(x,i) = F2v_to_Flv(gel(z,i));
   return x;
 }
 
