@@ -3714,7 +3714,7 @@ RgMs_structelim_col(GEN M, long nbcol, long nbrow, GEN A, GEN *p_col, GEN *p_row
 void
 RgMs_structelim(GEN M, long nbrow, GEN A, GEN *p_col, GEN *p_row)
 {
-  return RgMs_structelim_col(M, lg(M)-1, nbrow, A, p_col, p_row);
+  RgMs_structelim_col(M, lg(M)-1, nbrow, A, p_col, p_row);
 }
 
 /*******************************************************************/
