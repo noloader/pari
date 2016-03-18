@@ -443,4 +443,8 @@ d(-62626/622201*y - 860751/622201, y^2 - 5), x^10 + 5*x^9 + 15*x^8 + 30*x^7
   ***                 ^--------------------
   *** nfcompositum: incorrect priority in nffactor: variable y >= x
 [x^3 - 3*x^2 + 3*x + 1, x^6 + 3*x^5 + 6*x^4 + 11*x^3 + 12*x^2 - 3*x + 1]
-Total time spent: 1271
+  ***   at top-level: nfcompositum(bnfinit
+  ***                 ^--------------------
+  *** nfcompositum: incorrect priority in polcompositum: variable x == x
+[x^3 - 3*x^2 + 3*x + 1, x^6 + 3*x^5 + 6*x^4 + 11*x^3 + 12*x^2 - 3*x + 1]
+Total time spent: 1629

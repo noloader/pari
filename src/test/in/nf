@@ -112,3 +112,6 @@ nfcompositum(nfinit(x^2+1),x^3-2,x^3-1)
 nfcompositum(nfinit(x-1),y^3-2,y^3-1)
 nfcompositum(nfinit(y-1),x^3-2,x^3-1)
 
+\\#1796
+nfcompositum(bnfinit(x),x^3-2,x^3-1)
+nfcompositum(bnfinit(y),x^3-2,x^3-1)
