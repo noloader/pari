@@ -547,12 +547,12 @@ tailresback(long LIMC, double LIMC2, double LIMC3, long R1, long R2, double rK, 
 static double
 tailres(long R1, long R2, double al2K, double rKm, double rKM, double r1Km, double r1KM, double r2Km, double r2KM, long LIMC)
 {
-  const double logLIMC = log(LIMC), logLIMC2 = logLIMC*logLIMC;
+  const double logLIMC = log((double)LIMC), logLIMC2 = logLIMC*logLIMC;
   const double logLIMC3 = logLIMC*logLIMC2;
   const double E1 = rtodbl(eint1(dbltor(logLIMC/2), DEFAULTPREC));
   const double LIMC2 = LIMC*LIMC, LIMC3 = LIMC*LIMC2;
   return
-    al2K*((33*logLIMC2+22*logLIMC+8)/(8*logLIMC3*sqrt(LIMC))+15*E1/16)
+    al2K*((33*logLIMC2+22*logLIMC+8)/(8*logLIMC3*sqrt((double)LIMC))+15*E1/16)
      + maxdd(
             tailresback(LIMC,LIMC2,LIMC3,R1,R2,rKm,r1KM,r2Km,logLIMC,logLIMC2,logLIMC3),
             tailresback(LIMC,LIMC2,LIMC3,R1,R2,rKM,r1Km,r2KM,logLIMC,logLIMC2,logLIMC3)
@@ -629,10 +629,10 @@ compute_invres(GRHcheck_t *S, long LIMC)
   double loginvres = 0.;
   GRHprime_t *pr;
   long i;
-  double logLIMC = log(LIMC);
+  double logLIMC = log((double)LIMC);
   double logLIMC2 = logLIMC*logLIMC, denc;
   double c0, c1, c2;
-  denc = 1/(pow(LIMC, 3) * logLIMC * logLIMC2);
+  denc = 1/(pow((double)LIMC, 3.) * logLIMC * logLIMC2);
   c2 = (    logLIMC2 + 3 * logLIMC / 2 + 1) * denc;
   denc *= LIMC;
   c1 = (3 * logLIMC2 + 4 * logLIMC     + 2) * denc;
@@ -660,8 +660,8 @@ compute_invres(GRHcheck_t *S, long LIMC)
       loginvres += 1/(k * NPk);
     }
     addpsi = limp;
-    addpsi1 = p *(pow(p , limp)-1)/(p -1);
-    addpsi2 = p2*(pow(p2, limp)-1)/(p2-1);
+    addpsi1 = p *(pow((double)p , (double)limp)-1)/(p -1);
+    addpsi2 = p2*(pow((double)p2, (double)limp)-1)/(p2-1);
     j = lg(fs);
     while (--j > 0)
     {
@@ -669,7 +669,7 @@ compute_invres(GRHcheck_t *S, long LIMC)
       double NP, NP2, addinvres;
       f = fs[j]; if (f > limp) continue;
       nb = ns[j];
-      NP = pow(p, f);
+      NP = pow((double)p, (double)f);
       addinvres = 1/NP;
       kmax = limp / f;
       for (k = 2, NPk = NP; k <= kmax; k++)
@@ -680,8 +680,8 @@ compute_invres(GRHcheck_t *S, long LIMC)
       NP2 = NP*NP;
       loginvres -= nb * addinvres;
       addpsi -= nb * f * kmax;
-      addpsi1 -= nb*(f*NP *(pow(NP ,kmax)-1)/(NP -1));
-      addpsi2 -= nb*(f*NP2*(pow(NP2,kmax)-1)/(NP2-1));
+      addpsi1 -= nb*(f*NP *(pow(NP ,(double)kmax)-1)/(NP -1));
+      addpsi2 -= nb*(f*NP2*(pow(NP2,(double)kmax)-1)/(NP2-1));
     }
     loginvres -= (addpsi*c0 - addpsi1*c1 + addpsi2*c2)*logp;
   }
@@ -803,7 +803,7 @@ FBgen(FB_t *F, GEN nf, long N, ulong C1, ulong C2, GRHcheck_t *S)
 static int
 GRHchk(GEN nf, GRHcheck_t *S, ulong LIMC)
 {
-  double logC = log((ulong)LIMC), SA = 0, SB = 0;
+  double logC = log((double)LIMC), SA = 0, SB = 0;
   GRHprime_t *pr = S->primes;
 
   cache_prime_dec(S, LIMC, nf);
@@ -823,13 +823,13 @@ GRHchk(GEN nf, GRHcheck_t *S, ulong LIMC)
       double logNP, q, A, B;
       if (f > logCslogp) break;
       logNP = f * pr->logp;
-      q = 1/sqrt(upowuu(p, f));
+      q = 1/sqrt((double)upowuu(p, f));
       A = logNP * q; B = logNP * A; M = (long)(logCslogp/f);
       if (M > 1)
       {
         double inv1_q = 1 / (1-q);
-        A *= (1 - pow(q, M)) * inv1_q;
-        B *= (1 - pow(q, M)*(M+1 - M*q)) * inv1_q * inv1_q;
+        A *= (1 - pow(q, (double)M)) * inv1_q;
+        B *= (1 - pow(q, (double)M)*(M+1 - M*q)) * inv1_q * inv1_q;
       }
       nb = ns[j];
       SA += nb * A;
