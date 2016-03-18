@@ -4588,7 +4588,7 @@ qfi_Shanks(GEN a, GEN g, long n)
   a = redimag(a);
   g = redimag(g);
 
-  rt_n = sqrt(n);
+  rt_n = sqrt((double)n);
   c = n / rt_n;
   c = (c * rt_n < n + 1) ? c + 1 : c;
 

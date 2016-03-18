@@ -327,7 +327,7 @@ compute_invresquad(GRHcheck_t *S)
   GEN invres = real_1(DEFAULTPREC);
   GRHprime_t *pr = S->primes;
   long i = S->nprimes, LIMC = GRH_last_prime(S)+diffptr[i]-1; /* nextprime(p+1)-1*/
-  double limp = log(LIMC) / 2;
+  double limp = log((double)LIMC) / 2;
   for (; i > 0; pr++, i--)
   {
     long s = (long)pr->dec;
@@ -402,8 +402,8 @@ quadGRHchk(GEN D, GRHcheck_t *S, ulong LIMC)
     if (M > 1)
     {
       double inv1_q = 1 / (1-q);
-      A *= (1 - pow(q, M)) * inv1_q;
-      B *= (1 - pow(q, M)*(M+1 - M*q)) * inv1_q * inv1_q;
+      A *= (1 - pow(q, (double) M)) * inv1_q;
+      B *= (1 - pow(q, (double) M)*(M+1 - M*q)) * inv1_q * inv1_q;
     }
     if ((long)pr->dec>0) { SA += 2*A;SB += 2*B; } else { SA += A; SB += B; }
   }
