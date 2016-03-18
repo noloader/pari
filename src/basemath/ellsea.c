@@ -1251,7 +1251,7 @@ find_trace(GEN a4, GEN a6, GEN j, ulong ell, GEN q, GEN T, GEN p, long *ptr_kt,
   struct meqn MEQN;
   pari_timer ti;
 
-  kt = maxss((long)(log(expi(q)*LOG2)/log(ell)), 1);
+  kt = maxss((long)(log(expi(q)*LOG2)/log((double)ell)), 1);
   if (DEBUGLEVEL)
   { err_printf("SEA: Prime %5ld ", ell); timer_start(&ti); }
   (void) get_modular_eqn(&MEQN, ell, vx, vy);

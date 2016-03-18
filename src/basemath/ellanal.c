@@ -155,7 +155,7 @@ logboundG0(long e, double aY)
   double cla, loggam;
   cla = 1 + 1/sqrt(aY);
   if (e) cla = ( cla + 1/(2*aY) ) / (2*sqrt(aY));
-  loggam = (e) ? log(2)-aY : -aY + log( log( 1+1/aY) );
+  loggam = (e) ? LOG2-aY : -aY + log( log( 1+1/aY) );
   return log(cla) + loggam;
 }
 
@@ -170,7 +170,7 @@ param_points(GEN N, double Y, double tmax, long bprec, long *cprec, long *L,
   *cprec = nbits2prec(ceil(D / LOG2) + 5);
   a = 2 * M_PI / sqrt(gtodouble(N));
   aY = a * cos(M_PI/2*Y);
-  logM = log(4) + logboundG0(w+1, aY) + tmax * Y * M_PI/2;
+  logM = 2*LOG2 + logboundG0(w+1, aY) + tmax * Y * M_PI/2;
   *h = ( 2 * M_PI * M_PI / 2 * Y ) / ( D + logM );
   X = log( D / a);
   *L = ceil( X / *h);

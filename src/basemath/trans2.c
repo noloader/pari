@@ -825,7 +825,7 @@ mpbern(long nb, long prec)
     /* Not cached, must compute */
     /* huge accuracy ? May as well compute exactly */
     if (n_is_small && (prec == LONG_MAX ||
-                       2*n * log(2*n) < prec2nbits_mul(prec, LOG2)))
+                       2*n * log((double)2*n) < prec2nbits_mul(prec, LOG2)))
       S = bernfrac_using_zeta(2*n);
     else
     {

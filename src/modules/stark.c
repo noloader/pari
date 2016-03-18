@@ -2861,7 +2861,7 @@ GEN
 qfbforms(GEN D)
 {
   ulong d = itou(D), dover3 = d/3, t, b2, a, b, c, h;
-  GEN L = cgetg((long)(sqrt(d) * log2(d)), t_VEC);
+  GEN L = cgetg((long)(sqrt((double)d) * log2(d)), t_VEC);
   b2 = b = (d&1); h = 0;
   if (!b) /* b = 0 treated separately to avoid special cases */
   {

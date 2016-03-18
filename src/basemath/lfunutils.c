@@ -566,7 +566,7 @@ dirzetak0(GEN nf, ulong N)
 {
   GEN vect, c, c2, T = nf_get_pol(nf), index = nf_get_index(nf);
   pari_sp av = avma, av2;
-  const ulong SQRTN = (ulong)(sqrt(N) + 1e-3);
+  const ulong SQRTN = usqrt(N);
   ulong i, p, lx;
   long court[] = {evaltyp(t_INT)|_evallg(3), evalsigne(1)|evallgefint(3),0};
   forprime_t S;

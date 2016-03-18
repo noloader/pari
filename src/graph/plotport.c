@@ -461,7 +461,7 @@ rectticks(PARI_plot *WW, long ne,
   if (dx > 1000 || dy > 1000)
     dxy = 1000; /* avoid overflow */
   else
-    dxy = (long)sqrt(dx*dx + dy*dy);
+    dxy = usqrt(dx*dx + dy*dy);
   nticks = (long) ((dxy + 2.5)/4);
   if (!nticks) return;
 
@@ -478,7 +478,7 @@ rectticks(PARI_plot *WW, long ne,
     l_min = l2, l_max = l1;
   minstep = (l_max - l_min)/(nticks + 1);
   maxstep = 2.5*(l_max - l_min);
-  step = exp(log(10) * floor(log10(minstep)));
+  step = exp(log(10.) * floor(log10(minstep)));
   if (!(flags & TICKS_ENDSTOO)) {
     double d = 2*(l_max - l_min)/dxy1;        /* Two pixels off */
 

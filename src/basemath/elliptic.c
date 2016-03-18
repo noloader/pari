@@ -5112,7 +5112,7 @@ anellsmall(GEN e, long n0)
   if (n0 <= 0) return cgetg(1,t_VEC);
   if (n >= LGBITS)
     pari_err_IMPL( stack_sprintf("ellan for n >= %lu", LGBITS) );
-  SQRTn = (ulong)sqrt(n);
+  SQRTn = usqrt(n);
   CM = ellQ_get_CM(e);
 
   an = const_vecsmall(n, LONG_MAX);

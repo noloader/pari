@@ -1268,8 +1268,8 @@ mpveceint1(GEN C, GEN eC, long N)
   if (Nmin == N) { avma = av0; return w; }
 
   DL = prec2nbits_mul(prec, LOG2) + 5;
-  jmin = ceil(DL/log(N)) + 1;
-  jmax = ceil(DL/log(Nmin)) + 1;
+  jmin = ceil(DL/log((double)N)) + 1;
+  jmax = ceil(DL/log((double)Nmin)) + 1;
   v = sum_jall(C, jmax, prec);
   en = powrs(eC, -N); /* exp(-N C) */
   affrr(incgam_0(mulru(C,N), invr(en)), gel(w,N));
@@ -1474,7 +1474,7 @@ inv_szeta_euler(long n, double lba, long prec)
   if (n > prec2nbits(prec)) return real_1(prec);
 
   if (!lba) lba = prec2nbits_mul(prec, LOG2);
-  D = exp((lba - log(n-1)) / (n-1));
+  D = exp((lba - log((double)(n-1))) / (n-1));
   lim = 1 + (ulong)ceil(D);
   if (lim < 3) return subir(gen_1,real2n(-n,prec));
   res = cgetr(prec); incrprec(prec);
@@ -1485,7 +1485,7 @@ inv_szeta_euler(long n, double lba, long prec)
   av2 = avma; A = n / LOG2;
   while ((p = u_forprime_next(&S)))
   {
-    long l = prec2nbits(prec) - (long)floor(A * log(p)) - BITS_IN_LONG;
+    long l = prec2nbits(prec) - (long)floor(A * log((double)p)) - BITS_IN_LONG;
     GEN h;
 
     if (l < BITS_IN_LONG) l = BITS_IN_LONG;
@@ -1531,7 +1531,7 @@ bernfrac_using_zeta(long n)
     if (uisprime(p)) d = muliu(d, p);
   }
   /* 1.712086 = ??? */
-  t = log( gtodouble(d) ) + (n + 0.5) * log(n) - n*(1+log2PI) + 1.712086;
+  t = log( gtodouble(d) ) + (n + 0.5) * log((double)n) - n*(1+log2PI) + 1.712086;
   u = t / LOG2; prec = nbits2prec((long)ceil(u) + BITS_IN_LONG);
   iz = inv_szeta_euler(n, t, prec);
   a = roundr( mulir(d, bernreal_using_zeta(n, iz, prec)) );
@@ -1546,7 +1546,7 @@ bernreal_use_zeta(long k, long prec)
     GEN B = gel(bernzone,(k>>1)+1);
     if (typ(B) != t_REAL || realprec(B) >= prec) return 0;
   }
-  return (k * (log(k) - 2.83) > prec2nbits_mul(prec, LOG2));
+  return (k * (log((double)k) - 2.83) > prec2nbits_mul(prec, LOG2));
 }
 
 /* Return B_n */
@@ -1570,7 +1570,7 @@ bernreal(long n, long prec)
     if (realprec(B) >= prec) return rtor(B, prec);
   }
   /* not cached, must compute */
-  if (n * log(n) > prec2nbits_mul(prec, LOG2))
+  if (n * log((double)n) > prec2nbits_mul(prec, LOG2))
     B = storeB = bernreal_using_zeta(n, NULL, prec);
   else
   {
