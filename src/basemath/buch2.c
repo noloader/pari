@@ -3943,6 +3943,7 @@ Buchall_param(GEN P, double cbach, double cbach2, long nbrelpid, long flun, long
   GEN auts, cyclic;
   const char *precpb = NULL;
   int FIRST = 1, class1 = 0;
+  nfbasic_t nfT;
   RELCACHE_t cache;
   FB_t F;
   GRHcheck_t GRHcheck;
@@ -3951,35 +3952,60 @@ Buchall_param(GEN P, double cbach, double cbach2, long nbrelpid, long flun, long
   if (DEBUGLEVEL) timer_start(&T);
   P = get_nfpol(P, &nf);
   if (nf)
+  {
     PRECREG = nf_get_prec(nf);
+    D = nf_get_disc(nf);
+  }
   else
   {
     PRECREG = maxss(prec, MEDDEFAULTPREC);
-    nf = nfinit(P, PRECREG);
-    if (lg(nf)==3) { /* P non-monic and nfinit CHANGEd it ? */
-      pari_warn(warner,"non-monic polynomial. Change of variables discarded");
-      nf = gel(nf,1);
-      P = nf_get_pol(nf);
+    nfinit_step1(&nfT, P, 0);
+    D = nfT.dK;
+    if (!equali1(leading_term(nfT.x0)))
+    {
+      pari_warn(warner,"non-monic polynomial in bnfinit, using polredbest");
+      P = nfT.x; /* P non-monic, change it */
     }
   }
   N = degpol(P);
-  if (N <= 1) return gerepilecopy(av0, Buchall_deg1(nf));
+  if (N <= 1)
+  {
+    if (!nf) nf = nfinit_step2(&nfT, 0, PRECREG);
+    return gerepilecopy(av0, Buchall_deg1(nf));
+  }
+  D = absi(D);
+  LOGD = dbllog2(D) * LOG2;
+  LOGD2 = LOGD*LOGD;
+  LIMCMAX = (long)(12.*LOGD2);
+  /* In small_norm, LLL reduction produces v0 in I such that
+   *     T2(v0) <= (4/3)^((n-1)/2) NI^(2/n) disc(K)^(1/n)
+   * We consider v with T2(v) <= BMULT * T2(v0)
+   * Hence Nv <= ((4/3)^((n-1)/2) * BMULT / n)^(n/2) NI sqrt(disc(K)).
+   * NI <= LIMCMAX^2 */
+  small_norm_prec = nbits2prec( BITS_IN_LONG +
+    (N/2. * ((N-1)/2.*log(4./3) + log(BMULT/(double)N))
+     + 2*log(LIMCMAX) + LOGD/2) / LOG2 ); /* enough to compute norms */
+  if (small_norm_prec > PRECREG) PRECREG = small_norm_prec;
+  if (!nf)
+    nf = nfinit_step2(&nfT, 0, PRECREG);
+  else if (nf_get_prec(nf) < PRECREG)
+    nf = nfnewprec_shallow(nf, PRECREG);
+  M_sn = nf_get_M(nf);
+  if (PRECREG > small_norm_prec) M_sn = gprec_w(M_sn, small_norm_prec);
+
   zu = rootsof1(nf);
   gel(zu,2) = nf_to_scalar_or_alg(nf, gel(zu,2));
-  if (DEBUGLEVEL) timer_printf(&T, "nfinit & rootsof1");
 
   auts = automorphism_matrices(nf, &F.invs, &cyclic);
-  if (DEBUGLEVEL) timer_printf(&T, "automorphisms");
   F.embperm = automorphism_perms(nf_get_M(nf), auts, cyclic, N);
-  if (DEBUGLEVEL) timer_printf(&T, "complex embedding permutations");
 
   nf_get_sign(nf, &R1, &R2); RU = R1+R2;
   compute_vecG(nf, &F, minss(RU, 9));
-  if (DEBUGLEVEL) timer_printf(&T, "weighted G matrices");
-  D = absi(nf_get_disc(nf));
-  if (DEBUGLEVEL) err_printf("R1 = %ld, R2 = %ld\nD = %Ps\n",R1,R2, D);
-  LOGD = dbllog2(D) * LOG2;
-  LOGD2 = LOGD*LOGD;
+  if (DEBUGLEVEL)
+  {
+    timer_printf(&T, "nfinit & rootsof1");
+    err_printf("R1 = %ld, R2 = %ld\nD = %Ps\n",R1,R2, D);
+  }
   if (LOGD < 20.) /* tiny disc, Minkowski *may* be smaller than Bach */
   {
     lim = exp(-N + R2 * log(4/M_PI) + LOGD/2) * sqrt(2*M_PI*N);
@@ -3997,7 +4023,6 @@ Buchall_param(GEN P, double cbach, double cbach2, long nbrelpid, long flun, long
   cache.base = NULL; F.subFB = NULL; F.LP = NULL;
   init_GRHcheck(&GRHcheck, N, R1, LOGD);
   high = low = LIMC0 = maxss((long)(cbach2*LOGD2), 1);
-  LIMCMAX = (long)(12.*LOGD2);
   while (!GRHchk(nf, &GRHcheck, high))
   {
     low = high;
@@ -4056,25 +4081,6 @@ START:
   FBgen(&F, nf, N, LIMC, LIMC2, &GRHcheck);
   if (!F.KC) goto START;
   av = avma;
- /* In small_norm, LLL reduction produces v0 in I such that
-  *     T2(v0) <= (4/3)^((n-1)/2) NI^(2/n) disc(K)^(1/n)
-  * We consider v with T2(v) <= BMULT * T2(v0)
-  * Hence Nv <= ((4/3)^((n-1)/2) * BMULT / n)^(n/2) NI sqrt(disc(K)).
-  * NI <= LIMC2^2 */
-  small_norm_prec = nbits2prec( BITS_IN_LONG + (long)ceil(
-    (N/2. * ((N-1)/2.*log(4./3) + log(BMULT/(double)N)) + 2*log(LIMC2) + LOGD/2)
-      / LOG2)); /* enough to compute norms */
-  if (small_norm_prec > PRECREG)
-  {
-    GEN nf0 = nf;
-    PRECREG = small_norm_prec;
-    nf = gclone( nfnewprec_shallow(nf, PRECREG) );
-    if (precdouble) gunclone(nf0);
-    precdouble++;
-  }
-  M_sn = nf_get_M(nf);
-  if (small_norm_prec < PRECREG) M_sn = gprec_w(M_sn, small_norm_prec);
-  else if (precdouble) M_sn = gcopy(M_sn);
   subFBgen(&F,nf,auts,cyclic,lim < 0? LIMC2: mindd(lim,LIMC2),MINSFB);
   if (DEBUGLEVEL)
   {

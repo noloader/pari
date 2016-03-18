@@ -1949,6 +1949,57 @@ nfbasic_init(GEN x, long flag, nfbasic_t *T)
   T->index = index;
 }
 
+void
+nfinit_step1(nfbasic_t *T, GEN x, long flag)
+{
+  nfbasic_init(x, flag, T);
+  if (!ZX_is_irred(T->x)) pari_err_IRREDPOL("nfinit",x);
+}
+
+GEN
+nfinit_step2(nfbasic_t *T, long flag, long prec)
+{
+  GEN nf, unscale;
+
+  if (!equali1(leading_term(T->x0)) && !(flag & nf_RED))
+  {
+    pari_warn(warner,"non-monic polynomial. Result of the form [nf,c]");
+    flag |= nf_RED | nf_ORIG;
+  }
+  unscale = T->unscale;
+  if (!(flag & nf_RED) && !isint1(unscale))
+  { /* implies lc(x0) = 1 and L := 1/unscale is integral */
+    long d = degpol(T->x0);
+    GEN L = ginv(unscale); /* x = L^(-deg(x)) x0(L X) */
+    GEN f= powiu(L, (d*(d-1)) >> 1);
+    T->x = T->x0; /* restore original user-supplied x0, unscale data */
+    T->unscale = gen_1;
+    T->dx    = gmul(T->dx, sqri(f));
+    T->bas   = RgXV_unscale(T->bas, unscale);
+    T->index = gmul(T->index, f);
+  }
+  nfbasic_add_disc(T); /* more expensive after set_LLL_basis */
+  if (flag & nf_RED)
+  {
+    GEN ro, rev;
+    /* lie to polred: more efficient to update *after* modreverse, than to
+     * unscale in the polred subsystem */
+    T->unscale = gen_1;
+    rev = nfpolred(T, &ro);
+    nf = nfbasic_to_nf(T, ro, prec);
+    if (flag & nf_ORIG)
+    {
+      if (!rev) rev = pol_x(varn(T->x)); /* no improvement */
+      if (!isint1(unscale)) rev = RgX_Rg_div(rev, unscale);
+      nf = mkvec2(nf, mkpolmod(rev, T->x));
+    }
+    T->unscale = unscale; /* restore */
+  } else {
+    GEN ro; set_LLL_basis(T, &ro, 0.99);
+    nf = nfbasic_to_nf(T, ro, prec);
+  }
+  return nf;
+}
 /* Initialize the number field defined by the polynomial x (in variable v)
  * flag & nf_RED:     try a polred first.
  * flag & nf_ORIG
@@ -1958,49 +2009,12 @@ GEN
 nfinitall(GEN x, long flag, long prec)
 {
   const pari_sp av = avma;
-  GEN nf, unscale;
   nfbasic_t T;
+  GEN nf;
 
   if (checkrnf_i(x)) return check_and_build_nfabs(x, prec);
-  nfbasic_init(x, flag, &T);
-  if (!ZX_is_irred(T.x)) pari_err_IRREDPOL("nfinit",x);
-  if (!equali1(leading_term(T.x0)) && !(flag & nf_RED))
-  {
-    pari_warn(warner,"non-monic polynomial. Result of the form [nf,c]");
-    flag |= nf_RED | nf_ORIG;
-  }
-  unscale = T.unscale;
-  if (!(flag & nf_RED) && !isint1(unscale))
-  { /* implies lc(x0) = 1 and L := 1/unscale is integral */
-    long d = degpol(T.x0);
-    GEN L = ginv(unscale); /* x = L^(-deg(x)) x0(L X) */
-    GEN f= powiu(L, (d*(d-1)) >> 1);
-    T.x = T.x0; /* restore original user-supplied x0, unscale data */
-    T.unscale = gen_1;
-    T.dx    = gmul(T.dx, sqri(f));
-    T.bas   = RgXV_unscale(T.bas, unscale);
-    T.index = gmul(T.index, f);
-  }
-  nfbasic_add_disc(&T); /* more expensive after set_LLL_basis */
-  if (flag & nf_RED)
-  {
-    GEN ro, rev;
-    /* lie to polred: more efficient to update *after* modreverse, than to
-     * unscale in the polred subsystem */
-    T.unscale = gen_1;
-    rev = nfpolred(&T, &ro);
-    nf = nfbasic_to_nf(&T, ro, prec);
-    if (flag & nf_ORIG)
-    {
-      if (!rev) rev = pol_x(varn(T.x)); /* no improvement */
-      if (!isint1(unscale)) rev = RgX_Rg_div(rev, unscale);
-      nf = mkvec2(nf, mkpolmod(rev, T.x));
-    }
-    T.unscale = unscale; /* restore */
-  } else {
-    GEN ro; set_LLL_basis(&T, &ro, 0.99);
-    nf = nfbasic_to_nf(&T, ro, prec);
-  }
+  nfinit_step1(&T, x, flag);
+  nf = nfinit_step2(&T, flag, prec);
   return gerepilecopy(av, nf);
 }
 

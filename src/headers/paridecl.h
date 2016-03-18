@@ -1725,6 +1725,8 @@ long    nf_get_prec(GEN x);
 GEN     nfcertify(GEN x);
 GEN     nfgaloismatrix(GEN nf, GEN s);
 GEN     nfgaloispermtobasis(GEN nf, GEN gal);
+void    nfinit_step1(nfbasic_t *T, GEN x, long flag);
+GEN     nfinit_step2(nfbasic_t *T, long flag, long prec);
 GEN     nfinit(GEN x, long prec);
 GEN     nfinit0(GEN x, long flag, long prec);
 GEN     nfinitall(GEN x, long flag, long prec);
