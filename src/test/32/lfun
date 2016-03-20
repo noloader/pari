@@ -143,6 +143,9 @@
 x^3 - x - 1
 Curve y^2+(x^3+x^2+1)*y = x^2+x
 -63
+Curve y^2+(x^2+x)*y = x^6+3*x^5+6*x^4+7*x^3+6*x^2+3*x+1
+  *** lfungenus2: Warning: unknown valuation of conductor at 2.
+-59
 Curve y^2=x^5 + x
 -125
 [0, 0, -1]
@@ -233,4 +236,4 @@ check all formats
 1
 [6, 184]
 [[12, 126], [12, 126], [5, 125]]
-Total time spent: 5984
+Total time spent: 5996
