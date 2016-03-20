@@ -654,91 +654,90 @@ lfunproduct(GEN ldata, GEN linit1, GEN linit2, GEN domain)
   return lfuninit_make(t_LDESC_PRODUCT, ldata, M3, domain);
 }
 
-/* Initialization without assuming Artin's conjecture. */
 static GEN
-lfunzetaKinit(GEN T, GEN dom, long der, long bitprec)
+lfunzetakinit_raw(GEN T, GEN dom, long der, long bitprec)
 {
   pari_sp ltop = avma;
   GEN ldata = lfunzetak_i(T);
   return gerepileupto(ltop, lfuninit(ldata, dom, der, bitprec));
 }
 
-/* From now on we assume the Artin conjecture that z_K(s) is divisible by
-* z_k(s) for all subfields k of K. The output is always a d-component
-* vector of lfuninits (including d=1), of which we must take the product.
-* nf is a true nf */
 static GEN
-lfunzetaKQinit(GEN nf, GEN dom, long der, long bitprec)
-{
-  pari_sp ltop = avma;
-  GEN an, Vga, ldata, N, LKQ, LQ, domain, T = nf_get_pol(nf);
-  long r1, r2;
-
-  LQ = lfunzetainit(dom, der, bitprec);
-  if (degpol(T) == 1) return LQ;
-  N = absi(nf_get_disc(nf));
-  nf_get_sign(nf,&r1,&r2);
-  Vga = vec01(r1+r2-1,r2);
-  an = tag(mkvec2(tag(nf, t_LFUN_NF), tag(gen_1, t_LFUN_ZETA)), t_LFUN_DIV);
-  ldata = mkvecn(6, an, gen_0, Vga, gen_1, N, gen_1);
-  LKQ = lfuninit(ldata, dom, der, bitprec); /* zeta_K/zeta */
-  domain = mkvec2(dom, mkvecsmall2(der, bitprec));
-  return gerepilecopy(ltop, lfunproduct(lfunzetak_i(nf), LKQ, LQ, domain));
-}
-
-/* nf is a true nf */
-static GEN
-lfunzetaKkinit(GEN nf, GEN dom, long der, long bitprec)
+lfunzetakinit_quotient(GEN nf, GEN polk, GEN dom, long der, long bitprec)
 {
   pari_sp av = avma;
-  GEN an, nfs, polk, nfk, Vga, ldata, N, Lk, LKk, domain;
-  long r1k, r2k, r1, r2, nsub;
+  GEN ak, an, nfk, Vga, ldata, N, Lk, LKk, domain;
+  long r1k, r2k, r1, r2;
 
-  nfs = nfsubfields(nf, 0);
-  nsub = lg(nfs)-1;
-  if (nsub <= 2)
-    return gerepilecopy(av, lfunzetaKQinit(nf, dom, der, bitprec));
   nf_get_sign(nf,&r1,&r2);
-  polk = gel(gel(nfs, nsub-1), 1); /* k largest strict subfield, != Q */
   nfk = nfinit(polk, nbits2prec(bitprec));
   Lk = lfunzetakinit(nfk, dom, der, 0, bitprec); /* zeta_k */
   nf_get_sign(nfk,&r1k,&r2k);
   Vga = vec01((r1+r2) - (r1k+r2k), r2-r2k);
   N = absi(diviiexact(nf_get_disc(nf), nf_get_disc(nfk)));
-  an = tag(mkvec2(tag(nf,t_LFUN_NF), tag(nfk,t_LFUN_NF)), t_LFUN_DIV);
+  ak = nf_get_degree(nf)==1 ? tag(gen_1, t_LFUN_ZETA): tag(nfk, t_LFUN_NF);
+  an = tag(mkvec2(tag(nf,t_LFUN_NF), ak), t_LFUN_DIV);
   ldata = mkvecn(6, an, gen_0, Vga, gen_1, N, gen_1);
   LKk = lfuninit(ldata, dom, der, bitprec); /* zeta_K/zeta_k */
   domain = mkvec2(dom, mkvecsmall2(der, bitprec));
   return gerepilecopy(av, lfunproduct(lfunzetak_i(nf), Lk, LKk, domain));
 }
 
-/* If flag=0 (default), assume zeta_K divisible by zeta_k for all
-   subfields k of K. If flag=1, only assume zeta_K divisible by zeta.
-   If flag=2, do not assume anything. If flag=4, assume K/Q is abelian.
-   If flag<0, do not assume anything and the output is the same as lfuninit,
-   so can be used directly. */
+static GEN
+subgroups_largestabelian(GEN S)
+{
+  long i, n = 0, l = lg (S);
+  GEN M = NULL;
+  for(i = 1; i < l; i++)
+  {
+    GEN Si = gel(S,i);
+    long o = group_order(Si);
+    if (o > n && group_isabelian(Si))
+    {
+      n = o;
+      M = Si;
+    }
+  }
+  return M;
+}
+
+
+/* If flag=0 (default), assume Artin conjecture */
+
+static GEN
+lfunzetakinit_Galois(GEN nf, GEN G, GEN dom, long der, long bitprec)
+{
+  GEN S, H, P, F, R, bnf;
+  GEN T = nf_get_pol(nf);
+  long v = varn(T);
+  GEN grp = galois_group(G);
+  if (group_isabelian(grp))
+    return lfunabelianrelinit(nf, NULL, T, dom, der, bitprec);
+  S = group_subgroups(grp);
+  H = subgroups_largestabelian(S);
+  if (v==0) { v=1; nf = gsubst(nf, 0, pol_x(v)); }
+  else G = gsubst(G, v, pol_x(0));
+  F = galoisfixedfield(G, H, 2, v);
+  P = gel(F,1), R = gmael(F,3,1);
+  setvarn(P, v);
+  bnf = Buchall(P, 0, nbits2prec(bitprec));
+  return lfunabelianrelinit(nf, bnf, R, dom, der, bitprec);
+}
+
 GEN
 lfunzetakinit(GEN NF, GEN dom, long der, long flag, long bitprec)
 {
   GEN nf = checknf(NF), T = nf_get_pol(nf);
+  GEN G, nfs;
+  long lf;
   if (degpol(T) == 1) return lfunzetainit(dom, der, bitprec);
-  if (flag < 0)
-    flag = 2;
-  else if (flag != 4)
-  {
-    long v = fetch_var();
-    if (rnfisabelian(pol_x(v), T)) flag = 4;
-    delete_var();
-  }
-  switch(flag)
-  {
-    case 0: return lfunzetaKkinit(nf, dom, der, bitprec);
-    case 1: return lfunzetaKQinit(nf, dom, der, bitprec);
-    case 2: return lfunzetaKinit(NF, dom, der, bitprec);
-    case 4: return lfunabelianrelinit(nf, NULL, T, dom, der, bitprec);
-  }
-  pari_err_FLAG("lfunzetakinit");
-  return NULL;
+  G = galoisinit(nf, NULL);
+  if (!isintzero(G))
+    return lfunzetakinit_Galois(nf, G, dom, der, bitprec);
+  if (flag)
+    return lfunzetakinit_raw(nf, dom, der, bitprec);
+  nfs = nfsubfields(nf, 0); lf = lg(nfs)-1;
+  return lfunzetakinit_quotient(nf, gmael(nfs,lf-1,1), dom, der, bitprec);
 }
 
 /***************************************************************/
