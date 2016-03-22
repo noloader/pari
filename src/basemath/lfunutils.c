@@ -727,17 +727,18 @@ lfunzetakinit_Galois(GEN nf, GEN G, GEN dom, long der, long bitprec)
 GEN
 lfunzetakinit(GEN NF, GEN dom, long der, long flag, long bitprec)
 {
-  GEN nf = checknf(NF), T = nf_get_pol(nf);
-  GEN G, nfs;
-  long lf;
-  if (degpol(T) == 1) return lfunzetainit(dom, der, bitprec);
+  GEN nf = checknf(NF);
+  GEN G, nfs, sbg;
+  long lf, d = nf_get_degree(nf);
+  if (d == 1) return lfunzetainit(dom, der, bitprec);
   G = galoisinit(nf, NULL);
   if (!isintzero(G))
     return lfunzetakinit_Galois(nf, G, dom, der, bitprec);
-  if (flag)
-    return lfunzetakinit_raw(nf, dom, der, bitprec);
   nfs = nfsubfields(nf, 0); lf = lg(nfs)-1;
-  return lfunzetakinit_quotient(nf, gmael(nfs,lf-1,1), dom, der, bitprec);
+  sbg = gmael(nfs,lf-1,1);
+  if (flag && d > 4*degpol(sbg))
+    return lfunzetakinit_raw(nf, dom, der, bitprec);
+  return lfunzetakinit_quotient(nf, sbg, dom, der, bitprec);
 }
 
 /***************************************************************/
