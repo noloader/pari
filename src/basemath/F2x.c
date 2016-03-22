@@ -186,7 +186,8 @@ Rg_to_F2xq(GEN x, GEN T)
       if (is_const_t(ta)) return Rg_to_F2(a)? pol1_F2x(v): pol0_F2x(v);
       b = RgX_to_F2x(b); if (b[1] != v) break;
       a = RgX_to_F2x(a); if (F2x_equal(b,T)) return a;
-      return F2x_rem(a, T);
+      if (lgpol(F2x_rem(b,T))==0) return F2x_rem(a, T);
+      break;
     case t_POL:
       x = RgX_to_F2x(x);
       if (x[1] != v) break;

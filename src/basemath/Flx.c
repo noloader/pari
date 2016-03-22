@@ -315,7 +315,8 @@ Rg_to_Flxq(GEN x, GEN T, ulong p)
       if (is_const_t(ta)) return Fl_to_Flx(Rg_to_Fl(a, p), v);
       b = RgX_to_Flx(b, p); if (b[1] != v) break;
       a = RgX_to_Flx(a, p); if (Flx_equal(b,T)) return a;
-      return Flx_rem(a, T, p);
+      if (lgpol(Flx_rem(b,T,p))==0) return Flx_rem(a, T, p);
+      break;
     case t_POL:
       x = RgX_to_Flx(x,p);
       if (x[1] != v) break;
