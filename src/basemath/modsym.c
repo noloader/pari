@@ -3849,7 +3849,7 @@ mspadicL(GEN oms, GEN s, long r)
   p = oms_get_p(oms);
   n = oms_get_n(oms);
   parse_chi(s, &s1,&s2);
-  teich = umodiu(subii(s2,s1), p-1);
+  teich = umodiu(subii(s2,s1), p==2? 2: p-1);
   S = xlog1x(n, itos(s1), r, &teich);
   z = mspadicint(oms, teich, S);
   if (kross(oms_get_D(oms), p) < 0) z = gneg(z);

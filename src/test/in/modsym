@@ -184,6 +184,6 @@ msseries(E43a1,3,4,0,-19) \\ twist
 msseries(E17a1,3,5) \\ supersingular
 
 M=msinit(3,6,-1); xpm=[1]~;
-Wp = mspadicinit(M, 5, 10, 0);
+Wp = mspadicinit(M,5,10);
 oms = mspadicmoments(Wp, xpm, 1);
-mspadicL(oms,1)
+vector(6,j,mspadicL(oms,j-1))
