@@ -143,3 +143,18 @@ check(q)=
 check(2^4)
 check(3^4)
 check((2^64+13)^4)
+
+checkext(p)=
+{
+  b=ffgen(p,'a);
+  E=ellinit([1,0,0,0,1],p);
+  a=ffgen(p^6,'b);
+  F=ellinit(E,a);
+  P=random(F);
+  if (!ellisoncurve(F,P),error(p));
+  if(!ellisoncurve(F,ellmul(F,P,2)),error(p));
+}
+checkext(5)
+checkext(3)
+checkext(2)
+

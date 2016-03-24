@@ -593,7 +593,7 @@ base_ring(GEN x, GEN *pp, long *prec)
           case t_INTMOD: chk_p(p, FF_p_i(q)); /* fall through */
           case t_FRAC:   t = t_FFELT; p = q; break;
           case t_FFELT:
-            if (!FF_samefield(p,q)) pari_err_MODULUS("ellinit", p,q);
+            if (!FF_samefield(p,q) && FF_f(q)>1) pari_err_MODULUS("ellinit", p,q);
             break;
           default: pari_err_TYPE("elliptic curve base_ring", x);
         }
