@@ -14,6 +14,10 @@ E=ellinit([1,-1,1,0,0]);P=[0,0];
 ellpadicheight(E,2,4, P)
 ellpadicheight(E,3,4, P)
 ellpadicheight(E,5,4, P)
+ellpadicL(E,2,10,,2)
+ellpadicL(E,3,10,,1)
+ellpadicL(E,5,5,,2)
+
 E=ellinit([0,-1,1,-10,-20]);P=[5,5];
 ellpadicheight(E,19,6, P)
 ellpadicheight(E,19,0, P)
