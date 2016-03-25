@@ -3832,6 +3832,7 @@ parse_chi(GEN s, GEN *s1, GEN *s2)
         if (typ(*s1) == t_INT && typ(*s2) == t_INT) break;
       }
     default: pari_err_TYPE("mspadicL",s);
+             *s1 = *s2 = NULL;
   }
 }
 /* oms from mspadicmoments
@@ -3857,7 +3858,7 @@ mspadicL(GEN oms, GEN s, long r)
 }
 
 GEN
-ellpadicL(GEN E, GEN pp, long n, long r, GEN s, GEN DD)
+ellpadicL(GEN E, GEN pp, long n, GEN s, long r, GEN DD)
 {
   pari_sp av = avma;
   GEN L, W, Wp, xpm, NE, s1,s2, oms, den;
