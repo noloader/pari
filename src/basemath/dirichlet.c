@@ -29,17 +29,18 @@ dirmuleuler_small(GEN V, GEN v, long n, ulong p, GEN s)
   long d = lg(s)-2, b = lg(V)-1;
   long i,j;
   long m = n;
-  long q = 1;
+  ulong q = 1;
   for (i=1, q=p; i<=d; i++, q*=p)
   {
     GEN aq = gel(s,i+1);
     if (gequal0(aq)) continue;
     for(j=1; j<=m; j++)
     {
-      long nj = v[j]*q;
-      GEN Vj = gel(V,v[j]);
-      if (nj > b) continue;
-      gel(V,nj) = gmul(aq, Vj);
+      ulong nj;
+      LOCAL_HIREMAINDER;
+      nj = mulll(uel(v,j), q);
+      if (hiremainder || nj > b) continue;
+      gel(V,nj) = gmul(aq, gel(V,v[j]));
       v[++n] = nj;
     }
   }
