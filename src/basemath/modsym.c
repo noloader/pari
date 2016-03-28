@@ -44,9 +44,9 @@ static GEN
 ms_get_p1N(GEN W) { W = get_ms(W); return gel(W,1); }
 static long
 ms_get_N(GEN W) { return p1N_get_N(ms_get_p1N(W)); }
-GEN
+static GEN
 ms_get_hashcusps(GEN W) { W = get_ms(W); return gel(W,16); }
-GEN
+static GEN
 ms_get_section(GEN W) { W = get_ms(W); return gel(W,12); }
 static GEN
 ms_get_genindex(GEN W) { W = get_ms(W); return gel(W,5); }
@@ -2812,7 +2812,7 @@ msinit(GEN N, GEN K, long sign)
 
 /* W = msinit, xpm modular symbol attached to elliptic curve E;
  * c t_FRAC; image of <oo->c> */
-GEN
+static GEN
 Q_xpm(GEN W, GEN xpm, GEN c)
 {
   pari_sp av = avma;

@@ -4093,14 +4093,13 @@ GEN     weberf1(GEN x, long prec);
 GEN     weberf2(GEN x, long prec);
 
 /* modsym.c */
-GEN     Eisenstein_symbol(GEN W, GEN c);
-GEN     Q_xpm(GEN W, GEN xpm, GEN c);
 GEN     Qevproj_apply(GEN T, GEN pro);
 GEN     Qevproj_apply_vecei(GEN T, GEN pro, long k);
 GEN     Qevproj_init(GEN M);
 GEN     RgX_act_Gl2Q(GEN g, long k);
 GEN     RgX_act_ZGl2Q(GEN z, long k);
 void    checkms(GEN W);
+void    checkmspadic(GEN W);
 GEN     ellpadicL(GEN E, GEN p, long n, GEN s, long r, GEN D);
 GEN     msfromcusp(GEN W, GEN c);
 GEN     msfromell(GEN E, long signe);
