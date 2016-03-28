@@ -1870,7 +1870,7 @@ polmodular0_ZM(
 
     D = dinfo->D1;
     DK = dinfo->D0;
-    cond = sqrt(D / DK);
+    cond = sqrt((double)(D / DK));
     factu = factoru(cond);
     dbg_printf(1)("Selected discriminant D = %ld = %ld^2 * %ld.\n",
                   D, cond, DK);
@@ -2237,7 +2237,7 @@ modpoly_height_bound(long L, long inv)
   int hf;
 
   /* proven bound (in bits), derived from: 6l*log(l)+16*l+13*sqrt(l)*log(l) */
-  nbits = 6.0*L*log2(L)+16/LOG2*L+8.0*sqrt(L)*log2(L);
+  nbits = 6.0*L*log2(L)+16/LOG2*L+8.0*sqrt((double)L)*log2(L);
   /* alternative proven bound (in bits), derived from: 6l*log(l)+17*l */
   nbits2 = 6.0*L*log2(L)+17/LOG2*L;
   if ( nbits2 < nbits ) nbits = nbits2;
@@ -3338,7 +3338,7 @@ discriminant_with_classno_at_least(
       h = itos(classno(stoi(bestD[i].D1)));
       avma = av;
       err_printf("  D = %ld, h = %ld, u = %ld, L0 = %ld, L1 = %ld, n1 = %ld, n2 = %ld, cost = %ld\n",
-          bestD[i].D1, h, (long)sqrt(bestD[i].D1 / bestD[i].D0), bestD[i].L0, bestD[i].L1,
+          bestD[i].D1, h, (long)sqrt((double)(bestD[i].D1 / bestD[i].D0)), bestD[i].L0, bestD[i].L1,
           bestD[i].n1, bestD[i].n2, bestD[i].cost);
     }
     err_printf("(off target by %.1f%%, cost ratio: %.1f)\n",

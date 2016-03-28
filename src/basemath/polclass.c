@@ -443,7 +443,7 @@ classno_wrapper(long D)
 INLINE double
 logfac(long n)
 {
-  return n * log(n) - (double) n +
+  return n * log((double) n) - (double) n +
     log((double) n * (1.0 + 4.0 * n * (1.0 + 2.0 * n))) / 6.0 +
     HALFLOGPI;
 }
@@ -581,7 +581,7 @@ select_classpoly_prime_pool(
     t_min[i] = 2;
 
   /* maximum possible trace = sqrt(2^BIL - D) */
-  t_size_lim = 2.0 * sqrt((1UL << (BITS_IN_LONG - 2)) - (((ulong)-D) >> 2));
+  t_size_lim = 2.0 * sqrt((double)((1UL << (BITS_IN_LONG - 2)) - (((ulong)-D) >> 2)));
 
   av = avma;
   for (z = -D / (2.0 * hurwitz); ; z *= delta + 1.0) {
@@ -610,7 +610,7 @@ select_classpoly_prime_pool(
        * This last term is v * hurwitz * hurwitz_ratio_bound. */
 
       max_p = z * v * hurwitz * hurwitz_ratio_bound;
-      t_max = 2.0 * mindd(sqrt((1UL << (BITS_IN_LONG - 2)) - (m_vsqr_D >> 2)),
+      t_max = 2.0 * mindd(sqrt((double)((1UL << (BITS_IN_LONG - 2)) - (m_vsqr_D >> 2))),
                           sqrt(max_p));
       for (t = t_min[v]; t <= t_max; ++t) {
         ulong possible_4p = t * t + m_vsqr_D;
@@ -754,7 +754,7 @@ oneroot_of_classpoly(ulong *j_endo, int *endo_cert, ulong j, norm_eqn_t ne, GEN 
     u_levels[i] = z_lval(ne->u, gel(factw, 1)[i]);
   vdepths = gel(factw, 2);
 
-  L_bound = maxdd(log(-ne->D), (double)ne->v);
+  L_bound = maxdd(log((double) -ne->D), (double)ne->v);
 
   /* Iterate over the primes L dividing w */
   for (i = 1; i <= nfactors; ++i) {
@@ -1232,7 +1232,7 @@ polclass0(long D, long inv, long xvar, GEN *db)
 
   /* Prepopulate *db with all the modpolys we might need */
   /* TODO: Clean this up; in particular, note that u is factored later on. */
-  maxL = maxdd(log(-D), (double)biggest_v); /* This comes from L_bound in oneroot_of_classpoly() above */
+  maxL = maxdd(log((double) -D), (double)biggest_v); /* This comes from L_bound in oneroot_of_classpoly() above */
   if (u > 1) {
     for (L = 2; L <= maxL; L = unextprime(L + 1))
       if ( ! (u % L))
