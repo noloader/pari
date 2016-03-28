@@ -605,7 +605,7 @@ mssplit_i(GEN W, GEN H)
         }
         /* remove V[j] */
         swap(gel(V,j), gel(V,lg(V)-1)); setlg(V, lg(V)-1);
-        pows = RgM_powers(TVj, minss((long)2*sqrt(D), D));
+        pows = RgM_powers(TVj, minss((long)2*sqrt((double)D), D));
         for (k = 1; k <= n; k++)
         {
           GEN f = gel(F,k);
@@ -685,7 +685,7 @@ msqexpansion_i(GEN W, GEN proV, ulong B)
   iM = ZM_inv_ratlift(Tiv, &diM);
   if (dTiv) diM = gdiv(diM, dTiv);
   L = const_vec(B,NULL);
-  sqrtB = (ulong)sqrt(B);
+  sqrtB = usqrt(B);
   gel(L,1) = d > 1? mkpolmod(gen_1,ch): gen_1;
   for (p = 2; p <= B; p++)
   {

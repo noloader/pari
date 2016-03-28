@@ -3984,7 +3984,7 @@ Buchall_param(GEN P, double cbach, double cbach2, long nbrelpid, long flun, long
    * NI <= LIMCMAX^2 */
   small_norm_prec = nbits2prec( BITS_IN_LONG +
     (N/2. * ((N-1)/2.*log(4./3) + log(BMULT/(double)N))
-     + 2*log(LIMCMAX) + LOGD/2) / LOG2 ); /* enough to compute norms */
+     + 2*log((double) LIMCMAX) + LOGD/2) / LOG2 ); /* enough to compute norms */
   if (small_norm_prec > PRECREG) PRECREG = small_norm_prec;
   if (!nf)
     nf = nfinit_step2(&nfT, 0, PRECREG);
