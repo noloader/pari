@@ -3,7 +3,7 @@ Section: number_theoretical
 C-Name: znconreychar
 Prototype: GG
 Help: znconreychar(bid,m): Dirichlet character associated to m in (Z/qZ)*
- in Conrey's notation, where bid is znstar(q, 2)
+ in Conrey's notation, where bid is idealstar(,q)
 Doc: Given a \var{bid} associated to $(\Z/q\Z)^*$ (as per
  \kbd{bid = idealstar(,q)}), this function returns the Dirichlet character
  associated to $m \in (\Z/q\Z)^*$ via Conrey's logarithm, which
