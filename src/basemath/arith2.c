@@ -1499,7 +1499,7 @@ fromdigits(GEN x, GEN B)
   return gerepileupto(av, gen_fromdigits(x, B, NULL, &Z_ring));
 }
 
-static ulong DS[] ={
+static const ulong digsum[] ={
   0,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,10,2,3,4,5,6,7,8,9,10,11,3,4,5,6,7,8,
   9,10,11,12,4,5,6,7,8,9,10,11,12,13,5,6,7,8,9,10,11,12,13,14,6,7,8,9,10,11,
   12,13,14,15,7,8,9,10,11,12,13,14,15,16,8,9,10,11,12,13,14,15,16,17,9,10,11,
@@ -1544,7 +1544,7 @@ ulong
 sumdigitsu(ulong n)
 {
   ulong s = 0;
-  while (n) { s += DS[n % 1000]; n /= 1000; }
+  while (n) { s += digsum[n % 1000]; n /= 1000; }
   return s;
 }
 
