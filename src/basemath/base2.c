@@ -660,13 +660,13 @@ get_maxord(nfmaxord_t *S, GEN T0, long flag)
     if (E[i] <= 1) { O = shallowconcat(O, gen_1); continue; }
     av = avma;
     pari_CATCH(CATCH_ALL) {
-      GEN N, u, ERR = pari_err_last();
+      GEN N, u, err = pari_err_last();
       long l;
-      switch(err_get_num(ERR))
+      switch(err_get_num(err))
       {
         case e_INV:
         {
-          GEN p, x = err_get_compo(ERR, 2);
+          GEN p, x = err_get_compo(err, 2);
           if (typ(x) == t_INTMOD)
           { /* caught false prime, update factorization */
             p = gcdii(gel(x,1), gel(x,2));
@@ -700,7 +700,7 @@ get_maxord(nfmaxord_t *S, GEN T0, long flag)
           }
           break;
         }
-        default: pari_err(0, ERR);
+        default: pari_err(0, err);
           return NULL;
       }
       l = lg(u);
