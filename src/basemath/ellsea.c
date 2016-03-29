@@ -40,12 +40,6 @@ pari_init_seadata(void)  { modular_eqn = NULL; }
 void
 pari_close_seadata(void) { if (modular_eqn) gunclone(modular_eqn); }
 
-static int
-FqX_equal(GEN x, GEN y) { return gequal(x,y); }
-
-static int
-FlxX_equal(GEN x, GEN y) { return gequal(x,y); }
-
 static char *
 seadata_filename(ulong ell)
 { return stack_sprintf("%s/seadata/sea%ld", pari_datadir, ell); }
@@ -142,6 +136,254 @@ ellmodulareqn(long ell, long vx, long vy)
   return gerepilecopy(av,mkvec2(meqn.eq, stoi(meqn.type=='A')));
 }
 
+/***********************************************************************/
+/**                                                                   **/
+/**                      n-division polynomial                        **/
+/**                                                                   **/
+/***********************************************************************/
+
+static GEN divpol(GEN t, GEN r2, long n, void *E, const struct bb_algebra *ff);
+
+static GEN
+divpol_f2(GEN t, GEN r2, long n, void *E, const struct bb_algebra *ff)
+{
+  if (n==0) return ff->zero(E);
+  if (n<=2) return ff->one(E);
+  if (gmael(t,2,n)) return gmael(t,2,n);
+  gmael(t,2,n) = gclone(ff->sqr(E,divpol(t,r2,n,E,ff)));
+  return gmael(t,2,n);
+}
+
+static GEN
+divpol_ff(GEN t, GEN r2, long n, void *E, const struct bb_algebra *ff)
+{
+  if (n<=2) return ff->zero(E);
+  if (gmael(t,3,n)) return gmael(t,3,n);
+  if (n<=4) return divpol(t,r2,n,E,ff);
+  gmael(t,3,n) = gclone(ff->mul(E,divpol(t,r2,n,E,ff), divpol(t,r2,n-2,E,ff)));
+  return gmael(t,3,n);
+}
+
+static GEN
+divpol(GEN t, GEN r2, long n, void *E, const struct bb_algebra *ff)
+{
+  long m = n/2;
+  pari_sp av = avma;
+  GEN res;
+  if (n==0) return ff->zero(E);
+  if (gmael(t,1,n)) return gmael(t,1,n);
+  switch(n)
+  {
+  case 1:
+  case 2:
+    res = ff->one(E);
+    break;
+  default:
+    if (odd(n))
+      if (odd(m))
+        res = ff->sub(E, ff->mul(E, divpol_ff(t,r2,m+2,E,ff),
+                                    divpol_f2(t,r2,m,E,ff)),
+                         ff->mul(E, r2,
+                                    ff->mul(E,divpol_ff(t,r2,m+1,E,ff),
+                                              divpol_f2(t,r2,m+1,E,ff))));
+      else
+        res = ff->sub(E, ff->mul(E, r2,
+                                    ff->mul(E, divpol_ff(t,r2,m+2,E,ff),
+                                               divpol_f2(t,r2,m,E,ff))),
+                         ff->mul(E, divpol_ff(t,r2,m+1,E,ff),
+                                    divpol_f2(t,r2,m+1,E,ff)));
+    else
+      res = ff->sub(E, ff->mul(E, divpol_ff(t,r2,m+2,E,ff),
+                                  divpol_f2(t,r2,m-1,E,ff)),
+                       ff->mul(E, divpol_ff(t,r2,m,E,ff),
+                                  divpol_f2(t,r2,m+1,E,ff)));
+  }
+  res = ff->red(E, res);
+  gmael(t,1,n) = gclone(res);
+  avma = av;
+  return gmael(t,1,n);
+}
+
+static void
+divpol_free(GEN t)
+{
+  long i, l = lg(t);
+  for (i=1; i<l; i++)
+  {
+    if (gmael(t,1,i)) gunclone(gmael(t,1,i));
+    if (gmael(t,2,i)) gunclone(gmael(t,2,i));
+    if (gmael(t,3,i)) gunclone(gmael(t,3,i));
+  }
+}
+
+static GEN
+Flxq_elldivpol34(long n, GEN a4, GEN a6, GEN S, GEN T, ulong p)
+{
+  GEN res;
+  long vs = T[1];
+  switch(n)
+  {
+  case 3:
+    res = mkpoln(5, Fl_to_Flx(3%p,vs), pol0_Flx(vs), Flx_mulu(a4, 6, p),
+                    Flx_mulu(a6, 12, p), Flx_neg(Flxq_sqr(a4, T, p), p));
+    break;
+  case 4:
+    {
+      GEN a42 = Flxq_sqr(a4, T, p);
+      res = mkpoln(7, pol1_Flx(vs), pol0_Flx(vs), Flx_mulu(a4, 5, p),
+          Flx_mulu(a6, 20, p), Flx_mulu(a42,p-5, p),
+          Flx_mulu(Flxq_mul(a4, a6, T, p), p-4, p),
+          Flx_sub(Flx_mulu(Flxq_sqr(a6, T, p), p-8%p, p),
+            Flxq_mul(a4, a42, T, p), p));
+      res = FlxX_double(res, p);
+    }
+    break;
+    default:
+      pari_err_BUG("Flxq_elldivpol34"); return NULL;
+  }
+  setvarn(res, get_FlxqX_var(S));
+  return FlxqX_rem(res, S, T, p);
+}
+
+static GEN
+Fq_elldivpol34(long n, GEN a4, GEN a6, GEN S, GEN T, GEN p)
+{
+  GEN res;
+  switch(n)
+  {
+  case 3:
+    res = mkpoln(5, utoi(3), gen_0, Fq_mulu(a4, 6, T, p),
+        Fq_mulu(a6, 12, T, p), Fq_neg(Fq_sqr(a4, T, p), T, p));
+    break;
+  case 4:
+    {
+      GEN a42 = Fq_sqr(a4, T, p);
+      res = mkpoln(7, gen_1, gen_0, Fq_mulu(a4, 5, T, p),
+          Fq_mulu(a6, 20, T, p), Fq_Fp_mul(a42,stoi(-5), T, p),
+          Fq_Fp_mul(Fq_mul(a4, a6, T, p), stoi(-4), T, p),
+          Fq_sub(Fq_Fp_mul(Fq_sqr(a6, T, p), stoi(-8), T, p),
+            Fq_mul(a4,a42, T, p), T, p));
+      res = FqX_mulu(res, 2, T, p);
+    }
+    break;
+    default:
+      pari_err_BUG("Fq_elldivpol34"); return NULL;
+  }
+  if (S)
+  {
+    setvarn(res, get_FpXQX_var(S));
+    res = FqX_rem(res, S, T, p);
+  }
+  return res;
+}
+
+static GEN
+rhs(GEN a4, GEN a6, long v)
+{
+  GEN RHS = mkpoln(4, gen_1, gen_0, a4, a6);
+  setvarn(RHS, v);
+  return RHS;
+}
+
+struct divpolmod_red
+{
+  const struct bb_algebra *ff;
+  void *E;
+  GEN t, r2;
+};
+
+static void
+divpolmod_init(struct divpolmod_red *d, GEN D3, GEN D4, GEN RHS, long n,
+               void *E, const struct bb_algebra *ff)
+{
+  long k = n+2;
+  d->ff = ff; d->E = E;
+  d->t  = mkvec3(const_vec(k, NULL),const_vec(k, NULL),const_vec(k, NULL));
+  if (k>=3) gmael(d->t,1,3) = gclone(D3);
+  if (k>=4) gmael(d->t,1,4) = gclone(D4);
+  d->r2 = ff->sqr(E, RHS);
+}
+
+static void
+Fq_elldivpolmod_init(struct divpolmod_red *d, GEN a4, GEN a6, long n, GEN h, GEN T, GEN p)
+{
+  void *E;
+  const struct bb_algebra *ff;
+  GEN RHS, D3 = NULL, D4 = NULL;
+  long v = h ? get_FpXQX_var(h): 0;
+  D3 = n>=0 ? Fq_elldivpol34(3, a4, a6, h, T, p): NULL;
+  D4 = n>=1 ? Fq_elldivpol34(4, a4, a6, h, T, p): NULL;
+  RHS = rhs(a4, a6, v);
+  RHS = h ? FqX_rem(RHS, h, T, p): RHS;
+  RHS = FqX_mulu(RHS, 4, T, p);
+  ff = h ? T ? get_FpXQXQ_algebra(&E, h, T, p): get_FpXQ_algebra(&E, h, p):
+           T ? get_FpXQX_algebra(&E, T, p, v): get_FpX_algebra(&E, p, v);
+  divpolmod_init(d, D3, D4, RHS, n, E, ff);
+}
+
+static void
+Flxq_elldivpolmod_init(struct divpolmod_red *d, GEN a4, GEN a6, long n, GEN h, GEN T, ulong p)
+{
+  void *E;
+  const struct bb_algebra *ff;
+  GEN RHS, D3 = NULL, D4 = NULL;
+  D3 = n>=0 ? Flxq_elldivpol34(3, a4, a6, h, T, p): NULL;
+  D4 = n>=1 ? Flxq_elldivpol34(4, a4, a6, h, T, p): NULL;
+  RHS = FlxX_Fl_mul(FlxqX_rem(rhs(a4, a6, get_FlxqX_var(h)), h, T, p), 4, p);
+  ff = get_FlxqXQ_algebra(&E, h, T, p);
+  divpolmod_init(d, D3, D4, RHS, n, E, ff);
+}
+
+/*Computes the n-division polynomial modulo the polynomial h \in Fq[x] */
+GEN
+Fq_elldivpolmod(GEN a4, GEN a6, long n, GEN h, GEN T, GEN p)
+{
+  struct divpolmod_red d;
+  pari_sp ltop = avma;
+  GEN res;
+  Fq_elldivpolmod_init(&d, a4, a6, n, h, T, p);
+  res = gcopy(divpol(d.t,d.r2,n,d.E,d.ff));
+  divpol_free(d.t);
+  return gerepileupto(ltop, res);
+}
+
+GEN
+FpXQ_elldivpol(GEN a4, GEN a6, long n, GEN T, GEN p)
+{
+  return Fq_elldivpolmod(a4,a6,n,NULL,T,p);
+}
+
+GEN
+Fp_elldivpol(GEN a4, GEN a6, long n, GEN p)
+{
+  return Fq_elldivpolmod(a4,a6,n,NULL,NULL,p);
+}
+
+static GEN
+Fq_ellyn(struct divpolmod_red *d, long k)
+{
+  pari_sp av = avma;
+  void *E = d->E;
+  const struct bb_algebra *ff = d->ff;
+  GEN t = d->t, r2 = d->r2;
+  if (k==1) return mkvec2(ff->one(E), ff->one(E));
+  GEN pn2 = divpol(t,r2,k-2,E,ff);
+  GEN pp2 = divpol(t,r2,k+2,E,ff);
+  GEN pn12 = divpol_f2(t,r2,k-1,E,ff);
+  GEN pp12 = divpol_f2(t,r2,k+1,E,ff);
+  GEN on = ff->red(E,ff->sub(E, ff->mul(E,pp2,pn12), ff->mul(E,pn2,pp12)));
+  GEN f  = divpol(t,r2,k,E,ff);
+  GEN f2 = divpol_f2(t,r2,k,E,ff);
+  GEN f3 = ff->mul(E,f,f2);
+  if (!odd(k)) f3 = ff->mul(E,f3,r2);
+  return gerepilecopy(av,mkvec2(on, f3));
+}
+
+static void
+Fq_elldivpolmod_close(struct divpolmod_red *d)
+{
+  divpol_free(d->t);
+}
 static GEN
 Fq_elldivpol2(GEN a4, GEN a6, GEN T, GEN p)
 {
@@ -288,205 +530,28 @@ Zq_ellj(GEN a4, GEN a6, GEN T, GEN p, GEN pp, long e)
 /*                              EIGENVALUE                                  */
 /****************************************************************************/
 
-struct eigen_ellinit
-{
-  GEN a4, h, T, p;
-  GEN RHS, DRHS, X12, Gy, nGy, O;
-  ulong pp;
-};
-
-static void
-init_eigen(struct eigen_ellinit *Edat, GEN a4, GEN a6, GEN h, GEN T, GEN p)
-{
-  pari_sp ltop = avma;
-  GEN RHS  = FqX_rem(mkpoln(4, gen_1, gen_0, a4, a6), h, T, p);
-  GEN DRHS = FqX_rem(mkpoln(3, utoi(3), gen_0, a4), h, T, p);
-  GEN lambda = FqXQ_div(DRHS, FqX_mulu(RHS, 4, T, p), h, T, p);
-  GEN C = FqX_sub(FqXQ_mul(lambda, DRHS, h, T, p), monomial(gen_2,1,0), T, p);
-  GEN D = FqXQ_mul(FqX_mulu(lambda, 2, T, p),FqX_sub(pol_x(0), C, T, p), h, T, p);
-  GEN X12 = mkvec2(C, FqX_Fq_add(D, gen_m1, T, p));
-  GEN Gy = T ? FpXQXQ_halfFrobenius(RHS, h, T, p):
-               FpXQ_pow(RHS, shifti(p, -1), h, p);
-  GEN nGy = FqX_neg(Gy, T, p);
-  gerepileall(ltop, 5, &RHS, &DRHS, &X12, &Gy, &nGy);
-  Edat->a4    = gcopy(a4);
-  Edat->h     = gcopy(h);
-  Edat->T     = T;
-  Edat->p     = p;
-  Edat->pp    = 0;
-  Edat->RHS   = RHS;
-  Edat->DRHS  = DRHS;
-  Edat->X12   = X12;
-  Edat->Gy    = Gy;
-  Edat->nGy   = nGy;
-  Edat->O     = mkvec2(pol_x(0), pol_1(0));
-}
-
-static void
-init_eigenu(struct eigen_ellinit *Edat, GEN a4, GEN a6, GEN h, GEN T, ulong p)
-{
-  pari_sp ltop = avma;
-  long vT = get_Flx_var(T);
-  GEN g1 = pol1_Flx(vT), g0 = pol0_Flx(vT);
-  GEN RHS  = FlxqX_rem(mkpoln(4, g1, g0, a4, a6), h, T, p);
-  GEN DRHS = FlxqX_rem(mkpoln(3, Fl_to_Flx(3, T[1]), g0, a4), h, T, p);
-  GEN lambda = FlxqXQ_div(DRHS, FlxX_Fl_mul(RHS, 4, p), h, T, p);
-  GEN C = FlxX_sub(FlxqXQ_mul(lambda, DRHS, h, T, p), monomial(Fl_to_Flx(2,vT),1,0), p);
-  GEN D = FlxqXQ_mul(FlxX_double(lambda, p),FlxX_sub(pol_x(0), C, p), h, T, p);
-  GEN X12 = mkvec2(C, FlxX_Flx_add(D, Fl_to_Flx(p-1,vT), p));
-  GEN Gy = FlxqXQ_halfFrobenius(RHS,h,T,p);
-  GEN nGy = FlxX_neg(Gy, p);
-  GEN O = mkvec2(monomial(g1,1,0), monomial(g1,0,0));
-  gerepileall(ltop, 6, &RHS, &DRHS, &X12, &Gy, &nGy, &O);
-  Edat->a4    = gcopy(a4);
-  Edat->h     = gcopy(h);
-  Edat->T     = T;
-  Edat->p     = NULL;
-  Edat->pp    = p;
-  Edat->RHS   = RHS;
-  Edat->DRHS  = DRHS;
-  Edat->X12   = X12;
-  Edat->Gy    = Gy;
-  Edat->nGy   = nGy;
-  Edat->O     = O;
-}
-static GEN
-eigen_elldbl(void *E, GEN P)
-{
-  pari_sp ltop = avma;
-  struct eigen_ellinit *Edat=(struct eigen_ellinit *)E;
-  GEN T = Edat->T, p = Edat->p, h = Edat->h, x, y;
-  if (ell_is_inf(P)) return gcopy(P);
-  x = gel(P,1), y = gel(P,2);
-  if (FqX_equal(x, pol_x(0)) && FqX_equal(y, pol_1(0)))
-    return Edat->X12;
-  else
-  {
-    GEN t1 = FqX_Fq_add(FqX_mulu(FqXQ_sqr(x,h,T,p),3,T, p), Edat->a4, T, p);
-    GEN t2 = FqXQ_mul(FqX_mulu(y, 2, T, p), Edat->RHS, h, T, p);
-    GEN lambda = FqXQ_div(t1, t2, h, T, p);
-    GEN C = FqX_sub(FqXQ_mul(FqXQ_sqr(lambda, h, T, p), Edat->RHS, h, T, p),
-                    FqX_mulu(x, 2, T, p), T, p);
-    GEN D = FqX_sub(FqXQ_mul(lambda, FqX_sub(x, C, T, p), h, T, p), y, T, p);
-    return gerepilecopy(ltop, mkvec2(C,D));
-  }
-}
-
-/* Returns the addition of [P[1], P[2]*Y] and of [Q[1], Q[2]*Y]
- * Computations are done modulo Y^2 - (X^3 + a4X + a6)
- * An inversion is equivalent to 4M, so that this function requires about 7M
- * which is the same as with the method using ell-division polynomials
- * Working in mixed projective coordinates would require 11M */
-static GEN
-eigen_elladd(void *E, GEN P, GEN Q)
-{
-  pari_sp ltop = avma;
-  struct eigen_ellinit *Edat=(struct eigen_ellinit *)E;
-  GEN Px, Py, Qx, Qy;
-  GEN T = Edat->T, p = Edat->p, h = Edat->h, lambda, C, D;
-  if (ell_is_inf(P)) return gcopy(Q);
-  if (ell_is_inf(Q)) return gcopy(P);
-  Px = gel(P,1); Py = gel(P,2);
-  Qx = gel(Q,1); Qy = gel(Q,2);
-  if (FqX_equal(Px, Qx))
-  {
-    if (FqX_equal(Py, Qy))
-      return eigen_elldbl(E, P);
-    else
-      return ellinf();
-  }
-  lambda = FqXQ_div(FqX_sub(Py, Qy, T, p), FqX_sub(Px, Qx, T, p), h, T, p);
-  C = FqX_sub(FqX_sub(FqXQ_mul(FqXQ_sqr(lambda, h, T, p), Edat->RHS, h, T, p), Px, T, p), Qx, T, p);
-  D = FqX_sub(FqXQ_mul(lambda, FqX_sub(Px, C, T, p), h, T, p), Py, T, p);
-  return gerepilecopy(ltop, mkvec2(C,D));
-}
-
-static GEN
-eigenu_elldbl(void *E, GEN P)
-{
-  pari_sp ltop = avma;
-  struct eigen_ellinit *Edat=(struct eigen_ellinit *)E;
-  GEN T = Edat->T, h = Edat->h, x, y;
-  long vT = get_Flx_var(T);
-  ulong p = Edat->pp;
-  if (ell_is_inf(P)) return gcopy(P);
-  x = gel(P,1), y = gel(P,2);
-  if (FlxX_equal(x, monomial(pol1_Flx(vT),1,0)) && FlxX_equal(y, monomial(pol1_Flx(vT),0,0)))
-    return Edat->X12;
-  else
-  {
-    GEN t1 = FlxX_Flx_add(FlxX_triple(FlxqXQ_sqr(x,h,T,p),p), Edat->a4, p);
-    GEN t2 = FlxqXQ_mul(FlxX_double(y, p), Edat->RHS, h, T, p);
-    GEN lambda = FlxqXQ_div(t1, t2, h, T, p);
-    GEN C = FlxX_sub(FlxqXQ_mul(FlxqXQ_sqr(lambda, h, T, p), Edat->RHS, h, T, p),
-                     FlxX_double(x, p), p);
-    GEN D = FlxX_sub(FlxqXQ_mul(lambda, FlxX_sub(x, C, p), h, T, p), y, p);
-    return gerepilecopy(ltop, mkvec2(C,D));
-  }
-}
-
-/* Returns the addition of [P[1], P[2]*Y] and of [Q[1], Q[2]*Y]
- * Computations are done modulo Y^2 - (X^3 + a4X + a6)
- * An inversion is equivalent to 4M, so that this function requires about 7M
- * which is the same as with the method using ell-division polynomials
- * Working in mixed projective coordinates would require 11M */
-static GEN
-eigenu_elladd(void *E, GEN P, GEN Q)
-{
-  pari_sp ltop = avma;
-  struct eigen_ellinit *Edat=(struct eigen_ellinit *)E;
-  GEN Px, Py, Qx, Qy;
-  GEN T = Edat->T, h = Edat->h, lambda, C, D;
-  ulong p = Edat->pp;
-  if (ell_is_inf(P)) return gcopy(Q);
-  if (ell_is_inf(Q)) return gcopy(P);
-  Px = gel(P,1); Py = gel(P,2);
-  Qx = gel(Q,1); Qy = gel(Q,2);
-  if (FlxX_equal(Px, Qx))
-  {
-    if (FlxX_equal(Py, Qy))
-      return eigenu_elldbl(E, P);
-    else
-      return ellinf();
-  }
-  lambda = FlxqXQ_div(FlxX_sub(Py, Qy, p), FlxX_sub(Px, Qx, p), h, T, p);
-  C = FlxX_sub(FlxX_sub(FlxqXQ_mul(FlxqXQ_sqr(lambda, h, T, p), Edat->RHS, h, T, p), Px, p), Qx, p);
-  D = FlxX_sub(FlxqXQ_mul(lambda, FlxX_sub(Px, C, p), h, T, p), Py, p);
-  return gerepilecopy(ltop, mkvec2(C,D));
-}
-
-static GEN
-eigen_ellmulu(struct eigen_ellinit *E, GEN z, ulong n)
-{
-  pari_sp av = avma;
-  if (!n || ell_is_inf(z)) return mkvec(gen_0);
-  if (n == 1) return gcopy(z);
-  if (E->pp)
-    return gerepileupto(av, gen_powu(z, n, E, &eigenu_elldbl, &eigenu_elladd));
-  else
-    return gerepileupto(av, gen_powu(z, n, E, &eigen_elldbl, &eigen_elladd));
-}
-
 static GEN
 Fq_to_Flx(GEN a4, GEN T, ulong p)
 {
   return typ(a4)==t_INT ? Z_to_Flx(a4, p, get_Flx_var(T)): ZX_to_Flx(a4, p);
 }
 
-static void
-init_find_eigen(struct eigen_ellinit *Edat, GEN a4, GEN a6, GEN h, GEN T, GEN p, ulong pp)
+static GEN
+Flxq_find_eigen_Frobenius(GEN a4, GEN a6, GEN h, GEN T, ulong p)
 {
-  if (pp)
-  {
-    GEN Tp = ZXT_to_FlxT(T, pp);
-    GEN hp  = ZXXT_to_FlxXT(h, pp, get_FpX_var(T));
-    init_eigenu(Edat, Fq_to_Flx(a4, Tp, pp), Fq_to_Flx(a6, Tp, pp),
-        FlxqX_get_red(hp, Tp, pp), Tp, pp);
-  }
-  else
-    init_eigen(Edat, a4, a6, FqX_get_red(h, T, p), T, p);
+  long v = get_FlxqX_var(h);
+  GEN RHS = FlxqX_rem(rhs(a4, a6, v), h, T, p);
+  return FlxqXQ_halfFrobenius(RHS, h, T, p);
 }
 
+static GEN
+Fq_find_eigen_Frobenius(GEN a4, GEN a6, GEN h, GEN T, GEN p)
+{
+  long v = T ? get_FpXQX_var(h): get_FpX_var(h);
+  GEN RHS  = FqX_rem(rhs(a4, a6, v), h, T, p);
+  return T ? FpXQXQ_halfFrobenius(RHS, h, T, p):
+             FpXQ_pow(RHS, shifti(p, -1), h, p);
+}
 /*Finds the eigenvalue of the Frobenius given E, ell odd prime, h factor of the
  *ell-division polynomial, p and tr the possible values for the trace
  *(useful for primes with one root)*/
@@ -494,51 +559,89 @@ static ulong
 find_eigen_value_oneroot(GEN a4, GEN a6, ulong ell, GEN tr, GEN h, GEN T, GEN p)
 {
   pari_sp ltop = avma;
-  GEN BP, Dr;
   ulong t;
-  struct eigen_ellinit Edat;
-  ulong pp = T ?itou_or_0(p): 0;
-  init_find_eigen(&Edat, a4, a6, h, T, p, pp);
-  Dr = BP = Edat.O;
-  /*[Gx,Gy], BP, Dr are not points on the curve. */
-  /*To obtain the corresponding points, multiply the y-coordinates by Y */
+  struct divpolmod_red d;
+  GEN f, Dy, Gy;
+  h = FqX_get_red(h, T, p);
+  Gy = Fq_find_eigen_Frobenius(a4, a6, h, T, p);
   t = Fl_div(tr[1], 2, ell);
   if (t < (ell>>1)) t = ell - t;
-  Dr = eigen_ellmulu(&Edat, BP, t);
-  if (gequal(gel(Dr,2), Edat.Gy)) { avma = ltop; return t; }
-  if (gequal(gel(Dr,2), Edat.nGy)) { avma = ltop; return ell - t; }
-  pari_err_BUG("find_eigen_value"); return 0; /* NOT REACHED */
+  Fq_elldivpolmod_init(&d, a4, a6, t, h, T, p);
+  f = Fq_ellyn(&d, t);
+  Dy = FqXQ_mul(Gy, gel(f,2), h, T, p);
+  if (!gequal(gel(f,1), Dy)) t = ell-t;
+  Fq_elldivpolmod_close(&d);
+  avma = ltop; return t;
+}
+
+static ulong
+Flxq_find_eigen_value_power(GEN a4, GEN a6, ulong ell, long k, ulong lambda,
+                            GEN h, GEN T, ulong p)
+{
+  pari_sp ltop = avma;
+  ulong t, ellk1 = upowuu(ell, k-1), ellk = ell*ellk1;
+  pari_timer ti;
+  struct divpolmod_red d;
+  GEN Gy;
+  timer_start(&ti);
+  h = FlxqX_get_red(h, T, p);
+  Gy = Flxq_find_eigen_Frobenius(a4, a6, h, T, p);
+  if (DEBUGLEVEL>2) err_printf(" (%ld ms)",timer_delay(&ti));
+  Flxq_elldivpolmod_init(&d, a4, a6, ellk, h, T, p);
+  for (t = lambda; t < ellk; t += ellk1)
+  {
+    GEN f = Fq_ellyn(&d, t);
+    GEN Dr = FlxqXQ_mul(Gy, gel(f,2), h, T, p);
+    if (varn(gel(f,1))!=varn(Dr)) pari_err_BUG("find_eigen_value_power");
+    if (gequal(gel(f,1), Dr)) break;
+    if (gequal(gel(f,1), FlxX_neg(Dr,p))) { t = ellk-t; break; }
+  }
+  if (DEBUGLEVEL>2) err_printf(" (%ld ms)",timer_delay(&ti));
+  Fq_elldivpolmod_close(&d);
+  avma = ltop; return t;
 }
 
 /*Finds the eigenvalue of the Frobenius modulo ell^k given E, ell, k, h factor
  *of the ell-division polynomial, lambda the previous eigen value and p */
 static ulong
-find_eigen_value_power(GEN a4, GEN a6, ulong ell, long k, ulong lambda, GEN h, GEN T, GEN p)
+Fq_find_eigen_value_power(GEN a4, GEN a6, ulong ell, long k, ulong lambda, GEN h, GEN T, GEN p)
 {
   pari_sp ltop = avma;
-  pari_sp btop;
-  GEN BP, Dr, Gy, nGy;
-  /*[Gx,Gy], BP, Dr are not points on the curve. */
-  /*To obtain the corresponding points, multiply the y-coordinates by Y */
   ulong t, ellk1 = upowuu(ell, k-1), ellk = ell*ellk1;
-  struct eigen_ellinit Edat;
-  ulong pp = T ?itou_or_0(p): 0;
-  init_find_eigen(&Edat, a4, a6, h, T, p, pp);
-  BP = eigen_ellmulu(&Edat, Edat.O, ellk1);
-  Dr = eigen_ellmulu(&Edat, Edat.O, lambda);
-  Gy = Edat.Gy; nGy = Edat.nGy;
-
-  btop = avma;
-  for (t = 0; t < ellk; t += ellk1)
+  pari_timer ti;
+  struct divpolmod_red d;
+  GEN Gy;
+  timer_start(&ti);
+  h = FqX_get_red(h, T, p);
+  Gy = Fq_find_eigen_Frobenius(a4, a6, h, T, p);
+  if (DEBUGLEVEL>2) err_printf(" (%ld ms)",timer_delay(&ti));
+  Fq_elldivpolmod_init(&d, a4, a6, ellk, h, T, p);
+  for (t = lambda; t < ellk; t += ellk1)
   {
-    if (gequal(gel(Dr,2), Gy))  { avma = ltop; return t+lambda; }
-    if (gequal(gel(Dr,2), nGy)) { avma = ltop; return ellk-(t+lambda); }
-    Dr = pp ? eigenu_elladd(&Edat, Dr, BP): eigen_elladd(&Edat, Dr, BP);
-    if (gc_needed(btop, 1))
-      Dr = gerepileupto(btop, Dr);
+    GEN f = Fq_ellyn(&d, t);
+    GEN Dr = FqXQ_mul(Gy, gel(f,2), h, T, p);
+    if (varn(gel(f,1))!=varn(Dr)) pari_err_BUG("find_eigen_value_power");
+    if (gequal(gel(f,1), Dr)) break;
+    if (gequal(gel(f,1), FqX_neg(Dr,T,p))) { t = ellk-t; break; }
   }
-  pari_err_BUG("find_eigen_value_power");
-  return 0; /* NOT REACHED */
+  if (DEBUGLEVEL>2) err_printf(" (%ld ms)",timer_delay(&ti));
+  Fq_elldivpolmod_close(&d);
+  avma = ltop; return t;
+}
+
+static ulong
+find_eigen_value_power(GEN a4, GEN a6, ulong ell, long k, ulong lambda, GEN hq, GEN T, GEN p)
+{
+  ulong pp = itou_or_0(p);
+  if (pp && T)
+  {
+    GEN a4p = ZX_to_Flx(a4, pp);
+    GEN a6p = ZX_to_Flx(a6, pp);
+    GEN hp = ZXXT_to_FlxXT(hq, pp,varn(a4));
+    GEN Tp = ZXT_to_FlxT(T, pp);
+    return Flxq_find_eigen_value_power(a4p, a6p, ell, k, lambda, hp, Tp, pp);
+  }
+  return Fq_find_eigen_value_power(a4, a6, ell, k, lambda, hq, T, p);
 }
 
 /*Finds the kernel polynomial h, dividing the ell-division polynomial from the
@@ -1129,7 +1232,7 @@ find_trace_Elkies_power(GEN a4, GEN a6, ulong ell, long k, struct meqn *MEQN, GE
   ulong lambda, ellk = upowuu(ell, k), pellk = umodiu(q, ellk);
   long cnt;
 
-  if (DEBUGLEVEL) { err_printf("Trace mod %ld", ell); }
+  if (DEBUGLEVEL) { err_printf("mod %ld", ell); }
   Eba4 = a4;
   Eba6 = a6;
   tmp = find_isogenous(a4,a6, ell, MEQN, g, T, p);
@@ -1734,7 +1837,7 @@ Fq_ellcard_SEA(GEN a4, GEN a6, GEN q, GEN T, GEN p, long smallfact)
     return T ? FpXQ_ellcard(Fq_to_FpXQ(a4, T, p), Fq_to_FpXQ(a6, T, p), T, p)
              : Fp_ellcard(a4, a6, p);
   /*First compute the trace modulo 2 */
-  switch(FqX_nbroots(mkpoln(4, gen_1, gen_0, a4, a6), T, p))
+  switch(FqX_nbroots(rhs(a4, a6, 0), T, p))
   {
   case 3: /* bonus time: 4 | #E(Fq) = q+1 - t */
     i = mod4(q)+1; if (i > 2) i -= 4;
