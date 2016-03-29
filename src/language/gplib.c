@@ -996,7 +996,9 @@ gp_load_gprc(void)
 static void
 readline_prompt_color(char *s, int c)
 {
-#ifndef _WIN32
+#ifdef _WIN32
+  (void)s; (void)c;
+#else
   *s++ = '\001'; /*RL_PROMPT_START_IGNORE*/
   term_get_color(s, c);
   s += strlen(s);
