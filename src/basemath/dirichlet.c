@@ -26,10 +26,8 @@ err_direuler(GEN x)
 static long
 dirmuleuler_small(GEN V, GEN v, long n, ulong p, GEN s)
 {
-  long d = lg(s)-2, b = lg(V)-1;
-  long i,j;
-  long m = n;
-  ulong q = 1;
+  long i, j, m = n, d = lg(s)-2;
+  ulong q = 1, b = lg(V)-1;
   for (i=1, q=p; i<=d; i++, q*=p)
   {
     GEN aq = gel(s,i+1);
