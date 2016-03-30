@@ -1,14 +1,17 @@
 Function: qfisominit
 Section: linear_algebra
 C-Name: qfisominit0
-Prototype: GDG
-Help: qfisominit(G,{fl}): G being a square and symmetric matrix representing an
- integral positive definite quadratic form, this function return a structure
+Prototype: GDGDG
+Help: qfisominit(G,{fl},{m}): G being a square and symmetric matrix representing an
+ integral positive definite quadratic form, this function returns a structure
  allowing to compute isomorphisms between G and other quadratic form faster.
 Doc:
  $G$ being a square and symmetric matrix with integer entries representing a
  positive definite quadratic form, return an \kbd{isom} structure allowing to
  compute isomorphisms between $G$ and other quadratic forms faster.
+
+ If present, $m$ must be the set of vectors of norm up to the maximal of the
+ diagonal entry of $G$, eithr as a matrix or as given by \kbd{qfminim}.
 
  The interface of this function is experimental and will likely change in future
  release.
