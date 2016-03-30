@@ -297,15 +297,17 @@ gen_product(GEN x, void *data, GEN (*mul)(void *,GEN,GEN))
 {
   pari_sp ltop;
   long i,k,lx = lg(x);
+  pari_timer ti;
+  if (DEBUGLEVEL>7) timer_start(&ti);
 
   if (lx == 1) return gen_1;
   if (lx == 2) return gcopy(gel(x,1));
   x = leafcopy(x); k = lx;
-  ltop=avma;
+  ltop = avma;
   while (k > 2)
   {
     if (DEBUGLEVEL>7)
-      err_printf("prod: remaining objects %ld\n",k-1);
+      timer_printf(&ti,"gen_product: remaining objects %ld",k-1);
     lx = k; k = 1;
     for (i=1; i<lx-1; i+=2)
       gel(x,k++) = mul(data,gel(x,i),gel(x,i+1));
