@@ -125,6 +125,7 @@ GEN     F2x_halfgcd(GEN a, GEN b);
 int     F2x_issquare(GEN a);
 GEN     F2x_matFrobenius(GEN T);
 GEN     F2x_mul(GEN x, GEN y);
+GEN     F2x_recip(GEN T);
 GEN     F2x_rem(GEN x, GEN y);
 GEN     F2x_shift(GEN y, long d);
 GEN     F2x_sqr(GEN x);

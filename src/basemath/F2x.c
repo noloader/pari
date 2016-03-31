@@ -675,6 +675,43 @@ F2x_shift(GEN y, long d)
   return d<0 ? F2x_shiftneg(y,-d): F2x_shiftpos(y,d);
 }
 
+#define F2x_recip2(pk,m) u = ((u&m)<<pk)|((u&(~m))>>pk);
+#define F2x_recipu(pk) F2x_recip2(pk,((~0UL)/((1UL<<pk)+1)))
+
+static ulong
+F2x_recip1(ulong u)
+{
+  u = (u<<BITS_IN_HALFULONG)|(u>>BITS_IN_HALFULONG);
+#ifdef LONG_IS_64BIT
+  F2x_recipu(16);
+#endif
+  F2x_recipu(8);
+  F2x_recipu(4);
+  F2x_recipu(2);
+  F2x_recipu(1);
+  return u;
+}
+
+static GEN
+F2x_recip_raw(GEN x)
+{
+  long i, l;
+  GEN y = cgetg_copy(x,&l);
+  y[1] = x[1];
+  for (i=0; i<l-2; i++)
+    uel(y,l-1-i) = F2x_recip1(uel(x,2+i));
+  return y;
+}
+
+GEN
+F2x_recip(GEN x)
+{
+  long lb = remsBIL(F2x_degree(x)+1);
+  GEN y = F2x_recip_raw(x);
+  if (lb) y = F2x_shiftneg(y,BITS_IN_LONG-lb);
+  return y;
+}
+
 GEN
 F2x_get_red(GEN T)
 {
