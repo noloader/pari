@@ -10,9 +10,6 @@ Doc:
  positive definite quadratic form, return an \kbd{isom} structure allowing to
  compute isomorphisms between $G$ and other quadratic forms faster.
 
- If present, $m$ must be the set of vectors of norm up to the maximal of the
- diagonal entry of $G$, eithr as a matrix or as given by \kbd{qfminim}.
-
  The interface of this function is experimental and will likely change in future
  release.
 
@@ -24,8 +21,10 @@ Doc:
 
  \item \kbd{fl[2]} Maximum level of Bacher polynomials to use.
 
- Since this function computes the minimal vectors, it can become very lengthy
- as the dimension of $G$ grows.
+ If present, $m$ must be the set of vectors of norm up to the maximal of the
+ diagonal entry of $G$, either as a matrix or as given by \kbd{qfminim}.
+ Otherwise this function computes the minimal vectors so it become very
+ lengthy as the dimension of $G$ grows.
 Variant: Also available is
  \fun{GEN}{qfisominit}{GEN F, GEN fl}
  where $F$ is a vector of \kbd{zm}.
