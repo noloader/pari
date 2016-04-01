@@ -473,73 +473,57 @@ Fq_to_Flx(GEN a4, GEN T, ulong p)
   return typ(a4)==t_INT ? Z_to_Flx(a4, p, get_Flx_var(T)): ZX_to_Flx(a4, p);
 }
 
+static void
+init_find_eigen(struct eigen_ellinit *Edat, GEN a4, GEN a6, GEN h, GEN T, GEN p, ulong pp)
+{
+  if (pp)
+  {
+    GEN Tp = ZXT_to_FlxT(T, pp);
+    GEN hp  = ZXXT_to_FlxXT(h, pp, get_FpX_var(T));
+    init_eigenu(Edat, Fq_to_Flx(a4, Tp, pp), Fq_to_Flx(a6, Tp, pp),
+        FlxqX_get_red(hp, Tp, pp), Tp, pp);
+  }
+  else
+    init_eigen(Edat, a4, a6, FqX_get_red(h, T, p), T, p);
+}
+
 /*Finds the eigenvalue of the Frobenius given E, ell odd prime, h factor of the
  *ell-division polynomial, p and tr the possible values for the trace
  *(useful for primes with one root)*/
 static ulong
-find_eigen_value(GEN a4, GEN a6, ulong ell, GEN h, GEN T, GEN p, GEN tr)
+find_eigen_value_oneroot(GEN a4, GEN a6, ulong ell, GEN tr, GEN h, GEN T, GEN p)
 {
   pari_sp ltop = avma;
   GEN BP, Dr;
   ulong t;
   struct eigen_ellinit Edat;
   ulong pp = T ?itou_or_0(p): 0;
-  if (pp)
-  {
-    GEN Tp = ZXT_to_FlxT(T, pp);
-    GEN hp  = ZXXT_to_FlxXT(h, pp, get_FpX_var(T));
-    init_eigenu(&Edat, Fq_to_Flx(a4, Tp, pp), Fq_to_Flx(a6, Tp, pp),
-        FlxqX_get_red(hp, Tp, pp), Tp, pp);
-  }
-  else
-    init_eigen(&Edat, a4, a6, FqX_get_red(h, T, p), T, p);
+  init_find_eigen(&Edat, a4, a6, h, T, p, pp);
   Dr = BP = Edat.O;
   /*[Gx,Gy], BP, Dr are not points on the curve. */
   /*To obtain the corresponding points, multiply the y-coordinates by Y */
-  if (!tr)
-  {
-    pari_sp btop = avma;
-    for (t = 1; t <= (ell>>1); t++)
-    {
-      if (gequal(gel(Dr,2), Edat.Gy))  { avma = ltop; return t; }
-      if (gequal(gel(Dr,2), Edat.nGy)) { avma = ltop; return ell-t; }
-      Dr = pp ? eigenu_elladd(&Edat, Dr, BP): eigen_elladd(&Edat, Dr, BP);
-      Dr = gerepileupto(btop, Dr);
-    }
-  }
-  else
-  {
-    t = Fl_div(tr[1], 2, ell);
-    if (t < (ell>>1)) t = ell - t;
-    Dr = eigen_ellmulu(&Edat, BP, t);
-    if (gequal(gel(Dr,2), Edat.Gy)) { avma = ltop; return t; }
-    if (gequal(gel(Dr,2), Edat.nGy)) { avma = ltop; return ell - t; }
-  }
+  t = Fl_div(tr[1], 2, ell);
+  if (t < (ell>>1)) t = ell - t;
+  Dr = eigen_ellmulu(&Edat, BP, t);
+  if (gequal(gel(Dr,2), Edat.Gy)) { avma = ltop; return t; }
+  if (gequal(gel(Dr,2), Edat.nGy)) { avma = ltop; return ell - t; }
   pari_err_BUG("find_eigen_value"); return 0; /* NOT REACHED */
 }
 
 /*Finds the eigenvalue of the Frobenius modulo ell^k given E, ell, k, h factor
  *of the ell-division polynomial, lambda the previous eigen value and p */
 static ulong
-find_eigen_value_power(GEN a4, GEN a6, ulong ell, long k, GEN h, ulong lambda, GEN T, GEN p)
+find_eigen_value_power(GEN a4, GEN a6, ulong ell, long k, ulong lambda, GEN h, GEN T, GEN p)
 {
   pari_sp ltop = avma;
   pari_sp btop;
-  struct eigen_ellinit Edat;
   GEN BP, Dr, Gy, nGy;
   /*[Gx,Gy], BP, Dr are not points on the curve. */
   /*To obtain the corresponding points, multiply the y-coordinates by Y */
   ulong t, ellk1 = upowuu(ell, k-1), ellk = ell*ellk1;
+  struct eigen_ellinit Edat;
   ulong pp = T ?itou_or_0(p): 0;
-  if (pp)
-  {
-    GEN Tp = ZXT_to_FlxT(T, pp);
-    GEN hp  = ZXXT_to_FlxXT(h, pp, get_FpX_var(T));
-    init_eigenu(&Edat, Fq_to_Flx(a4, Tp, pp), Fq_to_Flx(a6, Tp, pp),
-        FlxqX_get_red(hp, Tp, pp), Tp, pp);
-  }
-  else
-    init_eigen(&Edat, a4, a6, FqX_get_red(h, T, p), T, p);
+  init_find_eigen(&Edat, a4, a6, h, T, p, pp);
   BP = eigen_ellmulu(&Edat, Edat.O, ellk1);
   Dr = eigen_ellmulu(&Edat, Edat.O, lambda);
   Gy = Edat.Gy; nGy = Edat.nGy;
@@ -1154,7 +1138,8 @@ find_trace_Elkies_power(GEN a4, GEN a6, ulong ell, long k, struct meqn *MEQN, GE
   Eca6 =  gel(tmp, 2);
   kpoly = gel(tmp, 3);
   Ib = pol_x(0);
-  lambda = find_eigen_value(a4, a6, ell, kpoly, T, p, tr);
+  lambda = tr ? find_eigen_value_oneroot(a4, a6, ell, tr, kpoly, T, p):
+                find_eigen_value_power(a4, a6, ell, 1, 1, kpoly, T, p);
   if (DEBUGLEVEL>1) err_printf(" [%ld ms]", timer_delay(ti));
   if (smallfact && ell>smallfact)
   {
@@ -1169,7 +1154,7 @@ find_trace_Elkies_power(GEN a4, GEN a6, ulong ell, long k, struct meqn *MEQN, GE
     if (DEBUGLEVEL) err_printf(", %Ps", powuu(ell, cnt));
     tmp = find_kernel_power(Eba4, Eba6, Eca4, Eca6, ell, MEQN, kpoly, Ib, T, p);
     if (!tmp) { avma = ltop; return NULL; }
-    lambda = find_eigen_value_power(a4, a6, ell, cnt, gel(tmp,3), lambda, T, p);
+    lambda = find_eigen_value_power(a4, a6, ell, cnt, lambda, gel(tmp,3), T, p);
     Eba4 = Eca4;
     Eba6 = Eca6;
     Eca4 = gel(tmp,1);
