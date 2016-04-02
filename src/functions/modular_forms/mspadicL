@@ -14,7 +14,7 @@ Doc:
  $$L_p(\Phi,s,D)= \int_{\Z_p^*} \chi^s(z)d\mu(z)$$
  where $\mu$ is the distribution on $\Z_p^*$ defined by the
  restriction of $\Phi([\infty]-[0])$ to $\Z_p^*$. Return its value of its
- $r$-ieme derivative at $\langle \chi \rangle^{s_1} \tau^{s_2}$ if
+ $r$-th derivative at $\langle \chi \rangle^{s_1} \tau^{s_2}$ if
  $s=[s_1,s_2]$ with $s_1 \in \Z \subset \Z_p$ and $s_2 \bmod p-1$ or $s_2
  \bmod 2$ for $p=2$; the character $[s,s]$ can also be represented by
  the integer $s$.
