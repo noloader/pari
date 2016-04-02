@@ -210,12 +210,15 @@ inithashmsymbols(ulong N, GEN symbols)
 #endif
 
 /** Helper functions for Sl2(Z) / Gamma_0(N) **/
+/* [a,b;c,d] */
+static GEN
+mkmat22(GEN a, GEN b, GEN c, GEN d) { retmkmat2(mkcol2(a,c),mkcol2(b,d)); }
 /* M a 2x2 ZM in SL2(Z) */
 static GEN
 SL2_inv(GEN M)
 {
   GEN a=gcoeff(M,1,1), b=gcoeff(M,1,2), c=gcoeff(M,2,1), d=gcoeff(M,2,2);
-  return mkmat2(mkcol2(d, negi(c)), mkcol2(negi(b), a));
+  return mkmat22(d,negi(b), negi(c),a);
 }
 /* M a 2x2 zm in SL2(Z) */
 static GEN
@@ -1399,7 +1402,7 @@ msinit_N(ulong N)
   GEN C, vecF, vecT2, vecT31;
   ulong r, s, width;
   long nball, nbgen, nbp1N = p1_size(p1N);
-  GEN TAU = mkmat2(mkcol2(gen_0,gen_1), mkcol2(gen_m1,gen_m1)); /*[0,-1;1,-1]*/
+  GEN TAU = mkmat22(gen_0,gen_m1, gen_1,gen_m1); /*[0,-1;1,-1]*/
   GEN W, W2, singlerel, annT2, annT31;
   GEN F_index;
   hashtable *F, *T2, *T31, *T32, *E1, *E2;
@@ -1462,7 +1465,7 @@ msinit_N(ulong N)
     long c = itos(gel(data,1));
     GEN u = gel(data,2); /* E2[s] = u * E1[c], u = - [gamma] */
     GEN gamma = gcoeff(u,1,1);
-    gel(singlerel, c) = mkmat2(mkcol2(gen_1,gamma),mkcol2(gen_1,gen_m1));
+    gel(singlerel, c) = mkmat22(gen_1,gen_1, gamma,gen_m1);
   }
   for (r = E1->nb + 1; r <= width; r++) gel(singlerel, r) = gen_1;
 
@@ -1473,7 +1476,7 @@ msinit_N(ulong N)
   {
     GEN w = gel(vecT2,r);
     GEN gamma = gamma_equiv_matrix(vecreverse(w), w);
-    gel(annT2, r) = mkmat2(mkcol2(gen_1,gamma), mkcol2(gen_1,gen_1));
+    gel(annT2, r) = mkmat22(gen_1,gen_1, gamma,gen_1);
   }
 
   /* form the 3-torsion relations */
@@ -1766,8 +1769,7 @@ M2_log(GEN W, GEN M)
       b = negi(b);
       d = negi(d);
     }
-    M = mkmat2(mkcol2(a,c), mkcol2(b,d));
-    M = Gamma0N_decompose(W, M, &index);
+    M = Gamma0N_decompose(W, mkmat22(a,b, c,d), &index);
     treat_index(W, M, index, V);
   }
   else
@@ -1777,7 +1779,7 @@ M2_log(GEN W, GEN M)
     (void)bezout(a,c,&u,&v);
     B = addii(mulii(b,u), mulii(d,v));
     /* [u,v;-c,a] [a,b; c,d] = [1,B; 0,D], i.e. M = U [1,B;0,D] */
-    U = mkmat2(mkcol2(a, c), mkcol2(negi(v),u));
+    U = mkmat22(a,negi(v), c,u);
 
     /* {1/0 -> B/D} as \sum g_i, g_i unimodular paths */
     PQ = ZV_allpnqn( gboundcf(gdiv(B,D), 0) );
@@ -1929,8 +1931,8 @@ Gl2Q_act_path(GEN f, GEN path)
   long c = coeff(f,2,1), d = coeff(f,2,2);
   GEN c1 = cusp_mul(gel(path,1), a,b,c,d);
   GEN c2 = cusp_mul(gel(path,2), a,b,c,d);
-  return mkmat2(mkcol2(stoi(c1[1]),stoi(c1[2])),
-                mkcol2(stoi(c2[1]),stoi(c2[2])));
+  return mkmat22(stoi(c1[1]), stoi(c2[1]),
+                 stoi(c1[2]), stoi(c2[2]));
 }
 
 static GEN
@@ -3563,7 +3565,7 @@ mstooms(GEN W, GEN phi)
       long flag = mspadic_get_flag(W);
       if (!flag || (signe(ap) && Z_lval(ap,p) < flag))
         pari_err_TYPE("mstooms [supersingular symbol]", phi);
-      alpha = mkmat2(mkcol2(ap, powuu(p, k-1)), mkcol2(gen_m1,gen_0));
+      alpha = mkmat22(ap,gen_m1, powuu(p, k-1),gen_0);
       alpha = ginv(alpha);
       phi = oms_supersingular(W, mkvec2(phi1,phi2), gsqr(alpha), ap);
       phi = Q_remove_denom(phi, &c1);
@@ -3623,10 +3625,7 @@ mspadicmoments(GEN W, GEN PHI, long D)
     {
       GEN z = NULL;
       if (ugcd(b,aD) == 1)
-      {
-        GEN m = mkmat2(mkcol2(gaD,gen_0), mkcol2(utoipos(b),gaD));
-        z = moments_act(&S, m);
-      }
+        z = moments_act(&S, mkmat22(gaD,utoipos(b), gen_0,gaD));
       gel(Dact,b) = z;
     }
     if (k != 2) Dk = Fp_pows(stoi(D), 2-k, pn);
@@ -3647,7 +3646,7 @@ mspadicmoments(GEN W, GEN PHI, long D)
         if (!s) continue;
         z = addii(muluu(a, aD), muluu(p, b));
         /* oo -> a/p + p/|D|*/
-        path = mkmat2(mkcol2(gen_1,gen_0), mkcol2(z, muluu(p, aD)));
+        path = mkmat22(gen_1,z, gen_0,muluu(p, aD));
         T = omseval_int(W, phi, M2_log(Wp,path), pn);
         for (c = 1; c < lphi; c++)
         {
@@ -3661,7 +3660,7 @@ mspadicmoments(GEN W, GEN PHI, long D)
     }
     else
     {
-      path = mkmat2(mkcol2(gen_1,gen_0), mkcol2(utoipos(a), gp));
+      path = mkmat22(gen_1,utoipos(a), gen_0,gp);
       vca = omseval_int(W, phi, M2_log(Wp,path), pn);
     }
     /* ca[r+1] = c_r(a/p) = \Phi([a/p] - [oo])(z^r) */
