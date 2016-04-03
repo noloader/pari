@@ -2019,9 +2019,8 @@ init_dual_act(GEN v, GEN W1, GEN W2, struct m_act *S,
   long i, lv;
   GEN L;
   if (typ(v) != t_VEC) v = mkvec(v);
-  lv = lg(v); L = cgetg(lv, t_MAT);
-  for (i = 1; i < lv; i++)
-    gel(L,i) = init_dual_act_f(gel(v,i), W1, W2, S, act);
+  lv = lg(v); L = cgetg(lv, t_VEC);
+  for (i = 1; i < lv; i++) gel(L,i) = init_dual_act_f(gel(v,i), W1, W2, S, act);
   return L;
 }
 
@@ -3585,6 +3584,15 @@ mstooms(GEN W, GEN phi)
   return gerepilecopy(av, mkcol3(phi, stoi(vden), alpha));
 }
 
+static GEN
+FpVV_dotproduct(GEN v, GEN w, GEN p)
+{
+  long j, l = lg(v);
+  GEN T = cgetg(l, t_VEC);
+  for (j = 1; j < l; j++) gel(T,j) = FpV_dotproduct(gel(v,j),w,p);
+  return T;
+}
+
 /* W an mspadic, phi eigensymbol, p \nmid D. Return C(x) mod FilM */
 GEN
 mspadicmoments(GEN W, GEN PHI, long D)
@@ -3663,17 +3671,8 @@ mspadicmoments(GEN W, GEN PHI, long D)
       path = mkmat22(gen_1,utoipos(a), gen_0,gp);
       vca = omseval_int(W, phi, M2_log(Wp,path), pn);
     }
-    /* ca[r+1] = c_r(a/p) = \Phi([a/p] - [oo])(z^r) */
     for (i = 1; i < lphi; i++)
-    {
-      GEN Ta = cgetg(n+2, t_VEC), ca = gel(vca,i);
-      long j;
-      gmael(v,i,a) = Ta;
-      /* b := (a-w(a)) / p; Ta[j+1] is
-       * p^j\sum_{0<=r<=j} binomial(j,r)*b^(j-r)*w(a)^(-j)*c_r(a/p) mod p^n */
-      for (j = 0; j <= n; j++) gel(Ta, j+1) = FpV_dotproduct(gel(Ca,j+1),ca,pn);
-      /* Ta[j+1] correct mod p^(n+1), j > 0 */
-    }
+      gmael(v,i,a) = FpVV_dotproduct(Ca, gel(vca,i), pn);
   }
   return gerepilecopy(av, mkvec3(v, gel(PHI,3), mkvecsmall4(p,n+vden,n,D)));
 }
