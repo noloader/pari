@@ -187,8 +187,15 @@ $\var{bnr},H$ (congruence subgroup) or $\var{bnr},\chi$ (character on
 \li{subgroups of \var{bnr}, index $<=b$}{subgrouplist$(\var{bnr},b,\{\fl\})$}
 \li{rel.\ eq.\ for class field def'd by $sub$}{rnfkummer$(\var{bnr},sub,\{d\})$}
 \li{same, using Stark units (real field)}{bnrstark$(\var{bnr},sub,\{\fl\})$}
+\li{is $a$ an $n$-th power in $K_v$ ?}{nfislocalpower$(\var{nf},v,a,n)$}
 \li{cyclic $L/K$ satisf. local conditions}
    {nfgrunwaldwang$(\var{nf},P,D,\var{pl})$}
+\subsec{Logarithmic class group}
+\li{logarithmic $\ell$-class group}{bnflog$(\var{bnf},\ell)$}
+\li{$[\tilde{e}(F_v/\Q_p),\tilde{f}(F_v/\Q_p)]$}
+   {bnflogef$(\var{bnf},\var{pr})$}
+\li{$\exp \deg_F(A)$}{bnflogdegree$(\var{bnf}, A, \ell)$}
+\li{is $\ell$-extension $L/K$ locally cyclotomic}{rnfislocalcyclo$(\var{rnf})$}
 
 \section{Ideals: {\rm elements, primes, or matrix of generators in HNF}}
 \li{is $id$ an ideal in \var{nf} ?}{nfisideal$(\var{nf},id)$}
@@ -214,7 +221,7 @@ $\var{bnr},H$ (congruence subgroup) or $\var{bnr},\chi$ (character on
 \li{expand ideal factorization in $K$}{idealfactorback$(\var{nf},f,\{e\})$}
 \li{expand elt factorisation in $K$}{nffactorback$(\var{nf},f,\{e\})$}
 \li{decomposition of prime $p$ in $\ZZ_K$}{idealprimedec$(\var{nf},p)$}
-\li{valuation of $x$ at prime ideal $pr$}{idealval$(\var{nf},x,pr)$}
+\li{valuation of $x$ at prime ideal \var{pr}}{idealval$(\var{nf},x,\var{pr})$}
 \li{weak approximation theorem in \var{nf}}{idealchinese$(\var{nf},x,y)$}
 \li{$a\in K$, s.t. $v_{\goth{p}}(a) = v_{\goth{p}}(x)$ if
    $v_{\goth{p}}(x)\neq 0$}
@@ -224,19 +231,20 @@ $\var{bnr},H$ (congruence subgroup) or $\var{bnr},\chi$ (character on
 \li{structure of $(1+\goth{p}) / (1+\goth{p}^k)$}
    {idealprincipalunits$(\var{nf},\var{pr},k)$}
 \li{discrete log of $x$ in $(\ZZ_K/bid)^*$}{ideallog$(\var{nf},x,bid)$}
-\li{\kbd{idealstar} of all ideals of norm $\le b$}{ideallist$(\var{nf},b,\{\fl\})$}
-\li{add Archimedean places}{ideallistarch$(\var{nf},b,\{ar\},\{\fl\})$}
-\smallskip
-
-\li{init \kbd{modpr} structure}{nfmodprinit$(\var{nf},\var{pr})$}
-\li{project $t$ to $\ZZ_K/\var{pr}$}{nfmodpr$(\var{nf},t,\var{modpr})$}
-\li{lift from $\ZZ_K/\var{pr}$}{nfmodprlift$(\var{nf},t,\var{modpr})$}
 
 \shortcopyrightnotice
 \newcolumn
 \title{\TITLE}
 
 \centerline{(PARI-GP version \PARIversion)}
+\medskip
+
+\li{\kbd{idealstar} of all ideals of norm $\le b$}{ideallist$(\var{nf},b,\{\fl\})$}
+\li{add Archimedean places}{ideallistarch$(\var{nf},b,\{ar\},\{\fl\})$}
+
+\li{init \kbd{modpr} structure}{nfmodprinit$(\var{nf},\var{pr})$}
+\li{project $t$ to $\ZZ_K/\var{pr}$}{nfmodpr$(\var{nf},t,\var{modpr})$}
+\li{lift from $\ZZ_K/\var{pr}$}{nfmodprlift$(\var{nf},t,\var{modpr})$}
 
 \section{Galois theory over $\QQ$}
 \li{Galois group of field $\QQ[x]/(f)$}{polgalois$(f)$}

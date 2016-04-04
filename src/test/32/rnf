@@ -839,4 +839,11 @@ error("inconsistent operation 'RgV_RgC_mul' t_VEC (3 elts) , t_COL (2 elts).
   ***                 ^--------------------
   *** rnfidealtwoelt: incorrect type in idealtyp [non-square t_MAT] (t_MAT).
 0
-Total time spent: 752
+0
+1
+1
+1
+  ***   at top-level: rnfislocalcyclo(rnfi
+  ***                 ^--------------------
+  *** rnfislocalcyclo: sorry, rnfislocalcyclo for non-l-extensions is not yet implemented.
+Total time spent: 490
