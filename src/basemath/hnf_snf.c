@@ -1954,7 +1954,7 @@ hnf_invimage(GEN A, GEN b)
   long n = lg(A)-1, m, i, k;
   GEN u, r;
 
-  if (!n) return NULL;
+  if (!n) return lg(b)==1? cgetg(1,t_COL):NULL;
   m = nbrows(A); /* m >= n */
   u = cgetg(n+1, t_COL);
   for (i = n, k = m; k > 0; k--)

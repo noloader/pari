@@ -1996,7 +1996,10 @@ init_dual_act_f(GEN f, GEN W1, GEN W2, struct m_act *S,
    * [satisfy e.g. (1+gamma).g = 0 => \phi(g) | 1+gamma  = 0 => \phi(g) = 0 */
   long j, dim = S->dim == 1? ms_get_nbE1(W2): lg(gen)-1;
   GEN T = cgetg(dim+1, t_MAT), F;
-  if (typ(gel(f,1)) == t_VEC) { F = f; f = ZM_to_zm(F); } else F = zm_to_ZM(f);
+  if (typ(gel(f,1)) == t_VECSMALL)
+    F = zm_to_ZM(f);
+  else
+  { F = f; f = ZM_to_zm(F); }
   /* f zm = F ZM */
   for (j = 1; j <= dim; j++)
   {
@@ -3184,15 +3187,15 @@ moments_act(struct m_act *S, GEN f)
 }
 
 static GEN
-init_moments_act(GEN W1, GEN W2, long p, long n, GEN q, GEN v)
+init_moments_act(GEN W, long p, long n, GEN q, GEN v)
 {
   struct m_act S;
-  long k = msk_get_weight(W2);
+  long k = msk_get_weight(W);
   S.p = p;
   S.k = k;
   S.q = q;
   S.dim = n+k-1;
-  return init_dual_act(v,W1,W2,&S, moments_act);
+  return init_dual_act(v,W,W,&S, moments_act);
 }
 
 static void
@@ -3440,7 +3443,7 @@ mspadicinit_i(GEN W, long p, long n, long flag)
   }
   else
     q = pn;
-  actUp = init_moments_act(Wp, Wp, p, n, q, Up_matrices(p));
+  actUp = init_moments_act(Wp, p, n, q, Up_matrices(p));
 
   pas = matpascal(n);
   teich = teichmullerinit(p, n+1);
@@ -3467,6 +3470,21 @@ mspadicinit_i(GEN W, long p, long n, long flag)
   }
   return gerepilecopy(av, mkvecn(8, Wp,Tp, bin, actUp, q,
                                  mkvecsmall3(p,n,flag), M, C));
+}
+
+GEN
+omsactgl2(GEN W, GEN phi, GEN M)
+{
+  GEN q, Wp, act;
+  long p, k, n;
+  checkmspadic(W);
+  Wp = mspadic_get_Wp(W);
+  p = mspadic_get_p(W);
+  k = mspadic_get_weight(W);
+  n = mspadic_get_n(W);
+  q = mspadic_get_q(W);
+  act = init_moments_act(Wp, p, n, q, M);
+  return dual_act(k-1, gel(act,1), phi);
 }
 /* flag = 0: no assumption, flag = 1: ordinary */
 GEN

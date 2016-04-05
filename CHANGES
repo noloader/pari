@@ -200,6 +200,7 @@ KR147- gphelp -detex: accented letters counted as 1 char for line splitting
        of disc(T) were internally detected (and subsequently ignored)
 BA150- elltatepairing could return wrong results [#1784]
   151- padicappr(x^3+1,-2+O(2^5)) -> SEGV [mod a root mod p] [#1793]
+  152- K = bnrinit(bnfinit(y^2-5),[1,[1,1]]); bnrdisc(K) -> wrong [#1804]
 
   Added
     1- add optional argument to sumdigits to specify the base

@@ -1701,7 +1701,7 @@ rnfconductor(GEN bnf, GEN polrel)
 
 /* Given a number field bnf=bnr[1], a ray class group structure bnr, and a
  * subgroup H (HNF form) of the ray class group, compute [n, r1, dk]
- * associated to H (cf. discrayall). If flcond = 1, abort (return gen_0) if
+ * associated to H. If flcond = 1, abort (return gen_0) if
  * module is not the conductor If flrel = 0, compute only N(dk) instead of
  * the ideal dk proper */
 static GEN
