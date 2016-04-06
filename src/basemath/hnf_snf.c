@@ -1749,7 +1749,7 @@ ZM_hnfperm(GEN A, GEN *ptU, GEN *ptperm)
     }
     if (gc_needed(av1,1))
     {
-      if (DEBUGMEM>1) pari_warn(warnmem,"hnfperm");
+      if (DEBUGMEM>1) pari_warn(warnmem,"hnfperm, k=%ld",k);
       gerepileall(av1, U? 2: 1, &A, &U);
     }
   }
