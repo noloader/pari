@@ -69,7 +69,10 @@ bnfnarrow(bnfinit(x^2-460))
 bnrconductor(bnfinit(K),4,Mat(3))
 
 \\#1804
-K = bnrinit(bnfinit(y^2-5),[1,[1,1]]);
-bnrdisc(K)
-bnrdisc(K,,,1)
-bnrdisc(K,,,2)
+K=bnfinit(y^2-5);
+bnr = bnrinit(K,[1,[1,1]]);
+bnrdisc(bnr)
+bnrdisc(bnr,,,1)
+bnrdisc(bnr,,,2)
+bnrdisc(K,[1,[1,0]],,2)
+bnrdisc(K,[1,[0,0]],,2)
