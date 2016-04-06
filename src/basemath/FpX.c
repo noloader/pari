@@ -1516,6 +1516,15 @@ _FpXQ_red(void *data, GEN x)
 static struct bb_algebra FpXQ_algebra = { _FpXQ_red, _FpXQ_add, _FpXQ_sub,
        _FpXQ_mul, _FpXQ_sqr, _FpXQ_one, _FpXQ_zero };
 
+const struct bb_algebra *
+get_FpXQ_algebra(void **E, GEN T, GEN p)
+{
+  GEN z = new_chunk(sizeof(struct _FpXQ));
+  struct _FpXQ *e = (struct _FpXQ *) z;
+  e->T = FpX_get_red(T, p);
+  e->p  = p; *E = (void*)e;
+  return &FpXQ_algebra;
+}
 /* x,pol in Z[X], p in Z, n in Z, compute lift(x^n mod (p, pol)) */
 GEN
 FpXQ_pow(GEN x, GEN n, GEN T, GEN p)

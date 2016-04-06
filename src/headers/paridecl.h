@@ -424,11 +424,12 @@ GEN     gener_Flxq(GEN T, ulong p, GEN *o);
 long    get_Flx_degree(GEN T);
 GEN     get_Flx_mod(GEN T);
 long    get_Flx_var(GEN T);
+const struct bb_field *get_Flxq_field(void **E, GEN T, ulong p);
+const struct bb_group *get_Flxq_star(void **E, GEN T, ulong p);
 long    get_FlxqX_degree(GEN T);
 GEN     get_FlxqX_mod(GEN T);
 long    get_FlxqX_var(GEN T);
-const struct bb_field *get_Flxq_field(void **E, GEN T, ulong p);
-const struct bb_group *get_Flxq_star(void **E, GEN T, ulong p);
+const struct bb_algebra *get_FlxqXQ_algebra(void **E, GEN S, GEN T, ulong p);
 GEN     monomial_Flx(ulong a, long d, long vs);
 GEN     pol1_FlxX(long v, long sv);
 GEN     polx_FlxX(long v, long sv);
@@ -609,7 +610,8 @@ GEN     gener_FpXQ_local(GEN T, GEN p, GEN L);
 long    get_FpX_degree(GEN T);
 GEN     get_FpX_mod(GEN T);
 long    get_FpX_var(GEN T);
-const struct bb_group *get_FpXQ_star(void **E, GEN T, GEN p);
+const struct bb_group * get_FpXQ_star(void **E, GEN T, GEN p);
+const struct bb_algebra * get_FpXQ_algebra(void **E, GEN T, GEN p);
 GEN     random_FpX(long d, long v, GEN p);
 
 /* FpX_factor.c */
@@ -714,6 +716,7 @@ GEN     ZXX_sqr_Kronecker(GEN x, long n);
 long    get_FpXQX_degree(GEN T);
 GEN     get_FpXQX_mod(GEN T);
 long    get_FpXQX_var(GEN T);
+const struct bb_algebra * get_FpXQXQ_algebra(void **E, GEN S, GEN T, GEN p);
 GEN     random_FpXQX(long d1, long v, GEN T, GEN p);
 
 /* FpV.c */

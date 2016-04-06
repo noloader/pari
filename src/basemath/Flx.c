@@ -4981,6 +4981,17 @@ _FlxqXQ_zero(void *data) {
 static struct bb_algebra FlxqXQ_algebra = { _FlxqXQ_red, _FlxqXQ_add,
        _FlxqXQ_sub, _FlxqXQ_mul, _FlxqXQ_sqr, _FlxqXQ_one, _FlxqXQ_zero };
 
+const struct bb_algebra *
+get_FlxqXQ_algebra(void **E, GEN S, GEN T, ulong p)
+{
+  GEN z = new_chunk(sizeof(struct _FlxqXQ));
+  struct _FlxqXQ *e = (struct _FlxqXQ *) z;
+  e->T = Flx_get_red(T, p);
+  e->S = FlxqX_get_red(S, e->T, p);
+  e->p  = p; *E = (void*)e;
+  return &FlxqXQ_algebra;
+}
+
 /* x over Fq, return lift(x^n) mod S */
 GEN
 FlxqXQ_pow(GEN x, GEN n, GEN S, GEN T, ulong p)
