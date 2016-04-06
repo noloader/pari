@@ -2,8 +2,8 @@ Function: galoissubfields
 Section: number_fields
 C-Name: galoissubfields
 Prototype: GD0,L,Dn
-Help: galoissubfields(G,{flags=0},{v}):Output all the subfields of G. flags
- have the same meaning as for galoisfixedfield.
+Help: galoissubfields(G,{flag=0},{v}): Output all the subfields of G. flag
+ has the same meaning as for galoisfixedfield.
 Doc: outputs all the subfields of the Galois group \var{G}, as a vector.
  This works by applying \kbd{galoisfixedfield} to all subgroups. The meaning of
- the flag \var{fl} is the same as for \kbd{galoisfixedfield}.
+ \var{flag} is the same as for \kbd{galoisfixedfield}.
