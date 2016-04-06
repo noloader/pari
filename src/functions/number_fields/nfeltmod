@@ -2,7 +2,7 @@ Function: nfeltmod
 Section: number_fields
 C-Name: nfmod
 Prototype: GGG
-Help: nfeltmod(nf,x,y): gives r such that r=x-by is small with q algebraic
+Help: nfeltmod(nf,x,y): gives r such that r=x-qy is small with q algebraic
  integer.
 Doc:
  given two elements $x$ and $y$ in

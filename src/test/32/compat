@@ -2720,7 +2720,7 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: nfdiveuc(nf,a,b) ===> nfeltdiveuc(nf,a,b)
 
-nfdiveuc(nf,x,y): gives algebraic integer q such that x-by is small.
+nfdiveuc(nf,x,y): gives algebraic integer q such that x-qy is small.
 
 
   ***   at top-level: nfdivres()
@@ -2730,7 +2730,7 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: nfdivres(nf,a,b) ===> nfeltdivrem(nf,a,b)
 
-nfeltdivrem(nf,x,y): gives [q,r] such that r=x-by is small.
+nfeltdivrem(nf,x,y): gives [q,r] such that r=x-qy is small.
 
 
   ***   at top-level: nfhermite()
@@ -2763,7 +2763,7 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: nfmod(nf,a,b) ===> nfeltmod(nf,a,b)
 
-nfeltmod(nf,x,y): gives r such that r=x-by is small with q algebraic integer.
+nfeltmod(nf,x,y): gives r such that r=x-qy is small with q algebraic integer.
 
 
   ***   at top-level: nfmul()
