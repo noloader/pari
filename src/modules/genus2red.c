@@ -107,13 +107,13 @@ gmul(gmul(gmul(gmul(gmulsg(1568, a0), a2), gsqr(a3)), a4), a6)), -10));
 /**   A REDUCTION ALGORITHM "A LA TATE" FOR CURVES OF GENUS 2      **/
 /**                                                                **/
 /********************************************************************/
-/* Based on genus2reduction-0.3, http://www.math.u-bordeaux1.fr/~liu/G2R/
- * by Qing Liu <liu@math.u-bordeaux1.fr>
- * and Henri Cohen <cohen@math.u-bordeaux1.fr>
+/* Based on genus2reduction-0.3, http://www.math.u-bordeaux.fr/~liu/G2R/
+ * by Qing Liu <liu@math.u-bordeaux.fr>
+ * and Henri Cohen <cohen@math.u-bordeaux.fr>
 
  * Qing Liu: Modeles minimaux des courbes de genre deux
  * J. fuer die Reine und Angew. Math., 453 (1994), 137-164.
- * http://www.math.u-bordeaux1.fr/~liu/articles/modregE.ps */
+ * http://www.math.u-bordeaux.fr/~liu/articles/modregE.ps */
 
 /* some auxiliary polynomials, gp2c-generated */
 
