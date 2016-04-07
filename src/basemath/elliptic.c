@@ -2810,12 +2810,12 @@ typedef struct {
   GEN w1,w2,tau; /* original basis for L = <w1,w2> = w2 <1,tau> */
   GEN W1,W2,Tau; /* new basis for L = <W1,W2> = W2 <1,tau> */
   GEN a,b,c,d; /* t_INT; tau in F = h/Sl2, tau = g.t, g=[a,b;c,d] in SL(2,Z) */
-  GEN z,Z; /* z/w2 defined mod <1,tau>, Z = z + x*tau + y reduced mod <1,tau> */
+  GEN z,Z; /* z/w2 defined mod <1,tau>, Z = z/w2 + x*tau+y reduced mod <1,tau>*/
   GEN x,y; /* t_INT */
   int swap; /* 1 if we swapped w1 and w2 */
   int some_q_is_real; /* exp(2iPi g.tau) for some g \in SL(2,Z) */
   int some_z_is_real; /* z + xw1 + yw2 is real for some x,y \in Z */
-  int some_z_is_pure_imag; /* z + xw1 + yw2 = it, t \in R */
+  int some_z_is_pure_imag; /* z + xw1 + yw2 in i*R */
   int q_is_real; /* exp(2iPi tau) \in R */
   int abs_u_is_1; /* |exp(2iPi Z)| = 1 */
   long prec; /* precision(Z) */
@@ -2891,6 +2891,13 @@ red_modSL2(ellred_t *T, long prec)
   p = precision(T->Tau); if (!p) p = prec;
   T->prec = p;
 }
+/* is z real or pure imaginary ? */
+static void
+check_complex(GEN z, int *real, int *imag)
+{
+  if (typ(z) != t_COMPLEX) *real = 1;
+  else if (isexactzero(gel(z,1))) *imag = 1;
+}
 static void
 reduce_z(GEN z, ellred_t *T)
 {
@@ -2913,12 +2920,18 @@ reduce_z(GEN z, ellred_t *T)
   if (signe(T->x)) Z = gsub(Z, gmul(T->x,T->Tau));
   T->y = ground(real_i(Z));
   if (signe(T->y)) Z = gsub(Z, T->y);
-  if (typ(Z) != t_COMPLEX)
-    T->some_z_is_real = T->abs_u_is_1 = 1;
-  else if (typ(z) != t_COMPLEX)
-    T->some_z_is_real = 1;
-  else if (isexactzero(gel(z,1)) || isexactzero(gel(Z,1)))
-    T->some_z_is_pure_imag = 1;
+  if (typ(Z) != t_COMPLEX) T->abs_u_is_1 = 1;
+  /* Z = - y - x tau + z/W2, x,y integers */
+  check_complex(z, &(T->some_z_is_real), &(T->some_z_is_pure_imag));
+  if (!T->some_z_is_real && !T->some_z_is_pure_imag)
+  {
+    int W2real = 0, W2imag = 0;
+    check_complex(T->W2,&W2real,&W2imag);
+    if (W2real)
+      check_complex(Z, &(T->some_z_is_real), &(T->some_z_is_pure_imag));
+    else if (W2imag)
+      check_complex(Z, &(T->some_z_is_pure_imag), &(T->some_z_is_real));
+  }
   p = precision(Z);
   if (gequal0(Z) || (p && gexpo(Z) < 5 - prec2nbits(p)))
     Z = NULL; /*z in L*/
@@ -3208,7 +3221,11 @@ ellwpnum_all(GEN e, GEN z, long flall, long prec)
   if (yp)
   {
     yp = gmul(u, gmul(gmul(u1,u2),yp));/* yp *= u (2i pi / w2)^3 */
-    if (T.some_q_is_real && T.some_z_is_real) yp = real_i(yp);
+    if (T.some_q_is_real)
+    {
+      if (T.some_z_is_real) yp = real_i(yp);
+      else if (T.some_z_is_pure_imag) yp = mkcomplex(gen_0, imag_i(yp));
+    }
     y = mkvec2(y, gmul2n(yp,-1));
   }
   return gerepilecopy(av, y);
@@ -3384,10 +3401,8 @@ ellzeta(GEN w, GEN z, long prec0)
   if (et) y = gadd(y,et);
   if (T.some_q_is_real)
   {
-    if (T.some_z_is_real)
-      y = real_i(y);
-    else if (T.some_z_is_pure_imag)
-      gel(y,1) = gen_0;
+    if (T.some_z_is_real) y = real_i(y);
+    else if (T.some_z_is_pure_imag) gel(y,1) = gen_0;
   }
   return gerepilecopy(av, y);
 }
@@ -3480,10 +3495,8 @@ ellsigma(GEN w, GEN z, long flag, long prec0)
     y = gmul(y, gexp(y1,prec));
     if (T.some_q_is_real)
     {
-      if (T.some_z_is_real)
-        y = real_i(y);
-      else if (T.some_z_is_pure_imag)
-        gel(y,1) = gen_0;
+      if (T.some_z_is_real) y = real_i(y);
+      else if (T.some_z_is_pure_imag) gel(y,1) = gen_0;
     }
   }
   return gerepilecopy(av, y);

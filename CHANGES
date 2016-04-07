@@ -201,6 +201,9 @@ KR147- gphelp -detex: accented letters counted as 1 char for line splitting
 BA150- elltatepairing could return wrong results [#1784]
   151- padicappr(x^3+1,-2+O(2^5)) -> SEGV [mod a root mod p] [#1793]
   152- K = bnrinit(bnfinit(y^2-5),[1,[1,1]]); bnrdisc(K) -> wrong [#1804]
+  153- ellztopoint(ellinit([-1,0]), I) -> wrong result [#1800]
+       Potentially affected all elliptic functions (ellwp,ellzeta,ellsigma)
+       at real or pure imaginary arguments.
 
   Added
     1- add optional argument to sumdigits to specify the base
