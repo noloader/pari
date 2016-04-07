@@ -2547,7 +2547,7 @@ normalize(GEN x)
   if (lx == 2) { setsigne(x,0); return x; }
   if (lx == 3) {
     z = gel(x,2);
-    if (!gcmp0(z)) { setsigne(x,1); return x; }
+    if (!gequal0(z)) { setsigne(x,1); return x; }
     if (isrationalzero(z)) return zeroser(vx,vp+1);
     if (isexactzero(z)) {
       /* dangerous case: already normalized ? */

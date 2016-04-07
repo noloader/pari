@@ -1779,7 +1779,7 @@ limit_init(struct limit *L, void *E, GEN (*f)(void*,GEN,long),
   L->prec = nbits2prec((long)ceil(1.25*bitprec) + 32);
   L->prec0 = prec;
   L->u = get_u(E, f, N, muli, L->prec);
-  if (alpha && gcmp1(alpha)) alpha = NULL;
+  if (alpha && gequal1(alpha)) alpha = NULL;
   L->na = na  = cgetg(N+1, t_VEC);
   for (n = 1; n <= N; n++)
   {
@@ -1870,7 +1870,7 @@ asympnum(void *E, GEN (*f)(void *, GEN, long), long muli, GEN alpha, long prec)
     a = gdiv(p,q);
     s = gsub(s, a);
     /* |s|q^2 > eps */
-    if (!gcmp0(s) && gexpo(s) + 2*expi(q) > -17) break;
+    if (!gequal0(s) && gexpo(s) + 2*expi(q) > -17) break;
     vectrunc_append(vres, a);
     for (n = 1; n <= L.N; n++) gel(u,n) = gmul(gsub(gel(u,n), a), gel(L.na,n));
   }

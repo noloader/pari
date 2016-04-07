@@ -422,7 +422,7 @@ transD(GEN M, GEN P, long a, long b, long j)
   long l, n;
   GEN k = gcoeff(M,a,b), ki;
 
-  if (gcmp1(k)) return;
+  if (gequal1(k)) return;
   ki = ginv(k); n = lg(M)-1;
   for(l=1; l<=n; l++)
     if (l!=j)

@@ -13,6 +13,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 
 /* For compatibility with older PARI versions */
 /*functions renamed*/
+#define concat gconcat
+#define concat1 gconcat1
 #define mathell ellheightmatrix
 #define ghell ellheight
 #define mpexp1 mpexpm1
@@ -35,6 +37,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #define vecbezout gcdext0
 #define vecbezoutres polresultantext
 #define init_primepointer init_primepointer_geq
+#define ellap0(e,p,flag) ellap(e,p)
+#define apell2(e,p) ellap(e,p)
 #define geulerphi eulerphi
 #define numbdiv numdiv
 #define gnumbdiv numdiv
@@ -48,6 +52,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #define powell ellmul
 #define ggval gvaluation
 #define stackmalloc stack_malloc
+
+/* Following obsoleted in 2.5.* (2011) */
 #define fprintferr err_printf
 #define msgTIMER timer_printf
 #define TIMER timer_delay
@@ -97,10 +103,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #define pariputc pari_putc
 #define pariputs pari_puts
 #define pariflush pari_flush
-#define ellap0(e,p,flag) ellap(e,p)
-#define apell2(e,p) ellap(e,p)
-#define concat gconcat
-#define concat1 gconcat1
 
 /* Following deprecated for a long time now, obsoleted in 2.3.* (2007) */
 #ifdef PARI_OLD_NAMES

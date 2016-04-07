@@ -713,7 +713,7 @@ theta1(GEN vecan, long limt, GEN t, GEN al, long prec)
   GEN vexp = gsqrpowers(q, limt), S = gen_0;
   pari_sp av = avma;
   long n;
-  if (gcmp0(al))
+  if (gequal0(al))
     for (n = 1; n <= limt; ++n)
     {
       GEN an = gel(vecan, n);
@@ -721,7 +721,7 @@ theta1(GEN vecan, long limt, GEN t, GEN al, long prec)
       S = gadd(S, gmul(an, gel(vexp, n)));
       if (gc_needed(av, 3)) S = gerepileupto(av, S);
     }
-  else if (gcmp1(al))
+  else if (gequal1(al))
   {
     for (n = 1; n <= limt; ++n)
     {
@@ -1701,7 +1701,7 @@ lfuncheckfeq(GEN lmisc, GEN t0, long bitprec)
     }
     S0i = theta_add_polar_part(S0i, R, t0, prec);
   }
-  if (gcmp0(S0i) || gcmp0(S0)) pari_err_PREC("lfuncheckfeq");
+  if (gequal0(S0i) || gequal0(S0)) pari_err_PREC("lfuncheckfeq");
   w = gdiv(S0i, gmul(S0, gpowgs(t0, k)));
   /* missing rootno: guess it */
   if (gequal0(eno)) eno = lfunrootno(theta, bitprec);

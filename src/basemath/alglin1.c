@@ -1603,7 +1603,7 @@ RgM_solve(GEN a, GEN b)
     GEN u = gcoeff(a,1,1), v = gcoeff(a,1,2);
     GEN w = gcoeff(a,2,1), x = gcoeff(a,2,2);
     GEN D = gsub(gmul(u,x), gmul(v,w)), ainv;
-    if (gcmp0(D)) return NULL;
+    if (gequal0(D)) return NULL;
     ainv = mkmat2(mkcol2(x, gneg(w)), mkcol2(gneg(v), u));
     ainv = gmul(ainv, ginv(D));
     if (b) ainv = gmul(ainv, b);

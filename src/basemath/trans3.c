@@ -3562,7 +3562,7 @@ serlambertW(GEN y, long prec)
   n = lg(y)-3;
   y0 = gel(y,2);
   for (val = 1; val < n; val++)
-    if (!gcmp0(polcoeff0(y, val, vy))) break;
+    if (!gequal0(polcoeff0(y, val, vy))) break;
   if (v < 0) pari_err_DOMAIN("lambertw","valuation", "<", gen_0, y);
   if (val >= n)
   {

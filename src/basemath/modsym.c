@@ -2188,18 +2188,18 @@ checksymbol(GEN W, GEN s)
     a = ZGl2Q_act_s(gel(singlerel,i), a, k);
     t = t? gadd(t, a): a;
   }
-  if (!gcmp0(t)) return 0;
+  if (!gequal0(t)) return 0;
   for (i = 1; i <= nbT2; i++)
   {
     GEN a = gel(s,i + nbE1);
     a = ZGl2Q_act_s(gel(annT2,i), a, k);
-    if (!gcmp0(a)) return 0;
+    if (!gequal0(a)) return 0;
   }
   for (i = 1; i <= nbT31; i++)
   {
     GEN a = gel(s,i + nbE1 + nbT2);
     a = ZGl2Q_act_s(gel(annT31,i), a, k);
-    if (!gcmp0(a)) return 0;
+    if (!gequal0(a)) return 0;
   }
   return 1;
 }
@@ -2259,7 +2259,7 @@ checkdec(GEN W, GEN D, GEN T)
     for (i = 1; i < lg(D); i++)
     {
       GEN d = gel(D,i);
-      if (gcmp0(d)) continue;
+      if (gequal0(d)) continue;
       S = gadd(S, gmul(d, eval_phii_Gj(W, i, j)));
     }
     /* S = \sum_i d_i phi_i(G_j) */
@@ -2579,7 +2579,7 @@ RgMV_find_non_zero_last_row(long offset, GEN V)
     for (j = 1; j < l; j++)
     {
       GEN a = gcoeff(M, n, j);
-      if (!gcmp0(a) && (!m || absi_cmp(a, m) < 0))
+      if (!gequal0(a) && (!m || absi_cmp(a, m) < 0))
       {
         m = a; lasti = i; lastj = j;
         if (is_pm1(m)) goto END;
