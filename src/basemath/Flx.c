@@ -3995,7 +3995,7 @@ FlxqX_Flxq_mul_to_monic(GEN P, GEN U, GEN T, ulong p)
 GEN
 FlxqX_normalize(GEN z, GEN T, ulong p)
 {
-  GEN p1 = leading_term(z);
+  GEN p1 = leading_coeff(z);
   if (!lgpol(z) || (!degpol(p1) && p1[1] == 1)) return z;
   return FlxqX_Flxq_mul_to_monic(z, Flxq_inv(p1,T,p), T,p);
 }
@@ -4021,7 +4021,7 @@ FlxqX_divrem_basecase(GEN x, GEN y, GEN T, ulong p, GEN *pr)
     }
     return pol_0(vx);
   }
-  lead = leading_term(y);
+  lead = leading_coeff(y);
   if (!dy) /* y is constant */
   {
     if (pr && pr != ONLY_DIVIDES)
@@ -4351,7 +4351,7 @@ FlxqX_safegcd(GEN P, GEN Q, GEN T, ulong p)
   btop = avma;
   for(;;)
   {
-    U = Flxq_invsafe(leading_term(Q), T, p);
+    U = Flxq_invsafe(leading_coeff(Q), T, p);
     if (!U) { avma = ltop; return NULL; }
     Q = FlxqX_Flxq_mul_to_monic(Q,U,T,p);
     P = FlxqX_rem(P,Q,T,p);

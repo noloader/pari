@@ -3362,7 +3362,7 @@ FqX_ispower(GEN f, ulong k, GEN T, GEN p, GEN *pt)
   GEN lc, F;
 
   if (degpol(f) % k) return 0;
-  lc = leading_term(f);
+  lc = leading_coeff(f);
   lc = Fq_sqrtn(lc, stoi(k), T, p, NULL);
   if (!lc) { av = avma; return 0; }
   pp = itou_or_0(p);

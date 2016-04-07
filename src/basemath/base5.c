@@ -554,7 +554,7 @@ rnfequationall(GEN A, GEN B, long *pk, GEN *pLPRS)
     pari_err_DOMAIN("rnfequation","issquarefree(B)","=",gen_0,B);
 
   *pk = 0; C = ZX_ZXY_resultant_all(A, B, pk, pLPRS);
-  if (gsigne(leading_term(C)) < 0) C = RgX_neg(C);
+  if (gsigne(leading_coeff(C)) < 0) C = RgX_neg(C);
   *pk = -*pk; return Q_primpart(C);
 }
 
@@ -963,7 +963,7 @@ rnfpolred(GEN nf, GEN pol, long prec)
     newpol = Q_primpart(newpol);
 
     (void)nfgcd_all(newpol, RgX_deriv(newpol), nfpol, nf_get_index(nf), &newpol);
-    L = leading_term(newpol);
+    L = leading_coeff(newpol);
     gel(w,j) = (typ(L) == t_POL)? RgXQX_div(newpol, L, nfpol)
                                 : RgX_Rg_div(newpol, L);
   }

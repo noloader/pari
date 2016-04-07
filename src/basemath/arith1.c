@@ -915,7 +915,7 @@ polispower(GEN x, GEN K, GEN *pt)
   if (d)
   {
     GEN p = characteristic(x);
-    a = leading_term(x);
+    a = leading_coeff(x);
     if (!ispower(a, K, &b)) { avma = av; return 0; }
     x = RgX_normalize(x);
     if (signe(p))

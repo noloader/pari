@@ -1923,7 +1923,7 @@ all_roots(GEN p, long bit)
   long bit0,  bit2, i, e, h, n = degpol(p);
   pari_sp av;
 
-  pd = RgX_deflate_max(p, &h); lc = leading_term(pd);
+  pd = RgX_deflate_max(p, &h); lc = leading_coeff(pd);
   e = (long)(2 * fujiwara_bound(pd)); if (e < 0) e = 0;
   bit0 = bit + gexpo(pd) - gexpo(lc) + (long)log2(n/h)+1+e;
   bit2 = bit0; e = 0;
@@ -1935,7 +1935,7 @@ all_roots(GEN p, long bit)
     q[1] = evalsigne(1)|evalvarn(0);
     m = split_complete(q,bit2,roots_pol);
     roots_pol = fix_roots(roots_pol, &m, h, bit2);
-    q = mygprec_special(p,bit2); lc = leading_term(q);
+    q = mygprec_special(p,bit2); lc = leading_coeff(q);
     q[1] = evalsigne(1)|evalvarn(0);
     if (h > 1) m = gmul(m,lc);
 

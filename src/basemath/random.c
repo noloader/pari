@@ -262,7 +262,7 @@ static GEN
 polrandom(GEN N) /* assume N!=0 */
 {
   long i, d = lg(N);
-  GEN z = leading_term(N);
+  GEN z = leading_coeff(N);
   GEN y = cgetg(d,t_POL);
   y[1] = evalsigne(1) | evalvarn(varn(N));
   for (i=2; i<d; i++) gel(y,i) = genrand(z);

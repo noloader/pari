@@ -407,7 +407,7 @@ CplxModulus(GEN data, long *newprec)
     pr = nbits2extraprec( gexpo(pol) );
     if (pr < 0) pr = 0;
     dprec = maxss(dprec, pr) + EXTRA_PREC;
-    if (!gequal0(leading_term(pol)))
+    if (!gequal0(leading_coeff(pol)))
     {
       cpl = RgX_fpnorml2(pol, DEFAULTPREC);
       if (!gequal0(cpl)) break;

@@ -1391,7 +1391,7 @@ fix_lcm(GEN x)
       break;
     case t_POL:
       if (lg(x) <= 2) break;
-      t = leading_term(x);
+      t = leading_coeff(x);
       if (typ(t) == t_INT && signe(t) < 0) x = gneg(x);
   }
   return x;
@@ -1983,7 +1983,7 @@ subres_step(GEN *u, GEN *v, GEN *g, GEN *h, GEN *uze, GEN *um1, long *signh)
   GEN u0, c, r, q = RgX_pseudodivrem(*u,*v, &r);
   long du, dv, dr, degq;
 
-  if (gequal0(leading_term(r))) r = RgX_renormalize(r);
+  if (gequal0(leading_coeff(r))) r = RgX_renormalize(r);
   dr = lg(r); if (!signe(r)) { *u = NULL; return 0; }
   du = degpol(*u);
   dv = degpol(*v);
@@ -2003,7 +2003,7 @@ subres_step(GEN *u, GEN *v, GEN *g, GEN *h, GEN *uze, GEN *um1, long *signh)
   *um1 = *uze;
   *uze = u0; /* uze <- lead(v)^(degq + 1) * um1 - q * uze */
 
-  *u = *v; c = *g; *g  = leading_term(*u);
+  *u = *v; c = *g; *g  = leading_coeff(*u);
   switch(degq)
   {
     case 0: break;
@@ -2038,8 +2038,8 @@ subresext_i(GEN x, GEN y, GEN *U, GEN *V)
   if (varn(x) != varn(y))
     return varncmp(varn(x), varn(y)) < 0? scalar_res(x,y,U,V)
                                         : scalar_res(y,x,V,U);
-  if (gequal0(leading_term(x))) x = RgX_renormalize(x);
-  if (gequal0(leading_term(y))) y = RgX_renormalize(y);
+  if (gequal0(leading_coeff(x))) x = RgX_renormalize(x);
+  if (gequal0(leading_coeff(y))) y = RgX_renormalize(y);
   dx = degpol(x);
   dy = degpol(y);
   signh = 1;
@@ -2110,7 +2110,7 @@ zero_extgcd(GEN y, GEN *U, GEN *V, long vx)
 static int
 must_negate(GEN x)
 {
-  GEN t = leading_term(x);
+  GEN t = leading_coeff(x);
   switch(typ(t))
   {
     case t_INT: case t_REAL:
@@ -2301,7 +2301,7 @@ reductum_lg(GEN x, long lx)
 static GEN
 nextSousResultant(GEN P, GEN Q, GEN Z, GEN s)
 {
-  GEN p0, q0, h0, TMP, H, A, z0 = leading_term(Z);
+  GEN p0, q0, h0, TMP, H, A, z0 = leading_coeff(Z);
   long p, q, j, lP, lQ;
   pari_sp av;
 
@@ -2374,7 +2374,7 @@ RgX_resultant_all(GEN P, GEN Q, GEN *sol)
   P = primitive_part(P, &cP);
   Q = primitive_part(Q, &cQ);
   av2 = avma;
-  s = gpowgs(leading_term(Q),delta);
+  s = gpowgs(leading_coeff(Q),delta);
   if (both_odd(dP, dQ)) sig = -sig;
   Z = Q;
   Q = RgX_pseudorem(P, Q);
@@ -2382,7 +2382,7 @@ RgX_resultant_all(GEN P, GEN Q, GEN *sol)
   while(degpol(Q) > 0)
   {
     delta = degpol(P) - degpol(Q); /* > 0 */
-    Z = Lazard2(Q, leading_term(Q), s, delta);
+    Z = Lazard2(Q, leading_coeff(Q), s, delta);
     if (both_odd(degpol(P), degpol(Q))) sig = -sig;
     Q = nextSousResultant(P, Q, Z, s);
     P = Z;
@@ -2391,10 +2391,10 @@ RgX_resultant_all(GEN P, GEN Q, GEN *sol)
       if(DEBUGMEM>1) pari_warn(warnmem,"resultant_all, degpol Q = %ld",degpol(Q));
       gerepileall(av2,2,&P,&Q);
     }
-    s = leading_term(P);
+    s = leading_coeff(P);
   }
   if (!signe(Q)) { avma = av; return RgX_get_0(Q); }
-  s = Lazard(leading_term(Q), s, degpol(P));
+  s = Lazard(leading_coeff(Q), s, degpol(P));
   if (sig == -1) s = gneg(s);
   if (cP) s = gmul(s, gpowgs(cP,dQ));
   if (cQ) s = gmul(s, gpowgs(cQ,dP));
@@ -2593,7 +2593,7 @@ RgXQ_charpoly(GEN x, GEN T, long v)
   /* test for silly input: x mod (deg 0 polynomial) */
   if (typ(ch) != t_POL) { avma = av; return pol_1(v); }
 
-  L = leading_term(ch);
+  L = leading_coeff(ch);
   if (!gequal1(L)) ch = RgX_Rg_div(ch, L);
   return gerepileupto(av, ch);
 }
@@ -2626,7 +2626,7 @@ rnfcharpoly(GEN nf, GEN Q, GEN x, long v)
   if (typ(x) != t_POL) return caract_const(av, x, v, dQ);
   /* x a t_POL in variable vQ */
   if (degpol(x) >= dQ) x = RgX_rem(x, Q);
-  if (dQ <= 1) return caract_const(av, constant_term(x), v, 1);
+  if (dQ <= 1) return caract_const(av, constant_coeff(x), v, 1);
   return gerepilecopy(av, lift_if_rational( RgXQ_charpoly(x, Q, v) ));
 }
 
@@ -2751,7 +2751,7 @@ RgX_gcd(GEN x, GEN y)
       }
       if (DEBUGLEVEL > 9) err_printf("RgX_gcd: dr = %ld\n", degpol(r));
       du = lg(u); dv = lg(v); degq = du-dv;
-      u = v; p1 = g; g = leading_term(u);
+      u = v; p1 = g; g = leading_coeff(u);
       switch(degq)
       {
         case 0: break;
@@ -2801,7 +2801,7 @@ RgX_disc_aux(GEN x)
     D = RgX_resultant_all(x, y, NULL);
     if (D == gen_0) return RgX_get_0(y);
   }
-  L = leading_term(x); if (!gequal1(L)) D = gdiv(D,L);
+  L = leading_coeff(x); if (!gequal1(L)) D = gdiv(D,L);
   if (dx & 2) D = gneg(D);
   return D;
 }
@@ -2946,7 +2946,7 @@ sturmpart_i(GEN x, GEN a, GEN b)
   }
   /* legacy code: should only be used if we have a t_REAL somewhere; and even
    * then, the calling program should be changed */
-  sl = gsigne(leading_term(u));
+  sl = gsigne(leading_coeff(u));
   t = a? gsigne(poleval(u,a)): (odd(s)? sl: -sl);
   if (s==4)
   {
@@ -2976,7 +2976,7 @@ sturmpart_i(GEN x, GEN a, GEN b)
     long du=lg(u), dv=lg(v), dr=lg(r), degq=du-dv;
 
     if (dr<=2) pari_err_DOMAIN("polsturm","issquarefree(pol)","=",gen_0,x);
-    if (gsigne(leading_term(v)) > 0 || degq&1) r=gneg_i(r);
+    if (gsigne(leading_coeff(v)) > 0 || degq&1) r=gneg_i(r);
     sl = gsigne(gel(r,dr-1));
     sr = b? gsigne(poleval(r,b)): sl;
     if (sr)
@@ -2992,7 +2992,7 @@ sturmpart_i(GEN x, GEN a, GEN b)
     }
     if (dr==3) return r1;
 
-    u=v; p1 = g; g = gabs(leading_term(u),DEFAULTPREC);
+    u=v; p1 = g; g = gabs(leading_coeff(u),DEFAULTPREC);
     switch(degq)
     {
       case 0: break;

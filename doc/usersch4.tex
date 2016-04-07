@@ -1366,8 +1366,8 @@ The components \kbd{z[2]}, \kbd{z[3]},\dots \kbd{z[lg(z)-1]} point to the
 coefficients of the polynomial \emph{in ascending order}, with \kbd{z[2]}
 being the constant term and so on.
 
-For a \typ{POL} of non-zero sign, \tet{degpol}, \tet{leading_term},
-\tet{constant_term}, return its degree, and a pointer to the leading,
+For a \typ{POL} of non-zero sign, \tet{degpol}, \tet{leading_coeff},
+\tet{constant_coeff}, return its degree, and a pointer to the leading,
 resp. constant, coefficient with respect to the main variable. Note that no
 copy is made on the PARI stack so the returned value is not safe for a basic
 \kbd{gerepile} call. Applied to any other type than \typ{POL}, the result is

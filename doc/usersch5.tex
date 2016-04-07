@@ -779,11 +779,11 @@ and otherwise of the \kbd{n}-th component of~\kbd{x}.
 \noindent On the contrary, the following routines return the address of a
 \kbd{GEN} component. No copy is made on the stack:
 
-\fun{GEN}{constant_term}{GEN x} returns the address of the constant
+\fun{GEN}{constant_coeff}{GEN x} returns the address of the constant
 coefficient of \typ{POL}~\kbd{x}. By convention, a $0$ polynomial (whose
 \kbd{sign} is $0$) has \kbd{gen\_0} constant term.
 
-\fun{GEN}{leading_term}{GEN x} returns the address of the leading coefficient
+\fun{GEN}{leading_coeff}{GEN x} returns the address of the leading coefficient
 of \typ{POL}~\kbd{x}, i.e. the coefficient of largest index stored in the
 array representing $x$. This may be an inexact $0$. By convention, return
 \kbd{gen\_0} if the coefficient array is empty.

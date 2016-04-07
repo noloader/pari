@@ -1120,7 +1120,7 @@ getfu(GEN nf, GEN *ptA, long *pte, long prec)
       gel(A,j) = RgC_neg(gel(A,j));
       u = v;
     }
-    if (gsigne(leading_term(u)) < 0)
+    if (gsigne(leading_coeff(u)) < 0)
     {
       gel(A,j) = RgC_add(gel(A,j), vec);
       u = RgX_neg(u);
@@ -3827,8 +3827,8 @@ automorphism_matrices(GEN nf, GEN *invp, GEN *cycp)
   for (l = 1; l <= nauts; l++)
   {
     GEN aut = gel(auts, l);
-    if (degpol(aut) == 1 && isint1(leading_term(aut)) &&
-        isintzero(constant_term(aut)))
+    if (degpol(aut) == 1 && isint1(leading_coeff(aut)) &&
+        isintzero(constant_coeff(aut)))
     {
       swap(gel(auts, l), gel(auts, nauts));
       break;
@@ -3961,7 +3961,7 @@ Buchall_param(GEN P, double cbach, double cbach2, long nbrelpid, long flun, long
     PRECREG = maxss(prec, MEDDEFAULTPREC);
     nfinit_step1(&nfT, P, 0);
     D = nfT.dK;
-    if (!equali1(leading_term(nfT.x0)))
+    if (!equali1(leading_coeff(nfT.x0)))
     {
       pari_warn(warner,"non-monic polynomial in bnfinit, using polredbest");
       P = nfT.x; /* P non-monic, change it */

@@ -13,6 +13,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 
 /* For compatibility with older PARI versions */
 /*functions renamed*/
+#define leading_term leading_coeff
+#define constant_term leading_coeff
 #define concat gconcat
 #define concat1 gconcat1
 #define mathell ellheightmatrix

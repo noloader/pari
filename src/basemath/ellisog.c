@@ -286,7 +286,7 @@ contrib_weierstrass_pt(GEN E, GEN h, long only_image, long vx, long vy)
   GEN p = ellbasechar(E);
   GEN a1 = ell_get_a1(E);
   GEN a3 = ell_get_a3(E);
-  GEN x0 = gneg(constant_term(h)); /* h = x - x0 */
+  GEN x0 = gneg(constant_coeff(h)); /* h = x - x0 */
   GEN b = gadd(gmul(a1,x0), a3);
   GEN y0, Q, t, w, t1, t2, f, g;
 
@@ -501,9 +501,9 @@ isogeny_from_kernel_poly(GEN E, GEN kerp, long only_image, long vx, long vy)
   /* isogeny degree: 2*degpol(kerp)+1-degpol(kerh) */
   m = degpol(kerq);
 
-  kerp = RgX_Rg_div(kerp, leading_term(kerp));
-  kerq = RgX_Rg_div(kerq, leading_term(kerq));
-  kerh = RgX_Rg_div(kerh, leading_term(kerh));
+  kerp = RgX_Rg_div(kerp, leading_coeff(kerp));
+  kerq = RgX_Rg_div(kerq, leading_coeff(kerq));
+  kerh = RgX_Rg_div(kerh, leading_coeff(kerh));
   switch(degpol(kerh))
   {
   case 0:
@@ -571,8 +571,8 @@ ellisogeny(GEN E, GEN G, long only_image, long vx, long vy)
     z = isogeny_from_kernel_point(E, G, only_image, vx, vy);
     break;
   case t_POL:
-    if (varncmp(vy, gvar(constant_term(G))) >= 0)
-      pari_err_PRIORITY("ellisogeny", constant_term(G), ">=", vy);
+    if (varncmp(vy, gvar(constant_coeff(G))) >= 0)
+      pari_err_PRIORITY("ellisogeny", constant_coeff(G), ">=", vy);
     z = isogeny_from_kernel_poly(E, G, only_image, vx, vy);
     break;
   default:

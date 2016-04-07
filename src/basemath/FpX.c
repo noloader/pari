@@ -111,7 +111,7 @@ FpXT_red(GEN z, GEN p)
 GEN
 FpX_normalize(GEN z, GEN p)
 {
-  GEN p1 = leading_term(z);
+  GEN p1 = leading_coeff(z);
   if (lg(z) == 2 || equali1(p1)) return z;
   return FpX_Fp_mul_to_monic(z, Fp_inv(p1,p), p);
 }
@@ -369,7 +369,7 @@ FpX_divrem_basecase(GEN x, GEN y, GEN p, GEN *pr)
     }
     return pol_0(vx);
   }
-  lead = leading_term(y);
+  lead = leading_coeff(y);
   if (!dy) /* y is constant */
   {
     if (pr && pr != ONLY_DIVIDES)
@@ -685,7 +685,7 @@ FpX_gcd_check(GEN x, GEN y, GEN p)
   b = FpX_red(y, p);
   while (signe(b))
   {
-    GEN lead = leading_term(b);
+    GEN lead = leading_coeff(b);
     GEN g = gcdii(lead,p);
     if (!equali1(g)) return gerepileuptoint(av,g);
     c = FpX_rem(a,b,p); a=b; b=c;
@@ -918,7 +918,7 @@ FpX_disc(GEN x, GEN p)
   pari_sp av = avma;
   GEN L, D = FpX_resultant(x, FpX_deriv(x,p), p);
   if (!D || !signe(D)) return gen_0;
-  L = leading_term(x); if (!equali1(L)) D = Fp_div(D,L,p);
+  L = leading_coeff(x); if (!equali1(L)) D = Fp_div(D,L,p);
   if (degpol(x) & 2) D = Fp_neg(D,p);
   return gerepileuptoint(av, D);
 }
@@ -1723,7 +1723,7 @@ Fp_FpXQ_log(GEN a, GEN g, GEN o, GEN T, GEN p)
       q = diviiexact(ord,ordp);
       g = FpXQ_pow(g,q,T,p);
     }
-    g = constant_term(g);
+    g = constant_coeff(g);
   }
   n_q = Fp_log(a,g,op,p);
   if (lg(n_q)==1) return gerepileuptoleaf(av, n_q);
@@ -1757,7 +1757,7 @@ _FpXQ_easylog(void *E, GEN a, GEN g, GEN ord)
 {
   struct _FpXQ *s=(struct _FpXQ*) E;
   if (degpol(a)) return NULL;
-  return Fp_FpXQ_log(constant_term(a),g,ord,s->T,s->p);
+  return Fp_FpXQ_log(constant_coeff(a),g,ord,s->T,s->p);
 }
 
 static const struct bb_group FpXQ_star={_FpXQ_mul,_FpXQ_pow,_FpXQ_rand,hash_GEN,ZX_equal,ZX_equal1,_FpXQ_easylog};
@@ -1888,7 +1888,7 @@ FpXQ_norm(GEN x, GEN TB, GEN p)
   pari_sp av = avma;
   GEN T = get_FpX_mod(TB);
   GEN y = FpX_resultant(T, x, p);
-  GEN L = leading_term(T);
+  GEN L = leading_coeff(T);
   if (gequal1(L) || signe(x)==0) return y;
   return gerepileupto(av, Fp_div(y, Fp_pows(L, degpol(x), p), p));
 }

@@ -228,7 +228,7 @@ rfrac_denom_mul_scal(GEN d, GEN y)
   GEN D = RgX_Rg_mul(d, y);
   if (lg(D) != lg(d))
   { /* try to generate a meaningful diagnostic */
-    D = gdiv(leading_term(d), y); /* should fail */
+    D = gdiv(leading_coeff(d), y); /* should fail */
     pari_err_INV("gred_rfrac", y); /* better than nothing */
   }
   return D;

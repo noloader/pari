@@ -1752,7 +1752,7 @@ FpXQ_elljissupersingular(GEN j, GEN T, GEN p)
   GEN S;
   int res;
 
-  if (degpol(j) <= 0) return Fp_elljissupersingular(constant_term(j), p);
+  if (degpol(j) <= 0) return Fp_elljissupersingular(constant_coeff(j), p);
   if (cmpiu(p, 5) <= 0) return 0; /* j != 0*/
 
   /* Set S so that FF_p[T]/(S) is isomorphic to FF_{p^2}: */
@@ -1767,7 +1767,7 @@ FpXQ_elljissupersingular(GEN j, GEN T, GEN p)
     if (degpol(j_sum) > 0) { avma = ltop; return 0; /* j not in Fp^2 */ }
     j_prod = FpXQ_mul(j, j_pow_p, T, p);
     if (degpol(j_prod) > 0 ) { avma = ltop; return 0; /* j not in Fp^2 */ }
-    j_sum = constant_term(j_sum); j_prod = constant_term(j_prod);
+    j_sum = constant_coeff(j_sum); j_prod = constant_coeff(j_prod);
     S = mkpoln(3, gen_1, Fp_neg(j_sum, p), j_prod);
     setvarn(S, var);
     j = pol_x(var);
@@ -1873,14 +1873,14 @@ FpXQ_ellcard(GEN a4, GEN a6, GEN T, GEN p)
   long n = get_FpX_degree(T);
   GEN q = powiu(p, n), r, J;
   if (degpol(a4)<=0 && degpol(a6)<=0)
-    r = Fp_ffellcard(constant_term(a4),constant_term(a6),q,n,p);
+    r = Fp_ffellcard(constant_coeff(a4),constant_coeff(a6),q,n,p);
   else if (lgefint(p)==3)
   {
     ulong pp = p[2];
     r =  Flxq_ellcard(ZX_to_Flx(a4,pp),ZX_to_Flx(a6,pp),ZX_to_Flx(T,pp),pp);
   }
   else if (degpol(J=FpXQ_ellj(a4,a6,T,p))<=0)
-    r = FpXQ_ellcardj(a4,a6,constant_term(J),T,q,p,n);
+    r = FpXQ_ellcardj(a4,a6,constant_coeff(J),T,q,p,n);
   else
     r = Fq_ellcard_SEA(a4, a6, q, T, p, 0);
   return gerepileuptoint(av, r);

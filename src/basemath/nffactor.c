@@ -162,8 +162,8 @@ nfgcd_all(GEN P, GEN Q, GEN T, GEN den, GEN *Pnew)
   if (!signe(Q)) { if (Pnew) *Pnew = pol_1(vT);   return gcopy(P); }
   /*Compute denominators*/
   if (!den) den = ZX_disc(T);
-  lP = leading_term(P);
-  lQ = leading_term(Q);
+  lP = leading_coeff(P);
+  lQ = leading_coeff(Q);
   if ( !((typ(lP)==t_INT && is_pm1(lP)) || (typ(lQ)==t_INT && is_pm1(lQ))) )
     den = mulii(den, gcdii(ZX_resultant(lP, T), ZX_resultant(lQ, T)));
 
@@ -269,7 +269,7 @@ nffactormod(GEN nf, GEN x, GEN pr)
 static GEN
 QXQX_normalize(GEN P, GEN T)
 {
-  GEN P0 = leading_term(P);
+  GEN P0 = leading_coeff(P);
   long t = typ(P0);
   if (t == t_POL)
   {
@@ -284,7 +284,7 @@ QXQX_normalize(GEN P, GEN T)
 static GEN
 RgX_int_normalize(GEN P)
 {
-  GEN P0 = leading_term(P);
+  GEN P0 = leading_coeff(P);
   /* cater for t_POL */
   if (typ(P0) == t_POL)
   {
@@ -358,7 +358,7 @@ get_nfsqff_data(GEN *pnf, GEN *pT, GEN *pA, GEN *pB, GEN *ptbad)
   {
     *pnf = T;
     bad = den = ZX_disc(T);
-    if (is_pm1(leading_term(T))) den = indexpartial(T, den);
+    if (is_pm1(leading_coeff(T))) den = indexpartial(T, den);
   }
   else
   {
@@ -538,7 +538,7 @@ fact_from_sqff(GEN rep, GEN A, GEN B, GEN y, GEN T, GEN bad)
     }
     else
     { /* compute valuations mod a prime of degree 1 (avoid coeff explosion) */
-      GEN quo, p, r, Bp, lb = leading_term(B), E = cgetalloc(t_VECSMALL,n+1);
+      GEN quo, p, r, Bp, lb = leading_coeff(B), E = cgetalloc(t_VECSMALL,n+1);
       pari_sp av1 = avma;
       ulong pp;
       long j;
@@ -659,7 +659,7 @@ arch_for_T2_prec(GEN G, GEN x, long prec)
 static GEN
 nf_Mignotte_bound(GEN nf, GEN polbase)
 {
-  GEN G = nf_get_G(nf), lS = leading_term(polbase); /* t_INT */
+  GEN G = nf_get_G(nf), lS = leading_coeff(polbase); /* t_INT */
   GEN p1, C, N2, matGS, binlS, bin;
   long prec, i, j, d = degpol(polbase), n = nf_get_degree(nf), r1 = nf_get_r1(nf);
 
@@ -745,7 +745,7 @@ PRECPB:
     remake_GM(nf, &F, prec); G = F.G;
     if (DEBUGLEVEL>1) pari_warn(warnprec, "nf_factor_bound", prec);
   }
-  lt = leading_term(polbase);
+  lt = leading_coeff(polbase);
   s = mulri(s, muliu(sqri(lt), n));
   C = powruhalf(stor(3,DEFAULTPREC), 3 + 2*d); /* 3^{3/2 + d} */
   return divrr(mulrr(C, s), mulur(d, mppi(DEFAULTPREC)));
@@ -955,7 +955,7 @@ static void
 init_div_data(div_data *D, GEN pol, nflift_t *L)
 {
   GEN C = mul_content(L->topowden, L->dn);
-  GEN C2lt, Clt, lc = leading_term(pol), lt = is_pm1(lc)? NULL: absi(lc);
+  GEN C2lt, Clt, lc = leading_coeff(pol), lt = is_pm1(lc)? NULL: absi(lc);
   if (C)
   {
     GEN C2 = sqri(C);
@@ -1396,7 +1396,7 @@ nf_LLL_cmbf(nfcmbf_t *T, long rec)
   long ti_LLL = 0, ti_CF = 0;
   pari_timer ti2, TI;
 
-  lP = absi(leading_term(P));
+  lP = absi(leading_coeff(P));
   if (is_pm1(lP)) lP = NULL;
 
   n0 = lg(famod) - 1;
@@ -1662,7 +1662,7 @@ nf_pick_prime(long ct, GEN nf, GEN polbase, long fl,
   pari_timer ti_pr;
 
   if (DEBUGLEVEL>3) timer_start(&ti_pr);
-  *lt  = leading_term(polbase); /* t_INT */
+  *lt  = leading_coeff(polbase); /* t_INT */
   if (gequal1(*lt)) *lt = NULL;
   *pr = NULL;
   *Fa = NULL;
@@ -1742,7 +1742,7 @@ nfsqff_trager(GEN u, GEN T, GEN dent)
   fa = ZX_DDF(Q_primpart(n)); lx = lg(fa);
   if (lx == 2) return mkcol(u);
 
-  tmonic = is_pm1(leading_term(T));
+  tmonic = is_pm1(leading_coeff(T));
   P = cgetg(lx,t_COL);
   x0 = deg1pol_shallow(stoi(-k), gen_0, varn(T));
   mx0 = deg1pol_shallow(stoi(k), gen_0, varn(T));
@@ -1772,7 +1772,7 @@ polfnf(GEN a, GEN T)
 
   if (typ(a)!=t_POL) pari_err_TYPE("polfnf",a);
   if (typ(T)!=t_POL) pari_err_TYPE("polfnf",T);
-  T = Q_primpart(T); tmonic = is_pm1(leading_term(T));
+  T = Q_primpart(T); tmonic = is_pm1(leading_coeff(T));
   RgX_check_ZX(T,"polfnf");
   A = Q_primpart( QXQX_normalize(RgX_nffix("polfnf",T,a,1), T) );
   dA = degpol(A);

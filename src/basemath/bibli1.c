@@ -507,7 +507,7 @@ static void
 choose_params(GEN P, GEN N, GEN X, GEN B, long *pdelta, long *pt)
 {
   long d = degpol(P);
-  GEN P0 = leading_term(P);
+  GEN P0 = leading_coeff(P);
   double logN = gtodouble(glog(N, DEFAULTPREC));
   double tau, beta, rho;
   long delta, t;
@@ -879,7 +879,7 @@ algdep0(GEN x, long n, long bit)
     y = lindep2(y, bit);
   if (lg(y) == 1) pari_err(e_DOMAIN,"algdep", "degree(x)",">", stoi(n), x);
   y = RgV_to_RgX(y, 0);
-  if (signe(leading_term(y)) > 0) return gerepilecopy(av, y);
+  if (signe(leading_coeff(y)) > 0) return gerepilecopy(av, y);
   return gerepileupto(av, ZX_neg(y));
 }
 

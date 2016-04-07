@@ -2026,7 +2026,7 @@ polmodular(long L, long inv, GEN x, long v, long compute_derivs)
     J = FF_to_FpXQ_i(x);
     if (degpol(J) > 0)
       pari_err_DOMAIN("polmodular", "x", "not in prime subfield ", gen_0, x);
-    J = constant_term(J);
+    J = constant_coeff(J);
     P = FF_p_i(x);
     one = p_to_FF(P, 0);
   } else {

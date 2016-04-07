@@ -265,7 +265,7 @@ static GEN
 ZX_to_ZpX_normalized(GEN x, GEN p, GEN pr, long r)
 {
   long i, lx = lg(x);
-  GEN z, lead = leading_term(x);
+  GEN z, lead = leading_coeff(x);
 
   if (gequal1(lead)) return ZX_to_ZpX(x, p, pr, r);
   (void)Z_pvalrem(lead, p, &lead); lead = Fp_inv(lead, pr);
@@ -379,12 +379,12 @@ ZX_Zp_roots(GEN f, GEN p, long prec)
 static GEN
 pnormalize(GEN f, GEN p, long prec, long n, GEN *plead, long *pprec, int *prev)
 {
-  *plead = leading_term(f);
+  *plead = leading_coeff(f);
   *pprec = prec;
   *prev = 0;
   if (!is_pm1(*plead))
   {
-    long v = Z_pval(*plead,p), v1 = Z_pval(constant_term(f),p);
+    long v = Z_pval(*plead,p), v1 = Z_pval(constant_coeff(f),p);
     if (v1 < v)
     {
       *prev = 1; f = RgX_recip_shallow(f);
@@ -527,7 +527,7 @@ expo_is_squarefree(GEN e)
   return 1;
 }
 
-/* assume f a ZX with leading_term 1, degree > 0 */
+/* assume f a ZX with leading_coeff 1, degree > 0 */
 GEN
 ZX_monic_factorpadic(GEN f, GEN p, long prec)
 {
@@ -593,7 +593,7 @@ factorpadic(GEN f,GEN p,long r)
   if (!signe(f)) return prime_fact(f);
   if (n == 0) return trivial_fact();
 
-  f = QpX_to_ZX(f, p); (void)Z_pvalrem(leading_term(f), p, &lt);
+  f = QpX_to_ZX(f, p); (void)Z_pvalrem(leading_coeff(f), p, &lt);
   f = pnormalize(f, p, r, n-1, &lead, &pr, &reverse);
   y = ZX_monic_factorpadic(f, p, pr);
   P = gel(y,1); l = lg(P);

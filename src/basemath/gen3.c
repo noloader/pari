@@ -1174,7 +1174,7 @@ gsubst_expr(GEN expr, GEN from, GEN to)
 GEN
 gsubstpol(GEN x, GEN T, GEN y)
 {
-  if (typ(T) == t_POL && RgX_is_monomial(T) && gequal1(leading_term(T)))
+  if (typ(T) == t_POL && RgX_is_monomial(T) && gequal1(leading_coeff(T)))
   { /* T = t^d */
     long d = degpol(T), v = varn(T);
     pari_sp av = avma;
@@ -1998,9 +1998,9 @@ integ(GEN x, long v)
       if (!gequal(gmul(s,b), gmul(a,gsqr(d)))) err_intformal(x);
       if (typ(y)==t_RFRAC && lg(gel(y,1)) == lg(gel(y,2)))
       {
-        GEN p2 = leading_term(gel(y,2));
+        GEN p2 = leading_coeff(gel(y,2));
         p1 = gel(y,1);
-        if (typ(p1) == t_POL && varn(p1) == vx) p1 = leading_term(p1);
+        if (typ(p1) == t_POL && varn(p1) == vx) p1 = leading_coeff(p1);
         y = gsub(y, gdiv(p1,p2));
       }
       return gerepileupto(av,y);
@@ -3236,7 +3236,7 @@ _rfraccoeff(GEN x, long n, long v)
   Q = (vq == v)? q: swap_vars(q, v);
   if (!RgX_is_monomial(Q)) pari_err_TYPE("polcoeff", x);
   n += degpol(Q);
-  return gdiv(_polcoeff(P, n, v), leading_term(Q));
+  return gdiv(_polcoeff(P, n, v), leading_coeff(Q));
 }
 
 GEN

@@ -310,14 +310,14 @@ nf_hyperell_locally_soluble(GEN nf,GEN T,GEN pr)
   if (equaliu(pr_get_p(pr), 2))
   { /* tough case */
     zinit = Idealstar(nf, idealpows(nf,pr,1+2*pr_get_e(pr)), nf_INIT);
-    if (psquare2nf(nf,constant_term(T),pr,zinit)) return 1;
-    if (psquare2nf(nf, leading_term(T),pr,zinit)) return 1;
+    if (psquare2nf(nf,constant_coeff(T),pr,zinit)) return 1;
+    if (psquare2nf(nf, leading_coeff(T),pr,zinit)) return 1;
   }
   else
   {
     zinit = zkmodprinit(nf, pr);
-    if (psquarenf(nf,constant_term(T),pr,zinit)) return 1;
-    if (psquarenf(nf, leading_term(T),pr,zinit)) return 1;
+    if (psquarenf(nf,constant_coeff(T),pr,zinit)) return 1;
+    if (psquarenf(nf, leading_coeff(T),pr,zinit)) return 1;
   }
   repr = repres(nf,pr);
   if (zpsolnf(nf,T,pr,0,gen_1,gen_0,repr,zinit)) { avma=av; return 1; }
@@ -705,7 +705,7 @@ rnfisnorminit(GEN T, GEN relpol, int galois)
   if (!nf) nf = bnf_get_nf(bnf);
 
   relpol = get_bnfpol(relpol, &bnfabs, &nfabs);
-  if (!gequal1(leading_term(relpol))) pari_err_IMPL("non monic relative equation");
+  if (!gequal1(leading_coeff(relpol))) pari_err_IMPL("non monic relative equation");
   drel = degpol(relpol);
   if (drel <= 2) galois = 1;
 

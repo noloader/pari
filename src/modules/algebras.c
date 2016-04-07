@@ -1768,7 +1768,7 @@ algZmultable(GEN al, GEN x) {
     case al_TRIVIAL:
       x0 = gel(x,1);
       if(typ(x0)==t_POLMOD) x0 = gel(x0,2);
-      if(typ(x0)==t_POL) x0 = constant_term(x0);
+      if(typ(x0)==t_POL) x0 = constant_coeff(x0);
       res = mkmatcopy(mkcol(x0));
       break;
     case al_ALGEBRAIC: res = algmtK2Z(al,algalgmultable(al,x)); break;
@@ -3853,7 +3853,7 @@ ismaximalsubfield(GEN al, GEN x, GEN d, long v, GEN *pt_minpol)
 {
   GEN cp = algbasischarpoly(al, x, v), lead;
   if (!ispower(cp, d, pt_minpol)) return 0;
-  lead = leading_term(*pt_minpol);
+  lead = leading_coeff(*pt_minpol);
   if(isintm1(lead)) *pt_minpol = gneg(*pt_minpol);
   return ZX_is_irred(*pt_minpol);
 }

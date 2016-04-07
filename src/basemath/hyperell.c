@@ -182,7 +182,7 @@ ZpXXQ_frob(GEN S, GEN U, GEN V, long k, GEN T, ulong p, long e)
     gel(R,2) = gel(M, i+1);
     if (degpol(R) < dT) continue;
     B = FpX_add(FpX_mulu(T, 2*i, q), Tp1, q);
-    c = frac_to_Fp(leading_term(R), leading_term(B), q);
+    c = frac_to_Fp(leading_coeff(R), leading_coeff(B), q);
     R = FpX_sub(R, FpX_Fp_mul(B, c, q), q);
     if (gc_needed(av2,1))
     {
@@ -192,7 +192,7 @@ ZpXXQ_frob(GEN S, GEN U, GEN V, long k, GEN T, ulong p, long e)
   }
   if (degpol(R)==dT-1)
   {
-    GEN c = frac_to_Fp(leading_term(R), leading_term(Tp), q);
+    GEN c = frac_to_Fp(leading_coeff(R), leading_coeff(Tp), q);
     R = FpX_sub(R, FpX_Fp_mul(Tp, c, q), q);
     return gerepileupto(av, R);
   } else
@@ -306,7 +306,7 @@ ZlX_hyperellpadicfrobenius(GEN H, ulong p, long n)
   N = n + logint(stoi(2*n), stoi(p), NULL);
   pN1 = powuu(p,N+1);
   Q = RgX_to_FpX(H, pN1);
-  if (dvdiu(leading_term(Q),p)) is_sing(H, p);
+  if (dvdiu(leading_coeff(Q),p)) is_sing(H, p);
   setvarn(Q,1);
   if (DEBUGLEVEL>1) timer_start(&ti);
   s = revdigits(FpX_digits(RgX_inflate(Q, p), Q, pN1));
@@ -486,7 +486,7 @@ ZpXQXXQ_frob(GEN F, GEN U, GEN V, long k, GEN S, GEN T, ulong p, long e)
     gel(R,2) = gel(M, i+1);
     if (degpol(R) < dS) continue;
     B = FpXX_add(FpXX_mulu(S, 2*i, q), Sp1, q);
-    c = frac_to_Fq(to_ZX(leading_term(R),v), to_ZX(leading_term(B),v), T, q);
+    c = frac_to_Fq(to_ZX(leading_coeff(R),v), to_ZX(leading_coeff(B),v), T, q);
     R = FpXX_sub(R, FpXQX_FpXQ_mul(B, c, T, q), q);
     if (gc_needed(av2,1))
     {
@@ -496,7 +496,7 @@ ZpXQXXQ_frob(GEN F, GEN U, GEN V, long k, GEN S, GEN T, ulong p, long e)
   }
   if (degpol(R)==dS-1)
   {
-    GEN c = frac_to_Fq(to_ZX(leading_term(R),v), to_ZX(leading_term(Sp),v), T, q);
+    GEN c = frac_to_Fq(to_ZX(leading_coeff(R),v), to_ZX(leading_coeff(Sp),v), T, q);
     R = FpXX_sub(R, FpXQX_FpXQ_mul(Sp, c, T, q), q);
     return gerepileupto(av, R);
   } else
@@ -581,7 +581,7 @@ ZlXQX_hyperellpadicfrobenius(GEN H, GEN T, ulong p, long n)
   N = n + logint(stoi(2*n), stoi(p), NULL);
   q = powuu(p,n); pN1 = powuu(p,N+1); T = FpX_get_red(T, pN1);
   Q = RgX_to_FqX(H, T, pN1);
-  if (signe(FpX_red(to_ZX(leading_term(Q),varn(Q)),utoi(p)))==0) is_sing(H, p);
+  if (signe(FpX_red(to_ZX(leading_coeff(Q),varn(Q)),utoi(p)))==0) is_sing(H, p);
   if (DEBUGLEVEL>1) timer_start(&ti);
   xp = ZpX_Frobenius(T, utoi(p), N+1);
   s = RgX_inflate(FpXY_FpXQ_evalx(Q, xp, T, pN1), p);
@@ -765,7 +765,7 @@ hyperellcharpoly(GEN PQ)
       R = zx_to_ZX(Flx_genus2charpoly_naive(Hp, p));
       return gerepileupto(av, R);
     }
-    n = (d>>1) + 1; eps = odd(d)? 0: Fp_issquare(leading_term(H), pp);
+    n = (d>>1) + 1; eps = odd(d)? 0: Fp_issquare(leading_coeff(H), pp);
     M = hyperellpadicfrobenius(H, p, n);
     R = centerlift(carberkowitz(M, 0));
   }
@@ -776,7 +776,7 @@ hyperellcharpoly(GEN PQ)
     fixvar = (varncmp(varn(T),varn(H)) <= 0);
     if (fixvar) setvarn(T, fetch_var());
     H = RgX_to_FpXQX(H, T, pp);
-    d = degpol(H); eps = odd(d)? 0: Fq_issquare(leading_term(H), T, pp);
+    d = degpol(H); eps = odd(d)? 0: Fq_issquare(leading_coeff(H), T, pp);
     n = ((degpol(T)*d)>>1) + 1;
     M = nfhyperellpadicfrobenius(H, T, p, n);
     R = centerlift(liftpol_shallow(carberkowitz(M, 0)));

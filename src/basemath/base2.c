@@ -89,7 +89,7 @@ set_disc(nfmaxord_t *S)
   long d;
   if (S->T0 == S->T) return ZX_disc(S->T);
   d = degpol(S->T0);
-  l0 = leading_term(S->T0);
+  l0 = leading_coeff(S->T0);
   L = S->unscale;
   if (typ(L) == t_FRAC && absi_cmp(gel(L,1), gel(L,2)) < 0)
     dT = ZX_disc(S->T); /* more efficient */
@@ -1620,10 +1620,10 @@ getprime(decomp_t *S, GEN phi, GEN chip, GEN nup, long *Lp, long *Ep,
   GEN z, chin, q, qp;
   long r, s;
 
-  if (phi && dvdii(constant_term(chip), S->psc))
+  if (phi && dvdii(constant_coeff(chip), S->psc))
   {
     chip = mycaract(S, S->chi, phi, S->pmf, S->prc);
-    if (dvdii(constant_term(chip), S->pmf))
+    if (dvdii(constant_coeff(chip), S->pmf))
       chip = ZXQ_charpoly(phi, S->chi, varn(chip));
   }
   if (degpol(nup) == 1)
@@ -3039,7 +3039,7 @@ rnfdedekind_i(GEN nf, GEN P, GEN pr, long vdisc, long only_maximal)
 
   if (vdisc < 0) pari_err_TYPE("rnfdedekind [non integral pol]", P);
   if (vdisc == 1) return NULL; /* pr-maximal */
-  if (!only_maximal && !gequal1(leading_term(P)))
+  if (!only_maximal && !gequal1(leading_coeff(P)))
     pari_err_IMPL( "the full Dedekind criterion in the non-monic case");
   /* either monic OR only_maximal = 1 */
   m = degpol(P);
@@ -3423,7 +3423,7 @@ rnfallbase(GEN nf, GEN *ppol, GEN *pD, GEN *pd, GEN *pf)
 
   nf = checknf(nf); nfT = nf_get_pol(nf);
   pol = RgX_nffix("rnfallbase", nfT,pol,0);
-  if (!gequal1(leading_term(pol)))
+  if (!gequal1(leading_coeff(pol)))
     pari_err_IMPL("non-monic relative polynomials");
 
   n = degpol(pol);
@@ -3863,7 +3863,7 @@ nfsplitting(GEN T, GEN D)
   d = degpol(T);
   if (d<=1) return pol_x(0);
   if (!K) {
-    if (!isint1(leading_term(T))) K = T = polredbest(T,0);
+    if (!isint1(leading_coeff(T))) K = T = polredbest(T,0);
     K = T;
   }
   if (D)

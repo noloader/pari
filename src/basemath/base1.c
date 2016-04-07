@@ -340,7 +340,7 @@ GEN
 ZX_primitive_to_monic(GEN pol, GEN *pL)
 {
   long i,j, n = degpol(pol);
-  GEN lc = leading_term(pol), L, fa, P, E, a, POL;
+  GEN lc = leading_coeff(pol), L, fa, P, E, a, POL;
 
   if (is_pm1(lc))
   {
@@ -1961,7 +1961,7 @@ nfinit_step2(nfbasic_t *T, long flag, long prec)
 {
   GEN nf, unscale;
 
-  if (!equali1(leading_term(T->x0)) && !(flag & nf_RED))
+  if (!equali1(leading_coeff(T->x0)) && !(flag & nf_RED))
   {
     pari_warn(warner,"non-monic polynomial. Result of the form [nf,c]");
     flag |= nf_RED | nf_ORIG;
@@ -2505,7 +2505,7 @@ polredord(GEN x)
   x = Q_primpart(x); RgX_check_ZX(x,"polredord");
   n = degpol(x); if (n <= 0) pari_err_CONSTPOL("polredord");
   if (n == 1) return gerepilecopy(av, mkvec(x));
-  lt = leading_term(x); vx = varn(x);
+  lt = leading_coeff(x); vx = varn(x);
   if (is_pm1(lt))
   {
     if (signe(lt) < 0) x = ZX_neg(x);

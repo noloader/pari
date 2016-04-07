@@ -715,7 +715,7 @@ gbezout_step(GEN *pa, GEN *pb, GEN *pu, GEN *pv, long vx)
   { /* possible accuracy problem */
     GEN D = RgX_gcd_simple(a,b);
     if (degpol(D)) {
-      D = RgX_Rg_div(D, leading_term(D));
+      D = RgX_Rg_div(D, leading_coeff(D));
       a = RgX_div(a, D);
       b = RgX_div(b, D);
       d = RgX_extgcd(a,b, pu,pv); /* retry now */
@@ -814,12 +814,12 @@ ZM_reduce(GEN A, GEN U, long i, long j0)
 static GEN
 RgX_normalize_all(GEN T, GEN *pd)
 {
-  GEN d = leading_term(T);
+  GEN d = leading_coeff(T);
   while (gequal0(d) || ( typ(d) == t_REAL && lg(d) == 3
                        && gexpo(T) - expo(d) > (long)BITS_IN_LONG)) {
      T = normalizepol_lg(T, lg(T)-1);
      if (!signe(T)) { *pd = gen_1; return T; }
-     d = leading_term(T);
+     d = leading_coeff(T);
   }
   *pd = d;
   return RgX_Rg_div(T, d);

@@ -106,7 +106,7 @@ static GEN
 Mignotte_bound(GEN S)
 {
   long i, d = degpol(S);
-  GEN C, N2, t, binlS, lS = leading_term(S), bin = vecbinome(d-1);
+  GEN C, N2, t, binlS, lS = leading_coeff(S), bin = vecbinome(d-1);
 
   N2 = sqrtr(RgX_fpnorml2(S,DEFAULTPREC));
   binlS = is_pm1(lS)? bin: ZC_Z_mul(bin, lS);
@@ -143,7 +143,7 @@ Beauzamy_bound(GEN S)
   /* s = [S]_2^2 */
   C = powruhalf(stor(3,prec), 3 + 2*d); /* 3^{3/2 + d} */
   C = divrr(mulrr(C, s), mulur(4*d, mppi(prec)));
-  lS = absi(leading_term(S));
+  lS = absi(leading_coeff(S));
   return mulir(lS, sqrtr(C));
 }
 
@@ -184,7 +184,7 @@ cmbf(GEN pol, GEN famod, GEN bound, GEN p, long a, long b,
   GEN fa       = cgetg(lfamod+1, t_VEC);
 
   *pmaxK = cmbf_maxK(lfamod);
-  lc = absi(leading_term(pol));
+  lc = absi(leading_coeff(pol));
   if (is_pm1(lc)) lc = NULL;
   lcpol = lc? ZX_Z_mul(pol, lc): pol;
 
@@ -263,11 +263,11 @@ nextK:
       y = lc;
       for (i=1; i<=K; i++)
       {
-        GEN q = constant_term(gel(famod,ind[i]));
+        GEN q = constant_coeff(gel(famod,ind[i]));
         if (y) q = mulii(y, q);
         y = centermodii(q, pa, pas2);
       }
-      if (!signe(y) || remii(constant_term(lcpol), y) != gen_0)
+      if (!signe(y) || remii(constant_coeff(lcpol), y) != gen_0)
       {
         if (DEBUGLEVEL>3) err_printf("T");
         avma = av; goto NEXT;
@@ -295,7 +295,7 @@ nextK:
       gel(fa,cnt++) = y;
       /* fix up pol */
       pol = q;
-      if (lc) pol = Q_div_to_int(pol, leading_term(y));
+      if (lc) pol = Q_div_to_int(pol, leading_coeff(y));
       for (i=j=k=1; i <= lfamod; i++)
       { /* remove used factors */
         if (j <= K && i == ind[j]) j++;
@@ -312,7 +312,7 @@ nextK:
       if (lfamod < 2*K) goto END;
       i = 1; curdeg = deg[ind[1]];
       bound = factor_bound(pol);
-      if (lc) lc = absi(leading_term(pol));
+      if (lc) lc = absi(leading_coeff(pol));
       lcpol = lc? ZX_Z_mul(pol, lc): pol;
       if (DEBUGLEVEL>3)
         err_printf("\nfound factor %Ps\nremaining modular factor(s): %ld\n",
@@ -335,7 +335,7 @@ END:
   *done = 1;
   if (degpol(pol) > 0)
   { /* leftover factor */
-    if (signe(leading_term(pol)) < 0) pol = ZX_neg(pol);
+    if (signe(leading_coeff(pol)) < 0) pol = ZX_neg(pol);
     if (lfamod >= 2*K) *done = 0;
 
     setlg(famod, lfamod+1);
@@ -383,7 +383,7 @@ shifteval(GEN Q, long n)
 static GEN
 root_bound(GEN P0)
 {
-  GEN Q = leafcopy(P0), lP = absi(leading_term(Q)), x,y,z;
+  GEN Q = leafcopy(P0), lP = absi(leading_coeff(Q)), x,y,z;
   long k, d = degpol(Q);
 
   /* P0 = lP x^d + Q, deg Q < d */
@@ -457,7 +457,7 @@ chk_factors(GEN P, GEN M_L, GEN bound, GEN famod, GEN pa)
 
   r  = lg(piv)-1;
   list = cgetg(r+1, t_VEC);
-  lt = absi(leading_term(pol));
+  lt = absi(leading_coeff(pol));
   if (is_pm1(lt)) lt = NULL;
   ltpol = lt? ZX_Z_mul(pol, lt): pol;
   paov2 = shifti(pa,-1);
@@ -473,8 +473,8 @@ chk_factors(GEN P, GEN M_L, GEN bound, GEN famod, GEN pa)
 
     if (lt)
     {
-      pol = ZX_Z_divexact(pol, leading_term(y));
-      lt = absi(leading_term(pol));
+      pol = ZX_Z_divexact(pol, leading_coeff(y));
+      lt = absi(leading_coeff(pol));
       ltpol = ZX_Z_mul(pol, lt);
     }
     else
@@ -532,7 +532,7 @@ LLL_cmbf(GEN P, GEN famod, GEN p, GEN pa, GEN bound, long a, long rec)
   pari_sp av, av2;
   long ti_LLL = 0, ti_CF  = 0;
 
-  lP = absi(leading_term(P));
+  lP = absi(leading_coeff(P));
   if (is_pm1(lP)) lP = NULL;
   Br = root_bound(P);
   if (lP) Br = mulii(lP, Br);
@@ -714,7 +714,7 @@ combine_factors(GEN target, GEN famod, GEN p, long klim)
 
   A = factor_bound(target);
 
-  la = absi(leading_term(target));
+  la = absi(leading_coeff(target));
   B = mului(n, sqri(mulii(la, root_bound(target)))); /* = bound for S_2 */
 
   (void)cmbf_precs(p, A, B, &a, &b, &pa, &pb);
@@ -802,7 +802,7 @@ DDF_roots(GEN A)
   pp = pick_prime(A, 1, &T);
   if (!pp) return cgetg(1,t_VEC); /* no root */
   p = utoipos(pp);
-  lc = leading_term(A);
+  lc = leading_coeff(A);
   if (is_pm1(lc))
   { lc = NULL; lcpol = A; }
   else
@@ -823,11 +823,11 @@ DDF_roots(GEN A)
     if (! (q = ZX_divides(lcpol, y)) ) continue;
 
     lcpol = q;
-    r = negi( constant_term(y) );
+    r = negi( constant_coeff(y) );
     if (lc) {
       r = gdiv(r,lc);
       lcpol = Q_primpart(lcpol);
-      lc = absi_shallow( leading_term(lcpol) );
+      lc = absi_shallow( leading_coeff(lcpol) );
       if (is_pm1(lc)) lc = NULL; else lcpol = ZX_Z_mul(lcpol, lc);
     }
     gel(z,m++) = r;
@@ -910,7 +910,7 @@ ZX_squff(GEN f, GEN *ex)
   GEN T, V, P, e;
   long i, k, n, val;
 
-  if (signe(leading_term(f)) < 0) f = gneg_i(f);
+  if (signe(leading_coeff(f)) < 0) f = gneg_i(f);
   val = ZX_valrem(f, &f);
   n = 1 + degpol(f); if (val) n++;
   e = cgetg(n,t_VECSMALL);
@@ -1074,7 +1074,7 @@ ZX_gcd_all(GEN A, GEN B, GEN *Anew)
   ltop = avma;
 
   n = 1 + minss(degpol(A), degpol(B)); /* > degree(gcd) */
-  g = gcdii(leading_term(A), leading_term(B)); /* multiple of lead(gcd) */
+  g = gcdii(leading_coeff(A), leading_coeff(B)); /* multiple of lead(gcd) */
   if (is_pm1(g)) {
     g = NULL;
     Ag = A;
@@ -1287,9 +1287,9 @@ ZXQ_mul_by_X(GEN t, GEN T)
   GEN lt;
   t = RgX_shift_shallow(t, 1);
   if (degpol(t) < degpol(T)) return t;
-  lt = leading_term(t);
+  lt = leading_coeff(t);
   if (is_pm1(lt)) return signe(lt) > 0 ? ZX_sub(t, T): ZX_add(t, T);
-  return ZX_sub(t, ZX_Z_mul(T, leading_term(t)));
+  return ZX_sub(t, ZX_Z_mul(T, leading_coeff(t)));
 }
 /* f a product of Phi_n, all n odd; deg f > 1. Is it irreducible ? */
 static long
@@ -1355,7 +1355,7 @@ BD_iscyclo(GEN f)
 
   if (issquareall(f1, &f2))
   {
-    GEN lt = leading_term(f2);
+    GEN lt = leading_coeff(f2);
     long c;
     if (signe(lt) < 0) f2 = ZX_neg(f2);
     c = BD_iscyclo(f2);
@@ -1384,7 +1384,7 @@ poliscycloprod(GEN f)
   long i, d = degpol(f);
   if (typ(f) != t_POL) pari_err_TYPE("poliscycloprod",f);
   if (!RgX_is_ZX(f)) return 0;
-  if (!equali1(leading_term(f)) || !is_pm1(constant_term(f))) return 0;
+  if (!equali1(leading_coeff(f)) || !is_pm1(constant_coeff(f))) return 0;
   if (d < 2) return (d == 1);
   if ( degpol(ZX_gcd_all(f, ZX_deriv(f), &f)) )
   {

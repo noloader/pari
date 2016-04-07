@@ -1709,7 +1709,7 @@ RgXQX_divrem(GEN x, GEN y, GEN T, GEN *pr)
     }
     return pol_0(vx);
   }
-  lead = leading_term(y);
+  lead = leading_coeff(y);
   if (!dy) /* y is constant */
   {
     if (pr && pr != ONLY_DIVIDES)
@@ -1797,7 +1797,7 @@ ZXQX_dvd(GEN x, GEN y, GEN T)
   if (typ(y_lead) == t_POL) y_lead = gel(y_lead, 2); /* t_INT */
   /* if monic, no point in using pseudo-division */
   if (gequal1(y_lead)) return signe(RgXQX_rem(x, y, T)) == 0;
-  T_ismonic = gequal1(leading_term(T));
+  T_ismonic = gequal1(leading_coeff(T));
   dx = degpol(x);
   if (dx < dy) return !signe(x);
   (void)new_chunk(2);
@@ -2359,7 +2359,7 @@ RgXQ_norm(GEN x, GEN T)
   GEN L, y;
 
   av = avma; y = resultant(T, x);
-  L = leading_term(T);
+  L = leading_coeff(T);
   if (gequal1(L) || !signe(x)) return y;
   return gerepileupto(av, gdiv(y, gpowgs(L, dx)));
 }

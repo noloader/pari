@@ -391,7 +391,7 @@ FqX_normalize(GEN z, GEN T, GEN p)
   GEN lc;
   if (!T) return FpX_normalize(z,p);
   if (lg(z) == 2) return z;
-  lc = leading_term(z);
+  lc = leading_coeff(z);
   if (typ(lc) == t_POL)
   {
     if (lg(lc) > 3) /* non-constant */
@@ -1889,7 +1889,7 @@ FlxY_evalx_drop(GEN Q, ulong x, ulong p)
 {
   GEN z;
   long i, lb = lg(Q);
-  ulong leadz = Flx_eval(leading_term(Q), x, p);
+  ulong leadz = Flx_eval(leading_coeff(Q), x, p);
   long vs=mael(Q,2,1);
   if (!leadz) return zero_Flx(vs);
 
@@ -1959,7 +1959,7 @@ ZX_ZXY_ResBound(GEN A, GEN B, GEN dB)
   avma = av; return (i <= 0)? 1: 1 + (ulong)i;
 }
 
-/* return Res(a(Y), b(n,Y)) over Fp. la = leading_term(a) [for efficiency] */
+/* return Res(a(Y), b(n,Y)) over Fp. la = leading_coeff(a) [for efficiency] */
 static ulong
 Flx_FlxY_eval_resultant(GEN a, GEN b, ulong n, ulong p, ulong la)
 {
@@ -2065,7 +2065,7 @@ FlxX_resultant(GEN u, GEN v, ulong p, long sx)
     r = FlxX_pseudorem(u,v,p); dr = lg(r);
     if (dr == 2) { avma = av; return zero_Flx(sx); }
     du = degpol(u); dv = degpol(v); degq = du-dv;
-    u = v; p1 = g; g = leading_term(u);
+    u = v; p1 = g; g = leading_coeff(u);
     switch(degq)
     {
       case 0: break;
@@ -2154,7 +2154,7 @@ FpX_FpXY_resultant(GEN a, GEN b, GEN p)
   }
   db = RgXY_degreex(b);
   dres = degpol(a)*db;
-  la = leading_term(a);
+  la = leading_coeff(a);
   x = cgetg(dres+2, t_VEC);
   y = cgetg(dres+2, t_VEC);
  /* Evaluate at dres+ 1 points: 0 (if dres even) and +/- n, so that P_n(X) =
@@ -2436,7 +2436,7 @@ ZXQ_charpoly_sqf(GEN A, GEN T, long *lambda, long v)
   }
   R = ZX_ZXY_rnfequation(T, deg1pol_shallow(gen_1, gneg_i(A), 0), lambda);
   if (delvar) (void)delete_var();
-  setvarn(R, v); a = leading_term(T);
+  setvarn(R, v); a = leading_coeff(T);
   if (!gequal1(a)) R = gdiv(R, powiu(a, dA));
   return gerepileupto(av, R);
 }
@@ -2717,7 +2717,7 @@ QXQ_intnorm(GEN A, GEN B)
     R = ZX_resultant_all(B, A, gel(c,2), 0);
   }
   if (n && !equali1(n)) R = mulii(R, powiu(n, dB));
-  lB = leading_term(B);
+  lB = leading_coeff(B);
   if (!equali1(lB)) R = diviiexact(R, powiu(lB, dA));
   return gerepileuptoint(av, R);
 }
@@ -2732,7 +2732,7 @@ QXQ_norm(GEN A, GEN B)
   A = Q_primitive_part(A, &c);
   R = ZX_resultant(B, A);
   if (c) R = gmul(R, gpowgs(c, dB));
-  lB = leading_term(B);
+  lB = leading_coeff(B);
   if (!equali1(lB)) R = gdiv(R, gpowgs(lB, dA));
   return gerepileupto(av, R);
 }
@@ -2746,7 +2746,7 @@ ZX_disc_all(GEN x, ulong bound)
   long s, d = degpol(x);
   if (d <= 1) return d ? gen_1: gen_0;
   s = (d & 2) ? -1: 1;
-  l = leading_term(x);
+  l = leading_coeff(x);
   R = ZX_resultant_all(x, NULL, NULL, bound);
   if (is_pm1(l))
   { if (signe(l) < 0) s = -s; }

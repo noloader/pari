@@ -308,7 +308,7 @@ polsimplify(GEN x)
 {
   long i,lx = lg(x);
   for (i=2; i<lx; i++)
-    if (typ(gel(x,i)) == t_POL) gel(x,i) = constant_term(gel(x,i));
+    if (typ(gel(x,i)) == t_POL) gel(x,i) = constant_coeff(gel(x,i));
   return x;
 }
 
@@ -447,7 +447,7 @@ get_bezout(GEN pol, GEN fk, GEN p)
     B = FpX_div(pol, A, p);
     d = FpX_extgcd(A,B,p, &u, &v);
     if (degpol(d) > 0) pari_err_COPRIME("get_bezout",A,B);
-    d = constant_term(d);
+    d = constant_coeff(d);
     if (!gequal1(d)) v = FpX_Fp_mul(v, Fp_inv(d, p), p);
     gel(U,i) = FpX_mul(B,v, p);
   }
@@ -507,7 +507,7 @@ init_primedata(primedata *S)
   for (l=1,j=1; j<lff; j++)
   { /* compute roots and fix ordering (Frobenius cycles) */
     GEN F = gel(S->ff, j), deg1 = FpX_factorff_irred(F, T,p);
-    GEN H = gel(deg1,1), a = Fq_neg(constant_term(H), T,p);
+    GEN H = gel(deg1,1), a = Fq_neg(constant_coeff(H), T,p);
     GEN Q = FqX_div(F, H, T,p);
     GEN q = Fq_inv(FqX_eval(Q, a, T,p), T,p);
     gel(S->interp,j) = FqX_Fq_mul(Q, q, T,p); /* = 1 at a, 0 at other roots */
@@ -731,7 +731,7 @@ subfield(GEN A, blockdata *B)
      * if g o h = 0 (pol), we'll have h(Ai[j]) = delta[i] for all j */
     /* fk[k] belongs to block number whichdelta[k] */
     for (j=1; j<=d; j++) whichdelta[Ai[j]] = i;
-    if (typ(p1) == t_POL) p1 = constant_term(p1);
+    if (typ(p1) == t_POL) p1 = constant_coeff(p1);
     d_1_term = addii(d_1_term, p1);
   }
   d_1_term = centermod(d_1_term, pe); /* Tr(g) */

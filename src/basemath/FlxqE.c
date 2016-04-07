@@ -1529,7 +1529,7 @@ Flxq_ellcard_Kedlaya(GEN a4, GEN a6, GEN T, ulong p)
   GEN N = ZpXQM_prodFrobenius(M, Tp, utoi(p), e);
   GEN q = powuu(p, e);
   GEN tp = Fq_add(gcoeff(N,1,1), gcoeff(N,2,2), Tp, q);
-  GEN t = Fp_center(typ(tp)==t_INT ? tp: leading_term(tp), q, shifti(q,-1));
+  GEN t = Fp_center(typ(tp)==t_INT ? tp: leading_coeff(tp), q, shifti(q,-1));
   return gerepileupto(av, subii(addis(powuu(p, n), 1), t));
 }
 

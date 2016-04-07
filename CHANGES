@@ -537,8 +537,9 @@ BA 61- [libpari] concat, concat1 renamed to gconcat, gconcat1
        instead of O(padicprec))
    67- allow genus2red to handle (rational) non integral models
 KR 68- new version of misc/xgp
-BA 69- Rename Flc_Fl_mul -> Flv_Fl_mul, Flc_Fl_div -> Flv_Fl_div,
+BA 69- rename Flc_Fl_mul -> Flv_Fl_mul, Flc_Fl_div -> Flv_Fl_div,
        RgC_to_Flc to RgV_to_Flv, F2c_to_Flc to F2v_to_Flv
+   70- rename leading_term -> leading_coeff, constant_term -> constant_coeff
 
 Removed
    1- deprecated functions nfbasis0, nfdisc0, factorpadic0

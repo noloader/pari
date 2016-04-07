@@ -1252,7 +1252,7 @@ genus2_redmodel(GEN P, GEN p)
   GEN M = FpX_factor(P, p);
   GEN F = gel(M,1), E = gel(M,2);
   long i, k, r = lg(F);
-  GEN U = scalarpol(leading_term(P), varn(P));
+  GEN U = scalarpol(leading_coeff(P), varn(P));
   GEN G = cgetg(r, t_COL);
   for (i=1, k=0; i<r; i++)
   {
@@ -1322,7 +1322,7 @@ genus2_eulerfact(GEN P, GEN p)
   if (v)
   {
     GEN kqoo = w==1 ? oneminusxd(1):
-               Fp_issquare(leading_term(Q), p)? ZX_sqr(oneminusxd(1))
+               Fp_issquare(leading_coeff(Q), p)? ZX_sqr(oneminusxd(1))
                                               : oneminusxd(2);
     kp = gmul(kp, oneminusxd(1));
     kq = gmul(kq, kqoo);
