@@ -3602,6 +3602,7 @@ mstooms(GEN W, GEN phi)
   return gerepilecopy(av, mkcol3(phi, stoi(vden), alpha));
 }
 
+/* HACK: the v[j] have different lengths */
 static GEN
 FpVV_dotproduct(GEN v, GEN w, GEN p)
 {
