@@ -556,7 +556,7 @@
   *** mathnfmod: domain error in ZM_hnfmod: nb lines > nb columns
   ***   at top-level: polsturm(x^2*1.)
   ***                 ^----------------
-  *** polsturm: domain error in polsturm: issquarefree(pol) = 0
+  *** polsturm: precision too low in polsturm.
   ***   at top-level: removeprimes(2)
   ***                 ^---------------
   *** removeprimes: domain error in removeprime: prime not in primetable

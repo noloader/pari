@@ -2907,19 +2907,16 @@ sturmpart_i(GEN x, GEN a, GEN b)
     if (t == t_INT || t == t_REAL || t == t_FRAC) return 0;
     pari_err_TYPE("sturm",x);
   }
-  s=lg(x); if (s==3) return 0;
+  s = lg(x); if (s==3) return 0;
   u = primpart(x);
   integral = RgX_is_ZX(u);
+  if (integral && !ZX_is_squarefree(u))
+    pari_err_DOMAIN("polsturm","issquarefree(pol)","=",gen_0,u);
   if (!b && a && typ(a) == t_VEC && lg(a) == 3)
   { /* new format */
     if (integral && exact_sturm(gel(a,1)) && exact_sturm(gel(a,2)))
-    {
-      if (!ZX_is_squarefree(u))
-        pari_err_DOMAIN("polsturm","issquarefree(pol)","=",gen_0,u);
       return ZX_sturmpart(u, a);
-    }
     /* but can't use new function; convert to old form */
-    integral = 0;
     b = gel(a,2);
     if (typ(b) == t_INFINITY)
     {
@@ -2933,16 +2930,11 @@ sturmpart_i(GEN x, GEN a, GEN b)
       a = NULL;
     }
   }
-  if (integral)
+  else if (integral)
   {
-    if (!a) a = mkmoo();
-    if (!b) b = mkoo();
-    if (exact_sturm(a) && exact_sturm(b))
-    {
-      if (!ZX_is_squarefree(u))
-        pari_err_DOMAIN("polsturm","issquarefree(pol)","=",gen_0,u);
-      return ZX_sturmpart(u, mkvec2(a,b));
-    }
+    GEN A = a? a: mkmoo();
+    GEN B = b? b: mkoo();
+    if (exact_sturm(A) && exact_sturm(B)) return ZX_sturmpart(u, mkvec2(A,B));
   }
   /* legacy code: should only be used if we have a t_REAL somewhere; and even
    * then, the calling program should be changed */
@@ -2975,7 +2967,7 @@ sturmpart_i(GEN x, GEN a, GEN b)
     GEN p1, r = RgX_pseudorem(u,v);
     long du=lg(u), dv=lg(v), dr=lg(r), degq=du-dv;
 
-    if (dr<=2) pari_err_DOMAIN("polsturm","issquarefree(pol)","=",gen_0,x);
+    if (dr<=2) pari_err_PREC("polsturm");
     if (gsigne(leading_coeff(v)) > 0 || degq&1) r=gneg_i(r);
     sl = gsigne(gel(r,dr-1));
     sr = b? gsigne(poleval(r,b)): sl;
