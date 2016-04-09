@@ -2939,45 +2939,6 @@ static GEN
 FqX_frob_deflate(GEN f, GEN T, GEN p)
 { return FqX_frobinv_inplace(RgX_deflate(f, itos(p)), T, p); }
 
-/* Factor _sqfree_ polynomial a on the finite field Fp[X]/(T). Assumes
- * varncmp (varn(T), varn(A)) > 0 */
-static GEN
-FqX_split_Trager(GEN A, GEN T, GEN p)
-{
-  GEN c = NULL, P, u, fa, n;
-  long lx, i, k;
-
-  u = A;
-  n = NULL;
-  for (k = 0; cmpui(k, p) < 0; k++)
-  {
-    GEN U;
-    c = deg1pol_shallow(stoi(k) , gen_0, varn(T));
-    U = FqX_translate(u, c, T, p);
-    n = FpX_FpXY_resultant(T, U, p);
-    if (FpX_is_squarefree(n, p)) break;
-    n = NULL;
-  }
-  if (!n) return NULL;
-  if (DEBUGLEVEL>4) err_printf("FqX_split_Trager: choosing k = %ld\n",k);
-  /* n guaranteed to be squarefree */
-  fa = FpX_factor(n, p); fa = gel(fa,1); lx = lg(fa);
-  if (lx == 2) return mkcol(A); /* P^k, P irreducible */
-
-  P = cgetg(lx,t_COL);
-  c = FpX_neg(c,p);
-  for (i=lx-1; i>1; i--)
-  {
-    GEN F = FqX_translate(gel(fa,i), c, T, p);
-    F = FqX_normalize(FqX_gcd(u, F, T, p), T, p);
-    if (typ(F) != t_POL || degpol(F) == 0)
-      pari_err_IRREDPOL("FqX_split_Trager [modulus]",T);
-    u = FqX_div(u, F, T, p);
-    gel(P,i) = F;
-  }
-  gel(P,1) = u; return P;
-}
-
 static long
 isabsolutepol(GEN f)
 {
@@ -3317,15 +3278,7 @@ FqX_factor_i(GEN f, GEN T, GEN p)
         if (!equaliu(p,2))
           lfact += FqX_split_Berlekamp(&gel(t,lfact), T, p);
         else
-        {
-          GEN P = FqX_split_Trager(gel(t,lfact), T, p);
-          if (P) {
-            for (j = 1; j < lg(P); j++) gel(t,lfact++) = gel(P,j);
-          } else {
-            if (DEBUGLEVEL) pari_warn(warner, "FqX_split_Trager failed!");
-            lfact += FqX_sqf_split(&gel(t,lfact), q, T, p);
-          }
-        }
+          lfact += FqX_sqf_split(&gel(t,lfact), q, T, p);
       }
       for (j = nb0; j < lfact; j++) E[j] = e;
     }
