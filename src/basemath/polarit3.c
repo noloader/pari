@@ -1846,42 +1846,6 @@ FpV_polint(GEN xa, GEN ya, GEN p, long v)
   return P? P: pol_0(v);
 }
 
-static void
-Flv_polint_all(GEN xa, GEN ya, GEN C0, GEN C1, ulong p,
-               GEN *pHp, GEN *pH0p, GEN *pH1p)
-{
-  GEN T,Q = Flv_roots_to_pol(xa, p, 0);
-  GEN dP  = NULL,  P = NULL;
-  GEN dP0 = NULL, P0= NULL;
-  GEN dP1 = NULL, P1= NULL;
-  long i, n = lg(xa);
-  ulong inv;
-  for (i=1; i<n; i++)
-  {
-    T = Flx_div_by_X_x(Q, xa[i], p, NULL);
-    inv = Fl_inv(Flx_eval(T,xa[i], p), p);
-
-    if (ya[i])
-    {
-      dP = Flx_Fl_mul(T, Fl_mul(ya[i],inv,p), p);
-      P = P ? Flx_add(P , dP , p): dP;
-    }
-    if (C0[i])
-    {
-      dP0= Flx_Fl_mul(T, Fl_mul(C0[i],inv,p), p);
-      P0= P0? Flx_add(P0, dP0, p): dP0;
-    }
-    if (C1[i])
-    {
-      dP1= Flx_Fl_mul(T, Fl_mul(C1[i],inv,p), p);
-      P1= P1? Flx_add(P1, dP1, p): dP1;
-    }
-  }
-  *pHp  = (P ? P : zero_Flx(0));
-  *pH0p = (P0? P0: zero_Flx(0));
-  *pH1p = (P1? P1: zero_Flx(0));
-}
-
 /* Q a vector of polynomials representing B in Fp[X][Y], evaluate at X = x,
  * Return 0 in case of degree drop. */
 static GEN
@@ -2292,6 +2256,7 @@ INIT:
     b = ZXX_to_FlxX(B, p, varn(A));
     if (LERS)
     {
+      GEN Hi;
       if (degpol(a) < degA || lg(b) < lb) continue; /* p | lc(A)lc(B) */
       if (checksqfree)
       { /* find degree list for generic Euclidean Remainder Sequence */
@@ -2322,7 +2287,8 @@ INIT:
         x[++i] = n; y[i] = Flx_resultant_all(a, ev, C0+i, C1+i, dglist, p);
         if (!C1[i]) i--; /* C1(i) = 0. No way to recover C0(i) */
       }
-      Flv_polint_all(x,y,C0,C1, p, &Hp, &H0p, &H1p);
+      Hi = Flv_FlvV_polint(x, mkvec3(y,C0,C1), p, 0);
+      Hp = gel(Hi,1); H0p = gel(Hi,2); H1p = gel(Hi,3);
     }
     else
     {
