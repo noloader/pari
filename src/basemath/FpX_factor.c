@@ -654,11 +654,10 @@ F2x_Berlekamp_ker(GEN u)
 {
   pari_sp ltop=avma;
   long j,N = F2x_degree(u);
-  GEN Q, XP;
+  GEN Q;
   pari_timer T;
   timer_start(&T);
-  XP = F2xq_sqr(polx_F2x(u[1]),u);
-  Q  = F2xq_matrix_pow(XP,N,N,u);
+  Q = F2x_matFrobenius(u);
   for (j=1; j<=N; j++)
     F2m_flip(Q,j,j);
   if(DEBUGLEVEL>=9) timer_printf(&T,"Berlekamp matrix");
