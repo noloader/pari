@@ -262,7 +262,7 @@ BA 43- GP function powers and libpari function gpowers
    44- flag LLL_COMPATIBLE for LLL routines [ use 64-bit compatible accuracies
        only ]
 BA 45- [libpari] functions FpX_Frobenius, FpX_matFrobenius, Flx_Frobenius,
-       Flx_matFrobenius, ZpX_Frobenius
+       Flx_matFrobenius, ZpX_Frobenius, F2x_Frobenius, F2x_matFrobenius
    46- [libpari] function ser_isexactzero
 BA 47- [libpari] functions ZV_chinese, Z_ZV_mod, Z_nv_mod, nmV_chinese_center
 BA 48- GP function fromdigits
@@ -425,7 +425,7 @@ SCh152- [mingw+pthread]: default nbthreads support
    161- gphelp -detex: new flag -utf8 to allow utf-8 encoding in output, e.g.
         render \'{e} as &eacute; (the actual eight-bit char) instead of 'e
    162- GP function msfromhecke, msgetlevel, msgetweight, msgetsign
-   163- qfisominit: allow to pass the matrix of minimal vectors [#1656]
+BA 163- qfisominit: allow to pass the matrix of minimal vectors [#1656]
    164- [libpari] GENtostr_raw
 
   Changed

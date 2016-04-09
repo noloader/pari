@@ -889,6 +889,19 @@ F2xq_matrix_pow(GEN y, long n, long m, GEN P)
   return F2xV_to_F2m(F2xq_powers(y,m-1,P),n);
 }
 
+GEN
+F2x_Frobenius(GEN T)
+{
+  return F2xq_sqr(polx_F2x(T[1]), T);
+}
+
+GEN
+F2x_matFrobenius(GEN T)
+{
+  long n = F2x_degree(T);
+  return F2xq_matrix_pow(F2x_Frobenius(T), n, n, T);
+}
+
 static struct bb_algebra F2xq_algebra = { _F2xq_red,_F2xq_add,_F2xq_mul,_F2xq_sqr,_F2xq_one,_F2xq_zero};
 
 GEN
