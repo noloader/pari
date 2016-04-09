@@ -2153,7 +2153,7 @@ FpX_FpXY_resultant(GEN a, GEN b, GEN p)
     return Flx_to_ZX(x);
   }
   db = RgXY_degreex(b);
-  dres = degpol(a)*db;
+  dres = degpol(a)*degpol(b);
   la = leading_coeff(a);
   x = cgetg(dres+2, t_VEC);
   y = cgetg(dres+2, t_VEC);
