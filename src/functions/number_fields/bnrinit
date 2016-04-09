@@ -9,11 +9,11 @@ Help: bnrinit(bnf,f,{flag=0}): given a bnf as output by
 Description:
  (gen,gen,?small):bnr       bnrinit0($1, $2, $3)
 Doc: $\var{bnf}$ is as
- output by \kbd{bnfinit}, $f$ is a modulus, initializes data linked to
- the ray class group structure corresponding to this module, a so-called
- \kbd{bnr} structure. One can input the associated \var{bid} with generators
- for $f$ instead of the module itself, saving some time.
- (As in \tet{idealstar}, the finite part of the conductor may be given
+ output by \kbd{bnfinit} (including fundamental units), $f$ is a modulus,
+ initializes data linked to the ray class group structure corresponding to
+ this module, a so-called \kbd{bnr} structure. One can input the associated
+ \var{bid} with generators for $f$ instead of the module itself, saving some
+ time. (As in \tet{idealstar}, the finite part of the conductor may be given
  by a factorization into prime ideals, as produced by \tet{idealfactor}.)
 
  The following member functions are available
