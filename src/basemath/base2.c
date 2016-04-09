@@ -3886,6 +3886,11 @@ nfsplitting(GEN T, GEN D)
     F = rnfequation(K,Q);
     if (degpol(F) == d) break;
   }
+  if (umodiu(D,degpol(F)))
+  {
+    char *sD = itostr(D);
+    pari_warn(warner,stack_strcat("ignoring incorrect degree bound ",sD));
+  }
   (void)delete_var();
   setvarn(F,v);
   return gerepilecopy(av, F);
