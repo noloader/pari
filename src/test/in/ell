@@ -240,7 +240,9 @@ for (i=1,#J,
   my(e = ellinit(ellfromj(J[i])));
   my(v = ellan(e,200));
   print("\n", e.j);
-  forprime(p = 127, 200, print1(v[p]," "))
+  forprime(p = 127, 200, print1(v[p]," "));
+  print();
+  forprime(p = 2^65, 2^65+1000, print1(ellap(e,p)," "));
 );
 }
 
