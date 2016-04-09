@@ -560,7 +560,7 @@ F2x_rem(GEN x, GEN y)
   long lx=lg(x);
   dy = F2x_degree(y); if (!dy) return pol0_F2x(x[1]);
   dx = F2x_degree_lg(x,lx);
-  x  = vecsmall_copy(x);
+  x  = F2x_copy(x);
   while (dx>=dy)
   {
     F2x_addshiftip(x,y,dx-dy);
@@ -581,7 +581,7 @@ F2x_divrem(GEN x, GEN y, GEN *pr)
   if (pr == ONLY_REM) return F2x_rem(x, y);
   if (!dy)
   {
-    z = vecsmall_copy(x);
+    z = F2x_copy(x);
     if (pr && pr != ONLY_DIVIDES) *pr = pol0_F2x(vs);
     return z;
   }
@@ -589,13 +589,13 @@ F2x_divrem(GEN x, GEN y, GEN *pr)
   dz = dx-dy;
   if (dz < 0)
   {
-    if (pr == ONLY_DIVIDES) return dx < 0? vecsmall_copy(x): NULL;
+    if (pr == ONLY_DIVIDES) return dx < 0? F2x_copy(x): NULL;
     z = pol0_F2x(vs);
-    if (pr) *pr = vecsmall_copy(x);
+    if (pr) *pr = F2x_copy(x);
     return z;
   }
   z = zero_zv(lg(x)-lg(y)+2); z[1] = vs;
-  x = vecsmall_copy(x);
+  x = F2x_copy(x);
   while (dx>=dy)
   {
     F2x_set(z,dx-dy);
@@ -618,7 +618,7 @@ F2x_valrem(GEN x, GEN *Z)
 {
   long v, v2, i, l=lg(x);
   GEN y;
-  if (l==2) { *Z = leafcopy(x); return LONG_MAX; }
+  if (l==2) { *Z = F2x_copy(x); return LONG_MAX; }
   for (i=2; i<l && x[i]==0; i++) /*empty*/;
   v = i-2;
   v2 = (i < l)? vals(x[i]): 0;
@@ -649,8 +649,8 @@ F2x_deflate(GEN x, long d)
 {
   GEN y;
   long i,id, dy, dx = F2x_degree(x);
-  if (d <= 1) return Flx_copy(x);
-  if (dx < 0) return leafcopy(x);
+  if (d <= 1) return F2x_copy(x);
+  if (dx < 0) return F2x_copy(x);
   dy = dx/d; /* dy+1 coefficients + 1 extra word for variable */
   y = zero_zv(nbits2lg(dy+1)-1); y[1] = x[1];
   for (i=id=0; i<=dy; i++,id+=d)
@@ -665,7 +665,7 @@ F2x_even_odd(GEN p, GEN *pe, GEN *po)
   long n = F2x_degree(p), n0, n1, i;
   GEN p0, p1;
 
-  if (n <= 0) { *pe = leafcopy(p); *po = pol0_F2x(p[1]); return; }
+  if (n <= 0) { *pe = F2x_copy(p); *po = pol0_F2x(p[1]); return; }
 
   n0 = (n>>1)+1; n1 = n+1 - n0; /* n1 <= n0 <= n1+1 */
   p0 = zero_zv(nbits2lg(n0+1)-1); p0[1] = p[1];
@@ -853,7 +853,7 @@ F2xq_pow(GEN x, GEN n, GEN pol)
 
   if (!signe(n)) return pol1_F2x(x[1]);
   if (is_pm1(n)) /* +/- 1 */
-    return (signe(n) < 0)? F2xq_inv(x,pol): vecsmall_copy(x);
+    return (signe(n) < 0)? F2xq_inv(x,pol): F2x_copy(x);
 
   if (signe(n) < 0) x = F2xq_inv(x,pol);
   y = gen_pow(x, n, (void*)pol, &_F2xq_sqr, &_F2xq_mul);
@@ -868,7 +868,7 @@ F2xq_powu(GEN x, ulong n, GEN pol)
   switch(n)
   {
     case 0: return pol1_F2x(x[1]);
-    case 1: return vecsmall_copy(x);
+    case 1: return F2x_copy(x);
     case 2: return F2xq_sqr(x,pol);
   }
   y = gen_powu(x, n, (void*)pol, &_F2xq_sqr, &_F2xq_mul);
@@ -948,7 +948,7 @@ F2xq_conjvec(GEN x, GEN T)
 {
   long i, l = F2x_degree(T);
   GEN z = cgetg(l,t_COL);
-  gel(z,1) = vecsmall_copy(x);
+  gel(z,1) = F2x_copy(x);
   for (i=2; i<l; i++) gel(z,i) = F2xq_sqr(gel(z,i-1), T);
   return z;
 }
@@ -1385,7 +1385,7 @@ F2xq_sqrt(GEN a, GEN T)
   pari_sp av = avma;
   long n = F2x_degree(T);
   GEN sqx;
-  if (n==1) return leafcopy(a);
+  if (n==1) return F2x_copy(a);
   if (n==2) return F2xq_sqr(a,T);
   sqx = F2xq_autpow(mkF2(4, T[1]), n-1, T);
   return gerepileuptoleaf(av, F2x_is_x(a)? sqx: F2xq_sqrt_fast(a,sqx,T));
@@ -1465,7 +1465,7 @@ ZXX_to_F2xX(GEN B, long v)
 
 static GEN
 _F2xq_neg(void *E, GEN x)
-{ (void) E; return vecsmall_copy(x); }
+{ (void) E; return F2x_copy(x); }
 
 static GEN
 _F2xq_rmul(void *E, GEN x, GEN y)

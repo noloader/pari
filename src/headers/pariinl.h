@@ -1960,6 +1960,8 @@ F2x_equal1(GEN x) { return Flx_equal1(x); }
 INLINE int
 F2x_equal(GEN V, GEN W) { return Flx_equal(V,W); }
 INLINE GEN
+F2x_copy(GEN x) { return leafcopy(x); }
+INLINE GEN
 F2v_copy(GEN x) { return leafcopy(x); }
 INLINE GEN
 Flv_copy(GEN x) { return leafcopy(x); }
