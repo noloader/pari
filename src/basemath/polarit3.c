@@ -2740,13 +2740,14 @@ QXQ_inv(GEN A, GEN B)
   ulong p;
   pari_sp av2, av = avma;
   forprime_t S;
-
+  pari_timer ti;
   if (is_scalar_t(typ(A))) return scalarpol(ginv(A), varn(B));
   /* A a QX, B a ZX */
   if (degpol(A) < 15) return RgXQ_inv(A,B);
   A = Q_primitive_part(A, &D);
   /* A, B in Z[X] */
   init_modular(&S);
+  if (DEBUGLEVEL>5) timer_start(&ti);
   av2 = avma; U = NULL;
   while ((p = u_forprime_next(&S)))
   {
@@ -2764,7 +2765,7 @@ QXQ_inv(GEN A, GEN B)
       V = ZX_init_CRT(Vp,p,varn(A));
       q = utoipos(p); continue;
     }
-    if (DEBUGLEVEL>5) err_printf("QXQ_inv: mod %ld (bound 2^%ld)", p,expi(q));
+    if (DEBUGLEVEL>5) timer_printf(&ti,"QXQ_inv: mod %ld (bound 2^%ld)", p,expi(q));
     qp = muliu(q,p);
     stable = ZX_incremental_CRT_raw(&U, Up, q,qp, p)
            & ZX_incremental_CRT_raw(&V, Vp, q,qp, p);
