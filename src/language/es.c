@@ -1437,8 +1437,7 @@ nextch:
                 strvalue = va_arg(args, char *);
               }
             }
-            if (gvalue)
-              strvalue = stack_GENtostr_fun_unquoted(gvalue,GP_DATA->fmt,bruti);
+            if (gvalue) strvalue = GENtostr_unquoted(gvalue);
             fmtstr(S, strvalue, ljust, len, maxwidth);
             avma = av; break;
           }
@@ -1859,6 +1858,8 @@ GENtoTeXstr(GEN x) { return GENtostr_fun(x, GP_DATA->fmt, &texi); }
 char *
 GENtostr_unquoted(GEN x)
 { return stack_GENtostr_fun_unquoted(x, GP_DATA->fmt, &bruti); }
+char *
+GENtostr_raw(GEN x) { return stack_GENtostr_fun(x,GP_DATA->fmt,&bruti); }
 
 /* see print0(). Returns pari_malloc()ed string */
 static char *
