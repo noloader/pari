@@ -1020,47 +1020,47 @@ FpXQXQ_div(GEN x,GEN y,GEN S, GEN T,GEN p)
   return gerepileupto(av, FpXQXQ_mul(x, FpXQXQ_inv(y,S,T,p),S,T,p));
 }
 
-typedef struct {
+struct _FpXQXQ {
   GEN T, S;
   GEN p;
-} FpXQXQ_muldata;
+};
 static GEN
 _FpXQXQ_add(void *data, GEN x, GEN y) {
-  FpXQXQ_muldata *d = (FpXQXQ_muldata*) data;
+  struct _FpXQXQ *d = (struct _FpXQXQ*) data;
   return FpXX_add(x,y, d->p);
 }
 static GEN
 _FpXQXQ_cmul(void *data, GEN P, long a, GEN x) {
-  FpXQXQ_muldata *d = (FpXQXQ_muldata*) data;
+  struct _FpXQXQ *d = (struct _FpXQXQ*) data;
   GEN y = gel(P,a+2);
   return typ(y)==t_INT ? FpXX_Fp_mul(x,y, d->p):
                          FpXX_FpX_mul(x,y,d->p);
 }
 static GEN
 _FpXQXQ_red(void *data, GEN x) {
-  FpXQXQ_muldata *d = (FpXQXQ_muldata*) data;
+  struct _FpXQXQ *d = (struct _FpXQXQ*) data;
   return FpXQX_red(x, d->T, d->p);
 }
 static GEN
 _FpXQXQ_mul(void *data, GEN x, GEN y) {
-  FpXQXQ_muldata *d = (FpXQXQ_muldata*) data;
+  struct _FpXQXQ *d = (struct _FpXQXQ*) data;
   return FpXQXQ_mul(x,y, d->S,d->T, d->p);
 }
 static GEN
 _FpXQXQ_sqr(void *data, GEN x) {
-  FpXQXQ_muldata *d = (FpXQXQ_muldata*) data;
+  struct _FpXQXQ *d = (struct _FpXQXQ*) data;
   return FpXQXQ_sqr(x, d->S,d->T, d->p);
 }
 
 static GEN
 _FpXQXQ_one(void *data) {
-  FpXQXQ_muldata *d = (FpXQXQ_muldata*) data;
+  struct _FpXQXQ *d = (struct _FpXQXQ*) data;
   return pol_1(get_FpXQX_var(d->S));
 }
 
 static GEN
 _FpXQXQ_zero(void *data) {
-  FpXQXQ_muldata *d = (FpXQXQ_muldata*) data;
+  struct _FpXQXQ *d = (struct _FpXQXQ*) data;
   return pol_0(get_FpXQX_var(d->S));
 }
 
@@ -1072,7 +1072,7 @@ FpXQXQ_pow(GEN x, GEN n, GEN S, GEN T, GEN p)
 {
   pari_sp ltop = avma;
   GEN y;
-  FpXQXQ_muldata D;
+  struct _FpXQXQ D;
   long s = signe(n);
   if (!s) return pol_1(varn(x));
   if (is_pm1(n)) /* +/- 1 */
@@ -1098,7 +1098,7 @@ FpXQXQ_pow(GEN x, GEN n, GEN S, GEN T, GEN p)
 GEN
 FpXQXQ_powers(GEN x, long l, GEN S, GEN T, GEN p)
 {
-  FpXQXQ_muldata D;
+  struct _FpXQXQ D;
   int use_sqr = 2*degpol(x) >= get_FpXQX_degree(S);
   T = FpX_get_red(T, p);
   S = FpXQX_get_red(S, T, p);
@@ -1115,7 +1115,7 @@ FpXQXQ_matrix_pow(GEN y, long n, long m, GEN S, GEN T, GEN p)
 GEN
 FpXQX_FpXQXQV_eval(GEN P, GEN V, GEN S, GEN T, GEN p)
 {
-  FpXQXQ_muldata D;
+  struct _FpXQXQ D;
   T = FpX_get_red(T, p);
   S = FpXQX_get_red(S, T, p);
   D.S=S; D.T=T; D.p=p;
@@ -1126,7 +1126,7 @@ FpXQX_FpXQXQV_eval(GEN P, GEN V, GEN S, GEN T, GEN p)
 GEN
 FpXQX_FpXQXQ_eval(GEN Q, GEN x, GEN S, GEN T, GEN p)
 {
-  FpXQXQ_muldata D;
+  struct _FpXQXQ D;
   int use_sqr = 2*degpol(x) >= get_FpXQX_degree(S);
   T = FpX_get_red(T, p);
   S = FpXQX_get_red(S, T, p);
@@ -1138,7 +1138,7 @@ FpXQX_FpXQXQ_eval(GEN Q, GEN x, GEN S, GEN T, GEN p)
 static GEN
 FpXQXQ_autpow_sqr(void * E, GEN x)
 {
-  FpXQXQ_muldata *D = (FpXQXQ_muldata *)E;
+  struct _FpXQXQ *D = (struct _FpXQXQ *)E;
   GEN T = D->T, p = D->p;
   GEN phi = gel(x,1), S = gel(x,2);
   long n = brent_kung_optpow(get_FpX_degree(T)-1,lgpol(S)+1,1);
@@ -1152,7 +1152,7 @@ FpXQXQ_autpow_sqr(void * E, GEN x)
 static GEN
 FpXQXQ_autpow_mul(void * E, GEN x, GEN y)
 {
-  FpXQXQ_muldata *D = (FpXQXQ_muldata *)E;
+  struct _FpXQXQ *D = (struct _FpXQXQ *)E;
   GEN T = D->T, p = D->p;
   GEN phi1 = gel(x,1), S1 = gel(x,2);
   GEN phi2 = gel(y,1), S2 = gel(y,2);
@@ -1167,7 +1167,7 @@ FpXQXQ_autpow_mul(void * E, GEN x, GEN y)
 GEN
 FpXQXQV_autpow(GEN aut, long n, GEN S, GEN T, GEN p)
 {
-  FpXQXQ_muldata D;
+  struct _FpXQXQ D;
   T = FpX_get_red(T, p);
   S = FpXQX_get_red(S, T, p);
   D.S=S; D.T=T; D.p=p;
@@ -1177,7 +1177,7 @@ FpXQXQV_autpow(GEN aut, long n, GEN S, GEN T, GEN p)
 static GEN
 FpXQXQ_autsum_mul(void *E, GEN x, GEN y)
 {
-  FpXQXQ_muldata *D = (FpXQXQ_muldata *) E;
+  struct _FpXQXQ *D = (struct _FpXQXQ *) E;
   GEN T = D->T, p = D->p;
   GEN phi1 = gel(x,1), S1 = gel(x,2), a1 = gel(x,3);
   GEN phi2 = gel(y,1), S2 = gel(y,2), a2 = gel(y,3);
@@ -1201,7 +1201,7 @@ FpXQXQ_autsum_sqr(void * T, GEN x)
 GEN
 FpXQXQV_autsum(GEN aut, long n, GEN S, GEN T, GEN p)
 {
-  FpXQXQ_muldata D;
+  struct _FpXQXQ D;
   T = FpX_get_red(T, p);
   S = FpXQX_get_red(S, T, p);
   D.S=S; D.T=T; D.p=p;
