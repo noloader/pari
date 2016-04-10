@@ -48,7 +48,6 @@ typedef void (*OUT_FUN)(GEN, pariout_t *, outString *);
 static void bruti_sign(GEN g, pariout_t *T, outString *S, int addsign);
 static void matbruti(GEN g, pariout_t *T, outString *S);
 static void texi_sign(GEN g, pariout_t *T, outString *S, int addsign);
-static char *GENtostr_fun(GEN x, pariout_t *T, OUT_FUN out);
 
 static void bruti(GEN g, pariout_t *T, outString *S)
 { bruti_sign(g,T,S,1); }
@@ -570,7 +569,7 @@ pari_putc(char c) { out_putc(pariOut, c); }
 
 void
 out_puts(PariOUT *out, const char *s) {
-  if (*s) {  set_last_newline(s[strlen(s)-1]); out->puts(s); }
+  if (*s) { set_last_newline(s[strlen(s)-1]); out->puts(s); }
 }
 void
 pari_puts(const char *s) { out_puts(pariOut, s); }
@@ -918,6 +917,29 @@ str_putscut(outString *S, const char *str, int cut)
   else {
     while (*str && cut-- > 0) str_putc(S, *str++);
   }
+}
+
+/* not stack clean */
+static char *
+stack_GENtostr_fun(GEN x, pariout_t *T, OUT_FUN out)
+{
+  outString S; str_init(&S, 1);
+  out(x, T, &S); *S.cur = 0;
+  return S.string;
+}
+/* same but remove quotes "" around t_STR */
+static char *
+stack_GENtostr_fun_unquoted(GEN x, pariout_t *T, OUT_FUN f)
+{ return (typ(x)==t_STR)? GSTR(x): stack_GENtostr_fun(x, T, f); }
+
+/* stack-clean: pari-malloc'ed */
+static char *
+GENtostr_fun(GEN x, pariout_t *T, OUT_FUN out)
+{
+  pari_sp av = avma;
+  outString S; str_init(&S, 0);
+  out(x, T, &S); *S.cur = 0;
+  avma = av; return S.string;
 }
 
 /* lbuf = strlen(buf), len < 0: unset */
@@ -1401,7 +1423,7 @@ nextch:
           case 's':
           {
             char *strvalue;
-            int tofree = 0;
+            pari_sp av = avma;
 
             if (arg_vector) {
               gvalue = v_get_arg(arg_vector, &index, save_fmt);
@@ -1416,18 +1438,9 @@ nextch:
               }
             }
             if (gvalue)
-            {
-              if (typ(gvalue) == t_STR)
-                strvalue = GSTR(gvalue);
-              else
-              {
-                strvalue = GENtostr_fun(gvalue, GP_DATA->fmt, bruti);
-                tofree = 1;
-              }
-            }
+              strvalue = stack_GENtostr_fun_unquoted(gvalue,GP_DATA->fmt,bruti);
             fmtstr(S, strvalue, ljust, len, maxwidth);
-            if (tofree) pari_free(strvalue);
-            break;
+            avma = av; break;
           }
           case 'c':
             if (arg_vector) {
@@ -1836,37 +1849,16 @@ pari_strndup(const char *s, long n)
   memcpy(t,s,n); t[n] = 0; return t;
 }
 
-/* not stack clean */
-static char *
-GENtostr_aux(GEN x, pariout_t *T, OUT_FUN out, int use_stack) {
-  outString S;
-  str_init(&S, use_stack); out(x, T, &S); *S.cur = 0;
-  return S.string;
-}
-static char *
-GENtostr_fun(GEN x, pariout_t *T, OUT_FUN out)
-{
-  pari_sp av = avma;
-  char *s = GENtostr_aux(x, T, out, 0);
-  avma = av; return s;
-}
-
 /* returns a malloc-ed string, which should be freed after usage */
 /* Returns pari_malloc()ed string */
 char *
-GENtostr(GEN x) {
-  pariout_t *T = GP_DATA->fmt;
-  return GENtostr_fun(x, T, get_fun(T->prettyp));
-}
+GENtostr(GEN x)
+{ return GENtostr_fun(x, GP_DATA->fmt, get_fun(GP_DATA->fmt->prettyp)); }
 char *
 GENtoTeXstr(GEN x) { return GENtostr_fun(x, GP_DATA->fmt, &texi); }
-
-static char *
-GENtostr1(GEN x, OUT_FUN out)
-{
-  return (typ(x) == t_STR)? pari_strdup(GSTR(x))
-                          : GENtostr_fun(x, GP_DATA->fmt, out);
-}
+char *
+GENtostr_unquoted(GEN x)
+{ return stack_GENtostr_fun_unquoted(x, GP_DATA->fmt, &bruti); }
 
 /* see print0(). Returns pari_malloc()ed string */
 static char *
@@ -1874,28 +1866,19 @@ RgV_to_str_fun(GEN g, OUT_FUN out) {
   pari_sp av = avma;
   char *t, *t2;
   long i, tlen = 0, l = lg(g);
-  GEN Ls, Ll;
-
-  /* frequent special case */
-  if (l == 2) return GENtostr1(gel(g,1), out);
-
-  Ls = cgetg(l, t_VEC);
-  Ll = cgetg(l, t_VECSMALL);
+  GEN Ls = cgetg(l, t_VEC);
+  GEN Ll = cgetg(l, t_VECSMALL);
+  pariout_t *fmt = GP_DATA->fmt;
   for (i = 1; i < l; i++)
   {
-    char *s = GENtostr1(gel(g,i), out);
+    char *s = stack_GENtostr_fun_unquoted(gel(g,i),fmt,out);
     gel(Ls,i) = (GEN)s;
     Ll[i] = strlen(s);
     tlen += Ll[i];
   }
   t2 = t = (char*)pari_malloc(tlen + 1);
   *t = 0;
-  for (i = 1; i < l; i++)
-  {
-    strcpy(t2, (char*)Ls[i]);
-    t2 += Ll[i];
-    pari_free((void*)Ls[i]);
-  }
+  for (i = 1; i < l; i++) { strcpy(t2, (char*)Ls[i]); t2 += Ll[i]; }
   avma = av; return t;
 }
 
@@ -1933,16 +1916,6 @@ GENtoGENstr_nospace(GEN x)
   s = GENtostr_fun(x, &T, &bruti);
   z = strtoGENstr(s); pari_free(s); return z;
 }
-
-static char *
-GENtostr_fun_unquoted(GEN x, pariout_t *T, OUT_FUN f)
-{
-  if (typ(x)==t_STR) return GSTR(x); /* text surrounded by "" otherwise */
-  return GENtostr_aux(x, T, f, 1);
-}
-char *
-GENtostr_unquoted(GEN x)
-{ return GENtostr_fun_unquoted(x, GP_DATA->fmt, &bruti); }
 
 static char
 ltoc(long n) {
@@ -3322,17 +3295,15 @@ _initout(pariout_t *T, char f, long sigd, long sp)
 
 static void
 gen_output_fun(GEN x, pariout_t *T, OUT_FUN out)
-{
-  char *s = GENtostr_fun(x, T, out);
-  pari_puts(s); pari_free(s);
-}
+{ pari_sp av = avma; pari_puts( stack_GENtostr_fun(x,T,out) ); avma = av; }
 
 void
 fputGEN_pariout(GEN x, pariout_t *T, FILE *out)
 {
-  char *s = GENtostr_fun(x, T, get_fun(T->prettyp));
-  if (*s) set_last_newline(s[strlen(s)-1]);
-  fputs(s, out); pari_free(s);
+  pari_sp av = avma;
+  char *s = stack_GENtostr_fun(x, T, get_fun(T->prettyp));
+  if (*s) { set_last_newline(s[strlen(s)-1]); fputs(s, out); }
+  avma = av;
 }
 
 void
@@ -3341,21 +3312,18 @@ gen_output(GEN x, pariout_t *T)
   if (!T) T = GP_DATA->fmt;
   gen_output_fun(x, T, get_fun(T->prettyp));
 }
-
 void
 brute(GEN g, char f, long d)
 {
   pariout_t T; _initout(&T,f,d,0);
   gen_output_fun(g, &T, &bruti);
 }
-
 void
 matbrute(GEN g, char f, long d)
 {
   pariout_t T; _initout(&T,f,d,1);
   gen_output_fun(g, &T, &matbruti);
 }
-
 void
 texe(GEN g, char f, long d)
 {
@@ -4558,40 +4526,27 @@ readbin(const char *name, FILE *f, int *vector)
 void
 out_print0(PariOUT *out, const char *sep, GEN g, long flag)
 {
-  pari_sp av0 = avma;
+  pari_sp av = avma;
   OUT_FUN f = get_fun(flag);
   long i, l = lg(g);
-  for (i = 1; i < l; i++)
+  for (i = 1; i < l; i++, avma = av)
   {
-    pari_sp av = avma;
-    GEN x = gel(g,i);
-    char *s = GENtostr_fun_unquoted(x, GP_DATA->fmt, f);
-    out_puts(out, s); avma = av;
+    out_puts(out, stack_GENtostr_fun_unquoted(gel(g,i), GP_DATA->fmt, f));
     if (sep && i+1 < l) out_puts(out, sep);
   }
-  avma = av0;
 }
-
 static void
 str_print0(outString *S, GEN g, long flag)
 {
+  pari_sp av = avma;
   OUT_FUN f = get_fun(flag);
   long i, l = lg(g);
-  for (i = 1; i < l; i++)
-  {
-    GEN x = gel(g,i);
-    if (typ(x)==t_STR)
-      str_puts(S, GSTR(x)); /* text surrounded by "" otherwise */
-    else
-    {
-      char *s = GENtostr_fun(x, GP_DATA->fmt, f);
-      str_puts(S, s); pari_free(s);
-    }
-  }
+  for (i = 1; i < l; i++, avma = av)
+    str_puts(S, stack_GENtostr_fun_unquoted(gel(g,i), GP_DATA->fmt, f));
+  *(S->cur) = 0;
 }
 
-/*Display s, followed by the element of g */
-
+/* display s, followed by the element of g */
 char *
 pari_sprint0(const char *s, GEN g, long flag)
 {
@@ -4599,8 +4554,9 @@ pari_sprint0(const char *s, GEN g, long flag)
   str_init(&S, 0);
   str_puts(&S, s);
   str_print0(&S, g, flag);
-  *S.cur = 0; return S.string;
+  return S.string;
 }
+
 static void
 print0_file(FILE *out, GEN g, long flag)
 {
@@ -4608,18 +4564,15 @@ print0_file(FILE *out, GEN g, long flag)
   outString S;
   str_init(&S, 1);
   str_print0(&S, g, flag);
-  *S.cur = 0;
   fputs(S.string, out);
   avma = av;
 }
 
 void
 print0(GEN g, long flag) { out_print0(pariOut, NULL, g, flag); }
-
 void
 printsep(const char *s, GEN g)
 { out_print0(pariOut, s, g, f_RAW); pari_putc('\n'); pari_flush(); }
-
 void
 printsep1(const char *s, GEN g) { out_print0(pariOut, s, g, f_RAW); }
 
