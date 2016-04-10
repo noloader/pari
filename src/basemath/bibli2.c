@@ -1673,10 +1673,10 @@ gen_cmp_RgX(void *data, GEN x, GEN y)
 static int
 cmp_RgX_Rg(GEN x, GEN y)
 {
-  long lx = lg(x);
-  if (lx > 3) return  1;
-  if (lx < 3) return -1;
-  return gcmp(gel(x,2), y);
+  long dx = degpol(x);
+  if (dx > 0) return  1;
+  if (dx == 0) return gcmp(gel(x,2), y);
+  return gequal0(y)? 0: -1;
 }
 int
 cmp_RgX(GEN x, GEN y)
