@@ -3038,12 +3038,49 @@ FqX_split_all(GEN z, GEN T, GEN p)
   return rep;
 }
 
+/* not memory-clean, as Flx_factorff_i, returning only linear factors */
+static GEN
+Flx_rootsff_i(GEN P, GEN T, ulong p)
+{
+  GEN V, F = gel(Flx_factor(P,p), 1);
+  long i, lfact = 1, nmax = lgpol(P), n = lg(F), dT = get_Flx_degree(T);
+
+  V = cgetg(nmax,t_COL);
+  for(i=1;i<n;i++)
+  {
+    GEN R, Fi = gel(F,i);
+    long di = degpol(Fi), j, r;
+    if (dT % di) continue;
+    R = Flx_factorff_irred(gel(F,i),T,p);
+    r = lg(R);
+    for (j=1; j<r; j++,lfact++)
+      gel(V,lfact) = Flx_neg(gmael(R,j, 2), p);
+  }
+  setlg(V,lfact);
+  gen_sort_inplace(V, (void*) &cmp_Flx, &cmp_nodata, NULL);
+  return V;
+}
+GEN
+Flx_rootsff(GEN P, GEN T, ulong p)
+{
+  pari_sp av = avma;
+  return gerepilecopy(av, Flx_rootsff_i(P, T, p));
+}
+
 /* not memory-clean, as FpX_factorff_i, returning only linear factors */
 static GEN
 FpX_rootsff_i(GEN P, GEN T, GEN p)
 {
-  GEN V, F = gel(FpX_factor(P,p), 1);
-  long i, lfact = 1, nmax = lgpol(P), n = lg(F), dT = degpol(T);
+  GEN V, F;
+  long i, lfact, nmax, n, dT;
+  if (lgefint(p)==3)
+  {
+    ulong pp = p[2];
+    GEN V = Flx_rootsff_i(ZX_to_Flx(P,pp), ZXT_to_FlxT(T,pp), pp);
+    return FlxV_to_ZXV(V);
+  }
+  F = gel(FpX_factor(P,p), 1);
+  lfact = 1; nmax = lgpol(P); n = lg(F); dT = get_FpX_degree(T);
 
   V = cgetg(nmax,t_COL);
   for(i=1;i<n;i++)

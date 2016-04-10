@@ -5102,6 +5102,8 @@ $(X^n - 1, p)$. Shallow function.
 \fun{GEN}{Flx_factorff_irred}{GEN P, GEN Q, ulong p} as
 \tet{FpX_factorff_irred}.
 
+\fun{GEN}{Flx_rootsff}{GEN P, GEN T, ulong p} as \tet{FpX_rootsff}.
+
 \fun{GEN}{Flx_ffisom}{GEN P,GEN Q,ulong l} as \tet{FpX_ffisom}.
 
 \subsubsec{Miscellaneous operations}
@@ -9426,6 +9428,9 @@ Here are a few basic comparison functions, to be used with \kbd{cmp\_nodata}:
 
 \fun{int}{ZV_cmp}{GEN x, GEN y} compare two \kbd{ZV}, which we assume have
 the same length (lexicographic order).
+
+\fun{int}{cmp_Flx}{GEN x, GEN y} compare two \kbd{Flx}, which we assume
+have the same main variable (lexicographic order).
 
 \fun{int}{cmp_RgX}{GEN x, GEN y} compare two polynomials, which we assume
 have the same main variable (lexicographic order). The coefficients are

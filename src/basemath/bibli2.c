@@ -1695,6 +1695,16 @@ cmp_RgX(GEN x, GEN y)
   return gen_cmp_RgX((void*)&gcmp,x,y);
 }
 
+int
+cmp_Flx(GEN x, GEN y)
+{
+  long i, lx = lg(x), ly = lg(y);
+  if (lx > ly) return  1;
+  if (lx < ly) return -1;
+  for (i=lx-1; i>1; i--)
+    if (x[i] != y[i]) return x[i]<y[i]? -1: 1;
+  return 0;
+}
 /********************************************************************/
 /**                   MERGE & SORT FACTORIZATIONS                  **/
 /********************************************************************/
