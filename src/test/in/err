@@ -257,3 +257,6 @@ trap (e_INV, INFINITY, log(0))
 a=1;
 notafunc('a)
 a
+n=1<<10000;
+znlog(Mod(1,n),Mod(1,n+1))
+Mod(0,n)^(-1)

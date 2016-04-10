@@ -1295,6 +1295,15 @@ type_dim(GEN x)
   return v;
 }
 
+static char *
+gdisplay(GEN x)
+{
+  char *s = GENtostr_raw(x);
+  if (strlen(s) < 1600) return s;
+  if (! GP_DATA->breakloop) return "(...)";
+  return stack_sprintf("\n  ***  (...) Huge %s omitted; you can access it via dbg_err()", type_name(typ(x)));
+}
+
 char *
 pari_err2str(GEN e)
 {
@@ -1313,8 +1322,8 @@ pari_err2str(GEN e)
   case e_CONSTPOL:
     return pari_sprintf("constant polynomial in %Ps.", gel(e,2));
   case e_COPRIME:
-    return pari_sprintf("elements not coprime in %Ps:\n    %Ps\n    %Ps",
-                        gel(e,2), gel(e,3), gel(e,4));
+    return pari_sprintf("elements not coprime in %Ps:\n    %s\n    %s",
+                        gel(e,2), gdisplay(gel(e,3)), gdisplay(gel(e,4)));
   case e_DIM:
     return pari_sprintf("inconsistent dimensions in %Ps.", gel(e,2));
   case e_FILE:
@@ -1326,10 +1335,11 @@ pari_err2str(GEN e)
   case e_PACKAGE:
     return pari_sprintf("package %Ps is required, please install it.", gel(e,2));
   case e_INV:
-    return pari_sprintf("impossible inverse in %Ps: %Ps.", gel(e,2), gel(e,3));
+    return pari_sprintf("impossible inverse in %Ps: %s.", gel(e,2),
+                        gdisplay(gel(e,3)));
   case e_IRREDPOL:
-    return pari_sprintf("not an irreducible polynomial in %Ps: %Ps.",
-                        gel(e,2), gel(e,3));
+    return pari_sprintf("not an irreducible polynomial in %Ps: %s.",
+                        gel(e,2), gdisplay(gel(e,3)));
   case e_MAXPRIME:
     {
       const char * msg = "not enough precomputed primes";
@@ -1342,8 +1352,8 @@ pari_err2str(GEN e)
   case e_MODULUS:
     {
       GEN x = gel(e,3), y = gel(e,4);
-      return pari_sprintf("inconsistent moduli in %Ps: %Ps != %Ps",
-                          gel(e,2), x, y);
+      return pari_sprintf("inconsistent moduli in %Ps: %s != %s",
+                          gel(e,2), gdisplay(x), gdisplay(y));
     }
   case e_NONE: return NULL;
   case e_NOTFUNC:
@@ -1400,13 +1410,13 @@ pari_err2str(GEN e)
   case e_PREC:
     return pari_sprintf("precision too low in %Ps.", gel(e,2));
   case e_PRIME:
-    return pari_sprintf("not a prime number in %Ps: %Ps.",
-                        gel(e,2), gel(e,3));
+    return pari_sprintf("not a prime number in %Ps: %s.",
+                        gel(e,2), gdisplay(gel(e,3)));
   case e_ROOTS0:
     return pari_sprintf("zero polynomial in %Ps.", gel(e,2));
   case e_SQRTN:
-    return pari_sprintf("not an n-th power residue in %Ps: %Ps.",
-                        gel(e,2), gel(e,3));
+    return pari_sprintf("not an n-th power residue in %Ps: %s.",
+                        gel(e,2), gdisplay(gel(e,3)));
   case e_STACK:
   case e_STACKTHREAD:
     {
