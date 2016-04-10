@@ -1365,6 +1365,40 @@ FpXQXQV_autpow(GEN aut, long n, GEN S, GEN T, GEN p)
 }
 
 static GEN
+FpXQXQ_auttrace_mul(void *E, GEN x, GEN y)
+{
+  struct _FpXQXQ *D = (struct _FpXQXQ *) E;
+  GEN T = D->T, p = D->p;
+  GEN phi1 = gel(x,1), S1 = gel(x,2), a1 = gel(x,3);
+  GEN phi2 = gel(y,1), S2 = gel(y,2), a2 = gel(y,3);
+  long n2 = brent_kung_optpow(get_FpX_degree(T)-1, lgpol(S1)+lgpol(a1)+1, 1);
+  GEN V2 = FpXQ_powers(phi2, n2, T, p);
+  GEN phi3 = FpX_FpXQV_eval(phi1, V2, T, p);
+  GEN Sphi = FpXY_FpXQV_evalx(S1, V2, T, p);
+  GEN aphi = FpXY_FpXQV_evalx(a1, V2, T, p);
+  long n = brent_kung_optpow(maxss(degpol(Sphi),degpol(aphi)),2,1);
+  GEN V = FpXQXQ_powers(S2, n, D->S, T, p);
+  GEN S3 = FpXQX_FpXQXQV_eval(Sphi, V, D->S, T, p);
+  GEN aS = FpXQX_FpXQXQV_eval(aphi, V, D->S, T, p);
+  GEN a3 = FpXX_add(aS, a2, p);
+  return mkvec3(phi3, S3, a3);
+}
+
+static GEN
+FpXQXQ_auttrace_sqr(void *E, GEN x)
+{ return FpXQXQ_auttrace_mul(E, x, x); }
+
+GEN
+FpXQXQV_auttrace(GEN aut, long n, GEN S, GEN T, GEN p)
+{
+  struct _FpXQXQ D;
+  T = FpX_get_red(T, p);
+  S = FpXQX_get_red(S, T, p);
+  D.S=S; D.T=T; D.p=p;
+  return gen_powu(aut,n,&D,FpXQXQ_auttrace_sqr,FpXQXQ_auttrace_mul);
+}
+
+static GEN
 FpXQXQ_autsum_mul(void *E, GEN x, GEN y)
 {
   struct _FpXQXQ *D = (struct _FpXQXQ *) E;

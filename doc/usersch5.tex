@@ -4866,6 +4866,12 @@ $\sigma(Y)=a[2]\pmod{S(X,Y),T(X)}$, returns the vector
 $[\sigma^n(X),\sigma^n(Y),b\sigma(b)\ldots\sigma^{n-1}(b)]$
 where $b=a[3]$.
 
+\fun{GEN}{FpXQXQV_auttrace}{GEN a, long n, GEN S, GEN T, GEN p}
+$\sigma$ being the automorphism defined by $\sigma(X)=a[1]\pmod{T(X)}$,
+$\sigma(Y)=a[2]\pmod{S(X,Y),T(X)}$, returns the vector
+$[\sigma^n(X),\sigma^n(Y),b+\sigma(b)+\ldots+\sigma^{n-1}(b)]$
+where $b=a[3]$.
+
 % FqXQ
 
 \fun{GEN}{FqXQ_add}{GEN x, GEN y, GEN S, GEN T, GEN p}, \kbd{x}, \kbd{y} and

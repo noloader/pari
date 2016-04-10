@@ -651,6 +651,7 @@ GEN     FpXQXQ_powers(GEN x, long n, GEN S, GEN T, GEN p);
 GEN     FpXQXQ_sqr(GEN x, GEN S, GEN T, GEN p);
 GEN     FpXQXQV_autpow(GEN aut, long n, GEN S, GEN T, GEN p);
 GEN     FpXQXQV_autsum(GEN aut, long n, GEN S, GEN T, GEN p);
+GEN     FpXQXQV_auttrace(GEN aut, long n, GEN S, GEN T, GEN p);
 GEN     FpXQXV_prod(GEN V, GEN Tp, GEN p);
 GEN     FpXX_Fp_mul(GEN x, GEN y, GEN p);
 GEN     FpXX_FpX_mul(GEN x, GEN y, GEN p);
