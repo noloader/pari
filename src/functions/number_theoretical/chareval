@@ -2,7 +2,13 @@ Function: chareval
 Section: number_theoretical
 C-Name: chareval
 Prototype: GGGDG
-Help: chareval(G,chi, x, {z})):
+Help: chareval(G, chi, x, {z})): given an abelian group structure affording
+ a discrete logarithm method, e.g. G = idealstar(,N) or a bnr structure,
+ let x be an element of G and let chi be a character of G. This function
+ returns the value of chi at x, where the encoding depends on the optional
+ argument z; if z is omitted, we fix a canonical o-th root of 1, zeta_o,
+ where o is the character order and return the rational number c/o where
+ chi(x) = (zeta_o)^c
 Doc:
  Let $G$ be an abelian group structure affording a discrete logarithm
  method, e.g $G = \kbd{idealstar}(,N)$ for $(\Z/N\Z)^*$ or a \kbd{bnr}
@@ -16,12 +22,12 @@ Doc:
  multiple of the character order such that $\chi(n) = \zeta^{c(n)}$ for some
  fixed $\zeta\in K^*$ of multiplicative order $o$ and a unique morphism $c: G
  \to (\Z/o\Z,+)$. Our usual convention is to write
-    $$G = (\Z/o_1\Z) g_1 \oplus \cdots \oplus (\Z/o_d\Z) g_d$$
+ $$G = (\Z/o_1\Z) g_1 \oplus \cdots \oplus (\Z/o_d\Z) g_d$$
  for some generators $(g_i)$ of respective order $d_i$, where the group has
  exponent $o := \text{lcm}_i o_i$. Since $\zeta^o = 1$, the vector $(c_i)$ in
  $\prod (\Z/o_i\Z)$ defines a character $\chi$ on $G$ via $\chi(g_i) =
  \zeta^{c_i (o/o_i)}$ for all $i$. Classical Dirichlet characters have values
-  in $K = \C$ and we can take $\zeta = \exp(2i\pi/o)$.
+ in $K = \C$ and we can take $\zeta = \exp(2i\pi/o)$.
 
  \misctitle{Note on Dirichlet characters}
  In the special case where \var{bid} is attached to $G = (\Z/q\Z)^*$
