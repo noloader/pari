@@ -3120,6 +3120,21 @@ F2xqX_quad_roots(GEN P, GEN T)
     return mkcol(F2xq_sqrt(c, T));
 }
 
+/* Assume p>2 and x monic */
+static GEN
+FlxqX_quad_roots(GEN x, GEN T, ulong p)
+{
+  GEN s, D, nb, b = gel(x,3), c = gel(x,2);
+  D = Flx_sub(Flxq_sqr(b,T,p), Flx_mulu(c,4,p), p);
+  nb = Flx_neg(b,p);
+  if (lgpol(D)==0)
+    return mkcol(Flx_halve(nb, p));
+  s = Flxq_sqrt(D,T,p);
+  if (!s) return cgetg(1, t_COL);
+  s = Flx_halve(Flx_add(s,nb,p),p);
+  return mkcol2(s, Flx_sub(nb,s,p));
+}
+
 static GEN
 FqX_quad_roots(GEN x, GEN T, GEN p)
 {
@@ -3141,9 +3156,166 @@ FqX_quad_roots(GEN x, GEN T, GEN p)
 }
 
 static GEN
+FlxX_to_Flx(GEN f)
+{
+  long i, l = lg(f);
+  GEN V = cgetg(l, t_VECSMALL);
+  V[1] = ((ulong)f[1])&VARNBITS;
+  for(i=2; i<l; i++)
+    V[i] = lgpol(gel(f,i)) ? mael(f,i,2): 0L;
+  return V;
+}
+
+static GEN
+FlxqX_easyroots(GEN f, GEN T, ulong p)
+{
+  if (RgXY_degreex(f) <= 0) return Flx_rootsff_i(FlxX_to_Flx(f), T, p);
+  if (degpol(f)==1) return mkcol(Flx_neg(constant_coeff(f), p));
+  if (degpol(f)==2) { return FlxqX_quad_roots(f,T,p); }
+  return NULL;
+}
+
+static GEN
+FlxqX_invFrobenius(GEN xp, GEN T, ulong p)
+{
+  return Flxq_autpow(xp, get_Flx_degree(T)-1, T, p);
+}
+
+static GEN
+FlxqX_Frobenius_deflate(GEN S, GEN ixp, GEN T, ulong p)
+{
+  GEN F = RgX_deflate(S, p);
+  long i, l = lg(F);
+  if (typ(ixp)==t_INT)
+    for (i=2; i<l; i++)
+      gel(F,i) = Flxq_pow(gel(F,i), ixp, T, p);
+  else
+  {
+    long n = brent_kung_optpow(get_Flx_degree(T)-1, l-2, 1);
+    GEN V = Flxq_powers(ixp, n, T, p);
+    for (i=2; i<l; i++)
+      gel(F,i) = Flx_FlxqV_eval(gel(F,i), V, T, p);
+  }
+  return F;
+}
+
+/* Adapted from Shoup NTL */
+static GEN
+FlxqX_factor_squarefree(GEN f, GEN xp, GEN T, ulong p)
+{
+  pari_sp av = avma;
+  GEN r, t, v, tv;
+  long q, n = degpol(f);
+  GEN u = const_vec(n+1, pol1_FlxX(varn(f),get_Flx_var(T)));
+  GEN ixp = NULL;
+  for(q = 1;;q *= p)
+  {
+    r = FlxqX_gcd(f, FlxX_deriv(f, p), T, p);
+    t = FlxqX_div(f, r, T, p);
+    if (degpol(t) > 0)
+    {
+      long j;
+      for(j = 1;;j++)
+      {
+        v = FlxqX_gcd(r, t, T, p);
+        tv = FlxqX_div(t, v, T, p);
+        if (degpol(tv) > 0)
+          gel(u, j*q) = FlxqX_normalize(tv, T, p);
+        if (degpol(v) <= 0) break;
+        r = FlxqX_div(r, v, T, p);
+        t = v;
+      }
+      if (degpol(r) == 0) break;
+    }
+    if (!ixp) ixp = FlxqX_invFrobenius(xp, T, p);
+    f = FlxqX_Frobenius_deflate(r, ixp, T, p);
+  }
+  return gerepilecopy(av, u);
+}
+
+static void
+FlxqX_roots_edf(GEN Sp, GEN xp, GEN Xp, GEN T, ulong p, GEN V, long idx)
+{
+  pari_sp btop;
+  long n = degpol(Sp);
+  GEN S, f, ff;
+  long vT = get_Flx_var(T), dT = get_Flx_degree(T);
+  GEN R = FlxqX_easyroots(Sp, T, p);
+  if (R)
+  {
+    long i, l = lg(R)-1;
+    for (i=0; i<l; i++)
+      gel(V, idx+i) = gel(R,1+i);
+    return;
+  }
+  S = FlxqX_get_red(Sp, T, p);
+  Xp = FlxqX_rem(Xp, S, T, p);
+  btop = avma;
+  while (1)
+  {
+    GEN a = deg1pol(pol1_Flx(vT), random_Flx(dT, vT, p), varn(Sp));
+    GEN ap2 = FlxqXQ_powu(a, p>>1, S, T, p);
+    GEN R = gel(FlxqXQV_autsum(mkvec3(xp, Xp, ap2), get_Flx_degree(T), S, T, p), 3);
+    f = FlxqX_gcd(FlxX_Flx_add(R, Flx_neg(pol1_Flx(vT), p), p), Sp, T, p);
+    if (degpol(f) > 0 && degpol(f) < n) break;
+    avma = btop;
+  }
+  f = gerepileupto(btop, FlxqX_normalize(f, T, p));
+  ff = FlxqX_div(Sp, f, T, p);
+  FlxqX_roots_edf(f, xp, Xp, T, p, V, idx);
+  FlxqX_roots_edf(ff,xp, Xp, T, p, V, idx+degpol(f));
+}
+
+static GEN
+FlxqX_roots_ddf(GEN f, GEN xp, GEN T, ulong p)
+{
+  GEN X, Xp, Xq, g, V;
+  long n, dT = get_Flx_degree(T);
+  GEN R = FlxqX_easyroots(f, T, p);
+  if (R) return R;
+  X  = pol_x(varn(f));
+  Xp = FlxqXQ_powu(X, p, f, T, p);
+  Xq = gel(FlxqXQV_autpow(mkvec2(xp, Xp), dT, f, T, p), 2);
+  g = FlxqX_gcd(FlxX_sub(Xq, X, p), f, T, p);
+  n = degpol(g);
+  if (n==0) return cgetg(1, t_COL);
+  g = FlxqX_normalize(g, T, p);
+  V = cgetg(n+1,t_COL);
+  FlxqX_roots_edf(g, xp, Xp, T, p, V, 1);
+  return V;
+}
+static GEN
+FlxqX_roots_i(GEN S, GEN T, ulong p)
+{
+  GEN xp, F, M, V, R;
+  long i, j, s, l;
+  S = FlxqX_normalize(S, T, p);
+  R = FlxqX_easyroots(S, T, p);
+  if (R) return gen_sort(R, (void*) &cmp_Flx, &cmp_nodata);
+  xp = Flx_Frobenius(T, p);
+  V = FlxqX_factor_squarefree(S, xp, T, p);
+  l = lg(V);
+  for (s=0, i=1; i < l; i++)
+    s += !!degpol(gel(V,i));
+  F = cgetg(s+1, t_VEC);
+  for (i=1, j=1; i < l; i++)
+    if (degpol(gel(V,i)))
+      gel(F, j++) = FlxqX_roots_ddf(gel(V,i), xp, T, p);
+  M = shallowconcat1(F);
+  gen_sort_inplace(M, (void*) &cmp_Flx, &cmp_nodata, NULL);
+  return M;
+}
+
+static GEN
 FqX_roots_i(GEN f, GEN T, GEN p)
 {
   GEN R;
+  if (lgefint(p)==3 && !equaliu(p,2))
+  {
+    ulong pp = p[2];
+    GEN V = FlxqX_roots_i(ZXX_to_FlxX(f,pp,get_FpX_var(T)), ZXT_to_FlxT(T,pp), pp);
+    return FlxC_to_ZXC(V);
+  }
   f = FqX_normalize(f, T, p);
   if (!signe(f)) pari_err_ROOTS0("FqX_roots");
   if (isabsolutepol(f))
@@ -3164,6 +3336,13 @@ FqX_roots_i(GEN f, GEN T, GEN p)
   R = FqXC_roots_from_deg1(R, T, p);
   gen_sort_inplace(R, (void*) &cmp_RgX, &cmp_nodata, NULL);
   return R;
+}
+
+GEN
+FlxqX_roots(GEN x, GEN T, ulong p)
+{
+  pari_sp av = avma;
+  return gerepileupto(av, FlxqX_roots_i(x, T, p));
 }
 
 GEN
