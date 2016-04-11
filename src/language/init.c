@@ -1300,7 +1300,7 @@ gdisplay(GEN x)
 {
   char *s = GENtostr_raw(x);
   if (strlen(s) < 1600) return s;
-  if (! GP_DATA->breakloop) return "(...)";
+  if (! GP_DATA->breakloop) return (char*)"(...)";
   return stack_sprintf("\n  ***  (...) Huge %s omitted; you can access it via dbg_err()", type_name(typ(x)));
 }
 
