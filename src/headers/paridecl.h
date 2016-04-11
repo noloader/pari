@@ -253,6 +253,7 @@ ulong   Flx_extresultant(GEN a, GEN b, ulong p, GEN *ptU, GEN *ptV);
 GEN     Flx_gcd(GEN a, GEN b, ulong p);
 GEN     Flx_get_red(GEN T, ulong p);
 GEN     Flx_halfgcd(GEN a, GEN b, ulong p);
+GEN     Flx_halve(GEN y, ulong p);
 GEN     Flx_inflate(GEN x0, long d);
 GEN     Flx_invBarrett(GEN T, ulong p);
 int     Flx_is_squarefree(GEN z, ulong p);

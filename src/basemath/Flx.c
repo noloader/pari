@@ -1067,6 +1067,16 @@ Flx_powu(GEN x, ulong n, ulong p)
   }
 }
 
+GEN
+Flx_halve(GEN y, ulong p)
+{
+  GEN z;
+  long i, l;
+  z = cgetg_copy(y, &l); z[1] = y[1];
+  for(i=2; i<l; i++) uel(z,i) = Fl_halve(uel(y,i), p);
+  return z;
+}
+
 static GEN
 Flx_recipspec(GEN x, long l, long n)
 {
