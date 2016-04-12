@@ -4770,6 +4770,23 @@ FlxqXQ_pow(GEN x, GEN n, GEN S, GEN T, ulong p)
   return gen_pow(x, n, (void*)&D, &_FlxqXQ_sqr, &_FlxqXQ_mul);
 }
 
+/* x over Fq, return lift(x^n) mod S */
+GEN
+FlxqXQ_powu(GEN x, ulong n, GEN S, GEN T, ulong p)
+{
+  struct _FlxqXQ D;
+  switch(n)
+  {
+    case 0: return pol1_FlxX(get_FlxqX_var(S),get_Flx_var(T));
+    case 1: return gcopy(x);
+    case 2: return FlxqXQ_sqr(x, S, T, p);
+  }
+  T = Flx_get_red(T, p);
+  S = FlxqX_get_red(S, T, p);
+  D.S = S; D.T = T; D.p = p;
+  return gen_powu(x, n, (void*)&D, &_FlxqXQ_sqr, &_FlxqXQ_mul);
+}
+
 GEN
 FlxqXQ_powers(GEN x, long l, GEN S, GEN T, ulong p)
 {

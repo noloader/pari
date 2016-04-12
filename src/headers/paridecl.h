@@ -364,6 +364,7 @@ GEN     FlxqXQ_invsafe(GEN x, GEN S, GEN T, ulong p);
 GEN     FlxqXQ_matrix_pow(GEN x, long n, long m, GEN S, GEN T, ulong p);
 GEN     FlxqXQ_mul(GEN x, GEN y, GEN S, GEN T, ulong p);
 GEN     FlxqXQ_pow(GEN x, GEN n, GEN S, GEN T, ulong p);
+GEN     FlxqXQ_powu(GEN x, ulong n, GEN S, GEN T, ulong p);
 GEN     FlxqXQ_powers(GEN x, long n, GEN S, GEN T, ulong p);
 GEN     FlxqXQ_sqr(GEN x, GEN S, GEN T, ulong p);
 GEN     FlxqXQV_autpow(GEN x, long n, GEN S, GEN T, ulong p);

@@ -2641,8 +2641,8 @@ FlxqXQ_halfFrobenius(GEN a, GEN S, GEN T, ulong p)
 {
   long vT = get_Flx_var(T);
   GEN xp = Flx_Frobenius(T, p);
-  GEN Xp = FlxqXQ_pow(polx_FlxX(get_FlxqX_var(S), vT), utoi(p), S, T, p);
-  GEN ap2 = FlxqXQ_pow(a,utoi(p>>1), S, T, p);
+  GEN Xp = FlxqXQ_powu(polx_FlxX(get_FlxqX_var(S), vT), p, S, T, p);
+  GEN ap2 = FlxqXQ_powu(a,p>>1, S, T, p);
   GEN V = FlxqXQV_autsum(mkvec3(xp, Xp, ap2), get_Flx_degree(T), S, T, p);
   return gel(V,3);
 }
@@ -2677,7 +2677,7 @@ FlxqX_Frobenius(GEN S, GEN T, ulong p)
   long n = get_Flx_degree(T), vT = get_Flx_var(T);
   GEN X  = polx_FlxX(get_FlxqX_var(S), vT);
   GEN xp = Flx_Frobenius(T, p);
-  GEN Xp = FlxqXQ_pow(X, utoi(p), S, T, p);
+  GEN Xp = FlxqXQ_powu(X, p, S, T, p);
   GEN Xq = gel(FlxqXQV_autpow(mkvec2(xp,Xp), n, S, T, p), 2);
   return gerepilecopy(av, Xq);
 }
