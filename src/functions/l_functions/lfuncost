@@ -59,3 +59,7 @@ Doc: estimate the cost of running
  For a total of three $L$-functions evaluations, which explains the three
  components above. Note that the actual cost is much lower than the a priori
  cost in this case.
+Variant: Also available is
+ \fun{GEN}{lfuncost}{GEN L, GEN dom, long der, long bitprec}
+ when $L$ is \emph{not} an \kbd{Linit}; the return value is a \typ{VECSMALL}
+ in this case.

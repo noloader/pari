@@ -11,6 +11,7 @@ L117=lfuncreate([n->dirdiv(dirzetak(nfinit('x^4-'x^3-'x^2+'x+1),n),zetaan(n)),0,
 for(i=1,10,print(i,":",lfun(L117,i)))
 e121=ellinit([1,1,1,-30,-76]);  \\ 121a1
 L121=lfuninit(e121,[100],2);
+lfuncost(L121)
 lfun(L121,1+100*I)
 lfun(L121,1+x+O(x^3))
 

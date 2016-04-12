@@ -1159,28 +1159,26 @@ lfuncost0(GEN L, GEN dom, long der, long bitprec)
   pari_sp av = avma;
   GEN C;
 
-  if (is_linit(L) && linit_get_type(L) == t_LDESC_PRODUCT)
+  if (is_linit(L))
   {
     GEN tech = linit_get_tech(L);
     GEN domain = lfun_get_domain(tech);
-    GEN v = lfunprod_get_fact(linit_get_tech(L));
-    GEN F = gel(v,1);
-    long i, l = lg(F);
     dom = domain_get_dom(domain);
     der = domain_get_der(domain);
     bitprec = domain_get_bitprec(domain);
-    C = cgetg(l, t_VEC);
-    for (i = 1; i < l; ++i)
-      gel(C, i) = zv_to_ZV( lfuncost(gel(F,i), dom, der, bitprec) );
-    C = gerepilecopy(av, C);
+    if (linit_get_type(L) == t_LDESC_PRODUCT)
+    {
+      GEN v = lfunprod_get_fact(linit_get_tech(L)), F = gel(v,1);
+      long i, l = lg(F);
+      C = cgetg(l, t_VEC);
+      for (i = 1; i < l; ++i)
+        gel(C, i) = zv_to_ZV( lfuncost(gel(F,i), dom, der, bitprec) );
+      return gerepileupto(av, C);
+    }
   }
-  else
-  {
-    if (!dom) pari_err_TYPE("lfuncost [missing s domain]", L);
-    C = lfuncost(L,dom,der,bitprec);
-    C = gerepileupto(av, zv_to_ZV(C));
-  }
-  return C;
+  if (!dom) pari_err_TYPE("lfuncost [missing s domain]", L);
+  C = lfuncost(L,dom,der,bitprec);
+  return gerepileupto(av, zv_to_ZV(C));
 }
 
 GEN
