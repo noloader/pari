@@ -352,7 +352,10 @@ gp_embedded(const char *s)
 {
   char last, *res;
   struct gp_context state;
+  VOLATILE long t = 0;
   gp_context_save(&state);
+  timer_start(GP_DATA->T);
+  pari_set_last_newline(1);
   pari_CATCH(CATCH_ALL)
   {
     GENbin* err = copy_bin(pari_err_last());
@@ -364,10 +367,13 @@ gp_embedded(const char *s)
     pari_add_hist(z, 0);
     n = pari_nb_hist();
     parivstack_reset();
-    res = (z==gnil || last==';') ? stack_strdup(""):
-          stack_sprintf("%%%lu = %Ps", n, pari_get_hist(n));
+    res = (z==gnil || last==';') ? stack_strdup("\n"):
+          stack_sprintf("%%%lu = %Ps\n", n, pari_get_hist(n));
   } pari_ENDCATCH;
   if (!pari_last_was_newline()) pari_putc('\n');
+  t = timer_delay(GP_DATA->T);
+  if (t && GP_DATA->chrono)
+    res = stack_sprintf("%stime = %s", res, gp_format_time(t));
   avma = pari_mainstack->top;
   return res;
 }
