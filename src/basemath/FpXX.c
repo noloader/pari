@@ -448,25 +448,224 @@ FpXQX_divrem_basecase(GEN x, GEN y, GEN T, GEN p, GEN *pr)
   *pr = rem; return z-2;
 }
 
-GEN
-FpXQX_gcd(GEN P, GEN Q, GEN T, GEN p)
+static GEN
+FpXQX_halfgcd_basecase(GEN a, GEN b, GEN T, GEN p)
 {
-  pari_sp av=avma, av0;
-  GEN R;
+  pari_sp av=avma;
+  GEN u,u1,v,v1;
+  long vx = varn(a);
+  long n = lgpol(a)>>1;
+  u1 = v = pol_0(vx);
+  u = v1 = pol_1(vx);
+  while (lgpol(b)>n)
+  {
+    GEN r, q = FpXQX_divrem(a,b, T, p, &r);
+    a = b; b = r; swap(u,u1); swap(v,v1);
+    u1 = FpXX_sub(u1, FpXQX_mul(u, q, T, p), p);
+    v1 = FpXX_sub(v1, FpXQX_mul(v, q ,T, p), p);
+    if (gc_needed(av,2))
+    {
+      if (DEBUGMEM>1) pari_warn(warnmem,"FpXQX_halfgcd (d = %ld)",degpol(b));
+      gerepileall(av,6, &a,&b,&u1,&v1,&u,&v);
+    }
+  }
+  return gerepilecopy(av, mkmat2(mkcol2(u,u1), mkcol2(v,v1)));
+}
+static GEN
+FpXQX_addmulmul(GEN u, GEN v, GEN x, GEN y, GEN T, GEN p)
+{
+  return FpXX_add(FpXQX_mul(u, x, T, p),FpXQX_mul(v, y, T, p), p);
+}
+
+static GEN
+FpXQXM_FpXQX_mul2(GEN M, GEN x, GEN y, GEN T, GEN p)
+{
+  GEN res = cgetg(3, t_COL);
+  gel(res, 1) = FpXQX_addmulmul(gcoeff(M,1,1), gcoeff(M,1,2), x, y, T, p);
+  gel(res, 2) = FpXQX_addmulmul(gcoeff(M,2,1), gcoeff(M,2,2), x, y, T, p);
+  return res;
+}
+
+/*TODO: implement Strassen 7 multiplications formula (p is large) */
+static GEN
+FpXQXM_mul2(GEN M, GEN N, GEN T, GEN p)
+{
+  GEN res = cgetg(3, t_MAT);
+  gel(res, 1) = FpXQXM_FpXQX_mul2(M,gcoeff(N,1,1),gcoeff(N,2,1), T, p);
+  gel(res, 2) = FpXQXM_FpXQX_mul2(M,gcoeff(N,1,2),gcoeff(N,2,2), T, p);
+  return res;
+}
+
+/* Return [0,1;1,-q]*M */
+static GEN
+FpXQX_FpXQXM_qmul(GEN q, GEN M, GEN T, GEN p)
+{
+  GEN u, v, res = cgetg(3, t_MAT);
+  u = FpXX_sub(gcoeff(M,1,1), FpXQX_mul(gcoeff(M,2,1), q, T, p), p);
+  gel(res,1) = mkcol2(gcoeff(M,2,1), u);
+  v = FpXX_sub(gcoeff(M,1,2), FpXQX_mul(gcoeff(M,2,2), q, T, p), p);
+  gel(res,2) = mkcol2(gcoeff(M,2,2), v);
+  return res;
+}
+
+static GEN
+matid2_FpXQXM(long v)
+{
+  retmkmat2(mkcol2(pol_1(v),pol_0(v)),
+            mkcol2(pol_0(v),pol_1(v)));
+}
+
+static GEN
+FpXQX_halfgcd_split(GEN x, GEN y, GEN T, GEN p)
+{
+  pari_sp av=avma;
+  GEN R, S, V;
+  GEN y1, r, q;
+  long l = lgpol(x), n = l>>1, k;
+  if (lgpol(y)<=n) return matid2_FpXQXM(varn(x));
+  R = FpXQX_halfgcd(RgX_shift_shallow(x,-n),RgX_shift_shallow(y,-n), T, p);
+  V = FpXQXM_FpXQX_mul2(R,x,y, T, p); y1 = gel(V,2);
+  if (lgpol(y1)<=n) return gerepilecopy(av, R);
+  q = FpXQX_divrem(gel(V,1), y1, T, p, &r);
+  k = 2*n-degpol(y1);
+  S = FpXQX_halfgcd(RgX_shift_shallow(y1,-k), RgX_shift_shallow(r,-k), T, p);
+  return gerepileupto(av, FpXQXM_mul2(S,FpXQX_FpXQXM_qmul(q,R, T, p), T, p));
+}
+
+/* Return M in GL_2(Fp[X]) such that:
+if [a',b']~=M*[a,b]~ then degpol(a')>= (lgpol(a)>>1) >degpol(b')
+*/
+
+static const long FpXQX_HALFGCD_LIMIT = 5, FpXQX_GCD_LIMIT = 5, FpXQX_EXTGCD_LIMIT = 5;
+
+static GEN
+FpXQX_halfgcd_i(GEN x, GEN y, GEN T, GEN p)
+{
+  if (lg(x)<=FpXQX_HALFGCD_LIMIT) return FpXQX_halfgcd_basecase(x, y, T, p);
+  return FpXQX_halfgcd_split(x, y, T, p);
+}
+
+GEN
+FpXQX_halfgcd(GEN x, GEN y, GEN T, GEN p)
+{
+  pari_sp av = avma;
+  GEN M,q,r;
+  if (lgefint(p)==3)
+  {
+    ulong pp = to_FlxqX(x, y, T, p, &x, &y, &T);
+    M = FlxXM_to_ZXXM(FlxqX_halfgcd(x, y, T, pp));
+  }
+  else
+  {
+    if (!signe(x))
+    {
+      long v = varn(x);
+      retmkmat2(mkcol2(pol_0(v),pol_1(v)),
+                mkcol2(pol_1(v),pol_0(v)));
+    }
+    if (degpol(y)<degpol(x)) return FpXQX_halfgcd_i(x, y, T, p);
+    q = FpXQX_divrem(y, x, T, p, &r);
+    M = FpXQX_halfgcd_i(x, r, T, p);
+    gcoeff(M,1,1) = FpXX_sub(gcoeff(M,1,1), FpXQX_mul(q, gcoeff(M,1,2), T, p), p);
+    gcoeff(M,2,1) = FpXX_sub(gcoeff(M,2,1), FpXQX_mul(q, gcoeff(M,2,2), T, p), p);
+  }
+  return gerepilecopy(av, M);
+}
+
+static GEN
+FpXQX_gcd_basecase(GEN a, GEN b, GEN T, GEN p)
+{
+  pari_sp av = avma, av0=avma;
+  while (signe(b))
+  {
+    GEN c;
+    if (gc_needed(av0,2))
+    {
+      if (DEBUGMEM>1) pari_warn(warnmem,"FpXQX_gcd (d = %ld)",degpol(b));
+      gerepileall(av0,2, &a,&b);
+    }
+    av = avma; c = FpXQX_rem(a, b, T, p); a=b; b=c;
+  }
+  avma = av; return a;
+}
+
+GEN
+FpXQX_gcd(GEN x, GEN y, GEN T, GEN p)
+{
+  pari_sp av = avma;
   if (lgefint(p) == 3)
   {
     GEN Pl, Ql, Tl, U;
-    ulong pp = to_FlxqX(P, Q, T, p, &Pl, &Ql, &Tl);
+    ulong pp = to_FlxqX(x, y, T, p, &Pl, &Ql, &Tl);
     U  = FlxqX_gcd(Pl, Ql, Tl, pp);
     return gerepileupto(av, FlxX_to_ZXX(U));
   }
-  P = FpXX_red(P, p); av0 = avma;
-  Q = FpXX_red(Q, p);
-  while (signe(Q))
+  x = FpXQX_red(x, T, p);
+  y = FpXQX_red(y, T, p);
+  if (!signe(x)) return gerepileupto(av, y);
+  while (lg(y)>FpXQX_GCD_LIMIT)
   {
-    av0 = avma; R = FpXQX_rem(P,Q,T,p); P=Q; Q=R;
+    GEN c;
+    if (lgpol(y)<=(lgpol(x)>>1))
+    {
+      GEN r = FpXQX_rem(x, y, T, p);
+      x = y; y = r;
+    }
+    c = FpXQXM_FpXQX_mul2(FpXQX_halfgcd(x,y, T, p), x, y, T, p);
+    x = gel(c,1); y = gel(c,2);
+    gerepileall(av,2,&x,&y);
   }
-  avma = av0; return gerepileupto(av, P);
+  return gerepileupto(av, FpXQX_gcd_basecase(x, y, T, p));
+}
+
+static GEN
+FpXQX_extgcd_basecase(GEN a, GEN b, GEN T, GEN p, GEN *ptu, GEN *ptv)
+{
+  pari_sp av=avma;
+  GEN u,v,d,d1,v1;
+  long vx = varn(a);
+  d = a; d1 = b;
+  v = pol_0(vx); v1 = pol_1(vx);
+  while (signe(d1))
+  {
+    GEN r, q = FpXQX_divrem(d, d1, T, p, &r);
+    v = FpXX_sub(v,FpXQX_mul(q,v1,T, p),p);
+    u=v; v=v1; v1=u;
+    u=r; d=d1; d1=u;
+    if (gc_needed(av,2))
+    {
+      if (DEBUGMEM>1) pari_warn(warnmem,"FpXQX_extgcd (d = %ld)",degpol(d));
+      gerepileall(av,5, &d,&d1,&u,&v,&v1);
+    }
+  }
+  if (ptu) *ptu = FpXQX_div(FpXX_sub(d,FpXQX_mul(b,v, T, p), p), a, T, p);
+  *ptv = v; return d;
+}
+
+static GEN
+FpXQX_extgcd_halfgcd(GEN x, GEN y, GEN T, GEN p, GEN *ptu, GEN *ptv)
+{
+  pari_sp av=avma;
+  GEN u,v,R = matid2_FpXQXM(varn(x));
+  while (lg(y)>FpXQX_EXTGCD_LIMIT)
+  {
+    GEN M, c;
+    if (lgpol(y)<=(lgpol(x)>>1))
+    {
+      GEN r, q = FpXQX_divrem(x, y, T, p, &r);
+      x = y; y = r;
+      R = FpXQX_FpXQXM_qmul(q, R, T, p);
+    }
+    M = FpXQX_halfgcd(x,y, T, p);
+    c = FpXQXM_FpXQX_mul2(M, x,y, T, p);
+    R = FpXQXM_mul2(M, R, T, p);
+    x = gel(c,1); y = gel(c,2);
+    gerepileall(av,3,&x,&y,&R);
+  }
+  y = FpXQX_extgcd_basecase(x,y, T, p, &u,&v);
+  if (ptu) *ptu = FpXQX_addmulmul(u,v,gcoeff(R,1,1),gcoeff(R,2,1), T, p);
+  *ptv = FpXQX_addmulmul(u,v,gcoeff(R,1,2),gcoeff(R,2,2), T, p);
+  return y;
 }
 
 /* x and y in Z[Y][X], return lift(gcd(x mod T,p, y mod T,p)). Set u and v st
@@ -474,8 +673,7 @@ FpXQX_gcd(GEN P, GEN Q, GEN T, GEN p)
 GEN
 FpXQX_extgcd(GEN x, GEN y, GEN T, GEN p, GEN *ptu, GEN *ptv)
 {
-  GEN a, b, q, r, u, v, d, d1, v1;
-  long vx = varn(x);
+  GEN d;
   pari_sp ltop=avma;
   if (lgefint(p) == 3)
   {
@@ -488,18 +686,12 @@ FpXQX_extgcd(GEN x, GEN y, GEN T, GEN p, GEN *ptu, GEN *ptv)
   }
   else
   {
-    a = FpXQX_red(x, T, p);
-    b = FpXQX_red(y, T, p);
-    d = a; d1 = b; v = pol_0(vx); v1 = pol_1(vx);
-    while (signe(d1))
-    {
-      q = FpXQX_divrem(d,d1,T,p, &r);
-      v = FpXX_sub(v, FpXQX_mul(q,v1, T,p), p);
-      u=v; v=v1; v1=u;
-      u=r; d=d1; d1=u;
-    }
-    if (ptu) *ptu = FpXQX_div(FpXX_sub(d, FpXQX_mul(b,v, T,p), p),a, T,p);
-    *ptv = v;
+    x = FpXQX_red(x, T, p);
+    y = FpXQX_red(y, T, p);
+    if (lg(y)>FpXQX_EXTGCD_LIMIT)
+      d = FpXQX_extgcd_halfgcd(x, y, T, p, ptu, ptv);
+    else
+      d = FpXQX_extgcd_basecase(x, y, T, p, ptu, ptv);
   }
   gerepileall(ltop,ptu?3:2,&d,ptv,ptu);
   return d;

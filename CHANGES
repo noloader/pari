@@ -429,6 +429,7 @@ SCh152- [mingw+pthread]: default nbthreads support
    162- GP function msfromhecke, msgetlevel, msgetweight, msgetsign
 BA 163- qfisominit: allow to pass the matrix of minimal vectors [#1656]
    164- [libpari] GENtostr_raw
+BA 165- [libpari] FlxqX_halfgcd, FpXQX_halfgcd
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]

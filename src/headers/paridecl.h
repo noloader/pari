@@ -634,6 +634,7 @@ GEN     FpXQX_extgcd(GEN x, GEN y, GEN T, GEN p, GEN *ptu, GEN *ptv);
 GEN     FpXQX_fromdigits(GEN x, GEN B, GEN T, GEN p);
 GEN     FpXQX_gcd(GEN P, GEN Q, GEN T, GEN p);
 GEN     FpXQX_get_red(GEN S, GEN T, GEN p);
+GEN     FpXQX_halfgcd(GEN x, GEN y, GEN T, GEN p);
 GEN     FpXQX_invBarrett(GEN S, GEN T, GEN p);
 GEN     FpXQX_mul(GEN x, GEN y, GEN T, GEN p);
 GEN     FpXQX_powu(GEN x, ulong n, GEN T, GEN p);
