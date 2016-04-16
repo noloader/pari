@@ -3767,7 +3767,7 @@ mspadicint(GEN oms, long teichi, GEN S)
     s = gadd(s, zeropadic(gp,nfinal));
     gel(res,i) = gerepileupto(av2, s);
   }
-  return gerepilecopy(av, gmul(alpha, res));
+  return gerepileupto(av, gmul(alpha, res));
 }
 /* integrate P = polynomial in log(x); vlog[j+1] = mspadicint(0,log(1+x)^j) */
 static GEN
@@ -3870,8 +3870,9 @@ mspadicL(GEN oms, GEN s, long r)
   teich = umodiu(subii(s2,s1), p==2? 2: p-1);
   S = xlog1x(n, itos(s1), r, &teich);
   z = mspadicint(oms, teich, S);
+  if (lg(z) == 2) z = gel(z,1);
   if (kross(oms_get_D(oms), p) < 0) z = gneg(z);
-  return gerepileupto(av, z);
+  return gerepilecopy(av, z);
 }
 
 GEN
