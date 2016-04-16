@@ -60,7 +60,7 @@ Doc: Numerical summation of $f(n)$ at high accuracy using Euler-MacLaurin,
  ? sumnum(n = 1, lngamma(1+1/n)/n, tab);
  time = 14,180 ms.
 
- ? sumnummonien(n = 1, lngamma(1+1/n)/n, tabmon); \\ fewer function evaluations!
+ ? sumnummonien(n = 1, lngamma(1+1/n)/n, tabmon); \\ fewer evaluations
  time = 717 ms.
  @eprog
 
