@@ -4,8 +4,7 @@ C-Name: polmodular
 Prototype: LD0,L,DGDnD0,L,
 Help: polmodular(L, {inv = 0}, {x = 'x}, {y = 'y}, {derivs = 0}):
  return the modular polynomial of level L and invariant inv.
-Doc:
- Return the modular polynomial of level $L$ in variables $x$ and $y$
+Doc: Return the modular polynomial of level $L$ in variables $x$ and $y$
  for the modular function specified by \kbd{inv}.  If \kbd{inv} is 0 (the
  default), use the modular $j$ function, if \kbd{inv} is 1 use the
  Weber-$f$ function, and if \kbd{inv} is 5 use $\gamma_2 =
@@ -44,9 +43,9 @@ Variant: Also available are
  \fun{GEN}{polmodular_ZM}{long L, long inv} which returns a matrix of
  coefficients, and
 
- \fun{GEN}{Fp_polmodular_evalx}{long L, long inv, GEN J, GEN P, long
- v, int compute_derivs} which returns the modular polynomial evaluated
- at $J$ modulo $P$ in the variable $v$ (if \kbd{compute\_derivs} is
+ \fun{GEN}{Fp_polmodular_evalx}{long L, long inv, GEN J, GEN P, long v,
+ int derivs} which returns the modular polynomial evaluated
+ at $J$ modulo $P$ in the variable $v$ (if \kbd{derivs} is
  non-zero, returns a vector containing the modular polynomial and its
  first and second derivatives, all evaluated at $J$ modulo $P$).
 

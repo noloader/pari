@@ -64,7 +64,7 @@ sub library_syntax { my ($fun, $args) = @_;
   my ($Variant) = $fun->{Variant};
   my (@proto) = split(//, $fun->{Prototype});
   $args =~ s/[{}&]//g;
-  $args =~ s/=[^,\)]*//g; # delete default values
+  $args =~ s/ *=[^,\)]*//g; # delete default values
   my (@ARGS) = split(/[,^] */, $args); # ^ for O(p^e)
   my ($type) = "GEN";
   my (@vars)=();
