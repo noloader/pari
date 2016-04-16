@@ -202,7 +202,10 @@ rand_g(speed_param *s)
 static void
 dft_Flxq(speed_param *s)
 {
-  s->T = rand_NFlx(10, s->l);
+  do
+  {
+    s->T = rand_NFlx(10, s->l);
+  } while (!Flx_is_irred(s->T, s->l));
   s->T[1] = evalvarn(1);
   s->T = Flx_get_red(s->T, s->l);
 }
@@ -390,6 +393,15 @@ static double speed_FlxqXQ_red(speed_param *s) {
   TIME_FUN(FlxqX_rem(x, q, s->T, s->l));
 }
 
+static double speed_FlxqX_halfgcd(speed_param *s)
+{ TIME_FUN(FlxqX_halfgcd(s->x, s->y, s->T, s->l)); }
+
+static double speed_FlxqX_extgcd(speed_param *s)
+{ GEN u,v; TIME_FUN(FlxqX_extgcd(s->x, s->y, s->T, s->l, &u, &v)); }
+
+static double speed_FlxqX_gcd(speed_param *s)
+{ TIME_FUN(FlxqX_gcd(s->x, s->y, s->T, s->l)); }
+
 static double speed_FpXQX_inv(speed_param *s)
 { TIME_FUN(FpXQX_invBarrett(s->x, s->T, s->p)); }
 
@@ -410,6 +422,15 @@ static double speed_FpXQXQ_red(speed_param *s) {
   GEN q = FpXQX_get_red(s->x, s->T, s->p);
   TIME_FUN(FpXQX_rem(x, q, s->T, s->p));
 }
+
+static double speed_FpXQX_halfgcd(speed_param *s)
+{ TIME_FUN(FpXQX_halfgcd(s->x, s->y, s->T, s->p)); }
+
+static double speed_FpXQX_extgcd(speed_param *s)
+{ GEN u,v; TIME_FUN(FpXQX_extgcd(s->x, s->y, s->T, s->p, &u, &v)); }
+
+static double speed_FpXQX_gcd(speed_param *s)
+{ TIME_FUN(FpXQX_gcd(s->x, s->y, s->T, s->p)); }
 
 /* small coeffs: earlier thresholds for more complicated rings */
 static double speed_RgX_sqr(speed_param *s)
@@ -490,6 +511,9 @@ static tune_param param[] = {
 {0,  var(FlxqX_BARRETT_LIMIT),   t_NFlxqX,10,0, speed_FlxqXQ_red,0.05},
 {0,  var(FlxqX_DIVREM_BARRETT_LIMIT), t_NFlxqX,10,0, speed_FlxqX_divrem,0.05},
 {0,  var(FlxqX_REM_BARRETT_LIMIT), t_NFlxqX,10,0, speed_FlxqX_rem,0.05},
+{0,  var(FlxqX_HALFGCD_LIMIT),    t_FlxqX,10,0, speed_FlxqX_halfgcd,0.05},
+{0,  var(FlxqX_GCD_LIMIT),        t_FlxqX,10,0, speed_FlxqX_gcd,0.05},
+{0,  var(FlxqX_EXTGCD_LIMIT),     t_FlxqX,10,0, speed_FlxqX_extgcd,0.05},
 {0,  var(FpX_INVBARRETT_LIMIT),   t_NFpX,10,0, speed_FpX_inv,0.05},
 {0,  var(FpX_DIVREM_BARRETT_LIMIT),t_NFpX,10,0, speed_FpX_divrem,0.05},
 {0,  var(FpX_REM_BARRETT_LIMIT),  t_NFpX,10,0, speed_FpX_rem,0.05},
@@ -501,6 +525,9 @@ static tune_param param[] = {
 {0,  var(FpXQX_BARRETT_LIMIT),   t_NFpXQX,10,0, speed_FpXQXQ_red,0.05},
 {0,  var(FpXQX_DIVREM_BARRETT_LIMIT), t_NFpXQX,10,0, speed_FpXQX_divrem,0.05},
 {0,  var(FpXQX_REM_BARRETT_LIMIT), t_NFpXQX,10,0, speed_FpXQX_rem,0.05},
+{0,  var(FpXQX_HALFGCD_LIMIT),    t_FpXQX,10,0, speed_FpXQX_halfgcd,0.05},
+{0,  var(FpXQX_GCD_LIMIT),        t_FpXQX,10,0, speed_FpXQX_gcd,0.05},
+{0,  var(FpXQX_EXTGCD_LIMIT),     t_FpXQX,10,0, speed_FpXQX_extgcd,0.05},
 {0,  var(RgX_MUL_LIMIT),           t_FpX, 4,0, speed_RgX_mul},
 {0,  var(RgX_SQR_LIMIT),           t_FpX, 4,0, speed_RgX_sqr},
 };

@@ -4444,8 +4444,6 @@ FlxqX_halfgcd_split(GEN x, GEN y, GEN T, ulong p)
 if [a',b']~=M*[a,b]~ then degpol(a')>= (lgpol(a)>>1) >degpol(b')
 */
 
-static const long FlxqX_HALFGCD_LIMIT = 5, FlxqX_GCD_LIMIT = 5, FlxqX_EXTGCD_LIMIT = 5;
-
 static GEN
 FlxqX_halfgcd_i(GEN x, GEN y, GEN T, ulong p)
 {

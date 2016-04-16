@@ -33,6 +33,9 @@ Flx_SQR_SQRI2_LIMIT               4139     470       8       7
 Flx_SQR_SQRI_LIMIT                1276       5       5       5
 FlxqX_BARRETT_LIMIT                 17      17      17      17
 FlxqX_DIVREM_BARRETT_LIMIT          46      46      46      46
+FlxqX_EXTGCD_LIMIT                  44      44      44      44
+FlxqX_GCD_LIMIT                   2544    1289     796     470
+FlxqX_HALFGCD_LIMIT                427      89     191      60
 FlxqX_INVBARRETT_LIMIT              22      22      22      22
 FlxqX_REM_BARRETT_LIMIT             48      48      48      48
 FpX_BARRETT_LIMIT                  144      44      85      38
@@ -44,6 +47,9 @@ FpX_INVBARRETT_LIMIT               337     121     254     111
 FpX_REM_BARRETT_LIMIT              306     127     306     111
 FpXQX_BARRETT_LIMIT                 12      12      12      12
 FpXQX_DIVREM_BARRETT_LIMIT          30      30      30      30
+FpXQX_EXTGCD_LIMIT                  28      28      34      28
+FpXQX_GCD_LIMIT                    254     182     254     191
+FpXQX_HALFGCD_LIMIT                 48      35      56      35
 FpXQX_INVBARRETT_LIMIT              40      40      40      40
 FpXQX_REM_BARRETT_LIMIT             30      30      30      30
 Fp_POW_BARRETT_LIMIT                97      11     101     127

@@ -536,8 +536,6 @@ FpXQX_halfgcd_split(GEN x, GEN y, GEN T, GEN p)
 if [a',b']~=M*[a,b]~ then degpol(a')>= (lgpol(a)>>1) >degpol(b')
 */
 
-static const long FpXQX_HALFGCD_LIMIT = 5, FpXQX_GCD_LIMIT = 5, FpXQX_EXTGCD_LIMIT = 5;
-
 static GEN
 FpXQX_halfgcd_i(GEN x, GEN y, GEN T, GEN p)
 {
