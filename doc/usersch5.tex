@@ -5460,8 +5460,9 @@ greatest common divisor of $x$  and $y$.
 
 \fun{GEN}{FlxqX_extgcd}{GEN x, GEN y, GEN T, ulong p, GEN *ptu, GEN *ptv}
 
-\fun{GEN}{FlxqXV_prod}{GEN V, GEN T, ulong p}
+\fun{GEN}{FlxqX_halfgcd}{GEN x, GEN y, GEN T, ulong p}, see \kbd{FpX\_halfgcd}.
 
+\fun{GEN}{FlxqXV_prod}{GEN V, GEN T, ulong p}
 
 \fun{GEN}{FlxqX_safegcd}{GEN P, GEN Q, GEN T, ulong p} Returns the \emph{monic}
 GCD of $P$ and $Q$ if Euclid's algorithm succeeds and \kbd{NULL} otherwise. In

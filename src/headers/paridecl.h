@@ -352,6 +352,7 @@ GEN     FlxqX_divrem(GEN x, GEN y, GEN T, ulong p, GEN *pr);
 GEN     FlxqX_extgcd(GEN a, GEN b, GEN T, ulong p, GEN *ptu, GEN *ptv);
 GEN     FlxqX_gcd(GEN P, GEN Q, GEN T, ulong p);
 GEN     FlxqX_get_red(GEN S, GEN T, ulong p);
+GEN     FlxqX_halfgcd(GEN x, GEN y, GEN T, ulong p);
 GEN     FlxqX_invBarrett(GEN T, GEN Q, ulong p);
 GEN     FlxqX_mul(GEN x, GEN y, GEN T, ulong p);
 GEN     FlxqX_normalize(GEN z, GEN T, ulong p);
