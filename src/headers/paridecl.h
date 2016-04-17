@@ -306,6 +306,8 @@ GEN     FlxX_to_Flm(GEN v, long n);
 GEN     FlxX_to_FlxC(GEN x, long N, long sv);
 GEN     FlxX_to_ZXX(GEN B);
 GEN     FlxX_triple(GEN x, ulong p);
+GEN     FlxXC_to_ZXXC(GEN B);
+GEN     FlxXM_to_ZXXM(GEN B);
 GEN     FlxXV_to_FlxM(GEN v, long n, long sv);
 GEN     FlxY_Flx_div(GEN x, GEN y, ulong p);
 GEN     FlxY_Flx_translate(GEN P, GEN c, ulong p);

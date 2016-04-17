@@ -3492,6 +3492,26 @@ FlxX_to_ZXX(GEN B)
   b[1] = B[1]; return b;
 }
 
+GEN
+FlxXC_to_ZXXC(GEN B)
+{
+  long i, l = lg(B);
+  GEN z = cgetg(l, t_COL);
+  for (i=1; i<l; i++)
+    gel(z,i) = FlxX_to_ZXX(gel(B,i));
+  return z;
+}
+
+GEN
+FlxXM_to_ZXXM(GEN B)
+{
+  long i, l = lg(B);
+  GEN z = cgetg(l, t_MAT);
+  for (i=1; i<l; i++)
+    gel(z,i) = FlxXC_to_ZXXC(gel(B,i));
+  return z;
+}
+
 /* Note: v is used _only_ for the t_INT. It must match
  * the variable of any t_POL coefficients. */
 GEN
