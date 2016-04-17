@@ -296,6 +296,7 @@ GEN     FlxX_Fl_mul(GEN x, ulong y, ulong p);
 GEN     FlxX_Flx_add(GEN y, GEN x, ulong p);
 GEN     FlxX_Flx_mul(GEN x, GEN y, ulong p);
 GEN     FlxX_add(GEN P, GEN Q, ulong p);
+GEN     FlxX_deriv(GEN z, ulong p);
 GEN     FlxX_double(GEN x, ulong p);
 GEN     FlxX_neg(GEN x, ulong p);
 GEN     FlxX_sub(GEN P, GEN Q, ulong p);

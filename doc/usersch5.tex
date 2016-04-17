@@ -5364,6 +5364,9 @@ degree~1~\typ{POL} with \kbd{Flx} coefficients in the variable $x$.
 \fun{GEN}{FlxY_Flx_div}{GEN x, GEN y, ulong p} divides the coefficients of $x$
 by $y$ using \kbd{Flx\_div}.
 
+\fun{GEN}{FlxX_deriv}{GEN P, ulong p} returns the derivative of \kbd{P} with
+respect to the main variable.
+
 \fun{GEN}{FlxY_evalx}{GEN P, ulong z, ulong p} $P$ being an \kbd{FlxY}, returns
 the \kbd{Flx} $P(z,Y)$, where $Y$ is the main variable of $P$.
 
