@@ -871,20 +871,11 @@ lfunparams(GEN ldata, long der, long bitprec, struct lfunp *S)
     double x = dblcoro526(a, d/2., B);
     long n = floor(x*exp(H) + 0.5); /* 0.5: fudge factor */
     if (n > nmax) nmax = n;
-    if (m > M)
-    {
-      M *= 2;
-      L = vecsmall_lengthen(L,M+2);
-    }
+    if (m > M) { M *= 2; L = vecsmall_lengthen(L,M+2); }
     L[m+1] = n;
     if (n == 0) { if (++flag == 2) break; } else flag = 0;
   }
-  if (m < 4) /* can happen for tiny bitprec */
-  {
-    m = 4;
-    nmax = 1;
-    L[1] = 1;
-  }
+  if (m < 4) { m = 4; nmax = 1; L[1] = 1; } /* can happen for tiny bitprec */
   S->M = m-2; setlg(L, S->M+1);
   S->L = L;
   S->nmax = nmax;
