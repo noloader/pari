@@ -1583,7 +1583,7 @@ GEN
 glngamma(GEN x, long prec)
 {
   pari_sp av = avma;
-  GEN y, p1;
+  GEN y, t;
 
   switch(typ(x))
   {
@@ -1618,10 +1618,12 @@ glngamma(GEN x, long prec)
     default:
       if (!(y = toser_i(x))) break;
       if (valp(y)) pari_err_DOMAIN("lngamma","valuation", "!=", gen_0, x);
-      /* (lngamma y)' = y' psi(y) */
-      p1 = integser(gmul(derivser(y), gpsi(y, prec)));
-      if (!gequal1(gel(y,2))) p1 = gadd(p1, glngamma(gel(y,2),prec));
-      return gerepileupto(av, p1);
+      t = derivser(y);
+      /* (lngamma y)' = y' psi(y), don't compute psi if y'=0 */
+      if (signe(t)) t = gmul(t, gpsi(y,prec));
+      t = integser(t);
+      if (!gequal1(gel(y,2))) t = gadd(t, glngamma(gel(y,2),prec));
+      return gerepileupto(av, t);
 
     case t_PADIC: return gerepileupto(av, Qp_log(Qp_gamma(x)));
   }
