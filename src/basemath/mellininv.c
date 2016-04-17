@@ -98,7 +98,7 @@ lemma526_i(double ac, double c, double t, double B)
 }
 /* b > 0, c > 0, B > 0; solve x^a exp(-b x^(1/c)) < e^(-B) */
 double
-dbllemma526(double a, double b, double c, long B)
+dbllemma526(double a, double b, double c, double B)
 {
   double ac;
   if (!a) return pow(B/b, c);
@@ -107,7 +107,7 @@ dbllemma526(double a, double b, double c, long B)
 }
 /* Same, special case b/c = 2Pi, the only one needed: for c = d/2 */
 double
-dblcoro526(double a, double c, long B)
+dblcoro526(double a, double c, double B)
 {
   if (!a) return pow(B/(2*M_PI*c), c);
   return lemma526_i(a*c, c, a/(2*M_PI), B);

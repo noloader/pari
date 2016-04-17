@@ -3402,8 +3402,8 @@ GEN     maptomat_shallow(GEN T);
 
 double  dbllambertW0(double a);
 double  dbllambertW_1(double a);
-double  dbllemma526(double a, double b, double c, long B);
-double  dblcoro526(double a, double c, long B);
+double  dbllemma526(double a, double b, double c, double B);
+double  dblcoro526(double a, double c, double B);
 GEN     gammamellininv(GEN Vga, GEN s, long m, long bitprec);
 GEN     gammamellininvasymp(GEN Vga, long nlimmax, long m);
 GEN     gammamellininvinit(GEN Vga, long m, long bitprec);

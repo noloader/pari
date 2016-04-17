@@ -21,7 +21,7 @@ lfun(polcyclo(12),2)
 
 \\ check for loss in accuracy in lfunthetaspec
 pol=x^5-5*x^3-x^2+3*x+1;
-nf24217=dirzetak(nfinit(pol),32000);
+nf24217=dirzetak(nfinit(pol),32254);
 L2=lfuncreate([n->nf24217[1..n],0,[0,0,0,0,0],1,24217,1,0]);
 lfunhardy(L2,5)
 
@@ -302,9 +302,7 @@ lfunconductor(lnf725,,1)
  * remark: should be able to search in a big range
  * with few coefficients, would be faster
  */
-lim=100000;
-nf24217=dirzetak(nfinit(x^5-5*x^3-x^2+3*x+1),lim);
-nf24217z=dirdiv(nf24217,vector(lim,k,1));
+nf24217z=dirdiv(nf24217,vector(#nf24217,k,1));
 lnf24217=lfuncreate([n->nf24217z[1..n],0,[0,0,0,0],1,24217,1]);
 lfunconductor(lnf24217,10^5,1)
 
