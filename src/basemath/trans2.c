@@ -1488,6 +1488,18 @@ Qp_gamma(GEN x)
 GEN
 ggamma1m1(GEN x, long prec) { return gexpm1(lngamma1(x, prec), prec); }
 
+/* lngamma(y) with 0 constant term, using (lngamma y)' = y' psi(y) */
+static GEN
+serlngamma0(GEN y, long prec)
+{
+  GEN t;
+  if (valp(y)) pari_err_DOMAIN("lngamma","valuation", "!=", gen_0, y);
+  t = derivser(y);
+  /* don't compute psi if y'=0 */
+  if (signe(t)) t = gmul(t, gpsi(y,prec));
+  return integser(t);
+}
+
 GEN
 ggamma(GEN x, long prec)
 {
@@ -1538,28 +1550,24 @@ ggamma(GEN x, long prec)
     default:
       av = avma; if (!(y = toser_i(x))) break;
       /* exp(lngamma) */
-      if (valp(y)>0 || lg(y) == 2)
+      if (valp(y) > 0 || lg(y) == 2)
         z = gdiv(gexp(glngamma(gaddgs(y,1),prec),prec),y);
       else
       { /* use fun eq. to avoid log singularity of lngamma at negative ints */
-        GEN Y = y, y0 = gel(y,2), t = ground(y0), pi = NULL;
-        if (gequal(y0, t) && typ(t) == t_INT && signe(t) < 0)
-        {
-          pi = mppi(prec);
-          Y = gsubsg(1, y);
-          y0= subsi(1, y0);
-        }
-        z = glngamma(Y,prec);
-        if (!valp(z))
-        {
-          z = serchop0(z);
-          z = gmul(ggamma(y0,prec), gexp(z,prec));
-        }
+        GEN Y = y, y0 = simplify_shallow(gel(y,2)), t = ground(y0);
+        if (typ(t) == t_INT && signe(t) < 0 && gequal(y0, t))
+        { Y = gsubsg(1, y); y0 = subsi(1, y0); }
+        if (typ(y0)==t_INT && cmpiu(y0, 50) < 0)
+          z = mpfact(itos(y0)-1); /* faster and more precise */
         else
-          z = gexp(z,prec);
-        if (pi)
+          z = ggamma(y0,prec);
+        z = gmul(z, gexp(serlngamma0(Y,prec),prec));
+        if (Y != y)
+        {
+          GEN pi = mppi(prec);
           z = gdiv(mpodd(t)? negr(pi): pi,
                    gmul(z, gsin(gmul(pi,serchop0(y)), prec)));
+        }
       }
       return gerepileupto(av, z);
   }
@@ -1583,7 +1591,7 @@ GEN
 glngamma(GEN x, long prec)
 {
   pari_sp av = avma;
-  GEN y, t;
+  GEN y, y0, t;
 
   switch(typ(x))
   {
@@ -1617,12 +1625,11 @@ glngamma(GEN x, long prec)
 
     default:
       if (!(y = toser_i(x))) break;
-      if (valp(y)) pari_err_DOMAIN("lngamma","valuation", "!=", gen_0, x);
-      t = derivser(y);
-      /* (lngamma y)' = y' psi(y), don't compute psi if y'=0 */
-      if (signe(t)) t = gmul(t, gpsi(y,prec));
-      t = integser(t);
-      if (!gequal1(gel(y,2))) t = gadd(t, glngamma(gel(y,2),prec));
+      t = serlngamma0(y,prec);
+      y0 = simplify_shallow(gel(y,2));
+      /* no constant term if y0 = 1 or 2 */
+      if (typ(y0) != t_INT || signe(y0) <= 0 || cmpiu(y0,2) > 2)
+        t = gadd(t, glngamma(y0,prec));
       return gerepileupto(av, t);
 
     case t_PADIC: return gerepileupto(av, Qp_log(Qp_gamma(x)));

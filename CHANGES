@@ -204,6 +204,8 @@ BA150- elltatepairing could return wrong results [#1784]
   153- ellztopoint(ellinit([-1,0]), I) -> wrong result [#1800]
        Potentially affected all elliptic functions (ellwp,ellzeta,ellsigma)
        at real or pure imaginary arguments.
+  154- gamma(2+x) did not start with an exact 1, unlike gamma(1+x).
+       lngamma(2+x) didn't have valuation 1
 
   Added
     1- add optional argument to sumdigits to specify the base
