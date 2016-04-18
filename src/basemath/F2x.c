@@ -1837,6 +1837,16 @@ Kronecker_to_F2xqX(GEN z, GEN T)
 /***********************************************************************/
 
 GEN
+F2xqX_red(GEN z, GEN T)
+{
+  GEN res;
+  long i, l = lg(z);
+  res = cgetg(l,t_POL); res[1] = z[1];
+  for(i=2;i<l;i++) gel(res,i) = F2x_rem(gel(z,i),T);
+  return F2xX_renormalize(res,l);
+}
+
+GEN
 F2xqX_F2xq_mul(GEN P, GEN U, GEN T)
 {
   long i, lP = lg(P);

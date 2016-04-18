@@ -144,6 +144,7 @@ GEN     F2xq_sqrt_fast(GEN c, GEN sqx, GEN T);
 GEN     F2xq_sqrtn(GEN a, GEN n, GEN T, GEN *zeta);
 ulong   F2xq_trace(GEN x, GEN T);
 GEN     F2xqX_F2xq_mul(GEN P, GEN U, GEN T);
+GEN     F2xqX_red(GEN z, GEN T);
 GEN     Flm_to_F2m(GEN x);
 GEN     Flv_to_F2v(GEN x);
 GEN     Flx_to_F2x(GEN x);
