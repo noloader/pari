@@ -120,6 +120,8 @@ GEN     F2x_to_ZX(GEN x);
 long    F2x_valrem(GEN x, GEN *Z);
 GEN     F2xC_to_ZXC(GEN x);
 GEN     F2xV_to_F2m(GEN v, long n);
+GEN     F2xX_F2x_mul(GEN P, GEN U);
+GEN     F2xX_add(GEN x, GEN y);
 GEN     F2xX_renormalize(GEN /*in place*/ x, long lx);
 GEN     F2xX_to_ZXX(GEN B);
 GEN     F2xq_Artin_Schreier(GEN a, GEN T);

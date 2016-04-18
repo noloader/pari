@@ -1744,3 +1744,28 @@ F2xX_to_ZXX(GEN B)
   }
   b[1] = B[1]; return b;
 }
+
+GEN
+F2xX_add(GEN x, GEN y)
+{
+  long i,lz;
+  GEN z;
+  long lx=lg(x);
+  long ly=lg(y);
+  if (ly>lx) swapspec(x,y, lx,ly);
+  lz = lx; z = cgetg(lz, t_POL); z[1]=x[1];
+  for (i=2; i<ly; i++) gel(z,i) = F2x_add(gel(x,i), gel(y,i));
+  for (   ; i<lx; i++) gel(z,i) = F2x_copy(gel(x,i));
+  return F2xX_renormalize(z, lz);
+}
+
+GEN
+F2xX_F2x_mul(GEN P, GEN U)
+{
+  long i, lP = lg(P);
+  GEN res = cgetg(lP,t_POL);
+  res[1] = P[1];
+  for(i=2; i<lP; i++)
+    gel(res,i) = F2x_mul(U,gel(P,i));
+  return F2xX_renormalize(res, lP);
+}
