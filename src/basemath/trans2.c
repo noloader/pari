@@ -1754,7 +1754,7 @@ tr(GEN T, GEN z0, long L)
   GEN s = RgX_to_ser(RgX_translate(T, z0), L+3);
   setvarn(s, 0); return s;
 }
-/* psi(z0+x) + O(x^n) */
+/* z0 a complex number with Re(z0) > 1/2; return psi(z0+x) + O(x^L) */
 static GEN
 serpsiz0(GEN z0, long L, long v, long prec)
 {
