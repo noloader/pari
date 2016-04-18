@@ -1829,3 +1829,20 @@ Kronecker_to_F2xqX(GEN z, GEN T)
   }
   return F2xX_renormalize(x, j);
 }
+
+/***********************************************************************/
+/**                                                                   **/
+/**                             F2xqX                                 **/
+/**                                                                   **/
+/***********************************************************************/
+
+GEN
+F2xqX_F2xq_mul(GEN P, GEN U, GEN T)
+{
+  long i, lP = lg(P);
+  GEN res = cgetg(lP,t_POL);
+  res[1] = P[1];
+  for(i=2; i<lP; i++)
+    gel(res,i) = F2xq_mul(U,gel(P,i), T);
+  return F2xX_renormalize(res, lP);
+}
