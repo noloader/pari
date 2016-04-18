@@ -593,6 +593,7 @@ GEN     Flx_roots(GEN f, ulong p);
 GEN     Flx_rootsff(GEN P, GEN T, ulong p);
 GEN     FlxqX_Frobenius(GEN S, GEN T, ulong p);
 GEN     FlxqXQ_halfFrobenius(GEN a, GEN S, GEN T, ulong p);
+GEN     FlxqX_roots(GEN S, GEN T, ulong p);
 long    FlxqX_nbroots(GEN f, GEN T, ulong p);
 void    FlxV_to_ZXV_inplace(GEN v);
 GEN     FpX_degfact(GEN f, GEN p);
