@@ -120,6 +120,8 @@ GEN     F2x_to_ZX(GEN x);
 long    F2x_valrem(GEN x, GEN *Z);
 GEN     F2xC_to_ZXC(GEN x);
 GEN     F2xV_to_F2m(GEN v, long n);
+GEN     F2xX_renormalize(GEN /*in place*/ x, long lx);
+GEN     F2xX_to_ZXX(GEN B);
 GEN     F2xq_Artin_Schreier(GEN a, GEN T);
 GEN     F2xq_autpow(GEN x, long n, GEN T);
 GEN     F2xq_conjvec(GEN x, GEN T);
@@ -154,6 +156,8 @@ GEN     const_F2v(long m);
 GEN     gener_F2xq(GEN T, GEN *po);
 const struct bb_field *get_F2xq_field(void **E, GEN T);
 GEN     monomial_F2x(long d, long vs);
+GEN     pol1_F2xX(long v, long sv);
+GEN     polx_F2xX(long v, long sv);
 GEN     random_F2x(long d, long vs);
 
 /* F2xqE.c */

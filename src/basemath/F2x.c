@@ -1443,26 +1443,6 @@ gener_F2xq(GEN T, GEN *po)
   return g;
 }
 
-GEN
-ZXX_to_F2xX(GEN B, long v)
-{
-  long lb=lg(B);
-  long i;
-  GEN b=cgetg(lb,t_POL);
-  b[1]=evalsigne(1)|(((ulong)B[1])&VARNBITS);
-  for (i=2; i<lb; i++)
-    switch (typ(gel(B,i)))
-    {
-    case t_INT:
-      gel(b,i) = Z_to_F2x(gel(B,i), v);
-      break;
-    case t_POL:
-      gel(b,i) = ZX_to_F2x(gel(B,i));
-      break;
-    }
-  return FlxX_renormalize(b, lb);
-}
-
 static GEN
 _F2xq_neg(void *E, GEN x)
 { (void) E; return F2x_copy(x); }
@@ -1714,4 +1694,53 @@ F2xV_to_F2m(GEN v, long n)
   GEN y = cgetg(N, t_MAT);
   for (j=1; j<N; j++) gel(y,j) = F2x_to_F2v(gel(v,j), n);
   return y;
+}
+
+/***********************************************************************/
+/**                                                                   **/
+/**                             F2xX                                  **/
+/**                                                                   **/
+/***********************************************************************/
+
+GEN
+F2xX_renormalize(GEN /*in place*/ x, long lx)
+{ return FlxX_renormalize(x, lx); }
+
+GEN
+pol1_F2xX(long v, long sv) { return pol1_FlxX(v, sv); }
+
+GEN
+polx_F2xX(long v, long sv) { return polx_FlxX(v, sv); }
+
+GEN
+ZXX_to_F2xX(GEN B, long v)
+{
+  long lb=lg(B);
+  long i;
+  GEN b=cgetg(lb,t_POL);
+  b[1]=evalsigne(1)|(((ulong)B[1])&VARNBITS);
+  for (i=2; i<lb; i++)
+    switch (typ(gel(B,i)))
+    {
+    case t_INT:
+      gel(b,i) = Z_to_F2x(gel(B,i), v);
+      break;
+    case t_POL:
+      gel(b,i) = ZX_to_F2x(gel(B,i));
+      break;
+    }
+  return FlxX_renormalize(b, lb);
+}
+
+GEN
+F2xX_to_ZXX(GEN B)
+{
+  long i, lb = lg(B);
+  GEN b = cgetg(lb,t_POL);
+  for (i=2; i<lb; i++)
+  {
+    GEN c = gel(B,i);
+    gel(b,i) = lgpol(c) ?  F2x_equal1(c) ? gen_1 : F2x_to_ZX(c) : gen_0;
+  }
+  b[1] = B[1]; return b;
 }
