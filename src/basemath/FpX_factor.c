@@ -3077,7 +3077,7 @@ FpX_rootsff_i(GEN P, GEN T, GEN p)
   {
     ulong pp = p[2];
     GEN V = Flx_rootsff_i(ZX_to_Flx(P,pp), ZXT_to_FlxT(T,pp), pp);
-    return FlxV_to_ZXV(V);
+    return FlxC_to_ZXC(V);
   }
   F = gel(FpX_factor(P,p), 1);
   lfact = 1; nmax = lgpol(P); n = lg(F); dT = get_FpX_degree(T);
