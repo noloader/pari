@@ -1879,3 +1879,97 @@ F2xqX_sqr(GEN x, GEN T)
   z = Kronecker_to_F2xqX(kz,T);
   return gerepileupto(ltop,z);
 }
+
+GEN
+F2xqX_divrem(GEN x, GEN y, GEN T, GEN *pr)
+{
+  long vx, dx, dy, dz, i, j, sx, lr;
+  pari_sp av0, av, tetpil;
+  GEN z,p1,rem,lead;
+
+  if (!signe(y)) pari_err_INV("F2xqX_divrem",y);
+  vx=varn(x); dy=degpol(y); dx=degpol(x);
+  if (dx < dy)
+  {
+    if (pr)
+    {
+      av0 = avma; x = F2xqX_red(x, T);
+      if (pr == ONLY_DIVIDES) { avma=av0; return signe(x)? NULL: pol_0(vx); }
+      if (pr == ONLY_REM) return x;
+      *pr = x;
+    }
+    return pol_0(vx);
+  }
+  lead = leading_term(y);
+  if (!dy) /* y is constant */
+  {
+    if (pr && pr != ONLY_DIVIDES)
+    {
+      if (pr == ONLY_REM) return pol_0(vx);
+      *pr = pol_0(vx);
+    }
+    if (F2x_equal1(lead)) return gcopy(x);
+    av0 = avma; x = F2xqX_F2xq_mul(x,F2xq_inv(lead,T),T);
+    return gerepileupto(av0,x);
+  }
+  av0 = avma; dz = dx-dy;
+  lead = F2x_equal1(lead)? NULL: gclone(F2xq_inv(lead,T));
+  avma = av0;
+  z = cgetg(dz+3,t_POL); z[1] = x[1];
+  x += 2; y += 2; z += 2;
+
+  p1 = gel(x,dx); av = avma;
+  gel(z,dz) = lead? gerepileupto(av, F2xq_mul(p1,lead, T)): leafcopy(p1);
+  for (i=dx-1; i>=dy; i--)
+  {
+    av=avma; p1=gel(x,i);
+    for (j=i-dy+1; j<=i && j<=dz; j++)
+      p1 = F2x_add(p1, F2x_mul(gel(z,j),gel(y,i-j)));
+    if (lead) p1 = F2x_mul(p1, lead);
+    tetpil=avma; gel(z,i-dy) = gerepile(av,tetpil,F2x_rem(p1,T));
+  }
+  if (!pr) { if (lead) gunclone(lead); return z-2; }
+
+  rem = (GEN)avma; av = (pari_sp)new_chunk(dx+3);
+  for (sx=0; ; i--)
+  {
+    p1 = gel(x,i);
+    for (j=0; j<=i && j<=dz; j++)
+      p1 = F2x_add(p1, F2x_mul(gel(z,j),gel(y,i-j)));
+    tetpil=avma; p1 = F2x_rem(p1, T); if (lgpol(p1)) { sx = 1; break; }
+    if (!i) break;
+    avma=av;
+  }
+  if (pr == ONLY_DIVIDES)
+  {
+    if (lead) gunclone(lead);
+    if (sx) { avma=av0; return NULL; }
+    avma = (pari_sp)rem; return z-2;
+  }
+  lr=i+3; rem -= lr;
+  rem[0] = evaltyp(t_POL) | evallg(lr);
+  rem[1] = z[-1];
+  p1 = gerepile((pari_sp)rem,tetpil,p1);
+  rem += 2; gel(rem,i) = p1;
+  for (i--; i>=0; i--)
+  {
+    av=avma; p1 = gel(x,i);
+    for (j=0; j<=i && j<=dz; j++)
+      p1 = F2x_add(p1, F2x_mul(gel(z,j),gel(y,i-j)));
+    tetpil=avma; gel(rem,i) = gerepile(av,tetpil, F2x_rem(p1, T));
+  }
+  rem -= 2;
+  if (lead) gunclone(lead);
+  if (!sx) (void)F2xX_renormalize(rem, lr);
+  if (pr == ONLY_REM) return gerepileupto(av0,rem);
+  *pr = rem; return z-2;
+}
+
+GEN
+F2xqX_rem(GEN x, GEN S, GEN T)
+{
+  GEN y = S;
+  long dy = degpol(y), dx = degpol(x), d = dx-dy;
+  if (d < 0) return F2xqX_red(x, T);
+  return F2xqX_divrem(x,y, T, ONLY_REM);
+}
