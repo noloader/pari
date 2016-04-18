@@ -3724,7 +3724,7 @@ FlxX_deriv(GEN z, ulong p)
   long i,l = lg(z)-1;
   GEN x;
   if (l < 2) l = 2;
-  x = cgetg(l, t_VECSMALL); x[1] = z[1];
+  x = cgetg(l, t_POL); x[1] = z[1];
   for (i=2; i<l; i++) gel(x,i) = Flx_mulu(gel(z,i+1), (ulong) i-1, p);
   return FlxX_renormalize(x,l);
 }
