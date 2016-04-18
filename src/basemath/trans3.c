@@ -1755,7 +1755,7 @@ czeta(GEN s0, long prec)
   GEN sim, *tab, tabn, funeq_factor = NULL;
   ulong p, sqn;
   long i, nn, lim, lim2, ct;
-  pari_sp av0 = avma, av, av2;
+  pari_sp av0 = avma, av;
   pari_timer T;
   forprime_t S;
 
@@ -1823,10 +1823,9 @@ czeta(GEN s0, long prec)
   /* compute 1 + 2^-s + ... + n^-s = P(2^-s) using Horner's scheme */
   for (i=ct; i > 1; i--)
   {
+    pari_sp av2 = avma;
     long j;
-    av2 = avma;
-    for (j=tabn[i]+1; j<=tabn[i-1]; j++)
-      sim = gadd(sim, n_s(2*j+1, tab));
+    for (j=tabn[i]+1; j<=tabn[i-1]; j++) sim = gadd(sim, n_s(2*j+1, tab));
     sim = gerepileupto(av2, sim);
     y = gadd(sim, gmul(tab[2],y));
   }
@@ -1838,6 +1837,7 @@ czeta(GEN s0, long prec)
   tes = bernreal(lim2, prec);
   {
     GEN s1, s2, s3, s4, s5;
+    pari_sp av2;
     s1 = gsub(gmul2n(s,1), unr);
     s2 = gmul(s, gsub(s,unr));
     s3 = gmul2n(invn2,3);
