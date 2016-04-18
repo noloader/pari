@@ -1856,3 +1856,26 @@ F2xqX_F2xq_mul(GEN P, GEN U, GEN T)
     gel(res,i) = F2xq_mul(U,gel(P,i), T);
   return F2xX_renormalize(res, lP);
 }
+
+GEN
+F2xqX_mul(GEN x, GEN y, GEN T)
+{
+  pari_sp ltop=avma;
+  GEN z,kx,ky;
+  kx= F2xX_to_Kronecker(x, F2x_degree(T));
+  ky= F2xX_to_Kronecker(y, F2x_degree(T));
+  z = F2x_mul(ky, kx);
+  z = Kronecker_to_F2xqX(z,T);
+  return gerepileupto(ltop,z);
+}
+
+GEN
+F2xqX_sqr(GEN x, GEN T)
+{
+  pari_sp ltop=avma;
+  GEN z,kx,kz;
+  kx= F2xX_to_Kronecker(x, F2x_degree(T));
+  kz = F2x_sqr(kx);
+  z = Kronecker_to_F2xqX(kz,T);
+  return gerepileupto(ltop,z);
+}
