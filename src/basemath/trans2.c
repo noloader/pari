@@ -1819,7 +1819,7 @@ serpsiz0(GEN z0, long L, long v, long prec)
 static GEN
 serpsi(GEN y, long prec)
 {
-  GEN Q, z0, Y;
+  GEN Q, z0, Y, Y2;
   long L = lg(y)-2, v  = varn(y), vy = valp(y);
   int reflect;
 
@@ -1831,20 +1831,18 @@ serpsi(GEN y, long prec)
   {
     GEN t;
     z0 = simplify_shallow(gel(y,2));
-    t = ground(z0);
-    if (gequal(t,z0)) z0 = t;
+    t = ground(z0); if (gequal(t,z0)) z0 = t;
   }
   reflect = (gcmp(real_i(z0),ghalf) < 0); /* use reflection formula */
   if (reflect) { z0 = gsubsg(1,z0); Y = gsubsg(1,y); } else Y = y;
   Q = serpsiz0(z0, L, v, prec);
-  Q = gsubst(Q, v, serchop0(Y)); /* psi(Y) */
+  Y2 = serchop0(Y);
+  Q = gsubst(Q, v, Y2); /* psi(z0 + Y2) = psi(Y) */
   if (reflect)
-  { /* psi(y) = psi(Y) + Pi cotan(Pi Y) = psi(Y) - Pi cotan(Pi y) */
+  { /* psi(y) = psi(Y) + Pi cotan(Pi Y) */
     GEN pi = mppi(prec);
-    if (equali1(z0))
-      Q = gsub(Q, gmul(pi, gcotan(gmul(pi,y), prec)));
-    else
-      Q = gadd(Q, gmul(pi, gcotan(gmul(pi,Y), prec)));
+    if (typ(z0) == t_INT) Y = Y2; /* in this case cotan(Pi*Y2) = cotan(Pi*Y) */
+    Q = gadd(Q, gmul(pi, gcotan(gmul(pi,Y), prec)));
   }
   return Q;
 }
