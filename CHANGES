@@ -206,6 +206,9 @@ BA150- elltatepairing could return wrong results [#1784]
        at real or pure imaginary arguments.
   154- gamma(2+x) did not start with an exact 1, unlike gamma(1+x).
        lngamma(2+x) didn't have valuation 1
+  155- gamma(t_INT+x) at large accuracy and seriesprecision was very slow,
+       even for small t_INTs (same for lngamma and psi). E.g. at \p1000
+       gamma(1000+x+O(x^100))
 
   Added
     1- add optional argument to sumdigits to specify the base

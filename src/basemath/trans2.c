@@ -1553,19 +1553,20 @@ ggamma(GEN x, long prec)
       if (valp(y) > 0 || lg(y) == 2)
         z = gdiv(gexp(glngamma(gaddgs(y,1),prec),prec),y);
       else
-      { /* use fun eq. to avoid log singularity of lngamma at negative ints */
-        GEN Y = y, y0 = simplify_shallow(gel(y,2)), t = ground(y0);
-        if (typ(t) == t_INT && signe(t) < 0 && gequal(y0, t))
-        { Y = gsubsg(1, y); y0 = subsi(1, y0); }
-        if (typ(y0)==t_INT && cmpiu(y0, 50) < 0)
-          z = mpfact(itos(y0)-1); /* faster and more precise */
-        else
-          z = ggamma(y0,prec);
+      {
+        GEN Y = y, y0 = simplify_shallow(gel(y,2));
+        z = NULL;
+        if (isint(y0, &y0))
+        { /* fun eq. avoids log singularity of lngamma at negative ints */
+          if (signe(y0) < 0) { Y = gsubsg(1, y); y0 = subsi(1, y0); }
+          if (cmpiu(y0, 50) < 0) z = mpfact(itos(y0)-1); /* more precise */
+        }
+        if (!z) z = ggamma(y0,prec);
         z = gmul(z, gexp(serlngamma0(Y,prec),prec));
         if (Y != y)
         {
           GEN pi = mppi(prec);
-          z = gdiv(mpodd(t)? negr(pi): pi,
+          z = gdiv(mpodd(y0)? pi: negr(pi),
                    gmul(z, gsin(gmul(pi,serchop0(y)), prec)));
         }
       }
@@ -1628,7 +1629,7 @@ glngamma(GEN x, long prec)
       t = serlngamma0(y,prec);
       y0 = simplify_shallow(gel(y,2));
       /* no constant term if y0 = 1 or 2 */
-      if (typ(y0) != t_INT || signe(y0) <= 0 || cmpiu(y0,2) > 2)
+      if (!isint(y0,&y0) || signe(y0) <= 0 || cmpiu(y0,2) > 2)
         t = gadd(t, glngamma(y0,prec));
       return gerepileupto(av, t);
 
@@ -1754,16 +1755,14 @@ tr(GEN T, GEN z0, long L)
   GEN s = RgX_to_ser(RgX_translate(T, z0), L+3);
   setvarn(s, 0); return s;
 }
-/* z0 a complex number with Re(z0) > 1/2; return psi(z0+x) + O(x^L) */
+/* z0 a complex number with Re(z0) > 1/2; return psi(z0+x) + O(x^L)
+ * using Luke's rational approximation for psi(x) */
 static GEN
 serpsiz0(GEN z0, long L, long v, long prec)
 {
   pari_sp av;
   GEN A,A1,A2, B,B1,B2, Q;
   long n;
-
-  if (equali1(z0)) return serpsi1(L, v, prec);
-  /* otherwise use Luke's rational approximations for psi(x) */
   n = gprecision(z0); if (n) prec = n;
   z0 = gtofp(z0, prec + EXTRAPRECWORD);
   /* Start from n = 3; in Luke's notation, A2 := A_{n-2}, A1 := A_{n-1},
@@ -1816,12 +1815,42 @@ serpsiz0(GEN z0, long L, long v, long prec)
   setvarn(Q, v);
   return gadd(negr(mpeuler(prec)), Q);
 }
+/* sum (-1)^k*H(m,k)x^k + O(x^L); L > 0;
+ * H(m,k) = (-1)^{k * \delta_{m > 0}} sum_{1<=i<m} 1/i^(k+1) */
+static GEN
+Hseries(long m, long L, long v, long prec)
+{
+  long i, k, bit, l = L+3, M = m < 0? 1-m: m;
+  pari_sp av = avma;
+  GEN H = cgetg(l, t_SER);
+  H[1] = evalsigne(1)|evalvarn(v)|evalvalp(0);
+  prec++;
+  bit = -prec2nbits(prec);
+  for(k = 2; k < l; k++) gel(H,k) = gen_1; /* i=1 */
+  for (i = 2; i < M; i++)
+  {
+    GEN ik = invr(utor(i, prec));
+    for (k = 2; k < l; k++)
+    {
+      if (k > 2) { ik = divru(ik, i); if (expo(ik) < bit) break; }
+      gel(H,k) = gadd(gel(H,k), ik);
+    }
+    if (gc_needed(av,3))
+    {
+      if(DEBUGMEM>1) pari_warn(warnmem,"Hseries, i = %ld/%ld", i,M);
+      H = gerepilecopy(av, H);
+    }
+  }
+  if (m > 0)
+    for (k = 3; k < l; k+=2) togglesign_safe(&gel(H,k));
+  return H;
+}
+
 static GEN
 serpsi(GEN y, long prec)
 {
-  GEN Q, z0, Y, Y2;
+  GEN Q = NULL, z0, Y = y, Y2;
   long L = lg(y)-2, v  = varn(y), vy = valp(y);
-  int reflect;
 
   if (!L) pari_err_DOMAIN("psi", "argument", "=", gen_0,y);
   if (vy < 0) pari_err_DOMAIN("psi", "series valuation", "<", gen_0,y);
@@ -1829,16 +1858,34 @@ serpsi(GEN y, long prec)
     z0 = gen_0;
   else
   {
-    GEN t;
     z0 = simplify_shallow(gel(y,2));
-    t = ground(z0); if (gequal(t,z0)) z0 = t;
+    (void)isint(z0, &z0);
   }
-  reflect = (gcmp(real_i(z0),ghalf) < 0); /* use reflection formula */
-  if (reflect) { z0 = gsubsg(1,z0); Y = gsubsg(1,y); } else Y = y;
-  Q = serpsiz0(z0, L, v, prec);
-  Y2 = serchop0(Y);
-  Q = gsubst(Q, v, Y2); /* psi(z0 + Y2) = psi(Y) */
-  if (reflect)
+  if (typ(z0) == t_INT && !is_bigint(z0))
+  {
+    long m = itos(z0);
+    if (cmpiu(muluu(prec2nbits(prec),L), labs(m)) > 0)
+    { /* psi(m+x) = psi(1+x) + sum_{1 <= i < m} 1/(i+x) for m > 0
+                    psi(1+x) - sum_{0 <= i < -m} 1/(i+x) for m <= 0 */
+      GEN H = NULL;
+      if (m <= 0) L--; /* lose series accuracy due to 1/x term */
+      Q = serpsi1(L, v, prec);
+      if (m && m != 1)
+      {
+        H = Hseries(m, L, v, prec);
+        Q = gadd(Q, H);
+      }
+      if (m <= 0) Q = gsub(Q, ginv(pol_x(v)));
+    }
+  }
+  if (!Q)
+  { /* use psi(1-y)=psi(y)+Pi*cotan(Pi*y) ? */
+    if (gcmp(real_i(z0),ghalf) < 0) { z0 = gsubsg(1,z0); Y = gsubsg(1,y); }
+    Q = serpsiz0(z0, L, v, prec);
+  }
+  Y2 = serchop0(Y); if (signe(Y2)) Q = gsubst(Q, v, Y2);
+  /* psi(z0 + Y2) = psi(Y) */
+  if (Y != y)
   { /* psi(y) = psi(Y) + Pi cotan(Pi Y) */
     GEN pi = mppi(prec);
     if (typ(z0) == t_INT) Y = Y2; /* in this case cotan(Pi*Y2) = cotan(Pi*Y) */
