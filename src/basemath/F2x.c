@@ -1769,3 +1769,63 @@ F2xX_F2x_mul(GEN P, GEN U)
     gel(res,i) = F2x_mul(U,gel(P,i));
   return F2xX_renormalize(res, lP);
 }
+
+GEN
+F2xX_to_Kronecker(GEN P, long d)
+{
+  long i, k, N = 2*d + 1;
+  long dP = degpol(P);
+  long l = nbits2nlong(N*dP+d+1);
+  GEN x = zero_zv(l+1);
+  for (k=i=0; i<=dP; i++, k+=N)
+  {
+    GEN c = gel(P,i+2);
+    F2x_addshiftip(x, c, k);
+  }
+  x[1] = P[1]&VARNBITS; return F2x_renormalize(x, l+2);
+}
+
+static GEN
+F2x_slice(GEN x, long n, long d)
+{
+  long  i;
+  ulong ib, il=dvmduBIL(n, &ib);
+  ulong db, dl=dvmduBIL(d, &db);
+  long lN = dl+2+(db?1:0);
+  GEN t = cgetg(lN,t_VECSMALL);
+  t[1] = x[1];
+  if (ib)
+  {
+    ulong ic=BITS_IN_LONG-ib;
+    ulong r = uel(x,2+il)>>ib;
+    for(i=0; i<dl; i++)
+    {
+      uel(t,2+i) = (uel(x,3+il+i)<<ic)|r;
+      r = uel(x,3+il+i)>>ib;
+    }
+    if (db)
+      uel(t,2+i) = (uel(x,3+il+i)<<ic)|r;
+  }
+  else
+    for(i=2; i<lN; i++)
+      uel(t,i) = uel(x,il+i);
+  if (db) uel(t,lN-1) &= (1UL<<db)-1;
+  return F2x_renormalize(t, lN);
+}
+
+GEN
+Kronecker_to_F2xqX(GEN z, GEN T)
+{
+  long lz = F2x_degree(z)+1;
+  long i, j, N = F2x_degree(T)*2 + 1;
+  long lx = lz / (N-2);
+  GEN x = cgetg(lx+3,t_POL);
+  x[1] = z[1];
+  for (i=0, j=2; i<lz; i+=N, j++)
+  {
+    GEN t = F2x_slice(z,i,minss(lz-i,N));
+    t[1] = T[1];
+    gel(x,j) = F2x_rem(t, T);
+  }
+  return F2xX_renormalize(x, j);
+}
