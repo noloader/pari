@@ -3342,6 +3342,7 @@ GEN
 FlxqX_roots(GEN x, GEN T, ulong p)
 {
   pari_sp av = avma;
+  if (p==2) pari_err_IMPL("FlxqX_roots");
   return gerepileupto(av, FlxqX_roots_i(x, T, p));
 }
 

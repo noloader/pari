@@ -5486,6 +5486,9 @@ occur).
 \fun{GEN}{FlxqXQ_halfFrobenius}{GEN A, GEN S, GEN T, GEN p}, as
 \kbd{FpXQXQ\_halfFrobenius}
 
+\fun{GEN}{FlxqX_roots}{GEN x, GEN T, ulong p} return the roots of \kbd{x} in
+$\F_p[X]/(T)$. Assumes \kbd{p} is prime and \kbd{T} irreducible in $\F_p[X]$.
+
 \fun{long}{FlxqX_nbroots}{GEN S, GEN T, GEN p}, as \kbd{FpX\_nbroots}.
 
 \fun{GEN}{FlxqX_FlxqXQ_eval}{GEN Q, GEN x, GEN S, GEN T, ulong p} as
