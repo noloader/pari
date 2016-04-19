@@ -35,6 +35,17 @@ Doc: true (1) if $x$ is a square, false (0)
  directly odd and even-power monomials) or we assume that $2$ is invertible
  and check whether squaring the truncated power series for the square root
  yields the original input.
+
+ For \typ{POLMOD} $x$, we only support \typ{POLMOD}s of \typ{INTMOD}s
+ encoding finite fields, assuming without checking that the intmod modulus
+ $p$ is prime and that the polmod modulus is irreducible modulo $p$.
+ \bprog
+ ? issquare(Mod(Mod(2,3), x^2+1), &n)
+ %1 = 1
+ ? n
+ %2 = Mod(Mod(2, 3)*x, Mod(1, 3)*x^2 + Mod(1, 3))
+ @eprog
+
 Variant: Also available is \fun{long}{issquare}{GEN x}. Deprecated
  GP-specific functions \fun{GEN}{gissquare}{GEN x} and
  \fun{GEN}{gissquareall}{GEN x, GEN *pt} return \kbd{gen\_0} and \kbd{gen\_1}

@@ -72,6 +72,11 @@ issquare(Mod(1,2))
 issquare(Mod(0,2),&s);s
 issquare(Mod(2,3))
 issquare(Mod(13,121))
+issquare(Mod(Mod(1,2)*y,y^3+y^2+1))
+if (issquare(Mod(Mod(1,2)*y,y^3+y^2+1),&b),b)
+issquare(Mod(Mod(1,5)*y+2,y^3+y^2+1))
+if (issquare(Mod(Mod(1,5)*y,y^3+y^2+1),&b),b)
+if (issquare(Mod(Mod(4,5),y^3+y^2+1),&b),b)
 
 default(realprecision,38);
 if(issquare(Pol(0),&z),z)
@@ -140,3 +145,5 @@ test(Mod(1,2))
 test(ffgen(2^3,'t))
 test(ffgen(3^3,'t))
 test(Mod(Mod(1,2),y^3+y^2+1))
+ispower(Mod(x,x^2+1), 2, &y)
+ispower(Mod(x,x^2+1), 2)

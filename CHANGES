@@ -209,6 +209,7 @@ BA150- elltatepairing could return wrong results [#1784]
   155- gamma(t_INT+x) at large accuracy and seriesprecision was very slow,
        even for small t_INTs (same for lngamma and psi). E.g. at \p1000
        gamma(1000+x+O(x^100))
+  156- ispower(Mod(x,x^2+1),2) -> SEGV
 
   Added
     1- add optional argument to sumdigits to specify the base
@@ -433,6 +434,7 @@ SCh152- [mingw+pthread]: default nbthreads support
 BA 163- qfisominit: allow to pass the matrix of minimal vectors [#1656]
    164- [libpari] GENtostr_raw
 BA 165- [libpari] FlxqX_halfgcd, FpXQX_halfgcd
+   166- issquare(t_POLMOD of t_INTMOD) assuming a finite field
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]

@@ -752,6 +752,27 @@ END:
   return 1;
 }
 
+static long
+polmodispower(GEN x, GEN K, GEN *pt)
+{
+  pari_sp av = avma;
+  GEN p = NULL, T = NULL;
+  if (Rg_is_FpXQ(x, &T,&p) && p)
+  {
+    x = liftall_shallow(x);
+    if (!Fq_ispower(x, K, T, p)) { avma = av; return 0; }
+    if (!pt) { avma = av; return 1; }
+    x = Fq_sqrtn(x, K, T,p, NULL);
+    if (typ(x) == t_INT)
+      x = Fp_to_mod(x,p);
+    else
+      x = mkpolmod(FpX_to_mod(x,p), FpX_to_mod(T,p));
+    *pt = gerepilecopy(av, x); return 1;
+  }
+  pari_err_IMPL("ispower for general t_POLMOD");
+  return 0;
+}
+
 long
 issquareall(GEN x, GEN *pt)
 {
@@ -769,6 +790,8 @@ issquareall(GEN x, GEN *pt)
           || !Z_issquareall(gel(x,2), &gel(F,2))) { avma = av; return 0; }
       *pt = F; return 1;
 
+    case t_POLMOD:
+      return polmodispower(x, gen_2, pt);
     case t_POL: return polissquareall(x,pt);
     case t_RFRAC: av = avma;
       F = cgetg(3, t_RFRAC);
@@ -826,6 +849,9 @@ issquare(GEN x)
       if ((v>=3 && mod8(a) != 1 ) ||
           (v==2 && mod4(a) != 1)) return 0;
       return 1;
+
+    case t_POLMOD:
+      return polmodispower(x, gen_2, NULL);
 
     case t_POL:
       return polissquareall(x,NULL);
@@ -1045,23 +1071,6 @@ Qp_ispower(GEN x, GEN K, GEN *pt)
   if (!z) { avma = av; return 0; }
   if (pt) *pt = z;
   return 1;
-}
-
-static long
-polmodispower(GEN x, GEN K, GEN *pt)
-{
-  pari_sp av = avma;
-  GEN p = NULL, T = NULL;
-  if (Rg_is_FpXQ(x, &T,&p))
-  {
-    x = liftall_shallow(x);
-    if (!Fq_ispower(x, K, T, p)) { avma = av; return 0; }
-    if (!pt) { avma = av; return 1; }
-    *pt = Fq_sqrtn(x, K, T,p, NULL);
-    return 1;
-  }
-  pari_err_IMPL("ispower for general t_POLMOD");
-  return 0;
 }
 
 long

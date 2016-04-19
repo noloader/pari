@@ -1150,6 +1150,12 @@ Mod(583, 875)
 Mod(0, 2)
 0
 0
+1
+Mod(Mod(1, 2)*y^2 + Mod(1, 2)*y + Mod(1, 2), Mod(1, 2)*y^3 + Mod(1, 2)*y^2 +
+ Mod(1, 2))
+0
+Mod(Mod(3, 5)*y^2 + Mod(1, 5), Mod(1, 5)*y^3 + Mod(1, 5)*y^2 + Mod(1, 5))
+Mod(2, 5)
 0
 1
 0
@@ -1207,4 +1213,10 @@ x + 2
 [0, 1, 1, 1, 1, 1]
 [0, 1, 1, 1, 1, 1]
 [0, 1, 1, 1, 1, 1]
-Total time spent: 2584
+  ***   at top-level: ispower(Mod(x,x^2+1)
+  ***                 ^--------------------
+  *** ispower: sorry, ispower for general t_POLMOD is not yet implemented.
+  ***   at top-level: ispower(Mod(x,x^2+1)
+  ***                 ^--------------------
+  *** ispower: sorry, ispower for general t_POLMOD is not yet implemented.
+Total time spent: 2604
