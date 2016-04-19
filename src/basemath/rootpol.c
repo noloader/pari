@@ -2185,7 +2185,9 @@ QX_complex_roots(GEN p, long l)
 /********************************************************************/
 
 /* Count sign changes in the coefficients of (x+1)^deg(P)*P(1/(x+1))
- * The inversion is implicit (we take coefficients backwards) */
+ * The inversion is implicit (we take coefficients backwards). Roots of P
+ * at 0 and 1 (mapped to oo and 0) are ignored here and must be dealt with
+ * by the caller */
 static long
 X2XP1(GEN P, long deg, GEN *Premapped)
 {
@@ -2213,25 +2215,22 @@ X2XP1(GEN P, long deg, GEN *Premapped)
     }
     if (s == signe(gel(v, vlim)))
     {
-      nb++;
-      if (nb >= 2) { avma = av; return 2; }
+      if (++nb >= 2) { avma = av; return 2; }
       s = -s;
     }
+    /* if flag is set there will be no further sign changes */
+    if (flag && (!Premapped || !nb)) goto END;
+    vlim--;
     if (gc_needed(av, 3))
     {
       if (!Premapped) setlg(v, vlim);
       v = gerepileupto(av, v);
       if (DEBUGMEM > 1) pari_warn(warnmem, "X2XP1");
     }
-    if (flag && !Premapped) goto END;
-    vlim--;
   }
   if (s == signe(gel(v, vlim))) nb++;
 END:
-  if (Premapped && nb == 1)
-    *Premapped = gerepileupto(av, v);
-  else
-    avma = av;
+  if (Premapped && nb == 1) *Premapped = v; else avma = av;
   return nb;
 }
 
@@ -2472,6 +2471,7 @@ usp(GEN Q0, long deg, long flag, long bitprec)
   while (nb_todo)
   {
     GEN nc = gel(Lc, ind), Qremapped;
+    pari_sp av2;
     if (Lk[ind] == k + 1)
     {
       deg0 = deg;
@@ -2490,69 +2490,62 @@ usp(GEN Q0, long deg, long flag, long bitprec)
 
     if (equalii(gel(Q, 2), gen_0))
     {
-      GEN newsol = gmul2n(c, -k);
+      GEN s = gmul2n(c, -k);
       long j;
       for (j = 1; j <= nbr; j++)
-        if (gequal(gel(sol, j), newsol)) break;
-      if (j > nbr) gel(sol, ++nbr) = newsol;
+        if (gequal(gel(sol, j), s)) break;
+      if (j > nbr) gel(sol, ++nbr) = s;
 
       deg0--;
       for (j = 2; j <= deg0 + 2; j++) gel(Q, j) = gel(Q, j+1);
       setlg(Q, j);
     }
 
+    av2 = avma;
     nb = X2XP1(Q, deg0, flag == 1 ? &Qremapped : NULL);
-
-    switch (nb)
+    if      (nb == 0) /* no root in this open interval */;
+    else if (nb == 1) /* exactly one root */
     {
-      case 0:
-        break;
-      case 1:
-        switch(flag)
+      GEN s = gen_0;
+      if (flag == 0)
+        s = mkvec2(gmul2n(c,-k), gmul2n(addiu(c,1),-k));
+      else if (flag == 1) /* Caveat: Qremapped is the reciprocal polynomial */
+      {
+        s = polsolve(Qremapped, bitprec+1);
+        s = divrr(s, addsr(1, s));
+        s = gmul2n(addir(c, s), -k);
+        s = rtor(s, nbits2prec(bitprec));
+      }
+      gel(sol, ++nbr) = gerepileupto(av2, s);
+    }
+    else
+    { /* unknown, add two nodes to refine */
+      if (indf + 2 > listsize)
+      {
+        if (ind>1)
         {
-        case 0:
-          gel(sol, ++nbr) = mkvec2(gmul2n(c,-k), gmul2n(addiu(c,1),-k));
-          break;
-        case 1:
-          { /* Caveat emptor: Qremapped is the reciprocal polynomial */
-            GEN sr = polsolve(Qremapped, bitprec+1);
-            sr = divrr(sr, addsr(1, sr));
-            sr = gmul2n(addir(c, sr), -k);
-            gel(sol, ++nbr) = rtor(sr, nbits2prec(bitprec));
+          for (i = ind; i < indf; i++)
+          {
+            gel(Lc, i-ind+1) = gel(Lc, i);
+            Lk[i-ind+1] = Lk[i];
           }
-          break;
-        default:
-          gel(sol, ++nbr) = gen_0;
+          indf -= ind-1;
+          ind = 1;
         }
-      break;
-
-      default:
         if (indf + 2 > listsize)
         {
-          if (ind>1)
-          {
-            for (i = ind; i < indf; i++)
-            {
-              gel(Lc, i-ind+1) = gel(Lc, i);
-              Lk[i-ind+1] = Lk[i];
-            }
-            indf -= ind-1;
-            ind = 1;
-          }
-          if (indf + 2 > listsize)
-          {
-            listsize *= 2;
-            Lc = vec_lengthen(Lc, listsize);
-            Lk = vecsmall_lengthen(Lk, listsize);
-          }
-          for (i = indf; i <= listsize; i++) gel(Lc, i) = gen_0;
+          listsize *= 2;
+          Lc = vec_lengthen(Lc, listsize);
+          Lk = vecsmall_lengthen(Lk, listsize);
         }
-        nc = shifti(c, 1);
-        gel(Lc, indf) = nc;
-        gel(Lc, indf + 1) = addiu(nc, 1);
-        Lk[indf] = Lk[indf + 1] = k + 1;
-        indf += 2;
-        nb_todo += 2;
+        for (i = indf; i <= listsize; i++) gel(Lc, i) = gen_0;
+      }
+      nc = shifti(c, 1);
+      gel(Lc, indf) = nc;
+      gel(Lc, indf + 1) = addiu(nc, 1);
+      Lk[indf] = Lk[indf + 1] = k + 1;
+      indf += 2;
+      nb_todo += 2;
     }
 
     if (gc_needed(av, 2))
