@@ -55,3 +55,5 @@ for (i=1,#v, print([v[i]==1,v[i]==-1]))
 
 A=Ser(vector(40000,i,i==1));
 A==A
+
+Mod(Mod(y,y^2+1),x^2-2) == Mod(y,y^2+1)

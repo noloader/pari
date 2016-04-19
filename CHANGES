@@ -209,7 +209,8 @@ BA150- elltatepairing could return wrong results [#1784]
   155- gamma(t_INT+x) at large accuracy and seriesprecision was very slow,
        even for small t_INTs (same for lngamma and psi). E.g. at \p1000
        gamma(1000+x+O(x^100))
-  156- ispower(Mod(x,x^2+1),2) -> SEGV
+  156- ispower(Mod(x,x^2+1),2) -> SEGV [#1805]
+  157- a=Mod(y,y^2+1); Mod(a, x^2-2) == a returned 0 [#1806]
 
   Added
     1- add optional argument to sumdigits to specify the base

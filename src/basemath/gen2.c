@@ -1047,6 +1047,7 @@ gequal(GEN x, GEN y)
         av = avma; i = gequal0(gsub(x,y)); avma = av;
         return i;
       case t_POLMOD:
+        if (varn(gel(x,1)) != varn(gel(y,1))) break;
         return gequal(gel(x,2),gel(y,2)) && RgX_equal_var(gel(x,1),gel(y,1));
       case t_POL:
         return polequal(x,y);
