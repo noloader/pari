@@ -2189,28 +2189,23 @@ QX_complex_roots(GEN p, long l)
 static long
 X2XP1(GEN P, long deg, GEN *Premapped)
 {
-  pari_sp av = avma;
+  const pari_sp av = avma;
   GEN v = shallowcopy(P);
-  long i, j, vlim, nb, s, s2;
-  char flag;
+  long i, j, vlim, nb, s;
 
-  vlim = deg+2;
-  nb = 0;
-  i = 0;
-  do
+  for (i = 0, vlim = deg+2;;)
   {
     for (j = 2; j < vlim; j++) gel(v, j+1) = addii(gel(v, j), gel(v, j+1));
     s = -signe(gel(v, vlim));
-    vlim--;
-    i++;
+    vlim--; i++; if (s) break;
   }
-  while (!s);
-  if (vlim != deg + 1 && Premapped) setlg(v, vlim + 2);
+  if (vlim != deg+1 && Premapped) setlg(v, vlim + 2);
 
-  for (; i <= deg - 1; i++)
+  nb = 0;
+  for (; i < deg; i++)
   {
-    s2 = -signe(gel(v, 2));
-    flag = (s2 == s);
+    long s2 = -signe(gel(v, 2));
+    int flag = (s2 == s);
     for (j = 2; j < vlim; j++)
     {
       gel(v, j+1) = addii(gel(v, j), gel(v, j+1));
@@ -2457,15 +2452,12 @@ polsolve(GEN P, long bitprec)
 }
 
 static GEN
-usp(GEN Q0, long deg, long *nb_donep, long flag, long bitprec)
+usp(GEN Q0, long deg, long flag, long bitprec)
 {
-  pari_sp av;
-  GEN Q, sol;
-  long nb_todo, nbr = 0, ind, deg0, indf, i, k, nb, j;
-  long listsize = 64, nb_done = 0;
-  GEN c, Lc, Lk;
+  const pari_sp av = avma;
+  GEN Q, sol, c, Lc, Lk;
+  long listsize = 64, nbr = 0, nb_todo, ind, deg0, indf, i, k, nb;
 
-  av = avma;
 
   sol = const_col(deg, gen_0);
   deg0 = deg;
@@ -2474,7 +2466,7 @@ usp(GEN Q0, long deg, long *nb_donep, long flag, long bitprec)
   c = gen_0;
   k = Lk[1] = 0;
   ind = 1; indf = 2;
-  Q = gcopy(Q0);
+  Q = leafcopy(Q0);
 
   nb_todo = 1;
   while (nb_todo)
@@ -2499,6 +2491,7 @@ usp(GEN Q0, long deg, long *nb_donep, long flag, long bitprec)
     if (equalii(gel(Q, 2), gen_0))
     {
       GEN newsol = gmul2n(c, -k);
+      long j;
       for (j = 1; j <= nbr; j++)
         if (gequal(gel(sol, j), newsol)) break;
       if (j > nbr) gel(sol, ++nbr) = newsol;
@@ -2509,7 +2502,6 @@ usp(GEN Q0, long deg, long *nb_donep, long flag, long bitprec)
     }
 
     nb = X2XP1(Q, deg0, flag == 1 ? &Qremapped : NULL);
-    nb_done++;
 
     switch (nb)
     {
@@ -2519,12 +2511,7 @@ usp(GEN Q0, long deg, long *nb_donep, long flag, long bitprec)
         switch(flag)
         {
         case 0:
-          {
-            GEN low, hi;
-            low = gmul2n(c, -k);
-            hi  = gmul2n(addiu(c,1), -k);
-            gel(sol, ++nbr) = mkvec2(low, hi);
-          }
+          gel(sol, ++nbr) = mkvec2(gmul2n(c,-k), gmul2n(addiu(c,1),-k));
           break;
         case 1:
           { /* Caveat emptor: Qremapped is the reciprocal polynomial */
@@ -2549,7 +2536,8 @@ usp(GEN Q0, long deg, long *nb_donep, long flag, long bitprec)
               gel(Lc, i-ind+1) = gel(Lc, i);
               Lk[i-ind+1] = Lk[i];
             }
-          indf -= ind-1; ind = 1;
+            indf -= ind-1;
+            ind = 1;
           }
           if (indf + 2 > listsize)
           {
@@ -2561,7 +2549,7 @@ usp(GEN Q0, long deg, long *nb_donep, long flag, long bitprec)
         }
         nc = shifti(c, 1);
         gel(Lc, indf) = nc;
-        gel(Lc, indf + 1) = addis(nc, 1);
+        gel(Lc, indf + 1) = addiu(nc, 1);
         Lk[indf] = Lk[indf + 1] = k + 1;
         indf += 2;
         nb_todo += 2;
@@ -2575,7 +2563,6 @@ usp(GEN Q0, long deg, long *nb_donep, long flag, long bitprec)
   }
 
   setlg(sol, nbr+1);
-  *nb_donep += nb_done;
   return gerepilecopy(av, sol);
 }
 
@@ -2596,7 +2583,7 @@ ZX_Uspensky(GEN P, GEN ab, long flag, long bitprec)
   pari_sp av = avma;
   GEN a, b, sol = NULL, Pcur;
   double fb;
-  long nbz, deg, nb_done = 0;
+  long nbz, deg;
 
   deg = degpol(P);
   if (deg == 0) return flag <= 1 ? cgetg(1, t_COL) : gen_0;
@@ -2712,7 +2699,7 @@ ZX_Uspensky(GEN P, GEN ab, long flag, long bitprec)
     }
     else
       avma = av1;
-    unscaledres = usp(Pcur, deg, &nb_done, flag, bitprec);
+    unscaledres = usp(Pcur, deg, flag, bitprec);
     if (flag <= 1)
     {
       for (i = 1; i < lg(unscaledres); i++)
@@ -2739,7 +2726,7 @@ ZX_Uspensky(GEN P, GEN ab, long flag, long bitprec)
     long bp = (long)ceil(fb);
     if (bp < 0) bp = 0;
     Pcurp = ZX_unscale2n(Pcur, bp);
-    unscaledres = usp(Pcurp, deg, &nb_done, flag, bitprec);
+    unscaledres = usp(Pcurp, deg, flag, bitprec);
     if (flag <= 1)
       sol = gconcat(sol, gmul2n(unscaledres, bp));
     else
@@ -2752,7 +2739,7 @@ ZX_Uspensky(GEN P, GEN ab, long flag, long bitprec)
     if (bm < 0) bm = 0;
     Pcurm = ZX_unscale(Pcur, gen_m1);
     Pcurm = ZX_unscale2n(Pcurm, bm);
-    unscaledres = usp(Pcurm,deg,&nb_done,flag,bitprec);
+    unscaledres = usp(Pcurm,deg,flag,bitprec);
     if (flag <= 1)
     {
       for (i = 1; i < lg(unscaledres); i++)
@@ -2766,10 +2753,6 @@ ZX_Uspensky(GEN P, GEN ab, long flag, long bitprec)
     else
       nbz += lg(unscaledres) - 1;
   }
-
-  if (DEBUGLEVEL > 4)
-    err_printf("ZX_Uspensky: Number of visited nodes: %d\n", nb_done);
-
   if (flag >= 2) return utoi(nbz);
   if (flag)
     sol = sort(sol);
