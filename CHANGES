@@ -438,6 +438,7 @@ BA 163- qfisominit: allow to pass the matrix of minimal vectors [#1656]
    164- [libpari] GENtostr_raw
 BA 165- [libpari] FlxqX_halfgcd, FpXQX_halfgcd
    166- issquare(t_POLMOD of t_INTMOD) assuming a finite field
+   167- RgXn_powu, RgXn_powu_i
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]

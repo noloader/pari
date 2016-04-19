@@ -2115,6 +2115,13 @@ RgXn_powu_i(GEN x, ulong m, long n)
   S.v = varn(x); S.n = n;
   return gen_powu_i(x, m, (void*)&S,_sqrXn,_mulXn);
 }
+GEN
+RgXn_powu(GEN x, ulong m, long n)
+{
+  struct modXn S;
+  S.v = varn(x); S.n = n;
+  return gen_powu(x, m, (void*)&S,_sqrXn,_mulXn);
+}
 
 GEN
 RgX_RgXnV_eval(GEN Q, GEN x, long n)

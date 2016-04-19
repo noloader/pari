@@ -977,6 +977,7 @@ GEN     RgXn_red_shallow(GEN a, long n);
 GEN     RgXn_reverse(GEN f, long e);
 GEN     RgXn_sqr(GEN f, long n);
 GEN     RgXnV_red_shallow(GEN P, long n);
+GEN     RgXn_powu(GEN x, ulong m, long n);
 GEN     RgXn_powu_i(GEN x, ulong m, long n);
 GEN     ZX_translate(GEN P, GEN c);
 GEN     ZX_unscale2n(GEN P, long n);
