@@ -3690,6 +3690,9 @@ $x$ and $y$ (assumed to have the same length).
 \fun{GEN}{FpV_dotsquare}{GEN x, GEN p} scalar product of $x$ with itself.
 has \typ{INT} entries.
 
+\fun{GEN}{FpV_factorback}{GEN L, GEN e, GEN p} given an \kbd{FpV} $L$
+and a \kbd{ZV} $e$ of the same length, return $\prod_i L_i^{e_i}$ modulo $p$.
+
 \subsubsec{\kbd{Fp}-linear algebra} The implementations are not
 asymptotically efficient ($O(n^3)$ standard algorithms).
 
