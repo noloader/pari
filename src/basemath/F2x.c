@@ -1746,6 +1746,17 @@ F2xX_to_ZXX(GEN B)
 }
 
 GEN
+F2xX_deriv(GEN z)
+{
+  long i,l = lg(z)-1;
+  GEN x;
+  if (l < 2) l = 2;
+  x = cgetg(l, t_POL); x[1] = z[1];
+  for (i=2; i<l; i++) gel(x,i) = odd(i) ? pol0_F2x(mael(z,i+1,1)): gel(z,i+1);
+  return F2xX_renormalize(x,l);
+}
+
+GEN
 F2xX_add(GEN x, GEN y)
 {
   long i,lz;
@@ -1857,6 +1868,25 @@ F2xqX_F2xq_mul(GEN P, GEN U, GEN T)
   for(i=2; i<lP; i++)
     gel(res,i) = F2xq_mul(U,gel(P,i), T);
   return F2xX_renormalize(res, lP);
+}
+
+GEN
+F2xqX_F2xq_mul_to_monic(GEN P, GEN U, GEN T)
+{
+  long i, lP = lg(P);
+  GEN res = cgetg(lP,t_POL);
+  res[1] = P[1];
+  for(i=2; i<lP-1; i++) gel(res,i) = F2xq_mul(U,gel(P,i), T);
+  gel(res,lP-1) = pol1_F2x(get_F2x_var(T));
+  return F2xX_renormalize(res, lP);
+}
+
+GEN
+F2xqX_normalize(GEN z, GEN T)
+{
+  GEN p1 = leading_coeff(z);
+  if (!lgpol(z) || (!degpol(p1) && p1[1] == 1)) return z;
+  return F2xqX_F2xq_mul_to_monic(z, F2xq_inv(p1,T), T);
 }
 
 GEN

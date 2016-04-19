@@ -5709,6 +5709,9 @@ $a=\sigma(X)$ where $\sigma$ is an automorphism of the algebra $\F_2[X]/T(X)$.
 
 \fun{GEN}{F2xX_F2x_mul}{GEN x, GEN y}
 
+\fun{GEN}{F2xX_deriv}{GEN P} returns the derivative of \kbd{P} with respect to
+the main variable.
+
 \fun{GEN}{Kronecker_to_F2xqX}{GEN z, GEN T}
 
 \fun{GEN}{F2xX_to_Kronecker}{GEN z, GEN T}
@@ -5717,7 +5720,11 @@ $a=\sigma(X)$ where $\sigma$ is an automorphism of the algebra $\F_2[X]/T(X)$.
 
 \fun{GEN}{F2xqX_red}{GEN z, GEN T}
 
+\fun{GEN}{F2xqX_normalize}{GEN z, GEN T}
+
 \fun{GEN}{F2xqX_F2xq_mul}{GEN P, GEN U, GEN T}
+
+\fun{GEN}{F2xqX_F2xq_mul_to_monic}{GEN P, GEN U, GEN T}
 
 \fun{GEN}{F2xqX_mul}{GEN x, GEN y, GEN T}
 
