@@ -2189,7 +2189,7 @@ QX_complex_roots(GEN p, long l)
  * at 0 and 1 (mapped to oo and 0) are ignored here and must be dealt with
  * by the caller */
 static long
-X2XP1(GEN P, long deg, GEN *Premapped)
+X2XP1(GEN P, long deg, int *root1, GEN *Premapped)
 {
   const pari_sp av = avma;
   GEN v = shallowcopy(P);
@@ -2201,7 +2201,12 @@ X2XP1(GEN P, long deg, GEN *Premapped)
     s = -signe(gel(v, vlim));
     vlim--; i++; if (s) break;
   }
-  if (vlim != deg+1 && Premapped) setlg(v, vlim + 2);
+  if (vlim == deg+1) *root1 = 0;
+  else
+  {
+    *root1 = 1;
+    if (Premapped) setlg(v, vlim + 2);
+  }
 
   nb = 0;
   for (; i < deg; i++)
@@ -2472,6 +2477,7 @@ usp(GEN Q0, long deg, long flag, long bitprec)
   {
     GEN nc = gel(Lc, ind), Qremapped;
     pari_sp av2;
+    int root1;
     if (Lk[ind] == k + 1)
     {
       deg0 = deg;
@@ -2489,7 +2495,7 @@ usp(GEN Q0, long deg, long flag, long bitprec)
     nb_todo--;
 
     if (equalii(gel(Q, 2), gen_0))
-    {
+    { /* Q(0) = 0 */
       GEN s = gmul2n(c, -k);
       long j;
       for (j = 1; j <= nbr; j++)
@@ -2502,7 +2508,8 @@ usp(GEN Q0, long deg, long flag, long bitprec)
     }
 
     av2 = avma;
-    nb = X2XP1(Q, deg0, flag == 1 ? &Qremapped : NULL);
+    nb = X2XP1(Q, deg0, &root1, flag == 1 ? &Qremapped : NULL);
+
     if      (nb == 0) /* no root in this open interval */;
     else if (nb == 1) /* exactly one root */
     {
@@ -2547,6 +2554,14 @@ usp(GEN Q0, long deg, long flag, long bitprec)
       indf += 2;
       nb_todo += 2;
     }
+    if (root1)
+    { /* Q(1) = 0 */
+      GEN s = gmul2n(addiu(c,1), -k);
+      long j;
+      for (j = 1; j <= nbr; j++)
+        if (gequal(gel(sol, j), s)) break;
+      if (j > nbr) gel(sol, ++nbr) = s;
+    }
 
     if (gc_needed(av, 2))
     {
@@ -2568,6 +2583,16 @@ ZX_Uspensky_cst_pol(long nbz, long flag, long bitprec)
     case 1:  retconst_col(nbz, real_0_bit(bitprec));
     default: return utoi(nbz);
   }
+}
+
+/* ZX_Uspensky(P, [a,a], flag) */
+static GEN
+ZX_Uspensky_equal(GEN P, GEN a, long flag)
+{
+  if (typ(a) != t_INFINITY && gequal0(poleval(P, a)))
+    return flag <= 1 ? mkcol(a): gen_1;
+  else
+    return flag <= 1 ? cgetg(1, t_COL) : gen_0;
 }
 
 GEN
@@ -2602,11 +2627,7 @@ ZX_Uspensky(GEN P, GEN ab, long flag, long bitprec)
   switch (gcmp(a, b))
   {
     case 1: avma = av; return flag <= 1 ? cgetg(1, t_COL) : gen_0;
-    case 0:
-      if (typ(a) != t_INFINITY && gequal0(poleval(P, a)))
-      { avma = av; return flag <= 1 ? mkcolcopy(a): gen_1; }
-      else
-      { avma = av; return flag <= 1 ? cgetg(1, t_COL) : gen_0; }
+    case 0: return gerepilecopy(av, ZX_Uspensky_equal(P, a, flag));
   }
   nbz = ZX_valrem(P, &Pcur);
   deg -= nbz;
@@ -2640,26 +2661,22 @@ ZX_Uspensky(GEN P, GEN ab, long flag, long bitprec)
   if (typ(a) == t_INFINITY && typ(b) != t_INFINITY && gsigne(b))
   {
     fb = fujiwara_bound_real(Pcur, -1);
-    if (fb > -pariINFINITY)
-      a = negi(int2n((long)ceil(fb)));
-    else
-      a = gen_0;
+    if (fb > -pariINFINITY) a = negi(int2n((long)ceil(fb))); else a = gen_0;
   }
   if (typ(b) == t_INFINITY && typ(a) != t_INFINITY && gsigne(a))
   {
     fb = fujiwara_bound_real(Pcur, 1);
-    if (fb > -pariINFINITY)
-      b = int2n((long)ceil(fb));
-    else
-      b = gen_0;
+    if (fb > -pariINFINITY) b = int2n((long)ceil(fb)); else b = gen_0;
   }
 
   if (typ(a) != t_INFINITY && typ(b) != t_INFINITY)
   {
+    GEN den, diff, unscaledres, co, Pdiv, ascaled;
     pari_sp av1;
-    GEN den = lcmii(denom(a), denom(b)), diff, unscaledres, co, Pdiv;
-    GEN ascaled;
     long i;
+    if (gequal(a,b)) /* can occur if one of a,b was initially a t_INFINITY */
+      return gerepilecopy(av, ZX_Uspensky_equal(P, a, flag));
+    den = lcmii(Q_denom(a), Q_denom(b));
     if (!is_pm1(den))
     {
       Pcur = ZX_rescale(Pcur, den);
@@ -2721,18 +2738,17 @@ ZX_Uspensky(GEN P, GEN ab, long flag, long bitprec)
     Pcurp = ZX_unscale2n(Pcur, bp);
     unscaledres = usp(Pcurp, deg, flag, bitprec);
     if (flag <= 1)
-      sol = gconcat(sol, gmul2n(unscaledres, bp));
+      sol = shallowconcat(sol, gmul2n(unscaledres, bp));
     else
-      nbz += lg(unscaledres) - 1;
+      nbz += lg(unscaledres)-1;
   }
   if (typ(a) == t_INFINITY && (fb=fujiwara_bound_real(Pcur,-1)) > -pariINFINITY)
   {
     GEN Pcurm, unscaledres;
     long i, bm = (long)ceil(fb);
     if (bm < 0) bm = 0;
-    Pcurm = ZX_unscale(Pcur, gen_m1);
-    Pcurm = ZX_unscale2n(Pcurm, bm);
-    unscaledres = usp(Pcurm,deg,flag,bitprec);
+    Pcurm = ZX_unscale2n(ZX_unscale(Pcur, gen_m1), bm);
+    unscaledres = usp(Pcurm, deg, flag, bitprec);
     if (flag <= 1)
     {
       for (i = 1; i < lg(unscaledres); i++)
@@ -2741,10 +2757,10 @@ ZX_Uspensky(GEN P, GEN ab, long flag, long bitprec)
         if (typ(z) == t_VEC) swap(gel(z, 1), gel(z, 2));
         gel(unscaledres, i) = z;
       }
-      sol = gconcat(unscaledres, sol);
+      sol = shallowconcat(unscaledres, sol);
     }
     else
-      nbz += lg(unscaledres) - 1;
+      nbz += lg(unscaledres)-1;
   }
   if (flag >= 2) return utoi(nbz);
   if (flag)

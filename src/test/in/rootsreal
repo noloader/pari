@@ -44,5 +44,19 @@ polrootsreal(4*x)
 polsturm(-4*x)
 polsturm((x^4-2)^2)
 
+\\#1807
+T=x^3+x^2-x+2;
+polrootsreal(T)
+polsturm(T)
+polsturm(T,[-3,-1])
+polsturm(T,[-2,-1])
+polsturm(T,[-oo,-2])
+polsturm(T,[-2,oo])
+T=4*x^3-2*x^2-x-1;
+polsturm(T,[0,oo])
+polsturm(T,[0,1])
+polsturm(T,[0,2])
+polsturm(T,[1,3])
+
 default(realprecision,19);
 #polroots((x+1)^2 * (x-1)^7 * (x^2-x+1)^5 * 1.0)

@@ -211,6 +211,8 @@ BA150- elltatepairing could return wrong results [#1784]
        gamma(1000+x+O(x^100))
   156- ispower(Mod(x,x^2+1),2) -> SEGV [#1805]
   157- a=Mod(y,y^2+1); Mod(a, x^2-2) == a returned 0 [#1806]
+  158- T=x^3+x^2-x+2; polsturm(T,[-oo,-2]) => SEGV
+  159- T=x^3+x^2-x+2; polsturm(T) => 0 (instead of 1) [#1807]
 
   Added
     1- add optional argument to sumdigits to specify the base

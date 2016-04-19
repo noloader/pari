@@ -61,5 +61,15 @@
   ***   at top-level: polsturm((x^4-2)^2)
   ***                 ^-------------------
   *** polsturm: domain error in polsturm: issquarefree(pol) = 0
+[-2.0000000000000000000000000000000000000]~
+1
+1
+1
+1
+1
+1
+1
+1
+1
 19
-Total time spent: 89
+Total time spent: 76
