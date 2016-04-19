@@ -1975,3 +1975,20 @@ F2xqX_rem(GEN x, GEN S, GEN T)
   if (d < 0) return F2xqX_red(x, T);
   return F2xqX_divrem(x,y, T, ONLY_REM);
 }
+
+GEN
+F2xqX_gcd(GEN a, GEN b, GEN T)
+{
+  pari_sp av = avma, av0=avma;
+  while (signe(b))
+  {
+    GEN c;
+    if (gc_needed(av0,2))
+    {
+      if (DEBUGMEM>1) pari_warn(warnmem,"F2xqX_gcd (d = %ld)",degpol(b));
+      gerepileall(av0,2, &a,&b);
+    }
+    av = avma; c = F2xqX_rem(a, b, T); a=b; b=c;
+  }
+  avma = av; return a;
+}
