@@ -2497,10 +2497,9 @@ subgroupcond(GEN bnr, GEN indexbound)
   if (indexbound && typ(indexbound) != t_VEC)
   { /* sort by increasing index if not single value */
     long i, l = lg(li);
-    GEN p1, perm, lidet = cgetg(l,t_VEC);
-    for (i=1; i<l; i++) gel(lidet,i) = ZM_det_triangular(gel(li,i));
-    perm = indexsort(lidet); p1 = li; li = cgetg(l,t_VEC);
-    for (i=1; i<l; i++) li[i] = p1[perm[l-i]];
+    GEN D = cgetg(l,t_VEC);
+    for (i=1; i<l; i++) gel(D,i) = ZM_det_triangular(gel(li,i));
+    li = vecreverse( vecpermute(li, indexsort(D)) );
   }
   return gerepilecopy(av,li);
 }
