@@ -36,6 +36,10 @@ polsturm(U)
 polsturm(U,[-oo,1])
 polsturm(U,[-1,+oo])
 
+polrootsreal(x,[1,2])
+polrootsreal(x,[-2,-1])
+polrootsreal(x,[-1,1])
+
 polrootsreal(x^3-2)
 polrootsreal(x^3+2)
 \\#1605

@@ -2816,22 +2816,17 @@ realroots(GEN P, GEN ab, long prec)
   }
   P = Q_primpart(P);
   if (!RgX_is_ZX(P)) pari_err_TYPE("realroots",P);
+  if (ZX_valrem(P,&P) && (!ab || (gsigne(gel(ab,1)) <= 0
+      && gsigne(gel(ab,2)) >= 0))) sol = mkcol(real_0(prec));
   fa = ZX_squff(P, &ex);
   for (i = 1; i < lg(fa); i++)
   {
     GEN Pi = gel(fa, i), soli, soli2 = NULL;
-    long n, nrri = 0, h, nbz;
+    long n, nrri = 0, h;
     if (ab)
       h = 1;
     else
       Pi = RgX_deflate_max(Pi, &h);
-    if (!signe(gel(Pi, 2)))
-    {
-      Pi = RgX_shift_shallow(Pi, -1);
-      nbz = 1;
-    }
-    else
-      nbz = 0;
     soli = ZX_Uspensky(Pi, h%2 ? ab: gen_0, 1, prec2nbits(prec));
     n = lg(soli);
     if (!(h % 2)) soli2 = cgetg(n, t_COL);
@@ -2861,18 +2856,17 @@ realroots(GEN P, GEN ab, long prec)
       }
     }
     if (!(h % 2)) soli = shallowconcat(soli, soli2);
-    if (nbz) soli = shallowconcat(soli, real_0(prec));
     for (k = 1; k <= ex[i]; k++)
       sol = sol ? shallowconcat(sol, soli) : soli;
     nrr += ex[i]*nrri;
   }
+  if (!sol) { avma = av; return cgetg(1,t_COL); }
 
   if (DEBUGLEVEL > 4)
   {
     err_printf("Number of real roots: %d\n", lg(sol)-1);
     err_printf(" -- of which 2-integral: %ld\n", nrr);
   }
-
   return gerepileupto(av, sort(sol));
 }
 
