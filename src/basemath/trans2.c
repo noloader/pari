@@ -1730,7 +1730,7 @@ cxpsi(GEN s0, long prec)
   avma = av; return affc_fixlg(z, res);
 }
 
-/* psi(1+x) + O(x^n), x = pol_x(v) */
+/* n > 0; return psi(1+x) + O(x^n), x = pol_x(v) */
 static GEN
 serpsi1(long n, long v, long prec)
 {
@@ -1869,13 +1869,17 @@ serpsi(GEN y, long prec)
                     psi(1+x) - sum_{0 <= i < -m} 1/(i+x) for m <= 0 */
       GEN H = NULL;
       if (m <= 0) L--; /* lose series accuracy due to 1/x term */
-      Q = serpsi1(L, v, prec);
-      if (m && m != 1)
+      if (L)
       {
-        H = Hseries(m, L, v, prec);
-        Q = gadd(Q, H);
+        Q = serpsi1(L, v, prec);
+        if (m && m != 1) { H = Hseries(m, L, v, prec); Q = gadd(Q, H); }
+        if (m <= 0) Q = gsub(Q, ginv(pol_x(v)));
       }
-      if (m <= 0) Q = gsub(Q, ginv(pol_x(v)));
+      else
+      {
+        Q = scalarser(gen_m1, v, 1);
+        setvalp(Q,-1);
+      }
     }
   }
   if (!Q)
