@@ -2271,7 +2271,8 @@ static long
 split_polynoms(GEN P, long deg, long s0, GEN *Pp, GEN *Pm, GEN *Pprimep, GEN *Pprimem)
 {
   long i, degneg, v = evalvarn(varn(P));
-  for(i=1; i <= deg; i++) if (signe(gel(P, i+2)) != s0) break;
+  for(i=1; i <= deg; i++)
+    if (signe(gel(P, i+2)) == -s0) break;
   degneg = i;
   *Pm = cgetg(degneg + 2, t_POL);
   (*Pm)[1] = v;
@@ -2322,8 +2323,8 @@ splitpoleval(GEN Pp, GEN Pm, GEN pows, long deg, long degneg, long bitprec)
   return r;
 }
 
-/* Newton for polynom P. One solution between 0 and infinity, P' has also at
- * most one zero. P is almost certainly without zero coefficients. */
+/* Newton for polynom P, P(0)!=0, with unique sign change => one root in ]0,oo[
+ * P' has also at most one zero there */
 static GEN
 polsolve(GEN P, long bitprec)
 {
@@ -2336,11 +2337,9 @@ polsolve(GEN P, long bitprec)
   long bitaddprec, addprec;
   long expoold = LONG_MAX, iter;
   if (deg == 1)
-  {
-    ra = negr(divrr(itor(gel(P, 2), bitprec), itor(gel(P, 3), bitprec)));
-    return gerepileuptoleaf(av, ra);
-  }
-  Pprime = ZX_deriv(P); Pprime2 = ZX_deriv(Pprime);
+    return gerepileuptoleaf(av, rdivii(negi(gel(P,2)), gel(P,3), prec));
+  Pprime = ZX_deriv(P);
+  Pprime2 = ZX_deriv(Pprime);
   bitaddprec = 1 + 2*expu(deg); addprec = nbits2prec(bitaddprec);
   s0 = signe(gel(P, 2));
   degneg = split_polynoms(P, deg, s0, &Pp, &Pm, &Pprimep, &Pprimem);

@@ -62,5 +62,8 @@ polsturm(T,[0,1])
 polsturm(T,[0,2])
 polsturm(T,[1,3])
 
+\\#1808
+polrootsreal(3*x^3-4*x^2+3*x-1)
+
 default(realprecision,19);
 #polroots((x+1)^2 * (x-1)^7 * (x^2-x+1)^5 * 1.0)
