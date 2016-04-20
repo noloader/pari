@@ -1549,6 +1549,7 @@ ggamma(GEN x, long prec)
     case t_PADIC: return Qp_gamma(x);
     default:
       av = avma; if (!(y = toser_i(x))) break;
+      if (lg(y) == 2) pari_err_DOMAIN("gamma", "argument", "=", gen_0,y);
       /* exp(lngamma) */
       if (valp(y) > 0 || lg(y) == 2)
         z = gdiv(gexp(glngamma(gaddgs(y,1),prec),prec),y);
@@ -1626,6 +1627,7 @@ glngamma(GEN x, long prec)
 
     default:
       if (!(y = toser_i(x))) break;
+      if (lg(y) == 2) pari_err_DOMAIN("lngamma", "argument", "=", gen_0,y);
       t = serlngamma0(y,prec);
       y0 = simplify_shallow(gel(y,2));
       /* no constant term if y0 = 1 or 2 */
