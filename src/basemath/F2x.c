@@ -1877,7 +1877,7 @@ F2xqX_F2xq_mul_to_monic(GEN P, GEN U, GEN T)
   GEN res = cgetg(lP,t_POL);
   res[1] = P[1];
   for(i=2; i<lP-1; i++) gel(res,i) = F2xq_mul(U,gel(P,i), T);
-  gel(res,lP-1) = pol1_F2x(get_F2x_var(T));
+  gel(res,lP-1) = pol1_F2x(T[1]);
   return F2xX_renormalize(res, lP);
 }
 
@@ -2022,3 +2022,20 @@ F2xqX_gcd(GEN a, GEN b, GEN T)
   }
   avma = av; return a;
 }
+
+/***********************************************************************/
+/**                                                                   **/
+/**                             F2xqXQ                                **/
+/**                                                                   **/
+/***********************************************************************/
+
+GEN
+F2xqXQ_mul(GEN x, GEN y, GEN S, GEN T) {
+  return F2xqX_rem(F2xqX_mul(x,y,T),S,T);
+}
+
+GEN
+F2xqXQ_sqr(GEN x, GEN S, GEN T) {
+  return F2xqX_rem(F2xqX_sqr(x,T),S,T);
+}
+

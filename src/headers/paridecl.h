@@ -153,6 +153,8 @@ GEN     F2xqX_normalize(GEN z, GEN T);
 GEN     F2xqX_red(GEN z, GEN T);
 GEN     F2xqX_rem(GEN x, GEN S, GEN T);
 GEN     F2xqX_sqr(GEN x, GEN T);
+GEN     F2xqXQ_mul(GEN x, GEN y, GEN S, GEN T);
+GEN     F2xqXQ_sqr(GEN x, GEN S, GEN T);
 GEN     Flm_to_F2m(GEN x);
 GEN     Flv_to_F2v(GEN x);
 GEN     Flx_to_F2x(GEN x);
