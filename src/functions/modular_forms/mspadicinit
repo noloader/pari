@@ -2,12 +2,13 @@ Function: mspadicinit
 Section: modular_forms
 C-Name: mspadicinit
 Prototype: GLLD0,L,
-Help: mspadicinit(M, p, n, {flag = 0}): given a msinit M, initialize
+Help: mspadicinit(M, p, n, {flag = 0}): M being a full modular symbol space,
+ as given by msinit and a prime p, initialize
  technical data needed to compute with overconvergent modular symbols
  (modulo p^n). If flag is 1, initialize only for ordinary symbols,
  such that Tp(s) = ap * s, with (ap,p) = 1.
-Doc: given a msinit $M$, initialize
- technical data needed to compute with overconvergent modular symbols,
+Doc: $M$ being a full modular symbol space, as given by \kbd{msinit}, and $p$ a prime,
+ initialize technical data needed to compute with overconvergent modular symbols,
  modulo $p^n$. If $\fl = 1$, initialize only for ordinary symbols,
  such that $T_p(s) = a_p s$, with $(a_p,p) = 1$, which is faster.
  When $\fl = 0$, we also allow supersingular eigensymbols such that

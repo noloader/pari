@@ -2,5 +2,6 @@ Function: msgetlevel
 Section: modular_forms
 C-Name: msgetlevel
 Prototype: lG
-Help: msgetlevel(M): given a msinit M, return its level N.
-Doc: given a msinit $M$, return its level $N$.
+Help: msgetlevel(M): M being a full modular symbol space, as given by msinit, return its level N.
+Doc: $M$ being a full modular symbol space, as given by \kbd{msinit}, return
+ its level $N$.

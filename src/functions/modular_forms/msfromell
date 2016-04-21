@@ -12,12 +12,12 @@ Doc: Let $E/\Q$ be an elliptic curve of conductor $N$. For $\varepsilon =
 
  Let $\Omega^+ = \kbd{E.omega[1]}$ be the real period of $E$
  (integration of the N\'eron differential $dx/(2y+a_1x+a3)$ on the connected
- component of $E(\R)$, i.e.~ the generator of $H_1(E,\Z)^+$ normalized by
- $\Omega^+>0$. Finally, let $i\Omega^-$ the generator of $H_1(E,\Z)^-$ with
+ component of $E(\R)$, i.e.~the generator of $H_1(E,\Z)^+$) normalized by
+ $\Omega^+>0$. Let $i\Omega^-$ the integral on a generator of $H_1(E,\Z)^-$ with
  $\Omega^- \in \R_{>0}$. If $c_\infty$ is the number of connected
  components of $E(\R)$, $\Omega^-$ is equal to
  $(-2/c_\infty) \times \kbd{imag(E.omega[2])}$.
- The complex modular symbol is then defined by
+ The complex modular symbol is defined by
  $$F: \delta \to  2i\pi \int_{\delta} f(z) dz$$
  The modular symbols $x^\varepsilon$ are normalized so that
  $ F = x^+ \Omega^+ + x^- i\Omega^-$.

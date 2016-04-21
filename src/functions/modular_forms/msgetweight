@@ -2,8 +2,9 @@ Function: msgetweight
 Section: modular_forms
 C-Name: msgetweight
 Prototype: lG
-Help: msgetweight(M): given a msinit M, return its weight k.
-Doc: given a msinit $M$, return its weight $k$.
+Help: msgetweight(M): M being a full modular symbol space, as given by msinit, return its weight k.
+Doc: $M$ being a full modular symbol space, as given by \kbd{msinit}, return
+ its weight $k$.
  \bprog
  ? M = msinit(11,4);
  ? msgetweight(M)

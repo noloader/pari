@@ -2,8 +2,9 @@ Function: msgetsign
 Section: modular_forms
 C-Name: msgetsign
 Prototype: lG
-Help: msgetsign(M): given a msinit M, return its sign.
-Doc: given a msinit $M$, return its sign: $\pm1$ or 0 (unset).
+Help: msgetsign(M): M being a full modular symbol space, as given by msinit, return its sign.
+Doc: $M$ being a full modular symbol space, as given by \kbd{msinit}, return
+ its sign: $\pm1$ or 0 (unset).
  \bprog
  ? M = msinit(11,4, 1);
  ? msgetsign(M)
