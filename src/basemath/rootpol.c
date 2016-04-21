@@ -2265,40 +2265,40 @@ static struct bb_algebra mp_algebra = { _gen_nored,_mp_add,_mp_mul,_mp_sqr,_gen_
 static GEN
 _mp_cmul(void *E, GEN P, long a, GEN x) {(void)E; return mpmul(gel(P,a+2), x);}
 
-/* Split the polynom P in two parts, each with unique sign.
- * Moreover compute the two parts of the derivative of P. */
+/* Split the polynom P in two parts, whose coeffs have constant sign:
+ * P(X) = X^D*Pp + Pm. Also compute the two parts of the derivative of P,
+ * Pprimem = Pm', Pprimep = X*Pp'+ D*Pp => P' = X^(D-1)*Pprimep + Pprimem;
+ * Pprimep[i] = (i+D) Pp[i]. Return D */
 static long
-split_polynoms(GEN P, long deg, long s0, GEN *Pp, GEN *Pm, GEN *Pprimep, GEN *Pprimem)
+split_pols(GEN P, GEN *pPp, GEN *pPm, GEN *pPprimep, GEN *pPprimem)
 {
-  long i, degneg, v = evalvarn(varn(P));
-  for(i=1; i <= deg; i++)
+  long i, D, dP = degpol(P), s0 = signe(gel(P,2));
+  GEN Pp, Pm, Pprimep, Pprimem;
+  for(i=1; i <= dP; i++)
     if (signe(gel(P, i+2)) == -s0) break;
-  degneg = i;
-  *Pm = cgetg(degneg + 2, t_POL);
-  (*Pm)[1] = v;
-  *Pprimem = cgetg(degneg + 1, t_POL);
-  (*Pprimem)[1] = v;
-  for(i=0; i < degneg; i++)
+  D = i;
+  Pm = cgetg(D + 2, t_POL);
+  Pprimem = cgetg(D + 1, t_POL);
+  Pp = cgetg(dP-D + 3, t_POL);
+  Pprimep = cgetg(dP-D + 3, t_POL);
+  Pm[1] = Pp[1] = Pprimem[1] = Pprimep[1] = P[1];
+  for(i=0; i < D; i++)
   {
-    GEN elt = gel(P, i+2);
-    gel(*Pm, i+2) = elt;
-    if (i) gel(*Pprimem, i+1) = mului(i, elt);
+    GEN c = gel(P, i+2);
+    gel(Pm, i+2) = c;
+    if (i) gel(Pprimem, i+1) = mului(i, c);
   }
-  *Pp = cgetg(deg - degneg + 3, t_POL);
-  (*Pp)[1] = v;
-  *Pprimep = cgetg(deg - degneg + 3, t_POL);
-  (*Pprimep)[1] = v;
-  for(i=degneg; i <= deg; i++)
+  for(; i <= dP; i++)
   {
-    GEN elt = gel(P, i+2);
-    gel(*Pp, i+2-degneg) = elt;
-    gel(*Pprimep, i+2-degneg) = mului(i, elt);
+    GEN c = gel(P, i+2);
+    gel(Pp, i+2-D) = c;
+    gel(Pprimep, i+2-D) = mului(i, c);
   }
-  *Pm = normalizepol_lg(*Pm, degneg+2);
-  *Pprimem = normalizepol_lg(*Pprimem, degneg+1);
-  *Pp = normalizepol_lg(*Pp, deg-degneg+3);
-  *Pprimep = normalizepol_lg(*Pprimep, deg-degneg+3);
-  return degpol(*Pm) + 1;
+  *pPm = normalizepol_lg(Pm, D+2);
+  *pPprimem = normalizepol_lg(Pprimem, D+1);
+  *pPp = normalizepol_lg(Pp, dP-D+3);
+  *pPprimep = normalizepol_lg(Pprimep, dP-D+3);
+  return dP - degpol(*pPp);
 }
 
 static GEN
@@ -2310,17 +2310,29 @@ bkeval_single_power(long d, GEN V)
 }
 
 static GEN
-splitpoleval(GEN Pp, GEN Pm, GEN pows, long deg, long degneg, long bitprec)
+splitpoleval(GEN Pp, GEN Pm, GEN pows, long D, long bitprec)
 {
-  GEN vp = gen_bkeval_powers(Pp, deg-degneg, pows, NULL, &mp_algebra, _mp_cmul);
-  GEN vm = gen_bkeval_powers(Pm, degneg-1, pows, NULL, &mp_algebra, _mp_cmul);
-  GEN xa = bkeval_single_power(degneg, pows);
+  GEN vp = gen_bkeval_powers(Pp, degpol(Pp), pows, NULL, &mp_algebra, _mp_cmul);
+  GEN vm = gen_bkeval_powers(Pm, degpol(Pm), pows, NULL, &mp_algebra, _mp_cmul);
+  GEN xa = bkeval_single_power(D, pows);
   GEN r;
+  if (!signe(vp)) return vm;
   vp = gmul(vp, xa);
   r = gadd(vp, vm);
-  if (expo(vp) - (signe(r) ? expo(r) : 0) > prec2nbits(realprec(vp)) - bitprec)
+  if (gexpo(vp) - (signe(r)? gexpo(r): 0) > prec2nbits(realprec(vp)) - bitprec)
     return NULL;
   return r;
+}
+
+/* optimized Cauchy bound for P = X^D*Pp + Pm, D > deg(Pm) */
+static GEN
+splitcauchy(GEN Pp, GEN Pm, long prec)
+{
+  GEN S = gel(Pp,2), A = gel(Pm,2);
+  long i, lPm = lg(Pm), lPp = lg(Pp);
+  for (i=3; i < lPm; i++) { GEN c = gel(Pm,i); if (absi_cmp(A, c) < 0) A = c; }
+  for (i=3; i < lPp; i++) S = addii(S, gel(Pp, i));
+  return subsr(1, rdivii(A, S, prec)); /* 1 + |Pm|_oo / |Pp|_1 */
 }
 
 /* Newton for polynom P, P(0)!=0, with unique sign change => one root in ]0,oo[
@@ -2332,7 +2344,7 @@ polsolve(GEN P, long bitprec)
   GEN Pp, Pm, Pprimep, Pprimem, pows;
   GEN Pprime, Pprime2;
   GEN ra, rb, rc, rcold = NULL, Pc, Ppc;
-  long deg = degpol(P), degneg, rt;
+  long deg = degpol(P), D, rt;
   long s0, cprec = DEFAULTPREC, prec = nbits2prec(bitprec);
   long bitaddprec, addprec;
   long expoold = LONG_MAX, iter;
@@ -2341,36 +2353,21 @@ polsolve(GEN P, long bitprec)
   Pprime = ZX_deriv(P);
   Pprime2 = ZX_deriv(Pprime);
   bitaddprec = 1 + 2*expu(deg); addprec = nbits2prec(bitaddprec);
+  D = split_pols(P, &Pp, &Pm, &Pprimep, &Pprimem); /* P = X^D*Pp + Pm */
   s0 = signe(gel(P, 2));
-  degneg = split_polynoms(P, deg, s0, &Pp, &Pm, &Pprimep, &Pprimem);
-  rt = maxss(degneg, brent_kung_optpow(maxss(deg-degneg, degneg-1), 2, 1));
+  rt = maxss(D, brent_kung_optpow(maxss(degpol(Pp), degpol(Pm)), 2, 1));
+  rb = splitcauchy(Pp, Pm, DEFAULTPREC);
+  for(;;)
   {
-    /* Optimized Cauchy bound */
-    GEN summin = gen_0, absmaj;
-    long i;
-
-    absmaj = gel(P, 2);
-    for(i=1; i < degneg; i++)
-    {
-      GEN elt = gel(P, i+2);
-      if (absi_cmp(absmaj, elt) < 0) absmaj = elt;
-    }
-    summin = gel(P, i+2);
-    while (++i <= deg) summin = addii(summin, gel(P, i+2));
-    rb = subsr(1, rdivii(absmaj, summin, cprec));
-    do
-    {
-      pows = gen_powers(rb, rt, 1, NULL, _mp_sqr, _mp_mul, _gen_one);
-      Pc = splitpoleval(Pp, Pm, pows, deg, degneg, bitaddprec);
-      if (!Pc) { cprec++; rb = rtor(rb, cprec); continue; }
-      if (signe(Pc) != s0) break;
-      shiftr_inplace(rb,1);
-    }
-    while (1);
+    pows = gen_powers(rb, rt, 1, NULL, _mp_sqr, _mp_mul, _gen_one);
+    Pc = splitpoleval(Pp, Pm, pows, D, bitaddprec);
+    if (!Pc) { cprec++; rb = rtor(rb, cprec); continue; }
+    if (signe(Pc) != s0) break;
+    shiftr_inplace(rb,1);
   }
   ra = NULL;
   iter = 0;
-  while (1)
+  for(;;)
   {
     GEN wdth;
     iter++;
@@ -2381,7 +2378,7 @@ polsolve(GEN P, long bitprec)
     do
     {
       pows = gen_powers(rc, rt, 1, NULL, _mp_sqr, _mp_mul, _gen_one);
-      Pc = splitpoleval(Pp, Pm, pows, deg, degneg, bitaddprec+2);
+      Pc = splitpoleval(Pp, Pm, pows, D, bitaddprec+2);
       if (Pc) break;
       cprec++; rc = rtor(rc, cprec);
     } while (1);
@@ -2404,16 +2401,16 @@ polsolve(GEN P, long bitprec)
   }
   rc = rb;
   iter = 0;
-  while (1)
+  for(;;)
   {
     long exponew;
     GEN dist;
     iter++;
     rcold = rc;
     pows = gen_powers(rc, rt, 1, NULL, _mp_sqr, _mp_mul, _gen_one);
-    Ppc = splitpoleval(Pprimep, Pprimem, pows, deg-1, degneg-1, bitaddprec+4);
+    Ppc = splitpoleval(Pprimep, Pprimem, pows, D-1, bitaddprec+4);
     if (Ppc)
-      Pc = splitpoleval(Pp, Pm, pows, deg, degneg, bitaddprec+4);
+      Pc = splitpoleval(Pp, Pm, pows, D, bitaddprec+4);
     if (!Ppc || !Pc)
     {
       if (cprec >= prec+addprec)
@@ -2423,7 +2420,7 @@ polsolve(GEN P, long bitprec)
       rc = rtor(rc, cprec); /* Backtrack one step */
       continue;
     }
-    dist = divrr(Pc, Ppc);
+    dist = typ(Ppc) == t_REAL? divrr(Pc, Ppc): divri(Pc, Ppc);
     rc = subrr(rc, dist);
     if (cmprr(ra, rc) > 0 || cmprr(rb, rc) < 0)
     {
@@ -2438,16 +2435,14 @@ polsolve(GEN P, long bitprec)
     {
       if (cprec >= prec+addprec) break;
       cprec = minss(2*cprec, prec+addprec);
-      rc = rtor(rc, cprec);
-      continue;
+      rc = rtor(rc, cprec); continue;
     }
     if (exponew > expoold - 2)
     {
       if (cprec >= prec+addprec) break;
       cprec = minss(2*cprec, prec+addprec);
       rc = rtor(rc, cprec);
-      expoold = LONG_MAX;
-      continue;
+      expoold = LONG_MAX; continue;
     }
     expoold = exponew;
   }
