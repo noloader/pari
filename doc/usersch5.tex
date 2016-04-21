@@ -2228,7 +2228,10 @@ to $1$.
 Assumes that $\kbd{prec} > 2$.
 
 \fun{long}{itos}{GEN x} converts the \typ{INT}~\kbd{x} to a \kbd{long} if
-possible, otherwise raise an exception.
+possible, otherwise raise an exception. We consider the conversion
+to be possible if and only if $|x| \leq \kbd{LONG\_MAX}$, i.e. $|x| < 2^{63}$
+on a 64-bit architecture. Since the range is symetric, the output of
+\kbd{itos} can safely be negated.
 
 \fun{long}{itos_or_0}{GEN x} converts the \typ{INT}~\kbd{x} to a \kbd{long} if
 possible, otherwise return $0$.
