@@ -4958,13 +4958,13 @@ _FlxqXQ_sqr(void *data, GEN x) {
 static GEN
 _FlxqXQ_one(void *data) {
   struct _FlxqXQ *d = (struct _FlxqXQ*) data;
-  return pol1_FlxX(varn(d->S),d->T[1]);
+  return pol1_FlxX(get_FlxqX_var(d->S),get_Flx_var(d->T));
 }
 
 static GEN
 _FlxqXQ_zero(void *data) {
   struct _FlxqXQ *d = (struct _FlxqXQ*) data;
-  return pol_0(varn(d->S));
+  return pol_0(get_FlxqX_var(d->S));
 }
 
 static struct bb_algebra FlxqXQ_algebra = { _FlxqXQ_red,_FlxqXQ_add,_FlxqXQ_mul,_FlxqXQ_sqr,_FlxqXQ_one,_FlxqXQ_zero };
