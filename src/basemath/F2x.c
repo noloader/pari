@@ -1788,7 +1788,6 @@ F2xX_to_Kronecker(GEN P, long d)
 static GEN
 F2x_slice(GEN x, long n, long d)
 {
-  long  i;
   ulong ib, il=dvmduBIL(n, &ib);
   ulong db, dl=dvmduBIL(d, &db);
   long lN = dl+2+(db?1:0);
@@ -1796,7 +1795,7 @@ F2x_slice(GEN x, long n, long d)
   t[1] = x[1];
   if (ib)
   {
-    ulong ic=BITS_IN_LONG-ib;
+    ulong i, ic = BITS_IN_LONG-ib;
     ulong r = uel(x,2+il)>>ib;
     for(i=0; i<dl; i++)
     {
@@ -1807,8 +1806,11 @@ F2x_slice(GEN x, long n, long d)
       uel(t,2+i) = (uel(x,3+il+i)<<ic)|r;
   }
   else
+  {
+    long i;
     for(i=2; i<lN; i++)
       uel(t,i) = uel(x,il+i);
+  }
   if (db) uel(t,lN-1) &= (1UL<<db)-1;
   return F2x_renormalize(t, lN);
 }
