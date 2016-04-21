@@ -3393,10 +3393,10 @@ msomseval(GEN W, GEN phi, GEN path)
   v = omseval_int(W, phi, mspathlog(Wp,path), powuu(p, n+vden));
   return gerepileupto(av, gmul(alpha,v));
 }
-/* W = msinit(N,k,...); if flag = 0, commit to ordinary symbols,
- * else allow supersingular with v_p(a_p) >= flag */
-static GEN
-mspadicinit_i(GEN W, long p, long n, long flag)
+/* W = msinit(N,k,...); if flag < 0 or flag >= k-1, allow all symbols;
+ * else commit to v_p(a_p) <= flag (ordinary if flag = 0)*/
+GEN
+mspadicinit(GEN W, long p, long n, long flag)
 {
   pari_sp av = avma;
   long a, N, k;
@@ -3411,6 +3411,7 @@ mspadicinit_i(GEN W, long p, long n, long flag)
   {
     Wp = W;
     M = gen_0;
+    flag = 0; /* restrict to ordinary symbols */
   }
   else
   { /* p-stabilize */
@@ -3429,6 +3430,7 @@ mspadicinit_i(GEN W, long p, long n, long flag)
     M = mkvec2(M1,M2);
     n += Z_lval(Q_denom(M), p); /*den. introduced by p-stabilization*/
   }
+  if (flag < 0 || flag >= k) flag = k-1;
   /* in supersingular case: will multiply by matrix with denominator p^k
    * in mspadicint*/
   if (flag) n += k;
@@ -3486,10 +3488,6 @@ omsactgl2(GEN W, GEN phi, GEN M)
   act = init_moments_act(Wp, p, n, q, M);
   return dual_act(k-1, gel(act,1), phi);
 }
-/* flag = 0: no assumption, flag = 1: ordinary */
-GEN
-mspadicinit(GEN W, long p, long n, long flag)
-{ return mspadicinit_i(W,p,n, flag? 0: 1); }
 
 static GEN
 eigenvalue(GEN T, GEN x)
@@ -3909,7 +3907,7 @@ ellpadicL(GEN E, GEN pp, long n, GEN s, long r, GEN DD)
   if (!den) den = gen_1;
   n += Z_lval(den, p);
 
-  Wp = mspadicinit_i(W, p, n, umodiu(ellap(E,pp),p)? 0: 1);
+  Wp = mspadicinit(W, p, n, umodiu(ellap(E,pp),p)? 0: 1);
   oms = mspadicmoments(Wp, xpm, D);
   L = mspadicL(oms, s, r);
   if (lg(L) == 2) L = gel(L,1);

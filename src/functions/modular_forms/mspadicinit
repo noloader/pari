@@ -1,23 +1,26 @@
 Function: mspadicinit
 Section: modular_forms
 C-Name: mspadicinit
-Prototype: GLLD0,L,
-Help: mspadicinit(M, p, n, {flag = 0}): M being a full modular symbol space,
+Prototype: GLLD-1,L,
+Help: mspadicinit(M, p, n, {flag}): M being a full modular symbol space,
  as given by msinit and a prime p, initialize
  technical data needed to compute with overconvergent modular symbols
- (modulo p^n). If flag is 1, initialize only for ordinary symbols,
- such that Tp(s) = ap * s, with (ap,p) = 1.
-Doc: $M$ being a full modular symbol space, as given by \kbd{msinit}, and $p$ a prime,
- initialize technical data needed to compute with overconvergent modular symbols,
- modulo $p^n$. If $\fl = 1$, initialize only for ordinary symbols,
- such that $T_p(s) = a_p s$, with $(a_p,p) = 1$, which is faster.
- When $\fl = 0$, we also allow supersingular eigensymbols such that
- $p\mid a_p$, provided $p$ does not divide the level.
+ (modulo p^n). If flag is unset or >= k-1, allow all symbols; else
+ initialize only for symbols s such that Tp(s) = ap * s, with v(ap,p) <= flag.
+Doc: $M$ being a full modular symbol space, as given by \kbd{msinit}, and $p$
+ a prime, initialize technical data needed to compute with overconvergent
+ modular symbols, modulo $p^n$. If $\fl$ is unset of $\fl \geq k-1$, allow
+ all symbols; else initialize only for symbols $s$ such that $T_p(s) = a_p s$,
+ with $v_p(a_p) \leq \fl$, which is faster. (The fastest initialization
+ is obtained for $\fl = 0$ where we only allow ordinary symbols.)
+ For supersingular eigensymbols, such that $p\mid a_p$, we must further
+ assume that $p$ does not divide the level.
+
  \bprog
  ? E = ellinit("11a1");
  ? [M,xpm] = msfromell(E,1);
  ? ellap(E,3)
  %3 = -1
- ? Mp = mspadicinit(M, 3, 10, 1); \\ commit to ordinary symbols
+ ? Mp = mspadicinit(M, 3, 10, 0); \\ commit to ordinary symbols
  ? XPM = mstooms(Mp,xpm);
  @eprog

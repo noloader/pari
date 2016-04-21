@@ -179,7 +179,7 @@ msseries(E11a1,3,5,1) \\ 1-teich component -> 0
 msseries(E11a1,3,5,2) \\ 2-teich component
 msseries(E15a1,11,7,7) \\ 2 real connected comp.
 msseries(E389a1,3,3) \\ 2 real connected comp.
-msseries(E11a1,11,5) \\ split -> trivial zero
+msseries(E11a1,11,7) \\ split -> trivial zero
 msseries(E43a1,3,4,0,-19) \\ twist
 msseries(E17a1,3,5) \\ supersingular
 
