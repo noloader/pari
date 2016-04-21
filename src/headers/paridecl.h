@@ -126,6 +126,8 @@ GEN     F2xX_deriv(GEN z);
 GEN     F2xX_renormalize(GEN /*in place*/ x, long lx);
 GEN     F2xX_to_Kronecker(GEN P, long d);
 GEN     F2xX_to_ZXX(GEN B);
+GEN     F2xY_F2xq_evalx(GEN P, GEN x, GEN T);
+GEN     F2xY_F2xqV_evalx(GEN P, GEN x, GEN T);
 GEN     F2xq_Artin_Schreier(GEN a, GEN T);
 GEN     F2xq_autpow(GEN x, long n, GEN T);
 GEN     F2xq_conjvec(GEN x, GEN T);

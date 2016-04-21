@@ -5387,9 +5387,9 @@ $pi$ is the pseudo inverse of $p$.
 of $P$ in $X$ and \kbd{yp} being the vector $[1,y,\dots,y^m]$, where $m$ is larger or equal to the degree of $P$ in $Y$ return $P(x,y)$, assuming
 $pi$ is the pseudo inverse of $p$.
 
-\fun{GEN}{FlxY_Flxq_evalx}{GEN x, GEN y, ulong p} as \kbd{FpXY\_FpXQ\_evalx}.
+\fun{GEN}{FlxY_Flxq_evalx}{GEN x, GEN y, GEN T, ulong p} as \kbd{FpXY\_FpXQ\_evalx}.
 
-\fun{GEN}{FlxY_FlxqV_evalx}{GEN x, GEN y, ulong p} as \kbd{FpXY\_FpXQV\_evalx}.
+\fun{GEN}{FlxY_FlxqV_evalx}{GEN x, GEN V, GEN T, ulong p} as \kbd{FpXY\_FpXQV\_evalx}.
 
 \fun{GEN}{FlxX_renormalize}{GEN x, long l}, as \kbd{normalizepol}, where
 $\kbd{l} = \kbd{lg(x)}$, in place.
@@ -5717,11 +5717,9 @@ the main variable.
 
 \fun{GEN}{F2xX_to_Kronecker}{GEN z, GEN T}
 
-\fun{GEN}{F2xqX_F2xqXQ_eval}{GEN Q, GEN x, GEN S, GEN T} as
-\kbd{FpX\_FpXQ\_eval}.
+\fun{GEN}{F2xY_F2xq_evalx}{GEN x, GEN y, GEN T} as \kbd{FpXY\_FpXQ\_evalx}.
 
-\fun{GEN}{F2xqX_F2xqXQV_eval}{GEN P, GEN V, GEN S, GEN T} as
-\kbd{FpX\_FpXQV\_eval}.
+\fun{GEN}{F2xY_F2xqV_evalx}{GEN x, GEN V, GEN T} as \kbd{FpXY\_FpXQV\_evalx}.
 
 \subsec{\kbd{F2xqX}}. See \kbd{FlxqX} operations.
 
@@ -5744,6 +5742,12 @@ the main variable.
 \fun{GEN}{F2xqX_divrem}{GEN x, GEN y, GEN T, GEN *pr}
 
 \fun{GEN}{F2xqX_gcd}{GEN x, GEN y, GEN T}
+
+\fun{GEN}{F2xqX_F2xqXQ_eval}{GEN Q, GEN x, GEN S, GEN T} as
+\kbd{FpX\_FpXQ\_eval}.
+
+\fun{GEN}{F2xqX_F2xqXQV_eval}{GEN P, GEN V, GEN S, GEN T} as
+\kbd{FpX\_FpXQV\_eval}.
 
 \subsec{\kbd{F2xqXQ}}. See \kbd{FlxqXQ} operations.
 

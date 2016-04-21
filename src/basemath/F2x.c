@@ -1782,6 +1782,26 @@ F2xX_F2x_mul(GEN P, GEN U)
 }
 
 GEN
+F2xY_F2xqV_evalx(GEN P, GEN x, GEN T)
+{
+  long i, lP = lg(P);
+  GEN res = cgetg(lP,t_POL);
+  res[1] = P[1];
+  for(i=2; i<lP; i++)
+    gel(res,i) = F2x_F2xqV_eval(gel(P,i), x, T);
+  return F2xX_renormalize(res, lP);
+}
+
+GEN
+F2xY_F2xq_evalx(GEN P, GEN x, GEN T)
+{
+  pari_sp av = avma;
+  long n = brent_kung_optpow(F2x_degree(T)-1,lgpol(P),1);
+  GEN xp = F2xq_powers(x, n, T);
+  return gerepileupto(av, F2xY_F2xqV_evalx(P, xp, T));
+}
+
+GEN
 F2xX_to_Kronecker(GEN P, long d)
 {
   long i, k, N = 2*d + 1;
