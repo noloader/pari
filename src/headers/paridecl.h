@@ -146,6 +146,8 @@ GEN     F2xq_sqrtn(GEN a, GEN n, GEN T, GEN *zeta);
 ulong   F2xq_trace(GEN x, GEN T);
 GEN     F2xqX_F2xq_mul(GEN P, GEN U, GEN T);
 GEN     F2xqX_F2xq_mul_to_monic(GEN P, GEN U, GEN T);
+GEN     F2xqX_F2xqXQ_eval(GEN Q, GEN x, GEN S, GEN T);
+GEN     F2xqX_F2xqXQV_eval(GEN P, GEN V, GEN S, GEN T);
 GEN     F2xqX_divrem(GEN x, GEN y, GEN T, GEN *pr);
 GEN     F2xqX_gcd(GEN a, GEN b, GEN T);
 GEN     F2xqX_mul(GEN x, GEN y, GEN T);

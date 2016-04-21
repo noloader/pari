@@ -2039,3 +2039,63 @@ F2xqXQ_sqr(GEN x, GEN S, GEN T) {
   return F2xqX_rem(F2xqX_sqr(x,T),S,T);
 }
 
+struct _F2xqXQ {
+  GEN T, S;
+};
+
+static GEN
+_F2xqXQ_add(void *data, GEN x, GEN y) {
+  (void) data;
+  return F2xX_add(x,y);
+}
+static GEN
+_F2xqXQ_cmul(void *data, GEN P, long a, GEN x) {
+  (void) data;
+  return F2xX_F2x_mul(x,gel(P,a+2));
+}
+static GEN
+_F2xqXQ_red(void *data, GEN x) {
+  struct _F2xqXQ *d = (struct _F2xqXQ*) data;
+  return F2xqX_red(x, d->T);
+}
+static GEN
+_F2xqXQ_mul(void *data, GEN x, GEN y) {
+  struct _F2xqXQ *d = (struct _F2xqXQ*) data;
+  return F2xqXQ_mul(x,y, d->S,d->T);
+}
+static GEN
+_F2xqXQ_sqr(void *data, GEN x) {
+  struct _F2xqXQ *d = (struct _F2xqXQ*) data;
+  return F2xqXQ_sqr(x, d->S,d->T);
+}
+static GEN
+_F2xqXQ_zero(void *data) {
+  struct _F2xqXQ *d = (struct _F2xqXQ*) data;
+  return pol_0(varn(d->S));
+}
+static GEN
+_F2xqXQ_one(void *data) {
+  struct _F2xqXQ *d = (struct _F2xqXQ*) data;
+  return pol1_F2xX(varn(d->S),d->T[1]);
+}
+
+static struct bb_algebra F2xqXQ_algebra = { _F2xqXQ_red,_F2xqXQ_add,_F2xqXQ_mul,_F2xqXQ_sqr,_F2xqXQ_one,_F2xqXQ_zero };
+
+GEN
+F2xqX_F2xqXQV_eval(GEN P, GEN V, GEN S, GEN T)
+{
+  struct _F2xqXQ D;
+  D.S = S; D.T = T;
+  return gen_bkeval_powers(P, degpol(P), V, (void*)&D, &F2xqXQ_algebra,
+                                                   _F2xqXQ_cmul);
+}
+
+GEN
+F2xqX_F2xqXQ_eval(GEN Q, GEN x, GEN S, GEN T)
+{
+  struct _F2xqXQ D;
+  int use_sqr = 2*degpol(x) >= degpol(S);
+  D.S = S; D.T = T;
+  return gen_bkeval(Q, degpol(Q), x, use_sqr, (void*)&D, &F2xqXQ_algebra,
+                                                    _F2xqXQ_cmul);
+}
