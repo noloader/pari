@@ -1560,8 +1560,7 @@ voo_act_Gl2Q(GEN g, long k)
 }
 
 struct m_act {
-  long dim, k;
-  long p;
+  long dim, k, p;
   GEN q;
 };
 
@@ -1606,8 +1605,8 @@ act_ZGl2Q(GEN z, struct m_act *T, GEN(*act)(struct m_act*,GEN))
     {
       M = act(T, g);
       if (is_pm1(n))
-      { if (signe(n) < 0) M = RgM_neg(M);
-      } else
+      { if (signe(n) < 0) M = RgM_neg(M); }
+      else
         M = RgM_Rg_mul(M, n);
     }
     S = j == 1? M: RgM_add(S, M);
@@ -2005,13 +2004,13 @@ init_dual_act_f(GEN f, GEN W1, GEN W2, struct m_act *S,
   {
     pari_sp av = avma;
     GEN ind, w = gel(section, gen[j]); /* path_to_zm( E1/T2/T3 element ) */
-    GEN l = M2_log(W1, Gl2Q_act_path(f,w)); /* lambda_{i,j} */
-    l = RgV_sparse(l, &ind); /* keep i's such that lambda_{i,j} != 0*/
-    l = ZGl2QC_star(l); /* lambda_{i,j}^* */
-    l = ZGC_G_mul(l, F); /* mu_{i,j} */
-    l = ZGl2QC_to_act(S, act, l);
+    GEN L = M2_log(W1, Gl2Q_act_path(f,w)); /* lambda_{i,j} */
+    L = RgV_sparse(L, &ind); /* keep i's such that lambda_{i,j} != 0*/
+    L = ZGl2QC_star(L); /* lambda_{i,j}^* */
+    L = ZGC_G_mul(L, F); /* mu_{i,j} */
+    L = ZGl2QC_to_act(S, act, L);
     /* non-0 entries as operators on V */
-    gel(T,j) = gerepilecopy(av, mkvec2(ind,l));
+    gel(T,j) = gerepilecopy(av, mkvec2(ind,L));
   }
   return T;
 }
@@ -2027,6 +2026,24 @@ init_dual_act(GEN v, GEN W1, GEN W2, struct m_act *S,
   return L;
 }
 
+static GEN
+dense_act(long dimV, GEN col, GEN phi)
+{
+  GEN s = NULL, colind = gel(col,1), colval = gel(col,2);
+  long i, l = lg(colind), lphi = lg(phi);
+  for (i = 1; i < l; i++)
+  {
+    long a = colind[i];
+    GEN t;
+    /* happens if k=2: torsion generator t omitted since phi(t) = 0 */
+    if (a >= lphi) break;
+    t = gel(phi, a); /* phi(G_a) */
+    t = RgM_RgC_mul(gel(colval,i), t);
+    s = s? RgC_add(s, t): t;
+  }
+  if (!s) s = zerocol(dimV);
+  return s;
+}
 /* phi in Hom_Gamma1(Delta, V), return the matrix whose colums are the
  *   \sum_i phi(g_i) | \mu_{i,j} = (phi|f)(G_j),
  * see init_dual_act. */
@@ -2057,23 +2074,7 @@ dual_act(long dimV, GEN mu, GEN phi)
   else
   { /* dense representation [pols], phi(G_i) = pols[i] */
     v = cgetg(l, t_VEC);
-    for (j = 1; j < l; j++)
-    {
-      GEN s = NULL, col = gel(mu,j), colind = gel(col,1), colval = gel(col,2);
-      long lcolind = lg(colind);
-      for (i = 1; i < lcolind; i++)
-      {
-        long a = colind[i];
-        GEN t;
-        /* happens if k=2: torsion generator t omitted since phi(t) = 0 */
-        if (a >= lphi) break;
-        t = gel(phi, a); /* phi(G_a) */
-        t = RgM_RgC_mul(gel(colval,i), t);
-        s = s? RgC_add(s, t): t;
-      }
-      if (!s) s = zerocol(dimV);
-      gel(v,j) = s;
-    }
+    for (j = 1; j < l; j++) gel(v,j) = dense_act(dimV, gel(mu,j), phi);
   }
   return v;
 }
@@ -3346,32 +3347,22 @@ RgXC_to_moments(GEN v, GEN bin)
   return w;
 }
 
-/* W an mspadic, assume O[2] is integral, den is the cancelled denominator or NULL */
+/* W an mspadic, assume O[2] is integral, den is the cancelled denominator
+ * or NULL, L = log(path) */
 static GEN
-omseval_int(GEN W, GEN PHI, GEN logpath, GEN pn)
+omseval_int(struct m_act *S, GEN PHI, GEN L)
 {
-  struct m_act S;
-  GEN v, act, L;
   long a, lphi;
+  GEN col, colind, colval, v = cgetg_copy(PHI, &lphi);
 
-  S.k = mspadic_get_weight(W);
-  S.p = mspadic_get_p(W);
-  S.q = pn;
-  S.dim = mspadic_get_n(W) + S.k - 1;
-
-  v = cgetg_copy(PHI, &lphi);
-  L = ZGl2QC_star(logpath); /* lambda_{i,j}^* */
-  act = ZGl2QC_to_act(&S, moments_act, L); /* as operators on V */
+  L = RgV_sparse(L,&colind);
+  L = ZGl2QC_star(L); /* lambda_{i,j}^* */
+  colval = ZGl2QC_to_act(S, moments_act, L); /* as operators on V */
+  col = mkvec2(colind,colval);
   for (a = 1; a < lphi; a++)
   {
-    GEN phi = gel(PHI,a), T = NULL;
-    long i;
-    for (i = 1; i < lg(phi); i ++)
-    {
-      GEN t = RgM_RgC_mul(gel(act,i), gel(phi,i));
-      T = T? gadd(T,t): t;
-    }
-    gel(v,a) = FpC_red(T,pn);
+    GEN T = dense_act(S->dim, col, gel(PHI,a));
+    gel(v,a) = FpC_red(T,S->q);
   }
   return v;
 }
@@ -3379,18 +3370,22 @@ omseval_int(GEN W, GEN PHI, GEN logpath, GEN pn)
 GEN
 msomseval(GEN W, GEN phi, GEN path)
 {
+  struct m_act S;
   pari_sp av = avma;
   GEN alpha, v, Wp;
-  long n, p, vden;
+  long n, vden;
   checkmspadic(W);
   if (typ(phi) != t_COL || lg(phi) != 4)  pari_err_TYPE("msomseval",phi);
   alpha = gel(phi,3);
   vden = itos(gel(phi,2));
   phi = gel(phi,1);
-  p = mspadic_get_p(W);
   n = mspadic_get_n(W);
   Wp= mspadic_get_Wp(W);
-  v = omseval_int(W, phi, mspathlog(Wp,path), powuu(p, n+vden));
+  S.k = mspadic_get_weight(W);
+  S.p = mspadic_get_p(W);
+  S.q = powuu(S.p, n+vden);
+  S.dim = n + S.k - 1;
+  v = omseval_int(&S, phi, mspathlog(Wp,path));
   return gerepileupto(av, gmul(alpha,v));
 }
 /* W = msinit(N,k,...); if flag < 0 or flag >= k-1, allow all symbols;
@@ -3634,6 +3629,11 @@ mspadicmoments(GEN W, GEN PHI, long D)
   pn = powuu(p, n + vden);
   gp = utoipos(p);
 
+  S.p = p;
+  S.k = k;
+  S.q = pn;
+  S.dim = n+k-1;
+
   Dact = NULL;
   Dk = NULL;
   if (D != 1)
@@ -3641,10 +3641,6 @@ mspadicmoments(GEN W, GEN PHI, long D)
     GEN gaD = utoi(aD);
     if (!sisfundamental(D)) pari_err_TYPE("mspadicmoments", stoi(D));
     if (D % p == 0) pari_err_DOMAIN("mspadicmoments", "p","|", stoi(D), gp);
-    S.p = p;
-    S.k = k;
-    S.q = pn;
-    S.dim = n+k-1;
     Dact = cgetg(aD, t_VEC);
     for (b = 1; b < aD; b++)
     {
@@ -3672,7 +3668,7 @@ mspadicmoments(GEN W, GEN PHI, long D)
         z = addii(muluu(a, aD), muluu(p, b));
         /* oo -> a/p + p/|D|*/
         path = mkmat22(gen_1,z, gen_0,muluu(p, aD));
-        T = omseval_int(W, phi, M2_log(Wp,path), pn);
+        T = omseval_int(&S, phi, M2_log(Wp,path));
         for (c = 1; c < lphi; c++)
         {
           z = FpM_FpC_mul(gel(Dact,b), gel(T,c), pn);
@@ -3686,7 +3682,7 @@ mspadicmoments(GEN W, GEN PHI, long D)
     else
     {
       path = mkmat22(gen_1,utoipos(a), gen_0,gp);
-      vca = omseval_int(W, phi, M2_log(Wp,path), pn);
+      vca = omseval_int(&S, phi, M2_log(Wp,path));
     }
     for (i = 1; i < lphi; i++)
       gmael(v,i,a) = FpVV_dotproduct(Ca, gel(vca,i), pn);
