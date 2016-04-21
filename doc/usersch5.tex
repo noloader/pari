@@ -2236,13 +2236,11 @@ on a 64-bit architecture. Since the range is symetric, the output of
 \fun{long}{itos_or_0}{GEN x} converts the \typ{INT}~\kbd{x} to a \kbd{long} if
 possible, otherwise return $0$.
 
-\fun{int}{is_bigint}{GEN n} true if \kbd{itos(n)} would succeed.
-
-\fun{int}{is_bigint_lg}{GEN n, long l} true if \kbd{itos(n)} would succeed.
-Assumes \kbd{lgefint(n)} is equal to \kbd{l}.
+\fun{int}{is_bigint}{GEN n} true if \kbd{itos(n)} would give an error.
 
 \fun{ulong}{itou}{GEN x} converts the \typ{INT}~\kbd{|x|} to an \kbd{ulong} if
-possible, otherwise raise an exception.
+possible, otherwise raise an exception. The conversion is possible if
+and only if $\kbd{lgefint}(x) \leq 3$.
 
 \fun{long}{itou_or_0}{GEN x} converts the \typ{INT}~\kbd{|x|} to an
 \kbd{ulong} if possible, otherwise return $0$.
