@@ -70,15 +70,6 @@ F2x_to_ZX(GEN x)
 }
 
 GEN
-F2xC_to_ZXC(GEN v)
-{
-  long j, N = lg(v);
-  GEN y = cgetg(N, t_COL);
-  for (j=1; j<N; j++) gel(y,j) = F2x_to_ZX(gel(v,j));
-  return y;
-}
-
-GEN
 F2x_to_Flx(GEN x)
 {
   long l=3+F2x_degree(x);
@@ -1686,6 +1677,24 @@ F2v_add_inplace(GEN x, GEN y)
 /**                                                                   **/
 /***********************************************************************/
 /* F2xV are t_VEC with F2x coefficients. */
+
+GEN
+FlxC_to_F2xC(GEN x)
+{
+  long i, l=lg(x);
+  GEN z = cgetg(l,t_COL);
+  for (i=1; i<l ; i++) gel(z,i) = Flx_to_F2x(gel(x,i));
+  return z;
+}
+
+GEN
+F2xC_to_ZXC(GEN v)
+{
+  long j, N = lg(v);
+  GEN y = cgetg(N, t_COL);
+  for (j=1; j<N; j++) gel(y,j) = F2x_to_ZX(gel(v,j));
+  return y;
+}
 
 GEN
 F2xV_to_F2m(GEN v, long n)

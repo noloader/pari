@@ -165,6 +165,7 @@ GEN     F2xqXQV_auttrace(GEN aut, long n, GEN S, GEN T);
 GEN     Flm_to_F2m(GEN x);
 GEN     Flv_to_F2v(GEN x);
 GEN     Flx_to_F2x(GEN x);
+GEN     FlxC_to_F2xC(GEN x);
 GEN     Kronecker_to_F2xqX(GEN z, GEN T);
 GEN     Rg_to_F2xq(GEN x, GEN T);
 GEN     RgM_to_F2m(GEN x);
