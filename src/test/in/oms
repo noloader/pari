@@ -1,5 +1,3 @@
-default(parisize,60M);
-
 W = msinit(50,4,1);
 phi = mssplit(W, msnew(W))[1][1][,1];
 Wp = mspadicinit(W, 3, 6, 0);
