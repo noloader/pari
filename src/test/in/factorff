@@ -16,6 +16,11 @@ factorff(Pol(0),t.p,t.mod)
 factorff(Pol(1),t.p,t.mod)
 factorff(x^4-t,t.p,t.mod)
 
+p = nextprime(2^96); a = ffgen(p^3,'a);
+P=(x-1)*(x-a)*(x-a^2)*(x-a-1)*subst(ffinit(p,2),x,x+a)*ffinit(p,4);
+polrootsff(P)
+factorff(P)
+
 check(P)=my(V=polrootsff(P));for(i=1,#V,if(subst(P,x,V[i])!=0,error(P)));#V;
 a=ffgen([3,2],'a);check((x^2+a*x)^3*(x+1))
 a=ffgen([2,2],'a);check((x^2+a*x)^2*(x+1))
