@@ -3067,6 +3067,13 @@ Flx_rootsff(GEN P, GEN T, ulong p)
   return gerepilecopy(av, Flx_rootsff_i(P, T, p));
 }
 
+/* dummy implementation */
+static GEN
+F2x_rootsff_i(GEN P, GEN T)
+{
+  return FlxC_to_F2xC(Flx_rootsff_i(F2x_to_Flx(P), F2x_to_Flx(T), 2UL));
+}
+
 /* not memory-clean, as FpX_factorff_i, returning only linear factors */
 static GEN
 FpX_rootsff_i(GEN P, GEN T, GEN p)
@@ -3153,6 +3160,148 @@ FqX_quad_roots(GEN x, GEN T, GEN p)
   if (!s) return cgetg(1, t_COL);
   s = Fq_halve(Fq_add(s,nb,T,p),T, p);
   return mkcol2(s,Fq_sub(nb,s,T,p));
+}
+
+static GEN
+F2xqX_Frobenius_deflate(GEN S, GEN T)
+{
+  GEN F = RgX_deflate(S, 2);
+  long i, l = lg(F);
+  for (i=2; i<l; i++)
+    gel(F,i) = F2xq_sqrt(gel(F,i), T);
+  return F;
+}
+
+static GEN
+F2xX_to_F2x(GEN x)
+{
+  long l=nbits2lg(lgpol(x));
+  GEN z=cgetg(l,t_VECSMALL);
+  long i,j,k;
+  z[1]=x[1];
+  for(i=2, k=1,j=BITS_IN_LONG;i<lg(x);i++,j++)
+  {
+    if (j==BITS_IN_LONG)
+    {
+      j=0; k++; z[k]=0;
+    }
+    if (lgpol(gel(x,i)))
+      z[k]|=1UL<<j;
+  }
+  return F2x_renormalize(z,l);
+}
+
+static GEN
+F2xqX_easyroots(GEN f, GEN T)
+{
+  if (F2xY_degreex(f) <= 0) return F2x_rootsff_i(F2xX_to_F2x(f), T);
+  if (degpol(f)==1) return mkcol(constant_coeff(f));
+  if (degpol(f)==2) return F2xqX_quad_roots(f,T);
+  return NULL;
+}
+
+/* Adapted from Shoup NTL */
+static GEN
+F2xqX_factor_squarefree(GEN f, GEN xp, GEN T)
+{
+  pari_sp av = avma;
+  GEN r, t, v, tv;
+  long q, n = degpol(f);
+  GEN u = const_vec(n+1, pol1_F2xX(varn(f),T[1]));
+  for(q = 1;;q *= 2)
+  {
+    r = F2xqX_gcd(f, F2xX_deriv(f), T);
+    t = F2xqX_div(f, r, T);
+    if (degpol(t) > 0)
+    {
+      long j;
+      for(j = 1;;j++)
+      {
+        v = F2xqX_gcd(r, t, T);
+        tv = F2xqX_div(t, v, T);
+        if (degpol(tv) > 0)
+          gel(u, j*q) = F2xqX_normalize(tv, T);
+        if (degpol(v) <= 0) break;
+        r = F2xqX_div(r, v, T);
+        t = v;
+      }
+      if (degpol(r) == 0) break;
+    }
+    f = F2xqX_Frobenius_deflate(r, T);
+  }
+  return gerepilecopy(av, u);
+}
+
+static void
+F2xqX_roots_edf(GEN Sp, GEN xp, GEN Xp, GEN T, GEN V, long idx)
+{
+  pari_sp btop;
+  long n = degpol(Sp);
+  GEN S, f, ff;
+  GEN R = F2xqX_easyroots(Sp, T);
+  if (R)
+  {
+    long i, l = lg(R)-1;
+    for (i=0; i<l; i++)
+      gel(V, idx+i) = gel(R,1+i);
+    return;
+  }
+  S = Sp;
+  Xp = F2xqX_rem(Xp, S, T);
+  btop = avma;
+  while (1)
+  {
+    GEN a = random_F2xqX(degpol(Sp)-1,varn(Sp),T);
+    GEN R = gel(F2xqXQV_auttrace(mkvec3(xp, Xp, a), F2x_degree(T), S, T), 3);
+    f = F2xqX_gcd(R, Sp, T);
+    if (degpol(f) > 0 && degpol(f) < n) break;
+    avma = btop;
+  }
+  f = gerepileupto(btop, F2xqX_normalize(f, T));
+  ff = F2xqX_div(Sp, f, T);
+  F2xqX_roots_edf(f, xp, Xp, T, V, idx);
+  F2xqX_roots_edf(ff,xp, Xp, T, V, idx+degpol(f));
+}
+
+static GEN
+F2xqX_roots_ddf(GEN f, GEN xp, GEN T)
+{
+  GEN X, Xp, Xq, g, V;
+  long n, dT = F2x_degree(T);
+  GEN R = F2xqX_easyroots(f, T);
+  if (R) return R;
+  X  = pol_x(varn(f));
+  Xp = F2xqXQ_sqr(X, f, T);
+  Xq = gel(F2xqXQV_autpow(mkvec2(xp, Xp), dT, f, T), 2);
+  g = F2xqX_gcd(F2xX_add(Xq, X), f, T);
+  n = degpol(g);
+  if (n==0) return cgetg(1, t_COL);
+  g = F2xqX_normalize(g, T);
+  V = cgetg(n+1,t_COL);
+  F2xqX_roots_edf(g, xp, Xp, T, V, 1);
+  return V;
+}
+static GEN
+F2xqX_roots_i(GEN S, GEN T)
+{
+  GEN xp, F, M, V, R;
+  long i, j, s, l;
+  if (degpol(S)==0) return cgetg(1, t_COL);
+  S = F2xqX_normalize(S, T);
+  R = F2xqX_easyroots(S, T);
+  if (R) return gen_sort(R, (void*) &cmp_Flx, &cmp_nodata);
+  xp = F2x_Frobenius(T);
+  V = F2xqX_factor_squarefree(S, xp, T);
+  l = lg(V);
+  for (s=0, i=1; i < l; i++)
+    s += !!degpol(gel(V,i));
+  F = cgetg(s+1, t_VEC);
+  for (i=1, j=1; i < l; i++)
+    if (degpol(gel(V,i)))
+      gel(F, j++) = F2xqX_roots_ddf(gel(V,i), xp, T);
+  M = shallowconcat1(F);
+  gen_sort_inplace(M, (void*) &cmp_Flx, &cmp_nodata, NULL);
+  return M;
 }
 
 static GEN
@@ -3284,6 +3433,8 @@ FlxqX_roots_ddf(GEN f, GEN xp, GEN T, ulong p)
   FlxqX_roots_edf(g, xp, Xp, T, p, V, 1);
   return V;
 }
+
+/* do not handle p==2 */
 static GEN
 FlxqX_roots_i(GEN S, GEN T, ulong p)
 {
@@ -3310,11 +3461,19 @@ static GEN
 FqX_roots_i(GEN f, GEN T, GEN p)
 {
   GEN R;
-  if (lgefint(p)==3 && !equaliu(p,2))
+  if (lgefint(p)==3)
   {
     ulong pp = p[2];
-    GEN V = FlxqX_roots_i(ZXX_to_FlxX(f,pp,get_FpX_var(T)), ZXT_to_FlxT(T,pp), pp);
-    return FlxC_to_ZXC(V);
+    if (pp == 2)
+    {
+      GEN V = F2xqX_roots_i(ZXX_to_F2xX(f,get_FpX_var(T)), ZX_to_F2x(get_FpX_mod(T)));
+      return F2xC_to_ZXC(V);
+    }
+    else
+    {
+      GEN V = FlxqX_roots_i(ZXX_to_FlxX(f,pp,get_FpX_var(T)), ZXT_to_FlxT(T,pp), pp);
+      return FlxC_to_ZXC(V);
+    }
   }
   f = FqX_normalize(f, T, p);
   if (!signe(f)) pari_err_ROOTS0("FqX_roots");
@@ -3339,10 +3498,21 @@ FqX_roots_i(GEN f, GEN T, GEN p)
 }
 
 GEN
+F2xqX_roots(GEN x, GEN T)
+{
+  pari_sp av = avma;
+  return gerepileupto(av, F2xqX_roots_i(x, T));
+}
+
+GEN
 FlxqX_roots(GEN x, GEN T, ulong p)
 {
   pari_sp av = avma;
-  if (p==2) pari_err_IMPL("FlxqX_roots");
+  if (p==2)
+  {
+    GEN V = F2xqX_roots_i(FlxX_to_F2xX(x), Flx_to_F2x(get_Flx_mod(T)));
+    return gerepileupto(av, F2xC_to_FlxC(V));
+  }
   return gerepileupto(av, FlxqX_roots_i(x, T, p));
 }
 

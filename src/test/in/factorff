@@ -23,6 +23,14 @@ a=ffgen([3,107],'a);check(x^107+2*x^3+a^0)
 a=ffgen([3,37],'a);check(subst(x^37+x^3+x^2+2*x+2,x,x+a))
 {
   my(s);
+  a=ffgen([2,2],'a);
+  forvec(v=vector(7,i,[0,3]),
+    P = x^8+Polrev([(x\2)*a+x|x<-v]);
+    s += check(P));
+  s
+}
+{
+  my(s);
   a=ffgen([3,2],'a);
   forvec(v=vector(4,i,[0,8]),
     P = x^6+Polrev([(x\3)*a+x|x<-v])*x+1;
