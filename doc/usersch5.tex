@@ -5702,6 +5702,9 @@ $a=\sigma(X)$ where $\sigma$ is an automorphism of the algebra $\F_2[X]/T(X)$.
 
 \fun{GEN}{F2xX_renormalize}{GEN x, long lx}
 
+\fun{long}{F2xY_degreex}{GEN P} return the degree of $P$ with respect to
+the secondary variable.
+
 \fun{GEN}{pol1_F2xX}{long v, long sv}
 
 \fun{GEN}{polx_F2xX}{long v, long sv}
@@ -5722,6 +5725,9 @@ the main variable.
 \fun{GEN}{F2xY_F2xqV_evalx}{GEN x, GEN V, GEN T} as \kbd{FpXY\_FpXQV\_evalx}.
 
 \subsec{\kbd{F2xqX}}. See \kbd{FlxqX} operations.
+
+\fun{GEN}{random_F2xqX}{long d, long v, GEN T, ulong p} returns a random
+\kbd{F2xqX} in variable \kbd{v}, of degree less than~\kbd{d}.
 
 \fun{GEN}{F2xqX_red}{GEN z, GEN T}
 

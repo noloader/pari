@@ -128,6 +128,7 @@ GEN     F2xX_to_Kronecker(GEN P, long d);
 GEN     F2xX_to_ZXX(GEN B);
 GEN     F2xY_F2xq_evalx(GEN P, GEN x, GEN T);
 GEN     F2xY_F2xqV_evalx(GEN P, GEN x, GEN T);
+long    F2xY_degreex(GEN b);
 GEN     F2xq_Artin_Schreier(GEN a, GEN T);
 GEN     F2xq_autpow(GEN x, long n, GEN T);
 GEN     F2xq_conjvec(GEN x, GEN T);
@@ -183,6 +184,7 @@ GEN     monomial_F2x(long d, long vs);
 GEN     pol1_F2xX(long v, long sv);
 GEN     polx_F2xX(long v, long sv);
 GEN     random_F2x(long d, long vs);
+GEN     random_F2xqX(long d1, long v, GEN T);
 
 /* F2xqE.c */
 

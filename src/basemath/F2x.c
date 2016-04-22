@@ -1721,6 +1721,16 @@ pol1_F2xX(long v, long sv) { return pol1_FlxX(v, sv); }
 GEN
 polx_F2xX(long v, long sv) { return polx_FlxX(v, sv); }
 
+long
+F2xY_degreex(GEN b)
+{
+  long deg = 0, i;
+  if (!signe(b)) return -1;
+  for (i = 2; i < lg(b); ++i)
+    deg = maxss(deg, F2x_degree(gel(b, i)));
+  return deg;
+}
+
 GEN
 ZXX_to_F2xX(GEN B, long v)
 {
@@ -1877,6 +1887,16 @@ Kronecker_to_F2xqX(GEN z, GEN T)
 /**                             F2xqX                                 **/
 /**                                                                   **/
 /***********************************************************************/
+
+GEN
+random_F2xqX(long d1, long v, GEN T)
+{
+  long dT = F2x_degree(T), vT = T[1];
+  long i, d = d1+2;
+  GEN y = cgetg(d,t_POL); y[1] = evalsigne(1) | evalvarn(v);
+  for (i=2; i<d; i++) gel(y,i) = random_F2x(dT, vT);
+  return FlxX_renormalize(y,d);
+}
 
 GEN
 F2xqX_red(GEN z, GEN T)
