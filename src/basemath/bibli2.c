@@ -1702,7 +1702,7 @@ cmp_Flx(GEN x, GEN y)
   if (lx > ly) return  1;
   if (lx < ly) return -1;
   for (i=lx-1; i>1; i--)
-    if (x[i] != y[i]) return x[i]<y[i]? -1: 1;
+    if (uel(x,i) != uel(y,i)) return uel(x,i)<uel(y,i)? -1: 1;
   return 0;
 }
 /********************************************************************/
