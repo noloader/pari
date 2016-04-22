@@ -152,6 +152,23 @@ FpXX_mulu(GEN P, ulong u, GEN p)
   return FpXX_renormalize(res,lP);
 }
 
+GEN
+FpXX_deriv(GEN P, GEN p)
+{
+  long i, l = lg(P)-1;
+  GEN res;
+
+  if (l < 3) return pol_0(varn(P));
+  res = cgetg(l, t_POL);
+  res[1] = P[1];
+  for (i=2; i<l ; i++)
+  {
+    GEN x = gel(P,i+1);
+    gel(res,i) = typ(x)==t_INT? Fp_mulu(x,i-1,p): FpX_mulu(x,i-1,p);
+  }
+  return FpXX_renormalize(res, l);
+}
+
 /*******************************************************************/
 /*                                                                 */
 /*                             (Fp[X]/(Q))[Y]                      */

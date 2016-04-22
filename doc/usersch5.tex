@@ -4645,6 +4645,9 @@ by the \kbd{Fp}~\kbd{y}.
 \fun{GEN}{FpXX_mulu}{GEN x, GEN y, GEN p} multiplies the \kbd{FpXX}~\kbd{x}
 by the scalar \kbd{y}.
 
+\fun{GEN}{FpXX_deriv}{GEN P, GEN p} differentiates \kbd{P} with respect of
+the main variable.
+
 \fun{GEN}{FpXY_eval}{GEN Q, GEN y, GEN x, GEN p} $Q$ being an \kbd{FpXY},
 i.e.~a \typ{POL} with \kbd{Fp} or \kbd{FpX} coefficients representing an
 element of $\F_p[X][Y]$. Returns the \kbd{Fp} $Q(x,y)$.

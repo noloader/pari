@@ -2309,11 +2309,6 @@ FpX_split_Berlekamp(GEN *t, GEN p)
   return d;
 }
 
-GEN
-FqX_deriv(GEN f, /*unused*/GEN T, GEN p) {
-  (void)T; return FpXX_red(RgX_deriv(f), p);
-}
-
 long
 FqX_is_squarefree(GEN P, GEN T, GEN p)
 {
