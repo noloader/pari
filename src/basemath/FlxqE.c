@@ -1170,7 +1170,7 @@ get_H1(GEN A41, GEN A61, GEN T2, ulong p)
 {
   GEN q = utoi(p), T = FpXT_red(T2,q);
   GEN pol = FpXQ_elldivpol(FpX_red(A41,q),FpX_red(A61,q),p,T,q);
-  return FqX_normalize(RgX_deflate(pol,p),T,q);
+  return FpXQX_normalize(RgX_deflate(pol,p),T,q);
 }
 
 static GEN

@@ -386,10 +386,9 @@ FqX_Fq_mul_to_monic(GEN P, GEN U, GEN T, GEN p)
 }
 
 GEN
-FqX_normalize(GEN z, GEN T, GEN p)
+FpXQX_normalize(GEN z, GEN T, GEN p)
 {
   GEN lc;
-  if (!T) return FpX_normalize(z,p);
   if (lg(z) == 2) return z;
   lc = leading_coeff(z);
   if (typ(lc) == t_POL)

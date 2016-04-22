@@ -2160,6 +2160,8 @@ FqX_gcd(GEN P,GEN Q,GEN T,GEN p)
 INLINE GEN
 FqX_extgcd(GEN P,GEN Q,GEN T,GEN p, GEN *U, GEN *V)
 { return T? FpXQX_extgcd(P,Q,T,p,U,V): FpX_extgcd(P,Q,p,U,V); }
+INLINE GEN
+FqX_normalize(GEN z, GEN T, GEN p) { return T? FpXQX_normalize(z, T, p): FpX_normalize(z, p); }
 
 /*FqXQ*/
 INLINE GEN
