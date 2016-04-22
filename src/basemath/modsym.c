@@ -20,7 +20,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA. */
  * http://www.math.mcgill.ca/darmon/programs/shp/shp.html */
 static GEN mskinit(ulong N, long k, long sign);
 static GEN mshecke_i(GEN W, ulong p);
-static GEN ZGl2Q_star(GEN v);
+static GEN ZSl2_star(GEN v);
 static GEN getMorphism(GEN W1, GEN W2, GEN v);
 static GEN voo_act_Gl2Q(GEN g, long k);
 
@@ -1231,9 +1231,9 @@ form_E_F_T(ulong N, GEN p1N, GEN *pC, PS_sets_t *S)
   setlg(S->E2_in_terms_of_E1, E2->nb+1);
 }
 
-/* v = \sum n_i g_i, return \sum n_i g_i^(-1) */
+/* v = \sum n_i g_i, g_i in Sl(2,Z), return \sum n_i g_i^(-1) */
 static GEN
-ZGl2Q_star(GEN v)
+ZSl2_star(GEN v)
 {
   long i, l;
   GEN w, G;
@@ -1249,11 +1249,11 @@ ZGl2Q_star(GEN v)
   return ZG_normalize(mkmat2(w, gel(v,2)));
 }
 static GEN
-ZGl2QC_star(GEN v)
+ZSl2C_star(GEN v)
 {
   long i, l;
   GEN w = cgetg_copy(v, &l);
-  for (i = 1; i < l; i++) gel(w,i) = ZGl2Q_star(gel(v,i));
+  for (i = 1; i < l; i++) gel(w,i) = ZSl2_star(gel(v,i));
   return w;
 }
 
@@ -1644,7 +1644,7 @@ ZGV_tors(GEN V, long k)
   GEN v = cgetg(l, t_VEC);
   for (i = 1; i < l; i++)
   {
-    GEN a = ZGl2Q_star(gel(V,i));
+    GEN a = ZSl2_star(gel(V,i));
     gel(v,i) = ZM_ker(RgX_act_ZGl2Q(a,k));
   }
   return v;
@@ -2004,7 +2004,7 @@ init_dual_act_f(GEN f, GEN W1, GEN W2, struct m_act *S,
     GEN ind, w = gel(section, gen[j]); /* path_to_zm( E1/T2/T3 element ) */
     GEN L = M2_log(W1, Gl2Q_act_path(f,w)); /* lambda_{i,j} */
     L = RgV_sparse(L, &ind); /* keep i's such that lambda_{i,j} != 0*/
-    L = ZGl2QC_star(L); /* lambda_{i,j}^* */
+    L = ZSl2C_star(L); /* lambda_{i,j}^* */
     L = ZGC_G_mul(L, F); /* mu_{i,j} */
     L = ZGl2QC_to_act(S, act, L);
     /* non-0 entries as operators on V */
@@ -2151,7 +2151,7 @@ ZGl2Q_act_s(GEN b, GEN a, long k)
   }
   else
   {
-    b = RgX_act_ZGl2Q(ZGl2Q_star(b), k);
+    b = RgX_act_ZGl2Q(ZSl2_star(b), k);
     switch(typ(a))
     {
       case t_POL:
@@ -2643,7 +2643,7 @@ mskinit_nontrivial(GEN WN, long k)
   GEN annT2 = gel(WN,8), annT31 = gel(WN,9), singlerel = gel(WN,10);
   GEN link, basis, monomials, invphiblock;
   long nbE1 = ms_get_nbE1(WN);
-  GEN dinv = Delta_inv(ZG_neg( ZGl2Q_star(gel(singlerel,1)) ), k);
+  GEN dinv = Delta_inv(ZG_neg( ZSl2_star(gel(singlerel,1)) ), k);
   GEN p1 = cgetg(nbE1+1, t_VEC), remove;
   GEN p2 = ZGV_tors(annT2, k);
   GEN p3 = ZGV_tors(annT31, k);
@@ -2654,7 +2654,7 @@ mskinit_nontrivial(GEN WN, long k)
   for (i = 2; i <= nbE1; i++) /* skip 1st element = (\gamma_oo-1)g_oo */
   {
     GEN z = gel(singlerel, i);
-    gel(p1, i) = RgX_act_ZGl2Q(ZGl2Q_star(z), k);
+    gel(p1, i) = RgX_act_ZGl2Q(ZSl2_star(z), k);
   }
   remove = RgMV_find_non_zero_last_row(nbE1, gentor);
   if (!remove) remove = RgMV_find_non_zero_last_row(0, p1);
@@ -3341,7 +3341,7 @@ omseval_int(struct m_act *S, GEN PHI, GEN L)
   GEN col, colind, colval, v = cgetg_copy(PHI, &lphi);
 
   L = RgV_sparse(L,&colind);
-  L = ZGl2QC_star(L); /* lambda_{i,j}^* */
+  L = ZSl2C_star(L); /* lambda_{i,j}^* */
   colval = ZGl2QC_to_act(S, moments_act, L); /* as operators on V */
   col = mkvec2(colind,colval);
   for (a = 1; a < lphi; a++)
