@@ -807,10 +807,9 @@ NP_matrix_extra(ulong M, ulong p)
 static GEN
 WQ_matrix(long N, long Q)
 {
-  long M = N/Q;
-  long w,z, d = cbezout(Q, -M, &w, &z);
+  long w,z, d = cbezout(Q, N/Q, &w, &z);
   if (d != 1) return NULL;
-  return mat2(Q,1,N*z,Q*w);
+  return mat2(Q,1,-N*z,Q*w);
 }
 
 GEN
@@ -1915,12 +1914,12 @@ mspathlog_trivial(GEN W, GEN p)
 /** HECKE OPERATORS **/
 /* [a,b;c,d] * cusp */
 static GEN
-cusp_mul(GEN cusp, long a, long b, long c, long d)
+cusp_mul(long a, long b, long c, long d, GEN cusp)
 {
   long x = cusp[1], y = cusp[2];
   long A = a*x+b*y, B = c*x+d*y, u = cgcd(A,B);
   if (u != 1) { A /= u; B /= u; }
-  return mkvecsmall2(A, B);
+  return mkcol2s(A, B);
 }
 /* f in Gl2(Q), act on path (zm), return path_to_M2(f.path) */
 static GEN
@@ -1928,10 +1927,9 @@ Gl2Q_act_path(GEN f, GEN path)
 {
   long a = coeff(f,1,1), b = coeff(f,1,2);
   long c = coeff(f,2,1), d = coeff(f,2,2);
-  GEN c1 = cusp_mul(gel(path,1), a,b,c,d);
-  GEN c2 = cusp_mul(gel(path,2), a,b,c,d);
-  return mkmat22(stoi(c1[1]), stoi(c2[1]),
-                 stoi(c1[2]), stoi(c2[2]));
+  GEN c1 = cusp_mul(a,b,c,d, gel(path,1));
+  GEN c2 = cusp_mul(a,b,c,d, gel(path,2));
+  return mkmat2(c1,c2);
 }
 
 static GEN
@@ -1944,16 +1942,16 @@ static GEN
 getMorphism_trivial(GEN WW1, GEN WW2, GEN v)
 {
   GEN W1 = get_ms(WW1), W2 = get_ms(WW2);
-  GEN section = ms_get_section(W2), G = gel(W2,5);
+  GEN section = ms_get_section(W2), gen = ms_get_genindex(W2);
   long j, lv, d2 = ms_get_nbE1(W2);
   GEN T = cgetg(d2+1, t_MAT);
   if (typ(v) != t_VEC) v = mkvec(v);
   lv = lg(v);
   for (j = 1; j <= d2; j++)
   {
-    long l, e = G[j]; /* path-index of E1-element */
-    GEN w = gel(section, e); /* path_to_zm() */
+    GEN w = gel(section, gen[j]);
     GEN t = init_act_trivial(W1);
+    long l;
     for (l = 1; l < lv; l++) M2_log_trivial(t, W1, Gl2Q_act_path(gel(v,l), w));
     gel(T,j) = t;
   }
@@ -2026,8 +2024,9 @@ init_dual_act(GEN v, GEN W1, GEN W2, struct m_act *S,
   return L;
 }
 
+/* modular symbol given by phi[j] = \phi(G_j) */
 static GEN
-dense_act(long dimV, GEN col, GEN phi)
+dense_act(GEN col, GEN phi)
 {
   GEN s = NULL, colind = gel(col,1), colval = gel(col,2);
   long i, l = lg(colind), lphi = lg(phi);
@@ -2035,12 +2034,37 @@ dense_act(long dimV, GEN col, GEN phi)
   {
     long a = colind[i];
     GEN t;
-    /* happens if k=2: torsion generator t omitted since phi(t) = 0 */
-    if (a >= lphi) break;
+    if (a >= lphi) break; /* happens if k=2: torsion generator t omitted */
     t = gel(phi, a); /* phi(G_a) */
     t = RgM_RgC_mul(gel(colval,i), t);
     s = s? RgC_add(s, t): t;
   }
+  return s;
+}
+/* modular symbol given by \phi( G[ind[j]] ) = val[j] */
+static GEN
+sparse_act(GEN col, GEN phi)
+{
+  GEN s = NULL, colind = gel(col,1), colval = gel(col,2);
+  GEN ind = gel(phi,2), val = gel(phi,3);
+  long a, l = lg(ind);
+  for (a = 1; a < l; a++)
+  {
+    GEN t = gel(val, a); /* phi(G_i) */
+    long i = vecsmall_isin(colind, ind[a]);
+    /* #colind <= 3; zv_search is slower */
+    if (!i) continue;
+    t = RgM_RgC_mul(gel(colval,i), t);
+    s = s? RgC_add(s, t): t;
+  }
+  return s;
+}
+/* \sum phi(g_i) | \mu_{i,j} = (phi|f)(G_j) */
+static GEN
+dual_act1(long dimV, GEN muj, GEN phi)
+{
+  GEN s = (typ(gel(phi,1)) == t_VECSMALL)? sparse_act(muj, phi)
+                                         : dense_act(muj, phi);
   if (!s) s = zerocol(dimV);
   return s;
 }
@@ -2050,42 +2074,19 @@ dense_act(long dimV, GEN col, GEN phi)
 static GEN
 dual_act(long dimV, GEN mu, GEN phi)
 {
-  long l = lg(mu), lphi = lg(phi), a, i, j;
-  GEN v;
-  if (lphi == 4 && typ(gel(phi,1)) == t_VECSMALL)
-  { /* sparse representation [ind,pols], phi(G_ind[a]) = pols[a] */
-    GEN ind = gel(phi,2), pols = gel(phi,3);
-    v = cgetg(l, t_MAT);
-    for (j = 1; j < l; j++)
-    {
-      GEN s = NULL, col = gel(mu,j), colind = gel(col,1), colval = gel(col,2);
-      for (a = 1; a < lg(ind); a++)
-      {
-        GEN t = gel(pols, a); /* phi(G_i) */
-        i = zv_search(colind, ind[a]);
-        if (!i) continue;
-        t = RgM_RgC_mul(gel(colval,i), t);
-        s = s? RgC_add(s, t): t;
-      }
-      if (!s) s = zerocol(dimV);
-      gel(v,j) = s;
-    }
-  }
-  else
-  { /* dense representation [pols], phi(G_i) = pols[i] */
-    v = cgetg(l, t_VEC);
-    for (j = 1; j < l; j++) gel(v,j) = dense_act(dimV, gel(mu,j), phi);
-  }
+  long l = lg(mu), j;
+  GEN v = cgetg(l, t_MAT);
+  for (j = 1; j < l; j++) gel(v,j) = dual_act1(dimV, gel(mu,j), phi);
   return v;
 }
 
-/* phi in Hom(Delta, V), phi(G_k) = vecT[k]. Write phi as
+/* \phi in Hom(Delta, V), \phi(G_k) = phi[k]. Write \phi as
  *   \sum_{i,j} mu_{i,j} phi_{i,j}, mu_{i,j} in Q */
 static GEN
-getMorphism_basis(GEN W, GEN vecT)
+getMorphism_basis(GEN W, GEN phi)
 {
   GEN basis = msk_get_basis(W);
-  long i, j, r, lvecT = lg(vecT), dim = lg(basis)-1;
+  long i, j, r, lvecT = lg(phi), dim = lg(basis)-1;
   GEN st = msk_get_st(W);
   GEN link = msk_get_link(W);
   GEN invphiblock = msk_get_invphiblock(W);
@@ -2095,14 +2096,14 @@ getMorphism_basis(GEN W, GEN vecT)
   {
     GEN Tr, L;
     if (r == s) continue;
-    Tr = gel(vecT,r); /* Phi(G_r), r != 1,s */
+    Tr = gel(phi,r); /* Phi(G_r), r != 1,s */
     L = gel(link, r);
     Q = ZC_apply_dinv(gel(invphiblock,r), Tr);
     /* write Phi(G_r) as sum_{a,b} mu_{a,b} Phi_{a,b}(G_r) */
     for (j = 1; j < lg(L); j++) gel(R, L[j]) = gel(Q,j);
   }
   Ls = gel(link, s);
-  T1 = gel(vecT,1); /* Phi(G_1) */
+  T1 = gel(phi,1); /* Phi(G_1) */
   gel(R, Ls[t]) = mu_st = gel(T1, 1);
 
   T0 = NULL;
@@ -2120,7 +2121,7 @@ getMorphism_basis(GEN W, GEN vecT)
       T0 = T0? RgC_add(T0, z): z; /* += mu_{i,j} Phi_{i,j} (G_s) */
     }
   }
-  Ts = gel(vecT,s); /* Phi(G_s) */
+  Ts = gel(phi,s); /* Phi(G_s) */
   if (T0) Ts = RgC_sub(Ts, T0);
   /* solve \sum_{j!=t} mu_{s,j} Phi_{s,j}(G_s) = Ts */
   Q = ZC_apply_dinv(gel(invphiblock,s), Ts);
@@ -2237,21 +2238,19 @@ msissymbol(GEN W, GEN s)
   return checksymbol(W,s);
 }
 #if DEBUG
-/* phi_i(G_j) */
+/* phi is a sparse symbol from msk_get_basis, return phi(G_j) */
 static GEN
-eval_phii_Gj(GEN W, long i, long j)
+phi_Gj(GEN W, GEN phi, long j)
 {
-  GEN basis = msk_get_basis(W), b = gel(basis,i);
-  GEN ind = gel(b,2), pols = gel(b,3);
-  long s;
-  for (s = 1; s < lg(ind); s++)
-    if (ind[s] == j) return gel(pols,s);
-  return zerocol(lg(gel(pols,1))-1);
+  GEN ind = gel(phi,2), pols = gel(phi,3);
+  long i = vecsmall_isin(ind,j);
+  return i? gel(pols,i): NULL;
 }
 /* check that \sum d_i phi_i(G_j)  = T_j for all j */
 static void
 checkdec(GEN W, GEN D, GEN T)
 {
+  GEN B = msk_get_basis(W);
   long i, j;
   if (!checksymbol(W,T)) pari_err_BUG("checkdec");
   for (j = 1; j < lg(T); j++)
@@ -2259,9 +2258,9 @@ checkdec(GEN W, GEN D, GEN T)
     GEN S = gen_0;
     for (i = 1; i < lg(D); i++)
     {
-      GEN d = gel(D,i);
-      if (gequal0(d)) continue;
-      S = gadd(S, gmul(d, eval_phii_Gj(W, i, j)));
+      GEN d = gel(D,i), v = phi_Gj(W, gel(B,i), j);
+      if (!v || gequal0(d)) continue;
+      S = gadd(S, gmul(d, v));
     }
     /* S = \sum_i d_i phi_i(G_j) */
     if (!gequal(S, gel(T,j)))
@@ -2270,42 +2269,7 @@ checkdec(GEN W, GEN D, GEN T)
 }
 #endif
 
-/* map op: W1 = Hom(Delta_0(N1),V) -> W2 = Hom(Delta_0(N2),V), given by
- * \sum v[i], v[i] in Gl2(Q) */
-static GEN
-getMorphism(GEN W1, GEN W2, GEN v)
-{
-  struct m_act S;
-  GEN basis1, M, act;
-  long k, i, a, dim1, lv;
-  k = msk_get_weight(W1);
-  if (k == 2) return getMorphism_trivial(W1,W2,v);
-  basis1 = msk_get_basis(W1);
-  dim1 = lg(basis1)-1;
-  M = cgetg(dim1+1, t_MAT);
-  S.k = k;
-  S.dim = k-1;
-  act = init_dual_act(v,W1,W2,&S, _RgX_act_Gl2Q);
-  lv = lg(act);
-  for (a = 1; a <= dim1; a++)
-  {
-    pari_sp av = avma;
-    GEN phi = gel(basis1, a), D, T = NULL;
-    for (i = 1; i < lv; i++)
-    {
-      GEN t = dual_act(S.dim, gel(act,i), phi);
-      T = T? gerepileupto(av, RgM_add(T,t)): t;
-    }
-    /* T = (phi|op)(G_1,...,G_d2) */
-    D = getMorphism_basis(W2, T);
-#if DEBUG
-    checkdec(W2,D,T);
-#endif
-    gel(M,a) = gerepilecopy(av, D);
-  }
-  return M;
-}
-/* return op(phi), op = \sum_i [act[i]] */
+/* return phi|op, op = \sum_i [ act[i] ] */
 static GEN
 getMorphism_single(long dim, GEN phi, GEN act)
 {
@@ -2315,14 +2279,40 @@ getMorphism_single(long dim, GEN phi, GEN act)
   for (i = 1; i < lv; i++)
   {
     GEN t = dual_act(dim, gel(act,i), phi);
-    T = T? gerepileupto(av, RgV_add(T,t)): t;
+    T = T? gerepileupto(av, RgM_add(T,t)): t;
   }
-  if (!T) T = zerovec(lg(phi)-1);
-  return T; /* = (phi|op)(G_1,...,G_d2) */
+  return T; /* = (phi|op)(G_1,...,G_dim) */
 }
 
+/* map op: W1 = Hom(Delta_0(N1),V) -> W2 = Hom(Delta_0(N2),V), given by
+ * \sum v[i], v[i] in Gl2(Q) */
+static GEN
+getMorphism(GEN W1, GEN W2, GEN v)
+{
+  struct m_act S;
+  GEN B1, M, act;
+  long a, l, k = msk_get_weight(W1);
+  if (k == 2) return getMorphism_trivial(W1,W2,v);
+  S.k = k;
+  S.dim = k-1;
+  act = init_dual_act(v,W1,W2,&S, _RgX_act_Gl2Q);
+  B1 = msk_get_basis(W1);
+  l = lg(B1); M = cgetg(l, t_MAT);
+  for (a = 1; a < l; a++)
+  {
+    pari_sp av = avma;
+    GEN phi = getMorphism_single(S.dim, gel(B1,a), act);
+    GEN D = getMorphism_basis(W2, phi);
+#if DEBUG
+    checkdec(W2,D,T);
+#endif
+    gel(M,a) = gerepilecopy(av, D);
+  }
+  return M;
+}
 static GEN
 msendo(GEN W, GEN v) { return getMorphism(W, W, v); }
+
 static GEN
 endo_project(GEN W, GEN e, GEN H)
 {
@@ -2371,17 +2361,12 @@ msatkinlehner(GEN W, long Q, GEN H)
   if (Q <= 0) pari_err_DOMAIN("msatkinlehner","Q","<=",gen_0,stoi(Q));
   w = msatkinlehner_i(W,Q);
   w = endo_project(W,w,H);
-  if (k > 2 && Q != 1)
-    w = RgM_Rg_div(w, powuu(Q,(k-2)>>1));
+  if (k > 2 && Q != 1) w = RgM_Rg_div(w, powuu(Q,(k-2)>>1));
   return gerepilecopy(av, w);
 }
 
 static GEN
-msstar_i(GEN W)
-{
-  GEN v = mat2(-1,0,0,1);
-  return msendo(W,v);
-}
+msstar_i(GEN W) { return msendo(W, mat2(-1,0,0,1)); }
 GEN
 msstar(GEN W, GEN H)
 {
@@ -2432,7 +2417,7 @@ msfromcusp_trivial(GEN W, GEN c)
   GEN section = ms_get_section(W), gen = ms_get_genindex(W);
   GEN S = ms_get_hashcusps(W);
   long j, ic = cusp_index(c, S), l = ms_get_nbE1(W)+1;
-  GEN vecT = cgetg(l, t_COL);
+  GEN phi = cgetg(l, t_COL);
   for (j = 1; j < l; j++)
   {
     GEN vj, g = gel(section, gen[j]); /* path_to_zm(generator) */
@@ -2443,14 +2428,14 @@ msfromcusp_trivial(GEN W, GEN c)
       vj = (i2 == ic)?  gen_0: gen_1;
     else
       vj = (i2 == ic)? gen_m1: gen_0;
-    gel(vecT, j) = vj;
+    gel(phi, j) = vj;
   }
-  return vecT;
+  return phi;
 }
 static GEN
 msfromcusp_i(GEN W, GEN c)
 {
-  GEN section, gen, S, vecT;
+  GEN section, gen, S, phi;
   long j, ic, l, k = msk_get_weight(W);
   if (k == 2) return msfromcusp_trivial(W, c);
   k = msk_get_weight(W);
@@ -2459,7 +2444,7 @@ msfromcusp_i(GEN W, GEN c)
   S = ms_get_hashcusps(W);
   ic = cusp_index(c, S);
   l = lg(gen);
-  vecT = cgetg(l, t_COL);
+  phi = cgetg(l, t_COL);
   for (j = 1; j < l; j++)
   {
     GEN vj = NULL, g = gel(section, gen[j]); /* path_to_zm(generator) */
@@ -2473,9 +2458,9 @@ msfromcusp_i(GEN W, GEN c)
       vj = vj? gsub(vj, s): gneg(s);
     }
     if (!vj) vj = zerocol(k-1);
-    gel(vecT, j) = vj;
+    gel(phi, j) = vj;
   }
-  return getMorphism_basis(W, vecT);
+  return getMorphism_basis(W, phi);
 }
 GEN
 msfromcusp(GEN W, GEN c)
@@ -3361,8 +3346,9 @@ omseval_int(struct m_act *S, GEN PHI, GEN L)
   col = mkvec2(colind,colval);
   for (a = 1; a < lphi; a++)
   {
-    GEN T = dense_act(S->dim, col, gel(PHI,a));
-    gel(v,a) = FpC_red(T,S->q);
+    GEN T = dense_act(col, gel(PHI,a));
+    if (T) T = FpC_red(T,S->q); else T = zerocol(S->dim);
+    gel(v,a) = T;
   }
   return v;
 }
@@ -3481,7 +3467,7 @@ omsactgl2(GEN W, GEN phi, GEN M)
   n = mspadic_get_n(W);
   q = mspadic_get_q(W);
   act = init_moments_act(Wp, p, n, q, M);
-  return dual_act(k-1, gel(act,1), phi);
+  return getMorphism_single(k-1, phi, act);
 }
 
 static GEN
