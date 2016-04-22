@@ -3251,7 +3251,7 @@ F2xqX_roots_edf(GEN Sp, GEN xp, GEN Xp, GEN T, GEN V, long idx)
   btop = avma;
   while (1)
   {
-    GEN a = random_F2xqX(degpol(Sp)-1,varn(Sp),T);
+    GEN a = random_F2xqX(degpol(Sp), varn(Sp), T);
     GEN R = gel(F2xqXQV_auttrace(mkvec3(xp, Xp, a), F2x_degree(T), S, T), 3);
     f = F2xqX_gcd(R, Sp, T);
     if (degpol(f) > 0 && degpol(f) < n) break;
@@ -3286,6 +3286,8 @@ F2xqX_roots_i(GEN S, GEN T)
 {
   GEN xp, F, M, V, R;
   long i, j, s, l;
+  S = F2xqX_red(S, T);
+  if (!signe(S)) pari_err_ROOTS0("F2xqX_roots");
   if (degpol(S)==0) return cgetg(1, t_COL);
   S = F2xqX_normalize(S, T);
   R = F2xqX_easyroots(S, T);
@@ -3320,7 +3322,7 @@ FlxqX_easyroots(GEN f, GEN T, ulong p)
 {
   if (RgXY_degreex(f) <= 0) return Flx_rootsff_i(FlxX_to_Flx(f), T, p);
   if (degpol(f)==1) return mkcol(Flx_neg(constant_coeff(f), p));
-  if (degpol(f)==2) { return FlxqX_quad_roots(f,T,p); }
+  if (degpol(f)==2) return FlxqX_quad_roots(f,T,p);
   return NULL;
 }
 
@@ -3440,6 +3442,9 @@ FlxqX_roots_i(GEN S, GEN T, ulong p)
 {
   GEN xp, F, M, V, R;
   long i, j, s, l;
+  S = FlxqX_red(S, T, p);
+  if (!signe(S)) pari_err_ROOTS0("FlxqX_roots");
+  if (degpol(S)==0) return cgetg(1, t_COL);
   S = FlxqX_normalize(S, T, p);
   R = FlxqX_easyroots(S, T, p);
   if (R) return gen_sort(R, (void*) &cmp_Flx, &cmp_nodata);
@@ -3475,8 +3480,10 @@ FqX_roots_i(GEN f, GEN T, GEN p)
       return FlxC_to_ZXC(V);
     }
   }
-  f = FqX_normalize(f, T, p);
+  f = FlxqX_red(f, T, p);
   if (!signe(f)) pari_err_ROOTS0("FqX_roots");
+  if (degpol(f)==0) return cgetg(1, t_COL);
+  f = FqX_normalize(f, T, p);
   if (isabsolutepol(f))
   {
     f = simplify_shallow(f);
