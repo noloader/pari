@@ -3480,7 +3480,7 @@ FqX_roots_i(GEN f, GEN T, GEN p)
       return FlxC_to_ZXC(V);
     }
   }
-  f = FlxqX_red(f, T, p);
+  f = FqX_red(f, T, p);
   if (!signe(f)) pari_err_ROOTS0("FqX_roots");
   if (degpol(f)==0) return cgetg(1, t_COL);
   f = FqX_normalize(f, T, p);
