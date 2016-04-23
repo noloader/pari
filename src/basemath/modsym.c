@@ -2276,14 +2276,6 @@ checkdec(GEN W, GEN D, GEN T)
 }
 #endif
 
-/* return phi|op, op = \sum_i [ act[i] ] */
-static GEN
-getMorphism_single(long dim, GEN phi, GEN act)
-{
-  return dual_act(dim, act, phi);
-  /* = (phi|op)(G_1,...,G_dim) */
-}
-
 /* map op: W1 = Hom(Delta_0(N1),V) -> W2 = Hom(Delta_0(N2),V), given by
  * \sum v[i], v[i] in Gl2(Q) */
 static GEN
@@ -2301,7 +2293,7 @@ getMorphism(GEN W1, GEN W2, GEN v)
   for (a = 1; a < l; a++)
   {
     pari_sp av = avma;
-    GEN phi = getMorphism_single(S.dim, gel(B1,a), act);
+    GEN phi = dual_act(S.dim, act, gel(B1,a));
     GEN D = getMorphism_basis(W2, phi);
 #if DEBUG
     checkdec(W2,D,T);
@@ -3274,11 +3266,11 @@ oms_supersingular(GEN W, GEN phi, GEN C, GEN ap)
   for (i = 1; i <= n; i++)
   {
     GEN z;
-    phi1 = getMorphism_single(k-1, phi1, act);
-    phi1 = getMorphism_single(k-1, phi1, act);
+    phi1 = dual_act(k-1, act, phi1);
+    phi1 = dual_act(k-1, act, phi1);
 
-    phi2 = getMorphism_single(k-1, phi2, act);
-    phi2 = getMorphism_single(k-1, phi2, act);
+    phi2 = dual_act(k-1, act, phi2);
+    phi2 = dual_act(k-1, act, phi2);
     z = phi1;
     phi1 = gadd(gmul(a, z), gmul(b, phi2));
     phi2 = gadd(gmul(c, z), gmul(d, phi2));
@@ -3301,7 +3293,7 @@ oms_ordinary(GEN W, GEN phi, GEN alpha)
   phi = concat2(phi, zerovec(n));
   for (i = 1; i <= n; i++)
   {
-    phi = getMorphism_single(k-1, phi, act);
+    phi = dual_act(k-1, act, phi);
     clean_tail(phi, k + i, q, 0);
   }
   phi = gmul(lift(gpowgs(alpha,n)), phi);
@@ -3476,7 +3468,7 @@ omsactgl2(GEN W, GEN phi, GEN M)
   n = mspadic_get_n(W);
   q = mspadic_get_q(W);
   act = init_moments_act(Wp, p, n, q, M);
-  return getMorphism_single(k-1, phi, act);
+  return dual_act(k-1, act, phi);
 }
 
 static GEN
