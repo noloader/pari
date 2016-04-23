@@ -3138,7 +3138,7 @@ FlxqX_quad_roots(GEN x, GEN T, ulong p)
 }
 
 static GEN
-FqX_quad_roots(GEN x, GEN T, GEN p)
+FpXQX_quad_roots(GEN x, GEN T, GEN p)
 {
   GEN s, D, nb, b = gel(x,3), c = gel(x,2);
   if (equaliu(p, 2))
@@ -3486,7 +3486,7 @@ FpXQX_roots_i(GEN f, GEN T, GEN p)
     return FpX_rootsff_i(f, T, p);
   }
   if (degpol(f)==2)
-    return gen_sort(FqX_quad_roots(f,T,p), (void*) &cmp_RgX, &cmp_nodata);
+    return gen_sort(FpXQX_quad_roots(f,T,p), (void*) &cmp_RgX, &cmp_nodata);
   switch( FqX_split_deg1(&R, f, T, p) )
   {
   case 0: return cgetg(1, t_COL);
@@ -3603,7 +3603,7 @@ FqX_factor_i(GEN f, GEN T, GEN p)
   if (degpol(f)==2)
   {
     long v = varn(f);
-    GEN r = FqX_quad_roots(f,T,p);
+    GEN r = FpXQX_quad_roots(f,T,p);
     switch(lg(r)-1)
     {
     case 0:
