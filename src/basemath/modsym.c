@@ -3152,24 +3152,33 @@ checkmspadic(GEN W)
 static GEN
 moments_act(struct m_act *S, GEN f)
 {
-  long k = S->k, D = S->dim;
+  pari_sp av = avma;
+  long j, k = S->k, D = S->dim;
   GEN a = gcoeff(f,1,1), b = gcoeff(f,1,2);
   GEN c = gcoeff(f,2,1), d = gcoeff(f,2,2);
-  GEN u,z, q = S->q, den = deg1pol(c,a,0), num = deg1pol(d,b,0);
-  GEN mat = cgetg(D+1, t_MAT);
-  long j;
+  GEN u,z,C, q = S->q, mat = cgetg(D+1, t_MAT);
 
-  u = RgXn_inv(gmodulo(den, q), D);
-  u = RgXn_mul(num, u, D); /* = (b+dx) / (a+cx) mod (q,x^D) */
-  z = gpowgs(den, k-2); /* (a+cx)^(k-2) */
-  u = liftint_shallow(u);
+  a = modii(a,q);
+  z = FpX_powu(deg1pol(c,a,0), k-2, q); /* (a+cx)^(k-2) */
+  /* u := (b+dx) / (a+cx) mod (q,x^D) = (b/a +d/a*x) / (1 - (-c/a)*x) */
+  if (!equali1(a))
+  {
+    GEN ai = Fp_inv(a,q);
+    b = Fp_mul(b,ai,q);
+    c = Fp_mul(c,ai,q);
+    d = Fp_mul(d,ai,q);
+  }
+  u = cgetg(D+2,t_POL); u[1] = evalsigne(1)|evalvarn(0);
+  gel(u, 2) = gen_1;
+  gel(u, 3) = C = Fp_neg(c,q);
+  for (j = 4; j < D+2; j++) gel(u,j) = Fp_mul(gel(u,j-1), C, q);
+  u = FpX_red(RgXn_mul(deg1pol(d,b,0), u, D), q);
   for (j = 1; j <= D; j++)
   {
-    z = FpX_red(z, q);
     gel(mat,j) = RgX_to_RgC(z, D); /* (a+cx)^(k-2) * ((b+dx)/(a+cx))^(j-1) */
-    if (j != D) z = RgXn_mul(z, u, D);
+    if (j != D) z = FpX_red(RgXn_mul(z, u, D), q);
   }
-  return shallowtrans(mat);
+  return gerepilecopy(av, shallowtrans(mat));
 }
 
 static GEN
