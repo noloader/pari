@@ -1503,7 +1503,7 @@ FFX_roots(GEN P, GEN x)
   pari_sp av=avma;
 
   P = FFX_init_fix_varn(P, x, &T, &p);
-  r = FqX_roots(P, T,p);
+  r = FpXQX_roots(P, T, p);
   return gerepilecopy(av, to_FFC(r, x));
 }
 

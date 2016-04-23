@@ -457,7 +457,7 @@ ZXY_ZpQ_root(GEN f, GEN a, GEN T, GEN p, long prec)
   f = RgX_unscale(RgXQX_translate(f, a, T), p);
   f = RgX_Rg_div(f, powiu(p, gvaluation(f,p)));
   z = cgetg(degpol(f)+1,t_COL);
-  R = FqX_roots(FqX_red(f,T,p), T, p); lR = lg(R);
+  R = FpXQX_roots(FqX_red(f,T,p), T, p); lR = lg(R);
   for(j=i=1; i<lR; i++)
   {
     GEN u = ZXY_ZpQ_root(f, gel(R,i), T, p, prec-1);

@@ -3458,7 +3458,7 @@ FlxqX_roots_i(GEN S, GEN T, ulong p)
 }
 
 static GEN
-FqX_roots_i(GEN f, GEN T, GEN p)
+FpXQX_roots_i(GEN f, GEN T, GEN p)
 {
   GEN R;
   if (lgefint(p)==3)
@@ -3476,7 +3476,7 @@ FqX_roots_i(GEN f, GEN T, GEN p)
     }
   }
   f = FqX_red(f, T, p);
-  if (!signe(f)) pari_err_ROOTS0("FqX_roots");
+  if (!signe(f)) pari_err_ROOTS0("FpXQX_roots");
   if (degpol(f)==0) return cgetg(1, t_COL);
   f = FpXQX_normalize(f, T, p);
   if (isabsolutepol(f))
@@ -3519,11 +3519,11 @@ FlxqX_roots(GEN x, GEN T, ulong p)
 }
 
 GEN
-FqX_roots(GEN x, GEN T, GEN p)
+FpXQX_roots(GEN x, GEN T, GEN p)
 {
   pari_sp av = avma;
   if (!T) return FpX_roots(x, p);
-  return gerepileupto(av, FqX_roots_i(x, T, p));
+  return gerepileupto(av, FpXQX_roots_i(x, T, p));
 }
 
 static long
@@ -3797,7 +3797,7 @@ polrootsff(GEN f, GEN p, GEN T)
     if (t != t_FFELT) pari_err_TYPE("polrootsff",f);
     return FFX_roots(f,T);
   }
-  ffcheck(&av, &f, &T, p); z = FqX_roots_i(f, T, p);
+  ffcheck(&av, &f, &T, p); z = FpXQX_roots_i(f, T, p);
   return to_FqC(z, T,p, av);
 }
 

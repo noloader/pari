@@ -374,7 +374,7 @@ Quick_FqX_roots(KRASNER_t *data, GEN pol)
     ind = ZXY_z_eval(pol, data->q[2], data->p[2]);
     if (gel(data->roottable, ind)) return gel(data->roottable, ind);
   }
-  rts = FqX_roots(pol, data->uplr, data->p);
+  rts = FpXQX_roots(pol, data->uplr, data->p);
 
   if (ind) gel(data->roottable, ind) = gclone(rts);
   return rts;

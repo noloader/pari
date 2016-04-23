@@ -681,7 +681,7 @@ find_isogenous_from_Atkin(GEN a4, GEN a6, ulong ell, struct meqn *MEQN, GEN g, G
 
   u1 = compute_u(gprime, Dxxg, DxJg, DJJg, j, pJ, px, 1, E4, E6, T, p, pp, e);
   meqnx = FpXY_Fq_evaly(meqn, g, T, p, vJ);
-  Roots = FqX_roots(meqnx, T, pp);
+  Roots = FpXQX_roots(meqnx, T, pp);
 
   btop = avma;
   for (k = lg(Roots)-1; k >= 1; k--, avma = btop)
@@ -1010,7 +1010,7 @@ find_kernel_power(GEN Eba4, GEN Eba6, GEN Eca4, GEN Eca6, ulong ell, struct meqn
   GEN a4t, a6t, gtmp;
   GEN num_iso = FqX_numer_isog_abscissa(kpoly, Eba4, Eba6, T, p, 0);
   GEN mpoly = meqn_j(MEQN, Fq_ellj(Eca4, Eca6, T, p), ell, T, p);
-  GEN mroots = FqX_roots(mpoly, T, p);
+  GEN mroots = FpXQX_roots(mpoly, T, p);
   GEN kpoly2 = FqX_sqr(kpoly, T, p);
   long i, l1 = lg(mroots);
   btop = avma;
@@ -1101,7 +1101,7 @@ FpXQ_study_eqn(long ell, GEN mpoly, GEN T, GEN p, long *pt_dG, long *pt_r)
       return NULL;
     }
   }
-  return gel(FqX_roots(G, T, p), 1);
+  return gel(FpXQX_roots(G, T, p), 1);
 }
 
 /* Berlekamp variant */
