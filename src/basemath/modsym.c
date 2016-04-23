@@ -3186,27 +3186,16 @@ init_moments_act(GEN W, long p, long n, GEN q, GEN v)
 }
 
 static void
-clean_tail(GEN phi, long c, GEN q, long flag)
+clean_tail(GEN phi, long c, GEN q)
 {
   long a, l = lg(phi);
-  GEN den;
-  if (flag)
-  {
-    phi = Q_remove_denom(phi, &den);
-    if (!den)
-      flag = 0;
-    else
-      q = mulii(q, den);
-  }
   for (a = 1; a < l; a++)
   {
     GEN P = FpV_red(gel(phi,a), q); /* phi(G_a) = vector of moments */
     long j, lP = lg(P);
     for (j = c; j < lP; j++) gel(P,j) = gen_0; /* reset garbage to 0 */
-    if (flag) P = gdiv(P, den);
     gel(phi,a) = P;
   }
-
 }
 /* concat z to all phi[i] */
 static GEN
@@ -3252,34 +3241,26 @@ oms_supersingular(GEN W, GEN phi, GEN C, GEN ap)
   long t, i, k = mspadic_get_weight(W);
   long p = mspadic_get_p(W), n = mspadic_get_n(W);
   GEN phi1 = gel(phi,1), phi2 = gel(phi,2);
-  GEN a,b,c,d, q = mspadic_get_q(W);
+  GEN v, q = mspadic_get_q(W);
   GEN act = mspadic_get_actUp(W);
 
   t = signe(ap)? Z_lval(ap,p) : k-1;
-  a = gcoeff(C,1,1);
-  b = gcoeff(C,1,2);
-  c = gcoeff(C,2,1);
-  d = gcoeff(C,2,2);
-
   phi1 = concat2(phi1, zerovec(n));
   phi2 = concat2(phi2, zerovec(n));
   for (i = 1; i <= n; i++)
   {
-    GEN z;
     phi1 = dual_act(k-1, act, phi1);
     phi1 = dual_act(k-1, act, phi1);
+    clean_tail(phi1, k + i*t, q);
 
     phi2 = dual_act(k-1, act, phi2);
     phi2 = dual_act(k-1, act, phi2);
-    z = phi1;
-    phi1 = gadd(gmul(a, z), gmul(b, phi2));
-    phi2 = gadd(gmul(c, z), gmul(d, phi2));
-
-    clean_tail(phi1, k + i*t, q, 1);
-    clean_tail(phi2, k + i*t, q, 1);
+    clean_tail(phi2, k + i*t, q);
   }
-  phi1 = red_mod_FilM(phi1, p, k, 1);
-  phi2 = red_mod_FilM(phi2, p, k, 1);
+  C = gpowgs(C,n);
+  v = RgM_RgC_mul(C, mkcol2(phi1,phi2));
+  phi1 = red_mod_FilM(gel(v,1), p, k, 1);
+  phi2 = red_mod_FilM(gel(v,2), p, k, 1);
   return mkvec2(phi1,phi2);
 }
 
@@ -3294,7 +3275,7 @@ oms_ordinary(GEN W, GEN phi, GEN alpha)
   for (i = 1; i <= n; i++)
   {
     phi = dual_act(k-1, act, phi);
-    clean_tail(phi, k + i, q, 0);
+    clean_tail(phi, k + i, q);
   }
   phi = gmul(lift(gpowgs(alpha,n)), phi);
   phi = red_mod_FilM(phi, p, k, 0);
