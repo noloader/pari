@@ -89,24 +89,45 @@ ZG_mul(GEN x, GEN y)
   }
   return z;
 }
-#if 0
-static GEN
-ZGV_add(GEN x, GEN y)
+GEN
+ZGC_add_sparse(GEN x, GEN y)
 {
-  long i, l;
-  GEN v = cgetg_copy(x, &l);
-  for (i = 1; i < l; i++) gel(v,i) = ZG_add(gel(x,i), gel(y,i));
-  return v;
+  GEN xi = gel(x,1), xv = gel(x,2);
+  GEN yi = gel(y,1), yv = gel(y,2);
+  long i = 1, j = 1, k = 1, lx = lg(xi), ly = lg(yi), l = lx+ly-1;
+  GEN zi = cgetg(l, t_VECSMALL), zv = cgetg(l, t_VEC);
+  while (i < lx && j < ly)
+  {
+    if      (xi[i] < yi[j]) { zi[k] = xi[i]; gel(zv,k) = gel(xv,i); i++; }
+    else if (xi[i] > yi[j]) { zi[k] = yi[j]; gel(zv,k) = gel(yv,j); j++; }
+    else { zi[k] = xi[i]; gel(zv,k) = ZG_add(gel(xv,i),gel(yv,j)); i++; j++; }
+    k++;
+  }
+  for(; i < lx; i++,k++) { zi[k] = xi[i]; gel(zv,k) = gel(xv,i); }
+  for(; j < ly; j++,k++) { zi[k] = yi[j]; gel(zv,k) = gel(yv,j); }
+  setlg(zi,k);
+  setlg(zv,k); return mkvec2(zi, zv);
 }
-static GEN
-ZGV_sub(GEN x, GEN y)
+GEN
+ZGM_add_sparse(GEN x, GEN y)
 {
-  long i, l;
-  GEN v = cgetg_copy(x, &l);
-  for (i = 1; i < l; i++) gel(v,i) = ZG_sub(gel(x,i), gel(y,i));
-  return v;
+  long j, l;
+  GEN z = cgetg_copy(x, &l);
+  for (j = 1; j < l; j++) gel(z,j) = ZGC_add_sparse(gel(x,j), gel(y,j));
+  return z;
 }
-#endif
+void
+ZGC_add_inplace(GEN x, GEN y)
+{
+  long i, l = lg(x);
+  for (i = 1; i < l; i++) gel(x,i) = ZG_add(gel(x,i), gel(y,i));
+}
+void
+ZGM_add_inplace(GEN x, GEN y)
+{
+  long j, l = lg(x);
+  for (j = 1; j < l; j++) ZGC_add_inplace(gel(x,j), gel(y,j));
+}
 GEN
 ZG_G_mul(GEN x, GEN y)
 {
@@ -128,6 +149,12 @@ G_ZG_mul(GEN x, GEN y)
   z = cgetg_copy(Y, &l);
   for (i = 1; i < l; i++) gel(z,i) = gmul(x, gel(Y,i));
   return ZG_normalize( mkmat2(z, shallowcopy(gel(y,2))) );
+}
+void
+ZGC_G_mul_inplace(GEN v, GEN x)
+{
+  long i, l = lg(v);
+  for (i = 1; i < l; i++) gel(v,i) = ZG_G_mul(gel(v,i), x);
 }
 GEN
 ZGC_G_mul(GEN v, GEN x)

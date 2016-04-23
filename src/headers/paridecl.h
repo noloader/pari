@@ -1011,6 +1011,11 @@ GEN     gen_bkeval_powers(GEN P, long d, GEN V, void *E,
 const struct bb_algebra * get_Rg_algebra(void);
 
 /* ZG.c */
+void    ZGC_G_mul_inplace(GEN v, GEN x);
+void    ZGC_add_inplace(GEN x, GEN y);
+GEN     ZGC_add_sparse(GEN x, GEN y);
+void    ZGM_add_inplace(GEN x, GEN y);
+GEN     ZGM_add_sparse(GEN x, GEN y);
 GEN     G_ZGC_mul(GEN x, GEN v);
 GEN     G_ZG_mul(GEN x, GEN y);
 GEN     ZGC_G_mul(GEN v, GEN x);
@@ -3111,6 +3116,7 @@ hashtable *hash_create_ulong(ulong s, long stack);
 hashtable *hash_create_str(ulong s, long stack);
 hashtable *hash_create(ulong minsize, ulong (*hash)(void*), int (*eq)(void*,void*), int use_stack);
 void hash_insert(hashtable *h, void *k, void *v);
+void hash_insert2(hashtable *h, void *k, void *v, ulong hash);
 GEN hash_keys(hashtable *h);
 GEN hash_values(hashtable *h);
 hashentry *hash_search(hashtable *h, void *k);

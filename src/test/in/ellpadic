@@ -1,4 +1,4 @@
-default(parisize,"140M");
+allocatemem(240*10^6)
 
 e=ellinit([1,-1,1,-1,-14]);
 E=ellinit([0,0,0,-e.c4/48,-e.c6/864]);

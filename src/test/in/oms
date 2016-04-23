@@ -1,3 +1,4 @@
+allocatemem(12*10^6)
 W = msinit(50,4,1);
 phi = mssplit(W, msnew(W))[1][1][,1];
 Wp = mspadicinit(W, 3, 6, 0);
