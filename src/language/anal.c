@@ -1237,22 +1237,18 @@ GEN
 ifpari(GEN g, GEN a/*closure*/, GEN b/*closure*/)
 {
   if (gequal0(g)) /* false */
-    return b?closure_evalgen(b):gnil;
+    return b? closure_evalgen(b): gnil;
   else /* true */
-    return a?closure_evalgen(a):gnil;
+    return a? closure_evalgen(a): gnil;
 }
 
 void
 ifpari_void(GEN g, GEN a/*closure*/, GEN b/*closure*/)
 {
   if (gequal0(g)) /* false */
-  {
-    if(b) closure_evalvoid(b);
-  }
+  { if (b) closure_evalvoid(b); }
   else /* true */
-  {
-    if(a) closure_evalvoid(a);
-  }
+  { if (a) closure_evalvoid(a); }
 }
 
 GEN
@@ -1293,71 +1289,17 @@ orpari(GEN a, GEN b/*closure*/)
   return gequal0(g)?gen_0:gen_1;
 }
 
-GEN gmule(GEN *x, GEN y)
-{
-  *x=gmul(*x,y);
-  return *x;
-}
-
-GEN gdive(GEN *x, GEN y)
-{
-  *x=gdiv(*x,y);
-  return *x;
-}
-
-GEN gdivente(GEN *x, GEN y)
-{
-  *x=gdivent(*x,y);
-  return *x;
-}
-
-GEN gdivrounde(GEN *x, GEN y)
-{
-  *x=gdivround(*x,y);
-  return *x;
-}
-
-GEN gmode(GEN *x, GEN y)
-{
-  *x=gmod(*x,y);
-  return *x;
-}
-
-GEN gshiftle(GEN *x, long n)
-{
-  *x=gshift(*x,n);
-  return *x;
-}
-
-GEN gshiftre(GEN *x, long n)
-{
-  *x=gshift(*x,-n);
-  return *x;
-}
-
-GEN gadde(GEN *x, GEN y)
-{
-  *x=gadd(*x,y);
-  return *x;
-}
-
-GEN gadd1e(GEN *x)
-{
-  *x=typ(*x)==t_INT?addis(*x,1):gaddgs(*x,1);
-  return *x;
-}
-
-GEN gsube(GEN *x, GEN y)
-{
-  *x=gsub(*x,y);
-  return *x;
-}
-
-GEN gsub1e(GEN *x)
-{
-  *x=typ(*x)==t_INT?subis(*x,1):gsubgs(*x,1);
-  return *x;
-}
+GEN gmule(GEN *x, GEN y) { *x = gmul(*x,y); return *x; }
+GEN gdive(GEN *x, GEN y) { *x = gdiv(*x,y); return *x; }
+GEN gdivente(GEN *x, GEN y) { *x = gdivent(*x,y); return *x; }
+GEN gdivrounde(GEN *x, GEN y) { *x = gdivround(*x,y); return *x; }
+GEN gmode(GEN *x, GEN y) { *x = gmod(*x,y); return *x; }
+GEN gshiftle(GEN *x, long n) { *x = gshift(*x,n); return *x; }
+GEN gshiftre(GEN *x, long n) { *x = gshift(*x,-n); return *x; }
+GEN gadde(GEN *x, GEN y) { *x = gadd(*x,y); return *x; }
+GEN gadd1e(GEN *x) { *x = typ(*x)==t_INT?addis(*x,1):gaddgs(*x,1); return *x; }
+GEN gsube(GEN *x, GEN y) { *x = gsub(*x,y); return *x; }
+GEN gsub1e(GEN *x) { *x = typ(*x)==t_INT?subis(*x,1):gsubgs(*x,1); return *x; }
 
 GEN gshift_right(GEN x, long n) { return gshift(x,-n); }
 
