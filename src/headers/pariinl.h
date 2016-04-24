@@ -2165,6 +2165,8 @@ FqX_normalize(GEN z, GEN T, GEN p) { return T? FpXQX_normalize(z, T, p): FpX_nor
 INLINE GEN
 FqX_deriv(GEN f, /*unused*/GEN T, GEN p) { (void)T; return FpXX_deriv(f, p); }
 INLINE GEN
+FqX_factor(GEN f, GEN T, GEN p) { return T?FpXQX_factor(f, T, p): FpX_factor(f, p); }
+INLINE GEN
 FqX_roots(GEN f, GEN T, GEN p) { return T?FpXQX_roots(f, T, p): FpX_roots(f, p); }
 
 /*FqXQ*/

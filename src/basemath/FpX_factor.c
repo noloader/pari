@@ -3587,7 +3587,7 @@ FpX_factorff(GEN P, GEN T, GEN p)
 
 /* assumes varncmp (varn(T), varn(f)) > 0 */
 static GEN
-FqX_factor_i(GEN f, GEN T, GEN p)
+FpXQX_factor_i(GEN f, GEN T, GEN p)
 {
   long pg, j, k, e, N, lfact, pk, d = degpol(f);
   GEN E, f2, f3, df1, df2, g1, u, q, t;
@@ -3780,7 +3780,7 @@ factorff(GEN f, GEN p, GEN T)
     if (t != t_FFELT) pari_err_TYPE("factorff",f);
     return FFX_factor(f,T);
   }
-  ffcheck(&av, &f, &T, p); z = FqX_factor_i(f, T, p);
+  ffcheck(&av, &f, &T, p); z = FpXQX_factor_i(f, T, p);
   return to_Fq_fact(gel(z,1),gel(z,2), T,p, av);
 }
 GEN
@@ -3803,11 +3803,10 @@ polrootsff(GEN f, GEN p, GEN T)
 
 /* factorization of x modulo (T,p). Assume x already reduced */
 GEN
-FqX_factor(GEN x, GEN T, GEN p)
+FpXQX_factor(GEN x, GEN T, GEN p)
 {
   pari_sp av = avma;
-  if (!T) return FpX_factor(x, p);
-  return gerepilecopy(av, FqX_factor_i(x, T, p));
+  return gerepilecopy(av, FpXQX_factor_i(x, T, p));
 }
 /* See also: Isomorphisms between finite field and relative
  * factorization in polarit3.c */

@@ -4931,9 +4931,11 @@ $\F_p[X]/(T)$. Assumes \kbd{p} is prime and \kbd{T} irreducible in $\F_p[X]$.
 
 \fun{GEN}{FqX_roots}{GEN x, GEN T, GEN p} same but allow $\kbd{T} = \kbd{NULL}$.
 
-\fun{GEN}{FqX_factor}{GEN x, GEN T, GEN p} same output convention as
+\fun{GEN}{FpXQX_factor}{GEN x, GEN T, GEN p} same output convention as
 \kbd{FpX\_factor}. Assumes \kbd{p} is prime and \kbd{T} irreducible
 in $\F_p[X]$.
+
+\fun{GEN}{FqX_factor}{GEN x, GEN T, GEN p} same but allow $\kbd{T} = \kbd{NULL}$.
 
 \fun{long}{FqX_ispower}{GEN f, ulong k, GEN T, GEN p, GEN *pt} return
 returns 1 if \kbd{FqX} $f$ is a $K$-th power Return $0$

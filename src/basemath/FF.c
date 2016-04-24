@@ -1491,7 +1491,7 @@ FFX_factor(GEN P, GEN x)
   pari_sp av=avma;
 
   P = FFX_init_fix_varn(P, x, &T, &p);
-  r = FqX_factor(P, T,p);
+  r = FpXQX_factor(P, T,p);
   return to_FF_fact(vP, gel(r,1),gel(r,2), x,av);
 }
 
