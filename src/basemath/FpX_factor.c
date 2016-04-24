@@ -3522,7 +3522,6 @@ GEN
 FpXQX_roots(GEN x, GEN T, GEN p)
 {
   pari_sp av = avma;
-  if (!T) return FpX_roots(x, p);
   return gerepileupto(av, FpXQX_roots_i(x, T, p));
 }
 
