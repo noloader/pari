@@ -3503,7 +3503,7 @@ GEN
 F2xqX_roots(GEN x, GEN T)
 {
   pari_sp av = avma;
-  return gerepileupto(av, F2xqX_roots_i(x, T));
+  return gerepilecopy(av, F2xqX_roots_i(x, T));
 }
 
 GEN
@@ -3515,7 +3515,7 @@ FlxqX_roots(GEN x, GEN T, ulong p)
     GEN V = F2xqX_roots_i(FlxX_to_F2xX(x), Flx_to_F2x(get_Flx_mod(T)));
     return gerepileupto(av, F2xC_to_FlxC(V));
   }
-  return gerepileupto(av, FlxqX_roots_i(x, T, p));
+  return gerepilecopy(av, FlxqX_roots_i(x, T, p));
 }
 
 GEN
