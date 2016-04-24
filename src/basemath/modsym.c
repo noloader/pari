@@ -3437,6 +3437,7 @@ mspadicinit(GEN W, long p, long n, long flag)
                                  mkvecsmall3(p,n,flag), M, C));
 }
 
+#if 0
 GEN
 omsactgl2(GEN W, GEN phi, GEN M)
 {
@@ -3451,6 +3452,7 @@ omsactgl2(GEN W, GEN phi, GEN M)
   act = init_moments_act(Wp, p, n, q, M);
   return dual_act(k-1, act, phi);
 }
+#endif
 
 static GEN
 eigenvalue(GEN T, GEN x)
