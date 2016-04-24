@@ -2799,7 +2799,7 @@ realroots(GEN P, GEN ab, long prec)
   pari_sp av = avma;
   long nrr = 0;
   GEN sol = NULL, fa, ex;
-  long i, j, k;
+  long i, j, v;
 
   ab = check_ab(ab);
   if (typ(P) != t_POL) return rootsdeg0(P);
@@ -2810,8 +2810,9 @@ realroots(GEN P, GEN ab, long prec)
   }
   P = Q_primpart(P);
   if (!RgX_is_ZX(P)) pari_err_TYPE("realroots",P);
-  if (ZX_valrem(P,&P) && (!ab || (gsigne(gel(ab,1)) <= 0
-      && gsigne(gel(ab,2)) >= 0))) sol = mkcol(real_0(prec));
+  v = ZX_valrem(P,&P);
+  if (v && (!ab || (gsigne(gel(ab,1)) <= 0 && gsigne(gel(ab,2)) >= 0)))
+    sol = const_col(v, real_0(prec));
   fa = ZX_squff(P, &ex);
   for (i = 1; i < lg(fa); i++)
   {
@@ -2826,15 +2827,15 @@ realroots(GEN P, GEN ab, long prec)
     if (!(h % 2)) soli2 = cgetg(n, t_COL);
     for (j = 1; j < n; j++)
     {
-      GEN elt = gel(soli, j);
+      GEN elt = gel(soli, j); /* != 0 */
       if (typ(elt) != t_REAL)
       {
-        nrri++;
+        nrri++; if (h > 1 && !(h % 2)) nrri++;
         elt = gtofp(elt, prec);
         gel(soli, j) = elt;
       }
       if (h > 1)
-      { /* note: elt != 0 because we are square free */
+      {
         GEN r;
         if (h == 2)
           r = sqrtr(elt);
@@ -2850,8 +2851,8 @@ realroots(GEN P, GEN ab, long prec)
       }
     }
     if (!(h % 2)) soli = shallowconcat(soli, soli2);
-    for (k = 1; k <= ex[i]; k++)
-      sol = sol ? shallowconcat(sol, soli) : soli;
+    if (ex[i] > 1) soli = shallowconcat1( const_vec(ex[i], soli) );
+    sol = sol? shallowconcat(sol, soli): soli;
     nrr += ex[i]*nrri;
   }
   if (!sol) { avma = av; return cgetg(1,t_COL); }
