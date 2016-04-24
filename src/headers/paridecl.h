@@ -4777,6 +4777,7 @@ INLINE int    is_matvec_t(long t);
 INLINE int    is_noncalc_t(long tx);
 INLINE int    is_pm1(GEN n);
 INLINE int    is_rational_t(long t);
+INLINE int    is_real_t(long t);
 INLINE int    is_recursive_t(long t);
 INLINE int    is_scalar_t(long t);
 INLINE int    is_universal_constant(GEN x);

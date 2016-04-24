@@ -712,13 +712,9 @@ gmod(GEN x, GEN y)
         default: pari_err_TYPE2("%",x,y);
       }
     case t_REAL: case t_FRAC:
-      switch(tx)
-      {
-        case t_INT: case t_REAL: case t_FRAC:
-          av = avma;
-          return gerepileupto(av, gadd(x, gneg(gmul(_quot(x,y),y))));
-        default: pari_err_TYPE2("%",x,y);
-      }
+      if (!is_real_t(tx)) pari_err_TYPE2("%",x,y);
+      av = avma;
+      return gerepileupto(av, gadd(x, gneg(gmul(_quot(x,y),y))));
   }
   pari_err_TYPE2("%",x,y);
   return NULL; /* not reached */

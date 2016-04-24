@@ -2900,7 +2900,7 @@ sturmpart_i(GEN x, GEN a, GEN b)
   t = typ(x);
   if (t != t_POL)
   {
-    if (t == t_INT || t == t_REAL || t == t_FRAC) return 0;
+    if (is_real_t(t)) return 0;
     pari_err_TYPE("sturm",x);
   }
   s = lg(x); if (s==3) return 0;

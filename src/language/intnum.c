@@ -282,18 +282,10 @@ static const long LGTAB = 8;
 #define TABwm(v) gel(v,7)
 
 static int
-isinR(GEN z)
-{
-  long tz = typ(z);
-  return (tz == t_INT || tz == t_REAL || tz == t_FRAC);
-}
-
+isinR(GEN z) { return is_real_t(typ(z)); }
 static int
 isinC(GEN z)
-{
-  return (typ(z) == t_COMPLEX)? isinR(gel(z,1)) && isinR(gel(z,2)):
-                                isinR(z);
-}
+{ return (typ(z) == t_COMPLEX)? isinR(gel(z,1)) && isinR(gel(z,2)): isinR(z); }
 
 static int
 checktabsimp(GEN tab)
