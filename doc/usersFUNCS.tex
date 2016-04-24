@@ -257,14 +257,13 @@ The library syntax is \fun{GEN}{gmod}{GEN x, GEN y}
 for $x$ \kbd{\%} $y$.
 
 \subseckbd{\pow} The expression $x\hbox{\kbd{\pow}}n$ is \idx{powering}.
-If the exponent is an integer, then exact operations are performed using
-binary (left-shift) powering techniques. In particular, in this case $x$
-cannot be a vector or matrix unless it is a square matrix (invertible
-if the exponent is negative). If $x$ is a $p$-adic number, its
+
+\item If the exponent $n$ is an integer, then exact operations are performed
+using binary (left-shift) powering techniques. If $x$ is a $p$-adic number, its
 precision will increase if $v_p(n) > 0$. Powering a binary quadratic form
-(types \typ{QFI} and \typ{QFR}) returns a reduced representative of the
-class, provided the input is reduced. In particular, $x\hbox{\kbd{\pow}}1$ is
-identical to $x$.
+(types \typ{QFI} and \typ{QFR}) returns a representative of the class, which is
+always reduced if the input was. (In particular, \kbd{x \pow 1} returns $x$
+itself, whether it is reduced or not.)
 
 PARI is able to rewrite the multiplication $x * x$ of two \emph{identical}
 objects as $x^2$, or $\kbd{sqr}(x)$. Here, identical means the operands are
@@ -272,11 +271,12 @@ two different labels referencing the same chunk of memory; no equality test
 is performed. This is no longer true when more than two arguments are
 involved.
 
-If the exponent is not of type integer, this is treated as a transcendental
-function (see \secref{se:trans}), and in particular has the effect of
-componentwise powering on vector or matrices.
+\item If the exponent $n$ is not an integer, powering is treated as the
+transcendental function $\exp(n\log x)$, and in particular acts
+componentwise on vector or matrices, even square matrices ! (See
+\secref{se:trans}.)
 
-As an exception, if the exponent is a rational number $p/q$ and $x$ an
+\item As an exception, if the exponent is a rational number $p/q$ and $x$ an
 integer modulo a prime or a $p$-adic number, return a solution $y$ of
 $y^q=x^p$ if it exists. Currently, $q$ must not have large prime factors.
 Beware that
@@ -291,8 +291,8 @@ Beware that
 %4 = Mod(1, 19)  /* Mod(7,19) is just another cubic root */
 @eprog
 
-If the exponent is a negative integer, an \idx{inverse} must be computed.
-For non-invertible \typ{INTMOD}, this will fail and implicitly exhibit a
+\item If the exponent is a negative integer, an \idx{inverse} must be computed.
+For non-invertible \typ{INTMOD} $x$, this will fail and implicitly exhibit a
 non trivial factor of the modulus:
 \bprog
 ? Mod(4,6)^(-1)
@@ -306,36 +306,53 @@ complicated operations modulo an integer $N$ whose factorization is
 unknown. Either the computation succeeds and all is well, or a factor $d$
 is discovered and the computation may be restarted modulo $d$ or $N/d$.
 
-For non-invertible \typ{POLMOD}, this will fail without exhibiting a
-factor.
+For non-invertible \typ{POLMOD} $x$, the behaviour is the same:
 \bprog
 ? Mod(x^2, x^3-x)^(-1)
   ***   at top-level: Mod(x^2,x^3-x)^(-1)
   ***                               ^-----
-  *** _^_: non-invertible polynomial in RgXQ_inv.
-? a = Mod(3,4)*y^3 + Mod(1,4); b = y^6+y^5+y^4+y^3+y^2+y+1;
-? Mod(a, b)^(-1);
+  *** _^_: impossible inverse in RgXQ_inv: Mod(x^2, x^3 - x).
+@eprog\noindent Note that the underlying algorihm (subresultant) assumes
+the base ring is a domain:
+\bprog
+? a = Mod(3*y^3+1, 4); b = y^6+y^5+y^4+y^3+y^2+y+1; c = Mod(a,b);
+? c^(-1)
   ***   at top-level: Mod(a,b)^(-1)
   ***                         ^-----
-  *** _^_: impossible inverse modulo: Mod(0, 4).
+  *** _^_: impossible inverse modulo: Mod(2, 4).
 @eprog\noindent
-In fact the latter polynomial is invertible, but the algorithm used
-(subresultant) assumes the base ring is a domain. If it is not the case,
-as here for $\Z/4\Z$, a result will be correct but chances are an error
+In fact $c$ is invertible, but $\Z/4\Z$ is not a domain and the algorithm
+fails. It is possible for the algorithm to succeed in such situations
+and any returned result will be correct, but chances are an error
 will occur first. In this specific case, one should work with $2$-adics.
-In general, one can try the following approach
+In general, one can also try the following approach
 \bprog
 ? inversemod(a, b) =
-{ my(m);
+{ my(m, v = variable(b));
   m = polsylvestermatrix(polrecip(a), polrecip(b));
   m = matinverseimage(m, matid(#m)[,1]);
-  Polrev( vecextract(m, Str("..", poldegree(b))), variable(b) )
+  Polrev(m[1..poldegree(b)], v);
 }
 ? inversemod(a,b)
 %2 = Mod(2,4)*y^5 + Mod(3,4)*y^3 + Mod(1,4)*y^2 + Mod(3,4)*y + Mod(2,4)
 @eprog\noindent
-This is not guaranteed to work either since it must invert pivots. See
-\secref{se:linear_algebra}.
+This is not guaranteed to work either since \kbd{matinverseimage} must also
+invert pivots. See \secref{se:linear_algebra}.
+
+For a \typ{MAT} $x$, the matrix is expected to be square and invertible, except
+in the special case \kbd{x\pow(-1)} which returns a left inverse if one exists
+(rectangular $x$ with full column rank).
+\bprog
+? x = Mat([1;2])
+%1 =
+[1]
+
+[2]
+
+? x^(-1)
+%2 =
+[1 0]
+@eprog
 
 The library syntax is \fun{GEN}{gpow}{GEN x, GEN n, long prec}
 for $x\hbox{\kbd{\pow}}n$.
