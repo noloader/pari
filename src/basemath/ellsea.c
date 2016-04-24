@@ -1056,7 +1056,7 @@ Flxq_study_eqn(long ell, GEN mpoly, GEN T, ulong p, long *pt_dG, long *pt_r)
     *pt_r = (ell + 1)/s;
     return NULL;
   }
-  return G;
+  return gel(FlxqX_roots(G, T, p), 1);
 }
 
 static GEN
@@ -1085,8 +1085,7 @@ FpXQ_study_eqn(long ell, GEN mpoly, GEN T, GEN p, long *pt_dG, long *pt_r)
     GEN Tp = ZXT_to_FlxT(T,pp);
     GEN mpolyp = ZXX_to_FlxX(mpoly,pp,get_FpX_var(T));
     G = Flxq_study_eqn(ell, mpolyp, Tp, pp, pt_dG, pt_r);
-    if (!G) return NULL;
-    G = FlxX_to_ZXX(G);
+    return G ? Flx_to_ZX(G): NULL;
   }
   else
   {
@@ -1100,8 +1099,8 @@ FpXQ_study_eqn(long ell, GEN mpoly, GEN T, GEN p, long *pt_dG, long *pt_r)
       *pt_r = (ell + 1)/s;
       return NULL;
     }
+    return gel(FpXQX_roots(G, T, p), 1);
   }
-  return gel(FpXQX_roots(G, T, p), 1);
 }
 
 /* Berlekamp variant */
