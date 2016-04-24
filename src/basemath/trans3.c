@@ -3137,11 +3137,6 @@ double_eta_quotient(GEN a, GEN w, GEN D, long p, long q, GEN pq, GEN sqrtD)
 
 typedef struct { GEN u; long v, t; } cxanalyze_t;
 
-/* typ(x) = t_INT, t_FRAC or t_REAL */
-INLINE GEN
-R_abs_shallow(GEN x)
-{ return (typ(x) == t_FRAC)? absfrac_shallow(x): mpabs_shallow(x); }
-
 /* Check whether a t_COMPLEX, t_REAL or t_INT z != 0 can be written as
  * z = u * 2^(v/2) * exp(I Pi/4 t), u > 0, v = 0,1 and -3 <= t <= 4.
  * Allow z t_INT/t_REAL to simplify handling of eta_correction() output */

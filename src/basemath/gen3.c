@@ -1004,13 +1004,13 @@ gdivround(GEN x, GEN y)
 
   if (tx==t_INT && ty==t_INT) return diviiround(x,y);
   av = avma;
-  if (is_rational_t(tx) && is_rational_t(ty))
+  if (is_real_t(tx) && is_real_t(ty))
   { /* same as diviiround but less efficient */
     pari_sp av1;
     int fl;
     q = quotrem(x,y,&r);
     av1 = avma;
-    fl = gcmp(gmul2n(Q_abs_shallow(r),1), Q_abs_shallow(y));
+    fl = gcmp(gmul2n(R_abs_shallow(r),1), R_abs_shallow(y));
     avma = av1; cgiv(r);
     if (fl >= 0) /* If 2*|r| >= |y| */
     {

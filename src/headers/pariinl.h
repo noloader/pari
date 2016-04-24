@@ -1299,6 +1299,12 @@ Q_abs(GEN x) { return (typ(x) == t_INT)? absi(x): absfrac(x); }
 INLINE GEN
 Q_abs_shallow(GEN x)
 { return (typ(x) == t_INT)? absi_shallow(x): absfrac_shallow(x); }
+INLINE GEN
+R_abs_shallow(GEN x)
+{ return (typ(x) == t_FRAC)? absfrac_shallow(x): mpabs_shallow(x); }
+INLINE GEN
+R_abs(GEN x)
+{ return (typ(x) == t_FRAC)? absfrac(x): mpabs(x); }
 
 /* Force z to be of type real/complex with floating point components */
 INLINE GEN

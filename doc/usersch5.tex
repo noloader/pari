@@ -9606,7 +9606,8 @@ vector whose components are the true Euclidean quotient and remainder
 of \kbd{x} and~\kbd{y}.
 
 \fun{GEN}{gdivent[z]}{GEN x, GEN y[, GEN z]} yields the true Euclidean
-quotient of \kbd{x} and the \typ{INT} or \typ{POL}~\kbd{y}.
+quotient of \kbd{x} and the \typ{INT} or \typ{POL}~\kbd{y}, as per
+the \kbd{\bs} GP operator.
 
 \fun{GEN}{gdiventsg}{long s, GEN y[, GEN z]}, as \kbd{gdivent}
 except that \kbd{x} is a \kbd{long}.
@@ -9615,10 +9616,10 @@ except that \kbd{x} is a \kbd{long}.
 except that \kbd{y} is a \kbd{long}.
 
 \fun{GEN}{gmod[z]}{GEN x, GEN y[, GEN z]} yields the remainder of \kbd{x}
-modulo the \typ{INT} or \typ{POL}~\kbd{y}. A \typ{REAL} or \typ{FRAC} \kbd{y}
-is also allowed, in which case the remainder is the unique real $r$ such that
-$0 \leq r < |\kbd{y}|$ and $\kbd{y} = q\kbd{x} + r$ for some (in fact unique)
-integer $q$.
+modulo the \typ{INT} or \typ{POL}~\kbd{y}, as per the \kbd{\%} GP operator.
+A \typ{REAL} or \typ{FRAC} \kbd{y} is also allowed, in which case the
+remainder is the unique real $r$ such that $0 \leq r < |\kbd{y}|$ and
+$\kbd{y} = q\kbd{x} + r$ for some (in fact unique) integer $q$.
 
 \fun{GEN}{gmodsg}{long s, GEN y[, GEN z]} as \kbd{gmod}, except \kbd{x} is
 a \kbd{long}.
@@ -9648,9 +9649,10 @@ scalars, treated as polynomials of degree $0$.
 \kbd{y} may also be scalars, treated as polynomials of degree $0$.
 
 
-\fun{GEN}{gdivround}{GEN x, GEN y} if \kbd{x} and \kbd{y} are \typ{INT},
-as \kbd{diviiround}. Operate componentwise if \kbd{x} is
-a \typ{COL}, \typ{VEC} or \typ{MAT}. Otherwise as \key{gdivent}.
+\fun{GEN}{gdivround}{GEN x, GEN y} if \kbd{x} and \kbd{y} are real
+(\typ{INT}, \typ{REAL}, \typ{FRAC}), return the rounded Euclidean quotient of
+$x$ and $y$ as per the \kbd{\bs/} GP operator. Operate componentwise if
+\kbd{x} is a \typ{COL}, \typ{VEC} or \typ{MAT}. Otherwise as \key{gdivent}.
 
 \fun{GEN}{centermod_i}{GEN x, GEN y, GEN y2}, as \kbd{centermodii},
 componentwise.
@@ -10044,6 +10046,15 @@ copy of $|x|$, in particular returns $x$ itself when $x \geq 0$, and
 \kbd{gneg($x$)} otherwise.
 
 \fun{GEN}{sqrfrac}{GEN x} returns the square of the \typ{FRAC} $x$.
+
+\section{Real numbers}
+
+\fun{GEN}{R_abs}{GEN x} $x$ being a \typ{INT}, a \typ{REAL} or a
+\typ{FRAC}, returns $|x|$.
+
+\fun{GEN}{R_abs_shallow}{GEN x} $x$ being a \typ{INT}, a \typ{REAL} or a
+\typ{FRAC}, returns a shallow copy of $|x|$, in particular returns $x$ itself
+when $x \geq 0$, and \kbd{gneg($x$)} otherwise.
 
 \section{Complex numbers}
 

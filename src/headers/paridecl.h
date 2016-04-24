@@ -4665,6 +4665,8 @@ INLINE GEN    GENbinbase(GENbin *p);
 INLINE GEN    Q_abs(GEN x);
 INLINE GEN    Q_abs_shallow(GEN x);
 INLINE int    QV_isscalar(GEN x);
+INLINE GEN    R_abs(GEN x);
+INLINE GEN    R_abs_shallow(GEN x);
 INLINE GEN    RgC_fpnorml2(GEN x, long prec);
 INLINE GEN    RgC_gtofp(GEN x, long prec);
 INLINE GEN    RgC_gtomp(GEN x, long prec);

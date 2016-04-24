@@ -213,6 +213,8 @@ BA150- elltatepairing could return wrong results [#1784]
   157- a=Mod(y,y^2+1); Mod(a, x^2-2) == a returned 0 [#1806]
   158- T=x^3+x^2-x+2; polsturm(T,[-oo,-2]) => SEGV
   159- T=x^3+x^2-x+2; polsturm(T) => 0 (instead of 1) [#1807]
+  160- x \/ y did not conform to documentation when either x or y was a
+       t_REAL. E.g. 28/10 \/ 1 == 3 but 2.8 \/ 1 == 2. Now both return 3 [#1811]
 
   Added
     1- add optional argument to sumdigits to specify the base
@@ -439,6 +441,7 @@ BA 163- qfisominit: allow to pass the matrix of minimal vectors [#1656]
 BA 165- [libpari] FlxqX_halfgcd, FpXQX_halfgcd
    166- issquare(t_POLMOD of t_INTMOD) assuming a finite field
    167- RgXn_powu, RgXn_powu_i
+   168- [libpari] is_real_t, R_abs, R_abs_shallow
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]
