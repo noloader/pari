@@ -20,6 +20,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 /**                                                                     **/
 /*************************************************************************/
 
+/*************************************************************************/
+/**                                                                     **/
+/**                   Low-level constructors                            **/
+/**                                                                     **/
+/*************************************************************************/
+
 INLINE void
 _getFF(GEN x, GEN *T, GEN *p, ulong *pp)
 {
@@ -65,6 +71,132 @@ mkFF_i(GEN x, GEN r)
   GEN z = cgetg(5,t_FFELT);
   return _mkFF_i(x,z,r);
 }
+
+/*************************************************************************/
+/**                                                                     **/
+/**                   medium-level constructors                         **/
+/**                                                                     **/
+/*************************************************************************/
+
+static GEN
+Z_to_raw(GEN x, GEN ff)
+{
+  ulong pp;
+  GEN T, p;
+  _getFF(ff,&T,&p,&pp);
+  switch(ff[1])
+  {
+  case t_FF_FpXQ:
+    return scalarpol(x, varn(T));
+  case t_FF_F2xq:
+    return Z_to_F2x(x,varn(T));
+  default:
+    return Z_to_Flx(x,pp,varn(T));
+  }
+}
+
+static GEN
+Rg_to_raw(GEN x, GEN ff)
+{
+  long tx = typ(x);
+  switch(tx)
+  {
+  case t_INT: case t_FRAC: case t_PADIC: case t_INTMOD:
+    return Z_to_raw(Rg_to_Fp(x, FF_p_i(ff)), ff);
+  case t_FFELT:
+    if (!FF_samefield(x,ff))
+      pari_err_MODULUS("Rg_to_raw",x,ff);
+    return gel(x,2);
+  }
+  pari_err_TYPE("Rg_to_raw",x);
+  return NULL; /* not reached */
+}
+
+static GEN
+FFX_to_raw(GEN x, GEN ff)
+{
+  long i, lx;
+  GEN y = cgetg_copy(x,&lx);
+  y[1] = x[1];
+  for(i=2; i<lx; i++)
+    gel(y, i) = Rg_to_raw(gel(x, i), ff);
+  return y;
+}
+
+static GEN
+FFC_to_raw(GEN x)
+{
+  long i, lx;
+  GEN y = cgetg_copy(x,&lx);
+  for(i=1; i<lx; i++)
+    gel(y, i) = gel(gel(x, i), 2);
+  return y;
+}
+
+static GEN
+FFM_to_raw(GEN x)
+{
+  long i, lx;
+  GEN y = cgetg_copy(x,&lx);
+  for(i=1; i<lx; i++)
+    gel(y, i) = FFC_to_raw(gel(x, i));
+  return y;
+}
+
+/* in place */
+static GEN
+raw_to_FFC(GEN x, GEN ff)
+{
+  long i, lx = lg(x);
+  for (i=1; i<lx; i++) gel(x,i) = mkFF_i(ff, gel(x,i));
+  return x;
+}
+
+/* in place */
+static GEN
+raw_to_FFM(GEN x, GEN ff)
+{
+  long i, lx = lg(x);
+  for (i=1; i<lx; i++) gel(x,i) = raw_to_FFC(gel(x,i), ff);
+  return x;
+}
+
+GEN
+Fq_to_FF(GEN x, GEN ff)
+{
+  ulong pp;
+  GEN r, T, p, z=_initFF(ff,&T,&p,&pp);
+  int is_int = typ(x)==t_INT;
+  switch(ff[1])
+  {
+  case t_FF_FpXQ:
+    r= is_int ? scalarpol(x, varn(T)): x;
+    break;
+  case t_FF_F2xq:
+    r= is_int ? Z_to_F2x(x,T[1]): ZX_to_F2x(x);
+    break;
+  default:
+    r= is_int ? Z_to_Flx(x,pp,T[1]): ZX_to_Flx(x,pp);
+  }
+  setvarn(r, varn(T)); /* paranoia */
+  return _mkFF_i(ff,z,r);
+}
+
+/* in place */
+static GEN
+to_FFX(GEN x, GEN ff)
+{
+  long i, lx = lg(x);
+  if (typ(x) != t_POL) pari_err_TYPE("to_FFX",x);
+  for (i=2; i<lx; i++) gel(x,i) = Fq_to_FF(gel(x,i), ff);
+  return x;
+}
+
+/*************************************************************************/
+/**                                                                     **/
+/**                   Public functions                                  **/
+/**                                                                     **/
+/*************************************************************************/
 
 /* Return true if x and y are defined in the same field */
 int
@@ -1367,35 +1499,28 @@ FF_elltatepairing(GEN E, GEN P, GEN Q, GEN m)
 }
 
 GEN
-Fq_to_FF(GEN x, GEN ff)
+FFX_roots(GEN Pf, GEN ff)
 {
+  pari_sp av = avma;
+  GEN r,T,p;
   ulong pp;
-  GEN r, T, p, z=_initFF(ff,&T,&p,&pp);
-  int is_int = typ(x)==t_INT;
+  GEN P = FFX_to_raw(Pf, ff);
+  _getFF(ff,&T,&p,&pp);
   switch(ff[1])
   {
   case t_FF_FpXQ:
-    r= is_int ? scalarpol(x, varn(T)): x;
+    r = FpXQX_roots(P, T, p);
     break;
   case t_FF_F2xq:
-    r= is_int ? Z_to_F2x(x,T[1]): ZX_to_F2x(x);
+    r = F2xqX_roots(P, T);
     break;
   default:
-    r= is_int ? Z_to_Flx(x,pp,T[1]): ZX_to_Flx(x,pp);
+    r = FlxqX_roots(P, T, pp);
   }
-  setvarn(r, varn(T)); /* paranoia */
-  return _mkFF_i(ff,z,r);
+  r = raw_to_FFC(r, ff);
+  return gerepilecopy(av, r);
 }
 
-/* in place */
-static GEN
-to_FFX(GEN x, GEN ff)
-{
-  long i, lx = lg(x);
-  if (typ(x) != t_POL) pari_err_TYPE("to_FFX",x);
-  for (i=2; i<lx; i++) gel(x,i) = Fq_to_FF(gel(x,i), ff);
-  return x;
-}
 GEN
 FqX_to_FFX(GEN x, GEN ff)
 {
@@ -1404,32 +1529,6 @@ FqX_to_FFX(GEN x, GEN ff)
   y[1] = x[1];
   for (i=2; i<lx; i++) gel(y,i) = Fq_to_FF(gel(x,i), ff);
   return y;
-}
-/* in place */
-static GEN
-to_FFC(GEN x, GEN ff)
-{
-  long i, lx = lg(x);
-  for (i=1; i<lx; i++) gel(x,i) = Fq_to_FF(gel(x,i), ff);
-  return x;
-}
-
-/* in place */
-static GEN
-raw_to_FFC(GEN x, GEN ff)
-{
-  long i, lx = lg(x);
-  for (i=1; i<lx; i++) gel(x,i) = mkFF_i(ff, gel(x,i));
-  return x;
-}
-
-/* in place */
-static GEN
-raw_to_FFM(GEN x, GEN ff)
-{
-  long i, lx = lg(x);
-  for (i=1; i<lx; i++) gel(x,i) = raw_to_FFC(gel(x,i), ff);
-  return x;
 }
 
 /* P vector of t_POL, E t_VECSMALL of exponents, ff a t_FFELT. Update elts of
@@ -1493,18 +1592,6 @@ FFX_factor(GEN P, GEN x)
   P = FFX_init_fix_varn(P, x, &T, &p);
   r = FpXQX_factor(P, T,p);
   return to_FF_fact(vP, gel(r,1),gel(r,2), x,av);
-}
-
-/* Roots of P over the field of definition of x */
-GEN
-FFX_roots(GEN P, GEN x)
-{
-  GEN r, T, p;
-  pari_sp av=avma;
-
-  P = FFX_init_fix_varn(P, x, &T, &p);
-  r = FpXQX_roots(P, T, p);
-  return gerepilecopy(av, to_FFC(r, x));
 }
 
 GEN
@@ -1719,26 +1806,6 @@ RgM_is_FFM(GEN x, GEN *ff)
   for (j=lx-1; j>0; j--)
     if (!RgC_is_FFC(gel(x,j), ff)) return 0;
   return (*ff != NULL);
-}
-
-static GEN
-FFC_to_raw(GEN x)
-{
-  long i, lx;
-  GEN y = cgetg_copy(x,&lx);
-  for(i=1; i<lx; i++)
-    gel(y, i) = gmael(x, i, 2);
-  return y;
-}
-
-static GEN
-FFM_to_raw(GEN x)
-{
-  long i, lx;
-  GEN y = cgetg_copy(x,&lx);
-  for(i=1; i<lx; i++)
-    gel(y, i) = FFC_to_raw(gel(x, i));
-  return y;
 }
 
 static GEN
