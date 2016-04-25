@@ -212,9 +212,9 @@ monomial_Flx(ulong a, long d, long vs)
 }
 
 GEN
-Z_to_Flx(GEN x, ulong p, long v)
+Z_to_Flx(GEN x, ulong p, long sv)
 {
-  long sv = evalvarn(v), u = umodiu(x,p);
+  long u = umodiu(x,p);
   return u? mkvecsmall2(sv, u): pol0_Flx(sv);
 }
 
@@ -3525,7 +3525,7 @@ ZXX_to_FlxX(GEN B, ulong p, long v)
     switch (typ(gel(B,i)))
     {
     case t_INT:
-      gel(b,i) = Z_to_Flx(gel(B,i), p, v);
+      gel(b,i) = Z_to_Flx(gel(B,i), p, evalvarn(v));
       break;
     case t_POL:
       gel(b,i) = ZX_to_Flx(gel(B,i), p);

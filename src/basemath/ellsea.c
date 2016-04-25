@@ -470,7 +470,7 @@ eigen_ellmulu(struct eigen_ellinit *E, GEN z, ulong n)
 static GEN
 Fq_to_Flx(GEN a4, GEN T, ulong p)
 {
-  return typ(a4)==t_INT ? Z_to_Flx(a4, p, get_FpX_var(T)): ZX_to_Flx(a4, p);
+  return typ(a4)==t_INT ? Z_to_Flx(a4, p, get_Flx_var(T)): ZX_to_Flx(a4, p);
 }
 
 /*Finds the eigenvalue of the Frobenius given E, ell odd prime, h factor of the
@@ -488,7 +488,7 @@ find_eigen_value(GEN a4, GEN a6, ulong ell, GEN h, GEN T, GEN p, GEN tr)
   {
     GEN Tp = ZXT_to_FlxT(T, pp);
     GEN hp  = ZXXT_to_FlxXT(h, pp, get_FpX_var(T));
-    init_eigenu(&Edat, Fq_to_Flx(a4, T, pp), Fq_to_Flx(a6, T, pp),
+    init_eigenu(&Edat, Fq_to_Flx(a4, Tp, pp), Fq_to_Flx(a6, Tp, pp),
         FlxqX_get_red(hp, Tp, pp), Tp, pp);
   }
   else
@@ -535,7 +535,7 @@ find_eigen_value_power(GEN a4, GEN a6, ulong ell, long k, GEN h, ulong lambda, G
   {
     GEN Tp = ZXT_to_FlxT(T, pp);
     GEN hp  = ZXXT_to_FlxXT(h, pp, get_FpX_var(T));
-    init_eigenu(&Edat, Fq_to_Flx(a4, T, pp), Fq_to_Flx(a6, T, pp),
+    init_eigenu(&Edat, Fq_to_Flx(a4, Tp, pp), Fq_to_Flx(a6, Tp, pp),
         FlxqX_get_red(hp, Tp, pp), Tp, pp);
   }
   else
@@ -1718,8 +1718,9 @@ get_FqE_group(void ** pt_E, GEN a4, GEN a6, GEN T, GEN p)
   else if (lgefint(p)==3)
   {
     ulong pp = uel(p,2);
-    return get_FlxqE_group(pt_E, Fq_to_Flx(a4, T, pp), Fq_to_Flx(a6, T, pp),
-                           ZXT_to_FlxT(T,pp),pp);
+    GEN Tp = ZXT_to_FlxT(T,pp);
+    return get_FlxqE_group(pt_E, Fq_to_Flx(a4, Tp, pp), Fq_to_Flx(a6, Tp, pp),
+                           Tp, pp);
   }
   return get_FpXQE_group(pt_E,a4,a6,T,p);
 }

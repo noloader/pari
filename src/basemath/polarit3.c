@@ -882,7 +882,7 @@ GEN
 FqV_to_FlxV(GEN v, GEN T, GEN pp)
 {
   long j, N = lg(v);
-  long vT = varn(T);
+  long vT = evalvarn(get_FpX_var(T));
   ulong p = pp[2];
   GEN y = cgetg(N, t_VEC);
   for (j=1; j<N; j++)
@@ -895,7 +895,7 @@ GEN
 FqC_to_FlxC(GEN v, GEN T, GEN pp)
 {
   long j, N = lg(v);
-  long vT = get_FpX_var(T);
+  long vT = evalvarn(get_FpX_var(T));
   ulong p = pp[2];
   GEN y = cgetg(N, t_COL);
   for (j=1; j<N; j++)

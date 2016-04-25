@@ -411,7 +411,7 @@ ulong   Rg_to_F2(GEN x);
 ulong   Rg_to_Fl(GEN x, ulong p);
 GEN     Rg_to_Flxq(GEN x, GEN T, ulong p);
 GEN     RgX_to_Flx(GEN x, ulong p);
-GEN     Z_to_Flx(GEN x, ulong p, long v);
+GEN     Z_to_Flx(GEN x, ulong p, long sv);
 GEN     ZX_to_Flx(GEN x, ulong p);
 GEN     ZXV_to_FlxV(GEN v, ulong p);
 GEN     ZXT_to_FlxT(GEN z, ulong p);

@@ -91,7 +91,7 @@ Z_to_raw(GEN x, GEN ff)
   case t_FF_F2xq:
     return Z_to_F2x(x,varn(T));
   default:
-    return Z_to_Flx(x,pp,varn(T));
+    return Z_to_Flx(x,pp,T[1]);
   }
 }
 

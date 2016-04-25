@@ -557,6 +557,7 @@ BA 69- rename Flc_Fl_mul -> Flv_Fl_mul, Flc_Fl_div -> Flv_Fl_div,
        RgC_to_Flc to RgV_to_Flv, F2c_to_Flc to F2v_to_Flv
    70- rename leading_term -> leading_coeff, constant_term -> constant_coeff
    71- improve gamma(a+O(x))
+BA 72- Z_to_Flx now takes a shifted variable number, as Fl_to_Flx.
 
 Removed
    1- deprecated functions nfbasis0, nfdisc0, factorpadic0

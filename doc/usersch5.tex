@@ -6443,8 +6443,9 @@ Multiply a multiprecision object by a single-precision one.
 scalar \kbd{Flx}. Assume that \kbd{evx = evalvarn(vx)} for some variable
 number \kbd{vx}.
 
-\fun{GEN}{Z_to_Flx}{GEN x, ulong p, long v} converts a \typ{INT} to a scalar
-polynomial in variable $v$.
+\fun{GEN}{Z_to_Flx}{GEN x, ulong p, long sv} converts a \typ{INT} to a scalar
+\kbd{Flx} polynomial. Assume that \kbd{sv = evalvarn(v)} for some variable
+number \kbd{v}.
 
 \fun{GEN}{Flx_to_Flv}{GEN x, long n} converts from \kbd{Flx} to \kbd{Flv}
 with \kbd{n} components (assumed larger than the number of coefficients of
