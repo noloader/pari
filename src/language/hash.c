@@ -271,7 +271,7 @@ hashstr_dbg(hashtable *h)
 /********************************************************************/
 
 INLINE ulong
-glue(ulong h, ulong a) { return (h << 5) + (h>>2) + a; }
+glue(ulong h, ulong a) { return 404936533*h + a; }
 ulong
 hash_GEN(GEN x)
 {

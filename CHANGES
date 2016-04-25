@@ -558,6 +558,7 @@ BA 69- rename Flc_Fl_mul -> Flv_Fl_mul, Flc_Fl_div -> Flv_Fl_div,
    70- rename leading_term -> leading_coeff, constant_term -> constant_coeff
    71- improve gamma(a+O(x))
 BA 72- Z_to_Flx now takes a shifted variable number, as Fl_to_Flx.
+BA 73- improve hash_GEN to reduce # of collisions (change glue)
 
 Removed
    1- deprecated functions nfbasis0, nfdisc0, factorpadic0
