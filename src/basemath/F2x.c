@@ -2160,7 +2160,21 @@ _F2xqXQ_one(void *data) {
   return pol1_F2xX(varn(d->S),d->T[1]);
 }
 
-static struct bb_algebra F2xqXQ_algebra = { _F2xqXQ_red,_F2xqXQ_add,_F2xqXQ_mul,_F2xqXQ_sqr,_F2xqXQ_one,_F2xqXQ_zero };
+static struct bb_algebra F2xqXQ_algebra = { _F2xqXQ_red,_F2xqXQ_add,
+        _F2xqXQ_mul,_F2xqXQ_sqr,_F2xqXQ_one,_F2xqXQ_zero };
+
+GEN
+F2xqXQ_pow(GEN x, GEN n, GEN S, GEN T)
+{
+  struct _F2xqXQ D;
+  long s = signe(n);
+  if (!s) return pol1_F2xX(varn(S), T[1]);
+  if (s < 0) pari_err_IMPL("F2xqXQ_inv");
+  if (is_pm1(n)) return s < 0 ? x : gcopy(x);
+  if (degpol(x)>=degpol(S)) x = F2xqX_rem(x,S,T);
+  D.S = S; D.T = T;
+  return gen_pow(x, n, (void*)&D, &_F2xqXQ_sqr, &_F2xqXQ_mul);
+}
 
 GEN
 F2xqXQ_powers(GEN x, long l, GEN S, GEN T)

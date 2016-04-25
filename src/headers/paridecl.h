@@ -161,6 +161,7 @@ GEN     F2xqX_rem(GEN x, GEN S, GEN T);
 GEN     F2xqX_sqr(GEN x, GEN T);
 GEN     F2xqXQ_mul(GEN x, GEN y, GEN S, GEN T);
 GEN     F2xqXQ_sqr(GEN x, GEN S, GEN T);
+GEN     F2xqXQ_pow(GEN x, GEN n, GEN S, GEN T);
 GEN     F2xqXQ_powers(GEN x, long l, GEN S, GEN T);
 GEN     F2xqXQV_autpow(GEN aut, long n, GEN S, GEN T);
 GEN     F2xqXQV_auttrace(GEN aut, long n, GEN S, GEN T);
