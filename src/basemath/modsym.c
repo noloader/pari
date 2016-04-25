@@ -1606,7 +1606,7 @@ act_ZGl2Q(GEN z, struct m_act *T, GEN(*act)(struct m_act*,GEN), hashtable *H)
       {
         ulong hash = H->hash(g);
         hashentry *e = hash_search2(H,g,hash);
-        if (e) M = e->val; else { M = act(T,g); hash_insert2(H,g,M,hash); }
+        if (e) M = (GEN)e->val; else { M = act(T,g); hash_insert2(H,g,M,hash); }
       }
       if (is_pm1(n))
       { if (signe(n) < 0) M = RgM_neg(M); }
