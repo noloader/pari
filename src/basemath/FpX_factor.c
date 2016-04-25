@@ -3249,15 +3249,25 @@ F2xqX_roots_edf(GEN Sp, GEN xp, GEN Xp, GEN T, GEN V, long idx)
 }
 
 static GEN
+F2xqXQ_Frobenius(GEN xp, GEN Xp, GEN f, GEN T)
+{
+  long dT = F2x_degree(T), df = degpol(f);
+  if (dT >= expu(dT)*usqrt(df))
+    return gel(F2xqXQV_autpow(mkvec2(xp, Xp), dT, f, T), 2);
+  else
+    return F2xqXQ_pow(pol_x(varn(f)), int2n(dT), f, T);
+}
+
+static GEN
 F2xqX_roots_ddf(GEN f, GEN xp, GEN T)
 {
   GEN X, Xp, Xq, g, V;
-  long n, dT = F2x_degree(T);
+  long n;
   GEN R = F2xqX_easyroots(f, T);
   if (R) return R;
   X  = pol_x(varn(f));
   Xp = F2xqXQ_sqr(X, f, T);
-  Xq = gel(F2xqXQV_autpow(mkvec2(xp, Xp), dT, f, T), 2);
+  Xq = F2xqXQ_Frobenius(xp, Xp, f, T);
   g = F2xqX_gcd(F2xX_add(Xq, X), f, T);
   n = degpol(g);
   if (n==0) return cgetg(1, t_COL);
