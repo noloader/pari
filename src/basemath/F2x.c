@@ -1974,12 +1974,23 @@ F2xqX_mul(GEN x, GEN y, GEN T)
 GEN
 F2xqX_sqr(GEN x, GEN T)
 {
-  pari_sp ltop=avma;
-  GEN z,kx,kz;
-  kx= F2xX_to_Kronecker(x, F2x_degree(T));
-  kz = F2x_sqr(kx);
-  z = Kronecker_to_F2xqX(kz,T);
-  return gerepileupto(ltop,z);
+  long d = degpol(x), l = 2*d+3;
+  GEN z;
+  if (!signe(x)) return pol_0(varn(x));
+  z = cgetg(l,t_POL);
+  z[1] = x[1];
+  if (d > 0)
+  {
+    GEN u = pol0_F2x(T[1]);
+    long i,j;
+    for (i=2,j=2; i<d+2; i++,j+=2)
+    {
+      gel(z, j) = F2xq_sqr(gel(x, i), T);
+      gel(z, j+1) = u;
+    }
+  }
+  gel(z, 2+2*d) = F2xq_sqr(gel(x, 2+d), T);
+  return FlxX_renormalize(z, l);
 }
 
 GEN
