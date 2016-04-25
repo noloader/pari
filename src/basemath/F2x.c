@@ -1356,7 +1356,7 @@ F2xq_Artin_Schreier(GEN a, GEN T)
   if (lg(Q)!=2) return NULL;
   Q = gel(Q,1);
   Q[1] = T[1];
-  return gerepileuptoleaf(ltop, Q);
+  return gerepileuptoleaf(ltop, F2x_renormalize(Q, lg(Q)));
 }
 
 GEN
