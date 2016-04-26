@@ -1,5 +1,5 @@
 Function: msnew
-Section: modular_forms
+Section: modular_symbols
 C-Name: msnew
 Prototype: G
 Help: msnew(M): M being a full modular symbol space, as given by msinit,

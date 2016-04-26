@@ -1,5 +1,5 @@
 Function: mspathgens
-Section: modular_forms
+Section: modular_symbols
 C-Name: mspathgens
 Prototype: G
 Help: mspathgens(M): M being a full modular symbol space, as given by

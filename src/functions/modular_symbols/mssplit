@@ -1,5 +1,5 @@
 Function: mssplit
-Section: modular_forms
+Section: modular_symbols
 C-Name: mssplit
 Prototype: GG
 Help: mssplit(M,H): M being a full modular symbol space, as given by msinit,

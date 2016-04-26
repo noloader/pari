@@ -1,5 +1,5 @@
 Function: msatkinlehner
-Section: modular_forms
+Section: modular_symbols
 C-Name: msatkinlehner
 Prototype: GLDG
 Help: msatkinlehner(M,Q,{H}): Let M be a full modular symbol space of level N,

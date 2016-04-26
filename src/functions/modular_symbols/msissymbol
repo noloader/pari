@@ -1,5 +1,5 @@
 Function: msissymbol
-Section: modular_forms
+Section: modular_symbols
 C-Name: msissymbol
 Prototype: lGG
 Help: msissymbol(M,s): M being a full modular symbol space, as given by msinit,

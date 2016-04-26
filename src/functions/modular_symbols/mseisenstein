@@ -1,5 +1,5 @@
 Function: mseisenstein
-Section: modular_forms
+Section: modular_symbols
 C-Name: mseisenstein
 Prototype: G
 Help: mseisenstein(M): M being a full modular symbol space, as given by msinit,

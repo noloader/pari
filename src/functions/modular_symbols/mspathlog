@@ -1,5 +1,5 @@
 Function: mspathlog
-Section: modular_forms
+Section: modular_symbols
 C-Name: mspathlog
 Prototype: GG
 Help: mspathlog(M,p): M being a full modular symbol space, as given by

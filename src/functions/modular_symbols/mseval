@@ -1,5 +1,5 @@
 Function: mseval
-Section: modular_forms
+Section: modular_symbols
 C-Name: mseval
 Prototype: GGDG
 Help: mseval(M,s,{p}): M being a full modular symbol space, as given by

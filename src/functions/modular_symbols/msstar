@@ -1,5 +1,5 @@
 Function: msstar
-Section: modular_forms
+Section: modular_symbols
 C-Name: msstar
 Prototype: GDG
 Help: msstar(M,{H}): M being a full modular symbol space,

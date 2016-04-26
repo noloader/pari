@@ -1,5 +1,5 @@
 Function: msfromcusp
-Section: modular_forms
+Section: modular_symbols
 C-Name: msfromcusp
 Prototype: GG
 Help: msfromcusp(M, c): returns the modular symbol associated to the cusp

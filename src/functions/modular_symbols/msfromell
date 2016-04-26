@@ -1,5 +1,5 @@
 Function: msfromell
-Section: modular_forms
+Section: modular_symbols
 C-Name: msfromell
 Prototype: GD0,L,
 Help: msfromell(E, {sign=0}): return the [M, x], where M is msinit(N,2)

@@ -164,7 +164,7 @@ print_fun_list(char **list, long nbli)
   if (i) pari_putc('\n');
 }
 
-static const long MAX_SECTION = 14;
+static const long MAX_SECTION = 15;
 static void
 commands(long n)
 {
@@ -271,15 +271,16 @@ menu_commands(void)
   4: NUMBER THEORETICAL functions\n\
   5: Functions related to ELLIPTIC CURVES\n\
   6: Functions related to L-FUNCTIONS\n\
-  7: Functions related to MODULAR FORMS and MODULAR SYMBOLS\n\
-  8: Functions related to general NUMBER FIELDS\n\
-  9: Functions related to associative ALGEBRAS\n\
- 10: POLYNOMIALS and power series\n\
- 11: Vectors, matrices, LINEAR ALGEBRA and sets\n\
- 12: SUMS, products, integrals and similar functions\n\
- 13: GRAPHIC functions\n\
- 14: PROGRAMMING under GP\n\
- 15: The PARI community\n\
+  7: Functions related to MODULAR FORMS\n\
+  8: Functions related to MODULAR SYMBOLS\n\
+  9: Functions related to general NUMBER FIELDS\n\
+ 10: Functions related to associative ALGEBRAS\n\
+ 11: POLYNOMIALS and power series\n\
+ 12: Vectors, matrices, LINEAR ALGEBRA and sets\n\
+ 13: SUMS, products, integrals and similar functions\n\
+ 14: GRAPHIC functions\n\
+ 15: PROGRAMMING under GP\n\
+ 16: The PARI community\n\
 Also:\n\
   ? functionname (short on-line help)\n\
   ?\\             (keyboard shortcuts)\n\

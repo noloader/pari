@@ -1,5 +1,5 @@
 Function: mspadicmoments
-Section: modular_forms
+Section: modular_symbols
 C-Name: mspadicmoments
 Prototype: GGD1,L,
 Help: mspadicmoments(Mp, PHI, {D = 1}): given Mp from mspadicinit, an

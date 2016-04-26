@@ -1,5 +1,5 @@
 Function: msqexpansion
-Section: modular_forms
+Section: modular_symbols
 C-Name: msqexpansion
 Prototype: GGDP
 Help: msqexpansion(M,projH,{B = seriesprecision}): M being a full modular

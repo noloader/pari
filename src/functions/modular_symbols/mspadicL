@@ -1,5 +1,5 @@
 Function: mspadicL
-Section: modular_forms
+Section: modular_symbols
 C-Name: mspadicL
 Prototype: GDGD0,L,
 Help: mspadicL(omsd, {s = 0}, {r = 0}): given

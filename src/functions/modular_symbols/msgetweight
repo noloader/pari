@@ -1,5 +1,5 @@
 Function: msgetweight
-Section: modular_forms
+Section: modular_symbols
 C-Name: msgetweight
 Prototype: lG
 Help: msgetweight(M): M being a full modular symbol space, as given by msinit, return its weight k.

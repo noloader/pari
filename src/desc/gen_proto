@@ -13,6 +13,7 @@ $i = 1;
   'elliptic_curves'       => $i++,
   'l_functions'           => $i++,
   'modular_forms'         => $i++,
+  'modular_symbols'       => $i++,
   'number_fields'         => $i++,
   'algebras'              => $i++,
   'polynomials'           => $i++,

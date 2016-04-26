@@ -1,5 +1,5 @@
 Function: msomseval
-Section: modular_forms
+Section: modular_symbols
 C-Name: msomseval
 Prototype: GGG
 Help: msomseval(Mp, phi, path):

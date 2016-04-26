@@ -1,5 +1,5 @@
 Function: msfromhecke
-Section: modular_forms
+Section: modular_symbols
 C-Name: msfromhecke
 Prototype: GGDG
 Help: msfromhecke(M, v, {H}): given a msinit M and a vector v

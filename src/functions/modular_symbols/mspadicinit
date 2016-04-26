@@ -1,5 +1,5 @@
 Function: mspadicinit
-Section: modular_forms
+Section: modular_symbols
 C-Name: mspadicinit
 Prototype: GLLD-1,L,
 Help: mspadicinit(M, p, n, {flag}): M being a full modular symbol space,

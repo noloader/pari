@@ -1,5 +1,5 @@
 Function: msgetsign
-Section: modular_forms
+Section: modular_symbols
 C-Name: msgetsign
 Prototype: lG
 Help: msgetsign(M): M being a full modular symbol space, as given by msinit, return its sign.

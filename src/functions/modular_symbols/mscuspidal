@@ -1,5 +1,5 @@
 Function: mscuspidal
-Section: modular_forms
+Section: modular_symbols
 C-Name: mscuspidal
 Prototype: GD0,L,
 Help: mscuspidal(M, {flag=0}): M being a full modular symbol space, as given

@@ -1,5 +1,5 @@
 Function: msinit
-Section: modular_forms
+Section: modular_symbols
 C-Name: msinit
 Prototype: GGD0,L,
 Help: msinit(G, V, {sign=0}): given G a finite index subgroup of SL(2,Z)
