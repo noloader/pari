@@ -37,15 +37,16 @@ Help topics: for a list of relevant subtopics, type ?n for n in
   4: NUMBER THEORETICAL functions
   5: Functions related to ELLIPTIC CURVES
   6: Functions related to L-FUNCTIONS
-  7: Functions related to MODULAR FORMS and MODULAR SYMBOLS
-  8: Functions related to general NUMBER FIELDS
-  9: Functions related to associative ALGEBRAS
- 10: POLYNOMIALS and power series
- 11: Vectors, matrices, LINEAR ALGEBRA and sets
- 12: SUMS, products, integrals and similar functions
- 13: GRAPHIC functions
- 14: PROGRAMMING under GP
- 15: The PARI community
+  7: Functions related to MODULAR FORMS
+  8: Functions related to MODULAR SYMBOLS
+  9: Functions related to general NUMBER FIELDS
+ 10: Functions related to associative ALGEBRAS
+ 11: POLYNOMIALS and power series
+ 12: Vectors, matrices, LINEAR ALGEBRA and sets
+ 13: SUMS, products, integrals and similar functions
+ 14: GRAPHIC functions
+ 15: PROGRAMMING under GP
+ 16: The PARI community
 Also:
   ? functionname (short on-line help)
   ?\             (keyboard shortcuts)
@@ -158,4 +159,4 @@ f =
 g =
   ()->0
 
-Total time spent: 4
+Total time spent: 0
