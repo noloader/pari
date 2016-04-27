@@ -342,6 +342,8 @@ gp-sta: $add_funclist \$(OBJS) \$(OBJSGP)
 	\$(LD) -o \$@ \$(LDFLAGS) \$(OBJS) \$(OBJSGP) \$(RUNPTH) \$(RLLIBS) \$(PLOTLIBS) \$(STA_LIBS)
 	$postconfig gp-sta
 
+clean_pari_ps::
+	@-\$(RM) pari.ps
 cleantest:
 	\$(RM) *.dif gp.out io-testfile pari.ps
 cleanobj:
@@ -523,17 +525,17 @@ parimt.h: $src/mt/$thread_engine.h
 mpinl.h: parilvl0.h parilvl1.h
 	cat parilvl0.h parilvl1.h > mpinl.h
 
-bench: $exec
+bench: $exec clean_pari_ps
 	@\$(DOTEST) $test_basic
-dobench::
+dobench:: clean_pari_ps
 	@\$(DOTEST) $test_basic
-test-all: $exec
+test-all: $exec clean_pari_ps
 	@\$(DOTEST) $test_extra
-dotest-all::
+dotest-all:: clean_pari_ps
 	@\$(DOTEST) $test_extra
-dyntest-all: gp-dyn
+dyntest-all: gp-dyn clean_pari_ps
 	@env dotestSUF=dyn make test-all
-statest-all: gp-sta
+statest-all: gp-sta clean_pari_ps
 	@env dotestSUF=sta make test-all
 
 dotest-env::
