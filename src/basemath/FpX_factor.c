@@ -3458,7 +3458,7 @@ FpXQX_easyroots(GEN f, GEN T, GEN p)
 
 /* Adapted from Shoup NTL */
 static GEN
-FpXQX_factor_squarefree(GEN f, GEN xp, GEN T, GEN p)
+FpXQX_factor_squarefree(GEN f, GEN T, GEN p)
 {
   pari_sp av = avma;
   GEN r, t, v, tv;
@@ -3558,7 +3558,7 @@ FpXQX_roots_i(GEN S, GEN T, GEN p)
   R = FpXQX_easyroots(S, T, p);
   if (R) return gen_sort(R, (void*) &cmp_RgX, &cmp_nodata);
   xp = FpX_Frobenius(T, p);
-  V = FpXQX_factor_squarefree(S, xp, T, p);
+  V = FpXQX_factor_squarefree(S, T, p);
   l = lg(V);
   for (s=0, i=1; i < l; i++)
     s += !!degpol(gel(V,i));
