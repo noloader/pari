@@ -68,7 +68,7 @@ static double
 lemma526_i(double ac, double c, double t, double B)
 {
   double D = -B/ac;
-  if (D < 0)
+  if (D <= 0)
   {
     double x = pow(t, c);
     if (D > -100)

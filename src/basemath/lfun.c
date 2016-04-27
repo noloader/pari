@@ -814,7 +814,7 @@ lfunparams(GEN ldata, long der, long bitprec, struct lfunp *S)
   const long derprec = (der > 1)? dbllog2(mpfact(der)): 0; /* log2(der!) */
   GEN Vga, N, L;
   long k, k1, d, m, M, flag, nmax;
-  double a, E, hd, Ep, d2, suma, maxs, mins, sub;
+  double a, E, hd, Ep, d2, suma, maxs, mins, sub, B0,B1, Lestimate, Mestimate;
 
   Vga = ldata_get_gammavec(ldata);
   S->d = d = lg(Vga)-1; d2 = d/2.;
@@ -862,21 +862,34 @@ lfunparams(GEN ldata, long der, long bitprec, struct lfunp *S)
   M = 1000;
   L = cgetg(M+2, t_VECSMALL);
   a = S->k1 + S->A;
+
+  B0 = 5 + S->E - S->sub + S->logC + S->k1*S->logN2; /* 5 extra bits */
+  B1 = S->hd * (S->MAXs - S->k1);
+  Lestimate = dblcoro526(a + S->MAXs - 2./d, d/2.,
+    S->E - S->sub + S->logC - log(2*M_PI*S->hd) + S->MAXs*S->logN2);
+  Mestimate = (log(Lestimate) + S->logN2) / S->hd;
   nmax = 0;
   flag = 0;
   for (m = 0;; m++)
   {
-    double mh = m*S->hd, H = S->logN2-mh;
-    double B = S->E + maxdd(mh*S->MAXs - S->sub, 0) + S->k1*H + S->logC;
-    double x = dblcoro526(a, d/2., B);
-    long n = floor(x*exp(H) + 0.5); /* 0.5: fudge factor */
+    double x, H = S->logN2 - m*S->hd, B = B0 + m*B1;
+    long n;
+    if (B < 0) B = 0;
+    x = dblcoro526(a, d/2., B);
+    n = floor(x*exp(H)); /* 0.5: fudge factor */
     if (n > nmax) nmax = n;
     if (m > M) { M *= 2; L = vecsmall_lengthen(L,M+2); }
     L[m+1] = n;
-    if (n == 0) { if (++flag == 2) break; } else flag = 0;
+    if (n == 0) { if (++flag > 2 && m > Mestimate) break; } else flag = 0;
   }
-  if (m < 4) { m = 4; nmax = 1; L[1] = 1; } /* can happen for tiny bitprec */
-  S->M = m-2; setlg(L, S->M+1);
+  /* can happen for tiny bitprec */
+  if (m < 4) { nmax = 1; L[1] = 1; m = 1; }
+  else
+  {
+    m -= 2;
+    while (!L[m]) m--;
+  }
+  setlg(L, m+1); S->M = m;
   S->L = L;
   S->nmax = nmax;
 

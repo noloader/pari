@@ -320,3 +320,5 @@ localbitprec(20); #lfunzeros('x^2-2,6)
 lfuncost(1, [100], 5)
 L = lfuninit(polcyclo(5), [1/2,1/2,50]);
 lfuncost(L)
+
+lfun(1,2000)
