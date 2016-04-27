@@ -4,16 +4,25 @@ Wp = mspadicinit(W, 3, 6, 0);
 phi = mstooms(Wp, phi);
 mspadicmoments(Wp, phi)
 
+elldata=
+{
+ Map(["11a1",[0,-1,1,-10,-20];
+      "14a1",[1,0,1,4,-6];
+      "17a1",[1,-1,1,-1,-14];
+      "43a1",[0,1,1,0,0]]);
+}
+myellinit(s)= ellinit(if(type(s)==t_STR,mapget(elldata,s),s));
+
 test2ord(s, p, n, D = 1) =
 {
-  my(e = ellinit(s));
+  my(e = myellinit(s));
   my([M,xp] = msfromell(e,1));
   Wp = mspadicinit(M, p, n, 0);
   mspadicmoments(Wp, xp, D);
 }
 test2ss(s, p, n) =
 {
-  my(e = ellinit(s));
+  my(e = myellinit(s));
   my([M,xp] = msfromell(e,1));
   Wp = mspadicinit(M, p, n);
   mspadicmoments(Wp,xp);
