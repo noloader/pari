@@ -7,7 +7,7 @@ Help: nfhnf(nf,x,{flag=0}): if x=[A,I], gives a pseudo-basis [B,J] of the module
  transformation matrix such that AU = [0|B]
 Doc: given a pseudo-matrix $(A,I)$, finds a
  pseudo-basis $(B,J)$ in \idx{Hermite normal form} of the module it generates.
- If $\fl$ is non-zero, also return the transfomation matrix $U$ such that
+ If $\fl$ is non-zero, also return the transformation matrix $U$ such that
  $AU = [0|B]$.
 
 Variant: Also available:
