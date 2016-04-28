@@ -19,6 +19,9 @@ lfun(1,1+x+O(x^4),1)
 
 lfun(polcyclo(12),2)
 
+lfunmul(1,1)
+lfundiv(x^2+1,-4)
+
 \\ check for loss in accuracy in lfunthetaspec
 pol=x^5-5*x^3-x^2+3*x+1;
 nf24217=dirzetak(nfinit(pol),32254);
