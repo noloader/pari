@@ -97,7 +97,7 @@ lfunconvolinv(GEN a1, GEN a2)
 { return tag(mkvec2(a1,a2), t_LFUN_DIV); }
 
 static GEN
-lfunmulpoles(GEN ldata1, GEN ldata2, long prec)
+lfunmulpoles(GEN ldata1, GEN ldata2, long bitprec)
 {
   long k = ldata_get_k(ldata1), l, j;
   GEN r1 = ldata_get_residue(ldata1);
@@ -119,13 +119,13 @@ lfunmulpoles(GEN ldata1, GEN ldata2, long prec)
   for (j = 1; j < l; j++)
   {
     GEN be = gel(r1,j);
-    GEN z1 = lfun(ldata1,be,prec), z2 = lfun(ldata2,be,prec);
+    GEN z1 = lfun(ldata1,be,bitprec), z2 = lfun(ldata2,be,bitprec);
     if (typ(z1) == t_SER && typ(z2) == t_SER)
     { /* pole of both, recompute to needed seriesprecision */
       long e = valp(z1) + valp(z2);
       GEN b = RgX_to_ser(deg1pol_shallow(gen_1, be, 0), 3-e);
-      z1 = lfun(ldata1,b,prec);
-      z2 = lfun(ldata2,b,prec);
+      z1 = lfun(ldata1,b,bitprec);
+      z2 = lfun(ldata2,b,bitprec);
     }
     gel(r,j) = mkvec2(be, gmul(z1, z2));
   }
@@ -133,7 +133,7 @@ lfunmulpoles(GEN ldata1, GEN ldata2, long prec)
 }
 
 GEN
-lfunmul(GEN ldata1, GEN ldata2, long prec)
+lfunmul(GEN ldata1, GEN ldata2, long bitprec)
 {
   pari_sp ltop = avma;
   GEN r, N, Vga, sd, eno, a1a2, LD;
@@ -143,7 +143,7 @@ lfunmul(GEN ldata1, GEN ldata2, long prec)
   k = ldata_get_k(ldata1);
   if (ldata_get_k(ldata2) != k)
     pari_err_OP("lfunmul [weight]",ldata1, ldata2);
-  r = lfunmulpoles(ldata1, ldata2, prec);
+  r = lfunmulpoles(ldata1, ldata2, bitprec);
   N = gmul(ldata_get_conductor(ldata1), ldata_get_conductor(ldata2));
   Vga = vecsort0(gconcat(ldata_get_gammavec(ldata1), ldata_get_gammavec(ldata2)), NULL, 0);
   eno = gmul(ldata_get_rootno(ldata1), ldata_get_rootno(ldata2));
@@ -155,7 +155,7 @@ lfunmul(GEN ldata1, GEN ldata2, long prec)
 }
 
 static GEN
-lfundivpoles(GEN ldata1, GEN ldata2, long prec)
+lfundivpoles(GEN ldata1, GEN ldata2, long bitprec)
 {
   long k = ldata_get_k(ldata1), i, j, l;
   GEN r1 = ldata_get_residue(ldata1);
@@ -170,7 +170,7 @@ lfundivpoles(GEN ldata1, GEN ldata2, long prec)
   for (i = j = 1; j < l; j++)
   {
     GEN be = gel(r1,j);
-    GEN z = gdiv(lfun(ldata1,be,prec), lfun(ldata2,be,prec));
+    GEN z = gdiv(lfun(ldata1,be,bitprec), lfun(ldata2,be,bitprec));
     if (valp(z) < 0) gel(r,i++) = mkvec2(be, z);
   }
   if (i == 1) return NULL;
@@ -178,7 +178,7 @@ lfundivpoles(GEN ldata1, GEN ldata2, long prec)
 }
 
 GEN
-lfundiv(GEN ldata1, GEN ldata2, long prec)
+lfundiv(GEN ldata1, GEN ldata2, long bitprec)
 {
   pari_sp ltop = avma;
   GEN r, N, v, v1, v2, sd, eno, a1a2, LD;
@@ -188,7 +188,7 @@ lfundiv(GEN ldata1, GEN ldata2, long prec)
   k = ldata_get_k(ldata1);
   if (ldata_get_k(ldata2) != k)
     pari_err_OP("lfundiv [weight]",ldata1, ldata2);
-  r = lfundivpoles(ldata1, ldata2, prec);
+  r = lfundivpoles(ldata1, ldata2, bitprec);
   N = gdiv(ldata_get_conductor(ldata1), ldata_get_conductor(ldata2));
   if (typ(N) != t_INT) pari_err_OP("lfundiv [conductor]",ldata1, ldata2);
   a1a2 = lfunconvolinv(ldata_get_an(ldata1), ldata_get_an(ldata2));

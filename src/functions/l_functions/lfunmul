@@ -1,7 +1,7 @@
 Function: lfunmul
 Section: l_functions
 C-Name: lfunmul
-Prototype: GGp
+Prototype: GGb
 Help: lfunmul(L1,L2): creates the Ldata structure (without
   initialization) corresponding to the product of the Dirichlet series
   given by L1 and L2.

@@ -1,7 +1,7 @@
 Function: lfundiv
 Section: l_functions
 C-Name: lfundiv
-Prototype: GGp
+Prototype: GGb
 Help: lfundiv(L1,L2): creates the Ldata structure (without
   initialization) corresponding to the quotient of the Dirichlet series
   given by L1 and L2.
