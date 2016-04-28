@@ -19,8 +19,9 @@ lfun(1,1+x+O(x^4),1)
 
 lfun(polcyclo(12),2)
 
-lfunmul(1,1)
-lfundiv(x^2+1,-4)
+lfun(lfunmul(1,1),1)
+lfun(lfunmul(x^2+1,x^2+1),1)
+lfun(lfundiv(x^2+1,-4),1)
 
 \\ check for loss in accuracy in lfunthetaspec
 pol=x^5-5*x^3-x^2+3*x+1;

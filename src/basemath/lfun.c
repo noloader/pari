@@ -1431,22 +1431,30 @@ lfunlambda(GEN lmisc, GEN s, long bitprec)
 static GEN
 lfun_OK(GEN linit, GEN s, long bitprec)
 {
-  GEN N, gas, S, FVga, res;
+  GEN N, gas, S, FVga, res, ss = s;
   long prec = nbits2prec(bitprec);
 
   FVga = lfun_get_factgammavec(linit_get_tech(linit));
   S = lfunlambda_OK(linit, s, bitprec);
-  gas = gammafactproduct(FVga, s, prec);
+  if (typ(S)==t_SER && typ(s)!=t_SER)
+  {
+    long d = fracgammadegree(gel(FVga,1));
+    ss = deg1ser_shallow(gen_1, s, varn(S), lg(S)+d-2);
+  }
+  gas = gammafactproduct(FVga, ss, prec);
   N = ldata_get_conductor(linit_get_ldata(linit));
-  res = gdiv(S, gmul(gpow(N, gdivgs(s, 2), prec), gas));
+  res = gdiv(S, gmul(gpow(N, gdivgs(ss, 2), prec), gas));
   if (typ(s)!=t_SER && typ(res)==t_SER)
   {
     long v = valp(res);
     if (v > 0) return gen_0;
     if (v == 0) res = gel(res, 2);
+    else
+      setlg(res, minss(lg(res), 2-v));
   }
   return gprec_w(res, prec);
 }
+
 GEN
 lfun(GEN lmisc, GEN s, long bitprec)
 {
