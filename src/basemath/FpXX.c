@@ -984,24 +984,27 @@ FpXQX_div_by_X_x(GEN a, GEN x, GEN T, GEN p, GEN *r)
   return z;
 }
 
-struct _FpXQX { GEN T,p; };
+struct _FpXQXQ {
+  GEN T, S;
+  GEN p;
+};
 
 static GEN _FpXQX_mul(void *data, GEN a,GEN b)
 {
-  struct _FpXQX *d=(struct _FpXQX*)data;
+  struct _FpXQXQ *d=(struct _FpXQXQ*)data;
   return FpXQX_mul(a,b,d->T,d->p);
 }
 
 static GEN _FpXQX_sqr(void *data, GEN a)
 {
-  struct _FpXQX *d=(struct _FpXQX*)data;
+  struct _FpXQXQ *d=(struct _FpXQXQ*)data;
   return FpXQX_sqr(a, d->T, d->p);
 }
 
 GEN
 FpXQX_powu(GEN x, ulong n, GEN T, GEN p)
 {
-  struct _FpXQX D;
+  struct _FpXQXQ D;
   if (n==0) return pol_1(varn(x));
   D.T = T; D.p = p;
   return gen_powu(x, n, (void *)&D, _FpXQX_sqr, _FpXQX_mul);
@@ -1021,9 +1024,8 @@ FpXQXV_prod(GEN V, GEN T, GEN p)
   }
   else
   {
-    struct _FpXQX d;
-    d.p=p;
-    d.T=T;
+    struct _FpXQXQ d;
+    d.T=T; d.p=p;
     return gen_product(V, (void*)&d, &_FpXQX_mul);
   }
 }
@@ -1031,14 +1033,14 @@ FpXQXV_prod(GEN V, GEN T, GEN p)
 static GEN
 _FpXQX_divrem(void * E, GEN x, GEN y, GEN *r)
 {
-  struct _FpXQX *d = (struct _FpXQX *) E;
+  struct _FpXQXQ *d = (struct _FpXQXQ *) E;
   return FpXQX_divrem(x, y, d->T, d->p, r);
 }
 
 static GEN
 _FpXQX_add(void * E, GEN x, GEN y)
 {
-  struct _FpXQX *d = (struct _FpXQX *) E;
+  struct _FpXQXQ *d = (struct _FpXQXQ *) E;
   return FpXX_add(x, y, d->p);
 }
 
@@ -1050,7 +1052,7 @@ FpXQX_digits(GEN x, GEN B, GEN T, GEN p)
   pari_sp av = avma;
   long d = degpol(B), n = (lgpol(x)+d-1)/d;
   GEN z;
-  struct _FpXQX D;
+  struct _FpXQXQ D;
   D.T = T; D.p = p;
   z = gen_digits(x, B, n, (void *)&D, &FpXQX_ring, _FpXQX_divrem);
   return gerepileupto(av, z);
@@ -1060,7 +1062,7 @@ GEN
 FpXQX_fromdigits(GEN x, GEN B, GEN T, GEN p)
 {
   pari_sp av = avma;
-  struct _FpXQX D;
+  struct _FpXQXQ D;
   GEN z;
   D.T = T; D.p = p;
   z = gen_fromdigits(x,B,(void *)&D, &FpXQX_ring);
@@ -1227,15 +1229,6 @@ FpXQXQ_div(GEN x,GEN y,GEN S, GEN T,GEN p)
   return gerepileupto(av, FpXQXQ_mul(x, FpXQXQ_inv(y,S,T,p),S,T,p));
 }
 
-struct _FpXQXQ {
-  GEN T, S;
-  GEN p;
-};
-static GEN
-_FpXQXQ_add(void *data, GEN x, GEN y) {
-  struct _FpXQXQ *d = (struct _FpXQXQ*) data;
-  return FpXX_add(x,y, d->p);
-}
 static GEN
 _FpXQXQ_cmul(void *data, GEN P, long a, GEN x) {
   struct _FpXQXQ *d = (struct _FpXQXQ*) data;
@@ -1271,7 +1264,8 @@ _FpXQXQ_zero(void *data) {
   return pol_0(get_FpXQX_var(d->S));
 }
 
-static struct bb_algebra FpXQXQ_algebra = { _FpXQXQ_red,_FpXQXQ_add,_FpXQXQ_mul,_FpXQXQ_sqr,_FpXQXQ_one,_FpXQXQ_zero };
+static struct bb_algebra FpXQXQ_algebra = { _FpXQXQ_red, _FpXQX_add,
+              _FpXQXQ_mul, _FpXQXQ_sqr, _FpXQXQ_one, _FpXQXQ_zero };
 
 /* x over Fq, return lift(x^n) mod S */
 GEN
