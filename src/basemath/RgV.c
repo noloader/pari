@@ -642,6 +642,9 @@ static GEN
 _RgM_add(void *E, GEN x, GEN y) { (void)E; return RgM_add(x, y); }
 
 static GEN
+_RgM_sub(void *E, GEN x, GEN y) { (void)E; return RgM_sub(x, y); }
+
+static GEN
 _RgM_cmul(void *E, GEN P, long a, GEN x) { (void)E; return RgM_Rg_mul(x,gel(P,a+2)); }
 
 static GEN
@@ -659,7 +662,8 @@ _RgM_zero(void *E) { long *n = (long*) E; return zeromat(*n,*n); }
 static GEN
 _RgM_red(void *E, GEN x) { (void)E; return x; }
 
-static struct bb_algebra RgM_algebra = { _RgM_red,_RgM_add,_RgM_mul,_RgM_sqr,_RgM_one,_RgM_zero };
+static struct bb_algebra RgM_algebra = { _RgM_red, _RgM_add, _RgM_sub,
+       _RgM_mul, _RgM_sqr, _RgM_one, _RgM_zero };
 
 /* generates the list of powers of x of degree 0,1,2,...,l*/
 GEN

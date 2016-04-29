@@ -1471,6 +1471,12 @@ _FpXQ_add(void *data, GEN x, GEN y)
   return ZX_add(x, y);
 }
 static GEN
+_FpXQ_sub(void *data, GEN x, GEN y)
+{
+  (void) data;
+  return ZX_sub(x, y);
+}
+static GEN
 _FpXQ_cmul(void *data, GEN P, long a, GEN x)
 {
   (void) data;
@@ -1507,7 +1513,8 @@ _FpXQ_red(void *data, GEN x)
   return FpX_red(x,D->p);
 }
 
-static struct bb_algebra FpXQ_algebra = { _FpXQ_red,_FpXQ_add,_FpXQ_mul,_FpXQ_sqr,_FpXQ_one,_FpXQ_zero };
+static struct bb_algebra FpXQ_algebra = { _FpXQ_red, _FpXQ_add, _FpXQ_sub,
+       _FpXQ_mul, _FpXQ_sqr, _FpXQ_one, _FpXQ_zero };
 
 /* x,pol in Z[X], p in Z, n in Z, compute lift(x^n mod (p, pol)) */
 GEN

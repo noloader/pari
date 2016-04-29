@@ -111,6 +111,8 @@ _gen_nored(void *E, GEN x) { (void)E; return x; }
 static GEN
 _gen_add(void *E, GEN x, GEN y) { (void)E; return gadd(x, y); }
 static GEN
+_gen_sub(void *E, GEN x, GEN y) { (void)E; return gsub(x, y); }
+static GEN
 _gen_mul(void *E, GEN x, GEN y) { (void)E; return gmul(x, y); }
 static GEN
 _gen_sqr(void *E, GEN x) { (void)E; return gsqr(x); }
@@ -119,8 +121,8 @@ _gen_one(void *E) { (void)E; return gen_1; }
 static GEN
 _gen_zero(void *E) { (void)E; return gen_0; }
 
-static struct bb_algebra Rg_algebra = { _gen_nored,_gen_add,_gen_mul,_gen_sqr,
-                                        _gen_one,_gen_zero };
+static struct bb_algebra Rg_algebra = { _gen_nored, _gen_add, _gen_sub,
+              _gen_mul, _gen_sqr,_gen_one,_gen_zero };
 
 static GEN
 _gen_cmul(void *E, GEN P, long a, GEN x)
@@ -2044,6 +2046,8 @@ RgXQX_sqr(GEN x, GEN T)
 static GEN
 _add(void *data, GEN x, GEN y) { (void)data; return RgX_add(x, y); }
 static GEN
+_sub(void *data, GEN x, GEN y) { (void)data; return RgX_sub(x, y); }
+static GEN
 _sqr(void *data, GEN x) { return RgXQ_sqr(x, (GEN)data); }
 static GEN
 _mul(void *data, GEN x, GEN y) { return RgXQ_mul(x,y, (GEN)data); }
@@ -2056,7 +2060,8 @@ _zero(void *data) { return pol_0(varn((GEN)data)); }
 static GEN
 _red(void *data, GEN x) { (void)data; return gcopy(x); }
 
-static struct bb_algebra RgXQ_algebra = { _red,_add,_mul,_sqr,_one,_zero };
+static struct bb_algebra RgXQ_algebra = { _red, _add, _sub,
+              _mul, _sqr, _one, _zero };
 
 GEN
 RgX_RgXQV_eval(GEN Q, GEN x, GEN T)
@@ -2096,7 +2101,8 @@ _zeroXn(void *data) {
   struct modXn *S = (struct modXn*)data;
   return pol_0(S->v);
 }
-static struct bb_algebra RgXn_algebra = { _red,_add, _mulXn,_sqrXn, _oneXn,_zeroXn };
+static struct bb_algebra RgXn_algebra = { _red, _add, _sub, _mulXn, _sqrXn,
+                                          _oneXn, _zeroXn };
 
 GEN
 RgXn_powers(GEN x, long m, long n)

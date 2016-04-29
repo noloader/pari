@@ -504,6 +504,7 @@ struct bb_algebra
 {
   GEN (*red)(void *E, GEN x);
   GEN (*add)(void *E, GEN x, GEN y);
+  GEN (*sub)(void *E, GEN x, GEN y);
   GEN (*mul)(void *E, GEN x, GEN y);
   GEN (*sqr)(void *E, GEN x);
   GEN (*one)(void *E);
@@ -517,6 +518,8 @@ forms, but only \kbd{add} is allowed to return a non canonical form.
 \kbd{red(E,x)} returns the canonical form of $x$.
 
 \kbd{add(E,x,y)} returns the sum $x+y$.
+
+\kbd{sub(E,x,y)} returns the difference $x-y$.
 
 \kbd{mul(E,x,y)} returns the product $x\*y$.
 

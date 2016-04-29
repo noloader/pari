@@ -2252,6 +2252,8 @@ _gen_nored(void *E, GEN x) { (void)E; return x; }
 static GEN
 _mp_add(void *E, GEN x, GEN y) { (void)E; return mpadd(x, y); }
 static GEN
+_mp_sub(void *E, GEN x, GEN y) { (void)E; return mpsub(x, y); }
+static GEN
 _mp_mul(void *E, GEN x, GEN y) { (void)E; return mpmul(x, y); }
 static GEN
 _mp_sqr(void *E, GEN x) { (void)E; return mpsqr(x); }
@@ -2260,7 +2262,8 @@ _gen_one(void *E) { (void)E; return gen_1; }
 static GEN
 _gen_zero(void *E) { (void)E; return gen_0; }
 
-static struct bb_algebra mp_algebra = { _gen_nored,_mp_add,_mp_mul,_mp_sqr,_gen_one,_gen_zero };
+static struct bb_algebra mp_algebra = { _gen_nored, _mp_add, _mp_sub,
+                         _mp_mul, _mp_sqr, _gen_one, _gen_zero };
 
 static GEN
 _mp_cmul(void *E, GEN P, long a, GEN x) {(void)E; return mpmul(gel(P,a+2), x);}

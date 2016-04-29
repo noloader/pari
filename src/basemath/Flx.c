@@ -2463,6 +2463,10 @@ _Flxq_add(void *E, GEN x, GEN y)
 { struct _Flxq *s = (struct _Flxq *)E;
   return Flx_add(x,y,s->p); }
 static GEN
+_Flxq_sub(void *E, GEN x, GEN y)
+{ struct _Flxq *s = (struct _Flxq *)E;
+  return Flx_sub(x,y,s->p); }
+static GEN
 _Flxq_sqr(void *data, GEN x)
 {
   struct _Flxq *D = (struct _Flxq*)data;
@@ -2585,7 +2589,8 @@ Flx_matFrobenius(GEN T, ulong p)
   return Flxq_matrix_pow(Flx_Frobenius(T, p), n, n, T, p);
 }
 
-static struct bb_algebra Flxq_algebra = { _Flxq_red,_Flxq_add,_Flxq_mul,_Flxq_sqr,_Flxq_one,_Flxq_zero};
+static struct bb_algebra Flxq_algebra = { _Flxq_red, _Flxq_add, _Flxq_sub,
+              _Flxq_mul, _Flxq_sqr, _Flxq_one, _Flxq_zero};
 
 GEN
 Flx_FlxqV_eval(GEN Q, GEN x, GEN T, ulong p)
@@ -4936,6 +4941,11 @@ _FlxqXQ_add(void *data, GEN x, GEN y) {
   return FlxX_add(x,y, d->p);
 }
 static GEN
+_FlxqXQ_sub(void *data, GEN x, GEN y) {
+  struct _FlxqXQ *d = (struct _FlxqXQ*) data;
+  return FlxX_sub(x,y, d->p);
+}
+static GEN
 _FlxqXQ_cmul(void *data, GEN P, long a, GEN x) {
   struct _FlxqXQ *d = (struct _FlxqXQ*) data;
   return FlxX_Flx_mul(x,gel(P,a+2), d->p);
@@ -4968,7 +4978,8 @@ _FlxqXQ_zero(void *data) {
   return pol_0(get_FlxqX_var(d->S));
 }
 
-static struct bb_algebra FlxqXQ_algebra = { _FlxqXQ_red,_FlxqXQ_add,_FlxqXQ_mul,_FlxqXQ_sqr,_FlxqXQ_one,_FlxqXQ_zero };
+static struct bb_algebra FlxqXQ_algebra = { _FlxqXQ_red, _FlxqXQ_add,
+       _FlxqXQ_sub, _FlxqXQ_mul, _FlxqXQ_sqr, _FlxqXQ_one, _FlxqXQ_zero };
 
 /* x over Fq, return lift(x^n) mod S */
 GEN

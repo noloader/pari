@@ -1044,6 +1044,12 @@ _FpXQX_add(void * E, GEN x, GEN y)
   return FpXX_add(x, y, d->p);
 }
 
+static GEN
+_FpXQX_sub(void * E, GEN x, GEN y) {
+  struct _FpXQXQ *d = (struct _FpXQXQ*) E;
+  return FpXX_sub(x,y, d->p);
+}
+
 static struct bb_ring FpXQX_ring = { _FpXQX_add, _FpXQX_mul, _FpXQX_sqr };
 
 GEN
@@ -1265,7 +1271,7 @@ _FpXQXQ_zero(void *data) {
 }
 
 static struct bb_algebra FpXQXQ_algebra = { _FpXQXQ_red, _FpXQX_add,
-              _FpXQXQ_mul, _FpXQXQ_sqr, _FpXQXQ_one, _FpXQXQ_zero };
+       _FpXQX_sub, _FpXQXQ_mul, _FpXQXQ_sqr, _FpXQXQ_one, _FpXQXQ_zero };
 
 /* x over Fq, return lift(x^n) mod S */
 GEN

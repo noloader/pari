@@ -950,7 +950,8 @@ F2x_matFrobenius(GEN T)
   return F2xq_matrix_pow(F2x_Frobenius(T), n, n, T);
 }
 
-static struct bb_algebra F2xq_algebra = { _F2xq_red,_F2xq_add,_F2xq_mul,_F2xq_sqr,_F2xq_one,_F2xq_zero};
+static struct bb_algebra F2xq_algebra = { _F2xq_red, _F2xq_add, _F2xq_add,
+              _F2xq_mul, _F2xq_sqr, _F2xq_one, _F2xq_zero};
 
 GEN
 F2x_F2xqV_eval(GEN Q, GEN x, GEN T)
@@ -2217,8 +2218,8 @@ _F2xqXQ_one(void *data) {
   return pol1_F2xX(varn(d->S),d->T[1]);
 }
 
-static struct bb_algebra F2xqXQ_algebra = { _F2xqXQ_red,_F2xqXQ_add,
-        _F2xqXQ_mul,_F2xqXQ_sqr,_F2xqXQ_one,_F2xqXQ_zero };
+static struct bb_algebra F2xqXQ_algebra = { _F2xqXQ_red,
+ _F2xqXQ_add, _F2xqXQ_add, _F2xqXQ_mul,_F2xqXQ_sqr,_F2xqXQ_one,_F2xqXQ_zero };
 
 GEN
 F2xqXQ_pow(GEN x, GEN n, GEN S, GEN T)

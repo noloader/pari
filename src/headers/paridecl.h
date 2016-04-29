@@ -47,6 +47,7 @@ struct bb_algebra
 {
   GEN (*red)(void *E, GEN x);
   GEN (*add)(void *E, GEN x, GEN y);
+  GEN (*sub)(void *E, GEN x, GEN y);
   GEN (*mul)(void *E, GEN x, GEN y);
   GEN (*sqr)(void *E, GEN x);
   GEN (*one)(void *E);
