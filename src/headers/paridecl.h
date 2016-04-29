@@ -713,6 +713,7 @@ GEN     Kronecker_to_FpXQX(GEN z, GEN pol, GEN p);
 GEN     Kronecker_to_ZXX(GEN z, long N, long v);
 GEN     ZXX_mul_Kronecker(GEN x, GEN y, long n);
 GEN     ZXX_sqr_Kronecker(GEN x, long n);
+const struct bb_algebra * get_FpXQX_algebra(void **E, GEN T, GEN p, long v);
 long    get_FpXQX_degree(GEN T);
 GEN     get_FpXQX_mod(GEN T);
 long    get_FpXQX_var(GEN T);

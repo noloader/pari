@@ -1284,6 +1284,20 @@ get_FpXQXQ_algebra(void **E, GEN S, GEN T, GEN p)
   return &FpXQXQ_algebra;
 }
 
+static struct bb_algebra FpXQX_algebra = { _FpXQXQ_red, _FpXQX_add,
+       _FpXQX_sub, _FpXQX_mul, _FpXQX_sqr, _FpXQXQ_one, _FpXQXQ_zero };
+
+const struct bb_algebra *
+get_FpXQX_algebra(void **E, GEN T, GEN p, long v)
+{
+  GEN z = new_chunk(sizeof(struct _FpXQXQ));
+  struct _FpXQXQ *e = (struct _FpXQXQ *) z;
+  e->T = FpX_get_red(T, p);
+  e->S = pol_x(v);
+  e->p  = p; *E = (void*)e;
+  return &FpXQX_algebra;
+}
+
 /* x over Fq, return lift(x^n) mod S */
 GEN
 FpXQXQ_pow(GEN x, GEN n, GEN S, GEN T, GEN p)
