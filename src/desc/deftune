@@ -2,6 +2,7 @@
 AGM_ATAN_LIMIT                     159      89      56      60
 DIVRR_GMP_LIMIT                     -1       4      -1       4
 EXPNEWTON_LIMIT                     66     197      66      66
+F2x_MUL_KARATSUBA_LIMIT             23      23      15      15
 Flx_BARRETT_QUARTMULII_LIMIT       244      20      29      23
 Flx_BARRETT_HALFMULII_LIMIT        244      23      29      21
 Flx_BARRETT_KARATSUBA_LIMIT        905     905    2561    1172

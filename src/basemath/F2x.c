@@ -377,8 +377,6 @@ F2x_shiftip(pari_sp av, GEN x, long v)
   avma = (pari_sp)y; return y;
 }
 
-static const long F2x_MUL_KARATSUBA_LIMIT = 10;
-
 /* fast product (Karatsuba) of polynomials a,b. These are not real GENs, a+2,
  * b+2 were sent instead. na, nb = number of terms of a, b.
  * Only c, c0, c1, c2 are genuine GEN.
@@ -396,7 +394,7 @@ F2x_mulspec(GEN a, GEN b, long na, long nb)
   if (!nb) return pol0_F2x(0);
 
   av = avma;
-  if (na <= F2x_MUL_KARATSUBA_LIMIT)
+  if (na < F2x_MUL_KARATSUBA_LIMIT)
     return F2x_shiftip(av, F2x_mulspec_basecase(a, b, na, nb), v);
   i=(na>>1); n0=na-i; na=i;
   a0=a+n0; n0a=n0;
