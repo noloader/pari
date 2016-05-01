@@ -11,7 +11,7 @@ elldata=
       "17a1",[1,-1,1,-1,-14];
       "43a1",[0,1,1,0,0]]);
 }
-myellinit(s)= ellinit(if(type(s)==t_STR,mapget(elldata,s),s));
+myellinit(s)= ellinit(if(type(s)=="t_STR",mapget(elldata,s),s));
 
 test2ord(s, p, n, D = 1) =
 {
@@ -33,7 +33,7 @@ test2ord("17a1", 7, 4)
 test2ss("17a1", 3, 4)
 test2ord("14a1", 7, 4)
 
-e=ellinit("11a1");
+e=myellinit("11a1");
 [M,xpm]=msfromell(e,1);
 Wp = mspadicinit(M, 3, 4, 0);
 mspadicmoments(Wp, xpm, 5)
