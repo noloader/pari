@@ -258,6 +258,72 @@ F2x_1_add(GEN y)
   return z;
 }
 
+INLINE void
+F2x_addshiftipspec(GEN x, GEN y, long ny, ulong db)
+{
+  long i;
+  if (db)
+  {
+    ulong dc=BITS_IN_LONG-db;
+    ulong r=0, yi;
+    for(i=0; i<ny-3; i+=4)
+    {
+      yi = uel(y,i);   x[i]   ^= (yi<<db)|r; r = yi>>dc;
+      yi = uel(y,i+1); x[i+1] ^= (yi<<db)|r; r = yi>>dc;
+      yi = uel(y,i+2); x[i+2] ^= (yi<<db)|r; r = yi>>dc;
+      yi = uel(y,i+3); x[i+3] ^= (yi<<db)|r; r = yi>>dc;
+    }
+    for(  ; i<ny; i++)
+    {
+      ulong yi = uel(y,i); x[i] ^= (yi<<db)|r; r = yi>>dc;
+    }
+    if (r) x[i] ^= r;
+  }
+  else
+  {
+    for(i=0; i<ny-3; i+=4)
+    {
+      x[i]   ^= y[i];
+      x[i+1] ^= y[i+1];
+      x[i+2] ^= y[i+2];
+      x[i+3] ^= y[i+3];
+    }
+    for(   ; i<ny; i++)
+      x[i] ^= y[i];
+  }
+}
+
+INLINE void
+F2x_addshiftip(GEN x, GEN y, ulong d)
+{
+  ulong db, dl=dvmduBIL(d, &db);
+  return F2x_addshiftipspec(x+2+dl, y+2, lgpol(y), db);
+}
+
+static GEN
+F2x_mulspec_basecase(GEN x, GEN y, long nx, long ny)
+{
+  long l, i, j;
+  GEN z;
+  l = nx + ny;
+  z = zero_Flv(l+1);
+  for(i=0; i < ny-1; i++)
+  {
+    GEN zi = z+2+i;
+    ulong yi = uel(y,i);
+    if (yi)
+      for(j=0; j < BITS_IN_LONG; j++)
+        if (yi&(1UL<<j)) F2x_addshiftipspec(zi,x,nx,j);
+  }
+  {
+    GEN zi = z+2+i;
+    ulong yi = uel(y,i), c = BITS_IN_LONG-bfffo(yi);
+    for(j=0; j < c; j++)
+      if (yi&(1UL<<j)) F2x_addshiftipspec(zi,x,nx,j);
+  }
+  return F2x_renormalize(z, l+2);
+}
+
 static GEN
 F2x_addshift(GEN x, GEN y, long d)
 {
@@ -303,38 +369,7 @@ F2x_shiftip(pari_sp av, GEN x, long v)
   avma = (pari_sp)y; return y;
 }
 
-static GEN
-F2x_mul1(ulong x, ulong y)
-{
-  ulong x1=(x&HIGHMASK)>>BITS_IN_HALFULONG;
-  ulong x2=x&LOWMASK;
-  ulong y1=(y&HIGHMASK)>>BITS_IN_HALFULONG;
-  ulong y2=y&LOWMASK;
-  ulong r1,r2,rr;
-  GEN z;
-  ulong i;
-  rr=r1=r2=0UL;
-  if (x2)
-    for(i=0;i<BITS_IN_HALFULONG;i++)
-      if (x2&(1UL<<i))
-      {
-        r2^=y2<<i;
-        rr^=y1<<i;
-      }
-  if (x1)
-    for(i=0;i<BITS_IN_HALFULONG;i++)
-      if (x1&(1UL<<i))
-      {
-        r1^=y1<<i;
-        rr^=y2<<i;
-      }
-  r2^=(rr&LOWMASK)<<BITS_IN_HALFULONG;
-  r1^=(rr&HIGHMASK)>>BITS_IN_HALFULONG;
-  z=cgetg((r1?4:3),t_VECSMALL);
-  z[2]=r2;
-  if (r1) z[3]=r1;
-  return z;
-}
+static const long F2x_MUL_KARATSUBA_LIMIT = 10;
 
 /* fast product (Karatsuba) of polynomials a,b. These are not real GENs, a+2,
  * b+2 were sent instead. na, nb = number of terms of a, b.
@@ -353,7 +388,8 @@ F2x_mulspec(GEN a, GEN b, long na, long nb)
   if (!nb) return pol0_F2x(0);
 
   av = avma;
-  if (na <=1) return F2x_shiftip(av,F2x_mul1(*a,*b),v);
+  if (na <= F2x_MUL_KARATSUBA_LIMIT)
+    return F2x_shiftip(av, F2x_mulspec_basecase(a, b, na, nb), v);
   i=(na>>1); n0=na-i; na=i;
   a0=a+n0; n0a=n0;
   while (n0a && !a[n0a-1]) n0a--;
@@ -467,27 +503,6 @@ F2x_sqrt(GEN x)
     }
   }
   return F2x_renormalize(z, lz);
-}
-
-INLINE void
-F2x_addshiftip(GEN x, GEN y, ulong d)
-{
-  ulong db, dl=dvmduBIL(d, &db);
-  long i, ly = lg(y);
-  if (db)
-  {
-    ulong dc=BITS_IN_LONG-db;
-    ulong r=0;
-    for(i=2; i<ly; i++)
-    {
-      x[i+dl] ^= (((ulong)y[i])<<db)|r;
-      r = ((ulong)y[i])>>dc;
-    }
-    if (r) x[i+dl] ^= r;
-  }
-  else
-    for(i=2; i<ly; i++)
-      x[i+dl] ^= y[i];
 }
 
 static GEN
