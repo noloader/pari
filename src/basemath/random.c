@@ -223,8 +223,11 @@ randomi(GEN N)
 GEN
 random_F2x(long d, long vs)
 {
-  long i, l = nbits2lg(d+1), n = l-1;
-  GEN y = cgetg(l,t_VECSMALL); y[1] = vs;
+  long i, n, l = nbits2lg(d+1), dmodBIL = remsBIL(d);
+  GEN y;
+  if (!dmodBIL) l--; /* the leading word is going to be &-ed with 0 */
+  n = l-1;
+  y = cgetg(l,t_VECSMALL); y[1] = vs;
 #ifdef LONG_IS_64BIT
   for (i=2; i<=n; i++) y[i] = rand64();
 #else
@@ -236,7 +239,7 @@ random_F2x(long d, long vs)
     y[i] = v>>32;
   }
 #endif
-  y[n] &= (1UL<<remsBIL(d))-1UL;
+  if (dmodBIL) y[n] &= (1UL<<dmodBIL)-1UL;
   return F2x_renormalize(y,l);
 }
 
