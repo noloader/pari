@@ -232,11 +232,8 @@ random_F2x(long d, long vs)
   {
     u64 v = rand64();
     y[i] = v & 0xFFFFFFFFUL;
-    i++;
-    if (i > n) break;
+    if (++i > n) break;
     y[i] = v>>32;
-    i++;
-    if (i > n) { v = rand64(); break; }
   }
 #endif
   y[n] &= (1UL<<remsBIL(d))-1UL;
