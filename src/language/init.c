@@ -1797,7 +1797,7 @@ icopy_avma_canon(GEN x, pari_sp AVMA)
   return y;
 }
 
-/* [copy_bin_canon/bin_copy_canon:] same as gcopy_av0, but copy integers in
+/* [copy_bin_canon:] same as gcopy_av0, but copy integers in
  * canonical (native kernel) form and make a full copy of t_LISTs */
 static GEN
 gcopy_av0_canon(GEN x, pari_sp *AVMA)
@@ -1836,9 +1836,10 @@ gcopy_av0_canon(GEN x, pari_sp *AVMA)
   return y;
 }
 
-/* [copy_bin/bin_copy:] size (number of words) required for gcopy_av0(x) */
+/* [copy_bin/bin_copy:] size (number of words) required for
+ * gcopy_av0_canon(x) */
 static long
-taille0(GEN x)
+taille0_canon(GEN x)
 {
   long i,n,lx, tx = typ(x);
   switch(tx)
@@ -1852,17 +1853,17 @@ taille0(GEN x)
     case t_LIST:
     {
       GEN L = list_data(x);
-      return L? 3 + taille0(L): 3;
+      return L? 3 + taille0_canon(L): 3;
     }
   }
   n = lx = lg(x);
-  for (i=lontyp[tx]; i<lx; i++) n += taille0(gel(x,i));
+  for (i=lontyp[tx]; i<lx; i++) n += taille0_canon(gel(x,i));
   return n;
 }
 
 /* [copy_bin/bin_copy:] size (number of words) required for gcopy_av0(x) */
 static long
-taille0_nolist(GEN x)
+taille0(GEN x)
 {
   long i,n,lx, tx = typ(x);
   switch(tx)
@@ -1882,7 +1883,7 @@ taille0_nolist(GEN x)
       return lg(x);
   }
   n = lx = lg(x);
-  for (i=lontyp[tx]; i<lx; i++) n += taille0_nolist(gel(x,i));
+  for (i=lontyp[tx]; i<lx; i++) n += taille0(gel(x,i));
   return n;
 }
 
@@ -1923,7 +1924,7 @@ gsizebyte(GEN x) { return gsizeword(x) * sizeof(long); }
 GENbin*
 copy_bin(GEN x)
 {
-  long t = taille0_nolist(x);
+  long t = taille0(x);
   GENbin *p = (GENbin*)pari_malloc(sizeof(GENbin) + t*sizeof(long));
   pari_sp AVMA = (pari_sp)(GENbinbase(p) + t);
   p->canon = 0;
@@ -1936,7 +1937,7 @@ copy_bin(GEN x)
 GENbin*
 copy_bin_canon(GEN x)
 {
-  long t = taille0(x);
+  long t = taille0_canon(x);
   GENbin *p = (GENbin*)pari_malloc(sizeof(GENbin) + t*sizeof(long));
   pari_sp AVMA = (pari_sp)(GENbinbase(p) + t);
   p->canon = 1;
