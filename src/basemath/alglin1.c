@@ -3792,6 +3792,237 @@ ZM_indexrank(GEN x) {
 
 /*******************************************************************/
 /*                                                                 */
+/*                   ZKM                                           */
+/*                                                                 */
+/*******************************************************************/
+
+static GEN
+FpVM_ratlift(GEN a, GEN q, long vs)
+{
+  GEN B, y;
+  long i, j, l = lg(a), n;
+  B = sqrti(shifti(q,-1));
+  y = cgetg(l, t_MAT);
+  if (l==1) return y;
+  n = lgcols(a);
+  for (i=1; i<l; i++)
+  {
+    GEN yi = cgetg(n, t_COL);
+    for (j=1; j<n; j++)
+    {
+      GEN v = FpC_ratlift(gmael(a,i,j), q, B, B, NULL);
+      if (!v) return NULL;
+      gel(yi, j) = RgV_to_RgX(v, vs);
+    }
+    gel(y,i) = yi;
+  }
+  return y;
+}
+
+static GEN
+FlmV_recover(GEN a, GEN M, ulong p, long vs)
+{
+  GEN a1 = gel(a,1);
+  long i, j, k, l = lg(a1), n, lM = lg(M);
+  GEN y = cgetg(l, t_MAT);
+  if (l==1) return y;
+  n = lgcols(a1);
+  for (i=1; i<l; i++)
+  {
+    GEN yi = cgetg(n, t_COL);
+    for (j=1; j<n; j++)
+    {
+      GEN v = cgetg(lM, t_COL);
+      for (k=1; k<lM; k++) gel(v,k) = gmael(gel(a,k),i,j);
+      gel(yi, j) = Flm_Flc_mul(M, v, p);
+    }
+    gel(y,i) = yi;
+  }
+  return y;
+}
+
+static GEN
+FlkM_inv(GEN M, GEN P, ulong p)
+{
+  ulong pi = get_Fl_red(p);
+  GEN R = Flx_roots(P, p);
+  long l = lg(R), i;
+  GEN W = Flv_invVandermonde(R, 1UL, p);
+  GEN V = cgetg(l, t_VEC);
+  for(i=1; i<l; i++)
+  {
+    gel(V, i) = Flm_inv(FlxM_eval_powers_pre(M, Fl_powers_pre(uel(R,i), degpol(P), p, pi), p, pi), p);
+    if (!gel(V, i)) return NULL;
+  }
+  return FlmV_recover(V,W,p,0);
+}
+
+GEN
+ZKM_inv_ratlift(GEN M, GEN P, long n, GEN *pden)
+{
+  pari_sp av2, av = avma;
+  GEN q, H;
+  ulong m = LONG_MAX>>1;
+  ulong p= 1 + m - (m % n);
+  long lM = lg(M);
+  if (lM == 1) { *pden = gen_1; return cgetg(1,t_MAT); }
+
+  av2 = avma;
+  H = NULL;
+  for(;;)
+  {
+    GEN Hp, Pp, Mp, Hr;
+    do p += n; while(!uisprime(p));
+    Pp = ZX_to_Flx(P, p);
+    Mp = FqM_to_FlxM(M, P, utoi(p));
+    Hp = FlkM_inv(Mp, Pp, p);
+    if (!Hp) continue;
+    if (!H)
+    {
+      H = ZVM_init_CRT(Hp, p);
+      q = utoipos(p);
+    }
+    else
+      ZVM_incremental_CRT(&H, Hp, &q, p);
+    Hr = FpVM_ratlift(H, q, varn(P));
+    if (DEBUGLEVEL>5) err_printf("ZKM_inv mod %ld (ratlift=%ld)\n", p,!!Hr);
+    if (Hr) {/* DONE ? */
+      GEN Hl = Q_remove_denom(Hr, pden);
+      GEN MH = RgXQM_mul(M, Hl,P);
+      if (*pden)
+      { if (RgM_isscalar(MH, *pden)) { H = Hl; break; }}
+      else
+      { if (RgM_isidentity(MH)) { H = Hl; *pden = gen_1; break; } }
+    }
+
+    if (gc_needed(av,2))
+    {
+      if (DEBUGMEM>1) pari_warn(warnmem,"ZKM_inv_ratlift");
+      gerepileall(av2, 2, &H, &q);
+    }
+  }
+  gerepileall(av, 2, &H, pden);
+  return H;
+}
+
+static GEN
+FlkM_ker(GEN M, GEN P, ulong p)
+{
+  ulong pi = get_Fl_red(p);
+  GEN R = Flx_roots(P, p);
+  long l = lg(R), i, dP = degpol(P), r;
+  GEN M1, K, D;
+  GEN W = Flv_invVandermonde(R, 1UL, p);
+  GEN V = cgetg(l, t_VEC);
+  M1 = FlxM_eval_powers_pre(M, Fl_powers_pre(uel(R,1), dP, p, pi), p, pi);
+  K = Flm_ker_sp(M1, p, 2);
+  r = lg(gel(K,1)); D = gel(K,2);
+  gel(V, 1) = gel(K,1);
+  for(i=2; i<l; i++)
+  {
+    GEN Mi = FlxM_eval_powers_pre(M, Fl_powers_pre(uel(R,i), dP, p, pi), p, pi);
+    GEN K = Flm_ker_sp(Mi, p, 2);
+    if (lg(gel(K,1)) != r || !zv_equal(D, gel(K,2))) return NULL;
+    gel(V, i) = gel(K,1);
+  }
+  return mkvec2(FlmV_recover(V,W,p,0), D);
+}
+
+GEN
+ZKM_ker_ratlift(GEN M, GEN P, long n)
+{
+  pari_sp av2, av = avma;
+  GEN q, H, D;
+  ulong m = LONG_MAX>>1;
+  ulong p= 1 + m - (m % n);
+  av2 = avma;
+  H = NULL; D = NULL;
+  for(;;)
+  {
+    GEN Kp, Hp, Dp, Pp, Mp, Hr;
+    do p += n; while(!uisprime(p));
+    Pp = ZX_to_Flx(P, p);
+    Mp = FqM_to_FlxM(M, P, utoi(p));
+    Kp = FlkM_ker(Mp, Pp, p);
+    if (!Kp) continue;
+    Hp = gel(Kp,1); Dp = gel(Kp,2);
+    if (H && (lg(Hp)>lg(H) || (lg(Hp)==lg(H) && vecsmall_lexcmp(Dp,D)>0))) continue;
+    if (!H || (lg(Hp)<lg(H) || vecsmall_lexcmp(Dp,D)<0))
+    {
+      H = ZVM_init_CRT(Hp, p); D = Dp;
+      q = utoipos(p);
+    }
+    else
+      ZVM_incremental_CRT(&H, Hp, &q, p);
+    Hr = FpVM_ratlift(H, q, varn(P));
+    if (DEBUGLEVEL>5) err_printf("ZKM_ker mod %ld (ratlift=%ld)\n", p,!!Hr);
+    if (Hr) {/* DONE ? */
+      GEN Hl = Q_remove_denom(Hr, NULL);
+      GEN MH = RgXQM_mul(M, Hl,P);
+      if (gequal0(MH)) { H = Hl;  break; }
+    }
+
+    if (gc_needed(av,2))
+    {
+      if (DEBUGMEM>1) pari_warn(warnmem,"ZKM_ker_ratlift");
+      gerepileall(av2, 3, &H, &D, &q);
+    }
+  }
+  return gerepilecopy(av, H);
+}
+
+GEN
+ZKM_indexrank(GEN M, GEN P, long n)
+{
+  pari_sp av = avma;
+  ulong m = LONG_MAX>>1;
+  ulong p= 1+m-(m%n);
+  GEN v;
+  do
+  {
+    ulong pi;
+    GEN R, Mp, K;
+    do p+=n; while(!uisprime(p));
+    pi = get_Fl_red(p);
+    R = Flx_roots(ZX_to_Flx(P, p), p);
+    Mp = FqM_to_FlxM(M, P, utoi(p));
+    K = FlxM_eval_powers_pre(Mp, Fl_powers_pre(uel(R,1), degpol(P), p, pi), p, pi);
+    v = Flm_indexrank(K, p);
+  } while(lg(gel(v,2))<lg(M));
+  return gerepilecopy(av, v);
+}
+
+GEN
+ZKM_gauss(GEN M, GEN P, long n, GEN *den)
+{
+  pari_sp av = avma;
+  GEN v, S, W;
+  v = ZKM_indexrank(M, P, n);
+  S = shallowmatextract(M,gel(v,1),gel(v,2));
+  W = ZKM_inv_ratlift(S, P, n, den);
+  gerepileall(av,2,&W,den);
+  return W;
+}
+
+GEN
+ZKM_pseudoinv(GEN M, GEN P, long n, GEN *den)
+{
+  pari_sp av = avma;
+  GEN v, S, W, z, v1;
+  long l, i;
+  v = ZKM_indexrank(M, P, n);
+  S = shallowmatextract(M,gel(v,1),gel(v,2));
+  W = ZKM_inv_ratlift(S, P, n, den);
+  z = zeromatcopy(lg(M)-1,lgcols(M)-1);
+  v1 = gel(v,1); l = lg(v1);
+  for(i=1; i<l; i++)
+    gel(z, v1[i]) = gel(W, i);
+  gerepileall(av,2,&z,den);
+  return z;
+}
+
+/*******************************************************************/
+/*                                                                 */
 /*                   Structured Elimination                        */
 /*                                                                 */
 /*******************************************************************/
