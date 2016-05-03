@@ -236,7 +236,15 @@ F2x_addspec(GEN x, GEN y, long lx, long ly)
 
   if (ly>lx) swapspec(x,y, lx,ly);
   lz = lx+2; z = cgetg(lz, t_VECSMALL) + 2;
-  for (i=0; i<ly; i++) z[i] = x[i]^y[i];
+  for (i=0; i<ly-3; i+=4)
+  {
+    z[i] = x[i]^y[i];
+    z[i+1] = x[i+1]^y[i+1];
+    z[i+2] = x[i+2]^y[i+2];
+    z[i+3] = x[i+3]^y[i+3];
+  }
+  for (; i<ly; i++)
+    z[i] = x[i]^y[i];
   for (   ; i<lx; i++) z[i] = x[i];
   z -= 2; return F2x_renormalize(z, lz);
 }
