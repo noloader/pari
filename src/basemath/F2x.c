@@ -325,7 +325,8 @@ F2x_mulspec_basecase(GEN x, GEN y, long nx, long ny)
   }
   {
     GEN zi = z+2+i;
-    ulong yi = uel(y,i), c = BITS_IN_LONG-bfffo(yi);
+    ulong yi = uel(y,i);
+    long c = BITS_IN_LONG-bfffo(yi);
     for(j=0; j < c; j++)
       if (yi&(1UL<<j)) F2x_addshiftipspec(zi,x,nx,j);
   }
