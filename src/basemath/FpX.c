@@ -1383,6 +1383,26 @@ FpV_FpVV_polint(GEN xa, GEN ya, GEN p, long vs)
   return gerepileupto(av, M);
 }
 
+GEN
+FpV_invVandermonde(GEN L, GEN den, GEN p)
+{
+  pari_sp av = avma;
+  long i, n = lg(L);
+  GEN M, R;
+  GEN tree = FpV_producttree(L, p, 0);
+  long m = lg(tree)-1;
+  GEN T = gmael(tree, m, 1);
+  R = FpV_inv(FpX_FpV_multieval_tree(FpX_deriv(T, p), L, tree, p), p);
+  if (den) R = FpC_Fp_mul(R, den, p);
+  M = cgetg(n, t_MAT);
+  for (i = 1; i < n; i++)
+  {
+    GEN P = FpX_Fp_mul(FpX_div_by_X_x(T, gel(L,i), p, NULL), gel(R,i), p);
+    gel(M,i) = RgX_to_RgC(P, n-1);
+  }
+  return gerepilecopy(av, M);
+}
+
 /***********************************************************************/
 /**                                                                   **/
 /**                              FpXQ                                 **/

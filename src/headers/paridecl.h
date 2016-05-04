@@ -518,6 +518,7 @@ GEN     Fp_FpX_sub(GEN x, GEN y, GEN p);
 GEN     Fp_FpXQ_log(GEN a, GEN g, GEN ord, GEN T, GEN p);
 GEN     FpV_FpVV_polint(GEN xa, GEN ya, GEN p, long vs);
 GEN     FpV_inv(GEN x, GEN p);
+GEN     FpV_invVandermonde(GEN L, GEN den, GEN p);
 GEN     FpV_polint(GEN xa, GEN ya, GEN p, long v);
 GEN     FpV_roots_to_pol(GEN V, GEN p, long v);
 GEN     FpX_Fp_add(GEN x, GEN y, GEN p);

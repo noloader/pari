@@ -1084,29 +1084,6 @@ fixedfieldinclusion(GEN O, GEN PL)
   return S;
 }
 
-/*Usually mod > den so there is no need to reduce it.*/
-GEN
-vandermondeinversemod(GEN L, GEN T, GEN den, GEN mod)
-{
-  pari_sp av;
-  long i, n = lg(L);
-  GEN P, Tp, M = cgetg(n, t_MAT);
-  av = avma;
-  Tp = gclone(FpX_deriv(T,mod)); /*clone*/
-  avma = av;
-  for (i = 1; i < n; i++)
-  {
-    GEN z;
-    av = avma;
-    z = Fp_inv(FpX_eval(Tp, gel(L,i),mod),mod);
-    z = Fp_mul(den,z,mod);
-    P = FpX_Fp_mul(FpX_div_by_X_x(T, gel(L,i), mod, NULL), z, mod);
-    gel(M,i) = gerepilecopy(av, RgX_to_RgC(P, n-1));
-  }
-  gunclone(Tp); /*unclone*/
-  return M;
-}
-
 /* Polynomial associated to a vector of conjugates. Not stack clean */
 static GEN
 vectopol(GEN v, GEN M, GEN den , GEN mod, GEN mod2, long x)
@@ -1988,7 +1965,7 @@ galoisgenfixedfield(GEN Tp, GEN Pmod, GEN V, GEN ip, struct galois_borne *gb)
     }
     else if (Pgb.valabs < gb->valabs)
       PL = FpC_red(PL, Pgb.ladicabs);
-    PM = vandermondeinversemod(PL, P, Pden, Pgb.ladicabs);
+    PM = FpV_invVandermonde(PL, Pden, Pgb.ladicabs);
     PG = galoisgen(P, PL, PM, Pden, &Pgb, &Pga);
     if (PG == gen_0) return NULL;
     lP = lg(gel(PG,1));
@@ -2242,8 +2219,8 @@ galoisconj4_main(GEN T, GEN den, long flag)
   if (DEBUGLEVEL >= 1) timer_printf(&ti, "galoisborne()");
   L = ZpX_roots(T, gb.l, gb.valabs);
   if (DEBUGLEVEL >= 1) timer_printf(&ti, "ZpX_roots");
-  M = vandermondeinversemod(L, T, den, gb.ladicabs);
-  if (DEBUGLEVEL >= 1) timer_printf(&ti, "vandermondeinversemod()");
+  M = FpV_invVandermonde(L, den, gb.ladicabs);
+  if (DEBUGLEVEL >= 1) timer_printf(&ti, "FpV_invVandermonde()");
   if (n == 1)
   {
     G = cgetg(3, t_VEC);
@@ -2517,7 +2494,7 @@ galoisfixedfield(GEN gal, GEN perm, long flag, long y)
       L  = ZpX_liftroots(T, L, Pgb.l, Pgb.valabs);
       mod = Pgb.ladicabs; mod2 = shifti(mod,-1);
     }
-    PM = vandermondeinversemod(PL, P, Pden, mod);
+    PM = FpV_invVandermonde(PL, Pden, mod);
     if (y < 0) y = 1;
     if (varncmp(y, vT) <= 0)
       pari_err_PRIORITY("galoisfixedfield", T, "<=", y);

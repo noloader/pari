@@ -4299,6 +4299,13 @@ modulo \kbd{p}.
 faster) to applying \kbd{FpV\_polint(x,$\ldots$)} to all the elements of the
 vector $V$ (thus, returns a \kbd{FpXV}).
 
+\fun{GEN}{FpV_invVandermonde}{GEN L, GEN d, GEN p} $L$ being a \kbd{FpV}
+of length $n$, return the inverse $M$ of the Vandermonde matrix associated to
+the elements of $L$, eventually multiplied by \kbd{d} if it is not
+\kbd{NULL}. If $A$ is a \kbd{FpV} and $B=M\*A$, then the polynomial
+$P=\sum_{i=1}^n B[i]\*X^{i-1}$ verifies $P(L[i])=d\*A[i]$ for
+$1 \leq i \leq n$.
+
 \fun{int}{FpX_is_squarefree}{GEN f, GEN p} returns $1$ if the
 \kbd{FpX}~\kbd{f} is squarefree, $0$ otherwise.
 

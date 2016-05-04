@@ -520,7 +520,7 @@ galoiscyclo(long n, long v)
   gel(grp,1) = polcyclo(n,v);
   gel(grp,2) = mkvec3(stoi(l), stoi(val), icopy(le));
   gel(grp,3) = gcopy(L);
-  gel(grp,4) = vandermondeinversemod(L, gel(grp,1), gen_1, le);
+  gel(grp,4) = FpV_invVandermonde(L,  NULL, le);
   gel(grp,5) = gen_1;
   gel(grp,6) = gcopy(elts);
   gel(grp,7) = gcopy(gel(G,1));
