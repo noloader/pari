@@ -52,6 +52,6 @@ Variant: Also available are
 Function: _polmodular_worker
 Section: programming/internals
 C-Name: polmodular_worker
-Prototype: UUUGGGGGLGG
+Prototype: UUUGGGGLGG
 Help: used by polmodular
 Doc: used by polmodular

@@ -477,7 +477,6 @@ get_fs(GEN nf, GEN P, GEN index, ulong p)
   { /* easy case: p does not divide index */
     GEN F = Flx_degfact(ZX_to_Flx(P,p), p);
     fs = gel(F,1); l = lg(fs);
-    ns = gel(F,2); /*to be overwritten*/
   }
   else
   {
@@ -485,8 +484,8 @@ get_fs(GEN nf, GEN P, GEN index, ulong p)
     l = lg(F);
     fs = cgetg(l, t_VECSMALL);
     for (j = 1; j < l; j++) fs[j] = pr_get_f(gel(F,j));
-    ns = cgetg(l, t_VECSMALL);
   }
+  ns = cgetg(l, t_VECSMALL);
   f = fs[1]; n = 1;
   for (j = 2, k = 1; j < l; j++)
     if (fs[j] == f)

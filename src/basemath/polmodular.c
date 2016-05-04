@@ -1642,7 +1642,7 @@ dinfo_to_vinfo(const modpoly_disc_info *dinfo)
 GEN
 polmodular_worker(ulong p, ulong t,
                   ulong L, GEN hilb, GEN factu, GEN vne, GEN vinfo,
-                  GEN J, long compute_derivs, GEN j_powers, GEN fdb)
+                  long compute_derivs, GEN j_powers, GEN fdb)
 {
   pari_sp av = avma;
   GEN modpoly_modp;
@@ -1652,7 +1652,7 @@ polmodular_worker(ulong p, ulong t,
   vne_to_ne(ne, vne);
   norm_eqn_update(ne, t, p, L);
   modpoly_modp = polmodular_split_p_Flm(L, hilb, factu, ne, fdb, &dinfo);
-  if (J != gen_0) {
+  if (!isintzero(j_powers)) {
     modpoly_modp = eval_modpoly_modp(modpoly_modp, j_powers, ne, compute_derivs);
     modpoly_modp = gerepileupto(av, modpoly_modp);
   }
@@ -1891,9 +1891,9 @@ polmodular0_ZM(
       compute_derivs = !!compute_derivs;
       j_powers = Fp_powers(J, L + 1, Q);
     }
-    worker = strtoclosure("_polmodular_worker", 9, utoi(L), hilb, factu, ne_to_vne(ne),
+    worker = strtoclosure("_polmodular_worker", 8, utoi(L), hilb, factu, ne_to_vne(ne),
         dinfo_to_vinfo(dinfo),
-        J? J : gen_0, stoi(compute_derivs), j_powers, *db);
+        stoi(compute_derivs), j_powers, *db);
     mt_queue_start(&pt, worker);
     for (i = 0; i < dinfo->nprimes || pending; ++i)
     {
