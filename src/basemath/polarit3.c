@@ -1771,51 +1771,6 @@ Flx_resultant_all(GEN a, GEN b, long *C0, long *C1, GEN dglist, ulong p)
   avma = av; return res;
 }
 
-/* u P(X) + v P(-X) */
-static GEN
-pol_comp(GEN P, GEN u, GEN v)
-{
-  long i, l = lg(P);
-  GEN y = cgetg(l, t_POL);
-  for (i=2; i<l; i++)
-  {
-    GEN t = gel(P,i);
-    gel(y,i) = gequal0(t)? gen_0:
-                         (i&1)? gmul(t, gsub(u,v)) /*  odd degree */
-                              : gmul(t, gadd(u,v));/* even degree */
-  }
-  y[1] = P[1]; return normalizepol_lg(y,l);
-}
-
-GEN
-polint_triv(GEN xa, GEN ya)
-{
-  GEN P = NULL, Q = roots_to_pol(xa,0);
-  long i, n = lg(xa);
-  pari_sp av = avma;
-  for (i=1; i<n; i++)
-  {
-    GEN T, dP, r;
-    if (gequal0(gel(ya,i))) continue;
-    T = RgX_div_by_X_x(Q, gel(xa,i), NULL);
-    r = poleval(T, gel(xa,i));
-    if (i < n-1 && absi_equal(gel(xa,i), gel(xa,i+1)))
-    { /* x_i = -x_{i+1} */
-      dP = pol_comp(gdiv(T, r), gel(ya,i), gel(ya,i+1));
-      i++;
-    }
-    else
-      dP = gdiv(gmul(gel(ya,i), T), r);
-    P = P? gadd(P, dP): dP;
-    if (gc_needed(av,2))
-    {
-      if (DEBUGMEM>1) pari_warn(warnmem,"polint_triv2 (i = %ld)",i);
-      P = gerepileupto(av, P);
-    }
-  }
-  return P? P: pol_0(0);
-}
-
 /* Q a vector of polynomials representing B in Fp[X][Y], evaluate at X = x,
  * Return 0 in case of degree drop. */
 static GEN
