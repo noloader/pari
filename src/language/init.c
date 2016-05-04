@@ -1927,7 +1927,7 @@ copy_bin(GEN x)
   long t = taille0(x);
   GENbin *p = (GENbin*)pari_malloc(sizeof(GENbin) + t*sizeof(long));
   pari_sp AVMA = (pari_sp)(GENbinbase(p) + t);
-  p->canon = 0;
+  p->rebase = &shiftaddress;
   p->len = t;
   p->x   = gcopy_av0(x, &AVMA);
   p->base= (GEN)AVMA; return p;
@@ -1940,7 +1940,7 @@ copy_bin_canon(GEN x)
   long t = taille0_canon(x);
   GENbin *p = (GENbin*)pari_malloc(sizeof(GENbin) + t*sizeof(long));
   pari_sp AVMA = (pari_sp)(GENbinbase(p) + t);
-  p->canon = 1;
+  p->rebase = &shiftaddress_canon;
   p->len = t;
   p->x   = gcopy_av0_canon(x, &AVMA);
   p->base= (GEN)AVMA; return p;

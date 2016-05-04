@@ -4318,7 +4318,7 @@ rdGEN(FILE *f)
   p->len  = L;
   p->x    = (GEN)rd_long(f);
   p->base = (GEN)rd_long(f);
-  p->canon= 1;
+  p->rebase = &shiftaddress_canon;
   pari_fread_longs(GENbinbase(p), L,f);
   return bin_copy(p);
 }

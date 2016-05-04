@@ -71,8 +71,7 @@ typedef struct GENbin {
   size_t len; /* gsizeword(x) */
   GEN x; /* binary copy of x */
   GEN base; /* base address of p->x */
-  int canon; /* 1: t_INT in canonical (native kernel) form,
-                0: t_INT according to current kernel */
+  void (*rebase)(GEN,long);
 } GENbin;
 
 struct pari_mainstack

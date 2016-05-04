@@ -1216,10 +1216,7 @@ bin_copy(GENbin *p)
   base= p->base; dx = x - base;
   y = (GEN)memcpy((void*)new_chunk(len), (void*)GENbinbase(p), len*sizeof(long));
   y += dx;
-  if (p->canon)
-    shiftaddress_canon(y, ((ulong)y-(ulong)x));
-  else
-    shiftaddress(y, ((ulong)y-(ulong)x));
+  p->rebase(y, ((ulong)y-(ulong)x));
   pari_free(p); return y;
 }
 
