@@ -2362,6 +2362,7 @@ Flx_Flv_multieval_tree(GEN P, GEN xa, GEN T, ulong p)
 static GEN
 FlvV_polint_tree(GEN T, GEN R, GEN xa, GEN ya, ulong p, long vs)
 {
+  pari_sp av = avma;
   long m = lg(T)-1, n = lg(ya)-1;
   long i,j,k;
   GEN Tp = cgetg(m+1, t_VEC);
@@ -2387,7 +2388,7 @@ FlvV_polint_tree(GEN T, GEN R, GEN xa, GEN ya, ulong p, long vs)
     if (k==n) gel(t, j) = gel(v, k);
     gel(Tp, i) = t;
   }
-  return gmael(Tp,m,1);
+  return gerepileuptoleaf(av, gmael(Tp,m,1));
 }
 
 GEN
@@ -2421,7 +2422,7 @@ Flv_FlvV_polint(GEN xa, GEN ya, ulong p, long vs)
   GEN M = cgetg(l+1, t_VEC);
   for (i=1; i<=l; i++)
     gel(M,i) = FlvV_polint_tree(T, R, xa, gel(ya,i), p, vs);
-  return gerepilecopy(av, M);
+  return gerepileupto(av, M);
 }
 
 /***********************************************************************/
