@@ -1369,7 +1369,7 @@ FpV_polint(GEN xa, GEN ya, GEN p, long vs)
 }
 
 GEN
-FpV_FpVV_polint(GEN xa, GEN ya, GEN p, long vs)
+FpV_FpM_polint(GEN xa, GEN ya, GEN p, long vs)
 {
   pari_sp av = avma;
   GEN T = FpV_producttree(xa, p, vs);

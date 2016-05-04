@@ -2411,7 +2411,7 @@ Flv_polint(GEN xa, GEN ya, ulong p, long vs)
 }
 
 GEN
-Flv_FlvV_polint(GEN xa, GEN ya, ulong p, long vs)
+Flv_Flm_polint(GEN xa, GEN ya, ulong p, long vs)
 {
   pari_sp av = avma;
   GEN T = Flv_producttree(xa, p, vs);

@@ -1285,7 +1285,7 @@ interpolate_coeffs(GEN phi_modp, ulong p, GEN j_invs, GEN coeff_mat)
 {
   pari_sp av = avma;
   long i;
-  GEN pols = Flv_FlvV_polint(j_invs, coeff_mat, p, 0);
+  GEN pols = Flv_Flm_polint(j_invs, coeff_mat, p, 0);
   for (i = 1; i < lg(pols); ++i) {
     GEN pol = gel(pols, i);
     long k, maxk = lg(pol);

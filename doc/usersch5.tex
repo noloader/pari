@@ -4295,7 +4295,7 @@ interpolation polynomial with value \kbd{y[i]} at \kbd{x[i]}. Assumes lengths
 are the same, components are \typ{INT}s, and the \kbd{x[i]} are distinct
 modulo \kbd{p}.
 
-\fun{GEN}{FpV_FpVV_polint}{GEN x, GEN V, GEN p, long v} equivalent (but
+\fun{GEN}{FpV_FpM_polint}{GEN x, GEN V, GEN p, long v} equivalent (but
 faster) to applying \kbd{FpV\_polint(x,$\ldots$)} to all the elements of the
 vector $V$ (thus, returns a \kbd{FpXV}).
 
@@ -5253,7 +5253,7 @@ as \kbd{FpX\_ffintersect}
 \fun{GEN}{Flv_polint}{GEN x, GEN y, ulong p, long sv} as \kbd{FpV\_polint},
 returning an \kbd{Flx} in variable $v$.
 
-\fun{GEN}{Flv_FlvV_polint}{GEN x, GEN V, ulong p, long sv} equivalent (but
+\fun{GEN}{Flv_Flm_polint}{GEN x, GEN V, ulong p, long sv} equivalent (but
 faster) to applying \kbd{Flv\_polint(x,$\ldots$)} to all the elements of the
 vector $V$ (thus, returns a \kbd{FlxV}).
 
