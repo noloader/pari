@@ -1816,35 +1816,6 @@ polint_triv(GEN xa, GEN ya)
   return P? P: pol_0(0);
 }
 
-GEN
-FpV_polint(GEN xa, GEN ya, GEN p, long v)
-{
-  GEN inv,T,dP, P = NULL, Q = FpV_roots_to_pol(xa, p, v);
-  long i, n = lg(xa);
-  pari_sp av = avma;
-  for (i=1; i<n; i++)
-  {
-    if (!signe(gel(ya,i))) continue;
-    T = FpX_div_by_X_x(Q, gel(xa,i), p, NULL);
-    inv = Fp_inv(FpX_eval(T,gel(xa,i), p), p);
-    if (i < n-1 && equalii(addii(gel(xa,i), gel(xa,i+1)), p))
-    {
-      dP = pol_comp(T, Fp_mul(gel(ya,i),  inv,p),
-                       Fp_mul(gel(ya,i+1),inv,p));
-      i++; /* x_i = -x_{i+1} */
-    }
-    else
-      dP = FpX_Fp_mul(T, Fp_mul(gel(ya,i),inv,p), p);
-    P = P? FpX_add(P, dP, p): dP;
-    if (gc_needed(av,2))
-    {
-      if (DEBUGMEM>1) pari_warn(warnmem,"FpV_polint");
-      P = gerepileupto(av, P);
-    }
-  }
-  return P? P: pol_0(v);
-}
-
 /* Q a vector of polynomials representing B in Fp[X][Y], evaluate at X = x,
  * Return 0 in case of degree drop. */
 static GEN

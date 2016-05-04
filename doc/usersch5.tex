@@ -4268,6 +4268,9 @@ work with any non-zero \typ{INT} but is not efficient in this case).
 \fun{GEN}{FpX_eval}{GEN x, GEN y, GEN p} evaluates the \kbd{FpX}~\kbd{x}
 at the \kbd{Fp}~\kbd{y}. The result is an~\kbd{Fp}.
 
+\fun{GEN}{FpX_FpV_multieval}{GEN P, GEN v, GEN p} returns the vector
+$[P(v[1]),\ldots,P(v[n])]$ as a \kbd{FpV}.
+
 \fun{GEN}{FpX_dotproduct}{GEN x, GEN y, GEN p} return the scalar product
 $\sum_{i\geq 0} x_i\*y_i$ of the coefficients of $x$ and $y$.
 
@@ -4287,10 +4290,14 @@ returns an \kbd{FpX}, congruent to \kbd{x} mod \kbd{Tx} and to \kbd{y} mod
 \kbd{Ty}. Assumes \kbd{Tx} and \kbd{Ty} are coprime, and \kbd{Tz = Tx * Ty}
 or \kbd{NULL} (in which case it is computed within).
 
-\fun{GEN}{FpV_polint}{GEN x, GEN y, GEN p} returns the \kbd{FpX}
+\fun{GEN}{FpV_polint}{GEN x, GEN y, GEN p, long v} returns the \kbd{FpX}
 interpolation polynomial with value \kbd{y[i]} at \kbd{x[i]}. Assumes lengths
 are the same, components are \typ{INT}s, and the \kbd{x[i]} are distinct
 modulo \kbd{p}.
+
+\fun{GEN}{FpV_FpVV_polint}{GEN x, GEN V, GEN p, long v} equivalent (but
+faster) to applying \kbd{FpV\_polint(x,$\ldots$)} to all the elements of the
+vector $V$ (thus, returns a \kbd{FpXV}).
 
 \fun{int}{FpX_is_squarefree}{GEN f, GEN p} returns $1$ if the
 \kbd{FpX}~\kbd{f} is squarefree, $0$ otherwise.
@@ -5197,7 +5204,7 @@ assuming $pi$ is the pseudo inverse of $p$.
 the vector $[1,a,\dots,a^n]$, where $n$ is the degree of $P$, return $P(a)$,
 assuming $pi$ is the pseudo inverse of $p$.
 
-\fun{ulong}{Flx_Flv_multieval}{GEN P, GEN v, ulong y, ulong p} returns the vector
+\fun{GEN}{Flx_Flv_multieval}{GEN P, GEN v, ulong p} returns the vector
 $[P(v[1]),\ldots,P(v[n])]$ as a \kbd{Flv}.
 
 \fun{ulong}{Flx_dotproduct}{GEN x, GEN y, ulong p} returns the scalar product
