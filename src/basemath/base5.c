@@ -720,6 +720,54 @@ rnfidealmul(GEN rnf,GEN x,GEN y)
   return gerepileupto(av, nfhnf(nf,z));
 }
 
+static GEN
+rnfidealprimedec_1(GEN rnf, GEN L, GEN K, GEN SL, GEN prK)
+{
+  GEN v, piL = rnfeltup0(rnf, pr_get_gen(prK), 1);
+  long i, c, l;
+  if (typ(piL) != t_COL) return SL; /* p inert in K/Q */
+  v = cgetg_copy(SL, &l);
+  for (i = c = 1; i < l; i++)
+  {
+    GEN P = gel(SL,i);
+    if (ZC_prdvd(L, piL, P)) gel(v,c++) = P;
+  }
+  setlg(v, c); return v;
+}
+GEN
+rnfidealprimedec(GEN rnf, GEN pr)
+{
+  pari_sp av = avma;
+  GEN p, z, NF, nf, SL;
+  checkrnf(rnf);
+  rnfcomplete(rnf);
+  NF = obj_check(rnf,NFABS);
+  nf = rnf_get_nf(rnf);
+  if (typ(pr) == t_INT)
+  {
+    p = pr;
+    pr = NULL;
+  }
+  else
+  {
+    checkprid(pr);
+    p = pr_get_p(pr);
+  }
+  SL = idealprimedec(NF, p);
+  if (pr)
+    z = rnfidealprimedec_1(rnf, NF,nf, SL, pr);
+  else
+  {
+    GEN vK = idealprimedec(nf, p), vL;
+    long l = lg(vK), i;
+    vL = cgetg(l, t_VEC);
+    for (i = 1; i < l; i++)
+      gel(vL,i) = rnfidealprimedec_1(rnf, NF,nf, SL, gel(vK,i));
+    z = mkvec2(vK, vL);
+  }
+  return gerepilecopy(av, z);
+}
+
 GEN
 rnfequationall(GEN A, GEN B, long *pk, GEN *pLPRS)
 {

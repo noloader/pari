@@ -2048,6 +2048,7 @@ GEN     rnfidealhnf(GEN rnf, GEN x);
 GEN     rnfidealmul(GEN rnf,GEN x,GEN y);
 GEN     rnfidealnormabs(GEN rnf, GEN x);
 GEN     rnfidealnormrel(GEN rnf, GEN x);
+GEN     rnfidealprimedec(GEN rnf, GEN pr);
 GEN     rnfidealreltoabs(GEN rnf, GEN x);
 GEN     rnfidealreltoabs0(GEN rnf, GEN x, long flag);
 GEN     rnfidealtwoelement(GEN rnf,GEN x);

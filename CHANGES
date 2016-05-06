@@ -441,6 +441,7 @@ BA 165- [libpari] FlxqX_halfgcd, FpXQX_halfgcd
    167- RgXn_powu, RgXn_powu_i
    168- [libpari] is_real_t, R_abs, R_abs_shallow
 BA 169- [libpari] F2xX, F2xqX, F2xqXQ family functions
+   170- GP function rnfidealprimedec
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]
@@ -558,6 +559,11 @@ BA 69- rename Flc_Fl_mul -> Flv_Fl_mul, Flc_Fl_div -> Flv_Fl_div,
    71- improve gamma(a+O(x))
 BA 72- Z_to_Flx now takes a shifted variable number, as Fl_to_Flx.
 BA 73- improve hash_GEN to reduce # of collisions (change glue)
+   74- added explicit ways to attach an absolute nf to a rnf structure,
+       allowing rnf functions to return objects in standard notation (e.g.
+       ideals in HNF instead of as a vector of t_POLMOD generators).
+       Add optional flag to rnfeltabstorel, rnfeltdown, rnfeltup,
+       rnfidealreltoabs, rnfinit
 
 Removed
    1- deprecated functions nfbasis0, nfdisc0, factorpadic0

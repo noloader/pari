@@ -29,9 +29,9 @@ Doc: $\var{nf}$ being a number field in \kbd{nfinit}
  a call, elements of $L$ are represented as \typ{POLMOD}, etc.
  Note that a subsequent \kbd{nfinit}$(\var{rnf})$ will also explicitly
  add such a component, and so will the following functions \kbd{rnfidealmul},
- \kbd{rnfidealtwoelt}, \kbd{rnfidealup} (with flag 1) and
- \kbd{rnfidealreltoabs} (with flag 1). The absolute \var{nf}
- structure attached to $L$ can be recovered using \kbd{nfinit(rnf)}.
+ \kbd{rnfidealtwoelt}, \kbd{rnfidealprimedec}, \kbd{rnfidealup} (with flag 1)
+ and \kbd{rnfidealreltoabs} (with flag 1). The absolute \var{nf} structure
+ attached to $L$ can be recovered using \kbd{nfinit(rnf)}.
 
  $\var{rnf}[1]$(\kbd{rnf.pol}) contains the relative polynomial \var{pol}.
 

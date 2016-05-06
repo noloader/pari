@@ -86,6 +86,7 @@ K=bnfinit(y^3-21);
 bnfisnorm(K,2)
 bnfisnorm(K,6)
 L=rnfinit(K,x^2-y);
+
 v = [2,1/2,x+y,Mod(1,K.pol),Mod(1/2,K.pol),Mod(y,K.pol),Mod(1,L.polabs),Mod(1/2,L.polabs),Mod(x,L.polabs),Mod(x+y/2,L.pol),y,z,Mod(y+1/2,y^2+1),[1]~,[1,2]~,[1,y]~,[1,I]~, y+I,x^2];
 f=[rnfalgtobasis,rnfbasistoalg,rnfeltabstorel,rnfeltreltoabs,rnfeltup,rnfeltdown,rnfelttrace,rnfeltnorm];
 
@@ -120,6 +121,10 @@ id = rnfidealabstorel(L,Labs.zk*idL)
 rnfidealnormabs(L,id) == idealnorm(Labs, idL);
 m = rnfidealreltoabs(L, id)
 mathnf(matalgtobasis(Labs,m)) == idL
+
+P3 = idealprimedec(K,3);
+rnfidealprimedec(L, P3[1])
+rnfidealprimedec(L, 7)
 
 m = rnfidealup(L, idK)
 mabs = rnfidealup(L, idK, 1)
