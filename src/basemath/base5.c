@@ -362,6 +362,7 @@ eltdown(GEN rnf, GEN x, long flag)
   GEN z,y, d, proj = obj_check(rnf,UPDOWN);
   GEN M= gel(proj,1), iM=gel(proj,2), diM=gel(proj,3), perm=gel(proj,4);
   x = Q_remove_denom(x,&d);
+  if (!RgV_is_ZV(x)) pari_err_TYPE("rnfeltdown", x);
   y = ZM_ZC_mul(iM, vecpermute(x, perm));
   z = ZM_ZC_mul(M,y);
   if (!isint1(diM)) z = ZC_Z_mul(z,diM);
@@ -415,19 +416,20 @@ rnfeltdown0(GEN rnf, GEN x, long flag)
       long n = lg(x)-1;
       if (n == degpol(T) && RgV_is_QV(x))
       {
-        if (flag) return gcopy(x);
+        if (RgV_isscalar(x)) return gcopy(gel(x,1));
+        if (!flag) return gcopy(x);
         return basistoalg(nf,x);
       }
-      if (NF && n == nf_get_degree(NF))
-        return gerepilecopy(av, eltdown(rnf,x,flag));
+      if (NF) break;
     }
     default: pari_err_TYPE(f, x);
   }
   /* x defined mod the absolute equation */
   if (NF)
   {
-    x = algtobasis(NF, x);
-    return gerepilecopy(av, eltdown(rnf,x,flag));
+    x = nf_to_scalar_or_basis(NF, x);
+    if (typ(x) == t_COL) x = eltdown(rnf,x,flag);
+    return gerepilecopy(av, x);
   }
   z = rnfeltabstorel(rnf,x);
   switch(typ(z))
