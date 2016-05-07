@@ -2299,7 +2299,7 @@ static GEN
 Flv_producttree(GEN xa, ulong p, long vs)
 {
   long n = lg(xa)-1;
-  long m = expu(n-1)+1;
+  long m = n==1 ? 1: expu(n-1)+1;
   GEN T = cgetg(m+1, t_VEC), t;
   long i, j, k;
   t = cgetg(((n+1)>>1)+1, t_VEC);
