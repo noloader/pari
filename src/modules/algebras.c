@@ -288,14 +288,7 @@ backtrackfacto(GEN y0, long n, GEN red, GEN pl, GEN nf, GEN data, int (*test)(GE
     while (1) {
       i=n;
       while (i>0) {
-        if (v[i]==b) {
-          v[i] = -b;
-          i--;
-        }
-        else {
-          v[i]++;
-          break;
-        }
+        if (v[i]==b) { v[i] = -b; i--; } else { v[i]++; break; }
       }
       if (i==0) break;
 
@@ -312,12 +305,12 @@ backtrackfacto(GEN y0, long n, GEN red, GEN pl, GEN nf, GEN data, int (*test)(GE
 
       y2 = idealdivexact(nf,y1,idealadd(nf,y1,I));
       *fa = idealfactor(nf, y2);
-      if (data==gen_0 || test(data,y1,*fa)) return y1;
+      if (!data || test(data,y1,*fa)) return y1;
     }
   }
 }
 
-/* if data == gen_0, the test is skipped */
+/* if data == NULL, the test is skipped */
 /* in the test, the factorization does not contain the known factors */
 static GEN
 factoredextchinesetest(GEN nf, GEN x, GEN y, GEN pl, GEN* fa, GEN data, int (*test)(GEN,GEN,GEN))
@@ -354,7 +347,7 @@ factoredextchinesetest(GEN nf, GEN x, GEN y, GEN pl, GEN* fa, GEN data, int (*te
 
 static GEN
 factoredextchinese(GEN nf, GEN x, GEN y, GEN pl, GEN* fa)
-{ return factoredextchinesetest(nf,x,y,pl,fa,gen_0,NULL); }
+{ return factoredextchinesetest(nf,x,y,pl,fa,NULL,NULL); }
 
 /** OPERATIONS ON ASSOCIATIVE ALGEBRAS algebras.c **/
 
@@ -2877,19 +2870,15 @@ cyclicrelfrob0(GEN nf, GEN aut, GEN pr, GEN q, long f, long g)
 }
 
 static GEN
-rnfprimedec(GEN rnf, GEN nf2, GEN pr)
-{ return idealfactor(nf2, rnfidealup0(rnf, pr, 1)); }
+rnfprimedec(GEN rnf, GEN pr)
+{ return idealfactor(obj_check(rnf,rnf_NFABS), rnfidealup0(rnf, pr, 1)); }
 
 long
-cyclicrelfrob(GEN rnf, GEN nf2, GEN auts, GEN pr)
+cyclicrelfrob(GEN rnf, GEN auts, GEN pr)
 {
   pari_sp av = avma;
-  long n,f,g,frob;
-  GEN nf, fa, ppr, autabs;
-  n = rnf_get_degree(rnf);
-  nf = rnf_get_nf(rnf);
-
-  fa = rnfprimedec(rnf, nf2, pr);
+  long f,g,frob, n = rnf_get_degree(rnf);
+  GEN fa = rnfprimedec(rnf, pr);
 
   if (cmpis(gcoeff(fa,1,2), 1) > 0)
     pari_err_DOMAIN("cyclicrelfrob","e(PR/pr)",">",gen_1,pr);
@@ -2898,16 +2887,17 @@ cyclicrelfrob(GEN rnf, GEN nf2, GEN auts, GEN pr)
 
   if (f <= 2) frob = g%n;
   else {
-    ppr = gcoeff(fa,1,1);
-    autabs = rnfeltreltoabs(rnf,gel(auts,g));
+    GEN nf2, PR = gcoeff(fa,1,1);
+    GEN autabs = rnfeltreltoabs(rnf,gel(auts,g));
+    nf2 = obj_check(rnf,rnf_NFABS);
     autabs = nfadd(nf2, autabs, gmul(rnf_get_k(rnf), rnf_get_alpha(rnf)));
-    frob = cyclicrelfrob0(nf2, autabs, ppr, idealnorm(nf,pr), f, g);
+    frob = cyclicrelfrob0(nf2, autabs, PR, pr_norm(pr), f, g);
   }
   avma = av; return frob;
 }
 
 long
-localhasse(GEN rnf, GEN nf2, GEN cnd, GEN pl, GEN auts, GEN b, long k)
+localhasse(GEN rnf, GEN cnd, GEN pl, GEN auts, GEN b, long k)
 {
   pari_sp av = avma;
   long v, m, h, lfa, frob, n, i;
@@ -2932,7 +2922,7 @@ localhasse(GEN rnf, GEN nf2, GEN cnd, GEN pl, GEN auts, GEN b, long k)
   for (i=1; i<=lfa; i++) {
     q = gcoeff(fa,i,1);
     if (cmp_prime_ideal(pr,q)) {
-      frob = cyclicrelfrob(rnf, nf2, auts, q);
+      frob = cyclicrelfrob(rnf, auts, q);
       frob = Fl_mul(frob,umodiu(gcoeff(fa,i,2),n),n);
       h = Fl_add(h,frob,n);
     }
@@ -3051,7 +3041,7 @@ dividesmod(long d, long h, long n) { return !(h%cgcd(d,n)); }
 
 /* ramified prime with nontrivial Hasse invariant */
 static GEN
-localcomplete(GEN rnf, GEN nf2, GEN pl, GEN cnd, GEN auts, long j, long n, long h, long* v)
+localcomplete(GEN rnf, GEN pl, GEN cnd, GEN auts, long j, long n, long h, long* v)
 {
   GEN nf, gens, hgens, pr, modpr, T, p, Np, sol, U, D, b, gene, randg, pu;
   long ngens, i, d, np, k, d1, d2, hg, dnf, vcnd, curgcd;
@@ -3070,7 +3060,7 @@ localcomplete(GEN rnf, GEN nf2, GEN pl, GEN cnd, GEN auts, long j, long n, long 
 
   if (!uisprime(n)) {
     gene =  pr_get_gen(pr);
-    hg = localhasse(rnf, nf2, cnd, pl, auts, gene, j);
+    hg = localhasse(rnf, cnd, pl, auts, gene, j);
     nextgen(gene, hg, &gens, &hgens, &ngens, &curgcd);
   }
 
@@ -3079,7 +3069,7 @@ localcomplete(GEN rnf, GEN nf2, GEN pl, GEN cnd, GEN auts, long j, long n, long 
     pu = abgrp_get_gen(pu);
     for (i=1; i<lg(pu) && !dividesmod(curgcd,h,n); i++) {
       gene = gel(pu,i);
-      hg = localhasse(rnf, nf2, cnd, pl, auts, gene, j);
+      hg = localhasse(rnf, cnd, pl, auts, gene, j);
       nextgen(gene, hg, &gens, &hgens, &ngens, &curgcd);
     }
   }
@@ -3093,7 +3083,7 @@ localcomplete(GEN rnf, GEN nf2, GEN pl, GEN cnd, GEN auts, long j, long n, long 
 
       if (!gequal0(randg) && !gequal1(randg)) {
         gene = Fq_to_nf(randg, modpr);
-        hg = localhasse(rnf, nf2, cnd, pl, auts, gene, j);
+        hg = localhasse(rnf, cnd, pl, auts, gene, j);
         nextgen(gene, hg, &gens, &hgens, &ngens, &curgcd);
       }
     }
@@ -3123,20 +3113,21 @@ localcomplete(GEN rnf, GEN nf2, GEN pl, GEN cnd, GEN auts, long j, long n, long 
 static int
 testsplits(GEN data, GEN b, GEN fa)
 {
-  GEN rnf, nf2, fapr, pr, forbid, nf;
-  long i, g, n;
-  rnf = gel(data,1);
-  nf2 = gel(data,2);
-  forbid = gel(data,3);
-  n = rnf_get_degree(rnf);
-  nf = rnf_get_nf(rnf);
+  GEN rnf, fapr, forbid, P, E;
+  long i, n;
   if (gequal0(b)) return 0;
+  P = gel(fa,1);
+  E = gel(fa,2);
+  rnf = gel(data,1);
+  forbid = gel(data,2);
+  n = rnf_get_degree(rnf);
   for (i=1; i<lgcols(fa); i++) {
-    pr = gcoeff(fa,i,1);
-    if (idealval(nf,forbid,pr)) return 0;
-    fapr = rnfprimedec(rnf,nf2,pr);
+    GEN pr = gel(P,i);
+    long g;
+    if (tablesearch(forbid, pr, &cmp_prime_ideal)) return 0;
+    fapr = rnfprimedec(rnf,pr);
     g = nbrows(fapr);
-    if ((itos(gcoeff(fa,i,2))*g)%n) return 0;
+    if ((itos(gel(E,i))*g)%n) return 0;
   }
   return 1;
 }
@@ -3169,11 +3160,12 @@ pr_primes(GEN v)
   return ZV_sort_uniq(w);
 }
 
+/* rnf complete */
 static GEN
 alg_complete0(GEN rnf, GEN aut, GEN hf, GEN hi, long maxord)
 {
   pari_sp av = avma;
-  GEN nf, pl, pl2, cnd, prcnd, cnds, y, Lpr, auts, nf2, b, fa, data, hfe;
+  GEN nf, pl, pl2, cnd, prcnd, cnds, y, Lpr, auts, b, fa, data, hfe;
   GEN forbid, al;
   long D, n, d, i, j;
   nf = rnf_get_nf(rnf);
@@ -3186,48 +3178,37 @@ alg_complete0(GEN rnf, GEN aut, GEN hf, GEN hi, long maxord)
   hfe = gel(hf,2);
 
   auts = allauts(rnf,aut);
-  nf2 = check_and_build_nfabs(rnf, nf_get_prec(rnf_get_nf(rnf)));
 
   pl = gcopy(hi); /* conditions on the final b */
   pl2 = gcopy(hi); /* conditions for computing local Hasse invariants */
   for (i=1; i<lg(pl); i++) {
-    if (hi[i]) {
-      pl[i] = -1;
-      pl2[i] = 1;
-    }
-    else if (!rnfrealdec(rnf,i)) {
-      pl[i] = 1;
-      pl2[i] = 1;
-    }
+    if (hi[i]) { pl[i] = -1; pl2[i] = 1; }
+    else if (!rnfrealdec(rnf,i)) { pl[i] = 1; pl2[i] = 1; }
   }
 
   cnds = computecnd(rnf,Lpr);
   prcnd = gel(cnds,1);
   cnd = gel(cnds,2);
   y = cgetg(lgcols(prcnd),t_VEC);
-  forbid = gen_1;
+  forbid = vectrunc_init(lg(Lpr));
   for (i=j=1; i<lg(Lpr); i++)
   {
-    GEN pr = gcoeff(prcnd,i,1);
+    GEN pr = gcoeff(prcnd,i,1), yi;
     long v, e = itos( gcoeff(prcnd,i,2) );
     if (!e) {
-      long frob, f1, f2;
-      gel(y,i) = gen_0;
-      frob = cyclicrelfrob(rnf,nf2,auts,pr);
-      f1 = cgcd(frob,n);
-      f2 = frob/f1;
-      v = ((hfe[i] / f1) * Fl_inv(f2,n)) % n;
-      forbid = idealmul(nf,forbid,pr);
+      long frob = cyclicrelfrob(rnf,auts,pr), f1 = cgcd(frob,n);
+      vectrunc_append(forbid, pr);
+      yi = gen_0;
+      v = ((hfe[i]/f1) * Fl_inv(frob/f1,n)) % n;
     }
-    else {
-      gel(y,i) = localcomplete(rnf, nf2, pl2, cnd, auts, j, n, hfe[i], &v);
-      j++;
-    }
+    else
+      yi = localcomplete(rnf, pl2, cnd, auts, j++, n, hfe[i], &v);
+    gel(y,i) = yi;
     gcoeff(prcnd,i,2) = stoi(e + v);
   }
   for (; i<lgcols(prcnd); i++) gel(y,i) = gen_1;
-
-  data = mkvec3(rnf,nf2,forbid);
+  gen_sort_inplace(forbid, (void*)&cmp_prime_ideal, &cmp_nodata, NULL);
+  data = mkvec2(rnf,forbid);
   b = factoredextchinesetest(nf,prcnd,y,pl,&fa,data,testsplits);
 
   al = cgetg(12, t_VEC);
@@ -3256,6 +3237,7 @@ GEN
 alg_complete(GEN rnf, GEN aut, GEN hf, GEN hi, long maxord)
 {
   long n = rnf_get_degree(rnf);
+  rnfcomplete(rnf);
   return alg_complete0(rnf,aut,hasseconvert(hf,n),hasseconvert(hi,n), maxord);
 }
 
@@ -3504,8 +3486,9 @@ genefrob(GEN nf, GEN gal, GEN r)
 }
 
 static GEN
-rnfcycaut(GEN rnf, GEN nf2)
+rnfcycaut(GEN rnf)
 {
+  GEN nf2 = obj_check(rnf, rnf_NFABS);
   GEN L, alpha, pol, salpha, s, sj, polabs, k, X, pol0, nf;
   long i, d, j;
   d = rnf_get_degree(rnf);
@@ -3538,7 +3521,7 @@ GEN
 alg_hasse(GEN nf, long n, GEN hf, GEN hi, long var, long maxord)
 {
   pari_sp av = avma;
-  GEN primary, al = gen_0, al2, rnf, hil, hfl, Ld, pl, pol, nf2, Lpr, aut;
+  GEN primary, al = gen_0, al2, rnf, hil, hfl, Ld, pl, pol, Lpr, aut;
   long i, lk, j;
   primary = hassecoprime(hf, hi, n);
   for (i=1; i<lg(primary); i++) {
@@ -3555,10 +3538,8 @@ alg_hasse(GEN nf, long n, GEN hf, GEN hi, long var, long maxord)
       for (j=1; j<lg(pl); j++) pl[j] = pl[j] ? -1 : 0;
 
       pol = nfgrunwaldwang(nf,Lpr,Ld,pl,var);
-      rnf = rnfinit(nf,pol);
-      nf2 = check_and_build_nfabs(rnf, nf_get_prec(nf));
-
-      aut = rnfcycaut(rnf,nf2);
+      rnf = rnfinit0(nf,pol,1);
+      aut = rnfcycaut(rnf);
       al2 = alg_complete0(rnf,aut,hfl,hil,maxord);
     }
     else al2 = alg_matrix(nf, lk, var, cgetg(1,t_VEC), maxord);
@@ -3688,7 +3669,7 @@ static void
 algcomputehasse(GEN al)
 {
   long r1, k, n, m, m1, m2, m3, i, m23, m123;
-  GEN rnf, nf, b, fab, disc2, cnd, fad, auts, nf2, pr, pl, perm;
+  GEN rnf, nf, b, fab, disc2, cnd, fad, auts, pr, pl, perm;
   GEN hi, PH, H, L;
 
   rnf = alg_get_splittingfield(al);
@@ -3697,7 +3678,7 @@ algcomputehasse(GEN al)
   b = alg_get_b(al);
   r1 = nf_get_r1(nf);
   auts = alg_get_auts(al);
-  nf2 = alg_get_abssplitting(al);
+  (void)alg_get_abssplitting(al);
 
   /* real places where rnf/nf ramifies */
   pl = cgetg(r1+1, t_VECSMALL);
@@ -3738,7 +3719,7 @@ algcomputehasse(GEN al)
     long frob, e, j = perm[k];
     pr = gcoeff(fab,j,1);
     e = itos(gcoeff(fab,j,2));
-    frob = cyclicrelfrob(rnf, nf2, auts, pr);
+    frob = cyclicrelfrob(rnf, auts, pr);
     gel(PH,k) = pr;
     H[k] = Fl_mul(frob, e, n);
   }
@@ -3757,7 +3738,7 @@ algcomputehasse(GEN al)
     gcoeff(cnd,k+m2,2) = gel(L,j);
   }
   gel(cnd,2) = gdiventgs(gel(cnd,2), eulerphiu(n));
-  for (k=1; k<=m23; k++) H[k+m1] = localhasse(rnf, nf2, cnd, pl, auts, b, k);
+  for (k=1; k<=m23; k++) H[k+m1] = localhasse(rnf, cnd, pl, auts, b, k);
   gel(al,4) = hi;
   gel(al,5) = mkvec2(PH,H);
   checkhasse(nf,alg_get_hasse_f(al),alg_get_hasse_i(al),n);

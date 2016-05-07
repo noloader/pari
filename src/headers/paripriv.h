@@ -243,8 +243,10 @@ GEN quicktrace(GEN x, GEN sym);
 GEN special_pivot(GEN x);
 GEN ZX_monic_factorpadic(GEN f, GEN p, long prec);
 
-/* Finite fields */
+/* Relative number fields */
+enum { rnf_NFABS = 1, rnf_MAPS };
 
+/* Finite fields */
 enum { t_FF_FpXQ = 0, t_FF_Flxq = 1, t_FF_F2xq = 2 };
 GEN FF_ellinit(GEN E, GEN fg);
 GEN FF_elldata(GEN E, GEN fg);
@@ -589,6 +591,7 @@ long    val_norm(GEN x, GEN p, long *vz);
 /* base5.c */
 
 GEN     check_and_build_nfabs(GEN rnf, long prec);
+GEN     rnfcomplete(GEN rnf);
 
 /* buch1.c */
 

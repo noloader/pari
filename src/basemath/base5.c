@@ -19,8 +19,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #include "pari.h"
 #include "paripriv.h"
 
-enum { NFABS = 1, UPDOWN };
-
 /* must return a t_POL */
 GEN
 eltreltoabs(GEN rnfeq, GEN x)
@@ -126,7 +124,7 @@ rnfeltabstorel(GEN rnf,GEN x)
       x = gel(x,2); break;
     case t_POL: break;
     case t_COL:
-      NF = obj_check(rnf, NFABS);
+      NF = obj_check(rnf, rnf_NFABS);
       if (!NF) pari_err_TYPE("rnfeltabstorel, apply nfinit(rnf)",x);
       x = nf_to_scalar_or_alg(NF,x); break;
     default:
@@ -216,7 +214,7 @@ static GEN
 mknfabs(GEN rnf, long prec)
 {
   GEN nf, pol, bas;
-  if ((nf = obj_check(rnf,NFABS)))
+  if ((nf = obj_check(rnf,rnf_NFABS)))
   {
     if (nf_get_prec(nf) < prec) nf = nfnewprec_shallow(nf,prec);
     return nf;
@@ -230,7 +228,7 @@ mknfabs(GEN rnf, long prec)
 static GEN
 mkupdown(GEN rnf)
 {
-  GEN NF = obj_check(rnf, NFABS), M, zknf, czknf;
+  GEN NF = obj_check(rnf, rnf_NFABS), M, zknf, czknf;
   long i, m;
   rnf_get_nfzk(rnf, &zknf, &czknf);
   if (isint1(czknf)) czknf = NULL;
@@ -247,12 +245,12 @@ mkupdown(GEN rnf)
 GEN
 check_and_build_nfabs(GEN rnf, long prec)
 {
-  GEN NF = obj_checkbuild_prec(rnf, NFABS, &mknfabs, &nf_get_prec, prec);
-  (void)obj_checkbuild(rnf, UPDOWN, &mkupdown);
+  GEN NF = obj_checkbuild_prec(rnf, rnf_NFABS, &mknfabs, &nf_get_prec, prec);
+  (void)obj_checkbuild(rnf, rnf_MAPS, &mkupdown);
   return NF;
 }
 
-static void
+void
 rnfcomplete(GEN rnf)
 { (void)check_and_build_nfabs(rnf, nf_get_prec(rnf_get_nf(rnf))); }
 
@@ -303,7 +301,7 @@ rnfeltup0(GEN rnf, GEN x, long flag)
   long tx = typ(x);
   checkrnf(rnf);
   if (flag) rnfcomplete(rnf);
-  NF = obj_check(rnf,NFABS);
+  NF = obj_check(rnf,rnf_NFABS);
   POL = rnf_get_polabs(rnf);
   if (tx == t_POLMOD && RgX_equal_var(gel(x,1), POL))
   {
@@ -322,7 +320,7 @@ rnfeltup0(GEN rnf, GEN x, long flag)
     GEN d, proj;
     x = nf_to_scalar_or_basis(nf, x);
     if (typ(x) != t_COL) return gerepilecopy(av, x);
-    proj = obj_check(rnf,UPDOWN);
+    proj = obj_check(rnf,rnf_MAPS);
     x = Q_remove_denom(x,&d);
     x = ZM_ZC_mul(gel(proj,1), x);
     if (d) x = gdiv(x,d);
@@ -359,7 +357,7 @@ fail(const char *f, GEN x)
 static GEN
 eltdown(GEN rnf, GEN x, long flag)
 {
-  GEN z,y, d, proj = obj_check(rnf,UPDOWN);
+  GEN z,y, d, proj = obj_check(rnf,rnf_MAPS);
   GEN M= gel(proj,1), iM=gel(proj,2), diM=gel(proj,3), perm=gel(proj,4);
   x = Q_remove_denom(x,&d);
   if (!RgV_is_ZV(x)) pari_err_TYPE("rnfeltdown", x);
@@ -382,7 +380,7 @@ rnfeltdown0(GEN rnf, GEN x, long flag)
   long v;
 
   checkrnf(rnf);
-  NF = obj_check(rnf,NFABS);
+  NF = obj_check(rnf,rnf_NFABS);
   nf = rnf_get_nf(rnf);
   T = nf_get_pol(nf);
   v = varn(T);
@@ -567,7 +565,7 @@ rnfidealreltoabs0(GEN rnf, GEN x, long flag)
   x = rnfidealreltoabs_i(rnf, x);
   if (!flag) return gerepilecopy(av,x);
   rnfcomplete(rnf);
-  NF = obj_check(rnf,NFABS);
+  NF = obj_check(rnf,rnf_NFABS);
   l = lg(x); settyp(x, t_MAT);
   for (i=1; i<l; i++) gel(x,i) = algtobasis(NF, gel(x,i));
   return gerepileupto(av, idealhnf(NF,x));
@@ -611,10 +609,10 @@ rnfidealdown(GEN rnf,GEN x)
     x = Q_remove_denom(x,&d);
     if (RgM_is_ZM(x))
     {
-      GEN NF = obj_check(rnf,NFABS);
+      GEN NF = obj_check(rnf,rnf_NFABS);
       if (NF)
       {
-        GEN z, proj = obj_check(rnf,UPDOWN), ZK = gel(proj,1);
+        GEN z, proj = obj_check(rnf,rnf_MAPS), ZK = gel(proj,1);
         long i, lz, l;
         x = idealhnf(NF,x);
         if (lg(x) == 1) { avma = av; return cgetg(1,t_MAT); }
@@ -671,8 +669,8 @@ rnfidealup0(GEN rnf,GEN x, long flag)
   if (!flag) return rnfidealup(rnf,x);
   checkrnf(rnf); nf = rnf_get_nf(rnf);
   rnfcomplete(rnf);
-  proj = obj_check(rnf,UPDOWN);
-  NF = obj_check(rnf,NFABS);
+  proj = obj_check(rnf,rnf_MAPS);
+  NF = obj_check(rnf,rnf_NFABS);
 
   (void)idealtyp(&x, &d); /* d is junk */
   x2 = idealtwoelt(nf,x);
@@ -692,7 +690,7 @@ rnfidealtwoelement(GEN rnf, GEN x)
 
   y = rnfidealreltoabs_i(rnf,x);
   rnfcomplete(rnf);
-  NF = obj_check(rnf,NFABS);
+  NF = obj_check(rnf,rnf_NFABS);
   y = matalgtobasis(NF, y); settyp(y, t_MAT);
   y = Q_primitive_part(y, &cy);
   y = ZM_hnf(y);
@@ -743,7 +741,7 @@ rnfidealprimedec(GEN rnf, GEN pr)
   GEN p, z, NF, nf, SL;
   checkrnf(rnf);
   rnfcomplete(rnf);
-  NF = obj_check(rnf,NFABS);
+  NF = obj_check(rnf,rnf_NFABS);
   nf = rnf_get_nf(rnf);
   if (typ(pr) == t_INT)
   {

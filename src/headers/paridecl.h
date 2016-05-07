@@ -1277,11 +1277,11 @@ GEN     bnfgwgeneric(GEN bnf, GEN Lpr, GEN Ld, GEN pl, long var);
 GEN     bnrgwsearch(GEN bnr, GEN Lpr, GEN Ld, GEN pl);
 void    checkalg(GEN x);
 void    checkhasse(GEN nf, GEN hi, GEN hf, long n);
-long    cyclicrelfrob(GEN rnf, GEN nf2, GEN auts, GEN pr);
+long    cyclicrelfrob(GEN rnf, GEN auts, GEN pr);
 GEN     hassecoprime(GEN hi, GEN hf, long n);
 GEN     hassedown(GEN nf, long n, GEN hi, GEN hf);
 GEN     hassewedderburn(GEN hi, GEN hf, long n);
-long    localhasse(GEN rnf, GEN nf2, GEN cnd, GEN pl, GEN auts, GEN b, long k);
+long    localhasse(GEN rnf, GEN cnd, GEN pl, GEN auts, GEN b, long k);
 GEN     nfgrunwaldwang(GEN nf0, GEN Lpr, GEN Ld, GEN pl, long var);
 GEN     nfgwkummer(GEN nf, GEN Lpr, GEN Ld, GEN pl, long var);
 
