@@ -2043,7 +2043,6 @@ GEN     rnfeltup(GEN rnf, GEN x);
 GEN     rnfeltup0(GEN rnf, GEN x, long flag);
 GEN     rnfidealabstorel(GEN rnf, GEN x);
 GEN     rnfidealdown(GEN rnf, GEN x);
-GEN     rnfidealdown0(GEN rnf, GEN x, long flag);
 GEN     rnfidealhnf(GEN rnf, GEN x);
 GEN     rnfidealmul(GEN rnf,GEN x,GEN y);
 GEN     rnfidealnormabs(GEN rnf, GEN x);

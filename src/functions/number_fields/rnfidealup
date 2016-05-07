@@ -32,3 +32,5 @@ Doc: let $\var{rnf}$ be a relative number
  structure so that it contains a \var{nf} structure for $L$ is polynomial
  time but costly when the absolute degree is large, thus it is not done by
  default. Note that setting $\fl = 1$ will complete the \var{rnf}.
+Variant: Also available is
+  \fun{GEN}{rnfidealup}{GEN rnf, GEN x} ($\fl = 0$).

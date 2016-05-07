@@ -35,3 +35,5 @@ Doc: $\var{rnf}$ being a relative number
  %8 = Mod(y, y^2 + 1)
  @eprog\noindent If we had started with
  \kbd{L = rnfinit(K, x\pow2-y, 1)}, then the final would have worked directly.
+Variant: Also available is
+ \fun{GEN}{rnfeltdown}{GEN rnf, GEN x} ($\fl = 0$).

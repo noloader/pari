@@ -92,3 +92,5 @@ Doc: $\var{nf}$ being a number field in \kbd{nfinit}
  to store further information about the field as it becomes available (which
  is rarely needed, hence would be too expensive to compute during the initial
  \kbd{rnfinit} call).
+Variant: Also available is
+ \fun{GEN}{rnfinit}{GEN nf,GEN pol} ($\fl = 0$).

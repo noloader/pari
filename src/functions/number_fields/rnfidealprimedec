@@ -9,7 +9,7 @@ Help: rnfidealprimedec(rnf,pr): prime ideal decomposition of the maximal
 Doc: let \var{rnf} be a relative number
  field extension $L/K$ as output by \kbd{rnfinit}, and \kbd{pr} a maximal
  ideal of $K$ (\kbd{prid}), this function completes the \var{rnf}
- with a \varn{nf} structure attached to $L$ (see \secref{se:rnfinit})
+ with a \var{nf} structure attached to $L$ (see \secref{se:rnfinit})
  and returns the prime ideal decomposition of \kbd{pr} in $L/K$.
  \bprog
  ? K = nfinit(y^2+1); rnf = rnfinit(K, x^3+y+1);
