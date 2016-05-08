@@ -884,6 +884,15 @@ RgXQV_red(GEN P, GEN T)
 }
 
 GEN
+RgXQM_red(GEN P, GEN T)
+{
+  long i, l = lg(P);
+  GEN Q = cgetg(l, t_MAT);
+  for (i=1; i<l; i++) gel(Q,i) = RgXQC_red(gel(P,i), T);
+  return Q;
+}
+
+GEN
 RgXQX_red(GEN P, GEN T)
 {
   long i, l = lg(P);
