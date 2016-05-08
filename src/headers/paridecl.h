@@ -256,6 +256,7 @@ GEN     Flv_inv(GEN x, ulong p);
 void    Flv_inv_inplace(GEN x, ulong p);
 void    Flv_inv_pre_inplace(GEN x, ulong p, ulong pi);
 GEN     Flv_inv_pre(GEN x, ulong p, ulong pi);
+GEN     Flv_invVandermonde(GEN L, ulong den, ulong p);
 GEN     Flv_polint(GEN xa, GEN ya, ulong p, long vs);
 ulong   Flv_prod(GEN v, ulong p);
 ulong   Flv_prod_pre(GEN x, ulong p, ulong pi);

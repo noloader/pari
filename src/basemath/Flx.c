@@ -2425,6 +2425,26 @@ Flv_Flm_polint(GEN xa, GEN ya, ulong p, long vs)
   return gerepileupto(av, M);
 }
 
+GEN
+Flv_invVandermonde(GEN L, ulong den, ulong p)
+{
+  pari_sp av = avma;
+  long i, n = lg(L);
+  GEN M, R;
+  GEN tree = Flv_producttree(L, p, 0);
+  long m = lg(tree)-1;
+  GEN T = gmael(tree, m, 1);
+  R = Flv_inv(Flx_Flv_multieval_tree(Flx_deriv(T, p), L, tree, p), p);
+  R = Flv_Fl_mul(R, den, p);
+  M = cgetg(n, t_MAT);
+  for (i = 1; i < n; i++)
+  {
+    GEN P = Flx_Fl_mul(Flx_div_by_X_x(T, uel(L,i), p, NULL), uel(R,i), p);
+    gel(M,i) = Flx_to_Flv(P, n-1);
+  }
+  return gerepilecopy(av, M);
+}
+
 /***********************************************************************/
 /**                                                                   **/
 /**                               Flxq                                **/
