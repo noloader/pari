@@ -143,6 +143,16 @@ Reset the current stack to its default size \kbd{parisize},
 destroying its content. Used to recover memory after a
 computation that enlarged the stack.
 
+\fun{void}{paristack_newrsize}{ulong newsize}
+(do not return) library version of \kbd{default(parisize,"newsize")}.
+Set the default \kbd{parisize} to \kbd{newsize} (or double \kbd{parisize} if
+\kbd{newsize=0} and call \kbd{cb\_pari\_err\_recover(-1)}.
+
+\fun{void}{parivstack_resize}{ulong newsize}
+(do not return) library version of \kbd{default(parisizemax,"newsize")}.
+Set the default \kbd{parisizemax} to \kbd{newsize}
+and calls \kbd{cb\_pari\_err\_recover(-1)}.
+
 \subsec{Notions specific to the GP interpreter}
 
 An \kbd{entree} is the generic object associated to an identifier (a name)
