@@ -1961,7 +1961,7 @@ nfinit_step2(nfbasic_t *T, long flag, long prec)
 {
   GEN nf, unscale;
 
-  if (!equali1(leading_coeff(T->x0)) && !(flag & nf_RED))
+  if (!(flag & nf_RED) && !equali1(leading_coeff(T->x0)))
   {
     pari_warn(warner,"non-monic polynomial. Result of the form [nf,c]");
     flag |= nf_RED | nf_ORIG;

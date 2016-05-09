@@ -3935,6 +3935,7 @@ Buchall_param(GEN P, double cbach, double cbach2, long nbrelpid, long flun, long
   long MAXDEPSIZESFB, MAXDEPSFB;
   long nreldep, sfb_trials, need, old_need, precdouble = 0, precadd = 0;
   long done_small, small_fail, fail_limit, squash_index, small_norm_prec;
+  long flag_nfinit = 0;
   double LOGD, LOGD2, lim;
   GEN computed = NULL, zu, nf, M_sn, D, A, W, R, h, PERM, fu = NULL /*-Wall*/;
   GEN small_multiplier;
@@ -3963,13 +3964,13 @@ Buchall_param(GEN P, double cbach, double cbach2, long nbrelpid, long flun, long
     if (!equali1(leading_coeff(nfT.x0)))
     {
       pari_warn(warner,"non-monic polynomial in bnfinit, using polredbest");
-      P = nfT.x; /* P non-monic, change it */
+      flag_nfinit = nf_RED;
     }
   }
   N = degpol(P);
   if (N <= 1)
   {
-    if (!nf) nf = nfinit_step2(&nfT, 0, PRECREG);
+    if (!nf) nf = nfinit_step2(&nfT, flag_nfinit, PRECREG);
     return gerepilecopy(av0, Buchall_deg1(nf));
   }
   D = absi(D);
@@ -3986,7 +3987,7 @@ Buchall_param(GEN P, double cbach, double cbach2, long nbrelpid, long flun, long
      + 2*log((double) LIMCMAX) + LOGD/2) / LOG2 ); /* enough to compute norms */
   if (small_norm_prec > PRECREG) PRECREG = small_norm_prec;
   if (!nf)
-    nf = nfinit_step2(&nfT, 0, PRECREG);
+    nf = nfinit_step2(&nfT, flag_nfinit, PRECREG);
   else if (nf_get_prec(nf) < PRECREG)
     nf = nfnewprec_shallow(nf, PRECREG);
   M_sn = nf_get_M(nf);
