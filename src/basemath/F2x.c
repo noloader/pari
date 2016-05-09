@@ -309,6 +309,39 @@ F2x_addshiftip(GEN x, GEN y, ulong d)
 }
 
 static GEN
+F2x_mul1(ulong x, ulong y)
+{
+  ulong x1=(x&HIGHMASK)>>BITS_IN_HALFULONG;
+  ulong x2=x&LOWMASK;
+  ulong y1=(y&HIGHMASK)>>BITS_IN_HALFULONG;
+  ulong y2=y&LOWMASK;
+  ulong r1,r2,rr;
+  GEN z;
+  ulong i;
+  rr=r1=r2=0UL;
+  if (x2)
+    for(i=0;i<BITS_IN_HALFULONG;i++)
+      if (x2&(1UL<<i))
+      {
+        r2^=y2<<i;
+        rr^=y1<<i;
+      }
+  if (x1)
+    for(i=0;i<BITS_IN_HALFULONG;i++)
+      if (x1&(1UL<<i))
+      {
+        r1^=y1<<i;
+        rr^=y2<<i;
+      }
+  r2^=(rr&LOWMASK)<<BITS_IN_HALFULONG;
+  r1^=(rr&HIGHMASK)>>BITS_IN_HALFULONG;
+  z=cgetg((r1?4:3),t_VECSMALL);
+  z[2]=r2;
+  if (r1) z[3]=r1;
+  return z;
+}
+
+static GEN
 F2x_mulspec_basecase(GEN x, GEN y, long nx, long ny)
 {
   long l, i, j;
@@ -395,6 +428,8 @@ F2x_mulspec(GEN a, GEN b, long na, long nb)
   if (!nb) return pol0_F2x(0);
 
   av = avma;
+  if (na == 1)
+    return F2x_shiftip(av, F2x_mul1(*a,*b), v);
   if (na < F2x_MUL_KARATSUBA_LIMIT)
     return F2x_shiftip(av, F2x_mulspec_basecase(a, b, na, nb), v);
   i=(na>>1); n0=na-i; na=i;
