@@ -715,6 +715,29 @@ ZpXQ_log(GEN a, GEN T, GEN p, long N)
 /* q = p^N */
 
 GEN
+gen_ZpM_Dixon(GEN F, GEN V, GEN q, GEN p, long N, void *E,
+                            GEN lin(void *E, GEN F, GEN d, GEN q),
+                            GEN invl(void *E, GEN d))
+{
+  pari_sp av = avma;
+  long N2, M;
+  GEN VN2, V2, VM, bil;
+  GEN q2, qM;
+  V = FpM_red(V, q);
+  if (N == 1) return invl(E, V);
+  N2 = (N + 1)>>1; M = N - N2;
+  F = FpM_red(F, q);
+  qM = powiu(p, M);
+  q2 = M == N2? qM: mulii(qM, p);
+  /* q2 = p^N2, qM = p^M, q = q2 * qM */
+  VN2 = gen_ZpM_Dixon(F, V, q2, p, N2, E, lin, invl);
+  bil = lin(E, F, VN2, q);
+  V2 = ZM_Z_divexact(ZM_sub(V, bil), q2);
+  VM = gen_ZpM_Dixon(F, V2, qM, p, M, E, lin, invl);
+  return gerepileupto(av, FpM_red(ZM_add(VN2, ZM_Z_mul(VM, q2)), q));
+}
+
+GEN
 gen_ZpX_Dixon(GEN F, GEN V, GEN q, GEN p, long N, void *E,
                             GEN lin(void *E, GEN F, GEN d, GEN q),
                             GEN invl(void *E, GEN d))
