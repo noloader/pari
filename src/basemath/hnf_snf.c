@@ -1194,11 +1194,11 @@ ZM_hnfmodall_i(GEN x, GEN dm, long flag)
         if (lgefint(gel(p2,k)) > LDM[k])
           gel(p2,k) = centermodii(gel(p2,k), gel(dm,k),gel(dm2,k));
       }
-      if (gc_needed(av,1))
-      {
-        if (DEBUGMEM>1) pari_warn(warnmem,"ZM_hnfmod[1]. i=%ld",i);
-        x = gerepilecopy(av, x);
-      }
+    }
+    if (gc_needed(av,1))
+    {
+      if (DEBUGMEM>1) pari_warn(warnmem,"ZM_hnfmod[1]. i=%ld",i);
+      x = gerepilecopy(av, x);
     }
     if (moddiag && !signe(gcoeff(x,i,def)))
     { /* missing pivot on line i, insert column */
@@ -1236,11 +1236,11 @@ ZM_hnfmodall_i(GEN x, GEN dm, long flag)
         ZC_elem(a, gcoeff(x,j,j), x, NULL, li,j);
         FpV_red_part_ipvec(gel(x,li), dm, j-1);
         FpV_red_part_ipvec(gel(x,j),  dm, j-1);
-        if (gc_needed(av,1))
-        {
-          if (DEBUGMEM>1) pari_warn(warnmem,"ZM_hnfmod[2]. i=%ld", i);
-          x = gerepilecopy(av, x);
-        }
+      }
+      if (gc_needed(av,1))
+      {
+        if (DEBUGMEM>1) pari_warn(warnmem,"ZM_hnfmod[2]. i=%ld", i);
+        x = gerepilecopy(av, x);
       }
     }
   }
@@ -1279,11 +1279,11 @@ ZM_hnfmodall_i(GEN x, GEN dm, long flag)
       p1 = gel(x,j);
       for (k=1; k<i; k++)
         if (lgefint(gel(p1,k)) > LDM[k]) gel(p1,k) = remii(gel(p1,k), gel(dm,i));
-      if (gc_needed(av,1))
-      {
-        if (DEBUGMEM>1) pari_warn(warnmem,"ZM_hnfmod[3]. i=%ld", i);
-        gerepileall(av, 2, &x, &dm); diag = gcoeff(x,i,i);
-      }
+    }
+    if (gc_needed(av,1))
+    {
+      if (DEBUGMEM>1) pari_warn(warnmem,"ZM_hnfmod[3]. i=%ld", i);
+      gerepileall(av, 2, &x, &dm); diag = gcoeff(x,i,i);
     }
   }
   return x;
