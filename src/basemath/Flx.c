@@ -4633,7 +4633,7 @@ static GEN _FlxqX_sqr(void *data,GEN a)
 }
 
 GEN
-FlxqX_pow(GEN V, long n, GEN T, ulong p)
+FlxqX_powu(GEN V, ulong n, GEN T, ulong p)
 {
   struct _FlxqX d; d.p=p; d.T=T;
   return gen_powu(V, n, (void*)&d, &_FlxqX_sqr, &_FlxqX_mul);

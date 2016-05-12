@@ -951,7 +951,7 @@ get_norm(GEN a4, GEN a6, GEN T, ulong p, long N)
   else
   {
     GEN P = mkpoln(4, pol1_Flx(sv), pol0_Flx(sv), a4, a6);
-    a = gel(FlxqX_pow(P,p>>1,T,p),2+p-1);
+    a = gel(FlxqX_powu(P,p>>1,T,p),2+p-1);
   }
   return Zp_sqrtnlift(gen_1,subss(p,1),utoi(Flxq_norm(a,T,p)),utoi(p), N);
 }

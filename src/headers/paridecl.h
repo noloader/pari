@@ -391,7 +391,7 @@ GEN     FlxqX_halfgcd(GEN x, GEN y, GEN T, ulong p);
 GEN     FlxqX_invBarrett(GEN T, GEN Q, ulong p);
 GEN     FlxqX_mul(GEN x, GEN y, GEN T, ulong p);
 GEN     FlxqX_normalize(GEN z, GEN T, ulong p);
-GEN     FlxqX_pow(GEN V, long n, GEN T, ulong p);
+GEN     FlxqX_powu(GEN V, ulong n, GEN T, ulong p);
 GEN     FlxqX_red(GEN z, GEN T, ulong p);
 GEN     FlxqX_rem(GEN x, GEN y, GEN T, ulong p);
 GEN     FlxqX_safegcd(GEN P, GEN Q, GEN T, ulong p);

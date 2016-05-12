@@ -566,6 +566,7 @@ BA 73- improve hash_GEN to reduce # of collisions (change glue)
        ideals in HNF instead of as a vector of t_POLMOD generators).
        Add optional flag to rnfeltabstorel, rnfeltdown, rnfeltup,
        rnfidealreltoabs, rnfinit
+BA 75- rename FlxqX_pow to FlxqX_powu
 
 Removed
    1- deprecated functions nfbasis0, nfdisc0, factorpadic0
