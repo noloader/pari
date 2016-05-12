@@ -3251,7 +3251,7 @@ F2xqX_roots_edf(GEN Sp, GEN xp, GEN Xp, GEN T, GEN V, long idx)
 static GEN
 F2xqXQ_Frobenius(GEN xp, GEN Xp, GEN f, GEN T)
 {
-  long dT = F2x_degree(T), df = degpol(f);
+  ulong dT = F2x_degree(T), df = degpol(f);
   if (dT >= expu(dT)*usqrt(df))
     return gel(F2xqXQV_autpow(mkvec2(xp, Xp), dT, f, T), 2);
   else
