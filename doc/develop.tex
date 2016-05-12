@@ -557,7 +557,23 @@ accuracies, and thus have different weights.
 
 \subsec{Functions returning black box algebras}
 
+\fun{const struct bb_algebra *}{get_FpX_algebra}{void **E, GEN p, long v}
+return the algebra of polynomials over $\F_p$ in variable $v$.
+
+\fun{const struct bb_algebra *}{get_FpXQ_algebra}{void **E, GEN T, GEN p}
+return the algebra $\F_p[X]/(T(X))$.
+
+\fun{const struct bb_algebra *}{get_FpXQX_algebra}{void **E, GEN T, GEN p, long v}
+return the algebra of polynomials over $\F_p[X]/(T(X))$ in variable $v$.
+
+\fun{const struct bb_algebra *}{get_FlxqXQ_algebra}{void **E, GEN S, GEN T, ulong p}
+return the algebra $\F_p[X,Y]/(S(X,Y),T(X))$ (for \kbd{ulong} $p$).
+
+\fun{const struct bb_algebra *}{get_FpXQXQ_algebra}{void **E, GEN S, GEN T, GEN p}
+return the algebra $\F_p[X,Y]/(S(X,Y),T(X))$.
+
 \fun{const struct bb_algebra *}{get_Rg_algebra}{void}
+return the generic algebra.
 
 \section{Black box ring}
 
