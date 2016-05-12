@@ -611,6 +611,7 @@ long    get_FpX_degree(GEN T);
 GEN     get_FpX_mod(GEN T);
 long    get_FpX_var(GEN T);
 const struct bb_group * get_FpXQ_star(void **E, GEN T, GEN p);
+const struct bb_algebra * get_FpX_algebra(void **E, GEN p, long v);
 const struct bb_algebra * get_FpXQ_algebra(void **E, GEN T, GEN p);
 GEN     random_FpX(long d, long v, GEN p);
 
