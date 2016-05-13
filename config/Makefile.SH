@@ -92,6 +92,7 @@ win32)
   graph=plotWin32;;
 esac
 graph="plotport $graph"
+libgraph="plottty"
 
 plotrunpath=
 case "$which_graphic_lib" in
@@ -108,7 +109,7 @@ for f in $kernel; do
   KERNOBJS="$KERNOBJS $f\$(_O)"
 done
 OBJS=$KERNOBJS
-for f in $basemath $language $modules $systems $mt; do
+for f in $basemath $language $modules $systems $mt $libgraph; do
   OBJS="$OBJS $f\$(_O)"
 done
 OBJSGP=
@@ -119,6 +120,8 @@ HEADERS="mpinl.h parimt.h"
 for f in $hlist; do
   HEADERS="$HEADERS $src/headers/$f.h";
 done
+
+graph="$graph $libgraph"
 
 # runpath
 tmp=$runpath
@@ -750,6 +753,10 @@ for dir in basemath modules language gp graph systems mt; do
     cflags="$cflags \$(PLOTCFLAGS)"
     depend="$RECT_H"
     compile="\$(CXX)"
+    ;;
+  plottty)
+    depend="$RECT_H"
+    cflags="$cflags \$(DLCFLAGS)"
     ;;
   plot*)
     cflags="$cflags \$(PLOTCFLAGS)"

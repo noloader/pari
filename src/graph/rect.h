@@ -238,7 +238,6 @@ void  initrect(long ne, long x, long y);
 void  initrect_gen(long ne, GEN x, GEN y, long flag);
 void  killrect(long ne);
 void  plot_count(long *w, long lw, col_counter rcolcnt);
-void  plot(GEN a, GEN b, GEN code, GEN ysmlu, GEN ybigu, long prec);
 GEN   ploth(GEN a, GEN b, GEN code, long prec, long flag, long numpoints);
 GEN   ploth2(GEN a, GEN b, GEN code, long prec);
 GEN   plothmult(GEN a, GEN b, GEN code, long prec);

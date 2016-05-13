@@ -4017,6 +4017,7 @@ GEN     derivfun(void *E, GEN (*eval)(void *, GEN, long prec), GEN x, long prec)
 int     forvec_init(forvec_t *T, GEN x, long flag);
 GEN     forvec_next(forvec_t *T);
 GEN     limitnum(void *E, GEN (*f)(void *,GEN,long), long muli, GEN alpha, long prec);
+void    pariplot(GEN a, GEN b, GEN code, GEN ysmlu, GEN ybigu, long prec);
 GEN     polzag(long n, long m);
 GEN     prodeuler(void *E, GEN (*eval)(void *, GEN), GEN ga, GEN gb, long prec);
 GEN     prodinf(void *E, GEN (*eval)(void *, GEN), GEN a, long prec);

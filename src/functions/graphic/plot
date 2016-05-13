@@ -1,7 +1,6 @@
 Function: plot
-Class: highlevel
 Section: graphic
-C-Name: plot
+C-Name: pariplot
 Prototype: vV=GGEDGDGp
 Help: plot(X=a,b,expr,{Ymin},{Ymax}): crude plot of expression expr, X goes
  from a to b, with Y ranging from Ymin to Ymax. If Ymin (resp. Ymax) is not
