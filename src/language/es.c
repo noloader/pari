@@ -22,6 +22,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #include <process.h> /* for getpid */
 #include "../systems/mingw/mingw.h"
 #endif
+#ifdef __EMSCRIPTEN__
+#include "../systems/emscripten/emscripten.h"
+#endif
 #include "paricfg.h"
 #ifdef HAS_STAT
 #include <sys/stat.h>
@@ -4019,6 +4022,9 @@ pari_fopengz(const char *s)
 
   if (f) return pari_get_infile(s, f);
 
+#ifdef __EMSCRIPTEN__
+  pari_emscripten_wget(s);
+#endif
   l = strlen(s);
   name = stack_malloc(l + 3 + 1);
   strcpy(name, s); (void)sprintf(name + l, ".gz");
