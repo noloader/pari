@@ -365,18 +365,21 @@ Fq_ellyn(struct divpolmod_red *d, long k)
   pari_sp av = avma;
   void *E = d->E;
   const struct bb_algebra *ff = d->ff;
-  GEN t = d->t, r2 = d->r2;
   if (k==1) return mkvec2(ff->one(E), ff->one(E));
-  GEN pn2 = divpol(t,r2,k-2,E,ff);
-  GEN pp2 = divpol(t,r2,k+2,E,ff);
-  GEN pn12 = divpol_f2(t,r2,k-1,E,ff);
-  GEN pp12 = divpol_f2(t,r2,k+1,E,ff);
-  GEN on = ff->red(E,ff->sub(E, ff->mul(E,pp2,pn12), ff->mul(E,pn2,pp12)));
-  GEN f  = divpol(t,r2,k,E,ff);
-  GEN f2 = divpol_f2(t,r2,k,E,ff);
-  GEN f3 = ff->mul(E,f,f2);
-  if (!odd(k)) f3 = ff->mul(E,f3,r2);
-  return gerepilecopy(av,mkvec2(on, f3));
+  else
+  {
+    GEN t = d->t, r2 = d->r2;
+    GEN pn2 = divpol(t,r2,k-2,E,ff);
+    GEN pp2 = divpol(t,r2,k+2,E,ff);
+    GEN pn12 = divpol_f2(t,r2,k-1,E,ff);
+    GEN pp12 = divpol_f2(t,r2,k+1,E,ff);
+    GEN on = ff->red(E,ff->sub(E, ff->mul(E,pp2,pn12), ff->mul(E,pn2,pp12)));
+    GEN f  = divpol(t,r2,k,E,ff);
+    GEN f2 = divpol_f2(t,r2,k,E,ff);
+    GEN f3 = ff->mul(E,f,f2);
+    if (!odd(k)) f3 = ff->mul(E,f3,r2);
+    return gerepilecopy(av,mkvec2(on, f3));
+  }
 }
 
 static void
