@@ -503,16 +503,23 @@ FpXQXM_FpXQX_mul2(GEN M, GEN x, GEN y, GEN T, GEN p)
   return res;
 }
 
-/*TODO: implement Strassen 7 multiplications formula (p is large) */
 static GEN
-FpXQXM_mul2(GEN M, GEN N, GEN T, GEN p)
+FpXQXM_mul2(GEN A, GEN B, GEN T, GEN p)
 {
-  GEN res = cgetg(3, t_MAT);
-  gel(res, 1) = FpXQXM_FpXQX_mul2(M,gcoeff(N,1,1),gcoeff(N,2,1), T, p);
-  gel(res, 2) = FpXQXM_FpXQX_mul2(M,gcoeff(N,1,2),gcoeff(N,2,2), T, p);
-  return res;
+  GEN A11=gcoeff(A,1,1),A12=gcoeff(A,1,2), B11=gcoeff(B,1,1),B12=gcoeff(B,1,2);
+  GEN A21=gcoeff(A,2,1),A22=gcoeff(A,2,2), B21=gcoeff(B,2,1),B22=gcoeff(B,2,2);
+  GEN M1 = FpXQX_mul(FpXX_add(A11,A22, p), FpXX_add(B11,B22, p), T, p);
+  GEN M2 = FpXQX_mul(FpXX_add(A21,A22, p), B11, T, p);
+  GEN M3 = FpXQX_mul(A11, FpXX_sub(B12,B22, p), T, p);
+  GEN M4 = FpXQX_mul(A22, FpXX_sub(B21,B11, p), T, p);
+  GEN M5 = FpXQX_mul(FpXX_add(A11,A12, p), B22, T, p);
+  GEN M6 = FpXQX_mul(FpXX_sub(A21,A11, p), FpXX_add(B11,B12, p), T, p);
+  GEN M7 = FpXQX_mul(FpXX_sub(A12,A22, p), FpXX_add(B21,B22, p), T, p);
+  GEN T1 = FpXX_add(M1,M4, p), T2 = FpXX_sub(M7,M5, p);
+  GEN T3 = FpXX_sub(M1,M2, p), T4 = FpXX_add(M3,M6, p);
+  retmkmat2(mkcol2(FpXX_add(T1,T2, p), FpXX_add(M2,M4, p)),
+            mkcol2(FpXX_add(M3,M5, p), FpXX_add(T3,T4, p)));
 }
-
 /* Return [0,1;1,-q]*M */
 static GEN
 FpXQX_FpXQXM_qmul(GEN q, GEN M, GEN T, GEN p)
