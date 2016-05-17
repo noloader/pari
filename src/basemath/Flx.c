@@ -4481,19 +4481,17 @@ FlxqX_halfgcd(GEN x, GEN y, GEN T, ulong p)
 {
   pari_sp av = avma;
   GEN M,q,r;
+  if (!signe(x))
   {
-    if (!signe(x))
-    {
-      long v = varn(x), vT = get_Flx_var(T);
-      retmkmat2(mkcol2(pol_0(v),pol1_FlxX(v,vT)),
-                mkcol2(pol1_FlxX(v,vT),pol_0(v)));
-    }
-    if (degpol(y)<degpol(x)) return FlxqX_halfgcd_i(x, y, T, p);
-    q = FlxqX_divrem(y, x, T, p, &r);
-    M = FlxqX_halfgcd_i(x, r, T, p);
-    gcoeff(M,1,1) = FlxX_sub(gcoeff(M,1,1), FlxqX_mul(q, gcoeff(M,1,2), T, p), p);
-    gcoeff(M,2,1) = FlxX_sub(gcoeff(M,2,1), FlxqX_mul(q, gcoeff(M,2,2), T, p), p);
+    long v = varn(x), vT = get_Flx_var(T);
+    retmkmat2(mkcol2(pol_0(v),pol1_FlxX(v,vT)),
+        mkcol2(pol1_FlxX(v,vT),pol_0(v)));
   }
+  if (degpol(y)<degpol(x)) return FlxqX_halfgcd_i(x, y, T, p);
+  q = FlxqX_divrem(y, x, T, p, &r);
+  M = FlxqX_halfgcd_i(x, r, T, p);
+  gcoeff(M,1,1) = FlxX_sub(gcoeff(M,1,1), FlxqX_mul(q, gcoeff(M,1,2), T, p), p);
+  gcoeff(M,2,1) = FlxX_sub(gcoeff(M,2,1), FlxqX_mul(q, gcoeff(M,2,2), T, p), p);
   return gerepilecopy(av, M);
 }
 
