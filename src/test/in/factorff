@@ -50,5 +50,6 @@ a=ffgen([3,37],'a);check(subst(x^37+x^3+x^2+2*x+2,x,x+a))
     s += check(P));
   s
 }
+a=ffprimroot(ffgen([2,10],'a));check(factorback(vector(200,i,x-a^i)))
 a=ffprimroot(ffgen([3,7],'a)); check(factorback(vector(1000,i,x-a^i)))
 a=ffprimroot(ffgen([nextprime(2^100),2],'a));check(factorback(vector(200,i,x-a^i)))
