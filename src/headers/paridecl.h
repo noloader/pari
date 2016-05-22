@@ -2978,7 +2978,6 @@ GEN     padic_to_Q(GEN x);
 GEN     padic_to_Q_shallow(GEN x);
 GEN     QpV_to_QV(GEN v);
 GEN     RgM_mulreal(GEN x, GEN y);
-GEN     RgX_RgM_eval_col(GEN x, GEN M, long c);
 GEN     RgX_cxeval(GEN T, GEN u, GEN ui);
 GEN     RgX_deflate_max(GEN x0, long *m);
 long    RgX_deflate_order(GEN x);

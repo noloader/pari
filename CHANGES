@@ -593,3 +593,4 @@ BA 7- divide_conquer_prod: use gen_product instead
       is needed. [#368, #1647]
 BA10- [libpari] FpXQX_rem_Barrett, FpXQX_divrem_Barrett: use FpXQX_get_red
 BA11- [libpari] FlxqX_rem_Barrett: use FlxqX_get_red
+BA12- [libpari] RgX_RgM_eval_col
