@@ -12,6 +12,9 @@ AA=truncate(lift(lift(FF)));
 BB=truncate(lift(lift(GG)));
 gcdext(AA,BB)
 gcd(x*Mod(1,7),x*Mod(1,7))
+a=ffgen([3,5],'a);
+gcd((x^2+a*x+1)*(x+a),(x^3+a*x^2+a*x)*(x+a))
+gcdext(x^2+a*x+1,x^3+a*x^2+a*x)
 
 gcd(2*I, 1+I)
 gcd(I*1., I+1.)
