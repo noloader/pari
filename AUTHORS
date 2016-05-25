@@ -49,6 +49,9 @@ Major contributors (large modules written or rewritten from scratch):
     polrootsreal/polsturm
   Bruno HAIBLE: micro assembly implementations, DOS/Windows support
   Guillaume HANROT: thue, zncoppersmith, initial polrootsreal implementation
+  Hamish IVEY-LAW: ellisogeny, ellisogenyapply, ellissupersingular, Sutherland
+  algorithms for class and modular polynomials (polclass, polmodular),
+  Flj_ functions family.
   Pascal LETARD: basic number fields (round2, initial round4)
   Jean-Francois MESTRE: original elliptic curves implementation
   Pascal MOLIN: Lfun package, numerical integration
