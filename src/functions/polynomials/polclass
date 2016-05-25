@@ -7,9 +7,50 @@ Help: polclass(D, {inv = 0}, {x = 'x}): return the Hilbert class polynomial for
 Doc:
  Return the Hilbert class polynomial for the imaginary quadratic
  discriminant $D$ in the variable $x$.  If $inv$ is 0 (the default),
- use the modular $j$ function, if $inv$ is 1 use the
- Weber-$f$ function, and if $inv$ is 5, use $\gamma_2 =
- \sqrt[3]{j}$.
+ use the modular $j$ function, otherwise the invariant used is as follow
+
+ $w_{p,q} = { \eta(x/p)\*\eta(x/q) \over \eta(x)\*\eta(x/{pq}) }$
+
+ \item 0 : $j$ function
+
+ \item 1 : Weber $f$
+
+ \item 2 : $f^2$
+
+ \item 3 : $f^3$
+
+ \item 4 : $f^4$
+
+ \item 5 : $\gamma_2=\root 3 \of j$
+
+ \item 6 : $w_{2,3}$
+
+ \item 8 : $f^8$
+
+ \item 9 : $w_{3,3}$
+
+ \item 10: $w_{2,5}$
+
+ \item 14: $w_{2,7}$
+
+ \item 15: $w_{3,5}$
+
+ \item 21: $w_{3,7}$
+
+ \item 23: $w_{2,3}^2$
+
+ \item 24: $w_{2,5}^2$
+
+ \item 26: $w_{2,13}$
+
+ \item 27: $w_{2,7}^2$
+
+ \item 28: $w_{3,3}^2$
+
+ \item 35: $w_{5,7}$
+
+ \item 39: $w_{3,13}$
+
  \bprog
  ? polclass(-163)
  %1 = x + 262537412640768000
