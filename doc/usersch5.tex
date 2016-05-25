@@ -2442,6 +2442,11 @@ proper \kbd{GEN}), return the integer $\sum_{i = 1}^l x[i] 2^{l-i}$, as a
 \fun{ulong}{bits_to_u}{GEN v, long l} same as \tet{bits_to_int}, where
 $l < \tet{BITS_IN_LONG}$, so we can return an \kbd{ulong}.
 
+\fun{GEN}{fromdigitsu}{GEN x, GEN B}
+given a \typ{VECSMALL} $x$ of length $l$ and a \typ{INT} $B$,
+return the integer $\sum_{i = 1}^l x[i] B^{i-1}$, as a \typ{INT},
+where the \kbd{x[i]} are seen as unsigned integers.
+
 \fun{GEN}{fromdigits_2k}{GEN x, long k} converse of \tet{binary_2k};
 given a \typ{VEC} $x$ of length $l$ and a positive \kbd{long} $k$,
 where each $x[i]$ is a \typ{INT} with $0\leq x[i] < 2^k$, return the

@@ -1486,17 +1486,41 @@ digits(GEN x, GEN B)
   }
 }
 
+static GEN
+fromdigitsu_dac(GEN x, GEN vB, long i, long l)
+{
+  GEN a, b;
+  long m = l>>1;
+  if (l==1) return utoi(uel(x,i));
+  if (l==2) return addumului(uel(x,i), uel(x,i+1), gel(vB, m));
+  a = fromdigitsu_dac(x, vB, i, m);
+  b = fromdigitsu_dac(x, vB, i+m, l-m);
+  return addii(a, mulii(b, gel(vB, m)));
+}
+
+GEN
+fromdigitsu(GEN x, GEN B)
+{
+  pari_sp av = avma;
+  long n = lg(x)-1;
+  GEN vB, z;
+  if (n==0) return gen_0;
+  vB = get_vB(B, n, NULL, &Z_ring);
+  z = fromdigitsu_dac(x, vB, 1, n);
+  return gerepileuptoint(av, z);
+}
+
 GEN
 fromdigits(GEN x, GEN B)
 {
   pari_sp av = avma;
   if (typ(x)!=t_VEC || !RgV_is_ZV(x)) pari_err_TYPE("fromdigits",x);
+  if (lg(x)==1) return gen_0;
   B = check_basis(B);
-  if (lg(x)==1) { avma = av; return gen_0; }
   if (Z_ispow2(B))
     return fromdigits_2k(x, expi(B));
   x = vecreverse(x);
-  return gerepileupto(av, gen_fromdigits(x, B, NULL, &Z_ring));
+  return gerepileuptoint(av, gen_fromdigits(x, B, NULL, &Z_ring));
 }
 
 static const ulong digsum[] ={
