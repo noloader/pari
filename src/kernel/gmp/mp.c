@@ -532,7 +532,7 @@ addumului(ulong a, ulong b, GEN y)
   GEN z;
   long i, lz;
   ulong hi;
-  if (!signe(y)) return utoi(a);
+  if (!b || !signe(y)) return utoi(a);
   lz = lgefint(y)+1;
   z = cgeti(lz);
   z[2]=a;

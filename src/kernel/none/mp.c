@@ -469,7 +469,7 @@ addumului(ulong a, ulong b, GEN Y)
   LOCAL_HIREMAINDER;
   LOCAL_OVERFLOW;
 
-  if (!signe(Y)) return utoi(a);
+  if (!b || !signe(Y)) return utoi(a);
 
   y = LIMBS(Y); z = (GEN)avma;
   ny = NLIMBS(Y);
