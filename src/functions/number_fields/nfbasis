@@ -32,8 +32,8 @@ Doc:
 
  \item Matrix: we assume that it is a two-column matrix of a
  (partial) factorization of $D$; namely the first column contains
- \emph{primes} and the second one the valuation of $D$ at each of these
- primes.
+ distinct \emph{primes} and the second one the valuation of $D$ at each of
+ these primes.
 
  \item Integer $B$: this is replaced by the vector of primes up to $B$. Note
  that the function will use at least $O(B)$ time: a small value, about

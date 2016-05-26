@@ -567,6 +567,13 @@ BA 73- improve hash_GEN to reduce # of collisions (change glue)
        Add optional flag to rnfeltabstorel, rnfeltdown, rnfeltup,
        rnfidealreltoabs, rnfinit
 BA 75- rename FlxqX_pow to FlxqX_powu
+   76- polredabs([T,listP]) no longer returns 0 if the attached order cannot
+       be proven to be maximal: it computes the expected canonical polynomial
+       in all cases, which can be very slow. Always use polredbest() if you
+       don't require a canonical output.
+   77- polredabs(T) now internally uses the polredabs([T,listP]) strategy,
+       making it much faster in favourable cases, while still always returning
+       a canonical defining polynomial.
 
 Removed
    1- deprecated functions nfbasis0, nfdisc0, factorpadic0

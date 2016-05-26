@@ -14,19 +14,19 @@ Doc: returns a canonical defining polynomial $P$ for the number field
  \tet{nfinit} are also allowed here, e.g. non-monic polynomials, or pairs
  \kbd{[T, listP]} specifying that a non-maximal order may be used.
 
- \misctitle{Warning 1} Using a \typ{POL} $T$ requires fully factoring the
- discriminant of $T$, which may be very hard. The format \kbd{[T, listP]}
- computes only a suborder of the maximal order and replaces this part of the
- algorithm by a polynomial time computation. In that case the polynomial $P$
- is a priori no longer canonical, and it may happen that it does not have
- minimal $T_2$ norm. The routine attempts to certify the result independently
- of this order computation (as per \tet{nfcertify}: we try to prove that the
- order is maximal); if it fails, the routine returns $0$ instead of $P$.
- In order to force an output in that case as well, you may either use
- \tet{polredbest}, or \kbd{polredabs(,16)}, or
- \bprog
-   polredabs([T, nfbasis([T, listP])])
- @eprog\noindent (In all three cases, the result is no longer canonical.)
+ \misctitle{Warning 1} Using a \typ{POL} $T$ requires computing
+ and fully factoring the discriminant $d_K$ of the maximal order which may be
+ very hard. You can use the format \kbd{[T, listP]}, where \kbd{listP}
+ encodes a list of known coprime divisors of $\disc(T)$ (see \kbd{??nfbasis}),
+ to help the routine, thereby replacing this part of the algorithm by a
+ polynomial time computation But this may only compute a suborder of the
+ maximal order, when the divisors are not squarefree or do not include all
+ primes dividing $d_K$. The routine attempts to certify the result
+ independently of this order computation as per \tet{nfcertify}: we try to
+ prove that the computed order is maximal. If the certification fails,
+ the routine then fully factors the integers returned by \kbd{nfcertify}.
+ You can use \tet{polredbest} or \kbd{polredabs(,16)} to avoid this
+ factorization step; in both cases, the result is no longer canonical.
 
  \misctitle{Warning 2} Apart from the factorization of the discriminant of
  $T$, this routine runs in polynomial time for a \emph{fixed} degree.
