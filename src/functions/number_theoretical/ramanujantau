@@ -2,8 +2,8 @@ Function: ramanujantau
 Section: number_theoretical
 C-Name: ramanujantau
 Prototype: G
-Help: tau(n): compute the value of Ramanujan's tau function at n, assuming
- the GRH. Algorithm in O(n^{1/2+eps}).
+Help: ramanujantau(n): compute the value of Ramanujan's tau function at n,
+ assuming the GRH. Algorithm in O(n^{1/2+eps}).
 Doc: compute the value of Ramanujan's tau function at an individual $n$,
  assuming the truth of the GRH (to compute quickly class numbers of imaginary
  quadratic fields using \tet{quadclassunit}).
