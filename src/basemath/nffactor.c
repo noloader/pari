@@ -1710,6 +1710,9 @@ nf_pick_prime(long ct, GEN nf, GEN polbase, long fl,
       if (fl == FACTORS) return anbf; /* irreducible */
       if (!anbf) return 0; /* no root */
     }
+    if (DEBUGLEVEL>3)
+      err_printf("%3ld %s at prime\n  %Ps\nTime: %ld\n",
+                 anbf, fl == FACTORS?"factors": "roots", apr, timer_delay(&ti_pr));
 
     if (!nbf || anbf < nbf
              || (anbf == nbf && pr_get_f(apr) > pr_get_f(*pr)))
@@ -1720,9 +1723,6 @@ nf_pick_prime(long ct, GEN nf, GEN polbase, long fl,
       *Fa = fa;
     }
     else avma = av2;
-    if (DEBUGLEVEL>3)
-      err_printf("%3ld %s at prime\n  %Ps\nTime: %ld\n",
-                 anbf, fl == FACTORS?"factors": "roots", apr, timer_delay(&ti_pr));
     if (--ct <= 0) break;
   }
   if (!nbf) pari_err_OVERFLOW("nf_pick_prime [ran out of primes]");
