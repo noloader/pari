@@ -47,3 +47,9 @@ Wp = mspadicinit(M, 5, 4, 0);
 mspadicmoments(Wp, xpm, -3)
 
 test2ord("43a1", 3, 4, 29)
+
+M=msinit(4,6,1);
+xpm=[1,8,1,-32]~;
+Wp=mspadicinit(M,3,5);
+oms=mspadicmoments(Wp, xpm);
+mspadicL(oms)
