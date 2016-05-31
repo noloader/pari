@@ -152,6 +152,8 @@ e = ellinit([1,1,0,-1740,22184]);
 z=-3.0059315873096303229151114945365166621 + 0.E-36*I/2;
 ellztopoint(e,z)
 
+\\#1800
+ellztopoint(ellinit([-1,0]), I)
 
 \\#1186
 ellmul(ellinit([3,0]), [1,2], -quadgen(-4))
