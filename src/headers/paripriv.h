@@ -165,7 +165,6 @@ GEN bernfrac_using_zeta(long n);
 
 /* powers */
 GEN    rpowuu(ulong a, ulong n, long prec);
-ulong  u_pow10(int n);
 
 /* floats */
 double dabs(double s, double t);

@@ -537,36 +537,6 @@ hex_read(const char **ps)
   return binary_read(ps, MAX_XDIGITS, isxdigit, hex_number_len);
 }
 
-ulong
-u_pow10(int n)
-{
-  const ulong pw10[] = {
-    1UL
-    ,10UL
-    ,100UL
-    ,1000UL
-    ,10000UL
-    ,100000UL
-    ,1000000UL
-    ,10000000UL
-    ,100000000UL
-    ,1000000000UL
-#ifdef LONG_IS_64BIT
-    ,10000000000UL
-    ,100000000000UL
-    ,1000000000000UL
-    ,10000000000000UL
-    ,100000000000000UL
-    ,1000000000000000UL
-    ,10000000000000000UL
-    ,100000000000000000UL
-    ,1000000000000000000UL
-    ,10000000000000000000UL
-#endif
-  };
-  return pw10[n];
-}
-
 static ulong
 dec_number_len(const char *s, long B)
 {
