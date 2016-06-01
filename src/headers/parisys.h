@@ -13,22 +13,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 
 /* This files contains macros depending on system and compiler    */
 
-#ifndef LITTLE_ENDIAN_64
-#  define   LITTLE_ENDIAN_64 12345678
-#endif
-#ifndef BIG_ENDIAN_64
-#  define   BIG_ENDIAN_64    87654321
-#endif
-#ifndef LITTLE_ENDIAN
-#  define   LITTLE_ENDIAN 1234
-#endif
-#ifndef BIG_ENDIAN
-#  define   BIG_ENDIAN    4321
-#endif
-#ifndef PDP_ENDIAN
-#  define   PDP_ENDIAN    3412
-#endif
-
 #ifdef __cplusplus
 #  define ANYARG ...
 #  define BEGINEXTERN extern "C" {
