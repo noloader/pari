@@ -1612,15 +1612,17 @@ special notations are available:
 \+&\kbd{D\&}& optional \kbd{*GEN}, send \kbd{NULL} if argument omitted.\cr
 \+&&\quad The argument must be prefixed by \kbd{\&}.\cr
 
-\+&\kbd{Dr}& optional raw string, send \kbd{NULL} if argument omitted.\cr
+\+&\kbd{DI}, \kbd{DE}& optional closure, send \kbd{NULL} if argument omitted.\cr
 
-\+&\kbd{Ds}& optional \kbd{char *}, send \kbd{NULL} if argument omitted.\cr
+\+&\kbd{DP}& optional \kbd{long}, send \kbd{precdl} if argument omitted.\cr
 
 \+&\kbd{DV}& optional \kbd{*entree}, send \kbd{NULL} if argument omitted.\cr
 
-\+&\kbd{DI}, \kbd{DE}& optional closure, send \kbd{NULL} if argument omitted.\cr
-
 \+&\kbd{Dn}& optional variable number, $-1$ if omitted.\cr
+
+\+&\kbd{Dr}& optional raw string, send \kbd{NULL} if argument omitted.\cr
+
+\+&\kbd{Ds}& optional \kbd{char *}, send \kbd{NULL} if argument omitted.\cr
 
 \misctitle{Hardcoded limit} C functions using more than 20 arguments are not
 supported. Use vectors if you really need that many parameters.
