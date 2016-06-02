@@ -331,7 +331,6 @@ check_proto(const char *code)
     case 'p':
     case 'b':
     case 'r':
-    case 'x':
       arity++;
       break;
     case 'E':
