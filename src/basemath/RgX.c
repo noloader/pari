@@ -2332,9 +2332,15 @@ QXQ_powers(GEN a, long n, GEN T)
 static GEN
 do_QXQ_eval(GEN v, long imin, GEN a, GEN T)
 {
-  long l, i, m = degpol(T);
-  GEN dz, z = Q_remove_denom(QXQ_powers(a, m-1, T), &dz);
+  long l, i, m = 0;
+  GEN dz, z;
   GEN V = cgetg_copy(v, &l);
+  for (i = imin; i < l; i++)
+  {
+    GEN c = gel(v, i);
+    if (typ(c) == t_POL) m = maxss(m, degpol(c));
+  }
+  z = Q_remove_denom(QXQ_powers(a, m, T), &dz);
   for (i = 1; i < imin; i++) V[i] = v[i];
   for (i = imin; i < l; i++)
   {
