@@ -3234,7 +3234,7 @@ red_mod_FilM(GEN phi, ulong p, long k, long flag)
   return v;
 }
 
-/* denom(C) = p^(2(k-1)) */
+/* denom(C) | p^(2(k-1) - v_p(ap)) */
 static GEN
 oms_supersingular(GEN W, GEN phi, GEN C, GEN ap)
 {
@@ -3340,11 +3340,10 @@ msomseval(GEN W, GEN phi, GEN path)
 {
   struct m_act S;
   pari_sp av = avma;
-  GEN alpha, v, Wp;
+  GEN v, Wp;
   long n, vden;
   checkmspadic(W);
   if (typ(phi) != t_COL || lg(phi) != 4)  pari_err_TYPE("msomseval",phi);
-  alpha = gel(phi,3);
   vden = itos(gel(phi,2));
   phi = gel(phi,1);
   n = mspadic_get_n(W);
@@ -3354,7 +3353,7 @@ msomseval(GEN W, GEN phi, GEN path)
   S.q = powuu(S.p, n+vden);
   S.dim = n + S.k - 1;
   v = omseval_int(&S, phi, mspathlog(Wp,path), NULL);
-  return gerepileupto(av, gmul(alpha,v));
+  return gerepilecopy(av, v);
 }
 /* W = msinit(N,k,...); if flag < 0 or flag >= k-1, allow all symbols;
  * else commit to v_p(a_p) <= flag (ordinary if flag = 0)*/
@@ -3395,8 +3394,8 @@ mspadicinit(GEN W, long p, long n, long flag)
   }
   if (flag < 0 || flag >= k) flag = k-1;
   /* in supersingular case: will multiply by matrix with denominator p^k
-   * in mspadicint*/
-  if (flag) n += k;
+   * in mspadicint. Except if p = 2 (multiply by alpha^2) */
+  if (flag) { if (p == 2) n += 2*k-2; else n += k; }
   pn = powuu(p,n);
   /* For accuracy mod p^n, supersingular require p^(k*n) */
   if (flag)
@@ -3410,26 +3409,30 @@ mspadicinit(GEN W, long p, long n, long flag)
     q = pn;
   actUp = init_moments_act(Wp, p, n, q, Up_matrices(p));
 
-  pas = matpascal(n);
-  teich = teichmullerinit(p, n+1);
-  P = gpowers(utoipos(p), n);
-  C = cgetg(p, t_VEC);
-  for (a = 1; a < p; a++)
-  { /* powb[j+1] = ((a - w(a)) / p)^j mod p^n */
-    GEN powb = Fp_powers(diviuexact(subui(a, gel(teich,a)), p), n, pn);
-    GEN Ca = cgetg(n+2, t_VEC);
-    long j, r;
-    gel(C,a) = Ca;
-    for (j = 0; j <= n; j++)
-    {
-      GEN Caj = cgetg(j+2, t_VEC);
-      GEN atij = gel(teich, Fl_powu(a,p-1-j,p)); /* w(a)^(-j) */
-      gel(Ca,j+1) = Caj;
-      for (r = 0; r <= j; r++)
+  if (p == 2) C = gen_0;
+  else
+  {
+    pas = matpascal(n);
+    teich = teichmullerinit(p, n+1);
+    P = gpowers(utoipos(p), n);
+    C = cgetg(p, t_VEC);
+    for (a = 1; a < p; a++)
+    { /* powb[j+1] = ((a - w(a)) / p)^j mod p^n */
+      GEN powb = Fp_powers(diviuexact(subui(a, gel(teich,a)), p), n, pn);
+      GEN Ca = cgetg(n+2, t_VEC);
+      long j, r;
+      gel(C,a) = Ca;
+      for (j = 0; j <= n; j++)
       {
-        GEN c = Fp_mul(gcoeff(pas,j+1,r+1), gel(powb, j-r+1), pn);
-        c = Fp_mul(c,atij,pn); /* binomial(j,r) * b^(j-r) * w(a)^(-j) mod p^n */
-        gel(Caj,r+1) = mulii(c, gel(P,j+1)); /* p^j * c mod p^(n+j) */
+        GEN Caj = cgetg(j+2, t_VEC);
+        GEN atij = gel(teich, Fl_powu(a,p-1-j,p)); /* w(a)^(-j) */
+        gel(Ca,j+1) = Caj;
+        for (r = 0; r <= j; r++)
+        {
+          GEN c = Fp_mul(gcoeff(pas,j+1,r+1), gel(powb, j-r+1), pn);
+          c = Fp_mul(c,atij,pn); /* binomial(j,r)*b^(j-r)*w(a)^(-j) mod p^n */
+          gel(Caj,r+1) = mulii(c, gel(P,j+1)); /* p^j * c mod p^(n+j) */
+        }
       }
     }
   }
@@ -3553,6 +3556,7 @@ mstooms(GEN W, GEN phi)
     }
   }
   if (vden) c = mul_denom(c, powuu(p,vden));
+  if (p == 2) alpha = gsqr(alpha);
   if (c) alpha = gdiv(alpha,c);
   if (typ(alpha) == t_MAT)
   { /* express in basis (omega,-p phi(omega)) */
@@ -3575,12 +3579,40 @@ FpVV_dotproduct(GEN v, GEN w, GEN p)
   return T;
 }
 
+/* \int (-4z)^j given \int z^j */
+static GEN
+twistmoment_minus(GEN v)
+{
+  long i, l;
+  GEN w = cgetg_copy(v, &l);
+  for (i = 1; i < l; i++)
+  {
+    GEN c = gel(v,i);
+    if (i > 1) c = gmul2n(c, (i-1)<<1);
+    gel(w,i) = odd(i)? c: gneg(c);
+  }
+  return w;
+}
+/* \int (4z)^j given \int z^j */
+static GEN
+twistmoment_plus(GEN v)
+{
+  long i, l;
+  GEN w = cgetg_copy(v, &l);
+  for (i = 1; i < l; i++)
+  {
+    GEN c = gel(v,i);
+    if (i > 1) c = gmul2n(c, (i-1)<<1);
+    gel(w,i) = c;
+  }
+  return w;
+}
 /* W an mspadic, phi eigensymbol, p \nmid D. Return C(x) mod FilM */
 GEN
 mspadicmoments(GEN W, GEN PHI, long D)
 {
   pari_sp av = avma;
-  long a, b, lphi, aD = labs(D), p, k, n, vden;
+  long la, ia, b, lphi, aD = labs(D), pp, p, k, n, vden;
   GEN Wp, Dact, Dk, v, C, gp, pn, phi;
   struct m_act S;
   hashtable *H;
@@ -3595,8 +3627,12 @@ mspadicmoments(GEN W, GEN PHI, long D)
     PHI = mstooms(W, PHI);
   vden = itos( gel(PHI,2) );
   phi = gel(PHI,1);
+  if (p == 2)
+  { la = 3; pp = 4; }
+  else
+  { la = p; pp = p; }
   v = cgetg_copy(phi, &lphi);
-  for (b = 1; b < lphi; b++) gel(v,b) = cgetg(p, t_VEC);
+  for (b = 1; b < lphi; b++) gel(v,b) = cgetg(la, t_VEC);
   pn = powuu(p, n + vden);
   gp = utoipos(p);
 
@@ -3624,10 +3660,12 @@ mspadicmoments(GEN W, GEN PHI, long D)
   }
 
   H = Gl2act_cache(ms_get_nbgen(Wp));
-  for (a = 1; a < p; a++)
+
+  for (ia = 1; ia < la; ia++)
   {
-    GEN path, vca, Ca = gel(C,a);
-    long i;
+    GEN path, vca;
+    long i, a = ia;
+    if (p == 2 && a == 2) a = -1;
     if (Dact) /* twist by D */
     {
       long c;
@@ -3637,9 +3675,9 @@ mspadicmoments(GEN W, GEN PHI, long D)
         long s = kross(D, b);
         GEN z, T;
         if (!s) continue;
-        z = addii(muluu(a, aD), muluu(p, b));
-        /* oo -> a/p + p/|D|*/
-        path = mkmat22(gen_1,z, gen_0,muluu(p, aD));
+        z = addii(mulss(a, aD), muluu(pp, b));
+        /* oo -> a/pp + pp/|D|*/
+        path = mkmat22(gen_1,z, gen_0,muluu(pp, aD));
         T = omseval_int(&S, phi, M2_log(Wp,path), H);
         for (c = 1; c < lphi; c++)
         {
@@ -3653,11 +3691,23 @@ mspadicmoments(GEN W, GEN PHI, long D)
     }
     else
     {
-      path = mkmat22(gen_1,utoipos(a), gen_0,gp);
+      path = mkmat22(gen_1,stoi(a), gen_0, utoipos(pp));
       vca = omseval_int(&S, phi, M2_log(Wp,path), H);
     }
-    for (i = 1; i < lphi; i++)
-      gmael(v,i,a) = FpVV_dotproduct(Ca, gel(vca,i), pn);
+    if (p != 2)
+    {
+      GEN Ca = gel(C,a);
+      for (i = 1; i < lphi; i++)
+        gmael(v,i,a) = FpVV_dotproduct(Ca, gel(vca,i), pn);
+    }
+    else
+    {
+      if (ia == 1) /* \tilde{a} = 1 */
+      { for (i = 1; i < lphi; i++) gel(vca,i) = twistmoment_plus(gel(vca,i)); }
+      else /* \tilde{a} = -1 */
+      { for (i = 1; i < lphi; i++) gel(vca,i) = twistmoment_minus(gel(vca,i)); }
+      for (i = 1; i < lphi; i++) gmael(v,i,ia) = gel(vca,i);
+    }
   }
   return gerepilecopy(av, mkvec3(v, gel(PHI,3), mkvecsmall4(p,n+vden,n,D)));
 }
@@ -3714,20 +3764,37 @@ mspadicint(GEN oms, long teichi, GEN S)
   GEN vT = gel(oms,1), alpha = gel(oms,2), gp = utoipos(p);
   long loss = S? Z_lval(Q_denom(S), p): 0;
   long nfinal = minss(n-loss, n0);
-  long i, l = lg(vT);
-  GEN res = cgetg(l, t_COL), teich = teichmullerinit(p, n);
+  long i, la, l = lg(vT);
+  GEN res = cgetg(l, t_COL), teich;
 
-  teichi %= p-1;
   if (S) S = RgX_to_RgC(S,lg(gmael(vT,1,1))-1);
+  if (p == 2)
+  {
+    teich = NULL;
+    la = 3; /* corresponds to [1,-1] */
+    teichi &= 1;
+  }
+  else
+  {
+    teich = teichmullerinit(p, n);
+    la = p; /* corresponds to [1,2,...,p-1] */
+    teichi %= p-1;
+  }
   for (i=1; i<l; i++)
   {
     pari_sp av2 = avma;
     GEN s = gen_0, T = gel(vT,i);
-    long a;
-    for (a = 1; a < p; a++)
+    long ia;
+    for (ia = 1; ia < la; ia++)
     { /* Ta[j+1] correct mod p^(n-j+1) */
-      GEN Ta = gel(T,a), v = S? RgV_dotproduct(Ta, S): gel(Ta,1);
-      if (teichi) v = gmul(v, gel(teich, Fl_powu(a,teichi,p)));
+      GEN Ta = gel(T,ia), v = S? RgV_dotproduct(Ta, S): gel(Ta,1);
+      if (teichi && ia != 1)
+      {
+        if (p != 2)
+          v = gmul(v, gel(teich, Fl_powu(ia,teichi,p)));
+        else
+          if (teichi) v = gneg(v);
+      }
       s = gadd(s, v);
     }
     s = gadd(s, zeropadic(gp,nfinal));
@@ -3878,7 +3945,5 @@ ellpadicL(GEN E, GEN pp, long n, GEN s, long r, GEN DD)
   Wp = mspadicinit(W, p, n, umodiu(ellap(E,pp),p)? 0: 1);
   oms = mspadicmoments(Wp, xpm, D);
   L = mspadicL(oms, s, r);
-  if (lg(L) == 2) L = gel(L,1);
-  if (kross(D,p) < 0) L = gneg(L);
   return gerepileupto(av, gdiv(L,den));
 }

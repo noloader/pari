@@ -10,8 +10,8 @@
   ***   at top-level: ellpadicheight(E,19,
   ***                 ^--------------------
   *** ellpadicheight: domain error in ellpadicheight: precision <= 0
-[2^-1 + 2 + 2^2 + O(2^5), 2^-1 + 2^2 + 2^3 + O(2^5)]~
-[2^-1 + 1 + 2^2 + 2^4 + O(2^5), 1 + 2^2 + 2^4 + O(2^5)]~
+[2^-1 + 2 + 2^2 + O(2^5), 2^-1 + 2^2 + 2^3 + O(2^4)]~
+[2^-1 + 1 + 2^2 + 2^4 + O(2^5), 1 + 2^2 + O(2^4)]~
 [2*3^2 + 2*3^3 + 3^4 + 3^5 + 3^6 + O(3^7), 2*3^2 + 3^4 + 2*3^5 + 3^6 + O(3^7
 )]
   ***   at top-level: ellpadiclog(E,3,5,P)
@@ -81,5 +81,5 @@ O(5^7)
 [1 + O(3^4), O(3^4)]~
 [1 + O(3^5), O(3^5)]~
   ***   Warning: new stack size = 40000000 (38.147 Mbytes).
-[O(2^3), O(2^3)]~
-Total time spent: 1504
+[O(2^3), O(2^2)]~
+Total time spent: 1100
