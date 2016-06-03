@@ -2,18 +2,18 @@ Function: msomseval
 Section: modular_symbols
 C-Name: msomseval
 Prototype: GGG
-Help: msomseval(Mp, phi, path):
+Help: msomseval(Mp, PHI, path):
  return the vectors of moments of the p-adic distribution attached
- to the path 'path' via the overconvergent modular symbol 'phi'
+ to the path 'path' via the overconvergent modular symbol 'PHI'
 Doc:return the vectors of moments of the $p$-adic distribution attached
- to the path \kbd{path} via the overconvergent modular symbol \kbd{phi}.
+ to the path \kbd{path} by the overconvergent modular symbol \kbd{PHI}.
  \bprog
  ? M = msinit(3,6,1);
  ? Mp= mspadicinit(M,5,10);
- ? xpm = [5,-3,-1]~;
- ? msissymbol(M,xpm)
+ ? phi = [5,-3,-1]~;
+ ? msissymbol(M,phi)
  %4 = 1
- ? xpmoms = mstooms(Mp,xpm);
- ? ME = msomseval(Mp,xpmoms,[oo, 0]);
+ ? PHI = mstooms(Mp,phi);
+ ? ME = msomseval(Mp,PHI,[oo, 0]);
  @eprog
 

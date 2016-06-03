@@ -7,35 +7,35 @@ Help: mspadicmoments(Mp, PHI, {D = 1}): given Mp from mspadicinit, an
  D coprime to p, return the moments of the p-1 distributions
  PHI^D([0]-[oo]) | (a + pZp), 0 < a < p. To be used by mspadicL and
  mspadicseries
-Doc: given \kbd{Mp} from \kbd{mspadicinit} an overconvergent
- eigensymbol \kbd{PHI} and a fundamental discriminant $D$ coprime to $p$,
- let $\kbd{PHI}^D$ denote the twisted symbol. This function returns
- the moments of the $p-1$ distributions $\kbd{PHI}^D([0]-[oo]) \mid (a +
- p\Z_p)$, $0 < a < p$. We also allow \kbd{PHI} to be given as a classical
+Doc: given \kbd{Mp} from \kbd{mspadicinit}, an overconvergent
+ eigensymbol \kbd{PHI} from \kbd{mstooms} and a fundamental discriminant
+ $D$ coprime to $p$,
+ let $\kbd{PHI}^D$ denote the twisted symbol. This function computes
+ the distribution $\mu = \kbd{PHI}^D([0] - \infty]) \mid \Z_p^*$ restricted
+ to $\Z_p^*$. More precisely, it returns
+ the moments of the $p-1$ distributions $\kbd{PHI}^D([0]-[\infty])
+ \mid (a + p\Z_p)$, $0 < a < p$.
+ We also allow \kbd{PHI} to be given as a classical
  symbol, which is then lifted to an overconvergent symbol by \kbd{mstooms};
  but this is wasteful if more than one twist is later needed.
 
- The returned data ($p$-adic distributions attached to \kbd{PHI}) can then be
- used in \tet{mspadicL} or \tet{mspadicseries}. This precomputation allows
- to quickly compute derivatives of different orders or values at different
- characters.
+ The returned data $\mu$ ($p$-adic distributions attached to \kbd{PHI})
+ can then be used in \tet{mspadicL} or \tet{mspadicseries}.
+ This precomputation allows to quickly compute derivatives of different
+ orders or values at different characters.
  \bprog
  ? M = msinit(3,6, 1);
- ? xpm = [5,-3,-1]~;
- ? msissymbol(M, xpm)
+ ? phi = [5,-3,-1]~;
+ ? msissymbol(M, a)
  %3 = 1
- ? p = 5; mshecke(M,p) * xpm  \\ eigenvector of T_5, a_5 = 6
+ ? p = 5; mshecke(M,p) * phi  \\ eigenvector of T_5, a_5 = 6
  %4 = [30, -18, -6]~
  ? Mp = mspadicinit(M, p, 10, 0); \\ restrict to ordinary symbols, mod p^10
- ? PHI = mstooms(Mp, xpm);
- ? PHId = mspadicmoments(Mp, PHI);
- ? mspadicL(PHId)
+ ? PHI = mstooms(Mp, phi);
+ ? mu = mspadicmoments(Mp, PHI);
+ ? mspadicL(mu)
  %8 = 5 + 2*5^2 + 2*5^3 + ...
- ? mspadicL(PHId, 1)
- %9 = O(5^13))
- ? mspadicL(PHId, 2, 1)
- %10 = 4*5 + 3*5^2 + 5^3 + ...
- ? PHId4 = mspadicmoments(Mp, PHI, -4);
- ? mspadicL(PHId4)
- %12 = O(5^13)
+ ? mu = mspadicmoments(Mp, PHI, 12); \\ twist by 12
+ ? mspadicL(mu)
+ %12 = 5 + 5^2 + 5^3 + 2*5^4 + ...
  @eprog

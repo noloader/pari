@@ -3547,7 +3547,7 @@ mstooms(GEN W, GEN phi)
     { /* p | ap, alpha = [a_p, -1; p^(k-1), 0] */
       long flag = mspadic_get_flag(W);
       if (!flag || (signe(ap) && Z_lval(ap,p) > flag))
-        pari_err_TYPE("mstooms [supersingular symbol]", phi);
+        pari_err_TYPE("mstooms [v_p(ap) > mspadicinit flag]", phi);
       alpha = mkmat22(ap,gen_m1, powuu(p, k-1),gen_0);
       alpha = ginv(alpha);
       phi = oms_supersingular(W, mkvec2(phi1,phi2), gsqr(alpha), ap);

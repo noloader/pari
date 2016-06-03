@@ -9,22 +9,22 @@ Help: mstooms(Mp, phi): given Mp from mspadicinit, lift the
  mspadicmoments, then mspadicL or mspadicseries.
 Doc: given \kbd{Mp} from \kbd{mspadicinit}, lift the (classical) eigen symbol
  \kbd{phi} to a $p$-adic distribution-valued overconvergent symbol in the
- sense of Pollack and Stevens. More precisely, let $\phi$ belong to the space
+ sense of Pollack and Stevens. More precisely, let $phi$ belong to the space
  $W$ of modular symbols of level $N$, $v_p(N) \leq 1$, and weight $k$ which is
  an eigenvector for the Hecke operator $T_N(p)$ for a non-zero eigenvalue
  $a_p$ and let $N_0 = \text{lcm}(N,p)$.
 
- Under the action of $T_{N_0}(p)$, $\phi$ generates a subspace $W_\phi$ of
+ Under the action of $T_{N_0}(p)$, $phi$ generates a subspace $W_phi$ of
  dimension $1$ (if $p\mid N$) or $2$ (if $p$ does not divide $N$) in the
  space of modular symbols of level $N_0$.
 
  Let $V_p=[p,0;0,1]$ and $C_p=[a_p,p^{k-1};-1,0]$.
  When $p \not\mid N$ and $a_p$ is divisible by $p$, \kbd{mstooms}
- returns the lift $\Phi$ of $(\phi,\phi|_k V_p)$ such that
-  $$T_{N_0}(p) \Phi = C_p \Phi$$
+ returns the lift $PHI$ of $(phi,phi|_k V_p)$ such that
+  $$T_{N_0}(p) PHI = C_p phi$$
 
  When $p \not\mid N$ and $a_p$ is not divisible by $p$, \kbd{mstooms}
- returns the lift $\Phi$ of $\phi - \alpha^{-1} \phi|_k V_p$
+ returns the lift $PHI$ of $phi - \alpha^{-1} phi|_k V_p$
  which is an eigenvector of $T_{N_0}(p)$ for the unit eigenvalue
  where $\alpha^2 - a_p \alpha + p^{k-1}=0$.
 
@@ -32,14 +32,31 @@ Doc: given \kbd{Mp} from \kbd{mspadicinit}, lift the (classical) eigen symbol
  \tet{mspadicmoments}, then \tet{mspadicL} or \tet{mspadicseries}.
  \bprog
  ? M = msinit(3,6, 1);
- ? xpm = [5,-3,-1]~;
- ? msissymbol(M, xpm)
+ ? phi = [5,-3,-1]~;
+ ? msissymbol(M, phi)
  %3 = 1
- ? p = 5; mshecke(M,p) * xpm  \\ eigenvector of T_5, a_5 = 6
+ ? p = 5; mshecke(M,p) * phi  \\ eigenvector of T_5, a_5 = 6
  %4 = [30, -18, -6]~
  ? Mp = mspadicinit(M, p, 10, 0); \\ restrict to ordinary symbols, mod p^10
- ? PHI = mstooms(Mp, xpm);
- ? PHId = mspadicmoments(Mp, PHI);
- ? mspadicL(PHId)
+ ? PHI = mstooms(Mp, phi);
+ ? mu = mspadicmoments(Mp, PHI);
+ ? mspadicL(mu)
  %8 = 5 + 2*5^2 + 2*5^3 + ...
+ @eprog
+  A non ordinary symbol.
+ \bprog
+ ? M=msinit(4,6,1);
+ ? phi=[1, 8, 1, -32]~;
+ ? msissymbol(M,phi)
+ %4 = 1
+ ? vp=mshecke(M,3)*phi; ap=vp[1]/phi[1];valuation(ap,3)
+ %5 = 1
+ ? Mp = mspadicinit(M,3,5,0);
+ ? PHI = mstooms(Mp,phi);
+  ***   at top-level: PHI=mstooms(Mp,phi)
+  ***                     ^---------------
+  *** mstooms: incorrect type in mstooms [supersingular symbol] (t_VEC).
+  ***   Break loop: type 'break' to go back to GP prompt
+ ? Mp = mspadicinit(M,3,5,1);
+ ? PHI = mstooms(Mp,phi);
  @eprog

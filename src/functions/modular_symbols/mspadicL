@@ -2,8 +2,8 @@ Function: mspadicL
 Section: modular_symbols
 C-Name: mspadicL
 Prototype: GDGD0,L,
-Help: mspadicL(omsd, {s = 0}, {r = 0}): given
- omsd from mspadicmoments (p-adic distributions attached to an
+Help: mspadicL(mu, {s = 0}, {r = 0}): given
+ mu from mspadicmoments (p-adic distributions attached to an
  overconvergent symbol PHI) returns the value on a
  character of Z_p^* represented by s of the derivative of order r of the
  p-adic L-function attached to PHI.
@@ -15,8 +15,8 @@ Doc: Let $\Phi$ be the $p$-adic distribution-valued overconvergent symbol
  where $\mu$ is the distribution on $\Z_p^*$ defined by the restriction of
  $\Phi([\infty]-[0])$ to $\Z_p^*$.
 
- Let \kbd{omsd} be as returned by \tet{mspadicmoments}
- ($p-1$ distributions attached to $\Phi$ by restriction to the discs
+ Let \kbd{mu} be as returned by \tet{mspadicmoments}
+ ($p-1$ distributions attached to $PHI$ by restriction to the discs
  $a + p\Z_p$, $0 < a < p$).
  Let $s=[s_1,s_2]$ with $s_1 \in \Z \subset \Z_p$ and $s_2 \bmod p-1$ or $s_2
  \bmod 2$ for $p=2$, encoding the $p$-adic character
@@ -26,30 +26,37 @@ Doc: Let $\Phi$ be the $p$-adic distribution-valued overconvergent symbol
  character $[s,s]$ can also be represented by the integer $s$.
 
  This function returns the value of the $r$-th derivative (in direction
- $\langle \chi \rangle$) of $L_p(\Phi,.)$ at $s$
+ $\langle \chi \rangle$) of $L_p(mu,.)$ at $s$
 
  When $a_p$ is a $p$-adic unit, the $L$ function takes its values in $\Q_p$.
  When $a_p$ is not a unit, the $L$ function takes its values in the
- two-dimensional $\Q_p$-vector space $D_{cris}(M(\phi))$ where $M(\phi)$ is
- the ``motive'' attached to $\phi$, and we return the two $p$-adic components
+ two-dimensional $\Q_p$-vector space $D_{cris}(M(a))$ where $M(a)$ is
+ the ``motive'' attached to $a$, and we return the two $p$-adic components
  with respect to some fixed $\Q_p$-basis.
  \bprog
  ? M=msinit(3,6,1);
- ? xpm=[5, -3, -1]~;
- ? msissymbol(M,xpm)
+ ? phi=[5, -3, -1]~;
+ ? msissymbol(M,phi)
  %3 = 1
  ? Mp = mspadicinit(M, 5, 4);
- ? oms = mspadicmoments(Mp, xpm, 1);
- ? mspadicL(oms,0) \\ value on the character chi^0
+ ? mu = mspadicmoments(Mp, phi, 1); \\ non twisted
+ ? mspadicL(mu,0) \\ value on the character chi^0
  %6 = 5 + 2*5^2 + 2*5^3 + 2*5^4 + ...
- ? mspadicL(oms,1) \\ value on the character chi (zero for parity reason)
+ ? mspadicL(mu,1) \\ value on the character chi (zero for parity reason)
  %7 = [O(5^13)]~
- ? mspadicL(oms,2) \\ value on the character chi^2
+ ? mspadicL(mu,2) \\ value on the character chi^2
  %8 = 3 + 4*5 + 4*5^2 + 3*5^5 + ...
- ? mspadicL(oms,[0,1]) \\ value on the character tau^1
+ ? mspadicL(mu,[0,1]) \\ value on the character tau^1
  %9 = [O(5^13)]~
- ? mspadicL(oms,[0,2]) \\ \\ value on the character tau^2
+ ? mspadicL(mu,[0,2]) \\ \\ value on the character tau^2
  %10 = 3 + 5 + 2*5^2 + 2*5^3 + ...
- ? mspadicL(oms,0,1) \\ derivative on chi^0
+ ? mspadicL(mu, [1,0]) \\ value on <chi>
+ %  = 3*5 + 2*5^2 + 5^3 + 2*5^7 + 5^8 + 5^10 + 2*5^11 + O(5^13)
+ ? mspadicL(mu,0,1) \\ derivative on chi^0
  %11 = 2*5 + 4*5^2 + 3*5^3 + ...
+ ? mspadicL(mu, 2, 1) \\ value of the first derivative on the character chi^2
+ %10 = 4*5 + 3*5^2 + 5^3 + 5^4 + ...
+ ? mu12 = mspadicmoments(Mp, phi, 12); \\ twist by 12
+ ? mspadicL(mu12)
+ %12 = 5 + 5^2 + 5^3 + 2*5^4 + ...
  @eprog
