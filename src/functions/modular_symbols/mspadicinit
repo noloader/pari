@@ -18,7 +18,7 @@ Doc: $M$ being a full modular symbol space, as given by \kbd{msinit}, and $p$
 
  \bprog
  ? E = ellinit("11a1");
- ? [M,a] = msfromell(E,1);
+ ? [M,phi] = msfromell(E,1);
  ? ellap(E,3)
  %3 = -1
  ? Mp = mspadicinit(M, 3, 10, 0); \\ commit to ordinary symbols

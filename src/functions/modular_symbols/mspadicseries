@@ -5,8 +5,7 @@ Prototype: GD0,L,
 Help: mspadicseries(mu, {i=0}): given mu from mspadicmoments,
  returns the attached p-adic series with maximal p-adic precision, depending
  on the precision of M (i-th Teichmueller component, if present).
-Doc: Let $\Phi$ be the
- $p$-adic distribution-valued overconvergent symbol
+Doc: Let $\Phi$ be the $p$-adic distribution-valued overconvergent symbol
  attached to a modular symbol $\phi$ for $\Gamma_0(N)$ (eigenvector for
  $T_N(p)$ for the eigenvalue $a_p$).
  If $\mu$ is the distribution on $\Z_p^*$ defined by the restriction of

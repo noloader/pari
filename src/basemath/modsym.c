@@ -478,6 +478,10 @@ Qevproj_init(GEN M)
   iM = ZM_inv_ratlift(MM, &diM);
   return mkvec4(M, iM, diM, perm);
 }
+static int
+is_Qevproj(GEN x)
+{ return typ(x) == t_VEC && lg(x) == 5 && typ(gel(x,1)) == t_MAT; }
+
 /* same with typechecks */
 static GEN
 Qevproj_init0(GEN M)
@@ -3492,7 +3496,14 @@ mstooms(GEN W, GEN phi)
   long k, p, vden;
 
   checkmspadic(W);
-  if (typ(phi) != t_COL) pari_err_TYPE("mstooms",phi);
+  if (typ(phi) != t_COL)
+  {
+    if (!is_Qevproj(phi)) pari_err_TYPE("mstooms",phi);
+    if (lg(gel(phi,1)) != 2)
+      pari_err_TYPE("mstooms [not a rational eigenspace]",phi);
+    phi = gel(phi,1);
+    phi = gel(phi,1);
+  }
 
   Wp = mspadic_get_Wp(W);
   Tp = mspadic_get_Tp(W);

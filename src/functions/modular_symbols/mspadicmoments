@@ -26,7 +26,7 @@ Doc: given \kbd{Mp} from \kbd{mspadicinit}, an overconvergent
  \bprog
  ? M = msinit(3,6, 1);
  ? phi = [5,-3,-1]~;
- ? msissymbol(M, a)
+ ? msissymbol(M, phi)
  %3 = 1
  ? p = 5; mshecke(M,p) * phi  \\ eigenvector of T_5, a_5 = 6
  %4 = [30, -18, -6]~
