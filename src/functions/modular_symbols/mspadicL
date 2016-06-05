@@ -46,7 +46,7 @@ Doc: Returns the value (or $r$-th derivative)
  ? mu = mspadicmoments(Mp, phi); \\ no twist
  \\ End of initializations
 
- ? mspadicL(mu,0) \\ value on the character chi^0
+ ? mspadicL(mu,0) \\ L_p(chi^0)
  %5 = 5 + 2*5^2 + 2*5^3 + 2*5^4 + ...
  ? mspadicL(mu,1) \\ L_p(chi), zero for parity reasons
  %6 = [O(5^13)]~
@@ -95,9 +95,9 @@ Doc: Returns the value (or $r$-th derivative)
  ? Mp = mspadicinit(M, 3, 4);
  ? L = mssplit(M, msnew(M));
  ? phi = L[1]; #phi[1] \\ ... this one is two-dimensional
- %12 = 2
+ %11 = 2
  ? mu = mspadicmoments(Mp, phi);
   ***   at top-level: mu=mspadicmoments(Mp,ph
   ***                    ^--------------------
-  *** mspadicmoments: incorrect type in mstooms [not a rational eigenspace]
+  *** mspadicmoments: incorrect type in mstooms [dim_Q (eigenspace) > 1]
  @eprog

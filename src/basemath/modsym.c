@@ -3499,9 +3499,8 @@ mstooms(GEN W, GEN phi)
   if (typ(phi) != t_COL)
   {
     if (!is_Qevproj(phi)) pari_err_TYPE("mstooms",phi);
-    if (lg(gel(phi,1)) != 2)
-      pari_err_TYPE("mstooms [not a rational eigenspace]",phi);
     phi = gel(phi,1);
+    if (lg(phi) != 2) pari_err_TYPE("mstooms [dim_Q (eigenspace) > 1]",phi);
     phi = gel(phi,1);
   }
 

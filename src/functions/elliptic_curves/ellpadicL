@@ -62,7 +62,7 @@ Doc: Returns the value (or $r$-th derivative) on a character $\chi^s$ of
  ? L = ellpadicL(e,p,4);
  ? F = [0,-p; 1,ellap(e,p)];
  ? (1-p^(-1)*F)^-2*L~ / cxL(e)
- %10 = [1 + O(3^4), O(3^5)]~
+ %9 = [1 + O(3^4), O(3^5)]~
  @eprog
 
  Good ordinary reduction:
