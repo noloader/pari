@@ -6,11 +6,11 @@ Help: mspadicinit(M, p, n, {flag}): M being a full modular symbol space,
  as given by msinit and a prime p, initialize
  technical data needed to compute with overconvergent modular symbols
  (modulo p^n). If flag is unset or >= k-1, allow all symbols; else
- initialize only for symbols a such that Tp(a) = a_p * a, with v_p(a_p) <= flag.
+ initialize only for symbols phi such that Tp(phi) = a_p * phi, with v_p(a_p) <= flag.
 Doc: $M$ being a full modular symbol space, as given by \kbd{msinit}, and $p$
  a prime, initialize technical data needed to compute with overconvergent
  modular symbols, modulo $p^n$. If $\fl$ is unset or $\fl \geq k-1$, allow
- all symbols; else initialize only for symbols $a$ such that $T_p(a) = a_p a$,
+ all symbols; else initialize only for symbols $\phi$ such that $T_p(\phi) = a_p \phi$,
  with $v_p(a_p) \leq \fl$, which is faster. (The fastest initialization
  is obtained for $\fl = 0$ where we only allow ordinary symbols.)
  For supersingular eigensymbols, such that $p\mid a_p$, we must further
@@ -31,7 +31,7 @@ Doc: $M$ being a full modular symbol space, as given by \kbd{msinit}, and $p$
  ? E = ellinit("15a1");
  ? [M,phi] = msfromell(E,1);
  ? ellap(E,7)
- %8 = 0
+ %3 = 0
  ? Mp = mspadicinit(M,7,5,0); \\ restrict to ordinary symbols
  ? PHI = mstooms(Mp,phi)
  ***   at top-level: PHI=mstooms(Mp,phi)

@@ -56,7 +56,7 @@ Doc: Returns the value (or $r$-th derivative) on a character $\chi^s$ of
  ? L = ellpadicL(e,p,4);
  ? F = [0,-p;1,ellap(e,p)]; \\ Frobenius matrix in the basis (omega,F(omega))
  ? (1-p^(-1)*F)^-2 * L / cxL(e)
- %5 = [1 + O(3^5), O(3^5)]~  \\ [1,0]~
+ %5 = [1 + O(3^5), O(3^5)]~ \\ [1,0]~
 
  ? e = ellinit("116a1"); p=3; \\ supersingular, a3 != 0~
  ? L = ellpadicL(e,p,4);
@@ -95,7 +95,7 @@ Doc: Returns the value (or $r$-th derivative) on a character $\chi^s$ of
  ? mu = mspadicmoments(Mp, phi);
  ? mspadicL(mu)
  %6 = 4 + 3*5 + 4*5^2 + 2*5^3 + 2*5^4 + 5^5 + O(5^6)
- ?  mspadicseries(mu)
+ ? mspadicseries(mu)
  %7 = (4 + 3*5 + 4*5^2 + 2*5^3 + 2*5^4 + 5^5 + O(5^6))
        + (3 + 3*5 + 5^2 + 5^3 + O(5^4))*x
        + (2 + 3*5 + 5^2 + O(5^3))*x^2

@@ -13,23 +13,24 @@ Doc: Returns the value (or $r$-th derivative)
 
  Let $\Phi$ be the $p$-adic distribution-valued overconvergent symbol
  attached to a modular symbol $\phi$ for $\Gamma_0(N)$ (eigenvector for
- $T_N(p)$ for the eigenvalue $a_p$). Then $L_p(\Phi,s)=L_p(\mu,s)$ is the
+ $T_N(p)$ for the eigenvalue $a_p$). Then $L_p(\Phi,\chi^s)=L_p(\mu,s)$ is the
  $p$-adic $L$ function defined by
  $$L_p(\Phi,\chi^s)= \int_{\Z_p^*} \chi^s(z) d\mu(z)$$
  where $\mu$ is the distribution on $\Z_p^*$ defined by the restriction of
  $\Phi([\infty]-[0])$ to $\Z_p^*$. The $r$-th derivative is taken in
- direction $\langle  \chi\rangle$:
+ direction $\langle \chi\rangle$:
  $$L_p^{(r)}(\Phi,\chi^s)= \int_{\Z_p^*} \chi^s(z) (\log z)^r d\mu(z).$$
  In the argument list,
 
- \item \kbd{mu} is as returned by \tet{mspadicmoments} ($p-1$ distributions
- attached to $\Phi$ by restriction to the discs $a + p\Z_p$, $0 < a < p$).
+ \item \kbd{mu} is as returned by \tet{mspadicmoments} (distributions
+ attached to $\Phi$ by restriction to discs $a + p^\nu\Z_p$, $(a,p)=1$).
 
  \item $s=[s_1,s_2]$ with $s_1 \in \Z \subset \Z_p$ and $s_2 \bmod p-1$ or
  $s_2 \bmod 2$ for $p=2$, encoding the $p$-adic character $\chi^s := \langle
  \chi \rangle^{s_1} \tau^{s_2}$; here $\chi$ is the cyclotomic character from
  $\text{Gal}(\Q_p(\mu_{p^\infty})/\Q_p)$ to $\Z_p^*$, and $\tau$ is the
- Teichm\"uller character; for convenience, the character $[s,s]$ can also be
+ Teichm\"uller character (for $p>2$ and the character of order 2 on
+ $(\Z/4\Z)^*$ if $p=2$); for convenience, the character $[s,s]$ can also be
  represented by the integer $s$.
 
  When $a_p$ is a $p$-adic unit, $L_p$ takes its values in $\Q_p$.
@@ -66,13 +67,13 @@ Doc: Returns the value (or $r$-th derivative)
  ? PHI = mstooms(Mp,phi);
  ? mu = mspadicmoments(Mp, PHI, 12); \\ twist by 12
  ? mspadicL(mu)
- %12 = 5 + 5^2 + 5^3 + 2*5^4 + ...
+ %14 = 5 + 5^2 + 5^3 + 2*5^4 + ...
  ? mu = mspadicmoments(Mp, PHI, 8); \\ twist by 8
  ? mspadicL(mu)
- %12 = 2 + 3*5 + 3*5^2 + 2*5^4 + ...
+ %16 = 2 + 3*5 + 3*5^2 + 2*5^4 + ...
  ? mu = mspadicmoments(Mp, PHI, -3); \\ twist by -3 < 0
  ? mspadicL(mu)
- %14 = O(5^13)  \\ always 0, phi is in the + part and D < 0
+ %18 = O(5^13) \\ always 0, phi is in the + part and D < 0
  @eprog
 
  One can locate interesting symbols of level $N$ and weight $k$ with
@@ -88,13 +89,13 @@ Doc: Returns the value (or $r$-th derivative)
  ? Mp = mspadicinit(M, 3, 4);
  ? mu = mspadicmoments(Mp, phi);
  ? mspadicL(mu)
- %6 = 1 + 3 + 3^3 + 3^4 + 2*3^5 + 3^6 + O(3^9)
+ %7 = 1 + 3 + 3^3 + 3^4 + 2*3^5 + 3^6 + O(3^9)
 
  ? M = msinit(11,8, 1); \\ M_8(Gamma_0(11))^+
  ? Mp = mspadicinit(M, 3, 4);
  ? L = mssplit(M, msnew(M));
  ? phi = L[1]; #phi[1] \\ ... this one is two-dimensional
- %10 = 2
+ %12 = 2
  ? mu = mspadicmoments(Mp, phi);
   ***   at top-level: mu=mspadicmoments(Mp,ph
   ***                    ^--------------------
