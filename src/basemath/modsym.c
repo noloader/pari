@@ -3776,20 +3776,19 @@ mspadicint(GEN oms, long teichi, GEN S)
   long loss = S? Z_lval(Q_denom(S), p): 0;
   long nfinal = minss(n-loss, n0);
   long i, la, l = lg(vT);
-  GEN res = cgetg(l, t_COL), teich;
+  GEN res = cgetg(l, t_COL), teich = NULL;
 
   if (S) S = RgX_to_RgC(S,lg(gmael(vT,1,1))-1);
   if (p == 2)
   {
-    teich = NULL;
     la = 3; /* corresponds to [1,-1] */
     teichi &= 1;
   }
   else
   {
-    teich = teichmullerinit(p, n);
     la = p; /* corresponds to [1,2,...,p-1] */
     teichi %= p-1;
+    if (teichi) teich = teichmullerinit(p, n);
   }
   for (i=1; i<l; i++)
   {
