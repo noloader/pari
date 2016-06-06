@@ -3424,12 +3424,12 @@ mspadicinit(GEN W, long p, long n, long flag)
     { /* powb[j+1] = ((a - w(a)) / p)^j mod p^n */
       GEN powb = Fp_powers(diviuexact(subui(a, gel(teich,a)), p), n, pn);
       GEN Ca = cgetg(n+2, t_VEC);
-      long j, r;
+      long j, r, ai = Fl_inv(a, p); /* a^(-1) */
       gel(C,a) = Ca;
       for (j = 0; j <= n; j++)
       {
         GEN Caj = cgetg(j+2, t_VEC);
-        GEN atij = gel(teich, Fl_powu(a,p-1-j,p)); /* w(a)^(-j) */
+        GEN atij = gel(teich, Fl_powu(ai,j,p));/* w(a)^(-j) = w(a^(-j) mod p) */
         gel(Ca,j+1) = Caj;
         for (r = 0; r <= j; r++)
         {
@@ -3445,7 +3445,8 @@ mspadicinit(GEN W, long p, long n, long flag)
 }
 
 #if 0
-GEN
+/* assume phi an ordinary OMS */
+static GEN
 omsactgl2(GEN W, GEN phi, GEN M)
 {
   GEN q, Wp, act;
@@ -3457,7 +3458,8 @@ omsactgl2(GEN W, GEN phi, GEN M)
   n = mspadic_get_n(W);
   q = mspadic_get_q(W);
   act = init_moments_act(Wp, p, n, q, M);
-  return dual_act(k-1, act, phi);
+  phi = gel(phi,1);
+  return dual_act(k-1, act, gel(phi,1));
 }
 #endif
 
@@ -3956,3 +3958,55 @@ ellpadicL(GEN E, GEN pp, long n, GEN s, long r, GEN DD)
   L = mspadicL(oms, s, r);
   return gerepileupto(av, gdiv(L,den));
 }
+
+#if 0
+GEN
+test(void)
+{
+  GEN W, Wp, xpm, den;
+  ulong p;
+
+  GEN E = ellinit(strtoGENstr("11a1"), NULL, DEFAULTPREC);
+  GEN pp = stoi(11);
+  long n = 15;
+  if (typ(pp) != t_INT) pari_err_TYPE("ellpadicL",pp);
+  if (n <= 0) pari_err_DOMAIN("ellpadicL","precision","<=",gen_0,stoi(n));
+  W = msfromell(E, 1);
+  xpm = gel(W,2);
+  W = gel(W,1);
+
+  p = itou(pp);
+
+  xpm = Q_remove_denom(xpm,&den);
+
+  Wp = mspadicinit(W, p, n, umodiu(ellap(E,pp),p)? 0: 1);
+  GEN XPM = mstooms(Wp, xpm);
+
+  struct m_act S;
+  S.p = p;
+  S.k = 2;
+  S.q = powuu(p,n);
+  S.dim = n+1;
+
+  GEN g1 = mkmat22(gen_1, gen_0, gen_0, gen_1);
+  GEN g2 = mkmat22(gen_0, gen_1, gen_1, stoi(3));
+  GEN g3 = mkmat22(gen_1, gen_1, stoi(3), gen_2);
+
+  GEN phi1 = msomseval(Wp, XPM, g1);
+  GEN phi2 = msomseval(Wp, XPM, g2);
+  GEN phi3 = msomseval(Wp, XPM, g3);
+  phi1 = gel(phi1,1);
+  phi2 = gel(phi2,1);
+  phi3 = gel(phi3,1);
+  GEN M1 = ginv(mkmat22(gen_1,gen_1, gen_0,gen_1));
+  GEN M2 = ginv(mkmat22(stoi(7),stoi(-2), stoi(11),stoi(-3)));
+  GEN M3 = ginv(mkmat22(stoi(8),stoi(-3), stoi(11),stoi(-4)));
+
+  GEN O1 = moments_act(&S, M1);
+  GEN O2 = moments_act(&S, M2);
+  GEN O3 = moments_act(&S, M3);
+
+  GEN t = gadd(phi3, gadd(phi1,phi2));
+  GEN T = gadd(gmul(O3, phi3), gadd(gmul(O1, phi1),gmul(O2, phi2)));
+}
+#endif
