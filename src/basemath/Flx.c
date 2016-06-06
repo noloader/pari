@@ -3456,6 +3456,16 @@ polx_FlxX(long v, long sv)
   gel(z,3) = pol1_Flx(sv); return z;
 }
 
+long
+FlxY_degreex(GEN b)
+{
+  long deg = -1, i;
+  if (!signe(b)) return -1;
+  for (i = 2; i < lg(b); ++i)
+    deg = maxss(deg, degpol(gel(b, i)));
+  return deg;
+}
+
 /*Lift coefficient of B to constant Flx, to give a FlxY*/
 GEN
 Fly_to_FlxY(GEN B, long sv)

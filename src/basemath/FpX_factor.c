@@ -3315,7 +3315,7 @@ FlxX_to_Flx(GEN f)
 static GEN
 FlxqX_easyroots(GEN f, GEN T, ulong p)
 {
-  if (RgXY_degreex(f) <= 0) return Flx_rootsff_i(FlxX_to_Flx(f), T, p);
+  if (FlxY_degreex(f) <= 0) return Flx_rootsff_i(FlxX_to_Flx(f), T, p);
   if (degpol(f)==1) return mkcol(Flx_neg(constant_coeff(f), p));
   if (degpol(f)==2) return FlxqX_quad_roots(f,T,p);
   return NULL;

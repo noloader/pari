@@ -67,7 +67,7 @@ map_X1_points(
 
   X1_c = zxX_to_FlxX(X1->crv, p);
   xdeg = degpol(X1_c);
-  ydeg = RgXY_degreex(X1_c);
+  ydeg = FlxY_degreex(X1_c);
 
   rn_pol = zxX_to_FlxX(X1->r_num, p);
   rd_pol = zxX_to_FlxX(X1->r_den, p);
@@ -79,10 +79,10 @@ map_X1_points(
   xdeg = maxss(xdeg, degpol(sn_pol));
   xdeg = maxss(xdeg, degpol(sd_pol));
 
-  ydeg = maxss(ydeg, RgXY_degreex(rn_pol));
-  ydeg = maxss(ydeg, RgXY_degreex(rd_pol));
-  ydeg = maxss(ydeg, RgXY_degreex(sn_pol));
-  ydeg = maxss(ydeg, RgXY_degreex(sd_pol));
+  ydeg = maxss(ydeg, FlxY_degreex(rn_pol));
+  ydeg = maxss(ydeg, FlxY_degreex(rd_pol));
+  ydeg = maxss(ydeg, FlxY_degreex(sn_pol));
+  ydeg = maxss(ydeg, FlxY_degreex(sd_pol));
 
   rn = cgetg(ncurves + 1, t_VECSMALL);
   rd = cgetg(ncurves + 1, t_VECSMALL);

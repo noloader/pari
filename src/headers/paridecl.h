@@ -348,6 +348,7 @@ GEN     FlxY_Flx_div(GEN x, GEN y, ulong p);
 GEN     FlxY_Flx_translate(GEN P, GEN c, ulong p);
 GEN     FlxY_Flxq_evalx(GEN P, GEN x, GEN T, ulong p);
 GEN     FlxY_FlxqV_evalx(GEN P, GEN x, GEN T, ulong p);
+long    FlxY_degreex(GEN b);
 ulong   FlxY_eval_powers_pre(GEN pol, GEN ypowers, GEN xpowers, ulong p, ulong pi);
 GEN     FlxY_evalx(GEN Q, ulong x, ulong p);
 GEN     FlxY_evalx_powers_pre(GEN pol, GEN ypowers, ulong p, ulong pi);
