@@ -721,12 +721,16 @@ RgXY_swap(GEN x, long n, long w)
 }
 
 long
-RgXY_degreex(GEN bpol)
+RgXY_degreex(GEN b)
 {
-  long deg = 0, i;
-  if (!signe(bpol)) return -1;
-  for (i = 2; i < lg(bpol); ++i)
-    deg = maxss(deg, degpol(gel(bpol, i)));
+  long deg = -1, i;
+  if (!signe(b)) return -1;
+  for (i = 2; i < lg(b); ++i)
+  {
+    GEN bi = gel(b, i);
+    if (typ(bi) == t_POL)
+      deg = maxss(deg, degpol(bi));
+  }
   return deg;
 }
 
