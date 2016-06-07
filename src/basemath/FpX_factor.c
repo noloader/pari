@@ -1084,36 +1084,6 @@ FpX_nbfact(GEN T, GEN p)
   avma = av; return n;
 }
 
-/* INPUT:
- *  m integer (converted to polynomial w in Z[X] by stoFpX)
- *  p prime; q = (p^d-1) / 2^r
- *  t[0] polynomial of degree k*d product of k irreducible factors of degree d
- *  t[0] is expected to be normalized (leading coeff = 1)
- * OUTPUT:
- *  t[0],t[1]...t[k-1] the k factors, normalized */
-
-static void
-F2x_split(ulong m, GEN *t, long d)
-{
-  long l, v, dv;
-  pari_sp av0, av;
-  GEN w;
-
-  dv = F2x_degree(*t); if (dv==d) return;
-  v=(*t)[1]; av0=avma;
-  for(av=avma;;avma=av)
-  {
-    GEN w0 = w = F2xq_powu(polx_F2x(v), m-1, *t); m += 2;
-    for (l=1; l<d; l++) w = F2x_add(w0, F2xq_sqr(w, *t));
-    w = F2x_gcd(*t,w);
-    l = F2x_degree(w); if (l && l!=dv) break;
-  }
-  w = gerepileupto(av0, w);
-  l /= d; t[l]=F2x_div(*t,w); *t=w;
-  F2x_split(m,t+l,d);
-  F2x_split(m,t,  d);
-}
-
 /* p > 2 */
 static GEN
 FpX_is_irred_2(GEN f, GEN p, long d)
@@ -1437,95 +1407,6 @@ Flx_factor_deg2(GEN f, ulong p, long d, long flag)
   }
 }
 
-static GEN
-F2x_factcantor_i(GEN f, long flag)
-{
-  long j, e, nbfact, d = F2x_degree(f);
-  ulong k;
-  GEN X, E, f2, g, g1, u, v, y, t;
-
-  if (d <= 2) return F2x_factor_deg2(f, d, flag);
-  /* to hold factors and exponents */
-  t = flag ? cgetg(d+1,t_VECSMALL): cgetg(d+1,t_VEC);
-  E = cgetg(d+1, t_VECSMALL);
-  X = polx_F2x(f[1]);
-  e = nbfact = 1;
-  for(;;)
-  {
-    f2 = F2x_gcd(f,F2x_deriv(f));
-    if (flag == 2 && F2x_degree(f2) > 0) return NULL;
-    g1 = F2x_div(f,f2);
-    k = 0;
-    while (F2x_degree(g1)>0)
-    {
-      pari_sp av;
-      long du, dg, dg1;
-      k++; if (k%2==0) { k++; f2 = F2x_div(f2,g1); }
-      u = g1; g1 = F2x_gcd(f2,g1);
-      du = F2x_degree(u);
-      dg1 = F2x_degree(g1);
-      if (dg1>0)
-      {
-        f2= F2x_div(f2,g1);
-        if (du == dg1) continue;
-        u = F2x_div( u,g1);
-        du -= dg1;
-      }
-      /* here u is square-free (product of irred. of multiplicity e * k) */
-      v = X;
-      av = avma;
-      for (d=1; d <= du>>1; d++)
-      {
-        v = F2xq_sqr(v, u);
-        g = F2x_gcd(F2x_add(v, X), u);
-        dg = F2x_degree(g);
-        if (dg <= 0) {avma = (pari_sp)v; v = gerepileuptoleaf(av,v); continue;}
-        /* g is a product of irred. pols, all of which have degree d */
-        j = nbfact+dg/d;
-        if (flag)
-        {
-          if (flag == 2) return NULL;
-          for ( ; nbfact<j; nbfact++) { t[nbfact]=d; E[nbfact]=e*k; }
-        }
-        else
-        {
-          gel(t,nbfact) = g;
-          F2x_split(2,&gel(t,nbfact),d);
-          for (; nbfact<j; nbfact++) E[nbfact]=e*k;
-        }
-        du -= dg;
-        u = F2x_div(u,g);
-        v = F2x_rem(v,u);
-        av = avma;
-      }
-      if (du)
-      {
-        if (flag) t[nbfact] = du;
-        else  gel(t,nbfact) = u;
-        E[nbfact++]=e*k;
-      }
-    }
-    if (F2x_degree(f2)==0) break;
-    e <<=1; f = F2x_sqrt(f2);
-  }
-  if (flag == 2) return gen_1; /* irreducible */
-  setlg(t, nbfact);
-  setlg(E, nbfact); y = mkvec2(t, E);
-  return flag ? sort_factor(y, (void*)cmpGuGu, cmp_nodata)
-              : sort_factor_pol(y, cmpGuGu);
-}
-GEN
-F2x_factcantor(GEN f, long flag)
-{
-  pari_sp av = avma;
-  GEN z = F2x_factcantor_i(f, flag);
-  if (flag == 2) { avma = av; return z; }
-  return gerepilecopy(av, z);
-}
-
-int
-F2x_is_irred(GEN f) { return !!F2x_factcantor_i(f,2); }
-
 void
 F2xV_to_FlxV_inplace(GEN v)
 {
@@ -1544,6 +1425,255 @@ F2xV_to_ZXV_inplace(GEN v)
   long i;
   for(i=1;i<lg(v);i++) gel(v,i)= F2x_to_ZX(gel(v,i));
 }
+
+/* Adapted from Shoup NTL */
+static GEN
+F2x_factor_squarefree(GEN f)
+{
+  pari_sp av = avma;
+  GEN r, t, v, tv;
+  long q, n = F2x_degree(f);
+  GEN u = const_vec(n+1, pol1_F2x(f[1]));
+  for(q = 1;;q *= 2)
+  {
+    r = F2x_gcd(f, F2x_deriv(f));
+    t = F2x_div(f, r);
+    if (F2x_degree(t) > 0)
+    {
+      long j;
+      for(j = 1;;j++)
+      {
+        v = F2x_gcd(r, t);
+        tv = F2x_div(t, v);
+        if (F2x_degree(tv) > 0)
+          gel(u, j*q) = tv;
+        if (F2x_degree(v) <= 0) break;
+        r = F2x_div(r, v);
+        t = v;
+      }
+      if (F2x_degree(r) == 0) break;
+    }
+    f = F2x_sqrt(r);
+  }
+  return gerepilecopy(av, u);
+}
+
+static GEN
+F2x_ddf_simple(GEN T, GEN XP)
+{
+  pari_sp av = avma, av2;
+  GEN f, z, Tr, X;
+  long j, n = F2x_degree(T), v = T[1], B = n/2;
+  if (n == 0) return cgetg(1, t_VEC);
+  if (n == 1) return mkvec(T);
+  z = XP; Tr = T; X = polx_F2x(v);
+  f = const_vec(n, pol1_F2x(v));
+  av2 = avma;
+  for (j = 1; j <= B; j++)
+  {
+    GEN u = F2x_gcd(Tr, F2x_add(z, X));
+    if (F2x_degree(u))
+    {
+      gel(f, j) = u;
+      Tr = F2x_div(Tr, u);
+      av2 = avma;
+    } else z = gerepileuptoleaf(av2, z);
+    if (!F2x_degree(Tr)) break;
+    z = F2xq_sqr(z, Tr);
+  }
+  if (F2x_degree(Tr)) gel(f, F2x_degree(Tr)) = Tr;
+  return gerepilecopy(av, f);
+}
+
+static GEN
+F2xq_frobtrace(GEN a, long d, GEN T)
+{
+  pari_sp av = avma;
+  long i;
+  GEN x = a;
+  for(i=1; i<d; i++)
+  {
+    x = F2x_add(a, F2xq_sqr(x,T));
+    if (gc_needed(av, 2))
+      x = gerepileuptoleaf(av, x);
+  }
+  return x;
+}
+
+static void
+F2x_edf_simple(GEN Tp, GEN XP, long d, GEN V, long idx)
+{
+  long n = F2x_degree(Tp), r = n/d;
+  GEN T, f, ff;
+  if (r==1) { gel(V, idx) = Tp; return; }
+  T = Tp;
+  XP = F2x_rem(XP, T);
+  while (1)
+  {
+    pari_sp btop = avma;
+    long df;
+    GEN g = random_F2x(n, Tp[1]);
+    GEN t = F2xq_frobtrace(g, d, T);
+    if (lgpol(t) == 0) continue;
+    f = F2x_gcd(t, Tp); df = F2x_degree(f);
+    if (df > 0 && df < n) break;
+    avma = btop;
+  }
+  ff = F2x_div(Tp, f);
+  F2x_edf_simple(f, XP, d, V, idx);
+  F2x_edf_simple(ff, XP, d, V, idx+F2x_degree(f)/d);
+}
+
+static GEN
+F2x_factor_Shoup(GEN T)
+{
+  long i, n, s = 0;
+  GEN XP, D, V;
+  pari_timer ti;
+  n = F2x_degree(T);
+  if (DEBUGLEVEL>=6) timer_start(&ti);
+  XP = F2x_Frobenius(T);
+  if (DEBUGLEVEL>=6) timer_printf(&ti,"F2x_Frobenius");
+  D = F2x_ddf_simple(T, XP);
+  if (DEBUGLEVEL>=6) timer_printf(&ti,"F2x_ddf");
+  for (i = 1; i <= n; i++)
+    s += F2x_degree(gel(D,i))/i;
+  V = cgetg(s+1, t_COL);
+  for (i = 1, s = 1; i <= n; i++)
+  {
+    GEN Di = gel(D,i);
+    long ni = F2x_degree(Di), ri = ni/i;
+    if (ni == 0) continue;
+    if (ni == i) { gel(V, s++) = Di; continue; }
+    F2x_edf_simple(Di, XP, i, V, s);
+    if (DEBUGLEVEL>=6) timer_printf(&ti,"F2x_edf(%ld)",i);
+    s += ri;
+  }
+  return V;
+}
+
+static GEN
+F2x_simplefact_Shoup(GEN T)
+{
+  long i, n, s = 0, j = 1, k;
+  GEN XP, D, V;
+  pari_timer ti;
+  n = F2x_degree(T);
+  if (DEBUGLEVEL>=6) timer_start(&ti);
+  XP = F2x_Frobenius(T);
+  if (DEBUGLEVEL>=6) timer_printf(&ti,"F2x_Frobenius");
+  D = F2x_ddf_simple(T, XP);
+  if (DEBUGLEVEL>=6) timer_printf(&ti,"F2x_ddf");
+  for (i = 1; i <= n; i++)
+    s += F2x_degree(gel(D,i))/i;
+  V = cgetg(s+1, t_VECSMALL);
+  for (i = 1; i <= n; i++)
+  {
+    long ni = F2x_degree(gel(D,i)), ri = ni/i;
+    if (ni == 0) continue;
+    for (k = 1; k <= ri; k++)
+      V[j++] = i;
+  }
+  return V;
+}
+
+static GEN
+F2x_factor_Cantor(GEN T)
+{
+  GEN E, F, M, V;
+  long i, j, s, l;
+  V = F2x_factor_squarefree(T);
+  l = lg(V);
+  for (s=0, i=1; i < l; i++)
+    s += !!F2x_degree(gel(V,i));
+  F = cgetg(s+1, t_VEC);
+  E = cgetg(s+1, t_VEC);
+  for (i=1, j=1; i < l; i++)
+    if (F2x_degree(gel(V,i)))
+    {
+      GEN Fj = F2x_factor_Shoup(gel(V,i));
+      gel(F, j) = Fj;
+      gel(E, j) = const_vecsmall(lg(Fj)-1, i);
+      j++;
+    }
+  M = mkvec2(shallowconcat1(F), shallowconcat1(E));
+  return sort_factor_pol(M, cmpGuGu);
+}
+
+static GEN
+F2x_simplefact_Cantor(GEN T)
+{
+  GEN E, F, M, V;
+  long i, j, s, l;
+  V = F2x_factor_squarefree(T);
+  l = lg(V);
+  for (s=0, i=1; i < l; i++)
+    s += !!F2x_degree(gel(V,i));
+  F = cgetg(s+1, t_VEC);
+  E = cgetg(s+1, t_VEC);
+  for (i=1, j=1; i < l; i++)
+    if (F2x_degree(gel(V,i)))
+    {
+      GEN Fj = F2x_simplefact_Shoup(gel(V,i));
+      gel(F, j) = Fj;
+      gel(E, j) = const_vecsmall(lg(Fj)-1, i);
+      j++;
+    }
+  M = mkvec2(shallowconcat1(F), shallowconcat1(E));
+  return sort_factor(M, (void*)&cmpGuGu, cmp_nodata);
+}
+
+static int
+F2x_isirred_Cantor(GEN T)
+{
+  pari_sp av = avma;
+  pari_timer ti;
+  long n, d;
+  GEN dT = F2x_deriv(T);
+  GEN XP, D;
+  if (F2x_degree(F2x_gcd(T, dT)) != 0) { avma = av; return 0; }
+  n = F2x_degree(T);
+  if (DEBUGLEVEL>=6) timer_start(&ti);
+  XP = F2x_Frobenius(T);
+  if (DEBUGLEVEL>=6) timer_printf(&ti,"F2x_Frobenius");
+  D = F2x_ddf_simple(T, XP);
+  if (DEBUGLEVEL>=6) timer_printf(&ti,"F2x_ddf");
+  d = F2x_degree(gel(D, n));
+  avma = av; return d==n;
+}
+
+static GEN
+F2x_factcantor_i(GEN f, long flag)
+{
+  long d = F2x_degree(f);
+  if (d <= 2) return F2x_factor_deg2(f,d,flag);
+  switch(flag)
+  {
+    default: return F2x_factor_Cantor(f);
+    case 1: return F2x_simplefact_Cantor(f);
+    case 2: return F2x_isirred_Cantor(f)? gen_1: NULL;
+  }
+}
+
+GEN
+F2x_factcantor(GEN f, long flag)
+{
+  pari_sp av = avma;
+  GEN z = F2x_factcantor_i(f, flag);
+  if (flag == 2) { avma = av; return z; }
+  return gerepilecopy(av, z);
+}
+
+GEN
+F2x_degfact(GEN f)
+{
+  pari_sp av = avma;
+  GEN z = F2x_factcantor_i(f, 1);
+  return gerepilecopy(av, z);
+}
+
+int
+F2x_is_irred(GEN f) { return !!F2x_factcantor_i(f, 2); }
 
 /* Adapted from Shoup NTL */
 static GEN

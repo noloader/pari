@@ -100,6 +100,7 @@ GEN     F2x_Frobenius(GEN T);
 GEN     F2x_1_add(GEN y);
 GEN     F2x_add(GEN x, GEN y);
 GEN     F2x_deflate(GEN x0, long d);
+GEN     F2x_degfact(GEN f);
 long    F2x_degree(GEN x);
 GEN     F2x_deriv(GEN x);
 GEN     F2x_divrem(GEN x, GEN y, GEN *pr);
