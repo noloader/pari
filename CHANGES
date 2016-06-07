@@ -444,6 +444,7 @@ BA 169- [libpari] F2xX, F2xqX, F2xqXQ family functions
    170- GP function rnfidealprimedec
 BA 171- [libpari] get_FpX_algebra, get_FpXQ_algebra,  get_FpXQX_algebra,
                   get_FlxqXQ_algebra, get_FpXQXQ_algebra, get_Rg_algebra
+   172- E/Qp: Added Mazur-Tate-Teitelbaum's L invariant to E.tate
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]

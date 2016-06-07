@@ -1085,12 +1085,12 @@ ch_Qp(GEN E, GEN e, GEN w)
   }
   if ((S = obj_check(e, Qp_TATE)))
   {
-    GEN U2 = gel(S,1), U = gel(S,2), Q = gel(S,3), AB = gel(S,4);
+    GEN U2 = gel(S,1), U = gel(S,2), Q = gel(S,3), AB = gel(S,4), L = gel(S,5);
     if (!u2) u2 = gsqr(u);
     U2 = gmul(U2, u2);
     U = gmul(U, u);
     AB = gdiv(AB, u2);
-    obj_insert_shallow(E, Qp_TATE, mkvec4(U2,U,Q,AB));
+    obj_insert_shallow(E, Qp_TATE, mkvec5(U2,U,Q,AB,L));
   }
   return E;
 }
@@ -2184,8 +2184,9 @@ static GEN
 doellQp_Tate_uniformization(GEN E, long prec0)
 {
   GEN p = ellQp_get_p(E), j = ell_get_j(E);
-  GEN u, u2, q, x1, a, b, d, s, t;
-  long v, prec = prec0+2;
+  GEN L, u, u2, q, x1, a, b, d, s, t;
+  long v, prec = prec0+3;
+  int split = -1; /* unknown */
 
   if (Q_pval(j, p) >= 0) pari_err_DOMAIN(".tate", "v_p(j)", ">=", gen_0, j);
 START:
@@ -2195,22 +2196,32 @@ START:
   if (v > 0) { prec += v; goto START; }
   x1 = gmul2n(d,-2);
   u2 = do_padic_agm(&x1,NULL,a,b);
+  if (split < 0) split = issquare(u2);
 
   t = gaddsg(1, ginv(gmul2n(gmul(u2,x1),1)));
   s = Qp_sqrt(gsubgs(gsqr(t), 1));
   q = gadd(t,s);
   if (gequal0(q)) q = gsub(t,s);
   v = prec0 - precp(q);
+  if (split)
+  { /* we want log q at precision prec0 */
+    GEN q0 = leafcopy(q); setvalp(q0, 0);
+    v +=  valp(gsubgs(q0,1));
+  }
   if (v > 0) { prec += v; goto START; }
   if (valp(q) < 0) q = ginv(q);
-  if (issquare(u2))
+  if (split)
+  {
     u = Qp_sqrt(u2);
+    L = gdivgs(Qp_log(q), valp(q));
+  }
   else
   {
     GEN T = mkpoln(3, gen_1, gen_0, gneg(u2));
     u = mkpolmod(pol_x(0), T);
+    L = gen_1;
   }
-  return mkvec4(u2, u, q, mkvec2(a, b));
+  return mkvec5(u2, u, q, mkvec2(a, b), L);
 }
 GEN
 ellQp_Tate_uniformization(GEN E, long prec)
@@ -2227,6 +2238,9 @@ ellQp_q(GEN E, long prec)
 GEN
 ellQp_ab(GEN E, long prec)
 { GEN T = ellQp_Tate_uniformization(E, prec); return gel(T,4); }
+GEN
+ellQp_L(GEN E, long prec)
+{ GEN T = ellQp_Tate_uniformization(E, prec); return gel(T,5); }
 
 static GEN
 zellQp(GEN E, GEN z, long prec)

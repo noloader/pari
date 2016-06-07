@@ -778,15 +778,17 @@ root $e_1$ of the right hand side $g(x)$ of the associated $b$-model $Y^2
 = g(x)$. The point $(e_1,0)$ corresponds to $-1 \in \bar{\Q}_p^*/q^\Z$
 under the Tate parametrization.
 
-\item \tet{tate} returns $[u^2,u,q,[a,b]]$ in the notation of Henniart-Mestre
+\item \tet{tate} returns $[u^2,u,q,[a,b],L]$ in the notation of Henniart-Mestre
 (CRAS t. 308, p.~391--395, 1989): $q$ is as above, $u\in \Q_p(\sqrt{-c_6})$
 is such that $\phi^* dx/(2y + a_1x+a3) = u dt/t$, where $\phi: E_q\to E$
 is an isomorphism (well defined up to sign) and $dt/t$ is the canonical
 invariant differential on the Tate curve; $u^2\in\Q_p$ does not depend on
 $\phi$. (Technicality: if $u\not\in\Q_p$, it is stored as a quadratic
 \typ{POLMOD}.)
-Finally, $[a,b]$ satisfy $4u^2 b \cdot \text{agm}(\sqrt{a/b},1)^2 = 1$
+The parameters $[a,b]$ satisfy $4u^2 b \cdot \text{agm}(\sqrt{a/b},1)^2 = 1$
 as in Theorem~2 (\emph{loc.~cit.}).
+Finally, $L$ is Mazur-Tate-Teitelbaum's ${\cal L}$-invariant, equal
+to $\log_p q / v_p(q)$.
 
 \subsubsec{Curves over $\F_q$}
 

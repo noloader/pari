@@ -84,7 +84,7 @@ reg  : regulator                                          bnf,bnr
 roots: roots                                       ell,nf,bnf,bnr,    gal
 sign,r1,r2 : signature                                 nf,bnf,bnr
 t2   : t2 matrix                                       nf,bnf,bnr
-tate : Tate's [u^2, u, q, [a,b]]                   ell
+tate : Tate's [u^2, u, q, [a,b], L]                ell
 tu   : torsion unit and its order                         bnf,bnr
 zk   : integral basis                                  nf,bnf,bnr,rnf
 zkst : structure of (Z_K/m)*         bid,                     bnr
