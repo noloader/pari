@@ -2694,7 +2694,7 @@ ellpadicheight(GEN e, GEN p, long v0, GEN P)
     else
     {
       m = ellcard(E, p); /* E has bad reduction at p */
-      if (equalii(m, p) pari_err_TYPE("ellpadicheight: additive reduction", E);
+      if (equalii(m, p)) pari_err_TYPE("ellpadicheight: additive reduction", E);
     }
     g = mulii(g,m);
     for(;;)
