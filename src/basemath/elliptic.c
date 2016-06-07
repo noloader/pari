@@ -2688,9 +2688,14 @@ ellpadicheight(GEN e, GEN p, long v0, GEN P)
   { /* P not in kernel of reduction mod p */
     GEN m, X, Pp, Ep = ellinit_Fp(E, p);
     long w = v+2;
-    if (!Ep) pari_err(e_MISC,"ellpadicheight: bad reduction");
     Pp = RgV_to_FpV(P, p);
-    m = ellorder(Ep, Pp, NULL);
+    if (Ep)
+      m = ellorder(Ep, Pp, NULL);
+    else
+    {
+      m = ellcard(E, p); /* E has bad reduction at p */
+      if (equalii(m, p) pari_err_TYPE("ellpadicheight: additive reduction", E);
+    }
     g = mulii(g,m);
     for(;;)
     {
