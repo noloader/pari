@@ -79,7 +79,7 @@ F=[0,-p;1,ellap(e,p)];
 Lf=(1-p^{-1}*F)^-2*L;
 Lf/bestappr(ellL1(e,0)/e.omega[1])
 
-default(parisize, "40M");
+default(parisize, "60M");
 
 e=ellinit([0,-1,1,-15881,778423]);p=2;n=3;
 ellpadicL(e,p,n)

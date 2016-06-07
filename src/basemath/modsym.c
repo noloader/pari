@@ -1593,11 +1593,27 @@ static GEN
 act_ZGl2Q(GEN z, struct m_act *T, GEN(*act)(struct m_act*,GEN), hashtable *H)
 {
   GEN S = NULL, G, E;
+  pari_sp av;
   long l, j;
   /* paranoia: should'n t occur */
   if (typ(z) == t_INT) return scalarmat_shallow(z, T->dim);
   G = gel(z,1); l = lg(G);
   E = gel(z,2);
+  if (H)
+  { /* First pass, identify matrices in Sl_2 to convert to operators;
+     * insert operators in hashtable. This allows GC in 2nd pass */
+    for (j = 1; j < l; j++)
+    {
+      GEN g = gel(G,j);
+      if (typ(g) != t_INT)
+      {
+        ulong hash = H->hash(g);
+        hashentry *e = hash_search2(H,g,hash);
+        if (!e) hash_insert2(H,g,act(T,g),hash);
+      }
+    }
+  }
+  av = avma;
   for (j = 1; j < l; j++)
   {
     GEN M, g = gel(G,j), n = gel(E,j);
@@ -1605,21 +1621,24 @@ act_ZGl2Q(GEN z, struct m_act *T, GEN(*act)(struct m_act*,GEN), hashtable *H)
       M = n; /* n*Id_dim */
     else
     {
-      if (!H) M = act(T,g);
+      if (H)
+        M = (GEN)hash_search(H,g)->val; /*search succeeds because of 1st pass*/
       else
-      {
-        ulong hash = H->hash(g);
-        hashentry *e = hash_search2(H,g,hash);
-        if (e) M = (GEN)e->val; else { M = act(T,g); hash_insert2(H,g,M,hash); }
-      }
+        M = act(T,g);
       if (is_pm1(n))
       { if (signe(n) < 0) M = RgM_neg(M); }
       else
         M = RgM_Rg_mul(M, n);
     }
-    S = j == 1? M: gadd(S, M);
+    if (!S) { S = M; continue; }
+    S = gadd(S, M);
+    if (gc_needed(av,1))
+    {
+      if(DEBUGMEM>1) pari_warn(warnmem,"act_ZGl2Q, j = %ld",j);
+      S = gerepileupto(av, S);
+    }
   }
-  return S;
+  return gerepilecopy(av, S);
 }
 static GEN
 _RgX_act_Gl2Q(struct m_act *S, GEN z) { return RgX_act_Gl2Q(z, S->k); }
