@@ -1482,7 +1482,7 @@ digits(GEN x, GEN B)
     (void)new_chunk(3*lz); /* HACK */
     z = zero_zv(lz);
     digits_dacsmall(x,vB,lz,(ulong*)(z+1));
-    avma = av; return vecsmall_to_vec(z);
+    avma = av; return Flv_to_ZV(z);
   }
 }
 
