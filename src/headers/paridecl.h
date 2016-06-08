@@ -4199,7 +4199,7 @@ GEN     mspathlog(GEN W, GEN path);
 GEN     msnew(GEN W);
 GEN     msstar(GEN W, GEN);
 GEN     msqexpansion(GEN W, GEN proV, ulong B);
-GEN     mssplit(GEN W, GEN H);
+GEN     mssplit(GEN W, GEN H, long deglim);
 GEN     mstooms(GEN W, GEN phi);
 
 /* zetamult.c */

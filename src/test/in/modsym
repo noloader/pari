@@ -34,7 +34,11 @@ check_twist([1,-1,1,-1,-14])\\17a1
 
 N = 227
 W = msinit(N,2,1);
-mssplit(W, msnew(W))
+Wnew = msnew(W);
+mssplit(W, Wnew)
+#mssplit(W, Wnew, 1)
+#mssplit(W, Wnew, 2)
+#mssplit(W, Wnew, 3)
 
 N = 1000;
 W = msinit(N,2,1);
@@ -79,8 +83,8 @@ V = mssplit(W, msnew(W));
 msqexpansion(W, V[1], 30)
 msqexpansion(W, V[1])
 
-M=msinit(603,2,1);L=msnew(M);V=mssplit(M,L);
-Set([v|v<-vector(#V,i,msqexpansion(M,V[i])),type(v[1])=="t_INT"])
+M=msinit(603,2,1);L=msnew(M);V=mssplit(M,L,1);
+Set([v|v<-vector(#V,i,msqexpansion(M,V[i]))])
 
 W = msinit(6,4);
 m=msatkinlehner(W,1)

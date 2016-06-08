@@ -550,10 +550,25 @@ cmp_dim(void *E, GEN a, GEN b)
   return k? ((k > 0)? 1: -1): 0;
 }
 
+/* FIXME: could use ZX_roots for deglim = 1 */
+static GEN
+ZX_factor_limit(GEN T, long deglim)
+{
+  GEN fa = ZX_factor(T), P, E;
+  long i, l;
+  if (deglim <= 0) return fa;
+  P = gel(fa,1); l = lg(P);
+  E = gel(fa,2);
+  for (i = 1; i < l; i++)
+    if (degpol(gel(P,i)) > deglim) break;
+  setlg(P,i);
+  setlg(E,i); return fa;
+}
+
 /* Decompose the subspace H (Qevproj format) in simple subspaces.
  * Eg for H = msnew */
 static GEN
-mssplit_i(GEN W, GEN H)
+mssplit_i(GEN W, GEN H, long deglim)
 {
   ulong p, N = ms_get_N(W);
   long first, dim;
@@ -568,15 +583,12 @@ mssplit_i(GEN W, GEN H)
   while ((p = u_forprime_next(&S)))
   {
     GEN T;
-    long n, j, lV;
+    long j, lV;
     if (N % p == 0) continue;
-    if (T1 && T2)
-    {
+    if (T1 && T2) {
       T = RgM_add(T1,T2);
       T2 = NULL;
-    }
-    else
-    {
+    } else {
       T2 = T1;
       T1 = T = mshecke(W, p, NULL);
     }
@@ -586,11 +598,9 @@ mssplit_i(GEN W, GEN H)
       pari_sp av = avma;
       GEN Vj = gel(V,j), P = gel(Vj,1);
       GEN TVj = Qevproj_apply(T, Vj); /* c T | V_j */
-      GEN ch = QM_charpoly_ZX(TVj), fa = ZX_factor(ch), F, E;
-      long k;
-      F = gel(fa, 1);
-      E = gel(fa, 2);
-      n = lg(F)-1;
+      GEN ch = QM_charpoly_ZX(TVj), fa = ZX_factor_limit(ch,deglim);
+      GEN F = gel(fa, 1), E = gel(fa, 2);
+      long k, n = lg(F)-1;
       if (n == 1)
       {
         if (isint1(gel(E,1)))
@@ -601,6 +611,8 @@ mssplit_i(GEN W, GEN H)
         else
           avma = av;
       }
+      else if (n == 0) /* discard V[j] */
+      { swap(gel(V,j), gel(V,lg(V)-1)); setlg(V, lg(V)-1); }
       else
       { /* can split Vj */
         GEN pows;
@@ -616,8 +628,7 @@ mssplit_i(GEN W, GEN H)
         for (k = 1; k <= n; k++)
         {
           GEN f = gel(F,k);
-          GEN M = RgX_RgMV_eval(f, pows); /* f(TVj) */
-          GEN K = QM_ker(M);
+          GEN K = QM_ker( RgX_RgMV_eval(f, pows)) ; /* Ker f(TVj) */
           GEN p = Q_primpart_basis( RgM_mul(P, K) );
           vectrunc_append(V, Qevproj_init(p));
           if (lg(K) == 2 || isint1(gel(E,k)))
@@ -638,14 +649,14 @@ mssplit_i(GEN W, GEN H)
   return NULL;
 }
 GEN
-mssplit(GEN W, GEN H)
+mssplit(GEN W, GEN H, long deglim)
 {
   pari_sp av = avma;
   checkms(W);
   if (!msk_get_sign(W))
     pari_err_DOMAIN("mssplit","abs(sign)","!=",gen_1,gen_0);
   H = Qevproj_init0(H);
-  return gerepilecopy(av, mssplit_i(W,H));
+  return gerepilecopy(av, mssplit_i(W,H,deglim));
 }
 
 /* proV = Qevproj_init of a Hecke simple subspace, return [ a_n, n <= B ] */

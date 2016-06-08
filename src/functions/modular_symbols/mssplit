@@ -1,14 +1,16 @@
 Function: mssplit
 Section: modular_symbols
 C-Name: mssplit
-Prototype: GG
-Help: mssplit(M,H): M being a full modular symbol space, as given by msinit,
- and H being a subspace, split H into Hecke-simple subspaces.
+Prototype: GGD0,L,
+Help: mssplit(M,H,{dimlim}): M being a full modular symbol space, as given by
+ msinit, and H being a subspace, split H into Hecke-simple subspaces.
+ If dimlim is present and positive, restrict to dim <= dimlim.
 Doc:
  $M$ being a full modular symbol space, as given by \kbd{msinit}$(N,k,1)$
  or $\kbd{msinit}(N,k,-1)$
  and $H$ being a Hecke-stable subspace of \kbd{msnew}$(M)$, split $H$ into
- Hecke-simple subspaces.
+ Hecke-simple subspaces. If \kbd{dimlim} is present and positive, restrict to
+ subspaces of dimension $\leq \kbd{dimlim}$.
  A subspace is given by a structure allowing quick projection and restriction
  of linear operators; its first component is a matrix with integer
  coefficients whose columns form a $\Q$-basis of the subspace.
