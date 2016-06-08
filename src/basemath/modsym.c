@@ -601,7 +601,7 @@ mssplit_i(GEN W, GEN H, long deglim)
       GEN ch = QM_charpoly_ZX(TVj), fa = ZX_factor_limit(ch,deglim);
       GEN F = gel(fa, 1), E = gel(fa, 2);
       long k, n = lg(F)-1;
-      if (n == 1)
+      if (n == 1 && deglim <= 0)
       {
         if (isint1(gel(E,1)))
         { /* simple subspace */

@@ -40,6 +40,9 @@ mssplit(W, Wnew)
 #mssplit(W, Wnew, 2)
 #mssplit(W, Wnew, 3)
 
+W = msinit(11,6,1);
+mssplit(W,msnew(W))
+
 N = 1000;
 W = msinit(N,2,1);
 matsize( msnew(W)[1] )
