@@ -3828,7 +3828,7 @@ mspadicint(GEN oms, long teichi, GEN S)
     GEN s = gen_0, T = gel(vT,i);
     long ia;
     for (ia = 1; ia < la; ia++)
-    { /* Ta[j+1] correct mod p^(n-j+1) */
+    { /* Ta[j+1] correct mod p^n */
       GEN Ta = gel(T,ia), v = S? RgV_dotproduct(Ta, S): gel(Ta,1);
       if (teichi && ia != 1)
       {
