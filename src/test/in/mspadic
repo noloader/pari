@@ -113,9 +113,8 @@ mspadicmoments(Wp, phi, -3)
 \\====
 
 W = msinit(50,4,1);
-phi = mssplit(W, msnew(W))[1][1][,1];
+phi = mssplit(W, msnew(W), 1)[1];
 Wp = mspadicinit(W, 3, 6, 0);
-phi = mstooms(Wp, phi);
 mspadicmoments(Wp, phi)
 
 M=msinit(4,6,1);
@@ -123,3 +122,37 @@ phi=[1,8,1,-32]~;
 Wp=mspadicinit(M,3,5);
 oms=mspadicmoments(Wp, phi);
 mspadicL(oms)
+
+msnewsymb(N,k,s=1) = {
+ my(xpm,M); M=msinit(N,k,s);
+ xpm = mssplit(M,msnew(M),1)[1]; [M,xpm];
+};
+
+testmspadicL(N,k,p,signe=1,D=1) = {
+  my([M,xpm]=msnewsymb(N,k,signe));
+  my(ap = mshecke(M,p,xpm)[1,1]); 
+  my(Wp,oms);
+  Wp = mspadicinit(M,p,10, if(ap,valuation(ap,p), k-1));
+  oms = mspadicmoments(Wp, xpm, D);
+  vector(k-1,j, mspadicL(oms,j-1));
+}
+\\ ordinary
+testmspadicL(3,6,5)
+testmspadicL(3,6,5,-1)
+testmspadicL(3,6,5,-1, -3)
+testmspadicL(3,8,7)
+testmspadicL(3,8,7,-1)
+testmspadicL(5,4,3)
+testmspadicL(5,4,7)
+testmspadicL(5,4,7,-1)
+testmspadicL(5,4,7,1, 5)
+testmspadicL(11,6,7)
+testmspadicL(11,6,7,-1)
+
+\\supersingular
+testmspadicL(4,6,3)  \\ ap=12
+testmspadicL(9,4,5)  \\ ap=0
+testmspadicL(17,6,3) \\ ap=-18
+testmspadicL(3,8,2) \\
+testmspadicL(5,8,2)
+\\ testmspadicL(3,10,7) \\ ap=9128, valuation 1; Slow: 10s
