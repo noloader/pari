@@ -80,7 +80,7 @@ mspadicmoments(Wp, phi, 5)
 Wp = mspadicinit(M, 5, 4, 0);
 mspadicmoments(Wp, phi, -3)
 
-vchar = [0,[0,1],[1,0],[2,0]];
+vchar = [0,-2,[0,1],[1,0],[2,0]];
 test(M,phi,p)=
 { my(Wp, mu, ap);
   ap = mshecke(M,p,phi)[1,1];

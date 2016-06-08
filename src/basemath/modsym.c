@@ -3779,9 +3779,10 @@ xlog1x(long n, long zk, long logj, long *pteich)
   if (zk)
   {
     GEN L = deg1pol_shallow(gen_1, gen_1, 0); /* x+1 */
-    L = RgXn_powu_i(L, zk, n+1);
-    S = S? RgXn_mul(S, L, n+1): L;
     *pteich += zk;
+    if (zk < 0) { L = RgXn_inv(L,n+1); zk = -zk; }
+    if (zk != 1) L = RgXn_powu_i(L, zk, n+1);
+    S = S? RgXn_mul(S, L, n+1): L;
   }
   return S;
 }
