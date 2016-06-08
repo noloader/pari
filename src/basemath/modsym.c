@@ -552,12 +552,12 @@ cmp_dim(void *E, GEN a, GEN b)
 
 /* FIXME: could use ZX_roots for deglim = 1 */
 static GEN
-ZX_factor_limit(GEN T, long deglim)
+ZX_factor_limit(GEN T, long deglim, long *pl)
 {
   GEN fa = ZX_factor(T), P, E;
   long i, l;
+  P = gel(fa,1); *pl = l = lg(P);
   if (deglim <= 0) return fa;
-  P = gel(fa,1); l = lg(P);
   E = gel(fa,2);
   for (i = 1; i < l; i++)
     if (degpol(gel(P,i)) > deglim) break;
@@ -596,12 +596,13 @@ mssplit_i(GEN W, GEN H, long deglim)
     for (j = first; j < lV; j++)
     {
       pari_sp av = avma;
+      long lP;
       GEN Vj = gel(V,j), P = gel(Vj,1);
       GEN TVj = Qevproj_apply(T, Vj); /* c T | V_j */
-      GEN ch = QM_charpoly_ZX(TVj), fa = ZX_factor_limit(ch,deglim);
+      GEN ch = QM_charpoly_ZX(TVj), fa = ZX_factor_limit(ch,deglim, &lP);
       GEN F = gel(fa, 1), E = gel(fa, 2);
-      long k, n = lg(F)-1;
-      if (n == 1 && deglim <= 0)
+      long k, lF = lg(F);
+      if (lF == 2 && lP == 2)
       {
         if (isint1(gel(E,1)))
         { /* simple subspace */
@@ -611,13 +612,13 @@ mssplit_i(GEN W, GEN H, long deglim)
         else
           avma = av;
       }
-      else if (n == 0) /* discard V[j] */
+      else if (lF == 1) /* discard V[j] */
       { swap(gel(V,j), gel(V,lg(V)-1)); setlg(V, lg(V)-1); }
       else
       { /* can split Vj */
         GEN pows;
         long D = 1;
-        for (k = 1; k <= n; k++)
+        for (k = 1; k < lF; k++)
         {
           long d = degpol(gel(F,k));
           if (d > D) D = d;
@@ -625,7 +626,7 @@ mssplit_i(GEN W, GEN H, long deglim)
         /* remove V[j] */
         swap(gel(V,j), gel(V,lg(V)-1)); setlg(V, lg(V)-1);
         pows = RgM_powers(TVj, minss((long)2*sqrt((double)D), D));
-        for (k = 1; k <= n; k++)
+        for (k = 1; k < lF; k++)
         {
           GEN f = gel(F,k);
           GEN K = QM_ker( RgX_RgMV_eval(f, pows)) ; /* Ker f(TVj) */
