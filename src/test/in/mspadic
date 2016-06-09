@@ -130,7 +130,7 @@ msnewsymb(N,k,s=1) = {
 
 testmspadicL(N,k,p,signe=1,D=1) = {
   my([M,xpm]=msnewsymb(N,k,signe));
-  my(ap = mshecke(M,p,xpm)[1,1]); 
+  my(ap = mshecke(M,p,xpm)[1,1]);
   my(Wp,oms);
   Wp = mspadicinit(M,p,10, if(ap,valuation(ap,p), k-1));
   oms = mspadicmoments(Wp, xpm, D);
