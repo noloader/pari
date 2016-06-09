@@ -305,7 +305,7 @@ INLINE void
 F2x_addshiftip(GEN x, GEN y, ulong d)
 {
   ulong db, dl=dvmduBIL(d, &db);
-  return F2x_addshiftipspec(x+2+dl, y+2, lgpol(y), db);
+  F2x_addshiftipspec(x+2+dl, y+2, lgpol(y), db);
 }
 
 static GEN

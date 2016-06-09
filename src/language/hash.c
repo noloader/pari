@@ -51,7 +51,7 @@ hash_link2(hashtable *h, hashentry *e, ulong hash)
   e->next = h->table[index]; h->table[index] = e;
 }
 INLINE void
-hash_link(hashtable *h, hashentry *e) {return hash_link2(h,e,h->hash(e->key));}
+hash_link(hashtable *h, hashentry *e) { hash_link2(h,e,h->hash(e->key));}
 
 hashtable *
 hash_create(ulong minsize, ulong (*hash)(void*), int (*eq)(void*,void*),
@@ -116,7 +116,7 @@ hash_insert2(hashtable *h, void *k, void *v, ulong hash)
 }
 void
 hash_insert(hashtable *h, void *k, void *v)
-{ return hash_insert2(h,k,v,h->hash(k)); }
+{ hash_insert2(h,k,v,h->hash(k)); }
 
 /* the key 'k' may correspond to different values in the hash, return
  * one satisfying the selection callback */
