@@ -404,7 +404,7 @@ static GEN
 tor2(GEN E, GEN x) { return mkvec2(x, gmul2n(gneg(ec_h_evalx(E,x)), -1)); }
 
 static GEN
-ptor0()
+ptor0(void)
 { return mkvec2(mkvec(gen_1),cgetg(1,t_VEC)); }
 static GEN
 ptor1(long p, long n, GEN P)

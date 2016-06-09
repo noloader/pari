@@ -164,7 +164,7 @@ tm_handle_command(const char *s)
 /****/
 
 int
-tm_is_interactive() { return 0; }
+tm_is_interactive(void) { return 0; }
 
 static int tm_is_waiting = 0;
 /* tell TeXmacs GP will start outputing data */

@@ -469,7 +469,7 @@ rnfprincipaltohnf(GEN rnf,GEN x)
 
 /* pseudo-basis for the 0 ideal */
 static GEN
-rnfideal0() { retmkvec2(cgetg(1,t_MAT),cgetg(1,t_VEC)); }
+rnfideal0(void) { retmkvec2(cgetg(1,t_MAT),cgetg(1,t_VEC)); }
 
 GEN
 rnfidealhnf(GEN rnf, GEN x)
