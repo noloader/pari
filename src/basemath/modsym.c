@@ -3820,7 +3820,7 @@ mspadicint(GEN oms, long teichi, GEN S)
   else
   {
     la = p; /* corresponds to [1,2,...,p-1] */
-    teichi %= p-1;
+    teichi = smodss(teichi, p-1);
     if (teichi) teich = teichmullerinit(p, n);
   }
   for (i=1; i<l; i++)
