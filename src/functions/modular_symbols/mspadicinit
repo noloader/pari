@@ -39,4 +39,5 @@ Doc: $M$ being a full modular symbol space, as given by \kbd{msinit}, and $p$
  *** mstooms: incorrect type in mstooms [v_p(ap) > mspadicinit flag] (t_VEC).
  ? Mp = mspadicinit(M,7,5); \\ no restriction
  ? PHI = mstooms(Mp,phi);
- @eprog
+ @eprog\noindent This function uses $O(N^2(n+k)^2p)$ memory, where $N$ is the
+ level of $M$.
