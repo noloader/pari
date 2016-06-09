@@ -1167,7 +1167,7 @@ insert_E(GEN path, PS_sets_t *S, GEN p1N)
 }
 
 static GEN
-cusp_infinity() { return mkvecsmall2(1,0); }
+cusp_infinity(void) { return mkvecsmall2(1,0); }
 
 static void
 form_E_F_T(ulong N, GEN p1N, GEN *pC, PS_sets_t *S)
