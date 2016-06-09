@@ -422,7 +422,7 @@ classno_wrapper(long D)
   pari_sp av = avma;
   GEN clsgp;
   ulong h;
-  clsgp = quadclassunit0(stoi(D), 0, 0, DEFAULTPREC);
+  clsgp = quadclassunit0(stoi(D), 0, NULL, DEFAULTPREC);
   h = itou(gel(clsgp, 1));
   avma = av;
   return h;
@@ -601,7 +601,7 @@ select_classpoly_prime_pool(
 
       if ( ! is_smooth_enough(&vfactors, v))
         continue;
-      H = hclassno_wrapper(m_vsqr_D, 0);
+      H = hclassno_wrapper(m_vsqr_D, NULL);
 
       /* t <= 2 sqrt(p) and p <= z H(-v^2 D) and
        *
@@ -702,7 +702,7 @@ select_classpoly_primes(
 
   /* FIXME: Apply torsion constraints */
   /* FIXME: Rank elts of res according to cost/benefit ratio */
-  prime_pool = gen_sort(prime_pool, 0, primecmp);
+  prime_pool = gen_sort(prime_pool, NULL, primecmp);
 
   prime_bits = 0.0;
   biggest_p = gel(prime_pool, 1)[1];

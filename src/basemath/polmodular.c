@@ -1033,7 +1033,7 @@ find_noniso_L_isogenous_curve(
 
     /* b. Generate random point P on E of order L */
     avma = av;
-    pt = find_L_tors_point(0, a4, a6, p, pi, n, L, val);
+    pt = find_L_tors_point(NULL, a4, a6, p, pi, n, L, val);
   }
 
   avma = ltop;
@@ -1767,7 +1767,7 @@ polmodular0_generic_ZM(long L, long inv, GEN *db)
   D = simple_find_disc(L, inv, L0);
   ht = modpoly_height_bound(L, inv);
   H = polclass0(D, INV_J, 0, db);
-  mp = polmodular0_ZM(L, INV_J, 0, 0, 0, db);
+  mp = polmodular0_ZM(L, INV_J, NULL, NULL, 0, db);
 
   /* TODO: Use sparsity factor N = ceil((L + 1)/s) + 1 ?  Probably not
    * worth the increase in complexity. */
@@ -1937,7 +1937,7 @@ polmodular_ZM(long L, long inv)
     pari_err_IMPL("composite level");
 
   db = polmodular_db_init(inv);
-  Phi = polmodular0_ZM(L, inv, 0, 0, 0, &db);
+  Phi = polmodular0_ZM(L, inv, NULL, NULL, 0, &db);
   gunclone_deep(db);
 
   return Phi;
@@ -2174,16 +2174,16 @@ typedef GEN (*phi_fn)(void);
 static GEN
 bad_level(void)
 {
-  return (GEN)0;
+  return (GEN)NULL;
 }
 
 static const phi_fn INTERNAL_MODPOLY_DB[6][3] = {
   {   phi2_ZV,   phi3_ZV,   phi5_ZV }, /* INV_J */
   { bad_level, bad_level, phi5_f_ZV }, /* INV_F */
-  { bad_level, bad_level,         0 }, /* INV_F2 */
-  { bad_level, bad_level,         0 }, /* INV_F3 */
-  { bad_level, bad_level,         0 }, /* INV_F4 */
-  {         0, bad_level,         0 }  /* INV_G2 */
+  { bad_level, bad_level,      NULL }, /* INV_F2 */
+  { bad_level, bad_level,      NULL }, /* INV_F3 */
+  { bad_level, bad_level,      NULL }, /* INV_F4 */
+  {      NULL, bad_level,      NULL }  /* INV_G2 */
 };
 
 static GEN
@@ -2206,7 +2206,7 @@ polmodular_small_ZM(long L, long inv, GEN *db)
 
   if (f == bad_level) {
     pari_err_BUG("polmodular_small_ZM");
-  } else if (f == 0) {
+  } else if (f == NULL) {
     mp = polmodular0_generic_ZM(L, inv, db);
   } else {
     mp = sympol_to_ZM(f(), L);
@@ -2767,7 +2767,7 @@ modpoly_pickD(
       if (D0_bits + 2*j*p_bits + 2*L_bits + (twofactor && (q & 1) ? 2.0 : 0.0) > (BITS_IN_LONG - 1))
         continue;
 
-      if ( ! check_generators(&n1, 0, D1, h1, n0, d, L0, L1))
+      if ( ! check_generators(&n1, NULL, D1, h1, n0, d, L0, L1))
         continue;
 
       if (n1 < h1) {
@@ -2852,7 +2852,7 @@ modpoly_pickD(
       Dinfo.cost = cost;
       Dinfo.inv = inv;
 
-      if ( ! modpoly_pickD_primes (0, 0, 0, 0, 0, &Dinfo.bits, minbits, &Dinfo))
+      if ( ! modpoly_pickD_primes (NULL, NULL, 0, NULL, 0, &Dinfo.bits, minbits, &Dinfo))
         continue;
       dbg_printf(2)("Best D2=%ld, D1=%ld, D0=%ld with s=%ld^%ld, L1=%ld, "
                  "n1=%ld, n2=%ld, cost ratio %.2f, bits=%ld\n",
