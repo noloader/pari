@@ -2246,9 +2246,9 @@ ZM_gauss(GEN a, GEN b0)
   elim = expi(delta)+1;
   av2 = avma;
 #ifdef LONG_IS_64BIT
-  p = 1000000000000000000;
+  p = 1000000000000000000UL;
 #else
-  p = 1000000000;
+  p = 1000000000UL;
 #endif
   for(;;)
   {

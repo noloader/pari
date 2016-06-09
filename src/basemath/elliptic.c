@@ -5064,8 +5064,8 @@ ellQ_get_CM(GEN e)
     case  16581375: CM = -28; break;
     case -884736000: CM = -43; break;
 #ifdef LONG_IS_64BIT
-    case -147197952000: CM = -67; break;
-    case -262537412640768000: CM = -163; break;
+    case -147197952000L: CM = -67; break;
+    case -262537412640768000L: CM = -163; break;
 #endif
   }
   return CM;

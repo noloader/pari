@@ -830,9 +830,9 @@ mpbern(long nb, long prec)
     else
     {
 #ifdef LONG_IS_64BIT
-      const ulong mul_overflow = 3037000500;
+      const ulong mul_overflow = 3037000500UL;
 #else
-      const ulong mul_overflow = 46341;
+      const ulong mul_overflow = 46341UL;
 #endif
       ulong u = 8, v = 5, a = n-1, b = 2*n-3;
       n_is_small = 0;

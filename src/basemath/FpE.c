@@ -497,8 +497,8 @@ Fp_ellj_get_CM(GEN jn, GEN jd, GEN p)
   CHECK(-28, 16581375);
   CHECK(-43, -884736000);
 #ifdef LONG_IS_64BIT
-  CHECK(-67, -147197952000);
-  CHECK(-163, -262537412640768000);
+  CHECK(-67, -147197952000L);
+  CHECK(-163, -262537412640768000L);
 #else
   if (u2_is_CMj(0x00000022UL,0x45ae8000UL,jn,jd,p)) return -67;
   if (u2_is_CMj(0x03a4b862UL,0xc4b40000UL,jn,jd,p)) return -163;

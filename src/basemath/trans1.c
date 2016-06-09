@@ -158,9 +158,9 @@ pi_ramanujan(long prec)
 
   nmax = (long)(1 + prec2nbits(prec)/alpha2);
 #ifdef LONG_IS_64BIT
-  D = utoipos(10939058860032000); /* C^3/24 */
+  D = utoipos(10939058860032000UL); /* C^3/24 */
 #else
-  D = uutoi(2546948,495419392);
+  D = uutoi(2546948UL,495419392UL);
 #endif
   abpq_init(&S, nmax);
   S.a[0] = utoipos(A);
