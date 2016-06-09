@@ -180,12 +180,12 @@ Kderivsmallinit(GEN Vga, long m, long bitprec)
   for (j=1; j <= N; j++)
   {
     GEN C, c, mjj = gel(mj,j), pr = gen_1, t = gen_1;
-    long i, k, n, ljj = lj[j], precdl = ljj+3;
+    long i, k, n, ljj = lj[j], lprecdl = ljj+3;
     for (i=1; i <= d; i++)
     {
       GEN a = gmul2n(gadd(mjj, gel(Vga,i)), -1);
       GEN u = deg1pol_shallow(ghalf, a, 0);
-      pr = gmul(pr, ggamma(RgX_to_ser(u, precdl), prec));
+      pr = gmul(pr, ggamma(RgX_to_ser(u, lprecdl), prec));
       t = gmul(t, u);
     }
     c = cgetg(limn+2,t_COL);
