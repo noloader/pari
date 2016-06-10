@@ -3601,7 +3601,7 @@ mstooms(GEN W, GEN phi)
     else
     { /* p | ap, alpha = [a_p, -1; p^(k-1), 0] */
       long flag = mspadic_get_flag(W);
-      if (!flag || (signe(ap) && Z_lval(ap,p) > flag))
+      if (!flag || (signe(ap) && Z_lval(ap,p) < flag))
         pari_err_TYPE("mstooms [v_p(ap) > mspadicinit flag]", phi);
       alpha = mkmat22(ap,gen_m1, powuu(p, k-1),gen_0);
       alpha = ginv(alpha);

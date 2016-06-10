@@ -117,10 +117,14 @@ phi = mssplit(W, msnew(W), 1)[1];
 Wp = mspadicinit(W, 3, 6, 0);
 mspadicmoments(Wp, phi)
 
+Wp=mspadicinit(msinit(25,2,1),5,4, 1); \\ must fail p^2 | N
+
 M=msinit(4,6,1);
-phi=[1,8,1,-32]~;
-Wp=mspadicinit(M,3,5);
-oms=mspadicmoments(Wp, phi);
+phi=[1,8,1,-32]~; \\ v_p(ap) = 1
+Wp=mspadicinit(M,3,5, 2);
+oms=mspadicmoments(Wp, phi); \\ must fail
+Wp=mspadicinit(M,3,5, 1);
+oms=mspadicmoments(Wp, phi); \\ now succeeds
 mspadicL(oms)
 
 msnewsymb(N,k,s=1) = {
