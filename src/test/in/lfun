@@ -197,6 +197,11 @@ E5=ellinit([a,1-a,1,-1,0],K2);
 L5=lfuncreate([[g(K2,E5),[2,1-x^2],[5,(1+x)*(1+5*x^2)]],0,[0,0,1,1],2,19^2*20,1]);
 lfuncheckfeq(L5)
 lfunlambda(L5,1)
+K3=bnfinit(a^2-a-9);
+E6=ellinit([0,2,1,-19-8*a,28+11*a],K3);
+L6=lfuncreate([g(K3,E6),0,[0,0,1,1],2,37^2,1]);
+lfuncheckfeq(L6)
+lfunlambda(L6,1)
 
 print("check all formats");
 default("realprecision",54)
