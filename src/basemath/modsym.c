@@ -3271,7 +3271,7 @@ red_mod_FilM(GEN phi, ulong p, long k, long flag)
 
 /* denom(C) | p^(2(k-1) - v_p(ap)) */
 static GEN
-oms_supersingular(GEN W, GEN phi, GEN C, GEN ap)
+oms_dim2(GEN W, GEN phi, GEN C, GEN ap)
 {
   long t, i, k = mspadic_get_weight(W);
   long p = mspadic_get_p(W), n = mspadic_get_n(W);
@@ -3299,8 +3299,9 @@ oms_supersingular(GEN W, GEN phi, GEN C, GEN ap)
   return mkvec2(phi1,phi2);
 }
 
+/* flag = 0 iff alpha is a p-unit */
 static GEN
-oms_ordinary(GEN W, GEN phi, GEN alpha)
+oms_dim1(GEN W, GEN phi, GEN alpha, long flag)
 {
   long i, k = mspadic_get_weight(W);
   long p = mspadic_get_p(W), n = mspadic_get_n(W);
@@ -3313,7 +3314,7 @@ oms_ordinary(GEN W, GEN phi, GEN alpha)
     clean_tail(phi, k + i, q);
   }
   phi = gmul(lift(gpowgs(alpha,n)), phi);
-  phi = red_mod_FilM(phi, p, k, 0);
+  phi = red_mod_FilM(phi, p, k, flag);
   return mkvec(phi);
 }
 
@@ -3402,13 +3403,24 @@ mspadicinit(GEN W, long p, long n, long flag)
   checkms(W);
   N = ms_get_N(W);
   k = msk_get_weight(W);
+  if (flag < 0) flag = 1; /* worst case */
+  else if (flag >= k) flag = k-1;
+
   bin = vecbinome(k-2);
   Tp = mshecke(W, p, NULL);
   if (N % p == 0)
   {
+    if ((N/p) % p == 0) pari_err_IMPL("mspadicinit when p^2 | N");
+    /* a_p != 0 */
     Wp = W;
     M = gen_0;
-    flag = 0; /* restrict to ordinary symbols */
+    flag = (k-2) / 2; /* exact valuation */
+    /* will multiply by matrix with denominator p^(k-2)/2 in mspadicint.
+     * Except if p = 2 (multiply by alpha^2) */
+    if (p == 2) n += k-2; else n += (k-2)/2;
+    pn = powuu(p,n);
+    /* For accuracy mod p^n, oms_dim1 require p^(k/2*n) */
+    q = powiu(pn, k/2);
   }
   else
   { /* p-stabilize */
@@ -3426,22 +3438,16 @@ mspadicinit(GEN W, long p, long n, long flag)
     }
     M = mkvec2(M1,M2);
     n += Z_lval(Q_denom(M), p); /*den. introduced by p-stabilization*/
+    /* in supersingular case: will multiply by matrix with denominator p^k
+     * in mspadicint. Except if p = 2 (multiply by alpha^2) */
+    if (flag) { if (p == 2) n += 2*k-2; else n += k; }
+    pn = powuu(p,n);
+    /* For accuracy mod p^n, supersingular require p^((2k-1-v_p(a_p))*n) */
+    if (flag) /* k-1 also takes care of a_p = 0. Worst case v_p(a_p) = flag */
+      q = powiu(pn, 2*k-1 - flag);
+    else
+      q = pn;
   }
-  if (flag < 0 || flag >= k) flag = k-1;
-  /* in supersingular case: will multiply by matrix with denominator p^k
-   * in mspadicint. Except if p = 2 (multiply by alpha^2) */
-  if (flag) { if (p == 2) n += 2*k-2; else n += k; }
-  pn = powuu(p,n);
-  /* For accuracy mod p^n, supersingular require p^(k*n) */
-  if (flag)
-  {
-    long k_1 = k-1, c;
-    /* flag >= k_1 also takes care of a_p = 0. Worst case v_p(a_p) = flag */
-    if (flag >= k_1) { c = 2*k_1; flag = k_1; } else c = 2*(2*k_1 - flag);
-    q = powiu(pn, c);
-  }
-  else
-    q = pn;
   actUp = init_moments_act(Wp, p, n, q, Up_matrices(p));
 
   if (p == 2) C = gen_0;
@@ -3551,14 +3557,20 @@ mstooms(GEN W, GEN phi)
   if (typ(M) == t_INT)
   { /* p | N */
     GEN c1;
-    if (!umodiu(ap, p)) pari_err_IMPL("mstooms when p | gcd(a_p,N)");
     alpha = ap;
     alpha = ginv(alpha);
     phi0 = mseval(Wp, phi, NULL);
     phi0 = RgXC_to_moments(phi0, bin);
     phi0 = Q_remove_denom(phi0, &c1);
-    if (c1) { vden += Z_lvalrem(c1, p, &c1); c = mul_denom(c, c1); }
-    phi = oms_ordinary(W, phi0, alpha);
+    if (c1) { vden += Z_lvalrem(c1, p, &c1); c = mul_denom(c,c1); }
+    if (umodiu(ap,p)) /* p \nmid a_p */
+      phi = oms_dim1(W, phi0, alpha, 0);
+    else
+    {
+      phi = oms_dim1(W, phi0, alpha, 1);
+      phi = Q_remove_denom(phi, &c1);
+      if (c1) { vden += Z_lvalrem(c1, p, &c1); c = mul_denom(c,c1); }
+    }
   }
   else
   { /* p-stabilize */
@@ -3577,14 +3589,14 @@ mstooms(GEN W, GEN phi)
     phi = Q_remove_denom(mkvec2(phi1,phi2), &c1);
     phi1 = gel(phi,1);
     phi2 = gel(phi,2);
-    if (c1) { vden += Z_lvalrem(c1, p, &c1); c = mul_denom(c, c1); }
+    if (c1) { vden += Z_lvalrem(c1, p, &c1); c = mul_denom(c,c1); }
     /* all polynomials multiplied by c p^vden */
     if (umodiu(ap, p))
     {
       alpha = ms_unit_eigenvalue(ap, k, utoipos(p), mspadic_get_n(W));
       alpha = ginv(alpha);
       phi0 = gsub(phi1, gmul(lift(alpha),phi2));
-      phi = oms_ordinary(W, phi0, alpha);
+      phi = oms_dim1(W, phi0, alpha, 0);
     }
     else
     { /* p | ap, alpha = [a_p, -1; p^(k-1), 0] */
@@ -3593,7 +3605,7 @@ mstooms(GEN W, GEN phi)
         pari_err_TYPE("mstooms [v_p(ap) > mspadicinit flag]", phi);
       alpha = mkmat22(ap,gen_m1, powuu(p, k-1),gen_0);
       alpha = ginv(alpha);
-      phi = oms_supersingular(W, mkvec2(phi1,phi2), gsqr(alpha), ap);
+      phi = oms_dim2(W, mkvec2(phi1,phi2), gsqr(alpha), ap);
       phi = Q_remove_denom(phi, &c1);
       if (c1) { vden += Z_lvalrem(c1, p, &c1); c = mul_denom(c,c1); }
     }
