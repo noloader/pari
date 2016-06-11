@@ -167,7 +167,7 @@ nfgcd_all(GEN P, GEN Q, GEN T, GEN den, GEN *Pnew)
   if ( !((typ(lP)==t_INT && is_pm1(lP)) || (typ(lQ)==t_INT && is_pm1(lQ))) )
     den = mulii(den, gcdii(ZX_resultant(lP, T), ZX_resultant(lQ, T)));
 
-  init_modular(&S);
+  init_modular_small(&S);
   btop = avma;
   for(;;)
   {

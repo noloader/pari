@@ -1083,7 +1083,7 @@ ZX_gcd_all(GEN A, GEN B, GEN *Anew)
     Ag = ZX_Z_mul(A,g);
     Bg = ZX_Z_mul(B,g);
   }
-  init_modular(&S);
+  init_modular_big(&S);
   av = avma;
   R = NULL;/*-Wall*/
   H = NULL;

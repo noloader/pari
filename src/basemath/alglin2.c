@@ -936,7 +936,7 @@ QM_charpoly_ZX2_bound(GEN M, GEN M2, long bit)
   M2= Q_remove_denom(M2,&dM2);
 
   if (DEBUGLEVEL>5) err_printf("QM_charpoly_ZX2_bound: bit-bound 2^%ld\n", bit);
-  init_modular(&S);
+  init_modular_big(&S);
   while ((p = u_forprime_next(&S)))
   {
     ulong dMp = 0, dM2p = 0;
@@ -964,7 +964,7 @@ QM_charpoly_ZX_i(GEN M, GEN dM, long bit)
 
   if (bit < 0) bit = (long)charpoly_bound(M, dM) + 1;
   if (DEBUGLEVEL>5) err_printf("ZM_charpoly: bit-bound 2^%ld\n", bit);
-  init_modular(&S);
+  init_modular_big(&S);
   while ((p = u_forprime_next(&S)))
   {
     ulong dMp = 0;

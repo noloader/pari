@@ -2296,7 +2296,7 @@ ZM_inv(GEN M, GEN dM)
     if (signe(dM) < 0) negate = 1;
     dM = gen_1;
   }
-  init_modular(&S);
+  init_modular_big(&S);
   av2 = avma;
   H = NULL;
   if (DEBUGLEVEL>5) timer_start(&ti);
@@ -2361,7 +2361,7 @@ ZM_inv_ratlift(GEN M, GEN *pden)
   forprime_t S;
   if (lM == 1) { *pden = gen_1; return cgetg(1,t_MAT); }
 
-  init_modular(&S);
+  init_modular_big(&S);
   av2 = avma;
   H = NULL;
   while ((p = u_forprime_next(&S)))
@@ -4138,7 +4138,7 @@ ZM_det_i(GEN M, long n)
   h = RgM_Hadamard(M);
   if (!signe(h)) { avma = av; return gen_0; }
   h = sqrti(h); q = gen_1;
-  init_modular(&S);
+  init_modular_big(&S);
   p = 0; /* -Wall */
   while( cmpii(q, h) <= 0 && (p = u_forprime_next(&S)) )
   {

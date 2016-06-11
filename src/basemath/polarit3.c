@@ -2661,7 +2661,7 @@ QXQ_inv(GEN A, GEN B)
   if (degpol(A) < 15) return RgXQ_inv(A,B);
   A = Q_primitive_part(A, &D);
   /* A, B in Z[X] */
-  init_modular(&S);
+  init_modular_small(&S);
   if (DEBUGLEVEL>5) timer_start(&ti);
   av2 = avma; U = NULL;
   while ((p = u_forprime_next(&S)))
