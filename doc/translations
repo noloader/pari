@@ -43,7 +43,6 @@ intmod          @Integermods@2
 FRAC            @Rational numbers@2
 fraction        @Rational numbers@2
 rational        @Rational numbers@2
-FRACN           @Rational numbers@2
 COMPLEX         @Complex numbers@2
 complex         @Complex numbers@2
 PADIC           @$p$-adic numbers@2
@@ -56,8 +55,6 @@ POL             @Polynomials@2
 polynomial      @Polynomials@2
 SER             @Power series@2
 RFRAC           @Rational functions@2
-RFRACN          @Rational functions@2
-RFRACN          @Rational functions@2
 QFR             @Binary quadratic forms of positive or negative discriminant@2
 QFI             @Binary quadratic forms of positive or negative discriminant@2
 VEC             @Row and column vectors@2
