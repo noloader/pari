@@ -2327,7 +2327,7 @@ ZM_inv(GEN M, GEN dM)
     }
     else
       stable = ZM_incremental_CRT(&H, Hp, &q, p);
-    if (DEBUGLEVEL>5) timer_printf(&ti, "ZM_inv mod %ld (stable=%ld)", p,stable);
+    if (DEBUGLEVEL>5) timer_printf(&ti, "ZM_inv mod %lu (stable=%ld)", p,stable);
     if (stable) {/* DONE ? */
       if (dM != gen_1)
       { if (ZM_isscalar(ZM_mul(M, H), dM)) break; }
@@ -2379,7 +2379,7 @@ ZM_inv_ratlift(GEN M, GEN *pden)
       ZM_incremental_CRT(&H, Hp, &q, p);
     B = sqrti(shifti(q,-1));
     Hr = FpM_ratlift(H,q,B,B,NULL);
-    if (DEBUGLEVEL>5) err_printf("ZM_inv mod %ld (ratlift=%ld)\n", p,!!Hr);
+    if (DEBUGLEVEL>5) err_printf("ZM_inv mod %lu (ratlift=%ld)\n", p,!!Hr);
     if (Hr) {/* DONE ? */
       GEN Hl = Q_remove_denom(Hr, pden);
       if (*pden)
