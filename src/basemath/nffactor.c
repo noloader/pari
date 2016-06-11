@@ -175,7 +175,7 @@ nfgcd_all(GEN P, GEN Q, GEN T, GEN den, GEN *Pnew)
     if (!p) pari_err_OVERFLOW("nfgcd [ran out of primes]");
     /*Discard primes dividing disc(T) or lc(PQ) */
     if (!umodiu(den, p)) continue;
-    if (DEBUGLEVEL>5) err_printf("nfgcd: p=%d\n",p);
+    if (DEBUGLEVEL>5) err_printf("nfgcd: p=%lu\n",p);
     /*Discard primes when modular gcd does not exist*/
     if ((R = FlxqX_safegcd(ZXX_to_FlxX(P,p,vT),
                            ZXX_to_FlxX(Q,p,vT),
