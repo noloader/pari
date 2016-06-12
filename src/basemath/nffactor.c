@@ -2059,7 +2059,7 @@ guess_roots(GEN nf)
     old = nbroots;
     nbroots = nbroots? gcdii(pf_1, nbroots): pf_1;
     if (DEBUGLEVEL>5)
-      err_printf("p=%ld; gcf(f(P/p))=%ld; nbroots | %Ps",p, gcdf, nbroots);
+      err_printf("p=%lu; gcf(f(P/p))=%ld; nbroots | %Ps",p, gcdf, nbroots);
     /* if same result go on else reset the stop counter [c] */
     if (old && equalii(nbroots,old))
     { if (!is_bigint(nbroots) && ++c > B) break; }

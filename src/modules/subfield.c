@@ -543,7 +543,7 @@ choose_prime(primedata *S, GEN pol, GEN dpol)
     for (j=2; j<=r; j++) { n[j] = degpol(gel(ff,j)); lcm = clcm(lcm, n[j]); }
     if (lcm <= oldlcm) continue; /* false when oldlcm = 0 */
 
-    if (DEBUGLEVEL) err_printf("p = %ld,\tlcm = %ld,\torbits: %Ps\n",p,lcm,n);
+    if (DEBUGLEVEL) err_printf("p = %lu,\tlcm = %ld,\torbits: %Ps\n",p,lcm,n);
     pp = p;
     oldn = n;
     oldff = ff;

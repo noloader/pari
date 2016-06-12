@@ -2031,7 +2031,7 @@ mpqs_eval_cand(mpqs_handle_t *h, long number_of_cand,
       }
       p = FB[pi].fbe_p;
 #ifdef MPQS_DEBUG_CANDIDATE_EVALUATION
-      err_printf("MPQS DEBUG: Qx=%Ps p=%ld\n", Qx, (long)p);
+      err_printf("MPQS DEBUG: Qx=%Ps p=%ld\n", Qx, p);
 #endif
       /* otherwise p might still divide the current adjusted Qx. Try it... */
       /* NOTE: break out of loop when remaining Qx is 1 ?  Or rather, suppress
