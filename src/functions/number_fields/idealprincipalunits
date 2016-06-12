@@ -14,7 +14,7 @@ Doc: given a prime ideal in \tet{idealprimedec} format,
  ? P = idealprimedec(K,2)[1];
  ? G = idealprincipalunits(K, P, 20);
  ? G.cyc
- [512, 256, 4]   \\ Z/512 x Z/256 x Z/4
+ %4 = [512, 256, 4]   \\ Z/512 x Z/256 x Z/4
  ? G.gen
  %5 = [[-1, -2]~, 1021, [0, -1]~] \\ minimal generators of given order
  @eprog
