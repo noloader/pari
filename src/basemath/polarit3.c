@@ -2096,20 +2096,16 @@ FpX_compositum(GEN a, GEN b, GEN p)
 GEN
 ZX_ZXY_resultant_all(GEN A, GEN B0, long *plambda, GEN *LERS)
 {
-#ifdef LONG_IS_64BIT
-  ulong pstart = 4611686018427388039UL;
-#else
-  ulong pstart = 1073741827UL;
-#endif
   int checksqfree = plambda? 1: 0, stable;
   long lambda = plambda? *plambda: 0, cnt = 0;
-  ulong bound, p, dp;
+  ulong bound, dp;
   pari_sp av = avma, av2 = 0;
   long i,n, lb, degA = degpol(A), dres = degA*degpol(B0);
   long v = fetch_var_higher();
   long vX = varn(B0), vY = varn(A); /* assume vY has lower priority */
   long sX = evalvarn(vX);
   GEN x, y, dglist, dB, B, q, a, b, ev, H, H0, H1, Hp, H0p, H1p, C0, C1;
+  forprime_t S;
 
   dglist = Hp = H0p = H1p = C0 = C1 = NULL; /* gcc -Wall */
   if (LERS)
@@ -2128,7 +2124,6 @@ ZX_ZXY_resultant_all(GEN A, GEN B0, long *plambda, GEN *LERS)
   B = B0;
   setvarn(A,v);
   /* make sure p large enough */
-  p = pstart-1;
 INIT:
   /* always except the first time */
   if (av2) { avma = av2; lambda = next_lambda(lambda); }
@@ -2160,9 +2155,10 @@ INIT:
   bound = ZX_ZXY_ResBound(A, B, dB);
   if (DEBUGLEVEL>4) err_printf("bound for resultant coeffs: 2^%ld\n",bound);
   dp = 1;
+  init_modular_big(&S);
   while (1)
   {
-    p = unextprime(p+1);
+    ulong p = u_forprime_next(&S);
     if (dB) { dp = smodis(dB, p); if (!dp) continue; }
 
     a = ZX_to_Flx(A, p);

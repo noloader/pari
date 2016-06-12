@@ -2222,6 +2222,7 @@ ZM_gauss(GEN a, GEN b0)
   long n, ncol, i, m, elim;
   ulong p;
   GEN N, C, delta, xb, nb, nmin, res, b = b0;
+  forprime_t S;
 
   if (!init_gauss(a, &b, &n, &ncol, &iscol)) return cgetg(1, iscol?t_COL:t_MAT);
   nb = gen_0; ncol = lg(b);
@@ -2245,14 +2246,10 @@ ZM_gauss(GEN a, GEN b0)
   if (!signe(nmin)) return NULL;
   elim = expi(delta)+1;
   av2 = avma;
-#ifdef LONG_IS_64BIT
-  p = 1000000000000000000UL;
-#else
-  p = 1000000000UL;
-#endif
+  init_modular_big(&S);
   for(;;)
   {
-    p = unextprime(p+1);
+    p = u_forprime_next(&S);
     C = Flm_inv(ZM_to_Flm(a, p), p);
     if (C) break;
     elim -= expu(p);
