@@ -798,6 +798,25 @@ ZpXQX_divrem(GEN x, GEN Sp, GEN T, GEN q, GEN p, long e, GEN *pr)
   return Q;
 }
 
+GEN
+ZpXQX_digits(GEN x, GEN B, GEN T, GEN q, GEN p, long e)
+{
+  pari_sp av = avma;
+  GEN b = leading_coeff(B), bi;
+  GEN B2, P, V, W;
+  long i, lV;
+  if (typ(b)==t_INT) return FpXQX_digits(x, B, T, q);
+  bi = ZpXQ_inv(b, T, p, e);
+  B2 = FqX_Fq_mul_to_monic(B, bi, T, q);
+  V = FpXQX_digits(x, B2, T, q);
+  lV = lg(V)-1;
+  P = FpXQ_powers(bi, lV-1, T, q);
+  W = cgetg(lV+1, t_VEC);
+  for(i=1; i<=lV; i++)
+    gel(W, i) = FpXQX_FpXQ_mul(gel(V,i), gel(P, i), T, q);
+  return gerepileupto(av, W);
+}
+
 struct _ZpXQ_sqrtn
 {
   GEN T, a, n, ai;
