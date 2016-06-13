@@ -779,7 +779,7 @@ hyperellcharpoly(GEN PQ)
     d = degpol(H); eps = odd(d)? 0: Fq_issquare(leading_coeff(H), T, pp);
     n = ((degpol(T)*d)>>1) + 1;
     M = nfhyperellpadicfrobenius(H, T, p, n);
-    R = centerlift(liftpol_shallow(carberkowitz(M, 0)));
+    R = simplify_shallow(centerlift(liftpol_shallow(carberkowitz(M, 0))));
     if (fixvar) (void)delete_var();
   }
   if (!odd(d))
@@ -789,5 +789,5 @@ hyperellcharpoly(GEN PQ)
     if (signe(v)) pari_err_BUG("hyperellcharpoly");
     return gerepilecopy(av, Rx);
   }
-  return gerepileupto(av, R);
+  return gerepilecopy(av, R);
 }

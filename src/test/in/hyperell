@@ -1,5 +1,6 @@
 checkfeq(P,q)=
 {
+  for(i=0,poldegree(P),if (type(polcoeff(P,i))!="t_INT",error(dbg_x(P))));
   my(M=minpoly(Mod(x+q/x,P)));
   if(poldegree(M)!=poldegree(P)/2,error([P,q,M]));
   M;
