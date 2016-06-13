@@ -505,16 +505,16 @@ ZpXQXXQ_frob(GEN F, GEN U, GEN V, long k, GEN S, GEN T, ulong p, long e)
 
 
 static GEN
-Fq_diff_red(GEN s, GEN A, long m, GEN S, GEN T, GEN p)
+Fq_diff_red(GEN s, GEN A, long m, GEN S, GEN T, GEN q, GEN p, long e)
 {
   long v, n;
   GEN Q, sQ, qS;
   pari_timer ti;
   if (DEBUGLEVEL>1) timer_start(&ti);
-  Q = revdigits(FpXQX_digits(A, S, T, p));
+  Q = revdigits(ZpXQX_digits(A, S, T, q, p, e));
   n = degpol(Q);
   if (DEBUGLEVEL>1) timer_printf(&ti,"reddigits");
-  sQ = FpXQXXQ_mul(s,Q,S,T,p);
+  sQ = FpXQXXQ_mul(s,Q,S,T,q);
   if (DEBUGLEVEL>1) timer_printf(&ti,"redmul");
   qS = RgX_shift_shallow(sQ,m-n);
   v = ZX_val(sQ);
@@ -524,8 +524,8 @@ Fq_diff_red(GEN s, GEN A, long m, GEN S, GEN T, GEN p)
     GEN rS = cgetg(l+1,t_VEC);
     for (i = l-1; i >=0 ; i--)
       gel(rS,i+1) = gel(sQ, 1+v+l-i);
-    rS = FpXQX_fromdigits(rS,S,T,p);
-    gel(qS,2) = FpXX_add(FpXQX_mul(rS, S, T, p), gel(qS, 2), p);
+    rS = FpXQX_fromdigits(rS,S,T,q);
+    gel(qS,2) = FpXX_add(FpXQX_mul(rS, S, T, q), gel(qS, 2), q);
     if (DEBUGLEVEL>1) timer_printf(&ti,"redadd");
   }
   return qS;
@@ -585,7 +585,7 @@ ZlXQX_hyperellpadicfrobenius(GEN H, GEN T, ulong p, long n)
   if (DEBUGLEVEL>1) timer_start(&ti);
   xp = ZpX_Frobenius(T, utoi(p), N+1);
   s = RgX_inflate(FpXY_FpXQ_evalx(Q, xp, T, pN1), p);
-  s = revdigits(FpXQX_digits(s, Q, T, pN1));
+  s = revdigits(ZpXQX_digits(s, Q, T, pN1, utoi(p), N + 1));
   if (DEBUGLEVEL>1) timer_printf(&ti,"s1");
   s = ZpXQXXQ_invsqrt(s, Q, T, p, N);
   if (k==3)
@@ -598,7 +598,7 @@ ZlXQX_hyperellpadicfrobenius(GEN H, GEN T, ulong p, long n)
   {
     pari_sp av2 = avma;
     GEN M, D;
-    D = Fq_diff_red(s, monomial(utoi(p),p*i-1,1),(k*p-1)>>1, Q, T, pN1);
+    D = Fq_diff_red(s, monomial(utoi(p),p*i-1,1),(k*p-1)>>1, Q, T, pN1, utoi(p), N + 1);
     if (DEBUGLEVEL>1) timer_printf(&ti,"red");
     M = ZpXQXXQ_frob(D, U, V, (k - 1)>>1, Q, T, p, N + 1);
     if (DEBUGLEVEL>1) timer_printf(&ti,"frob");
