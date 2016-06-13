@@ -32,6 +32,16 @@ checkfeq(P,q)=
     print(checkfeq(H,p^3)));
 }
 
+{
+  my(a,P,Q,E);
+  a=ffgen([5,5],'a);
+  setrand(3);
+  for (i=1, 10,
+    P=random(a*x^3); H=hyperellcharpoly(P);
+    E=ellinit(ellfromeqn('y^2-P));
+    if(ellap(E)!=-polcoeff(H,1),error(H)));
+}
+
 g=ffgen(ffinit(79,2),'g);
 P=hyperellcharpoly(x^5+g*x^3+2*x+5);checkfeq(P,79^2)
 P=hyperellcharpoly(g*(x^5+g*x^3+2*x+5));checkfeq(P,79^2)
