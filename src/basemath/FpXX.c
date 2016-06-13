@@ -395,23 +395,6 @@ FpXQX_divrem_basecase(GEN x, GEN y, GEN T, GEN p, GEN *pr)
     return gerepileupto(av0,x);
   }
   av0 = avma; dz = dx-dy;
-  if (lgefint(p) == 3)
-  { /* assume ab != 0 mod p */
-    {
-      GEN *gptr[2];
-      GEN a, b, t;
-      ulong pp = to_FlxqX(x, y, T, p, &a, &b, &t);
-      z = FlxqX_divrem(a,b,t,pp,pr);
-      tetpil=avma;
-      z = FlxX_to_ZXX(z);
-      if (pr && pr != ONLY_DIVIDES && pr != ONLY_REM)
-        *pr = FlxX_to_ZXX(*pr);
-      else return gerepile(av0,tetpil,z);
-      gptr[0]=pr; gptr[1]=&z;
-      gerepilemanysp(av0,tetpil,gptr,2);
-      return z;
-    }
-  }
   lead = gequal1(lead)? NULL: gclone(Fq_inv(lead,T,p));
   avma = av0;
   z = cgetg(dz+3,t_POL); z[1] = x[1];
@@ -936,6 +919,21 @@ FpXQX_divrem(GEN x, GEN S, GEN T, GEN p, GEN *pr)
   GEN B, y = get_FpXQX_red(S, &B);
   long dy = degpol(y), dx = degpol(x), d = dx-dy;
   if (pr==ONLY_REM) return FpXQX_rem(x, y, T, p);
+  if (lgefint(p) == 3)
+  {
+    GEN a, b, t, z;
+    pari_sp tetpil, av = avma;
+    ulong pp = to_FlxqX(x, y, T, p, &a, &b, &t);
+    z = FlxqX_divrem(a, b, t, pp, pr);
+    if (pr == ONLY_DIVIDES && !z) { avma = av; return NULL; }
+    tetpil=avma;
+    z = FlxX_to_ZXX(z);
+    if (pr && pr != ONLY_DIVIDES && pr != ONLY_REM)
+      *pr = FlxX_to_ZXX(*pr);
+    else return gerepile(av, tetpil, z);
+    gerepileallsp(av,tetpil,2, pr, &z);
+    return z;
+  }
   if (!B && d+3 < FpXQX_DIVREM_BARRETT_LIMIT)
     return FpXQX_divrem_basecase(x,y,T,p,pr);
   else
@@ -956,6 +954,15 @@ FpXQX_rem(GEN x, GEN S, GEN T, GEN p)
   GEN B, y = get_FpXQX_red(S, &B);
   long dy = degpol(y), dx = degpol(x), d = dx-dy;
   if (d < 0) return FpXQX_red(x, T, p);
+  if (lgefint(p) == 3)
+  {
+    pari_sp av = avma;
+    GEN a, b, t, z;
+    ulong pp = to_FlxqX(x, y, T, p, &a, &b, &t);
+    z = FlxqX_rem(a, b, t, pp);
+    z = FlxX_to_ZXX(z);
+    return gerepileupto(av, z);
+  }
   if (!B && d+3 < FpXQX_REM_BARRETT_LIMIT)
     return FpXQX_divrem_basecase(x,y, T, p, ONLY_REM);
   else
