@@ -774,6 +774,12 @@ ZpXQ_inv(GEN a, GEN T, GEN p, long e)
   return gerepileupto(av, ZpXQ_invlift(a, ai, T, p, e));
 }
 
+GEN
+ZpXQ_div(GEN a, GEN b, GEN T, GEN q, GEN p, long e)
+{
+  return FpXQ_mul(a, ZpXQ_inv(b, T, p, e), T, q);
+}
+
 struct _ZpXQ_sqrtn
 {
   GEN T, a, n, ai;

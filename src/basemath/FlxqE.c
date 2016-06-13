@@ -819,7 +819,7 @@ getc2(GEN act, GEN X, GEN T, GEN q, ulong p, long N)
   GEN xp = FpXQ_powers(X,n,T,q);
   GEN P  = FpX_FpXQV_eval(A1, xp, T, q);
   GEN Q  = FpX_FpXQV_eval(A2, xp, T, q);
-  return FpXQ_mul(P,ZpXQ_inv(Q,T,utoi(p),N),T,q);
+  return ZpXQ_div(P, Q, T, q, utoi(p), N);
 }
 
 struct _ZpXQ_norm

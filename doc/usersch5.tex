@@ -6176,6 +6176,11 @@ $A\*b \equiv 1 \mod (p^e, T)$.  Special case of \tet{ZpXQ_liftroot}.
 $p$ be a prime \typ{INT} and $b$ be a \kbd{FpXQ} (modulo $T, p^e$).
 Returns an \kbd{FpXQ} $A$ such that $A\*b \equiv 1 \mod (p^e, T)$.
 
+\fun{GEN}{ZpXQ_div}{GEN a, GEN b, GEN T, GEN q, GEN p, long e} let
+$p$ be a prime \typ{INT} and $a$ and $b$ be a \kbd{FpXQ} (modulo $T, p^e$).
+Returns an \kbd{FpXQ} $c$ such that $c\*b \equiv a \mod (p^e, T)$.
+The parameter $q$ must be equal to $p^e$.
+
 \fun{GEN}{ZpXQ_sqrtnlift}{GEN b, GEN n, GEN a, GEN T, GEN p, long e} let
 $n,p$ be \typ{INT}s, with $n,p > 1$ and $p$ coprime to $n$, and $a,b$
 be \kbd{FpXQ}s (modulo $T$) such that $a^n \equiv b \mod (p,T)$.

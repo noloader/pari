@@ -822,6 +822,7 @@ GEN     ZpX_liftfact(GEN pol, GEN Q, GEN T, GEN p, long e, GEN pe);
 GEN     ZpX_liftroot(GEN f, GEN a, GEN p, long e);
 GEN     ZpX_liftroots(GEN f, GEN S, GEN p, long e);
 GEN     ZpX_roots(GEN f, GEN p, long e);
+GEN     ZpXQ_div(GEN a, GEN b, GEN T, GEN q, GEN p, long e);
 GEN     ZpXQ_inv(GEN a, GEN T, GEN p, long e);
 GEN     ZpXQ_invlift(GEN b, GEN a, GEN T, GEN p, long e);
 GEN     ZpXQ_log(GEN a, GEN T, GEN p, long N);
