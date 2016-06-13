@@ -780,6 +780,24 @@ ZpXQ_div(GEN a, GEN b, GEN T, GEN q, GEN p, long e)
   return FpXQ_mul(a, ZpXQ_inv(b, T, p, e), T, q);
 }
 
+GEN
+ZpXQX_divrem(GEN x, GEN Sp, GEN T, GEN q, GEN p, long e, GEN *pr)
+{
+  pari_sp av = avma;
+  GEN S = get_FpXQX_mod(Sp);
+  GEN b = leading_coeff(S), bi;
+  GEN S2, Q;
+  if (typ(b)==t_INT) return FpXQX_divrem(x, Sp, T, q, pr);
+  bi = ZpXQ_inv(b, T, p, e);
+  S2 = FqX_Fq_mul_to_monic(S, bi, T, q);
+  Q = FpXQX_divrem(x, S2, T, q, pr);
+  if (pr==ONLY_DIVIDES && !Q) { avma = av; return NULL; }
+  if (pr==ONLY_REM || pr==ONLY_DIVIDES) return gerepileupto(av, Q);
+  Q = FpXQX_FpXQ_mul(Q, bi, T, q);
+  gerepileall(av, 2, &Q, pr);
+  return Q;
+}
+
 struct _ZpXQ_sqrtn
 {
   GEN T, a, n, ai;
