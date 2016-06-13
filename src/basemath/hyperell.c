@@ -343,7 +343,7 @@ INLINE GEN
 FpXXX_renormalize(GEN x, long lx)  { return ZXX_renormalize(x,lx); }
 
 static GEN
-FpXQXXQ_red(GEN F, GEN S, GEN T, GEN p)
+ZpXQXXQ_red(GEN F, GEN S, GEN T, GEN q, GEN p, long e)
 {
   pari_sp av = avma;
   long i, dF = degpol(F);
@@ -353,37 +353,37 @@ FpXQXXQ_red(GEN F, GEN S, GEN T, GEN p)
   C = pol_0(varn(S));
   for(i=dF; i>0; i--)
   {
-    GEN Fi = FpXX_add(C, gel(F,i+2), p);
-    GEN R, Q = FpXQX_divrem(Fi, S, T, p, &R);
+    GEN Fi = FpXX_add(C, gel(F,i+2), q);
+    GEN R, Q = ZpXQX_divrem(Fi, S, T, q, p, e, &R);
     gel(A,i+2) = R;
     C = Q;
   }
-  gel(A,2) = FpXX_add(C, gel(F,2), p);
+  gel(A,2) = FpXX_add(C, gel(F,2), q);
   A[1] = F[1];
   return gerepilecopy(av, FpXXX_renormalize(A,dF+3));
 }
 
 static GEN
-FpXQXXQ_sqr(GEN x, GEN S, GEN T, GEN p)
+ZpXQXXQ_sqr(GEN x, GEN S, GEN T, GEN q, GEN p, long e)
 {
   pari_sp av = avma;
   GEN z, kx;
   long n = degpol(S);
   kx = ZXX_to_Kronecker(x, n);
-  z = Kronecker_to_ZXX(FpXQX_sqr(kx, T, p), n, varn(S));
-  return gerepileupto(av, FpXQXXQ_red(z, S, T, p));
+  z = Kronecker_to_ZXX(FpXQX_sqr(kx, T, q), n, varn(S));
+  return gerepileupto(av, ZpXQXXQ_red(z, S, T, q, p, e));
 }
 
 static GEN
-FpXQXXQ_mul(GEN x, GEN y, GEN S, GEN T, GEN p)
+ZpXQXXQ_mul(GEN x, GEN y, GEN S, GEN T, GEN q, GEN p, long e)
 {
   pari_sp av = avma;
   GEN z, kx, ky;
   long n = degpol(S);
   kx = ZXX_to_Kronecker(x, n);
   ky = ZXX_to_Kronecker(y, n);
-  z = Kronecker_to_ZXX(FpXQX_mul(ky, kx, T, p), n, varn(S));
-  return gerepileupto(av, FpXQXXQ_red(z, S, T, p));
+  z = Kronecker_to_ZXX(FpXQX_mul(ky, kx, T, q), n, varn(S));
+  return gerepileupto(av, ZpXQXXQ_red(z, S, T, q, p, e));
 }
 
 static GEN
@@ -416,7 +416,7 @@ ZpXQXXQ_invsqrt(GEN F, GEN S, GEN T, ulong p, long e)
   ulong mask;
   long v = varn(F), n=1;
   pari_timer ti;
-  GEN a = pol_1(v);
+  GEN a = pol_1(v), pp = utoi(p);
   if (DEBUGLEVEL>1) timer_start(&ti);
   if (e <= 1) return gerepilecopy(av, a);
   mask = quadratic_prec_mask(e);
@@ -429,10 +429,10 @@ ZpXQXXQ_invsqrt(GEN F, GEN S, GEN T, ulong p, long e)
     mask >>= 1;
     q = powuu(p,n); q2 = powuu(p,n2);
     av3 = avma;
-    f = RgX_sub(FpXQXXQ_mul(F, FpXQXXQ_sqr(a, S, T, q), S, T, q), pol_1(v));
+    f = RgX_sub(ZpXQXXQ_mul(F, ZpXQXXQ_sqr(a, S, T, q, pp, n), S, T, q, pp, n), pol_1(v));
     fq = gerepileupto(av3, RgX_Rg_divexact(f, q2));
     q22 = shifti(addis(q2,1),-1);
-    afq = FpXXX_Fp_mul(FpXQXXQ_mul(a, fq, S, T, q2), q22, q2);
+    afq = FpXXX_Fp_mul(ZpXQXXQ_mul(a, fq, S, T, q2, pp, n2), q22, q2);
     a = RgX_sub(a, RgX_Rg_mul(afq, q2));
     if (gc_needed(av2,1))
     {
@@ -463,7 +463,7 @@ ZpXQXXQ_frob(GEN F, GEN U, GEN V, long k, GEN S, GEN T, ulong p, long e)
   {
     GEN A, B, H, Bc;
     ulong v, r;
-    H = FpXQX_divrem(FpXQX_mul(V, M, T, q), S, T, q, &B);
+    H = ZpXQX_divrem(FpXQX_mul(V, M, T, q), S, T, q, utoi(p), e, &B);
     A = FpXX_add(FpXQX_mul(U, M, T, q), FpXQX_mul(H, Sp, T, q),q);
     v = u_lvalrem(2*i+1,p,&r);
     Bc = RgX_deriv(B);
@@ -514,7 +514,7 @@ Fq_diff_red(GEN s, GEN A, long m, GEN S, GEN T, GEN q, GEN p, long e)
   Q = revdigits(ZpXQX_digits(A, S, T, q, p, e));
   n = degpol(Q);
   if (DEBUGLEVEL>1) timer_printf(&ti,"reddigits");
-  sQ = FpXQXXQ_mul(s,Q,S,T,q);
+  sQ = ZpXQXXQ_mul(s, Q, S, T, q, p, e);
   if (DEBUGLEVEL>1) timer_printf(&ti,"redmul");
   qS = RgX_shift_shallow(sQ,m-n);
   v = ZX_val(sQ);
@@ -567,8 +567,8 @@ GEN
 ZlXQX_hyperellpadicfrobenius(GEN H, GEN T, ulong p, long n)
 {
   pari_sp av = avma;
-  long k, N, i, d;
-  GEN xp, F, s, q, Q, pN1, U, V;
+  long k, N, i, d, N1;
+  GEN xp, F, s, q, Q, pN1, U, V, pp;
   pari_timer ti;
   if (typ(H) != t_POL) pari_err_TYPE("hyperellpadicfrobenius",H);
   if (p == 2) is_sing(H, 2);
@@ -577,19 +577,20 @@ ZlXQX_hyperellpadicfrobenius(GEN H, GEN T, ulong p, long n)
     pari_err_CONSTPOL("hyperellpadicfrobenius");
   if (n < 1)
     pari_err_DOMAIN("hyperellpadicfrobenius","n","<", gen_1, utoi(n));
-  k = get_basis(p, d);
-  N = n + logint(stoi(2*n), stoi(p), NULL);
-  q = powuu(p,n); pN1 = powuu(p,N+1); T = FpX_get_red(T, pN1);
+  k = get_basis(p, d); pp = utoi(p);
+  N = n + logint(stoi(2*n), pp, NULL);
+  q = powuu(p,n); N1 = N+1;
+  pN1 = powuu(p,N1); T = FpX_get_red(T, pN1);
   Q = RgX_to_FqX(H, T, pN1);
-  if (signe(FpX_red(to_ZX(leading_coeff(Q),varn(Q)),utoi(p)))==0) is_sing(H, p);
+  if (signe(FpX_red(to_ZX(leading_coeff(Q),varn(Q)),pp))==0) is_sing(H, p);
   if (DEBUGLEVEL>1) timer_start(&ti);
-  xp = ZpX_Frobenius(T, utoi(p), N+1);
+  xp = ZpX_Frobenius(T, pp, N1);
   s = RgX_inflate(FpXY_FpXQ_evalx(Q, xp, T, pN1), p);
-  s = revdigits(ZpXQX_digits(s, Q, T, pN1, utoi(p), N + 1));
+  s = revdigits(ZpXQX_digits(s, Q, T, pN1, pp, N1));
   if (DEBUGLEVEL>1) timer_printf(&ti,"s1");
   s = ZpXQXXQ_invsqrt(s, Q, T, p, N);
   if (k==3)
-    s = FpXQXXQ_mul(s, FpXQXXQ_sqr(s, Q, T, pN1), Q, T, pN1);
+    s = ZpXQXXQ_mul(s, ZpXQXXQ_sqr(s, Q, T, pN1, pp, N1), Q, T, pN1, pp, N1);
   if (DEBUGLEVEL>1) timer_printf(&ti,"invsqrt");
   Fq_get_UV(&U, &V, Q, T, p, N+1);
   if (DEBUGLEVEL>1) timer_printf(&ti,"get_UV");
@@ -598,9 +599,9 @@ ZlXQX_hyperellpadicfrobenius(GEN H, GEN T, ulong p, long n)
   {
     pari_sp av2 = avma;
     GEN M, D;
-    D = Fq_diff_red(s, monomial(utoi(p),p*i-1,1),(k*p-1)>>1, Q, T, pN1, utoi(p), N + 1);
+    D = Fq_diff_red(s, monomial(pp,p*i-1,1),(k*p-1)>>1, Q, T, pN1, pp, N1);
     if (DEBUGLEVEL>1) timer_printf(&ti,"red");
-    M = ZpXQXXQ_frob(D, U, V, (k - 1)>>1, Q, T, p, N + 1);
+    M = ZpXQXXQ_frob(D, U, V, (k - 1)>>1, Q, T, p, N1);
     if (DEBUGLEVEL>1) timer_printf(&ti,"frob");
     gel(F, i) = gerepileupto(av2, ZXX_to_FpXC(M, d-1, q, varn(T)));
   }
