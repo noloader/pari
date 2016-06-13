@@ -723,12 +723,34 @@ Flx_genus2charpoly_naive(GEN H, ulong p)
   return mkvecsmalln(6, 0UL, p*p, a*p, (b+2*c+a*a)>>1, a, 1UL);
 }
 
+static GEN
+charpoly_funceq(GEN P, GEN q)
+{
+  long i, l, g = degpol(P)>>1;
+  GEN Q = cgetg_copy(P, &l);
+  Q[1] = P[1];
+  for (i=0; i<=g; i++)
+    gel(Q, i+2) = mulii(gel(P, 2*g-i+2), powiu(q, g-i));
+  for (; i<=2*g; i++)
+    gel(Q, i+2) = icopy(gel(P, i+2));
+  return Q;
+}
+
+static long
+hyperell_Weil_bound(GEN q, long g, GEN p)
+{
+  pari_sp av = avma;
+  GEN w = mulii(binomialuu(2*g,g),sqrtint(shifti(powiu(q, g),2)));
+  long e = logint(w, p, NULL);
+  avma = av; return e;
+}
+
 GEN
 hyperellcharpoly(GEN PQ)
 {
   pari_sp av = avma;
-  GEN H, M, R, T=NULL, pp=NULL;
-  long d, n, eps = 0;
+  GEN H, M, R, T=NULL, pp=NULL, q;
+  long d, g, n, eps = 0;
   ulong p;
   if (is_vec_t(typ(PQ)) && lg(PQ)==3)
     H = gadd(gsqr(gel(PQ, 2)), gmul2n(gel(PQ, 1), 2));
@@ -758,7 +780,7 @@ hyperellcharpoly(GEN PQ)
       }
     }
     H = RgX_to_FpX(H, pp);
-    d = degpol(H);
+    d = degpol(H); g = d>>1;
     if (p > 2 && ((d == 5 && p < 20000) || (d == 6 && p < 45000)))
     {
       GEN Hp = ZX_to_Flx(H, p);
@@ -766,29 +788,34 @@ hyperellcharpoly(GEN PQ)
       R = zx_to_ZX(Flx_genus2charpoly_naive(Hp, p));
       return gerepileupto(av, R);
     }
-    n = (d>>1) + 1; eps = odd(d)? 0: Fp_issquare(leading_coeff(H), pp);
+    n = hyperell_Weil_bound(pp, g, pp);
+    eps = odd(d)? 0: Fp_issquare(leading_coeff(H), pp);
     M = hyperellpadicfrobenius(H, p, n);
     R = centerlift(carberkowitz(M, 0));
+    q = pp;
   }
   else
   {
     int fixvar;
     T = typ(T)==t_FFELT? FF_mod(T): RgX_to_FpX(T, pp);
+    q = powuu(p, degpol(T));
     fixvar = (varncmp(varn(T),varn(H)) <= 0);
     if (fixvar) setvarn(T, fetch_var());
     H = RgX_to_FpXQX(H, T, pp);
     d = degpol(H); eps = odd(d)? 0: Fq_issquare(leading_coeff(H), T, pp);
-    n = ((degpol(T)*d)>>1) + 1;
+    g = d>>1;
+    n = hyperell_Weil_bound(q, g, pp);
     M = nfhyperellpadicfrobenius(H, T, p, n);
     R = simplify_shallow(centerlift(liftpol_shallow(carberkowitz(M, 0))));
     if (fixvar) (void)delete_var();
   }
   if (!odd(d))
   {
-    GEN q = get_basis(p, d) == 3 ? gen_1 : T ? powuu(p, degpol(T)): pp;
-    GEN v, Rx = RgX_div_by_X_x(R, eps? q: negi(q), &v);
-    if (signe(v)) pari_err_BUG("hyperellcharpoly");
-    return gerepilecopy(av, Rx);
+    GEN b = get_basis(p, d) == 3 ? gen_1 : q;
+    GEN pn = powuu(p, n);
+    R = FpX_div_by_X_x(R, eps? b: negi(b), pn, NULL);
+    R = FpX_center(R, pn, shifti(pn,-1));
   }
+  R = charpoly_funceq(R, q);
   return gerepilecopy(av, R);
 }
