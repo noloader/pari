@@ -444,10 +444,10 @@ ZpXQXXQ_invsqrt(GEN F, GEN S, GEN T, ulong p, long e)
 }
 
 static GEN
-frac_to_Fq(GEN a, GEN b, GEN T, GEN p)
+frac_to_Fq(GEN a, GEN b, GEN T, GEN q, GEN p, long e)
 {
   GEN d = gcdii(ZX_content(a), ZX_content(b));
-  return FpXQ_div(ZX_Z_divexact(a, d), ZX_Z_divexact(b, d), T, p);
+  return ZpXQ_div(ZX_Z_divexact(a, d), ZX_Z_divexact(b, d), T, q, p, e);
 }
 
 static GEN
@@ -455,7 +455,7 @@ ZpXQXXQ_frob(GEN F, GEN U, GEN V, long k, GEN S, GEN T, ulong p, long e)
 {
   pari_sp av = avma, av2;
   long i, pr = degpol(F), dS = degpol(S), v = varn(T);
-  GEN q = powuu(p,e);
+  GEN q = powuu(p,e), pp = utoi(p);
   GEN Sp = RgX_deriv(S), Sp1 = RgX_shift_shallow(Sp, 1);
   GEN M = gel(F,pr+2), R;
   av2 = avma;
@@ -486,7 +486,7 @@ ZpXQXXQ_frob(GEN F, GEN U, GEN V, long k, GEN S, GEN T, ulong p, long e)
     gel(R,2) = gel(M, i+1);
     if (degpol(R) < dS) continue;
     B = FpXX_add(FpXX_mulu(S, 2*i, q), Sp1, q);
-    c = frac_to_Fq(to_ZX(leading_coeff(R),v), to_ZX(leading_coeff(B),v), T, q);
+    c = frac_to_Fq(to_ZX(leading_coeff(R),v), to_ZX(leading_coeff(B),v), T, q, pp, e);
     R = FpXX_sub(R, FpXQX_FpXQ_mul(B, c, T, q), q);
     if (gc_needed(av2,1))
     {
@@ -496,7 +496,7 @@ ZpXQXXQ_frob(GEN F, GEN U, GEN V, long k, GEN S, GEN T, ulong p, long e)
   }
   if (degpol(R)==dS-1)
   {
-    GEN c = frac_to_Fq(to_ZX(leading_coeff(R),v), to_ZX(leading_coeff(Sp),v), T, q);
+    GEN c = frac_to_Fq(to_ZX(leading_coeff(R),v), to_ZX(leading_coeff(Sp),v), T, q, pp, e);
     R = FpXX_sub(R, FpXQX_FpXQ_mul(Sp, c, T, q), q);
     return gerepileupto(av, R);
   } else
