@@ -781,7 +781,7 @@ hyperellcharpoly(GEN PQ)
     }
     H = RgX_to_FpX(H, pp);
     d = degpol(H); g = d>>1;
-    if (p > 2 && ((d == 5 && p < 20000) || (d == 6 && p < 45000)))
+    if (p > 2 && ((d == 5 && p < 17500) || (d == 6 && p < 24500)))
     {
       GEN Hp = ZX_to_Flx(H, p);
       if (!Flx_is_squarefree(Hp, p)) is_sing(H, p);
