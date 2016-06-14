@@ -65,6 +65,14 @@ Section "documentation" SecDOC
   File /oname=gprc_dft.txt "${tree}\gprc.dft"
 SectionEnd
 
+Section "Development files" SecDEV
+  CreateDirectory "$INSTDIR\include"
+  CreateDirectory "$INSTDIR\lib"
+  SetOutPath "$INSTDIR"
+  File /r "${tree}\lib"
+  File /r "${tree}\include"
+SectionEnd
+
 Function .onInstSuccess
   MessageBox MB_OK "Thank you for using PARI/GP! Double-click on 'gp' to start the calculator.$\r$\n"
   ExecShell "open" "$INSTDIR"
@@ -91,6 +99,7 @@ LangString DESC_SecCopy ${LANG_ENGLISH} "Copy pari files to application folder."
 LangString DESC_DOC ${LANG_ENGLISH} "Install documentation and online help."
 LangString DESC_EX ${LANG_ENGLISH} "Install sample GP scripts."
 LangString DESC_GAL ${LANG_ENGLISH} "Install Pari package files."
+LangString DESC_DEV ${LANG_ENGLISH} "Add libpari development files."
 LangString DESC_SM ${LANG_ENGLISH} "Add PARI shortcuts to Start Menu and desktop."
 
 !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
@@ -98,6 +107,7 @@ LangString DESC_SM ${LANG_ENGLISH} "Add PARI shortcuts to Start Menu and desktop
   !insertmacro MUI_DESCRIPTION_TEXT ${SecGAL} $(DESC_GAL)
   !insertmacro MUI_DESCRIPTION_TEXT ${SecSM} $(DESC_SM)
   !insertmacro MUI_DESCRIPTION_TEXT ${SecDOC} $(DESC_DOC)
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecDEV} $(DESC_DEV)
 !insertmacro MUI_FUNCTION_DESCRIPTION_END
 
 ;--------------------------------
@@ -112,6 +122,8 @@ Section "Uninstall"
   RMDir /r "$INSTDIR\doc"
   RMDir /r "$INSTDIR\examples"
   RMDir /r "$INSTDIR\data"
+  RMDir /r "$INSTDIR\include"
+  RMDir /r "$INSTDIR\lib"
   Delete "$INSTDIR\Uninstall.exe"
 
   DeleteRegKey HKLM ${uninst}
