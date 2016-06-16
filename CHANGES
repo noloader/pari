@@ -213,6 +213,7 @@ BA150- elltatepairing could return wrong results [#1784]
   157- x \/ y did not conform to documentation when either x or y was a
        t_REAL. E.g. 28/10 \/ 1 == 3 but 2.8 \/ 1 == 2. Now both return 3 [#1811]
 BA158- digits(N,B) with 31/63 bit B could return wrong result
+BA159- [pthread] parallel GP could leak memory
 
   Added
     1- add optional argument to sumdigits to specify the base

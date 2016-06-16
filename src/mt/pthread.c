@@ -113,6 +113,13 @@ void pari_mt_init(void)
 
 void pari_mt_close(void) { }
 
+static void
+mt_queue_cleanup(void *arg)
+{
+  (void) arg;
+  pari_thread_close();
+}
+
 static void*
 mt_queue_run(void *arg)
 {
@@ -120,6 +127,7 @@ mt_queue_run(void *arg)
   pari_sp av = avma;
   struct mt_queue *mq = (struct mt_queue *) args;
   mt_thread_no = mq->no;
+  pthread_cleanup_push(mt_queue_cleanup,NULL);
   LOCK(mq->pmut)
   {
     mq->avma = av;
@@ -146,6 +154,7 @@ mt_queue_run(void *arg)
       pthread_cond_signal(mq->pcond);
     } UNLOCK(mq->pmut);
   }
+  pthread_cleanup_pop(1);
 #ifdef __GNUC__
   return NULL; /* NOT REACHED */
 #endif
