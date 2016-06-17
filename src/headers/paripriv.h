@@ -620,8 +620,9 @@ GEN     subgrouplist_cond_sub(GEN bnr, GEN C, GEN bound);
 
 /* ellsea.c */
 
-void    pari_close_seadata(void);
 void    pari_init_seadata(void);
+void    pari_thread_init_seadata(void);
+void    pari_pthread_init_seadata(void);
 
 /* es.c */
 

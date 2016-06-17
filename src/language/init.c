@@ -832,6 +832,7 @@ pari_thread_init(void)
   pari_init_compiler();
   pari_init_evaluator();
   pari_init_files();
+  pari_thread_init_seadata();
 }
 
 void
@@ -909,8 +910,8 @@ pari_init_opts(size_t parisize, ulong maxprime, ulong init_opts)
   pari_kernel_init();
 
   primetab = cgetalloc(t_VEC, 1);
-  pari_thread_init();
   pari_init_seadata();
+  pari_thread_init();
   pari_init_functions();
   pari_var_init();
   pari_init_timer();
@@ -945,7 +946,6 @@ pari_close_opts(ulong init_opts)
   }
   pari_var_close();
   free((void*)primetab);
-  pari_close_seadata();
   pari_thread_close();
   pari_kernel_close();
 
