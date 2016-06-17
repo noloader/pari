@@ -1,5 +1,5 @@
 Function: self
-Section: programming/control
+Section: programming/specific
 C-Name: pari_self
 Prototype: m
 Help: self(): return the calling function or closure. Useful for defining
