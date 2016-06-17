@@ -1926,6 +1926,7 @@ Fq_ellcard_SEA(GEN a4, GEN a6, GEN q, GEN T, GEN p, long smallfact)
           void *E;
           if (DEBUGLEVEL)
             err_printf("Match and sort for %Ps possibilities.\n", max_traces);
+          delete_var(); delete_var();
           grp = get_FqE_group(&E,a4,a6,T,p);
           res = match_and_sort(cat, TR_mod, TR, q, E, grp);
           return gerepileuptoint(ltop, res);
