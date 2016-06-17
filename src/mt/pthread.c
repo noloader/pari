@@ -293,6 +293,7 @@ mt_queue_start(struct pari_mt *pt, GEN worker)
     pari_mt = mt;
     pthread_cond_init(&mt->pcond,NULL);
     pthread_mutex_init(&mt->pmut,NULL);
+    pari_thread_sync();
     for (i=0;i<NBT;i++)
     {
       struct mt_queue *mq = mt->mq+i;
@@ -311,8 +312,6 @@ mt_queue_start(struct pari_mt *pt, GEN worker)
         pari_thread_alloc(&mt->pth[i],mtparisize,(GEN)mq);
     }
     if (DEBUGLEVEL) pari_warn(warner,"start threads");
-    pari_pthread_init_varstate();
-    pari_pthread_init_seadata();
     for (i=0;i<NBT;i++)
       pthread_create(&mt->th[i],NULL, &mt_queue_run, (void*)&mt->pth[i]);
     pt->get=&mtpthread_queue_get;

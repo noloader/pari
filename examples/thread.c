@@ -37,6 +37,8 @@ main(void)
   N1 = addis(int2n(256), 1); /* 2^256 + 1 */
   N2 = subis(int2n(193), 1); /* 2^193 - 1 */
   M = mathilbert(80);
+  /* Sync with main thread */
+  pari_thread_sync();
   /* Allocate pari thread structures */
   pari_thread_alloc(&pth1,4000000,N1);
   pari_thread_alloc(&pth2,4000000,N2);

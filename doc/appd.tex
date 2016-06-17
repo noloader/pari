@@ -34,6 +34,7 @@ void *child_thread(void *arg)
   GEN data, result;
 
   pari_thread_alloc(&pth, s, data);
+  pari_thread_sync();
   pthread_create(&th, NULL, &child_thread, (void*)&pth); /* start child */
   ... /* do stuff in parent */
   pthread_join(th, (void*)&result); /* wait until child terminates */
@@ -54,6 +55,11 @@ Free the PARI stack associated with the PARI thread data \kbd{pth}. This
 is called after the child thread terminates, i.e.~after
 \tet{pthread_join} in the parent. Any \kbd{GEN} objects returned by the
 child in the thread stack need to be saved before running this command.
+
+\fun{void}{pari_thread_sync}{void}
+Record states from the main thread so that they are available to
+\kbd{pari\_thread\_start()}. Must be called in the main thread before
+the subthreads starts.
 
 \fun{void}{pari_thread_init}{void}
 Initialize the thread-local PARI data structures. This function is called by

@@ -836,6 +836,13 @@ pari_thread_init(void)
 }
 
 void
+pari_thread_sync(void)
+{
+  pari_pthread_init_varstate();
+  pari_pthread_init_seadata();
+}
+
+void
 pari_thread_close(void)
 {
   pari_close_files();

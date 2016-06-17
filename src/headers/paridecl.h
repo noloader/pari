@@ -3312,6 +3312,7 @@ void    pari_thread_close(void);
 void    pari_thread_free(struct pari_thread *t);
 void    pari_thread_init(void);
 GEN     pari_thread_start(struct pari_thread *t);
+void    pari_thread_sync(void);
 void    pari_thread_valloc(struct pari_thread *t, size_t s, size_t v, GEN arg);
 GEN     pari_version(void);
 void    pari_warn(int numerr, ...);
