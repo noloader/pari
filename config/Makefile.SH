@@ -755,7 +755,7 @@ for dir in basemath modules language gp graph systems mt; do
     cflags="$cflags \$(PLOTCFLAGS)"
     depend="$RECT_H"
     ;;
-  es|sumiter|intnum)
+  es|sumiter|intnum|forprime)
     depend="$ANAL_H"
     cflags="$cflags \$(DLCFLAGS)"
     ;;

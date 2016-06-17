@@ -3997,15 +3997,22 @@ GEN     bnrrootnumber(GEN bnr, GEN chi, long flag, long prec);
 GEN     bnrstark(GEN bnr, GEN subgroup, long prec);
 GEN     cyc2elts(GEN cyc);
 
+/* forprime.c */
+
+int     forcomposite_init(forcomposite_t *C, GEN a, GEN b);
+GEN     forcomposite_next(forcomposite_t *C);
+GEN     forprime_next(forprime_t *T);
+int     forprime_init(forprime_t *T, GEN a, GEN b);
+ulong   u_forprime_next(forprime_t *T);
+int     u_forprime_init(forprime_t *T, ulong a, ulong b);
+void    u_forprime_restrict(forprime_t *T, ulong c);
+int     u_forprime_arith_init(forprime_t *T, ulong a, ulong b, ulong c, ulong q);
+
 /* sumiter.c */
 
 GEN     asympnum(void *E, GEN (*f)(void *,GEN,long), long muli, GEN alpha, long prec);
 GEN     derivnum(void *E, GEN (*eval)(void *, GEN, long prec), GEN x, long prec);
 GEN     derivfun(void *E, GEN (*eval)(void *, GEN, long prec), GEN x, long prec);
-int     forcomposite_init(forcomposite_t *C, GEN a, GEN b);
-GEN     forcomposite_next(forcomposite_t *C);
-GEN     forprime_next(forprime_t *T);
-int     forprime_init(forprime_t *T, GEN a, GEN b);
 int     forvec_init(forvec_t *T, GEN x, long flag);
 GEN     forvec_next(forvec_t *T);
 GEN     limitnum(void *E, GEN (*f)(void *,GEN,long), long muli, GEN alpha, long prec);
@@ -4018,10 +4025,6 @@ GEN     sumalt2(void *E, GEN (*eval)(void *, GEN), GEN a, long prec);
 GEN     sumpos(void *E, GEN (*eval)(void *, GEN), GEN a, long prec);
 GEN     sumpos2(void *E, GEN (*eval)(void *, GEN), GEN a, long prec);
 GEN     suminf(void *E, GEN (*eval)(void *, GEN), GEN a, long prec);
-ulong   u_forprime_next(forprime_t *T);
-int     u_forprime_init(forprime_t *T, ulong a, ulong b);
-void    u_forprime_restrict(forprime_t *T, ulong c);
-int     u_forprime_arith_init(forprime_t *T, ulong a, ulong b, ulong c, ulong q);
 GEN     zbrent(void *E, GEN (*eval)(void *, GEN), GEN a, GEN b, long prec);
 GEN     solvestep(void *E, GEN (*eval)(void *, GEN), GEN a, GEN b, GEN step, long flag, long prec);
 
