@@ -416,6 +416,9 @@ void mtstate_save(long *pending);
 void mtstate_reset(void);
 void mtstate_restore(long *pending);
 
+void pari_thread_init_varstate();
+void pari_pthread_init_varstate();
+
 void debug_context(void);
 
 typedef struct {

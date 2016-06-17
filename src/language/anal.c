@@ -915,10 +915,12 @@ chartoGENstr(char c)
 /*                Formal variables management                       */
 /*                                                                  */
 /********************************************************************/
-static long max_priority, min_priority;
-static long max_avail; /* max variable not yet used */
+static THREAD long max_priority, min_priority;
+static THREAD long max_avail; /* max variable not yet used */
 static long nvar; /* first GP free variable */
 static hashtable *h_polvar;
+static struct pari_varstate global_varstate;
+static long *global_varpriority;
 
 void
 varstate_save(struct pari_varstate *s)
@@ -966,6 +968,15 @@ varentries_reset(long v, entree *ep)
   varentries_set(v, ep);
 }
 
+static void
+var_restore(struct pari_varstate *s)
+{
+  nvar = s->nvar;
+  max_avail = s->max_avail;
+  max_priority = s->max_priority;
+  min_priority = s->min_priority;
+}
+
 void
 varstate_restore(struct pari_varstate *s)
 {
@@ -980,10 +991,24 @@ varstate_restore(struct pari_varstate *s)
     varentries_unset(i);
     varpriority[i] = -i;
   }
-  nvar = s->nvar;
-  max_avail = s->max_avail;
-  max_priority = s->max_priority;
-  min_priority = s->min_priority;
+  var_restore(s);
+}
+
+void
+pari_thread_init_varstate(void)
+{
+  long i;
+  var_restore(&global_varstate);
+  varpriority = (long*)newblock((MAXVARN+2)) + 1;
+  varpriority[-1] = 1-LONG_MAX;
+  for (i = 0; i < max_avail; i++) varpriority[i] = global_varpriority[i];
+}
+
+void
+pari_pthread_init_varstate(void)
+{
+  varstate_save(&global_varstate);
+  global_varpriority = varpriority;
 }
 
 void

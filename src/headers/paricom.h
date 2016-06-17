@@ -90,7 +90,7 @@ extern int (*cb_pari_break_loop)(int);
 extern int (*cb_pari_is_interactive)(void);
 extern void (*cb_pari_start_output)(void);
 extern const char *pari_library_path;
-extern long *varpriority;
+extern THREAD long *varpriority;
 
 /* pari_init_opts */
 enum {

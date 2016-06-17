@@ -105,7 +105,7 @@ gp_data *GP_DATA;
 GEN colormap, pari_graphcolors;
 
 entree  **varentries;
-long    *varpriority;
+THREAD long *varpriority;
 
 THREAD pari_sp avma;
 THREAD struct pari_mainstack *pari_mainstack;
@@ -851,6 +851,7 @@ pari_thread_start(struct pari_thread *t)
 {
   pari_mainstack_use(&t->st);
   pari_thread_init();
+  pari_thread_init_varstate();
   return t->data;
 }
 
