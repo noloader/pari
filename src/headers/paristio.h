@@ -20,6 +20,13 @@ typedef struct {
 typedef unsigned char *byteptr;
 typedef ulong pari_sp;
 
+struct pari_sieve
+{
+  ulong start, end, maxpos;
+  ulong c, q;
+  unsigned char* sieve;
+};
+
 /* iterator over primes */
 typedef struct {
   int strategy; /* 1 to 4 */
@@ -32,7 +39,8 @@ typedef struct {
   ulong b; /* min(bb, ULONG_MAX) */
 
   /* strategy 2: sieve, use p */
-  unsigned char *sieve;
+  struct pari_sieve *psieve;
+  unsigned char *sieve, *isieve;
   ulong cache[9]; /* look-ahead primes already computed */
   ulong chunk; /* # of odd integers in sieve */
   ulong a, end, sieveb; /* [a,end] interval currently being sieved,

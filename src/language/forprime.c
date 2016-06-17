@@ -430,18 +430,6 @@ initprimes0(ulong maxnum, long *lenp, ulong *lastp, byteptr p1)
   if (alloced) pari_free(p); else avma = av;
 }
 
-void
-pari_init_primes(ulong maxprime)
-{
-  initprimetable(maxprime);
-}
-
-void
-pari_close_primes(void)
-{
-  free((void*)diffptr);
-}
-
 ulong
 maxprime(void) { return diffptr ? _maxprime : 0; }
 
@@ -545,7 +533,7 @@ sieve_init(forprime_t *T, ulong a, ulong b)
 {
   T->sieveb = b;
   T->chunk = optimize_chunk(a, b);
-  T->sieve = (unsigned char*)stack_malloc(((T->chunk+2) >> 4) + 1);
+  T->isieve = (unsigned char*)stack_malloc(((T->chunk+2) >> 4) + 1);
   T->cache[0] = 0;
   /* >> 1 [only odds] + 3 [convert from bits to bytes] */
   T->a = a;
@@ -584,8 +572,9 @@ arith_set(forprime_t *T)
 
 /* run through primes in arithmetic progression = c (mod q).
  * Assume (c,q)=1, 0 <= c < q */
-int
-u_forprime_arith_init(forprime_t *T, ulong a, ulong b, ulong c, ulong q)
+static int
+u_forprime_sieve_arith_init(forprime_t *T, struct pari_sieve *psieve,
+                            ulong a, ulong b, ulong c, ulong q)
 {
   ulong maxp, maxp2;
   if (a > b || b < 2)
@@ -605,7 +594,8 @@ u_forprime_arith_init(forprime_t *T, ulong a, ulong b, ulong c, ulong q)
   T->q = q;
   T->c = c;
   T->strategy = PRST_none; /* unknown */
-  T->sieve = NULL; /* unused for now */
+  T->psieve = psieve; /* unused for now */
+  T->isieve = NULL; /* unused for now */
   if (!odd(b) && b > 2) b--;
   T->b = b;
   if (maxp >= b) { /* [a,b] \subset prime table */
@@ -643,10 +633,22 @@ u_forprime_arith_init(forprime_t *T, ulong a, ulong b, ulong c, ulong q)
   return 1;
 }
 
+int
+u_forprime_arith_init(forprime_t *T, ulong a, ulong b, ulong c, ulong q)
+{
+  return u_forprime_sieve_arith_init(T, NULL, a, b, c, q);
+}
+
 /* will run through primes in [a,b] */
 int
 u_forprime_init(forprime_t *T, ulong a, ulong b)
 { return u_forprime_arith_init(T, a,b, 0,1); }
+
+/* will run through primes in [a,b] */
+static int
+u_forprime_sieve_init(forprime_t *T, struct pari_sieve *s, ulong b)
+{ return u_forprime_sieve_arith_init(T, s, s->start, b, s->c, s->q); }
+
 /* now only run through primes <= c; assume c <= b above */
 void
 u_forprime_restrict(forprime_t *T, ulong c) { T->b = c; }
@@ -721,6 +723,68 @@ sieve_block(ulong a, ulong b, ulong maxpos, unsigned char* sieve)
   }
 }
 
+static void
+pari_sieve_init(struct pari_sieve *s, ulong a, ulong b)
+{
+  ulong maxpos= (b - a) >> 4;
+  s->start = a; s->end = b;
+  s->sieve = (unsigned char*) pari_malloc(maxpos+1);
+  s->c = 0; s->q = 1;
+  sieve_block(a, b, maxpos, s->sieve);
+  s->maxpos = maxpos; /* must be last in case of SIGINT */
+}
+
+static struct pari_sieve pari_sieve_modular;
+
+#ifdef LONG_IS_64BIT
+#define PARI_MODULAR_BASE ((1UL<<((BITS_IN_LONG-2)>>1))+1)
+#else
+#define PARI_MODULAR_BASE ((1UL<<(BITS_IN_LONG-1))+1)
+#endif
+
+void
+pari_init_primes(ulong maxprime)
+{
+  ulong a = PARI_MODULAR_BASE, b = a + (1UL<<20);
+  initprimetable(maxprime);
+  pari_sieve_init(&pari_sieve_modular, a, b);
+}
+
+void
+pari_close_primes(void)
+{
+  pari_free(diffptr);
+  pari_free(pari_sieve_modular.sieve);
+}
+
+void
+init_modular_small(forprime_t *S)
+{
+#ifdef LONG_IS_64BIT
+  u_forprime_sieve_init(S, &pari_sieve_modular, ULONG_MAX);
+#else
+  ulong a = (1UL<<((BITS_IN_LONG-2)>>1))+1;
+  u_forprime_init(S, a, ULONG_MAX);
+#endif
+}
+
+void
+init_modular_big(forprime_t *S)
+{
+#ifdef LONG_IS_64BIT
+  ulong a = (1UL<<(BITS_IN_LONG-1))+1;
+  u_forprime_init(S, a, ULONG_MAX);
+#else
+  u_forprime_sieve_init(S, &pari_sieve_modular, ULONG_MAX);
+#endif
+}
+
+void
+init_modular(forprime_t *S)
+{
+  u_forprime_init(S, 27449, ULONG_MAX);
+}
+
 /* T->cache is a 0-terminated list of primes, return the first one and
  * remove it from list. Most of the time the list contains a single prime */
 static ulong
@@ -742,7 +806,7 @@ u_forprime_next(forprime_t *T)
     {
       if (!*(T->d))
       {
-        T->strategy = T->sieve? PRST_sieve: PRST_unextprime;
+        T->strategy = T->isieve? PRST_sieve: PRST_unextprime;
         if (T->q != 1) { arith_set(T); if (!T->p) return 0; }
         /* T->p possibly not a prime if q != 1 */
         break;
@@ -760,6 +824,15 @@ u_forprime_next(forprime_t *T)
     ulong n;
     if (T->cache[0]) return shift_cache(T);
 NEXT_CHUNK:
+    if (T->psieve)
+    {
+      T->sieve = T->psieve->sieve;
+      T->end = T->psieve->end;
+      if (T->end > T->sieveb) T->end = T->sieveb;
+      T->maxpos = T->psieve->maxpos;
+      T->pos = 0;
+      T->psieve = NULL;
+    }
     for (n = T->pos; n < T->maxpos; n++)
       if (T->sieve[n] != 0xFF)
       {
@@ -809,6 +882,7 @@ NEXT_CHUNK:
     }
     else
     { /* initialize next chunk */
+      T->sieve = T->isieve;
       if (T->maxpos == 0)
         T->a |= 1; /* first time; ensure odd */
       else

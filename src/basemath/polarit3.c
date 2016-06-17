@@ -2085,18 +2085,6 @@ FpX_compositum(GEN a, GEN b, GEN p)
   }
 }
 
-#if 0
-/* Return x such that theta(x) - theta(27448) >= ln(2)*bound */
-/* NB: theta(27449) ~ 27225.387, theta(x) > 0.98 x for x>7481
- * (Schoenfeld, 1976 for x > 1155901 + direct calculations) */
-static ulong
-get_theta_x(ulong bound)
-{ return (ulong)ceil((bound * LOG2 + 27225.388) / 0.98); }
-#endif
-/* 27449 = prime(3000) */
-void
-init_modular(forprime_t *S) { u_forprime_init(S, 27449, ULONG_MAX); }
-
 /* Assume A in Z[Y], B in Q[Y][X], and Res_Y(A, B) in Z[X].
  * If lambda = NULL, return Res_Y(A,B).
  * Otherwise, find a small lambda (start from *lambda, use the sequence above)

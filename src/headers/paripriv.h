@@ -663,6 +663,8 @@ GEN FpMs_leftkernel_elt_col(GEN M, long nbcol, long nbrow, GEN p);
 
 void    pari_close_primes(void);
 void    init_modular(forprime_t *S);
+void    init_modular_big(forprime_t *S);
+void    init_modular_small(forprime_t *S);
 
 /* galconj.c */
 
