@@ -78,7 +78,7 @@ restored.
 
   \kbd{INIT\_noPRIMEm}: do not compute the prime table (ignore the
   \kbd{maxprime} argument). The user \emph{must} call
-  \tet{initprimetable} later.
+  \tet{pari_init_primes} later.
 
   \kbd{INIT\_noIMTm}: (technical, see \kbd{pari\_mt\_init} in the Developer's
 Guide for detail). Do not call \tet{pari_mt_init} to initialize the
@@ -101,6 +101,11 @@ engine.
 \fun{void}{pari_sig_init}{void (*f)(int)} install the signal handler \kbd{f}
 (see \kbd{signal(2)}): the signals \kbd{SIGBUS}, \kbd{SIGFPE}, \kbd{SIGINT},
 \kbd{SIGBREAK}, \kbd{SIGPIPE} and \kbd{SIGSEGV} are concerned.
+
+\fun{void}{pari_init_primes}{ulong maxprime} Initialize the PARI
+primes. This functionis called by \kbd{pari\_init(\dots,maxprime)}.
+It needs to be called manuall when using the flag \kbd{INIT\_noPRIMEm}
+to \kbd{pari\_init\_opts}.
 
 \fun{void}{pari_sighandler}{int signum} the actual signal handler that
 PARI uses. This can be used as argument to \kbd{pari\_sig\_init} or

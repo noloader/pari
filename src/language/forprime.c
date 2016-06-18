@@ -430,6 +430,12 @@ initprimes0(ulong maxnum, long *lenp, ulong *lastp, byteptr p1)
   if (alloced) pari_free(p); else avma = av;
 }
 
+void
+pari_init_primes(ulong maxprime)
+{
+  initprimetable(maxprime);
+}
+
 ulong
 maxprime(void) { return diffptr ? _maxprime : 0; }
 

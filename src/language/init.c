@@ -914,7 +914,7 @@ pari_init_opts(size_t parisize, ulong maxprime, ulong init_opts)
   paristack_alloc(parisize, 0);
   init_universal_constants();
   diffptr = NULL;
-  if (!(init_opts&INIT_noPRIMEm)) initprimetable(maxprime);
+  if (!(init_opts&INIT_noPRIMEm)) pari_init_primes(maxprime);
   pari_kernel_init();
 
   primetab = cgetalloc(t_VEC, 1);

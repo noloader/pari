@@ -1746,17 +1746,9 @@ GEN     fuse_Z_factor(GEN f, GEN B);
 GEN     gen_digits(GEN x, GEN B, long n, void *E, struct bb_ring *r,
                           GEN (*div)(void *E, GEN x, GEN y, GEN *r));
 GEN     gen_fromdigits(GEN x, GEN B, void *E, struct bb_ring *r);
-byteptr initprimes(ulong maxnum, long *lenp, ulong *lastp);
-void    initprimetable(ulong maxnum);
-ulong   init_primepointer_geq(ulong a, byteptr *pd);
-ulong   init_primepointer_gt(ulong a, byteptr *pd);
-ulong   init_primepointer_leq(ulong a, byteptr *pd);
-ulong   init_primepointer_lt(ulong a, byteptr *pd);
 int     is_Z_factor(GEN f);
 int     is_Z_factornon0(GEN f);
 int     is_Z_factorpos(GEN f);
-ulong   maxprime(void);
-void    maxprime_check(ulong c);
 GEN     sumdigits(GEN n);
 GEN     sumdigits0(GEN n, GEN B);
 ulong   sumdigitsu(ulong n);
@@ -2759,6 +2751,26 @@ void    push_localbitprec(long p);
 void    push_localprec(long p);
 GEN     return0(GEN x);
 void    set_lex(long vn, GEN x);
+
+/* forprime.c */
+
+int     forcomposite_init(forcomposite_t *C, GEN a, GEN b);
+GEN     forcomposite_next(forcomposite_t *C);
+GEN     forprime_next(forprime_t *T);
+int     forprime_init(forprime_t *T, GEN a, GEN b);
+byteptr initprimes(ulong maxnum, long *lenp, ulong *lastp);
+void    initprimetable(ulong maxnum);
+ulong   init_primepointer_geq(ulong a, byteptr *pd);
+ulong   init_primepointer_gt(ulong a, byteptr *pd);
+ulong   init_primepointer_leq(ulong a, byteptr *pd);
+ulong   init_primepointer_lt(ulong a, byteptr *pd);
+ulong   maxprime(void);
+void    maxprime_check(ulong c);
+void    pari_init_primes(ulong maxprime);
+ulong   u_forprime_next(forprime_t *T);
+int     u_forprime_init(forprime_t *T, ulong a, ulong b);
+void    u_forprime_restrict(forprime_t *T, ulong c);
+int     u_forprime_arith_init(forprime_t *T, ulong a, ulong b, ulong c, ulong q);
 
 /* FF.c */
 
@@ -3996,17 +4008,6 @@ GEN     bnrL1(GEN bnr, GEN sbgrp, long flag, long prec);
 GEN     bnrrootnumber(GEN bnr, GEN chi, long flag, long prec);
 GEN     bnrstark(GEN bnr, GEN subgroup, long prec);
 GEN     cyc2elts(GEN cyc);
-
-/* forprime.c */
-
-int     forcomposite_init(forcomposite_t *C, GEN a, GEN b);
-GEN     forcomposite_next(forcomposite_t *C);
-GEN     forprime_next(forprime_t *T);
-int     forprime_init(forprime_t *T, GEN a, GEN b);
-ulong   u_forprime_next(forprime_t *T);
-int     u_forprime_init(forprime_t *T, ulong a, ulong b);
-void    u_forprime_restrict(forprime_t *T, ulong c);
-int     u_forprime_arith_init(forprime_t *T, ulong a, ulong b, ulong c, ulong q);
 
 /* sumiter.c */
 
