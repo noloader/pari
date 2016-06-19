@@ -559,7 +559,7 @@ main(int argc, char **argv)
   cb_pari_is_interactive = is_interactive;
 
   read_opt(&s_A, argc,argv);
-  initprimetable(GP_DATA->primelimit);
+  pari_init_primes(GP_DATA->primelimit);
 #ifdef SIGALRM
   (void)os_signal(SIGALRM,gp_alarm_handler);
 #endif
