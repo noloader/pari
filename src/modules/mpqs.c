@@ -71,6 +71,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
  * them in a candidate.
  */
 
+#include <errno.h>
 #include "pari.h"
 #include "paripriv.h"
 
@@ -1236,7 +1237,11 @@ mpqs_mergesort_lp_file(char *REL_str, char *NEW_str, char *TMP_str, pariFILE *pC
   pari_fclose(pREL);
   pari_fclose(pNEW);
   pari_unlink(REL_str);
-  if (rename(TMP_str,REL_str)) pari_err_FILE("output file [rename]", REL_str);
+  while (rename(TMP_str,REL_str))
+  {
+    if (errno != EEXIST)
+      pari_err_FILE("output file [rename]", REL_str);
+  }
   if (MPQS_DEBUGLEVEL >= 6)
     err_printf("MPQS: renamed file %s to %s\n", TMP_str, REL_str);
   return tp;
