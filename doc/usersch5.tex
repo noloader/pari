@@ -103,9 +103,9 @@ engine.
 \kbd{SIGBREAK}, \kbd{SIGPIPE} and \kbd{SIGSEGV} are concerned.
 
 \fun{void}{pari_init_primes}{ulong maxprime} Initialize the PARI
-primes. This functionis called by \kbd{pari\_init(\dots,maxprime)}.
-It needs to be called manuall when using the flag \kbd{INIT\_noPRIMEm}
-to \kbd{pari\_init\_opts}.
+primes. This function is called by \kbd{pari\_init(\dots,maxprime)}.
+It is provided for users calling \kbd{pari\_init\_opts} with the
+flag \kbd{INIT\_noPRIMEm}.
 
 \fun{void}{pari_sighandler}{int signum} the actual signal handler that
 PARI uses. This can be used as argument to \kbd{pari\_sig\_init} or
