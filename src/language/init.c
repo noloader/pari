@@ -959,7 +959,7 @@ pari_close_opts(ulong init_opts)
 
   free((void*)functions_hash);
   free((void*)defaults_hash);
-  if (diffptr) free((void*)diffptr);
+  if (diffptr) pari_close_primes();
   free(current_logfile);
   free(current_psfile);
   pari_mainstack_free(pari_mainstack);

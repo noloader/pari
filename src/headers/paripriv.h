@@ -659,6 +659,11 @@ long    zx_is_pcyc(GEN T);
 
 GEN FpMs_leftkernel_elt_col(GEN M, long nbcol, long nbrow, GEN p);
 
+/* forprime.c*/
+
+void    pari_close_primes(void);
+void    init_modular(forprime_t *S);
+
 /* galconj.c */
 
 GEN     galoiscosets(GEN O, GEN perm);
@@ -764,7 +769,6 @@ GEN     FpX_direct_compositum(GEN A, GEN B, GEN p);
 ulong   ZX_ZXY_ResBound(GEN A, GEN B, GEN dB);
 GEN     ffinit_Artin_Shreier(GEN ip, long l);
 GEN     ffinit_rand(GEN p, long n);
-void    init_modular(forprime_t *S);
 
 /* random.c */
 

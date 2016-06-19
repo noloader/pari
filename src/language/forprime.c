@@ -436,6 +436,12 @@ pari_init_primes(ulong maxprime)
   initprimetable(maxprime);
 }
 
+void
+pari_close_primes(void)
+{
+  free((void*)diffptr);
+}
+
 ulong
 maxprime(void) { return diffptr ? _maxprime : 0; }
 
