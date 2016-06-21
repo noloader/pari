@@ -2865,7 +2865,9 @@ mpqs_i(mpqs_handle_t *handle)
       pari_unlink(LPREL_str);\
       pari_unlink(LPNEW_str);\
       if (pCOMB) pari_unlink(COMB_str);\
-      rmdir(dir); pari_free(dir);
+      while(rmdir(dir)) \
+      { if (errno != ENOTEMPTY && errno != EEXIST) break; } \
+      pari_free(dir);
 
   pFREL = pari_fopen_or_fail(FREL_str,  WRITE); pari_fclose(pFREL);
   pLPREL = pari_fopen_or_fail(LPREL_str,  WRITE); pari_fclose(pLPREL);

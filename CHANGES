@@ -220,6 +220,7 @@ BA159- [pthread] parallel GP could leak memory
   161- ellinit(E, O(2^n)) was hardly supported, e.g.
        ellinit("14a1",O(2^5)).tate => precision too low in p-adic AGM.
 BA162- polrootsmod(x^3-1, not a prime) -> SEGV (BIB)
+BA163- [windows] MPQS could fail due to temporary files
 
   Added
     1- add optional argument to sumdigits to specify the base
