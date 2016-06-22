@@ -151,7 +151,7 @@ case "$osname" in
 esac
 
 for variable in\
-  pari_release pari_release_verbose version libpari_base static TOP objdir\
+  pari_release pari_release_verbose version libpari_base static objdir\
   arch asmarch osname pretty\
   kernlvl0 kernlvl1 RT_LIBS DL_LIBS MT_LIBS LIBS\
   dir_sep runpath runpathprefix LDDYN RUNTEST\
