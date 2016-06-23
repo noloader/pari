@@ -1034,8 +1034,18 @@ int
 ZX_is_squarefree(GEN x)
 {
   pari_sp av = avma;
-  GEN d = ZX_gcd(x,ZX_deriv(x));
-  int r = (lg(d) == 3); avma = av; return r;
+  GEN d;
+  long m;
+  int r;
+  if (lg(x) == 2) return 0;
+  m = ZX_deflate_order(x);
+  if (m > 1)
+  {
+    if (!signe(gel(x,2))) return 0;
+    x = RgX_deflate(x, m);
+  }
+  d = ZX_gcd(x,ZX_deriv(x));
+  r = (lg(d) == 3); avma = av; return r;
 }
 
 #if 0
