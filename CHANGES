@@ -448,6 +448,7 @@ BA 171- [libpari] get_FpX_algebra, get_FpXQ_algebra,  get_FpXQX_algebra,
                   get_FlxqXQ_algebra, get_FpXQXQ_algebra, get_Rg_algebra
    172- E/Qp: Added Mazur-Tate-Teitelbaum's L invariant to E.tate
 BA 173- [libpari] ZpXQ_div, ZpXQX_divrem, ZpXQX_digits
+   174- [libpari] ZX_deflate_max, ZX_deflate_order
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]

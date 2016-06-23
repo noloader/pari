@@ -7824,6 +7824,13 @@ well-defined if $q$ is a monomial, in that case, set $L=1$ and $Q = q$. If
 where $L > 0$ is allowed to be rational, the monic $Q\in \Z[X]$ has possibly
 smaller coefficients.
 
+\fun{long}{ZX_deflate_order}{GEN P} given a non-constant \kbd{ZX}
+$P$, returns the largest exponent $d$ such that $P$ is of the form $P(x^d)$.
+
+\fun{long}{ZX_deflate_max}{GEN P, long *d} given a non-constant
+\kbd{ZX} $P$, sets \kbd{d} to \kbd{ZX\_deflate\_order(P)} and
+returns \kbd{RgX\_deflate(P,d)}. Shallow function.
+
 \fun{GEN}{ZX_rescale}{GEN P, GEN h} returns $h^{\deg(P)} P(x/h)$.
 \kbd{P} is a \kbd{ZX} and \kbd{h} is a non-zero integer. Neither memory-clean
 nor suitable for \kbd{gerepileupto}.

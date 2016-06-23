@@ -3002,6 +3002,8 @@ GEN     RgM_mulreal(GEN x, GEN y);
 GEN     RgX_cxeval(GEN T, GEN u, GEN ui);
 GEN     RgX_deflate_max(GEN x0, long *m);
 long    RgX_deflate_order(GEN x);
+long    ZX_deflate_order(GEN x);
+GEN     ZX_deflate_max(GEN x, long *m);
 long    RgX_degree(GEN x,long v);
 GEN     RgX_integ(GEN x);
 GEN     bitprecision0(GEN x,long n);

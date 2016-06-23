@@ -2824,7 +2824,7 @@ realroots(GEN P, GEN ab, long prec)
     if (ab)
       h = 1;
     else
-      Pi = RgX_deflate_max(Pi, &h);
+      Pi = ZX_deflate_max(Pi, &h);
     soli = ZX_Uspensky(Pi, h%2 ? ab: gen_0, 1, prec2nbits(prec));
     n = lg(soli);
     if (!(h % 2)) soli2 = cgetg(n, t_COL);
@@ -2874,7 +2874,7 @@ ZX_sturm(GEN P)
 {
   pari_sp av = avma;
   long h, r;
-  P = RgX_deflate_max(P, &h);
+  P = ZX_deflate_max(P, &h);
   if (odd(h))
     r = itos(ZX_Uspensky(P, NULL, 2, 0));
   else

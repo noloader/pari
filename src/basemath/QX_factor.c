@@ -878,7 +878,7 @@ ZX_DDF(GEN x)
 {
   GEN L;
   long m;
-  x = RgX_deflate_max(x, &m);
+  x = ZX_deflate_max(x, &m);
   L = DDF(x);
   if (m > 1)
   {
@@ -1298,7 +1298,7 @@ BD_odd_iscyclo(GEN f)
   pari_sp av;
   long d, e, n, bound;
   GEN t;
-  f = RgX_deflate_max(f, &e);
+  f = ZX_deflate_max(f, &e);
   av = avma;
   /* The original f is cyclotomic (= Phi_{ne}) iff the present one is Phi_n,
    * where all prime dividing e also divide n. If current f is Phi_n,

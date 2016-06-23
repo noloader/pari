@@ -1189,6 +1189,14 @@ RgX_deflate_order(GEN x)
     if (!gequal0(gel(x,i))) { d = ugcd(d,i-2); if (d == 1) return 1; }
   return d? (long)d: 1;
 }
+long
+ZX_deflate_order(GEN x)
+{
+  ulong d = 0, i, lx = (ulong)lg(x);
+  for (i=3; i<lx; i++)
+    if (signe(gel(x,i))) { d = ugcd(d,i-2); if (d == 1) return 1; }
+  return d? (long)d: 1;
+}
 
 /* deflate (non-leaf) x recursively */
 static GEN
@@ -1288,6 +1296,12 @@ GEN
 RgX_deflate_max(GEN x, long *m)
 {
   *m = RgX_deflate_order(x);
+  return RgX_deflate(x, *m);
+}
+GEN
+ZX_deflate_max(GEN x, long *m)
+{
+  *m = ZX_deflate_order(x);
   return RgX_deflate(x, *m);
 }
 
