@@ -769,6 +769,17 @@ rnfidealprimedec(GEN rnf, GEN pr)
 }
 
 GEN
+rnfidealfactor(GEN rnf, GEN x)
+{
+  pari_sp av = avma;
+  GEN NF;
+  checkrnf(rnf);
+  rnfcomplete(rnf);
+  NF = obj_check(rnf,rnf_NFABS);
+  return gerepileupto(av, idealfactor(NF, rnfidealreltoabs0(rnf, x, 1)));
+}
+
+GEN
 rnfequationall(GEN A, GEN B, long *pk, GEN *pLPRS)
 {
   long lA, lB;

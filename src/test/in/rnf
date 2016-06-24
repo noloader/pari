@@ -128,6 +128,12 @@ strip5(pr)=pr[1..4];
 apply(strip5, rnfidealprimedec(L, P3[1]))
 my(v=rnfidealprimedec(L,7)); [apply(strip5, v[1]), apply(strip5, v[2][1])]
 
+rnffa(rnf,id)=my(fa=rnfidealfactor(rnf,id)); fa[,1] = apply(strip5,fa[,1]); fa;
+rnffa(L,7)
+rnffa(L,x)
+rnffa(L,y)
+rnfidealfactor(L,id) == rnfidealfactor(L,idL)
+
 m = rnfidealup(L, idK)
 mabs = rnfidealup(L, idK, 1);
 mathnf( Mat(apply(x->nfalgtobasis(Labs,x), m)) ) == mabs

@@ -443,7 +443,7 @@ BA 165- [libpari] FlxqX_halfgcd, FpXQX_halfgcd
    167- RgXn_powu, RgXn_powu_i
    168- [libpari] is_real_t, R_abs, R_abs_shallow
 BA 169- [libpari] F2xX, F2xqX, F2xqXQ family functions
-   170- GP function rnfidealprimedec
+   170- GP functions rnfidealprimedec, rnfidealfactor
 BA 171- [libpari] get_FpX_algebra, get_FpXQ_algebra,  get_FpXQX_algebra,
                   get_FlxqXQ_algebra, get_FpXQXQ_algebra, get_Rg_algebra
    172- E/Qp: Added Mazur-Tate-Teitelbaum's L invariant to E.tate
