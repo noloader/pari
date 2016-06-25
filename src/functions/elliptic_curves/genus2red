@@ -2,17 +2,17 @@ Function: genus2red
 Section: elliptic_curves
 C-Name: genus2red
 Prototype: GDG
-Help: genus2red(P,{p}): let P be a polynomial with rational coefficients.
- Determines the reduction at p > 2 of the
- (proper, smooth) hyperelliptic curve C/Q: y^2 = P, of genus 2.
+Help: genus2red(PQ,{p}): let PQ be a polynomial P resp. a vector [P,Q] of
+ polynomials, with rational coefficients.  Determines the reduction at p > 2
+ of the (proper, smooth) hyperelliptic curve C/Q of genus 2 defined by
+ y^2 = P, resp. y^2 + Q*y = P.
  (The special fiber X_p of the minimal regular model X of C over Z.)
-Doc: Let $P$ be a polynomial with rational coefficients.
+Doc: Let $PQ$ be a polynomial $P$, resp. a vector $[P,Q]$ of polynomials, with
+ rational coefficients.
  Determines the reduction at $p > 2$ of the (proper, smooth) genus~2
- curve $C/\Q$, defined by the hyperelliptic equation $y^2 = P$. (The
- special fiber $X_p$ of the minimal regular model $X$ of $C$ over $\Z$.)
- The special syntax \kbd{genus2red}$([P,Q])$ is also allowed, where the
- polynomials $P$ and $Q$ have integer coefficients, to represent the model
- $y^2 + Q(x)y = P(x)$.
+ curve $C/\Q$, defined by the hyperelliptic equation $y^2 = P(x)$, resp.
+ $y^2 + Q(x)*y = P(x)$.
+ (The special fiber $X_p$ of the minimal regular model $X$ of $C$ over $\Z$.)
 
  If $p$ is omitted, determines the reduction type for all (odd) prime
  divisors of the discriminant.
