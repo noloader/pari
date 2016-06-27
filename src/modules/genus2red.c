@@ -1810,8 +1810,8 @@ labelm3(GEN polh, GEN theta, long alpha, long dismin,
   beta  = itos(gel(polf,6));
   if (lambda != 3) pari_err_BUG("labelm3 [lambda = 3]");
   R = beta-alpha1-alpha;
-  if (R&1) pari_err_BUG("labelm3 [R odd]");
-  R >>= 1;
+  if (odd(R)) pari_err_BUG("labelm3 [R odd]");
+  R /= 2;
   if (R <= -2) pari_err_BUG("labelm3 [R <= -2]");
   if (val[Ip->eps2] % (2*Ip->eps)) pari_err_BUG("labelm3 [val(eps2)]");
   if (R >= 0 && (alpha+alpha1) >= 1) pari_err_BUG("labelm3 [minimal equation]");
