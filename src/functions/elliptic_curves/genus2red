@@ -2,7 +2,7 @@ Function: genus2red
 Section: elliptic_curves
 C-Name: genus2red
 Prototype: GDG
-Help: genus2red(PQ,{p}): let PQ be a polynomial P resp. a vector [P,Q] of
+Help: genus2red(PQ,{p}): let PQ be a polynomial P, resp. a vector [P,Q] of
  polynomials, with rational coefficients.  Determines the reduction at p > 2
  of the (proper, smooth) hyperelliptic curve C/Q of genus 2 defined by
  y^2 = P, resp. y^2 + Q*y = P.
