@@ -141,6 +141,9 @@ iferr(ellztopoint(e,3),E,E)
 e = ellinit(ellfromj(11/8),  O(2^5));
 e.tate
 
+e = ellinit([1,0,1,4,-6], O(2^5));
+e.tate
+
 e = ellinit([0,-1,1,-10,-20]);
 \\#1185
 ellwp(e,x+O(x^12))

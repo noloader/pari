@@ -466,9 +466,13 @@ GEN
 ellR_ab(GEN E, long prec)
 { return obj_checkbuild_realprec(E, R_AB, &doellR_ab, prec); }
 
-/* return x mod p */
+/* return x/p^v(x) mod p (p odd), reѕp mod 8 (p = 2) */
 static GEN
-padic_mod(GEN x) { return modii(gel(x,4), gel(x,2)); }
+padic_mod(GEN x)
+{
+  GEN p = gel(x,2), u = gel(x,4);
+  return equaliu(p,2)? utoipos(mod8(u)): modii(u, p);
+}
 
 /* a1, b1 are t_PADICs, a1/b1 = 1 (mod p) if p odd, (mod 2^4) otherwise.
  * Return u^2 = 1 / 4M2(a1,b1), where M2(A,B) = B AGM(sqrt(A/B),1)^2; M2(A,B)
@@ -2111,7 +2115,7 @@ static GEN
 doellQp_root(GEN E, long prec)
 {
   GEN c4=ell_get_c4(E), c6=ell_get_c6(E), j=ell_get_j(E), p=ellQp_get_p(E);
-  GEN c4p, c6p, T, a, pe;
+  GEN c4p, c6p, T, a;
   long alpha;
   int pis2 = equaliu(p, 2);
   if (Q_pval(j, p) >= 0) pari_err_DOMAIN(".root", "v_p(j)", ">=", gen_0, j);
@@ -2120,19 +2124,18 @@ doellQp_root(GEN E, long prec)
   if (alpha) (void)Q_pvalrem(ell_get_c6(E), p, &c6);
   /* Renormalized so that v(c4) = v(c6) = 0; multiply by p^alpha at the end */
   if (prec < 4 && pis2) prec = 4;
-  pe = powiu(p, prec);
-  c4 = Rg_to_Fp(c4, pe); c4p = remii(c4,p);
-  c6 = Rg_to_Fp(c6, pe); c6p = remii(c6,p);
+  c4p = modii(c4,p);
+  c6p = modii(c6,p);
   if (pis2)
   { /* Use 432T(X/4) = 27X^3 - 9c4 X - 2c6 to have integral root; a=0 mod 2 */
-    T = mkpoln(4, utoipos(27), gen_0, Fp_muls(c4, -9, pe), Fp_muls(c6, -2, pe));
+    T = mkpoln(4, utoipos(27), gen_0, mulis(c4,-9), mulis(c6, -2));
     a = ZpX_liftroot(T, gen_0, p, prec);
     alpha -= 2;
   }
   else if (equaliu(p, 3))
   { /* Use 216T(X/3) = 32X^3 - 6c4 X - c6 to have integral root; a=-c6 mod 3 */
     a = Fp_neg(c6p, p);
-    T = mkpoln(4, utoipos(32), gen_0, Fp_muls(c4, -6, pe), Fp_neg(c6, pe));
+    T = mkpoln(4, utoipos(32), gen_0, mulis(c4, -6), negi(c6));
     a = ZX_Zp_root(T, a, p, prec);
     switch(lg(a)-1)
     {
@@ -2156,7 +2159,7 @@ doellQp_root(GEN E, long prec)
   { /* p != 2,3: T = 4(x-a)(x-b)^2 = 4x^3 - 3a^2 x - a^3 when b = -a/2
      * (so that the trace coefficient vanishes) => a = c6/6c4 (mod p)*/
     a = Fp_div(c6p, Fp_mulu(c4p, 6, p), p);
-    T = mkpoln(4, utoipos(864), gen_0, Fp_muls(c4, -18, pe), Fp_neg(c6, pe));
+    T = mkpoln(4, utoipos(864), gen_0, mulis(c4, -18), negi(c6));
     a = ZpX_liftroot(T, a, p, prec);
   }
   a = cvtop(a, p, prec);
@@ -2172,9 +2175,15 @@ static void
 doellQp_ab(GEN E, GEN *pta, GEN *ptb, long prec)
 {
   GEN b2 = ell_get_b2(E), b4 = ell_get_b4(E), e1 = ellQp_root(E, prec);
-  GEN w, t = gadd(gdivgs(b2,4), gmulsg(3,e1));
+  GEN w, u, t = gadd(gdivgs(b2,4), gmulsg(3,e1)), p = ellQp_get_p(E);
   w = Qp_sqrt(gmul2n(gadd(b4,gmul(e1,gadd(b2,gmulsg(6,e1)))),1));
-  if (valp(gadd(t,w)) <= valp(w)) w = gneg_i(w); /* <=> v(d) > v(w) */
+  u = gadd(t,w);
+  /* Decide between w and -w: we want v(a-b) > v(b) */
+  if (equaliu(p,2))
+  { if (valp(u)-1 <= valp(w)) w = gneg_i(w); }
+  else
+  { if (valp(u) <= valp(w)) w = gneg_i(w); }
+
   /* w^2 = 2b4 + 2b2 e1 + 12 e1^2 = 4(e1-e2)(e1-e3) */
   *pta = gmul2n(gsub(w,t),-2);
   *ptb = gmul2n(w,-1);
