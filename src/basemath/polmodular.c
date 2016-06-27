@@ -712,7 +712,7 @@ inv_double_eta_from_j(long inv, ulong j, ulong p, ulong pi)
 }
 
 /* TODO: Check whether I can use this to refactor something */
-long
+static long
 inv_double_eta_from_2j(
   ulong *r, long inv, ulong j1, ulong j2, ulong p, ulong pi)
 {

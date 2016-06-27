@@ -739,7 +739,7 @@ orient_pcp(classgp_pcp_t G, long *ni, long D, long u, hashtable *tbl)
 /* These cases cause problems when enumerating roots via gcds */
 /* returns the index of the first bad generator, or -1 if no bad
  * generators are found */
-long
+static long
 classgp_pcp_check_generators(const long *n, long *r, long k, long L0)
 {
   pari_sp av = avma;
