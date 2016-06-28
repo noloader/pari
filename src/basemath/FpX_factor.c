@@ -396,7 +396,9 @@ FpX_roots_i(GEN f, GEN p)
           split_moveto_done(&S, j, subii(p, gel(c,2)));
           j--; l--; break;
         case 2: {
-          GEN r = FpX_quad_root(c, p, 0), s = FpX_otherroot(c,r, p);
+          GEN r = FpX_quad_root(c, p, 0), s;
+          if (!r) pari_err_PRIME("polrootsmod",p);
+          s = FpX_otherroot(c,r, p);
           split_done(&S, j, r, s);
           j--; l--; break;
         }

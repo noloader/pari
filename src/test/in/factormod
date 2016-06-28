@@ -39,3 +39,5 @@ polisirreducible((x^2+x+1)*Mod(1,2))
 polisirreducible((x^2+1)*Mod(1,p))
 
 factormod((x+1)^2, 10^20+39)
+
+polrootsmod(x^3-1, 2^991-1)
