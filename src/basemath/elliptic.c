@@ -466,7 +466,7 @@ GEN
 ellR_ab(GEN E, long prec)
 { return obj_checkbuild_realprec(E, R_AB, &doellR_ab, prec); }
 
-/* return x/p^v(x) mod p (p odd), reѕp mod 8 (p = 2) */
+/* return x/p^v(x) mod p (p odd), resp mod 8 (p = 2) */
 static GEN
 padic_mod(GEN x)
 {
