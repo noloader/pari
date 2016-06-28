@@ -2267,10 +2267,10 @@ zellQp(GEN E, GEN z, long prec)
   r0 = gadd(e1,gmul2n(b2,-2));
   c0 = gadd(x, gmul2n(r0,-1)); ar1 = gmul(a,r1);
   delta = gdiv(ar1, gsqr(c0));
-  x0 = gmul2n(gmul(c0,gaddsg(1,Qp_sqrt(gsubsg(1,gmul2n(delta,2))))),-1);
+  x0 = gmul(gmul2n(c0,-1), gaddsg(1,Qp_sqrt(gsubsg(1,gmul2n(delta,2)))));
   y0 = gdiv(gadd(y, gmul2n(ec_dmFdy_evalQ(E,z), -1)), gsubsg(1, gdiv(ar1,gsqr(x0))));
 
-  x1 = gmul(x0, gsqr(gmul2n(gaddsg(1, Qp_sqrt(gdiv(gadd(x0,r1),x0))),-1)));
+  x1 = gmul(x0, gsqr(gmul2n(gaddsg(1, Qp_sqrt(gaddsg(1,gdiv(r1,x0)))),-1)));
   y1 = gdiv(y0, gsubsg(1, gsqr(gdiv(r1,gmul2n(x1,2)))));
   if (gequal0(x1)) pari_err_PREC("ellpointtoz");
 
