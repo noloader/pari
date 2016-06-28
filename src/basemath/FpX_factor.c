@@ -1346,7 +1346,9 @@ Flx_roots_i(GEN f, ulong p)
           split_moveto_done(&S, j, (GEN)(p - c[2]));
           j--; l--; break;
         case 2: {
-          ulong r = Flx_quad_root(c, p, 0), s = Flx_otherroot(c,r, p);
+          ulong r = Flx_quad_root(c, p, 0), s;
+          if (r == p) pari_err_PRIME("polrootsmod",utoipos(p));
+          s = Flx_otherroot(c,r, p);
           split_done(&S, j, (GEN)r, (GEN)s);
           j--; l--; break;
         }
