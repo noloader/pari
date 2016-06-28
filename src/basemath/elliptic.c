@@ -529,7 +529,7 @@ fix_nftype(GEN *pp)
 static long
 base_ring(GEN x, GEN *pp, long *prec)
 {
-  long i, e = *prec, imax = minss(lg(x), 6);
+  long i, e = *prec, ep = LONG_MAX, imax = minss(lg(x), 6);
   GEN p = NULL;
   long t = t_FRAC;
   if (*pp) switch(t = typ(*pp))
@@ -547,7 +547,7 @@ base_ring(GEN x, GEN *pp, long *prec)
       p = NULL;
       break;
     case t_PADIC:
-      e = padic_prec(*pp);
+      ep = padic_prec(*pp);
       p = gel(*pp, 2);
       break;
     case t_FFELT:
@@ -564,7 +564,7 @@ base_ring(GEN x, GEN *pp, long *prec)
    * t = t_VEC (p an nf or bnf)
    * t = t_FFELT (p t_FFELT)
    * t = t_INTMOD (p a prime)
-   * t = t_PADIC (p a prime, e = padic prec)
+   * t = t_PADIC (p a prime, ep = padic prec)
    * t = t_REAL (p = NULL, e = real prec)
    * t = t_FRAC (p = NULL) */
   for (i = 1; i < imax; i++)
@@ -579,7 +579,7 @@ base_ring(GEN x, GEN *pp, long *prec)
           case t_PADIC: chk_p(p,p2); break;
           default: pari_err_TYPE("elliptic curve base_ring", x);
         }
-        e = minss(e, padic_prec(q));
+        ep = minss(ep, padic_prec(q));
         break;
       case t_INTMOD:
         p2 = gel(q,1);
@@ -620,7 +620,7 @@ base_ring(GEN x, GEN *pp, long *prec)
         return t_COMPLEX;
     }
   }
-  *pp = p; *prec = e; return t;
+  *pp = p; *prec = (t == t_PADIC)? ep: e; return t;
 }
 
 static GEN
