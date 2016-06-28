@@ -3580,13 +3580,19 @@ pari_init_files(void)
 }
 
 void
-pari_close_files(void)
+pari_thread_close_files(void)
 {
   popinfile(); /* look for leaks */
   kill_file_stack(&last_file);
   if (last_filename) pari_free(last_filename);
+  kill_file_stack(&last_tmp_file);
+}
+
+void
+pari_close_files(void)
+{
   if (pari_logfile) { fclose(pari_logfile); pari_logfile = NULL; }
-  killallfiles();
+  pari_infile = stdin;
 }
 
 static int

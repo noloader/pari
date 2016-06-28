@@ -845,7 +845,7 @@ pari_thread_sync(void)
 void
 pari_thread_close(void)
 {
-  pari_close_files();
+  pari_thread_close_files();
   pari_close_evaluator();
   pari_close_compiler();
   pari_close_parser();
@@ -955,6 +955,8 @@ pari_close_opts(ulong init_opts)
   pari_var_close();
   free((void*)primetab);
   pari_thread_close();
+  pari_close_files();
+  pari_close_homedir();
   pari_kernel_close();
 
   free((void*)functions_hash);
@@ -965,7 +967,6 @@ pari_close_opts(ulong init_opts)
   pari_mainstack_free(pari_mainstack);
   free((void*)pari_mainstack);
   pari_stack_delete(&s_MODULES);
-  pari_close_homedir();
   if (pari_datadir) free(pari_datadir);
   if (init_opts&INIT_DFTm)
   { /* delete GP_DATA */

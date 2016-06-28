@@ -637,6 +637,7 @@ pariFILE* newfile(FILE *f, const char *name, int type);
 void    pari_init_homedir(void);
 void    pari_close_homedir(void);
 void    pari_init_files(void);
+void    pari_thread_close_files(void);
 void    pari_close_files(void);
 int     popinfile(void);
 pariFILE* try_pipe(const char *cmd, int flag);
