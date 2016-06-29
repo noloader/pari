@@ -942,7 +942,7 @@ check_basis(GEN B)
 {
   if (!B) return utoipos(10);
   if (typ(B)!=t_INT) pari_err_TYPE("digits",B);
-  if (cmpis(B,2)<0) pari_err_DOMAIN("digits","B","<",gen_2,B);
+  if (cmpiu(B,2)<0) pari_err_DOMAIN("digits","B","<",gen_2,B);
   return B;
 }
 
@@ -969,6 +969,7 @@ digits(GEN x, GEN B)
   GEN z, vB;
   if (typ(x)!=t_INT) pari_err_TYPE("digits",x);
   B = check_basis(B);
+  if (signe(B)<0) pari_err_DOMAIN("digits","B","<",gen_0,B);
   if (!signe(x))       {avma = av; return cgetg(1,t_VEC); }
   if (absi_cmp(x,B)<0) {avma = av; retmkvec(absi(x)); }
   if (Z_ispow2(B))
