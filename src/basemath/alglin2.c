@@ -919,38 +919,6 @@ ZX_CRT(GEN *H, GEN Hp, GEN *q, ulong p, long bit)
   }
   return 0;
 }
-/* Let V = V1 \oplus V2 Q-vector spaces and f in End(V) stabilizing the Vi
- * Let M, M2 be square QM representing f, f|V2.
- * Return H := char(f|V1) = char(f) / char(f|V2) assuming H is in Z[X]
- * and log 2 |H|oo <= bit */
-GEN
-QM_charpoly_ZX2_bound(GEN M, GEN M2, long bit)
-{
-  long n = lg(M)-1, n2 = lg(M2)-1;
-  GEN q = NULL, H1 = NULL, dM, dM2;
-  forprime_t S;
-  ulong p;
-  if (n == n2) return pol_1(0);
-  if (!n2) return QM_charpoly_ZX_bound(M, bit);
-  M = Q_remove_denom(M,&dM);
-  M2= Q_remove_denom(M2,&dM2);
-
-  if (DEBUGLEVEL>5) err_printf("QM_charpoly_ZX2_bound: bit-bound 2^%ld\n", bit);
-  init_modular_big(&S);
-  while ((p = u_forprime_next(&S)))
-  {
-    ulong dMp = 0, dM2p = 0;
-    GEN Hp, H1p, H2p;
-    if (dM && !(dMp = umodiu(dM, p))) continue;
-    if (dM2 && !(dM2p = umodiu(dM2, p))) continue;
-    Hp  = QM_charpoly_Flx(M,  dMp,  p);
-    H2p = QM_charpoly_Flx(M2, dM2p, p);
-    H1p = Flx_div(Hp, H2p, p);
-    if (ZX_CRT(&H1, H1p, &q,p, bit)) break;
-  }
-  if (!p) pari_err_OVERFLOW("charpoly [ran out of primes]");
-  return H1;
-}
 
 /* Assume M a square ZM, dM integer. Return charpoly(M / dM) in Z[X] */
 static GEN

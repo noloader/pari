@@ -1432,7 +1432,6 @@ GEN     QM_ImZ_hnf(GEN x);
 GEN     QM_ImQ_hnf(GEN x);
 GEN     QM_charpoly_ZX(GEN M);
 GEN     QM_charpoly_ZX_bound(GEN M, long bit);
-GEN     QM_charpoly_ZX2_bound(GEN M, GEN M2, long bit);
 GEN     ZM_charpoly(GEN x);
 GEN     adj(GEN x);
 GEN     adjsafe(GEN x);
