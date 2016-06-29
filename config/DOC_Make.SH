@@ -111,7 +111,7 @@ gpman: gp.1
 
 man2html: gpman.html gphelpman.html tex2mailman.html
 %man.html: %.1
-	man2html \$< | grep -v 'Content-Type:' > \$@
+	man2html \$< | grep -v 'Content-type:' > \$@
 
 clean:
 	rm -f *.log *.dvi *.idx *.ps *.pdf *.aux *.toc *.std *.dumbpod *.3 *.tmp *.html
