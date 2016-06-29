@@ -1028,6 +1028,19 @@ fromdigitsu(GEN x, GEN B)
   return gerepileuptoint(av, z);
 }
 
+static int
+ZV_in_range(GEN v, GEN B)
+{
+  long i, l = lg(v);
+  for(i=1; i < l; i++)
+  {
+    GEN vi = gel(v, i);
+    if (signe(vi) < 0 || cmpii(vi, B) >= 0)
+      return 0;
+  }
+  return 1;
+}
+
 GEN
 fromdigits(GEN x, GEN B)
 {
@@ -1035,7 +1048,7 @@ fromdigits(GEN x, GEN B)
   if (typ(x)!=t_VEC || !RgV_is_ZV(x)) pari_err_TYPE("fromdigits",x);
   if (lg(x)==1) return gen_0;
   B = check_basis(B);
-  if (Z_ispow2(B))
+  if (Z_ispow2(B) && ZV_in_range(x, B))
     return fromdigits_2k(x, expi(B));
   x = vecreverse(x);
   return gerepileuptoint(av, gen_fromdigits(x, B, NULL, &Z_ring));
