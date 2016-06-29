@@ -252,7 +252,7 @@ GEN FF_elldata(GEN E, GEN fg);
 
 /* L functions */
 enum { t_LFUN_GENERIC, t_LFUN_ZETA, t_LFUN_NF, t_LFUN_ELL, t_LFUN_KRONECKER,
-       t_LFUN_CHIZ, t_LFUN_CHIGEN, t_LFUN_ETA, 
+       t_LFUN_CHIZ, t_LFUN_CHIGEN, t_LFUN_ETA,
        t_LFUN_DIV, t_LFUN_MUL, t_LFUN_CONJ,
        t_LFUN_SYMSQ, t_LFUN_SYMSQ_ELL, t_LFUN_QF, t_LFUN_ARTIN,
        t_LFUN_GENUS2 };
