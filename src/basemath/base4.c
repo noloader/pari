@@ -1541,20 +1541,15 @@ idealnorm(GEN nf, GEN x)
   return gerepileupto(av, Q_abs(x));
 }
 
-/* inverse */
-
-/* rewritten from original code by P.M & M.H.
- *
- * I^(-1) = { x \in K, Tr(x D^(-1) I) \in Z }, D different of K/Q
+/* I^(-1) = { x \in K, Tr(x D^(-1) I) \in Z }, D different of K/Q
  *
  * nf[5][6] = pp( D^(-1) ) = pp( HNF( T^(-1) ) ), T = (Tr(wi wj))
  * nf[5][7] = same in 2-elt form.
  * Assume I integral. Return the integral ideal (I\cap Z) I^(-1) */
-static GEN
-idealinv_HNF_aux(GEN nf, GEN I)
+GEN
+idealinv_HNF_Z(GEN nf, GEN I)
 {
   GEN J, dual, IZ = gcoeff(I,1,1); /* I \cap Z */
-
   if (isint1(IZ)) return matid(lg(I)-1);
   J = idealmul_HNF(nf,I, gmael(nf,5,7));
  /* I in HNF, hence easily inverted; multiply by IZ to get integer coeffs
@@ -1567,11 +1562,8 @@ GEN
 idealinv_HNF(GEN nf, GEN I)
 {
   GEN J, IQ = gcoeff(I,1,1); /* I \cap Q; d IQ = dI \cap Z */
-
-  /* J = (dI)^(-1) * (d IQ) */
-  J = idealinv_HNF_aux(nf, Q_remove_denom(I, NULL));
-  if (typ(IQ) != t_INT || !is_pm1(IQ)) J = RgM_Rg_div(J, IQ);
-  return J;
+  J = idealinv_HNF_Z(nf, Q_remove_denom(I, NULL)); /* = (dI)^(-1) * (d IQ) */
+  return equali1(IQ)? J: RgM_Rg_div(J, IQ);
 }
 
 /* return p * P^(-1)  [integral] */
@@ -1657,7 +1649,7 @@ idealnumden(GEN nf, GEN x)
   }
   J = hnfmodid(x, d); /* = d/B */
   c = gcoeff(J,1,1); /* (d/B) \cap Z, divides d */
-  B = idealinv_HNF_aux(nf, J); /* (d/B \cap Z) B/d */
+  B = idealinv_HNF_Z(nf, J); /* (d/B \cap Z) B/d */
   c = diviiexact(d, c);
   if (!is_pm1(c)) B = ZM_Z_mul(B, c); /* = B ! */
   A = idealmul(nf, x, B); /* d * (original x) * B = d A */
@@ -1780,7 +1772,7 @@ idealpow_aux(GEN nf, GEN x, long tx, GEN n)
         if (s<0) {
           GEN xZ = gcoeff(x,1,1);
           cx = cx ? gdiv(cx, xZ): ginv(xZ);
-          x = idealinv_HNF_aux(nf,x);
+          x = idealinv_HNF_Z(nf,x);
         }
         if (cx) x = RgM_Rg_mul(x, cx);
       }
@@ -1946,7 +1938,7 @@ idealdivexact(GEN nf, GEN x0, GEN y0)
 
   y = ZM_hnfmodid(y, diviiexact(Ny,Nz));
   yZ = gcoeff(y,1,1);
-  y = idealmul_HNF(nf,x, idealinv_HNF_aux(nf,y));
+  y = idealmul_HNF(nf,x, idealinv_HNF_Z(nf,y));
   return gerepileupto(av, RgM_Rg_div(y, yZ));
 }
 
