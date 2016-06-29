@@ -11933,8 +11933,14 @@ the function call. Assumes \kbd{C} has arity $\geq \kbd{n}$.
 \kbd{C} with the arguments supplied in the vector \kbd{args}. Assumes \kbd{C}
 has arity $\geq \kbd{lg(args)-1}$.
 
+\fun{GEN}{closure_callgenvecprec}{GEN C, GEN args, long prec} as
+\kbd{closure\_callgenvec} but set the precision locally to \kbd{prec}.
+
 \fun{GEN}{closure_callgen1}{GEN C, GEN x} evaluate the \typ{CLOSURE}
 \kbd{C} with argument \kbd{x}. Assumes \kbd{C} has arity $\geq 1$.
+
+\fun{GEN}{closure_callgen1prec}{GEN C, GEN x, long prec} as
+\kbd{closure\_callgen1}, but set the precision locally to \kbd{prec}.
 
 \fun{GEN}{closure_callgen2}{GEN C, GEN x, GEN y} evaluate the \typ{CLOSURE}
 \kbd{C} with argument \kbd{x}, \kbd{y}. Assumes \kbd{C} has arity $\geq 2$.
@@ -12063,6 +12069,9 @@ with the lexical variable number $-1$ set to $x$.
 
 \fun{GEN}{gp_eval}{void *E, GEN x} is used for the prototype code \kbd{`E'}.
 
+\fun{GEN}{gp_evalprec}{void *E, GEN x, long prec} as \kbd{gp\_eval}, but
+set the precision locally to \kbd{prec}.
+
 \fun{long}{gp_evalvoid}{void *E, GEN x} is used for the prototype code
 \kbd{`I'}. The resulting value is discarded.  Return a non-zero value if a
 control-flow instruction request the iterator to terminate immediately.
@@ -12079,6 +12088,9 @@ These wrappers are used to implement GP functions taking true closures as
 input.
 
 \fun{GEN}{gp_call}{void *E, GEN x} evaluates the closure \kbd{(GEN)E} on $x$.
+
+\fun{GEN}{gp_callprec}{void *E, GEN x, long prec} as \kbd{gp\_call},
+but set the precision locally to \kbd{prec}.
 
 \fun{GEN}{gp_call2}{void *E, GEN x, GEN y} evaluates the closure \kbd{(GEN)E}
 on $(x,y)$.
