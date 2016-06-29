@@ -109,6 +109,10 @@ users.pdf: \$(USERS_TEX)
 gpman: gp.1
 	nroff -man gp.1 | unix2dos -ascii > gp.man
 
+man2html: gpman.html gphelpman.html tex2mailman.html
+%man.html: %.1
+	man2html \$< | grep -v 'Content-Type:' > \$@
+
 clean:
 	rm -f *.log *.dvi *.idx *.ps *.pdf *.aux *.toc *.std *.dumbpod *.3 *.tmp *.html
 
