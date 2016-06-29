@@ -273,7 +273,8 @@ BA 38- [libpari] functions Fl_sqrtl, Fl_sqrtl_pre
    39- [libpari] function ZV_allpnqn
    40- [libpari] function Qevproj_init, Qevproj_apply, Qevproj_apply_vecei
    41- [libpari] functions G_ZGC_mul, G_ZG_mul, ZGC_G_mul, ZGC_Z_mul, ZG_G_mul,
-       ZG_Z_mul, ZG_add, ZG_mul, ZG_neg, ZG_normalize, ZG_sub
+       ZG_Z_mul, ZG_add, ZG_mul, ZG_neg, ZG_normalize, ZG_sub,
+       ZGC_G_mul_inplace, ZGCs_add
    42- [libpari] function kroui
 BA 43- GP function powers and libpari function gpowers
    44- flag LLL_COMPATIBLE for LLL routines [ use 64-bit compatible accuracies

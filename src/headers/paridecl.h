@@ -1030,10 +1030,7 @@ const struct bb_algebra * get_Rg_algebra(void);
 
 /* ZG.c */
 void    ZGC_G_mul_inplace(GEN v, GEN x);
-void    ZGC_add_inplace(GEN x, GEN y);
-GEN     ZGC_add_sparse(GEN x, GEN y);
-void    ZGM_add_inplace(GEN x, GEN y);
-GEN     ZGM_add_sparse(GEN x, GEN y);
+GEN     ZGCs_add(GEN x, GEN y);
 GEN     G_ZGC_mul(GEN x, GEN v);
 GEN     G_ZG_mul(GEN x, GEN y);
 GEN     ZGC_G_mul(GEN v, GEN x);

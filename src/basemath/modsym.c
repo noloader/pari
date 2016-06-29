@@ -2058,7 +2058,7 @@ init_dual_act(GEN v, GEN W1, GEN W2, struct m_act *S,
       ZSl2C_star_inplace(L); /* L[i] = lambda_{i,j}^* */
       if (!ZM_isidentity(F)) ZGC_G_mul_inplace(L, F);
       tk = mkvec2(ind,L); /* L[i] = mu_{i,j}(v[k]) */
-      t = t? ZGC_add_sparse(t, tk): tk;
+      t = t? ZGCs_add(t, tk): tk;
     }
     gel(T,j) = gerepilecopy(av, t);
   }

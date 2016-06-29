@@ -7601,12 +7601,18 @@ Return a valid (sorted) \kbd{ZG}. Shallow function.
 G$ return the vector (with the same type as $v$ with entries $v[i]\cdot x$.
 Shallow function.
 
+\fun{void}{ZGC_G_mul_inplace}{GEN v, GEN x} as \tet{ZGC_G_mul}, modifying
+$v$ in place.
+
 \fun{GEN}{ZGC_Z_mul}{GEN v, GEN n} given $v$ a vector of \kbd{ZG} and $n\in
 Z$ return the vector (with the same type as $v$ with entries $n \cdot v[i]$.
 Shallow function.
 
 \fun{GEN}{G_ZGC_mul}{GEN x, GEN v} given $v$ a vector of \kbd{ZG} and $x\in
 G$ return the vector of $x \cdot v[i]$. Shallow function.
+
+\fun{GEN}{ZGCs_add}{GEN x, GEN y} add two sparse vectors of
+\kbd{ZG} elements (see Blackbox linear algebra below).
 
 \subsec{Blackbox linear algebra}
 
