@@ -2352,7 +2352,7 @@ smithclean(GEN z)
   {
     if (h > l)
     {
-      for (i=1+h-l, j=1; i<h; i++,j++)
+      for (i=1+h-l, j=1; i<c; i++,j++)
         gcoeff(t,i,j) = gcopy(gcoeff(D,i,j));
     }
     else if (h < l)
