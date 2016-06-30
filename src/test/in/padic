@@ -63,3 +63,7 @@ for(i=1,16,if (teichmuller(i+O(17^10),T) != teichmuller(i+O(17^10)), error(i)))
 padicappr(x^3+1,-2+O(2^5))
 padicappr(x^3+1,Mod(-2+O(2^5),y^3+3))
 
+newtonpoly(x^4+3*x^2+27*x+x+81,3)
+newtonpoly(x^4+3*x^2+27*x,3)
+newtonpoly(x^4+y*x^2+y^3*x,y)
+

@@ -596,6 +596,7 @@ BA 75- rename FlxqX_pow to FlxqX_powu
    79- meaning of precision(x, n) no longer depends on the type of x: it now
        always refers to floating point precision. Before the change:
        precision([O(2),O(3),O(x)], 10) -> [O(2^10),O(3^10),O(x^10)]
+   80- infinite slopes of newtonpoly replaced by "+oo" (instead of 2^63-1)
 
 Removed
    1- deprecated functions nfbasis0, nfdisc0, factorpadic0

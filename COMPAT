@@ -15,6 +15,7 @@ This file lists the incompatible changes between Version 2.x and older versions
     under GP [ used to return LONG_MAX ]
   - precision(0), bitprecision(0), padicprec(0,p) now all return +oo
     under GP [ used to return LONG_MAX ]
+  - infinite slopes of newtonpoly replaced by +oo (instead of LONG_MAX)
   - poldegree(0) now returns -oo [ used to return -LONG_MAX ]
   - polsturm interface change
      * polsturm(T, a, b) is still supported but deprecated, use

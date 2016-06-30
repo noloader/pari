@@ -3135,17 +3135,19 @@ newtonpoly(GEN x, GEN p)
   for (a=0, ind=1; a<n; a++)
   {
     if (vval[a] != LONG_MAX) break;
-    gel(y,ind++) = utoipos(LONG_MAX);
+    gel(y,ind++) = mkoo();
   }
   for (b=a+1; b<=n; a=b, b=a+1)
   {
     while (vval[b] == LONG_MAX) b++;
-    u1=vval[a]-vval[b]; u2=b-a;
+    u1 = vval[a]-vval[b];
+    u2 = b-a;
     for (c=b+1; c<=n; c++)
     {
       if (vval[c] == LONG_MAX) continue;
-      r1=vval[a]-vval[c]; r2=c-a;
-      if (u1*r2<=u2*r1) { u1=r1; u2=r2; b=c; }
+      r1 = vval[a]-vval[c];
+      r2 = c-a;
+      if (u1*r2 <= u2*r1) { u1 = r1; u2 = r2; b = c; }
     }
     while (ind<=b) { affsi(u1,num); gel(y,ind++) = gdivgs(num,u2); }
   }

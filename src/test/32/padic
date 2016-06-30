@@ -107,4 +107,7 @@ O(x)
 []~
 []~
 []~
-Total time spent: 5
+[4, 0, 0, 0]
+[+oo, 2, 1/2, 1/2]
+[+oo, 2, 1/2, 1/2]
+Total time spent: 4
