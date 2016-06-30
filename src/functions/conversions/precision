@@ -2,7 +2,8 @@ Function: precision
 Section: conversions
 C-Name: precision0
 Prototype: GD0,L,
-Help: precision(x,{n}): if n is present, return x at precision n. If n is omitted, return real precision of object x.
+Help: precision(x,{n}): if n is present, return x at precision n. If n is
+ omitted, return real precision of object x.
 Description:
  (real):small          prec2ndec(gprecision($1))
  (gen):int             precision0($1, 0)
@@ -14,26 +15,20 @@ Description:
  (mp,small):mp         precision0($1, $2)
  (gen,small):gen       precision0($1, $2)
 
-Doc: the function has two different behaviors according to whether $n$ is present or not.
+Doc: the function behaves differently according to whether $n$ is
+ present and positive or not. If $n$ is missing, the function returns the
+ precision in decimal digits of the PARI object $x$. If $x$ is an exact
+ object, the function returns \kbd{+oo}.
 
- If $n$ is missing, the function returns the precision in decimal digits of the
- PARI object $x$. If $x$ is
- an exact object, the largest single precision integer is returned.
  \bprog
  ? precision(exp(1e-100))
- %1 = 134                \\ 134 significant decimal digits
+ %1 = 154                \\ 154 significant decimal digits
  ? precision(2 + x)
- %2 = 2147483647         \\ exact object
+ %2 = +oo                \\ exact object
  ? precision(0.5 + O(x))
- %3 = 28                 \\ floating point accuracy, NOT series precision
+ %3 = 38                 \\ floating point accuracy, NOT series precision
  ? precision( [ exp(1e-100), 0.5 ] )
- %4 = 28                 \\ minimal accuracy among components
- @eprog\noindent
- The return value for exact objects is meaningless since it is not even the
- same on 32 and 64-bit machines. The proper way to test whether an object is
- exact is
- \bprog
- ? isexact(x) = precision(x) == precision(0)
+ %4 = 38                 \\ minimal accuracy among components
  @eprog
 
  If $n$ is present, the function creates a new object equal to $x$ with a new

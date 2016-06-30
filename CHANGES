@@ -590,6 +590,8 @@ BA 75- rename FlxqX_pow to FlxqX_powu
    77- polredabs(T) now internally uses the polredabs([T,listP]) strategy,
        making it much faster in favourable cases, while still always returning
        a canonical defining polynomial.
+   78- precision(0), bitprecision(0), padicprec(0,p) now all return +oo
+       under GP [ used to return LONG_MAX ]
 
 Removed
    1- deprecated functions nfbasis0, nfdisc0, factorpadic0

@@ -5,23 +5,17 @@ Prototype: GD0,L,
 Help: bitprecision(x,{n}): if n is present and positive, return x at precision
  n bits. If n is omitted, return real precision of object x in bits.
 
-Doc: the function has two different behaviors according to whether $n$ is
+Doc: the function behaves differently according to whether $n$ is
  present and positive or not. If $n$ is missing, the function returns the
  (floating point) precision in bits of the PARI object $x$. If $x$ is an
- exact object, the largest single precision integer is returned.
+ exact object, the function returns \kbd{+oo}.
  \bprog
  ? bitprecision(exp(1e-100))
  %1 = 512                 \\ 512 bits
  ? bitprecision( [ exp(1e-100), 0.5 ] )
  %2 = 128                 \\ minimal accuracy among components
  ? bitprecision(2 + x)
- %3 = 9223372036854775807 \\ exact object
- @eprog\noindent
- The return value for exact objects is meaningless since it is not even the
- same on 32 and 64-bit machines. The proper way to test whether an object is
- exact is
- \bprog
- ? isexact(x) = (bitprecision(x) == bitprecision(0));
+ %3 = +oo                  \\ exact object
  @eprog
 
  If $n$ is present and positive, the function creates a new object equal to $x$

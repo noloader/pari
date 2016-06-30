@@ -3051,6 +3051,7 @@ GEN     gmodulss(long x, long y);
 GEN     gne(GEN x, GEN y);
 GEN     gnot(GEN x);
 GEN     gpolvar(GEN y);
+GEN     gppadicprec(GEN x, GEN p);
 GEN     gppoldegree(GEN x, long v);
 long    gprecision(GEN x);
 GEN     greal(GEN x);

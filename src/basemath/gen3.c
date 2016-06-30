@@ -211,7 +211,7 @@ gprecision(GEN x)
     case t_PADIC: case t_QUAD: case t_POLMOD:
       return 0;
 
-    case t_POL:
+    case t_POL: case t_SER:
       k = LONG_MAX;
       for (i=lg(x)-1; i>1; i--)
       {
@@ -246,7 +246,7 @@ precision0(GEN x, long n)
   long a;
   if (n) return gprec(x,n);
   a = gprecision(x);
-  return utoi(a ? prec2ndec(a): LONG_MAX);
+  return a? utoi(prec2ndec(a)): mkoo();
 }
 
 GEN
@@ -261,7 +261,7 @@ bitprecision0(GEN x, long n)
     return gerepilecopy(av, y);
   }
   a = gprecision(x);
-  return utoi(a ? prec2nbits(a): LONG_MAX);
+  return a? utoi(prec2nbits(a)): mkoo();
 }
 
 static long
@@ -309,6 +309,7 @@ vec_padicprec(GEN x, GEN p, long imin)
 long
 padicprec(GEN x, GEN p)
 {
+  if (typ(p) != t_INT) pari_err_TYPE("padicprec",p);
   switch(typ(x))
   {
     case t_INT: case t_FRAC:
@@ -329,6 +330,12 @@ padicprec(GEN x, GEN p)
   }
   pari_err_TYPE("padicprec",x);
   return 0; /* not reached */
+}
+GEN
+gppadicprec(GEN x, GEN p)
+{
+  long v = padicprec(x,p);
+  return v == LONG_MAX? mkoo(): stoi(v);
 }
 
 /* Degree of x (scalar, t_POL, t_RFRAC) wrt variable v if v >= 0,

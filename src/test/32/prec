@@ -1,3 +1,5 @@
++oo
++oo
 I
 1 + O(3^3) + I
 O(2^3)
@@ -13,6 +15,10 @@ Mod(1 + O(3^3), (1 + O(3^3))*x)
 1 + O(3^5)
 1
 38
++oo
+  ***   at top-level: padicprec(0,"")
+  ***                 ^---------------
+  *** padicprec: incorrect type in padicprec (t_STR).
 1
 1
 2
@@ -24,4 +30,4 @@ Mod(1 + O(3^3), (1 + O(3^3))*x)
 3
 3
 4
-Total time spent: 1
+Total time spent: 0
