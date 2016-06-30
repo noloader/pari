@@ -3446,11 +3446,8 @@ GEN     lfunellmfpeters(GEN E, long bitprec);
 GEN     lfunetaquo(GEN eta);
 GEN     lfungenus2(GEN PS);
 GEN     lfunmfspec(GEN lmisc, long bitprec);
-GEN     lfunmfpeters(GEN ldata, long bitprec);
 GEN     lfunmul(GEN ldata1, GEN ldata2, long bitprec);
 GEN     lfunqf(GEN ldata);
-GEN     lfunsymsq(GEN ldata, GEN known, long prec);
-GEN     lfunsymsqspec(GEN lmisc, long bitprec);
 GEN     lfunzetakinit(GEN pol, GEN dom, long der, long flag, long bitprec);
 
 /* lll.c */

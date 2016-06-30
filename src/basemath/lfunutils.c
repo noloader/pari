@@ -831,43 +831,6 @@ lfunmfspec(GEN lmisc, long bitprec)
   return gerepilecopy(ltop, mkvec4(veven, vodd, om, op));
 }
 
-/* Symmetric square of a Hecke eigenform, cuspform. Assume ldata is the ldata
-of such a cusp form. Find the ldata of its symmetric square, and in particular
-the conductor and bad Euler factors. */
-static GEN
-vecan_symsq(GEN an, long nn, long prec)
-{
-  pari_sp ltop = avma;
-  GEN res = cgetg(nn+1, t_VEC), veceul = gel(an, 1), ldata = gel(an, 2);
-  GEN a = ldata_vecan(ldata_get_an(ldata), nn, prec);
-  long k = ldata_get_k(ldata), lfa = lg(veceul), j, n;
-
-  for (n = 1; n <= nn; ++n)
-  {
-    GEN D, S, h = gen_1;
-    ulong q = 1;
-    long lD;
-    for (j = 1; j < lfa; ++j)
-    {
-      GEN v = gel(veceul,j), p = gel(v,1);
-      long vj = u_pval(n, p);
-      if (!vj) continue;
-      q *= upowuu(itou(p), vj);
-      h = gmul(h, gpowgs(gel(v,2), vj));
-    }
-    D = divisorsu(n/q); lD = lg(D);
-    S = gen_0;
-    for (j = 1; j < lD; ++j)
-    {
-      ulong m = D[j], mc = D[lD-j];
-      long s = odd(bigomegau(m)) ? -1: 1;
-      S = gadd(S, gmul(mulsi(s, powuu(m, k-1)), gsqr(gel(a, mc))));
-    }
-    gel(res, n) = gmul(h, S);
-  }
-  return gerepilecopy(ltop, res);
-}
-
 static long
 ellsymsq_bad2(GEN c4, GEN c6, long e, long *pb2)
 {
@@ -983,180 +946,6 @@ lfunellsymsqmintwist(GEN e)
   return gerepilecopy(av, mkvec2(ld, V));
 }
 
-/* Find conductor and missing Euler factors in symmetric square.
- * If flall is set, output all possibilities, otherwise only the first. */
-static GEN
-lfunsymsqfind(GEN ldata, long flall/*=0*/, long prec)
-{
-  pari_sp ltop = avma;
-  GEN N, fa, an, D, veceul, vforsig, vforexp, vres, P,P1,P2, E,E2;
-  long i1,i2, i, j, k, lmax, lP, bitprec = minss(128, prec2nbits(prec));
-
-  ldata = lfunmisc_to_ldata_shallow(ldata);
-  k = ldata_get_k(ldata);
-  N = ldata_get_conductor(ldata);
-  if (equali1(N)) return gerepilecopy(ltop, mkvec2(gen_1, cgetg(1, t_VEC)));
-  fa = Z_factor(N);
-  P = gel(fa,1); lP = lg(P);
-  E = gel(fa,2);
-  P1= cgetg(lP, t_COL);
-  P2= cgetg(lP, t_COL);
-  E2= cgetg(lP, t_COL);
-  for (i1 = i2 = j = 1; j < lP; j++)
-  {
-    GEN p = gel(P,j);
-    if (is_pm1(gel(E,j)))
-      gel(P1,i1++) = p;
-    else
-    {
-      gel(P2,i2) = p;
-      gel(E2,i2) = gel(E,j); i2++;
-    }
-  }
-  setlg(P1, i1);
-  setlg(P2, i2); setlg(E2, i2);
-  lmax = i1 > 1 ? itos(vecmax(P1)) : 1;
-  an = ldata_vecan(ldata_get_an(ldata), lmax, prec);
-  for (j = 1; j < i1; ++j)
-  {
-    GEN p = gel(P1,j);
-    gel(P1,j) = mkvec2(p, gsqr(gel(an, itou(p))));
-  }
-  if (i2 == 1) return gerepilecopy(ltop, mkvec2(sqri(N), P1));
-  vforsig = const_vec(i2-1, mkvec2(gen_m1, gen_1));
-  vforexp = cgetg(i2, t_VEC);
-  for (j = 1; j < i2; ++j)
-  {
-    long l, m;
-    switch(itou_or_0(gel(P2,j)))
-    {
-      case 2: l = 6; break;
-      case 3: l = 4; break;
-      default:l = 2; break;
-    }
-    m = minss(k-1, l*itos(gel(E2,j)));
-    gel(vforexp, j) = mkvec2(gen_0, stoi(m));
-  }
-  vres = cgetg(1, t_VEC);
-  D = divisors(mkmat2(P2,E2));
-  for (i = 1; i < lg(D); i++)
-  {
-    GEN M = gel(D, i), vsig;
-    forvec_t iter;
-
-    forvec_init(&iter, vforsig, 0);
-    while ((vsig = forvec_next(&iter)))
-    {
-      GEN vexp, vforexptmp = shallowcopy(vforexp);
-      forvec_t iter2;
-      long jj;
-
-      for (jj = 1; jj < i2; ++jj)
-        if (gequal0(gel(vsig, jj))) gel(vforexptmp, jj) = mkvec2(gen_0, gen_0);
-      forvec_init(&iter2, vforexptmp, 0);
-      while ((vexp = forvec_next(&iter2)))
-      {
-        GEN V = cgetg(i2, t_COL), M2 = sqri(diviiexact(N,M)), L;
-        long m;
-        for (m = 1; m < i2; m++)
-        {
-          GEN p = gel(P2,m), vm = mulii(gel(vsig,m), powii(p, gel(vexp,m)));
-          gel(V, m) = mkvec2(p, vm);
-        }
-        veceul = shallowconcat(P1, V);
-        L = mkvecn(6, tag(mkvec2(veceul, ldata), t_LFUN_SYMSQ),
-              gen_0, mkvec3(stoi(2-k), gen_0, gen_1), stoi(2*k-1), M2, gen_1);
-        if (lfuncheckfeq(L, NULL, bitprec)  < -bitprec/2)
-        {
-          GEN z = mkvec2(M2, lexsort(veceul));
-          if (!flall) return gerepilecopy(ltop, z);
-          vres = gconcat(vres, mkvec(z));
-        }
-      }
-    }
-  }
-  if (lg(vres) == 1) pari_err_BUG("lfunsymsqfind [cannot find sym2]");
-  if (lg(vres)>2) pari_warn(warner,"several possibilities in lfunsymsqfind\n");
-  return gerepilecopy(ltop, vres);
-}
-
-GEN
-lfunsymsq(GEN ldata, GEN known, long prec)
-{
-  pari_sp ltop = avma;
-  GEN L, N, V;
-  long k;
-  ldata = lfunmisc_to_ldata_shallow(ldata);
-  if (!lfunisvgaell(ldata_get_gammavec(ldata), 0))
-    pari_err_TYPE("lfunsymsq", ldata);
-  if (known && (!is_vec_t(typ(known)) || lg(known) != 3))
-    pari_err_TYPE("lfunsymsq",known);
-  if (!known) known = lfunsymsqfind(ldata, 0, prec);
-  N = gel(known,1);
-  V = gel(known,2);
-  k = ldata_get_k(ldata);
-  L = mkvecn(6, tag(mkvec2(V, ldata), t_LFUN_SYMSQ), gen_0,
-                mkvec3(stoi(2-k), gen_0, gen_1), stoi(2*k-1), N, gen_1);
-  return gerepilecopy(ltop, L);
-}
-
-static long
-lfunissymsq(GEN Vga)
-{ return (lg(Vga) == 4) && lfunisvgaell(mkvec2(gel(Vga,2), gel(Vga,3)), 0); }
-
-GEN
-lfunsymsqspec(GEN lmisc, long bitprec)
-{
-  pari_sp ltop = avma;
-  GEN veven, vpi, om2, M, Vga, ldata;
-  long k, l1, j, fl = 2, prec = nbits2prec(bitprec);
-  ldata = lfunmisc_to_ldata_shallow(lmisc);
-  Vga = ldata_get_gammavec(ldata);
-  /* fl = 0: OK, 1: perform lfuninit, 2: perform lfunsymsq + lfuninit */
-  if (is_linit(lmisc) && linit_get_type(lmisc) == t_LDESC_INIT)
-  { /* FIXME: should check for prec ! */
-    if (lfunissymsq(Vga)) fl = 0;
-    else if (!lfunisvgaell(Vga, 0)) pari_err_TYPE("lfunsymsqspec", lmisc);
-  }
-  else switch(ldata_get_type(ldata))
-  {
-    case t_LFUN_ETA: break;
-    case t_LFUN_SYMSQ:
-    case t_LFUN_SYMSQ_ELL: fl = 1; break;
-    case t_LFUN_GENERIC:
-      if (lfunissymsq(Vga)) { fl = 1; break; }
-      if (lfunisvgaell(Vga, 0)) break;
-    default: pari_err_TYPE("lfunsymsqspec", lmisc);
-  }
-  switch(fl)
-  {
-    GEN dom;
-    case 2: ldata = lfunsymsq(ldata, NULL, prec); /* fall through */
-    case 1: /* now ldata is a symsq */
-      k = ldata_get_k(ldata);
-      dom = mkvec3(dbltor((k+1)/2.), dbltor(3*(k+1)/4.), gen_0);
-      ldata = lfuninit(ldata, dom, 0, bitprec);
-      break;
-    default:
-      ldata = lmisc;
-      k = ldata_get_k(linit_get_ldata(ldata));
-  }
-  /* Warning: k is the weight of the symmetric square, not of the form. */
-  l1 = (k+1)/4;
-  veven = cgetg(l1+1, t_VEC);
-  om2 = greal(lfunlambda(ldata, stoi((k+1)/2), bitprec));
-  vpi = gpowers(mppi(prec), l1); /* could be powersshift(,om2) */
-  gel(veven,1) = gen_1;
-  M = int2n(bitprec/4);
-  for (j = 2; j <= l1; ++j)
-  {
-    GEN Lj = greal(lfunlambda(ldata, stoi(2*j + (k-3)/2), bitprec));
-    Lj = gdiv(Lj, gmul(gel(vpi,j), om2));
-    gel(veven, j) = bestappr(Lj, M);
-  }
-  return gerepilecopy(ltop, mkvec2(veven, om2));
-}
-
 static GEN
 mfpeters(GEN ldata2, GEN fudge, GEN N, long k, long bitprec)
 {
@@ -1164,30 +953,6 @@ mfpeters(GEN ldata2, GEN fudge, GEN N, long k, long bitprec)
   long prec = nbits2prec(bitprec);
   t = powrs(mppi(prec), k+1); shiftr_inplace(t, 2*k-1); /* Pi/2 * (4Pi)^k */
   return gmul(gdiv(gmul(mulii(N,mpfact(k-1)), fudge), t), L);
-}
-/* Petersson square of modular form. ldata must be the
-   data of the modular form itself. */
-GEN
-lfunmfpeters(GEN ldata, long bitprec)
-{
-  pari_sp av = avma;
-  GEN ldata2, veceuler, N, fudge = gen_1;
-  long k, j;
-  long prec = nbits2prec(bitprec);
-
-  ldata = lfunmisc_to_ldata_shallow(ldata);
-  if (!lfunisvgaell(ldata_get_gammavec(ldata),0))
-    pari_err_TYPE("lfunmfpeters", ldata);
-  k = ldata_get_k(ldata);
-  N = ldata_get_conductor(ldata);
-  ldata2 = lfunsymsq(ldata, NULL, prec);
-  veceuler = gmael3(ldata2, 1, 2, 1);
-  for (j = 1; j < lg(veceuler); ++j)
-  {
-    GEN v = gel(veceuler, j), p = gel(v,1), s = gel(v,2);
-    if (dvdii(N, sqri(p))) fudge = gmul(fudge, gsubsg(1, gdiv(s, powiu(p,k))));
-  }
-  return gerepileupto(av, mfpeters(ldata2,fudge,N,k,bitprec));
 }
 
 /* Assume E to be twist-minimal */
@@ -1996,7 +1761,6 @@ ldata_vecan(GEN van, long L, long prec)
     case t_LFUN_DIV: an = vecan_div(an, L, prec); break;
     case t_LFUN_MUL: an = vecan_mul(an, L, prec); break;
     case t_LFUN_CONJ: an = vecan_conj(an, L, prec); break;
-    case t_LFUN_SYMSQ: an = vecan_symsq(an, L, prec); break;
     case t_LFUN_SYMSQ_ELL: an = vecan_ellsymsq(an, L); break;
     case t_LFUN_GENUS2: an = vecan_genus2(an, L); break;
     default: pari_err_TYPE("ldata_vecan", van);

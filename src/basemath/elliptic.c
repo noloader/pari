@@ -716,10 +716,10 @@ ellinit_Fq(GEN x, GEN fg)
 }
 
 static GEN
-ellinit_nf_to_Fq(GEN x, GEN P)
+ellnf_to_Fq(GEN x, GEN P, GEN *pp, GEN *pT)
 {
   GEN nf = ellnf_get_nf(x), e = vecslice(x,1,5);
-  GEN T,p, modP;
+  GEN p, modP;
   if (get_modpr(P))
   { /* modpr accept */
     modP = P;
@@ -731,10 +731,18 @@ ellinit_nf_to_Fq(GEN x, GEN P)
     p = pr_get_p(P);
     modP = dvdii(d,p)? nfmodprinit(nf,P): zkmodprinit(nf,P);
   }
-  T = modpr_get_T(modP);
-  e = nfV_to_FqV(e, nf, modP);
-  return T? ellinit_Fq(e,Tp_to_FF(T,p)): ellinit_Fp(e,p);
+  *pp = p;
+  *pT = modpr_get_T(modP);
+  return nfV_to_FqV(e, nf, modP);
 }
+static GEN
+ellinit_nf_to_Fq(GEN E, GEN P)
+{
+  GEN T,p;
+  E = ellnf_to_Fq(E, P, &p, &T);
+  return T? ellinit_Fq(E,Tp_to_FF(T,p)): ellinit_Fp(E,p);
+}
+
 GEN
 ellinit(GEN x, GEN D, long prec)
 {
@@ -5782,6 +5790,19 @@ checkellp(GEN E, GEN p, const char *s)
   }
 }
 
+static GEN
+doellcard(GEN E)
+{
+  GEN fg = ellff_get_field(E);
+  if (typ(fg)==t_FFELT)
+    return FF_ellcard(E);
+  else
+  {
+    GEN e = ellff_get_a4a6(E);
+    return Fp_ellcard(gel(e,1),gel(e,2),fg);
+  }
+}
+
 GEN
 ellap(GEN E, GEN p)
 {
@@ -5800,6 +5821,20 @@ ellap(GEN E, GEN p)
   case t_ELL_Q:
     q = p; card = ellcard_ram(E, p, &goodred);
     break;
+  case t_ELL_NF:
+  {
+    GEN R = nflocalred(E, p), T;
+    E = ellchangecurve(E, gel(R,3));
+    E = ellnf_to_Fq(E, p, &p, &T);
+    if (signe(gel(R,1))) /* bad reduction */
+    {}
+    else
+    {
+      E = T? ellinit_Fq(E,Tp_to_FF(T,p)): ellinit_Fp(E,p);
+      card = doellcard(E);
+    }
+    break;
+  }
   default:
     pari_err_TYPE("ellap",E);
     return NULL; /*NOT REACHED*/
@@ -5832,19 +5867,6 @@ ellsea(GEN E, GEN p, long smallfact)
   default:
     pari_err_TYPE("ellsea",E);
     return NULL; /*NOT REACHED*/
-  }
-}
-
-static GEN
-doellcard(GEN E)
-{
-  GEN fg = ellff_get_field(E);
-  if (typ(fg)==t_FFELT)
-    return FF_ellcard(E);
-  else
-  {
-    GEN e = ellff_get_a4a6(E);
-    return Fp_ellcard(gel(e,1),gel(e,2),fg);
   }
 }
 
