@@ -334,11 +334,11 @@ Lb=lfuncreate(Mod(4,7));
 L=La;L[2]=Lb[1];
 lfun(L,2+I)
 lfun(La,2+I)
-E1=ellinit("37a1");E2=ellinit("37b1");
-L2=lfuncreate([n->lfunan(E1,n)+lfunan(E2,n),n->-lfunan(E1,n)+lfunan(E2,n),[0,1],2,37,1]);
-lfuncheckfeq(L2)
-f(s)=lfun(L2,s)-(lfun(E1,s)+lfun(E2,s));
-f(2)
-f(1.5)
-f(I)
-f(1)
+{
+  my(G=Mod(3,7),t=lfunrootres(G)[3]);
+  L1=lfuncreate(G); L2=lfuncreate(-7);
+  L=lfuncreate([n->lfunan(G,n)+lfunan(-7,n),n->conj(lfunan(G,n))*t+lfunan(-7,n),[1],1,7,1]);
+}
+f(s)=[round(lfun(L,s)/(lfun(L1,s)+lfun(L2,s)),&e),e];
+lfuncheckfeq(L)
+f(2+I)
