@@ -32,36 +32,10 @@ Doc: the function behaves differently according to whether $n$ is
  @eprog
 
  If $n$ is present, the function creates a new object equal to $x$ with a new
- ``precision'' $n$. (This never changes the type of the result. In particular
- it is not possible to use it to obtain a polynomial from a power series; for
- that, see \tet{truncate}.) Now the meaning of precision is different from the
- above (floating point accuracy), and depends on the type of $x$:
-
- For exact types, no change. For $x$ a vector or a matrix, the operation is
- done componentwise.
-
- For real $x$, $n$ is the number of desired significant \emph{decimal}
- digits. If $n$ is smaller than the precision of $x$, $x$ is truncated,
- otherwise $x$ is extended with zeros.
-
- For $x$ a $p$-adic or a power series, $n$ is the desired number of
- \emph{significant} $p$-adic or $X$-adic digits, where $X$ is the main
- variable of $x$. (Note: yes, this is inconsistent.)
- Note that the precision is a priori distinct from the exponent $k$ appearing
- in $O(*^k)$; it is indeed equal to $k$ if and only if $x$ is a $p$-adic
- or $X$-adic \emph{unit}.
- \bprog
- ? precision(1 + O(x), 10)
- %1 = 1 + O(x^10)
- ? precision(x^2 + O(x^10), 3)
- %2 = x^2 + O(x^5)
- ? precision(7^2 + O(7^10), 3)
- %3 = 7^2 + O(7^5)
- @eprog\noindent
- For the last two examples, note that $x^2 + O(x^5) = x^2(1 + O(x^3))$
- indeed has 3 significant coefficients
-
-
+ floating point precision $n$: $n$ is the number of desired significant
+ \emph{decimal} digits. If $n$ is smaller than the precision of a \typ{REAL}
+ component of $x$, it is truncated, otherwise it is extended with zeros.
+ For exact or non-floating point types, no change.
 
 Variant: Also available are \fun{GEN}{gprec}{GEN x, long n} and
  \fun{long}{precision}{GEN x}. In both, the accuracy is expressed in

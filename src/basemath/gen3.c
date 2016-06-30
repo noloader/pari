@@ -304,6 +304,16 @@ vec_padicprec(GEN x, GEN p, long imin)
   }
   return s;
 }
+static long
+vec_serprec(GEN x, long v, long imin)
+{
+  long s, t, i;
+  for (s=LONG_MAX, i=lg(x)-1; i>=imin; i--)
+  {
+    t = serprec(gel(x,i),v); if (t<s) s = t;
+  }
+  return s;
+}
 
 /* ABSOLUTE padic precision */
 long
@@ -336,6 +346,39 @@ gppadicprec(GEN x, GEN p)
 {
   long v = padicprec(x,p);
   return v == LONG_MAX? mkoo(): stoi(v);
+}
+
+/* ABSOLUTE padic precision */
+long
+serprec(GEN x, long v)
+{
+  long w;
+  switch(typ(x))
+  {
+    case t_INT: case t_REAL: case t_INTMOD: case t_FRAC: case t_FFELT:
+    case t_COMPLEX: case t_PADIC: case t_QUAD: case t_QFR:
+      return LONG_MAX;
+
+    case t_POL:
+      w = varn(x);
+      if (varncmp(v,w) <= 0) return LONG_MAX;
+      return vec_serprec(x, v, 2);
+    case t_SER:
+      w = varn(x);
+      if (w == v) return lg(x)-2+valp(x);
+      if (varncmp(v,w) < 0) return LONG_MAX;
+      return vec_serprec(x, v, 2);
+    case t_POLMOD: case t_RFRAC: case t_VEC: case t_COL: case t_MAT:
+      return vec_serprec(x, v, 1);
+  }
+  pari_err_TYPE("serprec",x);
+  return 0; /* not reached */
+}
+GEN
+gpserprec(GEN x, long v)
+{
+  long p = serprec(x,v);
+  return p == LONG_MAX? mkoo(): stoi(p);
 }
 
 /* Degree of x (scalar, t_POL, t_RFRAC) wrt variable v if v >= 0,

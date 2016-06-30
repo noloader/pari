@@ -2363,6 +2363,7 @@ ctop(GEN x, GEN p, long d)
   GEN z, u = gel(x,1), v = gel(x,2);
   if (isrationalzero(v)) return cvtop(u, p, d);
   z = Qp_sqrt(cvtop(gen_m1, p, d - gvaluation(v, p))); /* = I */
+  if (!z) pari_err_SQRTN("Qp_sqrt",gen_m1);
 
   z = gadd(u, gmul(v, z));
   if (typ(z) != t_PADIC) /* t_INTMOD for t_COMPLEX of t_INTMODs... */
@@ -2386,7 +2387,7 @@ cvstop2(long s, GEN y)
   gel(z,4) = modsi(s, gel(y,3)); return z;
 }
 
-/* cvtop(x, gel(y,2), precp(y)), internal, not memory-clean */
+/* cvtop(x, gel(y,2), precp(y)), shallow */
 GEN
 cvtop2(GEN x, GEN y)
 {
@@ -2396,8 +2397,8 @@ cvtop2(GEN x, GEN y)
   {
     case t_INT:
       if (!signe(x)) return zeropadic(p, d);
+      if (d <= 0) return zeropadic(p, Z_pval(x,p));
       v = Z_pvalrem(x, p, &x);
-      if (d <= 0) return zeropadic(p, v);
       z = cgetg(5, t_PADIC);
       z[1] = evalprecp(d) | evalvalp(v);
       gel(z,2) = p;
@@ -2408,11 +2409,12 @@ cvtop2(GEN x, GEN y)
       v = Z_pval(gel(x,1),p); if (v > d) v = d;
       return cvtop(gel(x,2), p, v);
 
-    case t_FRAC: { GEN num = gel(x,1), den = gel(x,2);
-      if (!signe(num)) return zeropadic(p, d);
-      v = Z_pvalrem(num, p, &num);
-      if (!v) v = -Z_pvalrem(den, p, &den); /* assume (num,den) = 1 */
-      if (d <= 0) return zeropadic(p, v);
+    case t_FRAC:
+    {
+      GEN num, den;
+      if (d <= 0) return zeropadic(p, Q_pval(x,p));
+      num = gel(x,1); v = Z_pvalrem(num, p, &num);
+      den = gel(x,2); if (!v) v = -Z_pvalrem(den, p, &den);
       z = cgetg(5, t_PADIC);
       z[1] = evalprecp(d) | evalvalp(v);
       gel(z,2) = p;
@@ -2439,8 +2441,8 @@ cvtop(GEN x, GEN p, long d)
   {
     case t_INT:
       if (!signe(x)) return zeropadic(p, d);
+      if (d <= 0) return zeropadic(p, Z_pval(x,p));
       v = Z_pvalrem(x, p, &x);
-      if (d <= 0) return zeropadic(p, v);
       z = cgetg(5, t_PADIC);
       z[1] = evalprecp(d) | evalvalp(v);
       gel(z,2) = icopy(p);
@@ -2451,11 +2453,12 @@ cvtop(GEN x, GEN p, long d)
       v = Z_pval(gel(x,1),p); if (v > d) v = d;
       return cvtop(gel(x,2), p, v);
 
-    case t_FRAC: { GEN num = gel(x,1), den = gel(x,2);
-      if (!signe(num)) return zeropadic(p, d);
-      v = Z_pvalrem(num, p, &num);
-      if (!v) v = -Z_pvalrem(den, p, &den); /* assume (num,den) = 1 */
-      if (d <= 0) return zeropadic(p, v);
+    case t_FRAC:
+    {
+      GEN num, den;
+      if (d <= 0) return zeropadic(p, Q_pval(x,p));
+      num = gel(x,1); v = Z_pvalrem(num, p, &num);
+      den = gel(x,2); if (!v) v = -Z_pvalrem(den, p, &den);
       z = cgetg(5, t_PADIC);
       z[1] = evalprecp(d) | evalvalp(v);
       gel(z,2) = icopy(p);
@@ -2464,7 +2467,15 @@ cvtop(GEN x, GEN p, long d)
       gel(z,4) = modii(num, gel(z,3)); return z; /* not memory-clean */
     }
     case t_COMPLEX: return ctop(x, p, d);
-    case t_PADIC: return gprec(x,d);
+    case t_PADIC:
+      p = gel(x,2); /* override */
+      if (!signe(gel(x,4))) return zeropadic(p, d);
+      z = cgetg(5,t_PADIC);
+      z[1] = x[1]; setprecp(z,d);
+      gel(z,2) = icopy(p);
+      gel(z,3) = powiu(p, d);
+      gel(z,4) = modii(gel(x,4), gel(z,3)); return z;
+
     case t_QUAD: return qtop(x, p, d);
   }
   pari_err_TYPE("cvtop",x);
@@ -2483,8 +2494,7 @@ gcvtop(GEN x, GEN p, long r)
       y = cgetg_copy(x, &lx); y[1] = x[1];
       for (i=2; i<lx; i++) gel(y,i) = gcvtop(gel(x,i),p,r);
       return y;
-    case t_POLMOD: case t_RFRAC:
-    case t_VEC: case t_COL: case t_MAT:
+    case t_POLMOD: case t_RFRAC: case t_VEC: case t_COL: case t_MAT:
       y = cgetg_copy(x, &lx);
       for (i=1; i<lx; i++) gel(y,i) = gcvtop(gel(x,i),p,r);
       return y;

@@ -64,6 +64,11 @@ This file lists the incompatible changes between Version 2.x and older versions
      be proven to be maximal: it computes the expected canonical polynomial
      in all cases, which can be very slow. Always use polredbest() if you
      don't require a canonical output.
+  - meaning of precision(x, n) no longer depends on the type of x: it now
+    always refers to floating point precision. Before the change:
+    precision([O(2),O(3),O(x)], 10) -> [O(2^10),O(3^10),O(x^10)].
+    Now in order to truncate a p-adic or series, you have to multiply by
+    1 + O(t^n); in order to extend it, use truncate.
 
 * Specific to the PARI library:
 ===============================

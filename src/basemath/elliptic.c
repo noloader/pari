@@ -2666,7 +2666,7 @@ parse_p(GEN p, GEN *ab)
 
 static GEN
 precp_fix(GEN h, long v)
-{ return (precp(h) > v)? gprec(h,v): h; }
+{ return (precp(h) > v)? cvtop(h,gel(h,2),v): h; }
 
 GEN
 ellpadicheight(GEN e, GEN p, long v0, GEN P)

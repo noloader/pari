@@ -748,7 +748,7 @@ add_ser_scal(GEN y, GEN x)
   return gequal0(x)? normalize(z): z;
 }
 static long
-serprec(GEN x) { return ser_isexactzero(x)? 2: lg(x); }
+_serprec(GEN x) { return ser_isexactzero(x)? 2: lg(x); }
 /* x,y t_SER in the same variable: x+y */
 static GEN
 ser_add(GEN x, GEN y)
@@ -757,10 +757,10 @@ ser_add(GEN x, GEN y)
   GEN z;
   if (n < 0) { n = -n; swap(x,y); }
   /* valp(x) <= valp(y) */
-  lx = serprec(x);
+  lx = _serprec(x);
   if (lx == 2) /* don't lose type information */
     return scalarser(gadd(RgX_get_0(x), RgX_get_0(y)), varn(x), valp(x));
-  ly = serprec(y) + n; if (lx < ly) ly = lx;
+  ly = _serprec(y) + n; if (lx < ly) ly = lx;
   if (n)
   {
     if (n+2 > lx) return gcopy(x);

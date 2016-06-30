@@ -504,24 +504,7 @@ gprec(GEN x, long l)
       gel(y,1) = gprec(gel(x,1),l);
       gel(y,2) = gprec(gel(x,2),l);
       break;
-    case t_PADIC:
-      if (!signe(gel(x,4))) return zeropadic(gel(x,2), l+precp(x));
-      y=cgetg(5,t_PADIC);
-      y[1]=x[1]; setprecp(y,l);
-      gel(y,2) = icopy(gel(x,2));
-      gel(y,3) = powiu(gel(x,2),l);
-      gel(y,4) = modii(gel(x,4), gel(y,3));
-      break;
-
-    case t_SER:
-      if (lg(x) == 2) return zeroser(varn(x), l);
-      y=cgetg(l+2,t_SER); y[1]=x[1]; l++; i=l;
-      lx = lg(x);
-      if (l>=lx)
-        for ( ; i>=lx; i--) gel(y,i) = gen_0;
-      for ( ; i>=2; i--) gel(y,i) = gcopy(gel(x,i));
-      break;
-   case t_POL:
+    case t_POL: case t_SER:
       y = cgetg_copy(x, &lx); y[1] = x[1];
       for (i=2; i<lx; i++) gel(y,i) = gprec(gel(x,i),l);
       break;

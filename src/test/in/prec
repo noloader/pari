@@ -1,13 +1,6 @@
 precision(0)
 bitprecision(0)
 precision(I,3)
-precision(1+O(3)+I,3)
-precision(O(2),3)
-precision(1+O(2),3)
-precision(x+1+O(3),3)
-precision((1+O(3))/((1+O(5))*x),3)
-precision(Mod(1+O(3),(1+O(3))*x),3)
-precision([1+O(3),2],3)
 default(realprecision,38);
 t=(precision(1.,77)*x+1);
 precision(t)
@@ -18,6 +11,11 @@ bitprecision(1 + O(3^5), 10)
 bitprecision(1, 10)
 precision(1./t)
 precision(Qfb(1,0,-2));
+
+serprec(1,x)
+serprec(x+O(x^3),x)
+serprec(x+O(x^3),y)
+serprec((1+O(y^2))*x+y + O(y^3), y)
 
 padicprec(0,2)
 padicprec(0,"")
