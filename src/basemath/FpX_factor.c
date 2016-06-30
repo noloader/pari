@@ -1437,6 +1437,11 @@ F2x_factor_squarefree(GEN f)
   for(q = 1;;q *= 2)
   {
     r = F2x_gcd(f, F2x_deriv(f));
+    if (F2x_degree(r) == 0)
+    {
+      gel(u, q) = f;
+      break;
+    }
     t = F2x_div(f, r);
     if (F2x_degree(t) > 0)
     {
@@ -1686,6 +1691,11 @@ Flx_factor_squarefree(GEN f, ulong p)
   for(q = 1;;q *= p)
   {
     r = Flx_gcd(f, Flx_deriv(f, p), p);
+    if (degpol(r) == 0)
+    {
+      gel(u, q) = f;
+      break;
+    }
     t = Flx_div(f, r, p);
     if (degpol(t) > 0)
     {

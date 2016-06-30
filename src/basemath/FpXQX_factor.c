@@ -649,6 +649,11 @@ F2xqX_factor_squarefree(GEN f, GEN T)
   for(q = 1;;q *= 2)
   {
     r = F2xqX_gcd(f, F2xX_deriv(f), T);
+    if (degpol(r) == 0)
+    {
+      gel(u, q) = F2xqX_normalize(f, T);
+      break;
+    }
     t = F2xqX_div(f, r, T);
     if (degpol(t) > 0)
     {
@@ -810,6 +815,11 @@ FlxqX_factor_squarefree(GEN f, GEN xp, GEN T, ulong p)
   for(q = 1;;q *= p)
   {
     r = FlxqX_gcd(f, FlxX_deriv(f, p), T, p);
+    if (degpol(r) == 0)
+    {
+      gel(u, q) = FlxqX_normalize(f, T, p);
+      break;
+    }
     t = FlxqX_div(f, r, T, p);
     if (degpol(t) > 0)
     {
