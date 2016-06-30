@@ -223,7 +223,6 @@ BA162- polrootsmod(x^3-1, not a prime) -> SEGV (BIB)
 BA163- [windows] MPQS could fail due to temporary files
   164-  matsnf([27, 0; 0, 3; 1, 1; 0, 0],1+4) -> SEGV
 
-
   Added
     1- add optional argument to sumdigits to specify the base
     2- [libpari] bits_to_int,bits_to_u,binary_zv,binary_2k,binary_2k_nv
@@ -463,6 +462,7 @@ BA 173- [libpari] ZpXQ_div, ZpXQX_divrem, ZpXQX_digits
    176- [libpari] QM_charpoly_ZX_bound
 BA 177- libpari support for low-res plot()
    178- GP function serprec
+   179- ellap(E, p) for E/K number field, and p maximal ideal
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]

@@ -13,4 +13,6 @@
 [Mod(0, 5), Mod(0, 5), Mod(0, 5), Mod(4, 5), Mod(0, 5), Mod(0, 5), Mod(3, 5)
 , Mod(0, 5), Mod(4, 5), Mod(3, 5), Mod(0, 5), Mod(4, 5), Mod(3, 5), Vecsmall
 ([3]), [5, [4, 0, [1, 0, 0, 0]]], [0, 0, 0, 0]]
-Total time spent: 156
+6
+6
+Total time spent: 184

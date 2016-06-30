@@ -169,7 +169,7 @@ g(K,E)=
   (p,n)->
   my(id=idealprimedec(K,p));
   prod(j=1,#id,
-    my(f=id[j].f,t=ellap(ellinit(E,id[j])));
+    my(f=id[j].f, t=ellap(E,id[j]));
     1-t*x^f+(p*x^2)^f);
 }
 K=nfinit(a^2+1);

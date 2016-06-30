@@ -26,7 +26,15 @@ e5 = ellinit(e, idealprimedec(K,5)[1])
       P=idealprimedec(K,p)[1];
       A=elllocalred(e,P.p);
       B=elllocalred(eK,P);
-      if(A!=B, error(E[2]))
+      if(A!=B, error(E[2]));
+      if(ellap(e,p) != ellap(eK,P),error(E[2]))
     )
   )
 }
+
+K=nfinit(a^2+1); P17 = idealprimedec(K,17)[1];
+E=ellinit([1+a,0,1,0,0],K);
+E2 = ellchangecurve(E, [17,0,0,0]);
+ellap(E2, P17)
+E3 = ellchangecurve(E, [1/17,a,a+1,0]);
+ellap(E3, P17)

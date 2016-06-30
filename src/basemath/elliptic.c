@@ -43,6 +43,15 @@ c4c6_to_a4a6(GEN c4, GEN c6, GEN p, GEN *a4, GEN *a6)
   *a4 = c4_to_a4(c4, p);
   *a6 = Fp_neg(Fp_mulu(c6, 54, p), p);
 }
+static GEN
+Fq_c4_to_a4(GEN c4, GEN T, GEN p)
+{ return Fq_neg(Fq_mulu(c4, 27, T,p), T,p); }
+static void
+Fq_c4c6_to_a4a6(GEN c4, GEN c6, GEN T, GEN p, GEN *a4, GEN *a6)
+{
+  *a4 = Fq_c4_to_a4(c4, T,p);
+  *a6 = Fq_neg(Fq_mulu(c6, 54, T,p), T,p);
+}
 static void
 ell_to_a4a6(GEN E, GEN p, GEN *a4, GEN *a6)
 {
@@ -3944,6 +3953,14 @@ approx_mod3(GEN J, GEN z)
   return ZC_Z_divexact(b, stoi(-3));
 }
 
+/* return a such that v_P(a) = -1, v_Q(a) >= 0, Q!=P, Q|p */
+static GEN
+get_piinv(GEN P)
+{
+  GEN z = pr_get_tau(P);
+  if (typ(z) == t_MAT) z = gel(z,1);
+  return gdiv(z, pr_get_p(P));
+}
 /* Local reduction, residual characteristic >= 5. E/nf, P prid
 * Output: f, kod, [u,r,s,t], c */
 static GEN
@@ -3960,9 +3977,7 @@ nflocalred_p(GEN e, GEN P)
   nuj = nfval(nf,ell_get_j(e),P);
   nuj = nuj >= 0? 0: -nuj; /* v_P(denom(j)) */
   m = (vD - nuj)/12;
-  piinv = pr_get_tau(P);
-  if (typ(piinv) == t_MAT) piinv = gel(piinv,1);
-  piinv = gdiv(piinv, p); /* v_P(piinv) = -1, v_Q(piinv) >= 0, Q!=P */
+  piinv = get_piinv(P);
   pi = nfinv(nf, piinv); /* local uniformizer */
 
   if(m <= 0) ch = init_ch();
@@ -4442,6 +4457,93 @@ is_minimal_ap(GEN E, GEN p, int *good_red)
   }
   c4c6_to_a4a6(c4, c6, p, &a4,&a6);
   return subii(addiu(p,1), Fp_ellcard(a4, a6, p));
+}
+
+static GEN
+doellcard(GEN E)
+{
+  GEN fg = ellff_get_field(E);
+  if (typ(fg)==t_FFELT)
+    return FF_ellcard(E);
+  else
+  {
+    GEN e = ellff_get_a4a6(E);
+    return Fp_ellcard(gel(e,1),gel(e,2),fg);
+  }
+}
+
+static GEN
+nfis_minimal_ap(GEN E, GEN P, int *good_red)
+{
+  GEN a4,a6, c4, c6, D, modP, p, T, card, piinv = NULL, nf = ellnf_get_nf(E);
+  long vc6, vD, d;
+
+  modP = nf_to_Fq_init(nf,&P,&T,&p);
+  D = ell_get_disc(E);
+  c4 = ell_get_c4(E);
+  vD = nfval(nf,D,P);
+  p = pr_get_p(P);
+  if (cmpiu(p, 3) <= 0)
+  { /* assume locally minimal */
+    if (vD)
+    {
+      *good_red = 0;
+      if (nfval(nf,c4,P)) return gen_0; /* additive */
+      if (equaliu(p, 2))
+      {
+        GEN a1 = nf_to_Fq(E, ell_get_a1(E), modP);
+        GEN a2 = nf_to_Fq(E, ell_get_a2(E), modP);
+        GEN a3 = nf_to_Fq(E, ell_get_a3(E), modP);
+        GEN z = Fq_add(Fq_div(a3,a1,T,p), a2, T,p);
+        if (lg(FqX_roots(mkpoln(3, z, a1, gen_1), T,p)) > 1)
+          return gen_1; /* split */
+        else
+          return gen_m1; /* non-split */
+      }
+      else
+      {
+        GEN b2 = nf_to_Fq(E, ell_get_b2(E), modP);
+        return Fq_issquare(b2,T,p)? gen_1: gen_m1;
+      }
+    }
+    E = ellinit_nf_to_Fq(E, modP);
+    card = doellcard(E);
+  }
+  else
+  {
+    c6 = ell_get_c6(E);
+    vc6 = nfval(nf,c6,P);
+    d = minss(2*vc6, vD) / 12;
+    if (d)
+    { /* non minimal model */
+      vc6 -= 6*d;
+      vD -= 12*d;
+      piinv = get_piinv(P);
+    }
+    if (vD) /* bad reduction */
+    {
+      *good_red = 0;
+      if (vc6) return gen_0;
+      if (d) c6 = nfmul(nf, c6, nfpow(nf, piinv, stoi(6*d)));
+      c6 = nf_to_Fq(nf, c6, modP);
+      return Fq_issquare(gneg(c6),T,p)? gen_1: gen_m1;
+    }
+    *good_red = 1;
+    if (d)
+    {
+      GEN ui2 = nfpow(nf, piinv, stoi(2*d));
+      GEN ui4 = nfsqr(nf, ui2);
+      GEN ui6 = nfmul(nf,ui2,ui4);
+      c4 = nfmul(nf, c4, ui4);
+      c6 = nfmul(nf, c6, ui6);
+    }
+    c4 = nf_to_Fq(nf, c4, modP);
+    c6 = nf_to_Fq(nf, c6, modP);
+    Fq_c4c6_to_a4a6(c4, c6, T,p, &a4,&a6);
+    card = T? FpXQ_ellcard(Fq_to_FpXQ(a4,T,p),Fq_to_FpXQ(a6,T,p),T,p)
+            : Fp_ellcard(a4,a6,p);
+  }
+  return subii(addiu(pr_norm(P),1), card);
 }
 
 /* E/Q, integral model, Laska-Kraus-Connell algorithm */
@@ -5790,19 +5892,6 @@ checkellp(GEN E, GEN p, const char *s)
   }
 }
 
-static GEN
-doellcard(GEN E)
-{
-  GEN fg = ellff_get_field(E);
-  if (typ(fg)==t_FFELT)
-    return FF_ellcard(E);
-  else
-  {
-    GEN e = ellff_get_a4a6(E);
-    return Fp_ellcard(gel(e,1),gel(e,2),fg);
-  }
-}
-
 GEN
 ellap(GEN E, GEN p)
 {
@@ -5822,19 +5911,7 @@ ellap(GEN E, GEN p)
     q = p; card = ellcard_ram(E, p, &goodred);
     break;
   case t_ELL_NF:
-  {
-    GEN R = nflocalred(E, p), T;
-    E = ellchangecurve(E, gel(R,3));
-    E = ellnf_to_Fq(E, p, &p, &T);
-    if (signe(gel(R,1))) /* bad reduction */
-    {}
-    else
-    {
-      E = T? ellinit_Fq(E,Tp_to_FF(T,p)): ellinit_Fp(E,p);
-      card = doellcard(E);
-    }
-    break;
-  }
+    return nfis_minimal_ap(E, p, &goodred);
   default:
     pari_err_TYPE("ellap",E);
     return NULL; /*NOT REACHED*/
