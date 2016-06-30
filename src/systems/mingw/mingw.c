@@ -13,6 +13,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 
 /* Originally written by Vasili Burdo */
 
+#include "pwinver.h"
 #include <windows.h>
 #include <stdio.h>
 #include "mingw.h"

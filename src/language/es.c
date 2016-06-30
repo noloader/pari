@@ -17,6 +17,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 /**                                                               **/
 /*******************************************************************/
 #ifdef _WIN32
+#include "../systems/mingw/pwinver.h"
 #include <windows.h>
 #include <process.h> /* for getpid */
 #include "../systems/mingw/mingw.h"
