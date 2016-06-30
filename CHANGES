@@ -385,12 +385,12 @@ PB 120- Speed up {Flx,FpX,FpXQX}_divrem_basecase for modulus of the form
         x^n+O(x^m) with m small
 HC 121- GP function solvestep
    122- [GP] New lfun family of functions
-   lfun                lfundiv             lfunmfspec          lfunsymsqspec
+   lfun                lfundiv             lfunmfspec
    lfunabelianrelinit  lfunetaquo          lfunmul             lfuntheta
    lfunan              lfunhardy           lfunorderzero       lfunthetainit
    lfuncheckfeq        lfuninit            lfunqf              lfunzeros
    lfunconductor       lfunlambda          lfunrootres         lfunartin
-   lfuncreate          lfunmfpeters        lfunsymsq
+   lfuncreate
    123- [libpari] nfchecksigns, idealchineseinit
 JD 124- [libpari] gp_read_str_multiline
 BA 125- [libpari] Flx_nbfact_Frobenius, FpX_nbfact_Frobenius
