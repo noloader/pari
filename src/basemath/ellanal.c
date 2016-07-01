@@ -77,7 +77,7 @@ gen_BG_init(struct bg_data *bg, GEN E, GEN N, GEN bnd)
   bg->bnd = bnd;
   bg->rootbnd = itou(sqrtint(bnd));
   bg->p = primes_upto_zv(bg->rootbnd);
-  bg->an = anellsmall(E, bg->rootbnd);
+  bg->an = ellanQ_zv(E, bg->rootbnd);
 }
 
 static void
@@ -182,7 +182,7 @@ vecF2_lk(GEN E, GEN K, GEN rbnd, GEN Q, GEN sleh, long prec)
 {
   pari_sp av = avma, av2;
   long l, L  = lg(K)-1;
-  GEN a = anellsmall(E, itos(gel(K,1)));
+  GEN a = ellanQ_zv(E, itos(gel(K,1)));
   GEN S = cgetg(L+1, t_VEC);
   for (l = 1; l <= L; l++)
     gel(S,l) = cgetr(prec);

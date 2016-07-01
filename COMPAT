@@ -101,6 +101,7 @@ This file lists the incompatible changes between Version 2.x and older versions
   - rename leading_term -> leading_coeff, constant_term -> constant_coeff
   - Z_to_Flx now takes a shifted variable number, as Fl_to_Flx.
   - rename FlxqX_pow to FlxqX_powu
+  - rename anell -> ellan, anellsmall -> ellanQ_zv
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%% VERSION 2.6 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   - eval() no longer evaluates its arguments in "permissive" mode: eval("1a")

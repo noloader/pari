@@ -164,39 +164,36 @@ lfunrootres(L)
 lfun(L,1)
 
 print("Elliptic curves over number fields");
-g(K,E)=
-{
-  (p,n)->
-  my(id=idealprimedec(K,p));
-  prod(j=1,#id,
-    my(f=id[j].f, t=ellap(E,id[j]));
-    1-t*x^f+(p*x^2)^f);
-}
 K=nfinit(a^2+1);
 E1=ellinit([1+a,0,1,0,0],K);
-L1=lfuncreate([[g(K,E1),[5,(1+x)*(1+5*x^2)],[13,(1-x)*(1+4*x+13*x^2)]],0,[0,0,1,1],2,16*65,1]);
+L1=lfuncreate([n->ellan(E1,n),0,[0,0,1,1],2,16*65,1]);
 lfuncheckfeq(L1)
 lfunlambda(L1,1)
+
 E2=ellinit([a,0,a,0,0],K);
-L2=lfuncreate([[g(K,E2),[2,(1+x)],[7,(1-x^2)]],0,[0,0,1,1],2,16*98,1]);
+L2=lfuncreate([n->ellan(E2,n),0,[0,0,1,1],2,16*98,1]);
 lfuncheckfeq(L2)
 lfunlambda(L2,1)
+
 E3=ellinit([1,a-1,a+1,-a-1,0],K);
-L3=lfuncreate([[g(K,E3),[2,(1-x)],[53,(1+x)*(1+53*x^2)]],0,[0,0,1,1],2,16*106,1]);
+L3=lfuncreate([n->ellan(E3,n),0,[0,0,1,1],2,16*106,1]);
 lfuncheckfeq(L3)
 lfunlambda(L3,1)
+
 E4=ellinit([0,1-a,a,-a,0],K);
-L4=lfuncreate([[g(K,E4),[233,(1+x)*(1+11*x+233*x^2)]],0,[0,0,1,1],2,16*233,-1]);
+L4=lfuncreate([n->ellan(E4,n),0,[0,0,1,1],2,16*233,-1]);
 lfuncheckfeq(L4)
 lfunlambda(L4,2)
+
 K2=bnfinit(a^2-a+5);
 E5=ellinit([a,1-a,1,-1,0],K2);
-L5=lfuncreate([[g(K2,E5),[2,1-x^2],[5,(1+x)*(1+5*x^2)]],0,[0,0,1,1],2,19^2*20,1]);
+L5=lfuncreate([n->ellan(E5,n),0,[0,0,1,1],2,19^2*20,1]);
 lfuncheckfeq(L5)
 lfunlambda(L5,1)
+
 K3=bnfinit(a^2-a-9);
 E6=ellinit([0,2,1,-19-8*a,28+11*a],K3);
-L6=lfuncreate([g(K3,E6),0,[0,0,1,1],2,37^2,1]);
+L6=lfuncreate([n->ellan(E6,n),0,[0,0,1,1],2,37^2,1]);
 lfuncheckfeq(L6)
 lfunlambda(L6,1)
 

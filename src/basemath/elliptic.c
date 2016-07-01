@@ -4491,9 +4491,9 @@ nfis_minimal_ap(GEN E, GEN P, int *good_red)
       if (nfval(nf,c4,P)) return gen_0; /* additive */
       if (equaliu(p, 2))
       {
-        GEN a1 = nf_to_Fq(E, ell_get_a1(E), modP);
-        GEN a2 = nf_to_Fq(E, ell_get_a2(E), modP);
-        GEN a3 = nf_to_Fq(E, ell_get_a3(E), modP);
+        GEN a1 = nf_to_Fq(nf, ell_get_a1(E), modP);
+        GEN a2 = nf_to_Fq(nf, ell_get_a2(E), modP);
+        GEN a3 = nf_to_Fq(nf, ell_get_a3(E), modP);
         GEN z = Fq_add(Fq_div(a3,a1,T,p), a2, T,p);
         if (lg(FqX_roots(mkpoln(3, z, a1, gen_1), T,p)) > 1)
           return gen_1; /* split */
@@ -4502,10 +4502,11 @@ nfis_minimal_ap(GEN E, GEN P, int *good_red)
       }
       else
       {
-        GEN b2 = nf_to_Fq(E, ell_get_b2(E), modP);
+        GEN b2 = nf_to_Fq(nf, ell_get_b2(E), modP);
         return Fq_issquare(b2,T,p)? gen_1: gen_m1;
       }
     }
+    *good_red = 1;
     E = ellinit_nf_to_Fq(E, modP);
     card = doellcard(E);
   }
@@ -5159,7 +5160,7 @@ checkell_int(GEN e)
       typ(ell_get_a2(e)) != t_INT ||
       typ(ell_get_a3(e)) != t_INT ||
       typ(ell_get_a4(e)) != t_INT ||
-      typ(ell_get_a6(e)) != t_INT) pari_err_TYPE("anellsmall [not an integral model]",e);
+      typ(ell_get_a6(e)) != t_INT) pari_err_TYPE("ellanQ [not an integral model]",e);
 }
 
 long
@@ -5252,17 +5253,17 @@ ellan_get_ap(ulong p, int *good_red, int CM, GEN e)
   }
 }
 GEN
-anellsmall(GEN e, long n0)
+ellanQ_zv(GEN e, long n0)
 {
   pari_sp av;
   ulong p, SQRTn, n = (ulong)n0;
   GEN an;
   int CM;
 
-  checkell_int(e);
   if (n0 <= 0) return cgetg(1,t_VEC);
   if (n >= LGBITS)
     pari_err_IMPL( stack_sprintf("ellan for n >= %lu", LGBITS) );
+  e = ellintegralmodel(e,NULL);
   SQRTn = usqrt(n);
   CM = ellQ_get_CM(e);
 
@@ -5278,13 +5279,57 @@ anellsmall(GEN e, long n0)
   avma = av; return an;
 }
 
-GEN
-anell(GEN e, long n0)
+static GEN
+ellanQ(GEN e, long N)
 {
-  GEN v = anellsmall(e, n0);
+  GEN v = ellanQ_zv(e, N);
   long i;
-  for (i = 1; i <= n0; i++) gel(v,i) = stoi(v[i]);
+  for (i = 1; i <= N; i++) gel(v,i) = stoi(v[i]);
   settyp(v, t_VEC); return v;
+}
+
+static GEN
+nfelllocal(void *S, GEN p)
+{
+  pari_sp av = avma;
+  GEN E = (GEN)S;
+  GEN LP = idealprimedec(ellnf_get_nf(E), p), T = pol_1(0);
+  long l = lg(LP), i;
+  for (i = 1; i < l; i++)
+  {
+    int goodred;
+    GEN P = gel(LP,i), T2;
+    GEN ap = nfis_minimal_ap(E, P, &goodred);
+    long f = pr_get_f(P);
+    if (goodred)
+      T2 = mkpoln(3, pr_norm(P), negi(ap), gen_1);
+    else
+    {
+      if (!signe(ap)) continue;
+      T2 = deg1pol_shallow(negi(ap), gen_1, 0);
+    }
+    if (f > 1) T2 = RgX_inflate(T2, f);
+    T = ZX_mul(T, T2);
+  }
+  return gerepileupto(av, ginv(T));
+}
+
+static GEN
+nfellan(GEN E, long N)
+{ return direuler((void*)E, &nfelllocal, gen_2, stoi(N), NULL); }
+
+GEN
+ellan(GEN E, long N)
+{
+  checkell(E);
+  switch(ell_get_type(E))
+  {
+    case t_ELL_Q: return ellanQ(E, N);
+    case t_ELL_NF: return nfellan(E, N);
+    default:
+      pari_err_TYPE("ellan",E);
+      return NULL; /*NOT REACHED*/
+  }
 }
 
 static GEN
@@ -5386,7 +5431,7 @@ elllseries(GEN e, GEN s, GEN A, long prec)
               fabs(gtodouble(real_i(s))-1.) * log(rtodbl(cga)))
             / rtodbl(cgb) + 1);
   if ((long)l < 1) l = 1;
-  v = anellsmall(e, minss(l,LGBITS-1));
+  v = ellanQ_zv(e, minss(l,LGBITS-1));
   s2 = K = NULL; /* gcc -Wall */
   if (!flun) { s2 = gsubsg(2,s); K = gpow(cg, gsubgs(gmul2n(s,1),2),prec); }
   z = gen_0;
@@ -5699,7 +5744,7 @@ elltaniyama(GEN e, long prec)
 
   x = cgetg(prec+3,t_SER);
   x[1] = evalsigne(1) | _evalvalp(-2) | evalvarn(0);
-  d = ginv(gtoser(anell(e,prec+1), 0, prec)); setvalp(d,-1);
+  d = ginv(gtoser(ellanQ(e,prec+1), 0, prec)); setvalp(d,-1);
   /* 2y(q) + a1x + a3 = d qx'(q). Solve for x(q),y(q):
    * 4y^2 = 4x^3 + b2 x^2 + 2b4 x + b6 */
   c = gsqr(d);

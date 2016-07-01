@@ -10,7 +10,7 @@ ellordinate(e, t+1)
 elldivpol(e, 3)
 ellfromj(Mod(t,t^3-2))
 ellinit(e, idealprimedec(K,2)[1])
-e5 = ellinit(e, idealprimedec(K,5)[1])
+ellinit(e, idealprimedec(K,5)[1])
 
 {
   K = nfinit(t);
@@ -38,3 +38,5 @@ E2 = ellchangecurve(E, [17,0,0,0]);
 ellap(E2, P17)
 E3 = ellchangecurve(E, [1/17,a,a+1,0]);
 ellap(E3, P17)
+ellan(E2,20)
+ellan(E3,20)
