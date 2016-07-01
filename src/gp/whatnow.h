@@ -114,7 +114,7 @@ static const whatnow_t whatnowlist[]={
 {"algdep",_SAME},
 {"algdep2","algdep","(x,n,dec)","(x,n,dec)"},
 {"algtobasis","nfalgtobasis","(nf,x)","(nf,x)"},
-{"ellan","ellan","(e,n)","(e,n)"},
+{"anell","ellan","(e,n)","(e,n)"},
 {"apell","ellap","(e,n)","(e,n)"},
 {"apell2","ellap","(e,n)","(e,n)"},
 {"apprpadic","padicappr","(x,a)","(x,a)"},
