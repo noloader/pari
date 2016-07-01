@@ -426,31 +426,27 @@ lfunthetacost0(GEN L, GEN tdom, long m, long bitprec)
 }
 
 static long
-fracgammadegree(GEN F)
-{ return (typ(F)==t_RFRAC)? degpol(gel(F,2)): 0; }
+fracgammadegree(GEN FVga)
+{ GEN F = gel(FVga,1); return (typ(F)==t_RFRAC)? degpol(gel(F,2)): 0; }
 
 /* Poles of a L-function can be represented in the following ways:
  * 1) Nothing (ldata has only 6 components, ldata_get_residue = NULL).
  * 2) a complex number (single pole at s = k with given residue, unknown if 0).
  * 3) A vector (possibly empty) of 2-component vectors [a, ra], where a is the
- * pole, ra a t_SER: its Taylor expansion at a. */
+ * pole, ra a t_SER: its Taylor expansion at a. A t_VEC encodes the polar
+ * part of L, a t_COL, the polar part of Lambda */
+
+/* 'a' a complex number (pole), 'r' the polar part of L at 'a';
+ * return 'R' the polar part of Lambda at 'a' */
 static GEN
 rtoR(GEN a, GEN r, GEN FVga, GEN N, long prec)
 {
-  GEN as = deg1ser_shallow(gen_1, a, varn(r), lg(r)-2);
+  long v = lg(r)-2;
+  GEN as = deg1ser_shallow(gen_1, a, varn(r), v);
   GEN Na = gpow(N, gdivgs(as, 2), prec);
-  long d = fracgammadegree(gel(FVga,1));
-  /* make up for a possible loss of accuracy */
-  if (d) as = deg1ser_shallow(gen_1, a, varn(r), lg(r)-2+d);
+  long d = fracgammadegree(FVga);
+  if (d) as = sertoser(as, v+d); /* make up for a possible loss of accuracy */
   return gmul(gmul(r, Na), gammafactproduct(FVga, as, prec));
-}
-
-/* r / x + O(1) */
-static GEN
-simple_pole(GEN r)
-{
-  GEN S = deg1ser_shallow(gen_0, r, 0, 1);
-  setvalp(S, -1); return S;
 }
 
 /* assume r in normalized form: t_VEC of pairs [be,re] */
@@ -463,22 +459,33 @@ lfunrtopoles(GEN r)
   {
     GEN rj = gel(r,j), a = gel(rj,1);
     gel(v,j) = a;
-
   }
   gen_sort_inplace(v, (void*)&cmp_universal, cmp_nodata, NULL);
   return v;
 }
 
+/* r / x + O(1) */
+static GEN
+simple_pole(GEN r)
+{
+  GEN S = deg1ser_shallow(gen_0, r, 0, 1);
+  setvalp(S, -1); return S;
+}
+static GEN
+normalize_simple_pole(GEN r, long k)
+{
+  long tx = typ(r);
+  if (is_vec_t(tx)) return r;
+  if (!is_scalar_t(tx)) pari_err_TYPE("normalizepoles", r);
+  return mkvec(mkvec2(stoi(k), simple_pole(r)));
+}
+/* normalize the description of a polar part */
 static GEN
 normalizepoles(GEN r, long k)
 {
-  long tx = typ(r), iv, j, l;
+  long iv, j, l;
   GEN v;
-  if (tx != t_VEC)
-  {
-    if (!is_scalar_t(tx)) pari_err_TYPE("normalizepoles", r);
-    return mkvec(mkvec2(stoi(k), simple_pole(r)));
-  }
+  if (!is_vec_t(typ(r))) return normalize_simple_pole(r, k);
   v = cgetg_copy(r, &l);
   for (j = iv = 1; j < l; j++)
   {
@@ -496,13 +503,16 @@ normalizepoles(GEN r, long k)
 static GEN
 lfunrtoR_i(GEN ldata, GEN r, GEN eno, long prec)
 {
-  GEN Vga = ldata_get_gammavec(ldata);
-  GEN N = ldata_get_conductor(ldata);
-  pari_sp av = avma;
+  GEN Vga = ldata_get_gammavec(ldata), N = ldata_get_conductor(ldata);
   GEN R, vr, FVga;
+  pari_sp av = avma;
   long lr, j, jR, k = ldata_get_k(ldata);
+
   if (!r || isintzero(r) || isintzero(eno)) return gen_0;
   r = normalizepoles(r, k);
+  if (typ(r) == t_COL) return gerepilecopy(av, r);
+  if (typ(ldata_get_dual(ldata)) != t_INT)
+    pari_err(e_MISC,"please give the Taylor development of Lambda");
   vr = lfunrtopoles(r); lr = lg(vr);
   FVga = gammafactor(Vga);
   R = cgetg(2*lr, t_VEC);
@@ -1502,7 +1512,7 @@ lfun_OK(GEN linit, GEN s, long bitprec)
   S = lfunlambda_OK(linit, s, bitprec);
   if (typ(S)==t_SER && typ(s)!=t_SER)
   {
-    long d = fracgammadegree(gel(FVga,1));
+    long d = fracgammadegree(FVga);
     ss = deg1ser_shallow(gen_1, s, varn(S), lg(S)+d-2);
   }
   gas = gammafactproduct(FVga, ss, prec);
@@ -1943,7 +1953,7 @@ lfunrootres(GEN data, long bitprec)
   ldata = lfunmisc_to_ldata_shallow(data);
   r = ldata_get_residue(ldata);
   k = ldata_get_k(ldata);
-  if (r && typ(r) != t_VEC) r = mkvec(mkvec2(stoi(k), simple_pole(r)));
+  if (r) r = normalize_simple_pole(r, k);
   if (!r || residues_known(r))
   {
     w = lfunrootno(data, bitprec);

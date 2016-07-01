@@ -339,3 +339,9 @@ lfun(La,2+I)
 f(s)=[round(lfun(L,s)/(lfun(L1,s)+lfun(L2,s)),&e),e];
 lfuncheckfeq(L)
 f(2+I)
+
+\\ zeta via lfuncreate + Lambda polar part
+a=n->vector(n,i,1);
+z=lfuncreate([a, a, [0], 1, 1, 1, [[0,-1/x+O(1)], [1,1/x+O(1)]]~]);
+lfun(z,2)
+
