@@ -1142,6 +1142,20 @@ ser2pol_i(GEN x, long lx)
   return y;
 }
 
+/* x a t_SER, prec >= 0 */
+GEN
+sertoser(GEN x, long prec)
+{
+  long i, lx = lg(x);
+  GEN y;
+
+  if (lx == 2) return zeroser(varn(x), prec);
+  y = cgetg(prec+2,t_SER); y[1] = x[1];
+  for (i = prec+1; i >= lx; i--) gel(y,i) = gen_0;
+  for (          ; i >= 2;  i--) gel(y,i) = gel(x,i);
+  return y;
+}
+
 GEN
 inv_ser(GEN b)
 {

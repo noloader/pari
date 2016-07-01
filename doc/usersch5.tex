@@ -10239,6 +10239,10 @@ function, simple complex variant of \tet{conjvec}.
 
 \section{Power series}
 
+\fun{GEN}{sertoser}{GEN x, long prec} return the \typ{SER} $x$ truncated
+or extended (with zeros) to \kbd{prec} terms. Shallow function, assume
+that $\kbd{prec} \geq 0$.
+
 \fun{GEN}{derivser}{GEN x} returns the derivative of the \typ{SER} \kbd{x}
 with respect to its main variable.
 

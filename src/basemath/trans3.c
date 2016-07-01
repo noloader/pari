@@ -246,16 +246,25 @@ jbesselh(GEN n, GEN z, long prec)
     case t_PADIC: pari_err_IMPL("p-adic jbesselh function");
     default:
     {
-      GEN p1, v;
+      long t, v;
       av = avma; if (!(y = toser_i(z))) break;
       if (gequal0(y)) return gerepileupto(av, gpowgs(y,k));
-      if (valp(y) < 0) pari_err_DOMAIN("besseljh","valuation", "<", gen_0, y);
-      y = gprec(y, lg(y)-2 + (2*k+1)*valp(y));
-      p1 = gdiv(_jbesselh(k,y,prec),gpowgs(y,k));
-      v = cgetg(k+1, t_VECSMALL);
-      for (i=1; i<=k; i++) v[i] = 2*i+1;
-      p1 = gmul(p1, zv_prod_Z(v));
-      return gerepilecopy(av,p1);
+      v = valp(y);
+      if (v < 0) pari_err_DOMAIN("besseljh","valuation", "<", gen_0, y);
+      t = lg(y)-2;
+      if (v) y = sertoser(y, t + (2*k+1)*v);
+      if (!k)
+        y = gdiv(gsin(y,prec), y);
+      else
+      {
+        GEN T, a = _jbesselh(k, y, prec);
+        if (v) y = sertoser(y, t + k*v); /* lower precision */
+        y = gdiv(a, gpowgs(y, k));
+        T = cgetg(k+1, t_VECSMALL);
+        for (i = 1; i <= k; i++) T[i] = 2*i+1;
+        y = gmul(y, zv_prod_Z(T));
+      }
+      return gerepileupto(av, y);
     }
   }
   pari_err_TYPE("besseljh",z);

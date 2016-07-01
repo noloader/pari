@@ -463,6 +463,7 @@ BA 173- [libpari] ZpXQ_div, ZpXQX_divrem, ZpXQX_digits
 BA 177- libpari support for low-res plot()
    178- GP function serprec
    179- ellap(E, p) for E/K number field, and p maximal ideal
+   180- [libpari] function sertoser
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]
