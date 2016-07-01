@@ -6009,7 +6009,15 @@ ellcard(GEN E, GEN p)
       pari_sp av = avma;
       int goodred;
       GEN N = ellcard_ram(E, p, &goodred);
-      if (!goodred) N = subis(N, 1); /* remove singular point */
+      if (!goodred) N = subiu(N, 1); /* remove singular point */
+      return gerepileuptoint(av, N);
+    }
+  case t_ELL_NF:
+    {
+      pari_sp av = avma;
+      int goodred;
+      GEN N = subii(pr_norm(p), nfis_minimal_ap(E, p, &goodred));
+      if (goodred) N = addiu(N, 1);
       return gerepileuptoint(av, N);
     }
   default:

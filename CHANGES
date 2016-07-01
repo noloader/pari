@@ -462,7 +462,7 @@ BA 173- [libpari] ZpXQ_div, ZpXQX_divrem, ZpXQX_digits
    176- [libpari] QM_charpoly_ZX_bound
 BA 177- libpari support for low-res plot()
    178- GP function serprec
-   179- ellap(E, p) for E/K number field, and p maximal ideal
+   179- ellap(E, p), ellcard(E,p) for E/K number field, and p maximal ideal
    180- [libpari] function sertoser
    181- ellan(E, n) for E/K number field
 

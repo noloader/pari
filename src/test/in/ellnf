@@ -32,10 +32,14 @@ ellinit(e, idealprimedec(K,5)[1])
   )
 }
 
-K=nfinit(a^2+1); P17 = idealprimedec(K,17)[1];
+K=nfinit(a^2+1);
+P17 = idealprimedec(K,17)[1];
+P13 = idealprimedec(K,13)[1];
+P5 = idealprimedec(K,5)[1];
 E=ellinit([1+a,0,1,0,0],K);
 E2 = ellchangecurve(E, [17,0,0,0]);
-ellap(E2, P17)
+[ellap(E2, P5), ellap(E2, P13), ellap(E2, P17)]
+[ellcard(E2, P5), ellcard(E2, P13), ellcard(E2, P17)]
 E3 = ellchangecurve(E, [1/17,a,a+1,0]);
 ellap(E3, P17)
 ellan(E2,20)
