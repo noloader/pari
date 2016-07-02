@@ -657,7 +657,8 @@ next_prime_evec(
   return 1;
 }
 
-static void
+/* Return 1 on success, 0 on failure. */
+static int
 orient_pcp(classgp_pcp_t G, long *ni, long D, long u, hashtable *tbl)
 {
   pari_sp av = avma;
@@ -723,7 +724,8 @@ orient_pcp(classgp_pcp_t G, long *ni, long D, long u, hashtable *tbl)
         qs[i] = q;
       }
     }
-    if ( ! ps[i]) pari_err_BUG("orient_pcp");
+    if ( ! ps[i])
+      return 0;
   }
 
   if (ni) {
@@ -733,6 +735,7 @@ orient_pcp(classgp_pcp_t G, long *ni, long D, long u, hashtable *tbl)
     *ni = itos((GEN) he->val);
   }
   avma = av;
+  return 1;
 }
 
 /* We must avoid situations where L_i^{+/-2} = L_j^2 (or = L_0*L_j^2
@@ -816,6 +819,13 @@ pcp_alloc_and_set(
   evec_copy(G->r, r, rlen);
   evec_orders(G->o, n, r, k);
   evec_n_to_m(G->m, n, k);
+}
+
+static void
+classgp_pcp_clear(classgp_pcp_t G)
+{
+  if (G->_data)
+    killblock(G->_data);
 }
 
 /*
@@ -922,11 +932,16 @@ classgp_make_pcp(
       }
     }
 
-    if ((i = classgp_pcp_check_generators(n, r, k, G->L0)) < 0)
-      break;
-    if (log2(G->Lfilter) + log2(L[i]) >= BITS_IN_LONG)
+    if ((i = classgp_pcp_check_generators(n, r, k, G->L0)) < 0) {
+      pcp_alloc_and_set(G, L, n, r, k);
+      if ( ! orient || orient_pcp(G, ni, D, u, tbl))
+        break;
+      classgp_pcp_clear(G);
+      G->Lfilter *= G->L[0];
+    } else if (log2(G->Lfilter) + log2(L[i]) >= BITS_IN_LONG)
       pari_err_IMPL("classgp_pcp");
-    G->Lfilter *= L[i];
+    else
+      G->Lfilter *= L[i];
     avma = bv;
   }
 
@@ -945,23 +960,11 @@ classgp_make_pcp(
   if (2 * (1 + log2(L1) + log2(L2)) >= BITS_IN_LONG)
     pari_err_IMPL("classgp_pcp");
 
-  pcp_alloc_and_set(G, L, n, r, k);
-
   if (G->L0 && (G->L[0] != G->L0 || G->o[0] != 2))
     pari_err_BUG("classgp_pcp");
 
-  if (orient)
-    orient_pcp(G, ni, D, u, tbl);
-
   avma = av;
   return;
-}
-
-static void
-classgp_pcp_clear(classgp_pcp_t G)
-{
-  if (G->_data)
-    killblock(G->_data);
 }
 
 INLINE ulong
