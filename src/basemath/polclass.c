@@ -578,7 +578,9 @@ upper_bound_on_classpoly_coeffs(long D, long h, GEN qfinorms)
 
 INLINE long
 distinct_inverses(
-  long f[], long ef[], long ei[], long n[], long o[], long r[], long k, long L0, long i)
+  const long f[], const long ef[], const long ei[],
+  const long n[], const long o[], const long r[], long k,
+  long L0, long i)
 {
   pari_sp av = avma;
   long j, *e2, *e3;
@@ -662,7 +664,7 @@ orient_pcp(classgp_pcp_t G, long *ni, long D, long u, hashtable *tbl)
   /* NB: MAX_ORIENT_P = 199 seems to suffice, but can be increased if
    * necessary. */
   enum { MAX_ORIENT_P = 199 };
-  long *L = G->L, *n = G->n, *r = G->r, *m = G->m, *o = G->o;
+  const long *L = G->L, *n = G->n, *r = G->r, *m = G->m, *o = G->o;
   long i, *ps = G->orient_p, *qs = G->orient_q, *reps = G->orient_reps;
   long *ef, *e, *ei, *f, k = G->k, lvl = inv_level(G->inv);
   GEN DD = stoi(D);
