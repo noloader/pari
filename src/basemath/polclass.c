@@ -878,8 +878,6 @@ classgp_make_pcp(
 
       if (k == MAX_GENS) pari_err_IMPL("classgp_pcp");
 
-      /* TODO: The first clause of this 'if' statement should be
-       * refactored out the front of the enclosing 'while' loop. */
       if (nelts == 1 && G->L0) {
         curr_p = G->L0;
         gamma_i = qfb_nform(D, curr_p);
@@ -909,8 +907,8 @@ classgp_make_pcp(
         n[k] = ri;
         nelts *= ri;
 
-        /* TODO: This is a hack to reset the curr_p counter when we
-         * have G->L0 != 0 in the first position of L. */
+        /* This is to reset the curr_p counter when we have G->L0 != 0
+         * in the first position of L. */
         if (curr_p == G->L0)
           curr_p = 1;
 
