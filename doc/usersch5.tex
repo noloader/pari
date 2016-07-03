@@ -9420,6 +9420,12 @@ relation is transitive.
 to~0 (including \typ{INTMOD}s like \kbd{Mod(0,2)}), and 0~(false) otherwise.
 This includes recursive objects, for instance vectors, whose components are $0$.
 
+\fun{GEN}{gisexactzero}{GEN x} returns \kbd{NULL} unless \kbd{x} is exactly
+equal to~0 (as per \kbd{isexactzero}). When \kbd{x} is an exact zero
+return the attached scalar zero as a \typ{INT} (\kbd{gen\_0}),
+a \typ{INTMOD} (\kbd{Mod(0,$N$)} for the largest possible $N$) or a
+\typ{FFELT}.
+
 \fun{int}{isrationalzero}{GEN x} returns 1 (true) if \kbd{x} is equal
 to an integer~0 (excluding \typ{INTMOD}s like \kbd{Mod(0,2)}), and 0~(false)
 otherwise. Contrary to \kbd{isintzero}, this includes recursive objects, for

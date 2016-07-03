@@ -3040,6 +3040,7 @@ GEN     gge(GEN x, GEN y);
 GEN     ggrando(GEN x, long n);
 GEN     ggt(GEN x, GEN y);
 GEN     gimag(GEN x);
+GEN     gisexactzero(GEN g);
 GEN     gle(GEN x, GEN y);
 GEN     glt(GEN x, GEN y);
 GEN     gmod(GEN x, GEN y);

@@ -63,3 +63,6 @@ default(realprecision,38);
 gcd(Pol(0.),x)
 (k+1.)/k - (2*k+1.)/k
 gcd(1/(2^64*y),Mod(x^2,2^64*x^3))
+
+gcd(Mod(1,2)*x+Mod(1,2),Mod(0,2))
+gcd(Mod(1,2)*x+Mod(1,2), 0*ffgen(2^3))

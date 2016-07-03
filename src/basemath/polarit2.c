@@ -967,12 +967,12 @@ c_zero_gcd(GEN c)
   return gauss_gcd(c, gen_0);
 }
 
-/* y == 0 */
+/* gcd(x, 0) */
 static GEN
-zero_gcd(GEN x, long tx)
+zero_gcd(GEN x)
 {
   pari_sp av;
-  switch(tx)
+  switch(typ(x))
   {
     case t_INT: return absi(x);
     case t_FRAC: return absfrac(x);
@@ -983,7 +983,7 @@ zero_gcd(GEN x, long tx)
     case t_POLMOD: {
       GEN d = gel(x,2);
       if (typ(d) == t_POL && varn(d) == varn(gel(x,1))) return content(d);
-      return isinexact(d)? zero_gcd(d, typ(d)): gcopy(d);
+      return isinexact(d)? zero_gcd(d): gcopy(d);
     }
     case t_POL:
       if (!isinexact(x)) break;
@@ -996,12 +996,30 @@ zero_gcd(GEN x, long tx)
       if (!isinexact(x)) break;
       av = avma;
       return gerepileupto(av,
-        gdiv(zero_gcd(gel(x,1), typ(gel(x,1))), gel(x,2))
+        gdiv(zero_gcd(gel(x,1)), gel(x,2))
       );
   }
   return gcopy(x);
 }
-
+/* z is an exact zero, t_INT, t_INTMOD or t_FFELT */
+static GEN
+zero_gcd2(GEN y, GEN z)
+{
+  pari_sp av;
+  switch(typ(z))
+  {
+    case t_INT: return zero_gcd(y);
+    case t_INTMOD:
+      av = avma;
+      return gerepileupto(av, gmul(y, mkintmod(gen_1,gel(z,1))));
+    case t_FFELT:
+      av = avma;
+      return gerepileupto(av, gmul(y, FF_1(z)));
+    default:
+      pari_err_TYPE("zero_gcd", z);
+  }
+  return NULL;
+}
 /* tx = t_RFRAC, y considered as constant */
 static GEN
 cont_gcd_rfrac(GEN x, GEN y)
@@ -1086,8 +1104,8 @@ ggcd(GEN x, GEN y)
   }
   if (tx>ty) { swap(x,y); lswap(tx,ty); }
   /* tx <= ty */
-  if (isrationalzero(x)) return zero_gcd(y, ty);
-  if (isrationalzero(y)) return zero_gcd(x, tx);
+  z = gisexactzero(x); if (z) return zero_gcd2(y,z);
+  z = gisexactzero(y); if (z) return zero_gcd2(x,z);
   if (is_const_t(tx))
   {
     if (ty == tx) switch(tx)
@@ -1511,7 +1529,7 @@ content(GEN x)
   pari_sp av = avma;
   GEN c;
 
-  if (is_scalar_t(tx)) return zero_gcd(x, tx);
+  if (is_scalar_t(tx)) return zero_gcd(x);
   switch(tx)
   {
     case t_RFRAC:
@@ -1521,7 +1539,7 @@ content(GEN x)
        * -- if n is POLMOD, its main variable (in the sense of gvar2)
        *    has lower priority than denominator */
       if (typ(n) == t_POLMOD || varncmp(gvar(n), varn(d)) > 0)
-        n = isinexact(n)? zero_gcd(n, typ(n)): gcopy(n);
+        n = isinexact(n)? zero_gcd(n): gcopy(n);
       else
         n = content(n);
       return gerepileupto(av, gdiv(n, content(d)));
@@ -1571,7 +1589,7 @@ content(GEN x)
   }
   else
   {
-    if (isinexact(c)) c = zero_gcd(c, typ(c));
+    if (isinexact(c)) c = zero_gcd(c);
     while (lx-- > lontyp[tx])
     {
       GEN d = gel(x,lx);

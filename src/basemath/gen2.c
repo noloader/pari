@@ -258,6 +258,48 @@ isexactzero(GEN g)
   }
   return 0;
 }
+GEN
+gisexactzero(GEN g)
+{
+  long i, lx;
+  GEN a, b;
+  switch (typ(g))
+  {
+    case t_INT:
+      return !signe(g)? g: NULL;
+    case t_INTMOD:
+      return !signe(gel(g,2))? g: NULL;
+    case t_COMPLEX:
+      a = gisexactzero(gel(g,1)); if (!a) return NULL;
+      b = gisexactzero(gel(g,2)); if (!b) return NULL;
+      return ggcd(a,b);
+    case t_FFELT:
+      return FF_equal0(g)? g: NULL;
+    case t_QUAD:
+      a = gisexactzero(gel(g,2)); if (!a) return NULL;
+      b = gisexactzero(gel(g,3)); if (!b) return NULL;
+      return ggcd(a,b);
+    case t_POLMOD:
+      return gisexactzero(gel(g,2));
+    case t_POL:
+      lx = lg(g); /* cater for Mod(0,2)*x^0 */
+      if (lx == 2) return gen_0;
+      if (lx == 3) return gisexactzero(gel(g,2));
+      return NULL;
+    case t_RFRAC:
+      return gisexactzero(gel(g,1)); /* may occur: Mod(0,2)/x */
+    case t_VEC: case t_COL: case t_MAT:
+      a = gen_0;
+      for (i=lg(g)-1; i; i--)
+      {
+        b = gisexactzero(gel(g,i));
+        if (!b) return NULL;
+        a = ggcd(a, b);
+      }
+      return a;
+  }
+  return NULL;
+}
 
 int
 isrationalzero(GEN g)
