@@ -1,14 +1,16 @@
 Function: lfunqf
 Section: l_functions
 C-Name: lfunqf
-Prototype: G
+Prototype: Gp
 Help: lfunqf(Q): returns the Ldata structure associated to the
  theta function of the lattice associated to the definite positive quadratic
- form Q. This function assumes that the associated L function is self-dual,
- but not necessarily the lattice itself. In particular, if Q is
- two-dimensional, then L is always self-dual.
+ form Q.
 Doc: returns the \kbd{Ldata} structure associated to the $\Theta$ function
  of the lattice associated to the definite positive quadratic form $Q$.
- This function assumes that the associated $L$-function is self-dual,
- but not necessarily the lattice itself. In particular, if $Q$ is
- two-dimensional, then $L$ is always self-dual.
+ \bprog
+ ? L = lfunqf(matid(2));
+ ? lfunqf(L,2)
+ %2 = 6.0268120396919401235462601927282855839
+ ? lfun(x^2+1,2)*4
+ %3 = 6.0268120396919401235462601927282855839
+ @eprog

@@ -3450,7 +3450,7 @@ GEN     lfunetaquo(GEN eta);
 GEN     lfungenus2(GEN PS);
 GEN     lfunmfspec(GEN lmisc, long bitprec);
 GEN     lfunmul(GEN ldata1, GEN ldata2, long bitprec);
-GEN     lfunqf(GEN ldata);
+GEN     lfunqf(GEN ldata, long prec);
 GEN     lfunzetakinit(GEN pol, GEN dom, long der, long flag, long bitprec);
 
 /* lll.c */
