@@ -1732,7 +1732,7 @@ long
 lfuncheckfeq(GEN lmisc, GEN t0, long bitprec)
 {
   GEN ldata, theta, thetad, t0i, S0, S0i, w, eno;
-  long e, k, prec;
+  long e, prec;
   pari_sp av;
 
   if (is_linit(lmisc) && linit_get_type(lmisc)==t_LDESC_PRODUCT)
@@ -1760,7 +1760,6 @@ lfuncheckfeq(GEN lmisc, GEN t0, long bitprec)
   /* |t0| >= 1 */
   theta = lfunthetacheckinit(lmisc, t0i, 0, &bitprec, 0);
   ldata = linit_get_ldata(theta);
-  k = ldata_get_k(ldata);
   thetad = theta_dual(theta, ldata_get_dual(ldata));
   if (thetad)
     S0 = lfuntheta(thetad, t0, 0, bitprec);
@@ -1791,10 +1790,12 @@ lfuncheckfeq(GEN lmisc, GEN t0, long bitprec)
     S0i = theta_add_polar_part(S0i, R, t0, prec);
   }
   if (gequal0(S0i) || gequal0(S0)) pari_err_PREC("lfuncheckfeq");
-  w = gdiv(S0i, gmul(S0, gpowgs(t0, k)));
+  w = gdiv(S0i, gmul(S0, gpowgs(t0, ldata_get_k(ldata))));
   /* missing rootno: guess it */
   if (gequal0(eno)) eno = lfunrootno(theta, bitprec);
-  e = gexpo(gsub(w, eno));
+  w = gsub(w, eno);
+  if (thetad) w = gdiv(w, eno); /* |eno| may be large in non-dual case */
+  e = gexpo(w);
   avma = av; return e;
 }
 
