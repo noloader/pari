@@ -96,9 +96,9 @@ Doc: This low-level routine creates \tet{Ldata} structures, needed by
  The latter is mandatory unless $a = \overline{a^*}$ (coded by \kbd{astar}
  equal to $0$ or $1$): otherwise, the poles of $L^*$ cannot be infered from
  the poles of $L$ ! (Whereas the functional equation allows to deduce
- the polar part of $\Lambda^*$ from the polar part of $\Lambda.)
+ the polar part of $\Lambda^*$ from the polar part of $\Lambda$.)
  The special coding $\kbd{poles} = r$ a complex scalar is available in this
  case, to describe a $L$ function with at most a single simple pole at $s =
  k$ and residue $r$. (This is the usual situation, for instance for Dedekind
- zeta functions.) This value $r$ can be set to $0$ (but not omitted) if
- unknown, and it will be computed.
+ zeta functions.) This value $r$ can be set to $0$ if unknown, and it will be
+ computed.
