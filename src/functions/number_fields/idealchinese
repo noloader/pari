@@ -62,8 +62,8 @@ Doc: $x$ being a prime ideal factorization
  ? D = idealchinese(K, [C, [1,-1]]);   \\ replaces [1,1]
  ? idealchinese(K, D, y)
  %13 = [4, -3]~
- ? for(i=1,10^4,idealchinese(K,[C,[1,-1]])) \\ faster than starting from scratch
- time = 40 ms.
+ ? for(i=1,10^4,idealchinese(K,[C,[1,-1]]))
+ time = 40 ms.   \\ faster than starting from scratch
  ? for(i=1,10^4,idealchinese(K,[x,[1,-1]]))
  time = 128 ms.
  @eprog

@@ -23,11 +23,10 @@ Doc: Let $\var{rnf}$ be a relative
  ? rnfeltabstorel(L, Mod(x, x^2-y))
  %5 = Mod(x, x^2 + Mod(-y, y^2 + 1))
 
-
  ? rnfeltabstorel(L, [0,0,0,1]~) \\ Z_L not initialized yet
   ***   at top-level: rnfeltabstorel(L,[0,
   ***                 ^--------------------
-  *** rnfeltabstorel: incorrect type in rnfeltabstorel, apply nfinit(rnf) (t_COL).
+  *** rnfeltabstorel: incorrect type in rnfeltabstorel, apply nfinit(rnf).
  ? nfinit(L); \\ initialize now
  ? rnfeltabstorel(L, [0,0,0,1]~)
  %6 = Mod(Mod(y, y^2 + 1)*x, x^2 + Mod(-y, y^2 + 1))

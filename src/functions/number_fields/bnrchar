@@ -24,8 +24,8 @@ Doc: returns all characters $\chi$ on \kbd{bnr.clgp} such that
  %4 = [[4, 0, 0]]  \\ a unique character
  ? bnrchar(bnr, [g[1],g[3]]) \\ all characters trivial on g[1] and g[3]
  %5 = [[0, 1, 0], [0, 2, 0], [0, 3, 0], [0, 0, 0]]
- ? bnrchar(bnr, [1,0,0;0,1,0;0,0,2]) \\ characters trivial on the given subgroup
- %6 = [[0, 0, 1], [0, 0, 0]]
+ ? bnrchar(bnr, [1,0,0;0,1,0;0,0,2])
+ %6 = [[0, 0, 1], [0, 0, 0]]  \\ characters trivial on given subgroup
  @eprog
 
 

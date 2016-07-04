@@ -28,5 +28,6 @@ Doc: returns the absolute $p$-adic precision of the object $x$; this is the
   *** padicprec: incorrect type in padicprec (t_REAL).
  @eprog
 
-Variant: Also available is \fun{long}{padicprec}{GEN x, GEN p}, which returns
- \tet{LONG_MAX} if $x = 0$ and the $p$-adic precision as a \kbd{long} integer.
+Variant: Also available is the function \fun{long}{padicprec}{GEN x, GEN p},
+ which returns \tet{LONG_MAX} if $x = 0$ and the $p$-adic precision as a
+ \kbd{long} integer.
