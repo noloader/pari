@@ -776,7 +776,46 @@ lfunzetakinit(GEN NF, GEN dom, long der, long flag, long bitprec)
 /***************************************************************/
 
 static GEN
-lfunell(GEN e)
+ellnf_get_normN(GEN e)
+{
+  long i, l;
+  GEN D = ell_get_disc(e), nf = ellnf_get_nf(e);
+  GEN F, cond = gen_1;
+  nf = checknf(nf);
+  F = gel(idealfactor(nf,D),1);
+  l = lg(F);
+  for(i=1;i<l;i++)
+  {
+    GEN L = elllocalred(e,gel(F,i));
+    cond = mulii(cond, powii(idealnorm(nf,gel(F,i)), gel(L,1)));
+  }
+  return cond;
+}
+
+static GEN
+lfunellnf(GEN e)
+{
+  pari_sp av = avma;
+  GEN ldata;
+  GEN nf = ellnf_get_nf(e);
+  GEN d2, N;
+  long n;
+  nf = checknf(nf);
+  d2 = sqri(nf_get_disc(nf));
+  n = nf_get_degree(nf);
+  N = ellnf_get_normN(e);
+  ldata = cgetg(7, t_VEC);
+  gel(ldata, 1) = tag(e, t_LFUN_ELL);
+  gel(ldata, 2) = gen_0;
+  gel(ldata, 3) = vec01(n, n);
+  gel(ldata, 4) = gen_2;
+  gel(ldata, 5) = mulii(d2,N);
+  gel(ldata, 6) = gen_0;
+  return gerepileupto(av, ldata);
+}
+
+static GEN
+lfunellQ(GEN e)
 {
   pari_sp av = avma;
   GEN ldata = cgetg(7, t_VEC);
@@ -787,6 +826,21 @@ lfunell(GEN e)
   gel(ldata, 5) = icopy(ellQ_get_N(e));
   gel(ldata, 6) = stoi(ellrootno_global(e));
   return gerepilecopy(av, ldata); /* ellanal_globalred not gerepile-safe */
+}
+
+static GEN
+lfunell(GEN e)
+{
+  long t = ell_get_type(e);
+  switch(t)
+  {
+    case t_ELL_Q:
+      return lfunellQ(e);
+    case t_ELL_NF:
+      return lfunellnf(e);
+  }
+  pari_err_TYPE("lfun",e);
+  return NULL; /*NOT REACHED*/
 }
 
 GEN

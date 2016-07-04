@@ -1090,12 +1090,22 @@ of \kbd{x}.
 
 \subsec{$L$-functions of algebraic varieties} %GPHELPskip
 
-For the time being, only elliptic curves over $\Q$ are supported. More
-general hyperelliptic curves over number fields will be added later.
+$L$-function of elliptic curves over number fields are supported.
 \bprog
 ? E = ellinit([1,1]);
 ? L = lfuncreate(E);  \\ L-function of E/Q
+? E2 = ellinit([1,a], nfinit(a^2-2));
+? L2 = lfuncreate(E2);  \\ L-function of E/Q(sqrt(2))
 @eprog
+
+$L$-function of hyperelliptic genus-$2$ curve can be created with
+\kbd{lfungenus2}. To create the $L$ function of the curve
+$y^2+(x^3+x^2+1)*y = x^2+x$:
+\bprog
+? L=lfungenus2([x^2+x,x^3+x^2+1]);
+@eprog
+Currently, the model needs to be minimal at $2$, and if the conductor is even,
+its valuation at $2$ might be incorrect (a warning is issued).
 
 \subsec{Eta quotients / Modular forms} %GPHELPskip
 
