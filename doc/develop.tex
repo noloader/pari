@@ -259,8 +259,8 @@ value of \kbd{PARI\_SIGINT\_block} when entering the block.
 
 \subsec{Multithread interruptions}
 
-To support multithread, \kbd{BLOCK\_SIGINT\_START} and
-\kbd{BLOCK\_SIGALRM\_START} calls \kbd{MT\_SIGINT\_BLOCK(block);}, and
+To support multithreaded programs, \kbd{BLOCK\_SIGINT\_START} and
+\kbd{BLOCK\_SIGALRM\_START} call \kbd{MT\_SIGINT\_BLOCK(block);}, and
 \kbd{BLOCK\_SIGINT\_END} calls \kbd{MT\_SIGINT\_UNBLOCK(block);}.
 
 \tet{MT_SIGINT_BLOCK} and \tet{MT_SIGINT_UNBLOCK} are defined by the
@@ -347,40 +347,32 @@ Assuming that $g$ has prime order $N$, compute an integer $k$ such that
 $g^k = x$, using either \kbd{gen\_Shanks\_log} or \kbd{gen\_Pollard\_log}.
 Return \kbd{cgetg(1, t\_VEC)} if there are no solutions.
 
-If \kbd{easy} is not \kbd{NULL}, call \kbd{easy(E,a,g,N)} first and if the
-return value is not \kbd{NULL}, return it. For instance this is used over
-$\F_q^*$ to compute the discrete log of elements belonging to the prime
-field.
-
 \fun{GEN}{gen_Shanks_sqrtn}{GEN a, GEN n, GEN N, GEN *zetan, void *E, const
 struct bb_group *grp} \hbadness 10000 returns one solution of $x^n = a$ in a
 black box cyclic group of order $N$. Return \kbd{NULL} if no solution exists.
 If \kbd{zetan} is not \kbd{NULL} it is set to an element of exact order $n$.
-
 This function uses \kbd{gen\_plog} for all prime divisors of $\gcd(n,N)$.
 
 \fun{GEN}{gen_PH_log}{GEN a, GEN g, GEN N, void *E, const struct bb_group
 *grp}
-Generic Pohlig-Hellman algorithm. Assuming that $g$ has order $N$, compute
-an integer $k$ such that $g^k = x$. Return \kbd{cgetg(1, t\_VEC)} if there
-are no solutions. This calls \tet{gen_plog} repeatedly for all prime divisors
-$p$ of $N$.
-
-\kbd{easy} is as in \kbd{gen\_plog}.
+returns an integer $k$ such that $g^k = x$, assuming that $g$ has order $N$,
+by Pohlig-Hellman algorithm. Return \kbd{cgetg(1, t\_VEC)} if there are no
+solutions. This calls \tet{gen_plog} repeatedly for all prime divisors $p$ of
+$N$.
 
 \fun{GEN}{gen_order}{GEN x, GEN N, void *E, const struct bb_group *grp}
 computes the order of $x$. If $N$ is not \kbd{NULL} it is a multiple of the
 order, as a \typ{INT} or a factorization matrix.
 
 \fun{GEN}{gen_factored_order}{GEN x, GEN N, void *E, const struct bb_group *grp}
-returns $[o,F]$, where $o$ is the order of $x$ and $F$ is the factorization
-of $o$. If $N$ is not \kbd{NULL} it is a multiple of the order, as a
-\typ{INT} or a factorization matrix.
+returns a pair $[o,F]$, where $o$ is the order of $x$ and $F$ is the
+factorization of $o$. If $N$ is not \kbd{NULL} it is a multiple of the order,
+as a \typ{INT} or a factorization matrix.
 
 \fun{GEN}{gen_select_order}{GEN v, GEN N, void *E, const struct bb_group *grp}
-$v$ being a vector of possible order of the group, try to find the true order
-by checking orders of random points. This will not terminate if there is an
-ambiguity.
+Let $v$ be a vector of possible orders for the group; try to find the true
+order by checking orders of random points. This will not terminate if there
+is an ambiguity.
 
 \fun{GEN}{gen_gener}{GEN o, void *E, const struct bb_group *grp}
 returns a random generator of the group, assuming it is of order exactly
@@ -390,25 +382,24 @@ $o$ (which can be given by a factorization matrix).
 
 Theses functions handle groups of rank at most $2$ equipped with a family of
 bilinear pairings which behave like the Weil pairing on elliptic curves over
-finite field.
-
-The function \kbd{pairorder(E, P, Q, m, F)} must return the order of the $m$-pairing
-of $P$ and $Q$, both of order dividing $m$, where $F$ is the factorisation matrix
-of a multiple of $m$.
+finite field. In the descriptions below, the function \kbd{pairorder(E, P, Q,
+m, F)} must return the order of the $m$-pairing of $P$ and $Q$, both of order
+dividing $m$, where $F$ is the factorisation matrix of a multiple of $m$.
 
 \fun{GEN}{gen_ellgroup}{GEN o, GEN d, GEN *pt_m, void *E, const struct bb_group *grp,
              GEN pairorder(void *E, GEN P, GEN Q, GEN m, GEN F)}
-
-returns the elementary divisors $[d_1, d_2]$ of the group, assuming it is of order exactly
-$o>1$ (which can be given by a factorization matrix), and that $d_2$ divides $d$.
-If $d_2=1$ then $[o]$ is returned, otherwise \kbd{m=*pt\_m} is set to the order of the
-pairing required to verify a generating set which is to be used with \kbd{gen\_ellgens}.
+returns the elementary divisors $[d_1, d_2]$ of the group, assuming it is of
+order exactly $o>1$ (which can be given by a factorization matrix), and that
+$d_2$ divides $d$. If $d_2=1$ then $[o]$ is returned, otherwise
+\kbd{m=*pt\_m} is set to the order of the pairing required to verify a
+generating set which is to be used with \kbd{gen\_ellgens}.
 
 \fun{GEN}{gen_ellgens}{GEN d1, GEN d2, GEN m, void *E, const struct bb_group *grp,
              GEN pairorder(void *E, GEN P, GEN Q, GEN m, GEN F)}
-the parameters $d_1$, $d_2$, $m$ being as returned by \kbd{gen\_ellgroup}, returns a pair
-of generators $[P,Q]$ such that $P$ is of order $d_1$ and the $m$-pairing of $P$ and
-$Q$ is of order $m$. (Note: $Q$ needs not be of order $d_2$).
+the parameters $d_1$, $d_2$, $m$ being as returned by \kbd{gen\_ellgroup},
+returns a pair of generators $[P,Q]$ such that $P$ is of order $d_1$ and the
+$m$-pairing of $P$ and $Q$ is of order $m$. (Note: $Q$ needs not be of order
+$d_2$).
 
 \subsec{Functions returning black box groups}
 
@@ -417,20 +408,20 @@ $Q$ is of order $m$. (Note: $Q$ needs not be of order $d_2$).
 \fun{const struct bb_group *}{get_FpXQ_star}{void **E, GEN T, GEN p}
 returns a pointer to the black box group $(\F_p[x]/(T))^*$.
 
-\fun{const struct bb_group *}{get_FpE_group}{void **pt_E, GEN a4, GEN a6, GEN p}
-returns a pointer to a black box group and set \kbd{*pt\_E} to the necessary data for
+\fun{const struct bb_group *}{get_FpE_group}{void **pE, GEN a4, GEN a6, GEN p}
+returns a pointer to a black box group and set \kbd{*pE} to the necessary data for
 computing in the group $E(\F_p)$ where $E$ is the elliptic curve $E:y^2=x^3+a_4\*x+a_6$,
 with $a_4$ and $a_6$ in $\F_p$.
 
-\fun{const struct bb_group *}{get_FpXQE_group}{void **pt_E, GEN a4, GEN a6, GEN T, GEN p}
-returns a pointer to a black box group and set \kbd{*pt\_E} to the necessary data for
+\fun{const struct bb_group *}{get_FpXQE_group}{void **pE, GEN a4, GEN a6, GEN T, GEN p}
+returns a pointer to a black box group and set \kbd{*pE} to the necessary data for
 computing in the group $E(\F_p[X]/(T))$ where $E$ is the elliptic curve $E:y^2=x^3+a_4\*x+a_6$,
 with $a_4$ and $a_6$ in $\F_p[X]/(T)$.
 
-\fun{const struct bb_group *}{get_FlxqE_group}{void **pt_E, GEN a4, GEN a6, GEN T, ulong p}
-idem for small $p$.
+\fun{const struct bb_group *}{get_FlxqE_group}{void **pE, GEN a4, GEN a6, GEN
+T, ulong p} idem for small $p$.
 
-\fun{const struct bb_group *}{get_F2xqE_group}{void **pt_E, GEN a2, GEN a6, GEN T}
+\fun{const struct bb_group *}{get_F2xqE_group}{void **pE, GEN a2, GEN a6, GEN T}
 idem for $p=2$.
 
 \section{Black box finite fields}
@@ -448,10 +439,8 @@ available to handle field elements:
     int (*equal0)(GEN);
     GEN (*s)(void *E, long);
   };
-@eprog
-
-Note that, in contrast of black box group, elements can have non canonical forms, and
-only \kbd{red} is required to return a canonical form.
+@eprog\noindent In contrast of black box group, elements can have
+non canonical forms, and only \kbd{red} is required to return a canonical form.
 
 \kbd{red(E,x)} returns the canonical form of $x$.
 
@@ -467,9 +456,9 @@ only \kbd{red} is required to return a canonical form.
 
 \kbd{s(n)} $n$ being a small signed integer, returns $n$ times the unit element.
 
-A finite field is thus described by a \kbd{struct bb\_field} as above and auxiliary
-data typecast to \kbd{void*}. The following functions operate on black box
-fields:
+\noindent A finite field is thus described by a \kbd{struct bb\_field} as
+above and auxiliary data typecast to \kbd{void*}. The following functions
+operate on black box fields:
 
 \fun{GEN}{gen_Gauss}{GEN a, GEN b, void *E, const struct bb_field *ff}
 
@@ -487,13 +476,13 @@ fields:
 
 \subsec{Functions returning black box fields}
 
-\fun{const struct bb_field *}{get_Fp_field}{void **pt_E, GEN p}
+\fun{const struct bb_field *}{get_Fp_field}{void **pE, GEN p}
 
-\fun{const struct bb_field *}{get_Fq_field}{void **pt_E, GEN T, GEN p}
+\fun{const struct bb_field *}{get_Fq_field}{void **pE, GEN T, GEN p}
 
-\fun{const struct bb_field *}{get_Flxq_field}{void **pt_E, GEN T, ulong p}
+\fun{const struct bb_field *}{get_Flxq_field}{void **pE, GEN T, ulong p}
 
-\fun{const struct bb_field *}{get_F2xq_field}{void **pt_E, GEN T}
+\fun{const struct bb_field *}{get_F2xq_field}{void **pE, GEN T}
 
 \section{Black box algebra}
 
@@ -510,10 +499,9 @@ struct bb_algebra
   GEN (*one)(void *E);
   GEN (*zero)(void *E);
 };
-@eprog
-
-Note that, in contrast with black box groups, elements can have non canonical
-forms, but only \kbd{add} is allowed to return a non canonical form.
+@eprog\noindent In contrast with black box groups, elements can have non
+canonical forms, but only \kbd{add} is allowed to return a non canonical
+form.
 
 \kbd{red(E,x)} returns the canonical form of $x$.
 
@@ -529,9 +517,9 @@ forms, but only \kbd{add} is allowed to return a non canonical form.
 
 \kbd{zero(E)} returns the zero element.
 
-An algebra is thus described by a \kbd{struct bb\_algebra} as above and
-auxiliary data typecast to \kbd{void*}. The following functions operate on
-black box algebra:
+\noindent An algebra is thus described by a \kbd{struct bb\_algebra} as above
+and auxiliary data typecast to \kbd{void*}. The following functions operate
+on black box algebra:
 
 \fun{GEN}{gen_bkeval}{GEN P, long d, GEN x, int use_sqr, void *E,
           const struct bb_algebra *ff, GEN cmul(void *E, GEN P, long a, GEN x)}
@@ -663,18 +651,19 @@ field $\F_{l^2}$ represented (currently) by a \kbd{Flx} of degree at most $1$
 modulo a polynomial of the form $x^2-D$ for some non square $0\leq D<p$.
 Below \kbd{pi} denotes the pseudo inverse of \kbd{p}, see \kbd{Fl\_mul\_pre}
 
-\fun{int}{Fl2_equal1}{GEN x} return $1$ if $x=1$, $0$ else.
+\fun{int}{Fl2_equal1}{GEN x} return $1$ if $x=1$, else return $0$.
 
-\fun{GEN}{Fl2_mul_pre}{GEN x, GEN y, ulong D, ulong p, ulong pi} return $x\*y$
+\fun{GEN}{Fl2_mul_pre}{GEN x, GEN y, ulong D, ulong p, ulong pi} return $x\*y$.
 
-\fun{GEN}{Fl2_sqr_pre}{GEN x, ulong D, ulong p, ulong pi} return $x^2$
+\fun{GEN}{Fl2_sqr_pre}{GEN x, ulong D, ulong p, ulong pi} return $x^2$.
 
-\fun{GEN}{Fl2_inv_pre}{GEN x, ulong D, ulong p, ulong pi} return $x^{-1}$
+\fun{GEN}{Fl2_inv_pre}{GEN x, ulong D, ulong p, ulong pi} return $x^{-1}$.
 
-\fun{GEN}{Fl2_pow_pre}{GEN x, GEN n, ulong D, ulong p, ulong pi} return $x^n$
+\fun{GEN}{Fl2_pow_pre}{GEN x, GEN n, ulong D, ulong p, ulong pi} return
+$x^n$.
 
 \fun{GEN}{Fl2_sqrtn_pre}{GEN a, GEN n, ulong D, ulong p, ulong pi, GEN *zeta}
-as \kbd{Flxq\_sqrtn}
+$n$-th root, as \kbd{Flxq\_sqrtn}.
 
 \fun{GEN}{Fl2_norm_pre}{GEN x, GEN n, ulong D, ulong p, ulong pi} return the
 norm of $x$.
@@ -770,10 +759,10 @@ off using \tet{gp_read_file}.
 
 \subsec{Accessors}
 
-\fun{GEN}{vecslice0}{GEN A, long y1, long y2} used to implement $A[y_1..y_2]$.
+\fun{GEN}{vecslice0}{GEN A, long a, long b} implements $A[a..b]$.
 
-\fun{GEN}{matslice0}{GEN A, long x1, long x2, long y1, long y2}
-used to implement $A[x_1..x_2,y_1..y_2]$.
+\fun{GEN}{matslice0}{GEN A, long a, long b, long c, long d}
+implements $A[a..b, c..d]$.
 
 \subsec{Iterators}
 
@@ -783,14 +772,14 @@ is a \typ{CLOSURE}, applied to $A$. Use \kbd{genapply} or a standard C loop.
 \fun{GEN}{select0}{GEN f, GEN A} gp wrapper calling \tet{genselect}, where $f$
 is a \typ{CLOSURE} selecting from $A$. Use \kbd{genselect} or a standard C loop.
 
-\fun{GEN}{vecapply}{void *E, GEN (*f)(void* E, GEN x), GEN x} used to implement
+\fun{GEN}{vecapply}{void *E, GEN (*f)(void* E, GEN x), GEN x} implements
 \kbd{[a(x)|x<-b]}.
 
 \fun{GEN}{vecselect}{void *E, long (*f)(void* E, GEN x), GEN A}
-used to implement \kbd{[x<-b,c(x)]}.
+implements \kbd{[x<-b,c(x)]}.
 
 \fun{GEN}{vecselapply}{void *Epred, long (*pred)(void* E, GEN x), void *Efun, GEN (*fun)(void* E, GEN x), GEN A}
-used to implement \kbd{[a(x)|x<-b,c(x)]}.
+implements \kbd{[a(x)|x<-b,c(x)]}.
 
 \subsec{Local precision}
 
