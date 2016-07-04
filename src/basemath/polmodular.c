@@ -3932,6 +3932,9 @@ modpoly_pickD_primes(
     /* Don't allow v dividing the conductor. */
     if (ugcd(absD, v) != 1)
       continue;
+    /* Avoid v dividing the level. */
+    if (v > 2 && inv_double_eta(inv) && ugcd(inv_level(inv), v) != 1)
+      continue;
     /* can't get odd p with D=1 mod 8 unless v is even */
     if ((v & 1) && (D & 7) == 1)
       continue;

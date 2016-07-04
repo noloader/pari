@@ -107,6 +107,7 @@ modfn_in = [[2, 5, 7818678061185],
 
             [29, 21, 140598897682543022],
             [101, 21, 1028254489804326757],
+            [53, 15, 11992315117197580073],
 
             \\ NB: The hashes for these tests do not come from
             \\ an independent source
