@@ -126,37 +126,42 @@ int thread_start (...)
 }
 @eprog
 
-\fun{int}{pari_daemon}{void} fork a PARI daemon, detaching from the main
+\fun{int}{pari_daemon}{void} forks a PARI daemon, detaching from the main
 process group. The function returns 1 in the parent, and 0 in the
 forked son.
 
 \fun{void}{paristack_setsize}{size_t rsize, size_t vsize}
-Set the default \kbd{parisize} to \kbd{rsize} and the
+sets the default \kbd{parisize} to \kbd{rsize} and the
 default \kbd{parisizemax} to \kbd{vsize}, and reallocate the
 stack to match these value, destroying its content.
 Generally used just after \kbd{pari\_init}.
 
 \fun{void}{paristack_resize}{ulong newsize}
-Change the current stack size to \kbd{newsize}
+changes the current stack size to \kbd{newsize}
 (double it if \kbd{newsize} is 0).
 The new size is clipped to be at least the current stack size and
 at most \kbd{parisizemax}. The stack content is not affected
 by this operation.
 
 \fun{void}{parivstack_reset}{void}
-Reset the current stack to its default size \kbd{parisize},
+resets the current stack to its default size \kbd{parisize},
 destroying its content. Used to recover memory after a
 computation that enlarged the stack.
 
 \fun{void}{paristack_newrsize}{ulong newsize}
-(do not return) library version of \kbd{default(parisize,"newsize")}.
-Set the default \kbd{parisize} to \kbd{newsize} (or double \kbd{parisize} if
-\kbd{newsize=0} and call \kbd{cb\_pari\_err\_recover(-1)}.
+\emph{(does not return)}. Library version of
+\bprog
+  default(parisize, "newsize")
+@eprog\noindent Set the default \kbd{parisize} to \kbd{newsize}, or double
+\kbd{parisize} if \kbd{newsize} is equal to 0, then call
+\kbd{cb\_pari\_err\_recover(-1)}.
 
 \fun{void}{parivstack_resize}{ulong newsize}
-(do not return) library version of \kbd{default(parisizemax,"newsize")}.
-Set the default \kbd{parisizemax} to \kbd{newsize}
-and calls \kbd{cb\_pari\_err\_recover(-1)}.
+\emph{(does not return)}. Library version of
+\bprog
+  default(parisizemax, "newsize")
+@eprog\noindent Set the default \kbd{parisizemax} to \kbd{newsize} and call
+\kbd{cb\_pari\_err\_recover(-1)}.
 
 \subsec{Notions specific to the GP interpreter}
 
@@ -245,8 +250,9 @@ further ignoring the error or signal, otherwise it raises a fatal error.
 A possible simple-minded handler, used by the \kbd{gp} interpreter, is
 
 \fun{int}{gp_handle_exception}{long err} if the \kbd{breakloop}
-default is enabled and \tet{cb_pari_break_loop} is not \kbd{NULL}, we call it
-with \kbd{err} argument and return the result.
+default is enabled (set to $1$) and \tet{cb_pari_break_loop} is not
+\kbd{NULL}, we call this routine with \kbd{err} argument and return the
+result.
 
 \doc{cb_pari_err_handle}{int (*cb_pari_err_handle)(GEN)}
 If not \kbd{NULL}, this routine is called with a \typ{ERROR} argument
@@ -2010,18 +2016,18 @@ assuming $pi$ is the pseudo inverse of $p$.
 \fun{ulong}{Fl_mul_pre}{ulong x, ulong y, ulong p, ulong pi} returns $x\*y$
 modulo $p$, assuming $pi$ is the pseudo inverse of $p$.
 
-\fun{ulong}{Fl_addmul_pre}{ulong x0, ulong y0, ulong x1, ulong p,  ulong pi}
-returns $x0*y0+x1$ modulo $p$, assuming $pi$ is the pseudo inverse of $p$.
+\fun{ulong}{Fl_addmul_pre}{ulong a, ulong b, ulong c, ulong p,  ulong pi}
+returns $a\*b+c$ modulo $p$, assuming $pi$ is the pseudo inverse of $p$.
 
-\fun{ulong}{Fl_addmulmul_pre}{ulong x0, ulong y0, ulong x1, ulong y1, ulong p,  ulong pi}
-returns $x0*y0+x1*y1$ modulo $p$, assuming $pi$ is the pseudo inverse of $p$.
+\fun{ulong}{Fl_addmulmul_pre}{ulong a,ulong b, ulong c,ulong d, ulong p, ulong pi}
+returns $a\*b+c\*d$ modulo $p$, assuming $pi$ is the pseudo inverse of $p$.
 
 \fun{ulong}{Fl_powu_pre}{ulong x, ulong n, ulong p, ulong pi} returns
 $x^n$ modulo $p$, assuming $pi$ is the pseudo inverse of $p$.
 
 \fun{GEN}{Fl_powers_pre}{ulong x, long n, ulong p, ulong pi} returns
-$[\kbd{x}^0, \dots, \kbd{x}^\kbd{n}]$ as a \typ{VECSMALL}, assuming $pi$ is the
-pseudo inverse of $p$.
+the vector (\typ{VECSMALL}) $(x^0, \dots, x^n)$, assuming $pi$ is
+the pseudo inverse of $p$.
 
 \fun{ulong}{Fl_sqrt_pre}{ulong x, ulong p, ulong pi} returns a square root
 of $x$ modulo $p$, assuming $pi$ is the pseudo inverse of $p$.
@@ -4353,8 +4359,9 @@ order of the factors is deterministic (the computation is not).
 \fun{long}{FpX_nbfact}{GEN f, GEN p}, assuming the \kbd{FpX}~f is squarefree,
 returns the number of its irreducible factors. Assumes that \kbd{p} is prime.
 
-\fun{long}{FpX_nbfact_Frobenius}{GEN f, GEN XP, GEN p}, as \kbd{FpX\_nbfact},
-where \kbd{XP = FpX\_Frobenius(f, p)}.
+\fun{long}{FpX_nbfact_Frobenius}{GEN f, GEN XP, GEN p}, as
+\kbd{FpX\_nbfact(f, p)} but faster,
+where \kbd{XP} is \kbd{FpX\_Frobenius(f, p)}.
 
 \fun{long}{FpX_degfact}{GEN f, GEN p}, as \kbd{FpX\_factor}, but the
 degrees of the irreducible factors are returned instead of the factors
@@ -4612,8 +4619,8 @@ $\ell=2$, since 2 is treated separately in any case, i.e. the generator
 obtained is never a square if $p$ is odd.
 
 \fun{GEN}{gener_Fq_local}{GEN T, GEN p, GEN L} as
-\tet{pgener_Fp_local} (if $T$ is \kbd{NULL})
-or \tet{gener_FpXQ_local} (otherwise).
+\kbd{pgener\_Fp\_local(p, L)} if $T$ is \kbd{NULL},
+or \kbd{gener\_FpXQ\_local} (otherwise).
 
 
 \fun{GEN}{FpXQ_powers}{GEN x, long n, GEN T, GEN p} returns $[\kbd{x}^0,
@@ -5234,9 +5241,9 @@ Euclidean quotient of the \kbd{Flx}~\kbd{A} by $X - \kbd{a}$, and sets
 \fun{ulong}{Flx_eval_pre}{GEN x, ulong y, ulong p, ulong pi}, as \kbd{Flx\_eval},
 assuming $pi$ is the pseudo inverse of $p$.
 
-\fun{ulong}{Flx_eval_powers_pre}{GEN P, GEN y, ulong p, ulong pi}, $y$ being
-the vector $[1,a,\dots,a^n]$, where $n$ is the degree of $P$, return $P(a)$,
-assuming $pi$ is the pseudo inverse of $p$.
+\fun{ulong}{Flx_eval_powers_pre}{GEN P, GEN y, ulong p, ulong pi}. Let $y$ be
+the \typ{VECSMALL} $(1,a,\dots,a^n)$, where $n$ is the degree of the
+\kbd{Flx} $P$, return $P(a)$, assuming $pi$ is the pseudo inverse of $p$.
 
 \fun{GEN}{Flx_Flv_multieval}{GEN P, GEN v, ulong p} returns the vector
 $[P(v[1]),\ldots,P(v[n])]$ as a \kbd{Flv}.
@@ -5831,9 +5838,9 @@ the main variable.
 \fun{GEN}{F2xqXQV_autpow}{GEN a, long n, GEN S, GEN T}
 as \kbd{FpXQXQV\_autpow}
 
-\fun{GEN}{F2xqXQV_auttrace}{GEN a, long n, GEN S, GEN T}
-$\sigma$ being the automorphism defined by $\sigma(X)=a[1]\pmod{T(X)}$,
-$\sigma(Y)=a[2]\pmod{S(X,Y),T(X)}$, returns the vector
+\fun{GEN}{F2xqXQV_auttrace}{GEN a, long n, GEN S, GEN T}. Let
+$\sigma$ be the automorphism defined by $\sigma(X)=a[1]\pmod{T(X)}$ and
+$\sigma(Y)=a[2]\pmod{S(X,Y),T(X)}$; returns the vector
 $[\sigma^n(X),\sigma^n(Y),b+\sigma(b)+\ldots+\sigma^{n-1}(b)]$
 where $b=a[3]$.
 
@@ -6204,8 +6211,8 @@ as \tet{ZpXQX_liftroot}, but $f$ is a polynomial in $\Z[X]$.
 \fun{GEN}{ZpX_ZpXQ_liftroot_ea}{GEN f, GEN a, GEN T, GEN p, long e,
                      void *E, int early(void *E, GEN x, GEN q)}
 as \tet{ZpX_ZpXQ_liftroot} with early abort: the function \kbd{early(E,x,q)}
-will be called with $x$ is a root of $f$ modulo $q=p^n$ for some $n$. If early
-return a non-zero value, the function will return $x$ immediately.
+will be called with $x$ is a root of $f$ modulo $q=p^n$ for some $n$. If
+\kbd{early} returns a non-zero value, the function returns $x$ immediately.
 
 \fun{GEN}{ZpXQ_log}{GEN a, GEN T, GEN p, long e} $T$ being a \kbd{ZpX}
 irreducible modulo $p$, return the logarithm of $a$ in $\Z_p[X]/(T)$ to
@@ -6231,8 +6238,8 @@ returns the foots of $f$ as \tet{ZpXQX_liftroot}, where $v$ is the valuation
 of the content of $f'$ and it is required that $v_p(f(a))>v$ and
 $v_p(f'(a))=v$.
 
-\fun{GEN}{ZpXQX_divrem}{GEN x, GEN Sp, GEN T, GEN q, GEN p, long e, GEN *pr}
-As \kbd{FpXQX\_divrem}. The parameter $q$ must be equal to $p^e$.
+\fun{GEN}{ZpXQX_divrem}{GEN x, GEN Sp, GEN T,GEN q,GEN p,long e, GEN *pr}
+as \kbd{FpXQX\_divrem}. The parameter $q$ must be equal to $p^e$.
 
 \fun{GEN}{ZpXQX_digits}{GEN x, GEN B, GEN T, GEN q, GEN p, long e}
 As \kbd{FpXQX\_digits}. The parameter $q$ must be equal to $p^e$.
@@ -7838,9 +7845,10 @@ smaller coefficients.
 \fun{long}{ZX_deflate_order}{GEN P} given a non-constant \kbd{ZX}
 $P$, returns the largest exponent $d$ such that $P$ is of the form $P(x^d)$.
 
-\fun{long}{ZX_deflate_max}{GEN P, long *d} given a non-constant
-\kbd{ZX} $P$, sets \kbd{d} to \kbd{ZX\_deflate\_order(P)} and
-returns \kbd{RgX\_deflate(P,d)}. Shallow function.
+\fun{long}{ZX_deflate_max}{GEN P, long *d}. Given a non-constant
+polynomial with integer coefficients $P$, sets \kbd{d} to
+\kbd{ZX\_deflate\_order(P)} and returns \kbd{RgX\_deflate(P,d)}. Shallow
+function.
 
 \fun{GEN}{ZX_rescale}{GEN P, GEN h} returns $h^{\deg(P)} P(x/h)$.
 \kbd{P} is a \kbd{ZX} and \kbd{h} is a non-zero integer. Neither memory-clean
@@ -10058,7 +10066,7 @@ components. A precision \kbd{prec} must be included for the same reason as in
 \kbd{gnorml1}.
 
 \fun{void}{gsupnorm_aux}{GEN x, GEN *m, GEN *m2, long prec}
-Low-level function underlying
+is the low-level function underlying
 \kbd{gsupnorm}, used as follows:
 \bprog
   GEN m = NULL, m2 = NULL;
@@ -10553,10 +10561,10 @@ $x \exp(x) = y$, for $y > 0$ a \typ{REAL}.
 function at the (possibly negative) integer $s\neq 1$, in relative accuracy
 \kbd{prec}.
 
-\fun{GEN}{veczeta}{GEN a, GEN b, long N, long prec} returns the vector
-of $\zeta(aj + b)$, $j = 0, 1, \dots, N-1$, where $a$ and $b$ are real
-numbers (of arbitrary type, although \typ{INT} is treated more efficiently)
-and $b > 1$.
+\fun{GEN}{veczeta}{GEN a, GEN b, long N, long prec} returns in a vector
+all the $\zeta(aj + b)$, where $j = 0, 1, \dots, N-1$, where $a$ and $b$ are
+real numbers (of arbitrary type, although \typ{INT} is treated more
+efficiently) and $b > 1$.
 
 \fun{GEN}{ggamma1m1}{GEN x, long prec} return $\Gamma(1+x) - 1$ assuming
 $|x| < 1$. Guard against cancellation when $x$ is small.
@@ -10584,7 +10592,7 @@ the components of \kbd{res} if needed (in a \kbd{gerepile}-safe way). Further
 convert \kbd{res} to a \typ{REAL} if $x$ is a \typ{REAL}.
 
 \fun{GEN}{trans_eval}{const char *fun, GEN (*f) (GEN, long), GEN x, long prec}
-evaluate transcendental function $f$ (named \kbd{"fun"} at the argument
+evaluate the transcendental function $f$ (named \kbd{"fun"} at the argument
 $x$ and precision \kbd{prec}. This is a quick way to implement a transcendental
 function to be made available under GP, starting from a $C$ function
 handling only \typ{REAL} and \typ{COMPLEX} arguments. This routine first
@@ -11529,8 +11537,7 @@ with key $k$ in $h$. Return it if it one exists, and \kbd{NULL} if not.
 entry with key $k$ in $h$, assuming \kbd{h->hash(k)} is \kbd{hash}. Return
 it if it one exists, and \kbd{NULL} if not.
 
-\fun{hashentry *}{hash_select}{hashtable *h, void *k, void *E, int(*select)(void
-*,hashentry *)} variant of \tet{hash_search}, useful when entries
+\fun{hashentry *}{hash_select}{hashtable *h, void *k, void *E, int(*select)(void *, hashentry *)} variant of \tet{hash_search}, useful when entries
 with identical keys are inserted: among the entries associated to
 key $k$, return one satisfying the selection criterion (such that
 \kbd{select(E,e)} is non-zero), or \kbd{NULL} if none exist.
