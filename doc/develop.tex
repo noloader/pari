@@ -254,8 +254,8 @@ The above macros make use of the following global variables:
 (\kbd{SIGINT} was blocked) or \kbd{SIGALRM} (\kbd{SIGALRM} was blocked).
 This need to be set by the signal handler.
 
-Inside a block, a auto variable \kbd{int block} is defined which holds the
-value of \kbd{PARI\_SIGINT\_block} when entering the block.
+Within a block, an automatic variable \kbd{int block} is defined which
+records the value of \kbd{PARI\_SIGINT\_block} when entering the block.
 
 \subsec{Multithread interruptions}
 
