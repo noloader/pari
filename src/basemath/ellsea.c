@@ -469,6 +469,12 @@ Zq_Z_div_safe(GEN a, GEN b, GEN T, GEN q, GEN p, long e)
   return Fq_Fp_mul(a, Fp_inv(b, q), T, q);
 }
 
+static GEN
+ZqX_liftroot(GEN f, GEN a, GEN T, GEN p, long e)
+{
+  return T ? ZpXQX_liftroot(f, a,T , p, e): ZpX_liftroot(f, a, p, e);
+}
+
 /*Gives the first precS terms of the Weierstrass series related to */
 /*E: y^2 = x^3 + a4x + a6.  Assumes (precS-2)*(2precS+3) < ULONG_MAX, i.e.
  * precS < 46342 in 32-bit machines */
@@ -779,7 +785,7 @@ find_isogenous_from_Atkin(GEN a4, GEN a6, ulong ell, struct meqn *MEQN, GEN g, G
   btop = avma;
   for (k = lg(Roots)-1; k >= 1; k--, avma = btop)
   {
-    GEN jt = e==1 ? gel(Roots, k): ZpXQX_liftroot(meqnx, gel(Roots, k), T, pp, e);
+    GEN jt = e==1 ? gel(Roots, k): ZqX_liftroot(meqnx, gel(Roots, k), T, pp, e);
     if (signe(jt) == 0 || signe(Fq_sub(jt, utoi(1728), T, p)) == 0)
     {
       if (DEBUGLEVEL>0) err_printf("[A: jt=%ld]",signe(jt)? 1728: 0);
@@ -1060,7 +1066,7 @@ find_isogenous(GEN a4,GEN a6, ulong ell, struct meqn *MEQN, GEN g, GEN T,GEN p)
   {
     GEN pe = powiu(p, e);
     GEN meqnj = meqn_j(MEQN, Zq_ellj(a4, a6, T, pe, p, e), ell, T, pe);
-    g = ZpXQX_liftroot(meqnj, g, T, p, e);
+    g = ZqX_liftroot(meqnj, g, T, p, e);
   }
   return (MEQN->type == 'C')
     ? find_isogenous_from_canonical(a4, a6, ell, MEQN, g, T, p, e)
