@@ -13,9 +13,9 @@ Doc:
  \kbd{weber}, and $w_{p,q}$ the double eta quotient given by
  $w_{p,q} = \dfrac{ \eta(x/p)\*\eta(x/q) }{ \eta(x)\*\eta(x/{pq}) }$
 
- It is not allowed to use $w_{p,q} unless the following technical conditions
- are met, ensuring they do generate the Hilbert class field and not a strict
- subfield:
+ The invariants $w_{p,q}$ are not allowed unless they satisfy the following
+ technical conditions ensuring they do generate the Hilbert class
+ field and not a strict subfield:
 
  \item if $p\neq q$, we need them both non-inert, prime to the conductor of
  $\Z[\sqrt{D}]$. Let $P, Q$ be prime ideals  above $p$ and $q$; if both are
