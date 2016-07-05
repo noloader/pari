@@ -130,14 +130,6 @@ enum {
 /* HNF */
 enum { hnf_MODID = 1, hnf_PART = 2, hnf_CENTER = 4 };
 
-/* for minim */
-enum {
-  min_ALL       = 0,
-  min_FIRST     = 1,
-  min_PERF      = 2,
-  min_VECSMALL  = 3,
-  min_VECSMALL2 = 4
-};
 /* for fincke_pohst() */
 typedef struct FP_chk_fun {
   GEN (*f)(void *,GEN);

@@ -950,40 +950,6 @@ minim_alloc(long n, double ***q, GEN *x, double **y,  double **z, double **v)
   for (i=1; i<n; i++) (*q)[i] = dalloc(s);
 }
 
-/* If V depends linearly from the columns of the matrix, return 0.
- * Otherwise, update INVP and L and return 1. No GC. */
-static int
-addcolumntomatrix(GEN V, GEN invp, GEN L)
-{
-  GEN a = RgM_zc_mul(invp,V);
-  long i,j,k, n = lg(invp);
-
-  if (DEBUGLEVEL>6)
-  {
-    err_printf("adding vector = %Ps\n",V);
-    err_printf("vector in new basis = %Ps\n",a);
-    err_printf("list = %Ps\n",L);
-    err_printf("base change matrix =\n%Ps\n", invp);
-  }
-  k = 1; while (k<n && (L[k] || gequal0(gel(a,k)))) k++;
-  if (k == n) return 0;
-  L[k] = 1;
-  for (i=k+1; i<n; i++) gel(a,i) = gdiv(gneg_i(gel(a,i)),gel(a,k));
-  for (j=1; j<=k; j++)
-  {
-    GEN c = gel(invp,j), ck = gel(c,k);
-    if (gequal0(ck)) continue;
-    gel(c,k) = gdiv(ck, gel(a,k));
-    if (j==k)
-      for (i=k+1; i<n; i++)
-        gel(c,i) = gmul(gel(a,i), ck);
-    else
-      for (i=k+1; i<n; i++)
-        gel(c,i) = gadd(gel(c,i), gmul(gel(a,i), ck));
-  }
-  return 1;
-}
-
 static GEN
 ZC_canon(GEN V)
 {
@@ -1010,17 +976,24 @@ err_minim(GEN a)
                   strtoGENstr("positive definite"),a);
 }
 
+static GEN
+minim_lll(GEN a, GEN *u)
+{
+  *u = lllgramint(a);
+  if (lg(*u) != lg(a)) err_minim(a);
+  return qf_apply_ZM(a,*u);
+}
+
 static void
 forqfvec_init_dolll(struct qfvec *qv, GEN a, long dolll)
 {
   GEN r, u;
-  if (typ(a) != t_MAT || !RgM_is_ZM(a)) pari_err_TYPE("qfminim",a);
-  if (dolll)
+  if (!dolll) u = NULL;
+  else
   {
-    u = lllgramint(a);
-    if (lg(u) != lg(a)) err_minim(a);
-    a = qf_apply_ZM(a,u);
-  } else u = NULL;
+    if (typ(a) != t_MAT || !RgM_is_ZM(a)) pari_err_TYPE("qfminim",a);
+    a = minim_lll(a, &u);
+  }
   qv->a = RgM_gtofp(a, DEFAULTPREC);
   r = qfgaussred_positive(qv->a);
   if (!r)
@@ -1035,9 +1008,7 @@ forqfvec_init_dolll(struct qfvec *qv, GEN a, long dolll)
 
 static void
 forqfvec_init(struct qfvec *qv, GEN a)
-{
-  forqfvec_init_dolll(qv, a, 1);
-}
+{ forqfvec_init_dolll(qv, a, 1); }
 
 static void
 forqfvec_i(void *E, long (*fun)(void *, GEN, GEN, double), struct qfvec *qv, GEN BORNE)
@@ -1136,19 +1107,21 @@ forqfvec0(GEN a, GEN BORNE, GEN code)
   avma = av;
 }
 
+enum { min_ALL = 0, min_FIRST, min_VECSMALL, min_VECSMALL2 };
+
 /* Minimal vectors for the integral definite quadratic form: a.
  * Result u:
  *   u[1]= Number of vectors of square norm <= BORNE
  *   u[2]= maximum norm found
- *   u[3]= list of vectors found (at most STOCKMAX)
+ *   u[3]= list of vectors found (at most STOCKMAX, unless NULL)
  *
- *  If BORNE = gen_0: Minimal non-zero vectors.
+ *  If BORNE = NULL: Minimal non-zero vectors.
  *  flag = min_ALL,   as above
  *  flag = min_FIRST, exits when first suitable vector is found.
- *  flag = min_PERF,  only compute rank of the family of v.v~ (v min.)
- *  flag = min_VECSMALL, return a t_VECSMALL of (half) the number of vectors for each norm
- *  flag = min_VECSMALL2, same but count only vectors with even norm, and shift the answer
- */
+ *  flag = min_VECSMALL, return a t_VECSMALL of (half) the number of vectors
+ *  for each norm
+ *  flag = min_VECSMALL2, same but count only vectors with even norm, and shift
+ *  the answer */
 static GEN
 minim0_dolll(GEN a, GEN BORNE, GEN STOCKMAX, long flag, long dolll)
 {
@@ -1197,18 +1170,18 @@ minim0_dolll(GEN a, GEN BORNE, GEN STOCKMAX, long flag, long dolll)
       if (n == 1) return cgetg(1,t_VEC);
       if (!sBORNE && BORNE) return cgetg(1, t_VEC);
       break;
-    case min_PERF:
-      if (n == 1) return gen_0;
-      break;
-    default:
+    case min_ALL:
       if (n == 1 || (!sBORNE && BORNE))
         retmkvec3(gen_0, gen_0, cgetg(1, t_MAT));
+      L = new_chunk(1+maxrank);
       break;
+    default:
+      return NULL;
   }
   minim_alloc(n, &q, &x, &y, &z, &v);
-  av1 = avma;
 
   forqfvec_init_dolll(&qv, a, dolll);
+  av1 = avma;
   r = qv.r;
   u = qv.u;
   n--;
@@ -1234,21 +1207,9 @@ minim0_dolll(GEN a, GEN BORNE, GEN STOCKMAX, long flag, long dolll)
   else
     maxnorm = 0.;
   BOUND = sBORNE * (1 + eps);
-  if ((long)BOUND != sBORNE) pari_err_PREC( "qfminim");
+  if ((long)BOUND != sBORNE) return NULL;
 
-  switch(flag)
-  {
-    case min_ALL:
-      L = new_chunk(1+maxrank);
-      break;
-    case min_PERF:
-      avma = av1;
-      maxrank = (n*(n+1)) >> 1;
-      L = zero_zv(maxrank);
-      V = cgetg(1+maxrank, t_VECSMALL);
-  }
-
-  s = 0; av1 = avma;
+  s = 0;
   k = n; y[n] = z[n] = 0;
   x[n] = (long)sqrt(BOUND/v[n]);
   for(;;x[1]--)
@@ -1297,8 +1258,7 @@ minim0_dolll(GEN a, GEN BORNE, GEN STOCKMAX, long flag, long dolll)
     switch(flag)
     {
       case min_FIRST:
-        if (dolll)
-          x = ZM_zc_mul_canon(u,x);
+        if (dolll) x = ZM_zc_mul_canon(u,x);
         return gerepilecopy(av, mkvec2(roundr(dbltor(p)), x));
 
       case min_ALL:
@@ -1313,45 +1273,13 @@ minim0_dolll(GEN a, GEN BORNE, GEN STOCKMAX, long flag, long dolll)
         break;
 
       case min_VECSMALL:
-        {
-          ulong norm = (ulong)(p + 0.5);
-          L[norm]++;
-        }
+        { ulong norm = (ulong)(p + 0.5); L[norm]++; }
         break;
 
       case min_VECSMALL2:
-        {
-          ulong norm = (ulong)(p + 0.5);
-          if ((norm&1) == 0) L[norm>>1]++;
-        }
+        { ulong norm = (ulong)(p + 0.5); if (!odd(norm)) L[norm>>1]++; }
         break;
 
-      case min_PERF:
-      {
-        pari_sp av2;
-        long I;
-
-        if (s == 1) {
-          invp = matid(maxrank);
-          for (i = 1; i <= maxrank; i++) L[i] = 0;
-        }
-        /* must go till the end in case we find a smallest vector last */
-        if (s > maxrank) { s = maxrank; continue; }
-        av2 = avma;
-        for (i = I = 1; i<=n; i++)
-          for (j=i; j<=n; j++,I++) V[I] = x[i]*x[j];
-        if (! addcolumntomatrix(V,invp,L))
-        {
-          if (DEBUGLEVEL>1) { err_printf("."); err_flush(); }
-          s--; avma=av2; continue;
-        }
-        if (DEBUGLEVEL>1) { err_printf("*"); err_flush(); }
-        if (gc_needed(av1,1))
-        {
-          if(DEBUGMEM>1) pari_warn(warnmem,"minim0, rank>=%ld",s);
-          invp = gerepilecopy(av1, invp);
-        }
-      }
     }
   }
   switch(flag)
@@ -1361,23 +1289,21 @@ minim0_dolll(GEN a, GEN BORNE, GEN STOCKMAX, long flag, long dolll)
     case min_VECSMALL:
     case min_VECSMALL2:
       avma = (pari_sp)L; return L;
-    case min_PERF:
-      if (DEBUGLEVEL>1) { err_printf("\n"); err_flush(); }
-      avma = av; return stoi(s);
   }
   r = (maxnorm >= 0) ? roundr(dbltor(maxnorm)): stoi(sBORNE);
   k = minss(s,maxrank);
   L[0] = evaltyp(t_MAT) | evallg(k + 1);
   if (dolll)
-    for (j=1; j<=k; j++)
-      gel(L,j) = ZM_zc_mul_canon(u, gel(L,j));
+    for (j=1; j<=k; j++) gel(L,j) = ZM_zc_mul_canon(u, gel(L,j));
   return gerepilecopy(av, mkvec3(stoi(s<<1), r, L));
 }
 
 static GEN
 minim0(GEN a, GEN BORNE, GEN STOCKMAX, long flag)
 {
-  return minim0_dolll(a, BORNE, STOCKMAX, flag, 1);
+  GEN v = minim0_dolll(a, BORNE, STOCKMAX, flag, 1);
+  if (!v) pari_err_PREC("minim");
+  return v;
 }
 
 GEN
@@ -1410,26 +1336,45 @@ qfminim0(GEN a, GEN borne, GEN stockmax, long flag, long prec)
 
 GEN
 minim(GEN a, GEN borne, GEN stockmax)
-{
-  return minim0(a,borne,stockmax,min_ALL);
-}
+{ return minim0(a,borne,stockmax,min_ALL); }
 
 GEN
 minim_raw(GEN a, GEN BORNE, GEN STOCKMAX)
-{
-  return minim0_dolll(a, BORNE, STOCKMAX, min_ALL, 0);
-}
+{ return minim0_dolll(a, BORNE, STOCKMAX, min_ALL, 0); }
 
 GEN
 minim2(GEN a, GEN borne, GEN stockmax)
-{
-  return minim0(a,borne,stockmax,min_FIRST);
-}
+{ return minim0(a,borne,stockmax,min_FIRST); }
 
 GEN
 perf(GEN a)
 {
-  return minim0(a,NULL,NULL,min_PERF);
+  pari_sp av = avma;
+  GEN u, L, M;
+  long r, k, l, n = lg(a)-1;
+
+  if (!n) return gen_0;
+  if (typ(a) != t_MAT || !RgM_is_ZM(a)) pari_err_TYPE("qfperfection",a);
+  a = minim_lll(a, &u);
+  L = minim_raw(a,NULL,NULL);
+  if (!L)
+  {
+    L = fincke_pohst(a,NULL,-1, DEFAULTPREC, NULL);
+    if (!L) pari_err_PREC("qfminim");
+  }
+  L = gel(L, 3); l = lg(L);
+  if (l == 2) { avma = av; return gen_1; }
+  M = cgetg(l, t_MAT);
+  r = (n*(n+1)) >> 1;
+  for (k = 1; k < l; k++)
+  {
+    GEN x = gel(L,k), c = cgetg(r+1, t_COL);
+    long i, I, j;
+    for (i = I = 1; i<=n; i++)
+      for (j=i; j<=n; j++,I++) gel(c,I) = mulss(x[i], x[j]);
+    gel(M,k) = c;
+  }
+  r = ZM_rank(M); avma = av; return utoipos(r);
 }
 
 static GEN

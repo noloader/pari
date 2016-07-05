@@ -223,6 +223,7 @@ BA162- polrootsmod(x^3-1, not a prime) -> SEGV (BIB)
 BA163- [windows] MPQS could fail due to temporary files
   164- matsnf([27, 0; 0, 3; 1, 1; 0, 0],1+4) -> SEGV
   165- gcd(Mod(1,2)*x+Mod(1,2), Mod(0,2)) -> Mod(1,2)
+  166- qfperfection() only allowed matrices of small norm [#1719]
 
   Added
     1- add optional argument to sumdigits to specify the base
