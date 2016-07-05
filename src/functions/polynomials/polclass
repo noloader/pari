@@ -19,9 +19,9 @@ Doc:
 
  \item if $p\neq q$, we need them both non-inert, prime to the conductor of
  $\Z[\sqrt{D}]$. Let $P, Q$ be prime ideals  above $p$ and $q$; if both are
-unramified, we further require that $P^{\pm 1} Q^{\pm 1}$ be all distinct in
-the class group of $\Z[\sqrt{D}]$; if both are ramified, we require that $PQ
-\neq 1$ in the class group.
+ unramified, we further require that $P^{\pm 1} Q^{\pm 1}$ be all distinct in
+ the class group of $\Z[\sqrt{D}]$; if both are ramified, we require that $PQ
+ \neq 1$ in the class group.
 
  \item if $p = q$, we want it split and prime to the conductor and
  the prime ideal above it must have order $\neq 1, 2, 4$ in the class group.
