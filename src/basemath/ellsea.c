@@ -1839,7 +1839,7 @@ Fq_ellcard_SEA(GEN a4, GEN a6, GEN q, GEN T, GEN p, long smallfact)
   forprime_t TT;
 
   j = Fq_ellj(a4, a6, T, p);
-  if (typ(j)==t_INT && (signe(j)==0 || equaliu(j, umodui(1728, p))))
+  if (signe(j) == 0 || signe(Fq_sub(j, utoi(1728), T, p)) == 0)
     return T ? FpXQ_ellcard(Fq_to_FpXQ(a4, T, p), Fq_to_FpXQ(a6, T, p), T, p)
              : Fp_ellcard(a4, a6, p);
   /*First compute the trace modulo 2 */
