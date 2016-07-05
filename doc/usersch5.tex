@@ -11505,7 +11505,7 @@ typedef struct {
 @eprog\noindent
 
 \fun{hashtable*}{hash_create}{size, hash, eq, use_stack}
-\vskip -1em % switch to K&R style to avoid atrocious line break
+\vskip -0.5em % switch to K&R style to avoid atrocious line break
 \bprog
   ulong size;
   ulong (*hash)(void*);
@@ -11537,7 +11537,7 @@ with key $k$ in $h$. Return it if it one exists, and \kbd{NULL} if not.
 entry with key $k$ in $h$, assuming \kbd{h->hash(k)} is \kbd{hash}. Return
 it if it one exists, and \kbd{NULL} if not.
 
-\fun{hashentry *}{hash_select}{hashtable *h, void *k, void *E, int(*select)(void *, hashentry *)} variant of \tet{hash_search}, useful when entries
+\fun{hashentry *}{hash_select}{hashtable *h, void *k, void *E, int (*select)(void *, hashentry *)} variant of \tet{hash_search}, useful when entries
 with identical keys are inserted: among the entries associated to
 key $k$, return one satisfying the selection criterion (such that
 \kbd{select(E,e)} is non-zero), or \kbd{NULL} if none exist.
@@ -11547,11 +11547,11 @@ with key $k$ from $h$ and return it. (Return \kbd{NULL} if none was found.)
 Only the linking structures are freed, memory associated to $k$ and $v$
 is not reclaimed.
 
-\fun{hashentry*}{hash_remove_select}{hashtable *h, void *k, void *E, int(*select)(void *,hashentry *) }
-variant of \tet{hash_remove}, useful when entries with identical keys are
+\fun{hashentry*}{hash_remove_select}{hashtable *h, void *k, void *E, int(*select)(void*, hashentry *)}
+a variant of \tet{hash_remove}, useful when entries with identical keys are
 inserted: among the entries associated to key $k$, return one satisfying the
-selection criterion (such that \kbd{select(E,e)} is non-zero) and delete it, or
-\kbd{NULL} if none exist. Only the linking structures are freed, memory
+selection criterion (such that \kbd{select(E,e)} is non-zero) and delete it,
+or \kbd{NULL} if none exist. Only the linking structures are freed, memory
 associated to $k$ and $v$ is not reclaimed.
 
 \fun{GEN}{hash_keys}{hashtable *h} return in a \typ{VECSMALL} the keys
@@ -11713,9 +11713,8 @@ return the matrix with $i$-th row and $j$-th column removed.
 and $B$ of compatible dimensions. A \kbd{NULL} pointer is accepted for an
 empty matrix. See \tet{shallowconcat}.
 
-\fun{GEN}{matslice}{GEN A, long i1, long i2, long j1, long j2}
-return the submatrix $A[i_1..i_2,j_1..j_2]$.
-Assume $i_1 \leq i_2$,  $i_1 \leq i_2$.
+\fun{GEN}{matslice}{GEN A, long a, long b, long c, long d}
+returns the submatrix $A[a..b,c..d]$. Assume $a \leq b$ and  $c \leq d$.
 
 \fun{GEN}{row}{GEN A, long i} return $A[i,]$, the $i$-th row of the \typ{MAT}
 $A$.
@@ -12378,14 +12377,14 @@ if the \emph{tag}-component of $S$ is non empty \emph{and} has relative
 $p$-adic precision $\geq \kbd{prec}$, return it. Otherwise insert (a clone
 of) \kbd{build(S, prec)} as \emph{tag}-component in $S$, and return it.
 
-\fun{GEN}{obj_checkbuild_realprec}{GEN S, long tag, GEN (*build)(GEN,long), long
-prec} if the \emph{tag}-component of $S$ is non empty \emph{and} has
-\kbd{gprecision} $\geq \kbd{prec}$, return it. Otherwise insert (a clone of)
-\kbd{build(S, prec)} as \emph{tag}-component in $S$, and return it.
+\fun{GEN}{obj_checkbuild_realprec}{GEN S, long tag, GEN (*build)(GEN, long),
+long prec} if the \emph{tag}-component of $S$ is non empty \emph{and}
+satisfies \kbd{gprecision} $\geq \kbd{prec}$, return it. Otherwise insert (a
+clone of) \kbd{build(S, prec)} as \emph{tag}-component in $S$, and return it.
 
 \fun{GEN}{obj_checkbuild_prec}{GEN S, long tag, GEN (*build)(GEN,long), GEN
-(*pr)(GEN), long prec} if the \emph{tag}-component of $S$ is non empty
-\emph{and} has precision $\kbd{pr}(x)\geq \kbd{prec}$, return it. Otherwise
+(*gpr)(GEN), long prec} if the \emph{tag}-component of $S$ is non empty
+\emph{and} has precision $\kbd{gpr}(x)\geq \kbd{prec}$, return it. Otherwise
 insert (a clone of) \kbd{build(S, prec)} as \emph{tag}-component in $S$,
 and return it.
 

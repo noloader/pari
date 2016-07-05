@@ -1406,10 +1406,10 @@ defined by the subgroup $H$ (of the ray class group mod $f$ coded in \kbd{bnr})
 has conductor $f$. Returns 0 otherwise.
 
 \fun{GEN}{bnrchar_primitive}{GEN bnr, GEN chi, GEN bnrc}
-Given a normalized (see \tev{char_normalize}) $\kbd{chi} = [d,c]$ on
-\kbd{bnr.clgp} of conductor \kbd{bnrc.mod},  compute the primitive character
-\kbd{chic} on \kbd{bnrc.clgp} equivalent to \kbd{chi}, given as a normalized
-character $[D,C]$ : \kbd{chic(bnrc.gen[i])} is $\zeta_D^{C[i]}$,
+Given a normalized character $\kbd{chi} = [d,c]$ on \kbd{bnr.clgp} (see
+\tet{char_normalize}) of conductor \kbd{bnrc.mod},  compute the primitive
+character \kbd{chic} on \kbd{bnrc.clgp} equivalent to \kbd{chi}, given as a
+normalized character $[D,C]$ : \kbd{chic(bnrc.gen[i])} is $\zeta_D^{C[i]}$,
 where $D$ is minimal. It is easier to use \kbd{bnrconductor\_i(bnr,chi,2)},
 but the latter recomputes \kbd{bnrc} for each new character.
 
@@ -1528,9 +1528,9 @@ for a vector of coefficients.
 a \typ{POLMOD} $x$ supposedly defining an element of \var{rnf}, check this
 and perform \tet{Rg_nffix} cleanups.
 
-\fun{GEN}{polmod_nffix2}{const char *f, GEN T, GEN P, GEN x, int lift} as
-\tet{polmod_nffix}, where the relative extension is explicitly defined
-as $L = (\Q[y]/(T))[x]/(P)$, instead of by an \kbd{rnf} structure.
+\fun{GEN}{polmod_nffix2}{const char *f, GEN T, GEN P, GEN x, int lift}
+as in \tet{polmod_nffix}, where the relative extension is explicitly
+defined as $L = (\Q[y]/(T))[x]/(P)$, instead of by an \kbd{rnf} structure.
 
 \fun{long}{numberofconjugates}{GEN T, long pinit} returns a quick
 multiple for the number of  $\Q$-automorphism of the (integral, monic)

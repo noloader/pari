@@ -434,9 +434,9 @@ a prime are acceptable, set $s=2$.
 \fun{GEN}{Fp_ffellcard}{GEN a4, GEN a6, GEN q, long n, GEN p} returns the
 cardinality of the group $E(\F_q)$ where $q=p^n$.
 
-\fun{GEN}{Fp_ellgroup}{GEN a4, GEN a6, GEN N, GEN p, GEN *pt_m} returns the
+\fun{GEN}{Fp_ellgroup}{GEN a4, GEN a6, GEN N, GEN p, GEN *pm} returns the
 group structure $D$ of the group $E(\F_p)$, which is assumed to be of order $N$
-and set $*pt_m=m$.
+and set \kbd{*pm} to $m$.
 
 \fun{GEN}{Fp_ellgens}{GEN a4, GEN a6, GEN ch, GEN D, GEN m, GEN p} returns
 generators of the group $E(\F_p)$ with the base change \kbd{ch} (see
@@ -446,8 +446,9 @@ generators of the group $E(\F_p)$ with the base change \kbd{ch} (see
 \fun{GEN}{Fp_elldivpol}{GEN a4, GEN a6, long n, GEN p} returns the $n$-division
 polynomial of the elliptic curve $E$.
 
-\fun{void}{Fp_elltwist}{GEN a4, GEN a6, GEN p, GEN *a4t, GEN *a6t}
-Set \kbd{*a4t} and \kbd{*a6t} to the parameters of the quadratic twist of $E$.
+\fun{void}{Fp_elltwist}{GEN a4, GEN a6, GEN p, GEN *pA4, GEN *pA6}
+sets \kbd{*pA4} and \kbd{*pA6} to the corresponding parameters for the
+quadratic twist of $E$.
 
 \subsec{\kbd{FpE}}
 
@@ -524,16 +525,17 @@ returns the $j$-invariant of the curve $E$.
 returns the $j$-invariant of the curve $E$, assuming $pi$ is the pseudo inverse
 of $p$.
 
-\fun{void}{Fl_ellj_to_a4a6}{ulong j, ulong p, ulong *pt_a4, ulong *pt_a6}
-Set \kbd{*pt\_a4} to $a_4$ and \kbd{*pt\_a6} to $a_6$ where $a_4$ and $a_6$
+\fun{void}{Fl_ellj_to_a4a6}{ulong j, ulong p, ulong *pa4, ulong *pa6}
+sets \kbd{*pa4} to $a_4$ and \kbd{*pa6} to $a_6$ where $a_4$ and $a_6$
 define a fixed elliptic curve with $j$-invariant $j$.
 
-\fun{void}{Fl_elltwist}{ulong a4, ulong a6, ulong p, ulong *pt_a4, ulong *pt_a6}
-Set \kbd{*pt\_a4} to $a'_4$ and \kbd{*pt\_a6} to $a'_6$ where $a'_4$ and $a'_6$
+\fun{void}{Fl_elltwist}{ulong a4, ulong a6, ulong p, ulong *pA4, ulong *pA6}
+set \kbd{*pA4} to $A_4$ and \kbd{*pA6} to $A_6$ where $A_4$ and $A_6$
 define the twist of $E$.
 
-\fun{void}{Fl_elltwist_disc}{ulong a4, ulong a6, ulong D, ulong p, ulong *pt_a4, ulong *pt_a6}
-Set \kbd{*pt\_a4} to $a'_4$ and \kbd{*pt\_a6} to $a'_6$ where $a'_4$ and $a'_6$
+\fun{void}{Fl_elltwist_disc}{ulong a4, ulong a6, ulong D, ulong p, ulong *pA4,
+ulong *pA6}
+sets \kbd{*pA4} to $A_4$ and \kbd{*pA6} to $A_6$ where $A_4$ and $A_6$
 define the twist of $E$ by the discriminant $D$.
 
 \fun{GEN}{Fle_add}{GEN P, GEN Q, ulong a4, ulong p}
@@ -599,9 +601,9 @@ parameter \kbd{a2} is actually the \typ{VEC} $[a_3,a_4,a_3^{-1}]$.
 \fun{GEN}{F2xq_ellcard}{GEN a2, GEN a6, GEN T}
 Return the order of the group $E(\F_2[X]/(T))$.
 
-\fun{GEN}{F2xq_ellgroup}{GEN a2, GEN a6, GEN N, GEN T, GEN *pt_m}
+\fun{GEN}{F2xq_ellgroup}{GEN a2, GEN a6, GEN N, GEN T, GEN *pm}
 Return the group structure $D$ of the group $E(\F_2[X]/(T))$,
-which is assumed to be of order $N$ and set $*pt_m=m$.
+which is assumed to be of order $N$ and set \kbd{*pm} to $m$.
 
 \fun{GEN}{F2xq_ellgens}{GEN a2, GEN a6, GEN ch, GEN D, GEN m, GEN T}
 Returns generators of the group $E(\F_2[X]/(T))$ with the base change \kbd{ch}
@@ -609,7 +611,7 @@ Returns generators of the group $E(\F_2[X]/(T))$ with the base change \kbd{ch}
 \kbd{F2xq\_ellgroup}.
 
 \fun{void}{F2xq_elltwist}{GEN a4, GEN a6, GEN T, GEN *a4t, GEN *a6t}
-Set \kbd{*a4t} and \kbd{*a6t} to the parameters of the quadratic twist of $E$.
+sets \kbd{*a4t} and \kbd{*a6t} to the parameters of the quadratic twist of $E$.
 
 \subsec{\kbd{F2xqE}}
 
@@ -664,24 +666,25 @@ $a_2$ and $a_6$ being \kbd{Flx} in $\F_3[X]/(T)$. In that case, the parameter
 \fun{GEN}{Flxq_ellj}{GEN a4, GEN a6, GEN T, ulong p}
 returns the $j$-invariant of the curve $E$.
 
-\fun{void}{Flxq_ellj_to_a4a6}{GEN j, GEN T, ulong p, GEN *pt_a4, GEN *pt_a6}
-Set \kbd{*pt\_a4} to $a_4$ and \kbd{*pt\_a6} to $a_6$ where $a_4$ and $a_6$
+\fun{void}{Flxq_ellj_to_a4a6}{GEN j, GEN T, ulong p, GEN *pa4, GEN *pa6}
+sets \kbd{*pa4} to $a_4$ and \kbd{*pa6} to $a_6$ where $a_4$ and $a_6$
 define a fixed elliptic curve with $j$-invariant $j$.
 
 \fun{GEN}{Flxq_ellcard}{GEN a4, GEN a6, GEN T, ulong p}
 returns the order of $E(\F_p[X]/(T))$.
 
-\fun{GEN}{Flxq_ellgroup}{GEN a4, GEN a6, GEN N, GEN T, ulong p, GEN *pt_m}
+\fun{GEN}{Flxq_ellgroup}{GEN a4, GEN a6, GEN N, GEN T, ulong p, GEN *pm}
 returns the group structure $D$ of the group $E(\F_p[X]/(T))$,
-which is assumed to be of order $N$ and set $*pt_m=m$.
+which is assumed to be of order $N$ and sets \kbd{*pm} to $m$.
 
 \fun{GEN}{Flxq_ellgens}{GEN a4, GEN a6, GEN ch, GEN D, GEN m, GEN T, ulong p}
 returns generators of the group $E(\F_p[X]/(T))$ with the base change \kbd{ch}
 (see \kbd{FlxqE\_changepoint}), where $D$ and $m$ are as returned by
 \kbd{Flxq\_ellgroup}.
 
-\fun{void}{Flxq_elltwist}{GEN a4, GEN a6, GEN T, ulong p, GEN *a4t, GEN *a6t}
-Set \kbd{*a4t} and \kbd{*a6t} to the parameters of the quadratic twist of $E$.
+\fun{void}{Flxq_elltwist}{GEN a4, GEN a6, GEN T, ulong p, GEN *pA4, GEN *pA6}
+sets \kbd{*pA4} and \kbd{*pA6} to the corresponding parameters for the
+quadratic twist of $E$.
 
 \subsec{\kbd{FlxqE}}
 
@@ -744,9 +747,9 @@ Assume $p\neq 2,3$, and $q$ is the cardinality of $\F_p[X]/(T)$.
 The parameter $s$ has the same meaning as in \kbd{Fp\_ellcard\_SEA}.
 If the \kbd{seadata} package is installed, the function will be faster.
 
-\fun{GEN}{FpXQ_ellgroup}{GEN a4, GEN a6, GEN N, GEN T, GEN p, GEN *pt_m}
+\fun{GEN}{FpXQ_ellgroup}{GEN a4, GEN a6, GEN N, GEN T, GEN p, GEN *pm}
 Return the group structure $D$ of the group $E(\F_p[X]/(T))$,
-which is assumed to be of order $N$ and set $*pt_m=m$.
+which is assumed to be of order $N$ and set \kbd{*pm} to $m$.
 
 \fun{GEN}{FpXQ_ellgens}{GEN a4, GEN a6, GEN ch, GEN D, GEN m, GEN T, GEN p}
 Returns generators of the group $E(\F_p[X]/(T))$ with the base change \kbd{ch}
@@ -760,8 +763,9 @@ $n$-division polynomial of the elliptic curve $E$.
 returns the $n$-division polynomial of the elliptic curve $E$ modulo the
 polynomial $h$.
 
-\fun{void}{FpXQ_elltwist}{GEN a4, GEN a6, GEN T, GEN p, GEN *a4t, GEN *a6t}
-Set \kbd{*a4t} and \kbd{*a6t} to the parameters of the quadratic twist of $E$.
+\fun{void}{FpXQ_elltwist}{GEN a4, GEN a6, GEN T, GEN p, GEN *pA4, GEN *pA6}
+sets \kbd{*pA4} and \kbd{*pA6} to the corresponding parameters for the
+quadratic twist of $E$.
 
 \subsec{\kbd{FpXQE}}
 
