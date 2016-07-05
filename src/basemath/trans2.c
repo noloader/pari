@@ -1138,13 +1138,18 @@ cxgamma(GEN s0, int dolog, long prec)
     if (fabs(ssig-1) + fabs(st) < 0.0001)
     { /* s ~ 1: loggamma(1+u) ~ - Euler * u, cancellation */
       if (funeq) /* s0 ~ 0: use lngamma(s0)+log(s0) = lngamma(s0+1) */
-        y = gsub(lngamma1(s0,prec), glog(s0,prec));
+      {
+        if (dolog)
+          y = gsub(lngamma1(s0,prec), glog(s0,prec));
+        else
+          y = gdiv(gexp(lngamma1(s0,prec), prec), s0);
+      }
       else
       {
         if (isint1(s0)) { avma = av; return dolog? real_0(prec): real_1(prec); }
         y = lngamma1(gsubgs(s0,1),prec);
+        if (!dolog) y = gexp(y,prec);
       }
-      if (!dolog) y = gexp(y,prec);
       avma = av; return affc_fixlg(y, res);
     }
     dcxlog(ssig,st, &rlogs,&ilogs);
