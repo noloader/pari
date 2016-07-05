@@ -27,7 +27,7 @@ Doc: Numerical summation of $f(n)$ at high accuracy using Euler-MacLaurin,
  @eprog
 
  \misctitle{Complexity}
- The function $f$ is evaluated at $O(D \log D)$ real arguments,
+ The function $f$ will be evaluated at $O(D \log D)$ real arguments,
  where $D \approx \kbd{realprecision} \cdot \log(10)$. The routine is geared
  towards slowly decreasing functions: if $f$ decreases exponentially fast,
  then one of \kbd{suminf} or \kbd{sumpos} should be preferred.

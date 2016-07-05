@@ -6,8 +6,8 @@ Help: fold(f, A): return f(...f(f(A[1],A[2]),A[3]),...,A[#A])
 Wrapper: (GG)
 Description:
   (closure,gen):gen    genfold(${1 cookie}, ${1 wrapper}, $2)
-Doc: Apply the \typ{CLOSURE} \kbd{f} of arity $2$ to the entries of \kbd{A}
- to return \kbd{f(\dots f(f(A[1],A[2]),A[3])\dots ,A[\#A])}.
+Doc: Apply the \typ{CLOSURE} \kbd{f} of arity $2$ to the entries of \kbd{A},
+ in order to return \kbd{f(\dots f(f(A[1],A[2]),A[3])\dots ,A[\#A])}.
  \bprog
  ? fold((x,y)->x*y, [1,2,3,4])
  %1 = 24

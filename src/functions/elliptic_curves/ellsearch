@@ -20,7 +20,7 @@ Doc: This function finds all curves in the \tet{elldata} database satisfying
 
  \item if $N$ is an integer, curves with conductor $N$ are selected.
 
- If $N$ is a full curve name, e.g. \kbd{"11a1"} or \kbd{[11,0,1]},
+ If $N$ codes a full curve name, for instance \kbd{"11a1"} or \kbd{[11,0,1]},
  the output format is $[N, [a_1,a_2,a_3,a_4,a_6], G]$ where
  $[a_1,a_2,a_3,a_4,a_6]$ are the coefficients of the Weierstrass equation of
  the curve and $G$ is a $\Z$-basis of the free part of the \idx{Mordell-Weil

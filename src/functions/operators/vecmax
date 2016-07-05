@@ -24,4 +24,5 @@ Doc: if $x$ is a vector or a matrix, returns the largest entry of $x$,
  %3 = [2, 2]
  @eprog
 
-Variant: Also available is \fun{GEN}{vecmax}{GEN x}.
+Variant: When $v$ is not needed, the function \fun{GEN}{vecmax}{GEN x} is
+ also available.

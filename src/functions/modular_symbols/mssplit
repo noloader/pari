@@ -6,14 +6,15 @@ Help: mssplit(M,H,{dimlim}): M being a full modular symbol space, as given by
  msinit, and H being a subspace, split H into Hecke-simple subspaces.
  If dimlim is present and positive, restrict to dim <= dimlim.
 Doc:
- $M$ being a full modular symbol space, as given by \kbd{msinit}$(N,k,1)$
- or $\kbd{msinit}(N,k,-1)$
- and $H$ being a Hecke-stable subspace of \kbd{msnew}$(M)$, split $H$ into
- Hecke-simple subspaces. If \kbd{dimlim} is present and positive, restrict to
- subspaces of dimension $\leq \kbd{dimlim}$.
- A subspace is given by a structure allowing quick projection and restriction
- of linear operators; its first component is a matrix with integer
- coefficients whose columns form a $\Q$-basis of the subspace.
+ Let $M$ denote a full modular symbol space, as given by \kbd{msinit}$(N,k,1)$
+ or $\kbd{msinit}(N,k,-1)$ and let $H$ be a Hecke-stable subspace of
+ \kbd{msnew}$(M)$. This function split $H$ into Hecke-simple subspaces. If
+ \kbd{dimlim} is present and positive, restrict to subspaces of dimension
+ $\leq \kbd{dimlim}$. A subspace is given by a structure allowing quick
+ projection and restriction of linear operators; its first component is a
+ matrix with integer coefficients whose columns form a $\Q$-basis of the
+ subspace.
+
  \bprog
  ? M = msinit(11,8, 1); \\ M_8(Gamma_0(11))^+
  ? L = mssplit(M, msnew(M));

@@ -25,4 +25,5 @@ Doc: if $x$ is a vector or a matrix, returns the smallest entry of $x$,
  %3 = [2, 1]
  @eprog
 
-Variant: Also available is \fun{GEN}{vecmin}{GEN x}.
+Variant: When $v$ is not needed, the function \fun{GEN}{vecmin}{GEN x} is also
+ available.

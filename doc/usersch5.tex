@@ -183,15 +183,18 @@ a function, it has at least the following fields:
 A routine in GP is described to the analyzer by an \kbd{entree}
 structure. Built-in PARI routines are grouped in \emph{modules}, which
 are arrays of \kbd{entree} structs, the last of which satisfy
-\kbd{name = NULL} (sentinel).
+\kbd{name = NULL} (sentinel). There are currently five modules in PARI/GP:
 
-There are currently five modules in PARI/GP: general functions
-(\tet{functions_basic}, known to \kbd{libpari}), gp-specific functions
-(\tet{functions_gp}), gp-specific highlevel functions
-(\tet{functions_highlevel}), and two modules of obsolete functions. The
-function \kbd{pari\_init} initializes the interpreter and declares all
-symbols in \kbd{functions\_basic}. You may declare further functions on a
-case by case basis or as a whole module using
+\item general functions (\tet{functions_basic}, known to \kbd{libpari}),
+
+\item gp-specific functions (\tet{functions_gp}),
+
+\item gp-specific highlevel functions (\tet{functions_highlevel}),
+
+\noindent and two modules of obsolete functions. The function
+\kbd{pari\_init} initializes the interpreter and declares all symbols in
+\kbd{functions\_basic}. You may declare further functions on a case by case
+basis or as a whole module using
 
 \fun{void}{pari_add_function}{entree *ep} adds a single routine to the
 table of symbols in the interpreter. It assumes \kbd{pari\_init} has been
@@ -968,15 +971,15 @@ ulong p = 0;
 @eprog
 \noindent calling the macro \tet{NEXT_PRIME_VIADIFF_CHECK}$(p, \var{ptr})$
 repeatedly will assign the successive prime numbers to $p$. Overrunning the
-prime table boundary will raise the error \tet{e_MAXPRIME}, which will just
-print the error message:
+prime table boundary will raise the error \tet{e_MAXPRIME}, which just
+prints the error message:
 
 \kbd{*** not enough precomputed primes, need primelimit \til $c$}
 
-\noindent (for some numerical value $c$), then abort the computation. The
-alternative macro \tet{NEXT_PRIME_VIADIFF} operates in the same way, but will
-omit that check, and is slightly faster. It should be used in the following
-way:
+\noindent (for some numerical value $c$), then the macro aborts the
+computation. The alternative macro \tet{NEXT_PRIME_VIADIFF} operates in the
+same way, but will omit that check, and is slightly faster. It should be used
+in the following way:
 %
 \bprog
 byteptr ptr = diffptr;
@@ -3518,9 +3521,9 @@ the prime field.
   E.g.~an \kbd{FpXQ} belongs to $(\Z/p\Z)[X]/(T(X))$, \kbd{FpXQV} means a
   vector of such elements, etc.
 
-  \kbd{n}: representative (\typ{POL}) of power series modulo $X^n$.
-  E.g.~an \kbd{FpXn} belongs to $(\Z/p\Z)[X]/(X^n)$, \kbd{FpXnV} means a
-  vector of such elements, etc.
+  \kbd{n}: a polynomial representative (\typ{POL}) for a truncated power
+  series modulo $X^n$. E.g.~an \kbd{FpXn} belongs to $(\Z/p\Z)[X]/(X^n)$,
+  \kbd{FpXnV} means a vector of such elements, etc.
 
   \kbd{x}, \kbd{y}, \kbd{m}, \kbd{v}, \kbd{c}, \kbd{q}: as their uppercase
   counterpart, but coefficient arrays are implemented using \typ{VECSMALL}s,
@@ -8696,7 +8699,7 @@ a~\typ{REAL}), converts \kbd{x} into a \kbd{double} if possible.
 integer if possible, otherwise raise an exception. This function
 is similar to \tet{itos}, slightly slower since it checks the type of \kbd{x}.
 
-\fun{double}{dbllog2r}{GEN x} assuming \kbd{x} is a non-zero \typ{REAL},
+\fun{double}{dbllog2r}{GEN x} assuming that \kbd{x} is a non-zero \typ{REAL},
 returns an approximation to \kbd{log2(|x|)}.
 
 \fun{double}{dblmodulus}{GEN x} return an approximation to \kbd{|x|}.
@@ -10341,9 +10344,14 @@ if the leading coefficient maps to $0$.
 \fun{GEN}{FF_zero}{GEN a} returns the zero element of the definition field of
 the \typ{FFELT} element \kbd{a}.
 
-\fun{int}{FF_equal0}{GEN a}, \fun{int}{FF_equal1}{GEN a},
-\fun{int}{FF_equalm1}{GEN a} returns $1$ if the \typ{FFELT} \kbd{a} is equal
-to $0$ (resp. $1$, resp. $-1$) else $0$.
+\fun{int}{FF_equal0}{GEN a} returns $1$ if the \typ{FFELT} \kbd{a} is equal
+to $0$ else returns $0$.
+
+\fun{int}{FF_equal1}{GEN a} returns $1$ if the \typ{FFELT} \kbd{a} is equal
+to $1$ else returns $0$.
+
+\fun{int}{FF_equalm1}{GEN a} returns $-1$ if the \typ{FFELT} \kbd{a} is equal
+to $1$ else returns $0$.
 
 \fun{int}{FF_equal}{GEN a, GEN b} return $1$ if the \typ{FFELT} \kbd{a} and
 \kbd{b} have the same definition field and are equal, else $0$.

@@ -62,7 +62,7 @@ is defined, one of
   \tet{t_ELL_Qp} the field of $p$-adic numbers, for some prime $p$;
 
   \tet{t_ELL_Fp} a prime finite field, base field elements are represented as
-  \kbd{Fp} (\typ{INT} reduced modulo $p$);
+  \kbd{Fp}, i.e.~a \typ{INT} reduced modulo~$p$;
 
   \tet{t_ELL_Fq} a non-prime finite field (a prime finite field can also be
   represented by this subtype, but this is inefficient), base field elements
@@ -71,14 +71,15 @@ is defined, one of
   \tet{t_ELL_Rg} none of the above.
 
 \fun{void}{checkell_Fq}{GEN e} checks whether $e$ is an \kbd{ell}, defined
-over a finite field (either prime or non-prime), raises \tet{pari_err_TYPE}
-otherwise.
+over a finite field (either prime or non-prime). Otherwise the function
+raises a \tet{pari_err_TYPE} exception.
 
 \fun{void}{checkell_Q}{GEN e} checks whether $e$ is an \kbd{ell}, defined
-over $\Q$, raises \tet{pari_err_TYPE} otherwise.
+over $\Q$. Otherwise the function raises a \tet{pari_err_TYPE} exception.
 
 \fun{void}{checkell_Qp}{GEN e} checks whether $e$ is an \kbd{ell}, defined
-over some $\Q_p$, raises \tet{pari_err_TYPE} otherwise.
+over some $\Q_p$. Otherwise the function raises a \tet{pari_err_TYPE}
+exception.
 
 \fun{void}{checkellisog}{GEN v} raise an error unless $v$ is an isogeny,
 from \tet{ellisogeny}.
@@ -823,7 +824,7 @@ returns a bivariate polynomial in variables \kbd{xvar} and
 int derivs} returns the modular polynomial evaluated
 at $J$ modulo the prime $p$ in the variable $v$ (if \kbd{derivs} is non-zero,
 returns a vector containing the modular polynomial and its first and second
-derivatives, all evaluated at $J$ modulo $p$).
+derivatives, all evaluated at $J$ modulo~$p$).
 
 \section{Other curves}
 

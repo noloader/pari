@@ -25,4 +25,4 @@ Doc: computes the gcd of all the coefficients of $x$,
  ? content([ [2], 4*matid(3) ])
  %1 = 2
  @eprog\noindent The content of a \typ{VECSMALL} is computed assuming the
- entries are signed integers in $[-2^{BIL-1}, 2^{BIL-1}[$.
+ entries are signed integers.

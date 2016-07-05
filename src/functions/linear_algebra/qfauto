@@ -2,8 +2,8 @@ Function: qfauto
 Section: linear_algebra
 C-Name: qfauto0
 Prototype: GDG
-Help: qfauto(G,{fl}): automorphism group of the positive definite quadratic form
- G.
+Help: qfauto(G,{fl}): automorphism group of the positive definite quadratic
+ form G.
 Doc:
  $G$ being a square and symmetric matrix with integer entries representing a
  positive definite quadratic form, outputs the automorphism group of the
@@ -23,5 +23,5 @@ Doc:
  This function implements an algorithm of Plesken and Souvignier, following
  Souvignier's implementation.
 
-Variant: Also available is \fun{GEN}{qfauto}{GEN G, GEN fl}
- where $G$ is a vector of \kbd{zm}.
+Variant: The function \fun{GEN}{qfauto}{GEN G, GEN fl} is also available
+ where $G$ is a vector of \kbd{zm} matrices.
