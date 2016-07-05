@@ -195,7 +195,10 @@
 \endgroup
 \def\doverb {\begingroup\setupverb\d@verb}
 \def\doverbb{\begingroup\setupverb\d@verbb}
-\def\doverbbb{\begingroup\setupverb\d@verbbb}
+% make ',' active to allow automatic glue between function arguments, see \fun
+\def\doverbbbcomma{\begingroup\catcode`\,=13\setupverb\d@verbbb}
+\def\func@mma{,\hskip 0.5em plus 0.6em minus 0.3em}
+{\catcode`\,=13\gdef,{\func@mma}}
 
 % argument (silently) goes to index
 \def\sidx{\gdef\f@nt{rm}\let\do=\toindex\doverb}   % \rm
@@ -226,10 +229,10 @@
 \def\synt{\let\do=\@synt\doverb}
 
 % function prototypes
-\def\funno#1#2#3{\tolerance 1200\emergencystretch 3em\hbadness
-4000\noindent{\tt#1 #2(#3)}\penalty-100{}} % no index
+\def\funno#1#2#3{\tolerance 1200\emergencystretch 3em\hbadness 4000%
+\noindent{\tt#1 #2(#3)}\catcode`\,=12\penalty-100{}} % no index
 \def\@fun#1#2#3{\gdef\f@nt{tt}\toindex{#2}\funno{#1}{#2}{#3}}
-\def\fun{\let\do=\@fun\doverbbb}
+\def\fun{\let\do=\@fun\doverbbbcomma}
 
 \def\@doc#1#2{\gdef\f@nt{tt}\toindex{#1}\noindent{\tt#2}}
 \def\doc{\let\do=\@doc\doverbb}
