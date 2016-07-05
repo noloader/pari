@@ -260,8 +260,8 @@ records the value of \kbd{PARI\_SIGINT\_block} when entering the block.
 \subsec{Multithread interruptions}
 
 To support multithreaded programs, \kbd{BLOCK\_SIGINT\_START} and
-\kbd{BLOCK\_SIGALRM\_START} call \kbd{MT\_SIGINT\_BLOCK(block);}, and
-\kbd{BLOCK\_SIGINT\_END} calls \kbd{MT\_SIGINT\_UNBLOCK(block);}.
+\kbd{BLOCK\_SIGALRM\_START} call \kbd{MT\_SIGINT\_BLOCK(block)}, and
+\kbd{BLOCK\_SIGINT\_END} calls \kbd{MT\_SIGINT\_UNBLOCK(block)}.
 
 \tet{MT_SIGINT_BLOCK} and \tet{MT_SIGINT_UNBLOCK} are defined by the
 multithread engine. They can calls the following public functions defined by
