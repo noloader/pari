@@ -802,6 +802,25 @@ returns the Weil pairing of the points of $m$-torsion $P$ and $Q$.
 \fun{GEN}{RgE_to_FpXQE}{GEN P, GEN T, GEN p} returns the \kbd{FpXQE} obtained
 by applying \kbd{Rg\_to\_FpXQ} coefficientwise.
 
+\section{Functions related to modular polynomials}
+
+Variants of \tet{polmodular}, returning the modular polynomial of prime
+level $L$ for the invariant coded by \kbd{inv} (0: $j$, 1: Weber-$f$, see
+\tet{polclass} for the full list).
+
+\fun{GEN}{polmodular_ZXX}{long L, long inv, long xvar, long yvar}
+returns a bivariate polynomial in variables \kbd{xvar} and
+\kbd{yvar}.
+
+\fun{GEN}{polmodular_ZM}{long L, long inv} returns a matrix of
+(integral) coefficients.
+
+\fun{GEN}{Fp_polmodular_evalx}{long L, long inv, GEN J, GEN p, long v,
+int derivs} returns the modular polynomial evaluated
+at $J$ modulo the prime $p$ in the variable $v$ (if \kbd{derivs} is non-zero,
+returns a vector containing the modular polynomial and its first and second
+derivatives, all evaluated at $J$ modulo $p$).
+
 \section{Other curves}
 
 The following functions deal with hyperelliptic curves in weighted projective
