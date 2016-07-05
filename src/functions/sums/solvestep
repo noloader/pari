@@ -31,4 +31,4 @@ Doc: find zeros of a continuous function in the real interval $[a,b]$ by naive
  %2 = [7.588342434..., 11.064709488...]
  @eprog\noindent
 
- \synt{solvestep}{void *E,GEN (*eval)(void*,GEN),GEN a,GEN b,GEN step,long flag,long prec}.
+ \synt{solvestep}{void *E, GEN (*eval)(void*,GEN), GEN a,GEN b, GEN step,long flag,long prec}.
