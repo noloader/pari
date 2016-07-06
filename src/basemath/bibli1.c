@@ -1346,35 +1346,92 @@ GEN
 minim2(GEN a, GEN borne, GEN stockmax)
 { return minim0(a,borne,stockmax,min_FIRST); }
 
+/* If V depends linearly from the columns of the matrix, return 0.
+ * Otherwise, update INVP and L and return 1. No GC. */
+static int
+addcolumntomatrix(GEN V, GEN invp, GEN L)
+{
+  GEN a = RgM_zc_mul(invp,V);
+  long i,j,k, n = lg(invp);
+
+  if (DEBUGLEVEL>6)
+  {
+    err_printf("adding vector = %Ps\n",V);
+    err_printf("vector in new basis = %Ps\n",a);
+    err_printf("list = %Ps\n",L);
+    err_printf("base change matrix =\n%Ps\n", invp);
+  }
+  k = 1; while (k<n && (L[k] || gequal0(gel(a,k)))) k++;
+  if (k == n) return 0;
+  L[k] = 1;
+  for (i=k+1; i<n; i++) gel(a,i) = gdiv(gneg_i(gel(a,i)),gel(a,k));
+  for (j=1; j<=k; j++)
+  {
+    GEN c = gel(invp,j), ck = gel(c,k);
+    if (gequal0(ck)) continue;
+    gel(c,k) = gdiv(ck, gel(a,k));
+    if (j==k)
+      for (i=k+1; i<n; i++)
+        gel(c,i) = gmul(gel(a,i), ck);
+    else
+      for (i=k+1; i<n; i++)
+        gel(c,i) = gadd(gel(c,i), gmul(gel(a,i), ck));
+  }
+  return 1;
+}
+
 GEN
 perf(GEN a)
 {
   pari_sp av = avma;
   GEN u, L, M;
-  long r, k, l, n = lg(a)-1;
+  long r, s, k, l, n = lg(a)-1;
 
   if (!n) return gen_0;
   if (typ(a) != t_MAT || !RgM_is_ZM(a)) pari_err_TYPE("qfperfection",a);
   a = minim_lll(a, &u);
   L = minim_raw(a,NULL,NULL);
-  if (!L)
+  r = (n*(n+1)) >> 1;
+  if (L)
+  {
+    GEN D, V, invp;
+    L = gel(L, 3); l = lg(L);
+    if (l == 2) { avma = av; return gen_1; }
+
+    D = zero_zv(r);
+    V = cgetg(r+1, t_VECSMALL);
+    invp = matid(r);
+    s = 0;
+    for (k = 1; k < l; k++)
+    {
+      pari_sp av2 = avma;
+      GEN x = gel(L,k);
+      long i, j, I;
+
+      for (i = I = 1; i<=n; i++)
+        for (j=i; j<=n; j++,I++) V[I] = x[i]*x[j];
+      if (!addcolumntomatrix(V,invp,D)) avma = av2;
+      else if (++s == r) break;
+    }
+  }
+  else
   {
     L = fincke_pohst(a,NULL,-1, DEFAULTPREC, NULL);
     if (!L) pari_err_PREC("qfminim");
+    L = gel(L, 3); l = lg(L);
+    if (l == 2) { avma = av; return gen_1; }
+    M = cgetg(l, t_MAT);
+    for (k = 1; k < l; k++)
+    {
+      GEN x = gel(L,k), c = cgetg(r+1, t_COL);
+      long i, I, j;
+      for (i = I = 1; i<=n; i++)
+        for (j=i; j<=n; j++,I++) gel(c,I) = mulii(gel(x,i), gel(x,j));
+      gel(M,k) = c;
+    }
+    s = ZM_rank(M);
   }
-  L = gel(L, 3); l = lg(L);
-  if (l == 2) { avma = av; return gen_1; }
-  M = cgetg(l, t_MAT);
-  r = (n*(n+1)) >> 1;
-  for (k = 1; k < l; k++)
-  {
-    GEN x = gel(L,k), c = cgetg(r+1, t_COL);
-    long i, I, j;
-    for (i = I = 1; i<=n; i++)
-      for (j=i; j<=n; j++,I++) gel(c,I) = mulss(x[i], x[j]);
-    gel(M,k) = c;
-  }
-  r = ZM_rank(M); avma = av; return utoipos(r);
+ avma = av; return utoipos(s);
 }
 
 static GEN
