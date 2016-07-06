@@ -56,7 +56,7 @@ FpXQX_REM_BARRETT_LIMIT             30      30      30      30
 Fp_POW_BARRETT_LIMIT                97      11     101     127
 Fp_POW_REDC_LIMIT                   99       3      99      17
 INVMOD_GMP_LIMIT                    -1       3      -1       3
-INVNEWTON_LIMIT                    380      66     656     520
+INVNEWTON_LIMIT                     66      93     550      75
 LOGAGMCX_LIMIT                      58      32      13      22
 LOGAGM_LIMIT                        55      45      16       6
 MULII_FFT_LIMIT                   1386      -1    1441      -1

@@ -56,7 +56,7 @@
 #define __Fp_POW_BARRETT_LIMIT           127
 #define __Fp_POW_REDC_LIMIT              17
 #define __INVMOD_GMP_LIMIT               3
-#define __INVNEWTON_LIMIT                520
+#define __INVNEWTON_LIMIT                75
 #define __LOGAGMCX_LIMIT                 22
 #define __LOGAGM_LIMIT                   6
 #define __MULII_FFT_LIMIT                -1
@@ -124,7 +124,7 @@
 #define __Fp_POW_BARRETT_LIMIT           11
 #define __Fp_POW_REDC_LIMIT              3
 #define __INVMOD_GMP_LIMIT               3
-#define __INVNEWTON_LIMIT                66
+#define __INVNEWTON_LIMIT                93
 #define __LOGAGMCX_LIMIT                 32
 #define __LOGAGM_LIMIT                   45
 #define __MULII_FFT_LIMIT                -1
