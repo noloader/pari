@@ -18,3 +18,23 @@ Doc: Let $E$ be an \var{ell} structure as output by \kbd{ellinit}, defined over
 
  The availability of the \kbd{seadata} package will speed up the computation,
  and is strongly recommended when looking for curves having prime order.
+
+ The following function return a curve of prime order over $\F_p$.
+ \bprog
+ primeordercurve(p)=
+ {
+   while(1,
+     my(j,E,N);
+     j=random(p);
+     E=ellinit(ellfromj(Mod(j,p)));
+     N=ellsea(E,1);
+     if(N==0,continue);
+     if(isprime(N),return(E));
+     \\ Also try the twist
+     if(isprime(2*p+2-N),return(ellinit(elltwist(E))));
+   );
+ }
+ p=randomprime(2^128);
+ E=primeordercurve(p);
+ isprime(ellcard(E))
+ @eprog
