@@ -1125,7 +1125,7 @@ enum { min_ALL = 0, min_FIRST, min_VECSMALL, min_VECSMALL2 };
 static GEN
 minim0_dolll(GEN a, GEN BORNE, GEN STOCKMAX, long flag, long dolll)
 {
-  GEN x, u, r, L, gnorme, invp, V;
+  GEN x, u, r, L, gnorme;
   long n = lg(a), i, j, k, s, maxrank, sBORNE;
   pari_sp av = avma, av1;
   double p,maxnorm,BOUND,*v,*y,*z,**q;
@@ -1156,7 +1156,6 @@ minim0_dolll(GEN a, GEN BORNE, GEN STOCKMAX, long flag, long dolll)
       pari_err_TYPE("minim0 [negative number of vectors]",STOCKMAX);
   }
 
-  L = V = invp = NULL; /* gcc -Wall */
   switch(flag)
   {
     case min_VECSMALL:
@@ -1167,8 +1166,8 @@ minim0_dolll(GEN a, GEN BORNE, GEN STOCKMAX, long flag, long dolll)
       if (n == 1) return L;
       break;
     case min_FIRST:
-      if (n == 1) return cgetg(1,t_VEC);
-      if (!sBORNE && BORNE) return cgetg(1, t_VEC);
+      if (n == 1 || (!sBORNE && BORNE)) return cgetg(1,t_VEC);
+      L = NULL; /* gcc -Wall */
       break;
     case min_ALL:
       if (n == 1 || (!sBORNE && BORNE))
@@ -1188,10 +1187,11 @@ minim0_dolll(GEN a, GEN BORNE, GEN STOCKMAX, long flag, long dolll)
   for (j=1; j<=n; j++)
   {
     v[j] = rtodbl(gcoeff(r,j,j));
-    for (i=1; i<j; i++) q[i][j] = rtodbl(gcoeff(r,i,j));
+    for (i=1; i<j; i++) q[i][j] = rtodbl(gcoeff(r,i,j)); /* |.| <= 1/2 */
   }
 
-  if (!sBORNE)
+  if (sBORNE) maxnorm = 0.;
+  else
   {
     GEN B = gcoeff(a,1,1);
     long t = 1;
@@ -1204,8 +1204,6 @@ minim0_dolll(GEN a, GEN BORNE, GEN STOCKMAX, long flag, long dolll)
     maxnorm = -1.; /* don't update maxnorm */
     sBORNE = itos(B);
   }
-  else
-    maxnorm = 0.;
   BOUND = sBORNE * (1 + eps);
   if ((long)BOUND != sBORNE) return NULL;
 
@@ -1302,7 +1300,7 @@ static GEN
 minim0(GEN a, GEN BORNE, GEN STOCKMAX, long flag)
 {
   GEN v = minim0_dolll(a, BORNE, STOCKMAX, flag, 1);
-  if (!v) pari_err_PREC("minim");
+  if (!v) pari_err_PREC("qfminim");
   return v;
 }
 
