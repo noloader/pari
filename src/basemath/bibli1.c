@@ -1351,25 +1351,25 @@ minim2(GEN a, GEN borne, GEN stockmax)
 static int
 addcolumntomatrix(GEN V, GEN invp, GEN L)
 {
-  GEN a = RgM_zc_mul(invp,V);
   long i,j,k, n = lg(invp);
+  GEN a = cgetg(n, t_COL), ak = NULL, mak;
 
-  if (DEBUGLEVEL>6)
-  {
-    err_printf("adding vector = %Ps\n",V);
-    err_printf("vector in new basis = %Ps\n",a);
-    err_printf("list = %Ps\n",L);
-    err_printf("base change matrix =\n%Ps\n", invp);
-  }
-  k = 1; while (k<n && (L[k] || gequal0(gel(a,k)))) k++;
+  for (k = 1; k < n; k++)
+    if (!L[k])
+    {
+      ak = RgMrow_zc_mul(invp, V, n, n, k);
+      if (!gequal0(ak)) break;
+    }
   if (k == n) return 0;
   L[k] = 1;
-  for (i=k+1; i<n; i++) gel(a,i) = gdiv(gneg_i(gel(a,i)),gel(a,k));
+  mak = gneg_i(ak);
+  for (i=k+1; i<n; i++)
+    gel(a,i) = gdiv(RgMrow_zc_mul(invp, V, n, n, i), mak);
   for (j=1; j<=k; j++)
   {
     GEN c = gel(invp,j), ck = gel(c,k);
     if (gequal0(ck)) continue;
-    gel(c,k) = gdiv(ck, gel(a,k));
+    gel(c,k) = gdiv(ck, ak);
     if (j==k)
       for (i=k+1; i<n; i++)
         gel(c,i) = gmul(gel(a,i), ck);
@@ -1384,7 +1384,7 @@ GEN
 perf(GEN a)
 {
   pari_sp av = avma;
-  GEN u, L, M;
+  GEN u, L;
   long r, s, k, l, n = lg(a)-1;
 
   if (!n) return gen_0;
@@ -1407,7 +1407,6 @@ perf(GEN a)
       pari_sp av2 = avma;
       GEN x = gel(L,k);
       long i, j, I;
-
       for (i = I = 1; i<=n; i++)
         for (j=i; j<=n; j++,I++) V[I] = x[i]*x[j];
       if (!addcolumntomatrix(V,invp,D)) avma = av2;
@@ -1416,6 +1415,7 @@ perf(GEN a)
   }
   else
   {
+    GEN M;
     L = fincke_pohst(a,NULL,-1, DEFAULTPREC, NULL);
     if (!L) pari_err_PREC("qfminim");
     L = gel(L, 3); l = lg(L);

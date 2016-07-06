@@ -43,32 +43,36 @@ RgV_is_ZMV(GEN V)
 /**                                                                **/
 /********************************************************************/
 /*           GENERIC  MULTIPLICATION involving zc/zm                */
+
+/* x[i,] * y */
+GEN
+RgMrow_zc_mul(GEN x, GEN y, long c, long l, long i)
+{
+  pari_sp av = avma;
+  GEN s = NULL;
+  long j;
+  for (j=1; j<c; j++)
+  {
+    long t = y[j];
+    if (!t) continue;
+    if (!s) { s = gmulgs(gcoeff(x,i,j),t); continue; }
+    switch(t)
+    {
+      case  1: s = gadd(s, gcoeff(x,i,j)); break;
+      case -1: s = gsub(s, gcoeff(x,i,j)); break;
+      default: s = gadd(s, gmulgs(gcoeff(x,i,j), t)); break;
+    }
+  }
+  if (!s) { avma = av; return gen_0; }
+  return gerepileupto(av, s);
+}
 /* x non-empty t_MAT, y a compatible zc (dimension > 0). */
 static GEN
 RgM_zc_mul_i(GEN x, GEN y, long c, long l)
 {
-  long i, j;
-  pari_sp av;
   GEN z = cgetg(l,t_COL);
-
-  for (i=1; i<l; i++)
-  {
-    GEN s = NULL;
-    av = avma;
-    for (j=1; j<c; j++)
-    {
-      long t = y[j];
-      if (!t) continue;
-      if (!s) { s = gmulgs(gcoeff(x,i,j),t); continue; }
-      switch(t)
-      {
-        case  1: s = gadd(s, gcoeff(x,i,j)); break;
-        case -1: s = gsub(s, gcoeff(x,i,j)); break;
-        default: s = gadd(s, gmulgs(gcoeff(x,i,j), t)); break;
-      }
-    }
-    gel(z,i) = gerepileupto(av,s? s: gen_0);
-  }
+  long i;
+  for (i = 1; i < l; i++) gel(z,i) = RgMrow_zc_mul(x,y,c,l,i);
   return z;
 }
 GEN

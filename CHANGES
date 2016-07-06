@@ -324,7 +324,7 @@ BA 73- GP function fold()
        hash_remove_select, hash_keys, hash_values
    75- allow serlaplace(t_POL)
    76- GP function ispseudoprimepower
-   77- [libpari] functions FpM_add, Flm_add, FpM_Fp_mul
+   77- [libpari] functions FpM_add, Flm_add, FpM_Fp_mul, RgMrow_zc_mul
    78- [libpari] function nfembed, nfissquarefree
    79- new binary flag to polcompositum: assume fields are linearly disjoint
    80- GP function nfcompositum
