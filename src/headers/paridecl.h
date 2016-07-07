@@ -856,9 +856,11 @@ long    poliscycloprod(GEN f);
 
 /* RgV.c */
 
+GEN     Rg_RgC_sub(GEN a, GEN x);
 GEN     RgC_Rg_add(GEN x, GEN y);
 GEN     RgC_Rg_div(GEN x, GEN y);
 GEN     RgC_Rg_mul(GEN x, GEN y);
+GEN     RgC_Rg_sub(GEN x, GEN y);
 GEN     RgC_RgM_mul(GEN x, GEN y);
 GEN     RgC_RgV_mul(GEN x, GEN y);
 GEN     RgC_add(GEN x, GEN y);
@@ -1050,6 +1052,7 @@ GEN     ZG_sub(GEN x, GEN y);
 void    Flc_lincomb1_inplace(GEN X, GEN Y, ulong v, ulong q);
 void    RgM_check_ZM(GEN A, const char *s);
 void    RgV_check_ZV(GEN A, const char *s);
+GEN     Z_ZC_sub(GEN a, GEN x);
 GEN     ZV_zc_mul(GEN x, GEN y);
 GEN     ZC_ZV_mul(GEN x, GEN y);
 GEN     ZC_Z_add(GEN x, GEN y);
@@ -1920,6 +1923,7 @@ GEN     nfsign_from_logarch(GEN Larch, GEN invpi, GEN archp);
 GEN     nfsqr(GEN nf,GEN x);
 GEN     nfsqri(GEN nf, GEN x);
 GEN     nftrace(GEN nf, GEN x);
+GEN     nfsub(GEN nf, GEN x, GEN y);
 long    nfval(GEN nf, GEN x, GEN vp);
 long    nfvalrem(GEN nf, GEN x, GEN pr, GEN *py);
 GEN     polmod_nffix(const char *f, GEN rnf, GEN x,int lift);

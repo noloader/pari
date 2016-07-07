@@ -304,6 +304,36 @@ RgC_Rg_add(GEN x, GEN y)
   for (k = 2; k < lx; k++) gel(z,k) = gcopy(gel(x,k));
   return z;
 }
+GEN
+RgC_Rg_sub(GEN x, GEN y)
+{
+  long k, lx = lg(x);
+  GEN z = cgetg(lx, t_COL);
+  if (lx == 1)
+  {
+    if (isintzero(y)) return z;
+    pari_err_TYPE2("-",x,y);
+  }
+  gel(z,1) = gsub(gel(x,1), y);
+  for (k = 2; k < lx; k++) gel(z,k) = gcopy(gel(x,k));
+  return z;
+}
+/* a - x */
+GEN
+Rg_RgC_sub(GEN a, GEN x)
+{
+  long k, lx = lg(x);
+  GEN z = cgetg(lx,t_COL);
+  if (lx == 1)
+  {
+    if (isintzero(a)) return z;
+    pari_err_TYPE2("-",a,x);
+  }
+  gel(z,1) = gsub(a, gel(x,1));
+  for (k = 2; k < lx; k++) gel(z,k) = gneg(gel(x,k));
+  return z;
+}
+
 
 static GEN
 RgC_add_i(GEN x, GEN y, long lx)

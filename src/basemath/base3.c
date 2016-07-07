@@ -199,12 +199,12 @@ rnfeltnorm(GEN rnf, GEN x)
   return gerepileupto(av, x);
 }
 
-/* sum of x and y in nf */
+/* x + y in nf */
 GEN
 nfadd(GEN nf, GEN x, GEN y)
 {
-  GEN z;
   pari_sp av = avma;
+  GEN z;
 
   nf = checknf(nf);
   x = nf_to_scalar_or_basis(nf, x);
@@ -218,6 +218,28 @@ nfadd(GEN nf, GEN x, GEN y)
   } else {
     if (typ(y) != t_COL) z = RgC_Rg_add(x, y);
     else z = RgC_add(x, y);
+  }
+  return gerepileupto(av, z);
+}
+/* x - y in nf */
+GEN
+nfsub(GEN nf, GEN x, GEN y)
+{
+  pari_sp av = avma;
+  GEN z;
+
+  nf = checknf(nf);
+  x = nf_to_scalar_or_basis(nf, x);
+  y = nf_to_scalar_or_basis(nf, y);
+  if (typ(x) != t_COL) {
+    if (typ(y) == t_COL) z = RgC_Rg_sub(y, x);
+    else {
+      long N = nf_get_degree(nf);
+      z = zerocol(N); gel(z,1) = gsub(x,y);
+    }
+  } else {
+    if (typ(y) != t_COL) z = RgC_Rg_sub(x, y);
+    else z = RgC_sub(x, y);
   }
   return gerepileupto(av, z);
 }
@@ -1550,7 +1572,7 @@ zprimestar(GEN nf, GEN pr, GEN ep, GEN x, GEN arch)
     GEN mv;
     v = idealaddtoone_i(nf,idealdivpowprime(nf,x,pr,ep), pre);
     mv = zk_scalar_or_multable(nf, v);
-    u = typ(mv) == t_INT? subui(1,mv): unnf_minus_x(v);
+    u = typ(mv) == t_INT? subui(1,mv): Z_ZC_sub(gen_1,v);
     v = mv;
     g0 = makeprimetoideal(x,u,mv,g);
   }
@@ -2318,7 +2340,7 @@ join_bid(GEN nf, GEN bid1, GEN bid2)
     }
     else
     {
-      u = unnf_minus_x(v);
+      u = Z_ZC_sub(gen_1,v);
       mu = RgM_Rg_add(ZM_neg(mv), gen_1); /* mult by u = 1-v */
     }
     gen = shallowconcat(makeprimetoidealvec(x,u,mv, abgrp_get_gen(G1)),

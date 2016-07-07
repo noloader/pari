@@ -2186,7 +2186,7 @@ uniformizer(GEN nf, norm_S *S, GEN P, GEN V, GEN p, int ramif)
   if (!ramif || is_uniformizer(u, q, S)) return u;
 
   /* P/p ramified, u in P^2, not in Q for all other Q|p */
-  Mv = zk_multable(nf, unnf_minus_x(u));
+  Mv = zk_multable(nf, Z_ZC_sub(gen_1,u));
   l = lg(P);
   for (i=1; i<l; i++)
   {
@@ -2508,7 +2508,7 @@ anti_uniformizer2(GEN nf, GEN pr)
   }
   z = ZM_hnfmodid(z, p);
   z = idealaddtoone_i(nf, pr, z);
-  return unnf_minus_x(z);
+  return Z_ZC_sub(gen_1, z);
 }
 
 #define mpr_TAU 1

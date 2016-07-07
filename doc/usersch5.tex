@@ -7004,6 +7004,9 @@ declared equal.
 
 \fun{GEN}{ZC_Z_sub}{GEN x, GEN y} subtracts \kbd{y} to \kbd{x[1]}.
 
+\fun{GEN}{Z_ZC_sub}{GEN a, GEN x} returns the vector $[a - x_1,
+-x_2,\dots,-x_n]$.
+
 \fun{GEN}{ZC_copy}{GEN x} returns a (\typ{COL}) copy of \kbd{x}.
 
 \fun{GEN}{ZC_neg}{GEN x} returns $-\kbd{x}$ as a \typ{COL}.
@@ -7337,6 +7340,12 @@ fewer copies. Not suitable for \kbd{gerepileupto}.
 
 \fun{GEN}{RgC_Rg_add}{GEN x, GEN y} assuming $x$ is a non-empty column vector
 and $y$ a scalar, returns the vector $[x_1 + y, x_2,\dots,x_n]$.
+
+\fun{GEN}{RgC_Rg_sub}{GEN x, GEN y} assuming $x$ is a non-empty column vector
+and $y$ a scalar, returns the vector $[x_1 - y, x_2,\dots,x_n]$.
+
+\fun{GEN}{Rg_RgC_sub}{GEN a, GEN x} assuming $x$ is a non-empty column vector
+and $a$ a scalar, returns the vector $[a - x_1, -x_2,\dots,-x_n]$.
 
 \fun{GEN}{RgC_Rg_div}{GEN x, GEN y}
 

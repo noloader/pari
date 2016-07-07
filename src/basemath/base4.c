@@ -774,17 +774,6 @@ idealaddtoone_i(GEN nf, GEN x, GEN y)
 }
 
 GEN
-unnf_minus_x(GEN x)
-{
-  long i, N = lg(x);
-  GEN y = cgetg(N,t_COL);
-
-  gel(y,1) = gsubsg(1, gel(x,1));
-  for (i=2; i<N; i++) gel(y,i) = gneg(gel(x,i));
-  return y;
-}
-
-GEN
 idealaddtoone(GEN nf, GEN x, GEN y)
 {
   GEN z = cgetg(3,t_VEC), a;
@@ -792,7 +781,7 @@ idealaddtoone(GEN nf, GEN x, GEN y)
   nf = checknf(nf);
   a = gerepileupto(av, idealaddtoone_i(nf,x,y));
   gel(z,1) = a;
-  gel(z,2) = unnf_minus_x(a); return z;
+  gel(z,2) = Z_ZC_sub(gen_1,a); return z;
 }
 
 /* assume elements of list are integral ideals */

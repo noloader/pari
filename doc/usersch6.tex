@@ -466,14 +466,14 @@ closest to $x / y$. Functionally identical to \kbd{ground( nfdiv(nf,x,y) )}.
 
 \fun{GEN}{nfdivrem}{GEN nf, GEN a, GEN b} returns the vector $[q,r]$, where
 \bprog
-  q = nfdiveuc(nf, a,b);
-  r = nfadd(nf, a,nfmul(nf,q,gneg(b)));    \\ or r = nfmod(nf,a,b);
+  q = nfdiveuc(nf, a, b);
+  r = nfsub(nf, a, nfmul(nf,q,b));    \\ or r = nfmod(nf,a,b);
 @eprog
 
 \fun{GEN}{nfmod}{GEN nf, GEN a, GEN b} returns $r$ such that
 \bprog
-  q = nfdiveuc(nf, a,b);
-  r = nfadd(nf, a, nfmul(nf,q, gneg(b)));
+  q = nfdiveuc(nf, a, b);
+  r = nfsub(nf, a, nfmul(nf,q,b));
 @eprog
 
 \fun{GEN}{nf_to_scalar_or_basis}{GEN nf, GEN x} let $x$ be a number field

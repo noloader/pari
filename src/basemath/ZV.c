@@ -681,6 +681,16 @@ ZC_Z_sub(GEN x, GEN y)
   for (k = 2; k < lx; k++) gel(z,k) = icopy(gel(x,k));
   return z;
 }
+GEN
+Z_ZC_sub(GEN a, GEN x)
+{
+  long k, lx = lg(x);
+  GEN z = cgetg(lx, t_COL);
+  if (lx == 1) pari_err_TYPE2("-",a,x);
+  gel(z,1) = subii(a, gel(x,1));
+  for (k = 2; k < lx; k++) gel(z,k) = negi(gel(x,k));
+  return z;
+}
 
 GEN
 ZM_add(GEN x, GEN y)
