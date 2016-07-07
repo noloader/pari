@@ -470,6 +470,7 @@ BA 177- libpari support for low-res plot()
    182- [libpari] function gisexactzero
 BA 183- GP function ellsea
    183- [libpari] nfsub, Rg_RgC_sub, Rg_RgC_sub, Z_ZC_sub
+   184- [libpari] zkchinese, zkchinese1, zkchineseinit
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]

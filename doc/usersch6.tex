@@ -771,6 +771,19 @@ The result is reduced mod $AB$, so $a$, $b$ will be small.
 \fun{GEN}{idealaddtoone_i}{GEN nf, GEN A, GEN B} as \tet{idealaddtoone} except
 that \kbd{nf} must be a true \var{nf}, and only $a$ is returned.
 
+\fun{GEN}{zkchineseinit}{GEN nf, GEN A, GEN B, GEN AB} given two coprime
+integral ideals $A$ and $B$ (in any form, preferably HNF) and
+their product \kbd{AB} (in HNF form), initialize a solution to the Chinese
+remainder problem modulo $AB$.
+
+\fun{GEN}{zkchinese}{GEN zkc, GEN x, GEN y} given \kbd{zkc} from
+\kbd{zkchineseinit}, and $x$, $y$ two integral elements given as \typ{INT}
+or \kbd{ZC}, return a $z$ modulo $AB$ such that
+$z = x \mod A$ and $z = y \mod B$.
+
+\fun{GEN}{zkchinese1}{GEN zkc, GEN x} as \kbd{zkchinese} for $y = 1$; useful
+to lift elements in a nice way from $(\Z_K/A_i)^*$ to $(\Z_K/\prod_i A_i)^*$.
+
 \fun{GEN}{hnfmerge_get_1}{GEN A, GEN B} given two square upper HNF integral
 matrices $A$, $B$ of the same dimension $n > 0$, return $a$ in the image of
 $A$ such that $1-a$ is in the image of $B$. (By abuse of notation we denote

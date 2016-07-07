@@ -1508,34 +1508,116 @@ detcyc(GEN cyc, long *L)
   *L = i; return i <= 2? icopy(s): gerepileuptoint(av,s);
 }
 
-/* (U,V) = 1. Return y = x mod U, = 1 mod V (uv: u + v = 1, u in U, v in V),
- * namely u + x*v.
- * Either (u,mv) are both t_INT, or
- * u is a t_COL, mv is a t_MAT, multiplication table by v */
+
+/* lg(x) > 1, x + 1; shallow */
 static GEN
-makeprimetoideal(GEN UV, GEN u,GEN mv, GEN x)
+ZC_add1(GEN x)
 {
-  GEN t;
-  if (typ(mv) == t_INT) /* u t_INT */
-  {
-    if (typ(x) == t_INT) return addii(mulii(x,mv), u);
-    t = ZC_Z_add(ZC_Z_mul(x,mv), u);
-  }
-  else
-  {
-    t = typ(x) == t_INT? ZC_Z_mul(gel(mv,1),x): ZM_ZC_mul(mv,x);
-    t = ZC_add(t, u);
-  }
-  return ZC_hnfrem(t, UV);
+  long i, l = lg(x);
+  GEN y = cgetg(l, t_COL);
+  for (i = 2; i < l; i++) gel(y,i) = gel(x,i);
+  gel(y,1) = addiu(gel(x,1), 1); return y;
+}
+/* lg(x) > 1, x - 1; shallow */
+static GEN
+ZC_sub1(GEN x)
+{
+  long i, l = lg(x);
+  GEN y = cgetg(l, t_COL);
+  for (i = 2; i < l; i++) gel(y,i) = gel(x,i);
+  gel(y,1) = subiu(gel(x,1), 1); return y;
 }
 
+/* x,y are t_INT or ZC */
 static GEN
-makeprimetoidealvec(GEN UV, GEN u,GEN mv, GEN gen)
+zkadd(GEN x, GEN y)
+{
+  long tx = typ(x);
+  if (tx == typ(y))
+    return tx == t_INT? addii(x,y): ZC_add(x,y);
+  else
+    return tx == t_INT? ZC_Z_add(y,x): ZC_Z_add(x,y);
+}
+/* x a t_INT or ZC, x+1; shallow */
+static GEN
+zkadd1(GEN x)
+{
+  long tx = typ(x);
+  return tx == t_INT? addiu(x,1): ZC_add1(x);
+}
+/* x a t_INT or ZC, x-1; shallow */
+static GEN
+zksub1(GEN x)
+{
+  long tx = typ(x);
+  return tx == t_INT? subiu(x,1): ZC_sub1(x);
+}
+/* x,y are t_INT or ZC; x - y */
+static GEN
+zksub(GEN x, GEN y)
+{
+  long tx = typ(x), ty = typ(y);
+  if (tx == ty)
+    return tx == t_INT? subii(x,y): ZC_sub(x,y);
+  else
+    return tx == t_INT? Z_ZC_sub(x,y): ZC_Z_sub(x,y);
+}
+/* x is t_INT or ZM (mult. map), y is t_INT or ZC; x * y */
+static GEN
+zkmul(GEN x, GEN y)
+{
+  long tx = typ(x), ty = typ(y);
+  if (ty == t_INT)
+    return tx == t_INT? mulii(x,y): ZC_Z_mul(gel(x,1),y);
+  else
+    return tx == t_INT? ZC_Z_mul(y,x): ZM_ZC_mul(x,y);
+}
+
+/* (U,V) = 1 coprime ideals. Want z = x mod U, = y mod V; namely
+ * z =vx + uy = v(x-y) + y, where u + v = 1, u in U, v in V.
+ * zkc = [v, UV], v a t_INT or ZM (mult. by v map), UV a ZM (ideal in HNF);
+ * shallow */
+GEN
+zkchinese(GEN zkc, GEN x, GEN y)
+{
+  GEN v = gel(zkc,1), UV = gel(zkc,2), z = zkadd(zkmul(v, zksub(x,y)), y);
+  return (typ(z) == t_INT)? modii(z, gcoeff(UV,1,1)): ZC_hnfrem(z, UV);
+}
+/* special case z = x mod U, = 1 mod V; shallow */
+GEN
+zkchinese1(GEN zkc, GEN x)
+{
+  GEN v = gel(zkc,1), UV = gel(zkc,2), z = zkadd1(zkmul(v, zksub1(x)));
+  return (typ(z) == t_INT)? z: ZC_hnfrem(z, UV);
+}
+static GEN
+zkVchinese1(GEN zkc, GEN v)
 {
   long i, ly;
-  GEN y = cgetg_copy(gen, &ly);
-  for (i=1; i<ly; i++) gel(y,i) = makeprimetoideal(UV,u,mv, gel(gen,i));
+  GEN y = cgetg_copy(v, &ly);
+  for (i=1; i<ly; i++) gel(y,i) = zkchinese1(zkc, gel(v,i));
   return y;
+}
+
+/* prepare to solve z = x (mod A), z = y mod (B) [zkchinese or zkchinese1] */
+GEN
+zkchineseinit(GEN nf, GEN A, GEN B, GEN AB)
+{
+  GEN v;
+  nf = checknf(nf);
+  v = idealaddtoone_i(nf, A, B);
+  return mkvec2(zk_scalar_or_multable(nf,v), AB);
+}
+/* prepare to solve z = x (mod A), z = 1 mod (B)
+ * and then         z = 1 (mod A), z = y mod (B) [zkchinese1 twice] */
+static GEN
+zkchinese1init2(GEN nf, GEN A, GEN B, GEN AB)
+{
+  GEN zkc = zkchineseinit(nf, A, B, AB);
+  GEN mv = gel(zkc,1), mu;
+  if (typ(mv) == t_INT) return mkvec2(zkc, mkvec2(subui(1,mv),AB));
+  mu = RgM_Rg_add_shallow(ZM_neg(mv), gen_1);
+  return mkvec2(mkvec2(mv,AB), mkvec2(mu,AB));
 }
 
 /* Given an ideal pr^ep, and an integral ideal x (in HNF form) compute a list
@@ -1552,7 +1634,7 @@ zprimestar(GEN nf, GEN pr, GEN ep, GEN x, GEN arch)
 {
   pari_sp av = avma;
   long a, e = itos(ep), f = pr_get_f(pr);
-  GEN p = pr_get_p(pr), list, g, g0, y, u,v, prb, pre;
+  GEN p = pr_get_p(pr), list, g, g0, y, uv, prb, pre;
   ulong mask;
 
   if(DEBUGLEVEL>3) err_printf("treating pr^%ld, pr = %Ps\n",e,pr);
@@ -1569,16 +1651,12 @@ zprimestar(GEN nf, GEN pr, GEN ep, GEN x, GEN arch)
   pre = (e==1)? prb: idealpow(nf,pr,ep);
   if (x)
   {
-    GEN mv;
-    v = idealaddtoone_i(nf,idealdivpowprime(nf,x,pr,ep), pre);
-    mv = zk_scalar_or_multable(nf, v);
-    u = typ(mv) == t_INT? subui(1,mv): Z_ZC_sub(gen_1,v);
-    v = mv;
-    g0 = makeprimetoideal(x,u,mv,g);
+    uv = zkchineseinit(nf, idealdivpowprime(nf,x,pr,ep), pre, x);
+    g0 = zkchinese1(uv, g);
   }
   else
   {
-    u = v = NULL; /* gcc -Wall */
+    uv = NULL; /* gcc -Wall */
     g0 = g;
   }
 
@@ -1607,8 +1685,8 @@ zprimestar(GEN nf, GEN pr, GEN ep, GEN x, GEN arch)
     s = cgetg_copy(gen, &l);
     for (i = 1; i < l; i++)
     {
-      if (x) gel(gen,i) = makeprimetoideal(x,u,v,gel(gen,i));
-      gel(s,i) = nfsign_arch(nf,gel(gen,i),arch);
+      if (x) gel(gen,i) = zkchinese1(uv, gel(gen,i));
+      gel(s,i) = nfsign_arch(nf, gel(gen,i), arch);
     }
     y = mkvec5(gel(z,1), gel(z,2), gen, s, U);
     vectrunc_append(list, y);
@@ -2331,20 +2409,9 @@ join_bid(GEN nf, GEN bid1, GEN bid2)
 
   if (gen)
   {
-    GEN mu,mv, u,v = idealaddtoone_i(nf,I2,I1);
-    mv = zk_scalar_or_multable(nf, v);
-    if (typ(mv) == t_INT)
-    {
-      mu = u = subui(1,mv);
-      v = mv;
-    }
-    else
-    {
-      u = Z_ZC_sub(gen_1,v);
-      mu = RgM_Rg_add(ZM_neg(mv), gen_1); /* mult by u = 1-v */
-    }
-    gen = shallowconcat(makeprimetoidealvec(x,u,mv, abgrp_get_gen(G1)),
-                        makeprimetoidealvec(x,v,mu, abgrp_get_gen(G2)));
+    GEN uv = zkchinese1init2(nf, I2, I1, x);
+    gen = shallowconcat(zkVchinese1(gel(uv,1), abgrp_get_gen(G1)),
+                        zkVchinese1(gel(uv,2), abgrp_get_gen(G2)));
   }
   y = cgetg(6,t_VEC);
   gel(y,1) = mkvec2(x, bid_get_arch(bid1));
