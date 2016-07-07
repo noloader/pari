@@ -45,8 +45,8 @@ RgV_is_ZMV(GEN V)
 /*           GENERIC  MULTIPLICATION involving zc/zm                */
 
 /* x[i,] * y */
-GEN
-RgMrow_zc_mul(GEN x, GEN y, long c, long l, long i)
+static GEN
+RgMrow_zc_mul_i(GEN x, GEN y, long c, long i)
 {
   pari_sp av = avma;
   GEN s = NULL;
@@ -66,13 +66,15 @@ RgMrow_zc_mul(GEN x, GEN y, long c, long l, long i)
   if (!s) { avma = av; return gen_0; }
   return gerepileupto(av, s);
 }
+GEN
+RgMrow_zc_mul(GEN x, GEN y, long i) { return RgMrow_zc_mul_i(x,y,lg(y),i); }
 /* x non-empty t_MAT, y a compatible zc (dimension > 0). */
 static GEN
 RgM_zc_mul_i(GEN x, GEN y, long c, long l)
 {
   GEN z = cgetg(l,t_COL);
   long i;
-  for (i = 1; i < l; i++) gel(z,i) = RgMrow_zc_mul(x,y,c,l,i);
+  for (i = 1; i < l; i++) gel(z,i) = RgMrow_zc_mul_i(x,y,c,i);
   return z;
 }
 GEN

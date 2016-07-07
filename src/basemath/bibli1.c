@@ -1355,14 +1355,14 @@ addcolumntomatrix(GEN V, GEN invp, GEN L)
   for (k = 1; k < n; k++)
     if (!L[k])
     {
-      ak = RgMrow_zc_mul(invp, V, n, n, k);
+      ak = RgMrow_zc_mul(invp, V, k);
       if (!gequal0(ak)) break;
     }
   if (k == n) return 0;
   L[k] = 1;
   mak = gneg_i(ak);
   for (i=k+1; i<n; i++)
-    gel(a,i) = gdiv(RgMrow_zc_mul(invp, V, n, n, i), mak);
+    gel(a,i) = gdiv(RgMrow_zc_mul(invp, V, i), mak);
   for (j=1; j<=k; j++)
   {
     GEN c = gel(invp,j), ck = gel(c,k);

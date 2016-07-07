@@ -890,7 +890,7 @@ GEN     RgM_sub(GEN x, GEN y);
 GEN     RgM_sumcol(GEN A);
 GEN     RgM_transmul(GEN x, GEN y);
 GEN     RgM_transmultosym(GEN x, GEN y);
-GEN     RgMrow_zc_mul(GEN x, GEN y, long c, long l, long i);
+GEN     RgMrow_zc_mul(GEN x, GEN y, long i);
 GEN     RgM_zc_mul(GEN x, GEN y);
 GEN     RgM_zm_mul(GEN x, GEN y);
 GEN     RgMrow_RgC_mul(GEN x, GEN y, long i);
