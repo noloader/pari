@@ -2788,35 +2788,38 @@ RgX_gcd(GEN x, GEN y)
   return gerepileupto(av,x);
 }
 
+/* disc P = (-1)^(n(n-1)/2) lc(P)^(n - deg P' - 2) Res(P,P'), n = deg P */
 static GEN
-RgX_disc_aux(GEN x)
+RgX_disc_aux(GEN P)
 {
-  long dx = degpol(x), Tx;
+  long n = degpol(P), TP, dd;
   GEN D, L, y, p;
-  if (!signe(x) || !dx) return RgX_get_0(x);
-  if (dx == 1) return RgX_get_1(x);
-  if (dx == 2) {
-    GEN a = gel(x,4), b = gel(x,3), c = gel(x,2);
+  if (!signe(P) || !n) return RgX_get_0(P);
+  if (n == 1) return RgX_get_1(P);
+  if (n == 2) {
+    GEN a = gel(P,4), b = gel(P,3), c = gel(P,2);
     return gsub(gsqr(b), gmul2n(gmul(a,c),2));
   }
-  Tx = RgX_simpletype(x);
-  if (Tx == t_INT) return ZX_disc(x);
-  if (Tx == t_FRAC) return QX_disc(x);
+  TP = RgX_simpletype(P);
+  if (TP == t_INT) return ZX_disc(P);
+  if (TP == t_FRAC) return QX_disc(P);
   p = NULL;
-  if (RgX_is_FpX(x, &p) && p)
-    return Fp_to_mod(FpX_disc(RgX_to_FpX(x,p), p), p);
+  if (RgX_is_FpX(P, &p) && p)
+    return Fp_to_mod(FpX_disc(RgX_to_FpX(P,p), p), p);
 
-  y = RgX_deriv(x);
+  y = RgX_deriv(P);
   if (!signe(y)) return RgX_get_0(y);
-  if (Tx == t_REAL)
-    D = resultant2(x,y);
+  dd = degpol(P)-2 - degpol(y);
+  if (TP == t_REAL)
+    D = resultant2(P,y);
   else
   {
-    D = RgX_resultant_all(x, y, NULL);
+    D = RgX_resultant_all(P, y, NULL);
     if (D == gen_0) return RgX_get_0(y);
   }
-  L = leading_coeff(x); if (!gequal1(L)) D = gdiv(D,L);
-  if (dx & 2) D = gneg(D);
+  L = leading_coeff(P);
+  if (dd && !gequal1(L)) D = (dd == -1)? gdiv(D, L): gmul(D, gpowgs(L, dd));
+  if (n & 2) D = gneg(D);
   return D;
 }
 GEN

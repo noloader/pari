@@ -947,14 +947,19 @@ FpX_resultant(GEN a, GEN b, GEN p)
   return gerepileuptoint(av, res);
 }
 
+/* disc P = (-1)^(n(n-1)/2) lc(P)^(n - deg P' - 2) Res(P,P'), n = deg P */
 GEN
-FpX_disc(GEN x, GEN p)
+FpX_disc(GEN P, GEN p)
 {
   pari_sp av = avma;
-  GEN L, D = FpX_resultant(x, FpX_deriv(x,p), p);
+  GEN L, dP = FpX_deriv(P,p), D = FpX_resultant(P, dP, p);
+  long dd;
   if (!D || !signe(D)) return gen_0;
-  L = leading_coeff(x); if (!equali1(L)) D = Fp_div(D,L,p);
-  if (degpol(x) & 2) D = Fp_neg(D,p);
+  dd = degpol(P) - 2 - degpol(dP); /* >= -1; > -1 iff p | deg(P) */
+  L = leading_coeff(P);
+  if (dd && !equali1(L))
+    D = (dd == -1)? Fp_div(D,L,p): Fp_mul(D, Fp_powu(L, dd, p), p);
+  if (degpol(P) & 2) D = Fp_neg(D ,p);
   return gerepileuptoint(av, D);
 }
 

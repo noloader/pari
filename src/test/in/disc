@@ -1,1 +1,6 @@
 poldisc(Mod(1, 2)*x)
+poldisc(Mod(1, 3)*(2*x^3+x^2+5))
+poldisc(Mod(1, 3)*(2*x^3+x+5))
+poldisc((a*x^3+b*x^2+c*x+d))
+poldisc((a*x^3+b*x^2+c*x+d)*Mod(1,3))
+poldisc((a*x^3+c*x+d)*Mod(1,3))
