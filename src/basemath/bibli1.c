@@ -1202,6 +1202,7 @@ minim0_dolll(GEN a, GEN BORNE, GEN STOCKMAX, long flag, long dolll)
     }
     if (flag == min_FIRST) return gerepilecopy(av, mkvec2(B, gel(u,t)));
     maxnorm = -1.; /* don't update maxnorm */
+    if (is_bigint(B)) return NULL;
     sBORNE = itos(B);
   }
   BOUND = sBORNE * (1 + eps);
