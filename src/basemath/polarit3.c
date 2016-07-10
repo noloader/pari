@@ -2344,43 +2344,6 @@ trivial_case(GEN A, GEN B)
   return NULL;
 }
 
-/* floating point resultant */
-static GEN
-fp_resultant(GEN a, GEN b)
-{
-  long da, db, dc;
-  GEN res = gen_1;
-  pari_sp av;
-
-  if (lgpol(a)==0 || lgpol(b)==0) return gen_0;
-  da = degpol(a);
-  db = degpol(b);
-  if (db > da)
-  {
-    swapspec(a,b, da,db);
-    if (both_odd(da,db)) res = gneg(res);
-  }
-  else if (!da) return gen_1; /* = res * a[2] ^ db, since 0 <= db <= da = 0 */
-  av = avma;
-  while (db)
-  {
-    GEN lb = gel(b,db+2), c = RgX_rem(a,b);
-    c = normalizepol_approx(c, lg(c)); /* kill leading zeroes without warning */
-    a = b; b = c; dc = degpol(c);
-    if (dc < 0) { avma = av; return gen_0; }
-
-    if (both_odd(da,db)) res = gneg(res);
-    res = gmul(res, gpowgs(lb, da - dc));
-    if (gc_needed(av,1)) {
-      if (DEBUGMEM>1) pari_warn(warnmem,"fp_resultant");
-      gerepileall(av, 3, &a,&b,&res);
-    }
-    da = db; /* = degpol(a) */
-    db = dc; /* = degpol(b) */
-  }
-  return gerepileupto(av, gmul(res, gpowgs(gel(b,2), da)));
-}
-
 static long
 get_nbprimes(ulong bound, ulong *pt_start)
 {
@@ -2487,33 +2450,13 @@ ZX_resultant_all(GEN A, GEN B, GEN dB, ulong bound)
 {
   ulong p;
   pari_sp av = avma;
-  long degA, n, m;
+  long n, m;
   GEN  H, P, mod;
   int is_disc = !B;
   if (is_disc) B = ZX_deriv(A);
 
   if ((H = trivial_case(A,B)) || (H = trivial_case(B,A))) return H;
-  degA = degpol(A);
-  if (!bound)
-  {
-    bound = ZX_ZXY_ResBound(A, B, dB);
-    if (bound > 10000)
-    {
-      const long CNTMAX = 5; /* to avoid oo loops if R = 0 */
-      long bnd = 0, cnt;
-      long prec = nbits2prec( maxss(gexpo(A), gexpo(B)) + degA );
-      long bndden = dB? (long)(dbllog2(dB)*degA): 0;
-      for(cnt = 1; cnt < CNTMAX; cnt++, prec = precdbl(prec))
-      {
-        GEN R = fp_resultant(RgX_gtofp(A, prec), RgX_gtofp(B, prec));
-        bnd = gexpo(R) - bndden + 1;
-        if (bnd >= 0 && bnd <= (long)bound && !gequal0(R))
-        {
-          bound = bnd; break;
-        }
-      }
-    }
-  }
+  if (!bound) bound = ZX_ZXY_ResBound(A, B, dB);
   n = get_nbprimes(bound+1, &p);/* +1 to account for sign */
   if (is_disc)
     B = NULL;
