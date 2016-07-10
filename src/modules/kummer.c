@@ -917,15 +917,13 @@ isvirtualunit(GEN bnf, GEN v, GEN cycgen, GEN cyc, GEN gell, long rc)
 static GEN
 Stelt(GEN nf, GEN J, GEN polrel)
 {
-  long i, l = lg(J);
-  GEN A, I;
-
-  A = cgetg(l, t_VEC);
-  I = cgetg(l, t_VEC);
+  long i, l = lg(J), vx = varn(polrel);
+  GEN A = cgetg(l, t_VEC), I = cgetg(l, t_VEC);
   for (i = 1; i < l; i++)
   {
     GEN v = gel(J,i);
-    gel(A,i) = (typ(v) != t_POL)? v: RgX_rem(v, polrel);
+    if (typ(v) == t_POL) { v = RgX_rem(v, polrel); setvarn(v,vx); }
+    gel(A,i) = v;
     gel(I,i) = gen_1;
   }
   A = RgV_to_RgM(A, degpol(polrel));
