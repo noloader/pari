@@ -946,26 +946,25 @@ static GEN
 invimsubgroup(GEN bnrz, GEN bnr, GEN subgroup, toK_s *T)
 {
   long l, j;
-  GEN P,raycycz,rayclgpz,raygenz,U,polrel,StZk;
-  GEN nf = checknf(bnr), nfz = checknf(bnrz);
+  GEN P, cyc, gen, U, polrel, StZk;
+  GEN nf = bnr_get_nf(bnr), nfz = bnr_get_nf(bnrz);
   GEN polz = nf_get_pol(nfz), zkz = nf_get_zk(nfz);
 
   polrel = polrelKzK(T, pol_x(varn(polz)));
   StZk = Stelt(nf, zkz, polrel);
-  rayclgpz = gel(bnrz,5);
-  raycycz = gel(rayclgpz,2); l = lg(raycycz);
-  raygenz = gel(rayclgpz,3);
+  cyc = bnr_get_cyc(bnrz); l = lg(cyc);
+  gen = bnr_get_gen(bnrz);
   P = cgetg(l,t_MAT);
   for (j=1; j<l; j++)
   {
-    GEN g, id = idealhnf_shallow(nfz, gel(raygenz,j));
+    GEN g, id = idealhnf_shallow(nfz, gel(gen,j));
     g = Stelt(nf, RgV_RgM_mul(zkz, id), polrel);
     g = idealdiv(nf, g, StZk); /* N_{Kz/K}(gen[j]) */
     gel(P,j) = isprincipalray(bnr, g);
   }
   (void)ZM_hnfall(shallowconcat(P, subgroup), &U, 1);
   setlg(U, l); for (j=1; j<l; j++) setlg(U[j], l);
-  return ZM_hnfmodid(U, raycycz);
+  return ZM_hnfmodid(U, cyc);
 }
 
 static GEN
@@ -991,15 +990,6 @@ get_mmu(long b, GEN r, long ell)
   long i, m = lg(r)-1;
   GEN M = cgetg(m+1, t_VEC);
   for (i = 0; i < m; i++) gel(M,i+1) = stoi((r[b + 1] * r[m - i]) / ell);
-  return M;
-}
-/* theta^ell = be ^ ( sum tau^a r_{d-1-a} ) */
-static GEN
-get_reverse(GEN r)
-{
-  long i, m = lg(r)-1;
-  GEN M = cgetg(m+1, t_VEC);
-  for (i = 0; i < m; i++) gel(M,i+1) = stoi(r[m - i]);
   return M;
 }
 
@@ -1074,8 +1064,9 @@ compute_polrel(GEN nfz, toK_s *T, GEN be, long g, long ell)
   prim_Rk = prim_root = Q_primitive_part(root, &C_root);
   C_Rk = C_root;
 
+  r = vecsmall_reverse(r); /* theta^ell = be^( sum tau^a r_{d-1-a} ) */
   /* Compute modulo X^ell - 1, T^ell - t, nfzpol(vz) */
-  p1 = to_alg(nfz, nffactorback(nfz, powtaubet, get_reverse(r)), vz);
+  p1 = to_alg(nfz, nffactorback(nfz, powtaubet, r), vz);
   num_t = Q_remove_denom(p1, &den_t);
 
   nfzpol = leafcopy(nf_get_pol(nfz));

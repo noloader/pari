@@ -914,6 +914,15 @@ vecreverse(GEN A)
   return B;
 }
 
+INLINE GEN
+vecsmall_reverse(GEN A)
+{
+  long i, l;
+  GEN B = cgetg_copy(A, &l);
+  for (i=1; i<l; i++) B[i] = A[l-i];
+  return B;
+}
+
 INLINE void
 vecreverse_inplace(GEN y)
 {

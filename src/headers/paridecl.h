@@ -4978,6 +4978,7 @@ INLINE long   vecsmall_min(GEN v);
 INLINE long   vecsmall_pack(GEN V, long base, long mod);
 INLINE int    vecsmall_prefixcmp(GEN x, GEN y);
 INLINE GEN    vecsmall_prepend(GEN V, long s);
+INLINE GEN    vecsmall_reverse(GEN A);
 INLINE GEN    vecsmall_shorten(GEN v, long n);
 INLINE GEN    vecsmall_to_col(GEN z);
 INLINE GEN    vecsmall_to_vec(GEN z);
