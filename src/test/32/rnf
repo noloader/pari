@@ -143,12 +143,12 @@ Mod(1/2, x^2 + Mod(-y, y^3 - 21))
 3:
 [Mod(y^2 + y, y^3 - 21), Mod(1, y^3 - 21)]~
 Mod(x + Mod(y, y^3 - 21), x^2 + Mod(-y, y^3 - 21))
-error("incorrect type in rnfeltabstorel (t_POL).")
+error("incorrect type in rnfeltabstorel [not in Q[X]] (t_POL).")
 Mod(x^2 + x, x^6 - 21)
 error("inconsistent variables in nf_to_scalar_or_basis, x != y.")
-error("incorrect type in rnfeltabstorel (t_POL).")
-error("incorrect type in rnfeltabstorel (t_POL).")
-error("incorrect type in rnfeltabstorel (t_POL).")
+error("incorrect type in rnfeltabstorel [not in Q[X]] (t_POL).")
+error("incorrect type in rnfeltabstorel [not in Q[X]] (t_POL).")
+error("incorrect type in rnfeltabstorel [not in Q[X]] (t_POL).")
 4:
 [1, 0]~
 Mod(1, x^2 + Mod(-y, y^3 - 21))
@@ -277,14 +277,14 @@ error("incorrect type in rnfeltdown (t_COL).")
 error("incorrect type in rnfeltabstorel, apply nfinit(rnf) (t_COL).")
 error("incorrect type in rnfeltabstorel, apply nfinit(rnf) (t_COL).")
 18:
-error("incorrect type in rnfalgtobasis (t_POL).")
-error("incorrect type in rnfbasistoalg (t_POL).")
-error("incorrect type in rnfeltabstorel (t_POL).")
+error("incorrect type in rnfalgtobasis [not in Q[X]] (t_POL).")
+error("incorrect type in rnfbasistoalg [not in Q[X]] (t_POL).")
+error("incorrect type in rnfeltabstorel [not in Q[X]] (t_POL).")
 error("incorrect type in rnfeltup (t_COL).")
 error("incorrect type in rnfeltup (t_COL).")
-error("incorrect type in rnfeltdown (t_POL).")
-error("incorrect type in rnfeltabstorel (t_POL).")
-error("incorrect type in rnfeltabstorel (t_POL).")
+error("incorrect type in rnfeltdown [not in Q[X]] (t_POL).")
+error("incorrect type in rnfeltabstorel [not in Q[X]] (t_POL).")
+error("incorrect type in rnfeltabstorel [not in Q[X]] (t_POL).")
 19:
 [y, 0]~
 Mod(Mod(y, y^3 - 21), x^2 + Mod(-y, y^3 - 21))
@@ -329,7 +329,7 @@ error("incorrect type in rnfcharpoly (t_COL).")
 17:
 error("incorrect type in rnfcharpoly (t_COL).")
 18:
-error("incorrect type in rnfcharpoly (t_POL).")
+error("incorrect type in rnfcharpoly [not in Q[X]] (t_POL).")
 19:
 x^2 + Mod(-2*y, y^3 - 21)*x + Mod(y^2, y^3 - 21)
 1:
@@ -353,12 +353,12 @@ Mod(1/2, x^2 + 1)
 3:
 [-1, 1]~
 Mod(x - 1, x^2 + 1)
-error("incorrect type in rnfeltabstorel (t_POL).")
+error("incorrect type in rnfeltabstorel [not in Q[X]] (t_POL).")
 Mod(x - 2, x^2 - 2*x + 2)
 error("inconsistent variables in nf_to_scalar_or_basis, x != y.")
-error("incorrect type in rnfeltabstorel (t_POL).")
-error("incorrect type in rnfeltabstorel (t_POL).")
-error("incorrect type in rnfeltabstorel (t_POL).")
+error("incorrect type in rnfeltabstorel [not in Q[X]] (t_POL).")
+error("incorrect type in rnfeltabstorel [not in Q[X]] (t_POL).")
+error("incorrect type in rnfeltabstorel [not in Q[X]] (t_POL).")
 4:
 [1/2, 0]~
 Mod(1/2, x^2 + 1)
@@ -687,14 +687,14 @@ error("incorrect type in nf_to_scalar_or_alg (t_COMPLEX).")
 error("incorrect type in nf_to_scalar_or_alg (t_COMPLEX).")
 error("incorrect type in nf_to_scalar_or_alg (t_COMPLEX).")
 18:
-error("incorrect type in rnfbasistoalg (t_POL).")
-error("incorrect type in rnfbasistoalg (t_POL).")
+error("incorrect type in rnfbasistoalg [not in Q[X]] (t_POL).")
+error("incorrect type in rnfbasistoalg [not in Q[X]] (t_POL).")
 error("incorrect type in rnfidealabstorel (t_POL).")
-error("incorrect type in rnfbasistoalg (t_POL).")
+error("incorrect type in rnfbasistoalg [not in Q[X]] (t_POL).")
 error("incorrect type in idealhnf [integer vector] (t_COL).")
-error("incorrect type in rnfbasistoalg (t_POL).")
-error("incorrect type in rnfbasistoalg (t_POL).")
-error("incorrect type in rnfbasistoalg (t_POL).")
+error("incorrect type in rnfbasistoalg [not in Q[X]] (t_POL).")
+error("incorrect type in rnfbasistoalg [not in Q[X]] (t_POL).")
+error("incorrect type in rnfbasistoalg [not in Q[X]] (t_POL).")
 19:
 [[1, 0; 0, 1], [[21, 0, 0; 0, 1, 0; 0, 0, 1], [21/2, 0, 0; 0, 1/2, 0; 0, 0, 
 1/2]]]
@@ -837,4 +837,4 @@ error("inconsistent operation 'RgV_RgC_mul' t_VEC (3 elts) , t_COL (2 elts).
   ***                 ^--------------------
   *** rnfidealtwoelt: incorrect type in idealtyp [non-square t_MAT] (t_MAT).
 0
-Total time spent: 464
+Total time spent: 729

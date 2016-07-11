@@ -138,7 +138,7 @@ rnfeltabstorel(GEN rnf,GEN x)
     case t_POL: break;
     default: pari_err_TYPE(f, x);
   }
-  if (!RgX_is_QX(x)) pari_err_TYPE(f,x);
+  RgX_check_QX(x,f);
   if (varn(x) != varn(pol))
   {
     if (varn(x) == varn(T)) { x = Rg_nffix(f,T,x,0); goto END; }

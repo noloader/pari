@@ -2812,7 +2812,7 @@ realroots(GEN P, GEN ab, long prec)
     case 0: return rootsdeg0(gel(P,2));
   }
   P = Q_primpart(P);
-  if (!RgX_is_ZX(P)) pari_err_TYPE("realroots",P);
+  RgX_check_ZX(P,"realroots");
   v = ZX_valrem(P,&P);
   if (v && (!ab || (gsigne(gel(ab,1)) <= 0 && gsigne(gel(ab,2)) >= 0)))
     sol = const_col(v, real_0(prec));

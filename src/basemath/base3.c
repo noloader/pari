@@ -994,11 +994,7 @@ rnfbasistoalg(GEN rnf,GEN x)
       if (typ(x) != t_POL) break;
       retmkpolmod(RgX_copy(x), RgX_copy(relpol));
     case t_POL:
-      if (varn(x) == varn(T))
-      {
-        if (!RgX_is_QX(x)) pari_err_TYPE(f,x);
-        x = gmodulo(x,T); break;
-      }
+      if (varn(x) == varn(T)) { RgX_check_QX(x,f); x = gmodulo(x,T); break; }
       if (varn(x) == varn(relpol))
       {
         x = RgX_nffix(f,nf_get_pol(nf),x,0);
@@ -1128,11 +1124,7 @@ rnfalgtobasis(GEN rnf,GEN x)
       if (typ(x) != t_POL) break;
       return gerepileupto(av, mulmat_pol(rnf_get_invzk(rnf), x));
     case t_POL:
-      if (varn(x) == varn(T))
-      {
-        if (!RgX_is_QX(x)) pari_err_TYPE(f,x);
-        x = mkpolmod(x,T); break;
-      }
+      if (varn(x) == varn(T)) { RgX_check_QX(x,f); x = mkpolmod(x,T); break; }
       x = RgX_nffix(f, T, x, 0);
       if (degpol(x) >= degpol(relpol)) x = RgX_rem(x,relpol);
       return gerepileupto(av, mulmat_pol(rnf_get_invzk(rnf), x));

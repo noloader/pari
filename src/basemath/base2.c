@@ -3366,7 +3366,7 @@ Rg_nffix(const char *f, GEN T, GEN c, int lift)
       c = gel(c,2); if (is_rational_t(typ(c))) return c;
       pari_err_TYPE(f,c);
   }
-  if (!RgX_is_QX(c)) pari_err_TYPE(f, c);
+  RgX_check_QX(c, f);
   return lift? c: mkpolmod(c, T);
 }
 /* check whether P is a polynomials with coeffs in number field Q[y]/(T) */

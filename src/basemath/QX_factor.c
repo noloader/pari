@@ -1019,7 +1019,7 @@ nfrootsQ(GEN x)
   if (typ(x)!=t_POL) pari_err_TYPE("nfrootsQ",x);
   if (!signe(x)) pari_err_ROOTS0("nfrootsQ");
   x = Q_primpart(x);
-  if (!RgX_is_ZX(x)) pari_err_TYPE("nfrootsQ",x);
+  RgX_check_ZX(x,"nfrootsQ");
   val = ZX_valrem(x, &x);
   (void)ZX_gcd_all(x, ZX_deriv(x), &x);
   z = DDF_roots(x);
@@ -1277,10 +1277,10 @@ GEN
 polcyclofactors(GEN f)
 {
   pari_sp av = avma;
-  if (typ(f) != t_POL) pari_err_TYPE("polcyclofactors",f);
+  if (typ(f) != t_POL || !signe(f)) pari_err_TYPE("polcyclofactors",f);
   (void)RgX_valrem(f, &f);
   f = Q_primpart(f);
-  if (!RgX_is_ZX(f) || !signe(f)) pari_err_TYPE("polcyclofactors",f);
+  RgX_check_ZX(f,"polcyclofactors");
   if (degpol(f))
   {
     (void)ZX_gcd_all(f, ZX_deriv(f), &f);
