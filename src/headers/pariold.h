@@ -16,7 +16,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #define anell ellan
 #define anellsmall ellanQ_zv
 #define leading_term leading_coeff
-#define constant_term leading_coeff
+#define constant_term constant_coeff
 #define concat gconcat
 #define concat1 gconcat1
 #define mathell ellheightmatrix
