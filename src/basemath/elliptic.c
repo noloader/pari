@@ -1259,6 +1259,14 @@ static void
 E_compose_rst(GEN *vtotal, GEN *e, GEN r, GEN s, GEN t)
 { *e=coordch_rst(*e,r,s,t); composev_rst(vtotal,r,s,t); }
 
+static void
+E_gcompose_rst(GEN *vtotal, GEN *e, GEN r, GEN s, GEN t)
+{ *e=coordch_rst(*e,r,s,t); gcomposev(vtotal,mkvec4(gen_1,r,s,t)); }
+
+static void
+E_gcompose_u(GEN *vtotal, GEN *e, GEN u)
+{ *e=coordch_u(*e,u); gcomposev(vtotal,mkvec4(u,gen_0,gen_0,gen_0)); }
+
 /* X = (x-r)/u^2
  * Y = (y - s(x-r) - t) / u^3 */
 static GEN
@@ -3961,6 +3969,210 @@ get_piinv(GEN P)
   if (typ(z) == t_MAT) z = gel(z,1);
   return gdiv(z, pr_get_p(P));
 }
+
+/* x^2+E.a1*x-E.a2 */
+static GEN
+pola1a2(GEN e, GEN nf, GEN modP)
+{
+  GEN a1 = nf_to_Fq(nf, ell_get_a1(e), modP);
+  GEN a2 = nf_to_Fq(nf, ell_get_a2(e), modP);
+  return mkpoln(3, gen_1, a1, gneg(a2));
+}
+
+/* x^2+E.a3*pv3*x-E.a6*pv6 */
+static GEN
+pola3a6(GEN e, GEN nf, GEN modP, GEN pv3, GEN pv6)
+{
+  GEN a3 = nf_to_Fq(nf, nfmul(nf, ell_get_a3(e), pv3), modP);
+  GEN a6 = nf_to_Fq(nf, nfmul(nf, ell_get_a6(e), pv6), modP);
+  return mkpoln(3, gen_1, a3, gneg(a6));
+}
+
+/* E.a2*pv2*x^2 + E.a4*pv4*x + E.a6*pv6 */
+
+static GEN
+pola2a4a6(GEN e, GEN nf, GEN modP, GEN pv2, GEN pv4, GEN pv6)
+{
+  GEN a2 = nf_to_Fq(nf, nfmul(nf, ell_get_a2(e), pv2), modP);
+  GEN a4 = nf_to_Fq(nf, nfmul(nf, ell_get_a4(e), pv4), modP);
+  GEN a6 = nf_to_Fq(nf, nfmul(nf, ell_get_a6(e), pv6), modP);
+  return mkpoln(3, a2, a4, a6);
+}
+
+static GEN
+pol2sqrt_23(GEN nf, GEN modP, GEN Q)
+{
+  GEN p = modpr_get_p(modP), T = modpr_get_T(modP);
+  GEN r = equaliu(p,2) ? gel(Q,2): gel(Q,3);
+  if (!gequal1(gel(Q,4)))
+    r = Fq_div(r, gel(Q,4), T, p);
+  if (equaliu(p,2)) r = Fq_sqrt(r,T,p);
+  return basistoalg(nf, Fq_to_nf(r, modP));
+}
+
+static GEN
+nflocalred_section7(GEN e, GEN nf, GEN modP, GEN pi, GEN pv, long vD, GEN ch)
+{
+  GEN p = modpr_get_p(modP), T = modpr_get_T(modP);
+  GEN pi3 = gsqr(pi);
+  GEN pv3 = gsqr(pv), pv4 = gmul(pv,pv3), pv6 = gsqr(pv3);
+  long n = 1;
+  while(1)
+  {
+    GEN Q = pola3a6(e, nf, modP, pv3, pv6);
+    GEN gama;
+    if (FqX_is_squarefree(Q, T, p))
+    {
+      long nr = FqX_nbroots(Q,T,p);
+      return localred_result(vD-n-4,-4-n,nr+2,ch);
+    }
+    gama = pol2sqrt_23(nf,modP, Q);
+    E_gcompose_rst(&ch, &e, gen_0, gen_0,  gmul(gama,pi3));
+    pv6 = gmul(pv,pv6); n++;
+    Q = pola2a4a6(e, nf, modP, pv, pv4, pv6);
+    if (FqX_is_squarefree(Q, T, p))
+    {
+      long nr = FqX_nbroots(Q,T,p);
+      return localred_result(vD-n-4,-4-n,nr+2,ch);
+    }
+    gama = pol2sqrt_23(nf, modP, Q);
+    E_gcompose_rst(&ch, &e, gmul(gama, pi3), gen_0, gen_0);
+    pi3 = gmul(pi, pi3);
+    pv3 = pv4; pv4 = gmul(pv,pv4); pv6 = gmul(pv,pv6); n++;
+  }
+}
+
+/* Dedicated to John Tate for his kind words */
+
+static GEN
+nflocalred_23(GEN e, GEN P)
+{
+  GEN nf = ellnf_get_nf(e), T,p, modP;
+  long vD;
+  GEN ch, D, pv, pv2, pv4, pi, pol;
+  nf = checknf(nf);
+  modP = nf_to_Fq_init(nf,&P,&T,&p);
+  D = ell_get_disc(e);
+  vD = nfval(nf,D,P);
+  pv = basistoalg(nf, get_piinv(P));
+  pi = nfinv(nf, pv); /* local uniformizer */
+  pi = basistoalg(nf, pi);
+  ch = init_ch();
+  while(1)
+  {
+    if (vD==0)
+      return localred_result(0,1,1,ch);
+    else
+    {
+      GEN a1 = nf_to_Fq(nf, ell_get_a1(e), modP);
+      GEN a2 = nf_to_Fq(nf, ell_get_a2(e), modP);
+      GEN a3 = nf_to_Fq(nf, ell_get_a3(e), modP);
+      GEN a4 = nf_to_Fq(nf, ell_get_a4(e), modP);
+      GEN a6 = nf_to_Fq(nf, ell_get_a6(e), modP);
+      GEN x0, y0;
+      if (equaliu(p,2))
+      {
+        GEN x02, y02;
+        if (signe(a1))
+          x0 = Fq_div(a3, a1, T, p);
+        else
+          x0 = Fq_sqrt(a4, T, p);
+        x02 = Fq_sqr(x0,T,p);
+        y02 = Fq_add(Fq_mul(x02,Fq_add(x0,a2,T,p),T,p),Fq_add(Fq_mul(a4,x0,T,p),a6,T,p),T,p);
+        y0 = Fq_sqrt(y02,T,p);
+      }
+      else
+      {
+        GEN a12 = Fq_add(Fq_sqr(a1,T,p),a2,T,p);
+        if (signe(a12))
+          x0 = Fq_div(Fq_sub(a4,Fq_mul(a3,a1,T,p),T,p),a12,T,p);
+        else
+          x0 = Fq_sqrtn(Fq_neg(Fq_add(Fq_sqr(a3,T,p),a6,T,p),T,p),p,T,p,NULL);
+        y0 = Fq_add(Fq_mul(a1, x0, T, p), a3, T, p);
+      }
+      x0 = basistoalg(nf,Fq_to_nf(x0, modP));
+      y0 = basistoalg(nf,Fq_to_nf(y0, modP));
+      E_gcompose_rst(&ch, &e, x0, gen_0, y0);
+    }
+    /* 2 */
+    {
+      GEN b2 = nf_to_Fq(nf, ell_get_b2(e), modP);
+      if (signe(b2) != 0)
+      {
+        GEN Q = pola1a2(e, nf, modP);
+        long nr = FqX_nbroots(Q, T, p);
+        if (nr==2) return localred_result(1,vD+4,vD,ch); /* Inu */
+        else       return localred_result(1,vD+4,odd(vD)?1:2,ch);
+      }
+    }
+    /* 3 */
+    {
+      long va6 = nfval(nf,ell_get_a6(e),P);
+      if (va6 <= 1) return localred_result(vD,2,1,ch); /* II */
+    }
+    /* 4 */
+    {
+      long vb8 = nfval(nf,ell_get_b8(e),P);
+      if (vb8 <= 2) return localred_result(vD-1,3,2,ch);/* III */
+    }
+    /* 5 */
+    pv2 = gsqr(pv);
+    {
+      long vb6 = nfval(nf,ell_get_b6(e),P);
+      if (vb6<=2)
+      {
+        GEN Q = pola3a6(e, nf, modP, pv, pv2);
+        long nr = FqX_nbroots(Q,T,p);
+        return localred_result(vD-2,4,1+nr,ch);/* IV */
+      }
+    }
+    /* 6 */
+    {
+      GEN pv3 = gmul(pv, pv2);
+      GEN alpha = pol2sqrt_23(nf, modP, pola1a2(e, nf, modP));
+      GEN beta  = pol2sqrt_23(nf, modP, pola3a6(e, nf, modP, pv, pv2));
+      GEN po2;
+      E_gcompose_rst(&ch, &e, gen_0, alpha, gmul(beta, pi));
+      po2 = pola2a4a6(e, nf, modP, pv, pv2, pv3);
+      pol = RgX_add(monomial(gen_1,3,0), po2);
+      if (FqX_is_squarefree(pol, T, p))
+      {
+        long nr = FqX_nbroots(pol, T, p);
+        return localred_result(vD-4,-1,1+nr,ch);/* I0* */
+      }
+    }
+    /* 7 */
+    {
+      GEN F = FqX_factor(pol, T, p), E = gel(F,2);
+      long i = lg(E)==2 ? 1: E[1]==2 ? 1 : 2;
+      GEN gama = Fq_to_nf(Fq_neg(constant_coeff(gmael(F,1,i)), T, p), modP);
+      E_gcompose_rst(&ch, &e, gmul(gama,pi), gen_0, gen_0);
+      if (lg(E)==3)
+        return nflocalred_section7(e, nf, modP, pi, pv, vD, ch); /* Inu* */
+    }
+    pv4 = gsqr(pv2);
+    pol = pola3a6(e, nf, modP, pv2, pv4);
+    /*  8 */
+    if (FqX_is_squarefree(pol,T,p))
+    {
+      long nr = FqX_nbroots(pol, T, p);
+      return localred_result(vD-6,-4,1+nr,ch); /* IV* */
+    }
+    /*  9 */
+    {
+      GEN alpha = pol2sqrt_23(nf, modP, pol);
+      E_gcompose_rst(&ch, &e, gen_0, gen_0, gmul(alpha, gsqr(pi)));
+      if (nfval(nf, ell_get_a4(e), P) == 3)
+        return localred_result(vD-7,-3,2,ch); /* III* */
+    }
+    /* 10 */
+    if (nfval(nf, ell_get_a6(e), P) == 5)
+      return localred_result(vD-8,-2,1,ch); /* II* */
+    /* 11 */
+    E_gcompose_u(&ch, &e, pv);
+  }
+}
+
 /* Local reduction, residual characteristic >= 5. E/nf, P prid
 * Output: f, kod, [u,r,s,t], c */
 static GEN
@@ -4073,7 +4285,7 @@ static GEN
 nflocalred(GEN e, GEN  pr)
 {
   GEN p = pr_get_p(pr);
-  if (cmpiu(p, 3) <= 0) pari_err_IMPL("nflocalred (p < 5)");
+  if (cmpiu(p, 3) <= 0) return nflocalred_23(e,pr);
   return nflocalred_p(e,pr);
 }
 
