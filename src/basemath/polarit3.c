@@ -2297,7 +2297,7 @@ ZXQ_charpoly_sqf(GEN A, GEN T, long *lambda, long v)
   switch (typ(A))
   {
     case t_POL: dA = degpol(A); if (dA > 0) break;
-      A = dA? gel(A,2): gen_0; /* fall through */
+      A = constant_coeff(A);
     default:
       if (lambda) { A = scalar_ZX_shallow(A,varn(T)); dA = 0; break;}
       return gerepileupto(av, gpowgs(gsub(pol_x(v), A), degpol(T)));
