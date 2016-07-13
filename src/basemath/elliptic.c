@@ -4052,14 +4052,14 @@ nflocalred_23(GEN e, GEN P)
   GEN ch, D, pv, pv2, pv4, pi, pol;
   nf = checknf(nf);
   modP = nf_to_Fq_init(nf,&P,&T,&p);
-  D = ell_get_disc(e);
-  vD = nfval(nf,D,P);
   pv = basistoalg(nf, get_piinv(P));
   pi = nfinv(nf, pv); /* local uniformizer */
   pi = basistoalg(nf, pi);
   ch = init_ch();
   while(1)
   {
+    D = ell_get_disc(e);
+    vD = nfval(nf,D,P);
     if (vD==0)
       return localred_result(0,1,1,ch);
     else
@@ -4169,7 +4169,7 @@ nflocalred_23(GEN e, GEN P)
     if (nfval(nf, ell_get_a6(e), P) == 5)
       return localred_result(vD-8,-2,1,ch); /* II* */
     /* 11 */
-    E_gcompose_u(&ch, &e, pv);
+    E_gcompose_u(&ch, &e, pi);
   }
 }
 
