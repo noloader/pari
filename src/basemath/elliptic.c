@@ -5682,6 +5682,7 @@ ellheight(GEN e, GEN a, long prec)
   checkell_Q(e);
   checkellpt(a);
   if (ell_is_inf(a)) return gen_0;
+  if (!RgV_is_QV(a)) pari_err_TYPE("ellheight [not a rational point]",a);
   if ((S = obj_check(e, Q_MINIMALMODEL)))
   { /* switch to minimal model if needed */
     if (lg(S) != 2)

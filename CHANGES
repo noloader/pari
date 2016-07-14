@@ -226,6 +226,7 @@ BA163- [windows] MPQS could fail due to temporary files
   166- qfperfection() only allowed matrices of small norm [#1719]
   167- wrong formula for poldisc when characteristic divides degree [#1831]
   168- wrong result for poldisc(ZX) in huge degree [#1830]
+  169- missing typechecks in ellheight() [SEGV on BIB]
 
   Added
     1- add optional argument to sumdigits to specify the base
