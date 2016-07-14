@@ -80,7 +80,7 @@ q^101)
 [0, 0, 0, -3, 0, 0, -6, 0, -9, 144, 0, 1728, 1728, Vecsmall([1]), [Vecsmall(
 [128, 1])], [0, 0, 0, 0, 0, 0, 0, 0]]
 ? elllocalred(bcurve,2)
-[6, 2, [1, 1, 1, 0], 1]
+[6, 2, [1, 0, 0, 0], 1]
 ? elltaniyama(bcurve)
 [x^-2 - x^2 + 3*x^6 - 2*x^10 + 7*x^14 + O(x^15), -x^-3 + 3*x - 3*x^5 + 8*x^9
  - 9*x^13 + O(x^14)]
@@ -121,4 +121,4 @@ small([128, 1])], [0, 0, 0, 0, 0, 0, 0, 0]]
  28*w))]
 ? if(getheap()!=HEAP,getheap())
 ? print("Total time spent: ",gettime);
-Total time spent: 23
+Total time spent: 26

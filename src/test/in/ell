@@ -110,6 +110,9 @@ E.eta
 E.roots
 ellglobalred(E)
 ellglobalred(e)
+p = 2^64+13;
+E = ellchangecurve(e, [1/p, 2,3,4]);
+elllocalred(E,p)
 
 E = ellchangecurve(e, [1,0,0,0]);
 
