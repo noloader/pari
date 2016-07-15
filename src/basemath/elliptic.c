@@ -4096,7 +4096,7 @@ nflocalred_section7(GEN e, GEN nf, GEN modP, GEN pi, GEN pv, long vD, GEN ch)
 /* Dedicated to John Tate for his kind words */
 
 static GEN
-nflocalred_23(GEN e, GEN P)
+nflocalred_23(GEN e, GEN P, long *ap)
 {
   GEN nf = ellnf_get_nf(e), T,p, modP;
   long vD;
@@ -4107,6 +4107,7 @@ nflocalred_23(GEN e, GEN P)
   pi = nfinv(nf, pv); /* local uniformizer */
   pi = basistoalg(nf, pi);
   ch = init_ch();
+  *ap = 0;
   while(1)
   {
     D = ell_get_disc(e);
@@ -4152,8 +4153,8 @@ nflocalred_23(GEN e, GEN P)
       {
         GEN Q = pola1a2(e, nf, modP);
         long nr = FqX_nbroots(Q, T, p);
-        if (nr==2) return localred_result(1,vD+4,vD,ch); /* Inu */
-        else       return localred_result(1,vD+4,odd(vD)?1:2,ch);
+        if (nr==2) { *ap =  1; return localred_result(1,vD+4,vD,ch); /* Inu */ }
+        else       { *ap = -1; return localred_result(1,vD+4,odd(vD)?1:2,ch);  }
       }
     }
     /* 3 */
@@ -4336,7 +4337,7 @@ static GEN
 nflocalred(GEN e, GEN  pr)
 {
   GEN p = pr_get_p(pr);
-  if (cmpiu(p, 3) <= 0) return nflocalred_23(e,pr);
+  if (cmpiu(p, 3) <= 0) { long ap; return nflocalred_23(e,pr,&ap); }
   return nflocalred_p(e,pr);
 }
 
@@ -4583,29 +4584,12 @@ nfis_minimal_ap(GEN E, GEN P, int *good_red)
   vD = nfval(nf,D,P);
   p = pr_get_p(P);
   if (cmpiu(p, 3) <= 0)
-  { /* assume locally minimal */
-    if (vD)
-    {
-      *good_red = 0;
-      if (nfval(nf,c4,P)) return gen_0; /* additive */
-      if (equaliu(p, 2))
-      {
-        GEN a1 = nf_to_Fq(nf, ell_get_a1(E), modP);
-        GEN a2 = nf_to_Fq(nf, ell_get_a2(E), modP);
-        GEN a3 = nf_to_Fq(nf, ell_get_a3(E), modP);
-        GEN z = Fq_add(Fq_div(a3,a1,T,p), a2, T,p);
-        if (lg(FqX_roots(mkpoln(3, z, a1, gen_1), T,p)) > 1)
-          return gen_1; /* split */
-        else
-          return gen_m1; /* non-split */
-      }
-      else
-      {
-        GEN b2 = nf_to_Fq(nf, ell_get_b2(E), modP);
-        return Fq_issquare(b2,T,p)? gen_1: gen_m1;
-      }
-    }
+  {
+    long ap;
+    GEN L = nflocalred_23(E,P,&ap);
+    if (!equali1(gel(L,2))) { *good_red = 0; return stoi(ap); }
     *good_red = 1;
+    E = coordch(E, gel(L,3));
     E = ellinit_nf_to_Fq(E, modP);
     card = doellcard(E);
   }
