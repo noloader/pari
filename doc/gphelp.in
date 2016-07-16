@@ -775,6 +775,7 @@ sub basic_subst {
   s/\\"o/$tr{ouml}/;   s/\\"\{o\}/$tr{ouml}/;
   s/\\"u/$tr{uuml}/;   s/\\"\{u\}/$tr{uuml}/;
   s/\\'e/$tr{eacute}/; s/\\'\{e\}/$tr{eacute}/;
+  s/{\\cal (.)}/$1/;
 
   s/(^|[^\\])%.*/$1/g;		        # comments
   s/\\vadjust\s*\{\s*\\penalty\s*\d+\s*\}//g;
@@ -827,7 +828,7 @@ sub basic_subst {
       | Sigma | Tau | Ypsilon | varsigma | Omega | Xi | Psi | Zeta
       | alpha | beta | chi | delta | epsilon | varepsilon | phi | gamma | eta
       | iota | varphi | kappa | lambda | mu | nu | omicron | pi | theta | rho
-      | sigma | tau | ypsilon | varpi | omega | xi | psi | zeta
+      | sigma | tau | ypsilon | varpi | omega | xi | psi | zeta | ell
       | int | expr | seq | args | gcd | lcm | sum | prod | Re | infty )
       (?![a-zA-Z])/$tr{startword}$1$tr{endword}/xg;
   s/ *\\in(?![a-zA-Z]) */ belongs to /g;
