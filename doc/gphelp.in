@@ -674,7 +674,7 @@ sub detex {
 
 # We use the special char @ to transmit special sequences
 sub inittr {
-  @ou = qw( dollar nbrk startbold endbold startcode endcode
+  @ou = qw( dollar nbrk startref endref startbold endbold startcode endcode
 	    obr cbr uuml ouml agrave aacute eacute
 	    startpodcode endpodcode startlink endlink
 	    startbcode endbcode startbi endbi startit endit
@@ -836,9 +836,14 @@ sub basic_subst {
   s/ *\\mid(?![a-zA-Z]) */ | /g;
 
   s/\\idxtyp\{([^{}]*)\}/\\sidx{t_$1}/g;
-  s/\\ref\{([^\}]*)\}/[$tr{startbold}Label: $1$tr{endbold}]/g unless $to_pod;
-  s/\\secref\{([^\}]*)\}/Section [$tr{startbold}Label: $1$tr{endbold}]/g unless $to_pod;
-  s/\\label\{[^\}]*\}//g unless $to_pod;
+  if (!$to_pod) {
+    s/\\secref\{/Section \\ref{/g;
+    s/\\ref\{([^\}]*)\}/$tr{startref}$1$tr{endref}/g;
+    if ($raw)
+    { s/\\label\{[^\}]*\}/[\@label $1]/g; }
+    else
+    { s/\\label\{[^\}]*\}//g; }
+  }
 
   s/ *\\noindent\b */\@3/;
   s/\\(medskip|bigskip|smallskip|left|right)(?![a-zA-Z])[ \t]*//g;
@@ -1199,9 +1204,10 @@ sub TeXprint {
     s/\@\[eacute\]/'e/g;
     s/\@\[pm\]/+\/-/g;
   }
+  s/\@\[label\]//g;
   s/\@\[ldollar\]/\$/g;
-  s/\@\[end(bold|code|bcode|bi|it)\]/$ch/g;
-  s/\@\[start(bold|code|bcode|bi)\]/$cb/g;
+  s/\@\[end(bold|code|bcode|ref|bi|it)\]/$ch/g;
+  s/\@\[start(bold|code|bcode|ref|bi)\]/$cb/g;
   s/\@\[startit\]/$cu/g;
   s/\@\[(dollar|empty|endl?word|endpodcode|startl?word|startpodcode)\]//g;
   s/\@\[lt\]/</g;
