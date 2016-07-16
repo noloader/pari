@@ -978,20 +978,15 @@ sub code_subst {
   $in =~ s/\@dots\b/.../g;
   if ($in =~ /\@com(.*)/)
   {
-    if ($to_pod) {
-      $in = $` . &basic_subst($1) . code_subst($');
-    } else {
-      $in = $` . $tr{endcode} . &basic_subst($1) . $tr{startcode} . code_subst($');
-    }
+    my ($c) = &basic_subst($1);
+    if (!$to_pod) { $c = $tr{endcode} . $c . $tr{startcode}; }
+    $in = $` . $c . &code_subst($');
   }
   if ($in =~ /\@Ccom(.*)\*\//)
   {
-    if ($to_pod) {
-      $in = $` .		&basic_subst($1) . "*/" . &code_subst($');
-    } else {
-      $in = $` . $tr{endcode} . &basic_subst($1) . $tr{startcode}
-                                                 . "*/" . &code_subst($');
-    }
+    my ($c) = &basic_subst($1);
+    if (!$to_pod) { $c = $tr{endcode} . $c . $tr{startcode}; }
+    $in = $` .$c . "*/" . &code_subst($');
   }
   $in;
 }
