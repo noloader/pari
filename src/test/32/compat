@@ -1254,7 +1254,7 @@ A function with that name existed in GP-1.39.15. Please update your script.
 New syntax: hell(e,x) ===> ellheight(e,x)
 
 ellheight(E,P,{Q}): canonical height of point P on elliptic curve E, resp. the 
-value of the associated bilinear form at (P,Q).
+value of the attached bilinear form at (P,Q).
 
 
   ***   at top-level: hell2()
@@ -1265,7 +1265,7 @@ A function with that name existed in GP-1.39.15. Please update your script.
 New syntax: hell2(e,x) ===> ellheight(e,x,1)
 
 ellheight(E,P,{Q}): canonical height of point P on elliptic curve E, resp. the 
-value of the associated bilinear form at (P,Q).
+value of the attached bilinear form at (P,Q).
 
 
   ***   at top-level: hermite()
@@ -3087,7 +3087,7 @@ A function with that name existed in GP-1.39.15. Please update your script.
 New syntax: polvar(x) ===> variable(x)
 
 variable({x}): main variable of object x. Gives p for p-adic x, 0 if no 
-variable can be associated to x. Returns the list of user variables if x is 
+variable can be attached to x. Returns the list of user variables if x is 
 omitted.
 
 
@@ -3926,7 +3926,7 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: sylvestermatrix(x,y) ===> polsylvestermatrix(x,y)
 
-polsylvestermatrix(x,y): forms the sylvester matrix associated to the two 
+polsylvestermatrix(x,y): forms the sylvester matrix attached to the two 
 polynomials x and y. Warning: the polynomial coefficients are in columns, not 
 in rows.
 
@@ -4570,4 +4570,4 @@ New syntax: texprint(x) ===> printtex(x)
 printtex({str}*): outputs its string arguments in TeX format.
 
 
-Total time spent: 8
+Total time spent: 9
