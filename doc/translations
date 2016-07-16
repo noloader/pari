@@ -133,18 +133,19 @@ Emacs           @Using GP under GNU Emacs@2
 2               @Conversions and similar elementary functions or commands
 3               @Transcendental functions
 4               @Arithmetic functions
-5               @Functions related to elliptic curves
-6               @Functions related to $L$-functions
-7               @Functions related to modular forms and modular symbols
-8               @Functions related to general number fields
-9               @Functions related to associative and central simple algebras
-10              @Polynomials and power series
-11              @Vectors, matrices, linear algebra and sets
-12              @Sums, products, integrals and similar functions
-13              @Plotting functions
-14              @Programming in GP: control statements
-15              @GP operators@2
-ell             @Functions related to elliptic curves
+5               @Elliptic curves
+6               @$L$-functions
+7               @Modular forms
+8               @Modular symbols
+9               @General number fields
+10              @Associative and central simple algebras
+11              @Polynomials and power series
+12              @Vectors, matrices, linear algebra and sets
+13              @Sums, products, integrals and similar functions
+14              @Plotting functions
+15              @Programming in GP: control statements
+16              @GP operators@2
+ell             @Elliptic curves
 nf              @Number field structures
 bnf             @Number field structures
 bnr             @Number field structures

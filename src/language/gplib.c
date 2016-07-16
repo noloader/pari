@@ -270,12 +270,12 @@ menu_commands(void)
   2: CONVERSIONS and similar elementary functions\n\
   3: TRANSCENDENTAL functions\n\
   4: NUMBER THEORETICAL functions\n\
-  5: Functions related to ELLIPTIC CURVES\n\
-  6: Functions related to L-FUNCTIONS\n\
-  7: Functions related to MODULAR FORMS\n\
-  8: Functions related to MODULAR SYMBOLS\n\
-  9: Functions related to general NUMBER FIELDS\n\
- 10: Functions related to associative ALGEBRAS\n\
+  5: ELLIPTIC CURVES\n\
+  6: L-FUNCTIONS\n\
+  7: MODULAR FORMS\n\
+  8: MODULAR SYMBOLS\n\
+  9: General NUMBER FIELDS\n\
+ 10: Associative and central simple ALGEBRAS\n\
  11: POLYNOMIALS and power series\n\
  12: Vectors, matrices, LINEAR ALGEBRA and sets\n\
  13: SUMS, products, integrals and similar functions\n\
