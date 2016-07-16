@@ -1038,7 +1038,7 @@ simultaneously in your mind if you want to write correct PARI programs.
 Common to all the types is the first codeword \kbd{z[0]}, which we do not
 have to worry about since this is taken care of by \kbd{cgetg}. Its precise
 structure depends on the machine you are using, but it always contains the
-following data: the \emph{internal type number}\sidx{type number} associated
+following data: the \emph{internal type number}\sidx{type number} attached
 to the symbolic type name, the \emph{length} of the root in longwords, and a
 technical bit which indicates whether the object is a clone or not (see
 \secref{se:clone}). This last one is used by \kbd{gp} for internal garbage
@@ -1308,7 +1308,7 @@ to \kbd{e}.
 
 In addition to this codeword, \kbd{z[2]} points to the prime $p$,
 \kbd{z[3]} points to $p^{\text{precp(z)}}$, and \kbd{z[4]} points to
-a\typ{INT} representing the $p$-adic unit associated to \kbd{z} modulo
+a\typ{INT} representing the $p$-adic unit attached to \kbd{z} modulo
 \kbd{z[3]} (and to zero if \kbd{z} is zero). To summarize, if $z\neq
 0$, we have the equality:
 $$ \kbd{z} = p^{\text{valp(z)}} * (\kbd{z[4]} + O(\kbd{z[3]})),\quad
@@ -1877,7 +1877,7 @@ For instance, if $x$ is a \kbd{GEN} with internal type \typ{STR}, say,
 itself, the general-purpose \kbd{e\_MISC} is used sparingly: it is so
 flexible that the corresponding error contexts (\typ{ERROR}) become hard to
 use reliably. Other more rigid error types are generally more useful: for
-instance the error context associated to the \kbd{e\_TYPE} exception above is
+instance the error context attached to the \kbd{e\_TYPE} exception above is
 precisely documented and contains \kbd{"extgcd"} and $x$ (not only its type)
 as readily available components.
 
@@ -1911,7 +1911,7 @@ The valid \emph{warning} keywords are \tet{warner} (general), \tet{warnprec}
 For debugging output, you can use the standard output
 functions, \tet{output} and \tet{pari_printf} mainly. Corresponding to the
 \kbd{gp} metacommand \kbd{\b x}, you can also output the \idx{hexadecimal
-tree} associated to an object:
+tree} attached to an object:
 
 \fun{void}{dbgGEN}{GEN x, long nb = -1}, displays the recursive structure of
 \kbd{x}. If $\kbd{nb} = -1$, the full structure is printed, otherwise
@@ -1990,7 +1990,7 @@ non-reentrant way, and are now deprecated.
 
 The following function implements \kbd{gp}'s timer and should not be used in
 libpari programs:
-\fun{long}{gettime}{void} equivalent to \tet{timer_delay}$(T)$ associated to a
+\fun{long}{gettime}{void} equivalent to \tet{timer_delay}$(T)$ attached to a
 private timer $T$.
 
 \section{Iterators, Numerical integration, Sums, Products}

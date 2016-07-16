@@ -1123,7 +1123,7 @@ qfrpow(GEN x, GEN n)
   return gerepilecopy(av, x);
 }
 
-/* Prime forms associated to prime ideals of degree 1 */
+/* Prime forms attached to prime ideals of degree 1 */
 
 /* assume x != 0 a t_INT, p > 0
  * Return a t_QFI, but discriminant sign is not checked: can be used for

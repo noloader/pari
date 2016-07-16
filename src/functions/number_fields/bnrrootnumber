@@ -4,18 +4,18 @@ C-Name: bnrrootnumber
 Prototype: GGD0,L,p
 Help: bnrrootnumber(bnr,chi,{flag=0}): returns the so-called Artin Root
  Number, i.e. the constant W appearing in the functional equation of the
- Hecke L-function associated to chi. Set flag = 1 if the character is known
+ Hecke L-function attached to chi. Set flag = 1 if the character is known
  to be primitive.
 Doc: if $\chi=\var{chi}$ is a
  \idx{character} over \var{bnr}, not necessarily primitive, let
- $L(s,\chi) = \sum_{id} \chi(id) N(id)^{-s}$ be the associated
+ $L(s,\chi) = \sum_{id} \chi(id) N(id)^{-s}$ be the attached
  \idx{Artin L-function}. Returns the so-called \idx{Artin root number}, i.e.~the
  complex number $W(\chi)$ of modulus 1 such that
  %
  $$\Lambda(1-s,\chi) = W(\chi) \Lambda(s,\overline{\chi})$$
  %
  \noindent where $\Lambda(s,\chi) = A(\chi)^{s/2}\gamma_\chi(s) L(s,\chi)$ is
- the enlarged L-function associated to $L$.
+ the enlarged L-function attached to $L$.
 
  The generators of the ray class group are needed, and you can set $\fl=1$ if
  the character is known to be primitive. Example:

@@ -9,7 +9,7 @@ Help: lfuncheckfeq(L,{t}): given an L-function (Lmath, Ldata or Linit),
  If t is given, it checks the functional equation for the theta function
  at t and 1/t.
 
-Doc: Given the data associated to an $L$-function (\kbd{Lmath}, \kbd{Ldata}
+Doc: Given the data attached to an $L$-function (\kbd{Lmath}, \kbd{Ldata}
  or \kbd{Linit}), check whether the functional equation is satisfied.
  This is most useful for an \kbd{Ldata} constructed ``by hand'', via
  \kbd{lfuncreate}, to detect mistakes.

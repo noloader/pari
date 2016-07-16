@@ -5,9 +5,9 @@ Prototype: GGD&
 Help: znconreyconductor(bid,chi, {&chi0}): Let bid be idealstar(,q) and chi
  be a Dirichlet character on (Z/qZ)* given by its Conrey logarithm. Return
  the conductor of chi, and set chi0 to (the Conrey logarithm of) the
- associated primitive character. If chi0 != chi, return the conductor
+ attached primitive character. If chi0 != chi, return the conductor
  and its factorization.
-Doc: Let \var{bid} be associated to $(\Z/q\Z)^*$ (as per \kbd{bid =
+Doc: Let \var{bid} be attached to $(\Z/q\Z)^*$ (as per \kbd{bid =
  idealstar(,q)}) and \kbd{chi} be a Dirichlet character on $(\Z/q\Z)^*$,
  given by
 
@@ -21,7 +21,7 @@ Doc: Let \var{bid} be associated to $(\Z/q\Z)^*$ (as per \kbd{bid =
  if \kbd{chi} is primitive, and as a pair \kbd{[N, faN]} (with \kbd{faN} the
  factorization of $N$) otherwise.
 
- If \kbd{chi0} is present, set it to the Conrey logarithm of the associated
+ If \kbd{chi0} is present, set it to the Conrey logarithm of the attached
  primitive character.
 
  \bprog

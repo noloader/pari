@@ -88,7 +88,7 @@ conjugate(long *typ)
   t[i] = 0; setlen(t,l);
   return t;
 }
-/* ----subgp_iter 'fun' associated to subgrouplist ------------- */
+/* ----subgp_iter 'fun' attached to subgrouplist ------------- */
 static void
 addcell(sublist_t *S, GEN H)
 {

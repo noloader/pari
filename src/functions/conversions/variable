@@ -3,7 +3,7 @@ Section: conversions
 C-Name: gpolvar
 Prototype: DG
 Help: variable({x}): main variable of object x. Gives p for p-adic x, 0
- if no variable can be associated to x. Returns the list of user variables if
+ if no variable can be attached to x. Returns the list of user variables if
  x is omitted.
 Description:
  (pol):var:parens:copy        $var:1
@@ -11,7 +11,7 @@ Description:
 Doc:
  gives the main variable of the object $x$ (the variable with the highest
  priority used in $x$), and $p$ if $x$ is a $p$-adic number. Return $0$ if
- $x$ has no variable associated to it.
+ $x$ has no variable attached to it.
  \bprog
  ? variable(x^2 + y)
  %1 = x

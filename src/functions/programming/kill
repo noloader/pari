@@ -3,9 +3,9 @@ Section: programming/specific
 C-Name: kill0
 Prototype: vr
 Help: kill(sym): restores the symbol sym to its ``undefined'' status and kill
- associated help messages.
+ attached help messages.
 Doc: restores the symbol \kbd{sym} to its ``undefined'' status, and deletes any
- help messages associated to \kbd{sym} using \kbd{addhelp}. Variable names
+ help messages attached to \kbd{sym} using \kbd{addhelp}. Variable names
  remain known to the interpreter and keep their former priority: you cannot
  make a variable ``less important" by killing it!
  \bprog
@@ -21,10 +21,10 @@ Doc: restores the symbol \kbd{sym} to its ``undefined'' status, and deletes any
  variable holding a \typ{CLOSURE}) does not remove its name from the list of
  variable names.
 
- If the symbol is associated to a variable --- user functions being an
+ If the symbol is attached to a variable --- user functions being an
  important special case ---, one may use the \idx{quote} operator
  \kbd{a = 'a} to reset variables to their starting values. However, this
- will not delete a help message associated to \kbd{a}, and is also slightly
+ will not delete a help message attached to \kbd{a}, and is also slightly
  slower than \kbd{kill(a)}.
  \bprog
  ? x = 1; addhelp(x, "foo"); x

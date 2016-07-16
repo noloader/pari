@@ -28,4 +28,4 @@ Doc:
 
 Variant:
  Also available is \fun{GEN}{variables_vecsmall}{GEN x} which returns
- the (sorted) variable numbers instead of the associated monomials of degree 1.
+ the (sorted) variable numbers instead of the attached monomials of degree 1.

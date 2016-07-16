@@ -724,7 +724,7 @@ lgcdii(ulong* d, ulong* d1,
   /* Some invariants from here across the first loop:
    *
    * At this point, and again after we are finished with the first loop and
-   * subsequent conditional, a division and the associated update of the
+   * subsequent conditional, a division and the attached update of the
    * recurrence matrix have just been carried out completely.  The matrix
    * xu,xu1;xv,xv1 has been initialized (or updated, possibly with permuted
    * columns), and the current remainder == next divisor (dd at the moment)

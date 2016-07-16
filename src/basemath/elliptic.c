@@ -3032,7 +3032,7 @@ elleisnum(GEN om, long k, long flag, long prec)
   return gerepileupto(av,y);
 }
 
-/* return quasi-periods associated to [T->W1,T->W2] */
+/* return quasi-periods attached to [T->W1,T->W2] */
 static GEN
 _elleta(ellred_t *T)
 {

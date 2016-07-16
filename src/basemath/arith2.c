@@ -259,7 +259,7 @@ fuse_Z_factor(GEN f, GEN B)
   return mkmat2(P, E);
 }
 
-/* n associated to a factorization of a positive integer: either N (t_INT)
+/* n attached to a factorization of a positive integer: either N (t_INT)
  * a factorization matrix faN, or a t_VEC: [N, faN] */
 GEN
 check_arith_pos(GEN n, const char *f) {
@@ -278,7 +278,7 @@ check_arith_pos(GEN n, const char *f) {
   pari_err_TYPE(f,n);
   return NULL;
 }
-/* n associated to a factorization of a non-0 integer */
+/* n attached to a factorization of a non-0 integer */
 GEN
 check_arith_non0(GEN n, const char *f) {
   switch(typ(n))
@@ -296,7 +296,7 @@ check_arith_non0(GEN n, const char *f) {
   pari_err_TYPE(f,n);
   return NULL;
 }
-/* n associated to a factorization of an integer */
+/* n attached to a factorization of an integer */
 GEN
 check_arith_all(GEN n, const char *f) {
   switch(typ(n))

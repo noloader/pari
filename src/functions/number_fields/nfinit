@@ -20,7 +20,7 @@ Description:
  (gen, small):gen:prec   nfinit0($1, $2, $prec)
 Doc: \var{pol} being a non-constant,
  preferably monic, irreducible polynomial in $\Z[X]$, initializes a
- \emph{number field} structure (\kbd{nf}) associated to the field $K$ defined
+ \emph{number field} structure (\kbd{nf}) attached to the field $K$ defined
  by \var{pol}. As such, it's a technical object passed as the first argument
  to most \kbd{nf}\var{xxx} functions, but it contains some information which
  may be directly useful. Access to this information via \emph{member
@@ -90,7 +90,7 @@ Doc: \var{pol} being a non-constant,
  monic one, then reduce it (see $\fl=3$). It is allowed, though not very
  useful given the existence of \tet{nfnewprec}, to input a \var{nf} or a
  \var{bnf} instead of a polynomial. It is also allowed to
- input a \var{rnf}, in which case an \kbd{nf} structure associated to the
+ input a \var{rnf}, in which case an \kbd{nf} structure attached to the
  absolute defining polynomial \kbd{polabs} is returned (\fl is then ignored).
 
  \bprog

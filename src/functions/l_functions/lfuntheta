@@ -3,11 +3,11 @@ Section: l_functions
 C-Name: lfuntheta
 Prototype: GGD0,L,b
 Help: lfuntheta(data,t,{m=0}): compute the value of the m-th derivative
- at t of the theta function associated to the L-function given by data.
+ at t of the theta function attached to the L-function given by data.
  data can be either the standard L-function data, or the output of
  lfunthetainit.
 Doc: compute the value of the $m$-th derivative
- at $t$ of the theta function associated to the $L$-function given by \kbd{data}.
+ at $t$ of the theta function attached to the $L$-function given by \kbd{data}.
   \kbd{data} can be either the standard $L$-function data, or the output of
  \kbd{lfunthetainit}.
  The theta function is defined by the formula

@@ -221,7 +221,7 @@ R_from_QR(GEN x, long prec)
 /**             QR Factorization via Gram-Schmidt                  **/
 /********************************************************************/
 
-/* return Gram-Schmidt orthogonal basis (f) associated to (e), B is the
+/* return Gram-Schmidt orthogonal basis (f) attached to (e), B is the
  * vector of the (f_i . f_i)*/
 GEN
 RgM_gram_schmidt(GEN e, GEN *ptB)

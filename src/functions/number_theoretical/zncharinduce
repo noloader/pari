@@ -5,7 +5,7 @@ Prototype: GGG
 Help: zncharinduce(G, chi, N): Let G be idealstar(,q), let chi
  be a Dirichlet character mod q and let N be a multiple of q. Return
  the character modulo N induced by chi.
-Doc: Let $G$ be associated to $(\Z/q\Z)^*$ (as per \kbd{G =
+Doc: Let $G$ be attached to $(\Z/q\Z)^*$ (as per \kbd{G =
  idealstar(,q)}) and let \kbd{chi} be a Dirichlet character on $(\Z/q\Z)^*$,
  given by
 

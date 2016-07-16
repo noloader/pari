@@ -38,7 +38,7 @@ typedef struct _primedata {
   GEN firstroot; /* *[i] = index of first root of fk[i] */
   GEN interp;    /* *[i] = interpolation polynomial for fk[i]
                   * [= 1 on the first root firstroot[i], 0 on the others] */
-  GEN bezoutC; /* Bezout coefficients associated to the ff[i] */
+  GEN bezoutC; /* Bezout coefficients attached to the ff[i] */
   GEN Trk;     /* used to compute traces (cf poltrace) */
 } primedata;
 typedef struct _blockdata {
@@ -56,7 +56,7 @@ static GEN test_block(blockdata *B, GEN L, GEN D);
 /* COMBINATORIAL PART: generate potential block systems */
 
 #define BIL 32 /* for 64bit machines also */
-/* Computation of potential block systems of given size d associated to a
+/* Computation of potential block systems of given size d attached to a
  * rational prime p: give a row vector of row vectors containing the
  * potential block systems of imprimitivity; a potential block system is a
  * vector of row vectors (enumeration of the roots). */
@@ -600,7 +600,7 @@ bound_for_coeff(long m, GEN rr, GEN *maxroot)
  * 3: Hensel lift to precision p^e of DATA[4]
  * 4: roots of pol in F_(p^S->lcm),
  * 5: number of polynomial changes (translations)
- * 6: Bezout coefficients associated to the S->ff[i]
+ * 6: Bezout coefficients attached to the S->ff[i]
  * 7: Hadamard bound for coefficients of h(x) such that g o h = 0 mod pol.
  * 8: bound M for polynomials defining subfields x PD->den
  * 9: *[i] = interpolation polynomial for S->ff[i] [= 1 on the first root

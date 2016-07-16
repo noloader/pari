@@ -19,7 +19,7 @@ Doc: evaluate the bilinear form $q$ (symmetric matrix)
  %3 = 568ms
  ? for(i=1,10^6, x~*q*y)
  %4 = 717ms
- @eprog\noindent The associated quadratic form is also available, as
+ @eprog\noindent The attached quadratic form is also available, as
  \tet{qfnorm}, slightly faster:
  \bprog
  ? for(i=1,10^6, qfnorm(x,q))

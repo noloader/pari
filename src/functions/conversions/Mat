@@ -13,8 +13,8 @@ Doc:
  If $x$ is a row (resp. column) vector, this creates a 1-row (resp.
  1-column) matrix, \emph{unless} all elements are column (resp.~row) vectors
  of the same length, in which case the vectors are concatenated sideways
- and the associated big matrix is returned.
- If $x$ is a binary quadratic form, creates the associated $2\times 2$
+ and the attached big matrix is returned.
+ If $x$ is a binary quadratic form, creates the attached $2\times 2$
  matrix. Otherwise, this creates a $1\times 1$ matrix containing $x$.
 
  \bprog

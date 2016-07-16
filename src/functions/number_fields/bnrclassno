@@ -16,7 +16,7 @@ Doc:
 
  In particular if $A$ is a \var{bnf} (with units), and $B$ a modulus,
  this function returns the corresponding ray class number modulo $B$.
- One can input the associated \var{bid} (with generators if the subgroup
+ One can input the attached \var{bid} (with generators if the subgroup
  $C$ is non trivial) for $B$ instead of the module itself, saving some time.
 
  This function is faster than \kbd{bnrinit} and should be used if only the

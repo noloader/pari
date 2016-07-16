@@ -24,7 +24,7 @@ Doc: $\var{bnf}$ being as output by \kbd{bnfinit} (with units), computes a
  $V[k]$ is itself a vector $W$, whose length is the number of ideals of norm
  $k$. We consider first the case where \var{arch} was specified. Each
  component of $W$ corresponds to an ideal $m$ of norm $k$, and
- gives invariants associated to the ray class field $L$ of $\var{bnf}$ of
+ gives invariants attached to the ray class field $L$ of $\var{bnf}$ of
  conductor $[m, \var{arch}]$. Namely, each contains a vector $[m,d,r,D]$ with
  the following meaning: $m$ is the prime ideal factorization of the modulus,
  $d = [L:\Q]$ is the absolute degree of $L$, $r$ is the number of real places

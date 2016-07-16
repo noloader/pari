@@ -57,7 +57,7 @@ Doc: evaluates the expression sequence \var{seq1}. If an error occurs,
  @eprog
  The return value of \kbd{iferr} itself is the value of \var{seq2} if an
  error occurs, and the value of \var{seq1} otherwise. We now describe the
- list of valid error types, and the associated error data \var{E}; in each
+ list of valid error types, and the attached error data \var{E}; in each
  case, we list in order the components of \var{E}, accessed via
  \kbd{component(E,1)}, \kbd{component(E,2)}, etc.
 

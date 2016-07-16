@@ -513,7 +513,7 @@ gammamellininvasymp(GEN Vga, long nlimmax, long m)
 }
 
 /* Does the continued fraction of the asymptotic expansion M at oo of inverse
- * Mellin transform associated to Vga have zero Hankel determinants ? */
+ * Mellin transform attached to Vga have zero Hankel determinants ? */
 static long
 ishankelspec(GEN Vga, GEN M)
 {

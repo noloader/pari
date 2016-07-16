@@ -10,7 +10,7 @@ Help: ellinit(x,{D=1}): let x be a vector [a1,a2,a3,a4,a6], or [a4,a6] if
 Description:
  (gen, gen, small):ell:prec  ellinit($1, $2, $prec)
 Doc:
- initialize an \tet{ell} structure, associated to the elliptic curve $E$.
+ initialize an \tet{ell} structure, attached to the elliptic curve $E$.
  $E$ is either
 
  \item a $5$-component vector $[a_1,a_2,a_3,a_4,a_6]$ defining the elliptic

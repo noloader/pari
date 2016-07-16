@@ -2,24 +2,24 @@ Function: lfunartin
 Section: l_functions
 C-Name: lfunartin
 Prototype: GGGL
-Help: lfunartin(nf,gal,M,n): returns the Ldata structure associated to the
- Artin L-function associated to the representation R of the Galois group
+Help: lfunartin(nf,gal,M,n): returns the Ldata structure attached to the
+ Artin L-function attached to the representation R of the Galois group
  of the extension K/Q, defined over the cyclotomic field Q(zeta_n),
- where nf is the nfinit structure associated to K,
- gal is the galoisinit structure associated to K/Q, and M is the vector
+ where nf is the nfinit structure attached to K,
+ gal is the galoisinit structure attached to K/Q, and M is the vector
  of the image of the generators G.gen by R. The elements of M are matrices
  with polynomial entries, whose variable is understood as the complex
  number exp(2*I*Pi/n).
-Doc: returns the \kbd{Ldata} structure associated to the
- Artin $L$-function associated to the representation $\rho$ of the Galois group
+Doc: returns the \kbd{Ldata} structure attached to the
+ Artin $L$-function attached to the representation $\rho$ of the Galois group
  of the extension $K/\Q$, defined over the cyclotomic field $\Q(\zeta_n)$,
- where \var{nf} is the nfinit structure associated to $K$,
- \var{gal} is the galoisinit structure associated to $K/\Q$, and $M$ is
+ where \var{nf} is the nfinit structure attached to $K$,
+ \var{gal} is the galoisinit structure attached to $K/\Q$, and $M$ is
  the vector of the image of the generators \kbd{\var{gal}.gen} by $\rho$.
  The elements of $M$ are matrices with polynomial entries, whose variable
  is understood as the complex number $\exp(2\*i\*\pi/n)$.
 
- In the following example we build the Artin $L$-functions associated to the two
+ In the following example we build the Artin $L$-functions attached to the two
  irreducible degree $2$ representations of the dihedral group $D_{10}$ defined
  over $\Q(\zeta_5)$, for the extension $H/\Q$ where $H$ is the Hilbert class
  field of $\Q(\sqrt{-47})$.

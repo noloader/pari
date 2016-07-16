@@ -1625,7 +1625,7 @@ jacobi(GEN a, long prec)
   {
     pari_sp av2 = avma;
     GEN x, y, t, c, s, u;
-    /* compute associated rotation in the plane formed by basis vectors number
+    /* compute attached rotation in the plane formed by basis vectors number
      * p and q */
     x = subrr(gel(L,q),gel(L,p));
     if (signe(x))

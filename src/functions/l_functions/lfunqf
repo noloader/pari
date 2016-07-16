@@ -2,11 +2,11 @@ Function: lfunqf
 Section: l_functions
 C-Name: lfunqf
 Prototype: Gp
-Help: lfunqf(Q): returns the Ldata structure associated to the
- theta function of the lattice associated to the definite positive quadratic
+Help: lfunqf(Q): returns the Ldata structure attached to the
+ theta function of the lattice attached to the definite positive quadratic
  form Q.
-Doc: returns the \kbd{Ldata} structure associated to the $\Theta$ function
- of the lattice associated to the definite positive quadratic form $Q$.
+Doc: returns the \kbd{Ldata} structure attached to the $\Theta$ function
+ of the lattice attached to the definite positive quadratic form $Q$.
  \bprog
  ? L = lfunqf(matid(2));
  ? lfunqf(L,2)

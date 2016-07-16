@@ -33,7 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
  * is Lenstra's constant, such that p.P^(-1)= p Z_K + b Z_K.
  *
  * An extended ideal is a couple [I,F] where I is a valid ideal and F is
- * either an algebraic number, or a factorization matrix associated to an
+ * either an algebraic number, or a factorization matrix attached to an
  * algebraic number. All routines work with either extended ideals or ideals
  * (an omitted F is assumed to be [;] <-> 1).
  * All ideals are output in HNF form. */

@@ -53,7 +53,7 @@ Doc:
  @eprog\noindent The first line initializes a number field structure
  incorporating \kbd{nfbasis([T, listP]} in place of a proven integral basis.
  The second line certifies that the resulting structure is correct. This
- allows to create an \kbd{nf} structure associated to the number field $K =
+ allows to create an \kbd{nf} structure attached to the number field $K =
  \Q[X]/(T)$, when the discriminant of $T$ cannot be factored completely,
  whereas the prime divisors of $\disc K$ are known.
 

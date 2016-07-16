@@ -723,7 +723,7 @@ znconreychar(GEN bid, GEN m)
 
 /* chi a t_INT or Conrey log describing a character. Return conductor, as an
  * integer if primitive; as a t_VEC [N,factor(N)] if not. Set *pm=m to the
- * associated primitive character: chi(g_i) = m[i]/ord(g_i)
+ * attached primitive character: chi(g_i) = m[i]/ord(g_i)
  * Caller should use znconreylog_normalize(BID, m), once BID(conductor) is
  * computed (wasteful to do it here since BID is shared by many characters) */
 GEN
@@ -799,7 +799,7 @@ znconreyconductor(GEN bid, GEN chi, GEN *pm)
   setlg(m,j);
   setlg(P,j);
   setlg(E,j);
-  if (pm) *pm = m; /* associated primitive  character */
+  if (pm) *pm = m; /* attached primitive  character */
   if (primitive)
   {
     q = bid_get_ideal(bid);
@@ -927,7 +927,7 @@ znconreylog_normalize(GEN G, GEN m)
   return mkvec2(d? d: gen_1, M);
 }
 
-/* return normalized character on Conrey generators associated to chi: Conrey
+/* return normalized character on Conrey generators attached to chi: Conrey
  * label (t_INT), char on (SNF) G.gen* (t_VEC), or Conrey log (t_COL) */
 GEN
 znconrey_normalized(GEN G, GEN chi)

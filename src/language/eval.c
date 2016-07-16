@@ -92,15 +92,15 @@ enum {PUSH_VAL = 0, COPY_VAL = 1, DEFAULT_VAL = 2};
 /* ep->args is the stack of old values (INITIAL if initial value, from
  * installep) */
 typedef struct var_cell {
-  struct var_cell *prev; /* cell associated to previous value on stack */
+  struct var_cell *prev; /* cell attached to previous value on stack */
   GEN value; /* last value (not including current one, in ep->value) */
   char flag; /* status of _current_ ep->value: PUSH or COPY ? */
-  long valence; /* valence of entree* associated to 'value', to be restored
+  long valence; /* valence of entree* attached to 'value', to be restored
                     * by pop_val */
 } var_cell;
 #define INITIAL NULL
 
-/* Push x on value stack associated to ep. */
+/* Push x on value stack attached to ep. */
 static void
 new_val_cell(entree *ep, GEN x, char flag)
 {

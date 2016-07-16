@@ -4,7 +4,7 @@ C-Name: nfsnf0
 Prototype: GGD0,L,
 Help: nfsnf(nf,x,{flag=0}): if x=[A,I,J], outputs D=[d_1,...d_n] Smith normal
  form of x. If flag is non-zero return [D,U,V], where UAV = Id.
-Doc: given a torsion $\Z_K$-module $x$ associated to the square integral
+Doc: given a torsion $\Z_K$-module $x$ attached to the square integral
  invertible pseudo-matrix $(A,I,J)$, returns an ideal list
  $D=[d_1,\dots,d_n]$ which is the \idx{Smith normal form} of $x$. In other
  words, $x$ is isomorphic to $\Z_K/d_1\oplus\cdots\oplus\Z_K/d_n$ and $d_i$

@@ -13,7 +13,7 @@ Help: polcompositum(P,Q,{flag=0}): vector of all possible compositums
 Doc: \sidx{compositum} $P$ and $Q$
  being squarefree polynomials in $\Z[X]$ in the same variable, outputs
  the simple factors of the \'etale $\Q$-algebra $A = \Q(X, Y) / (P(X), Q(Y))$.
- The factors are given by a list of polynomials $R$ in $\Z[X]$, associated to
+ The factors are given by a list of polynomials $R$ in $\Z[X]$, attached to
  the number field $\Q(X)/ (R)$, and sorted by increasing degree (with respect
  to lexicographic ordering for factors of equal degrees). Returns an error if
  one of the polynomials is not squarefree.

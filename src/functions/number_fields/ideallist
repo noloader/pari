@@ -15,7 +15,7 @@ Doc: computes the list
 
  The possible values of $\fl$ are:
 
- \quad 0: give the \var{bid} associated to the ideals, without generators.
+ \quad 0: give the \var{bid} attached to the ideals, without generators.
 
  \quad 1: as 0, but include the generators in the \var{bid}.
 

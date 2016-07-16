@@ -3,12 +3,12 @@ Section: l_functions
 C-Name: lfunabelianrelinit
 Prototype: GGGGD0,L,b
 Help: lfunabelianrelinit(bnfL,bnfK,polrel,sdom,{der=0}): returns the
-  Linit structure associated to the Dedekind zeta function of the number field
+  Linit structure attached to the Dedekind zeta function of the number field
   L, given a subfield K such that L/K is abelian, where polrel defines
   L over K. The priority of the variable
   of bnfK must be lower than that of polrel; bnfL is the absolute polynomial
   corresponding to polrel, and sdom and der are as in lfuninit.
-Doc: returns the \kbd{Linit} structure associated to the Dedekind zeta function
+Doc: returns the \kbd{Linit} structure attached to the Dedekind zeta function
   of the number field $L$ (see \tet{lfuninit}), given a subfield $K$ such that
   $L/K$ is abelian.
   Here \kbd{polrel} defines $L$ over $K$, as usual with the priority of the

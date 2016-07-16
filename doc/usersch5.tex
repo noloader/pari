@@ -165,7 +165,7 @@ computation that enlarged the stack.
 
 \subsec{Notions specific to the GP interpreter}
 
-An \kbd{entree} is the generic object associated to an identifier (a name)
+An \kbd{entree} is the generic object attached to an identifier (a name)
 in GP's interpreter, be it a built-in or user function, or a variable. For
 a function, it has at least the following fields:
 
@@ -211,7 +211,7 @@ it adds to the default set via the calls
   pari_add_module(functions_highlevel);
 @eprog
 
-A GP \kbd{default} is likewise associated to a helper routine, that is run
+A GP \kbd{default} is likewise attached to a helper routine, that is run
 when the value is consulted, or changed by \tet{default0} or \tet{setdefault}.
 Such routines are grouped in the module \tet{functions_default}.
 
@@ -324,7 +324,7 @@ parser: filter out whitespace and GP comments from $s$.
 
 \fun{GEN}{pari_compile_str}{const char *s} low-level form of
 \tet{compile_str}: assumes that $s$ does not contain spaces or GP comments and
-returns the closure associated to the GP expression $s$. Note
+returns the closure attached to the GP expression $s$. Note
 that GP metacommands are not recognized.
 
 \fun{int}{gp_meta}{const char *s, int ismain} low-level component of
@@ -370,7 +370,7 @@ on the value of \fl:
 Used by the online help system and the contextual completion engine.
 
 \fun{void}{gp_echo_and_log}{const char *p, const char *s} given a prompt
-$p$ and associated input command $s$, update logfile and possibly
+$p$ and attached input command $s$, update logfile and possibly
 print on standard output if \tet{echo} is set and we are not in interactive
 mode. The callback \tet{cb_pari_is_interactive} must be set to a sensible
 value.
@@ -1409,7 +1409,7 @@ and \kbd{nvar+1}--\kbd{max\_avail-1} (pool of free variable numbers).
 variable counters \kbd{nvar} and \kbd{max\_avail}, notwithstanding existing
 variables! In effect, this even deletes \kbd{x}. Don't use it.
 
-\fun{void}{pari_var_close}{void} associated destructor, called by
+\fun{void}{pari_var_close}{void} attached destructor, called by
 \kbd{pari\_close}.
 
 \fun{long}{pari_var_next}{}: returns \kbd{nvar}, the number of the next user
@@ -1419,7 +1419,7 @@ variable we can create.
 next temp variable we can create.
 
 \fun{long}{pari_var_create}{entree *ep} low-level initialization of an
-\kbd{EpVAR}. Return the associated (new) variable number.
+\kbd{EpVAR}. Return the attached (new) variable number.
 
 \fun{GEN}{vars_sort_inplace}{GEN z} given a \typ{VECSMALL} $z$ of variable
 numbers, sort $z$ in place according to variable priorities (highest priority
@@ -1438,7 +1438,7 @@ Returns its variable number.
 current value of the variable numbered $v$. Return \kbd{NULL} for a temporary
 variable.
 
-\fun{entree*}{is_entry}{const char *s} returns the \kbd{entree*} associated
+\fun{entree*}{is_entry}{const char *s} returns the \kbd{entree*} attached
 to an identifier \kbd{s} (variable or function), from the interpreter
 hashtables. Return \kbd{NULL} is the identifier is unknown.
 
@@ -1660,7 +1660,7 @@ long f(GEN x)                    ----> "lG"
 int f(long x)                    ----> "iL"
 @eprog\noindent
 If you want more examples, \kbd{gp} gives you easy access to the parser codes
-associated to all GP functions: just type \kbd{\b{h} \var{function}}. You
+attached to all GP functions: just type \kbd{\b{h} \var{function}}. You
 can then compare with the C prototypes as they stand in \kbd{paridecl.h}.
 
 \misctitle{Remark} If you need to implement complicated control statements
@@ -1803,7 +1803,7 @@ and recompile \kbd{gp}.
 and minor version numbers as well as the patchlevel.
 
 \fun{long}{PARI_VERSION}{long M, long m, long p} produces the version code
-associated to release $M.m.p$. Each code identifies a unique PARI release,
+attached to release $M.m.p$. Each code identifies a unique PARI release,
 and corresponds to the natural total order on the set of releases (bigger
 code number means more recent release).
 
@@ -3436,7 +3436,7 @@ of \kbd{ulong} $n$, where \kbd{fa} is \kbd{factoru(n)}.
 $(x,y)$ at the prime $p$ (\kbd{NULL} for the place at infinity); $x$ and $y$
 are \typ{INT}s.
 
-\fun{GEN}{sumdedekind}{GEN h, GEN k} returns the Dedekind sum associated to
+\fun{GEN}{sumdedekind}{GEN h, GEN k} returns the Dedekind sum attached to
 the \typ{INT} $h$ and $k$, $k > 0$.
 
 \fun{GEN}{sumdedekind_coprime}{GEN h, GEN k} as \kbd{sumdedekind}, except
@@ -4336,7 +4336,7 @@ faster) to applying \kbd{FpV\_polint(x,$\ldots$)} to all the elements of the
 vector $V$ (thus, returns a \kbd{FpXV}).
 
 \fun{GEN}{FpV_invVandermonde}{GEN L, GEN d, GEN p} $L$ being a \kbd{FpV}
-of length $n$, return the inverse $M$ of the Vandermonde matrix associated to
+of length $n$, return the inverse $M$ of the Vandermonde matrix attached to
 the elements of $L$, eventually multiplied by \kbd{d} if it is not
 \kbd{NULL}. If $A$ is a \kbd{FpV} and $B=M\*A$, then the polynomial
 $P=\sum_{i=1}^n B[i]\*X^{i-1}$ verifies $P(L[i])=d\*A[i]$ for
@@ -6735,7 +6735,7 @@ and the $p^{v_p(n)}$.
 \fun{ulong}{tridiv_bound}{GEN n} returns the trial division bound used by
 \tet{Z_factor}$(n)$.
 
-\subsec{Checks associated to arithmetic functions}
+\subsec{Checks attached to arithmetic functions}
 
 Arithmetic functions accept arguments of the following kind: a plain positive
 integer $N$ (\typ{INT}), the factorization \var{fa} of a positive integer (a
@@ -6780,23 +6780,23 @@ and $n$ a supplied argument. They all raise exceptions if $n$ does not
 correspond to an integer or an integer factorization of the expected shape.
 
 \fun{GEN}{check_arith_pos}{GEN n, const char *f} check whether $n$
-is associated to the factorization of a positive integer, and return
+is attached to the factorization of a positive integer, and return
 \kbd{NULL} (plain \typ{INT}) or a factorization extracted from $n$ otherwise.
 May raise an \tet{e_DOMAIN} ($n \leq 0$) or an \tet{e_TYPE} exception (other
 failures).
 
 \fun{GEN}{check_arith_non0}{GEN n, const char *f} check whether $n$
-is associated to the factorization of a non-$0$ integer, and return
+is attached to the factorization of a non-$0$ integer, and return
 \kbd{NULL} (plain \typ{INT}) or a factorization extracted from $n$ otherwise.
 May raise an \tet{e_TYPE} exception.
 
 \fun{GEN}{check_arith_all}{GEN n, const char *f}
-is associated to the factorization of an integer, and return \kbd{NULL}
+is attached to the factorization of an integer, and return \kbd{NULL}
 (plain \typ{INT}) or a factorization extracted from $n$ otherwise.
 
 \subsec{Incremental integer factorization}
 
-Routines associated to the dynamic factorization of an integer $n$, iterating
+Routines attached to the dynamic factorization of an integer $n$, iterating
 over successive prime divisors. This is useful to implement high-level
 routines allowed to take shortcuts given enough partial information: e.g.
 \kbd{moebius}$(n)$ can be trivially computed if we hit $p$ such that $p^2
@@ -7429,7 +7429,7 @@ to pre-treat a vector of coefficients to speed up later linear combinations
 or scalar products.
 
 \fun{GEN}{gram_matrix}{GEN v} returns the \idx{Gram matrix} $(v_i\cdot v_j)$
-associated to the entries of $v$ (matrix, or vector of vectors).
+attached to the entries of $v$ (matrix, or vector of vectors).
 
 \fun{GEN}{RgV_polint}{GEN X, GEN Y, long v} $X$ and $Y$ being two vectors of
 the same length, returns the polynomial $T$ in variable $v$ such that
@@ -10123,7 +10123,7 @@ $\kbd{FpXQ\_powers}(\kbd{x}, n)$ for some $n>1$.
 $q$ (symmetric matrix) at $x$ (column vector of compatible dimensions).
 
 \fun{GEN}{qfevalb}{GEN q, GEN x, GEN y} evaluates the polar bilinear form
-associated to the quadratic form $q$ (symmetric matrix) at $x$, $y$ (column
+attached to the quadratic form $q$ (symmetric matrix) at $x$, $y$ (column
 vectors of compatible dimensions).
 
 \fun{GEN}{hqfeval}{GEN q, GEN x} evaluates the Hermitian form $q$
@@ -10860,7 +10860,7 @@ of domain $n$, returns a table which matchs the set of elements of the
 subgroups against the index of the subgroups.
 
 \fun{long}{tableset_find_index}{GEN tbl, GEN set} searchs the set \kbd{set} in
-the table \kbd{tbl} and returns its associated index, or $0$ if not found.
+the table \kbd{tbl} and returns its attached index, or $0$ if not found.
 
 \fun{GEN}{groupelts_abelian_group}{GEN elts} where \var{elts} is the list of
 elements of an \emph{Abelian} small group, returns the corresponding
@@ -11033,8 +11033,8 @@ outputting to \kbd{stdout}, call \kbd{switchout(NULL)}.
 
 \subsec{PARI colors}
 In this section we describe the low-level functions used to implement GP's
-color scheme, associated to the \tet{colors} default. The following symbolic
-names are associated to gp's output strings:
+color scheme, attached to the \tet{colors} default. The following symbolic
+names are attached to gp's output strings:
 
 \item \tet{c_ERR} an error message
 
@@ -11059,14 +11059,14 @@ specifications. As long as this is in effect, the following strings are
 rendered in color, possibly in bold or underlined.
 
 \fun{void}{term_color}{long c} prints (as if using \tet{pari_puts}) the ANSI
-color escape sequence associated to output object \kbd{c}. If \kbd{c} is
+color escape sequence attached to output object \kbd{c}. If \kbd{c} is
 \tet{c_NONE}, revert to default printing style.
 
 \fun{void}{out_term_color}{PariOUT *out, long c} as \tet{term_color},
 using output context \kbd{out}.
 
 \fun{char*}{term_get_color}{char *s, long c} returns as a character
-string the ANSI color escape sequence associated to output object \kbd{c}.
+string the ANSI color escape sequence attached to output object \kbd{c}.
 If \kbd{c} is \tet{c_NONE}, the value used to revert to default printing
 style is returned. The argument \kbd{s} is either \kbd{NULL} (string
 allocated on the PARI stack), or preallocated storage (in which case, it must
@@ -11557,21 +11557,21 @@ entry with key $k$ in $h$, assuming \kbd{h->hash(k)} is \kbd{hash}. Return
 it if it one exists, and \kbd{NULL} if not.
 
 \fun{hashentry *}{hash_select}{hashtable *h, void *k, void *E, int (*select)(void *, hashentry *)} variant of \tet{hash_search}, useful when entries
-with identical keys are inserted: among the entries associated to
+with identical keys are inserted: among the entries attached to
 key $k$, return one satisfying the selection criterion (such that
 \kbd{select(E,e)} is non-zero), or \kbd{NULL} if none exist.
 
 \fun{hashentry*}{hash_remove}{hashtable *h, void *k} deletes an entry $(k,v)$
 with key $k$ from $h$ and return it. (Return \kbd{NULL} if none was found.)
-Only the linking structures are freed, memory associated to $k$ and $v$
+Only the linking structures are freed, memory attached to $k$ and $v$
 is not reclaimed.
 
 \fun{hashentry*}{hash_remove_select}{hashtable *h, void *k, void *E, int(*select)(void*, hashentry *)}
 a variant of \tet{hash_remove}, useful when entries with identical keys are
-inserted: among the entries associated to key $k$, return one satisfying the
+inserted: among the entries attached to key $k$, return one satisfying the
 selection criterion (such that \kbd{select(E,e)} is non-zero) and delete it,
 or \kbd{NULL} if none exist. Only the linking structures are freed, memory
-associated to $k$ and $v$ is not reclaimed.
+attached to $k$ and $v$ is not reclaimed.
 
 \fun{GEN}{hash_keys}{hashtable *h} return in a \typ{VECSMALL} the keys
 stored in hashtable $h$.
@@ -12145,7 +12145,7 @@ instruction request the iterator to terminate immediately.
 \section{Defaults}
 
 \fun{entree*}{pari_is_default}{const char *s} return the \kbd{entree}
-structure associated to $s$ if it is the name of a default, \kbd{NULL}
+structure attached to $s$ if it is the name of a default, \kbd{NULL}
 otherwise.
 
 \fun{GEN}{setdefault}{const char *s, const char *v, long flag} is the
@@ -12317,15 +12317,15 @@ or
 
 \item \kbd{msg} is a \kbd[NULL]-terminated array of messages or \kbd{NULL}
 (ignored). If \kbd{msg} is not \kbd{NULL}, \kbd{msg}$[i]$ contains
-a message associated to the value $i$ of the default. The last entry in the
-\kbd{msg} array is used as a message associated to all subsequent ones.
+a message attached to the value $i$ of the default. The last entry in the
+\kbd{msg} array is used as a message attached to all subsequent ones.
 
 The exact behavior and return value depends on \kbd{flag}:
 
 \item \tet{d_RETURN}: returns the new toggle value, as a \kbd{GEN}.
 
 \item \tet{d_ACKNOWLEDGE}: prints a message indicating the new value,
-possibly a message associated to it via the \kbd{msg} argument, and return
+possibly a message attached to it via the \kbd{msg} argument, and return
 \kbd{gnil}.
 
 \item other cases: print nothing and return \kbd{gnil}.

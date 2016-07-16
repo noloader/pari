@@ -1279,7 +1279,7 @@ check_root(mpqs_handle_t *h, long p, long start)
  * - choosing a new coefficient A  (selecting the prime factors to go into it,
  *   and doing the required bookkeeping in the FB entries, including clearing
  *   out the flags from the previous cohort), together with:
- * - doing the actual computations associated with a new A
+ * - doing the actual computations attached with a new A
  * - choosing a new B keeping the same A (very much simpler and quicker)
  * - and a small common bit that needs to happen in both cases.
  * As to the first item, the new scheme works as follows:

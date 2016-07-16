@@ -32,7 +32,7 @@ typedef struct Red {
   GEN (*red)(GEN x, struct Red*);
 } Red;
 
-typedef struct Cache { /* data associated to p^k */
+typedef struct Cache { /* data attached to p^k */
   GEN aall, tall;
   GEN cyc;
   GEN E;

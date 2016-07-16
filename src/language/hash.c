@@ -172,7 +172,7 @@ hash_search2(hashtable *h, void *k, ulong hash)
   }
   return NULL; /* not found */
 }
-/* returns entry associated with key k or NULL */
+/* returns entry attached with key k or NULL */
 hashentry *
 hash_search(hashtable *h, void *k)
 {

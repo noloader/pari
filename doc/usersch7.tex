@@ -38,7 +38,7 @@ We call a $5$-tuble as above an \kbd{ell5}; most functions require an
 data (usually dynamically computed as needed), depending on the base field.
 
 \fun{GEN}{ellinit}{GEN E, GEN D, long prec}, returns an \tet{ell} structure,
-associated to the elliptic curve $E$ : either an \kbd{ell5}, a pair $[a_4,a_6]$
+attached to the elliptic curve $E$ : either an \kbd{ell5}, a pair $[a_4,a_6]$
 or a \typ{STR} in Cremona's notation, e.g. \kbd{"11a1"}. The optional $D$
 (\kbd{NULL} to omit) describes the domain over which the curve is defined.
 
@@ -203,7 +203,7 @@ $[u,0,0,0]$ making $e$ integral. We have $u = 1/t$, $t > 1$.
 \fun{GEN}{ellQp_get_p}{GEN E} returns $p$
 
 \fun{long}{ellQp_get_prec}{GEN E} returns the default $p$-adic accuracy to
-which we must compute approximate results associated to $E$.
+which we must compute approximate results attached to $E$.
 
 \fun{GEN}{ellQp_get_zero}{GEN x} returns $O(p^n)$, where $n$ is the default
 $p$-adic accuracy as above.
@@ -273,7 +273,7 @@ included in the vector since it is frequently needed in computations.
 \subsubsec{Curves over $\C$} (This includes curves over $\Q$!)
 
 \fun{long}{ellR_get_prec}{GEN E} returns the default accuracy to
-which we must compute approximate results associated to $E$.
+which we must compute approximate results attached to $E$.
 
 \fun{GEN}{ellR_ab}{GEN E, long prec} returns $[a,b]$
 
@@ -833,7 +833,7 @@ integral. Returns $1$ if the curve is locally soluble over $\Q_p$, $0$
 otherwise.
 
 \fun{long}{nf_hyperell_locally_soluble}{GEN nf, GEN T, GEN pr} let $K$
-be a number field, associated to \kbd{nf}, \kbd{pr} a \var{prid} associated
+be a number field, attached to \kbd{nf}, \kbd{pr} a \var{prid} attached
 to some maximal ideal $\goth{p}$; assumes that $T\in\Z_K[X]$ is integral.
 Returns $1$ if the curve is locally soluble over $K_{\goth{p}}$.
 

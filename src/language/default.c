@@ -742,7 +742,7 @@ sd_prettyprinter(const char *v, long flag)
   return gnil;
 }
 
-/* compare entrees s1 s2 according to the associated function name */
+/* compare entrees s1 s2 according to the attached function name */
 static int
 compare_name(const void *s1, const void *s2) {
   entree *e1 = *(entree**)s1, *e2 = *(entree**)s2;
@@ -756,7 +756,7 @@ defaults_list(pari_stack *s)
   for (i = 0; i < functions_tblsz; i++)
     for (ep = defaults_hash[i]; ep; ep = ep->next) pari_stack_pushp(s, ep);
 }
-/* ep associated to function f of arity 2. Call f(v,flag) */
+/* ep attached to function f of arity 2. Call f(v,flag) */
 static GEN
 call_f2(entree *ep, const char *v, long flag)
 { return ((GEN (*)(const char*,long))ep->value)(v, flag); }

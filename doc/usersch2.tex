@@ -499,7 +499,7 @@ additions are slow.
     time = 441 ms.
     ? n = 1;           for (i=1,10^6, n++)
     time = 328 ms.
-@eprog\noindent The penalty associated with maintaining $p^k$ decreases
+@eprog\noindent The penalty attached with maintaining $p^k$ decreases
 steeply as $p$ increases (and updates become very rare). But \typ{INTMOD}s
 remain at least 25\% more efficient. (But they do not have denominators!)
 % n = 1+O(1009^2);   for (i=1,10^6, n++)
@@ -996,7 +996,7 @@ included in any computation, i.e.~\kbd{1+oo} is an error, not kbd{oo} again.
 \section{GP operators}\label{se:operators}
 
 \noindent Loosely speaking, an \idx{operator} is a function, usually
-associated to basic arithmetic operations, whose name contains only
+attached to basic arithmetic operations, whose name contains only
 non-alphanumeric characters. For instance \kbd{+} or \kbd{-}, but also
 \kbd{=} or \kbd{+=}, or even \kbd{[ ]} (the selection operator). As all
 functions, operators take arguments, and return a value; \emph{assignment}
@@ -1256,7 +1256,7 @@ rings of polynomials and power series, and explain the all-important concept
 of \emph{variable priority}. In the next \secref{se:scope}, we shall no
 longer consider only free variables, but adopt the viewpoint of computer
 programming and assign values to these symbols: (bound) variables are names
-associated to values in a given scope.
+attached to values in a given scope.
 
 \subsec{Variable names}\label{se:varname} A valid name starts with a letter,
 followed by any number of keyword characters: \kbd{\_} or alphanumeric
@@ -1457,7 +1457,7 @@ functions, study the example in \secref{se:bewarescope} then come back.
 
 \misctitle{Definitions} % rather not make it a section to allow for ??my
 
-A \emph{scope} is an enclosing context where names and values are associated.
+A \emph{scope} is an enclosing context where names and values are attached.
 A user's function body, the body of a loop, an individual command line, all
 define scopes; the whole program defines the \emph{global} scope. The
 argument of \tet{eval} is evaluated in the enclosing scope.
@@ -1471,7 +1471,7 @@ and may not be accessed from outside. Where to find the value is determined
 at compile time.
 
 \item\sidx{dynamic scoping} dynamic scoping: introducing a local variable,
-say \kbd{x}, pushes a new value on a stack associated to the name \kbd{x}
+say \kbd{x}, pushes a new value on a stack attached to the name \kbd{x}
 (possibly empty at this point), which is popped out when the control flow
 leaves the scope. Evaluating \kbd{x} in any context, possibly outside of the
 given block, always yields the top value on this dynamic stack.

@@ -10,7 +10,7 @@ Help: bnrL1(bnr, {H}, {flag=0}): bnr being output by bnrinit(,,1) and
  compute the term c(chi) and return [r(chi), c(chi)] where r(chi) is the
  order of L(s, chi) at s = 0, or if 1 then compute the value at s = 1 (and in
  this case, only for non-trivial characters), 2: if 0 then compute the value
- of the primitive L-function associated to chi, if 1 then compute the value
+ of the primitive L-function attached to chi, if 1 then compute the value
  of the L-function L_S(s, chi) where S is the set of places dividing the
  modulus of bnr (and the infinite places), 3: return also the characters.
 Doc: let \var{bnr} be the number field data output by \kbd{bnrinit(,,1)} and
@@ -18,14 +18,14 @@ Doc: let \var{bnr} be the number field data output by \kbd{bnrinit(,,1)} and
  ray class group corresponding to \var{bnr} (the trivial congruence subgroup
  if omitted). This function returns, for each \idx{character} $\chi$ of the ray
  class group which is trivial on $H$, the value at $s = 1$ (or $s = 0$) of the
- abelian $L$-function associated to $\chi$. For the value at $s = 0$, the
+ abelian $L$-function attached to $\chi$. For the value at $s = 0$, the
  function returns in fact for each $\chi$ a vector $[r_\chi, c_\chi]$ where
  $$L(s, \chi) = c \cdot s^r + O(s^{r + 1})$$
  \noindent near $0$.
 
  The argument \fl\ is optional, its binary digits
  mean 1: compute at $s = 0$ if unset or $s = 1$ if set, 2: compute the
- primitive $L$-function associated to $\chi$ if unset or the $L$-function
+ primitive $L$-function attached to $\chi$ if unset or the $L$-function
  with Euler factors at prime ideals dividing the modulus of \var{bnr} removed
  if set (that is $L_S(s, \chi)$, where $S$ is the
  set of infinite places of the number field together with the finite prime

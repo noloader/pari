@@ -4,7 +4,7 @@ C-Name: ellpadicheight0
 Prototype: GGLGDG
 Help:ellpadicheight(E, p,n, P,{Q}): E elliptic curve/Q, P in E(Q),
  p prime, n an integer; returns the cyclotomic p-adic heights of P.
- Resp. the value of the associated bilinear form at (P,Q).
+ Resp. the value of the attached bilinear form at (P,Q).
 Doc: cyclotomic $p$-adic height of the rational point $P$ on the elliptic curve
  $E$ (defined over $\Q$), given to $n$ $p$-adic digits.
  If the argument $Q$ is present, computes the value of the bilinear

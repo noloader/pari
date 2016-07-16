@@ -161,7 +161,7 @@ typedef union mpqs_FB_entry {
  * XX once we segment the FB, one bit marking the members of the first segment
  */
 
-/* -- multiplier k and associated quantities: More than two prime factors
+/* -- multiplier k and attached quantities: More than two prime factors
 * for k will be pointless in practice, thus capping them at two. */
 #define MPQS_MAX_OMEGA_K 2
 typedef struct mpqs_multiplier {
@@ -248,7 +248,7 @@ typedef struct mqps_per_A_prime {
  * (same A, new B) branch, which now loops over the outer array index,
  * reading just one field of each inner array each time through the FB
  * loop.  This doesn't really harm, but will improve one day when we do
- * segmented sieve arrays with the associated segmented FB-range accesses. */
+ * segmented sieve arrays with the attached segmented FB-range accesses. */
 #define MPQS_MAX_OMEGA_A 17
 typedef struct mpqs_inv_A_H {
   mpqs_uint32_t _i[MPQS_MAX_OMEGA_A - 1];
@@ -293,7 +293,7 @@ typedef struct mpqs_handle {
 #endif
   GEN N;                        /* given number to be factored */
   GEN kN;                       /* N with multiplier (on PARI stack) */
-  /* quantities associated with the current polynomial; all these also
+  /* quantities attached with the current polynomial; all these also
    * live in preallocated slots on the PARI stack: */
   GEN A;                        /* leading coefficient */
   GEN B;                        /* middle coefficient */
@@ -325,7 +325,7 @@ typedef struct mpqs_handle {
   long lp_bound;                /* cutoff for Large Primes */
   long digit_size_N;
   long digit_size_kN;
-  const mpqs_multiplier_t *_k;  /* multiplier k and associated quantities */
+  const mpqs_multiplier_t *_k;  /* multiplier k and attached quantities */
   double tolerance;             /* controls the tightness of the sieve */
   double dkN;                   /* - double prec. approximation of kN */
   double l2sqrtkN;              /* ~log2(sqrt(kN)) */
@@ -361,7 +361,7 @@ typedef struct mpqs_handle {
  * XXX   (or to keep things simple: a multiple of 32K)
  * XXX - we need index3_FB to seperate (smaller) primes used for normal
  * XXX   sieving from larger ones used with transaction buffers
- * XXX   (and the locate_A_range and associated logic must be changed to
+ * XXX   (and the locate_A_range and attached logic must be changed to
  * XXX   cap index2_FB below index3_FB instead of below size_of_FB)
  */
 typedef struct mpqs_parameterset {

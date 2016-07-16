@@ -3,10 +3,10 @@ Section: modular_symbols
 C-Name: msissymbol
 Prototype: lGG
 Help: msissymbol(M,s): M being a full modular symbol space, as given by msinit,
- check whether s is a modular symbol associated to M
+ check whether s is a modular symbol attached to M
 Doc:
  $M$ being a full modular symbol space, as given by \kbd{msinit},
- check whether $s$ is a modular symbol associated to $M$.
+ check whether $s$ is a modular symbol attached to $M$.
  \bprog
  ? M = msinit(7,8, 1); \\ M_8(Gamma_0(7))^+
  ? N = msnew(M)[1];

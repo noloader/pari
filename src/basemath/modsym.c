@@ -1976,7 +1976,7 @@ init_act_trivial(GEN W) { return zerocol(ms_get_nbE1(W)); }
 
 /* map from W1=Hom(Delta_0(N1),Q) -> W2=Hom(Delta_0(N2),Q), weight 2,
  * trivial action. v a Gl2_Q or a t_VEC of Gl2_Q (\sum v[i] in Z[Gl2(Q)]).
- * Return the matrix associated to the action of v. */
+ * Return the matrix attached to the action of v. */
 static GEN
 getMorphism_trivial(GEN WW1, GEN WW2, GEN v)
 {
@@ -2432,7 +2432,7 @@ get_Ec_r(GEN c, long k)
   gr = mat2(p, -v, q, u); /* g . (1:0) = (p:q) */
   return voo_act_Gl2Q(zm_to_ZM(sl2_inv(gr)), k);
 }
-/* returns the modular symbol associated to the cusp c := p/q via the rule
+/* returns the modular symbol attached to the cusp c := p/q via the rule
  * E_c(path from a to b in Delta_0) := E_c(b) - E_c(a), where
  * E_c(r) := 0 if r != c mod Gamma
  *           v_oo | gamma_r^(-1)

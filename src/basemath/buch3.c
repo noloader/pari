@@ -1030,7 +1030,7 @@ bound_unit_index(GEN bnf, GEN units)
   return gerepileuptoint(av, ground(gdiv(bnf_get_reg(bnf), x)));
 }
 
-/* Compute a square matrix of rank #beta associated to a family
+/* Compute a square matrix of rank #beta attached to a family
  * (P_i), 1<=i<=#beta, of primes s.t. N(P_i) = 1 mod p, and
  * (P_i,beta[j]) = 1 for all i,j */
 static void
@@ -1648,7 +1648,7 @@ rnfisabelian(GEN nf, GEN pol)
   }
   v = varn(Tnf);
   pol = RgX_nffix("rnfisabelian",Tnf,pol,1);
-  eq = nf_rnfeq(nf,pol); /* init L := K[x]/(pol), nf associated to K */
+  eq = nf_rnfeq(nf,pol); /* init L := K[x]/(pol), nf attached to K */
   C = gel(eq,1); setvarn(C, v); /* L = Q[t]/(C) */
   a = gel(eq,2); setvarn(a, v); /* root of K.pol in L */
   z = nfroots_split(C, QXX_QXQ_eval(pol, a, C));
@@ -1701,7 +1701,7 @@ rnfconductor(GEN bnf, GEN polrel)
 
 /* Given a number field bnf=bnr[1], a ray class group structure bnr, and a
  * subgroup H (HNF form) of the ray class group, compute [n, r1, dk]
- * associated to H. If flcond = 1, abort (return gen_0) if
+ * attached to H. If flcond = 1, abort (return gen_0) if
  * module is not the conductor If flrel = 0, compute only N(dk) instead of
  * the ideal dk proper */
 static GEN
@@ -2013,7 +2013,7 @@ get_discray(disc_data *D, GEN V, GEN z, long N)
   return get_NR1D(N, clhray, D->degk, nz, D->fadk, idealrel);
 }
 
-/* Given a list of bids and associated unit log matrices, return the
+/* Given a list of bids and attached unit log matrices, return the
  * list of discrayabs. Only keep moduli which are conductors. */
 GEN
 discrayabslist(GEN bnf, GEN L)

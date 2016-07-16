@@ -2329,7 +2329,7 @@ quadnorm(GEN q)
     return gadd(z, gmul(c, gsqr(u)));
   }
 }
-/* x a t_QUAD, return the associated discriminant */
+/* x a t_QUAD, return the attached discriminant */
 INLINE GEN
 quad_disc(GEN x)
 {

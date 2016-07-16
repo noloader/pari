@@ -10,10 +10,10 @@ Doc: writes (appends) to
  faster to save/load than a string expression, as would be produced by
  \tet{write}. The binary file format includes a magic number, so that such a
  file can be recognized and correctly input by the regular \tet{read} or \b{r}
- function. If saved objects refer to (polynomial) variables that are not
- defined in the new session, they will be displayed in a funny way (see
- \secref{se:kill}). Installed functions and history objects can not be saved
- via this function.
+ function. If saved objects refer to polynomial variables that are not
+ defined in the new session, they will be displayed as \kbd{t$n$} for some
+ integer $n$ (the attached variable number).
+ Installed functions and history objects can not be saved via this function.
 
  If $x$ is omitted, saves all user variables from the session, together with
  their names. Reading such a ``named object'' back in a \kbd{gp} session will set

@@ -2,13 +2,13 @@ Function: msfromcusp
 Section: modular_symbols
 C-Name: msfromcusp
 Prototype: GG
-Help: msfromcusp(M, c): returns the modular symbol associated to the cusp
+Help: msfromcusp(M, c): returns the modular symbol attached to the cusp
  c, where M is a modular symbol space of level N.
-Doc: returns the modular symbol associated to the cusp
- $c$, where $M$ is a modular symbol space of level $N$, associated to
+Doc: returns the modular symbol attached to the cusp
+ $c$, where $M$ is a modular symbol space of level $N$, attached to
  $G = \Gamma_0(N)$. The cusp $c$ in  $\P^1(\Q)/G$
  can be given either as \kbd{oo} ($=(1:0)$), as a rational number $a/b$
- ($=(a:b)$). The associated symbol maps the path $[b] - [a] \in
+ ($=(a:b)$). The attached symbol maps the path $[b] - [a] \in
  \text{Div}^0 (\P^1(\Q))$ to $E_c(b) - E_c(a)$, where $E_c(r)$ is
  $0$ when $r \neq c$ and $X^{k-2} \mid \gamma_r$ otherwise, where
  $\gamma_r \cdot r = (1:0)$. These symbol span the  Eisenstein subspace

@@ -1010,7 +1010,7 @@ is_smooth_enough(ulong *factors, long v)
 }
 
 
-/* Hurwitz class number of |D| assuming hclassno() and associated
+/* Hurwitz class number of |D| assuming hclassno() and attached
  * conversion to double costs much more than unegisfundamental(). */
 INLINE double
 hclassno_wrapper(long D, long h)

@@ -3,10 +3,10 @@ Section: modular_symbols
 C-Name: msfromell
 Prototype: GD0,L,
 Help: msfromell(E, {sign=0}): return the [M, x], where M is msinit(N,2)
- and x is the modular symbol in M associated to the elliptic curve E/Q.
+ and x is the modular symbol in M attached to the elliptic curve E/Q.
 Doc: Let $E/\Q$ be an elliptic curve of conductor $N$. For $\varepsilon =
  \pm1$, we define the (cuspidal, new) modular symbol $x^\varepsilon$ in
- $H^1_c(X_0(N),\Q)^\varepsilon$  associated to
+ $H^1_c(X_0(N),\Q)^\varepsilon$  attached to
  $E$. For all primes $p$ not dividing $N$ we have
  $T_p(x^\varepsilon) =  a_p x^\varepsilon$, where $a_p = p+1-\#E(\F_p)$.
 

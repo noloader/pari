@@ -725,7 +725,7 @@ recompute (and cache) the following data to \emph{current}
 \item \tet{area}: volume of the complex lattice defining $E$.
 
 \item \tet{roots} is a vector whose three components contain the complex
-roots of the right hand side $g(x)$ of the associated $b$-model $Y^2 = g(x)$.
+roots of the right hand side $g(x)$ of the attached $b$-model $Y^2 = g(x)$.
 If the roots are all real, they are ordered by decreasing value. If only one
 is real, it is the first component.
 
@@ -743,7 +743,7 @@ components), or $\Re(\omega_2) = \omega_1/2$
 
 \item \tet{eta} is a row vector containing the quasi-periods $\eta_1$ and
 $\eta_2$ such that $\eta_i = 2\zeta(\omega_i/2)$, where $\zeta$ is the
-Weierstrass zeta function associated to the period lattice; see
+Weierstrass zeta function attached to the period lattice; see
 \tet{ellzeta}. In particular, the Legendre relation holds: $\eta_2\omega_1 -
 \eta_1\omega_2 = 2\pi i$.
 
@@ -774,7 +774,7 @@ particular, we have $j(q) = j(E)$.
 \item \tet{p} is the residual characteristic
 
 \item \tet{roots} is a vector with a single component, equal to the $p$-adic
-root $e_1$ of the right hand side $g(x)$ of the associated $b$-model $Y^2
+root $e_1$ of the right hand side $g(x)$ of the attached $b$-model $Y^2
 = g(x)$. The point $(e_1,0)$ corresponds to $-1 \in \bar{\Q}_p^*/q^\Z$
 under the Tate parametrization.
 
@@ -847,7 +847,7 @@ Given a sequence $a = (a_n)_{n\geq 1}$ of complex numbers (such that $a_1 = 1$),
 a positive \emph{conductor} $N \in \Z$, and a \emph{gamma factor}
 $\gamma_A$ as above, we consider the Dirichlet series
 $$ L(a,s) = \sum_{n\geq 1} a_n n^{-s} $$
-and the associated completed function
+and the attached completed function
 $$ \Lambda(a,s) = N^{s/2}\gamma_A(s) \cdot L(a,s). $$
 
 Such a datum defines an \emph{$L$-function} if it satisfies the three
@@ -861,7 +861,7 @@ $\Re(s) > k_1 + 1$.
 whole complex plane with finitely many poles.
 
 \item [Functional equation] There exist an integer $k$, a complex number
-$\epsilon$ (usually of modulus~$1$), and an associated sequence $a^*$
+$\epsilon$ (usually of modulus~$1$), and an attached sequence $a^*$
 defining both an $L$-function $L(a^*,s)$ satisfying the above two assumptions
 and a completed function $\Lambda(a^*,s) = N^{s/2}\gamma_A(s) \cdot
 L(a^*,s)$, such that
@@ -905,7 +905,7 @@ increases by increments of 64 bits, i.e. 19 decimal digits at a time.
 
 \subsec{Theta functions}
 
-Given an $L$-function as above, we define an associated theta function
+Given an $L$-function as above, we define an attached theta function
 via Mellin inversion: for any positive real $t > 0$, we let
 $$ \theta(a,t) := \dfrac{1}{2\pi i}\int_{\Re(s) = c} t^{-s} \Lambda(s)\, ds $$
 where $c$ is any positive real number $c > k_1+1$ such that $c + \Re(a) > 0$
@@ -959,7 +959,7 @@ prefix \kbd{lfun}. They take as first argument either an \kbd{Lmath}, an
 \kbd{Ldata}, or an \kbd{Linit}. If a single value is to be computed,
 this makes no difference, but when many values are needed (e.g. for plots or
 when searching for zeros), one should first construct an \kbd{Linit}
-associated to the search range and use it in all subsequent calls.
+attached to the search range and use it in all subsequent calls.
 If you attempt to use an \kbd{Linit} outside the range for which it was
 initialized, a warning is issued, because the initialization is
 performed again, a major inefficiency:
@@ -1025,7 +1025,7 @@ More generally, let $(\Z/N\Z)^* = \oplus (\Z/d_i\Z) g_i$ be given via a
 $g_i$). A \tev{character} $\chi$ on $G$ is given by a row vector
 $v = [a_1,\ldots,a_n]$ such that $\chi(\prod g_i^{n_i}) = \exp(2\pi i\sum a_i
 n_i / d_i)$. The pair $[\var{bid}, v]$ encodes the \emph{primitive} character
-associated to $\chi$.
+attached to $\chi$.
 
 \item in fact, this construction $[\var{bid}, m]$ describing a character
 is more general: $m$ is also allowed to be a Conrey index as seen above,
@@ -1050,7 +1050,7 @@ generators: the $d_i$ are given by \kbd{K.cyc} and the $g_i$ by \kbd{K.gen}.
 A \tev{character} $\chi$ on the ray class group is given by a row vector
 $v = [a_1,\ldots,a_n]$ such that $\chi(\prod g_i^{n_i}) = \exp(2\pi i\sum
 a_i n_i / d_i)$. The pair $[\var{bnr}, v]$ encodes the \emph{primitive}
-character associated to $\chi$.
+character attached to $\chi$.
 
 \bprog
 ? K  = bnfinit(x^2-60);
@@ -1115,7 +1115,7 @@ $$ f(\tau) := \prod_m \eta(m\tau)^{r_m}. $$
 It is currently assumed that $f$ is a self-dual cuspidal form on
 $\Gamma_0(N)$ for some $N$.
 For instance, the $L$-function $\sum \tau(n) n^{-s}$
-associated to Ramanujan's $\Delta$ function is encoded as follows
+attached to Ramanujan's $\Delta$ function is encoded as follows
 \bprog
 ? L = lfunetaquo(Mat([1,24]));
 ? lfunan(L, 100)  \\ first 100 values of tau(n)
@@ -1161,7 +1161,7 @@ and allows to compute modular forms for $G$.
 Currently, we only support the groups $\Gamma_0(N)$ ($N > 1$ an integer)
 and the representations $V_k = \Q[X,Y]_{k-2}$ ($k \geq 2$ an integer) over
 $\Q$. We represent a space of modular symbols by an \var{ms} structure,
-created by the function \tet{msinit}. It encodes basic data associated to the
+created by the function \tet{msinit}. It encodes basic data attached to the
 space: chosen $\Z[G]$-generators $(g_i)$ for $\Delta$ (and relations among
 those) and an $F$-basis of $M$. A modular symbol $s$ is thus given either in
 terms of this fixed basis, or as a collection of values $s(g_i)$
@@ -1183,24 +1183,24 @@ section \secref{se:arithmetic} (Arithmetic functions).
 \subsec{Number field structures}
 
 Let $K = \Q[X] / (T)$ a number field, $\Z_K$ its ring of integers, $T\in\Z[X]$
-is monic. Three basic number field structures can be associated to $K$ in
+is monic. Three basic number field structures can be attached to $K$ in
 GP:
 
 \item $\tev{nf}$ denotes a number field, i.e.~a data structure output by
-\tet{nfinit}. This contains the basic arithmetic data associated to the
+\tet{nfinit}. This contains the basic arithmetic data attached to the
 number field: signature, maximal order (given by a basis \kbd{nf.zk}),
 discriminant, defining polynomial $T$, etc.
 
 \item $\tev{bnf}$ denotes a ``Buchmann's number field'', i.e.~a
 data structure output by \tet{bnfinit}. This contains
 $\var{nf}$ and the deeper invariants of the field: units $U(K)$, class group
-$\Cl(K)$, as well as technical data required to solve the two associated
+$\Cl(K)$, as well as technical data required to solve the two attached
 discrete logarithm problems.
 
 \item $\tev{bnr}$ denotes a ``ray number field'', i.e.~a data structure
 output by \kbd{bnrinit}, corresponding to the ray class group structure of
 the field, for some modulus $f$. It contains a \var{bnf}, the modulus
-$f$, the ray class group $\Cl_f(K)$ and data associated to
+$f$, the ray class group $\Cl_f(K)$ and data attached to
 the discrete logarithm problem therein.
 
 \subsec{Algebraic numbers and ideals}
@@ -1271,9 +1271,9 @@ $g_i$. Note that the determinant of that matrix is equal to the index $(G:H)$.
 
 \subsec{Relative extensions}
 
-We now have a look at data structures associated to relative extensions
+We now have a look at data structures attached to relative extensions
 of number fields $L/K$, and to projective $\Z_K$-modules. When defining a
-relative extension $L/K$, the $\var{nf}$ associated to the base field $K$
+relative extension $L/K$, the $\var{nf}$ attached to the base field $K$
 must be defined by a variable having a lower priority (see
 \secref{se:priority}) than the variable defining the extension. For example,
 you may use the variable name $y$ to define the base field $K$, and $x$ to
@@ -1282,8 +1282,8 @@ define the relative extension $L/K$.
 \subsubsec{Basic definitions}\label{se:ZKmodules} %GPHELPskip
 
 \item $\tev{rnf}$ denotes a relative number field, i.e.~a data structure
-output by \kbd{rnfinit}, associated to the extension $L/K$. The \var{nf}
-associated to be base field $K$ is \kbd{rnf.nf}.
+output by \kbd{rnfinit}, attached to the extension $L/K$. The \var{nf}
+attached to be base field $K$ is \kbd{rnf.nf}.
 
 \item A \emph{relative matrix} is an $m\times n$ matrix whose entries are
 elements of $K$, in any form. Its $m$ columns $A_j$ represent elements
@@ -1344,7 +1344,7 @@ on the non-complex places of $K$. In PARI terms, this means either an
 ordinary ideal $I$ as above (no Archimedean component), or a pair $[I,a]$,
 where $a$ is a vector with $r_1$ $\{0,1\}$-components, corresponding to the
 infinite part of the divisor. More precisely, the $i$-th component of $a$
-corresponds to the real embedding associated to the $i$-th real root of
+corresponds to the real embedding attached to the $i$-th real root of
 \kbd{K.roots}. (That ordering is not canonical, but well defined once a
 defining polynomial for $K$ is chosen.) For instance, \kbd{[1, [1,1]]} is a
 modulus for a real quadratic field, allowing ramification at any of the two
@@ -1547,7 +1547,7 @@ direct algorithm due to Belabas-Diaz-Friedman is used to check the condition,
 assuming GRH. The default values are $c_1 = c_2 = 0$. When $c_1$ is equal to
 $0$ the algorithm takes it equal to $c_2$.
 
-$\var{nrpid}$ is the maximal number of small norm relations associated to each
+$\var{nrpid}$ is the maximal number of small norm relations attached to each
 ideal in the factor base. Set it to $0$ to disable the search for small norm
 relations. Otherwise, reasonable values are between 4 and 20. The default is
 4.
@@ -1768,12 +1768,12 @@ independently, and can then be physically ORed on a single window at
 user-defined positions. These windows are numbered from 0 to 15, and must be
 initialized before being used by the function \kbd{plotinit}, which specifies
 the height and width of the virtual window (called a \var{rectwindow} in the
-sequel). At all times, a virtual cursor (initialized at $[0,0]$) is associated
+sequel). At all times, a virtual cursor (initialized at $[0,0]$) is attached
 to the window, and its current value can be obtained using the function
 \kbd{plotcursor}.
 
 A number of primitive graphic objects (called \var{rect} objects) can then
-be drawn in these windows, using a default color associated to that window
+be drawn in these windows, using a default color attached to that window
 (which can be changed using the \kbd{plotcolor} function) and only the part
 of the object which is inside the window will be drawn, with the exception of
 polygons and strings which are drawn entirely. The ones sharing the prefix

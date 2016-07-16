@@ -1360,7 +1360,7 @@ what I am talking about, please try some examples, it's not so hard to figure
 out.) We took pain above to factor a polynomial in the variable $x$ over a
 finite field defined by a polynomial in $t$, even though they were apparently
 one and the same. There is a crucial rule in all routines involving relative
-extensions: the variable associated to the base field is required to have
+extensions: the variable attached to the base field is required to have
 lower priority than the variables of polynomials whose coefficients are taken
 in that base field. Have a look at the section on \emph{Variable priorities}
 in the user's manual (see ``The GP programming language''). A simpler way
@@ -1492,7 +1492,7 @@ standard reduced form, so type
 \bprog
   e = ellminimalmodel(e0)
 @eprog\noindent which
-gives the \kbd{ell} structure associated with the standard model,
+gives the \kbd{ell} structure attached with the standard model,
 exactly as if we had used \kbd{ellinit} on a reduced equation. For
 some related data, type
 \bprog
@@ -2505,7 +2505,7 @@ $\Z_K^*$ to products of simpler groups like $\Z^n$ or $\Z/d\Z$. We shall do
 exactly that in the next section.
 
 Before that, let us mention another famous (but in fact, simpler)
-\emph{discrete logarithm} problem, namely the one associated to the
+\emph{discrete logarithm} problem, namely the one attached to the
 invertible elements modulo an ideal: $(\Z_K / I)^*$. Just use \kbd{idealstar}
 (this is an \kbd{init} function) and \kbd{ideallog}.
 
@@ -2641,11 +2641,11 @@ position of \kbd{pr} in the class group. \smallskip
 \subsec{Class field theory, \kbd{bnr}}
 
 We now survey quickly some class field theoretic routines. We must first
-initialize a Buchmann Number Ray, or \kbd{bnr}, structure, associated to a
+initialize a Buchmann Number Ray, or \kbd{bnr}, structure, attached to a
 \kbd{bnf} base field and a modulus. Let's keep $K$, and try a finite modulus
 ${\goth f} = 7\Z_K$. (See the manual for how to include infinite places in
 the modulus.) Since $K$ will now become a base field over which we want to
-build relative extensions, the associated \kbd{bnf} needs to have variables
+build relative extensions, the attached \kbd{bnf} needs to have variables
 of lower priority than the polynomials defining the extensions. Fortunately,
 we already took care that, but it would have been easy to deal with the
 problem now (as easy as \kbd{bnf = subst(bnf, x, y)}). Then type
@@ -2654,7 +2654,7 @@ problem now (as easy as \kbd{bnf = subst(bnf, x, y)}). Then type
   bnr.cyc
 @eprog\noindent
 tells us the ray class group modulo ${\goth f}$ is isomorphic to
-$\Z/24\Z \times \Z/6\Z \times \Z/2\Z $. The associated generators are
+$\Z/24\Z \times \Z/6\Z \times \Z/2\Z $. The attached generators are
 \kbd{bnr.gen}.  Just as a \kbd{bnf} contained an \kbd{nf}, a \kbd{bnr}
 contains a \kbd{bnf} (hence an \kbd{nf}), namely \kbd{bnr.bnf}. Here
 \kbd{bnr.clgp} refers to the ray class group, while \kbd{bnr.bnf.clgp} refers
@@ -2675,7 +2675,7 @@ $2$ for instance?
 \kbd{L0}, resp.~\kbd{L} is the list of those subgroups of the full ray class
 group mod $7$, whose index is $2$, and whose conductor is $7$,
 resp.~arbitrary. (Subgroups are given by a matrix of generators, in terms of
-\kbd{bnr.gen}.) \kbd{L0} has $2$ elements, associated to the $2$ extensions
+\kbd{bnr.gen}.) \kbd{L0} has $2$ elements, attached to the $2$ extensions
 we already know. \kbd{L} has $7$ elements, the $2$ from \kbd{L0}, and
 $5$ new ones:
 \bprog
@@ -2694,7 +2694,7 @@ with trivial conductor, but we can also use
   rnfkummer(bnr, L1[3]) \\ @com pick the subgroup with trivial conductor!
 @eprog\noindent
 directly which outputs the (unique by Takagi's theorem) class field
-associated to the subgroup \kbd{L1[3]}. In fact, it is of the form
+attached to the subgroup \kbd{L1[3]}. In fact, it is of the form
 $K(\sqrt{-\epsilon})$. We can check this directly:
 \bprog
   rnfconductor(bnf, x^2 + bnf.fu[1])

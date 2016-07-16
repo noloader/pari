@@ -2588,7 +2588,7 @@ bnrstark(GEN bnr, GEN subgrp, long prec)
  * If flag & 2: compute the value of the L-function L_S(s, chi) where S is the
  *   set of places dividing the modulus of bnr (and the infinite places),
  * else
- *   compute the value of the primitive L-function associated to chi,
+ *   compute the value of the primitive L-function attached to chi,
  * If flag & 4: return also the character */
 GEN
 bnrL1(GEN bnr, GEN subgp, long flag, long prec)

@@ -4600,7 +4600,7 @@ scanD0(long *tablelen, long *minD, long maxD, long maxh, long L0)
 
 
 /*
- * Populate Ds with discriminants (and associated data) that can be
+ * Populate Ds with discriminants (and attached data) that can be
  * used to calculate the modular polynomial of level L and invariant
  * inv.  Return the number of discriminants found.
  */

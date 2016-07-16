@@ -11,14 +11,14 @@ Description:
 Doc: $\var{bnf}$ is as
  output by \kbd{bnfinit} (including fundamental units), $f$ is a modulus,
  initializes data linked to the ray class group structure corresponding to
- this module, a so-called \kbd{bnr} structure. One can input the associated
+ this module, a so-called \kbd{bnr} structure. One can input the attached
  \var{bid} with generators for $f$ instead of the module itself, saving some
  time. (As in \tet{idealstar}, the finite part of the conductor may be given
  by a factorization into prime ideals, as produced by \tet{idealfactor}.)
 
  The following member functions are available
  on the result: \kbd{.bnf} is the underlying \var{bnf},
- \kbd{.mod} the modulus, \kbd{.bid} the \kbd{bid} structure associated to the
+ \kbd{.mod} the modulus, \kbd{.bid} the \kbd{bid} structure attached to the
  modulus; finally, \kbd{.clgp}, \kbd{.no}, \kbd{.cyc}, \kbd{.gen} refer to the
  ray class group (as a finite abelian group), its cardinality, its elementary
  divisors, its generators (only computed if $\fl = 1$).

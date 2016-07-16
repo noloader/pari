@@ -49,7 +49,7 @@ Doc: initializes the \var{tnf} corresponding to $P$, a non-constant
  \misctitle{Note} It is sometimes possible to circumvent the above, and in any
  case obtain an important speed-up, if you can write $P = Q(x^d)$ for some $d >
  1$ and $Q$ still satisfying the \kbd{thueinit} hypotheses. You can then solve
- the equation associated to $Q$ then eliminate all solutions $(x,y)$ such that
+ the equation attached to $Q$ then eliminate all solutions $(x,y)$ such that
  either $x$ or $y$ is not a $d$-th power.
  \bprog
  ? thue(x^4+1, 10^40); \\ stopped after 10 hours

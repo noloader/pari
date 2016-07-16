@@ -15,7 +15,7 @@ Doc: $\var{nf}$ is a number field,
  that $0\le x_i<d_i$ and
  $$x \equiv \prod_i g_i^{x_i} \pmod{\ ^*D}\enspace.$$
  Note that when the support of \kbd{D} contains places at infinity, this
- congruence implies also sign conditions on the associated real embeddings.
+ congruence implies also sign conditions on the attached real embeddings.
  See \tet{znlog} for the limitations of the underlying discrete log algorithms.
 
  When \var{nf} is omitted, take it to be the rational number field. In that

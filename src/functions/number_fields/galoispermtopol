@@ -8,7 +8,7 @@ Help: galoispermtopol(gal,perm): gal being a Galois group as output by
 Doc: \var{gal} being a
  Galois group as output by \kbd{galoisinit} and \var{perm} a element of
  $\var{gal}.group$, return the polynomial defining the Galois
- automorphism, as output by \kbd{nfgaloisconj}, associated with the
+ automorphism, as output by \kbd{nfgaloisconj}, attached with the
  permutation \var{perm} of the roots $\var{gal}.roots$. \var{perm} can
  also be a vector or matrix, in this case, \kbd{galoispermtopol} is
  applied to all components recursively.

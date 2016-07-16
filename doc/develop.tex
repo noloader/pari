@@ -49,7 +49,7 @@ function of arity $0$.
 A true closure is a GP function defined in a non-empty lexical context.
 
 An inline closure is a closure that appears in the code without
-the preceding \kbd{->} token. They are generally associated to the prototype
+the preceding \kbd{->} token. They are generally attached to the prototype
 code 'E' and 'I'. Inline closures can only exist as data of other closures,
 see below.
 
@@ -969,7 +969,7 @@ to allow further calls to \tet{mt_queue_get}.  If \tet{mt_queue_get} sets
 \kbd{pending} to $0$, then no more tasks are pending and it is safe to call
 \tet{mt_queue_end}.
 
-The parameter \kbd{taskid} can be chosen arbitrarily. It is associated to a
+The parameter \kbd{taskid} can be chosen arbitrarily. It is attached to a
 task but is not available to \kbd{worker}.  It provides an efficient way to
 match a tasks and results. It is ignored when the parameter \kbd{task} is
 \kbd{NULL}.

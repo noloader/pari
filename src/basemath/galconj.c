@@ -1084,7 +1084,7 @@ fixedfieldinclusion(GEN O, GEN PL)
   return S;
 }
 
-/* Polynomial associated to a vector of conjugates. Not stack clean */
+/* Polynomial attached to a vector of conjugates. Not stack clean */
 static GEN
 vectopol(GEN v, GEN M, GEN den , GEN mod, GEN mod2, long x)
 {

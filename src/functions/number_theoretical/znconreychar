@@ -2,11 +2,11 @@ Function: znconreychar
 Section: number_theoretical
 C-Name: znconreychar
 Prototype: GG
-Help: znconreychar(bid,m): Dirichlet character associated to m in (Z/qZ)*
+Help: znconreychar(bid,m): Dirichlet character attached to m in (Z/qZ)*
  in Conrey's notation, where bid is idealstar(,q)
-Doc: Given a \var{bid} associated to $(\Z/q\Z)^*$ (as per
+Doc: Given a \var{bid} attached to $(\Z/q\Z)^*$ (as per
  \kbd{bid = idealstar(,q)}), this function returns the Dirichlet character
- associated to $m \in (\Z/q\Z)^*$ via Conrey's logarithm, which
+ attached to $m \in (\Z/q\Z)^*$ via Conrey's logarithm, which
  establishes a ``canonical'' bijection between $(\Z/q\Z)^*$ and its dual.
 
  Let $q = \prod_p p^{e_p}$ be the factorization of $q$ into distinct primes.
@@ -43,7 +43,7 @@ Doc: Given a \var{bid} associated to $(\Z/q\Z)^*$ (as per
  characters.)
 
  The Conrey logarithm of $m$ is the vector $(m_p)_{p\in S_q}$, obtained
- via \tet{znconreylog}. The Conrey character $\chi_q(m,\cdot)$  associated to
+ via \tet{znconreylog}. The Conrey character $\chi_q(m,\cdot)$  attached to
  $m$ mod $q$ maps
  each $g_p$, $p\in S_q$ to $e(m_p / o_p)$, where $e(x) = \exp(2i\pi x)$.
  This function returns the Conrey character expressed in the standard PARI
