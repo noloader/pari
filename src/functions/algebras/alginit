@@ -32,7 +32,7 @@ Doc: initialize the central simple algebra defined by data $B$, $C$ and
  @eprog represents (in a complicated way) the quaternion algebra $(-1,-1)_\Q$.
  See below for a simpler solution.
 
- \item (cyclic algebra) $B$ is an \kbd{rnf} structure attached with a cyclic
+ \item (cyclic algebra) $B$ is an \kbd{rnf} structure attached to a cyclic
  number field extension $L/K$ of degree $d$, $C$ is a \typ{VEC}
  \kbd{[sigma,b]} with 2 components: \kbd{sigma} is a \typ{POLMOD} representing
  an automorphism generating $\text{Gal}(L/K)$, $b$ is an element in $K^*$. This
@@ -46,7 +46,7 @@ Doc: initialize the central simple algebra defined by data $B$, $C$ and
  $\text{Gal}(L/\Q)$.
 
  \item (quaternion algebra, special case of the above) $B$ is an \kbd{nf}
- structure attached with a number field $K$, $C = [a,b]$ is a vector
+ structure attached to a number field $K$, $C = [a,b]$ is a vector
  containing two elements of $K^*$ with $a$ not a square in $K$, returns the quaternion algebra $(a,b)_K$.
  The variable $v$ (\kbd{'x} by default) must have higher priority than the
  variable of $K$\kbd{.pol} and is used to represent elements in the splitting
@@ -56,7 +56,7 @@ Doc: initialize the central simple algebra defined by data $B$, $C$ and
  @eprog
 
  \item (algebra/$K$ defined by local Hasse invariants)
- $B$ is an \kbd{nf} structure attached with a number field $K$,
+ $B$ is an \kbd{nf} structure attached to a number field $K$,
  $C = [d, [\kbd{PR},h_f], h_i]$ is a triple
  containing an integer $d > 1$, a pair $[\kbd{PR}, h_f]$ describing the
  Hasse invariants at finite places, and $h_i$ the Hasse invariants
@@ -68,7 +68,7 @@ Doc: initialize the central simple algebra defined by data $B$, $C$ and
  (\kbd{prid} structures), and $h_f$ is a vector of the same length giving the
  local invariants at those maximal ideals. The invariants at infinite real
  places are indexed by the real roots $K$\kbd{.roots}: if the Archimedean
- place $v$ is attached with the $j$-th root, the value of
+ place $v$ is attached to the $j$-th root, the value of
  $h_v$ is given by $h_i[j]$, must be $0$ or $1/2$ (or~$d/2$ modulo~$d$), and
  can be nonzero only if~$d$ is even.
 

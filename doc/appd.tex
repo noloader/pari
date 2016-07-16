@@ -51,7 +51,7 @@ argument \kbd{arg}, with the PARI thread data \kbd{pth}.
 As above but the stack cannot grow beyond \kbd{s}.
 
 \fun{void}{pari_thread_free}{struct pari_thread *pth}
-Free the PARI stack attached with the PARI thread data \kbd{pth}. This
+Free the PARI stack attached to the PARI thread data \kbd{pth}. This
 is called after the child thread terminates, i.e.~after
 \tet{pthread_join} in the parent. Any \kbd{GEN} objects returned by the
 child in the thread stack need to be saved before running this command.

@@ -293,7 +293,7 @@ typedef struct mpqs_handle {
 #endif
   GEN N;                        /* given number to be factored */
   GEN kN;                       /* N with multiplier (on PARI stack) */
-  /* quantities attached with the current polynomial; all these also
+  /* quantities attached to the current polynomial; all these also
    * live in preallocated slots on the PARI stack: */
   GEN A;                        /* leading coefficient */
   GEN B;                        /* middle coefficient */

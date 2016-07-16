@@ -499,9 +499,10 @@ additions are slow.
     time = 441 ms.
     ? n = 1;           for (i=1,10^6, n++)
     time = 328 ms.
-@eprog\noindent The penalty attached with maintaining $p^k$ decreases
-steeply as $p$ increases (and updates become very rare). But \typ{INTMOD}s
-remain at least 25\% more efficient. (But they do not have denominators!)
+@eprog\noindent The penalty attached to maintaining $p^k$ decreases
+steeply as $p$ increases (and updates become rare). But \typ{INTMOD}s
+remain at least 25\% more efficient. (On the other hand, they do not allow
+denominators!)
 % n = 1+O(1009^2);   for (i=1,10^6, n++)
 % n = Mod(1,1009^2); for (i=1,10^6, n++)
 
