@@ -1399,23 +1399,25 @@ vecan_eta(GEN eta, long L)
 
 /* Check if correct eta quotient. Set canonical form columns */
 static void
-etaquocheck(GEN eta, GEN *pdivN, GEN *pRM)
+etaquocheck(GEN eta, GEN *pdivN, GEN *pRM, GEN *pN)
 {
-  GEN M, E, divN, RM;
-  long lM, i, ld, j;
+  GEN M, E, divN, RM, N;
+  long lM, ld, j;
   if (typ(eta) != t_MAT || lg(eta) != 3 || !RgM_is_ZM(eta))
-    pari_err_TYPE("etaquocheck", eta);
+    pari_err_TYPE("lfunetaquo", eta);
+  eta = famat_reduce(eta);
   M = gel(eta, 1); lM = lg(M);
   E = gel(eta, 2);
-  *pdivN = divN = divisors(glcm0(M, NULL));
-  settyp(divN, t_COL); ld = lg(divN);
+  *pN = N = glcm0(M, NULL);
+  *pdivN = divN = divisors(N);
+  settyp(divN, t_COL);
+  ld = lg(divN);
   *pRM = RM = cgetg(ld, t_COL);
-  for (i = 1; i < ld; ++i)
+  for (j = 1; j < lM; j++)
   {
-    GEN S = gen_0, m = gel(divN, i);
-    for (j = 1; j < lM; ++j)
-      if (equalii(gel(M,j), m)) S = addii(S, gel(E,j));
-    gel(RM,i) = S;
+    GEN m = gel(M,j), e = gel(E,j);
+    long i = ZV_search(divN, m);
+    gel(RM,i) = e;
   }
 }
 
@@ -1427,12 +1429,12 @@ etaquocheck(GEN eta, GEN *pdivN, GEN *pRM)
  * 3: selfdual cuspidal
  * Sets conductor, modular weight, canonical matrix */
 static long
-etaquotype(GEN mateta, GEN *pN, long *pw, GEN *pcan)
+etaquotype(GEN eta, GEN *pN, long *pw, GEN *pcan)
 {
   GEN divN, RM, S, T, U, N, M;
   long ld, i, j, fl;
 
-  etaquocheck(mateta, &divN, &RM);
+  etaquocheck(eta, &divN, &RM, &N);
   *pcan = mkmat2(divN, RM);
   *pw = 0;
   *pN = gen_1;
@@ -1448,7 +1450,6 @@ etaquotype(GEN mateta, GEN *pN, long *pw, GEN *pcan)
     U = gadd(U, gdiv(rm, m));
   }
   if (umodiu(S, 24) || umodiu(T, 2)) return -1;
-  N = gel(divN, ld-1);
   *pw = itos(shifti(T,-1));
   *pN = M = lcmii(N, denom(gdivgs(U, 24)));
   for (i = 1, fl = 1; i < ld; i++)
@@ -1481,10 +1482,6 @@ lfunetaquo(GEN eta)
   pari_sp ltop = avma;
   GEN Ldata, N, can;
   long k;
-  if (typ(eta) != t_MAT || !RgM_is_ZM(eta))
-    pari_err_TYPE("lfunetaquo", eta);
-  if (lg(eta) != 3)
-    pari_err_TYPE("lfunetaquo [not a factorization]", eta);
   switch(etaquotype(eta, &N, &k, &can))
   {
     case 3: break;
