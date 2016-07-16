@@ -4094,7 +4094,6 @@ nflocalred_section7(GEN e, GEN nf, GEN modP, GEN pi, GEN pv, long vD, GEN ch)
 }
 
 /* Dedicated to John Tate for his kind words */
-
 static GEN
 nflocalred_23(GEN e, GEN P, long *ap)
 {
@@ -4107,11 +4106,11 @@ nflocalred_23(GEN e, GEN P, long *ap)
   pi = nfinv(nf, pv); /* local uniformizer */
   pi = basistoalg(nf, pi);
   ch = init_ch();
+  D = ell_get_disc(e);
+  vD = nfval(nf,D,P);
   *ap = 0;
   while(1)
   {
-    D = ell_get_disc(e);
-    vD = nfval(nf,D,P);
     if (vD==0)
       return localred_result(0,1,1,ch);
     else
@@ -4222,6 +4221,7 @@ nflocalred_23(GEN e, GEN P, long *ap)
       return localred_result(vD-8,-2,1,ch); /* II* */
     /* 11 */
     E_gcompose_u(&ch, &e, pi);
+    vD -= 12;
   }
 }
 
@@ -4485,7 +4485,7 @@ min_set_3(ellmin_t *M, GEN E, long d)
 }
 
 static long
-is_minimal_ap_small(GEN E, ulong p, int *good_red)
+Qellap_u(GEN E, ulong p, int *good_red)
 {
   long vc6, vD, d = get_vp_u_small(E, p, &vc6, &vD);
   if (vD) /* bad reduction */
@@ -4527,11 +4527,11 @@ is_minimal_ap_small(GEN E, ulong p, int *good_red)
 }
 
 static GEN
-is_minimal_ap(GEN E, GEN p, int *good_red)
+Qellap(GEN E, GEN p, int *good_red)
 {
   GEN a4,a6, c4, c6, D;
   long vc6, vD, d;
-  if (lgefint(p) == 3) return stoi( is_minimal_ap_small(E, p[2], good_red) );
+  if (lgefint(p) == 3) return stoi( Qellap_u(E, p[2], good_red) );
   c6 = ell_get_c6(E);
   D = ell_get_disc(E);
   vc6 = Z_pval(c6,p); vD = Z_pval(D,p);
@@ -4573,10 +4573,10 @@ doellcard(GEN E)
 }
 
 static GEN
-nfis_minimal_ap(GEN E, GEN P, int *good_red)
+nfellap(GEN E, GEN P, int *good_red)
 {
-  GEN a4,a6, c4, c6, D, modP, p, T, card, piinv = NULL, nf = ellnf_get_nf(E);
-  long vc6, vD, d;
+  GEN a4,a6, c4, D, modP, p, T, card, nf = ellnf_get_nf(E);
+  long vD;
 
   modP = nf_to_Fq_init(nf,&P,&T,&p);
   D = ell_get_disc(E);
@@ -4586,8 +4586,8 @@ nfis_minimal_ap(GEN E, GEN P, int *good_red)
   if (cmpiu(p, 3) <= 0)
   {
     long ap;
-    GEN L = nflocalred_23(E,P,&ap);
-    if (!equali1(gel(L,2))) { *good_red = 0; return stoi(ap); }
+    GEN L = nflocalred_23(E,P,&ap), kod = gel(L,2);
+    if (!equali1(kod)) { *good_red = 0; return stoi(ap); }
     *good_red = 1;
     E = coordch(E, gel(L,3));
     E = ellinit_nf_to_Fq(E, modP);
@@ -4595,15 +4595,10 @@ nfis_minimal_ap(GEN E, GEN P, int *good_red)
   }
   else
   {
-    c6 = ell_get_c6(E);
-    vc6 = nfval(nf,c6,P);
-    d = minss(2*vc6, vD) / 12;
-    if (d)
-    { /* non minimal model */
-      vc6 -= 6*d;
-      vD -= 12*d;
-      piinv = get_piinv(P);
-    }
+    GEN c6 = ell_get_c6(E), piinv = NULL;
+    long vc6 = nfval(nf,c6,P), d = minss(2*vc6, vD) / 12;
+    /* non minimal model ? */
+    if (d) { vc6 -= 6*d; vD -= 12*d; piinv = get_piinv(P); }
     if (vD) /* bad reduction */
     {
       *good_red = 0;
@@ -5324,7 +5319,7 @@ static long
 ellan_get_ap(ulong p, int *good_red, int CM, GEN e)
 {
   if (!umodiu(ell_get_disc(e),p)) /* p|D, bad reduction or non-minimal model */
-    return is_minimal_ap_small(e, p, good_red);
+    return Qellap_u(e, p, good_red);
   else /* good reduction */
   {
     *good_red = 1;
@@ -5378,7 +5373,7 @@ nfelllocal(void *S, GEN p)
   {
     int goodred;
     GEN P = gel(LP,i), T2;
-    GEN ap = nfis_minimal_ap(E, P, &goodred);
+    GEN ap = nfellap(E, P, &goodred);
     long f = pr_get_f(P);
     if (goodred)
       T2 = mkpoln(3, pr_norm(P), negi(ap), gen_1);
@@ -5452,7 +5447,7 @@ akell(GEN e, GEN n)
       GEN p = gel(P,i);
       long ex = itos(gel(E,i));
       int good_red;
-      GEN ap = is_minimal_ap(e,p,&good_red);
+      GEN ap = Qellap(e,p,&good_red);
       if (good_red) { y = mulii(y, apk_good(ap, p, ex)); continue; }
       j = signe(ap);
       if (!j) { avma = av; return gen_0; }
@@ -5971,7 +5966,7 @@ ellcard_ram(GEN E, GEN p, int *good_red)
   if (!signe(D))
   {
     pari_sp av = avma;
-    GEN ap = is_minimal_ap(E, p, good_red);
+    GEN ap = Qellap(E, p, good_red);
     return gerepileuptoint(av, subii(addiu(p,1), ap));
   }
   *good_red = 1;
@@ -6036,7 +6031,7 @@ ellap(GEN E, GEN p)
     q = p; card = ellcard_ram(E, p, &goodred);
     break;
   case t_ELL_NF:
-    return nfis_minimal_ap(E, p, &goodred);
+    return nfellap(E, p, &goodred);
   default:
     pari_err_TYPE("ellap",E);
     return NULL; /*NOT REACHED*/
@@ -6092,7 +6087,7 @@ ellcard(GEN E, GEN p)
     {
       pari_sp av = avma;
       int goodred;
-      GEN N = subii(pr_norm(p), nfis_minimal_ap(E, p, &goodred));
+      GEN N = subii(pr_norm(p), nfellap(E, p, &goodred));
       if (goodred) N = addiu(N, 1);
       return gerepileuptoint(av, N);
     }
