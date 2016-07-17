@@ -4485,7 +4485,7 @@ min_set_3(ellmin_t *M, GEN E, long d)
 }
 
 static long
-Qellap_u(GEN E, ulong p, int *good_red)
+ellQap_u(GEN E, ulong p, int *good_red)
 {
   long vc6, vD, d = get_vp_u_small(E, p, &vc6, &vD);
   if (vD) /* bad reduction */
@@ -4527,11 +4527,11 @@ Qellap_u(GEN E, ulong p, int *good_red)
 }
 
 static GEN
-Qellap(GEN E, GEN p, int *good_red)
+ellQap(GEN E, GEN p, int *good_red)
 {
   GEN a4,a6, c4, c6, D;
   long vc6, vD, d;
-  if (lgefint(p) == 3) return stoi( Qellap_u(E, p[2], good_red) );
+  if (lgefint(p) == 3) return stoi( ellQap_u(E, p[2], good_red) );
   c6 = ell_get_c6(E);
   D = ell_get_disc(E);
   vc6 = Z_pval(c6,p); vD = Z_pval(D,p);
@@ -4573,7 +4573,7 @@ doellcard(GEN E)
 }
 
 static GEN
-nfellap(GEN E, GEN P, int *good_red)
+ellnfap(GEN E, GEN P, int *good_red)
 {
   GEN a4,a6, c4, D, modP, p, T, card, nf = ellnf_get_nf(E);
   long vD;
@@ -5319,7 +5319,7 @@ static long
 ellan_get_ap(ulong p, int *good_red, int CM, GEN e)
 {
   if (!umodiu(ell_get_disc(e),p)) /* p|D, bad reduction or non-minimal model */
-    return Qellap_u(e, p, good_red);
+    return ellQap_u(e, p, good_red);
   else /* good reduction */
   {
     *good_red = 1;
@@ -5363,7 +5363,7 @@ ellanQ(GEN e, long N)
 }
 
 static GEN
-nfelllocal(void *S, GEN p)
+ellnflocal(void *S, GEN p)
 {
   pari_sp av = avma;
   GEN E = (GEN)S;
@@ -5373,7 +5373,7 @@ nfelllocal(void *S, GEN p)
   {
     int goodred;
     GEN P = gel(LP,i), T2;
-    GEN ap = nfellap(E, P, &goodred);
+    GEN ap = ellnfap(E, P, &goodred);
     long f = pr_get_f(P);
     if (goodred)
       T2 = mkpoln(3, pr_norm(P), negi(ap), gen_1);
@@ -5389,8 +5389,8 @@ nfelllocal(void *S, GEN p)
 }
 
 static GEN
-nfellan(GEN E, long N)
-{ return direuler((void*)E, &nfelllocal, gen_2, stoi(N), NULL); }
+ellnfan(GEN E, long N)
+{ return direuler((void*)E, &ellnflocal, gen_2, stoi(N), NULL); }
 
 GEN
 ellan(GEN E, long N)
@@ -5399,7 +5399,7 @@ ellan(GEN E, long N)
   switch(ell_get_type(E))
   {
     case t_ELL_Q: return ellanQ(E, N);
-    case t_ELL_NF: return nfellan(E, N);
+    case t_ELL_NF: return ellnfan(E, N);
     default:
       pari_err_TYPE("ellan",E);
       return NULL; /*NOT REACHED*/
@@ -5447,7 +5447,7 @@ akell(GEN e, GEN n)
       GEN p = gel(P,i);
       long ex = itos(gel(E,i));
       int good_red;
-      GEN ap = Qellap(e,p,&good_red);
+      GEN ap = ellQap(e,p,&good_red);
       if (good_red) { y = mulii(y, apk_good(ap, p, ex)); continue; }
       j = signe(ap);
       if (!j) { avma = av; return gen_0; }
@@ -5966,7 +5966,7 @@ ellcard_ram(GEN E, GEN p, int *good_red)
   if (!signe(D))
   {
     pari_sp av = avma;
-    GEN ap = Qellap(E, p, good_red);
+    GEN ap = ellQap(E, p, good_red);
     return gerepileuptoint(av, subii(addiu(p,1), ap));
   }
   *good_red = 1;
@@ -6031,7 +6031,7 @@ ellap(GEN E, GEN p)
     q = p; card = ellcard_ram(E, p, &goodred);
     break;
   case t_ELL_NF:
-    return nfellap(E, p, &goodred);
+    return ellnfap(E, p, &goodred);
   default:
     pari_err_TYPE("ellap",E);
     return NULL; /*NOT REACHED*/
@@ -6087,7 +6087,7 @@ ellcard(GEN E, GEN p)
     {
       pari_sp av = avma;
       int goodred;
-      GEN N = subii(pr_norm(p), nfellap(E, p, &goodred));
+      GEN N = subii(pr_norm(p), ellnfap(E, p, &goodred));
       if (goodred) N = addiu(N, 1);
       return gerepileuptoint(av, N);
     }
