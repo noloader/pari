@@ -5,9 +5,8 @@ Prototype: lGG
 Help: zncharisodd(G, chi): Let G be idealstar(,N), let chi
  be a Dirichlet character mod N, return 1 if and only if chi(-1) = -1
  and 0 otherwise.
-Doc: Let $G$ be attached to $(\Z/N\Z)^*$ (as per \kbd{G =
- idealstar(,N)}) and let \kbd{chi} be a Dirichlet character on $(\Z/N\Z)^*$,
- given by
+Doc: Let $G$ be attached to $(\Z/N\Z)^*$ (as per \kbd{G = idealstar(,N)})
+ and let \kbd{chi} be a Dirichlet character on $(\Z/N\Z)^*$, given by
 
  \item a \typ{VEC}: a standard character on \kbd{bid.gen},
 

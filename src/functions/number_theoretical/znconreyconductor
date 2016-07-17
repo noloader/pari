@@ -7,9 +7,9 @@ Help: znconreyconductor(bid,chi, {&chi0}): Let bid be idealstar(,q) and chi
  the conductor of chi, and set chi0 to (the Conrey logarithm of) the
  attached primitive character. If chi0 != chi, return the conductor
  and its factorization.
-Doc: Let \var{bid} be attached to $(\Z/q\Z)^*$ (as per \kbd{bid =
- idealstar(,q)}) and \kbd{chi} be a Dirichlet character on $(\Z/q\Z)^*$,
- given by
+Doc: Let \var{bid} be attached to $(\Z/q\Z)^*$ (as per
+ \kbd{bid = idealstar(,q)}) and \kbd{chi} be a Dirichlet character on
+ $(\Z/q\Z)^*$, given by
 
  \item a \typ{VEC}: a standard character on \kbd{bid.gen},
 
