@@ -832,7 +832,7 @@ sub basic_subst {
       | sigma | tau | ypsilon | varpi | omega | xi | psi | zeta | ell
       | int | expr | seq | args | gcd | lcm | sum | prod | Re | infty )
       (?![a-zA-Z])/$tr{startword}$1$tr{endword}/xg;
-  s/ *\\in(?![a-zA-Z]) */ belongs to /g;
+#  s/ *\\in(?![a-zA-Z]) */ belongs to /g;
   s/\\pm(?![a-zA-Z])/$tr{pm}/g;
   s/ *\\mid(?![a-zA-Z]) */ | /g;
 
