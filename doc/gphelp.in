@@ -830,7 +830,8 @@ sub basic_subst {
   s/ *(\\|\@)[lc]?dots(?![a-zA-Z]) */.../g;
   # math operators
   s/\\(Id | Norm | disc | Cl | log | sin | cos | lim(proj)? | tan | mod
-    | sqrt | exp | ln | det | Re | Im | deg | expr | seq | args | gcd | lcm
+    | sqrt | exp | ln | det | Re | Im | deg | expr | seq | args | arg
+    | gcd | lcm
     | min | max)
     (?![a-zA-Z])/$tr{startlword}$1$tr{endlword}/xg;
 #  s/\\pi(?![a-zA-Z])/$tr{startword}Pi$tr{endword}/g;
