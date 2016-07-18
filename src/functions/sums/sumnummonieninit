@@ -31,7 +31,7 @@ Doc: initialize tables for Monien summation of a series $\sum_{n\geq n_0}
  ? sumnummonien(n = 1, sin(1/sqrt(n)) / n) - s
  %2 = -0.001[...] \\ completely wrong !
 
- ? t = sumnummonieninit([1/2,1]);  \\ f(n) = \sum_i 1 / n^(i/2+1)
+ ? t = sumnummonieninit([1/2,1]);  \\ f(n) = sum_i 1 / n^(i/2+1)
  ? sumnummonien(n = 1, sin(1/sqrt(n)) / n, t) - s
  %3 = 0.E-37  \\ now correct
  @eprog

@@ -15,8 +15,10 @@ Doc: loads from dynamic library \var{lib} the function \var{name}. Assigns to it
  \kbd{libc.so}).
 
  Most importantly, \kbd{install} gives you access to all non-static functions
- defined in the PARI library. For instance, the function \kbd{GEN addii(GEN
- x, GEN y)} adds two PARI integers, and is not directly accessible under
+ defined in the PARI library. For instance, the function
+ \bprog
+   GEN addii(GEN x, GEN y)
+ @eprog\noindent adds two PARI integers, and is not directly accessible under
  \kbd{gp} (it is eventually called by the \kbd{+} operator of course):
  \bprog
  ? install("addii", "GG")

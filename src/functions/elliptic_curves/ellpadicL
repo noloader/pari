@@ -79,7 +79,7 @@ Doc: Returns the value (or $r$-th derivative) on a character $\chi^s$ of
  Twist and Teichm\"uller:
  \bprog
  ? e = ellinit("17a1"); p=5; \\ ordinary
- \\ 2nd derivative at \tau^1, twist by -7
+ \\ 2nd derivative at tau^1, twist by -7
  ? ellpadicL(e, p, 4, [0,1], 2, -7)
  %2 = 2*5^2 + 5^3 + O(5^4)
  @eprog

@@ -18,8 +18,8 @@ Doc: Let $K$ be the number field defined by \var{nf} and assume that $K/\Q$ is
 
  and for $i\geq 2$,
 
- \item \kbd{g[i]} is $G_{i-2}(\goth{P})$, the $i-2$-th \idx{ramification
- group} of $\goth{P}$.
+ \item \kbd{g[i]} is $G_{i-2}(\goth{P})$, the $i-2$-th
+ \idx{ramification group} of $\goth{P}$.
 
  \noindent The length of $g$ is the number of non-trivial groups in the
  sequence, thus is $0$ if $e=1$ and $f=1$, and $1$ if $f>1$ and $e=1$.
