@@ -19,7 +19,7 @@ special Emacs shell, described in \secref{se:emacs}. Specific features of
 this Emacs shell are indicated by an EMACS sign in the left margin.
 
 We briefly mention at this point GNU
-TeXmacs\footnote{*}{\url{http://www.texmacs.org/}}, a free wysiwyg editing
+TeXmacs (\url{http://www.texmacs.org/}), a free wysiwyg editing
 platform that allows to embed an entire gp session in a document, and
 provides a nice alternative to PariEmacs.
 
@@ -2625,13 +2625,11 @@ of your program in C, and still maintain most of the program as a GP script.
 We are aware of three PARI-related Free Software packages to embed PARI in
 other languages. We \emph{neither endorse nor support} any of them, but you
 may want to give them a try if you are familiar with the languages they are
-based on. The first is William Stein's Python-based SAGE\footnote{*}{see
-\url{http://sagemath.org/}} system. The second is the \tet{Math::Pari} Perl
+based on. The first is the Python-based SAGE
+system (\url{http://sagemath.org/}). The second is the \tet{Math::Pari} Perl
 module (see any CPAN mirror), written by Ilya Zakharevich.
-Finally, Michael Stoll has integrated PARI into \tet{CLISP}\footnote{***}{see
-\url{http://clisp.cons.org/}}, which is a Common Lisp implementation by Bruno
-Haible, Marcus Daniels and others; this interface has been updated for pari-2
-by Sam Steingold.
+Finally, Michael Stoll and Sam Steingold have integrated PARI into \tet{CLISP}
+(\url{http://clisp.cons.org/}), a Common Lisp implementation.
 
 These provide interfaces to \kbd{gp} functions for use in
 \kbd{python}, \kbd{perl}, or \kbd{Lisp}\sidx{Perl}\sidx{Python}\sidx{Lisp}
@@ -3157,8 +3155,8 @@ together with
 
 \item a pair of parentheses if we are completing a function name. In
 that case hitting \kbd{<TAB>} again will provide the argument list as given
-by the online help\footnote{*}{recall that you can always undo the effect
-of the preceding keys by hitting \kbd{C-\_}}.
+by the online help. (Recall that you can always undo the effect
+of the preceding keys by hitting \kbd{C-\_}; this applies here.)
 
 Otherwise, hitting \kbd{<TAB>} once more will give you the list of possible
 completions. Just experiment with this mechanism as often as possible,
