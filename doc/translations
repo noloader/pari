@@ -108,7 +108,6 @@ member          @Member functions@2
 ^               @\pow
 !               @factorial
 ~               @mattranspose
--               @+
 %               @\%
 ++              @GP operators@2
 --              @GP operators@2
