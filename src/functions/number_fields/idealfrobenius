@@ -7,12 +7,12 @@ Help: idealfrobenius(nf,gal,pr): Returns the Frobenius element (pr|nf/Q)
  group gal of the number field nf.
 Doc: Let $K$ be the number field defined by $nf$ and assume $K/\Q$ be a
  Galois extension with Galois group given \kbd{gal=galoisinit(nf)},
- and that $pr$ is the prime ideal $\goth{P}$ in prid format, and that
- $\goth{P}$ is unramified.
- This function returns a permutation of \kbd{gal.group} which defines the
- automorphism $\sigma=\left(\goth{P}\over K/\Q \right)$, i.e the Frobenius
- element attached to $\goth{P}$. If $p$ is the unique prime number
- in $\goth{P}$, then $\sigma(x)\equiv x^p\mod\P$ for all $x\in\Z_K$.
+ and that \var{pr} is an unramified prime ideal $\goth{p}$ in \kbd{prid}
+ format.
+ This function returns a permutation of \kbd{gal.group} which defines
+ the Frobenius element $\Frob_{\goth{p}}$ attached to $\goth{p}$.
+ If $p$ is the unique prime number in $\goth{p}$, then
+ $\Frob(x)\equiv x^p\mod\goth{p}$ for all $x\in\Z_K$.
  \bprog
  ? nf = nfinit(polcyclo(31));
  ? gal = galoisinit(nf);
