@@ -677,6 +677,7 @@ sub inittr {
   @ou = qw( dollar nbrk startref endref startbold endbold startcode endcode
 	    obr cbr uuml ouml agrave aacute eacute
 	    startpodcode endpodcode startlink endlink
+            startbc endbc
 	    startbcode endbcode startbi endbi startit endit
 	    startword endword startlword endlword pm empty gt lt podleader );
 
@@ -705,6 +706,8 @@ sub inittr {
 	       endbcode => '>>',
 	       startbi => 'B<I<',
 	       endbi => '>>')),
+          startbc => 'I<',
+          endbc => '>',
 	  startit => 'I<',
 	  endit => '>',
 	  startword => 'F<',
@@ -775,7 +778,7 @@ sub basic_subst {
   s/\\"o/$tr{ouml}/;   s/\\"\{o\}/$tr{ouml}/;
   s/\\"u/$tr{uuml}/;   s/\\"\{u\}/$tr{uuml}/;
   s/\\'e/$tr{eacute}/; s/\\'\{e\}/$tr{eacute}/;
-  s/{\\cal (.)}/$1/;
+  s/{\\cal (.)}/$tr{startbc}$1$tr{endbc}/;
 
   s/(^|[^\\])%.*/$1/g;		        # comments
   s/\\vadjust\s*\{\s*\\penalty\s*\d+\s*\}//g;
@@ -1207,8 +1210,8 @@ sub TeXprint {
   }
   s/\@\[label\]//g;
   s/\@\[ldollar\]/\$/g;
-  s/\@\[end(bold|code|bcode|ref|bi|it)\]/$ch/g;
-  s/\@\[start(bold|code|bcode|ref|bi)\]/$cb/g;
+  s/\@\[end(bold|code|bcode|ref|bi|bc|it)\]/$ch/g;
+  s/\@\[start(bold|code|bcode|ref|bi|bc)\]/$cb/g;
   s/\@\[startit\]/$cu/g;
   s/\@\[(dollar|empty|endl?word|endpodcode|startl?word|startpodcode)\]//g;
   s/\@\[lt\]/</g;
