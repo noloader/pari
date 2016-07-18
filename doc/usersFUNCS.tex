@@ -208,11 +208,11 @@ integers, add \kbd{O(p\pow k)} to the result; finally, to obtain the
 
 The library syntax is \fun{GEN}{gdiv}{GEN x, GEN y} for $x$ \kbd{/} $y$.
 
-\subseckbd{\bs} The expression \kbd{$x$ \bs\ $y$} is the \idx{Euclidean
-quotient} of $x$ and $y$. If $y$ is a real scalar, this is defined as
-\kbd{floor($x$/$y$)} if $y > 0$, and \kbd{ceil($x$/$y$)} if $y < 0$ and
-the division is not exact. Hence the remainder \kbd{$x$ - ($x$\bs$y$)*$y$}
-is in $[0, |y|[$.
+\subseckbd{\bs} The expression \kbd{$x$ \bs\ $y$} is the
+\idx{Euclidean quotient} of $x$ and $y$. If $y$ is a real scalar, this is
+defined as \kbd{floor($x$/$y$)} if $y > 0$, and \kbd{ceil($x$/$y$)} if
+$y < 0$ and the division is not exact. Hence the remainder
+\kbd{$x$ - ($x$\bs$y$)*$y$} is in $[0, |y|[$.
 
 Note that when $y$ is an integer and $x$ a polynomial, $y$ is first promoted
 to a polynomial of degree $0$. When $x$ is a vector or matrix, the operator
