@@ -678,6 +678,7 @@ sub inittr {
 	    obr cbr uuml ouml agrave aacute eacute
 	    startpodcode endpodcode startlink endlink
             startbc endbc
+            startbg endbg
 	    startbcode endbcode startbi endbi startit endit
 	    startword endword startlword endlword pm empty gt lt podleader );
 
@@ -708,6 +709,8 @@ sub inittr {
 	       endbi => '>>')),
           startbc => 'I<',
           endbc => '>',
+          startbg => 'B<',
+          endbg => '>',
 	  startit => 'I<',
 	  endit => '>',
 	  startword => 'F<',
@@ -908,7 +911,7 @@ sub basic_subst {
   s/\\kbd\s*\{((?:[^{}]|\{[^{}]*\})*)\}/$tr{startcode}$1$tr{endcode}/g;
 
   s/\\key\{((?:[^{}]|\{[^{}]*\})*)\}/$tr{startbold}$1$tr{endbold}/g unless $refcard;
-  s/\\goth\{((?:[^{}]|\{[^{}]*\})*)\}/$tr{startbold}$1$tr{endbold}/g;
+  s/\\goth\{((?:[^{}]|\{[^{}]*\})*)\}/$tr{startbg}$1$tr{endbg}/g;
 
   if ($refcard) {
     s/\\(?:key|li)\{((?:[^{}]+(?=[{}])|\{[^{}]*\})*)\}\s*\{\}[ \t]*\n/\n\n=back\n\n$1\n\n=over\n\n/g;
