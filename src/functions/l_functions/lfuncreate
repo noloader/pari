@@ -78,8 +78,8 @@ Doc: This low-level routine creates \tet{Ldata} structures, needed by
  $\Lambda(s)=N^{s/2}\gamma_A(s)L(s)$ with $\gamma_A(s)$ as above.
 
  \item \kbd{V[6]=eps} is the root number $\varepsilon$, i.e., the
- complex number of modulus $1$ such that
- $\Lambda(k-s)=\varepsilon\overline{\Lambda(\overline{s})}$.
+ complex number (usually of modulus $1$) such that
+ $\Lambda(a, k-s) = \varepsilon \Lambda(a^*, s)$.
 
  \item The last optional component \kbd{V[7]=poles} encodes the poles of the
  $L$ or $\Lambda$-functions, and is omitted if they have no poles.
