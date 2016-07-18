@@ -19,11 +19,11 @@ Doc: given \kbd{Mp} from \kbd{mspadicinit}, lift the (classical) eigen symbol
  space of modular symbols of level $N_0$.
 
  Let $V_p=[p,0;0,1]$ and $C_p=[a_p,p^{k-1};-1,0]$.
- When $p \not\mid N$ and $a_p$ is divisible by $p$, \kbd{mstooms}
+ When $p \nmid N$ and $a_p$ is divisible by $p$, \kbd{mstooms}
  returns the lift $\Phi$ of $(\phi,\phi|_k V_p)$ such that
   $$T_{N_0}(p) \Phi = C_p \Phi$$
 
- When $p \not\mid N$ and $a_p$ is not divisible by $p$, \kbd{mstooms}
+ When $p \nmid N$ and $a_p$ is not divisible by $p$, \kbd{mstooms}
  returns the lift $\Phi$ of $\phi - \alpha^{-1} \phi|_k V_p$
  which is an eigenvector of $T_{N_0}(p)$ for the unit eigenvalue
  where $\alpha^2 - a_p \alpha + p^{k-1}=0$.
