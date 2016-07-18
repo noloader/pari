@@ -31,7 +31,7 @@ Major contributors (large modules written or rewritten from scratch):
     number fields), LLL, primality and compositeness tests, number fields,
     polgalois and the galdata package, elliptic curves, qfsolve, transcendental
     functions, install(), extension of the GP language (next/break/return,
-    local, op=, default()), gphelp, Configure, readline, man pages,
+    local, op=, default()), gphelp, gphtml fork, Configure, readline, man pages,
     documentation layout, reference card and user's manuals, the FAQ, the
     http://pari.math.u-bordeaux.fr website, Lfun package
   Dominique BERNARDI: the original gp interpreter, ECM, original
@@ -65,10 +65,11 @@ Major contributors (large modules written or rewritten from scratch):
   Xavier ROBLOT: MPQS integration, Stark, original nffactor, padicfields
   Denis SIMON: Norm equations, S-units, Hilbert symbols, original qfsolve
     implementation
+  Nils SKORUPPA: gphtml script, Qt graphics driver
   Emmanuel TOLLIS: primedec, zetak
-  Ilya ZAKHAREVITCH: prime sieves, gphelp, tex2mail, major cleanup of the
-    graphics and GP parser code, gnuplot support, readline support,
-    OS/2 support, DOS/EMX support
+  Ilya ZAKHAREVITCH: prime sieves, gphelp, tex2mail, rewrite of the
+    graphic engine (incl. splines and clipping), GP parser codes,
+    gnuplot support, readline support, OS/2 support, DOS/EMX support
 
 Other contributors: the 2 or 3 letter code refer to the CHANGES file. Please,
 kindly remind us if you have been forgotten!
