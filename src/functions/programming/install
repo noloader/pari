@@ -56,8 +56,8 @@ Doc: loads from dynamic library \var{lib} the function \var{name}. Assigns to it
  (variable).
 
   \item \kbd{p} to supply \kbd{realprecision} (usually \kbd{long prec} in the
-  argument list), \kbd{P} to supply \kbd{seriesprecision} (usually \kbd{long
-  precdl}).
+  argument list), \kbd{P} to supply \kbd{seriesprecision}
+  (usually \kbd{long precdl}).
 
   \noindent We also have special constructs for optional arguments and default
   values:
