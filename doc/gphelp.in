@@ -773,12 +773,12 @@ sub basic_subst {
   s/\\(~|tilde)/~/g;
 
   s/\\(equiv)(?![a-zA-Z])/ = /g;
-  s/\\'a/$tr{aacute}/; s/\\'\{a\}/$tr{aacute}/;
-  s/\\`a/$tr{agrave}/; s/\\`\{a\}/$tr{agrave}/;
-  s/\\"o/$tr{ouml}/;   s/\\"\{o\}/$tr{ouml}/;
-  s/\\"u/$tr{uuml}/;   s/\\"\{u\}/$tr{uuml}/;
-  s/\\'e/$tr{eacute}/; s/\\'\{e\}/$tr{eacute}/;
-  s/{\\cal (.)}/$tr{startbc}$1$tr{endbc}/;
+  s/\\'a/$tr{aacute}/g; s/\\'\{a\}/$tr{aacute}/g;
+  s/\\`a/$tr{agrave}/g; s/\\`\{a\}/$tr{agrave}/g;
+  s/\\"o/$tr{ouml}/g;   s/\\"\{o\}/$tr{ouml}/g;
+  s/\\"u/$tr{uuml}/g;   s/\\"\{u\}/$tr{uuml}/g;
+  s/\\'e/$tr{eacute}/g; s/\\'\{e\}/$tr{eacute}/g;
+  s/{\\cal (.)}/$tr{startbc}$1$tr{endbc}/g;
 
   s/(^|[^\\])%.*/$1/g;		        # comments
   s/\\vadjust\s*\{\s*\\penalty\s*\d+\s*\}//g;
@@ -884,7 +884,7 @@ sub basic_subst {
   s/ *\\gg?(?![a-zA-Z]) *([^ ])/ $tr{startcode}$tr{gt}$tr{gt}$tr{endcode} $1/g;
   s/ *\\ll?(?![a-zA-Z]) *([^ ])/ $tr{startcode}$tr{lt}$tr{ll}$tr{endcode} $1/g;
 
-  s/\\(vers|PARIversion)(?![a-zA-Z])/$tr{startbold}$version$tr{endbold}/;
+  s/\\(vers|PARIversion)(?![a-zA-Z])/$tr{startbold}$version$tr{endbold}/g;
   s/\\([QRCFZNapdf])(?![a-zA-Z])/$tr{startbi}$1$tr{endbi}$2/g;
   s/\\([QRCFZN])\1(?![a-zA-Z])/$tr{startbi}$1$tr{endbi}$2/g;
   s/\\Bbb\b\s*(\w)/$tr{startbi}$1$tr{endbi}/g;
