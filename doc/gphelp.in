@@ -828,16 +828,22 @@ sub basic_subst {
   s/ *\\pmod(?![a-zA-Z]) *\{\s*((?:[^{}]|\{[^{}]*\})*)\}/ (mod $1)/g;
   s/ *\\cdot(?![a-zA-Z]) */./g;		# Maybe " . "?
   s/ *(\\|\@)[lc]?dots(?![a-zA-Z]) */.../g;
-  s/\\(Id|Norm|disc|Cl|log|sin|cos|lim(proj)?|tan|mod|sqrt|exp|ln|det|Re|Im|deg|wp|cap|oplus)(?![a-zA-Z])/$tr{startlword}$1$tr{endlword}/g;
+  # math operators
+  s/\\(Id | Norm | disc | Cl | log | sin | cos | lim(proj)? | tan | mod
+    | sqrt | exp | ln | det | Re | Im | deg | expr | seq | args | gcd | lcm
+    | min | max)
+    (?![a-zA-Z])/$tr{startlword}$1$tr{endlword}/xg;
 #  s/\\pi(?![a-zA-Z])/$tr{startword}Pi$tr{endword}/g;
+
+  # math symbols with HTML entities equivalents
   s/\\(Alpha | Beta | Chi | Delta | Epsilon | Phi | Gamma | Eta | Iota
-      | vartheta | Kappa | Lambda | Mu | Nu | Omicron | Pi | Theta | Rho
-      | Sigma | Tau | Ypsilon | varsigma | Omega | Xi | Psi | Zeta
-      | alpha | beta | chi | delta | epsilon | varepsilon | phi | gamma | eta
-      | iota | varphi | kappa | lambda | mu | nu | omicron | pi | theta | rho
-      | sigma | tau | ypsilon | varpi | omega | xi | psi | zeta | ell
-      | int | expr | seq | args | gcd | lcm | sum | prod | min | max | Re | infty )
-      (?![a-zA-Z])/$tr{startword}$1$tr{endword}/xg;
+    | vartheta | Kappa | Lambda | Mu | Nu | Omicron | Pi | Theta | Rho
+    | Sigma | Tau | Ypsilon | varsigma | Omega | Xi | Psi | Zeta
+    | alpha | beta | chi | delta | epsilon | varepsilon | phi | gamma | eta
+    | iota | varphi | kappa | lambda | mu | nu | omicron | pi | theta | rho
+    | sigma | tau | ypsilon | varpi | omega | xi | psi | zeta
+    | ell | wp | cap | cup | sup | prod | sum | int )
+    (?![a-zA-Z])/$tr{startword}$1$tr{endword}/xg;
 #  s/ *\\in(?![a-zA-Z]) */ belongs to /g;
   s/\\pm(?![a-zA-Z])/$tr{pm}/g;
   s/ *\\mid(?![a-zA-Z]) */ | /g;
