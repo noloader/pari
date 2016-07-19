@@ -235,12 +235,13 @@ for $x$ \b{/} $y$.
 
 \subseckbd{\%} The expression \kbd{$x$ \% $y$} evaluates to the modular
 \idx{Euclidean remainder} of $x$ and $y$, which we now define. When $x$ or $y$
-is a non-integral real number, \kbd{$x$\%$y$} is defined as \kbd{$x$ -
-($x$\bs$y$)*$y$}. Otherwise, if $y$ is an integer, this is the smallest
-non-negative integer congruent to $x$ modulo $y$. (This actually coincides with
-the previous definition if and only if $x$ is an integer.) If $y$ is a
-polynomial, this is the polynomial of smallest degree congruent to $x$ modulo
-$y$. For instance:
+is a non-integral real number, \kbd{$x$\%$y$} is defined as
+\kbd{$x$ - ($x$\bs$y$)*$y$}. Otherwise, if $y$ is an integer, this is
+the smallest
+non-negative integer congruent to $x$ modulo $y$. (This actually coincides
+with the previous definition if and only if $x$ is an integer.) If $y$ is a
+polynomial, this is the polynomial of smallest degree congruent to
+$x$ modulo $y$. For instance:
 \bprog
 ? (1/2) % 3
 %1 = 2
