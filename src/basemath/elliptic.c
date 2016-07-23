@@ -4093,7 +4093,9 @@ nflocalred_section7(GEN e, GEN nf, GEN modP, GEN pi, GEN pv, long vD, GEN ch)
   }
 }
 
+/* Tate algorithm, following J.H. Silverman GTM 151, chapt. IV, algo 9.4 */
 /* Dedicated to John Tate for his kind words */
+
 static GEN
 nflocalred_23(GEN e, GEN P, long *ap)
 {
