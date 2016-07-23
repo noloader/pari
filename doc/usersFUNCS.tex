@@ -832,7 +832,11 @@ memory and require at least 2MB stack to avoid stack overflows.
 
 \subsubsec{Curves over number fields}
 
-\item \tet{nf} returns the number field over which $E$ is defined.
+\item \tet{nf} return the \var{nf} structure attached to the number field
+over which $E$ is defined.
+
+\item \tet{bnf} return the \var{bnf} structure attached to the number field
+over which $E$ is defined or raise an error (if only an \var{nf} is available).
 
 %SECTION: elliptic_curves
 

@@ -95,7 +95,14 @@ GEN
 member_bnf(GEN x)
 {
   long t; GEN y = get_bnf(x,&t);
-  if (!y) member_err("bnf",x);
+  if (!y) {
+    if (t == typ_ELL && ell_get_type(x) == t_ELL_NF)
+    {
+      y = ellnf_get_bnf(x);
+      if (y) return y;
+    }
+    member_err("bnf",x);
+  }
   return y;
 }
 

@@ -2446,7 +2446,8 @@ INLINE long ellQp_get_prec(GEN E) { GEN z = ellQp_get_zero(E); return valp(z); }
 INLINE GEN ellQp_get_p(GEN E) { GEN z = ellQp_get_zero(E); return gel(z,2); }
 INLINE long ellR_get_prec(GEN x) { return nbits2prec(mael3(x, 15, 1, 1)); }
 INLINE long ellR_get_sign(GEN x) { return mael3(x, 15, 1, 2); }
-INLINE GEN ellnf_get_nf(GEN x) { return gmael(x, 15, 1); }
+INLINE GEN ellnf_get_nf(GEN x) { return checknf_i(gmael(x,15,1)); }
+INLINE GEN ellnf_get_bnf(GEN x) { return checkbnf_i(gmael(x,15,1)); }
 
 INLINE int ell_is_inf(GEN z) { return lg(z) == 2; }
 INLINE GEN ellinf(void) { return mkvec(gen_0); }

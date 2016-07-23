@@ -44,3 +44,15 @@ E3 = ellchangecurve(E, [1/17,a,a+1,0]);
 ellap(E3, P17)
 ellan(E2,20)
 ellan(E3,20)
+
+K=bnfinit(a^2 - 2*3*5*29);
+e = ellinit([a,1], K);
+E = ellchangecurve(e, Mod([2^3 * 3 * a, a+123, 17*a+2, 16*a+3], K.pol));
+ellminimalmodel(E, &v)[1..5]
+v
+ellminimalmodel(ellinit([a^4,(a+2)^6], K))
+
+K=bnfinit(a^2-65);
+u=Mod(8+a,K.pol);
+e = ellinit([1,40*u+1,0,25*u^2,0], K); ellminimalmodel(e)
+e = ellinit([1,10*u+1,0,25*u^2,0], K); ellminimalmodel(e)

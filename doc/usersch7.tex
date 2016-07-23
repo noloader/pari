@@ -190,13 +190,19 @@ $[u,0,0,0]$ making $e$ integral. We have $u = 1/t$, $t > 1$.
 
 \misctitle{Deprecated routines}
 
-\fun{GEN}{elltors0}{GEN e, long flag)} this function is deprecated; use
+\fun{GEN}{elltors0}{GEN e, long flag} this function is deprecated; use
 \tet{elltors}
 
 \subsubsec{Curves over a number field \var{nf}}
 
-\fun{GEN}{ellnf_get_nf}{GEN x} returns the field over which $E$ is defined
-(\var{nf} or \var{bnf} structure).
+Let $K$ be the number field over which $E$ is defined, given by
+a \var{nf} or \var{bnf} structure.
+
+\fun{GEN}{ellnf_get_nf}{GEN E} returns the underlying \kbd{nf}.
+
+
+\fun{GEN}{ellnf_get_bnf}{GEN x} returns \kbd{NULL} if $K$ does not contain
+a \var{bnf} structure, else return the \var{bnf}.
 
 \subsubsec{Curves over $\Q_p$}
 
