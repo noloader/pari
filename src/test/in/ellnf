@@ -22,10 +22,9 @@ ellinit(e, idealprimedec(K,5)[1])
     f = factor(N)[,1];
     for(i=1, #f,
       my(p = f[i]);
-      if(p<=3, next);
       P=idealprimedec(K,p)[1];
-      A=elllocalred(e,P.p);
-      B=elllocalred(eK,P);
+      A=elllocalred(e,P.p); A[3]=0;
+      B=elllocalred(eK,P); B[3]=0;
       if(A!=B, error(E[2]));
       if(ellap(e,p) != ellap(eK,P),error(E[2]))
     )
