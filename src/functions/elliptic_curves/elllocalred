@@ -23,6 +23,3 @@ Doc:
  giving the coordinate changes done during the local reduction;
  $u = 1$ if and only if the given equation was already minimal at $p$.
  Finally, the last component $c$ is the local \idx{Tamagawa number} $c_p$.
-
- \misctitle{Caveat} If $E$ is not defined over $\Q$, the current
- implementation requires that $p$ be above a prime $\geq 5$.
