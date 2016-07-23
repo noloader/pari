@@ -373,12 +373,16 @@ but WITHOUT ANY WARRANTY WHATSOEVER.
 
 \def\endtitle{\newpage\endgroup}
 
+% fraktur font
 \newfam\euffam
 \font\teneuf=eufm10
 \font\eighteuf=eufm8
+\font\seveneuf=eufm7
 \textfont\euffam=\teneuf
 \scriptfont\euffam=\eighteuf
+\scriptscriptfont\euffam=\seveneuf
 \def\goth#1{{\fam\euffam#1}}
+
 \def\kbd#1{{\tt #1}}
 \def\key#1{{\bf #1}}
 \def\emph#1{{\it #1\/}}
