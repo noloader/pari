@@ -778,18 +778,16 @@ lfunzetakinit(GEN NF, GEN dom, long der, long flag, long bitprec)
 static GEN
 ellnf_get_normN(GEN e)
 {
-  long i, l;
   GEN D = ell_get_disc(e), nf = ellnf_get_nf(e);
-  GEN F, cond = gen_1;
-  nf = checknf(nf);
-  F = gel(idealfactor(nf,D),1);
-  l = lg(F);
-  for(i=1;i<l;i++)
+  GEN V, F = gel(idealfactor(nf,D),1);
+  long i, l = lg(F);
+  V = cgetg(l, t_VEC);
+  for(i = 1; i < l; i++)
   {
-    GEN L = elllocalred(e,gel(F,i));
-    cond = mulii(cond, powii(idealnorm(nf,gel(F,i)), gel(L,1)));
+    GEN P = gel(F,i), L = elllocalred(e,P);
+    gel(V,i) = powii(pr_norm(P), gel(L,1));
   }
-  return cond;
+  return ZV_prod(V);
 }
 
 static GEN
@@ -800,7 +798,6 @@ lfunellnf(GEN e)
   GEN nf = ellnf_get_nf(e);
   GEN d2, N;
   long n;
-  nf = checknf(nf);
   d2 = sqri(nf_get_disc(nf));
   n = nf_get_degree(nf);
   N = ellnf_get_normN(e);
