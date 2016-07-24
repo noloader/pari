@@ -16,7 +16,7 @@ ellinit(e, idealprimedec(K,5)[1])
   K = nfinit(t);
   forell(E, 1, 1000,
     my(e,N,f,v);
-    v = [1/60,120,11,13];
+    v = [1/60,7131/3600,11/12,5/12];
     e = ellchangecurve(ellinit(E[2],1), v);
     eK= ellchangecurve(ellinit(E[2],K), v);
     N = ellconvertname(E[1])[1];
