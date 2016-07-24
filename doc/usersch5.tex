@@ -12402,6 +12402,10 @@ ordinary \kbd{GEN}, which facilitates copies and garbage collection (use
 \kbd{gcopy} or \kbd{gerepile}), rather than having to deal with individual
 components of actual C \kbd{struct}s.
 
+\fun{GEN}{obj_reinit}{GEN S} make a shallow copy of $S$, re-initializing
+all dynamic components. This allows ``forking'' a lazy vector while
+avoiding both a memory leak, and storing pointers to the same data
+in different objects (with risks of a double free later).
 
 \fun{GEN}{obj_check}{GEN S, long tag} if the \emph{tag}-component in $S$
 is non empty, return it. Otherwise return \kbd{NULL}. The \typ{INT} $0$

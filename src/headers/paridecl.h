@@ -3320,6 +3320,7 @@ void    obj_free(GEN S);
 GEN     obj_init(long d, long n);
 GEN     obj_insert(GEN S, long K, GEN O);
 GEN     obj_insert_shallow(GEN S, long K, GEN O);
+GEN     obj_reinit(GEN S);
 void    pari_add_function(entree *ep);
 void    pari_add_module(entree *ep);
 void    pari_add_defaults_module(entree *ep);

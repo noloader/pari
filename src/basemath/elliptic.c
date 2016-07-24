@@ -4922,6 +4922,8 @@ ellnfminimalmodel_i(GEN E, GEN *ptv)
   gcomposev(&v, v2);
   v2 = nfrestrict23(nf, y);
   y = coordch(y, v2);
+  /* copy to avoid inserting twice in y = E */
+  y = obj_reinit(y);
   gcomposev(&v, v2);
   if (is_trivial_change(v))
   {
@@ -4943,7 +4945,7 @@ ellnfminimalmodel(GEN E, GEN *ptv)
   if (v) /* true change of variable; v = NULL => no minimal model */
   {
     S = mkvec(gel(S,1));
-    if (!is_trivial_change(v)) ch_Rg(y, E, v);
+    if (!is_trivial_change(v)) (void)ch_Rg(y, E, v);
     obj_insert_shallow(y, NF_MINIMALMODEL, S);
   }
   if (!v || !ptv)

@@ -2061,6 +2061,16 @@ shiftaddress_canon(GEN x, long dec)
 /**                                                                **/
 /********************************************************************/
 GEN
+obj_reinit(GEN S)
+{
+  GEN s, T = leafcopy(S);
+  long d = lg(T)-2;
+  s = gel(T,d+1);
+  obj_init(d, lg(s)-1);
+  return T;
+}
+
+GEN
 obj_init(long d, long n)
 {
   GEN S = cgetg(d+2, t_VEC);
