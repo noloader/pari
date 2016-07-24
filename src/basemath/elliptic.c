@@ -985,6 +985,13 @@ coordch_st(GEN e, GEN s, GEN t)
   gel(y,5) = gsub(ell_get_a6(e), gmul(t,gadd(t, a3)));
   return y;
 }
+/* apply [1,r,0,t] */
+static GEN
+coordch_rt(GEN e, GEN r, GEN t)
+{
+  e = coordch_r(e, r);
+  return coordch_t(e, t);
+}
 /* apply [1,r,s,t] */
 static GEN
 coordch_rst(GEN e, GEN r, GEN s, GEN t)
@@ -1155,13 +1162,57 @@ ellchangecurve(GEN e, GEN w)
   return gerepilecopy(av, E);
 }
 
+/* v o= [1,r,0,0] */
 static void
-E_gcompose_rst(GEN *vtotal, GEN *e, GEN r, GEN s, GEN t)
-{ *e=coordch_rst(*e,r,s,t); gcomposev(vtotal,mkvec4(gen_1,r,s,t)); }
-
+E_gcompose_r(GEN *vtotal, GEN *e, GEN r)
+{
+  GEN v = *vtotal;
+  GEN U2, R;
+  *e = coordch_r(*e,r);
+  U2 = gsqr(gel(v,1)); R = gel(v,2);
+  gel(v,2) = gadd(R, gmul(U2, r));
+}
+/* v o= [1,0,0,t] */
+static void
+E_gcompose_t(GEN *vtotal, GEN *e, GEN t)
+{
+  GEN v = *vtotal;
+  GEN U3, U, T;
+  *e = coordch_t(*e,t);
+  U = gel(v,1); U3 = gmul(U, gsqr(U)); T = gel(v,4);
+  gel(v,4) = gadd(T, gmul(U3, t));
+}
+/* v o= [1,r,0,t] */
+static void
+E_gcompose_rt(GEN *vtotal, GEN *e, GEN r, GEN t)
+{
+  GEN v = *vtotal;
+  GEN U2, U, R, S, T;
+  if (gequal0(t)) return E_gcompose_r(vtotal, e, r);
+  *e = coordch_rt(*e,r,t);
+  U = gel(v,1); R = gel(v,2); S = gel(v,3); T = gel(v,4);
+  U2 = gsqr(U);
+  gel(v,2) = gadd(R, gmul(U2, r));
+  gel(v,4) = gadd(T, gmul(U2, gadd(gmul(U, t), gmul(S, r))));
+}
+/* v o= [1,0,s,t] */
+static void
+E_gcompose_st(GEN *vtotal, GEN *e, GEN s, GEN t)
+{
+  GEN v = *vtotal;
+  GEN U3, U, S, T;
+  *e = coordch_st(*e,s,t);
+  U = gel(v,1); U3 = gmul(U,gsqr(U)); S = gel(v,3); T = gel(v,4);
+  gel(v,3) = gadd(S, gmul(U, s));
+  gel(v,4) = gadd(T, gmul(U3, t));
+}
+/* v o= [u,0,0,0] */
 static void
 E_gcompose_u(GEN *vtotal, GEN *e, GEN u)
-{ *e=coordch_u(*e,u); gcomposev(vtotal,mkvec4(u,gen_0,gen_0,gen_0)); }
+{
+  GEN v = *vtotal;
+  *e = coordch_u(*e,u); gel(v,1) = gmul(gel(v,1), u);
+}
 
 /* X = (x-r)/u^2
  * Y = (y - s(x-r) - t) / u^3 */
@@ -4078,7 +4129,7 @@ nflocalred_section7(GEN e, GEN nf, GEN modP, GEN pi, GEN pv, long vD, GEN ch)
       return localred_result(vD-n-4,-4-n,nr+2,ch);
     }
     gama = pol2sqrt_23(nf,modP, Q);
-    E_gcompose_rst(&ch, &e, gen_0, gen_0,  gmul(gama,pi3));
+    E_gcompose_t(&ch, &e, gmul(gama,pi3));
     pv6 = gmul(pv,pv6); n++;
     Q = pola2a4a6(e, nf, modP, pv, pv4, pv6);
     if (FqX_is_squarefree(Q, T, p))
@@ -4087,7 +4138,7 @@ nflocalred_section7(GEN e, GEN nf, GEN modP, GEN pi, GEN pv, long vD, GEN ch)
       return localred_result(vD-n-4,-4-n,nr+2,ch);
     }
     gama = pol2sqrt_23(nf, modP, Q);
-    E_gcompose_rst(&ch, &e, gmul(gama, pi3), gen_0, gen_0);
+    E_gcompose_r(&ch, &e, gmul(gama, pi3));
     pi3 = gmul(pi, pi3);
     pv3 = pv4; pv4 = gmul(pv,pv4); pv6 = gmul(pv,pv6); n++;
   }
@@ -4145,7 +4196,7 @@ nflocalred_23(GEN e, GEN P, long *ap)
       }
       x0 = basistoalg(nf,Fq_to_nf(x0, modP));
       y0 = basistoalg(nf,Fq_to_nf(y0, modP));
-      E_gcompose_rst(&ch, &e, x0, gen_0, y0);
+      E_gcompose_rt(&ch, &e, x0, y0);
     }
     /* 2 */
     {
@@ -4185,7 +4236,7 @@ nflocalred_23(GEN e, GEN P, long *ap)
       GEN alpha = pol2sqrt_23(nf, modP, pola1a2(e, nf, modP));
       GEN beta  = pol2sqrt_23(nf, modP, pola3a6(e, nf, modP, pv, pv2));
       GEN po2;
-      E_gcompose_rst(&ch, &e, gen_0, alpha, gmul(beta, pi));
+      E_gcompose_st(&ch, &e, alpha, gmul(beta, pi));
       po2 = pola2a4a6(e, nf, modP, pv, pv2, pv3);
       pol = RgX_add(monomial(gen_1,3,0), po2);
       if (FqX_is_squarefree(pol, T, p))
@@ -4199,7 +4250,7 @@ nflocalred_23(GEN e, GEN P, long *ap)
       GEN F = FqX_factor(pol, T, p), E = gel(F,2);
       long i = lg(E)==2 ? 1: E[1]==2 ? 1 : 2;
       GEN gama = Fq_to_nf(Fq_neg(constant_coeff(gmael(F,1,i)), T, p), modP);
-      E_gcompose_rst(&ch, &e, gmul(gama,pi), gen_0, gen_0);
+      E_gcompose_r(&ch, &e, gmul(gama,pi));
       if (lg(E)==3)
         return nflocalred_section7(e, nf, modP, pi, pv, vD, ch); /* Inu* */
     }
@@ -4214,7 +4265,7 @@ nflocalred_23(GEN e, GEN P, long *ap)
     /*  9 */
     {
       GEN alpha = pol2sqrt_23(nf, modP, pol);
-      E_gcompose_rst(&ch, &e, gen_0, gen_0, gmul(alpha, gsqr(pi)));
+      E_gcompose_t(&ch, &e, gmul(alpha, gsqr(pi)));
       if (nfval(nf, ell_get_a4(e), P) == 3)
         return localred_result(vD-7,-3,2,ch); /* III* */
     }

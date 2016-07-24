@@ -15,13 +15,14 @@ ellinit(e, idealprimedec(K,5)[1])
 {
   K = nfinit(t);
   forell(E, 1, 1000,
-    my(e,N,f,P,loc1,loc2);
-    e = ellinit(E[2],1);
-    eK= ellinit(E[2],K);
+    my(e,N,f,v);
+    v = [1/60,120,11,13];
+    e = ellchangecurve(ellinit(E[2],1), v);
+    eK= ellchangecurve(ellinit(E[2],K), v);
     N = ellconvertname(E[1])[1];
     f = factor(N)[,1];
     for(i=1, #f,
-      my(p = f[i]);
+      my(p = f[i], P,A,B);
       P=idealprimedec(K,p)[1];
       A=elllocalred(e,P.p); A[3]=0;
       B=elllocalred(eK,P); B[3]=0;
