@@ -1172,6 +1172,16 @@ E_gcompose_r(GEN *vtotal, GEN *e, GEN r)
   U2 = gsqr(gel(v,1)); R = gel(v,2);
   gel(v,2) = gadd(R, gmul(U2, r));
 }
+/* v o= [1,0,s,0] */
+static void
+E_gcompose_s(GEN *vtotal, GEN *e, GEN s)
+{
+  GEN v = *vtotal;
+  GEN U, S;
+  *e = coordch_s(*e,s);
+  U = gel(v,1); S = gel(v,3);
+  gel(v,3) = gadd(S, gmul(U, s));
+}
 /* v o= [1,0,0,t] */
 static void
 E_gcompose_t(GEN *vtotal, GEN *e, GEN t)
@@ -1188,7 +1198,7 @@ E_gcompose_rt(GEN *vtotal, GEN *e, GEN r, GEN t)
 {
   GEN v = *vtotal;
   GEN U2, U, R, S, T;
-  if (gequal0(t)) return E_gcompose_r(vtotal, e, r);
+  if (gequal0(t)) { E_gcompose_r(vtotal, e, r); return; }
   *e = coordch_rt(*e,r,t);
   U = gel(v,1); R = gel(v,2); S = gel(v,3); T = gel(v,4);
   U2 = gsqr(U);
@@ -1201,6 +1211,8 @@ E_gcompose_st(GEN *vtotal, GEN *e, GEN s, GEN t)
 {
   GEN v = *vtotal;
   GEN U3, U, S, T;
+  if (gequal0(s)) { E_gcompose_t(vtotal, e, t); return; }
+  if (gequal0(t)) { E_gcompose_s(vtotal, e, s); return; }
   *e = coordch_st(*e,s,t);
   U = gel(v,1); U3 = gmul(U,gsqr(U)); S = gel(v,3); T = gel(v,4);
   gel(v,3) = gadd(S, gmul(U, s));
