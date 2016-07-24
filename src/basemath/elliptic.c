@@ -4190,11 +4190,16 @@ nflocalred_23(GEN e, GEN P, long *ap)
       {
         GEN x02, y02;
         if (signe(a1))
+        {
           x0 = Fq_div(a3, a1, T, p);
+          x02 = Fq_sqr(x0,T,p);
+          y02 = Fq_add(Fq_mul(x02,Fq_add(x0,a2,T,p),T,p),Fq_add(Fq_mul(a4,x0,T,p),a6,T,p),T,p);
+        }
         else
+        {
           x0 = Fq_sqrt(a4, T, p);
-        x02 = Fq_sqr(x0,T,p);
-        y02 = Fq_add(Fq_mul(x02,Fq_add(x0,a2,T,p),T,p),Fq_add(Fq_mul(a4,x0,T,p),a6,T,p),T,p);
+          y02 = Fq_add(Fq_mul(a4,a2,T,p),a6,T,p);
+        }
         y0 = Fq_sqrt(y02,T,p);
       }
       else
@@ -4247,23 +4252,33 @@ nflocalred_23(GEN e, GEN P, long *ap)
       GEN pv3 = gmul(pv, pv2);
       GEN alpha = pol2sqrt_23(nf, modP, pola1a2(e, nf, modP));
       GEN beta  = pol2sqrt_23(nf, modP, pola3a6(e, nf, modP, pv, pv2));
-      GEN po2;
+      GEN po2, E, F, mr;
+      long i, lE;
       E_gcompose_st(&ch, &e, alpha, gmul(beta, pi));
       po2 = pola2a4a6(e, nf, modP, pv, pv2, pv3);
       pol = RgX_add(monomial(gen_1,3,0), po2);
-      if (FqX_is_squarefree(pol, T, p))
-      {
-        long nr = FqX_nbroots(pol, T, p);
-        return localred_result(vD-4,-1,1+nr,ch);/* I0* */
+      F = FqX_factor(pol, T, p); E = gel(F,2);
+      lE = lg(E);
+      if (E[1] == 1 && (lE == 2 || E[2] == 1))
+      { /* T squarefree, degree pattern is (3), (12) or (111) */
+        long c; /* 1 + number of roots */
+        switch(lE)
+        {
+          case 2: c = 1; break;
+          case 3: c = 2; break;
+          default: c = 4; break;
+        }
+        return localred_result(vD-4,-1,c,ch);/* I0* */
       }
-    }
     /* 7 */
-    {
-      GEN F = FqX_factor(pol, T, p), E = gel(F,2);
-      long i = lg(E)==2 ? 1: E[1]==2 ? 1 : 2;
-      GEN gama = Fq_to_nf(Fq_neg(constant_coeff(gmael(F,1,i)), T, p), modP);
-      E_gcompose_r(&ch, &e, gmul(gama,pi));
-      if (lg(E)==3)
+      i = (lE == 2 || E[1] == 2)? 1: 2; /* index of multiple root */
+      mr = constant_coeff(gmael(F,1,i)); /* - multiple root */
+      if (!gequal0(mr))
+      { /* not so frequent */
+        GEN gama = Fq_to_nf(Fq_neg(mr, T, p), modP);
+        E_gcompose_r(&ch, &e, gmul(gama,pi));
+      }
+      if (lE == 3)
         return nflocalred_section7(e, nf, modP, pi, pv, vD, ch); /* Inu* */
     }
     pv4 = gsqr(pv2);
