@@ -4123,7 +4123,7 @@ pol2sqrt_23(GEN nf, GEN modP, GEN Q)
   if (!gequal1(gel(Q,4)))
     r = Fq_div(r, gel(Q,4), T, p);
   if (equaliu(p,2)) r = Fq_sqrt(r,T,p);
-  return basistoalg(nf, Fq_to_nf(r, modP));
+  return nftoalg(nf, Fq_to_nf(r, modP));
 }
 
 static GEN
@@ -4169,9 +4169,16 @@ nflocalred_23(GEN e, GEN P, long *ap)
   GEN ch, D, pv, pv2, pv4, pi, pol;
   nf = checknf(nf);
   modP = nf_to_Fq_init(nf,&P,&T,&p);
-  pv = basistoalg(nf, get_piinv(P));
-  pi = nfinv(nf, pv); /* local uniformizer */
-  pi = basistoalg(nf, pi);
+  if (typ(pr_get_tau(P)) == t_INT) /* inert prime */
+  {
+    pv = mkfrac(gen_1, p);
+    pi = p;
+  }
+  else
+  {
+    pv = basistoalg(nf, get_piinv(P));
+    pi = basistoalg(nf, nfinv(nf,pv)); /* local uniformizer */
+  }
   ch = init_ch();
   D = ell_get_disc(e);
   vD = nfval(nf,D,P);
@@ -4213,8 +4220,8 @@ nflocalred_23(GEN e, GEN P, long *ap)
           x0 = Fq_sqrtn(Fq_neg(Fq_add(Fq_sqr(a3,T,p),a6,T,p),T,p),p,T,p,NULL);
         y0 = Fq_add(Fq_mul(a1, x0, T, p), a3, T, p);
       }
-      x0 = basistoalg(nf,Fq_to_nf(x0, modP));
-      y0 = basistoalg(nf,Fq_to_nf(y0, modP));
+      x0 = nftoalg(nf,Fq_to_nf(x0, modP));
+      y0 = nftoalg(nf,Fq_to_nf(y0, modP));
       E_gcompose_rt(&ch, &e, x0, y0);
     }
     /* 2 */
@@ -4258,30 +4265,33 @@ nflocalred_23(GEN e, GEN P, long *ap)
       long i, lE;
       E_gcompose_st(&ch, &e, alpha, gmul(beta, pi));
       po2 = pola2a4a6(e, nf, modP, pv, pv2, pv3);
-      pol = RgX_add(monomial(gen_1,3,0), po2);
-      F = FqX_factor(pol, T, p); E = gel(F,2);
-      lE = lg(E);
-      if (E[1] == 1 && (lE == 2 || E[2] == 1))
-      { /* T squarefree, degree pattern is (3), (12) or (111) */
-        long c; /* 1 + number of roots */
-        switch(lE)
-        {
-          case 2: c = 1; break;
-          case 3: c = 2; break;
-          default: c = 4; break;
+      if (signe(po2)) /* po2 = 0 is frequent when non-minimal */
+      {
+        pol = RgX_add(monomial(gen_1,3,0), po2);
+        F = FqX_factor(pol, T, p); E = gel(F,2);
+        lE = lg(E);
+        if (E[1] == 1 && (lE == 2 || E[2] == 1))
+        { /* T squarefree, degree pattern is (3), (12) or (111) */
+          long c; /* 1 + number of roots */
+          switch(lE)
+          {
+            case 2: c = 1; break;
+            case 3: c = 2; break;
+            default: c = 4; break;
+          }
+          return localred_result(vD-4,-1,c,ch);/* I0* */
         }
-        return localred_result(vD-4,-1,c,ch);/* I0* */
+      /* 7 */
+        i = (lE == 2 || E[1] == 2)? 1: 2; /* index of multiple root */
+        mr = constant_coeff(gmael(F,1,i)); /* - multiple root */
+        if (!gequal0(mr))
+        { /* not so frequent */
+          GEN gama = Fq_to_nf(Fq_neg(mr, T, p), modP);
+          E_gcompose_r(&ch, &e, gmul(gama,pi));
+        }
+        if (lE == 3)
+          return nflocalred_section7(e, nf, modP, pi, pv, vD, ch); /* Inu* */
       }
-    /* 7 */
-      i = (lE == 2 || E[1] == 2)? 1: 2; /* index of multiple root */
-      mr = constant_coeff(gmael(F,1,i)); /* - multiple root */
-      if (!gequal0(mr))
-      { /* not so frequent */
-        GEN gama = Fq_to_nf(Fq_neg(mr, T, p), modP);
-        E_gcompose_r(&ch, &e, gmul(gama,pi));
-      }
-      if (lE == 3)
-        return nflocalred_section7(e, nf, modP, pi, pv, vD, ch); /* Inu* */
     }
     pv4 = gsqr(pv2);
     pol = pola3a6(e, nf, modP, pv2, pv4);
