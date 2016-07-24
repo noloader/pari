@@ -1168,11 +1168,12 @@ E_gcompose_r(GEN *vtotal, GEN *e, GEN r)
 {
   GEN v = *vtotal;
   GEN U2, R;
+  if (gequal0(r)) return;
   *e = coordch_r(*e,r);
   U2 = gsqr(gel(v,1)); R = gel(v,2);
   gel(v,2) = gadd(R, gmul(U2, r));
 }
-/* v o= [1,0,s,0] */
+/* v o= [1,0,s,0]; never used for s = 0 */
 static void
 E_gcompose_s(GEN *vtotal, GEN *e, GEN s)
 {
@@ -1188,6 +1189,7 @@ E_gcompose_t(GEN *vtotal, GEN *e, GEN t)
 {
   GEN v = *vtotal;
   GEN U3, U, T;
+  if (gequal0(t)) return;
   *e = coordch_t(*e,t);
   U = gel(v,1); U3 = gmul(U, gsqr(U)); T = gel(v,4);
   gel(v,4) = gadd(T, gmul(U3, t));
