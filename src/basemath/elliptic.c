@@ -4167,7 +4167,6 @@ nflocalred_23(GEN e, GEN P, long *ap)
   GEN nf = ellnf_get_nf(e), T,p, modP;
   long vD;
   GEN ch, D, pv, pv2, pv4, pi, pol;
-  nf = checknf(nf);
   modP = nf_to_Fq_init(nf,&P,&T,&p);
   if (typ(pr_get_tau(P)) == t_INT) /* inert prime */
   {
@@ -4486,7 +4485,7 @@ ellintegralmodel(GEN e, GEN *pv)
   GEN a = cgetg(6,t_VEC), t, u, L, nf;
   long i, l, k;
 
-  nf = (ell_get_type(e) == t_ELL_NF)?checknf(ellnf_get_nf(e)): NULL;
+  nf = (ell_get_type(e) == t_ELL_NF)?ellnf_get_nf(e): NULL;
   L = cgetg(1, t_VEC);
   for (i = 1; i < 6; i++)
   {
