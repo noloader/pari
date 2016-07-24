@@ -2064,9 +2064,9 @@ GEN
 obj_reinit(GEN S)
 {
   GEN s, T = leafcopy(S);
-  long d = lg(T)-2;
-  s = gel(T,d+1);
-  obj_init(d, lg(s)-1);
+  long a = lg(T)-1;
+  s = gel(T,a);
+  gel(T,a) = zerovec(lg(s)-1);
   return T;
 }
 
