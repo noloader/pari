@@ -1399,7 +1399,7 @@ static void
 etaquocheck(GEN eta, GEN *pdivN, GEN *pRM, GEN *pN)
 {
   GEN M, E, divN, RM, N;
-  long lM, ld, j;
+  long lM, j;
   if (typ(eta) != t_MAT || lg(eta) != 3 || !RgM_is_ZM(eta))
     pari_err_TYPE("lfunetaquo", eta);
   eta = famat_reduce(eta);
@@ -1408,8 +1408,7 @@ etaquocheck(GEN eta, GEN *pdivN, GEN *pRM, GEN *pN)
   *pN = N = glcm0(M, NULL);
   *pdivN = divN = divisors(N);
   settyp(divN, t_COL);
-  ld = lg(divN);
-  *pRM = RM = cgetg(ld, t_COL);
+  *pRM = RM = zerocol(lg(divN)-1);
   for (j = 1; j < lM; j++)
   {
     GEN m = gel(M,j), e = gel(E,j);
