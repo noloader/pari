@@ -940,7 +940,7 @@ sub basic_subst {
   s/\^\\text\{th\}/-th/g;
   s/1\^\\text\{st\}/1st/g;
   s/2\^\\text\{nd\}/2nd/g;
-  s/\\text{([a-zA-z0-9])}/$1/g;
+  s/\\text\{([a-zA-z0-9]*)\}/$1/g;
   s/\\(text|hbox|Big)//g;
 
   s/^([ \t]+)\{ *\\(it|sl|bf|tt)\b/S<$1>{\\$2/gm;
