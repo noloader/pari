@@ -3,4 +3,4 @@ Section: transcendental
 C-Name: garg
 Prototype: Gp
 Help: arg(x): argument of x, such that -pi<arg(x)<=pi.
-Doc: argument of the complex number $x$, such that $-\pi<\text{arg}(x)\le\pi$.
+Doc: argument of the complex number $x$, such that $-\pi < \arg(x) \le \pi$.
