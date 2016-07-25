@@ -899,8 +899,7 @@ sub basic_subst {
   s/ *\\ll?(?![a-zA-Z]) *([^ ])/ $tr{startcode}$tr{lt}$tr{ll}$tr{endcode} $1/g;
 
   s/\\(vers|PARIversion)(?![a-zA-Z])/$tr{startbold}$version$tr{endbold}/g;
-  s/\\([QRCFZNapdf])(?![a-zA-Z])/$tr{startbi}$1$tr{endbi}$2/g;
-  s/\\([QRCFZN])\1(?![a-zA-Z])/$tr{startbi}$1$tr{endbi}$2/g;
+  s/\\([QRCPFZN])(?![a-zA-Z])/$tr{startbi}$1$tr{endbi}$2/g;
   s/\\Bbb\b\s*(\w)/$tr{startbi}$1$tr{endbi}/g;
 
   s/\\([oc]br)/$tr{$1}/g;
