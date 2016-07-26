@@ -33,7 +33,8 @@ Doc: \kbd{lim} being either a positive upper limit or a non-empty real
     L = lfuninit(Ldata, T+1)
  @eprog\noindent where $T$ is the upper bound of the interval defined by
  \kbd{lim}: this allows to detect zeros near $T$. Make sure that your
- \kbd{Linit} domain contains this one. By default, the algorithm assumes
- that a multiple zero at $s = k / 2$ has order at most $4$. You may specify
- a larger domain via a \kbd{Linit} but this is a bad idea: do it in
- \kbd{lfunorderzero} instead.
+ \kbd{Linit} domain contains this one. The algorithm assumes
+ that a multiple zero at $s = k / 2$ has order less than or equal to
+ the maximal derivation order allowed by the \kbd{Linit}. You may increase
+ that value in the \kbd{Linit} but this is costly: only do it for zeros
+ of low height or in \kbd{lfunorderzero} instead.
