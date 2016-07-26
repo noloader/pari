@@ -24,3 +24,12 @@ Doc: \kbd{lim} being either an upper limit or a real interval, computes an
  @eprog\noindent The algorithm also assumes that all zeros are simple except
  possibly on the real axis at $s = k/2$ and that there are no poles in the
  search interval.
+
+ Should you pass an \kbd{Linit} argument to the function, beware that the
+ algorithm needs at least
+ \bprog
+    L = lfuninit(Ldata, T+1, 4)
+ @eprog\noindent where $T$ is the upper bound of the interval defined by
+ \kbd{lim}. This allows to detect zeros near $T$ as well as a zero of 4th
+ order at most at $s = k/2$. Make sure that your \kbd{Linit} domain contains
+ this one. (You may increase the 4 to some higher order, of course.)

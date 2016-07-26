@@ -2032,20 +2032,11 @@ lfunhardyzeros(void *E, GEN t)
   return h;
 }
 
+/* initialize for computation on critical line up to height h, zero
+ * of order <= 4 */
 static GEN
 lfuncenterinit(GEN lmisc, double h, long bitprec)
-{
-  GEN ldata = lfunmisc_to_ldata_shallow(lmisc);
-  long k = ldata_get_k(ldata);
-  GEN dom = mkvec(dbltor(h));
-  if (is_linit(lmisc) && linit_get_type(lmisc) == t_LDESC_INIT)
-  {
-    GEN tech = linit_get_tech(lmisc);
-    if (sdomain_isincl(k, dom, lfun_get_dom(tech))) return lmisc;
-  }
-  /* initialize for zero of order <= 4 */
-  return lfuninit(ldata, dom, 4, bitprec);
-}
+{ return lfuninit(lmisc, mkvec(dbltor(h)), 4, bitprec); }
 
 long
 lfunorderzero(GEN lmisc, long bitprec)
