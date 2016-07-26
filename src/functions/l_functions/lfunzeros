@@ -8,7 +8,8 @@ Help: lfunzeros(L,lim,{divz=8}): lim being
  given interval. Use a naive algorithm which may miss some zeros.
  To use a finer search mesh, set divz to some integral value
  larger than the default (= 8).
-Doc: \kbd{lim} being either an upper limit or a real interval, computes an
+Doc: \kbd{lim} being either a positive upper limit or a non-empty real
+ interval inside $[0,+\infty[$, computes an
  ordered list of zeros of $L(s)$ on the critical line up to the given
  upper limit or in the given interval. Use a naive algorithm which may miss
  some zeros: it assumes that two consecutive zeros at height $T \geq 1$
@@ -23,13 +24,16 @@ Doc: \kbd{lim} being either an upper limit or a real interval, computes an
  %2 = 4
  @eprog\noindent The algorithm also assumes that all zeros are simple except
  possibly on the real axis at $s = k/2$ and that there are no poles in the
- search interval.
+ search interval. (The possible zero at $s = k/2$ is repeated according to
+ its multiplicity.)
 
  Should you pass an \kbd{Linit} argument to the function, beware that the
  algorithm needs at least
  \bprog
-    L = lfuninit(Ldata, T+1, 4)
+    L = lfuninit(Ldata, T+1)
  @eprog\noindent where $T$ is the upper bound of the interval defined by
- \kbd{lim}. This allows to detect zeros near $T$ as well as a zero of 4th
- order at most at $s = k/2$. Make sure that your \kbd{Linit} domain contains
- this one. (You may increase the 4 to some higher order, of course.)
+ \kbd{lim}: this allows to detect zeros near $T$. Make sure that your
+ \kbd{Linit} domain contains this one. By default, the algorithm assumes
+ that a multiple zero at $s = k / 2$ has order at most $4$. You may specify
+ a larger domain via a \kbd{Linit} but this is a bad idea: do it in
+ \kbd{lfunorderzero} instead.

@@ -2033,13 +2033,24 @@ lfunhardyzeros(void *E, GEN t)
 }
 
 /* initialize for computation on critical line up to height h, zero
- * of order <= 4 */
+ * of order <= m */
 static GEN
-lfuncenterinit(GEN lmisc, double h, long bitprec)
-{ return lfuninit(lmisc, mkvec(dbltor(h)), 4, bitprec); }
+lfuncenterinit(GEN lmisc, double h, long m, long bitprec)
+{
+  if (m < 0)
+  { /* choose a sensible default */
+    if (!is_linit(lmisc)) m = 4;
+    else
+    {
+      GEN domain = lfun_get_domain(linit_get_tech(lmisc));
+      m = domain_get_der(domain);
+    }
+  }
+  return lfuninit(lmisc, mkvec(dbltor(h)), m, bitprec);
+}
 
 long
-lfunorderzero(GEN lmisc, long bitprec)
+lfunorderzero(GEN lmisc, long m, long bitprec)
 {
   pari_sp ltop = avma;
   GEN eno, ldata, linit, k2;
@@ -2049,10 +2060,10 @@ lfunorderzero(GEN lmisc, long bitprec)
   {
     GEN M = gmael(linit_get_tech(lmisc), 2,1);
     long i;
-    for (c=0,i=1; i < lg(M); i++) c += lfunorderzero(gel(M,i), bitprec);
+    for (c=0,i=1; i < lg(M); i++) c += lfunorderzero(gel(M,i), m, bitprec);
     return c;
   }
-  linit = lfuncenterinit(lmisc, 0, bitprec);
+  linit = lfuncenterinit(lmisc, 0, m, bitprec);
   ldata = linit_get_ldata(linit);
   eno = ldata_get_rootno(ldata);
   G = -bitprec/2;
@@ -2103,7 +2114,7 @@ lfunzeros(GEN ldata, GEN lim, long divz, long bitprec)
       gel(v,i) = lfunzeros(gel(M,i), lim, divz, bitprec);
     return gerepileupto(ltop, vecsort0(shallowconcat1(v), NULL, 0));
   }
-  S.linit = linit = lfuncenterinit(ldata, maxt + 1, bitprec);
+  S.linit = linit = lfuncenterinit(ldata, maxt + 1, -1, bitprec);
   S.bitprec = bitprec;
   S.prec = prec;
   ldataf = linit_get_ldata(linit);
@@ -2123,7 +2134,7 @@ lfunzeros(GEN ldata, GEN lim, long divz, long bitprec)
     GEN r = ldata_get_residue(ldataf);
     if (!r || gequal0(r))
     {
-      ct = lfunorderzero(linit, bitprec);
+      ct = lfunorderzero(linit, -1, bitprec);
       if (ct) T = real2n(-prec2nbits(prec)/(2*ct), prec);
     }
   }
