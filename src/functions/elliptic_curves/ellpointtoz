@@ -40,7 +40,8 @@ Doc:
  \item If the reduction is \emph{not} split ($E.\kbd{tate[2]}$ is a
  \typ{POLMOD}), we only have an isomorphism $\phi: E(K) \simeq K^*/q^\Z$ over
  the unramified quadratic extension $K/\Q_p$. In this case, the output
- $\phi(P)\in K$ is a \typ{POLMOD}.
+ $\phi(P)\in K$ is a \typ{POLMOD}. (This case is not fully implemented
+ and may fail with a "not yet implemented" error.)
  \bprog
  ? E = ellinit([0,-1,1,0,0], O(11^5)); P = [0,0];
  ? [u2,u,q] = E.tate; type(u) \\ split multiplicative reduction

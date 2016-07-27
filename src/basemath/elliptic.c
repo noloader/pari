@@ -2241,7 +2241,7 @@ static GEN
 zellQp(GEN E, GEN z, long prec)
 {
   pari_sp av = avma;
-  GEN b2, a, b, ab, c0, r0, r1, ar1, e1, x, y, delta, x0,x1, y0,y1, t;
+  GEN b2, a, b, ab, c0, r0, r1, ar1, e1, x, delta, x0,x1, y0,y1, t;
   if (ell_is_inf(z)) return gen_1;
   b2 = ell_get_b2(E);
   e1 = ellQp_root(E, prec);
@@ -2249,12 +2249,13 @@ zellQp(GEN E, GEN z, long prec)
   a = gel(ab,1);
   b = gel(ab,2); r1 = gsub(a,b);
   x = gel(z,1);
-  y = gel(z,2);
   r0 = gadd(e1,gmul2n(b2,-2));
   c0 = gadd(x, gmul2n(r0,-1)); ar1 = gmul(a,r1);
   delta = gdiv(ar1, gsqr(c0));
-  x0 = gmul(gmul2n(c0,-1), gaddsg(1,Qp_sqrt(gsubsg(1,gmul2n(delta,2)))));
-  y0 = gdiv(gadd(y, gmul2n(ec_dmFdy_evalQ(E,z), -1)), gsubsg(1, gdiv(ar1,gsqr(x0))));
+  t = Qp_sqrt(gsubsg(1,gmul2n(delta,2)));
+  if (!t) pari_err_IMPL("ellpointtoz when u not in Q_p");
+  x0 = gmul(gmul2n(c0,-1), gaddsg(1,t));
+  y0 = gdiv(gmul2n(ec_dFdy_evalQ(E,z), -1), gsubsg(1, gdiv(ar1,gsqr(x0))));
 
   x1 = gmul(x0, gsqr(gmul2n(gaddsg(1, Qp_sqrt(gaddsg(1,gdiv(r1,x0)))),-1)));
   y1 = gdiv(y0, gsubsg(1, gsqr(gdiv(r1,gmul2n(x1,2)))));

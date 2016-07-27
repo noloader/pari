@@ -210,14 +210,20 @@ ellinit([108/91,11664/8281,-6561/8281,708588/753571,-14348907/68574961]).disc
 
 e=ellinit([1,3.+I]); x=1/2+I; y=ellordinate(e,x)[1];
 ellztopoint(e,ellpointtoz(e,[x,y]))
+testzellQp(e, P)=
+{
+  P = [0,0]; a = ellpointtoz(e,P);
+  print(a);
+  a^2 - ellpointtoz(e, elladd(e,P,P));
+}
 e=ellinit([0,-1,1,0,0], O(11^5));
-ellpointtoz(e,[0,0])
+testzellQp(e, [0,0])
 e=ellinit([1,1,1,-10,-10], O(3^5));
-ellpointtoz(e,[3,-2])
+testzellQp(e, [3,-2])
 e=ellinit(ellfromj(2/9), O(3^10)); x=2; y=ellordinate(e,x)[1];
-ellpointtoz(e,[x,y])
+testzellQp(e, [x,y])
 e=ellinit(ellfromj(1/4), O(2^10)); x=1/2; y=ellordinate(e,x)[1];
-ellpointtoz(e,[x,y])
+testzellQp(e, [x,y])
 
 ellinit([1,1], Mod(1,11))
 ellrootno(ellinit([31^4,31^6]), 31)

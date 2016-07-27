@@ -229,6 +229,7 @@ BA163- [windows] MPQS could fail due to temporary files
   169- missing typechecks in ellheight() [SEGV on BIB]
   170- ellminimalmodel() didn't use a coprime bases so that it
        was very slow for [c4,c6] = [p^5*q, p^6*q] for huge p and q
+BP171- ellpointtoz(E / Qp) was totally wrong [#1833]
 
   Added
     1- add optional argument to sumdigits to specify the base
