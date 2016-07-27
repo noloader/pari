@@ -2253,7 +2253,8 @@ zellQp(GEN E, GEN z, long prec)
   c0 = gadd(x, gmul2n(r0,-1)); ar1 = gmul(a,r1);
   delta = gdiv(ar1, gsqr(c0));
   t = Qp_sqrt(gsubsg(1,gmul2n(delta,2)));
-  if (!t) pari_err_IMPL("ellpointtoz when u not in Q_p");
+  if (!t)
+    pari_err_DOMAIN("ellztopoint", "point", "not on", strtoGENstr("E"),z);
   x0 = gmul(gmul2n(c0,-1), gaddsg(1,t));
   y0 = gdiv(gmul2n(ec_dFdy_evalQ(E,z), -1), gsubsg(1, gdiv(ar1,gsqr(x0))));
 
