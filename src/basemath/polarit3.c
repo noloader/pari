@@ -2159,7 +2159,7 @@ INIT:
   while (1)
   {
     ulong p = u_forprime_next(&S);
-    if (dB) { dp = smodis(dB, p); if (!dp) continue; }
+    if (dB) { dp = umodiu(dB, p); if (!dp) continue; }
 
     a = ZX_to_Flx(A, p);
     b = ZXX_to_FlxX(B, p, varn(A));
