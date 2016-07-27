@@ -2244,8 +2244,9 @@ zellQp(GEN E, GEN z, long prec)
   GEN b2, a, b, ab, c0, r0, r1, ar1, e1, x, delta, x0,x1, y0,y1, t;
   if (ell_is_inf(z)) return gen_1;
   b2 = ell_get_b2(E);
-  e1 = ellQp_root(E, prec);
   ab = ellQp_ab(E, prec);
+  /* e1 already computed in ellQp_ab, possibly to larger accuracy */
+  e1 = ellQp_root(E, prec);
   a = gel(ab,1);
   b = gel(ab,2); r1 = gsub(a,b);
   x = gel(z,1);
