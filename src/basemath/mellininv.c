@@ -250,7 +250,8 @@ evalvec(GEN vec, long lim, GEN u, GEN ui)
 
 /* gammamellininvinit accessors */
 static double
-GMi_get_tmax(GEN K) { return rtodbl( gel(K,1) ); }
+get_tmax(long bitprec)
+{ return (LOG2 / MELLININV_CUTOFF) * bitprec ; }
 static GEN
 GMi_get_Vga(GEN K) { return gel(K,2); }
 static long
@@ -259,6 +260,9 @@ static GEN /* [lj,mj,mat], Kderivsmall only */
 GMi_get_VS(GEN K) { return gel(K,4); }
 static GEN /* [Ms,cd,A2], Kderivlarge only */
 GMi_get_VL(GEN K) { return gel(K,5); }
+static double
+GMi_get_tmax(GEN K, long bitprec)
+{ return (typ(GMi_get_VS(K)) == t_INT)? -1.0 : get_tmax(bitprec); }
 
 /* Compute m-th derivative of inverse Mellin at x by generalized power series
  * around x = 0; x2d = x^(2/d), x is possibly NULL (don't bother about
@@ -553,7 +557,7 @@ gammamellininvinit(GEN Vga, long m, long bitprec)
   GEN A2, M, VS, VL, cd;
   long d = lg(Vga)-1, status;
   const double C2 = MELLININV_CUTOFF, D = get_D(d);
-  double E = LOG2*bitprec, tmax = E / C2;
+  double E = LOG2*bitprec, tmax = get_tmax(bitprec); /* = E/C2 */
   const long nlimmax = ceil(E*log2(1+M_PI*tmax)*C2/D);
 
   if (!is_vec_t(typ(Vga))) pari_err_TYPE("gammamellininvinit",Vga);
@@ -594,7 +598,7 @@ gammamellininvinit(GEN Vga, long m, long bitprec)
 GEN
 gammamellininvrt(GEN K, GEN s2d, long bitprec)
 {
-  if (dblmodulus(s2d) < GMi_get_tmax(K))
+  if (dblmodulus(s2d) < GMi_get_tmax(K, bitprec))
     return Kderivsmall(K, NULL, s2d, bitprec);
   else
     return Kderivlarge(K, NULL, s2d, bitprec);
@@ -613,7 +617,7 @@ gammamellininv(GEN K, GEN s, long m, long bitprec)
     K = gammamellininvinit(K, m, bitprec);
   d = lg(GMi_get_Vga(K))-1;
   s2d = gpow(s, gdivgs(gen_2, d), nbits2prec(bitprec));
-  if (dblmodulus(s2d) < GMi_get_tmax(K))
+  if (dblmodulus(s2d) < GMi_get_tmax(K, bitprec))
     z = Kderivsmall(K, s, s2d, bitprec);
   else
     z = Kderivlarge(K, s, s2d, bitprec);
