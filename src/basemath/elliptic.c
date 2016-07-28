@@ -5615,8 +5615,8 @@ static GEN
 ellnflocal(void *S, GEN p)
 {
   pari_sp av = avma;
-  GEN E = (GEN)S;
-  GEN LP = idealprimedec(ellnf_get_nf(E), p), T = pol_1(0);
+  GEN gS = (GEN)S, E = gel(gS,1), N = gel(gS,2);
+  GEN LP = idealprimedec_limit_norm(ellnf_get_nf(E), p, N), T = NULL;
   long l = lg(LP), i;
   for (i = 1; i < l; i++)
   {
@@ -5632,15 +5632,18 @@ ellnflocal(void *S, GEN p)
       T2 = deg1pol_shallow(negi(ap), gen_1, 0);
     }
     if (f > 1) T2 = RgX_inflate(T2, f);
-    T = ZX_mul(T, T2);
+    T = T? ZX_mul(T, T2): T2;
   }
+  if (!T) { avma = av; return pol_1(0); }
   return gerepileupto(av, ginv(T));
 }
 
 static GEN
 ellnfan(GEN E, long N)
-{ return direuler((void*)E, &ellnflocal, gen_2, stoi(N), NULL); }
-
+{
+  GEN gN = stoi(N);
+  return direuler((void*)mkvec2(E,gN), &ellnflocal, gen_2, gN, NULL);
+}
 GEN
 ellan(GEN E, long N)
 {

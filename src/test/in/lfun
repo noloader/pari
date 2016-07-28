@@ -186,6 +186,11 @@ E5=ellinit([a,1-a,1,-1,0],K2);
 lfuncheckfeq(E5)
 lfunlambda(E5,1)
 
+K=bnfinit(subst(x^3-x^2-3*x+1,x,a));
+E=ellinit([a^2-a-2,-a^2+2*a+3,a^2-1,-a^2+a+4,-a^2+2],K);
+localbitprec(4); lfuncheckfeq(E)
+localbitprec(32);lfuncheckfeq(E)
+
 print("check all formats");
 default("realprecision",54)
 e = ellinit([0, 0, 1, -1, 0]);
