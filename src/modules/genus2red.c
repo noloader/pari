@@ -243,48 +243,6 @@ RgX_to_6(GEN q, GEN *a0, GEN *a1, GEN *a2, GEN *a3, GEN *a4, GEN *a5, GEN *a6)
   }
 }
 
-/* return a factor of maximal multiplicity (maxord) of the FpX Q, deg Q < 7.
- * In the special case maxord = 3 or maxord = 2 and p <= 5, make sure
- * the factor is irreducible */
-static GEN
-factmz(GEN Q, GEN p, long *maxord)
-{
-  GEN D, z = Q;
-  long m = 0;
-  if (cmpiu(p,5) <= 0)
-  {
-    if (FpX_is_squarefree(Q, p)) m = 1;
-    else
-    {
-      GEN F = FpX_factor(Q,p), P = gel(F,1), E = gel(F,2);
-      long i, l = 1;
-      for(i = 1;i<lg(E);i++)
-      {
-        long e = E[i];
-        if (e >= m) { m = e; l = i; }
-      }
-      z = gel(P,l);
-    }
-    *maxord = m; return z;
-  }
-  D = Q;
-  for(;;)
-  {
-    GEN T;
-    m++;
-    D = FpX_deriv(D, p);
-    T = FpX_gcd(z, D, p);
-    if (degpol(T) == 0) break;
-    z = T;
-  }
-  if (m >= 3 && degpol(z) == 2)
-  {
-    GEN F = FpX_factor(z,p);
-    z = gcoeff(F,1,1);
-  }
-  *maxord = m; return z;
-}
-
 /* deg(H mod p) = 3, return v_p( disc(correspondig p-adic factor) ) */
 static long
 discpart(GEN H, GEN p, long prec)
@@ -307,9 +265,8 @@ discpart(GEN H, GEN p, long prec)
   return gequal0(dis)? prec+1: valp(dis);
 }
 
-
 /* B = b0 X^6 + ... + b6 a ZX, 0 <= j <= 3.
- * Return theta_j(H) := min { v_p(b_i) / (i - j), lambda < i <= 6 } >= 0.
+ * Return theta_j(H) := min { v_p(b_i) / (i - j), j < i <= 6 } >= 0.
  * N.B. 60 theta \in Z */
 static GEN
 theta_j(GEN B, GEN p, long j)
@@ -348,13 +305,17 @@ theta_3_zi2(GEN B)
   return frac2s(min3(6*v2, 3*v1, 2*v0), 6);
 }
 
-/* T an FpX of degree 1, return its root */
+/* Set maxord to the maximal multiplicity of a factor. If there is at least
+ * a triple root (=> maxord >= 3) return it, else return NULL */
 static GEN
-deg1root(GEN T, GEN p)
+factmz(GEN Q, GEN p, long *maxord)
 {
-  GEN a = gel(T,2), b = gel(T,3);
-  return Fp_neg(Fp_div(a, b, p), p);
+  GEN z = FpX_factor_squarefree(Q, p);
+  long m = lg(z)-1; /* maximal multiplicity */
+  *maxord = m;
+  return (m >= 3)? FpX_oneroot(gel(z,m), p): NULL;
 }
+
 /* H = minimal minimal over Z_p, p > 2.
  * alpha = 0,1
  * quad = 1 if root of order 3 in F_p^2 \ F_p, 0 otherwise
@@ -365,7 +326,7 @@ static GEN
 polymini(GEN pol, GEN p)
 {
   GEN a0, a1, a2, a3, a4, a5, a6;
-  GEN H, Hp, rac, theta, polf, pro, quad;
+  GEN H, Hp, rac, theta, polf, quad;
   long alpha, lambda, maxord, beta;
 
   alpha = polval(pol,p);
@@ -376,7 +337,7 @@ polymini(GEN pol, GEN p)
     H = RgX_recip6(H);
     RgX_to_6(H, &a0,&a1,&a2,&a3,&a4,&a5,&a6);
   }
-  alpha = alpha&1;
+  alpha &= 1;
   beta = 0;
   lambda = 0;
   if (!dvdii(a1,p)) lambda = 1;
@@ -407,8 +368,7 @@ polymini(GEN pol, GEN p)
     }
     else
     { /* maxord >= 3 */
-      if (degpol(rac) == 2) { quad = gen_1; goto end; }
-      rac = deg1root(rac, p);
+      if (!rac) { quad = gen_1; goto end; }
       H = RgX_translate(H, rac);
       lambda = 6-maxord;
     }
@@ -444,11 +404,10 @@ polymini(GEN pol, GEN p)
       rac = factmz(RgX_mulXn(Hp, -3), p, &maxord);
       if (maxord == 3)
       {
-        rac = deg1root(rac, p);
-        pro = RgX_translate(RgX_unscale(H,p), rac); /* H(rac + px) */
-        if (polval(pro,p)>= 3)
+        GEN t = RgX_translate(RgX_unscale(H,p), rac); /* H(rac + px) */
+        if (polval(t,p)>= 3)
         {
-          H = RgX_Rg_div(pro, powiu(p,3));
+          H = RgX_Rg_div(t, powiu(p,3));
           alpha = 0;
           beta--;
           theta = theta_j(H,p,3);
