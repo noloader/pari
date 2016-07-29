@@ -316,21 +316,21 @@ factmz(GEN Q, GEN p, long *maxord)
   return (m >= 3)? FpX_oneroot(gel(z,m), p): NULL;
 }
 
-/* H = minimal minimal over Z_p, p > 2.
- * alpha = 0,1
- * quad = 1 if root of order 3 in F_p^2 \ F_p, 0 otherwise
- * 0 <= lambda <= 3, t_INT
- * theta = theta(H, p), rational
+/* H integral ZX of degree 5 or 6, p > 2. Modify until
+ *   y^2 = p^alpha H is minimal over Z_p, alpha = 0,1
+ * Return [H,lambda,theta,alpha,quad,beta], were model
+ * quad = 1 if H has a root of order 3 in F_p^2 \ F_p, 0 otherwise
+ * 0 <= lambda <= 3, integer
+ * theta = theta_j(H, p, lambda), 60*theta in Z.
  * beta >= 0, t_INT */
 static GEN
-polymini(GEN pol, GEN p)
+polymini(GEN H, GEN p)
 {
-  GEN a0, a1, a2, a3, a4, a5, a6;
-  GEN H, Hp, rac, theta, polf, quad;
-  long alpha, lambda, maxord, beta;
+  GEN a0, a1, a2, a3, a4, a5, a6, Hp, rac, theta, polf, quad = gen_0;
+  long alpha, beta, lambda, maxord;
 
-  alpha = polval(pol,p);
-  H = RgX_Rg_div(pol, powiu(p,alpha));
+  alpha = polval(H,p);
+  if (alpha) H = ZX_Z_divexact(H, powiu(p,alpha));
   RgX_to_6(H, &a0,&a1,&a2,&a3,&a4,&a5,&a6);
   if (dvdii(a0,p) && dvdii(a1,p) && dvdii(a2,p) && dvdii(a3,p))
   {
@@ -339,24 +339,24 @@ polymini(GEN pol, GEN p)
   }
   alpha &= 1;
   beta = 0;
-  lambda = 0;
-  if (!dvdii(a1,p)) lambda = 1;
-  if (!dvdii(a2,p)) lambda = 2;
   if (!dvdii(a3,p)) lambda = 3;
-  quad = gen_0;
+  else if (!dvdii(a2,p)) lambda = 2;
+  else if (!dvdii(a1,p)) lambda = 1;
+  else lambda = 0;
 
   for(;;)
   {
     theta = theta_j(H,p,lambda);
-    if (gcmp(theta,gen_1)>= 0)
+    if (gcmp(theta,gen_1) >= 0)
     {
       long ent = itos(gfloor(theta));
       GEN pent = powiu(p,ent);
-      H = RgX_Rg_div(RgX_unscale(H,pent), powiu(pent,6-lambda));
+      H = ZX_Z_divexact(ZX_unscale(H,pent), powiu(pent,6-lambda));
       alpha = (alpha+lambda*ent)&1;
       beta += ent;
       theta = gsubgs(theta,ent);
     }
+    /* 0 <= theta < 1 */
     Hp = FpX_red(H, p);
     if (!gequal0(theta)) break;
 
@@ -380,9 +380,9 @@ polymini(GEN pol, GEN p)
         myval(RgX_coeff(H,1),p) > 2-alpha &&
         myval(RgX_coeff(H,0),p) > 3-alpha)
     {
-      pol = RgX_unscale(H, p);
-      if (alpha) pol = RgX_Rg_mul(pol, p);
-      return polymini(pol, p);
+      H = ZX_unscale(H, p);
+      if (alpha) H = ZX_Z_mul(H, p);
+      return polymini(H, p);
     }
   }
   else if (lambda == 3 && alpha == 1)
@@ -404,7 +404,7 @@ polymini(GEN pol, GEN p)
       rac = factmz(RgX_mulXn(Hp, -3), p, &maxord);
       if (maxord == 3)
       {
-        GEN t = RgX_translate(RgX_unscale(H,p), rac); /* H(rac + px) */
+        GEN t = RgX_translate(ZX_unscale(H,p), rac); /* H(rac + px) */
         if (polval(t,p)>= 3)
         {
           H = RgX_Rg_div(t, powiu(p,3));
@@ -678,7 +678,7 @@ get_red(struct red *S, struct igusa_p *Ip, GEN polh, GEN p, long alpha, long r)
       return indice ? indice: 1;
     case 6:
       if (alpha == 0) /* H(px) /p^3 */
-        polh = RgX_Rg_div(RgX_unscale(polh,p), powiu(p,3));
+        polh = ZX_Z_divexact(ZX_unscale(polh,p), powiu(p,3));
       indice = FpX_is_squarefree(FpX_red(polh,p), p)
                ? 0
                : val[6] - val[7] + val[Ip->eps2]/Ip->eps;
@@ -1684,7 +1684,7 @@ litredtp(long alpha, long alpha1, GEN theta, GEN theta1, GEN polh, GEN polh1,
         Ip->neron = cyclic(1); break;
       case 6: /* (0,6) or (6,0) */
         condp = 2;
-        Ip->type = stack_sprintf("[I*{0}-I{0}-%ld] page 159",R);
+        Ip->type = stack_sprintf("[I{0}-I*{0}-%ld] page 159",R);
         Ip->neron = dicyclic(2,2); break;
       case 12: /* (6,6) */
         condp = 4;
@@ -1698,7 +1698,7 @@ litredtp(long alpha, long alpha1, GEN theta, GEN theta1, GEN polh, GEN polh1,
     {
       d = val[6] - val[7] + (val[Ip->eps2]/Ip->eps);
       if (Ip->r1 && alpha1 == 0) /* H(px) / p^3 */
-        polh1 = RgX_Rg_div(RgX_unscale(polh1,p), powiu(p,3));
+        polh1 = ZX_Z_divexact(ZX_unscale(polh1,p), powiu(p,3));
       if (FpX_is_squarefree(FpX_red(polh1,p),p))
       { indice = 0; condp = 3-Ip->r2/6; }
       else
@@ -1709,33 +1709,20 @@ litredtp(long alpha, long alpha1, GEN theta, GEN theta1, GEN polh, GEN polh1,
       long d1;
       d = val[6] - 3*val[3] + (val[Ip->eps2]/Ip->eps);
       if (gequal1(theta1)) /* H(px) / p^3 */
-        polh1 = RgX_Rg_div(RgX_unscale(polh1,p), powiu(p,3));
+        polh1 = ZX_Z_divexact(ZX_unscale(polh1,p), powiu(p,3));
       d1 = minss(val[7]-3*val[3],d/2);
       if (d == 2*d1) indice = d1;
       else
       {
         indice = discpart(polh1,p,d1+1);
-        if (indice>= d1+1) indice = d-d1;
-        else indice = d1;
+        if (indice>= d1+1) indice = d-d1; else indice = d1;
       }
       condp = 3;
     }
-    if (Ip->r1)
-    { /* (6,0) */
-      Ip->neron = gconcat(cyclic(d-indice),groupH(indice));
-      if (Ip->tt == 6)
-        Ip->type = stack_sprintf("[I*{%ld}-I{%ld}-%ld] page 170",indice,d-indice,R);
-      else
-        Ip->type = stack_sprintf("[I*{%ld}-I{%ld}-%ld] page 180",indice,d-indice,R);
-    }
-    else
-    { /* (0,6) */
-      Ip->neron = gconcat(cyclic(indice),groupH(d-indice));
-      if (Ip->tt == 6)
-        Ip->type = stack_sprintf("[I{%ld}-I*{%ld}-%ld] page 170", indice,d-indice,R);
-      else
-        Ip->type = stack_sprintf("[I{%ld}-I*{%ld}-%ld] page 180", indice,d-indice,R);
-    }
+    if (Ip->r1) indice = d - indice; /* (r1,r2) = (6,0) */
+    Ip->neron = gconcat(cyclic(indice),groupH(d-indice));
+    Ip->type = stack_sprintf("[I{%ld}-I*{%ld}-%ld] page %ld",
+                             indice,d-indice,R, (Ip->tt==6)? 170: 180);
     return condp;
   }
   if (Ip->tt == 7) pari_err_BUG("litredtp [switch ri]");
@@ -1767,8 +1754,8 @@ labelm3(GEN polh, GEN theta, long alpha, long dismin,
   theta = gel(polf,3);
   alpha = itos(gel(polf,4));
   beta  = itos(gel(polf,6));
-  if (lambda != 3) pari_err_BUG("labelm3 [lambda = 3]");
-  R = beta-alpha1-alpha;
+  if (lambda != 3) pari_err_BUG("labelm3 [lambda != 3]");
+  R = beta-(alpha1+alpha);
   if (odd(R)) pari_err_BUG("labelm3 [R odd]");
   R /= 2;
   if (R <= -2) pari_err_BUG("labelm3 [R <= -2]");
@@ -2208,7 +2195,7 @@ genus2red(GEN PQ, GEN p)
   for(i = 1; i<l; i++)
   {
     GEN l = gel(factp,i), pm;
-    if (i == 1 && equalis(l, 2)) { gel(vecmini,1) = gen_0; continue; }
+    if (i == 1 && equaliu(l, 2)) { gel(vecmini,1) = gen_0; continue; }
     gel(vecmini,i) = pm = polymini(polr, l);
     polr = RgX_Rg_mul(gel(pm,1), powii(l, gel(pm,4)));
   }
