@@ -4359,6 +4359,11 @@ components: \kbd{v[1]} is a vector of distinct irreducible (\kbd{FpX})
 factors, and \kbd{v[2]} is a \typ{VECSMALL} of corresponding exponents. The
 order of the factors is deterministic (the computation is not).
 
+\fun{GEN}{FpX_factor_squarefree}{GEN f, GEN p} returns the squarefree
+factorization of $f$ modulo $p$. This is a vector $[u_1,\dots,u_k]$
+of pairwise coprime \kbd{FpX} such that $u_k \neq 1$ and $f = \prod u_i^i$.
+Shallow function.
+
 \fun{long}{FpX_nbfact}{GEN f, GEN p}, assuming the \kbd{FpX}~f is squarefree,
 returns the number of its irreducible factors. Assumes that \kbd{p} is prime.
 
@@ -5171,6 +5176,11 @@ of $f$ as a \typ{VECSMALL} (multiple roots are not repeated), found
 by an exhaustive search. Efficient for very small $p$ !
 
 \fun{GEN}{Flx_factor}{GEN f, ulong p}
+
+\fun{GEN}{Flx_factor_squarefree}{GEN f, ulong p} returns the squarefree
+factorization of $f$ modulo $p$. This is a vector $[u_1,\dots,u_k]$
+of pairwise coprime \kbd{Flx} such that $u_k \neq 1$ and $f = \prod u_i^i$.
+Shallow function.
 
 \fun{GEN}{Flx_mod_Xn1}{GEN T, ulong n, ulong p} return $T$ modulo
 $(X^n + 1, p)$. Shallow function.

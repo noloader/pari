@@ -738,7 +738,7 @@ static GEN
 F2xqX_roots_i(GEN S, GEN T)
 {
   GEN xp, F, M, V, R;
-  long i, j, s, l;
+  long i, j, l;
   S = F2xqX_red(S, T);
   if (!signe(S)) pari_err_ROOTS0("F2xqX_roots");
   if (degpol(S)==0) return cgetg(1, t_COL);
@@ -748,13 +748,11 @@ F2xqX_roots_i(GEN S, GEN T)
   xp = F2x_Frobenius(T);
   V = F2xqX_factor_squarefree(S, T);
   l = lg(V);
-  for (s=0, i=1; i < l; i++)
-    s += !!degpol(gel(V,i));
-  F = cgetg(s+1, t_VEC);
+  F = cgetg(l, t_VEC);
   for (i=1, j=1; i < l; i++)
     if (degpol(gel(V,i)))
       gel(F, j++) = F2xqX_roots_ddf(gel(V,i), xp, T);
-  M = shallowconcat1(F);
+  setlg(F,j); M = shallowconcat1(F);
   gen_sort_inplace(M, (void*) &cmp_Flx, &cmp_nodata, NULL);
   return M;
 }
@@ -899,7 +897,7 @@ static GEN
 FlxqX_roots_i(GEN S, GEN T, ulong p)
 {
   GEN xp, F, M, V, R;
-  long i, j, s, l;
+  long i, j, l;
   S = FlxqX_red(S, T, p);
   if (!signe(S)) pari_err_ROOTS0("FlxqX_roots");
   if (degpol(S)==0) return cgetg(1, t_COL);
@@ -909,13 +907,11 @@ FlxqX_roots_i(GEN S, GEN T, ulong p)
   xp = Flx_Frobenius(T, p);
   V = FlxqX_factor_squarefree(S, xp, T, p);
   l = lg(V);
-  for (s=0, i=1; i < l; i++)
-    s += !!degpol(gel(V,i));
-  F = cgetg(s+1, t_VEC);
+  F = cgetg(l, t_VEC);
   for (i=1, j=1; i < l; i++)
     if (degpol(gel(V,i)))
       gel(F, j++) = FlxqX_roots_ddf(gel(V,i), xp, T, p);
-  M = shallowconcat1(F);
+  setlg(F,j); M = shallowconcat1(F);
   gen_sort_inplace(M, (void*) &cmp_Flx, &cmp_nodata, NULL);
   return M;
 }
@@ -1009,7 +1005,7 @@ static GEN
 FpXQX_roots_i(GEN S, GEN T, GEN p)
 {
   GEN xp, F, M, V, R;
-  long i, j, s, l;
+  long i, j, l;
   if (lgefint(p)==3)
   {
     ulong pp = p[2];
@@ -1033,13 +1029,11 @@ FpXQX_roots_i(GEN S, GEN T, GEN p)
   xp = FpX_Frobenius(T, p);
   V = FpXQX_factor_squarefree(S, T, p);
   l = lg(V);
-  for (s=0, i=1; i < l; i++)
-    s += !!degpol(gel(V,i));
-  F = cgetg(s+1, t_VEC);
+  F = cgetg(l, t_VEC);
   for (i=1, j=1; i < l; i++)
     if (degpol(gel(V,i)))
       gel(F, j++) = FpXQX_roots_ddf(gel(V,i), xp, T, p);
-  M = shallowconcat1(F);
+  setlg(F,j); M = shallowconcat1(F);
   gen_sort_inplace(M, (void*) &cmp_RgX, &cmp_nodata, NULL);
   return M;
 }
