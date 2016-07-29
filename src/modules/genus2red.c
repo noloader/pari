@@ -349,12 +349,12 @@ polymini(GEN H, GEN p)
     theta = theta_j(H,p,lambda);
     if (gcmp(theta,gen_1) >= 0)
     {
-      long ent = itos(gfloor(theta));
-      GEN pent = powiu(p,ent);
-      H = ZX_Z_divexact(ZX_unscale(H,pent), powiu(pent,6-lambda));
-      alpha = (alpha+lambda*ent)&1;
-      beta += ent;
-      theta = gsubgs(theta,ent);
+      long e = itos(gfloor(theta));
+      GEN pe = powiu(p,e);
+      H = ZX_Z_divexact(ZX_unscale(H,pe), powiu(pe,6-lambda));
+      alpha = (alpha + lambda*e)&1;
+      beta += e;
+      theta = gsubgs(theta,e);
     }
     /* 0 <= theta < 1 */
     Hp = FpX_red(H, p);
@@ -369,7 +369,7 @@ polymini(GEN H, GEN p)
     else
     { /* maxord >= 3 */
       if (!rac) { quad = gen_1; goto end; }
-      H = RgX_translate(H, rac);
+      if (signe(rac)) H = RgX_translate(H, rac);
       lambda = 6-maxord;
     }
   }
@@ -724,7 +724,7 @@ get_red(struct red *S, struct igusa_p *Ip, GEN polh, GEN p, long alpha, long r)
   }
 }
 
-static long labelm3(GEN polh, GEN theta, long alpha, long dismin, struct igusa *I, struct igusa_p *Ip);
+static long labelm3(GEN polh, GEN theta, long alpha, long Dmin, struct igusa *I, struct igusa_p *Ip);
 
 /* Ip->tt = 1 */
 static long
@@ -1407,7 +1407,7 @@ tame_5(struct igusa *I, struct igusa_p *Ip, GEN dk)
 
 static long
 tame_6(struct igusa *I, struct igusa_p *Ip, GEN dk,
-         GEN polh, GEN theta, long alpha, long dismin)
+       GEN polh, GEN theta, long alpha, long Dmin)
 {
   long condp = -1, d, d1, n, dm, r;
   GEN val = Ip->val, d1k;
@@ -1426,7 +1426,7 @@ tame_6(struct igusa *I, struct igusa_p *Ip, GEN dk,
         case 0: condp = 4;
           Ip->type=stack_sprintf("[I*{0}-I*{%ld}-%ld] page 171", d1/2,(d-2)/2);
           Ip->neron = gconcat(groupH(d1/2), dicyclic(2,2)); break;
-        case 1: return labelm3(polh,theta,alpha,dismin,I,Ip);
+        case 1: return labelm3(polh,theta,alpha,Dmin,I,Ip);
         default: pari_err_BUG("tame6 [bug44]");
       }
       break;
@@ -1517,7 +1517,7 @@ tame_6(struct igusa *I, struct igusa_p *Ip, GEN dk,
 
 static long
 tame_7(struct igusa *I, struct igusa_p *Ip, GEN dk,
-         GEN polh, GEN theta, long alpha, long dismin)
+         GEN polh, GEN theta, long alpha, long Dmin)
 {
   long condp = -1, d, d1, d2, n, dm, r;
   GEN val = Ip->val, d1k, d2k, pro1;
@@ -1550,7 +1550,7 @@ tame_7(struct igusa *I, struct igusa_p *Ip, GEN dk,
       else
       {
         GEN H;
-        if (d1 != d2) return labelm3(polh,theta,alpha,dismin,I,Ip);
+        if (d1 != d2) return labelm3(polh,theta,alpha,Dmin,I,Ip);
         condp = 3; H = groupH(d1/2);
         Ip->type = stack_sprintf("[I{%ld}-I*{%ld}-%ld] page 180", d1/2,d1/2,(d-1)/2);
         Ip->neron = gconcat(H, H);
@@ -1565,7 +1565,7 @@ tame_7(struct igusa *I, struct igusa_p *Ip, GEN dk,
 }
 
 static long
-tame(GEN polh, GEN theta, long alpha, long dismin, struct igusa *I, struct igusa_p *Ip)
+tame(GEN polh, GEN theta, long alpha, long Dmin, struct igusa *I, struct igusa_p *Ip)
 {
   GEN val = Ip->val, dk;
   Ip->tame = 1;
@@ -1580,10 +1580,10 @@ tame(GEN polh, GEN theta, long alpha, long dismin, struct igusa *I, struct igusa
       return tame_5(I, Ip, dk);
     case 6:
       dk = frac2s(Ip->eps*val[7]-6*val[Ip->eps2], 12*Ip->eps);
-      return tame_6(I, Ip, dk, polh, theta, alpha, dismin);
+      return tame_6(I, Ip, dk, polh, theta, alpha, Dmin);
     case 7:
       dk = frac2s(Ip->eps*val[3]-2*val[Ip->eps2], 4*Ip->eps);
-      return tame_7(I, Ip, dk, polh, theta, alpha, dismin);
+      return tame_7(I, Ip, dk, polh, theta, alpha, Dmin);
   }
   return -1; /*not reached*/
 }
@@ -1603,7 +1603,7 @@ get_maxc(GEN p)
 
 /* p = 3 */
 static long
-quartic(GEN polh, long alpha, long dismin, struct igusa_p *Ip)
+quartic(GEN polh, long alpha, long Dmin, struct igusa_p *Ip)
 {
   GEN theta, val = Ip->val, p = Ip->p;
   GEN polf = polymini_zi2(ZX_Z_mul(polh, powiu(p, alpha)));
@@ -1647,16 +1647,16 @@ quartic(GEN polh, long alpha, long dismin, struct igusa_p *Ip)
     case 9: condp = 4;
       Ip->type = stack_sprintf("[2III*-%ld] page 168",R);
       Ip->neron = cyclic(2); break;
-    case 2: condp = dismin-12*R-13;
+    case 2: condp = Dmin-12*R-13;
       Ip->type = stack_sprintf("[2II-%ld] page 162",R);
       Ip->neron = cyclic(1); break;
-    case 8: condp = dismin-12*R-19;
+    case 8: condp = Dmin-12*R-19;
       Ip->type = stack_sprintf("[2IV*-%ld] page 165",R);
       Ip->neron = cyclic(3); break;
-    case 4: condp = dismin-12*R-15;
+    case 4: condp = Dmin-12*R-15;
       Ip->type = stack_sprintf("[2IV-%ld] page 165",R);
       Ip->neron = cyclic(3); break;
-    case 10: condp = dismin-12*R-21;
+    case 10: condp = Dmin-12*R-21;
       Ip->type = stack_sprintf("[2II*-%ld] page 163",R);
       Ip->neron = cyclic(1); break;
     default: pari_err_BUG("quartic [type1]");
@@ -1667,7 +1667,7 @@ quartic(GEN polh, long alpha, long dismin, struct igusa_p *Ip)
 
 static long
 litredtp(long alpha, long alpha1, GEN theta, GEN theta1, GEN polh, GEN polh1,
-         long dismin, struct igusa *I, struct igusa_p *Ip)
+         long Dmin, struct igusa *I, struct igusa_p *Ip)
 {
   GEN val = Ip->val, p = Ip->p;
   long condp = -1, indice, d, R = Ip->R;
@@ -1693,7 +1693,7 @@ litredtp(long alpha, long alpha1, GEN theta, GEN theta1, GEN polh, GEN polh1,
       }
       return condp;
     }
-    if (Ip->r1 == Ip->r2) return tame(polh, theta, alpha, dismin, I, Ip);
+    if (Ip->r1 == Ip->r2) return tame(polh, theta, alpha, Dmin, I, Ip);
     if (Ip->tt == 6)
     {
       d = val[6] - val[7] + (val[Ip->eps2]/Ip->eps);
@@ -1732,15 +1732,14 @@ litredtp(long alpha, long alpha1, GEN theta, GEN theta1, GEN polh, GEN polh1,
               + get_red(&S,  Ip, polh, p, alpha, Ip->r2);
     Ip->type = stack_sprintf("[%s-%s-%ld] pages %s", S1.t, S.t, R, S.pages);
     Ip->neron = gconcat(S1.g, S.g);
-    condp = (R >= 0)? dismin-comp+2-12*R: dismin-comp+4;
+    condp = (R >= 0)? Dmin-comp+2-12*R: Dmin-comp+4;
   }
   if (condp > get_maxc(p)) pari_err_BUG("litredtp [conductor]");
   return condp;
 }
 
 static long
-labelm3(GEN polh, GEN theta, long alpha, long dismin,
-        struct igusa *I, struct igusa_p *Ip)
+labelm3(GEN polh, GEN theta, long alpha, long Dmin, struct igusa *I, struct igusa_p *Ip)
 {
   GEN polh1, theta1, polf, val = Ip->val, p = Ip->p;
   long alpha1, lambda, beta, R;
@@ -1764,13 +1763,12 @@ labelm3(GEN polh, GEN theta, long alpha, long dismin,
   Ip->r1 = itos(gmulgs(theta1,6)) + 6*alpha1;
   Ip->r2 = itos(gmulgs(theta, 6)) + 6*alpha;
   Ip->R = R;
-  return litredtp(alpha, alpha1, theta, theta1, polh, polh1, dismin, I, Ip);
+  return litredtp(alpha, alpha1, theta, theta1, polh, polh1, Dmin, I, Ip);
 }
 
 /* p = 3 */
 static long
-quadratic(GEN polh, long alpha, long dismin,
-          struct igusa *I, struct igusa_p *Ip)
+quadratic(GEN polh, long alpha, long Dmin, struct igusa *I, struct igusa_p *Ip)
 {
   long alpha1, beta, R;
   GEN polf, polh1, theta, theta1;
@@ -1783,7 +1781,7 @@ quadratic(GEN polh, long alpha, long dismin,
   R = beta-alpha;
   if (R >= 0 && alpha1)
   {
-    dismin -= 10;
+    Dmin -= 10;
     if (DEBUGLEVEL)
       err_printf("(Care: minimal discriminant over Z[i] smaller than over Z)\n");
   }
@@ -1793,14 +1791,14 @@ quadratic(GEN polh, long alpha, long dismin,
   alpha1 = alpha;
   theta1 = theta;
   polh1 = polh; /* FIXME !!! */
-  return litredtp(alpha, alpha1, theta, theta1, polh, polh1, dismin, I, Ip);
+  return litredtp(alpha, alpha1, theta, theta1, polh, polh1, Dmin, I, Ip);
 }
 
 static long
 genus2localred(struct igusa *I, struct igusa_p *Ip, GEN p, GEN polmini)
 {
   GEN val, polh, theta, list, c1, c2, c3, c4, c5, c6, prod;
-  long i, vb5, vb6, d, dismin, alpha, lambda;
+  long i, vb5, vb6, d, Dmin, alpha, lambda;
   long condp = -1, indice, vc6, mm, nb, dism;
 
   val = cgetg(8, t_VECSMALL);
@@ -1816,20 +1814,20 @@ genus2localred(struct igusa *I, struct igusa_p *Ip, GEN p, GEN polmini)
   val[5] = myval(I->j8,p);
   val[6] = myval(I->j10,p);
   val[7] = myval(I->i12,p);
-  dismin = val[6];
+  Dmin = val[6];
   stable_reduction(I, Ip);
-  if (dismin == 0)
+  if (Dmin == 0)
   {
     Ip->tame = 1;
     Ip->type = "[I{0-0-0}] page 155";
     Ip->neron = cyclic(1); return 0;
   }
-  if (dismin == 1)
+  if (Dmin == 1)
   {
     Ip->type = "[I{1-0-0}] page 170";
     Ip->neron = cyclic(1); return 1;
   }
-  if (dismin == 2) switch(Ip->tt)
+  if (Dmin == 2) switch(Ip->tt)
   {
     case 2:
       Ip->type = "[I{2-0-0}] page 170";
@@ -1849,23 +1847,23 @@ genus2localred(struct igusa *I, struct igusa_p *Ip, GEN p, GEN polmini)
   theta = gel(polmini,3);
   alpha = itos(gel(polmini,4));
   if (!gequal0(gel(polmini,5)))
-    return equalis(p,3)? quadratic(polh, alpha, dismin, I, Ip):
-                         tame(polh, theta, alpha, dismin, I, Ip);
+    return equalis(p,3)? quadratic(polh, alpha, Dmin, I, Ip):
+                         tame(polh, theta, alpha, Dmin, I, Ip);
   if (gequal0(theta) && lambda<= 2)
   {
     if (Ip->tt >= 5) pari_err_BUG("genus2localred [tt 3]");
-    return tame(polh, theta, alpha, dismin, I, Ip);
+    return tame(polh, theta, alpha, Dmin, I, Ip);
   }
-  if (dismin == 3)
+  if (Dmin == 3)
   {
     switch(Ip->tt)
     {
-      case 2: return tame(polh, theta, alpha, dismin, I, Ip);
+      case 2: return tame(polh, theta, alpha, Dmin, I, Ip);
       case 3: Ip->type = "[I{2-1-0}] page 179"; Ip->neron = cyclic(2); return 2;
       case 4: Ip->type = "[I{1-1-1}] page 182"; Ip->neron = cyclic(3); return 2;
       case 5:
         if (equalis(p,3) && !gequal(theta,ghalf))
-          return labelm3(polh,theta,alpha,dismin,I,Ip);
+          return labelm3(polh,theta,alpha,Dmin,I,Ip);
         Ip->type = "[I{0}-III-0] page 161"; Ip->neron = cyclic(2); return 2;
       case 6:
         if (equalis(p,3)) pari_err_BUG("genus2localred [conductor]");
@@ -1880,29 +1878,29 @@ genus2localred(struct igusa *I, struct igusa_p *Ip, GEN p, GEN polmini)
       switch(itos(gmulgs(theta, 60))+alpha)
       {
         case 10:
-          condp = dismin-1;
+          condp = Dmin-1;
           Ip->type = "[V] page 156";
           Ip->neron = cyclic(3); break;
         case 11:
-          condp = dismin-11;
+          condp = Dmin-11;
           Ip->type = "[V*] page 156";
           Ip->neron = cyclic(3); break;
         case 12:
-          condp = dismin-2;
+          condp = Dmin-2;
           Ip->type = "[IX-2] page 157";
           Ip->neron = cyclic(5); break;
         case 13:
-          condp = dismin-12;
+          condp = Dmin-12;
           Ip->type = "[VIII-4] page 157";
           Ip->neron = cyclic(1); break;
         case 24:
-          condp = dismin-8;
+          condp = Dmin-8;
           Ip->type = "[IX-4] page 158";
           Ip->neron = cyclic(5);
           break;
         case 15: case 16:
           if (Ip->tt>= 5) pari_err_BUG("genus2localred [tt 6]");
-          return tame(polh, theta, alpha, dismin, I, Ip);
+          return tame(polh, theta, alpha, Dmin, I, Ip);
         case 20: case 21:
           {
             GEN b0, b1, b2, b3, b4, b5, b6, b02, b03, b04, b05;
@@ -1914,13 +1912,13 @@ genus2localred(struct igusa *I, struct igusa_p *Ip, GEN p, GEN polmini)
               if (vb5 < 2) pari_err_BUG("genus2localred [red1]");
               if (vb5 >= 3)
               {
-                condp = dismin-8;
+                condp = Dmin-8;
                 Ip->type = "[II*-IV-(-1)] page 164";
                 Ip->neron = cyclic(3);
               }
               else
               {
-                condp = dismin-7;
+                condp = Dmin-7;
                 Ip->type = "[IV-III*-(-1)] page 167";
                 Ip->neron = cyclic(6);
               }
@@ -1943,13 +1941,13 @@ genus2localred(struct igusa *I, struct igusa_p *Ip, GEN p, GEN polmini)
             {
               if (alpha)
               {
-                condp = dismin-16;
+                condp = Dmin-16;
                 Ip->type = "[IV] page 155";
                 Ip->neron = cyclic(1);
               }
               else
               {
-                condp = dismin-6;
+                condp = Dmin-6;
                 Ip->type = "[III] page 155";
                 Ip->neron = dicyclic(3,3);
               }
@@ -1960,13 +1958,13 @@ genus2localred(struct igusa *I, struct igusa_p *Ip, GEN p, GEN polmini)
               mm = min3(3*myval(c4,p)-4, 3*myval(c5,p)-5, 3*vc6-6);
               if (alpha)
               {
-                condp = dismin-mm-16;
+                condp = Dmin-mm-16;
                 Ip->type = stack_sprintf("[III*{%ld}] page 184", mm);
                 Ip->neron = cyclic(1);
               }
               else
               {
-                condp = dismin-mm-6;
+                condp = Dmin-mm-6;
                 Ip->type = stack_sprintf("[III{%ld}] page 184", mm);
                 Ip->neron = (mm%3)? cyclic(9): dicyclic(3,3);
               }
@@ -1974,8 +1972,8 @@ genus2localred(struct igusa *I, struct igusa_p *Ip, GEN p, GEN polmini)
           }
           break;
         case 30:
-          return equalis(p,3)? quartic(polh, alpha, dismin, Ip)
-                             : tame(polh, theta, alpha, dismin, I, Ip);
+          return equalis(p,3)? quartic(polh, alpha, Dmin, Ip)
+                             : tame(polh, theta, alpha, Dmin, I, Ip);
         default: pari_err_BUG("genus2localred [red2]");
       }
       break;
@@ -1983,31 +1981,31 @@ genus2localred(struct igusa *I, struct igusa_p *Ip, GEN p, GEN polmini)
       switch(itos(gmulgs(theta, 60))+alpha)
       {
         case 12:
-          condp = dismin;
+          condp = Dmin;
           Ip->type = "[VIII-1] page 156";
           Ip->neron = cyclic(1); break;
         case 13:
-          condp = dismin-10;
+          condp = Dmin-10;
           Ip->type = "[IX-3] page 157";
           Ip->neron = cyclic(5); break;
         case 24:
-          condp = dismin-4;
+          condp = Dmin-4;
           Ip->type = "[IX-1] page 157";
           Ip->neron = cyclic(5); break;
         case 25:
-          condp = dismin-14;
+          condp = Dmin-14;
           Ip->type = "[VIII-3] page 157";
           Ip->neron = cyclic(1); break;
         case 36:
-          condp = dismin-8;
+          condp = Dmin-8;
           Ip->type = "[VIII-2] page 157";
           Ip->neron = cyclic(1); break;
         case 15:
-          condp = dismin-1;
+          condp = Dmin-1;
           Ip->type = "[VII] page 156";
           Ip->neron = cyclic(2); break;
         case 16:
-          condp = dismin-11;
+          condp = Dmin-11;
           Ip->type = "[VII*] page 156";
           Ip->neron = cyclic(2); break;
         case 20:
@@ -2019,7 +2017,7 @@ genus2localred(struct igusa *I, struct igusa_p *Ip, GEN p, GEN polmini)
           }
           else
           {
-            list = padicfactors(polh,p,dismin-5);
+            list = padicfactors(polh,p,Dmin-5);
             nb = lg(list);
             prod = pol_1(varn(polh));
             for(i = 1;i<nb;i++)
@@ -2030,13 +2028,13 @@ genus2localred(struct igusa *I, struct igusa_p *Ip, GEN p, GEN polmini)
             if (degpol(prod) > 2) pari_err_BUG("genus2localred [padicfactors]");
             dism = valp(RgX_disc(prod)) - 1;
           }
-          condp = dismin-dism-3;
+          condp = Dmin-dism-3;
           Ip->type = stack_sprintf("[II-II*{%ld}] page 176", dism);
           Ip->neron = groupH(dism+1); break;
         case 21:
           vb6 = myval(RgX_coeff(polh,0),p);
           if (vb6<2) pari_err_BUG("genus2localred [red3]");
-          condp = dismin-14;
+          condp = Dmin-14;
           Ip->type = "[IV*-II{0}] page 175";
           Ip->neron = cyclic(1); break;
         case 30:
@@ -2044,9 +2042,9 @@ genus2localred(struct igusa *I, struct igusa_p *Ip, GEN p, GEN polmini)
           if (vb5 == 2)
           {
             if (Ip->tt >= 5) pari_err_BUG("genus2localred [tt 6]");
-            return tame(polh, theta, alpha, dismin, I, Ip);
+            return tame(polh, theta, alpha, Dmin, I, Ip);
           }
-          condp = dismin-7;
+          condp = Dmin-7;
           Ip->type = "[II*-III-(-1)] page 167";
           Ip->neron = cyclic(2); break;
       }
@@ -2055,11 +2053,11 @@ genus2localred(struct igusa *I, struct igusa_p *Ip, GEN p, GEN polmini)
       if (equalis(denom(theta),4))
       {
         if (Ip->tt>4) pari_err_BUG("genus2localred [tt 5]");
-        return tame(polh, theta, alpha, dismin, I, Ip);
+        return tame(polh, theta, alpha, Dmin, I, Ip);
       }
       if (!equalis(p,3) && equalis(denom(theta),3))
-        return tame(polh, theta, alpha, dismin, I, Ip);
-      list = padicfactors(polh,p,dismin-10*alpha);
+        return tame(polh, theta, alpha, Dmin, I, Ip);
+      list = padicfactors(polh,p,Dmin-10*alpha);
       nb = lg(list); prod = pol_1(varn(polh));
       for(i = 1;i<nb;i++)
       {
@@ -2086,11 +2084,11 @@ genus2localred(struct igusa *I, struct igusa_p *Ip, GEN p, GEN polmini)
       switch(itos(gmulgs(theta,12))+alpha-4)
       {
         case 0:
-          condp = dismin-dism-1;
+          condp = Dmin-dism-1;
           Ip->type = stack_sprintf("[IV-II{%ld}] page 175", dism);
           Ip->neron = cyclic(3*dism+2); break;
         case 1:
-          condp = dismin-dism-10;
+          condp = Dmin-dism-10;
           Ip->type = stack_sprintf("[II*-II*{%ld}] page 176",dism);
           Ip->neron = groupH(dism+1); break;
           break;
@@ -2098,24 +2096,24 @@ genus2localred(struct igusa *I, struct igusa_p *Ip, GEN p, GEN polmini)
           if (myval(RgX_coeff(polh,0),p) == 2)
           {
             if (Ip->tt>4) pari_err_BUG("genus2localred [tt 5]");
-            return tame(polh, theta, alpha, dismin, I, Ip);
+            return tame(polh, theta, alpha, Dmin, I, Ip);
           }
           dism++;
           indice = val[6]-(5*val[3]/2)-dism;
-          condp = dismin-dism-indice-2;
+          condp = Dmin-dism-indice-2;
           Ip->type = stack_sprintf("[II{%ld-%ld}] page 182", dism,indice);
           Ip->neron = both_odd(dism,indice)? dicyclic(2,2*dism): cyclic(4*dism);
           break;
         case 4:
-          condp = dismin-dism-5;
+          condp = Dmin-dism-5;
           Ip->type = stack_sprintf("[IV*-II{%ld}] page 175",dism+1);
           Ip->neron = cyclic(3*dism+4); break;
       }
       break;
     case 3:
       if (!equalis(p,3) || Ip->tt <= 4)
-        return tame(polh, theta, alpha, dismin, I, Ip);
-      return labelm3(polh,theta,alpha,dismin,I,Ip); /* p = 3 */
+        return tame(polh, theta, alpha, Dmin, I, Ip);
+      return labelm3(polh,theta,alpha,Dmin,I,Ip); /* p = 3 */
     default: pari_err_BUG("genus2localred [switch lambda]");
   }
   if (condp < 2 || condp > get_maxc(p))
