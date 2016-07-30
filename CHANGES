@@ -230,6 +230,7 @@ BA163- [windows] MPQS could fail due to temporary files
   170- ellminimalmodel() didn't use a coprime bases so that it
        was very slow for [c4,c6] = [p^5*q, p^6*q] for huge p and q
 BP171- ellpointtoz(E / Qp) was totally wrong [#1833]
+  172- genus2red(177*x^6+126*x^5-63*x^4+72*x+84) -> bug in labelm3 [#1826]
 
   Added
     1- add optional argument to sumdigits to specify the base

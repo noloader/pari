@@ -369,7 +369,7 @@ polymini(GEN H, GEN p)
     else
     { /* maxord >= 3 */
       if (!rac) { quad = gen_1; goto end; }
-      if (signe(rac)) H = RgX_translate(H, rac);
+      if (signe(rac)) H = ZX_translate(H, rac);
       lambda = 6-maxord;
     }
   }
@@ -392,8 +392,8 @@ polymini(GEN H, GEN p)
       if (myval(RgX_coeff(H,6),p) >= 3 &&
           myval(RgX_coeff(H,5),p) >= 2)
       {
-        H = RgX_rescale(H, p); /* H(x/p)p^(deg H) */
-        H = RgX_Rg_div(H, powiu(p, degpol(H)-3)); /* H(x/p)p^3 */
+        H = ZX_rescale(H, p); /* H(x/p)p^(deg H) */
+        H = ZX_Z_divexact(H, powiu(p, degpol(H)-3)); /* H(x/p)p^3 */
         theta = gadd(theta,gen_1);
         alpha = 0;
         beta--;
@@ -404,7 +404,7 @@ polymini(GEN H, GEN p)
       rac = factmz(RgX_mulXn(Hp, -3), p, &maxord);
       if (maxord == 3)
       {
-        GEN t = RgX_translate(ZX_unscale(H,p), rac); /* H(rac + px) */
+        GEN t = ZX_unscale(ZX_translate(H,rac),p); /* H(rac + px) */
         if (polval(t,p)>= 3)
         {
           H = RgX_Rg_div(t, powiu(p,3));
