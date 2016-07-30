@@ -20,4 +20,5 @@ Doc: Apply the \typ{CLOSURE} \kbd{f} of arity $2$ to the entries of \kbd{A},
  ? bestappr(tan(sum(i=1,5,atan(i))))
  %5 = -9/19
  @eprog
- \synt{genfold}{void *E, GEN (*fun)(void*,GEN, GEN), GEN A}.
+Variant: Also available is
+ \fun{GEN}{genfold}{void *E, GEN (*fun)(void*,GEN, GEN), GEN A}.
