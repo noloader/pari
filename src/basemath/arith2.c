@@ -249,7 +249,7 @@ fuse_Z_factor(GEN f, GEN B)
   long i, l = lg(P);
   if (l == 1) return f;
   for (i = 1; i < l; i++)
-    if (absi_cmp(gel(P,i), B) > 0) break;
+    if (abscmpii(gel(P,i), B) > 0) break;
   if (i == l) return f;
   /* tail / initial segment */
   P2 = vecslice(P, i, l-1); P = vecslice(P, 1, i-1);
@@ -357,7 +357,7 @@ divisors_init(GEN n, GEN *pP, GEN *pE)
   {
     case t_INT:
       if (!signe(n)) pari_err_DOMAIN("divisors", "argument", "=", gen_0, gen_0);
-      set_fact(absi_factor(n), &P,&E);
+      set_fact(absZ_factor(n), &P,&E);
       isint = 1; break;
     case t_VEC:
       if (lg(n) != 3 || typ(gel(n,2)) !=t_MAT) pari_err_TYPE("divisors",n);
@@ -552,7 +552,7 @@ omega(GEN n)
   }
   if (lgefint(n) == 3) return omegau(n[2]);
   av = avma;
-  F = absi_factor(n);
+  F = absZ_factor(n);
   P = gel(F,1); avma = av; return lg(P)-1;
 }
 
@@ -580,7 +580,7 @@ bigomega(GEN n)
   else if (lgefint(n) == 3)
     return bigomegau(n[2]);
   else
-    E = gel(absi_factor(n), 2);
+    E = gel(absZ_factor(n), 2);
   E = ZV_to_zv(E);
   avma = av; return zv_sum(E);
 }
@@ -635,7 +635,7 @@ eulerphi(GEN n)
   }
   else if (lgefint(n) == 3) return utoipos(eulerphiu(uel(n,2)));
   else
-    F = absi_factor(n);
+    F = absZ_factor(n);
   if (!signe(n)) return gen_2;
   P = gel(F,1);
   E = gel(F,2); l = lg(P);
@@ -679,7 +679,7 @@ numdiv(GEN n)
     for (i=1; i<l; i++) E[i]++;
   }
   else
-    E = numdiv_aux(absi_factor(n));
+    E = numdiv_aux(absZ_factor(n));
   return gerepileuptoint(av, zv_prod_Z(E));
 }
 
@@ -727,7 +727,7 @@ sumdiv(GEN n)
     v = usumdiv_fact(F);
   }
   else
-    v = sumdiv_aux(absi_factor(n));
+    v = sumdiv_aux(absZ_factor(n));
   return gerepileuptoint(av, v);
 }
 
@@ -764,7 +764,7 @@ sumdivk(GEN n, long k)
     v = usumdivk_fact(F,k);
   }
   else
-    v = sumdivk_aux(absi_factor(n), k);
+    v = sumdivk_aux(absZ_factor(n), k);
   if (k1 > 0) return gerepileuptoint(av, v);
   return gerepileupto(av, gdiv(v, powiu(n,k)));
 }
@@ -971,7 +971,7 @@ digits(GEN x, GEN B)
   B = check_basis(B);
   if (signe(B)<0) pari_err_DOMAIN("digits","B","<",gen_0,B);
   if (!signe(x))       {avma = av; return cgetg(1,t_VEC); }
-  if (absi_cmp(x,B)<0) {avma = av; retmkvec(absi(x)); }
+  if (abscmpii(x,B)<0) {avma = av; retmkvec(absi(x)); }
   if (Z_ispow2(B))
   {
     long k = expi(B);
@@ -1172,7 +1172,7 @@ sumdigits0(GEN x, GEN B)
     return gerepileuptoint(av, ZV_sum(binary_2k(x, k)));
   }
   if (!signe(x))       { avma = av; return gen_0; }
-  if (absi_cmp(x,B)<0) { avma = av; return absi(x); }
+  if (abscmpii(x,B)<0) { avma = av; return absi(x); }
   if (equaliu(B,10))   { avma = av; return sumdigits(x); }
   lz = logint(x,B,NULL);
   z = gen_digits_i(x, B, lz, NULL, &Z_ring, _dvmdii);

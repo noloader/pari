@@ -93,9 +93,9 @@ centermodii(GEN x, GEN p, GEN po2)
   switch(signe(y))
   {
     case 0: break;
-    case 1: if (po2 && absi_cmp(y,po2) > 0) y = subii(y, p);
+    case 1: if (po2 && abscmpii(y,po2) > 0) y = subii(y, p);
       break;
-    case -1: if (!po2 || absi_cmp(y,po2) > 0) y = addii(y, p);
+    case -1: if (!po2 || abscmpii(y,po2) > 0) y = addii(y, p);
       break;
   }
   return y;

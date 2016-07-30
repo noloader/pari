@@ -50,7 +50,7 @@ FpC_center(GEN z, GEN p, GEN pov2)
 /* assume 0 <= u < p and ps2 = p>>1 */
 INLINE void
 Fp_center_inplace(GEN u, GEN p, GEN ps2)
-{ if (absi_cmp(u,ps2) > 0) subiiz(u,p,u); }
+{ if (abscmpii(u,ps2) > 0) subiiz(u,p,u); }
 
 void
 FpC_center_inplace(GEN z, GEN p, GEN ps2)

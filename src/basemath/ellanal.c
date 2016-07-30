@@ -120,7 +120,7 @@ gen_BG_rec(void *E, bg_fun *fun, struct bg_data *bg)
       avma = av3;
     }
     avma = av2;
-    if (absi_cmp(p, bndov2) >= 0) break;
+    if (abscmpii(p, bndov2) >= 0) break;
   }
   if (DEBUGLEVEL) err_printf("3nd stage, looping for p <= %Ps\n", bg->bnd);
   while ( (p = forprime_next(&S)) )
@@ -440,7 +440,7 @@ ellanalyticrank_bitprec(GEN E, GEN eps, long bitprec)
     setvalp(t, 1);
     Lrk = ellL1_der(e, vec, &C, t, rk, prec);
     if (DEBUGLEVEL) timer_printf(&ti, "L^(%ld)=%Ps", rk, Lrk);
-    if (absr_cmp(Lrk, eps) > 0)
+    if (abscmprr(Lrk, eps) > 0)
       return gerepilecopy(av, mkvec2(stoi(rk), Lrk));
     avma = av2;
   }
@@ -658,7 +658,7 @@ heightQ(GEN P, long prec)
   if (typ(P) == t_FRAC)
   {
     GEN a = gel(P,1), b = gel(P,2);
-    P = absi_cmp(a,b) > 0 ? a: b;
+    P = abscmpii(a,b) > 0 ? a: b;
   }
   s = signe(P);
   if (!s) return real_0(prec);
@@ -678,7 +678,7 @@ logplusQ(GEN t, long prec)
   else
   {
     GEN a = gel(t,1), b = gel(t,2);
-    if (absi_cmp(a, b) < 0) return real_1(prec);
+    if (abscmpii(a, b) < 0) return real_1(prec);
     if (signe(a) < 0) t = gneg(t);
   }
   return glog(t, prec);

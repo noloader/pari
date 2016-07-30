@@ -1032,7 +1032,7 @@ diviiround(GEN x, GEN y)
   q = dvmdii(x,y,&r); /* q = x/y rounded towards 0, sgn(r)=sgn(x) */
   if (r==gen_0) return q;
   av1 = avma;
-  fl = absi_cmp(shifti(r,1),y);
+  fl = abscmpii(shifti(r,1),y);
   avma = av1; cgiv(r);
   if (fl >= 0) /* If 2*|r| >= |y| */
   {

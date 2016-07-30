@@ -1407,7 +1407,7 @@ reduce2(GEN A, GEN B, long k, long j, long *row0, long *row1, GEN lambda, GEN D)
   *row1 = findi_normalize(gel(A,k), B,k,lambda);
   if (*row0)
     q = truedivii(gcoeff(A,*row0,k), gcoeff(A,*row0,j));
-  else if (absi_cmp(shifti(gcoeff(lambda,j,k), 1), gel(D,j)) > 0)
+  else if (abscmpii(shifti(gcoeff(lambda,j,k), 1), gel(D,j)) > 0)
     q = diviiround(gcoeff(lambda,j,k), gel(D,j));
   else
     return;
@@ -1581,7 +1581,7 @@ reduce1(GEN A, GEN B, long k, long j, GEN lambda, GEN D)
 
   if (signe(gel(A,j)))
     q = diviiround(gel(A,k),gel(A,j));
-  else if (absi_cmp(shifti(gcoeff(lambda,j,k), 1), gel(D,j)) > 0)
+  else if (abscmpii(shifti(gcoeff(lambda,j,k), 1), gel(D,j)) > 0)
     q = diviiround(gcoeff(lambda,j,k), gel(D,j));
   else
     return;
@@ -1726,7 +1726,7 @@ ZM_hnfperm(GEN A, GEN *ptU, GEN *ptperm)
       for (i=t-1; i; i--)
       {
         q = gcoeff(A,i,k);
-        if (signe(q) && absi_cmp(p,q) > 0) { p = q; t = i; }
+        if (signe(q) && abscmpii(p,q) > 0) { p = q; t = i; }
       }
       perm[++r] = l[k] = t; c[t] = k;
       if (signe(p) < 0)
@@ -2038,7 +2038,7 @@ static GEN
 bezout_step(GEN *pa, GEN *pb, GEN *pu, GEN *pv)
 {
   GEN a = *pa, b = *pb, d;
-  if (absi_equal(a,b))
+  if (absequalii(a,b))
   {
     long sa = signe(a), sb = signe(b);
     *pv = gen_0;

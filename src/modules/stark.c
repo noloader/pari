@@ -2328,7 +2328,7 @@ GenusFieldQuadImag(GEN disc)
   pari_sp av = avma;
   GEN T = NULL, P;
 
-  P = gel(absi_factor(disc), 1);
+  P = gel(absZ_factor(disc), 1);
   l = lg(P);
   l--; /* remove last prime */
   for (i = 1; i < l; i++)
@@ -2848,7 +2848,7 @@ static int
 hasexp2(GEN form)
 {
   GEN a = gel(form,1), b = gel(form,2), c = gel(form,3);
-  return !signe(b) || absi_equal(a,b) || equalii(a,c);
+  return !signe(b) || absequalii(a,b) || equalii(a,c);
 }
 static int
 uhasexp2(GEN form)

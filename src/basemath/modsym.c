@@ -2592,7 +2592,7 @@ RgMV_find_non_zero_last_row(long offset, GEN V)
     for (j = 1; j < l; j++)
     {
       GEN a = gcoeff(M, n, j);
-      if (!gequal0(a) && (!m || absi_cmp(a, m) < 0))
+      if (!gequal0(a) && (!m || abscmpii(a, m) < 0))
       {
         m = a; lasti = i; lastj = j;
         if (is_pm1(m)) goto END;

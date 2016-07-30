@@ -66,7 +66,7 @@ gcdii(GEN a, GEN b)
   pari_sp av;
   GEN t, p1;
 
-  switch (absi_cmp(a,b))
+  switch (abscmpii(a,b))
   {
     case 0: return absi(a);
     case -1: t=b; b=a; a=t;
@@ -91,7 +91,7 @@ gcdii(GEN a, GEN b)
   v = vali(a); a = shifti(a,-v); setabssign(a);
   w = vali(b); b = shifti(b,-w); setabssign(b);
   if (w < v) v = w;
-  switch(absi_cmp(a,b))
+  switch(abscmpii(a,b))
   {
     case  0: avma=av; a=shifti(a,v); return a;
     case -1: p1=b; b=a; a=p1;
@@ -108,7 +108,7 @@ gcdii(GEN a, GEN b)
     /* so that t <= (a+b)/4 < a/2 */
     gcd_plus_minus(a,b, t);
     if (is_pm1(t)) { avma=av; return int2n(v); }
-    switch(absi_cmp(t,b))
+    switch(abscmpii(t,b))
     {
       case -1: p1 = a; a = b; b = t; t = p1; break;
       case  1: p1 = a; a = t; t = p1; break;

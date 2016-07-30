@@ -333,7 +333,7 @@ fix_nf(GEN *pnf, GEN *pT, GEN *pA)
 
   D = nf_get_disc(nf);
   if (is_pm1(D)) return gen_1;
-  fa = absi_factor_limit(D, 0);
+  fa = absZ_factor_limit(D, 0);
   P = gel(fa,1); q = gel(P, lg(P)-1);
   if (BPSW_psp(q)) return gen_1;
   /* nf_get_disc(nf) may be incorrect */

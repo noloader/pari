@@ -177,11 +177,11 @@ qfbreduce(GEN D, GEN Q)
   {
     GEN r, q, nexta, nextc;
     q = dvmdii(b,a, &r); /* FIXME: export as dvmdiiround ? */
-    if (signe(r) > 0 && absi_cmp(shifti(r,1), a) > 0) {
+    if (signe(r) > 0 && abscmpii(shifti(r,1), a) > 0) {
       r = subii(r, absi(a)); q = addis(q, signe(a));
     }
     nextc = a; nexta = subii(c, mulii(q, addii(r,b)));
-    if (absi_cmp(nexta, a) >= 0) break;
+    if (abscmpii(nexta, a) >= 0) break;
     c = nextc; b = negi(r); a = nexta;
   }
   return qfb(D,a,shifti(b,1),c);

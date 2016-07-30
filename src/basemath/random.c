@@ -216,7 +216,7 @@ randomi(GEN N)
     }
 #endif
     y = int_normalize(x, 0);
-    if (absi_cmp(y, N) < 0) return y;
+    if (abscmpii(y, N) < 0) return y;
   }
 }
 

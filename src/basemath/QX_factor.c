@@ -48,7 +48,7 @@ ZX_divides_i(GEN x, GEN y, GEN B)
       p1 = dvmdii(p1,y_lead, &r);
       if (r != gen_0) return NULL;
     }
-    if (B && absi_cmp(p1, B) > 0) return NULL;
+    if (B && abscmpii(p1, B) > 0) return NULL;
     p1 = gerepileuptoint(av, p1);
     gel(z,i-dy) = p1;
   }
@@ -1060,7 +1060,7 @@ maxnorm(GEN p)
   for (i=0; i<n; i++)
   {
     x = gel(p,i);
-    if (absi_cmp(x,m) > 0) m = x;
+    if (abscmpii(x,m) > 0) m = x;
   }
   m = divii(m, gel(p,n));
   return gerepileuptoint(av, addis(absi(m),1));
@@ -1178,7 +1178,7 @@ static GEN
 BD_deg1(GEN f)
 {
   GEN a = gel(f,3), b = gel(f,2); /* f = ax + b */
-  if (!absi_equal(a,b)) return NULL;
+  if (!absequalii(a,b)) return NULL;
   return polcyclo((signe(a) == signe(b))? 2: 1, varn(f));
 }
 
@@ -1215,7 +1215,7 @@ BD(GEN f)
   RgX_even_odd(f, &fe, &fo);
   fe1 = ZX_eval1(fe);
   fo1 = ZX_eval1(fo);
-  if (absi_equal(fe1, fo1)) /* f(1) = 0 or f(-1) = 0 */
+  if (absequalii(fe1, fo1)) /* f(1) = 0 or f(-1) = 0 */
   {
     long i, v = varn(f);
     if (!signe(fe1))

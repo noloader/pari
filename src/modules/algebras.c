@@ -3818,7 +3818,7 @@ alg_cyclic(GEN rnf, GEN aut, GEN b, long maxord)
       disc = mulii(disc, powiu(pr_norm(gel(pr,i)), n*(n-dp)));
     }
     disc = mulii(disc, powuu(n,D));
-    if (!absi_equal(disc, algdisc(al)))
+    if (!absequalii(disc, algdisc(al)))
       pari_err_BUG("alg_cyclic (wrong maximal order)");
 #endif
   }
@@ -4460,7 +4460,7 @@ static GEN
 alg_maximal(GEN al)
 {
   pari_sp av = avma;
-  GEN fa = absi_factor(algdisc(al));
+  GEN fa = absZ_factor(algdisc(al));
   return gerepilecopy(av, alg_maximal_primes(al, gel(fa,1)));
 }
 

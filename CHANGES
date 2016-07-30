@@ -622,6 +622,9 @@ BA 75- rename FlxqX_pow to FlxqX_powu
    80- infinite slopes of newtonpoly replaced by "+oo" (instead of 2^63-1)
    81- rename anell -> ellan, anellsmall -> ellanQ_zv
 BA 82- Fp_ellcard_SEA/Fq_ellcard_SEA meaning of flag has changed.
+   83- renamed absi_cmp -> abscmpii, absr_cmp -> abscmprr,
+       absi_equal -> absequalii, absi_factor -> absZ_factor, absi_factor_limit
+       -> absZ_factor_limit
 
 Removed
    1- deprecated functions nfbasis0, nfdisc0, factorpadic0

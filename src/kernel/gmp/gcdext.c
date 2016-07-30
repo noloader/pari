@@ -32,7 +32,7 @@ invmod(GEN a, GEN b, GEN *res)
     GEN na;
     if (!sa) { avma = av; *res = absi(b); return 0; }
     if (signe(b) < 0) b = negi(b);
-    if (absi_cmp(a, b) < 0)
+    if (abscmpii(a, b) < 0)
       na = sa > 0? addii(a, b): subii(a, b);
     else
       na = a;
@@ -77,7 +77,7 @@ bezout(GEN a, GEN b, GEN *pu, GEN *pv)
   ulong g;
   ulong xu,xu1,xv,xv1;                /* Lehmer stage recurrence matrix */
 
-  s = absi_cmp(a,b);
+  s = abscmpii(a,b);
   if (s < 0) { swap(a,b); pswap(pu,pv); }
   /* now |a| >= |b| */
 

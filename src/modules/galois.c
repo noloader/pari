@@ -385,8 +385,8 @@ Monomial(GEN r, PERM bb, long nbv)
     if (typ(c) == t_COMPLEX && i < nbv)
     { /* detect conjugates */
       GEN n = gel(R,++i);
-      if (!absr_cmp(gel(n,1), gel(c,1))
-       && !absr_cmp(gel(n,2), gel(c,2))
+      if (!abscmprr(gel(n,1), gel(c,1))
+       && !abscmprr(gel(n,2), gel(c,2))
        && signe(gel(c,2)) != signe(gel(n,2)))
         c = addrr(sqrr(gel(c,1)), sqrr(gel(c,2)));
       else
@@ -416,8 +416,8 @@ gpolynomial(GEN r, resolv *R)
     }
   }
   setlg(IM, k);
-  RE = vecpermute(RE, gen_indexsort(RE, (void*)&absr_cmp, cmp_nodata));
-  IM = vecpermute(IM, gen_indexsort(IM, (void*)&absr_cmp, cmp_nodata));
+  RE = vecpermute(RE, gen_indexsort(RE, (void*)&abscmprr, cmp_nodata));
+  IM = vecpermute(IM, gen_indexsort(IM, (void*)&abscmprr, cmp_nodata));
   re = gel(RE,1);
   for (i = 2; i <= R->nm; i++) re = addrr(re, gel(RE,i));
   if (k == 1) return re;

@@ -2333,7 +2333,7 @@ splitcauchy(GEN Pp, GEN Pm, long prec)
 {
   GEN S = gel(Pp,2), A = gel(Pm,2);
   long i, lPm = lg(Pm), lPp = lg(Pp);
-  for (i=3; i < lPm; i++) { GEN c = gel(Pm,i); if (absi_cmp(A, c) < 0) A = c; }
+  for (i=3; i < lPm; i++) { GEN c = gel(Pm,i); if (abscmpii(A, c) < 0) A = c; }
   for (i=3; i < lPp; i++) S = addii(S, gel(Pp, i));
   return subsr(1, rdivii(A, S, prec)); /* 1 + |Pm|_oo / |Pp|_1 */
 }
@@ -2396,7 +2396,7 @@ polsolve(GEN P, long bitprec)
       GEN m1 = poleval(Pprime, ra), M2;
       if (signe(m1) == s0) continue;
       M2 = poleval(Pprime2, rb);
-      if (absr_cmp(gmul(M2, wdth), shiftr(m1, 1)) > 0) continue;
+      if (abscmprr(gmul(M2, wdth), shiftr(m1, 1)) > 0) continue;
       break;
     }
     else if (gexpo(wdth) <= -bitprec)

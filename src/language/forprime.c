@@ -935,7 +935,7 @@ forprime_next(forprime_t *T)
   }
   av = avma;
   p = nextprime(addiu(T->pp, 1));
-  if (T->bb && absi_cmp(p, T->bb) > 0) { avma = av; return NULL; }
+  if (T->bb && abscmpii(p, T->bb) > 0) { avma = av; return NULL; }
   affii(p, T->pp); avma = av; return T->pp;
 }
 

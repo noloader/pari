@@ -76,7 +76,7 @@ ZM_supnorm(GEN x)
     for (i=1; i<h; i++)
     {
       GEN c = gel(xj,i);
-      if (absi_cmp(c, s) > 0) s = c;
+      if (abscmpii(c, s) > 0) s = c;
     }
   }
   return absi(s);
@@ -1238,7 +1238,7 @@ ZV_abscmp(GEN x, GEN y)
 {
   long fl,i, lx = lg(x);
   for (i=1; i<lx; i++)
-    if (( fl = absi_cmp(gel(x,i), gel(y,i)) )) return fl;
+    if (( fl = abscmpii(gel(x,i), gel(y,i)) )) return fl;
   return 0;
 }
 

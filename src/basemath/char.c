@@ -440,8 +440,8 @@ znstar0(GEN N, long flag)
         GEN cj = gel(cyc,j), qj, v, d;
 
         d = dogen? bezout(ci,cj,NULL,&v): gcdii(ci,cj); /* > 1 */
-        if (absi_equal(ci, d)) continue; /* ci | cj */
-        if (absi_equal(cj, d)) { /* cj | ci */
+        if (absequalii(ci, d)) continue; /* ci | cj */
+        if (absequalii(cj, d)) { /* cj | ci */
           if (dogen)
           {
             swap(gel(G,j),gel(G,i));

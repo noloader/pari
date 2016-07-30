@@ -21,8 +21,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 static int
 smaller_x(GEN p, GEN q)
 {
-  int s = absi_cmp(denom(p), denom(q));
-  return (s<0 || (s==0 && absi_cmp(numer(p),numer(q)) < 0));
+  int s = abscmpii(denom(p), denom(q));
+  return (s<0 || (s==0 && abscmpii(numer(p),numer(q)) < 0));
 }
 
 /* best generator in cycle of length k */
@@ -346,7 +346,7 @@ ellisdivisible(GEN E, GEN P, GEN n, GEN *pQ)
       N = n;
       if (!isprime(absi(n)))
       {
-        GEN f = absi_factor(n), LP = gel(f,1), LE = gel(f,2);
+        GEN f = absZ_factor(n), LP = gel(f,1), LE = gel(f,2);
         l = lg(LP);
         for (i = 1; i < l; i++)
         {

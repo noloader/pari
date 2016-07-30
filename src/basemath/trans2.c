@@ -457,7 +457,7 @@ mptanh(GEN x)
 
   if (!s) return real_0_bit(expo(x));
   lx = realprec(x);
-  if (absr_cmp(x, stor(prec2nbits(lx), LOWDEFAULTPREC)) >= 0) {
+  if (abscmprr(x, stor(prec2nbits(lx), LOWDEFAULTPREC)) >= 0) {
     y = real_1(lx);
   } else {
     pari_sp av = avma;
@@ -507,7 +507,7 @@ mpcotanh(GEN x)
   if (!s) pari_err_DOMAIN("cotan", "argument", "=", gen_0, x);
 
   lx = realprec(x);
-  if (absr_cmp(x, stor(prec2nbits(lx), LOWDEFAULTPREC)) >= 0) {
+  if (abscmprr(x, stor(prec2nbits(lx), LOWDEFAULTPREC)) >= 0) {
     y = real_1(lx);
   } else {
     pari_sp av = avma;

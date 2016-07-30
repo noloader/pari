@@ -2261,7 +2261,7 @@ mpqs_combine_large_primes(mpqs_handle_t *h,
     Y2 = strtoi(e[i].Y);
     new_Y = modii(mulii(mulii(Y1, Y2), inv_q), h->N);
     new_Y1 = subii(h->N, new_Y);
-    if (absi_cmp(new_Y1, new_Y) < 0) new_Y = new_Y1;
+    if (abscmpii(new_Y1, new_Y) < 0) new_Y = new_Y1;
     strcpy(new_relation, itostr(new_Y));
     strcat(new_relation, " :");
     if (ei[1] & 1) strcat(new_relation, " 1 1");

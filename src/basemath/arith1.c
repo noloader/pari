@@ -1147,7 +1147,7 @@ gisanypower(GEN x, GEN *pty)
     pari_sp av = avma;
     GEN fa, P, E, a = gel(x,1), b = gel(x,2);
     long i, j, p, e;
-    int sw = (absi_cmp(a, b) > 0);
+    int sw = (abscmpii(a, b) > 0);
 
     if (sw) swap(a, b);
     k = Z_isanypower(a, pty? &a: NULL);
@@ -1281,7 +1281,7 @@ Z_isanypower_aux(GEN x, GEN *pty)
   GEN y, P, E;
   ulong mask, e = 0;
 
-  if (absi_cmp(x, gen_2) < 0) return 0; /* -1,0,1 */
+  if (abscmpii(x, gen_2) < 0) return 0; /* -1,0,1 */
 
   if (signe(x) < 0) x = negi(x);
   k = l = 1;
@@ -4245,7 +4245,7 @@ bestappr_frac(GEN x, GEN k)
       /* compare |y-p0/q0|, |y-p1/q1| */
       n = gel(y,1);
       d = gel(y,2);
-      if (absi_cmp(mulii(q1, subii(mulii(q0,n), mulii(d,p0))),
+      if (abscmpii(mulii(q1, subii(mulii(q0,n), mulii(d,p0))),
                    mulii(q0, subii(mulii(q1,n), mulii(d,p1)))) < 0)
                    { p1 = p0; q1 = q0; }
       break;
@@ -4309,7 +4309,7 @@ bestappr_real(GEN x, GEN k)
       p = addii(mulii(a,p0), p1); p1=p0; p0=p;
       q = addii(mulii(a,q0), q1); q1=q0; q0=q;
       /* compare |y-p0/q0|, |y-p1/q1| */
-      if (absr_cmp(mulir(q1, subri(mulir(q0,y), p0)),
+      if (abscmprr(mulir(q1, subri(mulir(q0,y), p0)),
                    mulir(q0, subri(mulir(q1,y), p1))) < 0)
                    { p1 = p0; q1 = q0; }
       break;
@@ -4724,7 +4724,7 @@ static void
 corediscfact(GEN x, long xmod4, GEN *ptD, GEN *ptP, GEN *ptE)
 {
   long s = signe(x), l, i;
-  GEN fa = absi_factor(x);
+  GEN fa = absZ_factor(x);
   GEN d, P = gel(fa,1), E = gtovecsmall(gel(fa,2));
 
   l = lg(P); d = gen_1;
@@ -4780,7 +4780,7 @@ conductor_part(GEN x, long xmod4, GEN *ptD, GEN *ptreg)
 static long
 two_rank(GEN x)
 {
-  GEN p = gel(absi_factor(x),1);
+  GEN p = gel(absZ_factor(x),1);
   long l = lg(p)-1;
 #if 0 /* positive disc not needed */
   if (signe(x) > 0)

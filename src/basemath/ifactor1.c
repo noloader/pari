@@ -3599,7 +3599,7 @@ aux_end(GEN M, GEN n, long nb)
   }
   gel(M,1) = P;
   gel(M,2) = E;
-  return sort_factor(M, (void*)&absi_cmp, cmp_nodata);
+  return sort_factor(M, (void*)&abscmpii, cmp_nodata);
 }
 
 static void
@@ -3623,7 +3623,7 @@ special_primes(GEN n, ulong p, long *nb, GEN T)
       {
         long k = 1; while (dvdiiz(n,gel(T,i), n)) k++;
         STOREi(nb, gel(T,i), k);
-        if (absi_cmp(pp, n) > 0) return 1;
+        if (abscmpii(pp, n) > 0) return 1;
       }
   }
   return 0;
@@ -3795,7 +3795,7 @@ Z_factor_limit(GEN n, ulong all)
   return ifactor(n,all,decomp_default_hint);
 }
 GEN
-absi_factor_limit(GEN n, ulong all)
+absZ_factor_limit(GEN n, ulong all)
 {
   if (!all) all = GP_DATA->primelimit + 1;
   return ifactor_sign(n,all,decomp_default_hint, signe(n)?1 : 0);
@@ -3804,7 +3804,7 @@ GEN
 Z_factor(GEN n)
 { return ifactor(n,0,decomp_default_hint); }
 GEN
-absi_factor(GEN n)
+absZ_factor(GEN n)
 { return ifactor_sign(n, 0, decomp_default_hint, signe(n)? 1: 0); }
 
 /* Factor until the unfactored part is smaller than limit. Return the
@@ -3844,8 +3844,8 @@ Z_factor_until(GEN n, GEN limit)
       q = diviiexact(q, powiu(p, e));
       if (cmpii(q, limit) <= 0) break;
     }
-    F2 = sort_factor(F2, (void*)&absi_cmp, cmp_nodata);
-    F = merge_factor(F, F2, (void*)&absi_cmp, cmp_nodata);
+    F2 = sort_factor(F2, (void*)&abscmpii, cmp_nodata);
+    F = merge_factor(F, F2, (void*)&abscmpii, cmp_nodata);
   }
   return gerepilecopy(av, F);
 }

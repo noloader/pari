@@ -305,7 +305,7 @@ ZX_Z_normalize(GEN pol, GEN *ptk)
   }
   sk = signe(k);
   if (!sk) { if (ptk) *ptk = gen_1; return pol; /* monomial! */ }
-  fa = absi_factor_limit(k, 0); k = gen_1;
+  fa = absZ_factor_limit(k, 0); k = gen_1;
   P = gel(fa,1);
   E = gel(fa,2);
   POL = leafcopy(pol); a = POL+2;
@@ -1190,7 +1190,7 @@ tests_OK(GEN a, GEN nfa, GEN b, GEN nfb, long fliso)
   if (fliso) return issquare(gdiv(da,db));
 
   if (odd(q) && signe(da) != signe(db)) return 0;
-  fa = absi_factor_limit(da, 0);
+  fa = absZ_factor_limit(da, 0);
   P = gel(fa,1);
   E = gel(fa,2); nP = lg(P) - 1;
   for (i=1; i<nP; i++)
@@ -1763,7 +1763,7 @@ set_LLL_basis(nfbasic_t *T, GEN *pro, double DELTA)
 }
 
 static int
-cmp_abs_ZX(GEN x, GEN y) { return gen_cmp_RgX((void*)&absi_cmp, x, y); }
+cmp_abs_ZX(GEN x, GEN y) { return gen_cmp_RgX((void*)&abscmpii, x, y); }
 /* current best: ZX x of discriminant *dx, is ZX y better than x ?
  * (if so update *dx) */
 static int
@@ -1772,7 +1772,7 @@ ZX_is_better(GEN y, GEN x, GEN *dx)
   GEN d = ZX_disc(y);
   int cmp;
   if (!*dx) *dx = ZX_disc(x);
-  cmp = absi_cmp(d, *dx);
+  cmp = abscmpii(d, *dx);
   if (cmp < 0) { *dx = d; return 1; }
   if (cmp == 0) return cmp_abs_ZX(y, x) < 0;
   return 0;

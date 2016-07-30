@@ -882,7 +882,7 @@ charpoly_bound(GEN M, GEN dM)
   for (k = n; k >= (n+1)>>1; k--)
   {
     GEN t = mulri(powruhalf(mulur(k, B2), k), bin);
-    if (absr_cmp(t, s) > 0) s = t;
+    if (abscmprr(t, s) > 0) s = t;
     bin = diviuexact(muliu(bin, k), n-k+1);
   }
   d = dbllog2(s); avma = av; return ceil(d);
@@ -1444,7 +1444,7 @@ suitable(GEN x, long k, GEN *pp, long *pi)
     case t_FRAC: return 1;
     case t_REAL: {
       GEN p = *pp;
-      if (signe(x) && (!p || absr_cmp(p, x) < 0)) { *pp = x; *pi = k; }
+      if (signe(x) && (!p || abscmprr(p, x) < 0)) { *pp = x; *pi = k; }
       return 0;
     }
     default: return !gequal0(x);

@@ -377,7 +377,7 @@ parteucl(GEN L, GEN *d, GEN *v3, GEN *v, GEN *v2)
 {
   long z;
   *v = gen_0; *v2 = gen_1;
-  for (z=0; absi_cmp(*v3,L) > 0; z++)
+  for (z=0; abscmpii(*v3,L) > 0; z++)
   {
     GEN t3, t2 = subii(*v, mulii(truedvmdii(*d,*v3,&t3),*v2));
     *v = *v2; *d = *v3; *v2 = t2; *v3 = t3;
@@ -398,7 +398,7 @@ nucomp(GEN x, GEN y, GEN L)
   if (typ(x) != t_QFI) pari_err_TYPE("nucomp",x);
   if (typ(y) != t_QFI) pari_err_TYPE("nucomp",y);
 
-  if (absi_cmp(gel(x,1),gel(y,1)) < 0) swap(x, y);
+  if (abscmpii(gel(x,1),gel(y,1)) < 0) swap(x, y);
   s = shifti(addii(gel(x,2),gel(y,2)), -1);
   n = subii(gel(y,2), s);
   a1 = gel(x,1);
@@ -428,7 +428,7 @@ nucomp(GEN x, GEN y, GEN L)
       l = modii(mulii(negi(u1), addii(mulii(u,p1),mulii(v,p2))), d);
       a = subii(mulii(l,diviiexact(a1,d)), mulii(u,diviiexact(n,d)));
     }
-  a = modii(a,a1); p1 = subii(a,a1); if (absi_cmp(a,p1) > 0) a = p1;
+  a = modii(a,a1); p1 = subii(a,a1); if (abscmpii(a,p1) > 0) a = p1;
   d = a1; v3 = a; z = parteucl(L, &d,&v3, &v,&v2);
   Q = cgetg(4,t_QFI);
   if (!z) {
@@ -473,7 +473,7 @@ nudupl(GEN x, GEN L)
     b = diviiexact(b, d1);
   }
   c = modii(negi(mulii(u,gel(x,3))), a);
-  p1 = subii(c,a); if (absi_cmp(c,p1) > 0) c = p1;
+  p1 = subii(c,a); if (abscmpii(c,p1) > 0) c = p1;
   d = a; v3 = c; z = parteucl(L, &d,&v3, &v,&v2);
   a2 = sqri(d);
   c2 = sqri(v3);
@@ -517,8 +517,8 @@ nupow(GEN x, GEN n, GEN L)
   if (!L) L = sqrtnint(absi(D), 4);
   y = gen_pow(x, n, (void*)L, &mul_nudupl, &mul_nucomp);
   if (signe(n) < 0
-  && !absi_equal(gel(y,1),gel(y,2))
-  && !absi_equal(gel(y,1),gel(y,3))) togglesign(gel(y,2));
+  && !absequalii(gel(y,1),gel(y,2))
+  && !absequalii(gel(y,1),gel(y,3))) togglesign(gel(y,2));
   return gerepileupto(av, y);
 }
 
@@ -530,9 +530,9 @@ dvmdii_round(GEN b, GEN a, GEN *r)
 {
   GEN a2 = shifti(a, 1), q = dvmdii(b, a2, r);
   if (signe(b) >= 0) {
-    if (absi_cmp(*r, a) > 0) { q = addis(q,  1); *r = subii(*r, a2); }
+    if (abscmpii(*r, a) > 0) { q = addis(q,  1); *r = subii(*r, a2); }
   } else { /* r <= 0 */
-    if (absi_cmp(*r, a) >= 0){ q = addis(q, -1); *r = addii(*r, a2); }
+    if (abscmpii(*r, a) >= 0){ q = addis(q, -1); *r = addii(*r, a2); }
   }
   return q;
 }
@@ -622,7 +622,7 @@ redimagsl2(GEN q, GEN *U)
   (void)new_chunk(2*(lgefint(a) + lgefint(b) + lgefint(c) + 3));
   av2 = avma;
   u1 = gen_1; u2 = gen_0;
-  cmp = absi_cmp(a, b);
+  cmp = abscmpii(a, b);
   if (cmp < 0)
     REDBU(a,&b,&c, u1,&u2);
   else if (cmp == 0 && signe(b) < 0)
@@ -632,7 +632,7 @@ redimagsl2(GEN q, GEN *U)
   }
   for(;;)
   {
-    cmp = absi_cmp(a, c); if (cmp <= 0) break;
+    cmp = abscmpii(a, c); if (cmp <= 0) break;
     swap(a,c); b = negi(b);
     z = u1; u1 = u2; u2 = negi(z);
     REDBU(a,&b,&c, u1,&u2);
@@ -732,14 +732,14 @@ redimag_av(pari_sp av, GEN q)
   long cmp, lc = lgefint(c);
 
   if (lgefint(a) == 3 && lc == 3) return redimag_1(av, a, b, c);
-  cmp = absi_cmp(a, b);
+  cmp = abscmpii(a, b);
   if (cmp < 0)
     REDB(a,&b,&c);
   else if (cmp == 0 && signe(b) < 0)
     b = negi(b);
   for(;;)
   {
-    cmp = absi_cmp(a, c); if (cmp <= 0) break;
+    cmp = abscmpii(a, c); if (cmp <= 0) break;
     lc = lgefint(a); /* lg(future c): we swap a & c next */
     if (lc == 3) return redimag_1(av, a, b, c);
     swap(a,c); b = negi(b); /* apply rho */
@@ -759,9 +759,9 @@ static GEN
 rhoimag(GEN x)
 {
   GEN a = gel(x,1), b = gel(x,2), c = gel(x,3);
-  int fl = absi_cmp(a, c);
+  int fl = abscmpii(a, c);
   if (fl <= 0) {
-    int fg = absi_cmp(a, b);
+    int fg = abscmpii(a, b);
     if (fg >= 0) {
       x = qfi(a,b,c);
       if ((!fl || !fg) && signe(gel(x,2)) < 0) setsigne(gel(x,2), 1);
@@ -819,7 +819,7 @@ rho_get_BC(GEN *B, GEN *C, GEN b, GEN c, struct qfr_data *S)
 {
   GEN t, u;
   u = shifti(c,1);
-  t = (absi_cmp(S->isqrtD,c) >= 0)? S->isqrtD: c;
+  t = (abscmpii(S->isqrtD,c) >= 0)? S->isqrtD: c;
   u = remii(addii_sign(t,1, b,signe(b)), u);
   *B = addii_sign(t, 1, u, -signe(u)); /* |t| - (|t|+b) % |2c| */
   if (*B == gen_0)
@@ -906,10 +906,10 @@ qfr3_to_qfr(GEN x, GEN d)
 static int
 ab_isreduced(GEN a, GEN b, GEN isqrtD)
 {
-  if (signe(b) > 0 && absi_cmp(b, isqrtD) <= 0)
+  if (signe(b) > 0 && abscmpii(b, isqrtD) <= 0)
   {
     GEN t = addii_sign(isqrtD,1, shifti(a,1),-1);
-    long l = absi_cmp(b, t); /* compare |b| and |floor(sqrt(D)) - |2a|| */
+    long l = abscmpii(b, t); /* compare |b| and |floor(sqrt(D)) - |2a|| */
     if (l > 0 || (l == 0 && signe(t) < 0)) return 1;
   }
   return 0;
@@ -1247,7 +1247,7 @@ static int
 GL2_qfb_equal(GEN a, GEN b)
 {
   return equalii(gel(a,1),gel(b,1))
-   && absi_equal(gel(a,2),gel(b,2))
+   && absequalii(gel(a,2),gel(b,2))
    &&    equalii(gel(a,3),gel(b,3));
 }
 
@@ -1440,10 +1440,10 @@ cornacchia(GEN d, GEN p, GEN *px, GEN *py)
   if (signe(b) == 0) { avma = av; *py = gen_1; return 1; }
   b = Fp_sqrt(b, p); /* sqrt(-d) */
   if (!b) { avma = av; return 0; }
-  if (absi_cmp(shifti(b,1), p) > 0) b = subii(b,p);
+  if (abscmpii(shifti(b,1), p) > 0) b = subii(b,p);
   a = p; L = sqrti(p);
   av2 = avma;
-  while (absi_cmp(b, L) > 0)
+  while (abscmpii(b, L) > 0)
   {
     r = remii(a, b); a = b; b = r;
     if (gc_needed(av2, 1)) {
@@ -1473,7 +1473,7 @@ cornacchia2(GEN d, GEN p, GEN *px, GEN *py)
   k = mod4(d);
   if (k == 1 || k == 2) pari_err_DOMAIN("cornacchia2","-d mod 4", ">",gen_1,d);
   px4 = shifti(p,2);
-  if (absi_cmp(px4, d) < 0) { avma = av; return 0; }
+  if (abscmpii(px4, d) < 0) { avma = av; return 0; }
   if (equaliu(p, 2))
   {
     avma = av;
@@ -1488,8 +1488,8 @@ cornacchia2(GEN d, GEN p, GEN *px, GEN *py)
   if (!b) { avma = av; return 0; }
   if (!signe(b)) { /* d = p,2p,3p,4p */
     avma = av;
-    if (absi_equal(d, px4)){ *py = gen_1; return 1; }
-    if (absi_equal(d, p))  { *py = gen_2; return 1; }
+    if (absequalii(d, px4)){ *py = gen_1; return 1; }
+    if (absequalii(d, p))  { *py = gen_2; return 1; }
     return 0;
   }
   if (mod2(b) != (k & 1)) b = subii(p,b);

@@ -107,7 +107,7 @@ cmprr(GEN x, GEN y)
 
 /* x and y are integers. Return 1 if |x| == |y|, 0 otherwise */
 int
-absi_equal(GEN x, GEN y)
+absequalii(GEN x, GEN y)
 {
   if (!signe(x)) return !signe(y);
   if (!signe(y)) return 0;
@@ -116,7 +116,7 @@ absi_equal(GEN x, GEN y)
 
 /* x and y are integers. Return sign(|x| - |y|) */
 int
-absi_cmp(GEN x, GEN y)
+abscmpii(GEN x, GEN y)
 {
   if (!signe(x)) return signe(y)? -1: 0;
   if (!signe(y)) return 1;
@@ -125,7 +125,7 @@ absi_cmp(GEN x, GEN y)
 
 /* x and y are reals. Return sign(|x| - |y|) */
 int
-absr_cmp(GEN x, GEN y)
+abscmprr(GEN x, GEN y)
 {
   long ex,ey,lx,ly,lz,i;
 

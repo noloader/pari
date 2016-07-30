@@ -1581,7 +1581,7 @@ Fp_halve(GEN a, GEN p)
 /* assume 0 <= u < p and ps2 = p>>1 */
 INLINE GEN
 Fp_center(GEN u, GEN p, GEN ps2)
-{ return absi_cmp(u,ps2)<=0? icopy(u): subii(u,p); }
+{ return abscmpii(u,ps2)<=0? icopy(u): subii(u,p); }
 
 /* x + y*z mod p */
 INLINE GEN

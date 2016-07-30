@@ -454,7 +454,7 @@ CheckSol(GEN *pS, GEN z1, GEN z2, GEN P, GEN rhs, GEN ro)
   if (e <= -13)
   { /* y != 0 and rhs != 0; check whether P(x,y) = rhs or P(-x,-y) = rhs */
     GEN z = poleval(ZX_rescale(P,y),x);
-    if (absi_equal(z, rhs)) add_pm(pS, x,y, z, degpol(P), rhs);
+    if (absequalii(z, rhs)) add_pm(pS, x,y, z, degpol(P), rhs);
   }
   return 1;
 }
@@ -860,12 +860,12 @@ argsqr(GEN t, GEN Pi)
   if (signe(u) > 0)
   {
     v = subrs(u,1); /* ]-1,0] */
-    if (absr_cmp(v,u) < 0) u = v;
+    if (abscmprr(v,u) < 0) u = v;
   }
   else
   {
     v = addrs(u,1);/* ]0,1] */
-    if (absr_cmp(v,u) <= 0) u = v;
+    if (abscmprr(v,u) <= 0) u = v;
   }
   return u;
 }
@@ -1583,7 +1583,7 @@ bnfisintnormabs(GEN bnf, GEN a)
   bnf = checkbnf(bnf); nf = bnf_get_nf(bnf);
   if (!signe(a)) return mkvec(gen_0);
   if (is_pm1(a)) return mkvec(gen_1);
-  if (!F) F = absi_factor(a);
+  if (!F) F = absZ_factor(a);
   if (!get_sol_abs(&T, bnf, F, &PR)) return cgetg(1, t_VEC);
   /* |a| > 1 => T.nPR > 0 */
   res = cgetg(T.sindex+1, t_VEC);

@@ -1432,7 +1432,7 @@ separation(GEN cnt)
       if (i & (1L<<j)) p_b = mulis(p_b, cnt[1+j]);
     r = subii(shifti(sqri(p_b), 2), P3); /* (p_b/p_g - 3/4)*4*P */
     if (!signe(r)) { best_i = i; break; }
-    if (absi_cmp(r, best_r) < 0) { best_i = i; best_r = r; }
+    if (abscmpii(r, best_r) < 0) { best_i = i; best_r = r; }
     if (gc_needed(btop, 1))
       best_r = gerepileuptoint(btop, best_r);
   }
@@ -1679,7 +1679,7 @@ match_and_sort(GEN compile_atkin, GEN Mu, GEN u, GEN q, void *E, const struct bb
     {
       GEN t = Z_chinese_post(u, stoi(r2[i]), C, U, NULL);
       t = Fp_center(t, C, Cs2);
-      if (absi_cmp(t, bound) <= 0)
+      if (abscmpii(t, bound) <= 0)
         gel(card, j++) = subii(pp1, t);
     }
     setlg(card, j);
@@ -1775,10 +1775,10 @@ MATCH_RESTART:
           GEN card1 = subii(Be, mulii(Mu, GMb));
           GEN card2 = addii(card1, mulii(mulsi(2,Mu), GMb));
           if (DEBUGLEVEL>=2) timer_printf(&ti,"match_and_sort");
-          if (absi_cmp(subii(pp1, card1), bound) <= 0)
+          if (abscmpii(subii(pp1, card1), bound) <= 0)
             affii(card1, gel(card, ++nbcard));
           if (nbcard >= lcard) goto MATCH_RESTART;
-          if (absi_cmp(subii(pp1, card2), bound) <= 0)
+          if (abscmpii(subii(pp1, card2), bound) <= 0)
             affii(card2, gel(card, ++nbcard));
           if (nbcard >= lcard) goto MATCH_RESTART;
         }

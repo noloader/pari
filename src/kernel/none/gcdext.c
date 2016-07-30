@@ -37,7 +37,7 @@ bezout(GEN a, GEN b, GEN *pu, GEN *pv)
   ulong xu,xu1,xv,xv1;                /* Lehmer stage recurrence matrix */
   int lhmres;                        /* Lehmer stage return value */
 
-  s = absi_cmp(a,b);
+  s = abscmpii(a,b);
   if (s < 0)
   {
     t=b; b=a; a=t;

@@ -318,7 +318,7 @@ ok_coeffs(GEN g,GEN M)
 {
   long i, lg = lg(g)-1; /* g is monic, and cst term is ok */
   for (i=3; i<lg; i++)
-    if (absi_cmp(gel(g,i), gel(M,i)) > 0) return 0;
+    if (abscmpii(gel(g,i), gel(M,i)) > 0) return 0;
   return 1;
 }
 
@@ -735,7 +735,7 @@ subfield(GEN A, blockdata *B)
     d_1_term = addii(d_1_term, p1);
   }
   d_1_term = centermod(d_1_term, pe); /* Tr(g) */
-  if (absi_cmp(d_1_term, gel(M,3)) > 0) {
+  if (abscmpii(d_1_term, gel(M,3)) > 0) {
     if (DEBUGLEVEL>1) err_printf("d-1 test failed\n");
     return NULL;
   }

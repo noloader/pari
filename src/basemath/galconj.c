@@ -436,7 +436,7 @@ poltopermtest(GEN f, struct galois_lift *gl, GEN pf)
   GEN fx, fp, B = gl->gb->bornesol;
   long i, j, ll;
   for (i = 2; i < lg(f); i++)
-    if (absi_cmp(gel(f,i),B) > 0)
+    if (abscmpii(gel(f,i),B) > 0)
     {
       if (DEBUGLEVEL>=4) err_printf("GaloisConj: Solution too large.\n");
       if (DEBUGLEVEL>=8) err_printf("f=%Ps\n borne=%Ps\n",f,B);
@@ -1509,7 +1509,7 @@ s4test(GEN u, GEN liftpow, struct galois_lift *gl, GEN phi)
   res = remii(res,Q);
   if (gl->den != gen_1) res = mulii(res, gl->den);
   res = centermodii(res, Q,Q2);
-  if (absi_cmp(res, gl->gb->bornesol) > 0) { avma = av; return 0; }
+  if (abscmpii(res, gl->gb->bornesol) > 0) { avma = av; return 0; }
   res = scalar_ZX_shallow(gel(u,2),varn(u));
   for (i = 1; i < d ; i++)
     if (lg(gel(liftpow,i))>2)

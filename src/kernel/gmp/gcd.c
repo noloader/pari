@@ -26,7 +26,7 @@ gcdii(GEN a, GEN b)
   pari_sp av;
   GEN t;
 
-  switch (absi_cmp(a,b))
+  switch (abscmpii(a,b))
   {
     case 0: return absi(a);
     case -1: swap(a,b);
@@ -50,7 +50,7 @@ gcdii(GEN a, GEN b)
   v = vali(a); a = shifti(a,-v); setabssign(a);
   w = vali(b); b = shifti(b,-w); setabssign(b);
   if (w < v) v = w;
-  switch(absi_cmp(a,b))
+  switch(abscmpii(a,b))
   {
     case  0: avma=av; a=shifti(a,v); return a;
     case -1: swap(a,b);

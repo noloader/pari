@@ -3182,7 +3182,7 @@ cxanalyze(cxanalyze_t *T, GEN z)
   /* a,b both non zero, both t_INT or t_FRAC */
   if (ta == t_INT)
   {
-    if (!absi_equal(a, b)) return 0;
+    if (!absequalii(a, b)) return 0;
     T->u = absi_shallow(a);
     T->v = 1;
     if (signe(a) == signe(b))
@@ -3192,7 +3192,7 @@ cxanalyze(cxanalyze_t *T, GEN z)
   }
   else
   {
-    if (!absi_equal(gel(a,2), gel(b,2)) || !absi_equal(gel(a,1),gel(b,1)))
+    if (!absequalii(gel(a,2), gel(b,2)) || !absequalii(gel(a,1),gel(b,1)))
       return 0;
     T->u = absfrac_shallow(a);
     T->v = 1;

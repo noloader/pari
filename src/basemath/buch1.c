@@ -56,7 +56,7 @@ qfr3_canon(GEN x, struct qfr_data *S)
 {
   GEN a = gel(x,1), c = gel(x,3);
   if (signe(a) < 0) {
-    if (absi_equal(a,c)) return qfr3_rho(x, S);
+    if (absequalii(a,c)) return qfr3_rho(x, S);
     setsigne(a, 1);
     setsigne(c,-1);
   }
@@ -67,7 +67,7 @@ qfr3_canon_safe(GEN x, struct qfr_data *S)
 {
   GEN a = gel(x,1), c = gel(x,3);
   if (signe(a) < 0) {
-    if (absi_equal(a,c)) return qfr3_rho(x, S);
+    if (absequalii(a,c)) return qfr3_rho(x, S);
     gel(x,1) = negi(a);
     gel(x,3) = negi(c);
   }
@@ -78,7 +78,7 @@ qfr5_canon(GEN x, struct qfr_data *S)
 {
   GEN a = gel(x,1), c = gel(x,3);
   if (signe(a) < 0) {
-    if (absi_equal(a,c)) return qfr5_rho(x, S);
+    if (absequalii(a,c)) return qfr5_rho(x, S);
     setsigne(a, 1);
     setsigne(c,-1);
   }
@@ -742,13 +742,13 @@ CYCLE:
       form = qfr3_rho(form, B->QFR); rho++;
       rhoacc++;
       if (first)
-        endcycle = (absi_equal(gel(form,1),gel(form0,1))
+        endcycle = (absequalii(gel(form,1),gel(form0,1))
              && equalii(gel(form,2),gel(form0,2)));
       else
       {
-        if (absi_equal(gel(form,1), gel(form,3))) /* a = -c */
+        if (absequalii(gel(form,1), gel(form,3))) /* a = -c */
         {
-          if (absi_equal(gel(form,1),gel(form0,1)) &&
+          if (absequalii(gel(form,1),gel(form0,1)) &&
                   equalii(gel(form,2),gel(form0,2))) continue;
           form = qfr3_rho(form, B->QFR); rho++;
           rhoacc++;
@@ -788,7 +788,7 @@ CYCLE:
       if (fpd[-2])
         form2 = QFR5_comp(form2, qfr5_pf(B->QFR, B->FB[fpd[-2]], prec), B->QFR);
       form2 = qfr5_rho_pow(form2, fpd[-3], B->QFR);
-      if (!absi_equal(gel(form2,1),gel(form2,3)))
+      if (!absequalii(gel(form2,1),gel(form2,3)))
       {
         setsigne(form2[1], 1);
         setsigne(form2[3],-1);

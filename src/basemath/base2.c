@@ -91,7 +91,7 @@ set_disc(nfmaxord_t *S)
   d = degpol(S->T0);
   l0 = leading_coeff(S->T0);
   L = S->unscale;
-  if (typ(L) == t_FRAC && absi_cmp(gel(L,1), gel(L,2)) < 0)
+  if (typ(L) == t_FRAC && abscmpii(gel(L,1), gel(L,2)) < 0)
     dT = ZX_disc(S->T); /* more efficient */
   else
   {
@@ -130,7 +130,7 @@ nfmaxord_check_args(nfmaxord_t *S, GEN T, long flag)
         fa = fact_from_factors(dT, fa, 0);
         break;
       case t_INT:
-        fa = absi_factor_limit(dT, (signe(fa) <= 0)? 1: itou(fa));
+        fa = absZ_factor_limit(dT, (signe(fa) <= 0)? 1: itou(fa));
         break;
       case t_MAT:
         if (is_Z_factornon0(fa)) break;
@@ -140,7 +140,7 @@ nfmaxord_check_args(nfmaxord_t *S, GEN T, long flag)
     }
     if (!signe(dT)) pari_err_IRREDPOL("nfmaxord",mkvec2(T,fa));
   } else
-    fa = (flag & nf_PARTIALFACT)? absi_factor_limit(dT, 0): absi_factor(dT);
+    fa = (flag & nf_PARTIALFACT)? absZ_factor_limit(dT, 0): absZ_factor(dT);
   P = gel(fa,1); l = lg(P);
   E = gel(fa,2);
   if (l > 1 && is_pm1(gel(P,1)))
@@ -202,7 +202,7 @@ diag_denom(GEN M)
     GEN t = gcoeff(M,j,j);
     if (typ(t) == t_INT) continue;
     t = gel(t,2);
-    if (absi_cmp(t,d) > 0) d = t;
+    if (abscmpii(t,d) > 0) d = t;
   }
   return d;
 }
@@ -2028,7 +2028,7 @@ indexpartial(GEN T, GEN DT)
   GEN fa, E, P, res = gen_1, dT = ZX_deriv(T);
 
   if (!DT) DT = ZX_disc(T);
-  fa = absi_factor_limit(DT, 0);
+  fa = absZ_factor_limit(DT, 0);
   P = gel(fa,1);
   E = gel(fa,2); nb = lg(P)-1;
   for (i = 1; i <= nb; i++)

@@ -1092,11 +1092,11 @@ zbrent(void *E, GEN (*eval)(void *, GEN), GEN a, GEN b, long prec)
     {
       a = b; b = c; c = a; fa = fb; fb = fc; fc = fa;
     }
-    tol1 = absr_cmp(tol, b) > 0? sqrr(tol): mulrr(tol, absr(b));
+    tol1 = abscmprr(tol, b) > 0? sqrr(tol): mulrr(tol, absr(b));
     xm = shiftr(subrr(c, b), -1);
-    if (absr_cmp(xm, tol1) <= 0 || gequal0(fb)) break; /* SUCCESS */
+    if (abscmprr(xm, tol1) <= 0 || gequal0(fb)) break; /* SUCCESS */
 
-    if (absr_cmp(e, tol1) >= 0 && gcmp(gabs(fa, 0), gabs(fb, 0)) > 0)
+    if (abscmprr(e, tol1) >= 0 && gcmp(gabs(fa, 0), gabs(fb, 0)) > 0)
     { /* attempt interpolation */
       GEN min1, min2, p, q, s = gdiv(fb, fa);
       if (cmprr(a, c) == 0)

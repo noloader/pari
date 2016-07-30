@@ -120,8 +120,8 @@ too_big(GEN nf, GEN bet)
   GEN x = nfnorm(nf,bet);
   switch (typ(x))
   {
-    case t_INT: return absi_cmp(x, gen_1);
-    case t_FRAC: return absi_cmp(gel(x,1), gel(x,2));
+    case t_INT: return abscmpii(x, gen_1);
+    case t_FRAC: return abscmpii(gel(x,1), gel(x,2));
   }
   pari_err_BUG("wrong type in too_big");
   return 0; /* not reached */
@@ -708,7 +708,7 @@ isprimitive(GEN nf)
   /* N = [L:Q] = product of primes >= p, same is true for [L:K]
    * d_L = t d_K^[L:K] --> check that some q^p divides d_L */
   D = nf_get_disc(nf);
-  fa = gel(absi_factor_limit(D,0),2); /* list of v_q(d_L). Don't check large primes */
+  fa = gel(absZ_factor_limit(D,0),2); /* list of v_q(d_L). Don't check large primes */
   if (mod2(D)) i = 1;
   else
   { /* q = 2 */
@@ -2029,7 +2029,7 @@ discrayabslist(GEN bnf, GEN L)
   nf = bnf_get_nf(bnf);
   h = bnf_get_no(bnf);
   ID.degk = nf_get_degree(nf);
-  ID.fadk = absi_factor(nf_get_disc(nf));
+  ID.fadk = absZ_factor(nf_get_disc(nf));
   ID.idealrelinit = trivial_fact();
   V = cgetg(l, t_VEC);
   D = cgetg(l, t_VEC);
@@ -2241,7 +2241,7 @@ discrayabslistarch(GEN bnf, GEN arch, ulong bound)
   bnf = checkbnf(bnf);
   nf = bnf_get_nf(bnf); r1 = nf_get_r1(nf);
   degk = nf_get_degree(nf);
-  fadkabs = absi_factor(nf_get_disc(nf));
+  fadkabs = absZ_factor(nf_get_disc(nf));
   h = bnf_get_no(bnf);
   U = init_units(bnf);
   sgnU = nfsign_units(bnf, NULL, 1);

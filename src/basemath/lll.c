@@ -144,12 +144,12 @@ Babai(pari_sp av, long kappa, GEN *pG, GEN *pB, GEN *pU, GEN mu, GEN r, GEN s,
       else
         affir(gmael(G,kappa,j), gmael(r,kappa,j));
       affrr(divrr(gmael(r,kappa,j), gmael(r,j,j)), gmael(mu,kappa,j));
-      if (absr_cmp(maxmu, gmael(mu,kappa,j))<0)
+      if (abscmprr(maxmu, gmael(mu,kappa,j))<0)
         maxmu = gmael(mu,kappa,j);
       avma = btop;
     }
     maxmu = absr(maxmu);
-    if (typ(max3mu)==t_REAL && absr_cmp(max3mu, shiftr(max2mu, 5))<=0)
+    if (typ(max3mu)==t_REAL && abscmprr(max3mu, shiftr(max2mu, 5))<=0)
     {
       *pB = B; *pG = G; *pU = U;
       if (DEBUGLEVEL>5) err_printf("prec too low\n");
@@ -160,7 +160,7 @@ Babai(pari_sp av, long kappa, GEN *pG, GEN *pB, GEN *pU, GEN mu, GEN r, GEN s,
     for (j=kappa-1; j>zeros; j--)
     {
       tmp = gmael(mu,kappa,j);
-      if (absr_cmp(tmp, eta) <= 0) continue; /* (essentially) size-reduced */
+      if (abscmprr(tmp, eta) <= 0) continue; /* (essentially) size-reduced */
 
       if (gc_needed(av0,2))
       {
@@ -169,7 +169,7 @@ Babai(pari_sp av, long kappa, GEN *pG, GEN *pB, GEN *pU, GEN mu, GEN r, GEN s,
       }
       go_on = 1;
       /* we consider separately the case |X| = 1 */
-      if (absr_cmp(tmp, halfplus1) <= 0)
+      if (abscmprr(tmp, halfplus1) <= 0)
       {
         if (signe(tmp) > 0) { /* in this case, X = 1 */
           pari_sp btop = avma;

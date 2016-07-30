@@ -4731,9 +4731,9 @@ get_u(GEN E, GEN *pDP)
   long l, k;
 
   if (!signe(c4))
-    P = gel(absi_factor(c6), 1);
+    P = gel(absZ_factor(c6), 1);
   else if (!signe(c6))
-    P = gel(absi_factor(c4), 1);
+    P = gel(absZ_factor(c4), 1);
   else
   {
     GEN A, B, v = Z_ppio(c4,c6), d = gel(v,1); /* = gcd(c4,c6), u^4 | d */
@@ -4989,7 +4989,7 @@ ellglobalred_all(GEN e, GEN *pgr, GEN *pv)
   P = gel(S,1); l = lg(P); /* some known prime divisors of D */
   D  = ell_get_disc(E);
   for (k = 1; k < l; k++) (void)Z_pvalrem(D, gel(P,k), &D);
-  if (!is_pm1(D)) P = ZV_sort( shallowconcat(P, gel(absi_factor(D),1)) );
+  if (!is_pm1(D)) P = ZV_sort( shallowconcat(P, gel(absZ_factor(D),1)) );
   l = lg(P); c = gen_1;
   iN = 1;
   NP = cgetg(l, t_COL);
