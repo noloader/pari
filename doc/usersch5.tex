@@ -11584,12 +11584,14 @@ in hashtable $h$. No copy is made: $k$ and $v$ themselves are stored. The
 implementation does not prevent one to insert two entries with equal
 keys $k$, but which of the two is affected by later commands is undefined.
 
+\fun{void}{hash_insert2}{hashtable *h, void *k, void *v, ulong hash}
+as \kbd{hash\_insert}, assuming \kbd{h->hash(k)} is \kbd{hash}.
+
 \fun{hashentry*}{hash_search}{hashtable *h, void *k} look for an entry
 with key $k$ in $h$. Return it if it one exists, and \kbd{NULL} if not.
 
-\fun{hashentry*}{hash_search2}{hashtable *h, void *k, ulong hash} look for an
-entry with key $k$ in $h$, assuming \kbd{h->hash(k)} is \kbd{hash}. Return
-it if it one exists, and \kbd{NULL} if not.
+\fun{hashentry*}{hash_search2}{hashtable *h, void *k, ulong hash} as
+\kbd{hash\_search} assuming \kbd{h->hash(k)} is \kbd{hash}.
 
 \fun{hashentry *}{hash_select}{hashtable *h, void *k, void *E, int (*select)(void *, hashentry *)} variant of \tet{hash_search}, useful when entries
 with identical keys are inserted: among the entries attached to
