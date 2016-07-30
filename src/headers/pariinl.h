@@ -791,7 +791,7 @@ INLINE void
 pari_stack_delete(pari_stack *s)
 {
   void **sdat = pari_stack_base(s);
-  if (*sdat) free(*sdat);
+  if (*sdat) pari_free(*sdat);
 }
 
 INLINE void
