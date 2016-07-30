@@ -93,8 +93,8 @@ Doc: Let $PQ$ be a polynomial $P$, resp. a vector $[P,Q]$ of polynomials, with
  The \var{NUtype} is a \typ{STR} describing the reduction at $p$ of $C$,
  following Namikawa-Ueno, \emph{The complete classification of fibers in
  pencils of curves of genus two}, Manuscripta Math., vol. 9, (1973), pages
- 143-186. The reduction symbol is followed by the corresponding page number in
- this article.
+ 143-186. The reduction symbol is followed by the corresponding page number
+ or page range in this article.
 
  The second datum \var{neron} is the group of connected components (over an
  algebraic closure of $\F_p$) of the N\'eron model of $J(C)$, given as a
@@ -111,9 +111,14 @@ Doc: Let $PQ$ be a polynomial $P$, resp. a vector $[P,Q]$ of polynomials, with
   \kbd{[I\obr2\cbr-II-5]} means \kbd{[I\_2-II-5]}.
 
  \item If $K$ and $K'$ are Kodaira symbols for singular fibers of elliptic
- curves, \kbd{[$K$-$K'$-m]} and \kbd{[$K'$-$K$-m]} are the same.
+ curves, then \kbd{[$K$-$K'$-m]} and \kbd{[$K'$-$K$-m]} are the same.
 
- \item \kbd{[$K$-$K'$-$-1$]}  is \kbd{[$K'$-$K$-$\alpha$]} in the notation of
+ We define a total ordering on Kodaira symbol by fixing $\kbd{I} < \kbd{I*} <
+ \kbd{II} < \kbd{II*}, \dots$. If the reduction type is the same, we order by
+ the number of components, e.g. $\kbd{I}_2 < \kbd{I}_4$, etc.
+ Then we normalize our output so that $K \leq K'$.
+
+ \item \kbd{[$K$-$K'$-$-1$]}  is \kbd{[$K$-$K'$-$\alpha$]} in the notation of
  Namikawa-Ueno.
 
  \item The figure \kbd{[2I\_0-m]} in Namikawa-Ueno, page 159, must be denoted
