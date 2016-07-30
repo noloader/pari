@@ -369,11 +369,11 @@ gp_embedded(const char *s)
     parivstack_reset();
     res = (z==gnil || last==';') ? stack_strdup("\n"):
           stack_sprintf("%%%lu = %Ps\n", n, pari_get_hist(n));
+    t = timer_delay(GP_DATA->T);
+    if (t && GP_DATA->chrono)
+      res = stack_sprintf("%stime = %s", res, gp_format_time(t));
   } pari_ENDCATCH;
   if (!pari_last_was_newline()) pari_putc('\n');
-  t = timer_delay(GP_DATA->T);
-  if (t && GP_DATA->chrono)
-    res = stack_sprintf("%stime = %s", res, gp_format_time(t));
   avma = pari_mainstack->top;
   return res;
 }
