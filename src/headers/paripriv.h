@@ -397,9 +397,8 @@ INLINE ulong Flx_deg1_root(GEN f, ulong p) {
 /* Internal polclass and polmodular functions, to allow sharing
  * modular polynomial cache */
 GEN polclass0(long D, long inv, long xvar, GEN *db);
-GEN polmodular0_ZM(
-  long L, long inv, GEN J, GEN Q, int compute_derivs, GEN *db);
-
+GEN polmodular0_ZM(long L, long inv, GEN J, GEN Q, int compute_derivs, GEN *db);
+GEN Flm_Fl_polmodular_evalx(GEN phi, long L, ulong j, ulong p, ulong pi);
 
 /* Polmodular database maintenance */
 GEN polmodular_db_init(long inv);
