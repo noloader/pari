@@ -2228,7 +2228,7 @@ X2XP1(GEN P, long deg, int *root1, GEN *Premapped)
     vlim--;
     if (gc_needed(av, 3))
     {
-      if (!Premapped) setlg(v, vlim);
+      if (!Premapped) setlg(v, vlim + 2);
       v = gerepileupto(av, v);
       if (DEBUGMEM > 1) pari_warn(warnmem, "X2XP1");
     }
