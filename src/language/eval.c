@@ -124,13 +124,15 @@ static void
 pop_val(entree *ep)
 {
   var_cell *v = (var_cell*) ep->pvalue;
-
-  if (v == INITIAL) return;
-  if (v->flag == COPY_VAL) gunclone_deep((GEN)ep->value);
-  ep->value  = v->value;
-  ep->pvalue = (char*) v->prev;
-  ep->valence=v->valence;
-  pari_free((void*)v);
+  if (v != INITIAL)
+  {
+    GEN old_val = (GEN) ep->value; /* protect against SIGINT */
+    ep->value  = v->value;
+    if (v->flag == COPY_VAL) gunclone_deep(old_val);
+    ep->pvalue = (char*) v->prev;
+    ep->valence=v->valence;
+    pari_free((void*)v);
+  }
 }
 
 void
@@ -345,8 +347,9 @@ change_compo(matcomp *c, GEN res)
     if (lg(res) != lg(p)) pari_err_DIM("matrix row assignment");
     for (i=1; i<lg(p); i++)
     {
-      GEN p1 = gcoeff(p,c->full_row,i); if (isclone(p1)) gunclone_deep(p1);
+      GEN p1 = gcoeff(p,c->full_row,i); /* Protect against SIGINT */
       gcoeff(p,c->full_row,i) = gclone(gel(res,i));
+      if (isclone(p1)) gunclone_deep(p1);
     }
     return;
   }
@@ -428,11 +431,9 @@ restore_vars(long nbmvar, long nblvar)
 {
   long j;
   for(j=1;j<=nbmvar;j++)
-    freelex(-j);
-  s_var.n-=nbmvar;
+    { s_var.n--; freelex(0); } /* protect against SIGINT */
   for(j=1;j<=nblvar;j++)
-    pop_val(lvars[s_lvars.n-j]);
-  s_lvars.n-=nblvar;
+    { s_lvars.n--; pop_val(lvars[s_lvars.n]); }
 }
 
 INLINE void
