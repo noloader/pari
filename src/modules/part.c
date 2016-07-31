@@ -114,7 +114,7 @@ numbpart(GEN n)
 
   if (typ(n) != t_INT) pari_err_TYPE("partition function",n);
   if (signe(n) < 0) return gen_0;
-  if (cmpiu(n, 2) < 0) return gen_1;
+  if (abscmpiu(n, 2) < 0) return gen_1;
   if (cmpii(n, uu32toi(0x38d7e, 0xa4c68000)) >= 0)
     pari_err_OVERFLOW("numbpart [n < 10^15]");
   est = estim(n);

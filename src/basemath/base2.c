@@ -445,7 +445,7 @@ maxord2(GEN cf, GEN p, long epsilon)
   const GEN ppo2 = shifti(pp,-1);
   const long pps = (2*expi(pp)+2 < (long)BITS_IN_LONG)? pp[2]: 0;
 
-  if (cmpiu(p,n) > 0)
+  if (abscmpiu(p,n) > 0)
   {
     hard_case_exponent = NULL;
     sp = 0; /* gcc -Wall */
@@ -2248,7 +2248,7 @@ pradical(GEN nf, GEN p, GEN *phi)
     gel(frob,i) = pow_ei_mod_p(nf,i,p, p);
 
   m = frob; q = p;
-  while (cmpiu(q,N) < 0) { q = mulii(q,p); m = FpM_mul(m, frob, p); }
+  while (abscmpiu(q,N) < 0) { q = mulii(q,p); m = FpM_mul(m, frob, p); }
   rad = FpM_ker(m, p); /* m = Frob^k, s.t p^k >= N */
   for (i=1; i<=N; i++)
     gcoeff(frob,i,i) = subis(gcoeff(frob,i,i), 1);
@@ -3222,7 +3222,7 @@ rnfmaxord(GEN nf, GEN pol, GEN pr, long vdisc)
   nfT = nf_get_pol(nf);
   n = degpol(pol); vpol = varn(pol);
   q = T? powiu(p,degpol(T)): p;
-  q1 = q; while (cmpiu(q1,n) < 0) q1 = mulii(q1,q);
+  q1 = q; while (abscmpiu(q1,n) < 0) q1 = mulii(q1,q);
   rnfId = matid(n);
 
   prhinv = idealinv(nf, pr);

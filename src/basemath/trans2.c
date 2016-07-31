@@ -1478,7 +1478,7 @@ Qp_gamma(GEN x)
 {
   GEN n, m, N, p = gel(x,2);
   long s, e = precp(x);
-  if (equaliu(p, 2) && e == 2) e = 1;
+  if (absequaliu(p, 2) && e == 2) e = 1;
   if (valp(x) < 0) pari_err_DOMAIN("gamma","v_p(x)", "<", gen_0, x);
   n = gtrunc(x);
   m = gtrunc(gneg(x));
@@ -1517,7 +1517,7 @@ ggamma(GEN x, long prec)
       if (signe(x) <= 0)
         pari_err_DOMAIN("gamma","argument", "=",
                          strtoGENstr("non-positive integer"), x);
-      if (cmpiu(x,481177) > 0) pari_err_OVERFLOW("gamma");
+      if (abscmpiu(x,481177) > 0) pari_err_OVERFLOW("gamma");
       return mpfactr(itos(x) - 1, prec);
 
     case t_REAL: case t_COMPLEX:
@@ -1527,7 +1527,7 @@ ggamma(GEN x, long prec)
     {
       GEN a = gel(x,1), b = gel(x,2), c;
       long m;
-      if (equaliu(b,2))
+      if (absequaliu(b,2))
       {
         if (is_bigint(a) || labs(m = itos(a)) > 962354)
         {
@@ -1565,7 +1565,7 @@ ggamma(GEN x, long prec)
         if (isint(y0, &y0))
         { /* fun eq. avoids log singularity of lngamma at negative ints */
           if (signe(y0) < 0) { Y = gsubsg(1, y); y0 = subsi(1, y0); }
-          if (cmpiu(y0, 50) < 0) z = mpfact(itos(y0)-1); /* more precise */
+          if (abscmpiu(y0, 50) < 0) z = mpfact(itos(y0)-1); /* more precise */
         }
         if (!z) z = ggamma(y0,prec);
         z = gmul(z, gexp(serlngamma0(Y,prec),prec));
@@ -1606,7 +1606,7 @@ glngamma(GEN x, long prec)
       if (signe(x) <= 0)
         pari_err_DOMAIN("lngamma","argument", "=",
                          strtoGENstr("non-positive integer"), x);
-      if (cmpiu(x,200 + 50*(prec-2)) > 0) /* heuristic */
+      if (abscmpiu(x,200 + 50*(prec-2)) > 0) /* heuristic */
         return cxgamma(x, 1, prec);
       return gerepileuptoleaf(av, logr_abs( itor(mpfact(itos(x) - 1), prec) ));
     case t_FRAC:
@@ -1636,7 +1636,7 @@ glngamma(GEN x, long prec)
       t = serlngamma0(y,prec);
       y0 = simplify_shallow(gel(y,2));
       /* no constant term if y0 = 1 or 2 */
-      if (!isint(y0,&y0) || signe(y0) <= 0 || cmpiu(y0,2) > 2)
+      if (!isint(y0,&y0) || signe(y0) <= 0 || abscmpiu(y0,2) > 2)
         t = gadd(t, glngamma(y0,prec));
       return gerepileupto(av, t);
 
@@ -1871,7 +1871,7 @@ serpsi(GEN y, long prec)
   if (typ(z0) == t_INT && !is_bigint(z0))
   {
     long m = itos(z0);
-    if (cmpiu(muluu(prec2nbits(prec),L), labs(m)) > 0)
+    if (abscmpiu(muluu(prec2nbits(prec),L), labs(m)) > 0)
     { /* psi(m+x) = psi(1+x) + sum_{1 <= i < m} 1/(i+x) for m > 0
                     psi(1+x) - sum_{0 <= i < -m} 1/(i+x) for m <= 0 */
       GEN H = NULL;

@@ -493,7 +493,7 @@ static GEN
 padic_mod(GEN x)
 {
   GEN p = gel(x,2), u = gel(x,4);
-  return equaliu(p,2)? utoipos(mod8(u)): modii(u, p);
+  return absequaliu(p,2)? utoipos(mod8(u)): modii(u, p);
 }
 
 /* a1, b1 are t_PADICs, a1/b1 = 1 (mod p) if p odd, (mod 2^4) otherwise.
@@ -718,7 +718,7 @@ ellinit_Fp(GEN x, GEN p)
   long i;
   GEN y, disc;
   if (!(y = initsmall(x, 4))) return NULL;
-  if (cmpiu(p,3)<=0) /* ell_to_a4a6_bc does not handle p<=3 */
+  if (abscmpiu(p,3)<=0) /* ell_to_a4a6_bc does not handle p<=3 */
     return FF_ellinit(y,p_to_FF(p,0));
   disc = Rg_to_Fp(ell_get_disc(y),p);
   if (!signe(disc)) return NULL;
@@ -1387,11 +1387,11 @@ ellminimaltwist(GEN e)
     GEN p = gel(F, i);
     long v4 = safe_Z_pval(c4, p), v6 = safe_Z_pval(c6,p), vD = Z_pval(disc,p);
     long l = v4<0 ? minss(2*v6, vD): v6<0 ? minss(3*v4, vD): minss(minss(3*v4, 2*v6), vD);
-    if (cmpiu(p, 3)>0)
+    if (abscmpiu(p, 3)>0)
     {
       if (l>=6) D = mulii(D,mod4(p)==1 ? p: negi(p));
     }
-    else if (equaliu(p, 3))
+    else if (absequaliu(p, 3))
     {
       if (l>=6 && v6!=5) D = mulis(D,-3);
     }
@@ -1641,7 +1641,7 @@ ellordinate_i(GEN E, GEN x, long prec)
   D = gadd(gsqr(b), gmul2n(a,2));
   /* solve y*(y+b) = a */
   if (gequal0(D)) {
-    if (ell_get_type(E) == t_ELL_Fq && equaliu(ellff_get_p(E),2))
+    if (ell_get_type(E) == t_ELL_Fq && absequaliu(ellff_get_p(E),2))
       retmkvec( FF_sqrt(a) );
     b = gneg_i(b); y = cgetg(2,t_VEC);
     gel(y,1) = gmul2n(b,-1);
@@ -1657,7 +1657,7 @@ ellordinate_i(GEN E, GEN x, long prec)
       d = Fp_sqrt(D, p);
       break;
     case t_ELL_Fq:
-      if (equaliu(ellff_get_p(E),2))
+      if (absequaliu(ellff_get_p(E),2))
       {
         GEN F = FFX_roots(mkpoln(3, gen_1, b, a), D);
         if (lg(F) == 1) { avma = av; return cgetg(1,t_VEC); }
@@ -2103,7 +2103,7 @@ doellQp_root(GEN E, long prec)
   GEN c4=ell_get_c4(E), c6=ell_get_c6(E), j=ell_get_j(E), p=ellQp_get_p(E);
   GEN c4p, c6p, T, a;
   long alpha;
-  int pis2 = equaliu(p, 2);
+  int pis2 = absequaliu(p, 2);
   if (Q_pval(j, p) >= 0) pari_err_DOMAIN(".root", "v_p(j)", ">=", gen_0, j);
   /* v(j) < 0 => v(c4^3) = v(c6^2) = 2 alpha */
   alpha = Q_pvalrem(ell_get_c4(E), p, &c4) >> 1;
@@ -2118,7 +2118,7 @@ doellQp_root(GEN E, long prec)
     a = ZpX_liftroot(T, gen_0, p, prec);
     alpha -= 2;
   }
-  else if (equaliu(p, 3))
+  else if (absequaliu(p, 3))
   { /* Use 216T(X/3) = 32X^3 - 6c4 X - c6 to have integral root; a=-c6 mod 3 */
     a = Fp_neg(c6p, p);
     T = mkpoln(4, utoipos(32), gen_0, mulis(c4, -6), negi(c6));
@@ -2165,7 +2165,7 @@ doellQp_ab(GEN E, GEN *pta, GEN *ptb, long prec)
   w = Qp_sqrt(gmul2n(gadd(b4,gmul(e1,gadd(b2,gmulsg(6,e1)))),1));
   u = gadd(t,w);
   /* Decide between w and -w: we want v(a-b) > v(b) */
-  if (equaliu(p,2))
+  if (absequaliu(p,2))
   { if (valp(u)-1 <= valp(w)) w = gneg_i(w); }
   else
   { if (valp(u) <= valp(w)) w = gneg_i(w); }
@@ -2460,7 +2460,7 @@ ellnonsingularmultiple(GEN e, GEN P)
         g = shifti(g,1);
       }
     } else {
-      if (equaliu(c, 4)) c = gen_2;
+      if (absequaliu(c, 4)) c = gen_2;
       P = ellmul(E, P, c);
       d = Q_denom(P);
       g = mulii(g, c);
@@ -2478,7 +2478,7 @@ rellg(hashtable *H, GEN m, GEN T, GEN g4, GEN b8, GEN N)
   hashentry *h;
   GEN n, z, np2, np1, nm2, nm1, fp2, fp1, fm2, fm1, f;
   ulong m4;
-  if (cmpiu(m, 4) <= 0) switch(itou(m))
+  if (abscmpiu(m, 4) <= 0) switch(itou(m))
   {
     case 0: return gen_0;
     case 1: return gen_1;
@@ -2608,7 +2608,7 @@ logsigma_prec(GEN p, long v, long t)
 {
   double log2p = dbllog2(p);
   long j, i = ceil((v - t) / (t - 2*LOG2/(3*log2p)) + 0.01);
-  if (equaliu(p,2) && i < 5) i = 5;
+  if (absequaliu(p,2) && i < 5) i = 5;
   /* guaranteed to work, now optimize */
   for (j = i-1; j >= 2; j--)
   {
@@ -2617,7 +2617,7 @@ logsigma_prec(GEN p, long v, long t)
   }
   if (j == 1)
   {
-    if (- equaliu(p,2) + 2*t + 0.01 >= v) i = 1;
+    if (- absequaliu(p,2) + 2*t + 0.01 >= v) i = 1;
   }
   return i;
 }
@@ -2675,7 +2675,7 @@ ellpadicheight(GEN e, GEN p, long v0, GEN P)
   P = gel(S,1);
   g = gel(S,2);
   v = v0 + 2*Z_pval(g, p);
-  is2 = equaliu(p,2);
+  is2 = absequaliu(p,2);
   if (is2) v += 2;
   x = gel(P,1);
   n = numer(x);
@@ -2781,12 +2781,12 @@ ellpadics2(GEN E, GEN p, long n)
     ap = ellap(E,p);
   else
   { /* either 2sqrt(p) < p/2 or n > 1 and 2sqrt(p) < p^2/2 (since p!=2) */
-    GEN q = cmpiu(p,13) <= 0? sqri(p): p;
+    GEN q = abscmpiu(p,13) <= 0? sqri(p): p;
     ap = padic_to_Fp(ap, q);
     ap = Fp_center(ap,q,shifti(q,-1));
   }
   D = subii(sqri(ap), shifti(p,2));
-  if (equaliu(p,2)) n++;
+  if (absequaliu(p,2)) n++;
   sqrtD = Zp_sqrtlift(D, ap, p, n); /* congruent to ap mod p */
   l = gmul2n(gadd(ap, cvtop(sqrtD,p,n)), -1); /*unit eigenvalue of F*/
   return gerepileupto(av, gdiv(b, gsub(l, a))); /* slope of eigenvector */
@@ -4019,7 +4019,7 @@ localred_23(GEN e, long p)
 static GEN
 localred(GEN e, GEN p)
 {
-  if (cmpiu(p, 3) > 0) /* p != 2,3 */
+  if (abscmpiu(p, 3) > 0) /* p != 2,3 */
     return localred_p(e,p);
   else
   {
@@ -4122,10 +4122,10 @@ static GEN
 pol2sqrt_23(GEN nf, GEN modP, GEN Q)
 {
   GEN p = modpr_get_p(modP), T = modpr_get_T(modP);
-  GEN r = equaliu(p,2) ? gel(Q,2): gel(Q,3);
+  GEN r = absequaliu(p,2) ? gel(Q,2): gel(Q,3);
   if (!gequal1(gel(Q,4)))
     r = Fq_div(r, gel(Q,4), T, p);
-  if (equaliu(p,2)) r = Fq_sqrt(r,T,p);
+  if (absequaliu(p,2)) r = Fq_sqrt(r,T,p);
   return nftoalg(nf, Fq_to_nf(r, modP));
 }
 
@@ -4197,7 +4197,7 @@ nflocalred_23(GEN e, GEN P, long *ap)
       GEN a4 = nf_to_Fq(nf, ell_get_a4(e), modP);
       GEN a6 = nf_to_Fq(nf, ell_get_a6(e), modP);
       GEN x0, y0;
-      if (equaliu(p,2))
+      if (absequaliu(p,2))
       {
         GEN x02, y02;
         if (signe(a1))
@@ -4431,7 +4431,7 @@ static GEN
 nflocalred(GEN e, GEN  pr)
 {
   GEN p = pr_get_p(pr);
-  if (cmpiu(p, 3) <= 0) { long ap; return nflocalred_23(e,pr,&ap); }
+  if (abscmpiu(p, 3) <= 0) { long ap; return nflocalred_23(e,pr,&ap); }
   return nflocalred_p(e,pr);
 }
 
@@ -4677,7 +4677,7 @@ ellnfap(GEN E, GEN P, int *good_red)
   c4 = ell_get_c4(E);
   vD = nfval(nf,D,P);
   p = pr_get_p(P);
-  if (cmpiu(p, 3) <= 0)
+  if (abscmpiu(p, 3) <= 0)
   {
     long ap;
     GEN L = nflocalred_23(E,P,&ap), kod = gel(L,2);
@@ -5104,7 +5104,7 @@ kod_23(GEN e, long p)
   if ((S = obj_check(e, Q_GLOBALRED)))
   {
     GEN NP = gmael(S,3,1), L = gel(S,4);
-    nv = equaliu(gel(NP,1), p)? gel(L,1): gel(L,2); /* localred(p) */
+    nv = absequaliu(gel(NP,1), p)? gel(L,1): gel(L,2); /* localred(p) */
   }
   else
     nv = localred_23(e, p);
@@ -6222,8 +6222,8 @@ ellcard_ram(GEN E, GEN p, int *good_red)
     return gerepileuptoint(av, subii(addiu(p,1), ap));
   }
   *good_red = 1;
-  if (equaliu(p,2)) return utoi(cardmod2(E));
-  if (equaliu(p,3)) return utoi(cardmod3(E));
+  if (absequaliu(p,2)) return utoi(cardmod2(E));
+  if (absequaliu(p,3)) return utoi(cardmod3(E));
   ell_to_a4a6(E,p,&a4,&a6);
   return Fp_ellcard(a4, a6, p);
 }
@@ -6300,14 +6300,14 @@ ellsea(GEN E, ulong smallfact)
   case t_ELL_Fp:
     {
       GEN p = ellff_get_field(E), e = ellff_get_a4a6(E);
-      if (cmpiu(p, 7) <= 0)
+      if (abscmpiu(p, 7) <= 0)
         return Fp_ellcard(gel(e,1), gel(e,2), p);
       return Fp_ellcard_SEA(gel(e,1), gel(e,2), p, smallfact);
     }
   case t_ELL_Fq:
     {
       GEN fg = ellff_get_field(E);
-      if (cmpiu(FF_p_i(fg), 7) <= 0)
+      if (abscmpiu(FF_p_i(fg), 7) <= 0)
         return FF_ellcard(E);
       return FF_ellcard_SEA(E, smallfact);
     }
@@ -6355,7 +6355,7 @@ static GEN
 ellgen(GEN E, GEN D, GEN m, GEN p)
 {
   pari_sp av = avma;
-  if (cmpiu(p, 3)<=0)
+  if (abscmpiu(p, 3)<=0)
   {
     ulong l = itou(p), r = lg(D)-1;
     long a1 = Rg_to_Fl(ell_get_a1(E),l);
@@ -6387,8 +6387,8 @@ ellgen(GEN E, GEN D, GEN m, GEN p)
       if (r==2) /* [2,2] */
         retmkvec2(mkvec2s(0,a3),mkvec2s(1,Fl_add(a1,a3,3)));
       /* cyclic, order d_1 */
-      y = equaliu(gel(D,1),2)? 0 : 1;
-      if (equaliu(gel(D,1),6)) /* [6] */
+      y = absequaliu(gel(D,1),2)? 0 : 1;
+      if (absequaliu(gel(D,1),6)) /* [6] */
       {
         long b8 = Rg_to_Fl(ell_get_b8(E),l);
         x = (b6==1 && b8!=0) ? 0 : (T1==1 && (b2+b8)%3!=0) ? 1 : 2;
@@ -6415,11 +6415,11 @@ ellgroup_m(GEN E, GEN p)
 {
   GEN a4, a6, G, m = gen_1, N = ellcard(E, p);
   if (equali1(N)) { G = cgetg(1,t_VEC); goto END; }
-  if (equaliu(p, 2)) { G = mkvec(N); goto END; }
-  if (equaliu(p, 3))
+  if (absequaliu(p, 2)) { G = mkvec(N); goto END; }
+  if (absequaliu(p, 3))
   { /* The only possible non-cyclic group is [2,2] which happens 9 times */
     ulong b2, b4, b6;
-    if (!equaliu(N, 4)) { G = mkvec(N); goto END; }
+    if (!absequaliu(N, 4)) { G = mkvec(N); goto END; }
     /* If the group is not cyclic, T = 4x^3 + b2 x^2 + 2b4 x + b6
      * must have 3 roots else 1 root. Test T(0) = T(1) = 0 mod 3 */
     b6 = Rg_to_Fl(ell_get_b6(E), 3);

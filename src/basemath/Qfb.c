@@ -1474,7 +1474,7 @@ cornacchia2(GEN d, GEN p, GEN *px, GEN *py)
   if (k == 1 || k == 2) pari_err_DOMAIN("cornacchia2","-d mod 4", ">",gen_1,d);
   px4 = shifti(p,2);
   if (abscmpii(px4, d) < 0) { avma = av; return 0; }
-  if (equaliu(p, 2))
+  if (absequaliu(p, 2))
   {
     avma = av;
     switch (itou_or_0(d)) {

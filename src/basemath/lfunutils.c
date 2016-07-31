@@ -468,7 +468,7 @@ lfunchiZ(GEN bid, GEN chi)
   /* chi now primitive on bid */
   sig = mkvec( zncharisodd(bid, chi)? gen_1: gen_0 );
   nchi = znconreylog_normalize(bid, chi);
-  real = cmpiu(gel(nchi,1), 2) <= 0;
+  real = abscmpiu(gel(nchi,1), 2) <= 0;
   r = mkvecn(6, tag(mkvec2(bid,nchi), t_LFUN_CHIZ),
                 real? gen_0: gen_1, sig, gen_1, N, gen_0);
   return gerepilecopy(av, r);
@@ -499,7 +499,7 @@ lfunchigen(GEN bnr, GEN CHI)
   nf_get_sign(nf, &r1, &r2);
   sig = vec01(r1+r2-n1, r2+n1);
   nchi = char_normalize(CHI, cyc_normalize(bnr_get_cyc(bnr)));
-  real = cmpiu(gel(nchi,1), 2) <= 0;
+  real = abscmpiu(gel(nchi,1), 2) <= 0;
   Ldchi = mkvecn(6, tag(mkvec2(bnr, nchi), t_LFUN_CHIGEN),
                     real? gen_0: gen_1, sig, gen_1, NN, gen_0);
   return gerepilecopy(av, Ldchi);
@@ -922,8 +922,8 @@ c4c6_testp(GEN c4, GEN c6, GEN p)
 static long
 ellsymsq_badp(GEN c4, GEN c6, GEN p, long e, long *pb)
 {
-  if (equaliu(p, 2)) return ellsymsq_bad2(c4, c6, e, pb);
-  if (equaliu(p, 3)) return ellsymsq_bad3(c4, c6, e, pb);
+  if (absequaliu(p, 2)) return ellsymsq_bad2(c4, c6, e, pb);
+  if (absequaliu(p, 3)) return ellsymsq_bad3(c4, c6, e, pb);
   *pb = 1;
   switch(umodiu(p, 12UL))
   {
@@ -1038,7 +1038,7 @@ elldiscfix(GEN E, GEN Et, GEN D)
     long v = Z_pval(N, p), vt = Z_pval(Nt, p);
     if (v <= vt) continue;
     /* v > vt */
-    if (equaliu(p, 2))
+    if (absequaliu(p, 2))
     {
       if (vt == 0 && v >= 4)
         r = shifti(subsi(9, sqri(ellap(Et, p))), v-3);  /* 9=(2+1)^2 */
@@ -1334,7 +1334,7 @@ lfungenus2(GEN G)
   GEN PQ = genus2_redmodel2(Q);
   GEN e;
   long i, lL = lg(L), ram2;
-  ram2 = equaliu(gmael(M,1,1),2);
+  ram2 = absequaliu(gmael(M,1,1),2);
   if (ram2 && equalis(gmael(M,2,1),-1))
     pari_warn(warner,"unknown valuation of conductor at 2");
   e = cgetg(lL+(ram2?0:1), t_VEC);

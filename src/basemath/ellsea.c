@@ -1371,7 +1371,7 @@ find_trace(GEN a4, GEN a6, GEN j, ulong ell, GEN q, GEN T, GEN p, long *ptr_kt,
     break;
   case MTElkies:
     /* Contrary to MTone_root, may look mod higher powers of ell */
-    if (cmpiu(p, 2*ell+3) <= 0)
+    if (abscmpiu(p, 2*ell+3) <= 0)
       kt = 1; /* Not implemented in this case */
     tr = find_trace_Elkies_power(a4,a6,ell, kt, &MEQN, g, NULL, q, T, p, smallfact, &ti);
     if (!tr)
@@ -1881,7 +1881,7 @@ Fq_ellcard_SEA(GEN a4, GEN a6, GEN q, GEN T, GEN p, ulong smallfact)
   {
     long ellkt, kt = 1, nbtrace;
     GEN trace_mod;
-    if (equalui(ell, p)) continue;
+    if (absequalui(ell, p)) continue;
     trace_mod = find_trace(a4, a6, j, ell, q, T, p, &kt, smallfact, vx,vy);
     if (!trace_mod) continue;
 

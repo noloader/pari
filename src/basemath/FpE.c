@@ -596,7 +596,7 @@ Fp_elljissupersingular(GEN j, GEN p)
 {
   pari_sp ltop = avma;
   long CM;
-  if (cmpiu(p, 5) <= 0) return signe(j) == 0; /* valid if p <= 5 */
+  if (abscmpiu(p, 5) <= 0) return signe(j) == 0; /* valid if p <= 5 */
   CM = Fp_ellj_get_CM(j, gen_1, p);
   if (CM < 0) return krosi(CM, p) < 0; /* valid if p > 3 */
   else
@@ -1060,7 +1060,7 @@ FOUND:
     {
       GEN C;
       A = itou( Z_chinese_all(gen_0, utoi(A), utoipos(h), utoipos(B), &C) );
-      if (cmpiu(C, pordmin) >= 0) { /* uclosest_lift could overflow */
+      if (abscmpiu(C, pordmin) >= 0) { /* uclosest_lift could overflow */
         h = itou( closest_lift(utoi(A), C, utoipos(p1p)) );
         break;
       }
@@ -1727,7 +1727,7 @@ FpXQE_tatepairing(GEN P, GEN Q, GEN m, GEN a4, GEN T, GEN p)
 GEN
 FpXQ_ellj(GEN a4, GEN a6, GEN T, GEN p)
 {
-  if (equaliu(p,3)) return pol_0(get_FpX_var(T));
+  if (absequaliu(p,3)) return pol_0(get_FpX_var(T));
   else
   {
     pari_sp av=avma;
@@ -1753,7 +1753,7 @@ FpXQ_elljissupersingular(GEN j, GEN T, GEN p)
   int res;
 
   if (degpol(j) <= 0) return Fp_elljissupersingular(constant_coeff(j), p);
-  if (cmpiu(p, 5) <= 0) return 0; /* j != 0*/
+  if (abscmpiu(p, 5) <= 0) return 0; /* j != 0*/
 
   /* Set S so that FF_p[T]/(S) is isomorphic to FF_{p^2}: */
   if (d == 2)

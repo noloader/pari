@@ -577,7 +577,7 @@ TamelyRamifiedCase(KRASNER_t *data)
   }
 
 #ifdef CHECK_EXTENSIONS
-  if (!equaliu(data->nbext, cnt))
+  if (!absequaliu(data->nbext, cnt))
     pari_err_BUG("TamelyRamifiedCase [incorrect #fields]");
 #endif
 

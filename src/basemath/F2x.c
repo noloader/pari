@@ -1469,7 +1469,7 @@ gener_F2xq(GEN T, GEN *po)
   L2 = leafcopy( gel(o, 1) );
   for (i = j = 1; i < lg(L2); i++)
   {
-    if (equaliu(gel(L2,i),2)) continue;
+    if (absequaliu(gel(L2,i),2)) continue;
     gel(L2,j++) = diviiexact(q, gel(L2,i));
   }
   setlg(L2, j);

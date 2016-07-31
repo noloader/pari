@@ -190,7 +190,7 @@ gener_Zp(GEN q, GEN F)
     for (i = 1; i < l; i++)
     {
       p = gel(P,i);
-      if (equaliu(p, 2)) continue;
+      if (absequaliu(p, 2)) continue;
       if (i < l-1) pari_err_DOMAIN("znprimroot", "argument","=",F,F);
       e = itos(gel(E,i));
     }
@@ -213,7 +213,7 @@ znprimroot(GEN N)
     N = typ(N) == t_VEC? gel(N,1): factorback(F);
   }
   if (signe(N) < 0) N = absi(N);
-  if (cmpiu(N, 4) <= 0) { avma = av; return mkintmodu(N[2]-1,N[2]); }
+  if (abscmpiu(N, 4) <= 0) { avma = av; return mkintmodu(N[2]-1,N[2]); }
   switch(mod4(N))
   {
     case 0: /* N = 0 mod 4 */
@@ -430,7 +430,7 @@ logint0(GEN B, GEN y, GEN *ptq)
   if (typ(y) != t_INT) pari_err_TYPE("logint",y);
   if (signe(y)<=0 || equali1(y))
     pari_err_DOMAIN("logint", "b" ,"<=", gen_1, y);
-  if (equaliu(y, 2))
+  if (absequaliu(y, 2))
   {
     e = expi(B);
     if (ptq) *ptq = int2n(e);
@@ -546,7 +546,7 @@ Zp_issquare(GEN a, GEN p)
   if (!signe(a) || gequal1(a)) return 1;
   v = Z_pvalrem(a, p, &ap);
   if (v&1) return 0;
-  return equaliu(p, 2)? umodiu(ap, 8) == 1
+  return absequaliu(p, 2)? umodiu(ap, 8) == 1
                       : kronecker(ap,p) == 1;
 }
 
@@ -579,7 +579,7 @@ polissquareall(GEN x, GEN *pt)
   if (signe(p) && !mod2(p))
   {
     long i, lx;
-    if (!equaliu(p,2)) pari_err_IMPL("issquare for even characteristic != 2");
+    if (!absequaliu(p,2)) pari_err_IMPL("issquare for even characteristic != 2");
     x = gmul(x, mkintmod(gen_1, gen_2));
     lx = lg(x);
     if ((lx-3) & 1) { avma = av; return 0; }
@@ -843,7 +843,7 @@ issquare(GEN x)
       a = gel(x,4); if (!signe(a)) return 1;
       if (valp(x)&1) return 0;
       p = gel(x,2);
-      if (!equaliu(p, 2)) return (kronecker(a,p) != -1);
+      if (!absequaliu(p, 2)) return (kronecker(a,p) != -1);
 
       v = precp(x); /* here p=2, a is odd */
       if ((v>=3 && mod8(a) != 1 ) ||
@@ -878,12 +878,12 @@ ispolygonal(GEN x, GEN S, GEN *N)
   GEN D, d, n;
   if (typ(x) != t_INT) pari_err_TYPE("ispolygonal", x);
   if (typ(S) != t_INT) pari_err_TYPE("ispolygonal", S);
-  if (cmpiu(S,3) < 0) pari_err_DOMAIN("ispolygonal","s","<", utoipos(3),S);
+  if (abscmpiu(S,3) < 0) pari_err_DOMAIN("ispolygonal","s","<", utoipos(3),S);
   if (signe(x) < 0) return 0;
   if (signe(x) == 0) { if (N) *N = gen_0; return 1; }
   if (is_pm1(x)) { if (N) *N = gen_1; return 1; }
   /* n = (sqrt( (8s - 16) x + (s-4)^2 ) + s - 4) / 2(s - 2) */
-  if (cmpiu(S, 1<<16) < 0) /* common case ! */
+  if (abscmpiu(S, 1<<16) < 0) /* common case ! */
   {
     ulong s = S[2], r;
     if (s == 4) return Z_issquareall(x, N);
@@ -1026,7 +1026,7 @@ Fp_ispower(GEN x, GEN K, GEN p)
   /* implies p > 2 */
   p_1 = subiu(p,1);
   K = gcdii(K, p_1);
-  if (equaliu(K, 2)) { r = kronecker(x,p); avma = av; return (r > 0); }
+  if (absequaliu(K, 2)) { r = kronecker(x,p); avma = av; return (r > 0); }
   x = Fp_pow(x, diviiexact(p_1,K), p);
   avma = av; return equali1(x);
 }
@@ -1043,7 +1043,7 @@ U2_issquare(GEN x, long e)
 /* x unit defined modulo p^e, e > 0, p prime */
 static int
 Up_issquare(GEN x, GEN p, long e)
-{ return (equaliu(p,2))? U2_issquare(x, e): kronecker(x,p)==1; }
+{ return (absequaliu(p,2))? U2_issquare(x, e): kronecker(x,p)==1; }
 
 long
 Zn_issquare(GEN d, GEN fn)
@@ -1784,7 +1784,7 @@ hilbertii(GEN x, GEN y, GEN p)
   oddvx = odd(Z_pvalrem(x,p,&x));
   oddvy = odd(Z_pvalrem(y,p,&y));
   /* x, y are p-units, compute hilbert(x * p^oddvx, y * p^oddvy, p) */
-  if (equaliu(p, 2))
+  if (absequaliu(p, 2))
   {
     z = (eps(x) && eps(y))? -1: 1;
     if (oddvx && gome(y)) z = -z;
@@ -1825,7 +1825,7 @@ lift_intmod(GEN x, GEN *pp)
     return x;
   }
   if (!signe(p)) err_oo(N);
-  if (equaliu(p,2))
+  if (absequaliu(p,2))
   { if (vali(N) <= 2) err_prec(); }
   else
   { if (!dvdii(N,p)) err_p(N,p); }
@@ -1841,7 +1841,7 @@ lift_padic(GEN x, GEN *pp)
   GEN p = *pp, q = gel(x,2), y = gel(x,4);
   if (!p) *pp = p = q;
   else if (!equalii(p,q)) err_p(p, q);
-  if (equaliu(p,2) && precp(x) <= 2) err_prec();
+  if (absequaliu(p,2) && precp(x) <= 2) err_prec();
   if (!signe(y)) err_prec();
   return odd(valp(x))? mulii(p,y): y;
 }
@@ -2148,7 +2148,7 @@ Fp_sqrt(GEN a, GEN p)
   if (e == 0) /* p = 2 */
   {
     avma = av;
-    if (!equaliu(p,2)) pari_err_PRIME("Fp_sqrt [modulus]",p);
+    if (!absequaliu(p,2)) pari_err_PRIME("Fp_sqrt [modulus]",p);
     if (!signe(a) || !mod2(a)) return gen_0;
     return gen_1;
   }
@@ -3203,7 +3203,7 @@ static GEN
 Zp_order(GEN a, GEN p, long e, GEN pe)
 {
   GEN ap, op;
-  if (equaliu(p, 2))
+  if (absequaliu(p, 2))
   {
     if (e == 1) return gen_1;
     if (e == 2) return mod4(a) == 1? gen_1: gen_2;
@@ -3583,7 +3583,7 @@ znlog_rec(GEN h, GEN g, GEN N, GEN P, GEN E, GEN PHI)
     gp = remii(gpe, p);
   }
   if (hp == gen_0 || gp == gen_0) return NULL;
-  if (equaliu(p, 2))
+  if (absequaliu(p, 2))
   {
     GEN n = int2n(e);
     ogpe = Zp_order(gpe, gen_2, e, n);
@@ -3701,7 +3701,7 @@ Fp_sqrtn(GEN a, GEN n, GEN p, GEN *zeta)
     if (signe(n) < 0) pari_err_INV("Fp_sqrtn", mkintmod(gen_0,p));
     return gen_0;
   }
-  if (equaliu(n,2))
+  if (absequaliu(n,2))
   {
     if (zeta) *zeta = addis(p,-1);
     return Fp_sqrt(a,p);
@@ -4898,10 +4898,10 @@ classno(GEN x)
   if (signe(x) >= 0) return classno2(x);
 
   check_quaddisc(x, &s, &k, "classno");
-  if (cmpiu(x,12) <= 0) return gen_1;
+  if (abscmpiu(x,12) <= 0) return gen_1;
 
   Hf = conductor_part(x, k, &D, NULL);
-  if (cmpiu(D,12) <= 0) return gerepilecopy(av, Hf);
+  if (abscmpiu(D,12) <= 0) return gerepilecopy(av, Hf);
   forms =  get_forms(D, &L);
   r2 = two_rank(D);
   hin = roundr(shiftr(L, -r2)); /* rough approximation for #G, G = Cl(K)^2 */
@@ -4987,10 +4987,10 @@ classno2(GEN x)
   GEN p1, p2, S, p4, p5, p7, Hf, Pi, reg, logd, d, dr, D, half;
 
   check_quaddisc(x, &s, &r, "classno2");
-  if (s < 0 && cmpiu(x,12) <= 0) return gen_1;
+  if (s < 0 && abscmpiu(x,12) <= 0) return gen_1;
 
   Hf = conductor_part(x, r, &D, &reg);
-  if (s < 0 && cmpiu(D,12) <= 0) return gerepilecopy(av, Hf); /* |D| < 12*/
+  if (s < 0 && abscmpiu(D,12) <= 0) return gerepilecopy(av, Hf); /* |D| < 12*/
 
   Pi = mppi(prec);
   d = absi(D); dr = itor(d, prec);
@@ -5169,7 +5169,7 @@ tauprime(GEN p)
   GEN s, p_27, p_9, T;
   ulong lim, t, tin;
 
-  if (equaliu(p, 2)) return utoineg(24);
+  if (absequaliu(p, 2)) return utoineg(24);
   /* p > 2 */
   p_27 = mulsi(7, sqri(p));
   p_9 = mulsi(9, p);

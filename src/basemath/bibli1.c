@@ -577,7 +577,7 @@ zncoppersmith(GEN P0, GEN N, GEN X, GEN B)
   if (d < 0) pari_err_ROOTS0("zncoppersmith");
   if (B && typ(B) != t_INT) B = gceil(B);
 
-  if (cmpiu(X, X_SMALL) <= 0)
+  if (abscmpiu(X, X_SMALL) <= 0)
     return gerepileupto(av, do_exhaustive(P0, N, itos(X), B));
 
   if (B && equalii(B,N)) B = NULL;

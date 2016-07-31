@@ -942,7 +942,7 @@ check_basis(GEN B)
 {
   if (!B) return utoipos(10);
   if (typ(B)!=t_INT) pari_err_TYPE("digits",B);
-  if (cmpiu(B,2)<0) pari_err_DOMAIN("digits","B","<",gen_2,B);
+  if (abscmpiu(B,2)<0) pari_err_DOMAIN("digits","B","<",gen_2,B);
   return B;
 }
 
@@ -1173,7 +1173,7 @@ sumdigits0(GEN x, GEN B)
   }
   if (!signe(x))       { avma = av; return gen_0; }
   if (abscmpii(x,B)<0) { avma = av; return absi(x); }
-  if (equaliu(B,10))   { avma = av; return sumdigits(x); }
+  if (absequaliu(B,10))   { avma = av; return sumdigits(x); }
   lz = logint(x,B,NULL);
   z = gen_digits_i(x, B, lz, NULL, &Z_ring, _dvmdii);
   return gerepileuptoint(av, ZV_sum(z));

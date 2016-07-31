@@ -105,7 +105,8 @@ This file lists the incompatible changes between Version 2.x and older versions
   - ellsea: the argument p was removed and the interface modified
   - renamed absi_cmp -> abscmpii, absr_cmp -> abscmprr, absi_equal
     -> absequalii, absi_factor -> absZ_factor, absi_factor_limit
-    -> absZ_factor_limit
+    -> absZ_factor_limit, equaliu -> absequaliu, equalui -> absequalui,
+    cmpiu -> abscmpiu, cmpui -> abscmpui
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%% VERSION 2.6 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   - eval() no longer evaluates its arguments in "permissive" mode: eval("1a")

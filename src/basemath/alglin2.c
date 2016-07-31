@@ -1689,8 +1689,8 @@ matrixqz0(GEN x,GEN p)
   if (!p) return QM_minors_coprime(x,NULL);
   if (typ(p) != t_INT) pari_err_TYPE("QM_minors_coprime",p);
   if (signe(p)>=0) return QM_minors_coprime(x,p);
-  if (equaliu(p,1)) return QM_ImZ_hnf(x); /* p = -1 */
-  if (equaliu(p,2)) return QM_ImQ_hnf(x); /* p = -2 */
+  if (absequaliu(p,1)) return QM_ImZ_hnf(x); /* p = -1 */
+  if (absequaliu(p,2)) return QM_ImQ_hnf(x); /* p = -2 */
   pari_err_FLAG("QM_minors_coprime"); return NULL; /* not reached */
 }
 

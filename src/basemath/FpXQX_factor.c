@@ -330,7 +330,7 @@ FqX_split(GEN *t, long d, GEN q, GEN S, GEN T, GEN p)
   if (dt == d) return;
   v = varn(*t);
   if (DEBUGLEVEL > 6) timer_start(&ti);
-  av = avma; is2 = equaliu(p, 2);
+  av = avma; is2 = absequaliu(p, 2);
   for(cnt = 1;;cnt++, avma = av)
   { /* splits *t with probability ~ 1 - 2^(1-r) */
     w = w0 = random_FpXQX(dt,v, T,p);
@@ -584,7 +584,7 @@ static GEN
 FpXQX_quad_roots(GEN x, GEN T, GEN p)
 {
   GEN s, D, nb, b = gel(x,3), c = gel(x,2);
-  if (equaliu(p, 2))
+  if (absequaliu(p, 2))
   {
     GEN f2 = ZXX_to_F2xX(x, get_FpX_var(T));
     s = F2xqX_quad_roots(f2, ZX_to_F2x(get_FpX_mod(T)));
@@ -1201,7 +1201,7 @@ FpXQX_factor_i(GEN f, GEN T, GEN p)
       if (N == 1) lfact++;
       else
       {
-        if (!equaliu(p,2))
+        if (!absequaliu(p,2))
           lfact += FqX_split_Berlekamp(&gel(t,lfact), T, p);
         else
           lfact += FqX_sqf_split(&gel(t,lfact), q, T, p);

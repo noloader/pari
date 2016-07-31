@@ -588,7 +588,7 @@ Zp_sqrt(GEN x, GEN p, long e)
 {
   pari_sp av;
   GEN z;
-  if (equaliu(p,2)) return Z2_sqrt(x,e);
+  if (absequaliu(p,2)) return Z2_sqrt(x,e);
   av = avma;
   z = Fp_sqrt(Fp_red(x, p), p);
   if (!z) return NULL;
@@ -604,7 +604,7 @@ ZpXQ_log_to_ath(GEN x, long k, GEN T, GEN p, long e, GEN pe)
   long vT = get_FpX_var(T);
   GEN bn, bdi;
   GEN bd = ZX_Z_add(x, gen_1);
-  if (equaliu(p,2)) /*For p=2, we need to simplify by 2*/
+  if (absequaliu(p,2)) /*For p=2, we need to simplify by 2*/
   {
     bn = ZX_shifti(x,-(k+1));
     bdi= ZpXQ_invlift(ZX_shifti(bd ,-1), pol_1(vT), T, p, e);
@@ -623,7 +623,7 @@ ZpXQ_log(GEN a, GEN T, GEN p, long N)
 {
   pari_sp av = avma;
   pari_timer ti;
-  long is2 = equaliu(p,2);
+  long is2 = absequaliu(p,2);
   ulong pp = is2 ? 0: itou_or_0(p);
   double lp = is2 ? 1: pp ? log2(pp): expi(p);
   long k = maxss(1 , (long) .5+pow((double)(N>>1)/(lp*lp), 1./3));

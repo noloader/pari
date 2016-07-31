@@ -371,14 +371,14 @@ IsLucasPsP(GEN N)
   }
   m = addis(N,1); v = vali(m); m = shifti(m,-v);
   z = LucasMod(m, b, N);
-  if (equaliu(z, 2)) return 1;
+  if (absequaliu(z, 2)) return 1;
   N_2 = subis(N,2);
   if (equalii(z, N_2)) return 1;
   for (i=1; i<v; i++)
   {
     if (!signe(z)) return 1;
     z = modii(subis(sqri(z), 2), N);
-    if (equaliu(z, 2)) return 0;
+    if (absequaliu(z, 2)) return 0;
     if (gc_needed(av,1))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"IsLucasPsP");
@@ -1132,7 +1132,7 @@ gprimepi_lower_bound(GEN x)
   pari_sp av = avma;
   double L;
   if (typ(x) != t_INT) x = gfloor(x);
-  if (cmpiu(x, 55) <= 0) return gen_0;
+  if (abscmpiu(x, 55) <= 0) return gen_0;
   if (expi(x) <= 1022)
   {
     avma = av;
@@ -1213,7 +1213,7 @@ primes_interval(GEN a, GEN b)
   }
   /* at most d+1 primes in [a,b]. If d large, try better bound to lower
    * memory use */
-  if (cmpiu(d,100000) > 0)
+  if (abscmpiu(d,100000) > 0)
   {
     GEN D = gsub(gprimepi_upper_bound(b), gprimepi_lower_bound(a));
     D = ceil_safe(D);
@@ -1329,7 +1329,7 @@ addp(GEN *T, GEN p)
   RgV_check_ZV(p, "addprimes");
   v = gen_indexsort_uniq(p, (void*)&cmpii, &cmp_nodata);
   p = vecpermute(p, v);
-  if (cmpiu(gel(p,1), 2) < 0) pari_err_DOMAIN("addprimes", "p", "<", gen_2,p);
+  if (abscmpiu(gel(p,1), 2) < 0) pari_err_DOMAIN("addprimes", "p", "<", gen_2,p);
   p = addp_union(*T, p);
   l = lg(p);
   if (l != lg(*T))

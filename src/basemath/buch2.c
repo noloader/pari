@@ -925,7 +925,7 @@ smooth_norm(FB_t *F, GEN *N, GEN *ex)
     if (i == KCZ) return 0;
   }
   (*ex)[0] = i;
-  return (cmpiu(*N,limp) <= 0);
+  return (abscmpiu(*N,limp) <= 0);
 }
 
 static int
@@ -1461,7 +1461,7 @@ testprimes(GEN bnf, GEN BOUND)
       GEN P = gel(vP,i);
       long k;
       if (DEBUGLEVEL>1) err_printf("  Testing P = %Ps\n",P);
-      if (cmpiu(p, pmax) <= 0 && (k = tablesearch(fb, P, &cmp_prime_ideal)))
+      if (abscmpiu(p, pmax) <= 0 && (k = tablesearch(fb, P, &cmp_prime_ideal)))
       { if (DEBUGLEVEL>1) err_printf("    #%ld in factor base\n",k); }
       else if (DEBUGLEVEL>1)
         err_printf("    is %Ps\n", isprincipal(bnf,P));
@@ -3226,7 +3226,7 @@ makecycgen(GEN bnf)
   for (i=1; i<l; i++)
   {
     GEN gi = gel(gen,i), ci = gel(cyc,i);
-    if (cmpiu(ci, 5) < 0)
+    if (abscmpiu(ci, 5) < 0)
     {
       GEN N = ZM_det_triangular(gi);
       y = isprincipalarch(bnf,gel(GD,i), N, ci, gen_1, &e);

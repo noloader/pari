@@ -366,7 +366,7 @@ member_tu(GEN x)
     GEN y;
     if (t != typ_Q) member_err("tu",x);
     y = quad_disc(x);
-    if (signe(y) > 0 || cmpiu(y,4) > 0) return mkvec2(gen_m1, gen_2);
+    if (signe(y) > 0 || abscmpiu(y,4) > 0) return mkvec2(gen_m1, gen_2);
 
     gel(res,1) = utoipos((itos(y) == -4)? 4: 6);
     gel(res,2) = gcopy(x);

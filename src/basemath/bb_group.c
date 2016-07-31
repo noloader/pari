@@ -444,7 +444,7 @@ gen_Shanks_log(GEN x, GEN g, GEN q, void *E, const struct bb_group *grp)
   long lbaby, i, k;
   GEN p1, table, giant, perm, ginv;
   p1 = sqrti(q);
-  if (cmpiu(p1,LGBITS) >= 0)
+  if (abscmpiu(p1,LGBITS) >= 0)
     pari_err_OVERFLOW("gen_Shanks_log [order too large]");
   lbaby = itos(p1)+1; table = cgetg(lbaby+1,t_VECSMALL);
   ginv = grp->pow(E,g,gen_m1);

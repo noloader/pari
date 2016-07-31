@@ -422,7 +422,7 @@ INLINE int
 cmprs(GEN x, long y) { return -cmpsr(y,x); }
 /* compare x and |y| */
 INLINE int
-cmpui(ulong x, GEN y)
+abscmpui(ulong x, GEN y)
 {
   long l = lgefint(y);
   ulong p;
@@ -434,7 +434,7 @@ cmpui(ulong x, GEN y)
   return p < x ? 1 : -1;
 }
 INLINE int
-cmpiu(GEN x, ulong y) { return -cmpui(y,x); }
+abscmpiu(GEN x, ulong y) { return -abscmpui(y,x); }
 INLINE int
 cmpsi(long x, GEN y)
 {
@@ -480,13 +480,13 @@ equalsi(long x, GEN y)
 }
 /* x == |y| ? */
 INLINE int
-equalui(ulong x, GEN y)
+absequalui(ulong x, GEN y)
 {
   if (!x) return !signe(y);
   return (lgefint(y) == 3 && (ulong)y[2] == x);
 }
 INLINE int
-equaliu(GEN x, ulong y) { return equalui(y,x); }
+absequaliu(GEN x, ulong y) { return absequalui(y,x); }
 INLINE int
 equalis(GEN x, long y) { return equalsi(y,x); }
 

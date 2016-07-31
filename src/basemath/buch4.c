@@ -81,7 +81,7 @@ zpsol(GEN T, GEN p, long nu, GEN pnu, GEN x0)
   pari_sp av = avma;
   GEN x, pnup;
 
-  res = equaliu(p,2)? lemma7(T,nu,x0): lemma6(T,p,nu,x0);
+  res = absequaliu(p,2)? lemma7(T,nu,x0): lemma6(T,p,nu,x0);
   if (res== 1) return 1;
   if (res==-1) return 0;
   x = x0; pnup = mulii(pnu,p);
@@ -307,7 +307,7 @@ nf_hyperell_locally_soluble(GEN nf,GEN T,GEN pr)
   if (typ(T)!=t_POL) pari_err_TYPE("nf_hyperell_locally_soluble",T);
   if (gequal0(T)) return 1;
   checkprid(pr); nf = checknf(nf);
-  if (equaliu(pr_get_p(pr), 2))
+  if (absequaliu(pr_get_p(pr), 2))
   { /* tough case */
     zinit = Idealstar(nf, idealpows(nf,pr,1+2*pr_get_e(pr)), nf_INIT);
     if (psquare2nf(nf,constant_coeff(T),pr,zinit)) return 1;
@@ -372,7 +372,7 @@ nfhilbertp(GEN nf, GEN a, GEN b, GEN pr)
   long va, vb, rep;
   pari_sp av = avma;
 
-  if (equaliu(pr_get_p(pr), 2)) return hilb2nf(nf,a,b,pr);
+  if (absequaliu(pr_get_p(pr), 2)) return hilb2nf(nf,a,b,pr);
 
   /* pr not above 2, compute t = tame symbol */
   va = nfval(nf,a,pr);

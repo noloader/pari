@@ -257,7 +257,7 @@ FpX_quad_root(GEN x, GEN p, int unknown)
 {
   GEN s, D, b = gel(x,3), c = gel(x,2);
 
-  if (equaliu(p, 2)) {
+  if (absequaliu(p, 2)) {
     if (!signe(b)) return c;
     return signe(c)? NULL: gen_1;
   }
@@ -713,7 +713,7 @@ FpX_is_totally_split(GEN f, GEN p)
   long n=degpol(f);
   pari_sp av = avma;
   if (n <= 1) return 1;
-  if (cmpui(n, p) > 0) return 0;
+  if (abscmpui(n, p) > 0) return 0;
   f = FpX_red(f, p);
   avma = av; return gequalX(FpX_Frobenius(f, p));
 }
@@ -980,7 +980,7 @@ FpX_factor_Yun(GEN T, GEN p)
 GEN
 FpX_factor_squarefree(GEN T, GEN p)
 {
-  if (cmpiu(p, degpol(T)) <= 0)
+  if (abscmpiu(p, degpol(T)) <= 0)
   {
     ulong pp = (ulong)p[2];
     GEN u = Flx_factor_squarefree(ZX_to_Flx(T,pp), pp);

@@ -2672,18 +2672,20 @@ remaining words in the mantissa of the longest are all $0$.
 \fun{int}{equalis}{GEN x, long s} compare the \typ{INT} \kbd{x} and
 the \kbd{long}~\kbd{s}. The result is $1$ if $\kbd{x} = \kbd{y}$, $0$ otherwise.
 
-The remaining comparison operators disregard the sign of their operands:
+The remaining comparison operators disregard the sign of their operands
 
-\fun{int}{equalui}{ulong s, GEN x}
-
-\fun{int}{equaliu}{GEN x, ulong s} compare the absolute value of the
+\fun{int}{absequaliu}{GEN x, ulong u} compare the absolute value of the
 \typ{INT} \kbd{x} and the \kbd{ulong}~\kbd{s}. The result is $1$ if
-$|\kbd{x}| = \kbd{y}$, $0$ otherwise.
+$|\kbd{x}| = \kbd{y}$, $0$ otherwise. This is marginally more efficient
+than \kbd{equalis} even when \kbd{x} is known to be non-negative.
 
-\fun{int}{cmpui}{ulong u, GEN x}
+\fun{int}{absequalui}{ulong u, GEN x}
 
-\fun{int}{cmpiu}{GEN x, ulong u} compare the absolute value of the
-\typ{INT} \kbd{x} and the \kbd{ulong}~\kbd{s}.
+\fun{int}{abscmpiu}{GEN x, ulong u} compare the absolute value of the
+\typ{INT} \kbd{x} and the \kbd{ulong}~\kbd{u}.
+
+\fun{int}{abscmpui}{ulong u, GEN x}
+
 
 \fun{int}{abscmpii}{GEN x, GEN y} compares the \typ{INT}s \kbd{x} and~\kbd{y}.
 The result is the sign of $|\kbd{x}| - |\kbd{y}|$.

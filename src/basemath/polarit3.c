@@ -2735,7 +2735,7 @@ ffinit_fact(GEN p, long n)
 {
   GEN P, F = gel(factoru_pow(n),3);
   long i;
-  if (!odd(n) && equaliu(p, 2))
+  if (!odd(n) && absequaliu(p, 2))
     P = f2init(vals(n)); /* if n is even, F[1] = 2^vals(n)*/
   else
     P = fpinit(p, F[1]);

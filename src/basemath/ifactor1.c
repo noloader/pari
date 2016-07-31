@@ -3539,7 +3539,7 @@ Z_issmooth(GEN m, ulong lim)
   {
     int stop;
     (void)Z_lvalrem_stop(&m, p, &stop);
-    if (stop) { avma = av; return cmpiu(m,lim)<=0; }
+    if (stop) { avma = av; return abscmpiu(m,lim)<=0; }
   }
   avma = av; return 0;
 }
@@ -3566,7 +3566,7 @@ Z_issmooth_fact(GEN m, ulong lim)
       E[i] = v; i++;
       if (stop)
       {
-        if (cmpiu(m,lim) > 0) break;
+        if (abscmpiu(m,lim) > 0) break;
         P[i] = m[2];
         E[i] = 1; i++;
         setlg(P, i);
@@ -3820,7 +3820,7 @@ Z_factor_until(GEN n, GEN limit)
 
   av2 = avma;
   q = gel(P,l-1);
-  if (cmpiu(q, B) <= 0 || cmpii(q, sqru(B)) < 0 || ifac_isprime(q))
+  if (abscmpiu(q, B) <= 0 || cmpii(q, sqru(B)) < 0 || ifac_isprime(q))
   {
     avma = av2; return F;
   }

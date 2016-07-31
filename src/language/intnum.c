@@ -1705,7 +1705,7 @@ sumnummonieninit_i(GEN asymp, GEN w, GEN n0, long prec)
   switch(typ(w))
   {
     case t_INT:
-      if (cmpiu(n0, 2) <= 0)
+      if (abscmpiu(n0, 2) <= 0)
       {
         GEN tab = sumnummonieninit0(a, b, itos(w), prec);
         return shallowconcat(tab,n0);

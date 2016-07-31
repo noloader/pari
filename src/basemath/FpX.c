@@ -1893,7 +1893,7 @@ FpXQ_issquare(GEN x, GEN T, GEN p)
 {
   pari_sp av;
   long res;
-  if (lg(x) == 2 || equalui(2, p)) return 1;
+  if (lg(x) == 2 || absequalui(2, p)) return 1;
   if (lg(x) == 3) return Fq_issquare(gel(x,2), T, p);
   /* Ng = g^((q-1)/(p-1)) */
   av = avma; res = kronecker(FpXQ_norm(x,T,p), p) == 1;
@@ -1902,7 +1902,7 @@ FpXQ_issquare(GEN x, GEN T, GEN p)
 int
 Fp_issquare(GEN x, GEN p)
 {
-  if (equalui(2, p)) return 1;
+  if (absequalui(2, p)) return 1;
   return kronecker(x, p) == 1;
 }
 /* assume T irreducible mod p */
@@ -2386,7 +2386,7 @@ gener_FpXQ_local(GEN T, GEN p, GEN L)
   for (i=1; i < l; i++)
   {
     GEN a, b, ell = gel(L,i);
-    if (equaliu(ell,2)) continue;
+    if (absequaliu(ell,2)) continue;
     a = dvmdii(Q, ell, &b);
     if (b == gen_0)
       gel(Lp,ip++) = a;

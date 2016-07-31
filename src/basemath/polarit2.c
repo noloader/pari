@@ -440,7 +440,7 @@ gauss_factor(GEN x)
   { /* either p = 2 (ramified) or those factors split in Q(i) */
     GEN p = gel(P,i), w, w2, t, we, pe;
     long v, e = itos(gel(E,i));
-    int is2 = equaliu(p, 2);
+    int is2 = absequaliu(p, 2);
     w = is2? mkcomplex(gen_1,gen_1): gauss_factor_p(p);
     w2 = gauss_normal( gconj(w) );
     /* w * w2 * I^3 = p, w2 = gconj(w) * I */

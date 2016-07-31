@@ -377,7 +377,7 @@ get_listCR(GEN bnr, GEN dtQ)
     gel(listCR,nc++) = mkvec2(lchi, cond);
 
     /* if chi is not real, add its conjugate character to S */
-    if (equaliu(charorder(Mr,lchi), 2)) tnc++;
+    if (absequaliu(charorder(Mr,lchi), 2)) tnc++;
     else
     {
       hash_insert(S, charconj(Mr, lchi), (void*)1);
@@ -2307,7 +2307,7 @@ GenusFieldQuadReal(GEN disc)
   {
     GEN p = gel(P,i), d, t;
     if (i == i0) continue;
-    if (equaliu(p, 2))
+    if (absequaliu(p, 2))
       switch (mod32(disc))
       {
         case  8: d = gen_2; break;
@@ -2334,7 +2334,7 @@ GenusFieldQuadImag(GEN disc)
   for (i = 1; i < l; i++)
   {
     GEN p = gel(P,i), d, t;
-    if (equaliu(p, 2))
+    if (absequaliu(p, 2))
       switch (mod32(disc))
       {
         case 24: d = gen_2; break;  /* disc = 8 mod 32 */
@@ -2789,7 +2789,7 @@ quadhilbertreal(GEN D, long prec)
   cyc = bnf_get_cyc(bnf);
   if (lg(cyc) == 1) { avma = av; return pol_x(0); }
   /* if the exponent of the class group is 2, use Genus Theory */
-  if (equaliu(gel(cyc,1), 2)) return gerepileupto(av, GenusFieldQuadReal(D));
+  if (absequaliu(gel(cyc,1), 2)) return gerepileupto(av, GenusFieldQuadReal(D));
 
   bnr  = Buchray(bnf, gen_1, nf_INIT|nf_GEN);
   M = diagonal_shallow(bnr_get_cyc(bnr));
@@ -3462,7 +3462,7 @@ compocyclo(GEN nf, long m, long d)
   if (d==1) return do_compo(p1,p2);
 
   ell = m&1 ? m : (m>>2);
-  if (equalui(ell,D)) /* ell = |D| */
+  if (absequalui(ell,D)) /* ell = |D| */
   {
     p2 = gcoeff(nffactor(nf,p2),1,1);
     return do_compo(p1,p2);
@@ -3506,15 +3506,15 @@ treatspecialsigma(GEN bnr)
 
   if (i == 1) return quadhilbertimag(D); /* f = 1 */
 
-  if (equaliu(D,3)) /* Q(j) */
+  if (absequaliu(D,3)) /* Q(j) */
   {
     if (i == 4 || i == 5 || i == 7) return polcyclo(i,0);
-    if (!equaliu(gcoeff(f,1,1),9) || !equaliu(Q_content(f),3)) return NULL;
+    if (!absequaliu(gcoeff(f,1,1),9) || !absequaliu(Q_content(f),3)) return NULL;
     /* f = P_3^3 */
     p1 = mkpolmod(bnf_get_tuU(bnf), nf_get_pol(nf));
     return gadd(monomial(gen_1,3,0), p1); /* x^3+j */
   }
-  if (equaliu(D,4)) /* Q(i) */
+  if (absequaliu(D,4)) /* Q(i) */
   {
     if (i == 3 || i == 5) return polcyclo(i,0);
     if (i != 4) return NULL;
@@ -3536,7 +3536,7 @@ treatspecialsigma(GEN bnr)
   p2 = gcoeff(f,2,2); /* integer > 0 */
   if (is_pm1(p2)) fl = 0;
   else {
-    if (Ds % 16 != 8 || !equaliu(Q_content(f),2)) return NULL;
+    if (Ds % 16 != 8 || !absequaliu(Q_content(f),2)) return NULL;
     fl = 1; tryf >>= 1;
   }
   if (tryf <= 3 || umodiu(D, tryf) || !uisprime(tryf)) return NULL;

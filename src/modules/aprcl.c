@@ -965,7 +965,7 @@ aprcl(GEN N)
   for (i=2; i<lfat; i++)
   {
     ulong p = fat[i];
-    flaglp[i] = equaliu(Fp_powu(N, p-1, sqru(p)), 1);
+    flaglp[i] = absequaliu(Fp_powu(N, p-1, sqru(p)), 1);
   }
   vecsmall_sort(faet);
 

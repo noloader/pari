@@ -602,7 +602,7 @@ frobeniusliftall(GEN sg, long el, GEN *psi, struct galois_lift *gl,
     err_printf("GaloisConj: I will try %Ps permutations\n", NN);
   N1=10000000;
   NQ=divis_rem(NN,N1,&R1);
-  if (cmpiu(NQ,1000000000)>0)
+  if (abscmpiu(NQ,1000000000)>0)
   {
     pari_warn(warner,"Combinatorics too hard : would need %Ps tests!\n"
         "I will skip it, but it may induce an infinite loop",NN);
@@ -810,7 +810,7 @@ testpermutation(GEN F, GEN B, GEN x, long s, long e, long cut,
   if (DEBUGLEVEL>=4) err_printf("GaloisConj: I will try %Ps permutations\n", NN);
   N1 = 1000000;
   NQ = divis_rem(NN,N1,&R1);
-  if (cmpiu(NQ,100000000)>0)
+  if (abscmpiu(NQ,100000000)>0)
   {
     avma = avm;
     pari_warn(warner,"Combinatorics too hard: would need %Ps tests!\n"

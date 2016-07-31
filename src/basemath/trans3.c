@@ -706,7 +706,7 @@ expmx_xs(GEN s, GEN x, GEN logx, long prec)
 {
   GEN z;
   long ts = typ(s);
-  if (ts == t_INT || (ts == t_FRAC && equaliu(gel(s,2), 2)))
+  if (ts == t_INT || (ts == t_FRAC && absequaliu(gel(s,2), 2)))
     z = gmul(gexp(gneg(x), prec), gpow(x, s, prec));
   else
     z = gexp(gsub(gmul(s, logx? logx: glog(x,prec+EXTRAPREC)), x), prec);

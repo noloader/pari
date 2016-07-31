@@ -967,7 +967,7 @@ forcomposite_init(forcomposite_t *C, GEN a, GEN b)
     b = gfloor(b);if (typ(b)!=t_INT) pari_err_TYPE("forcomposite",b);
   }
   if (signe(a) < 0) pari_err_DOMAIN("forcomposite", "a", "<", gen_0, a);
-  if (cmpiu(a, 4) < 0) a = utoipos(4);
+  if (abscmpiu(a, 4) < 0) a = utoipos(4);
   C->first = 1;
   if (!forprime_init(&C->T, a,b))
   {

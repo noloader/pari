@@ -1854,7 +1854,7 @@ genus2localred(struct igusa *I, struct igusa_p *Ip, GEN p, GEN polmini)
       Ip->neron = cyclic(1); return 2;
     default: pari_err_BUG("genus2localred [tt 2]");
   }
-  if (equaliu(p,2)) return -1;
+  if (absequaliu(p,2)) return -1;
   polh = gel(polmini,1);
   lambda = itos(gel(polmini,2));
   theta = gel(polmini,3);
@@ -2206,7 +2206,7 @@ genus2red(GEN PQ, GEN p)
   for(i = 1; i<l; i++)
   {
     GEN l = gel(factp,i), pm;
-    if (i == 1 && equaliu(l, 2)) { gel(vecmini,1) = gen_0; continue; }
+    if (i == 1 && absequaliu(l, 2)) { gel(vecmini,1) = gen_0; continue; }
     gel(vecmini,i) = pm = polymini(polr, l);
     polr = RgX_Rg_mul(gel(pm,1), powii(l, gel(pm,4)));
   }

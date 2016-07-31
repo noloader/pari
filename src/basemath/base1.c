@@ -1198,7 +1198,7 @@ tests_OK(GEN a, GEN nfa, GEN b, GEN nfb, long fliso)
   U = gel(P,nP);
   if (mod2(gel(E,i)) && expi(U) < 150)
   { /* "unfactored" cofactor is small, finish */
-    if (cmpiu(U, maxprime()) > 0)
+    if (abscmpiu(U, maxprime()) > 0)
     {
       fa = Z_factor(U);
       P = gel(fa,1);

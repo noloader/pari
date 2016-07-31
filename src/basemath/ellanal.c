@@ -1048,7 +1048,7 @@ static GEN
 fa_shift2(GEN fa)
 {
   GEN P = gel(fa,1), E = gel(fa,2);
-  if (equaliu(gcoeff(fa,1,1), 2))
+  if (absequaliu(gcoeff(fa,1,1), 2))
   {
     E = shallowcopy(E);
     gel(E,1) = addis(gel(E,1), 2);

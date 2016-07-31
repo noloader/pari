@@ -2388,7 +2388,7 @@ qtop(GEN x, GEN p, long d)
   P = gel(x,1);
   b = gel(P,3);
   av = avma; D = quad_disc(x);
-  if (equaliu(p,2)) d += 2;
+  if (absequaliu(p,2)) d += 2;
   z = Qp_sqrt(cvtop(D,p,d));
   if (!z) pari_err_SQRTN("Qp_sqrt",D);
   z = gmul2n(gsub(z, b), -1);

@@ -254,7 +254,7 @@ Rg_to_Fl(GEN x, ulong p)
     case t_PADIC: return padic_to_Fl(x, p);
     case t_INTMOD: {
       GEN q = gel(x,1), a = gel(x,2);
-      if (equaliu(q, p)) return itou(a);
+      if (absequaliu(q, p)) return itou(a);
       if (!dvdiu(q,p)) pari_err_MODULUS("Rg_to_Fl", q, utoi(p));
       return umodiu(a, p);
     }
@@ -273,7 +273,7 @@ Rg_to_F2(GEN x)
       if (!mpodd(gel(x,2))) (void)Fl_inv(0,2); /* error */
       return mpodd(gel(x,1));
     case t_PADIC:
-      if (!equaliu(gel(x,2),2)) pari_err_OP("",x, mkintmodu(1,2));
+      if (!absequaliu(gel(x,2),2)) pari_err_OP("",x, mkintmodu(1,2));
       if (valp(x) < 0) (void)Fl_inv(0,2);
       return valp(x) & 1;
     case t_INTMOD: {
@@ -2718,7 +2718,7 @@ Flxq_pow_Frobenius(GEN x, GEN n, GEN aut, GEN T, ulong p)
   pari_sp av=avma;
   long d = get_Flx_degree(T);
   GEN an = absi(n), z, q;
-  if (cmpiu(an,p)<0 || cmpis(an,d)<=0)
+  if (abscmpiu(an,p)<0 || cmpis(an,d)<=0)
     return Flxq_pow(x, n, T, p);
   q = powuu(p, d);
   if (dvdii(q, n))
@@ -2813,7 +2813,7 @@ Flxq_easylog(void* E, GEN a, GEN g, GEN ord)
   if (Flx_equal(a,g)) return gen_1;
   if (!degpol(a))
     return Fl_Flxq_log(uel(a,2), g, ord, T, p);
-  if (typ(ord)!=t_INT || d <= 4 || d == 6 || cmpiu(ord,1UL<<27)<0)
+  if (typ(ord)!=t_INT || d <= 4 || d == 6 || abscmpiu(ord,1UL<<27)<0)
     return NULL;
   return Flxq_log_index(a, g, ord, T, p);
 }

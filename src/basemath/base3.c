@@ -1862,7 +1862,7 @@ famat_zlog(GEN nf, GEN fa, GEN sgn, GEN bid)
       if (!is_pm1(k)) {
         GEN p = pr_get_p(pr), k_1 = subis(k,1);
         long v = Z_pval(EX, p);
-        if (cmpui(v, k_1) > 0) v = itos(k_1);
+        if (abscmpui(v, k_1) > 0) v = itos(k_1);
         if (v) ex = mulii(ex, powiu(p, v));
       }
     }

@@ -1538,7 +1538,7 @@ rnfnormgroup_i(GEN bnr, GEN polrel)
   for (i=1; i<lg(G); i++)
     if (!signe(gel(G,i))) gel(G,i) = gdegrel;
   detG = ZV_prod(G);
-  k = cmpiu(detG,degrel);
+  k = abscmpiu(detG,degrel);
   if (k < 0) return NULL;
   if (!k) return diagonal(G);
 
@@ -1591,7 +1591,7 @@ rnfnormgroup_i(GEN bnr, GEN polrel)
       if (f > 1) col = ZC_z_mul(col, f);
       G = ZM_hnf(shallowconcat(G, col));
       detG = ZM_det_triangular(G);
-      k = cmpiu(detG,degrel);
+      k = abscmpiu(detG,degrel);
       if (k < 0) return NULL;
       if (!k) { cgiv(detG); return G; }
     }

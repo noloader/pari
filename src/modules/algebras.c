@@ -480,7 +480,7 @@ algradical(GEN al)
   }
   K = FpM_ker(traces, P);
   ni = lg(K)-1; if (!ni) { avma = av; return gen_0; }
-  if (cmpiu(P,n)>0) return gerepileupto(av, K);
+  if (abscmpiu(P,n)>0) return gerepileupto(av, K);
 
   /* tough case, p <= n. Ronyai's algorithm */
   p = P[2]; l = 1;
@@ -2733,7 +2733,7 @@ nfgwkummer(GEN nf, GEN Lpr, GEN Ld, GEN pl, long var)
     long e = pr_get_e(pr);
     gcoeff(cnd,i,1) = pr;
 
-    if (!equalui(ell,p))
+    if (!absequalui(ell,p))
       E = gen_1;
     else
       E = addsi(1 + v*e, divsi(e,subis(p,1)));

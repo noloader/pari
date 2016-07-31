@@ -299,7 +299,7 @@ nftorsbound(GEN E)
     }
     if ((g & 15) == 0) gerepileall(av, 2, &B1, &B2);
   }
-  if (cmpiu(B2, 2) > 0)
+  if (abscmpiu(B2, 2) > 0)
   { /* if E(K) has full n-torsion then K contains the n-th roots of 1 */
     GEN n = gel(rootsof1(K), 1);
     B2 = gcdii(B2,n);
@@ -592,7 +592,7 @@ ellorder_Q(GEN E, GEN P)
   dx = Q_denom(gel(P,1));
   dy = Q_denom(gel(P,2));
   if (ell_is_integral(E)) /* integral model, try Nagell Lutz */
-    if (cmpiu(dx, 4) > 0 || cmpiu(dy, 8) > 0) return 0;
+    if (abscmpiu(dx, 4) > 0 || abscmpiu(dy, 8) > 0) return 0;
 
   d4 = Q_denom(ell_get_c4(E));
   d6 = Q_denom(ell_get_c6(E));

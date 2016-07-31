@@ -3003,7 +3003,7 @@ ell_get_scale_d(GEN E, GEN W, GEN xpm, long D)
   if (cb)
   { /* \tilde{u} in Pal's "Periods of quadratic twists of elliptic curves" */
     u = gel(cb,1); /* Omega(E^D_min) = u * Omega(E^D) */
-    if (cmpiu(Q_denom(u), 2) > 0) pari_err_BUG("msfromell [ell_get_scale]");
+    if (abscmpiu(Q_denom(u), 2) > 0) pari_err_BUG("msfromell [ell_get_scale]");
     Q = gmul(Q,u);
   }
   /* L(E^D,1) = Q * w1(E^D_min) */
@@ -3515,7 +3515,7 @@ static GEN
 ms_unit_eigenvalue(GEN ap, long k, GEN p, long n)
 {
   GEN sqrtD, D = subii(sqri(ap), shifti(powiu(p,k-1),2));
-  if (equaliu(p,2))
+  if (absequaliu(p,2))
   {
     n++; sqrtD = Zp_sqrt(D, p, n);
     if (mod4(sqrtD) != mod4(ap)) sqrtD = negi(sqrtD);

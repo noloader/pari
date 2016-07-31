@@ -345,7 +345,7 @@ znstar0(GEN N, long flag)
       retmkvec2(gen_2, mkvec(gen_2));
   }
   if (signe(N) < 0) N = absi(N);
-  if (cmpiu(N,2) <= 0)
+  if (abscmpiu(N,2) <= 0)
   {
     if (flag & nf_GEN)
       G = mkvec3(gen_1, cgetg(1,t_VEC), cgetg(1,t_VEC));
@@ -468,7 +468,7 @@ znstar0(GEN N, long flag)
           gel(G,i) = gi = Fp_mul(gi, Fp_pow(gj, mulii(qj, v), N), N);
           gel(G,j) = gj;
         }
-        ci = d; if (equaliu(ci, 2)) break;
+        ci = d; if (absequaliu(ci, 2)) break;
       }
     }
     if (dogen)
@@ -486,7 +486,7 @@ znstar0(GEN N, long flag)
       GEN t = gen_0, p = gel(P,i), p_1 = subiu(p,1);
       long e = E[i];
       gel(fao,i) = dlog_get_ordfa(p_1);
-      if (e >= 2 && !equaliu(p,2))
+      if (e >= 2 && !absequaliu(p,2))
       {
         GEN q = gel(mod,i), g = Fp_pow(gel(gen,i),p_1,q);
         if (e == 2)
@@ -594,7 +594,7 @@ znconreylog(GEN bid, GEN x)
   if (!checkbidZ_i(bid)) pari_err_TYPE("znconreylog", bid);
   N = bid_get_ideal(bid);
   if (typ(N) != t_INT) pari_err_TYPE("znconreylog", N);
-  if (cmpiu(N, 2) <= 0) return cgetg(1, t_COL);
+  if (abscmpiu(N, 2) <= 0) return cgetg(1, t_COL);
   L = gel(bid,4);
   cycg = bidZ_get_cycg(bid);
   switch(typ(x))
@@ -622,7 +622,7 @@ znconreylog(GEN bid, GEN x)
   l = lg(gen); i = 1;
   y = cgetg(l, t_COL);
   if (!mod2(N) && !mod2(x)) pari_err_COPRIME("znconreylog", x, N);
-  if (equaliu(gel(P,1), 2) && E[1] >= 2)
+  if (absequaliu(gel(P,1), 2) && E[1] >= 2)
   {
     if (E[1] == 2)
       gel(y,i++) = mod4(x) == 1? gen_0: gen_1;
@@ -756,7 +756,7 @@ znconreyconductor(GEN bid, GEN chi, GEN *pm)
   P = leafcopy(P);
   E = leafcopy(E);
   m = cgetg(l, t_COL);
-  e2 = (E[1] >= 3 && equaliu(gel(P,1),2));
+  e2 = (E[1] >= 3 && absequaliu(gel(P,1),2));
   i = j = 1;
   if (e2)
   { /* two generators at p=2 */
@@ -856,7 +856,7 @@ zncharinduce(GEN G, GEN chi, GEN N)
   if (!dvdii(N,q)) pari_err_DOMAIN("zncharinduce", "N % q", "!=", gen_0, N);
   if (mod4(N) == 2)
   { /* remove 2 */
-    if (lg(P) > 1 && equaliu(gel(P,1), 2))
+    if (lg(P) > 1 && absequaliu(gel(P,1), 2))
     {
       P = vecsplice(P,1);
       E = vecsplice(E,1);
@@ -868,7 +868,7 @@ zncharinduce(GEN G, GEN chi, GEN N)
   if (cmpii(N,q) <= 0) return gerepilecopy(av, chi);
   /* N > 1 => l > 1*/
   if (typ(E) != t_VECSMALL) E = ZV_to_zv(E);
-  e2 = (E[1] >= 3 && equaliu(gel(P,1),2)); /* 2 generators at 2 mod N */
+  e2 = (E[1] >= 3 && absequaliu(gel(P,1),2)); /* 2 generators at 2 mod N */
   if (ZV_equal0(chi))
   {
     avma = av;
@@ -884,7 +884,7 @@ zncharinduce(GEN G, GEN chi, GEN N)
   if (e2)
   {
     i = 2; j = 3;
-    if (equaliu(gel(Pq,1), 2))
+    if (absequaliu(gel(Pq,1), 2))
     {
       if (Eq[1] >= 3)
       { /* 2 generators at 2 mod q */

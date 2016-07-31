@@ -13,6 +13,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 
 /* For compatibility with older PARI versions */
 /*functions renamed*/
+#define cmpui abscmpui
+#define equalui absequalui
+#define equaliu absequaliu
+#define cmpiu abscmpiu
 #define absi_factor absZ_factor
 #define absi_factor_limit absZ_factor_limit
 #define absi_cmp abscmpii

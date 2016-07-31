@@ -817,7 +817,7 @@ F2xq_ellcard(GEN a, GEN a6, GEN T)
                                    addii(q1,int2u(m)),addii(q1,int2u(m+1)));
     e.a2=a; e.a6=a6; e.T=T;
     c = gen_select_order(v,(void*)&e, &F2xqE_group);
-    if (n==4 && equaliu(c, 21)) /* Ambiguous case */
+    if (n==4 && absequaliu(c, 21)) /* Ambiguous case */
     {
       GEN d = F2xq_powu(polx_F2x(T[1]),3,T), a3 = gel(a,1);
       e.a6 = F2x_add(a6,F2xq_mul(d,F2xq_sqr(a3,T),T)); /* twist */

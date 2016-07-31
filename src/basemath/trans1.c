@@ -830,7 +830,7 @@ powps(GEN x, long n)
   if (v == 0) mod = icopy(mod);
   else
   {
-    if (precp(x) == 1 && equaliu(p, 2)) v++;
+    if (precp(x) == 1 && absequaliu(p, 2)) v++;
     mod = mulii(mod, powiu(p,v));
     mod = gerepileuptoint((pari_sp)y, mod);
   }
@@ -1292,7 +1292,7 @@ Qp_sqrt(GEN x)
   e >>= 1;
   z = Zp_sqrt(z, p, pp);
   if (!z) return NULL;
-  if (equaliu(p,2))
+  if (absequaliu(p,2))
   {
     pp  = (pp <= 3) ? 1 : pp-1;
     mod = int2n(pp);
@@ -1465,7 +1465,7 @@ rootsof1complex(GEN n, long prec)
 {
   pari_sp av = avma;
   if (is_pm1(n)) return real_1(prec);
-  if (equaliu(n, 2)) return stor(-1, prec);
+  if (absequaliu(n, 2)) return stor(-1, prec);
   return gerepileupto(av, expIr( divri(Pi2n(1, prec), n) ));
 }
 
@@ -1494,7 +1494,7 @@ palogaux(GEN x)
 {
   long i, k, e, pp, t;
   GEN y,s,y2, p = gel(x,2);
-  int is2 = equaliu(p,2);
+  int is2 = absequaliu(p,2);
 
   y = subiu(gel(x,4), 1);
   if (!signe(y))
@@ -1520,7 +1520,7 @@ palogaux(GEN x)
   else
   {
     GEN p1;
-    for (p1=utoipos(e); cmpui(pp,p1) > 0; pp++) p1 = mulii(p1, p);
+    for (p1=utoipos(e); abscmpui(pp,p1) > 0; pp++) p1 = mulii(p1, p);
     pp -= 2;
   }
   k = pp/e; if (!odd(k)) k--;
@@ -1548,7 +1548,7 @@ Qp_log(GEN x)
 
   if (!signe(a)) pari_err_DOMAIN("Qp_log", "argument", "=", gen_0, x);
   y = leafcopy(x); setvalp(y,0);
-  if (equaliu(p,2))
+  if (absequaliu(p,2))
     y = palogaux(gsqr(y));
   else if (gequal1(modii(a, p)))
     y = gmul2n(palogaux(y), 1);
@@ -1580,7 +1580,7 @@ Qp_sqrtn_ram(GEN x, long e)
     setvalp(x,0);
   }
   /*If p = 2, -1 is a root of 1 in U1: need extra check*/
-  if (equaliu(p, 2) && mod8(gel(x,4)) != 1) return NULL;
+  if (absequaliu(p, 2) && mod8(gel(x,4)) != 1) return NULL;
   a = Qp_log(x);
   va = valp(a) - e;
   if (va <= 0)
@@ -1635,7 +1635,7 @@ Qp_sqrtn(GEN x, GEN n, GEN *zetan)
   pari_sp av, tetpil;
   GEN q, p;
   long e;
-  if (equaliu(n, 2))
+  if (absequaliu(n, 2))
   {
     if (zetan) *zetan = gen_m1;
     if (signe(n) < 0) x = ginv(x);
@@ -1657,7 +1657,7 @@ Qp_sqrtn(GEN x, GEN n, GEN *zetan)
     if (signe(q) < 0) x = ginv(x);
     x = gerepileupto(av, x);
     if (zetan)
-      *zetan = (e && equaliu(p, 2))? gen_m1 /*-1 in Q_2*/
+      *zetan = (e && absequaliu(p, 2))? gen_m1 /*-1 in Q_2*/
                                    : gen_1;
     return x;
   }
@@ -1668,7 +1668,7 @@ Qp_sqrtn(GEN x, GEN n, GEN *zetan)
   if (zetan)
   {
     GEN *gptr[2];
-    if (e && equaliu(p, 2))/*-1 in Q_2*/
+    if (e && absequaliu(p, 2))/*-1 in Q_2*/
     {
       tetpil = avma; x = gcopy(x); *zetan = gneg(*zetan);
     }
@@ -2062,7 +2062,7 @@ Qp_exp_prec(GEN x)
 {
   long k, e = valp(x), n = e + precp(x);
   GEN p = gel(x,2);
-  int is2 = equaliu(p,2);
+  int is2 = absequaliu(p,2);
   if (e < 1 || (e == 1 && is2)) return -1;
   if (is2)
   {
@@ -2639,7 +2639,7 @@ Zp_teichmuller(GEN x, GEN p, long e, GEN pe)
   GEN q, z, p1;
   pari_sp av;
   ulong mask;
-  if (equaliu(p,2)) return (mod4(x) & 2)? subiu(pe,1): gen_1;
+  if (absequaliu(p,2)) return (mod4(x) & 2)? subiu(pe,1): gen_1;
   if (e == 1) return icopy(x);
   av = avma;
   p1 = subiu(p, 1);

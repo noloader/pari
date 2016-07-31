@@ -964,7 +964,7 @@ Buchquad(GEN D, double cbach, double cbach2, long prec)
   QFR.D = D;
   if (s < 0)
   {
-    if (cmpiu(QFR.D,4) <= 0)
+    if (abscmpiu(QFR.D,4) <= 0)
     {
       GEN z = cgetg(5,t_VEC);
       gel(z,1) = gel(z,4) = gen_1; gel(z,2) = gel(z,3) = cgetg(1,t_VEC);
