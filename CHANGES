@@ -485,6 +485,7 @@ BA 183- GP function ellsea
    186- [libpari] Z_ppio, Z_ppgle, Z_cba
    187- ellminimalmodel over number fields
    188- [libpari] FpX_factor_squarefree, Flx_factor_squarefree
+   189- [libpari] checknf_i, checkbnf_i, checkbid_i, checkrnf_i
 
   Changed
     1- make log(+/-I) return (+/-)Pi/2*I with gen_0 real part [#1556]

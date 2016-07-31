@@ -47,8 +47,14 @@ Returns the (monic, integral) polynomial defining the field.
 \kbd{x}, return it; otherwise raise an exception. The more general
 \kbd{get\_bnf} is often more flexible.
 
+\fun{GEN}{checkbnf_i}{GEN bnf} same as \kbd{checkbnf} but return \kbd{NULL}
+instead of raising an exception.
+
 \fun{void}{checkbnr}{GEN bnr} Raise an exception if the argument
 is not a \var{bnr} structure.
+
+\fun{GEN}{checknf_i}{GEN nf} same as \kbd{checknf} but return \kbd{NULL}
+instead of raising an exception.
 
 \fun{void}{checkbnrgen}{GEN bnr} Raise an exception if the argument is not a
 \var{bnr} structure, complete with explicit generators for the ray class group.
@@ -63,8 +69,14 @@ do not actually need them.
 \fun{void}{checkrnf}{GEN rnf} Raise an exception if the argument is not an
 \var{rnf} structure.
 
+\fun{int}{checkrnf_i}{GEN rnf} same as \kbd{checkrnf} but return $0$
+on failure and $1$ on success.
+
 \fun{void}{checkbid}{GEN bid} Raise an exception if the argument is not a
 \var{bid} structure.
+
+\fun{GEN}{checkbid_i}{GEN bid} same as \kbd{checkbid} but return \kbd{NULL}
+instead of raising an exception and return \kbd{bid} on success.
 
 \fun{GEN}{checkgal}{GEN x} if a \var{galoisinit} structure can be extracted
 from \kbd{x}, return it; otherwise raise an exception.
