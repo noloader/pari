@@ -3003,7 +3003,7 @@ gmulsg(long s, GEN y)
 
     case t_SER:
       if (ser_isexactzero(y)) return gcopy(y);
-      if (!s) return scalarser(RgX_get_0(y), varn(y), valp(y));
+      if (!s) return RgX_get_0(y);
       z = cgetg_copy(y, &ly); z[1]=y[1];
       for (i=2; i<ly; i++) gel(z,i) = gmulsg(s,gel(y,i));
       return normalize(z);
