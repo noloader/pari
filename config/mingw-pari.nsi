@@ -1,12 +1,13 @@
 #! /bin/sh
 . config/version
+bitsize=$1
 release=`echo "$pari_release"|sed  's/\./-/g'`
 cat << EOT
 ;--- PARI/GP: NullSoft Installer configuration file
 !include "MUI.nsh"
-Name "PARI $pari_release_verbose"
+Name "PARI $pari_release_verbose (${bitsize}bit)"
 !define dll "libpari.dll"
-!define PARIver "Pari-$release"
+!define PARIver "Pari$bitsize-$release"
 EOT
 cat << 'EOT'
 !define top ".."
