@@ -1732,7 +1732,7 @@ litredtp(long alpha, long alpha1, GEN theta, GEN theta1, GEN polh, GEN polh1,
     if (Ip->r1) indice = d - indice; /* (r1,r2) = (6,0) */
     Ip->neron = shallowconcat(cyclic(indice),groupH(d-indice));
     Ip->type = stack_sprintf("[I{%ld}-I*{%ld}-%ld] page %ld",
-                             indice,d-indice,R, (Ip->tt==6)? 170: 180);
+                             indice,d-indice,R, (Ip->tt==6)? 170L: 180L);
     return condp;
   }
   if (Ip->tt == 7) pari_err_BUG("litredtp [switch ri]");
