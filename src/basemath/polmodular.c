@@ -2627,7 +2627,6 @@ polmodular0_powerup_ZM(long L, long inv, GEN *db)
   pari_sp ltop = avma, av;
   long s, D, nprimes, N;
   GEN mp, pol, P, H;
-  GEN primes;
 
   long parent = inv_parent(inv);
   long e = inv_parent_power(inv);
@@ -2637,11 +2636,7 @@ polmodular0_powerup_ZM(long L, long inv, GEN *db)
   long nDs = discriminant_with_classno_at_least(Ds, L, inv, IGNORE_SPARSE_FACTOR);
   if (nDs != 1) pari_err_BUG("polmodular0_powerup_ZM");
   D = Ds[0].D1;
-  /* FIXME: Stupid copying */
   nprimes = Ds[0].nprimes + 1;
-  primes = cgetg(nprimes, t_VECSMALL);
-  for (s = 1; s < nprimes; ++s)
-    uel(primes, s) = Ds[0].primes[s - 1];
   mp = polmodular0_ZM(L, parent, NULL, NULL, 0, db);
   H = polclass0(D, parent, 0, db);
 
@@ -2653,7 +2648,7 @@ polmodular0_powerup_ZM(long L, long inv, GEN *db)
   P = gen_1;
   for (s = 1; s < nprimes; ++s) {
     pari_sp av1, av2;
-    ulong p = primes[s], pi = get_Fl_red(p);
+    ulong p = Ds[0].primes[s-1], pi = get_Fl_red(p);
     long i;
     GEN Hrts, js, Hp, Phip, coeff_mat, phi_modp;
 
