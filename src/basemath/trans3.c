@@ -1757,7 +1757,7 @@ n_s(ulong n, GEN *tab)
 /* s0 a t_INT, t_REAL or t_COMPLEX.
  * If a t_INT, assume it's not a trivial case (i.e we have s0 > 1, odd)
  * */
-GEN
+static GEN
 czeta(GEN s0, long prec)
 {
   GEN s, u, a, y, res, tes, sig, tau, invn2, unr;
