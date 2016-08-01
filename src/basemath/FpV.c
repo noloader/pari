@@ -471,22 +471,35 @@ FpM_FpC_mul_i(GEN x, GEN y, long lx, long l, GEN p)
   }
   return z;
 }
+
+static void
+__Flm_Flc_mul_i_SMALL(GEN z, GEN x, GEN y, long lx, long l, ulong p)
+{
+  long i;
+  for (i = 1; i < l; i++) z[i] = Flmrow_Flc_mul_SMALL(x, y, p, lx, i);
+}
 static GEN
 Flm_Flc_mul_i_SMALL(GEN x, GEN y, long lx, long l, ulong p)
 {
   GEN z = cgetg(l,t_VECSMALL);
-  long i;
-  for (i = 1; i < l; i++) z[i] = Flmrow_Flc_mul_SMALL(x, y, p, lx, i);
+  __Flm_Flc_mul_i_SMALL(z, x, y, lx, l, p);
   return z;
+}
+
+static void
+__Flm_Flc_mul_i(GEN z, GEN x, GEN y, long lx, long l, ulong p, ulong pi)
+{
+  long i;
+  for (i = 1; i < l; i++) z[i] = Flmrow_Flc_mul_i(x, y, p, pi, lx, i);
 }
 static GEN
 Flm_Flc_mul_i(GEN x, GEN y, long lx, long l, ulong p, ulong pi)
 {
   GEN z = cgetg(l,t_VECSMALL);
-  long i;
-  for (i = 1; i < l; i++) z[i] = Flmrow_Flc_mul_i(x, y, p, pi, lx, i);
+  __Flm_Flc_mul_i(z, x, y, lx, l, p, pi);
   return z;
 }
+
 INLINE GEN
 F2m_F2c_mul_i(GEN x, GEN y, long lx, long l)
 {
@@ -767,12 +780,30 @@ GEN
 Flm_Flc_mul_pre(GEN x, GEN y, ulong p, ulong pi)
 {
   long l, lx = lg(x);
+  GEN z;
   if (lx==1) return cgetg(1,t_VECSMALL);
   l = lgcols(x);
+  z = cgetg(l, t_VECSMALL);
   if (SMALL_ULONG(p))
-    return Flm_Flc_mul_i_SMALL(x, y, lx, l, p);
+    __Flm_Flc_mul_i_SMALL(z, x, y, lx, l, p);
   else
-    return Flm_Flc_mul_i(x, y, lx, l, p, pi);
+    __Flm_Flc_mul_i(z, x, y, lx, l, p, pi);
+  return z;
+}
+
+GEN
+Flm_Flc_mul_pre_Flx(GEN x, GEN y, ulong p, ulong pi, long sv)
+{
+  long l, lx = lg(x);
+  GEN z;
+  if (lx==1) return pol0_Flx(sv);
+  l = lgcols(x);
+  z = cgetg(l + 1, t_VECSMALL); z[1] = sv;
+  if (SMALL_ULONG(p))
+    __Flm_Flc_mul_i_SMALL(z + 1, x, y, lx, l, p);
+  else
+    __Flm_Flc_mul_i(z + 1, x, y, lx, l, p, pi);
+  return Flx_normalize(z, l + 1);
 }
 
 GEN

@@ -1233,23 +1233,16 @@ Flm_Fl_phi5_evalx(GEN phi5, ulong j, ulong p, ulong pi)
 GEN
 Flm_Fl_polmodular_evalx(GEN phi, long L, ulong j, ulong p, ulong pi)
 {
-  pari_sp av = avma;
-  GEN j_powers, modpol;
   switch (L) {
-  case 2:
-    return Flm_Fl_phi2_evalx(phi, j, p, pi);
-  case 3:
-    return Flm_Fl_phi3_evalx(phi, j, p, pi);
-  case 5:
-    return Flm_Fl_phi5_evalx(phi, j, p, pi);
+    case 2: return Flm_Fl_phi2_evalx(phi, j, p, pi);
+    case 3: return Flm_Fl_phi3_evalx(phi, j, p, pi);
+    case 5: return Flm_Fl_phi5_evalx(phi, j, p, pi);
+    default: { /* not GC clean, but gerepileupto-safe */
+      GEN j_powers = Fl_powers_pre(j, L + 1, p, pi);
+      return Flm_Flc_mul_pre_Flx(phi, j_powers, p, pi, 0);
+    }
   }
-  j_powers = Fl_powers_pre(j, L + 1, p, pi);
-  /* FIXME: We're obliged to do a full copy (in Flv_to_Flx) to return
-   * an Flx here in one of the hottest parts of the code.  What joy. */
-  modpol = Flv_to_Flx(Flm_Flc_mul_pre(phi, j_powers, p, pi), 0);
-  return gerepileupto(av, modpol);
 }
-
 
 /**
  * SECTION: Velu's formula for the codmain curve in the case of small

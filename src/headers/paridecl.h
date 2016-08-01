@@ -739,6 +739,7 @@ GEN     Flm_Fl_mul(GEN y, ulong x, ulong p);
 void    Flm_Fl_mul_inplace(GEN y, ulong x, ulong p);
 GEN     Flm_Flc_mul(GEN x, GEN y, ulong p);
 GEN     Flm_Flc_mul_pre(GEN x, GEN y, ulong p, ulong pi);
+GEN     Flm_Flc_mul_pre_Flx(GEN x, GEN y, ulong p, ulong pi, long sv);
 GEN     Flm_add(GEN x, GEN y, ulong p);
 GEN     Flm_center(GEN z, ulong p, ulong ps2);
 GEN     Flm_mul(GEN x, GEN y, ulong p);
