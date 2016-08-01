@@ -1874,6 +1874,7 @@ czeta(GEN s0, long prec)
   avma = av; return affc_fixlg(y,res);
 }
 
+#if 0
 /* return P mod x^n where P is polynomial in x */
 static GEN
 pol_mod_xn(GEN P, long n)
@@ -1962,7 +1963,6 @@ twistpartialzeta(GEN q, long f, long c, GEN va, GEN cff)
   return rep;
 }
 
-#if 0
 /* initialize the roots of unity for the computation
    of the Teichmuller character (also the values of f and c) */
 GEN
