@@ -1651,17 +1651,17 @@ of the resulting function object; compare
 @eprog\noindent Of course, the sequence \var{seq} can be arbitrarily
 complicated, in which case it will look better written on consecutive lines,
 with properly scoped variables:
-\bprogpart
+\bprog
 {
-f($x_0$, $x_1$, @dots) =
-  my($t_0$, $t_1$, @dots); \\@com variables lexically scoped to the function body
+f(x0, x1, @dots) =
+  my(t0, t1, @dots); \\@com variables lexically scoped to the function body
   @dots
 }
 @eprog \noindent Note that the following variant would also work:
-\bprogpart
-f($x_0$, $x_1$, @dots) =
+\bprog
+f(x0, x1, @dots) =
 {
-  my($t_0$, $t_1$, @dots); \\@com variables lexically scoped to the function body
+  my(t0, t1, @dots); \\@com variables lexically scoped to the function body
   @dots
 }
 @eprog \noindent

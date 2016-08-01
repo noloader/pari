@@ -425,12 +425,14 @@ but WITHOUT ANY WARRANTY WHATSOEVER.
 \def\B{\kbd{BITS\_IN\_LONG}}
 \def\op{{\it op\/}}
 
-% verbatim mode, leave alone $ and _
+% verbatim mode
 % @ made active: assume verbatim text doesn't contain it
 \newif\ifnopar
 {\catcode`\^=13\global\let^=\pow\obeyspaces\global\let \ }
 \def\ttverb{%
   \nopartrue
+  \catcode`\_=12%
+  \catcode`\$=12%
   \catcode`\\=12%
   \catcode`\{=12%
   \catcode`\}=12%
@@ -460,15 +462,13 @@ but WITHOUT ANY WARRANTY WHATSOEVER.
   \catcode`\_=8%
   \catcode`\^^I=10}
 
-\def\bprogpart{\begingroup%
+\def\bprog{\begingroup%
   \vskip 0pt plus 1pt%
   \leavevmode\parskip=0pt plus 1pt%
   \interlinepenalty2000\clubpenalty9000\widowpenalty9000%
   \ttverb}
 
-% complete verbatim (including _ and $)
 \def\bprogfile#1{\bprog\input#1\eprog}
-\def\bprog{\bprogpart\catcode`\_=12\catcode`\$=12}
 \def\eprog{\endgroup\par}
 {\obeylines
   \gdef\com{\begingroup\unverb\comstart}
