@@ -1571,12 +1571,13 @@ oriented_n_action(
   return evec_to_index(e, m, k);
 }
 
+/* F = double_eta_raw(inv) */
 INLINE void
-adjust_orientation(long inv, GEN v, long e, ulong p, ulong pi)
+adjust_orientation(GEN F, long inv, GEN v, long e, ulong p, ulong pi)
 {
   ulong j0 = uel(v, 1), je = uel(v, e);
 
-  if ( ! inv_j_from_2double_eta(inv, NULL, j0, je, p, pi)) {
+  if ( ! inv_j_from_2double_eta(F, inv, NULL, j0, je, p, pi)) {
     if (inv_inverted_involution(inv)) {
       Flv_inv_pre_inplace(v, p, pi);
     }
@@ -1736,12 +1737,13 @@ polclass0(long D, long inv, long xvar, GEN *db)
   if (orient) {
     GEN nvec = new_chunk(G->k);
     GEN fdb = polmodular_db_for_inv(*db, inv);
+    GEN F = double_eta_raw(inv);
     index_to_evec((long *)nvec, ni, G->m, G->k);
     for (i = 1; i <= nprimes; ++i) {
       GEN v = gel(H, i);
       ulong p = uel(plist, i), pi = uel(pilist, i);
       long oni = oriented_n_action(nvec, G, v, p, pi, fdb);
-      adjust_orientation(inv, v, oni + 1, p, pi);
+      adjust_orientation(F, inv, v, oni + 1, p, pi);
     }
   }
 

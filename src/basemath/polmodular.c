@@ -683,23 +683,34 @@ inv_root(long inv, ulong *r, ulong w, ulong p, ulong pi)
 }
 
 
-/* TODO: Organise things better so that this forward decl is
- * unnecessary. */
-static GEN
-Flx_double_eta_xpoly(long inv, ulong j, ulong p, ulong pi);
+/* TODO: Organise things better so that this forward decl is unnecessary. */
+static GEN Flx_double_eta_xpoly(GEN f, ulong j, ulong p, ulong pi);
+static GEN Flx_double_eta_jpoly(GEN f, ulong x, ulong p, ulong pi);
 
+/* reduce F = double_eta_raw(inv) mod p */
 static GEN
-Flx_double_eta_jpoly(long inv, ulong x, ulong p, ulong pi);
+double_eta_raw_to_Fl(GEN f, ulong p)
+{
+  GEN u = ZV_to_Flv(gel(f,1), p);
+  GEN v = ZV_to_Flv(gel(f,2), p);
+  return mkvec3(u, v, gel(f,3));
+}
+/* double_eta_raw(inv) mod p */
+static GEN
+double_eta_Fl(long inv, ulong p)
+{
+  return double_eta_raw_to_Fl(double_eta_raw(inv), p);
+}
 
 /* Go through the roots of Psi(X,j) until one has an
- * inv_exponent(inv)-th root, and return that root. */
+ * inv_exponent(inv)-th root, and return that root. F = double_eta_Fl(inv,p) */
 INLINE ulong
-inv_double_eta_from_j(long inv, ulong j, ulong p, ulong pi)
+inv_double_eta_from_j(GEN F, long inv, ulong j, ulong p, ulong pi)
 {
   pari_sp av = avma;
   long i;
   ulong f = ULONG_MAX;
-  GEN a = Flx_double_eta_xpoly(inv, j, p, pi);
+  GEN a = Flx_double_eta_xpoly(F, j, p, pi);
   a = Flx_roots(a, p);
   for (i = 1; i < lg(a); ++i) {
     if (inv_root(inv, &f, uel(a, i), p, pi))
@@ -717,13 +728,12 @@ inv_double_eta_from_2j(
   ulong *r, long inv, ulong j1, ulong j2, ulong p, ulong pi)
 {
   pari_sp av = avma;
-  GEN f, g, d;
+  GEN f, g, d, F = double_eta_Fl(inv, p);
   if (j2 == j1)
     pari_err_BUG("inv_double_eta_from_2j");
 
-  /* TODO: Avoid wasteful repeated reductions */
-  f = Flx_double_eta_xpoly(inv, j1, p, pi);
-  g = Flx_double_eta_xpoly(inv, j2, p, pi);
+  f = Flx_double_eta_xpoly(F, j1, p, pi);
+  g = Flx_double_eta_xpoly(F, j2, p, pi);
   d = Flx_gcd(f, g, p);
 
   /* NB: Morally the next conditional should be written as follows,
@@ -796,7 +806,11 @@ modfn_root(ulong j, norm_eqn_t ne, long inv)
     return inv_f_from_j(j, p, pi, 1);
   }
   if (inv_double_eta(inv))
-    return inv_double_eta_from_j(inv, j, p, pi);
+  {
+    pari_sp av = avma;
+    ulong f = inv_double_eta_from_j(double_eta_Fl(inv,p), inv, j, p, pi);
+    avma = av; return f;
+  }
   pari_err_BUG("modfn_root");
   return ULONG_MAX;
 }
@@ -810,18 +824,19 @@ inv_j_from_f(ulong x, ulong n, ulong p, ulong pi)
   return Fl_div(Fl_powu_pre(Fl_sub(x24, 16 % p, p), 3, p, pi), x24, p);
 }
 
-/* TODO: Check whether I can use this to refactor something */
+/* TODO: Check whether I can use this to refactor something
+ * F = double_eta_raw(inv) */
 long
 inv_j_from_2double_eta(
-  long inv, ulong *j, ulong x0, ulong x1, ulong p, ulong pi)
+  GEN F, long inv, ulong *j, ulong x0, ulong x1, ulong p, ulong pi)
 {
   GEN f, g, d;
 
   x0 = inv_power(inv, x0, p, pi);
   x1 = inv_power(inv, x1, p, pi);
-  /* FIXME: This "reads in" and reduces the double eta jpoly twice */
-  f = Flx_double_eta_jpoly(inv, x0, p, pi);
-  g = Flx_double_eta_jpoly(inv, x1, p, pi);
+  F = double_eta_raw_to_Fl(F, p);
+  f = Flx_double_eta_jpoly(F, x0, p, pi);
+  g = Flx_double_eta_jpoly(F, x1, p, pi);
   d = Flx_gcd(f, g, p);
   if (degpol(d) > 1)
     pari_err_BUG("inv_j_from_2double_eta");
@@ -1691,19 +1706,21 @@ root_matrix(
   if (inv_double_eta(inv)) {
     /* TODO: There is potential for refactoring between this,
      * double_eta_initial_js and modfn_preimage. */
-    pari_sp av = avma;
+    pari_sp av0 = avma;
     ulong p = ne->p, pi = ne->pi, j;
+    GEN F = double_eta_Fl(inv, p);
+    pari_sp av = avma;
     ulong r1 = inv_power(inv, uel(rts, 1), p, pi);
-    GEN r, f = Flx_double_eta_jpoly(inv, r1, p, pi);
+    GEN r, f = Flx_double_eta_jpoly(F, r1, p, pi);
     if ((j = Flx_oneroot(f, p)) == p) pari_err_BUG("root_matrix");
     j = compute_L_isogenous_curve(L, n, ne, j, card, val, 0);
     avma = av;
     r1 = inv_power(inv, uel(surface_js, i), p, pi);
-    f = Flx_double_eta_jpoly(inv, r1, p, pi);
+    f = Flx_double_eta_jpoly(F, r1, p, pi);
     r = Flx_roots(f, p);
     if (glength(r) != 2) pari_err_BUG("root_matrix");
     rev = (j != uel(r, 1)) && (j != uel(r, 2));
-    avma = av;
+    avma = av0;
   } else {
     ulong j1pr, j1;
     j1pr = modfn_preimage(uel(rts, 1), ne, dinfo->inv);
@@ -1833,24 +1850,26 @@ double_eta_initial_js(
   ulong *x0, ulong *x0pr, ulong j0, ulong j0pr, norm_eqn_t ne,
   long inv, ulong L, ulong n, ulong card, ulong val)
 {
-  pari_sp av = avma;
+  pari_sp av0 = avma;
   ulong p = ne->p, pi = ne->pi;
+  GEN F = double_eta_Fl(inv, p);
+  pari_sp av = avma;
   ulong j1pr, j1, r, t;
   GEN f, g;
 
-  *x0pr = inv_double_eta_from_j(inv, j0pr, p, pi);
+  *x0pr = inv_double_eta_from_j(F, inv, j0pr, p, pi);
   t = inv_power(inv, *x0pr, p, pi);
-  f = Flx_div_by_X_x(Flx_double_eta_jpoly(inv, t, p, pi), j0pr, p, &r);
+  f = Flx_div_by_X_x(Flx_double_eta_jpoly(F, t, p, pi), j0pr, p, &r);
   if (r) pari_err_BUG("double_eta_initial_js");
   j1pr = Flx_deg1_root(f, p);
   avma = av;
 
   j1 = compute_L_isogenous_curve(L, n, ne, j1pr, card, val, 0);
-  f = Flx_double_eta_xpoly(inv, j0, p, pi);
-  g = Flx_double_eta_xpoly(inv, j1, p, pi);
+  f = Flx_double_eta_xpoly(F, j0, p, pi);
+  g = Flx_double_eta_xpoly(F, j1, p, pi);
   /* x0 is the unique common root of f and g */
   *x0 = Flx_deg1_root(Flx_gcd(f, g, p), p);
-  avma = av;
+  avma = av0;
 
   if ( ! inv_root(inv, x0, *x0, p, pi))
     pari_err_BUG("double_eta_initial_js");
@@ -3446,7 +3465,7 @@ phi_w5w7_j(void)
   return phi;
 }
 
-INLINE GEN
+GEN
 double_eta_raw(long inv)
 {
   switch (inv) {
@@ -3478,43 +3497,36 @@ double_eta_raw(long inv)
   return NULL;
 }
 
+/* F = double_eta_Fl(inv, p) */
 static GEN
-Flx_double_eta_xpoly(long inv, ulong j, ulong p, ulong pi)
+Flx_double_eta_xpoly(GEN F, ulong j, ulong p, ulong pi)
 {
-  pari_sp av = avma;
-  GEN f, u, v;
-  long i, k;
+  GEN u = gel(F,1), v = gel(F,2), w;
+  long i, k = itos(gel(F,3)), lu = lg(u), lv = lg(v), lw = lu + 1;
 
-  f = double_eta_raw(inv);
-
-  /* u is always longest and the length is bigger than k */
-  u = ZV_to_Flv(gel(f, 1), p);
-  v = ZV_to_Flv(gel(f, 2), p);
-  for (i = 1; i < lg(v); ++i)
-    uel(u, i) = Fl_add(uel(u, i), Fl_mul_pre(j, uel(v, i), p, pi), p);
-
-  k = itos(gel(f, 3));
-  uel(u, k + 1) = Fl_add(uel(u, k + 1), Fl_sqr_pre(j, p, pi), p);
-  return gerepileupto(av, Flv_to_Flx(u, 0));
+  w = cgetg(lw, t_VECSMALL); /* lu >= max(lv,k) */
+  w[1] = 0; /* variable number */
+  for (i = 1; i < lv; i++)
+    uel(w, i + 1) = Fl_add(uel(u, i), Fl_mul_pre(j, uel(v, i), p, pi), p);
+  for (     ; i < lu; i++)
+    uel(w, i + 1) = uel(u, i);
+  uel(w, k + 2) = Fl_add(uel(w, k + 2), Fl_sqr_pre(j, p, pi), p);
+  return Flx_renormalize(w, lw);
 }
 
+/* F = double_eta_Fl(inv, p) */
 static GEN
-Flx_double_eta_jpoly(long inv, ulong x, ulong p, ulong pi)
+Flx_double_eta_jpoly(GEN F, ulong x, ulong p, ulong pi)
 {
   pari_sp av = avma;
-  GEN f, u, v, xs;
-  long k;
+  GEN u = gel(F,1), v = gel(F,2), xs;
+  long k = itos(gel(F,3));
   ulong a, b, c;
 
-  f = double_eta_raw(inv);
-
   /* u is always longest and the length is bigger than k */
-  u = ZV_to_Flv(gel(f, 1), p);
-  v = ZV_to_Flv(gel(f, 2), p);
   xs = Fl_powers_pre(x, lg(u) - 1, p, pi);
   c = Flv_dotproduct_pre(u, xs, p, pi);
   b = Flv_dotproduct_pre(v, xs, p, pi);
-  k = itos(gel(f, 3));
   a = uel(xs, k + 1);
   avma = av;
   return mkvecsmall4(0, c, b, a);
