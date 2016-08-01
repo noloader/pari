@@ -346,7 +346,7 @@ ZM_mul_sw(GEN A, GEN B, long m, long n, long p)
   if (gc_needed(av, 1))
     gerepileall(av, 4, &C11, &C12, &C21, &C22);  /* destroy V2, M3 */
   C = mkmat2(mkcol2(C11, C21), mkcol2(C12, C22));
-  return gerepileupto(av, matconcat(C));
+  return gerepilecopy(av, shallowmatconcat(C));
 }
 
 /* x[i,]*y. Assume lg(x) > 1 and 0 < i < lgcols(x) */
