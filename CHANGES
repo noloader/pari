@@ -430,7 +430,7 @@ BA 139- [libpari] get_FlxqX_mod, get_FlxqX_degree, get_FlxqX_var,
         FlxqX_get_red, random_FlxqX
 BA 140- Prototype code 'b' and default 'realbitprecision'
    141- \pb shortcut [ manipulate realbitprecision ]
-BA 142- [GP] Map, matget, mapput, mapisdefined, mapdelete
+BA 142- [GP] Map, mapget, mapput, mapisdefined, mapdelete
 BA 143- [GP] bitprecision
 BA 143- [arm64] add aarch64 assembly kernel
    144- [libpari] ZV_snf_group, ZV_snfall
