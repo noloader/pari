@@ -4,7 +4,7 @@ C-Name: asympnum0
 Prototype: GD0,L,DGp
 Help: asympnum(expr,{k=20},{alpha = 1}): asymptotic expansion of expr assuming
  it has rational coefficients with reasonable height; k and alpha are as
- in extnum.
+ in limitnum.
 Doc: Asymptotic expansion of \var{expr}, corresponding to a sequence $u(n)$,
  assuming it has the shape
  $$u(n) \approx \sum_{i \geq 0} a_i n^{-i\alpha}$$
