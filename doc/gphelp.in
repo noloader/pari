@@ -1224,8 +1224,8 @@ sub TeXprint {
   }
   s/\@\[label\]//g;
   s/\@\[ldollar\]/\$/g;
-  s/\@\[end(bold|code|bcode|ref|bi|bc|it)\]/$ch/g;
-  s/\@\[start(bold|code|bcode|ref|bi|bc)\]/$cb/g;
+  s/\@\[end(bold|code|bcode|ref|bi|bc|bg|it)\]/$ch/g;
+  s/\@\[start(bold|code|bcode|ref|bi|bc|bg)\]/$cb/g;
   s/\@\[startit\]/$cu/g;
   s/\@\[(dollar|empty|endl?word|endpodcode|startl?word|startpodcode)\]//g;
   s/\@\[lt\]/</g;
