@@ -7,6 +7,11 @@
 % earlier version by Joseph H. Silverman who kindly let me use his original
 % file.
 
+\def\versionnumber{2.30}% Version of these reference cards
+\def\PARIversion{2.8.0}% Version of PARI described on these reference cards
+\def\year{2016}
+\def\month{August}
+
 \special{papersize=29.7cm,21cm}
 
 % ignore parimacro.tex's \magnification setting
@@ -51,7 +56,6 @@
 \begingroup\small
 \centerline{Based on an earlier version by Joseph H. Silverman}
 \centerline{\version. Copyright \copyright\ \year\ K. Belabas}
-%\centerline{GP copyright by The PARI Group}
 
 Permission is granted to make and distribute copies of this card provided the
 copyright and this permission notice are preserved on all copies.
@@ -88,11 +92,9 @@ Send comments and corrections to \<Karim.Belabas@math.u-bordeaux.fr>
   \footline{\hss\folio}
   \def\makefootline{\baselineskip10pt\hsize6.5in\line{\the\footline}}
 \else
-  \hsize 3.2in
-%  \vsize 7.95in
+  \hsize 3.4in
   \vsize 7.90in
   \hoffset -.75in
-%  \voffset -.745in
   \voffset -.815in
   \font\titlefont=cmbx10 \scaledmag2
   \font\headingfont=cmbx10 %\scaledmag1
@@ -131,7 +133,7 @@ Send comments and corrections to \<Karim.Belabas@math.u-bordeaux.fr>
     \errmessage{Illegal number of columns per page}
   \fi\fi
 
-  \intercolumnskip=.46in
+  \intercolumnskip=.45in
   \def\abc{a}
   \output={%
       % This next line is useful when designing the layout.
@@ -214,7 +216,9 @@ Send comments and corrections to \<Karim.Belabas@math.u-bordeaux.fr>
 \def\args{\hbox{\it args}}
 \def\file{\hbox{\it file}}
 \def\QQ{\hbox{\bf Q}}
+\def\MM{\hbox{\bf M}}
 \def\ZZ{\hbox{\bf Z}}
+\def\PP{\hbox{\bf P}}
 \def\RR{\hbox{\bf R}}
 \def\FF{\hbox{\bf F}}
 \def\CC{\hbox{\bf C}}
@@ -223,3 +227,8 @@ Send comments and corrections to \<Karim.Belabas@math.u-bordeaux.fr>
 \def\pow{\^{}\hskip0pt}
 \def\til{\raise-0.3em\hbox{\~{}}}
 \def\typ#1{\kbd{t\_#1}}
+
+%%%%%%%%%%%%%%%%%%%%%%%
+
+\title{\TITLE}
+\centerline{(PARI-GP version \PARIversion)}

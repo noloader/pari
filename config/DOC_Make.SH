@@ -23,7 +23,7 @@ PARI_TEX=\$(MACROS) libpari.tex appb.tex appd.tex usersch4.tex usersch5.tex user
 
 doc all: develop.dvi libpari.dvi parallel.dvi users.dvi refcard.ps tutorial.dvi
 docps: develop.ps libpari.ps parallel.ps refcard.ps tutorial.ps users.ps INSTALL.ps
-docpdf: develop.pdf libpari.pdf parallel.pdf users.pdf tutorial.pdf refcard.pdf INSTALL.pdf
+docpdf: develop.pdf libpari.pdf parallel.pdf users.pdf tutorial.pdf refcard.pdf refcard-ell.pdf refcard-nf.pdf refcard-lfun.pdf refcard-mf.pdf INSTALL.pdf
 
 .SUFFIXES: .tex .ipf .pod .inf .dumbpod .3 .html
 
