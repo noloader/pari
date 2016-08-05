@@ -348,12 +348,23 @@ fix_nf(GEN *pnf, GEN *pT, GEN *pA)
   return q;
 }
 
+/* lt(A) is an integer; ensure it is not a constant t_POL. In place */
+static void
+ensure_lt_INT(GEN A)
+{
+  long n = lg(A)-1;
+  GEN lt = gel(A,n);
+  while (typ(lt) != t_INT) gel(A,n) = lt = gel(lt,2);
+}
+
 /* set B = A/gcd(A,A'), squarefree */
 static GEN
 get_nfsqff_data(GEN *pnf, GEN *pT, GEN *pA, GEN *pB, GEN *ptbad)
 {
-  GEN den, bad, A = *pA, T = *pT;
+  GEN den, bad, D, B, A = *pA, T = *pT;
   long n = degpol(T);
+
+  A = Q_primpart( QXQX_normalize(A, T) );
   if (nfsqff_use_Trager(n, degpol(A)))
   {
     *pnf = T;
@@ -362,24 +373,16 @@ get_nfsqff_data(GEN *pnf, GEN *pT, GEN *pA, GEN *pB, GEN *ptbad)
   }
   else
   {
-    den = fix_nf(pnf, pT, pA);
+    den = fix_nf(pnf, &T, &A);
     bad = nf_get_index(*pnf);
     if (den != gen_1) bad = mulii(bad, den);
-    A = *pA;
-    T = *pT;
   }
-  (void)nfgcd_all(A, RgX_deriv(A), T, bad, pB);
+  D = nfgcd_all(A, RgX_deriv(A), T, bad, &B);
+  if (degpol(D)) B = Q_primpart( QXQX_normalize(B, T) );
   if (ptbad) *ptbad = bad;
-  return den;
-}
-
-/* lt(A) is an integer; ensure it is not a constant t_POL. In place */
-static void
-ensure_lt_INT(GEN A)
-{
-  long n = lg(A)-1;
-  GEN lt = gel(A,n);
-  while (typ(lt) != t_INT) gel(A,n) = lt = gel(lt,2);
+  *pA = A;
+  *pB = B; ensure_lt_INT(B);
+  *pT = T; return den;
 }
 
 /* return the roots of pol in nf */
@@ -406,10 +409,7 @@ nfroots(GEN nf,GEN pol)
   dT = degpol(T);
   if (dT == 1) return gerepileupto(av, nfrootsQ(simplify_shallow(A)));
 
-  A = Q_primpart(A);
   den = get_nfsqff_data(&nf, &T, &A, &B, NULL);
-  if (degpol(B) != d) B = Q_primpart( QXQX_normalize(B, T) );
-  ensure_lt_INT(B);
   if (RgX_is_ZX(B))
   {
     GEN v = gel(ZX_factor(B), 1);
@@ -601,9 +601,9 @@ nffactor(GEN nf,GEN pol)
     avma = (pari_sp)(rep + 3);
     return (dA == 0)? trivial_fact(): zerofact(varn(pol));
   }
-  A = Q_primpart( QXQX_normalize(A, T) );
   if (dA == 1) {
     GEN c;
+    A = Q_primpart( QXQX_normalize(A, T) );
     A = gerepilecopy(av, A); c = gel(A,2);
     if (typ(c) == t_POL && degpol(c) > 0) gel(A,2) = mkpolmod(c, ZX_copy(T));
     gel(rep,1) = mkcol(A);
@@ -613,8 +613,6 @@ nffactor(GEN nf,GEN pol)
 
   den = get_nfsqff_data(&nf, &T, &A, &B, &bad);
   if (DEBUGLEVEL>2) timer_printf(&ti, "squarefree test");
-  if (degpol(B) != dA) B = Q_primpart( QXQX_normalize(B, T) );
-  ensure_lt_INT(B);
   if (RgX_is_ZX(B))
   {
     GEN v = gel(ZX_factor(B), 1);
