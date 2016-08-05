@@ -73,6 +73,7 @@ void rectdraw0(long *w, long *x, long *y, long lw)
   char tmppath[MAX_PATH], fname[MAX_PATH];
   struct plot_eng plotWin32;
   HDC hEmf;
+  int bg_r,bg_g,bg_b;
 
   GetTempPath(sizeof(tmppath), tmppath);
   sprintf(fname, "%s\\gp-ploth-%lx.emf", tmppath, time(NULL)/(24*60*60)*1000+GetTickCount());
@@ -80,8 +81,9 @@ void rectdraw0(long *w, long *x, long *y, long lw)
   hEmf = CreateEnhMetaFile(GetDC(NULL), fname, NULL, NULL);
   SetMapMode(hEmf, MM_TEXT);
   SelectObject(hEmf, GetStockObject(DEFAULT_GUI_FONT));
-  SetBkColor(hEmf, RGB(255,255,255));
-  SetBkMode(hEmf, TRANSPARENT);
+  color_to_rgb(gel(GP_DATA->colormap,1), &bg_r, &bg_g, &bg_b);
+  SetBkColor(hEmf, RGB(bg_r,bg_g,bg_b));
+  SetBkMode(hEmf, OPAQUE);
 
   plotWin32.sc=&SetForeground;
   plotWin32.pt=&DrawPoint;
