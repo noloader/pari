@@ -3843,6 +3843,9 @@ the $n \times n$ identity matrix.
 and \kbd{y} (assumed to have compatible dimensions), assuming $pi$ is the
 pseudo inverse of $p$.
 
+\fun{GEN}{Flm_Flc_mul_pre_Flx}{GEN x, GEN y, ulong p, ulong pi, long sv}
+return \kbd{Flv\_to\_Flx(Flm\_Flc\_mul\_pre(x, y, p, pi), sv)}.
+
 \fun{GEN}{Flm_Fl_mul}{GEN x, ulong y, ulong p} multiplies the \kbd{Flm}
 \kbd{x} by \kbd{y}.
 
