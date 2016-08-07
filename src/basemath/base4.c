@@ -2427,22 +2427,18 @@ idealapprfact_i(GEN nf, GEN x, int nored)
 GEN
 idealapprfact(GEN nf, GEN x) {
   pari_sp av = avma;
-  if (typ(x) != t_MAT || lg(x) != 3)
-    pari_err_TYPE("idealapprfact [not a factorization]",x);
-  check_listpr(gel(x,1));
   return gerepileupto(av, idealapprfact_i(nf, x, 0));
 }
-
 GEN
 idealappr(GEN nf, GEN x) {
   pari_sp av = avma;
-  return gerepileupto(av, idealapprfact_i(nf, idealfactor(nf, x), 0));
+  if (!is_nf_extfactor(x)) x = idealfactor(nf, x);
+  return gerepileupto(av, idealapprfact_i(nf, x, 0));
 }
 
+/* OBSOLETE */
 GEN
-idealappr0(GEN nf, GEN x, long fl) {
-  return fl? idealapprfact(nf, x): idealappr(nf, x);
-}
+idealappr0(GEN nf, GEN x, long fl) { (void)fl; return idealappr(nf, x); }
 
 /* merge a^e b^f. Assume a and b sorted. Keep 0 exponents and *append* new
  * entries from b [ result not sorted ] */

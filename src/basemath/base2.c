@@ -2696,24 +2696,24 @@ GEN
 get_modpr(GEN x)
 { return ok_modpr(x)? x: NULL; }
 
-static int
-is_prid(GEN x)
+int
+checkprid_i(GEN x)
 {
   return (typ(x) == t_VEC && lg(x) == 6
           && typ(gel(x,2)) == t_COL && typ(gel(x,3)) == t_INT);
 }
 void
 checkprid(GEN x)
-{ if (!is_prid(x)) pari_err_TYPE("checkprid",x); }
+{ if (!checkprid_i(x)) pari_err_TYPE("checkprid",x); }
 GEN
 get_prid(GEN x)
 {
   long lx = lg(x);
   if (lx == 3 && typ(x) == t_VEC) x = gel(x,1);
-  if (is_prid(x)) return x;
+  if (checkprid_i(x)) return x;
   if (ok_modpr(x)) {
     x = modpr_get_pr(x);
-    if (is_prid(x)) return x;
+    if (checkprid_i(x)) return x;
   }
   return NULL;
 }

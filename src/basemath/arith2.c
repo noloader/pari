@@ -221,6 +221,27 @@ RgV_is_ZV0(GEN v)
 }
 
 static int
+RgV_is_prV(GEN v)
+{
+  long l = lg(v), i;
+  for (i = 1; i < l; i++)
+    if (!checkprid_i(gel(v,i))) return 0;
+  return 1;
+}
+int
+is_nf_factor(GEN F)
+{
+  return typ(F) == t_MAT && lg(F) == 3
+    && RgV_is_prV(gel(F,1)) && RgV_is_ZVpos(gel(F,2));
+}
+int
+is_nf_extfactor(GEN F)
+{
+  return typ(F) == t_MAT && lg(F) == 3
+    && RgV_is_prV(gel(F,1)) && RgV_is_ZV(gel(F,2));
+}
+
+static int
 is_Z_factor_i(GEN f)
 { return typ(f) == t_MAT && lg(f) == 3 && RgV_is_ZVpos(gel(f,2)); }
 int

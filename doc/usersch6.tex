@@ -88,6 +88,15 @@ degree.
 \fun{void}{checkprid}{GEN pr} Raise an exception if the argument is not a
 prime ideal structure.
 
+\fun{int}{checkprid_i}{GEN pr} same as \kbd{checkprid} but return $0$
+instead of raising an exception and return $1$ on success.
+
+\fun{int}{is_nf_factor}{GEN F} return $1$ if $F$ is an ideal factorization
+and $0$ otherwise.
+
+\fun{int}{is_nf_extfactor}{GEN F} return $1$ if $F$ is an extended ideal
+factorization (allowing $0$ or negative exponents) and $0$ otherwise.
+
 \fun{GEN}{get_prid}{GEN ideal} return the underlying prime ideal structure
 if one can be extracted from \kbd{ideal} (ideal or extended ideal), and
 return \kbd{NULL} otherwise.
@@ -811,15 +820,8 @@ the HNF reduction (with $Gl_{nN}(\Z)$ base change) of an $N\times nN$ matrix;
 so it is well worth pruning "useless" ideals from the list (as long as the
 ideals remain globally coprime).
 
-\fun{GEN}{idealappr}{GEN nf, GEN x} given a fractional ideal $x$, returns
-an algebraic number $\alpha$ such that $v(x) = v(\alpha)$ for all valuations
-such that $v(x) > 0$, and $v(\alpha) \geq 0$ at all others.
-
-\fun{GEN}{idealapprfact}{GEN nf, GEN fx} same as \tet{idealappr}, $x$ being
-given in factored form, as after \kbd{fx = idealfactor(nf,x)}, except that we
-allow $0$ exponents in the factorization. Returns an algebraic number
-$\alpha$ such that $v(x) = v(\alpha)$ for all valuations attached to the
-prime ideal decomposition of $x$, and $v(\alpha) \geq 0$ at all others.
+\fun{GEN}{idealapprfact}{GEN nf, GEN fx} as \tet{idealappr}, except that
+$x$ \emph{must} be given in factored form. (This is unchecked.)
 
 \fun{GEN}{idealcoprime}{GEN nf, GEN x, GEN y}. Given 2 integral ideals $x$ and
 $y$, returns an algebraic number $\alpha$ such that

@@ -70,6 +70,7 @@ This file lists the incompatible changes between Version 2.x and older versions
     precision([O(2),O(3),O(x)], 10) -> [O(2^10),O(3^10),O(x^10)].
     Now in order to truncate a p-adic or series, you have to multiply by
     1 + O(t^n); in order to extend it, use truncate.
+  - remove useless flag in idealappr: directly allow factorization
 
 * Specific to the PARI library:
 ===============================
@@ -107,6 +108,7 @@ This file lists the incompatible changes between Version 2.x and older versions
     -> absequalii, absi_factor -> absZ_factor, absi_factor_limit
     -> absZ_factor_limit, equaliu -> absequaliu, equalui -> absequalui,
     cmpiu -> abscmpiu, cmpui -> abscmpui
+  - [libpari] idealappr0 is obsolete: use idealappr
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%% VERSION 2.6 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   - eval() no longer evaluates its arguments in "permissive" mode: eval("1a")
