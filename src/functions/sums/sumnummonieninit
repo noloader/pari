@@ -14,7 +14,7 @@ Doc: initialize tables for Monien summation of a series $\sum_{n\geq n_0}
  allows to specify different expansions:
 
  \item a real number $\alpha > 1$ means
-  $$f(n) = \sum_{i\geq 1} a_i / n^\alpha$$
+  $$f(n) = \sum_{i\geq 1} a_i / n^{\alpha i}$$
  (Now the summation starts at $1$.)
 
  \item a vector $[\alpha,\beta]$ of reals, where we must have $\alpha > 0$
