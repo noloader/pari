@@ -945,57 +945,75 @@ stirling(long n, long m, long flag)
 /**                          PERMUTATIONS                             **/
 /***********************************************************************/
 GEN
-numtoperm(long n, GEN x)
+Z_to_perm(long n, GEN x)
 {
   pari_sp av;
   ulong i, r;
-  GEN v;
-
-  if (n < 0) pari_err_DOMAIN("numtoperm", "n", "<", gen_0, stoi(n));
-  if (typ(x) != t_INT) pari_err_TYPE("numtoperm",x);
-  v = cgetg(n+1, t_VEC); if (n==0) return v;
+  GEN v = cgetg(n+1, t_VECSMALL);
+  if (n==0) return v;
   uel(v,n) = 1; av = avma;
   if (signe(x) <= 0) x = modii(x, mpfact(n));
   for (r=n-1; r>=1; r--)
   {
     ulong a;
-    x = diviu_rem(x, n+1-r,&a);
+    x = diviu_rem(x, n+1-r, &a);
     for (i=r+1; i<=(ulong)n; i++)
       if (uel(v,i) > a) uel(v,i)++;
     uel(v,r) = a+1;
-    if (gc_needed(av,2))
-      x = gerepileuptoint(av, x);
   }
-  avma = av;
-  for (i=1; i<=(ulong)n; i++) gel(v,i) = utoipos(uel(v,i));
+  avma = av; return v;
+}
+GEN
+numtoperm(long n, GEN x)
+{
+  long i;
+  GEN v;
+
+  if (n < 0) pari_err_DOMAIN("numtoperm", "n", "<", gen_0, stoi(n));
+  if (typ(x) != t_INT) pari_err_TYPE("numtoperm",x);
+  v = Z_to_perm(n, x); settyp(v, t_VEC);
+  for (i = 1; i <= n; i++) gel(v,i) = utoipos(uel(v,i));
   return v;
 }
 
+/* destroys v */
+static GEN
+perm_to_Z_inplace(GEN v)
+{
+  long l = lg(v), i, r;
+  GEN x = gen_0;
+  for (i = 1; i < l; i++)
+  {
+    long vi = v[i];
+    if (vi <= 0) return NULL;
+    x = i==1 ? utoi(vi-1): addiu(muliu(x,l-i), vi-1);
+    for (r = i+1; r < l; r++)
+      if (v[r] > vi) v[r]--;
+  }
+  return x;
+}
+GEN
+perm_to_Z(GEN v)
+{
+  pari_sp av = avma;
+  GEN x = perm_to_Z_inplace(leafcopy(v));
+  if (!x) pari_err_TYPE("permtonum",v);
+  return gerepileuptoint(av, x);
+}
 GEN
 permtonum(GEN p)
 {
-  long n = lg(p)-1, i, r;
-  pari_sp av = avma, av2;
+  pari_sp av = avma;
   GEN v, x;
-
-  if (!is_vec_t(typ(p))) pari_err_TYPE("permtonum",p);
-  v = cgetg(n+1,t_VECSMALL);
-  for (i=1; i<=n; i++)
+  switch(typ(p))
   {
-    GEN pi = gel(p, i);
-    if (typ(pi) != t_INT) pari_err_TYPE("permtonum",pi);
-    v[i] = itos(pi);
+    case t_VECSMALL: return perm_to_Z(p);
+    case t_VEC: case t_COL:
+      if (RgV_is_ZV(p)) { v = ZV_to_zv(p); break; }
+    default: pari_err_TYPE("permtonum",p); v = NULL;
   }
-  x = gen_0; av2 = avma;
-  for (i=1; i<=n; i++)
-  {
-    long vi = v[i];
-    x = i==1 ? stoi(v[1]-1): addiu(mulis(x,n+1-i),vi-1);
-    for (r=i+1; r<=n; r++)
-      if (v[r]>vi) v[r]--;
-    if (gc_needed(av,2))
-      x = gerepileuptoint(av2, x);
-  }
+  x = perm_to_Z_inplace(v);
+  if (!x) pari_err_TYPE("permtonum",p);
   return gerepileuptoint(av, x);
 }
 

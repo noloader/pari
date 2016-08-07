@@ -2,7 +2,12 @@
 Bug numbers refer to the BTS at http://pari.math.u-bordeaux.fr/Bugs/
 
 Done for version 2.8.1 (released ??/??/2016):
+  Fixed
     1- nfroots(non-monic t_POL) => wrong result [#1841]
+
+  Added
+    1- permtonum: allow t_VECSMALL input
+    2- [libpari] Z_to_perm, perm_to_Z
 
 Done for version 2.8.0 (released 12/08/2016):
 
