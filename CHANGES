@@ -9,6 +9,7 @@ Done for version 2.8.1 (released ??/??/2016):
     1- permtonum: allow t_VECSMALL input
     2- [libpari] Z_to_perm, perm_to_Z
     3- [libpari] checkprid_i, is_nf_factor, is_nf_extfactor
+    4- extend ellissupersingular for E/nf
 
   Changed
     1- remove useless flag in idealappr: directly allow factorization

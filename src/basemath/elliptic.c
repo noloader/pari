@@ -6584,25 +6584,41 @@ elljissupersingular(GEN x)
 int
 ellissupersingular(GEN E, GEN p)
 {
-  if (typ(E)!=t_VEC && !p)
-    return elljissupersingular(E);
+  pari_sp av;
+  GEN j;
+  int res;
+  if (typ(E)!=t_VEC && !p) return elljissupersingular(E);
+  j = ell_get_j(E);
   p = checkellp(E, p, "ellissupersingular");
   switch(ell_get_type(E))
   {
   case t_ELL_Fp:
   case t_ELL_Fq:
-      return elljissupersingular(ell_get_j(E));
-    break;
+    return elljissupersingular(j);
   case t_ELL_Q:
+    if (typ(j)==t_FRAC && dvdii(gel(j,2), p)) return 0;
+    av = avma;
+    res = Fp_elljissupersingular(Rg_to_Fp(j, p), p);
+    avma = av; return res;
+  case t_ELL_NF:
     {
-      pari_sp av = avma;
-      GEN j = ell_get_j(E);
-      int res;
-      if (typ(j)==t_FRAC && dvdii(gel(j,2), p)) return 0;
-      res = Fp_elljissupersingular(Rg_to_Fp(j, p), p);
+      GEN modP, T, nf = ellnf_get_nf(E), pr = p;
+      av = avma;
+      j = nf_to_scalar_or_basis(nf, j);
+      if (dvdii(Q_denom(j), pr_get_p(pr)))
+      {
+        if (typ(j) == t_FRAC || nfval(nf, j, pr) < 0) return 0;
+        modP = nf_to_Fq_init(nf,&pr,&T,&p);
+      }
+      else
+        modP = zk_to_Fq_init(nf,&pr,&T,&p);
+      j = nf_to_Fq(nf, j, modP);
+      if (typ(j) == t_INT)
+        res = Fp_elljissupersingular(j, p);
+      else
+        res = FpXQ_elljissupersingular(j, T, p);
       avma = av; return res;
     }
-    break;
   default:
     pari_err_TYPE("ellissupersingular",E);
   }
