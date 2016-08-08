@@ -36,14 +36,14 @@ Doc: let $\var{nf}$ be a
  automorphism must be used in many such calls.
  \bprog
   ? nf = nfinit(x^3 - 37*x^2 + 74*x - 37);
-  ? l = nfgaloisconj(nf); aut = l[2] \\ @com automorphisms in basistoalg form
+  ? aut = nfgaloisconj(nf)[2]; \\ @com an automorphism in basistoalg form
   %2 = -31/11*x^2 + 1109/11*x - 925/11
-  ? L = matalgtobasis(nf, l); AUT = L[2] \\ @com same in algtobasis form
+  ? AUT = nfalgtobasis(nf, aut); \\ @com same in algtobasis form
   %3 = [16, -6, 5]~
   ? v = [1, 2, 3]~; nfgaloisapply(nf, aut, v) == nfgaloisapply(nf, AUT, v)
   %4 = 1 \\ @com same result...
   ? for (i=1,10^5, nfgaloisapply(nf, aut, v))
-  time = 1,451 ms.
+  time = 463 ms.
   ? for (i=1,10^5, nfgaloisapply(nf, AUT, v))
-  time = 1,045 ms.  \\ @com but the latter is faster
+  time = 343 ms.  \\ @com but the latter is faster
  @eprog
