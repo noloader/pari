@@ -3197,10 +3197,8 @@ A function with that name existed in GP-1.39.15. Please update your script.
 New syntax: primedec(nf,p) ===> idealprimedec(nf,p)
 
 idealprimedec(nf,p,{f=0}): prime ideal decomposition of the prime number p in 
-the number field nf as a vector of 5 component vectors [p,a,e,f,b] representing 
-the prime ideals pZ_K+a. Z_K, e,f as usual, a as vector of components on the 
-integral basis, b Lenstra's constant. If f is present and non-zero, restrict 
-the result to primes of residue degree <= f.
+the number field nf as a vector of prime ideals. If f is present and non-zero, 
+restrict the result to primes of residue degree <= f.
 
 
   ***   at top-level: primroot()
