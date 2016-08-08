@@ -775,6 +775,10 @@ is a \typ{CLOSURE} selecting from $A$. Use \kbd{genselect} or a standard C loop.
 \fun{GEN}{vecapply}{void *E, GEN (*f)(void* E, GEN x), GEN x} implements
 \kbd{[a(x)|x<-b]}.
 
+\fun{GEN}{veccatapply}{void *E, GEN (*f)(void* E, GEN x), GEN x} implements
+\kbd{concat([a(x)|x<-b])} which used to implement \kbd{[a0(x,y)|x<-b;y<-c(b)]}
+which is equal to \kbd{concat([[a0(x,y)|y<-c(b)]|x<-b])}.
+
 \fun{GEN}{vecselect}{void *E, long (*f)(void* E, GEN x), GEN A}
 implements \kbd{[x<-b,c(x)]}.
 
