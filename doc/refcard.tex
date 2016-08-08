@@ -35,6 +35,7 @@ To exit \kbd{gp}, type \kbd{quit}, \kbd{\\q}, or \kbd{<C-D>} at prompt.\hfill
 \li{describe function}{?{\it function}}
 \li{extended description}{??{\it keyword}}
 \li{list of relevant help topics}{???{\it pattern}}
+\li{name of GP-1.39 function $f$ in GP-2.*}{whatnow$(f)$}
 
 \section{Input/Output}
 \li{previous result, the result before}
@@ -199,6 +200,7 @@ $z,t$ are local variables (lexical scope), $z$ initialized to 1.
  {\tt fun(x, y=Pi) = my(z=1, t); \var{seq}\hfil\break}
  {\tt fun = (x, y=Pi) -> my(z=1, t); \var{seq}\hfill\break}
 \li{attach a help message to $f$}{addhelp$(f)$}
+\li{undefine symbol $s$ (also kills help)}{kill$(s)$}
 \subsec{Control Statements {\rm ($X$: formal parameter in expression \seq)}}
 \li{if $a\ne0$, evaluate $\seq_1$, else $\seq_2$}{if$(a,\{\seq_1\},\{\seq_2\})$}
 \smallskip
@@ -270,7 +272,6 @@ $z,t$ are local variables (lexical scope), $z$ initialized to 1.
 \li{execute system command $a$}{system$(a)$}
 \li{as above, feed result to GP}{extern$(a)$}
 \li{as above, return GP string}{externstr$(a)$}
-%\li{new name of function $f$ in GP 2.0}{whatnow$(f)$}
 \li{get \kbd{\$VAR} from environment}{getenv$($\kbd{"VAR"}$)$}
 \li{expand env. variable in string}{Strexpand$(x)$}
 
@@ -329,7 +330,7 @@ header.\hfil\break
 \li{$n\times n$ identity matrix}{matid$(n)$}
 \li{Hessenberg form of square matrix $x$}{mathess$(x)$}
 \li{$n\times n$ Hilbert matrix $H_{ij}=(i+j-1)^{-1}$}{mathilbert$(n)$}
-%\li{$n\times n$ Pascal triangle}{matpascal$(n-1)$}
+\li{$n\times n$ Pascal triangle}{matpascal$(n-1)$}
 \li{companion matrix to polynomial $x$}{matcompanion$(x)$}
 \li{Sylvester matrix of $x$}{polsylvestermatrix$(x)$}
 

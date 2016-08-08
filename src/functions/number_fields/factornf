@@ -2,9 +2,10 @@ Function: factornf
 Section: number_fields
 C-Name: polfnf
 Prototype: GG
-Help: factornf(x,t): factorization of the polynomial x over the number field
- defined by the polynomial t.
-Doc: factorization of the univariate polynomial $x$
+Help: factornf(x,t): This function is obsolete, use nffactor
+Doc: This function is obsolete, use \kbd{nffactor}.
+
+ factorization of the univariate polynomial $x$
  over the number field defined by the (univariate) polynomial $t$. $x$ may
  have coefficients in $\Q$ or in the number field. The algorithm reduces to
  factorization over $\Q$ (\idx{Trager}'s trick). The direct approach of
