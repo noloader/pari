@@ -3979,24 +3979,29 @@ qfeval(GEN q, GEN x)
   }
   return gerepileupto(av,z);
 }
-GEN
-qfnorm(GEN x, GEN q)
+/* obsolete, use qfeval0 */
+static GEN
+qfnorm0(GEN q, GEN x)
 {
   if (!q) switch(typ(x))
   {
     case t_VEC: case t_COL: return RgV_dotsquare(x);
     case t_MAT: return gram_matrix(x);
-    default: pari_err_TYPE("qfnorm",x);
+    default: pari_err_TYPE("qfeval",x);
   }
-  if (typ(q) != t_MAT) pari_err_TYPE("qfnorm",q);
+  if (typ(q) != t_MAT) pari_err_TYPE("qfeval",q);
   switch(typ(x))
   {
     case t_VEC: case t_COL: break;
     case t_MAT: return qf_apply_RgM(q, x);
-    default: pari_err_TYPE("qfnorm",x);
+    default: pari_err_TYPE("qfeval",x);
   }
   return qfeval(q,x);
 }
+/* obsolete, use qfeval0 */
+GEN
+qfnorm(GEN x, GEN q) { return qfnorm0(q,x); }
+
 /* assume q is a real symetric matrix, q(x,y) using n^2+n mul */
 GEN
 qfevalb(GEN q, GEN x, GEN y)
@@ -4006,6 +4011,8 @@ qfevalb(GEN q, GEN x, GEN y)
   if (lg(x) != l || lg(y) != l) pari_err_DIM("qfevalb");
   return gerepileupto(av, RgV_dotproduct(RgV_RgM_mul(x,q), y));
 }
+
+/* obsolete, use qfeval0 */
 GEN
 qfbil(GEN x, GEN y, GEN q)
 {
@@ -4016,6 +4023,19 @@ qfbil(GEN x, GEN y, GEN q)
     return RgV_dotproduct(x,y);
   }
   if (typ(q) != t_MAT) pari_err_TYPE("qfbil",q);
+  return qfevalb(q,x,y);
+}
+GEN
+qfeval0(GEN q, GEN x, GEN y)
+{
+  if (!y) return qfnorm0(q, x);
+  if (!is_vec_t(typ(x))) pari_err_TYPE("qfeval",x);
+  if (!is_vec_t(typ(y))) pari_err_TYPE("qfeval",y);
+  if (!q) {
+    if (lg(x) != lg(y)) pari_err_DIM("qfeval");
+    return RgV_dotproduct(x,y);
+  }
+  if (typ(q) != t_MAT) pari_err_TYPE("qfeval",q);
   return qfevalb(q,x,y);
 }
 

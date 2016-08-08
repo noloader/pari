@@ -45,28 +45,28 @@ Vecsmall([0, 0, 0, 133, 165, 638, 396, 4268])
 
 [99 153 207]
 
-  ***   at top-level: qfnorm(1)
-  ***                 ^---------
-  *** qfnorm: incorrect type in qfnorm (t_INT).
-  ***   at top-level: qfnorm(1,1)
-  ***                 ^-----------
-  *** qfnorm: incorrect type in qfnorm (t_INT).
-  ***   at top-level: qfnorm(x,Mat(1))
-  ***                 ^----------------
-  *** qfnorm: inconsistent dimensions in qfeval.
-  ***   at top-level: qfnorm(x,Mat(x~))
-  ***                 ^-----------------
-  *** qfnorm: inconsistent dimensions in qfeval.
-  ***   at top-level: qfbil(1,1)
+  ***   at top-level: qfeval(,1)
   ***                 ^----------
-  *** qfbil: incorrect type in qfbil (t_INT).
-  ***   at top-level: qfbil([1],[1,2])
+  *** qfeval: incorrect type in qfeval (t_INT).
+  ***   at top-level: qfeval(,1,1)
+  ***                 ^------------
+  *** qfeval: incorrect type in qfeval (t_INT).
+  ***   at top-level: qfeval(Mat(1),x)
   ***                 ^----------------
-  *** qfbil: inconsistent dimensions in qfbil.
-  ***   at top-level: qfbil([1,2],[1,2],q)
+  *** qfeval: inconsistent dimensions in qfeval.
+  ***   at top-level: qfeval(Mat(x~),x)
+  ***                 ^-----------------
+  *** qfeval: inconsistent dimensions in qfeval.
+  ***   at top-level: qfeval(,1,1)
+  ***                 ^------------
+  *** qfeval: incorrect type in qfeval (t_INT).
+  ***   at top-level: qfeval(,[1],[1,2])
+  ***                 ^------------------
+  *** qfeval: inconsistent dimensions in qfeval.
+  ***   at top-level: qfeval(q,[1,2],[1,2]
   ***                 ^--------------------
-  *** qfbil: inconsistent dimensions in qfevalb.
-  ***   at top-level: qfbil([1,2],[1,2],Ma
+  *** qfeval: inconsistent dimensions in qfevalb.
+  ***   at top-level: qfeval(Mat([1,2]),[1
   ***                 ^--------------------
-  *** qfbil: inconsistent operation 'RgV_RgM_mul' t_VEC (2 elts) , t_MAT (1x2).
-Total time spent: 12
+  *** qfeval: inconsistent operation 'RgV_RgM_mul' t_VEC (2 elts) , t_MAT (1x2).
+Total time spent: 14

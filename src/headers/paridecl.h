@@ -3142,6 +3142,7 @@ GEN     qf_apply_RgM(GEN q, GEN M);
 GEN     qf_apply_ZM(GEN q, GEN M);
 GEN     qfbil(GEN x, GEN y, GEN q);
 GEN     qfeval(GEN q, GEN x);
+GEN     qfeval0(GEN q, GEN x, GEN y);
 GEN     qfevalb(GEN q, GEN x, GEN y);
 GEN     qfnorm(GEN x, GEN q);
 GEN     real_i(GEN x);

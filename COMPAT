@@ -20,7 +20,6 @@ This file lists the incompatible changes between Version 2.x and older versions
   - polsturm interface change
      * polsturm(T, a, b) is still supported but deprecated, use
        polsturm(T, [a,b])
-
      * polsturm(T, a, b) used to return the number of roots in ]a,b],
        we now use the closed interval [a,b]: more intuitive given the new
        syntax, and compatible with polrootsreal()
@@ -71,6 +70,10 @@ This file lists the incompatible changes between Version 2.x and older versions
     Now in order to truncate a p-adic or series, you have to multiply by
     1 + O(t^n); in order to extend it, use truncate.
   - remove useless flag in idealappr: directly allow factorization
+  - replace qfbil(x,y,{q}) by qfeval({q},x,y) and qfnorm(x,{q}) by
+    qfeval({q},x): it makes more sense to have q first, and a single
+    function for qf+polar form (as in all other qf-like routines:
+    ellheight, etc.)
 
 * Specific to the PARI library:
 ===============================
@@ -109,6 +112,7 @@ This file lists the incompatible changes between Version 2.x and older versions
     -> absZ_factor_limit, equaliu -> absequaliu, equalui -> absequalui,
     cmpiu -> abscmpiu, cmpui -> abscmpui
   - [libpari] idealappr0 is obsolete: use idealappr
+  - [libpari] qfbil, qfnorm are obsolete: use qfeval0, qfeval or qfevalb
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%% VERSION 2.6 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   - eval() no longer evaluates its arguments in "permissive" mode: eval("1a")

@@ -14,6 +14,10 @@ Done for version 2.8.1 (released ??/??/2016):
   Changed
     1- remove useless flag in idealappr: directly allow factorization
     2- [libpari] idealappr0 is now obsolete: use idealappr
+    3- replace qfbil(x,y,{q}) by qfeval({q},x,y) and qfnorm(x,{q}) by
+       qfeval({q},x): it makes more sense to have q first, and a single
+       function for qf+polar form (as in all other qf-like routines:
+       ellheight, etc.)
 
 Done for version 2.8.0 (released 12/08/2016):
 
