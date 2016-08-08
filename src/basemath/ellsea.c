@@ -91,7 +91,7 @@ struct meqn {
 };
 
 static int
-get_modular_eqn(struct meqn *M, ulong ell, long vx, long vy)
+get_modular_eqn(struct meqn *M, ulong ell, long vx, long vy, int compute)
 {
   GEN eqn;
   long idx = uprimepi(ell)-1;
@@ -106,9 +106,10 @@ get_modular_eqn(struct meqn *M, ulong ell, long vx, long vy)
   M->eval = gen_0;
   if (!eqn)
   {
+    if (!compute) return 0;
     M->type = 'J';
     M->eq = polmodular_ZXX(ell, ell==3? 0: 5, vx, vy);
-    return 0;
+    return 1;
   }
   else
   {
@@ -134,7 +135,7 @@ ellmodulareqn(long ell, long vx, long vy)
   if (ell < 0 || !uisprime(ell))
     pari_err_PRIME("ellmodulareqn (level)", stoi(ell));
 
-  if (!get_modular_eqn(&meqn, ell, vx, vy))
+  if (!get_modular_eqn(&meqn, ell, vx, vy, 0))
     err_modular_eqn(ell);
   return gerepilecopy(av,mkvec2(meqn.eq, stoi(meqn.type=='A')));
 }
@@ -1353,7 +1354,7 @@ find_trace(GEN a4, GEN a6, GEN j, ulong ell, GEN q, GEN T, GEN p, long *ptr_kt,
   kt = maxss((long)(log(expi(q)*LOG2)/log((double)ell)), 1);
   if (DEBUGLEVEL)
   { err_printf("SEA: Prime %5ld ", ell); timer_start(&ti); }
-  (void) get_modular_eqn(&MEQN, ell, vx, vy);
+  (void) get_modular_eqn(&MEQN, ell, vx, vy, 1);
   meqnj = meqn_j(&MEQN, j, ell, T, p);
   g = study_modular_eqn(ell, meqnj, T, p, &mt, &r);
   /* If l is an Elkies prime, search for a factor of the l-division polynomial.
