@@ -6,9 +6,7 @@ Description:
  (gen, gen):vec idealprimedec($1, $2)
  (gen, gen, ?small):vec idealprimedec_limit_f($1, $2, $3)
 Help: idealprimedec(nf,p,{f=0}): prime ideal decomposition of the prime number
- p in the number field nf as a vector of 5 component vectors [p,a,e,f,b]
- representing the prime ideals pZ_K+a. Z_K, e,f as usual, a as vector of
- components on the integral basis, b Lenstra's constant. If f is present
+ p in the number field nf as a vector of prime ideals. If f is present
  and non-zero, restrict the result to primes of residue degree <= f.
 Doc: computes the prime ideal
  decomposition of the (positive) prime number $p$ in the number field $K$
