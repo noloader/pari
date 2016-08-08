@@ -338,10 +338,10 @@ $A$ is a general associative algebra given by a mult. table \var{mt}
 \li{simple factors of semi-simple $A$}{algsimpledec$(\var{al})$}
 
 \subsec{Operations on algebras}
-\li{create $A/I$, $I$ double-sided ideal}{algquotient$(\var{al},I,\{\fl=0\})$}
+\li{create $A/I$, $I$ two-sided ideal}{algquotient$(\var{al},I,\{\fl=0\})$}
 \li{create $A_1\otimes A_2$}{algtensor$(\var{al1}, \var{al2})$}
 \li{create subalgebra from basis $B$}{algsubalg$(\var{al}, B)$}
-\li{subalgebras from orth. central idempotents $e$}
+\li{\dots from orthogonal central idempotents $e$}
    {algcentralproj$(\var{al}, e)$}
 \li{prime subalgebra of semi-simple $A$ over $\FF_p$}
    {algprimesubalg$(\var{al})$}
@@ -388,8 +388,11 @@ $A$ is a central simple algebra over a number field $K$; represented by
 \li{dimension of \var{al} over its center}{algdim$(\var{al})$}
 \li{degree of $A$ ($=\sqrt{\dim}$)}{algdegree$(\var{al})$}
 \li{index of $A$ over $K$ (index at $v$)}{algindex$(\var{al},\{v\})$}
-\li{\var{al}= $(L/K,\sigma,b)$ cyclic; return $\sigma$}{algaut$(\var{al})$}
-\li{\var{al}= $(L/K,\sigma,b)$ cyclic; return $b$}{algb$(\var{al})$}
+\li{\var{al} a cyclic algebra $(L/K,\sigma,b)$; return $\sigma$}
+   {algaut$(\var{al})$}
+\li{\dots return $b$}{algb$(\var{al})$}
+\li{\dots return $L/K$, as an \var{rnf}}
+   {algsplittingfield$(\var{al})$}
 \li{split $A$ over an extension of $K$}{algsplittingdata$(\var{al})$}
 \li{splitting field of $A$ as an \var{rnf} over center}
    {algsplittingfield$(\var{al})$}
