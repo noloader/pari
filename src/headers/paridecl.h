@@ -3140,6 +3140,7 @@ long    precision(GEN x);
 GEN     precision0(GEN x,long n);
 GEN     qf_apply_RgM(GEN q, GEN M);
 GEN     qf_apply_ZM(GEN q, GEN M);
+GEN     qfb_apply_ZM(GEN q, GEN M);
 GEN     qfbil(GEN x, GEN y, GEN q);
 GEN     qfeval(GEN q, GEN x);
 GEN     qfeval0(GEN q, GEN x, GEN y);

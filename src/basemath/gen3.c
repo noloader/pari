@@ -3979,7 +3979,34 @@ qfeval(GEN q, GEN x)
   }
   return gerepileupto(av,z);
 }
-/* obsolete, use qfeval0 */
+
+static GEN
+qfbeval(GEN q, GEN z)
+{
+  GEN A, a = gel(q,1), b = gel(q,2), c = gel(q,3), x = gel(z,1), y = gel(z,2);
+  pari_sp av = avma;
+  A = gadd(gmul(x, gadd(gmul(a,x), gmul(b,y))), gmul(c, gsqr(y)));
+  return gerepileupto(av, A);
+}
+GEN
+qfb_apply_ZM(GEN q, GEN M)
+{
+  pari_sp av = avma;
+  GEN A, B, C, a = gel(q,1), b = gel(q,2), c = gel(q,3);
+  GEN x = gcoeff(M,1,1), y = gcoeff(M,2,1);
+  GEN z = gcoeff(M,1,2), t = gcoeff(M,2,2);
+  GEN by = mulii(b,y), bt = mulii(b,t), bz  = mulii(b,z);
+  GEN a2 = shifti(a,1), c2 = shifti(c,1);
+
+  A = addii(mulii(x, addii(mulii(a,x), by)), mulii(c, sqri(y)));
+  B = addii(mulii(x, addii(mulii(a2,z), bt)),
+            mulii(y, addii(mulii(c2,t), bz)));
+  C = addii(mulii(z, addii(mulii(a,z), bt)), mulii(c, sqri(t)));
+  q = leafcopy(q);
+  gel(q,1) = A; gel(q,2) = B; gel(q,3) = C;
+  return gerepilecopy(av, q);
+}
+
 static GEN
 qfnorm0(GEN q, GEN x)
 {
@@ -3989,7 +4016,18 @@ qfnorm0(GEN q, GEN x)
     case t_MAT: return gram_matrix(x);
     default: pari_err_TYPE("qfeval",x);
   }
-  if (typ(q) != t_MAT) pari_err_TYPE("qfeval",q);
+  switch(typ(q))
+  {
+    case t_MAT: break;
+    case t_QFI: case t_QFR:
+      if (lg(x) == 3) switch(typ(x))
+      {
+        case t_VEC:
+        case t_COL: return qfbeval(q,x);
+        case t_MAT: if (RgM_is_ZM(x)) return qfb_apply_ZM(q,x);
+      }
+    default: pari_err_TYPE("qfeval",q);
+  }
   switch(typ(x))
   {
     case t_VEC: case t_COL: break;
@@ -4035,7 +4073,7 @@ qfeval0(GEN q, GEN x, GEN y)
     if (lg(x) != lg(y)) pari_err_DIM("qfeval");
     return RgV_dotproduct(x,y);
   }
-  if (typ(q) != t_MAT) pari_err_TYPE("qfeval",q);
+  else if (!typ(q) == t_MAT) pari_err_TYPE("qfeval",q);
   return qfevalb(q,x,y);
 }
 
