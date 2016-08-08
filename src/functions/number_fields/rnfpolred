@@ -2,6 +2,7 @@ Function: rnfpolred
 Section: number_fields
 C-Name: rnfpolred
 Prototype: GGp
+Obsolete: 2013-12-28
 Help: rnfpolred(nf,pol): given a pol with coefficients in nf, finds a list
  of relative polynomials defining some subfields, hopefully simpler.
 Doc:  THIS FUNCTION IS OBSOLETE: use \tet{rnfpolredbest} instead.

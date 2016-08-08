@@ -2,6 +2,7 @@ Function: rnfpolredabs
 Section: number_fields
 C-Name: rnfpolredabs
 Prototype: GGD0,L,
+Obsolete: 2013-12-28
 Help: rnfpolredabs(nf,pol,{flag=0}): given a pol with coefficients in nf,
  finds a relative simpler polynomial defining the same field. Binary digits
  of flag mean: 1: return also the element whose characteristic polynomial is

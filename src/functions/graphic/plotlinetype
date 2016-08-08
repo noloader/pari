@@ -3,6 +3,7 @@ Class: highlevel
 Section: graphic
 C-Name: rectlinetype
 Prototype: vLL
+Obsolete: 2007-05-11
 Help: plotlinetype(w,type): this function is obsolete
 Doc: This function is obsolete and currently a no-op.
 
