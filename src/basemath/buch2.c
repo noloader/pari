@@ -100,7 +100,7 @@ typedef struct RELCACHE_t {
   REL_t *last; /* last rel found so far */
   REL_t *end; /* target for last relation. base <= last <= end */
   size_t len; /* number of rels pre-allocated in base */
-  long relsup; /* how many linearly dependent relations to we allow */
+  long relsup; /* how many linearly dependent relations we allow */
   GEN basis; /* mod p basis (generating family actually) */
   ulong missing; /* missing vectors in generating family above */
 } RELCACHE_t;
