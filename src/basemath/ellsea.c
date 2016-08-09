@@ -50,23 +50,21 @@ seadata_filename(ulong ell)
 static GEN
 get_seadata(ulong ell)
 {
-  pari_sp av=avma;
+  pari_sp av = avma;
   GEN eqn;
   char *s = seadata_filename(ell);
   pariFILE *F = pari_fopengz(s);
   if (!F) return NULL;
-  if (ell==0)
-  {
-    eqn = gp_readvec_stream(F->file);
-    pari_fclose(F);
-    modular_eqn = gclone(eqn);
-    avma=av;
-    return gen_0;
-  } else {
+  if (ell) /* large single polynomial */
     eqn = gp_read_stream(F->file);
-    pari_fclose(F);
-    return eqn;
+  else
+  { /* table of polynomials of small level */
+    eqn = gp_readvec_stream(F->file);
+    modular_eqn = eqn = gclone(eqn);
+    avma = av;
   }
+  pari_fclose(F);
+  return eqn;
 }
 
 /*Builds the modular equation corresponding to the vector list. Shallow */
@@ -90,54 +88,57 @@ struct meqn {
   long vx,vy;
 };
 
-static int
-get_modular_eqn(struct meqn *M, ulong ell, long vx, long vy, int compute)
+static GEN
+seadata_cache(ulong ell)
 {
-  GEN eqn;
-  long idx = uprimepi(ell)-1;
+  long n = uprimepi(ell)-1;
+  GEN C;
   if (!modular_eqn && !get_seadata(0))
-    eqn = NULL;
-  else if (idx && idx<lg(modular_eqn))
-    eqn = gel(modular_eqn, idx);
+    C = NULL;
+  else if (n && n < lg(modular_eqn))
+    C = gel(modular_eqn, n);
   else
-    eqn = get_seadata(ell);
+    C = get_seadata(ell);
+  return C;
+}
+/* C = [prime level, type "A" or "C", pol. coeffs] */
+static void
+seadata_parse(struct meqn *M, GEN C, long vx, long vy)
+{
+  M->type = *GSTR(gel(C,2));
+  M->eq = list_to_pol(gel(C,3), vx, vy);
+}
+static void
+get_modular_eqn(struct meqn *M, ulong ell, long vx, long vy)
+{
+  GEN C = seadata_cache(ell);
   M->vx = vx;
   M->vy = vy;
   M->eval = gen_0;
-  if (!eqn)
-  {
-    if (!compute) return 0;
-    M->type = 'J';
-    M->eq = polmodular_ZXX(ell, ell==3? 0: 5, vx, vy);
-    return 1;
-  }
+  if (C) seadata_parse(M, C, vx, vy);
   else
   {
-    M->type = *GSTR(gel(eqn, 2));
-    M->eq = list_to_pol(gel(eqn, 3), vx, vy);
-    return 1;
+    M->type = 'J'; /* j^(1/3) for ell != 3, j for 3 */
+    M->eq = polmodular_ZXX(ell, ell==3? 0: 5, vx, vy);
   }
 }
-
-static void
-err_modular_eqn(long ell)
-{ pari_err_FILE("seadata file", seadata_filename(ell)); }
 
 GEN
 ellmodulareqn(long ell, long vx, long vy)
 {
   pari_sp av = avma;
   struct meqn meqn;
-  if (vx<0) vx=0;
-  if (vy<0) vy=1;
-  if (varncmp(vx,vy)>=0)
+  GEN C;
+  if (vx < 0) vx = 0;
+  if (vy < 0) vy = 1;
+  if (varncmp(vx,vy) >= 0)
     pari_err_PRIORITY("ellmodulareqn", pol_x(vx), ">=", vy);
-  if (ell < 0 || !uisprime(ell))
+  if (ell < 2 || !uisprime(ell))
     pari_err_PRIME("ellmodulareqn (level)", stoi(ell));
-
-  if (!get_modular_eqn(&meqn, ell, vx, vy, 0))
-    err_modular_eqn(ell);
-  return gerepilecopy(av,mkvec2(meqn.eq, stoi(meqn.type=='A')));
+  C = seadata_cache(ell);
+  if (!C) pari_err_FILE("seadata file", seadata_filename(ell));
+  seadata_parse(&meqn, C, vx, vy);
+  return gerepilecopy(av, mkvec2(meqn.eq, meqn.type=='A'? gen_1: gen_0));
 }
 
 /***********************************************************************/
@@ -1354,7 +1355,7 @@ find_trace(GEN a4, GEN a6, GEN j, ulong ell, GEN q, GEN T, GEN p, long *ptr_kt,
   kt = maxss((long)(log(expi(q)*LOG2)/log((double)ell)), 1);
   if (DEBUGLEVEL)
   { err_printf("SEA: Prime %5ld ", ell); timer_start(&ti); }
-  (void) get_modular_eqn(&MEQN, ell, vx, vy, 1);
+  get_modular_eqn(&MEQN, ell, vx, vy);
   meqnj = meqn_j(&MEQN, j, ell, T, p);
   g = study_modular_eqn(ell, meqnj, T, p, &mt, &r);
   /* If l is an Elkies prime, search for a factor of the l-division polynomial.
