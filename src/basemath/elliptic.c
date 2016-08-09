@@ -2251,13 +2251,15 @@ zellQp(GEN E, GEN z, long prec)
   b = gel(ab,2); r1 = gsub(a,b);
   x = gel(z,1);
   r0 = gadd(e1,gmul2n(b2,-2));
-  c0 = gadd(x, gmul2n(r0,-1)); ar1 = gmul(a,r1);
+  c0 = gadd(x, gmul2n(r0,-1));
+  if (typ(c0) != t_PADIC) pari_err_TYPE("ellpointtoz",z);
+  ar1 = gmul(a,r1);
   delta = gdiv(ar1, gsqr(c0));
   t = Qp_sqrt(gsubsg(1,gmul2n(delta,2)));
   if (!t)
-    pari_err_DOMAIN("ellztopoint", "point", "not on", strtoGENstr("E"),z);
+    pari_err_DOMAIN("ellpointtoz", "point", "not on", strtoGENstr("E"),z);
   x0 = gmul(gmul2n(c0,-1), gaddsg(1,t));
-  y0 = gdiv(gmul2n(ec_dFdy_evalQ(E,z), -1), gsubsg(1, gdiv(ar1,gsqr(x0))));
+  y0 = gdiv(gmul2n(ec_dmFdy_evalQ(E,z), -1), gsubgs(gdiv(ar1,gsqr(x0)), 1));
 
   x1 = gmul(x0, gsqr(gmul2n(gaddsg(1, Qp_sqrt(gaddsg(1,gdiv(r1,x0)))),-1)));
   y1 = gdiv(y0, gsubsg(1, gsqr(gdiv(r1,gmul2n(x1,2)))));

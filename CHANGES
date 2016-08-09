@@ -4,6 +4,7 @@ Bug numbers refer to the BTS at http://pari.math.u-bordeaux.fr/Bugs/
 Done for version 2.8.1 (released ??/??/2016):
   Fixed
     1- nfroots(non-monic t_POL) => wrong result [#1841]
+    2- crash on BIB in ellpointtoz(t_PADIC) [#1840]
 
   Added
     1- permtonum: allow t_VECSMALL input
