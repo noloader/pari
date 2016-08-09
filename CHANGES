@@ -20,6 +20,9 @@ Done for version 2.8.1 (released ??/??/2016):
        qfeval({q},x): it makes more sense to have q first, and a single
        function for qf+polar form (as in all other qf-like routines:
        ellheight, etc.)
+    4- functions nfeltdivmodpr, nfeltmulmodpr, nfeltpowmodpr, nfeltreducemodpr,
+       nfkermodpr, nfsolvemodpr are obsolete. Use nfmodpr, work in the finite
+       field, then lift back using nfmodprlift.
 
 Done for version 2.8.0 (released 12/08/2016):
 

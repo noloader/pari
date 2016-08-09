@@ -2,9 +2,12 @@ Function: nfeltdivmodpr
 Section: number_fields
 C-Name: nfdivmodpr
 Prototype: GGGG
-Help: nfeltdivmodpr(nf,x,y,pr): element x/y modulo pr in nf, where pr is in
+Obsolete: 2016-08-09
+Help: nfeltdivmodpr(nf,x,y,pr): this function is obsolete, use nfmodpr
  modpr format (see nfmodprinit).
-Doc: given two elements $x$
+Doc: this function is obsolete, use \kbd{nfmodpr}.
+
+ Given two elements $x$
  and $y$ in \var{nf} and \var{pr} a prime ideal in \kbd{modpr} format (see
  \tet{nfmodprinit}), computes their quotient $x / y$ modulo the prime ideal
  \var{pr}.

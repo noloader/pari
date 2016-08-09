@@ -226,9 +226,11 @@ $\var{bnr},H$ (congruence subgroup) or $\var{bnr},\chi$ (character on
 \li{discrete log of $x$ in $(\ZZ_K/bid)^*$}{ideallog$(\var{nf},x,bid)$}
 \li{\kbd{idealstar} of all ideals of norm $\le b$}{ideallist$(\var{nf},b,\{\fl\})$}
 \li{add Archimedean places}{ideallistarch$(\var{nf},b,\{ar\},\{\fl\})$}
-\li{init \kbd{prmod} structure}{nfmodprinit$(\var{nf},pr)$}
-\li{kernel of matrix $M$ in $(\ZZ_K/pr)^*$}{nfkermodpr$(\var{nf},M,prmod)$}
-\li{solve $M x = B$ in $(\ZZ_K/pr)^*$}{nfsolvemodpr$(\var{nf},M,B,prmod)$}
+\smallskip
+
+\li{init \kbd{modpr} structure}{nfmodprinit$(\var{nf},\var{pr})$}
+\li{project $t$ to $\ZZ_K/\var{pr}$}{nfmodpr$(\var{nf},t,\var{modpr})$}
+\li{lift from $\ZZ_K/\var{pr}$}{nfmodprlift$(\var{nf},t,\var{modpr})$}
 
 \shortcopyrightnotice
 \newcolumn
