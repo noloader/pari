@@ -4073,7 +4073,7 @@ qfeval0(GEN q, GEN x, GEN y)
     if (lg(x) != lg(y)) pari_err_DIM("qfeval");
     return RgV_dotproduct(x,y);
   }
-  else if (!typ(q) == t_MAT) pari_err_TYPE("qfeval",q);
+  else if (typ(q) != t_MAT) pari_err_TYPE("qfeval",q);
   return qfevalb(q,x,y);
 }
 

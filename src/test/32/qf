@@ -69,4 +69,7 @@ Vecsmall([0, 0, 0, 133, 165, 638, 396, 4268])
   ***   at top-level: qfeval(Mat([1,2]),[1
   ***                 ^--------------------
   *** qfeval: inconsistent operation 'RgV_RgM_mul' t_VEC (2 elts) , t_MAT (1x2).
-Total time spent: 14
+  ***   at top-level: qfeval(1,1)
+  ***                 ^-----------
+  *** qfeval: incorrect type in qfeval (t_INT).
+Total time spent: 13
