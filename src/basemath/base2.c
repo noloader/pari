@@ -2829,6 +2829,27 @@ nfreducemodpr(GEN nf, GEN x, GEN modpr)
   return gerepileupto(av, algtobasis(nf, Fq_to_nf(Rg_to_ff(nf,x,modpr),modpr)));
 }
 
+GEN
+nfmodpr(GEN nf, GEN x, GEN pr)
+{
+  pari_sp av = avma;
+  GEN T, p, modpr;
+  nf = checknf(nf);
+  modpr = nf_to_Fq_init(nf, &pr, &T, &p);
+  x = Rg_to_ff(nf, x, modpr);
+  x = Fq_to_FF(x, Tp_to_FF(T,p));
+  return gerepilecopy(av, x);
+}
+GEN
+nfmodprlift(GEN nf, GEN x, GEN pr)
+{
+  pari_sp av = avma;
+  GEN T, p, modpr;
+  nf = checknf(nf);
+  modpr = nf_to_Fq_init(nf, &pr, &T, &p);
+  return gerepilecopy(av, Fq_to_nf(x, modpr));
+}
+
 /* lift A from residue field to nf */
 GEN
 Fq_to_nf(GEN A, GEN modpr)
