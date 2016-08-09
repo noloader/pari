@@ -2844,8 +2844,22 @@ GEN
 nfmodprlift(GEN nf, GEN x, GEN pr)
 {
   pari_sp av = avma;
-  GEN T, p, modpr;
+  GEN y, T, p, modpr;
+  long i, l, d;
   nf = checknf(nf);
+  switch(typ(x))
+  {
+    case t_INT: return icopy(x);
+    case t_FFELT: break;
+    case t_VEC: case t_COL: case t_MAT:
+      y = cgetg_copy(x,&l);
+      for (i = 1; i < l; i++) gel(y,i) = nfmodprlift(nf,gel(x,i),pr);
+      return y;
+    default: pari_err_TYPE("nfmodprlit",x);
+  }
+  x = FF_to_FpXQ_i(x);
+  d = degpol(x);
+  if (d <= 0) { avma = av; return d? gen_0: icopy(gel(x,2)); }
   modpr = nf_to_Fq_init(nf, &pr, &T, &p);
   return gerepilecopy(av, Fq_to_nf(x, modpr));
 }
