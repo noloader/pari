@@ -2864,7 +2864,7 @@ set_gamma(GEN t, GEN *pa, GEN *pb, GEN *pc, GEN *pd)
     togglesign_safe(&c); swap(a,c);
     togglesign_safe(&d); swap(b,d);
     if (gc_needed(av, 1)) {
-      if (DEBUGMEM>1) pari_warn(warnmem, "redimagsl2");
+      if (DEBUGMEM>1) pari_warn(warnmem, "redtausl2");
       gerepileall(av, 5, &t, &a,&b,&c,&d);
     }
   }
