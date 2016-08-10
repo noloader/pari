@@ -3988,6 +3988,19 @@ qfbeval(GEN q, GEN z)
   A = gadd(gmul(x, gadd(gmul(a,x), gmul(b,y))), gmul(c, gsqr(y)));
   return gerepileupto(av, A);
 }
+static GEN
+qfbevalb(GEN q, GEN z, GEN z2)
+{
+  GEN A, a = gel(q,1), b = gel(q,2), c = gel(q,3);
+  GEN x = gel(z,1), y = gel(z,2);
+  GEN X = gel(z2,1), Y = gel(z2,2);
+  GEN a2 = shifti(a,1), c2 = shifti(c,1);
+  pari_sp av = avma;
+  /* a2 x X + b (x Y + X y) + c2 y Y */
+  A = gadd(gmul(x, gadd(gmul(a2,X), gmul(b,Y))),
+           gmul(y, gadd(gmul(c2,Y), gmul(b,X))));
+  return gerepileupto(av, gmul2n(A, -1));
+}
 GEN
 qfb_apply_ZM(GEN q, GEN M)
 {
@@ -4040,7 +4053,7 @@ qfnorm0(GEN q, GEN x)
 GEN
 qfnorm(GEN x, GEN q) { return qfnorm0(q,x); }
 
-/* assume q is a real symetric matrix, q(x,y) using n^2+n mul */
+/* assume q is square, x~ * q * y using n^2+n mul */
 GEN
 qfevalb(GEN q, GEN x, GEN y)
 {
@@ -4073,7 +4086,13 @@ qfeval0(GEN q, GEN x, GEN y)
     if (lg(x) != lg(y)) pari_err_DIM("qfeval");
     return RgV_dotproduct(x,y);
   }
-  else if (typ(q) != t_MAT) pari_err_TYPE("qfeval",q);
+  switch(typ(q))
+  {
+    case t_MAT: break;
+    case t_QFI: case t_QFR:
+      if (lg(x) == 3 && lg(y) == 3) return qfbevalb(q,x,y);
+    default: pari_err_TYPE("qfeval",q);
+  }
   return qfevalb(q,x,y);
 }
 

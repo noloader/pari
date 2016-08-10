@@ -24,6 +24,7 @@ q=Qfb(1099511627776,1879224363605,802966544317);
 qfeval(q,U)
 qfeval(q,U[,1])
 qfeval(q,U[,2])
+qfeval(q,U[,1],U[,2])
 D=poldisc(q);
 qfbredsl2(q,[D,sqrtint(D)])
 qfbredsl2(q,[D]);

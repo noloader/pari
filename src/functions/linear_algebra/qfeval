@@ -63,11 +63,10 @@ Doc: evaluate the binary quadratic form $q$ (given by a symmetric matrix)
  time = 1,171 ms.
  @eprog
 
- When $x$ is a vector and $y$ is omitted, we allow a \typ{QFI} or
- \typ{QFR} for $q$. Note that converting the \kbd{qfb} to \typ{MAT}
- form via \kbd{Mat}$(q)$ makes this redundant in principle, but the
- denominator $2$ makes the conversion less efficient in this
- particular case:
+ If $q$ is a \typ{QFI} or \typ{QFR}, it is implicitly converted to the
+ attached symmetric \typ{MAT}. This is done more
+ efficiently than by direct conversion, since we avoid introducing a
+ denominator $2$ and rational arithmetic:
  \bprog
  ? q = Qfb(2,3,4); x = [2,3];
  ? qfeval(q, x)
@@ -85,9 +84,9 @@ Doc: evaluate the binary quadratic form $q$ (given by a symmetric matrix)
  time = 1,110 ms.
  @eprog
  Finally, when $x$ is a \typ{MAT} with \emph{integral} coefficients, we allow
- a \typ{QFI} or \typ{QFR} for $q$ and return the corresponding binary
- quadratic form. Again, the conversion to \typ{MAT} is less efficient in this
- case:
+ a \typ{QFI} or \typ{QFR} for $q$ and return the binary
+ quadratic form $q \circ M$. Again, the conversion to \typ{MAT} is less
+ efficient in this case:
  \bprog
  ? q = Qfb(2,3,4); Q = Mat(q); x = [1,2;3,4];
  ? qfeval(q, x)
