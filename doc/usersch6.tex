@@ -2292,13 +2292,13 @@ of elementary divisors for a finite group (no $d_i$ vanish), returns the vector
 $D = [1]$ if $n = 0$ (trivial group) and
  $[d_1, d_1/d_2, \dots, d_1/d_n]$ otherwise. This will allow to define
 characters as $\chi(\prod g_j^{x_j}) = e(\sum_j x_j a_j D_j / D_1)$,
-see \tev{char_normalize}.
+see \tet{char_normalize}.
 
 \fun{GEN}{char_normalize}{GEN chi, GEN ncyc} shallow function. Given a
 character \kbd{chi} $ = (a_j)$ and \var{ncyc} from \kbd{cyc\_normalize}
 above, returns the normalized representation $[d, (n_j)]$, such that
 $\chi(\prod g_j^{x_j}) = \zeta_d^{\sum_j n_j x_j}$, where $\zeta_d =
-\exp(1/d)$ and $d$ is \emph{minimal}. In particular, $d$ is the order
+e(1/d)$ and $d$ is \emph{minimal}. In particular, $d$ is the order
 of \kbd{chi}. Shallow function.
 
 \fun{GEN}{char_simplify}{GEN D, GEN N} given a quasi-normalized character
@@ -2325,10 +2325,10 @@ $a / b = a \times \overline{b}$.
 \fun{int}{char_check}{GEN cyc, GEN chi} return $1$ if \kbd{chi} is a character
 compatible with cyclic factors \kbd{cyc}, and $0$ otherwise.
 
-\fun{GEN}{char_rootof1}{GEN d, long prec} return $\exp(2i\pi/d)$ at precision
+\fun{GEN}{char_rootof1}{GEN d, long prec} return $e(1/d)$ at precision
 \kbd{prec}. Shallow function.
 
-\fun{GEN}{char_rootof1_u}{ulong d, long prec} return $\exp(2i\pi/d)$ at
+\fun{GEN}{char_rootof1_u}{ulong d, long prec} return $e(1/d)$ at
 precision \kbd{prec}. Shallow function.
 
 \fun{GEN}{cyc2elts}{GEN d} given a \typ{VEC} $d = (d_1,\dots,d_n)$
