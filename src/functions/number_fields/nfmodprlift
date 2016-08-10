@@ -26,4 +26,4 @@ Doc: lift the \typ{FFELT} $x$ (from \tet{nfmodpr}) to the residue field
  %6 = [1, 1/5*y, 2/5*y + 1]
  ? nfeltval(K, %[3] - K.zk[3], P)
  %7 = 1
- @bprog
+ @eprog
