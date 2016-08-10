@@ -5,7 +5,7 @@
 incorrect type in Rg_to_ff (t_COL).")]
 y^2 + 1: [[1, 0]~, [1, 1], [2, [1, 1]~, 2, 1, [1, -1; 1, 1]]]~
 *[1, 1]:
-error("impossible inverse in F2xq_inv: Vecsmall([0]).")
+error("impossible inverse in F2xq_inv: 0.")
 0
 *[1, 2]:
 0
@@ -14,7 +14,7 @@ error("impossible inverse in F2xq_inv: Vecsmall([0]).")
 0
 0
 *[1, 4]:
-error("impossible inverse in F2xq_inv: Vecsmall([0]).")
+error("impossible inverse in F2xq_inv: 0.")
 0
 *[2, 2]:
 1
@@ -23,16 +23,16 @@ error("impossible inverse in F2xq_inv: Vecsmall([0]).")
 1
 1
 *[2, 4]:
-error("impossible inverse in F2xq_inv: Vecsmall([0]).")
+error("impossible inverse in F2xq_inv: 0.")
 0
 *[3, 3]:
 1
 1
 *[3, 4]:
-error("impossible inverse in F2xq_inv: Vecsmall([0]).")
+error("impossible inverse in F2xq_inv: 0.")
 0
 *[4, 4]:
-error("impossible inverse in F2xq_inv: Vecsmall([0]).")
+error("impossible inverse in F2xq_inv: 0.")
 0
 *1:
 [0, 0]~
@@ -102,7 +102,7 @@ orrect type in Rg_to_ff (t_COL)."), 0]
 y^3 - 9: [[2, 1, 1]~, [1, 1, 0; 0, 1, 1], [2, [3, 3, 1]~, 1, 2, [1, 3, 0; 0,
  1, 3; 1, 0, 1]], y^2 + y + 1]~
 *[1, 1]:
-error("impossible inverse in F2xq_inv: Vecsmall([70368744177664]).")
+error("impossible inverse in F2xq_inv: 0.")
 0
 *[1, 2]:
 0
@@ -111,7 +111,7 @@ error("impossible inverse in F2xq_inv: Vecsmall([70368744177664]).")
 0
 0
 *[1, 4]:
-error("impossible inverse in F2xq_inv: Vecsmall([70368744177664]).")
+error("impossible inverse in F2xq_inv: 0.")
 0
 *[2, 2]:
 1
@@ -120,16 +120,16 @@ error("impossible inverse in F2xq_inv: Vecsmall([70368744177664]).")
 y + 1
 y
 *[2, 4]:
-error("impossible inverse in F2xq_inv: Vecsmall([70368744177664]).")
+error("impossible inverse in F2xq_inv: 0.")
 0
 *[3, 3]:
 1
 y + 1
 *[3, 4]:
-error("impossible inverse in F2xq_inv: Vecsmall([70368744177664]).")
+error("impossible inverse in F2xq_inv: 0.")
 0
 *[4, 4]:
-error("impossible inverse in F2xq_inv: Vecsmall([70368744177664]).")
+error("impossible inverse in F2xq_inv: 0.")
 0
 *1:
 [0, 0, 0]~
@@ -168,4 +168,4 @@ error("incorrect type in Rg_to_ff (t_COL).")
   *** matsolve: impossible inverse in gauss: [1, 1; 1, 1].
 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
 0, 0, 0, 0, 0, 0, 0]~
-Total time spent: 148
+Total time spent: 112

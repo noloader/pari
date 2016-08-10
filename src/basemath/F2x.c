@@ -848,7 +848,7 @@ F2xq_inv(GEN x,GEN T)
 {
   pari_sp av=avma;
   GEN U = F2xq_invsafe(x, T);
-  if (!U) pari_err_INV("F2xq_inv",x);
+  if (!U) pari_err_INV("F2xq_inv", F2x_to_ZX(x));
   return gerepileuptoleaf(av, U);
 }
 
