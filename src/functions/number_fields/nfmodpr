@@ -6,7 +6,7 @@ Help: nfmodpr(nf,x,pr): map x to the residue field mod pr
 Doc: map $x$ to the residue field modulo \var{pr}, to a \typ{FFELT}.
  The argument \var{pr} is either a maximal ideal in \kbd{idealprimedec}
  format or, preferably, a \kbd{modpr} structure from \tet{nfmodprinit}. The
- function \tet{nfmodprlift} allows to lift back to $\ZZ_K$.
+ function \tet{nfmodprlift} allows to lift back to $\Z_K$.
 
  Note that the function applies to number field elements and not to
  vector / matrices / polynomials of such. Use \kbd{apply} to convert
