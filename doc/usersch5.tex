@@ -10229,6 +10229,8 @@ or \typ{QFR} \kbd{x}.
 \fun{GEN}{qfb_disc3}{GEN x, GEN y, GEN z} returns $y^2 - 4xz$ assuming all
 inputs are \typ{INT}s. Not stack-clean.
 
+\fun{GEN}{qfb_apply_ZM}{GEN q, GEN g} returns $q \circ g$.
+
 \section{Polynomials}\label{se:polynomials}
 
 \fun{GEN}{truecoeff}{GEN x, long n} returns \kbd{polcoeff0(x,n, -1)}, i.e.
