@@ -50,7 +50,7 @@ Doc: estimate the cost of running
  ? L = lfuninit(L, [100]); \\ actually perform all initializations
  ? lfuncost(L)
  %4 = [[16, 242], [16, 242], [7, 242]]
- @eprog\noindent The Dedekind function of this abelian quartic fields
+ @eprog\noindent The Dedekind function of this abelian quartic field
  is the product of four Dirichlet $L$-functions attached to the trivial
  character, a non-trivial real character and two complex conjugate
  characters. The non-trivial characters happen to have the same conductor
