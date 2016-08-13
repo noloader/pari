@@ -1389,7 +1389,7 @@ F2xq_easylog(void* E, GEN a, GEN g, GEN ord)
 GEN
 F2xq_log(GEN a, GEN g, GEN ord, GEN T)
 {
-  GEN z, v = dlog_get_ordfa(ord);
+  GEN z, v = get_arith_ZZM(ord);
   ord = mkvec2(gel(v,1),ZM_famat_limit(gel(v,2),int2n(28)));
   z = gen_PH_log(a,g,ord,(void*)T,&F2xq_star);
   return z? z: cgetg(1,t_VEC);

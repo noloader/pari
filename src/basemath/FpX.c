@@ -1939,7 +1939,7 @@ Fp_FpXQ_log(GEN a, GEN g, GEN o, GEN T, GEN p)
   /* p > 2 */
 
   ordp = subis(p, 1); /* even */
-  ord  = dlog_get_ord(o);
+  ord  = get_arith_Z(o);
   if (!ord) ord = T? subis(powiu(p, get_FpX_degree(T)), 1): ordp;
   if (equalii(a, ordp)) /* -1 */
     return gerepileuptoint(av, shifti(ord,-1));

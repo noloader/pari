@@ -2781,7 +2781,7 @@ Fl_Flxq_log(ulong a, GEN g, GEN o, GEN T, ulong p)
   /* p > 2 */
 
   ordp = utoi(p - 1);
-  ord  = dlog_get_ord(o);
+  ord  = get_arith_Z(o);
   if (!ord) ord = T? subis(powuu(p, get_FpX_degree(T)), 1): ordp;
   if (a == p - 1) /* -1 */
     return gerepileuptoint(av, shifti(ord,-1));
@@ -2852,7 +2852,7 @@ Flxq_log(GEN a, GEN g, GEN ord, GEN T, ulong p)
   void *E;
   pari_sp av = avma;
   const struct bb_group *S = get_Flxq_star(&E,T,p);
-  GEN v = dlog_get_ordfa(ord), F = gmael(v,2,1);
+  GEN v = get_arith_ZZM(ord), F = gmael(v,2,1);
   if (Flxq_log_use_index(gel(F,lg(F)-1), T, p))
     v = mkvec2(gel(v, 1), ZM_famat_limit(gel(v, 2), int2n(27)));
   return gerepileuptoleaf(av, gen_PH_log(a, g, v, E, S));

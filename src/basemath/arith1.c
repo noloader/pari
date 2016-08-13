@@ -3174,11 +3174,12 @@ Fl_order(ulong a, ulong o, ulong p)
   E = gel(m,2);
   for (i = lg(P)-1; i; i--)
   {
-    ulong j, l=P[i], e=E[i], t = o / upowuu(l,e), y = Fl_powu(a, t, p);
+    ulong j, l = P[i], e = E[i], t = o / upowuu(l,e), y = Fl_powu(a, t, p);
     if (y == 1) o = t;
-    else {
-      for (j = 1; j < e; j++) { y = Fl_powu(y, l, p); if (y == 1) break; }
-      o = t *  upowuu(l, j);
+    else for (j = 1; j < e; j++)
+    {
+      y = Fl_powu(y, l, p);
+      if (y == 1) { o = t *  upowuu(l, j); break; }
     }
   }
   avma = av; return o;
@@ -3187,9 +3188,9 @@ Fl_order(ulong a, ulong o, ulong p)
 /*Find the exact order of a assuming a^o==1*/
 GEN
 Fp_order(GEN a, GEN o, GEN p) {
-  if (lgefint(p) == 3 && typ(o) == t_INT && lgefint(o)==3)
+  if (lgefint(p) == 3 && (!o || typ(o) == t_INT))
   {
-    ulong pp = p[2], oo = o[2];
+    ulong pp = p[2], oo = (o && lgefint(o)==3)? o[2]: pp-1;
     return utoi( Fl_order(umodiu(a, pp), oo, pp) );
   }
   return gen_order(a, o, (void*)p, &Fp_star);
@@ -3534,7 +3535,7 @@ Fp_easylog(void *E, GEN a, GEN g, GEN ord)
   {
     pari_sp av2;
     GEN t;
-    ord = dlog_get_ord(ord);
+    ord = get_arith_Z(ord);
     if (mpodd(ord)) { avma = av; return cgetg(1, t_VEC); } /* no solution */
     t = shifti(ord,-1); /* only possible solution */
     av2 = avma;
@@ -3549,7 +3550,7 @@ Fp_easylog(void *E, GEN a, GEN g, GEN ord)
 GEN
 Fp_log(GEN a, GEN g, GEN ord, GEN p)
 {
-  GEN v = dlog_get_ordfa(ord);
+  GEN v = get_arith_ZZM(ord);
   GEN F = gmael(v,2,1);
   long lF = lg(F)-1, lmax;
   if (lF == 0) return equali1(a)? gen_0: cgetg(1, t_VEC);
@@ -4852,7 +4853,7 @@ relative_order(void *E, GEN a, GEN o, ulong N,  GEN T)
   long i, l;
   GEN m;
 
-  m = dlog_get_ordfa(o);
+  m = get_arith_ZZM(o);
   if (!m) pari_err_TYPE("gen_order [missing order]",a);
   o = gel(m,1);
   m = gel(m,2); l = lgcols(m);

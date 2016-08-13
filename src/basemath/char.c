@@ -485,7 +485,7 @@ znstar0(GEN N, long flag)
     {
       GEN t = gen_0, p = gel(P,i), p_1 = subiu(p,1);
       long e = E[i];
-      gel(fao,i) = dlog_get_ordfa(p_1);
+      gel(fao,i) = get_arith_ZZM(p_1);
       if (e >= 2 && !absequaliu(p,2))
       {
         GEN q = gel(mod,i), g = Fp_pow(gel(gen,i),p_1,q);
@@ -521,7 +521,7 @@ Zideallog_2k(GEN h, GEN g, long e, GEN pe)
   return a;
 }
 
-/* ord = dlog_get_ordfa(p-1), simplified form of znlog_rec: g is known
+/* ord = get_arith_ZZM(p-1), simplified form of znlog_rec: g is known
  * to be a primitive root mod p^e; lo = 1/log_p(g^(p-1)) */
 static GEN
 Zideallog_pk(GEN h, GEN g, GEN p, long e, GEN pe, GEN ord, GEN lo)

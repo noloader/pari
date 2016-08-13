@@ -504,7 +504,7 @@ gen_plog(GEN x, GEN g, GEN p, void *E, const struct bb_group *grp)
 }
 
 GEN
-dlog_get_ordfa(GEN o)
+get_arith_ZZM(GEN o)
 {
   if (!o) return NULL;
   switch(typ(o))
@@ -523,7 +523,7 @@ dlog_get_ordfa(GEN o)
   return NULL; /* not reached */
 }
 GEN
-dlog_get_ord(GEN o)
+get_arith_Z(GEN o)
 {
   if (!o) return NULL;
   switch(typ(o))
@@ -563,7 +563,7 @@ gen_PH_log(GEN a, GEN g, GEN ord, void *E, const struct bb_group *grp)
     GEN e = grp->easylog(E, a, g, ord);
     if (e) return e;
   }
-  v = dlog_get_ordfa(ord);
+  v = get_arith_ZZM(ord);
   ord= gel(v,1);
   fa = gel(v,2);
   ex = gel(fa,2);
@@ -624,7 +624,7 @@ gen_order(GEN a, GEN o, void *E, const struct bb_group *grp)
   long i, l;
   GEN m;
 
-  m = dlog_get_ordfa(o);
+  m = get_arith_ZZM(o);
   if (!m) pari_err_TYPE("gen_order [missing order]",a);
   o = gel(m,1);
   m = gel(m,2); l = lgcols(m);
@@ -663,7 +663,7 @@ gen_factored_order(GEN a, GEN o, void *E, const struct bb_group *grp)
   long i, l, ind;
   GEN m, F, P;
 
-  m = dlog_get_ordfa(o);
+  m = get_arith_ZZM(o);
   if (!m) pari_err_TYPE("gen_factored_order [missing order]",a);
   o = gel(m,1);
   m = gel(m,2); l = lgcols(m);
@@ -775,7 +775,7 @@ gen_gener(GEN o, void *E, const struct bb_group *grp)
   pari_sp ltop = avma, av;
   long i, lpr;
   GEN F, N, pr, z=NULL;
-  F = dlog_get_ordfa(o);
+  F = get_arith_ZZM(o);
   N = gel(F,1); pr = gel(F,2); lpr = lgcols(pr);
   av = avma;
 
@@ -973,7 +973,7 @@ gen_ellgens(GEN D1, GEN d2, GEN m, void *E, const struct bb_group *grp,
   pari_sp ltop = avma, av;
   GEN F, d1, dm;
   GEN P, Q, d, s;
-  F = dlog_get_ordfa(D1);
+  F = get_arith_ZZM(D1);
   d1 = gel(F, 1), dm =  diviiexact(d1,m);
   av = avma;
   do

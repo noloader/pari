@@ -2085,8 +2085,8 @@ GEN     rnfinit0(GEN nf,GEN pol,long flag);
 
 /* bb_group.c */
 
-GEN dlog_get_ordfa(GEN o);
-GEN dlog_get_ord(GEN o);
+GEN get_arith_ZZM(GEN o);
+GEN get_arith_Z(GEN o);
 GEN gen_PH_log(GEN a, GEN g, GEN ord, void *E, const struct bb_group *grp);
 GEN gen_Shanks_init(GEN g, long n, void *E, const struct bb_group *grp);
 GEN gen_Shanks(GEN T, GEN x, ulong N, void *E, const struct bb_group *grp);

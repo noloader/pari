@@ -3170,7 +3170,8 @@ in $0, 1, \dots p-1$.
 \fun{GEN}{randomr}{long prec} returns a random \typ{REAL} in $[0,1[$, with
 precision \kbd{prec}.
 
-\subsec{Modular operations} In this subsection, all \kbd{GEN}s are \typ{INT}
+\subsec{Modular operations} In this subsection, all \kbd{GEN}s are
+\typ{INT}.
 
 \fun{GEN}{Fp_red}{GEN a, GEN m} returns \kbd{a} modulo \kbd{m} (smallest
 non-negative residue). (This is identical to modii).
@@ -3240,21 +3241,23 @@ are left on stack, besides the $N$ in the result.
 modulo \kbd{m} is invertible, else return $0$ and set
 $\kbd{g} = \gcd(\kbd{a},\kbd{m})$.
 
+In the following three functions the integer parameter \kbd{ord} can be given
+either as a positive \typ{INT} $N$, or as its factorization matrix $\var{faN}$,
+ or as a pair $[N,\var{faN}]$. The parameter may be omitted by setting it to
+\kbd{NULL} (the value is then $p-1$).
+
 \fun{GEN}{Fp_log}{GEN a, GEN g, GEN ord, GEN p} Let $g$ such that
 $g^{ord} \equiv 1 \pmod{p}$. Return an integer $e$ such that
-$a^e \equiv g \pmod{p}$. If $e$ does not exist, the result is currently
-undefined.
+$a^e \equiv g \pmod{p}$. If $e$ does not exist, the result is undefined.
 
-\fun{GEN}{Fp_order}{GEN a, GEN N, GEN p} returns the order of the
-\kbd{Fp} \kbd{a}. If \kbd{N} is non-\kbd{NULL}, it is assumed that \kbd{N}
-is a multiple of the order of \kbd{a}, as a \typ{INT} or a
-factorization matrix.
+\fun{GEN}{Fp_order}{GEN a, GEN ord, GEN p} returns the order of the
+\kbd{Fp} \kbd{a}. Assume that \kbd{ord} is a multiple of the order of
+\kbd{a}.
 
-\fun{GEN}{Fp_factored_order}{GEN a, GEN N, GEN p} returns $[o,F]$, where $o$
+\fun{GEN}{Fp_factored_order}{GEN a, GEN ord, GEN p} returns $[o,F]$, where $o$
 is the multiplicative order of the \kbd{Fp} $a$ in $\F_p^*$, and $F$ is the
-factorization of $o$. If \kbd{N} is non-\kbd{NULL}, it is assumed that
-\kbd{N} is a multiple of the order of \kbd{a}, as a \typ{INT} or a
-factorization matrix.
+factorization of $o$. Assume that \kbd{ord} is a multiple of the order of
+\kbd{a}.
 
 \fun{int}{Fp_issquare}{GEN x, GEN p} returns $1$ if \kbd{x} is a square
 modulo \kbd{p}, and $0$ otherwise.
@@ -4514,18 +4517,22 @@ whose coefficients are \typ{INT}s, reduce them to \kbd{FpXQ}s.
 \fun{GEN}{FpXQ_powu}{GEN x, ulong n, GEN T, GEN p} computes $\kbd{x}^\kbd{n}$
 for small $n$.
 
+In the following three functions the integer parameter \kbd{ord} can be given
+either as a positive \typ{INT} $N$, or as its factorization matrix $\var{faN}$,
+or as a pair $[N,\var{faN}]$. The parameter may be omitted by setting it to
+\kbd{NULL} (the value is then $p^d-1$, $d = \deg T$).
+
 \fun{GEN}{FpXQ_log}{GEN a, GEN g, GEN ord, GEN T, GEN p} Let \kbd{g} be of
 order \kbd{ord} in the finite field $\F_p[X]/(T)$, return $e$ such that
-$a^e=g$. If $e$ does not exists, the result is currently undefined. Assumes
+$a^e=g$. If $e$ does not exists, the result is undefined. Assumes
 that \kbd{T} is irreducible mod \kbd{p}.
 
 \fun{GEN}{Fp_FpXQ_log}{GEN a, GEN g, GEN ord, GEN T, GEN p} As
 \kbd{FpXQ\_log}, \kbd{a} being a \kbd{Fp}.
 
 \fun{GEN}{FpXQ_order}{GEN a, GEN ord, GEN T, GEN p} returns the order of the
-\kbd{FpXQ} \kbd{a}. If \kbd{o} is non-\kbd{NULL}, it is assumed that \kbd{o}
-is a multiple of the order of \kbd{a}, either as a \typ{INT} or a
-factorization matrix. Assumes that \kbd{T} is irreducible mod \kbd{p}.
+\kbd{FpXQ} \kbd{a}. Assume that \kbd{ord} is a multiple of the order of
+\kbd{a}. Assume that \kbd{T} is irreducible mod \kbd{p}.
 
 \fun{int}{FpXQ_issquare}{GEN x, GEN T, GEN p} returns $1$ if $x$ is a square
 and $0$ otherwise. Assumes that \kbd{T} is irreducible mod \kbd{p}.
@@ -4582,11 +4589,8 @@ stack, besides the $N$ in the result.
 \fun{GEN}{Fq_powu}{GEN x, ulong n, GEN pol, GEN p} returns $\kbd{x}^\kbd{n}$
 for small $n$.
 
-\fun{GEN}{Fq_log}{GEN a, GEN g, GEN ord, GEN T, GEN p}
-Let \kbd{g} be of order \kbd{ord} in the finite field $\F_p[X]/(T)$, return $e$
-such that $a^e=g$. If $e$ does not exists, the result is currently undefined.
-Allow $T = \kbd{NULL}$ (discrete log over $\F_p$), otherwise
-assume that \kbd{T} is irreducible mod \kbd{p}.
+\fun{GEN}{Fq_log}{GEN a, GEN g, GEN ord, GEN T, GEN p} as
+\tet{Fp_log} or \tet{FpXQ_log}.
 
 \fun{int}{Fq_issquare}{GEN x, GEN T, GEN p} returns $1$ if $x$ is a square
 and $0$ otherwise. Assumes that \kbd{T} is irreducible mod \kbd{p} and that
@@ -5368,11 +5372,6 @@ see \kbd{FpX\_FpXQV\_eval}.
 \fun{GEN}{FlxqV_roots_to_pol}{GEN V, GEN T, ulong p, long v} as
 \kbd{FqV\_roots\_to\_pol} returning an \kbd{FlxqX} in variable $v$.
 
-\fun{GEN}{Flxq_order}{GEN a, GEN ord, GEN T, ulong p}
-returns the order of the \typ{Flxq} \kbd{a}.
-If \kbd{o} is non-\kbd{NULL}, it is assumed that \kbd{o} is a multiple of the
-order of \kbd{a}, either as a \typ{INT} or a factorization matrix.
-
 \fun{int}{Flxq_issquare}{GEN x, GEN T, ulong p} returns $1$ if $x$ is a square
 and $0$ otherwise. Assume that \kbd{T} is irreducible mod \kbd{p}.
 
@@ -5380,10 +5379,11 @@ and $0$ otherwise. Assume that \kbd{T} is irreducible mod \kbd{p}.
 a $2^n$-th power and $0$ otherwise. Assume that \kbd{T} is irreducible mod
 \kbd{p}.
 
-\fun{GEN}{Flxq_log}{GEN a, GEN g, GEN ord, GEN T, ulong p} Let $g$ of exact
-order \kbd{ord} in the field $F_p[X]/(T)$. Return $e$ such that $a^e=g$. If
-$e$ does not exists, the result is currently undefined. Assumes that \kbd{T}
-is irreducible mod \kbd{p}.
+\fun{GEN}{Flxq_order}{GEN a, GEN ord, GEN T, ulong p}
+as \tet{FpXQ_order}.
+
+\fun{GEN}{Flxq_log}{GEN a, GEN g, GEN ord, GEN T, ulong p}
+as \tet{FpXQ_log}
 
 \fun{GEN}{Flxq_sqrtn}{GEN x, GEN n, GEN T, ulong p, GEN *zn} as
 \tet{FpXQ_sqrtn}.
