@@ -287,10 +287,10 @@ check_arith_pos(GEN n, const char *f) {
   switch(typ(n))
   {
     case t_INT:
-      if (signe(n) <= 0 ) pari_err_DOMAIN(f, "argument", "<=", gen_0, gen_0);
+      if (signe(n) <= 0) pari_err_DOMAIN(f, "argument", "<=", gen_0, gen_0);
       return NULL;
     case t_VEC:
-      if (lg(n) != 3 || typ(gel(n,1)) != t_INT) break;
+      if (lg(n) != 3 || typ(gel(n,1)) != t_INT || signe(gel(n,1)) <= 0) break;
       n = gel(n,2); /* fall through */
     case t_MAT:
       if (!is_Z_factorpos(n)) break;
@@ -308,7 +308,7 @@ check_arith_non0(GEN n, const char *f) {
       if (!signe(n)) pari_err_DOMAIN(f, "argument", "=", gen_0, gen_0);
       return NULL;
     case t_VEC:
-      if (lg(n) != 3 || typ(gel(n,1)) != t_INT) break;
+      if (lg(n) != 3 || typ(gel(n,1)) != t_INT || !signe(gel(n,1))) break;
       n = gel(n,2); /* fall through */
     case t_MAT:
       if (!is_Z_factornon0(n)) break;
