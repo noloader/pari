@@ -25,6 +25,7 @@ Done for version 2.8.1 (released ??/??/2016):
     4- functions nfeltdivmodpr, nfeltmulmodpr, nfeltpowmodpr, nfeltreducemodpr,
        nfkermodpr, nfsolvemodpr are obsolete. Use nfmodpr, work in the finite
        field, then lift back using nfmodprlift.
+    5- split off historical refcard in submodules basic, ell, lfun, mf, nf
 
 Done for version 2.8.0 (released 12/08/2016):
 
