@@ -1259,8 +1259,6 @@ intnum0(GEN a, GEN b, GEN code, GEN tab, long prec)
 GEN
 intcirc0(GEN a, GEN R, GEN code, GEN tab, long prec)
 { EXPR_WRAP(code, intcirc(EXPR_ARG, a, R, tab, prec)); }
-
-/* m and flag reversed on purpose */
 GEN
 intfuncinit0(GEN a, GEN b, GEN code, long m, long prec)
 { EXPR_WRAP(code, intfuncinit(EXPR_ARG, a, b, m, prec)); }
