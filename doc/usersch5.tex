@@ -3145,6 +3145,14 @@ due to Paul Zimmermann (``Karatsuba Square Root'', INRIA Research Report 3805
 the non-negative \typ{INT}~\kbd{N} (rounded towards 0). This is identical
 to \kbd{sqrtremi(N, NULL)}.
 
+\fun{long}{logintall}{GEN B, GEN y, GEN *ptq}
+returns the floor $e$ of $\log_y B$, where $B > 0$ and $y > 1$ are integers.
+If \kbd{ptq} is not \kbd{NULL}, set it to $y^e$. (Analogous to \kbd{logint0},
+whithout sanity checks.)
+
+\fun{long}{logint}{GEN B, GEN y} returns the floor $e$ of $\log_y B$, where
+$B > 0$ and $y > 1$ are integers.
+
 \subsec{GCD, extended GCD and LCM}
 
 \fun{long}{cgcd}{long x, long y} returns the GCD of \kbd{x} and \kbd{y}.

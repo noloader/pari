@@ -168,7 +168,7 @@ static GEN
 localfactor(void *E, GEN p)
 {
   GEN v = (GEN)E, L = gel(v,1), a = gel(v,2);
-  return ginv(closure_callgen2(a, p, stoi(logint(L, p, NULL))));
+  return ginv(closure_callgen2(a, p, stoi(logint(L, p))));
 }
 static GEN
 direxpand_bad(GEN a, long L, GEN Sbad)

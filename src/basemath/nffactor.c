@@ -1421,7 +1421,7 @@ nf_LLL_cmbf(nfcmbf_t *T, long rec)
 
     /* bound for f . S_k(genuine factor) = ZC * bound for T_2(S_tnew) */
     Btra = mulrr(ZC, mulur(dP*dP, normlp(Br, 2*tnew, dnf)));
-    bmin = logint(ceil_safe(sqrtr(Btra)), gen_2, NULL);
+    bmin = logint(ceil_safe(sqrtr(Btra)), gen_2) + 1;
     if (DEBUGLEVEL>2)
       err_printf("\nLLL_cmbf: %ld potential factors (tmax = %ld, bmin = %ld)\n",
                  r, tmax, bmin);

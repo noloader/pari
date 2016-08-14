@@ -683,11 +683,13 @@ cmbf_precs(GEN q, GEN A, GEN B, long *pta, long *ptb, GEN *qa, GEN *qb)
   long a,b,amin,d = (long)(31 * LOG2/gtodouble(glog(q,DEFAULTPREC)) - 1e-5);
   int fl = 0;
 
-  b = logint(B, q, qb);
+  b = logintall(B, q, qb) + 1;
+  *qb = mulii(*qb, q);
   amin = b + d;
   if (gcmp(powiu(q, amin), A) <= 0)
   {
-    a = logint(A, q, qa);
+    a = logintall(A, q, qa) + 1;
+    *qa = mulii(*qa, q);
     b = a - d; *qb = powiu(q, b);
   }
   else
@@ -808,7 +810,8 @@ DDF_roots(GEN A)
   else
   { lc = absi_shallow(lc); lcpol = ZX_Z_mul(A, lc); }
   bound = root_bound(A); if (lc) bound = mulii(lc, bound);
-  e = logint(addiu(shifti(bound, 1), 1), p, &pe);
+  e = logintall(addiu(shifti(bound, 1), 1), p, &pe) + 1;
+  pe = mulii(pe, p);
   pes2 = shifti(pe, -1);
   if (DEBUGLEVEL>2) timer_printf(&T, "Root bound");
   av = avma;

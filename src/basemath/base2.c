@@ -2445,7 +2445,7 @@ idealprimedec_limit_f(GEN nf, GEN p, long f)
 }
 GEN
 idealprimedec_limit_norm(GEN nf, GEN p, GEN B)
-{ return idealprimedec_limit_f(nf, p, logint(B,p,NULL)-1); }
+{ return idealprimedec_limit_f(nf, p, logint(B,p)); }
 GEN
 idealprimedec(GEN nf, GEN p)
 { return idealprimedec_limit_f(nf, p, 0); }

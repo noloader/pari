@@ -2,7 +2,7 @@ Function: logint
 Section: number_theoretical
 C-Name: logint0
 Prototype: lGGD&
-Help: logint(x,b,&z): return the largest integer e so that b^e <= x, where the
+Help: logint(x,b,{&z}): return the largest integer e so that b^e <= x, where the
  parameters b > 1 and x > 0 are both integers. If the parameter z is present,
  set it to b^e.
 Description:

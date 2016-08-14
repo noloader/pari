@@ -1837,6 +1837,8 @@ sqrtnr(GEN x, long n) {
   }
   return mpexp(divrs(mplog(x), n));
 }
+INLINE long
+logint(GEN B, GEN y) { return logintall(B,y,NULL); }
 
 /*******************************************************************/
 /*                                                                 */

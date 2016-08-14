@@ -2723,7 +2723,7 @@ Flxq_pow_Frobenius(GEN x, GEN n, GEN aut, GEN T, ulong p)
   q = powuu(p, d);
   if (dvdii(q, n))
   {
-    long vn = logint(an,utoi(p),NULL)-1;
+    long vn = logint(an,utoi(p));
     GEN autvn = vn==1 ? aut: Flxq_autpow(aut,vn,T,p);
     z = Flx_Flxq_eval(x,autvn,T,p);
   } else

@@ -303,7 +303,7 @@ ZlX_hyperellpadicfrobenius(GEN H, ulong p, long n)
   if (n < 1)
     pari_err_DOMAIN("hyperellpadicfrobenius","n","<", gen_1, utoi(n));
   k = get_basis(p, d);
-  N = n + logint(stoi(2*n), stoi(p), NULL);
+  N = n + logint(stoi(2*n), stoi(p)) + 1;
   pN1 = powuu(p,N+1);
   Q = RgX_to_FpX(H, pN1);
   if (dvdiu(leading_coeff(Q),p)) is_sing(H, p);
@@ -578,7 +578,7 @@ ZlXQX_hyperellpadicfrobenius(GEN H, GEN T, ulong p, long n)
   if (n < 1)
     pari_err_DOMAIN("hyperellpadicfrobenius","n","<", gen_1, utoi(n));
   k = get_basis(p, d); pp = utoi(p);
-  N = n + logint(stoi(2*n), pp, NULL);
+  N = n + logint(stoi(2*n), pp) + 1;
   q = powuu(p,n); N1 = N+1;
   pN1 = powuu(p,N1); T = FpX_get_red(T, pN1);
   Q = RgX_to_FqX(H, T, pN1);
@@ -741,7 +741,7 @@ hyperell_Weil_bound(GEN q, long g, GEN p)
 {
   pari_sp av = avma;
   GEN w = mulii(binomialuu(2*g,g),sqrtint(shifti(powiu(q, g),2)));
-  long e = logint(w, p, NULL);
+  long e = logint(w, p) + 1;
   avma = av; return e;
 }
 

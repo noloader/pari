@@ -663,7 +663,7 @@ compute_data(blockdata *B)
   gel(DATA,1) = pol;
   MM = gmul2n(bound_for_coeff(B->d, roo, &maxroot), 1);
   gel(DATA,8) = MM;
-  e = logint(shifti(vecmax(MM),20), p, &pe); /* overlift 2^20 [for d-1 test] */
+  e = logintall(shifti(vecmax(MM),20), p, &pe); /* overlift 2^20 [d-1 test] */
   gel(DATA,2) = pe;
   gel(DATA,4) = roots_from_deg1(fk);
 

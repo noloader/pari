@@ -427,7 +427,7 @@ polsubcyclo_start(long n, long d, long o, GEN borne, long *ptr_val,long *ptr_l)
     borne = mulii(binomial(utoipos(d),i),powuu(o,i));
   }
   if (DEBUGLEVEL >= 4) err_printf("Subcyclo: bound=2^%ld\n",expi(borne));
-  val = logint(shifti(borne,2), gl, NULL);
+  val = logint(shifti(borne,2), gl) + 1;
   avma = av;
   if (DEBUGLEVEL >= 4) err_printf("Subcyclo: val=%ld\n",val);
   le = powiu(gl,val);

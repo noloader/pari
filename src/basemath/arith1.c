@@ -368,81 +368,87 @@ istotient(GEN n, GEN *px)
 /**                                                                 **/
 /*********************************************************************/
 
-/* y > 1 and B > 0 integers. Return e such that y^(e-1) <= B < y^e, i.e
- * e = 1 + floor(log_y B). Set *ptq = y^e if non-NULL */
+/* y > 1 and B > 0 integers. Return e such that y^e <= B < y^(e+1), i.e
+ * e = floor(log_y B). Set *ptq = y^e if non-NULL */
 long
-logint(GEN B, GEN y, GEN *ptq)
+logintall(GEN B, GEN y, GEN *ptq)
 {
-  pari_sp av = avma, av2;
-  long eB, ey, e, i, fl;
-  GEN q,pow2, r = y;
+  pari_sp av;
+  long ey, e, i, eB = expi(B); /* 2^eB <= B < 2^(eB + 1) */
+  GEN q, pow2;
 
-  if (typ(B) != t_INT) B = ceil_safe(B);
-  eB = expi(B); /* 2^eB <= B < 2^(eB + 1) */
-  ey = expi(y); /* result e satisfies e > eB / (ey+1) */
+  if (equaliu(y,2))
+  {
+    if (ptq) *ptq = int2n(eB);
+    return eB;
+  }
+  av = avma;
+  ey = expi(y);
+  /* eB/(ey+1) - 1 < e <= eB/ey */
   if (eB <= 13 * ey) /* e small, be naive */
   {
+    GEN r = y, r2 = gen_1;
     for (e=1;; e++)
-    { /* here, r = y^e */
-      fl = cmpii(r, B);
-      if (fl > 0) goto END;
-      r = mulii(r,y);
+    { /* here, r = y^e, r2 = y^(e-1) */
+      long fl = cmpii(r, B);
+      if (fl >= 0)
+      {
+        if (fl) { e--; cgiv(r); r = r2; }
+        if (ptq) *ptq = gerepileuptoint(av, r); else avma = av;
+        return e;
+      }
+      r2 = r; r = mulii(r,y);
     }
   }
-  /* e > 13 ey / (ey + 1) >= 6.5 */
+  /* e >= 13 ey / (ey+1) >= 6.5 */
 
   /* binary splitting: compute bits of e one by one */
   /* compute pow2[i] = y^(2^i) [i < crude upper bound for log_2 log_y(B)] */
   pow2 = new_chunk((long)log2(eB)+2);
   gel(pow2,0) = y;
-  for (i=0,q=r;; )
-  { /* r = y^2^i */
-    fl = cmpii(r,B);
-    if (!fl) { e = 1L<<i; e++; r = mulii(r,y); goto END; }
+  for (i=0, q=y;; )
+  {
+    GEN r = gel(pow2,i); /* r = y^2^i */
+    long fl = cmpii(r,B);
+    if (!fl)
+    {
+      e = 1L<<i;
+      if (ptq) *ptq = gerepileuptoint(av, r); else avma = av;
+      return e;
+    }
     if (fl > 0) break;
-    q = r; r = sqri(q);
-    i++; gel(pow2,i) = r;
+    q = r;
+    gel(pow2,++i) = sqri(q);
   }
 
-  av2 = avma;
-  for (i--, e=1L<<i;;)
-  { /* y^e = q < B <= r = q * y^(2^i) */
-    if (!fl) break; /* B = r */
-    /* q < B < r */
-    if (--i < 0) { if (fl > 0) e++; break; }
+  for (i--, e = 1L<<i;;)
+  { /* y^e = q < B < r = q * y^(2^i) */
+    pari_sp av2 = avma;
+    long fl;
+    GEN r;
+    if (--i < 0) break;
     r = mulii(q, gel(pow2,i));
     fl = cmpii(r, B);
-    if (fl <= 0) { e += (1L<<i); q = r = gerepileuptoint(av2, r); }
+    if (fl > 0) avma = av2;
+    else
+    {
+      e += (1L<<i);
+      q = r;
+      if (!fl) break; /* B = r */
+    }
   }
-  if (fl <= 0) { e++; r = mulii(r,y); }
-END:
-  if (ptq) *ptq = gerepileuptoint(av, r); else avma = av;
+  if (ptq) *ptq = gerepileuptoint(av, q); else avma = av;
   return e;
 }
 
 long
 logint0(GEN B, GEN y, GEN *ptq)
 {
-  long e;
   if (typ(B) != t_INT) pari_err_TYPE("logint",B);
-  if (signe(B)<=0)
-    pari_err_DOMAIN("logint", "x" ,"<=", gen_0, B);
+  if (signe(B) <= 0) pari_err_DOMAIN("logint", "x" ,"<=", gen_0, B);
   if (typ(y) != t_INT) pari_err_TYPE("logint",y);
-  if (signe(y)<=0 || equali1(y))
-    pari_err_DOMAIN("logint", "b" ,"<=", gen_1, y);
-  if (absequaliu(y, 2))
-  {
-    e = expi(B);
-    if (ptq) *ptq = int2n(e);
-    return e;
-  }
-  e = logint(B,y,ptq)-1;
-  if (ptq)
-  {
-    pari_sp av = avma;
-    *ptq = gerepileuptoint(av, diviiexact(*ptq, y));
-  }
-  return e;
+  if (cmpis(y, 2) < 0) pari_err_DOMAIN("logint", "b" ,"<=", gen_1, y);
+  return logintall(B,y,ptq);
 }
 
 /*********************************************************************/

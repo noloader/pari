@@ -389,8 +389,8 @@ galoisborne(GEN T, GEN dn, struct galois_borne *gb, long d)
   borneroots = ceil_safe(gmul(borne, borneroots));
   av2 = avma;
   /*We use d-1 test, so we must overlift to 2^BITS_IN_LONG*/
-  gb->valsol = logint(shifti(borneroots,2+BITS_IN_LONG), gb->l,NULL);
-  gb->valabs = logint(shifti(borneabs,2), gb->l, NULL);
+  gb->valsol = logint(shifti(borneroots,2+BITS_IN_LONG), gb->l) + 1;
+  gb->valabs = logint(shifti(borneabs,2), gb->l) + 1;
   gb->valabs = maxss(gb->valsol, gb->valabs);
   if (DEBUGLEVEL >= 4)
     err_printf("GaloisConj: val1=%ld val2=%ld\n", gb->valsol, gb->valabs);
@@ -419,7 +419,7 @@ initlift(GEN T, GEN den, GEN p, GEN L, GEN Lden, struct galois_borne *gb, struct
   gl->p = p;
   gl->L = L;
   gl->Lden = Lden;
-  e = logint(shifti(gb->bornesol, 2+BITS_IN_LONG),p,NULL);
+  e = logint(shifti(gb->bornesol, 2+BITS_IN_LONG),p) + 1;
   avma = av;
   if (e < 2) e = 2;
   gl->e = e;

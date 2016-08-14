@@ -1861,7 +1861,7 @@ FpXQ_pow_Frobenius(GEN x, GEN n, GEN aut, GEN T, GEN p)
   q = powiu(p, d);
   if (dvdii(q, n))
   {
-    long vn = logint(an,p,NULL)-1;
+    long vn = logint(an,p);
     GEN autvn = vn==1 ? aut: FpXQ_autpow(aut,vn,T,p);
     z = FpX_FpXQ_eval(x,autvn,T,p);
   } else
