@@ -20,19 +20,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #include "paripriv.h"
 #undef coordch
 
-/* FIXME: export ? */
-static ulong
-Mod32(GEN x) {
-  long s = signe(x);
-  ulong m;
-  if (!s) return 0;
-  m = mod32(x); if (!m) return m;
-  if (s < 0) m = 32 - m;
-  return m;
-}
-#define Mod16(x) Mod32(x)&15
-#define Mod2(x) Mod32(x)&1
-
 /* Transforms a curve E into short Weierstrass form E' modulo p.
    Returns a vector, the first two entries of which are a4' and a6'.
    The third entry is a vector describing the isomorphism E' \to E.

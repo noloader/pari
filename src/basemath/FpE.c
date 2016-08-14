@@ -1073,19 +1073,6 @@ FOUND:
 
 /** ellap from CM (original code contributed by Mark Watkins) **/
 
-static ulong
-Mod16(GEN x) {
-  long s = signe(x);
-  ulong m;
-  if (!s) return 0;
-  m = mod16(x); if (!m) return m;
-  if (s < 0) m = 16 - m;
-  return m;
-}
-#define Mod2(x) (Mod16(x) & 1)
-#define Mod4(x) (Mod16(x) & 3)
-#define Mod8(x) (Mod16(x) & 7)
-
 static GEN
 ap_j0(GEN a6,GEN p)
 {

@@ -590,6 +590,24 @@ INLINE long mod4(GEN x)  { return mod2BIL(x) & 3; }
 INLINE long mod2(GEN x)  { return mod2BIL(x) & 1; }
 INLINE int
 mpodd(GEN x) { return signe(x) && mod2(x); }
+/* x mod 2^n, n < BITS_IN_LONG */
+INLINE ulong
+umodi2n(GEN x, long n)
+{
+  long s = signe(x);
+  const ulong _2n = 1UL << n;
+  ulong m;
+  if (!s) return 0;
+  m = *int_LSW(x) & (_2n - 1);
+  if (s < 0 && m) m = _2n - m;
+  return m;
+}
+INLINE ulong Mod64(GEN x){ return umodi2n(x,6); }
+INLINE ulong Mod32(GEN x){ return umodi2n(x,5); }
+INLINE ulong Mod16(GEN x){ return umodi2n(x,4); }
+INLINE ulong Mod8(GEN x) { return umodi2n(x,3); }
+INLINE ulong Mod4(GEN x) { return umodi2n(x,2); }
+INLINE ulong Mod2(GEN x) { return umodi2n(x,1); }
 
 INLINE GEN
 truedivii(GEN a,GEN b) { return truedvmdii(a,b,NULL); }

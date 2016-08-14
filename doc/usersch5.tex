@@ -3051,6 +3051,46 @@ defined: for a \emph{negative} \kbd{x}, if the quotient is $\pm1$, the result
 \kbd{x + |y|} would in general not fit into a \kbd{long}. Use either
 \kbd{umodui} or \kbd{modsi}.
 
+These functions directly access the binary data and are thus much faster than
+the generic modulo functions:
+
+\fun{int}{mpodd}{GEN x} which is 1 if \kbd{x} is odd, and 0 otherwise.
+
+\fun{ulong}{Mod2}{GEN x}
+
+\fun{ulong}{Mod4}{GEN x}
+
+\fun{ulong}{Mod8}{GEN x}
+
+\fun{ulong}{Mod16}{GEN x}
+
+\fun{ulong}{Mod32}{GEN x}
+
+\fun{ulong}{Mod64}{GEN x} give the residue class of $x$ modulo the
+corresponding power of $2$.
+
+\fun{ulong}{umodi2n}{GEN x, long n} give the residue class of $x$ modulo
+$2^n$, $0 \leq n < BITS\_IN\_LONG$.
+
+The following functions assume that $x\neq 0$ and in fact disregard the
+sign of $x$. There are about $10\%$ faster than the safer variants above:
+
+\fun{long}{mod2}{GEN x}
+
+\fun{long}{mod4}{GEN x}
+
+\fun{long}{mod8}{GEN x}
+
+\fun{long}{mod16}{GEN x}
+
+\fun{long}{mod32}{GEN x}
+
+\fun{long}{mod64}{GEN x} give the residue class of $|x|$ modulo the
+corresponding power of 2, for \emph{non-zero}~\kbd{x}. As well,
+
+\fun{ulong}{mod2BIL}{GEN x} returns the least significant word of $|x|$, still
+assuming that $x\neq 0$.
+
 \subsec{Powering, Square root}
 
 \fun{GEN}{powii}{GEN x, GEN n}, assumes $x$ and $n$ are \typ{INT}s and

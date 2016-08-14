@@ -1544,18 +1544,6 @@ static int
 gome(GEN t)
 { return signe(t)? ome( mod2BIL(t) ): 0; }
 
-/* t a t_INT, return 1 if t = 3 (mod 4), 0 otherwise */
-static int
-eps(GEN t)
-{
-  switch(signe(t))
-  {
-    case -1: return mod4(t) == 1;
-    case 1:  return mod4(t) == 3;
-    default: return 0;
-  }
-}
-
 /* assume y odd, return kronecker(x,y) * s */
 static long
 krouu_s(ulong x, ulong y, long s)
@@ -1786,13 +1774,13 @@ hilbertii(GEN x, GEN y, GEN p)
   /* x, y are p-units, compute hilbert(x * p^oddvx, y * p^oddvy, p) */
   if (absequaliu(p, 2))
   {
-    z = (eps(x) && eps(y))? -1: 1;
+    z = (Mod4(x) == 3 && Mod4(y) == 3)? -1: 1;
     if (oddvx && gome(y)) z = -z;
     if (oddvy && gome(x)) z = -z;
   }
   else
   {
-    z = (oddvx && oddvy && eps(p))? -1: 1;
+    z = (oddvx && oddvy && mod4(p) == 3)? -1: 1;
     if (oddvx && kronecker(y,p) < 0) z = -z;
     if (oddvy && kronecker(x,p) < 0) z = -z;
   }
