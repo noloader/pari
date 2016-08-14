@@ -10836,16 +10836,16 @@ A group \var{grp} of order $n$ is represented by its regular representation
 (for an arbitrary ordering of its element) in $S_n$.  A subgroup of such group
 is represented by the restriction of the representation to the subgroup.
 A \emph{small group} can be either a group or a subgroup. Thus it is embedded
-in some $S_n$, where $n$ is the multiple of the order. Such $n$ is called the
-\emph{domain} of the small group. The domain of a trivial subgroup cannot be
-derived from the subgroup data, so some functions require the subgroup domain
-as argument.
+in some $S_n$, where $n$ is the multiple of the order. Such an $n$ is called
+the \emph{domain} of the small group. The domain of a trivial subgroup cannot
+be derived from the subgroup data, so some functions require the subgroup
+domain as argument.
 
 The small group \var{grp} is represented by a \typ{VEC} with two
 components:
 
 $\var{grp}[1]$ is a generating subset $[s_1,\ldots,s_g]$ of \var{grp}
-expressed as a vector of permutation of length $n$.
+expressed as a vector of permutations of length~$n$.
 
 $\var{grp}[2]$ contains the relative orders $[o_1,\ldots,o_g]$ of
 the generators $\var{grp}[1]$.
