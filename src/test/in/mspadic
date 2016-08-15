@@ -124,7 +124,10 @@ phi=[1,8,1,-32]~; \\ v_p(ap) = 1
 Wp=mspadicinit(M,3,5, 2);
 oms=mspadicmoments(Wp, phi); \\ must fail
 Wp=mspadicinit(M,3,5, 1);
-oms=mspadicmoments(Wp, phi); \\ now succeeds
+PHI=mstooms(Wp,phi);
+msomseval(Wp,PHI,[1/2,1/3])
+msomseval(Wp,PHI,[0,oo])
+oms=mspadicmoments(Wp, PHI); \\ now succeeds
 mspadicL(oms)
 
 msnewsymb(N,k,s=1) = {
