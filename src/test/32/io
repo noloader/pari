@@ -3,7 +3,7 @@
 1
 setting x
 setting y
-setting F
-setting del
-()->system(Str("rm -f ",F))
-Total time spent: 0
+y
+2
+["1+1"]
+Total time spent: 1

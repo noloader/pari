@@ -21,3 +21,8 @@ del()
 writebin(F)
 read(F)
 del()
+\\
+write(F,"1+1")
+extern("cat "F)
+externstr("cat "F)
+del()
