@@ -4,7 +4,7 @@
 %
 % Permission is granted to copy, distribute and/or modify this document
 % under the terms of the GNU General Public License
-\chapter{Technical Reference Guide for $L$-functions}
+\chapter{$L$-functions}
 
 \section{Accessors}
 
@@ -130,5 +130,15 @@
 \fun{double}{dbllemma526}{double a, double b, double c, long B}
 
 \fun{double}{dblcoro526}{double a, double c, long B}
+
+\newpage
+
+\chapter{Modular symbols}
+
+\fun{void}{checkms}{GEN W} raise an exception if $W$ is not an \var{ms}
+structure from \kbd{msinit}.
+
+\fun{void}{checkmspadic}{GEN W} raise an exception if $W$ is not an
+\var{mspadic} structure from \kbd{mspadicinit}.
 
 \newpage
