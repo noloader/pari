@@ -374,7 +374,7 @@ long
 logintall(GEN B, GEN y, GEN *ptq)
 {
   pari_sp av;
-  long ey, e, i, eB = expi(B); /* 2^eB <= B < 2^(eB + 1) */
+  long ey, e, emax, i, eB = expi(B); /* 2^eB <= B < 2^(eB + 1) */
   GEN q, pow2;
 
   if (equaliu(y,2))
@@ -385,7 +385,8 @@ logintall(GEN B, GEN y, GEN *ptq)
   av = avma;
   ey = expi(y);
   /* eB/(ey+1) - 1 < e <= eB/ey */
-  if (eB <= 13 * ey) /* e small, be naive */
+  emax = eB/ey;
+  if (emax <= 13) /* e small, be naive */
   {
     GEN r = y, r2 = gen_1;
     for (e=1;; e++)
@@ -416,12 +417,13 @@ logintall(GEN B, GEN y, GEN *ptq)
       if (ptq) *ptq = gerepileuptoint(av, r); else avma = av;
       return e;
     }
-    if (fl > 0) break;
+    if (fl > 0) { i--; break; }
     q = r;
+    if (1L<<(i+1) > emax) break;
     gel(pow2,++i) = sqri(q);
   }
 
-  for (i--, e = 1L<<i;;)
+  for (e = 1L<<i;;)
   { /* y^e = q < B < r = q * y^(2^i) */
     pari_sp av2 = avma;
     long fl;
