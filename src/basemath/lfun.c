@@ -2039,7 +2039,7 @@ lfuncenterinit(GEN lmisc, double h, long m, long bitprec)
 {
   if (m < 0)
   { /* choose a sensible default */
-    if (!is_linit(lmisc)) m = 4;
+    if (!is_linit(lmisc) || linit_get_type(lmisc) != t_LDESC_INIT) m = 4;
     else
     {
       GEN domain = lfun_get_domain(linit_get_tech(lmisc));

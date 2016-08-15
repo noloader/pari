@@ -80,6 +80,7 @@ for(i=1,#VALL,
   a=lfunhardy(L,2);
   b=lfunhardy(ldata,2);
   chk("lfunhardy",i,a,b);
+  print(i," (lfunorderzero): ",lfunorderzero(L));
   L=lfunthetainit(ldata);
   a=lfuntheta(L,2);
   b=lfuntheta(ldata,2);
