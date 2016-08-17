@@ -1290,7 +1290,10 @@ $$||x||_v^2 = {}^t (G_v X) \cdot G_v X.$$
 (This is a kind of Cholesky decomposition.) This function
 returns a rescaled copy of $G_v$, rounded to nearest integers, specifically
 \tet{RM_round_maxrank}$(G_v)$.
-Suitable for \kbd{gerepileupto}, but does not collect garbage.
+Suitable for \kbd{gerepileupto}, but does not collect garbage. For
+convenience, also allow $v = $\kbd{NULL} (\tet{nf_get_roundG}) and $v$
+a \typ{MAT} as output from the function itself: in both these cases,
+shallow function.
 
 \fun{GEN}{nf_get_Gtwist1}{GEN nf, long i}. Simple special case. Returns the
 twisted $G$ matrix attached to the vector $v$ whose entries are all $0$

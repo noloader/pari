@@ -1966,14 +1966,17 @@ idealintersect(GEN nf, GEN x, GEN y)
 static GEN
 chk_vdir(GEN nf, GEN vdir)
 {
-  long i, t, l = lg(vdir);
+  long i, l = lg(vdir);
   GEN v;
   if (l != lg(nf_get_roots(nf))) pari_err_DIM("idealred");
-  t = typ(vdir);
-  if (t == t_VECSMALL) return vdir;
-  if (t != t_VEC) pari_err_TYPE("idealred",vdir);
+  switch(typ(vdir))
+  {
+    case t_VECSMALL: return vdir;
+    case t_VEC: break;
+    default: pari_err_TYPE("idealred",vdir);
+  }
   v = cgetg(l, t_VECSMALL);
-  for (i=1; i<l; i++) v[i] = itos(gceil(gel(vdir,i)));
+  for (i = 1; i < l; i++) v[i] = itos(gceil(gel(vdir,i)));
   return v;
 }
 
@@ -1999,6 +2002,13 @@ nf_get_Gtwist(GEN nf, GEN vdir)
   long i, l, v, r1;
   GEN G;
 
+  if (!vdir) return nf_get_roundG(nf);
+  if (typ(vdir) == t_MAT)
+  {
+    long N = nf_get_degree(nf);
+    if (lg(vdir) != N+1 || lgcols(vdir) != N+1) pari_err_DIM("idealred");
+    return vdir;
+  }
   vdir = chk_vdir(nf, vdir);
   G = RgM_shallowcopy(nf_get_G(nf));
   r1 = nf_get_r1(nf);
@@ -2043,6 +2053,8 @@ idealred0(GEN nf, GEN I, GEN vdir)
 
   nf = checknf(nf);
   pol = nf_get_pol(nf); N = degpol(pol);
+  /* put first for sanity checks, unused when I obviously principal */
+  G = nf_get_Gtwist(nf, vdir);
   T = x = c = c1 = NULL;
   switch (idealtyp(&I,&aI))
   {
@@ -2061,12 +2073,6 @@ idealred0(GEN nf, GEN I, GEN vdir)
     case id_MAT:
       I = Q_primitive_part(I, &c1);
   }
-  if (!vdir)
-    G = nf_get_roundG(nf);
-  else if (typ(vdir) == t_MAT)
-    G = vdir;
-  else
-    G = nf_get_Gtwist(nf, vdir);
   y = idealpseudomin(I, G);
 
   if (ZV_isscalar(y))
@@ -2122,7 +2128,7 @@ idealmin(GEN nf, GEN x, GEN vdir)
     case id_MAT: if (lg(x) == 1) return gen_0;
   }
   x = Q_remove_denom(x, &dx);
-  y = idealpseudomin(x, vdir? nf_get_Gtwist(nf,vdir): nf_get_roundG(nf));
+  y = idealpseudomin(x, nf_get_Gtwist(nf,vdir));
   if (dx) y = RgC_Rg_div(y, dx);
   return gerepileupto(av, y);
 }
