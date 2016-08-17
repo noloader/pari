@@ -2030,68 +2030,56 @@ GEN
 idealred0(GEN nf, GEN I, GEN vdir)
 {
   pari_sp av = avma;
-  long N, i;
-  GEN G, J, aI, y, x, T, b, c1, c, pol;
+  GEN G, aI, IZ, J, y, yZ, my, c1 = NULL;
+  long N;
 
   nf = checknf(nf);
-  pol = nf_get_pol(nf); N = degpol(pol);
+  N = nf_get_degree(nf);
   /* put first for sanity checks, unused when I obviously principal */
   G = nf_get_Gtwist(nf, vdir);
-  T = x = c = c1 = NULL;
   switch (idealtyp(&I,&aI))
   {
-    case id_PRINCIPAL:
-      if (gequal0(I)) I = cgetg(1,t_MAT); else { c1 = I; I = matid(N); }
-      if (!aI) return I;
-      goto END;
     case id_PRIME:
       if (pr_is_inert(I)) {
+        if (!aI) { avma = av; return matid(N); }
         c1 = gel(I,1); I = matid(N);
-        if (!aI) return I;
         goto END;
       }
+      IZ = pr_get_p(I);
+      J = pidealprimeinv(nf,I);
       I = idealhnf_two(nf,I);
       break;
     case id_MAT:
       I = Q_primitive_part(I, &c1);
+      IZ = gcoeff(I,1,1);
+      if (is_pm1(IZ))
+      {
+        if (!aI) { avma = av; return matid(N); }
+        goto END;
+      }
+      J = idealinv_HNF_Z(nf, I);
+      break;
+    default: /* id_PRINCIPAL, silly case */
+      if (gequal0(I)) I = cgetg(1,t_MAT); else { c1 = I; I = matid(N); }
+      if (!aI) return I;
+      goto END;
   }
-  y = idealpseudomin(I, G);
-
+  /* now I integral, HNF; and J = (I\cap Z) I^(-1), integral */
+  y = idealpseudomin(J, G); /* small elt in (I\cap Z)I^(-1), integral */
   if (ZV_isscalar(y))
   { /* already reduced */
     if (!aI) return gerepilecopy(av, I);
     goto END;
   }
 
-  x = coltoliftalg(nf, y); /* algebraic integer */
-  b = Q_remove_denom(QXQ_inv(x,pol), &T);
-  b = poltobasis(nf,b);
-  if (T)
-  {
-    GEN T2; b = Q_primitive_part(b, &T2);
-    if (T2) { T = diviiexact(T, T2); if (is_pm1(T)) T = NULL; }
-  }
-  /* b = T x^(-1), T rat. integer, minimal such that b alg. integer */
-  if (!T) /* x is a unit, I already reduced */
-  {
-    if (!aI) return gerepilecopy(av, I);
-    goto END;
-  }
-
-  b = zk_multable(nf,b);
-  J = cgetg(N+1,t_MAT); /* = I T/ x integral */
-  for (i=1; i<=N; i++) gel(J,i) = ZM_ZC_mul(b, gel(I,i));
-  J = Q_primitive_part(J, &c);
- /* c = content (I T / x) = T / den(I/x) --> d = den(I/x) = T / c
-  * J = (d I / x); I[1,1] = I \cap Z --> d I[1,1] belongs to J and Z */
-  I = ZM_hnfmodid(J, mulii(gcoeff(I,1,1), c? diviiexact(T,c): T));
+  my = zk_multable(nf, y);
+  I = ZM_Z_divexact(ZM_mul(my, I), IZ); /* y I / (I\cap Z), integral */
+  c1 = mul_content(c1, IZ);
+  my = ZM_gauss(my, col_ei(N,1)); /* y^-1 */
+  yZ = Q_denom(my); /* (y) \cap Z */
+  I = hnfmodid(I, yZ);
   if (!aI) return gerepileupto(av, I);
-
-  c = mul_content(c,c1);
-  y = c? gmul(y, gdiv(c,T)): gdiv(y, T);
-  aI = ext_mul(nf, aI,y);
-  return gerepilecopy(av, mkvec2(I, aI));
-
+  c1 = RgC_Rg_mul(my, c1);
 END:
   if (c1) aI = ext_mul(nf, aI,c1);
   return gerepilecopy(av, mkvec2(I, aI));

@@ -1,4 +1,4 @@
-HEAP=[165, if(precision(1.)==38,70241,71852)];
+HEAP=[167, if(precision(1.)==38,70429,72040)];
 default(realprecision,154); Pi; default(realprecision,38);
 dobnf(T,flag=0,tech=[])= setrand(1); my(K = bnfinit(T,flag,tech)); [K.cyc,K.fu];
 \e
@@ -15,7 +15,7 @@ setrand(1);bnf=bnfinit(x^2-x-57,,[0.2,0.2])
 dobnf(x^2-x-100000,1)
 \p19
 setrand(1);sbnf=bnfcompress(bnfinit(x^3-x^2-14*x-1))
-bnfinit(sbnf)
+K=bnfinit(sbnf); bnfisprincipal(K, idealprimedec(K,3)[2])
 \p38
 bnr=bnrinit(bnf,[[5,3;0,1],[1,0]],1); bnr.cyc
 bnr2=bnrinit(bnf,[[25,13;0,1],[1,1]],1); bnr2.bid
@@ -47,7 +47,8 @@ factornf(x^3+x^2-2*x-1,t^3+t^2-2*t-1)
 \\
 vp=idealprimedec(nf,3)[1]
 idx=idealhnf(nf,vp)
-idy=idealred(nf,idx,[1,5,6])
+idealred(nf,idx,[1,5,6])
+idy=idealdiv(nf,5,idealprimedec(nf,5)[1])
 idx2=idealmul(nf,idx,idx)
 idt=idealmul(nf,idx,idx,1)
 idz=idealintersect(nf,idx,idy)
@@ -68,7 +69,7 @@ ideallog(nf2,y,bid)
 idealmin(nf,idx,[1,2,3])
 idealnorm(nf,idt)
 idp=idealpow(nf,idx,7)
-idealpow(nf,idx,7,1)
+idealpow(nf,idx,5,1)
 idealprimedec(nf,2)
 idealprimedec(nf,3)
 idealprimedec(nf,11)
