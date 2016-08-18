@@ -1960,6 +1960,7 @@ GEN     tablesqr(GEN tab, GEN x);
 GEN     vec01_to_indices(GEN arch);
 GEN     vecmodii(GEN a, GEN b);
 GEN     vecsmall01_to_indices(GEN v);
+GEN     zk_inv(GEN nf, GEN x);
 GEN     zk_multable(GEN nf, GEN x);
 GEN     zk_scalar_or_multable(GEN, GEN x);
 GEN     zkchinese(GEN zkc, GEN x, GEN y);

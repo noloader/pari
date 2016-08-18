@@ -1566,35 +1566,40 @@ pidealprimeinv(GEN nf, GEN x)
 GEN
 idealinv(GEN nf, GEN x)
 {
-  GEN res,ax;
+  GEN res, ax;
   pari_sp av;
-  long tx = idealtyp(&x,&ax);
+  long tx = idealtyp(&x,&ax), N;
 
   res = ax? cgetg(3,t_VEC): NULL;
   nf = checknf(nf); av = avma;
+  N = nf_get_degree(nf);
   switch (tx)
   {
     case id_MAT:
-      if (lg(x)-1 != nf_get_degree(nf)) pari_err_DIM("idealinv");
+      if (lg(x)-1 != N) pari_err_DIM("idealinv");
       x = idealinv_HNF(nf,x); break;
-    case id_PRINCIPAL: tx = typ(x);
-      if (is_const_t(tx)) x = ginv(x);
+    case id_PRINCIPAL:
+      x = nf_to_scalar_or_basis(nf, x);
+      if (typ(x) != t_COL)
+        x = idealhnf_principal(nf,ginv(x));
       else
-      {
-        GEN T;
-        switch(tx)
+      { /* nfinv + idealhnf where we already know (x) \cap Z */
+        GEN c, d;
+        x = Q_remove_denom(x, &c);
+        x = zk_inv(nf, x);
+        x = Q_remove_denom(x, &d); /* true inverse is c/d * x */
+        if (!d) /* x and x^(-1) integral => x a unit */
+          x = scalarmat_shallow(c? c: gen_1, N);
+        else
         {
-          case t_COL: x = coltoliftalg(nf,x); break;
-          case t_POLMOD: x = gel(x,2); break;
+          c = c? gdiv(c,d): ginv(d);
+          x = zk_multable(nf, x);
+          x = ZM_Q_mul(ZM_hnfmodid(x,d), c);
         }
-        if (typ(x) != t_POL) { x = ginv(x); break; }
-        T = nf_get_pol(nf);
-        if (varn(x) != varn(T)) pari_err_VAR("idealinv", x, T);
-        x = QXQ_inv(x, T);
       }
-      x = idealhnf_principal(nf,x); break;
+      break;
     case id_PRIME:
-      x = RgM_Rg_div(pidealprimeinv(nf,x), gel(x,1));
+      x = RgM_Rg_div(pidealprimeinv(nf,x), pr_get_p(x));
   }
   x = gerepileupto(av,x); if (!ax) return x;
   gel(res,1) = x;

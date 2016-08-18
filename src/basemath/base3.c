@@ -373,20 +373,29 @@ tablemulvec(GEN M, GEN x, GEN v)
   return y;
 }
 
+/* nf a true nf, x a ZC */
+GEN
+zk_inv(GEN nf, GEN x)
+{ return ZM_gauss(zk_multable(nf, x), col_ei(nf_get_degree(nf),1)); }
+
 /* inverse of x in nf */
 GEN
 nfinv(GEN nf, GEN x)
 {
   pari_sp av = avma;
-  GEN T, z;
+  GEN z;
 
-  nf = checknf(nf); T = nf_get_pol(nf);
-  x = nf_to_scalar_or_alg(nf, x);
-  if (typ(x) == t_POL)
-    z = poltobasis(nf, QXQ_inv(x, T));
-  else {
-    z = zerocol(degpol(T)); gel(z,1) = ginv(x);
+  nf = checknf(nf);
+  x = nf_to_scalar_or_basis(nf, x);
+  if (typ(x) == t_COL)
+  {
+    GEN d;
+    x = Q_remove_denom(x, &d);
+    z = zk_inv(nf, x);
+    if (d) z = RgC_Rg_mul(z, d);
   }
+  else
+  { z = zerocol(nf_get_degree(nf)); gel(z,1) = ginv(x); }
   return gerepileupto(av, z);
 }
 
@@ -395,23 +404,23 @@ GEN
 nfdiv(GEN nf, GEN x, GEN y)
 {
   pari_sp av = avma;
-  GEN T, z;
+  GEN z;
 
-  nf = checknf(nf); T = nf_get_pol(nf);
-  y = nf_to_scalar_or_alg(nf, y);
-  if (typ(y) != t_POL) {
+  nf = checknf(nf);
+  y = nf_to_scalar_or_basis(nf, y);
+  if (typ(y) != t_COL)
+  {
     x = nf_to_scalar_or_basis(nf, x);
     if (typ(x) == t_COL) z = RgC_Rg_div(x, y);
-    else {
-      z = zerocol(degpol(T)); gel(z,1) = gdiv(x,y);
-    }
+    else
+    { z = zerocol(nf_get_degree(nf)); gel(z,1) = gdiv(x,y); }
   }
   else
   {
-    x = nf_to_scalar_or_alg(nf, x);
-    z = QXQ_inv(y, T);
-    z = (typ(x) == t_POL)? RgXQ_mul(z, x, T): RgX_Rg_mul(z, x);
-    z = poltobasis(nf, z);
+    GEN d;
+    y = Q_remove_denom(y, &d);
+    z = nfmul(nf, x, zk_inv(nf,y));
+    if (d) z = RgC_Rg_mul(z, d);
   }
   return gerepileupto(av, z);
 }
@@ -590,19 +599,24 @@ nfpow(GEN nf, GEN z, GEN n)
 {
   pari_sp av = avma;
   long s, N;
-  GEN x, cx, T;
+  GEN x, cx;
 
   if (typ(n)!=t_INT) pari_err_TYPE("nfpow",n);
-  nf = checknf(nf); T = nf_get_pol(nf); N = degpol(T);
+  nf = checknf(nf); N = nf_get_degree(nf);
   s = signe(n); if (!s) return scalarcol_shallow(gen_1,N);
   x = nf_to_scalar_or_basis(nf, z);
   if (typ(x) != t_COL) { GEN y = zerocol(N); gel(y,1) = powgi(x,n); return y; }
-  if (s < 0) { /* simplified nfinv */
-    x = nf_to_scalar_or_alg(nf, z);
-    x = poltobasis(nf, QXQ_inv(x, T));
+  if (s < 0)
+  { /* simplified nfinv */
+    GEN d;
+    x = Q_remove_denom(x, &d);
+    x = zk_inv(nf, x);
+    x = primitive_part(x, &cx);
+    cx = mul_content(cx, d);
     n = absi(n);
   }
-  x = primitive_part(x, &cx);
+  else
+    x = primitive_part(x, &cx);
   x = gen_pow(x, n, (void*)nf, _sqr, _mul);
   if (cx) x = RgC_Rg_mul(x, powgi(cx, n));
   return av==avma? gcopy(x): gerepileupto(av,x);
