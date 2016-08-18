@@ -1601,10 +1601,9 @@ arguments)\cr
 
 The \kbd{E*} code reads all remaining arguments in closure context and passes
 them as a single \typ{VEC}.
-The \kbd{s*} code reads all remaining arguments in
-\tev{string context} (see \secref{se:strings}), and passes the list of
-strings as a single \typ{VEC}.  The automatic concatenation rules in string
-context are implemented so that adjacent strings
+The \kbd{s*} code reads all remaining arguments in \tev{string context} and
+passes the list of strings as a single \typ{VEC}. The automatic concatenation
+rules in string context are implemented so that adjacent strings
 are read as different arguments, as if they had been comma-separated. For
 instance, if the remaining argument sequence is: \kbd{"xx" 1, "yy"}, the
 \kbd{s*} atom sends \kbd{[a, b, c]}, where
@@ -1691,15 +1690,15 @@ like the following:
 install(libname, code, gpname, library)
 addhelp(gpname, "some help text")
 @eprog
-\noindent(see \secref{se:addhelp} and~\ref{se:install}). The \idx{addhelp}
-part is not mandatory, but very useful if you want others to use your
-module. \kbd{libname} is how the function is named in the library,
-usually the same name as one visible from C.
+\noindent The \idx{addhelp} part is not mandatory, but very useful if you
+want others to use your module. \kbd{libname} is how the function is named in
+the library, usually the same name as one visible from C.
 
 Read that file from your \kbd{gp} session, for instance from your
-\idx{preferences file} (\secref{se:gprc}), and that's it. You
+\idx{preferences file} (or \kbd{gprc}), and that's it. You
 can now use the new function \var{gpname} under \kbd{gp}, and we would very
-much like to hear about it! \smallskip
+much like to hear about it!
+\smallskip
 
 \misctitle{Example}
 A complete description could look like this:
