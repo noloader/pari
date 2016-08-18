@@ -102,7 +102,7 @@ idealhnf_principal(GEN nf, GEN x)
   x = Q_primitive_part(x, &cx);
   RgV_check_ZV(x, "idealhnf");
   x = zk_multable(nf, x);
-  x = ZM_hnfmod(x, ZM_detmult(x));
+  x = ZM_hnfmodid(x, zkmultable_capZ(x));
   return cx? ZM_Q_mul(x,cx): x;
 }
 
@@ -260,8 +260,9 @@ hnf_QC_QC(GEN nf, GEN a, GEN b)
   if (da) b = ZC_Z_mul(b, da);
   if (db) a = ZC_Z_mul(a, db);
   d = mul_denom(da, db);
-  x = shallowconcat(zk_multable(nf,a), zk_multable(nf,b));
-  x = ZM_hnfmod(x, ZM_detmult(x));
+  a = zk_multable(nf,a); da = zkmultable_capZ(a);
+  b = zk_multable(nf,b); db = zkmultable_capZ(b);
+  x = ZM_hnfmodid(shallowconcat(a,b), gcdii(da,db));
   return d? RgM_Rg_div(x, d): x;
 }
 static GEN
@@ -1397,18 +1398,21 @@ vecdiv(GEN x, GEN y)
   return z;
 }
 
-/* v ideal as a square t_MAT */
+/* A ideal as a square t_MAT */
 static GEN
-idealmulelt(GEN nf, GEN x, GEN v)
+idealmulelt(GEN nf, GEN x, GEN A)
 {
   long i, lx;
-  GEN cx;
-  if (lg(v) == 1) return cgetg(1, t_MAT);
+  GEN dx, dA, D;
+  if (lg(A) == 1) return cgetg(1, t_MAT);
   x = nf_to_scalar_or_basis(nf,x);
   if (typ(x) != t_COL)
-    return isintzero(x)? cgetg(1,t_MAT): RgM_Rg_mul(v, Q_abs_shallow(x));
-  x = nfC_nf_mul(nf, v, x);
-  x = Q_primitive_part(x, &cx);
+    return isintzero(x)? cgetg(1,t_MAT): RgM_Rg_mul(A, Q_abs_shallow(x));
+  x = Q_remove_denom(x, &dx);
+  A = Q_remove_denom(A, &dA);
+  x = zk_multable(nf, x);
+  D = mulii(zkmultable_capZ(x), gcoeff(A,1,1));
+  x = zkC_multable_mul(nf, A, x);
   settyp(x, t_MAT); lx = lg(x);
   /* x may contain scalars (at most 1 since the ideal is non-0)*/
   for (i=1; i<lx; i++)
@@ -1418,11 +1422,12 @@ idealmulelt(GEN nf, GEN x, GEN v)
       gel(x,1) = scalarcol_shallow(gel(x,1), lx-1);
       break;
     }
-  x = ZM_hnfmod(x, ZM_detmult(x));
-  return cx? ZM_Q_mul(x,cx): x;
+  x = ZM_hnfmodid(x, D);
+  dx = mul_denom(dx,dA);
+  return dx? gdiv(x,dx): x;
 }
 
-/* tx <= ty */
+/* nf a true nf, tx <= ty */
 static GEN
 idealmul_aux(GEN nf, GEN x, GEN y, long tx, long ty)
 {
@@ -1452,7 +1457,7 @@ idealmul_aux(GEN nf, GEN x, GEN y, long tx, long ty)
           x = Q_primitive_part(x, &cx);
           x = zk_multable(nf, x);
           z = shallowconcat(ZM_Z_mul(x,p), ZM_ZC_mul(x,pi));
-          z = ZM_hnfmod(z, ZM_detmult(z));
+          z = ZM_hnfmodid(z, mulii(p, zkmultable_capZ(x)));
           return cx? ZM_Q_mul(z, cx): z;
         }
         default: /* id_MAT */

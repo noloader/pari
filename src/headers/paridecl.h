@@ -1966,6 +1966,8 @@ GEN     zk_scalar_or_multable(GEN, GEN x);
 GEN     zkchinese(GEN zkc, GEN x, GEN y);
 GEN     zkchinese1(GEN zkc, GEN x);
 GEN     zkchineseinit(GEN nf, GEN A, GEN B, GEN AB);
+GEN     zkmultable_capZ(GEN mx);
+GEN     zkmultable_inv(GEN mx);
 
 /* base4.c */
 
@@ -2035,6 +2037,7 @@ long    isideal(GEN nf,GEN x);
 GEN     idealmin(GEN nf,GEN ix,GEN vdir);
 GEN     nf_get_Gtwist(GEN nf, GEN vdir);
 GEN     nf_get_Gtwist1(GEN nf, long i);
+GEN     nfC_multable_mul(GEN nf, GEN v, GEN x);
 GEN     nfC_nf_mul(GEN nf, GEN v, GEN x);
 GEN     nfdetint(GEN nf,GEN pseudo);
 GEN     nfdivmodpr(GEN nf, GEN x, GEN y, GEN modpr);
@@ -2054,6 +2057,7 @@ GEN     vecdiv(GEN x, GEN y);
 GEN     vecinv(GEN x);
 GEN     vecmul(GEN x, GEN y);
 GEN     vecpow(GEN x, GEN n);
+GEN     zkC_multable_mul(GEN nf, GEN v, GEN x);
 
 /* base5.c */
 

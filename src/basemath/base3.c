@@ -302,15 +302,56 @@ nfsqr(GEN nf, GEN x)
   return gerepileupto(av, z);
 }
 
+/* x a ZC, v a t_COL of ZC/Z */
+GEN
+zkC_multable_mul(GEN nf, GEN v, GEN x)
+{
+  long i, l = lg(v);
+  GEN y = cgetg(l, t_COL);
+  for (i = 1; i < l; i++)
+  {
+    GEN c = gel(v,i);
+    if (typ(c)!=t_COL) {
+      if (!isintzero(c)) c = ZC_Z_mul(gel(x,1), c);
+    } else {
+      c = ZM_ZC_mul(x,c);
+      if (ZV_isscalar(c)) c = gel(c,1);
+    }
+    gel(y,i) = c;
+  }
+  return y;
+}
+
+GEN
+nfC_multable_mul(GEN nf, GEN v, GEN x)
+{
+  long i, l = lg(v);
+  GEN y = cgetg(l, t_COL);
+  for (i = 1; i < l; i++)
+  {
+    GEN c = gel(v,i);
+    if (typ(c)!=t_COL) {
+      if (!isintzero(c)) c = RgC_Rg_mul(gel(x,1), c);
+    } else {
+      c = RgM_RgC_mul(x,c);
+      if (QV_isscalar(c)) c = gel(c,1);
+    }
+    gel(y,i) = c;
+  }
+  return y;
+}
+
 GEN
 nfC_nf_mul(GEN nf, GEN v, GEN x)
 {
-  long tx, l, i;
-  GEN y, dx = NULL;
+  long tx;
+  GEN y;
 
   x = nf_to_scalar_or_basis(nf, x);
   tx = typ(x);
-  if (tx != t_COL) {
+  if (tx != t_COL)
+  {
+    long l, i;
     if (tx == t_INT)
     {
       long s = signe(x);
@@ -324,25 +365,15 @@ nfC_nf_mul(GEN nf, GEN v, GEN x)
       if (typ(c) != t_COL) c = gmul(c, x); else c = RgC_Rg_mul(c, x);
       gel(y,i) = c;
     }
+    return y;
   }
   else
   {
-    x = Q_remove_denom(x, &dx);
-    x = zk_multable(nf, x);
-    l = lg(v); y = cgetg(l, t_COL);
-    for (i=1; i < l; i++)
-    {
-      GEN c = gel(v,i);
-      if (typ(c)!=t_COL) {
-        if (!isintzero(c)) c = RgC_Rg_mul(gel(x,1), c);
-      } else {
-        c = RgM_RgC_mul(x,c);
-        if (QV_isscalar(c)) c = gel(c,1);
-      }
-      gel(y,i) = c;
-    }
+    GEN dx;
+    x = zk_multable(nf, Q_remove_denom(x,&dx));
+    y = nfC_multable_mul(nf, v, x);
+    return dx? RgC_Rg_div(y, dx): y;
   }
-  return dx? RgC_Rg_div(y, dx): y;
 }
 static GEN
 mulbytab(GEN M, GEN c)
@@ -373,10 +404,16 @@ tablemulvec(GEN M, GEN x, GEN v)
   return y;
 }
 
+GEN
+zkmultable_capZ(GEN mx) { return Q_denom(zkmultable_inv(mx)); }
+
+GEN
+zkmultable_inv(GEN mx)
+{ return ZM_gauss(mx, col_ei(lg(mx)-1,1)); }
+
 /* nf a true nf, x a ZC */
 GEN
-zk_inv(GEN nf, GEN x)
-{ return ZM_gauss(zk_multable(nf, x), col_ei(nf_get_degree(nf),1)); }
+zk_inv(GEN nf, GEN x) { return zkmultable_inv(zk_multable(nf,x)); }
 
 /* inverse of x in nf */
 GEN
