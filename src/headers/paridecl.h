@@ -1897,6 +1897,7 @@ GEN     zkmodprinit(GEN nf, GEN pr);
 /* base3.c */
 
 GEN     Idealstar(GEN nf, GEN x,long flun);
+GEN     Idealstarprk(GEN nf, GEN pr, long k, long flag);
 GEN     RgC_to_nfC(GEN nf,GEN x);
 GEN     RgM_to_nfM(GEN nf,GEN x);
 GEN     RgX_to_nfX(GEN nf,GEN pol);

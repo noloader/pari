@@ -2229,7 +2229,7 @@ discrayabslistarch(GEN bnf, GEN arch, ulong bound)
   int allarch = (arch==NULL), flbou = 0;
   long degk, j, k, l, nba, nbarch, r1, c;
   pari_sp av0 = avma,  av,  av1;
-  GEN nf, p, Z, fa, ideal, bidp, matarchunit, Disc, U, sgnU, EMPTY, empty;
+  GEN nf, p, Z, fa, bidp, matarchunit, Disc, U, sgnU, EMPTY, empty;
   GEN res, embunit, h, Ray, discall, idealrel, idealrelinit, fadkabs, BOUND;
   ulong i, ii, sqbou;
   forprime_t S;
@@ -2299,11 +2299,11 @@ discrayabslistarch(GEN bnf, GEN arch, ulong bound)
 
       /* p, f-1, j-1 as a single integer in "base degk" (f,j <= degk)*/
       prcode = (p[2]*degk + f-1)*degk + j-1;
-      q = Q; ideal = pr;
+      q = Q;
       for (l=1;; l++) /* Q <= bound */
       {
         ulong iQ;
-        bidp = Idealstar(nf,ideal, nf_INIT);
+        bidp = Idealstarprk(nf, pr, l, nf_INIT);
         embunit = zlog_units_noarch(nf, U, bidp);
         for (iQ = Q, i = 1; iQ <= bound; iQ += Q, i++)
         {
@@ -2330,7 +2330,6 @@ discrayabslistarch(GEN bnf, GEN arch, ulong bound)
         Q = itou_or_0( muluu(Q, q) );
         if (!Q || Q > bound) break;
 
-        ideal = idealmul(nf,ideal,pr);
       }
     }
     if (gc_needed(av,1))

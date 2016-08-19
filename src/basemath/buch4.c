@@ -234,7 +234,7 @@ lemma7nf(GEN nf, GEN T, GEN pr, long nu, GEN x, GEN zinit)
   if (q == 1) return res;
 
   /* is gx a square mod pi^q ? FIXME : highly inefficient */
-  zinit = zidealstarinit(nf, idealpows(nf,pr,q));
+  zinit = Idealstarprk(nf, pr, q, nf_INIT);
   if (!check2(nf, gx, zinit)) res = -1;
   return res;
 }
@@ -309,7 +309,7 @@ nf_hyperell_locally_soluble(GEN nf,GEN T,GEN pr)
   checkprid(pr); nf = checknf(nf);
   if (absequaliu(pr_get_p(pr), 2))
   { /* tough case */
-    zinit = Idealstar(nf, idealpows(nf,pr,1+2*pr_get_e(pr)), nf_INIT);
+    zinit = Idealstarprk(nf, pr, 1+2*pr_get_e(pr), nf_INIT);
     if (psquare2nf(nf,constant_coeff(T),pr,zinit)) return 1;
     if (psquare2nf(nf, leading_coeff(T),pr,zinit)) return 1;
   }

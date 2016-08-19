@@ -2069,14 +2069,12 @@ add_grp(GEN nf, GEN u1, GEN cyc, GEN gen, GEN bid)
 
 /* Compute [[ideal,arch], [h,[cyc],[gen]], idealfact, [liste], U]
    flag may include nf_GEN | nf_INIT */
-GEN
-Idealstar(GEN nf, GEN ideal, long flag)
+static GEN
+Idealstar_i(GEN nf, GEN ideal, long flag)
 {
-  pari_sp av = avma;
   long i, j, k, nbp, R1, nbgen;
   GEN t, y, cyc, U, u1 = NULL, fa, lists, x, arch, archp, E, P, sarch, gen;
 
-  if (!nf) return znstar0(ideal, flag);
   nf = checknf(nf);
   R1 = nf_get_r1(nf);
   if (typ(ideal) == t_VEC && lg(ideal) == 3)
@@ -2185,8 +2183,22 @@ Idealstar(GEN nf, GEN ideal, long flag)
   gel(y,4) = lists;
   gel(y,5) = U;
   add_grp(nf, u1, cyc, gen, y);
-  if (!(flag & nf_INIT)) y = gel(y,2);
-  return gerepilecopy(av, y);
+  return (flag & nf_INIT)? y: gel(y,2);
+}
+GEN
+Idealstar(GEN nf, GEN ideal, long flag)
+{
+  pari_sp av;
+  if (!nf) return znstar0(ideal, flag);
+  av = avma;
+  return gerepilecopy(av, Idealstar_i(nf, ideal, flag));
+}
+GEN
+Idealstarprk(GEN nf, GEN pr, long k, long flag)
+{
+  pari_sp av = avma;
+  GEN z = Idealstar_i(nf, mkmat2(mkcol(pr),mkcols(k)), flag);
+  return gerepilecopy(av, z);
 }
 
 /* vectors of [[cyc],[g],U.X^-1] */
