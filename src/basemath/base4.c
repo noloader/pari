@@ -1700,30 +1700,35 @@ idealpowprime(GEN nf, GEN pr, GEN n, GEN *d)
   return mkvec2(q, gen);
 }
 
-/* x * pr^n. Assume x in HNF (possibly non-integral) */
+/* x * pr^n. Assume x in HNF or scalar (possibly non-integral) */
 GEN
 idealmulpowprime(GEN nf, GEN x, GEN pr, GEN n)
 {
   GEN cx,y,dx;
+  long N;
 
-  if (!signe(n)) return x;
   nf = checknf(nf);
+  N = nf_get_degree(nf);
+  if (!signe(n)) return typ(x) == t_MAT? x: scalarmat_shallow(x, N);
 
   /* inert, special cased for efficiency */
-  if (pr_is_inert(pr)) return RgM_Rg_mul(x, powii(pr_get_p(pr), n));
+  if (pr_is_inert(pr))
+  {
+    GEN q = powii(pr_get_p(pr), n);
+    return typ(x) == t_MAT? RgM_Rg_mul(x,q): scalarmat_shallow(gmul(x,q), N);
+  }
 
   y = idealpowprime(nf, pr, n, &dx);
-  x = Q_primitive_part(x, &cx);
-  if (cx && dx)
-  {
-    cx = gdiv(cx, dx);
-    if (typ(cx) != t_FRAC) dx = NULL;
-    else { dx = gel(cx,2); cx = gel(cx,1); }
-    if (is_pm1(cx)) cx = NULL;
-  }
-  x = idealmul_HNF_two(nf,x,y);
+  if (typ(x) == t_MAT)
+    x = Q_primitive_part(x, &cx);
+  else
+  { cx = x; x = NULL; }
+  if (dx) cx = cx? gdiv(cx,dx): ginv(dx);
+  if (x)
+    x = idealmul_HNF_two(nf,x,y);
+  else
+    x = idealhnf_two(nf,y);
   if (cx) x = RgM_Rg_mul(x,cx);
-  if (dx) x = RgM_Rg_div(x,dx);
   return x;
 }
 GEN
