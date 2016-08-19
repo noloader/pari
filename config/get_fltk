@@ -1,7 +1,10 @@
 if test -z "$with_fltk"; then
   with_fltk=yes
 fi
-FLTK_LIBS="`fltk-config --ldflags`"
+
+cmd="FLTK_LIBS=\`fltk-config --ldflags\`"
+. log_cmd
+
 exe=$osname-$arch-fltk$$
 cxx=$CXX
 if test -z "$cxx"; then cxx=g++; fi;
