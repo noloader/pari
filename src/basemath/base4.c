@@ -1657,45 +1657,56 @@ idealnumden(GEN nf, GEN x)
   return gerepilecopy(av, mkvec2(A, B));
 }
 
-/* Return x, integral in 2-elt form, such that pr^n = x/d. Assume n != 0 */
+/* Return x, integral in 2-elt form, such that pr^n = c * x. Assume n != 0.
+ * nf = true nf */
 static GEN
-idealpowprime(GEN nf, GEN pr, GEN n, GEN *d)
+idealpowprime(GEN nf, GEN pr, GEN n, GEN *pc)
 {
-  long s = signe(n);
-  GEN q, gen;
+  GEN p = pr_get_p(pr), q, gen;
 
+  *pc = NULL;
   if (is_pm1(n)) /* n = 1 special cased for efficiency */
   {
-    q = pr_get_p(pr);
-    if (s < 0) {
-      gen = pr_get_tau(pr);
-      if (typ(gen) == t_MAT) gen = gel(gen,1);
-      *d = q;
-    } else {
-      gen = pr_get_gen(pr);
-      *d = NULL;
+    q = p;
+    if (typ(pr_get_tau(pr)) == t_INT) /* inert */
+    {
+      *pc = (signe(n) >= 0)? p: ginv(p);
+      return mkvec2(gen_1,gen_0);
+    }
+    if (signe(n) >= 0) gen = pr_get_gen(pr);
+    else
+    {
+      gen = pr_get_tau(pr); /* possibly t_MAT */
+      *pc = ginv(p);
     }
   }
   else
   {
-    ulong r;
-    GEN p = pr_get_p(pr);
-    GEN m = diviu_rem(n, pr_get_e(pr), &r);
-    if (r) m = addis(m,1); /* m = ceil(|n|/e) */
-    q = powii(p,m);
-    if (s < 0)
-    {
-      gen = pr_get_tau(pr);
-      if (typ(gen) == t_MAT) gen = gel(gen,1);
-      n = negi(n);
-      gen = ZC_Z_divexact(nfpow(nf, gen, n), powii(p, subii(n,m)));
-      *d = q;
+    long e = pr_get_e(pr), f = pr_get_f(pr);
+    GEN r, m = truedvmdis(n, e, &r);
+    if (e * f == nf_get_degree(nf))
+    { /* pr^e = (p) */
+      *pc = powii(p,m);
+      if (!signe(r)) return mkvec2(gen_1,gen_0);
+      q = p;
+      gen = nfpow(nf, pr_get_gen(pr), r);
     }
     else
     {
-      gen = nfpow(nf, pr_get_gen(pr), n);
-      *d = NULL;
+      m = absi(m);
+      if (signe(r)) m = addiu(m,1);
+      q = powii(p,m); /* m = ceil(|n|/e) */
+      if (signe(n) >= 0) gen = nfpow(nf, pr_get_gen(pr), n);
+      else
+      {
+        gen = pr_get_tau(pr);
+        if (typ(gen) == t_MAT) gen = gel(gen,1);
+        n = negi(n);
+        gen = ZC_Z_divexact(nfpow(nf, gen, n), powii(p, subii(n,m)));
+        *pc = ginv(q);
+      }
     }
+    gen = FpC_red(gen, q);
   }
   return mkvec2(q, gen);
 }
@@ -1704,7 +1715,7 @@ idealpowprime(GEN nf, GEN pr, GEN n, GEN *d)
 GEN
 idealmulpowprime(GEN nf, GEN x, GEN pr, GEN n)
 {
-  GEN cx,y,dx;
+  GEN c, cx, y;
   long N;
 
   nf = checknf(nf);
@@ -1718,12 +1729,12 @@ idealmulpowprime(GEN nf, GEN x, GEN pr, GEN n)
     return typ(x) == t_MAT? RgM_Rg_mul(x,q): scalarmat_shallow(gmul(x,q), N);
   }
 
-  y = idealpowprime(nf, pr, n, &dx);
+  y = idealpowprime(nf, pr, n, &c);
   if (typ(x) == t_MAT)
-    x = Q_primitive_part(x, &cx);
+  { x = Q_primitive_part(x, &cx); if (is_pm1(gcoeff(x,1,1))) x = NULL; }
   else
   { cx = x; x = NULL; }
-  if (dx) cx = cx? gdiv(cx,dx): ginv(dx);
+  cx = mul_content(c,cx);
   if (x)
     x = idealmul_HNF_two(nf,x,y);
   else
@@ -1737,6 +1748,7 @@ idealdivpowprime(GEN nf, GEN x, GEN pr, GEN n)
   return idealmulpowprime(nf,x,pr, negi(n));
 }
 
+/* nf = true nf */
 static GEN
 idealpow_aux(GEN nf, GEN x, long tx, GEN n)
 {
@@ -1750,11 +1762,10 @@ idealpow_aux(GEN nf, GEN x, long tx, GEN n)
       x = (typ(x) == t_POL)? RgXQ_pow(x,n,T): powgi(x,n);
       return idealhnf_principal(nf,x);
     case id_PRIME: {
-      GEN d;
       if (pr_is_inert(x)) return scalarmat(powii(gel(x,1), n), N);
-      x = idealpowprime(nf, x, n, &d);
+      x = idealpowprime(nf, x, n, &cx);
       x = idealhnf_two(nf,x);
-      return d? RgM_Rg_div(x, d): x;
+      return cx? RgM_Rg_mul(x, cx): x;
     }
     default:
       if (is_pm1(n)) return (s < 0)? idealinv(nf, x): gcopy(x);

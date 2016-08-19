@@ -53,11 +53,6 @@
 
 [0 0 0 0 1]
 
-  ***   at top-level: idealstar(Qi,matdiag
-  ***                 ^--------------------
-  *** idealstar: elements not coprime in idealaddtoone:
-    [6, 0; 0, 3]
-    [2, 0; 0, 2]
 [512, [16, 8, 4], [[-1, -2]~, 29, [0, -1]~]]
 
 [1/2   0]
@@ -207,4 +202,4 @@
 []
   *** nfinit: Warning: non-monic polynomial. Result of the form [nf,c].
 [[2, [0, 1]~, 2, 1, [0, -2; 1, 0]]]
-Total time spent: 19
+Total time spent: 18
