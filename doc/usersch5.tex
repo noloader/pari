@@ -4643,7 +4643,7 @@ for small $n$.
 and $0$ otherwise. Assumes that \kbd{T} is irreducible mod \kbd{p} and that
 $p$ is prime; $T = \kbd{NULL}$ is forbidden unless $x$ is an \kbd{Fp}.
 
-\fun{long}{Fq_ispower}{GEN x, GEN n, GEN T, GEN p} returns $1$ is $x$
+\fun{long}{Fq_ispower}{GEN x, GEN n, GEN T, GEN p} returns $1$ if $x$
 is a $n$-th power and $0$ otherwise. Assumes that \kbd{T} is irreducible mod
 \kbd{p} and that $p$ is prime; $T = \kbd{NULL}$ is forbidden unless $x$ is an
 \kbd{Fp}.
@@ -7065,7 +7065,7 @@ name of the caller).
 \fun{int}{RgV_is_ZV}{GEN x} Assuming \kbd{x} is a \typ{VEC}
 or \typ{COL} return $1$ if it is a \kbd{ZV}, and $0$ otherwise.
 
-\fun{int}{RgV_is_QV}{GEN P} return 1 is the \kbd{RgV}~$P$ has only
+\fun{int}{RgV_is_QV}{GEN P} return 1 if the \kbd{RgV}~$P$ has only
 \typ{INT} and \typ{FRAC} coefficients, and 0 otherwise.
 
 \fun{int}{ZV_equal0}{GEN x} returns 1 if all entries of the \kbd{ZV} $x$ are
@@ -7542,16 +7542,16 @@ on \kbd{nf.zk} (whose first element is $1$).
 equal to $s$ times the identity, and 0 otherwise. If $s$ is \kbd{NULL}, test
 whether $x$ is an arbitrary scalar matrix.
 
-\fun{int}{RgM_isidentity}{GEN x} return 1 is the \typ{MAT} $x$ is the
+\fun{int}{RgM_isidentity}{GEN x} return 1 if the \typ{MAT} $x$ is the
 identity matrix, and 0 otherwise.
 
-\fun{int}{RgM_isdiagonal}{GEN x} return 1 is the \typ{MAT} $x$ is a
+\fun{int}{RgM_isdiagonal}{GEN x} return 1 if the \typ{MAT} $x$ is a
 diagonal matrix, and 0 otherwise.
 
 \fun{long}{RgC_is_ei}{GEN x} return $i$ if the \typ{COL} $x$ has $0$ entries,
 but for a $1$ at position $i$.
 
-\fun{int}{RgM_is_ZM}{GEN x} return 1 is the \typ{MAT}~$x$ has only
+\fun{int}{RgM_is_ZM}{GEN x} return 1 if the \typ{MAT}~$x$ has only
 \typ{INT} coefficients, and 0 otherwise.
 
 \fun{long}{RgV_isin}{GEN v, GEN x} return the first index $i$ such that
@@ -8308,13 +8308,13 @@ returns the degree in $v$ of $x$. Error if $x$ is not a polynomial in $v$.
 \fun{int}{RgX_isscalar}{GEN x} return 1 if $x$ all the coefficients of
 $x$ of degree $> 0$ are $0$ (as per \kbd{gequal0}).
 
-\fun{int}{RgX_is_rational}{GEN P} return 1 is the \kbd{RgX}~$P$ has only
+\fun{int}{RgX_is_rational}{GEN P} return 1 if the \kbd{RgX}~$P$ has only
 rational coefficients (\typ{INT} and \typ{FRAC}), and 0 otherwise.
 
-\fun{int}{RgX_is_QX}{GEN P} return 1 is the \kbd{RgX}~$P$ has only
+\fun{int}{RgX_is_QX}{GEN P} return 1 if the \kbd{RgX}~$P$ has only
 \typ{INT} and \typ{FRAC} coefficients, and 0 otherwise.
 
-\fun{int}{RgX_is_ZX}{GEN P} return 1 is the \kbd{RgX}~$P$ has only
+\fun{int}{RgX_is_ZX}{GEN P} return 1 if the \kbd{RgX}~$P$ has only
 \typ{INT} coefficients, and 0 otherwise.
 
 \fun{int}{RgX_is_monomial}{GEN x} returns 1 (true) if \kbd{x} is a non-zero
