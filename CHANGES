@@ -5,6 +5,7 @@ Done for version 2.8.1 (released ??/??/2016):
   Fixed
     1- nfroots(non-monic t_POL) => wrong result [#1841]
     2- crash on BIB in ellpointtoz(t_PADIC) [#1840]
+    3- nfisideal(nfinit(x^2+1),[1,0;0,2]) -> 1 instead of 0
 
   Added
     1- permtonum: allow t_VECSMALL input

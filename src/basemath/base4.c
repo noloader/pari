@@ -1863,7 +1863,7 @@ isideal(GEN nf,GEN x)
 {
   long N, i, j, lx, tx = typ(x);
   pari_sp av;
-  GEN T;
+  GEN T, xZ;
 
   nf = checknf(nf); T = nf_get_pol(nf); lx = lg(x);
   if (tx==t_VEC && lx==3) { x = gel(x,1); tx = typ(x); lx = lg(x); }
@@ -1882,6 +1882,9 @@ isideal(GEN nf,GEN x)
 
   av = avma; x = Q_primpart(x);
   if (!ZM_ishnf(x)) return 0;
+  xZ = gcoeff(x,1,1);
+  for (j=2; j<=N; j++)
+    if (!dvdii(xZ, gcoeff(x,j,j))) { avma = av; return 0; }
   for (i=2; i<=N; i++)
     for (j=2; j<=N; j++)
       if (! hnf_invimage(x, zk_ei_mul(nf,gel(x,i),j))) { avma = av; return 0; }
