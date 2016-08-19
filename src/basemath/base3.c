@@ -2191,17 +2191,16 @@ Idealstar(GEN nf, GEN ideal, long flag)
 
 /* vectors of [[cyc],[g],U.X^-1] */
 static GEN
-principal_units(GEN nf, GEN pr, long e)
+principal_units(GEN nf, GEN pr, long e, GEN pre)
 {
   pari_sp av = avma;
   long a;
-  GEN list, y, prb, pre;
+  GEN list, prb;
   ulong mask;
 
   if(DEBUGLEVEL>3) err_printf("treating pr^%ld, pr = %Ps\n",e,pr);
   if (e == 1) return cgetg(1, t_VEC);
   prb = idealhnf_two(nf,pr);
-  pre = idealpows(nf,pr,e);
   list = vectrunc_init(e);
   mask = quadratic_prec_mask(e);
   a = 1;
@@ -2216,8 +2215,7 @@ principal_units(GEN nf, GEN pr, long e)
     if(DEBUGLEVEL>3) err_printf("  treating a = %ld, b = %ld\n",a,b);
     prb = (b >= e)? pre: idealpows(nf,pr,b);
     z = zidealij(pra, prb, &U);
-    y = mkvec3(gel(z,1), gel(z,2), U);
-    vectrunc_append(list, y);
+    vectrunc_append(list, mkvec3(gel(z,1),gel(z,2),U));
     a = b;
   }
   return gerepilecopy(av, list);
@@ -2256,7 +2254,7 @@ idealprincipalunits(GEN nf, GEN pr, long e)
   long cp = 0;
 
   nf = checknf(nf); pre = idealpows(nf, pr, e);
-  L2 = principal_units(nf, pr, e);
+  L2 = principal_units(nf, pr, e, pre);
   c = lg(L2); gen = cgetg(c, t_VEC);
   for (j = 1; j < c; j++) gel(gen, j) = gmael(L2,j,2);
   gen = shallowconcat1(gen); nbgen = lg(gen)-1;
