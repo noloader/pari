@@ -1844,6 +1844,7 @@ GEN     RgV_nffix(const char *f, GEN T, GEN P, int lift);
 GEN     RgX_nffix(const char *s, GEN nf, GEN x, int lift);
 long    ZpX_disc_val(GEN f, GEN p);
 GEN     ZpX_gcd(GEN f1,GEN f2,GEN p, GEN pm);
+GEN     ZpX_monic_factor(GEN f, GEN p, long prec);
 GEN     ZpX_reduced_resultant(GEN x, GEN y, GEN p, GEN pm);
 GEN     ZpX_reduced_resultant_fast(GEN f, GEN g, GEN p, long M);
 long    ZpX_resultant_val(GEN f, GEN g, GEN p, long M);
@@ -3764,7 +3765,6 @@ void    pari_mt_close(void);
 /* polarit1.c */
 
 GEN     ZX_Zp_root(GEN f, GEN a, GEN p, long prec);
-GEN     ZX_monic_factorpadic(GEN f, GEN p, long prec);
 GEN     Zp_appr(GEN f, GEN a);
 GEN     factorpadic(GEN x, GEN p, long r);
 GEN     gdeuc(GEN x, GEN y);

@@ -634,7 +634,7 @@ allbase2(nfmaxord_t *S)
 /*                            ROUND 4                              */
 /*                                                                 */
 /*******************************************************************/
-GEN maxord_i(GEN p, GEN f, long mf, GEN w, long flag);
+static GEN maxord_i(GEN p, GEN f, long mf, GEN w, long flag);
 static GEN dbasis(GEN p, GEN f, long mf, GEN alpha, GEN U);
 static GEN maxord(GEN p,GEN f,long mf);
 static GEN ZX_Dedekind(GEN F, GEN *pg, GEN p);
@@ -1346,8 +1346,8 @@ Decomp(decomp_t *S, long flag)
 
   if (flag) {
     gerepileall(av, 2, &f1, &f2);
-    return famat_mul_shallow(ZX_monic_factorpadic(f1, p, flag),
-                             ZX_monic_factorpadic(f2, p, flag));
+    return famat_mul_shallow(ZpX_monic_factor(f1, p, flag),
+                             ZpX_monic_factor(f2, p, flag));
   } else {
     GEN D, d1, d2, B1, B2, M;
     long n, n1, n2, i;
@@ -1996,7 +1996,7 @@ nilord(decomp_t *S, GEN dred, long flag)
   return l != 1? Decomp(S,flag): dbasis(p, S->f, S->mf, S->phi, S->chi);
 }
 
-GEN
+static GEN
 maxord_i(GEN p, GEN f, long mf, GEN w, long flag)
 {
   long l = lg(w)-1;
@@ -2015,6 +2015,58 @@ maxord_i(GEN p, GEN f, long mf, GEN w, long flag)
   if (flag && flag <= mf) flag = mf + 1;
   S.phi = pol_x(varn(f));
   S.chi = f; return Decomp(&S, flag);
+}
+
+static int
+expo_is_squarefree(GEN e)
+{
+  long i, l = lg(e);
+  for (i=1; i<l; i++)
+    if (e[i] != 1) return 0;
+  return 1;
+}
+
+/* assume f a ZX with leading_coeff 1, degree > 0 */
+GEN
+ZpX_monic_factor(GEN f, GEN p, long prec)
+{
+  GEN poly, ex, P, E;
+  long l, i;
+
+  if (degpol(f) == 1) return mkmat2(mkcol(f), mkcol(gen_1));
+
+  poly = ZX_squff(f,&ex); l = lg(poly);
+  P = cgetg(l, t_VEC);
+  E = cgetg(l, t_VEC);
+  for (i = 1; i < l; i++)
+  {
+    pari_sp av1 = avma;
+    GEN fx = gel(poly,i), fa = FpX_factor(fx,p);
+    GEN w = gel(fa,1), e = gel(fa,2);
+    if (expo_is_squarefree(e))
+    { /* no repeated factors: Hensel lift */
+      GEN L = ZpX_liftfact(fx, w, NULL, p, prec, powiu(p,prec));
+      gel(P,i) = L;
+      gel(E,i) = const_vec(lg(L)-1, utoipos(ex[i]));
+    }
+    else
+    { /* use Round 4 */
+      GEN M = maxord_i(p, fx, ZpX_disc_val(fx,p), w, prec);
+      if (M)
+      {
+        M = gerepilecopy(av1, M);
+        gel(P,i) = gel(M,1);
+        gel(E,i) = ZC_z_mul(gel(M,2), ex[i]);
+      }
+      else
+      { /* irreducible */
+        avma = av1;
+        gel(P,i) = mkcol(fx);
+        gel(E,i) = mkcols(ex[i]);
+      }
+    }
+  }
+  return mkmat2(shallowconcat1(P), shallowconcat1(E));
 }
 
 /* DT = multiple of disc(T) or NULL

@@ -518,58 +518,6 @@ cmp_padic(GEN x, GEN y)
   return cmpii(gel(x,4), gel(y,4));
 }
 
-static int
-expo_is_squarefree(GEN e)
-{
-  long i, l = lg(e);
-  for (i=1; i<l; i++)
-    if (e[i] != 1) return 0;
-  return 1;
-}
-
-/* assume f a ZX with leading_coeff 1, degree > 0 */
-GEN
-ZX_monic_factorpadic(GEN f, GEN p, long prec)
-{
-  GEN poly, ex, P, E;
-  long l, i;
-
-  if (degpol(f) == 1) return mkmat2(mkcol(f), mkcol(gen_1));
-
-  poly = ZX_squff(f,&ex); l = lg(poly);
-  P = cgetg(l, t_VEC);
-  E = cgetg(l, t_VEC);
-  for (i = 1; i < l; i++)
-  {
-    pari_sp av1 = avma;
-    GEN fx = gel(poly,i), fa = FpX_factor(fx,p);
-    GEN w = gel(fa,1), e = gel(fa,2);
-    if (expo_is_squarefree(e))
-    { /* no repeated factors: Hensel lift */
-      GEN L = ZpX_liftfact(fx, w, NULL, p, prec, powiu(p,prec));
-      gel(P,i) = L;
-      gel(E,i) = const_vec(lg(L)-1, utoipos(ex[i]));
-    }
-    else
-    { /* use Round 4 */
-      GEN M = maxord_i(p, fx, ZpX_disc_val(fx,p), w, prec);
-      if (M)
-      {
-        M = gerepilecopy(av1, M);
-        gel(P,i) = gel(M,1);
-        gel(E,i) = ZC_z_mul(gel(M,2), ex[i]);
-      }
-      else
-      { /* irreducible */
-        avma = av1;
-        gel(P,i) = mkcol(fx);
-        gel(E,i) = mkcols(ex[i]);
-      }
-    }
-  }
-  return mkmat2(shallowconcat1(P), shallowconcat1(E));
-}
-
 GEN
 factorpadic(GEN f,GEN p,long r)
 {
@@ -586,7 +534,7 @@ factorpadic(GEN f,GEN p,long r)
 
   f = QpX_to_ZX(f, p); (void)Z_pvalrem(leading_coeff(f), p, &lt);
   f = pnormalize(f, p, r, n-1, &lead, &pr, &reverse);
-  y = ZX_monic_factorpadic(f, p, pr);
+  y = ZpX_monic_factor(f, p, pr);
   P = gel(y,1); l = lg(P);
   if (lead != gen_1)
     for (i=1; i<l; i++) gel(P,i) = Q_primpart( RgX_unscale(gel(P,i), lead) );
