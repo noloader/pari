@@ -240,7 +240,6 @@ GEN logmax_modulus_bound(GEN p);
 GEN polint_i(GEN xa, GEN ya, GEN x, long n, GEN *ptdy);
 GEN quicktrace(GEN x, GEN sym);
 GEN special_pivot(GEN x);
-GEN ZX_monic_factorpadic(GEN f, GEN p, long prec);
 
 /* Relative number fields */
 enum { rnf_NFABS = 1, rnf_MAPS };

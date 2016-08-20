@@ -531,52 +531,43 @@ expo_is_squarefree(GEN e)
 GEN
 ZX_monic_factorpadic(GEN f, GEN p, long prec)
 {
-  GEN w, poly, p1, p2, ex, P, E;
-  long n=degpol(f), i, k, j;
+  GEN poly, ex, P, E;
+  long l, i;
 
-  if (n==1) return mkmat2(mkcol(f), mkcol(gen_1));
+  if (degpol(f) == 1) return mkmat2(mkcol(f), mkcol(gen_1));
 
-  poly = ZX_squff(f,&ex);
-  P = cgetg(n+1,t_COL);
-  E = cgetg(n+1,t_COL); n = lg(poly);
-  for (j=i=1; i<n; i++)
+  poly = ZX_squff(f,&ex); l = lg(poly);
+  P = cgetg(l, t_VEC);
+  E = cgetg(l, t_VEC);
+  for (i = 1; i < l; i++)
   {
     pari_sp av1 = avma;
     GEN fx = gel(poly,i), fa = FpX_factor(fx,p);
-    w = gel(fa,1);
-    if (expo_is_squarefree(gel(fa,2)))
+    GEN w = gel(fa,1), e = gel(fa,2);
+    if (expo_is_squarefree(e))
     { /* no repeated factors: Hensel lift */
-      p1 = ZpX_liftfact(fx, w, NULL, p, prec, powiu(p,prec));
-      p2 = utoipos(ex[i]);
-      for (k=1; k<lg(p1); k++,j++)
-      {
-        gel(P,j) = gel(p1,k);
-        gel(E,j) = p2;
-      }
-      continue;
-    }
-    /* use Round 4 */
-    p2 = maxord_i(p, fx, ZpX_disc_val(fx,p), w, prec);
-    if (p2)
-    {
-      p2 = gerepilecopy(av1,p2);
-      p1 = gel(p2,1);
-      p2 = gel(p2,2);
-      for (k=1; k<lg(p1); k++,j++)
-      {
-        gel(P,j) = gel(p1,k);
-        gel(E,j) = muliu(gel(p2,k),ex[i]);
-      }
+      GEN L = ZpX_liftfact(fx, w, NULL, p, prec, powiu(p,prec));
+      gel(P,i) = L;
+      gel(E,i) = const_vec(lg(L)-1, utoipos(ex[i]));
     }
     else
-    {
-      avma = av1;
-      gel(P,j) = fx;
-      gel(E,j) = utoipos(ex[i]); j++;
+    { /* use Round 4 */
+      GEN M = maxord_i(p, fx, ZpX_disc_val(fx,p), w, prec);
+      if (M)
+      {
+        M = gerepilecopy(av1, M);
+        gel(P,i) = gel(M,1);
+        gel(E,i) = ZC_z_mul(gel(M,2), ex[i]);
+      }
+      else
+      { /* irreducible */
+        avma = av1;
+        gel(P,i) = mkcol(fx);
+        gel(E,i) = mkcols(ex[i]);
+      }
     }
   }
-  setlg(P,j);
-  setlg(E,j); return mkmat2(P, E);
+  return mkmat2(shallowconcat1(P), shallowconcat1(E));
 }
 
 GEN

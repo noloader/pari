@@ -20,6 +20,7 @@ Done for version 2.8.1 (released ??/??/2016):
    10- [libpari] zk_inv, zkmultable_capZ, zkmultable_inv, nfC_multable_mul,
        zkC_multable_mul
    11- [libpari] Idealstarprk
+   12- [libpari] ZX_monic_factorpadic
 
   Changed
     1- remove useless flag in idealappr: directly allow factorization

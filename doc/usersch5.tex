@@ -6242,6 +6242,13 @@ computes resultants for a sequence of increasing $p$-adic accuracies
 result. It is very inefficient when the resultant is $0$, but otherwise
 usually more efficient than computations using a priori bounds.
 
+\fun{GEN}{ZX_monic_factorpadic}{GEN f, GEN p, long M} $f$ a monic
+\kbd{ZX}, $p$ a primer, return the $p$-adic factorization of $f$, modulo
+$p^M$. This is the underlying low-level recursive function behind
+\kbd{factorpadic} (using a combination of Round 4 factorization and Hensel
+lifting); the factors are not sorted and the function is not
+\kbd{gerepile}-clean.
+
 \subsec{ZpXQ}
 
 \fun{GEN}{ZpXQ_invlift}{GEN b, GEN a, GEN T, GEN p, long e} let

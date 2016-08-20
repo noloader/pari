@@ -3764,6 +3764,7 @@ void    pari_mt_close(void);
 /* polarit1.c */
 
 GEN     ZX_Zp_root(GEN f, GEN a, GEN p, long prec);
+GEN     ZX_monic_factorpadic(GEN f, GEN p, long prec);
 GEN     Zp_appr(GEN f, GEN a);
 GEN     factorpadic(GEN x, GEN p, long r);
 GEN     gdeuc(GEN x, GEN y);
