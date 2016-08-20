@@ -766,8 +766,10 @@ Flx_radical(GEN f, ulong p)
 
   d = Flx_checkdeflate(f);
   if (!d) return v0? polx_Flx(f[1]): pol1_Flx(f[1]);
-  if (u_lvalrem(d,p, &e)) f = Flx_deflate(f, d/e);
-  u = Flx_gcd(f,Flx_deriv(f, p), p);
+  if (u_lvalrem(d,p, &e))
+    u = f = Flx_deflate(f, d/e); /* f' = 0 */
+  else
+    u = Flx_gcd(f,Flx_deriv(f, p), p); /* (f,f') */
   du = degpol(u);
   if (du)
   {
