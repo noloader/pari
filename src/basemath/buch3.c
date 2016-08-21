@@ -1032,55 +1032,70 @@ bound_unit_index(GEN bnf, GEN units)
 
 /* Compute a square matrix of rank #beta attached to a family
  * (P_i), 1<=i<=#beta, of primes s.t. N(P_i) = 1 mod p, and
- * (P_i,beta[j]) = 1 for all i,j */
+ * (P_i,beta[j]) = 1 for all i,j. nf = true nf */
 static void
-primecertify(GEN bnf, GEN beta, ulong p, GEN bad)
+primecertify(GEN nf, GEN beta, ulong p, GEN bad)
 {
-  long i, j, nbcol, lb, nbqq, ra;
-  GEN nf,mat,gq,LQ,newcol,g,ord,modpr;
+  long lb = lg(beta), rmax = lb - 1;
+  GEN M, vQ, L;
   ulong q;
+  forprime_t T;
 
-  ord = NULL; /* gcc -Wall */
-  nbcol = 0; nf = bnf_get_nf(bnf);
-  lb = lg(beta)-1; mat = cgetg(1,t_MAT); q = 1UL;
-  for(;;)
+  if (p == 2)
+    L = cgetg(1,t_VECSMALL);
+  else
+    L = mkvecsmall(p);
+  (void)u_forprime_arith_init(&T, 1, ULONG_MAX, 1, p);
+  M = cgetg(lb,t_MAT); setlg(M,1);
+  while ((q = u_forprime_next(&T)))
   {
-    q += 2*p;
-    if (!umodiu(bad,q) || !uisprime(q)) continue;
+    GEN qq, gg, og;
+    long lQ, i, j;
+    ulong g, m;
+    if (!umodiu(bad,q)) continue;
 
-    gq = utoipos(q);
-    LQ = idealprimedec_limit_f(bnf,gq,1); nbqq = lg(LQ)-1;
-    g = NULL;
-    for (i=1; i<=nbqq; i++)
+    qq = utoipos(q);
+    vQ = idealprimedec_limit_f(nf,qq,1);
+    lQ = lg(vQ); if (lQ == 1) continue;
+
+    /* cf rootsof1_Fl */
+    g = pgener_Fl_local(q, L);
+    (void)u_lvalrem((q-1) / p, p, &m);
+    gg = utoipos( Fl_powu(g, m, q) ); /* order p in (Z/q)^* */
+    og = mkmat2(mkcol(utoi(p)), mkcol(gen_1)); /* order of g */
+
+    if (DEBUGLEVEL>3) err_printf("       generator of (Zk/Q)^*: %lu\n", g);
+    for (i = 1; i < lQ; i++)
     {
-      GEN mat1, Q = gel(LQ,i); /* degree 1 */
-      if (!g)
-      {
-        g = gener_Flxq(pol_x(0), q, &ord);
-        g = utoipos(g[2]); /* from Flx of degree 0 to t_INT */
-      }
-      modpr = zkmodprinit(nf, Q);
-      newcol = cgetg(lb+1,t_COL);
-      for (j=1; j<=lb; j++)
+      GEN C = cgetg(lb, t_VECSMALL);
+      GEN Q = gel(vQ,i); /* degree 1 */
+      GEN modpr = zkmodprinit(nf, Q);
+      long r;
+
+      for (j = 1; j < lb; j++)
       {
         GEN t = nf_to_Fp_coprime(nf, gel(beta,j), modpr);
-        gel(newcol,j) = Fp_log(t,g,ord,gq);
+        t = utoipos( Fl_powu(t[2], m, q) );
+        /* FIXME: implement Fl_log_Shanks */
+        C[j] = itou( Fp_log(t, gg, og, qq) ) % p;
       }
-      if (DEBUGLEVEL>3)
-      {
-        if (i==1) err_printf("       generator of (Zk/Q)^*: %Ps\n", g);
-        err_printf("       prime ideal Q: %Ps\n",Q);
-        err_printf("       column #%ld of the matrix log(b_j/Q): %Ps\n",
-                   nbcol, newcol);
-      }
-      mat1 = shallowconcat(mat,newcol); ra = ZM_rank(mat1);
-      if (ra==nbcol) continue;
+      r = lg(M);
+      gel(M,r) = C; setlg(M, r+1);
+      if (Flm_rank(M, p) != r) { setlg(M,r); continue; }
 
-      if (DEBUGLEVEL>2) err_printf("       new rank: %ld\n",ra);
-      if (++nbcol == lb) return;
-      mat = mat1;
+      if (DEBUGLEVEL>2)
+      {
+        if (DEBUGLEVEL>3)
+        {
+          err_printf("       prime ideal Q: %Ps\n",Q);
+          err_printf("       matrix log(b_j mod Q_i): %Ps\n", M);
+        }
+        err_printf("       new rank: %ld\n",r);
+      }
+      if (r == rmax) return;
     }
   }
+  pari_err_BUG("primecertify");
 }
 
 struct check_pr {
@@ -1093,7 +1108,7 @@ struct check_pr {
 };
 
 static void
-check_prime(ulong p, GEN bnf, struct check_pr *S)
+check_prime(ulong p, GEN nf, struct check_pr *S)
 {
   pari_sp av = avma;
   long i,b, lc = lg(S->cyc), lf = lg(S->fu);
@@ -1114,7 +1129,7 @@ check_prime(ulong p, GEN bnf, struct check_pr *S)
   for (i=1; i<lf; i++) gel(beta,b++) = gel(S->fu,i);
   setlg(beta, b); /* beta = [cycgen[i] if p|cyc[i], tu if p|w, fu] */
   if (DEBUGLEVEL>3) {err_printf("     Beta list = %Ps\n",beta); err_flush();}
-  primecertify(bnf,beta,p,S->bad); avma = av;
+  primecertify(nf, beta, p, S->bad); avma = av;
 }
 
 static void
@@ -1175,7 +1190,7 @@ bnfcertify0(GEN bnf, long flag)
   bound = itou_or_0(B);
   if (!bound) pari_err_OVERFLOW("bnfcertify [too many primes to check]");
   if (u_forprime_init(&T, 2, bound))
-    while ( (p = u_forprime_next(&T)) ) check_prime(p,bnf, &S);
+    while ( (p = u_forprime_next(&T)) ) check_prime(p, nf, &S);
   if (lg(cyc) > 1)
   {
     GEN f = Z_factor(gel(cyc,1)), P = gel(f,1);
@@ -1184,7 +1199,7 @@ bnfcertify0(GEN bnf, long flag)
     for (i=1; i<l; i++)
     {
       p = itou(gel(P,i));
-      if (p > bound) check_prime(p,bnf, &S);
+      if (p > bound) check_prime(p, nf, &S);
     }
   }
   avma = av; return 1;
