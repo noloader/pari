@@ -2866,11 +2866,17 @@ Rg_to_ff(GEN nf, GEN x0, GEN modpr)
       }
       if (v > 0) pari_err_INV("Rg_to_ff", mkintmod(gen_0,p));
       if (v) return gen_0;
+      if (is_pm1(den)) den = NULL;
     }
-    if (!is_pm1(den)) x = ZC_Z_mul(x, Fp_inv(den, p));
     x = FpC_red(x, p);
   }
-  return zk_to_Fq(x, modpr);
+  x = zk_to_Fq(x, modpr);
+  if (den)
+  {
+    GEN c = Fp_inv(den, p);
+    x = typ(x) == t_INT? Fp_mul(x,c,p): FpX_Fp_mul(x,c,p);
+  }
+  return x;
 }
 
 GEN
