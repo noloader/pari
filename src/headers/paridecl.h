@@ -2039,6 +2039,7 @@ long    isideal(GEN nf,GEN x);
 GEN     idealmin(GEN nf,GEN ix,GEN vdir);
 GEN     nf_get_Gtwist(GEN nf, GEN vdir);
 GEN     nf_get_Gtwist1(GEN nf, long i);
+GEN     nf_to_Fp_coprime(GEN nf, GEN x, GEN modpr);
 GEN     nfC_multable_mul(GEN nf, GEN v, GEN x);
 GEN     nfC_nf_mul(GEN nf, GEN v, GEN x);
 GEN     nfdetint(GEN nf,GEN pseudo);

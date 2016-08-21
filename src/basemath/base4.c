@@ -1183,92 +1183,45 @@ ZM_famat_limit(GEN fa, GEN limit)
   return mkmat2(G,E);
 }
 
-/* assume pr has degree 1 and coprime to numerator(x) */
+/* assume pr has degree 1 and coprime to Q_denom(x) */
 static GEN
-nf_to_Fp_simple(GEN x, GEN modpr, GEN p)
+to_Fp_coprime(GEN nf, GEN x, GEN modpr)
 {
-  GEN c, r = zk_to_Fq(Q_primitive_part(x, &c), modpr);
-  if (c) r = Rg_to_Fp(gmul(r, c), p);
-  return r;
-}
-/* assume pr coprime to numerator(x) */
-static GEN
-nf_to_Fq_simple(GEN nf, GEN x, GEN pr)
-{
-  GEN T, p, modpr = zk_to_Fq_init(nf, &pr, &T, &p);
-  GEN c, r = zk_to_Fq(Q_primitive_part(x, &c), modpr);
-  if (c) r = Fq_Fp_mul(r, Rg_to_Fp(c,p), T,p);
+  GEN d, r, p = modpr_get_p(modpr);
+  x = nf_to_scalar_or_basis(nf,x);
+  if (typ(x) != t_COL) return Rg_to_Fp(x,p);
+  x = Q_remove_denom(x, &d);
+  r = zk_to_Fq(x, modpr);
+  if (d) r = Fp_div(r, d, p);
   return r;
 }
 
+/* pr coprime to all denominators occurring in x */
 static GEN
-famat_to_Fp_simple(GEN nf, GEN x, GEN modpr, GEN p)
+famat_to_Fp_coprime(GEN nf, GEN x, GEN modpr)
 {
-  GEN h, n, t = gen_1, g = gel(x,1), e = gel(x,2), q = subiu(p,1);
+  GEN p = modpr_get_p(modpr);
+  GEN t = NULL, g = gel(x,1), e = gel(x,2), q = subiu(p,1);
   long i, l = lg(g);
-
-  for (i=1; i<l; i++)
+  for (i = 1; i < l; i++)
   {
-    n = gel(e,i); n = modii(n,q);
-    if (!signe(n)) continue;
-
-    h = gel(g,i);
-    switch(typ(h))
+    GEN n = modii(gel(e,i), q);
+    if (signe(n))
     {
-      case t_POL: case t_POLMOD: h = algtobasis(nf, h);  /* fall through */
-      case t_COL: h = nf_to_Fp_simple(h, modpr, p); break;
-      default: h = Rg_to_Fp(h, p);
+      GEN h = to_Fp_coprime(nf, gel(g,i), modpr);
+      h = Fp_pow(h, n, p);
+      t = t? Fp_mul(t, h, p): h;
     }
-    t = mulii(t, Fp_pow(h, n, p)); /* not worth reducing */
   }
-  return modii(t, p);
-}
-static GEN
-famat_to_Fq_simple(GEN nf, GEN x, GEN pr)
-{
-  GEN T, p, modpr = zk_to_Fq_init(nf, &pr, &T, &p);
-  GEN h, n, t = gen_1, g = gel(x,1), e = gel(x,2), q = subiu(pr_norm(pr),1);
-  long i, l = lg(g);
-
-  for (i=1; i<l; i++)
-  {
-    n = gel(e,i); n = modii(n,q);
-    if (!signe(n)) continue;
-
-    h = gel(g,i);
-    switch(typ(h))
-    {
-      case t_POL: case t_POLMOD: h = algtobasis(nf, h);  /* fall through */
-      case t_COL: h = nf_to_Fq_simple(nf, h, modpr); break;
-      default: h = nf_to_Fq(nf, h, modpr);
-    }
-    t = Fq_mul(t, Fq_pow(h, n, T, p), T,p);
-  }
-  return t;
+  return t? modii(t, p): gen_1;
 }
 
-/* cf famat_to_nf_modideal_coprime, but id is a prime of degree 1 (=pr) */
+/* cf famat_to_nf_modideal_coprime, modpr attached to prime of degree 1 */
 GEN
-to_Fp_simple(GEN nf, GEN x, GEN pr)
+nf_to_Fp_coprime(GEN nf, GEN x, GEN modpr)
 {
-  GEN T, p, modpr = zk_to_Fq_init(nf, &pr, &T, &p);
-  switch(typ(x))
-  {
-    case t_COL: return nf_to_Fp_simple(x,modpr,p);
-    case t_MAT: return famat_to_Fp_simple(nf,x,modpr,p);
-    default: return Rg_to_Fp(x, p);
-  }
-}
-GEN
-to_Fq_simple(GEN nf, GEN x, GEN pr)
-{
-  GEN T, p, modpr = zk_to_Fq_init(nf, &pr, &T, &p);
-  switch(typ(x))
-  {
-    case t_COL: return nf_to_Fq_simple(nf,x,modpr);
-    case t_MAT: return famat_to_Fq_simple(nf,x,modpr);
-    default: return nf_to_Fq(x, p, modpr);
-  }
+  return typ(x)==t_MAT? famat_to_Fp_coprime(nf, x, modpr)
+                      : to_Fp_coprime(nf, x, modpr);
 }
 
 /* Compute A = prod g[i]^e[i] mod pr^k, assuming (A, pr) = 1.

@@ -21,6 +21,7 @@ Done for version 2.8.1 (released ??/??/2016):
        zkC_multable_mul
    11- [libpari] Idealstarprk
    12- [libpari] ZpX_monic_factor
+   13- [libpari] nf_to_Fp_coprime
 
   Changed
     1- remove useless flag in idealappr: directly allow factorization
