@@ -1031,7 +1031,7 @@ get_Tr(GEN mul, GEN x, GEN basden)
 }
 
 /* return [bas[i]*denom(bas[i]), denom(bas[i])], denom 1 is given as NULL */
-GEN
+static GEN
 get_bas_den(GEN bas)
 {
   GEN b,d,den, dbas = leafcopy(bas);
