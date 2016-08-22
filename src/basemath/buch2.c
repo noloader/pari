@@ -544,11 +544,47 @@ tailresback(long R1, long R2, double rK, long C, double C2, double C3, double r1
 }
 
 static double
-tailres(long R1, long R2, double al2K, double rKm, double rKM, double r1Km, double r1KM, double r2Km, double r2KM, double C)
+tailres(long R1, long R2, double al2K, double rKm, double rKM, double r1Km,
+        double r1KM, double r2Km, double r2KM, double C, long i)
 {
+  /* C >= 3*2^i, lower bound for eint1(log(C)/2) */
+  /* for(i=0,30,print(eint1(log(3*2^i)/2))) */
+  static double tab[] = {
+    0.50409264803,
+    0.26205336997,
+    0.14815491171,
+    0.08770540561,
+    0.05347651832,
+    0.03328934284,
+    0.02104510690,
+    0.01346475900,
+    0.00869778586,
+    0.00566279855,
+    0.00371111950,
+    0.00244567837,
+    0.00161948049,
+    0.00107686891,
+    0.00071868750,
+    0.00048119961,
+    0.00032312188,
+    0.00021753772,
+    0.00014679818,
+    9.9272855581E-5,
+    6.7263969995E-5,
+    4.5656812967E-5,
+    3.1041124593E-5,
+    2.1136011590E-5,
+    1.4411645381E-5,
+    9.8393304088E-6,
+    6.7257395409E-6,
+    4.6025878272E-6,
+    3.1529719271E-6,
+    2.1620490021E-6,
+    1.4839266071E-6
+  };
   const double logC = log(C), logC2 = logC*logC, logC3 = logC*logC2;
-  const double E1 = rtodbl(mpeint1(dbltor(logC/2), dbltor(sqrt(C))));
   const double C2 = C*C, C3 = C*C2;
+  double E1 = i >30? 0: tab[i];
   return al2K*((33*logC2+22*logC+8)/(8*logC3*sqrt(C))+15*E1/16)
     + maxdd(tailresback(rKm,r1KM,r2Km, C,C2,C3,R1,R2,logC,logC2,logC3),
             tailresback(rKM,r1Km,r2KM, C,C2,C3,R1,R2,logC,logC2,logC3))/2
@@ -566,16 +602,18 @@ primeneeded(long N, long R1, long R2, double LOGD)
   const double r1KM = -       LOGD + 1.9851*N;
   const double r2Km = -       LOGD + 0.9151*N;
   const double r2KM = -       LOGD + 1.0800*N;
-  long Cmin = 3, Cmax = 3;
-  while (tailres(R1, R2, al2K, rKm, rKM, r1Km, r1KM, r2Km, r2KM, Cmax) > lim)
+  long Cmin = 3, Cmax = 3, i = 0;
+  while (tailres(R1, R2, al2K, rKm, rKM, r1Km, r1KM, r2Km, r2KM, Cmax, i) > lim)
   {
     Cmin = Cmax;
     Cmax *= 2;
+    i++;
   }
+  i--;
   while (Cmax - Cmin > 1)
   {
     long t = (Cmin + Cmax)/2;
-    if (tailres(R1, R2, al2K, rKm, rKM, r1Km, r1KM, r2Km, r2KM, t) > lim)
+    if (tailres(R1, R2, al2K, rKm, rKM, r1Km, r1KM, r2Km, r2KM, t, i) > lim)
       Cmin = t;
     else
       Cmax = t;
