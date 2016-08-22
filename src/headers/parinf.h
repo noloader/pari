@@ -188,7 +188,6 @@ GEN    nfpol_to_Flx(GEN nf, GEN pol, ulong *ptp);
 GEN    nfroots_split(GEN nf, GEN pol);
 GEN    pidealprimeinv(GEN nf, GEN x);
 GEN    primedec_apply_kummer(GEN nf,GEN pol,long e,GEN p);
-GEN    prodid(GEN nf, GEN I);
 GEN    rnfallbase(GEN nf, GEN *ppol, GEN *pD, GEN *pd, GEN *pfi);
 GEN    rnf_basM(GEN rnf);
 GEN    special_anti_uniformizer(GEN nf, GEN pr);

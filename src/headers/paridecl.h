@@ -2034,6 +2034,7 @@ GEN     idealprodprime(GEN nf, GEN L);
 GEN     idealsqr(GEN nf, GEN x);
 long    idealtyp(GEN *ideal, GEN *arch);
 long    idealval(GEN nf,GEN ix,GEN vp);
+GEN     idealprod(GEN nf, GEN I);
 long    isideal(GEN nf,GEN x);
 GEN     idealmin(GEN nf,GEN ix,GEN vdir);
 GEN     nf_get_Gtwist(GEN nf, GEN vdir);

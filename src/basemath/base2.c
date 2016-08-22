@@ -3644,7 +3644,7 @@ rnfdet(GEN nf, GEN order)
   order = get_order(nf, order, "rnfdet");
   A = gel(order,1);
   I = gel(order,2);
-  D = idealmul(nf, det(matbasistoalg(nf, A)), prodid(nf, I));
+  D = idealmul(nf, det(matbasistoalg(nf, A)), idealprod(nf, I));
   return gerepileupto(av, D);
 }
 

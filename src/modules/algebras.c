@@ -4344,17 +4344,17 @@ algfromcenterhnf(GEN al, GEN x)
 static GEN
 algcenter_precompute(GEN al, GEN p)
 {
-  GEN nf, fa, pdec, nfprad, projs;
+  GEN fa, pdec, nfprad, projs, nf = alg_get_center(al);
   long i, np;
-  nf = alg_get_center(al);
-  fa = cgetg(3, t_MAT);
+
   pdec = idealprimedec(nf, p);
   settyp(pdec, t_COL);
   np = lg(pdec)-1;
-  gel(fa,1) = pdec;
-  gel(fa,2) = cgetg(np+1, t_COL);
-  for(i=1; i<=np; i++) gcoeff(fa,i,2) = gen_1;
-  nfprad = idealfactorback(nf,fa,NULL,0);
+  fa = mkmat2(pdec, const_col(np, gen_1));
+  if (dvdii(nf_get_disc(nf), p))
+    nfprad = idealprodprime(nf, pdec);
+  else
+    nfprad = scalarmat_shallow(p, nf_get_degree(nf));
   fa = idealchineseinit(nf, fa);
   projs = cgetg(np+1, t_VEC);
   for(i=1; i<=np; i++) gel(projs, i) = idealchinese(nf, fa, vec_ei(np,i));

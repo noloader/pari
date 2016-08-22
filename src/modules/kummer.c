@@ -927,7 +927,7 @@ Stelt(GEN nf, GEN J, GEN polrel)
     gel(I,i) = gen_1;
   }
   A = RgV_to_RgM(A, degpol(polrel));
-  return prodid(nf, gel(nfhnf(nf, mkvec2(A,I)),2));
+  return idealprod(nf, gel(nfhnf(nf, mkvec2(A,I)),2));
 }
 
 static GEN

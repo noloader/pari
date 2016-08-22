@@ -497,17 +497,6 @@ rnfidealhnf(GEN rnf, GEN x)
   return NULL; /* not reached */
 }
 
-GEN
-prodid(GEN nf, GEN I)
-{
-  long i, l = lg(I);
-  GEN z;
-  if (l == 1) return matid(nf_get_degree(nf));
-  z = gel(I,1);
-  for (i=2; i<l; i++) z = idealmul(nf, z, gel(I,i));
-  return z;
-}
-
 static GEN
 prodidnorm(GEN nf, GEN I)
 {
@@ -525,7 +514,7 @@ rnfidealnormrel(GEN rnf, GEN id)
   pari_sp av = avma;
   GEN nf, z = gel(rnfidealhnf(rnf,id), 2);
   if (lg(z) == 1) return cgetg(1, t_MAT);
-  nf = rnf_get_nf(rnf); z = prodid(nf, z);
+  nf = rnf_get_nf(rnf); z = idealprod(nf, z);
   return gerepileupto(av, idealmul(nf,z, rnf_get_index(rnf)));
 }
 

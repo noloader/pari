@@ -783,8 +783,12 @@ if either $x$ or $y$ is an extended ideal.
 \kbd{pr} a \var{prid} attached to $\goth{p}$. Not suitable for
 \tet{gerepileupto} since it retunrs $x$ when $n = 0$.
 
-\fun{GEN}{idealprodprime}{GEN nf, GEN P} given a list $P$ of prime ideals
-in \var{prid} form, return their product.
+\fun{GEN}{idealprodprime}{GEN nf, GEN v} given a list $v$ of prime ideals
+in \var{prid} form, return their product. Assume that \var{nf} is a true
+\var{nf} structure.
+
+\fun{GEN}{idealprod}{GEN nf, GEN v} given a list $v$ of ideals,
+return their product. Assume that \var{nf} is a true \var{nf} structure.
 
 \fun{GEN}{idealmul_HNF}{GEN nf, GEN x, GEN y} returns $xy$, assuming
 than \kbd{nf} is a true \var{nf}, $x$ is an integral ideal in HNF and $y$

@@ -2301,10 +2301,21 @@ idealprodprime(GEN nf, GEN L)
 {
   long l = lg(L), i;
   GEN z;
-
   if (l == 1) return matid(nf_get_degree(nf));
   z = idealhnf_two(nf, gel(L,1));
   for (i=2; i<l; i++) z = idealmul_HNF_two(nf,z, gel(L,i));
+  return z;
+}
+
+GEN
+idealprod(GEN nf, GEN I)
+{
+  long i, l = lg(I);
+  GEN z;
+  if (l == 1) return matid(nf_get_degree(nf));
+  z = gel(I,1);
+  for (i=2; i<l; i++) z = idealmul(nf, z, gel(I,i));
+  if (typ(z) != t_MAT) z = idealhnf(nf, z);
   return z;
 }
 
