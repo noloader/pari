@@ -456,18 +456,12 @@ polgaloisnames(long a, long b)
 static GEN
 galois_res(long d, long n, long s, long k)
 {
-  long kk = k;
   GEN z = cgetg(5,t_VEC);
-  if (!new_galois_format)
-  {
-    switch (d) {
-      case 6:
-        kk = (k == 6 || k == 2)? 2: 1;
-        break;
-      default:
-        kk = 1;
-    }
-  }
+  long kk;
+  if (new_galois_format)
+    kk = k;
+  else
+    kk = (d == 6 && (k==6 || k==2))? 2: 1;
   gel(z,1) = stoi(n);
   gel(z,2) = stoi(s);
   gel(z,3) = stoi(kk);
