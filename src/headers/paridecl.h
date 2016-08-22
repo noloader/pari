@@ -1814,7 +1814,6 @@ GEN     nfnewprec_shallow(GEN nf, long prec);
 GEN     nfpoleval(GEN nf, GEN pol, GEN a);
 long    nftyp(GEN x);
 GEN     polredord(GEN x);
-GEN     polgalois(GEN x, long prec);
 GEN     polred(GEN x);
 GEN     polred0(GEN x, long flag, GEN fa);
 GEN     polred2(GEN x);
@@ -2904,6 +2903,10 @@ GEN     galoissubgroups(GEN G);
 GEN     galoissubfields(GEN G, long flag, long v);
 long    numberofconjugates(GEN T, long pdepart);
 GEN     vandermondeinverse(GEN L, GEN T, GEN den, GEN prep);
+
+/* galois.c */
+
+GEN     polgalois(GEN x, long prec);
 
 /* galpol.c */
 

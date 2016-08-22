@@ -172,7 +172,6 @@ GEN    archstar_full_rk(GEN x, GEN bas, GEN v, GEN gen);
 GEN    check_and_build_cycgen(GEN bnf);
 long   check_LIMC(long LIMC, long LIMCMAX);
 GEN    pow_ei_mod_p(GEN nf, long I, GEN n, GEN p);
-GEN    galoisbig(GEN x, long prec);
 GEN    get_arch_real(GEN nf,GEN x,GEN *emb,long prec);
 GEN    get_bas_den(GEN bas);
 void   nf_set_multable(GEN nf, GEN bas, GEN basden);
