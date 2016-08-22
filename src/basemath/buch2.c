@@ -547,7 +547,7 @@ static double
 tailres(long R1, long R2, double al2K, double rKm, double rKM, double r1Km, double r1KM, double r2Km, double r2KM, double C)
 {
   const double logC = log(C), logC2 = logC*logC, logC3 = logC*logC2;
-  const double E1 = rtodbl(eint1(dbltor(logC/2), DEFAULTPREC));
+  const double E1 = rtodbl(mpeint1(dbltor(logC/2), dbltor(sqrt(C))));
   const double C2 = C*C, C3 = C*C2;
   return al2K*((33*logC2+22*logC+8)/(8*logC3*sqrt(C))+15*E1/16)
     + maxdd(tailresback(rKm,r1KM,r2Km, C,C2,C3,R1,R2,logC,logC2,logC3),
@@ -566,7 +566,7 @@ primeneeded(long N, long R1, long R2, double LOGD)
   const double r1KM = -       LOGD + 1.9851*N;
   const double r2Km = -       LOGD + 0.9151*N;
   const double r2KM = -       LOGD + 1.0800*N;
-  long Cmin = 3, Cmax = 3, Ntest;
+  long Cmin = 3, Cmax = 3;
   while (tailres(R1, R2, al2K, rKm, rKM, r1Km, r1KM, r2Km, r2KM, Cmax) > lim)
   {
     Cmin = Cmax;
@@ -574,11 +574,11 @@ primeneeded(long N, long R1, long R2, double LOGD)
   }
   while (Cmax - Cmin > 1)
   {
-    Ntest = (Cmin + Cmax)/2;
-    if (tailres(R1, R2, al2K, rKm, rKM, r1Km, r1KM, r2Km, r2KM, Ntest) > lim)
-      Cmin = Ntest;
+    long t = (Cmin + Cmax)/2;
+    if (tailres(R1, R2, al2K, rKm, rKM, r1Km, r1KM, r2Km, r2KM, t) > lim)
+      Cmin = t;
     else
-      Cmax = Ntest;
+      Cmax = t;
   }
   return Cmax;
 }
