@@ -2310,7 +2310,19 @@ GEN
 galoisconj(GEN nf, GEN d)
 {
   pari_sp av = avma;
-  GEN G = galoisconj4_main(nf, d, 0);
+  GEN G, NF, T = get_nfpol(nf,&NF);
+  if (degpol(T) == 2)
+  { /* fast shortcut */
+    GEN a = gel(T,4), b = gel(T,3);
+    long v = varn(T);
+    RgX_check_ZX(T, "galoisconj");
+    if (!gequal1(a)) pari_err_IMPL("galoisconj(non-monic)");
+    b = negi(b);
+    G = cgetg(3, t_COL);
+    gel(G,1) = pol_x(v);
+    gel(G,2) = deg1pol(gen_m1, b, v); return G;
+  }
+  G = galoisconj4_main(nf, d, 0);
   if (typ(G) != t_INT) return G; /* Success */
   avma = av; return galoisconj1(nf);
 }
