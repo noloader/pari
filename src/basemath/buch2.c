@@ -530,33 +530,29 @@ cache_prime_dec(GRHcheck_t *S, ulong LIM, GEN nf)
 }
 
 static double
-tailresback(long LIMC, double LIMC2, double LIMC3, long R1, long R2, double rK, double r1K, double r2K, double logLIMC, double logLIMC2, double logLIMC3)
+tailresback(long R1, long R2, double rK, long C, double C2, double C3, double r1K, double r2K, double logC, double logC2, double logC3)
 {
   const double  rQ = 1.83787706641;
   const double r1Q = 1.98505372441;
   const double r2Q = 1.07991541347;
-  return fabs((R1+R2-1)*(12*logLIMC3+4*logLIMC2-9*logLIMC-6)/(2*LIMC*logLIMC3)
-         + (rK-rQ)*(6*logLIMC2 + 5*logLIMC + 2)/(LIMC*logLIMC3)
-         - R2*(6*logLIMC2+11*logLIMC+6)/(LIMC2*logLIMC2)
-         - 2*(r1K-r1Q)*(3*logLIMC2 + 4*logLIMC + 2)/(LIMC2*logLIMC3)
-         + (R1+R2-1)*(12*logLIMC3+40*logLIMC2+45*logLIMC+18)/(6*LIMC3*logLIMC3)
-         + (r2K-r2Q)*(2*logLIMC2 + 3*logLIMC + 2)/(LIMC3*logLIMC3));
+  return fabs((R1+R2-1)*(12*logC3+4*logC2-9*logC-6)/(2*C*logC3)
+         + (rK-rQ)*(6*logC2 + 5*logC + 2)/(C*logC3)
+         - R2*(6*logC2+11*logC+6)/(C2*logC2)
+         - 2*(r1K-r1Q)*(3*logC2 + 4*logC + 2)/(C2*logC3)
+         + (R1+R2-1)*(12*logC3+40*logC2+45*logC+18)/(6*C3*logC3)
+         + (r2K-r2Q)*(2*logC2 + 3*logC + 2)/(C3*logC3));
 }
 
 static double
-tailres(long R1, long R2, double al2K, double rKm, double rKM, double r1Km, double r1KM, double r2Km, double r2KM, long LIMC)
+tailres(long R1, long R2, double al2K, double rKm, double rKM, double r1Km, double r1KM, double r2Km, double r2KM, double C)
 {
-  const double logLIMC = log((double)LIMC), logLIMC2 = logLIMC*logLIMC;
-  const double logLIMC3 = logLIMC*logLIMC2;
-  const double E1 = rtodbl(eint1(dbltor(logLIMC/2), DEFAULTPREC));
-  const double LIMC2 = LIMC*LIMC, LIMC3 = LIMC*LIMC2;
-  return
-    al2K*((33*logLIMC2+22*logLIMC+8)/(8*logLIMC3*sqrt((double)LIMC))+15*E1/16)
-     + maxdd(
-            tailresback(LIMC,LIMC2,LIMC3,R1,R2,rKm,r1KM,r2Km,logLIMC,logLIMC2,logLIMC3),
-            tailresback(LIMC,LIMC2,LIMC3,R1,R2,rKM,r1Km,r2KM,logLIMC,logLIMC2,logLIMC3)
-       )/2
-     + ((R1+R2-1)*4*LIMC+R2)*(LIMC2+6*logLIMC)/(4*LIMC2*LIMC2*logLIMC2);
+  const double logC = log(C), logC2 = logC*logC, logC3 = logC*logC2;
+  const double E1 = rtodbl(eint1(dbltor(logC/2), DEFAULTPREC));
+  const double C2 = C*C, C3 = C*C2;
+  return al2K*((33*logC2+22*logC+8)/(8*logC3*sqrt(C))+15*E1/16)
+    + maxdd(tailresback(rKm,r1KM,r2Km, C,C2,C3,R1,R2,logC,logC2,logC3),
+            tailresback(rKM,r1Km,r2KM, C,C2,C3,R1,R2,logC,logC2,logC3))/2
+    + ((R1+R2-1)*4*C+R2)*(C2+6*logC)/(4*C2*C2*logC2);
 }
 
 static long
@@ -570,21 +566,21 @@ primeneeded(long N, long R1, long R2, double LOGD)
   const double r1KM = -       LOGD + 1.9851*N;
   const double r2Km = -       LOGD + 0.9151*N;
   const double r2KM = -       LOGD + 1.0800*N;
-  long LIMCmin = 3, LIMCmax = 3, Ntest;
-  while (tailres(R1, R2, al2K, rKm, rKM, r1Km, r1KM, r2Km, r2KM, LIMCmax) > lim)
+  long Cmin = 3, Cmax = 3, Ntest;
+  while (tailres(R1, R2, al2K, rKm, rKM, r1Km, r1KM, r2Km, r2KM, Cmax) > lim)
   {
-    LIMCmin = LIMCmax;
-    LIMCmax *= 2;
+    Cmin = Cmax;
+    Cmax *= 2;
   }
-  while (LIMCmax - LIMCmin > 1)
+  while (Cmax - Cmin > 1)
   {
-    Ntest = (LIMCmin + LIMCmax)/2;
+    Ntest = (Cmin + Cmax)/2;
     if (tailres(R1, R2, al2K, rKm, rKM, r1Km, r1KM, r2Km, r2KM, Ntest) > lim)
-      LIMCmin = Ntest;
+      Cmin = Ntest;
     else
-      LIMCmax = Ntest;
+      Cmax = Ntest;
   }
-  return LIMCmax;
+  return Cmax;
 }
 
 /*
