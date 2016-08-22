@@ -183,7 +183,6 @@ GEN    init_unif_mod_fZ(GEN L);
 GEN    init_units(GEN BNF);
 GEN    make_integral(GEN nf, GEN L0, GEN f, GEN listpr);
 GEN    nf_deg1_prime(GEN nf);
-GEN    nfpol_to_Flx(GEN nf, GEN pol, ulong *ptp);
 GEN    nfroots_split(GEN nf, GEN pol);
 GEN    pidealprimeinv(GEN nf, GEN x);
 GEN    primedec_apply_kummer(GEN nf,GEN pol,long e,GEN p);
