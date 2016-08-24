@@ -37,6 +37,7 @@ Done for version 2.8.1 (released ??/??/2016):
     5- split off historical refcard in submodules basic, ell, lfun, mf, nf
     6- rewrite nfeltinv / nfeltdiv (use mult. table rather than polmod
        representation)
+    7- idealred algorithm (find small y in I^(-1), not in I)
 
 Done for version 2.8.0 (released 12/08/2016):
 
