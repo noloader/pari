@@ -1049,7 +1049,7 @@ get_bas_den(GEN bas)
 }
 
 /* Internal: nf partially filled. Require pol; fill zk, invzk, multable */
-void
+static void
 nf_set_multable(GEN nf, GEN bas, GEN basden)
 {
   GEN T = nf_get_pol(nf), invbas, basM;
