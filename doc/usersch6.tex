@@ -549,10 +549,10 @@ multiplication table) are done only once. The components of the result
 are in most cases \typ{COL}s but are allowed to be \typ{INT}s or \typ{FRAC}s.
 Shallow function.
 
-\fun{GEN}{nfC_multable_mul}{GEN nf, GEN v, GEN mx} same as \tet{nfC_nf_mul},
+\fun{GEN}{nfC_multable_mul}{GEN v, GEN mx} same as \tet{nfC_nf_mul},
 where the argument $x$ is replaced by its multiplication table \kbd{mx}.
 
-\fun{GEN}{zkC_multable_mul}{GEN nf, GEN v, GEN x} same as \tet{nfC_nf_mul},
+\fun{GEN}{zkC_multable_mul}{GEN v, GEN x} same as \tet{nfC_nf_mul},
 where $v$ is a vector of algebraic integers, $x$ is an algebraic
 integer, and $x$ is replaced by \kbd{zk\_multable}$(x)$.
 

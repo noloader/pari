@@ -304,7 +304,7 @@ nfsqr(GEN nf, GEN x)
 
 /* x a ZC, v a t_COL of ZC/Z */
 GEN
-zkC_multable_mul(GEN nf, GEN v, GEN x)
+zkC_multable_mul(GEN v, GEN x)
 {
   long i, l = lg(v);
   GEN y = cgetg(l, t_COL);
@@ -323,7 +323,7 @@ zkC_multable_mul(GEN nf, GEN v, GEN x)
 }
 
 GEN
-nfC_multable_mul(GEN nf, GEN v, GEN x)
+nfC_multable_mul(GEN v, GEN x)
 {
   long i, l = lg(v);
   GEN y = cgetg(l, t_COL);
@@ -371,7 +371,7 @@ nfC_nf_mul(GEN nf, GEN v, GEN x)
   {
     GEN dx;
     x = zk_multable(nf, Q_remove_denom(x,&dx));
-    y = nfC_multable_mul(nf, v, x);
+    y = nfC_multable_mul(v, x);
     return dx? RgC_Rg_div(y, dx): y;
   }
 }

@@ -1365,7 +1365,7 @@ idealmulelt(GEN nf, GEN x, GEN A)
   A = Q_remove_denom(A, &dA);
   x = zk_multable(nf, x);
   D = mulii(zkmultable_capZ(x), gcoeff(A,1,1));
-  x = zkC_multable_mul(nf, A, x);
+  x = zkC_multable_mul(A, x);
   settyp(x, t_MAT); lx = lg(x);
   /* x may contain scalars (at most 1 since the ideal is non-0)*/
   for (i=1; i<lx; i++)
