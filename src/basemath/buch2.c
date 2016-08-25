@@ -1103,9 +1103,20 @@ exp_OK(GEN x, long *pte)
 }
 
 static GEN
+log_m1(long r1, long ru, long prec)
+{
+  GEN v = cgetg(ru+1,t_COL);
+  GEN a = r1? PiI2n(0,prec): NULL;
+  GEN a2 = (r1 != ru)? PiI2n(1,prec): NULL;
+  long i;
+  for (i=1; i<=r1; i++) gel(v,i) = a;
+  for (   ; i<=ru; i++) gel(v,i) = a2;
+  return v;
+}
+static GEN
 getfu(GEN nf, GEN *ptA, long *pte, long prec)
 {
-  GEN p1, p2, u, y, matep, A, vec, T = nf_get_pol(nf), M = nf_get_M(nf);
+  GEN u, y, matep, A, vec, T = nf_get_pol(nf), M = nf_get_M(nf);
   long e, i, j, R1, RU, N = degpol(T);
 
   if (DEBUGLEVEL) err_printf("\n#### Computing fundamental units\n");
@@ -1135,24 +1146,21 @@ getfu(GEN nf, GEN *ptA, long *pte, long prec)
   *pte = -e;
   if (e >= 0) return not_given(fupb_PRECI);
   for (j=1; j<RU; j++)
-    if (!gequal1(idealnorm(nf, gel(y,j)))) break;
-  if (j < RU) { *pte = 0; return not_given(fupb_PRECI); }
+    if (!is_pm1(nfnorm(nf, gel(y,j)))) { *pte=0; return not_given(fupb_PRECI); }
   A = RgM_mul(A,u);
-
-  /* y[i] are unit generators. Normalize: smallest L2 norm + lead coeff > 0 */
-  y = coltoliftalg(nf, y);
-  vec = cgetg(RU+1,t_COL);
-  p1 = PiI2n(0,prec); for (i=1; i<=R1; i++) gel(vec,i) = p1;
-  p2 = PiI2n(1,prec); for (   ; i<=RU; i++) gel(vec,i) = p2;
+  settyp(y, t_VEC);
+  /* y[i] are unit generators. Normalize: smallest T2 norm + lead coeff > 0 */
+  vec = log_m1(R1,RU,prec);
   for (j=1; j<RU; j++)
   {
-    GEN u = gel(y,j), v = QXQ_inv(u, T);
-    if (gcmp(RgX_fpnorml2(v,DEFAULTPREC),
-             RgX_fpnorml2(u,DEFAULTPREC)) < 0)
+    GEN u = gel(y,j), v = zk_inv(nf, u);
+    if (gcmp(RgC_fpnorml2(v,DEFAULTPREC),
+             RgC_fpnorml2(u,DEFAULTPREC)) < 0)
     {
       gel(A,j) = RgC_neg(gel(A,j));
       u = v;
     }
+    u = coltoliftalg(nf,u);
     if (gsigne(leading_coeff(u)) < 0)
     {
       gel(A,j) = RgC_add(gel(A,j), vec);
