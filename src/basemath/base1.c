@@ -962,8 +962,7 @@ nfisincl(GEN a, GEN b) { return nfiso0(a,b,0); }
 /**                               INITALG                               **/
 /**                                                                     **/
 /*************************************************************************/
-
-GEN
+static GEN
 get_roots(GEN x, long r1, long prec)
 {
   long i, ru;

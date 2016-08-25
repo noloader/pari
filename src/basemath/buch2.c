@@ -3202,27 +3202,6 @@ class_group_gen(GEN nf,GEN W,GEN C,GEN Vbase,long prec, GEN nf0,
 /* SMALLBUCHINIT */
 
 static GEN
-decode_pr_lists(GEN nf, GEN pfc)
-{
-  long i, p, pmax, n = nf_get_degree(nf), l = lg(pfc);
-  GEN t, L;
-
-  pmax = 0;
-  for (i=1; i<l; i++)
-  {
-    t = gel(pfc,i); p = itos(t) / n;
-    if (p > pmax) pmax = p;
-  }
-  L = const_vec(pmax, NULL);
-  for (i=1; i<l; i++)
-  {
-    t = gel(pfc,i); p = itos(t) / n;
-    if (!L[p]) gel(L,p) = idealprimedec(nf, utoipos(p));
-  }
-  return L;
-}
-
-static GEN
 decodeprime(GEN T, GEN L, long n)
 {
   long t = itos(T);
@@ -3233,6 +3212,23 @@ codeprime(GEN L, long N, GEN pr)
 {
   long p = pr_get_smallp(pr);
   return utoipos( N*p + pr_index(gel(L,p), pr)-1 );
+}
+
+static GEN
+decode_pr_lists(GEN nf, GEN pfc)
+{
+  long i, n = nf_get_degree(nf), l = lg(pfc);
+  GEN L, P = cgetg(l, t_VECSMALL), Vbase = cgetg(l, t_COL);
+
+  for (i = 1; i < l; i++) P[i] = itou(gel(pfc,i)) / n;
+  L = const_vec(vecsmall_max(P), NULL);
+  for (i = 1; i < l; i++)
+  {
+    long p = P[i];
+    if (!gel(L,p)) gel(L,p) = idealprimedec(nf, utoipos(p));
+  }
+  for (i = 1; i < l; i++) gel(Vbase,i) = decodeprime(gel(pfc,i), L, n);
+  return Vbase;
 }
 
 static GEN
@@ -3534,10 +3530,9 @@ bnfcompress(GEN bnf)
 static GEN
 sbnf2bnf(GEN sbnf, long prec)
 {
-  long j, k, l, n;
   pari_sp av = avma;
-  GEN ro, nf, A, fu, FU, L;
-  GEN pfc, C, clgp, clgp2, res, y, W, zu, matal, Vbase;
+  GEN ro, nf, A, fu, FU, C, clgp, clgp2, res, y, W, zu, matal, Vbase;
+  long k, l;
   nfbasic_t T;
 
   if (typ(sbnf) != t_VEC || lg(sbnf) != 13) pari_err_TYPE("bnfmake",sbnf);
@@ -3546,34 +3541,29 @@ sbnf2bnf(GEN sbnf, long prec)
   nfbasic_from_sbnf(sbnf, &T);
   ro = gel(sbnf,5);
   fu = gel(sbnf,11);
-  if (prec > gprecision(ro)) ro = get_roots(T.x,T.r1,prec);
+  if (prec > gprecision(ro)) ro = NULL;
   nf = nfbasic_to_nf(&T, ro, prec);
 
   A = get_archclean(nf, fu, prec, 1);
   if (!A) pari_err_PREC( "bnfmake");
 
-  prec = gprecision(ro);
+  prec = nf_get_prec(nf);
   matal = check_and_build_matal(sbnf);
   C = get_archclean(nf,matal,prec,0);
   if (!C) pari_err_PREC( "bnfmake");
 
-  pfc = gel(sbnf,9);
-  l = lg(pfc);
-  Vbase = cgetg(l,t_COL);
-  L = decode_pr_lists(nf, pfc);
-  n = nf_get_degree(nf);
-  for (j=1; j<l; j++) gel(Vbase,j) = decodeprime(gel(pfc,j), L, n);
+  Vbase = decode_pr_lists(nf, gel(sbnf,9));
   W = gel(sbnf,7);
   class_group_gen(nf,W,C,Vbase,prec,NULL, &clgp,&clgp2);
 
   zu = gel(sbnf,10);
   zu = mkvec2(gel(zu,1), nf_to_scalar_or_alg(nf, gel(zu,2)));
-
   FU = cgetg_copy(fu, &l);
   for (k=1; k < l; k++) gel(FU,k) = coltoliftalg(nf, gel(fu,k));
+
   res = get_clfu(clgp, get_regulator(A), zu, FU);
   y = buchall_end(nf,res,clgp2,W,gel(sbnf,8),A,C,Vbase);
-  y[10] = sbnf[12]; return gerepilecopy(av,y);
+  gel(y,10) = gel(sbnf,12); return gerepilecopy(av,y);
 }
 
 GEN

@@ -175,7 +175,6 @@ GEN    pow_ei_mod_p(GEN nf, long I, GEN n, GEN p);
 GEN    get_arch_real(GEN nf,GEN x,GEN *emb,long prec);
 GEN    get_nfindex(GEN bas);
 GEN    get_proj_modT(GEN basis, GEN T, GEN p);
-GEN    get_roots(GEN x,long r1,long prec);
 GEN    get_theta_abstorel(GEN T, GEN pol, GEN k);
 GEN    idealsqrtn(GEN nf, GEN x, GEN gn, int strict);
 GEN    init_unif_mod_fZ(GEN L);
