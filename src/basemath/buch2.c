@@ -1436,6 +1436,12 @@ split_ideal(GEN nf, FB_t *F, GEN x, GEN Vbase, GEN L, FACT *fact)
 }
 
 INLINE GEN
+bnf_get_W(GEN bnf) { return gel(bnf,1); }
+INLINE GEN
+bnf_get_B(GEN bnf) { return gel(bnf,2); }
+INLINE GEN
+bnf_get_C(GEN bnf) { return gel(bnf,4); }
+INLINE GEN
 bnf_get_vbase(GEN bnf) { return gel(bnf,5); }
 
 /* all primes up to Minkowski bound factor on factorbase ? */
@@ -1709,7 +1715,7 @@ act_arch(GEN A, GEN x)
 static long
 prec_arch(GEN bnf)
 {
-  GEN a = gel(bnf,4);
+  GEN a = bnf_get_C(bnf);
   long i, l = lg(a), prec;
 
   for (i=1; i<l; i++)
@@ -1789,10 +1795,10 @@ isprincipalall(GEN bnf, GEN x, long *ptprec, long flag)
 {
   long i,nW,nB,e,c, prec = *ptprec;
   GEN Q,xar,Wex,Bex,U,p1,gen,cyc,xc,ex,d,col,A;
-  GEN W    = gel(bnf,1);
-  GEN B    = gel(bnf,2);
-  GEN WB_C = gel(bnf,4);
-  GEN nf   = bnf_get_nf(bnf);
+  GEN W  = bnf_get_W(bnf);
+  GEN B  = bnf_get_B(bnf);
+  GEN C  = bnf_get_C(bnf);
+  GEN nf = bnf_get_nf(bnf);
   GEN clg2 = gel(bnf,9);
   FB_t F;
   GEN Vbase = bnf_get_vbase(bnf);
@@ -1854,7 +1860,7 @@ isprincipalall(GEN bnf, GEN x, long *ptprec, long flag)
   { /* g A = G Ur A + [ga]A, Ur A = D Q + R as above (R = ex)
            = G R + [GD]Q + [ga]A */
     GEN ga = gel(clg2,2), GD = gel(clg2,3);
-    if (nB) col = act_arch(Bex, WB_C + nW); else col = triv_arch(nf);
+    if (nB) col = act_arch(Bex, C + nW); else col = triv_arch(nf);
     if (nW) col = gadd(col, act_arch(A, ga));
     if (c)  col = gadd(col, act_arch(Q, GD));
   }
@@ -3271,32 +3277,30 @@ makecycgen(GEN bnf)
 }
 
 static GEN
-get_y(GEN bnf, GEN W, GEN B, GEN WB_C, GEN pFB, long j)
+get_y(GEN bnf, GEN W, GEN B, GEN C, GEN pFB, long j)
 {
   GEN y, nf  = bnf_get_nf(bnf);
   long e, lW = lg(W)-1;
   GEN ex = (j<=lW)? gel(W,j): gel(B,j-lW);
-  GEN C = (j<=lW)? NULL: gel(pFB,j);
-  if (WB_C)
+  GEN P = (j<=lW)? NULL: gel(pFB,j);
+  if (C)
   { /* archimedean embeddings known: cheap trial */
-    GEN Nx = get_norm_fact_primes(pFB, ex, C);
-    y = isprincipalarch(bnf,gel(WB_C,j), Nx,gen_1, gen_1, &e);
-    if (y && fact_ok(nf,y,C,pFB,ex)) return y;
+    GEN Nx = get_norm_fact_primes(pFB, ex, P);
+    y = isprincipalarch(bnf,gel(C,j), Nx,gen_1, gen_1, &e);
+    if (y && fact_ok(nf,y,P,pFB,ex)) return y;
   }
-  y = isprincipalfact_or_fail(bnf, C, pFB, ex);
+  y = isprincipalfact_or_fail(bnf, P, pFB, ex);
   return typ(y) == t_INT? y: gel(y,2);
 }
 /* compute principal ideals corresponding to bnf relations */
 static GEN
 makematal(GEN bnf)
 {
-  GEN W, B, WB_C, pFB, ma, retry;
+  GEN W = bnf_get_W(bnf), B = bnf_get_B(bnf), C = bnf_get_C(bnf);
+  GEN pFB, ma, retry;
   long lma, j, prec = 0;
 
   if (DEBUGLEVEL) pari_warn(warner,"completing bnf (building matal)");
-  W = gel(bnf,1);
-  B = gel(bnf,2);
-  WB_C= gel(bnf,4);
   lma=lg(W)+lg(B)-1;
   pFB = bnf_get_vbase(bnf);
   ma = cgetg(lma,t_VEC);
@@ -3304,7 +3308,7 @@ makematal(GEN bnf)
   for (j=lma-1; j>0; j--)
   {
     pari_sp av = avma;
-    GEN y = get_y(bnf,W,B,WB_C, pFB, j);
+    GEN y = get_y(bnf, W, B, C, pFB, j);
     if (typ(y) == t_INT)
     {
       long E = itos(y);
@@ -3392,7 +3396,7 @@ get_archclean(GEN nf, GEN x, long prec, int units)
 static void
 my_class_group_gen(GEN bnf, long prec, GEN nf0, GEN *ptcl, GEN *ptcl2)
 {
-  GEN W = gel(bnf,1), C = gel(bnf,4), nf = bnf_get_nf(bnf);
+  GEN W = bnf_get_W(bnf), C = bnf_get_C(bnf), nf = bnf_get_nf(bnf);
   class_group_gen(nf,W,C,bnf_get_vbase(bnf),prec,nf0, ptcl,ptcl2);
 }
 
@@ -3467,7 +3471,7 @@ bnrnewprec(GEN bnr, long prec)
 static void
 nfbasic_from_sbnf(GEN sbnf, nfbasic_t *T)
 {
-  T->x0 = T->x    = gel(sbnf,1);
+  T->x0 = T->x = gel(sbnf,1);
   T->dK   = gel(sbnf,3);
   T->bas  = gel(sbnf,4);
   T->index= get_nfindex(T->bas);
@@ -3512,8 +3516,8 @@ bnfcompress(GEN bnf)
   gel(y,4) = nf_get_zk(nf);
   gel(y,5) = nf_get_roots(nf);
   gel(y,6) = gen_0; /* FIXME: unused */
-  gel(y,7) = gel(bnf,1);
-  gel(y,8) = gel(bnf,2);
+  gel(y,7) = bnf_get_W(bnf);
+  gel(y,8) = bnf_get_B(bnf);
   gel(y,9) = codeprimes(bnf_get_vbase(bnf), nf_get_degree(nf));
   gel(y,10) = mkvec2(utoipos(bnf_get_tuN(bnf)),
                      nf_to_scalar_or_basis(nf, bnf_get_tuU(bnf)));
