@@ -457,9 +457,8 @@ compute_beta(GEN X, GEN vecWB, GEN ell, GEN bnfz)
 static GEN
 get_Selmer(GEN bnf, GEN cycgen, long rc)
 {
-  GEN fu = bnf_get_fu_nocheck(bnf), tu = bnf_get_tuU(bnf);
-  GEN units = matalgtobasis(bnf,shallowconcat(fu,tu));
-  return shallowconcat(units, vecslice(cycgen,1,rc));
+  GEN U = bnf_build_units(bnf), tu = gel(U,1), fu = vecslice(U, 2, lg(U)-1);
+  return shallowconcat(shallowconcat(fu,mkvec(tu)), vecslice(cycgen,1,rc));
 }
 
 GEN
@@ -734,7 +733,7 @@ rnfkummersimple(GEN bnr, GEN subgroup, GEN gell, long all)
   GEN res=NULL,u,M,K,y,vecMsup,vecW,vecWB,vecBp,msign;
   primlist L;
 
-  bnf = bnr_get_bnf(bnr); (void)bnf_get_fu(bnf);
+  bnf = bnr_get_bnf(bnr); (void)bnf_build_units(bnf);
   nf  = bnf_get_nf(bnf);
   degK = nf_get_degree(nf);
 
@@ -749,7 +748,7 @@ rnfkummersimple(GEN bnr, GEN subgroup, GEN gell, long all)
   Sp = shallowconcat(L.Sm, L.Sml1); lSp = lg(Sp)-1;
   listprSp = shallowconcat(L.Sml2, L.Sl); lSl2 = lg(listprSp)-1;
 
-  cycgen = check_and_build_cycgen(bnf);
+  cycgen = bnf_build_cycgen(bnf);
   cyc = bnf_get_cyc(bnf); rc = prank(cyc, ell);
 
   vecW = get_Selmer(bnf, cycgen, rc);
@@ -1260,7 +1259,7 @@ _rnfkummer(GEN bnr, GEN subgroup, long all, long prec)
   /* could factor disc(R) using th. 2.1.6. */
   bnfz = Buchall(COMPO.R, nf_FORCE, maxss(prec,BIGDEFAULTPREC));
   if (DEBUGLEVEL) timer_printf(&t, "[rnfkummer] bnfinit(Kz)");
-  cycgen = check_and_build_cycgen(bnfz);
+  cycgen = bnf_build_cycgen(bnfz);
   nfz = bnf_get_nf(bnfz);
   cyc = bnf_get_cyc(bnfz); rc = prank(cyc,ell);
   gen = bnf_get_gen(bnfz);

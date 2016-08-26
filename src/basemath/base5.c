@@ -243,7 +243,7 @@ mkupdown(GEN rnf)
   return Qevproj_init(M);
 }
 GEN
-check_and_build_nfabs(GEN rnf, long prec)
+rnf_build_nfabs(GEN rnf, long prec)
 {
   GEN NF = obj_checkbuild_prec(rnf, rnf_NFABS, &mknfabs, &nf_get_prec, prec);
   (void)obj_checkbuild(rnf, rnf_MAPS, &mkupdown);
@@ -252,7 +252,7 @@ check_and_build_nfabs(GEN rnf, long prec)
 
 void
 rnfcomplete(GEN rnf)
-{ (void)check_and_build_nfabs(rnf, nf_get_prec(rnf_get_nf(rnf))); }
+{ (void)rnf_build_nfabs(rnf, nf_get_prec(rnf_get_nf(rnf))); }
 
 void
 nf_nfzk(GEN nf, GEN rnfeq, GEN *zknf, GEN *czknf)

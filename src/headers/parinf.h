@@ -169,7 +169,6 @@ GEN    coltoalg(GEN nf,GEN x);
 
 /* Other number fields routines */
 GEN    archstar_full_rk(GEN x, GEN bas, GEN v, GEN gen);
-GEN    check_and_build_cycgen(GEN bnf);
 long   check_LIMC(long LIMC, long LIMCMAX);
 GEN    pow_ei_mod_p(GEN nf, long I, GEN n, GEN p);
 GEN    get_arch_real(GEN nf,GEN x,GEN *emb,long prec);
@@ -178,7 +177,6 @@ GEN    get_proj_modT(GEN basis, GEN T, GEN p);
 GEN    get_theta_abstorel(GEN T, GEN pol, GEN k);
 GEN    idealsqrtn(GEN nf, GEN x, GEN gn, int strict);
 GEN    init_unif_mod_fZ(GEN L);
-GEN    init_units(GEN BNF);
 GEN    make_integral(GEN nf, GEN L0, GEN f, GEN listpr);
 GEN    nf_deg1_prime(GEN nf);
 GEN    nfroots_split(GEN nf, GEN pol);

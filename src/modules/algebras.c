@@ -213,7 +213,7 @@ alg_get_abssplitting(GEN al)
   if (ta != al_CYCLIC && ta != al_CSA)
     pari_err_TYPE("alg_get_abssplitting [use alginit]",al);
   prec = nf_get_prec(alg_get_center(al));
-  return check_and_build_nfabs(alg_get_splittingfield(al), prec);
+  return rnf_build_nfabs(alg_get_splittingfield(al), prec);
 }
 GEN
 alg_get_hasse_i(GEN al)
@@ -3795,7 +3795,7 @@ alg_cyclic(GEN rnf, GEN aut, GEN b, long maxord)
   gel(al,1) = rnf;
   gel(al,2) = allauts(rnf, aut);
   gel(al,3) = basistoalg(nf,b);
-  check_and_build_nfabs(rnf, nf_get_prec(nf));
+  rnf_build_nfabs(rnf, nf_get_prec(nf));
   gel(al,6) = gen_0;
   gel(al,7) = matid(D);
   gel(al,8) = matid(D); /* TODO modify 7, 8 et 9 once LLL added */
@@ -3900,7 +3900,7 @@ computesplitting(GEN al, long d, long v)
   /* if (!gequal0(rnf_get_k(rnf)))                    NECESSARY ?? */
   /*  pari_err_BUG("computesplitting (k!=0)");                     */
   gel(al,6) = gen_0;
-  check_and_build_nfabs(rnf, nf_get_prec(nf));
+  rnf_build_nfabs(rnf, nf_get_prec(nf));
 
   /*TODO check whether should change polabs and generator here !!! */
 

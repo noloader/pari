@@ -387,6 +387,40 @@ you initialize the \var{bid} yourself!
 relating the local generators (from chinese remainders) to the global
 SNF generators (\kbd{\var{bid}.gen}).
 
+\subsec{Inserting info in a number field structure}
+
+If the required data is not part of the structure, it is computed then
+inserted, and the new value is returned.
+
+These functions expect a \kbd{bnf} argument:
+
+\fun{GEN}{bnf_build_cycgen}{GEN bnf} the \var{bnf}
+contains generators $[g_1,\ldots,g_k]$ of the class group, each with order
+$d_i$. Then $g_i^{d_i} = (x_i)$ is a principal ideal. This function returns
+the $x_i$ as a factorization matrix (\kbd{famat}) giving the element in
+factored form as a product of $S$-units.
+
+\fun{GEN}{bnf_build_matalpha}{GEN bnf} the class group was
+computed using a factorbase $S$ of prime ideals $\goth{p}_i$, $i \leq r$.
+They satisfy relations of the form $\prod_j \goth{p}_i^{e_{i,j}} = (\alpha_j)$,
+where the $e_{i,j}$ are given by the matrices $\var{bnf}[1]$ ($W$, singling
+out a minimal set of generators in $S$) and $\var{bnf}[2]$ ($B$, expressing the
+rest of $S$ in terms of the singled out generators). This function returns the
+$\alpha_j$ in factored form as a product of $S$-units.
+
+\fun{GEN}{bnf_build_units}{GEN bnf} returns a minimal set of generators
+for the unit group. The first element is a torsion unit, the others have
+infinite order.
+
+These functions expect a \kbd{rnf} argument:
+
+\fun{GEN}{rnf_build_nfabs}{GEN rnf, long prec} given a \var{rnf} structure
+attched to $L/K$, (compute and) return an \var{nf} structure attached to $L$
+at precision \kbd{prec}.
+
+\fun{void}{rnfcomplete}{GEN rnf} as \tet{rnf_build_nfabs} using the precision
+of $K$ for \kbd{prec}.
+
 \subsec{Increasing accuracy}
 
 \fun{GEN}{nfnewprec}{GEN x, long prec}. Raise an exception if \kbd{x}

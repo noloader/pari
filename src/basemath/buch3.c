@@ -353,7 +353,8 @@ check_subgroup(GEN bnr, GEN H, GEN *clhray)
 static GEN
 get_dataunit(GEN bnf, GEN bid)
 {
-  GEN D, cyc = bid_get_cyc(bid), U = init_units(bnf), nf = bnf_get_nf(bnf);
+  GEN D, cyc = bid_get_cyc(bid), U = bnf_build_units(bnf);
+  GEN nf = bnf_get_nf(bnf);
   long i, l;
   zlog_S S; init_zlog_bid(&S, bid);
   D = nfsign_units(bnf, S.archp, 1); l = lg(D);
@@ -369,14 +370,14 @@ GEN
 Buchray(GEN bnf, GEN module, long flag)
 {
   GEN nf, cyc, gen, Gen, u, clg, logs, p1, h, met, u1, u2, U, cycgen;
-  GEN bid, cycbid, genbid, y, funits, H, Hi, c1, c2, El;
+  GEN bid, cycbid, genbid, y, H, Hi, c1, c2, El;
   long RU, Ri, j, ngen, lh;
   const long add_gen = flag & nf_GEN;
   const long do_init = flag & nf_INIT;
   pari_sp av = avma;
 
   bnf = checkbnf(bnf); nf = bnf_get_nf(bnf);
-  funits = bnf_get_fu(bnf); RU = lg(funits);
+  RU = lg(nf_get_roots(nf))-1; /* #K.fu */
   El = Gen = NULL; /* gcc -Wall */
   cyc = bnf_get_cyc(bnf);
   gen = bnf_get_gen(bnf); ngen = lg(cyc)-1;
@@ -420,7 +421,7 @@ Buchray(GEN bnf, GEN module, long flag)
     return gerepilecopy(av,y);
   }
 
-  cycgen = check_and_build_cycgen(bnf);
+  cycgen = bnf_build_cycgen(bnf);
   /* (log(Units)|D) * u = (0 | H) */
   if (do_init)
   {
@@ -507,13 +508,13 @@ bnrinit0(GEN bnf, GEN ideal, long flag)
 GEN
 bnrclassno(GEN bnf,GEN ideal)
 {
-  GEN nf, h, D, bid, cycbid;
+  GEN h, D, bid, cycbid;
   pari_sp av = avma;
 
-  bnf = checkbnf(bnf); nf = bnf_get_nf(bnf);
+  bnf = checkbnf(bnf);
   h = bnf_get_no(bnf); /* class number */
   bid = checkbid_i(ideal);
-  if (!bid) bid = Idealstar(nf,ideal,nf_INIT);
+  if (!bid) bid = Idealstar(bnf, ideal, nf_INIT);
   cycbid = bid_get_cyc(bid);
   if (lg(cycbid) == 1) { avma = av; return icopy(h); }
   D = get_dataunit(bnf, bid); /* (Z_K/f)^* / units ~ Z^n / D */
@@ -590,7 +591,11 @@ bnrisprincipal(GEN bnr, GEN x, long flag)
     GEN y = ZM_ZC_mul(u2, ideallog(nf, L, bid));
     if (!is_pm1(du2)) y = ZC_Z_divexact(y,du2);
     y = ZC_reducemodmatrix(y, u1);
-    alpha = nfdiv(nf, alpha, nffactorback(nf, init_units(bnf), y));
+    if (!ZV_equal0(y))
+    {
+      GEN U = bnf_build_units(bnf);
+      alpha = nfdiv(nf, alpha, nffactorback(nf, U, y));
+    }
   }
   return gerepilecopy(av, mkvec2(ex,alpha));
 }
@@ -1162,7 +1167,7 @@ bnfcertify0(GEN bnf, long flag)
 {
   pari_sp av = avma;
   long i, N;
-  GEN nf, cyc, B;
+  GEN nf, cyc, B, U;
   ulong bound, p;
   struct check_pr S;
   forprime_t T;
@@ -1173,12 +1178,13 @@ bnfcertify0(GEN bnf, long flag)
   testprimes(bnf, zimmertbound(N, nf_get_r2(nf), absi(nf_get_disc(nf))));
   if (flag) return 1;
 
+  U = bnf_build_units(bnf);
   cyc = bnf_get_cyc(bnf);
   S.w = bnf_get_tuN(bnf);
-  S.mu = nf_to_scalar_or_basis(nf, bnf_get_tuU(bnf));
-  S.fu= matalgtobasis(nf, bnf_get_fu(bnf));
+  S.mu = gel(U,1);
+  S.fu = vecslice(U,2,lg(U)-1);
   S.cyc = cyc;
-  S.cycgen = check_and_build_cycgen(bnf);
+  S.cycgen = bnf_build_cycgen(bnf);
   init_bad(&S, nf, bnf_get_gen(bnf));
 
   B = bound_unit_index(bnf, S.fu);
@@ -2258,7 +2264,7 @@ discrayabslistarch(GEN bnf, GEN arch, ulong bound)
   degk = nf_get_degree(nf);
   fadkabs = absZ_factor(nf_get_disc(nf));
   h = bnf_get_no(bnf);
-  U = init_units(bnf);
+  U = bnf_build_units(bnf);
   sgnU = nfsign_units(bnf, NULL, 1);
 
   if (allarch) arch = const_vec(r1, gen_1);

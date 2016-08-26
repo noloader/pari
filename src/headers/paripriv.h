@@ -663,11 +663,6 @@ GEN     factor_norm(GEN x);
 GEN     factorbackprime(GEN nf, GEN L, GEN e);
 long    val_norm(GEN x, GEN p, long *vz);
 
-/* base5.c */
-
-GEN     check_and_build_nfabs(GEN rnf, long prec);
-void    rnfcomplete(GEN rnf);
-
 /* buch1.c */
 
 GEN     form_to_ideal(GEN x);
@@ -682,7 +677,6 @@ void    init_GRHcheck(GRHcheck_t *S, long N, long R1, double LOGD);
 void    GRH_ensure(GRHcheck_t *S, long nb);
 ulong   GRH_last_prime(GRHcheck_t *S);
 int     GRHok(GRHcheck_t *S, double L, double SA, double SB);
-GEN     check_and_build_matal(GEN bnf);
 GEN     extract_full_lattice(GEN x);
 GEN     init_red_mod_units(GEN bnf, long prec);
 GEN     isprincipalarch(GEN bnf, GEN col, GEN kNx, GEN e, GEN dx, long *pe);

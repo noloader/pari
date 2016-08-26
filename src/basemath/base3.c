@@ -2550,7 +2550,7 @@ Ideallist(GEN bnf, ulong bound, long flag)
   BOUND = utoipos(bound);
   z = cgetg(bound+1,t_VEC);
   if (do_units) {
-    U = init_units(bnf);
+    U = bnf_build_units(bnf);
     gel(z,1) = mkvec( mkvec2(id, zlog_units_noarch(nf, U, id)) );
   } else {
     U = NULL; /* -Wall */

@@ -35,7 +35,10 @@ checkbnf_i(GEN X)
   if (typ(X) == t_VEC)
     switch (lg(X))
     {
-      case 11: return X;
+      case 11:
+        if (typ(gel(X,6)) != t_INT) return NULL; /* pre-2.2.4 format */
+        if (lg(gel(X,10)) != 4) return NULL; /* pre-2.8.1 format */
+        return X;
       case 7:  return checkbnf_i(bnr_get_bnf(X));
     }
   return NULL;
@@ -1702,7 +1705,7 @@ nfinitall(GEN x, long flag, long prec)
   nfbasic_t T;
   GEN nf;
 
-  if (checkrnf_i(x)) return check_and_build_nfabs(x, prec);
+  if (checkrnf_i(x)) return rnf_build_nfabs(x, prec);
   nfinit_step1(&T, x, flag);
   nf = nfinit_step2(&T, flag, prec);
   return gerepilecopy(av, nf);

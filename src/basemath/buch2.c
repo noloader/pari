@@ -1171,22 +1171,23 @@ getfu(GEN nf, GEN *ptA, long *pte, long prec)
   *ptA = A; return y;
 }
 
-GEN
-init_units(GEN BNF)
+static GEN
+makeunits(GEN BNF)
 {
   GEN bnf = checkbnf(BNF), funits = bnf_get_fu_nocheck(bnf), v;
+  GEN nf = bnf_get_nf(bnf);
   long i, l;
   if (typ(funits) == t_MAT)
   {
     pari_sp av = avma;
-    GEN nf = bnf_get_nf(bnf), A = bnf_get_logfu(bnf);
+    GEN A = bnf_get_logfu(bnf);
     funits = gerepilecopy(av, getfu(nf, &A, &l, 0));
     if (typ(funits) == t_MAT)
-      pari_err_PREC("init_units [can't compute units on the fly]");
+      pari_err_PREC("makeunits [cannot compute units, use bnfinit(,1)]");
   }
-  l = lg(funits) + 1;
-  v = cgetg(l, t_VEC); gel(v,1) = bnf_get_tuU(bnf);
-  for (i = 2; i < l; i++) gel(v,i) = gel(funits,i-1);
+  l = lg(funits) + 1; v = cgetg(l, t_VEC);
+  gel(v,1) = nf_to_scalar_or_basis(nf,bnf_get_tuU(bnf));
+  for (i = 2; i < l; i++) gel(v,i) = algtobasis(nf, gel(funits,i-1));
   return v;
 }
 
@@ -1434,19 +1435,8 @@ split_ideal(GEN nf, FB_t *F, GEN x, GEN Vbase, GEN L, FACT *fact)
   return y;
 }
 
-/* return sorted vectbase [sorted in bnf since version 2.2.4] */
-static GEN
-get_Vbase(GEN bnf)
-{
-  GEN vectbase = gel(bnf,5), perm = gel(bnf,6), Vbase;
-  long i, l, tx = typ(perm);
-
-  if (tx == t_INT) return vectbase;
-  /* old format */
-  l = lg(vectbase); Vbase = cgetg(l,t_VEC);
-  for (i=1; i<l; i++) Vbase[i] = vectbase[itos(gel(perm,i))];
-  return Vbase;
-}
+INLINE GEN
+bnf_get_vbase(GEN bnf) { return gel(bnf,5); }
 
 /* all primes up to Minkowski bound factor on factorbase ? */
 void
@@ -1474,9 +1464,9 @@ testprimes(GEN bnf, GEN BOUND)
     if (DEBUGLEVEL>1) err_printf("     is %Ps\n", L);
   }
   /* sort factorbase for tablesearch */
-  fb = gen_sort(gel(bnf,5), (void*)&cmp_prime_ideal, cmp_nodata);
+  Vbase = bnf_get_vbase(bnf);
+  fb = gen_sort(Vbase, (void*)&cmp_prime_ideal, cmp_nodata);
   pmax = itou( pr_get_p(gel(fb, lg(fb)-1)) ); /* largest p in factorbase */
-  Vbase = get_Vbase(bnf);
   (void)recover_partFB(&F, Vbase, nf_get_degree(nf));
   fact = (FACT*)stack_malloc((F.KC+1)*sizeof(FACT));
   forprime_init(&S, gen_2, BOUND);
@@ -1805,7 +1795,7 @@ isprincipalall(GEN bnf, GEN x, long *ptprec, long flag)
   GEN nf   = bnf_get_nf(bnf);
   GEN clg2 = gel(bnf,9);
   FB_t F;
-  GEN Vbase = get_Vbase(bnf);
+  GEN Vbase = bnf_get_vbase(bnf);
   GEN L = recover_partFB(&F, Vbase, lg(x)-1);
   pari_sp av;
   FACT *fact;
@@ -3308,7 +3298,7 @@ makematal(GEN bnf)
   B = gel(bnf,2);
   WB_C= gel(bnf,4);
   lma=lg(W)+lg(B)-1;
-  pFB = get_Vbase(bnf);
+  pFB = bnf_get_vbase(bnf);
   ma = cgetg(lma,t_VEC);
   retry = vecsmalltrunc_init(lma);
   for (j=lma-1; j>0; j--)
@@ -3351,16 +3341,17 @@ makematal(GEN bnf)
   return ma;
 }
 
-#define MATAL  1
-#define CYCGEN 2
+enum { MATAL = 1, CYCGEN, UNITS };
+
 GEN
-check_and_build_cycgen(GEN bnf) {
-  return obj_checkbuild(bnf, CYCGEN, &makecycgen);
-}
+bnf_build_cycgen(GEN bnf)
+{ return obj_checkbuild(bnf, CYCGEN, &makecycgen); }
 GEN
-check_and_build_matal(GEN bnf) {
-  return obj_checkbuild(bnf, MATAL, &makematal);
-}
+bnf_build_matalpha(GEN bnf)
+{ return obj_checkbuild(bnf, MATAL, &makematal); }
+GEN
+bnf_build_units(GEN bnf)
+{ return obj_checkbuild(bnf, UNITS, &makeunits); }
 
 static GEN
 get_regulator(GEN mun)
@@ -3402,17 +3393,18 @@ static void
 my_class_group_gen(GEN bnf, long prec, GEN nf0, GEN *ptcl, GEN *ptcl2)
 {
   GEN W = gel(bnf,1), C = gel(bnf,4), nf = bnf_get_nf(bnf);
-  class_group_gen(nf,W,C,get_Vbase(bnf),prec,nf0, ptcl,ptcl2);
+  class_group_gen(nf,W,C,bnf_get_vbase(bnf),prec,nf0, ptcl,ptcl2);
 }
 
 GEN
 bnfnewprec_shallow(GEN bnf, long prec)
 {
-  GEN nf0 = bnf_get_nf(bnf), nf, res, funits, mun, gac, matal, clgp, clgp2, y;
+  GEN nf0 = bnf_get_nf(bnf), nf, res, fu, mun, gac, matal, clgp, clgp2, y;
   long r1, r2, prec1;
 
   nf_get_sign(nf0, &r1, &r2);
-  funits = matalgtobasis(nf0, bnf_get_fu(bnf));
+  fu = bnf_build_units(bnf);
+  fu = vecslice(fu, 2, lg(fu)-1);
 
   prec1 = prec;
   if (r1 + r2 > 1) {
@@ -3420,15 +3412,15 @@ bnfnewprec_shallow(GEN bnf, long prec)
     if (e >= 0) prec += nbits2extraprec(e);
   }
   if (DEBUGLEVEL && prec1!=prec) pari_warn(warnprec,"bnfnewprec",prec);
-  matal = check_and_build_matal(bnf);
+  matal = bnf_build_matalpha(bnf);
   for(;;)
   {
     pari_sp av = avma;
     nf = nfnewprec_shallow(nf0,prec);
-    mun = get_archclean(nf,funits,prec,1);
+    mun = get_archclean(nf, fu, prec, 1);
     if (mun)
     {
-      gac = get_archclean(nf,matal,prec,0);
+      gac = get_archclean(nf, matal, prec, 0);
       if (gac) break;
     }
     avma = av; prec = precdbl(prec);
@@ -3492,7 +3484,7 @@ get_clfu(GEN clgp, GEN reg, GEN zu, GEN fu)
 static GEN
 buchall_end(GEN nf,GEN res, GEN clg2, GEN W, GEN B, GEN A, GEN C,GEN Vbase)
 {
-  GEN z = cgetg(11,t_VEC);
+  GEN z = obj_init(9, 3);
   gel(z,1) = W;
   gel(z,2) = B;
   gel(z,3) = A;
@@ -3502,17 +3494,19 @@ buchall_end(GEN nf,GEN res, GEN clg2, GEN W, GEN B, GEN A, GEN C,GEN Vbase)
   gel(z,7) = nf;
   gel(z,8) = res;
   gel(z,9) = clg2;
-  gel(z,10) = zerovec(2);
   return z;
 }
 
-static GEN
-bnftosbnf(GEN bnf)
+/* FIXME: obsolete function */
+GEN
+bnfcompress(GEN bnf)
 {
-  GEN nf = bnf_get_nf(bnf), T = nf_get_pol(nf);
-  GEN y = cgetg(13,t_VEC);
+  pari_sp av = avma;
+  GEN nf, fu, y = cgetg(13,t_VEC);
 
-  gel(y,1) = T;
+  bnf = checkbnf(bnf);
+  nf = bnf_get_nf(bnf);
+  gel(y,1) = nf_get_pol(nf);
   gel(y,2) = gmael(nf,2,1);
   gel(y,3) = nf_get_disc(nf);
   gel(y,4) = nf_get_zk(nf);
@@ -3520,21 +3514,16 @@ bnftosbnf(GEN bnf)
   gel(y,6) = gen_0; /* FIXME: unused */
   gel(y,7) = gel(bnf,1);
   gel(y,8) = gel(bnf,2);
-  gel(y,9) = codeprimes(gel(bnf,5), degpol(T));
+  gel(y,9) = codeprimes(bnf_get_vbase(bnf), nf_get_degree(nf));
   gel(y,10) = mkvec2(utoipos(bnf_get_tuN(bnf)),
                      nf_to_scalar_or_basis(nf, bnf_get_tuU(bnf)));
-  gel(y,11) = matalgtobasis(bnf, bnf_get_fu_nocheck(bnf));
-  (void)check_and_build_matal(bnf);
-  gel(y,12) = gel(bnf,10); return y;
-}
-GEN
-bnfcompress(GEN bnf)
-{
-  pari_sp av = avma;
-  bnf = checkbnf(bnf);
-  return gerepilecopy(av, bnftosbnf( checkbnf(bnf) ));
+  fu = bnf_build_units(bnf); fu = vecslice(fu,2,lg(fu)-1);
+  gel(y,11) = fu;
+  gel(y,12) = bnf_build_matalpha(bnf);
+  return gerepilecopy(av, y);
 }
 
+/* FIXME: obsolete feature */
 static GEN
 sbnf2bnf(GEN sbnf, long prec)
 {
@@ -3547,18 +3536,17 @@ sbnf2bnf(GEN sbnf, long prec)
   if (prec < DEFAULTPREC) prec = DEFAULTPREC;
 
   nfbasic_from_sbnf(sbnf, &T);
-  ro = gel(sbnf,5);
-  fu = gel(sbnf,11);
-  if (prec > gprecision(ro)) ro = NULL;
+  ro = gel(sbnf,5); if (prec > gprecision(ro)) ro = NULL;
   nf = nfbasic_to_nf(&T, ro, prec);
 
+  fu = gel(sbnf,11);
   A = get_archclean(nf, fu, prec, 1);
-  if (!A) pari_err_PREC( "bnfmake");
+  if (!A) pari_err_PREC("bnfmake");
 
   prec = nf_get_prec(nf);
-  matal = check_and_build_matal(sbnf);
+  matal = gel(sbnf,12);
   C = get_archclean(nf,matal,prec,0);
-  if (!C) pari_err_PREC( "bnfmake");
+  if (!C) pari_err_PREC("bnfmake");
 
   Vbase = decode_pr_lists(nf, gel(sbnf,9));
   W = gel(sbnf,7);
@@ -3571,7 +3559,7 @@ sbnf2bnf(GEN sbnf, long prec)
 
   res = get_clfu(clgp, get_regulator(A), zu, FU);
   y = buchall_end(nf,res,clgp2,W,gel(sbnf,8),A,C,Vbase);
-  gel(y,10) = gel(sbnf,12); return gerepilecopy(av,y);
+  return gerepilecopy(av,y);
 }
 
 GEN
