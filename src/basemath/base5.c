@@ -541,8 +541,8 @@ rnfidealreltoabs_i(GEN rnf, GEN x)
 GEN
 rnfidealreltoabs(GEN rnf, GEN x)
 {
-  pari_sp av = avma; x = rnfidealreltoabs_i(rnf,x);
-  return gerepilecopy(av, modulereltoabs(rnf, x));
+  pari_sp av = avma;
+  return gerepilecopy(av, rnfidealreltoabs_i(rnf,x));
 }
 GEN
 rnfidealreltoabs0(GEN rnf, GEN x, long flag)
