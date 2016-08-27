@@ -2565,10 +2565,9 @@ rnfpolred_i(GEN nf, GEN relpol, long flag, long best)
   }
   else
   {
-    GEN rnf = rnfinit(nf, relpol), M = rnf_basM(rnf);
+    GEN rnf = rnfinit(nf, relpol);
     rnfeq = rnf_get_map(rnf);
-    pol = rnf_get_polabs(rnf);
-    bas = mkvec2(pol, RgM_to_RgXV(M, varn(pol)));
+    bas = rnf_zkabs(rnf);
     if (DEBUGLEVEL>1) timer_printf(&ti, "absolute basis");
     red = polredabs0(bas, nf_RAW);
   }

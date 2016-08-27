@@ -2069,6 +2069,7 @@ GEN     eltabstorel(GEN eq, GEN P);
 GEN     eltabstorel_lift(GEN rnfeq, GEN P);
 void    nf_nfzk(GEN nf, GEN rnfeq, GEN *zknf, GEN *czknf);
 GEN     rnf_build_nfabs(GEN rnf, long prec);
+GEN     rnf_zkabs(GEN rnf);
 GEN     nfeltup(GEN nf, GEN x, GEN zknf, GEN czknf);
 void    rnfcomplete(GEN rnf);
 GEN     rnfeltabstorel(GEN rnf, GEN x);

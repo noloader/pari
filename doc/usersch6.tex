@@ -421,6 +421,11 @@ at precision \kbd{prec}.
 \fun{void}{rnfcomplete}{GEN rnf} as \tet{rnf_build_nfabs} using the precision
 of $K$ for \kbd{prec}.
 
+\fun{GEN}{rnf_zkabs}{GEN rnf} returns a $\Z$-basis in HNF for $\Z_L$ as a
+pair $[T, v]$, where $T$ is \tet{rnf_get_polabs}$(\var{rnf})$ and $v$
+a vector of elements lifted from $\Q[X]/(T)$. Note that \tet{rnf_build_nfabs}
+essentially applies \kbd{nfinit} to the output of this function.
+
 \subsec{Increasing accuracy}
 
 \fun{GEN}{nfnewprec}{GEN x, long prec}. Raise an exception if \kbd{x}

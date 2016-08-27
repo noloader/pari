@@ -192,37 +192,34 @@ modulereltoabs(GEN rnf, GEN x)
   setlg(M, k); return M;
 }
 
-/* Z-basis for absolute maximal order, as a t_MAT */
+/* Z-basis for absolute maximal order: [NF.pol, NF.zk] */
 GEN
-rnf_basM(GEN rnf)
+rnf_zkabs(GEN rnf)
 {
-  GEN M, d, pol = rnf_get_polabs(rnf);
-  long n = degpol(pol);
-  /* t_VEC of t_POL */
-  M = Q_remove_denom(modulereltoabs(rnf, rnf_get_zk(rnf)), &d);
+  GEN d, M = modulereltoabs(rnf, rnf_get_zk(rnf));
+  GEN T = rnf_get_polabs(rnf);
+  long n = degpol(T);
+  M = Q_remove_denom(M, &d); /* t_VEC of t_POL */
   if (d)
   {
-    M = ZM_hnfmodall(RgXV_to_RgM(M,n), d, hnf_MODID|hnf_CENTER);
+    M = RgXV_to_RgM(M,n);
+    M = ZM_hnfmodall(M, d, hnf_MODID|hnf_CENTER);
     M = RgM_Rg_div(M, d);
   }
   else
     M = matid(n);
-  return M;
+  return mkvec2(T, RgM_to_RgXV(M, varn(T)));
 }
 
 static GEN
 mknfabs(GEN rnf, long prec)
 {
-  GEN nf, pol, bas;
-  if ((nf = obj_check(rnf,rnf_NFABS)))
-  {
-    if (nf_get_prec(nf) < prec) nf = nfnewprec_shallow(nf,prec);
-    return nf;
-  }
-  nf = rnf_get_nf(rnf);
-  pol = rnf_get_polabs(rnf);
-  bas = modulereltoabs(rnf, rnf_get_zk(rnf));
-  return nfinit(mkvec2(pol, bas), nf_get_prec(nf));
+  GEN NF;
+  if ((NF = obj_check(rnf,rnf_NFABS)))
+  { if (nf_get_prec(NF) < prec) NF = nfnewprec_shallow(NF,prec); }
+  else
+    NF = nfinit(rnf_zkabs(rnf), prec);
+  return NF;
 }
 
 static GEN
