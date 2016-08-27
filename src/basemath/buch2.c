@@ -1076,7 +1076,7 @@ not_given(long reason)
         pari_warn(warner,"insufficient precision for fundamental units, not given");
         break;
     }
-  return cgetg(1,t_MAT);
+  return NULL;
 }
 
 /* check whether exp(x) will 1) get too big (real(x) large), 2) require
@@ -1174,20 +1174,21 @@ getfu(GEN nf, GEN *ptA, long *pte, long prec)
 static GEN
 makeunits(GEN BNF)
 {
-  GEN bnf = checkbnf(BNF), funits = bnf_get_fu_nocheck(bnf), v;
+  GEN bnf = checkbnf(BNF), fu = bnf_get_fu_nocheck(bnf), v;
   GEN nf = bnf_get_nf(bnf);
   long i, l;
-  if (typ(funits) == t_MAT)
+  if (typ(fu) == t_MAT)
   {
     pari_sp av = avma;
     GEN A = bnf_get_logfu(bnf);
-    funits = gerepilecopy(av, getfu(nf, &A, &l, 0));
-    if (typ(funits) == t_MAT)
+    fu = getfu(nf, &A, &l, 0);
+    if (!fu)
       pari_err_PREC("makeunits [cannot compute units, use bnfinit(,1)]");
+    fu = gerepilecopy(av, fu);
   }
-  l = lg(funits) + 1; v = cgetg(l, t_VEC);
+  l = lg(fu) + 1; v = cgetg(l, t_VEC);
   gel(v,1) = nf_to_scalar_or_basis(nf,bnf_get_tuU(bnf));
-  for (i = 2; i < l; i++) gel(v,i) = algtobasis(nf, gel(funits,i-1));
+  for (i = 2; i < l; i++) gel(v,i) = algtobasis(nf, gel(fu,i-1));
   return v;
 }
 
@@ -3483,7 +3484,10 @@ nfbasic_from_sbnf(GEN sbnf, nfbasic_t *T)
 
 static GEN
 get_clfu(GEN clgp, GEN reg, GEN zu, GEN fu)
-{ return mkvec5(clgp, reg, gen_1/*DUMMY*/, zu, fu); }
+{
+  if (!fu) fu = cgetg(1,t_MAT);
+  return mkvec5(clgp, reg, gen_1/*DUMMY*/, zu, fu);
+}
 
 static GEN
 buchall_end(GEN nf,GEN res, GEN clg2, GEN W, GEN B, GEN A, GEN C,GEN Vbase)
@@ -4419,7 +4423,7 @@ START:
       }
       fu = getfu(nf, &A, &e, PRECREG);
       if (DEBUGLEVEL) timer_printf(&T, "getfu");
-      if ((flun & nf_FORCE) && typ(fu) == t_MAT)
+      if (!fu && (flun & nf_FORCE))
       { /* units not found but we want them */
         if (e > 0) pari_err_OVERFLOW("bnfinit [fundamental units too large]");
         if (e < 0) precadd = nbits2extraprec( (-e - (BITS_IN_LONG - 1)) + 64);
