@@ -1833,8 +1833,8 @@ New syntax: intgen(x=a,b,s) ===> intnum(x=a,b,s,1)
 
 intnum(X=a,b,expr,{tab}): numerical integration of expr from a to b with 
 respect to X. Plus/minus infinity is coded as +oo/-oo. Finally tab is either 
-omitted (let the program choose the integration step), a positive integer m 
-(choose integration step 1/2^m), or data precomputed with intnuminit.
+omitted (let the program choose the integration step), a non-negative integer m 
+(divide integration step by 2^m), or data precomputed with intnuminit.
 
 
   ***   at top-level: intinf()
@@ -1846,8 +1846,8 @@ New syntax: intinf(x=a,b,s) ===> intnum(x=a,b,s,2)
 
 intnum(X=a,b,expr,{tab}): numerical integration of expr from a to b with 
 respect to X. Plus/minus infinity is coded as +oo/-oo. Finally tab is either 
-omitted (let the program choose the integration step), a positive integer m 
-(choose integration step 1/2^m), or data precomputed with intnuminit.
+omitted (let the program choose the integration step), a non-negative integer m 
+(divide integration step by 2^m), or data precomputed with intnuminit.
 
 
   ***   at top-level: intopen()
@@ -1859,8 +1859,8 @@ New syntax: intopen(x=a,b,s) ===> intnum(x=a,b,s,3)
 
 intnum(X=a,b,expr,{tab}): numerical integration of expr from a to b with 
 respect to X. Plus/minus infinity is coded as +oo/-oo. Finally tab is either 
-omitted (let the program choose the integration step), a positive integer m 
-(choose integration step 1/2^m), or data precomputed with intnuminit.
+omitted (let the program choose the integration step), a non-negative integer m 
+(divide integration step by 2^m), or data precomputed with intnuminit.
 
 
   ***   at top-level: inverseimage()
@@ -4567,4 +4567,4 @@ New syntax: texprint(x) ===> printtex(x)
 printtex({str}*): outputs its string arguments in TeX format.
 
 
-Total time spent: 10
+Total time spent: 8
