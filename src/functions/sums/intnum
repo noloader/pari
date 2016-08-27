@@ -4,8 +4,9 @@ C-Name: intnum0
 Prototype: V=GGEDGp
 Help: intnum(X=a,b,expr,{tab}): numerical integration of expr from a to b with
  respect to X. Plus/minus infinity is coded as +oo/-oo. Finally tab is
- either omitted (let the program choose the integration step), a positive
- integer m (choose integration step 1/2^m), or data precomputed with intnuminit.
+ either omitted (let the program choose the integration step), a non-negative
+ integer m (divide integration step by 2^m), or data precomputed with
+ intnuminit.
 Wrapper: (,,G)
 Description:
   (gen,gen,gen,?gen):gen:prec intnum(${3 cookie}, ${3 wrapper}, $1, $2, $4, $prec)
@@ -45,7 +46,7 @@ Doc: numerical integration
  being integrated, evaluated at many sampling points $x_i$ and
  approximates the integral by $\sum w_i f(x_i)$. If \var{tab} is
 
- \item a positive integer $m$, we multiply the number of sampling points
+ \item a non-negative integer $m$, we multiply the number of sampling points
  by $2^m$, hopefully increasing accuracy. Note that the running time
  increases roughly by a factor $2^m$. One may try consecutive values of $m$
  until they give the same value up to an accepted error.

@@ -103,3 +103,6 @@ intnumromb(x=2,1,x, 1)
 intnuminit([oo,1+I],[oo,""])
 intnum(x=oo,oo,1)
 intnum(x=-oo,-oo,1)
+
+intnuminit(x=-oo,oo,-1);
+intnuminit(x=-oo,oo,1);

@@ -146,5 +146,10 @@
 ? intnum(x=-oo,-oo,1)
   ***   Warning: integral from -oo to -oo.
 0
+? intnuminit(x=-oo,oo,-1);
+  ***   at top-level: intnuminit(x=-oo,oo,
+  ***                 ^--------------------
+  *** intnuminit: domain error in intnuminit: m < 0
+? intnuminit(x=-oo,oo,1);
 ? print("Total time spent: ",gettime);
-Total time spent: 3596
+Total time spent: 1646

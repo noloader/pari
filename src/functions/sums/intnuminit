@@ -17,8 +17,9 @@ Doc: initialize tables for integration from
  {\tt intnuminit([0,-1/2], [1,-1/3])} is \emph{not} equivalent to
  {\tt intnuminit([0,-1/3], [1,-1/2])} !
 
- If $m$ is multiply the default number of sampling points by $2^m$ (increasing
- the running time by a similar factor).
+ If $m$ is present, it must be non-negative and we multiply the default
+ number of sampling points by $2^m$ (increasing the running time by a
+ similar factor).
 
  The result is technical and liable to change in the future, but we document
  it here for completeness. Let $x=\phi(t)$, $t\in ]-\infty,\infty[$ be an

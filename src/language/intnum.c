@@ -326,9 +326,10 @@ checktab(GEN tab)
 }
 
 static void
-intinit_start(intdata *D, long m, long n, GEN h, long bitprec)
+intinit_start(intdata *D, long *pn, long m, GEN h, long bitprec)
 {
-  if (m > 0) { h = gmul2n(h,-m); n <<= m; }
+  long n = *pn;
+  if (m > 0) { h = gmul2n(h,-m); n <<= m; *pn = n; }
   D->h = h;
   D->eps = bitprec;
   D->tabxp = cgetg(n+1, t_VEC);
@@ -369,9 +370,7 @@ inittanhsinh(long m, long prec)
   d = bitprec*LOG10_2;
   n = (long)ceil(d*log(d)/1.86); /* heuristic */
   h = divru(logr_abs(divrr(mulur(2*n,pi), logr_abs(utor(n,prec)))), n);
-  intinit_start(&D, m, n, h, bitprec);
-
-  n = lg(D.tabxp) - 1;
+  intinit_start(&D, &n, m, h, bitprec);
   D.tabx0 = real_0(prec);
   D.tabw0 = Pi2n(-1,prec);
   et = ex = mpexp(D.h);
@@ -410,8 +409,7 @@ initsinhsinh(long m, long prec)
   d = bitprec*LOG10_2*1.5;
   n = (long)ceil(d*log(d)); /* heuristic */
   h = divru(logr_abs(divrr(mulur(2*n,pi), logr_abs(utor(n,prec)))), n);
-  intinit_start(&D, m, n, h, bitprec);
-
+  intinit_start(&D, &n, m, h, bitprec);
   D.tabx0 = real_0(prec);
   D.tabw0 = real_1(prec);
   et = ex = mpexp(D.h);
@@ -447,9 +445,7 @@ initsinh(long m, long prec)
   d = bitprec*LOG10_2;
   n = (long)ceil(d*log(d)); /* heuristic */
   h = divru(logr_abs(divrr(mulur(2*n, pi), logr_abs(utor(n,prec)))), n);
-  intinit_start(&D, m, n, h, bitprec);
-
-  n = lg(D.tabxp) - 1;
+  intinit_start(&D, &n, m, h, bitprec);
   D.tabx0 = real_0(prec);
   D.tabw0 = real2n(1, prec);
   et = ex = mpexp(D.h);
@@ -480,9 +476,7 @@ initexpsinh(long m, long prec)
   d = bitprec*LOG10_2/1.05;
   n = (long)ceil(d*log(d)); /* heuristic */
   h = divru(logr_abs(divrr(mulur(2*n, pi), logr_abs(utor(n,prec)))), n);
-  intinit_start(&D, m, n, h, bitprec);
-
-  n = lg(D.tabxp) - 1;
+  intinit_start(&D, &n, m, h, bitprec);
   D.tabx0 = real_1(prec);
   D.tabw0 = real2n(1, prec);
   ex = mpexp(D.h);
@@ -516,9 +510,7 @@ initexpexp(long m, long prec)
   d = bitprec*LOG10_2;
   n = (long)ceil(d*log(d)/1.76); /* heuristic */
   h = divru(logr_abs(divrr(mulur(2*n, pi), logr_abs(utor(n,prec)))), n);
-  intinit_start(&D, m, n, h, bitprec);
-
-  n = lg(D.tabxp) - 1;
+  intinit_start(&D, &n, m, h, bitprec);
   D.tabx0 = mpexp(real_m1(prec));
   D.tabw0 = gmul2n(D.tabx0, 1);
   et = ex = mpexp(negr(D.h));
@@ -558,9 +550,7 @@ initnumsine(long m, long prec)
   n = (long)ceil(1.5*d*log(d)); /* heuristic */
   /* nh ~ log(2npi/log(n)) */
   h = divru(logr_abs(divrr(mulur(2*n, pi), logr_abs(utor(n,prec)))), n);
-  intinit_start(&D, m, n, h, bitprec);
-
-  n = lg(D.tabxp) - 1;
+  intinit_start(&D, &n, m, h, bitprec);
   invh = invr(D.h);
   D.tabx0 = mulrr(pi, invh);
   D.tabw0 = gmul2n(D.tabx0,-1);
@@ -947,6 +937,7 @@ intnuminit_i(GEN a, GEN b, long m, long prec)
   GEN T, kma, kmb, tmp;
 
   if (m > 30) pari_err_OVERFLOW("intnuminit [m]");
+  if (m < 0) pari_err_DOMAIN("intnuminit", "m", "<", gen_0, stoi(m));
   l = prec+EXTRAPREC;
   codea = transcode(a, "a");
   codeb = transcode(b, "b");
