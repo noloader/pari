@@ -263,6 +263,7 @@ intnumgauss0(GEN a, GEN b, GEN code, GEN tab, long prec)
 
 typedef struct _intdata {
   long eps;  /* bit accuracy of current precision */
+  long l; /* table lengths */
   GEN tabx0; /* abcissa phi(0) for t = 0 */
   GEN tabw0; /* weight phi'(0) for t = 0 */
   GEN tabxp; /* table of abcissas phi(kh) for k > 0 */
@@ -325,17 +326,26 @@ checktab(GEN tab)
       && checktabsimp(gel(tab,2));
 }
 
+/* the TUNE parameter is heuristic */
 static void
-intinit_start(intdata *D, long *pn, long m, GEN h, long bitprec)
+intinit_start(intdata *D, long m, double TUNE, long prec)
 {
-  long n = *pn;
-  if (m > 0) { h = gmul2n(h,-m); n <<= m; *pn = n; }
+  long l, n, bitprec = prec2nbits(prec);
+  double d = bitprec*LOG10_2;
+  GEN h, nh, pi = mppi(prec);
+
+  n = (long)ceil(d*log(d) / TUNE); /* heuristic */
+  /* nh ~ log(2npi/log(n)) */
+  nh = logr_abs(divrr(mulur(2*n, pi), logr_abs(utor(n,prec))));
+  h = divru(nh, n);
+  if (m > 0) { h = gmul2n(h,-m); n <<= m; }
   D->h = h;
   D->eps = bitprec;
-  D->tabxp = cgetg(n+1, t_VEC);
-  D->tabwp = cgetg(n+1, t_VEC);
-  D->tabxm = cgetg(n+1, t_VEC);
-  D->tabwm = cgetg(n+1, t_VEC);
+  D->l = l = n+1;
+  D->tabxp = cgetg(l, t_VEC);
+  D->tabwp = cgetg(l, t_VEC);
+  D->tabxm = cgetg(l, t_VEC);
+  D->tabwm = cgetg(l, t_VEC);
 }
 
 static GEN
@@ -361,20 +371,15 @@ divr2_ip(GEN x) { shiftr_inplace(x, -1); return x; }
 static GEN
 inittanhsinh(long m, long prec)
 {
-  GEN h, et, ex, pi;
-  long n, k, nt = -1, bitprec = prec2nbits(prec);
-  double d;
+  GEN et, ex, pi = mppi(prec);
+  long k, nt = -1;
   intdata D;
 
-  pi = mppi(prec);
-  d = bitprec*LOG10_2;
-  n = (long)ceil(d*log(d)/1.86); /* heuristic */
-  h = divru(logr_abs(divrr(mulur(2*n,pi), logr_abs(utor(n,prec)))), n);
-  intinit_start(&D, &n, m, h, bitprec);
+  intinit_start(&D, m, 1.86, prec);
   D.tabx0 = real_0(prec);
   D.tabw0 = Pi2n(-1,prec);
   et = ex = mpexp(D.h);
-  for (k = 1; k <= n; k++)
+  for (k = 1; k < D.l; k++)
   {
     GEN xp, wp, ct, st, z;
     pari_sp av;
@@ -400,20 +405,15 @@ static GEN
 initsinhsinh(long m, long prec)
 {
   pari_sp av;
-  GEN h, et, ct, st, ex, pi;
-  long k, n, nt = -1, bitprec = prec2nbits(prec);
+  GEN et, ct, st, ex;
+  long k, nt = -1;
   intdata D;
-  double d;
 
-  pi = mppi(prec);
-  d = bitprec*LOG10_2*1.5;
-  n = (long)ceil(d*log(d)); /* heuristic */
-  h = divru(logr_abs(divrr(mulur(2*n,pi), logr_abs(utor(n,prec)))), n);
-  intinit_start(&D, &n, m, h, bitprec);
+  intinit_start(&D, m, 0.666, prec);
   D.tabx0 = real_0(prec);
   D.tabw0 = real_1(prec);
   et = ex = mpexp(D.h);
-  for (k = 1; k <= n; k++)
+  for (k = 1; k < D.l; k++)
   {
     GEN xp, wp, ext, exu;
     gel(D.tabxp,k) = cgetr(prec);
@@ -436,20 +436,15 @@ static GEN
 initsinh(long m, long prec)
 {
   pari_sp av;
-  GEN h, et, ex, eti, xp, wp, pi;
-  long k, n, nt = -1, bitprec = prec2nbits(prec);
-  double d;
+  GEN et, ex, eti, xp, wp;
+  long k, nt = -1;
   intdata D;
 
-  pi = mppi(prec);
-  d = bitprec*LOG10_2;
-  n = (long)ceil(d*log(d)); /* heuristic */
-  h = divru(logr_abs(divrr(mulur(2*n, pi), logr_abs(utor(n,prec)))), n);
-  intinit_start(&D, &n, m, h, bitprec);
+  intinit_start(&D, m, 1.0, prec);
   D.tabx0 = real_0(prec);
   D.tabw0 = real2n(1, prec);
   et = ex = mpexp(D.h);
-  for (k = 1; k <= n; k++)
+  for (k = 1; k < D.l; k++)
   {
     gel(D.tabxp,k) = cgetr(prec);
     gel(D.tabwp,k) = cgetr(prec); av = avma;
@@ -467,21 +462,16 @@ initsinh(long m, long prec)
 static GEN
 initexpsinh(long m, long prec)
 {
-  GEN h, et, ex, pi;
-  long k, n, nt = -1, bitprec = prec2nbits(prec);
-  double d;
+  GEN et, ex;
+  long k, nt = -1;
   intdata D;
 
-  pi = mppi(prec);
-  d = bitprec*LOG10_2/1.05;
-  n = (long)ceil(d*log(d)); /* heuristic */
-  h = divru(logr_abs(divrr(mulur(2*n, pi), logr_abs(utor(n,prec)))), n);
-  intinit_start(&D, &n, m, h, bitprec);
+  intinit_start(&D, m, 1.05, prec);
   D.tabx0 = real_1(prec);
   D.tabw0 = real2n(1, prec);
   ex = mpexp(D.h);
   et = real_1(prec);
-  for (k = 1; k <= n; k++)
+  for (k = 1; k < D.l; k++)
   {
     GEN t, eti, xp;
     et = mulrr(et, ex);
@@ -501,20 +491,15 @@ static GEN
 initexpexp(long m, long prec)
 {
   pari_sp av;
-  GEN h, et, ex, pi;
-  long k, n, nt = -1, bitprec = prec2nbits(prec);
-  double d;
+  GEN et, ex;
+  long k, nt = -1;
   intdata D;
 
-  pi = mppi(prec);
-  d = bitprec*LOG10_2;
-  n = (long)ceil(d*log(d)/1.76); /* heuristic */
-  h = divru(logr_abs(divrr(mulur(2*n, pi), logr_abs(utor(n,prec)))), n);
-  intinit_start(&D, &n, m, h, bitprec);
+  intinit_start(&D, m, 1.76, prec);
   D.tabx0 = mpexp(real_m1(prec));
   D.tabw0 = gmul2n(D.tabx0, 1);
   et = ex = mpexp(negr(D.h));
-  for (k = 1; k <= n; k++)
+  for (k = 1; k < D.l; k++)
   {
     GEN xp, xm, wp, wm, eti, kh;
     gel(D.tabxp,k) = cgetr(prec);
@@ -540,23 +525,17 @@ static GEN
 initnumsine(long m, long prec)
 {
   pari_sp av;
-  GEN invh, h, et, eti, ex, pi;
-  long k, n, nt = -1, bitprec = prec2nbits(prec), exh;
+  GEN invh, et, eti, ex, pi = mppi(prec);
+  long exh, k, nt = -1;
   intdata D;
-  double d;
 
-  pi = mppi(prec);
-  d = bitprec*LOG10_2;
-  n = (long)ceil(1.5*d*log(d)); /* heuristic */
-  /* nh ~ log(2npi/log(n)) */
-  h = divru(logr_abs(divrr(mulur(2*n, pi), logr_abs(utor(n,prec)))), n);
-  intinit_start(&D, &n, m, h, bitprec);
+  intinit_start(&D, m, 0.666, prec);
   invh = invr(D.h);
   D.tabx0 = mulrr(pi, invh);
   D.tabw0 = gmul2n(D.tabx0,-1);
   exh = expo(invh); /*  expo(1/h) */
   et = ex = mpexp(D.h);
-  for (k = 1; k <= n; k++)
+  for (k = 1; k < D.l; k++)
   {
     GEN xp,xm, wp,wm, ct,st, extp,extp1,extp2, extm,extm1,extm2, kct, kpi;
     gel(D.tabxp,k) = cgetr(prec);
