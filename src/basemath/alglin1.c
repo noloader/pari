@@ -245,6 +245,7 @@ gen_det(GEN a, void *E, const struct bb_field *ff)
   pari_sp av = avma;
   long i,j,k, s = 1, nbco = lg(a)-1;
   GEN q, x = ff->s(E,1);
+  if (!nbco) return x;
   a = RgM_shallowcopy(a);
   for (i=1; i<nbco; i++)
   {
