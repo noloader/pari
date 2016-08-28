@@ -8753,6 +8753,416 @@ $K[Y]$. Let $z = P(t,t^{2*n-1})$ be a Kronecker form of $P$, this function
 returns the image of $P(X,t)$ in $K[t]$, with \typ{POLMOD} coefficients.
 Not stack-clean. Note that $t$ need not be the same variable as $Y$!
 
+\chapter{Black box algebraic structures}
+
+The generic routines like \kbd{gmul} or \kbd{gadd} allow handling objects
+belonging to a fixed list of basic types, with some natural polymorphism
+(you can mix rational numbers and polynomials, etc.), at the expense of
+efficiency and sometimes of clarity when the recursive structure becomes
+complicated, e.g. a few levels of \typ{POLMOD}s attached to different
+polynomials and variable numbers for quotient structures. This
+is the only possibility in GP.
+
+On the other hand, the Level 2 Kernel allows dedicated routines to handle
+efficiently objects of a very specific type, e.g. polynomials with
+coefficients in the same finite field. This is more efficient, but imvolves a
+lot of code duplication since polymorphism is no longer possible.
+
+A third and final option, still restricted to library programming, is to
+define an arbitrary algebraic structure (currently groups, fields, rings,
+algebras and $\Z_p$-modules) by providing suitable methods, then using generic
+algorithms. For instance naive Gaussian pivoting applies over all base fields
+and need only be implemented once. The difference with the first solution
+is that we no longer depend on the way functions like \kbd{gmul} or
+\kbd{gadd} will guess what the user is trying to do. We can then implement
+independently various groups / fields / algebras in a clean way.
+
+\section{Black box groups}
+
+A black box group is defined by a \tet{bb_group} struct, describing methods
+available to handle group elements:
+\bprog
+    struct bb_group
+    {
+      GEN (*mul)(void*, GEN, GEN);
+      GEN (*pow)(void*, GEN, GEN);
+      GEN (*rand)(void*);
+      ulong (*hash)(GEN);
+      int (*equal)(GEN, GEN);
+      int (*equal1)(GEN);
+      GEN (*easylog)(void *E, GEN, GEN, GEN);
+    };
+@eprog
+\kbd{mul(E,x,y)} returns the product $x\*y$.
+
+\kbd{pow(E,x,n)} returns $x^n$ ($n$ integer, possibly negative or zero).
+
+\kbd{rand(E)} returns a random element in the group.
+
+\kbd{hash(x)} returns a hash value for $x$ (\kbd{hash\_GEN} is suitable for this field).
+
+\kbd{equal(x,y)} returns one if $x=y$ and zero otherwise.
+
+\kbd{equal1(x)} returns one if $x$ is the neutral element in the group,
+and zero otherwise.
+
+\kbd{easylog(E,a,g,o)} (optional) returns either NULL or the discrete logarithm
+$n$ such that $g^n=a$, the element $g$ being of order $o$. This provides a
+short-cut in situation where a better algorithm than the generic one is known.
+
+A group is thus described by a \kbd{struct bb\_group} as above and auxiliary
+data typecast to \kbd{void*}. The following functions operate on black box
+groups:
+
+\fun{GEN}{gen_Shanks_log}{GEN x, GEN g, GEN N, void *E, const struct bb_group
+*grp} \hbadness 10000\break
+Generic baby-step/giant-step algorithm (Shanks's method). Assuming
+that $g$ has order $N$, compute an integer $k$ such that $g^k = x$.
+Return \kbd{cgetg(1, t\_VEC)} if there are no solutions. This requires
+$O(\sqrt{N})$ group operations and uses an auxiliary table containing
+$O(\sqrt{N})$ group elements.
+
+The above is useful for a one-shot computation. If many discrete logs
+are desired:
+\fun{GEN}{gen_Shanks_init}{GEN g, long n, void *E, const struct bb_group *grp}
+return an auxiliary data structure $T$ required to compute a discrete log in
+base $g$. Compute and store all powers $g^i$,  $i < n$.
+
+\fun{GEN}{gen_Shanks}{GEN T, GEN x, ulong N, void *E, const struct bb_group *grp}
+Let $T$ be computed by \tet{gen_Shanks_init}$(g,n,\dots)$.
+Return $k < n N$ such that  $g^k = x$ or \kbd{NULL} if no such index exist.
+It uses $O(N)$ operation in the group and fast table lookups  (in time
+$O(\log n)$). The interface is such that the function may be used when the
+order of the base $g$ is unknown, and hence compute it given only an upper
+bound $B$ for it: e.g. choose $n,N$ such that $nN \geq B$ and compute the
+discrete log $l$ of $g^{-1}$ in base $g$, then use \tet{gen_order}
+with multiple $N = l+1$.
+
+\fun{GEN}{gen_Pollard_log}{GEN x, GEN g, GEN N, void *E, const struct bb_group
+*grp} \hbadness 10000\break
+Generic Pollard rho algorithm. Assuming that $g$ has order $N$, compute an
+integer $k$ such that $g^k = x$. This requires $O(\sqrt{N})$ group operations
+in average and $O(1)$ storage. Will enter an infinite loop if there are no
+solutions.
+
+\fun{GEN}{gen_plog}{GEN x, GEN g, GEN N, void *E, const struct bb_group}
+Assuming that $g$ has prime order $N$, compute an integer $k$ such that
+$g^k = x$, using either \kbd{gen\_Shanks\_log} or \kbd{gen\_Pollard\_log}.
+Return \kbd{cgetg(1, t\_VEC)} if there are no solutions.
+
+\fun{GEN}{gen_Shanks_sqrtn}{GEN a, GEN n, GEN N, GEN *zetan, void *E, const
+struct bb_group *grp} \hbadness 10000 returns one solution of $x^n = a$ in a
+black box cyclic group of order $N$. Return \kbd{NULL} if no solution exists.
+If \kbd{zetan} is not \kbd{NULL} it is set to an element of exact order $n$.
+This function uses \kbd{gen\_plog} for all prime divisors of $\gcd(n,N)$.
+
+\fun{GEN}{gen_PH_log}{GEN a, GEN g, GEN N, void *E, const struct bb_group
+*grp}
+returns an integer $k$ such that $g^k = x$, assuming that $g$ has order $N$,
+by Pohlig-Hellman algorithm. Return \kbd{cgetg(1, t\_VEC)} if there are no
+solutions. This calls \tet{gen_plog} repeatedly for all prime divisors $p$ of
+$N$.
+
+In the following functions the integer parameter \kbd{ord} can be given
+in all the formats recognized for the argument of arithmetic functions,
+i.e.~either as a positive \typ{INT} $N$, or as its factorization matrix
+$\var{faN}$, or (preferred) as a pair $[N,\var{faN}]$.
+
+\fun{GEN}{gen_order}{GEN x, GEN ord, void *E, const struct bb_group *grp}
+computes the order of $x$; \kbd{ord} is a multiple of the order, for instance
+the group order.
+
+\fun{GEN}{gen_factored_order}{GEN x, GEN ord, void *E, const struct bb_group
+*grp} returns a pair $[o,F]$, where $o$ is the order of $x$ and $F$ is the
+factorization of $o$; \kbd{ord} is as in \tet{gen_order}.
+
+\fun{GEN}{gen_gener}{GEN ord, void *E, const struct bb_group *grp}
+returns a random generator of the group, assuming it is of order exactly
+\kbd{ord}.
+
+\fun{GEN}{get_arith_Z}{GEN ord} given \kbd{ord} as above in one of the
+formats recognized for arithmetic functions, i.e. a positive
+\typ{INT} $N$, its factorization \var{faN}, or the pair $[N, \var{faN}]$,
+return $N$.
+
+\fun{GEN}{get_arith_ZZM}{GEN ord} given \kbd{ord} as above,
+return the pair $[N, \var{faN}]$. This may require factoring $N$.
+
+\fun{GEN}{gen_select_order}{GEN v, void *E, const struct bb_group *grp}
+Let $v$ be a vector of possible orders for the group; try to find the true
+order by checking orders of random points. This will not terminate if there
+is an ambiguity.
+
+\subsec{Black box groups with pairing}
+
+Theses functions handle groups of rank at most $2$ equipped with a family of
+bilinear pairings which behave like the Weil pairing on elliptic curves over
+finite field. In the descriptions below, the function \kbd{pairorder(E, P, Q,
+m, F)} must return the order of the $m$-pairing of $P$ and $Q$, both of order
+dividing $m$, where $F$ is the factorisation matrix of a multiple of $m$.
+
+\fun{GEN}{gen_ellgroup}{GEN o, GEN d, GEN *pt_m, void *E, const struct bb_group *grp,
+             GEN pairorder(void *E, GEN P, GEN Q, GEN m, GEN F)}
+returns the elementary divisors $[d_1, d_2]$ of the group, assuming it is of
+order exactly $o>1$ (which can be given by a factorization matrix), and that
+$d_2$ divides $d$. If $d_2=1$ then $[o]$ is returned, otherwise
+\kbd{m=*pt\_m} is set to the order of the pairing required to verify a
+generating set which is to be used with \kbd{gen\_ellgens}.
+
+\fun{GEN}{gen_ellgens}{GEN d1, GEN d2, GEN m, void *E, const struct bb_group *grp,
+             GEN pairorder(void *E, GEN P, GEN Q, GEN m, GEN F)}
+the parameters $d_1$, $d_2$, $m$ being as returned by \kbd{gen\_ellgroup},
+returns a pair of generators $[P,Q]$ such that $P$ is of order $d_1$ and the
+$m$-pairing of $P$ and $Q$ is of order $m$. (Note: $Q$ needs not be of order
+$d_2$).
+
+\subsec{Functions returning black box groups}
+
+\fun{const struct bb_group *}{get_Flxq_star}{void **E, GEN T, ulong p}
+
+\fun{const struct bb_group *}{get_FpXQ_star}{void **E, GEN T, GEN p}
+returns a pointer to the black box group $(\F_p[x]/(T))^*$.
+
+\fun{const struct bb_group *}{get_FpE_group}{void **pE, GEN a4, GEN a6, GEN p}
+returns a pointer to a black box group and set \kbd{*pE} to the necessary data for
+computing in the group $E(\F_p)$ where $E$ is the elliptic curve $E:y^2=x^3+a_4\*x+a_6$,
+with $a_4$ and $a_6$ in $\F_p$.
+
+\fun{const struct bb_group *}{get_FpXQE_group}{void **pE, GEN a4, GEN a6, GEN T, GEN p}
+returns a pointer to a black box group and set \kbd{*pE} to the necessary data for
+computing in the group $E(\F_p[X]/(T))$ where $E$ is the elliptic curve $E:y^2=x^3+a_4\*x+a_6$,
+with $a_4$ and $a_6$ in $\F_p[X]/(T)$.
+
+\fun{const struct bb_group *}{get_FlxqE_group}{void **pE, GEN a4, GEN a6, GEN
+T, ulong p} idem for small $p$.
+
+\fun{const struct bb_group *}{get_F2xqE_group}{void **pE, GEN a2, GEN a6, GEN T}
+idem for $p=2$.
+
+\section{Black box finite fields}
+
+A black box finite field is defined by a \tet{bb_field} struct, describing methods
+available to handle field elements:
+\bprog
+  struct bb_field
+  {
+    GEN (*red)(void *E ,GEN);
+    GEN (*add)(void *E ,GEN, GEN);
+    GEN (*mul)(void *E ,GEN, GEN);
+    GEN (*neg)(void *E ,GEN);
+    GEN (*inv)(void *E ,GEN);
+    int (*equal0)(GEN);
+    GEN (*s)(void *E, long);
+  };
+@eprog\noindent In contrast of black box group, elements can have
+non canonical forms, and only \kbd{red} is required to return a canonical form.
+
+\kbd{red(E,x)} returns the canonical form of $x$.
+
+\kbd{add(E,x,y)} returns the sum $x+y$.
+
+\kbd{mul(E,x,y)} returns the product $x\*y$.
+
+\kbd{neg(E,x)} returns $-x$.
+
+\kbd{inv(E,x)} returns the inverse of $x$.
+
+\kbd{equal0(x)} $x$ being in canonical form, returns one if $x=0$ and zero otherwise.
+
+\kbd{s(n)} $n$ being a small signed integer, returns $n$ times the unit element.
+
+\noindent A finite field is thus described by a \kbd{struct bb\_field} as
+above and auxiliary data typecast to \kbd{void*}. The following functions
+operate on black box fields:
+
+\fun{GEN}{gen_Gauss}{GEN a, GEN b, void *E, const struct bb_field *ff}
+
+\fun{GEN}{gen_Gauss_pivot}{GEN x, long *rr, void *E, const struct bb_field *ff}
+
+\fun{GEN}{gen_det}{GEN a, void *E, const struct bb_field *ff}
+
+\fun{GEN}{gen_ker}{GEN x, long deplin, void *E, const struct bb_field *ff}
+
+\fun{GEN}{gen_matcolmul}{GEN a, GEN b, void *E, const struct bb_field *ff}
+
+\fun{GEN}{gen_matid}{long n, void *E, const struct bb_field *ff}
+
+\fun{GEN}{gen_matmul}{GEN a, GEN b, void *E, const struct bb_field *ff}
+
+\subsec{Functions returning black box fields}
+
+\fun{const struct bb_field *}{get_Fp_field}{void **pE, GEN p}
+
+\fun{const struct bb_field *}{get_Fq_field}{void **pE, GEN T, GEN p}
+
+\fun{const struct bb_field *}{get_Flxq_field}{void **pE, GEN T, ulong p}
+
+\fun{const struct bb_field *}{get_F2xq_field}{void **pE, GEN T}
+
+\fun{const struct bb_field *}{get_nf_field}{void **pE, GEN nf}
+
+\section{Black box algebra}
+
+A black box algebra is defined by a \tet{bb_algebra} struct, describing methods
+available to handle algebra elements:
+\bprog
+struct bb_algebra
+{
+  GEN (*red)(void *E, GEN x);
+  GEN (*add)(void *E, GEN x, GEN y);
+  GEN (*sub)(void *E, GEN x, GEN y);
+  GEN (*mul)(void *E, GEN x, GEN y);
+  GEN (*sqr)(void *E, GEN x);
+  GEN (*one)(void *E);
+  GEN (*zero)(void *E);
+};
+@eprog\noindent In contrast with black box groups, elements can have non
+canonical forms, but only \kbd{add} is allowed to return a non canonical
+form.
+
+\kbd{red(E,x)} returns the canonical form of $x$.
+
+\kbd{add(E,x,y)} returns the sum $x+y$.
+
+\kbd{sub(E,x,y)} returns the difference $x-y$.
+
+\kbd{mul(E,x,y)} returns the product $x\*y$.
+
+\kbd{sqr(E,x)} returns the square $x^2$.
+
+\kbd{one(E)} returns the unit element.
+
+\kbd{zero(E)} returns the zero element.
+
+\noindent An algebra is thus described by a \kbd{struct bb\_algebra} as above
+and auxiliary data typecast to \kbd{void*}. The following functions operate
+on black box algebra:
+
+\fun{GEN}{gen_bkeval}{GEN P, long d, GEN x, int use_sqr, void *E,
+          const struct bb_algebra *ff, GEN cmul(void *E, GEN P, long a, GEN x)}
+$x$ being an element of the black box algebra, and $P$ some black box
+polynomial of degree $d$ over the base field,  returns $P(x)$. The function
+\kbd{cmul(E,P,a,y)} must return the coefficient of degree $a$ of $P$
+multiplied by $y$. \kbd{cmul} is allowed to return a non canonical form;
+it is also allowed to return \kbd{NULL} instead of an exact $0$.
+
+The flag \kbd{use\_sqr} has the same meaning as for \kbd{gen\_powers}. This
+implements an algorithm of Brent and Kung (1978).
+
+\fun{GEN}{gen_bkeval_powers}{GEN P, long d, GEN V, void *E,
+ const struct bb_algebra *ff, GEN cmul(void *E, GEN P, long a, GEN x)}
+as \tet{gen_RgX_bkeval} assuming $V$ was output by
+\tet{gen_powers}$(x, l, E, \var{ff})$ for some $l\geq 1$. For optimal
+performance, $l$ should be computed by \tet{brent_kung_optpow}.
+
+\fun{long}{brent_kung_optpow}{long d, long n, long m} returns the optimal
+parameter $l$ for the evaluation of $n/m$ polynomials of degree $d$.
+Fractional values can be used if the evaluations are done with different
+accuracies, and thus have different weights.
+
+\subsec{Functions returning black box algebras}
+
+\fun{const struct bb_algebra *}{get_FpX_algebra}{void **E, GEN p, long v}
+return the algebra of polynomials over $\F_p$ in variable $v$.
+
+\fun{const struct bb_algebra *}{get_FpXQ_algebra}{void **E, GEN T, GEN p}
+return the algebra $\F_p[X]/(T(X))$.
+
+\fun{const struct bb_algebra *}{get_FpXQX_algebra}{void **E, GEN T, GEN p, long v}
+return the algebra of polynomials over $\F_p[X]/(T(X))$ in variable $v$.
+
+\fun{const struct bb_algebra *}{get_FlxqXQ_algebra}{void **E, GEN S, GEN T, ulong p}
+return the algebra $\F_p[X,Y]/(S(X,Y),T(X))$ (for \kbd{ulong} $p$).
+
+\fun{const struct bb_algebra *}{get_FpXQXQ_algebra}{void **E, GEN S, GEN T, GEN p}
+return the algebra $\F_p[X,Y]/(S(X,Y),T(X))$.
+
+\fun{const struct bb_algebra *}{get_Rg_algebra}{void}
+return the generic algebra.
+
+\section{Black box ring}
+
+A black box ring is defined by a \tet{bb_ring} struct, describing methods
+available to handle ring elements:
+\bprog
+struct bb_ring
+{
+  GEN (*add)(void *E, GEN x, GEN y);
+  GEN (*mul)(void *E, GEN x, GEN y);
+  GEN (*sqr)(void *E, GEN x);
+};
+@eprog
+
+\kbd{add(E,x,y)} returns the sum $x+y$.
+
+\kbd{mul(E,x,y)} returns the product $x\*y$.
+
+\kbd{sqr(E,x)} returns the square $x^2$.
+
+\fun{GEN}{gen_fromdigits}{GEN v, GEN B, void *E, struct bb_ring *r}
+where $B$ is a ring element and $v=[c_0,\ldots,c_{n-1}]$ a vector of ring elements,
+return $\sum_{i=0}^n c_i\*B^i$ using binary splitting.
+
+\fun{GEN}{gen_digits}{GEN x, GEN B, long n, void *E, struct bb_ring *r,
+                          GEN (*div)(void *E, GEN x, GEN y, GEN *r)}
+
+(Require the ring to be Euclidean)
+
+\kbd{div(E,x,y,\&r)} performs the Euclidean division of $x$ by $y$ in the ring
+$R$, returning the quotient $q$ and setting $r$ to the residue so that
+$x=q\*y+r$ holds. The residue must belong to a fixed set of representatives of
+$R/(y)$.
+
+The argument $x$ being a ring element, \kbd{gen\_digits} returns a vector of
+ring elements $[c_0,\ldots,c_{n-1}]$ such that $x = \sum_{i=0}^n c_i\*B^i$.
+Furthermore for all $i\ne n-1$, the elements $c_i$ belonging to the fixed set
+of representatives of $R/(B)$.
+
+\section{Black box free $\Z_p$-modules}
+
+(Very experimental)
+
+\fun{GEN}{gen_ZpX_Dixon}{GEN F, GEN V, GEN q, GEN p, long N, void *E,
+                            GEN lin(void *E, GEN F, GEN z, GEN q),
+                            GEN invl(void *E, GEN z)}
+
+Let $F$ be a \kbd{ZpXT} representing the coefficients of some abstract
+linear mapping $f$ over $\Z_p[X]$ seen as a free $\Z_p$-module, let $V$ be
+an element of $\Z_p[X]$ and let $q = p^N$.  Return $y\in\Z_p[X]$ such that
+$f(y)=V\pmod{p^N}$ assuming the following holds for $n\leq N$:
+
+\item $\kbd{lin}(E, \kbd{FpX\_red}(F, p^n), z, p^n) \equiv f(z) \pmod{p^n}$
+
+\item $f(\kbd{invl}(E, z)) \equiv z \pmod{p}$
+
+The rationale for the argument $F$ being that it allows \kbd{gen\_ZpX\_Dixon}
+to reduce it to the required $p$-adic precision.
+
+\fun{GEN}{gen_ZpX_Newton}{GEN x, GEN p, long n, void *E,
+                          GEN eval(void *E, GEN a, GEN q),
+                          GEN invd(void *E, GEN b, GEN v, GEN q, long N)}
+
+Let $x$ be an element of $\Z_p[X]$ seen as a free  $\Z_p$-module, and $f$
+some differentiable function over $\Z_p[X]$ such that $f(x) \equiv 0
+\pmod{p}$. Return $y$ such that $f(y) \equiv 0\pmod{p^n}$, assuming the
+following holds for all $a, b\in \Z_p[X]$ and $M\leq N$:
+
+\item $v = \kbd{eval}(E,a,p^N)$ is a vector of elements of $\Z_p[X]$,
+
+\item $w = \kbd{invd}(E,b,v,p^M,M)$ is an element in $\Z_p[X]$,
+
+\item $v[1] \equiv f(a) \pmod{p^N\Z_p[X]}$,
+
+\item $df_a(w) \equiv b \pmod{p^M\Z_p[X]}$
+
+\noindent and $df_a$ denotes the differential of $f$ at $a$. Motivation:
+\kbd{eval} allows to evaluate $f$ and \kbd{invd} allows to invert its
+differential. Frequently, data useful to compute the differential appear as a
+subproduct of computing the function. The vector $v$ allows \kbd{eval} to
+provide these to \kbd{invd}. The implementation of \kbd{invd} will generally
+involves the use of the function \kbd{gen\_ZpX\_Dixon}.
+
+
 \newpage
 \chapter{Operations on general PARI objects}
 
