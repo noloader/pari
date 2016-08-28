@@ -19,13 +19,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 /**                                                                     **/
 /*************************************************************************/
 
-static int is2sparse(GEN x)
+static int
+is2sparse(GEN x)
 {
   long i, l = lg(x);
   if (odd(l-3)) return 0;
   for(i=3; i<l; i+=2)
-    if (signe(gel(x,i)))
-      return 0;
+    if (signe(gel(x,i))) return 0;
   return 1;
 }
 
@@ -37,12 +37,7 @@ galoisconj1(GEN nf)
   pari_sp av = avma;
   RgX_check_ZX(x, "nfgaloisconj");
   nbmax = numberofconjugates(x, 2);
-  if (nbmax==1)
-  {
-    GEN res = cgetg(2,t_COL);
-    gel(res,1) = pol_x(v);
-    return res;
-  }
+  if (nbmax==1) retmkcol(pol_x(v));
   if (nbmax==2 && is2sparse(x))
   {
     GEN res = cgetg(3,t_COL);
@@ -63,89 +58,6 @@ galoisconj1(GEN nf)
   return gerepileupto(av, y);
 }
 
-/* nbmax: bound for the number of conjugates */
-static GEN
-galoisconj2pol(GEN x, long prec)
-{
-  long i, n, v, nbauto, nbmax;
-  pari_sp av = avma;
-  GEN y, w, polr, p1, p2;
-  n = degpol(x);
-  if (n <= 0) return cgetg(1, t_VEC);
-  RgX_check_ZX(x, "galoisconj2pol");
-  nbmax = numberofconjugates(x, 2);
-  polr = QX_complex_roots(x, prec);
-  p1 = gel(polr,1);
-  /* accuracy in decimal digits */
-  prec = (long)prec2nbits_mul(prec, LOG10_2 * 0.75);
-  nbauto = 1;
-  w = cgetg(n + 2, t_VEC);
-  gel(w,1) = gen_1;
-  for (i = 2; i <= n; i++) gel(w,i) = gmul(p1, gel(w,i-1));
-  v = varn(x);
-  y = cgetg(nbmax + 1, t_COL);
-  gel(y,1) = pol_x(v);
-  for (i = 2; i <= n && nbauto < nbmax; i++)
-  {
-    gel(w,n+1) = gel(polr,i);
-    p1 = lindep2(w, prec);
-    if (signe(gel(p1,n+1)))
-    {
-      p1[0] = evallg(n+1) | evaltyp(t_COL);
-      p2 = gdiv(RgV_to_RgX(p1, v), negi(gel(p1,n+1)));
-      if (gdvd(poleval(x, p2), x))
-      {
-        gel(y,++nbauto) = p2;
-        if (DEBUGLEVEL > 1) err_printf("conjugate %ld: %Ps\n", i, y[nbauto]);
-      }
-    }
-  }
-  if (nbauto < nbmax)
-    pari_warn(warner, "conjugates list may be incomplete in nfgaloisconj");
-  setlg(y, 1 + nbauto);
-  return gerepileupto(av, gen_sort(y, (void*)&gcmp, &gen_cmp_RgX));
-}
-
-static GEN
-galoisconj2(GEN nf, long prec)
-{
-  long i, n, nbauto, nbmax;
-  pari_sp av = avma;
-  GEN T = get_nfpol(nf,&nf), y, w, polr, p1, p2;
-
-  if (!nf) return galoisconj2pol(T, prec);
-  n = degpol(T);
-  if (n <= 0) return cgetg(1, t_VEC);
-  nbmax = numberofconjugates(T, 2);
-  y = cgetg(nbmax + 1, t_COL);
-  gel(y,1) = pol_x(varn(T));
-  /* accuracy in decimal digits */
-  prec = (long)prec2nbits_mul(nf_get_prec(nf), LOG10_2 * 0.75);
-  nbauto = 1;
-  polr = nf_get_allroots(nf);
-  p2 = nf_get_M(nf);
-  w = cgetg(n + 2, t_VEC);
-  for (i = 1; i <= n; i++) gel(w,i) = gcoeff(p2, 1, i);
-  for (i = 2; i <= n && nbauto < nbmax; i++)
-  {
-    gel(w,n+1) = gel(polr,i);
-    p1 = lindep2(w, prec);
-    if (signe(gel(p1,n+1)))
-    {
-      p1[0] = evallg(n+1) | evaltyp(t_COL);
-      p2 = gdiv(coltoliftalg(nf, p1), negi(gel(p1, n+1)));
-      if (gdvd(poleval(T, p2), T))
-      {
-        gel(y,++nbauto) = p2;
-        if (DEBUGLEVEL > 1) err_printf("conjugate %ld: %Ps\n", i, y[nbauto]);
-      }
-    }
-  }
-  if (nbauto < nbmax)
-    pari_warn(warner, "conjugates list may be incomplete in nfgaloisconj");
-  setlg(y, 1 + nbauto);
-  return gerepileupto(av, gen_sort(y, (void*)&gcmp, &gen_cmp_RgX));
-}
 /*************************************************************************/
 /**                                                                     **/
 /**                           GALOISCONJ4                               **/
@@ -2331,9 +2243,9 @@ GEN
 galoisconj0(GEN nf, long flag, GEN d, long prec)
 {
   switch(flag) {
+    case 2:
     case 0: return galoisconj(nf, d);
     case 1: return galoisconj1(nf);
-    case 2: return galoisconj2(nf, prec);
     case 4: return galoisconj4(nf, d);
   }
   pari_err_FLAG("nfgaloisconj");

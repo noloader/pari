@@ -5,8 +5,7 @@ Prototype: GD0,L,DGp
 Help: nfgaloisconj(nf,{flag=0},{d}): list of conjugates of a root of the
  polynomial x=nf.pol in the same number field. flag is optional (set to 0 by
  default), meaning 0: use combination of flag 4 and 1, always complete; 1:
- use nfroots; 2 : use complex numbers, LLL on integral basis (not always
- complete); 4: use Allombert's algorithm, complete if the field is Galois of
+ use nfroots; 4: use Allombert's algorithm, complete if the field is Galois of
  degree <= 35 (see manual for details). nf can be simply a polynomial.
 Doc: $\var{nf}$ being a number field as output by \kbd{nfinit}, computes the
  conjugates of a root $r$ of the non-constant polynomial $x=\var{nf}[1]$
@@ -20,19 +19,12 @@ Doc: $\var{nf}$ being a number field as output by \kbd{nfinit}, computes the
  If $\fl=1$, use \kbd{nfroots}: a little slow, but guaranteed to work in
  polynomial time.
 
- If $\fl=2$ (OBSOLETE), use complex approximations to the roots and an integral
- \idx{LLL}. The result is not guaranteed to be complete: some
- conjugates may be missing (a warning is issued if the result is not proved
- complete), especially so if the corresponding polynomial has a huge index,
- and increasing the default precision may help. This variant is slow and
- unreliable: don't use it.
-
- If $\fl=4$, use \kbd{galoisinit}: very fast, but only applies to (most) Galois
- fields. If the field is Galois with weakly
- super-solvable Galois group (see \tet{galoisinit}), return the complete list
- of automorphisms, else only the identity element. If present, $d$ is assumed to
- be a multiple of the least common denominator of the conjugates expressed as
- polynomial in a root of \var{pol}.
+ If $\fl=4$, use \kbd{galoisinit}: very fast, but only applies to (most)
+ Galois fields. If the field is Galois with weakly super-solvable Galois
+ group (see \tet{galoisinit}), return the complete list of automorphisms, else
+ only the identity element. If present, $d$ is assumed to be a multiple of the
+ least common denominator of the conjugates expressed as polynomial in a root
+ of \var{pol}.
 
  This routine can only compute $\Q$-automorphisms, but it may be used to get
  $K$-automorphism for any base field $K$ as follows:

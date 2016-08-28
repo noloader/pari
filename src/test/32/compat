@@ -1134,9 +1134,8 @@ New syntax: galoisconj(nf) ===> nfgaloisconj(nf)
 
 nfgaloisconj(nf,{flag=0},{d}): list of conjugates of a root of the polynomial 
 x=nf.pol in the same number field. flag is optional (set to 0 by default), 
-meaning 0: use combination of flag 4 and 1, always complete; 1: use nfroots; 2 
-: use complex numbers, LLL on integral basis (not always complete); 4: use 
-Allombert's algorithm, complete if the field is Galois of degree <= 35 (see 
+meaning 0: use combination of flag 4 and 1, always complete; 1: use nfroots; 4: 
+use Allombert's algorithm, complete if the field is Galois of degree <= 35 (see 
 manual for details). nf can be simply a polynomial.
 
 
@@ -1149,9 +1148,8 @@ New syntax: galoisconj1(nf) ===> nfgaloisconj(nf,2)
 
 nfgaloisconj(nf,{flag=0},{d}): list of conjugates of a root of the polynomial 
 x=nf.pol in the same number field. flag is optional (set to 0 by default), 
-meaning 0: use combination of flag 4 and 1, always complete; 1: use nfroots; 2 
-: use complex numbers, LLL on integral basis (not always complete); 4: use 
-Allombert's algorithm, complete if the field is Galois of degree <= 35 (see 
+meaning 0: use combination of flag 4 and 1, always complete; 1: use nfroots; 4: 
+use Allombert's algorithm, complete if the field is Galois of degree <= 35 (see 
 manual for details). nf can be simply a polynomial.
 
 
@@ -1164,9 +1162,8 @@ New syntax: galoisconjforce ===> nfgaloisconj(nf,1)
 
 nfgaloisconj(nf,{flag=0},{d}): list of conjugates of a root of the polynomial 
 x=nf.pol in the same number field. flag is optional (set to 0 by default), 
-meaning 0: use combination of flag 4 and 1, always complete; 1: use nfroots; 2 
-: use complex numbers, LLL on integral basis (not always complete); 4: use 
-Allombert's algorithm, complete if the field is Galois of degree <= 35 (see 
+meaning 0: use combination of flag 4 and 1, always complete; 1: use nfroots; 4: 
+use Allombert's algorithm, complete if the field is Galois of degree <= 35 (see 
 manual for details). nf can be simply a polynomial.
 
 
@@ -4567,4 +4564,4 @@ New syntax: texprint(x) ===> printtex(x)
 printtex({str}*): outputs its string arguments in TeX format.
 
 
-Total time spent: 8
+Total time spent: 9
