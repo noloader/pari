@@ -384,7 +384,7 @@ mat_ideal_two_elt(GEN nf, GEN x)
   if (gequal(xZ, cx)) /* x = (cx) */
   {
     gel(y,1) = cx;
-    gel(y,2) = scalarcol_shallow(gen_0, N); return y;
+    gel(y,2) = gen_0; return y;
   }
   if (equali1(cx)) cx = NULL;
   else
@@ -415,7 +415,9 @@ mat_ideal_two_elt(GEN nf, GEN x)
       (void)bezout(a0, a1, &v0,&v1);
       u0 = mulii(a0, v0);
       u1 = mulii(a1, v1);
-      t = ZC_Z_mul(pi0, u1); gel(t,1) = addii(gel(t,1), u0);
+      if (typ(pi0) != t_COL) t = addmulii(u0, pi0, u1);
+      else
+      { t = ZC_Z_mul(pi0, u1); gel(t,1) = addii(gel(t,1), u0); }
       u = ZC_Z_mul(pi1, u0); gel(u,1) = addii(gel(u,1), u1);
       a = nfmuli(nf, centermod(u, xZ), centermod(t, xZ));
     }
@@ -746,14 +748,7 @@ idealadd(GEN nf, GEN x, GEN y)
 
 static GEN
 trivial_merge(GEN x)
-{
-  long lx = lg(x);
-  GEN a;
-  if (lx == 1) return NULL;
-  a = gcoeff(x,1,1);
-  if (!is_pm1(a)) return NULL;
-  return scalarcol_shallow(gen_1, lx-1);
-}
+{ return (lg(x) == 1 || !is_pm1(gcoeff(x,1,1)))? NULL: gen_1; }
 GEN
 idealaddtoone_i(GEN nf, GEN x, GEN y)
 {
@@ -768,7 +763,7 @@ idealaddtoone_i(GEN nf, GEN x, GEN y)
     a = trivial_merge(x);
   else {
     a = hnfmerge_get_1(x, y);
-    if (a) a = ZC_reducemodlll(a, idealmul_HNF(nf,x,y));
+    if (a && typ(a) == t_COL) a = ZC_reducemodlll(a, idealmul_HNF(nf,x,y));
   }
   if (!a) pari_err_COPRIME("idealaddtoone",x,y);
   return a;
@@ -782,7 +777,8 @@ idealaddtoone(GEN nf, GEN x, GEN y)
   nf = checknf(nf);
   a = gerepileupto(av, idealaddtoone_i(nf,x,y));
   gel(z,1) = a;
-  gel(z,2) = Z_ZC_sub(gen_1,a); return z;
+  gel(z,2) = typ(a) == t_COL? Z_ZC_sub(gen_1,a): subui(1,a);
+  return z;
 }
 
 /* assume elements of list are integral ideals */
@@ -1291,13 +1287,12 @@ GEN
 famat_to_nf_moddivisor(GEN nf, GEN g, GEN e, GEN bid)
 {
   GEN t,sarch,module,cyc,fa2;
-  long lc;
-  if (lg(g) == 1) return scalarcol_shallow(gen_1, nf_get_degree(nf)); /* 1 */
+  if (lg(g) == 1) return gen_1;
   module = bid_get_mod(bid);
-  cyc = bid_get_cyc(bid); lc = lg(cyc);
+  cyc = bid_get_cyc(bid);
   fa2 = gel(bid,4); sarch = gel(fa2,lg(fa2)-1);
   t = NULL;
-  if (lc != 1)
+  if (lg(cyc) != 1)
   {
     GEN EX = gel(cyc,1); /* group exponent */
     GEN id = gel(module,1);
@@ -2390,12 +2385,8 @@ idealapprfact_i(GEN nf, GEN x, int nored)
     q = nfpow(nf, pi, gel(e,i));
     z = z? nfmul(nf, z, q): q;
   }
-  if (!z) return scalarcol_shallow(gen_1, nf_get_degree(nf));
-  if (nored)
-  {
-    if (flagden) pari_err_IMPL("nored + denominator in idealapprfact");
-    return z;
-  }
+  if (!z) return gen_1;
+  if (nored || typ(z) != t_COL) return z;
   e2 = cgetg(r, t_VEC);
   for (i=1; i<r; i++) gel(e2,i) = addis(gel(e,i), 1);
   x = factorbackprime(nf, L,e2);
@@ -2706,8 +2697,8 @@ idealtwoelt2(GEN nf, GEN x, GEN a)
     mod = idealhnf_principal(nf, a);
   }
   b = mat_ideal_two_elt2(nf, x, a);
-  b = mod? ZC_hnfrem(b, mod): centermod(b, a);
-  b = cx? RgC_Rg_mul(b,cx): gcopy(b);
+  b = (mod && typ(b) == t_COL)? ZC_hnfrem(b, mod): centermod(b, a);
+  b = cx? gmul(b,cx): gcopy(b);
   return gerepileupto(av, b);
 }
 

@@ -868,7 +868,7 @@ hnfmerge_get_1(GEN A, GEN B)
   b = gcoeff(B,1,1); lb = lgefint(b);
   if (!signe(b)) {
     if (!is_pm1(gcoeff(A,1,1))) return NULL;
-    return scalarcol_shallow(gen_1, l-1);
+    return gen_1;
   }
   for (j = 1; j < l; j++)
   {

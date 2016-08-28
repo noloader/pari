@@ -1208,13 +1208,14 @@ static GEN
 ne2_to_xy(GEN t)
 {
   GEN u,v;
-  switch(degpol(t))
+  if (typ(t) != t_POL) { u = t; v = gen_0; }
+  else switch(degpol(t))
   {
     case -1: u = v = gen_0; break;
     case 0: u = gel(t,2); v = gen_0; break;
-    default: u = gel(t,2); v = gel(t,3);
+    default: u = gel(t,2); v = gneg(gel(t,3));
   }
-  return mkvec2(u, gneg(v));
+  return mkvec2(u, v);
 }
 static GEN
 ne2V_to_xyV(GEN v)
@@ -1591,7 +1592,7 @@ bnfisintnormabs(GEN bnf, GEN a)
   {
     GEN x = vecsmall_to_col( gel(T.normsol,i) );
     x = isprincipalfact(bnf, NULL, PR, x, nf_FORCE | nf_GEN_IF_PRINCIPAL);
-    gel(res,i) = coltoliftalg(nf, x); /* x solution, up to sign */
+    gel(res,i) = nf_to_scalar_or_alg(nf, x); /* x solution, up to sign */
   }
   return res;
 }

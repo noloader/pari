@@ -209,16 +209,10 @@ nfadd(GEN nf, GEN x, GEN y)
   nf = checknf(nf);
   x = nf_to_scalar_or_basis(nf, x);
   y = nf_to_scalar_or_basis(nf, y);
-  if (typ(x) != t_COL) {
-    if (typ(y) == t_COL) z = RgC_Rg_add(y, x);
-    else {
-      long N = nf_get_degree(nf);
-      z = zerocol(N); gel(z,1) = gadd(x,y);
-    }
-  } else {
-    if (typ(y) != t_COL) z = RgC_Rg_add(x, y);
-    else z = RgC_add(x, y);
-  }
+  if (typ(x) != t_COL)
+  { z = (typ(y) == t_COL)? RgC_Rg_add(y, x): gadd(x,y); }
+  else
+  { z = (typ(y) == t_COL)? RgC_add(x, y): RgC_Rg_add(x, y); }
   return gerepileupto(av, z);
 }
 /* x - y in nf */
@@ -231,16 +225,10 @@ nfsub(GEN nf, GEN x, GEN y)
   nf = checknf(nf);
   x = nf_to_scalar_or_basis(nf, x);
   y = nf_to_scalar_or_basis(nf, y);
-  if (typ(x) != t_COL) {
-    if (typ(y) == t_COL) z = RgC_Rg_sub(y, x);
-    else {
-      long N = nf_get_degree(nf);
-      z = zerocol(N); gel(z,1) = gsub(x,y);
-    }
-  } else {
-    if (typ(y) != t_COL) z = RgC_Rg_sub(x, y);
-    else z = RgC_sub(x, y);
-  }
+  if (typ(x) != t_COL)
+  { z = (typ(y) == t_COL)? RgC_Rg_sub(y, x): gsub(x,y); }
+  else
+  { z = (typ(y) == t_COL)? RgC_sub(x, y): RgC_Rg_sub(x, y); }
   return gerepileupto(av, z);
 }
 
@@ -257,13 +245,7 @@ nfmul(GEN nf, GEN x, GEN y)
   x = nf_to_scalar_or_basis(nf, x);
   y = nf_to_scalar_or_basis(nf, y);
   if (typ(x) != t_COL)
-  {
-    if (typ(y) == t_COL) z = RgC_Rg_mul(y, x);
-    else {
-      long N = nf_get_degree(nf);
-      z = zerocol(N); gel(z,1) = gmul(x,y);
-    }
-  }
+  { z = (typ(y) == t_COL)? RgC_Rg_mul(y, x): gmul(x,y); }
   else
   {
     if (typ(y) != t_COL) z = RgC_Rg_mul(x, y);
@@ -287,11 +269,7 @@ nfsqr(GEN nf, GEN x)
 
   nf = checknf(nf);
   x = nf_to_scalar_or_basis(nf, x);
-  if (typ(x) != t_COL)
-  {
-    long N = nf_get_degree(nf);
-    z = zerocol(N); gel(z,1) = gsqr(x);
-  }
+  if (typ(x) != t_COL) z = gsqr(x);
   else
   {
     GEN dx;
@@ -470,11 +448,7 @@ nfmuli(GEN nf, GEN x, GEN y)
   long i, j, k, N;
   GEN s, v, TAB = get_tab(nf, &N);
 
-  if (typ(x) == t_INT)
-  {
-    if (typ(y) == t_INT) return scalarcol(mulii(x,y), N);
-    return ZC_Z_mul(y, x);
-  }
+  if (typ(x) == t_INT) return (typ(y) == t_COL)? ZC_Z_mul(y, x): mulii(x,y);
   if (typ(y) == t_INT) return ZC_Z_mul(x, y);
   /* both x and y are ZV */
   v = cgetg(N+1,t_COL);
@@ -514,7 +488,7 @@ nfsqri(GEN nf, GEN x)
   long i, j, k, N;
   GEN s, v, TAB = get_tab(nf, &N);
 
-  if (typ(x) == t_INT) return scalarcol(sqri(x), N);
+  if (typ(x) == t_INT) return sqri(x);
   v = cgetg(N+1,t_COL);
   for (k=1; k<=N; k++)
   {
@@ -635,14 +609,14 @@ GEN
 nfpow(GEN nf, GEN z, GEN n)
 {
   pari_sp av = avma;
-  long s, N;
+  long s;
   GEN x, cx;
 
   if (typ(n)!=t_INT) pari_err_TYPE("nfpow",n);
-  nf = checknf(nf); N = nf_get_degree(nf);
-  s = signe(n); if (!s) return scalarcol_shallow(gen_1,N);
+  nf = checknf(nf);
+  s = signe(n); if (!s) return gen_1;
   x = nf_to_scalar_or_basis(nf, z);
-  if (typ(x) != t_COL) { GEN y = zerocol(N); gel(y,1) = powgi(x,n); return y; }
+  if (typ(x) != t_COL) return powgi(x,n);
   if (s < 0)
   { /* simplified nfinv */
     GEN d;
@@ -655,7 +629,7 @@ nfpow(GEN nf, GEN z, GEN n)
   else
     x = primitive_part(x, &cx);
   x = gen_pow(x, n, (void*)nf, _sqr, _mul);
-  if (cx) x = RgC_Rg_mul(x, powgi(cx, n));
+  if (cx) x = gmul(x, powgi(cx, n));
   return av==avma? gcopy(x): gerepileupto(av,x);
 }
 /* Compute z^n in nf, left-shift binary powering */
@@ -663,16 +637,15 @@ GEN
 nfpow_u(GEN nf, GEN z, ulong n)
 {
   pari_sp av = avma;
-  long N;
-  GEN x, cx, T;
+  GEN x, cx;
 
-  nf = checknf(nf); T = nf_get_pol(nf); N = degpol(T);
-  if (!n) return scalarcol_shallow(gen_1,N);
+  nf = checknf(nf);
+  if (!n) return gen_1;
   x = nf_to_scalar_or_basis(nf, z);
-  if (typ(x) != t_COL) { GEN y = zerocol(N); gel(y,1) = gpowgs(x,n); return y; }
+  if (typ(x) != t_COL) return gpowgs(x,n);
   x = primitive_part(x, &cx);
   x = gen_powu(x, n, (void*)nf, _sqr, _mul);
-  if (cx) x = RgC_Rg_mul(x, powgi(cx, utoipos(n)));
+  if (cx) x = gmul(x, powgi(cx, utoipos(n)));
   return av==avma? gcopy(x): gerepileupto(av,x);
 }
 
@@ -701,12 +674,12 @@ pow_ei_mod_p(GEN nf, long I, GEN n, GEN p)
 {
   pari_sp av = avma;
   eltmod_muldata D;
-  long s,N;
+  long s, N;
   GEN y;
 
   if (typ(n) != t_INT) pari_err_TYPE("nfpow",n);
-  nf = checknf(nf); N = nf_get_degree(nf);
-  s = signe(n);
+  nf = checknf(nf);
+  s = signe(n); N = nf_get_degree(nf);
   if (s < 0) pari_err_IMPL("negative power in pow_ei_mod_p");
   if (!s || I == 1) return scalarcol_shallow(gen_1,N);
   D.nf = nf;
@@ -1385,9 +1358,13 @@ set_sign_mod_divisor(GEN nf, GEN x, GEN y, GEN divisor, GEN sarch)
   s = Flm_Flc_mul(gel(sarch,3), s, 2);
   for (i=1; i<nba; i++)
     if (s[i]) y = nfmul(nf,y,gel(gen,i));
-  if (typ(y) != t_COL) y = scalarcol_shallow(y, nf_get_degree(nf));
   return y;
 }
+
+/* x integral elt, A integral ideal in HNF; reduce x mod A */
+static GEN
+zk_modHNF(GEN x, GEN A)
+{ return (typ(x) == t_COL)?  ZC_hnfrem(x, A): modii(x, gcoeff(A,1,1)); }
 
 /* given an element x in Z_K and an integral ideal y in HNF, coprime with x,
    outputs an element inverse of x modulo y */
@@ -1403,17 +1380,15 @@ nfinvmodideal(GEN nf, GEN x, GEN y)
 
   a = hnfmerge_get_1(idealhnf_principal(nf,x), y);
   if (!a) pari_err_INV("nfinvmodideal", x);
-  return gerepileupto(av, ZC_hnfrem(nfdiv(nf,a,x), y));
+  return gerepileupto(av, zk_modHNF(nfdiv(nf,a,x), y));
 }
 
 static GEN
-nfsqrmodideal(GEN nf, GEN x, GEN id) {
-  return ZC_hnfrem(nfsqri(nf,x), id);
-}
+nfsqrmodideal(GEN nf, GEN x, GEN id)
+{ return zk_modHNF(nfsqri(nf,x), id); }
 static GEN
-nfmulmodideal(GEN nf, GEN x, GEN y, GEN id) {
-  return x? ZC_hnfrem(nfmuli(nf,x,y), id): y;
-}
+nfmulmodideal(GEN nf, GEN x, GEN y, GEN id)
+{ return x? zk_modHNF(nfmuli(nf,x,y), id): y; }
 /* assume x integral, k integer, A in HNF */
 GEN
 nfpowmodideal(GEN nf,GEN x,GEN k,GEN A)
@@ -1488,9 +1463,8 @@ famat_to_nf_modideal_coprime(GEN nf, GEN g, GEN e, GEN id, GEN EX)
       if (isintzero(minus)) minus = NULL;
     }
   }
-  if (minus)
-    plus = nfmulmodideal(nf, plus, nfinvmodideal(nf,minus,id), id);
-  return plus? plus: scalarcol_shallow(gen_1, lg(id)-1);
+  if (minus) plus = nfmulmodideal(nf, plus, nfinvmodideal(nf,minus,id), id);
+  return plus? plus: gen_1;
 }
 
 /* given 2 integral ideals x, y in HNF s.t x | y | x^2, compute the quotient
@@ -1624,7 +1598,7 @@ GEN
 zkchinese(GEN zkc, GEN x, GEN y)
 {
   GEN v = gel(zkc,1), UV = gel(zkc,2), z = zkadd(zkmul(v, zksub(x,y)), y);
-  return (typ(z) == t_INT)? modii(z, gcoeff(UV,1,1)): ZC_hnfrem(z, UV);
+  return zk_modHNF(z, UV);
 }
 /* special case z = x mod U, = 1 mod V; shallow */
 GEN

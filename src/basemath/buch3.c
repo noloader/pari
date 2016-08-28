@@ -309,7 +309,8 @@ compute_raygen(GEN nf, GEN u1, GEN gen, GEN bid)
     if (mulI)
     {
       G = nfmuli(nf, G, mulI);
-      G = ZC_hnfrem(G, ZM_Z_mul(f, dmulI));
+      G = typ(G) == t_COL? ZC_hnfrem(G, ZM_Z_mul(f, dmulI))
+                         : modii(G, mulii(fZ,dmulI));
     }
     G = set_sign_mod_divisor(nf,A,G,module,sarch);
     I = idealmul(nf,I,G);
@@ -394,7 +395,7 @@ Buchray(GEN bnf, GEN module, long flag)
     for (j=1; j<=ngen; j++)
     {
       p1 = idealcoprimefact(nf, gel(gen,j), fx);
-      if (RgV_isscalar(p1)) p1 = gel(p1,1);
+      if (typ(p1) == t_COL && RgV_isscalar(p1)) p1 = gel(p1,1);
       gel(El,j) = p1;
     }
   }
@@ -775,7 +776,7 @@ minimforunits(GEN nf, long BORNE, ulong w)
   long n, r1, i, j, k, *x, cnt = 0;
   pari_sp av = avma;
   GEN r, M;
-  double p, norme, normin, normax;
+  double p, norme, normin;
   double **q,*v,*y,*z;
   double eps=0.000001, BOUND = BORNE * 1.00001;
 
@@ -794,7 +795,7 @@ minimforunits(GEN nf, long BORNE, ulong w)
     v[j] = gtodouble(gcoeff(r,j,j));
     for (i=1; i<j; i++) q[i][j] = gtodouble(gcoeff(r,i,j));
   }
-  normax = 0.; normin = (double)BORNE*(1-eps);
+  normin = (double)BORNE*(1-eps);
   k=n; y[n]=z[n]=0;
   x[n] = (long)(sqrt(BOUND/v[n]));
 
@@ -826,15 +827,17 @@ minimforunits(GEN nf, long BORNE, ulong w)
     if (++cnt == 5000) return -1.; /* too expensive */
 
     p = (double)x[1] + z[1]; norme = y[1] + p*p*v[1];
-    if (norme+eps > normax) normax = norme;
-    if (is_unit(M, r1, x)
-    && (norme > 2*n  /* exclude roots of unity */
-        || !ZV_isscalar(nfpow_u(nf, zc_to_ZC(x), w))))
+    if (is_unit(M, r1, x) && norme < normin)
     {
-      if (norme < normin) normin = norme*(1-eps);
+      /* exclude roots of unity */
+      if (norme < 2*n)
+      {
+        GEN t = nfpow_u(nf, zc_to_ZC(x), w);
+        if (typ(t) != t_COL || ZV_isscalar(t)) continue;
+      }
+      normin = norme*(1-eps);
       if (DEBUGLEVEL>=2) { err_printf("*"); err_flush(); }
     }
-
   }
   if (DEBUGLEVEL>=2){ err_printf("\n"); err_flush(); }
   avma = av;

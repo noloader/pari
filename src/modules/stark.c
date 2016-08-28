@@ -682,8 +682,10 @@ ArtinNumber(GEN bnr, GEN LCHI, long check, long prec)
 
   while ( (i = NextElt(&G)) )
   {
-    gel(vB,i) = FpC_red(nfmuli(nf, gel(vB,i), gel(gen,i)), condZ);
-    for (j=1; j<i; j++) gel(vB,j) = gel(vB,i);
+    GEN b = gel(vB,i);
+    b = nfmuli(nf, b, gel(gen,i));
+    b = typ(b) == t_COL? FpC_red(b, condZ): modii(b, condZ);
+    for (j=1; j<=i; j++) gel(vB,j) = b;
 
     for (ic = 1; ic <= nChar; ic++)
     {
@@ -692,8 +694,14 @@ ArtinNumber(GEN bnr, GEN LCHI, long check, long prec)
       for (j=1; j<i; j++) v[j] = v[i];
     }
 
-    gel(vB,i) = set_sign_mod_divisor(nf, NULL, gel(vB,i), cond,sarch);
-    s0 = z? powgi(z, FpV_dotproduct(vt, gel(vB,i), den)): gen_1;
+    gel(vB,i) = b = set_sign_mod_divisor(nf, NULL, b, cond,sarch);
+    if (!z)
+      s0 = gen_1;
+    else
+    {
+      b = typ(b) == t_COL? ZV_dotproduct(vt, b): mulii(gel(vt,1),b);
+      s0 = powgi(z, modii(b,den));
+    }
     for (ic = 1; ic <= nChar; ic++)
     {
       GEN v = gel(vN,ic), val = lC[ic]->val[ v[i] ];

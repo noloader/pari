@@ -214,7 +214,7 @@ lemma7nf(GEN nf, GEN T, GEN pr, long nu, GEN x, GEN zinit)
 
   gpx = nfpoleval(nf, RgX_deriv(T), x);
   /* gx /= pi^la, pi a pr-uniformizer */
-  la = ZC_nfvalrem(nf, gx, pr, &gx);
+  la = nfvalrem(nf, gx, pr, &gx);
   mu = gequal0(gpx)? la+nu+1: nfval(nf,gpx,pr);
 
   if (la > (mu<<1)) return 1;
@@ -534,12 +534,12 @@ bnfsunit(GEN bnf,GEN S,long prec)
     for (i=1; i<lH; i++)
     {
       GEN v = isprincipalfact(bnf, NULL,Sperm,gel(H,i), nf_GEN|nf_FORCE);
-      gel(sunit,i) = coltoliftalg(nf, gel(v,2));
+      gel(sunit,i) = nf_to_scalar_or_alg(nf, gel(v,2));
     }
     for (j=1; j<lB; j++,i++)
     {
       GEN v = isprincipalfact(bnf, gel(Sperm,i),Sperm,gel(B,j),nf_GEN|nf_FORCE);
-      gel(sunit,i) = coltoliftalg(nf, gel(v,2));
+      gel(sunit,i) = nf_to_scalar_or_alg(nf, gel(v,2));
    }
     den = ZM_det_triangular(H); H = ZM_inv(H,den);
     A = shallowconcat(H, ZM_neg(ZM_mul(H,B))); /* top part of inverse * den */

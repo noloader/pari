@@ -683,7 +683,8 @@ rnfidealtwoelement(GEN rnf, GEN x)
   if (lg(y) == 1) { avma = av; return mkvec2(gen_0, gen_0); }
   y = idealtwoelt(NF, y);
   if (cy) y = RgV_Rg_mul(y, cy);
-  z = rnfeltabstorel(rnf, coltoliftalg(NF, gel(y,2)));
+  z = gel(y,2);
+  if (typ(z) == t_COL) z = rnfeltabstorel(rnf, coltoliftalg(NF, z));
   return gerepilecopy(av, mkvec2(gel(y,1), z));
 }
 
