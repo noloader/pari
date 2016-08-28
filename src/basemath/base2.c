@@ -3291,6 +3291,56 @@ ideal_is1(GEN x) {
   return 0;
 }
 
+/* FIXME: quadratic multiplication */
+static GEN
+nfX_mul(GEN nf, GEN a, GEN b)
+{
+  long da = degpol(a), db = degpol(b), dc, lc, k;
+  GEN c;
+  if (da < 0 || db < 0) return gen_0;
+  dc = da + db;
+  if (dc == 0) return nfmul(nf, gel(a,2),gel(b,2));
+  lc = dc+3;
+  c = cgetg(lc, t_POL); c[1] = a[1];
+  for (k = 0; k <= dc; k++)
+  {
+    long i, I = minss(k, da);
+    GEN d = NULL;
+    for (i = maxss(k-db, 0); i <= I; i++)
+    {
+      GEN e = nfmul(nf, gel(a, i+2), gel(b, k-i+2));
+      d = d? nfadd(nf, d, e): e;
+    }
+    gel(c, k+2) = d;
+  }
+  return normalizepol_lg(c, lc);
+}
+/* assume b monic */
+static GEN
+nfX_rem(GEN nf, GEN a, GEN b)
+{
+  long da = degpol(a), db = degpol(b);
+  if (da < 0) return gen_0;
+  a = leafcopy(a);
+  while (da >= db)
+  {
+    long i, k = da;
+    GEN A = gel(a, k+2);
+    for (i = db-1, k--; i >= 0; i--, k--)
+      gel(a,k+2) = nfsub(nf, gel(a,k+2), nfmul(nf, A, gel(b,i+2)));
+    a = normalizepol_lg(a, lg(a)-1);
+    da = degpol(a);
+  }
+  return a;
+}
+static GEN
+nfXQ_mul(GEN nf, GEN a, GEN b, GEN T)
+{
+  GEN c = nfX_mul(nf, a, b);
+  if (typ(c) != t_POL) return c;
+  return nfX_rem(nf, c, T);
+}
+
 /* nf a true nf. Return NULL if power order if pr-maximal */
 static GEN
 rnfmaxord(GEN nf, GEN pol, GEN pr, long vdisc)
@@ -3298,7 +3348,7 @@ rnfmaxord(GEN nf, GEN pol, GEN pr, long vdisc)
   pari_sp av = avma, av1;
   long i, j, k, n, vpol, cmpt, sep;
   GEN q, q1, p, T, modpr, W, I, MW, C, p1;
-  GEN Tauinv, Tau, prhinv, pip, nfT, rnfId;
+  GEN Tauinv, Tau, prhinv, mpi, rnfId;
 
   if (DEBUGLEVEL>1) err_printf(" treating %Ps^%ld\n", pr, vdisc);
   modpr = nf_to_Fq_init(nf,&pr,&T,&p);
@@ -3311,8 +3361,7 @@ rnfmaxord(GEN nf, GEN pol, GEN pr, long vdisc)
   I = gmael(p1,2,2);
   gerepileall(av1, 2, &W, &I);
 
-  pip = coltoalg(nf, pr_get_gen(pr));
-  nfT = nf_get_pol(nf);
+  mpi = zk_multable(nf, pr_get_gen(pr));
   n = degpol(pol); vpol = varn(pol);
   q = T? powiu(p,degpol(T)): p;
   q1 = q; while (abscmpiu(q1,n) < 0) q1 = mulii(q1,q);
@@ -3329,7 +3378,7 @@ rnfmaxord(GEN nf, GEN pol, GEN pr, long vdisc)
   for(cmpt=1; ; cmpt++)
   {
     GEN I0 = leafcopy(I), W0 = leafcopy(W);
-    GEN Wa, Wainv, Waa, Ip, A, Ainv, MWmod, F, pseudo, G;
+    GEN Wa, Winv, Ip, A, Ainv, MWmod, F, pseudo, G;
 
     if (DEBUGLEVEL>1) err_printf("    pass no %ld\n",cmpt);
     for (j=1; j<=n; j++)
@@ -3346,29 +3395,26 @@ rnfmaxord(GEN nf, GEN pol, GEN pr, long vdisc)
       gel(Tau,j) = tau;
       gel(Tauinv,j) = tauinv;
       gel(W,j) = nfC_nf_mul(nf, gel(W,j), tau);
-      gel(I,j) = idealmul(nf,    tauinv, gel(I,j));
+      gel(I,j) = idealmul(nf, tauinv, gel(I,j));
     }
     /* W = (Z_K/pr)-basis of O/pr. O = (W0,I0) ~ (W, I) */
-    Wa = matbasistoalg(nf,W);
 
    /* compute MW: W_i*W_j = sum MW_k,(i,j) W_k */
-    Waa = lift_intern(RgM_to_RgXV(Wa,vpol));
-    Wainv = lift_intern(ginv(Wa));
+    Wa = RgM_to_RgXV(W,vpol);
+    Winv = nfM_inv(nf, W);
     for (i=1; i<=n; i++)
       for (j=i; j<=n; j++)
       {
-        GEN z = RgXQX_rem(gmul(gel(Waa,i),gel(Waa,j)), pol, nfT);
-        long tz = typ(z);
-        if (is_scalar_t(tz) || (tz == t_POL && varncmp(varn(z), vpol) > 0))
-          z = gmul(z, gel(Wainv,1));
+        GEN z = nfXQ_mul(nf, gel(Wa,i), gel(Wa,j), pol);
+        if (typ(z) != t_POL)
+          z = nfC_nf_mul(nf, gel(Winv,1), z);
         else
-          z = mulmat_pol(Wainv, z);
-        for (k=1; k<=n; k++)
         {
-          GEN c = grem(gel(z,k), nfT);
-          gcoeff(MW, k, (i-1)*n+j) = c;
-          gcoeff(MW, k, (j-1)*n+i) = c;
+          z = RgX_to_RgC(z, lg(Winv)-1);
+          z = nfM_nfC_mul(nf, Winv, z);
         }
+        for (k=1; k<=n; k++)
+          gcoeff(MW, k, (i-1)*n+j) = gcoeff(MW, k, (j-1)*n+i) = gel(z,k);
       }
 
     /* compute Ip =  pr-radical [ could use Ker(trace) if q large ] */
@@ -3380,37 +3426,26 @@ rnfmaxord(GEN nf, GEN pol, GEN pr, long vdisc)
 
     /* Fill C: W_k A_j = sum_i C_(i,j),k A_i */
     A = FqM_to_nfM(FqM_suppl(Ip,T,p), modpr);
-    for (j=1; j<lg(Ip); j++)
-    {
-      p1 = gel(A,j);
-      for (i=1; i<=n; i++) gel(p1,i) = mkpolmod(gel(p1,i), nfT);
-    }
-    for (   ; j<=n; j++)
-    {
-      p1 = gel(A,j);
-      for (i=1; i<=n; i++) gel(p1,i) = gmul(pip, gel(p1,i));
-    }
-    Ainv = lift_intern(RgM_inv(A));
-    A    = lift_intern(A);
+    for (j = lg(Ip); j<=n; j++) gel(A,j) = nfC_multable_mul(gel(A,j), mpi);
+    Ainv = nfM_inv(nf, A);
     for (k=1; k<=n; k++)
+    {
+      GEN mek = vecslice(MW, (k-1)*n+1, k*n);
       for (j=1; j<=n; j++)
       {
-        GEN z = RgM_RgC_mul(Ainv, gmod(tablemul_ei(MW, gel(A,j),k), nfT));
+        GEN z = nfM_nfC_mul(nf, Ainv, nfM_nfC_mul(nf, mek, gel(A,j)));
         for (i=1; i<=n; i++)
-        {
-          GEN c = grem(gel(z,i), nfT);
-          gcoeff(C, (j-1)*n+i, k) = nf_to_Fq(nf,c,modpr);
-        }
+          gcoeff(C, (j-1)*n+i, k) = nf_to_Fq(nf,gel(z,i),modpr);
       }
+    }
     G = FqM_to_nfM(FqM_ker(C,T,p), modpr);
 
     pseudo = rnfjoinmodules_i(nf, G,prhinv, rnfId,I);
     /* express W in terms of the power basis */
-    W = RgM_mul(Wa, matbasistoalg(nf,gel(pseudo,1)));
-    W = RgM_to_nfM(nf, W);
+    W = nfM_mul(nf, W, gel(pseudo,1));
     I = gel(pseudo,2);
-    /* restore the HNF property W[i,i] = 1. NB: Wa upper triangular, with
-     * Wa[i,i] = Tau[i] */
+    /* restore the HNF property W[i,i] = 1. NB: W upper triangular, with
+     * W[i,i] = Tau[i] */
     for (j=1; j<=n; j++)
       if (gel(Tau,j) != gen_1)
       {
@@ -3644,7 +3679,7 @@ rnfdet(GEN nf, GEN order)
   order = get_order(nf, order, "rnfdet");
   A = gel(order,1);
   I = gel(order,2);
-  D = idealmul(nf, det(matbasistoalg(nf, A)), idealprod(nf, I));
+  D = idealmul(nf, nfM_det(nf,A), idealprod(nf,I));
   return gerepileupto(av, D);
 }
 

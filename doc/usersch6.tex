@@ -612,7 +612,6 @@ the argument given is \kbd{zk\_multable}$(x)$.
 \var{mx} attached to $x \in \Z_K$, return the positive generator of
 $(x)\cap \Z$.
 
-
 \fun{GEN}{zk_scalar_or_multable}{GEN nf, GEN x} given a \typ{INT} or \kbd{ZC}
 $x$, returns a \typ{INT} equal to $x$ if the latter is a scalar
 (\typ{INT} or \kbd{ZV\_isscalar}$(x)$ is 1) and
@@ -645,6 +644,17 @@ by the $i$-th basis element $e_i$. Shallow function.
 
 \fun{GEN}{tablemulvec}{GEN M, GEN x, GEN v} given a vector $v$ of elements
 in the algebra, returns the $x\cdot v[i]$.
+
+The following routines implement naive linear algebra using the \emph{black box
+field} mechanism:
+
+\fun{GEN}{nfM_det}{GEN nf, GEN M}
+
+\fun{GEN}{nfM_inv}{GEN nf, GEN M}
+
+\fun{GEN}{nfM_mul}{GEN nf, GEN A, GEN B}
+
+\fun{GEN}{nfM_nfC_mul}{GEN nf, GEN A, GEN B}
 
 \subsec{Elements in factored form}
 

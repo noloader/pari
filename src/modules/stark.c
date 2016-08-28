@@ -669,7 +669,11 @@ ArtinNumber(GEN bnr, GEN LCHI, long check, long prec)
      runs through the classes of (Ok/cond0)^* and beta cond1-positive */
 
   vt = gel(T,1); /* ( Tr(w_i) )_i */
-  vt = ZV_ZM_mul(vt, zk_multable(nf, muslambda)); /*den (Tr(w_i mu/lambda))_i */
+  if (typ(muslambda) == t_COL)
+    vt = ZV_ZM_mul(vt, zk_multable(nf, muslambda));
+  else
+    vt = ZC_Z_mul(vt, muslambda);
+  /*vt = den . (Tr(w_i mu/lambda))_i */
   G.cyc = gtovecsmall(cyc);
   G.r = nz;
   G.j = zero_zv(nz);

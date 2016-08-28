@@ -226,9 +226,9 @@ nfsub(GEN nf, GEN x, GEN y)
   x = nf_to_scalar_or_basis(nf, x);
   y = nf_to_scalar_or_basis(nf, y);
   if (typ(x) != t_COL)
-  { z = (typ(y) == t_COL)? RgC_Rg_sub(y, x): gsub(x,y); }
+  { z = (typ(y) == t_COL)? Rg_RgC_sub(x,y): gsub(x,y); }
   else
-  { z = (typ(y) == t_COL)? RgC_sub(x, y): RgC_Rg_sub(x, y); }
+  { z = (typ(y) == t_COL)? RgC_sub(x,y): RgC_Rg_sub(x,y); }
   return gerepileupto(av, z);
 }
 
@@ -245,11 +245,18 @@ nfmul(GEN nf, GEN x, GEN y)
   x = nf_to_scalar_or_basis(nf, x);
   y = nf_to_scalar_or_basis(nf, y);
   if (typ(x) != t_COL)
-  { z = (typ(y) == t_COL)? RgC_Rg_mul(y, x): gmul(x,y); }
+  {
+    if (isintzero(x)) return gen_0;
+    z = (typ(y) == t_COL)? RgC_Rg_mul(y, x): gmul(x,y); }
   else
   {
-    if (typ(y) != t_COL) z = RgC_Rg_mul(x, y);
-    else {
+    if (typ(y) != t_COL)
+    {
+      if (isintzero(y)) return gen_0;
+      z = RgC_Rg_mul(x, y);
+    }
+    else
+    {
       GEN dx, dy;
       x = Q_remove_denom(x, &dx);
       y = Q_remove_denom(y, &dy);
@@ -410,7 +417,7 @@ nfinv(GEN nf, GEN x)
     if (d) z = RgC_Rg_mul(z, d);
   }
   else
-  { z = zerocol(nf_get_degree(nf)); gel(z,1) = ginv(x); }
+    z = ginv(x);
   return gerepileupto(av, z);
 }
 
@@ -687,6 +694,59 @@ pow_ei_mod_p(GEN nf, long I, GEN n, GEN p)
   D.I = I;
   y = gen_pow_fold(col_ei(N, I), n, (void*)&D, &sqr_mod, &ei_msqr_mod);
   return gerepileupto(av,y);
+}
+
+static GEN
+_nf_red(void *E, GEN x) { (void)E; return x; }
+
+static GEN
+_nf_add(void *E, GEN x, GEN y) { return nfadd((GEN)E,x,y); }
+
+static GEN
+_nf_neg(void *E, GEN x) { (void)E; return gneg(x); }
+
+static GEN
+_nf_mul(void *E, GEN x, GEN y) { return nfmul((GEN)E,x,y); }
+
+static GEN
+_nf_inv(void *E, GEN x) { return nfinv((GEN)E,x); }
+
+static GEN
+_nf_s(void *E, long x) { (void)E; return stoi(x); }
+
+static const struct bb_field nf_field={_nf_red,_nf_add,_nf_mul,_nf_neg,
+                                        _nf_inv,&gequal0,_nf_s };
+
+const struct bb_field *get_nf_field(void **E, GEN nf)
+{ *E = (void*)nf; return &nf_field; }
+
+GEN
+nfM_det(GEN nf, GEN M)
+{
+  void *E;
+  const struct bb_field *S = get_nf_field(&E, nf);
+  return gen_det(M, E, S);
+}
+GEN
+nfM_inv(GEN nf, GEN M)
+{
+  void *E;
+  const struct bb_field *S = get_nf_field(&E, nf);
+  return gen_Gauss(M, matid(lg(M)-1), E, S);
+}
+GEN
+nfM_mul(GEN nf, GEN A, GEN B)
+{
+  void *E;
+  const struct bb_field *S = get_nf_field(&E, nf);
+  return gen_matmul(A, B, E, S);
+}
+GEN
+nfM_nfC_mul(GEN nf, GEN A, GEN B)
+{
+  void *E;
+  const struct bb_field *S = get_nf_field(&E, nf);
+  return gen_matcolmul(A, B, E, S);
 }
 
 /* valuation of integral x (ZV), with resp. to prime ideal pr */
