@@ -3272,13 +3272,12 @@ rnfdedekind(GEN nf, GEN P, GEN pr, long flag)
     if (flag) { avma = av; return gen_0; }
     z = gerepilecopy(av, z);
   }
-  else {
-    long d;
+  else
+  {
     avma = av; if (flag) return gen_1;
-    d = degpol(P);
     z = cgetg(4, t_VEC);
     gel(z,1) = gen_1;
-    gel(z,2) = triv_order(d);
+    gel(z,2) = triv_order(degpol(P));
     gel(z,3) = stoi(v);
   }
   return z;
