@@ -1567,20 +1567,15 @@ lfunqf(GEN M, long prec)
 }
 
 /********************************************************************/
-/**                       Artin L function                         **/
+/**  Artin L function, based on a GP script by Charlotte Euvrard   **/
 /********************************************************************/
-
-/* Based on a GP script by Charlotte Euvrard */
 
 static GEN
 artin_repfromgens(GEN G, GEN M)
 {
-  pari_sp ltop = avma;
-  GEN ord, grp, R, V;
-  long i, j, k, n, m;
-  ord = gal_get_orders(G);
-  grp = gal_get_group(G);
-  n = lg(ord)-1; m = lg(grp)-1;
+  GEN R, V, ord = gal_get_orders(G), grp = gal_get_group(G);
+  long i, j, k, n = lg(ord)-1, m = lg(grp)-1;
+
   if (lg(M)-1 != n) pari_err_DIM("lfunartin");
   R = cgetg(m+1, t_VEC);
   gel(R, 1) = matid(lg(gel(M, 1))-1);
@@ -1588,34 +1583,27 @@ artin_repfromgens(GEN G, GEN M)
   {
     long c = k*(ord[i] - 1);
     gel(R, ++k) = gel(M, i);
-    for (j = 2; j <= c; ++j)
-      gel(R, ++k) = gmul(gel(R, j), gel(M, i));
+    for (j = 2; j <= c; ++j) gel(R, ++k) = gmul(gel(R, j), gel(M, i));
   }
   V = cgetg(m+1, t_VEC);
-  for (i = 1; i <= m; i++)
-    gel(V, gel(grp, i)[1]) = gel(R, i);
-  return gerepilecopy(ltop, V);
+  for (i = 1; i <= m; i++) gel(V, gel(grp, i)[1]) = gel(R, i);
+  return V;
 }
 
 static GEN
 galois_get_conj(GEN G)
 {
   GEN grp = gal_get_group(G);
-  long r = lg(grp)-1;
-  long k;
+  long k, r = lg(grp)-1;
   for (k = 2; k <= r; ++k)
   {
     GEN g = gel(grp,k);
     if (g[g[1]]==1)
     {
-      pari_sp btop = avma;
+      pari_sp av = avma;
       GEN F = galoisfixedfield(G, g, 1, -1);
-      if (sturmpart(F, NULL, NULL) > 0)
-      {
-        avma = btop;
-        return g;
-      }
-      avma = btop;
+      if (ZX_sturmpart(F, NULL) > 0) { avma = av; return g; }
+      avma = av;
     }
   }
   pari_err_BUG("galois_get_conj");
@@ -1625,86 +1613,69 @@ galois_get_conj(GEN G)
 static GEN
 artin_gamma(GEN N, GEN G, GEN R)
 {
-  long n1, n2, k, d = lg(gel(R, 1))-1;
-  GEN V;
-  if (nf_get_r2(N) == 0)
-  {
-    n1 = d;
-    n2 = 0;
-  }
-  else
-  {
-    long a = galois_get_conj(G)[1];
-    long t = gtos(simplify(lift(gtrace(gel(R, a)))));
-    n1 = (d + t)/2;
-    n2 = (d - t)/2;
-  }
-  V = cgetg(n1+n2+1, t_VEC);
-  for (k = 1; k <= n1; ++k)       gel(V, k) = gen_0;
-  for (k = n1+1; k <= n1+n2; ++k) gel(V, k) = gen_1;
-  return V;
+  long a, t, d = lg(gel(R,1))-1;
+  GEN T;
+  if (nf_get_r2(N) == 0) return vec01(d, 0);
+  a = galois_get_conj(G)[1];
+  T = lift_intern( gtrace(gel(R,a)) );
+  t = itos(simplify_shallow(T));
+  return vec01((d+t) / 2, (d-t) / 2);
 }
 
 static GEN
 artin_codim(GEN J, GEN R)
 {
-  pari_sp ltop = avma;
-  GEN z, v;
-  long j = lg(J)-1;
-  long k, l;
-  v = cgetg(j+1, t_VEC);
-  for (l = 1; l <= j; ++l)
-    gel(v, l) = ker(gsubgs(gel(R, gel(J, l)[1]), 1));
-  z = gel(v, 1);
-  for (k = 2; k <= j; ++k)
-    z = intersect(z, gel(v, k));
-  return gerepilecopy(ltop, z);
+  pari_sp av = avma;
+  long k, l, lJ = lg(J);
+  GEN z, v = cgetg(lJ, t_VEC);
+
+  for (l = 1; l < lJ; ++l) gel(v,l) = ker(gsubgs(gel(R, gel(J,l)[1]), 1));
+  z = gel(v,1); for (k = 2; k < lJ; ++k) z = intersect(z, gel(v,k));
+  return gerepilecopy(av, z);
 }
 
 static GEN
 artin_ram(GEN N, GEN G, GEN pr, GEN ramg, GEN R, GEN ss)
 {
-  pari_sp ltop = avma;
-  GEN c;
-  GEN Q = idealramfrobenius(N, G, pr, ramg);
-  GEN S = gel(R, Q[1]);
-  if (lg(ss)==1)
-    c = gen_1;
-  else
-    c = polrecip(charpoly(gdiv(gmul(S, ss), ss), 0));
-  return gerepilecopy(ltop, c);
+  pari_sp av = avma;
+  GEN c, S, Q;
+  if (lg(ss)==1) return gen_1;
+
+  Q = idealramfrobenius(N, G, pr, ramg);
+  S = gel(R, Q[1]);
+  c = RgX_recip(charpoly(gdiv(gmul(S, ss), ss), 0));
+  return gerepilecopy(av, c);
 }
 
+/* [Artin conductor, vec of [p, Lp^(-1)]] */
 static GEN
 artin_badprimes(GEN N, GEN G, GEN R)
 {
   pari_sp av = avma;
-  long d = lg(gel(R,1))-1;
-  long i;
-  GEN F = gel(factor(absi(nf_get_disc(N))), 1);
-  long f = lg(F)-1;
-  GEN c = gen_1;
-  GEN B = cgetg(f+1, t_VEC);
-  for (i = 1; i <= f; ++i)
+  long i, d = lg(gel(R,1))-1;
+  GEN P = gel(absZ_factor(nf_get_disc(N)), 1);
+  long lP = lg(P);
+  GEN B = cgetg(lP, t_VEC), C = cgetg(lP, t_VEC);
+
+  for (i = 1; i < lP; ++i)
   {
-    long j;
-    GEN p = gel(F, i);
-    GEN pr = gel(idealprimedec(N, p), 1);
+    GEN p = gel(P, i), pr = gel(idealprimedec(N, p), 1);
     GEN J = idealramgroups(N, G, pr);
-    long lJ = lg(J)-1;
-    GEN sdec = artin_codim(gmael(J, 2, 1), R);
-    long ndec = group_order(gel(J, 2));
-    long v = ndec * (d + 1 - lg(sdec));
-    for (j = 3; j <= lJ; ++j)
+    GEN G0 = gel(J,2); /* inertia group */
+    long lJ = lg(J);
+    GEN sdec = artin_codim(gel(G0,1), R);
+    long ndec = group_order(G0);
+    long j, v = ndec * (d + 1 - lg(sdec));
+    for (j = 3; j < lJ; ++j)
     {
       GEN Jj = gel(J, j);
       GEN ss = artin_codim(gel(Jj, 1), R);
       v += group_order(Jj) * (d + 1 - lg(ss));
     }
-    c = gmul(c, powiu(p, v/ndec));
+    gel(C, i) = powiu(p, v/ndec);
     gel(B, i) = mkvec2(p, artin_ram(N, G, pr, J, R, sdec));
   }
-  return gerepilecopy(av, mkvec2(c,B));
+  return gerepilecopy(av, mkvec2(ZV_prod(C), B));
 }
 
 struct dir_artin
@@ -1717,43 +1688,49 @@ dirartin(void *E, GEN p)
 {
   pari_sp av = avma;
   struct dir_artin *d = (struct dir_artin *) E;
-  GEN N = d->N, G = d->G, V = d->V, aut = d->aut;
-  GEN pr = idealprimedec(N, p);
-  GEN frob = idealfrobenius_aut(N, G, gel(pr, 1), aut);
-  return gerepileupto(av, ginv(gel(V, frob[1])));
+  GEN N = d->N, pr, frob;
+  /* pick one maximal ideal in the conjugacy class above p */
+  if (!dvdii(nf_get_index(N), p))
+  { /* simple case */
+    GEN F = FpX_factor(nf_get_pol(N), p);
+    GEN P = gel(F,1), E = gel(F,2);
+    pr = primedec_apply_kummer(N, gel(P,1), E[1], p);
+  }
+  else /* wasteful but rare */
+    pr = gel(idealprimedec(N,p), 1);
+  frob = idealfrobenius_aut(N, d->G, pr, d->aut);
+  return gerepileupto(av, ginv(gel(d->V, frob[1])));
 }
 
 static GEN
 vecan_artin(GEN an, long L, long prec)
 {
   struct dir_artin d;
-  GEN A;
-  long n = itos(gel(an, 6));
+  GEN A, Sbad = gel(an,5);
+  long n = itos(gel(an,6));
   d.N = gel(an,1); d.G = gel(an,2); d.V = gel(an,3); d.aut = gel(an,4);
-  A = lift(direuler_bad(&d, dirartin, gen_2, stoi(L), NULL, gel(an, 5)));
+  A = lift_intern(direuler_bad(&d, dirartin, gen_2, stoi(L), NULL, Sbad));
   return RgXV_RgV_eval(A, grootsof1(n, prec));
 }
 
 GEN
 lfunartin(GEN N, GEN G, GEN M, long o)
 {
-  pari_sp ltop = avma;
+  pari_sp av = avma;
   GEN bc, R, V, aut, Ldata;
   long i, l;
   N = checknf(N);
   checkgal(G);
   if (!is_vec_t(typ(M))) pari_err_TYPE("lfunartin",M);
-  M = gmul(M, gmodulo(gen_1, polcyclo(o, gvar(M))));
+  M = gmul(M, mkpolmod(gen_1, polcyclo(o, gvar(M))));
   R = artin_repfromgens(G,M);
-  l = lg(R)-1;
   bc = artin_badprimes(N,G,R);
-  V = cgetg(l+1, t_VEC);
-  for (i = 1; i <= l; ++i)
-    gel(V, i) = RgX_recip(charpoly(gel(R, i), 0));
+  l = lg(R); V = cgetg(l, t_VEC);
+  for (i = 1; i < l; i++) gel(V,i) = RgX_recip(charpoly(gel(R,i), 0));
   aut = nfgaloispermtobasis(N, G);
   Ldata = mkvecn(6, tag(mkcol6(N, G, V, aut, gel(bc, 2), stoi(o)), t_LFUN_ARTIN),
       gen_1, artin_gamma(N, G, R), gen_1, gel(bc,1), gen_0);
-  return gerepilecopy(ltop, Ldata);
+  return gerepilecopy(av, Ldata);
 }
 
 /********************************************************************/
