@@ -76,18 +76,16 @@ lfuncreate(GEN data)
 static GEN
 vecan_conj(GEN an, long n, long prec)
 {
-  pari_sp ltop = avma;
   GEN p1 = ldata_vecan(gel(an,1), n, prec);
-  return gerepileupto(ltop, gconj(p1));
+  return gconj(p1);
 }
 
 static GEN
 vecan_mul(GEN an, long n, long prec)
 {
-  pari_sp ltop = avma;
   GEN p1 = ldata_vecan(gel(an,1), n, prec);
   GEN p2 = ldata_vecan(gel(an,2), n, prec);
-  return gerepileupto(ltop, dirmul(p1, p2));
+  return dirmul(p1, p2);
 }
 
 static GEN
@@ -97,10 +95,9 @@ lfunconvol(GEN a1, GEN a2)
 static GEN
 vecan_div(GEN an, long n, long prec)
 {
-  pari_sp ltop = avma;
   GEN p1 = ldata_vecan(gel(an,1), n, prec);
   GEN p2 = ldata_vecan(gel(an,2), n, prec);
-  return gerepileupto(ltop, dirdiv(p1, p2));
+  return dirdiv(p1, p2);
 }
 
 static GEN
@@ -246,6 +243,43 @@ lfundiv(GEN ldata1, GEN ldata2, long bitprec)
 }
 
 /*****************************************************************/
+/*  L-series from closure                                        */
+/*****************************************************************/
+static GEN
+localfactor(void *E, GEN p)
+{
+  GEN v = (GEN)E, L = gel(v,1), a = gel(v,2);
+  return ginv(closure_callgen2(a, p, stoi(logint(L, p))));
+}
+static GEN
+vecan_closure(GEN a, long L, GEN Sbad)
+{
+  long ta = typ(a), la, tv;
+  GEN v;
+
+  if (ta == t_CLOSURE) switch(closure_arity(a))
+  {
+    GEN gL;
+    case 2:
+      gL = stoi(L);
+      return direuler_bad((void*)mkvec2(gL,a), localfactor, gen_2, gL,gL, Sbad);
+    case 1:
+      a = closure_callgen1(a, stoi(L));
+      if (typ(a) != t_VEC) pari_err_TYPE("vecan_closure", a);
+      return a;
+    default: pari_err_TYPE("vecan_closure [wrong arity]", a);
+  }
+  la = lg(a);
+  if (ta != t_VEC || la == 1) pari_err_TYPE("vecan_closure", a);
+  v = gel(a,1); tv = typ(v);
+  /* regular vector, return it */
+  if (tv != t_CLOSURE && tv != t_VEC) return vecslice(a, 1, minss(L,la-1));
+  /* vector [an, [p1, 1/L_{p1}], ..., [pk, 1/L_{pk}}]]: exceptional primes */
+  if (la > 1) Sbad = vecslice(a, 2, la-1);
+  return vecan_closure(v, L, Sbad);
+}
+
+/*****************************************************************/
 /*  L-series of Dirichlet characters.                            */
 /*****************************************************************/
 
@@ -333,7 +367,6 @@ gaddmul(GEN x, GEN y, GEN z)
 static GEN
 vecan_chiZ(GEN an, long n, long prec)
 {
-  pari_sp ltop = avma;
   forprime_t iter;
   GEN bid = gel(an,1);
   GEN nchi = gel(an,2), gord = gel(nchi,1), z;
@@ -366,13 +399,12 @@ vecan_chiZ(GEN an, long n, long prec)
     if (id > d) id = 1;
     gel(v, i) = gel(v, id);
   }
-  return gerepilecopy(ltop, v);
+  return v;
 }
 
 static GEN
 vecan_chigen(GEN an, long n, long prec)
 {
-  pari_sp ltop = avma;
   forprime_t iter;
   GEN bnr = gel(an,1), nf = bnr_get_nf(bnr);
   GEN nchi = gel(an,2), gord = gel(nchi,1), z;
@@ -432,7 +464,7 @@ vecan_chigen(GEN an, long n, long prec)
       }
     }
   }
-  return gerepilecopy(ltop, v);
+  return v;
 }
 
 static GEN lfunzetak_i(GEN T);
@@ -1379,7 +1411,6 @@ eta_inflate_ZXn(long m, long v)
 static GEN
 vecan_eta(GEN eta, long L)
 {
-  pari_sp ltop = avma;
   GEN P, eq, divN = gel(eta, 1), RM = gel(eta, 2);
   long i, ld = lg(divN);
   P = gen_1; eq = gen_0;
@@ -1391,7 +1422,7 @@ vecan_eta(GEN eta, long L)
     P = gmul(P, gpowgs(eta_inflate_ZXn(L, itos(m)), itos(rm)));
   }
   if (!equalis(eq, 24)) pari_err_IMPL("valuation != 1 in lfunetaquo");
-  return gerepileupto(ltop, gtovec0(P, L));
+  return gtovec0(P, L);
 }
 
 /* Check if correct eta quotient. Set canonical form columns */
@@ -1800,7 +1831,7 @@ ldata_vecan(GEN van, long L, long prec)
   {
     long n;
     case t_LFUN_GENERIC:
-      push_localprec(prec); an = direxpand(an, L); pop_localprec();
+      push_localprec(prec); an = vecan_closure(an, L, NULL); pop_localprec();
       n = lg(an)-1;
       if (n < L)
         pari_warn(warner, "#an = %ld < %ld, results may be imprecise", n, L);

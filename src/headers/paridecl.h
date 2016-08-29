@@ -2479,7 +2479,6 @@ void print_fun_list(char **list, long nbli);
 
 /* dirichlet.c */
 
-GEN     direxpand(GEN a, long L);
 GEN     direuler(void *E, GEN (*eval)(void *, GEN), GEN a, GEN b, GEN c);
 
 /* ellanal.c */

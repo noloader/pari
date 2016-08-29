@@ -164,53 +164,6 @@ direuler_bad(void *E, GEN (*eval)(void *, GEN), GEN a, GEN b, GEN c, GEN Sbad)
   return gerepilecopy(av0,V);
 }
 
-static GEN
-localfactor(void *E, GEN p)
-{
-  GEN v = (GEN)E, L = gel(v,1), a = gel(v,2);
-  return ginv(closure_callgen2(a, p, stoi(logint(L, p))));
-}
-static GEN
-direxpand_bad(GEN a, long L, GEN Sbad)
-{
-  pari_sp ltop = avma;
-  long ta = typ(a), la, tv, i;
-  GEN an, v;
-
-  if (ta == t_CLOSURE) switch(closure_arity(a))
-  {
-    GEN gL;
-    case 2:
-      gL = stoi(L);
-      return direuler_bad((void*)mkvec2(gL,a), localfactor, gen_2, gL,gL, Sbad);
-    case 1:
-      a = closure_callgen1(a, stoi(L));
-      if (typ(a) != t_VEC) pari_err_TYPE("direxpand", a);
-      return a;
-    default: pari_err_TYPE("direxpand [wrong arity]", a);
-  }
-  if (ta != t_VEC) pari_err_TYPE("direxpand", a);
-  la = lg(a); if (la == 1) pari_err_TYPE("direxpand", a);
-  v = gel(a,1); tv = typ(v);
-  if (tv != t_CLOSURE && tv != t_VEC)
-  { /* regular vector, return it */
-    if (la-1 < L) L = la-1;
-    an = cgetg(L+1, t_VEC);
-    for (i = 1; i <= L; i++) gel(an,i) = gcopy(gel(a,i));
-    return an;
-  }
-  /* vector [an, [p1, 1/L_{p1}], ..., [pk, 1/L_{pk}}]]: exceptional primes */
-  if (la > 1)
-  {
-    Sbad = cgetg(la-1, t_VEC);
-    for (i = 2; i < la; i++) gel(Sbad, i-1) = gel(a, i);
-  }
-  an = direxpand_bad(v, L, Sbad);
-  return gerepilecopy(ltop, an);
-}
-GEN
-direxpand(GEN a, long L) { return direxpand_bad(a, L, NULL); }
-
 GEN
 direuler(void *E, GEN (*eval)(void *, GEN), GEN a, GEN b, GEN c)
 { return direuler_bad(E, eval, a, b, c, NULL); }
