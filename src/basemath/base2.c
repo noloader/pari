@@ -3228,7 +3228,6 @@ GEN
 rnfdedekind(GEN nf, GEN P, GEN pr, long flag)
 {
   pari_sp av = avma;
-  long v;
   GEN z, dP;
 
   nf = checknf(nf);
@@ -3239,29 +3238,29 @@ rnfdedekind(GEN nf, GEN P, GEN pr, long flag)
     GEN Q = gel(fa,1), E = gel(fa,2);
     pari_sp av2 = avma;
     long i, l = lg(Q);
-    for (i=1; i < l; i++)
+    for (i = 1; i < l; i++, avma = av2)
     {
-      v = itos(gel(E,i));
+      long v = itos(gel(E,i));
       if (rnfdedekind_i(nf,P,gel(Q,i),v,1)) { avma=av; return gen_0; }
       avma = av2;
     }
     avma = av; return gen_1;
   } else if (typ(pr) == t_VEC) {
     if (lg(pr) == 1) { avma = av; return gen_1; } /* flag = 1 is implicit */
-    if (typ(gel(pr,1)) == t_VEC) {
+    if (typ(gel(pr,1)) == t_VEC)
+    { /* list of primes */
       GEN Q = pr;
       pari_sp av2 = avma;
       long i, l = lg(Q);
-      for (i=1; i < l; i++)
+      for (i = 1; i < l; i++, avma = av2)
       {
-        v = nfval(nf, dP, gel(Q,i));
+        long v = nfval(nf, dP, gel(Q,i));
         if (rnfdedekind_i(nf,P,gel(Q,i),v,1)) { avma=av; return gen_0; }
-        avma = av2;
       }
       avma = av; return gen_1;
     }
   }
-
+  /* single prime */
   v = nfval(nf, dP, pr);
   z = rnfdedekind_i(nf, P, pr, v, flag);
   if (z)
@@ -3346,9 +3345,9 @@ static GEN
 rnfmaxord(GEN nf, GEN pol, GEN pr, long vdisc)
 {
   pari_sp av = avma, av1;
-  long i, j, k, n, vpol, cmpt, sep;
+  long i, j, k, n, vpol, cnt, sep;
   GEN q, q1, p, T, modpr, W, I, MW, C, p1;
-  GEN Tauinv, Tau, prhinv, mpi, rnfId;
+  GEN Tauinv, Tau, prhinv, mpi, Id;
 
   if (DEBUGLEVEL>1) err_printf(" treating %Ps^%ld\n", pr, vdisc);
   modpr = nf_to_Fq_init(nf,&pr,&T,&p);
@@ -3363,24 +3362,23 @@ rnfmaxord(GEN nf, GEN pol, GEN pr, long vdisc)
 
   mpi = zk_multable(nf, pr_get_gen(pr));
   n = degpol(pol); vpol = varn(pol);
-  q = T? powiu(p,degpol(T)): p;
-  q1 = q; while (abscmpiu(q1,n) < 0) q1 = mulii(q1,q);
-  rnfId = matid(n);
+  q1 = q = pr_norm(pr);
+  while (abscmpiu(q1,n) < 0) q1 = mulii(q1,q);
+  Id = matid(n);
 
   prhinv = idealinv(nf, pr);
   C = cgetg(n+1, t_MAT);
   for (j=1; j<=n; j++) gel(C,j) = cgetg(n*n+1, t_COL);
   MW = cgetg(n*n+1, t_MAT);
-  for (j=1; j<=n*n; j++) gel(MW,j) = cgetg(n+1, t_COL);
   Tauinv = cgetg(n+1, t_VEC);
   Tau    = cgetg(n+1, t_VEC);
   av1 = avma;
-  for(cmpt=1; ; cmpt++)
+  for(cnt=1;; cnt++)
   {
     GEN I0 = leafcopy(I), W0 = leafcopy(W);
     GEN Wa, Winv, Ip, A, Ainv, MWmod, F, pseudo, G;
 
-    if (DEBUGLEVEL>1) err_printf("    pass no %ld\n",cmpt);
+    if (DEBUGLEVEL>1) err_printf("    pass no %ld\n",cnt);
     for (j=1; j<=n; j++)
     {
       GEN tau, tauinv;
@@ -3402,7 +3400,9 @@ rnfmaxord(GEN nf, GEN pol, GEN pr, long vdisc)
    /* compute MW: W_i*W_j = sum MW_k,(i,j) W_k */
     Wa = RgM_to_RgXV(W,vpol);
     Winv = nfM_inv(nf, W);
-    for (i=1; i<=n; i++)
+    /* W_1 = 1 */
+    for (j=1; j<=n; j++) gel(MW, j) = gel(MW, (j-1)*n+1) = gel(Id,j);
+    for (i=2; i<=n; i++)
       for (j=i; j<=n; j++)
       {
         GEN z = nfXQ_mul(nf, gel(Wa,i), gel(Wa,j), pol);
@@ -3413,13 +3413,12 @@ rnfmaxord(GEN nf, GEN pol, GEN pr, long vdisc)
           z = RgX_to_RgC(z, lg(Winv)-1);
           z = nfM_nfC_mul(nf, Winv, z);
         }
-        for (k=1; k<=n; k++)
-          gcoeff(MW, k, (i-1)*n+j) = gcoeff(MW, k, (j-1)*n+i) = gel(z,k);
+        gel(MW, (i-1)*n+j) = gel(MW, (j-1)*n+i) = z;
       }
 
     /* compute Ip =  pr-radical [ could use Ker(trace) if q large ] */
     MWmod = nfM_to_FqM(MW,nf,modpr);
-    F = cgetg(n+1, t_MAT); gel(F,1) = gel(rnfId,1);
+    F = cgetg(n+1, t_MAT); gel(F,1) = gel(Id,1);
     for (j=2; j<=n; j++) gel(F,j) = rnfeltid_powmod(MWmod, j, q1, T,p);
     Ip = FqM_ker(F,T,p);
     if (lg(Ip) == 1) { W = W0; I = I0; break; }
@@ -3440,7 +3439,7 @@ rnfmaxord(GEN nf, GEN pol, GEN pr, long vdisc)
     }
     G = FqM_to_nfM(FqM_ker(C,T,p), modpr);
 
-    pseudo = rnfjoinmodules_i(nf, G,prhinv, rnfId,I);
+    pseudo = rnfjoinmodules_i(nf, G,prhinv, Id,I);
     /* express W in terms of the power basis */
     W = nfM_mul(nf, W, gel(pseudo,1));
     I = gel(pseudo,2);
@@ -3455,7 +3454,7 @@ rnfmaxord(GEN nf, GEN pol, GEN pr, long vdisc)
     if (DEBUGLEVEL>3) err_printf(" new order:\n%Ps\n%Ps\n", W, I);
     if (sep <= 3 || gequal(I,I0)) break;
 
-    if (gc_needed(av1,1) || (cmpt & 3) == 0)
+    if (gc_needed(av1,1))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"rnfmaxord");
       gerepileall(av1,2, &W,&I);
