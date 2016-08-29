@@ -1446,6 +1446,60 @@ idealmul(GEN nf, GEN x, GEN y)
     ax = gcopy(ax? ax: ay);
   gel(res,1) = z; gel(res,2) = ax; return res;
 }
+
+/* Return x, integral in 2-elt form, such that pr^2 = c * x. cf idealpowprime
+ * nf = true nf */
+static GEN
+idealsqrprime(GEN nf, GEN pr, GEN *pc)
+{
+  GEN p = pr_get_p(pr), q, gen;
+  long e = pr_get_e(pr), f = pr_get_f(pr);
+
+  q = (e == 1)? sqri(p): p;
+  if (e <= 2 && e * f == nf_get_degree(nf))
+  { /* pr^e = (p) */
+    *pc = q;
+    return mkvec2(gen_1,gen_0);
+  }
+  gen = nfsqr(nf, pr_get_gen(pr));
+  gen = FpC_red(gen, q);
+  *pc = NULL;
+  return mkvec2(q, gen);
+}
+/* cf idealpow_aux */
+static GEN
+idealsqr_aux(GEN nf, GEN x, long tx)
+{
+  GEN T = nf_get_pol(nf), m, cx, a, alpha;
+  long N = degpol(T);
+  switch(tx)
+  {
+    case id_PRINCIPAL:
+      return idealhnf_principal(nf, nfsqr(nf,x));
+    case id_PRIME:
+      if (pr_is_inert(x)) return scalarmat(sqri(gel(x,1)), N);
+      x = idealsqrprime(nf, x, &cx);
+      x = idealhnf_two(nf,x);
+      return cx? ZM_Z_mul(x, cx): x;
+    default:
+      x = Q_primitive_part(x, &cx);
+      a = mat_ideal_two_elt(nf,x); alpha = gel(a,2); a = gel(a,1);
+      alpha = nfsqr(nf,alpha);
+      m = zk_scalar_or_multable(nf, alpha);
+      if (typ(m) == t_INT) {
+        x = gcdii(sqri(a), m);
+        if (cx) x = gmul(x, gsqr(cx));
+        x = scalarmat(x, N);
+      }
+      else
+      {
+        x = ZM_hnfmodid(m, gcdii(sqri(a), zkmultable_capZ(m)));
+        if (cx) cx = gsqr(cx);
+        if (cx) x = RgM_Rg_mul(x, cx);
+      }
+      return x;
+  }
+}
 GEN
 idealsqr(GEN nf, GEN x)
 {
@@ -1454,7 +1508,7 @@ idealsqr(GEN nf, GEN x)
   long tx = idealtyp(&x,&ax);
   res = ax? cgetg(3,t_VEC): NULL; /*product is an extended ideal*/
   av = avma;
-  z = gerepileupto(av, idealmul_aux(checknf(nf), x,x, tx,tx));
+  z = gerepileupto(av, idealsqr_aux(checknf(nf), x, tx));
   if (!ax) return z;
   gel(res,1) = z;
   gel(res,2) = ext_sqr(nf, ax); return res;
@@ -1628,13 +1682,14 @@ idealpowprime(GEN nf, GEN pr, GEN n, GEN *pc)
       *pc = ginv(p);
     }
   }
+  else if (equalis(n,2)) return idealsqrprime(nf, pr, pc);
   else
   {
     long e = pr_get_e(pr), f = pr_get_f(pr);
     GEN r, m = truedvmdis(n, e, &r);
     if (e * f == nf_get_degree(nf))
     { /* pr^e = (p) */
-      *pc = powii(p,m);
+      if (signe(m)) *pc = powii(p,m);
       if (!signe(r)) return mkvec2(gen_1,gen_0);
       q = p;
       gen = nfpow(nf, pr_get_gen(pr), r);
@@ -1706,15 +1761,12 @@ idealpow_aux(GEN nf, GEN x, long tx, GEN n)
   switch(tx)
   {
     case id_PRINCIPAL:
-      x = nf_to_scalar_or_alg(nf, x);
-      x = (typ(x) == t_POL)? RgXQ_pow(x,n,T): powgi(x,n);
-      return idealhnf_principal(nf,x);
-    case id_PRIME: {
+      return idealhnf_principal(nf, nfpow(nf,x,n));
+    case id_PRIME:
       if (pr_is_inert(x)) return scalarmat(powii(gel(x,1), n), N);
       x = idealpowprime(nf, x, n, &cx);
       x = idealhnf_two(nf,x);
       return cx? RgM_Rg_mul(x, cx): x;
-    }
     default:
       if (is_pm1(n)) return (s < 0)? idealinv(nf, x): gcopy(x);
       n1 = (s < 0)? negi(n): n;
@@ -1724,13 +1776,14 @@ idealpow_aux(GEN nf, GEN x, long tx, GEN n)
       alpha = nfpow(nf,alpha,n1);
       m = zk_scalar_or_multable(nf, alpha);
       if (typ(m) == t_INT) {
-        x = gcdii(m, powii(a,n1));
+        x = gcdii(powii(a,n1), m);
         if (s<0) x = ginv(x);
         if (cx) x = gmul(x, powgi(cx,n));
         x = scalarmat(x, N);
       }
-      else {
-        x = ZM_hnfmodid(m, powii(a,n1));
+      else
+      {
+        x = ZM_hnfmodid(m, gcdii(powii(a,n1), zkmultable_capZ(m)));
         if (cx) cx = powgi(cx,n);
         if (s<0) {
           GEN xZ = gcoeff(x,1,1);
@@ -2290,15 +2343,17 @@ idealprodprime(GEN nf, GEN L)
   return z;
 }
 
+/* optimize for the frequent case I = nfhnf()[2]: lots of them are 1 */
 GEN
 idealprod(GEN nf, GEN I)
 {
   long i, l = lg(I);
   GEN z;
-  if (l == 1) return matid(nf_get_degree(nf));
-  z = gel(I,1);
-  for (i=2; i<l; i++) z = idealmul(nf, z, gel(I,i));
-  if (typ(z) != t_MAT) z = idealhnf(nf, z);
+  for (i = 1; i < l; i++)
+    if (!equali1(gel(I,i))) break;
+  if (i == l) return gen_1;
+  z = gel(I,i);
+  for (i++; i<l; i++) z = idealmul(nf, z, gel(I,i));
   return z;
 }
 

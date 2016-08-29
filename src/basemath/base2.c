@@ -3520,7 +3520,8 @@ RgV_nffix(const char *f, GEN T, GEN P, int lift)
   return Q;
 }
 
-/* determinant of the trace pairing */
+#if 0
+/* determinant of the trace pairing. FIXME: unused; for rnfmaxord ? */
 static GEN
 get_d(GEN nf, GEN pol, GEN A)
 {
@@ -3539,6 +3540,7 @@ get_d(GEN nf, GEN pol, GEN A)
     }
   return nf_to_scalar_or_basis(nf, det(T));
 }
+#endif
 
 /* nf = base field K
  * pol= monic polynomial, coefficients in Z_K, defining a relative
@@ -3549,7 +3551,7 @@ GEN
 rnfallbase(GEN nf, GEN *ppol, GEN *pD, GEN *pd, GEN *pf)
 {
   long i, n, l;
-  GEN A, nfT, fa, E, P, I, z, d, D, disc, pol = *ppol;
+  GEN nfT, fa, E, P, z, D, disc, pol = *ppol;
 
   nf = checknf(nf); nfT = nf_get_pol(nf);
   pol = RgX_nffix("rnfallbase", nfT,pol,0);
@@ -3557,7 +3559,8 @@ rnfallbase(GEN nf, GEN *ppol, GEN *pD, GEN *pd, GEN *pf)
     pari_err_IMPL("non-monic relative polynomials");
 
   n = degpol(pol);
-  disc = RgX_disc(pol); pol = lift_intern(pol);
+  disc = nf_to_scalar_or_basis(nf, RgX_disc(pol));
+  pol = lift_intern(pol);
   fa = idealfactor(nf, disc);
   P = gel(fa,1); l = lg(P);
   E = gel(fa,2);
@@ -3567,24 +3570,23 @@ rnfallbase(GEN nf, GEN *ppol, GEN *pD, GEN *pd, GEN *pf)
     long e = itos(gel(E,i));
     if (e > 1) z = rnfjoinmodules(nf, z, rnfmaxord(nf, pol, gel(P,i), e));
   }
-  if (!z) z = triv_order(n);
-  A = gel(z,1); d = get_d(nf, pol, A);
-  I = gel(z,2);
-  i=1; while (i<=n && equali1(gel(I,i))) i++;
-  if (i > n) { D = gen_1; if (pf) *pf = gen_1; }
+  if (z) D = idealprod(nf, gel(z,2)); else { z = triv_order(n); D = gen_1; }
+  if (isint1(D))
+  {
+    if (pf) *pf = gen_1;
+    D = disc;
+  }
   else
   {
-    D = gel(I,i);
-    for (i++; i<=n; i++) D = idealmul(nf,D,gel(I,i));
     if (pf) *pf = idealinv(nf, D);
-    D = idealpow(nf,D,gen_2);
+    D = idealmul(nf, disc, idealsqr(nf,D));
   }
   if (pd)
   {
-    GEN f = core2partial(Q_content(d), 0);
-    *pd = gdiv(d, sqri(gel(f,2)));
+    GEN f = core2partial(Q_content(disc), 0);
+    *pd = gdiv(disc, sqri(gel(f,2)));
   }
-  *pD = idealmul(nf,D,d);
+  *pD = D;
   *ppol = pol; return z;
 }
 
