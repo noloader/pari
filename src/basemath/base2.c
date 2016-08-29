@@ -3229,24 +3229,28 @@ rnfdedekind(GEN nf, GEN P, GEN pr, long flag)
 {
   pari_sp av = avma;
   GEN z, dP;
+  long v;
 
   nf = checknf(nf);
   P = RgX_nffix("rnfdedekind", nf_get_pol(nf), P, 0);
   dP = RgX_disc(P); P = lift_intern(P);
-  if (!pr) {
+  if (!pr)
+  {
     GEN fa = idealfactor(nf, dP);
     GEN Q = gel(fa,1), E = gel(fa,2);
     pari_sp av2 = avma;
     long i, l = lg(Q);
     for (i = 1; i < l; i++, avma = av2)
     {
-      long v = itos(gel(E,i));
+      v = itos(gel(E,i));
       if (rnfdedekind_i(nf,P,gel(Q,i),v,1)) { avma=av; return gen_0; }
       avma = av2;
     }
     avma = av; return gen_1;
-  } else if (typ(pr) == t_VEC) {
-    if (lg(pr) == 1) { avma = av; return gen_1; } /* flag = 1 is implicit */
+  }
+  else if (typ(pr) == t_VEC)
+  { /* flag = 1 is implicit */
+    if (lg(pr) == 1) { avma = av; return gen_1; }
     if (typ(gel(pr,1)) == t_VEC)
     { /* list of primes */
       GEN Q = pr;
@@ -3254,7 +3258,7 @@ rnfdedekind(GEN nf, GEN P, GEN pr, long flag)
       long i, l = lg(Q);
       for (i = 1; i < l; i++, avma = av2)
       {
-        long v = nfval(nf, dP, gel(Q,i));
+        v = nfval(nf, dP, gel(Q,i));
         if (rnfdedekind_i(nf,P,gel(Q,i),v,1)) { avma=av; return gen_0; }
       }
       avma = av; return gen_1;
