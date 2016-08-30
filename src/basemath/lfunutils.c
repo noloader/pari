@@ -1529,8 +1529,7 @@ qf_iseven(GEN M)
 {
   long i, n = lg(M) - 1;
   for (i=1; i<=n; i++)
-    if (mpodd(gcoeff(M,i,i)))
-      return 0;
+    if (mpodd(gcoeff(M,i,i))) return 0;
   return 1;
 }
 
@@ -1539,22 +1538,31 @@ lfunqf(GEN M, long prec)
 {
   pari_sp ltop = avma;
   long n, k;
-  GEN d, Mi;
-  GEN Ldata, poles, res0, res2, D, eno, dual;
+  GEN D, d, Mi, cMi, detM, Ldata, poles, res0, res2, eno, dual;
 
   if (typ(M) != t_MAT) pari_err_TYPE("lfunqf", M);
   if (!RgM_is_ZM(M))   pari_err_TYPE("lfunqf [not integral]", M);
   n = lg(M)-1;
   if (odd(n)) pari_err_TYPE("lfunqf [odd dimension]", M);
   k = n >> 1;
-  M = gdiv(M, content(M));
-  if (!qf_iseven(M)) M = gmul2n(M, 1);
-  Mi = ginv(M); d = denom(Mi);
-  Mi = gmul(Mi, d);
-  if (!qf_iseven(Mi)) { d = gmul2n(d,1); Mi = gmul2n(Mi, 1); }
-  D = gdiv(det(Mi),det(M));
-  if (!ispower(D, utoi(4), &eno))
-    eno = gsqrtn(D, stoi(4), NULL, prec);
+  M = Q_primpart(M); detM = ZM_det(M);
+  Mi = ZM_inv(M, detM); /* det(M) M^(-1) */
+  if (is_pm1(detM)) cMi = NULL; else Mi = Q_primitive_part(Mi, &cMi);
+  d = cMi? diviiexact(detM, cMi): detM; /* denom(M^(-1)) */
+  if (!qf_iseven(M))
+  {
+    M = gmul2n(M, 1);
+    d = shifti(d, 1);
+    detM = shifti(detM,n);
+  }
+  if (!qf_iseven(Mi))
+  {
+    Mi = gmul2n(Mi, 1);
+    d = shifti(d,1);
+  }
+  /* det(Mi) = d^n/det(M), D^2 = det(Mi)/det(M) */
+  D = gdiv(powiu(d,k), detM);
+  if (!issquareall(D, &eno)) eno = gsqrt(D, prec);
   dual = gequal1(D) ? gen_0: tag(Mi, t_LFUN_QF);
   res0 = RgX_to_ser(deg1pol_shallow(gen_m2, gen_0, 0), 3);
   setvalp(res0, -1);
