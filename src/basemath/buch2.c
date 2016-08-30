@@ -278,7 +278,7 @@ FB_aut_perm(FB_t *F, GEN nf, GEN auts, GEN cyclic)
         {
           GEN img = ZM_ZC_mul(aut, pr_get_gen(gel(F->LP, j)));
           for (l = imin; l < i; l++)
-            if (!seen[l] && nfval(nf, img, gel(F->LP, l)))
+            if (!seen[l] && ZC_prdvd(nf, img, gel(F->LP, l)))
             {
               seen[l] = 1; permk0[j] = l; break;
             }
@@ -2860,7 +2860,7 @@ be_honest(FB_t *F, GEN nf, GEN auts, FACT *fact)
     for (j=1; j<J; j++)
     {
       GEN ideal0 = idealhnf_two(nf,gel(P,j)), ideal = ideal0;
-      GEN gen0 = gmael(P, j, 2);
+      GEN gen0 = pr_get_gen(gel(P,j));
       pari_sp av2 = avma;
       if (done_by_autom[j]) continue;
       for (i = 1; i < lg(auts); i++)
@@ -2868,11 +2868,7 @@ be_honest(FB_t *F, GEN nf, GEN auts, FACT *fact)
         GEN gen = gmul(gel(auts,i), gen0);
         long k;
         for (k = j; k < J; k++)
-          if (nfval(nf, gen, gel(P, k)))
-          {
-            done_by_autom[k] = 1;
-            break;
-          }
+          if (ZC_prdvd(nf, gen, gel(P, k))) { done_by_autom[k] = 1; break; }
       }
       for(nbtest=0;;)
       {
