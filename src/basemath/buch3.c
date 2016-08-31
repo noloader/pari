@@ -624,15 +624,15 @@ minkowski_bound(GEN D, long N, long r2, long prec)
   return gerepileuptoleaf(av, c);
 }
 
-/* DK = |dK| */
+/* N = [K:Q] > 1, D = disc(K) */
 static GEN
-zimmertbound(long N,long R2,GEN DK)
+zimmertbound(GEN D, long N, long R2)
 {
   pari_sp av = avma;
   GEN w;
 
-  if (N < 2) return gen_1;
-  if (N < 21)
+  if (N > 20) w = minkowski_bound(D, N, R2, DEFAULTPREC);
+  else
   {
     const double c[19][11] = {
 {/*2*/  0.6931,     0.45158},
@@ -667,11 +667,7 @@ zimmertbound(long N,long R2,GEN DK)
 {/*20*/28.1285704, 27.4021674, 26.6807314, 25.9645140, 25.2537867, 24.5488420,
        23.8499943, 23.1575823, 22.4719720, 21.7935548, 21.1227537}
     };
-    w = mulrr(dbltor(exp(-c[N-2][R2])), gsqrt(DK,DEFAULTPREC));
-  }
-  else
-  {
-    w = minkowski_bound(DK, N, R2, DEFAULTPREC);
+    w = mulrr(dbltor(exp(-c[N-2][R2])), gsqrt(absi(D),DEFAULTPREC));
   }
   return gerepileuptoint(av, ceil_safe(w));
 }
@@ -1169,7 +1165,7 @@ long
 bnfcertify0(GEN bnf, long flag)
 {
   pari_sp av = avma;
-  long i, N;
+  long N;
   GEN nf, cyc, B, U;
   ulong bound, p;
   struct check_pr S;
@@ -1178,7 +1174,7 @@ bnfcertify0(GEN bnf, long flag)
   bnf = checkbnf(bnf);
   nf = bnf_get_nf(bnf);
   N = nf_get_degree(nf); if (N==1) return 1;
-  testprimes(bnf, zimmertbound(N, nf_get_r2(nf), absi(nf_get_disc(nf))));
+  testprimes(bnf, zimmertbound(nf_get_disc(nf), N, nf_get_r2(nf)));
   if (flag) return 1;
 
   U = bnf_build_units(bnf);
@@ -1193,7 +1189,7 @@ bnfcertify0(GEN bnf, long flag)
   B = bound_unit_index(bnf, S.fu);
   if (DEBUGLEVEL)
   {
-    err_printf("PHASE 2 [UNITS]: are all primes good ?\n");
+    err_printf("PHASE 2 [UNITS/RELATIONS]: are all primes good ?\n");
     err_printf("  Testing primes <= %Ps\n", B); err_flush();
   }
   bound = itou_or_0(B);
@@ -1203,12 +1199,12 @@ bnfcertify0(GEN bnf, long flag)
   if (lg(cyc) > 1)
   {
     GEN f = Z_factor(gel(cyc,1)), P = gel(f,1);
-    long l = lg(P);
-    if (DEBUGLEVEL>1) { err_printf("  Testing primes | h(K)\n\n"); err_flush(); }
-    for (i=1; i<l; i++)
+    long i;
+    if (DEBUGLEVEL>1) { err_printf("  Primes dividing h(K)\n\n"); err_flush(); }
+    for (i = lg(P)-1; i; i--)
     {
-      p = itou(gel(P,i));
-      if (p > bound) check_prime(p, nf, &S);
+      p = itou(gel(P,i)); if (p <= bound) break;
+      check_prime(p, nf, &S);
     }
   }
   avma = av; return 1;
