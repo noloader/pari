@@ -2124,7 +2124,10 @@ Idealstar_i(GEN nf, GEN ideal, long flag)
         break;
       case t_VECSMALL:
         archp = arch;
-        arch = vec01_to_indices(archp);
+        k = lg(archp)-1;
+        if (k && archp[k] > R1)
+          pari_err_TYPE("Idealstar [incorrect archimedean component]",arch);
+        arch = indices_to_vec01(archp, R1);
         break;
       default:
         pari_err_TYPE("Idealstar [incorrect archimedean component]",arch);

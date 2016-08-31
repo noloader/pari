@@ -44,6 +44,11 @@ bnrdisc(bnf,[5,3;0,1],H,3)
 bnrclassno(bnf, idealprimedec(bnf,5)[1])
 
 bnr=bnrinit(bnf,[7,[1,1]],1);
+bnrclassno(bnf,[7,Vecsmall([1,2])])
+bnrclassno(bnf,[7,Vecsmall([1])])
+bnrclassno(bnf,[7,Vecsmall([2])])
+bnrclassno(bnf,[7,Vecsmall([])])
+bnrclassno(bnf,[7,Vecsmall([1,2,3])])
 bnrrootnumber(bnr, [2,1])
 bnrrootnumber(bnr, [0,0])
 bnrconductor(bnr,[0,0])

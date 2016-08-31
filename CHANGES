@@ -7,6 +7,7 @@ Done for version 2.8.1 (released ??/??/2016):
     2- crash on BIB in ellpointtoz(t_PADIC) [#1840]
     3- nfisideal(nfinit(x^2+1),[1,0;0,2]) -> 1 instead of 0
     4- intnuminit(-oo,oo,1) -> error [#1847]
+    5- idealstar([f_0,f_oo]) for f_oo t_VECSMALL (place selection) didn't work
 
   Added
     1- permtonum: allow t_VECSMALL input
