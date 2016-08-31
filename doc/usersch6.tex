@@ -1299,10 +1299,12 @@ resulting \kbd{bnf}!), or avoid the computation altogether. In any case the
 decision can be taken at the place where it is most likely to be correct.
 
 \fun{void}{bnftestprimes}{GEN bnf, GEN B} is an ingredient to certify
-unconditionnally a \kbd{bnf} computed assuming GRH (cf. \kbd{bnfcertify}).
-Running this function successfully proves that all prime ideals of norm $\leq
-B$ belong to the factorbase used in \kbd{bnf}. If the condition is not
-true, then (GRH is false and) the function will run forever.
+unconditionnally a \kbd{bnf} computed assuming GRH, cf. \kbd{bnfcertify}.
+Running this function successfully proves that the classes of all prime
+ideals of norm $\leq B$ belong to the subgroup of the class group generated
+by the factorbase used to compute the \kbd{bnf} (equal to the class group
+under GRH). If the condition is not true, then (GRH is false and) the
+function will run forever.
 
 If it is known that primes of norm less than $B$ generate the class group
 (through variants of Minkowski's convex body or Zimmert's twin classes
