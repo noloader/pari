@@ -1445,72 +1445,6 @@ bnf_get_C(GEN bnf) { return gel(bnf,4); }
 INLINE GEN
 bnf_get_vbase(GEN bnf) { return gel(bnf,5); }
 
-/* all primes up to Minkowski bound factor on factorbase ? */
-void
-testprimes(GEN bnf, GEN BOUND)
-{
-  pari_sp av0 = avma, av;
-  ulong pmax, count = 0;
-  GEN Vbase, fb, p, nf = bnf_get_nf(bnf);
-  forprime_t S;
-  FACT *fact;
-  FB_t F;
-
-  if (DEBUGLEVEL)
-  {
-    err_printf("PHASE 1 [CLASS GROUP]: are all primes good ?\n");
-    err_printf("  Testing primes <= %Ps\n", BOUND); err_flush();
-  }
-  if (is_bigint(BOUND))
-    pari_warn(warner,"Zimmert's bound is large (%Ps), certification will take a long time", BOUND);
-  if (!is_pm1(nf_get_index(nf)))
-  {
-    GEN D = nf_get_diff(nf), L;
-    if (DEBUGLEVEL>1) err_printf("**** Testing Different = %Ps\n",D);
-    L = bnfisprincipal0(bnf, D, nf_FORCE);
-    if (DEBUGLEVEL>1) err_printf("     is %Ps\n", L);
-  }
-  /* sort factorbase for tablesearch */
-  Vbase = bnf_get_vbase(bnf);
-  fb = gen_sort(Vbase, (void*)&cmp_prime_ideal, cmp_nodata);
-  pmax = itou( pr_get_p(gel(fb, lg(fb)-1)) ); /* largest p in factorbase */
-  (void)recover_partFB(&F, Vbase, nf_get_degree(nf));
-  fact = (FACT*)stack_malloc((F.KC+1)*sizeof(FACT));
-  forprime_init(&S, gen_2, BOUND);
-  av = avma;
-  while (( p = forprime_next(&S) ))
-  {
-    GEN vP;
-    long i, l;
-
-    if (DEBUGLEVEL == 1 && ++count > 1000)
-    {
-      err_printf("passing p = %Ps / %Ps\n", p, BOUND);
-      count = 0;
-    }
-
-    avma = av;
-    vP = idealprimedec_limit_norm(bnf, p, BOUND);
-    l = lg(vP); if (l == 1) continue;
-    if (DEBUGLEVEL>1) err_printf("*** p = %Ps\n",p);
-    /* if vP[1] unramified, skip it */
-    i = (pr_get_e(gel(vP,1))) == 1? 2: 1;
-    for (; i<l; i++)
-    {
-      GEN P = gel(vP,i);
-      long k;
-      if (DEBUGLEVEL>1) err_printf("  Testing P = %Ps\n",P);
-      if (abscmpiu(p, pmax) <= 0 && (k = tablesearch(fb, P, &cmp_prime_ideal)))
-      { if (DEBUGLEVEL>1) err_printf("    #%ld in factor base\n",k); }
-      else if (DEBUGLEVEL>1)
-        err_printf("    is %Ps\n", isprincipal(bnf,P));
-      else /* faster: don't compute result */
-        (void)SPLIT(&F, nf, idealhnf_two(nf,P), Vbase, fact);
-    }
-  }
-  avma = av0;
-}
-
 /**** logarithmic embeddings ****/
 static GEN famat_to_arch(GEN nf, GEN fa, long prec);
 static GEN
@@ -2830,12 +2764,155 @@ rnd_rel(RELCACHE_t *cache, FB_t *F, GEN nf, FACT *fact)
   }
 }
 
+static GEN
+automorphism_perms(GEN M, GEN auts, GEN cyclic, long N)
+{
+  pari_sp av;
+  const long r1plusr2 = lgcols(M), r1 = 2*r1plusr2-N-2, r2 = r1plusr2-r1-1;
+  long nauts = lg(auts), ncyc = lg(cyclic), i, j, l, m;
+  GEN Mt, perms = cgetg(nauts, t_VEC);
+
+  for (l = 1; l < nauts; l++)
+    gel(perms, l) = cgetg(r1plusr2, t_VECSMALL);
+  av = avma;
+  Mt = shallowtrans(gprec_w(M, 3)); /* need little accuracy */
+  Mt = shallowconcat(Mt, gconj(vecslice(Mt, r1+1, r1+r2)));
+  for (l = 1; l < ncyc; l++)
+  {
+    GEN thiscyc = gel(cyclic, l);
+    long k = thiscyc[1];
+    GEN Nt = RgM_mul(shallowtrans(gel(auts, k)), Mt);
+    GEN perm = gel(perms, k), permprec;
+    pari_sp av2 = avma;
+    for (i = 1; i < r1plusr2; i++, avma = av2)
+    {
+      GEN vec = gel(Nt, i), minnorm;
+      minnorm = gnorml2(gsub(vec, gel(Mt, 1)));
+      perm[i] = 1;
+      for (j = 2; j <= N; j++)
+      {
+        GEN thisnorm = gnorml2(gsub(vec, gel(Mt, j)));
+        if (gcmp(thisnorm, minnorm) < 0)
+        {
+          minnorm = thisnorm;
+          perm[i] = j >= r1plusr2 ? r2-j : j;
+        }
+      }
+    }
+    for (permprec = perm, m = 2; m < lg(thiscyc); m++)
+    {
+      GEN thisperm = gel(perms, thiscyc[m]);
+      for (i = 1; i < r1plusr2; i++)
+      {
+        long pp = labs(permprec[i]);
+        thisperm[i] = permprec[i] < 0 ? -perm[pp] : perm[pp];
+      }
+      permprec = thisperm;
+    }
+  }
+  avma = av;
+  return perms;
+}
+
+/* Determine the field automorphisms and its matrix in the integral basis. */
+static GEN
+automorphism_matrices(GEN nf, GEN *invp, GEN *cycp)
+{
+  pari_sp av = avma;
+  GEN auts = galoisconj(nf, NULL), mats, cyclic, cyclicidx;
+  GEN invs;
+  long nauts = lg(auts)-1, i, j, k, l;
+
+  cyclic = cgetg(nauts+1, t_VEC);
+  cyclicidx = zero_Flv(nauts);
+  invs = zero_Flv(nauts-1);
+  for (l = 1; l <= nauts; l++)
+  {
+    GEN aut = gel(auts, l);
+    if (gequalX(aut)) { swap(gel(auts, l), gel(auts, nauts)); break; }
+  }
+  /* trivial automorphism is last */
+  for (l = 1; l <= nauts; l++) gel(auts, l) = algtobasis(nf, gel(auts, l));
+  /* Compute maximal cyclic subgroups */
+  for (l = nauts; --l > 0; )
+    if (!cyclicidx[l])
+    {
+      GEN elt = gel(auts, l), aut = elt, cyc = cgetg(nauts+1, t_VECSMALL);
+      cyclicidx[l] = l;
+      cyc[1] = l;
+      j = 1;
+      do
+      {
+        elt = galoisapply(nf, elt, aut);
+        for (k = 1; k <= nauts; k++) if (gequal(elt, gel(auts, k))) break;
+        cyclicidx[k] = l;
+        cyc[++j] = k;
+      }
+      while (k != nauts);
+      setlg(cyc, j);
+      gel(cyclic, l) = cyc;
+      /* Store the inverses */
+      for (i = 1; i <= j/2; i++)
+      {
+        invs[cyc[i]] = cyc[j-i];
+        invs[cyc[j-i]] = cyc[i];
+      }
+    }
+  for (i = j = 1; i < nauts; i++)
+    if (cyclicidx[i] == i) cyclic[j++] = cyclic[i];
+  setlg(cyclic, j);
+  mats = cgetg(nauts, t_VEC);
+  while (--j > 0)
+  {
+    GEN cyc = gel(cyclic, j);
+    long id = cyc[1];
+    GEN M, Mi, aut = gel(auts, id);
+
+    gel(mats, id) = Mi = M = nfgaloismatrix(nf, aut);
+    for (i = 2; i < lg(cyc); i++)
+    {
+      Mi = ZM_mul(Mi, M);
+      gel(mats, cyc[i]) = Mi;
+    }
+  }
+  gerepileall(av, 3, &mats, &invs, &cyclic);
+  *invp = invs;
+  *cycp = cyclic;
+  return mats;
+}
+
+/* vP a list of maximal ideals above the same p from idealprimedec: f(P/p) is
+ * increasing; 1 <= j <= #vP; orbit a zc of length <= #vP; auts a vector of
+ * automorphisms in ZM form.
+ * Set orbit[i] = 1 for all vP[i], i >= j, in the orbit of pr = vP[j] wrt auts.
+ * N.B.1 orbit need not be initialized to 0: useful to incrementally run
+ * through successive orbits
+ * N.B.2 i >= j, so primes with index < j will be missed; run incrementally
+ * starting from j = 1 ! */
+static void
+pr_orbit_fill(GEN orbit, GEN nf, GEN auts, GEN vP, long j)
+{
+  GEN pr = gel(vP,j), gen = pr_get_gen(pr);
+  long i, l = lg(auts), J = lg(orbit), f = pr_get_f(pr);
+  orbit[j] = 1;
+  for (i = 1; i < l; i++)
+  {
+    GEN g = ZM_ZC_mul(gel(auts,i), gen);
+    long k;
+    for (k = j+1; k < J; k++)
+    {
+      GEN prk = gel(vP,k);
+      if (pr_get_f(prk) > f) break; /* f(P[k]) increases with k */
+      /* don't check that e matches: (almost) always 1 ! */
+      if (!orbit[k] && ZC_prdvd(nf, g, prk)) { orbit[k] = 1; break; }
+    }
+  }
+}
 /* remark: F->KCZ changes if be_honest() fails */
 static int
 be_honest(FB_t *F, GEN nf, GEN auts, FACT *fact)
 {
-  GEN P, done_by_autom;
-  long ex, i, j, J, iz, nbtest;
+  long ex, i, iz, nbtest;
   long lgsub = lg(F->subFB), KCZ0 = F->KCZ;
   long N = nf_get_degree(nf), prec = nf_get_prec(nf);
   GEN M = nf_get_M(nf), G = nf_get_G(nf);
@@ -2847,42 +2924,41 @@ be_honest(FB_t *F, GEN nf, GEN auts, FACT *fact)
                F->FB[ F->KCZ+1 ], F->FB[ F->KCZ2 ]);
   }
   minim_alloc(N+1, &fp.q, &fp.x, &fp.y, &fp.z, &fp.v);
+  if (lg(auts) == 1) auts = NULL;
   av = avma;
   for (iz=F->KCZ+1; iz<=F->KCZ2; iz++, avma = av)
   {
     long p = F->FB[iz];
-    P = F->LV[p]; J = lg(P);
-    /* all P|p in FB + last is unramified --> check all but last */
-    if (isclone(P) && pr_get_e(gel(P,J-1)) == 1) J--;
+    GEN pr_orbit, P = F->LV[p];
+    long j, J = lg(P); /* > 1 */
+    /* the P|p, NP > C2 are assumed in subgroup generated by FB + last P
+     * with NP <= C2 is unramified --> check all but last */
+    if (pr_get_e(gel(P,J-1)) == 1) J--;
+    if (J == 1) continue;
     if (DEBUGLEVEL>1) err_printf("%ld ", p);
-    done_by_autom = zero_zv(J);
-
-    for (j=1; j<J; j++)
+    pr_orbit = auts? zero_zv(J-1): NULL;
+    for (j = 1; j < J; j++)
     {
-      GEN ideal0 = idealhnf_two(nf,gel(P,j)), ideal = ideal0;
-      GEN gen0 = pr_get_gen(gel(P,j));
-      pari_sp av2 = avma;
-      if (done_by_autom[j]) continue;
-      for (i = 1; i < lg(auts); i++)
+      GEN ideal, ideal0;
+      if (pr_orbit)
       {
-        GEN gen = gmul(gel(auts,i), gen0);
-        long k;
-        for (k = j; k < J; k++)
-          if (ZC_prdvd(nf, gen, gel(P, k))) { done_by_autom[k] = 1; break; }
+        if (pr_orbit[j]) continue;
+        /* discard all primes in automorphism orbit simultaneously */
+        pr_orbit_fill(pr_orbit, nf, auts, P, j);
       }
-      for(nbtest=0;;)
+      ideal = ideal0 = idealhnf_two(nf,gel(P,j));
+      for (nbtest=0;;)
       {
         if (Fincke_Pohst_ideal(NULL, F, nf, M, G, ideal, fact, 0, &fp,
-              NULL, prec, NULL, NULL))
-          break;
-        avma = av2;
+                               NULL, prec, NULL, NULL)) break;
         if (++nbtest > maxtry_HONEST)
         {
           if (DEBUGLEVEL)
-            pari_warn(warner,"be_honest() failure on prime %Ps\n", P[j]);
+            pari_warn(warner,"be_honest() failure on prime %Ps\n", gel(P,j));
           return 0;
         }
         ideal = ideal0;
+        /* occurs at most once in the whole function */
         if (F->newpow) powFBgen(NULL, F, nf, auts);
         for (i=1; i<lgsub; i++)
         {
@@ -2892,11 +2968,87 @@ be_honest(FB_t *F, GEN nf, GEN auts, FACT *fact)
         }
         ideal = remove_content(ideal);
       }
-      avma = av2;
     }
     F->KCZ++; /* SUCCESS, "enlarge" factorbase */
   }
   F->KCZ = KCZ0; avma = av; return 1;
+}
+
+/* all primes up to Minkowski bound factor on factorbase ? */
+void
+testprimes(GEN bnf, GEN BOUND)
+{
+  pari_sp av0 = avma, av;
+  ulong pmax, count = 0;
+  GEN auts, Vbase, fb, p, nf = bnf_get_nf(bnf);
+  GEN invs, cyclic; /* unused */
+  forprime_t S;
+  FACT *fact;
+  FB_t F;
+
+  if (DEBUGLEVEL)
+  {
+    err_printf("PHASE 1 [CLASS GROUP]: are all primes good ?\n");
+    err_printf("  Testing primes <= %Ps\n", BOUND); err_flush();
+  }
+  if (is_bigint(BOUND))
+    pari_warn(warner,"Zimmert's bound is large (%Ps), certification will take a long time", BOUND);
+  if (!is_pm1(nf_get_index(nf)))
+  {
+    GEN D = nf_get_diff(nf), L;
+    if (DEBUGLEVEL>1) err_printf("**** Testing Different = %Ps\n",D);
+    L = bnfisprincipal0(bnf, D, nf_FORCE);
+    if (DEBUGLEVEL>1) err_printf("     is %Ps\n", L);
+  }
+  /* sort factorbase for tablesearch */
+  Vbase = bnf_get_vbase(bnf);
+  fb = gen_sort(Vbase, (void*)&cmp_prime_ideal, cmp_nodata);
+  pmax = itou( pr_get_p(gel(fb, lg(fb)-1)) ); /* largest p in factorbase */
+  (void)recover_partFB(&F, Vbase, nf_get_degree(nf));
+  fact = (FACT*)stack_malloc((F.KC+1)*sizeof(FACT));
+  forprime_init(&S, gen_2, BOUND);
+  auts = automorphism_matrices(nf, &invs, &cyclic);
+  if (lg(auts) == 1) auts = NULL;
+  av = avma;
+  while (( p = forprime_next(&S) ))
+  {
+    GEN pr_orbit, vP;
+    long j, J;
+
+    if (DEBUGLEVEL == 1 && ++count > 1000)
+    {
+      err_printf("passing p = %Ps / %Ps\n", p, BOUND);
+      count = 0;
+    }
+
+    avma = av;
+    vP = idealprimedec_limit_norm(bnf, p, BOUND);
+    J = lg(vP);
+    /* if last is unramified, all P|p in subgroup generated by FB: skip last */
+    if (J > 1 && pr_get_e(gel(vP,J-1)) == 1) J--;
+    if (J == 1) continue;
+    if (DEBUGLEVEL>1) err_printf("*** p = %Ps\n",p);
+    pr_orbit = auts? zero_zv(J-1): NULL;
+    for (j = 1; j < J; j++)
+    {
+      GEN P = gel(vP,j);
+      long k;
+      if (pr_orbit)
+      {
+        if (pr_orbit[j]) continue;
+        /* discard all primes in automorphism orbit simultaneously */
+        pr_orbit_fill(pr_orbit, nf, auts, vP, j);
+      }
+      if (DEBUGLEVEL>1) err_printf("  Testing P = %Ps\n",P);
+      if (abscmpiu(p, pmax) <= 0 && (k = tablesearch(fb, P, &cmp_prime_ideal)))
+      { if (DEBUGLEVEL>1) err_printf("    #%ld in factor base\n",k); }
+      else if (DEBUGLEVEL>1)
+        err_printf("    is %Ps\n", isprincipal(bnf,P));
+      else /* faster: don't compute result */
+        (void)SPLIT(&F, nf, idealhnf_two(nf,P), Vbase, fact);
+    }
+  }
+  avma = av0;
 }
 
 /* A t_MAT of complex floats, in fact reals. Extract a submatrix B
@@ -3783,127 +3935,6 @@ compute_vecG(GEN nf, FB_t *F, long n)
   for (ind=j=1; j<=n; j++)
     for (i=1; i<=j; i++) gel(vecG,ind++) = shift_G(G0,Gtw0,i,j,r1);
   F->G0 = G0; F->vecG = vecG;
-}
-
-static GEN
-automorphism_perms(GEN M, GEN auts, GEN cyclic, long N)
-{
-  pari_sp av;
-  const long r1plusr2 = lgcols(M), r1 = 2*r1plusr2-N-2, r2 = r1plusr2-r1-1;
-  long nauts = lg(auts), ncyc = lg(cyclic), i, j, l, m;
-  GEN Mt, perms = cgetg(nauts, t_VEC);
-
-  for (l = 1; l < nauts; l++)
-    gel(perms, l) = cgetg(r1plusr2, t_VECSMALL);
-  av = avma;
-  Mt = shallowtrans(gprec_w(M, 3)); /* need little accuracy */
-  Mt = shallowconcat(Mt, gconj(vecslice(Mt, r1+1, r1+r2)));
-  for (l = 1; l < ncyc; l++)
-  {
-    GEN thiscyc = gel(cyclic, l);
-    long k = thiscyc[1];
-    GEN Nt = RgM_mul(shallowtrans(gel(auts, k)), Mt);
-    GEN perm = gel(perms, k), permprec;
-    pari_sp av2 = avma;
-    for (i = 1; i < r1plusr2; i++, avma = av2)
-    {
-      GEN vec = gel(Nt, i), minnorm;
-      minnorm = gnorml2(gsub(vec, gel(Mt, 1)));
-      perm[i] = 1;
-      for (j = 2; j <= N; j++)
-      {
-        GEN thisnorm = gnorml2(gsub(vec, gel(Mt, j)));
-        if (gcmp(thisnorm, minnorm) < 0)
-        {
-          minnorm = thisnorm;
-          perm[i] = j >= r1plusr2 ? r2-j : j;
-        }
-      }
-    }
-    for (permprec = perm, m = 2; m < lg(thiscyc); m++)
-    {
-      GEN thisperm = gel(perms, thiscyc[m]);
-      for (i = 1; i < r1plusr2; i++)
-      {
-        long pp = labs(permprec[i]);
-        thisperm[i] = permprec[i] < 0 ? -perm[pp] : perm[pp];
-      }
-      permprec = thisperm;
-    }
-  }
-  avma = av;
-  return perms;
-}
-
-/* Determine the field automorphisms and its matrix in the integral basis. */
-static GEN
-automorphism_matrices(GEN nf, GEN *invp, GEN *cycp)
-{
-  pari_sp av = avma;
-  GEN auts = galoisconj(nf, NULL), mats, cyclic, cyclicidx;
-  GEN invs;
-  long nauts = lg(auts)-1, i, j, k, l;
-
-  cyclic = cgetg(nauts+1, t_VEC);
-  cyclicidx = zero_Flv(nauts);
-  invs = zero_Flv(nauts-1);
-  for (l = 1; l <= nauts; l++)
-  {
-    GEN aut = gel(auts, l);
-    if (degpol(aut) == 1 && isint1(leading_coeff(aut)) &&
-        isintzero(constant_coeff(aut)))
-    {
-      swap(gel(auts, l), gel(auts, nauts));
-      break;
-    }
-  }
-  for (l = 1; l <= nauts; l++) gel(auts, l) = algtobasis(nf, gel(auts, l));
-  /* Compute maximal cyclic subgroups */
-  for (l = nauts; --l > 0; )
-    if (!cyclicidx[l])
-    {
-      GEN elt = gel(auts, l), aut = elt, cyc = cgetg(nauts+1, t_VECSMALL);
-      cyclicidx[l] = l;
-      cyc[1] = l;
-      j = 1;
-      do
-      {
-        elt = galoisapply(nf, elt, aut);
-        for (k = 1; k <= nauts; k++) if (gequal(elt, gel(auts, k))) break;
-        cyclicidx[k] = l;
-        cyc[++j] = k;
-      }
-      while (k != nauts);
-      setlg(cyc, j);
-      gel(cyclic, l) = cyc;
-      /* Store the inverses */
-      for (i = 1; i <= j/2; i++)
-      {
-        invs[cyc[i]] = cyc[j-i];
-        invs[cyc[j-i]] = cyc[i];
-      }
-    }
-  for (i = j = 1; i < nauts; i++)
-    if (cyclicidx[i] == i) cyclic[j++] = cyclic[i];
-  setlg(cyclic, j);
-  mats = cgetg(nauts, t_VEC);
-  while (--j > 0)
-  {
-    GEN cyc = gel(cyclic, j);
-    long id = cyc[1];
-    GEN M, Mi, aut = gel(auts, id);
-
-    gel(mats, id) = Mi = M = nfgaloismatrix(nf, aut);
-    for (i = 2; i < lg(cyc); i++)
-    {
-      Mi = ZM_mul(Mi, M);
-      gel(mats, cyc[i]) = Mi;
-    }
-  }
-  gerepileall(av, 3, &mats, &invs, &cyclic);
-  *invp = invs;
-  *cycp = cyclic;
-  return mats;
 }
 
 static GEN

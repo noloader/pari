@@ -49,6 +49,7 @@ Done for version 2.8.1 (released ??/??/2016):
     9- nfelt* functions may now return scalars (t_INT/t_FRAC) in addition to
        t_COL on nf.zk basis.
    10- remove flag = 2 in nfgaloisconj (slow, unreliable, obsolete for 15 years)
+   11- bnfcertify(K): use automorphisms (speedup roughly #Aut_Q(K))
 
 Done for version 2.8.0 (released 12/08/2016):
 
