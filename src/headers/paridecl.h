@@ -2280,6 +2280,7 @@ GEN     bnfisprincipal0(GEN bnf, GEN x,long flall);
 GEN     bnfisunit(GEN bignf, GEN x);
 GEN     bnfnewprec(GEN nf, long prec);
 GEN     bnfnewprec_shallow(GEN nf, long prec);
+void    bnftestprimes(GEN bnf, GEN bound);
 GEN     bnrnewprec(GEN bnr, long prec);
 GEN     bnrnewprec_shallow(GEN bnr, long prec);
 GEN     isprincipalfact(GEN bnf, GEN C, GEN L, GEN f, long flag);

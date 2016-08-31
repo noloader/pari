@@ -185,7 +185,6 @@ GEN    primedec_apply_kummer(GEN nf,GEN pol,long e,GEN p);
 GEN    rnfallbase(GEN nf, GEN *ppol, GEN *pD, GEN *pd, GEN *pfi);
 GEN    special_anti_uniformizer(GEN nf, GEN pr);
 GEN    subgroupcondlist(GEN cyc, GEN bound, GEN listKer);
-void   testprimes(GEN bnf, GEN bound);
 GEN    unif_mod_fZ(GEN pr, GEN F);
 GEN    ideallog_sgn(GEN nf, GEN x, GEN sgn, GEN bid);
 GEN    zlog_units(GEN nf, GEN U, GEN sgnU, GEN bid);

@@ -2876,8 +2876,8 @@ automorphism_matrices(GEN nf, GEN *invp, GEN *cycp)
     }
   }
   gerepileall(av, 3, &mats, &invs, &cyclic);
-  *invp = invs;
-  *cycp = cyclic;
+  if (invp) *invp = invs;
+  if (cycp) *cycp = cyclic;
   return mats;
 }
 
@@ -2974,40 +2974,23 @@ be_honest(FB_t *F, GEN nf, GEN auts, FACT *fact)
   F->KCZ = KCZ0; avma = av; return 1;
 }
 
-/* all primes up to Minkowski bound factor on factorbase ? */
+/* all primes with N(P) <= BOUND factor on factorbase ? */
 void
-testprimes(GEN bnf, GEN BOUND)
+bnftestprimes(GEN bnf, GEN BOUND)
 {
   pari_sp av0 = avma, av;
-  ulong pmax, count = 0;
-  GEN auts, Vbase, fb, p, nf = bnf_get_nf(bnf);
-  GEN invs, cyclic; /* unused */
+  ulong count = 0;
+  GEN auts, p, nf = bnf_get_nf(bnf), Vbase = bnf_get_vbase(bnf);
+  GEN fb = gen_sort(Vbase, (void*)&cmp_prime_ideal, cmp_nodata); /*tablesearch*/
+  ulong pmax = itou( pr_get_p(gel(fb, lg(fb)-1)) ); /*largest p in factorbase*/
   forprime_t S;
   FACT *fact;
   FB_t F;
 
-  if (DEBUGLEVEL)
-  {
-    err_printf("PHASE 1 [CLASS GROUP]: are all primes good ?\n");
-    err_printf("  Testing primes <= %Ps\n", BOUND); err_flush();
-  }
-  if (is_bigint(BOUND))
-    pari_warn(warner,"Zimmert's bound is large (%Ps), certification will take a long time", BOUND);
-  if (!is_pm1(nf_get_index(nf)))
-  {
-    GEN D = nf_get_diff(nf), L;
-    if (DEBUGLEVEL>1) err_printf("**** Testing Different = %Ps\n",D);
-    L = bnfisprincipal0(bnf, D, nf_FORCE);
-    if (DEBUGLEVEL>1) err_printf("     is %Ps\n", L);
-  }
-  /* sort factorbase for tablesearch */
-  Vbase = bnf_get_vbase(bnf);
-  fb = gen_sort(Vbase, (void*)&cmp_prime_ideal, cmp_nodata);
-  pmax = itou( pr_get_p(gel(fb, lg(fb)-1)) ); /* largest p in factorbase */
   (void)recover_partFB(&F, Vbase, nf_get_degree(nf));
   fact = (FACT*)stack_malloc((F.KC+1)*sizeof(FACT));
   forprime_init(&S, gen_2, BOUND);
-  auts = automorphism_matrices(nf, &invs, &cyclic);
+  auts = automorphism_matrices(nf, NULL, NULL);
   if (lg(auts) == 1) auts = NULL;
   av = avma;
   while (( p = forprime_next(&S) ))
@@ -3020,7 +3003,6 @@ testprimes(GEN bnf, GEN BOUND)
       err_printf("passing p = %Ps / %Ps\n", p, BOUND);
       count = 0;
     }
-
     avma = av;
     vP = idealprimedec_limit_norm(bnf, p, BOUND);
     J = lg(vP);

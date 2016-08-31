@@ -1174,7 +1174,22 @@ bnfcertify0(GEN bnf, long flag)
   bnf = checkbnf(bnf);
   nf = bnf_get_nf(bnf);
   N = nf_get_degree(nf); if (N==1) return 1;
-  testprimes(bnf, zimmertbound(nf_get_disc(nf), N, nf_get_r2(nf)));
+  B = zimmertbound(nf_get_disc(nf), N, nf_get_r2(nf));
+  if (is_bigint(B))
+    pari_warn(warner,"Zimmert's bound is large (%Ps), certification will take a long time", B);
+  if (!is_pm1(nf_get_index(nf)))
+  {
+    GEN D = nf_get_diff(nf), L;
+    if (DEBUGLEVEL>1) err_printf("**** Testing Different = %Ps\n",D);
+    L = bnfisprincipal0(bnf, D, nf_FORCE);
+    if (DEBUGLEVEL>1) err_printf("     is %Ps\n", L);
+  }
+  if (DEBUGLEVEL)
+  {
+    err_printf("PHASE 1 [CLASS GROUP]: are all primes good ?\n");
+    err_printf("  Testing primes <= %Ps\n", B); err_flush();
+  }
+  bnftestprimes(bnf, B);
   if (flag) return 1;
 
   U = bnf_build_units(bnf);

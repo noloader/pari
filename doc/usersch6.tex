@@ -1298,6 +1298,17 @@ may decide to increase the accuracy using \tet{bnfnewprec} (and keep the
 resulting \kbd{bnf}!), or avoid the computation altogether. In any case the
 decision can be taken at the place where it is most likely to be correct.
 
+\fun{void}{bnftestprimes}{GEN bnf, GEN B} is an ingredient to certify
+unconditionnally a \kbd{bnf} computed assuming GRH (cf. \kbd{bnfcertify}).
+Running this function successfully proves that all prime ideals of norm $\leq
+B$ belong to the factorbase used in \kbd{bnf}. If the condition is not
+true, then (GRH is false and) the function will run forever.
+
+If it is known that primes of norm less than $B$ generate the class group
+(through variants of Minkowski's convex body or Zimmert's twin classes
+theorems), then the true class group is proven to be a quotient of
+\kbd{bnf.clgp}.
+
 \subsec{Floating point embeddings, the $T_2$ quadratic form}
 
 We assume the \var{nf} is a true \kbd{nf} structure, attached to a number
