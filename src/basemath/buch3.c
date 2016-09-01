@@ -2281,14 +2281,15 @@ discrayabslistarch(GEN bnf, GEN arch, ulong bound)
   U = bnf_build_units(bnf);
   sgnU = nfsign_units(bnf, NULL, 1);
 
-  if (allarch) arch = const_vec(r1, gen_1);
-  bidp = Idealstar(nf, mkvec2(gen_1, arch), nf_INIT);
   if (allarch) {
+    arch = const_vec(r1, gen_1);
+    bidp = Idealstar(nf, mkvec2(gen_1, arch), nf_INIT);
     matarchunit = zlog_units(nf, U, sgnU, bidp);
-    bidp = Idealstar(nf,matid(degk), nf_INIT);
+    bidp = Idealstar(nf, gen_1, nf_INIT);
     if (r1>15) pari_err_IMPL("r1>15 in discrayabslistarch");
     nba = r1;
   } else {
+    bidp = Idealstar(nf, mkvec2(gen_1, arch), nf_INIT);
     matarchunit = NULL;
     for (nba=0,k=1; k<=r1; k++) if (signe(gel(arch,k))) nba++;
   }

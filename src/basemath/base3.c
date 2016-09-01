@@ -1975,13 +1975,13 @@ get_index(GEN lists)
 }
 
 static void
-init_zlog(zlog_S *S, long n, GEN P, GEN e, GEN arch, GEN lists, GEN U)
+init_zlog(zlog_S *S, long n, GEN P, GEN e, GEN archp, GEN lists, GEN U)
 {
   S->n = n;
   S->U = U;
   S->P = P;
   S->e = e;
-  S->archp = vec01_to_indices(arch);
+  S->archp = archp;
   S->lists = lists;
   S->ind = get_index(lists);
 }
@@ -1989,8 +1989,8 @@ void
 init_zlog_bid(zlog_S *S, GEN bid)
 {
   GEN fa = bid_get_fact(bid), lists = gel(bid,4), U = bid_get_U(bid);
-  GEN arch = gel(bid_get_mod(bid), 2);
-  init_zlog(S, lg(U)-1, gel(fa,1), gel(fa,2), arch, lists, U);
+  GEN archp = vec01_to_indices(bid_get_arch(bid));
+  init_zlog(S, lg(U)-1, gel(fa,1), gel(fa,2), archp, lists, U);
 }
 
 /* Return decomposition of a on the S->n successive generators contained in
@@ -2552,7 +2552,7 @@ zlog_units_noarch(GEN nf, GEN U, GEN bid)
 static GEN
 zlog_unitsarch(GEN sgnU, GEN bid)
 {
-  GEN lists = gel(bid,4), arch = gmael(bid,1,2);
+  GEN lists = gel(bid,4), arch = bid_get_arch(bid);
   GEN listslast = gel(lists,lg(lists)-1);
   GEN m = rowpermute(sgnU, vec01_to_indices(arch));
   return Flm_mul(gel(listslast,3), m, 2);
@@ -2655,12 +2655,13 @@ static GEN
 join_bid_arch(GEN nf, GEN bid1, GEN arch)
 {
   pari_sp av = avma;
-  GEN f1, G1, fa1, U;
+  GEN G1, fa1, U;
   GEN lists, cyc, y, u1 = NULL, x, sarch, gen;
 
   checkbid(bid1);
-  f1 = gel(bid1,1); G1 = gel(bid1,2); fa1 = gel(bid1,3);
-  x = gel(f1,1);
+  G1 = bid_get_grp(bid1);
+  fa1= bid_get_fact(bid1);
+  x = bid_get_ideal(bid1);
   sarch = nfarchstar(nf, x, arch);
   lists = leafcopy(gel(bid1,4));
   gel(lists,lg(lists)-1) = sarch;
