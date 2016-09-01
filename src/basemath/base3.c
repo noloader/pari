@@ -2606,7 +2606,7 @@ Ideallist(GEN bnf, ulong bound, long flag)
     for (j=1; j<lg(fa); j++)
     {
       GEN pr = gel(fa,j), z2;
-      ulong q, Q = upowuu(p[2], pr_get_f(pr));
+      ulong q, Q = upr_norm(pr);
 
       z2 = leafcopy(z);
       q = Q;

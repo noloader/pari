@@ -32,6 +32,7 @@ Done for version 2.8.1 (released ??/??/2016):
    17- [libpari] get_nf_field (black box field arithemtic over a number
        field nf), nfM_det, nfM_inv, nfM_mul, nfM_nfC_mul
    18- [libpari] bnftestprimes
+   19- [libpari] upr_norm
 
   Changed
     1- remove useless flag in idealappr: directly allow factorization

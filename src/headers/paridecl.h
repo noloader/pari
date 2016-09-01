@@ -4642,6 +4642,7 @@ INLINE GEN    rnf_get_polabs(GEN rnf);
 INLINE GEN    rnf_get_zk(GEN nf);
 INLINE void   rnf_get_nfzk(GEN rnf, GEN *b, GEN *cb);
 INLINE long   rnf_get_varn(GEN rnf);
+INLINE ulong  upr_norm(GEN pr);
 
 INLINE long   closure_arity(GEN C);
 INLINE const char * closure_codestr(GEN C);

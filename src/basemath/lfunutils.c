@@ -457,7 +457,7 @@ vecan_chigen(GEN an, long n, long prec)
         ulong k, q;
         if (check && idealval(nf, N, pr)) continue;
         ch = chigeneval(isprincipalray(bnr,pr), nchi, z, prec);
-        q = itou(pr_norm(pr));
+        q = upr_norm(pr);
         gel(v, q) = gadd(gel(v, q), ch);
         for (k = 2*q; k <= (ulong)n; k += q)
           gel(v, k) = gaddmul(gel(v, k), ch, gel(v, k/q));

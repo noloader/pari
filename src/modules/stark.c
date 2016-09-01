@@ -1220,7 +1220,7 @@ CorrectCoeff(GEN dtcr, int** an, int** reduc, long n, long deg)
   for (j = 1; j <= lg; j++)
   {
     GEN pr = gel(diff,j);
-    long Np = itos( pr_norm(pr) );
+    long Np = upr_norm(pr);
     GEN chi  = CHI_eval(&C, isprincipalray(bnrc, pr));
     an_AddMul(an,an2,Np,n,deg,chi,reduc);
     avma = av1;

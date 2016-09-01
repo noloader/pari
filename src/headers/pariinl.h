@@ -2473,6 +2473,8 @@ INLINE int
 pr_is_inert(GEN P) { return pr_get_f(P) == lg(pr_get_gen(P))-1; }
 INLINE GEN
 pr_norm(GEN pr) { return powiu(pr_get_p(pr), pr_get_f(pr)); }
+INLINE ulong
+upr_norm(GEN pr) { return upowuu(pr_get_p(pr)[2], pr_get_f(pr)); }
 
 /* assume nf a genuine nf */
 INLINE long
