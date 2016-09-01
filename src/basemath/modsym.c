@@ -225,12 +225,12 @@ static GEN
 sl2_inv(GEN M)
 {
   long a=coeff(M,1,1), b=coeff(M,1,2), c=coeff(M,2,1), d=coeff(M,2,2);
-  return mkmat2(mkvecsmall2(d, -c), mkvecsmall2(-b, a));
+  return mkvec2(mkvecsmall2(d, -c), mkvecsmall2(-b, a));
 }
 /* Return the zm [a,b; c,d] */
 static GEN
 mat2(long a, long b, long c, long d)
-{ return mkmat2(mkvecsmall2(a,c), mkvecsmall2(b,d)); }
+{ return mkvec2(mkvecsmall2(a,c), mkvecsmall2(b,d)); }
 
 /* Input: a = 2-vector = path = {r/s,x/y}
  * Output: either [r,x;s,y] or [-r,x;-s,y], whichever has determinant > 0 */
@@ -1984,7 +1984,6 @@ getMorphism_trivial(GEN WW1, GEN WW2, GEN v)
   GEN section = ms_get_section(W2), gen = ms_get_genindex(W2);
   long j, lv, d2 = ms_get_nbE1(W2);
   GEN T = cgetg(d2+1, t_MAT);
-  if (typ(v) != t_VEC) v = mkvec(v);
   lv = lg(v);
   for (j = 1; j <= d2; j++)
   {
@@ -2035,12 +2034,10 @@ init_dual_act(GEN v, GEN W1, GEN W2, struct m_act *S,
   /* HACK: the actions we consider in dimension 1 are trivial and in
    * characteristic != 2, 3 => torsion generators are 0
    * [satisfy e.g. (1+gamma).g = 0 => \phi(g) | 1+gamma  = 0 => \phi(g) = 0 */
-  long j, lv, dim = S->dim == 1? ms_get_nbE1(W2): lg(gen)-1;
+  long j, lv = lg(v), dim = S->dim == 1? ms_get_nbE1(W2): lg(gen)-1;
   GEN T = cgetg(dim+1, t_VEC);
   hashtable *H = Gl2act_cache(dim);
 
-  if (typ(v) != t_VEC) v = mkvec(v);
-  lv = lg(v);
   for (j = 1; j <= dim; j++)
   {
     pari_sp av = avma;
@@ -2371,11 +2368,11 @@ msatkinlehner_i(GEN W, long Q)
   long N = ms_get_N(W);
   GEN v;
   if (Q == 1) return matid(msk_get_dim(W));
-  if (Q == N) return msendo(W, mat2(0,1,-N,0));
+  if (Q == N) return msendo(W, mkvec(mat2(0,1,-N,0)));
   if (N % Q) pari_err_DOMAIN("msatkinlehner","N % Q","!=",gen_0,stoi(Q));
   v = WQ_matrix(N, Q);
   if (!v) pari_err_DOMAIN("msatkinlehner","gcd(Q,N/Q)","!=",gen_1,stoi(Q));
-  return msendo(W,v);
+  return msendo(W,mkvec(v));
 }
 GEN
 msatkinlehner(GEN W, long Q, GEN H)
@@ -2393,7 +2390,7 @@ msatkinlehner(GEN W, long Q, GEN H)
 }
 
 static GEN
-msstar_i(GEN W) { return msendo(W, mat2(-1,0,0,1)); }
+msstar_i(GEN W) { return msendo(W, mkvec(mat2(-1,0,0,1))); }
 GEN
 msstar(GEN W, GEN H)
 {
@@ -3428,8 +3425,8 @@ mspadicinit(GEN W, long p, long n, long flag)
     GEN M1, M2;
 
     Wp = mskinit(N*p, k, s);
-    M1 = getMorphism(W, Wp, mat2(1,0,0,1));
-    M2 = getMorphism(W, Wp, mat2(p,0,0,1));
+    M1 = getMorphism(W, Wp, mkvec(mat2(1,0,0,1)));
+    M2 = getMorphism(W, Wp, mkvec(mat2(p,0,0,1)));
     if (s)
     {
       GEN SW = msk_get_starproj(W), SWp = msk_get_starproj(Wp);
