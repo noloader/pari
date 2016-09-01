@@ -2239,9 +2239,11 @@ galoisconj(GEN nf, GEN d)
   avma = av; return galoisconj1(nf);
 }
 
+/* FIXME: obsolete, use galoisconj(nf, d) directly */
 GEN
 galoisconj0(GEN nf, long flag, GEN d, long prec)
 {
+  (void)prec;
   switch(flag) {
     case 2:
     case 0: return galoisconj(nf, d);
