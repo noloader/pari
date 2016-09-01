@@ -188,4 +188,3 @@ GEN    subgroupcondlist(GEN cyc, GEN bound, GEN listKer);
 GEN    unif_mod_fZ(GEN pr, GEN F);
 GEN    ideallog_sgn(GEN nf, GEN x, GEN sgn, GEN bid);
 GEN    zlog_units(GEN nf, GEN U, GEN sgnU, GEN bid);
-GEN    zlog_units_noarch(GEN nf, GEN U, GEN bid);

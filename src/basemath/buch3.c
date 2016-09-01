@@ -2340,7 +2340,7 @@ discrayabslistarch(GEN bnf, GEN arch, ulong bound)
       {
         ulong iQ;
         bidp = Idealstarprk(nf, pr, l, nf_INIT);
-        embunit = zlog_units_noarch(nf, U, bidp);
+        embunit = zlog_units(nf, U, NULL, bidp);
         for (iQ = Q, i = 1; iQ <= bound; iQ += Q, i++)
         {
           GEN pz, p2, p1 = bigel(Z,i);
