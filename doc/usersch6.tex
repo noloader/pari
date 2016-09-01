@@ -354,19 +354,24 @@ as well as the polynomials $T$ and $P$.
 
 \subsec{Extracting info from a \kbd{bid} structure}
 
-These functions expect a true \var{bid} argument, attached to a modulus $I$
-in a number field $K$.
+These functions expect a true \var{bid} argument, attached to a modulus $I
+= I_0 I_\infty$ in a number field $K$.
 
 \fun{GEN}{bid_get_mod}{GEN bid} returns the modulus attached to the \var{bid}.
 
 \fun{GEN}{bid_get_grp}{GEN bid} returns the Abelian group attached
-to $(\Z_K/I)^*$modulus attached to the \var{bid}.
+to $(\Z_K/I)^*$.
 
-\fun{GEN}{bid_get_ideal}{GEN bid} return the finite part of the \var{bid}
-modulus (an integer ideal).
+\fun{GEN}{bid_get_ideal}{GEN bid} return the finite part $I_0$
+of the \var{bid} modulus (an integer ideal).
 
-\fun{GEN}{bid_get_arch}{GEN bid} return the Archimedean part of the \var{bid}
-modulus (a vector of real places).
+\fun{GEN}{bid_get_arch}{GEN bid} return the Archimedean part $I_\infty$
+of the \var{bid} modulus (a vector of real places).
+
+\fun{GEN}{bid_get_fact}{GEN bid} returns the ideal factorization
+$I_0 = \prod_i \goth{p}_i^{e_i}$.
+
+\tet{bid_get_ideal}$(\var{bid})$, via \kbd{idealfactor}.
 
 \fun{GEN}{bid_get_no}{GEN bid} returns the cardinality of the
 group $(\Z_K/I)^*$.
@@ -383,9 +388,20 @@ generators.
 checking whether generators are present. Do not use this unless
 you initialize the \var{bid} yourself!
 
+\fun{GEN}{bid_get_sprk}{GEN bid} return a list of structures attached to the
+$(\Z_K/\goth{p}^e)^*$ where $\goth{p}^e$ divides $I_0$ exactly.
+
+\fun{GEN}{bid_get_sarch}{GEN bid} return the structure attached
+to $(\Z_K/I_\infty)^*$, by \kbd{nfarchstar}.
+
 \fun{GEN}{bid_get_U}{GEN bid} return the matrix with integral coefficients
 relating the local generators (from chinese remainders) to the global
 SNF generators (\kbd{\var{bid}.gen}).
+
+\fun{GEN}{bid_get_ind}{GEN bid} return a \typ{VECSMALL} $v$ of indices used
+while converting from local generators to the global generators: $v[i]$
+is the number of generators used to describe $(\Z_K / \prod_{j < i}
+\goth{p}_j^{e_j})^*$.
 
 \subsec{Inserting info in a number field structure}
 
@@ -1141,22 +1157,22 @@ at the corresponding places. This is the low-level function underlying
 \kbd{bnf} structures include the $\log \sigma(x)$ for a system of fundamental
 units of the field.
 
-\fun{GEN}{set_sign_mod_divisor}{GEN nf, GEN x, GEN y, GEN module, GEN sarch}
-let $f = f_0f_\infty$ be the divisor represented by \kbd{module}, $x$, $y$ two
-number field elements. Returns $yt$ with $t$ integral, $t = 1 \text{mod}^*
-f_0$ such that $x$ and $ty$ have the same signs at $f_\infty$; if $x =
-\kbd{NULL}$, make $ty$ totally positive at $f_\infty$. \kbd{sarch} is the
-output of \kbd{nfarchstar(nf, f0, finf)}.
+\fun{GEN}{set_sign_mod_divisor}{GEN nf, GEN x, GEN y, GEN sarch}
+let $f = f_0f_\infty$ be a divisor, let \kbd{sarch} be the output of
+\kbd{nfarchstar(nf, f0, finf)}, and let $x,y$ be two number field elements.
+Returns $yt$ with $t$ integral, $t = 1 \text{mod}^* f_0$ such that $x$ and
+$ty$ have the same signs at $f_\infty$; if $x = \kbd{NULL}$, make $ty$
+totally positive at $f_\infty$.
 
 \fun{GEN}{nfarchstar}{GEN nf, GEN f0, GEN finf} for a divisor $f =
 f_0f_\infty$ represented by the integral ideal \kbd{f0} in HNF and
 the \kbd{finf} in \kbd{indices} form, returns $(\Z_K/f_\infty)^*$ in a form
 suitable for computations mod $f$. More precisely, returns
-$[c, g, M]$, where $c = [2,\ldots, 2]$ gives the cyclic structure of that
-group ($\#f_\infty$ copies of $\Z/2\Z$), $g$ a minimal system of independent
-generators, which are furthermore congruent to $1$ mod $f_0$ (no condition if
-$f_0 = \Z_K$), and $M$ is the matrix of signs of the $g[i]$ at $f_\infty$,
-which is square and invertible over $\F_2$.
+$[c, g, M, \var{finf}]$, where $c = [2,\ldots, 2]$ gives the cyclic structure
+of that group ($\#f_\infty$ copies of $\Z/2\Z$), $g$ a minimal system of
+independent generators, which are furthermore congruent to $1$ mod $f_0$ (no
+condition if $f_0 = \Z_K$), and $M$ is the matrix of signs of the $g[i]$ at
+$f_\infty$, which is square and invertible over $\F_2$.
 
 \fun{GEN}{idealprincipalunits}{GEN nf, GEN pr, long e} returns the
 multiplicative group $(1 + \var{pr}) / (1 + \var{pr}^e)$ as an abelian group.

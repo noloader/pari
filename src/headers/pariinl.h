@@ -2585,6 +2585,12 @@ bid_get_grp(GEN bid) { return gel(bid,2); }
 INLINE GEN
 bid_get_fact(GEN bid) { return gel(bid,3); }
 INLINE GEN
+bid_get_sprk(GEN bid) { return gmael(bid,4,1); }
+INLINE GEN
+bid_get_sarch(GEN bid) { return gmael(bid,4,2); }
+INLINE GEN
+bid_get_ind(GEN bid) { return gmael(bid,4,3); }
+INLINE GEN
 bid_get_U(GEN bid) { return gel(bid,5); }
 INLINE GEN
 bid_get_no(GEN bid) { return abgrp_get_no(bid_get_grp(bid)); }

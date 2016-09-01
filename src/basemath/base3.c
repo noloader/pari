@@ -1403,7 +1403,7 @@ nfsign(GEN nf, GEN x)
 /* multiply y by t = 1 mod^* f such that sign(x) = sign(y) at arch = divisor[2].
  * If x == NULL, make y >> 0 at sarch */
 GEN
-set_sign_mod_divisor(GEN nf, GEN x, GEN y, GEN divisor, GEN sarch)
+set_sign_mod_divisor(GEN nf, GEN x, GEN y, GEN sarch)
 {
   GEN s, archp, gen;
   long nba,i;
@@ -1411,7 +1411,7 @@ set_sign_mod_divisor(GEN nf, GEN x, GEN y, GEN divisor, GEN sarch)
   gen = gel(sarch,2); nba = lg(gen);
   if (nba == 1) return y;
 
-  archp = vec01_to_indices(gel(divisor,2));
+  archp = gel(sarch,4);
   y = nf_to_scalar_or_basis(nf, y);
   s = nfsign_arch(nf, y, archp);
   if (x) Flv_add_inplace(s, nfsign_arch(nf, x, archp), 2);
@@ -1862,7 +1862,7 @@ nfarchstar(GEN nf, GEN x, GEN archp)
     }
     cyc = const_vec(nba, gen_2);
   }
-  return mkvec3(cyc,gen,mat);
+  return mkvec4(cyc,gen,mat,archp);
 }
 
 static GEN
@@ -1910,13 +1910,13 @@ zlog_pk(GEN nf, GEN a, GEN y, GEN pr, GEN prk, GEN list, GEN *psigne)
 }
 
 static void
-zlog_add_sign(GEN y0, GEN sgn, GEN lists)
+zlog_add_sign(GEN y0, GEN sgn, GEN sarch)
 {
   GEN y, s;
   long i;
   if (!sgn) return;
   y = y0 + lg(y0);
-  s = Flm_Flc_mul(gmael(lists, lg(lists)-1, 3), sgn, 2);
+  s = Flm_Flc_mul(gel(sarch,3), sgn, 2);
   for (i = lg(s)-1; i > 0; i--) gel(--y,0) = s[i]? gen_1: gen_0;
 }
 
@@ -1926,7 +1926,7 @@ famat_zlog(GEN nf, GEN fa, GEN sgn, GEN bid)
   GEN g = gel(fa,1), e = gel(fa,2);
   GEN vp = gmael(bid, 3,1), ep = gmael(bid, 3,2);
   GEN arch = bid_get_arch(bid);
-  GEN cyc = bid_get_cyc(bid), lists = gel(bid,4), U = bid_get_U(bid);
+  GEN cyc = bid_get_cyc(bid), sprk = bid_get_sprk(bid), U = bid_get_U(bid);
   GEN y0, x, y, EX = gel(cyc,1);
   long i, l;
 
@@ -1952,50 +1952,50 @@ famat_zlog(GEN nf, GEN fa, GEN sgn, GEN bid)
       }
     }
     x = famat_makecoprime(nf, g, e, pr, prk, ex);
-    y = zlog_pk(nf, x, y, pr, prk, gel(lists,i), &sgn);
+    y = zlog_pk(nf, x, y, pr, prk, gel(sprk,i), &sgn);
   }
-  zlog_add_sign(y0, sgn, lists);
+  zlog_add_sign(y0, sgn, bid_get_sarch(bid));
   return y0;
 }
 
 static GEN
-get_index(GEN lists)
+get_index(GEN sprk)
 {
-  long t = 0, j, k, l = lg(lists)-1;
-  GEN L, ind = cgetg(l+1, t_VECSMALL);
-
+  long t = 0, k, l = lg(sprk);
+  GEN ind = cgetg(l, t_VECSMALL);
   for (k = 1; k < l; k++)
   {
-    L = gel(lists,k);
+    GEN L = gel(sprk,k);
+    long j, lL = lg(L);
     ind[k] = t;
-    for (j=1; j<lg(L); j++) t += lg(gmael(L,j,1)) - 1;
+    for (j=1; j<lL; j++) t += lg(gmael(L,j,1)) - 1;
   }
-  /* for arch. components */
-  ind[k] = t; return ind;
+  return ind;
 }
 
 static void
-init_zlog(zlog_S *S, long n, GEN P, GEN e, GEN archp, GEN lists, GEN U)
+init_zlog(zlog_S *S, long n, GEN P, GEN e, GEN sprk, GEN sarch, GEN ind, GEN U)
 {
   S->n = n;
   S->U = U;
   S->P = P;
   S->e = e;
-  S->archp = archp;
-  S->lists = lists;
-  S->ind = get_index(lists);
+  S->archp = gel(sarch,4);
+  S->sprk = sprk;
+  S->sarch = sarch;
+  S->ind = ind;
 }
 void
 init_zlog_bid(zlog_S *S, GEN bid)
 {
-  GEN fa = bid_get_fact(bid), lists = gel(bid,4), U = bid_get_U(bid);
-  GEN archp = vec01_to_indices(bid_get_arch(bid));
-  init_zlog(S, lg(U)-1, gel(fa,1), gel(fa,2), archp, lists, U);
+  GEN fa = bid_get_fact(bid), sprk = bid_get_sprk(bid), U = bid_get_U(bid);
+  GEN sarch = bid_get_sarch(bid), ind = bid_get_ind(bid);
+  init_zlog(S, lg(U)-1, gel(fa,1), gel(fa,2), sprk, sarch, ind, U);
 }
 
 /* Return decomposition of a on the S->n successive generators contained in
- * S->lists. If index !=0, do the computation for the corresponding prime
- * ideal and set to 0 the other components. */
+ * S->sprk and S->sarch. If index !=0, do the computation for the
+ * corresponding prime ideal and set to 0 the other components. */
 static GEN
 zlog_ind(GEN nf, GEN a, zlog_S *S, GEN sgn, long index)
 {
@@ -2017,12 +2017,11 @@ zlog_ind(GEN nf, GEN a, zlog_S *S, GEN sgn, long index)
   if (!sgn) sgn = nfsign_arch(nf, a, S->archp);
   for (k = kmin; k <= kmax; k++)
   {
-    GEN list= gel(S->lists,k);
-    GEN pr  = gel(S->P,k);
+    GEN L = gel(S->sprk,k), pr  = gel(S->P,k);
     GEN prk = idealpow(nf, pr, gel(S->e,k));
-    y = zlog_pk(nf, a, y, pr, prk, list, &sgn);
+    y = zlog_pk(nf, a, y, pr, prk, L, &sgn);
   }
-  zlog_add_sign(y0, sgn, S->lists);
+  zlog_add_sign(y0, sgn, S->sarch);
   return gerepilecopy(av, y0);
 }
 /* sgn = sign(a, S->arch) or NULL if unknown */
@@ -2036,13 +2035,13 @@ GEN
 log_gen_pr(zlog_S *S, long index, GEN nf, long e)
 {
   long i, l, yind = S->ind[index];
-  GEN y, A, L, L2 = gel(S->lists,index);
+  GEN y, A, L, L2 = gel(S->sprk,index);
 
   if (e == 1)
   {
     L = gel(L2,1);
     y = col_ei(S->n, yind+1);
-    zlog_add_sign(y, gmael(L,4,1), S->lists);
+    zlog_add_sign(y, gmael(L,4,1), S->sarch);
     retmkmat( ZM_ZC_mul(S->U, y) );
   }
   else
@@ -2062,7 +2061,7 @@ log_gen_pr(zlog_S *S, long index, GEN nf, long e)
       GEN G = gel(g,i), sgn = zero_zv(narchp); /*positive at f_oo*/
       y = zerocol(S->n);
       (void)zlog_pk(nf, G, y + yind, pr, prk, L2, &sgn);
-      zlog_add_sign(y, sgn, S->lists);
+      zlog_add_sign(y, sgn, S->sarch);
       gel(A,i) = y;
     }
     return ZM_mul(S->U, A);
@@ -2074,7 +2073,7 @@ GEN
 log_gen_arch(zlog_S *S, long index)
 {
   GEN y = zerocol(S->n);
-  zlog_add_sign(y, vecsmall_ei(lg(S->archp)-1, index), S->lists);
+  zlog_add_sign(y, vecsmall_ei(lg(S->archp)-1, index), S->sarch);
   return ZM_ZC_mul(S->U, y);
 }
 
@@ -2107,7 +2106,7 @@ static GEN
 Idealstar_i(GEN nf, GEN ideal, long flag)
 {
   long i, j, k, nbp, R1, nbgen;
-  GEN t, y, cyc, U, u1 = NULL, fa, lists, x, arch, archp, E, P, sarch, gen;
+  GEN t, y, cyc, U, u1 = NULL, fa, sprk, x, arch, archp, E, P, sarch, gen, ind;
 
   nf = checknf(nf);
   R1 = nf_get_r1(nf);
@@ -2156,13 +2155,13 @@ Idealstar_i(GEN nf, GEN ideal, long flag)
   if (!fa) fa = idealfactor(nf, ideal);
   P = gel(fa,1);
   E = gel(fa,2); nbp = lg(P)-1;
+  sprk = cgetg(nbp+1,t_VEC);
   if (nbp)
   {
     GEN h;
     long cp = 0;
     zlog_S S;
 
-    lists = cgetg(nbp+2,t_VEC);
     /* rough upper bound */
     nbgen = nbp + 1; for (i=1; i<=nbp; i++) nbgen += itos(gel(E,i));
     gen = cgetg(nbgen+1,t_VEC);
@@ -2171,18 +2170,18 @@ Idealstar_i(GEN nf, GEN ideal, long flag)
     for (i=1; i<=nbp; i++)
     {
       GEN L = zprimestar(nf, gel(P,i), gel(E,i), t, archp);
-      gel(lists,i) = L;
+      gel(sprk,i) = L;
       for (j = 1; j < lg(L); j++) gel(gen, nbgen++) = gmael(L,j,3);
     }
-    gel(lists,i) = sarch;
     gel(gen, nbgen++) = gel(sarch,2); setlg(gen, nbgen);
     gen = shallowconcat1(gen); nbgen = lg(gen)-1;
 
     h = cgetg(nbgen+1,t_MAT);
-    init_zlog(&S, nbgen, P, E, archp, lists, NULL);
+    ind = get_index(sprk);
+    init_zlog(&S, nbgen, P, E, sprk, sarch, ind, NULL);
     for (i=1; i<=nbp; i++)
     {
-      GEN L2 = gel(lists,i);
+      GEN L2 = gel(sprk,i);
       for (j=1; j < lg(L2); j++)
       {
         GEN L = gel(L2,j), F = gel(L,1), G = gel(L,3);
@@ -2207,7 +2206,7 @@ Idealstar_i(GEN nf, GEN ideal, long flag)
   }
   else
   {
-    lists = mkvec(sarch);
+    ind = get_index(sprk);
     gen = gel(sarch,2); nbgen = lg(gen)-1;
     cyc = const_vec(nbgen, gen_2);
     U = matid(nbgen);
@@ -2217,7 +2216,7 @@ Idealstar_i(GEN nf, GEN ideal, long flag)
   y = cgetg(6,t_VEC);
   gel(y,1) = mkvec2(x, arch);
   gel(y,3) = fa;
-  gel(y,4) = lists;
+  gel(y,4) = mkvec3(sprk, sarch, ind);
   gel(y,5) = U;
   add_grp(nf, u1, cyc, gen, y);
   return (flag & nf_INIT)? y: gel(y,2);
@@ -2448,24 +2447,21 @@ static GEN
 join_bid(GEN nf, GEN bid1, GEN bid2)
 {
   pari_sp av = avma;
-  long i, nbgen, lx, lx1,lx2, l1,l2;
-  GEN I1,I2, G1,G2, fa1,fa2, lists1,lists2, cyc1,cyc2;
-  GEN lists, fa, U, cyc, y, u1 = NULL, x, gen;
+  long nbgen, l1,l2;
+  GEN I1,I2, G1,G2, fa1,fa2, sprk1,sprk2, cyc1,cyc2;
+  GEN sprk, fa, U, cyc, y, u1 = NULL, x, gen;
 
   I1 = bid_get_ideal(bid1);
   I2 = bid_get_ideal(bid2);
   if (gequal1(gcoeff(I1,1,1))) return bid2; /* frequent trivial case */
   G1 = bid_get_grp(bid1);
   G2 = bid_get_grp(bid2);
-  fa1= gel(bid1,3);
-  fa2= gel(bid2,3); x = idealmul(nf, I1,I2);
+  fa1= bid_get_fact(bid1);
+  fa2= bid_get_fact(bid2); x = idealmul(nf, I1,I2);
   fa = famat_mul_shallow(fa1, fa2);
-  lists1 = gel(bid1,4); lx1 = lg(lists1);
-  lists2 = gel(bid2,4); lx2 = lg(lists2);
-  /* concat (lists1 - last elt [nfarchstar]) + lists2 */
-  lx = lx1+lx2-2; lists = cgetg(lx,t_VEC);
-  for (i=1; i<lx1-1; i++) gel(lists,i) = gel(lists1,i);
-  for (   ; i<lx; i++)    gel(lists,i) = gel(lists2,i-lx1+2);
+  sprk1 = bid_get_sprk(bid1);
+  sprk2 = bid_get_sprk(bid2);
+  sprk = shallowconcat(sprk1, sprk2);
 
   cyc1 = abgrp_get_cyc(G1); l1 = lg(cyc1);
   cyc2 = abgrp_get_cyc(G2); l2 = lg(cyc2);
@@ -2473,13 +2469,13 @@ join_bid(GEN nf, GEN bid1, GEN bid2)
   nbgen = l1+l2-2;
   cyc = ZV_snf_group(shallowconcat(cyc1,cyc2), &U, gen? &u1: NULL);
   if (nbgen) {
-    GEN U1 = gel(bid1,5), U2 = gel(bid2,5);
+    GEN U1 = bid_get_U(bid1), U2 = bid_get_U(bid2);
     U1 = l1 == 1? zeromat(nbgen,lg(U1)-1): ZM_mul(vecslice(U, 1, l1-1),   U1);
     U2 = l2 == 1? zeromat(nbgen,lg(U2)-1): ZM_mul(vecslice(U, l1, nbgen), U2);
     U = shallowconcat(U1, U2);
   }
   else
-    U = zeromat(0, lx-2);
+    U = zeromat(0, lg(sprk)-1);
 
   if (gen)
   {
@@ -2490,7 +2486,7 @@ join_bid(GEN nf, GEN bid1, GEN bid2)
   y = cgetg(6,t_VEC);
   gel(y,1) = mkvec2(x, bid_get_arch(bid1));
   gel(y,3) = fa;
-  gel(y,4) = lists;
+  gel(y,4) = mkvec3(sprk, bid_get_sarch(bid1), get_index(sprk));
   gel(y,5) = U;
   add_grp(nf, u1, cyc, gen, y);
   return gerepilecopy(av,y);
@@ -2552,10 +2548,9 @@ zlog_units(GEN nf, GEN U, GEN sgnU, GEN bid)
 static GEN
 zlog_unitsarch(GEN sgnU, GEN bid)
 {
-  GEN lists = gel(bid,4), arch = bid_get_arch(bid);
-  GEN listslast = gel(lists,lg(lists)-1);
-  GEN m = rowpermute(sgnU, vec01_to_indices(arch));
-  return Flm_mul(gel(listslast,3), m, 2);
+  GEN sarch = bid_get_sarch(bid);
+  GEN m = rowpermute(sgnU, gel(sarch,4));
+  return Flm_mul(gel(sarch,3), m, 2);
 }
 
 /*  flag & nf_GEN : generators, otherwise no
@@ -2655,15 +2650,14 @@ join_bid_arch(GEN nf, GEN bid1, GEN arch)
 {
   pari_sp av = avma;
   GEN G1, fa1, U;
-  GEN lists, cyc, y, u1 = NULL, x, sarch, gen;
+  GEN sprk, cyc, y, u1 = NULL, x, sarch, gen;
 
   checkbid(bid1);
   G1 = bid_get_grp(bid1);
   fa1= bid_get_fact(bid1);
   x = bid_get_ideal(bid1);
   sarch = nfarchstar(nf, x, arch);
-  lists = leafcopy(gel(bid1,4));
-  gel(lists,lg(lists)-1) = sarch;
+  sprk = bid_get_sprk(bid1);
 
   gen = (lg(G1)>3)? gen_1: NULL;
   cyc = diagonal_shallow(shallowconcat(gel(G1,2), gel(sarch,1)));
@@ -2672,7 +2666,7 @@ join_bid_arch(GEN nf, GEN bid1, GEN arch)
   y = cgetg(6,t_VEC);
   gel(y,1) = mkvec2(x, arch);
   gel(y,3) = fa1;
-  gel(y,4) = lists;
+  gel(y,4) = mkvec3(sprk, sarch, get_index(sprk));
   gel(y,5) = U;
   add_grp(nf, u1, cyc, gen, y);
   return gerepilecopy(av,y);

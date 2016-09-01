@@ -129,10 +129,10 @@ too_big(GEN nf, GEN bet)
 
 /* GTM 193: Algo 4.3.4. Reduce x mod divisor */
 static GEN
-idealmoddivisor_aux(GEN nf, GEN x, GEN divisor, GEN sarch)
+idealmoddivisor_aux(GEN nf, GEN x, GEN f, GEN sarch)
 {
   pari_sp av = avma;
-  GEN a,A,D,G, f = gel(divisor,1);
+  GEN a, A, D, G;
 
   if ( is_pm1(gcoeff(f,1,1)) ) /* f = 1 */
   {
@@ -147,7 +147,7 @@ idealmoddivisor_aux(GEN nf, GEN x, GEN divisor, GEN sarch)
   }
   A = nfdiv(nf,D,G);
   if (too_big(nf,A) > 0) { avma = av; return x; }
-  a = set_sign_mod_divisor(nf, NULL, A, divisor, sarch);
+  a = set_sign_mod_divisor(nf, NULL, A, sarch);
   if (a != A && too_big(nf,A) > 0) { avma = av; return x; }
   return idealmul(nf, a, x);
 }
@@ -155,9 +155,8 @@ idealmoddivisor_aux(GEN nf, GEN x, GEN divisor, GEN sarch)
 GEN
 idealmoddivisor(GEN bnr, GEN x)
 {
-  GEN bid = bnr_get_bid(bnr), fa2 = gel(bid,4);
-  GEN sarch = gel(fa2,lg(fa2)-1);
-  return idealmoddivisor_aux(checknf(bnr), x, bid_get_mod(bid), sarch);
+  GEN nf = bnr_get_nf(bnr), bid = bnr_get_bid(bnr);
+  return idealmoddivisor_aux(nf, x, bid_get_ideal(bid), bid_get_sarch(bid));
 }
 
 /* v_pr(L0 * cx) */
@@ -204,7 +203,7 @@ get_pi(GEN F, GEN pr, GEN *v)
 static GEN
 compute_raygen(GEN nf, GEN u1, GEN gen, GEN bid)
 {
-  GEN f, fZ, basecl, module, fa, fa2, pr, t, EX, sarch, cyc, F;
+  GEN f, fZ, basecl, fa, pr, t, EX, sarch, cyc, F;
   GEN listpr, vecpi, vecpinvpi;
   long i,j,l,lp;
 
@@ -213,11 +212,10 @@ compute_raygen(GEN nf, GEN u1, GEN gen, GEN bid)
   /* basecl = generators in factored form */
   basecl = compute_fact(nf,u1,gen);
 
-  module = bid_get_mod(bid);
   cyc = bid_get_cyc(bid); EX = gel(cyc,1); /* exponent of (O/f)^* */
-  f   = gel(module,1); fZ = gcoeff(f,1,1);
-  fa  = gel(bid,3);
-  fa2 = gel(bid,4); sarch = gel(fa2, lg(fa2)-1);
+  f   = bid_get_ideal(bid); fZ = gcoeff(f,1,1);
+  fa  = bid_get_fact(bid);
+  sarch = bid_get_sarch(bid);
   listpr = gel(fa,1); F = init_unif_mod_fZ(listpr);
 
   lp = lg(listpr);
@@ -239,21 +237,11 @@ compute_raygen(GEN nf, GEN u1, GEN gen, GEN bid)
     /* G = [I, A=famat(L,e)] is a generator, I integral */
     G = gel(basecl,i);
     I = gel(G,1);
-    A = gel(G,2);
-      L = gel(A,1);
-      e = gel(A,2);
+    A = gel(G,2); L = gel(A,1); e = gel(A,2);
     /* if no reduction took place in compute_fact, everybody is still coprime
      * to f + no denominators */
-    if (!I)
-    {
-      gel(basecl,i) = famat_to_nf_moddivisor(nf, L, e, bid);
-      continue;
-    }
-    if (lg(A) == 1)
-    {
-      gel(basecl,i) = I;
-      continue;
-    }
+    if (!I) { gel(basecl,i) = famat_to_nf_moddivisor(nf, L, e, bid); continue; }
+    if (lg(A) == 1) { gel(basecl,i) = I; continue; }
 
     /* compute mulI so that mulI * I coprime to f
      * FIXME: use idealcoprime ??? (Less efficient. Fix idealcoprime!) */
@@ -312,11 +300,11 @@ compute_raygen(GEN nf, GEN u1, GEN gen, GEN bid)
       G = typ(G) == t_COL? ZC_hnfrem(G, ZM_Z_mul(f, dmulI))
                          : modii(G, mulii(fZ,dmulI));
     }
-    G = set_sign_mod_divisor(nf,A,G,module,sarch);
+    G = set_sign_mod_divisor(nf,A,G,sarch);
     I = idealmul(nf,I,G);
     if (dmulI) I = ZM_Z_divexact(I, dmulI);
     /* more or less useless, but cheap at this point */
-    I = idealmoddivisor_aux(nf,I,module,sarch);
+    I = idealmoddivisor_aux(nf,I,f,sarch);
     gel(basecl,i) = gerepilecopy(av, I);
   }
   return basecl;
@@ -390,7 +378,7 @@ Buchray(GEN bnf, GEN module, long flag)
   Ri = lg(cycbid)-1; lh = ngen+Ri;
   if (Ri || add_gen || do_init)
   {
-    GEN fx = gel(bid,3);
+    GEN fx = bid_get_fact(bid);
     El = cgetg(ngen+1,t_VEC);
     for (j=1; j<=ngen; j++)
     {
@@ -1461,7 +1449,7 @@ bnrconductor_i(GEN bnr, GEN H0, long flag)
   nf = bnf_get_nf(bnf);
   H = check_subgroup(bnr, H0, &clhray);
 
-  archp = S.archp;
+  archp = leafcopy(S.archp);
   e     = S.e; l = lg(e);
   e2 = cgetg(l, t_COL);
   for (k = 1; k < l; k++)
@@ -2008,10 +1996,9 @@ get_NR1D(long Nf, long clhray, long degk, long nz, GEN fadkabs, GEN idealrel)
 static GEN
 get_discdata(GEN t, GEN h)
 {
-  GEN bid = gel(t,1), fa = gel(bid,3);
-  return mkvec3(mkmat2(gel(fa,1), vec_to_vecsmall(gel(fa,2))),
-                (GEN)itou(get_classno(t, h)),
-                bid_get_mod(bid));
+  GEN bid = gel(t,1), fa = bid_get_fact(bid);
+  GEN P = gel(fa,1), E = vec_to_vecsmall(gel(fa,2));
+  return mkvec3(mkmat2(P, E), (GEN)itou(get_classno(t, h)), bid_get_mod(bid));
 }
 typedef struct _disc_data {
   long degk;
@@ -2115,7 +2102,7 @@ static GEN
 zsimp(GEN bid, GEN embunit)
 {
   GEN empty = cgetg(1, t_VECSMALL);
-  return mkvec4(mkmat2(empty,empty), bid_get_cyc(bid), gel(bid,5), embunit);
+  return mkvec4(mkmat2(empty,empty), bid_get_cyc(bid), bid_get_U(bid), embunit);
 }
 
 /* fa a vecsmall factorization, append p^e */
@@ -2134,8 +2121,8 @@ zsimpjoin(GEN b, GEN bid, GEN embunit, long prcode, long e)
   GEN fa, U, U1, U2, cyc1, cyc2, cyc;
 
   fa = gel(b,1);
-  U1 = gel(b,3);   cyc1 = gel(b,2);         l1 = lg(cyc1);
-  U2 = gel(bid,5); cyc2 = bid_get_cyc(bid); l2 = lg(cyc2);
+  U1 = gel(b,3);       cyc1 = gel(b,2);         l1 = lg(cyc1);
+  U2 = bid_get_U(bid); cyc2 = bid_get_cyc(bid); l2 = lg(cyc2);
   nbgen = l1+l2-2;
   if (nbgen)
   {

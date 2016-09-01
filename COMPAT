@@ -79,6 +79,9 @@ This file lists the incompatible changes between Version 2.x and older versions
     field, then lift back using nfmodprlift.
   - changed bnf format (allow dynamically adding units): old bnfs will be
     detected as invalid. Dirty trick to force conversion: bnf[10]=vector(3);
+  - changed idealstar format, to access data more conveniently (and avoid
+    recomputations): old bid and bnr structures from versions up to 2.8.0
+    are now invalid
 
 * Specific to the PARI library:
 ===============================
@@ -116,8 +119,10 @@ This file lists the incompatible changes between Version 2.x and older versions
     -> absequalii, absi_factor -> absZ_factor, absi_factor_limit
     -> absZ_factor_limit, equaliu -> absequaliu, equalui -> absequalui,
     cmpiu -> abscmpiu, cmpui -> abscmpui
-  - [libpari] idealappr0 is obsolete: use idealappr
-  - [libpari] qfbil, qfnorm are obsolete: use qfeval0, qfeval or qfevalb
+  - idealappr0 is obsolete: use idealappr
+  - qfbil, qfnorm are obsolete: use qfeval0, qfeval or qfevalb
+  - changed set_sign_mod_divisor prototype: module is now useless (implicitly
+    contained in sarch argument), hence removed.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%% VERSION 2.6 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   - eval() no longer evaluates its arguments in "permissive" mode: eval("1a")

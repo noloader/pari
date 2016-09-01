@@ -33,6 +33,7 @@ Done for version 2.8.1 (released ??/??/2016):
        field nf), nfM_det, nfM_inv, nfM_mul, nfM_nfC_mul
    18- [libpari] bnftestprimes
    19- [libpari] upr_norm
+   20- [libpari] bid_get_fact, bid_get_ind, bid_get_sarch, bid_get_sprk
 
   Changed
     1- remove useless flag in idealappr: directly allow factorization
@@ -54,6 +55,12 @@ Done for version 2.8.1 (released ??/??/2016):
        t_COL on nf.zk basis.
    10- remove flag = 2 in nfgaloisconj (slow, unreliable, obsolete for 15 years)
    11- bnfcertify(K): use automorphisms (speedup roughly #Aut_Q(K))
+   12- idealstar format, to access data more conveniently (and avoid
+       recomputations): old bid and bnr structures from versions up to 2.8.0
+       are now invalid
+   13- narchstar output: include finf in output
+   14- set_sign_mod_divisor prototype: module is now useless (implicitly
+       contained in sarch argument)
 
 Done for version 2.8.0 (released 12/08/2016):
 

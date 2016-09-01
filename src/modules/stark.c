@@ -624,7 +624,7 @@ ArtinNumber(GEN bnr, GEN LCHI, long check, long prec)
   /* find lambda in diff.cond such that gcd(lambda.(diff.cond)^-1,cond0) = 1
      and lambda >> 0 at cond1 */
   lambda = idealappr(nf, dc);
-  lambda = set_sign_mod_divisor(nf, NULL, lambda, cond,sarch);
+  lambda = set_sign_mod_divisor(nf, NULL, lambda, sarch);
   idg = idealdivexact(nf, lambda, dc);
 
   /* find mu in idg such that idh=(mu) / idg is coprime with cond0 and
@@ -633,7 +633,7 @@ ArtinNumber(GEN bnr, GEN LCHI, long check, long prec)
     GEN P = divcond(bnr);
     GEN f = famat_mul_shallow(idealfactor(nf, idg),
                           mkmat2(P, zerocol(lg(P)-1)));
-    GEN mu = set_sign_mod_divisor(nf, NULL, idealapprfact(nf, f), cond,sarch);
+    GEN mu = set_sign_mod_divisor(nf, NULL, idealapprfact(nf, f), sarch);
     idh = idealdivexact(nf, mu, idg);
     muslambda = nfdiv(nf, mu, lambda);
   } else { /* mu = 1 */
@@ -657,7 +657,7 @@ ArtinNumber(GEN bnr, GEN LCHI, long check, long prec)
   {
     if (is_bigint(gel(cyc,i)))
       pari_err_OVERFLOW("ArtinNumber [conductor too large]");
-    gel(gen,i) = set_sign_mod_divisor(nf, NULL, gel(gen,i), cond,sarch);
+    gel(gen,i) = set_sign_mod_divisor(nf, NULL, gel(gen,i), sarch);
     classe = isprincipalray(bnr, gel(gen,i));
     for (ic = 1; ic <= nChar; ic++) {
       GEN n = gel(nchi,ic);
@@ -698,7 +698,7 @@ ArtinNumber(GEN bnr, GEN LCHI, long check, long prec)
       for (j=1; j<i; j++) v[j] = v[i];
     }
 
-    gel(vB,i) = b = set_sign_mod_divisor(nf, NULL, b, cond,sarch);
+    gel(vB,i) = b = set_sign_mod_divisor(nf, NULL, b, sarch);
     if (!z)
       s0 = gen_1;
     else

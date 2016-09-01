@@ -400,10 +400,10 @@ member_zkst(GEN x)
   long t; (void)get_nf(x,&t);
   switch(t)
   {
-    case typ_BID: return gel(x,2);
+    case typ_BID: return bid_get_grp(x);
     case typ_BNR: {
       GEN bid = bnr_get_bid(x);
-      if (typ(bid) == t_VEC && lg(bid) > 2) return gel(bid,2);
+      if (typ(bid) == t_VEC && lg(bid) > 2) return bid_get_grp(bid);
     }
   }
   member_err("zkst",x);

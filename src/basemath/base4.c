@@ -1286,20 +1286,14 @@ famat_makecoprime(GEN nf, GEN g, GEN e, GEN pr, GEN prk, GEN EX)
 GEN
 famat_to_nf_moddivisor(GEN nf, GEN g, GEN e, GEN bid)
 {
-  GEN t,sarch,module,cyc,fa2;
+  GEN t, cyc;
   if (lg(g) == 1) return gen_1;
-  module = bid_get_mod(bid);
   cyc = bid_get_cyc(bid);
-  fa2 = gel(bid,4); sarch = gel(fa2,lg(fa2)-1);
-  t = NULL;
-  if (lg(cyc) != 1)
-  {
-    GEN EX = gel(cyc,1); /* group exponent */
-    GEN id = gel(module,1);
-    t = famat_to_nf_modideal_coprime(nf, g, e, id, EX);
-  }
-  if (!t) t = gen_1;
-  return set_sign_mod_divisor(nf, mkmat2(g,e), t, module, sarch);
+  if (lg(cyc) == 1)
+    t = gen_1;
+  else
+    t = famat_to_nf_modideal_coprime(nf, g, e, bid_get_ideal(bid), gel(cyc,1));
+  return set_sign_mod_divisor(nf, mkmat2(g,e), t, bid_get_sarch(bid));
 }
 
 GEN

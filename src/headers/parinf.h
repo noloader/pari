@@ -142,7 +142,8 @@ typedef struct FP_chk_fun {
 
 /* for ideallog / zlog */
 typedef struct {
-  GEN lists; /* lists[i] = */
+  GEN sprk; /* sprk[i] = zprimestar(P[i]^e[i])*/
+  GEN sarch; /* nfarchstar */
   GEN ind;  /* ind[i] = start of vector */
   GEN P, e; /* finit part of conductor = prod P^e */
   GEN archp; /* archimedean part of conductor, in permutation form */
