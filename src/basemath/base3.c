@@ -2616,8 +2616,7 @@ Ideallist(GEN bnf, ulong bound, long flag)
         ulong iQ;
         ID.L = utoipos(l);
         if (big_id) {
-          if (l > 1) ID.prL = idealpow(nf,pr,ID.L);
-          ID.prL = Idealstar(nf,ID.prL, istar_flag);
+          ID.prL = Idealstarprk(nf, pr, l, istar_flag);
           if (do_units) ID.emb = zlog_units(nf, U, NULL, ID.prL);
         }
         for (iQ = Q,i = 1; iQ <= bound; iQ += Q,i++)
