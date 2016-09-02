@@ -1802,18 +1802,6 @@ bnrdisc0(GEN A, GEN B, GEN C, long flag)
   GEN H, bnr = ABC_to_bnr(A,B,C,&H, 0);
   return bnrdisc(bnr,H,flag);
 }
-GEN
-discrayrel(GEN bnr, GEN H)
-{ return bnrdisc(bnr,H,rnf_REL); }
-GEN
-discrayrelcond(GEN bnr, GEN H)
-{ return bnrdisc(bnr,H,rnf_REL | rnf_COND); }
-GEN
-discrayabs(GEN bnr, GEN H)
-{ return bnrdisc(bnr,H,0); }
-GEN
-discrayabscond(GEN bnr, GEN H)
-{ return bnrdisc(bnr,H,rnf_COND); }
 
 /* Given a number field bnf=bnr[1], a ray class group structure bnr and a
  * vector chi representing a character on the generators bnr[2][3], compute
@@ -2452,12 +2440,6 @@ STORE:  gel(discall,karch+1) = res;
     }
   }
   return gerepilecopy(av0, Disc);
-}
-GEN
-discrayabslistlong(GEN bnf, ulong bound) {
-  GEN nf = checknf(bnf);
-  long r1 = nf_get_r1(nf);
-  return discrayabslistarch(bnf,zerovec(r1),bound);
 }
 
 int

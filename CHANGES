@@ -63,6 +63,8 @@ Done for version 2.8.1 (released ??/??/2016):
    13- narchstar output: include finf in output
    14- set_sign_mod_divisor prototype: module is now useless (implicitly
        contained in sarch argument)
+   15- [libpari] removed discrayabs, discrayabscond, discrayrel,
+       discrayrelcond, discrayabslistlong: obsoleted since 2.0
 
 Done for version 2.8.0 (released 12/08/2016):
 
