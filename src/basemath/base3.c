@@ -1390,13 +1390,13 @@ GEN
 nfsign(GEN nf, GEN x)
 {
   long i, l;
-  GEN arch, S;
+  GEN archp, S;
 
   nf = checknf(nf);
-  arch = identity_perm( nf_get_r1(nf) );
-  if (typ(x) != t_VEC) return nfsign_arch(nf, x, arch);
+  archp = identity_perm( nf_get_r1(nf) );
+  if (typ(x) != t_VEC) return nfsign_arch(nf, x, archp);
   l = lg(x); S = cgetg(l, t_MAT);
-  for (i=1; i<l; i++) gel(S,i) = nfsign_arch(nf, gel(x,i), arch);
+  for (i=1; i<l; i++) gel(S,i) = nfsign_arch(nf, gel(x,i), archp);
   return S;
 }
 
