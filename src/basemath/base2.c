@@ -3342,6 +3342,14 @@ nfXQ_mul(GEN nf, GEN a, GEN b, GEN T)
   if (typ(c) != t_POL) return c;
   return nfX_rem(nf, c, T);
 }
+/* return a in ideal A such that v_pr(a) = v_pr(A) */
+static GEN
+minval(GEN nf, GEN A, GEN pr)
+{
+  GEN ab = idealtwoelt(nf,A), a = gel(ab,1), b = gel(ab,2);
+  if (nfval(nf,a,pr) > nfval(nf,b,pr)) a = b;
+  return a;
+}
 
 /* nf a true nf. Return NULL if power order if pr-maximal */
 static GEN
@@ -3379,24 +3387,21 @@ rnfmaxord(GEN nf, GEN pol, GEN pr, long vdisc)
   for(cnt=1;; cnt++)
   {
     GEN I0 = leafcopy(I), W0 = leafcopy(W);
-    GEN Wa, Winv, Ip, A, Ainv, MWmod, F, pseudo, G;
+    GEN Wa, Winv, Ip, A, MWmod, F, pseudo, G;
 
     if (DEBUGLEVEL>1) err_printf("    pass no %ld\n",cnt);
     for (j=1; j<=n; j++)
     {
       GEN tau, tauinv;
-      long v1, v2;
-      if (ideal_is1(gel(I,j))) { gel(Tau,j) = gel(Tauinv,j) = gen_1; continue; }
-
-      p1 = idealtwoelt(nf,gel(I,j));
-      v1 = nfval(nf,gel(p1,1),pr);
-      v2 = nfval(nf,gel(p1,2),pr);
-      tau = (v1 > v2)? gel(p1,2): gel(p1,1);
-      tauinv = nfinv(nf, tau);
-      gel(Tau,j) = tau;
-      gel(Tauinv,j) = tauinv;
+      if (ideal_is1(gel(I,j)))
+      {
+        gel(I,j) = gel(Tau,j) = gel(Tauinv,j) = gen_1;
+        continue;
+      }
+      gel(Tau,j) = tau = minval(nf, gel(I,j), pr);
+      gel(Tauinv,j) = tauinv = nfinv(nf, tau);
       gel(W,j) = nfC_nf_mul(nf, gel(W,j), tau);
-      gel(I,j) = idealmul(nf, tauinv, gel(I,j));
+      gel(I,j) = idealmul(nf, tauinv, gel(I,j)); /* v_pr(I[j]) = 0 */
     }
     /* W = (Z_K/pr)-basis of O/pr. O = (W0,I0) ~ (W, I) */
 
@@ -3429,15 +3434,14 @@ rnfmaxord(GEN nf, GEN pol, GEN pr, long vdisc)
     /* Fill C: W_k A_j = sum_i C_(i,j),k A_i */
     A = FqM_to_nfM(FqM_suppl(Ip,T,p), modpr);
     for (j = lg(Ip); j<=n; j++) gel(A,j) = nfC_multable_mul(gel(A,j), mpi);
-    Ainv = nfM_inv(nf, A);
+    MW = nfM_mul(nf, nfM_inv(nf,A), MW);
     for (k=1; k<=n; k++)
     {
-      GEN mek = vecslice(MW, (k-1)*n+1, k*n);
+      GEN mek = vecslice(MW, (k-1)*n+1, k*n), Ck = gel(C,k);
       for (j=1; j<=n; j++)
       {
-        GEN z = nfM_nfC_mul(nf, Ainv, nfM_nfC_mul(nf, mek, gel(A,j)));
-        for (i=1; i<=n; i++)
-          gcoeff(C, (j-1)*n+i, k) = nf_to_Fq(nf,gel(z,i),modpr);
+        GEN z = nfM_nfC_mul(nf, mek, gel(A,j));
+        for (i=1; i<=n; i++) gel(Ck, (j-1)*n+i) = nf_to_Fq(nf,gel(z,i),modpr);
       }
     }
     G = FqM_to_nfM(FqM_ker(C,T,p), modpr);
