@@ -2374,9 +2374,8 @@ unif_mod_fZ(GEN pr, GEN F)
   {
     GEN u, v, q, a = diviiexact(F,p);
     q = (pr_get_e(pr) == 1)? sqri(p): p;
-    if (!gequal1(bezout(q, a, &u,&v))) pari_err_BUG("unif_mod_fZ");
-    u = mulii(u,q);
-    v = mulii(v,a);
+    if (!is_pm1(bezout(q, a, &u,&v))) pari_err_BUG("unif_mod_fZ");
+    u = mulii(u,q); v = mulii(v,a); /* u+v = 1 */
     t = ZC_Z_mul(t, v);
     gel(t,1) = addii(gel(t,1), u); /* return u + vt */
   }
