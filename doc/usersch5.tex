@@ -10695,6 +10695,12 @@ inputs are \typ{INT}s. Not stack-clean.
 
 \fun{GEN}{qfb_apply_ZM}{GEN q, GEN g} returns $q \circ g$.
 
+\fun{GEN}{qfbforms}{GEN D} given a discriminant $D < 0$, return the list
+of reduced forms of discriminant $D$ as \typ{VECSMALL} with 3 components.
+The primitive forms in the list enumerate the class group of the quadratic
+order of discriminant $D$; if $D$ is fundamental, all returned forms
+are automatically primitive.
+
 \section{Polynomials}\label{se:polynomials}
 
 \fun{GEN}{truecoeff}{GEN x, long n} returns \kbd{polcoeff0(x,n, -1)}, i.e.

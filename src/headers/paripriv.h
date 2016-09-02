@@ -662,10 +662,6 @@ GEN     factor_norm(GEN x);
 GEN     factorbackprime(GEN nf, GEN L, GEN e);
 long    val_norm(GEN x, GEN p, long *vz);
 
-/* buch1.c */
-
-GEN     qfbforms(GEN D);
-
 /* buch2.c */
 
 typedef struct GRHprime_t { ulong p; double logp; GEN dec; } GRHprime_t;
