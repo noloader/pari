@@ -171,7 +171,6 @@ GEN    coltoalg(GEN nf,GEN x);
 /* Other number fields routines */
 GEN    archstar_full_rk(GEN x, GEN bas, GEN v, GEN gen);
 long   check_LIMC(long LIMC, long LIMCMAX);
-GEN    pow_ei_mod_p(GEN nf, long I, GEN n, GEN p);
 GEN    get_arch_real(GEN nf,GEN x,GEN *emb,long prec);
 GEN    get_nfindex(GEN bas);
 GEN    get_proj_modT(GEN basis, GEN T, GEN p);

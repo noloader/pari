@@ -656,46 +656,6 @@ nfpow_u(GEN nf, GEN z, ulong n)
   return av==avma? gcopy(x): gerepileupto(av,x);
 }
 
-typedef struct {
-  GEN nf, p;
-  long I;
-} eltmod_muldata;
-
-static GEN
-sqr_mod(void *data, GEN x)
-{
-  eltmod_muldata *D = (eltmod_muldata*)data;
-  return FpC_red(nfsqri(D->nf, x), D->p);
-}
-static GEN
-ei_msqr_mod(void *data, GEN x)
-{
-  GEN x2 = sqr_mod(data, x);
-  eltmod_muldata *D = (eltmod_muldata*)data;
-  return FpC_red(zk_ei_mul(D->nf, x2, D->I), D->p);
-}
-
-/* x = I-th vector of the Z-basis of Z_K, in Z^n, compute lift(x^n mod p) */
-GEN
-pow_ei_mod_p(GEN nf, long I, GEN n, GEN p)
-{
-  pari_sp av = avma;
-  eltmod_muldata D;
-  long s, N;
-  GEN y;
-
-  if (typ(n) != t_INT) pari_err_TYPE("nfpow",n);
-  nf = checknf(nf);
-  s = signe(n); N = nf_get_degree(nf);
-  if (s < 0) pari_err_IMPL("negative power in pow_ei_mod_p");
-  if (!s || I == 1) return scalarcol_shallow(gen_1,N);
-  D.nf = nf;
-  D.p = p;
-  D.I = I;
-  y = gen_pow_fold(col_ei(N, I), n, (void*)&D, &sqr_mod, &ei_msqr_mod);
-  return gerepileupto(av,y);
-}
-
 static GEN
 _nf_red(void *E, GEN x) { (void)E; return x; }
 

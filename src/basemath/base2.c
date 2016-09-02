@@ -2287,7 +2287,41 @@ primedec_apply_kummer(GEN nf,GEN u,long e,GEN p)
   return mk_pr(p,u,e,f,t);
 }
 
-/* return a Z basis of Z_K's p-radical, phi = x--> x^p-x */
+typedef struct {
+  GEN nf, p;
+  long I;
+} eltmod_muldata;
+
+static GEN
+sqr_mod(void *data, GEN x)
+{
+  eltmod_muldata *D = (eltmod_muldata*)data;
+  return FpC_red(nfsqri(D->nf, x), D->p);
+}
+static GEN
+ei_msqr_mod(void *data, GEN x)
+{
+  GEN x2 = sqr_mod(data, x);
+  eltmod_muldata *D = (eltmod_muldata*)data;
+  return FpC_red(zk_ei_mul(D->nf, x2, D->I), D->p);
+}
+/* nf a true nf; compute lift(nf.zk[I]^p mod p) */
+static GEN
+pow_ei_mod_p(GEN nf, long I, GEN p)
+{
+  pari_sp av = avma;
+  eltmod_muldata D;
+  long N = nf_get_degree(nf);
+  GEN y;
+  if (I == 1) return scalarcol_shallow(gen_1,N);
+  D.nf = nf;
+  D.p = p;
+  D.I = I;
+  y = gen_pow_fold(col_ei(N, I), p, (void*)&D, &sqr_mod, &ei_msqr_mod);
+  return gerepileupto(av,y);
+}
+
+/* nf a true nf; return a Z basis of Z_K's p-radical, phi = x--> x^p-x */
 static GEN
 pradical(GEN nf, GEN p, GEN *phi)
 {
@@ -2296,14 +2330,12 @@ pradical(GEN nf, GEN p, GEN *phi)
 
   /* matrix of Frob: x->x^p over Z_K/p */
   frob = cgetg(N+1,t_MAT);
-  for (i=1; i<=N; i++)
-    gel(frob,i) = pow_ei_mod_p(nf,i,p, p);
+  for (i=1; i<=N; i++) gel(frob,i) = pow_ei_mod_p(nf,i,p);
 
   m = frob; q = p;
   while (abscmpiu(q,N) < 0) { q = mulii(q,p); m = FpM_mul(m, frob, p); }
   rad = FpM_ker(m, p); /* m = Frob^k, s.t p^k >= N */
-  for (i=1; i<=N; i++)
-    gcoeff(frob,i,i) = subis(gcoeff(frob,i,i), 1);
+  for (i=1; i<=N; i++) gcoeff(frob,i,i) = subis(gcoeff(frob,i,i), 1);
   *phi = frob; return rad;
 }
 
@@ -2685,7 +2717,7 @@ modprinit(GEN nf, GEN pr, int zk)
     frob = cgetg(f+1, t_MAT);
     for (i=1; i<=f; i++)
     {
-      x = pow_ei_mod_p(nf,c[i],p, p);
+      x = pow_ei_mod_p(nf,c[i],p);
       gel(frob,i) = FpM_FpC_mul(ffproj, x, p);
     }
     u = col_ei(f,2); k = 2;
