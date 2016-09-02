@@ -2395,13 +2395,6 @@ init_unif_mod_fZ(GEN L)
   return F;
 }
 
-void
-check_listpr(GEN x)
-{
-  long l = lg(x), i;
-  for (i=1; i<l; i++) checkprid(gel(x,i));
-}
-
 /* Given a prime ideal factorization with possibly zero or negative
  * exponents, gives b such that v_p(b) = v_p(x) for all prime ideals pr | x
  * and v_pr(b)> = 0 for all other pr.
