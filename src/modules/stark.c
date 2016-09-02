@@ -768,14 +768,17 @@ bnrrootnumber(GEN bnr, GEN chi, long flag, long prec)
 
   if (flag < 0 || flag > 1) pari_err_FLAG("bnrrootnumber");
   checkbnr(bnr);
-  cyc = bnr_get_cyc(bnr);
   if (flag)
-  { if (!char_check(cyc,chi)) pari_err_TYPE("bnrrootnumber [character]", chi); }
+  {
+    cyc = bnr_get_cyc(bnr);
+    if (!char_check(cyc,chi)) pari_err_TYPE("bnrrootnumber [character]", chi);
+  }
   else
   {
     GEN z = bnrconductor_i(bnr, chi, 2);
     bnr = gel(z,2);
     chi = gel(z,3);
+    cyc = bnr_get_cyc(bnr);
   }
   chi = char_normalize(chi, cyc_normalize(cyc));
   chi = get_Char(chi, prec);

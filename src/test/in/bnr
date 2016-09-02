@@ -81,3 +81,10 @@ bnrdisc(bnr,,,1)
 bnrdisc(bnr,,,2)
 bnrdisc(K,[1,[1,0]],,2)
 bnrdisc(K,[1,[0,0]],,2)
+
+setrand(1);
+F = bnfinit(x^3-3);
+f = idealmul(F, idealprimedec(F,3)[1], 5);
+bnr = bnrinit(F, [f, [1]], 1);
+C = bnr.cyc;
+forvec(c = vector(#C,i,[0,C[i]-1]), print(bnrrootnumber(bnr,c)))
