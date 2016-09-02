@@ -664,7 +664,6 @@ long    val_norm(GEN x, GEN p, long *vz);
 
 /* buch1.c */
 
-GEN     form_to_ideal(GEN x);
 GEN     qfbforms(GEN D);
 
 /* buch2.c */

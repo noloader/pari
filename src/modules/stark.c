@@ -3314,19 +3314,6 @@ findbezk_pol(GEN nf, GEN x)
   y[1] = x[1]; return y;
 }
 
-/* allow t_QF[IR], and t_VEC/t_COL with 3 components */
-GEN
-form_to_ideal(GEN x)
-{
-  long tx = typ(x);
-  GEN b;
-  if ((is_vec_t(tx) || lg(x) != 4)
-       && tx != t_QFR && tx != t_QFI) pari_err_TYPE("form_to_ideal",x);
-  b = negi(gel(x,2)); if (mpodd(b)) b = addis(b,1);
-  return mkmat2( mkcol2(gel(x,1), gen_0),
-                 mkcol2(shifti(b,-1), gen_1) );
-}
-
 /* P approximation computed at initial precision prec. Compute needed prec
  * to know P with 1 word worth of trailing decimals */
 static long
