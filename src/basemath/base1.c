@@ -1141,9 +1141,9 @@ get_roots_for_M(nffp_t *F)
   if (F->extraprec < 0)
   { /* not initialized yet */
     double er;
-    n = degpol(F->x);
+    n = degpol(F->T);
     eBD = 1 + gexpo(gel(F->basden,1));
-    er  = F->ro? (1+gexpo(F->ro)): fujiwara_bound(F->x);
+    er  = F->ro? (1+gexpo(F->ro)): fujiwara_bound(F->T);
     if (er < 0) er = 0;
     F->extraprec = nbits2extraprec(n*er + eBD + log2(n));
   }
@@ -1154,7 +1154,7 @@ get_roots_for_M(nffp_t *F)
   if (odd(PREC)) PREC += EXTRAPRECWORD;
 #endif
   if (F->ro && gprecision(gel(F->ro,1)) >= PREC) return;
-  F->ro = get_roots(F->x, F->r1, PREC);
+  F->ro = get_roots(F->T, F->r1, PREC);
 }
 
 /* [bas[i]/den[i]]= integer basis. roo = real part of the roots */
@@ -1232,7 +1232,7 @@ make_M_G(nffp_t *F, int trunc)
 void
 remake_GM(GEN nf, nffp_t *F, long prec)
 {
-  F->x  = nf_get_pol(nf);
+  F->T  = nf_get_pol(nf);
   F->ro = NULL;
   F->r1 = nf_get_r1(nf);
   F->basden = get_bas_den(nf_get_zk(nf));
@@ -1243,7 +1243,7 @@ remake_GM(GEN nf, nffp_t *F, long prec)
 static void
 nffp_init(nffp_t *F, nfbasic_t *T, GEN ro, long prec)
 {
-  F->x  = T->x;
+  F->T  = T->T;
   F->ro = ro;
   F->r1 = T->r1;
   if (!T->basden) T->basden = get_bas_den(T->bas);
@@ -1302,28 +1302,28 @@ get_nfindex(GEN bas)
 static void
 nfbasic_add_disc(nfbasic_t *T)
 {
-  if (!T->dx) T->dx = ZX_disc(T->x);
+  if (!T->dT) T->dT = ZX_disc(T->T);
   if (!T->index)
   {
     if (T->dK) /* fast */
-      T->index = sqrti( diviiexact(T->dx, T->dK) );
+      T->index = sqrti( diviiexact(T->dT, T->dK) );
     else
       T->index = get_nfindex(T->bas);
   }
-  if (!T->dK) T->dK = diviiexact(T->dx, sqri(T->index));
+  if (!T->dK) T->dK = diviiexact(T->dT, sqri(T->index));
 }
 
 GEN
 nfbasic_to_nf(nfbasic_t *T, GEN ro, long prec)
 {
   GEN nf = cgetg(10,t_VEC);
-  GEN x = T->x, absdK, Tr, D, TI, A, dA, MDI, mat = cgetg(9,t_VEC);
-  long n = degpol(T->x);
+  GEN x = T->T, absdK, Tr, D, TI, A, dA, MDI, mat = cgetg(9,t_VEC);
+  long n = degpol(T->T);
   nffp_t F;
   nfbasic_add_disc(T);
   get_nf_fp_compo(T, &F, ro, 0, prec);
 
-  gel(nf,1) = T->x;
+  gel(nf,1) = T->T;
   gel(nf,2) = get_sign(T->r1, n);
   gel(nf,3) = T->dK;
   gel(nf,4) = T->index;
@@ -1450,13 +1450,13 @@ nftohnfbasis(GEN nf, GEN x)
 }
 #endif
 
-/* set *pro to roots of T->x */
+/* set *pro to roots of T->T */
 static GEN
 get_red_G(nfbasic_t *T, GEN *pro)
 {
   GEN G, u, u0 = NULL;
   pari_sp av;
-  long i, prec, n = degpol(T->x);
+  long i, prec, n = degpol(T->T);
   nffp_t F;
 
   prec = nbits2prec(n+32);
@@ -1490,11 +1490,11 @@ static void
 set_LLL_basis(nfbasic_t *T, GEN *pro, double DELTA)
 {
   GEN B = T->bas;
-  if (T->r1 == degpol(T->x)) {
+  if (T->r1 == degpol(T->T)) {
     pari_sp av = avma;
     GEN u, basden = T->basden;
     if (!basden) basden = get_bas_den(B);
-    u = ZM_lll(make_Tr(T->x,basden), DELTA,
+    u = ZM_lll(make_Tr(T->T,basden), DELTA,
                LLL_GRAM|LLL_KEEP_FIRST|LLL_IM|LLL_COMPATIBLE);
     B = gerepileupto(av, RgV_RgM_mul(B, u));
     *pro = NULL;
@@ -1527,24 +1527,24 @@ static void polredbest_aux(nfbasic_t *T, GEN *pro, GEN *px, GEN *pdx, GEN *pa);
 static GEN
 nfpolred(nfbasic_t *T, GEN *pro)
 {
-  GEN x = T->x, dx, b, rev;
+  GEN x = T->T, dx, b, rev;
   long n = degpol(x), v = varn(x);
 
   if (n == 1) {
-    T->x = deg1pol_shallow(gen_1, gen_m1, v);
+    T->T = deg1pol_shallow(gen_1, gen_m1, v);
     *pro = NULL; return pol_1(v);
   }
   polredbest_aux(T, pro, &x, &dx, &b);
-  if (x == T->x) return NULL; /* no improvement */
+  if (x == T->T) return NULL; /* no improvement */
   if (DEBUGLEVEL>1) err_printf("xbest = %Ps\n",x);
 
   /* update T */
-  rev = QXQ_reverse(b, T->x);
+  rev = QXQ_reverse(b, T->T);
   T->bas = QXV_QXQ_eval(T->bas, rev, x);
   (void)Z_issquareall(diviiexact(dx,T->dK), &(T->index));
   T->basden = get_bas_den(T->bas);
-  T->dx = dx;
-  T->x = x;
+  T->dT = dx;
+  T->T = x;
   *pro = NULL; /* reset */
   return rev;
 }
@@ -1608,7 +1608,7 @@ nfbasic_init(GEN x, long flag, nfbasic_t *T)
       nfmaxord_t S;
       nfmaxord(&S, x, flag);
       x = S.T;
-      T->x0 = S.T0;
+      T->T0 = S.T0;
       T->dKP = S.dKP;
       dK = S.dK;
       index = S.index;
@@ -1625,14 +1625,14 @@ nfbasic_init(GEN x, long flag, nfbasic_t *T)
       dK    = nf_get_disc(nf);
       index = nf_get_index(nf);
       bas   = nf_get_zk(nf);
-      T->x0 = x;
+      T->T0 = x;
       dx = NULL;
       r1 = nf_get_r1(nf);
       break;
     }
     case 0: /* monic integral polynomial + integer basis */
       bas = gel(x,2); x = gel(x,1);
-      T->x0 = x;
+      T->T0 = x;
       index = NULL;
       dx = NULL;
       dK = NULL;
@@ -1642,10 +1642,10 @@ nfbasic_init(GEN x, long flag, nfbasic_t *T)
       pari_err_TYPE("nfbasic_init", x);
       return;
   }
-  T->x     = x;
+  T->T     = x;
   T->unscale = unscale;
   T->r1    = r1;
-  T->dx    = dx;
+  T->dT    = dx;
   T->dK    = dK;
   T->bas   = bas;
   T->basden= NULL;
@@ -1656,7 +1656,7 @@ void
 nfinit_step1(nfbasic_t *T, GEN x, long flag)
 {
   nfbasic_init(x, flag, T);
-  if (!ZX_is_irred(T->x)) pari_err_IRREDPOL("nfinit",x);
+  if (!ZX_is_irred(T->T)) pari_err_IRREDPOL("nfinit",x);
 }
 
 GEN
@@ -1664,7 +1664,7 @@ nfinit_step2(nfbasic_t *T, long flag, long prec)
 {
   GEN nf, unscale;
 
-  if (!(flag & nf_RED) && !equali1(leading_coeff(T->x0)))
+  if (!(flag & nf_RED) && !equali1(leading_coeff(T->T0)))
   {
     pari_warn(warner,"non-monic polynomial. Result of the form [nf,c]");
     flag |= nf_RED | nf_ORIG;
@@ -1672,12 +1672,12 @@ nfinit_step2(nfbasic_t *T, long flag, long prec)
   unscale = T->unscale;
   if (!(flag & nf_RED) && !isint1(unscale))
   { /* implies lc(x0) = 1 and L := 1/unscale is integral */
-    long d = degpol(T->x0);
+    long d = degpol(T->T0);
     GEN L = ginv(unscale); /* x = L^(-deg(x)) x0(L X) */
     GEN f= powiu(L, (d*(d-1)) >> 1);
-    T->x = T->x0; /* restore original user-supplied x0, unscale data */
+    T->T = T->T0; /* restore original user-supplied x0, unscale data */
     T->unscale = gen_1;
-    T->dx    = gmul(T->dx, sqri(f));
+    T->dT    = gmul(T->dT, sqri(f));
     T->bas   = RgXV_unscale(T->bas, unscale);
     T->index = gmul(T->index, f);
   }
@@ -1692,9 +1692,9 @@ nfinit_step2(nfbasic_t *T, long flag, long prec)
     nf = nfbasic_to_nf(T, ro, prec);
     if (flag & nf_ORIG)
     {
-      if (!rev) rev = pol_x(varn(T->x)); /* no improvement */
+      if (!rev) rev = pol_x(varn(T->T)); /* no improvement */
       if (!isint1(unscale)) rev = RgX_Rg_div(rev, unscale);
-      nf = mkvec2(nf, mkpolmod(rev, T->x));
+      nf = mkvec2(nf, mkpolmod(rev, T->T));
     }
     T->unscale = unscale; /* restore */
   } else {
@@ -1923,9 +1923,9 @@ try_polmin(CG_data *d, nfbasic_t *T, GEN v, long flag, GEN *ai)
     ed = 0;
   g = get_pol(d, v);
   /* accuracy too low, compute algebraically */
-  if (!g) { avma = av; g = ZXQ_charpoly(*ai, T->x, varn(T->x)); }
+  if (!g) { avma = av; g = ZXQ_charpoly(*ai, T->T, varn(T->T)); }
   (void)ZX_gcd_all(g, ZX_deriv(g), &g);
-  if (best && degpol(g) != degpol(T->x)) { avma = av; return NULL; }
+  if (best && degpol(g) != degpol(T->T)) { avma = av; return NULL; }
   g = gerepilecopy(av, g);
   d->expo_best_disc = ed;
   if (flag & nf_ORIG)
@@ -1990,17 +1990,17 @@ remove_duplicates(GEN P, GEN A)
 static long
 polred_init(nfbasic_t *T, nffp_t *F, CG_data *d)
 {
-  long e, prec, n = degpol(T->x);
+  long e, prec, n = degpol(T->T);
   double log2rho;
   GEN ro;
   set_LLL_basis(T, &ro, 0.9999);
   /* || polchar ||_oo < 2^e ~ 2 (n * rho)^n, rho = max modulus of root */
-  log2rho = ro ? (double)gexpo(ro): fujiwara_bound(T->x);
+  log2rho = ro ? (double)gexpo(ro): fujiwara_bound(T->T);
   e = n * (long)(log2rho + log2((double)n)) + 1;
   if (e < 0) e = 0; /* can occur if n = 1 */
   prec = chk_gen_prec(n, e);
   get_nf_fp_compo(T, F, ro, 1, prec);
-  d->v = varn(T->x);
+  d->v = varn(T->T);
   d->expo_best_disc = -1;
   d->ZKembed = NULL;
   d->M = NULL;
@@ -2055,7 +2055,7 @@ polred_aux(nfbasic_t *T, GEN *pro, long flag)
 { /* only keep polynomials of max degree and best discriminant */
   const long best = flag & nf_ABSOLUTE;
   const long orig = flag & nf_ORIG;
-  GEN M, b, y, x = T->x;
+  GEN M, b, y, x = T->T;
   long maxi, i, j, k, v = varn(x), n = lg(T->bas)-1;
   nffp_t F;
   CG_data d;
@@ -2076,8 +2076,8 @@ polred_aux(nfbasic_t *T, GEN *pro, long flag)
   M = F.M;
   if (best)
   {
-    if (!T->dx) T->dx = ZX_disc(T->x);
-    d.expo_best_disc = expi(T->dx);
+    if (!T->dT) T->dT = ZX_disc(T->T);
+    d.expo_best_disc = expi(T->dT);
   }
 
   /* n + 2 sum_{1 <= i <= n} n-i = n + n(n-1) = n*n */
@@ -2129,16 +2129,16 @@ Polred(GEN x, long flag, GEN fa)
   return gerepilecopy(av, polred_aux(&T, &ro, flag));
 }
 
-/* finds "best" polynomial in polred_aux list, defaulting to T->x if none of
- * them is primitive. *px is the ZX, characteristic polynomial of Mod(*pb,T->x),
- * *pdx its discriminant. Set *pro = polroots(T->x) [ NOT *px ]. */
+/* finds "best" polynomial in polred_aux list, defaulting to T->T if none of
+ * them is primitive. *px is the ZX, characteristic polynomial of Mod(*pb,T->T),
+ * *pdx its discriminant. Set *pro = polroots(T->T) [ NOT *px ]. */
 static void
 polredbest_aux(nfbasic_t *T, GEN *pro, GEN *px, GEN *pdx, GEN *pb)
 {
-  GEN y, x = T->x; /* default value */
+  GEN y, x = T->T; /* default value */
   long i, l;
   y = polred_aux(T, pro, pb? nf_ORIG|nf_ABSOLUTE: nf_ABSOLUTE);
-  *pdx = T->dx;
+  *pdx = T->dT;
   if (pb)
   {
     GEN a, b = deg1pol_shallow(T->unscale, gen_0, varn(x));
@@ -2467,10 +2467,10 @@ polredabs0(GEN x, long flag)
   pari_sp av = avma;
   long i, l, vx;
   GEN y, a, u;
-  nfbasic_t T;
+  nfbasic_t S;
 
-  nfbasic_init(x, nf_PARTIALFACT, &T);
-  x = T.x; vx = varn(x);
+  nfbasic_init(x, nf_PARTIALFACT, &S);
+  x = S.T; vx = varn(x);
 
   if (degpol(x) == 1)
   {
@@ -2482,19 +2482,19 @@ polredabs0(GEN x, long flag)
   else
   {
     GEN v;
-    if (!(flag & nf_PARTIALFACT) && T.dKP)
+    if (!(flag & nf_PARTIALFACT) && S.dKP)
     {
-      GEN vw = primes_certify(T.dK, T.dKP);
+      GEN vw = primes_certify(S.dK, S.dKP);
       v = gel(vw,1); l = lg(v);
       if (l != 1)
       { /* fix integral basis */
         GEN w = gel(vw,2);
         for (i = 1; i < l; i++)
           w = ZV_union_shallow(w, gel(Z_factor(gel(v,i)),1));
-        nfbasic_init(mkvec2(x,w), 0, &T);
+        nfbasic_init(mkvec2(x,w), 0, &S);
       }
     }
-    v = polredabs_aux(&T, &u);
+    v = polredabs_aux(&S, &u);
     y = gel(v,1);
     a = gel(v,2); l = lg(a);
     for (i=1; i<l; i++)
@@ -2506,10 +2506,10 @@ polredabs0(GEN x, long flag)
   }
   if (DEBUGLEVEL) err_printf("Found %ld minimal polynomials.\n",l-1);
   if (flag & nf_ALL) {
-    for (i=1; i<l; i++) gel(y,i) = store(x, gel(y,i), gel(a,i), &T, flag, u);
+    for (i=1; i<l; i++) gel(y,i) = store(x, gel(y,i), gel(a,i), &S, flag, u);
   } else {
     GEN z = findmindisc(y, &a);
-    y = store(x, z, a, &T, flag, u);
+    y = store(x, z, a, &S, flag, u);
   }
   return gerepilecopy(av, y);
 }

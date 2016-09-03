@@ -3600,16 +3600,16 @@ bnrnewprec(GEN bnr, long prec)
 }
 
 static void
-nfbasic_from_sbnf(GEN sbnf, nfbasic_t *T)
+nfbasic_from_sbnf(GEN sbnf, nfbasic_t *S)
 {
-  T->x0 = T->x = gel(sbnf,1);
-  T->dK   = gel(sbnf,3);
-  T->bas  = gel(sbnf,4);
-  T->r1   = itos(gel(sbnf,2));
-  T->index= NULL;
-  T->dx   = NULL;
-  T->dKP  = NULL;
-  T->basden = NULL;
+  S->T0 = S->T = gel(sbnf,1);
+  S->dK   = gel(sbnf,3);
+  S->bas  = gel(sbnf,4);
+  S->r1   = itos(gel(sbnf,2));
+  S->index= NULL;
+  S->dT   = NULL;
+  S->dKP  = NULL;
+  S->basden = NULL;
 }
 
 static GEN
@@ -3998,7 +3998,7 @@ Buchall_param(GEN P, double cbach, double cbach2, long nbrelpid, long flun, long
     PRECREG = maxss(prec, MEDDEFAULTPREC);
     nfinit_step1(&nfT, P, 0);
     D = nfT.dK;
-    if (!equali1(leading_coeff(nfT.x0)))
+    if (!equali1(leading_coeff(nfT.T0)))
     {
       pari_warn(warner,"non-monic polynomial in bnfinit, using polredbest");
       flag_nfinit = nf_RED;
