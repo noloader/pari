@@ -24,7 +24,7 @@ Doc: \var{pol} being a non-constant,
  by \var{pol}. As such, it's a technical object passed as the first argument
  to most \kbd{nf}\var{xxx} functions, but it contains some information which
  may be directly useful. Access to this information via \emph{member
- functions} is preferred since the specific data organization specified below
+ functions} is preferred since the specific data organization given below
  may change in the future. Currently, \kbd{nf} is a row vector with 9
  components:
 
