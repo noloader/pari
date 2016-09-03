@@ -790,7 +790,7 @@ pick_prime(GEN a, long fl, pari_timer *T)
   avma = av; return chosenp;
 }
 
-/* Assume pol squarefree mod p; return vector of rational roots of a */
+/* Assume A a squarefree ZX; return the vector of its rational roots */
 static GEN
 DDF_roots(GEN A)
 {
@@ -838,7 +838,6 @@ DDF_roots(GEN A)
     {
       if (DEBUGMEM>1) pari_warn(warnmem,"DDF_roots, m = %ld", m);
       gerepileall(av, lc? 3:2, &z, &lcpol, &lc);
-
     }
   }
   if (DEBUGLEVEL>2) timer_printf(&T, "Recombination");
