@@ -1209,9 +1209,9 @@ instance to convert the basis to $\Q[X]/(T_0)$:
   RgXV_unscale(S.basis, S.unscale)
 @eprog
 
-Instead of passing $T$, one can use the format $[T,\var{listP}]$ as in
-\kbd{nfbasis} or \kbd{nfinit}, which computes an order which is maximal
-at a set of primes, but need not be the maximal order.
+Instead of passing $T$ (monic \kbd{ZX}), one can use the format
+$[T,\var{listP}]$ as in \kbd{nfbasis} or \kbd{nfinit}, which computes an
+order which is maximal at a set of primes, but need not be the maximal order.
 
 The \kbd{flag} is an or-ed combination of the binary flags:
 
@@ -1220,15 +1220,11 @@ primes less than \kbd{primelimit}. In that case, the elements in \kbd{dTP}
 and \kbd{dKP} need not all be primes. But the resulting \kbd{dK},
 \kbd{index} and \kbd{basis} are correct provided there exists no prime $p >
 \kbd{primelimit}$ such that $p^2$ divides the field discriminant \kbd{dK}.
-This flag is \emph{deprecated}: the $[T,\var{listP}]$ is safer and more
+This flag is \emph{deprecated}: the $[T,\var{listP}]$ format is safer and more
 flexible.
 
 \tet{nf_ROUND2}: use the ROUND2 algorithm instead of the default ROUND4.
 This flag is \emph{deprecated}: this algorithm is consistently slower.
-
-$T$ is the input polynomial (monic \kbd{ZX}). The format $[T, \kbd{listP}]$
-is also recognized, where \kbd{listP} is as in \tet{nfbasis} and is used to
-compute a local integral basis with respect to a specific set of primes.
 
 \fun{GEN}{indexpartial}{GEN T, GEN dT} $T$ a monic separable \kbd{ZX},
 \kbd{dT} is either \kbd{NULL} (no information) or a multiple of the
@@ -1236,6 +1232,13 @@ discriminant of $T$. Let $K = \Q[X]/(T)$ and $\Z_K$ its maximal order.
 Returns a multiple of the exponent of the quotient group $\Z_K/(\Z[X]/(T))$.
 In other word, a \emph{denominator} $d$ such that $d x\in\Z[X]/(T)$ for all
 $x\in\Z_K$.
+
+\fun{GEN}{nfbasic_to_nf}{nfbasic_t *T, GEN ro, long prec}
+
+\fun{void}{nfinit_step1}{nfbasic_t *T, GEN x, long flag}
+
+\fun{GEN}{nfinit_step2}{nfbasic_t *T, long flag, long prec}
+
 
 \subsec{Computing in the class group}
 
