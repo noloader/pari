@@ -1659,7 +1659,7 @@ nf_deg1_prime(GEN nf)
 long
 rnfisabelian(GEN nf, GEN pol)
 {
-  GEN modpr, pr, T, Tnf, pp, ro, nfL, C, z, a, sig, eq;
+  GEN modpr, pr, T, Tnf, pp, ro, nfL, C, a, sig, eq;
   long i, j, l, v;
   ulong p, k, ka;
 
@@ -1674,13 +1674,13 @@ rnfisabelian(GEN nf, GEN pol)
   eq = nf_rnfeq(nf,pol); /* init L := K[x]/(pol), nf attached to K */
   C = gel(eq,1); setvarn(C, v); /* L = Q[t]/(C) */
   a = gel(eq,2); setvarn(a, v); /* root of K.pol in L */
-  z = nfroots_split(C, QXX_QXQ_eval(pol, a, C));
-  if (!z) return 0;
-  ro = gel(z,1); l = lg(ro)-1;
+  nfL = C;
+  ro = nfroots_if_split(&nfL, QXX_QXQ_eval(pol, a, C));
+  if (!ro) return 0;
+  l = lg(ro)-1;
   /* small groups are abelian, as are groups of prime order */
   if (l < 6 || uisprime(l)) return 1;
 
-  nfL = gel(z,2);
   pr = nf_deg1_prime(nfL);
   modpr = nf_to_Fq_init(nfL, &pr, &T, &pp);
   p = itou(pp);

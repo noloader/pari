@@ -1686,6 +1686,19 @@ multiple for the number of  $\Q$-automorphism of the (integral, monic)
 actual number of conjugates. Of course, you should use \tet{nfgaloisconj}
 to be sure.
 
+\fun{GEN}{nfroots_if_split}{GEN *pt, GEN T} let \kbd{*pt} point
+either to a number field structure or an irreducible \kbd{ZX}, defining
+a number field $K$. Given $T$ a monic squarefree polynomial with
+coefficients in $\Z_K$, return the list of roots of \kbd{pol} in $K$
+if the polynomial splits completely, and \kbd{NULL} otherwise.
+In other words, this checks whether $K[X]/(T)$ is normal over $K$ (hence
+Galois since $T$ is separable by assumption).
+
+In the case where \kbd{*pT} is a \kbd{ZX}, the function has to compute
+internally a conditional \kbd{nf} attached to $K$ , whose \kbd{nf.zk} may not
+define the maximal order $\Z_K$ (see \kbd{nfroots}); \kbd{*pT} is then
+replaced by the conditional \kbd{nf} to avoid losing that information.
+
 \subsec{Cyclotomics units}
 
 \fun{GEN}{nfrootsof1}{GEN nf} returns a two-component vector $[w,z]$ where $w$

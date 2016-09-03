@@ -179,7 +179,6 @@ GEN    idealsqrtn(GEN nf, GEN x, GEN gn, int strict);
 GEN    init_unif_mod_fZ(GEN L);
 GEN    make_integral(GEN nf, GEN L0, GEN f, GEN listpr);
 GEN    nf_deg1_prime(GEN nf);
-GEN    nfroots_split(GEN nf, GEN pol);
 GEN    pidealprimeinv(GEN nf, GEN x);
 GEN    primedec_apply_kummer(GEN nf,GEN pol,long e,GEN p);
 GEN    rnfallbase(GEN nf, GEN *ppol, GEN *pD, GEN *pd, GEN *pfi);

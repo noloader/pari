@@ -1917,12 +1917,13 @@ nfsqff(GEN nf, GEN pol, long fl, GEN den)
 
 /* assume pol monic in nf.zk[X] */
 GEN
-nfroots_split(GEN nf, GEN pol)
+nfroots_if_split(GEN *pnf, GEN pol)
 {
-  GEN T = get_nfpol(nf,&nf), den = fix_nf(&nf, &T, &pol);
+  GEN T = get_nfpol(*pnf,pnf), den = fix_nf(pnf, &T, &pol);
   pari_sp av = avma;
-  GEN z = gerepilecopy(av, nfsqff(nf, pol, ROOTS_SPLIT, den));
-  return (lg(z) == 1)? NULL: mkvec2(z, nf);
+  GEN z = nfsqff(*pnf, pol, ROOTS_SPLIT, den);
+  if (lg(z) == 1) { avma = av; return NULL; }
+  return gerepilecopy(av, z);
 }
 
 /*******************************************************************/
