@@ -25,8 +25,13 @@ Doc: factorization of the univariate
  instead, but this is in general less efficient since parts of an \kbd{nf}
  structure will then be computed internally. This is useful in two
  situations: when you do not need the \kbd{nf} elsewhere, or when you cannot
- compute the field discriminant due to integer factorization difficulties. In
- the latter case, if you must use a partial discriminant factorization (as
- allowed by both \tet{nfdisc} or \tet{nfbasis}) to build a partially correct
- \kbd{nf} structure, always input \kbd{nf.pol} to \kbd{nffactor}, and not your
- makeshift \var{nf}: otherwise factors could be missed.
+ initialize an \kbd{nf} due to integer factorization difficulties when
+ attempting to compute the field discriminant and maximal order.
+
+ \misctitle{Caveat} \kbd{nfinit([T, listP])} allows to compute in polynomial
+ time a conditional \var{nf} structure, which sets \kbd{nf.zk} to an order
+ which is not guaranteed to be maximal at all primes. Always either use
+ \kbd{nfcertify} first (which may not run in polynomial time) or make sure
+ to input \kbd{nf.pol} instead of the conditional \var{nf}: \kbd{nffactor} is
+ able to recover in polynomial time in this case, instead of potentially
+ missing a factor.
