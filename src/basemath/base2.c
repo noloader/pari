@@ -2282,7 +2282,7 @@ primedec_apply_kummer(GEN nf,GEN u,long e,GEN p)
       if (!is_uniformizer(u, powiu(p,f+1), &S)) gel(u,2) = addii(gel(u,2), p);
     }
     u = poltobasis(nf,u);
-    t = zk_scalar_or_multable(nf, t);
+    t = zk_multable(nf, t); /* t never a scalar here since pr is not inert */
   }
   return mk_pr(p,u,e,f,t);
 }
