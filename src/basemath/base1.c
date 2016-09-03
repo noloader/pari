@@ -1262,6 +1262,57 @@ get_nf_fp_compo(nfbasic_t *T, nffp_t *F, GEN ro, int trunc, long prec)
 static GEN
 get_sign(long r1, long n) { return mkvec2s(r1, (n-r1)>>1); }
 
+/* let bas a t_VEC of QX giving a Z-basis of O_K. Return the index of the
+ * basis. Assume bas[1] = 1 and that the leading coefficient of elements
+ * of bas are of the form 1/b for a t_INT b */
+static GEN
+get_nfindex(GEN bas)
+{
+  pari_sp av = avma;
+  long n = lg(bas)-1, i;
+  GEN D, d, mat;
+
+  /* assume bas[1] = 1 */
+  D = gel(bas,1);
+  if (! is_pm1(simplify_shallow(D))) pari_err_TYPE("get_nfindex", D);
+  D = gen_1;
+  for (i = 2; i <= n; i++)
+  { /* after nfbasis, basis is upper triangular! */
+    GEN B = gel(bas,i), lc;
+    if (degpol(B) != i-1) break;
+    lc = gel(B, i+1);
+    switch (typ(lc))
+    {
+      case t_INT: continue;
+      case t_FRAC: if (is_pm1(gel(lc,1)) ) {D = mulii(D, gel(lc,2)); continue;}
+      default: pari_err_TYPE("get_nfindex", B);
+    }
+  }
+  if (i <= n)
+  { /* not triangular after all */
+    bas = vecslice(bas,i,n);
+    bas = Q_remove_denom(bas, &d);
+    if (!d) return D;
+    mat = RgV_to_RgM(bas, n);
+    mat = rowslice(mat, i,n);
+    D = mulii(D, diviiexact(powiu(d, n-i+1), absi(ZM_det(mat))));
+  }
+  return gerepileuptoint(av, D);
+}
+static void
+nfbasic_add_disc(nfbasic_t *T)
+{
+  if (!T->dx) T->dx = ZX_disc(T->x);
+  if (!T->index)
+  {
+    if (T->dK) /* fast */
+      T->index = sqrti( diviiexact(T->dx, T->dK) );
+    else
+      T->index = get_nfindex(T->bas);
+  }
+  if (!T->dK) T->dK = diviiexact(T->dx, sqri(T->index));
+}
+
 GEN
 nfbasic_to_nf(nfbasic_t *T, GEN ro, long prec)
 {
@@ -1269,6 +1320,7 @@ nfbasic_to_nf(nfbasic_t *T, GEN ro, long prec)
   GEN x = T->x, absdK, Tr, D, TI, A, dA, MDI, mat = cgetg(9,t_VEC);
   long n = degpol(T->x);
   nffp_t F;
+  nfbasic_add_disc(T);
   get_nf_fp_compo(T, &F, ro, 0, prec);
 
   gel(nf,1) = T->x;
@@ -1497,41 +1549,6 @@ nfpolred(nfbasic_t *T, GEN *pro)
   return rev;
 }
 
-/* let bas a t_VEC of QX giving a Z-basis of O_K. Return the index of the
- * basis. Assume bas[1] is 1 and that the leading coefficient of elements
- * of bas are of the form 1/b for a t_INT b */
-GEN
-get_nfindex(GEN bas)
-{
-  pari_sp av = avma;
-  long n = lg(bas)-1, i;
-  GEN D, d, mat;
-
-  D = gen_1; /* assume bas[1] = 1 */
-  for (i = 2; i <= n; i++)
-  { /* in most cases [e.g after nfbasis] basis is upper triangular! */
-    GEN B = gel(bas,i), lc;
-    if (degpol(B) != i-1) break;
-    lc = gel(B, i+1);
-    switch (typ(lc))
-    {
-      case t_INT: continue;
-      case t_FRAC: lc = gel(lc,2); break;
-      default: pari_err_TYPE("get_nfindex",lc);
-    }
-    D = mulii(D, lc);
-  }
-  if (i <= n)
-  { /* not triangular after all */
-    bas = Q_remove_denom(bas, &d);
-    if (!d) { avma = av; return D; }
-    mat = RgV_to_RgM(bas, n);
-    d = diviiexact(powiu(d, n), ZM_det(mat));
-    D = mulii(D,absi(d));
-  }
-  return gerepileuptoint(av, D);
-}
-
 /* Either nf type or ZX or [monic ZX, data], where data is either an integral
  * basis (deprecated), or listP data (nfbasis input format) to specify
  * a set of primes at with the basis order must be maximal.
@@ -1575,14 +1592,6 @@ nf_input_type(GEN x)
       return 0;
   }
   return t_VEC; /* nf or incorrect */
-}
-
-static void
-nfbasic_add_disc(nfbasic_t *T)
-{
-  if (!T->index) T->index = get_nfindex(T->bas);
-  if (!T->dx) T->dx = ZX_disc(T->x);
-  if (!T->dK) T->dK = diviiexact(T->dx, sqri(T->index));
 }
 
 static void
