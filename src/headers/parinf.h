@@ -58,8 +58,8 @@ typedef struct {
   GEN unscale; /* T = C*T0(x / unscale), rational */
   GEN dK; /* disc(K) */
   GEN index; /* [O_K : Z[X]/(T)] */
+  GEN basis;  /* Z-basis of O_K (t_VEC of t_POL) */
 
-  GEN bas;  /* Z-basis of O_K (t_VEC of t_POL) */
   long r1; /* number of real places of K */
   GEN dKP; /* "primes" dividing disc(K) [if we have a composite in the list
               then the structure may not be correct] */
@@ -72,10 +72,10 @@ typedef struct {
   GEN unscale; /* T = C*T0(x / unscale), rational */
   GEN dK; /* disc(K) */
   GEN index; /* [O_K : Z[X]/(T)] */
+  GEN basis; /* Z-basis for maximal order, t_VEC of QX (bas[1] is t_INT 1) */
 
   GEN dTP, dTE; /* (possibly partial) factorization of dT, primes / exponents */
   GEN dKP, dKE; /* (possibly partial) factorization of dK, primes / exponents */
-  GEN basis; /* Z-basis for maximal order */
 } nfmaxord_t;
 
 typedef struct {

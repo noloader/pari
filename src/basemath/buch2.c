@@ -3603,13 +3603,13 @@ static void
 nfbasic_from_sbnf(GEN sbnf, nfbasic_t *S)
 {
   S->T0 = S->T = gel(sbnf,1);
-  S->dK   = gel(sbnf,3);
-  S->bas  = gel(sbnf,4);
-  S->r1   = itos(gel(sbnf,2));
-  S->index= NULL;
-  S->dT   = NULL;
-  S->dKP  = NULL;
-  S->basden = NULL;
+  S->dK    = gel(sbnf,3);
+  S->basis = gel(sbnf,4);
+  S->r1    = itos(gel(sbnf,2));
+  S->index = NULL;
+  S->dT    = NULL;
+  S->dKP   = NULL;
+  S->basden= NULL;
 }
 
 static GEN

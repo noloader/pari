@@ -1246,7 +1246,7 @@ nffp_init(nffp_t *F, nfbasic_t *T, GEN ro, long prec)
   F->T  = T->T;
   F->ro = ro;
   F->r1 = T->r1;
-  if (!T->basden) T->basden = get_bas_den(T->bas);
+  if (!T->basden) T->basden = get_bas_den(T->basis);
   F->basden = T->basden;
   F->extraprec = -1;
   F->prec = prec;
@@ -1308,7 +1308,7 @@ nfbasic_add_disc(nfbasic_t *T)
     if (T->dK) /* fast */
       T->index = sqrti( diviiexact(T->dT, T->dK) );
     else
-      T->index = get_nfindex(T->bas);
+      T->index = get_nfindex(T->basis);
   }
   if (!T->dK) T->dK = diviiexact(T->dT, sqri(T->index));
 }
@@ -1333,7 +1333,7 @@ nfbasic_to_nf(nfbasic_t *T, GEN ro, long prec)
   gel(mat,1) = F.M;
   gel(mat,2) = F.G;
 
-  nf_set_multable(nf, T->bas, F.basden);
+  nf_set_multable(nf, T->basis, F.basden);
 
   Tr = get_Tr(gel(nf,9), x, F.basden);
   absdK = T->dK; if (signe(absdK) < 0) absdK = negi(absdK);
@@ -1489,7 +1489,7 @@ get_red_G(nfbasic_t *T, GEN *pro)
 static void
 set_LLL_basis(nfbasic_t *T, GEN *pro, double DELTA)
 {
-  GEN B = T->bas;
+  GEN B = T->basis;
   if (T->r1 == degpol(T->T)) {
     pari_sp av = avma;
     GEN u, basden = T->basden;
@@ -1501,7 +1501,7 @@ set_LLL_basis(nfbasic_t *T, GEN *pro, double DELTA)
   }
   else
     B = RgV_RgM_mul(B, get_red_G(T, pro));
-  T->bas = B;
+  T->basis = B;
   T->basden = get_bas_den(B);
 }
 
@@ -1540,9 +1540,9 @@ nfpolred(nfbasic_t *T, GEN *pro)
 
   /* update T */
   rev = QXQ_reverse(b, T->T);
-  T->bas = QXV_QXQ_eval(T->bas, rev, x);
+  T->basis = QXV_QXQ_eval(T->basis, rev, x);
   (void)Z_issquareall(diviiexact(dx,T->dK), &(T->index));
-  T->basden = get_bas_den(T->bas);
+  T->basden = get_bas_den(T->basis);
   T->dT = dx;
   T->T = x;
   *pro = NULL; /* reset */
@@ -1595,61 +1595,61 @@ nf_input_type(GEN x)
 }
 
 static void
-nfbasic_init(GEN x, long flag, nfbasic_t *T)
+nfbasic_init(GEN T, long flag, nfbasic_t *S)
 {
-  GEN bas, dK, dx, index, unscale = gen_1;
+  GEN basis, dK, dT, index, unscale = gen_1;
   long r1;
 
-  T->dKP = NULL;
-  switch (nf_input_type(x))
+  S->dKP = NULL;
+  switch (nf_input_type(T))
   {
     case t_POL:
     {
-      nfmaxord_t S;
-      nfmaxord(&S, x, flag);
-      x = S.T;
-      T->T0 = S.T0;
-      T->dKP = S.dKP;
-      dK = S.dK;
-      index = S.index;
-      bas = S.basis;
-      dx = S.dT;
-      unscale = S.unscale;
-      r1 = ZX_sturm(x);
+      nfmaxord_t M;
+      nfmaxord(&M, T, flag);
+      T = M.T;
+      S->T0 = M.T0;
+      S->dKP = M.dKP;
+      dK = M.dK;
+      index = M.index;
+      basis = M.basis;
+      dT = M.dT;
+      unscale = M.unscale;
+      r1 = ZX_sturm(T);
       break;
     }
     case t_VEC:
     { /* nf, bnf, bnr */
-      GEN nf = checknf(x);
-      x     = nf_get_pol(nf);
+      GEN nf = checknf(T);
+      T     = nf_get_pol(nf);
       dK    = nf_get_disc(nf);
       index = nf_get_index(nf);
-      bas   = nf_get_zk(nf);
-      T->T0 = x;
-      dx = NULL;
+      basis = nf_get_zk(nf);
+      S->T0 = T;
+      dT = NULL;
       r1 = nf_get_r1(nf);
       break;
     }
     case 0: /* monic integral polynomial + integer basis */
-      bas = gel(x,2); x = gel(x,1);
-      T->T0 = x;
+      basis = gel(T,2); T = gel(T,1);
+      S->T0 = T;
       index = NULL;
-      dx = NULL;
+      dT = NULL;
       dK = NULL;
-      r1 = ZX_sturm(x);
+      r1 = ZX_sturm(T);
       break;
     default: /* -1 */
-      pari_err_TYPE("nfbasic_init", x);
+      pari_err_TYPE("nfbasic_init", T);
       return;
   }
-  T->T     = x;
-  T->unscale = unscale;
-  T->r1    = r1;
-  T->dT    = dx;
-  T->dK    = dK;
-  T->bas   = bas;
-  T->basden= NULL;
-  T->index = index;
+  S->T     = T;
+  S->unscale = unscale;
+  S->r1    = r1;
+  S->dT    = dT;
+  S->dK    = dK;
+  S->basis = basis;
+  S->basden= NULL;
+  S->index = index;
 }
 
 void
@@ -1678,7 +1678,7 @@ nfinit_step2(nfbasic_t *T, long flag, long prec)
     T->T = T->T0; /* restore original user-supplied x0, unscale data */
     T->unscale = gen_1;
     T->dT    = gmul(T->dT, sqri(f));
-    T->bas   = RgXV_unscale(T->bas, unscale);
+    T->basis   = RgXV_unscale(T->basis, unscale);
     T->index = gmul(T->index, f);
   }
   nfbasic_add_disc(T); /* more expensive after set_LLL_basis */
@@ -2056,7 +2056,7 @@ polred_aux(nfbasic_t *T, GEN *pro, long flag)
   const long best = flag & nf_ABSOLUTE;
   const long orig = flag & nf_ORIG;
   GEN M, b, y, x = T->T;
-  long maxi, i, j, k, v = varn(x), n = lg(T->bas)-1;
+  long maxi, i, j, k, v = varn(x), n = lg(T->basis)-1;
   nffp_t F;
   CG_data d;
 
@@ -2092,7 +2092,7 @@ polred_aux(nfbasic_t *T, GEN *pro, long flag)
   for (i = 2; i <= n; i++)
   {
     GEN ch, ai;
-    ai = gel(T->bas,i);
+    ai = gel(T->basis,i);
     ch = try_polmin(&d, T, gel(M,i), flag, &ai);
     if (ch) { gel(y,k) = ch; gel(b,k) = ai; k++; }
   }
@@ -2101,13 +2101,13 @@ polred_aux(nfbasic_t *T, GEN *pro, long flag)
     for (j = i+1; j <= n; j++)
     {
       GEN ch, ai, v;
-      ai = gadd(gel(T->bas,i), gel(T->bas,j));
+      ai = gadd(gel(T->basis,i), gel(T->basis,j));
       v = RgV_add(gel(M,i), gel(M,j));
       /* defining polynomial for Q(w_i+w_j) */
       ch = try_polmin(&d, T, v, flag, &ai);
       if (ch) { gel(y,k) = ch; gel(b,k) = ai; k++; }
 
-      ai = gsub(gel(T->bas,i), gel(T->bas,j));
+      ai = gsub(gel(T->basis,i), gel(T->basis,j));
       v = RgV_sub(gel(M,i), gel(M,j));
       /* defining polynomial for Q(w_i-w_j) */
       ch = try_polmin(&d, T, v, flag, &ai);
@@ -2409,7 +2409,7 @@ store(GEN x, GEN z, GEN a, nfbasic_t *T, long flag, GEN u)
 {
   GEN y, b;
 
-  if (u) a = RgV_RgC_mul(T->bas, ZM_ZC_mul(u, a));
+  if (u) a = RgV_RgC_mul(T->basis, ZM_ZC_mul(u, a));
   if (flag & (nf_ORIG|nf_ADDZK))
   {
     b = QXQ_reverse(a, x);
@@ -2427,7 +2427,7 @@ store(GEN x, GEN z, GEN a, nfbasic_t *T, long flag, GEN u)
   if (flag & nf_ADDZK)
   { /* append integral basis for number field Q[X]/(z) to result */
     long n = degpol(x);
-    GEN t = RgV_RgM_mul(RgXQ_powers(b, n-1, z), RgV_to_RgM(T->bas,n));
+    GEN t = RgV_RgM_mul(RgXQ_powers(b, n-1, z), RgV_to_RgM(T->basis,n));
     y = mkvec2(y, t);
   }
   return y;
