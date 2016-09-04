@@ -41,7 +41,7 @@ Doc: compute the L-function value $L(s)$, or if \kbd{D} is set, the
  ? z = 1/2 + I*T[1];
  ? abs( lfun(L, z) )
  %7 = 8.7066865533412207420780392991125136196 E-39
- ? abs( lfun(L, z 1) )
+ ? abs( lfun(L, z, 1) )
  %8 = 0.79316043335650611601389756527435211412  \\ simple zero
  @eprog
 
