@@ -61,19 +61,7 @@ typedef struct {
   GEN basis;  /* Z-basis of O_K (t_VEC of t_POL) */
 
   long r1; /* number of real places of K */
-  GEN dKP; /* "primes" dividing disc(K) [if we have a composite in the list
-              then the structure may not be correct] */
   GEN basden; /* [nums(bas), dens(bas)] */
-} nfbasic_t;
-
-typedef struct {
-  GEN T, dT; /* monic defining polynomial, disc(T) */
-  GEN T0; /* original defining polynomial (ZX) */
-  GEN unscale; /* T = C*T0(x / unscale), rational */
-  GEN dK; /* disc(K) */
-  GEN index; /* [O_K : Z[X]/(T)] */
-  GEN basis; /* Z-basis for maximal order, t_VEC of QX (bas[1] is t_INT 1) */
-
   GEN dTP, dTE; /* (possibly partial) factorization of dT, primes / exponents */
   GEN dKP, dKE; /* (possibly partial) factorization of dK, primes / exponents */
 } nfmaxord_t;
@@ -153,7 +141,6 @@ typedef struct {
 
 GEN fincke_pohst(GEN a,GEN BOUND,long stockmax,long PREC, FP_chk_fun *CHECK);
 void remake_GM(GEN nf, nffp_t *F, long prec);
-GEN nfbasic_to_nf(nfbasic_t *T, GEN ro, long prec);
 
 void init_zlog_bid(zlog_S *S, GEN bid);
 GEN  log_gen_arch(zlog_S *S, long index);

@@ -1179,7 +1179,7 @@ multiplicative group $(1 + \var{pr}) / (1 + \var{pr}^e)$ as an abelian group.
 Faster than \tet{idealstar} when the norm of \var{pr} is large, since it
 avoids (useless) work in the multiplicative group of the residue field.
 
-\subsec{Maximal order and discriminant}
+\subsec{Maximal order and discriminant, conversion to \kbd{nf} structure}
 
 A number field $K = \Q[X]/(T)$ is defined by a monic $T\in\Z[X]$. The
 low-level function computing a maximal order is
@@ -1213,7 +1213,8 @@ Instead of passing $T$ (monic \kbd{ZX}), one can use the format
 $[T,\var{listP}]$ as in \kbd{nfbasis} or \kbd{nfinit}, which computes an
 order which is maximal at a set of primes, but need not be the maximal order.
 
-The \kbd{flag} is an or-ed combination of the binary flags:
+The \kbd{flag} is an or-ed combination of the binary flags, both of them
+deprecated:
 
 \tet{nf_PARTIALFACT}: do not try to fully factor \kbd{dT} and only look for
 primes less than \kbd{primelimit}. In that case, the elements in \kbd{dTP}
@@ -1226,19 +1227,34 @@ flexible.
 \tet{nf_ROUND2}: use the ROUND2 algorithm instead of the default ROUND4.
 This flag is \emph{deprecated}: this algorithm is consistently slower.
 
+\fun{void}{nfinit_basic}{nfmaxord_t *S, GEN T0} a wrapper around
+\kbd{nfmaxord} (without the deprecated \kbd{flag}) that also accepts number
+field structures (\var{nf}, \var{bnf}, \dots) for \kbd{T0}.
+
+\fun{GEN}{nfmaxord_to_nf}{nfmaxord_t *S, GEN ro, long prec} convert an
+\tet{nfmaxord_t} to an \var{nf} structure at precision \kbd{prec},
+where \kbd{ro} is \kbd{NULL}. The argument \kbd{ro} may also be set to a
+vector with $r_1 + r_2$ components containing the roots of \kbd{S->T}
+suitably ordered, i.e. first $r_1$ \typ{REAL} roots, then $r_2$ \typ{COMPLEX}
+representing the conguate pairs, but this is \emph{strongly discouraged}: the
+format is error-prone, and it is hard to compute the roots to the right
+accuracy in order to achieve \kbd{prec} accuracy for the \kbd{nf}. This
+function uses the integer basis \kbd{S->basis} as is, \emph{without}
+performing LLL-reduction. Unless the basis is already known to be reduced,
+use rather the following higher-level function:
+
+\fun{GEN}{nfinit_complete}{nfmaxord_t *S, long flag, long prec} convert
+an \tet{nfmaxord_t} to an \var{nf} structure at precision \kbd{prec}.
+The \kbd{flag} has the same meaning as in \kbd{nfinitall}. If
+\kbd{S->basis} is known to be reduced, it will be faster to
+use \tet{nfmaxord_to_nf}.
+
 \fun{GEN}{indexpartial}{GEN T, GEN dT} $T$ a monic separable \kbd{ZX},
 \kbd{dT} is either \kbd{NULL} (no information) or a multiple of the
 discriminant of $T$. Let $K = \Q[X]/(T)$ and $\Z_K$ its maximal order.
 Returns a multiple of the exponent of the quotient group $\Z_K/(\Z[X]/(T))$.
 In other word, a \emph{denominator} $d$ such that $d x\in\Z[X]/(T)$ for all
 $x\in\Z_K$.
-
-\fun{GEN}{nfbasic_to_nf}{nfbasic_t *T, GEN ro, long prec}
-
-\fun{void}{nfinit_step1}{nfbasic_t *T, GEN x, long flag}
-
-\fun{GEN}{nfinit_step2}{nfbasic_t *T, long flag, long prec}
-
 
 \subsec{Computing in the class group}
 

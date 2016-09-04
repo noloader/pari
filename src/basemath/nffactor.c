@@ -310,10 +310,12 @@ static GEN
 fix_nf(GEN *pnf, GEN *pT, GEN *pA)
 {
   GEN nf, NF, fa, P, Q, q, D, T = *pT;
+  nfmaxord_t S;
   long i, l;
 
   if (*pnf) return gen_1;
-  NF = nfinitall(T, nf_PARTIALFACT, DEFAULTPREC);
+  nfmaxord(&S, T, nf_PARTIALFACT);
+  NF = nfinit_complete(&S, 0, DEFAULTPREC);
   *pnf = nf = proper_nf(NF);
   if (nf != NF) { /* t_POL defining base field changed (not monic) */
     GEN A = *pA, a = cgetg_copy(A, &l);

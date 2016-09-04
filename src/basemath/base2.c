@@ -191,100 +191,6 @@ get_coprimes(GEN a, GEN b)
     if (!is_pm1(gel(u,i))) gel(u,k++) = gel(u,i);
   setlg(u, k); return u;
 }
-/* denominator of diagonal. All denominators are powers of a given integer */
-static GEN
-diag_denom(GEN M)
-{
-  GEN d = gen_1;
-  long j, l = lg(M);
-  for (j=1; j<l; j++)
-  {
-    GEN t = gcoeff(M,j,j);
-    if (typ(t) == t_INT) continue;
-    t = gel(t,2);
-    if (abscmpii(t,d) > 0) d = t;
-  }
-  return d;
-}
-static void
-allbase_from_maxord(nfmaxord_t *S, GEN maxord)
-{
-  pari_sp av = avma;
-  GEN f = S->T, P = S->dTP, a = NULL, da = NULL, index, P2, E2, D;
-  long n = degpol(f), lP = lg(P), i, j, k;
-  int centered = 0;
-  for (i=1; i<lP; i++)
-  {
-    GEN M, db, b = gel(maxord,i);
-    if (b == gen_1) continue;
-    db = diag_denom(b);
-    if (db == gen_1) continue;
-
-    /* db = denom(b), (da,db) = 1. Compute da Im(b) + db Im(a) */
-    b = Q_muli_to_int(b,db);
-    if (!da) { da = db; a = b; }
-    else
-    { /* optimization: easy as long as both matrix are diagonal */
-      j=2; while (j<=n && fnz(gel(a,j),j) && fnz(gel(b,j),j)) j++;
-      k = j-1; M = cgetg(2*n-k+1,t_MAT);
-      for (j=1; j<=k; j++)
-      {
-        gel(M,j) = gel(a,j);
-        gcoeff(M,j,j) = mulii(gcoeff(a,j,j),gcoeff(b,j,j));
-      }
-      /* could reduce mod M(j,j) but not worth it: usually close to da*db */
-      for (  ; j<=n;     j++) gel(M,j) = ZC_Z_mul(gel(a,j), db);
-      for (  ; j<=2*n-k; j++) gel(M,j) = ZC_Z_mul(gel(b,j+k-n), da);
-      da = mulii(da,db);
-      a = ZM_hnfmodall_i(M, da, hnf_MODID|hnf_CENTER);
-      gerepileall(av, 2, &a, &da);
-      centered = 1;
-    }
-  }
-  if (da)
-  {
-    index = diviiexact(da, gcoeff(a,1,1));
-    for (j=2; j<=n; j++) index = mulii(index, diviiexact(da, gcoeff(a,j,j)));
-    if (!centered) a = ZM_hnfcenter(a);
-    a = RgM_Rg_div(a, da);
-  }
-  else
-  {
-    index = gen_1;
-    a = matid(n);
-  }
-  S->dK = diviiexact(S->dT, sqri(index));
-  S->index = index;
-
-  D = S->dK;
-  P2 = cgetg(lP, t_COL);
-  E2 = cgetg(lP, t_VECSMALL);
-  for (k = j = 1; j < lP; j++)
-  {
-    long v = Z_pvalrem(D, gel(P,j), &D);
-    if (v) { gel(P2,k) = gel(P,j); E2[k] = v; k++; }
-  }
-  setlg(P2, k); S->dKP = P2;
-  setlg(E2, k); S->dKE = P2;
-  S->basis = RgM_to_RgXV(a, varn(f));
-}
-static GEN
-disc_from_maxord(nfmaxord_t *S, GEN O)
-{
-  long n = degpol(S->T), lP = lg(O), i, j;
-  GEN index = gen_1;
-  for (i=1; i<lP; i++)
-  {
-    GEN b = gel(O,i);
-    if (b == gen_1) continue;
-    for (j = 1; j <= n; j++)
-    {
-      GEN c = gcoeff(b,j,j);
-      if (typ(c) == t_FRAC) index = mulii(index, gel(c,2)) ;
-    }
-  }
-  return diviiexact(S->dT, sqri(index));
-}
 
 /*******************************************************************/
 /*                                                                 */
@@ -641,7 +547,8 @@ static GEN ZX_Dedekind(GEN F, GEN *pg, GEN p);
 
 /* Warning: data computed for T = ZX_Q_normalize(T0). If S.unscale !=
  * gen_1, caller must take steps to correct the components if it wishes
- * to stick to the original T0 */
+ * to stick to the original T0. Return a vector of p-maximal orders, for
+ * those p s.t p^2 | disc(T) [ = S->dTP ]*/
 static GEN
 get_maxord(nfmaxord_t *S, GEN T0, long flag)
 {
@@ -716,11 +623,89 @@ get_maxord(nfmaxord_t *S, GEN T0, long flag)
   }
   S->dTP = P; return O;
 }
+
+/* M a QM, return denominator of diagonal. All denominators are powers of
+ * a given integer */
+static GEN
+diag_denom(GEN M)
+{
+  GEN d = gen_1;
+  long j, l = lg(M);
+  for (j=1; j<l; j++)
+  {
+    GEN t = gcoeff(M,j,j);
+    if (typ(t) == t_INT) continue;
+    t = gel(t,2);
+    if (abscmpii(t,d) > 0) d = t;
+  }
+  return d;
+}
 void
 nfmaxord(nfmaxord_t *S, GEN T0, long flag)
 {
   GEN O = get_maxord(S, T0, flag);
-  allbase_from_maxord(S, O);
+  GEN f = S->T, P = S->dTP, a = NULL, da = NULL, P2, E2, D;
+  long n = degpol(f), lP = lg(P), i, j, k;
+  int centered = 0;
+  pari_sp av = avma;
+  /* r1 & basden not initialized here */
+  S->r1 = -1;
+  S->basden = NULL;
+  for (i=1; i<lP; i++)
+  {
+    GEN M, db, b = gel(O,i);
+    if (b == gen_1) continue;
+    db = diag_denom(b);
+    if (db == gen_1) continue;
+
+    /* db = denom(b), (da,db) = 1. Compute da Im(b) + db Im(a) */
+    b = Q_muli_to_int(b,db);
+    if (!da) { da = db; a = b; }
+    else
+    { /* optimization: easy as long as both matrix are diagonal */
+      j=2; while (j<=n && fnz(gel(a,j),j) && fnz(gel(b,j),j)) j++;
+      k = j-1; M = cgetg(2*n-k+1,t_MAT);
+      for (j=1; j<=k; j++)
+      {
+        gel(M,j) = gel(a,j);
+        gcoeff(M,j,j) = mulii(gcoeff(a,j,j),gcoeff(b,j,j));
+      }
+      /* could reduce mod M(j,j) but not worth it: usually close to da*db */
+      for (  ; j<=n;     j++) gel(M,j) = ZC_Z_mul(gel(a,j), db);
+      for (  ; j<=2*n-k; j++) gel(M,j) = ZC_Z_mul(gel(b,j+k-n), da);
+      da = mulii(da,db);
+      a = ZM_hnfmodall_i(M, da, hnf_MODID|hnf_CENTER);
+      gerepileall(av, 2, &a, &da);
+      centered = 1;
+    }
+  }
+  if (da)
+  {
+    GEN index = diviiexact(da, gcoeff(a,1,1));
+    for (j=2; j<=n; j++) index = mulii(index, diviiexact(da, gcoeff(a,j,j)));
+    if (!centered) a = ZM_hnfcenter(a);
+    a = RgM_Rg_div(a, da);
+    S->index = index;
+    S->dK = diviiexact(S->dT, sqri(index));
+  }
+  else
+  {
+    S->index = gen_1;
+    S->dK = S->dT;
+    a = matid(n);
+  }
+
+  D = S->dK;
+  P2 = cgetg(lP, t_COL);
+  E2 = cgetg(lP, t_VECSMALL);
+  for (k = j = 1; j < lP; j++)
+  {
+    long v = Z_pvalrem(D, gel(P,j), &D);
+    if (v) { gel(P2,k) = gel(P,j); E2[k] = v; k++; }
+  }
+  setlg(P2, k); S->dKP = P2;
+  setlg(E2, k); S->dKE = P2;
+  S->basis = RgM_to_RgXV(a, varn(f));
 }
 GEN
 nfbasis(GEN x, GEN *pdK, GEN fa)
@@ -739,8 +724,19 @@ nfdisc(GEN x)
   pari_sp av = avma;
   nfmaxord_t S;
   GEN O = get_maxord(&S, x, 0);
-  GEN D = disc_from_maxord(&S, O);
-  D = icopy_avma(D, av); avma = (pari_sp)D; return D;
+  long n = degpol(S.T), lP = lg(O), i, j;
+  GEN index = gen_1;
+  for (i=1; i<lP; i++)
+  {
+    GEN b = gel(O,i);
+    if (b == gen_1) continue;
+    for (j = 1; j <= n; j++)
+    {
+      GEN c = gcoeff(b,j,j);
+      if (typ(c) == t_FRAC) index = mulii(index, gel(c,2)) ;
+    }
+  }
+  return gerepileuptoint(av, diviiexact(S.dT, sqri(index)));
 }
 
 GEN

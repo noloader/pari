@@ -3599,19 +3599,6 @@ bnrnewprec(GEN bnr, long prec)
   return y;
 }
 
-static void
-nfbasic_from_sbnf(GEN sbnf, nfbasic_t *S)
-{
-  S->T0 = S->T = gel(sbnf,1);
-  S->dK    = gel(sbnf,3);
-  S->basis = gel(sbnf,4);
-  S->r1    = itos(gel(sbnf,2));
-  S->index = NULL;
-  S->dT    = NULL;
-  S->dKP   = NULL;
-  S->basden= NULL;
-}
-
 static GEN
 get_clfu(GEN clgp, GEN reg, GEN zu, GEN fu)
 {
@@ -3668,14 +3655,21 @@ sbnf2bnf(GEN sbnf, long prec)
   pari_sp av = avma;
   GEN ro, nf, A, fu, FU, C, clgp, clgp2, res, y, W, zu, matal, Vbase;
   long k, l;
-  nfbasic_t T;
+  nfmaxord_t S;
 
   if (typ(sbnf) != t_VEC || lg(sbnf) != 13) pari_err_TYPE("bnfmake",sbnf);
   if (prec < DEFAULTPREC) prec = DEFAULTPREC;
 
-  nfbasic_from_sbnf(sbnf, &T);
+  S.T0 = S.T = gel(sbnf,1);
+  S.r1    = itos(gel(sbnf,2));
+  S.dK    = gel(sbnf,3);
+  S.basis = gel(sbnf,4);
+  S.index = NULL;
+  S.dT    = NULL;
+  S.dKP   = NULL;
+  S.basden= NULL;
   ro = gel(sbnf,5); if (prec > gprecision(ro)) ro = NULL;
-  nf = nfbasic_to_nf(&T, ro, prec);
+  nf = nfmaxord_to_nf(&S, ro, prec);
 
   fu = gel(sbnf,11);
   A = get_archclean(nf, fu, prec, 1);
@@ -3980,7 +3974,7 @@ Buchall_param(GEN P, double cbach, double cbach2, long nbrelpid, long flun, long
   GEN auts, cyclic;
   const char *precpb = NULL;
   int FIRST = 1, class1 = 0;
-  nfbasic_t nfT;
+  nfmaxord_t nfT;
   RELCACHE_t cache;
   FB_t F;
   GRHcheck_t GRHcheck;
@@ -3996,7 +3990,7 @@ Buchall_param(GEN P, double cbach, double cbach2, long nbrelpid, long flun, long
   else
   {
     PRECREG = maxss(prec, MEDDEFAULTPREC);
-    nfinit_step1(&nfT, P, 0);
+    nfinit_basic(&nfT, P);
     D = nfT.dK;
     if (!equali1(leading_coeff(nfT.T0)))
     {
@@ -4007,7 +4001,7 @@ Buchall_param(GEN P, double cbach, double cbach2, long nbrelpid, long flun, long
   N = degpol(P);
   if (N <= 1)
   {
-    if (!nf) nf = nfinit_step2(&nfT, flag_nfinit, PRECREG);
+    if (!nf) nf = nfinit_complete(&nfT, flag_nfinit, PRECREG);
     return gerepilecopy(av0, Buchall_deg1(nf));
   }
   D = absi(D);
@@ -4024,7 +4018,7 @@ Buchall_param(GEN P, double cbach, double cbach2, long nbrelpid, long flun, long
      + 2*log((double) LIMCMAX) + LOGD/2) / LOG2 ); /* enough to compute norms */
   if (small_norm_prec > PRECREG) PRECREG = small_norm_prec;
   if (!nf)
-    nf = nfinit_step2(&nfT, flag_nfinit, PRECREG);
+    nf = nfinit_complete(&nfT, flag_nfinit, PRECREG);
   else if (nf_get_prec(nf) < PRECREG)
     nf = nfnewprec_shallow(nf, PRECREG);
   M_sn = nf_get_M(nf);

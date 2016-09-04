@@ -1241,7 +1241,7 @@ remake_GM(GEN nf, nffp_t *F, long prec)
 }
 
 static void
-nffp_init(nffp_t *F, nfbasic_t *T, GEN ro, long prec)
+nffp_init(nffp_t *F, nfmaxord_t *T, GEN ro, long prec)
 {
   F->T  = T->T;
   F->ro = ro;
@@ -1253,14 +1253,11 @@ nffp_init(nffp_t *F, nfbasic_t *T, GEN ro, long prec)
 }
 
 static void
-get_nf_fp_compo(nfbasic_t *T, nffp_t *F, GEN ro, int trunc, long prec)
+get_nf_fp_compo(nfmaxord_t *T, nffp_t *F, GEN ro, int trunc, long prec)
 {
   nffp_init(F,T,ro,prec);
   make_M_G(F, trunc);
 }
-
-static GEN
-get_sign(long r1, long n) { return mkvec2s(r1, (n-r1)>>1); }
 
 /* let bas a t_VEC of QX giving a Z-basis of O_K. Return the index of the
  * basis. Assume bas[1] = 1 and that the leading coefficient of elements
@@ -1299,44 +1296,46 @@ get_nfindex(GEN bas)
   }
   return gerepileuptoint(av, D);
 }
+/* make sure all components of S are initialized */
 static void
-nfbasic_add_disc(nfbasic_t *T)
+nfmaxord_complete(nfmaxord_t *S)
 {
-  if (!T->dT) T->dT = ZX_disc(T->T);
-  if (!T->index)
+  if (!S->dT) S->dT = ZX_disc(S->T);
+  if (!S->index)
   {
-    if (T->dK) /* fast */
-      T->index = sqrti( diviiexact(T->dT, T->dK) );
+    if (S->dK) /* fast */
+      S->index = sqrti( diviiexact(S->dT, S->dK) );
     else
-      T->index = get_nfindex(T->basis);
+      S->index = get_nfindex(S->basis);
   }
-  if (!T->dK) T->dK = diviiexact(T->dT, sqri(T->index));
+  if (!S->dK) S->dK = diviiexact(S->dT, sqri(S->index));
+  if (S->r1 < 0) S->r1 = ZX_sturm(S->T);
 }
 
 GEN
-nfbasic_to_nf(nfbasic_t *T, GEN ro, long prec)
+nfmaxord_to_nf(nfmaxord_t *S, GEN ro, long prec)
 {
   GEN nf = cgetg(10,t_VEC);
-  GEN x = T->T, absdK, Tr, D, TI, A, dA, MDI, mat = cgetg(9,t_VEC);
-  long n = degpol(T->T);
+  GEN T = S->T, absdK, Tr, D, TI, A, dA, MDI, mat = cgetg(9,t_VEC);
+  long n = degpol(T);
   nffp_t F;
-  nfbasic_add_disc(T);
-  get_nf_fp_compo(T, &F, ro, 0, prec);
+  nfmaxord_complete(S);
+  get_nf_fp_compo(S, &F, ro, 0, prec);
 
-  gel(nf,1) = T->T;
-  gel(nf,2) = get_sign(T->r1, n);
-  gel(nf,3) = T->dK;
-  gel(nf,4) = T->index;
+  gel(nf,1) = S->T;
+  gel(nf,2) = mkvec2s(S->r1, (n - S->r1)>>1);
+  gel(nf,3) = S->dK;
+  gel(nf,4) = S->index;
   gel(nf,6) = F.ro;
   gel(nf,5) = mat;
 
   gel(mat,1) = F.M;
   gel(mat,2) = F.G;
 
-  nf_set_multable(nf, T->basis, F.basden);
+  nf_set_multable(nf, S->basis, F.basden);
 
-  Tr = get_Tr(gel(nf,9), x, F.basden);
-  absdK = T->dK; if (signe(absdK) < 0) absdK = negi(absdK);
+  Tr = get_Tr(gel(nf,9), T, F.basden);
+  absdK = S->dK; if (signe(absdK) < 0) absdK = negi(absdK);
   TI = ZM_inv(Tr, absdK); /* dK T^-1 */
   A = Q_primitive_part(TI, &dA);
   gel(mat,6) = A; /* primitive part of codifferent, dA its content */
@@ -1345,9 +1344,9 @@ nfbasic_to_nf(nfbasic_t *T, GEN ro, long prec)
   MDI = idealtwoelt(nf, A);
   gel(MDI,2) = zk_scalar_or_multable(nf, gel(MDI,2));
   gel(mat,7) = MDI;
-  if (is_pm1(T->index)) /* principal ideal (x'), whose norm is |dK| */
+  if (is_pm1(S->index)) /* principal ideal (T'), whose norm is |dK| */
   {
-    D = zk_scalar_or_multable(nf, ZX_deriv(x));
+    D = zk_scalar_or_multable(nf, ZX_deriv(T));
     if (typ(D) == t_MAT) D = ZM_hnfmod(D, absdK);
   }
   else
@@ -1355,7 +1354,7 @@ nfbasic_to_nf(nfbasic_t *T, GEN ro, long prec)
   gel(mat,3) = RM_round_maxrank(F.G);
   gel(mat,4) = Tr;
   gel(mat,5) = D;
-  gel(mat,8) = T->dKP? shallowtrans(T->dKP): cgetg(1,t_VEC);
+  gel(mat,8) = S->dKP? shallowtrans(S->dKP): cgetg(1,t_VEC);
   return nf;
 }
 
@@ -1452,7 +1451,7 @@ nftohnfbasis(GEN nf, GEN x)
 
 /* set *pro to roots of T->T */
 static GEN
-get_red_G(nfbasic_t *T, GEN *pro)
+get_red_G(nfmaxord_t *T, GEN *pro)
 {
   GEN G, u, u0 = NULL;
   pari_sp av;
@@ -1487,22 +1486,23 @@ get_red_G(nfbasic_t *T, GEN *pro)
 /* Compute an LLL-reduced basis for the integer basis of nf(T).
  * set *pro = roots of x if computed [NULL if not computed] */
 static void
-set_LLL_basis(nfbasic_t *T, GEN *pro, double DELTA)
+set_LLL_basis(nfmaxord_t *S, GEN *pro, double DELTA)
 {
-  GEN B = T->basis;
-  if (T->r1 == degpol(T->T)) {
+  GEN B = S->basis;
+  if (S->r1 < 0) S->r1 = ZX_sturm(S->T);
+  if (S->r1 == degpol(S->T)) {
     pari_sp av = avma;
-    GEN u, basden = T->basden;
+    GEN u, basden = S->basden;
     if (!basden) basden = get_bas_den(B);
-    u = ZM_lll(make_Tr(T->T,basden), DELTA,
+    u = ZM_lll(make_Tr(S->T,basden), DELTA,
                LLL_GRAM|LLL_KEEP_FIRST|LLL_IM|LLL_COMPATIBLE);
     B = gerepileupto(av, RgV_RgM_mul(B, u));
     *pro = NULL;
   }
   else
-    B = RgV_RgM_mul(B, get_red_G(T, pro));
-  T->basis = B;
-  T->basden = get_bas_den(B);
+    B = RgV_RgM_mul(B, get_red_G(S, pro));
+  S->basis = B;
+  S->basden = get_bas_den(B);
 }
 
 static int
@@ -1521,30 +1521,30 @@ ZX_is_better(GEN y, GEN x, GEN *dx)
   return 0;
 }
 
-static void polredbest_aux(nfbasic_t *T, GEN *pro, GEN *px, GEN *pdx, GEN *pa);
+static void polredbest_aux(nfmaxord_t *T, GEN *pro, GEN *px, GEN *pdx, GEN *pa);
 /* Seek a simpler, polynomial pol defining the same number field as
  * x (assumed to be monic at this point) */
 static GEN
-nfpolred(nfbasic_t *T, GEN *pro)
+nfpolred(nfmaxord_t *S, GEN *pro)
 {
-  GEN x = T->T, dx, b, rev;
+  GEN x = S->T, dx, b, rev;
   long n = degpol(x), v = varn(x);
 
   if (n == 1) {
-    T->T = deg1pol_shallow(gen_1, gen_m1, v);
+    S->T = deg1pol_shallow(gen_1, gen_m1, v);
     *pro = NULL; return pol_1(v);
   }
-  polredbest_aux(T, pro, &x, &dx, &b);
-  if (x == T->T) return NULL; /* no improvement */
+  polredbest_aux(S, pro, &x, &dx, &b);
+  if (x == S->T) return NULL; /* no improvement */
   if (DEBUGLEVEL>1) err_printf("xbest = %Ps\n",x);
 
   /* update T */
-  rev = QXQ_reverse(b, T->T);
-  T->basis = QXV_QXQ_eval(T->basis, rev, x);
-  (void)Z_issquareall(diviiexact(dx,T->dK), &(T->index));
-  T->basden = get_bas_den(T->basis);
-  T->dT = dx;
-  T->T = x;
+  rev = QXQ_reverse(b, S->T);
+  S->basis = QXV_QXQ_eval(S->basis, rev, x);
+  S->index = sqrti( diviiexact(dx,S->dK) );
+  S->basden = get_bas_den(S->basis);
+  S->dT = dx;
+  S->T = x;
   *pro = NULL; /* reset */
   return rev;
 }
@@ -1594,112 +1594,89 @@ nf_input_type(GEN x)
   return t_VEC; /* nf or incorrect */
 }
 
+/* cater for obsolete nf_PARTIALFACT flag */
 static void
-nfbasic_init(GEN T, long flag, nfbasic_t *S)
+nfinit_basic_partial(nfmaxord_t *S, GEN T)
 {
-  GEN basis, dK, dT, index, unscale = gen_1;
-  long r1;
-
-  S->dKP = NULL;
-  switch (nf_input_type(T))
+  if (typ(T) == t_POL) { nfmaxord(S, mkvec2(T,utoipos(500000)), 0); }
+  else nfinit_basic(S, T);
+}
+void
+nfinit_basic(nfmaxord_t *S, GEN T)
+{
+  long t = nf_input_type(T);
+  if (t == t_POL) { nfmaxord(S, T, 0); return; }
+  S->dTP = S->dTE = S->dKE = S->basden = NULL;
+  switch (t)
   {
-    case t_POL:
-    {
-      nfmaxord_t M;
-      nfmaxord(&M, T, flag);
-      T = M.T;
-      S->T0 = M.T0;
-      S->dKP = M.dKP;
-      dK = M.dK;
-      index = M.index;
-      basis = M.basis;
-      dT = M.dT;
-      unscale = M.unscale;
-      r1 = ZX_sturm(T);
-      break;
-    }
     case t_VEC:
     { /* nf, bnf, bnr */
       GEN nf = checknf(T);
-      T     = nf_get_pol(nf);
-      dK    = nf_get_disc(nf);
-      index = nf_get_index(nf);
-      basis = nf_get_zk(nf);
-      S->T0 = T;
-      dT = NULL;
-      r1 = nf_get_r1(nf);
-      break;
+      S->T = S->T0 = nf_get_pol(nf);
+      S->basis = nf_get_zk(nf);
+      S->index = nf_get_index(nf);
+      S->dK    = nf_get_disc(nf);
+      S->dKP = nf_get_ramified_primes(nf);
+      S->dT = mulii(S->dK, sqri(S->index));
+      S->r1 = nf_get_r1(nf); break;
     }
     case 0: /* monic integral polynomial + integer basis */
-      basis = gel(T,2); T = gel(T,1);
-      S->T0 = T;
-      index = NULL;
-      dT = NULL;
-      dK = NULL;
-      r1 = ZX_sturm(T);
-      break;
+      S->T = S->T0 = gel(T,1);
+      S->basis = gel(T,2);
+      S->index = NULL;
+      S->dK = NULL;
+      S->dKP = NULL;
+      S->dT = NULL;
+      S->r1 = -1; break;
     default: /* -1 */
       pari_err_TYPE("nfbasic_init", T);
       return;
   }
-  S->T     = T;
-  S->unscale = unscale;
-  S->r1    = r1;
-  S->dT    = dT;
-  S->dK    = dK;
-  S->basis = basis;
-  S->basden= NULL;
-  S->index = index;
-}
-
-void
-nfinit_step1(nfbasic_t *T, GEN x, long flag)
-{
-  nfbasic_init(x, flag, T);
-  if (!ZX_is_irred(T->T)) pari_err_IRREDPOL("nfinit",x);
+  S->unscale = gen_1;
 }
 
 GEN
-nfinit_step2(nfbasic_t *T, long flag, long prec)
+nfinit_complete(nfmaxord_t *S, long flag, long prec)
 {
   GEN nf, unscale;
 
-  if (!(flag & nf_RED) && !equali1(leading_coeff(T->T0)))
+  if (!ZX_is_irred(S->T)) pari_err_IRREDPOL("nfinit",S->T);
+  if (!(flag & nf_RED) && !equali1(leading_coeff(S->T0)))
   {
     pari_warn(warner,"non-monic polynomial. Result of the form [nf,c]");
     flag |= nf_RED | nf_ORIG;
   }
-  unscale = T->unscale;
+  unscale = S->unscale;
   if (!(flag & nf_RED) && !isint1(unscale))
   { /* implies lc(x0) = 1 and L := 1/unscale is integral */
-    long d = degpol(T->T0);
+    long d = degpol(S->T0);
     GEN L = ginv(unscale); /* x = L^(-deg(x)) x0(L X) */
     GEN f= powiu(L, (d*(d-1)) >> 1);
-    T->T = T->T0; /* restore original user-supplied x0, unscale data */
-    T->unscale = gen_1;
-    T->dT    = gmul(T->dT, sqri(f));
-    T->basis   = RgXV_unscale(T->basis, unscale);
-    T->index = gmul(T->index, f);
+    S->T = S->T0; /* restore original user-supplied x0, unscale data */
+    S->unscale = gen_1;
+    S->dT    = gmul(S->dT, sqri(f));
+    S->basis   = RgXV_unscale(S->basis, unscale);
+    S->index = gmul(S->index, f);
   }
-  nfbasic_add_disc(T); /* more expensive after set_LLL_basis */
+  nfmaxord_complete(S); /* more expensive after set_LLL_basis */
   if (flag & nf_RED)
   {
     GEN ro, rev;
     /* lie to polred: more efficient to update *after* modreverse, than to
      * unscale in the polred subsystem */
-    T->unscale = gen_1;
-    rev = nfpolred(T, &ro);
-    nf = nfbasic_to_nf(T, ro, prec);
+    S->unscale = gen_1;
+    rev = nfpolred(S, &ro);
+    nf = nfmaxord_to_nf(S, ro, prec);
     if (flag & nf_ORIG)
     {
-      if (!rev) rev = pol_x(varn(T->T)); /* no improvement */
+      if (!rev) rev = pol_x(varn(S->T)); /* no improvement */
       if (!isint1(unscale)) rev = RgX_Rg_div(rev, unscale);
-      nf = mkvec2(nf, mkpolmod(rev, T->T));
+      nf = mkvec2(nf, mkpolmod(rev, S->T));
     }
-    T->unscale = unscale; /* restore */
+    S->unscale = unscale; /* restore */
   } else {
-    GEN ro; set_LLL_basis(T, &ro, 0.99);
-    nf = nfbasic_to_nf(T, ro, prec);
+    GEN ro; set_LLL_basis(S, &ro, 0.99);
+    nf = nfmaxord_to_nf(S, ro, prec);
   }
   return nf;
 }
@@ -1712,12 +1689,12 @@ GEN
 nfinitall(GEN x, long flag, long prec)
 {
   const pari_sp av = avma;
-  nfbasic_t T;
+  nfmaxord_t T;
   GEN nf;
 
   if (checkrnf_i(x)) return rnf_build_nfabs(x, prec);
-  nfinit_step1(&T, x, flag);
-  nf = nfinit_step2(&T, flag, prec);
+  nfinit_basic(&T, x);
+  nf = nfinit_complete(&T, flag, prec);
   return gerepilecopy(av, nf);
 }
 
@@ -1908,7 +1885,7 @@ ZX_canon_neg(GEN z)
 /* return a defining polynomial for Q(alpha), v = embeddings of alpha.
  * Return NULL on failure: discriminant too large or non primitive */
 static GEN
-try_polmin(CG_data *d, nfbasic_t *T, GEN v, long flag, GEN *ai)
+try_polmin(CG_data *d, nfmaxord_t *T, GEN v, long flag, GEN *ai)
 {
   const long best = flag & nf_ABSOLUTE;
   long ed;
@@ -1988,24 +1965,24 @@ remove_duplicates(GEN P, GEN A)
 }
 
 static long
-polred_init(nfbasic_t *T, nffp_t *F, CG_data *d)
+polred_init(nfmaxord_t *S, nffp_t *F, CG_data *d)
 {
-  long e, prec, n = degpol(T->T);
+  long e, prec, n = degpol(S->T);
   double log2rho;
   GEN ro;
-  set_LLL_basis(T, &ro, 0.9999);
+  set_LLL_basis(S, &ro, 0.9999);
   /* || polchar ||_oo < 2^e ~ 2 (n * rho)^n, rho = max modulus of root */
-  log2rho = ro ? (double)gexpo(ro): fujiwara_bound(T->T);
+  log2rho = ro ? (double)gexpo(ro): fujiwara_bound(S->T);
   e = n * (long)(log2rho + log2((double)n)) + 1;
   if (e < 0) e = 0; /* can occur if n = 1 */
   prec = chk_gen_prec(n, e);
-  get_nf_fp_compo(T, F, ro, 1, prec);
-  d->v = varn(T->T);
+  get_nf_fp_compo(S, F, ro, 1, prec);
+  d->v = varn(S->T);
   d->expo_best_disc = -1;
   d->ZKembed = NULL;
   d->M = NULL;
   d->u = NULL;
-  d->r1= T->r1; return prec;
+  d->r1= S->r1; return prec;
 }
 static GEN
 findmindisc(GEN y, GEN *pa)
@@ -2051,12 +2028,12 @@ filter(GEN y, GEN b, long n)
 }
 
 static GEN
-polred_aux(nfbasic_t *T, GEN *pro, long flag)
+polred_aux(nfmaxord_t *S, GEN *pro, long flag)
 { /* only keep polynomials of max degree and best discriminant */
   const long best = flag & nf_ABSOLUTE;
   const long orig = flag & nf_ORIG;
-  GEN M, b, y, x = T->T;
-  long maxi, i, j, k, v = varn(x), n = lg(T->basis)-1;
+  GEN M, b, y, x = S->T;
+  long maxi, i, j, k, v = varn(x), n = lg(S->basis)-1;
   nffp_t F;
   CG_data d;
 
@@ -2071,13 +2048,13 @@ polred_aux(nfbasic_t *T, GEN *pro, long flag)
       return orig? trivial_fact(): cgetg(1,t_VEC);
   }
 
-  (void)polred_init(T, &F, &d);
+  (void)polred_init(S, &F, &d);
   *pro = F.ro;
   M = F.M;
   if (best)
   {
-    if (!T->dT) T->dT = ZX_disc(T->T);
-    d.expo_best_disc = expi(T->dT);
+    if (!S->dT) S->dT = ZX_disc(S->T);
+    d.expo_best_disc = expi(S->dT);
   }
 
   /* n + 2 sum_{1 <= i <= n} n-i = n + n(n-1) = n*n */
@@ -2092,8 +2069,8 @@ polred_aux(nfbasic_t *T, GEN *pro, long flag)
   for (i = 2; i <= n; i++)
   {
     GEN ch, ai;
-    ai = gel(T->basis,i);
-    ch = try_polmin(&d, T, gel(M,i), flag, &ai);
+    ai = gel(S->basis,i);
+    ch = try_polmin(&d, S, gel(M,i), flag, &ai);
     if (ch) { gel(y,k) = ch; gel(b,k) = ai; k++; }
   }
   maxi = minss(n, 3);
@@ -2101,16 +2078,16 @@ polred_aux(nfbasic_t *T, GEN *pro, long flag)
     for (j = i+1; j <= n; j++)
     {
       GEN ch, ai, v;
-      ai = gadd(gel(T->basis,i), gel(T->basis,j));
+      ai = gadd(gel(S->basis,i), gel(S->basis,j));
       v = RgV_add(gel(M,i), gel(M,j));
       /* defining polynomial for Q(w_i+w_j) */
-      ch = try_polmin(&d, T, v, flag, &ai);
+      ch = try_polmin(&d, S, v, flag, &ai);
       if (ch) { gel(y,k) = ch; gel(b,k) = ai; k++; }
 
-      ai = gsub(gel(T->basis,i), gel(T->basis,j));
+      ai = gsub(gel(S->basis,i), gel(S->basis,j));
       v = RgV_sub(gel(M,i), gel(M,j));
       /* defining polynomial for Q(w_i-w_j) */
-      ch = try_polmin(&d, T, v, flag, &ai);
+      ch = try_polmin(&d, S, v, flag, &ai);
       if (ch) { gel(y,k) = ch; gel(b,k) = ai; k++; }
     }
   setlg(y, k);
@@ -2120,28 +2097,35 @@ polred_aux(nfbasic_t *T, GEN *pro, long flag)
   settyp(y, t_COL); return mkmat2(b, y);
 }
 
+/* FIXME: obsolete */
 static GEN
 Polred(GEN x, long flag, GEN fa)
 {
   pari_sp av = avma;
   GEN ro;
-  nfbasic_t T; nfbasic_init(fa? mkvec2(x,fa): x, flag & nf_PARTIALFACT, &T);
-  return gerepilecopy(av, polred_aux(&T, &ro, flag));
+  nfmaxord_t S;
+  if (fa)
+    nfinit_basic(&S, mkvec2(x,fa));
+  else if (flag & nf_PARTIALFACT)
+    nfinit_basic_partial(&S, x);
+  else
+    nfinit_basic(&S, x);
+  return gerepilecopy(av, polred_aux(&S, &ro, flag));
 }
 
-/* finds "best" polynomial in polred_aux list, defaulting to T->T if none of
- * them is primitive. *px is the ZX, characteristic polynomial of Mod(*pb,T->T),
- * *pdx its discriminant. Set *pro = polroots(T->T) [ NOT *px ]. */
+/* finds "best" polynomial in polred_aux list, defaulting to S->T if none of
+ * them is primitive. *px is the ZX, characteristic polynomial of Mod(*pb,S->T),
+ * *pdx its discriminant. Set *pro = polroots(S->T) [ NOT *px ]. */
 static void
-polredbest_aux(nfbasic_t *T, GEN *pro, GEN *px, GEN *pdx, GEN *pb)
+polredbest_aux(nfmaxord_t *S, GEN *pro, GEN *px, GEN *pdx, GEN *pb)
 {
-  GEN y, x = T->T; /* default value */
+  GEN y, x = S->T; /* default value */
   long i, l;
-  y = polred_aux(T, pro, pb? nf_ORIG|nf_ABSOLUTE: nf_ABSOLUTE);
-  *pdx = T->dT;
+  y = polred_aux(S, pro, pb? nf_ORIG|nf_ABSOLUTE: nf_ABSOLUTE);
+  *pdx = S->dT;
   if (pb)
   {
-    GEN a, b = deg1pol_shallow(T->unscale, gen_0, varn(x));
+    GEN a, b = deg1pol_shallow(S->unscale, gen_0, varn(x));
     a = gel(y,1); l = lg(a);
     y = gel(y,2);
     for (i=1; i<l; i++)
@@ -2170,9 +2154,9 @@ polredbest(GEN T0, long flag)
 {
   pari_sp av = avma;
   GEN T, dT, ro, a;
-  nfbasic_t S;
+  nfmaxord_t S;
   if (flag < 0 || flag > 1) pari_err_FLAG("polredbest");
-  T = T0; nfbasic_init(T, nf_PARTIALFACT, &S);
+  T = T0; nfinit_basic_partial(&S, T);
   polredbest_aux(&S, &ro, &T, &dT, flag? &a: NULL);
   if (flag)
   { /* charpoly(Mod(a,T0)) = T */
@@ -2405,7 +2389,7 @@ chk_gen_init(FP_chk_fun *chk, GEN R, GEN U)
 
 /* z "small" minimal polynomial of Mod(a,x), deg z = deg x */
 static GEN
-store(GEN x, GEN z, GEN a, nfbasic_t *T, long flag, GEN u)
+store(GEN x, GEN z, GEN a, nfmaxord_t *T, long flag, GEN u)
 {
   GEN y, b;
 
@@ -2433,7 +2417,7 @@ store(GEN x, GEN z, GEN a, nfbasic_t *T, long flag, GEN u)
   return y;
 }
 static GEN
-polredabs_aux(nfbasic_t *T, GEN *u)
+polredabs_aux(nfmaxord_t *T, GEN *u)
 {
   long prec;
   GEN v;
@@ -2467,9 +2451,9 @@ polredabs0(GEN x, long flag)
   pari_sp av = avma;
   long i, l, vx;
   GEN y, a, u;
-  nfbasic_t S;
+  nfmaxord_t S;
 
-  nfbasic_init(x, nf_PARTIALFACT, &S);
+  nfinit_basic_partial(&S, x);
   x = S.T; vx = varn(x);
 
   if (degpol(x) == 1)
@@ -2491,7 +2475,7 @@ polredabs0(GEN x, long flag)
         GEN w = gel(vw,2);
         for (i = 1; i < l; i++)
           w = ZV_union_shallow(w, gel(Z_factor(gel(v,i)),1));
-        nfbasic_init(mkvec2(x,w), 0, &S);
+        nfinit_basic(&S, mkvec2(x,w));
       }
     }
     v = polredabs_aux(&S, &u);
@@ -2564,8 +2548,8 @@ rnfpolred_i(GEN nf, GEN relpol, long flag, long best)
       else
       {
         GEN ro, x, dx, a;
-        nfbasic_t T;
-        nfbasic_init(bas, nf_PARTIALFACT, &T);
+        nfmaxord_t T;
+        nfinit_basic_partial(&T, bas);
         polredbest_aux(&T, &ro, &x, &dx, &a);
         red = mkvec2(x, a);
       }
