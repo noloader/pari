@@ -445,6 +445,9 @@ nfissplit(GEN nf, GEN x)
   avma = av; return l != 1;
 }
 
+static GEN
+_norml2(GEN x) { return RgC_fpnorml2(x, DEFAULTPREC); }
+
 /* return a minimal lift of elt modulo id, as a ZC */
 static GEN
 nf_bestlift(GEN elt, GEN bound, nflift_t *L)
@@ -464,7 +467,7 @@ nf_bestlift(GEN elt, GEN bound, nflift_t *L)
     elt = scalarcol(elt, l-1);
   }
   u = ZC_sub(elt, ZM_ZC_mul(L->prk, u));
-  if (bound && gcmp(RgC_fpnorml2(u,DEFAULTPREC), bound) > 0) u = NULL;
+  if (bound && gcmp(_norml2(u), bound) > 0) u = NULL;
   return u;
 }
 
@@ -642,55 +645,46 @@ arch_for_T2(GEN G, GEN x)
   return (typ(x) == t_COL)? RgM_RgC_mul(G,x)
                           : RgC_Rg_mul(gel(G,1),x);
 }
-static GEN
-arch_for_T2_prec(GEN G, GEN x, long prec)
-{
-  return (typ(x) == t_COL)? RgM_RgC_mul(G, RgC_gtofp(x,prec))
-                          : RgC_Rg_mul(gel(G,1), gtofp(x, prec));
-}
 
-/* return a bound for T_2(P), P | polbase in C[X]
- * NB: Mignotte bound: A | S ==>
+/* polbase a zkX with t_INT leading coeff; return a bound for T_2(P),
+ * P | polbase in C[X]. NB: Mignotte bound: A | S ==>
  *  |a_i| <= binom(d-1, i-1) || S ||_2 + binom(d-1, i) lc(S)
  *
  * Apply to sigma(S) for all embeddings sigma, then take the L_2 norm over
- * sigma, then take the sup over i.
- **/
+ * sigma, then take the sup over i */
 static GEN
 nf_Mignotte_bound(GEN nf, GEN polbase)
-{
-  GEN G = nf_get_G(nf), lS = leading_coeff(polbase); /* t_INT */
-  GEN p1, C, N2, matGS, binlS, bin;
-  long prec, i, j, d = degpol(polbase), n = nf_get_degree(nf), r1 = nf_get_r1(nf);
+{ GEN lS = leading_coeff(polbase); /* t_INT */
+  GEN p1, C, N2, binlS, bin;
+  long prec = nf_get_prec(nf), n = nf_get_degree(nf), r1 = nf_get_r1(nf);
+  long i, j, d = degpol(polbase);
 
   binlS = bin = vecbinome(d-1);
   if (!isint1(lS)) binlS = ZC_Z_mul(bin,lS);
 
   N2 = cgetg(n+1, t_VEC);
-  prec = gprecision(G);
   for (;;)
   {
-    nffp_t F;
+    GEN G = nf_get_G(nf), matGS = cgetg(d+2, t_MAT);
 
-    matGS = cgetg(d+2, t_MAT);
     for (j=0; j<=d; j++) gel(matGS,j+1) = arch_for_T2(G, gel(polbase,j+2));
     matGS = shallowtrans(matGS);
     for (j=1; j <= r1; j++) /* N2[j] = || sigma_j(S) ||_2 */
     {
-      GEN c = sqrtr( RgC_fpnorml2(gel(matGS,j), DEFAULTPREC) );
+      GEN c = sqrtr( _norml2(gel(matGS,j)) );
       gel(N2,j) = c; if (!signe(c)) goto PRECPB;
     }
     for (   ; j <= n; j+=2)
     {
-      GEN q1 = RgC_fpnorml2(gel(matGS,j  ), DEFAULTPREC);
-      GEN q2 = RgC_fpnorml2(gel(matGS,j+1), DEFAULTPREC);
+      GEN q1 = _norml2(gel(matGS, j));
+      GEN q2 = _norml2(gel(matGS, j+1));
       GEN c = sqrtr( gmul2n(addrr(q1, q2), -1) );
       gel(N2,j) = gel(N2,j+1) = c; if (!signe(c)) goto PRECPB;
     }
-    if (j > n) break; /* done */
+    break; /* done */
 PRECPB:
     prec = precdbl(prec);
-    remake_GM(nf, &F, prec); G = F.G;
+    nf = nfnewprec_shallow(nf, prec);
     if (DEBUGLEVEL>1) pari_warn(warnprec, "nf_factor_bound", prec);
   }
 
@@ -718,14 +712,14 @@ PRECPB:
 static GEN
 nf_Beauzamy_bound(GEN nf, GEN polbase)
 {
-  GEN lt, C, s, G = nf_get_G(nf), POL, bin;
-  long d = degpol(polbase), n = nf_get_degree(nf), prec   = MEDDEFAULTPREC;
+  GEN lt, C, s, POL, bin;
+  long d = degpol(polbase), n = nf_get_degree(nf), prec = nf_get_prec(nf);
   bin = vecbinome(d);
   POL = polbase + 2;
   /* compute [POL]_2 */
   for (;;)
   {
-    nffp_t F;
+    GEN G = nf_get_G(nf);
     long i;
 
     s = real_0(prec);
@@ -733,16 +727,15 @@ nf_Beauzamy_bound(GEN nf, GEN polbase)
     {
       GEN c = gel(POL,i);
       if (gequal0(c)) continue;
-      c = gnorml2(arch_for_T2_prec(G, c, prec));
+      c = _norml2(arch_for_T2(G,c));
       if (!signe(c)) goto PRECPB;
       /* s += T2(POL[i]) / binomial(d,i) */
       s = addrr(s, divri(c, gel(bin,i+1)));
     }
     break;
-
 PRECPB:
     prec = precdbl(prec);
-    remake_GM(nf, &F, prec); G = F.G;
+    nf = nfnewprec_shallow(nf, prec);
     if (DEBUGLEVEL>1) pari_warn(warnprec, "nf_factor_bound", prec);
   }
   lt = leading_coeff(polbase);
@@ -1074,7 +1067,7 @@ nextK:
       if (T1)
       { /* d-1 test */
         t = get_trace(ind, T1);
-        if (rtodbl(RgC_fpnorml2(t,DEFAULTPREC)) > Bhigh)
+        if (rtodbl(_norml2(t)) > Bhigh)
         {
           if (DEBUGLEVEL>6) err_printf(".");
           avma = av; goto NEXT;
@@ -1083,7 +1076,7 @@ nextK:
       if (T2)
       { /* d-2 test */
         t = get_trace(ind, T2);
-        if (rtodbl(RgC_fpnorml2(t,DEFAULTPREC)) > Bhigh)
+        if (rtodbl(_norml2(t)) > Bhigh)
         {
           if (DEBUGLEVEL>3) err_printf("|");
           avma = av; goto NEXT;

@@ -66,19 +66,6 @@ typedef struct {
   GEN dKP, dKE; /* (possibly partial) factorization of dK, primes / exponents */
 } nfmaxord_t;
 
-typedef struct {
-  GEN T;
-  GEN ro;   /* roots of T */
-  long r1;
-  GEN basden;
-  long prec;
-/* possibly -1 = irrelevant or not computed */
-  long extraprec;
-/* possibly NULL = irrelevant or not computed */
-  GEN M;
-  GEN G;
-} nffp_t;
-
 /* qfr3 / qfr5 */
 struct qfr_data { GEN D, sqrtD, isqrtD; };
 
@@ -140,7 +127,6 @@ typedef struct {
 } zlog_S;
 
 GEN fincke_pohst(GEN a,GEN BOUND,long stockmax,long PREC, FP_chk_fun *CHECK);
-void remake_GM(GEN nf, nffp_t *F, long prec);
 
 void init_zlog_bid(zlog_S *S, GEN bid);
 GEN  log_gen_arch(zlog_S *S, long index);

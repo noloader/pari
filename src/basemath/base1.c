@@ -966,6 +966,16 @@ nfisincl(GEN a, GEN b) { return nfiso0(a,b,0); }
 /**                               INITALG                               **/
 /**                                                                     **/
 /*************************************************************************/
+typedef struct {
+  GEN T;
+  GEN ro; /* roots of T */
+  long r1;
+  GEN basden;
+  long prec;
+  long extraprec; /* possibly -1 = irrelevant or not computed */
+  GEN M, G; /* possibly NULL = irrelevant or not computed */
+} nffp_t;
+
 static GEN
 get_roots(GEN x, long r1, long prec)
 {
@@ -1227,17 +1237,6 @@ make_M_G(nffp_t *F, int trunc)
   get_roots_for_M(F);
   make_M(F, trunc);
   make_G(F);
-}
-
-void
-remake_GM(GEN nf, nffp_t *F, long prec)
-{
-  F->T  = nf_get_pol(nf);
-  F->ro = NULL;
-  F->r1 = nf_get_r1(nf);
-  F->basden = get_bas_den(nf_get_zk(nf));
-  F->extraprec = -1;
-  F->prec = prec; make_M_G(F, 1);
 }
 
 static void
@@ -1733,8 +1732,15 @@ nfnewprec_shallow(GEN nf, long prec)
 {
   GEN NF = leafcopy(nf);
   nffp_t F;
+
+  F.T  = nf_get_pol(nf);
+  F.ro = NULL;
+  F.r1 = nf_get_r1(nf);
+  F.basden = get_bas_den(nf_get_zk(nf));
+  F.extraprec = -1;
+  F.prec = prec; make_M_G(&F, 1);
+
   gel(NF,5) = leafcopy(gel(NF,5));
-  remake_GM(NF, &F, prec);
   gel(NF,6) = F.ro;
   gmael(NF,5,1) = F.M;
   gmael(NF,5,2) = F.G;
