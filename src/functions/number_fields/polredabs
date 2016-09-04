@@ -12,7 +12,15 @@ Doc: returns a canonical defining polynomial $P$ for the number field
  of the roots (i.e.~the $T_2$-norm) is minimal. Different $T$ defining
  isomorphic number fields will yield the same $P$. All $T$ accepted by
  \tet{nfinit} are also allowed here, e.g. non-monic polynomials, or pairs
- \kbd{[T, listP]} specifying that a non-maximal order may be used.
+ \kbd{[T, listP]} specifying that a non-maximal order may be used. For
+ convenience, any number field structure (\var{nf}, \var{bnf},\dots) can also
+ be used instead of $T$.
+ \bprog
+ ? polredabs(x^2 + 16)
+ %1 = x^2 + 1
+ ? K = bnfinit(x^2 + 16); polredabs(K)
+ %2 = x^2 + 1
+ @eprog
 
  \misctitle{Warning 1} Using a \typ{POL} $T$ requires computing
  and fully factoring the discriminant $d_K$ of the maximal order which may be
