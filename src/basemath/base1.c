@@ -1100,8 +1100,9 @@ nf_set_multable(GEN nf, GEN bas, GEN basden)
 
 /* as get_Tr, mul_table not precomputed */
 static GEN
-make_Tr(GEN x, GEN basden)
+make_Tr(nfmaxord_t *S)
 {
+  GEN x = S->T, basden = S->basden;
   long i,j, n = degpol(x);
   GEN c, t, d;
   GEN T   = cgetg(n+1,t_MAT);
@@ -1240,22 +1241,14 @@ make_M_G(nffp_t *F, int trunc)
 }
 
 static void
-nffp_init(nffp_t *F, nfmaxord_t *S, GEN ro, long prec)
+nffp_init(nffp_t *F, nfmaxord_t *S, long prec)
 {
   F->T  = S->T;
-  F->ro = ro;
   F->r1 = S->r1;
-  if (!S->basden) S->basden = get_bas_den(S->basis);
   F->basden = S->basden;
+  F->ro = NULL;
   F->extraprec = -1;
   F->prec = prec;
-}
-
-static void
-get_nf_fp_compo(nfmaxord_t *S, nffp_t *F, GEN ro, int trunc, long prec)
-{
-  nffp_init(F,S,ro,prec);
-  make_M_G(F, trunc);
 }
 
 /* let bas a t_VEC of QX giving a Z-basis of O_K. Return the index of the
@@ -1309,6 +1302,7 @@ nfmaxord_complete(nfmaxord_t *S)
   }
   if (!S->dK) S->dK = diviiexact(S->dT, sqri(S->index));
   if (S->r1 < 0) S->r1 = ZX_sturm(S->T);
+  if (!S->basden) S->basden = get_bas_den(S->basis);
 }
 
 GEN
@@ -1319,7 +1313,9 @@ nfmaxord_to_nf(nfmaxord_t *S, GEN ro, long prec)
   long n = degpol(T);
   nffp_t F;
   nfmaxord_complete(S);
-  get_nf_fp_compo(S, &F, ro, 0, prec);
+  nffp_init(&F,S,prec);
+  F.ro = ro;
+  make_M_G(&F, 0);
 
   gel(nf,1) = S->T;
   gel(nf,2) = mkvec2s(S->r1, (n - S->r1)>>1);
@@ -1458,7 +1454,7 @@ get_red_G(nfmaxord_t *S, GEN *pro)
   nffp_t F;
 
   prec = nbits2prec(n+32);
-  nffp_init(&F, S, NULL, prec);
+  nffp_init(&F, S, prec);
   av = avma;
   for (i=1; ; i++)
   {
@@ -1489,12 +1485,11 @@ set_LLL_basis(nfmaxord_t *S, GEN *pro, double DELTA)
 {
   GEN B = S->basis;
   if (S->r1 < 0) S->r1 = ZX_sturm(S->T);
+  if (!S->basden) S->basden = get_bas_den(B);
   if (S->r1 == degpol(S->T)) {
     pari_sp av = avma;
-    GEN u, basden = S->basden;
-    if (!basden) basden = get_bas_den(B);
-    u = ZM_lll(make_Tr(S->T,basden), DELTA,
-               LLL_GRAM|LLL_KEEP_FIRST|LLL_IM|LLL_COMPATIBLE);
+    GEN u = ZM_lll(make_Tr(S), DELTA,
+                   LLL_GRAM|LLL_KEEP_FIRST|LLL_IM|LLL_COMPATIBLE);
     B = gerepileupto(av, RgV_RgM_mul(B, u));
     *pro = NULL;
   }
@@ -1982,7 +1977,10 @@ polred_init(nfmaxord_t *S, nffp_t *F, CG_data *d)
   e = n * (long)(log2rho + log2((double)n)) + 1;
   if (e < 0) e = 0; /* can occur if n = 1 */
   prec = chk_gen_prec(n, e);
-  get_nf_fp_compo(S, F, ro, 1, prec);
+  nffp_init(F,S,prec);
+  F->ro = ro;
+  make_M_G(F, 1);
+
   d->v = varn(S->T);
   d->expo_best_disc = -1;
   d->ZKembed = NULL;
@@ -2444,8 +2442,9 @@ polredabs_aux(nfmaxord_t *S, GEN *u)
       v = fincke_pohst(mkvec(R),NULL,-1, 0, &chk);
       if (v) break;
     }
-    prec = precdbl(prec);
-    get_nf_fp_compo(S, &F, NULL, 1, prec);
+    F.prec = prec = precdbl(prec);
+    F.ro = NULL;
+    make_M_G(&F, 1);
     if (DEBUGLEVEL) pari_warn(warnprec,"polredabs0",prec);
   }
   *u = d.u; return v;
