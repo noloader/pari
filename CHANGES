@@ -38,7 +38,7 @@ Done for version 2.8.1 (released ??/??/2016):
    21- [libpari] qfbforms
    22- [libpari] nfroots_if_split
    23- [libpari] nfmaxord_to_nf, nfinit_basic, nfinit_complete,
-       idealprimedec_kummer
+       idealprimedec_kummer, nf_deg1_prime
 
   Changed
     1- remove useless flag in idealappr: directly allow factorization

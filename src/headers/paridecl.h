@@ -2322,6 +2322,7 @@ GEN     discrayabslistarch(GEN bnf, GEN arch, ulong bound);
 GEN     idealmoddivisor(GEN bnr, GEN x);
 GEN     isprincipalray(GEN bnf, GEN x);
 GEN     isprincipalraygen(GEN bnf, GEN x);
+GEN     nf_deg1_prime(GEN nf);
 GEN     rnfconductor(GEN bnf, GEN polrel);
 long    rnfisabelian(GEN nf, GEN pol);
 GEN     rnfnormgroup(GEN bnr, GEN polrel);
