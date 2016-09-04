@@ -1702,7 +1702,7 @@ dirartin(void *E, GEN p)
   { /* simple case */
     GEN F = FpX_factor(nf_get_pol(N), p);
     GEN P = gel(F,1), E = gel(F,2);
-    pr = primedec_apply_kummer(N, gel(P,1), E[1], p);
+    pr = idealprimedec_kummer(N, gel(P,1), E[1], p);
   }
   else /* wasteful but rare */
     pr = gel(idealprimedec(N,p), 1);

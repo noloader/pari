@@ -2254,9 +2254,9 @@ static GEN
 mk_pr(GEN p, GEN u, long e, long f, GEN t)
 { return mkvec5(p, u, utoipos(e), utoipos(f), t); }
 
-/* pr = (p,u) of ramification index e */
+/* nf a true nf; pr = (p,u) of ramification index e */
 GEN
-primedec_apply_kummer(GEN nf,GEN u,long e,GEN p)
+idealprimedec_kummer(GEN nf,GEN u,long e,GEN p)
 {
   GEN t, T = nf_get_pol(nf);
   long f = degpol(u), N = degpol(T);
@@ -2308,12 +2308,12 @@ pow_ei_mod_p(GEN nf, long I, GEN p)
   pari_sp av = avma;
   eltmod_muldata D;
   long N = nf_get_degree(nf);
-  GEN y;
-  if (I == 1) return scalarcol_shallow(gen_1,N);
+  GEN y = col_ei(N,I);
+  if (I == 1) return y;
   D.nf = nf;
   D.p = p;
   D.I = I;
-  y = gen_pow_fold(col_ei(N, I), p, (void*)&D, &sqr_mod, &ei_msqr_mod);
+  y = gen_pow_fold(y, p, (void*)&D, &sqr_mod, &ei_msqr_mod);
   return gerepileupto(av,y);
 }
 
@@ -2402,7 +2402,7 @@ primedec_end(GEN nf, GEN L, GEN p)
 static GEN
 primedec_aux(GEN nf, GEN p, long flim)
 {
-  GEN E, F, L, Ip, phi, f, g, h, p1, UN, T = nf_get_pol(nf);
+  GEN E, F, L, Ip, phi, f, g, h, UN, T = nf_get_pol(nf);
   long i, k, c, iL, N;
   int kummer;
 
@@ -2418,7 +2418,7 @@ primedec_aux(GEN nf, GEN p, long flim)
     {
       GEN t = gel(F,i);
       if (flim && degpol(t) > flim) { setlg(L, i); break; }
-      gel(L,i) = primedec_apply_kummer(nf, t, E[i],p);
+      gel(L,i) = idealprimedec_kummer(nf, t, E[i],p);
     }
     return L;
   }
@@ -2435,7 +2435,7 @@ primedec_aux(GEN nf, GEN p, long flim)
     {
       GEN t = gel(F,i);
       kummer = 1;
-      gel(L,iL++) = primedec_apply_kummer(nf, t, E[i],p);
+      gel(L,iL++) = idealprimedec_kummer(nf, t, E[i],p);
     }
     else /* F[i] | (f,g,h), happens at least once by Dedekind criterion */
       E[i] = 0;
@@ -2447,16 +2447,14 @@ primedec_aux(GEN nf, GEN p, long flim)
   h = cgetg(N+1,t_VEC);
   if (kummer)
   { /* split off Kummer factors */
-    GEN mulbeta, beta = NULL;
+    GEN mb, b = NULL;
     for (i=1; i<k; i++)
-      if (!E[i]) beta = beta? FpX_mul(beta, gel(F,i), p): gel(F,i);
-    if (!beta) errprime(p);
-    beta = FpC_red(poltobasis(nf,beta), p);
-
-    mulbeta = FpM_red(zk_multable(nf, beta), p);
-    p1 = shallowconcat(mulbeta, Ip);
-    /* Fp-base of ideal (Ip, beta) in ZK/p */
-    gel(h,1) = FpM_image(p1, p);
+      if (!E[i]) b = b? FpX_mul(b, gel(F,i), p): gel(F,i);
+    if (!b) errprime(p);
+    b = FpC_red(poltobasis(nf,b), p);
+    mb = FpM_red(zk_multable(nf,b), p);
+    /* Fp-base of ideal (Ip, b) in ZK/p */
+    gel(h,1) = FpM_image(shallowconcat(mb,Ip), p);
   }
   else
     gel(h,1) = Ip;
@@ -2481,9 +2479,8 @@ primedec_aux(GEN nf, GEN p, long flim)
       GEN R, a, mula, mul2, v = gel(mat1,2);
       long n;
 
-      a = FpM_FpC_mul(M2,v, p);
-      mula = zk_scalar_or_multable(nf, a); /* not a scalar */
-      mula = FpM_red(mula, p);
+      a = FpM_FpC_mul(M2,v, p); /* not a scalar */
+      mula = FpM_red(zk_multable(nf,a), p);
       mul2 = FpM_mul(Mi2, FpM_mul(mula,M2, p), p);
       R = FpX_roots(pol_min(mul2,p), p); /* totally split mod p */
       n = lg(R)-1;

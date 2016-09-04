@@ -244,7 +244,7 @@ primedec_deg1(GEN K, GEN p)
   T = nf_get_pol(K);
   r = FpX_oneroot(T, p); if (!r) return NULL;
   r = deg1pol_shallow(gen_1, Fp_neg(r,p), varn(T));
-  return primedec_apply_kummer(K, r, 1, p);
+  return idealprimedec_kummer(K, r, 1, p);
 }
 
 /* Bound for the elementary divisors of the torsion group of elliptic curve

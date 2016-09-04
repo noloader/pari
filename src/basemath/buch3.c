@@ -1649,7 +1649,7 @@ nf_deg1_prime(GEN nf)
     {
       z = utoi(Fl_neg(r, p));
       z = deg1pol_shallow(gen_1, z, varn(T));
-      return primedec_apply_kummer(nf, z, 1, utoipos(p));
+      return idealprimedec_kummer(nf, z, 1, utoipos(p));
     }
     avma = av;
   }

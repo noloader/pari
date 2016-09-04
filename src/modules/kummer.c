@@ -1132,7 +1132,7 @@ prlifttoKz(GEN nfz, GEN nf, GEN pr, compo_s *C)
     T = FpX_normalize(T, p);
   }
   F = FpX_factor(T, p);
-  return primedec_apply_kummer(nfz,gcoeff(F,1,1), pr_get_e(pr), p);
+  return idealprimedec_kummer(nfz,gcoeff(F,1,1), pr_get_e(pr), p);
 }
 static GEN
 get_przlist(GEN L, GEN nfz, GEN nf, compo_s *C)

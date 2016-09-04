@@ -1685,7 +1685,7 @@ nf_pick_prime(long ct, GEN nf, GEN polbase, long fl,
     if (!r) continue;
 
     ap = utoipos(pp);
-    apr = primedec_apply_kummer(nf, Flx_to_ZX(r), 1, ap);
+    apr = idealprimedec_kummer(nf, Flx_to_ZX(r), 1, ap);
     amodpr = zk_to_Fq_init(nf,&apr,&aT,&ap);
 
     /* second step : evaluate factorisation mod apr */
@@ -1977,7 +1977,7 @@ nf_pick_prime_for_units(GEN nf, prklift_t *P)
   }
   if (!r) pari_err_OVERFLOW("nf_pick_prime [ran out of primes]");
   ap = utoipos(pp);
-  apr = primedec_apply_kummer(nf, Flx_to_ZX(r), 1, ap);
+  apr = idealprimedec_kummer(nf, Flx_to_ZX(r), 1, ap);
   amodpr = zk_to_Fq_init(nf,&apr,&aT,&ap);
   P->pr = apr;
   P->q = pr_norm(apr);

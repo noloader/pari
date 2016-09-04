@@ -972,6 +972,16 @@ limiting the list to primes of residual degree $\leq f$ if $f$ is non-zero.
 \tet{idealprimedec}, limiting the list to primes of norm $\leq B$, which
 must be a positive \typ{INT}.
 
+\fun{GEN}{idealprimedec_kummer}{GEN nf, GEN Ti, long ei, GEN p} let \var{nf}
+(true \var{nf}) correspond to $K = \Q[X]/(T)$ ($T$ monic \kbd{ZX}).
+Let $T \equiv \prod_i T_i^{e_i} \pmod{p}$ be the factorization of $T$ and let
+$(f,g,h)$ be as in Dedekind criterion for prime $p$: $f \equiv \prod T_i$,
+$g \equiv \prod T_i^{e_i-1}$, $h = (T - fg) / p$, and let $D$ be the gcd
+of $(f,g,h)$ in $\F_p[X]$. Let \kbd{Ti} (\kbd{FpX}) be one irreducible factor
+$T_i$ not dividing $D$, with \kbd{ei} $= e_i$. This function returns the
+prime ideal attached to $T_i$ by Kummer / Dedekind criterion, namely
+$p \Z_K + T_i(\bar{X}) \Z_K$.
+
 \subsec{Decomposition group}
 
 \fun{GEN}{idealramfrobenius}{GEN nf, GEN gal, GEN pr, GEN ram}
