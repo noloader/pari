@@ -19,6 +19,64 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #include "pari.h"
 #include "paripriv.h"
 
+/* increment y, which runs through [-d,d]^k. Return 0 when done. */
+static int
+increment(GEN y, long k, long d)
+{
+  long i = 0, j;
+  do
+  {
+    if (++i > k) return 0;
+    y[i]++;
+  } while (y[i] > d);
+  for (j = 1; j < i; j++) y[j] = -d;
+  return 1;
+}
+static GEN
+archstar_full_rk(GEN x, GEN bas, GEN v, GEN gen)
+{
+  long i, r, lgmat, N = lg(bas)-1, nba = nbrows(v);
+  GEN lambda = cgetg(N+1, t_VECSMALL), mat = cgetg(nba+1,t_MAT);
+
+  lgmat = lg(v); setlg(mat, lgmat+1);
+  for (i = 1; i < lgmat; i++) gel(mat,i) = gel(v,i);
+  for (     ; i <= nba; i++)  gel(mat,i) = cgetg(nba+1, t_VECSMALL);
+
+  if (x) { x = ZM_lll(x, 0.75, LLL_INPLACE); bas = RgV_RgM_mul(bas, x); }
+
+  for (r=1;; r++)
+  { /* reset */
+    (void)vec_setconst(lambda, (GEN)0);
+    if (!x) lambda[1] = r;
+    while (increment(lambda, N, r))
+    {
+      pari_sp av1 = avma;
+      GEN a = RgM_zc_mul(bas, lambda), c = gel(mat,lgmat);
+      for (i = 1; i <= nba; i++)
+      {
+        GEN t = gel(a,i);
+        if (x) t = gaddgs(t, 1);
+        c[i] = (gsigne(t) < 0)? 1: 0;
+      }
+      avma = av1; if (Flm_deplin(mat, 2)) continue;
+
+      /* c independent of previous sign vectors */
+      if (!x) a = zc_to_ZC(lambda);
+      else
+      {
+        a = ZM_zc_mul(x, lambda);
+        gel(a,1) = addiu(gel(a,1), 1);
+      }
+      gel(gen,lgmat) = a;
+      if (lgmat++ == nba) {
+        mat = Flm_inv(mat,2); /* full rank */
+        settyp(mat, t_VEC); return mat;
+      }
+      setlg(mat,lgmat+1);
+    }
+  }
+}
+
 /* Faster than Buchray (because it can use nfsign_units: easier nfarchstar) */
 GEN
 buchnarrow(GEN bnf)
@@ -69,6 +127,41 @@ buchnarrow(GEN bnf)
   for (j=1; j<t; j++)
     gel(basecl,j) = Q_primpart( idealfactorback(nf,gen,gel(u1,j),0) );
   return gerepilecopy(av, mkvec3(NO, met, basecl));
+}
+
+/* x non-0 integral ideal in HNF, compute elements in 1+x (in x, if x = zk)
+ * whose sign matrix is invertible. archp in 'indices' format */
+GEN
+nfarchstar(GEN nf, GEN x, GEN archp)
+{
+  long nba = lg(archp) - 1;
+  GEN cyc, gen, mat;
+
+  if (!nba)
+    cyc = gen = mat = cgetg(1, t_VEC);
+  else
+  {
+    GEN xZ = gcoeff(x,1,1), gZ;
+    pari_sp av = avma;
+    if (is_pm1(xZ)) x = NULL; /* x = O_K */
+    gZ = x? subui(1, xZ): gen_m1; /* gZ << 0, gZ = 1 mod x */
+    if (nba == 1)
+    {
+      gen = mkvec(gZ);
+      mat = mkvec( mkvecsmall(1) );
+    }
+    else
+    {
+      GEN bas = nf_get_M(nf);
+      if (lgcols(bas) > lg(archp)) bas = rowpermute(bas, archp);
+      gen = cgetg(nba+1,t_VEC);
+      gel(gen,1) = gZ;
+      mat = archstar_full_rk(x, bas, mkmat(const_vecsmall(nba,1)), gen);
+      gerepileall(av,2,&gen,&mat);
+    }
+    cyc = const_vec(nba, gen_2);
+  }
+  return mkvec4(cyc,gen,mat,archp);
 }
 
 /********************************************************************/
