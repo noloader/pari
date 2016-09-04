@@ -156,7 +156,6 @@ GEN    poltobasis(GEN nf,GEN x);
 GEN    coltoalg(GEN nf,GEN x);
 
 /* Other number fields routines */
-long   check_LIMC(long LIMC, long LIMCMAX);
 GEN    get_arch_real(GEN nf,GEN x,GEN *emb,long prec);
 GEN    get_proj_modT(GEN basis, GEN T, GEN p);
 GEN    get_theta_abstorel(GEN T, GEN pol, GEN k);

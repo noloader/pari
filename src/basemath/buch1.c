@@ -174,7 +174,7 @@ qfi_random(struct buch_quad *B,GEN ex) { return random_form(B, ex, &QFI_comp); }
 /*                                                                 */
 /*******************************************************************/
 long
-check_LIMC(long LIMC, long LIMCMAX)
+bnf_increase_LIMC(long LIMC, long LIMCMAX)
 {
   if (LIMC >= LIMCMAX) pari_err_BUG("Buchmann's algorithm");
   if (LIMC <= LIMCMAX/40) /* cbach <= 0.3 */
@@ -1028,7 +1028,7 @@ Buchquad(GEN D, double cbach, double cbach2, long prec)
 START:
   do
   {
-    if (!FIRST) LIMC = check_LIMC(LIMC,LIMCMAX);
+    if (!FIRST) LIMC = bnf_increase_LIMC(LIMC,LIMCMAX);
     if (DEBUGLEVEL>2 && LIMC > LIMC0)
       err_printf("%s*** Bach constant: %f\n", FIRST?"":"\n", LIMC/LOGD2);
     FIRST = 0; avma = av;

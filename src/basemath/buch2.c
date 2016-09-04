@@ -4090,7 +4090,7 @@ Buchall_param(GEN P, double cbach, double cbach2, long nbrelpid, long flun, long
 
 START:
   if (DEBUGLEVEL) timer_start(&T);
-  if (!FIRST) LIMC = check_LIMC(LIMC,LIMCMAX);
+  if (!FIRST) LIMC = bnf_increase_LIMC(LIMC,LIMCMAX);
   if (DEBUGLEVEL && LIMC > LIMC0)
     err_printf("%s*** Bach constant: %f\n", FIRST?"":"\n", LIMC/LOGD2);
   if (cache.base)
