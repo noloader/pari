@@ -1085,7 +1085,7 @@ Q_gcd(GEN x, GEN y)
 GEN
 ggcd(GEN x, GEN y)
 {
-  long l, vx, vy, tx = typ(x), ty = typ(y);
+  long vx, vy, tx = typ(x), ty = typ(y);
   pari_sp av, tetpil;
   GEN p1,z;
 
