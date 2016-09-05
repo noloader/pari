@@ -414,18 +414,19 @@ break_loop(int numerr)
   filtre_t F;
   Buffer *b;
   int sigint = numerr<0, go_on = sigint;
-  struct gp_context rec;
+  struct gp_context rec1, rec2;
   const char *prompt, *msg;
   long nenv, oldframe_level = frame_level;
   pari_sp av;
 
   if (numerr == e_SYNTAX) return 0;
   if (numerr == e_STACK) { evalstate_clone(); avma = pari_mainstack->top; }
+  gp_context_save(&rec1);
 
   b = filtered_buffer(&F);
   nenv=pari_stack_new(&s_env);
   prompt = break_loop_prompt(s_env.n-1);
-  gp_context_save(&rec);
+  gp_context_save(&rec2);
   iferr_env = NULL;
   dbg_level = 0;
   frame_level = closure_context(oldframe_level, dbg_level);
@@ -451,7 +452,7 @@ break_loop(int numerr)
         frame_level = oldframe_level;
         longjmp(env[s_env.n-1], er);
       }
-      gp_context_restore(&rec);
+      gp_context_restore(&rec2);
       iferr_env = NULL;
       closure_err(dbg_level);
       (void) closure_context(oldframe_level, dbg_level);
@@ -489,7 +490,7 @@ break_loop(int numerr)
 BR_EXIT:
   s_env.n=nenv;
   frame_level = oldframe_level;
-  gp_context_restore(&rec);
+  gp_context_restore(&rec1);
   pop_buffer(); return go_on;
 }
 
