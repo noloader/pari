@@ -82,6 +82,7 @@ This file lists the incompatible changes between Version 2.x and older versions
   - changed idealstar format, to access data more conveniently (and avoid
     recomputations): old bid and bnr structures from versions up to 2.8.0
     are now invalid
+  - gcd(t_VEC/t_COL/t_MAT, ...) is now forbidden
 
 * Specific to the PARI library:
 ===============================

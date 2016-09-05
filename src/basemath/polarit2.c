@@ -1085,23 +1085,12 @@ Q_gcd(GEN x, GEN y)
 GEN
 ggcd(GEN x, GEN y)
 {
-  long l, i, vx, vy, tx = typ(x), ty = typ(y);
+  long l, vx, vy, tx = typ(x), ty = typ(y);
   pari_sp av, tetpil;
   GEN p1,z;
 
-  if (is_noncalc_t(tx) || is_noncalc_t(ty)) pari_err_TYPE2("gcd",x,y);
-  if (is_matvec_t(ty))
-  {
-    z = cgetg_copy(y, &l);
-    for (i=1; i<l; i++) gel(z,i) = ggcd(x,gel(y,i));
-    return z;
-  }
-  if (is_matvec_t(tx))
-  {
-    z = cgetg_copy(x, &l);
-    for (i=1; i<l; i++) gel(z,i) = ggcd(gel(x,i),y);
-    return z;
-  }
+  if (is_noncalc_t(tx) || is_matvec_t(tx) ||
+      is_noncalc_t(ty) || is_matvec_t(ty)) pari_err_TYPE2("gcd",x,y);
   if (tx>ty) { swap(x,y); lswap(tx,ty); }
   /* tx <= ty */
   z = gisexactzero(x); if (z) return zero_gcd2(y,z);
