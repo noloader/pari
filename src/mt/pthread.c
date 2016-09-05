@@ -251,12 +251,14 @@ mt_queue_reset(void)
 {
   struct mt_pstate *mt = pari_mt;
   long i;
+  BLOCK_SIGINT_START
   for (i=0; i<mt->n; i++)
     pthread_cancel(mt->th[i]);
   for (i=0; i<mt->n; i++)
     pthread_join(mt->th[i],NULL);
-  if (DEBUGLEVEL) pari_warn(warner,"stop threads");
   pari_mt = NULL;
+  BLOCK_SIGINT_END
+  if (DEBUGLEVEL) pari_warn(warner,"stop threads");
   for (i=0;i<mt->n;i++)
   {
     struct mt_queue *mq = mt->mq+i;
@@ -290,7 +292,6 @@ mt_queue_start(struct pari_mt *pt, GEN worker)
     mt->n = NBT;
     mt->nbint = 0;
     mt->last = 0;
-    pari_mt = mt;
     pthread_cond_init(&mt->pcond,NULL);
     pthread_mutex_init(&mt->pmut,NULL);
     pari_thread_sync();
@@ -312,8 +313,11 @@ mt_queue_start(struct pari_mt *pt, GEN worker)
         pari_thread_alloc(&mt->pth[i],mtparisize,(GEN)mq);
     }
     if (DEBUGLEVEL) pari_warn(warner,"start threads");
+    BLOCK_SIGINT_START
     for (i=0;i<NBT;i++)
       pthread_create(&mt->th[i],NULL, &mt_queue_run, (void*)&mt->pth[i]);
+    pari_mt = mt;
+    BLOCK_SIGINT_END
     pt->get=&mtpthread_queue_get;
     pt->submit=&mtpthread_queue_submit;
     pt->end=&mt_queue_reset;
