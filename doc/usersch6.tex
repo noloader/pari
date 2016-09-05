@@ -1449,7 +1449,6 @@ the $T_2$ quadratic form as returned by \tet{nf_get_Gtwist}, and we return
 a small element $a$ in the lattice $(x,T_2)$. This is used to implement
 \tet{idealred}.
 
-
 \fun{GEN}{idealpseudomin_nonscalar}{GEN x, GEN G}. As \tet{idealpseudomin},
 but we insist of returning a non-scalar $a$ (\kbd{ZV\_isscalar} is false), if
 the dimension of $x$ is $> 1$.
@@ -1471,12 +1470,13 @@ vector.
 Given an ideal $x$ this means finding a ``simpler'' ideal in the same ideal
 class. The public GP function is of course available
 
-\fun{GEN}{idealred0}{GEN nf, GEN x, GEN v} finds a small $a\in x$ and returns
-the primitive part of $x/(a)$, as an ideal in HNF. What ``small'' means
-depends on the parameter $v$, see the GP description. More precisely,
-$a$ is returned by \kbd{idealpseudomin}$(x,G)$, where $G$
-is \tet{nf_get_Gtwist}$(\var{nf}, v)$ for $v\neq \kbd{NULL}$
-and \tet{nf_get_roundG}$(\var{nf})$ otherwise.
+\fun{GEN}{idealred0}{GEN nf, GEN x, GEN v} finds an $a\in K^*$ such that
+$(a) x$ is integral of small norm and returns it, as an ideal in HNF.
+What ``small'' means depends on the parameter $v$, see the GP description.
+More precisely, $a$ is returned by \kbd{idealpseudomin}$((x_\Z) x^(-1),G)$
+divided by $x_\Z$, where $x_\Z = (x\cap \Z)$ and where $G$ is
+\tet{nf_get_Gtwist}$(\var{nf}, v)$ for $v\neq \kbd{NULL}$ and
+\tet{nf_get_roundG}$(\var{nf})$ otherwise.
 
 \noindent Usually one sets $v = \kbd{NULL}$ to obtain an element of small $T_2$
 norm in $x$:
@@ -1488,8 +1488,7 @@ information $x$ must be an extended ideal, otherwise the value of $a$ is lost.
 There is a subtlety here: the principal ideal $(a)$ is easy to recover, but $a$
 itself is an instance of the principal ideal problem which is very difficult
 given only an \var{nf} (once a \var{bnf} structure is available,
-\tet{bnfisprincipal0} will recover it). It is in general simpler to use
-directly \tet{idealred_elt}.
+\tet{bnfisprincipal0} will recover it).
 
 \fun{GEN}{idealmoddivisor}{GEN bnr, GEN x} A proof-of-concept implementation,
 useless in practice. If \kbd{bnr} is attached to some modulus $f$, returns a

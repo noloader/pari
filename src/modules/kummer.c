@@ -103,6 +103,7 @@ logarch2arch(GEN x, long r1, long prec)
 }
 #endif
 
+/* make be integral by multiplying by t in (Q^*)^ell */
 static GEN
 reduce_mod_Qell(GEN bnfz, GEN be, GEN gell)
 {
@@ -142,35 +143,34 @@ idealsqrtn(GEN nf, GEN x, GEN gn, int strict)
 }
 
 static GEN
-reducebeta(GEN bnfz, GEN be, GEN ell)
+reducebeta(GEN bnfz, GEN b, GEN ell)
 {
   long prec = nf_get_prec(bnfz);
   GEN y, elllogfu, nf = bnf_get_nf(bnfz), fu = bnf_get_fu_nocheck(bnfz);
 
-  if (DEBUGLEVEL>1) err_printf("reducing beta = %Ps\n",be);
-  /* reduce mod Q^ell */
-  be = reduce_mod_Qell(nf, be, ell);
+  if (DEBUGLEVEL>1) err_printf("reducing beta = %Ps\n",b);
+  b = reduce_mod_Qell(nf, b, ell);
   /* reduce l-th root */
-  y = idealsqrtn(nf, be, ell, 0);
+  y = idealsqrtn(nf, b, ell, 0); /* (b) = y^ell I, I integral */
   if (typ(y) == t_MAT && !is_pm1(gcoeff(y,1,1)))
   {
-    y = idealred_elt(nf, y);
-    be = nfdiv(nf, be, nfpow(nf, y, ell));
-    /* make be integral */
-    be = reduce_mod_Qell(nf, be, ell);
+    GEN T = idealred(nf, mkvec2(y, gen_1)), t = gel(T,2);
+    /* (t)*T[1] = y, T[1] integral and small */
+    if (gcmp(idealnorm(nf,t), gen_1) > 0)
+      b = nfmul(nf, b, nfpow(nf, t, negi(ell)));
   }
-  if (DEBUGLEVEL>1) err_printf("beta reduced via ell-th root = %Ps\n",be);
+  if (DEBUGLEVEL>1) err_printf("beta reduced via ell-th root = %Ps\n",b);
   /* log. embeddings of fu^ell */
   elllogfu = RgM_Rg_mul(real_i(bnf_get_logfu(bnfz)), ell);
   for (;;)
   {
-    GEN emb, z = get_arch_real(nf, be, &emb, prec);
+    GEN emb, z = get_arch_real(nf, b, &emb, prec);
     if (z)
     {
       GEN ex = RgM_Babai(elllogfu, z);
       if (ex)
       {
-        be = nfdiv(nf, be, nffactorback(nf, fu, RgC_Rg_mul(ex,ell)));
+        b = nfdiv(nf, b, nffactorback(nf, fu, RgC_Rg_mul(ex,ell)));
         break;
       }
     }
@@ -178,8 +178,8 @@ reducebeta(GEN bnfz, GEN be, GEN ell)
     if (DEBUGLEVEL) pari_warn(warnprec,"reducebeta",prec);
     nf = nfnewprec_shallow(nf,prec);
   }
-  if (DEBUGLEVEL>1) err_printf("beta LLL-reduced mod U^l = %Ps\n",be);
-  return be;
+  if (DEBUGLEVEL>1) err_printf("beta LLL-reduced mod U^l = %Ps\n",b);
+  return b;
 }
 
 static GEN

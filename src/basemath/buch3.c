@@ -225,20 +225,20 @@ static GEN
 idealmoddivisor_aux(GEN nf, GEN x, GEN f, GEN sarch)
 {
   pari_sp av = avma;
-  GEN a, A, D, G;
+  GEN a, A;
 
   if ( is_pm1(gcoeff(f,1,1)) ) /* f = 1 */
   {
-    G = idealred_elt(nf, x);
-    D = idealred_elt(nf, idealdiv(nf,G,x));
+    A = idealred(nf, mkvec2(x, gen_1));
+    A = nfinv(nf, gel(A,2));
   }
   else
   {/* given coprime integral ideals x and f (f HNF), compute "small"
     * G in x, such that G = 1 mod (f). GTM 193: Algo 4.3.3 */
-    G = idealaddtoone_i(nf, x, f);
-    D = idealaddtoone_i(nf, idealdiv(nf,G,x), f);
+    GEN G = idealaddtoone_i(nf, x, f);
+    GEN D = idealaddtoone_i(nf, idealdiv(nf,G,x), f);
+    A = nfdiv(nf,D,G);
   }
-  A = nfdiv(nf,D,G);
   if (too_big(nf,A) > 0) { avma = av; return x; }
   a = set_sign_mod_divisor(nf, NULL, A, sarch);
   if (a != A && too_big(nf,A) > 0) { avma = av; return x; }
