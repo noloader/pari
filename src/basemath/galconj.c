@@ -2275,26 +2275,25 @@ galoisinit(GEN nf, GEN den)
 static GEN
 galoispermtopol_i(GEN gal, GEN perm, GEN mod, GEN mod2)
 {
-  long t = typ(perm), i;
-  GEN v;
-  switch (t)
+  switch (typ(perm))
   {
-  case t_VECSMALL:
-  {
-    long v = varn(gel(gal,1));
-    return permtopol(perm, gal_get_roots(gal), gal_get_invvdm(gal),
-                           gal_get_den(gal), mod, mod2, v);
-  }
-  case t_VEC: case t_COL: case t_MAT:
-    v = cgetg(lg(perm), t);
-    if (DEBUGLEVEL>=4) err_printf("GaloisPermToPol:");
-    for (i = 1; i < lg(v); i++)
+    case t_VECSMALL:
+      return permtopol(perm, gal_get_roots(gal), gal_get_invvdm(gal),
+                             gal_get_den(gal), mod, mod2,
+                             varn(gal_get_pol(gal)));
+    case t_VEC: case t_COL: case t_MAT:
     {
-      gel(v,i) = galoispermtopol_i(gal, gel(perm,i), mod, mod2);
-      if (DEBUGLEVEL>=4) err_printf("%ld ",i);
+      long i, lv;
+      GEN v = cgetg_copy(perm, &lv);
+      if (DEBUGLEVEL>=4) err_printf("GaloisPermToPol:");
+      for (i = 1; i < lv; i++)
+      {
+        gel(v,i) = galoispermtopol_i(gal, gel(perm,i), mod, mod2);
+        if (DEBUGLEVEL>=4) err_printf("%ld ",i);
+      }
+      if (DEBUGLEVEL>=4) err_printf("\n");
+      return v;
     }
-    if (DEBUGLEVEL>=4) err_printf("\n");
-    return v;
   }
   pari_err_TYPE("galoispermtopol", perm);
   return NULL; /* not reached */
