@@ -1030,7 +1030,7 @@ get_Tr(GEN mul, GEN x, GEN basden)
   for (i=2; i<=n; i++)
   {
     t = quicktrace(gel(bas,i), sym);
-    if (den && den[i]) t = diviiexact(t,gel(den,i));
+    if (den && gel(den,i)) t = diviiexact(t,gel(den,i));
     gel(TW,i) = t; /* tr(w[i]) */
   }
   gel(T,1) = TW;
@@ -1061,25 +1061,14 @@ get_bas_den(GEN bas)
   return mkvec2(dbas, den);
 }
 
-/* Internal: nf partially filled. Require pol; fill zk, invzk, multable */
-static void
-nf_set_multable(GEN nf, GEN bas, GEN basden)
+/* return multiplication table for S->basis */
+static GEN
+nf_multable(nfmaxord_t *S, GEN invbas)
 {
-  GEN T = nf_get_pol(nf), invbas, basM;
+  GEN T = S->T, w = gel(S->basden,1), den = gel(S->basden,2);
   long i,j, n = degpol(T);
-  GEN w, den, mul = cgetg(n*n+1,t_MAT);
+  GEN mul = cgetg(n*n+1,t_MAT);
 
-  if (typ(bas) == t_MAT)
-  { basM = bas; bas = RgM_to_RgXV(basM, varn(T)); }
-  else
-    basM = RgV_to_RgM(bas, n);
-  gel(nf,7) = bas;
-  gel(nf,8) = invbas = QM_inv(basM, gen_1);
-  gel(nf,9) = mul;
-
-  if (!basden) basden = get_bas_den(nf_get_zk(nf)); /*integral basis*/
-  w   = gel(basden,1);
-  den = gel(basden,2);
   /* i = 1 split for efficiency, assume w[1] = 1 */
   for (j=1; j<=n; j++)
     gel(mul,j) = gel(mul,1+(j-1)*n) = col_ei(n, j);
@@ -1096,21 +1085,19 @@ nf_set_multable(GEN nf, GEN bas, GEN basden)
       }
       gel(mul,j+(i-1)*n) = gel(mul,i+(j-1)*n) = gerepileupto(av,z);
     }
+  return mul;
 }
 
 /* as get_Tr, mul_table not precomputed */
 static GEN
 make_Tr(nfmaxord_t *S)
 {
-  GEN x = S->T, basden = S->basden;
-  long i,j, n = degpol(x);
-  GEN c, t, d;
-  GEN T   = cgetg(n+1,t_MAT);
-  GEN sym = polsym(x, n-1);
-  GEN w   = gel(basden,1); /* W[i] = w[i]/den[i] */
-  GEN den = gel(basden,2);
-  /* assume W[1] = 1, case i = 1 split for efficiency */
-  c = cgetg(n+1,t_COL); gel(T,1) = c;
+  GEN T = S->T, w = gel(S->basden,1), den = gel(S->basden,2);
+  long i,j, n = degpol(T);
+  GEN c, t, d, M = cgetg(n+1,t_MAT), sym = polsym(T, n-1);
+
+  /* W[i] = w[i]/den[i]; assume W[1] = 1, case i = 1 split for efficiency */
+  c = cgetg(n+1,t_COL); gel(M,1) = c;
   gel(c, 1) = utoipos(n);
   for (j=2; j<=n; j++)
   {
@@ -1125,12 +1112,12 @@ make_Tr(nfmaxord_t *S)
   }
   for (i=2; i<=n; i++)
   {
-    c = cgetg(n+1,t_COL); gel(T,i) = c;
-    for (j=1; j<i ; j++) gel(c,j) = gcoeff(T,i,j);
+    c = cgetg(n+1,t_COL); gel(M,i) = c;
+    for (j=1; j<i ; j++) gel(c,j) = gcoeff(M,i,j);
     for (   ; j<=n; j++)
     {
       pari_sp av = avma;
-      t = (i == j)? ZXQ_sqr(gel(w,i), x): ZXQ_mul(gel(w,i),gel(w,j), x);
+      t = (i == j)? ZXQ_sqr(gel(w,i), T): ZXQ_mul(gel(w,i),gel(w,j), T);
       t = quicktrace(t, sym);
       if (den)
       {
@@ -1140,32 +1127,7 @@ make_Tr(nfmaxord_t *S)
       gel(c,j) = gerepileuptoint(av, t); /* Tr (W[i]W[j]) */
     }
   }
-  return T;
-}
-
-/* compute roots so that _absolute_ accuracy of M >= prec [also holds for G] */
-static void
-get_roots_for_M(nffp_t *F)
-{
-  long n, eBD, PREC;
-
-  if (F->extraprec < 0)
-  { /* not initialized yet */
-    double er;
-    n = degpol(F->T);
-    eBD = 1 + gexpo(gel(F->basden,1));
-    er  = F->ro? (1+gexpo(F->ro)): fujiwara_bound(F->T);
-    if (er < 0) er = 0;
-    F->extraprec = nbits2extraprec(n*er + eBD + log2(n));
-  }
-
-  PREC = F->prec + F->extraprec;
-  /* make sure that default accuracy is the same on 32/64bit */
-#ifndef LONG_IS_64BIT
-  if (odd(PREC)) PREC += EXTRAPRECWORD;
-#endif
-  if (F->ro && gprecision(gel(F->ro,1)) >= PREC) return;
-  F->ro = get_roots(F->T, F->r1, PREC);
+  return M;
 }
 
 /* [bas[i]/den[i]]= integer basis. roo = real part of the roots */
@@ -1235,7 +1197,25 @@ make_G(nffp_t *F)
 static void
 make_M_G(nffp_t *F, int trunc)
 {
-  get_roots_for_M(F);
+  long n, eBD, prec;
+  if (F->extraprec < 0)
+  { /* not initialized yet; compute roots so that absolute accuracy
+     * of M & G >= prec */
+    double er;
+    n = degpol(F->T);
+    eBD = 1 + gexpo(gel(F->basden,1));
+    er  = F->ro? (1+gexpo(F->ro)): fujiwara_bound(F->T);
+    if (er < 0) er = 0;
+    F->extraprec = nbits2extraprec(n*er + eBD + log2(n));
+  }
+  prec = F->prec + F->extraprec;
+#ifndef LONG_IS_64BIT
+  /* make sure that default accuracy is the same on 32/64bit */
+  if (odd(prec)) prec += EXTRAPRECWORD;
+#endif
+  if (!F->ro || gprecision(gel(F->ro,1)) < prec)
+    F->ro = get_roots(F->T, F->r1, prec);
+
   make_M(F, trunc);
   make_G(F);
 }
@@ -1321,21 +1301,23 @@ nfmaxord_to_nf(nfmaxord_t *S, GEN ro, long prec)
   gel(nf,2) = mkvec2s(S->r1, (n - S->r1)>>1);
   gel(nf,3) = S->dK;
   gel(nf,4) = S->index;
-  gel(nf,6) = F.ro;
   gel(nf,5) = mat;
-
+  gel(nf,6) = F.ro;
+  gel(nf,7) = S->basis;
+  gel(nf,8) = QM_inv(RgV_to_RgM(S->basis,n), gen_1);
+  gel(nf,9) = nf_multable(S, gel(nf,8));
   gel(mat,1) = F.M;
   gel(mat,2) = F.G;
 
-  nf_set_multable(nf, S->basis, F.basden);
-
-  Tr = get_Tr(gel(nf,9), T, F.basden);
+  Tr = get_Tr(gel(nf,9), T, S->basden);
   absdK = S->dK; if (signe(absdK) < 0) absdK = negi(absdK);
   TI = ZM_inv(Tr, absdK); /* dK T^-1 */
   A = Q_primitive_part(TI, &dA);
   gel(mat,6) = A; /* primitive part of codifferent, dA its content */
   dA = dA? diviiexact(absdK, dA): absdK;
   A = ZM_hnfmodid(A, dA);
+  /* CAVEAT: nf is not complete yet, but the fields needed for
+   * idealtwoelt, zk_scalar_or_multable and idealinv are present ! */
   MDI = idealtwoelt(nf, A);
   gel(MDI,2) = zk_scalar_or_multable(nf, gel(MDI,2));
   gel(mat,7) = MDI;
