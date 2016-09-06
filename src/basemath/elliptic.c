@@ -2245,7 +2245,7 @@ zellQp(GEN E, GEN z, long prec)
   t = Qp_sqrt(gsubsg(1,gmul2n(delta,2)));
   if (!t) pari_err_IMPL("ellpointtoz when u not in Qp");
   x0 = gmul(gmul2n(c0,-1), gaddsg(1,t));
-  y0 = gdiv(gmul2n(ec_dmFdy_evalQ(E,z), -1), gsubgs(gdiv(ar1,gsqr(x0)), 1));
+  y0 = gdiv(gmul2n(ec_dmFdy_evalQ(E,z), -1), gsubsg(1, gdiv(ar1,gsqr(x0))));
 
   t = Qp_sqrt(gaddsg(1,gdiv(r1,x0)));
   if (!t) pari_err_IMPL("ellpointtoz when u not in Qp");
