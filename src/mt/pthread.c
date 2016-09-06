@@ -70,9 +70,10 @@ mt_err_recover(long er)
   {
     struct mt_pstate *mt = pari_mt;
     struct mt_queue *mq = mt->mq+mt_thread_no;
+    GEN err = bin_copy(copy_bin(pari_err_last()));
     LOCK(mq->pmut)
     {
-      mq->output = pari_err_last();
+      mq->output = err;
       pthread_cond_signal(mq->pcond);
     } UNLOCK(mq->pmut);
     pthread_exit((void*)1);
