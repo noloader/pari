@@ -45,7 +45,10 @@ Doc: outputs a \kbd{bid} structure,
  \kbd{idealstar(, N, flag)} is short for
  \bprog
    idealstar(nfinit(x), N, flag)
- @eprog\noindent but much faster.
+ @eprog\noindent but much faster. The alternative syntax \kbd{znstar(N, flag)}
+ is also available for the same effect, but due to an unfortunate historical
+ oversight, the default value of \kbd{flag} is different in the two
+ functions (\kbd{znstar} does not initialize by default).
 
 Variant: Instead the above hardcoded numerical flags, one should rather use
  \fun{GEN}{Idealstar}{GEN nf, GEN ideal, long flag}, where \kbd{flag} is

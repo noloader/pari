@@ -494,7 +494,7 @@ lfunchiZ(GEN bid, GEN chi)
   if (typ(N) != t_INT)
   {
     if (equali1(gel(N,1))) { avma = av; return lfunzeta(); }
-    bid = znstar0(N, nf_INIT);
+    bid = ZNstar(N, nf_INIT);
     N = gel(N,1);
   }
   /* chi now primitive on bid */
@@ -1781,7 +1781,7 @@ lfunmisc_to_ldata_i(GEN ldata, long shallow)
     case t_LFUNMISC_CHIQUAD: return lfunchiquad(ldata);
     case t_LFUNMISC_CHICONREY:
     {
-      GEN G = znstar0(gel(ldata,1), nf_INIT);
+      GEN G = ZNstar(gel(ldata,1), nf_INIT);
       return lfunchiZ(G, gel(ldata,2));
     }
     case t_LFUNMISC_CHIGEN: return lfunchigen(gel(ldata,1), gel(ldata,2));

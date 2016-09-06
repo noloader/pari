@@ -1635,6 +1635,7 @@ long    Z_ispow2(GEN x);
 long    Z_ispowerall(GEN x, ulong k, GEN *pt);
 long    Z_issquareall(GEN x, GEN *pt);
 GEN     Z_nv_mod(GEN P, GEN xa);
+GEN     ZNstar(GEN N, long flag);
 GEN     ZV_allpnqn(GEN x);
 GEN     ZV_chinese(GEN A, GEN P, GEN *pt_mod);
 GEN     ZV_chinese_tree(GEN A, GEN P, GEN tree, GEN *pt_mod);
@@ -2378,6 +2379,7 @@ GEN     znconreyexp(GEN bid, GEN x);
 GEN     znconreyfromchar(GEN bid, GEN chi);
 GEN     znconreylog(GEN bid, GEN x);
 GEN     znconreylog_normalize(GEN G, GEN m);
+GEN     znlog0(GEN h, GEN g, GEN o);
 
 /* compile.c */
 

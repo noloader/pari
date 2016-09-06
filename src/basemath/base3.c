@@ -2092,7 +2092,7 @@ GEN
 Idealstar(GEN nf, GEN ideal, long flag)
 {
   pari_sp av;
-  if (!nf) return znstar0(ideal, flag);
+  if (!nf) return ZNstar(ideal, flag);
   av = avma;
   return gerepilecopy(av, Idealstar_i(nf, ideal, flag));
 }

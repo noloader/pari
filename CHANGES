@@ -10,6 +10,10 @@ Done for version 2.8.1 (released ??/??/2016):
     5- idealstar([f_0,f_oo]) for f_oo t_VECSMALL (place selection) didn't work
     6- msinit objects could not be saved to file then read back in
     7- wrong value for bnrrootnumber for non-primitive characters [#1848]
+    8- allow znstar(N,flag) for idealstar(,N,flag)
+    8- allow znlog(x,G) for G = znstar(N), instead of ideallog(,x,G),
+       for DL wrt. G.gen; in addition to traditional znlog(x,g), where an
+       arbitrary generator g is specified
 
   Added
     1- permtonum: allow t_VECSMALL input
@@ -39,6 +43,7 @@ Done for version 2.8.1 (released ??/??/2016):
    22- [libpari] nfroots_if_split
    23- [libpari] nfmaxord_to_nf, nfinit_basic, nfinit_complete,
        idealprimedec_kummer, nf_deg1_prime
+   24- [libpari] ZNstar, znstar0, znlog0
 
   Changed
     1- remove useless flag in idealappr: directly allow factorization

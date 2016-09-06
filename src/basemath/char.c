@@ -324,7 +324,7 @@ chareval(GEN G, GEN chi, GEN x, GEN z)
 /*********************************************************************/
 
 GEN
-znstar0(GEN N, long flag)
+ZNstar(GEN N, long flag)
 {
   GEN F = NULL, P, E, cyc, gen, mod, G;
   long i, i0, l, nbprimes;
@@ -510,7 +510,19 @@ znstar0(GEN N, long flag)
   return gerepilecopy(av, G);
 }
 GEN
-znstar(GEN N) { return znstar0(N, nf_GEN); }
+znstar(GEN N) { return ZNstar(N, nf_GEN); }
+GEN
+znstar0(GEN N,long flag)
+{
+  switch(flag)
+  {
+    case 0: return ZNstar(N, nf_GEN);
+    case 1: return ZNstar(N, nf_INIT);
+    case 2: return ZNstar(N, nf_INIT|nf_GEN);
+    default: pari_err_FLAG("znstar");
+  }
+  return NULL; /* not reached */
+}
 
 /* g has order 2^(e-2), g,h = 1 (mod 4); return x s.t. g^x = h (mod 2^e) */
 static GEN
@@ -655,6 +667,20 @@ Zideallog(GEN bid, GEN x)
   pari_sp av = avma;
   GEN y = znconreylog(bid, x), U = bid_get_U(bid);
   return gerepileupto(av, ZM_ZC_mul(U, y));
+}
+GEN
+znlog0(GEN h, GEN g, GEN o)
+{
+  if (typ(g) == t_VEC)
+  {
+    GEN N;
+    if (o) pari_err_TYPE("znlog [with znstar]", o);
+    if (!checkbidZ_i(g)) pari_err_TYPE("znlog", h);
+    N = bid_get_ideal(g);
+    h = Rg_to_Fp(h,N);
+    return Zideallog(g, h);
+  }
+  return znlog(h, g, o);
 }
 
 GEN

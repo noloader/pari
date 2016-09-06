@@ -1,12 +1,24 @@
 Function: znlog
 Section: number_theoretical
-C-Name: znlog
+C-Name: znlog0
 Prototype: GGDG
 Help: znlog(x,g,{o}): return the discrete logarithm of x in
  (Z/nZ)* in base g. If present, o represents the multiplicative
  order of g. Return [] if no solution exist.
-Doc: discrete logarithm of $x$ in $(\Z/N\Z)^*$ in base $g$.
- The result is $[]$ when $x$ is not a power of $g$.
+Doc: This functions allows two distinct modes of operation depending
+ on $g$:
+
+ \item if $g$ is the output of \tet{znstar} (with initialization),
+ we compute the discrete logarithm of $x$ with respect to the generators
+ contained in the structure. See \tet{ideallog} for details.
+
+ \item else $g$ is an explicit element in $(\Z/N\Z)^*$, we compute the
+ discrete logarithm of $x$ in $(\Z/N\Z)^*$ in base $g$. The rest of this
+ entry describes the latter possibility.
+
+ The result is $[]$ when $x$ is not a power of $g$, though the function may
+ also enter an infinite loop in this case.
+
  If present, $o$ represents the multiplicative order of $g$, see
  \secref{se:DLfun}; the preferred format for this parameter is
  \kbd{[ord, factor(ord)]}, where \kbd{ord} is the order of $g$.
@@ -68,3 +80,6 @@ Doc: discrete logarithm of $x$ in $(\Z/N\Z)^*$ in base $g$.
  ? g^%
  %2 = 2 + O(5^10)
  @eprog
+Variant: The function
+ \fun{GEN}{znlog}{GEN x, GEN g, GEN o} is also available
+
