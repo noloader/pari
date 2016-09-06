@@ -2243,12 +2243,13 @@ zellQp(GEN E, GEN z, long prec)
   ar1 = gmul(a,r1);
   delta = gdiv(ar1, gsqr(c0));
   t = Qp_sqrt(gsubsg(1,gmul2n(delta,2)));
-  if (!t)
-    pari_err_DOMAIN("ellpointtoz", "point", "not on", strtoGENstr("E"),z);
+  if (!t) pari_err_IMPL("ellpointtoz when u not in Qp");
   x0 = gmul(gmul2n(c0,-1), gaddsg(1,t));
   y0 = gdiv(gmul2n(ec_dmFdy_evalQ(E,z), -1), gsubgs(gdiv(ar1,gsqr(x0)), 1));
 
-  x1 = gmul(x0, gsqr(gmul2n(gaddsg(1, Qp_sqrt(gaddsg(1,gdiv(r1,x0)))),-1)));
+  t = Qp_sqrt(gaddsg(1,gdiv(r1,x0)));
+  if (!t) pari_err_IMPL("ellpointtoz when u not in Qp");
+  x1 = gmul(x0, gsqr(gmul2n(gaddsg(1,t),-1)));
   y1 = gdiv(y0, gsubsg(1, gsqr(gdiv(r1,gmul2n(x1,2)))));
   if (gequal0(x1)) pari_err_PREC("ellpointtoz");
 
