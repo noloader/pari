@@ -2224,6 +2224,16 @@ dbg(GEN x, long nb, long bl)
       }
       break;
 
+    case t_ERROR:
+      blancs(bl);
+      pari_printf("error type = %s\n", numerr_name(err_get_num(x)));
+      for (i=2; i<lx; i++)
+      {
+        blancs(bl); pari_printf("%ld%s component = ",i-1,eng_ord(i-1));
+        dbg(gel(x,i),nb,bl);
+      }
+      break;
+
     case t_INFINITY:
       blancs(bl); pari_printf("1st component = ");
       dbg(gel(x,1),nb,bl);
