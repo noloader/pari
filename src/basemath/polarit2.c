@@ -1361,29 +1361,6 @@ ggcd(GEN x, GEN y)
 GEN
 ggcd0(GEN x, GEN y) { return y? ggcd(x,y): content(x); }
 
-/* x a t_VEC,t_COL or t_MAT */
-static GEN
-vec_lcm(GEN x)
-{
-  if (typ(x) == t_MAT)
-  {
-    long i, l = lg(x);
-    GEN z = cgetg(l, t_VEC);
-    for (i = 1; i < l; i++) gel(z,i) = glcm0(gel(x,i), NULL);
-    x = z;
-  }
-  return glcm0(x, NULL);
-}
-static GEN
-scal_lcm(GEN x, GEN y)
-{
-  pari_sp av = avma;
-  long tx = typ(x), ty = typ(y);
-  if (is_matvec_t(tx)) x = vec_lcm(x);
-  if (is_matvec_t(ty)) y = vec_lcm(y);
-  return gerepileupto(av, glcm(x, y));
-}
-
 static GEN
 fix_lcm(GEN x)
 {
@@ -1399,48 +1376,20 @@ fix_lcm(GEN x)
   }
   return x;
 }
-
 GEN
-glcm0(GEN x, GEN y) {
-  if (!y && lg(x) == 2)
-  {
-    long tx = typ(x);
-    if (is_vec_t(tx))
-    {
-      x = gel(x,1);
-      tx = typ(x);
-      return is_matvec_t(tx)? vec_lcm(x): fix_lcm(x);
-    }
-  }
-  return gassoc_proto(scal_lcm,x,y);
+glcm0(GEN x, GEN y)
+{
+  if (!y) return fix_lcm(gassoc_proto(glcm,x,y));
+  return glcm(x,y);
 }
-
 GEN
 glcm(GEN x, GEN y)
 {
-  long tx, ty, i, l;
   pari_sp av;
-  GEN p1, z;
-
-  ty = typ(y);
-  if (is_matvec_t(ty))
-  {
-    z = cgetg_copy(y, &l);
-    for (i=1; i<l; i++) gel(z,i) = glcm(x,gel(y,i));
-    return z;
-  }
-  tx = typ(x);
-  if (is_matvec_t(tx))
-  {
-    z = cgetg_copy(x, &l);
-    for (i=1; i<l; i++) gel(z,i) = glcm(gel(x,i),y);
-    return z;
-  }
-  if (tx==t_INT && ty==t_INT) return lcmii(x,y);
-  if (gequal0(x)) return gen_0;
-
+  GEN z;
+  if (typ(x)==t_INT && typ(y)==t_INT) return lcmii(x,y);
   av = avma;
-  p1 = ggcd(x,y); if (!gequal1(p1)) y = gdiv(y,p1);
+  z = ggcd(x,y); if (!gequal1(z)) y = gdiv(y,z);
   return gerepileupto(av, fix_lcm(gmul(x,y)));
 }
 
