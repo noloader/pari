@@ -11,6 +11,8 @@ Doc: returns the coefficients $[a_1,a_2,a_3,a_4,a_6]$ of the twist of the
  defined by $P$ (when $P$ is a polynomial) or \kbd{quadpoly(P)} when $P$ is an
  integer.  If $E$ is defined over a finite field, then $P$ can be omitted,
  in which case a random model of the unique non-trivial twist is returned.
+ If $E$ is defined over a number field, the model should be replaced by a
+ minimal model (if one exists).
 
  Example: Twist by discriminant $-3$:
  \bprog
