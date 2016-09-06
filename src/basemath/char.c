@@ -996,6 +996,39 @@ zncharisodd(GEN G, GEN chi)
   return odd(s);
 }
 
+GEN
+znchartokronecker(GEN G, GEN chi, long flag)
+{
+  pari_sp av = avma;
+  long s;
+  GEN F, o;
+
+  if (flag && flag != 1) pari_err_FLAG("znchartokronecker");
+  s = zncharisodd(G, chi)? -1: 1;
+  if (typ(chi) != t_COL) chi = znconreylog(G, chi);
+  o = zncharorder(G, chi);
+  if (cmpiu(o,2) > 0) { avma = av; return gen_0; }
+  F = znconreyconductor(G, chi, NULL);
+  if (typ(F) == t_INT)
+  {
+    if (s < 0) F = negi(F);
+    return gerepileuptoint(av, F);
+  }
+  F = gel(F,1);
+  F = (s < 0)? negi(F): icopy(F);
+  if (!flag)
+  {
+    GEN MF = bid_get_fact(G), P = gel(MF,1);
+    long i, l = lg(P);
+    for (i = 1; i < l; i++)
+    {
+      GEN p = gel(P,i);
+      if (!dvdii(F,p)) F = mulii(F,sqri(p));
+    }
+  }
+  return gerepileuptoint(av, F);
+}
+
 /* G a bidZ, not stack clean */
 GEN
 znchareval(GEN G, GEN chi, GEN n, GEN z)
