@@ -1,0 +1,10 @@
+Function: elltamagawa
+Section: elliptic_curves
+C-Name: elltamagawa
+Prototype: G
+Help: elltamagawa(E): E being an elliptic curve over a number field,
+ returns the global Tamagawa number.
+Doc:
+ The object $E$ being an elliptic curve, returns the global Tamagawa number
+ (including the factor at infinite places).
+

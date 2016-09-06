@@ -2656,6 +2656,7 @@ long    ellrootno_global(GEN e);
 GEN     ellsea(GEN E, ulong smallfact);
 GEN     ellsigma(GEN om, GEN z, long flag, long prec);
 GEN     ellsub(GEN e, GEN z1, GEN z2);
+GEN     elltamagawa(GEN e);
 GEN     elltaniyama(GEN e, long prec);
 GEN     elltatepairing(GEN E, GEN t, GEN s, GEN m);
 GEN     elltors(GEN e);

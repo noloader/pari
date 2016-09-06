@@ -44,6 +44,7 @@ BA    4- [gmp] support for mpn_divexact_1
 BA    5- parallel fflog in characteristic at most 5
 BA    6- parallel znlog for large characteristic
       7- [libpari] u_chinese_coprime
+BA    8- new GP function elltamagawa
 
 Changed
 

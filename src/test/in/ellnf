@@ -74,6 +74,24 @@ e = ellinit([1,40*u+1,0,25*u^2,0], K); ellminimalmodel(e)
 e = ellinit([1,10*u+1,0,25*u^2,0], K); ellminimalmodel(e)
 ellglobalred(e)
 
-E=ellinit([-3850829794560*a-15877538149168,-835276760491221504 0*a-34439343881478343808],bnfinit(a^2-17));
+E=ellinit([-3850829794560*a-15877538149168,-8352767604912215040*a-34439343881478343808],bnfinit(a^2-17));
 ellminimalmodel(E,&v)[1..5]
 v
+
+K = nfinit(a^2 - a + 1);
+E = ellinit([1, -1, 0, -3*a, -3*a + 3],K);
+idealnorm(K,ellglobalred(E)[1])
+elltamagawa(E)
+elltors(E)
+
+K = nfinit(a^2 - a - 22);
+E = ellinit([0, 0, 1, -1590*a - 8580, 92750*a + 359875],K);
+idealnorm(K,ellglobalred(E)[1])
+elltamagawa(E)
+elltors(E)
+
+K = nfinit(a^3 - a^2 + 1);
+E = ellinit([a + 1, -a^2 - a - 1, a^2 + a, -a^2, -a^2 + 1],K);
+idealnorm(K,ellglobalred(E)[1])
+elltamagawa(E)
+elltors(E)
