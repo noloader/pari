@@ -1157,7 +1157,7 @@ sertoser(GEN x, long prec)
 }
 
 GEN
-inv_ser(GEN b)
+ser_inv(GEN b)
 {
   pari_sp av = avma;
   long l = lg(b), e = valp(b), v = varn(b), prec = l-2;

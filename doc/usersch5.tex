@@ -10800,6 +10800,11 @@ the series is either $0$ or equal to $t^v(1+O(t))$. Shallow function if the
 of whose known coefficients are exact zeroes; this implies that
 $\kbd{sign}(x) = 0$ and $\kbd{lg}(x) \leq 3$.
 
+\fun{GEN}{ser_inv}{GEN x} return the inverse of the \typ{SER} $x$ using
+Newton iteration. This is in general slower than \kbd{ginv} unless the
+precision is huge (hundreds of terms, where the threshold depends strongly
+on the base field).
+
 \section{Functions to handle \typ{FFELT}}
 These functions define the public interface of the \typ{FFELT} type to use in
 generic functions.  However, in specific functions, it is better to use the

@@ -2322,7 +2322,7 @@ GEN
 ellformalpoint(GEN e, long n, long v)
 {
   pari_sp av = avma;
-  GEN w = ellformalw(e, n, v), wi = inv_ser(w);
+  GEN w = ellformalw(e, n, v), wi = ser_inv(w);
   return gerepilecopy(av, ellformalpoint_i(w, wi));
 }
 
@@ -2348,7 +2348,7 @@ GEN
 ellformaldifferential(GEN e, long n, long v)
 {
   pari_sp av = avma;
-  GEN w = ellformalw(e, n, v), wi = inv_ser(w), x;
+  GEN w = ellformalw(e, n, v), wi = ser_inv(w), x;
   GEN w1 = ellformaldifferential_i(e, w, wi, &x);
   return gerepilecopy(av, mkvec2(w1,gmul(x,w1)));
 }
@@ -2358,7 +2358,7 @@ GEN
 ellformallog(GEN e, long n, long v)
 {
   pari_sp av = avma;
-  GEN w = ellformalw(e, n, v), wi = inv_ser(w), x;
+  GEN w = ellformalw(e, n, v), wi = ser_inv(w), x;
   GEN w1 = ellformaldifferential_i(e, w, wi, &x);
   return gerepileupto(av, integser(w1));
 }
@@ -2377,7 +2377,7 @@ static GEN
 ellformallogsigma_t(GEN e, long n)
 {
   pari_sp av = avma;
-  GEN w = ellformalw(e, n, 0), wi = inv_ser(w), t = pol_x(0);
+  GEN w = ellformalw(e, n, 0), wi = ser_inv(w), t = pol_x(0);
   GEN x, s = ellformaldifferential_i(e, w, wi, &x);
   GEN f = gmul(s, gadd(integser(gmul(x,s)), gmul2n(ell_get_a1(e),-1)));
   return gerepilecopy(av, mkvec2(integser( gsub(ginv(gneg(t)), f) ),

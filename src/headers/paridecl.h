@@ -3131,7 +3131,7 @@ GEN     hqfeval(GEN q, GEN x);
 GEN     imag_i(GEN x);
 GEN     integ(GEN x, long v);
 GEN     integser(GEN x);
-GEN     inv_ser(GEN b);
+GEN     ser_inv(GEN b);
 int     iscomplex(GEN x);
 int     isexactzero(GEN g);
 int     isrationalzeroscalar(GEN g);
