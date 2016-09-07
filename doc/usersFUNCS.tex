@@ -1106,9 +1106,9 @@ $L$-function of elliptic curves over number fields are supported.
 
 $L$-function of hyperelliptic genus-$2$ curve can be created with
 \kbd{lfungenus2}. To create the $L$ function of the curve
-$y^2+(x^3+x^2+1)*y = x^2+x$:
+$y^2+(x^3+x^2+1)y = x^2+x$:
 \bprog
-? L=lfungenus2([x^2+x,x^3+x^2+1]);
+? L = lfungenus2([x^2+x, x^3+x^2+1]);
 @eprog
 Currently, the model needs to be minimal at $2$, and if the conductor is even,
 its valuation at $2$ might be incorrect (a warning is issued).

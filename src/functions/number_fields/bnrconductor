@@ -23,7 +23,7 @@ Doc: conductor $f$ of the subfield of a ray class field as defined by $[A,B,C]$
  replaced by a \kbd{bnr} structure, as output by $\tet{bnrinit}(,f,1)$.
 
  In place of a subgroup $H$, this function also accepts a character
- \var{chi}  $=(a_j)$, expressed as usual in terms of the generators
+ \kbd{chi}  $=(a_j)$, expressed as usual in terms of the generators
  \kbd{bnr.gen}: $\chi(g_j) = \exp(2i\pi a_j / d_j)$, where $g_j$ has
  order $d_j = \kbd{bnr.cyc[j]}$. In which case, the function returns
  respectively
