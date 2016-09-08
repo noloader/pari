@@ -2449,19 +2449,21 @@ FpX_split_Berlekamp(GEN *t, GEN p)
 static GEN
 F2x_Berlekamp_i(GEN f, long flag)
 {
-  long e, lfact, val, d = F2x_degree(f);
-  ulong k, j;
-  GEN y, E, f2, g1, t;
+  long lfact, val, d = F2x_degree(f), j, k, lV;
+  GEN y, E, t, V;
 
   if (d <= 2) return F2x_factor_deg2(f, d, flag);
+
+  val = F2x_valrem(f, &f);
+  if (flag == 2 && val > 1) return NULL;
+  V = F2x_factor_squarefree(f); lV = lg(V);
+  if (flag == 2 && lV > 2) return NULL;
 
   /* to hold factors and exponents */
   t = cgetg(d+1, flag? t_VECSMALL: t_VEC);
   E = cgetg(d+1,t_VECSMALL);
-  val = F2x_valrem(f, &f);
-  e = lfact = 1;
+  lfact = 1;
   if (val) {
-    if (flag == 2 && val > 1) return NULL;
     if (flag == 1)
       t[1] = 1;
     else
@@ -2469,41 +2471,16 @@ F2x_Berlekamp_i(GEN f, long flag)
     E[1] = val; lfact++;
   }
 
-  for(;;)
+  for (k=1; k<lV; k++)
   {
-    f2 = F2x_gcd(f,F2x_deriv(f));
-    if (flag == 2 && F2x_degree(f2)) return NULL;
-    g1 = F2x_degree(f2)? F2x_div(f,f2): f; /* squarefree */
-    k = 0;
-    while (F2x_degree(g1)>0)
-    {
-      GEN u;
-      k++; if (k%2 == 0) { k++; f2 = F2x_div(f2,g1); }
-      u = g1; /* deg(u) > 0 */
-      if (!F2x_degree(f2)) g1 = pol1_F2x(0); /* only its degree (= 0) matters */
-      else
-      {
-        long dg1;
-        g1 = F2x_gcd(f2,g1);
-        dg1 = F2x_degree(g1);
-        if (dg1)
-        {
-          f2= F2x_div(f2,g1);
-          if (F2x_degree(u) == dg1) continue;
-          u = F2x_div( u,g1);
-        }
-      }
-      /* u is square-free (product of irred. of multiplicity e * k) */
-      gel(t,lfact) = u;
-      d = F2x_split_Berlekamp(&gel(t,lfact));
-      if (flag == 2 && d != 1) return NULL;
-      if (flag == 1)
-        for (j=0; j<(ulong)d; j++) t[lfact+j] = F2x_degree(gel(t,lfact+j));
-      for (j=0; j<(ulong)d; j++) E[lfact+j] = e*k;
-      lfact += d;
-    }
-    j = F2x_degree(f2); if (!j) break;
-    e *= 2; f = F2x_deflate(f2, 2);
+    if (F2x_degree(gel(V, k))==0) continue;
+    gel(t,lfact) = gel(V, k);
+    d = F2x_split_Berlekamp(&gel(t,lfact));
+    if (flag == 2 && d != 1) return NULL;
+    if (flag == 1)
+      for (j=0; j<d; j++) t[lfact+j] = F2x_degree(gel(t,lfact+j));
+    for (j=0; j<d; j++) E[lfact+j] = k;
+    lfact += d;
   }
   if (flag == 2) return gen_1; /* irreducible */
   y = FE_setlg(t,E, lfact);
