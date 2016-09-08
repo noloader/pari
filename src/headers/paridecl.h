@@ -2533,6 +2533,7 @@ GEN     ellanal_globalred(GEN e, GEN *gr);
 GEN     ellQ_get_N(GEN e);
 void    ellQ_get_Nfa(GEN e, GEN *N, GEN *faN);
 GEN     ellQp_Tate_uniformization(GEN E, long prec);
+GEN     ellQp_AGM(GEN E, long prec);
 GEN     ellQp_u(GEN E, long prec);
 GEN     ellQp_u2(GEN E, long prec);
 GEN     ellQp_q(GEN E, long prec);
