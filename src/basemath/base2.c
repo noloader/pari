@@ -2573,16 +2573,13 @@ anti_uniformizer2(GEN nf, GEN pr)
 {
   GEN p = pr_get_p(pr), z;
   long N = nf_get_degree(nf);
-  if (pr_get_e(pr)*pr_get_f(pr) == N) return col_ei(N, 1);
+  if (pr_get_e(pr)*pr_get_f(pr) == N) return gen_1;
 
   z = special_anti_uniformizer(nf,pr);
   if (typ(z) == t_MAT)
     z = FpM_red(z,p);
   else
-  {
-    z = FpC_red(z,p);
-    z = zk_scalar_or_multable(nf, z); /* not a scalar */
-  }
+    z = zk_multable(nf, FpC_red(z,p)); /* not a scalar */
   z = ZM_hnfmodid(z, p);
   z = idealaddtoone_i(nf, pr, z);
   return Z_ZC_sub(gen_1, z);
