@@ -2514,9 +2514,8 @@ F2x_Berlekamp_i(GEN f, long flag)
 static GEN
 Flx_Berlekamp_i(GEN f, ulong p, long flag)
 {
-  long e, lfact, val, d = degpol(f);
-  ulong k, j;
-  GEN y, E, f2, g1, t;
+  long lfact, val, d = degpol(f), j, k, lV;
+  GEN y, E, t, V;
 
   if (p == 2)
   {
@@ -2525,14 +2524,16 @@ Flx_Berlekamp_i(GEN f, ulong p, long flag)
     return F;
   }
   if (d <= 2) return Flx_factor_deg2(f,p,d,flag);
+  val = Flx_valrem(f, &f);
+  if (flag == 2 && val > 1) return NULL;
+  V = Flx_factor_squarefree(f, p); lV = lg(V);
+  if (flag == 2 && lV > 2) return NULL;
 
   /* to hold factors and exponents */
   t = cgetg(d+1, flag? t_VECSMALL: t_VEC);
   E = cgetg(d+1,t_VECSMALL);
-  val = Flx_valrem(f, &f);
-  e = lfact = 1;
+  lfact = 1;
   if (val) {
-    if (flag == 2 && val > 1) return NULL;
     if (flag == 1)
       t[1] = 1;
     else
@@ -2540,42 +2541,16 @@ Flx_Berlekamp_i(GEN f, ulong p, long flag)
     E[1] = val; lfact++;
   }
 
-  for(;;)
+  for (k=1; k<lV; k++)
   {
-    f2 = Flx_gcd(f,Flx_deriv(f,p), p);
-    if (flag == 2 && degpol(f2)) return NULL;
-    g1 = degpol(f2)? Flx_div(f,f2,p): f; /* squarefree */
-    k = 0;
-    while (degpol(g1)>0)
-    {
-      GEN u;
-      k++; if (k%p == 0) { k++; f2 = Flx_div(f2,g1,p); }
-      u = g1; /* deg(u) > 0 */
-      if (!degpol(f2)) g1 = pol1_Flx(0); /* only its degree (= 0) matters */
-      else
-      {
-        g1 = Flx_gcd(f2,g1, p);
-        if (degpol(g1))
-        {
-          f2= Flx_div(f2,g1,p);
-          if (lg(u) == lg(g1)) continue;
-          u = Flx_div( u,g1,p);
-        }
-      }
-      /* u is square-free (product of irred. of multiplicity e * k) */
-      u = Flx_normalize(u,p);
-      gel(t,lfact) = u;
-      d = Flx_split_Berlekamp(&gel(t,lfact), p);
-      if (flag == 2 && d != 1) return NULL;
-      if (flag == 1)
-        for (j=0; j<(ulong)d; j++) t[lfact+j] = degpol(gel(t,lfact+j));
-      for (j=0; j<(ulong)d; j++) E[lfact+j] = e*k;
-      lfact += d;
-    }
-    if (!p) break;
-    j = degpol(f2); if (!j) break;
-    if (j % p) pari_err_PRIME("factmod",utoi(p));
-    e *= p; f = Flx_deflate(f2, p);
+    if (degpol(gel(V, k))==0) continue;
+    gel(t,lfact) = Flx_normalize(gel(V, k), p);
+    d = Flx_split_Berlekamp(&gel(t,lfact), p);
+    if (flag == 2 && d != 1) return NULL;
+    if (flag == 1)
+      for (j=0; j<d; j++) t[lfact+j] = degpol(gel(t,lfact+j));
+    for (j=0; j<d; j++) E[lfact+j] = k;
+    lfact += d;
   }
   if (flag == 2) return gen_1; /* irreducible */
   y = FE_setlg(t,E,lfact);
