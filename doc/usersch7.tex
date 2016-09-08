@@ -228,6 +228,13 @@ reduction (Tate curves):
 
 \fun{GEN}{ellQp_ab}{GEN E, long prec} returns $[a,b]$.
 
+\fun{GEN}{ellQp_AGM}{GEN E, long prec} returns $[a,b,R,v]$, where
+$v$ is an integer, $a, b, R$ are vectors describing the sequence of
+$2$-isogenous curves $E_i: y^2 = x(x+A_i)(x+A_i-B_i)$, $i \geq 1$
+converging to the singular curve $E_\infty: y^2 = x^2(x+M)$. We have
+$a[i] = A[i] p^v$, $b[i] = B[i] p^v$, $R[i] = A_i - B_i$. These are used in
+\kbd{ellpointtoz} and \kbd{ellztopoint}.
+
 \fun{GEN}{ellQp_L}{GEN E, long prec} returns the ${\cal L}$-invariant $L$.
 
 \fun{GEN}{ellQp_root}{GEN E, long prec} returns $e_1$.
