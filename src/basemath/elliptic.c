@@ -479,7 +479,8 @@ ellR_ab(GEN E, long prec)
  * Let (A_n, B_n) be defined by A_1 = a1/p^v, B_1 = b1/p^v, v=v(a1)=v(a2);
  *   A_{n+1} = (A_n + B_n + 2 B_{n+1}) / 4
  *   B_{n+1} = B_n sqrt(A_n / B_n) = square root of A_n B_n congruent to B_n
- * Return [An,Bn]. N.B. lim An = M2(a1,b1) = M(sqrt(a1),sqrt(b1))^2 */
+ *   R_n = p^v( A_n - B_n ) = r_{n+1}
+ * Return [An,Bn,Rn]. N.B. lim An = M2(a1,b1) = M(sqrt(a1),sqrt(b1))^2 */
 static GEN
 Qp_agm2_sequence(GEN a1, GEN b1)
 {
@@ -500,6 +501,15 @@ Qp_agm2_sequence(GEN a1, GEN b1)
   {
     GEN a = a1, b = b1, r;
     long vr;
+    gel(An, i) = a;
+    gel(Bn, i) = b;
+    r = subii(a,b);
+    if (!signe(r)) break;
+    vr = Z_pvalrem(r,p,&r);
+    if (vr >= pp) break;
+    r = cvtop(r, p, pp - vr); setvalp(r, vr+v);
+    gel(Rn, i) = r;
+
     b1 = Zp_sqrt(Fp_mul(a,b,q), p, pp);
     if (!b1) pari_err_PREC("p-adic AGM");
     if (!equalii(modii(b1,pmod), bp)) b1 = Fp_neg(b1, q);
@@ -512,32 +522,55 @@ Qp_agm2_sequence(GEN a1, GEN b1)
     }
     else
       a1 = modii(Fp_halve(addii(Fp_halve(addii(a,b),q), b1), q), q);
-    gel(An, i) = a1;
-    gel(Bn, i) = b1;
-    r = subii(a1,b1);
-    if (!signe(r)) break;
-    vr = Z_pvalrem(r,p,&r);
-    if (vr >= pp) break;
-    r = cvtop(r, p, pp - vr); setvalp(r, vr+v);
-    gel(Rn, i) = r;
   }
   setlg(An,i+1);
   setlg(Bn,i+1);
   setlg(Rn,i); return mkvec4(An, Bn, Rn, stoi(v));
 }
 static void
-Qp_Landen(GEN AB, GEN *ptx, GEN *pty)
+Qp_descending_Landen(GEN AB, GEN *ptx, GEN *pty)
 {
   GEN R = gel(AB,3);
   long i, l = lg(R);
   GEN x = *ptx;
-  for (i = 1; i < l; i++)
+  if (isintzero(x))
   {
-    GEN r = gel(R,i), t = Qp_sqrt(gdiv(gadd(x,r),x)); /* = 1 (mod p) */
+    i = 2;
+    x = gmul2n(gel(R,1),-2);
+    if (pty) pari_err_IMPL("Qp_descending_Lande([0,0])");
+  }
+  else
+    i = 1;
+  for (; i < l; i++)
+  {
+    GEN r = gel(R,i), t;
+    if (gequal0(x)) pari_err_PREC("Qp_descending_Landen");
+    t = Qp_sqrt(gaddsg(1, gdiv(r,x))); /* = 1 (mod p) */
+    if (!t) pari_err_PREC("Qp_descending_Landen");
     /* x_{n+1} = x_n  ((1 + sqrt(1 + r_n/x_n)) / 2)^2 */
     x = gmul(x, gsqr(gmul2n(gaddsg(1,t),-1)));
     /* y_{n+1} = y_n / (1 - (r_n/4x_{n+1})^2) */
     if (pty) *pty = gdiv(*pty, gsubsg(1, gsqr(gdiv(r,gmul2n(x,2)))));
+  }
+  *ptx = x;
+}
+static void
+Qp_ascending_Landen(GEN AB, GEN *ptx, GEN *pty)
+{
+  GEN A = gel(AB,1), R = gel(AB,3);
+  long i = lg(R)-1, v = itos(gel(AB,4));
+  GEN x = *ptx;
+
+  x = gsub(x, gmul2n(gel(R,i),-1));
+  for (; i > 1; i--)
+  {
+    GEN ar = gmul(gel(A,i),gel(R,i)), xp;
+    setvalp(ar, valp(ar)+v); /* A_i = A[i] * p^v */
+    /* x_{i-1} = x_i + a_i r_i / x_i - r_{i-1}/2 */
+    xp = gsub(gadd(x, gdiv(ar, x)), gmul2n(gel(R,i-1),-1));
+    /* y_{i-1} = y_i (1 - a_i r_i / x^2) */
+    if (pty) *pty = gmul(*pty, gsubsg(1, gdiv(ar,gsqr(x))));
+    x = xp;
   }
   *ptx = x;
 }
@@ -2175,7 +2208,7 @@ GEN
 ellQp_root(GEN E, long prec)
 { return obj_checkbuild_padicprec(E, Qp_ROOT, &doellQp_root, prec); }
 
-/* compute a,b such that E1: y^2 = x(x-a)(x-b) ~ E */
+/* compute a,b such that E1: y^2 = x(x-a)(x+a-b) ~ E */
 static void
 doellQp_ab(GEN E, GEN *pta, GEN *ptb, long prec)
 {
@@ -2209,7 +2242,6 @@ START:
   d = gsub(a,b);
   v = prec0 - precp(d);
   if (v > 0) { prec += v; goto START; }
-  x1 = gmul2n(d,-2);
   AB = Qp_agm2_sequence(a,b);
   A = gel(AB,1);
   n = lg(A)-1; /* AGM iterations */
@@ -2217,8 +2249,9 @@ START:
   M2 = cvtop(gel(A,n), p, pis2? pp-n: pp);
   setvalp(M2, valp(a));
   u2 = ginv(gmul2n(M2, 2));
-  Qp_Landen(AB,&x1,NULL);
   if (split < 0) split = issquare(u2);
+  x1 = gen_0;
+  Qp_descending_Landen(AB,&x1,NULL);
 
   t = gaddsg(1, ginv(gmul2n(gmul(u2,x1),1)));
   s = Qp_sqrt(gsubgs(gsqr(t), 1));
@@ -2271,46 +2304,67 @@ ellQp_AGM(GEN E, long prec)
 { GEN T = ellQp_Tate_uniformization(E, prec); return gel(T,6); }
 
 static void
-zellQp_err(GEN u, GEN z)
+ellQp_P2t_err(GEN E, GEN z)
 {
-  if (typ(u) == t_POLMOD) pari_err_IMPL("ellpointtoz when u not in Qp");
+  if (typ(ellQp_u(E,1)) == t_POLMOD)
+    pari_err_IMPL("ellpointtoz when u not in Qp");
   pari_err_DOMAIN("ellpointtoz", "point", "not on", strtoGENstr("E"),z);
 }
 static GEN
-zellQp(GEN E, GEN z, long prec)
+get_r0(GEN E, long prec)
+{
+  GEN b2 = ell_get_b2(E), e1 = ellQp_root(E, prec);
+  return gadd(e1,gmul2n(b2,-2));
+}
+static GEN
+ellQp_P2t(GEN E, GEN P, long prec)
 {
   pari_sp av = avma;
-  GEN b2, a, b, ab, c0, r0, r1, ar1, e1, x, delta, x0,x1, y0,y1, t, u;
-  if (ell_is_inf(z)) return gen_1;
-  b2 = ell_get_b2(E);
+  GEN a, b, ab, c0, r0, ar, x, delta, x1, y1, t, u;
+  if (ell_is_inf(P)) return gen_1;
   ab = ellQp_ab(E, prec);
   u = ellQp_u(E, prec);
-  /* e1 already computed in ellQp_ab, possibly to larger accuracy */
-  e1 = ellQp_root(E, prec);
   a = gel(ab,1);
-  b = gel(ab,2); r1 = gsub(a,b);
-  x = gel(z,1);
-  r0 = gadd(e1,gmul2n(b2,-2));
+  b = gel(ab,2);
+  x = gel(P,1);
+  r0 = get_r0(E, prec);
   c0 = gadd(x, gmul2n(r0,-1));
-  if (typ(c0) != t_PADIC) pari_err_TYPE("ellpointtoz",z);
-  ar1 = gmul(a,r1);
-  delta = gdiv(ar1, gsqr(c0));
+  if (typ(c0) != t_PADIC) pari_err_TYPE("ellpointtoz",P);
+  ar = gmul(a, gsub(a,b));
+  delta = gdiv(ar, gsqr(c0));
   t = Qp_sqrt(gsubsg(1,gmul2n(delta,2)));
-  if (!t) zellQp_err(u,z);
-  x0 = gmul(gmul2n(c0,-1), gaddsg(1,t));
-  y0 = gdiv(gmul2n(ec_dmFdy_evalQ(E,z), -1), gsubsg(1, gdiv(ar1,gsqr(x0))));
+  if (!t) ellQp_P2t_err(E,P);
+  x1 = gmul(gmul2n(c0,-1), gaddsg(1,t));
+  y1 = gdiv(gmul2n(ec_dmFdy_evalQ(E,P), -1), gsubsg(1, gdiv(ar, gsqr(x1))));
+  Qp_descending_Landen(ellQp_AGM(E,prec), &x1,&y1);
 
-  t = Qp_sqrt(gaddsg(1,gdiv(r1,x0)));
-  if (!t) zellQp_err(u,z);
-  x1 = gmul(x0, gsqr(gmul2n(gaddsg(1,t),-1)));
-  y1 = gdiv(y0, gsubsg(1, gsqr(gdiv(r1,gmul2n(x1,2)))));
-  if (gequal0(x1)) pari_err_PREC("ellpointtoz");
-
-  Qp_Landen(ellQp_AGM(E,prec), &x1,&y1);
   t = gmul(u, gmul2n(y1,1)); /* 2u y_oo */
   t = gdiv(gsub(t, x1), gadd(t, x1));
   if (padicprec_relative(t) > prec) t = gprec(t, prec);
   return gerepileupto(av, t);
+}
+
+static GEN
+ellQp_t2P(GEN E, GEN t, long prec)
+{
+  pari_sp av = avma;
+  GEN AB, A, R, x0,x1, y0,y1, u, u2, r0, s0, ar;
+  long v;
+  if (gequal1(t)) return ellinf();
+
+  AB = ellQp_AGM(E,prec); A = gel(AB,1); R = gel(AB,3); v = itos(gel(AB,4));
+  u = ellQp_u(E,prec);
+  u2= ellQp_u2(E,prec);
+  x1 = gdiv(t, gmul(u2, gsqr(gsubsg(1,t))));
+  y1 = gdiv(gmul(x1,gaddsg(1,t)), gmul(gmul2n(u,1),gsubsg(1,t)));
+  Qp_ascending_Landen(AB, &x1,&y1);
+  r0 = get_r0(E, prec);
+
+  ar = gmul(gel(A,1), gel(R,1)); setvalp(ar, valp(ar)+v);
+  x0 = gsub(gadd(x1, gdiv(ar, x1)), gmul2n(r0,-1));
+  s0 = gmul2n(ec_h_evalx(E, x0), -1);
+  y0 = gsub(gmul(y1, gsubsg(1, gdiv(ar,gsqr(x1)))), s0);
+  return gerepilecopy(av, mkvec2(x0,y0));
 }
 
 /* t to w := -1/y */
@@ -2847,7 +2901,7 @@ zell(GEN e, GEN z, long prec)
   {
     case t_ELL_Qp:
       prec = minss(ellQp_get_prec(e), padicprec_relative(z));
-      return zellQp(e, z, prec);
+      return ellQp_P2t(e, z, prec);
     case t_ELL_Q: break;
     case t_ELL_Rg: break;
     default: pari_err_TYPE("ellpointtoz", e);
@@ -3569,6 +3623,11 @@ pointell(GEN e, GEN z, long prec)
   GEN v;
 
   checkell(e);
+  if (ell_get_type(e) == t_ELL_Qp)
+  {
+    prec = minss(ellQp_get_prec(e), padicprec_relative(z));
+    return ellQp_t2P(e, z, prec);
+  }
   v = ellwpnum_all(e,z,1,prec);
   if (!v) { avma = av; return ellinf(); }
   gel(v,1) = gsub(gel(v,1), gdivgs(ell_get_b2(e),12));
