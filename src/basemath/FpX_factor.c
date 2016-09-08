@@ -1447,9 +1447,8 @@ F2xV_to_ZXV_inplace(GEN v)
 static GEN
 F2x_factor_squarefree(GEN f)
 {
-  pari_sp av = avma;
   GEN r, t, v, tv;
-  long q, n = F2x_degree(f);
+  long i, q, n = F2x_degree(f);
   GEN u = const_vec(n+1, pol1_F2x(f[1]));
   for(q = 1;;q *= 2)
   {
@@ -1477,7 +1476,9 @@ F2x_factor_squarefree(GEN f)
     }
     f = F2x_sqrt(r);
   }
-  return gerepilecopy(av, u);
+  for (i = n; i; i--)
+    if (F2x_degree(gel(u,i))) break;
+  setlg(u,i+1); return u;
 }
 
 static GEN
