@@ -927,7 +927,7 @@ FpXQX_easyroots(GEN f, GEN T, GEN p)
 
 /* Adapted from Shoup NTL */
 static GEN
-FpXQX_factor_squarefree(GEN f, GEN T, GEN p)
+FpXQX_factor_Yun(GEN f, GEN T, GEN p)
 {
   pari_sp av = avma;
   GEN r, t, v, tv;
@@ -945,7 +945,21 @@ FpXQX_factor_squarefree(GEN f, GEN T, GEN p)
     r = FpXQX_div(r, v, T, p);
     t = v;
   }
-  return gerepilecopy(av, u);
+  setlg(u, j+1); return gerepilecopy(av, u);
+}
+
+static GEN
+FpXQX_factor_squarefree(GEN f, GEN T, GEN p)
+{
+  if (abscmpiu(p, degpol(f)) <= 0)
+  {
+    ulong pp = (ulong)p[2];
+    GEN Tp =  ZX_to_Flx(T, pp);
+    GEN xp = Flx_Frobenius(Tp, pp);
+    GEN u = FlxqX_factor_squarefree(ZXX_to_FlxX(f, pp, varn(T)), xp, Tp, pp);
+    return FlxXC_to_ZXXC(u);
+  }
+  return FpXQX_factor_Yun(f, T, p);
 }
 
 static void
