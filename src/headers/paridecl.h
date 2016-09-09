@@ -661,8 +661,9 @@ void    Flx_ffintersect(GEN P,GEN Q,long n,ulong l,GEN *SP,GEN *SQ,GEN MA,GEN MB
 GEN     Flx_ffisom(GEN P,GEN Q,ulong l);
 GEN     Flxq_ffisom_inv(GEN S,GEN Tp, ulong p);
 GEN     FlxqX_Frobenius(GEN S, GEN T, ulong p);
-GEN     FlxqX_roots(GEN S, GEN T, ulong p);
+GEN     FlxqX_factor(GEN x, GEN T, ulong p);
 long    FlxqX_nbroots(GEN f, GEN T, ulong p);
+GEN     FlxqX_roots(GEN S, GEN T, ulong p);
 GEN     FlxqXQ_halfFrobenius(GEN a, GEN S, GEN T, ulong p);
 GEN     FpX_factorff(GEN P, GEN T, GEN p);
 GEN     FpX_factorff_irred(GEN P, GEN Q, GEN p);

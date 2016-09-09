@@ -1054,6 +1054,53 @@ FqX_nbfact(GEN u, GEN T, GEN p)
 
 #define set_irred(i) { if ((i)>ir) swap(t[i],t[ir]); ir++;}
 
+static long
+FlxqX_split_Berlekamp(GEN *t, GEN T, ulong p)
+{
+  GEN u = *t, a,b,vker,pol;
+  long vu = varn(u), vT = varn(T), dT = degpol(T);
+  long d, i, ir, L, la, lb;
+  if (degpol(u)==1) return 1;
+  T = Flx_get_red(T, p);
+  vker = FlxqX_Berlekamp_ker(u,T,p);
+  vker = Flm_to_FlxV(vker,vu);
+  d = lg(vker)-1;
+  ir = 0;
+  /* t[i] irreducible for i < ir, still to be treated for i < L */
+  for (L=1; L<d; )
+  {
+    pol= scalarpol(random_Flx(dT,vT,p),vu);
+    for (i=2; i<=d; i++)
+      pol = FlxX_add(pol, FlxqX_Flxq_mul(gel(vker,i),
+                                         random_Flx(dT,vT,p), T, p), p);
+    pol = FlxqX_red(pol,T,p);
+    for (i=ir; i<L && L<d; i++)
+    {
+      a = t[i]; la = degpol(a);
+      if (la == 1) { set_irred(i); }
+      else
+      {
+        pari_sp av = avma;
+        b = FlxqX_rem(pol, a, T,p);
+        if (degpol(b)<=0) { avma=av; continue; }
+        b = FlxqXQ_halfFrobenius(b, a,T,p);
+        if (degpol(b)<=0) { avma=av; continue; }
+        gel(b,2) = Flxq_sub(gel(b,2), gen_1,T,p);
+        b = FlxqX_gcd(a,b, T,p); lb = degpol(b);
+        if (lb && lb < la)
+        {
+          b = FlxqX_normalize(b, T,p);
+          t[L] = FlxqX_div(a,b,T,p);
+          t[i]= b; L++;
+        }
+        else avma = av;
+      }
+    }
+  }
+  return d;
+}
+
+
 long
 FqX_split_Berlekamp(GEN *t, GEN T, GEN p)
 {
@@ -1849,6 +1896,29 @@ F2xqX_factor_2(GEN f, GEN T)
 }
 
 static GEN
+FlxqX_factor_2(GEN f, GEN T, ulong p)
+{
+  long v = varn(f);
+  GEN r = FlxqX_quad_roots(f, T, p);
+  switch(lg(r)-1)
+  {
+  case 0:
+    return mkvec2(mkcolcopy(f), mkvecsmall(1));
+  case 1:
+    return mkvec2(mkcol(deg1pol_shallow(pol1_Flx(T[1]),
+                        Flx_neg(gel(r,1), p), v)), mkvecsmall(2));
+  default: /* 2 */
+    {
+      GEN f1 = deg1pol_shallow(pol1_Flx(T[1]), Flx_neg(gel(r,1), p), v);
+      GEN f2 = deg1pol_shallow(pol1_Flx(T[1]), Flx_neg(gel(r,2), p), v);
+      GEN t = mkcol2(f1, f2), E = mkvecsmall2(1, 1);
+      sort_factor_pol(mkvec2(t, E), cmp_Flx);
+      return mkvec2(t, E);
+    }
+  }
+}
+
+static GEN
 FpXQX_factor_2(GEN f, GEN T, GEN p)
 {
   long v = varn(f);
@@ -1908,6 +1978,40 @@ F2xqX_factcantor_i(GEN f, GEN T)
 
 /* assumes varncmp (varn(T), varn(f)) > 0 */
 static GEN
+FlxqX_Berlekamp_i(GEN f, GEN T, ulong p)
+{
+  long lfact, d = degpol(f), j, k, lV;
+  GEN E, t, V;
+  switch(d)
+  {
+    case -1: retmkmat2(mkcolcopy(f), mkvecsmall(1));
+    case 0: return trivial_fact();
+  }
+  T = Flx_normalize(T, p);
+  f = FlxqX_normalize(f, T, p);
+  if (FlxY_degreex(f) <= 0) return Flx_factorff_i(FlxX_to_Flx(f), T, p);
+  if (degpol(f)==2) return FlxqX_factor_2(f, T, p);
+  V = FlxqX_factor_squarefree(f, Flx_Frobenius(T, p), T, p); lV = lg(V);
+
+  /* to hold factors and exponents */
+  t = cgetg(d+1,t_VEC);
+  E = cgetg(d+1, t_VECSMALL);
+  lfact = 1;
+  for (k=1; k<lV ; k++)
+  {
+    if (degpol(gel(V,k))==0) continue;
+    gel(t,lfact) = FlxqX_normalize(gel(V, k), T,p);
+    d = FlxqX_split_Berlekamp(&gel(t,lfact), T, p);
+    for (j = 0; j < d; j++) E[lfact+j] = k;
+    lfact += d;
+  }
+  setlg(t, lfact);
+  setlg(E, lfact);
+  return sort_factor_pol(mkvec2(t, E), cmp_Flx);
+}
+
+/* assumes varncmp (varn(T), varn(f)) > 0 */
+static GEN
 FpXQX_Berlekamp_i(GEN f, GEN T, GEN p)
 {
   long lfact, d = degpol(f), j, k, lV;
@@ -1941,6 +2045,13 @@ FpXQX_Berlekamp_i(GEN f, GEN T, GEN p)
 }
 
 GEN
+FlxqX_factor(GEN x, GEN T, ulong p)
+{
+  pari_sp av = avma;
+  return gerepilecopy(av, FlxqX_Berlekamp_i(x, T, p));
+}
+
+GEN
 F2xqX_factor(GEN x, GEN T)
 {
   pari_sp av = avma;
@@ -1950,10 +2061,17 @@ F2xqX_factor(GEN x, GEN T)
 static GEN
 FpXQX_factor_i(GEN f, GEN T, GEN p)
 {
-  if (equaliu(p,2))
+  if (lgefint(p)==3)
   {
-    GEN M = F2xqX_factcantor_i(ZXX_to_F2xX(f, varn(T)),  ZX_to_F2x(T));
-    return mkvec2(F2xXC_to_ZXXC(gel(M,1)), gel(M,2));
+    ulong pp = p[2];
+    GEN M;
+    if (pp==2)
+    {
+      M = F2xqX_factcantor_i(ZXX_to_F2xX(f, varn(T)),  ZX_to_F2x(T));
+      return mkvec2(F2xXC_to_ZXXC(gel(M,1)), gel(M,2));
+    }
+    M = FlxqX_Berlekamp_i(ZXX_to_FlxX(f, pp, varn(T)),  ZX_to_Flx(T, pp), pp);
+    return mkvec2(FlxXC_to_ZXXC(gel(M,1)), gel(M,2));
   }
   return FpXQX_Berlekamp_i(f, T, p);
 }
