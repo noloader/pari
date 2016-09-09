@@ -1945,6 +1945,13 @@ FpXQX_Berlekamp_i(GEN f, GEN T, GEN p)
   return sort_factor_pol(mkvec2(t, E), cmp_RgX);
 }
 
+GEN
+F2xqX_factor(GEN x, GEN T)
+{
+  pari_sp av = avma;
+  return gerepilecopy(av, F2xqX_factcantor_i(x, T));
+}
+
 static GEN
 FpXQX_factor_i(GEN f, GEN T, GEN p)
 {
@@ -1954,6 +1961,13 @@ FpXQX_factor_i(GEN f, GEN T, GEN p)
     return mkvec2(F2xXC_to_ZXXC(gel(M,1)), gel(M,2));
   }
   return FpXQX_Berlekamp_i(f, T, p);
+}
+
+GEN
+FpXQX_factor(GEN x, GEN T, GEN p)
+{
+  pari_sp av = avma;
+  return gerepilecopy(av, FpXQX_factor_i(x, T, p));
 }
 
 long
@@ -2061,14 +2075,6 @@ polrootsff(GEN f, GEN p, GEN T)
   }
   ffcheck(&av, &f, &T, p); z = FpXQX_roots_i(f, T, p);
   return to_FqC(z, T,p, av);
-}
-
-/* factorization of x modulo (T,p). Assume x already reduced */
-GEN
-FpXQX_factor(GEN x, GEN T, GEN p)
-{
-  pari_sp av = avma;
-  return gerepilecopy(av, FpXQX_factor_i(x, T, p));
 }
 
 long

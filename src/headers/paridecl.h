@@ -654,6 +654,7 @@ GEN     rootmod0(GEN f, GEN p,long flag);
 
 /* FpXQX_factor.c */
 
+GEN     F2xqX_factor(GEN x, GEN T);
 GEN     F2xqX_roots(GEN x, GEN T);
 GEN     Flx_factorff_irred(GEN P, GEN Q, ulong p);
 void    Flx_ffintersect(GEN P,GEN Q,long n,ulong l,GEN *SP,GEN *SQ,GEN MA,GEN MB);

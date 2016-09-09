@@ -5616,9 +5616,6 @@ occur).
 \fun{GEN}{FlxqXQ_halfFrobenius}{GEN A, GEN S, GEN T, GEN p}, as
 \kbd{FpXQXQ\_halfFrobenius}
 
-\fun{GEN}{F2xqX_roots}{GEN x, GEN T} return the roots of \kbd{x} in
-$\F_2[X]/(T)$. Assumes \kbd{T} irreducible in $\F_2[X]$.
-
 \fun{GEN}{FlxqX_roots}{GEN x, GEN T, ulong p} return the roots of \kbd{x} in
 $\F_p[X]/(T)$. Assumes \kbd{p} is prime and \kbd{T} irreducible in $\F_p[X]$.
 
@@ -5895,6 +5892,12 @@ the main variable.
 
 \fun{GEN}{F2xqX_F2xqXQV_eval}{GEN P, GEN V, GEN S, GEN T} as
 \kbd{FpX\_FpXQV\_eval}.
+
+\fun{GEN}{F2xqX_roots}{GEN f, GEN T} return the roots of \kbd{f} in
+$\F_2[X]/(T)$. Assumes \kbd{T} irreducible in $\F_2[X]$.
+
+\fun{GEN}{F2xqX_factor}{GEN x, GEN T} return the factorisation of \kbd{f} in
+$\F_2[X]/(T)$. Assumes \kbd{T} irreducible in $\F_2[X]$.
 
 \subsec{\kbd{F2xqXQ}}. See \kbd{FlxqXQ} operations.
 
