@@ -717,6 +717,28 @@ FpX_rootsff(GEN P, GEN T, GEN p)
   return gerepilecopy(av, FpX_rootsff_i(P, T, p));
 }
 
+static GEN
+Flx_factorff_i(GEN P, GEN T, ulong p)
+{
+  GEN V, E, F = Flx_factor(P, p);
+  long i, lfact = 1, nmax = lgpol(P), n = lgcols(F);
+
+  V = cgetg(nmax,t_VEC);
+  E = cgetg(nmax,t_VECSMALL);
+  for(i=1;i<n;i++)
+  {
+    GEN R = Flx_factorff_irred(gmael(F,1,i),T,p), e = gmael(F,2,i);
+    long j, r = lg(R);
+    for (j=1; j<r; j++,lfact++)
+    {
+      gel(V,lfact) = gel(R,j);
+      gel(E,lfact) = e;
+    }
+  }
+  setlg(V,lfact);
+  setlg(E,lfact); return sort_factor_pol(mkvec2(V,E), cmp_Flx);
+}
+
 /* not memory-clean */
 static GEN
 FpX_factorff_i(GEN P, GEN T, GEN p)
