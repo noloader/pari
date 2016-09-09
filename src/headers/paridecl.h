@@ -638,7 +638,6 @@ int     FpX_is_irred(GEN f, GEN p);
 int     FpX_is_totally_split(GEN f, GEN p);
 GEN     FpX_factor(GEN f, GEN p);
 GEN     FpX_factor_squarefree(GEN T, GEN p);
-GEN     FpX_factorff(GEN P, GEN T, GEN p);
 long    FpX_nbfact(GEN f, GEN p);
 long    FpX_nbfact_Frobenius(GEN T, GEN XP, GEN p);
 long    FpX_nbroots(GEN f, GEN p);
@@ -653,10 +652,19 @@ GEN     rootmod0(GEN f, GEN p,long flag);
 /* FpXQX_factor.c */
 
 GEN     F2xqX_roots(GEN x, GEN T);
+GEN     Flx_factorff_irred(GEN P, GEN Q, ulong p);
+void    Flx_ffintersect(GEN P,GEN Q,long n,ulong l,GEN *SP,GEN *SQ,GEN MA,GEN MB);
+GEN     Flx_ffisom(GEN P,GEN Q,ulong l);
+GEN     Flxq_ffisom_inv(GEN S,GEN Tp, ulong p);
 GEN     FlxqX_Frobenius(GEN S, GEN T, ulong p);
-GEN     FlxqXQ_halfFrobenius(GEN a, GEN S, GEN T, ulong p);
 GEN     FlxqX_roots(GEN S, GEN T, ulong p);
 long    FlxqX_nbroots(GEN f, GEN T, ulong p);
+GEN     FlxqXQ_halfFrobenius(GEN a, GEN S, GEN T, ulong p);
+GEN     FpX_factorff(GEN P, GEN T, GEN p);
+GEN     FpX_factorff_irred(GEN P, GEN Q, GEN p);
+void    FpX_ffintersect(GEN P,GEN Q,long n,GEN l,GEN *SP,GEN *SQ,GEN MA,GEN MB);
+GEN     FpX_ffisom(GEN P,GEN Q,GEN l);
+GEN     FpXQ_ffisom_inv(GEN S,GEN Tp, GEN p);
 GEN     FpXQX_Frobenius(GEN S, GEN T, GEN p);
 GEN     FpXQX_factor(GEN x, GEN T, GEN p);
 long    FpXQX_nbfact(GEN u, GEN T, GEN p);
@@ -3867,17 +3875,9 @@ GEN     prime_fact(GEN x);
 /* polarit3.c */
 
 GEN     Flx_FlxY_resultant(GEN a, GEN b, ulong pp);
-GEN     Flx_factorff_irred(GEN P, GEN Q, ulong p);
-void    Flx_ffintersect(GEN P,GEN Q,long n,ulong l,GEN *SP,GEN *SQ,GEN MA,GEN MB);
-GEN     Flx_ffisom(GEN P,GEN Q,ulong l);
 GEN     FlxX_resultant(GEN u, GEN v, ulong p, long sx);
-GEN     Flxq_ffisom_inv(GEN S,GEN Tp, ulong p);
 GEN     FpX_FpXY_resultant(GEN a, GEN b0, GEN p);
-GEN     FpX_factorff_irred(GEN P, GEN Q, GEN p);
-void    FpX_ffintersect(GEN P,GEN Q,long n,GEN l,GEN *SP,GEN *SQ,GEN MA,GEN MB);
-GEN     FpX_ffisom(GEN P,GEN Q,GEN l);
 GEN     FpX_translate(GEN P, GEN c, GEN p);
-GEN     FpXQ_ffisom_inv(GEN S,GEN Tp, GEN p);
 GEN     FpXQX_normalize(GEN z, GEN T, GEN p);
 GEN     FpXV_FpC_mul(GEN V, GEN W, GEN p);
 GEN     FpXY_Fq_evaly(GEN Q, GEN y, GEN T, GEN p, long vx);
