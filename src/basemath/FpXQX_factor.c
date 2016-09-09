@@ -1163,7 +1163,7 @@ FpXQX_factor_2(GEN f, GEN T, GEN p)
 
 /* assumes varncmp (varn(T), varn(f)) > 0 */
 static GEN
-FpXQX_factor_i(GEN f, GEN T, GEN p)
+FpXQX_Berlekamp_i(GEN f, GEN T, GEN p)
 {
   long lfact, d = degpol(f), j, k, lV;
   GEN E, t, V, q;
@@ -1286,7 +1286,7 @@ factorff(GEN f, GEN p, GEN T)
     if (t != t_FFELT) pari_err_TYPE("factorff",f);
     return FFX_factor(f,T);
   }
-  ffcheck(&av, &f, &T, p); z = FpXQX_factor_i(f, T, p);
+  ffcheck(&av, &f, &T, p); z = FpXQX_Berlekamp_i(f, T, p);
   return to_Fq_fact(gel(z,1),gel(z,2), T,p, av);
 }
 GEN
@@ -1312,7 +1312,7 @@ GEN
 FpXQX_factor(GEN x, GEN T, GEN p)
 {
   pari_sp av = avma;
-  return gerepilecopy(av, FpXQX_factor_i(x, T, p));
+  return gerepilecopy(av, FpXQX_Berlekamp_i(x, T, p));
 }
 
 long
