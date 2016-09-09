@@ -1173,11 +1173,6 @@ F2xqX_split(GEN *t, long d, GEN q, GEN S, GEN T)
   F2xqX_split(t  ,d,q,S,T);
 }
 
-/*******************************************************************/
-/*                                                                 */
-/*                  FACTOR USING TRAGER'S TRICK                    */
-/*                                                                 */
-/*******************************************************************/
 static GEN
 FqX_frobinv_inplace(GEN F, GEN T, GEN p)
 {
