@@ -278,6 +278,7 @@ FqX_split_Berlekamp(GEN *t, GEN T, GEN p)
   GEN u = *t, a,b,vker,pol;
   long vu = varn(u), vT = varn(T), dT = degpol(T);
   long d, i, ir, L, la, lb;
+  if (degpol(u)==1) return 1;
   T = FpX_get_red(T, p);
   vker = FpXQX_Berlekamp_ker(u,T,p);
   vker = RgM_to_RgXV(vker,vu);
@@ -1164,8 +1165,8 @@ FpXQX_factor_2(GEN f, GEN T, GEN p)
 static GEN
 FpXQX_factor_i(GEN f, GEN T, GEN p)
 {
-  long pg, j, k, e, N, lfact, pk, d = degpol(f);
-  GEN E, f2, f3, df1, df2, g1, u, q, t;
+  long lfact, d = degpol(f), j, k, lV;
+  GEN E, t, V, q;
 
   switch(d)
   {
@@ -1176,77 +1177,27 @@ FpXQX_factor_i(GEN f, GEN T, GEN p)
   f = FpXQX_normalize(f, T, p);
   if (isabsolutepol(f)) return FpX_factorff_i(simplify_shallow(f), T, p);
   if (degpol(f)==2) return FpXQX_factor_2(f, T, p);
+  V = FpXQX_factor_squarefree(f, T, p); lV = lg(V);
 
-  pg = itos_or_0(p);
-  df2  = NULL; /* gcc -Wall */
+  /* to hold factors and exponents */
   t = cgetg(d+1,t_VEC);
   E = cgetg(d+1, t_VECSMALL);
-
   q = powiu(p, degpol(T));
-  e = lfact = 1;
-  pk = 1;
-  f3 = NULL;
-  df1 = FqX_deriv(f, T, p);
-  for(;;)
+  lfact = 1;
+  for (k=1; k<lV ; k++)
   {
-    long nb0;
-    while (!signe(df1))
-    { /* needs d >= p: pg = 0 can't happen  */
-      pk *= pg; e = pk;
-      f = FqX_frob_deflate(f, T, p);
-      df1 = FqX_deriv(f, T, p); f3 = NULL;
-    }
-    f2 = f3? f3: FqX_gcd(f,df1, T,p);
-    if (!degpol(f2)) u = f;
+    if (degpol(gel(V,k))==0) continue;
+    gel(t,lfact) = FpXQX_normalize(gel(V, k), T,p);
+    if (!absequaliu(p,2))
+      d = FqX_split_Berlekamp(&gel(t,lfact), T, p);
     else
-    {
-      g1 = FqX_div(f,f2, T,p);
-      df2 = FqX_deriv(f2, T,p);
-      if (gequal0(df2)) { u = g1; f3 = f2; }
-      else
-      {
-        f3 = FqX_gcd(f2,df2, T,p);
-        u = degpol(f3)? FqX_div(f2, f3, T,p): f2;
-        u = FqX_div(g1, u, T,p);
-      }
-    }
-    /* u is square-free (product of irreducibles of multiplicity e) */
-    N = degpol(u);
-    if (N) {
-      nb0 = lfact;
-      gel(t,lfact) = FpXQX_normalize(u, T,p);
-      if (N == 1) lfact++;
-      else
-      {
-        if (!absequaliu(p,2))
-          lfact += FqX_split_Berlekamp(&gel(t,lfact), T, p);
-        else
-          lfact += FqX_sqf_split(&gel(t,lfact), q, T, p);
-      }
-      for (j = nb0; j < lfact; j++) E[j] = e;
-    }
-
-    if (!degpol(f2)) break;
-    f = f2; df1 = df2; e += pk;
+      d = FqX_sqf_split(&gel(t,lfact), q, T, p);
+    for (j = 0; j < d; j++) E[lfact+j] = k;
+    lfact += d;
   }
   setlg(t, lfact);
   setlg(E, lfact);
-  for (j=1; j<lfact; j++) gel(t,j) = FpXQX_normalize(gel(t,j), T,p);
-  (void)sort_factor_pol(mkvec2(t, E), cmp_RgX);
-  k = 1;
-  for (j = 2; j < lfact; j++)
-  {
-    if (RgX_equal(gel(t,j), gel(t,k)))
-      E[k] += E[j];
-    else
-    { /* new factor */
-      k++;
-      E[k] = E[j];
-      gel(t,k) = gel(t,j);
-    }
-  }
-  setlg(t, k+1);
-  setlg(E, k+1); return mkvec2(t, E);
+  return sort_factor_pol(mkvec2(t, E), cmp_RgX);
 }
 
 long
