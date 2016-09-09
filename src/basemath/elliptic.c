@@ -2320,7 +2320,7 @@ static GEN
 ellQp_P2t(GEN E, GEN P, long prec)
 {
   pari_sp av = avma;
-  GEN a, b, ab, c0, r0, ar, x, delta, x1, y1, t, u;
+  GEN a, b, ab, c0, r0, ar, r, x, delta, x1, y1, t, u;
   if (ell_is_inf(P)) return gen_1;
   ab = ellQp_ab(E, prec);
   u = ellQp_u(E, prec);
@@ -2330,11 +2330,20 @@ ellQp_P2t(GEN E, GEN P, long prec)
   r0 = get_r0(E, prec);
   c0 = gadd(x, gmul2n(r0,-1));
   if (typ(c0) != t_PADIC) pari_err_TYPE("ellpointtoz",P);
-  ar = gmul(a, gsub(a,b));
-  delta = gdiv(ar, gsqr(c0));
-  t = Qp_sqrt(gsubsg(1,gmul2n(delta,2)));
-  if (!t) ellQp_P2t_err(E,P);
-  x1 = gmul(gmul2n(c0,-1), gaddsg(1,t));
+  r = gsub(a,b);
+  ar = gmul(a, r);
+  if (gequal0(c0))
+  {
+    x1 = Qp_sqrt(gneg(ar));
+    if (!x1) ellQp_P2t_err(E,P);
+  }
+  else
+  {
+    delta = gdiv(ar, gsqr(c0));
+    t = Qp_sqrt(gsubsg(1,gmul2n(delta,2)));
+    if (!t) ellQp_P2t_err(E,P);
+    x1 = gmul(gmul2n(c0,-1), gaddsg(1,t));
+  }
   y1 = gdiv(gmul2n(ec_dmFdy_evalQ(E,P), -1), gsubsg(1, gdiv(ar, gsqr(x1))));
   Qp_descending_Landen(ellQp_AGM(E,prec), &x1,&y1);
 
