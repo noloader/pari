@@ -519,6 +519,7 @@ Qp_agm2_sequence(GEN a1, GEN b1)
       b1 = remi2n(b1, pp-1);
       a1 = shifti(addii(addii(a,b), shifti(b1,1)),-2);
       a1 = remi2n(a1, pp-2);
+      pp -= 2;
     }
     else
       a1 = modii(Fp_halve(addii(Fp_halve(addii(a,b),q), b1), q), q);
@@ -2153,7 +2154,7 @@ static GEN
 doellQp_root(GEN E, long prec)
 {
   GEN c4=ell_get_c4(E), c6=ell_get_c6(E), j=ell_get_j(E), p=ellQp_get_p(E);
-  GEN c4p, c6p, T, a;
+  GEN c6p, T, a;
   long alpha;
   int pis2 = absequaliu(p, 2);
   if (Q_pval(j, p) >= 0) pari_err_DOMAIN(".root", "v_p(j)", ">=", gen_0, j);
@@ -2162,12 +2163,12 @@ doellQp_root(GEN E, long prec)
   if (alpha) (void)Q_pvalrem(ell_get_c6(E), p, &c6);
   /* Renormalized so that v(c4) = v(c6) = 0; multiply by p^alpha at the end */
   if (prec < 4 && pis2) prec = 4;
-  c4p = modii(c4,p);
   c6p = modii(c6,p);
   if (pis2)
   { /* Use 432T(X/4) = 27X^3 - 9c4 X - 2c6 to have integral root; a=0 mod 2 */
     T = mkpoln(4, utoipos(27), gen_0, mulis(c4,-9), mulis(c6, -2));
-    a = ZpX_liftroot(T, gen_0, p, prec);
+    /* v_2(root a) = 1, i.e. will lose one bit of accuracy: prec+1 */
+    a = ZpX_liftroot(T, gen_0, p, prec+1);
     alpha -= 2;
   }
   else if (absequaliu(p, 3))
@@ -2196,6 +2197,7 @@ doellQp_root(GEN E, long prec)
   else
   { /* p != 2,3: T = 4(x-a)(x-b)^2 = 4x^3 - 3a^2 x - a^3 when b = -a/2
      * (so that the trace coefficient vanishes) => a = c6/6c4 (mod p)*/
+    GEN c4p = modii(c4,p);
     a = Fp_div(c6p, Fp_mulu(c4p, 6, p), p);
     T = mkpoln(4, utoipos(864), gen_0, mulis(c4, -18), negi(c6));
     a = ZpX_liftroot(T, a, p, prec);
@@ -2246,7 +2248,7 @@ START:
   A = gel(AB,1);
   n = lg(A)-1; /* AGM iterations */
   pp = minss(precp(a),precp(b));
-  M2 = cvtop(gel(A,n), p, pis2? pp-n: pp);
+  M2 = cvtop(gel(A,n), p, pis2? pp-2*n: pp);
   setvalp(M2, valp(a));
   u2 = ginv(gmul2n(M2, 2));
   if (split < 0) split = issquare(u2);
