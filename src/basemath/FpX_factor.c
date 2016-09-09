@@ -2537,29 +2537,29 @@ Flx_Berlekamp_i(GEN f, ulong p, long flag)
 
 /* f an FpX or an Flx */
 static GEN
-FpX_Berlekamp_i(GEN f, GEN pp, long flag)
+FpX_Berlekamp_i(GEN f, GEN p, long flag)
 {
   long lfact, val, d = degpol(f), j, k, lV;
   GEN y, E, t ,V;
 
   if (typ(f) == t_VECSMALL)
-  {/* lgefint(pp) == 3 */
-    ulong p = pp[2];
+  {/* lgefint(p) == 3 */
+    ulong pp = p[2];
     GEN F;
-    if (p == 2) {
+    if (pp == 2) {
       F = F2x_Berlekamp_i(Flx_to_F2x(f), flag);
       if (flag==0) F2xV_to_ZXV_inplace(gel(F,1));
     } else {
-      F = Flx_Berlekamp_i(f, p, flag);
+      F = Flx_Berlekamp_i(f, pp, flag);
       if (flag==0) FlxV_to_ZXV_inplace(gel(F,1));
     }
     return F;
   }
   /* p is large (and odd) */
-  if (d <= 2) return FpX_factor_deg2(f,pp,d,flag);
+  if (d <= 2) return FpX_factor_deg2(f, p, d, flag);
   val = ZX_valrem(f, &f);
   if (flag == 2 && val > 1) return NULL;
-  V = FpX_factor_Yun(f, pp); lV = lg(V);
+  V = FpX_factor_Yun(f, p); lV = lg(V);
   if (flag == 2 && lg(V) > 2) return NULL;
 
   /* to hold factors and exponents */
@@ -2577,8 +2577,8 @@ FpX_Berlekamp_i(GEN f, GEN pp, long flag)
   for (k=1; k<lV; k++)
   {
     if (degpol(gel(V,k))==0) continue;
-    gel(t,lfact) = FpX_normalize(gel(V, k), pp);
-    d = FpX_split_Berlekamp(&gel(t,lfact), pp);
+    gel(t,lfact) = FpX_normalize(gel(V, k), p);
+    d = FpX_split_Berlekamp(&gel(t,lfact), p);
     if (flag == 2 && d != 1) return NULL;
     if (flag == 1)
       for (j=0; j<d; j++) t[lfact+j] = degpol(gel(t,lfact+j));
