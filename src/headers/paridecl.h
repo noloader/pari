@@ -616,6 +616,7 @@ GEN     random_FpX(long d, long v, GEN p);
 /* FpX_factor.c */
 
 GEN     F2x_factor(GEN f);
+GEN     F2x_factor_squarefree(GEN f);
 int     F2x_is_irred(GEN f);
 void    F2xV_to_FlxV_inplace(GEN v);
 void    F2xV_to_ZXV_inplace(GEN v);

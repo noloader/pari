@@ -1444,7 +1444,7 @@ F2xV_to_ZXV_inplace(GEN v)
 }
 
 /* Adapted from Shoup NTL */
-static GEN
+GEN
 F2x_factor_squarefree(GEN f)
 {
   GEN r, t, v, tv;
