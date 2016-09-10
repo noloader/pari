@@ -15,6 +15,7 @@ Done for version 2.8.1 (released ??/??/2016):
        for DL wrt. G.gen; in addition to traditional znlog(x,g), where an
        arbitrary generator g is specified
    10- e=ellinit([1,-1,1,98,126],O(5^10)); ellpointtoz(e,[1,14]) -> div. by 0
+   11- ellpointtoz(E / Qp, P) was not reduced mod q^Z
 
   Added
     1- permtonum: allow t_VECSMALL input

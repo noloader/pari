@@ -532,22 +532,43 @@ static void
 Qp_descending_Landen(GEN AB, GEN *ptx, GEN *pty)
 {
   GEN R = gel(AB,3);
-  long i, l = lg(R);
+  long i, n = lg(R)-1;
   GEN x = *ptx;
   if (isintzero(x))
   {
     i = 2;
     x = gmul2n(gel(R,1),-2);
-    if (pty) pari_err_IMPL("Qp_descending_Lande([0,0])");
+    if (pty)
+    {
+      GEN A = gel(AB,1);
+      if (n == 1)
+        *pty = gmul(x, Qp_sqrt(gadd(x,gel(A,2))));
+      else
+        *pty = Qp_sqrt(gmul(gmul(x, gadd(x,gel(A,2))), gadd(x,gel(R,2))));
+      if (!*pty) pari_err_PREC("Qp_descending_Landen");
+    }
   }
   else
     i = 1;
-  for (; i < l; i++)
+  for (; i <= n; i++)
   {
     GEN r = gel(R,i), t;
     if (gequal0(x)) pari_err_PREC("Qp_descending_Landen");
     t = Qp_sqrt(gaddsg(1, gdiv(r,x))); /* = 1 (mod p) */
     if (!t) pari_err_PREC("Qp_descending_Landen");
+    if (i == n)
+    {
+      GEN p = gel(r,2);
+      long v, vx = valp(x), vr = valp(r);
+      if (vx >= vr) pari_err_PREC("Qp_descending_Landen");
+      /* last loop, take into account loss of accuracy from multiplication
+       * by \prod_{j > n} sqrt(1+r_j/x_j); since vx < vr, j = n+1 is enough */
+      v = 2*vr - vx;
+      /* |r_{n+1}| <= |(r_n)^2 / 8| + 1 bit for sqrt loss */
+      if (absequaliu(p,2)) v -= 4;
+      /* tail is 1 + O(p^v) */
+      if (v < precp(x)) x = cvtop(x,p,v);
+    }
     /* x_{n+1} = x_n  ((1 + sqrt(1 + r_n/x_n)) / 2)^2 */
     x = gmul(x, gsqr(gmul2n(gaddsg(1,t),-1)));
     /* y_{n+1} = y_n / (1 - (r_n/4x_{n+1})^2) */
@@ -2230,7 +2251,7 @@ doellQp_ab(GEN E, GEN *pta, GEN *ptb, long prec)
 }
 
 static GEN
-doellQp_Tate_uniformization(GEN E, long prec0)
+doellQp_Tate(GEN E, long prec0)
 {
   GEN p = ellQp_get_p(E), j = ell_get_j(E);
   GEN L, u, u2, q, x1, a, b, d, s, t, AB, A, M2;
@@ -2284,8 +2305,7 @@ static long
 Tate_prec(GEN T) { return padicprec_relative(gel(T,3)); }
 GEN
 ellQp_Tate_uniformization(GEN E, long prec)
-{ return obj_checkbuild_prec(E,Qp_TATE,&doellQp_Tate_uniformization,
-                             &Tate_prec,prec); }
+{ return obj_checkbuild_prec(E,Qp_TATE,&doellQp_Tate, &Tate_prec,prec); }
 GEN
 ellQp_u(GEN E, long prec)
 { GEN T = ellQp_Tate_uniformization(E, prec); return gel(T,2); }
@@ -2322,10 +2342,12 @@ static GEN
 ellQp_P2t(GEN E, GEN P, long prec)
 {
   pari_sp av = avma;
-  GEN a, b, ab, c0, r0, ar, r, x, delta, x1, y1, t, u;
+  GEN a, b, ab, c0, r0, ar, r, x, delta, x1, y1, t, u, q, T;
+  long vq, vt, Q, R;
   if (ell_is_inf(P)) return gen_1;
   ab = ellQp_ab(E, prec);
   u = ellQp_u(E, prec);
+  q = ellQp_q(E, prec);
   a = gel(ab,1);
   b = gel(ab,2);
   x = gel(P,1);
@@ -2351,6 +2373,17 @@ ellQp_P2t(GEN E, GEN P, long prec)
 
   t = gmul(u, gmul2n(y1,1)); /* 2u y_oo */
   t = gdiv(gsub(t, x1), gadd(t, x1));
+  /* Reduce mod q^Z: we want 0 <= v(T) < v(q), T = polcoeff(t,0) */
+  if (typ(t) == t_PADIC) T = t;
+  else
+  {
+    T = gel(t,2);
+    if (typ(T) == t_POL) T = gel(T,2);
+  }
+  vt = valp(T);
+  vq = valp(q); /* > 0 */
+  Q = vt / vq; R = vt % vq; if (R < 0) Q--;
+  if (Q) t = gdiv(t, gpowgs(q,Q));
   if (padicprec_relative(t) > prec) t = gprec(t, prec);
   return gerepileupto(av, t);
 }

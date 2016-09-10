@@ -227,16 +227,22 @@ e=ellinit([0,-1,1,0,0], O(11^5));
 \\ BIB #1840
 ellpointtoz(e,[Mod(3,'x^2+1),1]);
 testzellQp(e, [0,0])
+
 e=ellinit([1,1,1,-10,-10], O(3^5));
 testzellQp(e, [3,-2])
 testzellQp(e, ellmul(e,[0,0],2)) \\ not on curve !
+
 e=ellinit(ellfromj(2/9), O(3^10)); x=2; y=ellordinate(e,x)[1];
 testzellQp(e, [x,y])
+
 e=ellinit(ellfromj(1/4), O(2^10)); x=1/2; y=ellordinate(e,x)[1];
 testzellQp(e, [x,y])
+
 e=ellinit([1,-1,1,98,126],O(5^10));
 testzellQp(e, [1,14])
 
+e=ellinit([1,1,1,3,-5],O(2^10));
+testzellQp(e,[5,10])
 
 ellinit([1,1], Mod(1,11))
 ellrootno(ellinit([31^4,31^6]), 31)
