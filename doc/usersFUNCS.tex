@@ -666,7 +666,7 @@ is specific to Conrey representation.
 
 \section{Elliptic curves}
 
-\subsec{Elliptic curve structures}
+\subsec{Elliptic curve structures} %GPHELPskip
 An elliptic curve is given by a Weierstrass model\sidx{Weierstrass equation}
 $$
   y^2+a_1xy+a_3y=x^3+a_2x^2+a_4x+a_6,
@@ -687,7 +687,7 @@ precise layout of the \tev{ell} structure is left undefined and should never
 be used directly. The following \idx{member functions} are available,
 depending on the underlying domain.
 
-\subsubsec{All domains}
+\subsubsec{All domains} %GPHELPskip
 
 \item \tet{a1}, \tet{a2}, \tet{a3}, \tet{a4}, \tet{a6}: coefficients of the
 elliptic curve.
@@ -714,7 +714,7 @@ non-zero, not necessarily a unit.
 %3 = -64*a4^3 - 432*a6^2
 @eprog
 
-\subsubsec{Curves over $\R$}
+\subsubsec{Curves over $\R$} %GPHELPskip
 
 This in particular includes curves defined over $\Q$. All member functions in
 this section return data, as it is currently stored in the structure, if
@@ -759,7 +759,7 @@ $$[a,b;c,d]\cdot\tau = (a\tau+b)/(c\tau+d)
 instead of a twisted one. (Our $tau$ is $-1/\tau$ in the above inverse
 convention.)
 
-\subsubsec{Curves over $\Q_p$}
+\subsubsec{Curves over $\Q_p$} %GPHELPskip
 
 We advise to input a model defined over $\Q$ for such curves. In any case,
 if you input an approximate model with \typ{PADIC} coefficients, it will be
@@ -794,7 +794,7 @@ by $[0,0]$) $E_i: y^2=x(x+A_i)(x+A_i-B_i)$ converging quadratically towards
 the singular curve $E_\infty$. Finally, $L$ is Mazur-Tate-Teitelbaum's ${\cal
 L}$-invariant, equal to $\log_p q / v_p(q)$.
 
-\subsubsec{Curves over $\F_q$}
+\subsubsec{Curves over $\F_q$} %GPHELPskip
 
 \item \tet{p} is the characteristic of $\F_q$.
 
@@ -807,7 +807,7 @@ L}$-invariant, equal to $\log_p q / v_p(q)$.
 \item \tet{group} returns $[\kbd{no},\kbd{cyc},\kbd{gen}]$, i.e. $E(\F_q)$
 as an abelian group structure.
 
-\subsubsec{Curves over $\Q$}
+\subsubsec{Curves over $\Q$} %GPHELPskip
 
 All functions should return a correct result, whether the model is minimal or
 not, but it is a good idea to stick to minimal models whenever
@@ -832,7 +832,7 @@ memory and require at least 2MB stack to avoid stack overflows.
 \item \tet{gen} returns the generators of $E(\Q)$, if known (from John
   Cremona's database)
 
-\subsubsec{Curves over number fields}
+\subsubsec{Curves over number fields} %GPHELPskip
 
 \item \tet{nf} return the \var{nf} structure attached to the number field
 over which $E$ is defined.
@@ -1191,7 +1191,7 @@ In this section, we describe functions related to general number fields.
 Functions related to quadratic number fields are found in
 \secref{se:arithmetic} (Arithmetic functions).
 
-\subsec{Number field structures}
+\subsec{Number field structures} %GPHELPskip
 
 Let $K = \Q[X] / (T)$ a number field, $\Z_K$ its ring of integers, $T\in\Z[X]$
 is monic. Three basic number field structures can be attached to $K$ in
@@ -1214,7 +1214,7 @@ the field, for some modulus $f$. It contains a \var{bnf}, the modulus
 $f$, the ray class group $\Cl_f(K)$ and data attached to
 the discrete logarithm problem therein.
 
-\subsec{Algebraic numbers and ideals}
+\subsec{Algebraic numbers and ideals} %GPHELPskip
 
 \noindent An \tev{algebraic number} belonging to $K = \Q[X]/(T)$ is given as
 
@@ -1261,7 +1261,7 @@ conventional expanded form, try \tet{nffactorback}; but many functions
 already accept \var{famat}s as input, for instance \tet{ideallog}, so
 expanding huge elements should never be necessary.
 
-\subsec{Finite abelian groups}
+\subsec{Finite abelian groups} %GPHELPskip
 
 A finite abelian group $G$ in user-readable format is given by its Smith
 Normal Form as a pair $[h,d]$ or triple $[h,d,g]$.
@@ -1280,7 +1280,7 @@ $\chi(\prod g_j^{n_j}) = \exp(2\pi i\sum a_j n_j / d_j)$.
 matrix in HNF, whose columns express generators of $H$ on the given generators
 $g_i$. Note that the determinant of that matrix is equal to the index $(G:H)$.
 
-\subsec{Relative extensions}
+\subsec{Relative extensions} %GPHELPskip
 
 We now have a look at data structures attached to relative extensions
 of number fields $L/K$, and to projective $\Z_K$-modules. When defining a
