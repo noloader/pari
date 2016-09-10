@@ -244,6 +244,9 @@ testzellQp(e, [1,14])
 e=ellinit([1,1,1,3,-5],O(2^10));
 testzellQp(e,[5,10])
 
+e=ellinit([1,-1,1,-48,147], O(2^10));
+testzellQp(e,[13,-47])
+
 ellinit([1,1], Mod(1,11))
 ellrootno(ellinit([31^4,31^6]), 31)
 e=ellinit([1,0,0,1,1]);

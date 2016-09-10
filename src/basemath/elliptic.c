@@ -579,15 +579,27 @@ Qp_descending_Landen(GEN AB, GEN *ptx, GEN *pty)
 static void
 Qp_ascending_Landen(GEN AB, GEN *ptx, GEN *pty)
 {
-  GEN A = gel(AB,1), R = gel(AB,3);
-  long i = lg(R)-1, v = itos(gel(AB,4));
-  GEN x = *ptx;
+  GEN A = gel(AB,1), R = gel(AB,3), x = *ptx, p, r;
+  long n = lg(R)-1, va = itos(gel(AB,4)), v, i;
 
-  x = gsub(x, gmul2n(gel(R,i),-1));
-  for (; i > 1; i--)
+  r = gel(R,n);
+  v = 2*valp(r) + va;
+  if (typ(x) == t_PADIC)
+    v -= 2*valp(x);
+  else
+    v -= valp(gnorm(x)); /* v(x) = v(Nx) / (e*f), here ef = 2 */
+  p = gel(r,2);
+  if (absequaliu(p,2)) v -= 3; /* |r_{n+1}| <= |(r_n)^2 / 8| */
+  /* v = v(A[n+1] R[n+1] / x_{n+1}^2) */
+  if (v <= 0) pari_err_PREC("Qp_ascending_Landen");
+  /* v > 0 => v = v(x_oo) = ... = v(x_{n+1}) */
+  x = gsub(x, gmul2n(r,-1));
+  if (precp(x) > v) x = cvtop(x, p, v);
+  /* x = x_n */
+  for (i = n; i > 1; i--)
   {
     GEN ar = gmul(gel(A,i),gel(R,i)), xp;
-    setvalp(ar, valp(ar)+v); /* A_i = A[i] * p^v */
+    setvalp(ar, valp(ar)+va); /* A_i = A[i] * p^va */
     /* x_{i-1} = x_i + a_i r_i / x_i - r_{i-1}/2 */
     xp = gsub(gadd(x, gdiv(ar, x)), gmul2n(gel(R,i-1),-1));
     /* y_{i-1} = y_i (1 - a_i r_i / x^2) */
