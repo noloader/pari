@@ -2354,7 +2354,7 @@ static GEN
 ellQp_P2t(GEN E, GEN P, long prec)
 {
   pari_sp av = avma;
-  GEN a, b, ab, c0, r0, ar, r, x, delta, x1, y1, t, u, q, T;
+  GEN a, b, ab, c0, r0, ar, r, x, delta, x1, y1, t, u, q;
   long vq, vt, Q, R;
   if (ell_is_inf(P)) return gen_1;
   ab = ellQp_ab(E, prec);
@@ -2385,14 +2385,11 @@ ellQp_P2t(GEN E, GEN P, long prec)
 
   t = gmul(u, gmul2n(y1,1)); /* 2u y_oo */
   t = gdiv(gsub(t, x1), gadd(t, x1));
-  /* Reduce mod q^Z: we want 0 <= v(T) < v(q), T = polcoeff(t,0) */
-  if (typ(t) == t_PADIC) T = t;
+  /* Reduce mod q^Z: we want 0 <= v(t) < v(q) */
+  if (typ(t) == t_PADIC)
+    vt = valp(t);
   else
-  {
-    T = gel(t,2);
-    if (typ(T) == t_POL) T = gel(T,2);
-  }
-  vt = valp(T);
+    vt = valp(gnorm(t)) / 2; /* v(t) = v(Nt) / (e*f) */
   vq = valp(q); /* > 0 */
   Q = vt / vq; R = vt % vq; if (R < 0) Q--;
   if (Q) t = gdiv(t, gpowgs(q,Q));
