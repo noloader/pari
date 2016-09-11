@@ -2071,6 +2071,8 @@ GEN     nfreduce(GEN nf, GEN x, GEN ideal);
 GEN     nfsnf(GEN nf, GEN x);
 GEN     nfsnf0(GEN nf, GEN x, long flag);
 GEN     nfsolvemodpr(GEN nf, GEN a, GEN b, GEN modpr);
+GEN     pr_inv(GEN pr);
+GEN     pr_inv_p(GEN pr);
 GEN     pr_uniformizer(GEN pr, GEN F);
 GEN     prV_lcm_capZ(GEN L);
 GEN     to_famat(GEN x, GEN y);

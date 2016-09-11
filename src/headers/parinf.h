@@ -144,9 +144,7 @@ GEN    coltoalg(GEN nf,GEN x);
 /* Other number fields routines */
 GEN    get_arch_real(GEN nf,GEN x,GEN *emb,long prec);
 GEN    get_proj_modT(GEN basis, GEN T, GEN p);
-GEN    idealsqrtn(GEN nf, GEN x, GEN gn, int strict);
 GEN    make_integral(GEN nf, GEN L0, GEN f, GEN listpr);
-GEN    pidealprimeinv(GEN nf, GEN x);
 GEN    rnfallbase(GEN nf, GEN *ppol, GEN *pD, GEN *pd, GEN *pfi);
 GEN    subgroupcondlist(GEN cyc, GEN bound, GEN listKer);
 GEN    ideallog_sgn(GEN nf, GEN x, GEN sgn, GEN bid);

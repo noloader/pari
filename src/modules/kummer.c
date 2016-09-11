@@ -122,7 +122,7 @@ reduce_mod_Qell(GEN bnfz, GEN be, GEN gell)
 
 /* return q, q^n r = x, v_pr(r) < n for all pr. Insist q is a genuine n-th
  * root (i.e r = 1) if strict != 0. */
-GEN
+static GEN
 idealsqrtn(GEN nf, GEN x, GEN gn, int strict)
 {
   long i, l, n = itos(gn);

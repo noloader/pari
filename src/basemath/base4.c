@@ -1597,10 +1597,17 @@ idealinv_HNF(GEN nf, GEN I)
 
 /* return p * P^(-1)  [integral] */
 GEN
-pidealprimeinv(GEN nf, GEN x)
+pr_inv_p(GEN pr)
 {
-  if (pr_is_inert(x)) return matid(lg(gel(x,2)) - 1);
-  return idealhnf_two(nf, mkvec2(gel(x,1), gel(x,5)));
+  if (pr_is_inert(pr)) return matid(pr_get_f(pr));
+  return ZM_hnfmodid(pr_get_tau(pr), pr_get_p(pr));
+}
+GEN
+pr_inv(GEN pr)
+{
+  GEN p = pr_get_p(pr);
+  if (pr_is_inert(pr)) return scalarmat(ginv(p), pr_get_f(pr));
+  return RgM_Rg_div(ZM_hnfmodid(pr_get_tau(pr),p), p);
 }
 
 GEN
@@ -1639,7 +1646,7 @@ idealinv(GEN nf, GEN x)
       }
       break;
     case id_PRIME:
-      x = RgM_Rg_div(pidealprimeinv(nf,x), pr_get_p(x));
+      x = pr_inv(x); break;
   }
   x = gerepileupto(av,x); if (!ax) return x;
   gel(res,1) = x;
@@ -2127,7 +2134,7 @@ idealred0(GEN nf, GEN I, GEN vdir)
         goto END;
       }
       IZ = pr_get_p(I);
-      J = pidealprimeinv(nf,I);
+      J = pr_inv_p(I);
       I = idealhnf_two(nf,I);
       break;
     case id_MAT:

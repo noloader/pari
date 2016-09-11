@@ -962,6 +962,10 @@ iff $p$ is inert, and a \kbd{ZM} otherwise. Shallow function.
 \fun{ulong}{upr_norm}{GEN pr} returns the norm $p^f$ of the maximal ideal, as
 an \kbd{ulong}. Assume that the result does not overflow.
 
+\fun{GEN}{pr_inv}{GEN pr} return the fractional ideal $\goth{p}^{-1}$, in HNF.
+
+\fun{GEN}{pr_inv_p}{GEN pr} return the integral ideal $p \goth{p}^{-1}$, in HNF.
+
 \fun{GEN}{idealprimedec}{GEN nf, GEN p} list of maximal ideals dividing the
 prime $p$.
 

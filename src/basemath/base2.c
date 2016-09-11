@@ -3204,7 +3204,7 @@ rnfdedekind_i(GEN nf, GEN P, GEN pr, long vdisc, long only_maximal)
   I = cgetg(m+d+1,t_VEC); base = mkvec2(A, I);
  /* base[2] temporarily multiplied by p, for the final nfhnfmod,
   * which requires integral ideals */
-  prinvp = pidealprimeinv(nf,pr); /* again multiplied by p */
+  prinvp = pr_inv_p(pr); /* again multiplied by p */
   for (j=1; j<=m; j++)
   {
     gel(A,j) = col_ei(m, j);
@@ -3388,7 +3388,7 @@ rnfmaxord(GEN nf, GEN pol, GEN pr, long vdisc)
   while (abscmpiu(q1,n) < 0) q1 = mulii(q1,q);
   Id = matid(n);
 
-  prhinv = idealinv(nf, pr);
+  prhinv = pr_inv(pr);
   C = cgetg(n+1, t_MAT);
   for (j=1; j<=n; j++) gel(C,j) = cgetg(n*n+1, t_COL);
   MW = cgetg(n*n+1, t_MAT);
