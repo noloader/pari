@@ -1780,8 +1780,8 @@ sort_factor(GEN y, void *data, int (*cmp)(void *,GEN,GEN))
   A = new_chunk(n);
   B = new_chunk(n);
   w = gen_sortspec(a, n-1, data, cmp);
-  for (i=1; i<n; i++) { long k = w[i]; A[i] = a[k]; B[i] = b[k]; }
-  for (i=1; i<n; i++) { a[i] = A[i]; b[i] = B[i]; }
+  for (i=1; i<n; i++) { long k=w[i]; gel(A,i) = gel(a,k); gel(B,i) = gel(b,k); }
+  for (i=1; i<n; i++) { gel(a,i) = gel(A,i); gel(b,i) = gel(B,i); }
   avma = av; return y;
 }
 /* sort polynomial factorization, in place */
@@ -1790,15 +1790,6 @@ sort_factor_pol(GEN y,int (*cmp)(GEN,GEN))
 {
   (void)sort_factor(y,(void*)cmp, &gen_cmp_RgX);
   return y;
-}
-
-/* assume f and g coprime integer factorizations */
-GEN
-merge_factor_i(GEN f, GEN g)
-{
-  if (lg(f) == 1) return g;
-  if (lg(g) == 1) return f;
-  return sort_factor(famat_mul_shallow(f,g), (void*)&cmpii, &cmp_nodata);
 }
 
 /***********************************************************************/

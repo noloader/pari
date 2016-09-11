@@ -31,7 +31,7 @@ boundfact(GEN n, ulong lim)
       GEN a = Z_factor_limit(gel(n,1),lim);
       GEN b = Z_factor_limit(gel(n,2),lim);
       gel(b,2) = ZC_neg(gel(b,2));
-      return gerepilecopy(av, merge_factor_i(a,b));
+      return gerepilecopy(av, merge_factor(a,b,(void*)&cmpii,cmp_nodata));
     }
   }
   pari_err_TYPE("boundfact",n);

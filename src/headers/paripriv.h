@@ -479,11 +479,6 @@ GEN ZM_hnfmodall_i(GEN x, GEN dm, long flag);
 GEN LLL_check_progress(GEN Bnorm, long n0, GEN m, int final, long *ti_LLL);
 GEN extendedgcd(GEN A);
 
-/* miscellaneous linear algebra */
-GEN  dim1proj(GEN prh);
-
-GEN merge_factor_i(GEN f, GEN g);
-
 /* integer factorization / discrete log */
 GEN   coprime_part(GEN x, GEN f);
 ulong ucoprime_part(ulong x, ulong f);
@@ -584,6 +579,7 @@ long    set_optimize(long what, GEN g);
 
 /* base2.c */
 
+GEN     dim1proj(GEN prh);
 GEN     gen_if_principal(GEN bnf, GEN x);
 GEN     polsymmodp(GEN g, GEN p);
 GEN     nfbasis_gp(GEN T);

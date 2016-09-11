@@ -558,8 +558,8 @@ factor(GEN x)
 
     case t_FRAC:
       p1 = Z_factor(gel(x,1));
-      p2 = Z_factor(gel(x,2)); gel(p2,2) = gneg_i(gel(p2,2));
-      return gerepilecopy(av, merge_factor_i(p1,p2));
+      p2 = Z_factor(gel(x,2)); gel(p2,2) = ZC_neg(gel(p2,2));
+      return gerepilecopy(av, merge_factor(p1,p2,(void*)&cmpii,cmp_nodata));
 
     case t_POL:
       tx=RgX_type(x,&p,&pol,&pa);
