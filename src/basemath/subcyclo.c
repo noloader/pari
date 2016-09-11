@@ -161,40 +161,33 @@ znstar_reduce_modulus(GEN H, long n)
 long
 znstar_conductor(long n, GEN H)
 {
-  pari_sp ltop=avma;
-  long i,j;
+  pari_sp av = avma;
+  long i, j, cnd = n;
   GEN F = factoru(n), P = gel(F,1), E = gel(F,2);
-  long cnd=n;
-  for(i=nbrows(F);i>0;i--)
+  for (i = lg(P)-1; i > 0; i--)
   {
     long p = P[i], e = E[i], q = n;
-    if (DEBUGLEVEL>=4)
-      err_printf("SubCyclo: testing %ld^%ld\n",p,e);
-    for (  ; e>=1; e--)
+    if (DEBUGLEVEL>=4) err_printf("SubCyclo: testing %ld^%ld\n",p,e);
+    for (  ; e >= 1; e--)
     {
       long z = 1;
       q /= p;
       for (j = 1; j < p; j++)
       {
         z += q;
-        if (!F2v_coeff(gel(H,3),z) && ugcd(z,n)==1)
-          break;
+        if (!F2v_coeff(gel(H,3),z) && ugcd(z,n)==1) break;
       }
-      if ( j < p )
+      if (j < p)
       {
-        if (DEBUGLEVEL>=4)
-          err_printf("SubCyclo: %ld not found\n",z);
+        if (DEBUGLEVEL>=4) err_printf("SubCyclo: %ld not found\n",z);
         break;
       }
       cnd /= p;
-      if (DEBUGLEVEL>=4)
-        err_printf("SubCyclo: new conductor:%ld\n",cnd);
+      if (DEBUGLEVEL>=4) err_printf("SubCyclo: new conductor:%ld\n",cnd);
     }
   }
-  if (DEBUGLEVEL>=6)
-    err_printf("SubCyclo: conductor:%ld\n",cnd);
-  avma=ltop;
-  return cnd;
+  if (DEBUGLEVEL>=6) err_printf("SubCyclo: conductor:%ld\n",cnd);
+  avma = av; return cnd;
 }
 
 /* Compute the orbits of a subgroups of Z/nZ given by a generator
