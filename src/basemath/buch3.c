@@ -508,7 +508,7 @@ Buchray(GEN bnf, GEN module, long flag)
   if (do_init)
   {
     GEN D = shallowconcat(get_dataunit(bnf, bid), diagonal_shallow(cycbid));
-    H = ZM_hnfall(D, do_init? &u: NULL, 1);
+    H = ZM_hnfall_i(D, do_init? &u: NULL, 1);
   }
   else
     H = ZM_hnfmodid(get_dataunit(bnf, bid), cycbid);
@@ -1348,7 +1348,7 @@ bnrchar_i(GEN bnr, GEN g, GEN v)
       pari_err_TYPE("bnrchar",g);
   }
   cyc = bnr_get_cyc(bnr);
-  H = ZM_hnfall(shallowconcat(g,diagonal_shallow(cyc)), v? &U: NULL, 1);
+  H = ZM_hnfall_i(shallowconcat(g,diagonal_shallow(cyc)), v? &U: NULL, 1);
   dv = NULL;
   if (v)
   {
@@ -1429,7 +1429,7 @@ bnrchar_primitive(GEN bnr, GEN nchi, GEN bnrc)
   long l = lg(M);
 
   Mc = diagonal_shallow(bnr_get_cyc(bnrc));
-  (void)ZM_hnfall(shallowconcat(M, Mc), &U, 1); /* identity */
+  (void)ZM_hnfall_i(shallowconcat(M, Mc), &U, 1); /* identity */
   U = matslice(U,1,l-1, l,lg(U)-1);
   return char_simplify(gel(nchi,1), ZV_ZM_mul(gel(nchi,2), U));
 }

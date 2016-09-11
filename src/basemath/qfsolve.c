@@ -45,7 +45,7 @@ completebasis(GEN Mv, long redflag)
   n = lg(Mv)-1;
   m = nbrows(Mv); /* m x n */
   if (m == n) return Mv;
-  (void)ZM_hnfall(shallowtrans(Mv), &U, 0);
+  (void)ZM_hnfall_i(shallowtrans(Mv), &U, 0);
   U = ZM_inv(shallowtrans(U), gen_1);
   if (m==1 || !redflag) return U;
   /* LLL-reduce the m-n first columns */

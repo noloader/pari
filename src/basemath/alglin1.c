@@ -4259,7 +4259,7 @@ gaussmoduloall(GEN M, GEN D, GEN Y, GEN *ptu1)
     default: pari_err_TYPE("gaussmodulo",Y);
       return NULL; /* not reached */
   }
-  H = ZM_hnfall(shallowconcat(M,delta), &U, 1);
+  H = ZM_hnfall_i(shallowconcat(M,delta), &U, 1);
   Y = hnf_solve(H,Y); if (!Y) return gen_0;
   l = lg(H); /* may be smaller than lM if some moduli are 0 */
   n = l-1;

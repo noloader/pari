@@ -2057,7 +2057,7 @@ Idealstar_i(GEN nf, GEN ideal, long flag)
       gcoeff(h,cp,cp) = gen_2;
     }
     /* assert(cp == nbgen) */
-    h = ZM_hnfall(h,NULL,0);
+    h = ZM_hnfall_i(h,NULL,0);
     cyc = ZM_snf_group(h, &U, (flag & nf_GEN)? &u1: NULL);
   }
   else
@@ -2175,7 +2175,7 @@ idealprincipalunits(GEN nf, GEN pr, long e)
     }
   }
   /* assert(cp == nbgen) */
-  h = ZM_hnfall(h,NULL,0);
+  h = ZM_hnfall_i(h,NULL,0);
   cyc = ZM_snf_group(h, NULL, &u1);
   c = lg(u1); g = cgetg(c, t_VEC); EX = gel(cyc,1);
   for (i=1; i<c; i++)

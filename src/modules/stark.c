@@ -279,7 +279,7 @@ ComputeKernel0(GEN P, GEN cycA, GEN cycB)
   long nbA = lg(cycA)-1, rk;
   GEN U, DB = diagonal_shallow(cycB);
 
-  rk = nbA + lg(cycB) - lg(ZM_hnfall(shallowconcat(P, DB), &U, 1));
+  rk = nbA + lg(cycB) - lg(ZM_hnfall_i(shallowconcat(P, DB), &U, 1));
   U = matslice(U, 1,nbA, 1,rk);
   return gerepileupto(av, ZM_hnfmodid(U, cycA));
 }
@@ -314,7 +314,7 @@ IsGoodSubgroup(GEN H, GEN bnr, GEN map)
   /* quotient is non cyclic */
   if (!cyc_is_cyclic(gel(p1,2))) { avma = av; return 0; }
 
-  p2 = ZM_hnfall(shallowconcat(map,H), &U, 0);
+  p2 = ZM_hnfall_i(shallowconcat(map,H), &U, 0);
   setlg(U, lg(H));
   for (j = 1; j < lg(U); j++) setlg(gel(U,j), lg(H));
   p1 = ZM_hnfmodid(U, bnr_get_cyc(bnr)); /* H as a subgroup of bnr */
@@ -428,7 +428,7 @@ subgp_intersect(GEN cyc, GEN A, GEN B)
   long k, lH;
   if (!A) return B;
   if (!B) return A;
-  H = ZM_hnfall(shallowconcat(A,B), &U, 1);
+  H = ZM_hnfall_i(shallowconcat(A,B), &U, 1);
   setlg(U, lg(A)); lH = lg(H);
   for (k = 1; k < lg(U); k++) setlg(gel(U,k), lH);
   return ZM_hnfmodid(ZM_mul(A,U), cyc);

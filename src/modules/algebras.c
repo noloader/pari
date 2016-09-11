@@ -2621,8 +2621,8 @@ get_phi0(GEN bnr, GEN Lpr, GEN Ld, GEN pl, long *pr, long *pn)
   }
 
   /* try to realize some random elements of the product of the local duals */
-  H = ZM_hnfall(shallowconcat(zm_to_ZM(globGmod),
-                              diagonal_shallow(zv_to_ZV(loc))), &U, 2);
+  H = ZM_hnfall_i(shallowconcat(zm_to_ZM(globGmod),
+                                diagonal_shallow(zv_to_ZV(loc))), &U, 2);
   /* H,U nbloc x nbloc */
   Rloc = cgetg(nbloc+1,t_COL);
   for (t=0; t<NTRY; t++) {

@@ -1820,9 +1820,9 @@ hnfperm(GEN A)
  * If 'remove' = 1, remove 0 columns (do NOT update *ptB accordingly)
  * If 'remove' = 2, remove 0 columns and update *ptB accordingly */
 GEN
-ZM_hnfall(GEN A, GEN *ptB, long remove)
+ZM_hnfall_i(GEN A, GEN *ptB, long remove)
 {
-  pari_sp av = avma, av1;
+  pari_sp av;
   long m, n, r, i, j, k, li;
   GEN B, c, h, a;
 
@@ -1834,7 +1834,7 @@ ZM_hnfall(GEN A, GEN *ptB, long remove)
   }
   c = zero_zv(m);
   h = const_vecsmall(n, m);
-  av1 = avma;
+  av = avma;
   A = RgM_shallowcopy(A);
   B = ptB? matid(n): NULL;
   r = n+1;
@@ -1849,10 +1849,10 @@ ZM_hnfall(GEN A, GEN *ptB, long remove)
         /* zero a = Aij  using  Aik */
         if (signe(a)) ZC_elem(a,gcoeff(A,i,k), A,B,j,k);
         ZM_reduce(A,B, i,k); /* ensure reduced entries */
-        if (gc_needed(av1,1))
+        if (gc_needed(av,1))
         {
           if (DEBUGMEM>1) pari_warn(warnmem,"hnfall[1], li = %ld", li);
-          gerepileall(av1, B? 2: 1, &A, &B);
+          gerepileall(av, B? 2: 1, &A, &B);
         }
       }
       if (signe( gcoeff(A,li,j) )) break;
@@ -1872,10 +1872,10 @@ ZM_hnfall(GEN A, GEN *ptB, long remove)
       if (B) ZV_togglesign(gel(B,r));
     }
     ZM_reduce(A,B, li,r);
-    if (gc_needed(av1,1))
+    if (gc_needed(av,1))
     {
       if (DEBUGMEM>1) pari_warn(warnmem,"hnfall[2], li = %ld", li);
-      gerepileall(av1, B? 2: 1, &A, &B);
+      gerepileall(av, B? 2: 1, &A, &B);
     }
   }
 
@@ -1888,16 +1888,23 @@ ZM_hnfall(GEN A, GEN *ptB, long remove)
       k = c[i];
       if (signe(a)) ZC_elem(a,gcoeff(A,i,k), A,B, j,k);
       ZM_reduce(A,B, i,k); /* ensure reduced entries, even if a = 0 */
-      if (gc_needed(av1,1))
+      if (gc_needed(av,1))
       {
         if (DEBUGMEM>1) pari_warn(warnmem,"hnfall[3], j = %ld", j);
-        gerepileall(av1, B? 2: 1, &A, &B);
+        gerepileall(av, B? 2: 1, &A, &B);
       }
     }
   if (DEBUGLEVEL>5) err_printf("\n");
   if (remove) remove_0cols(r, &A, &B, remove);
-  gerepileall(av, B? 2: 1, &A, &B);
-  if (B) *ptB = B;
+  if (ptB) *ptB = B;
+  return A;
+}
+GEN
+ZM_hnfall(GEN A, GEN *ptB, long remove)
+{
+  pari_sp av = avma;
+  A = ZM_hnfall_i(A, ptB, remove);
+  gerepileall(av, ptB? 2: 1, &A, ptB);
   return A;
 }
 

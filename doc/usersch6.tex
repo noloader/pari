@@ -2099,6 +2099,9 @@ large or negative.
 right of a pivot $p$ are centered residues in $[-p/2, p/2[$, hence smallest
 possible in absolute value, but possibly negative.
 
+\fun{GEN}{ZM_hnfmodall_i}{GEN x, GEN d, long flag} as \tet{ZM_hnfmodall}
+without final garbage collection. Not \kbd{gerepile}-safe.
+
 \fun{GEN}{ZM_hnfall}{GEN x, GEN *U, long remove} returns the upper triangular
 HNF $H$ of the \kbd{ZM} $x$; if $U$ is not \kbd{NULL}, set if to the matrix
 $U$ such that $x U = H$. If $\kbd{remove} = 0$, $H$ is the true HNF,
@@ -2112,6 +2115,9 @@ This routine uses a naive algorithm which is potentially exponential in the
 dimension (due to coefficient explosion) but is fast in practice, although it
 may require lots of memory. The base change matrix $U$ may be very large,
 when the kernel is large.
+
+\fun{GEN}{ZM_hnfall_i}{GEN x, GEN *U, long remove} as \tet{ZM_hnfall} without
+final garbage collection. Not \kbd{gerepile}-safe.
 
 \fun{GEN}{ZM_hnfperm}{GEN A, GEN *ptU, GEN *ptperm} returns the hnf
 $H = P A U$ of the matrix $P A$, where $P$ is a suitable permutation matrix,

@@ -959,7 +959,7 @@ invimsubgroup(GEN bnrz, GEN bnr, GEN subgroup, toK_s *T)
     g = idealdiv(nf, g, StZk); /* N_{Kz/K}(gen[j]) */
     gel(P,j) = isprincipalray(bnr, g);
   }
-  (void)ZM_hnfall(shallowconcat(P, subgroup), &U, 1);
+  (void)ZM_hnfall_i(shallowconcat(P, subgroup), &U, 1);
   setlg(U, l); for (j=1; j<l; j++) setlg(U[j], l);
   return ZM_hnfmodid(U, cyc);
 }
