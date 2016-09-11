@@ -12,9 +12,6 @@ with the package; see the file 'COPYING'. If not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 
 BEGINEXTERN
-/* hashtables */
-hashtable *hashstr_import_static(hashentry *e, ulong size);
-void hashstr_dbg(hashtable *h);
 
 /* for qsort */
 typedef int (*QSCOMP)(const void *, const void *);
@@ -44,19 +41,6 @@ clone_unlock(GEN C) { if (isclone(C)) gunclone(C); }
 #define dswap(x,y) { double _t=x; x=y; y=_t; }
 #define pdswap(x,y) { double* _t=x; x=y; y=_t; }
 #define swapspec(x,y, nx,ny) {swap(x,y); lswap(nx,ny);}
-
-/* unused */
-void ellprint(GEN e);
-
-/* binary splitting */
-struct abpq { GEN *a, *b, *p, *q; };
-struct abpq_res { GEN P, Q, B, T; };
-void abpq_init(struct abpq *A, long n);
-void abpq_sum(struct abpq_res *r, long n1, long n2, struct abpq *A);
-
-/* generic */
-GEN trans_fix_arg(long *prec, GEN *s0, GEN *sig, GEN *tau, pari_sp *av, GEN *res);
-GEN sort_factor_pol(GEN y, int (*cmp)(GEN,GEN));
 
 /* loops */
 GEN incloop(GEN a);
@@ -144,103 +128,6 @@ GEN  polmodular_worker(ulong p, ulong t, ulong L, GEN hilb, GEN factu,
 GEN  nmV_polint_center_tree_worker(GEN Va, GEN T, GEN R, GEN xa, GEN m2);
 GEN  ZX_resultant_worker(GEN P, GEN A, GEN B, GEN dB);
 
-/* multiprecision */
-GEN   addrex01(GEN x);
-GEN   adduispec_offset(ulong s, GEN x, long offset, long nx);
-int   lgcdii(ulong* d, ulong* d1, ulong* u, ulong* u1, ulong* v, ulong* v1, ulong vmax);
-ulong rgcduu(ulong d, ulong d1, ulong vmax, ulong* u, ulong* u1, ulong* v, ulong* v1, long *s);
-ulong xgcduu(ulong d, ulong d1, int f, ulong* v, ulong* v1, long *s);
-ulong xxgcduu(ulong d, ulong d1, int f, ulong* u, ulong* u1, ulong* v, ulong* v1, long *s);
-GEN   divgunu(GEN x, ulong i);
-GEN   divrunu(GEN x, ulong i);
-GEN   muliispec(GEN x, GEN y, long nx, long ny);
-GEN   red_montgomery(GEN T, GEN N, ulong inv);
-GEN   sqrispec(GEN x, long nx);
-GEN   subrex01(GEN x);
-GEN   modr_safe(GEN x, GEN y);
-ulong *convi(GEN x, long *l);
-
-int approx_0(GEN x, GEN y);
-GEN bernfrac_using_zeta(long n);
-
-/* powers */
-GEN    rpowuu(ulong a, ulong n, long prec);
-
-/* floats */
-double dabs(double s, double t);
-void   dcxlog(double s, double t, double *a, double *b);
-double dnorm(double s, double t);
-double dbllog2(GEN z);
-
-/* hnf */
-GEN hnfadd(GEN m,GEN p,GEN* ptdep,GEN* ptA,GEN* ptC,GEN extramat,GEN extraC);
-GEN hnfadd_i(GEN m,GEN p,GEN* ptdep,GEN* ptA,GEN* ptC,GEN extramat,GEN extraC);
-GEN hnfspec_i(GEN m,GEN p,GEN* ptdep,GEN* ptA,GEN* ptC,long k0);
-GEN hnfspec(GEN m,GEN p,GEN* ptdep,GEN* ptA,GEN* ptC,long k0);
-GEN mathnfspec(GEN x, GEN *ptperm, GEN *ptdep, GEN *ptB, GEN *ptC);
-GEN ZM_hnfmodall_i(GEN x, GEN dm, long flag);
-
-GEN LLL_check_progress(GEN Bnorm, long n0, GEN m, int final, long *ti_LLL);
-GEN extendedgcd(GEN A);
-
-/* miscellaneous linear algebra */
-GEN  imagecomplspec(GEN x, long *nlze);
-GEN  ZM_imagecomplspec(GEN x, long *nlze);
-GEN  dim1proj(GEN prh);
-GEN  detcyc(GEN cyc, long *L);
-
-GEN merge_factor_i(GEN f, GEN g);
-
-/* integer factorization / discrete log */
-GEN   coprime_part(GEN x, GEN f);
-ulong ucoprime_part(ulong x, ulong f);
-ulong is_kth_power(GEN x, ulong p, GEN *pt);
-GEN   mpqs(GEN N);
-ulong gcduodd(ulong x, ulong y);
-
-/* Polynomials */
-/* a) Arithmetic/conversions */
-GEN  addmulXn(GEN x, GEN y, long d);
-GEN  addshiftpol(GEN x, GEN y, long d);
-GEN  lift_if_rational(GEN x);
-GEN  monomial(GEN a, long degpol, long v);
-GEN  monomialcopy(GEN a, long degpol, long v);
-GEN  mulmat_pol(GEN A, GEN x);
-GEN  ser2pol_i(GEN x, long lx);
-GEN  ser2rfrac_i(GEN x);
-GEN  shiftpol_i(GEN x, long v);
-GEN  swap_vars(GEN b0, long v);
-GEN  RgX_recipspec_shallow(GEN x, long l, long n);
-
-/* b) Modular */
-GEN  bezout_lift_fact(GEN T, GEN Tmod, GEN p, long e);
-long F2x_split_Berlekamp(GEN *t);
-long Flx_split_Berlekamp(GEN *t, ulong p);
-long FpX_split_Berlekamp(GEN *t, GEN pp);
-long FqX_split_Berlekamp(GEN *t, GEN T, GEN p);
-GEN  FpX_quad_root(GEN x, GEN p, int unknown);
-GEN  FqX_split_all(GEN z, GEN T, GEN p);
-long FqX_split_by_degree(GEN *pz, GEN u, GEN T, GEN p);
-long FqX_split_deg1(GEN *pz, GEN u, GEN T, GEN p);
-GEN  FqX_split_roots(GEN z, GEN T, GEN p, GEN pol);
-GEN  polsym_gen(GEN P, GEN y0, long n, GEN T, GEN N);
-GEN  ZXQ_charpoly_sqf(GEN A, GEN B, long *lambda, long v);
-GEN  ZX_disc_all(GEN,ulong);
-GEN  ZX_resultant_all(GEN A, GEN B, GEN dB, ulong bound);
-GEN  ZX_ZXY_resultant_all(GEN A, GEN B, long *lambda, GEN *LPRS);
-GEN  RgXQ_minpoly_naive(GEN y, GEN P);
-GEN lift_intern(GEN x);
-
-/* c) factorization */
-GEN chk_factors_get(GEN lt, GEN famod, GEN c, GEN T, GEN N);
-long cmbf_maxK(long nb);
-GEN ZX_DDF(GEN x);
-GEN initgaloisborne(GEN T, GEN dn, long prec, GEN *pL, GEN *pprep, GEN *pdis);
-GEN logmax_modulus_bound(GEN p);
-GEN polint_i(GEN xa, GEN ya, GEN x, long n, GEN *ptdy);
-GEN quicktrace(GEN x, GEN sym);
-GEN special_pivot(GEN x);
-
 /* Relative number fields */
 enum { rnf_NFABS = 1, rnf_MAPS };
 
@@ -271,83 +158,47 @@ enum { FF_CARD = 1, FF_GROUP, FF_GROUPGEN, FF_O };
 /* for Buchall_param */
 enum { fupb_NONE, fupb_RELAT, fupb_LARGE, fupb_PRECI };
 
-
-/* Polycyclic presentation for the classgroup of discriminant D. */
+/* Polycyclic presentation for the classgroup of discriminant D */
 typedef struct {
-  /* Negative discriminant */
-  long D;
-  /* Size of classgroup */
-  long h;
-  /* Either h or h/2 (if L0 is set) */
-  long enum_cnt;
+  long D; /* Negative discriminant */
+  long h; /* Size of classgroup */
+  long enum_cnt; /* Either h or h/2 (if L0 is set) */
   /* If nonzero, L0=L[0] and n[0]=2 and classpoly is a perfect square
    * (and we enumerate each double root just once), default is 0 */
   long L0;
   /* Product of primes L that are prohibited as norms of generators or
-   * auxilliary prime forms (by default, primes that make enumeration
-   * hard) */
+   * auxilliary prime forms (by default, primes that make enumeration hard) */
   long Lfilter;
   /* Norms of implicit generators (primeforms a=(L*x^2+b*x*y+c*y^2)
    * with norm L and b >=0) */
   long *L;
-  /* Partial products of relative orders (equivalently, m[i] is the
-   * order of the subgroup generated by generators 1,...i) */
-  long *m;
-  /* Relative orders */
-  long *n;
-  /* Absolute orders */
-  long *o;
+  long *m; /* products of relative orders: m[i] is the order of <g_1,...,g_i> */
+  long *n; /* Relative orders */
+  long *o; /* Absolute orders */
   /* Power relations (a[i]^n[i] = a[0]^e[0]*...*a[i-1]^e[i-1], where e
-   * is an exponent vector of length i stored at offset binom(i,2) of
-   * r) */
+   * is an exponent vector of length i stored at offset binom(i,2) of r) */
   long *r;
-  /* Optional list of norms of orienting primes p ... */
-  long *orient_p;
-  /* ... or product of primes p*q (q=1 when only p is needed) */
-  long *orient_q;
-  /* Representation of orienting norm p*q in terms of Ls */
-  long *orient_reps;
-  /* Associated invariant */
-  long inv;
-  /* Number of generators */
-  long k;
+  long *orient_p; /* Optional list of norms of orienting primes p ... */
+  long *orient_q; /* or product of primes p*q (q=1 when only p is needed) */
+  long *orient_reps; /* Representation of orienting norm p*q in terms of Ls */
+  long inv; /* Attached invariant */
+  long k; /* Number of generators */
   GEN _data; /* Storage space for the above arrays */
 } classgp_pcp_struct;
 typedef classgp_pcp_struct classgp_pcp_t[1];
 
-/*
- * Represents the data in the equation(s)
- *
+/* Represents the data in the equation(s)
  *   4p = t^2 - v^2 D = t^2 - v^2 u^2 D_K = w^2 D_K.
- *
  * t is the absolute trace, so always > 0.
- * T is a twisting parameter, which satisfies (T|p) == -1.
- */
+ * T is a twisting parameter, which satisfies (T|p) == -1. */
 typedef struct {
-  long D;
-  long t, u, v;
-  ulong p, pi;
-  ulong T;
+  long D, t, u, v;
+  ulong p, pi, T;
 } norm_eqn_struct;
 typedef norm_eqn_struct norm_eqn_t[1];
 
 #define zv_to_longptr(v) (&((v)[1]))
 #define zv_to_ulongptr(v) ((ulong *)&((v)[1]))
-
-/* Isogeny volcanos */
-long j_level_in_volcano(
-  GEN phi, ulong j, ulong p, ulong pi, long L, long depth);
-ulong ascend_volcano(
-  GEN phi, ulong j, ulong p, ulong pi, long level, long L, long depth,
-  long steps);
-ulong descend_volcano(
-  GEN phi, ulong j, ulong p, ulong pi, long level, long L, long depth,
-  long steps);
-
-long next_surface_nbr(
-  ulong *nJ,
-  GEN phi, long L, long h, ulong J, const ulong *pJ, ulong p, ulong pi);
-GEN enum_roots(ulong j, norm_eqn_t ne, GEN fdb, classgp_pcp_t G);
 
 /* Modular invariants */
 #define INV_J       0
@@ -371,20 +222,6 @@ GEN enum_roots(ulong j, norm_eqn_t ne, GEN fdb, classgp_pcp_t G);
 #define INV_W5W7    35
 #define INV_W3W13   39
 
-int inv_is_valid(long inv);
-long inv_level(long inv);
-long inv_degree(long *p1, long *p2, long inv);
-long inv_ramified(long D, long inv);
-double inv_height_factor(long inv);
-int inv_good_discriminant(long D, long inv);
-int inv_good_prime(long p, long inv);
-int inv_weber(long inv);
-int inv_double_eta(long inv);
-long inv_j_from_2double_eta(long inv, ulong *j, ulong x0, ulong x1, ulong p, ulong pi);
-ulong modfn_root(ulong j, norm_eqn_t ne, long inv);
-long modfn_unambiguous_root(ulong *r, long inv, ulong j0, norm_eqn_t ne, GEN jdb);
-GEN qfb_nform(long D, long n);
-
 /* Get coefficient of x^d in f, assuming f is nonzero. */
 INLINE ulong Flx_coeff(GEN f, long d) { return f[d + 2]; }
 /* Return the root of f, assuming deg(f) = 1. */
@@ -392,24 +229,6 @@ INLINE ulong Flx_deg1_root(GEN f, ulong p) {
   if (degpol(f) != 1) pari_err_BUG("Flx_deg1_root");
   return Fl_div(Fl_neg(Flx_coeff(f, 0), p), Flx_coeff(f, 1), p);
 }
-
-/* Internal polclass and polmodular functions, to allow sharing
- * modular polynomial cache */
-GEN polclass0(long D, long inv, long xvar, GEN *db);
-GEN polmodular0_ZM(long L, long inv, GEN J, GEN Q, int compute_derivs, GEN *db);
-GEN Flm_Fl_polmodular_evalx(GEN phi, long L, ulong j, ulong p, ulong pi);
-
-/* Polmodular database maintenance */
-GEN polmodular_db_init(long inv);
-void polmodular_db_clear(GEN db);
-void polmodular_db_add_level(GEN *db, long L, long inv);
-void polmodular_db_add_levels(GEN *db, long *levels, long k, long inv);
-GEN polmodular_db_for_inv(GEN db, long inv);
-GEN polmodular_db_getp(GEN fdb, long L, ulong p);
-
-void random_curves_with_m_torsion(
-  ulong *a4, ulong *a6, ulong *tx, ulong *ty,
-  long ncurves, long m, ulong p);
 
 /* Allocation / gerepile */
 long   getdebugvar(void);
@@ -617,8 +436,130 @@ must be given as first argument to all PARI readline functions. */
     (pari_rl).completion_append_character = &rl_completion_append_character; \
     (pari_rl).back = 0; } while(0)
 
+/* FIXME: EXPORT AND DOCUMENT THE FOLLOWING */
 
-/* By files */
+/* PROBABLY NOT IN THE RIGHT FILE, SORT BY THEME */
+
+/* multiprecision */
+GEN   addrex01(GEN x);
+GEN   adduispec_offset(ulong s, GEN x, long offset, long nx);
+int   lgcdii(ulong* d, ulong* d1, ulong* u, ulong* u1, ulong* v, ulong* v1, ulong vmax);
+ulong rgcduu(ulong d, ulong d1, ulong vmax, ulong* u, ulong* u1, ulong* v, ulong* v1, long *s);
+ulong xgcduu(ulong d, ulong d1, int f, ulong* v, ulong* v1, long *s);
+ulong xxgcduu(ulong d, ulong d1, int f, ulong* u, ulong* u1, ulong* v, ulong* v1, long *s);
+GEN   divgunu(GEN x, ulong i);
+GEN   divrunu(GEN x, ulong i);
+GEN   muliispec(GEN x, GEN y, long nx, long ny);
+GEN   red_montgomery(GEN T, GEN N, ulong inv);
+GEN   sqrispec(GEN x, long nx);
+GEN   subrex01(GEN x);
+GEN   modr_safe(GEN x, GEN y);
+ulong *convi(GEN x, long *l);
+
+int approx_0(GEN x, GEN y);
+GEN bernfrac_using_zeta(long n);
+
+/* powers */
+GEN    rpowuu(ulong a, ulong n, long prec);
+
+/* floats */
+double dabs(double s, double t);
+void   dcxlog(double s, double t, double *a, double *b);
+double dnorm(double s, double t);
+double dbllog2(GEN z);
+
+/* hnf */
+GEN hnfadd(GEN m,GEN p,GEN* ptdep,GEN* ptA,GEN* ptC,GEN extramat,GEN extraC);
+GEN hnfadd_i(GEN m,GEN p,GEN* ptdep,GEN* ptA,GEN* ptC,GEN extramat,GEN extraC);
+GEN hnfspec_i(GEN m,GEN p,GEN* ptdep,GEN* ptA,GEN* ptC,long k0);
+GEN hnfspec(GEN m,GEN p,GEN* ptdep,GEN* ptA,GEN* ptC,long k0);
+GEN mathnfspec(GEN x, GEN *ptperm, GEN *ptdep, GEN *ptB, GEN *ptC);
+GEN ZM_hnfmodall_i(GEN x, GEN dm, long flag);
+
+GEN LLL_check_progress(GEN Bnorm, long n0, GEN m, int final, long *ti_LLL);
+GEN extendedgcd(GEN A);
+
+/* miscellaneous linear algebra */
+GEN  imagecomplspec(GEN x, long *nlze);
+GEN  ZM_imagecomplspec(GEN x, long *nlze);
+GEN  dim1proj(GEN prh);
+GEN  detcyc(GEN cyc, long *L);
+
+GEN merge_factor_i(GEN f, GEN g);
+
+/* integer factorization / discrete log */
+GEN   coprime_part(GEN x, GEN f);
+ulong ucoprime_part(ulong x, ulong f);
+ulong is_kth_power(GEN x, ulong p, GEN *pt);
+GEN   mpqs(GEN N);
+ulong gcduodd(ulong x, ulong y);
+
+/* Polynomials */
+/* a) Arithmetic/conversions */
+GEN  addmulXn(GEN x, GEN y, long d);
+GEN  addshiftpol(GEN x, GEN y, long d);
+GEN  lift_if_rational(GEN x);
+GEN  monomial(GEN a, long degpol, long v);
+GEN  monomialcopy(GEN a, long degpol, long v);
+GEN  mulmat_pol(GEN A, GEN x);
+GEN  ser2pol_i(GEN x, long lx);
+GEN  ser2rfrac_i(GEN x);
+GEN  shiftpol_i(GEN x, long v);
+GEN  swap_vars(GEN b0, long v);
+GEN  RgX_recipspec_shallow(GEN x, long l, long n);
+
+/* b) Modular */
+GEN  bezout_lift_fact(GEN T, GEN Tmod, GEN p, long e);
+long F2x_split_Berlekamp(GEN *t);
+long Flx_split_Berlekamp(GEN *t, ulong p);
+long FpX_split_Berlekamp(GEN *t, GEN pp);
+long FqX_split_Berlekamp(GEN *t, GEN T, GEN p);
+GEN  FpX_quad_root(GEN x, GEN p, int unknown);
+GEN  FqX_split_all(GEN z, GEN T, GEN p);
+long FqX_split_by_degree(GEN *pz, GEN u, GEN T, GEN p);
+long FqX_split_deg1(GEN *pz, GEN u, GEN T, GEN p);
+GEN  FqX_split_roots(GEN z, GEN T, GEN p, GEN pol);
+GEN  polsym_gen(GEN P, GEN y0, long n, GEN T, GEN N);
+GEN  ZXQ_charpoly_sqf(GEN A, GEN B, long *lambda, long v);
+GEN  ZX_disc_all(GEN,ulong);
+GEN  ZX_resultant_all(GEN A, GEN B, GEN dB, ulong bound);
+GEN  ZX_ZXY_resultant_all(GEN A, GEN B, long *lambda, GEN *LPRS);
+GEN  RgXQ_minpoly_naive(GEN y, GEN P);
+GEN lift_intern(GEN x);
+
+/* c) factorization */
+GEN chk_factors_get(GEN lt, GEN famod, GEN c, GEN T, GEN N);
+long cmbf_maxK(long nb);
+GEN ZX_DDF(GEN x);
+GEN initgaloisborne(GEN T, GEN dn, long prec, GEN *pL, GEN *pprep, GEN *pdis);
+GEN logmax_modulus_bound(GEN p);
+GEN polint_i(GEN xa, GEN ya, GEN x, long n, GEN *ptdy);
+GEN quicktrace(GEN x, GEN sym);
+GEN special_pivot(GEN x);
+
+/* BY FILES */
+
+/* parinf.h */
+
+GEN fincke_pohst(GEN a,GEN BOUND,long stockmax,long PREC, FP_chk_fun *CHECK);
+void init_zlog_bid(zlog_S *S, GEN bid);
+GEN  log_gen_arch(zlog_S *S, long index);
+GEN  log_gen_pr(zlog_S *S, long index, GEN nf, long e);
+GEN  zlog(GEN nf, GEN a, GEN sgn, zlog_S *S);
+/* conversions basis / alg */
+/* nf a genuine NF, x an nfelt (t_COL) or t_MAT whose columns represent nfelts.
+ * Return the corresponding elements as t_POLs (implicitly mod nf.pol) */
+#define coltoliftalg(nf,x) (gmul(gel((nf),7), (x)))
+GEN    poltobasis(GEN nf,GEN x);
+GEN    coltoalg(GEN nf,GEN x);
+
+GEN    get_arch_real(GEN nf,GEN x,GEN *emb,long prec);
+GEN    get_proj_modT(GEN basis, GEN T, GEN p);
+GEN    make_integral(GEN nf, GEN L0, GEN f, GEN listpr);
+GEN    rnfallbase(GEN nf, GEN *ppol, GEN *pD, GEN *pd, GEN *pfi);
+GEN    subgroupcondlist(GEN cyc, GEN bound, GEN listKer);
+GEN    ideallog_sgn(GEN nf, GEN x, GEN sgn, GEN bid);
+GEN    zlog_units(GEN nf, GEN U, GEN sgnU, GEN bid);
 
 /* Qfb.c */
 
@@ -662,6 +603,10 @@ GEN     factor_norm(GEN x);
 GEN     factorbackprime(GEN nf, GEN L, GEN e);
 long    val_norm(GEN x, GEN p, long *vz);
 
+/* bibli2.c */
+
+GEN sort_factor_pol(GEN y, int (*cmp)(GEN,GEN));
+
 /* buch1.c */
 
 long   bnf_increase_LIMC(long LIMC, long LIMCMAX);
@@ -685,6 +630,14 @@ GEN     red_mod_units(GEN col, GEN z);
 GEN     minkowski_bound(GEN D, long N, long r2, long prec);
 int     subgroup_conductor_ok(GEN H, GEN L);
 GEN     subgrouplist_cond_sub(GEN bnr, GEN C, GEN bound);
+
+/* crvwtors.c */
+
+void random_curves_with_m_torsion(ulong *a4, ulong *a6, ulong *tx, ulong *ty, long ncurves, long m, ulong p);
+
+/* elliptic.c */
+
+void ellprint(GEN e);
 
 /* ellsea.c */
 
@@ -757,6 +710,11 @@ GEN     gsubst_expr(GEN pol, GEN from, GEN to);
 GEN     poltoser(GEN x, long v, long prec);
 GEN     rfractoser(GEN x, long v, long prec);
 
+/* hash.c */
+
+hashtable *hashstr_import_static(hashentry *e, ulong size);
+void hashstr_dbg(hashtable *h);
+
 /* hyperell.c */
 
 GEN     ZlXQX_hyperellpadicfrobenius(GEN H, GEN T, ulong p, long n);
@@ -816,6 +774,36 @@ GEN     factcantor0(GEN f, GEN pp, long flag);
 
 GEN     sylvestermatrix_i(GEN x, GEN y);
 
+/* polclass.c */
+
+GEN polclass0(long D, long inv, long xvar, GEN *db);
+
+/* polmodular.c */
+
+GEN polmodular0_ZM(long L, long inv, GEN J, GEN Q, int compute_derivs, GEN *db);
+GEN Flm_Fl_polmodular_evalx(GEN phi, long L, ulong j, ulong p, ulong pi);
+GEN polmodular_db_init(long inv);
+void polmodular_db_clear(GEN db);
+void polmodular_db_add_level(GEN *db, long L, long inv);
+void polmodular_db_add_levels(GEN *db, long *levels, long k, long inv);
+GEN polmodular_db_for_inv(GEN db, long inv);
+GEN polmodular_db_getp(GEN fdb, long L, ulong p);
+
+int inv_is_valid(long inv);
+long inv_level(long inv);
+long inv_degree(long *p1, long *p2, long inv);
+long inv_ramified(long D, long inv);
+double inv_height_factor(long inv);
+int inv_good_discriminant(long D, long inv);
+int inv_good_prime(long p, long inv);
+int inv_weber(long inv);
+int inv_double_eta(long inv);
+long inv_j_from_2double_eta(long inv, ulong *j, ulong x0, ulong x1, ulong p, ulong pi);
+ulong modfn_root(ulong j, norm_eqn_t ne, long inv);
+long modfn_unambiguous_root(ulong *r, long inv, ulong j0, norm_eqn_t ne, GEN jdb);
+GEN qfb_nform(long D, long n);
+
+
 /* QX_factor */
 
 void    factor_quad(GEN x, GEN res, long *ptcnt);
@@ -870,6 +858,10 @@ GEN     znstar_small(GEN zn);
 
 /* trans1.c */
 
+struct abpq { GEN *a, *b, *p, *q; };
+struct abpq_res { GEN P, Q, B, T; };
+void    abpq_init(struct abpq *A, long n);
+void    abpq_sum(struct abpq_res *r, long n1, long n2, struct abpq *A);
 GEN     logagmcx(GEN q, long prec);
 void    pari_init_floats(void);
 void    pari_close_floats(void);
@@ -881,6 +873,7 @@ GEN     zellagmcx(GEN a0, GEN b0, GEN r, GEN t, long prec);
 
 GEN     cxpsi(GEN s0, long prec);
 double  darg(double s, double t);
+GEN     trans_fix_arg(long *prec, GEN *s0, GEN *sig, GEN *tau, pari_sp *av, GEN *res);
 
 /* trans3.c */
 
@@ -889,5 +882,13 @@ GEN     double_eta_quotient(GEN a, GEN w, GEN D, long p, long q, GEN pq, GEN sqr
 GEN     inv_szeta_euler(long n, double lba, long prec);
 GEN     polylogd0(long m, GEN x, long flag, long prec);
 GEN     trueE2(GEN tau, long prec);
+
+/* volcano.c */
+
+long j_level_in_volcano(GEN phi, ulong j, ulong p, ulong pi, long L, long depth);
+ulong ascend_volcano(GEN phi, ulong j, ulong p, ulong pi, long level, long L, long depth, long steps);
+ulong descend_volcano(GEN phi, ulong j, ulong p, ulong pi, long level, long L, long depth, long steps);
+long next_surface_nbr(ulong *nJ, GEN phi, long L, long h, ulong J, const ulong *pJ, ulong p, ulong pi);
+GEN enum_roots(ulong j, norm_eqn_t ne, GEN fdb, classgp_pcp_t G);
 
 ENDEXTERN

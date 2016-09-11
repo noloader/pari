@@ -125,27 +125,3 @@ typedef struct {
   long n;  /* total number of generators for all (O_K/P^e)^* and (O_K/f_oo) */
   GEN U; /* base change matrix from generators to bid.gen */
 } zlog_S;
-
-GEN fincke_pohst(GEN a,GEN BOUND,long stockmax,long PREC, FP_chk_fun *CHECK);
-
-void init_zlog_bid(zlog_S *S, GEN bid);
-GEN  log_gen_arch(zlog_S *S, long index);
-GEN  log_gen_pr(zlog_S *S, long index, GEN nf, long e);
-GEN  zlog(GEN nf, GEN a, GEN sgn, zlog_S *S);
-
-/* conversions basis / alg */
-
-/* nf a genuine NF, x an nfelt (t_COL) or t_MAT whose columns represent nfelts.
- * Return the corresponding elements as t_POLs (implicitly mod nf.pol) */
-#define coltoliftalg(nf,x) (gmul(gel((nf),7), (x)))
-GEN    poltobasis(GEN nf,GEN x);
-GEN    coltoalg(GEN nf,GEN x);
-
-/* Other number fields routines */
-GEN    get_arch_real(GEN nf,GEN x,GEN *emb,long prec);
-GEN    get_proj_modT(GEN basis, GEN T, GEN p);
-GEN    make_integral(GEN nf, GEN L0, GEN f, GEN listpr);
-GEN    rnfallbase(GEN nf, GEN *ppol, GEN *pD, GEN *pd, GEN *pfi);
-GEN    subgroupcondlist(GEN cyc, GEN bound, GEN listKer);
-GEN    ideallog_sgn(GEN nf, GEN x, GEN sgn, GEN bid);
-GEN    zlog_units(GEN nf, GEN U, GEN sgnU, GEN bid);
