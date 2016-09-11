@@ -1249,7 +1249,7 @@ nf_remove_denom_p(GEN nf, GEN x, GEN p, GEN *pdx, long *pv)
 /* x = b^e/p^(e-1) in Z_K; x = 0 mod p/pr^e, (x,pr) = 1. Return NULL
  * if p inert (instead of 1) */
 static GEN
-p_makecoprime(GEN nf, GEN pr)
+p_makecoprime(GEN pr)
 {
   GEN B = pr_get_tau(pr), b;
   long i, e;
@@ -1307,7 +1307,7 @@ famat_makecoprime(GEN nf, GEN g, GEN e, GEN pr, GEN prk, GEN EX)
     gel(E,i) = gel(e,i);
   }
 
-  t = vp? p_makecoprime(nf, pr): NULL;
+  t = vp? p_makecoprime(pr): NULL;
   if (!t)
   { /* no need for extra generator */
     setlg(G,l);
