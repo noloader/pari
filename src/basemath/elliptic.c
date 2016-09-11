@@ -594,7 +594,7 @@ Qp_ascending_Landen(GEN AB, GEN *ptx, GEN *pty)
   if (v <= 0) pari_err_PREC("Qp_ascending_Landen");
   /* v > 0 => v = v(x_oo) = ... = v(x_{n+1}) */
   x = gsub(x, gmul2n(r,-1));
-  if (precp(x) > v) x = cvtop(x, p, v);
+  if (padicprec_relative(x) > v) x = gcvtop(x, p, v);
   /* x = x_n */
   for (i = n; i > 1; i--)
   {
