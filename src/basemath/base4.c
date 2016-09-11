@@ -2416,7 +2416,7 @@ pr_uniformizer(GEN pr, GEN F)
     GEN u, v, q = (e == 1)? sqri(p): p;
     u = mulii(q, Fp_inv(q, diviiexact(F,p))); /* 1 mod F/p, 0 mod q */
     v = subui(1UL, u); /* 0 mod F/p, 1 mod q */
-    if (typ(t) != t_COL || (e == 1 && pr_get_f(pr) == lg(t)-1)) /* p inert */
+    if (pr_is_inert(pr))
       t = addii(mulii(p, v), u);
     else
     {
