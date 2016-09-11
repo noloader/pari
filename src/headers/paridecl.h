@@ -4008,6 +4008,8 @@ GEN     randomprime(GEN N);
 GEN     removeprimes(GEN primes);
 int     uislucaspsp(ulong n);
 int     uisprime(ulong n);
+int     uisprime_101(ulong n);
+int     uisprime_661(ulong n);
 ulong   uprime(long n);
 ulong   uprimepi(ulong n);
 

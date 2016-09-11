@@ -304,24 +304,24 @@ LucasMod(GEN n, ulong P, GEN N)
 static ulong
 u_LucasMod(ulong n, ulong P, ulong N)
 {
-  ulong v, v1, mP, m2, m;
+  ulong v, v1, m;
   long j;
 
   if (n == 1) return P;
   j = 1 + bfffo(n); /* < BIL */
-  v = P; v1 = P*P - 2; mP = N - P; m2 = N - 2;
+  v = P; v1 = P*P - 2;
   m = n<<j; j = BITS_IN_LONG - j;
   for (; j; m<<=1,j--)
   { /* v = v_k, v1 = v_{k+1} */
     if (m & HIGHBIT)
     { /* set v = v_{2k+1}, v1 = v_{2k+2} */
-      v = Fl_add(Fl_mul(v,v1,N), mP, N);
-      v1= Fl_add(Fl_mul(v1,v1,N),m2, N);
+      v = Fl_sub(Fl_mul(v,v1,N), P, N);
+      v1= Fl_sub(Fl_sqr(v1,N), 2UL, N);
     }
     else
     {/* set v = v_{2k}, v1 = v_{2k+1} */
-      v1= Fl_add(Fl_mul(v,v1,N),mP, N);
-      v = Fl_add(Fl_mul(v,v,N), m2, N);
+      v1= Fl_sub(Fl_mul(v,v1,N),P, N);
+      v = Fl_sub(Fl_sqr(v,N), 2UL, N);
     }
   }
   return v;
@@ -331,7 +331,7 @@ int
 uislucaspsp(ulong n)
 {
   long i, v;
-  ulong b, z, m2, m = n + 1;
+  ulong b, z, m = n + 1;
 
   for (b=3, i=0;; b+=2, i++)
   {
@@ -342,13 +342,11 @@ uislucaspsp(ulong n)
   if (!m) return 0; /* neither 2^32-1 nor 2^64-1 are Lucas-pp */
   v = vals(m); m >>= v;
   z = u_LucasMod(m, b, n);
-  if (z == 2) return 1;
-  m2 = n - 2;
-  if (z == m2) return 1;
+  if (z == 2 || z == n-2) return 1;
   for (i=1; i<v; i++)
   {
     if (!z) return 1;
-    z = Fl_add(Fl_mul(z,z, n), m2, n);
+    z = Fl_sub(Fl_sqr(z,n), 2UL, n);
     if (z == 2) return 0;
   }
   return 0;
@@ -359,7 +357,7 @@ static int
 IsLucasPsP(GEN N)
 {
   pari_sp av = avma;
-  GEN N_2, m, z;
+  GEN m, z;
   long i, v;
   ulong b;
 
@@ -372,12 +370,11 @@ IsLucasPsP(GEN N)
   m = addis(N,1); v = vali(m); m = shifti(m,-v);
   z = LucasMod(m, b, N);
   if (absequaliu(z, 2)) return 1;
-  N_2 = subis(N,2);
-  if (equalii(z, N_2)) return 1;
+  if (equalii(z, subiu(N,2))) return 1;
   for (i=1; i<v; i++)
   {
     if (!signe(z)) return 1;
-    z = modii(subis(sqri(z), 2), N);
+    z = modii(subiu(sqri(z), 2), N);
     if (absequaliu(z, 2)) return 0;
     if (gc_needed(av,1))
     {

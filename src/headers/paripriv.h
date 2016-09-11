@@ -730,8 +730,6 @@ int     Fl_MR_Jaeschke(ulong n, long k);
 int     MR_Jaeschke(GEN n, long k);
 long    isanypower_nosmalldiv(GEN N, GEN *px);
 void    prime_table_next_p(ulong a, byteptr *pd, ulong *pp, ulong *pn);
-int     uisprime_101(ulong n);
-int     uisprime_661(ulong n);
 
 /* init.c */
 

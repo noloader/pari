@@ -54,6 +54,7 @@ BA 29- [libpari] FlxXC_to_F2xXC, F2xXC_to_ZXXC
    30- [libpari] pr_uniformizer, prV_lcm_capZ, pr_inv, pr_inv_p
    31- [libpari] cmp_padic
    32- [libpari] ZV_snf_trunc, ZM_hnfmodall_i, ZM_hnfall_i
+   33- [libpari] uisprime_101, uisprime_661
 
   Changed
     1- remove useless flag in idealappr: directly allow factorization

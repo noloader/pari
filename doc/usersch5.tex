@@ -7021,6 +7021,12 @@ as a \typ{VECSMALL} of \kbd{ulongs}s.
 \fun{int}{uisprime}{ulong p}, returns $1$ if \kbd{p} is a prime number and
 $0$ otherwise.
 
+\fun{int}{uisprime_101}{ulong p}, assuming that $p$ has no divisor $\leq
+101$, returns $1$ if \kbd{p} is a prime number and $0$ otherwise.
+
+\fun{int}{uisprime_661}{ulong p}, assuming that $p$ has no divisor $\leq
+661$, returns $1$ if \kbd{p} is a prime number and $0$ otherwise.
+
 \fun{int}{isprime}{GEN n}, returns $1$ if the \typ{INT} \kbd{n} is a
 (fully proven) prime number and $0$ otherwise.
 
