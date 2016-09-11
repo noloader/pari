@@ -35,4 +35,9 @@ f();
 allocatemem(10^7)
 for(i=1,10,if(i==2,1/0));
 i
+N=5
+M=6;1/0
+break
+N
+M
 break

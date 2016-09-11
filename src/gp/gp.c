@@ -426,7 +426,6 @@ break_loop(int numerr)
   b = filtered_buffer(&F);
   nenv=pari_stack_new(&s_env);
   prompt = break_loop_prompt(s_env.n-1);
-  gp_context_save(&rec2);
   iferr_env = NULL;
   dbg_level = 0;
   frame_level = closure_context(oldframe_level, dbg_level);
@@ -444,6 +443,7 @@ break_loop(int numerr)
     GEN x;
     long er, br_status;
     avma = av;
+    gp_context_save(&rec2);
     if ((er=setjmp(env[nenv])))
     {
       if (er < 0)

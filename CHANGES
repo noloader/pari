@@ -16,7 +16,8 @@ Done for version 2.8.1 (released ??/??/2016):
        arbitrary generator g is specified
    10- e=ellinit([1,-1,1,98,126],O(5^10)); ellpointtoz(e,[1,14]) -> div. by 0
    11- ellpointtoz(E / Qp, P) was not reduced mod q^Z
-   12- factorpadic(x^24-1,2,73) -> concat error [#1849]
+BA 12- [breakloop] changes done in the first-level breakloop were lost when
+       leaving the second-level breakloop.
 
   Added
     1- permtonum: allow t_VECSMALL input
