@@ -548,7 +548,7 @@ error("incorrect type in rnfidealabstorel (t_POL).")
 error("inconsistent variables in nf_to_scalar_or_basis, x != y.")
 [420, 399, 399; 0, 1, 0; 0, 0, 1]
 420
-[210, Mod(x + Mod(-105*y - 84, y^3 - 21), x^2 + Mod(-y, y^3 - 21))]
+[210, Mod(x + Mod(105*y - 84, y^3 - 21), x^2 + Mod(-y, y^3 - 21))]
 4:
 [[1, 0; 0, 1], [1, 1/2]]
 [1, x^2, x^4, -1/2*x^4 + 1/2*x, 1/2*x^3 - 21/2, 1/2*x^5 - 21/2*x^2]
@@ -839,4 +839,4 @@ error("inconsistent operation 'RgV_RgC_mul' t_VEC (3 elts) , t_COL (2 elts).
   ***                 ^--------------------
   *** rnfidealtwoelt: incorrect type in idealtyp [non-square t_MAT] (t_MAT).
 0
-Total time spent: 748
+Total time spent: 752

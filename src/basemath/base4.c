@@ -2404,31 +2404,39 @@ factorbackprime(GEN nf, GEN L, GEN e)
   return z;
 }
 
-/* F in Z squarefree, multiple of p. Return F-uniformizer for pr/p */
+/* F in Z, divisible exactly by pr.p. Return F-uniformizer for pr, i.e.
+ * a t in Z_K such that v_pr(t) = 1 and (t, F/pr) = 1 */
 GEN
-unif_mod_fZ(GEN pr, GEN F)
+pr_uniformizer(GEN pr, GEN F)
 {
   GEN p = pr_get_p(pr), t = pr_get_gen(pr);
   if (!equalii(F, p))
   {
-    GEN u, v, q, a = diviiexact(F,p);
-    q = (pr_get_e(pr) == 1)? sqri(p): p;
-    if (!is_pm1(bezout(q, a, &u,&v))) pari_err_BUG("unif_mod_fZ");
-    u = mulii(u,q); v = mulii(v,a); /* u+v = 1 */
-    t = ZC_Z_mul(t, v);
-    gel(t,1) = addii(gel(t,1), u); /* return u + vt */
+    long e = pr_get_e(pr);
+    GEN u, v, q = (e == 1)? sqri(p): p;
+    u = mulii(q, Fp_inv(q, diviiexact(F,p))); /* 1 mod F/p, 0 mod q */
+    v = subui(1UL, u); /* 0 mod F/p, 1 mod q */
+    if (typ(t) != t_COL || (e == 1 && pr_get_f(pr) == lg(t)-1)) /* p inert */
+      t = addii(mulii(p, v), u);
+    else
+    {
+      t = ZC_Z_mul(t, v);
+      gel(t,1) = addii(gel(t,1), u); /* return u + vt */
+    }
   }
   return t;
 }
 /* L = list of prime ideals, return lcm_i (L[i] \cap \ZM) */
 GEN
-init_unif_mod_fZ(GEN L)
+prV_lcm_capZ(GEN L)
 {
   long i, r = lg(L);
-  GEN pr, p, F = gen_1;
-  for (i = 1; i < r; i++)
+  GEN F;
+  if (r == 1) return gen_1;
+  F = pr_get_p(gel(L,1));
+  for (i = 2; i < r; i++)
   {
-    pr = gel(L,i); p = pr_get_p(pr);
+    GEN pr = gel(L,i), p = pr_get_p(pr);
     if (!dvdii(F, p)) F = mulii(F,p);
   }
   return F;
@@ -2452,7 +2460,7 @@ idealapprfact_i(GEN nf, GEN x, int nored)
   nf = checknf(nf);
   L = gel(x,1);
   e = gel(x,2);
-  F = init_unif_mod_fZ(L);
+  F = prV_lcm_capZ(L);
   flagden = 0;
   z = NULL; r = lg(e);
   for (i = 1; i < r; i++)
@@ -2461,7 +2469,7 @@ idealapprfact_i(GEN nf, GEN x, int nored)
     GEN pi, q;
     if (!s) continue;
     if (s < 0) flagden = 1;
-    pi = unif_mod_fZ(gel(L,i), F);
+    pi = pr_uniformizer(gel(L,i), F);
     q = nfpow(nf, pi, gel(e,i));
     z = z? nfmul(nf, z, q): q;
   }
@@ -2735,17 +2743,26 @@ idealchinese(GEN nf, GEN x, GEN w)
 static GEN
 mat_ideal_two_elt2(GEN nf, GEN x, GEN a)
 {
-  GEN L, e, fact = idealfactor(nf,a);
-  long i, r;
-  L = gel(fact,1);
-  e = gel(fact,2); r = lg(e);
-  for (i=1; i<r; i++) gel(e,i) = stoi( idealval(nf,x,gel(L,i)) );
-  return idealapprfact_i(nf,fact,1);
+  GEN F = idealfactor(nf,a), P = gel(F,1), E = gel(F,2);
+  long i, r = lg(E);
+  for (i=1; i<r; i++) gel(E,i) = stoi( idealval(nf,x,gel(P,i)) );
+  return idealapprfact_i(nf,F,1);
 }
 
 static void
 not_in_ideal(GEN a) {
   pari_err_DOMAIN("idealtwoelt2","element mod ideal", "!=", gen_0, a);
+}
+/* x integral in HNF, a an 'nf' */
+static int
+in_ideal(GEN x, GEN a)
+{
+  switch(typ(a))
+  {
+    case t_INT: return dvdii(a, gcoeff(x,1,1));
+    case t_COL: return RgV_is_ZV(a) && !!hnf_invimage(x, a);
+    default: return 0;
+  }
 }
 
 /* Given an integral ideal x and a in x, gives a b such that
@@ -2754,7 +2771,7 @@ GEN
 idealtwoelt2(GEN nf, GEN x, GEN a)
 {
   pari_sp av = avma;
-  GEN cx, b, mod;
+  GEN cx, b;
 
   nf = checknf(nf);
   a = nf_to_scalar_or_basis(nf, a);
@@ -2766,18 +2783,19 @@ idealtwoelt2(GEN nf, GEN x, GEN a)
   }
   x = Q_primitive_part(x, &cx);
   if (cx) a = gdiv(a, cx);
-  if (typ(a) != t_COL)
-  { /* rational number */
-    if (typ(a) != t_INT || !dvdii(a, gcoeff(x,1,1))) not_in_ideal(a);
-    mod = NULL;
+  if (!in_ideal(x, a)) not_in_ideal(a);
+  b = mat_ideal_two_elt2(nf, x, a);
+  if (typ(b) == t_COL)
+  {
+    GEN mod = idealhnf_principal(nf,a);
+    b = ZC_hnfrem(b,mod);
+    if (ZV_isscalar(b)) b = gel(b,1);
   }
   else
   {
-    if (!hnf_invimage(x, a)) not_in_ideal(a);
-    mod = idealhnf_principal(nf, a);
+    GEN aZ = typ(a) == t_COL? Q_denom(zk_inv(nf,a)): a; /* (a) \cap Z */
+    b = centermodii(b, aZ, shifti(aZ,-1));
   }
-  b = mat_ideal_two_elt2(nf, x, a);
-  b = (mod && typ(b) == t_COL)? ZC_hnfrem(b, mod): centermod(b, a);
   b = cx? gmul(b,cx): gcopy(b);
   return gerepileupto(av, b);
 }

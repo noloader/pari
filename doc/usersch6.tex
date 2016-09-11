@@ -988,6 +988,15 @@ function returns a degree $1$ (unramified) prime ideal not dividing
 \kbd{nf.index}. In fact it returns an ideal above the smallest prime
 $p \geq [K:\Q]$ satisfying those conditions.
 
+\fun{GEN}{prV_lcm_capZ}{GEN L} given a vector $L$ of \var{prid}
+(maximal ideals) return the squarefree positive integer generating their
+lcm intersected with $\Z$. Not \kbd{gerepile}-safe.
+
+\fun{GEN}{pr_uniformizer}{GEN pr, GEN F} given a \var{prid} attached to
+$\goth{p} / p$ and $F$ in $\Z$ divisible exactly by $p$, return an
+$F$-uniformizer for \kbd{pr}, i.e. a $t$ in $\Z_K$ such that $v_{\goth{p}}(t)
+= 1$ and $(t, F/\goth{p}) = 1$. Not \kbd{gerepile}-safe.
+
 \subsec{Decomposition group}
 
 \fun{GEN}{idealramfrobenius}{GEN nf, GEN gal, GEN pr, GEN ram}

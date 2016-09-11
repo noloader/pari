@@ -51,6 +51,7 @@ Done for version 2.8.1 (released ??/??/2016):
    27- allow ellztopoint for E/Qp
 BA 28- [libpari] F2x_factor_squarefree, F2xqX_factor, FlxqX_factor
 BA 29- [libpari] FlxXC_to_F2xXC, F2xXC_to_ZXXC
+   30- [libpari] pr_uniformizer, prV_lcm_capZ
 
   Changed
     1- remove useless flag in idealappr: directly allow factorization

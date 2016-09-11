@@ -285,11 +285,11 @@ get_pinvpi(GEN nf, GEN fZ, GEN p, GEN pi, GEN *v)
   }
   return *v;
 }
-/* p pi^(-1) mod f */
+/* uniformizer pi for pr, coprime to F/p */
 static GEN
 get_pi(GEN F, GEN pr, GEN *v)
 {
-  if (!*v) *v = unif_mod_fZ(pr, F);
+  if (!*v) *v = pr_uniformizer(pr, F);
   return *v;
 }
 
@@ -309,7 +309,7 @@ compute_raygen(GEN nf, GEN u1, GEN gen, GEN bid)
   f   = bid_get_ideal(bid); fZ = gcoeff(f,1,1);
   fa  = bid_get_fact(bid);
   sarch = bid_get_sarch(bid);
-  listpr = gel(fa,1); F = init_unif_mod_fZ(listpr);
+  listpr = gel(fa,1); F = prV_lcm_capZ(listpr);
 
   lp = lg(listpr);
   vecpinvpi = cgetg(lp, t_VEC);
