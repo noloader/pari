@@ -2552,35 +2552,23 @@ lift_to_zk(GEN v, GEN c, long N)
   return w;
 }
 
-/* return integral x = 0 mod p/pr^e, (x,pr) = 1.
- * Don't reduce mod p here: caller may need result mod pr^k */
-GEN
-special_anti_uniformizer(GEN nf, GEN pr)
-{
-  GEN q, b = pr_get_tau(pr);
-  long e = pr_get_e(pr);
-  if (e == 1) return b;
-  q = powiu(pr_get_p(pr), e-1);
-  if (typ(b) == t_MAT)
-    return ZM_Z_divexact(ZM_powu(b,e), q);
-  else
-    return ZC_Z_divexact(nfpow_u(nf,b,e), q);
-}
-
 /* return t = 1 mod pr, t = 0 mod p / pr^e(pr/p) */
 static GEN
-anti_uniformizer2(GEN nf, GEN pr)
+anti_uniformizer(GEN nf, GEN pr)
 {
-  GEN p = pr_get_p(pr), z;
-  long N = nf_get_degree(nf);
-  if (pr_get_e(pr)*pr_get_f(pr) == N) return gen_1;
+  long N = nf_get_degree(nf), e = pr_get_e(pr);
+  GEN p, b, z;
 
-  z = special_anti_uniformizer(nf,pr);
-  if (typ(z) == t_MAT)
-    z = FpM_red(z,p);
-  else
-    z = zk_multable(nf, FpC_red(z,p)); /* not a scalar */
-  z = ZM_hnfmodid(z, p);
+  if (e * pr_get_f(pr) == N) return gen_1;
+  p = pr_get_p(pr);
+  b = pr_get_tau(pr); /* ZM */
+  if (e != 1)
+  {
+    GEN q = powiu(pr_get_p(pr), e-1);
+    b = ZM_Z_divexact(ZM_powu(b,e), q);
+  }
+  /* b = tau^e / p^(e-1), v_pr(b) = 0, v_Q(b) >= e(Q/p) for other Q | p */
+  z = ZM_hnfmodid(FpM_red(b,p), p); /* ideal (p) / pr^e, coprime to pr */
   z = idealaddtoone_i(nf, pr, z);
   return Z_ZC_sub(gen_1, z);
 }
@@ -2652,7 +2640,7 @@ modprinit(GEN nf, GEN pr, int zk)
   f = pr_get_f(pr);
   N = nf_get_degree(nf);
   prh = idealhnf_two(nf, pr);
-  tau = zk? gen_0: anti_uniformizer2(nf, pr);
+  tau = zk? gen_0: anti_uniformizer(nf, pr);
   p = pr_get_p(pr);
 
   if (f == 1)
@@ -2774,7 +2762,8 @@ int
 checkprid_i(GEN x)
 {
   return (typ(x) == t_VEC && lg(x) == 6
-          && typ(gel(x,2)) == t_COL && typ(gel(x,3)) == t_INT);
+          && typ(gel(x,2)) == t_COL && typ(gel(x,3)) == t_INT
+          && typ(gel(x,5)) != t_COL); /* tau changed to t_MAT/t_INT in 2.6 */
 }
 void
 checkprid(GEN x)
@@ -2823,7 +2812,7 @@ GEN
 nf_to_Fq_init(GEN nf, GEN *pr, GEN *T, GEN *p) {
   GEN modpr = to_ff_init(nf,pr,T,p,0);
   GEN tau = modpr_TAU(modpr);
-  if (!tau) gel(modpr,mpr_TAU) = anti_uniformizer2(nf, *pr);
+  if (!tau) gel(modpr,mpr_TAU) = anti_uniformizer(nf, *pr);
   return modpr;
 }
 GEN

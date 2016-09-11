@@ -1220,66 +1220,105 @@ nf_to_Fp_coprime(GEN nf, GEN x, GEN modpr)
                       : to_Fp_coprime(nf, x, modpr);
 }
 
+static long
+zk_pvalrem(GEN x, GEN p, GEN *py)
+{ return (typ(x) == t_INT)? Z_pvalrem(x, p, py): ZV_pvalrem(x, p, py); }
+/* x a QC or Q. Return a ZC or Z, whose content is coprime to Z. Set v, dx
+ * such that x = p^v (newx / dx); dx = NULL if 1 */
+static GEN
+nf_remove_denom_p(GEN nf, GEN x, GEN p, GEN *pdx, long *pv)
+{
+  long vcx;
+  GEN dx;
+  x = nf_to_scalar_or_basis(nf, x);
+  x = Q_remove_denom(x, &dx);
+  if (dx)
+  {
+    vcx = - Z_pvalrem(dx, p, &dx);
+    if (!vcx) vcx = zk_pvalrem(x, p, &x);
+    if (isint1(dx)) dx = NULL;
+  }
+  else
+  {
+    vcx = zk_pvalrem(x, p, &x);
+    dx = NULL;
+  }
+  *pv = vcx;
+  *pdx = dx; return x;
+}
+/* x = b^e/p^(e-1) in Z_K; x = 0 mod p/pr^e, (x,pr) = 1. Return NULL
+ * if p inert (instead of 1) */
+static GEN
+p_makecoprime(GEN nf, GEN pr)
+{
+  GEN B = pr_get_tau(pr), b;
+  long i, e;
+
+  if (typ(B) == t_INT) return NULL;
+  b = gel(B,1); /* B = multiplication table by b */
+  e = pr_get_e(pr);
+  if (e == 1) return b;
+  /* one could also divide (exactly) by p in each iteration */
+  for (i = 1; i < e; i++) b = ZM_ZC_mul(B, b);
+  return ZC_Z_divexact(b, powiu(pr_get_p(pr), e-1));
+}
+
 /* Compute A = prod g[i]^e[i] mod pr^k, assuming (A, pr) = 1.
- * Method: modify each g[i] so that it becomes coprime to pr :
- *  x / (p^k u) --> x * (b/p)^v_pr(x) / z^k u, where z = b^e/p^(e-1)
- * b/p = pr^(-1) times something prime to p; both numerator and denominator
- * are integral and coprime to pr.  Globally, we multiply by (b/p)^v_pr(A) = 1.
+ * Method: modify each g[i] so that it becomes coprime to pr,
+ * g[i] *= (b/p)^v_pr(g[i]), where b/p = pr^(-1) times something integral
+ * and prime to p; globally, we multiply by (b/p)^v_pr(A) = 1.
+ * Optimizations:
+ * 1) remove all powers of p from contents, and consider extra generator p^vp;
+ * modified as p * (b/p)^e = b^e / p^(e-1)
+ * 2) remove denominators, coprime to p, by multiplying by inverse mod prk\cap Z
  *
  * EX = multiple of exponent of (O_K / pr^k)^* used to reduce the product in
  * case the e[i] are large */
 GEN
 famat_makecoprime(GEN nf, GEN g, GEN e, GEN pr, GEN prk, GEN EX)
 {
+  GEN G, E, t, vp = NULL, p = pr_get_p(pr), prkZ = gcoeff(prk, 1,1);
   long i, l = lg(g);
-  GEN prkZ, u, vden = gen_0, p = pr_get_p(pr);
-  pari_sp av = avma;
-  GEN newg = cgetg(l+1, t_VEC); /* room for z */
 
-  prkZ = gcoeff(prk, 1,1);
+  G = cgetg(l+1, t_VEC);
+  E = cgetg(l+1, t_VEC); /* l+1: room for "modified p" */
   for (i=1; i < l; i++)
   {
-    GEN dx, x = nf_to_scalar_or_basis(nf, gel(g,i));
-    long vdx = 0;
-    x = Q_remove_denom(x, &dx);
-    if (dx)
+    long vcx;
+    GEN dx, x = nf_remove_denom_p(nf, gel(g,i), p, &dx, &vcx);
+    if (vcx) /* = v_p(content(g[i])) */
     {
-      vdx = Z_pvalrem(dx, p, &u);
-      if (!is_pm1(u))
-      { /* could avoid the inversion, but prkZ is small--> cheap */
-        u = Fp_inv(u, prkZ);
-        x = typ(x) == t_INT? mulii(x,u): ZC_Z_mul(x, u);
-      }
-      if (vdx) vden = addii(vden, mului(vdx, gel(e,i)));
+      GEN a = mulsi(vcx, gel(e,i));
+      vp = vp? addii(vp, a): a;
     }
-    if (typ(x) == t_INT) {
-      if (!vdx) vden = subii(vden, mului(Z_pvalrem(x, p, &x), gel(e,i)));
-    } else {
-      (void)ZC_nfvalrem(nf, x, pr, &x);
-      x =  ZC_hnfrem(x, prk);
+    /* x integral, content coprime to p; dx coprime to p */
+    if (typ(x) == t_INT)
+    { /* x coprime to p, hence to pr */
+      x = modii(x, prkZ);
+      if (dx) x = Fp_div(x, dx, prkZ);
     }
-    gel(newg,i) = x;
-    if (gc_needed(av, 2))
+    else
     {
-      GEN dummy = cgetg(1,t_VEC);
-      long j;
-      if(DEBUGMEM>1) pari_warn(warnmem,"famat_makecoprime");
-      for (j = i+1; j <= l; j++) gel(newg,j) = dummy;
-      gerepileall(av,2, &newg, &vden);
+      (void)ZC_nfvalrem(nf, x, pr, &x); /* x *= (b/p)^v_pr(x) */
+      x = ZC_hnfrem(FpC_red(x,prkZ), prk);
+      if (dx) x = FpC_Fp_mul(x, Fp_inv(dx,prkZ), prkZ);
     }
+    gel(G,i) = x;
+    gel(E,i) = gel(e,i);
   }
-  if (vden == gen_0) setlg(newg, l);
+
+  t = vp? p_makecoprime(nf, pr): NULL;
+  if (!t)
+  { /* no need for extra generator */
+    setlg(G,l);
+    setlg(E,l);
+  }
   else
   {
-    GEN t = special_anti_uniformizer(nf, pr);
-    if (typ(t) == t_INT) setlg(newg, l); /* = 1 */
-    else {
-      if (typ(t) == t_MAT) t = gel(t,1); /* multiplication table */
-      gel(newg,i) = FpC_red(t, prkZ);
-      e = shallowconcat(e, negi(vden));
-    }
+    gel(G,i) = FpC_red(t, prkZ);
+    gel(E,i) = vp;
   }
-  return famat_to_nf_modideal_coprime(nf, newg, e, prk, EX);
+  return famat_to_nf_modideal_coprime(nf, G, E, prk, EX);
 }
 
 /* prod g[i]^e[i] mod bid, assume (g[i], id) = 1 */

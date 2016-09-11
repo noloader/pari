@@ -1443,13 +1443,12 @@ elt_mulpow_modideal(GEN nf, GEN a, GEN g, GEN n, GEN id)
 GEN
 famat_to_nf_modideal_coprime(GEN nf, GEN g, GEN e, GEN id, GEN EX)
 {
-  GEN plus = NULL, minus = NULL, idZ = gcoeff(id,1,1);
-  pari_sp av = avma;
+  GEN EXo2, plus = NULL, minus = NULL, idZ = gcoeff(id,1,1);
   long i, lx = lg(g);
-  GEN EXo2 = (expi(EX) > 10)? shifti(EX,-1): NULL;
 
-  if (is_pm1(idZ)) lx = 1; /* id = Z_K */
-  for (i=1; i<lx; i++)
+  if (is_pm1(idZ)) return gen_1; /* id = Z_K */
+  EXo2 = (expi(EX) > 10)? shifti(EX,-1): NULL;
+  for (i = 1; i < lx; i++)
   {
     GEN h, n = centermodii(gel(e,i), EX, EXo2);
     long sn = signe(n);
@@ -1472,16 +1471,6 @@ famat_to_nf_modideal_coprime(GEN nf, GEN g, GEN e, GEN id, GEN EX)
       plus = elt_mulpow_modideal(nf, plus, h, n, id);
     else /* sn < 0 */
       minus = elt_mulpow_modideal(nf, minus, h, absi(n), id);
-
-    if (gc_needed(av, 2))
-    {
-      if(DEBUGMEM>1) pari_warn(warnmem,"famat_to_nf_modideal_coprime");
-      if (!plus) plus = gen_0;
-      if (!minus) minus = gen_0;
-      gerepileall(av,2, &plus, &minus);
-      if (isintzero(plus)) plus = NULL;
-      if (isintzero(minus)) minus = NULL;
-    }
   }
   if (minus) plus = nfmulmodideal(nf, plus, nfinvmodideal(nf,minus,id), id);
   return plus? plus: gen_1;
