@@ -3803,6 +3803,7 @@ void    pari_mt_close(void);
 
 GEN     ZX_Zp_root(GEN f, GEN a, GEN p, long prec);
 GEN     Zp_appr(GEN f, GEN a);
+int     cmp_padic(GEN x, GEN y);
 GEN     factorpadic(GEN x, GEN p, long r);
 GEN     gdeuc(GEN x, GEN y);
 GEN     grem(GEN x, GEN y);

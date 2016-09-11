@@ -767,7 +767,6 @@ GEN     FpXQX_Berlekamp_ker(GEN u, GEN T, GEN p);
 GEN     F2x_factcantor(GEN f, long flag);
 GEN     Flx_factcantor(GEN f, ulong p, long flag);
 GEN     FpX_factcantor(GEN f, GEN pp, long flag);
-int     cmp_padic(GEN x, GEN y);
 GEN     factcantor0(GEN f, GEN pp, long flag);
 
 /* polarit2.c */

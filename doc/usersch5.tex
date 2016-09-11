@@ -10204,6 +10204,9 @@ according to increasing residue degrees.
 \var{nf}. Orders by increasing primes, breaking ties using
 \kbd{cmp\_prime\_over\_p}.
 
+\fun{int}{cmp_padic}{GEN x, GEN y} compare two \typ{PADIC} (for the same
+prime $p$).
+
 Finally a more elaborate comparison function:
 
 \fun{int}{gen_cmp_RgX}{void *data, GEN x, GEN y} compare two polynomials,
