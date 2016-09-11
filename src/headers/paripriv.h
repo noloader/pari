@@ -483,7 +483,6 @@ GEN extendedgcd(GEN A);
 GEN  imagecomplspec(GEN x, long *nlze);
 GEN  ZM_imagecomplspec(GEN x, long *nlze);
 GEN  dim1proj(GEN prh);
-GEN  detcyc(GEN cyc, long *L);
 
 GEN merge_factor_i(GEN f, GEN g);
 

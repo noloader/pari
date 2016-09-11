@@ -535,7 +535,7 @@ Buchray(GEN bnf, GEN module, long flag)
   );
   met = ZM_snf_group(ZM_hnf(h), &U, add_gen? &u1: NULL);
   clg = cgetg(add_gen? 4: 3, t_VEC);
-  gel(clg,1) = detcyc(met, &j);
+  gel(clg,1) = ZV_prod(met);
   gel(clg,2) = met;
   if (add_gen) gel(clg,3) = compute_raygen(nf,u1,Gen,bid);
   if (!do_init) return gerepilecopy(av, clg);

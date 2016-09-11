@@ -2669,3 +2669,13 @@ ZV_snf_group(GEN d, GEN *newU, GEN *newUi)
   GEN D = ZV_snfall(d, newU, newUi);
   return snf_group(d, D, newU, newUi);
 }
+
+/* D a vector of elementary divisors. Truncate (setlg) to leave out trivial
+ * entries (= 1) */
+void
+ZV_snf_trunc(GEN D)
+{
+  long i, l = lg(D);
+  for (i = 1; i < l; i++)
+    if (is_pm1(gel(D,i))) { setlg(D,i); break; }
+}

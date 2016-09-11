@@ -2179,6 +2179,10 @@ cleans up the output in place. This means that elementary divisors equal to 1
 are deleted and $U$, $V$ are updated. The output is not suitable for
 \kbd{gerepileupto}.
 
+\fun{void}{ZV_snf_trunc}{GEN D} given a vector $D$ of elementary divisors
+(i.e. a \kbd{ZV} such that $d_i \mid d_{i+1}$), truncate it \empg{in place}
+to leave out the trivial divisors (equal to $1$).
+
 \fun{GEN}{ZM_snf_group}{GEN H, GEN *U, GEN *Uinv} this function computes data
 to go back and forth between an abelian group (of finite type) given by
 generators and relations, and its canonical SNF form. Given an abstract

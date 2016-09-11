@@ -256,8 +256,7 @@ static GEN AllStark(GEN data, GEN nf, long flag, long prec);
 static GEN
 InitQuotient(GEN C)
 {
-  long junk;
-  GEN U, D = ZM_snfall_i(C, &U, NULL, 1), h = detcyc(D, &junk);
+  GEN U, D = ZM_snfall_i(C, &U, NULL, 1), h = ZV_prod(D);
   return mkvec5(h, D, U, C, cyc_normalize(D));
 }
 
