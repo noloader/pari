@@ -3244,7 +3244,7 @@ rnfdedekind(GEN nf, GEN P, GEN pr, long flag)
 
   nf = checknf(nf);
   P = RgX_nffix("rnfdedekind", nf_get_pol(nf), P, 0);
-  dP = RgX_disc(P); P = lift_intern(P);
+  dP = RgX_disc(P); P = lift_shallow(P);
   if (!pr)
   {
     GEN fa = idealfactor(nf, dP);
@@ -3541,7 +3541,7 @@ static GEN
 get_d(GEN nf, GEN pol, GEN A)
 {
   long i, j, n = degpol(pol);
-  GEN W = RgM_to_RgXV(lift_intern(matbasistoalg(nf,A)), varn(pol));
+  GEN W = RgM_to_RgXV(lift_shallow(matbasistoalg(nf,A)), varn(pol));
   GEN T, nfT = nf_get_pol(nf), sym = polsym_gen(pol, NULL, n-1, nfT, NULL);
   T = cgetg(n+1,t_MAT);
   for (j=1; j<=n; j++) gel(T,j) = cgetg(n+1,t_COL);
@@ -3575,7 +3575,7 @@ rnfallbase(GEN nf, GEN *ppol, GEN *pD, GEN *pd, GEN *pf)
 
   n = degpol(pol);
   disc = nf_to_scalar_or_basis(nf, RgX_disc(pol));
-  pol = lift_intern(pol);
+  pol = lift_shallow(pol);
   fa = idealfactor(nf, disc);
   P = gel(fa,1); l = lg(P);
   E = gel(fa,2);

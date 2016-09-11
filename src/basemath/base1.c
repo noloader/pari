@@ -929,7 +929,7 @@ nfiso0(GEN a, GEN b, long fliso)
   vb = varn(b); newvar = (varncmp(vb,varn(a)) <= 0);
   if (newvar) { a = leafcopy(a); setvarn(a, fetch_var_higher()); }
   if (nfb)
-    y = lift_intern(nfroots(nfb,a));
+    y = lift_shallow(nfroots(nfb,a));
   else
   {
     y = gel(polfnf(a,b),1); lx = lg(y);
@@ -937,7 +937,7 @@ nfiso0(GEN a, GEN b, long fliso)
     {
       GEN t = gel(y,i);
       if (degpol(t) != 1) { setlg(y,i); break; }
-      gel(y,i) = gneg_i(lift_intern(gel(t,2)));
+      gel(y,i) = gneg_i(lift_shallow(gel(t,2)));
     }
     settyp(y, t_VEC);
     gen_sort_inplace(y, (void*)&cmp_RgX, &cmp_nodata, NULL);
@@ -2561,7 +2561,7 @@ rnfpolred_i(GEN nf, GEN relpol, long flag, long best)
     {
       GEN a = gel(rnfeq,2); /* Mod(a,pol) root of T */
       GEN k = gel(rnfeq,3); /* Mod(variable(relpol),relpol) + k*a root of pol */
-      a = RgX_RgXQ_eval(a, lift_intern(A), P); /* Mod(a, P) root of T */
+      a = RgX_RgXQ_eval(a, lift_shallow(A), P); /* Mod(a, P) root of T */
       P = mkvec3(P, mkpolmod(a,P), gsub(A, gmul(k,a)));
     }
     return gerepilecopy(av, P);

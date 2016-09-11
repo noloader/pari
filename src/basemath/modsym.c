@@ -3310,7 +3310,7 @@ oms_dim1(GEN W, GEN phi, GEN alpha, long flag)
     phi = dual_act(k-1, act, phi);
     clean_tail(phi, k + i, q);
   }
-  phi = gmul(lift(gpowgs(alpha,n)), phi);
+  phi = gmul(lift_shallow(gpowgs(alpha,n)), phi);
   phi = red_mod_FilM(phi, p, k, flag);
   return mkvec(phi);
 }
@@ -3592,7 +3592,7 @@ mstooms(GEN W, GEN phi)
     {
       alpha = ms_unit_eigenvalue(ap, k, utoipos(p), mspadic_get_n(W));
       alpha = ginv(alpha);
-      phi0 = gsub(phi1, gmul(lift(alpha),phi2));
+      phi0 = gsub(phi1, gmul(lift_shallow(alpha),phi2));
       phi = oms_dim1(W, phi0, alpha, 0);
     }
     else

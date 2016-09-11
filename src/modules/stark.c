@@ -2716,7 +2716,8 @@ makescind(GEN nf, GEN P)
   GEN Pp, p, pol, G, L, a, roo, P0,P1, Ny,Try, nfpol = nf_get_pol(nf);
   long i, is_P;
 
-  split_pol_quad(lift_intern(P), &P0, &P1);
+  P = lift_shallow(P);
+  split_pol_quad(P, &P0, &P1);
   /* P = P0 + y P1, Norm_{k/Q}(P) = P0^2 + Tr y P0P1 + Ny P1^2, irreducible/Q */
   Ny = gel(nfpol, 2);
   Try = negi(gel(nfpol, 3));
@@ -3474,7 +3475,7 @@ compocyclo(GEN nf, long m, long d)
   res = rnfequation2(nf, polLK);
   vx = nf_get_varn(nf);
   polL = gsubst(gel(res,1),0,pol_x(vx)); /* = charpoly(t) */
-  a = gsubst(lift(gel(res,2)), 0,pol_x(vx));
+  a = gsubst(lift_shallow(gel(res,2)), 0,pol_x(vx));
   b = gsub(pol_x(vx), gmul(gel(res,3), a));
   nfL = nfinit(polL, DEFAULTPREC);
   p1 = gcoeff(nffactor(nfL,p1),1,1);

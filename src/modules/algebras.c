@@ -1381,7 +1381,8 @@ algalgmul_cyc(GEN al, GEN x, GEN y)
   b = alg_get_b(al);
 
   xalg = cgetg(n+1, t_COL);
-  for (i=0; i<n; i++) gel(xalg,i+1) = lift(rnfbasistoalg(rnf,gel(x,i+1)));
+  for (i=0; i<n; i++)
+    gel(xalg,i+1) = lift_shallow(rnfbasistoalg(rnf,gel(x,i+1)));
 
   yalg = cgetg(n+1, t_COL);
   for (i=0; i<n; i++) gel(yalg,i+1) = rnfbasistoalg(rnf,gel(y,i+1));
@@ -1673,7 +1674,7 @@ algalgmultable_cyc(GEN al, GEN x)
 
   res = zeromatcopy(n,n);
   for (i=0; i<n; i++)
-    gcoeff(res,i+1,1) = lift(rnfbasistoalg(rnf,gel(x,i+1)));
+    gcoeff(res,i+1,1) = lift_shallow(rnfbasistoalg(rnf,gel(x,i+1)));
 
   for (i=0; i<n; i++) {
     for (j=1; j<=i; j++)
@@ -2940,7 +2941,7 @@ allauts(GEN rnf, GEN aut)
   GEN pol = rnf_get_pol(rnf), vaut;
   if(n==1) n=2;
   vaut = cgetg(n,t_VEC);
-  aut = lift(rnfbasistoalg(rnf,aut));
+  aut = lift_shallow(rnfbasistoalg(rnf,aut));
   gel(vaut,1) = aut;
   for (i=1; i<n-1; i++)
     gel(vaut,i+1) = RgX_rem(poleval(gel(vaut,i), aut), pol);
@@ -3493,7 +3494,7 @@ rnfcycaut(GEN rnf)
   long i, d, j;
   d = rnf_get_degree(rnf);
   L = galoisconj(nf2,NULL);
-  alpha = lift(rnf_get_alpha(rnf));
+  alpha = lift_shallow(rnf_get_alpha(rnf));
   pol = rnf_get_pol(rnf);
   k = rnf_get_k(rnf);
   polabs = rnf_get_polabs(rnf);
@@ -3507,7 +3508,7 @@ rnfcycaut(GEN rnf)
     salpha = RgX_RgXQ_eval(alpha,s,polabs);
     if (!gequal(alpha,salpha)) continue;
 
-    s = lift(rnfeltabstorel(rnf,s));
+    s = lift_shallow(rnfeltabstorel(rnf,s));
     sj = s = gsub(s, gmul(k,X));
     for (j=1; !gequal0(gsub(sj,pol_x(varn(s)))); j++)
       sj = RgX_RgXQ_eval(sj,s,pol);

@@ -307,7 +307,7 @@ static GEN
 downtoK(toK_s *T, GEN x)
 {
   long degKz = lg(T->invexpoteta1) - 1;
-  GEN y = gmul(T->invexpoteta1, Rg_to_RgC(lift_intern(x), degKz));
+  GEN y = gmul(T->invexpoteta1, Rg_to_RgC(lift_shallow(x), degKz));
   return gmodulo(gtopolyrev(y,varn(T->polnf)), T->polnf);
 }
 
@@ -908,7 +908,7 @@ isvirtualunit(GEN bnf, GEN v, GEN cycgen, GEN cyc, GEN gell, long rc)
   setlg(y, rc+1);
   b = bnfisunit(bnf,eps);
   if (lg(b) == 1) pari_err_BUG("isvirtualunit");
-  return shallowconcat(lift_intern(b), y);
+  return shallowconcat(lift_shallow(b), y);
 }
 
 /* J a vector of elements in nfz = relative extension of nf by polrel,
@@ -1435,7 +1435,7 @@ _rnfkummer(GEN bnr, GEN subgroup, long all, long prec)
             if (ZM_equal(subgroup, H)) return P; /* DONE */
             avma = av; continue;
           } else {
-            GEN P0 = Q_primpart(lift(P));
+            GEN P0 = Q_primpart(lift_shallow(P));
             GEN g = nfgcd(P0, RgX_deriv(P0), polnf, nf_get_index(nf));
             if (degpol(g)) continue;
             H = rnfnormgroup(bnr, P);

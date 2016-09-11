@@ -612,7 +612,7 @@ GEN
 nfhyperellpadicfrobenius(GEN H, GEN T, ulong p, long n)
 {
   pari_sp av = avma;
-  GEN M = ZlXQX_hyperellpadicfrobenius(lift(H),T,p,n);
+  GEN M = ZlXQX_hyperellpadicfrobenius(lift_shallow(H),T,p,n);
   GEN MM = ZpXQM_prodFrobenius(M, T, utoi(p), n);
   GEN q = zeropadic(utoi(p),n);
   GEN m = gmul(ZXM_to_padic(MM, q), gmodulo(gen_1, T));

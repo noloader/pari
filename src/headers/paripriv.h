@@ -517,7 +517,6 @@ GEN  ZX_disc_all(GEN,ulong);
 GEN  ZX_resultant_all(GEN A, GEN B, GEN dB, ulong bound);
 GEN  ZX_ZXY_resultant_all(GEN A, GEN B, long *lambda, GEN *LPRS);
 GEN  RgXQ_minpoly_naive(GEN y, GEN P);
-GEN lift_intern(GEN x);
 
 /* c) factorization */
 GEN chk_factors_get(GEN lt, GEN famod, GEN c, GEN T, GEN N);

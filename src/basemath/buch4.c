@@ -814,7 +814,7 @@ rnfisnorm(GEN T, GEN x, long flag)
   bnfS = bnfsunit(bnf,S1,LOWDEFAULTPREC);
   sunitrel = shallowconcat(futu, gel(bnfsunit(rel,S2,LOWDEFAULTPREC), 1));
 
-  A = lift_intern(bnfissunit(bnf,bnfS,x));
+  A = lift_shallow(bnfissunit(bnf,bnfS,x));
   L = lg(sunitrel);
   itu = lg(nf_get_roots(nf))-1; /* index of torsion unit in bnfsunit(nf) output */
   M = cgetg(L+1,t_MAT);
@@ -824,7 +824,7 @@ rnfisnorm(GEN T, GEN x, long flag)
     gel(sunitrel,i) = u;
     u = bnfissunit(bnf,bnfS, gnorm(u));
     if (lg(u) == 1) pari_err_BUG("rnfisnorm");
-    gel(u,itu) = lift_intern(gel(u,itu)); /* lift root of 1 part */
+    gel(u,itu) = lift_shallow(gel(u,itu)); /* lift root of 1 part */
     gel(M,i) = u;
   }
   aux = zerocol(lg(A)-1); gel(aux,itu) = utoipos( bnf_get_tuN(rel) );

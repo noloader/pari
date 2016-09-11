@@ -3160,6 +3160,7 @@ int     isint(GEN n, GEN *ptk);
 int     isrationalzero(GEN g);
 int     issmall(GEN n, long *ptk);
 GEN     lift(GEN x);
+GEN     lift_shallow(GEN x);
 GEN     lift0(GEN x,long v);
 GEN     liftall(GEN x);
 GEN     liftall_shallow(GEN x);

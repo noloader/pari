@@ -841,7 +841,7 @@ subfieldsall(GEN nf)
     long l;
 
     pol = get_nfpol(nf, &nf);
-    L = lift_intern( galoissubfields(G, 0, varn(pol)) );
+    L = lift_shallow( galoissubfields(G, 0, varn(pol)) );
     l = lg(L);
     S = cgetg(l, t_VECSMALL);
     for (i=1; i<l; i++) S[i] = lg(gmael(L,i,1));
@@ -908,7 +908,7 @@ nfsubfields(GEN nf, long d)
     {
       GEN H = gel(L,i);
       if (group_order(H) == o)
-        gel(F,k++) = lift_intern(galoisfixedfield(G, gel(H,1), 0, v0));
+        gel(F,k++) = lift_shallow(galoisfixedfield(G, gel(H,1), 0, v0));
     }
     setlg(F, k);
     return gerepilecopy(av, F);

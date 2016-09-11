@@ -490,7 +490,7 @@ galoiscyclo(long n, long v)
   long val, l, i, j, k;
   GEN zn = znstar(stoi(n));
   long card = itos(gel(zn,1));
-  GEN gen = vec_to_vecsmall(lift(gel(zn,3)));
+  GEN gen = vec_to_vecsmall(lift_shallow(gel(zn,3)));
   GEN ord = gtovecsmall(gel(zn,2));
 
   z = polsubcyclo_start(n,card/2,2,NULL,&val,&l);

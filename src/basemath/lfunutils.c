@@ -1625,7 +1625,7 @@ artin_gamma(GEN N, GEN G, GEN R)
   GEN T;
   if (nf_get_r2(N) == 0) return vec01(d, 0);
   a = galois_get_conj(G)[1];
-  T = lift_intern( gtrace(gel(R,a)) );
+  T = lift_shallow( gtrace(gel(R,a)) );
   t = itos(simplify_shallow(T));
   return vec01((d+t) / 2, (d-t) / 2);
 }
@@ -1717,7 +1717,7 @@ vecan_artin(GEN an, long L, long prec)
   GEN A, Sbad = gel(an,5);
   long n = itos(gel(an,6));
   d.N = gel(an,1); d.G = gel(an,2); d.V = gel(an,3); d.aut = gel(an,4);
-  A = lift_intern(direuler_bad(&d, dirartin, gen_2, stoi(L), NULL, Sbad));
+  A = lift_shallow(direuler_bad(&d, dirartin, gen_2, stoi(L), NULL, Sbad));
   return RgXV_RgV_eval(A, grootsof1(n, prec));
 }
 

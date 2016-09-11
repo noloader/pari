@@ -3445,6 +3445,37 @@ lift0(GEN x, long v)
     default: return gcopy(x);
   }
 }
+/* same as lift, shallow */
+GEN
+lift_shallow(GEN x)
+{
+  long i, l;
+  GEN y;
+  switch(typ(x))
+  {
+    case t_INTMOD: case t_POLMOD: return gel(x,2);
+    case t_PADIC: return padic_to_Q(x);
+    case t_SER:
+      if (ser_isexactzero(x))
+      {
+        if (lg(x) == 2) return x;
+        return scalarser(lift_shallow(gel(x,2)), varn(x), valp(x));
+      }
+      y = cgetg_copy(x,&l); y[1] = x[1];
+      for (i = 2; i < l; i++) gel(y,i) = lift_shallow(gel(x,i));
+      return normalize(y);
+    case t_POL:
+      y = cgetg_copy(x,&l); y[1] = x[1];
+      for (i = 2; i < l; i++) gel(y,i) = lift_shallow(gel(x,i));
+      return normalizepol(y);
+    case t_COMPLEX: case t_QUAD: case t_RFRAC:
+    case t_VEC: case t_COL: case t_MAT:
+      y = cgetg_copy(x,&l);
+      for (i = 1; i < l; i++) gel(y,i) = lift_shallow(gel(x,i));
+      return y;
+    default: return x;
+  }
+}
 GEN
 lift(GEN x) { return lift0(x,-1); }
 
@@ -3553,34 +3584,6 @@ liftpol_shallow(GEN x)
 GEN
 liftpol(GEN x)
 { pari_sp av = avma; return gerepilecopy(av, liftpol_shallow(x)); }
-
-/* same as lift, without copy. May DESTROY x. For internal use only */
-GEN
-lift_intern(GEN x)
-{
-  long i;
-  switch(typ(x))
-  {
-    case t_INTMOD: case t_POLMOD: return gel(x,2);
-    case t_PADIC: return padic_to_Q(x);
-    case t_SER:
-      if (ser_isexactzero(x))
-      {
-        if (lg(x) == 2) return x;
-        return scalarser(lift_intern(gel(x,2)), varn(x), valp(x));
-      }
-      for (i = lg(x)-1; i>=2; i--) gel(x,i) = lift_intern(gel(x,i));
-      return normalize(x);
-    case t_POL:
-      for (i = lg(x)-1; i>=2; i--) gel(x,i) = lift_intern(gel(x,i));
-      return normalizepol(x);
-    case t_COMPLEX: case t_QUAD: case t_RFRAC:
-    case t_VEC: case t_COL: case t_MAT:
-      for (i = lg(x)-1; i>=1; i--) gel(x,i) = lift_intern(gel(x,i));
-      return x;
-    default: return x;
-  }
-}
 
 static GEN
 centerliftii(GEN x, GEN y)

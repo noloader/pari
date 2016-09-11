@@ -1921,9 +1921,9 @@ twistpartialzeta(GEN q, long f, long c, GEN va, GEN cff)
       gerepileall(av, 2, &Cx, &Bx);
     }
   }
-  Bx  = lift(gmul(ginv(gsubsg(1, etaf)), Bx));
+  Bx  = lift_shallow(gmul(ginv(gsubsg(1, etaf)), Bx));
   Bx  = gerepileupto(av, RgX_to_FqX(Bx, cyc, q));
-  Cx = lift(gmul(eta, gaddsg(1, x)));
+  Cx = lift_shallow(gmul(eta, gaddsg(1, x)));
   Dx = pol_1(varn(x));
   av2 = avma;
   for (j = lva; j > 1; j--)

@@ -176,7 +176,7 @@ static long
 myval_zi2(GEN b)
 {
   long v0, v1;
-  b = lift(b);
+  b = lift_shallow(b);
   v0 = myval_zi(RgX_coeff(b,0));
   v1 = myval_zi(RgX_coeff(b,1));
   return minss(2*v0, 2*v1+1);

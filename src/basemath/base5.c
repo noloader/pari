@@ -85,7 +85,7 @@ eltabstorel_lift(GEN rnfeq, GEN P)
   GEN k, T = gel(rnfeq,4), relpol = gel(rnfeq,5);
   if (is_scalar_t(typ(P))) return P;
   k = gel(rnfeq,3);
-  P = lift_intern(P);
+  P = lift_shallow(P);
   if (signe(k)) P = RgXQX_translate(P, deg1pol_shallow(k, gen_0, varn(T)), T);
   P = RgXQX_rem(P, relpol, T);
   return QXQX_to_mod_shallow(P, T);
@@ -532,7 +532,7 @@ rnfidealreltoabs_i(GEN rnf, GEN x)
   GEN w;
   x = rnfidealhnf(rnf,x);
   w = gel(x,1); l = lg(w); settyp(w, t_VEC);
-  for (i=1; i<l; i++) gel(w,i) = lift_intern( rnfbasistoalg(rnf, gel(w,i)) );
+  for (i=1; i<l; i++) gel(w,i) = lift_shallow( rnfbasistoalg(rnf, gel(w,i)) );
   return modulereltoabs(rnf, x);
 }
 GEN
@@ -577,7 +577,7 @@ rnfidealabstorel(GEN rnf, GEN x)
   I = cgetg(N+1,t_VEC);
   for (j=1; j<=N; j++)
   {
-    GEN t = lift_intern( rnfeltabstorel(rnf, gel(x,j)) );
+    GEN t = lift_shallow( rnfeltabstorel(rnf, gel(x,j)) );
     gel(A,j) = mulmat_pol(invbas, t);
     gel(I,j) = gen_1;
   }
@@ -1179,7 +1179,7 @@ rnfpolred(GEN nf, GEN pol, long prec)
   O = gel(id,1);
   I = gel(id,2); n = lg(I)-1;
   w = cgetg(n+1,t_VEC);
-  pol = lift(pol);
+  pol = lift_shallow(pol);
   for (j=1; j<=n; j++)
   {
     GEN newpol, L, a, Ij = gel(I,j);

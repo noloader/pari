@@ -322,7 +322,7 @@ fix_nf(GEN *pnf, GEN *pT, GEN *pA)
     GEN rev = gel(NF,2), pow, dpow;
 
     *pT = T = nf_get_pol(nf); /* need to update T */
-    pow = QXQ_powers(lift_intern(rev), degpol(T)-1, T);
+    pow = QXQ_powers(lift_shallow(rev), degpol(T)-1, T);
     pow = Q_remove_denom(pow, &dpow);
     a[1] = A[1];
     for (i=2; i<l; i++) {
