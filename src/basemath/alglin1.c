@@ -2971,32 +2971,6 @@ imagecompl(GEN x) { return imagecompl_aux(x, &gauss_pivot); }
 GEN
 ZM_imagecompl(GEN x) { return imagecompl_aux(x, &ZM_pivots); }
 
-/* permutation giving imagecompl(x') | image(x'), x' = transpose of x */
-static GEN
-imagecomplspec_aux(GEN x, long *nlze, GEN(*PIVOT)(GEN,long*))
-{
-  pari_sp av = avma;
-  GEN d,y;
-  long i,j,k,l,r;
-
-  if (typ(x)!=t_MAT) pari_err_TYPE("imagecomplspec",x);
-  x = shallowtrans(x); l = lg(x);
-  d = PIVOT(x,&r);
-  *nlze = r;
-  avma = av; /* HACK: shallowtrans(x) big enough to avoid overwriting d */
-  if (!d) return identity_perm(l-1);
-  y = cgetg(l,t_VECSMALL);
-  for (i=j=1, k=r+1; i<l; i++)
-    if (d[i]) y[k++]=i; else y[j++]=i;
-  return y;
-}
-GEN
-imagecomplspec(GEN x, long *nlze)
-{ return imagecomplspec_aux(x,nlze,&gauss_pivot); }
-GEN
-ZM_imagecomplspec(GEN x, long *nlze)
-{ return imagecomplspec_aux(x,nlze,&ZM_pivots); }
-
 GEN
 RgM_RgC_invimage(GEN A, GEN y)
 {

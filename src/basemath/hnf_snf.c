@@ -217,6 +217,25 @@ col_dup(long l, GEN col)
   memcpy(c,col,l * sizeof(long)); return c;
 }
 
+/* permutation giving imagecompl(x') | image(x'), x' = transpose of x */
+static GEN
+ZM_rowrankprofile(GEN x, long *nlze)
+{
+  pari_sp av = avma;
+  GEN d, y;
+  long i, j, k, l, r;
+
+  x = shallowtrans(x); l = lg(x);
+  (void)new_chunk(l); /* HACK */
+  d = ZM_pivots(x,&r); avma = av;
+  *nlze = r;
+  if (!d) return identity_perm(l-1);
+  y = cgetg(l,t_VECSMALL);
+  for (i = j = 1, k = r+1; i<l; i++)
+    if (d[i]) y[k++] = i; else y[j++] = i;
+  return y;
+}
+
 /* HNF reduce a relation matrix (column operations + row permutation)
 ** Input:
 **   mat = (li-1) x (co-1) matrix of long
@@ -444,7 +463,7 @@ END2: /* clean up mat: remove everything to the right of the 1s on diagonal */
     nr = lnz;
   }
   else
-    permpro = ZM_imagecomplspec(extramat, &nr);
+    permpro = ZM_rowrankprofile(extramat, &nr);
   /* lnz = lg(permpro) */
   if (nlze)
   { /* put the nlze 0 rows (trivial generators) at the top */
@@ -625,7 +644,7 @@ hnfadd_i(GEN H, GEN perm, GEN* ptdep, GEN* ptB, GEN* ptC, /* cf hnfspec */
   extramat = shallowconcat(extratop, vconcat(dep, H));
   Cnew     = shallowconcat(extraC, vecslice(C, col-lH+1, co));
   if (DEBUGLEVEL>5) err_printf("    1st phase done\n");
-  permpro = ZM_imagecomplspec(extramat, &nlze);
+  permpro = ZM_rowrankprofile(extramat, &nlze);
   extramat = rowpermute(extramat, permpro);
   *ptB     = rowpermute(B,        permpro);
   permpro = vecsmallpermute(perm, permpro);

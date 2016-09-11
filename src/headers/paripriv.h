@@ -480,8 +480,6 @@ GEN LLL_check_progress(GEN Bnorm, long n0, GEN m, int final, long *ti_LLL);
 GEN extendedgcd(GEN A);
 
 /* miscellaneous linear algebra */
-GEN  imagecomplspec(GEN x, long *nlze);
-GEN  ZM_imagecomplspec(GEN x, long *nlze);
 GEN  dim1proj(GEN prh);
 
 GEN merge_factor_i(GEN f, GEN g);
