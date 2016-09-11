@@ -295,12 +295,7 @@ znstar_hnf_elts(GEN Z, GEN H)
 static GEN
 gscycloconductor(GEN g, long n, long flag)
 {
-  if (flag==2)
-  {
-    GEN V = cgetg(3,t_VEC);
-    gel(V,1) = gcopy(g);
-    gel(V,2) = stoi(n); return V;
-  }
+  if (flag==2) retmkvec2(gcopy(g), stoi(n));
   return g;
 }
 
@@ -646,7 +641,7 @@ galoissubcyclo(GEN N, GEN sg, long flag, long v)
   if (flag == 1)  { avma=ltop; return stoi(cnd); }
   if (cnd == 1)
   {
-    avma=  ltop;
+    avma = ltop;
     return gscycloconductor(deg1pol_shallow(gen_1,gen_m1,v),1,flag);
   }
   if (n != cnd)
