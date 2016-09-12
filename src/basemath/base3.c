@@ -1515,26 +1515,6 @@ nf_log(GEN nf, GEN a, GEN g, GEN ord, GEN pr)
   return gerepileuptoint(av, Fq_FpXQ_log(A,G,ord,T,p));
 }
 
-/* Product of cyc entries, with cyc = diagonal(Smith Normal Form), assumed != 0.
- * Set L to the index of the last non-trivial (!= 1) entry */
-GEN
-detcyc(GEN cyc, long *L)
-{
-  pari_sp av = avma;
-  long i, l = lg(cyc);
-  GEN s = gel(cyc,1);
-
-  if (l == 1) { *L = 1; return gen_1; }
-  for (i=2; i<l; i++)
-  {
-    GEN t = gel(cyc,i);
-    if (is_pm1(t)) break;
-    s = mulii(s, t);
-  }
-  *L = i; return i <= 2? icopy(s): gerepileuptoint(av,s);
-}
-
-
 /* lg(x) > 1, x + 1; shallow */
 static GEN
 ZC_add1(GEN x)
