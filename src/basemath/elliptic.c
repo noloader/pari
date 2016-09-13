@@ -4824,14 +4824,8 @@ doellcard(GEN E)
 static GEN
 ellnfap(GEN E, GEN P, int *good_red)
 {
-  GEN a4,a6, c4, D, modP, p, T, card, nf = ellnf_get_nf(E);
-  long vD;
-
-  modP = nf_to_Fq_init(nf,&P,&T,&p);
-  D = ell_get_disc(E);
-  c4 = ell_get_c4(E);
-  vD = nfval(nf,D,P);
-  p = pr_get_p(P);
+  GEN a4,a6, card, nf = ellnf_get_nf(E);
+  GEN T,p, modP = nf_to_Fq_init(nf,&P,&T,&p);
   if (abscmpiu(p, 3) <= 0)
   {
     long ap;
@@ -4844,8 +4838,9 @@ ellnfap(GEN E, GEN P, int *good_red)
   }
   else
   {
-    GEN c6 = ell_get_c6(E), piinv = NULL;
-    long vc6 = nfval(nf,c6,P), d = minss(2*vc6, vD) / 12;
+    GEN D = ell_get_disc(E), c6 = ell_get_c6(E), c4 = ell_get_c4(E);
+    GEN piinv = NULL;
+    long vD = nfval(nf,D,P), vc6 = nfval(nf,c6,P), d = minss(2*vc6, vD) / 12;
     /* non minimal model ? */
     if (d) { vc6 -= 6*d; vD -= 12*d; piinv = get_piinv(P); }
     if (vD) /* bad reduction */
