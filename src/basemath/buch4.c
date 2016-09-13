@@ -465,7 +465,7 @@ nfhilbert0(GEN nf,GEN a,GEN b,GEN p)
  * res[5] = S class group
  * res[6] = S */
 GEN
-bnfsunit(GEN bnf,GEN S,long prec)
+bnfsunit0(GEN bnf, GEN S, long flag, long prec)
 {
   pari_sp av = avma;
   long i,j,ls;
@@ -515,7 +515,7 @@ bnfsunit(GEN bnf,GEN S,long prec)
   if (ls>1)
   {
     GEN den, Sperm, perm, dep, B, A, U1 = U;
-    long lH, lB;
+    long lH, lB, FLAG = flag|nf_FORCE;
 
    /* U1 = upper left corner of U, invertible. S * U1 = principal ideals
     * whose generators generate the S-units */
@@ -535,13 +535,15 @@ bnfsunit(GEN bnf,GEN S,long prec)
     setlg(Sperm, lH);
     for (i=1; i<lH; i++)
     {
-      GEN v = isprincipalfact(bnf, NULL,Sperm,gel(H,i), nf_GEN|nf_FORCE);
-      gel(sunit,i) = nf_to_scalar_or_alg(nf, gel(v,2));
+      GEN v = isprincipalfact(bnf, NULL,Sperm,gel(H,i), FLAG);
+      v = gel(v,2); if (flag == nf_GEN) v = nf_to_scalar_or_alg(nf, v);
+      gel(sunit,i) = v;
     }
     for (j=1; j<lB; j++,i++)
     {
-      GEN v = isprincipalfact(bnf, gel(Sperm,i),Sperm,gel(B,j),nf_GEN|nf_FORCE);
-      gel(sunit,i) = nf_to_scalar_or_alg(nf, gel(v,2));
+      GEN v = isprincipalfact(bnf, gel(Sperm,i),Sperm,gel(B,j),FLAG);
+      v = gel(v,2); if (flag == nf_GEN) v = nf_to_scalar_or_alg(nf, v);
+      gel(sunit,i) = v;
    }
     den = ZM_det_triangular(H); H = ZM_inv(H,den);
     A = shallowconcat(H, ZM_neg(ZM_mul(H,B))); /* top part of inverse * den */
@@ -560,6 +562,8 @@ bnfsunit(GEN bnf,GEN S,long prec)
   gel(res,4) = sreg;
   return gerepilecopy(av,res);
 }
+GEN
+bnfsunit(GEN bnf,GEN S,long prec) { return bnfsunit0(bnf,S,nf_GEN,prec); }
 
 static GEN
 make_unit(GEN nf, GEN bnfS, GEN *px)
