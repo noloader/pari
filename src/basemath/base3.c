@@ -433,9 +433,7 @@ nfdiv(GEN nf, GEN x, GEN y)
   if (typ(y) != t_COL)
   {
     x = nf_to_scalar_or_basis(nf, x);
-    if (typ(x) == t_COL) z = RgC_Rg_div(x, y);
-    else
-    { z = zerocol(nf_get_degree(nf)); gel(z,1) = gdiv(x,y); }
+    z = (typ(x) == t_COL)? RgC_Rg_div(x, y): gdiv(x,y);
   }
   else
   {
