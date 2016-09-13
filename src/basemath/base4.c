@@ -1695,7 +1695,6 @@ idealnumden(GEN nf, GEN x)
   if (!is_pm1(c)) B = ZM_Z_mul(B, c); /* = B ! */
   A = idealmul(nf, x, B); /* d * (original x) * B = d A */
   if (!is_pm1(d)) A = ZM_Z_divexact(A, d); /* = A ! */
-  if (is_pm1(gcoeff(B,1,1))) B = gen_1;
   return gerepilecopy(av, mkvec2(A, B));
 }
 
