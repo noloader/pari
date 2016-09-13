@@ -789,10 +789,13 @@ nfVtoalg(GEN nf, GEN x)
 static GEN
 ellinit_nf(GEN x, GEN p)
 {
-  GEN y;
+  GEN y, nf;
+  long i;
   if (lg(x) > 6) x = vecslice(x,1,5);
-  x = nfVtoalg(p, x);
+  nf = checknf(p);
+  x = nfVtoalg(nf, x);
   if (!(y = initsmall(x, 1))) return NULL;
+  for (i = 10; i < 14; i++) gel(y,i) = nf_to_scalar_or_basis(nf, gel(y,i));
   gel(y,14) = mkvecsmall(t_ELL_NF);
   gel(y,15) = mkvec(p);
   return y;
@@ -958,24 +961,41 @@ ellchangeinvert(GEN w)
 static GEN
 coordch_u(GEN e, GEN u)
 {
-  GEN y, u2, u3, u4, u6;
+  GEN y, u2, u3, u4, u6, u12, D, c4, c6;
   long lx;
   if (gequal1(u)) return e;
   y = cgetg_copy(e, &lx);
-  u2 = gsqr(u); u3 = gmul(u,u2); u4 = gsqr(u2); u6 = gsqr(u3);
-  gel(y,1) = gdiv(ell_get_a1(e),  u);
-  gel(y,2) = gdiv(ell_get_a2(e), u2);
-  gel(y,3) = gdiv(ell_get_a3(e), u3);
-  gel(y,4) = gdiv(ell_get_a4(e), u4);
-  gel(y,5) = gdiv(ell_get_a6(e), u6);
+  u = ginv(u); u2 = gsqr(u); u3 = gmul(u,u2); u4 = gsqr(u2); u6 = gsqr(u3);
+  gel(y,1) = gmul(ell_get_a1(e),  u);
+  gel(y,2) = gmul(ell_get_a2(e), u2);
+  gel(y,3) = gmul(ell_get_a3(e), u3);
+  gel(y,4) = gmul(ell_get_a4(e), u4);
+  gel(y,5) = gmul(ell_get_a6(e), u6);
   if (lx == 6) return y;
-  gel(y,6) = gdiv(ell_get_b2(e), u2);
-  gel(y,7) = gdiv(ell_get_b4(e), u4);
-  gel(y,8) = gdiv(ell_get_b6(e), u6);
-  gel(y,9) = gdiv(ell_get_b8(e), gsqr(u4));
-  gel(y,10)= gdiv(ell_get_c4(e), u4);
-  gel(y,11)= gdiv(ell_get_c6(e), u6);
-  gel(y,12)= gdiv(ell_get_disc(e), gsqr(u6));
+  gel(y,6) = gmul(ell_get_b2(e), u2);
+  gel(y,7) = gmul(ell_get_b4(e), u4);
+  gel(y,8) = gmul(ell_get_b6(e), u6);
+  gel(y,9) = gmul(ell_get_b8(e), gsqr(u4));
+  u12 = gsqr(u6);
+  D = ell_get_disc(e);
+  c4 = ell_get_c4(e);
+  c6 = ell_get_c6(e);
+  if (ell_get_type(e) == t_ELL_NF)
+  {
+    GEN nf = ellnf_get_nf(e);
+    c4 = nfmul(nf, c4, u4);
+    c6 = nfmul(nf, c6, u6);
+    D = nfmul(nf, D, u12);
+  }
+  else
+  {
+    c4 = gmul(c4, u4);
+    c6 = gmul(c6, u6);
+    D = gmul(D, u12);
+  }
+  gel(y,10)= c4;
+  gel(y,11)= c6;
+  gel(y,12)= D;
   gel(y,13)= ell_get_j(e);
   gel(y,14)= gel(e,14);
   gel(y,15)= gel(e,15);
@@ -6754,7 +6774,6 @@ ellissupersingular(GEN E, GEN p)
     {
       GEN modP, T, nf = ellnf_get_nf(E), pr = p;
       av = avma;
-      j = nf_to_scalar_or_basis(nf, j);
       if (dvdii(Q_denom(j), pr_get_p(pr)))
       {
         if (typ(j) == t_FRAC || nfval(nf, j, pr) < 0) return 0;
