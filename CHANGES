@@ -63,6 +63,7 @@ BA 29- [libpari] FlxXC_to_F2xXC, F2xXC_to_ZXXC
    36- GP functions bnflogef, bnflog, bnflogdegree, nfislocalpower,
        rnfislocalcyclo
    37- [libpari] varnmin, varnmax
+   38- allow ellglobalred for E over a number field
 
   Changed
     1- remove useless flag in idealappr: directly allow factorization

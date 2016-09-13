@@ -794,7 +794,7 @@ ellinit_nf(GEN x, GEN p)
   if (lg(x) > 6) x = vecslice(x,1,5);
   nf = checknf(p);
   x = nfVtoalg(nf, x);
-  if (!(y = initsmall(x, 1))) return NULL;
+  if (!(y = initsmall(x, 2))) return NULL;
   for (i = 10; i < 14; i++) gel(y,i) = nf_to_scalar_or_basis(nf, gel(y,i));
   gel(y,14) = mkvecsmall(t_ELL_NF);
   gel(y,15) = mkvec(p);
@@ -4889,6 +4889,32 @@ ellnfap(GEN E, GEN P, int *good_red)
   return subii(addiu(pr_norm(P),1), card);
 }
 
+/* a, b not both 0; sorted list of primes dividing gcd(a,b), using coprime
+ * basis */
+static GEN
+Z_gcd_primes(GEN a, GEN b)
+{
+  GEN P;
+  if (!signe(a))
+    P = gel(absZ_factor(b), 1);
+  else if (!signe(b))
+    P = gel(absZ_factor(a), 1);
+  else
+  {
+    GEN A, B, v = Z_ppio(a,b), d = gel(v,1); /* = gcd(a,b) */
+    long k, l;
+    if (is_pm1(d)) return cgetg(1, t_COL);
+    A = gel(v,2); /* gcd(a, b^oo) */
+    B = diviiexact(b, coprime_part(b, d)); /* gcd(b, a^oo) */
+    /* d = gcd(A,B) */
+    P = Z_cba(A, B); /* use coprime basis to help as much as possible */
+    l = lg(P);
+    for (k = 1; k < l; k++) gel(P,k) = gel(Z_factor(gel(P,k)), 1);
+    P = shallowconcat1(P);
+    P = ZV_sort(P);
+  }
+  settyp(P, t_VEC); return P;
+}
 /* E/Q, integral model, Laska-Kraus-Connell algorithm. Set *pDP to a list
  * of known prime divisors of minimal discriminant */
 static GEN
@@ -4900,24 +4926,8 @@ get_u(GEN E, GEN *pDP)
   GEN c6 = ell_get_c6(E), g, u, P, DP;
   long l, k;
 
-  if (!signe(c4))
-    P = gel(absZ_factor(c6), 1);
-  else if (!signe(c6))
-    P = gel(absZ_factor(c4), 1);
-  else
-  {
-    GEN A, B, v = Z_ppio(c4,c6), d = gel(v,1); /* = gcd(c4,c6), u^4 | d */
-    if (is_pm1(d)) { *pDP = cgetg(1, t_COL); return gen_1; }
-    A = gel(v,2); /* gcd(c4, c6^oo) */
-    B = diviiexact(c6, coprime_part(c6, d)); /* gcd(c6, c4^oo) */
-    /* d = gcd(A,B) */
-    P = Z_cba(A, B); /* use coprime basis to help as much as possible */
-    l = lg(P);
-    for (k = 1; k < l; k++) gel(P,k) = gel(Z_factor(gel(P,k)), 1);
-    P = shallowconcat1(P);
-    P = ZV_sort(P); /* potential primes dividing u, sorted */
-  }
-  l = lg(P);
+  P = Z_gcd_primes(c4, c6);
+  l = lg(P); if (l == 1) { *pDP = P; return gen_1; }
   DP = vectrunc_init(l); settyp(DP,t_COL);
   av = avma;
   g = gcdii(sqri(c6), D);
@@ -4968,19 +4978,42 @@ nfrestrict23(GEN nf, GEN E)
 }
 
 static GEN
-bnf_get_v(GEN bnf, GEN E, GEN *pDP, GEN P)
+zk_capZ(GEN nf, GEN x)
 {
-  GEN nf, c4, c6, DP, L, Lr, Ls, Lt, F, C, U, R, S, T;
+  GEN mx = zk_scalar_or_multable(nf, x);
+  return (typ(mx) == t_INT)? mx: zkmultable_capZ(mx);
+}
+static GEN
+ellnf_c4c6_primes(GEN E)
+{
+  GEN nf = ellnf_get_nf(E);
+  GEN c4Z = zk_capZ(nf, ell_get_c4(E));
+  GEN c6Z = zk_capZ(nf, ell_get_c6(E));
+  GEN DZ = zk_capZ(nf, ell_get_disc(E));
+  GEN P = Z_gcd_primes(c4Z, c6Z); /* prime ideals potentially dividing D */
+  long k, lP;
+
+  lP = lg(P);
+  for (k = 1; k < lP; k++) (void)Z_pvalrem(DZ, gel(P,k), &DZ);
+  if (!is_pm1(DZ))
+  {
+    GEN Q = gel(absZ_factor(DZ),1);
+    settyp(Q, t_VEC); P = ZV_sort(shallowconcat(P, Q));
+  }
+  lP = lg(P);
+  for (k = 1; k < lP; k++) gel(P,k) = idealprimedec(nf, gel(P,k));
+  return shallowconcat1(P);
+}
+static GEN
+bnf_get_v(GEN bnf, GEN E, GEN *pDP)
+{
+  GEN nf, c4, c6, P, DP, L, Lr, Ls, Lt, F, C, U, R, S, T;
   long l, k;
 
   nf = bnf_get_nf(bnf);
-  c4 = ell_get_c4(E);
-  c6 = ell_get_c6(E);
-  if (!P)
-  { /* FIXME: use dcba */
-    GEN d = idealadd(nf, c4, c6);
-    P = gel(idealfactor(nf, d),1); /* primes potentially dividing u */
-  }
+  c4 = ell_get_c4(E); if (typ(c4) == t_INT) c4 = NULL;
+  c6 = ell_get_c6(E); if (typ(c6) == t_INT) c6 = NULL;
+  P = ellnf_c4c6_primes(E);
   l = lg(P);
   DP = vectrunc_init(l); settyp(DP,t_COL);
   Lr = vectrunc_init(l);
@@ -4990,9 +5023,16 @@ bnf_get_v(GEN bnf, GEN E, GEN *pDP, GEN P)
   U = vectrunc_init(l); settyp(U,t_COL);
   for (k = 1; k < l; k++)
   {
-    GEN pr = gel(P, k);
-    GEN q = nflocalred(E, pr), f = gel(q,1), v = gel(q,3), u = gel(v,1);
-    long vu = nfval(nf, u, pr);
+    GEN pr = gel(P, k), q, f, v, u;
+    long vu;
+    if (c4 && !ZC_prdvd(nf,c4,pr)) continue;
+    if (c6 && !ZC_prdvd(nf,c6,pr)) continue;
+    /* pr | (c4,c6) */
+    q = nflocalred(E, pr);
+    f = gel(q,1);
+    v = gel(q,3);
+    u = gel(v,1);
+    vu = nfval(nf, u, pr);
     if (signe(f)) vectrunc_append(DP, q); /* store useful localred data */
     if (!vu) continue;
     vectrunc_append(Lr, gel(v,2));
@@ -5084,7 +5124,7 @@ ellnfminimalmodel_i(GEN E, GEN *ptv)
   if (ptv) *ptv = NULL;
   nf = bnf_get_nf(bnf);
   y = ellintegralmodel(E, &v);
-  v2 = bnf_get_v(bnf, y, &DP, NULL);
+  v2 = bnf_get_v(bnf, y, &DP);
   if (typ(v2) == t_COL)
   {
     obj_insert(E, NF_MINIMALMODEL, mkvec2(DP, v2));
@@ -5168,14 +5208,12 @@ ellglobalred_all(GEN e, GEN *pgr, GEN *pv)
   for (k = 1; k < l; k++)
   {
     GEN p = gel(P,k), q = localred(E, p), ex = gel(q,1);
-    if (signe(ex))
-    {
-      gel(NP, iN) = p;
-      gel(NE, iN) = ex;
-      gel(L, iN) = q; iN++;
-      gel(q,3) = gen_0; /*delete variable change*/
-      c = mulii(c, gel(q,4));
-    }
+    if (!signe(ex)) continue;
+    gel(NP, iN) = p;
+    gel(NE, iN) = ex;
+    gel(L, iN) = q; iN++;
+    gel(q,3) = gen_0; /*delete variable change*/
+    c = mulii(c, gel(q,4));
   }
   setlg(L, iN);
   setlg(NP, iN);
@@ -5184,7 +5222,7 @@ ellglobalred_all(GEN e, GEN *pgr, GEN *pv)
   return E;
 }
 static GEN
-doellglobalred(GEN E)
+ellQ_globalred(GEN E)
 {
   GEN v, gr;
   E = ellglobalred_all(E, &gr, &v);
@@ -5192,17 +5230,65 @@ doellglobalred(GEN E)
 }
 static GEN
 ellglobalred_i(GEN E)
-{ return obj_checkbuild(E, Q_GLOBALRED, &doellglobalred); }
+{ return obj_checkbuild(E, Q_GLOBALRED, &ellQ_globalred); }
+
+static GEN
+ellnfglobalred(GEN E)
+{
+  GEN c, L, P, NP, NE, D, nf, v;
+  long k, lP, iN;
+
+  E = ellintegralmodel(E, &v);
+  if (!v) v = init_ch();
+  nf = ellnf_get_nf(E);
+  P = ellnf_c4c6_primes(E);
+  lP = lg(P);
+  D = ell_get_disc(E);
+  if (typ(D) == t_INT) D = NULL;
+
+  c = gen_1;
+  iN = 1;
+  NP = cgetg(lP, t_COL);
+  NE = cgetg(lP, t_COL);
+  L = cgetg(lP, t_VEC);
+  for (k = 1; k < lP; k++)
+  {
+    GEN p = gel(P,k), q, ex;
+    if (D && !ZC_prdvd(nf, D, p)) continue;
+
+    q = nflocalred(E, p),
+    ex = gel(q,1);
+    if (!signe(ex)) continue;
+    gel(NP, iN) = p;
+    gel(NE, iN) = ex;
+    gel(L, iN) = q; iN++;
+    c = mulii(c, gel(q,4));
+  }
+  setlg(L, iN);
+  setlg(NP, iN);
+  setlg(NE, iN);
+  return mkvec5(idealfactorback(nf,NP,NE,0), v, c, mkmat2(NP,NE), L);
+}
 
 GEN
 ellglobalred(GEN E)
 {
   pari_sp av = avma;
   GEN S, gr, v;
-  checkell_Q(E); gr = ellglobalred_i(E);
-  S = obj_check(E, Q_MINIMALMODEL);
-  v = (lg(S) == 2)? init_ch(): gel(S,2);
-  return gerepilecopy(av, mkvec5(gel(gr,1), v, gel(gr,2),gel(gr,3),gel(gr,4)));
+  switch(ell_get_type(E))
+  {
+    default: pari_err_TYPE("ellglobalred",E);
+    case t_ELL_Q:
+      gr = ellglobalred_i(E);
+      S = obj_check(E, Q_MINIMALMODEL);
+      v = (lg(S) == 2)? init_ch(): gel(S,2);
+      v = mkvec5(gel(gr,1), v, gel(gr,2),gel(gr,3),gel(gr,4));
+      break;
+    case t_ELL_NF:
+      v = obj_checkbuild(E, NF_GLOBALRED, &ellnfglobalred);
+      break;
+  }
+  return gerepilecopy(av, v);
 }
 
 static GEN doellrootno(GEN e);

@@ -1218,11 +1218,10 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: globalred(x,y) ===> ellglobalred(x,y)
 
-ellglobalred(E): E being an elliptic curve, returns [N,[u,r,s,t],c, faN,L], 
-where N is the conductor of E, [u,r,s,t] leads to the standard model for E, c 
-is the product of the local Tamagawa numbers c_p, faN is factor(N) and L[i] is 
-elllocalred(E, faN[i,1]), where the local coordinate change has been deleted 
-and replaced by a 0.
+ellglobalred(E): E being an elliptic curve over a number field, returns [N, v, 
+c, faN, L], where N is the conductor of E, c is the product of the local 
+Tamagawa numbers c_p, faN is the factorization of N and L[i] is elllocalred(E, 
+faN[i,1]); v is an obsolete field.
 
 
   ***   at top-level: goto()

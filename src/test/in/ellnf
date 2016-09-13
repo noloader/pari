@@ -44,6 +44,9 @@ E3 = ellchangecurve(E, [1/17,a,a+1,0]);
 ellap(E3, P17)
 ellan(E2,20)
 ellan(E3,20)
+ellglobalred(E)
+ellglobalred(E2)
+ellglobalred(E3)
 
 K=bnfinit(a^2 - 2*3*5*29);
 e = ellinit([a,1], K);
@@ -52,7 +55,17 @@ ellminimalmodel(E, &v)[1..5]
 v
 ellminimalmodel(ellinit([a^4,(a+2)^6], K))
 
+p=2*10^10+89; q=10^10+19;
+P=nfbasistoalg(K, bnfisprincipal(K, idealprimedec(K,p)[1])[2]);
+Q=nfbasistoalg(K, bnfisprincipal(K, idealprimedec(K,q)[1])[2]);
+e = ellinit([P^3*Q^4,P^6*Q^4], K);
+ellminimalmodel(e,&v); v
+ellglobalred(e)
+e = ellinit([P^4*Q^4,P^6*Q^4], K);
+ellglobalred(e)
+
 K=bnfinit(a^2-65);
 u=Mod(8+a,K.pol);
 e = ellinit([1,40*u+1,0,25*u^2,0], K); ellminimalmodel(e)
 e = ellinit([1,10*u+1,0,25*u^2,0], K); ellminimalmodel(e)
+ellglobalred(e)
