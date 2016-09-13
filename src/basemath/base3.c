@@ -1392,7 +1392,7 @@ nfinvmodideal(GEN nf, GEN x, GEN y)
   pari_sp av = avma;
   GEN a, yZ = gcoeff(y,1,1);
 
-  if (is_pm1(yZ)) return zerocol( nf_get_degree(nf) );
+  if (is_pm1(yZ)) return gen_0;
   x = nf_to_scalar_or_basis(nf, x);
   if (typ(x) == t_INT) return gerepileupto(av, Fp_inv(x, yZ));
 

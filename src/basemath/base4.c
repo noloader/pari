@@ -818,7 +818,7 @@ idealaddmultoone(GEN nf, GEN list)
   {
     GEN c = gel(L,i);
     if (lg(c) == 1)
-      c = zerocol(N);
+      c = gen_0;
     else {
       c = ZM_ZC_mul(c, vecslice(U, nz*N + 1, (nz+1)*N));
       nz++;

@@ -11,7 +11,7 @@
     [;]
     [;]
 [1, 0]
-[[1]~, [0]~]
+[[1]~, 0]
   ***   at top-level: idealaddtoone(Q,[1,[
   ***                 ^--------------------
   *** idealaddtoone: incorrect type in idealaddmultoone [integer matrix] (t_MAT).
@@ -203,4 +203,4 @@
 []
   *** nfinit: Warning: non-monic polynomial. Result of the form [nf,c].
 [[2, [0, 1]~, 2, 1, [0, -2; 1, 0]]]
-Total time spent: 17
+Total time spent: 22
