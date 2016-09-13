@@ -58,6 +58,7 @@ BA 29- [libpari] FlxXC_to_F2xXC, F2xXC_to_ZXXC
    32- [libpari] ZV_snf_trunc, ZM_hnfmodall_i, ZM_hnfall_i
    33- [libpari] uisprime_101, uisprime_661
    34- [libpari] lift_shallow
+   35- [libpari] rowsplice
 
   Changed
     1- remove useless flag in idealappr: directly allow factorization

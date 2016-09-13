@@ -849,6 +849,15 @@ matslice(GEN A, long x1, long x2, long y1, long y2)
 
 /* shallow, remove coeff of index j */
 INLINE GEN
+rowsplice(GEN a, long j)
+{
+  long i, k, l;
+  GEN b = cgetg_copy(a,&l);
+  for (i = k = 1; i < l; i++) gel(b,i) = vecsplice(gel(a,i), j);
+  return b;
+}
+/* shallow, remove coeff of index j */
+INLINE GEN
 vecsplice(GEN a, long j)
 {
   long i, k, l = lg(a);

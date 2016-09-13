@@ -12298,6 +12298,9 @@ the~\typ{MAT}~$A$. This function is memory clean and suitable for
 formed by the $i_1$-th through $i_2$-th rows of \typ{MAT} $A$. Assume $i_1
 \leq i_2$.
 
+\fun{GEN}{rowsplice}{GEN A, long i} return the \typ{MAT} formed from the
+coefficients of \typ{MAT} $A$ with $j$-th row removed.
+
 \fun{GEN}{rowpermute}{GEN A, GEN p}, $p$ being a \typ{VECSMALL}
 representing a list $[p_1,\dots,p_n]$ of rows of \typ{MAT} $A$, returns the
 matrix whose rows are $A[p_1,],\dots, A[p_n,]$.
