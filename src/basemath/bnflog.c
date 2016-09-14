@@ -164,7 +164,7 @@ get_vdegS(GEN Ftilde, GEN ell, long prec)
 /* K a bnf. Compute kernel \tilde{Cl}_K(ell); return cyclic factors.
  * Set *pM to (vtilde_S[i](US[j]))_{i,j} */
 static GEN
-CL_tilde(GEN K, GEN US, GEN ell, GEN T, GEN Ftilde, GEN *pM, long Ep, long prec)
+CL_tilde(GEN K, GEN US, GEN ell, GEN T, GEN Ftilde, GEN *pM, long prec)
 {
   GEN D, M, ellk, vdegS;
   long i, j, imin, vmin, k, lD, l = lg(T), lU = lg(US);
@@ -310,7 +310,7 @@ bnflog_i(GEN bnf, GEN ell)
   long prec0, prec;
   GEN nf, US, vdegS, S, T, M, CLp, CLt, Ftilde, vtG, ellk;
   GEN D, Ap, cycAp, bnfS;
-  long Ep, i, j, lS, lvAp;
+  long i, j, lS, lvAp;
 
   checkbnf(bnf);
   nf = checknf(bnf);
@@ -325,15 +325,14 @@ bnflog_i(GEN bnf, GEN ell)
   CLp = CL_prime(bnf, ell, S);
   cycAp = gel(CLp,1);
   Ap = gel(CLp,2);
-  Ep = ellexpo(cycAp, ell);
   for(;;)
   {
-    CLt = CL_tilde(nf, US, ell, T, Ftilde, &vtG, Ep, prec0);
+    CLt = CL_tilde(nf, US, ell, T, Ftilde, &vtG, prec0);
     if (CLt) break;
     prec0 <<= 1;
     T = padicfact(nf, S, prec0);
   }
-  prec = Ep + ellexpo(CLt,ell) + 1;
+  prec = ellexpo(cycAp, ell) + ellexpo(CLt,ell) + 1;
   if (prec == 1) return mkvec3(cgetg(1,t_VEC), cgetg(1,t_VEC), cgetg(1,t_VEC));
 
   vdegS = get_vdegS(Ftilde, ell, prec0);
