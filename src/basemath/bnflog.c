@@ -288,6 +288,7 @@ nfislocalpower(GEN nf, GEN pr, GEN a, GEN n)
   r = nfislocalpower_i(nf, pr, a, n);
   avma = av; return r;
 }
+#if 0
 /* is 'a' locally an ell-th power in K_pr, for all pr | ell */
 long
 islocalpthpower(GEN K, GEN a, GEN ell)
@@ -299,6 +300,7 @@ islocalpthpower(GEN K, GEN a, GEN ell)
     if (!nfislocalpower_i(K, gel(S,i), a, ell)) { avma = av; return 0; }
   avma = av; return 1;
 }
+#endif
 
 /* v_ell(  exponent(D) ) */
 static long
