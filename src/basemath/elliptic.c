@@ -4858,28 +4858,32 @@ ellnfap(GEN E, GEN P, int *good_red)
   }
   else
   {
-    GEN D = ell_get_disc(E), c6 = ell_get_c6(E), c4 = ell_get_c4(E);
-    GEN piinv = NULL;
-    long vD = nfval(nf,D,P), vc6 = nfval(nf,c6,P), d = minss(2*vc6, vD) / 12;
-    /* non minimal model ? */
-    if (d) { vc6 -= 6*d; vD -= 12*d; piinv = get_piinv(P); }
-    if (vD) /* bad reduction */
+    GEN c6 = ell_get_c6(E), c4 = ell_get_c4(E);
+    long vD = nfval(nf, ell_get_disc(E), P);
+    if (vD)
     {
-      *good_red = 0;
-      if (vc6) return gen_0;
-      if (d) c6 = nfmul(nf, c6, nfpow(nf, piinv, stoi(6*d)));
-      c6 = nf_to_Fq(nf, c6, modP);
-      return Fq_issquare(gneg(c6),T,p)? gen_1: gen_m1;
+      long vc6 = nfval(nf,c6,P), d = minss(2*vc6, vD) / 12;
+      GEN piinv = NULL;
+      /* non minimal model ? */
+      if (d) { vc6 -= 6*d; vD -= 12*d; piinv = get_piinv(P); }
+      if (vD) /* bad reduction */
+      {
+        *good_red = 0;
+        if (vc6) return gen_0;
+        if (d) c6 = nfmul(nf, c6, nfpow(nf, piinv, stoi(6*d)));
+        c6 = nf_to_Fq(nf, c6, modP);
+        return Fq_issquare(gneg(c6),T,p)? gen_1: gen_m1;
+      }
+      if (d)
+      {
+        GEN ui2 = nfpow(nf, piinv, stoi(2*d));
+        GEN ui4 = nfsqr(nf, ui2);
+        GEN ui6 = nfmul(nf,ui2,ui4);
+        c4 = nfmul(nf, c4, ui4);
+        c6 = nfmul(nf, c6, ui6);
+      }
     }
     *good_red = 1;
-    if (d)
-    {
-      GEN ui2 = nfpow(nf, piinv, stoi(2*d));
-      GEN ui4 = nfsqr(nf, ui2);
-      GEN ui6 = nfmul(nf,ui2,ui4);
-      c4 = nfmul(nf, c4, ui4);
-      c6 = nfmul(nf, c6, ui6);
-    }
     c4 = nf_to_Fq(nf, c4, modP);
     c6 = nf_to_Fq(nf, c6, modP);
     Fq_c4c6_to_a4a6(c4, c6, T,p, &a4,&a6);
