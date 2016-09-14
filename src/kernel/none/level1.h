@@ -51,6 +51,12 @@ varncmp(long x, long y)
   if (varpriority[x] > varpriority[y]) return -1;
   return 0;
 }
+INLINE long
+varnmin(long x, long y)
+{ return (varpriority[x] <= varpriority[y])? x: y; }
+INLINE long
+varnmax(long x, long y)
+{ return (varpriority[x] >= varpriority[y])? x: y; }
 
 /* Inhibit some area gerepile-wise: declare it to be a non recursive
  * type, of length l. Thus gerepile won't inspect the zone, just copy it.

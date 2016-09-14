@@ -3001,10 +3001,10 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: polint(xa,ya,x) ===> polinterpolate(xa,ya,p)
 
-polinterpolate(X,{Y},{x},{&e}): polynomial interpolation at x according to data 
-vectors X, Y (ie return P such that P(X[i]) = Y[i] for all i). If Y is omitted, 
-return P such that P(i) = X[i]. If present, e will contain an error estimate on 
-the returned value.
+polinterpolate(X,{Y},{t = 'x},{&e}): polynomial interpolation at t according to 
+data vectors X, Y (i.e. given P of minimal degree such that P(X[i]) = Y[i] for 
+all i, return P(t)). If Y is omitted, take P such that P(i) = X[i]. If present, 
+e will contain an error estimate on the returned value.
 
 
   ***   at top-level: polred2()
@@ -4564,4 +4564,4 @@ New syntax: texprint(x) ===> printtex(x)
 printtex({str}*): outputs its string arguments in TeX format.
 
 
-Total time spent: 9
+Total time spent: 4

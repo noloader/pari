@@ -1065,7 +1065,7 @@ RgV_polint(GEN X, GEN Y, long v)
   if (!P) { avma = av; return zeropol(v); }
   return gerepileupto(av0, P);
 }
-/* X,Y are "spec" GEN vectors with n > 1 components ( at X[0], ... X[n-1] ) */
+/* X,Y are "spec" GEN vectors with n > 0 components ( at X[0], ... X[n-1] ) */
 GEN
 polint_i(GEN X, GEN Y, GEN x, long n, GEN *ptdy)
 {
@@ -1132,9 +1132,9 @@ NODY:
 }
 
 GEN
-polint(GEN X, GEN Y, GEN x, GEN *ptdy)
+polint(GEN X, GEN Y, GEN t, GEN *ptdy)
 {
-  long lx = lg(X);
+  long lx = lg(X), vt;
 
   if (! is_vec_t(typ(X))) pari_err_TYPE("polinterpolate",X);
   if (Y)
@@ -1147,18 +1147,29 @@ polint(GEN X, GEN Y, GEN x, GEN *ptdy)
     Y = X;
     X = NULL;
   }
-
-  if (lx <= 2)
-  {
-    if (ptdy) *ptdy = gen_0;
-    if (lx == 1) return zeropol(0);
-    Y = gel(Y,1);
-    if (gvar(Y) == 0) pari_err_PRIORITY("polinterpolate", Y, "=", 0);
-    return scalarpol(Y, 0);
+  if (ptdy) *ptdy = gen_0;
+  vt = t? gvar(t): 0;
+  if (vt != NO_VARIABLE)
+  { /* formal interpolation */
+    pari_sp av;
+    long v0, vY = gvar(Y);
+    GEN P;
+    if (X) vY = varnmax(vY, gvar(X));
+    /* shortcut */
+    if (varncmp(vY, vt) > 0 && (!t || gequalX(t))) return RgV_polint(X, Y, vt);
+    av = avma;
+    /* first interpolate in high priority variable, then substitute t */
+    v0 = fetch_var_higher();
+    P = RgV_polint(X, Y, v0);
+    P = gsubst(P, v0, t? t: pol_x(0));
+    (void)delete_var();
+    return gerepileupto(av, P);
   }
-  if (!x) return RgV_polint(X, Y, 0);
-  if (gequalX(x)) return RgV_polint(X, Y, varn(x));
-  return polint_i(X? X+1: NULL,Y+1,x,lx-1,ptdy);
+  /* numerical interpolation. FIXME: gen_0 may not be appropriate,
+   * it should be the 0 in the ring t belongs to. But poleval and gsubst
+   * must be fixed too */
+  if (lx == 1) return gen_0;
+  return polint_i(X? X+1: NULL,Y+1,t,lx-1,ptdy);
 }
 
 /********************************************************************/

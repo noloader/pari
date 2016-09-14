@@ -4550,6 +4550,8 @@ INLINE GEN    uutoi(ulong x, ulong y);
 INLINE GEN    uutoineg(ulong x, ulong y);
 INLINE long   vali(GEN x);
 INLINE int    varncmp(long x, long y);
+INLINE long   varnmax(long x, long y);
+INLINE long   varnmin(long x, long y);
 
 /* pariinl.h */
 INLINE GEN    abgrp_get_cyc(GEN x);

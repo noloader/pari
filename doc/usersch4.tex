@@ -1651,6 +1651,26 @@ The (dangerous) statement
 @eprog\noindent
 removes all temporary variables in use.
 
+\subsec{Comparing variables}
+
+Let us go back to \kbd{varncmp}. There is an interesting corner case, when
+one of the compared variables (from \kbd{gvar}, say) is \kbd{NO\_VARIABLE}.
+In this case, \kbd{varncmp} declares it has lower priority than any other
+variable; of course, comparing \kbd{NO\_VARIABLE} with itself yields
+$0$ (same priority);
+
+In addition to \kbd{varncmp} we have
+
+\fun{long}{varnmax}{long v, long w} given two variable numbers (possibly
+\kbd{NO\_VARIABLE}), returns the variable with the highest priority.
+This function always returns a valid variable number unless it is comparing
+\kbd{NO\_VARIABLE} to itself.
+
+\fun{long}{varnmin}{long x, long y} given two variable numbers (possibly
+\kbd{NO\_VARIABLE}), returns the variable with the lowest priority. Note
+that when comparing a true variable with \kbd{NO\_VARIABLE}, this function
+returns \kbd{NO\_VARIABLE}, which is not a valid variable number.
+
 \section{Input and output}
 
 \noindent
