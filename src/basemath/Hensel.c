@@ -420,44 +420,68 @@ polhensellift(GEN pol, GEN L, GEN p, long N)
 }
 
 static GEN
-ZpX_liftroots_full(GEN f, GEN S, GEN p, long e)
+FqV_roots_from_deg1(GEN x, GEN T, GEN p)
 {
-  long i, n = lg(S)-1;
-  GEN r = cgetg(n+1, typ(S));
+  long i,l = lg(x);
+  GEN r = cgetg(l,t_VEC);
+  for (i=1; i<l; i++) { GEN P = gel(x,i); gel(r,i) = Fq_neg(gel(P,2), T, p); }
+  return r;
+}
+
+static GEN
+ZpX_liftroots_full(GEN f, GEN S, GEN q, GEN p, long e)
+{
   pari_sp av = avma;
-  long v = varn(f);
-  GEN y, q;
-  for (i=1; i<=n; i++)
-    gel(r,i) = deg1pol(gen_1, Fp_neg(gel(S, i), p), v);
-  q = powiu(p, e);
-  y = ZpX_liftfact(f, r, q, p, e);
-  r = cgetg(n+1 ,t_COL);
-  for (i=1; i<=n; i++)
-    gel(r,i) = Fp_neg(gmael(y, i, 2), q);
-  return gerepileupto(av, r);
+  GEN y = ZpX_liftfact(f, deg1_from_roots(S, varn(f)), q, p, e);
+  return gerepileupto(av, FqV_roots_from_deg1(y, NULL, q));
 }
 
 GEN
 ZpX_roots(GEN F, GEN p, long e)
 {
   pari_sp av = avma;
-  long i, v = varn(F);
-  GEN y, r, q;
+  GEN q = powiu(p, e);
   GEN f = FpX_normalize(F, p);
   GEN g = FpX_normalize(FpX_split_part(f, p), p);
-  GEN S = FpX_roots(g, p);
-  long l = lg(S)-1, n = l < degpol(f)? l+1: l;
-  if (l==0) return cgetg(1, t_COL);
-  if (l==1) return mkcol(ZpX_liftroot(F,gel(S,1),p,e));
-  r = cgetg(n+1 ,t_COL);
-  for (i=1; i<=l; i++)
-    gel(r,i) = deg1pol_shallow(gen_1, Fp_neg(gel(S,i), p), v);
-  if (l < degpol(f)) gel(r, n) = FpX_div(f, g, p);
-  q = powiu(p, e);
-  y = ZpX_liftfact(F, r, q, p, e);
-  r = cgetg(l+1 ,t_COL);
-  for (i=1; i<=l; i++) gel(r,i) = Fp_neg(gmael(y,i,2), q);
-  return gerepileupto(av, r);
+  GEN S;
+  if (degpol(g) < degpol(f))
+  {
+    GEN h = FpX_div(f, g, p);
+    F = gel(ZpX_liftfact(F, mkvec2(g, h), q, p, e), 1);
+  }
+  S = FpX_roots(g, p);
+  return gerepileupto(av, ZpX_liftroots_full(F, S, q, p, e));
+}
+
+static GEN
+ZpXQX_liftroots_full(GEN f, GEN S, GEN T, GEN q, GEN p, long e)
+{
+  pari_sp av = avma;
+  GEN y = ZpXQX_liftfact(f, deg1_from_roots(S, varn(f)), T, q, p, e);
+  return gerepileupto(av, FqV_roots_from_deg1(y, T, q));
+}
+
+GEN
+ZpXQX_roots(GEN F, GEN T, GEN p, long e)
+{
+  pari_sp av = avma;
+  GEN q = powiu(p, e);
+  GEN f = FpXQX_normalize(F, T, p);
+  GEN g = FpXQX_normalize(FpXQX_split_part(f, T, p), T, p);
+  GEN S;
+  if (degpol(g) < degpol(f))
+  {
+    GEN h = FpXQX_div(f, g, T, p);
+    F = gel(ZpXQX_liftfact(F, mkvec2(g, h), T, q, p, e), 1);
+  }
+  S = FpXQX_roots(g, T, p);
+  return gerepileupto(av, ZpXQX_liftroots_full(F, S, T, q, p, e));
+}
+
+GEN
+ZqX_roots(GEN F, GEN T, GEN p, long e)
+{
+  return T ? ZpXQX_roots(F, T, p, e): ZpX_roots(F, p, e);
 }
 
 /* SPEC:
@@ -495,7 +519,7 @@ ZpX_liftroots(GEN f, GEN S, GEN p, long e)
 {
   long i, n = lg(S)-1, d = degpol(f);
   GEN r;
-  if (n == d) return ZpX_liftroots_full(f, S, p, e);
+  if (n == d) return ZpX_liftroots_full(f, S, powiu(p, e), p, e);
   r = cgetg(n+1, typ(S));
   for (i=1; i <= n; i++)
     gel(r,i) = ZpX_liftroot(f, gel(S,i), p, e);
