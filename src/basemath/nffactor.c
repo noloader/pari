@@ -1629,9 +1629,9 @@ static long
 get_maxf(long nfdeg)
 {
   long maxf = 1;
-  if      (nfdeg >= 45) maxf =16;
-  else if (nfdeg >= 30) maxf = 8;
-  else if (nfdeg >= 15) maxf = 4;
+  if      (nfdeg >= 45) maxf =32;
+  else if (nfdeg >= 30) maxf =16;
+  else if (nfdeg >= 15) maxf = 8;
   return maxf;
 }
 
@@ -1948,8 +1948,6 @@ typedef struct {
   GEN pr;
   nflift_t *L;
 } prklift_t;
-
-/* FIXME: check that all primes dividing n are ramified ! */
 
 /* Choose prime ideal unramified with "large" inertia degree */
 static void
