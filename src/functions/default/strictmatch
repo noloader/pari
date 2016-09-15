@@ -5,4 +5,4 @@ C-Name: sd_strictmatch
 Prototype:
 Help:
 Obsolete: 2014-10-11
-Doc: OBSOLETE. This toggle is now a no-op.
+Doc: Obsolete. This toggle is now a no-op.

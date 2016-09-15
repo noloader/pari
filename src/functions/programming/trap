@@ -5,11 +5,11 @@ Prototype: DrDEDE
 Obsolete: 2012-01-17
 Help: trap({e}, {rec}, seq): try to execute seq, trapping runtime error e (all
  of them if e omitted); sequence rec is executed if the error occurs and
- is the result of the command. THIS FUNCTION IS OBSOLETE: use "IFERR"
+ is the result of the command. This function is obsolete: use "iferr"
 Wrapper: (,_,_)
 Description:
  (?str,?closure,?closure):gen trap0($1, $2, $3)
-Doc: THIS FUNCTION IS OBSOLETE: use \tet{iferr}, which has a nicer and much
+Doc: This function is obsolete: use \tet{iferr}, which has a nicer and much
  more powerful interface. For compatibility's sake we now describe the
  \emph{obsolete} function \tet{trap}.
 
