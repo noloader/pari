@@ -307,6 +307,20 @@ static long
 ellexpo(GEN D, GEN ell) { return lg(D) == 1? 0: Z_pval(gel(D,1), ell); }
 
 static GEN
+ellsylow(GEN cyc, GEN ell)
+{
+  long i, l;
+  GEN d = cgetg_copy(cyc, &l);
+  for (i = 1; i < l; i++)
+  {
+    GEN c = gel(cyc,i), a;
+    if (!Z_pvalrem(c, ell, &a)) break;
+    gel(d,i) = diviiexact(c, a);
+  }
+  setlg(d, i); return d;
+}
+
+static GEN
 bnflog_i(GEN bnf, GEN ell)
 {
   long prec0, prec;
@@ -375,7 +389,7 @@ bnflog_i(GEN bnf, GEN ell)
   if (lg(D) == 1 || !dvdii(gel(D,1), ellk))
     pari_err_BUG("bnflog [missing Z_l component]");
   D = vecslice(D,2,lg(D)-1);
-  return mkvec3(D, CLt, mkvec2(cycAp, Ap));
+  return mkvec3(D, CLt, ellsylow(cycAp, ell));
 }
 GEN
 bnflog(GEN bnf, GEN ell)
