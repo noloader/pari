@@ -783,7 +783,9 @@ CycloPol(KRASNER_t *d)
   fa = factoru( ugcd(e, umodiu(d->qm1, e)) );
   z = gener_FpXQ_local(T, d->p, zv_to_ZV(gel(fa,1)));
   z = ZpXQ_sqrtnlift(scalarpol(gen_1,varn(T)), d->qm1, z, T, d->p, d->r);
-  return FpX_red(ZXQ_charpoly(z, T, v), d->pr);
+  z = ZXQ_charpoly(z, T, v);
+  (void)ZX_gcd_all(z, ZX_deriv(z), &z);
+  return FpX_red(z, d->pr);
 }
 
 /* return [ p^1, p^2, ..., p^c ] */
