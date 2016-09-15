@@ -5279,6 +5279,7 @@ ellglobalred(GEN E)
 {
   pari_sp av = avma;
   GEN S, gr, v;
+  checkell(E);
   switch(ell_get_type(E))
   {
     default: pari_err_TYPE("ellglobalred",E);
