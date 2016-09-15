@@ -1558,7 +1558,7 @@ nf_combine_factors(nfcmbf_t *T, GEN polred, long klim)
 }
 
 static GEN
-nf_DDF_roots(GEN pol, GEN polred, GEN nfpol, GEN init_fa, long nbf,
+nf_DDF_roots(GEN pol, GEN polred, GEN nfpol, long nbf,
               long fl, nflift_t *L)
 {
   GEN z, Cltx_r, ltdn;
@@ -1567,16 +1567,7 @@ nf_DDF_roots(GEN pol, GEN polred, GEN nfpol, GEN init_fa, long nbf,
 
   init_div_data(&D, pol, L);
   ltdn = mul_content(D.lt, L->dn);
-  if (L->Tpk)
-  {
-    int cof = (degpol(pol) > nbf); /* non trivial cofactor ? */
-    z = FqX_split_roots(init_fa, L->Tp, L->p, cof? polred: NULL);
-    z = ZqX_liftfact(polred, z, L->Tpk, L->pk, L->p, L->k);
-    if (cof) setlg(z, lg(z)-1); /* remove cofactor */
-    z = roots_from_deg1(z);
-  }
-  else
-    z = ZpX_roots(polred, L->p, L->k);
+  z = ZqX_roots(polred, L->Tpk, L->p, L->k);
   Cltx_r = deg1pol_shallow(D.Clt? D.Clt: gen_1, NULL, varn(pol));
   for (m=1,i=1; i<lg(z); i++)
   {
@@ -1646,7 +1637,7 @@ get_maxf(long nfdeg)
  *   Tp: polynomial defining Fq/Fp */
 static long
 nf_pick_prime(long ct, GEN nf, GEN polbase, long fl,
-              GEN *lt, GEN *Fa, GEN *pr, GEN *Tp)
+              GEN *lt, GEN *pr, GEN *Tp)
 {
   GEN nfpol = nf_get_pol(nf), bad = mulii(nf_get_disc(nf), nf_get_index(nf));
   long maxf, nfdeg = degpol(nfpol), dpol = degpol(polbase), nbf = 0;
@@ -1658,7 +1649,6 @@ nf_pick_prime(long ct, GEN nf, GEN polbase, long fl,
   *lt  = leading_coeff(polbase); /* t_INT */
   if (gequal1(*lt)) *lt = NULL;
   *pr = NULL;
-  *Fa = NULL;
   *Tp = NULL;
 
   maxf = get_maxf(nfdeg);
@@ -1666,7 +1656,7 @@ nf_pick_prime(long ct, GEN nf, GEN polbase, long fl,
   /* select pr such that pol has the smallest number of factors, ct attempts */
   while ((pp = u_forprime_next(&S)))
   {
-    GEN aT, apr, ap, amodpr, red, r, fa = NULL;
+    GEN aT, apr, ap, amodpr, red, r;
     long anbf;
     ulong ltp = 0;
     pari_sp av2 = avma;
@@ -1694,8 +1684,8 @@ nf_pick_prime(long ct, GEN nf, GEN polbase, long fl,
     {
       if (ltp) red = FqX_normalize(red, aT,ap);
       if (!FqX_is_squarefree(red,aT,ap)) { avma = av2; continue; }
-      anbf = fl == FACTORS? FqX_split_by_degree(&fa, red, aT, ap)
-                          : FqX_split_deg1(&fa, red, aT, ap);
+      anbf = fl == FACTORS? FqX_nbfact(red, aT, ap)
+                          : FqX_nbroots(red, aT, ap);
     }
     if (fl == ROOTS_SPLIT && anbf < dpol) return anbf;
     if (anbf <= 1)
@@ -1713,7 +1703,6 @@ nf_pick_prime(long ct, GEN nf, GEN polbase, long fl,
       nbf = anbf;
       *pr = apr;
       *Tp = aT;
-      *Fa = fa;
     }
     else avma = av2;
     if (--ct <= 0) break;
@@ -1802,7 +1791,7 @@ static GEN
 nfsqff(GEN nf, GEN pol, long fl, GEN den)
 {
   long n, nbf, dpol = degpol(pol);
-  GEN pr, C0, polbase, init_fa = NULL;
+  GEN pr, C0, polbase;
   GEN N2, res, polred, lt, nfpol = typ(nf)==t_POL?nf:nf_get_pol(nf);
   nfcmbf_t T;
   nflift_t L;
@@ -1837,7 +1826,7 @@ nfsqff(GEN nf, GEN pol, long fl, GEN den)
   }
 
   polbase = RgX_to_nfX(nf, pol);
-  nbf = nf_pick_prime(5, nf, polbase, fl, &lt, &init_fa, &pr, &L.Tp);
+  nbf = nf_pick_prime(5, nf, polbase, fl, &lt, &pr, &L.Tp);
   if (fl == ROOTS_SPLIT && nbf < dpol) return cgetg(1,t_VEC);
   if (nbf <= 1)
   {
@@ -1879,25 +1868,12 @@ nfsqff(GEN nf, GEN pol, long fl, GEN den)
   polred = ZqX_normalize(polbase, lt, &L); /* monic */
 
   if (fl != FACTORS) {
-    GEN z = nf_DDF_roots(pol, polred, nfpol, init_fa, nbf, fl, &L);
+    GEN z = nf_DDF_roots(pol, polred, nfpol, nbf, fl, &L);
     if (lg(z) == 1) return cgetg(1, t_VEC);
     return z;
   }
 
-  {
-    pari_sp av = avma;
-    if (L.Tp)
-      res = FqX_split_all(init_fa, L.Tp, L.p);
-    else
-    {
-      long d;
-      res = cgetg(dpol + 1, t_VEC); gel(res,1) = FpX_red(polred,L.p);
-      d = FpX_split_Berlekamp((GEN*)(res + 1), L.p);
-      setlg(res, d + 1);
-    }
-    gen_sort_inplace(res, (void*)&cmp_RgX, &gen_cmp_RgX, NULL);
-    T.fact  = gerepilecopy(av, res);
-  }
+  T.fact = gel(FqX_factor(polred, L.Tp, L.p), 1);
   if (DEBUGLEVEL>2) timer_printf(&ti, "splitting mod %Ps", pr);
   T.pr = pr;
   T.L  = &L;
