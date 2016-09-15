@@ -1152,7 +1152,7 @@ static void
 FqX_split(GEN *t, long d, GEN q, GEN S, GEN T, GEN p)
 {
   GEN u = *t;
-  long l, v, cnt, dt = degpol(u);
+  long l, v, is2, cnt, dt = degpol(u), dT = degpol(T);
   pari_sp av;
   pari_timer ti;
   GEN w,w0;
@@ -1160,17 +1160,30 @@ FqX_split(GEN *t, long d, GEN q, GEN S, GEN T, GEN p)
   if (dt == d) return;
   v = varn(*t);
   if (DEBUGLEVEL > 6) timer_start(&ti);
-  av = avma;
+  av = avma; is2 = absequaliu(p, 2);
   for(cnt = 1;;cnt++, avma = av)
   { /* splits *t with probability ~ 1 - 2^(1-r) */
     w = w0 = random_FpXQX(dt,v, T,p);
     if (degpol(w) <= 0) continue;
     for (l=1; l<d; l++) /* sum_{0<i<d} w^(q^i), result in (F_q)^r */
-      w = FpXX_add(w0, FqX_Frobenius_eval(w, S, u, T, p), p);
-    w = FpXQXQ_halfFrobenius(w, *t, T, p);
-    /* w in {-1,0,1}^r */
-    if (degpol(w) <= 0) continue;
-    gel(w,2) = gadd(gel(w,2), gen_1);
+      w = RgX_add(w0, FqX_Frobenius_eval(w, S, u, T, p));
+    w = FpXQX_red(w, T,p);
+    if (is2)
+    {
+      w0 = w;
+      for (l=1; l<dT; l++) /* sum_{0<i<k} w^(2^i), result in (F_2)^r */
+      {
+        w = FqX_rem(FqX_sqr(w,T,p), *t, T,p);
+        w = FpXX_red(RgX_add(w0,w), p);
+      }
+    }
+    else
+    {
+      w = FpXQXQ_halfFrobenius(w, *t, T, p);
+      /* w in {-1,0,1}^r */
+      if (degpol(w) <= 0) continue;
+      gel(w,2) = gadd(gel(w,2), gen_1);
+    }
     w = FqX_gcd(*t,w, T,p); l = degpol(w);
     if (l && l != dt) break;
   }
