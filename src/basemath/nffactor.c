@@ -2223,23 +2223,25 @@ rootsof1(GEN nf)
 }
 
 static long
-nf_pm1(GEN y) {
-  GEN z = gel(y,1);
-  return (is_pm1(z) && ZV_isscalar(y))? signe(z): 0;
+zk_equal1(GEN y)
+{
+  if (typ(y) == t_INT) return equali1(y);
+  return equali1(gel(y,1)) && ZV_isscalar(y);
 }
+/* x^w = 1 */
 static GEN
 is_primitive_root(GEN nf, GEN fa, GEN x, long w)
 {
-  GEN y, exp = utoipos(2), pp = gel(fa,1);
-  long i,p, l = lg(pp);
+  GEN P = gel(fa,1);
+  long i, l = lg(P);
 
-  for (i=1; i<l; i++)
+  for (i = 1; i < l; i++)
   {
-    p = itos(gel(pp,i));
-    exp[2] = w / p; y = nfpow(nf,x,exp);
-    if (nf_pm1(y) > 0) /* y = 1 */
+    long p = itos(gel(P,i));
+    GEN y = nfpow_u(nf,x, w/p);
+    if (zk_equal1(y) > 0) /* y = 1 */
     {
-      if (p!=2 || !gequal1(gcoeff(fa,i,2))) return NULL;
+      if (p != 2 || !equali1(gcoeff(fa,i,2))) return NULL;
       x = gneg_i(x);
     }
   }
