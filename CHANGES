@@ -97,6 +97,7 @@ BA 29- [libpari] FlxXC_to_F2xXC, F2xXC_to_ZXXC
    16- gcd(t_VEC/t_COL/t_MAT, ...) is now forbidden, same for lcm
    17- E/Qp: add sequence of isogenous curves  to structure (converges to the
        singular E_oo) => much faster ellpointtoz
+BA 18- ZpX_liftfact no more handles extensions of Qp, use ZqX_liftfact for that
 
 Done for version 2.8.0 (released 12/08/2016):
 

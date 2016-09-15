@@ -6208,15 +6208,12 @@ leading term prime to $p$, and $S$ a vector of simple roots mod $p$. Return a
 vector of \typ{INT}s which are the root of $f$ mod $p^e$ congruent to the
 $S[i]$ mod $p$.
 
-\fun{GEN}{ZpX_liftfact}{GEN A, GEN B, GEN T, GEN p, long e, GEN pe} is
-the routine underlying \tet{polhensellift}. Here, $p$ is prime, $T(Y)$
-defines a finite field $\F_q$, either $\F_q = \F_p$ ($T$ is \kbd{NULL})
-or a non-prime finite field ($T$ an \kbd{FpX}). $A$ is a polynomial in
-$\Z[X]$ ($T$ \kbd{NULL}) or $\Z[X,Y]$, whose leading coefficient
-is non-zero in $\F_q$. $B$ is a vector of monic \kbd{FpX} ($T$ \kbd{NULL}) or
-\kbd{FqX}, pairwise coprime in $\F_q[X]$, whose product is congruent to
-$A/\text{lc}(A)$ in $\F_q[X]$. Lifts the elements of $B$ mod $\kbd{pe} =
-p^e$, such that the congruence now holds mod $(T,p^e)$.
+\fun{GEN}{ZpX_liftfact}{GEN A, GEN B, GEN pe, GEN p, long e} is
+the routine underlying \tet{polhensellift}. Here, $p$ is prime
+defines a finite field $\F_p$. $A$ is a polynomial in
+$\Z[X]$, whose leading coefficient is non-zero in $\F_q$. $B$ is a vector of
+monic \kbd{FpX}, pairwise coprime in $\F_p[X]$, whose product is congruent to
+$A/\text{lc}(A)$ in $\F_p[X]$. Lifts the elements of $B$ mod $\kbd{pe} = p^e$.
 
 \fun{GEN}{ZpX_Frobenius}{GEN T, GEN p, ulong e} returns the $p$-adic lift
 of the Frobenius automorphism of $\F_p[X]/(T)$ to precision $e$.
@@ -6313,6 +6310,14 @@ over $\Z_p[X]/(T)$ and $n$ is the degree of $T$.
 
 \subsec{ZpXQX}
 
+\fun{GEN}{ZpXQX_liftfact}{GEN A, GEN B, GEN T, GEN pe, GEN p, long e} is the
+routine underlying \tet{polhensellift}. Here, $p$ is prime, $T(Y)$ defines a
+finite field $\F_q$. $A$ is a polynomial in $\Z[X,Y]$, whose leading
+coefficient is non-zero in $\F_q$. $B$ is a vector of monic or \kbd{FqX},
+pairwise coprime in $\F_q[X]$, whose product is congruent to $A/\text{lc}(A)$
+in $\F_q[X]$. Lifts the elements of $B$ mod $\kbd{pe} = p^e$, such that the
+congruence now holds mod $(T,p^e)$.
+
 \fun{GEN}{ZpXQX_liftroot}{GEN f, GEN a, GEN T, GEN p, long e} as
 \tet{ZpX_liftroot}, but $f$ is now a polynomial in $\Z[X,Y]$ and lift the
 root $a$ in the unramified extension of $\Q_p$ with residue field $\F_p[Y]/(T)$,
@@ -6328,6 +6333,10 @@ as \kbd{FpXQX\_divrem}. The parameter $q$ must be equal to $p^e$.
 
 \fun{GEN}{ZpXQX_digits}{GEN x, GEN B, GEN T, GEN q, GEN p, long e}
 As \kbd{FpXQX\_digits}. The parameter $q$ must be equal to $p^e$.
+
+\subsec{ZqX}
+
+\fun{GEN}{ZqX_liftfact}{GEN A, GEN B, GEN T, GEN pe, GEN p, long e}
 
 \subsec{Other $p$-adic functions}
 

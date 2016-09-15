@@ -1282,7 +1282,7 @@ init_proj(nflift_t *L, GEN nfT)
   {
     GEN coTp = FpX_div(FpX_red(nfT, L->p), L->Tp,  L->p); /* Tp's cofactor */
     GEN z, proj;
-    z = ZpX_liftfact(nfT, mkvec2(L->Tp, coTp), NULL,  L->p, L->k, L->pk);
+    z = ZpX_liftfact(nfT, mkvec2(L->Tp, coTp), L->pk, L->p, L->k);
     L->Tpk = gel(z,1);
     proj = get_proj_modT(L->topow, L->Tpk, L->pk);
     if (L->topowden)
@@ -1428,7 +1428,7 @@ nf_LLL_cmbf(nfcmbf_t *T, long rec)
 
       bestlift_init((L->k)<<1, T->nf, T->pr, Btra, L);
       polred = ZqX_normalize(T->polbase, lP, L);
-      famod = ZpX_liftfact(polred, famod, L->Tpk, L->p, L->k, L->pk);
+      famod = ZqX_liftfact(polred, famod, L->Tpk, L->pk, L->p, L->k);
       for (i=1; i<=n0; i++) TT[i] = 0;
     }
     for (i=1; i<=n0; i++)
@@ -1537,7 +1537,7 @@ nf_combine_factors(nfcmbf_t *T, GEN polred, long klim)
   pari_timer ti;
 
   if (DEBUGLEVEL>2) timer_start(&ti);
-  T->fact = ZpX_liftfact(polred, T->fact, L->Tpk, L->p, L->k, L->pk);
+  T->fact = ZqX_liftfact(polred, T->fact, L->Tpk, L->pk, L->p, L->k);
   if (DEBUGLEVEL>2) timer_printf(&ti, "Hensel lift");
   res = nfcmbf(T, klim, &maxK, &done);
   if (DEBUGLEVEL>2) timer_printf(&ti, "Naive recombination");
@@ -1571,7 +1571,7 @@ nf_DDF_roots(GEN pol, GEN polred, GEN nfpol, GEN init_fa, long nbf,
   {
     int cof = (degpol(pol) > nbf); /* non trivial cofactor ? */
     z = FqX_split_roots(init_fa, L->Tp, L->p, cof? polred: NULL);
-    z = ZpX_liftfact(polred, z, L->Tpk, L->p, L->k, L->pk);
+    z = ZqX_liftfact(polred, z, L->Tpk, L->pk, L->p, L->k);
     if (cof) setlg(z, lg(z)-1); /* remove cofactor */
     z = roots_from_deg1(z);
   }

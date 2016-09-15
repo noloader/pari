@@ -316,12 +316,27 @@ MultiLift(GEN f, GEN a, GEN T, GEN p, long e0, long flag)
 /* Q list of (coprime, monic) factors of pol mod (T,p). Lift mod p^e = pe.
  * T may be NULL */
 GEN
-ZpX_liftfact(GEN pol, GEN Q, GEN T, GEN p, long e, GEN pe)
+ZpX_liftfact(GEN pol, GEN Q, GEN pe, GEN p, long e)
 {
   pari_sp av = avma;
   if (lg(Q) == 2) return mkvec(pol);
-  pol = FqX_normalize(pol, T, pe);
+  pol = FpX_normalize(pol, pe);
+  return gerepilecopy(av, MultiLift(pol, Q, NULL, p, e, 0));
+}
+
+GEN
+ZpXQX_liftfact(GEN pol, GEN Q, GEN T, GEN pe, GEN p, long e)
+{
+  pari_sp av = avma;
+  if (lg(Q) == 2) return mkvec(pol);
+  pol = FpXQX_normalize(pol, T, pe);
   return gerepilecopy(av, MultiLift(pol, Q, T, p, e, 0));
+}
+
+GEN
+ZqX_liftfact(GEN f, GEN a, GEN T, GEN pe, GEN p, long e)
+{
+  return T ? ZpXQX_liftfact(f, a, T, pe, p, e): ZpX_liftfact(f, a, pe, p, e);
 }
 
 /* U = NULL treated as 1 */
@@ -401,7 +416,7 @@ polhensellift(GEN pol, GEN L, GEN p, long N)
       gel(L,i) = scalar_ZX_shallow(gel(L,i), varn(pol));
     RgX_check_ZXX(gel(L,i), "polhensellift");
   }
-  return gerepilecopy(av, ZpX_liftfact(pol, L, T, p, N, powiu(p,N)));
+  return gerepilecopy(av, ZqX_liftfact(pol, L, T, powiu(p,N), p, N));
 }
 
 static GEN
@@ -415,7 +430,7 @@ ZpX_liftroots_full(GEN f, GEN S, GEN p, long e)
   for (i=1; i<=n; i++)
     gel(r,i) = deg1pol(gen_1, Fp_neg(gel(S, i), p), v);
   q = powiu(p, e);
-  y = ZpX_liftfact(f, r, NULL, p, e, q);
+  y = ZpX_liftfact(f, r, q, p, e);
   r = cgetg(n+1 ,t_COL);
   for (i=1; i<=n; i++)
     gel(r,i) = Fp_neg(gmael(y, i, 2), q);
@@ -439,7 +454,7 @@ ZpX_roots(GEN F, GEN p, long e)
     gel(r,i) = deg1pol_shallow(gen_1, Fp_neg(gel(S,i), p), v);
   if (l < degpol(f)) gel(r, n) = FpX_div(f, g, p);
   q = powiu(p, e);
-  y = ZpX_liftfact(F, r, NULL, p, e, q);
+  y = ZpX_liftfact(F, r, q, p, e);
   r = cgetg(l+1 ,t_COL);
   for (i=1; i<=l; i++) gel(r,i) = Fp_neg(gmael(y,i,2), q);
   return gerepileupto(av, r);

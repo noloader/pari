@@ -832,7 +832,7 @@ GEN     ZpX_Frobenius(GEN T, GEN p, long e);
 GEN     ZpX_ZpXQ_liftroot(GEN P, GEN S, GEN T, GEN p, long e);
 GEN     ZpX_ZpXQ_liftroot_ea(GEN P, GEN S, GEN T, GEN p, long n, void *E,
                      int early(void *E, GEN x, GEN q));
-GEN     ZpX_liftfact(GEN pol, GEN Q, GEN T, GEN p, long e, GEN pe);
+GEN     ZpX_liftfact(GEN pol, GEN Q, GEN pe, GEN p, long e);
 GEN     ZpX_liftroot(GEN f, GEN a, GEN p, long e);
 GEN     ZpX_liftroots(GEN f, GEN S, GEN p, long e);
 GEN     ZpX_roots(GEN f, GEN p, long e);
@@ -845,8 +845,10 @@ GEN     ZpXQ_sqrtnlift(GEN b, GEN n, GEN a, GEN T, GEN p, long e);
 GEN     ZpXQM_prodFrobenius(GEN M, GEN T, GEN p, long e);
 GEN     ZpXQX_digits(GEN x, GEN B, GEN T, GEN q, GEN p, long e);
 GEN     ZpXQX_divrem(GEN x, GEN S, GEN T, GEN q, GEN p, long e, GEN *pr);
+GEN     ZpXQX_liftfact(GEN pol, GEN Q, GEN T, GEN pe, GEN p, long e);
 GEN     ZpXQX_liftroot(GEN f, GEN a, GEN T, GEN p, long e);
 GEN     ZpXQX_liftroot_vald(GEN f, GEN a, long v, GEN T, GEN p, long e);
+GEN     ZqX_liftfact(GEN pol, GEN Q, GEN T, GEN pe, GEN p, long e);
 GEN     gen_ZpX_Dixon(GEN F, GEN V, GEN q, GEN p, long N, void *E,
                              GEN lin(void *E, GEN F, GEN d, GEN q),
                              GEN invl(void *E, GEN d));

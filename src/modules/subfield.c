@@ -669,7 +669,7 @@ compute_data(blockdata *B)
 
   /* compute fhk = ZpX_liftfact(pol,fk,T,p,e,pe) in 2 steps
    * 1) lift in Zp to precision p^e */
-  ffL = ZpX_liftfact(pol, ff, NULL, p, e, pe);
+  ffL = ZpX_liftfact(pol, ff, pe, p, e);
   fhk = NULL;
   for (l=i=1; i<lff; i++)
   { /* 2) lift factorization of ff[i] in Qp[X] / T */
@@ -677,7 +677,7 @@ compute_data(blockdata *B)
     long di = degpol(L);
     F = cgetg(di+1, t_VEC);
     for (j=1; j<=di; j++) F[j] = fk[l++];
-    L = ZpX_liftfact(L, F, T, p, e, pe);
+    L = ZqX_liftfact(L, F, T, pe, p, e);
     fhk = fhk? shallowconcat(fhk, L): L;
   }
   gel(DATA,3) = roots_from_deg1(fhk);
