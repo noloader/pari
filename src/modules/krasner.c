@@ -19,9 +19,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 /*               degree of a p-adic field                   */
 /* Xavier Roblot                                            */
 /************************************************************/
-
-#undef CHECK_EXTENSIONS
-
 /* cf. Math. Comp, vol. 70, No. 236, pp. 1641-1659 for more details.
    Note that n is now e (since the e from the paper is always = 1) and l
    is now f */
@@ -333,33 +330,6 @@ GetSharp(FAD_t *fdata, GEN pp, GEN ppp, GEN pol, GEN beta, long *pl)
   return gerepilecopy(av, normalizepol(p1));
 }
 
-#ifdef CHECK_EXTENSIONS
-static void
-PrintValuations(GEN pol, GEN mod, GEN p)
-{
-  long i, d = degpol(pol);
-  for (i = 0; i <= d; i++)
-    err_printf("%d ", Z_pval(RgXQ_norm(gel(pol, i+2), mod), p));
-}
-
-/* Return the degree of pol mod the prime ideal of top */
-static long
-DegreeMod(FAD_t *fdata, GEN pp, GEN ppp, GEN pol)
-{
-  long d = degpol(pol); /* should be > 0 */
-  pari_sp av = avma;
-
-  do
-  {
-    GEN c = gel(pol, d+2);
-    if (!gequal0(c) && !DivideByPi(fdata, pp, ppp, c))
-      return d;
-  }
-  while (--d >= 1);
-  avma = av; return 0;
-}
-#endif
-
 /* Compute roots of pol in the residue field. Use table look-up if possible */
 static GEN
 Quick_FqX_roots(KRASNER_t *data, GEN pol)
@@ -405,10 +375,6 @@ RootCongruents(KRASNER_t *data, FAD_t *fdata, GEN pol, GEN alpha, GEN pp, GEN pp
     long l;
     pol = GetSharp(fdata, pp, ppp, pol, alpha, &l);
     if (l <= 1) return l;
-#ifdef CHECK_EXTENSIONS
-    if (l != DegreeMod(fdata, pp, ppp, pol))
-      pari_err_BUG("RootCongruents [degree mismatch in RCA]");
-#endif
     /* decrease precision if sl gets bigger than a multiple of e */
     sl += l;
     if (sl >= data->e)
@@ -509,13 +475,6 @@ TamelyRamifiedCase(KRASNER_t *data)
   long av = avma, g;
   GEN rep, p2, topx, m, eis, Xe = gpowgs(pol_x(0), data->e);
 
-#ifdef CHECK_EXTENSIONS
-  FAD_t fdata;
-  long cnt = 0, nb, j;
-  GEN vpl;
-  err_printf("Number of extensions: %ld\n", itos(data->nbext));
-#endif
-
   g   = ugcd(data->e, umodiu(data->qm1, data->e)); /* (e, q-1) */
   m   = stoi(data->e/g);
   rep = zerovec(g);
@@ -524,21 +483,6 @@ TamelyRamifiedCase(KRASNER_t *data)
   topx = get_topx(data, eis);
   p2 = mkvec2(topx, m);
   gel(rep, 1) = p2;
-#ifdef CHECK_EXTENSIONS
-  vpl = zerovec(g);
-  gel(vpl, 1) = eis;
-  if (data->e == 1)
-    nb = 1;
-  else
-  {
-    FieldData(data, &fdata, eis, topx);
-    NbConjugateFields(data, &fdata);
-    nb = fdata.cj;
-  }
-  err_printf("Found %ld field(s)\n", nb);
-  cnt += nb;
-#endif
-
   if (g > 1)
   {
     ulong pmodg = umodiu(data->p, g);
@@ -553,17 +497,6 @@ TamelyRamifiedCase(KRASNER_t *data)
       topx = get_topx(data, eis);
       p2 = mkvec2(topx, m);
       gel(rep, ct) = p2;
-#ifdef CHECK_EXTENSIONS
-      gel(vpl, ct) = eis;
-      FieldData(data, &fdata, eis, topx);
-      for (j = 1; j < ct; j++)
-        if (IsIsomorphic(data, &fdata, gel(vpl, j)))
-          pari_err_BUG("TamelyRamifiedCase [isomorphic fields]");
-      NbConjugateFields(data, &fdata);
-      nb = fdata.cj;
-      err_printf("Found %ld field(s)\n", nb);
-      cnt += nb;
-#endif
       gr = r;
       do
       {
@@ -575,12 +508,6 @@ TamelyRamifiedCase(KRASNER_t *data)
     }
     setlg(rep, ct+1);
   }
-
-#ifdef CHECK_EXTENSIONS
-  if (!absequaliu(data->nbext, cnt))
-    pari_err_BUG("TamelyRamifiedCase [incorrect #fields]");
-#endif
-
   return gerepilecopy(av, rep);
 }
 
@@ -721,16 +648,6 @@ WildlyRamifiedCase(KRASNER_t *data)
   { /* Jump randomly among the polynomials : seems best... */
     rpl = RandomPol(data, Omega);
     if (DEBUGLEVEL>3) err_printf("considering polynomial %Ps\n", rpl);
-#ifdef CHECK_EXTENSIONS
-    {
-      GEN disc = poldisc0(rpl, 0);
-      long e = data->e, f = data->f, j = data->j;
-      disc = RgXQ_norm(disc, data->upl);
-      if (Z_pval(disc, data->p) != f*(e+j-1))
-        pari_err_BUG("WildlyRamifiedCase [incorrect discriminant]");
-    }
-#endif
-
     for (j = 0; j < ct; j++)
     {
       nb = IsIsomorphic(data, vfd[j], rpl);
