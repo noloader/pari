@@ -5050,6 +5050,9 @@ in $\F_p[X]$.
 
 \fun{GEN}{FqX_factor}{GEN x, GEN T, GEN p} same but allow $\kbd{T} = \kbd{NULL}$.
 
+\fun{GEN}{FpXQX_split_part}{GEN f, GEN T, GEN p} returns the largest totally
+split squarefree factor of $f$.
+
 \fun{long}{FqX_ispower}{GEN f, ulong k, GEN T, GEN p, GEN *pt} return
 returns 1 if \kbd{FqX} $f$ is a $K$-th power Return $0$
 otherwise. If \kbd{py} is not \kbd{NULL}, set it to $g$ such that $g^K = f$.

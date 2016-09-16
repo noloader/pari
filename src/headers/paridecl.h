@@ -675,6 +675,7 @@ GEN     FpXQX_factor(GEN x, GEN T, GEN p);
 long    FpXQX_nbfact(GEN u, GEN T, GEN p);
 long    FpXQX_nbroots(GEN f, GEN T, GEN p);
 GEN     FpXQX_roots(GEN f, GEN T, GEN p);
+GEN     FpXQX_split_part(GEN f, GEN T, GEN p);
 GEN     FpXQXQ_halfFrobenius(GEN a, GEN S, GEN T, GEN p);
 long    FqX_is_squarefree(GEN P, GEN T, GEN p);
 long    FqX_nbfact(GEN u, GEN T, GEN p);

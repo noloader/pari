@@ -955,18 +955,6 @@ FqX_Frobenius_eval(GEN x, GEN V, GEN S, GEN T, GEN p)
 }
 
 static GEN
-FpXQX_split_part(GEN f, GEN T, GEN p)
-{
-  long n = degpol(f);
-  GEN z, X = pol_x(varn(f));
-  if (n <= 1) return f;
-  f = FpXQX_red(f, T, p);
-  z = FpXQX_Frobenius(f, T, p);
-  z = FpXX_sub(z, X , p);
-  return FpXQX_gcd(z, f, T, p);
-}
-
-static GEN
 FlxqX_split_part(GEN f, GEN T, ulong p)
 {
   long n = degpol(f);
@@ -978,18 +966,32 @@ FlxqX_split_part(GEN f, GEN T, ulong p)
   return FlxqX_gcd(z, f, T, p);
 }
 
+GEN
+FpXQX_split_part(GEN f, GEN T, GEN p)
+{
+  if(lgefint(p)==3)
+  {
+    ulong pp=p[2];
+    GEN Tp = ZXT_to_FlxT(T, pp);
+    GEN z = FlxqX_split_part(ZXX_to_FlxX(f, pp, varn(T)), Tp, pp);
+    return FlxX_to_ZXX(z);
+  } else
+  {
+    long n = degpol(f);
+    GEN z, X = pol_x(varn(f));
+    if (n <= 1) return f;
+    f = FpXQX_red(f, T, p);
+    z = FpXQX_Frobenius(f, T, p);
+    z = FpXX_sub(z, X , p);
+    return FpXQX_gcd(z, f, T, p);
+  }
+}
+
 long
 FpXQX_nbroots(GEN f, GEN T, GEN p)
 {
   pari_sp av = avma;
-  GEN z;
-  if(lgefint(p)==3)
-  {
-    ulong pp=p[2];
-    z = FlxqX_split_part(ZXX_to_FlxX(f,pp,varn(T)),ZXT_to_FlxT(T,pp),pp);
-  }
-  else
-    z = FpXQX_split_part(f, T, p);
+  GEN z = FpXQX_split_part(f, T, p);
   avma = av; return degpol(z);
 }
 
