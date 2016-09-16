@@ -4054,7 +4054,7 @@ switchin_last(void)
 }
 
 /* return 1 if s starts by '/' or './' or '../' */
-int
+static int
 path_is_absolute(char *s)
 {
 #ifdef _WIN32
