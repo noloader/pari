@@ -374,7 +374,6 @@ gp_data *default_gp_data(void);
 
 void delete_dirs(gp_path *p);
 void gp_expand_path(gp_path *p);
-const char *pari_default_path(void);
 int path_is_absolute(char *s);
 
 typedef char *(*fgets_t)(char *, int, void*);

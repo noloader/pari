@@ -110,6 +110,63 @@ get_uint(const char *s)
   u = my_int(p); avma = av; return u;
 }
 
+#if defined(__EMX__) || defined(_WIN32) || defined(__CYGWIN32__)
+#  define PATH_SEPARATOR ';' /* beware DOSish 'C:' disk drives */
+#else
+#  define PATH_SEPARATOR ':'
+#endif
+
+static const char *
+pari_default_path(void) {
+#if PATH_SEPARATOR == ';'
+  return ".;C:;C:/gp";
+#elif defined(UNIX)
+  return ".:~:~/gp";
+#else
+  return ".";
+#endif
+}
+
+void
+delete_dirs(gp_path *p)
+{
+  char **v = p->dirs, **dirs;
+  if (v)
+  {
+    p->dirs = NULL; /* in case of error */
+    for (dirs = v; *dirs; dirs++) pari_free(*dirs);
+    pari_free(v);
+  }
+}
+
+void
+gp_expand_path(gp_path *p)
+{
+  char **dirs, *s, *v = p->PATH;
+  int i, n = 0;
+
+  delete_dirs(p);
+  v = pari_strdup(v);
+  for (s=v; *s; s++)
+    if (*s == PATH_SEPARATOR) {
+      *s = 0;
+      if (s == v || s[-1] != 0) n++; /* ignore empty path components */
+    }
+  dirs = (char**) pari_malloc((n + 2)*sizeof(char *));
+
+  for (s=v, i=0; i<=n; i++)
+  {
+    char *end, *f;
+    while (!*s) s++; /* skip empty path components */
+    f = end = s + strlen(s);
+    while (f > s && *--f == '/') *f = 0; /* skip trailing '/' */
+    dirs[i] = path_expand(s);
+    s = end + 1; /* next path component */
+  }
+  pari_free((void*)v);
+  dirs[i] = NULL; p->dirs = dirs;
+}
+
 /********************************************************************/
 /*                                                                  */
 /*                            DEFAULTS                              */
