@@ -1071,8 +1071,8 @@ FlxqX_split_Berlekamp(GEN *t, GEN T, ulong p)
 }
 
 
-long
-FqX_split_Berlekamp(GEN *t, GEN T, GEN p)
+static long
+FpXQX_split_Berlekamp(GEN *t, GEN T, GEN p)
 {
   GEN u = *t, a,b,vker,pol;
   long vu = varn(u), vT = varn(T), dT = degpol(T);
@@ -1891,7 +1891,7 @@ FpXQX_Berlekamp_i(GEN f, GEN T, GEN p)
   {
     if (degpol(gel(V,k))==0) continue;
     gel(t,lfact) = FpXQX_normalize(gel(V, k), T,p);
-    d = FqX_split_Berlekamp(&gel(t,lfact), T, p);
+    d = FpXQX_split_Berlekamp(&gel(t,lfact), T, p);
     for (j = 0; j < d; j++) E[lfact+j] = k;
     lfact += d;
   }

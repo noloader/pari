@@ -496,10 +496,6 @@ GEN  RgX_recipspec_shallow(GEN x, long l, long n);
 
 /* b) Modular */
 GEN  bezout_lift_fact(GEN T, GEN Tmod, GEN p, long e);
-long F2x_split_Berlekamp(GEN *t);
-long Flx_split_Berlekamp(GEN *t, ulong p);
-long FpX_split_Berlekamp(GEN *t, GEN pp);
-long FqX_split_Berlekamp(GEN *t, GEN T, GEN p);
 GEN  FpX_quad_root(GEN x, GEN p, int unknown);
 GEN  polsym_gen(GEN P, GEN y0, long n, GEN T, GEN N);
 GEN  ZXQ_charpoly_sqf(GEN A, GEN B, long *lambda, long v);

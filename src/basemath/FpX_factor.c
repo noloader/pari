@@ -2217,7 +2217,7 @@ deg1_Flx(ulong x1, ulong x0, ulong sv)
   return mkvecsmall3(sv, x0, x1);
 }
 
-long
+static long
 F2x_split_Berlekamp(GEN *t)
 {
   GEN u = *t, a, b, vker;
@@ -2287,7 +2287,7 @@ F2x_split_Berlekamp(GEN *t)
 }
 
 /* p != 2 */
-long
+static long
 Flx_split_Berlekamp(GEN *t, ulong p)
 {
   GEN u = *t, a,b,vker;
@@ -2365,7 +2365,7 @@ Flx_split_Berlekamp(GEN *t, ulong p)
   return d;
 }
 
-long
+static long
 FpX_split_Berlekamp(GEN *t, GEN p)
 {
   GEN u = *t, a,b,po2,vker;
