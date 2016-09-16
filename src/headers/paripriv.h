@@ -357,7 +357,6 @@ typedef struct {
 } filtre_t;
 void init_filtre(filtre_t *F, Buffer *buf);
 Buffer *filtered_buffer(filtre_t *F);
-const char *break_loop_prompt(long n);
 void kill_buffers_upto_including(Buffer *B);
 void pop_buffer(void);
 void kill_buffers_upto(Buffer *B);

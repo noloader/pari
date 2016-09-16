@@ -406,6 +406,13 @@ read_main(const char *s)
   avma = pari_mainstack->top;
 }
 
+static const char *
+break_loop_prompt(long n)
+{
+  const char *s = (n==1)? "break> ": stack_sprintf("break[%ld]> ", n);
+  return gp_format_prompt(s);
+}
+
 static long frame_level=0, dbg_level = 0;
 
 static int
