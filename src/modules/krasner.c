@@ -472,17 +472,13 @@ NbConjugateFields(KRASNER_t *data, FAD_t *fdata)
 static GEN
 TamelyRamifiedCase(KRASNER_t *data)
 {
-  long av = avma, g;
-  GEN rep, p2, topx, m, eis, Xe = gpowgs(pol_x(0), data->e);
+  long av = avma;
+  long g = ugcd(data->e, umodiu(data->qm1, data->e)); /* (e, q-1) */
+  GEN rep, eis, Xe = gpowgs(pol_x(0), data->e), m = stoi(data->e / g);
 
-  g   = ugcd(data->e, umodiu(data->qm1, data->e)); /* (e, q-1) */
-  m   = stoi(data->e/g);
   rep = zerovec(g);
-
   eis = gadd(Xe, data->p);
-  topx = get_topx(data, eis);
-  p2 = mkvec2(topx, m);
-  gel(rep, 1) = p2;
+  gel(rep, 1) = mkvec2(get_topx(data,eis), m);
   if (g > 1)
   {
     ulong pmodg = umodiu(data->p, g);
@@ -492,18 +488,11 @@ TamelyRamifiedCase(KRASNER_t *data)
     {
       long gr;
       GEN p1 = FpXQ_powu(pol_x(data->v), r, data->uplr, data->p);
-      eis = gadd(Xe, ZX_Z_mul(p1, data->p)); /* Adding a ZX and a ZY (cste coefficient) */
+      eis = gadd(Xe, ZX_Z_mul(p1, data->p)); /* ZX + ZY (add cst coef) */
       ct++;
-      topx = get_topx(data, eis);
-      p2 = mkvec2(topx, m);
-      gel(rep, ct) = p2;
+      gel(rep, ct) = mkvec2(get_topx(data,eis), m);
       gr = r;
-      do
-      {
-        SetSieveValue(sv, gr);
-        gr = Fl_mul(gr, pmodg, g);
-      }
-      while (gr != r);
+      do { SetSieveValue(sv, gr); gr = Fl_mul(gr, pmodg, g); } while (gr != r);
       r  = NextZeroValue(sv, r);
     }
     setlg(rep, ct+1);
@@ -656,11 +645,11 @@ WildlyRamifiedCase(KRASNER_t *data)
     if (!nb)
     {
       GEN topx = get_topx(data, rpl);
-      FAD_t *fdata = (FAD_t*)vfd[ct];
-      FieldData(data, fdata, rpl, topx);
-      CloneFieldData(fdata);
-      NbConjugateFields(data, fdata);
-      nb = fdata->cj;
+      FAD_t *f = (FAD_t*)vfd[ct];
+      FieldData(data, f, rpl, topx);
+      CloneFieldData(f);
+      NbConjugateFields(data, f);
+      nb = f->cj;
       fd += nb;
       ct++;
       if (DEBUGLEVEL>1)
@@ -673,12 +662,11 @@ WildlyRamifiedCase(KRASNER_t *data)
   rep = cgetg(ct+1, t_VEC);
   for (j = 0; j < ct; j++)
   {
-    GEN topx = ZX_copy(((FAD_t*)vfd[j])->top);
-    GEN p1;
+    FAD_t *f = (FAD_t*)vfd[j];
+    GEN topx = ZX_copy(f->top);
     setvarn(topx, 0);
-    p1 = mkvec2(topx, stoi(((FAD_t*)vfd[j])->cj));
-    gel(rep, j+1) = p1;
-    FreeFieldData((FAD_t*)vfd[j]);
+    gel(rep, j+1) = mkvec2(topx, stoi(f->cj));
+    FreeFieldData(f);
   }
   FreeRootTable(data->roottable);
   return gerepileupto(av, rep);
