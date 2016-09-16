@@ -347,23 +347,6 @@ END:
   setlg(fa, cnt); return mkvec2(fa, listmod);
 }
 
-void
-factor_quad(GEN x, GEN res, long *ptcnt)
-{
-  GEN a = gel(x,4), b = gel(x,3), c = gel(x,2), d, u, z1, z2, t;
-  GEN D = subii(sqri(b), shifti(mulii(a,c), 2));
-  long v, cnt = *ptcnt;
-
-  if (!Z_issquareall(D, &d)) { gel(res,cnt++) = x; *ptcnt = cnt; return; }
-
-  t = shifti(negi(addii(b, d)), -1);
-  z1 = gdiv(t, a); u = denom(z1);
-  z2 = gdiv(addii(t, d), a);
-  v = varn(x);
-  gel(res,cnt++) = gmul(u, gsub(pol_x(v), z1)); u = diviiexact(a, u);
-  gel(res,cnt++) = gmul(u, gsub(pol_x(v), z2)); *ptcnt = cnt;
-}
-
 /* recombination of modular factors: van Hoeij's algorithm */
 
 /* Q in Z[X], return Q(2^n) */

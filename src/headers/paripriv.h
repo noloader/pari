@@ -790,12 +790,7 @@ ulong modfn_root(ulong j, norm_eqn_t ne, long inv);
 long modfn_unambiguous_root(ulong *r, long inv, ulong j0, norm_eqn_t ne, GEN jdb);
 GEN qfb_nform(long D, long n);
 
-
-/* QX_factor */
-
-void    factor_quad(GEN x, GEN res, long *ptcnt);
-
-/* FpX.c */
+/* Fle.c */
 
 ulong   Flj_order_ufact(GEN P, ulong n, GEN F, ulong a4, ulong p, ulong pi);
 
