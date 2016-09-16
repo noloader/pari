@@ -459,6 +459,7 @@ GEN    rpowuu(ulong a, ulong n, long prec);
 
 /* floats */
 double dabs(double s, double t);
+double darg(double s, double t);
 void   dcxlog(double s, double t, double *a, double *b);
 double dnorm(double s, double t);
 double dbllog2(GEN z);
@@ -857,7 +858,6 @@ GEN     zellagmcx(GEN a0, GEN b0, GEN r, GEN t, long prec);
 
 /* trans2.c */
 
-double  darg(double s, double t);
 GEN     trans_fix_arg(long *prec, GEN *s0, GEN *sig, GEN *tau, pari_sp *av, GEN *res);
 
 /* trans3.c */
