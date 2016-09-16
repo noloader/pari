@@ -857,7 +857,6 @@ GEN     zellagmcx(GEN a0, GEN b0, GEN r, GEN t, long prec);
 
 /* trans2.c */
 
-GEN     cxpsi(GEN s0, long prec);
 double  darg(double s, double t);
 GEN     trans_fix_arg(long *prec, GEN *s0, GEN *sig, GEN *tau, pari_sp *av, GEN *res);
 

@@ -1649,8 +1649,7 @@ glngamma(GEN x, long prec)
 /**                  PSI(x) = GAMMA'(x)/GAMMA(x)                   **/
 /**                                                                **/
 /********************************************************************/
-
-GEN
+static GEN
 cxpsi(GEN s0, long prec)
 {
   pari_sp av, av2;
