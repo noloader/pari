@@ -923,38 +923,6 @@ F2xqX_Frobenius_powers(GEN S, GEN T)
 }
 
 static GEN
-FqX_Frobenius_powers(GEN S, GEN T, GEN p)
-{
-  long N = get_FpXQX_degree(S);
-  if (lgefint(p)==3)
-  {
-    ulong pp = p[2];
-    GEN Tp = ZXT_to_FlxT(T, pp), Sp = ZXXT_to_FlxXT(S, pp, get_FpX_var(T));
-    GEN Xq = FlxqX_Frobenius(Sp, Tp, pp);
-    return FlxqXQ_powers(Xq, N-1, Sp, Tp, pp);
-  } else
-  {
-    GEN Xq = FpXQX_Frobenius(S, T, p);
-    return FpXQXQ_powers(Xq, N-1, S, T, p);
-  }
-}
-
-static GEN
-FqX_Frobenius_eval(GEN x, GEN V, GEN S, GEN T, GEN p)
-{
-  if (lgefint(p)==3)
-  {
-    ulong pp = p[2];
-    long v = get_FpX_var(T);
-    GEN Tp = ZXT_to_FlxT(T, pp), Sp = ZXXT_to_FlxXT(S, pp, v);
-    GEN xp = ZXX_to_FlxX(x, pp, v);
-    return FlxX_to_ZXX(FlxqX_FlxqXQV_eval(xp, V, Sp, Tp, pp));
-  }
-  else
-    return FpXQX_FpXQXQV_eval(x, V, S, T, p);
-}
-
-static GEN
 FlxqX_split_part(GEN f, GEN T, ulong p)
 {
   long n = degpol(f);
@@ -1149,55 +1117,6 @@ FqX_split_Berlekamp(GEN *t, GEN T, GEN p)
   return d;
 }
 
-/* split into r factors of degree d */
-static void
-FqX_split(GEN *t, long d, GEN q, GEN S, GEN T, GEN p)
-{
-  GEN u = *t;
-  long l, v, is2, cnt, dt = degpol(u), dT = degpol(T);
-  pari_sp av;
-  pari_timer ti;
-  GEN w,w0;
-
-  if (dt == d) return;
-  v = varn(*t);
-  if (DEBUGLEVEL > 6) timer_start(&ti);
-  av = avma; is2 = absequaliu(p, 2);
-  for(cnt = 1;;cnt++, avma = av)
-  { /* splits *t with probability ~ 1 - 2^(1-r) */
-    w = w0 = random_FpXQX(dt,v, T,p);
-    if (degpol(w) <= 0) continue;
-    for (l=1; l<d; l++) /* sum_{0<i<d} w^(q^i), result in (F_q)^r */
-      w = RgX_add(w0, FqX_Frobenius_eval(w, S, u, T, p));
-    w = FpXQX_red(w, T,p);
-    if (is2)
-    {
-      w0 = w;
-      for (l=1; l<dT; l++) /* sum_{0<i<k} w^(2^i), result in (F_2)^r */
-      {
-        w = FqX_rem(FqX_sqr(w,T,p), *t, T,p);
-        w = FpXX_red(RgX_add(w0,w), p);
-      }
-    }
-    else
-    {
-      w = FpXQXQ_halfFrobenius(w, *t, T, p);
-      /* w in {-1,0,1}^r */
-      if (degpol(w) <= 0) continue;
-      gel(w,2) = gadd(gel(w,2), gen_1);
-    }
-    w = FqX_gcd(*t,w, T,p); l = degpol(w);
-    if (l && l != dt) break;
-  }
-  w = gerepileupto(av,FpXQX_normalize(w,T,p));
-  if (DEBUGLEVEL > 6)
-    err_printf("[FqX_split] splitting time: %ld (%ld trials)\n",
-               timer_delay(&ti),cnt);
-  l /= d; t[l] = FqX_div(*t,w, T,p); *t = w;
-  FqX_split(t+l,d,q,S,T,p);
-  FqX_split(t  ,d,q,S,T,p);
-}
-
 static void
 F2xqX_split(GEN *t, long d, GEN q, GEN S, GEN T)
 {
@@ -1260,84 +1179,6 @@ isabsolutepol(GEN f)
     if (typ(c) == t_POL && degpol(c) > 0) return 0;
   }
   return 1;
-}
-
-static void
-add(GEN z, GEN g, long d) { vectrunc_append(z, mkvec2(utoipos(d), g)); }
-/* return number of roots of u; assume deg u >= 0 */
-long
-FqX_split_deg1(GEN *pz, GEN u, GEN T, GEN p)
-{
-  long dg, N = degpol(u);
-  GEN v, S, g, X, z = vectrunc_init(N+1);
-
-  *pz = z;
-  if (N == 0) return 0;
-  if (N == 1) return 1;
-  v = X = pol_x(varn(u));
-  S = FqX_Frobenius_powers(u, T, p);
-  vectrunc_append(z, S);
-  v = FqX_Frobenius_eval(v, S, u, T, p);
-  g = FqX_gcd(FpXX_sub(v,X,p),u, T,p);
-  dg = degpol(g);
-  if (dg > 0) add(z, FpXQX_normalize(g,T,p), dg);
-  return dg;
-}
-
-/* return number of factors; z not properly initialized if deg(u) <= 1 */
-long
-FqX_split_by_degree(GEN *pz, GEN u, GEN T, GEN p)
-{
-  long nb = 0, d, dg, N = degpol(u);
-  GEN v, S, g, X, z = vectrunc_init(N+1);
-
-  *pz = z;
-  if (N <= 1) return 1;
-  v = X = pol_x(varn(u));
-  S = FqX_Frobenius_powers(u, T, p);
-  vectrunc_append(z, S);
-  for (d=1; d <= N>>1; d++)
-  {
-    v = FqX_Frobenius_eval(v, S, u, T, p);
-    g = FqX_gcd(FpXX_sub(v,X,p),u, T,p);
-    dg = degpol(g); if (dg <= 0) continue;
-    /* all factors of g have degree d */
-    add(z, FpXQX_normalize(g, T,p), dg / d); nb += dg / d;
-    N -= dg;
-    if (N)
-    {
-      u = FqX_div(u,g, T,p);
-      v = FqX_rem(v,u, T,p);
-    }
-  }
-  if (N) { add(z, FpXQX_normalize(u, T,p), 1); nb++; }
-  return nb;
-}
-
-static GEN
-FqX_split_equal(GEN L, GEN S, GEN T, GEN p)
-{
-  long n = itos(gel(L,1));
-  GEN u = gel(L,2), z = cgetg(n + 1, t_COL);
-  gel(z,1) = u;
-  FqX_split((GEN*)(z+1), degpol(u) / n, powiu(p, degpol(T)), S, T, p);
-  return z;
-}
-GEN
-FqX_split_roots(GEN z, GEN T, GEN p, GEN pol)
-{
-  GEN S = gel(z,1), L = gel(z,2), rep = FqX_split_equal(L, S, T, p);
-  if (pol) rep = shallowconcat(rep, FqX_div(pol, gel(L,2), T,p));
-  return rep;
-}
-GEN
-FqX_split_all(GEN z, GEN T, GEN p)
-{
-  GEN S = gel(z,1), rep = cgetg(1, t_VEC);
-  long i, l = lg(z);
-  for (i = 2; i < l; i++)
-    rep = shallowconcat(rep, FqX_split_equal(gel(z,i), S, T, p));
-  return rep;
 }
 
 static GEN
