@@ -1995,26 +1995,34 @@ mybestlift_bound(GEN C)
   return ceil(log(gtodouble(C)) / 0.2) + 3;
 }
 
-/* Returns the roots of the n_cyclo-th cyclotomic polynomial
- * if it splits, NULL otherwise */
+/* simplified nf_DDF_roots: monic pol in ZX either splits or has no root in nf.
+ * Return a root or NULL (no root) */
 static GEN
-nfcyclo_root(GEN nf, long n_cyclo, prklift_t *P)
+nf_oneroot(GEN pol, GEN nfpol, nflift_t *L)
 {
-  pari_sp av = avma;
-  GEN init_fa = NULL; /* factors mod pr */
-  GEN z, nfpol = nf_get_pol(nf), pol = polcyclo(n_cyclo, 0);
-  long nbf, deg = degpol(pol); /* = eulerphi(n_cyclo) */
-  if (P->L->Tp)
-    nbf = FqX_split_deg1(&init_fa, pol, P->L->Tp, P->L->p);
+  GEN q, r, Cltx_r;
+  div_data D;
+
+  init_div_data(&D, pol, L);
+  if (L->Tp)
+  { /* FIXME: FqX_oneroot ? */
+    GEN A = gmael(FpX_factor(pol, L->p), 1, 1); /* one Fp-irred. factor */
+    r = gel(FqX_roots(A, L->Tp, L->p), 1);
+    r = ZpXQX_liftroot(pol, r, L->Tpk, L->p, L->k);
+  }
   else
   {
-    ulong p = itou(P->L->p);
-    nbf = Flx_nbroots(ZX_to_Flx(pol,p), p);
+    r = FpX_oneroot(pol, L->p);
+    r = ZpX_liftroot(pol, r, L->p, L->k);
   }
-  if (nbf != deg) return NULL; /* no roots in residue field */
-  z = nf_DDF_roots(pol, pol, nfpol, init_fa, nbf, ROOTS_SPLIT, P->L);
-  if (lg(z) == 1) { avma = av; return NULL; } /* no roots */
-  return gel(z,1);
+  /* lt*dn*topowden * r = Clt * r */
+  r = nf_bestlift_to_pol(r, NULL, L);
+  Cltx_r = deg1pol_shallow(D.Clt? D.Clt: gen_1, gneg(r), varn(pol));
+  /* check P(r) == 0 */
+  q = RgXQX_divrem(D.C2ltpol, Cltx_r, nfpol, ONLY_DIVIDES); /* integral */
+  if (!q) return NULL;
+  if (D.Clt) r = gdiv(r, D.Clt);
+  return r;
 }
 
 /* Guesses the number of roots of unity in number field [nf].
@@ -2112,7 +2120,7 @@ rootsof1(GEN nf)
 {
   prklift_t P;
   nflift_t L;
-  GEN fa, LP, LE, C0, z, prim_root, disc;
+  GEN fa, LP, LE, C0, z, prim_root, disc, nfpol;
   pari_timer ti;
   long i, l, nbguessed, nbroots, nfdegree;
   pari_sp av;
@@ -2201,14 +2209,16 @@ rootsof1(GEN nf)
 
   /* Step 4 : actual computation of roots */
   nbroots = 2; prim_root = gen_m1;
+  nfpol = nf_get_pol(nf);
   for (i = 1; i < l; i++)
   { /* for all prime power factors of nbguessed, find a p^k-th root of unity */
     long k, p = LP[i];
-    for (k = LE[i]; k > 0; k--)
+    for (k = minss(LE[i], Z_lval(subiu(P.q,1UL),p)); k > 0; k--)
     { /* find p^k-th roots */
+      pari_sp av = avma;
       long pk = upowuu(p,k);
       if (pk==2) continue; /* no need to test second roots ! */
-      z = nfcyclo_root(nf,pk,&P);
+      z = nf_oneroot(polcyclo(pk,0), nfpol, P.L);
       if (DEBUGLEVEL>2) timer_printf(&ti, "for factoring Phi_%ld^%ld", p,k);
       if (z) {
         if (DEBUGLEVEL>2) err_printf("  %ld-th root of unity found.\n", pk);
@@ -2216,6 +2226,7 @@ rootsof1(GEN nf)
         else     { nbroots *= pk; prim_root = nfmul(nf, prim_root,z); }
         break;
       }
+      avma = av;
       if (DEBUGLEVEL) pari_warn(warner,"rootsof1: wrong guess");
     }
   }
