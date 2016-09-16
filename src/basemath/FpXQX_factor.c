@@ -1049,7 +1049,7 @@ FpXQX_nbfact(GEN u, GEN T, GEN p)
 long
 FqX_nbfact(GEN u, GEN T, GEN p)
 {
-  return T ? FpX_nbfact(u, p): FpXQX_nbfact(u, T, p);
+  return T ? FpXQX_nbfact(u, T, p): FpX_nbfact(u, p);
 }
 
 #define set_irred(i) { if ((i)>ir) swap(t[i],t[ir]); ir++;}

@@ -19,6 +19,7 @@ Done for version 2.8.1 (released ??/??/2016):
 BA 12- [breakloop] changes done in the first-level breakloop were lost when
        leaving the second-level breakloop.
    13- polinterpolate could create illegal objects [#1837] (test-case by PB)
+BA 14- [libpari] FqX_nbfact did not work
 
   Added
     1- permtonum: allow t_VECSMALL input
