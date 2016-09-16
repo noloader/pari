@@ -272,7 +272,6 @@ void  init_linewrap(long w);
 void  pari_kernel_init(void);
 void  pari_kernel_close(void);
 void  print_functions_hash(const char *s);
-void  print_all_user_fun(int member);
 GEN   readbin(const char *name, FILE *f, int *vector);
 int   term_height(void);
 int   term_width(void);

@@ -1695,6 +1695,52 @@ pari_print_version(void)
   pari_center(buf); avma = av;
 }
 
+static int
+cmp_epname(void *E, GEN e, GEN f)
+{
+  (void)E;
+  return strcmp(((entree*)e)->name, ((entree*)f)->name);
+}
+static void
+print_all_user_fun(int member)
+{
+  pari_sp av = avma;
+  long iL = 0, lL = 1024;
+  GEN L = cgetg(lL+1, t_VECSMALL);
+  entree *ep;
+  int i;
+  for (i = 0; i < functions_tblsz; i++)
+    for (ep = functions_hash[i]; ep; ep = ep->next)
+    {
+      const char *f;
+      int is_member;
+      if (EpVALENCE(ep) != EpVAR || typ((GEN)ep->value)!=t_CLOSURE) continue;
+      f = ep->name;
+      is_member = (f[0] == '_' && f[1] == '.');
+      if (member != is_member) continue;
+
+      if (iL >= lL)
+      {
+        GEN oL = L;
+        long j;
+        lL *= 2; L = cgetg(lL+1, t_VECSMALL);
+        for (j = 1; j <= iL; j++) gel(L,j) = gel(oL,j);
+      }
+      L[++iL] = (long)ep;
+    }
+  if (iL)
+  {
+    setlg(L, iL+1);
+    L = gen_sort(L, NULL, &cmp_epname);
+    for (i = 1; i <= iL; i++)
+    {
+      ep = (entree*)L[i];
+      pari_printf("%s =\n  %Ps\n\n", ep->name, ep->value);
+    }
+  }
+  avma = av;
+}
+
 static void
 escape(const char *tch, int ismain)
 {
