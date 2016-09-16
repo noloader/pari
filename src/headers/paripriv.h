@@ -472,7 +472,6 @@ GEN mathnfspec(GEN x, GEN *ptperm, GEN *ptdep, GEN *ptB, GEN *ptC);
 GEN ZM_hnfmodall_i(GEN x, GEN dm, long flag);
 
 GEN LLL_check_progress(GEN Bnorm, long n0, GEN m, int final, long *ti_LLL);
-GEN extendedgcd(GEN A);
 
 /* integer factorization / discrete log */
 GEN   coprime_part(GEN x, GEN f);
