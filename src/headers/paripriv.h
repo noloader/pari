@@ -276,7 +276,6 @@ void  print_all_user_fun(int member);
 GEN   readbin(const char *name, FILE *f, int *vector);
 int   term_height(void);
 int   term_width(void);
-void  whatnow_new_syntax(const char *f, long n);
 /* gp_colors */
 void decode_color(long n, long *c);
 
