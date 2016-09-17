@@ -1570,20 +1570,6 @@ FpXQX_factor_Yun(GEN f, GEN T, GEN p)
   setlg(u, j+1); return gerepilecopy(av, u);
 }
 
-static GEN
-FpXQX_factor_squarefree(GEN f, GEN T, GEN p)
-{
-  if (abscmpiu(p, degpol(f)) <= 0)
-  {
-    ulong pp = (ulong)p[2];
-    GEN Tp =  ZX_to_Flx(T, pp);
-    GEN xp = Flx_Frobenius(Tp, pp);
-    GEN u = FlxqX_factor_squarefree(ZXX_to_FlxX(f, pp, varn(T)), xp, Tp, pp);
-    return FlxXC_to_ZXXC(u);
-  }
-  return FpXQX_factor_Yun(f, T, p);
-}
-
 static void
 FpXQX_roots_edf(GEN Sp, GEN xp, GEN Xp, GEN T, GEN p, GEN V, long idx)
 {
@@ -1663,7 +1649,7 @@ FpXQX_roots_i(GEN S, GEN T, GEN p)
   R = FpXQX_easyroots(S, T, p);
   if (R) return gen_sort(R, (void*) &cmp_RgX, &cmp_nodata);
   xp = FpX_Frobenius(T, p);
-  V = FpXQX_factor_squarefree(S, T, p);
+  V = FpXQX_factor_Yun(S, T, p);
   l = lg(V);
   F = cgetg(l, t_VEC);
   for (i=1, j=1; i < l; i++)
@@ -1881,7 +1867,7 @@ FpXQX_Berlekamp_i(GEN f, GEN T, GEN p)
   f = FpXQX_normalize(f, T, p);
   if (isabsolutepol(f)) return FpX_factorff_i(simplify_shallow(f), T, p);
   if (degpol(f)==2) return FpXQX_factor_2(f, T, p);
-  V = FpXQX_factor_squarefree(f, T, p); lV = lg(V);
+  V = FpXQX_factor_Yun(f, T, p); lV = lg(V);
 
   /* to hold factors and exponents */
   t = cgetg(d+1,t_VEC);
