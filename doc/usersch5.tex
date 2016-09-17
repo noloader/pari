@@ -12146,6 +12146,9 @@ the values stored in hashtable $h$.
 \fun{void}{hash_destroy}{hashtable *h} deletes the hashtable, by removing all
 entries.
 
+\fun{void}{hash_dbg}{hashtable *h} print statistics for hashtable $h$, allows
+to evaluate the attached hash function performance on actual data.
+
 Some interesting hash functions are available:
 
 \fun{ulong}{hash_str}{const char *s}

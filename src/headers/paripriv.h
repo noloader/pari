@@ -695,7 +695,6 @@ GEN     rfractoser(GEN x, long v, long prec);
 /* hash.c */
 
 hashtable *hashstr_import_static(hashentry *e, ulong size);
-void hashstr_dbg(hashtable *h);
 
 /* hyperell.c */
 

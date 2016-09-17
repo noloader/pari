@@ -249,7 +249,7 @@ hashstr_import_static(hashentry *e, ulong size)
 }
 
 void
-hashstr_dbg(hashtable *h)
+hash_dbg(hashtable *h)
 {
   ulong n, Total = 0, Max = 0;
   hashentry *e, **table = h->table;

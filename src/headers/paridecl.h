@@ -3240,6 +3240,7 @@ long    group_ident_trans(GEN G, GEN S);
 hashtable *hash_create_ulong(ulong s, long stack);
 hashtable *hash_create_str(ulong s, long stack);
 hashtable *hash_create(ulong minsize, ulong (*hash)(void*), int (*eq)(void*,void*), int use_stack);
+void hash_dbg(hashtable *h);
 void hash_insert(hashtable *h, void *k, void *v);
 void hash_insert2(hashtable *h, void *k, void *v, ulong hash);
 GEN hash_keys(hashtable *h);

@@ -67,6 +67,7 @@ BA 29- [libpari] FlxXC_to_F2xXC, F2xXC_to_ZXXC
    38- allow ellglobalred for E over a number field
 BA 39- [libpari] FpXQX_split_part
 BA 40- [libpari] ZpXQX_roots, ZqX_roots
+   41- [libpari] hash_dbg
 
   Changed
     1- remove useless flag in idealappr: directly allow factorization
