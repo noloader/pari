@@ -370,7 +370,7 @@ bnflog_i(GEN bnf, GEN ell)
       A = mkvec2(A, cgetg(1,t_MAT));
       A = idealpowred(nf, A, d);
       /* find a principal representative of A_i^cycA_i up to elements of S */
-      a = isprincipalfact(bnf,gel(A,1),S,b,nf_GENMAT);
+      a = isprincipalfact(bnf,gel(A,1),S,b,nf_GENMAT|nf_FORCE);
       if (!gequal0(gel(a,1))) pari_err_BUG("bnflog");
       a = famat_mul(gel(A,2), gel(a,2)); /* principal part */
       if (lg(a) == 1) continue;
