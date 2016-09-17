@@ -681,7 +681,6 @@ GEN     polgaloisnamesbig(long n, long k);
 /* gen1.c */
 
 int     ff_poltype(GEN *x, GEN *p, GEN *pol);
-GEN     gred_frac2(GEN x1, GEN x2);
 GEN     gred_rfrac_simple(GEN n, GEN d);
 GEN     sqr_ser_part(GEN x, long l1, long l2);
 

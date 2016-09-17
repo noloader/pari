@@ -6345,6 +6345,8 @@ As \kbd{FpXQX\_digits}. The parameter $q$ must be equal to $p^e$.
 
 \fun{GEN}{ZqX_liftfact}{GEN A, GEN B, GEN T, GEN pe, GEN p, long e}
 
+\fun{GEN}{ZqX_liftroot}{GEN f, GEN a, GEN T, GEN p, long e}
+
 \subsec{Other $p$-adic functions}
 
 \fun{GEN}{ZpM_echelon}{GEN M, long early_abort, GEN p, GEN pm} given a
@@ -10359,6 +10361,10 @@ $\kbd{x}/\kbd{p}^{e}$ is returned in~\kbd{*r}.
 
 \fun{GEN}{Q_abs}{GEN x} absolute value of the \typ{INT} or
 \typ{FRAC}~\kbd{x}.
+
+\fun{GEN}{Qdivii}{GEN x, GEN y}, assuming $x$ and $y$
+are both of type \typ{INT}, return the quotient $x/y$ as a \typ{INT} or
+\typ{FRAC}; marginally faster than \kbd{gdiv}.
 
 \fun{GEN}{Q_abs_shallow}{GEN x} $x$ being a \typ{INT} or a \typ{FRAC}, returns
 a shallow copy of $|x|$, in particular returns $x$ itself when $x \geq 0$, and

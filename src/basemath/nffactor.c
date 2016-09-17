@@ -1971,26 +1971,19 @@ mybestlift_bound(GEN C)
   return ceil(log(gtodouble(C)) / 0.2) + 3;
 }
 
-/* simplified nf_DDF_roots: monic pol in ZX either splits or has no root in nf.
+/* simplified nf_DDF_roots: polcyclo(n) monic in ZX either splits or has no
+ * root in nf.
  * Return a root or NULL (no root) */
 static GEN
-nf_oneroot(GEN pol, GEN nfpol, nflift_t *L)
+nfcyclo_root(long n, GEN nfpol, nflift_t *L)
 {
-  GEN q, r, Cltx_r;
+  GEN q, r, Cltx_r, pol = polcyclo(n,0);
   div_data D;
 
   init_div_data(&D, pol, L);
-  if (L->Tp)
-  { /* FIXME: FqX_oneroot ? */
-    GEN A = gmael(FpX_factor(pol, L->p), 1, 1); /* one Fp-irred. factor */
-    r = gel(FqX_roots(A, L->Tp, L->p), 1);
-    r = ZpXQX_liftroot(pol, r, L->Tpk, L->p, L->k);
-  }
-  else
-  {
-    r = FpX_oneroot(pol, L->p);
-    r = ZpX_liftroot(pol, r, L->p, L->k);
-  }
+  (void)Fq_sqrtn(gen_1, utoipos(n), L->Tp, L->p, &r);
+  /* r primitive n-th root of 1 in Fq */
+  r = ZqX_liftroot(pol, r, L->Tpk, L->p, L->k);
   /* lt*dn*topowden * r = Clt * r */
   r = nf_bestlift_to_pol(r, NULL, L);
   Cltx_r = deg1pol_shallow(D.Clt? D.Clt: gen_1, gneg(r), varn(pol));
@@ -2194,7 +2187,7 @@ rootsof1(GEN nf)
       pari_sp av = avma;
       long pk = upowuu(p,k);
       if (pk==2) continue; /* no need to test second roots ! */
-      z = nf_oneroot(polcyclo(pk,0), nfpol, P.L);
+      z = nfcyclo_root(pk, nfpol, P.L);
       if (DEBUGLEVEL>2) timer_printf(&ti, "for factoring Phi_%ld^%ld", p,k);
       if (z) {
         if (DEBUGLEVEL>2) err_printf("  %ld-th root of unity found.\n", pk);

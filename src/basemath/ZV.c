@@ -543,7 +543,7 @@ ZC_Z_div(GEN x, GEN c)
 {
   long i, l;
   GEN a = cgetg_copy(x, &l);
-  for (i = 1; i < l; i++) gel(a,i) = gred_frac2(gel(x,i), c);
+  for (i = 1; i < l; i++) gel(a,i) = Qdivii(gel(x,i), c);
   return a;
 }
 GEN

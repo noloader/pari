@@ -704,7 +704,7 @@ static GEN
 modsf(long x, GEN y)
 {
   pari_sp av = avma;
-  return gerepileupto(av, gred_frac2(modii(mulis(gel(y,2),x), gel(y,1)), gel(y,2)));
+  return gerepileupto(av, Qdivii(modii(mulis(gel(y,2),x), gel(y,1)), gel(y,2)));
 }
 
 /* assume y a t_REAL, x a t_INT, t_FRAC or t_REAL.

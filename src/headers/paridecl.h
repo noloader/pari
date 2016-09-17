@@ -851,6 +851,7 @@ GEN     ZpXQX_liftroot(GEN f, GEN a, GEN T, GEN p, long e);
 GEN     ZpXQX_liftroot_vald(GEN f, GEN a, long v, GEN T, GEN p, long e);
 GEN     ZpXQX_roots(GEN F, GEN T, GEN p, long e);
 GEN     ZqX_liftfact(GEN pol, GEN Q, GEN T, GEN pe, GEN p, long e);
+GEN     ZqX_liftroot(GEN f, GEN a, GEN T, GEN p, long e);
 GEN     ZqX_roots(GEN F, GEN T, GEN p, long e);
 GEN     gen_ZpX_Dixon(GEN F, GEN V, GEN q, GEN p, long N, void *E,
                              GEN lin(void *E, GEN F, GEN d, GEN q),
@@ -2974,6 +2975,7 @@ GEN     gsub(GEN x, GEN y);
 GEN     gsubsg(long x, GEN y);
 GEN     mulcxI(GEN x);
 GEN     mulcxmI(GEN x);
+GEN     Qdivii(GEN x1, GEN x2);
 GEN     ser_normalize(GEN x);
 
 /* gen2.c */

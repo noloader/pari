@@ -1717,12 +1717,12 @@ nfcleanmod(GEN nf, GEN x, long lim, GEN D)
       case t_INT:
         if (!signe(c)) break;
         c = centermodii(c, DZ, DZ2);
-        if (dD) c = gred_frac2(c,dD);
+        if (dD) c = Qdivii(c,dD);
         break;
       case t_FRAC: {
         GEN dc = gel(c,2), nc = gel(c,1), N = mulii(DZ, dc);
         c = centermodii(nc, N, shifti(N,-1));
-        c = gred_frac2(c, dD ? mulii(dc,dD): dc);
+        c = Qdivii(c, dD ? mulii(dc,dD): dc);
         break;
       }
       case t_COL: {
@@ -1732,7 +1732,7 @@ nfcleanmod(GEN nf, GEN x, long lim, GEN D)
         if (ZV_isscalar(c))
         {
           c = gel(c,1);
-          if (dD) c = gred_frac2(c,dD);
+          if (dD) c = Qdivii(c,dD);
         }
         else
           if (dD) c = RgC_Rg_div(c, dD);

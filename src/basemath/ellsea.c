@@ -471,12 +471,6 @@ Zq_Z_div_safe(GEN a, GEN b, GEN T, GEN q, GEN p, long e)
   return Fq_Fp_mul(a, Fp_inv(b, q), T, q);
 }
 
-static GEN
-ZqX_liftroot(GEN f, GEN a, GEN T, GEN p, long e)
-{
-  return T ? ZpXQX_liftroot(f, a,T , p, e): ZpX_liftroot(f, a, p, e);
-}
-
 /*Gives the first precS terms of the Weierstrass series related to */
 /*E: y^2 = x^3 + a4x + a6.  Assumes (precS-2)*(2precS+3) < ULONG_MAX, i.e.
  * precS < 46342 in 32-bit machines */

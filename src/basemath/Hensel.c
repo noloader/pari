@@ -335,9 +335,11 @@ ZpXQX_liftfact(GEN pol, GEN Q, GEN T, GEN pe, GEN p, long e)
 
 GEN
 ZqX_liftfact(GEN f, GEN a, GEN T, GEN pe, GEN p, long e)
-{
-  return T ? ZpXQX_liftfact(f, a, T, pe, p, e): ZpX_liftfact(f, a, pe, p, e);
-}
+{ return T ? ZpXQX_liftfact(f, a, T, pe, p, e): ZpX_liftfact(f, a, pe, p, e); }
+GEN
+ZqX_liftroot(GEN f, GEN a, GEN T, GEN p, long e)
+{ return T ? ZpXQX_liftroot(f, a,T , p, e): ZpX_liftroot(f, a, p, e); }
+
 
 /* U = NULL treated as 1 */
 static void

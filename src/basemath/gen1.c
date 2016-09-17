@@ -363,34 +363,44 @@ gred_rfrac2(GEN n, GEN d)
   return fix_rfrac(gred_rfrac_simple(n,d), v);
 }
 
-/* x1,x2 t_INT, return x1/x2 in reduced form */
+/* x,y t_INT, return x/y in reduced form */
 GEN
-gred_frac2(GEN x1, GEN x2)
+Qdivii(GEN x, GEN y)
 {
-  GEN r, y = dvmdii(x1,x2,&r);
-  pari_sp av;
+  pari_sp av = avma;
+  GEN r, q;
 
-  if (r == gen_0) return y; /* gen_0 intended */
-  av = avma; r = gcdii(x2,r);
+  if (is_pm1(y)) return (signe(y) < 0)? negi(x): icopy(x);
+  if (is_pm1(x)) {
+    long s = signe(y);
+    if (!s) pari_err_INV("gdiv",y);
+    if (signe(x) < 0) s = -s;
+    q = cgetg(3, t_FRAC);
+    gel(q,1) = s<0? gen_m1: gen_1;
+    gel(q,2) = absi(y); return q;
+  }
+  q = dvmdii(x,y,&r);
+  if (r == gen_0) return q; /* gen_0 intended */
+  r = gcdii(y,r);
   if (lgefint(r) == 3)
   {
-    ulong rr = r[2];
+    ulong t = r[2];
     avma = av;
-    if (rr == 1) y = mkfraccopy(x1, x2);
+    if (t == 1) q = mkfraccopy(x,y);
     else
     {
-      y = cgetg(3,t_FRAC);
-      gel(y,1) = diviuexact(x1, rr);
-      gel(y,2) = diviuexact(x2, rr);
+      q = cgetg(3,t_FRAC);
+      gel(q,1) = diviuexact(x,t);
+      gel(q,2) = diviuexact(y,t);
     }
   }
   else
-  { /* rare: r left on stack for efficiency */
-    y = cgetg(3,t_FRAC);
-    gel(y,1) = diviiexact(x1,r);
-    gel(y,2) = diviiexact(x2,r);
+  { /* rare: r and q left on stack for efficiency */
+    q = cgetg(3,t_FRAC);
+    gel(q,1) = diviiexact(x,r);
+    gel(q,2) = diviiexact(y,r);
   }
-  normalize_frac(y); return y;
+  normalize_frac(q); return q;
 }
 
 /*******************************************************************/
@@ -2517,16 +2527,7 @@ gdiv(GEN x, GEN y)
   if (tx == ty) switch(tx)
   {
     case t_INT:
-      if (is_pm1(y)) return (signe(y) < 0)? negi(x): icopy(x);
-      if (is_pm1(x)) {
-        long s = signe(y);
-        if (!s) pari_err_INV("gdiv",y);
-        if (signe(x) < 0) s = -s;
-        z = cgetg(3, t_FRAC);
-        gel(z,1) = s<0? gen_m1: gen_1;
-        gel(z,2) = absi(y); return z;
-      }
-      return gred_frac2(x,y);
+      return Qdivii(x,y);
 
     case t_REAL: return divrr(x,y);
     case t_INTMOD: { GEN X = gel(x,1), Y = gel(y,1);
