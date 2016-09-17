@@ -900,7 +900,13 @@ NEXT_CHUNK:
   if (T->strategy == PRST_unextprime)
   {
     if (T->q == 1)
+    {
+#ifdef LONG_IS_64BIT
+      if (T->p == (1UL<<63)) return T->p = 9223372036854775837UL;
+      if (T->p == 9223372036854775837UL) return T->p = 9223372036854775907UL;
+#endif
       T->p = unextprime(T->p + 1);
+    }
     else
     {
       do {
