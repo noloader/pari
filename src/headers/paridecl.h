@@ -1088,6 +1088,7 @@ GEN     ZC_reducemodlll(GEN x,GEN y);
 GEN     ZC_reducemodmatrix(GEN v, GEN y);
 GEN     ZC_sub(GEN x, GEN y);
 GEN     ZC_z_mul(GEN X, long c);
+GEN     ZC_Z_div(GEN x, GEN c);
 GEN     ZM_ZC_mul(GEN x, GEN y);
 GEN     ZM_Z_div(GEN X, GEN c);
 GEN     ZM_Z_divexact(GEN X, GEN c);

@@ -539,18 +539,19 @@ ZM_ZC_mul(GEN x, GEN y)
 }
 
 GEN
+ZC_Z_div(GEN x, GEN c)
+{
+  long i, l;
+  GEN a = cgetg_copy(x, &l);
+  for (i = 1; i < l; i++) gel(a,i) = gred_frac2(gel(x,i), c);
+  return a;
+}
+GEN
 ZM_Z_div(GEN X, GEN c)
 {
-  long i, j, h, l = lg(X);
+  long j, l = lg(X);
   GEN A = cgetg(l, t_MAT);
-  if (l == 1) return A;
-  h = lgcols(X);
-  for (j=1; j<l; j++)
-  {
-    GEN a = cgetg(h, t_COL), x = gel(X, j);
-    for (i = 1; i < h; i++) gel(a,i) = gred_frac2(gel(x,i), c);
-    gel(A,j) = a;
-  }
+  for (j = 1; j < l; j++) gel(A,j) = ZC_Z_div(gel(X,j), c);
   return A;
 }
 
