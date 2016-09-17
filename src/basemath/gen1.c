@@ -324,7 +324,7 @@ fix_rfrac(GEN x, long d)
 
 /* assume d != 0 */
 static GEN
-gred_rfrac2_i(GEN n, GEN d)
+gred_rfrac2(GEN n, GEN d)
 {
   GEN y, z;
   long v, vd, vn;
@@ -338,7 +338,7 @@ gred_rfrac2_i(GEN n, GEN d)
   {
     if (varncmp(vd, gvar(n)) >= 0) return gdiv(n,d);
     if (varncmp(vd, gvar2(n)) < 0) return gred_rfrac_simple(n,d);
-    pari_err_BUG("gred_rfrac2_i [incompatible variables]");
+    pari_err_BUG("gred_rfrac2 [incompatible variables]");
   }
   vn = varn(n);
   if (varncmp(vd, vn) < 0) return gred_rfrac_simple(n,d);
@@ -361,13 +361,6 @@ gred_rfrac2_i(GEN n, GEN d)
     if (degpol(z)) { n = RgX_div(n,z); d = RgX_div(d,z); }
   }
   return fix_rfrac(gred_rfrac_simple(n,d), v);
-}
-
-GEN
-gred_rfrac2(GEN x1, GEN x2)
-{
-  pari_sp av = avma;
-  return gerepileupto(av, gred_rfrac2_i(x1, x2));
 }
 
 /* x1,x2 t_INT, return x1/x2 in reduced form */
@@ -1361,7 +1354,7 @@ mul_rfrac_scal(GEN n, GEN d, GEN x)
       d = gmul(d, gmodulo(gen_1, gel(x,1)));
       return gerepileupto(av, gdiv(n,d));
   }
-  z = gred_rfrac2_i(x, d);
+  z = gred_rfrac2(x, d);
   n = simplify_shallow(n);
   if (typ(z) == t_RFRAC)
   {
@@ -1408,8 +1401,8 @@ mul_rfrac(GEN x1, GEN x2, GEN y1, GEN y2)
   GEN z, X, Y;
   pari_sp av = avma;
 
-  X = gred_rfrac2_i(x1, y2);
-  Y = gred_rfrac2_i(y1, x2);
+  X = gred_rfrac2(x1, y2);
+  Y = gred_rfrac2(y1, x2);
   if (typ(X) == t_RFRAC)
   {
     if (typ(Y) == t_RFRAC) {
@@ -1432,7 +1425,7 @@ static GEN
 div_rfrac_pol(GEN x1, GEN x2, GEN y2)
 {
   pari_sp av = avma;
-  GEN X = gred_rfrac2_i(x1, y2);
+  GEN X = gred_rfrac2(x1, y2);
   if (typ(X) == t_RFRAC && varn(gel(X,2)) == varn(x2))
   {
     x2 = RgX_mul(gel(X,2), x2);
@@ -2603,7 +2596,8 @@ gdiv(GEN x, GEN y)
       }
       if (!signe(y)) pari_err_INV("gdiv",y);
       if (lg(y) == 3) return RgX_Rg_div(x,gel(y,2));
-      return gred_rfrac2(x,y);
+      av = avma;
+      return gerepileupto(av, gred_rfrac2(x,y));
 
     case t_SER:
       vx = varn(x);
