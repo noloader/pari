@@ -1558,8 +1558,7 @@ nf_combine_factors(nfcmbf_t *T, GEN polred, long klim)
 }
 
 static GEN
-nf_DDF_roots(GEN pol, GEN polred, GEN nfpol, long nbf,
-              long fl, nflift_t *L)
+nf_DDF_roots(GEN pol, GEN polred, GEN nfpol, long fl, nflift_t *L)
 {
   GEN z, Cltx_r, ltdn;
   long i, m;
@@ -1868,7 +1867,7 @@ nfsqff(GEN nf, GEN pol, long fl, GEN den)
   polred = ZqX_normalize(polbase, lt, &L); /* monic */
 
   if (fl != FACTORS) {
-    GEN z = nf_DDF_roots(pol, polred, nfpol, nbf, fl, &L);
+    GEN z = nf_DDF_roots(pol, polred, nfpol, fl, &L);
     if (lg(z) == 1) return cgetg(1, t_VEC);
     return z;
   }
