@@ -330,7 +330,7 @@ addmul_mat(GEN a, long s, GEN b)
 static GEN
 get_random_a(GEN nf, GEN x, GEN xZ)
 {
-  pari_sp av1;
+  pari_sp av;
   long i, lm, l = lg(x);
   GEN a, z, beta, mul;
 
@@ -339,11 +339,9 @@ get_random_a(GEN nf, GEN x, GEN xZ)
   /* look for a in x such that a O/xZ = x O/xZ */
   for (i = 2; i < l; i++)
   {
-    GEN t, y, xi = gel(x,i);
-    av1 = avma;
-    y = zk_scalar_or_multable(nf, xi); /* ZM, cannot be a scalar */
-    t = FpM_red(y, xZ);
-    if (gequal0(t)) { avma = av1; continue; }
+    GEN xi = gel(x,i);
+    GEN t = FpM_red(zk_multable(nf,xi), xZ); /* ZM, cannot be a scalar */
+    if (gequal0(t)) continue;
     if (ok_elt(x,xZ, t)) return xi;
     gel(beta,lm) = xi;
     /* mul[i] = { canonical generators for x[i] O/xZ as Z-module } */
@@ -352,7 +350,7 @@ get_random_a(GEN nf, GEN x, GEN xZ)
   setlg(mul, lm);
   setlg(beta,lm);
   z = cgetg(lm, t_VECSMALL);
-  for(av1=avma;;avma=av1)
+  for(av = avma;; avma = av)
   {
     for (a=NULL,i=1; i<lm; i++)
     {
@@ -368,7 +366,7 @@ get_random_a(GEN nf, GEN x, GEN xZ)
   return a;
 }
 
-/* if x square matrix, assume it is HNF */
+/* x square matrix, assume it is HNF */
 static GEN
 mat_ideal_two_elt(GEN nf, GEN x)
 {
@@ -376,6 +374,7 @@ mat_ideal_two_elt(GEN nf, GEN x)
   long N = nf_get_degree(nf);
   pari_sp av, tetpil;
 
+  if (lg(x)-1 != N) pari_err_DIM("idealtwoelt");
   if (N == 2) return mkvec2copy(gcoeff(x,1,1), gel(x,2));
 
   y = cgetg(3,t_VEC); av = avma;
@@ -1453,10 +1452,14 @@ idealmul_aux(GEN nf, GEN x, GEN y, long tx, long ty)
       return cy? RgM_Rg_mul(y,cy): y;
 
     default: /* id_MAT */
+    {
+      long N = nf_get_degree(nf);
+      if (lg(x)-1 != N || lg(y)-1 != N) pari_err_DIM("idealmul");
       x = Q_primitive_part(x, &cx);
       y = Q_primitive_part(y, &cy); cx = mul_content(cx,cy);
       y = idealmul_HNF(nf,x,y);
       return cx? ZM_Q_mul(y,cx): y;
+    }
   }
 }
 

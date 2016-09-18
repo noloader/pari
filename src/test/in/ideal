@@ -45,6 +45,8 @@ idealval(K,P[2],P[2])
 P[1][2] += 5;
 idealval(K,P[1],P[1])
 idealmul(K,P[1],P[1].gen[2])
+idealmul(K,[2,1;0,1],[2,1;0,1])
+idealmul(K,matid(4),matid(4))
 idealnorm(K,P[1])
 idealinv(K,Mod(x,K.pol))
 idealinv(K,Mod(x-1,K.pol))
