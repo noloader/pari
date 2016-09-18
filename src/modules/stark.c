@@ -204,7 +204,7 @@ ComputeLift(GEN Qt)
  * such that chi(x) = e((c . log(x)) / d) where log(x) on bnr.gen */
 static GEN
 get_Char(GEN nchi, long prec)
-{ return mkvec2(nchi, char_rootof1(gel(nchi,1), prec)); }
+{ return mkvec2(nchi, rootsof1_cx(gel(nchi,1), prec)); }
 
 /* prime divisors of conductor */
 static GEN
@@ -640,7 +640,7 @@ ArtinNumber(GEN bnr, GEN LCHI, long check, long prec)
     muslambda = nfinv(nf, lambda);
   }
   muslambda = Q_remove_denom(muslambda, &den);
-  z = den? char_rootof1(den, prec): NULL;
+  z = den? rootsof1_cx(den, prec): NULL;
 
   /* compute a system of generators of (Ok/cond)^*, we'll make them
    * cond1-positive in the main loop */

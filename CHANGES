@@ -101,7 +101,8 @@ BA 40- [libpari] ZpXQX_roots, ZqX_roots, ZqX_liftfact, ZqX_liftroot
    16- gcd(t_VEC/t_COL/t_MAT, ...) is now forbidden, same for lcm
    17- E/Qp: add sequence of isogenous curves  to structure (converges to the
        singular E_oo) => much faster ellpointtoz
-BA 18- ZpX_liftfact no more handles extensions of Qp, use ZqX_liftfact for that
+BA 18- ZpX_liftfact no longer handles extensions of Qp, use ZqX_liftfact
+   19- char_rootof1 renamed to rootsof1_cx, char_rootof1_u -> rootsof1u_cx
 
 Done for version 2.8.0 (released 12/08/2016):
 

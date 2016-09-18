@@ -836,7 +836,6 @@ void    abpq_sum(struct abpq_res *r, long n1, long n2, struct abpq *A);
 GEN     logagmcx(GEN q, long prec);
 void    pari_init_floats(void);
 void    pari_close_floats(void);
-GEN     rootsof1complex(GEN n, long prec);
 GEN     rootsof1padic(GEN n, GEN y);
 GEN     zellagmcx(GEN a0, GEN b0, GEN r, GEN t, long prec);
 

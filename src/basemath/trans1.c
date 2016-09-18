@@ -1201,7 +1201,7 @@ grootsof1_4(long N, long prec)
   long i, N2 = (N>>1), N4 = (N>>2), N8 = (N>>3);
   /* z^N2 = -1, z^N4 = I; if z^k = a+I*b, then z^(N4-k) = I*conj(z) = b+a*I */
 
-  v[0] = gen_1; v[1] = z = char_rootof1_u(N, prec);
+  v[0] = gen_1; v[1] = z = rootsof1u_cx(N, prec);
   if (odd(N4)) N8++;
   for (i=1; i<N8; i++)
   {
@@ -1226,7 +1226,7 @@ grootsof1(long N, long prec)
   k = (N+3)>>1;
   RU = cgetg(N+1,t_VEC);
   v  = ((GEN*)RU) + 1;
-  v[0] = gen_1; v[1] = z = char_rootof1_u(N, prec);
+  v[0] = gen_1; v[1] = z = rootsof1u_cx(N, prec);
   for (i=2; i<k; i++) v[i] = gmul(z, v[i-1]);
   for (   ; i<N; i++) v[i] = gconj(v[N-i]);
   return RU;
@@ -1459,16 +1459,6 @@ gsqrt(GEN x, long prec)
 /**                          N-th ROOT                             **/
 /**                                                                **/
 /********************************************************************/
-/* exp(2Ipi/n), assume n positive t_INT */
-GEN
-rootsof1complex(GEN n, long prec)
-{
-  pari_sp av = avma;
-  if (is_pm1(n)) return real_1(prec);
-  if (absequaliu(n, 2)) return stor(-1, prec);
-  return gerepileupto(av, expIr( divri(Pi2n(1, prec), n) ));
-}
-
 /*Only the O() of y is used*/
 GEN
 rootsof1padic(GEN n, GEN y)
@@ -1836,7 +1826,7 @@ gsqrtn(GEN x, GEN n, GEN *zetan, long prec)
         y = gexp(gdiv(glog(x,prec), n), prec);
       y = gerepileupto(av, y);
     }
-    if (zetan) *zetan = rootsof1complex(n,prec);
+    if (zetan) *zetan = rootsof1_cx(n,prec);
     return y;
 
   case t_QUAD:

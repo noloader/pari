@@ -380,7 +380,7 @@ vecan_chiZ(GEN an, long n, long prec)
   if (ord && n > (ord>>4))
     z = grootsof1(ord, prec);
   else
-    z = char_rootof1(gord, prec);
+    z = rootsof1_cx(gord, prec);
 
   u_forprime_init(&iter, 2, d);
   while ((p = u_forprime_next(&iter)))
@@ -416,7 +416,7 @@ vecan_chigen(GEN an, long n, long prec)
   if (ord && n > (ord>>4))
     z = grootsof1(ord, prec);
   else
-    z = char_rootof1(gord, prec);
+    z = rootsof1_cx(gord, prec);
 
   if (nf_get_degree(nf) == 1)
   {

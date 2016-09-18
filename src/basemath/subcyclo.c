@@ -438,7 +438,7 @@ polsubcyclo_complex_roots(long n, long real, long prec)
 
   bab = cgetg(m+1,t_VEC);
   gel(bab,1) = gen_1;
-  gel(bab,2) = char_rootof1_u(n, prec); /* = e_n(1) */
+  gel(bab,2) = rootsof1u_cx(n, prec); /* = e_n(1) */
   for (i=3; i<=m; i++) gel(bab,i) = gmul(gel(bab,2),gel(bab,i-1));
   gig = cgetg(m+1,t_VEC);
   gel(gig,1) = gen_1;

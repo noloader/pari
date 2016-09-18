@@ -2505,12 +2505,6 @@ $a / b = a \times \overline{b}$.
 \fun{int}{char_check}{GEN cyc, GEN chi} return $1$ if \kbd{chi} is a character
 compatible with cyclic factors \kbd{cyc}, and $0$ otherwise.
 
-\fun{GEN}{char_rootof1}{GEN d, long prec} return $e(1/d)$ at precision
-\kbd{prec}. Shallow function.
-
-\fun{GEN}{char_rootof1_u}{ulong d, long prec} return $e(1/d)$ at
-precision \kbd{prec}. Shallow function.
-
 \fun{GEN}{cyc2elts}{GEN d} given a \typ{VEC} $d = (d_1,\dots,d_n)$
 of non-negative integers, return the vector of all \typ{VECSMALL}s of length
 $n$ whose $i$-th entry lies in $[0,d_i]$. Assumes that the product

@@ -955,7 +955,7 @@ initdft(GEN *Omega, GEN *prim, long N, long Lmax, long bit)
 {
   long prec = nbits2prec(bit);
   *Omega = grootsof1(Lmax, prec) + 1;
-  *prim = char_rootof1_u(N, prec);
+  *prim = rootsof1u_cx(N, prec);
 }
 
 static void

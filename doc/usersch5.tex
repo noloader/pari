@@ -11168,6 +11168,12 @@ when $x$ is real and $y$ pure imaginary.
 
 \fun{void}{gsincos}{GEN x, GEN *s, GEN *c, long prec} general case.
 
+\fun{GEN}{rootsof1_cx}{GEN d, long prec} return $e(1/d)$ at precision
+\kbd{prec}, $e(x) = \exp(2i\pi x)$.
+
+\fun{GEN}{rootsof1u_cx}{ulong d, long prec} return $e(1/d)$ at
+precision \kbd{prec}.
+
 \noindent A generalization of \tet{affrr_fixlg}
 
 \fun{GEN}{affc_fixlg}{GEN x, GEN res} assume \kbd{res} was allocated using
