@@ -1459,17 +1459,6 @@ gsqrt(GEN x, long prec)
 /**                          N-th ROOT                             **/
 /**                                                                **/
 /********************************************************************/
-/*Only the O() of y is used*/
-GEN
-rootsof1padic(GEN n, GEN y)
-{
-  GEN z, r = cgetp(y), p = gel(y,2);
-  pari_sp av = avma;
-  z = rootsof1_Fp(n, p);
-  z = Zp_sqrtnlift(gen_1, n, z, p, precp(y));
-  affii(z, gel(r,4)); avma = av; return r;
-}
-
 static void
 bug_logp(GEN p)
 {
