@@ -670,7 +670,6 @@ void    init_modular_small(forprime_t *S);
 /* galconj.c */
 
 GEN     galoiscosets(GEN O, GEN perm);
-GEN     listznstarelts(long m, long p);
 GEN     matrixnorm(GEN M, long prec);
 GEN     vandermondeinverseprep(GEN L);
 

@@ -810,18 +810,13 @@ testpermutation(GEN F, GEN B, GEN x, long s, long e, long cut,
 
 /* List of subgroups of (Z/mZ)^* whose order divide o, and return the list
  * of their elements, sorted by increasing order */
-GEN
+static GEN
 listznstarelts(long m, long o)
 {
   pari_sp av = avma;
-  GEN L, zn, zns, res;
+  GEN L, zn, zns;
   long i, phi, ind, l;
-  if (m == 2)
-  {
-    res = cgetg(2, t_VEC);
-    gel(res,1) = mkvecsmall(1);
-    return res;
-  }
+  if (m == 2) retmkvec(mkvecsmall(1));
   zn = znstar(stoi(m));
   phi = itos(gel(zn,1));
   o = ugcd(o, phi); /* do we impose this on input ? */
