@@ -600,8 +600,6 @@ GEN     FpXV_red(GEN z, GEN p);
 int     Fq_issquare(GEN x, GEN T, GEN p);
 long    Fq_ispower(GEN x, GEN K, GEN T, GEN p);
 GEN     Fq_log(GEN a, GEN g, GEN ord, GEN T, GEN p);
-GEN     Fq_sqrtn(GEN a, GEN n, GEN T, GEN p, GEN *z);
-GEN     Fq_sqrt(GEN a, GEN T, GEN p);
 long    FqX_ispower(GEN f, ulong k, GEN T, GEN p, GEN *pt);
 GEN     FqV_inv(GEN x, GEN T, GEN p);
 GEN     Z_to_FpX(GEN a, GEN p, long v);
