@@ -2789,7 +2789,7 @@ idealtwoelt2(GEN nf, GEN x, GEN a)
   if (lg(x) == 1)
   {
     if (!isintzero(a)) not_in_ideal(a);
-    avma = av; return zerocol(nf_get_degree(nf));
+    avma = av; return gen_0;
   }
   x = Q_primitive_part(x, &cx);
   if (cx) a = gdiv(a, cx);
