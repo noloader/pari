@@ -1059,6 +1059,7 @@ ZX_gcd_all(GEN A, GEN B, GEN *Anew)
   GEN R, a, b, q, H, Hp, g, Ag, Bg;
   long m, n, valX, valA, vA = varn(A);
   ulong p;
+  int small;
   pari_sp ltop, av;
   forprime_t S;
 
@@ -1078,6 +1079,7 @@ ZX_gcd_all(GEN A, GEN B, GEN *Anew)
     Ag = ZX_Z_mul(A,g);
     Bg = ZX_Z_mul(B,g);
   }
+  small = (ZX_max_lg(A) == 3 && ZX_max_lg(B) == 3);
   init_modular_big(&S);
   av = avma;
   R = NULL;/*-Wall*/
@@ -1105,23 +1107,25 @@ ZX_gcd_all(GEN A, GEN B, GEN *Anew)
       ulong t = Fl_mul(umodiu(g, p), Fl_inv(Hp[m+2],p), p);
       Hp = Flx_Fl_mul(Hp, t, p);
     }
+    if (DEBUGLEVEL>5) err_printf("gcd mod %lu (bound 2^%ld)\n", p,expi(q));
     if (m < n)
     { /* First time or degree drop [all previous p were as above; restart]. */
       H = ZX_init_CRT(Hp,p,vA);
-      q = utoipos(p); n = m; continue;
+      q = utoipos(p); n = m;
+      if (!small) continue; /* if gcd is small, try our luck */
     }
-    if (DEBUGLEVEL>5) err_printf("gcd mod %lu (bound 2^%ld)\n", p,expi(q));
+    else
+      if (!ZX_incremental_CRT(&H, Hp, &q, p)) continue;
+    /* H stable: check divisibility */
+    if (!ZX_divides(Bg, H)) continue;
+    R = ZX_divides(Ag, H);
+    if (R) break;
+
     if (gc_needed(av,1))
     {
       if (DEBUGMEM>1) pari_warn(warnmem,"QX_gcd");
       gerepileall(av, 3, &H, &q, &Hp);
     }
-
-    if (!ZX_incremental_CRT(&H, Hp, &q, p)) continue;
-    /* H stable: check divisibility */
-    if (!ZX_divides(Bg, H)) continue;
-    R = ZX_divides(Ag, H);
-    if (R) break;
   }
   if (!p) pari_err_OVERFLOW("ZX_gcd_all [ran out of primes]");
   if (Anew) {
