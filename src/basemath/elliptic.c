@@ -5089,7 +5089,7 @@ ellminimalmodel_i(GEN E, GEN *ptv)
   else
     S = mkvec3(DP, v, y);
   obj_insert(E, Q_MINIMALMODEL, S);
-  *ptv = v; return y;
+  if (ptv) *ptv = v; return y;
 }
 
 static GEN
@@ -5191,14 +5191,14 @@ ellminimalmodel(GEN E, GEN *ptv)
  *   c = product of the local Tamagawa numbers cp
  *   fa = factorization of N
  *   L = list of localred(E,p) for p | N.
- * Return standard minimal model (a1,a3 = 0 or 1, a2 = -1, 0 or 1) */
+ * set *pE = standard minimal model (a1,a3 = 0 or 1, a2 = -1, 0 or 1) */
 static GEN
-ellglobalred_all(GEN e, GEN *pgr, GEN *pv)
+ellglobalred_all(GEN e, GEN *pE)
 {
   long k, l, iN;
   GEN S, E, c, L, P, NP, NE, D;
 
-  E = ellminimalmodel_i(e, pv);
+  E = ellminimalmodel_i(e, NULL);
   S = obj_check(e, Q_MINIMALMODEL);
   P = gel(S,1); l = lg(P); /* some known prime divisors of D */
   D  = ell_get_disc(E);
@@ -5222,16 +5222,12 @@ ellglobalred_all(GEN e, GEN *pgr, GEN *pv)
   setlg(L, iN);
   setlg(NP, iN);
   setlg(NE, iN);
-  *pgr = mkvec4(factorback2(NP,NE), c, mkmat2(NP,NE), L);
-  return E;
+  *pE = E;
+  return mkvec4(factorback2(NP,NE), c, mkmat2(NP,NE), L);
 }
 static GEN
 ellQ_globalred(GEN E)
-{
-  GEN v, gr;
-  E = ellglobalred_all(E, &gr, &v);
-  return gr;
-}
+{ return ellglobalred_all(E, &E); }
 static GEN
 ellglobalred_i(GEN E)
 { return obj_checkbuild(E, Q_GLOBALRED, &ellQ_globalred); }
@@ -5644,7 +5640,7 @@ ellrootno_p(GEN e, GEN p)
 static GEN
 doellrootno(GEN e)
 {
-  GEN S, V, v, P;
+  GEN S, V, P;
   long i, l, s = -1;
   if ((S = obj_check(e, Q_GLOBALRED)))
   {
@@ -5653,7 +5649,8 @@ doellrootno(GEN e)
   }
   else
   {
-    GEN E = ellglobalred_all(e, &S, &v);
+    GEN E;
+    S = ellglobalred_all(e, &E);
     obj_insert(e, Q_GLOBALRED, S);
     e = E;
   }
