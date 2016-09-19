@@ -306,9 +306,6 @@ void mtstate_save(long *pending);
 void mtstate_reset(void);
 void mtstate_restore(long *pending);
 
-void pari_thread_init_varstate();
-void pari_pthread_init_varstate();
-
 void debug_context(void);
 
 typedef struct {
@@ -362,7 +359,6 @@ void pop_buffer(void);
 void kill_buffers_upto(Buffer *B);
 int gp_read_line(filtre_t *F, const char *PROMPT);
 void parse_key_val(char *src, char **ps, char **pt);
-void pari_init_buffers(void);
 extern int (*cb_pari_get_line_interactive)(const char*, const char*, filtre_t *F);
 extern char *(*cb_pari_fgets_interactive)(char *s, int n, FILE *f);
 int get_line_from_file(const char *prompt, filtre_t *F, FILE *file);
@@ -514,6 +510,30 @@ GEN polint_i(GEN xa, GEN ya, GEN x, long n, GEN *ptdy);
 GEN quicktrace(GEN x, GEN sym);
 GEN special_pivot(GEN x);
 
+/* pari_init / pari_close */
+void pari_close_compiler(void);
+void pari_close_evaluator(void);
+void pari_close_files(void);
+void pari_close_floats(void);
+void pari_close_homedir(void);
+void pari_close_parser(void);
+void pari_close_primes(void);
+void pari_init_buffers(void);
+void pari_init_compiler(void);
+void pari_init_defaults(void);
+void pari_init_evaluator(void);
+void pari_init_files(void);
+void pari_init_floats(void);
+void pari_init_homedir(void);
+void pari_init_parser(void);
+void pari_init_rand(void);
+void pari_init_seadata(void);
+void pari_pthread_init_seadata(void);
+void pari_pthread_init_varstate();
+void pari_thread_close_files(void);
+void pari_thread_init_seadata(void);
+void pari_thread_init_varstate();
+
 /* BY FILES */
 
 /* parinf.h */
@@ -621,12 +641,6 @@ void random_curves_with_m_torsion(ulong *a4, ulong *a6, ulong *tx, ulong *ty, lo
 
 void ellprint(GEN e);
 
-/* ellsea.c */
-
-void    pari_init_seadata(void);
-void    pari_thread_init_seadata(void);
-void    pari_pthread_init_seadata(void);
-
 /* es.c */
 
 const char * eng_ord(long i);
@@ -634,11 +648,6 @@ char *  env_ok(const char *s);
 void    filestate_restore(pariFILE *F);
 void    killallfiles(void);
 pariFILE* newfile(FILE *f, const char *name, int type);
-void    pari_init_homedir(void);
-void    pari_close_homedir(void);
-void    pari_init_files(void);
-void    pari_thread_close_files(void);
-void    pari_close_files(void);
 int     popinfile(void);
 pariFILE* try_pipe(const char *cmd, int flag);
 
@@ -662,7 +671,6 @@ GEN FpMs_leftkernel_elt_col(GEN M, long nbcol, long nbrow, GEN p);
 
 /* forprime.c*/
 
-void    pari_close_primes(void);
 void    init_modular(forprime_t *S);
 void    init_modular_big(forprime_t *S);
 void    init_modular_small(forprime_t *S);
@@ -715,10 +723,6 @@ int     Fl_MR_Jaeschke(ulong n, long k);
 int     MR_Jaeschke(GEN n, long k);
 long    isanypower_nosmalldiv(GEN N, GEN *px);
 void    prime_table_next_p(ulong a, byteptr *pd, ulong *pp, ulong *pn);
-
-/* init.c */
-
-void    pari_init_defaults(void);
 
 /* nffactor.c */
 
@@ -791,10 +795,6 @@ ulong   ZX_ZXY_ResBound(GEN A, GEN B, GEN dB);
 GEN     ffinit_Artin_Shreier(GEN ip, long l);
 GEN     ffinit_rand(GEN p, long n);
 
-/* random.c */
-
-void    pari_init_rand(void);
-
 /* readline.c */
 
 char**  pari_completion(pari_rl_interface *pari_rl, char *text, int START, int END);
@@ -828,8 +828,6 @@ struct abpq_res { GEN P, Q, B, T; };
 void    abpq_init(struct abpq *A, long n);
 void    abpq_sum(struct abpq_res *r, long n1, long n2, struct abpq *A);
 GEN     logagmcx(GEN q, long prec);
-void    pari_init_floats(void);
-void    pari_close_floats(void);
 GEN     zellagmcx(GEN a0, GEN b0, GEN r, GEN t, long prec);
 
 /* trans2.c */
