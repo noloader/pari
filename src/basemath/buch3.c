@@ -372,7 +372,7 @@ compute_raygen(GEN nf, GEN u1, GEN gen, GEN bid)
           pinvpi = get_pinvpi(nf, fZ, p, pi, &gel(vecpinvpi,j));
           t = nfpow_u(nf,pinvpi, (ulong)v);
           LL = nfmul(nf, LL, t);
-          LL = RgC_Rg_div(LL, powiu(p, v));
+          LL = gdiv(LL, powiu(p, v));
         }
         else
         {

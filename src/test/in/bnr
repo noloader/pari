@@ -88,3 +88,8 @@ f = idealmul(F, idealprimedec(F,3)[1], 5);
 bnr = bnrinit(F, [f, [1]], 1);
 C = bnr.cyc;
 forvec(c = vector(#C,i,[0,C[i]-1]), print(bnrrootnumber(bnr,c)))
+
+bnf=bnfinit(x^2+69);
+id = [9,0;0,3];
+bnrinit(bnf,id,1).clgp
+
