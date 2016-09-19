@@ -5224,13 +5224,12 @@ ellminimalmodel(GEN E, GEN *ptv)
  *   N = arithmetic conductor of E
  *   c = product of the local Tamagawa numbers cp
  *   fa = factorization of N
- *   L = list of localred(E,p) for p | N.
- * set *pE = standard minimal model (a1,a3 = 0 or 1, a2 = -1, 0 or 1) */
+ *   L = list of localred(E,p) for p | N. */
 static GEN
-ellglobalred_all(GEN e, GEN *pE)
+ellQ_globalred(GEN e)
 {
   long k, l, iN;
-  GEN S, E, c, L, P, NP, NE, D;
+  GEN S, c, E, L, P, NP, NE, D;
 
   E = ellminimalmodel_i(e, NULL);
   S = obj_check(e, Q_MINIMALMODEL);
@@ -5256,12 +5255,8 @@ ellglobalred_all(GEN e, GEN *pE)
   setlg(L, iN);
   setlg(NP, iN);
   setlg(NE, iN);
-  *pE = E;
   return mkvec4(factorback2(NP,NE), c, mkmat2(NP,NE), L);
 }
-static GEN
-ellQ_globalred(GEN E)
-{ return ellglobalred_all(E, &E); }
 static GEN
 ellglobalred_i(GEN E)
 { return obj_checkbuild(E, Q_GLOBALRED, &ellQ_globalred); }
@@ -5674,20 +5669,11 @@ ellrootno_p(GEN e, GEN p)
 static GEN
 doellrootno(GEN e)
 {
-  GEN S, V, P;
+  GEN V, P, S = ellglobalred_i(e);
   long i, l, s = -1;
-  if ((S = obj_check(e, Q_GLOBALRED)))
-  {
-    GEN S2 = obj_check(e, Q_MINIMALMODEL);
-    if (lg(S2) != 2) e = gel(S2,3);
-  }
-  else
-  {
-    GEN E;
-    S = ellglobalred_all(e, &E);
-    obj_insert(e, Q_GLOBALRED, S);
-    e = E;
-  }
+
+  V = obj_check(e, Q_MINIMALMODEL);
+  if (lg(V) != 2) e = gel(V,3);
   P = gmael(S,3,1); l = lg(P);
   V = cgetg(l, t_VECSMALL);
   for (i = 1; i < l; i++)
@@ -5700,7 +5686,7 @@ doellrootno(GEN e)
       case 3: t = ellrootno_3(e); break;
       default:t = ellrootno_p(e, p);
     }
-    V[i] = t; s *= t;
+    V[i] = t; if (t < 0) s = -s;
   }
   return mkvec2(stoi(s), V);
 }
@@ -5728,12 +5714,8 @@ ellrootno(GEN e, GEN p)
   if ( (S = obj_check(e, Q_ROOTNO)) )
   {
     GEN T = obj_check(e, Q_GLOBALRED), NP = gmael(T,3,1);
-    long i, l = lg(NP);
-    for (i = 1; i < l; i++)
-    {
-      GEN q = gel(NP,i);
-      if (equalii(p, q)) { GEN V = gel(S,2); return V[i]; }
-    }
+    long i = ZV_search(NP, p);
+    if (i) { GEN V = gel(S,2); return V[i]; }
     return 1;
   }
   switch(itou_or_0(p))
