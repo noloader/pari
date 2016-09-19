@@ -2008,7 +2008,7 @@ guess_roots(GEN nf)
 
   (void)u_forprime_init(&S, 3, ULONG_MAX);
   av = avma;
-  /* result must be stationnary (counter c) for at least B loops */
+  /* result must be stationary (counter c) for at least B loops */
   for (l=1; (p = u_forprime_next(&S)); l++)
   {
     GEN old, F, pf_1, Tp;
