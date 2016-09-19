@@ -66,7 +66,8 @@ BA 29- [libpari] FlxXC_to_F2xXC, F2xXC_to_ZXXC
    37- [libpari] varnmin, varnmax
    38- allow ellglobalred for E over a number field
 BA 39- [libpari] FpXQX_split_part
-BA 40- [libpari] ZpXQX_roots, ZqX_roots, ZqX_liftfact, ZqX_liftroot
+BA 40- [libpari] ZpXQX_roots, ZqX_roots, ZqX_liftfact, ZqX_liftroot,
+                 Zq_sqrtnlift
    41- [libpari] hash_dbg
    42- [libpari] Qdivii
 

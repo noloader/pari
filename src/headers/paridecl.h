@@ -850,6 +850,7 @@ GEN     ZpXQX_liftfact(GEN pol, GEN Q, GEN T, GEN pe, GEN p, long e);
 GEN     ZpXQX_liftroot(GEN f, GEN a, GEN T, GEN p, long e);
 GEN     ZpXQX_liftroot_vald(GEN f, GEN a, long v, GEN T, GEN p, long e);
 GEN     ZpXQX_roots(GEN F, GEN T, GEN p, long e);
+GEN     Zq_sqrtnlift(GEN a, GEN n, GEN x, GEN T, GEN p, long e);
 GEN     ZqX_liftfact(GEN pol, GEN Q, GEN T, GEN pe, GEN p, long e);
 GEN     ZqX_liftroot(GEN f, GEN a, GEN T, GEN p, long e);
 GEN     ZqX_roots(GEN F, GEN T, GEN p, long e);

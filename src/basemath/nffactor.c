@@ -1976,13 +1976,13 @@ mybestlift_bound(GEN C)
 static GEN
 nfcyclo_root(long n, GEN nfpol, nflift_t *L)
 {
-  GEN q, r, Cltx_r, pol = polcyclo(n,0);
+  GEN q, r, Cltx_r, pol = polcyclo(n,0), gn = utoipos(n);
   div_data D;
 
   init_div_data(&D, pol, L);
-  (void)Fq_sqrtn(gen_1, utoipos(n), L->Tp, L->p, &r);
+  (void)Fq_sqrtn(gen_1, gn, L->Tp, L->p, &r);
   /* r primitive n-th root of 1 in Fq */
-  r = ZqX_liftroot(pol, r, L->Tpk, L->p, L->k);
+  r = Zq_sqrtnlift(gen_1, gn, r, L->Tpk, L->p, L->k);
   /* lt*dn*topowden * r = Clt * r */
   r = nf_bestlift_to_pol(r, NULL, L);
   Cltx_r = deg1pol_shallow(D.Clt? D.Clt: gen_1, gneg(r), varn(pol));
