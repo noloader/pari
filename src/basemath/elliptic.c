@@ -1549,16 +1549,15 @@ A Database of Elliptic Curves-First Report
 ANTS 5
 <http://modular.math.washington.edu/papers/stein-watkins/ants.pdf>
 */
+static GEN localred_23(GEN e, long p);
 GEN
 ellminimaltwistcond(GEN e)
 {
   pari_sp av = avma;
   GEN D = ellminimaltwist(e);
   GEN eD = ellinit(elltwist(e, D), NULL, DEFAULTPREC);
-  GEN E = ellminimalmodel(eD, NULL);
-  GEN R = elllocalred(E, gen_2);
+  GEN R = localred_23(ellintegralmodel(eD,NULL), 2);
   long f = itos(gel(R,1)), v = vali(D);
-  obj_free(eD); obj_free(E);
   if (f==4) D = negi(v==3 ? D: shifti(D, v==0? 2: -2));
   else if (f==6)
   {
