@@ -319,8 +319,8 @@ GEN
 ZpX_liftfact(GEN pol, GEN Q, GEN pe, GEN p, long e)
 {
   pari_sp av = avma;
-  if (lg(Q) == 2) return mkvec(pol);
   pol = FpX_normalize(pol, pe);
+  if (lg(Q) == 2) return mkvec(pol);
   return gerepilecopy(av, MultiLift(pol, Q, NULL, p, e, 0));
 }
 
@@ -328,8 +328,8 @@ GEN
 ZpXQX_liftfact(GEN pol, GEN Q, GEN T, GEN pe, GEN p, long e)
 {
   pari_sp av = avma;
-  if (lg(Q) == 2) return mkvec(pol);
   pol = FpXQX_normalize(pol, T, pe);
+  if (lg(Q) == 2) return mkvec(pol);
   return gerepilecopy(av, MultiLift(pol, Q, T, p, e, 0));
 }
 
