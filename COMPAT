@@ -31,6 +31,7 @@ This file lists the incompatible changes between Version 2.x and older versions
   - change polred-type algorithm to return 'x' (no longer 'x-1') for
     the field of rational numbers (make it consistent with polredabs). The
     documentation now only guarantees a 'polynomial of degree 1'
+  - ellisomat: ellisomat(E,flag) is now ellisomat(E,,flag)
 
 * Specific to the PARI library:
 ===============================

@@ -297,6 +297,7 @@ BA   36- Fl_addmul_pre: change arguments order to follow Fp_addmul convention
      37- issquarefree / isfundamental with integer argument: allow factored form
      38- change polred-type algorithm to return 'x' (no longer 'x-1') for
          the field of rational numbers (make it consistent with polredabs)
+BA   39- ellisomat(E,{fl}) is now ellisomat(E,{p},{fl}) (p degree of isogenies)
 
   Removed
       1- file 'MACHINES' (no longer maintained)

@@ -1128,6 +1128,36 @@ ellQ_goodl(GEN E)
   avma = av; return mask;
 }
 
+static long
+ellQ_goodl_l(GEN E, long l)
+{
+  forprime_t T;
+  long i;
+  GEN disc = ell_get_disc(E);
+  pari_sp av = avma;
+  u_forprime_init(&T, 17UL,ULONG_MAX);
+  for(i=1; i<=20; i++)
+  {
+    ulong p = u_forprime_next(&T);
+    if (umodiu(disc,p)==0) { i--; continue; }
+    else
+    {
+      long t = itos(ellap(E, utoi(p)));
+      if (l==2)
+      {
+        if (t%2==1) return 0;
+      }
+      else
+      {
+        long D = t*t-4*p;
+        if (kross(D,l)==-1) return 0;
+      }
+      avma = av;
+    }
+  }
+  return 1;
+}
+
 static GEN
 ellQ_isomat(GEN E, long flag)
 {
@@ -1141,9 +1171,9 @@ ellQ_isomat(GEN E, long flag)
   if (l)
   {
 #if 1
-      return mkisomat(l, ellisograph_dummy(E, l, jt, jtp, s0, flag));
+    return mkisomat(l, ellisograph_dummy(E, l, jt, jtp, s0, flag));
 #else
-      return mkisomat(l, ellisograph_p(K, E, l), flag);
+    return mkisomat(l, ellisograph_p(K, E, l), flag);
 #endif
   }
   good = ellQ_goodl(ellintegralmodel(E,NULL));
@@ -1193,12 +1223,33 @@ ellQ_isomat(GEN E, long flag)
 }
 
 GEN
-ellisomat(GEN E, long flag)
+ellisomat(GEN E, long p, long flag)
 {
   pari_sp av = avma;
-  GEN LM;
-  checkell_Q(E);
+  GEN r;
   if (flag < 0 || flag > 1) pari_err_FLAG("ellisomat");
-  LM = ellQ_isomat(E, flag);
-  return gerepilecopy(av, LM);
+  if (p < 0) pari_err_PRIME("ellisomat", utoi(p));
+  if (p == 1) { flag = 1; p = 0; } /* for backward compatibility */
+  checkell(E);
+  switch(ell_get_type(E))
+  {
+    default: pari_err_TYPE("ellisomat",E);
+      return NULL; /* NOT REACHED */
+    case t_ELL_Q:
+      if (!p) r = ellQ_isomat(E, flag);
+      else
+      {
+        if (ellQ_goodl_l(E, p))
+          r = mkisomat(p, ellisograph_p(NULL, E, p, flag));
+        else r = mkvec2(mkvec(ellisograph_a4a6(E, flag)),matid(1));
+      }
+      break;
+    case t_ELL_NF:
+      if (!p) {
+        pari_err_IMPL("ellisomat(E,0) for curve over number fields");
+        return NULL; /* NOT REACHED */ }
+      else
+        r = mkisomat(p, ellisograph_p(ellnf_get_nf(E), E, p, flag));
+  }
+  return gerepilecopy(av, r);
 }
