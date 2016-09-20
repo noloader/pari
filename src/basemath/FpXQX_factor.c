@@ -844,7 +844,7 @@ to_FqC(GEN P, GEN T, GEN p, pari_sp av)
   return u;
 }
 
-GEN
+static GEN
 FlxqXQ_halfFrobenius_i(GEN a, GEN xp, GEN Xp, GEN S, GEN T, ulong p)
 {
   GEN ap2 = FlxqXQ_powu(a, p>>1, S, T, p);
@@ -993,7 +993,7 @@ FlxqX_nbroots(GEN f, GEN T, ulong p)
   avma = av; return degpol(z);
 }
 
-GEN
+static GEN
 FlxqX_Berlekamp_ker_i(GEN Xq, GEN S, GEN T, ulong p)
 {
   long j, N = get_FlxqX_degree(S);
