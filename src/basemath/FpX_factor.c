@@ -640,7 +640,7 @@ FpX_oneroot(GEN f, GEN pp) {
 /* Functions giving information on the factorisation. */
 
 /* u in Z[X], return kernel of (Frob - Id) over Fp[X] / u */
-GEN
+static GEN
 FpX_Berlekamp_ker(GEN u, GEN p)
 {
   pari_sp ltop=avma;
@@ -651,7 +651,7 @@ FpX_Berlekamp_ker(GEN u, GEN p)
   return gerepileupto(ltop, FpM_ker(Q,p));
 }
 
-GEN
+static GEN
 F2x_Berlekamp_ker(GEN u)
 {
   pari_sp ltop=avma;
@@ -668,7 +668,7 @@ F2x_Berlekamp_ker(GEN u)
   return gerepileupto(ltop,Q);
 }
 
-GEN
+static GEN
 Flx_Berlekamp_ker(GEN u, ulong l)
 {
   pari_sp ltop=avma;

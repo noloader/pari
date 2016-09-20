@@ -1003,7 +1003,7 @@ FlxqX_Berlekamp_ker_i(GEN Xq, GEN S, GEN T, ulong p)
   return FlxqM_ker(Q,T,p);
 }
 
-GEN
+static GEN
 FlxqX_Berlekamp_ker(GEN S, GEN T, ulong p)
 {
   GEN Xq = FlxqX_Frobenius(S, T, p);
@@ -1020,7 +1020,7 @@ FpXQX_Berlekamp_ker_i(GEN Xq, GEN S, GEN T, GEN p)
   return FqM_ker(Q,T,p);
 }
 
-GEN
+static GEN
 FpXQX_Berlekamp_ker(GEN S, GEN T, GEN p)
 {
   pari_sp ltop=avma;

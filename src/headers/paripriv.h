@@ -735,11 +735,6 @@ GEN     perm_to_GAP(GEN p);
 
 /* polarit1.c */
 
-GEN     F2x_Berlekamp_ker(GEN u);
-GEN     Flx_Berlekamp_ker(GEN u, ulong p);
-GEN     FpX_Berlekamp_ker(GEN u, GEN p);
-GEN     FlxqX_Berlekamp_ker(GEN u, GEN T, ulong p);
-GEN     FpXQX_Berlekamp_ker(GEN u, GEN T, GEN p);
 GEN     F2x_factcantor(GEN f, long flag);
 GEN     Flx_factcantor(GEN f, ulong p, long flag);
 GEN     FpX_factcantor(GEN f, GEN pp, long flag);
