@@ -6304,6 +6304,10 @@ irreducible modulo $p$, return the logarithm of $a$ in $\Z_p[X]/(T)$ to
 precision $e$, assuming that $a\equiv 1 \pmod{p\Z_p[X]}$ if $p$ odd or
 $a\equiv 1 \pmod{4\Z_2[X]}$ if $p=2$.
 
+\subsec{Zq}
+
+\fun{GEN}{Zq_sqrtnlift}{GEN b, GEN n, GEN a, GEN T, GEN p, long e}
+
 \subsec{ZpXQM}
 
 \fun{GEN}{ZpXQM_prodFrobenius}{GEN M, GEN T, GEN p, long e}
@@ -6346,8 +6350,6 @@ As \kbd{FpXQX\_digits}. The parameter $q$ must be equal to $p^e$.
 \fun{GEN}{ZqX_liftfact}{GEN A, GEN B, GEN T, GEN pe, GEN p, long e}
 
 \fun{GEN}{ZqX_liftroot}{GEN f, GEN a, GEN T, GEN p, long e}
-
-\fun{GEN}{ZqQ_sqrtnlift}{GEN b, GEN n, GEN a, GEN T, GEN p, long e}
 
 \subsec{Other $p$-adic functions}
 
