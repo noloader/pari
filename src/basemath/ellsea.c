@@ -743,7 +743,7 @@ static GEN
 find_isogenous_from_Atkin(GEN a4, GEN a6, ulong ell, struct meqn *MEQN, GEN g, GEN T, GEN pp, long e)
 {
   pari_sp ltop = avma, btop;
-  GEN meqn = MEQN->eq, meqnx, Roots, gprime, u1;
+  GEN meqn = MEQN->eq, meqnx, Dmeqnx, Roots, gprime, u1;
   long k, vJ = MEQN->vy;
   GEN p = e==1 ? pp: powiu(pp, e);
   GEN j = Zq_ellj(a4, a6, T, p, pp, e);
@@ -772,12 +772,17 @@ find_isogenous_from_Atkin(GEN a4, GEN a6, ulong ell, struct meqn *MEQN, GEN g, G
 
   u1 = compute_u(gprime, Dxxg, DxJg, DJJg, j, pJ, px, 1, E4, E6, T, p, pp, e);
   meqnx = FpXY_Fq_evaly(meqn, g, T, p, vJ);
+  Dmeqnx = FqX_deriv(meqnx, T, pp);
   Roots = FqX_roots(meqnx, T, pp);
 
   btop = avma;
   for (k = lg(Roots)-1; k >= 1; k--, avma = btop)
   {
-    GEN jt = e==1 ? gel(Roots, k): ZqX_liftroot(meqnx, gel(Roots, k), T, pp, e);
+    GEN jt = gel(Roots, k);
+    if (signe(FqX_eval(Dmeqnx, jt, T, pp))==0)
+      continue;
+    if (e > 1)
+      jt = ZqX_liftroot(meqnx, gel(Roots, k), T, pp, e);
     if (signe(jt) == 0 || signe(Fq_sub(jt, utoi(1728), T, p)) == 0)
     {
       if (DEBUGLEVEL>0) err_printf("[A: jt=%ld]",signe(jt)? 1728: 0);
