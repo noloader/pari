@@ -746,13 +746,9 @@ find_isogenous_from_Atkin(GEN a4, GEN a6, ulong ell, struct meqn *MEQN, GEN g, G
   GEN meqn = MEQN->eq, meqnx, Roots, gprime, u1;
   long k, vJ = MEQN->vy;
   GEN p = e==1 ? pp: powiu(pp, e);
+  GEN j = Zq_ellj(a4, a6, T, p, pp, e);
   GEN E4 = Fq_div(a4, stoi(-3), T, p);
   GEN E6 = Fq_neg(Fq_halve(a6, T, p), T, p);
-  GEN E42 = Fq_sqr(E4, T, p);
-  GEN E43 = Fq_mul(E4, E42, T, p);
-  GEN E62 = Fq_sqr(E6, T, p);
-  GEN delta = Fq_div(Fq_sub(E43, E62, T, p), utoi(1728), T, p);
-  GEN j = Zq_div(E43, delta, T, p, pp, e);
   GEN Dx = RgX_deriv(meqn);
   GEN DJ = deriv(meqn, vJ);
   GEN Dxg = FpXY_Fq_evaly(Dx, g, T, p, vJ);
