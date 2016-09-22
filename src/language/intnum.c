@@ -1409,7 +1409,7 @@ contfraceval_inv(GEN CF, GEN tinv, long nlim)
   if (lg(B)+1 <= nlim)
     pari_err_COMPONENT("contfraceval", ">", stoi(lg(B)), stoi(nlim));
   btop = avma;
-  if (nlim <= 1) return nlim? gdiv(tinv, gadd(gel(A, 1), tinv)): gen_0;
+  if (nlim <= 1) return lg(A)==1? gen_0: gdiv(tinv, gadd(gel(A, 1), tinv));
   switch(nlim % 3)
   {
     case 2:
