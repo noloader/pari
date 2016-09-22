@@ -23,6 +23,7 @@ BA 14- [libpari] FqX_nbfact did not work
    15- incorrect change of variable in elllocalred over a number field for
        places dividing 6
    16- contfraceval([[],[]],1) -> SEGV
+   17- agm(1.0, 1.0*I + x + O(x^200)) -> oo loop [#1654]
 
   Added
     1- permtonum: allow t_VECSMALL input

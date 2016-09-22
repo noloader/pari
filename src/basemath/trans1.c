@@ -2318,12 +2318,55 @@ zellagmcx(GEN a0, GEN b0, GEN r, GEN t, long prec)
   return gerepileupto(av,gdiv(t,a1));
 }
 
+static long
+ser_cmp_expo(GEN A, GEN B)
+{
+  long e = -(long)HIGHEXPOBIT, d = valp(B) - valp(A);
+  long i, la = lg(A), v = varn(B);
+  for (i = 2; i < la; i++)
+  {
+    GEN a = gel(A,i), b;
+    long ei;
+    if (isexactzero(a)) continue;
+    b = polcoeff_i(B, i-2 + d, v);
+    ei = gexpo(a);
+    if (!isexactzero(b)) ei -= gexpo(b);
+    e = maxss(e, ei);
+  }
+  return e;
+}
+
+static GEN
+ser_agm1(GEN y, long prec)
+{
+  GEN a1 = y, b1 = gen_1;
+  long l = lg(y)-2, l2 = 6-prec2nbits(prec), eold = LONG_MAX;
+  for(;;)
+  {
+    GEN a = a1, p1;
+    a1 = gmul2n(gadd(a,b1),-1);
+    b1 = gsqrt(gmul(a,b1), prec);
+    p1 = gsub(b1,a1);
+    if (isinexactreal(p1))
+    {
+      long e = ser_cmp_expo(p1, b1);
+      if (e < l2 || e >= eold) break;
+      eold = e;
+    }
+    else
+    {
+      long ep = valp(p1)-valp(b1);
+      if (ep >= l && gequal0(p1)) break;
+    }
+  }
+  return a1;
+}
+
 /* agm(1,x) */
 static GEN
 agm1(GEN x, long prec)
 {
-  GEN p1, a1, b1, y;
-  long l, l2, ep;
+  GEN y;
   pari_sp av;
 
   if (gequal0(x)) return gcopy(x);
@@ -2340,34 +2383,26 @@ agm1(GEN x, long prec)
       return agm1cx(x, prec);
 
     case t_PADIC:
+    {
+      GEN a1 = x, b1 = gen_1;
+      long l = precp(x);
       av = avma;
-      a1 = x; b1 = gen_1; l = precp(x);
-      do
+      for(;;)
       {
-        GEN a = a1;
+        GEN a = a1, p1;
+        long ep;
         a1 = gmul2n(gadd(a,b1),-1);
         a = gmul(a,b1);
         b1 = Qp_sqrt(a); if (!b1) pari_err_SQRTN("Qp_sqrt",a);
         p1 = gsub(b1,a1); ep = valp(p1)-valp(b1);
         if (ep<=0) { b1 = gneg_i(b1); p1 = gsub(b1,a1); ep=valp(p1)-valp(b1); }
+        if (ep >= l || gequal0(p1)) return gerepilecopy(av,a1);
       }
-      while (ep<l && !gequal0(p1));
-      return gerepilecopy(av,a1);
+    }
 
     default:
       av = avma; if (!(y = toser_i(x))) break;
-      a1 = y; b1 = gen_1; l = lg(y)-2;
-      l2 = 5-prec2nbits(prec);
-      do
-      {
-        GEN a = a1;
-        a1 = gmul2n(gadd(a,b1),-1);
-        b1 = gsqrt(gmul(a,b1), prec);
-        p1 = gsub(b1,a1); ep = valp(p1)-valp(b1);
-      }
-      while (ep<l && !gequal0(p1)
-                  && (!isinexactreal(p1) || gexpo(p1) - gexpo(b1) >= l2));
-      return gerepilecopy(av,a1);
+      return gerepilecopy(av, ser_agm1(y, prec));
   }
   return trans_eval("agm",agm1,x,prec);
 }

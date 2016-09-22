@@ -17,3 +17,8 @@ testagm(x)= {
 
 for(i=-6,6,for(j=-6,6,testagm(1/6+i/3+j*I/3)));
 agm(1,2+O(5))
+
+s = agm(1.0, 1.0*I + x + O(x^200));
+polcoeff(s, 0)
+polcoeff(s, 10)
+polcoeff(s, 100)
