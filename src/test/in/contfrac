@@ -21,6 +21,8 @@ s=exp(x);
 contfracinit(s,0)
 contfracinit(s,1)
 contfracinit(s,2)
+e=contfracinit([])
+contfraceval(e,1)
 e=contfracinit(s)
 contfraceval(e,1,10)
 contfraceval(e,1, 8)
