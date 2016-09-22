@@ -577,6 +577,7 @@ u_forprime_sieve_arith_init(forprime_t *T, struct pari_sieve *psieve,
                             ulong a, ulong b, ulong c, ulong q)
 {
   ulong maxp, maxp2;
+  if (!odd(b) && b > 2) b--;
   if (a > b || b < 2)
   {
     T->strategy = PRST_diffptr; /* paranoia */
@@ -596,7 +597,6 @@ u_forprime_sieve_arith_init(forprime_t *T, struct pari_sieve *psieve,
   T->strategy = PRST_none; /* unknown */
   T->psieve = psieve; /* unused for now */
   T->isieve = NULL; /* unused for now */
-  if (!odd(b) && b > 2) b--;
   T->b = b;
   if (maxp >= b) { /* [a,b] \subset prime table */
     u_forprime_set_prime_table(T, a);
@@ -635,9 +635,7 @@ u_forprime_sieve_arith_init(forprime_t *T, struct pari_sieve *psieve,
 
 int
 u_forprime_arith_init(forprime_t *T, ulong a, ulong b, ulong c, ulong q)
-{
-  return u_forprime_sieve_arith_init(T, NULL, a, b, c, q);
-}
+{ return u_forprime_sieve_arith_init(T, NULL, a, b, c, q); }
 
 /* will run through primes in [a,b] */
 int

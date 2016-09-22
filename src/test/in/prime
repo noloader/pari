@@ -9,3 +9,4 @@ test(10^6);
 test(10^8);
 primepi(2^32)
 precprime(1)
+primepi(2750160) \\ #1855
