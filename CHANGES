@@ -20,6 +20,8 @@ BA 12- [breakloop] changes done in the first-level breakloop were lost when
        leaving the second-level breakloop.
    13- polinterpolate could create illegal objects [#1837] (test-case by PB)
 BA 14- [libpari] FqX_nbfact did not work
+   15- incorrect change of variable in elllocalred over a number field for
+       places dividing 6
 
   Added
     1- permtonum: allow t_VECSMALL input

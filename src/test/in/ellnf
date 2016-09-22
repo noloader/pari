@@ -69,3 +69,7 @@ u=Mod(8+a,K.pol);
 e = ellinit([1,40*u+1,0,25*u^2,0], K); ellminimalmodel(e)
 e = ellinit([1,10*u+1,0,25*u^2,0], K); ellminimalmodel(e)
 ellglobalred(e)
+
+E=ellinit([-3850829794560*a-15877538149168,-835276760491221504 0*a-34439343881478343808],bnfinit(a^2-17));
+ellminimalmodel(E,&v)[1..5]
+v

@@ -1273,11 +1273,12 @@ static void
 E_gcompose_r(GEN *vtotal, GEN *e, GEN r)
 {
   GEN v = *vtotal;
-  GEN U2, R;
+  GEN U2, R, S, T;
   if (gequal0(r)) return;
   *e = coordch_r(*e,r);
-  U2 = gsqr(gel(v,1)); R = gel(v,2);
+  U2 = gsqr(gel(v,1)); R = gel(v,2); S = gel(v, 3); T = gel(v, 4);
   gel(v,2) = gadd(R, gmul(U2, r));
+  gel(v,4) = gadd(T, gmul(U2, gmul(S, r)));
 }
 /* v o= [1,0,s,0]; never used for s = 0 */
 static void
