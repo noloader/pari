@@ -51,8 +51,12 @@ ellglobalred(E3)
 K=bnfinit(a^2 - 2*3*5*29);
 e = ellinit([a,1], K);
 E = ellchangecurve(e, Mod([2^3 * 3 * a, a+123, 17*a+2, 16*a+3], K.pol));
+ellintegralmodel(E)[1..5]
+ellintegralmodel(E, &v)[1..5]
+v
 ellminimalmodel(E, &v)[1..5]
 v
+
 ellminimalmodel(ellinit([a^4,(a+2)^6], K))
 
 p=2*10^10+89; q=10^10+19;

@@ -2607,6 +2607,7 @@ GEN     ellheightmatrix(GEN E, GEN x, long n);
 GEN     ellheightoo(GEN e, GEN z, long prec);
 GEN     ellinit(GEN x, GEN p, long prec);
 GEN     ellintegralmodel(GEN e, GEN *pv);
+GEN     ellintegralmodel_i(GEN e, GEN *pv);
 GEN     ellisoncurve(GEN e, GEN z);
 int     ellissupersingular(GEN x, GEN p);
 int     elljissupersingular(GEN x);

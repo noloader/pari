@@ -1556,7 +1556,7 @@ ellminimaltwistcond(GEN e)
   pari_sp av = avma;
   GEN D = ellminimaltwist(e);
   GEN eD = ellinit(elltwist(e, D), NULL, DEFAULTPREC);
-  GEN R = localred_23(ellintegralmodel(eD,NULL), 2);
+  GEN R = localred_23(ellintegralmodel_i(eD,NULL), 2);
   long f = itos(gel(R,1)), v = vali(D);
   if (f==4) D = negi(v==3 ? D: shifti(D, v==0? 2: -2));
   else if (f==6)
@@ -4681,7 +4681,7 @@ handle_coeff(GEN nf, GEN c, GEN *pd)
 /* Return an integral model for e / Q. Set v = NULL (already integral)
  * or the variable change [u,0,0,0], u = 1/t, t > 1 integer making e integral */
 GEN
-ellintegralmodel(GEN e, GEN *pv)
+ellintegralmodel_i(GEN e, GEN *pv)
 {
   GEN a = cgetg(6,t_VEC), t, u, L, nf;
   long i, l, k;
@@ -4717,6 +4717,24 @@ ellintegralmodel(GEN e, GEN *pv)
   u = ginv(t);
   if (pv) *pv = mkvec4(u,gen_0,gen_0,gen_0);
   return coordch_u(e, u);
+}
+GEN
+ellintegralmodel(GEN e, GEN *pv)
+{
+  pari_sp av = avma;
+  long t;
+  checkell(e);
+  t = ell_get_type(e);
+  if (t != t_ELL_Q && t != t_ELL_NF) pari_err_TYPE("ellintegralmodel",e);
+  e = ellintegralmodel_i(e, pv);
+  if (!pv || !*pv)
+  {
+    e = gerepilecopy(av, e);
+    if (pv) *pv = init_ch();
+  }
+  else
+    gerepileall(av, 2, &e, pv);
+  return e;
 }
 
 static long
@@ -5108,7 +5126,7 @@ ellminimalmodel_i(GEN E, GEN *ptv)
     if (ptv) *ptv = v;
     return gcopy(E);
   }
-  e = ellintegralmodel(E, &v0);
+  e = ellintegralmodel_i(E, &v0);
   u = get_u(e, &DP);
   min_set_all(&M, e, u);
   v = min_get_v(&M, e);
@@ -5160,7 +5178,7 @@ ellnfminimalmodel_i(GEN E, GEN *ptv)
   if (!bnf) pari_err_TYPE("ellminimalmodel (need a bnf)", ellnf_get_nf(E));
   if (ptv) *ptv = NULL;
   nf = bnf_get_nf(bnf);
-  y = ellintegralmodel(E, &v);
+  y = ellintegralmodel_i(E, &v);
   v2 = bnf_get_v(bnf, y, &DP);
   if (typ(v2) == t_COL)
   {
@@ -5266,7 +5284,7 @@ ellnfglobalred(GEN E)
   GEN c, L, P, NP, NE, D, nf, v;
   long k, lP, iN;
 
-  E = ellintegralmodel(E, &v);
+  E = ellintegralmodel_i(E, &v);
   if (!v) v = init_ch();
   nf = ellnf_get_nf(E);
   P = pV_to_prV(nf, ellnf_D_primes(E));
@@ -5720,10 +5738,10 @@ ellrootno(GEN e, GEN p)
   switch(itou_or_0(p))
   {
     case 2:
-      e = ellintegralmodel(e, NULL);
+      e = ellintegralmodel_i(e, NULL);
       s = ellrootno_2(e); break;
     case 3:
-      e = ellintegralmodel(e, NULL);
+      e = ellintegralmodel_i(e, NULL);
       s = ellrootno_3(e); break;
     default:
       s = ellrootno_p(e,p); break;
@@ -5859,7 +5877,7 @@ ellanQ_zv(GEN e, long n0)
   if (n0 <= 0) return cgetg(1,t_VEC);
   if (n >= LGBITS)
     pari_err_IMPL( stack_sprintf("ellan for n >= %lu", LGBITS) );
-  e = ellintegralmodel(e,NULL);
+  e = ellintegralmodel_i(e,NULL);
   SQRTn = usqrt(n);
   CM = ellQ_get_CM(e);
 

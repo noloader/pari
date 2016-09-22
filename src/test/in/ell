@@ -65,10 +65,15 @@ elltwist(ellinit([a1,a2,a3,a4,a6]),1)
 elltwist(ellinit([a1,a2,a3,a4,a6]),-4)
 elltwist(ellinit([a1,a2,a3,a4,a6]),5)
 
-ellminimaltwist(ellinit([4,0]))
-ellminimaltwist(ellinit([4,0]),1)
-ellminimaltwist(ellinit(ellfromj(-882216989/131072)))
-ellminimaltwist(ellinit(ellfromj(-882216989/131072)),1)
+e = ellinit([4,0]);
+ellminimaltwist(e)
+ellminimaltwist(e,1)
+
+e = ellinit(ellfromj(-882216989/131072));
+e = ellintegralmodel(e,&v)
+v
+ellminimaltwist(e)
+ellminimaltwist(e,1)
 
 twisttest(c4,c6, T)=
 { my(e = ellinit([c4/-48, c6/-864]));

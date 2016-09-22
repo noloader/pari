@@ -159,7 +159,7 @@ elltors_divpol(GEN E)
   GEN T2 = NULL, p, P, Q, v;
   long v2, r2, B;
 
-  E = ellintegralmodel(E, &v);
+  E = ellintegralmodel_i(E, &v);
   B = torsbound(E); /* #E_tor | B */
   if (B == 1) return tors(E,1,NULL,NULL, v);
   v2 = vals(B); /* bound for v_2(point order) */

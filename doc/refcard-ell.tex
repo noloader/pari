@@ -100,8 +100,6 @@ $\bullet$ All domains:
 
 \section{Curves over $\QQ$}
 \subsec{Reduction, minimal model}
-\li{cond, min mod, Tamagawa num \kbd{[}$N,v,c$\kbd{]}}{ellglobalred$(E)$}
-\li{Kodaira type of $p$-fiber of $E$}{elllocalred$(E,p)$}
 \li{minimal model of $E/\QQ$} {ellminimalmodel$(E,\{$\&$v\})$}
 \li{quadratic twist of minimal conductor}{ellminimaltwist}
 \li{multiple with good reduction}
@@ -124,22 +122,15 @@ $\bullet$ All domains:
 \li{a modular equation of prime degree $N$}{ellmodulareqn$(N)$}
 
 \subsec{$L$-function}
-A domain $D = [c,w,h]$ in initialization mean we restrict $s\in \CC$
-to domain $|\Re(s)-c| < w$, $|\Im(s)| < h$; $D = [w,h]$ encodes $[1/2,w,h]$
-and $[h]$ encodes $D = [1/2,0,h]$ (critical line up to height $h$).\hfil\break
 \li{$p$-th coeff $a_p$ of $L$-function, $p$ prime}{ellap$(E,p)$}
 \li{$E$ supersingular at $p$?}{ellissupersingular$(E, p)$}
 \li{$k$-th coeff $a_k$ of $L$-function}{ellak$(E,k)$}
-\li{vector of first $n$ $a_k$'s in $L$-function}{ellan$(E,n)$}
-\li{init $L^{(k)}(E,s)$ for $k \leq n$}{L = lfuninit$(E, D, \{n = 0\})$}
-\li{compute $L(E,s)$ ($n$-th derivative)}{lfun$(L, s, \{n=0\})$}
 \li{$L(E,s)$ (using less memory than \kbd{lfun})}{elllseries$(E,s)$}
 \li{$L^{(r)}(E,1)$ (using less memory than \kbd{lfun})}{ellL1$(E,r)$}
 %
 \li{a Heegner point on $E$ of rank $1$}{ellheegner$(E)$}
 \li{order of vanishing at $1$}{ellanalyticrank$(E,\{\var{eps}\})$}
 \li{root number for $L(E,.)$ at $p$}{ellrootno$(E,\{p\})$}
-\li{torsion subgroup with generators}{elltors$(E)$}
 \li{modular parametrization of $E$}{elltaniyama$(E)$}
 \li{degree of modular parametrization}{ellmoddegree$(E)$}
 \li{$p$-adic $L$-function of $E$ at $\chi^s$}
@@ -153,7 +144,20 @@ and $[h]$ encodes $D = [1/2,0,h]$ (critical line up to height $h$).\hfil\break
 \li{loop over curves with cond.~from $a$ to $b$}{forell$(E, a,b,\seq)$}
 
 \section{Curves over number field $K$}
+\li{coeff $a_{\goth{p}}$ of $L$-function}{ellap$(E,\goth{p})$}
+\li{Kodaira type of $\goth{p}$-fiber of $E$}{elllocalred$(E,\goth{p})$}
+\li{integral model of $E/K$} {ellintegralmodel$(E,\{$\&$v\})$}
+\li{minimal model of $E/K$} {ellminimalmodel$(E,\{$\&$v\})$}
+\li{cond, min mod, Tamagawa num \kbd{[}$N,v,c$\kbd{]}}{ellglobalred$(E)$}
 \li{$P\in E(K)$ $n$-divisible? $[n]Q=P$}{ellisdivisible$(E,P,n,\{\&Q\})$}
+\subsec{$L$-function}
+A domain $D = [c,w,h]$ in initialization mean we restrict $s\in \CC$
+to domain $|\Re(s)-c| < w$, $|\Im(s)| < h$; $D = [w,h]$ encodes $[1/2,w,h]$
+and $[h]$ encodes $D = [1/2,0,h]$ (critical line up to height $h$).\hfil\break
+\li{vector of first $n$ $a_k$'s in $L$-function}{ellan$(E,n)$}
+\li{init $L^{(k)}(E,s)$ for $k \leq n$}{L = lfuninit$(E, D, \{n = 0\})$}
+\li{compute $L(E,s)$ ($n$-th derivative)}{lfun$(L, s, \{n=0\})$}
+\li{torsion subgroup with generators}{elltors$(E)$}
 
 \section{Other curves of small genus}
 A hyperelliptic curve is given by a pair $[P,Q]$ ($y^2+Qy = P$, $Q^2+4P$

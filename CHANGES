@@ -73,6 +73,7 @@ BA 40- [libpari] ZpXQX_roots, ZqX_roots, ZqX_liftfact, ZqX_liftroot,
                  Zq_sqrtnlift
    41- [libpari] hash_dbg
    42- [libpari] Qdivii
+   43- GP function ellintegralmodel
 
   Changed
     1- remove useless flag in idealappr: directly allow factorization
