@@ -761,7 +761,7 @@ find_isogenous_from_Atkin(GEN a4, GEN a6, ulong ell, struct meqn *MEQN, GEN g, G
   GEN Dxxg = FpXY_Fq_evaly(Dxx, g, T, p, vJ);
   GEN DJJg = FqX_deriv(DJg, T, p);
   GEN a, b;
-  if (!signe(dJ) || !signe(dx))
+  if (!signe(Fq_red(dJ,T,pp)) || !signe(Fq_red(dx,T,pp)))
   {
     if (DEBUGLEVEL>0) err_printf("[A: d%c=0]",signe(dJ)? 'x': 'J');
     avma = ltop; return NULL;
@@ -783,9 +783,9 @@ find_isogenous_from_Atkin(GEN a4, GEN a6, ulong ell, struct meqn *MEQN, GEN g, G
       continue;
     if (e > 1)
       jt = ZqX_liftroot(meqnx, gel(Roots, k), T, pp, e);
-    if (signe(jt) == 0 || signe(Fq_sub(jt, utoi(1728), T, p)) == 0)
+    if (signe(Fq_red(jt, T, pp)) == 0 || signe(Fq_sub(jt, utoi(1728), T, pp)) == 0)
     {
-      if (DEBUGLEVEL>0) err_printf("[A: jt=%ld]",signe(jt)? 1728: 0);
+      if (DEBUGLEVEL>0) err_printf("[A: jt=%ld]",signe(Fq_red(jt,T,p))? 1728: 0);
       avma = ltop; return NULL;
     }
     else
@@ -843,12 +843,12 @@ find_isogenous_from_canonical(GEN a4, GEN a6, ulong ell, struct meqn *MEQN, GEN 
   GEN itis = Fq_inv(stoi(-tis), T, p);
   GEN deltal = Fq_div(Fq_mul(delta, Fq_powu(g, tis, T, p), T, p), powuu(ell, 12), T, p);
   GEN E4l, E6l, a4tilde, a6tilde, p_1;
-  if (signe(dx)==0)
+  if (signe(Fq_red(dx,T, pp))==0)
   {
     if (DEBUGLEVEL>0) err_printf("[C: dx=0]");
     avma = ltop; return NULL;
   }
-  if (signe(dJ)==0)
+  if (signe(Fq_red(dJ, T, pp))==0)
   {
     GEN jl;
     if (DEBUGLEVEL>0) err_printf("[C: dJ=0]");
@@ -871,7 +871,7 @@ find_isogenous_from_canonical(GEN a4, GEN a6, ulong ell, struct meqn *MEQN, GEN 
     GEN E0bd = Zq_div(Fq_sub(Fq_mul(Dgd, itis, T, p), Fq_mul(E0b, Djd, T, p), T, p), dJ, T, p, pp, e);
     E4l = Zq_div(Fq_sub(E4, Fq_mul(E2s, Fq_sub(Fq_sub(Fq_add(Zq_div(Fq_mulu(E0bd, 12, T, p), E0b, T, p, pp, e), Zq_div(Fq_mulu(E42, 6, T, p), E6, T, p, pp, e), T, p), Zq_div(Fq_mulu(E6, 4, T, p), E4, T, p, pp, e), T, p), E2s, T, p), T, p), T, p), sqru(ell), T, p, pp, e);
     jl = Zq_div(Fq_powu(E4l, 3, T, p), deltal, T, p, pp, e);
-    if (signe(jl)==0)
+    if (signe(Fq_red(jl,T,pp))==0)
     {
       if (DEBUGLEVEL>0) err_printf("[C: jl=0]");
       avma = ltop; return NULL;
