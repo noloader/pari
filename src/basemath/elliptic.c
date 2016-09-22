@@ -1456,63 +1456,86 @@ elltwist(GEN E, GEN P)
   return gerepilecopy(av, V);
 }
 
-static ulong
-smod2BIL(GEN x)
-{
-  long s = signe(x);
-  return s==0 ? 0: s==1 ? *int_LSW(x) : -*int_LSW(x);
-}
+/********************************************************************/
+/**                      E/Q: MINIMAL TWIST                        **/
+/**      Cf Ian Connell, Elliptic Curve Handbook, chap. 5          **/
+/**                http://www.math.mcgill.ca/connell/              **/
+/********************************************************************/
 
 static long
-safe_Z_pval(GEN n, GEN p)
-{
-  return signe(n)==0? -1: Z_pval(n, p);
+safe_Z_lval(GEN n, ulong p)
+{ return signe(n)==0? -1: Z_lval(n, p); }
+
+/* Twist by d2 = 1,-4,-8,8, to get minimal discriminant at 2 after
+ * ellminimalmodel / get_u; assume vg = min(3*v4,2*v6,vD) >= 6.
+ * If non-trivial, v(d2) = 2 or 3 and let t = [(vg+6v(d2))/12].
+ * Good case if reduction in get_u i.e. t = 2 (v4 < 6 or v6 < 9 or
+ * vD < 18) or 3 and "d--" does not occur. Minimal model => t = 3 iff
+ * v4 = 6, v6 = 9 and vD >= 18. Total net effect is
+ *   v4 += 2v(d2) - 4t, v6 += 3v(d2) - 6t, vD += 6 v(d2) - 12t
+ * After rescaling in get_u (c4 >>= 4t, c6 >>= 6t) we need
+ *   c6 % 4 = 3 OR  (v4 >= 4 AND (v6 >= 5 or c6 % 32 = 8)) */
+static long
+twist2(GEN c4, GEN c6, GEN disc, long vg)
+{ /* v4 >= 4, v6 >= 3 (and c6 = 0,8 mod 32). After twist + minimization,
+   * either same condition OR v(C4) = 0, C6 = 0,3 mod 4 */
+  long v4, v6, vD;
+
+  if (vg == 18) /* v4=6, v6=9, vD>=18; only case with t = 3 */
+    return (umodi2n(c6, 11)>>9) == 1 ? -8: 8; /* need C6 % 4 = 3 */
+
+  /* 100 = oo, any number >= 8 would do */
+  v4 = signe(c4)? vali(c4): 100; if (v4 == 5) return 1;
+  /* 100 = oo, any number > 9 would do */
+  v6 = signe(c6)? vali(c6): 100; if (v6 == 7) return 1;
+
+  /* handle case v(DISC) = 0 or v(C4) = 0 after twist, only case with d2 = -4 */
+  if (vg == 12 && ((v4==4 && v6==6) || (v4>=8 && v6==9))) return -4;
+
+  /* Now, d2 = 1 OR v(d2) = 3, t = 2 => v4 -= 2, v6 -= 3, vD -= 6 */
+  if (v4 < 6 || v6 < 6) return 1; /* v(C4) >= 4, v(C6) >= 3 */
+  vD = vali(disc);
+  if (v6==6 && vD==6 && (umodi2n(c6,8)>>6) == 1) return 8; /* C6 % 32 = 8 */
+  return -8;
 }
 
 /* Return D such that E_D has minimal discriminant.
    It also has minimal conductor in Z[1/2]
-Reference:
-Ian Connell, Elliptic Curve Handbook,
-http://www.math.mcgill.ca/connell/
 */
 GEN
 ellminimaltwist(GEN e)
 {
   pari_sp av = avma;
-  GEN c4, c6, disc;
-  GEN D = gen_1;
-  GEN N, M, F, E;
+  GEN c4, c6, disc, g, N, M, F, E, D = gen_1;
   long i, lF;
   E = ellminimalmodel(e, NULL);
   c4 = ell_get_c4(E);
   c6 = ell_get_c6(E);
   disc = ell_get_disc(E);
+  g = gcdii(disc, sqri(c6));
   ellQ_get_Nfa(E, &N, &M);
   F = gel(M, 1); lF = lg(F);
-  for(i=1; i < lF; i++)
+  /* on twist by d, (c4,c6,D,g) -> (d^2 c4, d^3 c6, d^6 D, d^6 g),
+   * then apply get_u(). Since model is minimal, v(g) < 12 unless p=3 and
+   * v(g) < 14 or p = 2 and v(g) <= 18 */
+  for(i = 1; i < lF; i++)
   {
     GEN p = gel(F, i);
-    long v4 = safe_Z_pval(c4, p), v6 = safe_Z_pval(c6,p), vD = Z_pval(disc,p);
-    long l = v4<0 ? minss(2*v6, vD): v6<0 ? minss(3*v4, vD): minss(minss(3*v4, 2*v6), vD);
-    if (abscmpiu(p, 3)>0)
+    long vg = Z_pval(g,p), d2;
+    if (vg < 6) continue;
+    /* twist by fund. discriminant d2; in get_u, we have v(g) = vg + 6*v(d2) */
+    switch(itou_or_0(p))
     {
-      if (l>=6) D = mulii(D,mod4(p)==1 ? p: negi(p));
-    }
-    else if (absequaliu(p, 3))
-    {
-      if (l>=6 && v6!=5) D = mulis(D,-3);
-    }
-    else /* p == 2*/
-    {
-      if ((v4==4 && v6==6 && vD>=12) || ((v4<0 || v4>=8) && v6==9 && vD==12))
-        D = mulis(D,-4);
-      else if (v4==6 && v6==9 && vD>=18)
-        D = mulis(D, ((smod2BIL(c6)>>9)&3UL) == 1 ? -8: 8);
-      else if ((v4<0 || v4>=6) && v6==6 && vD==6)
-        D = mulis(D, ((smod2BIL(c6)>>6)&3UL) == 1 ? 8: -8);
-      else
-        if (!(v4==4 || v4==5 || v6==3 || v6==5 || v6==7 || (v4==0 && v6==0)))
-          D = mulis(D, -8);
+      default: /* p > 3, 6 <= v(g) < 12 => v(D) -= 6 */
+        D = mulii(D, (mod4(p)==1)? p: negi(p));
+        break;
+      case 3: /* bad case: v(final_c6) = 2 => no reduction; else v(D) -= 6 */
+        if (safe_Z_lval(c6,3) != 5) D = mulis(D, -3);
+        break;
+      case 2:
+        d2 = twist2(c4,c6,disc,vg);
+        if (d2 != 1) D = mulis(D,d2);
+        break;
     }
   }
   obj_free(E);
@@ -4952,7 +4975,7 @@ get_u(GEN E, GEN *pDP)
         break;
       }
       case 3:
-        if (Z_lval(c6,3) == 6*d+2) { d--; r += 12; }
+        if (safe_Z_lval(c6,3) == 6*d+2) { d--; r += 12; }
         break;
     }
     if (r) vectrunc_append(DP, p);
