@@ -4988,26 +4988,36 @@ zk_capZ(GEN nf, GEN x)
   return (typ(mx) == t_INT)? mx: zkmultable_capZ(mx);
 }
 static GEN
+pV_to_prV(GEN nf, GEN P)
+{
+  long i, l = lg(P);
+  for (i = 1; i < l; i++) gel(P,i) = idealprimedec(nf, gel(P,i));
+  return shallowconcat1(P);
+}
+static GEN
 ellnf_c4c6_primes(GEN E)
 {
   GEN nf = ellnf_get_nf(E);
   GEN c4Z = zk_capZ(nf, ell_get_c4(E));
   GEN c6Z = zk_capZ(nf, ell_get_c6(E));
+  return Z_gcd_primes(c4Z, c6Z); /* prime ideals potentially dividing D */
+}
+static GEN
+ellnf_D_primes(GEN E)
+{
+  GEN nf = ellnf_get_nf(E);
+  GEN P = ellnf_c4c6_primes(E);
   GEN DZ = zk_capZ(nf, ell_get_disc(E));
-  GEN P = Z_gcd_primes(c4Z, c6Z); /* prime ideals potentially dividing D */
-  long k, lP;
-
-  lP = lg(P);
-  for (k = 1; k < lP; k++) (void)Z_pvalrem(DZ, gel(P,k), &DZ);
+  long k, l = lg(P);
+  for (k = 1; k < l; k++) (void)Z_pvalrem(DZ, gel(P,k), &DZ);
   if (!is_pm1(DZ))
   {
     GEN Q = gel(absZ_factor(DZ),1);
     settyp(Q, t_VEC); P = ZV_sort(shallowconcat(P, Q));
   }
-  lP = lg(P);
-  for (k = 1; k < lP; k++) gel(P,k) = idealprimedec(nf, gel(P,k));
-  return shallowconcat1(P);
+  return P;
 }
+
 static GEN
 bnf_get_v(GEN bnf, GEN E, GEN *pDP)
 {
@@ -5017,7 +5027,7 @@ bnf_get_v(GEN bnf, GEN E, GEN *pDP)
   nf = bnf_get_nf(bnf);
   c4 = ell_get_c4(E); if (typ(c4) == t_INT) c4 = NULL;
   c6 = ell_get_c6(E); if (typ(c6) == t_INT) c6 = NULL;
-  P = ellnf_c4c6_primes(E);
+  P = pV_to_prV(nf, ellnf_c4c6_primes(E));
   l = lg(P);
   DP = vectrunc_init(l); settyp(DP,t_COL);
   Lr = vectrunc_init(l);
@@ -5241,7 +5251,7 @@ ellnfglobalred(GEN E)
   E = ellintegralmodel(E, &v);
   if (!v) v = init_ch();
   nf = ellnf_get_nf(E);
-  P = ellnf_c4c6_primes(E);
+  P = pV_to_prV(nf, ellnf_D_primes(E));
   lP = lg(P);
   D = ell_get_disc(E);
   if (typ(D) == t_INT) D = NULL;
