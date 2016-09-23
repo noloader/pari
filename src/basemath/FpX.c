@@ -865,8 +865,8 @@ FpX_eval(GEN x,GEN y,GEN p)
   pari_sp av;
   GEN p1,r,res;
   long j, i=lg(x)-1;
-  if (i<=2)
-    return (i==2)? modii(gel(x,2),p): gen_0;
+  if (i<=2 || !signe(y))
+    return (i==1)? gen_0: modii(gel(x,2),p);
   res=cgeti(lgefint(p));
   av=avma; p1=gel(x,i);
   /* specific attention to sparse polynomials (see poleval)*/
