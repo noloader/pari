@@ -1419,7 +1419,10 @@ gsubst(GEN x, long v, GEN y)
   {
     case t_POL:
       if (lx==2)
-        return ty == t_MAT? scalarmat(gen_0,ly-1): gen_0;
+      {
+        GEN z = RgX_get_0(y);
+        return ty == t_MAT? scalarmat(z,ly-1): z;
+      }
 
       vx = varn(x);
       if (varncmp(vx, v) > 0)
@@ -4172,7 +4175,7 @@ poleval(GEN x, GEN y)
       return NULL; /* not reached */
   }
   if (i<=imin)
-    return (i==imin)? gcopy(gel(x,imin)): gen_0;
+    return (i==imin)? gmul(gel(x,imin),RgX_get_1(y)): RgX_get_0(y);
 
   p1 = gel(x,i); i--;
   if (typ(y)!=t_COMPLEX)

@@ -25,6 +25,9 @@ BA 14- [libpari] FqX_nbfact did not work
    16- contfraceval([[],[]],1) -> SEGV
    17- agm(1.0, 1.0*I + x + O(x^200)) -> oo loop [#1654]
    18- primepi(2750160) -> crash [#1855]
+   19- polinterpolate([],[],Mod(1,3)) => 0 instead of Mod(0,3)
+   20- subst(Pol(0),x,Mod(1,3)) => 0 instead of Mod(0,3)
+   21- subst(Pol(1),x,Mod(1,3)) => 1 instead of Mod(1,3)
 
   Added
     1- permtonum: allow t_VECSMALL input

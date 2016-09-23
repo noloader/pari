@@ -1073,6 +1073,11 @@ polint_i(GEN X, GEN Y, GEN x, long n, GEN *ptdy)
   pari_sp av = avma;
   GEN y, c, d, dy = NULL; /* gcc -Wall */
 
+  if (n == 1)
+  {
+    if (ptdy) *ptdy = gen_0;
+    return gmul(gel(Y,0), RgX_get_1(x));
+  }
   if (!X)
   {
     X = cgetg(n+1, t_VEC);
@@ -1165,10 +1170,8 @@ polint(GEN X, GEN Y, GEN t, GEN *ptdy)
     (void)delete_var();
     return gerepileupto(av, P);
   }
-  /* numerical interpolation. FIXME: gen_0 may not be appropriate,
-   * it should be the 0 in the ring t belongs to. But poleval and gsubst
-   * must be fixed too */
-  if (lx == 1) return gen_0;
+  /* numerical interpolation */
+  if (lx == 1) return RgX_get_0(t);
   return polint_i(X? X+1: NULL,Y+1,t,lx-1,ptdy);
 }
 

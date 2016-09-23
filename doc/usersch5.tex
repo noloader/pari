@@ -8288,15 +8288,18 @@ multiplied by $\kbd{x}^n$, assuming $n\geq 0$.
 \subsubsec{Coefficient ring}
 
 \fun{long}{RgX_type}{GEN x, GEN *ptp, GEN *ptpol, long *ptprec} returns
-the ``natural'' base ring over which the polynomial $x$ is defined. Raise an
-error if it detects consistency problems in modular objects: incompatible rings
-(e.g. $\F_p$ and $\F_q$ for primes $p\neq q$, $\F_p[X]/(T)$ and $\F_p[X]/(U)$
-for $T\neq U$). Minor discrepancies are supported if they make general sense
-(e.g. $\F_p$ and $\F_{p^k}$, but not $\F_p$ and $\Q_p$); \typ{FFELT} and
-\typ{POLMOD} of \typ{INTMOD}s are considered inconsistent, even if they define
-the same field: if you need to use simultaneously these different finite
-field implementations, multiply the polynomial by a \typ{FFELT} equal to $1$
-first.
+the ``natural'' base ring over which the polynomial $x$ is defined. Contrary
+to what its name suggests, this function also works for scalar types,
+\typ{SER} and \typ{MAT} $x$.
+
+Raise an error if it detects consistency problems in modular objects:
+incompatible rings (e.g. $\F_p$ and $\F_q$ for primes $p\neq q$,
+$\F_p[X]/(T)$ and $\F_p[X]/(U)$ for $T\neq U$). Minor discrepancies are
+supported if they make general sense (e.g. $\F_p$ and $\F_{p^k}$, but not
+$\F_p$ and $\Q_p$); \typ{FFELT} and \typ{POLMOD} of \typ{INTMOD}s are
+considered inconsistent, even if they define the same field: if you need to
+use simultaneously these different finite field implementations, multiply the
+polynomial by a \typ{FFELT} equal to $1$ first.
 
 \item 0: none of the others (presumably multivariate, possibly inconsistent).
 
