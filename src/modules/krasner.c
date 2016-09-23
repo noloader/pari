@@ -208,19 +208,19 @@ NumberExtensions(KRASNER_t *data)
 static GEN
 get_topx(KRASNER_t *data, GEN eis)
 {
-  GEN p1, p2, rpl;
-  long j;
+  GEN p1, p2, rpl, c;
   pari_sp av;
+  long j;
   /* top poly. is the minimal polynomial of root(pol) + root(T) */
-  rpl = FqX_red(FqX_translate(eis, FpX_neg(pol_x(data->v), data->pr), data->T, data->pr),
-                data->T, data->pr);
-  p1 = p2 = rpl;
-  av = avma;
+  if (data->f == 1) return eis;
+  c = FpX_neg(pol_x(data->v),data->pr);
+  rpl = FqX_translate(eis, c, data->T, data->pr);
+  p1 = p2 = rpl; av = avma;
   for (j = 1; j < data->f; j++)
   {
     p1 = FqX_FpXQ_eval(p1, data->frob, data->T, data->pr);
     p2 = FqX_mul(p2, p1, data->T, data->pr);
-    if (gc_needed(av, 1)) gerepileall(av, 2, &p1, &p2);
+    if (gc_needed(av,2)) gerepileall(av, 2, &p1,&p2);
   }
   return simplify_shallow(p2); /* ZX */
 }
@@ -338,15 +338,16 @@ Quick_FqX_roots(KRASNER_t *data, GEN pol)
   GEN rts;
   ulong ind = 0;
 
-  pol = FpXQX_red(pol, data->T, data->p);
-
+  if (data->f == 1)
+    pol = FpXY_evalx(pol, gen_0, data->p);
+  else
+    pol = FqX_red(pol, data->T, data->p);
   if (data->roottable)
   {
     ind = ZXY_z_eval(pol, data->q[2], data->p[2]);
     if (gel(data->roottable, ind)) return gel(data->roottable, ind);
   }
-  rts = FpXQX_roots(pol, data->T, data->p);
-
+  rts = FqX_roots(pol, data->T, data->p);
   if (ind) gel(data->roottable, ind) = gclone(rts);
   return rts;
 }
@@ -679,22 +680,24 @@ WildlyRamifiedCase(KRASNER_t *data)
 /* return the minimal polynomial of a generator of K^ur and the expression (mod pr)
  * in terms of this generator of a root of unity nu such that nu is l-maximal
  * for all primes l dividing g = (e,q-1). */
-static GEN
-UnramData(KRASNER_t *d)
+static void
+setUnramData(KRASNER_t *d)
 {
-  long v = d->v, e = d->e, f = d->f;
-  GEN T, z, fb, fa, p = d->p;
-
-  /* v - primroot(p) */
-  if (f == 1)
-    return mkvec3(pol_x(v), pgener_Fp(p), pol_x(v));
-
-  T = init_Fq(p, f, v);
-  fa = zv_to_ZV(gel(factoru(ugcd(e, umodiu(d->qm1, e))), 1));
-  z = gener_FpXQ_local(T, p, fa);
-  z = ZpXQ_sqrtnlift(scalarpol(gen_1,varn(T)), d->qm1, z, T, p, d->r);
-  fb = ZpX_ZpXQ_liftroot(T, FpXQ_pow(pol_x(v), p, T, p), T, p, d->r);
-  return mkvec3(T, z, fb);
+  if (d->f == 1)
+  {
+    d->T = NULL;
+    d->u = pgener_Fp(d->p);
+    d->frob = NULL;
+  }
+  else
+  {
+    GEN L, z, T, p = d->p;
+    d->T = T = init_Fq(p, d->f, d->v);
+    L = gel(factoru(ugcd(d->e, umodiu(d->qm1, d->e))), 1);
+    z = gener_FpXQ_local(T, p, zv_to_ZV(L));
+    d->u = ZpXQ_sqrtnlift(pol_1(d->v), d->qm1, z, T, p, d->r);
+    d->frob = ZpX_ZpXQ_liftroot(T, FpXQ_pow(pol_x(d->v), p, T, p), T, p, d->r);
+  }
 }
 
 /* return [ p^1, p^2, ..., p^c ] */
@@ -717,7 +720,7 @@ GetRamifiedPol(GEN p, GEN efj, long flag)
 {
   long e = efj[1], f = efj[2], j = efj[3], i, l;
   const long v = 1;
-  GEN p1, L, pols;
+  GEN L, pols;
   KRASNER_t data;
   pari_sp av = avma;
 
@@ -739,10 +742,7 @@ GetRamifiedPol(GEN p, GEN efj, long flag)
 
   if (flag == 2) return data.nbext;
 
-  p1 = UnramData(&data);
-  data.T = gel(p1, 1);
-  data.u = gel(p1, 2);
-  data.frob = gel(p1, 3);
+  setUnramData(&data);
   if (DEBUGLEVEL>1)
     err_printf("  Unramified part %Ps\n", data.T);
   data.roottable = NULL;
