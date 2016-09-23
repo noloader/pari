@@ -31,7 +31,7 @@ typedef struct {
   long r;     /* pr = p^r */
   GEN pr;     /* p-adic precision for poly. reduction */
   GEN q, qm1; /* p^f, q - 1 */
-  GEN T;      /* polynomial defining K^ur */ 
+  GEN T;      /* polynomial defining K^ur */
   GEN frob;   /* Frobenius acting of the root of T (mod pr) */
   GEN u;      /* suitable root of unity (expressed in terms of the root of T) */
   GEN nbext;  /* number of extensions */
@@ -213,7 +213,7 @@ get_topx(KRASNER_t *data, GEN eis)
   pari_sp av;
   /* top poly. is the minimal polynomial of root(pol) + root(T) */
   rpl = FqX_red(FqX_translate(eis, FpX_neg(pol_x(data->v), data->pr), data->T, data->pr),
-		data->T, data->pr);
+                data->T, data->pr);
   p1 = p2 = rpl;
   av = avma;
   for (j = 1; j < data->f; j++)
@@ -490,8 +490,8 @@ TamelyRamifiedCase(KRASNER_t *data)
     {
       long gr;
       GEN p1 = (typ(data->u) == t_INT)?
-	mulii(Fp_powu(data->u, r, data->p), data->p):
-	ZX_Z_mul(FpXQ_powu(data->u, r, data->T, data->p), data->p);
+        mulii(Fp_powu(data->u, r, data->p), data->p):
+        ZX_Z_mul(FpXQ_powu(data->u, r, data->T, data->p), data->p);
       eis = gadd(Xe, p1); /* add cst coef */
       ct++;
       gel(rep, ct) = mkvec2(get_topx(data,eis), m);
@@ -677,7 +677,7 @@ WildlyRamifiedCase(KRASNER_t *data)
 }
 
 /* return the minimal polynomial of a generator of K^ur and the expression (mod pr)
- * in terms of this generator of a root of unity nu such that nu is l-maximal 
+ * in terms of this generator of a root of unity nu such that nu is l-maximal
  * for all primes l dividing g = (e,q-1). */
 static GEN
 UnramData(KRASNER_t *d)
@@ -836,7 +836,7 @@ checkpols(GEN p, GEN EFJ, GEN pols)
   e = EFJ[1];
   f = EFJ[2];
   j = EFJ[3];
-  
+
   for (i = 1; i < l; i++)
   {
     pol = gel(pols, i);
@@ -855,7 +855,7 @@ checkpols(GEN p, GEN EFJ, GEN pols)
 
   if (l == 2) return;
   if (e*f > 20) return;
-  
+
   /* TODO: check that (random) distinct polynomials give non-isomorphic extensions */
   for (i = 1; i < 3*l; i++)
   {
