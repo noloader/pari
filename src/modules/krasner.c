@@ -31,10 +31,9 @@ typedef struct {
   long r;     /* pr = p^r */
   GEN pr;     /* p-adic precision for poly. reduction */
   GEN q, qm1; /* p^f, q - 1 */
-  GEN upl;    /* cyclotomic polynomial (in v) generating K^ur (mod pr) */
-  GEN mv;     /* -v mod upl (mod pr) */
-  GEN uplr;   /* upl reduced mod p */
-  GEN frob;   /* Frobenius acting of the root of upl (mod pr) */
+  GEN T;      /* polynomial defining K^ur */ 
+  GEN frob;   /* Frobenius acting of the root of T (mod pr) */
+  GEN u;      /* suitable root of unity (expressed in terms of the root of T) */
   GEN nbext;  /* number of extensions */
   GEN roottable; /* table of roots of polynomials over the residue field */
   GEN pk;     /* powers of p: [p^1, p^2, ..., p^c] */
@@ -52,6 +51,8 @@ typedef struct {
   GEN pik;  /* [1, pi, ..., pi^(e-1), pi^e / p] (mod pr). Note the last one ! */
   long cj;  /* number of conjugate fields */
 } FAD_t;
+
+#undef CHECK
 
 static long
 ceildiv(ulong a, ulong b)
@@ -210,15 +211,15 @@ get_topx(KRASNER_t *data, GEN eis)
   GEN p1, p2, rpl;
   long j;
   pari_sp av;
-  /* top poly. is the minimal polynomial of root(pol) + root(upl) */
-  rpl = FqX_translate(FqX_red(eis, data->upl, data->pr),
-                      data->mv, data->upl, data->pr);
+  /* top poly. is the minimal polynomial of root(pol) + root(T) */
+  rpl = FqX_red(FqX_translate(eis, FpX_neg(pol_x(data->v), data->pr), data->T, data->pr),
+		data->T, data->pr);
   p1 = p2 = rpl;
   av = avma;
   for (j = 1; j < data->f; j++)
   {
-    p1 = FqX_FpXQ_eval(p1, data->frob, data->upl, data->pr);
-    p2 = FqX_mul(p2, p1, data->upl, data->pr);
+    p1 = FqX_FpXQ_eval(p1, data->frob, data->T, data->pr);
+    p2 = FqX_mul(p2, p1, data->T, data->pr);
     if (gc_needed(av, 1)) gerepileall(av, 2, &p1, &p2);
   }
   return simplify_shallow(p2); /* ZX */
@@ -239,7 +240,7 @@ FieldData(KRASNER_t *data, FAD_t *fdata, GEN eis, GEN topx)
   fdata->topr = FpX_red(t, data->pr);
 
   zq  = pol_x(data->v);
-  /* FIXME: do as in CycloPol (not so easy) */
+
   for(;;)
   {
     GEN zq2 = zq;
@@ -337,14 +338,14 @@ Quick_FqX_roots(KRASNER_t *data, GEN pol)
   GEN rts;
   ulong ind = 0;
 
-  pol = FpXQX_red(pol, data->uplr, data->p);
+  pol = FpXQX_red(pol, data->T, data->p);
 
   if (data->roottable)
   {
     ind = ZXY_z_eval(pol, data->q[2], data->p[2]);
     if (gel(data->roottable, ind)) return gel(data->roottable, ind);
   }
-  rts = FpXQX_roots(pol, data->uplr, data->p);
+  rts = FpXQX_roots(pol, data->T, data->p);
 
   if (ind) gel(data->roottable, ind) = gclone(rts);
   return rts;
@@ -435,7 +436,7 @@ IsIsomorphic(KRASNER_t *data, FAD_t *fdata, GEN pol)
     nb = RootCountingAlgorithm(data, fdata, p1, 1);
     if (nb) { avma = av; return nb; }
     if (j < data->f)
-      pol = FqX_FpXQ_eval(pol, data->frob, data->upl, data->pr);
+      pol = FqX_FpXQ_eval(pol, data->frob, data->T, data->pr);
   }
   avma = av; return 0;
 }
@@ -458,8 +459,8 @@ NbConjugateFields(KRASNER_t *data, FAD_t *fdata)
   {
     GEN p1 = FqX_FpXQ_eval(pol, fdata->zq, fdata->top, data->pr);
     nb += RootCountingAlgorithm(data, fdata, p1, 0);
-    if (j < data->f)
-      pol = FqX_FpXQ_eval(pol, data->frob, data->upl, data->pr);
+    if (j < data->f) /* FIXME */
+      pol = FqX_FpXQ_eval(pol, data->frob, data->T, data->pr);
   }
   avma = av;
   fdata->cj = data->e * data->f / nb;
@@ -484,11 +485,14 @@ TamelyRamifiedCase(KRASNER_t *data)
     ulong pmodg = umodiu(data->p, g);
     long r = 1, ct = 1;
     GEN sv = InitSieve(g-1);
+    /* we compute the action of the Frobenius to get a minimal set of polynomials over Q_p */
     while (r)
     {
       long gr;
-      GEN p1 = FpXQ_powu(pol_x(data->v), r, data->uplr, data->p);
-      eis = gadd(Xe, ZX_Z_mul(p1, data->p)); /* ZX + ZY (add cst coef) */
+      GEN p1 = (typ(data->u) == t_INT)?
+	mulii(Fp_powu(data->u, r, data->p), data->p):
+	ZX_Z_mul(FpXQ_powu(data->u, r, data->T, data->p), data->p);
+      eis = gadd(Xe, p1); /* add cst coef */
       ct++;
       gel(rep, ct) = mkvec2(get_topx(data,eis), m);
       gr = r;
@@ -672,25 +676,25 @@ WildlyRamifiedCase(KRASNER_t *data)
   return gerepileupto(av, rep);
 }
 
-/* return the minimal polynomial (mod pr) of an element nu of (F_q)^x
- * where q = p^f that is l-maximal for all primes l dividing g = (e,q-1). */
+/* return the minimal polynomial of a generator of K^ur and the expression (mod pr)
+ * in terms of this generator of a root of unity nu such that nu is l-maximal 
+ * for all primes l dividing g = (e,q-1). */
 static GEN
-CycloPol(KRASNER_t *d)
+UnramData(KRASNER_t *d)
 {
-  long v = d->v, e = d->e;
-  GEN T, z, fa, p = d->p;
+  long v = d->v, e = d->e, f = d->f;
+  GEN T, z, fb, fa, p = d->p;
 
   /* v - primroot(p) */
-  if (d->f == 1)
-    return deg1pol_shallow(gen_1, Fp_neg(pgener_Fp(p), d->pr), v);
+  if (f == 1)
+    return mkvec3(pol_x(v), pgener_Fp(p), pol_x(v));
 
-  T = init_Fq(d->p, d->f, v);
-  fa = factoru( ugcd(e, umodiu(d->qm1, e)) );
-  z = gener_FpXQ_local(T, d->p, zv_to_ZV(gel(fa,1)));
-  z = ZpXQ_sqrtnlift(scalarpol(gen_1,varn(T)), d->qm1, z, T, d->p, d->r);
-  z = ZXQ_charpoly(z, T, v);
-  (void)ZX_gcd_all(z, ZX_deriv(z), &z);
-  return FpX_red(z, d->pr);
+  T = init_Fq(p, f, v);
+  fa = zv_to_ZV(gel(factoru(ugcd(e, umodiu(d->qm1, e))), 1));
+  z = gener_FpXQ_local(T, p, fa);
+  z = ZpXQ_sqrtnlift(scalarpol(gen_1,varn(T)), d->qm1, z, T, p, d->r);
+  fb = ZpX_ZpXQ_liftroot(T, FpXQ_pow(pol_x(v), p, T, p), T, p, d->r);
+  return mkvec3(T, z, fb);
 }
 
 /* return [ p^1, p^2, ..., p^c ] */
@@ -713,7 +717,7 @@ GetRamifiedPol(GEN p, GEN efj, long flag)
 {
   long e = efj[1], f = efj[2], j = efj[3], i, l;
   const long v = 1;
-  GEN L, pols;
+  GEN p1, L, pols;
   KRASNER_t data;
   pari_sp av = avma;
 
@@ -735,13 +739,12 @@ GetRamifiedPol(GEN p, GEN efj, long flag)
 
   if (flag == 2) return data.nbext;
 
-  data.upl   = CycloPol(&data);
-  /* mv = -v mod upl. If f = 1, then upl = v + c, hence mv = c */
-  data.mv    = f == 1? gel(data.upl, 2)
-                     : FpX_neg(pol_x(v), data.pr);
-  data.uplr  = FpX_red(data.upl, data.p);
-  data.frob  = FpXQ_pow(pol_x(v), p, data.upl, data.pr);
-  if (DEBUGLEVEL>1) err_printf("  Unramified part %Ps\n", data.upl);
+  p1 = UnramData(&data);
+  data.T = gel(p1, 1);
+  data.u = gel(p1, 2);
+  data.frob = gel(p1, 3);
+  if (DEBUGLEVEL>1)
+    err_printf("  Unramified part %Ps\n", data.T);
   data.roottable = NULL;
   if (j)
   {
@@ -821,13 +824,76 @@ possible_efj(GEN p, long m)
   setlg(L, nb); return L;
 }
 
+#ifdef CHECK
+static void
+checkpols(GEN p, GEN EFJ, GEN pols)
+{
+  GEN pol, p1, p2;
+  long c1, c2, e, f, j, i, l = lg(pols);
+
+  if (typ(pols) == t_INT) return;
+
+  e = EFJ[1];
+  f = EFJ[2];
+  j = EFJ[3];
+  
+  for (i = 1; i < l; i++)
+  {
+    pol = gel(pols, i);
+    if (typ(pol) == t_VEC) pol = gel(pol, 1);
+    if (!isirreducible(pol)) pari_err_BUG("Polynomial is reducible");
+    p1 = poldisc0(pol, -1);
+    if (gvaluation(p1, p) != f*(e+j-1)) pari_err_BUG("Discriminant is incorrect");
+    /* only compute a p-maximal order */
+    p1 = nfinitall(mkvec2(pol, mkvec(p)), 0, DEFAULTPREC);
+    p2 = idealprimedec(p1, p);
+    if(lg(p2) > 2) pari_err_BUG("Prime p is split");
+    p2 = gel(p2, 1);
+    if (cmpis(gel(p2, 3), e)) pari_err_BUG("Ramification index is incorrect");
+    if (cmpis(gel(p2, 4), f)) pari_err_BUG("inertia degree is incorrect");
+  }
+
+  if (l == 2) return;
+  if (e*f > 20) return;
+  
+  /* TODO: check that (random) distinct polynomials give non-isomorphic extensions */
+  for (i = 1; i < 3*l; i++)
+  {
+    c1 = random_Fl(l-1)+1;
+    c2 = random_Fl(l-1)+1;
+    if (c1 == c2) continue;
+    p1 = gel(pols, c1);
+    if (typ(p1) == t_VEC) p1 = gel(p1, 1);
+    p2 = gel(pols, c2);
+    if (typ(p2) == t_VEC) p2 = gel(p2, 1);
+    pol = polcompositum0(p1, p2, 0);
+    pol = gel(pol, 1);
+    if (poldegree(pol, -1) > 100) continue;
+    p1 = factorpadic(pol, p, 2);
+    p1 = gmael(p1, 1, 1);
+    if (poldegree(p1, -1) == e*f) pari_err_BUG("fields are isomorphic");
+    /*
+      p1 = nfinitall(mkvec2(pol, mkvec(p)), 0, DEFAULTPREC);
+      p2 = gel(idealprimedec(p1, p), 1);
+      if (!cmpis(mulii(gel(p2, 3), gel(p2, 4)), e*f)) pari_err_BUG("fields are isomorphic");
+    */
+  }
+}
+#endif
+
 static GEN
 pols_from_efj(pari_sp av, GEN EFJ, GEN p, long flag)
 {
   long i, l;
   GEN L = cgetg_copy(EFJ, &l);
   if (l == 1) { avma = av; return flag == 2? gen_0: cgetg(1, t_VEC); }
-  for (i = 1; i < l; i++) gel(L,i) = GetRamifiedPol(p, gel(EFJ,i), flag);
+  for (i = 1; i < l; i++)
+  {
+    gel(L,i) = GetRamifiedPol(p, gel(EFJ,i), flag);
+#ifdef CHECK
+    checkpols(p, gel(EFJ, i), gel(L, i));
+#endif
+  }
   if (flag == 2) return gerepileuptoint(av, ZV_sum(L));
   return gerepilecopy(av, shallowconcat1(L));
 }
