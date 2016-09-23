@@ -4727,6 +4727,7 @@ INLINE GEN    FqX_extgcd(GEN P,GEN Q,GEN T,GEN p, GEN *U, GEN *V);
 INLINE GEN    FqX_factor(GEN f, GEN T, GEN p);
 INLINE GEN    FqX_gcd(GEN P, GEN Q, GEN T, GEN p);
 INLINE GEN    FqX_get_red(GEN S, GEN T, GEN p);
+INLINE GEN    FqX_halfgcd(GEN P,GEN Q,GEN T,GEN p);
 INLINE GEN    FqX_mul(GEN x, GEN y, GEN T, GEN p);
 INLINE GEN    FqX_mulu(GEN x, ulong y, GEN T, GEN p);
 INLINE GEN    FqX_neg(GEN x, GEN T, GEN p);
