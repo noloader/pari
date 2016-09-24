@@ -188,6 +188,9 @@ for $e$ (in \kbd{ellinit} form, over $\Q$). Set $v = \kbd{NULL}$ (already
 integral, we returned $e$ itself), else to the variable change
 $[u,0,0,0]$ making $e$ integral. We have $u = 1/t$, $t > 1$.
 
+\fun{GEN}{ellintegralmodel_i}{GEN e, GEN *pv} shallow version of
+ \kbd{ellintegralmodel}.
+
 \misctitle{Deprecated routines}
 
 \fun{GEN}{elltors0}{GEN e, long flag} this function is deprecated; use
