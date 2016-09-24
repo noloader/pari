@@ -29,6 +29,7 @@ static ulong algtracei(GEN mt, ulong p, ulong expo, ulong modu);
 static GEN alg_pmaximal(GEN al, GEN p);
 static GEN alg_maximal(GEN al);
 static GEN algtracematrix(GEN al);
+static GEN algtableinit_i(GEN mt0, GEN p);
 
 static int
 checkalg_i(GEN al)
@@ -528,7 +529,7 @@ alg_quotient0(GEN al, GEN S, GEN Si, long nq, GEN p, int maps)
     if (signe(p)) gel(mt,i) = FpM_mul(Si, FpM_mul(mti,S,p), p);
     else          gel(mt,i) = RgM_mul(Si, RgM_mul(mti,S));
   }
-  al = algtableinit(mt,p);
+  al = algtableinit_i(mt,p);
   if (maps) al = mkvec3(al,Si,S); /*algebra, proj, lift*/
   return al;
 }
@@ -857,7 +858,7 @@ alg_subalg(GEN al, GEN basis)
     }
     gel(mt,i) = mtx;
   }
-  return algtableinit(mt,p);
+  return algtableinit_i(mt,p);
 }
 GEN
 algsubalg(GEN al, GEN basis)
@@ -868,7 +869,7 @@ algsubalg(GEN al, GEN basis)
   if (typ(basis) != t_MAT) pari_err_TYPE("algsubalg",basis);
   p = alg_get_char(al);
   if (signe(p)) basis = RgM_to_FpM(basis,p);
-  return gerepileupto(av, alg_subalg(al,basis));
+  return gerepilecopy(av, alg_subalg(al,basis));
 }
 
 static int
@@ -1118,7 +1119,7 @@ alghasse(GEN al, GEN pl)
   pari_sp av = avma;
   long h = alghasse_0(al,pl), d;
   d = alg_get_degree(al);
-  return gerepilecopy(av, gdivgs(stoi(h),d));
+  return gerepileupto(av, gdivgs(stoi(h),d));
 }
 
 static long
@@ -1578,7 +1579,7 @@ algmul(GEN al, GEN x, GEN y)
     pari_err_TYPE("algmul", y);
   }
   if (signe(alg_get_char(al))) return algbasismul(al,x,y);
-  if (tx==al_TRIVIAL) return gerepilecopy(av,mkcol(gmul(gel(x,1),gel(y,1))));
+  if (tx==al_TRIVIAL) retmkcol(gmul(gel(x,1),gel(y,1)));
   if (tx==al_ALGEBRAIC && ty==al_ALGEBRAIC) return algalgmul(al,x,y);
   if (tx==al_ALGEBRAIC) x = algalgtobasis(al,x);
   if (ty==al_ALGEBRAIC) y = algalgtobasis(al,y);
@@ -1593,7 +1594,7 @@ algsqr(GEN al, GEN x)
   checkalg(al);
   tx = alg_model(al,x);
   if (signe(alg_get_char(al))) return algbasismul(al,x,x);
-  if (tx==al_TRIVIAL) return gerepilecopy(av,mkcol(gsqr(gel(x,1))));
+  if (tx==al_TRIVIAL) retmkcol(gsqr(gel(x,1)));
   if (tx==al_ALGEBRAIC) return algalgmul(al,x,x);
   if (tx==al_MATRIX) return gerepilecopy(av,alM_mul(al,x,x));
   return gerepileupto(av,algbasismul(al,x,x));
@@ -2081,17 +2082,16 @@ static GEN _sqr(void* data, GEN x) { return algsqr((GEN)data,x); }
 static GEN
 algmatid(GEN al, long N)
 {
-  pari_sp av = avma;
   long n = alg_get_absdim(al), i, j;
   GEN res, one, zero;
 
+  res = zeromatcopy(N,N);
   one = col_ei(n,1);
   zero = zerocol(n);
-  res = zeromatcopy(N,N);
   for(i=1; i<=N; i++)
   for(j=1; j<=N; j++)
     gcoeff(res,i,j) = i==j ? one : zero;
-  return gerepilecopy(av,res);
+  return res;
 }
 
 GEN
@@ -2214,7 +2214,7 @@ algtrace_mat(GEN al, GEN M) {
   pari_sp av = avma;
   long N = lg(M)-1, i;
   GEN res, p = alg_get_char(al);
-  if (N == 0) {avma = av; return gen_0;}
+  if (N == 0) return gen_0;
   if (N != nbrows(M)) pari_err_DIM("algtrace_mat (nonsquare)");
 
   if(!signe(p)) p = NULL;
@@ -2224,7 +2224,7 @@ algtrace_mat(GEN al, GEN M) {
     else    res = gadd(res, algtrace(al,gcoeff(M,i,i)));
   }
   if (alg_type(al) == al_TABLE) res = gmulgs(res, N); /* absolute trace */
-  return gerepilecopy(av, res);
+  return gerepileupto(av, res);
 }
 
 GEN
@@ -2440,18 +2440,14 @@ algalgtobasis(GEN al, GEN x)
 static GEN
 algbasistoalg_mat(GEN al, GEN x) /* componentwise */
 {
-  pari_sp av = avma;
-  long lx, lxj, i, j;
-  GEN res;
-  lx = lg(x);
-  res = cgetg(lx, t_MAT);
+  long j, lx = lg(x);
+  GEN res = cgetg(lx, t_MAT);
   for(j=1; j<lx; j++) {
-    lxj = lg(gel(x,j));
+    long i, lxj = lg(gel(x,j));
     gel(res,j) = cgetg(lxj, t_COL);
-    for(i=1; i<lxj; i++)
-      gcoeff(res,i,j) = algbasistoalg(al,gcoeff(x,i,j));
+    for(i=1; i<lxj; i++) gcoeff(res,i,j) = algbasistoalg(al,gcoeff(x,i,j));
   }
-  return gerepilecopy(av,res);
+  return res;
 }
 GEN
 algbasistoalg(GEN al, GEN x)
@@ -3460,8 +3456,7 @@ hassedown0(GEN nf, long n, GEN hf, GEN hi)
     pv = vec_append(pv, p);
     h0v= vecsmall_append(h0v, (n-total)%n);
   }
-  return gerepilecopy(av, mkvec2(mkvec2(pv,h0v),
-                                 mkvecsmall(hid)));
+  return gerepilecopy(av, mkvec2(mkvec2(pv,h0v), mkvecsmall(hid)));
 }
 
 GEN
@@ -3918,7 +3913,6 @@ computesplitting(GEN al, long d, long v)
   Lbasisinv = RgM_mul(Q,P);
 
   gel(al,3) = mkvec3(x,Lbasis,Lbasisinv);
-  return;
 }
 
 /* assumes that mt defines a central simple algebra over nf */
@@ -3957,10 +3951,9 @@ alg_csa_table(GEN nf, GEN mt0, long v, long maxord)
   return gerepilecopy(av, al);
 }
 
-GEN
-algtableinit(GEN mt0, GEN p)
+static GEN
+algtableinit_i(GEN mt0, GEN p)
 {
-  pari_sp av = avma;
   GEN al, mt;
   long i, n;
 
@@ -3978,8 +3971,13 @@ algtableinit(GEN mt0, GEN p)
   gel(al,9) = mt;
   gel(al,10) = p? p: gen_0;
   gel(al,11)= algtracebasis(al);
-
-  return gerepilecopy(av, al);
+  return al;
+}
+GEN
+algtableinit(GEN mt0, GEN p)
+{
+  pari_sp av = avma;
+  return gerepilecopy(av, algtableinit_i(mt0, p));
 }
 
 static int
@@ -4057,9 +4055,8 @@ alggroup(GEN gal, GEN p)
   }
   elts = list_to_regular_rep(elts,n);
   mt = cgetg(n+1, t_VEC);
-  for(i=1; i<=n; i++)
-    gel(mt,i) = matrix_perm(gel(elts,i),n);
-  return gerepilecopy(av, algtableinit(mt,p));
+  for(i=1; i<=n; i++) gel(mt,i) = matrix_perm(gel(elts,i),n);
+  return gerepilecopy(av, algtableinit_i(mt,p));
 }
 
 /** MAXIMAL ORDER **/
@@ -4166,7 +4163,7 @@ algpradical_i(GEN al, GEN p, GEN zprad, GEN projs)
     res = shallowmatconcat(mkvec2(alrad, zprad));
     res = FpM_image(res,p);
   }
-  else res = lg(zprad)==1 ? gen_0 : gcopy(zprad);
+  else res = lg(zprad)==1 ? gen_0 : zprad;
   return gerepilecopy(av, res);
 }
 #if 0
