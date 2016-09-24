@@ -3269,6 +3269,7 @@ GEN     nfhyperellpadicfrobenius(GEN H, GEN T, ulong p, long n);
 
 GEN     RgM_hnfall(GEN A, GEN *pB, long remove);
 GEN     ZM_hnf(GEN x);
+GEN     ZM_hnf_knapsack(GEN x);
 GEN     ZM_hnfall(GEN A, GEN *ptB, long remove);
 GEN     ZM_hnfall_i(GEN A, GEN *ptB, long remove);
 GEN     ZM_hnfcenter(GEN M);

@@ -1169,9 +1169,9 @@ nf_chk_factors(nfcmbf_t *T, GEN P, GEN M_L, GEN famod, GEN pk)
   GEN Tpk = T->L->Tpk;
   div_data D;
 
-  piv = special_pivot(M_L);
+  piv = ZM_hnf_knapsack(M_L);
   if (!piv) return NULL;
-  if (DEBUGLEVEL>3) err_printf("special_pivot output:\n%Ps\n",piv);
+  if (DEBUGLEVEL>3) err_printf("ZM_hnf_knapsack output:\n%Ps\n",piv);
 
   r  = lg(piv)-1;
   list = cgetg(r+1, t_VEC);

@@ -2131,6 +2131,11 @@ representing the row permutation attached to $P = (\delta_{i,\kbd{perm}[i]}$.
 If \kbd{ptU} is set to \kbd{NULL}, $U$ is not computed, saving some time;
 although useless, setting \kbd{ptperm} to \kbd{NULL} is also allowed.
 
+\fun{GEN}{ZM_hnf_knapsack}{GEN x} given a \kbd{ZM} $x$, compute its
+HNF $h$. Return $h$ if it has the knapsack property: every column contains
+only zeroes and ones and each row contains a single $1$;
+return \kbd{NULL} otherwise. Not suitable for gerepile.
+
 \fun{GEN}{ZM_hnflll}{GEN x, GEN *U, int remove} returns the HNF $H$ of the
 \kbd{ZM} $x$; if $U$ is not \kbd{NULL}, set if to the matrix $U$ such that $x
 U = H$. The meaning of \kbd{remove} is the same as in \tet{ZM_hnfall}.

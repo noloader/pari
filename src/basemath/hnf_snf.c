@@ -1809,6 +1809,27 @@ ZM_hnfperm(GEN A, GEN *ptU, GEN *ptperm)
 }
 
 GEN
+ZM_hnf_knapsack(GEN x)
+{
+  GEN t, perm, H = ZM_hnfperm(x,NULL,&perm);
+  long i,j, l = lg(H), h = lgcols(H);
+  for (i=1; i<h; i++)
+  {
+    int fl = 0;
+    for (j=1; j<l; j++)
+    {
+      t = gcoeff(H,i,j);
+      if (signe(t))
+      {
+        if (!is_pm1(t) || fl) return NULL;
+        fl = 1;
+      }
+    }
+  }
+  return rowpermute(H, perm_inv(perm));
+}
+
+GEN
 hnfperm(GEN A)
 {
   GEN y = cgetg(4, t_VEC);

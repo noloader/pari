@@ -396,27 +396,6 @@ root_bound(GEN P0)
 }
 
 GEN
-special_pivot(GEN x)
-{
-  GEN t, perm, H = ZM_hnfperm(x,NULL,&perm);
-  long i,j, l = lg(H), h = lgcols(H);
-  for (i=1; i<h; i++)
-  {
-    int fl = 0;
-    for (j=1; j<l; j++)
-    {
-      t = gcoeff(H,i,j);
-      if (signe(t))
-      {
-        if (!is_pm1(t) || fl) return NULL;
-        fl = 1;
-      }
-    }
-  }
-  return rowpermute(H, perm_inv(perm));
-}
-
-GEN
 chk_factors_get(GEN lt, GEN famod, GEN c, GEN T, GEN N)
 {
   long i = 1, j, l = lg(famod);
@@ -434,9 +413,9 @@ chk_factors(GEN P, GEN M_L, GEN bound, GEN famod, GEN pa)
   long i, r;
   GEN pol = P, list, piv, y, ltpol, lt, paov2;
 
-  piv = special_pivot(M_L);
+  piv = ZM_hnf_knapsack(M_L);
   if (!piv) return NULL;
-  if (DEBUGLEVEL>7) err_printf("special_pivot output:\n%Ps\n",piv);
+  if (DEBUGLEVEL>7) err_printf("ZM_hnf_knapsack output:\n%Ps\n",piv);
 
   r  = lg(piv)-1;
   list = cgetg(r+1, t_VEC);

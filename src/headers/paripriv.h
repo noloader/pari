@@ -506,7 +506,6 @@ GEN initgaloisborne(GEN T, GEN dn, long prec, GEN *pL, GEN *pprep, GEN *pdis);
 GEN logmax_modulus_bound(GEN p);
 GEN polint_i(GEN xa, GEN ya, GEN x, long n, GEN *ptdy);
 GEN quicktrace(GEN x, GEN sym);
-GEN special_pivot(GEN x);
 
 /* pari_init / pari_close */
 void pari_close_compiler(void);
