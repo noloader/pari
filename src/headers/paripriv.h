@@ -722,10 +722,6 @@ int     MR_Jaeschke(GEN n, long k);
 long    isanypower_nosmalldiv(GEN N, GEN *px);
 void    prime_table_next_p(ulong a, byteptr *pd, ulong *pp, ulong *pn);
 
-/* nffactor.c */
-
-int     nfissplit(GEN nf, GEN x);
-
 /* perm.c */
 
 long    cosets_perm_search(GEN C, GEN p);

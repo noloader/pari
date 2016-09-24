@@ -2526,6 +2526,15 @@ idealprimedec_limit_norm(GEN nf, GEN p, GEN B)
 GEN
 idealprimedec(GEN nf, GEN p)
 { return idealprimedec_limit_f(nf, p, 0); }
+GEN
+nf_pV_to_prV(GEN nf, GEN P)
+{
+  long i, l;
+  GEN Q = cgetg_copy(P,&l);
+  if (l == 1) return Q;
+  for (i = 1; i < l; i++) gel(Q,i) = idealprimedec(nf, gel(P,i));
+  return shallowconcat1(Q);
+}
 
 /* return [Fp[x]: Fp] */
 static long

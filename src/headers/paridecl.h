@@ -1898,6 +1898,7 @@ GEN     rnfdiscf(GEN nf, GEN pol);
 GEN     rnfequation(GEN nf, GEN pol);
 GEN     rnfequation0(GEN nf, GEN pol, long flall);
 GEN     rnfequation2(GEN nf, GEN pol);
+GEN     nf_pV_to_prV(GEN nf, GEN P);
 GEN     nf_rnfeq(GEN nf, GEN relpol);
 GEN     nf_rnfeqsimple(GEN nf, GEN relpol);
 GEN     rnfequationall(GEN A, GEN B, long *pk, GEN *pLPRS);

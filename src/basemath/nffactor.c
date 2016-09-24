@@ -432,19 +432,6 @@ nfroots(GEN nf,GEN pol)
   return z;
 }
 
-/* assume x is squarefree monic in nf.zk[X] */
-int
-nfissplit(GEN nf, GEN x)
-{
-  pari_sp av = avma;
-  long l;
-  nf = checknf(nf);
-  if (typ(x) != t_POL) pari_err_TYPE("nfissplit",x);
-  x = RgX_nffix("nfissplit", nf_get_pol(nf), x, 1);
-  l = lg(nfsqff(nf, x, ROOTS_SPLIT, gen_1));
-  avma = av; return l != 1;
-}
-
 static GEN
 _norml2(GEN x) { return RgC_fpnorml2(x, DEFAULTPREC); }
 

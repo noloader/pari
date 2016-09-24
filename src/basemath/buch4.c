@@ -648,40 +648,43 @@ bnfissunit(GEN bnf,GEN bnfS,GEN x)
 }
 
 static void
-pr_append(GEN nf, GEN rel, GEN p, GEN *prod, GEN *S1, GEN *S2)
+p_append(GEN p, hashtable *H, hashtable *H2)
 {
-  if (dvdii(*prod, p)) return;
-  *prod = mulii(*prod, p);
-  *S1 = shallowconcat(*S1, idealprimedec(nf,p));
-  *S2 = shallowconcat(*S2, idealprimedec(rel,p));
+  ulong h = H->hash(p);
+  hashentry *e = hash_search2(H, (void*)p, h);
+  if (!e)
+  {
+    hash_insert2(H, (void*)p, NULL, h);
+    if (H2) hash_insert2(H2, (void*)p, NULL, h);
+  }
 }
 
 /* N a t_INT */
 static void
-Zfa_pr_append(GEN nf,GEN rel,GEN N,GEN *prod,GEN *S1,GEN *S2)
+Zfa_append(GEN N, hashtable *H, hashtable *H2)
 {
   if (!is_pm1(N))
   {
-    GEN v = gel(Z_factor(N),1);
+    GEN v = gel(absZ_factor(N),1);
     long i, l = lg(v);
-    for (i=1; i<l; i++) pr_append(nf,rel,gel(v,i),prod,S1,S2);
+    for (i=1; i<l; i++) p_append(gel(v,i), H, H2);
   }
 }
 /* N a t_INT or t_FRAC or ideal in HNF*/
 static void
-fa_pr_append(GEN nf,GEN rel,GEN N,GEN *prod,GEN *S1,GEN *S2)
+fa_append(GEN N, hashtable *H, hashtable *H2)
 {
   switch(typ(N))
   {
     case t_INT:
-      Zfa_pr_append(nf,rel,N,prod,S1,S2);
+      Zfa_append(N,H,H2);
       break;
     case t_FRAC:
-      Zfa_pr_append(nf,rel,gel(N,1),prod,S1,S2);
-      Zfa_pr_append(nf,rel,gel(N,2),prod,S1,S2);
+      Zfa_append(gel(N,1),H,H2);
+      Zfa_append(gel(N,2),H,H2);
       break;
     default: /*t_MAT*/
-      Zfa_pr_append(nf,rel,gcoeff(N,1,1),prod,S1,S2);
+      Zfa_append(gcoeff(N,1,1),H,H2);
       break;
   }
 }
@@ -697,13 +700,18 @@ nfX_eltup(GEN nf, GEN rnfeq, GEN x)
   return y;
 }
 
+static hashtable *
+hash_create_INT(ulong s)
+{ return hash_create(s, (ulong(*)(void*))&hash_GEN,
+                        (int(*)(void*,void*))&equalii, 1); }
 GEN
 rnfisnorminit(GEN T, GEN relpol, int galois)
 {
   pari_sp av = avma;
   long i, l, drel;
-  GEN prod, S1, S2, gen, cyc, bnf, nf, nfabs, rnfeq, bnfabs, k, polabs;
+  GEN S, gen, cyc, bnf, nf, nfabs, rnfeq, bnfabs, k, polabs;
   GEN y = cgetg(9, t_VEC);
+  hashtable *H = hash_create_INT(100UL);
 
   if (galois < 0 || galois > 2) pari_err_FLAG("rnfisnorminit");
   T = get_bnfpol(T, &bnf, &nf);
@@ -732,32 +740,31 @@ rnfisnorminit(GEN T, GEN relpol, int galois)
   {
     GEN P = polabs==relpol? leafcopy(relpol): nfX_eltup(nf, rnfeq, relpol);
     setvarn(P, fetch_var_higher());
-    galois = nfissplit(nfabs, P);
+    galois = !!nfroots_if_split(&nfabs, P);
     (void)delete_var();
   }
 
-  prod = gen_1; S1 = S2 = cgetg(1, t_VEC);
   cyc = bnf_get_cyc(bnfabs);
   gen = bnf_get_gen(bnfabs); l = lg(cyc);
   for(i=1; i<l; i++)
   {
     GEN g = gel(gen,i);
     if (ugcd(umodiu(gel(cyc,i), drel), drel) == 1) break;
-    Zfa_pr_append(nf,bnfabs,gcoeff(g,1,1),&prod,&S1,&S2);
+    Zfa_append(gcoeff(g,1,1), H, NULL);
   }
   if (!galois)
   {
     GEN Ndiscrel = diviiexact(nf_get_disc(nfabs), powiu(nf_get_disc(nf), drel));
-    Zfa_pr_append(nf,bnfabs,absi(Ndiscrel), &prod,&S1,&S2);
+    Zfa_append(Ndiscrel, H, NULL);
   }
-
+  S = hash_keys(H); settyp(S,t_VEC);
   gel(y,1) = bnf;
   gel(y,2) = bnfabs;
   gel(y,3) = relpol;
   gel(y,4) = rnfeq;
-  gel(y,5) = prod;
-  gel(y,6) = S1;
-  gel(y,7) = S2;
+  gel(y,5) = S;
+  gel(y,6) = nf_pV_to_prV(nf, S);
+  gel(y,7) = nf_pV_to_prV(nfabs, S);
   gel(y,8) = stoi(galois); return gerepilecopy(av, y);
 }
 
@@ -773,29 +780,33 @@ rnfisnorm(GEN T, GEN x, long flag)
 {
   pari_sp av = avma;
   GEN bnf, rel, relpol, rnfeq, nfpol;
-  GEN nf, aux, H, U, Y, M, A, bnfS, sunitrel, futu, prod, S1, S2;
+  GEN nf, aux, H, U, Y, M, A, bnfS, sunitrel, futu, S, S1, S2, Sx;
   long L, i, drel, itu;
-
+  hashtable *H0, *H2;
   if (typ(T) != t_VEC || lg(T) != 9)
     pari_err_TYPE("rnfisnorm [please apply rnfisnorminit()]", T);
   bnf = gel(T,1);
   rel = gel(T,2);
-  relpol = gel(T,3);
-  rnfeq = gel(T,4);
-  drel = degpol(relpol);
   bnf = checkbnf(bnf);
   rel = checkbnf(rel);
   nf = bnf_get_nf(bnf);
   x = nf_to_scalar_or_alg(nf,x);
   if (gequal0(x)) { avma = av; return mkvec2(gen_0, gen_1); }
   if (gequal1(x)) { avma = av; return mkvec2(gen_1, gen_1); }
+  relpol = gel(T,3);
+  rnfeq = gel(T,4);
+  drel = degpol(relpol);
   if (gequalm1(x) && odd(drel)) { avma = av; return mkvec2(gen_m1, gen_1); }
 
   /* build set T of ideals involved in the solutions */
   nfpol = nf_get_pol(nf);
-  prod = gel(T,5);
-  S1   = gel(T,6);
-  S2   = gel(T,7);
+  S = gel(T,5);
+  H0 = hash_create_INT(100UL);
+  H2 = hash_create_INT(100UL);
+  L = lg(S);
+  for (i = 1; i < L; i++) p_append(gel(S,i),H0,NULL);
+  S1 = gel(T,6);
+  S2 = gel(T,7);
   if (flag && !gequal0(gel(T,8)))
     pari_warn(warner,"useless flag in rnfisnorm: the extension is Galois");
   if (flag > 0)
@@ -803,15 +814,21 @@ rnfisnorm(GEN T, GEN x, long flag)
     forprime_t T;
     ulong p;
     u_forprime_init(&T, 2, flag);
-    while ( (p = u_forprime_next(&T)) )
-      pr_append(nf,rel, utoipos(p),&prod,&S1,&S2);
+    while ((p = u_forprime_next(&T))) p_append(utoipos(p), H0,H2);
   }
   else if (flag < 0)
-    Zfa_pr_append(nf,rel, utoipos(-flag),&prod,&S1,&S2);
+    Zfa_append(utoipos(-flag),H0,H2);
   /* overkill: prime ideals dividing x would be enough */
   A = idealnumden(nf, x);
-  fa_pr_append(nf,rel,gel(A,1), &prod,&S1,&S2);
-  fa_pr_append(nf,rel,gel(A,2), &prod,&S1,&S2);
+  fa_append(gel(A,1), H0,H2);
+  fa_append(gel(A,2), H0,H2);
+  Sx = hash_keys(H2); L = lg(Sx);
+  if (L > 1)
+  { /* new primes */
+    settyp(Sx, t_VEC);
+    S1 = shallowconcat(S1, nf_pV_to_prV(nf, Sx));
+    S2 = shallowconcat(S2, nf_pV_to_prV(rel, Sx));
+  }
 
   /* computation on T-units */
   futu = shallowconcat(bnf_get_fu(rel), bnf_get_tuU(rel));

@@ -5029,13 +5029,6 @@ zk_capZ(GEN nf, GEN x)
   return (typ(mx) == t_INT)? mx: zkmultable_capZ(mx);
 }
 static GEN
-pV_to_prV(GEN nf, GEN P)
-{
-  long i, l = lg(P);
-  for (i = 1; i < l; i++) gel(P,i) = idealprimedec(nf, gel(P,i));
-  return shallowconcat1(P);
-}
-static GEN
 ellnf_c4c6_primes(GEN E)
 {
   GEN nf = ellnf_get_nf(E);
@@ -5068,7 +5061,7 @@ bnf_get_v(GEN bnf, GEN E, GEN *pDP)
   nf = bnf_get_nf(bnf);
   c4 = ell_get_c4(E); if (typ(c4) == t_INT) c4 = NULL;
   c6 = ell_get_c6(E); if (typ(c6) == t_INT) c6 = NULL;
-  P = pV_to_prV(nf, ellnf_c4c6_primes(E));
+  P = nf_pV_to_prV(nf, ellnf_c4c6_primes(E));
   l = lg(P);
   DP = vectrunc_init(l); settyp(DP,t_COL);
   Lr = vectrunc_init(l);
@@ -5287,7 +5280,7 @@ ellnfglobalred(GEN E)
   E = ellintegralmodel_i(E, &v);
   if (!v) v = init_ch();
   nf = ellnf_get_nf(E);
-  P = pV_to_prV(nf, ellnf_D_primes(E));
+  P = nf_pV_to_prV(nf, ellnf_D_primes(E));
   lP = lg(P);
   D = ell_get_disc(E);
   if (typ(D) == t_INT) D = NULL;
