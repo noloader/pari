@@ -5006,6 +5006,7 @@ INLINE GEN    perm_mul(GEN s, GEN t);
 INLINE GEN    pol_0(long v);
 INLINE GEN    pol_1(long v);
 INLINE GEN    pol_x(long v);
+INLINE GEN    pol_xn(long n, long v);
 INLINE GEN    pol0_F2x(long sv);
 INLINE GEN    pol1_F2x(long sv);
 INLINE GEN    polx_F2x(long sv);

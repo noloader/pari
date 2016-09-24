@@ -807,7 +807,7 @@ rnfkummersimple(GEN bnr, GEN subgroup, GEN gell, long all)
     if (all == -1) matgrp = Flm_init(lg(bnr_get_cyc(bnr)), ncyc+1);
     rk = 0;
   }
-  xell = monomial(gen_1, ell, 0);
+  xell = pol_xn(ell, 0);
   do {
     dK = lg(K)-1;
     while (dK)

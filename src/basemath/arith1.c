@@ -4379,7 +4379,7 @@ bestappr_ser(GEN x, long B)
   long v = valp(x), lx = lg(x);
   GEN N, t;
   x = normalizepol(ser2pol_i(x, lx));
-  N = monomial(gen_1, lx-2, varn(x));
+  N = pol_xn(lx-2, varn(x));
   t = mod_to_rfrac(x, N, B); if (!t) return NULL;
   if (v)
   {

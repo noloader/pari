@@ -1075,7 +1075,7 @@ ZX_gcd_all(GEN A, GEN B, GEN *Anew)
         if (valA != valX) A = RgX_shift(A, valA - valX);
         *Anew = A;
       }
-      return monomial(gen_1, valX, vA);
+      return pol_xn(valX, vA);
     }
     if (m > n) continue; /* p | Res(A/G, B/G). Discard */
 
@@ -1296,7 +1296,7 @@ BD_odd_iscyclo(GEN f)
   else
     bound = (long)(2.573 * pow(d,1.01));
   /* IF f = Phi_n, n squarefree odd, then n <= bound */
-  t = monomial(gen_1, d-1, varn(f));
+  t = pol_xn(d-1, varn(f));
   for (n = d; n <= bound; n++)
   {
     t = ZXQ_mul_by_X(t, f);

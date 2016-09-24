@@ -2476,7 +2476,7 @@ ser2rfrac_i(GEN x)
   GEN a = ser2pol_i(x, lg(x));
   if (e) {
     if (e > 0) a = RgX_shift_shallow(a, e);
-    else a = gred_rfrac_simple(a, monomial(gen_1, -e, varn(a)));
+    else a = gred_rfrac_simple(a, pol_xn(-e, varn(a)));
   }
   return a;
 }

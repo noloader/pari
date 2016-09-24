@@ -1129,7 +1129,7 @@ genus2_redmodel(GEN P, GEN p)
 static GEN
 oneminusxd(long d)
 {
-  return gsub(gen_1, monomial(gen_1, d, 0));
+  return gsub(gen_1, pol_xn(d, 0));
 }
 
 static GEN
@@ -1175,7 +1175,7 @@ genus2_eulerfact(GEN P, GEN p)
       GEN e = FpX_rem(Q, Fi, p);
       GEN kqf = lgpol(e)==0 ? oneminusxd(d):
                 FpXQ_issquare(e, Fi, p) ? ZX_sqr(oneminusxd(d))
-                                          : oneminusxd(2*d);
+                                        : oneminusxd(2*d);
       kp = gmul(kp, oneminusxd(d));
       kq = gmul(kq, kqf);
     }

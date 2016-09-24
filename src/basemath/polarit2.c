@@ -1002,7 +1002,7 @@ zero_gcd(GEN x)
     case t_COMPLEX: return c_zero_gcd(x);
     case t_REAL: return gen_1;
     case t_PADIC: return powis(gel(x,2), valp(x));
-    case t_SER: return monomial(gen_1, valp(x), varn(x));
+    case t_SER: return pol_xn(valp(x), varn(x));
     case t_POLMOD: {
       GEN d = gel(x,2);
       if (typ(d) == t_POL && varn(d) == varn(gel(x,1))) return content(d);
@@ -2556,7 +2556,7 @@ RgXQ_charpoly(GEN x, GEN T, long v)
   if (varncmp(vx, vp) < 0) pari_err_PRIORITY("RgXQ_charpoly", x, "<", vp);
   dx = degpol(x);
   if (dx <= 0)
-    return dx? monomial(gen_1, d, v): caract_const(av, gel(x,2), v, d);
+    return dx? pol_xn(d, v): caract_const(av, gel(x,2), v, d);
 
   v0 = fetch_var_higher();
   x = RgX_neg(x);

@@ -134,7 +134,7 @@ static GEN
 rand_NFpX(long n)
 {
   pari_sp av = avma;
-  GEN x = gadd(monomial(gen_1,n,0), random_FpX(n, 0, LARGE_mod));
+  GEN x = gadd(pol_xn(n,0), random_FpX(n, 0, LARGE_mod));
   return gerepileupto(av, x);
 }
 
@@ -159,7 +159,7 @@ static GEN
 rand_NFpXQX(long n, GEN T)
 {
   pari_sp av = avma;
-  GEN x = gadd(monomial(gen_1,n,0), random_FpXQX(n, 0, T, LARGE_mod));
+  GEN x = gadd(pol_xn(n,0), random_FpXQX(n, 0, T, LARGE_mod));
   return gerepileupto(av, x);
 }
 

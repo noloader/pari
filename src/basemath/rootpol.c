@@ -1538,7 +1538,7 @@ split_0_2(GEN p, long bit, GEN *F, GEN *G)
   {
     if (k > n/2) k = n/2;
     bit2 += k<<1;
-    FF = monomial(gen_1, k, 0);
+    FF = pol_xn(k, 0);
     GG = RgX_shift_shallow(q, -k);
   }
   else
@@ -1584,7 +1584,7 @@ split_0(GEN p, long bit, GEN *F, GEN *G)
   if (k > 0)
   {
     if (k > n/2) k = n/2;
-    *F = monomial(gen_1, k, 0);
+    *F = pol_xn(k, 0);
     *G = RgX_shift_shallow(p, -k);
   }
   else

@@ -2238,7 +2238,7 @@ FpXQ_minpoly(GEN x, GEN T, GEN p)
     }
     c = FpX_renormalize(c, m+2);
     /* now c contains <v,x^i> , i = 0..m-1  */
-    M = FpX_halfgcd(monomial(gen_1, m, vT), c, p);
+    M = FpX_halfgcd(pol_xn(m, vT), c, p);
     g_prime = gmael(M, 2, 2);
     if (degpol(g_prime) < 1) continue;
     g = FpX_mul(g, g_prime, p);

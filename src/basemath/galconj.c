@@ -2075,7 +2075,7 @@ conjcyclo(GEN T, long N)
   for (i=1; i<=N; i++)
     if (ugcd(i, N)==1)
     {
-      GEN s = monomial(gen_1, i, v);
+      GEN s = pol_xn(i, v);
       if (i >= d) s = ZX_rem(s, T);
       gel(L,k++) = s;
     }

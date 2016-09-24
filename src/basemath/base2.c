@@ -3122,7 +3122,7 @@ FqX_non_root(GEN P, GEN T, GEN p)
   { f = 1; vT = 0; }
   for (i=pi=1; i<=f; i++,pi*=pp)
   {
-    GEN gi = i == 1? gen_1: monomial(gen_1, i-1, vT), jgi = gi;
+    GEN gi = i == 1? gen_1: pol_xn(i-1, vT), jgi = gi;
     for (j=1; j<pp; j++)
     {
       for (k=1; k<=pi; k++)

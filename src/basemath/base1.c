@@ -2194,7 +2194,7 @@ polredord(GEN x)
     x = ZX_Q_normalize(x, &L);
     v = gsubst(v, vx, monomial(ginv(L),1,vx));
     for (i=2; i <= n; i++)
-      if (Q_denom(gel(v,i)) == gen_1) gel(v,i) = monomial(gen_1, i-1, vx);
+      if (Q_denom(gel(v,i)) == gen_1) gel(v,i) = pol_xn(i-1, vx);
   }
   return gerepileupto(av, polred(mkvec2(x, v)));
 }

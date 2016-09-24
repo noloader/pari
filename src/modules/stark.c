@@ -1033,7 +1033,7 @@ InitReduction(long d, long deg)
   for (j = 0; j < deg; j++)
   {
     A[j] = (int*)pari_malloc(deg*sizeof(int));
-    polmod = gmodulo(monomial(gen_1, deg+j, 0), pol);
+    polmod = gmodulo(pol_xn(deg+j, 0), pol);
     Polmod2Coeff(A[j], polmod, deg);
   }
 
@@ -3514,14 +3514,14 @@ treatspecialsigma(GEN bnr)
     if (!absequaliu(gcoeff(f,1,1),9) || !absequaliu(Q_content(f),3)) return NULL;
     /* f = P_3^3 */
     p1 = mkpolmod(bnf_get_tuU(bnf), nf_get_pol(nf));
-    return gadd(monomial(gen_1,3,0), p1); /* x^3+j */
+    return gadd(pol_xn(3,0), p1); /* x^3+j */
   }
   if (absequaliu(D,4)) /* Q(i) */
   {
     if (i == 3 || i == 5) return polcyclo(i,0);
     if (i != 4) return NULL;
     p1 = mkpolmod(bnf_get_tuU(bnf), nf_get_pol(nf));
-    return gadd(monomial(gen_1,2,0), p1); /* x^2+i */
+    return gadd(pol_xn(2,0), p1); /* x^2+i */
   }
   Ds = smodis(D,48);
   if (i)

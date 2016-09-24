@@ -464,7 +464,7 @@ monomial(GEN a, long d, long v)
     if (isrationalzero(a)) return pol_0(v);
     P = cgetg(3, t_RFRAC);
     gel(P,1) = a;
-    gel(P,2) = monomial(gen_1, -d, v);
+    gel(P,2) = pol_xn(-d, v);
   } else {
     P = cgetg(lP, t_POL);
     if (gequal0(a))
@@ -488,7 +488,7 @@ monomialcopy(GEN a, long d, long v)
     if (isrationalzero(a)) return pol_0(v);
     P = cgetg(3, t_RFRAC);
     gel(P,1) = gcopy(a);
-    gel(P,2) = monomial(gen_1, -d, v);
+    gel(P,2) = pol_xn(-d, v);
   } else {
     P = cgetg(lP, t_POL);
     if (gequal0(a))
@@ -508,7 +508,7 @@ pol_x_powers(long N, long v)
 {
   GEN L = cgetg(N+1,t_VEC);
   long i;
-  for (i=1; i<=N; i++) gel(L,i) = monomial(gen_1, i-1, v);
+  for (i=1; i<=N; i++) gel(L,i) = pol_xn(i-1, v);
   return L;
 }
 
@@ -2030,7 +2030,7 @@ ffinit_rand(GEN p,long n)
 {
   for(;;) {
     pari_sp av = avma;
-    GEN pol = ZX_add(monomial(gen_1, n, 0), random_FpX(n-1,0, p));
+    GEN pol = ZX_add(pol_xn(n, 0), random_FpX(n-1,0, p));
     if (FpX_is_irred(pol, p)) return pol;
     avma = av;
   }
@@ -2066,13 +2066,13 @@ GEN
 ffinit_Artin_Shreier(GEN ip, long l)
 {
   long i, v, p = itos(ip);
-  GEN T, Q, xp = monomial(gen_1,p,0); /* x^p */
+  GEN T, Q, xp = pol_xn(p,0); /* x^p */
   T = ZX_sub(xp, deg1pol_shallow(gen_1,gen_1,0)); /* x^p - x - 1 */
   if (l == 1) return T;
 
   v = fetch_var_higher();
   setvarn(xp, v);
-  Q = ZX_sub(monomial(gen_1,2*p-1,0), monomial(gen_1,p,0));
+  Q = ZX_sub(pol_xn(2*p-1,0), pol_xn(p,0));
   Q = gsub(xp, deg1pol_shallow(gen_1, Q, v)); /* x^p - x - (y^(2p-1)-y^p) */
   for (i = 2; i <= l; ++i) T = FpX_FpXY_resultant(T, Q, ip);
   (void)delete_var(); setvarn(T,0); return T;

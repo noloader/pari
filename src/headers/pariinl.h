@@ -255,6 +255,15 @@ pol_x(long v) {
   gel(p,2) = gen_0;
   gel(p,3) = gen_1; return p;
 }
+/* x^n, assume n >= 0 */
+INLINE GEN
+pol_xn(long n, long v) {
+  long i, a = n+2;
+  GEN p = cgetg(a+1, t_POL);
+  p[1] = evalsigne(1)|evalvarn(v);
+  for (i = 2; i < a; i++) gel(p,i) = gen_0;
+  gel(p,a) = gen_1; return p;
+}
 INLINE GEN
 pol_1(long v) {
   GEN p = cgetg(3, t_POL);

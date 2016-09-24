@@ -612,7 +612,7 @@ filltabs(Cache *C, Cache *Cp, Red *R, long p, long pk, long ltab)
 
     for (i=1; i<=pk; i++)
     {
-      GEN z = FpX_rem(monomial(gen_1, i-1, 0), C->cyc, R->N);
+      GEN z = FpX_rem(pol_xn(i-1, 0), C->cyc, R->N);
       gel(eta,i) = FpX_center(z, R->N, R->N2);
     }
     C->eta = eta;

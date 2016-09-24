@@ -909,8 +909,7 @@ seralgdep(GEN s, long p, long r)
   for (i = 2; i <= p; i++) gel(S,i) = gmul(gel(S,i-1), s);
   v = cgetg(r*p+1, t_VEC); /* v[r*n+m+1] = s^n * y^m */
   /* n = 0 */
-  for (m = 0; m < r; m++)
-    gel(v, m + 1) = monomial(gen_1, m, vy);
+  for (m = 0; m < r; m++) gel(v, m+1) = pol_xn(m, vy);
   for(n=1; n < p; n++)
     for (m = 0; m < r; m++)
     {

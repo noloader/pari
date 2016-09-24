@@ -828,8 +828,7 @@ RgX_mulXn(GEN x, long d)
   v = RgX_val(x);
   if (v >= d) return RgX_shift(x, -d);
   av = avma;
-  z = gred_rfrac_simple( RgX_shift_shallow(x, -v),
-                         monomial(gen_1, d - v, varn(x)));
+  z = gred_rfrac_simple(RgX_shift_shallow(x, -v), pol_xn(d - v, varn(x)));
   return gerepileupto(av, z);
 }
 

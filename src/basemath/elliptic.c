@@ -4467,7 +4467,7 @@ nflocalred_23(GEN e, GEN P, long *ap)
       po2 = pola2a4a6(e, nf, modP, pv, pv2, pv3);
       if (signe(po2)) /* po2 = 0 is frequent when non-minimal */
       {
-        pol = RgX_add(monomial(gen_1,3,0), po2);
+        pol = RgX_add(pol_xn(3,0), po2);
         F = FqX_factor(pol, T, p); E = gel(F,2);
         lE = lg(E);
         if (E[1] == 1 && (lE == 2 || E[2] == 1))

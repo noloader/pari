@@ -1151,7 +1151,7 @@ gen_FpM_Wiedemann(void *E, GEN (*f)(void*, GEN), GEN B, GEN p)
     }
     b = FpX_renormalize(b, m+2);
     if (lgpol(b)==0) {avma = btop; continue; }
-    M = FpX_halfgcd(b, monomial(gen_1, m, 0), p);
+    M = FpX_halfgcd(b, pol_xn(m, 0), p);
     Q = FpX_neg(FpX_normalize(gcoeff(M, 2, 1),p),p);
     W = B; lQ =lg(Q);
     if (DEBUGLEVEL) err_printf("Wiedemann: deg. minpoly: %ld\n",lQ-3);

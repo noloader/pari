@@ -642,7 +642,7 @@ _can5_iter(void *E, GEN f, GEN q)
   ulong p = *(ulong*)E;
   long i, vT = fetch_var();
   GEN N, P, d, V, fs;
-  D.q = q; D.T = ZX_Z_sub(monomial(gen_1,p,vT),gen_1);
+  D.q = q; D.T = ZX_Z_sub(pol_xn(p,vT),gen_1);
   D.p = p;
   fs = mkvec2(_shift(f, 1, p, vT), gen_1);
   N = gel(gen_powu(fs,p-1,(void*)&D,_can5_sqr,_can5_mul),1);
@@ -1058,7 +1058,7 @@ Flxq_ellcard_Kohel(GEN a4, GEN a6, GEN T, ulong p)
   if (DEBUGLEVEL) timer_printf(&ti,"Barrett");
   if (!ispcyc)
   {
-    Xm = FpXQ_powers(monomial(gen_1,n,get_FpX_var(T2)),p-1,T2,q);
+    Xm = FpXQ_powers(pol_xn(n,get_FpX_var(T2)),p-1,T2,q);
     if (DEBUGLEVEL) timer_printf(&ti,"Xm");
   } else
     Xm = cgetg(1,t_VEC);
@@ -1197,7 +1197,7 @@ Flxq_ellcard_Harley(GEN a4, GEN a6, GEN T, ulong p)
   if (DEBUGLEVEL) timer_printf(&ti,"Barrett");
   if (!ispcyc)
   {
-    Xm = FpXQ_powers(monomial(gen_1,n,get_FpX_var(T2)),p-1,T2,q);
+    Xm = FpXQ_powers(pol_xn(n,get_FpX_var(T2)),p-1,T2,q);
     if (DEBUGLEVEL) timer_printf(&ti,"Xm");
   } else
     Xm = cgetg(1,t_VEC);
