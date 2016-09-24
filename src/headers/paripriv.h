@@ -641,7 +641,6 @@ void ellprint(GEN e);
 /* es.c */
 
 const char * eng_ord(long i);
-char *  env_ok(const char *s);
 void    filestate_restore(pariFILE *F);
 void    killallfiles(void);
 pariFILE* newfile(FILE *f, const char *name, int type);
@@ -676,7 +675,6 @@ void    init_modular_small(forprime_t *S);
 
 GEN     galoiscosets(GEN O, GEN perm);
 GEN     matrixnorm(GEN M, long prec);
-GEN     vandermondeinverseprep(GEN L);
 
 /* galois.c */
 

@@ -127,7 +127,9 @@ struct galois_frobenius {
   GEN psi;
 };
 
-GEN
+/* given complex roots L[i], i <= n of some monic T in C[X], return
+ * the T'(L[i]), computed stably via products of differences */
+static GEN
 vandermondeinverseprep(GEN L)
 {
   long i, j, n = lg(L);

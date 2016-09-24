@@ -4810,7 +4810,7 @@ static int
 pari_dir_exists(const char *s) { return 0; }
 #endif
 
-char *
+static char *
 env_ok(const char *s)
 {
   char *t = os_getenv(s);
