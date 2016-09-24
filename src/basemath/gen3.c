@@ -2540,9 +2540,6 @@ QpV_to_QV(GEN v)
 GEN
 gtrunc(GEN x)
 {
-  long i;
-  GEN y;
-
   switch(typ(x))
   {
     case t_INT: return icopy(x);
@@ -2554,8 +2551,8 @@ gtrunc(GEN x)
     case t_SER: return ser2rfrac(x);
     case t_VEC: case t_COL: case t_MAT:
     {
-      long lx;
-      y = cgetg_copy(x, &lx);
+      long i, lx;
+      GEN y = cgetg_copy(x, &lx);
       for (i=1; i<lx; i++) gel(y,i) = gtrunc(gel(x,i));
       return y;
     }
