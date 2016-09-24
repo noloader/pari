@@ -4008,7 +4008,8 @@ list_to_regular_rep(GEN elts, long n)
 {
   GEN reg, elts2, g;
   long i,j;
-  elts = gen_sort(elts, (void*)&cmp_perm, &cmp_nodata);
+  elts = shallowcopy(elts);
+  gen_sort_inplace(elts, (void*)&cmp_perm, &cmp_nodata, NULL);
   reg = cgetg(n+1, t_VEC);
   gel(reg,1) = identity_perm(n);
   for(i=2; i<=n; i++) {

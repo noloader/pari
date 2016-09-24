@@ -1721,7 +1721,7 @@ print_all_user_fun(int member)
   if (iL)
   {
     setlg(L, iL+1);
-    L = gen_sort(L, NULL, &cmp_epname);
+    gen_sort_inplace(L, NULL, &cmp_epname, NULL);
     for (i = 1; i <= iL; i++)
     {
       ep = (entree*)L[i];

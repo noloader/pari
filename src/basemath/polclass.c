@@ -1183,7 +1183,7 @@ select_classpoly_primes(
 
   /* FIXME: Apply torsion constraints */
   /* FIXME: Rank elts of res according to cost/benefit ratio */
-  prime_pool = gen_sort(prime_pool, NULL, primecmp);
+  gen_sort_inplace(prime_pool, NULL, primecmp, NULL);
 
   prime_bits = 0.0;
   biggest_p = gel(prime_pool, 1)[1];

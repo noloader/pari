@@ -1404,22 +1404,23 @@ F2xqX_roots_ddf(GEN f, GEN xp, GEN T)
 static GEN
 F2xqX_roots_i(GEN S, GEN T)
 {
-  GEN xp, F, M, V, R;
-  long i, j, l;
+  GEN M;
   S = F2xqX_red(S, T);
   if (!signe(S)) pari_err_ROOTS0("F2xqX_roots");
   if (degpol(S)==0) return cgetg(1, t_COL);
   S = F2xqX_normalize(S, T);
-  R = F2xqX_easyroots(S, T);
-  if (R) return gen_sort(R, (void*) &cmp_Flx, &cmp_nodata);
-  xp = F2x_Frobenius(T);
-  V = F2xqX_factor_squarefree(S, T);
-  l = lg(V);
-  F = cgetg(l, t_VEC);
-  for (i=1, j=1; i < l; i++)
-    if (degpol(gel(V,i)))
-      gel(F, j++) = F2xqX_roots_ddf(gel(V,i), xp, T);
-  setlg(F,j); M = shallowconcat1(F);
+  M = F2xqX_easyroots(S, T);
+  if (!M)
+  {
+    GEN xp = F2x_Frobenius(T);
+    GEN F, V = F2xqX_factor_squarefree(S, T);
+    long i, j, l = lg(V);
+    F = cgetg(l, t_VEC);
+    for (i=1, j=1; i < l; i++)
+      if (degpol(gel(V,i)))
+        gel(F, j++) = F2xqX_roots_ddf(gel(V,i), xp, T);
+    setlg(F,j); M = shallowconcat1(F);
+  }
   gen_sort_inplace(M, (void*) &cmp_Flx, &cmp_nodata, NULL);
   return M;
 }
@@ -1563,22 +1564,23 @@ FlxqX_roots_ddf(GEN f, GEN xp, GEN T, ulong p)
 static GEN
 FlxqX_roots_i(GEN S, GEN T, ulong p)
 {
-  GEN xp, F, M, V, R;
-  long i, j, l;
+  GEN M;
   S = FlxqX_red(S, T, p);
   if (!signe(S)) pari_err_ROOTS0("FlxqX_roots");
   if (degpol(S)==0) return cgetg(1, t_COL);
   S = FlxqX_normalize(S, T, p);
-  R = FlxqX_easyroots(S, T, p);
-  if (R) return gen_sort(R, (void*) &cmp_Flx, &cmp_nodata);
-  xp = Flx_Frobenius(T, p);
-  V = FlxqX_factor_squarefree(S, xp, T, p);
-  l = lg(V);
-  F = cgetg(l, t_VEC);
-  for (i=1, j=1; i < l; i++)
-    if (degpol(gel(V,i)))
-      gel(F, j++) = FlxqX_roots_ddf(gel(V,i), xp, T, p);
-  setlg(F,j); M = shallowconcat1(F);
+  M = FlxqX_easyroots(S, T, p);
+  if (!M)
+  {
+    GEN xp = Flx_Frobenius(T, p);
+    GEN F, V = FlxqX_factor_squarefree(S, xp, T, p);
+    long i, j, l = lg(V);
+    F = cgetg(l, t_VEC);
+    for (i=1, j=1; i < l; i++)
+      if (degpol(gel(V,i)))
+        gel(F, j++) = FlxqX_roots_ddf(gel(V,i), xp, T, p);
+    setlg(F,j); M = shallowconcat1(F);
+  }
   gen_sort_inplace(M, (void*) &cmp_Flx, &cmp_nodata, NULL);
   return M;
 }
@@ -1671,8 +1673,7 @@ FpXQX_roots_ddf(GEN f, GEN xp, GEN T, GEN p)
 static GEN
 FpXQX_roots_i(GEN S, GEN T, GEN p)
 {
-  GEN xp, F, M, V, R;
-  long i, j, l;
+  GEN F, M;
   if (lgefint(p)==3)
   {
     ulong pp = p[2];
@@ -1691,16 +1692,18 @@ FpXQX_roots_i(GEN S, GEN T, GEN p)
   if (!signe(S)) pari_err_ROOTS0("FpXQX_roots");
   if (degpol(S)==0) return cgetg(1, t_COL);
   S = FpXQX_normalize(S, T, p);
-  R = FpXQX_easyroots(S, T, p);
-  if (R) return gen_sort(R, (void*) &cmp_RgX, &cmp_nodata);
-  xp = FpX_Frobenius(T, p);
-  V = FpXQX_factor_Yun(S, T, p);
-  l = lg(V);
-  F = cgetg(l, t_VEC);
-  for (i=1, j=1; i < l; i++)
-    if (degpol(gel(V,i)))
-      gel(F, j++) = FpXQX_roots_ddf(gel(V,i), xp, T, p);
-  setlg(F,j); M = shallowconcat1(F);
+  M = FpXQX_easyroots(S, T, p);
+  if (!M)
+  {
+    GEN xp = FpX_Frobenius(T, p);
+    GEN V = FpXQX_factor_Yun(S, T, p);
+    long i, j, l = lg(V);
+    F = cgetg(l, t_VEC);
+    for (i=1, j=1; i < l; i++)
+      if (degpol(gel(V,i)))
+        gel(F, j++) = FpXQX_roots_ddf(gel(V,i), xp, T, p);
+    setlg(F,j); M = shallowconcat1(F);
+  }
   gen_sort_inplace(M, (void*) &cmp_RgX, &cmp_nodata, NULL);
   return M;
 }
