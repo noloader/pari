@@ -2,9 +2,8 @@ Function: lfunhardy
 Section: l_functions
 C-Name: lfunhardy
 Prototype: GGb
-Help: lfunhardy(L,t): Variant of the Hardy L-function corresponding to
- L, used for plotting on the critical line, see ??lfunhardy for the precise
- definition.
+Help: lfunhardy(L,t): variant of the Hardy L-function attached to L, used for
+ plotting on the critical line.
 Doc: Variant of the Hardy $Z$-function given by \kbd{L}, used for
  plotting or locating zeros of $L(k/2+it)$ on the critical line.
  The precise definition is as

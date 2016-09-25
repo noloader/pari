@@ -578,7 +578,7 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: conductorofchar(bnr,chi) ===> bnrconductorofchar(bnr,chi)
 
-bnrconductorofchar(bnr,chi): This function is obsolete, use bnrconductor
+bnrconductorofchar(bnr,chi): this function is obsolete, use bnrconductor.
 
 
   ***   at top-level: convol()
@@ -1030,7 +1030,7 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: factoredpolred(x,p) ===> polred(x,,p)
 
-polred(T,{flag=0}): Deprecated, use polredbest. Reduction of the polynomial T 
+polred(T,{flag=0}): deprecated, use polredbest. Reduction of the polynomial T 
 (gives minimal polynomials only). The following binary digits of (optional) 
 flag are significant 1: partial reduction, 2: gives also elements.
 
@@ -1042,7 +1042,7 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: factoredpolred2(x,p) ===> polred(x,2,p)
 
-polred(T,{flag=0}): Deprecated, use polredbest. Reduction of the polynomial T 
+polred(T,{flag=0}): deprecated, use polredbest. Reduction of the polynomial T 
 (gives minimal polynomials only). The following binary digits of (optional) 
 flag are significant 1: partial reduction, 2: gives also elements.
 
@@ -1121,7 +1121,7 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: galoisapply(nf,aut,x) ===> nfgaloisapply(nf,aut,x)
 
-nfgaloisapply(nf,aut,x): Apply the Galois automorphism aut to the object x 
+nfgaloisapply(nf,aut,x): apply the Galois automorphism aut to the object x 
 (element or ideal) in the number field nf.
 
 
@@ -3013,7 +3013,7 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: polred2(x) ===> polred(x,2)
 
-polred(T,{flag=0}): Deprecated, use polredbest. Reduction of the polynomial T 
+polred(T,{flag=0}): deprecated, use polredbest. Reduction of the polynomial T 
 (gives minimal polynomials only). The following binary digits of (optional) 
 flag are significant 1: partial reduction, 2: gives also elements.
 
@@ -3723,7 +3723,7 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: smallpolred(x) ===> polred(x,1)
 
-polred(T,{flag=0}): Deprecated, use polredbest. Reduction of the polynomial T 
+polred(T,{flag=0}): deprecated, use polredbest. Reduction of the polynomial T 
 (gives minimal polynomials only). The following binary digits of (optional) 
 flag are significant 1: partial reduction, 2: gives also elements.
 
@@ -3735,7 +3735,7 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: smallpolred2(x) ===> polred(x,3)
 
-polred(T,{flag=0}): Deprecated, use polredbest. Reduction of the polynomial T 
+polred(T,{flag=0}): deprecated, use polredbest. Reduction of the polynomial T 
 (gives minimal polynomials only). The following binary digits of (optional) 
 flag are significant 1: partial reduction, 2: gives also elements.
 
@@ -4106,7 +4106,7 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: wf(x) ===> weber(x)
 
-weber(x,{flag=0}): One of Weber's f function of x. flag is optional, and can be 
+weber(x,{flag=0}): one of Weber's f function of x. flag is optional, and can be 
 0: default, function f(x)=exp(-i*Pi/24)*eta((x+1)/2)/eta(x), 1: function 
 f1(x)=eta(x/2)/eta(x) 2: function f2(x)=sqrt(2)*eta(2*x)/eta(x). Note that j = 
 (f^24-16)^3/f^24 = (f1^24+16)^3/f1^24 = (f2^24+16)^3/f2^24.
@@ -4119,7 +4119,7 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: wf2(x) ===> weber(x,2)
 
-weber(x,{flag=0}): One of Weber's f function of x. flag is optional, and can be 
+weber(x,{flag=0}): one of Weber's f function of x. flag is optional, and can be 
 0: default, function f(x)=exp(-i*Pi/24)*eta((x+1)/2)/eta(x), 1: function 
 f1(x)=eta(x/2)/eta(x) 2: function f2(x)=sqrt(2)*eta(2*x)/eta(x). Note that j = 
 (f^24-16)^3/f^24 = (f1^24+16)^3/f1^24 = (f2^24+16)^3/f2^24.
@@ -4563,4 +4563,4 @@ New syntax: texprint(x) ===> printtex(x)
 printtex({str}*): outputs its string arguments in TeX format.
 
 
-Total time spent: 9
+Total time spent: 12

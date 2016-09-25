@@ -2,7 +2,7 @@ Function: contfraceval
 Section: sums
 C-Name: contfraceval
 Prototype: GGD-1,L,
-Help: contfraceval(CF,t,{lim=-1}): Given a continued fraction CF from
+Help: contfraceval(CF,t,{lim=-1}): given a continued fraction CF from
  contfracinit, evaluate the first lim terms of the continued fraction at t
  (all terms if lim is negative or omitted).
 Doc: Given a continued fraction \kbd{CF} output by \kbd{contfracinit}, evaluate

@@ -24,12 +24,12 @@ Doc: This function is based on the C library command of the same name.
  \misctitle{The flag characters} The character \kbd{\%} is followed by zero or
  more of the following flags:
 
- \item \kbd{\#}: The value is converted to an ``alternate form''. For
+ \item \kbd{\#}: the value is converted to an ``alternate form''. For
  \kbd{o} conversion (octal), a \kbd{0} is prefixed to the string. For \kbd{x}
  and \kbd{X} conversions (hexa), respectively \kbd{0x} and \kbd{0X} are
  prepended. For other conversions, the flag is ignored.
 
- \item \kbd{0}: The value should be zero padded. For
+ \item \kbd{0}: the value should be zero padded. For
  \kbd{d},
  \kbd{i},
  \kbd{o},
@@ -45,15 +45,15 @@ Doc: This function is based on the C library command of the same name.
  blanks. (If the \kbd{0} and \kbd{-} flags both appear, the \kbd{0} flag is
  ignored.)
 
- \item \kbd{-}: The value is left adjusted on the field boundary. (The
+ \item \kbd{-}: the value is left adjusted on the field boundary. (The
  default is right justification.) The value is padded on the right with
  blanks, rather than on the left with blanks or zeros. A \kbd{-} overrides a
  \kbd{0} if both are given.
 
- \item \kbd{` '} (a space): A blank is left before a positive number
+ \item \kbd{` '} (a space): a blank is left before a positive number
  produced by a signed conversion.
 
- \item \kbd{+}: A sign (+ or -) is placed before a number produced by a
+ \item \kbd{+}: a sign (+ or -) is placed before a number produced by a
  signed conversion. A \kbd{+} overrides a space if both are used.
 
  \misctitle{The field width} An optional decimal digit string (whose first
@@ -85,14 +85,14 @@ Doc: This function is based on the C library command of the same name.
  \misctitle{The conversion specifier} A character that specifies the type of
  conversion to be applied.
 
- \item \kbd{d}, \kbd{i}: A signed integer.
+ \item \kbd{d}, \kbd{i}: a signed integer.
 
- \item \kbd{o}, \kbd{u}, \kbd{x}, \kbd{X}: An unsigned integer, converted
+ \item \kbd{o}, \kbd{u}, \kbd{x}, \kbd{X}: an unsigned integer, converted
  to unsigned octal (\kbd{o}), decimal (\kbd{u}) or hexadecimal (\kbd{x} or
  \kbd{X}) notation. The letters \kbd{abcdef} are used for \kbd{x}
  conversions;  the letters \kbd{ABCDEF} are used for \kbd{X} conversions.
 
- \item \kbd{e}, \kbd{E}: The (real) argument is converted in the style
+ \item \kbd{e}, \kbd{E}: the (real) argument is converted in the style
  \kbd{[ -]d.ddd e[ -]dd}, where there is one digit before the decimal point,
  and the number of digits after it is equal to the precision; if the
  precision is missing, use the current \kbd{realprecision} for the total
@@ -100,14 +100,14 @@ Doc: This function is based on the C library command of the same name.
  character appears. An \kbd{E} conversion uses the letter \kbd{E} rather
  than \kbd{e} to introduce the exponent.
 
- \item \kbd{f}, \kbd{F}: The (real) argument is converted in the style
+ \item \kbd{f}, \kbd{F}: the (real) argument is converted in the style
  \kbd{[ -]ddd.ddd}, where the number of digits after the decimal point
  is equal to the precision; if the precision is missing, use the current
  \kbd{realprecision} for the total number of printed digits. If the precision
  is explicitly 0, no decimal-point character appears. If a decimal point
  appears, at least one digit appears before it.
 
- \item \kbd{g}, \kbd{G}: The (real) argument is converted in style
+ \item \kbd{g}, \kbd{G}: the (real) argument is converted in style
  \kbd{e} or \kbd{f} (or \kbd{E} or \kbd{F} for \kbd{G} conversions)
  \kbd{[ -]ddd.ddd}, where the total number of digits printed
  is equal to the precision; if the precision is missing, use the current
@@ -117,16 +117,16 @@ Doc: This function is based on the C library command of the same name.
  part cannot be decided given the known significant digits, and the \kbd{f}
  format otherwise.
 
- \item \kbd{c}: The integer argument is converted to an unsigned char, and the
+ \item \kbd{c}: the integer argument is converted to an unsigned char, and the
  resulting character is written.
 
- \item \kbd{s}: Convert to a character string. If a precision is given, no
+ \item \kbd{s}: convert to a character string. If a precision is given, no
  more than the specified number of characters are written.
 
- \item \kbd{p}: Print the address of the argument in hexadecimal (as if by
+ \item \kbd{p}: print the address of the argument in hexadecimal (as if by
  \kbd{\%\#x}).
 
- \item \kbd{\%}: A \kbd{\%} is written. No argument is converted. The complete
+ \item \kbd{\%}: a \kbd{\%} is written. No argument is converted. The complete
  conversion specification is \kbd{\%\%}.
 
  \noindent Examples:

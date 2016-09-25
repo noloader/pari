@@ -3,7 +3,7 @@ Section: number_fields
 C-Name: polred0
 Prototype: GD0,L,DG
 Obsolete: 2013-03-27
-Help: polred(T,{flag=0}): Deprecated, use polredbest. Reduction of the
+Help: polred(T,{flag=0}): deprecated, use polredbest. Reduction of the
  polynomial T (gives minimal polynomials only). The following binary digits of
  (optional) flag are significant 1: partial reduction, 2: gives also elements.
 Doc: This function is \emph{deprecated}, use \tet{polredbest} instead.

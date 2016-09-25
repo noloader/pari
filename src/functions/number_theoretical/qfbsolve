@@ -2,7 +2,7 @@ Function: qfbsolve
 Section: number_theoretical
 C-Name: qfbsolve
 Prototype: GG
-Help: qfbsolve(Q,p): Return [x,y] so that Q(x,y)=p where Q is a binary
+Help: qfbsolve(Q,p): return [x,y] so that Q(x,y)=p where Q is a binary
  quadratic form and p a prime number, or 0 if there is no solution.
 Doc: Solve the equation $Q(x,y)=p$ over the integers,
  where $Q$ is a binary quadratic form and $p$ a prime number.

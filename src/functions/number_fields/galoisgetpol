@@ -7,7 +7,7 @@ Description:
  (small,):int              galoisnbpol($1)
  (small,,):int             galoisnbpol($1)
  (small,small,small):vec   galoisgetpol($1, $2 ,$3)
-Help: galoisgetpol(a,{b},{s}): Query the galpol package for a polynomial with
+Help: galoisgetpol(a,{b},{s}): query the galpol package for a polynomial with
  Galois group isomorphic to GAP4(a,b), totally real if s=1 (default) and
  totally complex if s=2.  The output is a vector [pol, den] where pol is the
  polynomial and den is the common denominator of the conjugates expressed

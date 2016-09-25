@@ -2,7 +2,7 @@ Function: lfuncreate
 Section: l_functions
 C-Name: lfuncreate
 Prototype: G
-Help: lfuncreate(obj): Given either an object such as a polynomial, elliptic
+Help: lfuncreate(obj): given either an object such as a polynomial, elliptic
  curve, Dirichlet or Hecke character, eta quotient, etc., or an explicit
  6 or 7 component vector [dir,real,Vga,k,N,eps,r],
  create the Ldata structure necessary for lfun computation.

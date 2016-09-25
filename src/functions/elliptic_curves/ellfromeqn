@@ -2,7 +2,7 @@ Function: ellfromeqn
 Section: elliptic_curves
 C-Name: ellfromeqn
 Prototype: G
-Help: ellfromeqn(P): Given a genus 1 plane curve, defined by the affine
+Help: ellfromeqn(P): given a genus 1 plane curve, defined by the affine
  equation f(x,y) = 0, return the coefficients [a1,a2,a3,a4,a6] of a
  Weierstrass equation for its Jacobian.
  This allows to recover a Weierstrass model for an elliptic curve given by a

@@ -2,7 +2,7 @@ Function: galoissubcyclo
 Section: number_fields
 C-Name: galoissubcyclo
 Prototype: GDGD0,L,Dn
-Help: galoissubcyclo(N,H,{fl=0},{v}):Compute a polynomial (in variable v)
+Help: galoissubcyclo(N,H,{fl=0},{v}): compute a polynomial (in variable v)
  defining the subfield of Q(zeta_n) fixed by the subgroup H of (Z/nZ)*. N can
  be an integer n, znstar(n) or bnrinit(bnfinit(y),[n,[1]],1). H can be given
  by a generator, a set of generator given by a vector or a HNF matrix (see

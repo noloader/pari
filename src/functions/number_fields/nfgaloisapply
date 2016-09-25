@@ -2,7 +2,7 @@ Function: nfgaloisapply
 Section: number_fields
 C-Name: galoisapply
 Prototype: GGG
-Help: nfgaloisapply(nf,aut,x): Apply the Galois automorphism aut to the object
+Help: nfgaloisapply(nf,aut,x): apply the Galois automorphism aut to the object
  x (element or ideal) in the number field nf.
 Doc: let $\var{nf}$ be a
  number field as output by \kbd{nfinit}, and let \var{aut} be a \idx{Galois}

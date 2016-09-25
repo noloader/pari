@@ -2,7 +2,7 @@ Function: zncharinduce
 Section: number_theoretical
 C-Name: zncharinduce
 Prototype: GGG
-Help: zncharinduce(G, chi, N): Let G be idealstar(,q), let chi
+Help: zncharinduce(G, chi, N): let G be idealstar(,q), let chi
  be a Dirichlet character mod q and let N be a multiple of q. Return
  the character modulo N induced by chi.
 Doc: Let $G$ be attached to $(\Z/q\Z)^*$ (as per \kbd{G = idealstar(,q)})

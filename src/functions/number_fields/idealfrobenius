@@ -2,7 +2,7 @@ Function: idealfrobenius
 Section: number_fields
 C-Name: idealfrobenius
 Prototype: GGG
-Help: idealfrobenius(nf,gal,pr): Returns the Frobenius element (pr|nf/Q)
+Help: idealfrobenius(nf,gal,pr): returns the Frobenius element (pr|nf/Q)
  attached to the unramified prime ideal pr in prid format, in the Galois
  group gal of the number field nf.
 Doc: Let $K$ be the number field defined by $nf$ and assume $K/\Q$ be a

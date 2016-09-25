@@ -2,7 +2,7 @@ Function: lfunan
 Section: l_functions
 C-Name: lfunan
 Prototype: GLp
-Help: lfunan(L,n): Compute the first n terms of the Dirichlet series
+Help: lfunan(L,n): compute the first n terms of the Dirichlet series
   attached to the L-function given by L (Lmath, Ldata or Linit).
 Doc: Compute the first $n$ terms of the Dirichlet series attached to the
   $L$-function given by \kbd{L} (\kbd{Lmath}, \kbd{Ldata} or \kbd{Linit}).

@@ -3,7 +3,7 @@ Section: number_fields
 C-Name: polfnf
 Prototype: GG
 Obsolete: 2016-08-08
-Help: factornf(x,t): This function is obsolete, use nffactor
+Help: factornf(x,t): this function is obsolete, use nffactor.
 Doc: This function is obsolete, use \kbd{nffactor}.
 
  factorization of the univariate polynomial $x$

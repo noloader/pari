@@ -2,7 +2,7 @@ Function: galoissubgroups
 Section: number_fields
 C-Name: galoissubgroups
 Prototype: G
-Help: galoissubgroups(G):Output all the subgroups of G.
+Help: galoissubgroups(G): output all the subgroups of G.
 Doc: outputs all the subgroups of the Galois group \kbd{gal}. A subgroup is a
  vector [\var{gen}, \var{orders}], with the same meaning
  as for $\var{gal}.gen$ and $\var{gal}.orders$. Hence \var{gen} is a vector of

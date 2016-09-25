@@ -2,7 +2,7 @@ Function: contfracinit
 Section: sums
 C-Name: contfracinit
 Prototype: GD-1,L,
-Help: contfracinit(M,{lim = -1}): Given M representing the power
+Help: contfracinit(M,{lim = -1}): given M representing the power
  series S = sum_{n>=0} M[n+1]z^n, transform it into a continued fraction
  suitable for evaluation.
 Doc: Given $M$ representing the power series $S=\sum_{n\ge0} M[n+1]z^n$,
