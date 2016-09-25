@@ -3,7 +3,7 @@ Section: elliptic_curves
 C-Name: ellheegner
 Prototype: G
 Help: ellheegner(E): return a rational non-torsion point on the elliptic curve E
- assumed to be of rank 1
+ assumed to be of rank 1.
 Doc: Let $E$ be an elliptic curve over the rationals, assumed to be of
  (analytic) rank $1$. This returns a non-torsion rational point on the curve,
  whose canonical height is equal to the product of the elliptic regulator by the

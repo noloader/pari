@@ -2,7 +2,7 @@ Function: ellpadics2
 Section: elliptic_curves
 C-Name: ellpadics2
 Prototype: GGL
-Help: ellpadics2(E,p,n): returns s2 to absolute p-adic precision p^n
+Help: ellpadics2(E,p,n): returns s2 to absolute p-adic precision p^n.
 Doc: If $p>2$ is a prime and $E/\Q$ is a elliptic curve with ordinary good
  reduction at $p$, returns the slope of the unit eigenvector
  of \kbd{ellpadicfrobenius(E,p,n)}, i.e. the action of Frobenius $\varphi$ on

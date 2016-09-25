@@ -3,5 +3,5 @@ Section: polynomials
 C-Name: polresultantext0
 Prototype: GGDn
 Obsolete: 2015-01-13
-Help: bezoutres(A,B,{v}): deprecated alias for polresultantext
+Help: bezoutres(A,B,{v}): deprecated alias for polresultantext.
 Doc: deprecated alias for \kbd{polresultantext}

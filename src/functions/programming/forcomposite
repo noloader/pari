@@ -1,13 +1,13 @@
 Function: _forcomposite_init
 Class: gp2c_internal
-Help: Initialize forcomposite_t
+Help: Initialize forcomposite_t.
 Description:
  (forcomposite,int):void                  forcomposite_init(&$1, $2, NULL)
  (forcomposite,int,int):void              forcomposite_init(&$1, $2, $3)
 
 Function: _forcomposite_next
 Class: gp2c_internal
-Help: Compute the next composite
+Help: Compute the next composite.
 Description:
  (forcomposite):int                       forcomposite_next(&$1)
 
@@ -16,7 +16,7 @@ Section: programming/control
 C-Name: forcomposite
 Prototype: vV=GDGI
 Help: forcomposite(n=a,{b},seq): the sequence is evaluated, n running over the
- composite numbers between a and b. Omitting b runs through composites >= a
+ composite numbers between a and b. Omitting b runs through composites >= a.
 Iterator:
  (gen,gen,?gen) (forcomposite, _forcomposite_init, _forcomposite_next)
 Doc: evaluates \var{seq},

@@ -4,7 +4,7 @@ C-Name: ellmodulareqn
 Prototype: LDnDn
 Help: ellmodulareqn(N,{x},{y}): given a prime N < 500, return a vector [P, t]
  where P(x,y) is a modular equation of level N. This requires the package
- seadata. The equation is either of canonical type (t=0) or of Atkin type (t=1)
+ seadata. The equation is either of canonical type (t=0) or of Atkin type (t=1).
 Doc: given a prime $N < 500$, return a vector $[P,t]$ where $P(x,y)$
  is a modular equation of level $N$, i.e.~a bivariate polynomial with integer
  coefficients; $t$ indicates the type of this equation: either

@@ -2,7 +2,7 @@ Function: liftpol
 Section: conversions
 C-Name: liftpol
 Prototype: G
-Help: liftpol(x): lifts every polmod component of x to polynomials
+Help: liftpol(x): lifts every polmod component of x to polynomials.
 Description:
  (pol):pol        liftpol($1)
  (vec):vec        liftpol($1)

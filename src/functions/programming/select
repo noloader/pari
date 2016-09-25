@@ -4,7 +4,7 @@ C-Name: select0
 Prototype: GGD0,L,
 Help: select(f, A, {flag = 0}): selects elements of A according to the selection
  function f. If flag is 1, return the indices of those elements (indirect
- selection)
+ selection).
 Wrapper: (bG)
 Description:
   (gen,gen):gen    genselect(${1 cookie}, ${1 wrapper}, $2)

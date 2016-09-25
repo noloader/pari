@@ -3,7 +3,7 @@ Section: number_theoretical
 C-Name: znconreylog
 Prototype: GG
 Help: znconreylog(bid,m): Conrey logarithm attached to m in (Z/qZ)*,
- where bid is idealstar(,q)
+ where bid is idealstar(,q).
 Doc: Given a \var{bid} attached to $(\Z/q\Z)^*$ (as per
  \kbd{bid = idealstar(,q)}), this function returns the Conrey logarithm of
  $m \in (\Z/q\Z)^*$.

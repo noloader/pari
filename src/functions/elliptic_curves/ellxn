@@ -3,7 +3,7 @@ Section: elliptic_curves
 C-Name: ellxn
 Prototype: GLDn
 Help: ellxn(E,n,{v='x}): polynomials [phi_n, (psi_n)^2] in variable v,
- where x([n]P) = phi_n/(psi_n)^2
+ where x([n]P) = phi_n/(psi_n)^2.
 Doc: In standard notation, for any affine point $P = (v,w)$ on the
  curve $E$, we have
  $$[n]P = (\phi_n(P)\psi_n(P) : \omega_n(P) : \psi_n(P)^3)$$

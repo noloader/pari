@@ -4,7 +4,7 @@ C-Name: addprimes
 Prototype: DG
 Help: addprimes({x=[]}): add primes in the vector x to the prime table to
  be used in trial division. x may also be a single integer. Composite
- "primes" are NOT allowed!
+ "primes" are NOT allowed.
 Doc: adds the integers contained in the
  vector $x$ (or the single integer $x$) to a special table of
  ``user-defined primes'', and returns that table. Whenever \kbd{factor} is

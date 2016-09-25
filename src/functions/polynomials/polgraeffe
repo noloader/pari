@@ -3,6 +3,6 @@ Section: polynomials
 C-Name: polgraeffe
 Prototype: G
 Help: polgraeffe(f): returns the Graeffe transform g of f, such that
- g(x^2) = f(x)f(-x)
+ g(x^2) = f(x)f(-x).
 Doc: returns the \idx{Graeffe} transform $g$ of $f$, such that $g(x^2) = f(x)
  f(-x)$.

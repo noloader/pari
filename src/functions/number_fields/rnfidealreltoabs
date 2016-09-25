@@ -4,7 +4,7 @@ C-Name: rnfidealreltoabs0
 Prototype: GGD0,L,
 Help: rnfidealreltoabs(rnf,x,{flag=0}): transforms the ideal x from relative to
  absolute representation. As a vector of t_POLMODs if flag = 0 and as an ideal
- in HNF in the absolute field if flag = 1
+ in HNF in the absolute field if flag = 1.
 Doc: Let $\var{rnf}$ be a relative
  number field extension $L/K$ as output by \kbd{rnfinit} and let $x$ be a
  relative ideal, given as a $\Z_K$-module by a pseudo matrix $[A,I]$.

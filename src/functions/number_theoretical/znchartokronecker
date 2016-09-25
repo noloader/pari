@@ -6,7 +6,7 @@ Help: znchartokronecker(G, chi, {flag=0}): let G be idealstar(,N), let chi
  be a Dirichlet character mod N, return the discriminant D if chi is
  real equal to the Kronecker symbol (D/.) and 0 otherwise. If flag
  is set, return the fundamental discriminant attached to the corresponding
- primitive character
+ primitive character.
 Doc: Let $G$ be attached to $(\Z/N\Z)^*$ (as per \kbd{G = idealstar(,N)})
  and let \kbd{chi} be a Dirichlet character on $(\Z/N\Z)^*$, given by
 

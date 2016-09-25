@@ -3,7 +3,7 @@ Section: number_fields
 C-Name: nfreducemodpr
 Prototype: GGG
 Obsolete: 2016-08-09
-Help: nfeltreducemodpr(nf,x,pr): this function is obsolete, use nfmodpr
+Help: nfeltreducemodpr(nf,x,pr): this function is obsolete, use nfmodpr.
 Doc: this function is obsolete, use \kbd{nfmodpr}.
 
  Given an element $x$ of the number field $\var{nf}$ and a prime ideal

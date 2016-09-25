@@ -3,7 +3,7 @@ Section: number_fields
 C-Name: nfkermodpr
 Prototype: GGG
 Obsolete: 2016-08-09
-Help: nfkermodpr(nf,x,pr): this function is obsolete, use nfmodpr
+Help: nfkermodpr(nf,x,pr): this function is obsolete, use nfmodpr.
 Doc: this function is obsolete, use \kbd{nfmodpr}.
 
  Kernel of the matrix $a$ in $\Z_K/\var{pr}$, where \var{pr} is in

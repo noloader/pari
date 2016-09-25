@@ -6,7 +6,7 @@ Help: rnfconductor(bnf,pol): conductor of the Abelian extension
  of bnf defined by pol. The result is [conductor,bnr,subgroup],
  where conductor is the conductor itself, bnr the attached bnr
  structure, and subgroup the HNF defining the norm
- group (Artin or Takagi group) on the given generators bnr.gen
+ group (Artin or Takagi group) on the given generators bnr.gen.
 Doc: given $\var{bnf}$
  as output by \kbd{bnfinit}, and \var{pol} a relative polynomial defining an
  \idx{Abelian extension}, computes the class field theory conductor of this

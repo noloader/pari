@@ -5,7 +5,7 @@ Prototype: GGDP
 Help: msqexpansion(M,projH,{B = seriesprecision}): M being a full modular
  symbol space, as given by msinit, and projH being a projector on a
  Hecke-simple subspace, return the Fourier coefficients [a_n, n <= B]
- of the corresponding normalized newform. If B omitted, use seriesprecision
+ of the corresponding normalized newform. If B omitted, use seriesprecision.
 Doc:
  $M$ being a full modular symbol space, as given by \kbd{msinit},
  and \var{projH} being a projector on a Hecke-simple subspace (as given

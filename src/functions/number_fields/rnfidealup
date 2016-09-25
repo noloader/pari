@@ -4,7 +4,7 @@ C-Name: rnfidealup0
 Prototype: GGD0,L,
 Help: rnfidealup(rnf,x,{flag=0}): lifts the ideal x (of the base field) to the
  relative field. As a vector of t_POLMODs if flag = 0 and as an ideal in HNF
- in the absolute field if flag = 1
+ in the absolute field if flag = 1.
 Doc: let $\var{rnf}$ be a relative number
  field extension $L/K$ as output by \kbd{rnfinit} and let $x$ be an ideal of
  $K$. This function returns the ideal $x\Z_L$ as an absolute ideal of $L/\Q$,

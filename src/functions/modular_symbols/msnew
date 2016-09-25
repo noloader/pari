@@ -3,7 +3,7 @@ Section: modular_symbols
 C-Name: msnew
 Prototype: G
 Help: msnew(M): M being a full modular symbol space, as given by msinit,
- return its new cuspidal subspace
+ return its new cuspidal subspace.
 Doc:
  $M$ being a full modular symbol space, as given by \kbd{msinit},
  return the \emph{new} part of its cuspidal subspace. A subspace is given by

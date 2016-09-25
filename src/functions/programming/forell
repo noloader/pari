@@ -4,7 +4,7 @@ C-Name: forell0
 Prototype: vVLLID0,L,
 Help: forell(E,a,b,seq,{flag=0}): execute seq for each elliptic curves E of
  conductor between a and b in the elldata database. If flag is non-zero, select
- only the first curve in each isogeny class
+ only the first curve in each isogeny class.
 Wrapper: (,,,vG,)
 Description:
  (,small,small,closure,?small):void forell(${4 cookie}, ${4 wrapper}, $2, $3, $5)

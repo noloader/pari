@@ -3,7 +3,7 @@ Section: linear_algebra
 C-Name: hnfmodid
 Prototype: GG
 Help: mathnfmodid(x,d): (upper triangular) Hermite normal form of x
- concatenated with matdiagonal(d)
+ concatenated with matdiagonal(d).
 Doc: outputs the (upper triangular)
  \idx{Hermite normal form} of $x$ concatenated with the diagonal
  matrix with diagonal $d$. Assumes that $x$ has integer entries.

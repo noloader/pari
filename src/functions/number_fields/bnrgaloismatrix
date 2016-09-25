@@ -7,7 +7,6 @@ Help: bnrgaloismatrix(bnr,aut): return the matrix of the action of the
  field bnr.gen. aut can be given as a polynomial, or a vector of automorphisms
  or a galois group as output by galoisinit, in which case a vector of matrices
  is returned (in the later case, only for the generators aut.gen).
-
 Doc: return the matrix of the action of the automorphism \var{aut} of the base
  field \kbd{bnf.nf} on the generators of the ray class field \kbd{bnr.gen}.
  \var{aut} can be given as a polynomial, an algebraic number, or a vector of

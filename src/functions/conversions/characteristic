@@ -3,7 +3,7 @@ Section: conversions
 C-Name: characteristic
 Prototype: mG
 Help: characteristic(x): characteristic of the base ring over which x is
- defined
+ defined.
 Doc:
  returns the characteristic of the base ring over which $x$ is defined (as
  defined by \typ{INTMOD} and \typ{FFELT} components). The function raises an

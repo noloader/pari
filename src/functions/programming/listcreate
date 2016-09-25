@@ -3,7 +3,7 @@ Section: programming/specific
 C-Name: listcreate
 Prototype: D0,L,
 Obsolete: 2007-08-10
-Help: listcreate(): this function is obsolete, use List()
+Help: listcreate(): this function is obsolete, use List().
 Description:
  (?gen):list        listcreate()
 Doc: This function is obsolete, use \kbd{List}.

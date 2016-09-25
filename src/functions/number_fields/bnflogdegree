@@ -3,7 +3,7 @@ Section: number_fields
 C-Name: bnflogdegree
 Prototype: GGG
 Help: bnflogdegree(bnf, A, l): let A be an ideal, return exp(deg_F A)
- the exponential of the l-adic logarithmic degree
+ the exponential of the l-adic logarithmic degree.
 Doc: Let \var{bnf} be the number field data output by \kbd{bnfinit},
  attached to the field $F$, and let $l$ be a prime number (hereafter
  denoted $\ell$). The

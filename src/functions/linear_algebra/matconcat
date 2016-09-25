@@ -2,7 +2,8 @@ Function: matconcat
 Section: linear_algebra
 C-Name: matconcat
 Prototype: G
-Help: matconcat(v): concatenate the entries of v and return the resulting matrix
+Help: matconcat(v): concatenate the entries of v and return the resulting
+ matrix.
 Doc: returns a \typ{MAT} built from the entries of $v$, which may
  be a \typ{VEC} (concatenate horizontally), a \typ{COL} (concatenate
  vertically), or a \typ{MAT} (concatenate vertically each column, and

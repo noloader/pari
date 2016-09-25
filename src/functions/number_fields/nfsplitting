@@ -4,7 +4,7 @@ C-Name: nfsplitting
 Prototype: GDG
 Help: nfsplitting(nf,{d}): defining polynomial over Q for the splitting field of
  the number field nf; if d is given, it must be a multiple of the splitting
- field degree
+ field degree.
 Doc: defining polynomial over~$\Q$ for the splitting field of \var{nf};
  if $d$ is given, it must be a multiple of the splitting field degree.
  Instead of~\kbd{nf}, it is possible to input a defining (irreducible)

@@ -8,7 +8,7 @@ Help: chareval(G, chi, x, {z})): given an abelian group structure affording
  returns the value of chi at x, where the encoding depends on the optional
  argument z; if z is omitted, we fix a canonical o-th root of 1, zeta_o,
  where o is the character order and return the rational number c/o where
- chi(x) = (zeta_o)^c
+ chi(x) = (zeta_o)^c.
 Doc:
  Let $G$ be an abelian group structure affording a discrete logarithm
  method, e.g $G = \kbd{idealstar}(,N)$ for $(\Z/N\Z)^*$ or a \kbd{bnr}

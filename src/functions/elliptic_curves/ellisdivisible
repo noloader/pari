@@ -4,7 +4,7 @@ C-Name: ellisdivisible
 Prototype: lGGGD&
 Help: ellisdivisible(E,P,n,{&Q})): given E/K and P in E(K),
  checks whether P = [n]R for some R in E(K) and sets Q to one such R if so;
- the integer n >= 0 may be given as ellxn(E,n)
+ the integer n >= 0 may be given as ellxn(E,n).
 Doc: given $E/K$ a number field and $P$ in $E(K)$
  return $1$ if $P = [n]R$ for some $R$ in $E(K)$ and set $Q$ to one such $R$;
  and return $0$ otherwise. The integer $n \geq 0$ may be given as

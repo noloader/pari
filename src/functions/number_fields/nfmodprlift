@@ -2,7 +2,7 @@ Function: nfmodprlift
 Section: number_fields
 C-Name: nfmodprlift
 Prototype: GGG
-Help: nfmodprlift(nf,x,pr): lift x from residue field mod pr to nf
+Help: nfmodprlift(nf,x,pr): lift x from residue field mod pr to nf.
 Doc: lift the \typ{FFELT} $x$ (from \tet{nfmodpr}) to the residue field
  modulo \var{pr}. Vectors and matrices are also supported. For polynomials,
  use \kbd{apply} and the present function.

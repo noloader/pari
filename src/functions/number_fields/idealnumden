@@ -3,7 +3,7 @@ Section: number_fields
 C-Name: idealnumden
 Prototype: GG
 Help: idealnumden(nf,x): returns [A,B], where A,B are coprime integer ideals
- such that x = A/B
+ such that x = A/B.
 Doc: returns $[A,B]$, where $A,B$ are coprime integer ideals
  such that $x = A/B$, in the number field $\var{nf}$.
  \bprog

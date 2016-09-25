@@ -12,26 +12,26 @@ Description:
 
 Function: _forprime_init
 Class: gp2c_internal
-Help: Initialize forprime_t
+Help: Initialize forprime_t.
 Description:
  (forprime,int,?int):void             forprime_init(&$1, $2, $3);
 
 Function: _forprime_next_
 Class: gp2c_internal
-Help: Compute the next prime
+Help: Compute the next prime.
 Description:
  (forprime):int                       forprime_next(&$1)
 
 Function: _u_forprime_init
 Class: gp2c_internal
-Help: Initialize forprime_t (ulong version)
+Help: Initialize forprime_t (ulong version).
 Description:
  (forprime,small,):void              u_forprime_init(&$1, $2, LONG_MAX);
  (forprime,small,small):void         u_forprime_init(&$1, $2, $3);
 
 Function: _u_forprime_next
 Class: gp2c_internal
-Help: Compute the next prime (ulong version)
+Help: Compute the next prime (ulong version).
 Description:
  (forprime):small                   u_forprime_next(&$1)
 
@@ -40,7 +40,7 @@ Section: programming/control
 C-Name: forprime
 Prototype: vV=GDGI
 Help: forprime(p=a,{b},seq): the sequence is evaluated, p running over the
- primes between a and b. Omitting b runs through primes >= a
+ primes between a and b. Omitting b runs through primes >= a.
 Iterator:
  (*notype,small,small) (forprime, _u_forprime_init, _u_forprime_next)
  (*small,gen,?gen)    (forprime, _u_forprime_init, _u_forprime_next)

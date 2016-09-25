@@ -3,7 +3,7 @@ Section: modular_symbols
 C-Name: mseisenstein
 Prototype: G
 Help: mseisenstein(M): M being a full modular symbol space, as given by msinit,
- return its Eisenstein subspace
+ return its Eisenstein subspace.
 Doc:
  $M$ being a full modular symbol space, as given by \kbd{msinit},
  return its Eisenstein subspace.

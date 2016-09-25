@@ -904,7 +904,7 @@ New syntax: divres(x,y) ===> divrem(x,y)
 
 divrem(x,y,{v}): euclidean division of x by y giving as a 2-dimensional column 
 vector the quotient and the remainder, with respect to v (to main variable if v 
-is omitted)
+is omitted).
 
 
   ***   at top-level: divsum()
@@ -1328,7 +1328,7 @@ A function with that name existed in GP-1.39.15. Please update your script.
 New syntax: hermitemodid(x,d) ===> mathnfmodid(x,d)
 
 mathnfmodid(x,d): (upper triangular) Hermite normal form of x concatenated with 
-matdiagonal(d)
+matdiagonal(d).
 
 
   ***   at top-level: hermiteperm()
@@ -2735,7 +2735,7 @@ New syntax: nfhermite(nf,x) ===> nfhnf(nf,x)
 
 nfhnf(nf,x,{flag=0}): if x=[A,I], gives a pseudo-basis [B,J] of the module sum 
 A_jI_j. If flag is non-zero, return [[B,J], U], where U is the transformation 
-matrix such that AU = [0|B]
+matrix such that AU = [0|B].
 
 
   ***   at top-level: nfhermitemod()
@@ -2850,7 +2850,7 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: o(x) ===> O(x)
 
-O(p^e): p-adic or power series zero with precision given by e
+O(p^e): p-adic or power series zero with precision given by e.
 
 
   ***   at top-level: ordell()
@@ -2894,7 +2894,7 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: ordred(x) ===> polredord(x)
 
-polredord(x): obsolete function, use polredbest
+polredord(x): obsolete function, use polredbest.
 
 
   ***   at top-level: pascal()
@@ -4563,4 +4563,4 @@ New syntax: texprint(x) ===> printtex(x)
 printtex({str}*): outputs its string arguments in TeX format.
 
 
-Total time spent: 12
+Total time spent: 10

@@ -3,7 +3,7 @@ Section: number_fields
 C-Name: nfsolvemodpr
 Prototype: GGGG
 Obsolete: 2016-08-09
-Help: nfsolvemodpr(nf,a,b,P): this function is obsolete, use nfmodpr
+Help: nfsolvemodpr(nf,a,b,P): this function is obsolete, use nfmodpr.
 Doc: this function is obsolete, use \kbd{nfmodpr}.
 
  Let $P$ be a prime ideal in \key{modpr} format (see \kbd{nfmodprinit}),

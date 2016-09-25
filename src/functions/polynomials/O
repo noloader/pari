@@ -14,7 +14,7 @@ Function: O
 Section: polynomials
 C-Name: ggrando
 Prototype:
-Help: O(p^e): p-adic or power series zero with precision given by e
+Help: O(p^e): p-adic or power series zero with precision given by e.
 Doc: if $p$ is an integer
  greater than $2$, returns a $p$-adic $0$ of precision $e$. In all other
  cases, returns a power series zero with precision given by $e v$, where $v$

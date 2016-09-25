@@ -3,7 +3,7 @@ Section: number_fields
 C-Name: rnfeltnorm
 Prototype: GG
 Help: rnfeltnorm(rnf,x): returns the relative norm N_{L/K}(x), as an element
- of K
+ of K.
 Doc: $\var{rnf}$ being a relative number field extension $L/K$ as output by
  \kbd{rnfinit} and $x$ being an element of $L$, returns the relative norm
  $N_{L/K}(x)$ as an element of $K$.

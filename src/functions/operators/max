@@ -2,7 +2,7 @@ Function: max
 Section: operators
 C-Name: gmax
 Prototype: GG
-Help: max(x,y): maximum of x and y
+Help: max(x,y): maximum of x and y.
 Description:
  (small, small):small  maxss($1, $2)
  (small, int):int      gmaxsg($1, $2)

@@ -4,7 +4,7 @@ C-Name: rnfeltup0
 Prototype: GGD0,L,
 Help: rnfeltup(rnf,x,{flag=0}): expresses x (belonging to the base field) on
  the relative field. As a t_POLMOD if flag = 0 and as a t_COL on the absolute
- field integer basis if flag = 1
+ field integer basis if flag = 1.
 Doc: $\var{rnf}$ being a relative number field extension $L/K$ as output by
  \kbd{rnfinit} and $x$ being an element of $K$, computes $x$ as an element of
  the absolute extension $L/\Q$. As a \typ{POLMOD} modulo \kbd{\var{rnf}.pol}

@@ -2,8 +2,7 @@ Function: lex
 Section: operators
 C-Name: lexcmp
 Prototype: iGG
-Help: lex(x,y): compare x and y lexicographically (1 if x>y, 0 if x=y, -1 if
- x<y)
+Help: lex(x,y): compare x and y lexicographically (1 if x>y, 0 if x=y, -1 if x<y).
 Doc: gives the result of a lexicographic comparison
  between $x$ and $y$ (as $-1$, $0$ or $1$). This is to be interpreted in quite
  a wide sense: It is admissible to compare objects of different types
