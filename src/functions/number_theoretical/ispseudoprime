@@ -18,12 +18,13 @@ Doc: true (1) if $x$ is a strong pseudo
  The function accepts vector/matrices arguments, and is then applied
  componentwise.
 
- If $\fl = 0$, checks whether $x$ is a Baillie-Pomerance-Selfridge-Wagstaff
- pseudo prime (strong Rabin-Miller pseudo prime for base $2$, followed by
- strong Lucas test for the sequence $(P,-1)$, $P$ smallest positive integer
- such that $P^2 - 4$ is not a square mod $x$).
+ If $\fl = 0$, checks whether $x$ has no small prime divisors (up to $101$
+ included) and is a Baillie-Pomerance-Selfridge-Wagstaff pseudo prime.
+ Such a pseudo prime passes a Rabin-Miller test for base $2$,
+ followed by a Lucas test for the sequence $(P,-1)$, $P$ smallest
+ positive integer such that $P^2 - 4$ is not a square mod $x$).
 
- There are no known composite numbers passing this test, although it is
+ There are no known composite numbers passing the above test, although it is
  expected that infinitely many such numbers exist. In particular, all
  composites $\leq 2^{64}$ are correctly detected (checked using
  \url{http://www.cecm.sfu.ca/Pseudoprimes/index-2-to-64.html}).
