@@ -9883,6 +9883,10 @@ returns the \typ{COMPLEX} \kbd{x + I*y}.
 \fun{GEN}{retmkfrac}{GEN x, GEN y}
 returns the \typ{FRAC} \kbd{x / y}. Assume $x$ and $y$ are coprime and $y > 1$.
 
+\fun{GEN}{retmkrfrac}{GEN x, GEN y}
+returns the \typ{RFRAC} \kbd{x / y}. Assume $x$ and $y$ are coprime and more
+generally that the rational function cannot be simplified.
+
 \fun{GEN}{retmkintmod}{GEN x, GEN y}
 returns the \typ{INTMOD} \kbd{Mod(x, y)}.
 
