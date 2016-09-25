@@ -1455,7 +1455,7 @@ gsubst(GEN x, long v, GEN y)
             z = gerepileupto(av2, z);
           }
         }
-        if (ex) z = gmul(z, monomial(gen_1,ex,vx));
+        if (ex) z = gmul(z, pol_xnall(ex,vx));
         return gerepileupto(av, z);
       }
       switch(ty) /* here vx == v */
@@ -3280,7 +3280,7 @@ _sercoeff(GEN x, long n, long v)
   if (varncmp(w,v) > 0) return N? gen_0: x;
   /* w < v */
   z = multi_coeff(x, n, v, dx);
-  if (ex) z = gmul(z, monomial(gen_1,ex, w));
+  if (ex) z = gmul(z, pol_xnall(ex, w));
   return z;
 }
 

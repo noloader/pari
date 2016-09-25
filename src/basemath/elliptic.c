@@ -1880,7 +1880,7 @@ ellmul_CM(GEN e, GEN z, GEN n)
     do
     {
       ep = (-valp(z2)) >> 1;
-      ss = gadd(ss, gmul(gel(z2,2), monomial(gen_1, ep, 0)));
+      ss = gadd(ss, gmul(gel(z2,2), pol_xnall(ep, 0)));
       z2 = gsub(z2, gmul(gel(z2,2), gpowgs(z1, ep)));
     }
     while (valp(z2) <= 0);
@@ -3642,7 +3642,7 @@ ellsigma(GEN w, GEN z, long flag, long prec0)
     P = ellwpseries_aux(c4,c6, vy, lg(y)-2);
     P = integser(gneg(P)); /* \zeta' = - \wp*/
     /* (log \sigma)' = \zeta; remove log-singularity first */
-    P = integser(gsub(P, monomial(gen_1,-1,vy)));
+    P = integser(gsub(P, pol_xnall(-1,vy)));
     P = gexp(P, prec0);
     setvalp(P, valp(P)+1);
     Q = gsubst(P, varn(P), y);

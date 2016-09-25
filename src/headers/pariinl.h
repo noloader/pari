@@ -20,6 +20,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
   do { GEN _v = cgetg(3, t_FRAC);\
        gel(_v,1) = (x);\
        gel(_v,2) = (y); return _v; } while(0)
+#define retmkrfrac(x,y)\
+  do { GEN _v = cgetg(3, t_RFRAC);\
+       gel(_v,1) = (x);\
+       gel(_v,2) = (y); return _v; } while(0)
 #define retmkintmod(x,y)\
   do { GEN _v = cgetg(3, t_INTMOD);\
        gel(_v,1) = (y);\
@@ -263,6 +267,13 @@ pol_xn(long n, long v) {
   p[1] = evalsigne(1)|evalvarn(v);
   for (i = 2; i < a; i++) gel(p,i) = gen_0;
   gel(p,a) = gen_1; return p;
+}
+/* x^n, no assumption on n */
+INLINE GEN
+pol_xnall(long n, long v)
+{
+  if (n < 0) retmkrfrac(gen_1, pol_xn(-n,v));
+  return pol_xn(n, v);
 }
 INLINE GEN
 pol_1(long v) {

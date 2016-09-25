@@ -813,7 +813,9 @@ Xadic_lindep(GEN x)
   if (lx == 1) return cgetg(1,t_COL);
   vx = gvar(x);
   v = gvaluation(x, pol_x(vx));
-  if (v) x = gmul(x, monomial(gen_1, -v, vx)); else x = shallowcopy(x);
+  if (!v)         x = shallowcopy(x);
+  else if (v > 0) x = gdiv(x, pol_xn(v, vx));
+  else            x = gmul(x, pol_xn(-v, vx));
   /* all t_SER have valuation >= 0 */
   for (i=1; i<lx; i++)
   {

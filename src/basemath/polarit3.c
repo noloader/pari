@@ -458,50 +458,48 @@ FqXY_eval(GEN Q, GEN y, GEN x, GEN T, GEN p)
 GEN
 monomial(GEN a, long d, long v)
 {
-  long i, lP = d+3;
+  long i, n;
   GEN P;
   if (d < 0) {
     if (isrationalzero(a)) return pol_0(v);
-    P = cgetg(3, t_RFRAC);
-    gel(P,1) = a;
-    gel(P,2) = pol_xn(-d, v);
-  } else {
-    P = cgetg(lP, t_POL);
-    if (gequal0(a))
-    {
-      if (isexactzero(a)) return scalarpol_shallow(a,v);
-      P[1] = evalsigne(0) | evalvarn(v);
-    }
-    else
-      P[1] = evalsigne(1) | evalvarn(v);
-    lP--; gel(P,lP) = a;
-    for (i=2; i<lP; i++) gel(P,i) = gen_0;
+    retmkrfrac(a, pol_xn(-d, v));
   }
-  return P;
+  if (gequal0(a))
+  {
+    if (isexactzero(a)) return scalarpol_shallow(a,v);
+    n = d+2; P = cgetg(n+1, t_POL);
+    P[1] = evalsigne(0) | evalvarn(v);
+  }
+  else
+  {
+    n = d+2; P = cgetg(n+1, t_POL);
+    P[1] = evalsigne(1) | evalvarn(v);
+  }
+  for (i = 2; i < n; i++) gel(P,i) = gen_0;
+  gel(P,i) = a; return P;
 }
 GEN
 monomialcopy(GEN a, long d, long v)
 {
-  long i, lP = d+3;
+  long i, n;
   GEN P;
   if (d < 0) {
     if (isrationalzero(a)) return pol_0(v);
-    P = cgetg(3, t_RFRAC);
-    gel(P,1) = gcopy(a);
-    gel(P,2) = pol_xn(-d, v);
-  } else {
-    P = cgetg(lP, t_POL);
-    if (gequal0(a))
-    {
-      if (isexactzero(a)) return scalarpol(a,v);
-      P[1] = evalsigne(0) | evalvarn(v);
-    }
-    else
-      P[1] = evalsigne(1) | evalvarn(v);
-    lP--; gel(P,lP) = gcopy(a);
-    for (i=2; i<lP; i++) gel(P,i) = gen_0;
+    retmkrfrac(gcopy(a), pol_xn(-d, v));
   }
-  return P;
+  if (gequal0(a))
+  {
+    if (isexactzero(a)) return scalarpol(a,v);
+    n = d+2; P = cgetg(n+1, t_POL);
+    P[1] = evalsigne(0) | evalvarn(v);
+  }
+  else
+  {
+    n = d+2; P = cgetg(n+1, t_POL);
+    P[1] = evalsigne(1) | evalvarn(v);
+  }
+  for (i = 2; i < n; i++) gel(P,i) = gen_0;
+  gel(P,i) = gcopy(a); return P;
 }
 GEN
 pol_x_powers(long N, long v)
