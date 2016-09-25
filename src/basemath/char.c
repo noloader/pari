@@ -684,7 +684,7 @@ znconreyexp(GEN bid, GEN x)
 {
   pari_sp av = avma;
   long i, l;
-  GEN L, pe, gen, cycg, v;
+  GEN N, L, pe, gen, cycg, v, vmod;
   int e2;
   switch(typ(x))
   {
@@ -701,7 +701,8 @@ znconreyexp(GEN bid, GEN x)
   gen = gel(L,4); /* local generators of (Z/p^k)^* */
   cycg = bidZ_get_cycg(bid);
   l = lg(x); v = cgetg(l, t_VEC);
-  e2 = !mod8(bid_get_ideal(bid)); /* 2 generators at p = 2 */
+  N = bid_get_ideal(bid);
+  e2 = !mod8(N); /* 2 generators at p = 2 */
   for (i = 1; i < l; i++)
   {
     GEN q, g, m;
@@ -715,7 +716,11 @@ znconreyexp(GEN bid, GEN x)
   }
   if (e2) v = vecsplice(v, 1);
   v = chinese1_coprime_Z(v);
-  return gerepilecopy(av, gel(v,2));
+  vmod = gel(v,1);
+  v = gel(v,2);
+  if (mpodd(v) || mpodd(N)) return gerepilecopy(av, v);
+  /* handle N = 2 mod 4 */
+  return gerepileuptoint(av, addii(v, vmod));
 }
 
 /* Return Dirichlet character \chi_q(m,.), where bid = znstar(q);

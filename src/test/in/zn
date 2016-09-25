@@ -181,3 +181,7 @@ zncharinduce(G,1,G2)
 
 G=idealstar(,30);
 znconreyconductor(G, 29)
+
+G=idealstar(,46);
+chi=znconreychar(G,45)
+znconreyexp(G,chi)
