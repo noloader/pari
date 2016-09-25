@@ -1858,20 +1858,20 @@ ellrandom(GEN E)
   }
 }
 
-/* n t_QUAD or t_COMPLEX, z != [0] */
+/* n t_QUAD or t_COMPLEX, P != [0] */
 static GEN
-ellmul_CM(GEN e, GEN z, GEN n)
+ellmul_CM(GEN e, GEN P, GEN n)
 {
   GEN p1p, q1p, x, y, p0, p1, q0, q1, z1, z2, grdx, b2ov12, N = gnorm(n);
-  long ln, ep, vn;
+  long ln, vn;
 
   if (typ(N) != t_INT)
     pari_err_TYPE("ellmul (non integral CM exponent)",N);
-  ln = itos_or_0(shifti(addsi(1, N), 3));
+  ln = itos_or_0(shifti(addiu(N, 1UL), 3));
   if (!ln) pari_err_OVERFLOW("ellmul_CM [norm too large]");
   vn = ((ln>>1)-4)>>2;
   z1 = ellwpseries(e, 0, ln);
-  z2 = gsubst(z1, 0, monomial(n, 1, 0));
+  z2 = ser_unscale(z1, n);
   p0 = gen_0; p1 = gen_1;
   q0 = gen_1; q1 = gen_0;
   do
@@ -1879,7 +1879,7 @@ ellmul_CM(GEN e, GEN z, GEN n)
     GEN p2,q2, ss = gen_0;
     do
     {
-      ep = (-valp(z2)) >> 1;
+      long ep = (-valp(z2)) >> 1;
       ss = gadd(ss, gmul(gel(z2,2), pol_xnall(ep, 0)));
       z2 = gsub(z2, gmul(gel(z2,2), gpowgs(z1, ep)));
     }
@@ -1893,8 +1893,8 @@ ellmul_CM(GEN e, GEN z, GEN n)
   if (degpol(p1) > vn || signe(z2))
     pari_err_TYPE("ellmul [not a complex multiplication]", n);
   q1p = RgX_deriv(q1);
-  b2ov12 = gdivgs(ell_get_b2(e), 12); /* x - b2/12 */
-  grdx = gadd(gel(z,1), b2ov12);
+  b2ov12 = gdivgs(ell_get_b2(e), 12);
+  grdx = gadd(gel(P,1), b2ov12); /* x(P) + b2/12 */
   q1 = poleval(q1, grdx);
   if (gequal0(q1)) return ellinf();
 
@@ -1906,7 +1906,7 @@ ellmul_CM(GEN e, GEN z, GEN n)
   x = gdiv(p1,q1);
   y = gdiv(gsub(gmul(p1p,q1), gmul(p1,q1p)), gmul(n,gsqr(q1)));
   x = gsub(x, b2ov12);
-  y = gsub( gmul(ec_dmFdy_evalQ(e,z), y), ec_h_evalx(e,x));
+  y = gsub( gmul(ec_dmFdy_evalQ(e,P), y), ec_h_evalx(e,x));
   return mkvec2(x, gmul2n(y,-1));
 }
 
