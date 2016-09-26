@@ -34,7 +34,7 @@ test([1], [1], z + 1)  \\ expect [1, z], currently returns [1, 0]
 test([1], [x], 1)
 test([1], [x], x)
 test([1], [x], y)
-test([1], [x], z)      \\ expect [x, z], currently returns [x, x]
+test([1], [x], z)
 test([1], [x], z + 1)  \\ expect [x, z], currently returns [x, x]
 
 test([0, 1], [0, x], 1)
