@@ -86,26 +86,23 @@ multi-thread engine. If this flag is set, \kbd{pari\_mt\_init()} will need to
 be called manually. See \kbd{examples/pari-mt.c} for an example.
 
   \kbd{INIT\_noINTGMPm}: do not install PARI-specific GMP memory functions.
-This option is ignored when the GMP library is not in use.
-
-Note that it is possible to install the PARI-specific GMP memory functions
-later by calling
+This option is ignored when the GMP library is not in use. You may
+install PARI-specific GMP memory functions later by calling
 
 \fun{void}{pari_kernel_init}{void}
 
-and to restore the previous values using
+\noindent and restore the previous values using
 
 \fun{void}{pari_kernel_close}{void}
 
-This option should not be used. It is at best a band-aid.
-The GMP memory functions are global variables used by the GMP library.
-If a program is linked with two libraries that require these variables to be
-set to different values, conflict ensues. To avoid such conflict, the proper
-solution is to record their values with \kbd{mp\_get\_memory\_functions} and
-to call \kbd{mp\_set\_memory\_functions} to restore the expected values
-each time the code switches from using one library to the other.
-
-Example
+This option should not be used without a thorough understanding of the
+problem you are trying to solve. The GMP memory functions are global
+variables used by the GMP library. If your program is linked with two
+libraries that require these variables to be set to different values,
+conflict ensues. To avoid a conflict, the proper solution is to record
+their values with \kbd{mp\_get\_memory\_functions} and to call
+\kbd{mp\_set\_memory\_functions} to restore the expected values each time the
+code switches from using one library to the other. Here is an example:
 \bprog
 void *(*pari_alloc_ptr) (size_t);
 void *(*pari_realloc_ptr) (void *, size_t, size_t);
