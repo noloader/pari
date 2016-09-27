@@ -2,10 +2,10 @@ Function: bnflogef
 Section: number_fields
 C-Name: bnflogef
 Prototype: GG
-Help: bnflogef(bnf,pr): return [e~, f~] the logarithmic ramification and
+Help: bnflogef(nf,pr): return [e~, f~] the logarithmic ramification and
  residue degrees for the maximal ideal pr.
-Doc: let \var{bnf} be the data output by \kbd{bnfinit} attached to the number
- field $F$, and let \var{pr} be a \kbd{prid} structure attached to the
+Doc: let $F$ be a number field represented by the \var{nf} structure,
+ and let \var{pr} be a \kbd{prid} structure attached to the
  maximal ideal $\goth{p} / p$. Return
  $[\tilde{e}(F_\goth{p} / \Q_p), \tilde{f}(F_\goth{p} / \Q_p)]$
  the logarithmic ramification and residue degrees. Let $\Q_p^c/\Q_p$ be the
@@ -15,7 +15,7 @@ Doc: let \var{bnf} be the data output by \kbd{bnfinit} attached to the number
  $\tilde{e}\tilde{f} = e(\goth{p}/p) f(\goth{p}/p)$, where $e,f$ denote the
  usual ramification and residue degrees.
  \bprog
- ? F = bnfinit(y^6 - 3*y^5 + 5*y^3 - 3*y + 1);
+ ? F = nfinit(y^6 - 3*y^5 + 5*y^3 - 3*y + 1);
  ? bnflogef(F, idealprimedec(F,2)[1])
  %2 = [6, 1]
  ? bnflogef(F, idealprimedec(F,5)[1])

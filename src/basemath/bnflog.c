@@ -399,19 +399,23 @@ bnflog(GEN bnf, GEN ell)
 }
 
 GEN
-bnflogef(GEN bnf, GEN pr)
+bnflogef(GEN nf, GEN pr)
 {
   pari_sp av = avma;
-  GEN T, K;
-  long et, ft, j;
-  checkbnf(bnf);
-  checkprid(pr);
-  K = checknf(bnf);
-  T = gel(factorpadic(nf_get_pol(K), pr_get_p(pr), 100), 1);
-  j = get_ZpX_index(K, pr, T);
-  et = etilde(bnf, pr, gel(T,j));
-  ft = ftilde_from_e(pr, et);
-  avma = av; return mkvec2s(et, ft);
+  long e, f, ef;
+  GEN p;
+  checkprid(pr); p = pr_get_p(pr);
+  nf = checknf(nf);
+  e = pr_get_e(pr);
+  f = pr_get_f(pr); ef = e*f;
+  if (u_pval(ef, p))
+  {
+    GEN T = gel(factorpadic(nf_get_pol(nf), p, 100), 1);
+    long j = get_ZpX_index(nf, pr, T);
+    e = etilde(nf, pr, gel(T,j));
+    f = ef / e;
+  }
+  avma = av; return mkvec2s(e,f);
 }
 
 GEN
