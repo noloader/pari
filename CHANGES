@@ -80,7 +80,7 @@ BA 39- [libpari] FpXQX_split_part
 BA 40- [libpari] ZpXQX_roots, ZqX_roots, ZqX_liftfact, ZqX_liftroot,
                  Zq_sqrtnlift
    41- [libpari] hash_dbg
-   42- [libpari] Qdivii
+   42- [libpari] Qdivii, ceildivuu
    43- GP function ellintegralmodel
    44- [libpari] ZM_hnf_knapsack
    45- [libpari] pol_xn, pol_xnall, retmkrfrac

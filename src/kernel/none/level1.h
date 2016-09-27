@@ -664,6 +664,13 @@ udivuu_rem(ulong x, ulong y, ulong *r)
   if (!y) pari_err_INV("udivuu_rem",gen_0);
   *r = x % y; return x / y;
 }
+INLINE ulong
+ceildivuu(ulong a, ulong b)
+{
+  ulong c = a/b;
+  return (a%b)? c+1: c;
+}
+
 
 INLINE ulong
 udivui_rem(ulong x, GEN y, ulong *r)

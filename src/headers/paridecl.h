@@ -4410,6 +4410,7 @@ INLINE ulong  dvmduBIL(ulong n, ulong *r);
 INLINE int    equalis(GEN x, long y);
 INLINE int    equalsi(long x, GEN y);
 INLINE int    absequalui(ulong x, GEN y);
+INLINE ulong  ceildivuu(ulong a, ulong b);
 INLINE long   evalexpo(long x);
 INLINE long   evallg(long x);
 INLINE long   evalprecp(long x);

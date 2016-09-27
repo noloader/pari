@@ -54,14 +54,6 @@ typedef struct {
 
 #undef CHECK
 
-static long
-ceildiv(ulong a, ulong b)
-{
-  long c = a/b;
-  if (a%b) c++;
-  return c;
-}
-
 /* Eval P(x) assuming P has positive coefficients and the result is a long */
 static ulong
 ZX_z_eval(GEN P, ulong x)
@@ -736,7 +728,7 @@ GetRamifiedPol(GEN p, GEN efj, long flag)
   data.q   = powiu(p, f);
   data.qm1 = subis(data.q, 1);
   data.v   = v;
-  data.r   = 1 + ceildiv(2*j + 3, e); /* enough precision */
+  data.r   = 1 + (long)ceildivuu(2*j + 3, e); /* enough precision */
   data.pr  = powiu(p, data.r);
   data.nbext = NumberExtensions(&data);
 
