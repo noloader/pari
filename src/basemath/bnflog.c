@@ -16,36 +16,36 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 /*******************************************************************/
 /*                  LOGARITHMIC CLASS GROUP                        */
 /*******************************************************************/
-
-/* the \tilde{h} function */
-static GEN
-htilde(GEN K, GEN pr, GEN T, GEN a)
-{
-  GEN ell = pr_get_p(pr), N, L;
-  long e = pr_get_e(pr), f = pr_get_f(pr);
-  a = nf_to_scalar_or_alg(K, a);
-  N = RgXQ_norm(a, T);
-  if (typ(N) != t_PADIC) N = cvtop(N, ell, padicprec(T,ell));
-  L = equaliu(ell,2)? utoipos(4): ell;
-  return gdiv(Qp_log(N), mului(e*f,L));
-}
-/* Given K a number field, pr a maximal ideal, let K_pr be the attached local
+/* K number field, pr a maximal ideal, let K_pr be the attached local
  * field, K_pr = Q_p[X] / (T), T irreducible. Return \tilde{e}(K_pr/Q_p) */
 static long
-etilde(GEN K, GEN pr, GEN T)
+etilde(GEN nf, GEN pr, GEN T)
 {
-  GEN ell = pr_get_p(pr), pi = pr_get_gen(pr);
-  ulong e = pr_get_e(pr);
-  long k = 2 + sdivsi(e, subiu(ell,1));
-  GEN U = idealprincipalunits(K, pr, k);
-  GEN L = shallowconcat(mkvec(pi), abgrp_get_gen(U));
-  long i, lL = lg(L);
-  GEN nf, v = cgetg(lL, t_VECSMALL);
+  GEN val, ell = pr_get_p(pr), L = mkvec( pr_get_gen(pr) );
+  ulong e = pr_get_e(pr), ef = degpol(T);
+  long v, i, n, k = 1 + sdivsi(e, subiu(ell,1));
 
-  nf = checknf(K);
-  for (i = 1; i < lL; i++) v[i] = valp(htilde(nf,pr,T,gel(L,i)));
+  nf = checknf(nf);
+  if (k > 1)
+  {
+    GEN U = idealprincipalunits(nf, pr, k);
+    L = shallowconcat(L, abgrp_get_gen(U));
+  }
+  n = lg(L);
+  val = cgetg(n+1, t_VECSMALL);
+  for (i = 1; i < n; i++)
+  {
+    GEN a = nf_to_scalar_or_alg(nf, gel(L,i));
+    GEN N = RgXQ_norm(a, T);
+    if (typ(N) != t_PADIC) N = cvtop(N, ell, padicprec(T,ell));
+    val[i] = valp(Qp_log(N));
+  }
+  /* log Norm_{F_P/Q_p} (1 + P^k) = Tr(P^k) = p^[(k + v(Diff))/ e] Z_p */
+  val[n] = (k + idealval(nf, nf_get_diff(nf), pr)) / e;
+  v = -vecsmall_min(val) + u_pval(ef, ell) + (equaliu(ell,2)? 2 : 1);
+  /* p^v = [h(F_P):Z_p] */
   (void)u_pvalrem(e, ell, &e);
-  return itou( mului(e, powiu(ell, -vecsmall_min(v))) );
+  return itou( mului(e, powiu(ell, v)) );
 }
 static long
 ftilde_from_e(GEN pr, long e) { return pr_get_e(pr) * pr_get_f(pr) / e; }
