@@ -686,20 +686,20 @@ znconreyexp(GEN bid, GEN x)
   long i, l;
   GEN N, L, pe, gen, cycg, v, vmod;
   int e2;
+  if (!checkbidZ_i(bid)) pari_err_TYPE("znconreyexp", bid);
+  cycg = bidZ_get_cycg(bid);
   switch(typ(x))
   {
     case t_VEC:
       x = znconreylog(bid, x);
       break;
     case t_COL:
-      if (!checkbidZ_i(bid)) pari_err_TYPE("znconreyexp", bid);
-      if (RgV_is_ZV(x)) break;
+      if (RgV_is_ZV(x) && lg(x) == lg(cycg)) break;
     default: pari_err_TYPE("znconreyexp",x);
   }
   L = gel(bid,4);
   pe = gel(L,1);
   gen = gel(L,4); /* local generators of (Z/p^k)^* */
-  cycg = bidZ_get_cycg(bid);
   l = lg(x); v = cgetg(l, t_VEC);
   N = bid_get_ideal(bid);
   e2 = !mod8(N); /* 2 generators at p = 2 */

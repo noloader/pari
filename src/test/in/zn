@@ -86,6 +86,9 @@ znconreychar(G,7)
 vector(4, i, zncharisodd(G,2*i-1))
 forstep(i=1,8,2,if(znconreyexp(G, znconreylog(G, i)) != i, error(i)));
 
+G=idealstar(,192);
+znconreyexp(G, [2,8,1,1]~) \\ BIG
+
 G=idealstar(,5);
 vector(4,i,znconreychar(G,i))
 
