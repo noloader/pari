@@ -84,6 +84,9 @@ _MAT).")
 [0, 1]
 [1, 0]
 [0, 1, 0, 1]
+  ***   at top-level: znconreyexp(G,[2,8,1
+  ***                 ^--------------------
+  *** znconreyexp: incorrect type in znconreyexp (t_COL).
 [[0], [1], [3], [2]]
 [0, 0]
 [1, 1]
@@ -185,4 +188,4 @@ x^2
 [15, [3, 1; 5, 1]]
 [11]
 45
-Total time spent: 1403
+Total time spent: 1436
