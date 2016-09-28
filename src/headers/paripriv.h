@@ -430,7 +430,6 @@ must be given as first argument to all PARI readline functions. */
 /* PROBABLY NOT IN THE RIGHT FILE, SORT BY THEME */
 
 /* multiprecision */
-GEN   addrex01(GEN x);
 GEN   adduispec_offset(ulong s, GEN x, long offset, long nx);
 int   lgcdii(ulong* d, ulong* d1, ulong* u, ulong* u1, ulong* v, ulong* v1, ulong vmax);
 ulong rgcduu(ulong d, ulong d1, ulong vmax, ulong* u, ulong* u1, ulong* v, ulong* v1, long *s);
@@ -441,7 +440,6 @@ GEN   divrunu(GEN x, ulong i);
 GEN   muliispec(GEN x, GEN y, long nx, long ny);
 GEN   red_montgomery(GEN T, GEN N, ulong inv);
 GEN   sqrispec(GEN x, long nx);
-GEN   subrex01(GEN x);
 GEN   modr_safe(GEN x, GEN y);
 ulong *convi(GEN x, long *l);
 
