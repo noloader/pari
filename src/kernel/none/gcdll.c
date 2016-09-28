@@ -435,40 +435,21 @@ cbezout(long a,long b,long *uu,long *vv)
   ulong d = labs(a), d1 = labs(b);
   ulong r,u,u1,v,v1;
 
-#ifdef DEBUG_CBEZOUT
-  err_printf("> cbezout(%ld,%ld,%p,%p)\n", a, b, (void *)uu, (void *)vv);
-#endif
   if (!b)
   {
     *vv=0L;
-    if (!a)
-    {
-      *uu=1L;
-#ifdef DEBUG_CBEZOUT
-      err_printf("< %ld (%ld, %ld)\n", 1L, *uu, *vv);
-#endif
-      return 0L;
-    }
+    if (!a) { *uu=1L; return 0L; }
     *uu = a < 0 ? -1L : 1L;
-#ifdef DEBUG_CBEZOUT
-    err_printf("< %ld (%ld, %ld)\n", (long)d, *uu, *vv);
-#endif
     return (long)d;
   }
   else if (!a || (d == d1))
   {
     *uu = 0L; *vv = b < 0 ? -1L : 1L;
-#ifdef DEBUG_CBEZOUT
-    err_printf("< %ld (%ld, %ld)\n", (long)d1, *uu, *vv);
-#endif
     return (long)d1;
   }
   else if (d == 1)                /* frequently used by nfinit */
   {
     *uu = a; *vv = 0L;
-#ifdef DEBUG_CBEZOUT
-    err_printf("< %ld (%ld, %ld)\n", 1L, *uu, *vv);
-#endif
     return 1L;
   }
   else if (d < d1)
@@ -478,9 +459,6 @@ cbezout(long a,long b,long *uu,long *vv)
     { long _x = a; a = b; b = _x; }        /* in order to keep the right signs */
     r = d; d = d1; d1 = r;
     t = uu; uu = vv; vv = t;
-#ifdef DEBUG_CBEZOUT
-    err_printf("  swapping\n");
-#endif
   }
   /* d > d1 > 0 */
   r = xxgcduu(d, d1, 0, &u, &u1, &v, &v1, &s);
@@ -494,9 +472,6 @@ cbezout(long a,long b,long *uu,long *vv)
     *uu = a < 0 ? -(long)u : (long)u;
     *vv = b < 0 ? (long)v : -(long)v;
   }
-#ifdef DEBUG_CBEZOUT
-  err_printf("< %ld (%ld, %ld)\n", (long)r, *uu, *vv);
-#endif
   return (long)r;
 }
 
@@ -550,7 +525,6 @@ cbezout(long a,long b,long *uu,long *vv)
  * Note that this routine does not know and does not need to know about the
  * PARI stack.
  */
-/*#define DEBUG_LEHMER 1 */
 int
 lgcdii(ulong* d, ulong* d1,
        ulong* u, ulong* u1, ulong* v, ulong* v1,
@@ -593,9 +567,6 @@ lgcdii(ulong* d, ulong* d1,
   LOCAL_OVERFLOW;
   LOCAL_HIREMAINDER;
 
-#ifdef DEBUG_LEHMER
-  voir(d, -1); voir(d1, -1);
-#endif
   /* following is just for convenience: vmax==0 means no bound */
   if (vmax == 0) vmax = ULONG_MAX;
   ld = lgefint(d); ld1 = lgefint(d1); lz = ld - ld1; /* >= 0 */
@@ -648,9 +619,6 @@ lgcdii(ulong* d, ulong* d1,
     /* assume again that d has another significant word */
     dd = *d; ddlo = dm1;
   }
-#ifdef DEBUG_LEHMER
-  err_printf("  %lx:%lx, %lx:%lx\n", dd, ddlo, dd1, dd1lo);
-#endif
 
   /* First subtraction/division stage.  (If a subtraction initially suffices,
    * we don't divide at all.)  If a Jebelean condition is violated, and we
@@ -711,9 +679,6 @@ lgcdii(ulong* d, ulong* d1,
     } /* if !(Jebelean) then */
   }
   res = 1;
-#ifdef DEBUG_LEHMER
-  err_printf("  q = %ld, %lx, %lx\n", xv1, dd1, dd);
-#endif
   if (xv1 > vmax)
   {                                /* gone past the bound already */
     *u = 0UL; *u1 = 1UL; *v = 1UL; *v1 = xv1;
@@ -758,9 +723,6 @@ lgcdii(ulong* d, ulong* d1,
       tmpd = dd1 - dd;
       if (tmpd < dd)
       {                                /* quotient suspected to be 1 */
-#ifdef DEBUG_LEHMER
-        q = 1;
-#endif
         tmpu = xu + xu1;        /* cannot overflow -- everything bounded by
                                  * the original dd during first loop */
         tmpv = xv + xv1;
@@ -782,10 +744,6 @@ lgcdii(ulong* d, ulong* d1,
       {                                /* commit dd1, xu, xv */
         res++;
         dd1 = tmpd; xu = tmpu; xv = tmpv;
-#ifdef DEBUG_LEHMER
-        err_printf("  q = %ld, %lx, %lx [%lu,%lu;%lu,%lu]\n",
-                   q, dd, dd1, xu1, xu, xv1, xv);
-#endif
         if (xv > vmax)
         {                        /* time to return */
           *u = xu1; *u1 = xu; *v = xv1; *v1 = xv;
@@ -798,9 +756,6 @@ lgcdii(ulong* d, ulong* d1,
       tmpd = dd - dd1;
       if (tmpd < dd1)
       {                                /* quotient suspected to be 1 */
-#ifdef DEBUG_LEHMER
-        q = 1;
-#endif
         tmpu = xu1 + xu;        /* cannot overflow */
         tmpv = xv1 + xv;
       }
@@ -821,10 +776,6 @@ lgcdii(ulong* d, ulong* d1,
       {                                /* commit dd, xu1, xv1 */
         res++;
         dd = tmpd; xu1 = tmpu; xv1 = tmpv;
-#ifdef DEBUG_LEHMER
-        err_printf("  q = %ld, %lx, %lx [%lu,%lu;%lu,%lu]\n",
-                q, dd1, dd, xu, xu1, xv, xv1);
-#endif
         if (xv1 > vmax)
         {                        /* time to return */
           *u = xu; *u1 = xu1; *v = xv; *v1 = xv1;
@@ -868,9 +819,6 @@ lgcdii(ulong* d, ulong* d1,
       dd1 += subllx(hiremainder, tmp0);
       ddlo = tmp1;
     }
-#ifdef DEBUG_LEHMER
-    err_printf("  %lx:%lx, %lx:%lx\n", dd, ddlo, dd1, dd1lo);
-#endif
   } /* end of skip-pable section:  get here also, with res==1, when there
      * was a problem immediately after the very first division. */
 
@@ -904,12 +852,7 @@ lgcdii(ulong* d, ulong* d1,
    * was odd.  To cater for this, if res is actually even, we swap things
    * around during reshifting.  (During the second loop, the parity of res
    * does not matter;  we know in which half of the loop we are when we decide
-   * to return.)
-   */
-#ifdef DEBUG_LEHMER
-  err_printf("(sh)");
-#endif
-
+   * to return.) */
   if (res&1)
   {                                /* after odd number of division(s) */
     if (dd1 && (sh = bfffo(dd1)))
@@ -962,15 +905,9 @@ lgcdii(ulong* d, ulong* d1,
     }
   } /* end reshift */
 
-#ifdef DEBUG_LEHMER
-  err_printf("  %lx:%lx, %lx:%lx\n", dd, ddlo, dd1, dd1lo);
-#endif
-
   /* The Second Loop.  Rip-off of the first, but we now check for overflow
    * in the recurrences.  Returns instead of breaking when we cannot fix the
-   * quotient any longer.
-   */
-
+   * quotient any longer. */
   for(;;)
   {
     /* First half of loop divides dd into dd1, and leaves the recurrence
@@ -979,9 +916,6 @@ lgcdii(ulong* d, ulong* d1,
     tmpd = dd1 - dd;
     if (tmpd < dd)
     {                                /* quotient suspected to be 1 */
-#ifdef DEBUG_LEHMER
-      q = 1;
-#endif
       tmpu = xu + xu1;
       tmpv = addll(xv, xv1);        /* xv,xv1 will overflow first */
       tmp1 = overflow;
@@ -1007,9 +941,6 @@ lgcdii(ulong* d, ulong* d1,
     /* commit dd1, xu, xv */
     res++;
     dd1 = tmpd; xu = tmpu; xv = tmpv;
-#ifdef DEBUG_LEHMER
-    err_printf("  q = %ld, %lx, %lx\n", q, dd, dd1);
-#endif
     if (xv > vmax)
     {                                /* time to return */
       *u = xu1; *u1 = xu; *v = xv1; *v1 = xv;
@@ -1021,9 +952,6 @@ lgcdii(ulong* d, ulong* d1,
     tmpd = dd - dd1;
     if (tmpd < dd1)
     {                                /* quotient suspected to be 1 */
-#ifdef DEBUG_LEHMER
-      q = 1;
-#endif
       tmpu = xu1 + xu;
       tmpv = addll(xv1, xv);
       tmp1 = overflow;
@@ -1050,9 +978,6 @@ lgcdii(ulong* d, ulong* d1,
 
     res++; /* commit dd, xu1, xv1 */
     dd = tmpd; xu1 = tmpu; xv1 = tmpv;
-#ifdef DEBUG_LEHMER
-    err_printf("  q = %ld, %lx, %lx\n", q, dd1, dd);
-#endif
     if (xv1 > vmax)
     {                                /* time to return */
       *u = xu; *u1 = xu1; *v = xv; *v1 = xv1;

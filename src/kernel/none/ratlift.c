@@ -43,8 +43,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
  }
  * Preprint available from:
  * ftp://ftp.risc.uni-linz.ac.at/pub/techreports/1994/94-64.ps.gz */
-
-/* #define DEBUG_RATLIFT */
 static ulong
 get_vmax(GEN r, long lb, long lbb)
 {
@@ -63,9 +61,6 @@ get_vmax(GEN r, long lb, long lbb)
     else
       vmax = 1UL << (lr-1); /* pessimistic but faster than a division */
   }
-#ifdef DEBUG_RATLIFT
-  err_printf("rl-fs: vmax=%lu\n", vmax);
-#endif
   return vmax;
 }
 
@@ -194,9 +189,6 @@ Fp_ratlift(GEN x, GEN m, GEN amax, GEN bmax, GEN *a, GEN *b)
     if (lhmres <= 0 && signe(d1))
     {
       q = dvmdii(d,d1,&r);
-#ifdef DEBUG_LEHMER
-      err_printf("Full division:\n  q = %Ps\n", q);
-#endif
       d = d1; d1 = r;
       r = addii(v, mulii(q,v1));
       v = v1; v1 = r;
@@ -230,19 +222,11 @@ Fp_ratlift(GEN x, GEN m, GEN amax, GEN bmax, GEN *a, GEN *b)
     /* Assertions: lgefint(d)==lgefint(d1)==3.
      * Moreover, we aren't done already, or we would have returned by now.
      * Recompute vmax */
-#ifdef DEBUG_RATLIFT
-    err_printf("rl-fs: d,d1=%Ps,%Ps\n", d, d1);
-    err_printf("rl-fs: v,v1=%Ps,%Ps\n", v, v1);
-#endif
     r = addii(v,v1);
     if (cmpii(r,bmax) > 0) { avma = av; return 0; } /* done, not found */
     vmax = get_vmax(r, lb, lbb);
     /* single-word "Lehmer", discarding the gcd or whatever it returns */
     (void)rgcduu((ulong)*int_MSW(d), (ulong)*int_MSW(d1), vmax, &xu, &xu1, &xv, &xv1, &s0);
-#ifdef DEBUG_RATLIFT
-    err_printf("rl-fs: [%lu,%lu; %lu,%lu] %s\n",
-               xu, xu1, xv, xv1, s0 < 0 ? "-" : "+");
-#endif
     if (xv1 == 1) /* avoid multiplications */
     { /* re-use r = v+v1 computed above */
       v = v1; v1 = r;

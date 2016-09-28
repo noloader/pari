@@ -51,10 +51,6 @@ invmod(GEN a, GEN b, GEN *res)
         { *res = absi(b); return 0; }
     }
     g = xgcduu(uel(b,2), d1, 1, &xv, &xv1, &s);
-#ifdef DEBUG_LEHMER
-    err_printf(" <- %lu,%lu\n", uel(b,2), uel(d1,2));
-    err_printf(" -> %lu,%ld,%lu; %lx\n", g,s,xv1,avma);
-#endif
     avma = av;
     if (g != 1UL) { *res = utoipos(g); return 0; }
     xv = xv1 % uel(b,2); if (s < 0) xv = uel(b,2) - xv;
@@ -65,25 +61,14 @@ invmod(GEN a, GEN b, GEN *res)
   d = absi(b); d1 = modii(a,d);
 
   v=gen_0; v1=gen_1;        /* general case */
-#ifdef DEBUG_LEHMER
-  err_printf("INVERT: -------------------------\n");
-  output(d1);
-#endif
   av1 = avma;
 
   while (lgefint(d) > 3 && signe(d1))
   {
-#ifdef DEBUG_LEHMER
-    err_printf("Calling Lehmer:\n");
-#endif
     lhmres = lgcdii((ulong*)d, (ulong*)d1, &xu, &xu1, &xv, &xv1, ULONG_MAX);
     if (lhmres != 0)                /* check progress */
     {                                /* apply matrix */
-#ifdef DEBUG_LEHMER
-      err_printf("Lehmer returned %d [%lu,%lu;%lu,%lu].\n",
-              lhmres, xu, xu1, xv, xv1);
-#endif
-      if ((lhmres == 1) || (lhmres == -1))
+      if (lhmres == 1 || lhmres == -1)
       {
         if (xv1 == 1)
         {
@@ -106,20 +91,10 @@ invmod(GEN a, GEN b, GEN *res)
         else          { togglesign(d1); togglesign(v1); }
       }
     }
-#ifdef DEBUG_LEHMER
-    else
-      err_printf("Lehmer returned 0.\n");
-    output(d); output(d1); output(v); output(v1);
-    sleep(1);
-#endif
 
     if (lhmres <= 0 && signe(d1))
     {
       q = dvmdii(d,d1,&r);
-#ifdef DEBUG_LEHMER
-      err_printf("Full division:\n");
-      printf("  q = "); output(q); sleep (1);
-#endif
       a = subii(v,mulii(q,v1));
       v=v1; v1=a;
       d=d1; d1=r;
@@ -138,11 +113,6 @@ invmod(GEN a, GEN b, GEN *res)
      * gcd(d,d1) is nonzero and fits into one word
      */
     g = xxgcduu(uel(d,2), uel(d1,2), 1, &xu, &xu1, &xv, &xv1, &s);
-#ifdef DEBUG_LEHMER
-    output(d);output(d1);output(v);output(v1);
-    err_printf(" <- %lu,%lu\n", uel(d,2), uel(d1,2));
-    err_printf(" -> %lu,%ld,%lu; %lx\n", g,s,xv1,avma);
-#endif
     if (g != 1UL) { avma = av; *res = utoipos(g); return 0; }
     /* (From the xgcduu() blurb:)
      * For finishing the multiword modinv, we now have to multiply the
@@ -153,21 +123,10 @@ invmod(GEN a, GEN b, GEN *res)
      */
     v = subii(muliu(v,xu1),muliu(v1,xv1));
     if (s > 0) setsigne(v,-signe(v));
-    avma = av; *res = modii(v,b);
-#ifdef DEBUG_LEHMER
-    output(*res); fprintfderr("============================Done.\n");
-    sleep(1);
-#endif
-    return 1;
+    avma = av; *res = modii(v,b); return 1;
   }
   /* get here when the final sprint was skipped (d1 was zero already) */
   avma = av;
   if (!equalii(d,gen_1)) { *res = icopy(d); return 0; }
-  *res = modii(v,b);
-#ifdef DEBUG_LEHMER
-  output(*res); err_printf("============================Done.\n");
-  sleep(1);
-#endif
-  return 1;
+  *res = modii(v,b); return 1;
 }
-

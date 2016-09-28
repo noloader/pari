@@ -166,10 +166,6 @@ bezout(GEN a, GEN b, GEN *pu, GEN *pv)
     if (lhmres <= 0 && signe(d1))
     {
       q = dvmdii(d,d1,&r);
-#ifdef DEBUG_LEHMER
-      err_printf("Full division:\n");
-      printf("  q = "); output(q); sleep (1);
-#endif
       a = subii(u,mulii(q,u1));
       u=u1; u1=a;
       a = subii(v,mulii(q,v1));
