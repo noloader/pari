@@ -596,6 +596,10 @@ GEN     factor_norm(GEN x);
 GEN     factorbackprime(GEN nf, GEN L, GEN e);
 long    val_norm(GEN x, GEN p, long *vz);
 
+/* bb_group.c */
+
+GEN     producttree_scheme(long n);
+
 /* bibli2.c */
 
 GEN sort_factor_pol(GEN y, int (*cmp)(GEN,GEN));

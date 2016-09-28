@@ -293,17 +293,46 @@ gen_powers(GEN x, long l, int use_sqr, void *E, GEN (*sqr)(void*,GEN),
 }
 
 GEN
+producttree_scheme(long n)
+{
+  GEN v, w;
+  long i, j, k, u, l;
+  if (n<=2) return mkvecsmall(n);
+  u = expu(n-1);
+  v = cgetg(n+1,t_VECSMALL);
+  w = cgetg(n+1,t_VECSMALL);
+  v[1] = n; l = 1;
+  for (i=1; i<=u; i++)
+  {
+    for(j=1, k=1; j<=l; j++, k+=2)
+    {
+      long vj = v[j], v2 = vj>>1;
+      w[k]    = vj-v2;
+      w[k+1]  = v2;
+    }
+    swap(v,w); l<<=1;
+  }
+  fixlg(v, l+1);
+  avma = (pari_sp) v;
+  return v;
+}
+
+GEN
 gen_product(GEN x, void *data, GEN (*mul)(void *,GEN,GEN))
 {
   pari_sp ltop;
-  long i,k,lx = lg(x);
+  long i,k,lx = lg(x),lv;
   pari_timer ti;
+  GEN v;
   if (DEBUGLEVEL>7) timer_start(&ti);
 
   if (lx == 1) return gen_1;
   if (lx == 2) return gcopy(gel(x,1));
   x = leafcopy(x); k = lx;
+  v = producttree_scheme(lx-1); lv = lg(v);
   ltop = avma;
+  for (k=1, i=1; k<lv; i+=v[k++])
+    gel(x,k) = v[k]==1 ? gel(x,i): mul(data,gel(x,i),gel(x,i+1));
   while (k > 2)
   {
     if (DEBUGLEVEL>7)
