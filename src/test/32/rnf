@@ -61,14 +61,11 @@ at(1), Mat(1), Mat(1), 1, Mat(1), [1, 0], []], [0.E-57], [1], Mat(1), Mat(1)
 1]
 [(-2215/3569*y^2 - 69/3569*y + 3319/3569)*x^2 + (2974/3569*y^2 + 2342/3569*y
  - 4756/3569)*x + (2998/3569*y^2 + 580/3569*y - 1571/3569), 1]
-[(-1/5*y^2 - 3/5*y + 2/5)*x^2 + (-1/5*y^2 + 1/5)*x + (-3/5*y^2 + 3/5*y + 8/5
-), 1]
+2
 [x, -1]
   *** rnfisnorm: Warning: useless flag in rnfisnorm: the extension is Galois.
 [1, 2]
-[(-35647198/360375*x^3 - 46646369/360375*x^2 + 960542603/360375*x + 10513626
-43/360375)*t + (3162023/93*x^3 + 1085074/93*x^2 - 115110931/93*x - 123717269
-/93), 30/31*x^3 - 45/31*x^2 - 600/31*x + 447/31]
+-28124/93*x^3 + 14062/31*x^2 + 562480/93*x + 166769/31
 Mod(x^5 + x^2 + 2, x^6 + x^5 + x^4 + x^3 + x^2 + x + 1)
 Mod(z^2, z^3 + z^2 - 2*z - 1)
 [[1, 0, 0; 0, 1, 0; 0, 0, 1], [1, 1, 1]]
@@ -844,4 +841,4 @@ error("inconsistent dimensions in idealtwoelt.")
   ***   at top-level: rnfislocalcyclo(rnfi
   ***                 ^--------------------
   *** rnfislocalcyclo: sorry, rnfislocalcyclo for non-l-extensions is not yet implemented.
-Total time spent: 913
+Total time spent: 712
