@@ -2135,7 +2135,9 @@ idealprincipalunits(GEN nf, GEN pr, long e)
   GEN g, EX, h, L2;
   long cp = 0;
 
-  nf = checknf(nf); pre = idealpows(nf, pr, e);
+  nf = checknf(nf);
+  if (e == 1) { checkprid(pr); retmkvec3(gen_1,cgetg(1,t_VEC),cgetg(1,t_VEC)); }
+  pre = idealpows(nf, pr, e);
   L2 = principal_units(nf, pr, e, pre);
   c = lg(L2); gen = cgetg(c, t_VEC);
   for (j = 1; j < c; j++) gel(gen, j) = gmael(L2,j,2);

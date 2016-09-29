@@ -24,6 +24,7 @@ Mat(vector(#z,i,ideallog(,z.gen[i],z)))
 nfisideal(Qi,matdiagonal([6,12]))
 P = idealprimedec(Qi,2)[1];
 idealprincipalunits(Qi,P,10)
+idealprincipalunits(Qi,P,1)
 idealintersect(Qi, 1/2,1/2)
 ideallog(Q,1/2,idealstar(Q,3,1))
 

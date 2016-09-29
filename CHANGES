@@ -30,6 +30,7 @@ BA 14- [libpari] FqX_nbfact did not work
    21- subst(Pol(1),x,Mod(1,3)) => 1 instead of Mod(1,3)
    22- e=znconreyexp(idealstar(,N),) could give a result with (e,N) = 2 when
        N = 2 (mod 4)
+   23- idealprincipalunits(,,1) not supported [ concat error ]
 
 
   Added
