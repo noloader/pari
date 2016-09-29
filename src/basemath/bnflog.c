@@ -34,9 +34,9 @@ etilde(GEN nf, GEN pr, GEN T)
   L = mkvec( pr_get_gen(pr) );
   k = 1 + sdivsi(e, subiu(ell,1));
   nf = checknf(nf);
-  if (k > 2)
+  if (k > 1)
   {
-    GEN U = idealprincipalunits(nf, pr, k-1);
+    GEN U = idealprincipalunits(nf, pr, k);
     L = shallowconcat(L, abgrp_get_gen(U));
   }
   n = lg(L);
