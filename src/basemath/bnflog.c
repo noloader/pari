@@ -21,14 +21,22 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 static long
 etilde(GEN nf, GEN pr, GEN T)
 {
-  GEN val, ell = pr_get_p(pr), L = mkvec( pr_get_gen(pr) );
-  ulong e = pr_get_e(pr), ef = degpol(T);
-  long v, i, n, k = 1 + sdivsi(e, subiu(ell,1));
+  GEN L, val, ell = pr_get_p(pr);
+  ulong e = pr_get_e(pr), ef;
+  long v, i, n, k;
 
-  nf = checknf(nf);
-  if (k > 1)
+  if (!u_pval(e, ell))
   {
-    GEN U = idealprincipalunits(nf, pr, k);
+    v = u_pval(pr_get_f(pr), ell);
+    return itou( mului(e, powiu(ell, v)) );
+  }
+  ef = degpol(T);
+  L = mkvec( pr_get_gen(pr) );
+  k = 1 + sdivsi(e, subiu(ell,1));
+  nf = checknf(nf);
+  if (k > 2)
+  {
+    GEN U = idealprincipalunits(nf, pr, k-1);
     L = shallowconcat(L, abgrp_get_gen(U));
   }
   n = lg(L);
