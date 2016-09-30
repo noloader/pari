@@ -1162,8 +1162,8 @@ rho_dbg(pari_timer *T, long c, long msg_mask)
  * nontrivial factor of n, or a vector of t_INTs, each triple of successive
  * entries containing a factor, an exponent (equal to one),  and a factor
  * class (NULL for unknown or zero for known composite),  matching the
- * internal representation used by the ifac_*() routines below.  Repeated
- * factors may arise;  the caller will sort the factors anyway. */
+ * internal representation used by the ifac_*() routines below. Repeated
+ * factors may arise; the caller will sort the factors anyway. */
 GEN
 pollardbrent(GEN n)
 {
@@ -1178,7 +1178,7 @@ pollardbrent(GEN n)
 
   if (tf >= 4)
     size = expi(n) + 1;
-  else if (tf == 3)                /* try to keep purify happy...  */
+  else if (tf == 3) /* keep purify happy */
     size = 1 + expu(uel(n,2));
 
   if (size <= 28)
@@ -1196,7 +1196,7 @@ pollardbrent(GEN n)
     c0 = tune_pb_min + size - 60 +
       ((size-73)>>1)*((size-70)>>3)*((size-56)>>4);
   else
-    c0 = 49152;        /* ECM is faster when it'd take longer */
+    c0 = 49152; /* ECM is faster when it'd take longer */
 
   c = c0 << 5; /* 2^5 iterations per round */
   msg_mask = (size >= 448? 0x1fff:
@@ -1238,9 +1238,8 @@ PB_RETRY:
   avP = (pari_sp)new_chunk(2 * tf); /* enough for x = addsi(tf+1) */
   GGG = (pari_sp)new_chunk(4 * tf); /* enough for P = modii(2tf+1, tf) */
 
-  for (;;)                        /* terminated under the control of c */
-  {
-    /* use the polynomial  x^2 + delta */
+  for (;;) /* terminated under the control of c */
+  { /* use the polynomial  x^2 + delta */
 #define one_iter() STMT_START {\
     avma = GGG; x = remii(sqri(x), n); /* to garbage zone */\
     avma = avx; x = addsi(delta,x);    /* erase garbage */\
@@ -1253,7 +1252,7 @@ PB_RETRY:
     { /* one round complete */
       g = gcdii(n, P); if (!is_pm1(g)) goto fin;
       if (c <= 0)
-      {        /* getting bored */
+      { /* getting bored */
         if (DEBUGLEVEL >= 4)
         {
           err_printf("Rho: time = %6ld ms,\tPollard-Brent giving up.\n",
@@ -1262,12 +1261,12 @@ PB_RETRY:
         }
         avma = av; return NULL;
       }
-      P = gen_1;                        /* not necessary, but saves 1 mulii/round */
+      P = gen_1; /* not necessary, but saves 1 mulii/round */
       if (DEBUGLEVEL >= 4) rho_dbg(&T, c0-(c>>5), msg_mask);
       affii(x,y);
     }
 
-    if (--k) continue;                /* normal end of loop body */
+    if (--k) continue; /* normal end of loop body */
 
     if (c & 0x1f) /* otherwise, we already checked */
     {
@@ -1281,10 +1280,9 @@ PB_RETRY:
     * more like 2/3 the time of normal rounds).  This to counteract the
     * nuisance that all c0 between 4096 and 6144 would act exactly as
     * 4096;  with the halving trick only the range 4096..5120 collapses
-    * (similarly for all other powers of two)
-    */
+    * (similarly for all other powers of two) */
     if ((c -= (l>>1)) <= 0)
-    {                                /* got bored */
+    { /* got bored */
       if (DEBUGLEVEL >= 4)
       {
         err_printf("Rho: time = %6ld ms,\tPollard-Brent giving up.\n",
@@ -1293,7 +1291,7 @@ PB_RETRY:
       }
       avma = av; return NULL;
     }
-    c &= ~0x1f;                        /* keep it on multiples of 32 */
+    c &= ~0x1f; /* keep it on multiples of 32 */
 
     /* Fast forward loop */
     affii(x, x1); k = l; l <<= 1;
@@ -1310,7 +1308,6 @@ PB_RETRY:
                  timer_delay(&T), c0-(c>>5));
       err_flush();
     }
-
     affii(x,y);
   } /* forever */
 
@@ -1332,7 +1329,7 @@ fin:
     avma = avx; g1 = icopy(g);  /* known composite, keep it safe */
     avx = avma;
   }
-  else g1 = n;                        /* and work modulo g1 for backtracking */
+  else g1 = n; /* and work modulo g1 for backtracking */
 
   /* Here g1 is known composite */
   if (DEBUGLEVEL >= 4 && size > 192)
@@ -1340,8 +1337,8 @@ fin:
     err_printf("Rho: hang on a second, we got something here...\n");
     err_flush();
   }
-  for(;;) /* backtrack until period recovered. Must terminate */
-  {
+  for(;;)
+  { /* backtrack until period recovered. Must terminate */
     avma = GGG; y = remii(sqri(y), g1);
     avma = avx; y = addsi(delta,y);
     g = gcdii(subii(x1, y), g1); if (!is_pm1(g)) break;
@@ -1392,7 +1389,6 @@ fin:
 }
 
 /***********************************************************************/
-/**                                                                   **/
 /**              FACTORIZATION (Shanks' SQUFOF) --GN2000Sep30-Oct01   **/
 /**  squfof() returns a nontrivial factor of n, assuming n is odd,    **/
 /**  composite, not a pure square, and has no small prime divisor,    **/
@@ -1401,7 +1397,6 @@ fin:
 /**  Present implementation is limited to input <2^59, and works most **/
 /**  of the time in signed arithmetic on integers <2^31 in absolute   **/
 /**  size. (Cf. Algo 8.7.2 in ACiCNT)                                 **/
-/**                                                                   **/
 /***********************************************************************/
 
 /* The following is invoked to walk back along the ambiguous cycle* until we
@@ -1576,7 +1571,7 @@ squfof(GEN n)
       if (a1 <= L1)
       { /* blacklist this */
         if (blp1 >= SQUFOF_BLACKLIST_SZ) /* overflows: shouldn't happen */
-          act1 = 0;                /* silently */
+          act1 = 0; /* silently */
         else
         {
           if (DEBUGLEVEL >= 6)
@@ -1598,7 +1593,7 @@ squfof(GEN n)
       if (a2 <= L2)
       { /* blacklist this */
         if (blp2 >= SQUFOF_BLACKLIST_SZ) /* overflows: shouldn't happen */
-          act2 = 0;                /* silently */
+          act2 = 0; /* silently */
         else
         {
           if (DEBUGLEVEL >= 6)
@@ -1705,14 +1700,12 @@ squfof(GEN n)
 }
 
 /***********************************************************************/
-/*                                                                     */
 /*                    DETECTING ODD POWERS  --GN1998Jun28              */
 /*   Factoring engines like MPQS which ultimately rely on computing    */
 /*   gcd(N, x^2-y^2) to find a nontrivial factor of N can't split      */
 /*   N = p^k for an odd prime p, since (Z/p^k)^* is then cyclic. Here  */
 /*   is an analogue of Z_issquareall() for 3rd, 5th and 7th powers.    */
 /*   The general case is handled by is_kth_power                       */
-/*                                                                     */
 /***********************************************************************/
 
 /* Multistage sieve. First stages work mod 211, 209, 61, 203 in this order
@@ -2085,12 +2078,10 @@ is_pth_power(GEN x, GEN *pt, forprime_t *T, ulong cutoffbits)
 }
 
 /***********************************************************************/
-/**                                                                   **/
 /**                FACTORIZATION  (master iteration)                  **/
 /**      Driver for the various methods of finding large factors      **/
 /**      (after trial division has cast out the very small ones).     **/
 /**                        GN1998Jun24--30                            **/
-/**                                                                   **/
 /***********************************************************************/
 
 /* Direct use:
