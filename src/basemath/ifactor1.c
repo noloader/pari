@@ -1165,7 +1165,7 @@ rho_dbg(pari_timer *T, long c, long msg_mask)
  * internal representation used by the ifac_*() routines below. Repeated
  * factors may arise; the caller will sort the factors anyway. Result
  * is not gerepile-able (contains NULL) */
-GEN
+static GEN
 pollardbrent(GEN n)
 {
   const long tune_pb_min = 14; /* even 15 seems too much. */
@@ -1478,7 +1478,7 @@ squfof_ambig(long a, long B, long dd, GEN D)
 #define SQUFOF_BLACKLIST_SZ 64
 
 /* assume 2,3,5 do not divide n */
-GEN
+static GEN
 squfof(GEN n)
 {
   ulong d1, d2;
@@ -2646,15 +2646,12 @@ update_pow(GEN where, GEN factor, long exp, pari_sp *av)
   else
     affsi(exp * itos(ex), EXPON(where));
 }
-/* hint == 0 : Use a default strategy
- * hint & 1  : Avoid mpqs(), use ellfacteur() after pollardbrent()
- * hint & 2  : Avoid first-stage ellfacteur() in favour of mpqs()
+/* hint = 0 : Use a default strategy
+ * hint & 1 : avoid mpqs()
+ * hint & 2 : avoid first-stage ellfacteur()
  * (may still fall back to ellfacteur() if mpqs() is not installed or gives up)
- * hint & 4  : Avoid even the pollardbrent() and squfof() stages. Put under
- *  the same governing  bit, for no good reason other than avoiding a
- *  proliferation of bits.
- * hint & 8  : Avoid final ellfacteur(); this may declare a composite to be
- *  prime.  */
+ * hint & 4 : avoid pollardbrent() and squfof() stages.
+ * hint & 8 : avoid final ellfacteur(); may flag a composite as prime. */
 #define get_hint(partial) (itos(HINT(*partial)) & 15)
 
 /* Split the first (composite) entry.  There _must_ already be room for another
