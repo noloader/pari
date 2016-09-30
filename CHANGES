@@ -31,7 +31,7 @@ BA 14- [libpari] FqX_nbfact did not work
    22- e=znconreyexp(idealstar(,N),) could give a result with (e,N) = 2 when
        N = 2 (mod 4)
    23- idealprincipalunits(,,1) not supported [ concat error ]
-
+   24- stack corruption in pollardbrent() at \g4 [#1858]
 
   Added
     1- permtonum: allow t_VECSMALL input

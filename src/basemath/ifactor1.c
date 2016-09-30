@@ -1163,14 +1163,15 @@ rho_dbg(pari_timer *T, long c, long msg_mask)
  * entries containing a factor, an exponent (equal to one),  and a factor
  * class (NULL for unknown or zero for known composite),  matching the
  * internal representation used by the ifac_*() routines below. Repeated
- * factors may arise; the caller will sort the factors anyway. */
+ * factors may arise; the caller will sort the factors anyway. Result
+ * is not gerepile-able (contains NULL) */
 GEN
 pollardbrent(GEN n)
 {
   const long tune_pb_min = 14; /* even 15 seems too much. */
   long tf = lgefint(n), size = 0, delta, retries = 0, msg_mask;
   long c0, c, k, k1, l;
-  pari_sp GGG, avP, avx, av = avma;
+  pari_sp GGG, avP, avx;
   GEN x, x1, y, P, g, g1, res;
   pari_timer T;
 
@@ -1201,6 +1202,13 @@ pollardbrent(GEN n)
   c = c0 << 5; /* 2^5 iterations per round */
   msg_mask = (size >= 448? 0x1fff:
                            (size >= 192? (256L<<((size-128)>>6))-1: 0xff));
+  (void)new_chunk(10 + 6 * tf); /* enough for cgetg(10) + 3 modii */
+  y = cgeti(tf);
+  x1= cgeti(tf);
+  avx = avma;
+  avP = (pari_sp)new_chunk(2 * tf); /* enough for x = addsi(tf+1) */
+  GGG = (pari_sp)new_chunk(4 * tf); /* enough for P = modii(2tf+1, tf) */
+
 PB_RETRY:
  /* trick to make a 'random' choice determined by n.  Don't use x^2+0 or
   * x^2-2, ever.  Don't use x^2-3 or x^2-7 with a starting value of 2.
@@ -1231,13 +1239,8 @@ PB_RETRY:
     err_flush();
   }
   x = gen_2; P = gen_1; g1 = NULL; k = 1; l = 1;
-  (void)new_chunk(10 + 6 * tf); /* enough for cgetg(10) + 3 modii */
-  y = cgeti(tf); affsi(2, y);
-  x1= cgeti(tf); affsi(2, x1);
-  avx = avma;
-  avP = (pari_sp)new_chunk(2 * tf); /* enough for x = addsi(tf+1) */
-  GGG = (pari_sp)new_chunk(4 * tf); /* enough for P = modii(2tf+1, tf) */
-
+  affui(2, y);
+  affui(2, x1);
   for (;;) /* terminated under the control of c */
   { /* use the polynomial  x^2 + delta */
 #define one_iter() STMT_START {\
@@ -1259,7 +1262,7 @@ PB_RETRY:
                      timer_delay(&T));
           err_flush();
         }
-        avma = av; return NULL;
+        return NULL;
       }
       P = gen_1; /* not necessary, but saves 1 mulii/round */
       if (DEBUGLEVEL >= 4) rho_dbg(&T, c0-(c>>5), msg_mask);
@@ -1289,7 +1292,7 @@ PB_RETRY:
                    timer_delay(&T));
         err_flush();
       }
-      avma = av; return NULL;
+      return NULL;
     }
     c &= ~0x1f; /* keep it on multiples of 32 */
 
@@ -1324,7 +1327,7 @@ fin:
         err_printf("\tfound factor = %Ps\n",g);
         err_flush();
       }
-      avma = av; return icopy(g);
+      return g;
     }
     avma = avx; g1 = icopy(g);  /* known composite, keep it safe */
     avx = avma;
@@ -1346,7 +1349,6 @@ fin:
     if (DEBUGLEVEL >= 4 && (--c & 0x1f) == 0) rho_dbg(&T, c0-(c>>5), msg_mask);
   }
 
-  avma = av; /* safe */
   if (g1 == n || equalii(g,g1))
   {
     if (g1 == n && equalii(g,g1))
@@ -1368,7 +1370,7 @@ fin:
     }
     res = cgetg(7, t_VEC);
     /* g^1: known composite when g1!=n */
-    INIT(res+1, icopy(g), gen_1, (g1!=n? gen_0: NULL));
+    INIT(res+1, g, gen_1, (g1!=n? gen_0: NULL));
     /* cofactor^1: status unknown */
     INIT(res+4, diviiexact(n,g), gen_1, NULL);
     return res;
@@ -1376,7 +1378,7 @@ fin:
   /* g < g1 < n : our lucky day -- we've split g1, too */
   res = cgetg(10, t_VEC);
   /* unknown status for all three factors */
-  INIT(res+1, icopy(g),         gen_1, NULL);
+  INIT(res+1, g,                gen_1, NULL);
   INIT(res+4, diviiexact(g1,g), gen_1, NULL);
   INIT(res+7, diviiexact(n,g1), gen_1, NULL);
   if (DEBUGLEVEL >= 4)
