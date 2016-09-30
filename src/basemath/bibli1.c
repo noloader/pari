@@ -834,6 +834,22 @@ Xadic_lindep(GEN x)
   m = RgXV_to_RgM(x, prec);
   return gerepileupto(av, deplin(m));
 }
+static GEN
+vec_lindep(GEN x)
+{
+  pari_sp av = avma;
+  long i, l = lg(x); /* > 1 */
+  long t = typ(gel(x,1)), h = lg(gel(x,1));
+  GEN m = cgetg(l, t_MAT);
+  for (i = 1; i < l; i++)
+  {
+    GEN y = gel(x,i);
+    if (lg(y) != h || typ(y) != t) pari_err_TYPE("lindep",x);
+    if (t != t_COL) y = shallowtrans(y); /* Sigh */
+    gel(m,i) = y;
+  }
+  return gerepileupto(av, deplin(m));
+}
 
 GEN
 lindep(GEN x) { return lindep2(x, 0); }
@@ -851,6 +867,8 @@ lindep0(GEN x,long bit)
       case t_POL:
       case t_RFRAC:
       case t_SER: return Xadic_lindep(x);
+      case t_VEC:
+      case t_COL: return vec_lindep(x);
     }
   return lindep2(x, bit);
 }

@@ -16,4 +16,11 @@ x^2 + (-y^3 - y^2 - 5*y - 1)
   *** algdep: domain error in algdep: degree < 0
 x^2 - 2
 [Mod(0, E^3), Mod(0, E^3), Mod(0, E^3)]~
-Total time spent: 4
+[1, 1, -1]~
+[1, 1, -1]~
+[]~
+  ***   at top-level: lindep([[1,0,0]~,[0,
+  ***                 ^--------------------
+  *** lindep: incorrect type in lindep (t_VEC).
+[1, 1, -1]~
+Total time spent: 0

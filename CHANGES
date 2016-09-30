@@ -32,6 +32,7 @@ BA 14- [libpari] FqX_nbfact did not work
        N = 2 (mod 4)
    23- idealprincipalunits(,,1) not supported [ concat error ]
    24- stack corruption in pollardbrent() at \g4 [#1858]
+   25- allow lindep(vector of t_VEC), lindep(vector of t_COL) [#1857]
 
   Added
     1- permtonum: allow t_VECSMALL input
