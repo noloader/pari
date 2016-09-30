@@ -59,8 +59,7 @@ at(1), Mat(1), Mat(1), 1, Mat(1), [1, 0], []], [0.E-57], [1], Mat(1), Mat(1)
 1
 [(-18*y^2 + 12*y + 12)*x^2 + (18*y^2 - 18*y - 8)*x + (-24*y^2 + 21*y + 15), 
 1]
-[(-2215/3569*y^2 - 69/3569*y + 3319/3569)*x^2 + (2974/3569*y^2 + 2342/3569*y
- - 4756/3569)*x + (2998/3569*y^2 + 580/3569*y - 1571/3569), 1]
+2
 2
 [x, -1]
   *** rnfisnorm: Warning: useless flag in rnfisnorm: the extension is Galois.
@@ -841,4 +840,4 @@ error("inconsistent dimensions in idealtwoelt.")
   ***   at top-level: rnfislocalcyclo(rnfi
   ***                 ^--------------------
   *** rnfislocalcyclo: sorry, rnfislocalcyclo for non-l-extensions is not yet implemented.
-Total time spent: 712
+Total time spent: 952

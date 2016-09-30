@@ -39,7 +39,8 @@ bnf = bnfinit(pol);
 T=rnfisnorminit(bnf, x^3-y);
 do(T,u,flag=0)=liftpol(rnfisnorm(T,u,flag));
 do(T,y)
-do(T,2,100)
+[a,b]=rnfisnorm(T,2,100);
+liftpol(norm(a)*b)
 [a,b]=rnfisnorm(T,2,-2*3*5*7);
 liftpol(norm(a)*b)
 
