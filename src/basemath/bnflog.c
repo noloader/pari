@@ -16,44 +16,49 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 /*******************************************************************/
 /*                  LOGARITHMIC CLASS GROUP                        */
 /*******************************************************************/
+/* min(v, v(Log_p Norm_{F_\p/Q_p}(x))) */
+static long
+vlognorm(GEN nf, GEN T, GEN x, GEN p, long v)
+{
+  GEN a = nf_to_scalar_or_alg(nf, x);
+  GEN N = RgXQ_norm(a, T);
+  if (typ(N) != t_PADIC) N = cvtop(N, p, v);
+  return minss(v, valp( Qp_log(N) ));
+}
 /* K number field, pr a maximal ideal, let K_pr be the attached local
  * field, K_pr = Q_p[X] / (T), T irreducible. Return \tilde{e}(K_pr/Q_p) */
 static long
 etilde(GEN nf, GEN pr, GEN T)
 {
-  GEN L, val, ell = pr_get_p(pr);
-  ulong e = pr_get_e(pr), ef;
-  long v, i, n, k;
+  GEN gp = pr_get_p(pr);
+  ulong e = pr_get_e(pr);
+  long v, voo, vmin, p, k;
 
-  if (!u_pval(e, ell))
+  if (!u_pval(e, gp))
   {
-    v = u_pval(pr_get_f(pr), ell);
-    return itou( mului(e, powiu(ell, v)) );
+    v = u_pval(pr_get_f(pr), gp);
+    return itou( mului(e, powiu(gp, v)) );
   }
-  ef = degpol(T);
-  L = mkvec( pr_get_gen(pr) );
-  k = 1 + sdivsi(e, subiu(ell,1));
   nf = checknf(nf);
+  p = itou(gp);
+  k = e / (p-1) + 1;
+  /* log Norm_{F_P/Q_p} (1 + P^k) = Tr(P^k) = p^[(k + v(Diff))/ e] Z_p */
+  voo = (k + idealval(nf, nf_get_diff(nf), pr)) / e;
+  vmin = vlognorm(nf, T, pr_get_gen(pr), gp, voo);
   if (k > 1)
   {
     GEN U = idealprincipalunits(nf, pr, k);
-    L = shallowconcat(L, abgrp_get_gen(U));
+    GEN gen = abgrp_get_gen(U), cyc = abgrp_get_cyc(U);
+    long i, l = lg(cyc);
+    for (i = 1; i < l; i++)
+    {
+      if (voo - Z_lval(gel(cyc,i), p) >= vmin) break;
+      vmin = vlognorm(nf, T, gel(gen,i), gp, vmin);
+    }
   }
-  n = lg(L);
-  val = cgetg(n+1, t_VECSMALL);
-  for (i = 1; i < n; i++)
-  {
-    GEN a = nf_to_scalar_or_alg(nf, gel(L,i));
-    GEN N = RgXQ_norm(a, T);
-    if (typ(N) != t_PADIC) N = cvtop(N, ell, padicprec(T,ell));
-    val[i] = valp(Qp_log(N));
-  }
-  /* log Norm_{F_P/Q_p} (1 + P^k) = Tr(P^k) = p^[(k + v(Diff))/ e] Z_p */
-  val[n] = (k + idealval(nf, nf_get_diff(nf), pr)) / e;
-  v = -vecsmall_min(val) + u_pval(ef, ell) + (equaliu(ell,2)? 2 : 1);
-  /* p^v = [h(F_P):Z_p] */
-  (void)u_pvalrem(e, ell, &e);
-  return itou( mului(e, powiu(ell, v)) );
+  v = u_lval(degpol(T), p) + (p == 2UL? 2 : 1) - vmin;
+  (void)u_lvalrem(e, p, &e);
+  return e * upowuu(p,v);
 }
 static long
 ftilde_from_e(GEN pr, long e) { return pr_get_e(pr) * pr_get_f(pr) / e; }
