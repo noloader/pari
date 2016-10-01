@@ -26,7 +26,7 @@ misc_dir=misc
 src_dir=src
 desc_dir=src/desc
 
-case "x$RUNTEST" in x);; x/*);; *) RUNTEST="$TOP/$RUNTEST";; esac
+case "$RUNTEST" in /*);; */*) RUNTEST="$TOP/$RUNTEST";; esac
 
 cd $config_dir
 # Process options, initialize
