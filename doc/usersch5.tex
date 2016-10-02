@@ -10625,7 +10625,7 @@ Given two objects $x,y$, assume that \kbd{op(D, $x$, $y$)} implements an
 associative binary operator. If $v$ has $k$ entries, return
 $$v[1]~\var{op}~v[2]~\var{op}~\ldots ~\var{op}~v[k];$$
 returns \kbd{gen\_1} if $k = 0$ and a copy of $v[1]$ if $k = 1$.
-Use divide an conquer strategy. Leave some garbage on stack, but suitable for
+Use divide and conquer strategy. Leave some garbage on stack, but suitable for
 \kbd{gerepileupto} if \kbd{mul} is.
 
 \fun{GEN}{gen_pow}{GEN x, GEN n, void *D, F1 sqr, F2 mul} $n > 0$ a
