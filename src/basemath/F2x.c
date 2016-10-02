@@ -1327,7 +1327,7 @@ check_kernel(long N, GEN M, GEN T, GEN m)
   GEN g = F2xq_pow(polx_F2x(T[1]), idx, T);
   pari_timer ti;
   if (DEBUGLEVEL) timer_start(&ti);
-  K = FpC_Fp_mul(K, Fp_inv(gel(K,g[2]), m), m);
+  K = FpC_Fp_mul(K, Fp_inv(gel(K,2), m), m);
   for(i=1; i<l; i++)
   {
     GEN k = gel(K,i);

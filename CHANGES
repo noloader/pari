@@ -3,12 +3,12 @@ Bug numbers refer to the BTS at http://pari.math.u-bordeaux.fr/Bugs/
 
 Done for version 2.8.1 (released ??/??/2016):
   Fixed
-    1- nfroots(non-monic t_POL) => wrong result [#1841]
+    1- nfroots(non-monic t_POL) => wrong result [#1841] [from 2.8.0]
     2- crash on BIB in ellpointtoz(t_PADIC) [#1840]
     3- nfisideal(nfinit(x^2+1),[1,0;0,2]) -> 1 instead of 0
     4- intnuminit(-oo,oo,1) -> error [#1847]
     5- idealstar([f_0,f_oo]) for f_oo t_VECSMALL (place selection) didn't work
-    6- msinit objects could not be saved to file then read back in
+    6- msinit objects could not be saved to file then read back in [from 2.8.0]
     7- wrong value for bnrrootnumber for non-primitive characters [#1848]
     8- allow znstar(N,flag) for idealstar(,N,flag)
     9- allow znlog(x,G) for G = znstar(N), instead of ideallog(,x,G),
@@ -21,18 +21,18 @@ BA 12- [breakloop] changes done in the first-level breakloop were lost when
    13- polinterpolate could create illegal objects [#1837] (test-case by PB)
 BA 14- [libpari] FqX_nbfact did not work
    15- incorrect change of variable in elllocalred over a number field for
-       places dividing 6
-   16- contfraceval([[],[]],1) -> SEGV
+       places dividing 6 [from 2.8.0]
+   16- contfraceval([[],[]],1) -> SEGV [from 2.8.0]
    17- agm(1.0, 1.0*I + x + O(x^200)) -> oo loop [#1654]
    18- primepi(2750160) -> crash [#1855]
    19- polinterpolate([],[],Mod(1,3)) => 0 instead of Mod(0,3)
    20- subst(Pol(0),x,Mod(1,3)) => 0 instead of Mod(0,3)
    21- subst(Pol(1),x,Mod(1,3)) => 1 instead of Mod(1,3)
    22- e=znconreyexp(idealstar(,N),) could give a result with (e,N) = 2 when
-       N = 2 (mod 4)
-   23- idealprincipalunits(,,1) not supported [ concat error ]
+       N = 2 (mod 4) [from 2.8.0]
+   23- idealprincipalunits(,,1) not supported [ concat error ] [from 2.8.0]
    24- stack corruption in pollardbrent() at \g4 [#1858]
-   25- allow lindep(vector of t_VEC), lindep(vector of t_COL) [#1857]
+BA 25- fflog could crash in char 2. [from 2.8.0]
 
   Added
     1- permtonum: allow t_VECSMALL input
@@ -86,6 +86,7 @@ BA 40- [libpari] ZpXQX_roots, ZqX_roots, ZqX_liftfact, ZqX_liftroot,
    43- GP function ellintegralmodel
    44- [libpari] ZM_hnf_knapsack
    45- [libpari] pol_xn, pol_xnall, retmkrfrac
+   46- allow lindep(vector of t_VEC), lindep(vector of t_COL) [#1857]
 
   Changed
     1- remove useless flag in idealappr: directly allow factorization
