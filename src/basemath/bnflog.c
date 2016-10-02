@@ -432,32 +432,33 @@ bnflogef(GEN nf, GEN pr)
 }
 
 GEN
-bnflogdegree(GEN bnf, GEN A, GEN ell)
+bnflogdegree(GEN nf, GEN A, GEN ell)
 {
   pari_sp av = avma;
   GEN AZ, A0Z, NA0;
   long vAZ;
 
   if (typ(ell) != t_INT) pari_err_TYPE("bnflogdegree", ell);
-  A = idealhnf(bnf, A);
+  nf = checknf(nf);
+  A = idealhnf(nf, A);
   AZ = gcoeff(A,1,1);
   vAZ = Z_pvalrem(AZ, ell, &A0Z);
   if (is_pm1(A0Z))
     NA0 = gen_1;
   else
-    (void)Z_pvalrem(idealnorm(bnf,A), ell, &NA0);
+    (void)Z_pvalrem(idealnorm(nf,A), ell, &NA0);
   if (vAZ)
   {
     GEN Aell = ZM_hnfmodid(A, powiu(ell,vAZ));
-    GEN nf = checknf(bnf), S = idealprimedec(nf, ell), T;
+    GEN S = idealprimedec(nf, ell), T;
     long l, i, s = 0;
     T = padicfact(nf, S, 100);
     l = lg(S);
     for (i = 1; i < l; i++)
     {
       GEN P = gel(S,i);
-      long v = idealval(bnf, Aell, P);
-      if (v) s += v * ftilde(bnf, P, gel(T,i));
+      long v = idealval(nf, Aell, P);
+      if (v) s += v * ftilde(nf, P, gel(T,i));
     }
     if (s) NA0 = gmul(NA0, gpowgs(ell1(ell), s));
   }
