@@ -450,58 +450,141 @@ Zq_pval(GEN a, GEN p)
 { return typ(a)==t_INT ? Z_pval(a, p): ZX_pval(a, p); }
 
 static GEN
-Zq_Z_div_safe(GEN a, GEN b, GEN T, GEN q, GEN p, long e)
+Zq_divu_safe(GEN a, ulong b, GEN T, GEN q, GEN p, long e)
 {
-  long v;
-  if (e==1) return Fq_div(a, b, T, q);
-  v = Z_pvalrem(b, p, &b);
-  if (v>0)
+  long v, w;
+  if (e==1) return Fq_div(a, utoi(b), T, q);
+  v = u_pvalrem(b, p, &b);
+  if (v > 0)
   {
-    long w = Z_pval(Q_content(a), p);
-    if (v>w) pari_err_INV("Zq_div",b);
+    if (signe(a)==0) return gen_0;
+    w = Zq_pval(a, p);
+    if (v > w) return NULL;
     a = Zq_divexact(a, powiu(p,v));
   }
-  return Fq_Fp_mul(a, Fp_inv(b, q), T, q);
+  return Fq_Fp_mul(a, Fp_inv(utoi(b), q), T, q);
 }
 
-/*Gives the first precS terms of the Weierstrass series related to */
-/*E: y^2 = x^3 + a4x + a6.  Assumes (precS-2)*(2precS+3) < ULONG_MAX, i.e.
- * precS < 46342 in 32-bit machines */
 static GEN
-find_coeff(GEN a4, GEN a6, GEN T, GEN p, long precS, GEN pp, long e)
+FqX_shift(GEN P,long n)
+{ return RgX_shift_shallow(P, n); }
+
+static GEN
+FqX_mulhigh_i(GEN f, GEN g, long n, GEN T, GEN p)
+{ return FqX_shift(FqX_mul(f,g,T, p),-n); }
+
+static GEN
+FqX_mulhigh(GEN f, GEN g, long n2, long n, GEN T, GEN p)
 {
-  GEN res, den;
-  long k, h;
-  if (e > 1) { p = sqri(p); e *= 2; }
-  res = cgetg(precS+1, t_VEC);
-  den = cgetg(precS+1, t_VECSMALL);
-  if (precS == 0) return res;
-  gel(res, 1) = Fq_div(a4, stoi(-5), T, p);
-  den[1] = 0;
-  if (precS == 1) return res;
-  gel(res, 2) = Fq_div(a6, stoi(-7), T, p);
-  den[2] = 0;
-  for (k = 3; k <= precS; ++k)
+  GEN F = RgX_blocks(f, n2, 2), fl = gel(F,1), fh = gel(F,2);
+  return FqX_add(FqX_mulhigh_i(fl, g, n2, T, p), FqXn_mul(fh, g, n - n2, T, p), T, p);
+}
+
+static GEN
+FqX_invlift1(GEN Q, GEN P, long t1, long t2, GEN T, GEN p)
+{
+  GEN H = FqXn_mul(FqX_mulhigh(Q, P, t1, t2, T, p), Q, t2-t1, T, p);
+  return FqX_sub(Q, FqX_shift(H, t1), T, p);
+}
+
+static GEN
+FqX_invsqrtlift1(GEN Q, GEN P, long t1, long t2, GEN T, GEN p)
+{
+  GEN D = FqX_mulhigh(P, FqX_sqr(Q, T, p), t1, t2, T, p);
+  GEN H = FqXn_mul(Q, FqX_halve(D, T, p), t2-t1, T, p);
+  return FqX_sub(Q, FqX_shift(H, t1), T, p);
+}
+
+/* Q(x^2) = intformal(subst(x^N*P,x,x^2)) */
+static GEN
+ZqX_integ2Xn(GEN P, long N, GEN T, GEN p, GEN pp, long e)
+{
+  long d = degpol(P), v = varn(P);
+  long k;
+  GEN Q;
+  if(d==-1) return pol_0(v);
+  Q = cgetg(d+3,t_POL);
+  Q[1] = evalsigne(1) | evalvarn(v);
+  for (k = 0; k <= d; k++)
   {
-    pari_sp btop = avma;
-    GEN a = gen_0, d;
-    long v=0;
-    if (e > 1)
-      for (h = 1; h <= k-2; h++)
-        v = maxss(v, den[h]+den[k-1-h]);
-    for (h = 1; h <= k-2; h++)
-    {
-      GEN b = Fq_mul(gel(res, h), gel(res, k-1-h), T, p);
-      if (v)
-        b = Fq_Fp_mul(b, powiu(pp, v-(den[h]+den[k-1-h])), T, p);
-      a = Fq_add(a, b, T, p);
-    }
-    v += Z_pvalrem(utoi((k-2) * (2*k + 3)), pp, &d);
-    a = Zq_div(gmulgs(a, 3), d, T, p, pp, e);
-    gel(res, k) = gerepileupto(btop, a);
-    den[k] = v;
+    GEN q = Zq_divu_safe(gel(P,2+k), 2*(k+N)+1, T, p, pp, e);
+    if (!q) return NULL;
+    gel(Q, 2+k) = q;
   }
-  return mkvec2(res, den);
+  return ZXX_renormalize(Q,d+3);
+}
+
+/* solution of G*(S'^2)=(S/x)*(HoS) mod x^m */
+static GEN
+Zq_Weierstrass(GEN a4, GEN a6, GEN b4, GEN b6, long m, GEN T, GEN p, GEN pp, long n)
+{
+  pari_sp av = avma;
+  long v = 0;
+  ulong mask = quadratic_prec_mask(m);
+  GEN iGdS2 = pol_1(v);
+  GEN G = mkpoln(4, a6, a4, gen_0, gen_1);
+  GEN GdS2 = G, S = pol_x(v), sG = pol_1(v), isG = sG, dS = sG;
+  long N = 1;
+  for (;mask>1;)
+  {
+    GEN S2, HS, K, dK, E;
+    long N2 = N, d;
+    N<<=1; if (mask & 1) N--;
+    mask >>= 1;
+    d = N-N2;
+    S2 = FqX_sqr(S, T, p);
+    HS = FqX_Fq_add(FqX_Fq_mul(S, b6, T, p), b4, T, p);
+    HS = FqX_Fq_add(FqXn_mul(S2, HS, N, T, p), gen_1, T, p);
+    HS = FqXn_mul(HS, FqX_shift(S,-1), N, T, p);
+    sG  = FqXn_mul(G, isG, N2, T, p);
+    /* (HS-Gds2)/(Gds2*sG) */
+    dK = FqXn_mul(FqX_shift(FqX_sub(HS, GdS2, T, p), -N2),
+                  FqXn_mul(iGdS2, isG, d, T, p), d, T, p);
+    K = ZqX_integ2Xn(dK, N2, T, p, pp, n);
+    if (!K) return gc_NULL(av);
+    E = FqXn_mul(FqXn_mul(K, sG, d, T, p), dS, d, T, p);
+    S = FqX_add(S, FqX_shift(E, N2+1), T, p);
+    if (mask <= 1) break;
+    isG = FqX_invsqrtlift1(isG, G, N2, N, T, p);
+    dS = FqX_deriv(S, T, p);
+    GdS2 = FqX_mul(G, FqX_sqr(dS, T, p), T, p);
+    iGdS2 = FqX_invlift1(iGdS2, GdS2, N2, N, T, p);
+  }
+  return gerepileupto(av, S);
+}
+
+static GEN
+ZqXn_WNewton(GEN S, long l, GEN a4, GEN a6, GEN pp1, GEN T, GEN p, GEN pp, long e)
+{
+  long d = degpol(S);
+  long k;
+  GEN Ge = cgetg(2+d,t_POL);
+  Ge[1] = evalsigne(1);
+  gel(Ge,2) = pp1;
+  if (d >= 2)
+  {
+    GEN g = Zq_divu_safe(Fq_sub(gel(S,4), Fq_mulu(a4,(l-1),T,p),T,p), 6,T,p,pp,e);
+    if (!g) return NULL;
+    gel(Ge, 3) = g;
+  }
+  if (d >= 3)
+  {
+    GEN g = Zq_divu_safe(Fq_sub(Fq_sub(gel(S,5),
+            Fq_mul(a4,Fq_mulu(pp1,6,T,p),T,p),T,p),
+            Fq_mulu(a6,(l-1)*2,T,p),T,p),10,T,p,pp,e);
+    if (!g) return NULL;
+    gel(Ge, 4) = g;
+  }
+  for (k = 4; k <= d; k++)
+  {
+    GEN g = Zq_divu_safe(Fq_sub(Fq_sub(gel(S,4+k-2),
+            Fq_mul(a4,Fq_mulu(gel(Ge,k-1),4*k-6,T,p),T,p),T,p),
+            Fq_mul(a6,Fq_mulu(gel(Ge,k-2),4*k-8,T,p),T,p),T,p),
+            4*k-2, T, p, pp, e);
+    if (!g) return NULL;
+    gel(Ge, k+1) = g;
+  }
+  return ZXX_renormalize(Ge, 2+d);
 }
 
 /****************************************************************************/
@@ -643,69 +726,25 @@ find_eigen_value_power(GEN a4, GEN a6, ulong ell, long k, ulong lambda, GEN hq, 
   return Fq_find_eigen_value_power(a4, a6, ell, k, lambda, hq, T, p);
 }
 
-/*Finds the kernel polynomial h, dividing the ell-division polynomial from the
-  isogenous curve Eb and trace term pp1. Uses CCR algorithm and returns h.
-  Return NULL if E and Eb are *not* isogenous. */
 static GEN
-find_kernel(GEN a4, GEN a6, ulong ell, GEN a4t, GEN a6t, GEN pp1, GEN T, GEN p, GEN pp, long e)
+find_kernel(GEN a4, GEN a6, long l, GEN b4, GEN b6, GEN pp1, GEN T, GEN p, GEN pp, long e)
 {
-  const long ext = 2;
-  pari_sp ltop = avma, btop;
-  GEN P, v, tlist, h;
-  long i, j, k;
-  long deg = (ell - 1)/2, dim = 2 + deg + ext;
-  GEN psi2 = Fq_elldivpol2(a4, a6, T, p);
-  GEN Dpsi2 = Fq_elldivpol2d(a4, T, p);
-  GEN C  = find_coeff(a4, a6, T, p, dim, pp, e);
-  GEN Ct = find_coeff(a4t, a6t, T, p, dim, pp, e);
-  GEN V = cgetg(dim+1, t_VEC);
-  for (k = 1; k <= dim; k++)
-  {
-    long v = mael(C,2,k);
-    GEN z = gmul(gsub(gmael(Ct,1,k), gmael(C,1,k)), shifti(mpfact(2*k), -1));
-    if (signe(z) && Zq_pval(z, pp) < v) return NULL;
-    gel(V, k) = Zq_divexact(z, powiu(pp, v));
-  }
-  btop = avma;
-  v = zerovec(dim);
-  gel(v, 1) = utoi(deg);
-  gel(v, 2) = pp1;
-  P = pol_x(0);
-  for (k = 3; k <= dim; k++)
-  {
-    GEN s, r = FqX_Fq_mul(Dpsi2, gel(P, 3), T, p);
-    for (j = 4; j < lg(P); j++)
-    {
-      long o = j - 2;
-      GEN D = FqX_add(RgX_shift_shallow(Dpsi2, 1), FqX_mulu(psi2, o-1, T, p), T, p);
-      GEN E = FqX_Fq_mul(D, Fq_mulu(gel(P, j), o, T, p), T, p);
-      r = FqX_add(r, RgX_shift_shallow(E, o-2), T, p);
-    }
-    P = r;
-    s = Fq_mul(gel(P, 2), gel(v, 1), T, p);
-    for (j = 3; j < lg(P)-1; j++)
-      s = Fq_add(s, Fq_mul(gel(P, j), gel(v, j-1), T, p), T, p);
-    gel(v, k) = Zq_Z_div_safe(Fq_sub(gel(V, k-2), s, T, p), gel(P, j), T, p, pp, e);
-    if (gc_needed(btop, 1))
-    {
-      if(DEBUGMEM>1) pari_warn(warnmem,"find_kernel");
-      gerepileall(btop, 2, &v, &P);
-    }
-  }
-  tlist = cgetg(dim, t_VEC);
-  gel(tlist, dim-1) = gen_1;
-  for (k = 1; k <= dim-2; k++)
-  {
-    pari_sp btop = avma;
-    GEN s = gel(v, k+1);
-    for (i = 1; i < k; i++)
-      s = Fq_add(s, Fq_mul(gel(tlist, dim-i-1), gel(v, k-i+1), T, p), T, p);
-    gel(tlist, dim-k-1) = gerepileupto(btop, Zq_Z_div_safe(s, stoi(-k), T, p, pp, e));
-  }
-  for (i = 1; i <= ext; i++)
-    if (signe(Fq_red(gel(tlist, i),T, pp))) return gc_NULL(ltop);
-  h = FqX_red(RgV_to_RgX(vecslice(tlist, ext+1, dim-1), 0),T,p);
-  return signe(Fq_elldivpolmod(a4, a6, ell, h, T, pp)) ? NULL: h;
+  GEN Ge, S, Sd;
+  const long ext = 1;
+  long d = (l+1)/2+ext;
+  if(l==3)
+    return deg1pol(gen_1, Fq_neg(pp1, T, p), 0);
+  S = Zq_Weierstrass(a4, a6, b4, b6, d + 1, T, p, pp, e);
+  if (S==NULL) return NULL;
+  S  = FqX_shift(S, -1);
+  Sd = FqXn_inv(S, d, T, p);
+  Ge = ZqXn_WNewton(Sd, l, a4, a6, pp1, T, p, pp, e);
+  if (!Ge) return NULL;
+  Ge = FqX_neg(Ge, T, p);
+  Ge = FqXn_expint(Ge, d, T, p);
+  Ge = RgX_recip(FqX_red(Ge, T, pp));
+  if (degpol(Ge)==(l-1)/2) return Ge;
+  return NULL;
 }
 
 static GEN
@@ -1045,11 +1084,23 @@ find_isogenous_from_J(GEN a4, GEN a6, ulong ell, struct meqn *MEQN, GEN g, GEN T
   return gerepilecopy(ltop, mkvec3(a4tilde, a6tilde, h));
 }
 
+static long
+newtonlogint(ulong n, ulong pp)
+{
+  long s = 0;
+  while (n > pp)
+  {
+    s += ulogint(n, pp);
+    n = (n+1)>>1;
+  }
+  return s;
+}
+
 static GEN
 find_isogenous(GEN a4,GEN a6, ulong ell, struct meqn *MEQN, GEN g, GEN T,GEN p)
 {
   ulong pp = itou_or_0(p);
-  long e = (pp && pp <= 2*ell+3) ? 2+factorial_lval(ell, pp): 1;
+  long e = pp ? newtonlogint(1+(ell>>1), pp) + ulogint(2*ell+4, pp) + 1: 1;
   if (e > 1)
   {
     GEN pe = powiu(p, e);
