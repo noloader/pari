@@ -1,13 +1,13 @@
 Function: listcreate
 Section: programming/specific
-C-Name: listcreate
+C-Name: listcreate_gp
 Prototype: D0,L,
 Obsolete: 2007-08-10
-Help: listcreate(): this function is obsolete, use List().
+Help: listcreate({n}): this function is obsolete, use List().
 Description:
  (?gen):list        listcreate()
 Doc: This function is obsolete, use \kbd{List}.
 
- creates an empty list. This routine used to have a mandatory argument,
+ Creates an empty list. This routine used to have a mandatory argument,
  which is now ignored (for backward compatibility).
  % \syn{NO}

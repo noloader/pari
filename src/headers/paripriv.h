@@ -111,6 +111,8 @@ GEN  vvecteur(GEN nmax, GEN n);
 GEN  zbrent0(GEN a, GEN b, GEN code, long prec);
 GEN  solvestep0(GEN a, GEN b, GEN step, GEN code, long flag, long prec);
 
+GEN  listcreate_gp(long n);
+
 /* mt */
 void mt_sigint(void);
 void mt_err_recover(long er);

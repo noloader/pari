@@ -2777,6 +2777,13 @@ listcreate(void)
 }
 
 GEN
+listcreate_gp(long n)
+{
+  (void) n;
+  return listcreate_typ(t_LIST_RAW);
+}
+
+GEN
 listput(GEN L, GEN x, long index)
 {
   long l;
