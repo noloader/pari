@@ -422,6 +422,9 @@ external_help(const char *s, int num)
   char *t, *help = GP_DATA->help;
   pariFILE *z;
   FILE *f;
+#ifdef __EMSCRIPTEN__
+  pari_err(e_MISC,"Help: http://pari.math.u-bordeaux.fr/dochtml/help/%s",s);
+#endif
 
   if (!has_ext_help()) pari_err(e_MISC,"no external help program");
   t = filter_quotes(s);
