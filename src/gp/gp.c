@@ -235,6 +235,7 @@ START:
         usage(argv[0]);
     }
   }
+  if (f & gpd_TEST) stdin_isatty = 0;
   GP_DATA->flags = f;
 #ifdef READLINE
   GP_DATA->use_readline = stdin_isatty;
