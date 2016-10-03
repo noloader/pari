@@ -333,6 +333,27 @@ ellsylow(GEN cyc, GEN ell)
   setlg(d, i); return d;
 }
 
+static long
+vtilde_prec_x(GEN nf, GEN x, GEN ell)
+{
+  long i, l, v;
+  GEN G;
+  if (typ(x) != t_MAT) return Q_pval(nfnorm(nf,x), ell);
+  G = gel(x,1); l = lg(G); v = 0;
+  for (i = 1; i < l; i++) v = maxss(v, Q_pval(nfnorm(nf,gel(G,i)), ell));
+  return v;
+}
+/* upper bound for \delta(vec): estimate loss of accuracy when evaluating
+ * \tilde{v} on the vec[i] */
+static long
+vtilde_prec(GEN nf, GEN vec, GEN ell)
+{
+  long v0 = 0, i, l = lg(vec);
+  for (i = 1; i < l; i++)
+    v0 = maxss(v0, vtilde_prec_x(nf, gel(vec,i), ell));
+  return 3 + v0 + z_pval(nf_get_degree(nf), ell);
+}
+
 static GEN
 bnflog_i(GEN bnf, GEN ell)
 {
@@ -345,9 +366,10 @@ bnflog_i(GEN bnf, GEN ell)
   nf = checknf(bnf);
   S = idealprimedec(nf, ell);
   bnfS = bnfsunit0(bnf, S, nf_GENMAT, LOWDEFAULTPREC); /* S-units */
-  US = shallowconcat(bnf_get_fu(bnf), gel(bnfS, 1));
-  US = leafcopy(US); settyp(US, t_COL);
-  prec0 = 30;
+  US = leafcopy(gel(bnfS,1));
+  prec0 = maxss(30, vtilde_prec(nf, US, ell));
+  US = shallowconcat(bnf_get_fu(bnf), US);
+  settyp(US, t_COL);
   T = padicfact(nf, S, prec0);
   lS = lg(S); Ftilde = cgetg(lS, t_VECSMALL);
   for (j = 1; j < lS; j++) Ftilde[j] = ftilde(nf, gel(S,j), gel(T,j));
