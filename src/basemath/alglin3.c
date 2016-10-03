@@ -549,7 +549,7 @@ genselect(void *E, long (*f)(void* E, GEN x), GEN A)
   {
     case t_LIST:
       z = list_data(A);
-      if (!z) y = listcreate();
+      if (!z) y = mklist();
       else
       {
         GEN B;
@@ -681,7 +681,7 @@ genapply(void *E, GEN (*f)(void* E, GEN x), GEN x)
         long t = list_typ(x);
         z = list_data(x);
         if (!z)
-          y = listcreate_typ(t);
+          y = mklist_typ(t);
         else
         {
           y = cgetg(3, t_LIST);

@@ -5,7 +5,7 @@ Prototype: DG
 Help: List({x=[]}): transforms the vector or list x into a list. Empty list
  if x is omitted.
 Description:
- ():list           listcreate()
+ ():list           mklist()
  (gen):list        gtolist($1)
 Doc:
  transforms a (row or column) vector $x$ into a list, whose components are
@@ -13,4 +13,4 @@ Doc:
  For other types, creates a list with the single element $x$. Note that,
  except when $x$ is omitted, this function creates a small memory leak; so,
  either initialize all lists to the empty list, or use them sparingly.
-Variant: The variant \fun{GEN}{listcreate}{void} creates an empty list.
+Variant: The variant \fun{GEN}{mklist}{void} creates an empty list.

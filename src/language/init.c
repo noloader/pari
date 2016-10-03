@@ -1674,7 +1674,7 @@ listassign(GEN x, GEN y)
 GEN
 listcopy(GEN x)
 {
-  GEN y = listcreate(), L = list_data(x);
+  GEN y = mklist(), L = list_data(x);
   if (L) list_data(y) = gcopy(L);
   y[1] = evaltyp(list_typ(x));
   return y;

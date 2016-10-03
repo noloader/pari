@@ -1203,7 +1203,7 @@ mod_r(GEN x, long v, GEN T)
       for (i = 1; i < lx; i++) gel(y,i) = mod_r(gel(x,i),v,T);
       return y;
     case t_LIST:
-      y = listcreate();
+      y = mklist();
       list_data(y) = list_data(x)? mod_r(list_data(x),v,T): NULL;
       return y;
   }
@@ -1317,7 +1317,7 @@ poldeflate(GEN x, long v, long d)
 static GEN
 listdeflate(GEN x, long v, long d)
 {
-  GEN y = NULL, z = listcreate();
+  GEN y = NULL, z = mklist();
   if (list_data(x))
   {
     y = vdeflate(list_data(x),v,d);
@@ -1569,7 +1569,7 @@ gsubst(GEN x, long v, GEN y)
       for (i=1; i<lx; i++) gel(z,i) = gsubst(gel(x,i),v,y);
       return z;
     case t_LIST:
-      z = listcreate();
+      z = mklist();
       list_data(z) = list_data(x)? gsubst(list_data(x),v,y): NULL;
       return z;
   }

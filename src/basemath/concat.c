@@ -31,7 +31,7 @@ listconcat(GEN A, GEN B)
     L2 = list_data(B);
     if (!L2) return mklistcopy(A);
     lx = lg(L2) + 1;
-    z = listcreate();
+    z = mklist();
     list_data(z) = L = cgetg(lx, t_VEC);
     for (i = 2; i < lx; i++) gel(L,i) = gcopy(gel(L2,i-1));
     gel(L,1) = gcopy(A); return z;
@@ -40,7 +40,7 @@ listconcat(GEN A, GEN B)
     L1 = list_data(A);
     if (!L1) return mklistcopy(B);
     lx = lg(L1) + 1;
-    z = listcreate();
+    z = mklist();
     list_data(z) = L = cgetg(lx, t_VEC);
     for (i = 1; i < lx-1; i++) gel(L,i) = gcopy(gel(L1,i));
     gel(L,i) = gcopy(B); return z;

@@ -203,10 +203,15 @@ GP's maps are implemented on top of \typ{LIST}s so as to benefit from
 their peculiar memory models. Lists thus come in two subtypes: \typ{LIST\_RAW}
 (actual lists) and \typ{LIST\_MAP} (a map).
 
-\fun{GEN}{listcreate_typ}{long t} create a list of subtype $t$. Plain
-\kbd{listcreate} is an alias for
+\fun{GEN}{mklist_typ}{long t} create a list of subtype $t$.
+\fun{GEN}{mklist}{void} is an alias for
 \bprog
-  listcreate_typ(t_LIST_RAW);
+  mklist_typ(t_LIST_RAW);
+@eprog
+and
+\fun{GEN}{mkmap}{void} is an alias for
+\bprog
+  mklist_typ(t_LIST_MAP);
 @eprog
 
 \fun{long}{list_typ}{GEN L} return the list subtype, either \typ{LIST\_RAW} or

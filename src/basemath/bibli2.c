@@ -1420,7 +1420,7 @@ gen_sort_uniq(GEN x, void *E, int (*cmp)(void*,GEN,GEN))
   GEN y;
 
   init_sort(&x, &tx, &lx);
-  if (lx==1) return tx == t_LIST? listcreate(): cgetg(1, tx);
+  if (lx==1) return tx == t_LIST? mklist(): cgetg(1, tx);
   y = gen_sortspec_uniq(x,lx-1,E,cmp);
   return sort_extract(x, y, tx, lg(y)); /* lg(y) <= lx */
 }
@@ -1432,7 +1432,7 @@ gen_sort(GEN x, void *E, int (*cmp)(void*,GEN,GEN))
   GEN y;
 
   init_sort(&x, &tx, &lx);
-  if (lx==1) return tx == t_LIST? listcreate(): cgetg(1, tx);
+  if (lx==1) return tx == t_LIST? mklist(): cgetg(1, tx);
   y = gen_sortspec(x,lx-1,E,cmp);
   return sort_extract(x, y, tx, lx);
 }

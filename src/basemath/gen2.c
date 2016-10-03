@@ -2763,7 +2763,7 @@ listkill(GEN L)
 }
 
 GEN
-listcreate_typ(long t)
+mklist_typ(long t)
 {
   GEN L = cgetg(3,t_LIST);
   L[1] = evaltyp(t);
@@ -2771,16 +2771,30 @@ listcreate_typ(long t)
 }
 
 GEN
-listcreate(void)
+mklist(void)
 {
-  return listcreate_typ(t_LIST_RAW);
+  return mklist_typ(t_LIST_RAW);
+}
+
+GEN
+mkmap(void)
+{
+  return mklist_typ(t_LIST_MAP);
+}
+
+/* return a list with single element x, allocated on stack */
+GEN
+mklistcopy(GEN x)
+{
+  GEN y = mklist();
+  list_data(y) = mkveccopy(x);
+  return y;
 }
 
 GEN
 listcreate_gp(long n)
 {
-  (void) n;
-  return listcreate_typ(t_LIST_RAW);
+  (void) n; return mklist();
 }
 
 GEN
@@ -2863,15 +2877,6 @@ listpop0(GEN L, long index)
   listpop(L, index);
 }
 
-/* return a list with single element x, allocated on stack */
-GEN
-mklistcopy(GEN x)
-{
-  GEN y = listcreate();
-  list_data(y) = mkveccopy(x);
-  return y;
-}
-
 /* return a copy fully allocated on stack. gclone from changevalue is
  * supposed to malloc() it */
 GEN
@@ -2879,17 +2884,17 @@ gtolist(GEN x)
 {
   GEN y;
 
-  if (!x) return listcreate();
+  if (!x) return mklist();
   switch(typ(x))
   {
     case t_VEC: case t_COL:
-      y = listcreate();
+      y = mklist();
       if (lg(x) == 1) return y;
       list_data(y) = gcopy(x);
       settyp(list_data(y), t_VEC);
       return y;
     case t_LIST:
-      y = listcreate();
+      y = mklist();
       list_data(y) = list_data(x)? gcopy(list_data(x)): NULL;
       return y;
     default:

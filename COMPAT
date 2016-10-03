@@ -127,6 +127,7 @@ This file lists the incompatible changes between Version 2.x and older versions
   - removed discrayabs, discrayabscond, discrayrel, discrayrelcond,
     discrayabslistlong: obsoleted since 2.0
   - ZpX_liftfact no more handles extensions of Qp, use ZqX_liftfact for that
+  - rename listcreate to mklist
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%% VERSION 2.6 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   - eval() no longer evaluates its arguments in "permissive" mode: eval("1a")

@@ -65,6 +65,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #define powell ellmul
 #define ggval gvaluation
 #define stackmalloc stack_malloc
+#define listcreate mklist
 
 /* Following obsoleted in 2.5.* (2011) */
 #define fprintferr err_printf
