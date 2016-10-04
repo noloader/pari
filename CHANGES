@@ -33,6 +33,8 @@ BA 14- [libpari] FqX_nbfact did not work
    23- idealprincipalunits(,,1) not supported [ concat error ] [from 2.8.0]
    24- stack corruption in pollardbrent() at \g4 [#1858]
 BA 25- fflog could crash in char 2. [from 2.8.0]
+JD 26- is_universal_constant() made (possibly wrong) assumptions about memory
+       layout (gen_0 < ghalf)
 
   Added
     1- permtonum: allow t_VECSMALL input

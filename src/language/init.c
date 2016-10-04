@@ -61,6 +61,15 @@ const double LOG2_10 = 3.321928094887362;  /* log_2(10) */
 
 GEN gnil, gen_0, gen_1, gen_m1, gen_2, gen_m2, ghalf, err_e_STACK;
 
+static const ulong readonly_ghalf_components[] = {
+  evaltyp(t_INT) | _evallg(3),  /* gen_1 */
+  evalsigne(1) | evallgefint(3),
+  1,
+  evaltyp(t_INT) | _evallg(3),  /* gen_2 */
+  evalsigne(1) | evallgefint(3),
+  2
+};
+
 static const ulong readonly_constants[] = {
   evaltyp(t_INT) | _evallg(2),  /* gen_0 */
   evallgefint(2),
@@ -78,11 +87,9 @@ static const ulong readonly_constants[] = {
   evaltyp(t_INT) | _evallg(3),  /* gen_m2 */
   evalsigne(-1) | evallgefint(3),
   2,
-};
-static const long readonly_ghalf[] = {
   evaltyp(t_FRAC) | _evallg(3), /* ghalf */
-  (long)(readonly_constants+4),
-  (long)(readonly_constants+7)
+  (ulong)readonly_ghalf_components,
+  (ulong)(readonly_ghalf_components+3)
 };
 static const ulong readonly_err_STACK[] = {
   evaltyp(t_ERROR) | _evallg(2),
@@ -496,7 +503,7 @@ init_universal_constants(void)
   gen_2  = (GEN)readonly_constants+7;
   gen_m1 = (GEN)readonly_constants+10;
   gen_m2 = (GEN)readonly_constants+13;
-  ghalf  = (GEN)readonly_ghalf;
+  ghalf  = (GEN)readonly_constants+16;
   err_e_STACK = (GEN)readonly_err_STACK;
 }
 
