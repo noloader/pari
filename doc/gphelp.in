@@ -773,7 +773,8 @@ sub basic_subst {
   s/(^|[^\\])~/$1$tr{nbrk}/g;           # ties
   s/\\(simeq|sim|approx)(?![a-zA-Z])/ ~ /g;
   s/\\til(?![a-zA-Z])/~/g;		# ~ (transpose)
-  s/\\(~|tilde)/~/g;
+  s/\\(~|tilde|widetilde)/~/g;
+  s/\\colon\b/:/g;
 
   s/\\(equiv)(?![a-zA-Z])/ = /g;
   s/\\'a/$tr{aacute}/g; s/\\'\{a\}/$tr{aacute}/g;
