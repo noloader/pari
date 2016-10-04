@@ -50,3 +50,6 @@ K = bnfinit(polcompositum(T0,y^3+3*y^2+2*y+125,2), 1); K.cyc
 bnflog(K, 2)
 bnflog(K, 3)
 bnflog(K, 5)
+
+F=bnfinit(x^2-4565649,1);
+bnflog(F,2)

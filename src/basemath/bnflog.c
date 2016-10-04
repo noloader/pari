@@ -148,10 +148,18 @@ ell1(GEN ell) { return equaliu(ell,2)? utoipos(5): addiu(ell,1); }
 static GEN
 vtilde_i(GEN K, GEN x, GEN T, GEN deg, GEN ell, long prec)
 {
-  GEN N;
+  GEN L, N, cx;
   if (typ(x) != t_POL) x = nf_to_scalar_or_alg(K, x);
+  x = Q_primitive_part(x,&cx);
   N = RgXQ_norm(x, T);
-  return gdiv(Qp_log(cvtop(N, ell, prec)), deg);
+  L = Qp_log(cvtop(N,ell,prec));
+  if (cx)
+  {
+    Q_pvalrem(cx, ell, &cx);
+    if (!isint1(cx))
+      L = gadd(L, gmulsg(degpol(T), Qp_log(cvtop(cx,ell,prec))));
+  }
+  return gdiv(L, deg);
 }
 static GEN
 vtilde(GEN K, GEN x, GEN T, GEN deg, GEN ell, long prec)
@@ -334,13 +342,21 @@ ellsylow(GEN cyc, GEN ell)
 }
 
 static long
+vnorm_x(GEN nf, GEN x, GEN ell)
+{
+  x = nf_to_scalar_or_alg(nf,x);
+  if (typ(x) != t_POL) return 0;
+  x = Q_primpart(x);
+  return Q_pval(nfnorm(nf,x), ell);
+}
+static long
 vtilde_prec_x(GEN nf, GEN x, GEN ell)
 {
   long i, l, v;
   GEN G;
-  if (typ(x) != t_MAT) return Q_pval(nfnorm(nf,x), ell);
+  if (typ(x) != t_MAT) return vnorm_x(nf,x,ell);
   G = gel(x,1); l = lg(G); v = 0;
-  for (i = 1; i < l; i++) v = maxss(v, Q_pval(nfnorm(nf,gel(G,i)), ell));
+  for (i = 1; i < l; i++) v = maxss(v, vnorm_x(nf,gel(G,i),ell));
   return v;
 }
 /* upper bound for \delta(vec): estimate loss of accuracy when evaluating
