@@ -344,7 +344,7 @@ push_frame(GEN C, long lpc, long dummy)
     return;
   }
   if (lg(C)<8) while (j<lfr && frpc[j]==0) j++;
-  for(pc=0; pc<=lpc; pc++)
+  for(pc=0; pc<lpc; pc++) /* do not assume lpc was completed */
   {
     if (pc>0 && (code[pc]==OClocalvar || code[pc]==OClocalvar0))
       var_push((entree*)oper[pc],Llocal);
