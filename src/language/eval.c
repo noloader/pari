@@ -420,9 +420,10 @@ pushlex(long vn, GEN x)
 }
 
 INLINE void
-freelex(long vn)
+freelex(void)
 {
-  struct var_lex *v=var+s_var.n+vn;
+  struct var_lex *v=var+s_var.n-1;
+  s_var.n--;
   if (v->flag == COPY_VAL) gunclone_deep(v->value);
 }
 
@@ -431,7 +432,7 @@ restore_vars(long nbmvar, long nblvar)
 {
   long j;
   for(j=1;j<=nbmvar;j++)
-    { s_var.n--; freelex(0); } /* protect against SIGINT */
+    freelex();
   for(j=1;j<=nblvar;j++)
     { s_lvars.n--; pop_val(lvars[s_lvars.n]); }
 }
@@ -490,8 +491,7 @@ pop_lex(long n)
 {
   long j;
   for(j=1; j<=n; j++)
-    freelex(-j);
-  s_var.n-=n;
+    freelex();
   s_trace.n--;
 }
 
