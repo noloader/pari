@@ -794,14 +794,16 @@ INLINE void
 pari_stack_alloc(pari_stack *s, long nb)
 {
   void **sdat = pari_stack_base(s);
-  if (s->n+nb <= s->alloc) return;
-  if (!s->alloc)
-    s->alloc = nb;
+  long alloc = s->alloc;
+  if (s->n+nb <= alloc) return;
+  if (!alloc)
+    alloc = nb;
   else
   {
-    while (s->n+nb > s->alloc) s->alloc <<= 1;
+    while (s->n+nb > alloc) alloc <<= 1;
   }
-  *sdat = pari_realloc(*sdat,s->alloc*s->size);
+  *sdat = pari_realloc(*sdat,alloc*s->size);
+  s->alloc = alloc;
 }
 
 INLINE long
