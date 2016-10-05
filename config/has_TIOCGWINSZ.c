@@ -4,6 +4,9 @@
 #  include <sys/termios.h>
 #endif
 #include <sys/ioctl.h>
+#ifdef __EMSCRIPTEN__
+#error TIOCGWINSZ broken with emscripten
+#endif
 int main()
 {
   struct winsize s;
