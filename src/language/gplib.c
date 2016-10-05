@@ -22,6 +22,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #  include "../systems/mingw/mingw.h"
 #  include <process.h>
 #endif
+#ifdef __EMSCRIPTEN__
+#include "../systems/emscripten/emscripten.h"
+#endif
 
 #include "pari.h"
 #include "paripriv.h"
@@ -423,7 +426,7 @@ external_help(const char *s, int num)
   pariFILE *z;
   FILE *f;
 #ifdef __EMSCRIPTEN__
-  pari_err(e_MISC,"Help: http://pari.math.u-bordeaux.fr/dochtml/help/%s",s);
+  pari_emscripten_help(s);
 #endif
 
   if (!has_ext_help()) pari_err(e_MISC,"no external help program");

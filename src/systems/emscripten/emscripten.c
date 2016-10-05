@@ -21,3 +21,9 @@ pari_emscripten_wget(const char *s)
   emscripten_async_wget(name,s,NULL,NULL);
   pari_err(e_MISC,"retry");
 }
+
+void
+pari_emscripten_help(const char *s)
+{
+  pari_err(e_MISC,"Help: http://pari.math.u-bordeaux.fr/dochtml/help/%s",s);
+}
