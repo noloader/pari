@@ -637,7 +637,7 @@ rnfidealup(GEN rnf,GEN x)
     if (typ(c) == t_MAT)
     {
       c = Q_remove_denom(c,&d);
-      c = idealmul_HNF(nf,c,x2);
+      c = idealHNF_mul(nf,c,x2);
       if (d) c = gdiv(c,d);
     }
     else
@@ -1320,7 +1320,7 @@ zero_nfbezout(GEN nf,GEN bB, GEN b, GEN A,GEN B,GEN *u,GEN *v,GEN *w,GEN *di)
     *v = nfinv(nf,b);
     *w = idealmul(nf,A,*v);
     d = bB? bB: idealmul(nf,b,B);
-    *di = idealinv_HNF(nf,d);
+    *di = idealHNF_inv(nf,d);
   }
   *u = gen_0; return d;
 }
@@ -1347,7 +1347,7 @@ nfbezout(GEN nf,GEN a,GEN b, GEN A,GEN B, GEN *pu,GEN *pv,GEN *pw,GEN *pdi)
   if (gequal(aA, d)) return zero_nfbezout(nf,aA, a,B,A,pv,pu,pw,pdi);
   if (gequal(bB, d)) return zero_nfbezout(nf,bB, b,A,B,pu,pv,pw,pdi);
   /* general case is slow */
-  di = idealinv_HNF(nf,d);
+  di = idealHNF_inv(nf,d);
   w = idealmul(nf,aA,di); /* integral */
   uv = idealaddtoone(nf, w, idealmul(nf,bB,di));
   w = idealmul(nf,w,B);

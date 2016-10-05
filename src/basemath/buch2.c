@@ -2419,7 +2419,7 @@ powPgen(GEN nf, GEN vp, GEN *ppowP, long a)
   for (j=2; j<=a; j++)
   {
     if (DEBUGLEVEL>1) err_printf(" %ld", j);
-    J = idealtwoelt(nf, idealmul_HNF(nf, vp, J));
+    J = idealtwoelt(nf, idealHNF_mul(nf, vp, J));
     gel(J, 2) = zk_scalar_or_multable(nf, gel(J,2));
     gel(id2,j) = J;
   }
@@ -2682,7 +2682,7 @@ get_random_ideal(FB_t *F, GEN nf, GEN ex)
       if (ex[i])
       {
         GEN a = gmael(F->id2,id,ex[i]);
-        ideal = ideal? idealmul_HNF(nf,ideal, a): idealhnf_two(nf,a);
+        ideal = ideal? idealHNF_mul(nf,ideal, a): idealhnf_two(nf,a);
       }
     }
     if (ideal) { /* ex  != 0 */
@@ -2729,7 +2729,7 @@ rnd_rel(RELCACHE_t *cache, FB_t *F, GEN nf, FACT *fact)
       err_printf("\n*** Ideal no %ld: %Ps\n", rr.jid, vecslice(ideal,1,4));
     else if (DEBUGLEVEL)
       err_printf("(%ld) ", rr.jid);
-    ideal = idealmul_HNF(nf, baseideal, ideal);
+    ideal = idealHNF_mul(nf, baseideal, ideal);
     rr.Nideal = ZM_det_triangular(ideal);
     if (Fincke_Pohst_ideal(cache, F, nf, M, G, ideal, fact,
                            RND_REL_RELPID, &fp, &rr, prec, NULL, NULL))
@@ -2964,7 +2964,7 @@ be_honest(FB_t *F, GEN nf, GEN auts, FACT *fact)
         {
           long id = F->subFB[i];
           ex = random_bits(RANDOM_BITS);
-          if (ex) ideal = idealmul_HNF(nf,ideal, gmael(F->id2,id,ex));
+          if (ex) ideal = idealHNF_mul(nf,ideal, gmael(F->id2,id,ex));
         }
         ideal = remove_content(ideal);
       }

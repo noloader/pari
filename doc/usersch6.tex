@@ -855,7 +855,7 @@ in \var{prid} form, return their product. Assume that \var{nf} is a true
 \fun{GEN}{idealprod}{GEN nf, GEN v} given a list $v$ of ideals,
 return their product. Assume that \var{nf} is a true \var{nf} structure.
 
-\fun{GEN}{idealmul_HNF}{GEN nf, GEN x, GEN y} returns $xy$, assuming
+\fun{GEN}{idealHNF_mul}{GEN nf, GEN x, GEN y} returns $xy$, assuming
 than \kbd{nf} is a true \var{nf}, $x$ is an integral ideal in HNF and $y$
 is an integral ideal in HNF or precompiled form (see below).
 For maximal speed, the second ideal $y$ may be given in precompiled form $y =
@@ -866,10 +866,10 @@ the same ideal $y$. This essentially reduces each ideal multiplication to
 an $N\times N$ matrix multiplication followed by a $N\times 2N$ modular
 HNF reduction (modulo $xy\cap \Z$).
 
-\fun{GEN}{idealinv_HNF}{GEN nf, GEN I} returns $I^{-1}$, assuming that
+\fun{GEN}{idealHNF_inv}{GEN nf, GEN I} returns $I^{-1}$, assuming that
 \kbd{nf} is a true \var{nf} and $x$ is a fractional ideal in HNF.
 
-\fun{GEN}{idealinv_HNF_Z}{GEN nf, GEN I} returns $(I\cap \Z) \cdot I^{-1}$,
+\fun{GEN}{idealHNF_inv_Z}{GEN nf, GEN I} returns $(I\cap \Z) \cdot I^{-1}$,
 assuming that \kbd{nf} is a true \var{nf} and $x$ is an integral fractional
 ideal in HNF. The result is an integral ideal in HNF.
 

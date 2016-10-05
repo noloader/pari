@@ -771,7 +771,7 @@ idealaddtoone_i(GEN nf, GEN x, GEN y)
     a = trivial_merge(x);
   else {
     a = hnfmerge_get_1(x, y);
-    if (a && typ(a) == t_COL) a = ZC_reducemodlll(a, idealmul_HNF(nf,x,y));
+    if (a && typ(a) == t_COL) a = ZC_reducemodlll(a, idealHNF_mul(nf,x,y));
   }
   if (!a) pari_err_COPRIME("idealaddtoone",x,y);
   return a;
@@ -842,7 +842,7 @@ idealaddmultoone(GEN nf, GEN list)
  * y = [a,alpha] corresponds to the integral ideal aZ_K+alpha Z_K, a in Z,
  * alpha a ZV or a ZM (multiplication table). Multiply them */
 static GEN
-idealmul_HNF_two(GEN nf, GEN x, GEN y)
+idealHNF_mul_two(GEN nf, GEN x, GEN y)
 {
   GEN m, a = gel(y,1), alpha = gel(y,2);
   long i, N;
@@ -862,23 +862,23 @@ idealmul_HNF_two(GEN nf, GEN x, GEN y)
 /* Assume ix and iy are integral in HNF form [NOT extended]. Not memory clean.
  * HACK: ideal in iy can be of the form [a,b], a in Z, b in Z_K */
 GEN
-idealmul_HNF(GEN nf, GEN x, GEN y)
+idealHNF_mul(GEN nf, GEN x, GEN y)
 {
   GEN z;
   if (typ(y) == t_VEC)
-    z = idealmul_HNF_two(nf,x,y);
+    z = idealHNF_mul_two(nf,x,y);
   else
   { /* reduce one ideal to two-elt form. The smallest */
     GEN xZ = gcoeff(x,1,1), yZ = gcoeff(y,1,1);
     if (cmpii(xZ, yZ) < 0)
     {
       if (is_pm1(xZ)) return gcopy(y);
-      z = idealmul_HNF_two(nf, y, mat_ideal_two_elt(nf,x));
+      z = idealHNF_mul_two(nf, y, mat_ideal_two_elt(nf,x));
     }
     else
     {
       if (is_pm1(yZ)) return gcopy(x);
-      z = idealmul_HNF_two(nf, x, mat_ideal_two_elt(nf,y));
+      z = idealHNF_mul_two(nf, x, mat_ideal_two_elt(nf,y));
     }
   }
   return z;
@@ -1049,7 +1049,7 @@ ext_pow(GEN nf, GEN x, GEN n) {
 GEN
 extideal_HNF_mul(GEN nf, GEN x, GEN y)
 {
-  return mkvec2(idealmul_HNF(nf, gel(x,1), gel(y,1)),
+  return mkvec2(idealHNF_mul(nf, gel(x,1), gel(y,1)),
                 ext_mul(nf, gel(x,2), gel(y,2)));
 }
 
@@ -1457,7 +1457,7 @@ idealmul_aux(GEN nf, GEN x, GEN y, long tx, long ty)
       { y = idealhnf_two(nf,y); cy = NULL; }
       else
         y = Q_primitive_part(y, &cy);
-      y = idealmul_HNF_two(nf,y,x);
+      y = idealHNF_mul_two(nf,y,x);
       return cy? RgM_Rg_mul(y,cy): y;
 
     default: /* id_MAT */
@@ -1466,7 +1466,7 @@ idealmul_aux(GEN nf, GEN x, GEN y, long tx, long ty)
       if (lg(x)-1 != N || lg(y)-1 != N) pari_err_DIM("idealmul");
       x = Q_primitive_part(x, &cx);
       y = Q_primitive_part(y, &cy); cx = mul_content(cx,cy);
-      y = idealmul_HNF(nf,x,y);
+      y = idealHNF_mul(nf,x,y);
       return cx? ZM_Q_mul(y,cx): y;
     }
   }
@@ -1588,11 +1588,11 @@ idealnorm(GEN nf, GEN x)
  * nf[5][7] = same in 2-elt form.
  * Assume I integral. Return the integral ideal (I\cap Z) I^(-1) */
 GEN
-idealinv_HNF_Z(GEN nf, GEN I)
+idealHNF_inv_Z(GEN nf, GEN I)
 {
   GEN J, dual, IZ = gcoeff(I,1,1); /* I \cap Z */
   if (isint1(IZ)) return matid(lg(I)-1);
-  J = idealmul_HNF(nf,I, gmael(nf,5,7));
+  J = idealHNF_mul(nf,I, gmael(nf,5,7));
  /* I in HNF, hence easily inverted; multiply by IZ to get integer coeffs
   * missing content cancels while solving the linear equation */
   dual = shallowtrans( hnf_divscale(J, gmael(nf,5,6), IZ) );
@@ -1600,10 +1600,10 @@ idealinv_HNF_Z(GEN nf, GEN I)
 }
 /* I HNF with rational coefficients (denominator d). */
 GEN
-idealinv_HNF(GEN nf, GEN I)
+idealHNF_inv(GEN nf, GEN I)
 {
   GEN J, IQ = gcoeff(I,1,1); /* I \cap Q; d IQ = dI \cap Z */
-  J = idealinv_HNF_Z(nf, Q_remove_denom(I, NULL)); /* = (dI)^(-1) * (d IQ) */
+  J = idealHNF_inv_Z(nf, Q_remove_denom(I, NULL)); /* = (dI)^(-1) * (d IQ) */
   return equali1(IQ)? J: RgM_Rg_div(J, IQ);
 }
 
@@ -1636,7 +1636,7 @@ idealinv(GEN nf, GEN x)
   {
     case id_MAT:
       if (lg(x)-1 != N) pari_err_DIM("idealinv");
-      x = idealinv_HNF(nf,x); break;
+      x = idealHNF_inv(nf,x); break;
     case id_PRINCIPAL:
       x = nf_to_scalar_or_basis(nf, x);
       if (typ(x) != t_COL)
@@ -1707,9 +1707,9 @@ idealnumden(GEN nf, GEN x)
   }
   J = hnfmodid(x, d); /* = d/B */
   c = gcoeff(J,1,1); /* (d/B) \cap Z, divides d */
-  B = idealinv_HNF_Z(nf, J); /* (d/B \cap Z) B/d */
+  B = idealHNF_inv_Z(nf, J); /* (d/B \cap Z) B/d */
   if (!equalii(c,d)) B = ZM_Z_mul(B, diviiexact(d,c)); /* = B ! */
-  A = idealmul_HNF(nf, B, x0); /* d * (original x) * B = d A */
+  A = idealHNF_mul(nf, B, x0); /* d * (original x) * B = d A */
   A = ZM_Z_divexact(A, d); /* = A ! */
   return gerepilecopy(av, mkvec2(A, B));
 }
@@ -1794,7 +1794,7 @@ idealmulpowprime(GEN nf, GEN x, GEN pr, GEN n)
   { cx = x; x = NULL; }
   cx = mul_content(c,cx);
   if (x)
-    x = idealmul_HNF_two(nf,x,y);
+    x = idealHNF_mul_two(nf,x,y);
   else
     x = idealhnf_two(nf,y);
   if (cx) x = RgM_Rg_mul(x,cx);
@@ -1843,7 +1843,7 @@ idealpow_aux(GEN nf, GEN x, long tx, GEN n)
         if (s<0) {
           GEN xZ = gcoeff(x,1,1);
           cx = cx ? gdiv(cx, xZ): ginv(xZ);
-          x = idealinv_HNF_Z(nf,x);
+          x = idealHNF_inv_Z(nf,x);
         }
         if (cx) x = RgM_Rg_mul(x, cx);
       }
@@ -2012,7 +2012,7 @@ idealdivexact(GEN nf, GEN x0, GEN y0)
 
   y = ZM_hnfmodid(y, diviiexact(Ny,Nz));
   yZ = gcoeff(y,1,1);
-  y = idealmul_HNF(nf,x, idealinv_HNF_Z(nf,y));
+  y = idealHNF_mul(nf,x, idealHNF_inv_Z(nf,y));
   return gerepileupto(av, RgM_Rg_div(y, yZ));
 }
 
@@ -2160,7 +2160,7 @@ idealred0(GEN nf, GEN I, GEN vdir)
         if (!aI) { avma = av; return matid(N); }
         goto END;
       }
-      J = idealinv_HNF_Z(nf, I);
+      J = idealHNF_inv_Z(nf, I);
       break;
     default: /* id_PRINCIPAL, silly case */
       if (gequal0(I)) I = cgetg(1,t_MAT); else { c1 = I; I = matid(N); }
@@ -2394,7 +2394,7 @@ idealprodprime(GEN nf, GEN L)
   GEN z;
   if (l == 1) return matid(nf_get_degree(nf));
   z = idealhnf_two(nf, gel(L,1));
-  for (i=2; i<l; i++) z = idealmul_HNF_two(nf,z, gel(L,i));
+  for (i=2; i<l; i++) z = idealHNF_mul_two(nf,z, gel(L,i));
   return z;
 }
 
