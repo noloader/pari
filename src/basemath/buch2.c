@@ -1329,6 +1329,15 @@ Vbase_to_FB(FB_t *F, GEN pr)
   return F->iLP[p] + pr_index(F->LV[p], pr);
 }
 
+/* x, y 2 extended ideals whose first component is an integral HNF and second
+ * a famat */
+static GEN
+idealHNFext_mul(GEN nf, GEN x, GEN y)
+{
+  return mkvec2(idealHNF_mul(nf, gel(x,1), gel(y,1)),
+                famat_mul(gel(x,2), gel(y,2)));
+}
+
 /* return famat y (principal ideal) such that y / x is smooth [wrt Vbase] */
 static GEN
 SPLIT(FB_t *F, GEN nf, GEN x, GEN Vbase, FACT *fact)
@@ -1378,8 +1387,8 @@ SPLIT(FB_t *F, GEN nf, GEN x, GEN Vbase, FACT *fact)
       if (ex[i])
       { /* avoid prec pb: don't let id become too large as lgsub increases */
         if (id != x0) id = idealred(nf,id);
-        z[1] = Vbase[i];
-        id = extideal_HNF_mul(nf, id, idealpowred(nf,z,utoipos(ex[i])));
+        gel(z,1) = gel(Vbase,i);
+        id = idealHNFext_mul(nf, id, idealpowred(nf,z,utoipos(ex[i])));
       }
     }
     if (id == x0) continue;
@@ -3283,14 +3292,14 @@ class_group_gen(GEN nf,GEN W,GEN C,GEN Vbase,long prec, GEN nf0,
   for (j=1; j<lo; j++)
   {
     GEN p1 = gcoeff(Uir,1,j);
-    z[1]=Vbase[1]; I = idealpowred(nf0,z,p1);
+    gel(z,1) = gel(Vbase,1); I = idealpowred(nf0,z,p1);
     for (i=2; i<lo0; i++)
     {
       p1 = gcoeff(Uir,i,j);
       if (signe(p1))
       {
-        z[1]=Vbase[i];
-        I = extideal_HNF_mul(nf0, I, idealpowred(nf0,z,p1));
+        gel(z,1) = gel(Vbase,i);
+        I = idealHNFext_mul(nf0, I, idealpowred(nf0,z,p1));
         I = idealred(nf0,I);
       }
     }

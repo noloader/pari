@@ -593,7 +593,6 @@ GEN     zk_ei_mul(GEN nf, GEN x, long i);
 
 /* base4.c */
 
-GEN     extideal_HNF_mul(GEN nf, GEN x, GEN y);
 GEN     factorbackprime(GEN nf, GEN L, GEN e);
 
 /* bb_group.c */

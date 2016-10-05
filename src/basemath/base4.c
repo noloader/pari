@@ -1025,33 +1025,17 @@ famat_Z_gcd(GEN M, GEN n)
 /* x assumed to be a t_MATs (factorization matrix), or compatible with
  * the element_* functions. */
 static GEN
-ext_sqr(GEN nf, GEN x) {
-  if (typ(x) == t_MAT) return famat_sqr(x);
-  return nfsqr(nf, x);
-}
+ext_sqr(GEN nf, GEN x)
+{ return (typ(x)==t_MAT)? famat_sqr(x): nfsqr(nf, x); }
 static GEN
-ext_mul(GEN nf, GEN x, GEN y) {
-  if (typ(x) == t_MAT) return (x == y)? famat_sqr(x): famat_mul(x,y);
-  return nfmul(nf, x, y);
-}
+ext_mul(GEN nf, GEN x, GEN y)
+{ return (typ(x)==t_MAT)? famat_mul(x,y): nfmul(nf, x, y); }
 static GEN
-ext_inv(GEN nf, GEN x) {
-  if (typ(x) == t_MAT) return famat_inv(x);
-  return nfinv(nf, x);
-}
+ext_inv(GEN nf, GEN x)
+{ return (typ(x)==t_MAT)? famat_inv(x): nfinv(nf, x); }
 static GEN
-ext_pow(GEN nf, GEN x, GEN n) {
-  if (typ(x) == t_MAT) return famat_pow(x,n);
-  return nfpow(nf, x, n);
-}
-
-/* x, y 2 extended ideals whose first component is an integral HNF */
-GEN
-extideal_HNF_mul(GEN nf, GEN x, GEN y)
-{
-  return mkvec2(idealHNF_mul(nf, gel(x,1), gel(y,1)),
-                ext_mul(nf, gel(x,2), gel(y,2)));
-}
+ext_pow(GEN nf, GEN x, GEN n)
+{ return (typ(x)==t_MAT)? famat_pow(x,n): nfpow(nf, x, n); }
 
 GEN
 famat_to_nf(GEN nf, GEN f)
