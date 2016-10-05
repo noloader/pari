@@ -940,9 +940,6 @@ $\goth{p}$ and valuation $0$ at all other primes dividing $p$; in particular,
 the valuation of $x\in\Z_K$ is positive if and only if the algebraic integer
 $x\tau$ is divisible by $p$ (easy to check for elements in \typ{COL} form).
 
-The following functions are shallow and return directly components of the
-\var{prid} \kbd{pr}:
-
 \fun{GEN}{pr_get_p}{GEN pr} returns $p$. Shallow function.
 
 \fun{GEN}{pr_get_gen}{GEN pr} returns $\pi$. Shallow function.
@@ -986,6 +983,13 @@ $T_i$ not dividing $D$, with \kbd{ei} $= e_i$. This function returns the
 prime ideal attached to $T_i$ by Kummer / Dedekind criterion, namely
 $p \Z_K + T_i(\bar{X}) \Z_K$, which has ramification index $e_i$ over $p$.
 Shallow function.
+
+\fun{GEN}{idealHNF_Z_factor}{GEN x, GEN *pvN, GEN *pvZ} given an integral
+(non-$0$) ideal $x$ in HNF, compute both the factorization of $Nx$ and
+of $x\cap\Z$. This returns the vector of prime divisors of both
+and sets \kbd{*pvN} and \kbd{*pvZ} to the corresponding \typ{VECSMALL} vector
+of exponents for the factorization for the Norm and intersection with $\Z$
+respetively.
 
 \fun{GEN}{nf_pV_to_prV}{GEN}{nf, GEN P} given a vector of rational primes
 $P$, return the vector of all prime ideals above the $P[i]$.

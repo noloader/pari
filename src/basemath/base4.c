@@ -469,241 +469,250 @@ idealtwoelt(GEN nf, GEN x)
 /*                         FACTORIZATION                           */
 /*                                                                 */
 /*******************************************************************/
-/* x integral ideal in HNF, return v_p(Nx), *vz = v_p(x \cap Z)
- * Use x[1,1] = x \cap Z */
-long
-val_norm(GEN x, GEN p, long *vz)
+/* x integral ideal in HNF, Zval = v_p(x \cap Z) > 0; return v_p(Nx) */
+static long
+idealHNF_norm_pval(GEN x, GEN p, long Zval)
 {
-  long i,l = lg(x), v;
-  *vz = v = Z_pval(gcoeff(x,1,1), p);
-  if (!v) return 0;
-  for (i=2; i<l; i++) v += Z_pval(gcoeff(x,i,i), p);
+  long i, v = Zval, l = lg(x);
+  for (i = 2; i < l; i++) v += Z_pval(gcoeff(x,i,i), p);
   return v;
 }
 
-/* return factorization of Nx, x integral in HNF */
+/* return P, primes dividing Nx and xZ = x\cap Z, set v_p(Nx), v_p(xZ);
+ * x integral in HNF */
 GEN
-factor_norm(GEN x)
+idealHNF_Z_factor(GEN x, GEN *pvN, GEN *pvZ)
 {
-  GEN r = gcoeff(x,1,1), f, p, e;
-  long i, k, l;
-  if (typ(r)!=t_INT) pari_err_TYPE("idealfactor",r);
-  f = Z_factor(r); p = gel(f,1); e = gel(f,2); l = lg(p);
-  for (i=1; i<l; i++) e[i] = val_norm(x,gel(p,i), &k);
-  settyp(e, t_VECSMALL); return f;
+  GEN xZ = gcoeff(x,1,1), f, P, E, vN, vZ;
+  long i, l;
+  if (typ(xZ) != t_INT) pari_err_TYPE("idealfactor",x);
+  f = Z_factor(xZ);
+  P = gel(f,1); l = lg(P);
+  E = gel(f,2);
+  *pvN = vN = cgetg(l, t_VECSMALL);
+  *pvZ = vZ = cgetg(l, t_VECSMALL);
+  for (i = 1; i < l; i++)
+  {
+    vZ[i] = itou(gel(E,i));
+    vN[i] = idealHNF_norm_pval(x,gel(P,i), vZ[i]);
+  }
+  return P;
 }
 
-/* X integral ideal */
+/* v_P(A)*f(P) <= Nval [e.g. Nval = v_p(Norm A)], Zval = v_p(A \cap Z).
+ * Return v_P(A) */
+static long
+idealHNF_val(GEN nf, GEN A, GEN P, long Nval, long Zval)
+{
+  long f = pr_get_f(P), vmax, v, e, i, j, k, l;
+  GEN mul, B, a, y, r, p, pk, cx, vals;
+  pari_sp av;
+
+  if (Nval < f) return 0;
+  p = pr_get_p(P);
+  e = pr_get_e(P);
+  /* v_P(A) <= max [ e * v_p(A \cap Z), floor[v_p(Nix) / f ] */
+  vmax = minss(Zval * e, Nval / f);
+  mul = pr_get_tau(P);
+  l = lg(mul);
+  B = cgetg(l,t_MAT);
+  /* B[1] not needed: v_pr(A[1]) = v_pr(A \cap Z) is known already */
+  gel(B,1) = gen_0; /* dummy */
+  for (j = 2; j < l; j++)
+  {
+    GEN x = gel(A,j);
+    gel(B,j) = y = cgetg(l, t_COL);
+    for (i = 1; i < l; i++)
+    { /* compute a = (x.t0)_i, A in HNF ==> x[j+1..l-1] = 0 */
+      a = mulii(gel(x,1), gcoeff(mul,i,1));
+      for (k = 2; k <= j; k++) a = addii(a, mulii(gel(x,k), gcoeff(mul,i,k)));
+      /* p | a ? */
+      gel(y,i) = dvmdii(a,p,&r); if (signe(r)) return 0;
+    }
+  }
+  vals = cgetg(l, t_VECSMALL);
+  /* vals[1] not needed */
+  for (j = 2; j < l; j++)
+  {
+    gel(B,j) = Q_primitive_part(gel(B,j), &cx);
+    vals[j] = cx? 1 + e * Q_pval(cx, p): 1;
+  }
+  pk = powiu(p, ceildivuu(vmax, e));
+  av = avma; y = cgetg(l,t_COL);
+  /* can compute mod p^ceil((vmax-v)/e) */
+  for (v = 1; v < vmax; v++)
+  { /* we know v_pr(Bj) >= v for all j */
+    if (e == 1 || (vmax - v) % e == 0) pk = diviiexact(pk, p);
+    for (j = 2; j < l; j++)
+    {
+      GEN x = gel(B,j); if (v < vals[j]) continue;
+      for (i = 1; i < l; i++)
+      {
+        pari_sp av2 = avma;
+        a = mulii(gel(x,1), gcoeff(mul,i,1));
+        for (k = 2; k < l; k++) a = addii(a, mulii(gel(x,k), gcoeff(mul,i,k)));
+        /* a = (x.t_0)_i; p | a ? */
+        a = dvmdii(a,p,&r); if (signe(r)) return v;
+        if (lgefint(a) > lgefint(pk)) a = remii(a, pk);
+        gel(y,i) = gerepileuptoint(av2, a);
+      }
+      gel(B,j) = y; y = x;
+      if (gc_needed(av,3))
+      {
+        if(DEBUGMEM>1) pari_warn(warnmem,"idealval");
+        gerepileall(av,3, &y,&B,&pk);
+      }
+    }
+  }
+  return v;
+}
+/* true nf, x integral ideal */
 static GEN
-idealfactor_HNF(GEN nf, GEN x)
+idealHNF_factor(GEN nf, GEN x)
 {
   const long N = lg(x)-1;
-  long i, j, k, lf, lc, v, vc;
-  GEN f, f1, f2, c1, c2, y1, y2, p1, cx, P;
+  long i, j, k, l, v;
+  GEN vp, vN, vZ, vP, vE, cx;
 
   x = Q_primitive_part(x, &cx);
-  if (!cx)
+  vp = idealHNF_Z_factor(x, &vN,&vZ);
+  l = lg(vp);
+  i = cx? expi(cx)+1: 1;
+  vP = cgetg((l+i-2)*N+1, t_COL);
+  vE = cgetg((l+i-2)*N+1, t_COL);
+  for (i = k = 1; i < l; i++)
   {
-    c1 = c2 = NULL; /* gcc -Wall */
-    lc = 1;
-  }
-  else
-  {
-    f = Z_factor(cx);
-    c1 = gel(f,1);
-    c2 = gel(f,2); lc = lg(c1);
-  }
-  f = factor_norm(x);
-  f1 = gel(f,1);
-  f2 = gel(f,2); lf = lg(f1);
-  y1 = cgetg((lf+lc-2)*N+1, t_COL);
-  y2 = cgetg((lf+lc-2)*N+1, t_VECSMALL);
-  k = 1;
-  for (i=1; i<lf; i++)
-  {
-    long l = f2[i]; /* = v_p(Nx) */
-    p1 = idealprimedec(nf,gel(f1,i));
-    vc = cx? Z_pval(cx,gel(f1,i)): 0;
-    for (j=1; j<lg(p1); j++)
+    GEN L, p = gel(vp,i);
+    long Nval = vN[i], Zval = vZ[i], vc = cx? Z_pvalrem(cx,p,&cx): 0;
+    if (vc)
     {
-      P = gel(p1,j);
-      v = idealval(nf,x,P);
-      l -= v*pr_get_f(P);
+      L = idealprimedec(nf,p);
+      if (is_pm1(cx)) cx = NULL;
+    }
+    else
+      L = idealprimedec_limit_f(nf,p,Nval);
+    for (j = 1; j < lg(L); j++)
+    {
+      GEN P = gel(L,j);
+      pari_sp av = avma;
+      v = idealHNF_val(nf,x,P, Nval, Zval);
+      avma = av;
+      Nval -= v*pr_get_f(P);
       v += vc * pr_get_e(P); if (!v) continue;
-      gel(y1,k) = P;
-      y2[k] = v; k++;
-      if (l == 0) break; /* now only the content contributes */
+      gel(vP,k) = P;
+      gel(vE,k) = utoipos(v); k++;
+      if (!Nval) break; /* now only the content contributes */
     }
-    if (vc == 0) continue;
-    for (j++; j<lg(p1); j++)
+    if (vc) for (j++; j<lg(L); j++)
     {
-      P = gel(p1,j);
-      gel(y1,k) = P;
-      y2[k++] = vc * pr_get_e(P);
+      GEN P = gel(L,j);
+      gel(vP,k) = P;
+      gel(vE,k) = utoipos(vc * pr_get_e(P)); k++;
     }
   }
-  for (i=1; i<lc; i++)
+  if (cx)
   {
-    /* p | Nx already treated */
-    if (dvdii(gcoeff(x,1,1),gel(c1,i))) continue;
-    p1 = idealprimedec(nf,gel(c1,i));
-    vc = itos(gel(c2,i));
-    for (j=1; j<lg(p1); j++)
+    GEN f = Z_factor(cx), cP = gel(f,1), cE = gel(f,2);
+    long lc = lg(cP);
+    for (i=1; i<lc; i++)
     {
-      P = gel(p1,j);
-      gel(y1,k) = P;
-      y2[k++] = vc * pr_get_e(P);
+      GEN p = gel(cP,i), L = idealprimedec(nf,p);
+      long vc = itos(gel(cE,i));
+      for (j=1; j<lg(L); j++)
+      {
+        GEN P = gel(L,j);
+        gel(vP,k) = P;
+        gel(vE,k) = utoipos(vc * pr_get_e(P)); k++;
+      }
     }
   }
-  setlg(y1, k);
-  setlg(y2, k);
-  return mkmat2(y1, zc_to_ZC(y2));
+  setlg(vP, k);
+  setlg(vE, k); return mkmat2(vP, vE);
+}
+/* c * vector(#L,i,L[i].e), assume results fit in ulong */
+static GEN
+prV_e_muls(GEN L, long c)
+{
+  long j, l = lg(L);
+  GEN z = cgetg(l, t_COL);
+  for (j = 1; j < l; j++) gel(z,j) = stoi(c * pr_get_e(gel(L,j)));
+  return z;
+}
+/* true nf, y in Q */
+static GEN
+Q_nffactor(GEN nf, GEN y)
+{
+  GEN f, P, E;
+  long lfa, i;
+  if (typ(y) == t_INT)
+  {
+    if (!signe(y)) pari_err_DOMAIN("idealfactor", "ideal", "=",gen_0,y);
+    if (is_pm1(y)) return trivial_fact();
+  }
+  f = factor(Q_abs_shallow(y));
+  P = gel(f,1); lfa = lg(P);
+  E = gel(f,2);
+  for (i = 1; i < lfa; i++)
+  {
+    gel(P,i) = idealprimedec(nf, gel(P,i));
+    gel(E,i) = prV_e_muls(gel(P,i), itos(gel(E,i)));
+  }
+  settyp(P,t_VEC); P = shallowconcat1(P);
+  settyp(E,t_VEC); E = shallowconcat1(E);
+  gel(f,1) = P; settyp(P, t_COL);
+  gel(f,2) = E; return f;
 }
 
 GEN
 idealfactor(GEN nf, GEN x)
 {
   pari_sp av = avma;
-  long tx;
-  GEN fa, f, y;
+  GEN fa, y;
+  long tx = idealtyp(&x,&y);
 
   nf = checknf(nf);
-  tx = idealtyp(&x,&y);
-  if (tx == id_PRIME)
-  {
-    y = cgetg(3,t_MAT);
-    gel(y,1) = mkcolcopy(x);
-    gel(y,2) = mkcol(gen_1); return y;
-  }
+  if (tx == id_PRIME) retmkmat2(mkcolcopy(x), mkcol(gen_1));
   if (tx == id_PRINCIPAL)
   {
     y = nf_to_scalar_or_basis(nf, x);
-    if (typ(y) != t_COL)
-    {
-      GEN c1, c2;
-      long lfa, i,j;
-      if (isintzero(y)) pari_err_DOMAIN("idealfactor", "ideal", "=",gen_0,x);
-      f = factor(Q_abs_shallow(y));
-      c1 = gel(f,1); lfa = lg(c1);
-      if (lfa == 1) { avma = av; return trivial_fact(); }
-      c2 = gel(f,2);
-      settyp(c1, t_VEC); /* for shallowconcat */
-      settyp(c2, t_VEC); /* for shallowconcat */
-      for (i = 1; i < lfa; i++)
-      {
-        GEN P = idealprimedec(nf, gel(c1,i)), E = gel(c2,i), z;
-        long lP = lg(P);
-        z = cgetg(lP, t_COL);
-        for (j = 1; j < lP; j++) gel(z,j) = mului(pr_get_e(gel(P,j)), E);
-        gel(c1,i) = P;
-        gel(c2,i) = z;
-      }
-      c1 = shallowconcat1(c1); settyp(c1, t_COL);
-      c2 = shallowconcat1(c2);
-      gel(f,1) = c1;
-      gel(f,2) = c2; return gerepilecopy(av, f);
-    }
+    if (typ(y) != t_COL) return gerepilecopy(av, Q_nffactor(nf, y));
   }
   y = idealnumden(nf, x);
-  if (isintzero(gel(y,1))) pari_err_DOMAIN("idealfactor", "ideal", "=",gen_0,x);
-  fa = idealfactor_HNF(nf, gel(y,1));
+  fa = idealHNF_factor(nf, gel(y,1));
   if (!isint1(gel(y,2)))
   {
-    GEN fa2 = idealfactor_HNF(nf, gel(y,2));
-    fa2 = famat_inv_shallow(fa2);
-    fa = famat_mul_shallow(fa, fa2);
+    GEN F = idealHNF_factor(nf, gel(y,2));
+    fa = famat_mul_shallow(fa, famat_inv_shallow(F));
   }
   fa = gerepilecopy(av, fa);
   return sort_factor(fa, (void*)&cmp_prime_ideal, &cmp_nodata);
 }
 
-/* P prime ideal in idealprimedec format. Return valuation(ix) at P */
+/* P prime ideal in idealprimedec format. Return valuation(A) at P */
 long
-idealval(GEN nf, GEN ix, GEN P)
+idealval(GEN nf, GEN A, GEN P)
 {
-  pari_sp av = avma, av1;
-  long N, vmax, vd, v, e, f, i, j, k, tx = typ(ix);
-  GEN mul, B, a, x, y, r, p, pk, cx, vals;
+  pari_sp av = avma;
+  GEN a, p, cA;
+  long vcA, v, Zval, tx = idealtyp(&A,&a);
 
-  if (is_extscalar_t(tx) || tx==t_COL) return nfval(nf,ix,P);
-  tx = idealtyp(&ix,&a);
-  if (tx == id_PRINCIPAL) return nfval(nf,ix,P);
+  if (tx == id_PRINCIPAL) return nfval(nf,A,P);
   checkprid(P);
-  if (tx == id_PRIME) return pr_equal(nf, P, ix)? 1: 0;
+  if (tx == id_PRIME) return pr_equal(nf, P, A)? 1: 0;
   /* id_MAT */
   nf = checknf(nf);
-  N = nf_get_degree(nf);
-  ix = Q_primitive_part(ix, &cx);
+  A = Q_primitive_part(A, &cA);
   p = pr_get_p(P);
-  f = pr_get_f(P);
-  if (f == N) { v = cx? Q_pval(cx,p): 0; avma = av; return v; }
-  i = val_norm(ix,p, &k);
-  if (!i) { v = cx? pr_get_e(P) * Q_pval(cx,p): 0; avma = av; return v; }
-
-  e = pr_get_e(P);
-  vd = cx? e * Q_pval(cx,p): 0;
-  /* 0 <= ceil[v_P(ix) / e] <= v_p(ix \cap Z) --> v_P <= e * v_p */
-  j = k * e;
-  /* 0 <= v_P(ix) <= floor[v_p(Nix) / f] */
-  i = i / f;
-  vmax = minss(i,j); /* v_P(ix) <= vmax */
-
-  mul = pr_get_tau(P);
-  /* occurs when reading from file a prid in old format */
-  if (typ(mul) != t_MAT) mul = zk_scalar_or_multable(nf,mul);
-  B = cgetg(N+1,t_MAT);
-  pk = powiu(p, (ulong)ceil((double)vmax / e));
-  /* B[1] not needed: v_pr(ix[1]) = v_pr(ix \cap Z) is known already */
-  gel(B,1) = gen_0; /* dummy */
-  for (j=2; j<=N; j++)
+  vcA = cA? Q_pval(cA,p): 0;
+  if (pr_is_inert(P)) { avma = av; return vcA; }
+  Zval = Z_pval(gcoeff(A,1,1), p);
+  if (!Zval) v = 0;
+  else
   {
-    x = gel(ix,j);
-    y = cgetg(N+1, t_COL); gel(B,j) = y;
-    for (i=1; i<=N; i++)
-    { /* compute a = (x.t0)_i, ix in HNF ==> x[j+1..N] = 0 */
-      a = mulii(gel(x,1), gcoeff(mul,i,1));
-      for (k=2; k<=j; k++) a = addii(a, mulii(gel(x,k), gcoeff(mul,i,k)));
-      /* p | a ? */
-      gel(y,i) = dvmdii(a,p,&r);
-      if (signe(r)) { avma = av; return vd; }
-    }
+    long Nval = idealHNF_norm_pval(A, p, Zval);
+    v = idealHNF_val(nf, A, P, Nval, Zval);
   }
-  vals = cgetg(N+1, t_VECSMALL);
-  /* vals[1] not needed */
-  for (j = 2; j <= N; j++)
-  {
-    gel(B,j) = Q_primitive_part(gel(B,j), &cx);
-    vals[j] = cx? 1 + e * Q_pval(cx, p): 1;
-  }
-  av1 = avma;
-  y = cgetg(N+1,t_COL);
-  /* can compute mod p^ceil((vmax-v)/e) */
-  for (v = 1; v < vmax; v++)
-  { /* we know v_pr(Bj) >= v for all j */
-    if (e == 1 || (vmax - v) % e == 0) pk = diviiexact(pk, p);
-    for (j = 2; j <= N; j++)
-    {
-      x = gel(B,j); if (v < vals[j]) continue;
-      for (i=1; i<=N; i++)
-      {
-        pari_sp av2 = avma;
-        a = mulii(gel(x,1), gcoeff(mul,i,1));
-        for (k=2; k<=N; k++) a = addii(a, mulii(gel(x,k), gcoeff(mul,i,k)));
-        /* a = (x.t_0)_i; p | a ? */
-        a = dvmdii(a,p,&r);
-        if (signe(r)) { avma = av; return v + vd; }
-        if (lgefint(a) > lgefint(pk)) a = remii(a, pk);
-        gel(y,i) = gerepileuptoint(av2, a);
-      }
-      gel(B,j) = y; y = x;
-      if (gc_needed(av1,3))
-      {
-        if(DEBUGMEM>1) pari_warn(warnmem,"idealval");
-        gerepileall(av1,3, &y,&B,&pk);
-      }
-    }
-  }
-  avma = av; return v + vd;
+  avma = av; return vcA? v + vcA*pr_get_e(P): v;
 }
 GEN
 gpidealval(GEN nf, GEN ix, GEN P)

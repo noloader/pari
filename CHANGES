@@ -51,7 +51,7 @@ JD 26- is_universal_constant() made (possibly wrong) assumptions about memory
    11- [libpari] Idealstarprk
    12- [libpari] ZpX_monic_factor
    13- [libpari] nf_to_Fp_coprime
-   14- [libpari] idealprod
+   14- [libpari] idealprod, idealHNF_Z_factor
    15- [libpari] rnfcomplete, rnf_build_nfabs, bnf_build_cycgen,
        bnf_build_units, bnf_build_matalpha
    16- [libpari] rnf_zkabs
