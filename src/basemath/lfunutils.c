@@ -208,7 +208,7 @@ GEN
 lfundiv(GEN ldata1, GEN ldata2, long bitprec)
 {
   pari_sp ltop = avma;
-  GEN r, N, v, v1, v2, eno, a1a2, b1b2, LD;
+  GEN r, N, v, v1, v2, eno, a1a2, b1b2, LD, eno2;
   long k, j, j1, j2, l1, l2;
   ldata1 = lfunmisc_to_ldata_shallow(ldata1);
   ldata2 = lfunmisc_to_ldata_shallow(ldata2);
@@ -220,7 +220,8 @@ lfundiv(GEN ldata1, GEN ldata2, long bitprec)
   if (typ(N) != t_INT) pari_err_OP("lfundiv [conductor]",ldata1, ldata2);
   a1a2 = lfunconvolinv(ldata_get_an(ldata1), ldata_get_an(ldata2));
   b1b2 = lfuncombdual(lfunconvolinv, ldata1, ldata2);
-  eno = gdiv(ldata_get_rootno(ldata1), ldata_get_rootno(ldata2));
+  eno2 = ldata_get_rootno(ldata2);
+  eno = isintzero(eno2)? gen_0: gdiv(ldata_get_rootno(ldata1), eno2);
   v1 = shallowcopy(ldata_get_gammavec(ldata1));
   v2 = ldata_get_gammavec(ldata2);
   l1 = lg(v1); l2 = lg(v2);
