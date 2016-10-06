@@ -3264,20 +3264,19 @@ static void
 class_group_gen(GEN nf,GEN W,GEN C,GEN Vbase,long prec, GEN nf0,
                 GEN *ptclg1,GEN *ptclg2)
 {
+  GEN z, G, Ga, ga, GD, cyc, X, Y, D, U, V, Ur, Ui, Uir, I, J, arch;
+  long i, j, lo, lo0;
   pari_timer T;
-  GEN z,G,Ga,ga,GD,cyc,X,Y,D,U,V,Ur,Ui,Uir,I,J,arch;
-  long i,j,lo,lo0;
 
   if (DEBUGLEVEL) timer_start(&T);
-  D = ZM_snfall(W,&U,&V); /* UWV = D, D diagonal, G = g Ui (G=new gens, g=old) */
-  Ui = RgM_inv(U);
+  D = ZM_snfall(W,&U,&V); /* UWV=D, D diagonal, G = g Ui (G=new gens, g=old) */
+  Ui = ZM_inv(U,gen_1);
   lo0 = lo = lg(D);
  /* we could set lo = lg(cyc) and truncate all matrices below
   *   setlg_col(D && U && Y, lo) + setlg(D && V && X && Ui, lo)
   * but it's not worth the complication:
   * 1) gain is negligible (avoid computing z^0 if lo < lo0)
-  * 2) when computing ga, the products XU and VY use the original matrices
-  */
+  * 2) when computing ga, the products XU and VY use the original matrices */
   Ur  = ZM_hnfdivrem(U, D, &Y);
   Uir = ZM_hnfdivrem(Ui,W, &X);
  /* [x] = logarithmic embedding of x (arch. component)
@@ -3291,11 +3290,12 @@ class_group_gen(GEN nf,GEN W,GEN C,GEN Vbase,long prec, GEN nf0,
   if (!nf0) nf0 = nf;
   for (j=1; j<lo; j++)
   {
-    GEN p1 = gcoeff(Uir,1,j);
+    GEN v = gel(Uir,j);
+    GEN p1 = gel(v,1);
     gel(z,1) = gel(Vbase,1); I = idealpowred(nf0,z,p1);
     for (i=2; i<lo0; i++)
     {
-      p1 = gcoeff(Uir,i,j);
+      p1 = gel(v,i);
       if (signe(p1))
       {
         gel(z,1) = gel(Vbase,i);
@@ -3309,7 +3309,7 @@ class_group_gen(GEN nf,GEN W,GEN C,GEN Vbase,long prec, GEN nf0,
       neg_row(Y ,j); gel(V,j) = ZC_neg(gel(V,j));
       neg_row(Ur,j); gel(X,j) = ZC_neg(gel(X,j));
     }
-    G[j] = J[1]; /* generator, order cyc[j] */
+    gel(G,j) = gel(J,1); /* generator, order cyc[j] */
     arch = famat_to_arch(nf, gel(J,2), prec);
     if (!arch) pari_err_PREC("class_group_gen");
     gel(Ga,j) = gneg(arch);
@@ -3319,8 +3319,7 @@ class_group_gen(GEN nf,GEN W,GEN C,GEN Vbase,long prec, GEN nf0,
   /* G D =: [GD] = g (UiP + W XP) D + [Ga]D = g W (VP + XP D) + [Ga]D
    * NB: DP = PD and Ui D = W V. gW is given by (first lo0-1 cols of) C
    */
-  GD = gadd(act_arch(ZM_add(V, ZM_mul(X,D)), C),
-            act_arch(D, Ga));
+  GD = gadd(act_arch(ZM_add(V, ZM_mul(X,D)), C), act_arch(D, Ga));
   /* -[ga] = [GD]PY + G PU - g = [GD]PY + [Ga] PU + gW XP PU
                                = gW (XP PUr + VP PY) + [Ga]PUr */
   ga = gadd(act_arch(ZM_add(ZM_mul(X,Ur), ZM_mul(V,Y)), C),
@@ -3339,7 +3338,7 @@ class_group_gen(GEN nf,GEN W,GEN C,GEN Vbase,long prec, GEN nf0,
     }
   }
   *ptclg1 = mkvec3(ZM_det_triangular(W), cyc, G);
-  *ptclg2 = mkvec3(Ur, ga,GD);
+  *ptclg2 = mkvec3(Ur, ga, GD);
   if (DEBUGLEVEL) timer_printf(&T, "classgroup generators");
 }
 
