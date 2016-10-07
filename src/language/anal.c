@@ -917,7 +917,7 @@ chartoGENstr(char c)
 /********************************************************************/
 static THREAD long max_priority, min_priority;
 static THREAD long max_avail; /* max variable not yet used */
-static long nvar; /* first GP free variable */
+static THREAD long nvar; /* first GP free variable */
 static hashtable *h_polvar;
 static struct pari_varstate global_varstate;
 static long *global_varpriority;
