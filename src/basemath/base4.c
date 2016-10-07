@@ -502,7 +502,7 @@ idealHNF_Z_factor(GEN x, GEN *pvN, GEN *pvZ)
 /* v_P(A)*f(P) <= Nval [e.g. Nval = v_p(Norm A)], Zval = v_p(A \cap Z).
  * Return v_P(A) */
 static long
-idealHNF_val(GEN nf, GEN A, GEN P, long Nval, long Zval)
+idealHNF_val(GEN A, GEN P, long Nval, long Zval)
 {
   long f = pr_get_f(P), vmax, v, e, i, j, k, l;
   GEN mul, B, a, y, r, p, pk, cx, vals;
@@ -595,7 +595,7 @@ idealHNF_factor(GEN nf, GEN x)
     {
       GEN P = gel(L,j);
       pari_sp av = avma;
-      v = idealHNF_val(nf,x,P, Nval, Zval);
+      v = idealHNF_val(x, P, Nval, Zval);
       avma = av;
       Nval -= v*pr_get_f(P);
       v += vc * pr_get_e(P); if (!v) continue;
@@ -710,7 +710,7 @@ idealval(GEN nf, GEN A, GEN P)
   else
   {
     long Nval = idealHNF_norm_pval(A, p, Zval);
-    v = idealHNF_val(nf, A, P, Nval, Zval);
+    v = idealHNF_val(A, P, Nval, Zval);
   }
   avma = av; return vcA? v + vcA*pr_get_e(P): v;
 }
