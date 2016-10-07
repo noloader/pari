@@ -1522,7 +1522,7 @@ static int
 contains(GEN H, GEN A)
 { return H? (hnf_solve(H, A) != NULL): gequal0(A); }
 
-/* (see also Discrayrel). Given a number field bnf=bnr[1], a ray class
+/* (see also bnrdisc_i). Given a number field bnf=bnr[1], a ray class
  * group structure bnr (with generators if flag > 0), and a subgroup H of the
  * ray class group, compute the conductor of H if flag=0. If flag > 0, compute
  * furthermore the corresponding H' and output
@@ -1815,80 +1815,82 @@ rnfconductor(GEN bnf, GEN polrel)
   return gerepilecopy(av, bnrconductor_i(bnr,group,2));
 }
 
+static GEN
+prV_norms(GEN v)
+{
+  long i, l;
+  GEN w = cgetg_copy(v, &l);
+  for (i = 1; i < l; i++) gel(w,i) = pr_norm(gel(v,i));
+  return w;
+}
+
 /* Given a number field bnf=bnr[1], a ray class group structure bnr, and a
  * subgroup H (HNF form) of the ray class group, compute [n, r1, dk]
- * attached to H. If flcond = 1, abort (return gen_0) if
- * module is not the conductor If flrel = 0, compute only N(dk) instead of
- * the ideal dk proper */
+ * attached to H. If flag & rnf_COND, abort (return NULL) if module is not the
+ * conductor. If flag & rnf_REL, return relative data, else absolute */
 static GEN
-Discrayrel(GEN bnr, GEN H0, long flag)
+bnrdisc_i(GEN bnr, GEN H, long flag)
 {
-  pari_sp av = avma;
-  long j, k, l, nz, flrel = flag & rnf_REL, flcond = flag & rnf_COND;
-  GEN bnf, nf, bid, ideal, archp, clhray, clhss, P, e, dlk;
+  const long flcond = flag & rnf_COND;
+  GEN nf, bid, clhray, E, ED, dk;
+  long k, d, l, n, r1;
   zlog_S S;
 
   checkbnr(bnr);
-  bnf = bnr_get_bnf(bnr);
   bid = bnr_get_bid(bnr); init_zlog_bid(&S, bid);
-  nf = bnf_get_nf(bnf);
-  ideal= bid_get_ideal(bid);
-  H0 = check_subgroup(bnr, H0, &clhray);
-  if (!H0) H0 = diagonal_shallow(bnr_get_cyc(bnr));
-  archp = S.archp;
-  P     = S.P;
-  e     = S.e; l = lg(e);
-  dlk = flrel? idealpow(nf,ideal,clhray)
-             : powii(ZM_det_triangular(ideal),clhray);
+  nf = bnr_get_nf(bnr);
+  H = check_subgroup(bnr, H, &clhray);
+  d = itos(clhray);
+  if (!H) H = diagonal_shallow(bnr_get_cyc(bnr));
+  E = S.e; ED = cgetg_copy(E, &l);
   for (k = 1; k < l; k++)
   {
-    GEN pr = gel(P,k), sum = gen_0, H = H0;
-    long ep = itos(gel(e,k));
-    for (j = ep; j > 0; j--)
+    long j, e = itos(gel(E,k)), eD = e*d;
+    GEN H2 = H;
+    for (j = e; j > 0; j--)
     {
       GEN z = bnr_log_gen_pr(bnr, &S, nf, j, k);
-      H = ZM_hnf(shallowconcat(H, z));
-      clhss = ZM_det_triangular(H);
-      if (flcond && j==ep && equalii(clhss,clhray)) { avma = av; return gen_0; }
-      if (is_pm1(clhss)) { sum = addis(sum, j); break; }
-      sum = addii(sum, clhss);
+      long d2;
+      H2 = ZM_hnf(shallowconcat(H2, z));
+      d2 = itos( ZM_det_triangular(H2) );
+      if (flcond && j==e && d2 == d) return NULL;
+      if (d2 == 1) { eD -= j; break; }
+      eD -= d2;
     }
-    dlk = flrel? idealdivpowprime(nf, dlk, pr, sum)
-               : diviiexact(dlk, powii(pr_norm(pr),sum));
+    gel(ED,k) = utoi(eD); /* v_{P[k]}(relative discriminant) */
   }
-  l = lg(archp); nz = nf_get_r1(nf) - (l-1);
+  l = lg(S.archp); r1 = nf_get_r1(nf);
   for (k = 1; k < l; k++)
   {
-    if (!contains(H0, bnr_log_gen_arch(bnr, &S, k))) continue;
-    if (flcond) { avma = av; return gen_0; }
-    nz++;
+    if (!contains(H, bnr_log_gen_arch(bnr, &S, k))) { r1--; continue; }
+    if (flcond) return NULL;
   }
-  return gerepilecopy(av, mkvec3(clhray, stoi(nz), dlk));
+  /* d = relative degree
+   * r1 = number of unramified real places;
+   * [P,ED] = factorization of relative discriminant */
+  if (flag & rnf_REL)
+  {
+    n  = d;
+    dk = factorbackprime(nf, S.P, ED);
+  }
+  else
+  {
+    n = d * nf_get_degree(nf);
+    r1= d * r1;
+    dk = factorback2(prV_norms(S.P), ED);
+    if (((n-r1)&3) == 2) dk = negi(dk); /* (2r2) mod 4 = 2: r2(relext) is odd */
+    dk = mulii(dk, powiu(absi(nf_get_disc(nf)), d));
+  }
+  return mkvec3(utoipos(n), utoi(r1), dk);
 }
-
 GEN
 bnrdisc(GEN bnr, GEN H, long flag)
 {
   pari_sp av = avma;
-  long clhray, n, R1;
-  GEN z, p1, D, dk, nf, dkabs;
-
-  D = Discrayrel(bnr, H, flag);
-  if ((flag & rnf_REL) || D == gen_0) return D;
-
-  nf = checknf(bnr);
-  dkabs = absi(nf_get_disc(nf));
-  clhray = itos(gel(D,1)); p1 = powiu(dkabs, clhray);
-  n = clhray * nf_get_degree(nf);
-  R1= clhray * itos(gel(D,2));
-  dk = gel(D,3);
-  if (((n-R1)&3) == 2) dk = negi(dk); /* (2r2) mod 4 = 2 : r2(relext) is odd */
-  z = cgetg(4,t_VEC);
-  gel(z,1) = utoipos(n);
-  gel(z,2) = stoi(R1);
-  gel(z,3) = mulii(dk,p1); return gerepileupto(av, z);
+  GEN D = bnrdisc_i(bnr, H, flag);
+  if (!D) { avma = av; return gen_0; }
+  return gerepilecopy(av, D);
 }
-
 GEN
 bnrdisc0(GEN A, GEN B, GEN C, long flag)
 {
