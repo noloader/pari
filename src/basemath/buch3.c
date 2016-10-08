@@ -1515,24 +1515,23 @@ static int
 contains(GEN H, GEN A)
 { return H? (hnf_solve(H, A) != NULL): gequal0(A); }
 
-/* (see also bnrdisc_i). Given a number field bnf=bnr[1], a ray class
- * group structure bnr (with generators if flag > 0), and a subgroup H of the
+/* (see bnrdisc_i). Given a bnr (with generators if flag > 0), and a subgroup
+ * H0 (possibly given as a character chi, in which case H0 = ker chi) of the
  * ray class group, compute the conductor of H if flag=0. If flag > 0, compute
- * furthermore the corresponding H' and output
+ * also the corresponding H' and output
  * if flag = 1: [[ideal,arch],[hm,cyc,gen],H']
  * if flag = 2: [[ideal,arch],newbnr,H'] */
 GEN
 bnrconductor_i(GEN bnr, GEN H0, long flag)
 {
   long j, k, l;
-  GEN bnf, nf, bid, ideal, archp, clhray, bnrc, e2, e, cond, H;
+  GEN nf, bid, ideal, archp, clhray, bnrc, e2, e, cond, H;
   int iscond0 = 1, iscondinf = 1, ischi;
   zlog_S S;
 
   checkbnr(bnr);
-  bnf = bnr_get_bnf(bnr);
   bid = bnr_get_bid(bnr); init_zlog_bid(&S, bid);
-  nf = bnf_get_nf(bnf);
+  nf = bnr_get_nf(bnr);
   H = check_subgroup(bnr, H0, &clhray);
 
   archp = leafcopy(S.archp);
@@ -1576,7 +1575,7 @@ bnrconductor_i(GEN bnr, GEN H0, long flag)
   }
   else
   {
-    bnrc = Buchray(bnf, cond, nf_INIT | nf_GEN);
+    bnrc = Buchray(bnr, cond, nf_INIT | nf_GEN);
     if (ischi)
       H = imageofchar(bnr, bnrc, H0);
     else
