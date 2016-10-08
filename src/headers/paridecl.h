@@ -4575,6 +4575,7 @@ INLINE GEN    abgrp_get_cyc(GEN x);
 INLINE GEN    abgrp_get_gen(GEN x);
 INLINE GEN    abgrp_get_no(GEN x);
 INLINE GEN    bid_get_arch(GEN bid);
+INLINE GEN    bid_get_archp(GEN bid);
 INLINE GEN    bid_get_cyc(GEN bid);
 INLINE GEN    bid_get_fact(GEN bid);
 INLINE GEN    bid_get_gen(GEN bid);

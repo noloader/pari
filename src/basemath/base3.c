@@ -2358,25 +2358,30 @@ join_unit(ideal_data *D, GEN x) {
   return mkvec2(join_idealinit(D, gel(x,1)), vconcat(gel(x,2), D->emb));
 }
 
+GEN
+zlog_units_noarch(GEN nf, GEN U, GEN bid)
+{
+  long j, l = lg(U);
+  GEN m = cgetg(l, t_MAT), empty = cgetg(1, t_VECSMALL);
+  zlog_S S; init_zlog_bid(&S, bid);
+  for (j = 1; j < l; j++) gel(m,j) = zlog(nf, gel(U,j), empty, &S);
+  return m;
+}
+
 /* compute matrix of zlogs of units; sgnU = vector of signs of units at
  * S.archp or NULL (S.archp empty) */
 GEN
 zlog_units(GEN nf, GEN U, GEN sgnU, GEN bid)
 {
-  long j, l = lg(U);
-  GEN m = cgetg(l, t_MAT);
-  zlog_S S; init_zlog_bid(&S, bid);
-  if (lg(S.archp) == 1) sgnU = NULL;
-  if (sgnU)
-  {
-    sgnU = rowpermute(sgnU, S.archp);
-    for (j = 1; j < l; j++) gel(m,j) = zlog(nf, gel(U,j), gel(sgnU,j), &S);
-  }
-  else
-  {
-    GEN empty = cgetg(1, t_VECSMALL);
-    for (j = 1; j < l; j++) gel(m,j) = zlog(nf, gel(U,j), empty, &S);
-  }
+  long j, l;
+  GEN m;
+  zlog_S S;
+  if (lg( bid_get_archp(bid) ) == 1) return zlog_units_noarch(nf,U,bid);
+  init_zlog_bid(&S, bid);
+  l = lg(U);
+  m = cgetg(l, t_MAT);
+  sgnU = rowpermute(sgnU, S.archp);
+  for (j = 1; j < l; j++) gel(m,j) = zlog(nf, gel(U,j), gel(sgnU,j), &S);
   return m;
 }
 
@@ -2419,7 +2424,7 @@ Ideallist(GEN bnf, ulong bound, long flag)
   z = cgetg(bound+1,t_VEC);
   if (do_units) {
     U = bnf_build_units(bnf);
-    gel(z,1) = mkvec( mkvec2(id, zlog_units(nf, U, NULL, id)) );
+    gel(z,1) = mkvec( mkvec2(id, zlog_units_noarch(nf, U, id)) );
   } else {
     U = NULL; /* -Wall */
     gel(z,1) = mkvec(id);
@@ -2448,7 +2453,7 @@ Ideallist(GEN bnf, ulong bound, long flag)
         ID.L = utoipos(l);
         if (big_id) {
           ID.prL = Idealstarprk(nf, pr, l, istar_flag);
-          if (do_units) ID.emb = zlog_units(nf, U, NULL, ID.prL);
+          if (do_units) ID.emb = zlog_units_noarch(nf, U, ID.prL);
         }
         for (iQ = Q,i = 1; iQ <= bound; iQ += Q,i++)
           concat_join(&gel(z,iQ), gel(z2,i), join_z, &ID);

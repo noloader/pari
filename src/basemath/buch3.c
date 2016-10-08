@@ -504,11 +504,10 @@ Buchray(GEN bnf, GEN module, long flag)
   }
 
   cycgen = bnf_build_cycgen(bnf);
-  /* (log(Units)|D) * u = (0 | H) */
   if (do_init)
-  {
+  { /* (log(Units)|D) * u = (0 | H) */
     GEN D = shallowconcat(get_dataunit(bnf, bid), diagonal_shallow(cycbid));
-    H = ZM_hnfall_i(D, do_init? &u: NULL, 1);
+    H = ZM_hnfall_i(D, &u, 1);
   }
   else
     H = ZM_hnfmodid(get_dataunit(bnf, bid), cycbid);
@@ -2348,18 +2347,20 @@ discrayabslistarch(GEN bnf, GEN arch, ulong bound)
   degk = nf_get_degree(nf);
   fadkabs = absZ_factor(nf_get_disc(nf));
   h = bnf_get_no(bnf);
+
+  if (allarch) arch = const_vec(r1, gen_1);
+  bidp = Idealstar(nf, mkvec2(gen_1, arch), nf_INIT);
   U = bnf_build_units(bnf);
   sgnU = nfsign_units(bnf, NULL, 1);
+  embunit = zlog_units(nf, U, sgnU, bidp);
 
   if (allarch) {
-    arch = const_vec(r1, gen_1);
-    bidp = Idealstar(nf, mkvec2(gen_1, arch), nf_INIT);
-    matarchunit = zlog_units(nf, U, sgnU, bidp);
+    matarchunit = embunit;
     bidp = Idealstar(nf, gen_1, nf_INIT);
+    embunit = zeromat(0,lg(U)-1); /* = zlog_units_noarch(nf, U, bidp) */
     if (r1>15) pari_err_IMPL("r1>15 in discrayabslistarch");
     nba = r1;
   } else {
-    bidp = Idealstar(nf, mkvec2(gen_1, arch), nf_INIT);
     matarchunit = NULL;
     for (nba=0,k=1; k<=r1; k++) if (signe(gel(arch,k))) nba++;
   }
@@ -2373,7 +2374,6 @@ discrayabslistarch(GEN bnf, GEN arch, ulong bound)
   sqbou = (ulong)sqrt((double)bound) + 1;
   Z = bigcgetvec(bound);
   for (i=2; i<=bound; i++) bigel(Z,i) = empty;
-  embunit = zlog_units(nf, U, sgnU, bidp);
   bigel(Z,1) = mkvec(zsimp(bidp,embunit));
   if (DEBUGLEVEL>1) err_printf("Starting zidealstarunits computations\n");
   /* The goal is to compute Ray (lists of bnrclassno). Z contains "zsimps",
@@ -2410,7 +2410,7 @@ discrayabslistarch(GEN bnf, GEN arch, ulong bound)
       {
         ulong iQ;
         bidp = Idealstarprk(nf, pr, l, nf_INIT);
-        embunit = zlog_units(nf, U, NULL, bidp);
+        embunit = zlog_units_noarch(nf, U, bidp);
         for (iQ = Q, i = 1; iQ <= bound; iQ += Q, i++)
         {
           GEN pz, p2, p1 = bigel(Z,i);

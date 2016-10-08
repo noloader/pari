@@ -2623,6 +2623,8 @@ bid_get_sprk(GEN bid) { return gmael(bid,4,1); }
 INLINE GEN
 bid_get_sarch(GEN bid) { return gmael(bid,4,2); }
 INLINE GEN
+bid_get_archp(GEN bid) { return gmael3(bid,4,2,4); }
+INLINE GEN
 bid_get_ind(GEN bid) { return gmael(bid,4,3); }
 INLINE GEN
 bid_get_U(GEN bid) { return gel(bid,5); }
