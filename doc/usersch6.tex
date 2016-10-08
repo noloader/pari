@@ -366,7 +366,12 @@ to $(\Z_K/I)^*$.
 of the \var{bid} modulus (an integer ideal).
 
 \fun{GEN}{bid_get_arch}{GEN bid} return the Archimedean part $I_\infty$
-of the \var{bid} modulus (a vector of real places).
+of the \var{bid} modulus as a vector of real places in vec01 format,
+see~\secref{se:signatures}.
+
+\fun{GEN}{bid_get_archp}{GEN bid} return the Archimedean part $I_\infty$
+of the \var{bid} modulus, as a vector of real places in indices format
+see~\secref{se:signatures}.
 
 \fun{GEN}{bid_get_fact}{GEN bid} returns the ideal factorization
 $I_0 = \prod_i \goth{p}_i^{e_i}$.
@@ -1128,7 +1133,7 @@ the same maximal ideal: they must lie above the same $p$ and share the same
 $e,f$ invariants, but the $p$-uniformizer and $\tau$ element may differ.
 Returns $0$ otherwise.
 
-\subsec{Signatures}
+\subsec{Signatures}\label{se:signatures}
 
 ``Signs'' of the real embeddings of number field element are represented in
 additive notation, using the standard identification $(\Z/2\Z, +) \to
