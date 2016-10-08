@@ -1335,7 +1335,7 @@ static GEN
 idealHNF_mulred(GEN nf, GEN x, GEN y)
 {
   GEN A = idealHNF_mul(nf, gel(x,1), gel(y,1));
-  GEN F = famat_mul(gel(x,2), gel(y,2));
+  GEN F = famat_mul_shallow(gel(x,2), gel(y,2));
   return idealred(nf, mkvec2(A, F));
 }
 
@@ -1402,7 +1402,7 @@ SPLIT(FB_t *F, GEN nf, GEN x, GEN Vbase, FACT *fact)
       {
         for (i=1; i<lgsub; i++)
           if (ex[i]) add_to_fact(Vbase_to_FB(F,gel(Vbase,i)), ex[i], fact);
-        return famat_mul(gel(id,2), y);
+        return famat_mul_shallow(gel(id,2), y);
       }
       avma = av2;
     }
@@ -1828,7 +1828,8 @@ isprincipalall(GEN bnf, GEN x, long *ptprec, long flag)
   }
   if (col)
   { /* add back missing content */
-    if (xc) col = (typ(col)==t_MAT)? famat_mul(col,xc): RgC_Rg_mul(col,xc);
+    if (xc) col = (typ(col)==t_MAT)? famat_mul_shallow(col,xc)
+                                   : RgC_Rg_mul(col,xc);
   }
   else
   {
@@ -1905,11 +1906,14 @@ GEN
 isprincipalgenforce(GEN bnf,GEN x)
 { return bnfisprincipal0(bnf,x,nf_GEN | nf_FORCE); }
 
+/* lg(u) > 1 */
+static int
+RgV_is1(GEN u) { return isint1(gel(u,1)) && RgV_isscalar(u); }
 static GEN
 add_principal_part(GEN nf, GEN u, GEN v, long flag)
 {
   if (flag & nf_GENMAT)
-    return (typ(u) == t_COL && RgV_isscalar(u) && gequal1(gel(u,1)))? v: famat_mul(v,u);
+    return (typ(u) == t_COL && RgV_is1(u))? v: famat_mul_shallow(v,u);
   else
     return nfmul(nf, v, u);
 }

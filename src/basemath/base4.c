@@ -889,25 +889,26 @@ idealHNF_mul(GEN nf, GEN x, GEN y)
 GEN
 famat_mul_shallow(GEN f, GEN g)
 {
+  if (typ(f) != t_MAT) f = to_famat_shallow(f,gen_1);
+  if (typ(g) != t_MAT) g = to_famat_shallow(g,gen_1);
   if (lg(f) == 1) return g;
   if (lg(g) == 1) return f;
   return mkmat2(shallowconcat(gel(f,1), gel(g,1)),
                 shallowconcat(gel(f,2), gel(g,2)));
 }
-
 GEN
-to_famat(GEN x, GEN y) {
-  GEN fa = cgetg(3, t_MAT);
-  gel(fa,1) = mkcol(gcopy(x));
-  gel(fa,2) = mkcol(gcopy(y)); return fa;
-}
-GEN
-to_famat_shallow(GEN x, GEN y) {
-  GEN fa = cgetg(3, t_MAT);
-  gel(fa,1) = mkcol(x);
-  gel(fa,2) = mkcol(y); return fa;
+famat_mulpow_shallow(GEN f, GEN g, GEN e)
+{
+  if (!signe(e)) return f;
+  return famat_mul_shallow(f, famat_pow_shallow(g, e));
 }
 
+GEN
+to_famat(GEN x, GEN y) { retmkmat2(mkcolcopy(x), mkcolcopy(y)); }
+GEN
+to_famat_shallow(GEN x, GEN y) { return mkmat2(mkcol(x), mkcol(y)); }
+
+/* concat the single elt x; not gconcat since x may be a t_COL */
 static GEN
 append(GEN v, GEN x)
 {
@@ -916,7 +917,6 @@ append(GEN v, GEN x)
   for (i=1; i<l; i++) gel(w,i) = gcopy(gel(v,i));
   gel(w,i) = gcopy(x); return w;
 }
-
 /* add x^1 to famat f */
 static GEN
 famat_add(GEN f, GEN x)
@@ -929,7 +929,7 @@ famat_add(GEN f, GEN x)
   }
   else
   {
-    gel(h,1) = append(gel(f,1), x); /* x may be a t_COL */
+    gel(h,1) = append(gel(f,1), x);
     gel(h,2) = gconcat(gel(f,2), gen_1);
   }
   return h;
@@ -965,38 +965,35 @@ famat_sqr(GEN f)
   gel(h,2) = gmul2n(gel(f,2),1);
   return h;
 }
+
 GEN
 famat_inv_shallow(GEN f)
 {
-  GEN h;
-  if (lg(f) == 1) return cgetg(1,t_MAT);
+  if (lg(f) == 1) return f;
   if (typ(f) != t_MAT) return to_famat_shallow(f,gen_m1);
-  h = cgetg(3,t_MAT);
-  gel(h,1) = gel(f,1);
-  gel(h,2) = ZC_neg(gel(f,2));
-  return h;
+  return mkmat2(gel(f,1), ZC_neg(gel(f,2)));
 }
 GEN
 famat_inv(GEN f)
 {
-  GEN h;
   if (lg(f) == 1) return cgetg(1,t_MAT);
   if (typ(f) != t_MAT) return to_famat(f,gen_m1);
-  h = cgetg(3,t_MAT);
-  gel(h,1) = gcopy(gel(f,1));
-  gel(h,2) = ZC_neg(gel(f,2));
-  return h;
+  retmkmat2(gcopy(gel(f,1)), ZC_neg(gel(f,2)));
 }
 GEN
 famat_pow(GEN f, GEN n)
 {
-  GEN h;
   if (lg(f) == 1) return cgetg(1,t_MAT);
   if (typ(f) != t_MAT) return to_famat(f,n);
-  h = cgetg(3,t_MAT);
-  gel(h,1) = gcopy(gel(f,1));
-  gel(h,2) = ZC_Z_mul(gel(f,2),n);
-  return h;
+  retmkmat2(gcopy(gel(f,1)), ZC_Z_mul(gel(f,2),n));
+}
+GEN
+famat_pow_shallow(GEN f, GEN n)
+{
+  if (is_pm1(n)) return signe(n) > 0? f: famat_inv_shallow(f);
+  if (lg(f) == 1) return f;
+  if (typ(f) != t_MAT) return to_famat_shallow(f,n);
+  return mkmat2(gel(f,1), ZC_Z_mul(gel(f,2),n));
 }
 
 GEN

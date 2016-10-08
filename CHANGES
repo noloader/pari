@@ -90,6 +90,7 @@ BA 40- [libpari] ZpXQX_roots, ZqX_roots, ZqX_liftfact, ZqX_liftroot,
    44- [libpari] ZM_hnf_knapsack
    45- [libpari] pol_xn, pol_xnall, retmkrfrac
    46- allow lindep(vector of t_VEC), lindep(vector of t_COL) [#1857]
+   47- [libpari] famat_pow_shallow, famat_mulpow_shallow
 
   Changed
     1- remove useless flag in idealappr: directly allow factorization
@@ -128,6 +129,7 @@ BA 18- ZpX_liftfact no longer handles extensions of Qp, use ZqX_liftfact
 BA 21- [libpari] rename listcreate to mklist
    22- [libpari] rename idealinv_HNF -> idealHNF_inv, idealinv_HNF_Z
        -> idealHNF_inv, idealmul_HNF -> idealHNF_mul
+   23- [libpari] made famat_mul_shallow a true equivalent of famat_mul
 
 Done for version 2.8.0 (released 12/08/2016):
 

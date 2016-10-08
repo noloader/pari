@@ -620,9 +620,9 @@ make_unit(GEN nf, GEN bnfS, GEN *px)
   {
     GEN e = gel(v,i);
     if (!signe(e)) continue;
-    xp = famat_mul(xp, to_famat_shallow(gel(gen,i), negi(e)));
+    xp = famat_mulpow_shallow(xp, gel(gen,i), negi(e));
   }
-  if (lg(xp) > 1) *px = famat_mul(xp, to_famat_shallow(xb, gen_1));
+  if (lg(xp) > 1) *px = famat_mulpow_shallow(xp, xb, gen_1);
   return v;
 }
 

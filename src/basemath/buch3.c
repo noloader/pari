@@ -173,25 +173,22 @@ nfarchstar(GEN nf, GEN x, GEN archp)
 static GEN
 compute_fact(GEN nf, GEN u1, GEN gen)
 {
-  GEN G, basecl;
   long i, j, l = lg(u1), h = lgcols(u1); /* l > 1 */
+  GEN basecl = cgetg(l,t_VEC), G;
 
-  basecl = cgetg(l,t_VEC);
-  G = cgetg(3,t_VEC);
-  gel(G,2) = cgetg(1,t_MAT);
-
-  for (j=1; j<l; j++)
+  G = mkvec2(NULL, cgetg(1,t_MAT));
+  for (j = 1; j < l; j++)
   {
-    GEN g,e, z = NULL;
-    for (i=1; i<h; i++)
+    GEN z = NULL;
+    for (i = 1; i < h; i++)
     {
-      e = gcoeff(u1,i,j); if (!signe(e)) continue;
+      GEN g, e = gcoeff(u1,i,j); if (!signe(e)) continue;
 
       g = gel(gen,i);
       if (typ(g) != t_MAT)
       {
         if (z)
-          gel(z,2) = famat_mul(gel(z,2), to_famat_shallow(g, e));
+          gel(z,2) = famat_mulpow_shallow(gel(z,2), g, e);
         else
           z = mkvec2(NULL, to_famat_shallow(g, e));
         continue;
@@ -518,13 +515,10 @@ Buchray(GEN bnf, GEN module, long flag)
    * modification by El is useless. */
   for (j=1; j<=ngen; j++)
   {
-    p1 = gel(cycgen,j);
+    GEN c = gel(cycgen,j);
     if (typ(gel(El,j)) != t_INT) /* <==> != 1 */
-    {
-      GEN F = to_famat_shallow(gel(El,j), gel(cyc,j));
-      p1 = famat_mul(F, p1);
-    }
-    gel(logs,j) = ideallog(nf, p1, bid); /* = log(Gen[j]) */
+      c = famat_mulpow_shallow(c, gel(El,j),gel(cyc,j));
+    gel(logs,j) = ideallog(nf, c, bid); /* = log(Gen[j]) */
   }
   /* [ cyc  0 ]
    * [-logs H ] = relation matrix for Cl_f */
@@ -655,7 +649,7 @@ bnrisprincipal(GEN bnr, GEN x, long flag)
     long i, j = lg(ep);
     for (i=1; i<j; i++) /* modify beta as if gen -> El.gen (coprime to bid) */
       if (typ(gel(El,i)) != t_INT && signe(gel(ep,i))) /* <==> != 1 */
-        beta = famat_mul(to_famat_shallow(gel(El,i), negi(gel(ep,i))), beta);
+        beta = famat_mulpow_shallow(beta, gel(El,i), negi(gel(ep,i)));
     ep = shallowconcat(ep, ideallog(nf,beta,bid));
   }
   ex = vecmodii(ZM_ZC_mul(U, ep), cycray);

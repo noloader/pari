@@ -247,10 +247,10 @@ lambdaofelt(GEN x, toK_s *T)
   GEN y = cgetg(1, t_MAT), powg = T->powg; /* powg[i] = g^i */
   for (i=1; i<m; i++)
   {
-    y = famat_mul(y, famat_pow(x, gel(powg,m-i)));
+    y = famat_mulpow_shallow(y, x, gel(powg,m-i));
     x = tauofelt(x, tau);
   }
-  return famat_mul(y, x);
+  return famat_mul_shallow(y, x);
 }
 static GEN
 lambdaofvec(GEN x, toK_s *T)
@@ -427,7 +427,7 @@ isprincipalell(GEN bnfz, GEN id, GEN cycgen, GEN u, GEN gell, long rc)
   for (i=rc+1; i<l; i++)
   {
     GEN e = modii(mulii(gel(logdisc,i),gel(u,i)), gell);
-    if (signe(e)) b = famat_mul(b, famat_pow(gel(cycgen,i), e));
+    b = famat_mulpow_shallow(b, gel(cycgen,i), e);
   }
   setlg(logdisc,rc+1); return mkvec2(logdisc, b);
 }
@@ -437,8 +437,7 @@ famat_factorback(GEN v, GEN e)
 {
   long i, l = lg(e);
   GEN V = cgetg(1, t_MAT);
-  for (i=1; i<l; i++)
-    if (signe(gel(e,i))) V = famat_mul(V, famat_pow(gel(v,i), gel(e,i)));
+  for (i=1; i<l; i++) V = famat_mulpow_shallow(V, gel(v,i), gel(e,i));
   return V;
 }
 
@@ -895,15 +894,13 @@ isvirtualunit(GEN bnf, GEN v, GEN cycgen, GEN cyc, GEN gell, long rc)
 
   L = bnfisprincipal0(bnf, w, nf_GENMAT|nf_FORCE);
   q = gel(L,1);
-  if (gequal0(q)) { eps = v; y = q; }
+  if (ZV_equal0(q)) { eps = v; y = q; }
   else
   {
-    b = gel(L,2);
     y = cgetg(l,t_COL);
-    for (i=1; i<l; i++)
-      gel(y,i) = diviiexact(mulii(gell,gel(q,i)), gel(cyc,i));
-    eps = famat_mul(famat_factorback(cycgen, y), famat_pow(b, gell));
-    eps = famat_mul(famat_inv(eps), v);
+    for (i=1; i<l; i++) gel(y,i) = diviiexact(mulii(gell,gel(q,i)), gel(cyc,i));
+    eps = famat_mulpow_shallow(famat_factorback(cycgen,y), gel(L,2), gell);
+    eps = famat_mul_shallow(famat_inv(eps), v);
   }
   setlg(y, rc+1);
   b = bnfisunit(bnf,eps);
@@ -1296,7 +1293,8 @@ _rnfkummer(GEN bnr, GEN subgroup, long all, long prec)
       GEN z = FpM_red(gmulsg((j*d)%ell,gel(p1,m-j)), gell);
       p2 = tauofvec(p2, tau);
       for (i=1; i<=rc; i++)
-        gel(vecC,i) = famat_mul(gel(vecC,i), famat_factorback(p2,gel(z,i)));
+        gel(vecC,i) = famat_mul_shallow(gel(vecC,i),
+                                        famat_factorback(p2,gel(z,i)));
     }
     for (i=1; i<=rc; i++) gel(vecC,i) = famat_reduce(gel(vecC,i));
   }
@@ -1354,7 +1352,7 @@ _rnfkummer(GEN bnr, GEN subgroup, long all, long prec)
     p1 = isprincipalell(bnfz, gel(Sp,j), cycgen,u,gell,rc);
     e = gel(p1,1); gel(matP,j) = e;
     a = gel(p1,2);
-    gel(vecBp,j) = famat_mul(famat_factorback(vecC, gneg(e)), a);
+    gel(vecBp,j) = famat_mul_shallow(famat_factorback(vecC, gneg(e)), a);
   }
   vecAp = lambdaofvec(vecBp, &T);
   /* step 13 */
