@@ -367,12 +367,13 @@ gp_embedded(const char *s)
   } pari_TRY {
     GEN z = gp_read_str_multiline(s, &last);
     ulong n;
-    pari_add_hist(z, 0);
+    t = timer_delay(GP_DATA->T);
+    if (GP_DATA->simplify) z = simplify_shallow(z);
+    pari_add_hist(z, t);
     n = pari_nb_hist();
     parivstack_reset();
     res = (z==gnil || last==';') ? stack_strdup("\n"):
           stack_sprintf("%%%lu = %Ps\n", n, pari_get_hist(n));
-    t = timer_delay(GP_DATA->T);
     if (t && GP_DATA->chrono)
       res = stack_sprintf("%stime = %s", res, gp_format_time(t));
   } pari_ENDCATCH;
