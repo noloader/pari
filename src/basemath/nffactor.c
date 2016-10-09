@@ -618,7 +618,6 @@ nffactor(GEN nf,GEN pol)
   }
   else
     y = nfsqff(nf,B, 0, den);
-  y = nfsqff(nf,B, 0, den);
   if (DEBUGLEVEL>3) err_printf("number of factor(s) found: %ld\n", lg(y)-1);
 
   fact_from_sqff(rep, A, B, y, T, bad);
