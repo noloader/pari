@@ -1056,15 +1056,14 @@ FqX_nbfact(GEN u, GEN T, GEN p)
 #define set_irred(i) { if ((i)>ir) swap(t[i],t[ir]); ir++;}
 
 static long
-FlxqX_split_Berlekamp(GEN *t, GEN T, ulong p)
+FlxqX_split_Berlekamp(GEN *t, GEN xp, GEN T, ulong p)
 {
   GEN u = *t, a,b,vker,pol;
   long vu = varn(u), vT = varn(T), dT = degpol(T);
   long d, i, ir, L, la, lb;
-  GEN S, X, xp, Xp, Xq;
+  GEN S, X, Xp, Xq;
   if (degpol(u)==1) return 1;
   T = Flx_get_red(T, p);
-  xp = Flx_Frobenius(T, p);
   S = FlxqX_get_red(u, T, p);
   X  = polx_FlxX(get_FlxqX_var(S),get_Flx_var(T));
   Xp = FlxqXQ_powu(X, p, S, T, p);
@@ -1871,7 +1870,7 @@ static GEN
 FlxqX_Berlekamp_i(GEN f, GEN T, ulong p)
 {
   long lfact, d = degpol(f), j, k, lV;
-  GEN E, t, V;
+  GEN E, t, V, xp;
   switch(d)
   {
     case -1: retmkmat2(mkcolcopy(f), mkvecsmall(1));
@@ -1881,7 +1880,8 @@ FlxqX_Berlekamp_i(GEN f, GEN T, ulong p)
   f = FlxqX_normalize(f, T, p);
   if (FlxY_degreex(f) <= 0) return Flx_factorff_i(FlxX_to_Flx(f), T, p);
   if (degpol(f)==2) return FlxqX_factor_2(f, T, p);
-  V = FlxqX_factor_squarefree(f, Flx_Frobenius(T, p), T, p); lV = lg(V);
+  xp = Flx_Frobenius(T, p);
+  V = FlxqX_factor_squarefree(f, xp, T, p); lV = lg(V);
 
   /* to hold factors and exponents */
   t = cgetg(d+1,t_VEC);
@@ -1891,7 +1891,7 @@ FlxqX_Berlekamp_i(GEN f, GEN T, ulong p)
   {
     if (degpol(gel(V,k))==0) continue;
     gel(t,lfact) = FlxqX_normalize(gel(V, k), T,p);
-    d = FlxqX_split_Berlekamp(&gel(t,lfact), T, p);
+    d = FlxqX_split_Berlekamp(&gel(t,lfact), xp, T, p);
     for (j = 0; j < d; j++) E[lfact+j] = k;
     lfact += d;
   }
