@@ -1069,7 +1069,7 @@ FlxqX_split_Berlekamp(GEN *t, GEN xp, GEN T, ulong p)
   Xp = FlxqXQ_powu(X, p, S, T, p);
   Xq = gel(FlxqXQV_autpow(mkvec2(xp, Xp), dT, S, T, p), 2);
   vker = FlxqX_Berlekamp_ker_i(Xq, S, T, p);
-  vker = Flm_to_FlxV(vker,vu);
+  vker = Flm_to_FlxV(vker,u[1]);
   d = lg(vker)-1;
   ir = 0;
   /* t[i] irreducible for i < ir, still to be treated for i < L */
