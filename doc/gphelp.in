@@ -84,7 +84,7 @@ sub help {
 }
 
 sub options {
-  $utf8 = $raw = $detex = $fromgp = $apropos = 0;
+  $utf8 = $raw = $detex = $fromgp = $apropos = $noskip = 0;
   $ch = $cb = $cu = '';
   while ($_ = $ARGV[0])
   {
@@ -102,6 +102,8 @@ sub options {
       { $raw = $detex = 1; }
     elsif ($_ eq "-utf8")
       { $utf8 = 1; }
+    elsif ($_ eq "-noskip")
+      { $noskip = 1; }
     elsif ($_ eq "-color_help" || $_ eq "-ch")
       { $ch = &color(shift(@ARGV)); }
     elsif ($_ eq "-color_bold" || $_ eq "-cb")
@@ -427,11 +429,16 @@ sub pretex {
   open(TEX,">$texfile.tex") || die "Couldn't open $texfile.tex";
 }
 
+sub endsection
+{
+  /^\\(section|sub[sub]*sec)/i && ($noskip || !/\%GPHELPskip/);
+}
+
 sub tex { my ($first) = @_;
   print TEX $first;
   while (<DOC>)
   {
-    last if (/^\\(section|sub[sub]*sec)/i && !/\%GPHELPskip/);
+    last if endsection();
     print TEX;
   }
 }
@@ -663,7 +670,7 @@ sub detex {
   if ($_) { s/^ *://; &presubst(); }
   while (<DOC>)
   {
-    last if (/^\\(section|sub[sub]*sec)/i && !/\%GPHELPskip/);
+    last if endsection();
     &presubst();
   }
   if ($raw) { print join("\n", @text); return; }

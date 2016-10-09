@@ -7,6 +7,7 @@ gphelp \- GP-PARI online help script
 .IR file ]
 [-raw]
 [-detex]
+[-noskip]
 [-utf8]
 [-k]
 [-ch
@@ -124,6 +125,12 @@ Use
 .B detex
 mode. The TeX file is converted to readable screen output that is directly
 written to the terminal; don't use tex or xdvi.
+
+.TP
+.BI \-noskip
+By default, the help text is continued when a new section is tagged with a
+%GPHELPskip marker (on the same line). If this option is set, do not honor
+markers: end the help text as soon as a new section is started.
 
 .TP
 .BI \-utf8
