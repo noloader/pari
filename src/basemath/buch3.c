@@ -2344,7 +2344,7 @@ discrayabslistarch(GEN bnf, GEN arch, ulong bound)
   if (allarch) arch = const_vec(r1, gen_1);
   bidp = Idealstar(nf, mkvec2(gen_1, arch), nf_INIT);
   U = bnf_build_units(bnf);
-  sgnU = nfsign_units(bnf, NULL, 1);
+  sgnU = nfsign_units(bnf, bid_get_archp(bidp), 1);
   embunit = zlog_units(nf, U, sgnU, bidp);
 
   if (allarch) {

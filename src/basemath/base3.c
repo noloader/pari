@@ -1636,7 +1636,6 @@ zkchinese1init2(GEN nf, GEN A, GEN B, GEN AB)
 static GEN
 zprimestar(GEN nf, GEN pr, GEN ep, GEN x, GEN arch)
 {
-  pari_sp av = avma;
   long a, e = itos(ep), f = pr_get_f(pr);
   GEN p = pr_get_p(pr), list, g, g0, y, uv, prb, pre;
   ulong mask;
@@ -1664,12 +1663,13 @@ zprimestar(GEN nf, GEN pr, GEN ep, GEN x, GEN arch)
     g0 = g;
   }
 
-  y = mkvec5(mkvec(subiu(powiu(p,f), 1)),
+  y = mkvecn(6, mkvec(subiu(powiu(p,f), 1)),
              mkvec(g),
              mkvec(g0),
              mkvec(nfsign_arch(nf,g0,arch)),
-             gen_1);
-  if (e == 1) return gerepilecopy(av, mkvec(y));
+             gen_1,
+             prb);
+  if (e == 1) return mkvec(y);
   list = vectrunc_init(e+1);
   vectrunc_append(list, y);
   mask = quadratic_prec_mask(e);
@@ -1692,11 +1692,11 @@ zprimestar(GEN nf, GEN pr, GEN ep, GEN x, GEN arch)
       if (x) gel(gen,i) = zkchinese1(uv, gel(gen,i));
       gel(s,i) = nfsign_arch(nf, gel(gen,i), arch);
     }
-    y = mkvec5(gel(z,1), gel(z,2), gen, s, U);
+    y = mkvecn(6, gel(z,1), gel(z,2), gen, s, U, prb);
     vectrunc_append(list, y);
     a = b;
   }
-  return gerepilecopy(av, list);
+  return list;
 }
 
 static GEN
@@ -1714,15 +1714,18 @@ apply_U(GEN U, GEN a)
   }
   return e;
 }
-/* a in Z_K (t_COL or t_INT), pr prime ideal, prk = pr^k,
- * list = zprimestar(nf, pr, k, ...)  */
 static GEN
-zlog_pk(GEN nf, GEN a, GEN y, GEN pr, GEN prk, GEN list, GEN *psigne)
+sprk_get_prk(GEN s)
+{ return gel(gel(s,lg(s)-1), 6); }
+/* a in Z_K (t_COL or t_INT), pr prime ideal, sprk = zprimestar(nf,pr,k,...)  */
+static GEN
+zlog_pk(GEN nf, GEN a, GEN y, GEN pr, GEN sprk, GEN *psigne)
 {
-  long i,j, llist = lg(list)-1;
-  for (j = 1; j <= llist; j++)
+  long i,j, l = lg(sprk)-1;
+  GEN prk = sprk_get_prk(sprk); /* pr^k */
+  for (j = 1; j <= l; j++)
   {
-    GEN L = gel(list,j), e;
+    GEN L = gel(sprk,j), e;
     GEN cyc = gel(L,1), gen = gel(L,2), s = gel(L,4), U = gel(L,5);
     if (j == 1)
       e = mkcol( nf_log(nf, a, gel(gen,1), gel(cyc,1), pr) );
@@ -1737,7 +1740,7 @@ zlog_pk(GEN nf, GEN a, GEN y, GEN pr, GEN prk, GEN list, GEN *psigne)
       gel(++y,0) = negi(t); if (!signe(t)) continue;
 
       if (mod2(t)) Flv_add_inplace(*psigne, gel(s,i), 2);
-      if (j != llist) a = elt_mulpow_modideal(nf, a, gel(gen,i), t, prk);
+      if (j != l) a = elt_mulpow_modideal(nf, a, gel(gen,i), t, prk);
     }
   }
   return y;
@@ -1765,17 +1768,14 @@ famat_zlog(GEN nf, GEN fa, GEN sgn, GEN bid)
   long i, l;
 
   y0 = y = cgetg(lg(U), t_COL);
-  if (!sgn) sgn = nfsign_arch(nf, mkmat2(g,e), arch);
+  if (!sgn) sgn = nfsign_arch(nf, fa, arch);
   l = lg(vp);
   for (i=1; i < l; i++)
   {
-    GEN pr = gel(vp,i), prk, ex;
-    if (l == 2) {
-      prk = bid_get_ideal(bid);
-      ex = EX;
-    } else { /* try to improve EX: should be group exponent mod prf, not f */
+    GEN pr = gel(vp,i), Sprk = gel(sprk,i), prk = sprk_get_prk(Sprk), ex;
+    if (l == 2) ex = EX;
+    else { /* try to improve EX: should be group exponent mod prf, not f */
       GEN k = gel(ep,i);
-      prk = idealpow(nf, pr, k);
       /* upper bound: gcd(EX, (Nv-1)p^(k-1)) = (Nv-1) p^min(k-1,v_p(EX)) */
       ex = subis(pr_norm(pr),1);
       if (!is_pm1(k)) {
@@ -1786,7 +1786,7 @@ famat_zlog(GEN nf, GEN fa, GEN sgn, GEN bid)
       }
     }
     x = famat_makecoprime(nf, g, e, pr, prk, ex);
-    y = zlog_pk(nf, x, y, pr, prk, gel(sprk,i), &sgn);
+    y = zlog_pk(nf, x, y, pr, Sprk, &sgn);
   }
   zlog_add_sign(y0, sgn, bid_get_sarch(bid));
   return y0;
@@ -1850,11 +1850,7 @@ zlog_ind(GEN nf, GEN a, zlog_S *S, GEN sgn, long index)
   }
   if (!sgn) sgn = nfsign_arch(nf, a, S->archp);
   for (k = kmin; k <= kmax; k++)
-  {
-    GEN L = gel(S->sprk,k), pr  = gel(S->P,k);
-    GEN prk = idealpow(nf, pr, gel(S->e,k));
-    y = zlog_pk(nf, a, y, pr, prk, L, &sgn);
-  }
+    y = zlog_pk(nf, a, y, gel(S->P,k), gel(S->sprk,k), &sgn);
   zlog_add_sign(y0, sgn, S->sarch);
   return gerepilecopy(av, y0);
 }
@@ -1880,7 +1876,7 @@ log_gen_pr(zlog_S *S, long index, GEN nf, long e)
   }
   else
   {
-    GEN prk, g, pr = gel(S->P,index);
+    GEN g, pr = gel(S->P,index);
     long narchp = lg(S->archp)-1;
 
     if (e == 2)
@@ -1889,12 +1885,11 @@ log_gen_pr(zlog_S *S, long index, GEN nf, long e)
       L = zidealij(idealpows(nf,pr,e-1), idealpows(nf,pr,e), NULL);
     g = gel(L,2);
     l = lg(g); A = cgetg(l, t_MAT);
-    prk = idealpow(nf, pr, gel(S->e,index));
     for (i = 1; i < l; i++)
     {
       GEN G = gel(g,i), sgn = zero_zv(narchp); /*positive at f_oo*/
       y = zerocol(S->n);
-      (void)zlog_pk(nf, G, y + yind, pr, prk, L2, &sgn);
+      (void)zlog_pk(nf, G, y + yind, pr, L2, &sgn);
       zlog_add_sign(y, sgn, S->sarch);
       gel(A,i) = y;
     }
@@ -2075,10 +2070,9 @@ Idealstarprk(GEN nf, GEN pr, long k, long flag)
 static GEN
 principal_units(GEN nf, GEN pr, long e, GEN pre)
 {
-  pari_sp av = avma;
-  long a;
   GEN list, prb;
   ulong mask;
+  long a;
 
   if(DEBUGLEVEL>3) err_printf("treating pr^%ld, pr = %Ps\n",e,pr);
   if (e == 1) return cgetg(1, t_VEC);
@@ -2100,7 +2094,7 @@ principal_units(GEN nf, GEN pr, long e, GEN pre)
     vectrunc_append(list, mkvec3(gel(z,1),gel(z,2),U));
     a = b;
   }
-  return gerepilecopy(av, list);
+  return list;
 }
 
 static GEN
@@ -2368,8 +2362,7 @@ zlog_units_noarch(GEN nf, GEN U, GEN bid)
   return m;
 }
 
-/* compute matrix of zlogs of units; sgnU = vector of signs of units at
- * S.archp or NULL (S.archp empty) */
+/* compute matrix of zlogs of units; sgnU = vector of signs of units */
 GEN
 zlog_units(GEN nf, GEN U, GEN sgnU, GEN bid)
 {
@@ -2378,9 +2371,7 @@ zlog_units(GEN nf, GEN U, GEN sgnU, GEN bid)
   zlog_S S;
   if (lg( bid_get_archp(bid) ) == 1) return zlog_units_noarch(nf,U,bid);
   init_zlog_bid(&S, bid);
-  l = lg(U);
-  m = cgetg(l, t_MAT);
-  sgnU = rowpermute(sgnU, S.archp);
+  l = lg(U); m = cgetg(l, t_MAT);
   for (j = 1; j < l; j++) gel(m,j) = zlog(nf, gel(U,j), gel(sgnU,j), &S);
   return m;
 }
