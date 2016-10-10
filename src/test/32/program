@@ -98,10 +98,6 @@ give a value for s? printtex((x+y)^3/(x-y)^2)
 300 1.6278227768451030011920245320536334380
 350 1.6321059051729866681896522731053701088
 400 1.6324242855329314481714056192369470068
-? install(addii,GG)
-? addii(1,2)
-3
-? kill(addii)
 ? if(getheap()!=HEAP,getheap())
 ? print("Total time spent: ",gettime);
-Total time spent: 8
+Total time spent: 4

@@ -136,45 +136,13 @@ pwd=`pwd`
 wrln
 wrln "PROBLEMS WERE NOTED. The following files list them in diff format: "
 wrln "Directory: $pwd"
-bugp=; buge=;
 for suf in $SUF; do
   B=`eval echo '$'BUG$suf`; BUG="$BUG$B"
   if test -n "$B"; then
     flist=`eval echo '$'files$suf`
     for f in $flist; do
       wrln "	$f"
-      case "$f" in
-        *program*)  bugp="$suf$bugp";;
-      esac
     done
   fi
 done
-
-case "x$bugp" in
-  x)  file_diff=;;
-  xsta|xdyn)
-      end=" (gp-$bugp only)"
-      file_diff=program-$bugp.dif;;
-  xexe)
-      end=" (gp-$bugp)"
-      file_diff=program.dif;;
-  x*) end=""
-      file_diff=program-sta.dif;;
-esac
-if test -n "$file_diff"; then
-  len=`wc -l $file_diff | sed -e 's/ *\([0-9]*\).*/\1/'`
-  pat=`${head}4 $file_diff|${tail}1|grep "\(99\|100\),107"`
-  case "$pat" in
-    *99,107*) elen=29;;
-    *100,107*) elen=24;;
-    *) elen=0;;
-  esac
-  if test $len -eq $elen  -a  -n "$pat"; then
-    cat << EOT
-NOTE: the problem noted in 'program' is that install() does not work in your
-configuration$end, so you will not be able to use this feature.
-Otherwise you can safely ignore the above warning.
-EOT
-  fi
-fi
 exit 1

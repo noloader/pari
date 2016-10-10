@@ -1,4 +1,4 @@
-HEAP=[50, if(precision(1.)==38,1927,3359)];
+HEAP=[47, if(precision(1.)==38,1908,3340)];
 STACK=if(precision(1.)==38, 232, 128);
 STACK == getstack
 default(realprecision,38);
@@ -41,7 +41,4 @@ for(i=1,100,for(j=1,25,if(i+j==32,break(2)));print(i))
     )
   );
 }
-install(addii,GG)
-addii(1,2)
-kill(addii)
 if (getheap()!=HEAP, getheap())

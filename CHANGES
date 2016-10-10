@@ -130,6 +130,7 @@ BA 21- [libpari] rename listcreate to mklist
    22- [libpari] rename idealinv_HNF -> idealHNF_inv, idealinv_HNF_Z
        -> idealHNF_inv, idealmul_HNF -> idealHNF_mul
    23- [libpari] made famat_mul_shallow a true equivalent of famat_mul
+   24- move 'install' tests from test-program to test-install target
 
 Done for version 2.8.0 (released 12/08/2016):
 

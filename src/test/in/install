@@ -1,0 +1,3 @@
+install(addii,GG)
+addii(1,2)
+kill(addii)
