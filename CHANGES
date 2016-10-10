@@ -38,6 +38,7 @@ JD 26- is_universal_constant() made (possibly wrong) assumptions about memory
 BA 27- lfundiv(L1,L2): division by 0 if L2[6] (rootno) is 0.
    28- inconsistent thresholds for zeta(2*n); e.g. at \p100000, zeta(22934)
        was much faster than zeta(22936)
+BA 29- [pthread] fix race conditions that caused memory corruption
 
   Added
     1- permtonum: allow t_VECSMALL input
