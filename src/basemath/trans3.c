@@ -1548,14 +1548,23 @@ bernfrac_using_zeta(long n)
 }
 
 static int
-bernreal_use_zeta(long k, long prec)
+bernreal_use_zeta_i(long n, long prec)
 {
-  if (bernzone && (k>>1)+1 < lg(bernzone))
+  return (n+0.5) * log((double)n) -n*(1+log2PI) > prec2nbits_mul(prec, LOG2);
+}
+static int
+bernreal_use_zeta(long n, long prec)
+{
+  if (bernzone)
   {
-    GEN B = gel(bernzone,(k>>1)+1);
-    if (typ(B) != t_REAL || realprec(B) >= prec) return 0;
+    long k = n >> 1;
+    if (n+1 < lg(bernzone))
+    {
+      GEN B = gel(bernzone,k+1);
+      if (typ(B) != t_REAL || realprec(B) >= prec) return 0;
+    }
   }
-  return (k * (log((double)k) - 2.83) > prec2nbits_mul(prec, LOG2));
+  return bernreal_use_zeta_i(n, prec);
 }
 
 /* Return B_n */
@@ -1579,7 +1588,7 @@ bernreal(long n, long prec)
     if (realprec(B) >= prec) return rtor(B, prec);
   }
   /* not cached, must compute */
-  if (n * log((double)n) > prec2nbits_mul(prec, LOG2))
+  if (bernreal_use_zeta_i(n, prec))
     B = storeB = bernreal_using_zeta(n, NULL, prec);
   else
   {

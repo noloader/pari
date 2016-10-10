@@ -36,6 +36,8 @@ BA 25- fflog could crash in char 2. [from 2.8.0]
 JD 26- is_universal_constant() made (possibly wrong) assumptions about memory
        layout (gen_0 < ghalf)
 BA 27- lfundiv(L1,L2): division by 0 if L2[6] (rootno) is 0.
+   28- inconsistent thresholds for zeta(2*n); e.g. at \p100000, zeta(22934)
+       was much faster than zeta(22936)
 
   Added
     1- permtonum: allow t_VECSMALL input
