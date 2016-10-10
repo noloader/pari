@@ -1049,23 +1049,6 @@ famat_to_nf(GEN nf, GEN f)
   return t;
 }
 
-/* "compare" two nf elt. Goal is to quickly sort for uniqueness of
- * representation, not uniqueness of represented element ! */
-static int
-elt_cmp(GEN x, GEN y)
-{
-  long tx = typ(x), ty = typ(y);
-  if (ty == tx)
-    return (tx == t_POL || tx == t_POLMOD)? cmp_RgX(x,y): lexcmp(x,y);
-  return tx - ty;
-}
-static int
-elt_egal(GEN x, GEN y)
-{
-  if (typ(x) == typ(y)) return gequal(x,y);
-  return 0;
-}
-
 GEN
 famat_reduce(GEN fa)
 {
@@ -1075,7 +1058,7 @@ famat_reduce(GEN fa)
   if (lg(fa) == 1) return fa;
   g = gel(fa,1); l = lg(g);
   e = gel(fa,2);
-  L = gen_indexsort(g, (void*)&elt_cmp, &cmp_nodata);
+  L = gen_indexsort(g, (void*)&cmp_universal, &cmp_nodata);
   G = cgetg(l, t_COL);
   E = cgetg(l, t_COL);
   /* merge */
@@ -1083,7 +1066,7 @@ famat_reduce(GEN fa)
   {
     gel(G,k) = gel(g,L[i]);
     gel(E,k) = gel(e,L[i]);
-    if (k > 1 && elt_egal(gel(G,k), gel(G,k-1)))
+    if (k > 1 && gidentical(gel(G,k), gel(G,k-1)))
     {
       gel(E,k-1) = addii(gel(E,k), gel(E,k-1));
       k--;
