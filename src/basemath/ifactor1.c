@@ -1151,6 +1151,12 @@ rho_dbg(pari_timer *T, long c, long msg_mask)
   err_flush();
 }
 
+static void
+one_iter(GEN *x, GEN *P, GEN x1, GEN n, long delta)
+{
+  *x = addis(remii(sqri(*x), n), delta);
+  *P = modii(mulii(*P, subii(x1, *x)), n);
+}
 /* Tuning parameter:  for input up to 64 bits long, we must not spend more
  * than a very short time, for fear of slowing things down on average.
  * With the current tuning formula, increase our efforts somewhat at 49 bit
@@ -1171,7 +1177,7 @@ pollardbrent(GEN n)
   const long tune_pb_min = 14; /* even 15 seems too much. */
   long tf = lgefint(n), size = 0, delta, retries = 0, msg_mask;
   long c0, c, k, k1, l;
-  pari_sp GGG, avP, avx;
+  pari_sp av;
   GEN x, x1, y, P, g, g1, res;
   pari_timer T;
 
@@ -1202,12 +1208,9 @@ pollardbrent(GEN n)
   c = c0 << 5; /* 2^5 iterations per round */
   msg_mask = (size >= 448? 0x1fff:
                            (size >= 192? (256L<<((size-128)>>6))-1: 0xff));
-  (void)new_chunk(10 + 6 * tf); /* enough for cgetg(10) + 3 modii */
   y = cgeti(tf);
   x1= cgeti(tf);
-  avx = avma;
-  avP = (pari_sp)new_chunk(2 * tf); /* enough for x = addsi(tf+1) */
-  GGG = (pari_sp)new_chunk(4 * tf); /* enough for P = modii(2tf+1, tf) */
+  av = avma;
 
 PB_RETRY:
  /* trick to make a 'random' choice determined by n.  Don't use x^2+0 or
@@ -1243,13 +1246,7 @@ PB_RETRY:
   affui(2, x1);
   for (;;) /* terminated under the control of c */
   { /* use the polynomial  x^2 + delta */
-#define one_iter() STMT_START {\
-    avma = GGG; x = remii(sqri(x), n); /* to garbage zone */\
-    avma = avx; x = addsi(delta,x);    /* erase garbage */\
-    avma = GGG; P = mulii(P, subii(x1, x));\
-    avma = avP; P = modii(P,n); } STMT_END
-
-    one_iter();
+    one_iter(&x, &P, x1, n, delta);
 
     if ((--c & 0x1f)==0)
     { /* one round complete */
@@ -1264,9 +1261,9 @@ PB_RETRY:
         }
         return NULL;
       }
-      P = gen_1; /* not necessary, but saves 1 mulii/round */
+      P = gen_1;
       if (DEBUGLEVEL >= 4) rho_dbg(&T, c0-(c>>5), msg_mask);
-      affii(x,y);
+      affii(x,y); x = y; avma = av;
     }
 
     if (--k) continue; /* normal end of loop body */
@@ -1297,28 +1294,32 @@ PB_RETRY:
     c &= ~0x1f; /* keep it on multiples of 32 */
 
     /* Fast forward loop */
-    affii(x, x1); k = l; l <<= 1;
+    affii(x, x1); avma = av; x = x1;
+    k = l; l <<= 1;
     /* don't show this for the first several (short) fast forward phases. */
     if (DEBUGLEVEL >= 4 && (l>>7) > msg_mask)
     {
       err_printf("Rho: fast forward phase (%ld rounds of 64)...\n", l>>7);
       err_flush();
     }
-    for (k1=k; k1; k1--) one_iter();
+    for (k1=k; k1; k1--)
+    {
+      one_iter(&x, &P, x1, n, delta);
+      if ((k1 & 0x1f) == 0) gerepileall(av, 2, &x, &P);
+    }
     if (DEBUGLEVEL >= 4 && (l>>7) > msg_mask)
     {
       err_printf("Rho: time = %6ld ms,\t%3ld rounds, back to normal mode\n",
                  timer_delay(&T), c0-(c>>5));
       err_flush();
     }
-    affii(x,y);
+    affii(x,y); avma = av; x = y;
   } /* forever */
 
 fin:
   /* An accumulated gcd was > 1 */
-  /* if it isn't n, and looks prime, return it */
   if  (!equalii(g,n))
-  {
+  { /* if it isn't n, and looks prime, return it */
     if (MR_Jaeschke(g,17))
     {
       if (DEBUGLEVEL >= 4)
@@ -1329,8 +1330,8 @@ fin:
       }
       return g;
     }
-    avma = avx; g1 = icopy(g);  /* known composite, keep it safe */
-    avx = avma;
+    avma = av; g1 = icopy(g);  /* known composite, keep it safe */
+    av = avma;
   }
   else g1 = n; /* and work modulo g1 for backtracking */
 
@@ -1340,11 +1341,11 @@ fin:
     err_printf("Rho: hang on a second, we got something here...\n");
     err_flush();
   }
+  x = y;
   for(;;)
   { /* backtrack until period recovered. Must terminate */
-    avma = GGG; y = remii(sqri(y), g1);
-    avma = avx; y = addsi(delta,y);
-    g = gcdii(subii(x1, y), g1); if (!is_pm1(g)) break;
+    x = addis(remii(sqri(x), g1), delta);
+    g = gcdii(subii(x1, x), g1); if (!is_pm1(g)) break;
 
     if (DEBUGLEVEL >= 4 && (--c & 0x1f) == 0) rho_dbg(&T, c0-(c>>5), msg_mask);
   }
