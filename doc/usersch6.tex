@@ -2012,6 +2012,9 @@ solution (and store it in \kbd{*x} and \kbd{*y}), $0$ otherwise.
 \fun{long}{cornacchia2}{GEN d, GEN p, GEN *px, GEN *py} as \kbd{cornacchia},
 for the equation $x^2 + dy^2 = 4p$.
 
+\fun{long}{cornacchia2_sqrt}{GEN d, GEN p, GEN b, GEN *px, GEN *py} as \kbd{cornacchia2},
+where  $p > 2$ and $b$ is the smallest squareroot of $d$ modulo $p$.
+
 \subsubsec{Prime forms}
 
 \fun{GEN}{primeform_u}{GEN x, ulong p} \typ{QFI} whose first coefficient

@@ -1591,6 +1591,7 @@ void    check_quaddisc_imag(GEN x, long *r, const char *f);
 void    check_quaddisc_real(GEN x, long *r, const char *f);
 long    cornacchia(GEN d, GEN p, GEN *px, GEN *py);
 long    cornacchia2(GEN d, GEN p, GEN *px, GEN *py);
+long    cornacchia2_sqrt(GEN d, GEN p, GEN b, GEN *px, GEN *py);
 GEN     nucomp(GEN x, GEN y, GEN L);
 GEN     nudupl(GEN x, GEN L);
 GEN     nupow(GEN x, GEN n, GEN L);

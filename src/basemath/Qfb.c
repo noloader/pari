@@ -1465,34 +1465,13 @@ cornacchia(GEN d, GEN p, GEN *px, GEN *py)
   *px = icopy(b);
   *py = icopy(c); return 1;
 }
-/* 1 if there exists x,y such that x^2 + dy^2 = 4p [p prime], 0 otherwise */
-long
-cornacchia2(GEN d, GEN p, GEN *px, GEN *py)
-{
-  pari_sp av = avma, av2;
-  GEN a, b, c, L, r, px4;
-  long k;
 
-  if (typ(d) != t_INT) pari_err_TYPE("cornacchia2", d);
-  if (typ(p) != t_INT) pari_err_TYPE("cornacchia2", p);
-  if (signe(d) <= 0) pari_err_DOMAIN("cornacchia2", "d","<=",gen_0,d);
-  *px = *py = gen_0;
-  k = mod4(d);
-  if (k == 1 || k == 2) pari_err_DOMAIN("cornacchia2","-d mod 4", ">",gen_1,d);
-  px4 = shifti(p,2);
-  if (abscmpii(px4, d) < 0) { avma = av; return 0; }
-  if (absequaliu(p, 2))
-  {
-    avma = av;
-    switch (itou_or_0(d)) {
-      case 4: *px = gen_2; break;
-      case 7: *px = gen_1; break;
-      default: return 0;
-    }
-    *py = gen_1; return 1;
-  }
-  b = Fp_sqrt(negi(d), p);
-  if (!b) { avma = av; return 0; }
+static long
+cornacchia2_helper(long av, GEN d, GEN p, GEN b, GEN px4, GEN *px, GEN *py)
+{
+  pari_sp av2 = avma;
+  GEN a, c, r, L;
+  long k = mod4(d);
   if (!signe(b)) { /* d = p,2p,3p,4p */
     avma = av;
     if (absequalii(d, px4)){ *py = gen_1; return 1; }
@@ -1516,4 +1495,47 @@ cornacchia2(GEN d, GEN p, GEN *px, GEN *py)
   avma = av;
   *px = icopy(b);
   *py = icopy(c); return 1;
+}
+
+/* 1 if there exists x,y such that x^2 + dy^2 = 4p [p prime], 0 otherwise */
+long
+cornacchia2(GEN d, GEN p, GEN *px, GEN *py)
+{
+  pari_sp av = avma, av2;
+  GEN b, px4;
+  long k;
+
+  if (typ(d) != t_INT) pari_err_TYPE("cornacchia2", d);
+  if (typ(p) != t_INT) pari_err_TYPE("cornacchia2", p);
+  if (signe(d) <= 0) pari_err_DOMAIN("cornacchia2", "d","<=",gen_0,d);
+  *px = *py = gen_0;
+  k = mod4(d);
+  if (k == 1 || k == 2) pari_err_DOMAIN("cornacchia2","-d mod 4", ">",gen_1,d);
+  px4 = shifti(p,2);
+  if (abscmpii(px4, d) < 0) { avma = av; return 0; }
+  if (absequaliu(p, 2))
+  {
+    avma = av;
+    switch (itou_or_0(d)) {
+      case 4: *px = gen_2; break;
+      case 7: *px = gen_1; break;
+      default: return 0;
+    }
+    *py = gen_1; return 1;
+  }
+  b = Fp_sqrt(negi(d), p);
+  if (!b) { avma = av; return 0; }
+  return cornacchia2_helper(av, d, p, b, px4, px, py);
+}
+
+/* 1 if there exists x,y such that x^2 + dy^2 = 4p [p prime], 0 otherwise */
+long
+cornacchia2_sqrt(GEN d, GEN p, GEN b, GEN *px, GEN *py)
+{
+  pari_sp av = avma;
+  GEN px4;
+  *px = *py = gen_0;
+  px4 = shifti(p,2);
+  if (abscmpii(px4, d) < 0) { avma = av; return 0; }
+  return cornacchia2_helper(av, d, p, b, px4, px, py);
 }
