@@ -704,7 +704,7 @@ nfmaxord(nfmaxord_t *S, GEN T0, long flag)
     if (v) { gel(P2,k) = gel(P,j); E2[k] = v; k++; }
   }
   setlg(P2, k); S->dKP = P2;
-  setlg(E2, k); S->dKE = P2;
+  setlg(E2, k); S->dKE = E2;
   S->basis = RgM_to_RgXV(a, varn(f));
 }
 GEN
