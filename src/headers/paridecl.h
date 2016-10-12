@@ -3195,6 +3195,7 @@ GEN     mkintn(long n, ...);
 GEN     mkpoln(long n, ...);
 GEN     mkvecn(long n, ...);
 GEN     mkvecsmalln(long n, ...);
+GEN     modRr_safe(GEN x, GEN y);
 GEN     mulreal(GEN x, GEN y);
 GEN     numer(GEN x);
 long    padicprec(GEN x, GEN p);

@@ -10789,6 +10789,11 @@ copy of $|x|$, in particular returns $x$ itself when $x \geq 0$, and
 \typ{FRAC}, returns a shallow copy of $|x|$, in particular returns $x$ itself
 when $x \geq 0$, and \kbd{gneg($x$)} otherwise.
 
+\fun{GEN}{modRr_safe}{GEN x, GEN y} let $x$ be a \typ{INT}, a \typ{REAL} or
+\typ{FRAC} and let $y$ be a \typ{REAL}. Return $x\% y$ unless the input
+accuracy is unsufficient to compute the floor or $x/y$ in which case we
+return \kbd{NULL}.
+
 \section{Complex numbers}
 
 \fun{GEN}{imag}{GEN x} returns a copy of the imaginary part of \kbd{x}.

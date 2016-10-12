@@ -710,17 +710,17 @@ modsf(long x, GEN y)
 /* assume y a t_REAL, x a t_INT, t_FRAC or t_REAL.
  * Return x mod y or NULL if accuracy error */
 GEN
-modr_safe(GEN x, GEN y)
+modRr_safe(GEN x, GEN y)
 {
   GEN q, f;
   long e;
-  if (typ(x) == t_INT && !signe(x)) return gen_0;
+  if (isintzero(x)) return gen_0;
   q = gdiv(x,y); /* t_REAL */
 
   e = expo(q);
   if (e >= 0 && nbits2prec(e+1) > realprec(q)) return NULL;
   f = floorr(q);
-  if (gsigne(y) < 0 && signe(subri(q,f))) f = addis(f, 1);
+  if (signe(y) < 0 && signe(subri(q,f))) f = addiu(f, 1);
   return signe(f)? gsub(x, mulir(f,y)): x;
 }
 

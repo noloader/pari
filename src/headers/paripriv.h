@@ -442,7 +442,6 @@ GEN   divrunu(GEN x, ulong i);
 GEN   muliispec(GEN x, GEN y, long nx, long ny);
 GEN   red_montgomery(GEN T, GEN N, ulong inv);
 GEN   sqrispec(GEN x, long nx);
-GEN   modr_safe(GEN x, GEN y);
 ulong *convi(GEN x, long *l);
 
 int approx_0(GEN x, GEN y);

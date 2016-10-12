@@ -1017,7 +1017,7 @@ addRe_modIm(GEN x, GEN a, GEN m)
   GEN re, im, z;
   if (typ(x) == t_COMPLEX)
   {
-    im = modr_safe(gel(x,2), m);
+    im = modRr_safe(gel(x,2), m);
     if (!im) return NULL;
     re = gadd(gel(x,1), a);
     z = gequal0(im)? re: mkcomplex(re, im);
