@@ -3303,6 +3303,7 @@ GEN     gsmith(GEN x);
 GEN     gsmithall(GEN x);
 GEN     hnf(GEN x);
 GEN     hnf_divscale(GEN A, GEN B,GEN t);
+GEN     hnf_invscale(GEN A, GEN t);
 GEN     hnf_solve(GEN A, GEN B);
 GEN     hnf_invimage(GEN A, GEN b);
 GEN     hnfall(GEN x);

@@ -90,7 +90,7 @@ BA 40- [libpari] ZpXQX_roots, ZqX_roots, ZqX_liftfact, ZqX_liftroot,
    41- [libpari] hash_dbg
    42- [libpari] Qdivii, ceildivuu
    43- GP function ellintegralmodel
-   44- [libpari] ZM_hnf_knapsack
+   44- [libpari] ZM_hnf_knapsack, hnf_invscale
    45- [libpari] pol_xn, pol_xnall, retmkrfrac
    46- allow lindep(vector of t_VEC), lindep(vector of t_COL) [#1857]
    47- [libpari] famat_pow_shallow, famat_mulpow_shallow

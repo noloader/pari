@@ -1939,6 +1939,30 @@ hnfall(GEN x)
 GEN
 hnf(GEN x) { return mathnf0(x,0); }
 
+/* C = A^(-1)t where A and C are integral, A is upper triangular, t t_INT */
+GEN
+hnf_invscale(GEN A, GEN t)
+{
+  long n = lg(A)-1, i,j,k;
+  GEN m, c = cgetg(n+1,t_MAT);
+
+  if (!n) return c;
+  for (k=1; k<=n; k++)
+  { /* cf hnf_divscale with B = id, thus b = e_k */
+    GEN u = cgetg(n+1, t_COL);
+    pari_sp av = avma;
+    gel(c,k) = u;
+    gel(u,n) = k == n? gerepileuptoint(av, diviiexact(t, gcoeff(A,n,n))): gen_0;
+    for (i=n-1; i>0; i--)
+    {
+      av = avma; m = i == k? t: gen_0;
+      for (j=i+1; j<=n; j++) m = subii(m, mulii(gcoeff(A,i,j),gel(u,j)));
+      gel(u,i) = gerepileuptoint(av, diviiexact(m, gcoeff(A,i,i)));
+    }
+  }
+  return c;
+}
+
 /* C = A^(-1)(tB) where A, B, C are integral, A is upper triangular, t t_INT */
 GEN
 hnf_divscale(GEN A, GEN B, GEN t)

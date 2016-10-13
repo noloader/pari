@@ -1475,15 +1475,16 @@ famat_to_nf_modideal_coprime(GEN nf, GEN g, GEN e, GEN id, GEN EX)
 }
 
 /* given 2 integral ideals x, y in HNF s.t x | y | x^2, compute the quotient
-   (1+x)/(1+y) in the form [[cyc],[gen]], if U != NULL, set *U := ux^-1 */
+   (1+x)/(1+y) in the form [[cyc],[gen]], if U != NULL, set *U := ux^-1
+   as a pair [ZM, denom(U)] */
 static GEN
 zidealij(GEN x, GEN y, GEN *U)
 {
-  GEN G, cyc;
+  GEN G, cyc, xp = gcoeff(x,1,1), xi = hnf_invscale(x, xp);
   long j, N;
 
   /* x^(-1) y = relations between the 1 + x_i (HNF) */
-  cyc = ZM_snf_group(hnf_solve(x, y), U, &G);
+  cyc = ZM_snf_group(ZM_Z_divexact(ZM_mul(xi, y), xp), U, &G);
   N = lg(cyc); G = ZM_mul(x,G); settyp(G, t_VEC); /* new generators */
   for (j=1; j<N; j++)
   {
@@ -1491,7 +1492,7 @@ zidealij(GEN x, GEN y, GEN *U)
     gel(c,1) = addiu(gel(c,1), 1); /* 1 + g_j */
     if (ZV_isscalar(c)) gel(G,j) = gel(c,1);
   }
-  if (U) *U = RgM_mul(*U, RgM_inv(x));
+  if (U) *U = mkvec2(ZM_mul(*U, xi), xp);
   return mkvec2(cyc, G);
 }
 
@@ -1700,19 +1701,19 @@ zprimestar(GEN nf, GEN pr, GEN ep, GEN x, GEN arch)
 }
 
 static GEN
-apply_U(GEN U, GEN a)
+apply_U(GEN Ud, GEN a)
 {
-  GEN e;
+  GEN e, U = gel(Ud,1), d = gel(Ud,2);
   if (typ(a) == t_INT)
-    e = RgC_Rg_mul(gel(U,1), subis(a, 1));
+    e = ZC_Z_mul(gel(U,1), subiu(a, 1));
   else
   { /* t_COL */
     GEN t = gel(a,1);
-    gel(a,1) = addsi(-1, gel(a,1)); /* a -= 1 */
-    e = RgM_RgC_mul(U, a);
+    gel(a,1) = subiu(gel(a,1), 1); /* a -= 1 */
+    e = ZM_ZC_mul(U, a);
     gel(a,1) = t; /* restore */
   }
-  return e;
+  return gdiv(e, d);
 }
 static GEN
 sprk_get_prk(GEN s)
