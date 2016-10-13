@@ -1161,7 +1161,8 @@ GEN
 gnormlp(GEN x, GEN p, long prec)
 {
   pari_sp av = avma;
-  if (!p) return gsupnorm(x, prec);
+  if (!p || (typ(p) == t_INFINITY && inf_get_sign(p) > 0))
+    return gsupnorm(x, prec);
   if (gsigne(p) <= 0) pari_err_DOMAIN("normlp", "p", "<=", gen_0, p);
   if (is_scalar_t(typ(x))) return gabs(x, prec);
   if (typ(p) == t_INT)
