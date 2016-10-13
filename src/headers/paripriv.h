@@ -468,8 +468,6 @@ GEN ZM_hnfmodall_i(GEN x, GEN dm, long flag);
 GEN LLL_check_progress(GEN Bnorm, long n0, GEN m, int final, long *ti_LLL);
 
 /* integer factorization / discrete log */
-GEN   coprime_part(GEN x, GEN f);
-ulong ucoprime_part(ulong x, ulong f);
 ulong is_kth_power(GEN x, ulong p, GEN *pt);
 GEN   mpqs(GEN N);
 ulong gcduodd(ulong x, ulong y);

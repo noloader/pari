@@ -4950,7 +4950,7 @@ Z_gcd_primes(GEN a, GEN b)
     long k, l;
     if (is_pm1(d)) return cgetg(1, t_COL);
     A = gel(v,2); /* gcd(a, b^oo) */
-    B = diviiexact(b, coprime_part(b, d)); /* gcd(b, a^oo) */
+    B = diviiexact(b, Z_ppo(b, d)); /* gcd(b, a^oo) */
     /* d = gcd(A,B) */
     P = Z_cba(A, B); /* use coprime basis to help as much as possible */
     l = lg(P);
@@ -5970,7 +5970,7 @@ akell(GEN e, GEN n)
   if (signe(n)<= 0) return gen_0;
   if (gequal1(n)) return gen_1;
   D = ell_get_disc(e);
-  u = coprime_part(n, D);
+  u = Z_ppo(n, D);
   y = gen_1;
   s = 1;
   if (!equalii(u, n))

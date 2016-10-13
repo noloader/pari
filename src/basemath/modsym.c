@@ -304,7 +304,7 @@ Fl_inverse(ulong a, ulong N)
   ulong d, d0, d1, e, u = Fl_invgen(a, N, &d);
   if (d == 1) return u;
   e = N/d;
-  d0 = ucoprime_part(d, e); /* d = d0 d1, d0 coprime to N/d, core(d1) | N/d */
+  d0 = u_ppo(d, e); /* d = d0 d1, d0 coprime to N/d, core(d1) | N/d */
   if (d0 == 1) return u;
   av = avma;
   d1 = d / d0;

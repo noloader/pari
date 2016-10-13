@@ -95,6 +95,7 @@ BA 40- [libpari] ZpXQX_roots, ZqX_roots, ZqX_liftfact, ZqX_liftroot,
    46- allow lindep(vector of t_VEC), lindep(vector of t_COL) [#1857]
    47- [libpari] famat_pow_shallow, famat_mulpow_shallow
    48- [libpari] modRr_safe
+   49- [libpari] Z_ppo, u_ppo
 
   Changed
     1- remove useless flag in idealappr: directly allow factorization

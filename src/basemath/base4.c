@@ -2176,7 +2176,7 @@ idealmin(GEN nf, GEN x, GEN vdir)
 /*                                                                 */
 /*******************************************************************/
 /* a = ppi(a,b) ppo(a,b), where ppi regroups primes common to a and b
- * and ppo(a,b) = coprime_part(a,b) */
+ * and ppo(a,b) = Z_ppo(a,b) */
 /* return gcd(a,b),ppi(a,b),ppo(a,b) */
 GEN
 Z_ppio(GEN a, GEN b)
@@ -2266,7 +2266,7 @@ Z_cba(GEN a, GEN b)
 
 /* write x = x1 x2, x2 maximal s.t. (x2,f) = 1, return x2 */
 GEN
-coprime_part(GEN x, GEN f)
+Z_ppo(GEN x, GEN f)
 {
   for (;;)
   {
@@ -2277,7 +2277,7 @@ coprime_part(GEN x, GEN f)
 }
 /* write x = x1 x2, x2 maximal s.t. (x2,f) = 1, return x2 */
 ulong
-ucoprime_part(ulong x, ulong f)
+u_ppo(ulong x, ulong f)
 {
   for (;;)
   {
@@ -2335,7 +2335,7 @@ make_integral(GEN nf, GEN L0, GEN f, GEN listpr)
   fZ = gcoeff(f,1,1);
   if (typ(L) == t_INT) return Fp_mul(L, Fp_inv(d, fZ), fZ);
   /* Kill denom part coprime to fZ */
-  d2 = coprime_part(d, fZ);
+  d2 = Z_ppo(d, fZ);
   t = Fp_inv(d2, fZ); if (!is_pm1(t)) L = ZC_Z_mul(L,t);
   if (equalii(d, d2)) return L;
 
@@ -2467,7 +2467,7 @@ idealapprfact_i(GEN nf, GEN x, int nored)
   if (flagden) /* denominator */
   {
     z = Q_remove_denom(z, &d);
-    d = diviiexact(d, coprime_part(d, F));
+    d = diviiexact(d, Z_ppo(d, F));
     x = RgM_Rg_mul(x, d);
   }
   else

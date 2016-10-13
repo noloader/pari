@@ -3048,7 +3048,7 @@ Fp_pow(GEN A, GEN K, GEN N)
         ulong d = ugcd(a, n);
         if (d != 1)
         { /* write n = n1 n2, with n2 maximal such that (n1,a) = 1 */
-          ulong n1 = ucoprime_part(n, d), n2 = n/n1;
+          ulong n1 = u_ppo(n, d), n2 = n/n1;
 
           k = umodiu(K, eulerphiu(n1));
           /* CRT: = a^K (mod n1), = 0 (mod n2)*/
@@ -3461,7 +3461,7 @@ Fp_log_index(GEN a, GEN b, GEN m, GEN p)
 
   p_1 = subiu(p,1);
   if (!is_pm1(gcdii(m,diviiexact(p_1,m))))
-    m = diviiexact(p_1, coprime_part(p_1, m));
+    m = diviiexact(p_1, Z_ppo(p_1, m));
   pr = primes_upto_zv(bnd);
   nbi = lg(pr)-1;
   if (DEBUGLEVEL)
@@ -4667,12 +4667,12 @@ ok_q(GEN q, GEN h, GEN d2, long r2)
   if (d2)
   {
     if (r2 <= 2 && !mpodd(q)) return 0;
-    return is_pm1(coprime_part(q,d2));
+    return is_pm1(Z_ppo(q,d2));
   }
   else
   {
     if (r2 <= 1 && !mpodd(q)) return 0;
-    return is_pm1(coprime_part(q,h));
+    return is_pm1(Z_ppo(q,h));
   }
 }
 
