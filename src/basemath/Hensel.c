@@ -889,11 +889,14 @@ ZpXQ_sqrtnlift(GEN a, GEN n, GEN x, GEN T, GEN p, long e)
   d.ai = ZpXQ_inv(ZX_Z_mul(a, n),T,p,(e+1)>>1);
   return gen_ZpX_Newton(x, p, e, &d, _sqrtn_eval, _sqrtn_invd);
 }
+
+static GEN
+to_ZX(GEN a, long v) { return typ(a)==t_INT? scalarpol(a,v): a; }
+
 GEN
 Zq_sqrtnlift(GEN a, GEN n, GEN x, GEN T, GEN p, long e)
 {
-  return T? ZpXQ_sqrtnlift(typ(a) == t_INT? scalarpol_shallow(a, varn(T)):a,
-                           n, x, T, p, e)
+  return T? ZpXQ_sqrtnlift(to_ZX(a,varn(T)), n, to_ZX(x,varn(T)), T, p, e)
           : Zp_sqrtnlift(a, n, x, p, e);
 }
 
