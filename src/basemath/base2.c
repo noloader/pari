@@ -2673,15 +2673,19 @@ modprinit(GEN nf, GEN pr, int zk)
   if (! dvdii(nf_get_index(nf), p))
   {
     GEN basis = nf_get_zk(nf);
-    if (N == f) T = nf_get_pol(nf); /* pr inert */
+    if (N == f)
+    { /* pr inert */
+      T = nf_get_pol(nf);
+      T = FpX_red(T,p);
+      ffproj = get_proj_modT(basis, T, p);
+    }
     else
     {
       T = RgV_RgC_mul(Q_primpart(basis), pr_get_gen(pr));
       T = FpX_normalize(T,p);
       basis = vecpermute(basis, c);
+      ffproj = FpM_mul(get_proj_modT(basis, T, p), ffproj, p);
     }
-    T = FpX_red(T, p);
-    ffproj = FpM_mul(get_proj_modT(basis, T, p), ffproj, p);
 
     res = cgetg(SMALLMODPR+1, t_COL);
     gel(res,mpr_TAU) = tau;
