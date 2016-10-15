@@ -1972,6 +1972,7 @@ long    nfval(GEN nf, GEN x, GEN vp);
 long    nfvalrem(GEN nf, GEN x, GEN pr, GEN *py);
 GEN     polmod_nffix(const char *f, GEN rnf, GEN x,int lift);
 GEN     polmod_nffix2(const char *f, GEN T, GEN relpol, GEN x, int lift);
+GEN     pr_basis_perm(GEN nf, GEN pr);
 int     pr_equal(GEN nf, GEN P, GEN Q);
 GEN     rnfalgtobasis(GEN rnf, GEN x);
 GEN     rnfbasistoalg(GEN rnf, GEN x);

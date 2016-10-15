@@ -1474,17 +1474,16 @@ famat_to_nf_modideal_coprime(GEN nf, GEN g, GEN e, GEN id, GEN EX)
   return plus? plus: gen_1;
 }
 
-/* given 2 integral ideals x, y in HNF s.t x | y | x^2, compute the quotient
-   (1+x)/(1+y) in the form [[cyc],[gen]], if U != NULL, set *U := ux^-1
-   as a pair [ZM, denom(U)] */
+/* given 2 integral ideals x, y in HNF s.t x | y | x^2, compute (1+x)/(1+y) in
+ * the form [[cyc],[gen], U], where U := ux^-1 as a pair [ZM, denom(U)] */
 static GEN
-zidealij(GEN x, GEN y, GEN *U)
+zidealij(GEN x, GEN y)
 {
-  GEN G, cyc, xp = gcoeff(x,1,1), xi = hnf_invscale(x, xp);
+  GEN U, G, cyc, xp = gcoeff(x,1,1), xi = hnf_invscale(x, xp);
   long j, N;
 
   /* x^(-1) y = relations between the 1 + x_i (HNF) */
-  cyc = ZM_snf_group(ZM_Z_divexact(ZM_mul(xi, y), xp), U, &G);
+  cyc = ZM_snf_group(ZM_Z_divexact(ZM_mul(xi, y), xp), &U, &G);
   N = lg(cyc); G = ZM_mul(x,G); settyp(G, t_VEC); /* new generators */
   for (j=1; j<N; j++)
   {
@@ -1492,8 +1491,7 @@ zidealij(GEN x, GEN y, GEN *U)
     gel(c,1) = addiu(gel(c,1), 1); /* 1 + g_j */
     if (ZV_isscalar(c)) gel(G,j) = gel(c,1);
   }
-  if (U) *U = mkvec2(ZM_mul(*U, xi), xp);
-  return mkvec2(cyc, G);
+  return mkvec3(cyc, G, mkvec2(ZM_mul(U,xi), xp));
 }
 
 static GEN
@@ -1677,7 +1675,7 @@ zprimestar(GEN nf, GEN pr, GEN ep, GEN x, GEN arch)
   a = 1;
   while (mask > 1)
   {
-    GEN pra = prb, gen, z, s, U;
+    GEN pra = prb, gen, z, s;
     long i, l, b = a << 1;
 
     if (mask & 1) b--;
@@ -1685,7 +1683,7 @@ zprimestar(GEN nf, GEN pr, GEN ep, GEN x, GEN arch)
     /* compute 1 + pr^a / 1 + pr^b, 2a <= b */
     if(DEBUGLEVEL>3) err_printf("  treating a = %ld, b = %ld\n",a,b);
     prb = (b >= e)? pre: idealpows(nf,pr,b);
-    z = zidealij(pra, prb, &U);
+    z = zidealij(pra, prb);
     gen = leafcopy(gel(z,2));
     s = cgetg_copy(gen, &l);
     for (i = 1; i < l; i++)
@@ -1693,7 +1691,7 @@ zprimestar(GEN nf, GEN pr, GEN ep, GEN x, GEN arch)
       if (x) gel(gen,i) = zkchinese1(uv, gel(gen,i));
       gel(s,i) = nfsign_arch(nf, gel(gen,i), arch);
     }
-    y = mkvecn(6, gel(z,1), gel(z,2), gen, s, U, prb);
+    y = mkvecn(6, gel(z,1), gel(z,2), gen, s, gel(z,3), prb);
     vectrunc_append(list, y);
     a = b;
   }
@@ -1859,13 +1857,34 @@ zlog_ind(GEN nf, GEN a, zlog_S *S, GEN sgn, long index)
 GEN
 zlog(GEN nf, GEN a, GEN sgn, zlog_S *S) { return zlog_ind(nf, a, S, sgn, 0); }
 
+/* true nf */
+GEN
+pr_basis_perm(GEN nf, GEN pr)
+{
+  long f = pr_get_f(pr);
+  GEN perm;
+  if (f == nf_get_degree(nf)) return identity_perm(f);
+  perm = cgetg(f+1, t_VECSMALL);
+  perm[1] = 1;
+  if (f > 1)
+  {
+    GEN H = idealhnf_two(nf,pr);
+    long i, k;
+    for (i = k = 2; k <= f; i++)
+    {
+      if (is_pm1(gcoeff(H,i,i))) continue;
+      perm[k++] = i;
+    }
+  }
+  return perm;
+}
 /* Log on bid.gen of generators of P_{1,I pr^{e-1}} / P_{1,I pr^e} (I,pr) = 1,
  * defined implicitly via CRT. 'index' is the index of pr in modulus
  * factorization */
 GEN
 log_gen_pr(zlog_S *S, long index, GEN nf, long e)
 {
-  long i, l, yind = S->ind[index];
+  long yind = S->ind[index];
   GEN y, A, L, L2 = gel(S->sprk,index);
 
   if (e == 1)
@@ -1877,20 +1896,29 @@ log_gen_pr(zlog_S *S, long index, GEN nf, long e)
   }
   else
   {
-    GEN g, pr = gel(S->P,index);
-    long narchp = lg(S->archp)-1;
+    GEN G, pr = gel(S->P,index);
+    long i, l, narchp = lg(S->archp)-1;
 
     if (e == 2)
+    {
       L = gel(L2,2);
+      G = gel(L,2); l = lg(G);
+    }
     else
-      L = zidealij(idealpows(nf,pr,e-1), idealpows(nf,pr,e), NULL);
-    g = gel(L,2);
-    l = lg(g); A = cgetg(l, t_MAT);
+    {
+      GEN perm = pr_basis_perm(nf,pr), PI = nfpow_u(nf, pr_get_gen(pr), e-1);
+      l = lg(perm);
+      G = cgetg(l, t_VEC);
+      gel(G,1) = nfadd(nf, gen_1, PI);
+      for (i = 2; i < l; i++)
+        gel(G,i) = nfadd(nf, gen_1, zk_ei_mul(nf, PI, perm[i]));
+    }
+    A = cgetg(l, t_MAT);
     for (i = 1; i < l; i++)
     {
-      GEN G = gel(g,i), sgn = zero_zv(narchp); /*positive at f_oo*/
+      GEN g = gel(G,i), sgn = zero_zv(narchp); /*positive at f_oo*/
       y = zerocol(S->n);
-      (void)zlog_pk(nf, G, y + yind, pr, L2, &sgn);
+      (void)zlog_pk(nf, g, y + yind, pr, L2, &sgn);
       zlog_add_sign(y, sgn, S->sarch);
       gel(A,i) = y;
     }
@@ -2083,7 +2111,7 @@ principal_units(GEN nf, GEN pr, long e, GEN pre)
   a = 1;
   while (mask > 1)
   {
-    GEN pra = prb, z, U;
+    GEN pra = prb;
     long b = a << 1;
 
     if (mask & 1) b--;
@@ -2091,8 +2119,7 @@ principal_units(GEN nf, GEN pr, long e, GEN pre)
     /* compute 1 + pr^a / 1 + pr^b, 2a <= b */
     if(DEBUGLEVEL>3) err_printf("  treating a = %ld, b = %ld\n",a,b);
     prb = (b >= e)? pre: idealpows(nf,pr,b);
-    z = zidealij(pra, prb, &U);
-    vectrunc_append(list, mkvec3(gel(z,1),gel(z,2),U));
+    vectrunc_append(list, zidealij(pra, prb));
     a = b;
   }
   return list;

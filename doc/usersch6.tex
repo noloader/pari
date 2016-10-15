@@ -1110,6 +1110,14 @@ with \kbd{nf} coefficients to the residue field; returns an \kbd{FqX}.
 \fun{GEN}{FqX_to_nfX}{GEN Q, GEN modpr} lifts an \kbd{FqX} to a polynomial
 with coefficients in \kbd{nf}.
 
+The following function is technical and may avoid computing a true
+\kbd{nfmodpr}:
+
+\fun{GEN}{pr_basis_perm}{GEN nf, GEN pr} given a true \var{nf} structure
+and a prime ideal \kbd{pr} above $p$, return as a \typ{VECSMALL} the
+$f(\goth{p}/p)$ indices $i$ such that the \kbd{nf.zk}$[i]$ mod \goth{p}
+form an $\F_p$-basis of the residue field.
+
 \subsec{Valuations}
 
 \fun{long}{nfval}{GEN nf, GEN x, GEN P} return $v_P(x)$

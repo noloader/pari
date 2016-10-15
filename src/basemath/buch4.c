@@ -265,7 +265,7 @@ zpsolnf(GEN nf,GEN T,GEN pr,long nu,GEN pnu,GEN x0,GEN repr,GEN zinit)
 /* Let y = copy(x); y[k] := j; return y */
 static GEN
 ZC_add_coeff(GEN x, long k, long j)
-{ GEN y = shallowcopy(x); gel(y, k) = utoi(j); return y; }
+{ GEN y = shallowcopy(x); gel(y, k) = utoipos(j); return y; }
 
 /* system of representatives for Zk/pr */
 static GEN
@@ -273,18 +273,8 @@ repres(GEN nf, GEN pr)
 {
   long f = pr_get_f(pr), N = nf_get_degree(nf), p = itos(pr_get_p(pr));
   long i, j, k, pi, pf = upowuu(p, f);
-  GEN rep, perm = cgetg(f+1, t_VECSMALL);
+  GEN perm = pr_basis_perm(nf, pr), rep = cgetg(pf+1,t_VEC);
 
-  perm[1] = 1;
-  if (f > 1) {
-    GEN H = idealhnf_two(nf,pr);
-    for (i = k = 2; k <= f; i++)
-    {
-      if (is_pm1(gcoeff(H,i,i))) continue;
-      perm[k++] = i;
-    }
-  }
-  rep = cgetg(pf+1,t_VEC);
   gel(rep,1) = zerocol(N);
   for (pi=i=1; i<=f; i++,pi*=p)
   {
