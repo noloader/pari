@@ -1646,7 +1646,7 @@ zprimestar(GEN nf, GEN pr, GEN ep, GEN x, GEN arch)
   {
     GEN T, modpr = zk_to_Fq_init(nf, &pr, &T, &p);
     g = Fq_to_nf(gener_FpXQ(T,p,NULL), modpr);
-    g = poltobasis(nf, g);
+    if (typ(g) == t_POL) g = poltobasis(nf, g);
   }
   /* g generates  (Z_K / pr)^* */
   prb = idealhnf_two(nf,pr);
