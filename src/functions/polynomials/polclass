@@ -53,7 +53,7 @@ Doc:
 
  \item 15: $w_{3,5}$, $D = 1,2 \mod 3$;
 
- \item 21: $w_{3,7}$, $D = 1 \mod 2$ and $21 \nmid D$
+ \item 21: $w_{3,7}$, $D = 1 \mod 2$ and $21$ does not divide $D$
 
  \item 23: $w_{2,3}^2$, $D = 1,2 \mod 3$;
 
