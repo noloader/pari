@@ -1909,9 +1909,22 @@ log_gen_pr(zlog_S *S, long index, GEN nf, long e)
       GEN perm = pr_basis_perm(nf,pr), PI = nfpow_u(nf, pr_get_gen(pr), e-1);
       l = lg(perm);
       G = cgetg(l, t_VEC);
-      gel(G,1) = nfadd(nf, gen_1, PI);
-      for (i = 2; i < l; i++)
-        gel(G,i) = nfadd(nf, gen_1, zk_ei_mul(nf, PI, perm[i]));
+      if (typ(PI) == t_INT)
+      { /* zk_ei_mul doesn't allow t_INT */
+        long N = nf_get_degree(nf);
+        gel(G,1) = addiu(PI,1);
+        for (i = 2; i < l; i++)
+        {
+          GEN z = col_ei(N, 1);
+          gel(G,i) = z; gel(z, perm[i]) = PI;
+        }
+      }
+      else
+      {
+        gel(G,1) = nfadd(nf, gen_1, PI);
+        for (i = 2; i < l; i++)
+          gel(G,i) = nfadd(nf, gen_1, zk_ei_mul(nf, PI, perm[i]));
+      }
     }
     A = cgetg(l, t_MAT);
     for (i = 1; i < l; i++)

@@ -62,3 +62,8 @@ lift(rnfkummer(bnr,[1,0,0;0,2,1;0,0,1]))
 
 mod=[[429,234,78;0,39,0;0,0,39],[0]]; bnr=bnrinit(bnfinit(y^3+y-1,1),mod,1);
 lift(rnfkummer(bnr,[2,1,1;0,1,0;0,0,1]))
+
+\\ #1864
+bnr=bnrinit(bnfinit(y^7+7*y^3-7*y^2+7*y+1,1),8,1);
+L=subgrouplist(bnr,[2],1);
+apply(z->lift(rnfkummer(bnr,z)),L)
