@@ -1410,7 +1410,7 @@ SPLIT(FB_t *F, GEN nf, GEN x, GEN Vbase, FACT *fact)
     if (++nbtest > nbtest_lim)
     {
       nbtest = 0;
-      if (++lgsub < 7)
+      if (++lgsub < minss(7, lg(Vbase)-1))
       {
         nbtest_lim <<= 1;
         ex = cgetg(lgsub, t_VECSMALL);
