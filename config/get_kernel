@@ -35,7 +35,7 @@ case "$arch" in
         esac;                           prettya='PowerPC' ;;
   arm*|aarch64)  case "$sizeof_long" in
     4)
-      exe=$osname-$arch-endian$$
+      exe=$osname-$arch-endian$$$exe_suff
       echo $n "Checking supported ARM kernel: $c"
       cmd="$CC $CFLAGS -I../src/kernel/arm kernel.c -o $exe"; . log_cmd
       if test -r $exe; then

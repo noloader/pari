@@ -22,7 +22,7 @@ esac
 
 try() { GMPLIBS=$1; cmd="$cmd0 $1"; . log_cmd; }
 
-exe=$osname-$arch-gmp$$
+exe=$osname-$arch-gmp$$$exe_suff
 cmd0="$CC $CFLAGS $extraflag $GMPINCLUDE -o $exe gmp_version.c"
 
 if test -n "$with_gmp_lib"; then

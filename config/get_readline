@@ -26,7 +26,7 @@ case $x in
      ;;
 esac
 
-exe=$osname-$arch-rlv$$
+exe=$osname-$arch-rlv$$$exe_suff
 cmd0="$CC $CFLAGS $extraflag $RLINCLUDE -o $exe rl_version.c"
 try() { RLLIBS=$1; cmd="$cmd0 $1"; . log_cmd; }
 

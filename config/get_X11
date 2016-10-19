@@ -39,7 +39,7 @@ if test -f $Xincroot/X11/Xos.h; then
 fi
 # X11 -- Lib
 
-exe=$osname-$arch-X11$$
+exe=$osname-$arch-X11$$$exe_suff
 cmd0="$CC $CFLAGS $extraflag $X11_INC -o $exe has_X11.c"
 try() { X11_LIBS=$1; cmd="$cmd0 $1"; . log_cmd; }
 

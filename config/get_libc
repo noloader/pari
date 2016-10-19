@@ -1,5 +1,5 @@
 # Looking in libc for some functions.
-exe=$osname-$arch-tmp$$
+exe=$osname-$arch-tmp$$$exe_suff
 _has_list=
 echo Looking in C lib for some symbols...
 extra_flags=-lm

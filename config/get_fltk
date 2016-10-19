@@ -5,7 +5,7 @@ fi
 cmd="FLTK_LIBS=\`fltk-config --ldflags\`"
 . log_cmd
 
-exe=$osname-$arch-fltk$$
+exe=$osname-$arch-fltk$$$exe_suff
 cxx=$CXX
 if test -z "$cxx"; then cxx=g++; fi;
 cmd="$cxx $CFLAGS $FLTK_LIBS -o $exe has_fltk.c"

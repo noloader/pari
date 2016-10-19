@@ -1,4 +1,4 @@
-exe=$osname-$arch-endian$$
+exe=$osname-$arch-endian$$$exe_suff
 cmd="$CC $CFLAGS $extraflag endian.c -o $exe"; . log_cmd
 if test -r $exe; then
   doubleformat=`$RUNTEST $exe`;
