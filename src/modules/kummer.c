@@ -389,14 +389,14 @@ build_list_Hecke(primlist *L, GEN nfz, GEN fa, GEN gothf, GEN gell, tau_s *tau)
 static GEN
 logall(GEN nf, GEN vec, long lW, long mginv, long ell, GEN pr, long ex)
 {
-  GEN m, M, bid = Idealstarprk(nf, pr, ex, nf_INIT);
+  GEN m, M, sprk = zlog_pr_init(nf, pr, ex);
   long ellrank, i, l = lg(vec);
 
-  ellrank = prank(bid_get_cyc(bid), ell);
+  ellrank = prank(gel(sprk,1), ell);
   M = cgetg(l,t_MAT);
   for (i=1; i<l; i++)
   {
-    m = ideallog(nf, gel(vec,i), bid);
+    m = zlog_pr(nf, gel(vec,i), sprk);
     setlg(m, ellrank+1);
     if (i < lW) m = gmulsg(mginv, m);
     gel(M,i) = ZV_to_Flv(m, ell);
@@ -740,7 +740,7 @@ rnfkummersimple(GEN bnr, GEN subgroup, GEN gell, long all)
   ideal= bid_get_ideal(bid);
   arch = bid_get_arch(bid); /* this is the conductor */
   ell = itos(gell);
-  i = build_list_Hecke(&L, nf, gel(bid,3), ideal, gell, NULL);
+  i = build_list_Hecke(&L, nf, bid_get_fact(bid), ideal, gell, NULL);
   if (i) return no_sol(all,i);
 
   lSml2 = lg(L.Sml2)-1;

@@ -23,6 +23,7 @@ enum {
   typ_QUA, /* quadclassunit  */
   typ_GAL, /* galoisinit     */
   typ_BID,
+  typ_BIDZ,
   typ_PRID,
   typ_MODPR,
   typ_RNF
@@ -117,11 +118,12 @@ typedef struct FP_chk_fun {
 
 /* for ideallog / zlog */
 typedef struct {
-  GEN sprk; /* sprk[i] = zprimestar(P[i]^e[i])*/
-  GEN sarch; /* nfarchstar */
-  GEN ind;  /* ind[i] = start of vector */
-  GEN P, e; /* finit part of conductor = prod P^e */
+  GEN bid;
+  GEN P, k;
+  GEN sprk; /* sprk[i] = sprkinit(P[i]^k[i])*/
   GEN archp; /* archimedean part of conductor, in permutation form */
-  long n;  /* total number of generators for all (O_K/P^e)^* and (O_K/f_oo) */
-  GEN U; /* base change matrix from generators to bid.gen */
+  GEN U; /* base change matrix blocks from (Z_K/P^k)^* and (Z/2)^#f_oo
+          * to bid.gen */
+  long hU; /* #bid.gen */
+  int no2; /* 1 iff fa2 = fa, i.e. no prime of norm 2 divide exactly bid.mod */
 } zlog_S;

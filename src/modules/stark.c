@@ -208,7 +208,7 @@ get_Char(GEN nchi, long prec)
 
 /* prime divisors of conductor */
 static GEN
-divcond(GEN bnr) { GEN bid = bnr_get_bid(bnr); return gmael(bid,3,1); }
+divcond(GEN bnr) {GEN bid = bnr_get_bid(bnr); return gel(bid_get_fact(bid),1);}
 
 /* vector of prime ideals dividing bnr but not bnrc */
 static GEN
@@ -480,7 +480,7 @@ FindModulus(GEN bnr, GEN dtQ, long *newprec)
 
   for(;;)
   {
-    GEN listid = ideallist(nf, maxnorm); /* all ideals of norm <= maxnorm */
+    GEN listid = ideallist0(nf, maxnorm, 4+8); /* ideals of norm <= maxnorm */
     pari_sp av1 = avma;
     for (n = minnorm; n <= maxnorm; n++, avma = av1)
     {
@@ -578,6 +578,28 @@ END:
 /*                      2nd part: compute W(X)                      */
 /********************************************************************/
 
+/* find ilambda s.t. Diff*f*ilambda integral and coprime to f
+   and ilambda >> 0 at foo, fa = factorization of f */
+static GEN
+get_ilambda(GEN nf, GEN fa, GEN foo)
+{
+  GEN x, w, E2, P = gel(fa,1), E = gel(fa,2), D = nf_get_diff(nf);
+  long i, l = lg(P);
+  if (l == 1) return gen_1;
+  w = cgetg(l, t_VEC);
+  E2 = cgetg(l, t_COL);
+  for (i = 1; i < l; i++)
+  {
+    GEN pr = gel(P,i), t = pr_get_tau(pr);
+    long e = itou(gel(E,i)), v = idealval(nf, D, pr);
+    if (v) { D = idealdivpowprime(nf, D, pr, utoipos(v)); e += v; }
+    gel(E2,i) = stoi(e+1);
+    if (typ(t) == t_MAT) t = gel(t,1);
+    gel(w,i) = gdiv(nfpow(nf, t, stoi(e)), powiu(pr_get_p(pr),e));
+  }
+  x = mkmat2(P, E2);
+  return idealchinese(nf, mkvec2(x, foo), w);
+}
 /* compute the list of W(chi) such that Ld(s,chi) = W(chi) Ld(1 - s, chi*),
  * for all chi in LCHI. All chi have the same conductor (= cond(bnr)).
  * if check == 0 do not check the result */
@@ -586,9 +608,9 @@ ArtinNumber(GEN bnr, GEN LCHI, long check, long prec)
 {
   long ic, i, j, nz, nChar = lg(LCHI)-1;
   pari_sp av = avma, av2;
-  GEN sqrtnc, dc, cond, condZ, cond0, cond1, lambda, nf, T;
-  GEN cyc, vN, vB, diff, vt, idg, idh, zid, gen, z, nchi;
-  GEN indW, W, classe, s0, s, den, muslambda, sarch;
+  GEN sqrtnc, cond, condZ, cond0, cond1, nf, T;
+  GEN cyc, vN, vB, diff, vt, idh, zid, gen, z, nchi;
+  GEN indW, W, classe, s0, s, den, ilambda, sarch;
   CHI_t **lC;
   GROUP_t G;
 
@@ -611,35 +633,12 @@ ArtinNumber(GEN bnr, GEN LCHI, long check, long prec)
   T     = nf_get_Tr(nf);
   cond  = bnr_get_mod(bnr);
   cond0 = gel(cond,1); condZ = gcoeff(cond0,1,1);
-  cond1 = vec01_to_indices(gel(cond,2));
+  cond1 = gel(cond,2);
 
   sqrtnc = gsqrt(idealnorm(nf, cond0), prec);
-  dc  = idealmul(nf, diff, cond0);
-
-  /* compute a system of elements congruent to 1 mod cond0 and giving all
-     possible signatures for cond1 */
-  sarch = nfarchstar(nf, cond0, cond1);
-
-  /* find lambda in diff.cond such that gcd(lambda.(diff.cond)^-1,cond0) = 1
-     and lambda >> 0 at cond1 */
-  lambda = idealappr(nf, dc);
-  lambda = set_sign_mod_divisor(nf, NULL, lambda, sarch);
-  idg = idealdivexact(nf, lambda, dc);
-
-  /* find mu in idg such that idh=(mu) / idg is coprime with cond0 and
-     mu >> 0 at cond1 */
-  if (!gequal1(gcoeff(idg, 1, 1))) {
-    GEN P = divcond(bnr);
-    GEN f = famat_mul_shallow(idealfactor(nf, idg),
-                          mkmat2(P, zerocol(lg(P)-1)));
-    GEN mu = set_sign_mod_divisor(nf, NULL, idealapprfact(nf, f), sarch);
-    idh = idealdivexact(nf, mu, idg);
-    muslambda = nfdiv(nf, mu, lambda);
-  } else { /* mu = 1 */
-    idh = idg;
-    muslambda = nfinv(nf, lambda);
-  }
-  muslambda = Q_remove_denom(muslambda, &den);
+  ilambda = get_ilambda(nf, bid_get_fact(bnr_get_bid(bnr)), cond1);
+  idh = idealmul(nf, ilambda, idealmul(nf, diff, cond0)); /* integral */
+  ilambda = Q_remove_denom(ilambda, &den);
   z = den? rootsof1_cx(den, prec): NULL;
 
   /* compute a system of generators of (Ok/cond)^*, we'll make them
@@ -648,10 +647,10 @@ ArtinNumber(GEN bnr, GEN LCHI, long check, long prec)
   cyc = abgrp_get_cyc(zid);
   gen = abgrp_get_gen(zid);
   nz = lg(gen) - 1;
+  sarch = nfarchstar(nf, cond0, vec01_to_indices(cond1));
 
   nchi = cgetg(nChar+1, t_VEC);
   for (ic = 1; ic <= nChar; ic++) gel(nchi,ic) = cgetg(nz + 1, t_VECSMALL);
-
   for (i = 1; i <= nz; i++)
   {
     if (is_bigint(gel(cyc,i)))
@@ -664,15 +663,14 @@ ArtinNumber(GEN bnr, GEN LCHI, long check, long prec)
     }
   }
 
-  /* Sum chi(beta) * exp(2i * Pi * Tr(beta * mu / lambda) where beta
+  /* Sum chi(beta) * exp(2i * Pi * Tr(beta * ilambda) where beta
      runs through the classes of (Ok/cond0)^* and beta cond1-positive */
-
   vt = gel(T,1); /* ( Tr(w_i) )_i */
-  if (typ(muslambda) == t_COL)
-    vt = ZV_ZM_mul(vt, zk_multable(nf, muslambda));
+  if (typ(ilambda) == t_COL)
+    vt = ZV_ZM_mul(vt, zk_multable(nf, ilambda));
   else
-    vt = ZC_Z_mul(vt, muslambda);
-  /*vt = den . (Tr(w_i mu/lambda))_i */
+    vt = ZC_Z_mul(vt, ilambda);
+  /*vt = den . (Tr(w_i * ilambda))_i */
   G.cyc = gtovecsmall(cyc);
   G.r = nz;
   G.j = zero_zv(nz);
@@ -719,7 +717,7 @@ ArtinNumber(GEN bnr, GEN LCHI, long check, long prec)
   }
 
   classe = isprincipalray(bnr, idh);
-  z = powIs(- (lg(cond1)-1));
+  z = powIs(- (lg(gel(sarch,1))-1));
 
   for (ic = 1; ic <= nChar; ic++)
   {

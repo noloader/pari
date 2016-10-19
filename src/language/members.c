@@ -85,6 +85,7 @@ member_bid(GEN x)
   long t; (void)get_nf(x,&t);
   switch(t) {
     case typ_BNR: return bnr_get_bid(x);
+    case typ_BIDZ:
     case typ_BID: return x;
   }
   member_err("bid",x);
@@ -191,8 +192,8 @@ member_mod(GEN x) /* modulus */
   switch(t) {
     case typ_GAL: return gal_get_mod(x);
     case typ_BNR: return bnr_get_mod(x);
-    case typ_BID: return typ(gel(x,3)) == t_MAT? bid_get_mod(x)
-                                               : bid_get_ideal(x);
+    case typ_BIDZ: return bid_get_ideal(x);
+    case typ_BID: return bid_get_mod(x);
   }
   switch(typ(x))
   {
@@ -303,6 +304,7 @@ _member_clgp(GEN x, GEN y, long t) /* class group (3-component row vector) */
     switch(t)
     {
       case typ_QUA: return mkvec3(gel(x,1), gel(x,2), gel(x,3));
+      case typ_BIDZ:
       case typ_BID: return gel(x,2);
     }
     if (typ(x)==t_VEC)
@@ -400,6 +402,7 @@ member_zkst(GEN x)
   long t; (void)get_nf(x,&t);
   switch(t)
   {
+    case typ_BIDZ:
     case typ_BID: return bid_get_grp(x);
     case typ_BNR: {
       GEN bid = bnr_get_bid(x);

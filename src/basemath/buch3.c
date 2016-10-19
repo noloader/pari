@@ -129,41 +129,6 @@ buchnarrow(GEN bnf)
   return gerepilecopy(av, mkvec3(NO, met, basecl));
 }
 
-/* x non-0 integral ideal in HNF, compute elements in 1+x (in x, if x = zk)
- * whose sign matrix is invertible. archp in 'indices' format */
-GEN
-nfarchstar(GEN nf, GEN x, GEN archp)
-{
-  long nba = lg(archp) - 1;
-  GEN cyc, gen, mat;
-
-  if (!nba)
-    cyc = gen = mat = cgetg(1, t_VEC);
-  else
-  {
-    GEN xZ = gcoeff(x,1,1), gZ;
-    pari_sp av = avma;
-    if (is_pm1(xZ)) x = NULL; /* x = O_K */
-    gZ = x? subui(1, xZ): gen_m1; /* gZ << 0, gZ = 1 mod x */
-    if (nba == 1)
-    {
-      gen = mkvec(gZ);
-      mat = mkvec( mkvecsmall(1) );
-    }
-    else
-    {
-      GEN bas = nf_get_M(nf);
-      if (lgcols(bas) > lg(archp)) bas = rowpermute(bas, archp);
-      gen = cgetg(nba+1,t_VEC);
-      gel(gen,1) = gZ;
-      mat = archstar_full_rk(x, bas, mkmat(const_vecsmall(nba,1)), gen);
-      gerepileall(av,2,&gen,&mat);
-    }
-    cyc = const_vec(nba, gen_2);
-  }
-  return mkvec4(cyc,gen,mat,archp);
-}
-
 /********************************************************************/
 /**                                                                **/
 /**                  REDUCTION MOD IDELE                           **/
@@ -389,10 +354,10 @@ compute_raygen(GEN nf, GEN u1, GEN gen, GEN bid)
       G = nfmuli(nf, G, mulI);
       G = typ(G) == t_COL? ZC_hnfrem(G, ZM_Z_mul(f, dmulI))
                          : modii(G, mulii(fZ,dmulI));
+      G = RgC_Rg_div(G, dmulI);
     }
     G = set_sign_mod_divisor(nf,A,G,sarch);
     I = idealmul(nf,I,G);
-    if (dmulI) I = ZM_Z_divexact(I, dmulI);
     /* more or less useless, but cheap at this point */
     I = idealmoddivisor_aux(nf,I,f,sarch);
     gel(basecl,i) = gerepilecopy(av, I);
@@ -432,17 +397,8 @@ check_subgroup(GEN bnr, GEN H, GEN *clhray)
 static GEN
 get_dataunit(GEN bnf, GEN bid)
 {
-  GEN D, cyc = bid_get_cyc(bid), U = bnf_build_units(bnf);
-  GEN nf = bnf_get_nf(bnf);
-  long i, l;
-  zlog_S S; init_zlog_bid(&S, bid);
-  D = nfsign_units(bnf, S.archp, 1); l = lg(D);
-  for (i = 1; i < l; i++)
-  {
-    GEN v = zlog(nf, gel(U,i),gel(D,i), &S);
-    gel(D,i) = vecmodii(ZM_ZC_mul(S.U, v), cyc);
-  }
-  return D;
+  GEN D = nfsign_units(bnf, bid_get_archp(bid), 1);
+  return ideallog_sgn(bnf_get_nf(bnf), bnf_build_units(bnf), D, bid);
 }
 
 GEN
@@ -1482,7 +1438,7 @@ static GEN
 ideallog_to_bnr(GEN bnr, GEN z)
 {
   GEN U = gel(bnr,4), divray = bnr_get_cyc(bnr);
-  long j, l, lU, lz;
+  long lU, lz;
   int col;
 
   if (lg(z) == 1) return z;
@@ -1494,10 +1450,11 @@ ideallog_to_bnr(GEN bnr, GEN z)
     if (lz == 1) return zerocol(nbrows(U)); /* lU != 1 */
     U = vecslice(U, lU-lz+1, lU-1); /* remove Cl(K) part */
   }
-  if (col) {
-    z = ZM_ZC_mul(U, z);
-    z = vecmodii(z, divray);
-  } else {
+  if (col)
+    z = vecmodii(ZM_ZC_mul(U,z), divray);
+  else
+  {
+    long j, l;
     z = ZM_mul(U, z); l = lg(z);
     for (j = 1; j < l; j++) gel(z,j) = vecmodii(gel(z,j), divray);
   }
@@ -1526,16 +1483,17 @@ bnrconductor_i(GEN bnr, GEN H0, long flag)
 {
   long j, k, l;
   GEN nf, bid, ideal, archp, clhray, bnrc, e2, e, cond, H;
-  int iscond0 = 1, iscondinf = 1, ischi;
+  int iscond0, iscondinf = 1, ischi;
   zlog_S S;
 
   checkbnr(bnr);
-  bid = bnr_get_bid(bnr); init_zlog_bid(&S, bid);
+  bid = bnr_get_bid(bnr); init_zlog(&S, bid);
+  iscond0 = S.no2;
   nf = bnr_get_nf(bnr);
   H = check_subgroup(bnr, H0, &clhray);
 
   archp = leafcopy(S.archp);
-  e     = S.e; l = lg(e);
+  e     = S.k; l = lg(e);
   e2 = cgetg(l, t_COL);
   for (k = 1; k < l; k++)
   {
@@ -1597,17 +1555,17 @@ bnrisconductor(GEN bnr, GEN H0)
 {
   pari_sp av = avma;
   long j, k, l;
-  GEN bnf, nf, bid, archp, clhray, e, H;
+  GEN bnf, nf, archp, clhray, e, H;
   zlog_S S;
 
   checkbnr(bnr);
   bnf = bnr_get_bnf(bnr);
-  bid = bnr_get_bid(bnr); init_zlog_bid(&S, bid);
+  init_zlog(&S, bnr_get_bid(bnr));
   nf = bnf_get_nf(bnf);
   H = check_subgroup(bnr, H0, &clhray);
 
   archp = S.archp;
-  e     = S.e; l = lg(e);
+  e     = S.k; l = lg(e);
   for (k = 1; k < l; k++)
   {
     j = itos(gel(e,k));
@@ -1824,17 +1782,17 @@ static GEN
 bnrdisc_i(GEN bnr, GEN H, long flag)
 {
   const long flcond = flag & rnf_COND;
-  GEN nf, bid, clhray, E, ED, dk;
+  GEN nf, clhray, E, ED, dk;
   long k, d, l, n, r1;
   zlog_S S;
 
   checkbnr(bnr);
-  bid = bnr_get_bid(bnr); init_zlog_bid(&S, bid);
+  init_zlog(&S, bnr_get_bid(bnr));
   nf = bnr_get_nf(bnr);
   H = check_subgroup(bnr, H, &clhray);
   d = itos(clhray);
   if (!H) H = diagonal_shallow(bnr_get_cyc(bnr));
-  E = S.e; ED = cgetg_copy(E, &l);
+  E = S.k; ED = cgetg_copy(E, &l);
   for (k = 1; k < l; k++)
   {
     long j, e = itos(gel(E,k)), eD = e*d;
@@ -1905,12 +1863,27 @@ bnrconductorofchar(GEN bnr, GEN chi)
   return gerepilecopy(av, bnrconductor_i(bnr, K, 0));
 }
 
+/* \sum U[i]*y[i], U[i],y[i] ZM, we allow lg(y) > lg(U). */
+static GEN
+ZMV_mul(GEN U, GEN y)
+{
+  long i, l = lg(U);
+  GEN z = NULL;
+  if (l == 1) return cgetg(1,t_MAT);
+  for (i = 1; i < l; i++)
+  {
+    GEN u = ZM_mul(gel(U,i), gel(y,i));
+    z = z? ZM_add(z, u): u;
+  }
+  return z;
+}
+
 /* t = [bid,U], h = #Cl(K) */
 static GEN
 get_classno(GEN t, GEN h)
 {
-  GEN bid = gel(t,1), m = gel(t,2), cyc = bid_get_cyc(bid);
-  return mulii(h, ZM_det_triangular(ZM_hnfmodid(m, cyc)));
+  GEN bid = gel(t,1), m = gel(t,2), cyc = bid_get_cyc(bid), U = bid_get_U(bid);
+  return mulii(h, ZM_det_triangular(ZM_hnfmodid(ZMV_mul(U,m), cyc)));
 }
 
 static void
@@ -1926,22 +1899,23 @@ chk_listBU(GEN L, const char *s) {
   }
 }
 
-/* Given lists of [bid, unit ideallogs], return lists of ray class
- * numbers */
+/* Given lists of [bid, unit ideallogs], return lists of ray class numbers */
 GEN
 bnrclassnolist(GEN bnf,GEN L)
 {
   pari_sp av = avma;
-  long i, j, lz, l = lg(L);
-  GEN v, z, V, h;
+  long i, l = lg(L);
+  GEN V, h;
 
   chk_listBU(L, "bnrclassnolist");
   if (l == 1) return cgetg(1, t_VEC);
-  bnf = checkbnf(bnf); h = bnf_get_no(bnf);
+  bnf = checkbnf(bnf);
+  h = bnf_get_no(bnf);
   V = cgetg(l,t_VEC);
   for (i = 1; i < l; i++)
   {
-    z = gel(L,i); lz = lg(z);
+    GEN v, z = gel(L,i);
+    long j, lz = lg(z);
     gel(V,i) = v = cgetg(lz,t_VEC);
     for (j=1; j<lz; j++) gel(v,j) = get_classno(gel(z,j), h);
   }
@@ -2056,7 +2030,7 @@ get_NR1D(long Nf, long clhray, long degk, long nz, GEN fadkabs, GEN idealrel)
 {
   long n, R1;
   GEN dlk;
-  if (nz < 0) mkvec3(gen_0,gen_0,gen_0); /*EMPTY*/
+  if (nz < 0) return mkvec3(gen_0,gen_0,gen_0); /*EMPTY*/
   n  = clhray * degk;
   R1 = clhray * nz;
   dlk = factordivexact(factorpow(Z_factor(utoipos(Nf)),clhray), idealrel);
@@ -2144,40 +2118,16 @@ discrayabslist(GEN bnf, GEN L)
   return gerepilecopy(av, V);
 }
 
-/* BIG VECTOR:
- * Interface: a container v whose length is arbitrary (< 2^30), bigel(v,i)
- * refers to the i-th component. It is an lvalue.
- *
- * Implementation: a vector v whose components have exactly 2^LGVINT entries
- * but for the last one which is allowed to be shorter. v[i][j]
- * (where j<=2^LGVINT) is understood as component number I = (i-1)*2^LGVINT+j
- * in a unique huge vector V. */
-static const int SHLGVINT = 15;
-static const long LGVINT = 1L << 15;
-INLINE long vext0(ulong i) { return ((i-1)>>SHLGVINT) + 1; }
-INLINE long vext1(ulong i) { return i & (LGVINT-1); }
-#define bigel(v,i) gmael((v), vext0(i), vext1(i))
-
-/* allocate an extended vector (t_VEC of t_VEC) for N _true_ components */
-static GEN
-bigcgetvec(long N)
-{
-  long i, nv = vext0(N);
-  GEN v = cgetg(nv+1,t_VEC);
-  for (i=1; i<nv; i++) gel(v,i) = cgetg(LGVINT+1,t_VEC);
-  gel(v,nv) = cgetg(vext1(N)+1,t_VEC); return v;
-}
-
-/* a zsimp is [fa, cyc, U, v]
+/* a zsimp is [fa, cyc, v]
  * fa: vecsmall factorisation,
- * cyc: ZV (abelian group)
- * U: ZM (base change)
- * v: ZV (log of units) */
+ * cyc: ZV (concatenation of (Z_K/pr^k)^* SNFs), the generators
+ * are positive at all real places [defined implicitly by weak approximation]
+ * v: ZC (log of units on (Z_K/pr^k)^* components) */
 static GEN
-zsimp(GEN bid, GEN embunit)
+zsimp(void)
 {
   GEN empty = cgetg(1, t_VECSMALL);
-  return mkvec4(mkmat2(empty,empty), bid_get_cyc(bid), bid_get_U(bid), embunit);
+  return mkvec3(mkmat2(empty,empty), cgetg(1,t_VEC), cgetg(1,t_COL));
 }
 
 /* fa a vecsmall factorization, append p^e */
@@ -2189,44 +2139,39 @@ fasmall_append(GEN fa, long p, long e)
 }
 
 static GEN
-zsimpjoin(GEN b, GEN bid, GEN embunit, long prcode, long e)
-{
-  long l1, l2, nbgen;
-  pari_sp av = avma;
-  GEN fa, U, U1, U2, cyc1, cyc2, cyc;
+sprk_get_cyc(GEN s) { return gel(s,1); }
 
-  fa = gel(b,1);
-  U1 = gel(b,3);       cyc1 = gel(b,2);         l1 = lg(cyc1);
-  U2 = bid_get_U(bid); cyc2 = bid_get_cyc(bid); l2 = lg(cyc2);
-  nbgen = l1+l2-2;
-  if (nbgen)
-  {
-    cyc = ZV_snfall(shallowconcat(cyc1,cyc2), &U, NULL);
-    ZM_snfclean(cyc, U, NULL);
-    U = shallowconcat(
-      l1==1   ? zeromat(nbgen, lg(U1)-1): ZM_mul(vecslice(U, 1,   l1-1), U1),
-      l1>nbgen? zeromat(nbgen, lg(U2)-1): ZM_mul(vecslice(U, l1, nbgen), U2)
-    );
-  }
+/* sprk = sprkinit(pr,k), b zsimp with modulus coprime to pr */
+static GEN
+zsimpjoin(GEN b, GEN sprk, GEN U_pr, long prcode, long e)
+{
+  GEN fa, cyc = sprk_get_cyc(sprk);
+  if (lg(gel(b,2)) == 1) /* trivial group */
+    fa = mkmat2(mkvecsmall(prcode),mkvecsmall(e));
   else
   {
-    U = zeromat(0, lg(U1)+lg(U2)-2);
-    cyc = cgetg(1,t_VEC);
+    fa = fasmall_append(gel(b,1), prcode, e);
+    cyc = shallowconcat(gel(b,2), cyc); /* no SNF ! */
+    U_pr = vconcat(gel(b,3),U_pr);
   }
-  fa = fasmall_append(fa, prcode, e);
-  return gerepilecopy(av, mkvec4(fa, cyc, U, vconcat(gel(b,4),embunit)));
+  return mkvec3(fa, cyc, U_pr);
 }
-/* B a zsimp */
+/* B a zsimp, sgnU = [cyc[f_oo], sgn_{f_oo}(units)] */
 static GEN
-bnrclassnointern(GEN B, GEN h)
+bnrclassno_1(GEN B, ulong h, GEN sgnU)
 {
   long lx = lg(B), j;
   GEN L = cgetg(lx,t_VEC);
   for (j=1; j<lx; j++)
   {
-    GEN b = gel(B,j), qm = ZM_mul(gel(b,3),gel(b,4));
-    GEN m = ZM_det_triangular( ZM_hnfmodid(qm, gel(b,2)) );
-    gel(L,j) = mkvec2(gel(b,1), mkvecsmall( itou( mulii(h, m) ) ));
+    pari_sp av = avma;
+    GEN b = gel(B,j), cyc = gel(b,2), qm = gel(b,3);
+    ulong z;
+    cyc = shallowconcat(cyc, gel(sgnU,1));
+    qm = vconcat(qm, gel(sgnU,2));
+    z = itou( mului(h, ZM_det_triangular(ZM_hnfmodid(qm, cyc))) );
+    avma = av;
+    gel(L,j) = mkvec2(gel(b,1), mkvecsmall(z));
   }
   return L;
 }
@@ -2246,28 +2191,35 @@ rowselect_p(GEN A, GEN B, GEN p, long init)
   for (i=1; i<init; i++) setlg(B[i],lp);
   for (   ; i<lB;   i++) vecselect_p(gel(A,i),gel(B,i),p,init,lp);
 }
-
-static GEN
-bnrclassnointernarch(GEN B, GEN h, GEN matU)
+static ulong
+hdet(ulong h, GEN m)
 {
-  long lx, nc, k, kk, j, r1, jj, nba, nbarch;
-  GEN _2, b, qm, L, cyc, m, H, mm, rowsel;
+  pari_sp av = avma;
+  GEN z = mului(h, ZM_det_triangular(ZM_hnf(m)));
+  avma = av; return itou(z);
+}
+static GEN
+bnrclassno_all(GEN B, ulong h, GEN sgnU)
+{
+  long lx, k, kk, j, r1, jj, nba, nbarch;
+  GEN _2, L, m, H, mm, rowsel;
 
-  if (!matU) return bnrclassnointern(B,h);
+  if (typ(sgnU) == t_VEC) return bnrclassno_1(B,h,sgnU);
   lx = lg(B); if (lx == 1) return B;
 
-  r1 = nbrows(matU); _2 = const_vec(r1, gen_2);
+  r1 = nbrows(sgnU); _2 = const_vec(r1, gen_2);
   L = cgetg(lx,t_VEC); nbarch = 1L<<r1;
   for (j=1; j<lx; j++)
   {
-    b = gel(B,j); qm = ZM_mul(gel(b,3),gel(b,4));
-    cyc = gel(b,2); nc = lg(cyc)-1;
+    pari_sp av = avma;
+    GEN b = gel(B,j), cyc = gel(b,2), qm = gel(b,3);
+    long nc = lg(cyc)-1;
     /* [ qm   cyc 0 ]
-     * [ matU  0  2 ] */
-    m = ZM_hnfmodid(vconcat(qm, matU), shallowconcat(cyc,_2));
+     * [ sgnU  0  2 ] */
+    m = ZM_hnfmodid(vconcat(qm, sgnU), shallowconcat(cyc,_2));
     mm = RgM_shallowcopy(m);
-    H = cgetg(nbarch+1,t_VECSMALL);
     rowsel = cgetg(nc+r1+1,t_VECSMALL);
+    H = cgetg(nbarch+1,t_VECSMALL);
     for (k = 0; k < nbarch; k++)
     {
       nba = nc+1;
@@ -2275,8 +2227,9 @@ bnrclassnointernarch(GEN B, GEN h, GEN matU)
         if (kk&1) rowsel[nba++] = nc + jj;
       setlg(rowsel, nba);
       rowselect_p(m, mm, rowsel, nc+1);
-      H[k+1] = itou( mulii(h, ZM_det_triangular(ZM_hnf(mm))) );
+      H[k+1] = hdet(h, mm);
     }
+    H = gerepileuptoleaf(av, H);
     gel(L,j) = mkvec2(gel(b,1), H);
   }
   return L;
@@ -2310,8 +2263,8 @@ decodemodule(GEN nf, GEN fa)
 
 /* List of ray class fields. Do all from scratch, bound < 2^30. No subgroups.
  *
- * Output: a "big vector" V (cf bigcgetvec). V[k] is a vector indexed by
- * the ideals of norm k. Given such an ideal m, the component is as follows:
+ * Output: a vector V, V[k] contains the ideals of norm k. Given such an ideal
+ * m, the component is as follows:
  *
  * + if arch = NULL, run through all possible archimedean parts; archs are
  * ordered using inverse lexicographic order, [0,..,0], [1,0,..,0], [0,1,..,0],
@@ -2324,11 +2277,11 @@ GEN
 discrayabslistarch(GEN bnf, GEN arch, ulong bound)
 {
   int allarch = (arch==NULL), flbou = 0;
-  long degk, j, k, l, nba, nbarch, r1, c;
+  long degk, j, k, l, nba, nbarch, r1, c, sqbou;
   pari_sp av0 = avma,  av,  av1;
-  GEN nf, p, Z, fa, bidp, matarchunit, Disc, U, sgnU, EMPTY, empty;
-  GEN res, embunit, h, Ray, discall, idealrel, idealrelinit, fadkabs, BOUND;
-  ulong i, ii, sqbou;
+  GEN nf, p, Z, fa, Disc, U, sgnU, EMPTY, empty, archp;
+  GEN res, Ray, discall, idealrel, idealrelinit, fadkabs, BOUND;
+  ulong i, h;
   forprime_t S;
 
   if (bound == 0)
@@ -2336,27 +2289,24 @@ discrayabslistarch(GEN bnf, GEN arch, ulong bound)
   res = discall = NULL; /* -Wall */
 
   bnf = checkbnf(bnf);
-  nf = bnf_get_nf(bnf); r1 = nf_get_r1(nf);
+  nf = bnf_get_nf(bnf);
+  r1 = nf_get_r1(nf);
   degk = nf_get_degree(nf);
   fadkabs = absZ_factor(nf_get_disc(nf));
-  h = bnf_get_no(bnf);
+  h = itou(bnf_get_no(bnf));
 
-  if (allarch) arch = const_vec(r1, gen_1);
-  bidp = Idealstar(nf, mkvec2(gen_1, arch), nf_INIT);
-  U = bnf_build_units(bnf);
-  sgnU = nfsign_units(bnf, bid_get_archp(bidp), 1);
-  embunit = zlog_units(nf, U, sgnU, bidp);
-
-  if (allarch) {
-    matarchunit = embunit;
-    bidp = Idealstar(nf, gen_1, nf_INIT);
-    embunit = zeromat(0,lg(U)-1); /* = zlog_units_noarch(nf, U, bidp) */
+  if (allarch)
+  {
     if (r1>15) pari_err_IMPL("r1>15 in discrayabslistarch");
-    nba = r1;
-  } else {
-    matarchunit = NULL;
-    for (nba=0,k=1; k<=r1; k++) if (signe(gel(arch,k))) nba++;
+    arch = const_vec(r1, gen_1);
   }
+  else if (lg(arch)-1 != r1)
+    pari_err_TYPE("Idealstar [incorrect archimedean component]",arch);
+  U = bnf_build_units(bnf);
+  archp = vec01_to_indices(arch);
+  nba = lg(archp)-1;
+  sgnU = zm_to_ZM( nfsign_units(bnf, archp, 1) );
+  if (!allarch) sgnU = mkvec2(const_vec(nba,gen_2), sgnU);
 
   empty = cgetg(1,t_VEC);
   /* what follows was rewritten from Ideallist */
@@ -2364,10 +2314,9 @@ discrayabslistarch(GEN bnf, GEN arch, ulong bound)
   p = cgetipos(3);
   u_forprime_init(&S, 2, bound);
   av = avma;
-  sqbou = (ulong)sqrt((double)bound) + 1;
-  Z = bigcgetvec(bound);
-  for (i=2; i<=bound; i++) bigel(Z,i) = empty;
-  bigel(Z,1) = mkvec(zsimp(bidp,embunit));
+  sqbou = (long)sqrt((double)bound) + 1;
+  Z = const_vec(bound, empty);
+  gel(Z,1) = mkvec(zsimp());
   if (DEBUGLEVEL>1) err_printf("Starting zidealstarunits computations\n");
   /* The goal is to compute Ray (lists of bnrclassno). Z contains "zsimps",
    * simplified bid, from which bnrclassno is easy to compute.
@@ -2375,19 +2324,14 @@ discrayabslistarch(GEN bnf, GEN arch, ulong bound)
   Ray = Z;
   while ((p[2] = u_forprime_next(&S)))
   {
-    if (!flbou && uel(p,2) > sqbou)
+    if (!flbou && p[2] > sqbou)
     {
-      GEN z;
       flbou = 1;
       if (DEBUGLEVEL>1) err_printf("\nStarting bnrclassno computations\n");
-      Z = gerepilecopy(av,Z); av1 = avma;
-      Ray = bigcgetvec(bound);
-      for (i=1; i<=bound; i++)
-        bigel(Ray,i) = bnrclassnointernarch(bigel(Z,i),h,matarchunit);
-      Ray = gerepilecopy(av1,Ray);
-      z = bigcgetvec(sqbou);
-      for (i=1; i<=sqbou; i++) bigel(z,i) = bigel(Z,i);
-      Z = z;
+      Z = gerepilecopy(av,Z);
+      Ray = cgetg(bound+1, t_VEC);
+      for (i=1; i<=bound; i++) gel(Ray,i) = bnrclassno_all(gel(Z,i),h,sgnU);
+      Z = vecslice(Z, 1, sqbou);
     }
     fa = idealprimedec_limit_norm(nf,p,BOUND);
     for (j=1; j<lg(fa); j++)
@@ -2399,14 +2343,15 @@ discrayabslistarch(GEN bnf, GEN arch, ulong bound)
       /* p, f-1, j-1 as a single integer in "base degk" (f,j <= degk)*/
       prcode = (p[2]*degk + f-1)*degk + j-1;
       q = Q;
-      for (l=1;; l++) /* Q <= bound */
+      /* FIXME: if Q = 2, should start at l = 2 */
+      for (l = 1;; l++) /* Q <= bound */
       {
         ulong iQ;
-        bidp = Idealstarprk(nf, pr, l, nf_INIT);
-        embunit = zlog_units_noarch(nf, U, bidp);
+        GEN sprk = zlog_pr_init(nf, pr, l);
+        GEN U_pr = vzlog_pr(nf, U, sprk);
         for (iQ = Q, i = 1; iQ <= bound; iQ += Q, i++)
         {
-          GEN pz, p2, p1 = bigel(Z,i);
+          GEN pz, p2, p1 = gel(Z,i);
           long lz = lg(p1);
           if (lz == 1) continue;
 
@@ -2417,18 +2362,16 @@ discrayabslistarch(GEN bnf, GEN arch, ulong bound)
             long lv = lg(v);
             /* If z has a power of pr in its modulus, skip it */
             if (i != 1 && lv > 1 && v[lv-1] == prcode) break;
-            gel(p2,++c) = zsimpjoin(z,bidp,embunit,prcode,l);
+            gel(p2,++c) = zsimpjoin(z,sprk,U_pr,prcode,l);
           }
-
           setlg(p2, c+1);
-          pz = bigel(Ray,iQ);
-          if (flbou) p2 = bnrclassnointernarch(p2,h,matarchunit);
+          pz = gel(Ray,iQ);
+          if (flbou) p2 = bnrclassno_all(p2,h,sgnU);
           if (lg(pz) > 1) p2 = shallowconcat(pz,p2);
-          bigel(Ray,iQ) = p2;
+          gel(Ray,iQ) = p2;
         }
         Q = itou_or_0( muluu(Q, q) );
         if (!Q || Q > bound) break;
-
       }
     }
     if (gc_needed(av,1))
@@ -2440,9 +2383,8 @@ discrayabslistarch(GEN bnf, GEN arch, ulong bound)
   if (!flbou) /* occurs iff bound = 1,2,4 */
   {
     if (DEBUGLEVEL>1) err_printf("\nStarting bnrclassno computations\n");
-    Ray = bigcgetvec(bound);
-    for (i=1; i<=bound; i++)
-      bigel(Ray,i) = bnrclassnointernarch(bigel(Z,i),h,matarchunit);
+    Ray = cgetg(bound+1, t_VEC);
+    for (i=1; i<=bound; i++) gel(Ray,i) = bnrclassno_all(gel(Z,i),h,sgnU);
   }
   Ray = gerepilecopy(av, Ray);
 
@@ -2456,15 +2398,12 @@ discrayabslistarch(GEN bnf, GEN arch, ulong bound)
   EMPTY = mkvec3(gen_0,gen_0,gen_0);
   idealrelinit = trivial_fact();
   av1 = avma;
-  Disc = bigcgetvec(bound);
-  for (i=1; i<=bound; i++) bigel(Disc,i) = empty;
-  for (ii=1; ii<=bound; ii++)
+  Disc = const_vec(bound, empty);
+  for (i=1; i<=bound; i++)
   {
-    GEN sous, sousdisc;
-    long ls;
-    i = ii;
-    sous = bigel(Ray,i);
-    ls = lg(sous); bigel(Disc,ii) = sousdisc = cgetg(ls,t_VEC);
+    GEN sousdisc, sous = gel(Ray,i);
+    long ls = lg(sous);
+    gel(Disc,i) = sousdisc = cgetg(ls,t_VEC);
     for (j=1; j<ls; j++)
     {
       GEN b = gel(sous,j), clhrayall = gel(b,2), Fa = gel(b,1);
@@ -2499,7 +2438,7 @@ discrayabslistarch(GEN bnf, GEN arch, ulong bound)
             if (e < ep) { E[k] = ep-e; fad = Fa; }
             else fad = factorsplice(Fa, k);
             normi /= Npr;
-            clhss = Lbnrclassno(bigel(Ray,normi),fad)[karch+1];
+            clhss = Lbnrclassno(gel(Ray,normi),fad)[karch+1];
             if (e==1 && clhss==clhray) { E[k] = ep; res = EMPTY; goto STORE; }
             if (clhss == 1) { S += ep-e+1; break; }
             S += clhss;
@@ -2523,7 +2462,7 @@ STORE:  gel(discall,karch+1) = res;
         if(DEBUGMEM>1) pari_warn(warnmem,"[2]: discrayabslistarch");
         for (jj=j+1; jj<ls; jj++) gel(sousdisc,jj) = gen_0; /* dummy */
         Disc = gerepilecopy(av1, Disc);
-        sousdisc = bigel(Disc,ii);
+        sousdisc = gel(Disc,i);
       }
     }
   }
@@ -2545,8 +2484,8 @@ conductor_elts(GEN bnr)
   long le, la, i, k;
   zlog_S S;
 
-  init_zlog_bid(&S, bnr_get_bid(bnr));
-  e = S.e; le = lg(e); la = lg(S.archp);
+  init_zlog(&S, bnr_get_bid(bnr));
+  e = S.k; le = lg(e); la = lg(S.archp);
   L = cgetg(le + la - 1, t_VEC);
   i = 1;
   for (k = 1; k < le; k++)

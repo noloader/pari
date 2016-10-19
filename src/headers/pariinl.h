@@ -2618,13 +2618,15 @@ bid_get_arch(GEN bid) { return gmael(bid,1,2); }
 INLINE GEN
 bid_get_grp(GEN bid) { return gel(bid,2); }
 INLINE GEN
-bid_get_fact(GEN bid) { return gel(bid,3); }
+bid_get_fact(GEN bid) { return gmael(bid,3,1); }
+INLINE GEN
+bid_get_fact2(GEN bid) { return gmael(bid,3,2); }
 INLINE GEN
 bid_get_sprk(GEN bid) { return gmael(bid,4,1); }
 INLINE GEN
 bid_get_sarch(GEN bid) { return gmael(bid,4,2); }
 INLINE GEN
-bid_get_archp(GEN bid) { return gmael3(bid,4,2,4); }
+bid_get_archp(GEN bid) { return gmael3(bid,4,2,2); }
 INLINE GEN
 bid_get_ind(GEN bid) { return gmael(bid,4,3); }
 INLINE GEN

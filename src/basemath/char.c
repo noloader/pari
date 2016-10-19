@@ -18,13 +18,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 /**                  GENERIC ABELIAN CHARACTERS                     **/
 /**                                                                 **/
 /*********************************************************************/
+static GEN
+bidZ_get_fact(GEN G) { return gel(G,3); }
 
 /* check whether G is a bidZ */
 static int
 checkbidZ_i(GEN G)
 {
   return (typ(G) == t_VEC && lg(G) == 6
-      && typ(bid_get_fact(G)) == t_VEC
+      && typ(bidZ_get_fact(G)) == t_VEC
       && typ(bid_get_mod(G)) == t_VEC && lg(bid_get_mod(G)) == 3);
 }
 
@@ -84,7 +86,7 @@ char_normalize(GEN chi, GEN ncyc)
 static GEN
 get_cyc(GEN x, GEN chi, const char *s)
 {
-  if (nftyp(x) == typ_BID && checkbidZ_i(x))
+  if (nftyp(x) == typ_BIDZ && checkbidZ_i(x))
   {
     if (!zncharcheck(x, chi)) pari_err_TYPE(s, chi);
     return NULL;
@@ -303,7 +305,7 @@ chareval(GEN G, GEN chi, GEN x, GEN z)
       L = isprincipal(G, x);
       nchi = get_chi(bnf_get_cyc(G), chi);
       break;
-    case typ_BID:
+    case typ_BIDZ:
       if (checkbidZ_i(G)) return gerepileupto(av, znchareval(G, chi, x, z));
       /* don't implement chars on general bid: need an nf... */
     default:
@@ -619,7 +621,7 @@ znconreylog(GEN bid, GEN x)
       return gerepilecopy(av, znconreyfromchar(bid, x));
     default: pari_err_TYPE("znconreylog", x);
   }
-  F = bid_get_fact(bid); /* factor(N) */
+  F = bidZ_get_fact(bid); /* factor(N) */
   P = gel(F, 1); /* prime divisors of N */
   E = gel(F, 2); /* exponents */
   pe = gel(L,1);
@@ -770,7 +772,7 @@ znconreyconductor(GEN bid, GEN chi, GEN *pm)
   else
     chi = znconreylog(bid, chi);
   l = lg(chi);
-  F = bid_get_fact(bid);
+  F = bidZ_get_fact(bid);
   P = gel(F,1);
   E = gel(F,2);
   if (l == 1)
@@ -860,7 +862,7 @@ zncharinduce(GEN G, GEN chi, GEN N)
   if (typ(chi) != t_COL) chi = znconreylog(G, chi);
   if (checkbidZ_i(N))
   {
-    GEN faN = bid_get_fact(N);
+    GEN faN = bidZ_get_fact(N);
     P = gel(faN,1); l = lg(P);
     E = gel(faN,2);
     N = bid_get_ideal(N);
@@ -902,7 +904,7 @@ zncharinduce(GEN G, GEN chi, GEN N)
     return equali1(N)? cgetg(1, t_COL): zerocol(l+e2 - 1);
   }
 
-  faq = bid_get_fact(G);
+  faq = bidZ_get_fact(G);
   Pq = gel(faq,1);
   Eq = gel(faq,2);
   CHI = cgetg(l+e2, t_COL);
@@ -1018,7 +1020,7 @@ znchartokronecker(GEN G, GEN chi, long flag)
   F = (s < 0)? negi(F): icopy(F);
   if (!flag)
   {
-    GEN MF = bid_get_fact(G), P = gel(MF,1);
+    GEN MF = bidZ_get_fact(G), P = gel(MF,1);
     long i, l = lg(P);
     for (i = 1; i < l; i++)
     {

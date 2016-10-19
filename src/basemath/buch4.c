@@ -160,9 +160,9 @@ psquarenf(GEN nf,GEN x,GEN pr,GEN modpr)
 
 /* Is  x a square in (ZK / pr^(1+2e))^* ?  pr | 2 */
 static long
-check2(GEN nf, GEN x, GEN zinit)
+check2(GEN nf, GEN x, GEN sprk)
 {
-  GEN zlog = ideallog(nf, x, zinit);
+  GEN zlog = zlog_pr(nf, x, sprk);
   long i, l = lg(zlog);
   for (i=1; i<l; i++) /* all elementary divisors are even (1+2e > 1) */
     if (mpodd(gel(zlog,i))) return 0;
@@ -171,17 +171,17 @@ check2(GEN nf, GEN x, GEN zinit)
 
 /* pr | 2. Return 1 if x in Z_K is square in Z_{K_pr}, 0 otherwise */
 static int
-psquare2nf_i(GEN nf,GEN x,GEN pr,GEN zinit)
+psquare2nf_i(GEN nf,GEN x,GEN pr,GEN sprk)
 {
   long v = nfvalrem(nf, x, pr, &x);
   /* now (x,pr) = 1 */
-  return v == LONG_MAX || (!odd(v) && check2(nf,x,zinit));
+  return v == LONG_MAX || (!odd(v) && check2(nf,x,sprk));
 }
 static int
-psquare2nf(GEN nf,GEN x,GEN pr,GEN zinit)
+psquare2nf(GEN nf,GEN x,GEN pr,GEN sprk)
 {
   pari_sp av = avma;
-  long v = psquare2nf_i(nf,x,pr,zinit);
+  long v = psquare2nf_i(nf,x,pr,sprk);
   avma = av; return v;
 }
 
@@ -205,12 +205,12 @@ lemma6nf(GEN nf, GEN T, GEN pr, long nu, GEN x, GEN modpr)
 }
 /* pr above 2 */
 static long
-lemma7nf(GEN nf, GEN T, GEN pr, long nu, GEN x, GEN zinit)
+lemma7nf(GEN nf, GEN T, GEN pr, long nu, GEN x, GEN sprk)
 {
   long res, la, mu, q;
   GEN gpx, gx = nfpoleval(nf, T, x);
 
-  if (psquare2nf(nf,gx,pr,zinit)) return 1;
+  if (psquare2nf(nf,gx,pr,sprk)) return 1;
 
   gpx = nfpoleval(nf, RgX_deriv(T), x);
   /* gx /= pi^la, pi a pr-uniformizer */
@@ -234,11 +234,11 @@ lemma7nf(GEN nf, GEN T, GEN pr, long nu, GEN x, GEN zinit)
   if (q == 1) return res;
 
   /* is gx a square mod pi^q ? FIXME : highly inefficient */
-  zinit = Idealstarprk(nf, pr, q, nf_INIT);
-  if (!check2(nf, gx, zinit)) res = -1;
+  sprk = zlog_pr_init(nf, pr, q);
+  if (!check2(nf, gx, sprk)) res = -1;
   return res;
 }
-/* zinit either a bid (pr | 2) or a modpr structure (pr | p odd).
+/* zinit either a sprk (pr | 2) or a modpr structure (pr | p odd).
    pnu = pi^nu, pi a uniformizer */
 static long
 zpsolnf(GEN nf,GEN T,GEN pr,long nu,GEN pnu,GEN x0,GEN repr,GEN zinit)
@@ -299,7 +299,7 @@ nf_hyperell_locally_soluble(GEN nf,GEN T,GEN pr)
   checkprid(pr); nf = checknf(nf);
   if (absequaliu(pr_get_p(pr), 2))
   { /* tough case */
-    zinit = Idealstarprk(nf, pr, 1+2*pr_get_e(pr), nf_INIT);
+    zinit = zlog_pr_init(nf, pr, 1+2*pr_get_e(pr));
     if (psquare2nf(nf,constant_coeff(T),pr,zinit)) return 1;
     if (psquare2nf(nf, leading_coeff(T),pr,zinit)) return 1;
   }

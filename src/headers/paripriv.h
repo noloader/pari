@@ -533,10 +533,9 @@ void pari_thread_init_varstate();
 /* parinf.h */
 
 GEN fincke_pohst(GEN a,GEN BOUND,long stockmax,long PREC, FP_chk_fun *CHECK);
-void init_zlog_bid(zlog_S *S, GEN bid);
+void init_zlog(zlog_S *S, GEN bid);
 GEN  log_gen_arch(zlog_S *S, long index);
 GEN  log_gen_pr(zlog_S *S, long index, GEN nf, long e);
-GEN  zlog(GEN nf, GEN a, GEN sgn, zlog_S *S);
 /* conversions basis / alg */
 /* nf a genuine NF, x an nfelt (t_COL) or t_MAT whose columns represent nfelts.
  * Return the corresponding elements as t_POLs (implicitly mod nf.pol) */
@@ -550,8 +549,6 @@ GEN    make_integral(GEN nf, GEN L0, GEN f, GEN listpr);
 GEN    rnfallbase(GEN nf, GEN *ppol, GEN *pD, GEN *pd, GEN *pfi);
 GEN    subgroupcondlist(GEN cyc, GEN bound, GEN listKer);
 GEN    ideallog_sgn(GEN nf, GEN x, GEN sgn, GEN bid);
-GEN    zlog_units(GEN nf, GEN U, GEN sgnU, GEN bid);
-GEN    zlog_units_noarch(GEN nf, GEN U, GEN bid);
 
 /* Qfb.c */
 
@@ -588,6 +585,9 @@ GEN     nfbasis_gp(GEN T);
 
 void    check_nfelt(GEN x, GEN *den);
 GEN     zk_ei_mul(GEN nf, GEN x, long i);
+GEN     zlog_pr(GEN nf, GEN a, GEN sprk);
+GEN     vzlog_pr(GEN nf, GEN v, GEN sprk);
+GEN     zlog_pr_init(GEN nf, GEN pr, long k);
 
 /* base4.c */
 

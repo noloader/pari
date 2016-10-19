@@ -1212,20 +1212,20 @@ units of the field.
 
 \fun{GEN}{set_sign_mod_divisor}{GEN nf, GEN x, GEN y, GEN sarch}
 let $f = f_0f_\infty$ be a divisor, let \kbd{sarch} be the output of
-\kbd{nfarchstar(nf, f0, finf)}, and let $x,y$ be two number field elements.
-Returns $yt$ with $t$ integral, $t = 1 \text{mod}^* f_0$ such that $x$ and
-$ty$ have the same signs at $f_\infty$; if $x = \kbd{NULL}$, make $ty$
-totally positive at $f_\infty$.
+\kbd{nfarchstar(nf, f0, finf)}, let $x$ encode a vector of signs at
+the places of $f_\infty$ (see below), and let $y$ be a non-zero
+number field element. Returns $z$ congruent to $y$ mod $f_0$ (integral if $y$
+is) such that $z$ and $x$ have the same signs at $f_\infty$.
+
+The following formats are supported for $x$: a $\{0,1\}$-vector of signs
+as a \typ{VECSMALL} (0 for positive, 1 for negative); \kbd{NULL} for a
+totally positive element (only $0$s); a number field element which
+is replaced by its signature at $f_\infty$.
 
 \fun{GEN}{nfarchstar}{GEN nf, GEN f0, GEN finf} for a divisor $f =
 f_0f_\infty$ represented by the integral ideal \kbd{f0} in HNF and
 the \kbd{finf} in \kbd{indices} form, returns $(\Z_K/f_\infty)^*$ in a form
-suitable for computations mod $f$. More precisely, returns
-$[c, g, M, \var{finf}]$, where $c = [2,\ldots, 2]$ gives the cyclic structure
-of that group ($\#f_\infty$ copies of $\Z/2\Z$), $g$ a minimal system of
-independent generators, which are furthermore congruent to $1$ mod $f_0$ (no
-condition if $f_0 = \Z_K$), and $M$ is the matrix of signs of the $g[i]$ at
-$f_\infty$, which is square and invertible over $\F_2$.
+suitable for computations mod $f$. See \tet{set_sign_mod_divisor}.
 
 \fun{GEN}{idealprincipalunits}{GEN nf, GEN pr, long e} returns the
 multiplicative group $(1 + \var{pr}) / (1 + \var{pr}^e)$ as an abelian group.

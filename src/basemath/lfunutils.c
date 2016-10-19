@@ -478,7 +478,7 @@ vec01(long r1, long r2)
   return v;
 }
 
-/* bid has nftyp typ_BID */
+/* bid has nftyp typ_BIDZ */
 static GEN
 lfunchiZ(GEN bid, GEN chi)
 {
@@ -515,7 +515,7 @@ lfunchigen(GEN bnr, GEN CHI)
   long r1, r2, n1;
   int real;
 
-  if (nftyp(bnr) == typ_BID) return lfunchiZ(bnr, CHI);
+  if (nftyp(bnr) == typ_BIDZ) return lfunchiZ(bnr, CHI);
 
   v = bnrconductor_i(bnr, CHI, 2);
   bnr = gel(v,2);

@@ -3727,8 +3727,8 @@ nfidealdet1(GEN nf, GEN a, GEN b, GEN *px, GEN *py, GEN *pz, GEN *pt)
   x = idealcoprime(nf,a,b);
   uv = idealaddtoone(nf, idealmul(nf,x,a), b);
   y = gel(uv,2);
-  if (da) x = RgC_Rg_mul(x,da);
-  if (db) y = RgC_Rg_div(y,db);
+  if (da) x = gmul(x,da);
+  if (db) y = gdiv(y,db);
   *px = x;
   *py = y;
   *pz = db ? negi(db): gen_m1;

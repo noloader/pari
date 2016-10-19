@@ -101,7 +101,7 @@ GEN
 checkbid_i(GEN bid)
 {
   GEN f;
-  if (typ(bid)!=t_VEC || lg(bid)!=6 || typ(bid_get_fact(bid)) != t_MAT)
+  if (typ(bid)!=t_VEC || lg(bid)!=6 || typ(bid_get_U(bid)) != t_VEC)
     return NULL;
   f = bid_get_mod(bid);
   if (typ(f)!=t_VEC || lg(f)!=3) return NULL;
@@ -148,8 +148,15 @@ typv6(GEN x)
 {
   if (typ(gel(x,1)) == t_VEC && lg(gel(x,3)) == 3)
   {
-    long t = typ(gel(x,3));
-    return (t == t_MAT || t == t_VEC)? typ_BID: typ_NULL;
+    GEN t = gel(x,3);
+    if (typ(t) != t_VEC) return typ_NULL;
+    t = gel(x,5);
+    switch(typ(gel(x,5)))
+    {
+      case t_VEC: return typ_BID;
+      case t_MAT: return typ_BIDZ;
+      default: return typ_NULL;
+    }
   }
   if (typ(gel(x,2)) == t_COL && typ(gel(x,3)) == t_INT) return typ_PRID;
   return typ_NULL;

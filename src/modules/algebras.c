@@ -2553,7 +2553,7 @@ get_phi0(GEN bnr, GEN Lpr, GEN Ld, GEN pl, long *pr, long *pn)
       if (pl[i]==-1) real[k++] = i;
     if (k > 1)
     {
-      GEN nf = bnr_get_nf(bnr), I = gel(bnr_get_bid(bnr),3);
+      GEN nf = bnr_get_nf(bnr), I = bid_get_fact(bnr_get_bid(bnr));
       GEN v, y, C = idealchineseinit(bnr, I);
       long r1 = nf_get_r1(nf), n = nbrows(I);
       nbloc += k-1;

@@ -297,7 +297,7 @@ nfislocalpower_i(GEN nf, GEN pr, GEN a, GEN n)
     t = itos( divii(mului(e,p), subiu(p,1)) ) + 1;
   else /* straight Hensel */
     t = 2 * e * v + 1;
-  G = Idealstar(nf, mkmat2(mkcol(pr), mkcol(utoi(t))), nf_INIT);
+  G = Idealstarprk(nf, pr, t, nf_INIT);
   return (ZV_pval(ideallog(nf, a, G), p) >= v);
 }
 long

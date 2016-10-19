@@ -816,11 +816,11 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: discrayabslist(bnf,list) ===> bnrdisclist(bnf,list)
 
-bnrdisclist(bnf,bound,{arch}): gives list of discriminants of ray class fields 
-of all conductors up to norm bound, in a long vector The ramified Archimedean 
-places are given by arch; all possible values are taken if arch is omitted. 
-Supports the alternative syntax bnrdisclist(bnf,list), where list is as output 
-by ideallist or ideallistarch (with units).
+bnrdisclist(bnf,bound,{arch}): list of discriminants of ray class fields of all 
+conductors up to norm bound. The ramified Archimedean places are given by arch; 
+all possible values are taken if arch is omitted. Supports the alternative 
+syntax bnrdisclist(bnf,list), where list is as output by ideallist or 
+ideallistarch (with units).
 
 
   ***   at top-level: discrayabslistarch()
@@ -830,11 +830,11 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: discrayabslistarch(bnf,arch,bound) ===> bnrdisclist(bnf,bound,arch)
 
-bnrdisclist(bnf,bound,{arch}): gives list of discriminants of ray class fields 
-of all conductors up to norm bound, in a long vector The ramified Archimedean 
-places are given by arch; all possible values are taken if arch is omitted. 
-Supports the alternative syntax bnrdisclist(bnf,list), where list is as output 
-by ideallist or ideallistarch (with units).
+bnrdisclist(bnf,bound,{arch}): list of discriminants of ray class fields of all 
+conductors up to norm bound. The ramified Archimedean places are given by arch; 
+all possible values are taken if arch is omitted. Supports the alternative 
+syntax bnrdisclist(bnf,list), where list is as output by ideallist or 
+ideallistarch (with units).
 
 
   ***   at top-level: discrayabslistarchal
@@ -844,11 +844,11 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: discrayabslistarchall(bnf,bound) ===> bnrdisclist(bnf,bound,,1)
 
-bnrdisclist(bnf,bound,{arch}): gives list of discriminants of ray class fields 
-of all conductors up to norm bound, in a long vector The ramified Archimedean 
-places are given by arch; all possible values are taken if arch is omitted. 
-Supports the alternative syntax bnrdisclist(bnf,list), where list is as output 
-by ideallist or ideallistarch (with units).
+bnrdisclist(bnf,bound,{arch}): list of discriminants of ray class fields of all 
+conductors up to norm bound. The ramified Archimedean places are given by arch; 
+all possible values are taken if arch is omitted. Supports the alternative 
+syntax bnrdisclist(bnf,list), where list is as output by ideallist or 
+ideallistarch (with units).
 
 
   ***   at top-level: discrayabslistlong()
@@ -858,11 +858,11 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: discrayabslistlong(bnf,bound) ===> bnrdisclist(bnf,bound)
 
-bnrdisclist(bnf,bound,{arch}): gives list of discriminants of ray class fields 
-of all conductors up to norm bound, in a long vector The ramified Archimedean 
-places are given by arch; all possible values are taken if arch is omitted. 
-Supports the alternative syntax bnrdisclist(bnf,list), where list is as output 
-by ideallist or ideallistarch (with units).
+bnrdisclist(bnf,bound,{arch}): list of discriminants of ray class fields of all 
+conductors up to norm bound. The ramified Archimedean places are given by arch; 
+all possible values are taken if arch is omitted. Supports the alternative 
+syntax bnrdisclist(bnf,list), where list is as output by ideallist or 
+ideallistarch (with units).
 
 
   ***   at top-level: discrayrel()
@@ -4564,4 +4564,4 @@ New syntax: texprint(x) ===> printtex(x)
 printtex({str}*): outputs its string arguments in TeX format.
 
 
-Total time spent: 4
+Total time spent: 10
