@@ -16,6 +16,7 @@ fi
 
 case "$osname" in
   os2)   exe_suff=.exe; extraflag="-Zexe";;
+  emscripten) exe_suff=.js;;
   cygwin|mingw) exe_suff=.exe; extraflag="";;
 # On Darwin, by default, the full library search path is searched for a .dylib
 # before a .a can be considered, preventing users to install their libraries
@@ -49,7 +50,7 @@ EOT
   exit 1;
 fi
 
-exe=$osname-$arch-ansi$$
+exe=$osname-$arch-ansi$$$exe_suff
 cmd="$CC $CFLAGS $extraflag -o $exe ansi.c";
  . log_cmd
 if test -s $exe; then
@@ -67,7 +68,7 @@ fi
 
 if test "$CC" != "$gcc"; then __gnuc__=; fi
 if test -z "$__gnuc__"; then
-  exe=$osname-$arch-gnu$$
+  exe=$osname-$arch-gnu$$$exe_suff
   cmd="$CC $extraflag -o $exe gnu.c"
   . log_cmd
   if $RUNTEST $exe; then
