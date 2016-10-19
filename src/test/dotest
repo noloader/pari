@@ -2,6 +2,7 @@
 
 trap exit 2
 bitlen=$1; shift
+exe_suff=$1; shift
 testlist=$@
 
 if (tail -n 1 $0 >/dev/null 2>&1); then
@@ -51,7 +52,7 @@ exec 3>> Bench-$VersionMajor.$VersionMinor.$patch
 
 dotestSUF=${dotestSUF:-"sta dyn"}
 for arg in $dotestSUF; do
-  if test -s $execdir/gp-$arg; then
+  if test -s $execdir/gp-$arg$exe_suff; then
     SUF="$SUF $arg"
     datadir=`echo 'print(default(datadir))' | $RUNTEST $execdir/gp-$arg -q -f`
   fi
@@ -84,7 +85,7 @@ for testdata in $testlist; do
     wrtab -27 "* Testing $testname "
     for suf in $SUF; do
       file_diff=$testname-$suf.dif
-      gp=$execdir/gp-$suf
+      gp=$execdir/gp-$suf$exe_suff
       (echo 'gettime();0;'; cat $file_in; \
        echo 'print("Total time spent: ",gettime);') \
        | $RUNTEST $gp -q --test  > $file_test 2>&1

@@ -142,15 +142,15 @@ if test -n "$runpathprefix"; then
 fi
 
 if test -z "$DLLD"; then
-  exec="gp-sta"; static=y
+  exec="gp-sta$exe_suff"; static=y
 else
-  exec="gp-sta gp-dyn"
+  exec="gp-sta$exe_suff gp-dyn$exe_suff"
 fi
 case "$sizeof_long" in
   4) numbits=32;;
   8) numbits=64;;
 esac
-dotest="env \"RUNTEST=\$(RUNTEST)\" \"LD_LIBRARY_PATH=.$dir_sep\$\$LD_LIBRARY_PATH\" \$(SHELL) ../src/test/dotest $numbits"
+dotest="env \"RUNTEST=\$(RUNTEST)\" \"LD_LIBRARY_PATH=.$dir_sep\$\$LD_LIBRARY_PATH\" \$(SHELL) ../src/test/dotest $numbits \"$exe_suff\""
 case "$static" in
   n) dft=dyn; libdft=lib-dyn;;
   y) dft=sta; libdft= ;;
@@ -340,10 +340,10 @@ tune-dyn: tune\$(_O) \$(LIBPARI_DYN)
 tune-sta: tune\$(_O) \$(LIBPARI_STA)
 	\$(LD) \$(LDFLAGS) \$(RUNPTH) -o \$@ \$< \$(GMPOBJS) ./\$(LIBPARI_STA) \$(STA_LIBS)
 
-gp-sta: $add_funclist \$(OBJS) \$(OBJSGP)
+gp-sta$exe_suff: $add_funclist \$(OBJS) \$(OBJSGP)
 	\$(RM) \$@
 	\$(LD) -o \$@ \$(LDFLAGS) \$(OBJS) \$(OBJSGP) \$(RUNPTH) \$(RLLIBS) \$(PLOTLIBS) \$(STA_LIBS)
-	$postconfig gp-sta
+	$postconfig gp-sta$exe_suff
 
 clean_pari_ps::
 	@-\$(RM) pari.ps
@@ -386,7 +386,7 @@ install-include:
 
 install-bin: install-bin-$dft
 
-install-bin-dyn: gp-dyn install-lib-dyn
+install-bin-dyn: gp-dyn$exe_suff install-lib-dyn
 	-mkdir -p \$(BINDIR)
 	-\$(RM) \$(BINDIR)/gp-$version$exe_suff \$(BINDIR)/gp$exe_suff
 	\$(LD) -o \$(BINDIR)/gp-$version$exe_suff -L\$(LIBDIR) \$(LDFLAGS) \$(OBJSGP) \$(RUNPTH_FINAL) \$(LDDYN) \$(RLLIBS) \$(PLOTLIBS) \$(LIBS)
@@ -394,10 +394,10 @@ install-bin-dyn: gp-dyn install-lib-dyn
 	-cd \$(BINDIR); $postconfig gp-$version$exe_suff
 	-\$(LN) gp-$version$exe_suff \$(BINDIR)/gp$exe_suff
 
-install-bin-sta: gp-sta
+install-bin-sta: gp-sta$exe_suff
 	-mkdir -p \$(BINDIR)
 	-\$(RM) \$(BINDIR)/gp-$version$exe_suff \$(BINDIR)/gp$exe_suff
-	\$(INSTALL_PROGRAM) gp-sta \$(BINDIR)/gp-$version$exe_suff
+	\$(INSTALL_PROGRAM) gp-sta$exe_suff \$(BINDIR)/gp-$version$exe_suff
 	-\$(LN) gp-$version$exe_suff \$(BINDIR)/gp$exe_suff
 # Can't strip it if we want install() to work on OSF.
 #	-\$(STRIP) \$(STRIPFLAGS)  \$(BINDIR)/gp-$version
@@ -536,14 +536,15 @@ test-all: $exec clean_pari_ps
 	@\$(DOTEST) $test_extra
 dotest-all:: clean_pari_ps
 	@\$(DOTEST) $test_extra
-dyntest-all: gp-dyn clean_pari_ps
+dyntest-all: gp-dyn$exe_suff clean_pari_ps
 	@env dotestSUF=dyn make test-all
-statest-all: gp-sta clean_pari_ps
+statest-all: gp-sta$exe_suff clean_pari_ps
 	@env dotestSUF=sta make test-all
 
 dotest-env::
 	@export AAA=XXX BBB=YYY; \$(DOTEST) env
 EOT
+
 for i in $test_extra $test_extra_out $test_extra_OUT; do
   echo "test-$i: $exec dotest-$i" >>$file
 done
@@ -572,6 +573,13 @@ lcov-report:
 
 lcov-reset:
 	\$(RM) *.gcda
+EOT
+fi
+
+if test -n "$exe_suff"; then
+cat >> $file << EOT
+gp-sta: gp-sta$exe_suff
+gp-dyn: gp-dyn$exe_suff
 EOT
 fi
 
@@ -612,10 +620,10 @@ EOT
   fi
   cat >> $file << EOT
 
-gp-dyn: $add_funclist \$(OBJSGP) \$(LIBPARI_DYN) \$(EXPORT_LIB)
+gp-dyn$exe_suff: $add_funclist \$(OBJSGP) \$(LIBPARI_DYN) \$(EXPORT_LIB)
 	\$(RM) \$@
 	\$(LD) -o \$@ -L\$(TOPLDDYN) \$(LDFLAGS) \$(OBJSGP) \$(RUNPTH) \$(RLLIBS) \$(LDDYN) \$(PLOTLIBS) \$(LIBS)
-	$postconfig gp-dyn
+	$postconfig gp-dyn$exe_suff
 
 \$(LIBPARI_DYN): $add_funclist \$(OBJS) \$(EXPORT_FILE)
 	-\$(RM) \$(LIBPARI_DYN)
