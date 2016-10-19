@@ -2043,7 +2043,7 @@ ZpX_monic_factor(GEN f, GEN p, long prec)
     { /* no repeated factors: Hensel lift */
       GEN L = ZpX_liftfact(fx, w, powiu(p,prec), p, prec);
       gel(P,i) = L; settyp(L, t_COL);
-      gel(E,i) = const_vec(lg(L)-1, utoipos(ex[i]));
+      gel(E,i) = const_col(lg(L)-1, utoipos(ex[i]));
     }
     else
     { /* use Round 4 */

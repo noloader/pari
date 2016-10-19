@@ -67,3 +67,6 @@ newtonpoly(x^4+3*x^2+27*x+x+81,3)
 newtonpoly(x^4+3*x^2+27*x,3)
 newtonpoly(x^4+y*x^2+y^3*x,y)
 
+\\#1863
+f=x^9+42*x^7-16*x^6+504*x^5-336*x^4+1560*x^3-1008*x^2+64;
+factorpadic(f,2,3)
