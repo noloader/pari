@@ -22,7 +22,7 @@ GNULDused=
 if test "$LD" = "$CC"; then
   ldflags=$CFLAGS
   if test -n "$__gnuc__"; then
-    LDused=`$CC -print-prog-name=ld`
+    LDused=`$CC -print-prog-name=ld 2>/dev/null`
     LDneedsWl=yes
   else
     if test "$osname" = hpux; then LDneedsWl=yes; fi
