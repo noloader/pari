@@ -3,14 +3,12 @@
 for fun in $list; do
   cmd="$CC $CFLAGS has_$fun.c -o $exe $extra_flags"; . log_cmd
   if test -s $exe ; then
-    if test -x $exe -o "$osname" = os2 ; then
-      eval "has_$fun=yes"; echo ..."Found $fun."
-      case "$_has_list" in
-        *has_$fun*);;
-        *) _has_list="$_has_list has_$fun";;
-      esac
-      break
-    fi
+    eval "has_$fun=yes"; echo ..."Found $fun."
+    case "$_has_list" in
+      *has_$fun*);;
+      *) _has_list="$_has_list has_$fun";;
+    esac
+    break
   fi
   eval "has_$fun=no"; echo ..."I did not find $fun."
 done

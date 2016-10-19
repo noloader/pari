@@ -42,7 +42,6 @@ case `$confdir/arch-osname` in
 esac
 
 if test -f /bin/rm ; then RM=/bin/rm; else RM=rm ; fi
-if sh -c 'test -x /bin/sh' 2>&-; then x=-x; else x=-r; fi
 (echo "hi there\c" ; echo " ") > echotmp
 if grep c echotmp >/dev/null 2>&1 ; then n=-n; c=; else n=; c='\c'; fi
 $RM -f echotmp
@@ -52,7 +51,7 @@ exec 3>> Bench-$VersionMajor.$VersionMinor.$patch
 
 dotestSUF=${dotestSUF:-"sta dyn"}
 for arg in $dotestSUF; do
-  if test $x $execdir/gp-$arg; then
+  if test -s $execdir/gp-$arg; then
     SUF="$SUF $arg"
     datadir=`echo 'print(default(datadir))' | $RUNTEST $execdir/gp-$arg -q -f`
   fi
@@ -64,7 +63,7 @@ for testdata in $testlist; do
   pkgs=`${head}1 $testdir/in/$testname | grep package: | cut -f2 -d:`
   skip=""
   for pkg in $pkgs; do
-    if test ! $x "$datadir/$pkg"; then
+    if test ! -x "$datadir/$pkg"; then
       wrln "! Skipping $testname: optional package $pkg not installed."
       skip="true";
     fi
