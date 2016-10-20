@@ -267,8 +267,8 @@ gentypes(void)
 static void
 menu_commands(void)
 {
-  long i;
-  char *s[] = {
+  ulong i;
+  const char *s[] = {
   "user-defined functions (aliases, installed and user functions)",
   "Standard monadic or dyadic OPERATORS",
   "CONVERSIONS and similar elementary functions",
@@ -288,7 +288,7 @@ menu_commands(void)
   "The PARI community"
   };
   pari_puts("Help topics: for a list of relevant subtopics, type ?n for n in\n");
-  for (i = 0; i < numberof(s); i++) pari_printf("  %2ld: %s\n", i, s[i]);
+  for (i = 0; i < numberof(s); i++) pari_printf("  %2lu: %s\n", i, s[i]);
   pari_puts("Also:\n\
   ? functionname (short on-line help)\n\
   ?\\             (keyboard shortcuts)\n\
