@@ -7,6 +7,23 @@ ex=../$examples_dir
 misc=../$misc_dir
 src=../$src_dir
 
+for f in \
+  develop\
+  libpari\
+  parallel\
+  users\
+  tutorial\
+  refcard\
+  refcard-ell\
+  refcard-nf\
+  refcard-lfun\
+  refcard-mf\
+  INSTALL
+do
+  outdvi="$outdvi $f.dvi"
+  outpdf="$outpdf $f.pdf"
+done
+
 cat > doc/Makefile << EOT
 #  This file was created by Configure. Any change made to it will be lost
 #  next time configure is run.
@@ -21,9 +38,8 @@ MACROS= paricfg.tex parimacro.tex
 USERS_TEX=\$(MACROS) appa.tex users.tex usersch1.tex usersch2.tex usersch3.tex
 PARI_TEX=\$(MACROS) libpari.tex appb.tex appd.tex usersch4.tex usersch5.tex usersch6.tex usersch7.tex usersch8.tex
 
-doc all: develop.dvi libpari.dvi parallel.dvi users.dvi refcard.ps tutorial.dvi
-docps: develop.ps libpari.ps parallel.ps refcard.ps tutorial.ps users.ps INSTALL.ps
-docpdf: develop.pdf libpari.pdf parallel.pdf users.pdf tutorial.pdf refcard.pdf refcard-ell.pdf refcard-nf.pdf refcard-lfun.pdf refcard-mf.pdf INSTALL.pdf
+doc all: $outdvi
+docpdf: $outpdf
 
 .SUFFIXES: .tex .ipf .pod .inf .dumbpod .3 .html
 
@@ -81,12 +97,6 @@ tutorial.dvi: tutorial.tex \$(MACROS)
 	\$(TEX) tutorial
 	\$(TEX) tutorial
 
-%.ps: %.dvi
-	dvips \$< -o \$@
-
-refcard.ps: refcard.dvi
-	dvips refcard.dvi -o \$@
-
 %.std: %.idx
 	sed -e 's/!\([1-9]\)!/!00\1!/'\\
 	    -e 's/!\([1-9][0-9]\)!/!0\1!/'\\
@@ -114,7 +124,7 @@ man2html: gpman.html gphelpman.html tex2mailman.html
 	man2html \$< | grep -v 'Content-type:' > \$@
 
 clean:
-	rm -f *.log *.dvi *.idx *.ps *.pdf *.aux *.toc *.std *.dumbpod *.3 *.tmp *.html
+	rm -f *.log *.dvi *.idx *.pdf *.aux *.toc *.std *.dumbpod *.3 *.tmp *.html
 
 cleandoc: clean
 

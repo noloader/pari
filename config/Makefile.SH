@@ -459,21 +459,15 @@ install-gphelp::
 
 install-docdvi::
 	-mkdir -p \$(DOCDIR)
-	-cd $doc; \$(MAKE) doc
-	-\$(INSTALL_DATA) $doc/develop.dvi  \$(DOCDIR)
-	-\$(INSTALL_DATA) $doc/libpari.dvi  \$(DOCDIR)
-	-\$(INSTALL_DATA) $doc/users.dvi    \$(DOCDIR)
-	-\$(INSTALL_DATA) $doc/tutorial.dvi \$(DOCDIR)
-	-\$(INSTALL_DATA) $doc/refcard.dvi  \$(DOCDIR)
-	-\$(INSTALL_DATA) $doc/refcard.ps   \$(DOCDIR)
+	-cd $doc; \$(MAKE) doc; for f in *.dvi; do \
+	  \$(INSTALL_DATA) \$\$f \$(DOCDIR); \
+          done
 
 install-docpdf::
 	-mkdir -p \$(DOCDIR)
-	-cd $doc; \$(MAKE) docpdf
-	-\$(INSTALL_DATA) $doc/libpari.pdf  \$(DOCDIR)
-	-\$(INSTALL_DATA) $doc/users.pdf    \$(DOCDIR)
-	-\$(INSTALL_DATA) $doc/tutorial.pdf \$(DOCDIR)
-	-\$(INSTALL_DATA) $doc/refcard.pdf  \$(DOCDIR)
+	-cd $doc; \$(MAKE) docpdf; for f in *.pdf; do \
+	  \$(INSTALL_DATA) \$\$f \$(DOCDIR); \
+          done
 
 install-examples:
 	-mkdir -p \$(EXDIR)

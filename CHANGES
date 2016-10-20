@@ -138,6 +138,7 @@ BA 21- [libpari] rename listcreate to mklist
    23- [libpari] made famat_mul_shallow a true equivalent of famat_mul
    24- move 'install' tests from test-program to test-install target
    25- allow normlp(v, +oo)
+   26- [documentation] removed .ps files (use dvips -o if you need them); install dvis
 
 Done for version 2.8.0 (released 12/08/2016):
 
