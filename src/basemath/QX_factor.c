@@ -1086,7 +1086,6 @@ ZX_gcd_all(GEN A, GEN B, GEN *Anew)
       ulong t = Fl_mul(umodiu(g, p), Fl_inv(Hp[m+2],p), p);
       Hp = Flx_Fl_mul(Hp, t, p);
     }
-    if (DEBUGLEVEL>5) err_printf("gcd mod %lu (bound 2^%ld)\n", p,expi(q));
     if (m < n)
     { /* First time or degree drop [all previous p were as above; restart]. */
       H = ZX_init_CRT(Hp,p,vA);
@@ -1095,6 +1094,7 @@ ZX_gcd_all(GEN A, GEN B, GEN *Anew)
     }
     else
       if (!ZX_incremental_CRT(&H, Hp, &q, p)) continue;
+    if (DEBUGLEVEL>5) err_printf("gcd mod %lu (bound 2^%ld)\n", p,expi(q));
     /* H stable: check divisibility */
     if (!ZX_divides(Bg, H)) continue;
     R = ZX_divides(Ag, H);
