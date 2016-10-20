@@ -30,23 +30,22 @@ test2
 does_not_exist: unknown identifier
 
 Help topics: for a list of relevant subtopics, type ?n for n in
-  0: user-defined functions (aliases, installed and user functions)
-  1: Standard monadic or dyadic OPERATORS
-  2: CONVERSIONS and similar elementary functions
-  3: TRANSCENDENTAL functions
-  4: NUMBER THEORETICAL functions
-  5: ELLIPTIC CURVES
-  6: L-FUNCTIONS
-  7: MODULAR FORMS
-  8: MODULAR SYMBOLS
-  9: General NUMBER FIELDS
- 10: Associative and central simple ALGEBRAS
- 11: POLYNOMIALS and power series
- 12: Vectors, matrices, LINEAR ALGEBRA and sets
- 13: SUMS, products, integrals and similar functions
- 14: GRAPHIC functions
- 15: PROGRAMMING under GP
- 16: The PARI community
+   0: user-defined functions (aliases, installed and user functions)
+   1: Standard monadic or dyadic OPERATORS
+   2: CONVERSIONS and similar elementary functions
+   3: TRANSCENDENTAL functions
+   4: NUMBER THEORETICAL functions
+   5: ELLIPTIC CURVES
+   6: L-FUNCTIONS
+   7: MODULAR SYMBOLS
+   8: General NUMBER FIELDS
+   9: Associative and central simple ALGEBRAS
+  10: POLYNOMIALS and power series
+  11: Vectors, matrices, LINEAR ALGEBRA and sets
+  12: SUMS, products, integrals and similar functions
+  13: GRAPHIC functions
+  14: PROGRAMMING under GP
+  15: The PARI community
 Also:
   ? functionname (short on-line help)
   ?\             (keyboard shortcuts)
