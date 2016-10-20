@@ -168,7 +168,7 @@ print_fun_list(char **list, long nbli)
   if (i) pari_putc('\n');
 }
 
-static const long MAX_SECTION = 15;
+static const long MAX_SECTION = 14;
 static void
 commands(long n)
 {
@@ -267,25 +267,29 @@ gentypes(void)
 static void
 menu_commands(void)
 {
-  pari_puts("Help topics: for a list of relevant subtopics, type ?n for n in\n\
-  0: user-defined functions (aliases, installed and user functions)\n\
-  1: Standard monadic or dyadic OPERATORS\n\
-  2: CONVERSIONS and similar elementary functions\n\
-  3: TRANSCENDENTAL functions\n\
-  4: NUMBER THEORETICAL functions\n\
-  5: ELLIPTIC CURVES\n\
-  6: L-FUNCTIONS\n\
-  7: MODULAR FORMS\n\
-  8: MODULAR SYMBOLS\n\
-  9: General NUMBER FIELDS\n\
- 10: Associative and central simple ALGEBRAS\n\
- 11: POLYNOMIALS and power series\n\
- 12: Vectors, matrices, LINEAR ALGEBRA and sets\n\
- 13: SUMS, products, integrals and similar functions\n\
- 14: GRAPHIC functions\n\
- 15: PROGRAMMING under GP\n\
- 16: The PARI community\n\
-Also:\n\
+  long i;
+  char *s[] = {
+  "user-defined functions (aliases, installed and user functions)",
+  "Standard monadic or dyadic OPERATORS",
+  "CONVERSIONS and similar elementary functions",
+  "TRANSCENDENTAL functions",
+  "NUMBER THEORETICAL functions",
+  "ELLIPTIC CURVES",
+  "L-FUNCTIONS",
+  /* "MODULAR FORMS", */
+  "MODULAR SYMBOLS",
+  "General NUMBER FIELDS",
+  "Associative and central simple ALGEBRAS",
+  "POLYNOMIALS and power series",
+  "Vectors, matrices, LINEAR ALGEBRA and sets",
+  "SUMS, products, integrals and similar functions",
+  "GRAPHIC functions",
+  "PROGRAMMING under GP",
+  "The PARI community"
+  };
+  pari_puts("Help topics: for a list of relevant subtopics, type ?n for n in\n");
+  for (i = 0; i < numberof(s); i++) pari_printf("  %2ld: %s\n", i, s[i]);
+  pari_puts("Also:\n\
   ? functionname (short on-line help)\n\
   ?\\             (keyboard shortcuts)\n\
   ?.             (member functions)\n");

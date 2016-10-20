@@ -5,7 +5,7 @@ use PARI::822;
 $class=$ARGV[0];
 
 $i = 1;
-# update MAX_SECTION in gplib.c and gp_rl.c when changing this
+# update MAX_SECTION in gplib.c when changing this
 %secnumber=(
   'operators'             => $i++,
   'conversions'           => $i++,
@@ -13,7 +13,7 @@ $i = 1;
   'number_theoretical'    => $i++,
   'elliptic_curves'       => $i++,
   'l_functions'           => $i++,
-  'modular_forms'         => $i++,
+#  'modular_forms'         => $i++,
   'modular_symbols'       => $i++,
   'number_fields'         => $i++,
   'algebras'              => $i++,
