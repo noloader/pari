@@ -4138,7 +4138,7 @@ ZM_det_i(GEN M, long n)
     D = gerepileuptoint(av2, D);
     if (q != gen_1) D = lcmii(D, q);
   }
-  /* determinant is M multiple of D */
+  /* determinant is a multiple of D */
   h = shifti(divii(h, D), 1);
 
   compp = Fl_div(Dp, umodiu(D,p), p);
