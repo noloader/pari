@@ -45,7 +45,7 @@ Doc:
 
  \item 8 : $f^8$, $D = 1 \mod 8$ and $D = 1,2 \mod 3$;
 
- \item 9 : $w_{3,3}$, $D = 1 \mod 2$;
+ \item 9 : $w_{3,3}$, $D = 1 \mod 2$ and $D = 1,2 \mod 3$;
 
  \item 10: $w_{2,5}$, $D \neq 60 \mod 80$ and $D = 1,2 \mod 3$;
 
