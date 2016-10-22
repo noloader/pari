@@ -2329,7 +2329,6 @@ gener_FpXQ(GEN T, GEN p, GEN *po)
     g = gener_Flxq(T, pp, po);
     if (!po) return Flx_to_ZX_inplace(gerepileuptoleaf(av, g));
     g = Flx_to_ZX(g);
-    gel(*po,2) = Flx_to_ZX(gel(*po,2));
     gerepileall(av, 2, &g, po);
     return g;
   }
