@@ -873,9 +873,9 @@ matslice(GEN A, long x1, long x2, long y1, long y2)
 INLINE GEN
 rowsplice(GEN a, long j)
 {
-  long i, k, l;
+  long i, l;
   GEN b = cgetg_copy(a,&l);
-  for (i = k = 1; i < l; i++) gel(b,i) = vecsplice(gel(a,i), j);
+  for (i = 1; i < l; i++) gel(b,i) = vecsplice(gel(a,i), j);
   return b;
 }
 /* shallow, remove coeff of index j */
