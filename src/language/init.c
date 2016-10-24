@@ -2165,6 +2165,7 @@ gerepileallsp(pari_sp av, pari_sp tetpil, int n, ...)
   va_list a; va_start(a, n);
   (void)gerepile(av,tetpil,NULL);
   for (i=0; i<n; i++) dec_gerepile((pari_sp*)va_arg(a,GEN*), av0,av,tetpil,dec);
+  va_end(a);
 }
 
 /* Takes an array of pointers to GENs, of length n.

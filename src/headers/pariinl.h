@@ -1233,6 +1233,7 @@ gerepileall(pari_sp av, int n, ...)
     for (--i; i>=0; i--) *gptr[i] = bin_copy((GENbin*)*gptr[i]);
     pari_free(gptr);
   }
+  va_end(a);
 }
 
 INLINE void
