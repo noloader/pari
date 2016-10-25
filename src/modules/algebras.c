@@ -2809,7 +2809,7 @@ nfgrunwaldwang(GEN nf0, GEN Lpr, GEN Ld, GEN pl, long var)
   }
   else {
     pari_err_IMPL("nfgrunwaldwang for non-prime degree");
-    av = avma; return gen_0;
+    avma = av; return gen_0;
   }
 }
 
