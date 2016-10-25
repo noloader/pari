@@ -4237,7 +4237,7 @@ START:
         F.L_jid = F.perm;
         need = 0; cache.end = cache.last;
         done_small++;
-        if (!need) F.sfb_chg = 0;
+        F.sfb_chg = 0;
       }
       if (need > 0)
       {
