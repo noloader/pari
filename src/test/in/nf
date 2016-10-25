@@ -117,3 +117,5 @@ nfcompositum(nfinit(y-1),x^3-2,x^3-1)
 \\#1796
 nfcompositum(bnfinit(x),x^3-2,x^3-1)
 nfcompositum(bnfinit(y),x^3-2,x^3-1)
+
+nfisisom(x,x^0)

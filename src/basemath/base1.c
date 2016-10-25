@@ -859,10 +859,11 @@ static int
 tests_OK(GEN a, GEN nfa, GEN b, GEN nfb, long fliso)
 {
   GEN da, db, fa, P, E, U;
-  long i, nP, m = degpol(a), n = degpol(b), q = m / n; /* relative degree */
+  long i, nP, q, m = degpol(a), n = degpol(b);
 
   if (m <= 0) pari_err_IRREDPOL("nfisincl",a);
   if (n <= 0) pari_err_IRREDPOL("nfisincl",b);
+  q = m / n; /* relative degree */
   if (fliso) { if (n != m) return 0; } else { if (n % m) return 0; }
   if (m == 1) return 1;
 

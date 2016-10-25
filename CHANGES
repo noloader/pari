@@ -40,6 +40,7 @@ BA 27- lfundiv(L1,L2): division by 0 if L2[6] (rootno) is 0.
        was much faster than zeta(22936)
 BA 29- [pthread] fix race conditions that caused memory corruption
    30- rare SEGV in bnfisprincipal
+   31- nfisisom(x,x^0) -> SEGV
 
   Added
     1- permtonum: allow t_VECSMALL input
