@@ -2130,7 +2130,7 @@ getMorphism_basis(GEN W, GEN phi)
   GEN link = msk_get_link(W);
   GEN invphiblock = msk_get_invphiblock(W);
   long s = st[1], t = st[2];
-  GEN R = zerocol(dim), Q, Ls, T0, T1, Ts, mu_st;
+  GEN R = zerocol(dim), Q, Ls, T0, T1, Ts;
   for (r = 2; r < lvecT; r++)
   {
     GEN Tr, L;
@@ -2143,7 +2143,7 @@ getMorphism_basis(GEN W, GEN phi)
   }
   Ls = gel(link, s);
   T1 = gel(phi,1); /* Phi(G_1) */
-  gel(R, Ls[t]) = mu_st = gel(T1, 1);
+  gel(R, Ls[t]) = gel(T1, 1);
 
   T0 = NULL;
   for (i = 2; i < lg(link); i++)
