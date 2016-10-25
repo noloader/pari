@@ -1010,7 +1010,7 @@ permtonum(GEN p)
     case t_VECSMALL: return perm_to_Z(p);
     case t_VEC: case t_COL:
       if (RgV_is_ZV(p)) { v = ZV_to_zv(p); break; }
-    default: pari_err_TYPE("permtonum",p); v = NULL;
+    default: pari_err_TYPE("permtonum",p); return NULL;
   }
   x = perm_to_Z_inplace(v);
   if (!x) pari_err_TYPE("permtonum",p);
