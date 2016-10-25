@@ -214,7 +214,7 @@ tm_output(GEN z)
 {
   char *sz = GENtoTeXstr(z);
   printf("%clatex:", DATA_BEGIN);
-  printf("\\magenta\\%%%ld = ", GP_DATA->hist->total);
+  printf("\\magenta\\%%%lu = ", GP_DATA->hist->total);
   printf("$\\blue %s$%c", sz,DATA_END);
   pari_free(sz); fflush(stdout);
   pari_flush();
