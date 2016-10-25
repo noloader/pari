@@ -40,7 +40,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #include "paricast.h"
 #include "paristio.h"
 #include "paricom.h"
-#include "pariold.h"
 #include "parierr.h"
 BEGINEXTERN
 #include "paridecl.h"
@@ -53,4 +52,5 @@ BEGINEXTERN
 #  include "pariinl.h"
 #endif
 ENDEXTERN
+#include "pariold.h"
 #endif
