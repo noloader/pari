@@ -209,9 +209,9 @@ intnumgaussinit(long n, long prec)
   W = cgetg(n+1, t_VEC);
   for (i = 1; i <= n; ++i)
   {
-    GEN t, r, r2 = gel(R,i);
+    GEN t, r2 = gel(R,i);
     if (typ(r2) != t_REAL) r2 = gtofp(r2, prec);
-    gel(R,i) = r = sqrtr_abs(r2); /* positive root of L_n */
+    gel(R,i) = sqrtr_abs(r2); /* positive root of L_n */
     /* 2 / (L'(r)^2(1-r^2)) =  2^(2d1 - 1) / (1-r2)r2 (p2(r2))^2 */
     t = mulrr(subrr(r2, sqrr(r2)), sqrr(poleval(p2, r2)));
     shiftr_inplace(t,1-2*d1);
