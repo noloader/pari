@@ -919,7 +919,6 @@ tame_2(struct igusa *I, struct igusa_p *Ip, long v12)
         case 4: condp = 4;
           Ip->type = stack_sprintf("[II-II*{%ld}] page 176", (d-2)/6);
           Ip->neron = groupH((d+4)/6); break;
-          break;
         default: pari_err_BUG("tame2 [bug16]");
       }
       break;
@@ -1465,7 +1464,6 @@ tame_6(struct igusa *I, struct igusa_p *Ip, GEN dk,
             case 2: case 3: condp = 4;
               Ip->type=stack_sprintf("[I*{%ld}-III*-%ld] page 177",d1/4,(d-5)/4);
               Ip->neron = shallowconcat(groupH(d1/4), cyclic(2)); break;
-              break;
             default: pari_err_BUG("tame6 [bug46]");
           }
           break;
@@ -2104,7 +2102,6 @@ genus2localred(struct igusa *I, struct igusa_p *Ip, GEN p, GEN polmini)
           condp = Dmin-dism-10;
           Ip->type = stack_sprintf("[II*-II*{%ld}] page 176",dism);
           Ip->neron = groupH(dism+1); break;
-          break;
         case 2: case 3:
           if (myval(RgX_coeff(polh,0),p) == 2)
           {

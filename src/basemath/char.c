@@ -905,7 +905,6 @@ zncharinduce(GEN G, GEN chi, GEN N)
   faq = bid_get_fact(G);
   Pq = gel(faq,1);
   Eq = gel(faq,2);
-  i = 1;
   CHI = cgetg(l+e2, t_COL);
   i = j = 1;
   if (e2)

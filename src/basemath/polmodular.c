@@ -2041,7 +2041,6 @@ vinfo_to_dinfo(modpoly_disc_info *dinfo, GEN vinfo)
   dinfo->dl1     = vinfo[9];
   dinfo->dl2_0   = vinfo[10];
   dinfo->dl2_1   = vinfo[11];
-  dinfo->dl2_1   = vinfo[11];
   dinfo->inv     = vinfo[12];
 }
 

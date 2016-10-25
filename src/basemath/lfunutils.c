@@ -193,7 +193,6 @@ lfundivpoles(GEN ldata1, GEN ldata2, long bitprec)
   if (!r1) return NULL;
   r1 = lfunrtopoles(r1);
   l = lg(r1); r = cgetg(l, t_VEC);
-  r = cgetg(l, t_VEC);
   for (i = j = 1; j < l; j++)
   {
     GEN be = gel(r1,j);
