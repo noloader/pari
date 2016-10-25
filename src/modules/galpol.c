@@ -48,14 +48,15 @@ galoisgetpol(long a, long b, long sig)
       return NULL;
   }
   s = pari_sprintf("%s/galpol/%ld/%ld/%s", pari_datadir, a,b,si);
-  F = pari_fopengz(s); pari_free(s);
+  F = pari_fopengz(s);
   if (!F)
   {
     long n = itos(galoisnbpol(a));
     if (b > n)
       pari_err_DOMAIN("galoisgetpol", "group index", ">", stoi(n), stoi(b));
-    else pari_err_FILE("galpol file", F->name);
+    else pari_err_FILE("galpol file", s);
   }
+  pari_free(s);
   V = gp_read_stream(F->file);
   if (!V || typ(V)!=t_VEC) pari_err_FILE("galpol file", F->name);
   pari_fclose(F); return V;
