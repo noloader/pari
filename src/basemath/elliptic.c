@@ -4903,14 +4903,14 @@ ellnfap(GEN E, GEN P, int *good_red)
     long vD = nfval(nf, ell_get_disc(E), P);
     if (vD)
     {
-      long vc6 = nfval(nf,c6,P), d = minss(2*vc6, vD) / 12;
+      long vc6 = nfval(nf,c6,P), d = vc6==LONG_MAX || vD < 2*vc6 ? vD/12: vc6/6;
       GEN piinv = NULL;
       /* non minimal model ? */
-      if (d) { vc6 -= 6*d; vD -= 12*d; piinv = get_piinv(P); }
+      if (d) { vD -= 12*d; piinv = get_piinv(P); }
       if (vD) /* bad reduction */
       {
         *good_red = 0;
-        if (vc6) return gen_0;
+        if (vc6 != 6*d) return gen_0;
         if (d) c6 = nfmul(nf, c6, nfpow(nf, piinv, stoi(6*d)));
         c6 = nf_to_Fq(nf, c6, modP);
         return Fq_issquare(gneg(c6),T,p)? gen_1: gen_m1;
