@@ -936,8 +936,8 @@ classgp_make_pcp(
       pcp_alloc_and_set(G, L, n, r, k);
       if ( ! orient || orient_pcp(G, ni, D, u, tbl))
         break;
-      classgp_pcp_clear(G);
       G->Lfilter *= G->L[0];
+      classgp_pcp_clear(G);
     } else if (log2(G->Lfilter) + log2(L[i]) >= BITS_IN_LONG)
       pari_err_IMPL("classgp_pcp");
     else
