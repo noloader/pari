@@ -1,6 +1,13 @@
 # $Id$
 Bug numbers refer to the BTS at http://pari.math.u-bordeaux.fr/Bugs/
 
+Done for version 2.9.0 (released 1/11/2016):
+  Fixed
+    1- idealappr: allow flag for backward compatibility
+    2- nfisisom(x,x^0) -> SEGV
+BA  3- galoisgetpol: fix crash if some files are missing
+BA  4- [libpari] fix support for PARI_OLD_NAMES
+
 Done for version 2.8.1 (released 23/10/2016):
   Fixed
     1- nfroots(non-monic t_POL) => wrong result [#1841] [from 2.8.0]
@@ -40,7 +47,6 @@ BA 27- lfundiv(L1,L2): division by 0 if L2[6] (rootno) is 0.
        was much faster than zeta(22936)
 BA 29- [pthread] fix race conditions that caused memory corruption
    30- rare SEGV in bnfisprincipal
-   31- nfisisom(x,x^0) -> SEGV
 
   Added
     1- permtonum: allow t_VECSMALL input
