@@ -234,7 +234,7 @@ functions, see doc/refcard*.dvi or http://pari.math.u-bordeaux.fr/doc#refcard
   - Class groups and units: use GRH-guaranteed bounds in bnfinit for residue
     estimate; made qfbclassno more reliable: correct for |D| < 2.10^10 and no
     known counter example; of course you can double check with quadclassunit()
-    (rigorous under GRH but much slower up to |D| ~ 10^18 or so). Implment
+    (rigorous under GRH but much slower up to |D| ~ 10^18 or so).
 
   - Class field theory: bnrisgalois, bnrgaloismatrix, bnrgaloisapply;
     faster and more reliable rnfkummer;  bnrconductor(bnr, chi) as a shortcut
@@ -243,7 +243,7 @@ functions, see doc/refcard*.dvi or http://pari.math.u-bordeaux.fr/doc#refcard
     some congruence subgroup. Faster bnfcertify when the field has
     Q-automorphisms. New function nfislocalpower.
 
-    Logarithmic class groups: new function bnflog, bnflogdegree, bnflogef,
+    Logarithmic class groups: new functions bnflog, bnflogdegree, bnflogef,
     rnfislocalcyclo.
 
   - Relative number fields: rnf structures may now contain a full absolute nf
