@@ -92,4 +92,7 @@ Mod(0, 2)*x^-1 + O(x^0)
 0
 1 + O(x^200)
 1
-Total time spent: 36
+1 + x^3 + O(x^6)
+1 + x^2 + O(x^4)
+1 + x^3 + 4*x^4 + O(x^5)
+Total time spent: 49

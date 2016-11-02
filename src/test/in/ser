@@ -63,3 +63,7 @@ O(x)==1
 
 exp(x+O(x^200))*exp(-x+O(x^200))
 exp(x+O(x^200))^2==exp(2*x+O(x^200))
+
+subst(1+x^3+O(x^6),x,x+O(x^4))
+subst(1+x^2+O(x^6),x,x+O(x^3))
+subst(1+x^3+x^4+O(x^6),x,x+x^2+O(x^3))

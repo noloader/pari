@@ -1499,7 +1499,7 @@ gsubst(GEN x, long v, GEN y)
               for (j=jb+2; j<minss(l, jb+ly); j++)
                 gel(z,j) = gadd(gel(z,j), gmul(gel(x,i),gel(t,j-jb)));
             }
-            for (j=l-1-jb-ey; j>1; j--)
+            for (j=minss(ly-1, l-1-jb-ey); j>1; j--)
             {
               p1 = gen_0;
               for (k=2; k<j; k++)
