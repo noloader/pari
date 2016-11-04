@@ -1585,15 +1585,23 @@ static GEN
 galois_get_conj(GEN G)
 {
   GEN grp = gal_get_group(G);
-  long k, r = lg(grp)-1;
+  long i, k, r = lg(grp)-1;
+  GEN b = zero_F2v(r);
   for (k = 2; k <= r; ++k)
   {
     GEN g = gel(grp,k);
-    if (g[g[1]]==1)
+    if (!F2v_coeff(b,g[1]) && g[g[1]]==1)
     {
       pari_sp av = avma;
       GEN F = galoisfixedfield(G, g, 1, -1);
       if (ZX_sturmpart(F, NULL) > 0) { avma = av; return g; }
+      for (i = 1; i<=r; i++)
+      {
+        GEN h = gel(grp, i);
+        long t = h[1];
+        while (h[t]!=1) t = h[t];
+        F2v_set(b, h[g[t]]);
+      }
       avma = av;
     }
   }
