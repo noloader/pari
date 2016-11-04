@@ -640,7 +640,11 @@ nfgaloispermtobasis(GEN nf, GEN gal)
   long i, n = lg(grp)-1;
   GEN aut = cgetg(n+1, t_VEC);
   for(i=1; i<=n; i++)
-    gel(aut, i) = poltobasis(nf, galoispermtopol(gal, gel(grp, i)));
+  {
+    pari_sp av = avma;
+    GEN vec = poltobasis(nf, galoispermtopol(gal, gel(grp, i)));
+    gel(aut, i) = gerepileupto(av, vec);
+  }
   return aut;
 }
 
