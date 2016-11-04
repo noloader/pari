@@ -3,7 +3,8 @@ Bug numbers refer to the BTS at http://pari.math.u-bordeaux.fr/Bugs/
 Done for version 2.10.0 (released ??/??/??):
   Fixed
       1-subst(1+x^3+O(x^6),x,x+O(x^4)) -> SEGV [#1865]
-      2-lfunartin was using too much stack
+BA    2-lfunartin was using too much stack
+BA    3-fflog in char 3 or 5 was slower than intended
 
   Added
 

@@ -607,8 +607,9 @@ Flxq_log_Coppersmith_d(GEN W, GEN g, long r, GEN T, ulong p, GEN mo)
       l = Fp_div(l,utoi(p),mo);
       if (dg <= r)
       {
-        affii(l,gel(W,g[2]));
-        if (DEBUGLEVEL>1) err_printf("Found %lu\n", g[2]);
+        long idx = Flx_cindex(g, p);
+        affii(l, gel(W, idx));
+        if (DEBUGLEVEL>1) err_printf("Found %lu\n", idx);
       }
       return gerepileuptoint(av, l);
     }
