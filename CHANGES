@@ -2,10 +2,10 @@ Bug numbers refer to the BTS at http://pari.math.u-bordeaux.fr/Bugs/
 
 Done for version 2.10.0 (released ??/??/??):
   Fixed
-      1-subst(1+x^3+O(x^6),x,x+O(x^4)) -> SEGV [#1865]
-BA    2-lfunartin was using too much stack
-BA    3-fflog in char 3 or 5 was slower than intended
-      4-RgX_blocks only worked for t_INT or t_POL coeffs
+      1- subst(1+x^3+O(x^6),x,x+O(x^4)) -> SEGV [#1865]
+BA    2- lfunartin was using too much stack
+BA    3- fflog in char 3 or 5 was slower than intended
+      4- RgX_blocks only worked for t_INT or t_POL coeffs
 
   Changed
       1- rewrite bnfnarrow
@@ -17,9 +17,10 @@ BA    3-fflog in char 3 or 5 was slower than intended
          besides floating point approximation to real embeddings ]
 
   Added
-      1-[libari] ZM_isidentity
-      2-[libpari] rename buchnarrow -> bnfnarrow
-      3-[libpari] ZX_radical
+      1- [libari] ZM_isidentity
+      2- [libpari] rename buchnarrow -> bnfnarrow
+      3- [libpari] ZX_radical
+BA    4- parallel fflog in characteristic at most 5
 
 Changed
 

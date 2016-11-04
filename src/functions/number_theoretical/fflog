@@ -38,3 +38,15 @@ Doc: discrete logarithm of the finite field element $x$ in base $g$, i.e.~
  ? fflog(g^10000, g, o)
  %8 = 10000
  @eprog
+
+Function: _Flxq_log_Coppersmith_worker
+C-Name: Flxq_log_Coppersmith_worker
+Prototype: GLGG
+Section: programming/internals
+Help: Flxq_log_Coppersmith_worker: worker for Flxq_log_Coppersmith
+
+Function: _F2xq_log_Coppersmith_worker
+C-Name: F2xq_log_Coppersmith_worker
+Prototype: GLGG
+Section: programming/internals
+Help: F2xq_log_Coppersmith_worker: worker for F2xq_log_Coppersmith

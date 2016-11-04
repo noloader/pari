@@ -1262,47 +1262,87 @@ rel_Coppersmith(GEN u, GEN v, long h, GEN R, long r, long n, long d)
 }
 
 static GEN
+vec_append_grow(GEN z, long i, GEN x)
+{
+  long n = lg(z)-1;
+  if (i > n)
+  {
+    n <<= 1;
+    z = vec_lengthen(z,n);
+  }
+  gel(z,i) = x;
+  return z;
+}
+
+GEN
+F2xq_log_Coppersmith_worker(GEN u, long i, GEN V, GEN R)
+{
+  long r = V[1], h = V[2], n = V[3], d = V[4];
+  pari_sp ltop = avma;
+  GEN v = mkF2(0,u[1]);
+  GEN L = cgetg(17, t_VEC);
+  pari_sp av = avma;
+  long j;
+  long nbtest=0, rel = 1;
+  for(j=1; j<=i; j++)
+  {
+    v[2] = j;
+    avma = av;
+    if (F2x_degree(F2x_gcd(u,v))==0)
+    {
+      GEN z = rel_Coppersmith(u, v, h, R, r, n, d);
+      nbtest++;
+      if (z) { L = vec_append_grow(L, rel++, z); av = avma; }
+      if (i==j) continue;
+      z = rel_Coppersmith(v, u, h, R, r, n, d);
+      nbtest++;
+      if (z) { L = vec_append_grow(L, rel++, z); av = avma; }
+    }
+  }
+  setlg(L,rel);
+  return gerepilecopy(ltop, mkvec2(stoi(nbtest), L));
+}
+
+static GEN
 F2xq_log_Coppersmith(long nbrel, long r, long n, GEN T)
 {
   long dT = F2x_degree(T);
   long h = dT>>n, d = dT-(h<<n);
   GEN R = F2x_add(F2x_shift(pol1_F2x(T[1]), dT), T);
-  GEN u = mkF2(0,T[1]), v = mkF2(0,T[1]);
+  GEN u = mkF2(0,T[1]);
   long rel = 1, nbtest = 0;
   GEN M = cgetg(nbrel+1, t_VEC);
-  pari_sp av = avma;
-  long i,j;
+  long i = 0;
+  GEN worker = snm_closure(is_entry("_F2xq_log_Coppersmith_worker"),
+               mkvec2(mkvecsmall4(r, h, n, d), R));
+  struct pari_mt pt;
+  long running, pending = 0, stop=0;
+  mt_queue_start(&pt, worker);
   if (DEBUGLEVEL) err_printf("Coppersmith (R = %ld): ",F2x_degree(R));
-  for (i=1; ; i++)
+  while ((running = !stop) || pending)
   {
+    GEN L, done;
+    long j, l;
     u[2] = i;
-    for(j=1; j<=i; j++)
+    mt_queue_submit(&pt, 0, running ? mkvec2(u, stoi(i)): NULL);
+    done = mt_queue_get(&pt, NULL, &pending);
+    if (!done) continue;
+    L = gel(done, 2); nbtest += itos(gel(done,1));
+    l = lg(L);
+    if (l > 1)
     {
-      v[2] = j;
-      avma = av;
-      if (F2x_degree(F2x_gcd(u,v))==0)
+      for (j=1; j<l; j++)
       {
-        GEN z = rel_Coppersmith(u, v, h, R, r, n, d);
-        nbtest++;
-        if (z)
-        {
-          gel(M,rel++) = gerepilecopy(av, z); av = avma;
-          if (DEBUGLEVEL && (rel&511UL)==0)
-            err_printf("%ld%%[%ld] ",rel*100/nbrel,i);
-        }
         if (rel>nbrel) break;
-        if (i==j) continue;
-        z = rel_Coppersmith(v, u, h, R, r, n, d);
-        nbtest++;
-        if (!z) continue;
-        gel(M,rel++) = gerepilecopy(av, z); av = avma;
+        gel(M,rel++) = gel(L,j);
         if (DEBUGLEVEL && (rel&511UL)==0)
           err_printf("%ld%%[%ld] ",rel*100/nbrel,i);
-        if (rel>nbrel) break;
       }
     }
-    if (rel>nbrel) break;
+    if (rel>nbrel) stop=1;
+    i++;
   }
+  mt_queue_end(&pt);
   if (DEBUGLEVEL) err_printf(": %ld tests\n", nbtest);
   return M;
 }
@@ -1317,7 +1357,7 @@ smallirred_F2x(ulong n, long sv)
 }
 
 static GEN
-check_kernel(long N, GEN M, GEN T, GEN m)
+check_kernel(long N, GEN M, long nbi, GEN T, GEN m)
 {
   pari_sp av = avma;
   GEN K = FpMs_leftkernel_elt(M, N, m);
@@ -1337,7 +1377,7 @@ check_kernel(long N, GEN M, GEN T, GEN m)
     else
       f++;
   }
-  if (DEBUGLEVEL) timer_printf(&ti,"found %ld logs", f);
+  if (DEBUGLEVEL) timer_printf(&ti,"found %ld/%ld logs", f, nbi);
   return gerepileupto(av, K);
 }
 
@@ -1365,7 +1405,7 @@ F2xq_log_index(GEN a0, GEN b0, GEN m, GEN T0)
   M = F2xq_log_Coppersmith(nbrel,r,d,T);
   if(DEBUGLEVEL)
     timer_printf(&ti,"relations");
-  W = check_kernel(N, M, T, m);
+  W = check_kernel(N, M, nbi, T, m);
   timer_start(&ti);
   Ao = F2xq_log_Coppersmith_rec(W, r2, a, r, d2, T, m);
   if (DEBUGLEVEL) timer_printf(&ti,"smooth element");

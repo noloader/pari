@@ -136,6 +136,7 @@ GEN     F2xq_div(GEN x,GEN y,GEN T);
 GEN     F2xq_inv(GEN x, GEN T);
 GEN     F2xq_invsafe(GEN x, GEN T);
 GEN     F2xq_log(GEN a, GEN g, GEN ord, GEN T);
+GEN     F2xq_log_Coppersmith_worker(GEN u, long i, GEN V, GEN R);
 GEN     F2xq_matrix_pow(GEN y, long n, long m, GEN P);
 GEN     F2xq_mul(GEN x, GEN y, GEN pol);
 GEN     F2xq_order(GEN a, GEN ord, GEN T);
@@ -439,6 +440,10 @@ GEN     random_FlxqX(long d1, long v, GEN T, ulong p);
 GEN     zx_to_Flx(GEN x, ulong p);
 GEN     zxX_to_FlxX(GEN B, ulong p);
 GEN     zxX_to_Kronecker(GEN P, GEN Q);
+
+/* Flxq_log.c */
+
+GEN     Flxq_log_Coppersmith_worker(GEN u, long i, GEN V, GEN R);
 
 /* FlxqE.c */
 

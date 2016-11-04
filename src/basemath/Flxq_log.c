@@ -476,56 +476,102 @@ rel_Coppersmith(long r, GEN u, GEN v, long h, GEN R, long d, ulong p)
 }
 
 static GEN
+vec_append_grow(GEN z, long i, GEN x)
+{
+  long n = lg(z)-1;
+  if (i > n)
+  {
+    n <<= 1;
+    z = vec_lengthen(z,n);
+  }
+  gel(z,i) = x;
+  return z;
+}
+
+GEN
+Flxq_log_Coppersmith_worker(GEN u, long i, GEN V, GEN R)
+{
+  long r = V[1], h = V[2], d = V[3], p = V[4], dT = V[5];
+  pari_sp ltop = avma;
+  GEN v = zero_zv(dT+2);
+  GEN L = cgetg(17, t_VEC);
+  pari_sp av = avma;
+  long j;
+  long nbtest=0, rel = 1;
+  ulong lu = Flx_lead(u), lv;
+  for (j=1; j<=i; j++)
+  {
+    GEN z;
+    Flx_cnext(v, p);
+    Flx_renormalize_inplace(v, dT+2);
+    lv = Flx_lead(v);
+    avma = av;
+    if (lu != 1 && lv != 1) continue;
+    if (degpol(Flx_gcd(u, v, p))!=0) continue;
+    if (lu==1)
+    {
+      z = rel_Coppersmith(r, u, v, h, R, d, p);
+      nbtest++;
+      if (z) { L = vec_append_grow(L, rel++, z); av = avma; }
+    }
+    if (i==j) continue;
+    if (lv==1)
+    {
+      z = rel_Coppersmith(r, v, u, h, R, d, p);
+      nbtest++;
+      if (z) { L = vec_append_grow(L, rel++, z); av = avma; }
+    }
+  }
+  setlg(L,rel);
+  return gerepilecopy(ltop, mkvec2(stoi(nbtest), L));
+}
+
+static GEN
 Flxq_log_Coppersmith(long nbrel, long r, GEN T, ulong p)
 {
+  pari_sp av;
   long dT = degpol(T);
   long h = dT/p, d = dT-(h*p);
   GEN R = Flx_sub(Flx_shift(pol1_Flx(T[1]), dT), T, p);
-  GEN u = zero_zv(dT+2), v = zero_zv(dT+2);
+  GEN u = zero_zv(dT+2);
+  GEN done;
   long nbtest = 0, rel = 0;
   GEN M = cgetg(nbrel+1, t_VEC);
-  pari_sp av = avma;
-  long i, j;
+  long i = 1;
+  GEN worker = snm_closure(is_entry("_Flxq_log_Coppersmith_worker"),
+               mkvec2(mkvecsmall5(r,h,d,p,dT), R));
+  struct pari_mt pt;
+  long running, pending = 0, stop=0;
   if (DEBUGLEVEL) err_printf("Coppersmith (R = %ld): ",degpol(R));
-  for (i=1; ; i++)
+  mt_queue_start(&pt, worker);
+  av = avma;
+  while ((running = !stop) || pending)
   {
+    GEN L;
+    long l, j;
     Flx_cnext(u, p);
     Flx_renormalize_inplace(u, dT+2);
-    for(j=2; j<lg(v); j++) v[j] = 0;
-    for(j=1; j<i; j++)
+    mt_queue_submit(&pt, 0, running ? mkvec2(u, stoi(i)): NULL);
+    done = mt_queue_get(&pt, NULL, &pending);
+    if (!done) continue;
+    L = gel(done, 2); nbtest += itos(gel(done,1));
+    l = lg(L);
+    if (l > 1)
     {
-      GEN z;
-      Flx_cnext(v, p);
-      Flx_renormalize_inplace(v, dT+2);
-      avma = av;
-      if (Flx_lead(u)==1)
+      for (j=1; j<l; j++)
       {
-        z = rel_Coppersmith(r, u, v, h, R, d, p);
-        nbtest++;
-        if (z)
-        {
-          gel(M,++rel) = gerepilecopy(av, z); av = avma;
-          if (DEBUGLEVEL && (rel&511UL)==0)
-            err_printf("%ld%%[%ld] ",rel*100/nbrel,i);
-        }
         if (rel>nbrel) break;
+        gel(M,++rel) = gel(L,j);
+        if (DEBUGLEVEL && (rel&511UL)==0)
+          err_printf("%ld%%[%ld] ",rel*100/nbrel,i);
       }
-      if (i==j) continue;
-      if (Flx_lead(v)==1)
-      {
-        z = rel_Coppersmith(r, v, u, h, R, d, p);
-        nbtest++;
-        if (z)
-        {
-          gel(M,++rel) = gerepilecopy(av, z); av = avma;
-          if (DEBUGLEVEL && (rel&511UL)==0)
-            err_printf("%ld%%[%ld] ",rel*100/nbrel,i);
-        }
-        if (rel>nbrel) break;
-      }
+      av = avma;
     }
-    if (rel>nbrel) break;
+    else avma = av;
+    if (rel>nbrel) stop = 1;
+    i++;
   }
+  mt_queue_end(&pt);
   if (DEBUGLEVEL) err_printf(": %ld tests\n", nbtest);
   return M;
 }
@@ -662,7 +708,6 @@ Flxq_log_Coppersmith_rec(GEN W, long r2, GEN a, long r, GEN T, ulong p, GEN m)
     if (i==l) return subis(Ao,AV);
   }
 }
-
 
 static GEN
 Flxq_log_index_Coppersmith(GEN a0, GEN b0, GEN m, GEN T0, ulong p)
