@@ -2020,10 +2020,10 @@ idealprincipalunits(GEN nf, GEN pr, long k)
 
 /* Given an ideal pr^k dividing an integral ideal x (in HNF form) compute
  * an 'sprk', the structure of G = (Z_K/pr^k)^* [ x = NULL for x = pr^k ]
- * Return a vector with at least 5 components [cyc],[gen],[sign],pr^k,ff, where
+ * Return a vector with at least 4 components [cyc],[gen],[HNF pr^k,pr,k],ff,
+ * where
  * cyc : type of G as abelian group (SNF)
  * gen : generators of G, coprime to x
- * sign: vector of the sign(gen) at arch.
  * pr^k: in HNF
  * ff  : data for log_g in (Z_K/pr)^*
  * Two extra components are present iff k > 1: L2, U
@@ -2031,7 +2031,7 @@ idealprincipalunits(GEN nf, GEN pr, long k)
  *       and 1 + pr^a/ 1 + pr^b for various a < b <= min(2a, k)
  * U   : base change matrices to convert a vector of local DL to DL wrt gen */
 static GEN
-sprkinit(GEN nf, GEN pr, GEN gk, GEN x, GEN arch)
+sprkinit(GEN nf, GEN pr, GEN gk, GEN x)
 {
   GEN T, p, modpr, cyc, gen, g, g0, ord0, A, prk, U, L2;
   long k = itos(gk), f = pr_get_f(pr);
@@ -2132,7 +2132,7 @@ nf_log(GEN nf, GEN a, GEN ff)
   GEN T,p, modpr = nf_to_Fq_init(nf, &pr, &T, &p);
   return Fq_log(nf_to_Fq(nf,a,modpr), g, ord, T, p);
 }
-/* a in Z_K (t_COL or t_INT), pr prime ideal, sprk = sprkinit(nf,pr,k,...).
+/* a in Z_K (t_COL or t_INT), pr prime ideal, sprk = sprkinit(nf,pr,k,x).
  * return log(a) on SNF-generators of (Z_K/pr^k)^**/
 GEN
 zlog_pr(GEN nf, GEN a, GEN sprk)
@@ -2156,8 +2156,7 @@ zlog_pr(GEN nf, GEN a, GEN sprk)
   return vecmodii(y, sprk_get_cyc(sprk));
 }
 GEN
-zlog_pr_init(GEN nf, GEN pr, long k)
-{ return sprkinit(nf,pr,utoipos(k),NULL,cgetg(1,t_VECSMALL));}
+zlog_pr_init(GEN nf, GEN pr, long k) { return sprkinit(nf,pr,utoipos(k),NULL);}
 GEN
 vzlog_pr(GEN nf, GEN v, GEN sprk)
 {
@@ -2484,7 +2483,7 @@ Idealstar_i(GEN nf, GEN ideal, long flag)
     gen = cgetg(nbp+1,t_VEC);
     for (i = 1; i <= nbp; i++)
     {
-      GEN L = sprkinit(nf, gel(P,i), gel(E,i), t, archp);
+      GEN L = sprkinit(nf, gel(P,i), gel(E,i), t);
       gel(sprk,i) = L;
       gel(cyc,i) = sprk_get_cyc(L);
       /* true gens are congruent to those mod x AND positive at archp */
