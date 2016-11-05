@@ -33,7 +33,7 @@ increment(GEN y, long k, long d)
   return 1;
 }
 static GEN
-archstar_full_rk(GEN x, GEN bas, GEN v, GEN gen)
+archstar_full_rk(GEN bas, GEN v, GEN gen)
 {
   long i, r, lgmat, N = lg(bas)-1, nba = nbrows(v);
   GEN lambda = cgetg(N+1, t_VECSMALL), mat = cgetg(nba+1,t_MAT);
@@ -41,33 +41,18 @@ archstar_full_rk(GEN x, GEN bas, GEN v, GEN gen)
   lgmat = lg(v); setlg(mat, lgmat+1);
   for (i = 1; i < lgmat; i++) gel(mat,i) = gel(v,i);
   for (     ; i <= nba; i++)  gel(mat,i) = cgetg(nba+1, t_VECSMALL);
-
-  if (x) { x = ZM_lll(x, 0.75, LLL_INPLACE); bas = RgV_RgM_mul(bas, x); }
-
   for (r=1;; r++)
   { /* reset */
     (void)vec_setconst(lambda, (GEN)0);
-    if (!x) lambda[1] = r;
+    lambda[1] = r;
     while (increment(lambda, N, r))
     {
-      pari_sp av1 = avma;
+      pari_sp av = avma;
       GEN a = RgM_zc_mul(bas, lambda), c = gel(mat,lgmat);
-      for (i = 1; i <= nba; i++)
-      {
-        GEN t = gel(a,i);
-        if (x) t = gaddgs(t, 1);
-        c[i] = (gsigne(t) < 0)? 1: 0;
-      }
-      avma = av1; if (Flm_deplin(mat, 2)) continue;
-
+      for (i = 1; i <= nba; i++) c[i] = (gsigne(gel(a,i)) < 0)? 1: 0;
+      avma = av; if (Flm_deplin(mat, 2)) continue;
       /* c independent of previous sign vectors */
-      if (!x) a = zc_to_ZC(lambda);
-      else
-      {
-        a = ZM_zc_mul(x, lambda);
-        gel(a,1) = addiu(gel(a,1), 1);
-      }
-      gel(gen,lgmat) = a;
+      gel(gen,lgmat) = zc_to_ZC(lambda);
       if (lgmat++ == nba) {
         mat = Flm_inv(mat,2); /* full rank */
         settyp(mat, t_VEC); return mat;
@@ -107,7 +92,7 @@ buchnarrow(GEN bnf)
 
   ngen = lg(gen)-1;
   gen = vec_lengthen(gen, r1 + (ngen-t));
-  v = archstar_full_rk(NULL, nf_get_M(nf), v, gen + (ngen-t));
+  v = archstar_full_rk(nf_get_M(nf), v, gen + (ngen-t));
   v = rowslice(v, t+1, r1);
 
   logs = cgetg(ngen+1,t_MAT); GD = gmael(bnf,9,3);
