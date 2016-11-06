@@ -7,6 +7,7 @@ BA    2-lfunartin was using too much stack
 BA    3-fflog in char 3 or 5 was slower than intended
 
   Added
+      1-[libari] ZM_isidentity
 
 Changed
 

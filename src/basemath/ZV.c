@@ -1183,6 +1183,23 @@ ZM_isidentity(GEN x)
   return 1;
 }
 int
+ZM_isdiagonal(GEN x)
+{
+  long i,j, lx = lg(x);
+  if (lx == 1) return 1;
+  if (lx != lgcols(x)) return 0;
+
+  for (j=1; j<lx; j++)
+  {
+    GEN c = gel(x,j);
+    for (i=1; i<j; i++)
+      if (signe(gel(c,i))) return 0;
+    for (i++; i<lx; i++)
+      if (signe(gel(c,i))) return 0;
+  }
+  return 1;
+}
+int
 ZM_isscalar(GEN x, GEN s)
 {
   long i, j, lx = lg(x);

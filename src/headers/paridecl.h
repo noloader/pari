@@ -1101,6 +1101,7 @@ GEN     ZM_diag_mul(GEN m, GEN d);
 int     ZM_equal(GEN A, GEN B);
 GEN     ZM_hnfdivrem(GEN x, GEN y, GEN *Q);
 int     ZM_ishnf(GEN x);
+int     ZM_isdiagonal(GEN x);
 int     ZM_isidentity(GEN x);
 int     ZM_isscalar(GEN x, GEN s);
 long    ZM_max_lg(GEN x);

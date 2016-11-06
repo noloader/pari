@@ -7404,6 +7404,9 @@ entries of $x$ (its determinant if it is indeed triangular).
 \fun{int}{ZM_isidentity}{GEN x} return 1 if the \kbd{ZM} $x$ is the
 identity matrix, and 0 otherwise.
 
+\fun{int}{ZM_isdiagonal}{GEN x} return 1 if the \kbd{ZM} $x$ is diagonal,
+and 0 otherwise.
+
 \fun{int}{ZM_isscalar}{GEN x, GEN s} given a \kbd{ZM} $x$ and a
 \typ{INT} $s$, return 1 if $x$ is equal to $s$ times the identity, and 0
 otherwise. If $s$ is \kbd{NULL}, test whether $x$ is an arbitrary scalar
