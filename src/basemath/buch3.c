@@ -350,15 +350,14 @@ get_dataunit(GEN bnf, GEN bid)
   return ideallog_sgn(bnf_get_nf(bnf), bnf_build_units(bnf), D, bid);
 }
 
-GEN
-Buchray(GEN bnf, GEN module, long flag)
+static GEN
+Buchray_i(GEN bnf, GEN module, long flag)
 {
-  GEN nf, cyc, gen, Gen, u, clg, logs, p1, h, met, u1, u2, U, cycgen;
+  GEN nf, cyc, gen, Gen, u, clg, logs, h, met, u1, u2, U, cycgen;
   GEN bid, cycbid, genbid, y, H, Hi, c1, c2, El;
   long RU, Ri, j, ngen, lh;
   const long add_gen = flag & nf_GEN;
   const long do_init = flag & nf_INIT;
-  pari_sp av = avma;
 
   bnf = checkbnf(bnf); nf = bnf_get_nf(bnf);
   RU = lg(nf_get_roots(nf))-1; /* #K.fu */
@@ -377,9 +376,8 @@ Buchray(GEN bnf, GEN module, long flag)
     El = cgetg(ngen+1,t_VEC);
     for (j=1; j<=ngen; j++)
     {
-      p1 = idealcoprimefact(nf, gel(gen,j), fx);
-      if (typ(p1) == t_COL && RgV_isscalar(p1)) p1 = gel(p1,1);
-      gel(El,j) = p1;
+      GEN c = idealcoprimefact(nf, gel(gen,j), fx);
+      gel(El,j) = nf_to_scalar_or_basis(nf,c);
     }
   }
   if (add_gen)
@@ -390,11 +388,8 @@ Buchray(GEN bnf, GEN module, long flag)
   }
   if (!Ri)
   {
-    clg = cgetg(add_gen? 4: 3,t_VEC);
-    if (add_gen) gel(clg,3) = Gen;
-    gel(clg,1) = bnf_get_no(bnf);
-    gel(clg,2) = cyc;
-    if (!do_init) return gerepilecopy(av,clg);
+    clg = mkvecn(add_gen? 3: 2, bnf_get_no(bnf), cyc, Gen);
+    if (!do_init) return clg;
     y = cgetg(7,t_VEC);
     gel(y,1) = bnf;
     gel(y,2) = bid;
@@ -402,17 +397,18 @@ Buchray(GEN bnf, GEN module, long flag)
     gel(y,4) = matid(ngen);
     gel(y,5) = clg;
     gel(y,6) = mkvec3(cgetg(1,t_MAT), matid(RU), gen_1);
-    return gerepilecopy(av,y);
+    return y;
   }
 
   cycgen = bnf_build_cycgen(bnf);
+  H = get_dataunit(bnf, bid);
   if (do_init)
   { /* (log(Units)|D) * u = (0 | H) */
-    GEN D = shallowconcat(get_dataunit(bnf, bid), diagonal_shallow(cycbid));
+    GEN D = shallowconcat(H, diagonal_shallow(cycbid));
     H = ZM_hnfall_i(D, &u, 1);
   }
   else
-    H = ZM_hnfmodid(get_dataunit(bnf, bid), cycbid);
+    H = ZM_hnfmodid(H, cycbid);
   logs = cgetg(ngen+1, t_MAT);
   /* FIXME: cycgen[j] is not necessarily coprime to bid, but it is made coprime
    * in famat_zlog using canonical uniformizers [from bid data]: no need to
@@ -436,7 +432,7 @@ Buchray(GEN bnf, GEN module, long flag)
   gel(clg,1) = ZV_prod(met);
   gel(clg,2) = met;
   if (add_gen) gel(clg,3) = compute_raygen(nf,u1,Gen,bid);
-  if (!do_init) return gerepilecopy(av, clg);
+  if (!do_init) return clg;
 
   u2 = cgetg(Ri+1,t_MAT);
   u1 = cgetg(RU+1,t_MAT);
@@ -470,7 +466,13 @@ Buchray(GEN bnf, GEN module, long flag)
   gel(y,4) = U;
   gel(y,5) = clg;
   gel(y,6) = mkvec3(u2,u1,c2); /* u2/c2 = H^(-1) (mod Im u1) */
-  return gerepilecopy(av,y);
+  return y;
+}
+GEN
+Buchray(GEN bnf, GEN f, long flag)
+{
+  pari_sp av = avma;
+  return gerepilecopy(av, Buchray_i(bnf, f, flag));
 }
 
 GEN
@@ -1482,7 +1484,7 @@ bnrconductor_i(GEN bnr, GEN H0, long flag)
   }
   else
   {
-    bnrc = Buchray(bnr, cond, nf_INIT | nf_GEN);
+    bnrc = Buchray_i(bnr, cond, nf_INIT | nf_GEN);
     if (ischi)
       H = imageofchar(bnr, bnrc, H0);
     else
@@ -1708,7 +1710,7 @@ rnfconductor(GEN bnf, GEN polrel)
   if (!is_pm1(den)) polrel = RgX_rescale(polrel, den);
   (void)rnfallbase(nf,&polrel, &D, NULL, NULL);
   module = mkvec2(D, const_vec(nf_get_r1(nf), gen_1));
-  bnr   = Buchray(bnf,module,nf_INIT | nf_GEN);
+  bnr   = Buchray_i(bnf,module,nf_INIT | nf_GEN);
   group = rnfnormgroup_i(bnr,polrel);
   if (!group) { avma = av; return gen_0; }
   return gerepilecopy(av, bnrconductor_i(bnr,group,2));
