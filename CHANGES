@@ -6,8 +6,12 @@ Done for version 2.10.0 (released ??/??/??):
 BA    2-lfunartin was using too much stack
 BA    3-fflog in char 3 or 5 was slower than intended
 
+  Changed
+      1- rewrite bnfnarrow
+
   Added
       1-[libari] ZM_isidentity
+      2-[libpari] rename buchnarrow -> bnfnarrow
 
 Changed
 

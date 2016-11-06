@@ -19,99 +19,63 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #include "pari.h"
 #include "paripriv.h"
 
-/* increment y, which runs through [-d,d]^k. Return 0 when done. */
-static int
-increment(GEN y, long k, long d)
-{
-  long i = 0, j;
-  do
-  {
-    if (++i > k) return 0;
-    y[i]++;
-  } while (y[i] > d);
-  for (j = 1; j < i; j++) y[j] = -d;
-  return 1;
-}
-static GEN
-archstar_full_rk(GEN bas, GEN v, GEN gen)
-{
-  long i, r, lgmat, N = lg(bas)-1, nba = nbrows(v);
-  GEN lambda = cgetg(N+1, t_VECSMALL), mat = cgetg(nba+1,t_MAT);
-
-  lgmat = lg(v); setlg(mat, lgmat+1);
-  for (i = 1; i < lgmat; i++) gel(mat,i) = gel(v,i);
-  for (     ; i <= nba; i++)  gel(mat,i) = cgetg(nba+1, t_VECSMALL);
-  for (r=1;; r++)
-  { /* reset */
-    (void)vec_setconst(lambda, (GEN)0);
-    lambda[1] = r;
-    while (increment(lambda, N, r))
-    {
-      pari_sp av = avma;
-      GEN a = RgM_zc_mul(bas, lambda), c = gel(mat,lgmat);
-      for (i = 1; i <= nba; i++) c[i] = (gsigne(gel(a,i)) < 0)? 1: 0;
-      avma = av; if (Flm_deplin(mat, 2)) continue;
-      /* c independent of previous sign vectors */
-      gel(gen,lgmat) = zc_to_ZC(lambda);
-      if (lgmat++ == nba) {
-        mat = Flm_inv(mat,2); /* full rank */
-        settyp(mat, t_VEC); return mat;
-      }
-      setlg(mat,lgmat+1);
-    }
-  }
-}
-
-/* Faster than Buchray (because it can use nfsign_units: easier nfarchstar) */
+/* faster than Buchray */
 GEN
-buchnarrow(GEN bnf)
+bnfnarrow(GEN bnf)
 {
-  GEN nf, cyc, gen, A, NO, GD, v, invpi, logs, R, basecl, met, u1, archp;
-  long r1, j, ngen, t, RU;
-  pari_sp av = avma;
+  GEN nf, cyc, gen, Cyc, Gen, A, GD, v, w, H, invpi, logs, R, u, U0, Uoo, archp, sarch;
+  long r1, j, l, t, RU;
+  pari_sp av;
 
   bnf = checkbnf(bnf);
-  nf = bnf_get_nf(bnf); r1 = nf_get_r1(nf);
-
-  if (!r1) return gcopy( bnf_get_clgp(bnf) );
+  nf = bnf_get_nf(bnf);
+  r1 = nf_get_r1(nf); if (!r1) return gcopy( bnf_get_clgp(bnf) );
 
   /* simplified version of nfsign_units; r1 > 0 so bnf.tu = -1 */
-  archp = identity_perm(r1);
+  av = avma; archp = identity_perm(r1);
   A = bnf_get_logfu(bnf); RU = lg(A)+1;
   invpi = invr( mppi(nf_get_prec(nf)) );
   v = cgetg(RU,t_MAT); gel(v, 1) = const_vecsmall(r1, 1); /* nfsign(-1) */
   for (j=2; j<RU; j++) gel(v,j) = nfsign_from_logarch(gel(A,j-1), invpi, archp);
   /* up to here */
 
-  cyc = bnf_get_cyc(bnf);
-  gen = bnf_get_gen(bnf);
-  v = Flm_image(v, 2);
-  t = lg(v)-1;
+  v = Flm_image(v, 2); t = lg(v)-1;
   if (t == r1) { avma = av; return gcopy( bnf_get_clgp(bnf) ); }
-  NO = shifti(bnf_get_no(bnf), r1-t);
 
-  ngen = lg(gen)-1;
-  gen = vec_lengthen(gen, r1 + (ngen-t));
-  v = archstar_full_rk(nf_get_M(nf), v, gen + (ngen-t));
-  v = rowslice(v, t+1, r1);
+  v = Flm_suppl(v,2); /* v = (sgn(U)|H) in GL_r1(F_2) */
+  H = zm_to_ZM( vecslice(v, t+1, r1) ); /* supplement H of sgn(U) */
+  w = rowslice(Flm_inv(v,2), t+1, r1); /* H*w*z = proj of z on H // sgn(U) */
 
-  logs = cgetg(ngen+1,t_MAT); GD = gmael(bnf,9,3);
-  for (j=1; j<=ngen; j++)
+  sarch = nfarchstar(nf, NULL, archp);
+  cyc = bnf_get_cyc(bnf);
+  gen = bnf_get_gen(bnf); l = lg(gen);
+  logs = cgetg(l,t_MAT); GD = gmael(bnf,9,3);
+  for (j=1; j<l; j++)
   {
     GEN z = nfsign_from_logarch(gel(GD,j), invpi, archp);
-    gel(logs,j) = zc_to_ZC( Flm_Flc_mul(v, z, 2) );
+    gel(logs,j) = zc_to_ZC( Flm_Flc_mul(w, z, 2) );
   }
   /* [ cyc  0 ]
    * [ logs 2 ] = relation matrix for Cl_f */
   R = shallowconcat(
     vconcat(diagonal_shallow(cyc), logs),
-    vconcat(zeromat(ngen, r1-t), scalarmat(gen_2,r1-t))
-  );
-  met = ZM_snf_group(R,NULL,&u1);
-  t = lg(met); basecl = cgetg(t,t_VEC);
-  for (j=1; j<t; j++)
-    gel(basecl,j) = Q_primpart( idealfactorback(nf,gen,gel(u1,j),0) );
-  return gerepilecopy(av, mkvec3(NO, met, basecl));
+    vconcat(zeromat(l-1, r1-t), scalarmat_shallow(gen_2,r1-t)));
+  Cyc = ZM_snf_group(R, NULL, &u);
+  U0 = rowslice(u, 1, l-1);
+  Uoo = ZM_mul(H, rowslice(u, l, nbrows(u)));
+  l = lg(Cyc); Gen = cgetg(l,t_VEC);
+  for (j = 1; j < l; j++)
+  {
+    GEN g = gel(U0,j), s = gel(Uoo,j);
+    g = (lg(g) == 1)? gen_1: Q_primpart( idealfactorback(nf,gen,g,0) );
+    if (!ZV_equal0(s))
+    {
+      GEN a = set_sign_mod_divisor(nf, ZV_to_Flv(s,2), gen_1, sarch);
+      g = is_pm1(g)? a: idealmul(nf, a, g);
+    }
+    gel(Gen,j) = g;
+  }
+  return gerepilecopy(av, mkvec3(shifti(bnf_get_no(bnf),r1-t), Cyc, Gen));
 }
 
 /********************************************************************/

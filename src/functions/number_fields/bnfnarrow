@@ -1,6 +1,6 @@
 Function: bnfnarrow
 Section: number_fields
-C-Name: buchnarrow
+C-Name: bnfnarrow
 Prototype: G
 Help: bnfnarrow(bnf): given a big number field as output by bnfinit, gives
  as a 3-component vector the structure of the narrow class group.

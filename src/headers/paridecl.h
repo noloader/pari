@@ -2354,7 +2354,7 @@ long    bnrisconductor(GEN bnr, GEN H);
 long    bnrisgalois(GEN bnr, GEN M, GEN H);
 GEN     bnrisprincipal(GEN bnf, GEN x,long flag);
 GEN     bnrsurjection(GEN bnr1, GEN bnr2);
-GEN     buchnarrow(GEN bignf);
+GEN     bnfnarrow(GEN bignf);
 long    bnfcertify(GEN bnf);
 long    bnfcertify0(GEN bnf, long flag);
 GEN     decodemodule(GEN nf, GEN fa);

@@ -12,7 +12,7 @@ with the package; see the file 'COPYING'. If not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 
 /* For compatibility with older PARI versions */
-/*functions renamed*/
+/* Following obsoleted in 2.9.* (2016) */
 #define cmpui abscmpui
 #define equalui absequalui
 #define equaliu absequaliu
@@ -30,6 +30,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #define concat1 gconcat1
 #define mathell ellheightmatrix
 #define ghell ellheight
+
+/* Following obsoleted in 2.7.* (2014) */
 #define mpexp1 mpexpm1
 #define ggamd ggammah
 #define gach gacosh
