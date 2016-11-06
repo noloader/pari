@@ -2083,8 +2083,7 @@ sprkinit(GEN nf, GEN pr, GEN gk, GEN x)
     GEN uv = zkchineseinit(nf, idealdivpowprime(nf,x,pr,gk), prk, x);
     gen = zkVchinese1(uv, gen);
   }
-  return mkvecn(U? 6: 4, cyc, gen, mkvec3(prk,pr,gk),
-                         mkvec3(modpr,g0,ord0), L2, U);
+  return mkvecn(U? 6: 4, cyc, gen, prk, mkvec3(modpr,g0,ord0), L2, U);
 }
 static GEN
 sprk_get_cyc(GEN s) { return gel(s,1); }
@@ -2097,15 +2096,11 @@ sprk_get_expo(GEN s)
 static GEN
 sprk_get_gen(GEN s) { return gel(s,2); }
 static GEN
-sprk_get_prk(GEN s) { return gmael(s,3,1); }
-static GEN
-sprk_get_pr(GEN s) { return gmael(s,3,2); }
-#if 0
-static long
-sprk_get_k(GEN s) { return itou( gmael(s,3,3) ); }
-#endif
+sprk_get_prk(GEN s) { return gel(s,3); }
 static GEN
 sprk_get_ff(GEN s) { return gel(s,4); }
+static GEN
+sprk_get_pr(GEN s) { GEN ff = gel(s,4); return modpr_get_pr(gel(ff,1)); }
 /* A = Npr-1, <g> = (Z_K/pr)^*, L2 to 1 + pr / 1 + pr^k */
 static void
 sprk_get_L2(GEN s, GEN *A, GEN *g, GEN *L2)
