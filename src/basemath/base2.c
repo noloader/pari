@@ -2373,10 +2373,12 @@ get_pr(GEN nf, norm_S *S, GEN p, GEN P, GEN V, int ramif, long N)
     t = gen_1;
     e = 1;
   } else {
+    GEN mt;
     u = uniformizer(nf, S, P, V, p, ramif);
     t = FpM_deplin(zk_multable(nf,u), p);
-    e = ramif? 1 + ZC_nfval(nf,t,mk_pr(p,u,0,0,t)): 1;
-    t = zk_scalar_or_multable(nf, t);
+    mt = zk_multable(nf, t);
+    e = ramif? 1 + ZC_nfval(t,mk_pr(p,u,0,0,mt)): 1;
+    t = mt;
   }
   return mk_pr(p,u,e,f,t);
 }

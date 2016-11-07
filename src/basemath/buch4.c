@@ -151,7 +151,7 @@ psquarenf(GEN nf,GEN x,GEN pr,GEN modpr)
     if (v&1) return 0;
     v = (Z_quad_char(x, pr) == 1);
   } else {
-    v = ZC_nfvalrem(nf, x, pr, &x);
+    v = ZC_nfvalrem(x, pr, &x);
     if (v&1) return 0;
     v = (quad_char(nf, x, modpr) == 1);
   }

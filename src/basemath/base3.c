@@ -709,10 +709,10 @@ nfM_nfC_mul(GEN nf, GEN A, GEN B)
 
 /* valuation of integral x (ZV), with resp. to prime ideal pr */
 long
-ZC_nfvalrem(GEN nf, GEN x, GEN pr, GEN *newx)
+ZC_nfvalrem(GEN x, GEN pr, GEN *newx)
 {
   long i, v, l;
-  GEN r, y, p = pr_get_p(pr), mul = zk_scalar_or_multable(nf, pr_get_tau(pr));
+  GEN r, y, p = pr_get_p(pr), mul = pr_get_tau(pr);
 
   /* p inert */
   if (typ(mul) == t_INT) return newx? ZV_pvalrem(x, p, newx):ZV_pval(x, p);
@@ -729,16 +729,16 @@ ZC_nfvalrem(GEN nf, GEN x, GEN pr, GEN *newx)
   }
 }
 long
-ZC_nfval(GEN nf, GEN x, GEN P)
-{ return ZC_nfvalrem(nf, x, P, NULL); }
+ZC_nfval(GEN x, GEN P)
+{ return ZC_nfvalrem(x, P, NULL); }
 
 /* v_P(x) != 0, x a ZV. Simpler version of ZC_nfvalrem */
 int
-ZC_prdvd(GEN nf, GEN x, GEN P)
+ZC_prdvd(GEN x, GEN P)
 {
   pari_sp av = avma;
   long i, l;
-  GEN p = pr_get_p(P), mul = zk_scalar_or_multable(nf, pr_get_tau(P));
+  GEN p = pr_get_p(P), mul = pr_get_tau(P);
   if (typ(mul) == t_INT) return ZV_Z_dvd(x, p);
   l = lg(x);
   for (i=1; i<l; i++)
@@ -747,7 +747,7 @@ ZC_prdvd(GEN nf, GEN x, GEN P)
 }
 
 int
-pr_equal(GEN nf, GEN P, GEN Q)
+pr_equal(GEN P, GEN Q)
 {
   GEN gQ, p = pr_get_p(P);
   long e = pr_get_e(P), f = pr_get_f(P), n;
@@ -755,7 +755,7 @@ pr_equal(GEN nf, GEN P, GEN Q)
     return 0;
   gQ = pr_get_gen(Q); n = lg(gQ)-1;
   if (2*e*f > n) return 1; /* room for only one such pr */
-  return ZV_equal(pr_get_gen(P), gQ) || ZC_prdvd(nf, gQ, P);
+  return ZV_equal(pr_get_gen(P), gQ) || ZC_prdvd(gQ, P);
 }
 
 long
@@ -773,7 +773,7 @@ nfval(GEN nf, GEN x, GEN pr)
   x = nf_to_scalar_or_basis(nf, x);
   if (typ(x) != t_COL) return e*Q_pval(x,p);
   x = Q_primitive_part(x, &cx);
-  w = ZC_nfval(nf,x,pr);
+  w = ZC_nfval(x,pr);
   if (cx) w += e*Q_pval(cx,p);
   avma = av; return w;
 }
@@ -814,7 +814,7 @@ nfvalrem(GEN nf, GEN x, GEN pr, GEN *py)
     return e*w;
   }
   x = Q_primitive_part(x, &cx);
-  w = ZC_nfvalrem(nf,x,pr, py);
+  w = ZC_nfvalrem(x,pr, py);
   if (cx)
   {
     long v = Q_pvalrem(cx,p, &t);

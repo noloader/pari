@@ -274,7 +274,7 @@ tauofideal(GEN id, tau_s *tau)
 }
 
 static int
-isprimeidealconj(GEN nfz, GEN P, GEN Q, tau_s *tau)
+isprimeidealconj(GEN P, GEN Q, tau_s *tau)
 {
   GEN p = pr_get_p(P);
   GEN x = pr_get_gen(P);
@@ -284,21 +284,21 @@ isprimeidealconj(GEN nfz, GEN P, GEN Q, tau_s *tau)
   if (ZV_equal(x, pr_get_gen(Q))) return 1;
   for(;;)
   {
-    if (ZC_prdvd(nfz,x,Q)) return 1;
+    if (ZC_prdvd(x,Q)) return 1;
     x = FpC_red(tauofelt(x, tau), p);
-    if (ZC_prdvd(nfz,x,P)) return 0;
+    if (ZC_prdvd(x,P)) return 0;
   }
 }
 
 static int
-isconjinprimelist(GEN nfz, GEN S, GEN pr, tau_s *tau)
+isconjinprimelist(GEN S, GEN pr, tau_s *tau)
 {
   long i, l;
 
   if (!tau) return 0;
   l = lg(S);
   for (i=1; i<l; i++)
-    if (isprimeidealconj(nfz, gel(S,i),pr,tau)) return 1;
+    if (isprimeidealconj(gel(S,i),pr,tau)) return 1;
   return 0;
 }
 
@@ -354,7 +354,7 @@ build_list_Hecke(primlist *L, GEN nfz, GEN fa, GEN gothf, GEN gell, tau_s *tau)
     if (!equalii(pr_get_p(pr), gell))
     {
       if (vp != 1) return 1;
-      if (!isconjinprimelist(nfz, L->Sm,pr,tau)) vectrunc_append(L->Sm,pr);
+      if (!isconjinprimelist(L->Sm,pr,tau)) vectrunc_append(L->Sm,pr);
     }
     else
     {
@@ -362,12 +362,12 @@ build_list_Hecke(primlist *L, GEN nfz, GEN fa, GEN gothf, GEN gell, tau_s *tau)
       if (vd > 0) return 4;
       if (vd==0)
       {
-        if (!isconjinprimelist(nfz, L->Sml1,pr,tau)) vectrunc_append(L->Sml1, pr);
+        if (!isconjinprimelist(L->Sml1,pr,tau)) vectrunc_append(L->Sml1, pr);
       }
       else
       {
         if (vp==1) return 2;
-        if (!isconjinprimelist(nfz, L->Sml2,pr,tau))
+        if (!isconjinprimelist(L->Sml2,pr,tau))
         {
           vectrunc_append(L->Sml2, pr);
           vecsmalltrunc_append(L->ESml2, vp);
@@ -379,8 +379,8 @@ build_list_Hecke(primlist *L, GEN nfz, GEN fa, GEN gothf, GEN gell, tau_s *tau)
   for (i=1; i<l; i++)
   {
     pr = gel(factell,i);
-    if (!idealval(nfz,gothf,pr))
-      if (!isconjinprimelist(nfz, L->Sl,pr,tau)) vectrunc_append(L->Sl, pr);
+    if (!idealval(nfz,gothf,pr) && !isconjinprimelist(L->Sl,pr,tau))
+      vectrunc_append(L->Sl, pr);
   }
   return 0; /* OK */
 }

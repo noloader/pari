@@ -17,3 +17,4 @@ Changed
 
 Removed
       1- file 'MACHINES' (no longer maintained)
+      2- useless argument nf in ZC_nfval, ZC_nfvalrem, pr_equal, ZC_prdvd

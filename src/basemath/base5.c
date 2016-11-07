@@ -708,7 +708,7 @@ rnfidealmul(GEN rnf,GEN x,GEN y)
 }
 
 static GEN
-rnfidealprimedec_1(GEN rnf, GEN L, GEN SL, GEN prK)
+rnfidealprimedec_1(GEN rnf, GEN SL, GEN prK)
 {
   GEN v, piL = rnfeltup0(rnf, pr_get_gen(prK), 1);
   long i, c, l;
@@ -717,7 +717,7 @@ rnfidealprimedec_1(GEN rnf, GEN L, GEN SL, GEN prK)
   for (i = c = 1; i < l; i++)
   {
     GEN P = gel(SL,i);
-    if (ZC_prdvd(L, piL, P)) gel(v,c++) = P;
+    if (ZC_prdvd(piL, P)) gel(v,c++) = P;
   }
   setlg(v, c); return v;
 }
@@ -741,15 +741,13 @@ rnfidealprimedec(GEN rnf, GEN pr)
     p = pr_get_p(pr);
   }
   SL = idealprimedec(NF, p);
-  if (pr)
-    z = rnfidealprimedec_1(rnf, NF, SL, pr);
+  if (pr) z = rnfidealprimedec_1(rnf, SL, pr);
   else
   {
     GEN vK = idealprimedec(nf, p), vL;
     long l = lg(vK), i;
     vL = cgetg(l, t_VEC);
-    for (i = 1; i < l; i++)
-      gel(vL,i) = rnfidealprimedec_1(rnf, NF, SL, gel(vK,i));
+    for (i = 1; i < l; i++) gel(vL,i) = rnfidealprimedec_1(rnf, SL, gel(vK,i));
     z = mkvec2(vK, vL);
   }
   return gerepilecopy(av, z);

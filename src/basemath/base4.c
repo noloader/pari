@@ -698,7 +698,7 @@ idealval(GEN nf, GEN A, GEN P)
 
   if (tx == id_PRINCIPAL) return nfval(nf,A,P);
   checkprid(P);
-  if (tx == id_PRIME) return pr_equal(nf, P, A)? 1: 0;
+  if (tx == id_PRIME) return pr_equal(P, A)? 1: 0;
   /* id_MAT */
   nf = checknf(nf);
   A = Q_primitive_part(A, &cA);
@@ -1271,7 +1271,7 @@ famat_makecoprime(GEN nf, GEN g, GEN e, GEN pr, GEN prk, GEN EX)
     }
     else
     {
-      (void)ZC_nfvalrem(nf, x, pr, &x); /* x *= (b/p)^v_pr(x) */
+      (void)ZC_nfvalrem(x, pr, &x); /* x *= (b/p)^v_pr(x) */
       x = ZC_hnfrem(FpC_red(x,prkZ), prk);
       if (dx) x = FpC_Fp_mul(x, Fp_inv(dx,prkZ), prkZ);
     }

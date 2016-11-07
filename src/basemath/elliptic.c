@@ -5073,8 +5073,8 @@ bnf_get_v(GEN bnf, GEN E, GEN *pDP)
   {
     GEN pr = gel(P, k), q, f, v, u;
     long vu;
-    if (c4 && !ZC_prdvd(nf,c4,pr)) continue;
-    if (c6 && !ZC_prdvd(nf,c6,pr)) continue;
+    if (c4 && !ZC_prdvd(c4,pr)) continue;
+    if (c6 && !ZC_prdvd(c6,pr)) continue;
     /* pr | (c4,c6) */
     q = nflocalred(E, pr);
     f = gel(q,1);
@@ -5293,7 +5293,7 @@ ellnfglobalred(GEN E)
   for (k = 1; k < lP; k++)
   {
     GEN p = gel(P,k), q, ex;
-    if (D && !ZC_prdvd(nf, D, p)) continue;
+    if (D && !ZC_prdvd(D, p)) continue;
 
     q = nflocalred(E, p),
     ex = gel(q,1);

@@ -165,10 +165,10 @@ idealmoddivisor(GEN bnr, GEN x)
 
 /* v_pr(L0 * cx) */
 static long
-fast_val(GEN nf,GEN L0,GEN cx,GEN pr)
+fast_val(GEN L0, GEN cx, GEN pr)
 {
   pari_sp av = avma;
-  long v = typ(L0) == t_INT? 0: ZC_nfval(nf,L0,pr);
+  long v = typ(L0) == t_INT? 0: ZC_nfval(L0,pr);
   if (cx)
   {
     long w = Q_pval(cx, pr_get_p(pr));
@@ -274,7 +274,7 @@ compute_raygen(GEN nf, GEN u1, GEN gen, GEN bid)
       for (j=1; j<lp; j++)
       {
         pr = gel(listpr,j);
-        v  = fast_val(nf, L0,cx, pr); /* = val_pr(LL) */
+        v  = fast_val(L0,cx, pr); /* = val_pr(LL) */
         if (!v) continue;
         p  = pr_get_p(pr);
         pi = get_pi(F, pr, &gel(vecpi,j));

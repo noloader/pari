@@ -625,7 +625,7 @@ idealquasifrob(GEN nf, GEN gal, GEN grp, GEN pr, GEN subg, GEN *S, GEN aut)
       || (subg && perm_relorder(g, subg)==f))
     {
       *S = aut ? gel(aut, i): poltobasis(nf, galoispermtopol(gal, g));
-      if (ZC_prdvd(nf, ZC_galoisapply(nf, *S, pi), pr)) return g;
+      if (ZC_prdvd(ZC_galoisapply(nf, *S, pi), pr)) return g;
       avma = av;
     }
   }
@@ -723,7 +723,7 @@ idealinertiagroup(GEN nf, GEN gal, GEN pr)
     if (perm_order(iso) == e)
     {
       GEN S = poltobasis(nf, galoispermtopol(gal, iso));
-      if (ZC_prdvd(nf, ZC_galoisapply(nf, S, pi), pr)
+      if (ZC_prdvd(ZC_galoisapply(nf, S, pi), pr)
           && (coprime || gequalX(nf_to_Fq(nf, galoisapply(nf,S,b), modpr))))
           return iso;
       avma = ltop;
