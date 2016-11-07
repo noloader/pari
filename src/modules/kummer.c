@@ -740,7 +740,7 @@ rnfkummersimple(GEN bnr, GEN subgroup, GEN gell, long all)
   ideal= bid_get_ideal(bid);
   arch = bid_get_arch(bid); /* this is the conductor */
   ell = itos(gell);
-  i = build_list_Hecke(&L, nf, bid_get_fact(bid), ideal, gell, NULL);
+  i = build_list_Hecke(&L, nf, bid_get_fact2(bid), ideal, gell, NULL);
   if (i) return no_sol(all,i);
 
   lSml2 = lg(L.Sml2)-1;
