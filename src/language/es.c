@@ -20,6 +20,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #include "../systems/mingw/pwinver.h"
 #include <windows.h>
 #include <process.h> /* for getpid */
+#include <fcntl.h>
+#include <io.h>      /* for setmode */
 #include "../systems/mingw/mingw.h"
 #endif
 #ifdef __EMSCRIPTEN__
@@ -4405,13 +4407,17 @@ int
 file_is_binary(FILE *f)
 {
   int c = fgetc(f); ungetc(c,f);
-  return (c != EOF && isprint(c) == 0 && isspace(c) == 0);
+  int r = (c != EOF && isprint(c) == 0 && isspace(c) == 0);
+#ifdef _WIN32
+  if (r) { setmode(fileno(f), _O_BINARY); rewind(f); }
+#endif
+  return r;
 }
 
 void
 writebin(const char *name, GEN x)
 {
-  FILE *f = fopen(name,"r");
+  FILE *f = fopen(name,"rb");
   pari_sp av = avma;
   GEN V;
   int already = f? 1: 0;
@@ -4421,7 +4427,7 @@ writebin(const char *name, GEN x)
     fclose(f);
     if (!ok) pari_err_FILE("binary output file",name);
   }
-  f = fopen(name,"a");
+  f = fopen(name,"ab");
   if (!f) pari_err_FILE("binary output file",name);
   if (!already) write_magic(f);
 
