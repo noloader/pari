@@ -21,6 +21,7 @@ BA    3- fflog in char 3 or 5 was slower than intended
       2- [libpari] rename buchnarrow -> bnfnarrow
       3- [libpari] ZX_radical
 BA    4- parallel fflog in characteristic at most 5
+BA    5- [gmp] support for mpn_divexact_1
 
 Changed
 

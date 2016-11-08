@@ -1054,24 +1054,6 @@ mpz2GEN(GEN z, mpz_t Z)
   z[1] = evalsigne(l > 0? 1: -1) | evallgefint(labs(l)+2);
 }
 
-/* assume y != 0 and the division is exact */
-GEN
-diviuexact(GEN x, ulong y)
-{
-  if (!signe(x)) return gen_0;
-  {
-    long l = lgefint(x);
-    mpz_t X, Z;
-    GEN z = cgeti(l);
-    GEN2mpz(X, x);
-    Z->_mp_alloc = l-2;
-    Z->_mp_size  = l-2;
-    Z->_mp_d = LIMBS(z);
-    mpz_divexact_ui(Z, X, y);
-    mpz2GEN(z, Z); return z;
-  }
-}
-
 /* Find z such that x=y*z, knowing that y | x (unchecked) */
 GEN
 diviiexact(GEN x, GEN y)
@@ -1098,14 +1080,6 @@ diviiexact(GEN x, GEN y)
   }
 }
 #else
-/* assume y != 0 and the division is exact */
-GEN
-diviuexact(GEN x, ulong y)
-{
-  /*TODO: implement true exact division.*/
-  return divii(x,utoi(y));
-}
-
 /* Find z such that x=y*z, knowing that y | x (unchecked)
  * Method: y0 z0 = x0 mod B = 2^BITS_IN_LONG ==> z0 = 1/y0 mod B.
  *    Set x := (x - z0 y) / B, updating only relevant words, and repeat */
@@ -1115,6 +1089,48 @@ diviiexact(GEN x, GEN y)
   /*TODO: use mpn_bdivmod instead*/
   if (!signe(y)) pari_err_INV("diviiexact",y);
   return divii(x,y);
+}
+#endif
+
+#ifdef mpn_divexact_1
+GEN
+diviuexact(GEN y, ulong x)
+{
+  long ly;
+  GEN z;
+  if (!signe(y)) return gen_0;
+  ly = lgefint(y);
+  z = cgeti(ly);
+  mpn_divexact_1(LIMBS(z), LIMBS(y), NLIMBS(y), x);
+  if (z [ly - 1] == 0) ly--;
+  z[1] = evallgefint(ly) | evalsigne(signe(y));
+  return z;
+}
+#elif 1 && !defined(_WIN64) /* mpz_divexact_ui is not LLP64 friendly   */
+                            /* assume y != 0 and the division is exact */
+GEN
+diviuexact(GEN x, ulong y)
+{
+  if (!signe(x)) return gen_0;
+  {
+    long l = lgefint(x);
+    mpz_t X, Z;
+    GEN z = cgeti(l);
+    GEN2mpz(X, x);
+    Z->_mp_alloc = l-2;
+    Z->_mp_size  = l-2;
+    Z->_mp_d = LIMBS(z);
+    mpz_divexact_ui(Z, X, y);
+    mpz2GEN(z, Z); return z;
+  }
+}
+#else
+/* assume y != 0 and the division is exact */
+GEN
+diviuexact(GEN x, ulong y)
+{
+  /*TODO: implement true exact division.*/
+  return divii(x,utoi(y));
 }
 #endif
 
