@@ -1349,6 +1349,7 @@ static GEN
 setsigns_init(GEN nf, GEN archp, GEN F, GEN DATA)
 {
   GEN lambda, Mr = rowpermute(nf_get_M(nf), archp), MI = F? RgM_mul(Mr,F): Mr;
+  lambda = gmul2n(matrixnorm(MI,DEFAULTPREC), -1);
   if (lg(archp) < lg(MI))
   {
     GEN perm = gel(indexrank(MI), 2);
@@ -1357,7 +1358,6 @@ setsigns_init(GEN nf, GEN archp, GEN F, GEN DATA)
     F = vecpermute(F, perm);
   }
   if (!F) F = cgetg(1,t_MAT);
-  lambda = gmul2n(matrixnorm(MI,DEFAULTPREC), -1);
   MI = RgM_inv(MI);
   return mkvec5(DATA, archp, MI, lambda, F);
 }
@@ -1569,17 +1569,6 @@ idealchinese(GEN nf, GEN x, GEN w)
 /**                           (Z_K/I)^*                                 **/
 /**                                                                     **/
 /*************************************************************************/
-/* return sign(sigma_k(x)), x t_COL (integral, primitive) */
-static long
-eval_sign(GEN M, GEN x, long k)
-{
-  long i, l = lg(x);
-  GEN z = gel(x,1); /* times M[k,1], which is 1 */
-  for (i = 2; i < l; i++) z = mpadd(z, mpmul(gcoeff(M,k,i), gel(x,i)));
-  if (realprec(z) < DEFAULTPREC) pari_err_PREC("nfsign_arch");
-  return signe(z);
-}
-
 GEN
 vecsmall01_to_indices(GEN v)
 {
@@ -1618,12 +1607,22 @@ indices_to_vec01(GEN p, long r)
   return v;
 }
 
+/* return v such that (-1)^v = sign(sigma_k(x)), x primitive ZC */
+static long
+eval_sign(GEN M, GEN x, long k)
+{
+  long i, l = lg(x);
+  GEN z = gel(x,1); /* times M[k,1], which is 1 */
+  for (i = 2; i < l; i++) z = mpadd(z, mpmul(gcoeff(M,k,i), gel(x,i)));
+  if (realprec(z) == LOWDEFAULTPREC) return -1; /* dubious, fail */
+  return (signe(z) < 1)? 1: 0;
+}
 /* return (column) vector of R1 signatures of x (0 or 1) */
 GEN
 nfsign_arch(GEN nf, GEN x, GEN arch)
 {
-  GEN M, V, archp = vec01_to_indices(arch);
-  long i, s, n = lg(archp)-1;
+  GEN sarch, charx, M, V, archp = vec01_to_indices(arch);
+  long i, s, np, n = lg(archp)-1;
   pari_sp av;
 
   if (!n) return cgetg(1,t_VECSMALL);
@@ -1649,8 +1648,36 @@ nfsign_arch(GEN nf, GEN x, GEN arch)
       s = signe(gel(x,1));
       avma = av; return const_vecsmall(n, (s < 0)? 1: 0);
   }
-  x = Q_primpart(x); M = nf_get_M(nf);
-  for (i = 1; i <= n; i++) V[i] = (eval_sign(M, x, archp[i]) < 0)? 1: 0;
+  x = Q_primpart(x); M = nf_get_M(nf); sarch = charx = NULL; np = 0;
+  for (i = 1; i <= n; i++)
+  {
+    long s = eval_sign(M, x, archp[i]);
+    if (s < 0) /* failure */
+    {
+      GEN xi, chari, T = nf_get_pol(nf);
+      long ni, N = degpol(T), r1 = nf_get_r1(nf);
+      if (!charx)
+      {
+        charx = ZXQ_charpoly(coltoliftalg(nf,x), T, 0);
+        (void)ZX_gcd_all(charx,ZX_deriv(charx), &charx);
+        np = ZX_sturmpart(charx, mkvec2(gen_0,mkoo()));
+        np *= N / degpol(charx);
+        if (np == 0) { avma = av; return const_vecsmall(n, 1); }
+        if (np == r1){ avma = av; return const_vecsmall(n, 0); }
+      }
+      if (!sarch) sarch = nfarchstar(nf, NULL, identity_perm(r1));
+      xi = set_sign_mod_divisor(nf, vecsmall_ei(r1, archp[i]), gen_1, sarch);
+      xi = Q_primpart(xi);
+      chari = ZXQ_charpoly(coltoliftalg(nf,nfmuli(nf,x,xi)), T, 0);
+      (void)ZX_gcd_all(chari, ZX_deriv(chari), &chari);
+      ni = ZX_sturmpart(chari, mkvec2(gen_0,mkoo()));
+      ni *= N / degpol(chari);
+      if (ni == 0) { avma = av; V = const_vecsmall(n, 1); V[i] = 0; return V; }
+      if (ni == r1){ avma = av; V = const_vecsmall(n, 0); V[i] = 1; return V; }
+      s = ni < np? 0: 1;
+    }
+    V[i] = s;
+  }
   avma = (pari_sp)V; return V;
 }
 

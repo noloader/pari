@@ -12,6 +12,8 @@ BA    3-fflog in char 3 or 5 was slower than intended
          not compatible with pari-2.9
       3- the bnrdisclist output is now and ordinary vector (not a vector of
          vectors)
+      4- made nfsign() / nfsign_arch() reliable [ use algebraic method
+         besides floating point approximation to real embeddings ]
 
   Added
       1-[libari] ZM_isidentity
