@@ -85,9 +85,9 @@ bnfnarrow(GEN bnf)
 /********************************************************************/
 
 static GEN
-compute_fact(GEN nf, GEN u1, GEN gen)
+compute_fact(GEN nf, GEN U, GEN gen)
 {
-  long i, j, l = lg(u1), h = lgcols(u1); /* l > 1 */
+  long i, j, l = lg(U), h = lgcols(U); /* l > 1 */
   GEN basecl = cgetg(l,t_VEC), G;
 
   G = mkvec2(NULL, cgetg(1,t_MAT));
@@ -96,7 +96,7 @@ compute_fact(GEN nf, GEN u1, GEN gen)
     GEN z = NULL;
     for (i = 1; i < h; i++)
     {
-      GEN g, e = gcoeff(u1,i,j); if (!signe(e)) continue;
+      GEN g, e = gcoeff(U,i,j); if (!signe(e)) continue;
 
       g = gel(gen,i);
       if (typ(g) != t_MAT)
@@ -107,7 +107,6 @@ compute_fact(GEN nf, GEN u1, GEN gen)
           z = mkvec2(NULL, to_famat_shallow(g, e));
         continue;
       }
-
       gel(G,1) = g;
       g = idealpowred(nf,G,e);
       z = z? idealmulred(nf,z,g): g;
@@ -205,29 +204,30 @@ get_pi(GEN F, GEN pr, GEN *v)
 }
 
 static GEN
-compute_raygen(GEN nf, GEN u1, GEN gen, GEN bid)
+bnr_grp(GEN nf, GEN U, GEN gen, GEN cyc, GEN bid)
 {
-  GEN f, fZ, basecl, fa, pr, t, EX, sarch, cyc, F;
-  GEN listpr, vecpi, vecpinvpi;
+  GEN h = ZV_prod(cyc);
+  GEN f, fZ, basecl, fa, pr, t, EX, sarch, F, P, vecpi, vecpinvpi;
   long i,j,l,lp;
 
-  if (lg(u1) == 1) return cgetg(1, t_VEC);
+  if (!U) return mkvec2(h, cyc);
+  if (lg(U) == 1) return mkvec3(h, cyc, cgetg(1, t_VEC));
 
   /* basecl = generators in factored form */
-  basecl = compute_fact(nf,u1,gen);
+  basecl = compute_fact(nf, U, gen);
 
-  cyc = bid_get_cyc(bid); EX = gel(cyc,1); /* exponent of (O/f)^* */
-  f   = bid_get_ideal(bid); fZ = gcoeff(f,1,1);
-  fa  = bid_get_fact(bid);
+  EX = gel(bid_get_cyc(bid),1); /* exponent of (O/f)^* */
+  f  = bid_get_ideal(bid); fZ = gcoeff(f,1,1);
+  fa = bid_get_fact(bid);
   sarch = bid_get_sarch(bid);
-  listpr = gel(fa,1); F = prV_lcm_capZ(listpr);
+  P = gel(fa,1); F = prV_lcm_capZ(P);
 
-  lp = lg(listpr);
+  lp = lg(P);
   vecpinvpi = cgetg(lp, t_VEC);
   vecpi  = cgetg(lp, t_VEC);
   for (i=1; i<lp; i++)
   {
-    pr = gel(listpr,i);
+    pr = gel(P,i);
     gel(vecpi,i)    = NULL; /* to be computed if needed */
     gel(vecpinvpi,i) = NULL; /* to be computed if needed */
   }
@@ -252,7 +252,7 @@ compute_raygen(GEN nf, GEN u1, GEN gen, GEN bid)
     dmulI = mulI = NULL;
     for (j=1; j<lp; j++)
     {
-      pr = gel(listpr,j);
+      pr = gel(P,j);
       v  = idealval(nf, I, pr);
       if (!v) continue;
       p  = pr_get_p(pr);
@@ -273,7 +273,7 @@ compute_raygen(GEN nf, GEN u1, GEN gen, GEN bid)
       GEN L0 = Q_primitive_part(LL, &cx); /* LL = L0*cx (faster nfval) */
       for (j=1; j<lp; j++)
       {
-        pr = gel(listpr,j);
+        pr = gel(P,j);
         v  = fast_val(L0,cx, pr); /* = val_pr(LL) */
         if (!v) continue;
         p  = pr_get_p(pr);
@@ -291,7 +291,7 @@ compute_raygen(GEN nf, GEN u1, GEN gen, GEN bid)
           LL = nfmul(nf, LL, t);
         }
       }
-      LL = make_integral(nf,LL,f,listpr);
+      LL = make_integral(nf,LL,f,P);
       gel(newL,k) = typ(LL) == t_INT? LL: FpC_red(LL, fZ);
     }
 
@@ -311,7 +311,7 @@ compute_raygen(GEN nf, GEN u1, GEN gen, GEN bid)
     I = idealmoddivisor_aux(nf,I,f,sarch);
     gel(basecl,i) = gerepilecopy(av, I);
   }
-  return basecl;
+  return mkvec3(h, cyc, basecl);
 }
 
 /********************************************************************/
@@ -350,17 +350,31 @@ get_dataunit(GEN bnf, GEN bid)
   return ideallog_sgn(bnf_get_nf(bnf), bnf_build_units(bnf), D, bid);
 }
 
+/* c a rational content (NULL or t_INT or t_FRAC), return u*c as a ZM/d */
+static GEN
+ZM_content_mul(GEN u, GEN c, GEN *pd)
+{
+  *pd = gen_1;
+  if (c)
+  {
+    if (typ(c) == t_FRAC) { *pd = gel(c,2); c = gel(c,1); }
+    if (!is_pm1(c)) u = ZM_Z_mul(u, c);
+  }
+  return u;
+}
+
 static GEN
 Buchray_i(GEN bnf, GEN module, long flag)
 {
-  GEN nf, cyc, gen, Gen, u, clg, logs, h, met, u1, u2, U, cycgen;
-  GEN bid, cycbid, genbid, y, H, Hi, c1, c2, El;
-  long RU, Ri, j, ngen, lh;
+  GEN nf, cyc, gen, Cyc, Gen, clg, logs, h, logU, U, U1 = NULL, cycgen, vu;
+  GEN bid, cycbid, genbid, H, El;
+  long RU, Ri, j, ngen;
   const long add_gen = flag & nf_GEN;
   const long do_init = flag & nf_INIT;
 
-  bnf = checkbnf(bnf); nf = bnf_get_nf(bnf);
-  RU = lg(nf_get_roots(nf))-1; /* #K.fu */
+  bnf = checkbnf(bnf);
+  nf = bnf_get_nf(bnf);
+  RU = lg(nf_get_roots(nf))-1; /* #K.futu */
   El = Gen = NULL; /* gcc -Wall */
   cyc = bnf_get_cyc(bnf);
   gen = bnf_get_gen(bnf); ngen = lg(cyc)-1;
@@ -369,7 +383,7 @@ Buchray_i(GEN bnf, GEN module, long flag)
   if (!bid) bid = Idealstar(nf,module,nf_GEN|nf_INIT);
   cycbid = bid_get_cyc(bid);
   genbid = bid_get_gen(bid);
-  Ri = lg(cycbid)-1; lh = ngen+Ri;
+  Ri = lg(cycbid)-1;
   if (Ri || add_gen || do_init)
   {
     GEN fx = bid_get_fact(bid);
@@ -382,91 +396,55 @@ Buchray_i(GEN bnf, GEN module, long flag)
   }
   if (add_gen)
   {
-    Gen = cgetg(lh+1,t_VEC);
+    Gen = cgetg(ngen+1,t_VEC);
     for (j=1; j<=ngen; j++) gel(Gen,j) = idealmul(nf, gel(El,j), gel(gen,j));
-    for (   ; j<=lh; j++)   gel(Gen,j) = gel(genbid, j-ngen);
+    Gen = shallowconcat(Gen, genbid);
   }
   if (!Ri)
   {
     clg = mkvecn(add_gen? 3: 2, bnf_get_no(bnf), cyc, Gen);
     if (!do_init) return clg;
-    y = cgetg(7,t_VEC);
-    gel(y,1) = bnf;
-    gel(y,2) = bid;
-    gel(y,3) = El;
-    gel(y,4) = matid(ngen);
-    gel(y,5) = clg;
-    gel(y,6) = mkvec3(cgetg(1,t_MAT), matid(RU), gen_1);
-    return y;
+    U = matid(ngen);
+    vu = mkvec3(cgetg(1,t_MAT), matid(RU), gen_1);
+    return mkvecn(6, bnf, bid, El, U, clg, vu);
   }
 
-  cycgen = bnf_build_cycgen(bnf);
-  H = get_dataunit(bnf, bid);
+  logU = get_dataunit(bnf, bid);
   if (do_init)
   { /* (log(Units)|D) * u = (0 | H) */
-    GEN D = shallowconcat(H, diagonal_shallow(cycbid));
+    GEN c1,c2, u,u1,u2, Hi, D = shallowconcat(logU, diagonal_shallow(cycbid));
     H = ZM_hnfall_i(D, &u, 1);
+    u1 = matslice(u, 1,RU, 1,RU);
+    u2 = matslice(u, 1,RU, RU+1,lg(u)-1);
+    /* log(Units) (u1|u2) = (0|H) (mod D), H HNF */
+
+    u1 = ZM_lll(u1, 0.99, LLL_INPLACE);
+    Hi = Q_primitive_part(RgM_inv_upper(H), &c1);
+    u2 = ZM_mul(ZM_reducemodmatrix(u2,u1), Hi);
+    u2 = Q_primitive_part(u2, &c2);
+    u2 = ZM_content_mul(u2, mul_content(c1,c2), &c2);
+    vu = mkvec3(u2,u1,c2); /* u2/c2 = H^(-1) (mod Im u1) */
   }
   else
-    H = ZM_hnfmodid(H, cycbid);
+    H = ZM_hnfmodid(logU, cycbid);
   logs = cgetg(ngen+1, t_MAT);
-  /* FIXME: cycgen[j] is not necessarily coprime to bid, but it is made coprime
-   * in famat_zlog using canonical uniformizers [from bid data]: no need to
-   * correct it here. The same ones will be used in bnrisprincipal. Hence
-   * modification by El is useless. */
+  cycgen = bnf_build_cycgen(bnf);
   for (j=1; j<=ngen; j++)
   {
     GEN c = gel(cycgen,j);
     if (typ(gel(El,j)) != t_INT) /* <==> != 1 */
       c = famat_mulpow_shallow(c, gel(El,j),gel(cyc,j));
-    gel(logs,j) = ideallog(nf, c, bid); /* = log(Gen[j]) */
+    gel(logs,j) = ideallog(nf, c, bid); /* = log(Gen[j]^cyc[j]) */
   }
   /* [ cyc  0 ]
-   * [-logs H ] = relation matrix for Cl_f */
-  h = shallowconcat(
-    vconcat(diagonal_shallow(cyc), gneg_i(logs)),
-    vconcat(zeromat(ngen, Ri), H)
-  );
-  met = ZM_snf_group(ZM_hnf(h), &U, add_gen? &u1: NULL);
-  clg = cgetg(add_gen? 4: 3, t_VEC);
-  gel(clg,1) = ZV_prod(met);
-  gel(clg,2) = met;
-  if (add_gen) gel(clg,3) = compute_raygen(nf,u1,Gen,bid);
+   * [-logs H ] = relation matrix for generators Gen of Cl_f */
+  h = shallowconcat(vconcat(diagonal_shallow(cyc), gneg_i(logs)),
+                    vconcat(zeromat(ngen, Ri), H));
+  h = ZM_hnf(h);
+  Cyc = ZM_snf_group(h, &U, add_gen? &U1: NULL);
+  clg = bnr_grp(nf, U1, Gen, Cyc, bid);
   if (!do_init) return clg;
-
-  u2 = cgetg(Ri+1,t_MAT);
-  u1 = cgetg(RU+1,t_MAT);
-  for (j=1; j<=RU; j++) { gel(u1,j) = gel(u,j); setlg(u[j],RU+1); }
-  u += RU;
-  for (j=1; j<=Ri; j++) { gel(u2,j) = gel(u,j); setlg(u[j],RU+1); }
-
-  /* log(Units) U2 = H (mod D)
-   * log(Units) U1 = 0 (mod D) */
-  u1 = ZM_lll(u1, 0.99, LLL_INPLACE);
-  Hi = Q_primitive_part(RgM_inv_upper(H), &c1);
-  u2 = Q_primitive_part(ZM_mul(ZM_reducemodmatrix(u2,u1), Hi), &c2);
-  c1 = mul_content(c1, c2);
-  if (!c1)
-    c2 = gen_1;
-  else if (typ(c1) == t_INT)
-  {
-    if (!is_pm1(c1)) u2 = ZM_Z_mul(u2, c1);
-    c2 = gen_1;
-  }
-  else /* t_FRAC */
-  {
-    c2 = gel(c1,2);
-    c1 = gel(c1,1);
-    if (!is_pm1(c1)) u2 = ZM_Z_mul(u2, c1);
-  }
-  y = cgetg(7,t_VEC);
-  gel(y,1) = bnf;
-  gel(y,2) = bid;
-  gel(y,3) = El;
-  gel(y,4) = U;
-  gel(y,5) = clg;
-  gel(y,6) = mkvec3(u2,u1,c2); /* u2/c2 = H^(-1) (mod Im u1) */
-  return y;
+  return mkvecn(6, bnf, bid, El, U, clg, vu);
 }
 GEN
 Buchray(GEN bnf, GEN f, long flag)
@@ -494,7 +472,7 @@ bnrclassno(GEN bnf,GEN ideal)
   pari_sp av = avma;
 
   bnf = checkbnf(bnf);
-  h = bnf_get_no(bnf); /* class number */
+  h = bnf_get_no(bnf);
   bid = checkbid_i(ideal);
   if (!bid) bid = Idealstar(bnf, ideal, nf_INIT);
   cycbid = bid_get_cyc(bid);
@@ -584,15 +562,11 @@ bnrisprincipal(GEN bnr, GEN x, long flag)
 
 GEN
 isprincipalray(GEN bnr, GEN x)
-{
-  return bnrisprincipal(bnr,x,0);
-}
+{ return bnrisprincipal(bnr,x,0); }
 
 GEN
 isprincipalraygen(GEN bnr, GEN x)
-{
-  return bnrisprincipal(bnr,x,nf_GEN);
-}
+{ return bnrisprincipal(bnr,x,nf_GEN); }
 
 /* N! / N^N * (4/pi)^r2 * sqrt(|D|) */
 GEN
