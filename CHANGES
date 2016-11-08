@@ -19,6 +19,7 @@ BA    3-fflog in char 3 or 5 was slower than intended
   Added
       1-[libari] ZM_isidentity
       2-[libpari] rename buchnarrow -> bnfnarrow
+      3-[libpari] ZX_radical
 
 Changed
 

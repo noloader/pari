@@ -350,7 +350,7 @@ Zp_appr(GEN f, GEN a)
 
   f = QpX_to_ZX(f, p);
   if (degpol(f) <= 0) pari_err_CONSTPOL("Zp_appr");
-  (void)ZX_gcd_all(f, ZX_deriv(f), &f);
+  f = ZX_radical(f);
   a = padic_to_Q(a);
   if (signe(FpX_eval(f,a,p))) { avma = av; return cgetg(1,t_COL); }
   z = ZX_Zp_root(f, a, p, prec);
@@ -363,7 +363,7 @@ ZX_Zp_roots(GEN f, GEN p, long prec)
   GEN y, z, rac;
   long lx, i, j, k;
 
-  (void)ZX_gcd_all(f, ZX_deriv(f), &f);
+  f = ZX_radical(f);
   rac = FpX_roots(f, p);
   lx = lg(rac); if (lx == 1) return rac;
   y = cgetg(degpol(f)+1,t_COL);

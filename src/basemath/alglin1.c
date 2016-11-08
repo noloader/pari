@@ -3721,8 +3721,7 @@ mateigen(GEN x, long flag, long prec)
   T = charpoly(x,0);
   if (RgX_is_QX(T))
   {
-    T = Q_primpart(T);
-    (void)ZX_gcd_all(T, ZX_deriv(T),  &T);
+    T = ZX_radical( Q_primpart(T) );
     R = nfrootsQ(T);
     if (lg(R)-1 < degpol(T))
     { /* add missing complex roots */

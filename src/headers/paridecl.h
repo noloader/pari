@@ -3993,6 +3993,7 @@ int     ZM_incremental_CRT(GEN *H, GEN Hp, GEN *q, ulong p);
 GEN     ZM_init_CRT(GEN Hp, ulong p);
 int     ZX_incremental_CRT(GEN *ptH, GEN Hp, GEN *q, ulong p);
 GEN     ZX_init_CRT(GEN Hp, ulong p, long v);
+GEN     ZX_radical(GEN A);
 GEN     characteristic(GEN x);
 GEN     ffinit(GEN p, long n, long v);
 GEN     ffnbirred(GEN p, long n);

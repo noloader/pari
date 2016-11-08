@@ -1659,7 +1659,7 @@ nfsign_arch(GEN nf, GEN x, GEN arch)
       if (!charx)
       {
         charx = ZXQ_charpoly(coltoliftalg(nf,x), T, 0);
-        (void)ZX_gcd_all(charx,ZX_deriv(charx), &charx);
+        charx = ZX_radical(charx);
         np = ZX_sturmpart(charx, mkvec2(gen_0,mkoo()));
         np *= N / degpol(charx);
         if (np == 0) { avma = av; return const_vecsmall(n, 1); }
@@ -1669,7 +1669,7 @@ nfsign_arch(GEN nf, GEN x, GEN arch)
       xi = set_sign_mod_divisor(nf, vecsmall_ei(r1, archp[i]), gen_1, sarch);
       xi = Q_primpart(xi);
       chari = ZXQ_charpoly(coltoliftalg(nf,nfmuli(nf,x,xi)), T, 0);
-      (void)ZX_gcd_all(chari, ZX_deriv(chari), &chari);
+      chari = ZX_radical(chari);
       ni = ZX_sturmpart(chari, mkvec2(gen_0,mkoo()));
       ni *= N / degpol(chari);
       if (ni == 0) { avma = av; V = const_vecsmall(n, 1); V[i] = 0; return V; }

@@ -2563,7 +2563,7 @@ mscuspidal(GEN W, long flag)
   if (DEBUGLEVEL) timer_printf(&ti,"Qevproj_init(E)");
   bit = TpE_char_bound(p, msk_get_weight(W), lg(TE)-1);
   chE = QM_charpoly_ZX_bound(TE, bit);
-  (void)ZX_gcd_all(chE, ZX_deriv(chE), &chE);
+  chE = ZX_radical(chE);
   M = RgX_RgM_eval(chE, T);
   S = Qevproj_init(QM_image(M));
   return gerepilecopy(av, flag? mkvec2(S,E): S);

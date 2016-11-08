@@ -985,8 +985,7 @@ nfrootsQ(GEN x)
   x = Q_primpart(x);
   RgX_check_ZX(x,"nfrootsQ");
   val = ZX_valrem(x, &x);
-  (void)ZX_gcd_all(x, ZX_deriv(x), &x);
-  z = DDF_roots(x);
+  z = DDF_roots( ZX_radical(x) );
   if (val) z = shallowconcat(z, gen_0);
   return gerepileupto(av, sort(z));
 }
@@ -1116,6 +1115,8 @@ ZX_gcd_all(GEN A, GEN B, GEN *Anew)
 }
 GEN
 ZX_gcd(GEN A, GEN B) { return ZX_gcd_all(A,B,NULL); }
+GEN
+ZX_radical(GEN A) { GEN B; (void)ZX_gcd_all(A,ZX_deriv(A),&B); return B; }
 
 static GEN
 _gcd(GEN a, GEN b)
@@ -1251,8 +1252,7 @@ polcyclofactors(GEN f)
   RgX_check_ZX(f,"polcyclofactors");
   if (degpol(f))
   {
-    (void)ZX_gcd_all(f, ZX_deriv(f), &f);
-    f = BD(f);
+    f = BD(ZX_radical(f));
     if (f) return gerepilecopy(av, f);
   }
   avma = av; return cgetg(1,t_VEC);

@@ -1896,7 +1896,7 @@ try_polmin(CG_data *d, nfmaxord_t *S, GEN v, long flag, GEN *ai)
   g = get_pol(d, v);
   /* accuracy too low, compute algebraically */
   if (!g) { avma = av; g = ZXQ_charpoly(*ai, S->T, varn(S->T)); }
-  (void)ZX_gcd_all(g, ZX_deriv(g), &g);
+  g = ZX_radical(g);
   if (best && degpol(g) != degpol(S->T)) { avma = av; return NULL; }
   g = gerepilecopy(av, g);
   d->expo_best_disc = ed;
@@ -2279,8 +2279,7 @@ chk_gen_init(FP_chk_fun *chk, GEN R, GEN U)
     pari_sp av2 = avma;
     P = get_pol(d, gel(M,i));
     if (!P) pari_err_PREC("chk_gen_init");
-    (void)ZX_gcd_all(P, ZX_deriv(P), &P);
-    P = gerepilecopy(av2, P);
+    P = gerepilecopy(av2, ZX_radical(P));
     D[i] = degpol(P);
     if (D[i] == N)
     { /* primitive element */
