@@ -156,6 +156,7 @@ PB   63- asymptotically fast linear algebra using CUP decomposition
 BA   67- new GP functions hyperellratpoints and ellratpoints based on
          Michael Stoll ratpoints code.
      68- [libpari] Z_pollardbrent, Z_ECM
+     69- [libpari] RgX_mulhigh_i
 
   Changed
       1- rewrite bnfnarrow

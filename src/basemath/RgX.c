@@ -1281,6 +1281,17 @@ RgXn_mul(GEN f, GEN g, long n)
   h = addmulXncopy(addmulXn(h,m,1), l,1);
   setvarn(h, varn(f)); return gerepileupto(av, h);
 }
+/* (f*g) \/ x^n */
+GEN
+RgX_mulhigh_i(GEN f, GEN g, long n)
+{
+  long d = degpol(f)+degpol(g) + 1 - n;
+  GEN h;
+  if (d <= 2) return RgX_shift_shallow(RgX_mul(f,g), -n);
+  h = RgX_recip_shallow(RgXn_mul(RgX_recip_shallow(f),
+                                 RgX_recip_shallow(g), d));
+  return RgX_shift_shallow(h, d-1-degpol(h)); /* possibly (fg)(0) = 0 */
+}
 
 /* fast product (Karatsuba) of polynomials a,b. These are not real GENs, a+2,
  * b+2 were sent instead. na, nb = number of terms of a, b.
@@ -2181,16 +2192,35 @@ RgXn_eval(GEN Q, GEN x, long n)
   return gen_bkeval(Q,degpol(Q),x,use_sqr,(void*)&S,&RgXn_algebra,_cmul);
 }
 
+/* (f*g mod t^n) \ t^n2, assuming 2*n2 >= n */
+static GEN
+RgXn_mulhigh(GEN f, GEN g, long n2, long n)
+{
+  GEN F = RgX_blocks(f, n2, 2), fl = gel(F,1), fh = gel(F,2);
+  return RgX_add(RgX_mulhigh_i(fl, g, n2), RgXn_mul(fh, g, n - n2));
+}
+
 GEN
 RgXn_inv(GEN f, long e)
 {
   pari_sp av = avma, av2;
   ulong mask;
-  GEN W;
-  long v = varn(f), n=1;
-  if (signe(f)==0)
-    pari_err_INV("RgXn_inv",f);
-  W = scalarpol(ginv(gel(f,2)),v);
+  GEN W, a;
+  long v = varn(f), n = 1;
+
+  if (!signe(f)) pari_err_INV("RgXn_inv",f);
+  a = ginv(gel(f,2));
+  if (e == 1) return scalarpol(a, v);
+  else if (e == 2)
+  {
+    GEN b;
+    if (degpol(f) <= 0 || gequal0(b = gel(f,3))) return scalarpol(a, v);
+    b = gneg(b);
+    if (!gequal1(a)) b = gmul(b, gsqr(a));
+    W = deg1pol_shallow(b, a, v);
+    return gerepilecopy(av, W);
+  }
+  W = scalarpol_shallow(ginv(gel(f,2)),v);
   mask = quadratic_prec_mask(e);
   av2 = avma;
   for (;mask>1;)
@@ -2200,8 +2230,8 @@ RgXn_inv(GEN f, long e)
     n<<=1; if (mask & 1) n--;
     mask >>= 1;
     fr = RgXn_red_shallow(f, n);
-    u = RgX_shift_shallow(RgXn_mul(W, fr, n), -n2);
-    W = RgX_sub(W, RgX_shift_shallow(RgXn_mul(u, W, n-n2), n2));
+    u = RgXn_mul(W, RgXn_mulhigh(fr, W, n2, n), n-n2);
+    W = RgX_sub(W, RgX_shift_shallow(u, n2));
     if (gc_needed(av2,2))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"RgXn_inv, e = %ld", n);

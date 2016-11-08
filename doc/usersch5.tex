@@ -8930,6 +8930,10 @@ Karatsuba algorithm (Mulders, Hanrot-Zimmermann variant).
 where $a$ is a \typ{POL} in the variable $X$ and $n \geq 0$. Uses
 Karatsuba algorithm (Mulders, Hanrot-Zimmermann variant).
 
+\fun{GEN}{RgX_mulhigh_i}{GEN f, GEN g, long n} return the Euclidean quotient
+of $f(x)*g(x)$ by $x^n$ (high product). Uses \tet{RgXn_mul} applied to
+the reciprocal polynomials of $f$ and $g$. Not suitable for \kbd{gerepile}.
+
 \fun{GEN}{RgXn_inv}{GEN a, long n} returns $a^{-1}$ modulo $X^n$,
 where $a$ is a \typ{POL} in the variable $X$ and $n \geq 0$. Uses
 Newton-Raphson algorithm.

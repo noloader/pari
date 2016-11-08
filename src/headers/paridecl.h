@@ -1010,6 +1010,7 @@ GEN     RgX_inflate(GEN x0, long d);
 GEN     RgX_mul(GEN x,GEN y);
 GEN     RgX_mul_normalized(GEN A, long a, GEN B, long b);
 GEN     RgX_mulXn(GEN x, long d);
+GEN     RgX_mulhigh_i(GEN f, GEN g, long n);
 GEN     RgX_muls(GEN y, long x);
 GEN     RgX_mulspec(GEN a, GEN b, long na, long nb);
 GEN     RgX_neg(GEN x);
