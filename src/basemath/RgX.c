@@ -2398,7 +2398,7 @@ RgX_blocks(GEN P, long n, long m)
     gel(z,i) = zi;
     for(j=2; j<n+2; j++)
       gel(zi, j) = k==l ? gen_0 : gel(P,k++);
-    zi = ZX_renormalize(zi, n+2);
+    zi = RgX_renormalize_lg(zi, n+2);
   }
   return z;
 }
