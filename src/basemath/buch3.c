@@ -511,7 +511,7 @@ GEN
 bnrisprincipal(GEN bnr, GEN x, long flag)
 {
   pari_sp av = avma;
-  GEN bnf, nf, bid, U, El, ep, L, idep, ex, cycray, cycbid, alpha;
+  GEN bnf, nf, bid, L, ex, cycray, alpha;
 
   checkbnr(bnr);
   cycray = bnr_get_cyc(bnr);
@@ -519,25 +519,20 @@ bnrisprincipal(GEN bnr, GEN x, long flag)
 
   bnf = bnr_get_bnf(bnr); nf = bnf_get_nf(bnf);
   bid = bnr_get_bid(bnr);
-  cycbid = bid_get_cyc(bid);
-  El  = gel(bnr,3);
-  U   = gel(bnr,4);
-
-  if (typ(x) == t_VEC && lg(x) == 3)
-  { idep = gel(x,2); x = gel(x,1); }  /* precomputed */
+  if (lg(bid_get_cyc(bid)) == 1) bid = NULL; /* trivial bid */
+  if (!bid)
+    ex = isprincipal(bnf, x);
   else
-    idep = bnfisprincipal0(bnf, x, nf_FORCE|nf_GENMAT);
-  ep  = gel(idep,1);
-  if (lg(cycbid) > 1)
   {
-    GEN beta = gel(idep,2);
+    GEN idep = bnfisprincipal0(bnf, x, nf_FORCE|nf_GENMAT);
+    GEN ep = gel(idep,1), beta = gel(idep,2), El = gel(bnr,3), U = gel(bnr,4);
     long i, j = lg(ep);
-    for (i=1; i<j; i++) /* modify beta as if gen -> El.gen (coprime to bid) */
+    for (i = 1; i < j; i++) /* modify beta as if gen were El*gen */
       if (typ(gel(El,i)) != t_INT && signe(gel(ep,i))) /* <==> != 1 */
         beta = famat_mulpow_shallow(beta, gel(El,i), negi(gel(ep,i)));
     ep = shallowconcat(ep, ideallog(nf,beta,bid));
+    ex = vecmodii(ZM_ZC_mul(U, ep), cycray);
   }
-  ex = vecmodii(ZM_ZC_mul(U, ep), cycray);
   if (!(flag & nf_GEN)) return gerepileupto(av, ex);
 
   /* compute generator */
@@ -545,7 +540,7 @@ bnrisprincipal(GEN bnr, GEN x, long flag)
                       nf_GENMAT|nf_GEN_IF_PRINCIPAL|nf_FORCE);
   if (L == gen_0) pari_err_BUG("isprincipalray");
   alpha = nffactorback(nf, L, NULL);
-  if (lg(cycbid) > 1)
+  if (bid)
   {
     GEN v = gel(bnr,6), u2 = gel(v,1), u1 = gel(v,2), du2 = gel(v,3);
     GEN y = ZM_ZC_mul(u2, ideallog(nf, L, bid));
@@ -1578,7 +1573,7 @@ rnfnormgroup_i(GEN bnr, GEN polrel)
         pr = utoipos(p);
 
       /* pr^f = N P, P | pr, hence is in norm group */
-      col = bnrisprincipal(bnr,pr,0);
+      col = isprincipalray(bnr,pr);
       if (f > 1) col = ZC_z_mul(col, f);
       G = ZM_hnf(shallowconcat(G, col));
       detG = ZM_det_triangular(G);
@@ -2495,7 +2490,7 @@ bnrautmatrix(GEN bnr, GEN aut)
   aut = algtobasis(nf, aut);
   mat = cgetg(l,t_MAT);
   for (i=1; i<l; i++)
-    gel(mat, i) = bnrisprincipal(bnr,galoisapply(nf,aut,gel(gen,i)),0);
+    gel(mat, i) = isprincipalray(bnr,galoisapply(nf,aut,gel(gen,i)));
   return gerepilecopy(av, mat);
 }
 
