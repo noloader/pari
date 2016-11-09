@@ -1353,11 +1353,12 @@ bnrisconductor0(GEN A,GEN B,GEN C)
   return bnrisconductor(bnr, H);
 }
 
-/* return bnrisprincipal(bnr, (x)), assuming z = ideallog(x) */
+/* return bnrisprincipal(bnr, (x)), assuming z = ideallog(x); allow a
+ * t_MAT for z, understood as a collection of ideallog(x_i) */
 static GEN
 ideallog_to_bnr(GEN bnr, GEN z)
 {
-  GEN U = gel(bnr,4), divray = bnr_get_cyc(bnr);
+  GEN U = gel(bnr,4), cyc;
   long lU, lz;
   int col;
 
@@ -1370,13 +1371,14 @@ ideallog_to_bnr(GEN bnr, GEN z)
     if (lz == 1) return zerocol(nbrows(U)); /* lU != 1 */
     U = vecslice(U, lU-lz+1, lU-1); /* remove Cl(K) part */
   }
+  cyc = bnr_get_cyc(bnr);
   if (col)
-    z = vecmodii(ZM_ZC_mul(U,z), divray);
+    z = vecmodii(ZM_ZC_mul(U,z), cyc);
   else
   {
     long j, l;
     z = ZM_mul(U, z); l = lg(z);
-    for (j = 1; j < l; j++) gel(z,j) = vecmodii(gel(z,j), divray);
+    for (j = 1; j < l; j++) gel(z,j) = vecmodii(gel(z,j), cyc);
   }
   return z;
 }
