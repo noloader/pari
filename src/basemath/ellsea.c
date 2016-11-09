@@ -1771,7 +1771,6 @@ MATCH_RESTART:
         {
           GEN card1 = subii(Be, mulii(Mu, GMb));
           GEN card2 = addii(card1, mulii(mulsi(2,Mu), GMb));
-          if (DEBUGLEVEL>=2) timer_printf(&ti,"match_and_sort");
           if (abscmpii(subii(pp1, card1), bound) <= 0)
             affii(card1, gel(card, ++nbcard));
           if (nbcard >= lcard) goto MATCH_RESTART;
@@ -1791,6 +1790,7 @@ MATCH_RESTART:
     }
   }
   setlg(card, nbcard+1);
+  if (DEBUGLEVEL>=2) timer_printf(&ti,"match_and_sort");
   return gen_select_order(card, E, grp);
 }
 
