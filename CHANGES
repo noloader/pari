@@ -6,13 +6,14 @@ Done for version 2.10.0 (released ??/??/??):
 BA    2- lfunartin was using too much stack
 BA    3- fflog in char 3 or 5 was slower than intended
       4- RgX_blocks only worked for t_INT or t_POL coeffs
+      5- spurious bnrdlisclist entries (with negative number of real
+         places...) when modulus not a conductor
 
   Changed
       1- rewrite bnfnarrow
       2- the bid struct from idealstar has been changed, the new format is
          not compatible with pari-2.9
-      3- the bnrdisclist output is now and ordinary vector (not a vector of
-         vectors)
+      3- bnrdisclist output is now an ordinary vector (not a vector of vectors)
       4- made nfsign() / nfsign_arch() reliable [ use algebraic method
          besides floating point approximation to real embeddings ]
 
