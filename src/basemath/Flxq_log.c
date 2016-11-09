@@ -169,7 +169,7 @@ Flxq_log_cubic(struct Flxq_log_rel *r, GEN C, GEN R, ulong p)
   GEN a = zero_zv(l); /*We allocate one extra word to catch overflow*/
   GEN b = zero_zv(l);
   pari_sp av = avma;
-  long i,j,k, dh=0;
+  long i,j,k;
   for(i=0; ; i++, Flx_cnext(a, p))
   {
     Flx_renormalize_inplace(a, l+1);
@@ -189,7 +189,6 @@ Flxq_log_cubic(struct Flxq_log_rel *r, GEN C, GEN R, ulong p)
       pabc2= Flx_sub(pab,Flx_sqr(c,p),p);
       h = Flx_add(R,Flx_add(Flx_mul(C,pabc2,p),pabc,p), p);
       h = Flx_normalize(h, p);
-      dh = maxss(dh,degpol(h));
       if (Flx_addifsmooth3(&av, r, h, i, j, k, p)) return;
     }
   }
