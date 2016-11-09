@@ -242,7 +242,7 @@ assign_subFB(FB_t *F, GEN yes, long iyes)
  * Determine the permutation of the ideals made by each field automorphism.
  */
 static void
-FB_aut_perm(FB_t *F, GEN nf, GEN auts, GEN cyclic)
+FB_aut_perm(FB_t *F, GEN auts, GEN cyclic)
 {
   pari_sp av0 = avma;
   long i, KC = F->KC, nauts = lg(auts);
@@ -308,7 +308,7 @@ FB_aut_perm(FB_t *F, GEN nf, GEN auts, GEN cyclic)
  * Fill F->perm (if != NULL): primes ideals sorted by increasing norm (except
  * the ones in subFB come first [dense rows for hnfspec]) */
 static int
-subFBgen(FB_t *F, GEN nf, GEN auts, GEN cyclic, double PROD, long minsFB)
+subFBgen(FB_t *F, GEN auts, GEN cyclic, double PROD, long minsFB)
 {
   GEN y, perm, yes, no;
   long i, j, k, iyes, ino, lv = F->KC + 1;
@@ -350,7 +350,7 @@ subFBgen(FB_t *F, GEN nf, GEN auts, GEN cyclic, double PROD, long minsFB)
   for (i=1; i<ino; i++, j++) F->perm[j] =  no[i];
   for (   ; j<lv; j++)       F->perm[j] =  perm[j];
   F->allsubFB = NULL;
-  FB_aut_perm(F, nf, auts, cyclic);
+  FB_aut_perm(F, auts, cyclic);
   if (iyes) assign_subFB(F, yes, iyes);
   avma = av; return 1;
 }
@@ -2903,7 +2903,7 @@ automorphism_matrices(GEN nf, GEN *invp, GEN *cycp)
  * N.B.2 i >= j, so primes with index < j will be missed; run incrementally
  * starting from j = 1 ! */
 static void
-pr_orbit_fill(GEN orbit, GEN nf, GEN auts, GEN vP, long j)
+pr_orbit_fill(GEN orbit, GEN auts, GEN vP, long j)
 {
   GEN pr = gel(vP,j), gen = pr_get_gen(pr);
   long i, l = lg(auts), J = lg(orbit), f = pr_get_f(pr);
@@ -2957,7 +2957,7 @@ be_honest(FB_t *F, GEN nf, GEN auts, FACT *fact)
       {
         if (pr_orbit[j]) continue;
         /* discard all primes in automorphism orbit simultaneously */
-        pr_orbit_fill(pr_orbit, nf, auts, P, j);
+        pr_orbit_fill(pr_orbit, auts, P, j);
       }
       ideal = ideal0 = idealhnf_two(nf,gel(P,j));
       for (nbtest=0;;)
@@ -3032,7 +3032,7 @@ bnftestprimes(GEN bnf, GEN BOUND)
       {
         if (pr_orbit[j]) continue;
         /* discard all primes in automorphism orbit simultaneously */
-        pr_orbit_fill(pr_orbit, nf, auts, vP, j);
+        pr_orbit_fill(pr_orbit, auts, vP, j);
       }
       if (DEBUGLEVEL>1) err_printf("  Testing P = %Ps\n",P);
       if (abscmpiu(p, pmax) <= 0 && (k = tablesearch(fb, P, &cmp_prime_ideal)))
@@ -4123,7 +4123,7 @@ START:
   FBgen(&F, nf, N, LIMC, LIMC2, &GRHcheck);
   if (!F.KC) goto START;
   av = avma;
-  subFBgen(&F,nf,auts,cyclic,lim < 0? LIMC2: mindd(lim,LIMC2),MINSFB);
+  subFBgen(&F,auts,cyclic,lim < 0? LIMC2: mindd(lim,LIMC2),MINSFB);
   if (DEBUGLEVEL)
   {
     if (lg(F.subFB) > 1)
