@@ -1483,6 +1483,7 @@ bnrisconductor(GEN bnr, GEN H0)
   checkbnr(bnr);
   bnf = bnr_get_bnf(bnr);
   init_zlog(&S, bnr_get_bid(bnr));
+  if (!S.no2) return 0;
   nf = bnf_get_nf(bnf);
   H = check_subgroup(bnr, H0, &clhray);
 
