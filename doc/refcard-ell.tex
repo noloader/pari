@@ -13,9 +13,9 @@
 \def\TITLE{Elliptic Curves}
 \input refmacro.tex
 
-Elliptic curve initially given by 5-tuple $v=\kbd{[}a_1,a_2,a_3,a_4,a_6\kbd{]}$
-attached to Weierstrass model or simply $\kbd{[}a_4,a_6\kbd{]}$. Must be
-converted to an \var{ell} struct.
+An elliptic curve is initially given by 5-tuple
+$v=\kbd{[}a_1,a_2,a_3,a_4,a_6\kbd{]}$ attached to Weierstrass model
+or simply $\kbd{[}a_4,a_6\kbd{]}$. It must be converted to an \var{ell} struct.
 \hfil\break
 \li{Initialize \var{ell} struct over domain $D$}{E = ellinit$(v,\{D=1\})$}
 \beginindentedkeys
@@ -160,7 +160,7 @@ and $[h]$ encodes $D = [1/2,0,h]$ (critical line up to height $h$).\hfil\break
 \li{torsion subgroup with generators}{elltors$(E)$}
 
 \section{Other curves of small genus}
-A hyperelliptic curve is given by a pair $[P,Q]$ ($y^2+Qy = P$, $Q^2+4P$
+A hyperelliptic curve is given by a pair $[P,Q]$ ($y^2+Qy = P$ with $Q^2+4P$
 squarefree) or a single squarefree polynomial $P$ ($y^2 = P$).\hfil\break
 \li{reduction of $y^2+Qy = P$ (genus $2$)}{genus2red$([P,Q],\{p\})$}
 \li{find a rational point on a conic, $^t x G x = 0$}{qfsolve$(G)$}
