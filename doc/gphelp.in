@@ -284,7 +284,8 @@ sub treat {
   if (!$apropos)
   {
     $_ = "users" if (/^$/);
-    open_viewer_then_quit($_) if (/^(users|tutorial|refcard|libpari)$/);
+    open_viewer_then_quit($_) if (/^(users|tutorial|refcard|libpari)$/
+                                  || /^refcard-/);
     if ($transl{$_}) { $_ = $transl{$_}; &choose_chap; }
   }
 

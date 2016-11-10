@@ -53,6 +53,7 @@ Also:
 Extended help (if available):
   ??             (opens the full user's manual in a dvi previewer)
   ??  tutorial / refcard / libpari (tutorial/reference card/libpari manual)
+  ??  refcard-ell (or -lfun/-mf/-nf: specialized reference card)
   ??  keyword    (long help text about "keyword" from the user's manual)
   ??? keyword    (a propos: list of related functions).
 Member functions, followed by relevant objects

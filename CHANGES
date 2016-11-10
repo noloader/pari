@@ -16,6 +16,7 @@ BA    3- fflog in char 3 or 5 was slower than intended
       3- bnrdisclist output is now an ordinary vector (not a vector of vectors)
       4- made nfsign() / nfsign_arch() reliable [ use algebraic method
          besides floating point approximation to real embeddings ]
+      5- support ??refcard-ell  (or mf/nf/lfun)
 
   Added
       1- [libari] ZM_isidentity

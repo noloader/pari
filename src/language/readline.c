@@ -118,6 +118,7 @@ init_prefix(const char *text, int *len, int *junk, char **TEXT)
 {
   long l = strlen(text), j = l-1;
   while (j >= 0 && is_keyword_char(text[j])) j--;
+  if (text[j] == '-' && j >= 7 && !strncmp(text+(j-7),"refcard",7)) j -= 8;
   j++;
   *TEXT = (char*)text + j;
   *junk = j;
@@ -259,6 +260,14 @@ pari_completion(pari_rl_interface *rl, char *text, int START, int END)
 
   *rl->completion_append_character = ' ';
   current_ep = NULL;
+  while (line[first] && isspace((int)line[first])) first++;
+  if (line[first] == '?')
+  {
+      if (line[first+1] == '?')
+        return get_matches(rl, -1, text, ext_help_generator);
+      return get_matches(rl, -1, text, command_generator);
+  }
+
 /* If the line does not begin by a backslash, then it is:
  * . an old command ( if preceded by "whatnow(" ).
  * . a default ( if preceded by "default(" ).
@@ -275,17 +284,10 @@ pari_completion(pari_rl_interface *rl, char *text, int START, int END)
       if (line[i] == '/') { f = rl->filename_completion_function; break; }
     return get_matches(rl, -1, text, f);
   }
-
-  while (line[first] && isspace((int)line[first])) first++;
-  switch (line[first])
+  if (line[first] == '\\')
   {
-    case '\\':
-      if (first == start) return add_space(rl, start);
-      return get_matches(rl, -1, text, rl->filename_completion_function);
-    case '?':
-      if (line[first+1] == '?')
-        return get_matches(rl, -1, text, ext_help_generator);
-      return get_matches(rl, -1, text, command_generator);
+    if (first == start) return add_space(rl, start);
+    return get_matches(rl, -1, text, rl->filename_completion_function);
   }
 
   while (start && line[start] != '('

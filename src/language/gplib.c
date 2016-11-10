@@ -297,6 +297,7 @@ menu_commands(void)
 Extended help (if available):\n\
   ??             (opens the full user's manual in a dvi previewer)\n\
   ??  tutorial / refcard / libpari (tutorial/reference card/libpari manual)\n\
+  ??  refcard-ell (or -lfun/-mf/-nf: specialized reference card)\n\
   ??  keyword    (long help text about \"keyword\" from the user's manual)\n\
   ??? keyword    (a propos: list of related functions).");
 }
@@ -471,6 +472,10 @@ gphelp_keyword_list(void)
   "real",
   "readline",
   "refcard",
+  "refcard-nf",
+  "refcard-ell",
+  "refcard-mf",
+  "refcard-lfun",
   "tutorial",
   "nf",
   "bnf",
@@ -565,7 +570,10 @@ help(const char *s0, int flag)
         if (pari_is_default(t)) { default_help(t,flag); return; }
       }
     }
-    cut_trailing_garbage(s);
+    if (!strncmp(s, "refcard-", 8))
+      cut_trailing_garbage(s+8);
+    else
+      cut_trailing_garbage(s);
   }
 
   if (long_help && (n = ok_external_help(&s))) { external_help(s,n); return; }
