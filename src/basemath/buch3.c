@@ -19,6 +19,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #include "pari.h"
 #include "paripriv.h"
 
+static GEN
+bnr_get_El(GEN bnr) { return gel(bnr,3); }
+static GEN
+bnr_get_U(GEN bnr) { return gel(bnr,4); }
+static GEN
+bnr_get_U1(GEN bnr) { return gmael(bnr,4,1); }
+
 /* faster than Buchray */
 GEN
 bnfnarrow(GEN bnf)
@@ -405,6 +412,7 @@ Buchray_i(GEN bnf, GEN module, long flag)
     clg = mkvecn(add_gen? 3: 2, bnf_get_no(bnf), cyc, Gen);
     if (!do_init) return clg;
     U = matid(ngen);
+    U = mkvec3(U, cgetg(1,t_MAT), U);
     vu = mkvec3(cgetg(1,t_MAT), matid(RU), gen_1);
     return mkvecn(6, bnf, bid, El, U, clg, vu);
   }
@@ -441,9 +449,11 @@ Buchray_i(GEN bnf, GEN module, long flag)
   h = shallowconcat(vconcat(diagonal_shallow(cyc), gneg_i(logs)),
                     vconcat(zeromat(ngen, Ri), H));
   h = ZM_hnf(h);
-  Cyc = ZM_snf_group(h, &U, add_gen? &U1: NULL);
-  clg = bnr_grp(nf, U1, Gen, Cyc, bid);
+  Cyc = ZM_snf_group(h, &U, &U1);
+  /* clg.gen = Gen*U1, Gen = clg.gen*U */
+  clg = bnr_grp(nf, add_gen? U1: NULL, Gen, Cyc, bid);
   if (!do_init) return clg;
+  U = mkvec3(vecslice(U, 1,ngen), vecslice(U,ngen+1,lg(U)-1), U1);
   return mkvecn(6, bnf, bid, El, U, clg, vu);
 }
 GEN
@@ -507,6 +517,17 @@ bnrclassno0(GEN A, GEN B, GEN C)
   return gerepileuptoint(av, h);
 }
 
+/* ZMV_ZCV_mul for two matrices U = [Ux,Uy], it may have more components
+ * (ignored) and vectors x,y */
+static GEN
+ZM2_ZC2_mul(GEN U, GEN x, GEN y)
+{
+  GEN Ux = gel(U,1), Uy = gel(U,2);
+  if (lg(Ux) == 1) return ZM_ZC_mul(Uy,y);
+  if (lg(Uy) == 1) return ZM_ZC_mul(Ux,x);
+  return ZC_add(ZM_ZC_mul(Ux,x), ZM_ZC_mul(Uy,y));
+}
+
 GEN
 bnrisprincipal(GEN bnr, GEN x, long flag)
 {
@@ -524,14 +545,15 @@ bnrisprincipal(GEN bnr, GEN x, long flag)
     ex = isprincipal(bnf, x);
   else
   {
+    GEN El = bnr_get_El(bnr), U = bnr_get_U(bnr);
     GEN idep = bnfisprincipal0(bnf, x, nf_FORCE|nf_GENMAT);
-    GEN ep = gel(idep,1), beta = gel(idep,2), El = gel(bnr,3), U = gel(bnr,4);
+    GEN ep = gel(idep,1), beta = gel(idep,2);
     long i, j = lg(ep);
     for (i = 1; i < j; i++) /* modify beta as if gen were El*gen */
       if (typ(gel(El,i)) != t_INT && signe(gel(ep,i))) /* <==> != 1 */
         beta = famat_mulpow_shallow(beta, gel(El,i), negi(gel(ep,i)));
-    ep = shallowconcat(ep, ideallog(nf,beta,bid));
-    ex = vecmodii(ZM_ZC_mul(U, ep), cycray);
+    ex = ZM2_ZC2_mul(U, ep, ideallog(nf,beta,bid));
+    ex = vecmodii(ex, cycray);
   }
   if (!(flag & nf_GEN)) return gerepileupto(av, ex);
 
@@ -1353,34 +1375,21 @@ bnrisconductor0(GEN A,GEN B,GEN C)
   return bnrisconductor(bnr, H);
 }
 
+static GEN
+ideallog_to_bnr_i(GEN Ubid, GEN cyc, GEN z)
+{ return (lg(Ubid)==1)? zerocol(lg(cyc)-1): vecmodii(ZM_ZC_mul(Ubid,z), cyc); }
 /* return bnrisprincipal(bnr, (x)), assuming z = ideallog(x); allow a
  * t_MAT for z, understood as a collection of ideallog(x_i) */
 static GEN
 ideallog_to_bnr(GEN bnr, GEN z)
 {
-  GEN U = gel(bnr,4), cyc;
-  long lU, lz;
-  int col;
-
-  if (lg(z) == 1) return z;
-  col = (typ(z) == t_COL); /* else t_MAT */
-  lz = col? lg(z): lgcols(z);
-  lU = lg(U);
-  if (lz != lU)
-  {
-    if (lz == 1) return zerocol(nbrows(U)); /* lU != 1 */
-    U = vecslice(U, lU-lz+1, lU-1); /* remove Cl(K) part */
-  }
-  cyc = bnr_get_cyc(bnr);
-  if (col)
-    z = vecmodii(ZM_ZC_mul(U,z), cyc);
-  else
-  {
-    long j, l;
-    z = ZM_mul(U, z); l = lg(z);
-    for (j = 1; j < l; j++) gel(z,j) = vecmodii(gel(z,j), cyc);
-  }
-  return z;
+  GEN U = gel(bnr_get_U(bnr), 2); /* bid part */
+  GEN y, cyc = bnr_get_cyc(bnr);
+  long i, l;
+  if (typ(z) == t_COL) return ideallog_to_bnr_i(U, cyc, z);
+  y = cgetg_copy(z, &l);
+  for (i = 1; i < l; i++) gel(y,i) = ideallog_to_bnr_i(U, cyc, gel(z,i));
+  return y;
 }
 static GEN
 bnr_log_gen_pr(GEN bnr, zlog_S *S, GEN nf, long e, long index)
