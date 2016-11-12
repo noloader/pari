@@ -24,7 +24,7 @@ bnr_get_El(GEN bnr) { return gel(bnr,3); }
 static GEN
 bnr_get_U(GEN bnr) { return gel(bnr,4); }
 static GEN
-bnr_get_U1(GEN bnr) { return gmael(bnr,4,1); }
+bnr_get_Ui(GEN bnr) { return gmael(bnr,4,3); }
 
 /* faster than Buchray */
 GEN
@@ -373,7 +373,7 @@ ZM_content_mul(GEN u, GEN c, GEN *pd)
 static GEN
 Buchray_i(GEN bnf, GEN module, long flag)
 {
-  GEN nf, cyc, gen, Cyc, Gen, clg, logs, h, logU, U, U1 = NULL, cycgen, vu;
+  GEN nf, cyc, gen, Cyc, Gen, clg, h, logU, U, Ui = NULL, vu;
   GEN bid, cycbid, genbid, H, El;
   long RU, Ri, j, ngen;
   const long add_gen = flag & nf_GEN;
@@ -435,25 +435,30 @@ Buchray_i(GEN bnf, GEN module, long flag)
   }
   else
     H = ZM_hnfmodid(logU, cycbid);
-  logs = cgetg(ngen+1, t_MAT);
-  cycgen = bnf_build_cycgen(bnf);
-  for (j=1; j<=ngen; j++)
+  if (!ngen)
+    h = H;
+  else
   {
-    GEN c = gel(cycgen,j);
-    if (typ(gel(El,j)) != t_INT) /* <==> != 1 */
-      c = famat_mulpow_shallow(c, gel(El,j),gel(cyc,j));
-    gel(logs,j) = ideallog(nf, c, bid); /* = log(Gen[j]^cyc[j]) */
+    GEN logs = cgetg(ngen+1, t_MAT);
+    GEN cycgen = bnf_build_cycgen(bnf);
+    for (j=1; j<=ngen; j++)
+    {
+      GEN c = gel(cycgen,j);
+      if (typ(gel(El,j)) != t_INT) /* <==> != 1 */
+        c = famat_mulpow_shallow(c, gel(El,j),gel(cyc,j));
+      gel(logs,j) = ideallog(nf, c, bid); /* = log(Gen[j]^cyc[j]) */
+    }
+    /* [ cyc  0 ]
+     * [-logs H ] = relation matrix for generators Gen of Cl_f */
+    h = shallowconcat(vconcat(diagonal_shallow(cyc), gneg_i(logs)),
+                      vconcat(zeromat(ngen, Ri), H));
+    h = ZM_hnf(h);
   }
-  /* [ cyc  0 ]
-   * [-logs H ] = relation matrix for generators Gen of Cl_f */
-  h = shallowconcat(vconcat(diagonal_shallow(cyc), gneg_i(logs)),
-                    vconcat(zeromat(ngen, Ri), H));
-  h = ZM_hnf(h);
-  Cyc = ZM_snf_group(h, &U, &U1);
-  /* clg.gen = Gen*U1, Gen = clg.gen*U */
-  clg = bnr_grp(nf, add_gen? U1: NULL, Gen, Cyc, bid);
+  Cyc = ZM_snf_group(h, &U, &Ui);
+  /* Gen = clg.gen*U, clg.gen = Gen*Ui */
+  clg = bnr_grp(nf, add_gen? Ui: NULL, Gen, Cyc, bid);
   if (!do_init) return clg;
-  U = mkvec3(vecslice(U, 1,ngen), vecslice(U,ngen+1,lg(U)-1), U1);
+  U = mkvec3(vecslice(U, 1,ngen), vecslice(U,ngen+1,lg(U)-1), Ui);
   return mkvecn(6, bnf, bid, El, U, clg, vu);
 }
 GEN
@@ -1297,16 +1302,54 @@ bnrchar(GEN bnr, GEN g, GEN v)
   return gerepilecopy(av, bnrchar_i(bnr,g,v));
 }
 
-/* Let bnr1 with generators, bnr2 be such that mod(bnr2) | mod(bnr1), compute
- * the matrix of the surjective map Cl(bnr1) ->> Cl(bnr2) */
+/* Let bnr1, bnr2 be such that mod(bnr2) | mod(bnr1), compute the matrix of the
+ * surjective map p: Cl(bnr1) ->> Cl(bnr2). Write (bnr gens) for the
+ * concatenation of the bnf [corrected by El] and bid generators; and
+ * bnr.gen for the SNF generators. Then
+ * bnr.gen = (bnf.gen*bnr.El | bid.gen) bnr.Ui
+ * (bnf.gen*bnr.El | bid.gen) = bnr.gen * bnr.U */
 GEN
 bnrsurjection(GEN bnr1, GEN bnr2)
 {
-  long l, i;
-  GEN M, gen = bnr_get_gen(bnr1);
-  l = lg(gen); M = cgetg(l, t_MAT);
-  for (i = 1; i < l; i++) gel(M,i) = isprincipalray(bnr2, gel(gen,i));
-  return M;
+  GEN bnf = bnr_get_bnf(bnr2), nf = bnf_get_nf(bnf);
+  GEN M, U = bnr_get_U(bnr2), bid2 = bnr_get_bid(bnr2);
+  GEN gen1 = bid_get_gen(bnr_get_bid(bnr1));
+  long i, l = lg(bnf_get_cyc(bnf)), lb = lg(gen1);
+  /* p(bnr1.gen) = p(bnr1 gens) * bnr1.Ui
+   *             = (bnr2 gens) * P * bnr1.Ui
+   *             = bnr2.gen * (bnr2.U * P * bnr1.Ui) */
+
+  /* p(bid1.gen) on bid2.gen */
+  M = cgetg(lb, t_MAT);
+  for (i = 1; i < lb; i++) gel(M,i) = ideallog(nf, gel(gen1,i), bid2);
+  /* [U[1], U[2]] * [Id, 0; N, M] = [U[1] + U[2]*N, U[2]*M] */
+  M = ZM_mul(gel(U,2), M);
+  if (l > 1)
+  { /* non trivial class group */
+    /* p(bnf.gen * bnr1.El) in terms of bnf.gen * bnr2.El and bid2.gen */
+    GEN El2 = bnr_get_El(bnr2), El1 = bnr_get_El(bnr1);
+    GEN N = cgetg(l, t_MAT);
+    long ngen2 = lg(bid_get_gen(bid2))-1;
+    if (!ngen2)
+      M = gel(U,1);
+    else
+    {
+      for (i = 1; i < l; i++)
+      { /* bnf gen in bnr1 is bnf.gen * El1 = bnf gen in bnr 2 * El1/El2 */
+        GEN z;
+        if (typ(gel(El1,i)) == t_INT)
+          z = zerocol(ngen2);
+        else
+        {
+          z = nfdiv(nf,gel(El1,i),gel(El2,i));
+          z = ideallog(nf, z, bid2);
+        }
+        gel(N,i) = z;
+      }
+      M = shallowconcat(ZM_add(gel(U,1), ZM_mul(gel(U,2),N)), M);
+    }
+  }
+  return ZM_mul(M, bnr_get_Ui(bnr1));
 }
 
 /* Given normalized chi on bnr.clgp of conductor bnrc.mod,
@@ -1326,7 +1369,7 @@ bnrchar_primitive(GEN bnr, GEN nchi, GEN bnrc)
 }
 
 /* s: <gen> = Cl_f --> Cl_f2 --> 0, H subgroup of Cl_f (generators given as
- * HNF on [gen]). Return subgroup s(H) in Cl_f2. bnr must include generators */
+ * HNF on [gen]). Return subgroup s(H) in Cl_f2 */
 static GEN
 imageofgroup(GEN bnr, GEN bnr2, GEN H)
 {
@@ -1403,7 +1446,7 @@ static int
 contains(GEN H, GEN A)
 { return H? (hnf_solve(H, A) != NULL): gequal0(A); }
 
-/* (see bnrdisc_i). Given a bnr (with generators if flag > 0), and a subgroup
+/* (see bnrdisc_i). Given a bnr, and a subgroup
  * H0 (possibly given as a character chi, in which case H0 = ker chi) of the
  * ray class group, compute the conductor of H if flag=0. If flag > 0, compute
  * also the corresponding H' and output
@@ -1464,7 +1507,8 @@ bnrconductor_i(GEN bnr, GEN H0, long flag)
   }
   else
   {
-    bnrc = Buchray_i(bnr, cond, nf_INIT | nf_GEN);
+    long flag = lg(bnr_get_clgp(bnr)) == 4? nf_INIT | nf_GEN: nf_INIT;
+    bnrc = Buchray_i(bnr, cond, flag);
     if (ischi)
       H = imageofchar(bnr, bnrc, H0);
     else
