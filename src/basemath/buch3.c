@@ -1407,7 +1407,7 @@ GEN
 bnrconductor0(GEN A, GEN B, GEN C, long flag)
 {
   pari_sp av = avma;
-  GEN H, bnr = ABC_to_bnr(A,B,C,&H, flag > 0);
+  GEN H, bnr = ABC_to_bnr(A,B,C,&H, 0);
   return gerepilecopy(av, bnrconductor_i(bnr, H, flag));
 }
 

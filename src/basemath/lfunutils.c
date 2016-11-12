@@ -607,7 +607,7 @@ lfunabelianrelinit(GEN nfabs, GEN bnf, GEN polrel, GEN dom, long der, long bitpr
   if (typ(polrel) != t_POL) pari_err_TYPE("lfunabelianrelinit", polrel);
   cond = rnfconductor(bnf, polrel);
   chi = chigenkerfind(gel(cond,2), gel(cond,3), &cnj);
-  bnr = Buchray(bnf, gel(cond,1), nf_INIT|nf_GEN);
+  bnr = Buchray(bnf, gel(cond,1), nf_INIT);
   l = lg(chi); res = cgetg(l, t_VEC);
   for (i = 1; i < l; ++i)
   {

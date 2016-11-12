@@ -328,7 +328,7 @@ IsGoodSubgroup(GEN H, GEN bnr, GEN map)
   if (gequal(gel(modH,1), gel(mod,1))) { avma = av; return 1; }
 
   /* need to check the splitting of primes dividing mod but not modH */
-  bnrH = Buchray(bnr, modH, nf_INIT|nf_GEN);
+  bnrH = Buchray(bnr, modH, nf_INIT);
   P = divcond(bnr);
   PH = divcond(bnrH);
   p2 = ZM_mul(bnrsurjection(bnr, bnrH), p1);
@@ -499,7 +499,7 @@ FindModulus(GEN bnr, GEN dtQ, long *newprec)
           gel(arch,N+1-s) = gen_0;
 
           /* compute Clk(m), check if m is a conductor */
-          bnrm = Buchray(bnf, m, nf_INIT|nf_GEN);
+          bnrm = Buchray(bnf, m, nf_INIT);
           c = bnrisconductor(bnrm, NULL);
           gel(arch,N+1-s) = gen_1;
           if (!c) continue;
@@ -899,7 +899,7 @@ InitChar(GEN bnr, GEN listCR, long prec)
       }
       else
       {
-        ch_bnr(dtcr) = Buchray(bnf, cond, nf_INIT|nf_GEN);
+        ch_bnr(dtcr) = Buchray(bnf, cond, nf_INIT);
         ch_diff(dtcr) = get_prdiff(bnr, cond);
       }
     }
@@ -2804,7 +2804,7 @@ quadhilbertreal(GEN D, long prec)
   /* if the exponent of the class group is 2, use Genus Theory */
   if (absequaliu(gel(cyc,1), 2)) return gerepileupto(av, GenusFieldQuadReal(D));
 
-  bnr  = Buchray(bnf, gen_1, nf_INIT|nf_GEN);
+  bnr  = Buchray(bnf, gen_1, nf_INIT);
   M = diagonal_shallow(bnr_get_cyc(bnr));
   dtQ = InitQuotient(M);
   nf  = bnf_get_nf(bnf);

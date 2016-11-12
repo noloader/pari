@@ -2676,7 +2676,7 @@ bnfgwgeneric(GEN bnf, GEN Lpr, GEN Ld, GEN pl, long var)
       if (smodis(idealnorm(nf,pp),ell) != 1) continue; /* ell | N(pp)-1 ? */
       ideal = idealmul(bnf,ideal,pp);
       /* TODO: give factorization ?*/
-      bnr = Buchray(bnf, mkvec2(ideal,finf), nf_GEN|nf_INIT);
+      bnr = Buchray(bnf, mkvec2(ideal,finf), nf_INIT);
       H = bnrgwsearch(bnr,Lpr,Ld,pl);
       if (H != gen_0)
       {
