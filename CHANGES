@@ -20,7 +20,7 @@ BA    3- fflog in char 3 or 5 was slower than intended
       6- [libpari internals] bnrinit(,,1) [with generators] is no longer
          necessary for bnrsurjection()
       7- bnrinit(,,1) is no longer necessary for bnrL1, bnrconductor,
-         bnrrootnumber, bnrstark, rnfkummer
+         bnrrootnumber, bnrstark, rnfkummer, galoissubcyclo
 
   Added
       1- [libari] ZM_isidentity

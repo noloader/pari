@@ -522,28 +522,23 @@ galoiscyclo(long n, long v)
 GEN
 bnr_to_znstar(GEN bnr, long *complex)
 {
-  GEN gen, cond, v, bid;
-  long l2, i;
+  GEN gen, F, v, bid;
+  long l, i;
   checkbnr(bnr);
   bid = bnr_get_bid(bnr);
-  gen = bnr_get_gen(bnr);
-  if (nf_get_degree(bnr_get_nf(bnr)) != 1)
+  gen = bid_get_gen(bid);
+  F = bid_get_ideal(bid);
+  if (lg(F) != 2)
     pari_err_DOMAIN("bnr_to_znstar", "bnr", "!=", strtoGENstr("Q"), bnr);
-  /* cond is the finite part of the conductor,
-   * complex is the infinite part*/
-  cond = gcoeff(bid_get_ideal(bid), 1, 1);
+  /* F is the finite part of the conductor, complex is the infinite part*/
+  F = gcoeff(F, 1, 1);
   *complex = signe(gel(bid_get_arch(bid), 1));
-  l2 = lg(gen);
-  v = cgetg(l2, t_VEC);
-  for (i = 1; i < l2; ++i)
+  l = lg(gen); v = cgetg(l, t_VEC);
+  for (i = 1; i < l; ++i)
   {
     GEN x = gel(gen,i);
-    switch(typ(x))
-    {
-      case t_MAT: x = gcoeff(x,1,1); break;
-      case t_COL: x = gel(x,1); break;
-    }
-    gel(v,i) = gmodulo(absi(x), cond);
+    if (typ(x) == t_COL) x = gel(x,1);
+    gel(v,i) = gmodulo(absi(x), F);
   }
   return mkvec3(bnr_get_no(bnr), bnr_get_cyc(bnr), v);
 }
@@ -570,7 +565,7 @@ galoissubcyclo(GEN N, GEN sg, long flag, long v)
       if (lg(N)==7) N = bnr_to_znstar(N,&complex);
       if (lg(N)==4)
       { /* znstar */
-        GEN gen = gel(N,3);
+        GEN gen = abgrp_get_gen(N);
         Z = N;
         if (typ(gen)!=t_VEC) pari_err_TYPE("galoissubcyclo",gen);
         if (lg(gen) == 1) n = 1;
