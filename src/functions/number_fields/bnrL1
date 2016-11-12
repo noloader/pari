@@ -2,7 +2,7 @@ Function: bnrL1
 Section: number_fields
 C-Name: bnrL1
 Prototype: GDGD0,L,p
-Help: bnrL1(bnr, {H}, {flag=0}): bnr being output by bnrinit(,,1) and
+Help: bnrL1(bnr, {H}, {flag=0}): bnr being output by bnrinit and
  H being a square matrix defining a congruence subgroup of bnr (the
  trivial subgroup if omitted), for each character of bnr trivial on this
  subgroup, compute L(1, chi) (or equivalently the first non-zero term c(chi)
@@ -13,7 +13,7 @@ Help: bnrL1(bnr, {H}, {flag=0}): bnr being output by bnrinit(,,1) and
  of the primitive L-function attached to chi, if 1 then compute the value
  of the L-function L_S(s, chi) where S is the set of places dividing the
  modulus of bnr (and the infinite places), 3: return also the characters.
-Doc: let \var{bnr} be the number field data output by \kbd{bnrinit(,,1)} and
+Doc: let \var{bnr} be the number field data output by \kbd{bnrinit} and
  \var{H} be a square matrix defining a congruence subgroup of the
  ray class group corresponding to \var{bnr} (the trivial congruence subgroup
  if omitted). This function returns, for each \idx{character} $\chi$ of the ray
@@ -33,14 +33,14 @@ Doc: let \var{bnr} be the number field data output by \kbd{bnrinit(,,1)} and
  set.
  \bprog
  K = bnfinit(x^2-229);
- bnr = bnrinit(K,1,1);
+ bnr = bnrinit(K,1);
  bnrL1(bnr)
  @eprog\noindent
  returns the order and the first non-zero term of $L(s, \chi)$ at $s = 0$
  where $\chi$ runs through the characters of the class group of
  $K = \Q(\sqrt{229})$. Then
  \bprog
- bnr2 = bnrinit(K,2,1);
+ bnr2 = bnrinit(K,2);
  bnrL1(bnr2,,2)
  @eprog\noindent
  returns the order and the first non-zero terms of $L_S(s, \chi)$ at $s = 0$

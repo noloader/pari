@@ -23,7 +23,7 @@ lfun(lfunmul(1,1),1)
 lfun(lfunmul(x^2+1,x^2+1),1)
 lfun(lfundiv(x^2+1,-4),1)
 pol=x^6-3*x^5+5*x^4-5*x^3+5*x^2-3*x+1;
-real(lfun(lfundiv(pol,[bnrinit(bnfinit(x^2+23),1,1),[1]]),1))
+real(lfun(lfundiv(pol,[bnrinit(bnfinit(x^2+23),1),[1]]),1))
 
 \\ check for loss in accuracy in lfunthetaspec
 pol=x^5-5*x^3-x^2+3*x+1;

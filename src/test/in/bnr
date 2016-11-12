@@ -14,7 +14,7 @@ Qi = bnfinit(x^2+1);
 bnrL1(bnrinit(Qi,10,1),1);
 bnrisconductor(bnrinit(Qi,x-5),[1])
 setrand(5);bnrL1(bnrinit(bnfinit(y^2+6),1,1),0);
-bnrL1(bnrinit(bnfinit(x),[5,[1]],1));
+bnrL1(bnrinit(bnfinit(x),[5,[1]]));
 \\ #1399
 bnrdisc(bnfinit(y^2+1), 12)
 
@@ -47,7 +47,7 @@ bnrdisc(bnf,[5,3;0,1],H,2)
 bnrdisc(bnf,[5,3;0,1],H,3)
 bnrclassno(bnf, idealprimedec(bnf,5)[1])
 
-bnr=bnrinit(bnf,[7,[1,1]],1);
+bnr=bnrinit(bnf,[7,[1,1]]);
 bnrclassno(bnf,[7,Vecsmall([1,2])])
 bnrclassno(bnf,[7,Vecsmall([1])])
 bnrclassno(bnf,[7,Vecsmall([2])])
@@ -66,13 +66,13 @@ chareval(bnr,chi,1/7)
 chareval(bnr,chi,x+1)
 chareval(1,chi,1)
 L=idealprimedec(bnf,3);
-bnr=bnrinit(bnf,[L[1],[1,1]],1);
+bnr=bnrinit(bnf,[L[1],[1,1]]);
 chi=[3];
 chareval(bnr,chi,1)
 chareval(bnr,chi,L[1].gen[2])
 chareval(bnr,chi,L[2].gen[2])
 
-bnr=bnrinit(bnfinit(x^2-97),1,1); bnrrootnumber(bnr,[])
+bnr=bnrinit(bnfinit(x^2-97),1); bnrrootnumber(bnr,[])
 
 narrow(T)=bnfnarrow(bnfinit(T));
 narrow(x^2-460)
@@ -92,11 +92,10 @@ bnrdisc(K,[1,[0,0]],,2)
 setrand(1);
 F = bnfinit(x^3-3);
 f = idealmul(F, idealprimedec(F,3)[1], 5);
-bnr = bnrinit(F, [f, [1]], 1);
+bnr = bnrinit(F, [f, [1]]);
 C = bnr.cyc;
 forvec(c = vector(#C,i,[0,C[i]-1]), print(bnrrootnumber(bnr,c)))
 
 bnf=bnfinit(x^2+69);
 id = [9,0;0,3];
 bnrinit(bnf,id,1).clgp
-

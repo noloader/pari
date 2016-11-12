@@ -3,11 +3,11 @@ Section: number_fields
 C-Name: bnrstark
 Prototype: GDGp
 Help: bnrstark(bnr,{subgroup}): bnr being as output by
- bnrinit(,,1), finds a relative equation for the class field corresponding to
+ bnrinit, finds a relative equation for the class field corresponding to
  the module in bnr and the given congruence subgroup (the trivial subgroup if
  omitted) using Stark's units. The ground field and the class field must be
  totally real.
-Doc: \var{bnr} being as output by \kbd{bnrinit(,,1)}, finds a relative equation
+Doc: \var{bnr} being as output by \kbd{bnrinit}, finds a relative equation
  for the class field corresponding to the modulus in \var{bnr} and the given
  congruence subgroup (as usual, omit $\var{subgroup}$ if you want the whole ray
  class group).
@@ -17,7 +17,7 @@ Doc: \var{bnr} being as output by \kbd{bnrinit(,,1)}, finds a relative equation
  simpler \tet{galoissubcyclo} is used instead. Here is an example:
  \bprog
  bnf = bnfinit(y^2 - 3);
- bnr = bnrinit(bnf, 5, 1);
+ bnr = bnrinit(bnf, 5);
  bnrstark(bnr)
  @eprog\noindent
  returns the ray class field of $\Q(\sqrt{3})$ modulo $5$. Usually, one wants
@@ -39,7 +39,7 @@ Doc: \var{bnr} being as output by \kbd{bnrinit(,,1)}, finds a relative equation
  computations become unfeasible. (And of course, Stark's conjecture may simply
  be wrong.) In case of difficulties, try \tet{rnfkummer}:
  \bprog
- ? bnr = bnrinit(bnfinit(y^8-12*y^6+36*y^4-36*y^2+9,1), 2, 1);
+ ? bnr = bnrinit(bnfinit(y^8-12*y^6+36*y^4-36*y^2+9,1), 2);
  ? bnrstark(bnr)
    ***   at top-level: bnrstark(bnr)
    ***                 ^-------------

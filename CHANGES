@@ -17,6 +17,10 @@ BA    3- fflog in char 3 or 5 was slower than intended
       4- made nfsign() / nfsign_arch() reliable [ use algebraic method
          besides floating point approximation to real embeddings ]
       5- support ??refcard-ell  (or mf/nf/lfun)
+      6- [libpari internals] bnrinit(,,1) [with generators] is no longer
+         necessary for bnrsurjection()
+      7- bnrinit(,,1) is no longer necessary for bnrL1, bnrconductor,
+         bnrrootnumber, bnrstark, rnfkummer
 
   Added
       1- [libari] ZM_isidentity
