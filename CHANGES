@@ -28,8 +28,9 @@ BA    7- [mingw] writebin did not work
       1- [libari] ZM_isidentity
       2- [libpari] rename buchnarrow -> bnfnarrow
       3- [libpari] ZX_radical
-BA    4- parallel fflog in characteristic at most 5
-BA    5- [gmp] support for mpn_divexact_1
+BA    4- [gmp] support for mpn_divexact_1
+BA    5- parallel fflog in characteristic at most 5
+BA    6- parallel znlog for large characteristic
 
 Changed
 

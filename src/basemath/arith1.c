@@ -3289,44 +3289,33 @@ Fp_log_find_rel(GEN b, ulong bnd, GEN C, GEN p, GEN *g, long *e)
 struct Fp_log_rel
 {
   GEN rel;
-  long *sieve;
   ulong prmax;
   long nbrel, nbmax;
 };
 
 /* add u^e */
-static long
-addifsmooth1(struct Fp_log_rel *r, GEN h, long u, long e)
+static void
+addifsmooth1(struct Fp_log_rel *r, GEN z, long u, long e)
 {
   pari_sp av = avma;
-  GEN z;
-  if ((z = Z_issmooth_fact(h, r->prmax)))
-  {
-    long off = r->prmax+1;
-    GEN F = cgetg(3, t_MAT);
-    gel(F,1) = vecsmall_append(gel(z,1), off+u);
-    gel(F,2) = vecsmall_append(gel(z,2), e);
-    gel(r->rel,++r->nbrel) = gerepileupto(av, F);
-  }
-  return r->nbrel==r->nbmax;
+  long off = r->prmax+1;
+  GEN F = cgetg(3, t_MAT);
+  gel(F,1) = vecsmall_append(gel(z,1), off+u);
+  gel(F,2) = vecsmall_append(gel(z,2), e);
+  gel(r->rel,++r->nbrel) = gerepileupto(av, F);
 }
 
 /* add u^-1 v^-1 */
-static long
-addifsmooth2(struct Fp_log_rel *r, GEN h, long u, long v)
+static void
+addifsmooth2(struct Fp_log_rel *r, GEN z, long u, long v)
 {
   pari_sp av = avma;
-  GEN z;
-  if ((z = Z_issmooth_fact(h, r->prmax)))
-  {
-    long off = r->prmax+1;
-    GEN P = mkvecsmall2(off+u,off+v), E = mkvecsmall2(-1,-1);
-    GEN F = cgetg(3, t_MAT);
-    gel(F,1) = vecsmall_concat(gel(z,1), P);
-    gel(F,2) = vecsmall_concat(gel(z,2), E);
-    gel(r->rel,++r->nbrel) = gerepileupto(av, F);
-  }
-  return r->nbrel==r->nbmax;
+  long off = r->prmax+1;
+  GEN P = mkvecsmall2(off+u,off+v), E = mkvecsmall2(-1,-1);
+  GEN F = cgetg(3, t_MAT);
+  gel(F,1) = vecsmall_concat(gel(z,1), P);
+  gel(F,2) = vecsmall_concat(gel(z,2), E);
+  gel(r->rel,++r->nbrel) = gerepileupto(av, F);
 }
 
 /*
@@ -3337,14 +3326,23 @@ x = (c-C*a)/(C+a) [mod l]
 h = -c+C*(x+a)+a*x
 */
 
-static void
-Fp_log_sieve_h(struct Fp_log_rel *r, GEN C, GEN c, GEN Ci, GEN ci, long a, GEN pr, GEN sz)
+GEN
+Fp_log_sieve_worker(long a, long prmax, GEN C, GEN c, GEN Ci, GEN ci, GEN pr, GEN sz)
 {
+  pari_sp ltop = avma;
   long th = expi(C), n = lg(pr)-1;
-  long i,j;
-  if (addifsmooth1(r, addis(C,a), a, -1)) return;
-  for(j=0; j<=a; j++)
-    r->sieve[j]=0;
+  long i, j;
+  GEN sieve = zero_zv(a+2)+1;
+  GEN L = cgetg(1+a+2, t_VEC);
+  pari_sp av = avma;
+  long rel = 1;
+  GEN z, h;
+  h = addis(C,a);
+  if ((z = Z_issmooth_fact(h, prmax)))
+  {
+    gel(L, rel++) = mkvec2(z, mkvecsmall3(1, a, -1));
+    av = avma;
+  }
   for(i=1; i<=n; i++)
   {
     ulong li = pr[i], s = sz[i], al = a % li;
@@ -3352,21 +3350,65 @@ Fp_log_sieve_h(struct Fp_log_rel *r, GEN C, GEN c, GEN Ci, GEN ci, long a, GEN p
     if (!iv) continue;
     u = Fl_mul(Fl_sub(ci[i],Fl_mul(Ci[i],al,li),li), iv ,li);
     for(j = u; j<=a; j+=li)
-      r->sieve[j] += s;
+      sieve[j] += s;
   }
   th = th - expu(th)-1;
   for(j=0; j<a; j++)
-    if (r->sieve[j]>=th)
+    if (sieve[j]>=th)
     {
       GEN h = addiu(subii(muliu(C,a+j),c), a*j);
-      if (addifsmooth2(r, h, a, j)) return;
+      if ((z = Z_issmooth_fact(h, prmax)))
+      {
+        gel(L, rel++) = mkvec2(z, mkvecsmall3(2, a, j));
+        av = avma;
+      } else avma = av;
     }
   /* j = a */
-    if (r->sieve[a]>=th)
+  if (sieve[a]>=th)
+  {
+    GEN h = addiu(subii(muliu(C,2*a),c), a*a);
+    if ((z = Z_issmooth_fact(h, prmax)))
     {
-      GEN h = addiu(subii(muliu(C,2*a),c), a*a);
-      if (addifsmooth1(r, h, a, -2)) return;
+      gel(L, rel++) = mkvec2(z, mkvecsmall3(1, a, -2));
+      av = avma;
     }
+  }
+  setlg(L, rel);
+  return gerepilecopy(ltop, L);
+}
+
+static long
+Fp_log_sieve(struct Fp_log_rel *r, GEN C, GEN c, GEN Ci, GEN ci, GEN pr, GEN sz)
+{
+  struct pari_mt pt;
+  long i;
+  GEN worker = snm_closure(is_entry("_Fp_log_sieve_worker"),
+               mkvecn(7, utoi(r->prmax), C, c, Ci, ci, pr, sz));
+  long running, pending = 0;
+  mt_queue_start(&pt, worker);
+  for (i = 0; (running = (r->nbrel < r->nbmax)) || pending; i++)
+  {
+    GEN L, done;
+    long ll, m;
+    mt_queue_submit(&pt, 0, running ? mkvec(stoi(i)): NULL);
+    done = mt_queue_get(&pt, NULL, &pending);
+    if (!done) continue;
+    L = done; ll = lg(L);
+    if (ll == 1) continue;
+    for (m=1; m<ll; m++)
+    {
+       GEN Lm = gel(L,m), h = gel(Lm, 1), v = gel(Lm, 2);
+       if (r->nbrel == r->nbmax) break;
+       if (v[1] == 1)
+         addifsmooth1(r, h, v[2], v[3]);
+       else
+         addifsmooth2(r, h, v[2], v[3]);
+    }
+    if (DEBUGLEVEL && (i&127)==0)
+      err_printf("%ld%% ",100*r->nbrel/(r->nbmax));
+  }
+  mt_queue_end(&pt);
+  return i;
 }
 
 static GEN
@@ -3451,7 +3493,7 @@ static GEN
 Fp_log_index(GEN a, GEN b, GEN m, GEN p)
 {
   pari_sp av = avma, av2;
-  long i, nbi, nbrow;
+  long i, nbi, nbrow, nbg;
   GEN C, c, Ci, ci, pr, sz, l, Ao, Bo, K, d, p_1;
   pari_timer ti;
   struct Fp_log_rel r;
@@ -3484,22 +3526,16 @@ Fp_log_index(GEN a, GEN b, GEN m, GEN p)
   r.nbrel = 0;
   r.nbmax = 8*nbi;
   r.rel = cgetg(r.nbmax+1,t_VEC);
-  r.sieve = cgetg(r.nbmax+2,t_VECSMALL)+1;
   r.prmax = pr[nbi];
-  for(i=0; r.nbrel < r.nbmax; i++)
-  {
-    Fp_log_sieve_h(&r, C, c, Ci, ci, i, pr, sz);
-    if (DEBUGLEVEL && (i&127)==0)
-      err_printf("%ld%% ",100*r.nbrel/(r.nbmax));
-  }
-  nbrow = r.prmax+i;
+  nbg = Fp_log_sieve(&r, C, c, Ci, ci, pr, sz);
+  nbrow = r.prmax + nbg;
   if (DEBUGLEVEL)
   {
     err_printf("\n");
-    timer_printf(&ti," %ld relations, %ld generators", r.nbrel, nbi+i);
+    timer_printf(&ti," %ld relations, %ld generators", r.nbrel, nbi+nbg);
   }
   setlg(r.rel,r.nbrel+1);
-  r.rel = gerepileupto(av2, r.rel);
+  r.rel = gerepilecopy(av2, r.rel);
   K = check_kernel(nbi+nbrow-r.prmax, nbrow, r.prmax, C, r.rel, p, m);
   if (DEBUGLEVEL) timer_start(&ti);
   Ao = Fp_log_find_ind(a, K, r.prmax, C, p, m);

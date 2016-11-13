@@ -1642,6 +1642,7 @@ ulong   Fl_sqrtl_pre(ulong a, ulong l, ulong p, ulong pi);
 GEN     Fp_factored_order(GEN a, GEN o, GEN p);
 int     Fp_ispower(GEN x, GEN K, GEN p);
 GEN     Fp_log(GEN a, GEN g, GEN ord, GEN p);
+GEN     Fp_log_sieve_worker(long a, long prmax, GEN C, GEN c, GEN Ci, GEN ci, GEN pr, GEN sz);
 GEN     Fp_order(GEN a, GEN o, GEN p);
 GEN     Fp_pow(GEN a, GEN n, GEN m);
 GEN     Fp_powers(GEN x, long n, GEN p);

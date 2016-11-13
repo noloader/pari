@@ -50,3 +50,9 @@ C-Name: F2xq_log_Coppersmith_worker
 Prototype: GLGG
 Section: programming/internals
 Help: F2xq_log_Coppersmith_worker: worker for F2xq_log_Coppersmith
+
+Function: _Fp_log_sieve_worker
+C-Name: Fp_log_sieve_worker
+Prototype: LLGGGGGG
+Section: programming/internals
+Help: Fp_log_sieve_worker: worker for Fp_log_sieve
