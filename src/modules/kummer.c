@@ -190,6 +190,7 @@ tauofalg(GEN x, tau_s *tau) {
   return mkpolmod(x, tau->R);
 }
 
+/* compute Gal(K(\zeta_l)/K) */
 static tau_s *
 get_tau(tau_s *tau, GEN nf, compo_s *C, long g)
 {
@@ -202,10 +203,9 @@ get_tau(tau_s *tau, GEN nf, compo_s *C, long g)
 
   tau->x  = U;
   tau->R  = C->R;
-  Uzk = cgetg(l, t_MAT);
-  for (i=1; i<l; i++)
-    gel(Uzk,i) = algtobasis(nf, tauofalg(gel(bas,i), tau));
-  tau->zk = Uzk; return tau;
+  tau->zk = Uzk = cgetg(l, t_MAT);
+  for (i=1; i<l; i++) gel(Uzk,i) = algtobasis(nf, tauofalg(gel(bas,i), tau));
+  return tau;
 }
 
 static GEN tauoffamat(GEN x, tau_s *tau);
@@ -228,7 +228,7 @@ tauofvec(GEN x, tau_s *tau)
   for (i=1; i<l; i++) gel(y,i) = tauofelt(gel(x,i), tau);
   return y;
 }
-/* [x, tau(x), ..., tau^m(x)] */
+/* [x, tau(x), ..., tau^(m-1)(x)] */
 static GEN
 powtau(GEN x, long m, tau_s *tau)
 {
