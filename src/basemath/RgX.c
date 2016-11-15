@@ -893,6 +893,12 @@ RgXQM_red(GEN P, GEN T)
 }
 
 GEN
+RgXQM_mul(GEN P, GEN Q, GEN T)
+{
+  return RgXQM_red(RgM_mul(P, Q), T);
+}
+
+GEN
 RgXQX_red(GEN P, GEN T)
 {
   long i, l = lg(P);
