@@ -692,7 +692,8 @@ forprime_init(forprime_t *T, GEN a, GEN b)
 
 /* assume a <= b <= maxprime()^2, a,b odd, sieve[n] corresponds to
  *   a+16*n, a+16*n+2, ..., a+16*n+14 (bits 0 to 7)
- * maxpos = index of last sieve cell. */
+ * maxpos = index of last sieve cell.
+ * b-a+2 must be divisible by 16 for use by u_forprime_next */
 static void
 sieve_block(ulong a, ulong b, ulong maxpos, unsigned char* sieve)
 {
@@ -743,7 +744,7 @@ static struct pari_sieve pari_sieve_modular;
 void
 pari_init_primes(ulong maxprime)
 {
-  ulong a = PARI_MODULAR_BASE, b = a + (1UL<<20);
+  ulong a = PARI_MODULAR_BASE, b = a + (1UL<<20)-2;
   initprimetable(maxprime);
   pari_sieve_init(&pari_sieve_modular, a, b);
 }
