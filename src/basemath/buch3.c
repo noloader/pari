@@ -373,7 +373,7 @@ ZM_content_mul(GEN u, GEN c, GEN *pd)
 static GEN
 Buchray_i(GEN bnf, GEN module, long flag)
 {
-  GEN nf, cyc, gen, Cyc, Gen, clg, h, logU, U, Ui = NULL, vu;
+  GEN nf, cyc, gen, Cyc, Gen, clg, h, logU, U, Ui, vu;
   GEN bid, cycbid, genbid, H, El;
   long RU, Ri, j, ngen;
   const long add_gen = flag & nf_GEN;
@@ -434,7 +434,10 @@ Buchray_i(GEN bnf, GEN module, long flag)
     vu = mkvec3(u2,u1,c2); /* u2/c2 = H^(-1) (mod Im u1) */
   }
   else
+  {
     H = ZM_hnfmodid(logU, cycbid);
+    vu = NULL; /* -Wall */
+  }
   if (!ngen)
     h = H;
   else
