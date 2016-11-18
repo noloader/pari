@@ -4406,8 +4406,9 @@ write_magic(FILE *f)
 int
 file_is_binary(FILE *f)
 {
-  int c = fgetc(f); ungetc(c,f);
-  int r = (c != EOF && isprint(c) == 0 && isspace(c) == 0);
+  int r, c = fgetc(f);
+  ungetc(c,f);
+  r = (c != EOF && isprint(c) == 0 && isspace(c) == 0);
 #ifdef _WIN32
   if (r) { setmode(fileno(f), _O_BINARY); rewind(f); }
 #endif
