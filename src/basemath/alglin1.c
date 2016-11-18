@@ -532,7 +532,7 @@ Flm_ker_sp_OK(GEN x, ulong p, long deplin)
   m=nbrows(x); r=0;
 
   c = zero_zv(m);
-  d = new_chunk(n+1);
+  d = cgetg(n+1, t_VECSMALL);
   a = 0; /* for gcc -Wall */
   for (k=1; k<=n; k++)
   {
@@ -544,7 +544,7 @@ Flm_ker_sp_OK(GEN x, ulong p, long deplin)
       }
     if (j > m)
     {
-      if (deplin) {
+      if (deplin==1) {
         c = cgetg(n+1, t_VECSMALL);
         for (i=1; i<k; i++) c[i] = ucoeff(x,d[i],k) % p;
         c[k] = 1; for (i=k+1; i<=n; i++) c[i] = 0;
@@ -572,7 +572,7 @@ Flm_ker_sp_OK(GEN x, ulong p, long deplin)
       }
     }
   }
-  if (deplin) return NULL;
+  if (deplin==1) return NULL;
 
   y = cgetg(r+1, t_MAT);
   for (j=k=1; j<=r; j++,k++)
@@ -587,7 +587,7 @@ Flm_ker_sp_OK(GEN x, ulong p, long deplin)
         uel(C,i) = 0UL;
     uel(C,k) = 1UL; for (i=k+1; i<=n; i++) uel(C,i) = 0UL;
   }
-  return y;
+  return deplin==2? mkvec2(y, d): y;
 }
 
 /* in place, destroy x */
@@ -604,7 +604,7 @@ Flm_ker_sp(GEN x, ulong p, long deplin)
   m=nbrows(x); r=0;
 
   c = zero_zv(m);
-  d = new_chunk(n+1);
+  d = cgetg(n+1, t_VECSMALL);
   a = 0; /* for gcc -Wall */
   for (k=1; k<=n; k++)
   {
@@ -616,7 +616,7 @@ Flm_ker_sp(GEN x, ulong p, long deplin)
       }
     if (j > m)
     {
-      if (deplin) {
+      if (deplin==1) {
         c = cgetg(n+1, t_VECSMALL);
         for (i=1; i<k; i++) c[i] = ucoeff(x,d[i],k);
         c[k] = 1; for (i=k+1; i<=n; i++) c[i] = 0;
@@ -645,7 +645,7 @@ Flm_ker_sp(GEN x, ulong p, long deplin)
       }
     }
   }
-  if (deplin) return NULL;
+  if (deplin==1) return NULL;
 
   y = cgetg(r+1, t_MAT);
   for (j=k=1; j<=r; j++,k++)
@@ -660,7 +660,7 @@ Flm_ker_sp(GEN x, ulong p, long deplin)
         uel(C,i) = 0UL;
     uel(C,k) = 1UL; for (i=k+1; i<=n; i++) uel(C,i) = 0UL;
   }
-  return y;
+  return deplin==2? mkvec2(y, d): y;
 }
 
 GEN
