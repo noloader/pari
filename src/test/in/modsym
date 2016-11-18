@@ -3,6 +3,9 @@ N = 11;
 W2 = msinit(N,2,-1);
 W1 = msinit(N,2,1);
 W = msinit(N,2);
+msdim(W1)
+msdim(W2)
+msdim(W)
 msgetsign(W2)
 msgetsign(W1)
 msgetsign(W)
@@ -82,6 +85,8 @@ mseval(W,s,g[2])
 W = msinit(11, 2);
 T = mshecke(W, 3);
 [S,E] = mscuspidal(W, 1)
+msdim(S)
+msdim(E)
 E == mseisenstein(W)
 S == mscuspidal(W)
 msfromcusp(W,1)
@@ -154,6 +159,36 @@ mshecke(M,2,S)
 M = msinit(23,4);
 S = msfromhecke(M, [[5, x^4-14*x^3-244*x^2+4832*x-19904]]);
 charpoly(mshecke(M,5,S))
+
+[M,xpm] = msfromell(ellinit([0,-1,1,-10,-20]));
+mspetersson(M, xpm[1],xpm[2])
+
+M = msinit(11,4); n = msdim(M); A = matid(n);
+T=matrix(n,n,i,j,mspetersson(M,A[,i],A[,j]))
+mspetersson(M, A, A) == T
+mspetersson(M, A) == T
+
+M = msinit(12,4); n = msdim(M); A = matid(n);
+T=matrix(n,n,i,j,mspetersson(M,A[,i],A[,j]))
+mspetersson(M, A, A) == T
+mspetersson(M, A) == T
+
+M = msinit(11,4,1); n = msdim(M); A = matid(n);
+matrix(n,n,i,j,mspetersson(M,A[,i],A[,j]))
+
+M = msinit(11,4,-1); n = msdim(M); A = matid(n);
+matrix(n,n,i,j,mspetersson(M,A[,i],A[,j]))
+
+M = msinit(17,4); n = msdim(M); A = matid(n);
+matrix(n,n,i,j,mspetersson(M,A[,i],A[,j]))
+
+M = msinit(19,4); n = msdim(M); A = matid(n);
+matrix(n,n,i,j,mspetersson(M,A[,i],A[,j]))
+
+M = msinit(13,4); n = msdim(M); A = matid(n);
+matrix(n,n,i,j,mspetersson(M,A[,i],A[,j]))
+
+\\ mspadic from now on
 
 ellpadicmoments(e,p,n, D=1) =
 {

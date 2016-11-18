@@ -1113,6 +1113,17 @@ ZM_equal(GEN A, GEN B)
   return 1;
 }
 int
+ZM_equal0(GEN A)
+{
+  long i, j, m, l = lg(A);
+  if (l == 1) return 1;
+  m = lgcols(A);
+  for (j = 1; j < l; j++)
+    for (i = 1; i < m; i++)
+      if (signe(gcoeff(A,i,j))) return 0;
+  return 1;
+}
+int
 zv_equal(GEN V, GEN W)
 {
   long l = lg(V);

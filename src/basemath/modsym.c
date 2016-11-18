@@ -38,29 +38,46 @@ static GEN
 p1N_get_invsafe(GEN p1N) { return gel(p1N,6); }
 static GEN
 p1N_get_inverse(GEN p1N) { return gel(p1N,7); }
+
 /* ms-specific accessors */
-/* W = msinit or msfromell */
+/* W = msinit, return the output of msinit_N */
 static GEN
-get_ms(GEN W) { return lg(W) == 4? gel(W,1): W; }
+get_msN(GEN W) { return lg(W) == 4? gel(W,1): W; }
 static GEN
-ms_get_p1N(GEN W) { W = get_ms(W); return gel(W,1); }
+msN_get_p1N(GEN W) { return gel(W,1); }
+static GEN
+msN_get_genindex(GEN W) { return gel(W,5); }
+static GEN
+msN_get_E2fromE1(GEN W) { return gel(W,7); }
+static GEN
+msN_get_annT2(GEN W) { return gel(W,8); }
+static GEN
+msN_get_annT31(GEN W) { return gel(W,9); }
+static GEN
+msN_get_singlerel(GEN W) { return gel(W,10); }
+static GEN
+msN_get_section(GEN W) { return gel(W,12); }
+
+static GEN
+ms_get_p1N(GEN W) { return msN_get_p1N(get_msN(W)); }
 static long
 ms_get_N(GEN W) { return p1N_get_N(ms_get_p1N(W)); }
 static GEN
-ms_get_hashcusps(GEN W) { W = get_ms(W); return gel(W,16); }
+ms_get_hashcusps(GEN W) { W = get_msN(W); return gel(W,16); }
 static GEN
-ms_get_section(GEN W) { W = get_ms(W); return gel(W,12); }
+ms_get_section(GEN W) { return msN_get_section(get_msN(W)); }
 static GEN
-ms_get_genindex(GEN W) { W = get_ms(W); return gel(W,5); }
+ms_get_genindex(GEN W) { return msN_get_genindex(get_msN(W)); }
 static long
 ms_get_nbgen(GEN W) { return lg(ms_get_genindex(W))-1; }
 static long
 ms_get_nbE1(GEN W)
 {
   GEN W11;
-  W = get_ms(W); W11 = gel(W,11);
+  W = get_msN(W); W11 = gel(W,11);
   return W11[4] - W11[3];
 }
+
 /* msk-specific accessors */
 static long
 msk_get_dim(GEN W) { return gmael(W,3,2)[2]; }
@@ -85,6 +102,17 @@ msk_get_star(GEN W) { return gmael(W,2,2); }
 static GEN
 msk_get_starproj(GEN W) { return gmael(W,2,3); }
 
+static int
+is_Qevproj(GEN x)
+{ return typ(x) == t_VEC && lg(x) == 5 && typ(gel(x,1)) == t_MAT; }
+long
+msdim(GEN W)
+{
+  if (is_Qevproj(W)) return lg(gel(W,1)) - 1;
+  checkms(W);
+  if (!msk_get_sign(W)) return msk_get_dim(W);
+  return lg(gel(msk_get_starproj(W), 1)) - 1;
+}
 long
 msgetlevel(GEN W) { checkms(W); return ms_get_N(W); }
 long
@@ -490,9 +518,6 @@ Qevproj_init(GEN M)
   iM = ZM_inv_ratlift(MM, &diM);
   return mkvec4(M, iM, diM, perm);
 }
-static int
-is_Qevproj(GEN x)
-{ return typ(x) == t_VEC && lg(x) == 5 && typ(gel(x,1)) == t_MAT; }
 
 /* same with typechecks */
 static GEN
@@ -1041,13 +1066,13 @@ form_list_of_cusps(ulong N, GEN p1N)
   return gerepilecopy(av, L);
 }
 
-/* M in PSL2(Z). Return index of M in P1^(Z/NZ) = Gamma0(N) \ PSL2(Z),
+/* W an msN. M in PSL2(Z). Return index of M in P1^(Z/NZ) = Gamma0(N) \ PSL2(Z),
  * and M0 in Gamma_0(N) such that M = M0 * M', where M' = chosen
  * section( PSL2(Z) -> P1^(Z/NZ) ). */
 static GEN
 Gamma0N_decompose(GEN W, GEN M, long *index)
 {
-  GEN p1N = gel(W,1), W3 = gel(W,3), section = ms_get_section(W);
+  GEN p1N = msN_get_p1N(W), W3 = gel(W,3), section = msN_get_section(W);
   GEN A;
   ulong N = p1N_get_N(p1N);
   ulong c = umodiu(gcoeff(M,2,1), N);
@@ -1067,13 +1092,13 @@ Gamma0N_decompose(GEN W, GEN M, long *index)
   }
   return M;
 }
-/* same for a path. Return [[ind], M] */
+/* W an msN; as above for a path. Return [[ind], M] */
 static GEN
 path_Gamma0N_decompose(GEN W, GEN path)
 {
-  GEN p1N = gel(W,1);
+  GEN p1N = msN_get_p1N(W);
   GEN p1index_to_ind = gel(W,3);
-  GEN section = ms_get_section(W);
+  GEN section = msN_get_section(W);
   GEN M = path_to_zm(path);
   long p1index = p1_index(cc(M), dd(M), p1N);
   long ind = p1index_to_ind[p1index];
@@ -1142,13 +1167,21 @@ path_to_p1_index(GEN path, GEN p1N)
 /* Pollack-Stevens sets */
 typedef struct PS_sets_t {
   hashtable *F, *T2, *T31, *T32, *E1, *E2;
-  GEN E2_in_terms_of_E1, stdE1;
+  GEN E2fromE1, stdE1;
 } PS_sets_t;
 
 static hashtable *
 set_init(long max)
 { return hash_create(max, (ulong(*)(void*))&hash_GEN,
                           (int(*)(void*,void*))&gidentical, 1); }
+/* T = E2fromE1[i] = [c, gamma] */
+static ulong
+E2fromE1_c(GEN T) { return itou(gel(T,1)); }
+static GEN
+E2fromE1_Zgamma(GEN T) { return gel(T,2); }
+static GEN
+E2fromE1_gamma(GEN T) { return gcoeff(gel(T,2),1,1); }
+
 static void
 insert_E(GEN path, PS_sets_t *S, GEN p1N)
 {
@@ -1156,18 +1189,17 @@ insert_E(GEN path, PS_sets_t *S, GEN p1N)
   long std = path_to_p1_index(rev, p1N);
   GEN v = gel(S->stdE1, std);
   if (v)
-  { /* [s, p1], where E1[s] = the path p1 \equiv vecreverse(path) mod \Gamma */
+  { /* [s, p1], where E1[s] is the path p1 = vecreverse(path) mod \Gamma */
     GEN gamma, p1 = gel(v,2);
-    long r, s = itos(gel(v,1));
+    long r, s = itou(gel(v,1));
 
     set_insert(S->E2, path);
     r = S->E2->nb;
-    if (gel(S->E2_in_terms_of_E1, r) != gen_0) pari_err_BUG("insert_E");
+    if (gel(S->E2fromE1, r) != gen_0) pari_err_BUG("insert_E");
 
     gamma = gamma_equiv_matrix(rev, p1);
-    /* E2[r] + gamma * E1[s] = 0 */
-    gel(S->E2_in_terms_of_E1, r) = mkvec2(utoipos(s),
-                                          to_famat_shallow(gamma,gen_m1));
+    /* reverse(E2[r]) = gamma * E1[s] */
+    gel(S->E2fromE1, r) = mkvec2(utoipos(s), to_famat_shallow(gamma,gen_m1));
   }
   else
   {
@@ -1214,7 +1246,7 @@ form_E_F_T(ulong N, GEN p1N, GEN *pC, PS_sets_t *S)
   }
 
   /* to record relations between E2 and E1 */
-  S->E2_in_terms_of_E1 = zerovec(nbgen);
+  S->E2fromE1 = zerovec(nbgen);
   S->stdE1 = const_vec(nbmanin, NULL);
 
   /* Assumption later: path [oo,0] is E1[1], path [1,oo] is E2[1] */
@@ -1255,7 +1287,7 @@ form_E_F_T(ulong N, GEN p1N, GEN *pC, PS_sets_t *S)
       }
     }
   }
-  setlg(S->E2_in_terms_of_E1, E2->nb+1);
+  setlg(S->E2fromE1, E2->nb+1);
 }
 
 /* v = \sum n_i g_i, g_i in Sl(2,Z), return \sum n_i g_i^(-1) */
@@ -1305,7 +1337,7 @@ paths_decompose(GEN W, hashtable *h, int flag)
 static void
 fill_W2_W12(GEN W, PS_sets_t *S)
 {
-  GEN p1N = gel(W,1);
+  GEN p1N = msN_get_p1N(W);
   long n = p1_size(p1N);
   gel(W, 2) = vecsmalltrunc_init(n+1);
   gel(W,12) = cgetg(n+1, t_VEC);
@@ -1484,12 +1516,9 @@ msinit_N(ulong N)
   singlerel = cgetg(width+1, t_VEC);
   /* form the single boundary relation */
   for (s = 1; s <= E2->nb; s++)
-  {
-    GEN data = gel(S.E2_in_terms_of_E1,s);
-    long c = itos(gel(data,1));
-    GEN u = gel(data,2); /* E2[s] = u * E1[c], u = - [gamma] */
-    GEN gamma = gcoeff(u,1,1);
-    gel(singlerel, c) = mkmat22(gen_1,gen_1, gamma,gen_m1);
+  { /* reverse(E2[s]) = gamma * E1[c] */
+    GEN T = gel(S.E2fromE1,s), gamma = E2fromE1_gamma(T);
+    gel(singlerel, E2fromE1_c(T)) = mkmat22(gen_1,gen_1, gamma,gen_m1);
   }
   for (r = E1->nb + 1; r <= width; r++) gel(singlerel, r) = gen_1;
 
@@ -1514,7 +1543,7 @@ msinit_N(ulong N)
                             mkcol3(gen_1,gen_1,gen_1));
   }
   gel(W,6) = F_index;
-  gel(W,7) = S.E2_in_terms_of_E1;
+  gel(W,7) = S.E2fromE1;
   gel(W,8) = annT2;
   gel(W,9) = annT31;
   gel(W,10)= singlerel;
@@ -1529,8 +1558,8 @@ mspathgens(GEN W)
   pari_sp av = avma;
   long i,j, l, nbE1, nbT2, nbT31;
   GEN R, r, g, section, gen, annT2, annT31, singlerel;
-  checkms(W); W = get_ms(W);
-  section = ms_get_section(W);
+  checkms(W); W = get_msN(W);
+  section = msN_get_section(W);
   gen = ms_get_genindex(W);
   l = lg(gen);
   g = cgetg(l,t_VEC);
@@ -1540,9 +1569,9 @@ mspathgens(GEN W)
     gel(g,i) = mkvec2(cusp_to_P1Q(gel(p,1)), cusp_to_P1Q(gel(p,2)));
   }
   nbE1 = ms_get_nbE1(W);
-  annT2 = gel(W,8); nbT2 = lg(annT2)-1;
-  annT31 = gel(W,9);nbT31 = lg(annT31)-1;
-  singlerel = gel(W,10);
+  annT2 = msN_get_annT2(W); nbT2 = lg(annT2)-1;
+  annT31 = msN_get_annT31(W); nbT31 = lg(annT31)-1;
+  singlerel = msN_get_singlerel(W);
   R = cgetg(nbT2+nbT31+2, t_VEC);
   l = lg(singlerel);
   r = cgetg(l, t_VEC);
@@ -1589,7 +1618,7 @@ struct m_act {
 };
 
 /* g = [a,b;c,d]. Return (P | g)(X,Y)[X = 1] = P(dX - cY, -b X + aY)[X = 1],
- * for P = X^{k-2}, X_^{k-3}Y, ..., Y^{k-2} */
+ * for P = X^{k-2}, X^{k-3}Y, ..., Y^{k-2} */
 GEN
 RgX_act_Gl2Q(GEN g, long k)
 {
@@ -1735,11 +1764,10 @@ treat_index(GEN W, GEN M, long index, GEN v)
     case 2: /*E2, E2[r] + gamma * E1[s] = 0 */
     {
       long r = index - W11[1];
-      GEN E2_in_terms_of_E1= gel(W,7), z = gel(E2_in_terms_of_E1, r);
-      long s = itou(gel(z,1));
+      GEN z = gel(msN_get_E2fromE1(W), r);
 
-      index = s;
-      M = G_ZG_mul(M, gel(z,2)); /* M * (-gamma) */
+      index = E2fromE1_c(z);
+      M = G_ZG_mul(M, E2fromE1_Zgamma(z)); /* M * (-gamma) */
       gel(v, index) = ZG_add(gel(v, index), M);
       break;
     }
@@ -1780,8 +1808,7 @@ treat_index_trivial(GEN v, GEN W, long index)
     case 2: /*E2, E2[r] + gamma * E1[s] = 0 */
     {
       long r = index - W11[1];
-      GEN E2_in_terms_of_E1 = gel(W,7), z = gel(E2_in_terms_of_E1, r);
-      long s = itou(gel(z,1));
+      long s = E2fromE1_c(gel(msN_get_E2fromE1(W), r));
       v[s]--;
       break;
     }
@@ -1803,7 +1830,7 @@ M2_log(GEN W, GEN M)
   GEN  u, v, D, V;
   long index, s;
 
-  W = get_ms(W);
+  W = get_msN(W);
   V = zerovec(ms_get_nbgen(W));
 
   D = subii(mulii(a,d), mulii(b,c));
@@ -1811,10 +1838,7 @@ M2_log(GEN W, GEN M)
   if (!s) return V;
   if (is_pm1(D))
   { /* shortcut, no need to apply Manin's trick */
-    if (s < 0) {
-      b = negi(b);
-      d = negi(d);
-    }
+    if (s < 0) { b = negi(b); d = negi(d); }
     M = Gamma0N_decompose(W, mkmat22(a,b, c,d), &index);
     treat_index(W, M, index, V);
   }
@@ -1848,7 +1872,7 @@ M2_log(GEN W, GEN M)
 static void
 Q_log_trivial(GEN v, GEN W, GEN q)
 {
-  GEN Q, W3 = gel(W,3), p1N = gel(W,1);
+  GEN Q, W3 = gel(W,3), p1N = msN_get_p1N(W);
   ulong c,d, N = p1N_get_N(p1N);
   long i, lx;
 
@@ -1981,7 +2005,7 @@ static GEN
 mspathlog_trivial(GEN W, GEN p)
 {
   GEN v;
-  W = get_ms(W);
+  W = get_msN(W);
   v = init_act_trivial(W);
   M2_log_trivial(v, W, path_to_M2(p));
   return v;
@@ -1993,8 +2017,8 @@ mspathlog_trivial(GEN W, GEN p)
 static GEN
 getMorphism_trivial(GEN WW1, GEN WW2, GEN v)
 {
-  GEN W1 = get_ms(WW1), W2 = get_ms(WW2);
-  GEN section = ms_get_section(W2), gen = ms_get_genindex(W2);
+  GEN W1 = get_msN(WW1), W2 = get_msN(WW2);
+  GEN section = msN_get_section(W2), gen = msN_get_genindex(W2);
   long j, lv, d2 = ms_get_nbE1(W2);
   GEN T = cgetg(d2+1, t_MAT);
   lv = lg(v);
@@ -2223,7 +2247,7 @@ checksymbol(GEN W, GEN s)
   GEN t, annT2, annT31, singlerel;
   long i, k, l, nbE1, nbT2, nbT31;
   k = msk_get_weight(W);
-  W = get_ms(W);
+  W = get_msN(W);
   nbE1 = ms_get_nbE1(W);
   singlerel = gel(W,10);
   l = lg(singlerel);
@@ -2233,8 +2257,8 @@ checksymbol(GEN W, GEN s)
       if (!gequal0(gel(s,i))) return 0;
     return 1;
   }
-  annT2 = gel(W,8); nbT2 = lg(annT2)-1;
-  annT31 = gel(W,9);nbT31 = lg(annT31)-1;
+  annT2 = msN_get_annT2(W); nbT2 = lg(annT2)-1;
+  annT31 = msN_get_annT31(W);nbT31 = lg(annT31)-1;
   t = NULL;
   for (i = 1; i < l; i++)
   {
@@ -2844,7 +2868,7 @@ Q_xpm(GEN W, GEN xpm, GEN c)
 {
   pari_sp av = avma;
   GEN v;
-  W = get_ms(W);
+  W = get_msN(W);
   v = init_act_trivial(W);
   Q_log_trivial(v, W, c); /* oo -> (a:b), c = a/b */
   return gerepileuptoint(av, ZV_zc_mul(xpm, v));
@@ -3175,8 +3199,12 @@ msfromell_scale(GEN E, GEN W, long sign, GEN x)
   else
   {
     GEN p = ell_get_scale(E, W, gel(x,1), 1);
-    GEN m = ell_get_scale(E, W, gel(x,2),-1);
-    x = mkvec2(p,m);
+    GEN m = ell_get_scale(E, W, gel(x,2),-1), L;
+    if (signe(ell_get_disc(E)) > 0)
+      L = mkmat2(p,m); /* E(R) has 2 connected components */
+    else
+      L = mkmat2(gsub(p,m),gmul2n(m,1));
+    x = mkvec3(p, m, L);
   }
   return x;
 }
@@ -4206,4 +4234,627 @@ ellpadicbsd(GEN E, GEN p, long n, GEN D)
   C = gdiv(sqru(torsion_order(ED)), C);
   if (D) obj_free(ED);
   return gerepileupto(av, gmul(Lstar, C));
+}
+/****************************************************************************/
+struct siegel
+{
+  GEN V, Ast;
+  long N; /* level */
+  long oo; /* index of the [oo,0] path */
+  long k1, k2; /* two distinguished indices */
+  long n; /* #W, W = initial segment [in siegelstepC] already normalized */
+};
+
+static void
+siegel_init(struct siegel *C, GEN M)
+{
+  GEN CPI, CP, MM, V, W, Ast;
+  GEN m = gel(M,11), M2 = gel(M,2), S = msN_get_section(M);
+  GEN E2fromE1 = msN_get_E2fromE1(M);
+  long m0 = lg(M2)-1;
+  GEN E2  = vecslice(M2, m[1]+1, m[2]);/* E2 */
+  GEN E1T = vecslice(M2, m[3]+1, m0); /* E1,T2,T31 */
+  GEN L = shallowconcat(E1T, E2);
+  long i, l = lg(L), n = lg(E1T)-1, lE = lg(E2);
+
+  Ast = cgetg(l, t_VECSMALL);
+  for (i = 1; i < lE; ++i)
+  {
+    long j = E2fromE1_c(gel(E2fromE1,i));
+    Ast[n+i] = j;
+    Ast[j] = n+i;
+  }
+  for (; i<=n; ++i) Ast[i] = i;
+  MM = cgetg (l,t_VEC);
+
+  for (i = 1; i < l; i++)
+  {
+    GEN c = gel(S, L[i]);
+    long c12, c22, c21 = ucoeff(c,2,1);
+    if (!c21) { gel(MM,i) = gen_0; continue; }
+    c22 = ucoeff(c,2,2);
+    if (!c22) { gel(MM,i) = gen_m1; continue; }
+    c12 = ucoeff(c,1,2);
+    gel(MM,i) = gdivgs(stoi(c12), c22); /* right extremity > 0 */
+  }
+  CP = indexsort(MM);
+  CPI = cgetg(l, t_VECSMALL);
+  V = cgetg(l, t_VEC);
+  W = cgetg(l, t_VECSMALL);
+  for (i = 1; i < l; ++i)
+  {
+    gel(V,i) = zm_to_ZM(gel(S, L[CP[i]]));
+    CPI[CP[i]] = i;
+  }
+  for (i = 1; i < l; ++i) W[CPI[i]] = CPI[Ast[i]];
+  C->V = V;
+  C->Ast = W;
+  C->n = 0;
+  C->oo = 2;
+  C->N = ms_get_N(M);
+}
+
+static double
+ZMV_size(GEN v)
+{
+  long i, l = lg(v);
+  GEN z = cgetg(l, t_VECSMALL);
+  for (i = 1; i < l; i++) z[i] = gexpo(gel(v,i));
+  return ((double)zv_sum(z)) / (4*(l-1));
+}
+
+/* apply permutation perm to struct S. Don't follow k1,k2 */
+static void
+siegel_perm0(struct siegel *S, GEN perm)
+{
+  long i, l = lg(S->V);
+  GEN V2 = cgetg(l, t_VEC), Ast2 = cgetg(l, t_VECSMALL);
+  GEN V = S->V, Ast = S->Ast;
+
+  for (i = 1; i < l; i++) gel(V2,perm[i]) = gel(V,i);
+  for (i = 1; i < l; i++) Ast2[perm[i]] = perm[Ast[i]];
+  S->oo = perm[S->oo];
+  S->Ast = Ast2;
+  S->V = V2;
+}
+/* apply permutation perm to full struct S */
+static void
+siegel_perm(struct siegel *S, GEN perm)
+{
+  siegel_perm0(S, perm);
+  S->k1 = perm[S->k1];
+  S->k2 = perm[S->k2];
+}
+/* cyclic permutation of lg = l-1 moving a -> 1, a+1 -> 2, etc.  */
+static GEN
+rotate_perm(long l, long a)
+{
+  GEN p = cgetg(l, t_VECSMALL);
+  long i, j = 1;
+  for (i = a; i < l; i++) p[i] = j++;
+  for (i = 1; i < a; i++) p[i] = j++;
+  return p;
+}
+
+/* a1 < c1 <= a2 < c2*/
+static GEN
+basic_op_perm(long l, long a1, long a2, long c1, long c2)
+{
+  GEN p = cgetg(l, t_VECSMALL);
+  long i, j = 1;
+  p[a1] = j++;
+  for (i = c1; i < a2; i++)   p[i] = j++;
+  for (i = a1+1; i < c1; i++) p[i] = j++;
+  p[a2] = j++;
+  for (i = c2; i < l; i++)    p[i] = j++;
+  for (i = 1; i < a1; i++)    p[i] = j++;
+  for (i = a2+1; i < c2; i++) p[i] = j++;
+  return p;
+}
+static GEN
+basic_op_perm_elliptic(long l, long a1)
+{
+  GEN p = cgetg(l, t_VECSMALL);
+  long i, j = 1;
+  p[a1] = j++;
+  for (i = 1; i < a1; i++)   p[i] = j++;
+  for (i = a1+1; i < l; i++) p[i] = j++;
+  return p;
+}
+static GEN
+ZM2_rev(GEN T) { return mkmat2(gel(T,2), ZC_neg(gel(T,1))); }
+
+/* In place, V = vector of consecutive paths, between x <= y.
+ * V[x..y-1] <- g*V[x..y-1] */
+static void
+path_vec_mul(GEN V, long x, long y, GEN g)
+{
+  long j;
+  GEN M;
+  if (x == y) return;
+  M = gel(V,x); gel(V,x) = ZM_mul(g,M);
+  for (j = x+1; j < y; j++) /* V[j] <- g*V[j], optimized */
+  {
+    GEN Mnext = gel(V,j); /* Mnext[,1] = M[,2] */
+    GEN gM = gel(V,j-1), u = gel(gM,2);
+    if (!ZV_equal(gel(M,2), gel(Mnext,1))) u = ZC_neg(u);
+    gel(V,j) = mkmat2(u, ZM_ZC_mul(g,gel(Mnext,2)));
+    M = Mnext;
+  }
+}
+
+static long prev(GEN V, long i) { return (i == 1)? lg(V)-1: i-1; }
+static long next(GEN V, long i) { return (i == lg(V)-1)? 1: i+1; }
+static GEN
+ZM_det2(GEN u, GEN v)
+{
+  GEN a = gel(u,1), c = gel(u,2);
+  GEN b = gel(v,1), d = gel(v,2); return subii(mulii(a,d), mulii(b,c));
+}
+static GEN
+ZM2_det(GEN T) { return ZM_det2(gel(T,1),gel(T,2)); }
+static void
+fill1(GEN V, long a)
+{
+  long p = prev(V,a), n = next(V,a);
+  GEN u = gmael(V,p,2), v = gmael(V,n,1);
+  if (signe(ZM_det2(u,v)) < 0) v = ZC_neg(v);
+  gel(V,a) = mkmat2(u, v);
+}
+/* a1 < a2 */
+static void
+fill2(GEN V, long a1, long a2)
+{
+  if (a2 != a1+1) { fill1(V,a1); fill1(V,a2); } /* non adjacent, reconnect */
+  else /* parabolic */
+  {
+    long p = prev(V,a1), n = next(V,a2);
+    GEN u, v, C = gmael(V,a1,2), mC = ZC_neg(C); /* = \pm V[a2][1] */
+    u = gmael(V,p,2); v = (signe(ZM_det2(u,C)) < 0)? mC: C;
+    gel(V,a1) = mkmat2(u,v);
+    v = gmael(V,n,1); u = (signe(ZM_det2(C,v)) < 0)? mC: C;
+    gel(V,a2) = mkmat2(u,v);
+  }
+}
+
+/* DU = det(U), return g = T*U^(-1) or NULL if not in Gamma0(N); if N = 0,
+ * only test whether g is integral */
+static GEN
+ZM2_div(GEN T, GEN U, GEN DU, long N)
+{
+  GEN a=gcoeff(U,1,1), b=gcoeff(U,1,2), c=gcoeff(U,2,1), d=gcoeff(U,2,2);
+  GEN e=gcoeff(T,1,1), f=gcoeff(T,1,2), g=gcoeff(T,2,1), h=gcoeff(T,2,2);
+  GEN A, B, C, D, r;
+
+  C = dvmdii(subii(mulii(d,g), mulii(c,h)), DU, &r);
+  if (r != gen_0 || (N && smodis(C,N))) return NULL;
+  A = dvmdii(subii(mulii(d,e), mulii(c,f)), DU, &r);
+  if (r != gen_0) return NULL;
+  B = dvmdii(subii(mulii(a,f), mulii(b,e)), DU, &r);
+  if (r != gen_0) return NULL;
+  D = dvmdii(subii(mulii(a,h), mulii(g,b)), DU, &r);
+  if (r != gen_0) return NULL;
+  return mkmat22(A,B,C,D);
+}
+
+static GEN
+get_g(struct siegel *S, long a1)
+{
+  long a2 = S->Ast[a1];
+  GEN a = gel(S->V,a1), ar = ZM2_rev(gel(S->V,a2)), Dar = ZM2_det(ar);
+  GEN g = ZM2_div(a, ar, Dar, S->N);
+  if (!g)
+  {
+    GEN tau = mkmat22(gen_0,gen_m1, gen_1,gen_m1); /*[0,-1;1,-1]*/
+    g = ZM2_div(ZM_mul(ar, tau), ar, Dar, 0);
+  }
+  return g;
+}
+/* input V = (X1 a X2 | X3 a^* X4) + Ast
+ * a1 = index of a
+ * a2 = index of a^*, inferred from a1. We must have a != a^*
+ * c1 = first cut [ index of first path in X3 ]
+ * c2 = second cut [ either in X4 or X1, index of first path ]
+ * Assume a < a^* (cf Paranoia below): c1 or c2 must be in
+ *    ]a,a^*], and the other in the "complement" ]a^*,a] */
+static void
+basic_op(struct siegel *S, long a1, long c1, long c2)
+{
+  long l = lg(S->V), a2 = S->Ast[a1];
+  GEN g;
+
+  if (a1 == a2)
+  { /* a = a^* */
+    g = get_g(S, a1);
+    path_vec_mul(S->V, a1+1, l, g);
+    siegel_perm(S, basic_op_perm_elliptic(l, a1));
+    /* fill the hole left at a1, reconnect the path */
+    fill1(S->V, a1); return;
+  }
+
+  /* Paranoia: (a,a^*) conjugate, call 'a' the first one */
+  if (a2 < a1) lswap(a1,a2);
+  /* Now a1 < a2 */
+  if (c1 <= a1 || c1 > a2) lswap(c1,c2); /* ensure a1 < c1 <= a2 */
+  if (c2 < a1)
+  { /* if cut c2 is in X1 = X11|X12, rotate to obtain
+       (a X2 | X3 a^* X4 X11|X12): then a1 = 1 */
+    GEN p = rotate_perm(l, a1);
+    siegel_perm(S, p);
+    a1 = 1; /* = p[a1] */
+    a2 = S->Ast[1]; /* > a1 */
+    c1 = p[c1];
+    c2 = p[c2];
+  }
+  /* Now a1 < c1 <= a2 < c2; a != a^* */
+  g = get_g(S, a1);
+  if (S->oo >= c1 && S->oo < c2) /* W inside [c1..c2[ */
+  { /* c2 -> c1 excluding a1 */
+    GEN gi = SL2_inv(g); /* g a^* = a; gi a = a^* */
+    path_vec_mul(S->V, 1, a1, gi);
+    path_vec_mul(S->V, a1+1, c1, gi);
+    path_vec_mul(S->V, c2, l, gi);
+  }
+  else
+  { /* c1 -> c2 excluding a2 */
+    path_vec_mul(S->V, c1, a2, g);
+    path_vec_mul(S->V, a2+1, c2, g);
+  }
+  siegel_perm(S, basic_op_perm(l, a1,a2, c1,c2));
+  /* fill the holes left at a1,a2, reconnect the path */
+  fill2(S->V, a1, a2);
+}
+/* a = a^* (elliptic case) */
+static void
+basic_op_elliptic(struct siegel *S, long a1)
+{
+  long l = lg(S->V);
+  GEN g = get_g(S, a1);
+  path_vec_mul(S->V, a1+1, l, g);
+  siegel_perm(S, basic_op_perm_elliptic(l, a1));
+  /* fill the hole left at a1 (now at 1), reconnect the path */
+  fill1(S->V, 1);
+}
+
+/* input V = W X a b Y a^* Z b^* T, W already normalized
+ * X = [n+1, k1-1], Y = [k2+1, Ast[k1]-1],
+ * Z = [Ast[k1]+1, Ast[k2]-1], T = [Ast[k2]+1, oo].
+ * Assume that X doesn't start by c c^* or a b a^* b^*. */
+static void
+siegelstep(struct siegel *S)
+{
+  if (S->Ast[S->k1] == S->k1)
+  {
+    basic_op_elliptic(S, S->k1);
+    S->n++;
+  }
+  else if (S->Ast[S->k1] == S->k1+1)
+  {
+    basic_op(S, S->k1, S->Ast[S->k1], 1); /* 1: W starts there */
+    S->n += 2;
+  }
+  else
+  {
+    basic_op(S, S->k2, S->Ast[S->k1], 1); /* 1: W starts there */
+    basic_op(S, S->k1, S->k2, S->Ast[S->k2]);
+    basic_op(S, S->Ast[S->k2], S->k2, S->Ast[S->k1]);
+    basic_op(S, S->k1, S->Ast[S->k1], S->Ast[S->k2]);
+    S->n += 4;
+  }
+}
+
+/* normalize hyperbolic polygon */
+static void
+mssiegel(struct siegel *S)
+{
+  pari_sp av = avma;
+  long k, t, nv;
+#ifdef COUNT
+  long countset[16];
+  for (k = 0; k < 16; k++) countset[k] = 0;
+#endif
+
+  nv = lg(S->V)-1;
+  if (DEBUGLEVEL>1) err_printf("nv = %ld, expo = %.2f\n", nv,ZMV_size(S->V));
+  t = 0;
+  while (S->n < nv)
+  {
+    if (S->Ast[S->n+1] == S->n+1) { S->n++; continue; }
+    if (S->Ast[S->n+1] == S->n+2) { S->n += 2; continue; }
+    if (S->Ast[S->n+1] == S->n+3 && S->Ast[S->n+2] == S->n+4) { S->n += 4; continue; }
+    k = nv;
+    while (k > S->n)
+    {
+      if (S->Ast[k] == k) { k--; continue; }
+      if (S->Ast[k] == k-1) { k -= 2; continue; }
+      if (S->Ast[k] == k-2 && S->Ast[k-1] == k-3) { k -= 4; continue; }
+      break;
+    }
+    if (k != nv) { siegel_perm0(S, rotate_perm(nv+1, k+1)); S->n += nv-k; }
+
+    for(k = S->n+1; k <= nv; k++)
+      if (S->Ast[k] <= k) { t = S->Ast[k]; break; }
+    S->k1 = t;
+    S->k2 = t+1;
+#ifdef COUNT
+    countset[ ((S->k1-1 == S->n)
+              | ((S->k2 == S->Ast[S->k1]-1) << 1)
+              | ((S->Ast[S->k1] == S->Ast[S->k2]-1) << 2)
+              | ((S->Ast[S->k2] == nv) << 3)) ]++;
+#endif
+    siegelstep(S);
+    if (gc_needed(av,2))
+    {
+      if(DEBUGMEM>1) pari_warn(warnmem,"mspolygon, n = %ld",S->n);
+      gerepileall(av, 2, &S->V, &S->Ast);
+    }
+  }
+  if (DEBUGLEVEL>1) err_printf("expo = %.2f\n", ZMV_size(S->V));
+#ifdef COUNT
+  for (k = 0; k < 16; k++)
+    err_printf("%3ld: %6ld\n", k, countset[k]);
+#endif
+}
+GEN
+mspolygon(GEN M, long flag)
+{
+  pari_sp av = avma;
+  struct siegel S;
+  long i, l;
+  GEN G, msN;
+  if (typ(M) == t_INT) msN = msinit_N(itos(M));
+  else { checkms(M); msN = get_msN(M); }
+  if (flag < 0 || flag > 1) pari_err_FLAG("mspolygon");
+  siegel_init(&S, msN);
+  l = lg(S.V);
+  if (flag)
+  {
+    long oo2 = 0;
+    mssiegel(&S);
+    for (i = 1; i < l; i++)
+    {
+      GEN c = gel(S.V, i);
+      GEN c22 = gcoeff(c,2,2); if (!signe(c22)) { oo2 = i; break; }
+    }
+    if (!oo2) pari_err_BUG("mspolygon");
+    siegel_perm0(&S, rotate_perm(l, oo2));
+  }
+  G = cgetg(l, t_VEC);
+  for (i = 1; i < l; i++) gel(G,i) = get_g(&S, i);
+  return gerepilecopy(av, mkvec3(S.V, S.Ast, G));
+}
+
+#if 0
+static int
+iselliptic(GEN Ast, long i) { return i == Ast[i]; }
+static int
+isparabolic(GEN Ast, long i)
+{
+  long i2 = Ast[i];
+  return (i2 == i+1 || i2 == i-1);
+}
+#endif
+
+/* M from msinit, F QM maximal rank */
+GEN
+mslattice(GEN M, GEN F)
+{
+  pari_sp av = avma;
+  long i, ivB, j, k, l, lF;
+  GEN D, U, G, A, vB, m, d;
+
+  checkms(M);
+  if (!F) F = gel(mscuspidal(M, 0), 1);
+  else
+  {
+    if (is_Qevproj(F)) F = gel(F,1);
+    if (typ(F) != t_MAT) pari_err_TYPE("mslattice",F);
+  }
+  lF = lg(F); if (lF == 1) return cgetg(1, t_MAT);
+  D = mspolygon(M,0);
+  k = msk_get_weight(M);
+  F = vec_Q_primpart(F);
+  if (typ(F)!=t_MAT || !RgM_is_ZM(F)) pari_err_TYPE("mslattice",F);
+  G = gel(D,3); l = lg(G);
+  A = gel(D,2);
+  vB = cgetg(l, t_COL);
+  m = mkmat2(mkcol2(gen_0,gen_1), NULL);
+  for (i = ivB = 1; i < l; i++)
+  {
+    GEN B, vb, g = gel(G,i);
+    if (A[i] < i) continue;
+    gel(m,2) = gel(SL2_inv(g),2);
+    vb = mseval(M, F, m);
+    if (k == 2)
+    {
+      B = cgetg(lF, t_VEC);
+      for(j = 1; j < lF; j++) gel(B,j) = gel(vb,j);
+    }
+    else
+    {
+      long lB;
+      B = cgetg(lF, t_MAT);
+      for(j = 1; j < lF; j++) gel(B,j) = RgX_to_RgC(gel(vb,j), k-1);
+      /* add coboundaries */
+      B = shallowconcat(B, RgM_Rg_sub(RgX_act_Gl2Q(g, k), gen_1));
+      /* beware: the basis for RgX_act_Gl2Q is (X^(k-2),...,Y^(k-2)) */
+      lB = lg(B);
+      for(j = 1; j < lB; j++) gel(B,j) = vecreverse(gel(B,j));
+    }
+    gel(vB, ivB++) = B;
+  }
+  setlg(vB, ivB);
+  vB = shallowmatconcat(vB);
+  if (ZM_equal0(vB)) return gerepilecopy(av, F);
+
+  (void)QM_ImQ_hnfall(vB, &U, 0);
+  if (k > 2) U = rowslice(U, 1, lgcols(U)-k); /* remove coboundary part */
+  U = Q_remove_denom(U, &d);
+  F = ZM_hnf(ZM_mul(F, U));
+  if (d) F = RgM_Rg_div(F, d);
+  return gerepileupto(av, F);
+}
+
+static long
+nb_components(GEN E) { return signe(ell_get_disc(E)) > 0? 2: 1; }
+
+GEN
+ellweilcurve(GEN E)
+{
+  pari_sp av = avma;
+  GEN LM = ellisomat(E,0,1), vE = gel(LM,1);
+  GEN vL, Wx, W, XPM, xpm, xp, xm, Lf, Cf;
+  long i, l = lg(vE);
+
+  for (i = 1; i < l; i++)
+    gel(vE,i) = ellminimalmodel(ellinit(gel(vE,i), gen_1, 0), NULL);
+  Wx = msfromell(vE, 0);
+  W = gel(Wx,1);
+  XPM = gel(Wx,2);
+
+  /* lattice attached to the Weil curve in the isogeny class */
+  xpm = gel(XPM,1); xp = gel(xpm,1); xm = gel(xpm,2);
+  Lf = mslattice(W, mkmat2(xp,xm));
+  Cf = ginv(Lf);
+  vL = cgetg(l, t_VEC);
+  for (i=1; i < l; i++)
+  {
+    GEN c, Ce, Le, e = gel(vE,i);
+    xpm = gel(XPM,i); xp = gel(xpm,1); xm = gel(xpm,2);
+    /* lattice attached to e */
+    if (nb_components(e) == 2)
+      Le = mkmat2(xp, xm);
+    else
+      Le = mkmat2(gsub(xp, xm), gmul2n(xm,1));
+    Ce = Q_primitive_part(gmul(Cf, Le), &c);
+    Ce = ZM_snf(Ce);
+    if (c) Ce = gmul(Ce,c);
+    gel(vL,i) = Ce;
+  }
+  return gerepilecopy(av, mkvec2(vE, vL));
+}
+
+/**** Petersson scalar product ****/
+
+/* oo -> g^(-1) oo */
+static GEN
+cocycle(GEN g)
+{ return mkmat22(gen_1, gcoeff(g,2,2), gen_0, negi(gcoeff(g,2,1))); }
+
+/* C = vecbinome(k-2) */
+static GEN
+bil(GEN P, GEN Q, GEN C)
+{
+  long i, n = lg(C)-2; /* k - 2 */
+  GEN s;
+  if (!n) return gmul(P,Q);
+  if (typ(P) != t_POL) P = scalarpol_shallow(P,0);
+  if (typ(Q) != t_POL) Q = scalarpol_shallow(Q,0);
+  s = gen_0;
+  for (i = 0; i <= n; i++)
+  {
+    GEN t = gdiv(gmul(RgX_coeff(P,i), RgX_coeff(Q, n-i)), gel(C,i+1));
+    s = odd(i)? gsub(s, t): gadd(s, t);
+  }
+  return s;
+}
+
+static void
+mspetersson_i(GEN W, GEN F, GEN G, GEN *pvf, GEN *pvg, GEN *pC)
+{
+  GEN WN, annT2, annT31, E2fromE1, singlerel, section, gen, c, vf, vg;
+  long i, n1, n2, n3, k, l;
+
+  checkms(W);
+  WN = get_msN(W);
+  annT2 = msN_get_annT2(WN);
+  annT31 = msN_get_annT31(WN);
+  E2fromE1 = msN_get_E2fromE1(WN);
+  singlerel = msN_get_singlerel(WN);
+  section = msN_get_section(WN);
+  gen = msN_get_genindex(WN);
+
+  /* generators of Delta ordered as E1, T2, T31 */
+  l = lg(gen);
+  *pvf = vf = cgetg(l, t_VEC);
+  *pvg = vg = cgetg(l, t_VEC);
+  for (i = 1; i < l; i++) gel(vf, i) = mseval(W, F, gel(section,gen[i]));
+  n1 = lg(E2fromE1)-1; /* E1 */
+  for (i = 1; i <= n1; i++)
+  {
+    c = cocycle(gcoeff(gel(singlerel,i),2,1));
+    gel(vg, i) = mseval(W, G, c);
+  }
+  n2 = lg(annT2)-1; /* T2 */
+  for (i = 1; i <= n2; i++)
+  {
+    c = cocycle(gcoeff(gel(annT2,i), 2,1));
+    gel(vg, i+n1) = gmul2n(mseval(W, G, c), -1);
+  }
+  n3 = lg(annT31)-1; /* T31 */
+  for (i = 1; i <= n3; i++)
+  {
+    GEN f;
+    c = cocycle(gcoeff(gel(annT31,i), 2,1));
+    f = mseval(W, G, c);
+    c = cocycle(gcoeff(gel(annT31,i), 3,1));
+    gel(vg, i+n1+n2) = gdivgs(gadd(f, mseval(W, G, c)), 3);
+  }
+  k = msk_get_weight(W);
+  *pC = vecbinome(k-2);
+}
+
+/* Petersson product on Hom_G(Delta_0, V_k) */
+GEN
+mspetersson(GEN W, GEN F, GEN G)
+{
+  pari_sp av = avma;
+  GEN vf, vg, C;
+  long k, l, tG, tF = typ(F);
+
+  if (!G) G = F;
+  tG = typ(G);
+  if (tF == t_MAT && tG != t_MAT) pari_err_TYPE("mspetersson",G);
+  if (tG == t_MAT && tF != t_MAT) pari_err_TYPE("mspetersson",F);
+  mspetersson_i(W, F, G, &vf, &vg, &C);
+  l = lg(vf);
+  if (tF != t_MAT)
+  { /* <F,G>, two symbols */
+    GEN s = gen_0;
+    for (k = 1; k < l; k++) s = gadd(s, bil(gel(vf,k), gel(vg,k), C));
+    return gerepileupto(av, s);
+  }
+  else if (F != G)
+  { /* <(f_1,...,f_m), (g_1,...,g_n)> */
+    long iF, iG, lF = lg(F), lG = lg(G);
+    GEN M = cgetg(lG, t_MAT);
+    for (iG = 1; iG < lG; iG++)
+    {
+      GEN c = cgetg(lF, t_COL);
+      gel(M,iG) = c;
+      for (iF = 1; iF < lF; iF++)
+      {
+        GEN s = gen_0;
+        for (k = 1; k < l; k++)
+          s = gadd(s, bil(gmael(vf,k,iF), gmael(vg,k,iG), C));
+        gel(c,iF) = s; /* M[iF,iG] = <F[iF], G[iG] > */
+      }
+    }
+    return gerepilecopy(av, M);
+  }
+  else
+  { /* <(f_1,...,f_m), (f_1,...,f_n)> */
+    long iF, iG, n = lg(F)-1;
+    GEN M = zeromatcopy(n,n);
+    for (iG = 1; iG <= n; iG++)
+      for (iF = iG+1; iF <= n; iF++)
+      {
+        GEN s = gen_0;
+        for (k = 1; k < l; k++)
+          s = gadd(s, bil(gmael(vf,k,iF), gmael(vg,k,iG), C));
+        gcoeff(M,iF,iG) = s; /* <F[iF], F[iG] > */
+        gcoeff(M,iG,iF) = gneg(s);
+      }
+    return gerepilecopy(av, M);
+  }
 }
