@@ -670,9 +670,13 @@ forprime_init(forprime_t *T, GEN a, GEN b)
       return 0;
     }
     lb = lgefint(b);
+    T->bb = b;
   }
   else if (!b || inf_get_sign(b) > 0)
+  {
     lb = lgefint(a) + 4;
+    T->bb = NULL;
+  }
   else /* b == -oo */
   {
     T->strategy = PRST_nextprime; /* paranoia */
@@ -680,7 +684,6 @@ forprime_init(forprime_t *T, GEN a, GEN b)
     T->pp = gen_0;
     return 0;
   }
-  T->bb = b;
   T->pp = cgeti(lb);
   /* a, b are positive integers, a <= b */
   if (lgefint(a) == 3) /* lb == 3 implies b != NULL */

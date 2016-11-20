@@ -10,6 +10,7 @@ BA    3- fflog in char 3 or 5 was slower than intended
          places...) when modulus not a conductor
 BA    6- modular algorithms could fail for very large input
 BA    7- [mingw] writebin did not work
+BA    8- forprime(N=2^100,oo,...) did not work
 
   Changed
       1- rewrite bnfnarrow
