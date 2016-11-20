@@ -945,12 +945,13 @@ ZX_init_CRT(GEN Hp, ulong p, long v)
   return H;
 }
 
-/* assume lg(Hp) > 1 */
 GEN
 ZM_init_CRT(GEN Hp, ulong p)
 {
-  long i,j, m = lgcols(Hp), l = lg(Hp), lim = (long)(p>>1);
-  GEN c,cp,H = cgetg(l, t_MAT);
+  long i,j, m, l = lg(Hp), lim = (long)(p>>1);
+  GEN c, cp, H = cgetg(l, t_MAT);
+  if (l==1) return H;
+  m = lgcols(Hp);
   for (j=1; j<l; j++)
   {
     cp = gel(Hp,j);
