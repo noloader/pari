@@ -518,23 +518,14 @@ Qevproj_apply_vecei(GEN T, GEN pro, long k)
   return RgC_Rg_div(v, ciM);
 }
 
-/* normalize a Q-basis*/
 static GEN
-Q_primpart_basis(GEN M)
-{
-  long i, l;
-  GEN N = cgetg_copy(M, &l);
-  for (i = 1; i < l; i++) gel(N,i) = Q_primpart(gel(M,i));
-  return N;
-}
-static GEN
-ZM_ker(GEN M) { return Q_primpart_basis(keri(M)); }
+ZM_ker(GEN M) { return vec_Q_primpart(keri(M)); }
 static GEN
 QM_ker(GEN M) { return ZM_ker(Q_primpart(M)); }
 static GEN
 QM_image(GEN A)
 {
-  A = Q_primpart_basis(A);
+  A = vec_Q_primpart(A);
   return vecpermute(A, ZM_indeximage(A));
 }
 
@@ -628,7 +619,7 @@ mssplit_i(GEN W, GEN H, long deglim)
         {
           GEN f = gel(F,k);
           GEN K = QM_ker( RgX_RgMV_eval(f, pows)) ; /* Ker f(TVj) */
-          GEN p = Q_primpart_basis( RgM_mul(P, K) );
+          GEN p = vec_Q_primpart( RgM_mul(P, K) );
           vectrunc_append(V, Qevproj_init(p));
           if (lg(K) == 2 || isint1(gel(E,k)))
           { /* simple subspace */
@@ -765,7 +756,7 @@ static GEN
 Qevproj_apply0(GEN T, GEN pro)
 {
   GEN iM = gel(pro,2), perm = gel(pro,4);
-  return Q_primpart_basis(ZM_mul(iM, rowpermute(T,perm)));
+  return vec_Q_primpart(ZM_mul(iM, rowpermute(T,perm)));
 }
 
 static GEN
@@ -867,7 +858,7 @@ msnew(GEN W)
       gel(v,2*i)   = Td;
     }
     S = ZM_mul(S, QM_ker(matconcat(v))); /* Snew */
-    S = Qevproj_init(Q_primpart_basis(S));
+    S = Qevproj_init(vec_Q_primpart(S));
   }
   return gerepilecopy(av, S);
 }

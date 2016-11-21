@@ -3923,6 +3923,7 @@ GEN     gcdext0(GEN x, GEN y);
 GEN     polresultantext0(GEN x, GEN y, long v);
 GEN     polresultantext(GEN x, GEN y);
 GEN     prime_fact(GEN x);
+GEN     vec_Q_primpart(GEN M);
 
 /* polarit3.c */
 

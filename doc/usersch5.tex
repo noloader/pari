@@ -10485,6 +10485,8 @@ of \kbd{x} and returns \kbd{x / c}, which is integral.
 \fun{GEN}{Q_primpart}{GEN x} as above but the content is lost. (For
 efficiency, the content remains on the stack.)
 
+\fun{GEN}{vec_Q_primpart}{GEN x} as above component-wise.
+
 \fun{GEN}{Q_remove_denom}{GEN x, GEN *ptd} sets \kbd{d} to the
 $\Q$-denominator of \kbd{x} and returns \kbd{x * d}, which is integral.
 Shallow function.

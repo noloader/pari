@@ -2434,7 +2434,7 @@ ZM_ker_ratlift(GEN M)
     Hr = FpM_ratlift(H, q, B, B, NULL);
     if (DEBUGLEVEL>5) err_printf("ZM_ker mod %lu (ratlift=%ld)\n", p,!!Hr);
     if (Hr) {/* DONE ? */
-      GEN Hl = Q_remove_denom(Hr, NULL);
+      GEN Hl = vec_Q_primpart(Q_remove_denom(Hr, NULL));
       GEN MH = ZM_mul(M, Hl);
       if (gequal0(MH)) { H = Hl;  break; }
     }
