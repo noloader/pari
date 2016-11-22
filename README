@@ -17,9 +17,9 @@ information is missing there.
 Once 'Configure' has been run, 'make doc' typesets separate user's manual for
 GP and libpari, a tutorial and reference card in directory doc.
 
-See the files NEW and COMPAT for new features and incompatible changes
-respectively between 2.7 and older versions. See CHANGES-* for a terse
-description of subsequent patches.
+The file NEW contains new features with respect to previous stable versions.
+The file COMPAT warns about incompatible changes. See the files
+CHANGES* for a terse description of successive patches.
 
 For the adventurous: to check out bleeding-edge development versions of
 PARI/GP, see the file README-git.
