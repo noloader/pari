@@ -519,7 +519,7 @@ Qevproj_apply_vecei(GEN T, GEN pro, long k)
 }
 
 static GEN
-ZM_ker(GEN M) { return vec_Q_primpart(keri(M)); }
+ZM_ker(GEN M) { return ZM_ker_ratlift(M); }
 static GEN
 QM_ker(GEN M) { return ZM_ker(Q_primpart(M)); }
 static GEN
@@ -3041,7 +3041,7 @@ msfromell(GEN E, long sign)
   if (sign)
   {
     /* linear form = 0 on Im(S - sign) */
-    K = keri(gsubgs(star, sign));
+    K = ZM_ker(gsubgs(star, sign));
     dim = 1;
   }
   else
@@ -3060,7 +3060,7 @@ msfromell(GEN E, long sign)
     ap = ellap(E, utoipos(p));
     M = RgM_Rg_add_shallow(Tp, negi(ap));
     if (K) M = ZM_mul(M, K);
-    K2 = keri(M);
+    K2 = ZM_ker(M);
     if (!K) K = K2;
     else if (lg(K2) < lg(K)) K = ZM_mul(K, K2);
     if (lg(K2)-1 == dim) break;

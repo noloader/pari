@@ -190,7 +190,7 @@ msseries(E11a1,11,7) \\ split -> trivial zero
 msseries(E43a1,3,4,0,-19) \\ twist
 msseries(E17a1,3,5) \\ supersingular
 
-M=msinit(3,6,-1); xpm=[1]~;
+M=msinit(3,6,-1); xpm=[-1]~;
 Wp = mspadicinit(M,5,10);
 oms = mspadicmoments(Wp, xpm, 1);
 vector(6,j,mspadicL(oms,j-1))
