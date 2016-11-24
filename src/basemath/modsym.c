@@ -2999,7 +2999,7 @@ ell_get_scale_d(GEN E, GEN W, GEN xpm, long D)
   return gdiv(Q, X);
 }
 
-/* Let W = msinit(conductor(E), 2), xpm a modular symbol with the same
+/* Let W = msinit(conductor(E), 2), xpm an integral modular symbol with the same
  * eigenvalues as L_E. There exist a unique C such that
  *   C*L(E,(D/.),1)_{xpm} = L(E,(D/.),1) / w1(E_D) != 0, for all D fundamental,
  * sign(D) = s, and such that E_D has rank 0. Return the normalized symbol
@@ -3008,7 +3008,6 @@ static GEN
 ell_get_scale(GEN E, GEN W, GEN xpm, long s)
 {
   long d;
-  xpm = Q_primpart(xpm);
   /* find D = s*d such that twist by D has rank 0 */
   for (d = 1; d < LONG_MAX; d++)
   {
@@ -3024,69 +3023,156 @@ ell_get_scale(GEN E, GEN W, GEN xpm, long s)
   return NULL;
 }
 
+/* v != 0 */
+static GEN
+Flc_normalize(GEN v, ulong p)
+{
+  long i, l = lg(v);
+  for (i = 1; i < l; i++)
+    if (v[i])
+    {
+      if (v[i] != 1) v = Flv_Fl_div(v, v[i], p);
+      return v;
+    }
+  return NULL;
+}
+
+/* K \cap Ker M  [F_l vector spaces]. K = NULL means full space */
+static GEN
+msfromell_ker(GEN K, GEN M, ulong l)
+{
+  GEN B, Ml = ZM_to_Flm(M, l);
+  if (K) Ml = Flm_mul(Ml, K, l);
+  B = Flm_ker(Ml, l);
+  if (!K) K = B;
+  else if (lg(B) < lg(K))
+    K = Flm_mul(K, B, l);
+  return K;
+}
+/* K = \cap_p Ker(T_p - a_p), 2-dimensional. Set *xl and *x2l,
+ * the 1-dimensional bases (mod l) s.t star * xl = sign * xl if sign != 0
+ * and star * xl = xl; star * x2l = -x2k if sign = 0 */
+static void
+msfromell_l(GEN *pxl, GEN *px2l, GEN K, GEN star, long sign, ulong l)
+{
+  GEN s = ZM_to_Flm(star, l);
+  GEN a = gel(K,1), Sa = Flm_Flc_mul(s,a,l);
+  GEN b = gel(K,2);
+  GEN t = Flv_add(a,Sa,l), xp, xm;
+  if (zv_equal0(t))
+  {
+    xm = a;
+    xp = Flv_add(b,Flm_Flc_mul(s,b,l), l);
+  }
+  else
+  {
+    xp = t; t = Flv_sub(a, Sa, l);
+    xm = zv_equal0(t)? Flv_sub(b, Flm_Flc_mul(s,b,l), l): t;
+  }
+  /* xp = 0 on Im(S - 1), xm = 0 on Im(S + 1) */
+  *px2l = NULL;
+  if (sign > 0)
+    *pxl = mkmat(Flc_normalize(xp, l));
+  else if (sign < 0)
+    *pxl = mkmat(Flc_normalize(xm, l));
+  else
+  {
+    *pxl = mkmat(Flc_normalize(xp, l));
+    *px2l= mkmat(Flc_normalize(xm, l));
+  }
+}
+static void
+msfromell_ratlift(GEN *px, GEN *px2, GEN q)
+{
+  GEN B = sqrti(shifti(q,-1));
+  GEN r2 = NULL, r = FpM_ratlift(*px, q, B, B, NULL);
+  if (r && *px2)
+  {
+    r2 = FpM_ratlift(*px2, q, B, B, NULL);
+    if (r2) *px2 = Q_primpart(gel(r2,1)); else r = NULL;
+  }
+  if (r) *px = Q_primpart(gel(r,1));
+}
+static int
+msfromell_check(GEN x, GEN x2, GEN vT, GEN star, long sign)
+{
+  long i, l;
+  GEN sx;
+  if (!x) return 0;
+  l = lg(vT);
+  for (i = 1; i < l; i++)
+  {
+    GEN T = gel(vT,i);
+    if (!ZV_equal0(ZM_ZC_mul(T, x))
+        || (x2 && !ZV_equal0(ZM_ZC_mul(T, x2)))) return 0; /* fail */
+  }
+  sx = ZM_ZC_mul(star,x);
+  if (sign)
+    return ZV_equal(sx, sign > 0? x: ZC_neg(x));
+  else
+    return ZV_equal(sx,x) && ZV_equal(ZM_ZC_mul(star,x2), ZC_neg(x2));
+}
+
 GEN
 msfromell(GEN E, long sign)
 {
   pari_sp av = avma;
-  GEN cond, W, K, x, star;
-  long dim;
-  ulong p, N;
-  forprime_t T;
+  GEN cond, W, x = NULL, x2 = NULL, K = NULL, star, q, vT, xl, x2l;
+  ulong p, l, N;
+  forprime_t S, Sl;
 
   E = ellminimalmodel(E, NULL);
-  cond = gel(ellglobalred(E), 1);
+  cond = ellQ_get_N(E);
   N = itou(cond);
   W = mskinit(N, 2, 0);
   star = msstar_i(W);
-  if (sign)
-  {
-    /* linear form = 0 on Im(S - sign) */
-    K = ZM_ker(gsubgs(star, sign));
-    dim = 1;
-  }
-  else
-  {
-    K = NULL; /* identity */
-    dim = 2;
-  }
-
+  init_modular_small(&Sl);
   /* loop for p <= count_Manin_symbols(N) / 6 would be enough */
-  (void)u_forprime_init(&T, 2, ULONG_MAX);
-  while( (p = u_forprime_next(&T)) )
+  (void)u_forprime_init(&S, 2, ULONG_MAX);
+  vT = cgetg(1, t_VEC);
+  l = u_forprime_next(&Sl);
+  while( (p = u_forprime_next(&S)) )
   {
-    GEN Tp, ap, M, K2;
+    GEN M;
     if (N % p == 0) continue;
-    Tp = mshecke_i(W, p);
-    ap = ellap(E, utoipos(p));
-    M = RgM_Rg_add_shallow(Tp, negi(ap));
-    if (K) M = ZM_mul(M, K);
-    K2 = ZM_ker(M);
-    if (!K) K = K2;
-    else if (lg(K2) < lg(K)) K = ZM_mul(K, K2);
-    if (lg(K2)-1 == dim) break;
+    M = RgM_Rg_sub_shallow(mshecke_i(W, p), ellap(E, utoipos(p)));
+    vT = shallowconcat(vT, mkvec(M)); /* for certification at the end */
+    K = msfromell_ker(K, M, l);
+    if (lg(K) == 3) break;
   }
   if (!p) pari_err_BUG("msfromell: ran out of primes");
+
+  /* mod one l should be enough */
+  msfromell_l(&xl, &x2l, K, star, sign, l);
+  x = ZM_init_CRT(xl, l);
+  if (x2l) x2 = ZM_init_CRT(x2l, l);
+  q = utoipos(l);
+  msfromell_ratlift(&x, &x2, q);
+  /* paranoia */
+  while (!msfromell_check(x, x2, vT, star, sign) && (l = u_forprime_next(&Sl)) )
+  {
+    GEN K = NULL;
+    long i, lvT = lg(vT);
+    for (i = 1; i < lvT; i++)
+    {
+      K = msfromell_ker(K, gel(vT,i), l);
+      if (lg(K) == 3) break;
+    }
+    if (i >= lvT) { x = NULL; continue; }
+    msfromell_l(&xl, &x2l, K, star, sign, l);
+    ZM_incremental_CRT(&x, xl, &q, l);
+    if (x2l) ZM_incremental_CRT(&x2, x2l, &q, l);
+    msfromell_ratlift(&x, &x2, q);
+  }
+
   /* linear form = 0 on all Im(Tp - ap) and Im(S - sign) if sign != 0 */
   if (sign)
-    x = ell_get_scale(E, W, gel(K,1), sign);
+    x = ell_get_scale(E, W, x, sign);
   else
-  { /* dim = 2 */
-    GEN a = gel(K,1), Sa = ZM_ZC_mul(star,a);
-    GEN b = gel(K,2);
-    GEN t = ZC_add(a, Sa), xp, xm;
-    if (ZV_equal0(t))
-    {
-      xm = a;
-      xp = ZC_add(b,ZM_ZC_mul(star,b));
-    }
-    else
-    {
-      xp = t; t = ZC_sub(a, Sa);
-      xm = ZV_equal0(t)? ZC_sub(b, ZM_ZC_mul(star,b)): t;
-    }
-    xp = ell_get_scale(E, W, xp, 1);
-    xm = ell_get_scale(E, W, xm,-1);
-    x = mkvec2(xp, xm);
+  {
+    x = ell_get_scale(E, W, x,  1);
+    x2= ell_get_scale(E, W, x2,-1);
+    x = mkvec2(x, x2);
   }
   return gerepilecopy(av, mkvec2(W, x));
 }
