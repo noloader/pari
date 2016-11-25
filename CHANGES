@@ -24,6 +24,8 @@ BA    8- forprime(N=2^100,oo,...) did not work
          necessary for bnrsurjection()
       7- bnrinit(,,1) is no longer necessary for bnrL1, bnrconductor,
          bnrrootnumber, bnrstark, rnfkummer, galoissubcyclo
+      8- msfromell: use a (much faster) modular algorithm, allow a vector
+         of isogenous curves
 
   Added
       1- [libari] ZM_isidentity

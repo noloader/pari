@@ -3112,14 +3112,33 @@ msfromell_check(GEN x, GEN x2, GEN vT, GEN star, long sign)
   else
     return ZV_equal(sx,x) && ZV_equal(ZM_ZC_mul(star,x2), ZC_neg(x2));
 }
-
+static GEN
+msfromell_scale(GEN E, GEN W, long sign, GEN x, GEN x2)
+{
+  if (sign)
+    x = ell_get_scale(E, W, x, sign);
+  else
+  {
+    x = ell_get_scale(E, W, x,  1);
+    x2= ell_get_scale(E, W, x2,-1);
+    x = mkvec2(x, x2);
+  }
+  return x;
+}
 GEN
-msfromell(GEN E, long sign)
+msfromell(GEN E0, long sign)
 {
   pari_sp av = avma;
-  GEN cond, W, x = NULL, x2 = NULL, K = NULL, star, q, vT, xl, x2l;
+  GEN E, cond, W, x = NULL, x2 = NULL, K = NULL, star, q, vT, xl, x2l;
+  long lE, single;
   ulong p, l, N;
   forprime_t S, Sl;
+
+  if (typ(E0) != t_VEC) pari_err_TYPE("msfromell",E0);
+  lE = lg(E0);
+  if (lE == 1) return cgetg(1,t_VEC);
+  single = (typ(gel(E0,1)) != t_VEC);
+  E = single ? E0: gel(E0,1);
 
   E = ellminimalmodel(E, NULL);
   cond = ellQ_get_N(E);
@@ -3164,15 +3183,17 @@ msfromell(GEN E, long sign)
     if (x2l) ZM_incremental_CRT(&x2, x2l, &q, l);
     msfromell_ratlift(&x, &x2, q);
   }
-
   /* linear form = 0 on all Im(Tp - ap) and Im(S - sign) if sign != 0 */
-  if (sign)
-    x = ell_get_scale(E, W, x, sign);
+
+  if (single)
+    x = msfromell_scale(E, W, sign, x, x2);
   else
   {
-    x = ell_get_scale(E, W, x,  1);
-    x2= ell_get_scale(E, W, x2,-1);
-    x = mkvec2(x, x2);
+    GEN v = cgetg(lE, t_VEC);
+    long i;
+    for (i = 1; i < lE; i++)
+      gel(v,i) = msfromell_scale(gel(E0,i), W, sign, x, x2);
+    x = v;
   }
   return gerepilecopy(av, mkvec2(W, x));
 }
