@@ -11,6 +11,7 @@ BA    3- fflog in char 3 or 5 was slower than intended
 BA    6- modular algorithms could fail for very large input
 BA    7- [mingw] writebin did not work
 BA    8- forprime(N=2^100,oo,...) did not work
+      9- mseval(W,s,p) did not check 'p' in weight 2
 
   Changed
       1- rewrite bnfnarrow
@@ -26,6 +27,7 @@ BA    8- forprime(N=2^100,oo,...) did not work
          bnrrootnumber, bnrstark, rnfkummer, galoissubcyclo
       8- msfromell: use a (much faster) modular algorithm, allow a vector
          of isogenous curves
+      9- mseval(W,s,p): allow 2x2 matrix for the path 'p' argument
 
   Added
       1- [libari] ZM_isidentity
