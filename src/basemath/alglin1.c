@@ -597,10 +597,11 @@ Flm_ker_sp(GEN x, ulong p, long deplin)
   GEN y, c, d;
   long i, j, k, r, t, m, n;
   ulong a, pi;
+  n = lg(x)-1;
+  if (!n) return cgetg(1,t_MAT);
   if (SMALL_ULONG(p)) return Flm_ker_sp_OK(x, p, deplin);
   pi = get_Fl_red(p);
 
-  n = lg(x)-1;
   m=nbrows(x); r=0;
 
   c = zero_zv(m);
@@ -2414,6 +2415,7 @@ ZM_ker_ratlift(GEN M)
   forprime_t S;
   av2 = avma;
   H = NULL; D = NULL;
+  if (lg(M)==1) return cgetg(1, t_MAT);
   init_modular_big(&S);
   for(;;)
   {
