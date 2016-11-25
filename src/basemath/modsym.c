@@ -1906,16 +1906,11 @@ cusp_to_ZC(GEN c)
   }
 }
 static GEN
-path_to_M2(GEN p)
+path2_to_M2(GEN p)
 { return mkmat2(cusp_to_ZC(gel(p,1)), cusp_to_ZC(gel(p,2))); }
-
-/* Expresses path p as \sum x_i g_i, where the g_i are our distinguished
- * generators and x_i \in Z[\Gamma]. Returns [x_1,...,x_n] */
-GEN
-mspathlog(GEN W, GEN p)
+static GEN
+path_to_M2(GEN p)
 {
-  pari_sp av = avma;
-  checkms(W);
   if (lg(p) != 3) pari_err_TYPE("mspathlog",p);
   switch(typ(p))
   {
@@ -1923,11 +1918,20 @@ mspathlog(GEN W, GEN p)
       RgM_check_ZM(p,"mspathlog");
       break;
     case t_VEC:
-      p = path_to_M2(p);
+      p = path2_to_M2(p);
       break;
     default: pari_err_TYPE("mspathlog",p);
   }
-  return gerepilecopy(av, M2_log(W, p));
+  return p;
+}
+/* Expresses path p as \sum x_i g_i, where the g_i are our distinguished
+ * generators and x_i \in Z[\Gamma]. Returns [x_1,...,x_n] */
+GEN
+mspathlog(GEN W, GEN p)
+{
+  pari_sp av = avma;
+  checkms(W);
+  return gerepilecopy(av, M2_log(W, path_to_M2(p)));
 }
 static GEN
 mspathlog_trivial(GEN W, GEN p)
@@ -2826,23 +2830,38 @@ Q_xpm(GEN W, GEN xpm, GEN c)
   return gerepileuptoint(av, RgV_dotproduct(xpm,v));
 }
 
-/* Evaluate symbol s on mspathlog B (= sum p_i g_i, p_i in Z[G]) */
 static GEN
-mseval_by_values(GEN W, GEN s, GEN p)
+eval_single(GEN s, long k, GEN B, long v)
+{
+  long i, l;
+  GEN A = cgetg_copy(s,&l);
+  for (i=1; i<l; i++) gel(A,i) = ZGl2Q_act_s(gel(B,i), gel(s,i), k);
+  A = RgV_sum(A);
+  if (is_vec_t(typ(A))) A = RgV_to_RgX(A, v);
+  return A;
+}
+/* Evaluate symbol s on mspathlog B (= sum p_i g_i, p_i in Z[G]). Allow
+ * s = t_MAT [ collection of symbols, return a vector ]*/
+static GEN
+mseval_by_values(GEN W, GEN s, GEN p, long v)
 {
   long i, l, k = msk_get_weight(W);
-  GEN A, B;
-
+  GEN A;
   if (k == 2)
   { /* trivial represention: don't bother with Z[G] */
-    B = mspathlog_trivial(W,p);
-    return RgV_dotproduct(s,B);
+    GEN B = mspathlog_trivial(W,p);
+    if (typ(s) != t_MAT) return RgV_dotproduct(s,B);
+    l = lg(s); A = cgetg(l, t_VEC);
+    for (i = 1; i < l; i++) gel(A,i) = RgV_dotproduct(gel(s,i), B);
   }
-
-  A = cgetg_copy(s,&l);
-  B = mspathlog(W,p);
-  for (i=1; i<l; i++) gel(A,i) = ZGl2Q_act_s(gel(B,i), gel(s,i), k);
-  return RgV_sum(A);
+  else
+  {
+    GEN B = mspathlog(W,p);
+    if (typ(s) != t_MAT) return eval_single(s, k, B, v);
+    l = lg(s); A = cgetg(l, t_VEC);
+    for (i = 1; i < l; i++) gel(A,i) = eval_single(gel(s,i), k, B, v);
+  }
+  return A;
 }
 /* evaluate symbol s on path p */
 GEN
@@ -2894,13 +2913,21 @@ mseval(GEN W, GEN s, GEN p)
         s = e;
       }
       break;
+    case t_MAT:
+      if (p)
+      {
+        if (lg(s) == 1) cgetg(1, t_VEC);
+        if (msk_get_sign(W))
+        {
+          GEN star = gel(msk_get_starproj(W), 1);
+          if (lg(star) == lgcols(s)) s = RgM_mul(star, s);
+        }
+        break;
+      }
     default: pari_err_TYPE("mseval",s);
   }
   if (p)
-  {
-    s = mseval_by_values(W,s,p);
-    if (k != 2 && is_vec_t(typ(s))) s = RgV_to_RgX(s, v);
-  }
+    s = mseval_by_values(W, s, p, v);
   else
   {
     l = lg(s);

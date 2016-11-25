@@ -16,6 +16,8 @@ mshecke(W1, 11)
 E = ellinit([1,2]);
 [W,xpm] = msfromell(E);
 mseval(W,xpm[1],[1/2,1/3])
+mseval(W,xpm[1],[1,1;2,3])
+mseval(W,xpm[1],[1]) \\ BUG
 E = ellinit([0,-1,1,-10,-20]);
 [W,xpm] = msfromell(E,1);
 mseval(W,xpm,[1/2,1/3])
