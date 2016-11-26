@@ -1093,39 +1093,39 @@ Volume 15, Issue 2, October 1982, Pages 199-202
 http://www.sciencedirect.com/science/article/pii/0022314X82900257
 */
 
-static GEN
+enum { _2 = 1, _3 = 2, _5 = 4, _7 = 8, _13 = 16 };
+static ulong
 ellQ_goodl(GEN E)
 {
   forprime_t T;
-  long i;
-  GEN u = const_vecsmall(13,1);
+  long i, CM = ellQ_get_CM(E);
+  ulong mask = 31;
   GEN disc = ell_get_disc(E);
   pari_sp av = avma;
   u_forprime_init(&T, 17UL,ULONG_MAX);
-  for(i=1; i<=20; i++)
+  for(i=1; mask && i<=20; i++)
   {
     ulong p = u_forprime_next(&T);
-    if (umodiu(disc,p)==0) { i--; continue; }
+    if (umodiu(disc,p)==0) i--;
     else
     {
-      long t = itos(ellap(E, utoi(p)));
-      long D = t*t-4*p;
-      if (t%2!=0) u[2] = 0;
-      if (kross(D,3)==-1) u[3] = 0;
-      if (kross(D,5)==-1) u[5] = 0;
-      if (kross(D,7)==-1) u[7] = 0;
-      if (kross(D,13)==-1) u[13] = 0;
-      avma = av;
+      long t = ellap_CM_fast(E, p, CM), D = t*t-4*p;
+      if (t%2) mask &= ~_2;
+      if ((mask & _3) && kross(D,3)==-1)  mask &= ~_3;
+      if ((mask & _5) && kross(D,5)==-1)  mask &= ~_5;
+      if ((mask & _7) && kross(D,7)==-1)  mask &= ~_7;
+      if ((mask &_13) && kross(D,13)==-1) mask &= ~_13;
     }
   }
-  return u;
+  avma = av; return mask;
 }
 
 static GEN
 ellQ_isomat(GEN E, long flag)
 {
-  GEN K = NULL, good;
+  GEN K = NULL;
   GEN T2 = NULL, T3 = NULL, T5, T7, T13;
+  ulong good;
   long n2, n3, n5, n7, n13;
   GEN jt, jtp, s0;
   GEN c4 = ell_get_c4(E), c6 = ell_get_c6(E), j = ell_get_j(E);
@@ -1139,14 +1139,14 @@ ellQ_isomat(GEN E, long flag)
 #endif
   }
   good = ellQ_goodl(E);
-  if (good[2])
+  if (good & _2)
   {
     T2 = ellisograph_p(K, E, 2, flag);
     n2 = etree_nbnodes(T2);
     if (n2>4 || gequalgs(j, 1728) || gequalgs(j, 287496))
       return mkisomat(2, T2);
   } else n2 = 1;
-  if (good[3])
+  if (good & _3)
   {
     T3 = ellisograph_p(K, E, 3, flag);
     n3 = etree_nbnodes(T3);
@@ -1154,7 +1154,7 @@ ellQ_isomat(GEN E, long flag)
     if (n3==2 && n2>1)  return mkisomatdbl(2,T2,3,T3, flag);
     if (n3>2 || gequal0(j)) return mkisomat(3, T3);
   } else n3 = 1;
-  if (good[5])
+  if (good & _5)
   {
     T5 = ellisograph_p(K, E, 5, flag);
     n5 = etree_nbnodes(T5);
@@ -1162,7 +1162,7 @@ ellQ_isomat(GEN E, long flag)
     if (n5>1 && n3>1) return mkisomatdbl(3,T3,5,T5, flag);
     if (n5>1) return mkisomat(5, T5);
   } else n5 = 1;
-  if (good[7])
+  if (good & _7)
   {
     T7 = ellisograph_p(K, E, 7, flag);
     n7 = etree_nbnodes(T7);
@@ -1172,7 +1172,7 @@ ellQ_isomat(GEN E, long flag)
   } else n7 = 1;
   if (n2>1) return mkisomat(2,T2);
   if (n3>1) return mkisomat(3,T3);
-  if (good[13])
+  if (good & _13)
   {
     T13 = ellisograph_p(K, E, 13, flag);
     n13 = etree_nbnodes(T13);
