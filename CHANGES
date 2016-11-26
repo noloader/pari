@@ -28,6 +28,7 @@ BA    8- forprime(N=2^100,oo,...) did not work
       8- msfromell: use a (much faster) modular algorithm, allow a vector
          of isogenous curves
       9- mseval(W,s,p): allow 2x2 matrix for the path 'p' argument
+     10- allow mseval(W, t_MAT, p) to evaluate many symbols simultaneously
 
   Added
       1- [libari] ZM_isidentity

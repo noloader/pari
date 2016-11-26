@@ -14,19 +14,24 @@ Doc: Let $\Delta:=\text{Div}^0(\P^1 (\Q))$.
  is also possible to describe the path by a $2 \times 2$ integral matrix
  whose columns give the two cusps. The symbol $s$ is either
 
- \item a \typ{COL} coding an element of a modular symbol subspace in terms of
+ \item a \typ{COL} coding a modular symbol in terms of
  the fixed basis of $\Hom_G(\Delta,V)$ chosen in $M$; if $M$ was
  initialized with a non-zero \emph{sign} ($+$ or $-$), then either the
  basis for the full symbol space or the $\pm$-part can be used (the dimension
  being used to distinguish the two).
+
+ \item a \typ{MAT} whose columns encode modular symbols as above. This is
+ much faster than evaluating individual symbols on the same path $p$
+ independently.
 
  \item a \typ{VEC} $(v_i)$ of elements of $V$, where the $v_i = s(g_i)$ give
  the image of the generators $g_i$ of $\Delta$, see \tet{mspathgens}.
  We assume that $s$ is a proper symbol, i.e.~that the $v_i$ satisfy
  the \kbd{mspathgens} relations.
 
- If $p$ is omitted, convert the symbol $s$ to the second form: a vector of
- the $s(g_i)$.
+ If $p$ is omitted, convert the single symbol $s$ (a \typ{MAT} is not allowed
+ here) to the second form: a vector of the $s(g_i)$.
+
  \bprog
  ? M = msinit(2,8,1); \\ M_8(Gamma_0(2))^+
  ? g = mspathgens(M)[1]

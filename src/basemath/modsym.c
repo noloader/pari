@@ -2863,20 +2863,43 @@ mseval_by_values(GEN W, GEN s, GEN p, long v)
   }
   return A;
 }
+
+/* express symbol on the basis phi_{i,j} */
+static GEN
+symtophi(GEN W, GEN s)
+{
+  GEN e, basis = msk_get_basis(W);
+  long i, l = lg(basis);
+  if (lg(s) != l) pari_err_TYPE("mseval",s);
+  e = const_vec(ms_get_nbgen(W), gen_0);
+  for (i=1; i<l; i++)
+  {
+    GEN phi, ind, pols, c = gel(s,i);
+    long j, m;
+    if (gequal0(c)) continue;
+    phi = gel(basis,i);
+    ind = gel(phi,2); m = lg(ind);
+    pols = gel(phi,3);
+    for (j=1; j<m; j++)
+    {
+      long t = ind[j];
+      gel(e,t) = gadd(gel(e,t), gmul(c, gel(pols,j)));
+    }
+  }
+  return e;
+}
 /* evaluate symbol s on path p */
 GEN
 mseval(GEN W, GEN s, GEN p)
 {
   pari_sp av = avma;
-  long i, k, l, nbgen, v = 0;
-  GEN e;
+  long i, k, l, v = 0;
   checkms(W);
   k = msk_get_weight(W);
-  nbgen = ms_get_nbgen(W);
   switch(typ(s))
   {
     case t_VEC: /* values s(g_i) */
-      if (lg(s)-1 != nbgen) pari_err_TYPE("mseval",s);
+      if (lg(s)-1 != ms_get_nbgen(W)) pari_err_TYPE("mseval",s);
       if (!p) return gcopy(s);
       v = gvar(s);
       break;
@@ -2892,38 +2915,26 @@ mseval(GEN W, GEN s, GEN p)
         if (!p) return gtrans(s);
       }
       else
-      { /* on the basis phi_{i,j} */
-        GEN basis = msk_get_basis(W);
-        l = lg(basis);
-        if (lg(s) != l) pari_err_TYPE("mseval",s);
-        e = const_vec(nbgen, gen_0);
-        for (i=1; i<l; i++)
-        {
-          GEN phi, ind, pols, c = gel(s,i);
-          long j, m;
-          if (gequal0(c)) continue;
-          phi = gel(basis,i);
-          ind = gel(phi,2); m = lg(ind);
-          pols = gel(phi,3);
-          for (j=1; j<m; j++) {
-            long t = ind[j];
-            gel(e,t) = gadd(gel(e,t), gmul(c, gel(pols,j)));
-          }
-        }
-        s = e;
-      }
+        s = symtophi(W,s);
       break;
     case t_MAT:
-      if (p)
+      if (!p) pari_err_TYPE("mseval",s);
+      l = lg(s);
+      if (l == 1) return cgetg(1, t_VEC);
+      if (msk_get_sign(W))
       {
-        if (lg(s) == 1) cgetg(1, t_VEC);
-        if (msk_get_sign(W))
-        {
-          GEN star = gel(msk_get_starproj(W), 1);
-          if (lg(star) == lgcols(s)) s = RgM_mul(star, s);
-        }
-        break;
+        GEN star = gel(msk_get_starproj(W), 1);
+        if (lg(star) == lgcols(s)) s = RgM_mul(star, s);
       }
+      if (k == 2)
+      { if (nbrows(s) != ms_get_nbE1(W)) pari_err_TYPE("mseval",s); }
+      else
+      {
+        GEN t = cgetg(l, t_MAT);
+        for (i = 1; i < l; i++) gel(t,i) = symtophi(W,gel(s,i));
+        s = t;
+      }
+      break;
     default: pari_err_TYPE("mseval",s);
   }
   if (p)
