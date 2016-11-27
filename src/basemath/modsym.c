@@ -34,6 +34,10 @@ static GEN
 p1N_get_fa(GEN p1N) { return gel(p1N,4); }
 static GEN
 p1N_get_div(GEN p1N) { return gel(p1N,5); }
+static GEN
+p1N_get_invsafe(GEN p1N) { return gel(p1N,6); }
+static GEN
+p1N_get_inverse(GEN p1N) { return gel(p1N,7); }
 /* ms-specific accessors */
 /* W = msinit or msfromell */
 static GEN
@@ -250,6 +254,21 @@ gamma_equiv_matrix(GEN a, GEN b)
 /*************/
 /* P^1(Z/NZ) */
 /*************/
+/* result is known to be representable as an ulong */
+static ulong
+lcmuu(ulong a, ulong b) { ulong d = ugcd(a,b); return (a/d) * b; }
+/* a != 0 in Z/NZ. Return u in (Z/NZ)^* such that au = gcd(a, N) (mod N)*/
+static ulong
+Fl_inverse(ulong a, ulong N)
+{
+  ulong d, d0, e, u = Fl_invgen(a, N, &d);
+  if (d == 1) return u;
+  e = N / d;
+  d0 = u_ppo(d, e); /* d = d0 d1, d0 coprime to N/d, core(d1) | N/d */
+  if (d0 == 1) return u;
+  e = lcmuu(e, d / d0);
+  return u_chinese_coprime(u, 1, e, d0, e*d0);
+}
 
 /* Input: N = integer
  * Output: creates P^1(Z/NZ) = [symbols, H, N]
@@ -265,24 +284,16 @@ create_p1mod(ulong N)
   ulong nsym = count_Manin_symbols(N, gel(fa,1));
   GEN symbols = generatemsymbols(N, nsym, div);
   GEN H = inithashmsymbols(N,symbols);
-  return mkvec5(symbols, H, utoipos(N), fa, div);
+  GEN invsafe = cgetg(N, t_VECSMALL), inverse = cgetg(N, t_VECSMALL);
+  long i;
+  for (i = 1; i < N; i++)
+  {
+    invsafe[i] = Fl_invsafe(i,N);
+    inverse[i] = Fl_inverse(i,N);
+  }
+  return mkvecn(7, symbols, H, utoipos(N), fa, div, invsafe, inverse);
 }
 
-/* result is known to be representable as an ulong */
-static ulong
-lcmuu(ulong a, ulong b) { ulong d = ugcd(a,b); return (a/d) * b; }
-/* a != 0 in Z/NZ. Return u in (Z/NZ)^* such that au = gcd(a, N) (mod N)*/
-static ulong
-Fl_inverse(ulong a, ulong N)
-{
-  ulong d, d0, e, u = Fl_invgen(a, N, &d);
-  if (d == 1) return u;
-  e = N/d;
-  d0 = u_ppo(d, e); /* d = d0 d1, d0 coprime to N/d, core(d1) | N/d */
-  if (d0 == 1) return u;
-  e = lcmuu(e, d / d0);
-  return u_chinese_coprime(u, 1, e, d0, e*d0);
-}
 /* Let (c : d) in P1(Z/NZ).
  * If c = 0 return (0:1). If d = 0 return (1:0).
  * Else replace by (cu : du), where u in (Z/NZ)^* such that C := cu = gcd(c,N).
@@ -290,23 +301,21 @@ Fl_inverse(ulong a, ulong N)
  * is smallest such that gcd(C,D) = 1. Return (C : du mod N/c), which need
  * not belong to P1(Z/NZ) ! A second component du mod N/c = 0 is replaced by
  * N/c in this case to avoid problems with array indices */
-static GEN
-p1_std_form(long c, long d, ulong N)
+static void
+p1_std_form(long *pc, long *pd, GEN p1N)
 {
+  ulong N = p1N_get_N(p1N);
   ulong u;
-  c = smodss(c, N);
-  d = smodss(d, N);
-  if (!c) return mkvecsmall2(0, 1);
-  if (!d) return mkvecsmall2(1, 0);
-  u = Fl_invsafe(d, N);
-  if (u != 0) return mkvecsmall2(Fl_mul(c,u,N), 1); /* (d,N) = 1 */
+  *pc = smodss(*pc, N); if (!*pc) { *pd = 1; return; }
+  *pd = smodss(*pd, N); if (!*pd) { *pc = 1; return; }
+  u = p1N_get_invsafe(p1N)[*pd];
+  if (u) { *pc = Fl_mul(*pc,u,N); *pd = 1; return; } /* (d,N) = 1 */
 
-  u = Fl_inverse(c, N);
-  if (u > 1) { c = Fl_mul(c,u,N); d = Fl_mul(d,u,N); }
+  u = p1N_get_inverse(p1N)[*pc];
+  if (u > 1) { *pc = Fl_mul(*pc,u,N); *pd = Fl_mul(*pd,u,N); }
   /* c | N */
-  if (c != 1) d = d % (N/c);
-  if (!d) d = N/c;
-  return mkvecsmall2(c, d);
+  if (*pc != 1) *pd %= (N / *pc);
+  if (!*pd) *pd = N / *pc;
 }
 
 /* Input: v = [x,y] = elt of P^1(Z/NZ) = class in Gamma_0(N) \ PSL2(Z)
@@ -315,11 +324,9 @@ static long
 p1_index(long x, long y, GEN p1N)
 {
   ulong N = p1N_get_N(p1N);
-  GEN H = p1N_get_hash(p1N), c;
+  GEN H = p1N_get_hash(p1N);
 
-  c = p1_std_form(x, y, N);
-  x = c[1];
-  y = c[2];
+  p1_std_form(&x, &y, p1N);
   if (y == 1) return x+1;
   if (y == 0) return N+1;
   if (mael(H,x,y) == 0) pari_err_BUG("p1_index");
