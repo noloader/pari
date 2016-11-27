@@ -167,28 +167,6 @@ generatemsymbols(ulong N, ulong num, GEN divN)
   return ret;
 }
 
-#if OLD_HASH
-static ulong
-hash2(GEN H, long N, long a, long b)
-{ return ucoeff(H, smodss(a,N) + 1, smodss(b,N) + 1); }
-/* symbols from generatemsymbols(). Returns H such that
- * H[ nc mod N, nd mod N ] = index of (c,d) in 'symbols', n < N, (n,N) = 1 */
-static GEN
-inithashmsymbols(ulong N, GEN symbols)
-{
-  GEN H = zero_Flm_copy(N, N);
-  long k, l = lg(symbols);
-  ulong n;
-  for (n = 1; n < N; n++)
-    if (ugcd(n,N) == 1)
-      for (k=1; k < l; k++)
-      {
-        GEN s = gel(symbols, k);
-        ucoeff(H, Fl_mul(s[1],n,N) + 1, Fl_mul(s[2],n,N) + 1) = k;
-      }
-  return H;
-}
-#else
 static GEN
 inithashmsymbols(ulong N, GEN symbols)
 {
@@ -205,7 +183,6 @@ inithashmsymbols(ulong N, GEN symbols)
   }
   return H;
 }
-#endif
 
 /** Helper functions for Sl2(Z) / Gamma_0(N) **/
 /* [a,b;c,d] */
@@ -284,7 +261,7 @@ gamma_equiv_matrix(GEN a, GEN b)
 static GEN
 create_p1mod(ulong N)
 {
-  GEN fa = factoru(N), div = divisorsu(N);
+  GEN fa = factoru(N), div = divisorsu_fact(gel(fa,1), gel(fa,2));
   ulong nsym = count_Manin_symbols(N, gel(fa,1));
   GEN symbols = generatemsymbols(N, nsym, div);
   GEN H = inithashmsymbols(N,symbols);
@@ -340,9 +317,6 @@ p1_index(long x, long y, GEN p1N)
   ulong N = p1N_get_N(p1N);
   GEN H = p1N_get_hash(p1N), c;
 
-#ifdef OLD_HASH
-  return hash2(p1N_get_hash(p1N), N, x, y);
-#else
   c = p1_std_form(x, y, N);
   x = c[1];
   y = c[2];
@@ -350,7 +324,6 @@ p1_index(long x, long y, GEN p1N)
   if (y == 0) return N+1;
   if (mael(H,x,y) == 0) pari_err_BUG("p1_index");
   return mael(H,x,y);
-#endif
 }
 
 /* Cusps for \Gamma_0(N) */
