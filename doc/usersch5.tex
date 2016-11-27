@@ -6063,6 +6063,9 @@ exists; in other words, that $a$ and $b$ are congruent mod $\gcd(A,B)$.
 \fun{GEN}{Z_chinese_coprime}{GEN a, GEN b, GEN A, GEN B, GEN C}, as
 \kbd{Z\_chinese}, assuming that $\gcd(A,B) = 1$ and that $C = \lcm(A,B) = AB$.
 
+\fun{ulong}{u_chinese_coprime}{ulong a, ulong b, ulong A, ulong B, ulong C}, as
+\kbd{Z\_chinese\_coprime} for \kbd{ulong} inputs and output.
+
 \fun{void}{Z_chinese_pre}{GEN A, GEN B, GEN *pC, GEN *pU, GEN *pd}
 initializes chinese remainder computations modulo $A$ and $B$. Sets
 \kbd{*pC} to $\lcm(A,B)$, \kbd{*pd} to $\gcd(A,B)$,

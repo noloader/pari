@@ -298,18 +298,13 @@ lcmuu(ulong a, ulong b) { ulong d = ugcd(a,b); return (a/d) * b; }
 static ulong
 Fl_inverse(ulong a, ulong N)
 {
-  pari_sp av;
-  ulong d, d0, d1, e, u = Fl_invgen(a, N, &d);
+  ulong d, d0, e, u = Fl_invgen(a, N, &d);
   if (d == 1) return u;
   e = N/d;
   d0 = u_ppo(d, e); /* d = d0 d1, d0 coprime to N/d, core(d1) | N/d */
   if (d0 == 1) return u;
-  av = avma;
-  d1 = d / d0;
-  e = lcmuu(e, d1);
-  u = itou(Z_chinese_coprime(utoipos(u), gen_1,
-                             utoipos(e), utoipos(d0), utoipos(e*d0)));
-  avma = av; return u;
+  e = lcmuu(e, d / d0);
+  return u_chinese_coprime(u, 1, e, d0, e*d0);
 }
 /* Let (c : d) in P1(Z/NZ).
  * If c = 0 return (0:1). If d = 0 return (1:0).

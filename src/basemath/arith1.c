@@ -2345,6 +2345,13 @@ Z_chinese_post(GEN a, GEN b, GEN C, GEN U, GEN d)
   if (d && remii(b_a, d) != gen_0) return NULL;
   return modii(addii(a, mulii(U, b_a)), C);
 }
+static ulong
+u_chinese_post(ulong a, ulong b, ulong C, ulong U)
+{
+  if (!a) return Fl_mul(b, U, C);
+  return Fl_add(a, Fl_mul(U, Fl_sub(b,a,C), C), C);
+}
+
 GEN
 Z_chinese(GEN a, GEN b, GEN A, GEN B)
 {
@@ -2368,6 +2375,9 @@ Z_chinese_coprime(GEN a, GEN b, GEN A, GEN B, GEN C)
   GEN U = mulii(Fp_inv(A,B), A);
   return gerepileuptoint(av, Z_chinese_post(a,b,C,U, NULL));
 }
+ulong
+u_chinese_coprime(ulong a, ulong b, ulong A, ulong B, ulong C)
+{ return u_chinese_post(a,b,C, A * Fl_inv(A % B,B)); }
 
 /* chinese1 for coprime moduli in Z */
 static GEN

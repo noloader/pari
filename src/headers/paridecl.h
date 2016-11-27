@@ -1735,6 +1735,7 @@ GEN     rootsof1u_Fp(ulong n, GEN p);
 long    sisfundamental(long x);
 GEN     sqrtint(GEN a);
 GEN     ramanujantau(GEN n);
+ulong   u_chinese_coprime(ulong a, ulong b, ulong A, ulong B, ulong C);
 ulong   ugcd(ulong a,ulong b);
 long    uisprimepower(ulong n, ulong *p);
 long    uissquare(ulong A);
