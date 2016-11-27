@@ -1733,10 +1733,9 @@ treat_index_trivial(GEN v, GEN W, long index)
     case 2: /*E2, E2[r] + gamma * E1[s] = 0 */
     {
       long r = index - W11[1];
-      GEN E2_in_terms_of_E1= gel(W,7), z = gel(E2_in_terms_of_E1, r);
+      GEN E2_in_terms_of_E1 = gel(W,7), z = gel(E2_in_terms_of_E1, r);
       long s = itou(gel(z,1));
-      index = s;
-      gel(v, index) = subiu(gel(v, index), 1);
+      v[s]--;
       break;
     }
 
@@ -1744,8 +1743,7 @@ treat_index_trivial(GEN v, GEN W, long index)
       break;
 
     case 4: /*E1*/
-      index -= shift;
-      gel(v, index) = addiu(gel(v, index), 1);
+      v[index-shift]++;
       break;
   }
 }
@@ -1931,7 +1929,7 @@ Gl2Q_act_path(GEN f, GEN path)
 }
 
 static GEN
-init_act_trivial(GEN W) { return zerocol(ms_get_nbE1(W)); }
+init_act_trivial(GEN W) { return const_vecsmall(ms_get_nbE1(W), 0); }
 static GEN
 mspathlog_trivial(GEN W, GEN p)
 {
@@ -1961,7 +1959,7 @@ getMorphism_trivial(GEN WW1, GEN WW2, GEN v)
     for (l = 1; l < lv; l++) M2_log_trivial(t, W1, Gl2Q_act_path(gel(v,l), w));
     gel(T,j) = t;
   }
-  return shallowtrans(T);
+  return shallowtrans(zm_to_ZM(T));
 }
 
 static GEN
@@ -2792,8 +2790,8 @@ msinit(GEN N, GEN K, long sign)
   return gerepilecopy(av, W);
 }
 
-/* W = msinit, xpm modular symbol attached to elliptic curve E;
- * c t_FRAC; image of <oo->c> */
+/* W = msinit, xpm integral modular symbol of weight 2, c t_FRAC
+ * Return image of <oo->c> */
 static GEN
 Q_xpm(GEN W, GEN xpm, GEN c)
 {
@@ -2802,7 +2800,7 @@ Q_xpm(GEN W, GEN xpm, GEN c)
   W = get_ms(W);
   v = init_act_trivial(W);
   Q_log_trivial(v, W, c); /* oo -> (a:b), c = a/b */
-  return gerepileuptoint(av, RgV_dotproduct(xpm,v));
+  return gerepileuptoint(av, ZV_zc_mul(xpm, v));
 }
 
 static GEN
@@ -2825,9 +2823,9 @@ mseval_by_values(GEN W, GEN s, GEN p, long v)
   if (k == 2)
   { /* trivial represention: don't bother with Z[G] */
     GEN B = mspathlog_trivial(W,p);
-    if (typ(s) != t_MAT) return RgV_dotproduct(s,B);
+    if (typ(s) != t_MAT) return RgV_zc_mul(s,B);
     l = lg(s); A = cgetg(l, t_VEC);
-    for (i = 1; i < l; i++) gel(A,i) = RgV_dotproduct(gel(s,i), B);
+    for (i = 1; i < l; i++) gel(A,i) = RgV_zc_mul(gel(s,i), B);
   }
   else
   {
