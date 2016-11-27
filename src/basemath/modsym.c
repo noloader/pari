@@ -1908,15 +1908,6 @@ mspathlog(GEN W, GEN p)
   checkms(W);
   return gerepilecopy(av, M2_log(W, path_to_M2(p)));
 }
-static GEN
-mspathlog_trivial(GEN W, GEN p)
-{
-  GEN v;
-  W = get_ms(W);
-  v = zerovec(ms_get_nbgen(W));
-  M2_log_trivial(v, W, path_to_M2(p));
-  return v;
-}
 
 /** HECKE OPERATORS **/
 /* [a,b;c,d] * cusp */
@@ -1941,6 +1932,15 @@ Gl2Q_act_path(GEN f, GEN path)
 
 static GEN
 init_act_trivial(GEN W) { return zerocol(ms_get_nbE1(W)); }
+static GEN
+mspathlog_trivial(GEN W, GEN p)
+{
+  GEN v;
+  W = get_ms(W);
+  v = init_act_trivial(W);
+  M2_log_trivial(v, W, path_to_M2(p));
+  return v;
+}
 
 /* map from W1=Hom(Delta_0(N1),Q) -> W2=Hom(Delta_0(N2),Q), weight 2,
  * trivial action. v a Gl2_Q or a t_VEC of Gl2_Q (\sum v[i] in Z[Gl2(Q)]).
