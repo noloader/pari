@@ -1679,7 +1679,7 @@ jacobi(GEN a, long prec)
 
 /*************************************************************************/
 /**                                                                     **/
-/**              MATRICE RATIONNELLE --> ENTIERE                        **/
+/**                   Q-vector space -> Z-modules                       **/
 /**                                                                     **/
 /*************************************************************************/
 
@@ -1754,114 +1754,33 @@ QM_minors_coprime(GEN x, GEN D)
 }
 
 static GEN
-RgC_Z_mul(GEN A, GEN u)
-{
-  long s = signe(u);
-  if (is_pm1(u)) return s > 0? A: RgC_neg(A);
-  return s? gmul(u,A): zerocol(lg(A)-1);
-}
-
-/* u,v integral, A,B RgC */
-static GEN
-RgC_lincomb(GEN u, GEN v, GEN A, GEN B)
-{
-  if (!signe(u)) return RgC_Z_mul(B,v);
-  if (!signe(v)) return RgC_Z_mul(A,u);
-  return RgC_add(RgC_Z_mul(A,u), RgC_Z_mul(B,v));
-}
-
-/* cf ZC_elem */
-/* zero aj = Aij (!= 0)  using  ak = Aik (maybe 0), via linear combination of
- * A[j] and A[k] of determinant 1. */
-static void
-QC_elem(GEN aj, GEN ak, GEN A, long j, long k)
-{
-  GEN p1, u, v, d;
-
-  if (gequal0(ak)) { swap(gel(A,j), gel(A,k)); return; }
-  if (typ(aj) == t_INT) {
-    if (typ(ak) != t_INT) { aj = mulii(aj, gel(ak,2)); ak = gel(ak,1); }
-  } else {
-    if (typ(ak) == t_INT) { ak = mulii(ak, gel(aj,2)); aj = gel(aj,1); }
-    else {
-      GEN daj = gel(aj,2), dak = gel(ak,2), D = gcdii(daj, dak);
-      aj = gel(aj,1); ak = gel(ak,1);
-      if (!is_pm1(D)) { daj = diviiexact(daj, D); dak = diviiexact(dak, D); }
-      if (!is_pm1(dak)) aj = mulii(aj, dak);
-      if (!is_pm1(daj)) ak = mulii(ak, daj);
-    }
-  }
-  /* aj,ak were multiplied by their least common denominator */
-
-  d = bezout(aj,ak,&u,&v);
-  /* frequent special case (u,v) = (1,0) or (0,1) */
-  if (!signe(u))
-  { /* ak | aj */
-    GEN c = negi(diviiexact(aj,ak));
-    gel(A,j) = RgC_lincomb(gen_1, c, gel(A,j), gel(A,k));
-    return;
-  }
-  if (!signe(v))
-  { /* aj | ak */
-    GEN c = negi(diviiexact(ak,aj));
-    gel(A,k) = RgC_lincomb(gen_1, c, gel(A,k), gel(A,j));
-    swap(gel(A,j), gel(A,k));
-    return;
-  }
-
-  if (!is_pm1(d)) { aj = diviiexact(aj,d); ak = diviiexact(ak,d); }
-  p1 = gel(A,k);
-  gel(A,k) = RgC_lincomb(u,v, gel(A,j),p1);
-  gel(A,j) = RgC_lincomb(negi(aj),ak, p1,gel(A,j));
-}
-
-static GEN
 QM_imZ_hnf_aux(GEN A)
 {
-  pari_sp av = avma;
-  long i,j,k,n,m;
-
-  n = lg(A);
-  if (n == 1) return cgetg(1,t_MAT);
-  if (n == 2) {
+  GEN D;
+  long l = lg(A);
+  if (l == 1) return cgetg(1,t_MAT);
+  if (l == 2) {
     GEN c;
     A = Q_primitive_part(A, &c);
     if (!c) A = ZM_copy(A); else if ( isintzero(c) ) A = cgetg(1,t_MAT);
     return A;
   }
-  m = lgcols(A);
-  for (i=1; i<m; i++)
+  A = Q_remove_denom(A,&D);
+  if (D)
   {
-    GEN b;
-    for (j = k = 1; j<n; j++)
-    {
-      GEN a = gcoeff(A,i,j);
-      if (gequal0(a)) continue;
-
-      k = j+1; if (k == n) k = 1;
-      /* zero a = Aij  using  b = Aik */
-      QC_elem(a, gcoeff(A,i,k), A, j,k);
-    }
-    b = gcoeff(A,i,k);
-    if (!gequal0(b))
-    {
-      b = Q_denom(b);
-      if (!is_pm1(b)) gel(A,k) = RgC_Rg_mul(gel(A,k), b);
-    }
-    if (gc_needed(av,1))
-    {
-      if(DEBUGMEM>1) pari_warn(warnmem,"QM_imZ_hnf_aux");
-      A = gerepilecopy(av,A);
-    }
+    GEN B, U;
+    A = shallowconcat(A, scalarmat_shallow(D, nbrows(A)));
+    B = ZM_hnfall(A, &U, 1);
+    U = vecslice(U, 1, lg(A) - lg(B));
+    A = rowslice(U, l, nbrows(U));
   }
   return ZM_hnf(A);
 }
-
 GEN
 QM_ImZ_hnf(GEN x)
 {
   pari_sp av = avma;
-  return gerepileupto(av, QM_imZ_hnf_aux( RgM_shallowcopy(x) ));
+  return gerepileupto(av, QM_imZ_hnf_aux(x));
 }
 
 GEN

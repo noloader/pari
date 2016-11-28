@@ -344,6 +344,7 @@ error("inconsistent dimensions in gtrace.")
 [0 1]
 
 [;]
+19009323
 lindep:
 [1, 0, 1]~
 [1, -2, 1]~
@@ -455,4 +456,4 @@ Vecsmall([2, 2, 0, -4, -10])
 
 [1 2 3]
 
-Total time spent: 60
+Total time spent: 32
