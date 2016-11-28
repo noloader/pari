@@ -73,3 +73,6 @@ lift(rnfkummer(bnr,[2,1,1;0,1,0;0,0,1]))
 bnr=bnrinit(bnfinit(y^7+7*y^3-7*y^2+7*y+1,1),8);
 L=subgrouplist(bnr,[2],1);
 apply(z->lift(rnfkummer(bnr,z)),L)
+
+\\ #1873
+rnfkummer(bnrinit(bnfinit(y^6-2*y^5+8*y^4-18*y^3+24*y^2-18*y+6),168),matdiagonal([2,1,1,1,1,1,1,1]))

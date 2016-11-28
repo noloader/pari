@@ -420,16 +420,21 @@ static GEN
 isprincipalell(GEN bnfz, GEN id, GEN cycgen, GEN u, GEN gell, long rc)
 {
   long i, l = lg(cycgen);
-  GEN logdisc, b, y = bnfisprincipal0(bnfz, id, nf_FORCE|nf_GENMAT);
+  GEN v, b, db, y = bnfisprincipal0(bnfz, id, nf_FORCE|nf_GENMAT);
 
-  logdisc = FpC_red(gel(y,1), gell);
+  v = FpC_red(gel(y,1), gell);
   b = gel(y,2);
+  if (typ(b) == t_COL)
+  {
+    b = Q_remove_denom(gel(y,2), &db);
+    if (db) b = famat_mulpow_shallow(b, db, gen_m1);
+  }
   for (i=rc+1; i<l; i++)
   {
-    GEN e = modii(mulii(gel(logdisc,i),gel(u,i)), gell);
+    GEN e = Fp_mul(gel(v,i), gel(u,i), gell);
     b = famat_mulpow_shallow(b, gel(cycgen,i), e);
   }
-  setlg(logdisc,rc+1); return mkvec2(logdisc, b);
+  setlg(v,rc+1); return mkvec2(v, b);
 }
 
 static GEN
