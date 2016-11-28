@@ -743,9 +743,9 @@ rnfkummersimple(GEN bnr, GEN subgroup, GEN gell, long all)
   i = build_list_Hecke(&L, nf, bid_get_fact2(bid), ideal, gell, NULL);
   if (i) return no_sol(all,i);
 
-  lSml2 = lg(L.Sml2)-1;
-  Sp = shallowconcat(L.Sm, L.Sml1); lSp = lg(Sp)-1;
-  listprSp = shallowconcat(L.Sml2, L.Sl); lSl2 = lg(listprSp)-1;
+  lSml2 = lg(L.Sml2);
+  Sp = shallowconcat(L.Sm, L.Sml1); lSp = lg(Sp);
+  listprSp = shallowconcat(L.Sml2, L.Sl); lSl2 = lg(listprSp);
 
   cycgen = bnf_build_cycgen(bnf);
   cyc = bnf_get_cyc(bnf); rc = prank(cyc, ell);
@@ -753,9 +753,9 @@ rnfkummersimple(GEN bnr, GEN subgroup, GEN gell, long all)
   vecW = get_Selmer(bnf, cycgen, rc);
   u = get_u(cyc, rc, gell);
 
-  vecBp = cgetg(lSp+1, t_VEC);
-  matP  = cgetg(lSp+1, t_MAT);
-  for (j=1; j<=lSp; j++)
+  vecBp = cgetg(lSp, t_VEC);
+  matP  = cgetg(lSp, t_MAT);
+  for (j = 1; j < lSp; j++)
   {
     GEN L = isprincipalell(bnf,gel(Sp,j), cycgen,u,gell,rc);
     gel( matP,j) = gel(L,1);
@@ -769,14 +769,14 @@ rnfkummersimple(GEN bnr, GEN subgroup, GEN gell, long all)
   msign = nfsign(nf, vecWB);
   arch = ZV_to_zv(arch);
 
-  vecMsup = cgetg(lSml2+1,t_VEC);
+  vecMsup = cgetg(lSml2,t_VEC);
   M = NULL;
-  for (i=1; i<=lSl2; i++)
+  for (i = 1; i < lSl2; i++)
   {
     GEN pr = gel(listprSp,i);
     long e = pr_get_e(pr), z = ell * (e / (ell-1));
 
-    if (i <= lSml2)
+    if (i < lSml2)
     {
       z += 1 - L.ESml2[i];
       gel(vecMsup,i) = logall(nf, vecWB, 0,0, ell, pr,z+1);
@@ -1336,17 +1336,17 @@ _rnfkummer(GEN bnr, GEN subgroup, long all, long prec)
   i = build_list_Hecke(&L, nfz, NULL, gothf, gell, tau);
   if (i) return no_sol(all,i);
 
-  lSml2 = lg(L.Sml2)-1;
-  Sp = shallowconcat(L.Sm, L.Sml1); lSp = lg(Sp)-1;
-  listprSp = shallowconcat(L.Sml2, L.Sl); lSl2 = lg(listprSp)-1;
+  lSml2 = lg(L.Sml2);
+  Sp = shallowconcat(L.Sm, L.Sml1); lSp = lg(Sp);
+  listprSp = shallowconcat(L.Sml2, L.Sl); lSl2 = lg(listprSp);
 
   /* step 12 */
   if (DEBUGLEVEL>2) err_printf("Step 12\n");
-  vecAp = cgetg(lSp+1, t_VEC);
-  vecBp = cgetg(lSp+1, t_VEC);
-  matP  = cgetg(lSp+1, t_MAT);
+  vecAp = cgetg(lSp, t_VEC);
+  vecBp = cgetg(lSp, t_VEC);
+  matP  = cgetg(lSp, t_MAT);
 
-  for (j=1; j<=lSp; j++)
+  for (j = 1; j < lSp; j++)
   {
     GEN e, a;
     p1 = isprincipalell(bnfz, gel(Sp,j), cycgen,u,gell,rc);
@@ -1363,14 +1363,14 @@ _rnfkummer(GEN bnr, GEN subgroup, long all, long prec)
   /* step 14, 15, and 17 */
   if (DEBUGLEVEL>2) err_printf("Step 14, 15 and 17\n");
   mginv = (m * Fl_inv(g,ell)) % ell;
-  vecMsup = cgetg(lSml2+1,t_VEC);
+  vecMsup = cgetg(lSml2,t_VEC);
   M = NULL;
-  for (i=1; i<=lSl2; i++)
+  for (i = 1; i < lSl2; i++)
   {
     GEN pr = gel(listprSp,i);
     long e = pr_get_e(pr), z = ell * (e / (ell-1));
 
-    if (i <= lSml2)
+    if (i < lSml2)
     {
       z += 1 - L.ESml2[i];
       gel(vecMsup,i) = logall(nfz, vecWA,lW,mginv,ell, pr,z+1);
@@ -1383,7 +1383,7 @@ _rnfkummer(GEN bnr, GEN subgroup, long all, long prec)
     GEN QtP = gmul(shallowtrans(Q), matP);
     M = vconcat(M, shallowconcat(zero_Flm(dc,lW-1), ZM_to_Flm(QtP,ell)));
   }
-  if (!M) M = zero_Flm(1, lSp + lW - 1);
+  if (!M) M = zero_Flm(1, lSp-1 + lW-1);
 
   if (!all)
   { /* primes landing in subgroup must be totally split */
