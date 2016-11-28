@@ -13,6 +13,7 @@ BA    7- [mingw] writebin did not work
 BA    8- forprime(N=2^100,oo,...) did not work
       9- mseval(W,s,p) did not check 'p' in weight 2
      10- matrixqz(m, -1 or -2) was very slow
+     11- rnfconductor(bnfinit(y),galoissubcyclo(117,116)); -> warning [#1874]
 
   Changed
       1- rewrite bnfnarrow

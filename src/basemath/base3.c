@@ -2095,7 +2095,7 @@ sprkinit(GEN nf, GEN pr, GEN gk, GEN x)
     gen = leafcopy(gel(w,2));
     prk = gel(w,3);
     g = nfpowmodideal(nf, g, B, prk);
-    g0 = Fq_pow(g0, B, T, p); /* update primitive root */
+    g0 = Fq_pow(g0, modii(B,A), T, p); /* update primitive root */
     L2 = mkvec3(A, g, gel(w,4));
     gel(cyc,1) = AB;
     gel(gen,1) = nfmulmodideal(nf, gel(gen,1), g, prk);
