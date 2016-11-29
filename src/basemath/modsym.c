@@ -281,11 +281,10 @@ static GEN
 create_p1mod(ulong N)
 {
   GEN fa = factoru(N), div = divisorsu_fact(gel(fa,1), gel(fa,2));
-  ulong nsym = count_Manin_symbols(N, gel(fa,1));
+  ulong i, nsym = count_Manin_symbols(N, gel(fa,1));
   GEN symbols = generatemsymbols(N, nsym, div);
   GEN H = inithashmsymbols(N,symbols);
   GEN invsafe = cgetg(N, t_VECSMALL), inverse = cgetg(N, t_VECSMALL);
-  long i;
   for (i = 1; i < N; i++)
   {
     invsafe[i] = Fl_invsafe(i,N);
