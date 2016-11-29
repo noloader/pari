@@ -2255,7 +2255,6 @@ zlog(GEN nf, GEN a, GEN sgn, zlog_S *S)
 {
   long k, l;
   GEN y;
-  if (typ(a) == t_MAT) return famat_zlog(nf, a, sgn, S);
   a = nf_to_scalar_or_basis(nf, a);
   switch(typ(a))
   {
@@ -2602,11 +2601,18 @@ static GEN
 ideallog_i(GEN nf, GEN x, GEN sgn, zlog_S *S)
 {
   pari_sp av = avma;
-  GEN y;
+  GEN y, cyc;
   if (!S->hU) return cgetg(1, t_COL);
-  y = zlog(nf, x, sgn, S);
+  cyc = bid_get_cyc(S->bid);
+  if (typ(x) == t_MAT)
+  {
+    if (lg(x) == 1) return zerocol(lg(cyc)-1);
+    y = famat_zlog(nf, x, sgn, S);
+  }
+  else
+    y = zlog(nf, x, sgn, S);
   y = ZMV_ZCV_mul(S->U, y);
-  return gerepileupto(av, vecmodii(y, bid_get_cyc(S->bid)));
+  return gerepileupto(av, vecmodii(y, cyc));
 }
 
 /* Given x (not necessarily integral), and bid as output by zidealstarinit,

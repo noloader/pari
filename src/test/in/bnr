@@ -99,3 +99,6 @@ forvec(c = vector(#C,i,[0,C[i]-1]), print(bnrrootnumber(bnr,c)))
 bnf=bnfinit(x^2+69);
 id = [9,0;0,3];
 bnrinit(bnf,id,1).clgp
+
+bnf=bnfinit(x^2-x+6);bnr=bnrinit(bnf,[29,18;0,1],1);
+bnrisprincipal(bnr,1)
