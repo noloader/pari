@@ -24,7 +24,7 @@ Doc:
  ? ellwp(E, z)
  %3 = 2.0000000000000000000000000000000000000
  ? ellztopoint(E, z) - P
- %4 = [6.372367644529809109 E-58, 7.646841173435770930 E-57]
+ %4 = [2.548947057811923643 E-57, 7.646841173435770930 E-57]
  ? ellpointtoz(E, [0]) \\ the point at infinity
  %5 = 0
  @eprog
@@ -48,9 +48,9 @@ Doc:
  ? ellmul(E, P, 5)  \\ P has order 5
  %3 = [0]
  ? z = ellpointtoz(E, [0,0])
- %4 = 3 + 11^2 + 2*11^3 + 3*11^4 + O(11^5)
+ %4 = 3 + 11^2 + 2*11^3 + 3*11^4 + 6*11^5 + 10*11^6 + 8*11^7 + O(11^8)
  ? z^5
- %5 = 1 + O(11^5)
+ %5 = 1 + O(11^9)
  ? E = ellinit(ellfromj(1/4), O(2^6)); x=1/2; y=ellordinate(E,x)[1];
  ? z = ellpointtoz(E,[x,y]); \\ t_POLMOD of t_POL with t_PADIC coeffs
  ? liftint(z) \\ lift all p-adics
