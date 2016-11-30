@@ -3059,11 +3059,11 @@ msfromell_ker(GEN K, GEN M, ulong l)
     K = Flm_mul(K, B, l);
   return K;
 }
-/* K = \cap_p Ker(T_p - a_p), 2-dimensional. Set *xl and *x2l,
- * the 1-dimensional bases (mod l) s.t star * xl = sign * xl if sign != 0
- * and star * xl = xl; star * x2l = -x2k if sign = 0 */
+/* K = \cap_p Ker(T_p - a_p), 2-dimensional. Set *xl to the 1-dimensional
+ * Fl-basis  such that star . xl = sign . xl if sign != 0 and
+ * star * xl[1] = xl[1]; star * xl[2] = -xl[2] if sign = 0 */
 static void
-msfromell_l(GEN *pxl, GEN *px2l, GEN K, GEN star, long sign, ulong l)
+msfromell_l(GEN *pxl, GEN K, GEN star, long sign, ulong l)
 {
   GEN s = ZM_to_Flm(star, l);
   GEN a = gel(K,1), Sa = Flm_Flc_mul(s,a,l);
@@ -3080,31 +3080,23 @@ msfromell_l(GEN *pxl, GEN *px2l, GEN K, GEN star, long sign, ulong l)
     xm = zv_equal0(t)? Flv_sub(b, Flm_Flc_mul(s,b,l), l): t;
   }
   /* xp = 0 on Im(S - 1), xm = 0 on Im(S + 1) */
-  *px2l = NULL;
   if (sign > 0)
     *pxl = mkmat(Flc_normalize(xp, l));
   else if (sign < 0)
     *pxl = mkmat(Flc_normalize(xm, l));
   else
-  {
-    *pxl = mkmat(Flc_normalize(xp, l));
-    *px2l= mkmat(Flc_normalize(xm, l));
-  }
+    *pxl = mkmat2(Flc_normalize(xp, l), Flc_normalize(xm, l));
 }
-static void
-msfromell_ratlift(GEN *px, GEN *px2, GEN q)
+static GEN
+msfromell_ratlift(GEN x, GEN q)
 {
   GEN B = sqrti(shifti(q,-1));
-  GEN r2 = NULL, r = FpM_ratlift(*px, q, B, B, NULL);
-  if (r && *px2)
-  {
-    r2 = FpM_ratlift(*px2, q, B, B, NULL);
-    if (r2) *px2 = Q_primpart(gel(r2,1)); else r = NULL;
-  }
-  if (r) *px = Q_primpart(gel(r,1));
+  GEN r = FpM_ratlift(x, q, B, B, NULL);
+  if (r) r = Q_primpart(r);
+  return r;
 }
 static int
-msfromell_check(GEN x, GEN x2, GEN vT, GEN star, long sign)
+msfromell_check(GEN x, GEN vT, GEN star, long sign)
 {
   long i, l;
   GEN sx;
@@ -3113,25 +3105,24 @@ msfromell_check(GEN x, GEN x2, GEN vT, GEN star, long sign)
   for (i = 1; i < l; i++)
   {
     GEN T = gel(vT,i);
-    if (!ZV_equal0(ZM_ZC_mul(T, x))
-        || (x2 && !ZV_equal0(ZM_ZC_mul(T, x2)))) return 0; /* fail */
+    if (!gequal0(ZM_mul(T, x))) return 0; /* fail */
   }
-  sx = ZM_ZC_mul(star,x);
+  sx = ZM_mul(star,x);
   if (sign)
-    return ZV_equal(sx, sign > 0? x: ZC_neg(x));
+    return ZV_equal(gel(sx,1), sign > 0? gel(x,1): ZC_neg(gel(x,1)));
   else
-    return ZV_equal(sx,x) && ZV_equal(ZM_ZC_mul(star,x2), ZC_neg(x2));
+    return ZV_equal(gel(sx,1),gel(x,1)) && ZV_equal(gel(sx,2),ZC_neg(gel(x,2)));
 }
 static GEN
-msfromell_scale(GEN E, GEN W, long sign, GEN x, GEN x2)
+msfromell_scale(GEN E, GEN W, long sign, GEN x)
 {
   if (sign)
-    x = ell_get_scale(E, W, x, sign);
+    x = ell_get_scale(E, W, gel(x,1), sign);
   else
   {
-    x = ell_get_scale(E, W, x,  1);
-    x2= ell_get_scale(E, W, x2,-1);
-    x = mkvec2(x, x2);
+    GEN p = ell_get_scale(E, W, gel(x,1), 1);
+    GEN m = ell_get_scale(E, W, gel(x,2),-1);
+    x = mkvec2(p,m);
   }
   return x;
 }
@@ -3139,7 +3130,7 @@ GEN
 msfromell(GEN E0, long sign)
 {
   pari_sp av = avma;
-  GEN E, cond, W, x = NULL, x2 = NULL, K = NULL, star, q, vT, xl, x2l;
+  GEN E, cond, W, x = NULL, K = NULL, star, q, vT, xl, xr;
   long lE, single;
   ulong p, l, N;
   forprime_t S, Sl;
@@ -3172,13 +3163,12 @@ msfromell(GEN E0, long sign)
   if (!p) pari_err_BUG("msfromell: ran out of primes");
 
   /* mod one l should be enough */
-  msfromell_l(&xl, &x2l, K, star, sign, l);
+  msfromell_l(&xl, K, star, sign, l);
   x = ZM_init_CRT(xl, l);
-  if (x2l) x2 = ZM_init_CRT(x2l, l);
   q = utoipos(l);
-  msfromell_ratlift(&x, &x2, q);
+  xr = msfromell_ratlift(x, q);
   /* paranoia */
-  while (!msfromell_check(x, x2, vT, star, sign) && (l = u_forprime_next(&Sl)) )
+  while (!msfromell_check(xr, vT, star, sign) && (l = u_forprime_next(&Sl)) )
   {
     GEN K = NULL;
     long i, lvT = lg(vT);
@@ -3188,21 +3178,19 @@ msfromell(GEN E0, long sign)
       if (lg(K) == 3) break;
     }
     if (i >= lvT) { x = NULL; continue; }
-    msfromell_l(&xl, &x2l, K, star, sign, l);
+    msfromell_l(&xl, K, star, sign, l);
     ZM_incremental_CRT(&x, xl, &q, l);
-    if (x2l) ZM_incremental_CRT(&x2, x2l, &q, l);
-    msfromell_ratlift(&x, &x2, q);
+    xr = msfromell_ratlift(x, q);
   }
   /* linear form = 0 on all Im(Tp - ap) and Im(S - sign) if sign != 0 */
 
   if (single)
-    x = msfromell_scale(E, W, sign, x, x2);
+    x = msfromell_scale(E, W, sign, xr);
   else
   {
     GEN v = cgetg(lE, t_VEC);
     long i;
-    for (i = 1; i < lE; i++)
-      gel(v,i) = msfromell_scale(gel(E0,i), W, sign, x, x2);
+    for (i=1; i < lE; i++) gel(v,i) = msfromell_scale(gel(E0,i), W, sign, xr);
     x = v;
   }
   return gerepilecopy(av, mkvec2(W, x));
