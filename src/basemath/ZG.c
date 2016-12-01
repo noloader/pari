@@ -23,7 +23,7 @@ GEN
 ZG_normalize(GEN x)
 {
   if (typ(x) == t_INT) return x;
-  return sort_factor(x, NULL, &cmp_G);
+  return sort_factor(shallowcopy(x), NULL, &cmp_G);
 }
 GEN
 ZG_add(GEN x, GEN y)
@@ -115,7 +115,7 @@ ZG_G_mul(GEN x, GEN y)
   X = gel(x,1);
   z = cgetg_copy(X, &l);
   for (i = 1; i < l; i++) gel(z,i) = gmul(gel(X,i), y);
-  return ZG_normalize( mkmat2(z, shallowcopy(gel(x,2))) );
+  return ZG_normalize( mkmat2(z, gel(x,2)) );
 }
 GEN
 G_ZG_mul(GEN x, GEN y)
@@ -126,7 +126,7 @@ G_ZG_mul(GEN x, GEN y)
   Y = gel(y,1);
   z = cgetg_copy(Y, &l);
   for (i = 1; i < l; i++) gel(z,i) = gmul(x, gel(Y,i));
-  return ZG_normalize( mkmat2(z, shallowcopy(gel(y,2))) );
+  return ZG_normalize( mkmat2(z, gel(y,2)) );
 }
 void
 ZGC_G_mul_inplace(GEN v, GEN x)
