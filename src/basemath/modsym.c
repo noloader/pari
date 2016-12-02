@@ -3145,7 +3145,7 @@ msfromell(GEN E0, long sign)
   cond = ellQ_get_N(E);
   N = itou(cond);
   W = mskinit(N, 2, 0);
-  star = msstar_i(W);
+  star = msk_get_star(W);
   init_modular_small(&Sl);
   /* loop for p <= count_Manin_symbols(N) / 6 would be enough */
   (void)u_forprime_init(&S, 2, ULONG_MAX);
