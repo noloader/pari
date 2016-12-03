@@ -547,49 +547,6 @@ pari_init_defaults(void)
 /*********************************************************************/
 /*                   FUNCTION HASHTABLES, MODULES                    */
 /*********************************************************************/
-
-/* Initialize hashtable */
-static void
-init_hashtable(entree **table, long tblsz)
-{
-  long i;
-  for (i = 0; i < tblsz; i++)
-  {
-    entree *last = NULL, *ep = table[i];
-    table[i] = NULL;
-    while (ep)
-    {
-      entree *EP = ep->next;
-      switch(EpVALENCE(ep))
-      {
-        case EpVAR: case EpINSTALL:
-        /* keep: attach it to last entree seen */
-          if (last)
-            last->next = ep;
-          else
-            table[i] = ep;
-          ep->next = NULL; last = ep;
-          break;
-        default: freeep(ep);
-      }
-      ep = EP;
-    }
-  }
-}
-/* Load in hashtable hash the modules contained in A */
-static int
-gp_init_entrees(pari_stack *p_A, entree **hash)
-{
-  long i;
-  entree **v = (entree **)*pari_stack_base(p_A);
-  init_hashtable(hash, functions_tblsz);
-  for (i = 0; i < p_A->n; i++) pari_fill_hashtable(hash, v[i]);
-  return (hash == functions_hash);
-}
-int
-gp_init_functions(void)
-{ return gp_init_entrees(&s_MODULES, functions_hash); }
-
 extern entree functions_basic[], functions_default[];
 static void
 pari_init_functions(void)
