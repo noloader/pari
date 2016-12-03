@@ -91,14 +91,13 @@ Doc: This low-level routine creates \tet{Ldata} structures, needed by
  simple pole at $\beta$ or $r_1/x^2+r_2/x+O(1)$ for a double pole.
  The type of the list describing the polar part allows to distinguish between
  $L$ and $\Lambda$: a \typ{VEC} is attached to $L$, and a \typ{COL}
- is attached to $\Lambda$.
+ is attached to $\Lambda$. Unless $a = \overline{a^*}$ (coded by \kbd{astar}
+ equal to $0$ or $1$), it is mandatory to specify the polar part of $\Lambda$
+ rather than those of $L$ since the poles of $L^*$ cannot be infered from the
+ latter ! Whereas the functional equation allows to deduce the polar part of
+ $\Lambda^*$ from the polar part of $\Lambda$.
 
- The latter is mandatory unless $a = \overline{a^*}$ (coded by \kbd{astar}
- equal to $0$ or $1$): otherwise, the poles of $L^*$ cannot be infered from
- the poles of $L$ ! (Whereas the functional equation allows to deduce
- the polar part of $\Lambda^*$ from the polar part of $\Lambda$.)
- The special coding $\kbd{poles} = r$ a complex scalar is available in this
- case, to describe a $L$ function with at most a single simple pole at $s =
- k$ and residue $r$. (This is the usual situation, for instance for Dedekind
- zeta functions.) This value $r$ can be set to $0$ if unknown, and it will be
- computed.
+ Finally, if $a = \overline{a^*}$, we allow a shortcut to describe
+ the frequent situation where $L$ has at most simple pole, at $s = k$,
+ with residue $r$ a complex scalar: you may then input $\kbd{poles} = r$.
+ This value $r$ can be set to $0$ if unknown and it will be computed.
