@@ -1806,6 +1806,7 @@ genclosure(entree *ep, const char *loc, long  nbdata, int check)
       case 'U':
         op_push_loc(OCpushlong,(long)strtoul(q+1,NULL,10),loc);
         op_push_loc(OCdefaultulong,-index,loc);
+        break;
       case 'r':
       case 's':
         str_defproto(p, q, loc);
