@@ -657,7 +657,7 @@ msqexpansion_i(GEN W, GEN proV, ulong B)
     ch = NULL;
   }
   if (!ch) pari_err_BUG("q-Expansion not found");
-  /* T generates the Hecke algebra */
+  /* T generates the Hecke algebra (acting on V) */
   d = degpol(ch);
   v = vec_ei(d, 1); /* take v = e_1 */
   Tiv = cgetg(d+1, t_MAT); /* Tiv[i] = T^(i-1)v */
