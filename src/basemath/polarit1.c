@@ -375,7 +375,7 @@ ZX_Zp_roots(GEN f, GEN p, long prec)
   setlg(y,j); return ZV_to_ZpV(y, p, prec);
 }
 
-/* f a ZX */
+/* f a ZX, f(0) != 0 */
 static GEN
 pnormalize(GEN f, GEN p, long prec, long n, GEN *plead, long *pprec, int *prev)
 {
@@ -387,7 +387,8 @@ pnormalize(GEN f, GEN p, long prec, long n, GEN *plead, long *pprec, int *prev)
     long v = Z_pval(*plead,p), v1 = Z_pval(constant_coeff(f),p);
     if (v1 < v)
     {
-      *prev = 1; f = RgX_recip_shallow(f);
+      *prev = 1;
+      f = RgX_recip_shallow(f); /* f(0) != 0 so degree is the same */
      /* beware loss of precision from lc(factor), whose valuation is <= v */
       *pprec += v; v = v1;
     }
@@ -402,7 +403,7 @@ rootpadic(GEN f, GEN p, long prec)
 {
   pari_sp av = avma;
   GEN lead,y;
-  long PREC,i,k;
+  long PREC, i, k, v;
   int reverse;
 
   if (typ(p)!=t_INT) pari_err_TYPE("rootpadic",p);
@@ -410,6 +411,7 @@ rootpadic(GEN f, GEN p, long prec)
   if (gequal0(f)) pari_err_ROOTS0("rootpadic");
   if (prec <= 0)
     pari_err_DOMAIN("rootpadic", "precision", "<=",gen_0,stoi(prec));
+  v = RgX_valrem(f, &f);
   f = QpX_to_ZX(f, p);
   f = pnormalize(f, p, prec, 1, &lead, &PREC, &reverse);
   y = ZX_Zp_roots(f,p,PREC);
@@ -418,6 +420,7 @@ rootpadic(GEN f, GEN p, long prec)
     for (i=1; i<k; i++) gel(y,i) = gdiv(gel(y,i), lead);
   if (reverse)
     for (i=1; i<k; i++) gel(y,i) = ginv(gel(y,i));
+  if (v) y = shallowconcat(zeropadic_shallow(p, prec), y);
   return gerepilecopy(av, y);
 }
 
@@ -523,7 +526,7 @@ factorpadic(GEN f,GEN p,long r)
 {
   pari_sp av = avma;
   GEN y, P, ppow, lead, lt;
-  long i, l, pr, n = degpol(f);
+  long i, l, pr, v, n = degpol(f);
   int reverse = 0;
 
   if (typ(f)!=t_POL) pari_err_TYPE("factorpadic",f);
@@ -532,6 +535,7 @@ factorpadic(GEN f,GEN p,long r)
   if (!signe(f)) return prime_fact(f);
   if (n == 0) return trivial_fact();
 
+  v = RgX_valrem(f, &f);
   f = QpX_to_ZX(f, p); (void)Z_pvalrem(leading_coeff(f), p, &lt);
   f = pnormalize(f, p, r, n-1, &lead, &pr, &reverse);
   y = ZpX_monic_factor(f, p, pr);
@@ -546,5 +550,10 @@ factorpadic(GEN f,GEN p,long r)
     gel(P,i) = ZX_to_ZpX_normalized(t,p,ppow,r);
   }
   if (!gequal1(lt)) gel(P,1) = gmul(gel(P,1), lt);
+  if (v)
+  {
+    GEN X = ZX_to_ZpX(pol_x(varn(f)), p, ppow, r);
+    y = famat_mulpow_shallow(y, X, utoipos(v));
+  }
   return gerepilecopy(av, sort_factor_pol(y, cmp_padic));
 }
