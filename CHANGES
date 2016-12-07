@@ -15,6 +15,7 @@ BA    8- forprime(N=2^100,oo,...) did not work
      10- matrixqz(m, -1 or -2) was very slow
      11- ZG_normalize destroyed its input
      12- [install] prototype code D0,U, did not work
+BA   13- use of complex default function argument could lead to stack error.
 
   Changed
       1- rewrite bnfnarrow

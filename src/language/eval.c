@@ -1215,7 +1215,13 @@ closure_eval(GEN C)
       if (var[s_var.n+operand].flag==DEFAULT_VAL)
       {
         GEN z = gel(st,sp-1);
-        pushlex(operand,typ(z)== t_CLOSURE? closure_evalnobrk(z): z);
+        if (typ(z)==t_CLOSURE)
+        {
+          pushlex(operand, closure_evalnobrk(z));
+          copylex(operand);
+        }
+        else
+          pushlex(operand, z);
       }
       sp--;
       break;
