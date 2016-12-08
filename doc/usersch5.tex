@@ -8494,7 +8494,9 @@ followed by \kbd{RgX\_renormalize(x)}. Assumes that $\kbd{lx} \leq
 \fun{GEN}{RgX_recip}{GEN P} returns the reverse of the polynomial
 $P$, i.e. $X^{\deg P} P(1/X)$.
 
-\fun{GEN}{RgX_recip_shallow}{GEN P} shallow function of \tet{RgX_recip}.
+\fun{GEN}{RgX_recip_shallow}{GEN P} shallow function of \tet{RgX_recip},
+where we further assume that $P(0)\neq 0$, so that the degree of the output
+is the degree of $P$.
 
 \fun{GEN}{RgX_deflate}{GEN P, long d} assuming $P$ is a polynomial of the
 form $Q(X^d)$, return $Q$. Shallow function, not suitable for
