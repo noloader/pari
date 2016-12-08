@@ -1652,14 +1652,15 @@ append_neighbours(GEN rts, GEN surface_js, long njs, long L, long m, long i)
 INLINE GEN
 roots_to_coeffs(GEN rts, ulong p, long L)
 {
-  pari_sp av;
-  long i, k;
-  GEN M = zero_Flm_copy(lg(rts) - 1, L + 2);
-  av = avma;
-  for (i = 1; i < lg(rts); ++i) {
+  long i, k, lrts= lg(rts);
+  GEN M = cgetg(L+2+1, t_MAT);
+  for (i = 1; i <= L+2; ++i)
+    gel(M, i) = cgetg(lrts, t_VECSMALL);
+  for (i = 1; i < lrts; ++i) {
+    pari_sp av = avma;
     GEN modpol = Flv_roots_to_pol(gel(rts, i), p, 0);
     for (k = 1; k <= L + 2; ++k)
-      coeff(M, i, k) = modpol[k + 1];
+      mael(M, k, i) = modpol[k + 1];
     avma = av;
   }
   return M;
