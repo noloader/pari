@@ -25,3 +25,8 @@ besselk(1,1000)
 besselk(1e-5,20)
 besselk(I,1000)
 besselk(1e-20,1e-5)
+\\ errors
+for(i=1,#F,print(iferr(F[i](O(2),1),E,E)));
+for(i=1,#F,print(iferr(F[i]("",1),E,E)));
+for(i=1,#F,print(iferr(F[i](1,O(2)),E,E)));
+for(i=1,#F,print(iferr(F[i](1,""),E,E)));
