@@ -582,8 +582,7 @@ hyperu(GEN a, GEN b, GEN gx, long prec)
   if (gsigne(gx) <= 0) pari_err_IMPL("non-positive third argument in hyperu");
   x = gtofp(gx, l);
   a1 = gaddsg(1, gadd(a,mb)); P = gmul(a1, a);
-  p1 = gabs(gtofp(P,LOWDEFAULTPREC), LOWDEFAULTPREC);
-  n = (long)(prec2nbits_mul(l, LOG2) + M_PI*sqrt(gtodouble(p1)));
+  n = (long)(prec2nbits_mul(l, LOG2) + M_PI*sqrt(dblmodulus(P)));
   S = gadd(a1, a);
   if (cmprs(x,n) < 0)
   {
