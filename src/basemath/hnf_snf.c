@@ -1872,7 +1872,8 @@ ZM_hnfall_i(GEN A, GEN *ptB, long remove)
         ZM_reduce(A,B, i,k); /* ensure reduced entries */
         if (gc_needed(av,1))
         {
-          if (DEBUGMEM>1) pari_warn(warnmem,"hnfall[1], li = %ld", li);
+          if (DEBUGMEM>1)
+            pari_warn(warnmem,"ZM_hnfall[1], li = %ld, j = %ld", li, j);
           gerepileall(av, B? 2: 1, &A, &B);
         }
       }
@@ -1895,7 +1896,7 @@ ZM_hnfall_i(GEN A, GEN *ptB, long remove)
     ZM_reduce(A,B, li,r);
     if (gc_needed(av,1))
     {
-      if (DEBUGMEM>1) pari_warn(warnmem,"hnfall[2], li = %ld", li);
+      if (DEBUGMEM>1) pari_warn(warnmem,"ZM_hnfall[2], li = %ld", li);
       gerepileall(av, B? 2: 1, &A, &B);
     }
   }
@@ -1911,7 +1912,7 @@ ZM_hnfall_i(GEN A, GEN *ptB, long remove)
       ZM_reduce(A,B, i,k); /* ensure reduced entries, even if a = 0 */
       if (gc_needed(av,1))
       {
-        if (DEBUGMEM>1) pari_warn(warnmem,"hnfall[3], j = %ld", j);
+        if (DEBUGMEM>1) pari_warn(warnmem,"ZM_hnfall[3], j = %ld", j);
         gerepileall(av, B? 2: 1, &A, &B);
       }
     }
