@@ -8,4 +8,10 @@ x^-1 + 743 + 196884*x + 21690644*x^2 + O(x^3)
 1.0905077326652576592070106557607079790
 1.0811782878393746833655992417658285836 - 0.14233982193131805512395869109512
 286588*I
-Total time spent: 4
+  ***   at top-level: eta(0)
+  ***                 ^------
+  *** eta: domain error in modular function: Im(argument) <= 0
+  ***   at top-level: eta(1/2)
+  ***                 ^--------
+  *** eta: domain error in modular function: Im(argument) <= 0
+Total time spent: 1
