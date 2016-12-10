@@ -691,7 +691,7 @@ incgam_0(GEN x, GEN expx)
   }
 }
 
-/* real(z*log(z)-z) */
+/* real(z*log(z)-z), z = x+iy */
 static double
 mygamma(double x, double y)
 {
@@ -899,9 +899,9 @@ incgam_asymp(GEN s, GEN x, long prec)
   return gerepileupto(av, gmul(cox, S));
 }
 
-/* s not an integer, gasx = incgam(s-n,x). Compute
- * incgam(s,x) = (s-1)(s-2)...(s-n)gasx + exp(-x)x^(s-1)
- * x (1 + (s-1)/x + ... + (s-1)(s-2)...(s-n+1)/x^(n-1)) */
+/* gasx = incgam(s-n,x). Compute incgam(s,x)
+ * = (s-1)(s-2)...(s-n)gasx + exp(-x)x^(s-1) *
+ *   (1 + (s-1)/x + ... + (s-1)(s-2)...(s-n+1)/x^(n-1)) */
 static GEN
 incgam_asymp_partial(GEN s, GEN x, GEN gasx, long n, long prec)
 {
@@ -1024,7 +1024,7 @@ GEN
 incgam0(GEN s, GEN x, GEN g, long prec)
 {
   pari_sp av;
-  long E, l;
+  long E, l, ex;
   double mx;
   GEN z, rs, is;
 
@@ -1035,10 +1035,14 @@ incgam0(GEN s, GEN x, GEN g, long prec)
   if (!l) l = prec;
   E = prec2nbits(l) + 1;
   /* avoid overflow in dblmodulus */
-  if (gexpo(x) > E) mx = E; else mx = dblmodulus(x);
+  ex = gexpo(x);
+  if (ex > E) mx = E; else mx = dblmodulus(x);
   /* use asymptotic expansion */
-  if ((4*mx > 3*E || (typ(s) == t_INT && signe(s) > 0))
-      && (z = incgam_asymp(s, x, l))) return z;
+  if (4*mx > 3*E || (typ(s) == t_INT && signe(s) > 0 && ex >= expi(s)))
+  {
+    z = incgam_asymp(s, x, l);
+    if (z) return z;
+  }
   rs = real_i(s);
   is = imag_i(s);
 #ifdef INCGAM_CF
@@ -1074,6 +1078,16 @@ incgam0(GEN s, GEN x, GEN g, long prec)
     {
       GEN gasx;
       n -= 100;
+      if (es > 0)
+      {
+        es = mygamma(gtodouble(rs) - n, gtodouble(is)) / LOG2;
+        if (es > 0)
+        {
+          l += nbits2extraprec(es);
+          x = gtofp(x, l);
+          if (isinexactreal(s)) s = gtofp(s, l);
+        }
+      }
       gasx = incgam0(gsubgs(s, n), x, NULL, prec);
       return gerepileupto(av, incgam_asymp_partial(s, x, gasx, n, prec));
     }

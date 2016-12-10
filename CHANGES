@@ -17,6 +17,7 @@ BA    8- forprime(N=2^100,oo,...) did not work
      12- [install] prototype code D0,U, did not work
 BA   13- use of complex default function argument could lead to stack error.
      14- factorpadic(2*x^4+x^2,2,2) -> division by 0 [#1876]
+     15- incgam(110, I) very inaccurate
 
   Changed
       1- rewrite bnfnarrow
