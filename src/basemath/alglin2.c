@@ -109,7 +109,8 @@ charpoly0(GEN x, long v, long flag)
     case 5:
       return charpoly(x, v);
   }
-  pari_err_FLAG("charpoly"); return NULL; /* not reached */
+  pari_err_FLAG("charpoly");
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 /* characteristic pol. Easy cases. Return NULL in case it's not so easy. */
@@ -157,7 +158,7 @@ easychar(GEN x, long v)
       return NULL;
   }
   pari_err_TYPE("easychar",x);
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 /* compute charpoly by mapping to Fp first, return lift to Z */
 static GEN
@@ -375,7 +376,8 @@ matadjoint0(GEN x, long flag)
     case 0: return adj(x);
     case 1: return adjsafe(x);
   }
-  pari_err_FLAG("matadjoint"); return NULL; /* not reached */
+  pari_err_FLAG("matadjoint");
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 /*******************************************************************/
@@ -672,7 +674,7 @@ matfrobenius(GEN M, long flag, long v)
   default:
     pari_err_FLAG("matfrobenius");
   }
-  return NULL; /*NOT REACHED*/
+  return NULL; /*LCOV_EXCL_LINE*/
 }
 
 /*******************************************************************/
@@ -1069,7 +1071,7 @@ gnorm(GEN x)
       return y;
   }
   pari_err_TYPE("gnorm",x);
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 /* return |q|^2, complex modulus */
@@ -1104,7 +1106,7 @@ gnorml2_i(GEN x, long prec)
     case t_MAT: lx = lg(x); break;
 
     default: pari_err_TYPE("gnorml2",x);
-      return NULL; /* not reached */
+      return NULL; /* LCOV_EXCL_LINE */
   }
   if (lx == 1) return gen_0;
   av = avma;
@@ -1209,7 +1211,7 @@ gnorml1(GEN x,long prec)
       break;
 
     default: pari_err_TYPE("gnorml1",x);
-      return NULL; /* not reached */
+      return NULL; /* LCOV_EXCL_LINE */
   }
   return gerepileupto(av, s);
 }
@@ -1245,7 +1247,7 @@ gnorml1_fake(GEN x)
       break;
 
     default: pari_err_TYPE("gnorml1_fake",x);
-      return NULL; /* not reached */
+      return NULL; /* LCOV_EXCL_LINE */
   }
   return gerepileupto(av, s);
 }
@@ -1273,7 +1275,7 @@ gsupnorm_aux(GEN x, GEN *m, GEN *msq, long prec)
     case t_MAT: lx = lg(x); break;
 
     default: pari_err_TYPE("gsupnorm",x);
-      return; /* not reached */
+      return; /* LCOV_EXCL_LINE */
   }
   for (i=1; i<lx; i++) gsupnorm_aux(gel(x,i), m, msq, prec);
 }
@@ -1385,7 +1387,7 @@ gtrace(GEN x)
       av = avma; return gerepileupto(av, mattrace(x));
   }
   pari_err_TYPE("gtrace",x);
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 /* Cholesky decomposition for positive definite matrix a
@@ -1692,7 +1694,8 @@ matrixqz0(GEN x,GEN p)
   if (signe(p)>=0) return QM_minors_coprime(x,p);
   if (absequaliu(p,1)) return QM_ImZ_hnf(x); /* p = -1 */
   if (absequaliu(p,2)) return QM_ImQ_hnf(x); /* p = -2 */
-  pari_err_FLAG("QM_minors_coprime"); return NULL; /* not reached */
+  pari_err_FLAG("QM_minors_coprime");
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 GEN

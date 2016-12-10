@@ -251,7 +251,7 @@ discpart(GEN H, GEN p, long prec)
   long i, j;
 
   if (degpol(FpX_red(H,p)) != 3)
-    pari_err_BUG("discpart [must not reach]");
+    pari_err_BUG("discpart [must not reach]"); /* LCOV_EXCL_LINE */
   list = padicfactors(H,p,prec);
   prod = pol_1(varn(H));
   for(i = 1; i < lg(list); i++)
@@ -730,7 +730,7 @@ get_red(struct red *S, struct igusa_p *Ip, GEN polh, GEN p, long alpha, long r)
       S->tnum = 0;
       S->pages = ""; /* gcc -Wall */
       S->g = NULL;
-      return -1; /*notreached*/
+      return -1; /*LCOV_EXCL_LINE*/
   }
 }
 
@@ -824,7 +824,7 @@ tame_234_init(struct igusa *I, struct igusa_p *Ip, long v12,
   else
   {
     pari_err_BUG("tame234 [bug9]");
-    return; /*not reached*/
+    return; /*LCOV_EXCL_LINE*/
   }
   r = gmod(r,n);
   q = gmod(q,n);
@@ -1013,7 +1013,7 @@ tame_4(struct igusa *I, struct igusa_p *Ip, long v12)
           else if (d2 == d3) f2 = d2;
           else {
             pari_err_BUG("tame4 [bug23]");
-            return -1; /*not reached*/
+            return -1; /*LCOV_EXCL_LINE*/
           }
           f1 = d1+d2+d3-2*f2;
           switch(q)
@@ -1110,7 +1110,7 @@ tame_567_init(struct igusa *I, struct igusa_p *Ip, GEN dk,
     else
     {
       pari_err_BUG("tame567 [bug29]");
-      return; /*not reached*/
+      return; /*LCOV_EXCL_LINE*/
     }
   }
   else
@@ -1593,7 +1593,7 @@ tame(GEN polh, GEN theta, long alpha, long Dmin, struct igusa *I, struct igusa_p
       dk = frac2s(Ip->eps*val[3]-2*val[Ip->eps2], 4*Ip->eps);
       return tame_7(I, Ip, dk, polh, theta, alpha, Dmin);
   }
-  return -1; /*not reached*/
+  return -1; /*LCOV_EXCL_LINE*/
 }
 
 /* maxc = maximum conductor valuation at p */
@@ -1627,7 +1627,7 @@ quartic(GEN polh, long alpha, long Dmin, struct igusa_p *Ip)
     case 3: d = val[6] - 5*val[3]/2;break;
     case 7: d = val[6] - 3*val[3] + val[Ip->eps2]/Ip->eps;break;
     default: pari_err_BUG("quartic [type choices]");
-             d = 0; /*not reached*/
+             d = 0; /*LCOV_EXCL_LINE*/
   }
   switch(r1)
   {
@@ -1881,7 +1881,7 @@ genus2localred(struct igusa *I, struct igusa_p *Ip, GEN p, GEN polmini)
         Ip->type = "[I{1}-II-0] page 172"; Ip->neron = cyclic(1); return 3;
     }
     pari_err_BUG("genus2localred [switch tt 4]");
-    return -1; /* not reached */
+    return -1; /* LCOV_EXCL_LINE */
   }
   switch(lambda)
   {

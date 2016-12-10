@@ -310,7 +310,7 @@ chareval(GEN G, GEN chi, GEN x, GEN z)
       /* don't implement chars on general bid: need an nf... */
     default:
       pari_err_TYPE("chareval", G);
-      return NULL;/* not reached */
+      return NULL;/* LCOV_EXCL_LINE */
   }
   return gerepileupto(av, chareval_i(nchi, L, z));
 }
@@ -519,7 +519,7 @@ znstar0(GEN N,long flag)
     case 2: return ZNstar(N, nf_INIT|nf_GEN);
     default: pari_err_FLAG("znstar");
   }
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 /* g has order 2^(e-2), g,h = 1 (mod 4); return x s.t. g^x = h (mod 2^e) */
@@ -741,7 +741,7 @@ znconreychar(GEN bid, GEN m)
       break;
     default:
       pari_err_TYPE("znconreychar",m);
-      return NULL;/*not reached*/
+      return NULL;/*LCOV_EXCL_LINE*/
   }
   L = gel(bid,4);
   Ui = gel(L,3);
@@ -972,7 +972,7 @@ znconrey_normalized(GEN G, GEN chi)
       return znconreyfromchar_normalized(G, chi);
   }
   pari_err_TYPE("znchareval",chi);
-  return NULL;/* not reached */
+  return NULL;/* LCOV_EXCL_LINE */
 }
 
 /* return 1 iff chi(-1) = -1, and 0 otherwise */
@@ -1056,7 +1056,7 @@ zncharconj(GEN G, GEN chi)
     case t_VEC: return charconj(bid_get_cyc(G), chi);
   }
   pari_err_TYPE("zncharconj",chi);
-  return NULL; /*not reached*/
+  return NULL; /*LCOV_EXCL_LINE*/
 }
 
 /* G is a bidZ, chi a Dirichlet character */
@@ -1069,7 +1069,7 @@ zncharorder(GEN G,  GEN chi)
     case t_COL: return charorder(bidZ_get_cycg(G), chi);
     case t_VEC: return charorder(bid_get_cyc(G), chi);
     default: pari_err_TYPE("zncharorder",chi);
-             return NULL; /* not reached */
+             return NULL; /* LCOV_EXCL_LINE */
   }
 }
 
@@ -1092,7 +1092,7 @@ zncharmul(GEN G, GEN a, GEN b)
     case t_VEC: return charmul(bid_get_cyc(G), a, b);
     case t_COL: return charmul(bidZ_get_cycg(G), a, b);
     default: pari_err_TYPE("zncharmul",a);
-             return NULL; /* not reached */
+             return NULL; /* LCOV_EXCL_LINE */
   }
   if (ta != t_COL) a = znconreylog(G, a);
   if (tb != t_COL) b = znconreylog(G, b);
@@ -1110,7 +1110,7 @@ znchardiv(GEN G, GEN a, GEN b)
     case t_VEC: return chardiv(bid_get_cyc(G), a, b);
     case t_COL: return chardiv(bidZ_get_cycg(G), a, b);
     default: pari_err_TYPE("znchardiv",a);
-             return NULL; /* not reached */
+             return NULL; /* LCOV_EXCL_LINE */
   }
   if (ta != t_COL) a = znconreylog(G, a);
   if (tb != t_COL) b = znconreylog(G, b);

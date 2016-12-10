@@ -217,7 +217,7 @@ qfbcompraw(GEN x, GEN y)
     case t_QFR: return qfrcompraw(x,y);
   }
   pari_err_TYPE("composition",x);
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 static GEN
@@ -1420,7 +1420,7 @@ qfbsolve(GEN Q,GEN n)
   case t_QFR: return qfrsolvep(Q,n);
   default:
     pari_err_TYPE("qfbsolve",Q);
-    return NULL; /* NOT REACHED */
+    return NULL; /* LCOV_EXCL_LINE */
   }
 }
 

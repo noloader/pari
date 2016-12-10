@@ -1349,7 +1349,7 @@ qfminim0(GEN a, GEN borne, GEN stockmax, long flag, long prec)
     }
     default: pari_err_FLAG("qfminim");
   }
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 GEN

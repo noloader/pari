@@ -97,7 +97,7 @@ ellconvertname(GEN n)
     /*fall through*/
   }
   pari_err_TYPE("ellconvertname",n);
-  return NULL; /*Not reached*/
+  return NULL; /*LCOV_EXCL_LINE*/
 }
 
 static GEN

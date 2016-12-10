@@ -982,7 +982,7 @@ randomprime(GEN N)
       break;
     default:
       pari_err_TYPE("randomprime", N);
-      return NULL; /*notreached*/
+      return NULL; /*LCOV_EXCL_LINE*/
   }
   av2 = avma;
   for (;;)

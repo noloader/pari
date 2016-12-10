@@ -547,5 +547,5 @@ group_ident_trans(GEN G, GEN S)
     if (t[0]==n) return t[s];
     while (*t>=0) t++;
   }
-  return 0; /*NOT REACHED*/
+  return 0; /*LCOV_EXCL_LINE*/
 }

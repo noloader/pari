@@ -1896,7 +1896,7 @@ call0(GEN fun, GEN args)
       return closure_callgenvec(fun, args);
     default:
       pari_err_TYPE("call", fun);
-      return NULL; /* NOT REACHED */
+      return NULL; /* LCOV_EXCL_LINE */
   }
 }
 

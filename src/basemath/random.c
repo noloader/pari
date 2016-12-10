@@ -303,6 +303,6 @@ genrand(GEN N)
       return ellrandom(N);
     default:
       pari_err_TYPE("genrand",N);
-      return NULL;/*not reached*/
+      return NULL;/*LCOV_EXCL_LINE*/
   }
 }

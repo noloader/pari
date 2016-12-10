@@ -156,7 +156,7 @@ polchebyshev(long n, long kind, long v)
     case 2: return polchebyshev2(n, v);
     default: pari_err_FLAG("polchebyshev");
   }
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 GEN
 polchebyshev_eval(long n, long kind, GEN x)
@@ -169,7 +169,7 @@ polchebyshev_eval(long n, long kind, GEN x)
     case 2: return polchebyshev2_eval(n, x);
     default: pari_err_FLAG("polchebyshev");
   }
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 /* Hermite polynomial H(n,x):  H(n+1) = 2x H(n) - 2n H(n-1)
@@ -938,7 +938,7 @@ stirling(long n, long m, long flag)
     case 2: return stirling2((ulong)n,(ulong)m);
     default: pari_err_FLAG("stirling");
   }
-  return NULL; /*NOT REACHED*/
+  return NULL; /*LCOV_EXCL_LINE*/
 }
 
 /***********************************************************************/
@@ -1855,7 +1855,7 @@ setsearch(GEN T, GEN y, long flag)
     if (list_typ(T) != t_LIST_RAW) pari_err_TYPE("setsearch",T);
     T = list_data(T); lx = T? lg(T): 1; break;
     default: pari_err_TYPE("setsearch",T);
-      return 0; /*not reached*/
+      return 0; /*LCOV_EXCL_LINE*/
   }
   if (lx==1) return flag? 1: 0;
   return gen_search(T,y,flag,(void*)cmp_universal,cmp_nodata);

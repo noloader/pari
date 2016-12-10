@@ -134,7 +134,7 @@ too_big(GEN nf, GEN bet)
     case t_FRAC: return abscmpii(gel(x,1), gel(x,2));
   }
   pari_err_BUG("wrong type in too_big");
-  return 0; /* not reached */
+  return 0; /* LCOV_EXCL_LINE */
 }
 
 /* GTM 193: Algo 4.3.4. Reduce x mod divisor */
@@ -1403,7 +1403,7 @@ ABC_to_bnr(GEN A, GEN B, GEN C, GEN *H, int gen)
         *H = C; return Buchray(A,B, gen? nf_INIT | nf_GEN: nf_INIT);
     }
   pari_err_TYPE("ABC_to_bnr",A);
-  *H = NULL; return NULL; /* not reached */
+  *H = NULL; return NULL; /* LCOV_EXCL_LINE */
 }
 
 GEN
@@ -1908,7 +1908,7 @@ Lbnrclassno(GEN L, GEN fac)
   for (i=1; i<l; i++)
     if (gequal(gmael(L,i,1),fac)) return gmael(L,i,2);
   pari_err_BUG("Lbnrclassno");
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 static GEN
@@ -2579,7 +2579,7 @@ bnrgaloismatrix(GEN bnr, GEN aut)
     }
     default:
       pari_err_TYPE("bnrgaloismatrix", aut);
-      return NULL; /*NOT REACHED*/
+      return NULL; /*LCOV_EXCL_LINE*/
   }
 }
 

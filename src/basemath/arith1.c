@@ -468,7 +468,7 @@ sqrtint(GEN a)
     case 0: return gen_0;
     default: pari_err_DOMAIN("sqrtint", "argument", "<", gen_0,a);
   }
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 /*********************************************************************/
@@ -818,7 +818,7 @@ issquareall(GEN x, GEN *pt)
 
   }
   pari_err_TYPE("issquareall",x);
-  return 0; /* not reached */
+  return 0; /* LCOV_EXCL_LINE */
 }
 
 long
@@ -874,7 +874,7 @@ issquare(GEN x)
       avma = av; return i;
   }
   pari_err_TYPE("issquare",x);
-  return 0; /* not reached */
+  return 0; /* LCOV_EXCL_LINE */
 }
 GEN gissquare(GEN x) { return issquare(x)? gen_1: gen_0; }
 GEN gissquareall(GEN x, GEN *pt) { return issquareall(x,pt)? gen_1: gen_0; }
@@ -1141,7 +1141,7 @@ ispower(GEN x, GEN K, GEN *pt)
       return 1;
   }
   pari_err_TYPE("ispower",x);
-  return 0; /* not reached */
+  return 0; /* LCOV_EXCL_LINE */
 }
 
 long
@@ -1186,7 +1186,7 @@ gisanypower(GEN x, GEN *pty)
     return k;
   }
   pari_err_TYPE("gisanypower", x);
-  return 0; /* not reached */
+  return 0; /* LCOV_EXCL_LINE */
 }
 
 /* v_p(x) = e != 0 for some p; return ispower(x,,&x), updating x.
@@ -2316,7 +2316,7 @@ chinese(GEN x, GEN y)
   if (tx == t_POLMOD && ty == t_INTMOD) return chinese_intpol(y,x);
   if (ty == t_POLMOD && tx == t_INTMOD) return chinese_intpol(x,y);
   pari_err_OP("chinese",x,y);
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 /* init chinese(Mod(.,A), Mod(.,B)) */
@@ -3721,7 +3721,7 @@ znlog(GEN h, GEN g, GEN o)
       N = gel(g,1);
       g = gel(g,2); break;
     default: pari_err_TYPE("znlog", g);
-      return NULL; /* not reached */
+      return NULL; /* LCOV_EXCL_LINE */
   }
   if (equali1(N)) { avma = av; return gen_0; }
   h = Rg_to_Fp(h, N);
@@ -4076,7 +4076,7 @@ gboundcf(GEN x, long k)
       return gerepilecopy(av, sersfcont(gel(x,1), gel(x,2), k));
   }
   pari_err_TYPE("gboundcf",x);
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 static GEN
@@ -4162,11 +4162,11 @@ contfracpnqn(GEN x, long n)
         case 2: A = row(x,1); B = NULL; break;
         case 3: A = row(x,2); B = row(x,1); break;
         default: pari_err_DIM("pnqn [ nbrows != 1,2 ]");
-                 return NULL; /*not reached*/
+                 return NULL; /*LCOV_EXCL_LINE*/
       }
       break;
     default: pari_err_TYPE("pnqn",x);
-      return NULL; /*not reached*/
+      return NULL; /*LCOV_EXCL_LINE*/
   }
   p1 = gel(A,1);
   q1 = B? gel(B,1): gen_1; /* p[0], q[0] */
@@ -4416,7 +4416,7 @@ bestappr_Q(GEN x, GEN k)
       return y;
   }
   pari_err_TYPE("bestappr_Q",x);
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 static GEN
@@ -4490,7 +4490,7 @@ bestappr_RgX(GEN x, long B)
       return y;
   }
   pari_err_TYPE("bestappr_RgX",x);
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 /* allow k = NULL: maximal accuracy */
@@ -4696,7 +4696,7 @@ qfbclassno0(GEN x,long flag)
     case 1: return map_proto_G(classno2,x);
     default: pari_err_FLAG("qfbclassno");
   }
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 /* f^h = 1, return order(f). Set *pfao to its factorization */

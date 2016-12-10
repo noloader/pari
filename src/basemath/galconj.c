@@ -2248,7 +2248,7 @@ galoisconj0(GEN nf, long flag, GEN d, long prec)
     case 4: return galoisconj4(nf, d);
   }
   pari_err_FLAG("nfgaloisconj");
-  return NULL; /*not reached*/
+  return NULL; /*LCOV_EXCL_LINE*/
 }
 
 /******************************************************************************/
@@ -2293,7 +2293,7 @@ galoispermtopol_i(GEN gal, GEN perm, GEN mod, GEN mod2)
     }
   }
   pari_err_TYPE("galoispermtopol", perm);
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 GEN
@@ -2453,7 +2453,7 @@ galoisisabelian(GEN gal, long flag)
     case 2: return gerepileupto(av, group_abelianSNF(G,S));
     default: pari_err_FLAG("galoisisabelian");
   }
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 long

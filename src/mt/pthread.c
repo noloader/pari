@@ -157,7 +157,7 @@ mt_queue_run(void *arg)
   }
   pthread_cleanup_pop(1);
 #ifdef __GNUC__
-  return NULL; /* NOT REACHED */
+  return NULL; /* LCOV_EXCL_LINE */
 #endif
 }
 

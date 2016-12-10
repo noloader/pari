@@ -57,7 +57,7 @@ mathnf0(GEN x, long flag)
     case 5: RgM_check_ZM(x, "mathnf0"); return hnfperm(x);
     default: pari_err_FLAG("mathnf");
   }
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 /*******************************************************************/

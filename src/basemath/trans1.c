@@ -475,7 +475,7 @@ gpowg0(GEN x)
     case t_VECSMALL: return identity_perm(lg(x) - 1);
   }
   pari_err_TYPE("gpow",x);
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 static GEN
@@ -1826,7 +1826,7 @@ gsqrtn(GEN x, GEN n, GEN *zetan, long prec)
     return gerepileupto(av, ser_powfrac(y, ginv(n), prec));
   }
   pari_err_TYPE("sqrtn",x);
-  return NULL;/* not reached */
+  return NULL;/* LCOV_EXCL_LINE */
 }
 
 /********************************************************************/

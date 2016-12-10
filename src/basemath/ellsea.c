@@ -1130,7 +1130,7 @@ find_kernel_power(GEN Eba4, GEN Eba6, GEN Eca4, GEN Eca6, ulong ell, struct meqn
     avma = btop;
   }
   pari_err_BUG("failed to find kernel polynomial");
-  return NULL; /*NOT REACHED*/
+  return NULL; /*LCOV_EXCL_LINE*/
 }
 
 /****************************************************************************/
@@ -1942,7 +1942,7 @@ Fq_ellcard_SEA(GEN a4, GEN a6, GEN q, GEN T, GEN p, ulong smallfact)
     if (gc_needed(btop, 1))
       gerepileall(btop,5, &TR,&TR_mod, &compile_atkin, &max_traces, &prod_atkin);
   }
-  return NULL;/*not reached*/
+  return NULL;/*LCOV_EXCL_LINE*/
 }
 
 GEN

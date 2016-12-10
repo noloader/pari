@@ -488,7 +488,7 @@ gconj(GEN x)
     }
     default:
       pari_err_TYPE("gconj",x);
-      return NULL; /* not reached */
+      return NULL; /* LCOV_EXCL_LINE */
   }
   return y;
 }
@@ -566,7 +566,7 @@ conjvec(GEN x,long prec)
 
     default:
       pari_err_TYPE("conjvec",x);
-      return NULL; /* not reached */
+      return NULL; /* LCOV_EXCL_LINE */
   }
   return z;
 }
@@ -803,7 +803,7 @@ add_scal(GEN y, GEN x, long ty)
       break;
   }
   pari_err_TYPE2("+",x,y);
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 static GEN
@@ -1194,7 +1194,7 @@ gadd(GEN x, GEN y)
       break;
   }
   pari_err_TYPE2("+",x,y);
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 GEN
@@ -1393,7 +1393,7 @@ mul_scal(GEN y, GEN x, long ty)
       if (typ(x) == t_INT && gequal1(x)) return gcopy(y); /* fall through */
   }
   pari_err_TYPE2("*",x,y);
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 static GEN
@@ -2127,7 +2127,7 @@ gmul(GEN x, GEN y)
       break;
   }
   pari_err_TYPE2("*",x,y);
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 int
@@ -2309,7 +2309,7 @@ gsqr(GEN x)
       return z;
   }
   pari_err_TYPE2("*",x,x);
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 /********************************************************************/
@@ -2374,7 +2374,7 @@ div_T_scal(GEN x, GEN y, long tx) {
     case t_RFRAC: return div_rfrac_scal(x,y);
   }
   pari_err_TYPE2("/",x,y);
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 static GEN
@@ -2406,7 +2406,7 @@ div_scal_T(GEN x, GEN y, long ty) {
     case t_RFRAC: return div_scal_rfrac(x, y);
   }
   pari_err_TYPE2("/",x,y);
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 /* assume tx = ty = t_SER, same variable vx */
@@ -2930,7 +2930,7 @@ gdiv(GEN x, GEN y)
       break;
   }
   pari_err_TYPE2("/",x,y);
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 /********************************************************************/
@@ -3015,7 +3015,7 @@ gmulsg(long s, GEN y)
       return z;
   }
   pari_err_TYPE("gmulsg",y);
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 /********************************************************************/
@@ -3132,7 +3132,7 @@ gdivgs(GEN x, long s)
 
   }
   pari_err_TYPE2("/",x, stoi(s));
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 /* True shift (exact multiplication by 2^n) */
@@ -3214,7 +3214,7 @@ gmul2n(GEN x, long n)
       return gmul(gmul2n(gen_1,n),x);
   }
   pari_err_TYPE("gmul2n",x);
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 /*******************************************************************/
@@ -3373,5 +3373,5 @@ ginv(GEN x)
     }
   }
   pari_err_TYPE("inverse",x);
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }

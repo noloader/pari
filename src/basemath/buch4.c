@@ -333,7 +333,7 @@ den_remove(GEN nf, GEN a)
       a = coltoliftalg(nf, a);
       return a;
     default: pari_err_TYPE("nfhilbert",a);
-      return NULL;/*not reached*/
+      return NULL;/*LCOV_EXCL_LINE*/
   }
 }
 

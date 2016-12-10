@@ -605,7 +605,8 @@ main(int argc, char **argv)
   }
   pari_stack_delete(&s_A);
   (void)gp_main_loop(1);
-  gp_quit(0); return 0; /* not reached */
+  gp_quit(0);
+  return 0; /* LCOV_EXCL_LINE */
 }
 
 void

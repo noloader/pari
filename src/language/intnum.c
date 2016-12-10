@@ -977,7 +977,7 @@ intnuminit_i(GEN a, GEN b, long m, long prec)
         gel(T,2) = homtab(tmp,kmb);
       return T;
   }
-  return gen_0; /* not reached */
+  return gen_0; /* LCOV_EXCL_LINE */
 }
 GEN
 intnuminit(GEN a, GEN b, long m, long prec)
@@ -1212,7 +1212,7 @@ intnumromb_bitprec(void *E, GEN (*eval)(void *, GEN), GEN a, GEN b, long flag, l
     case 1: z = rombint(E, eval, a, b, bit); break;
     case 2: z = qromi  (E, eval, a, b, bit); break;
     case 3: z = qrom2  (E, eval, a, b, bit); break;
-    default: pari_err_FLAG("intnumromb"); return NULL; /* not reached */
+    default: pari_err_FLAG("intnumromb"); return NULL; /* LCOV_EXCL_LINE */
   }
   return gerepileupto(av, z);
 }

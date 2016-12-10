@@ -493,5 +493,5 @@ gtomap(GEN x)
   default:
     pari_err_TYPE("Map",x);
   }
-  return NULL; /* NOT REACHED */
+  return NULL; /* LCOV_EXCL_LINE */
 }

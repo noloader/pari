@@ -291,7 +291,7 @@ padicprec_relative(GEN x)
       return vec_padicprec_relative(x, 2);
   }
   pari_err_TYPE("padicprec_relative",x);
-  return 0; /* not reached */
+  return 0; /* LCOV_EXCL_LINE */
 }
 
 static long
@@ -339,7 +339,7 @@ padicprec(GEN x, GEN p)
       return vec_padicprec(x, p, 1);
   }
   pari_err_TYPE("padicprec",x);
-  return 0; /* not reached */
+  return 0; /* LCOV_EXCL_LINE */
 }
 GEN
 gppadicprec(GEN x, GEN p)
@@ -372,7 +372,7 @@ serprec(GEN x, long v)
       return vec_serprec(x, v, 1);
   }
   pari_err_TYPE("serprec",x);
-  return 0; /* not reached */
+  return 0; /* LCOV_EXCL_LINE */
 }
 GEN
 gpserprec(GEN x, long v)
@@ -410,7 +410,7 @@ poldegree(GEN x, long v)
       return poldegree(gel(x,1),v) - poldegree(gel(x,2),v);
   }
   pari_err_TYPE("degree",x);
-  return 0; /* not reached  */
+  return 0; /* LCOV_EXCL_LINE  */
 }
 GEN
 gppoldegree(GEN x, long v)
@@ -448,7 +448,7 @@ RgX_degree(GEN x, long v)
       return RgX_degree(gel(x,1),v);
   }
   pari_err_TYPE("RgX_degree",x);
-  return 0; /* not reached  */
+  return 0; /* LCOV_EXCL_LINE  */
 }
 
 long
@@ -483,7 +483,7 @@ pollead(GEN x, long v)
 
     default:
       pari_err_TYPE("pollead",x);
-      return NULL; /* not reached */
+      return NULL; /* LCOV_EXCL_LINE */
   }
   if (varncmp(v, w) < 0) return gcopy(x);
   av = avma; w = fetch_var_higher();
@@ -607,7 +607,7 @@ iscomplex(GEN x)
       return signe(gmael(x,1,2)) > 0;
   }
   pari_err_TYPE("iscomplex",x);
-  return 0; /* not reached */
+  return 0; /* LCOV_EXCL_LINE */
 }
 
 /*******************************************************************/
@@ -767,7 +767,7 @@ gmod(GEN x, GEN y)
       return gerepileupto(av, gadd(x, gneg(gmul(_quot(x,y),y))));
   }
   pari_err_TYPE2("%",x,y);
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 GEN
@@ -809,7 +809,7 @@ gmodgs(GEN x, long y)
     case t_POLMOD: return gmul(gen_0,x);
   }
   pari_err_TYPE2("%",x,stoi(y));
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 GEN
 gmodsg(long x, GEN y)
@@ -824,7 +824,7 @@ gmodsg(long x, GEN y)
       return degpol(y)? gmulsg(x, RgX_get_1(y)): RgX_get_0(y);
   }
   pari_err_TYPE2("%",stoi(x),y);
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 /* divisibility: return 1 if y | x, 0 otherwise */
 int
@@ -852,7 +852,8 @@ gmodulsg(long x, GEN y)
       if (!signe(y)) pari_err_INV("%", y);
       retmkpolmod(stoi(x),RgX_copy(y));
   }
-  pari_err_TYPE2("%",stoi(x),y); return NULL; /* not reached */
+  pari_err_TYPE2("%",stoi(x),y);
+  return NULL; /* LCOV_EXCL_LINE */
 }
 GEN
 gmodulo(GEN x,GEN y)
@@ -878,7 +879,8 @@ gmodulo(GEN x,GEN y)
       if (vx == vy && tx == t_POLMOD) return grem(x,y);
       retmkpolmod(grem(x,y), RgX_copy(y));
   }
-  pari_err_TYPE2("%",x,y); return NULL; /* not reached */
+  pari_err_TYPE2("%",x,y);
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 /*******************************************************************/
@@ -913,7 +915,7 @@ gdivent(GEN x, GEN y)
     case t_REAL: case t_FRAC: return quot(x,y);
   }
   pari_err_TYPE2("\\",x,y);
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 GEN
@@ -933,7 +935,7 @@ gdiventgs(GEN x, long y)
       return z;
   }
   pari_err_TYPE2("\\",x,stoi(y));
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 GEN
 gdiventsg(long x, GEN y)
@@ -948,7 +950,7 @@ gdiventsg(long x, GEN y)
       return degpol(y)? RgX_get_0(y): gdivsg(x,gel(y,2));
   }
   pari_err_TYPE2("\\",stoi(x),y);
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 /* with remainder */
@@ -1000,7 +1002,7 @@ gdiventres(GEN x, GEN y)
           gel(z,2) = r; return z;
   }
   pari_err_TYPE2("\\",x,y);
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 GEN
@@ -1208,7 +1210,7 @@ mod_r(GEN x, long v, GEN T)
       return y;
   }
   pari_err_TYPE("substpol",x);
-  return NULL;/*not reached*/
+  return NULL;/*LCOV_EXCL_LINE*/
 }
 GEN
 gsubst_expr(GEN expr, GEN from, GEN to)
@@ -1352,7 +1354,7 @@ gdeflate(GEN x, long v, long d)
     case t_LIST: return listdeflate(x,v,d);
   }
   pari_err_TYPE("gdeflate",x);
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 /* set *m to the largest d such that x0 = A(X^d); return A */
@@ -1385,7 +1387,7 @@ gsubst(GEN x, long v, GEN y)
       /* fall through */
     case t_QFR: case t_QFI: case t_VEC: case t_COL:
       pari_err_TYPE2("substitution",x,y);
-      break; /* not reached */
+      break; /* LCOV_EXCL_LINE */
   }
 
   if (is_scalar_t(tx))
@@ -1795,7 +1797,7 @@ deriv(GEN x, long v)
       if (v==-1) return closure_deriv(x);
   }
   pari_err_TYPE("deriv",x);
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 static long
@@ -1874,7 +1876,7 @@ diffop(GEN x, GEN v, GEN dv)
 
   }
   pari_err_TYPE("diffop",x);
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 GEN
@@ -1940,7 +1942,7 @@ ggrando(GEN x, long n)
     v = gvar(x);
     m = n * gval(x,v); break;
     default:  pari_err_TYPE("O", x);
-      v = m = 0; /* not reached */
+      v = m = 0; /* LCOV_EXCL_LINE */
   }
   return zeroser(v,m);
 }
@@ -2074,7 +2076,7 @@ integ(GEN x, long v)
       return y;
   }
   pari_err_TYPE("integ",x);
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 /*******************************************************************/
@@ -2102,7 +2104,7 @@ gfloor(GEN x)
       return y;
   }
   pari_err_TYPE("gfloor",x);
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 GEN
@@ -2147,7 +2149,7 @@ gceil(GEN x)
       return y;
   }
   pari_err_TYPE("gceil",x);
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 GEN
@@ -2257,7 +2259,7 @@ ground(GEN x)
       return y;
   }
   pari_err_TYPE("ground",x);
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 /* e = number of error bits on integral part */
@@ -2328,7 +2330,7 @@ grndtoi(GEN x, long *e)
       return y;
   }
   pari_err_TYPE("grndtoi",x);
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 /* trunc(x * 2^s). lindep() sanity checks rely on this function to return a
@@ -2365,7 +2367,7 @@ gtrunc2n(GEN x, long s)
       gel(z,1) = gtrunc2n(gel(x,1), s);
       return z;
     default: pari_err_TYPE("gtrunc2n",x);
-      return NULL; /* not reached */
+      return NULL; /* LCOV_EXCL_LINE */
   }
 }
 
@@ -2416,7 +2418,8 @@ isint(GEN n, GEN *ptk)
     case t_FRAC:    return 0;
     case t_COMPLEX: return gequal0(gel(n,2)) && isint(gel(n,1),ptk);
     case t_QUAD:    return gequal0(gel(n,3)) && isint(gel(n,2),ptk);
-    default: pari_err_TYPE("isint",n); return 0; /* not reached */
+    default: pari_err_TYPE("isint",n);
+             return 0; /* LCOV_EXCL_LINE */
   }
 }
 
@@ -2558,7 +2561,7 @@ gtrunc(GEN x)
     }
   }
   pari_err_TYPE("gtrunc",x);
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 GEN
@@ -2754,7 +2757,7 @@ _gtopoly(GEN x, long v, int reverse)
     default:
       if (is_scalar_t(tx)) return scalarpol(x,v);
       pari_err_TYPE("gtopoly",x);
-      return NULL; /* not reached */
+      return NULL; /* LCOV_EXCL_LINE */
   }
   setvarn(y,v); return y;
 }
@@ -2882,7 +2885,7 @@ gtoser(GEN x, long v, long prec)
     }
 
     default: pari_err_TYPE("gtoser",x);
-      return NULL; /* not reached */
+      return NULL; /* LCOV_EXCL_LINE */
   }
   return y;
 }
@@ -2920,7 +2923,7 @@ gtovecpost(GEN x, long n)
       for (i=1; i<=imax; i++) gel(y,i) = stoi(x[i]);
       return y;
     default: pari_err_TYPE("gtovec",x);
-      return NULL; /*notreached*/
+      return NULL; /*LCOV_EXCL_LINE*/
   }
 }
 
@@ -2966,7 +2969,7 @@ gtovecpre(GEN x, long n)
       for (i=1; i<=imax; i++) gel(y0,i) = stoi(x[i]);
       return y;
     default: pari_err_TYPE("gtovec",x);
-      return NULL; /*notreached*/
+      return NULL; /*LCOV_EXCL_LINE*/
   }
 }
 GEN
@@ -3021,7 +3024,7 @@ gtovec(GEN x)
       for (i=2; i<lx; i++) gel(y,i) = gcopy(gel(x,i));
       return y;
     default: pari_err_TYPE("gtovec",x);
-      return NULL; /*notreached*/
+      return NULL; /*LCOV_EXCL_LINE*/
   }
 }
 
@@ -3110,7 +3113,7 @@ gtovecsmallpost(GEN x, long n)
       for (i=1; i<=imax; i++) y[i] = x[i];
       return y;
     default: pari_err_TYPE("gtovecsmall",x);
-      return NULL; /*notreached*/
+      return NULL; /*LCOV_EXCL_LINE*/
   }
 }
 static GEN
@@ -3149,7 +3152,7 @@ gtovecsmallpre(GEN x, long n)
       for (i=1; i<=imax; i++) y0[i] = x[i];
       return y;
     default: pari_err_TYPE("gtovecsmall",x);
-      return NULL; /*notreached*/
+      return NULL; /*LCOV_EXCL_LINE*/
   }
 }
 
@@ -3198,7 +3201,7 @@ gtovecsmall(GEN x)
       return V;
     default:
       pari_err_TYPE("vectosmall",x);
-      return NULL; /* not reached */
+      return NULL; /* LCOV_EXCL_LINE */
   }
 }
 
@@ -3374,7 +3377,7 @@ denom(GEN x)
     case t_VEC: case t_COL: case t_MAT: return vecdenom(x, 1, lg(x)-1);
   }
   pari_err_TYPE("denom",x);
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 GEN
@@ -3402,7 +3405,7 @@ numer(GEN x)
       av = avma; return gerepileupto(av, gmul(denom(x),x));
   }
   pari_err_TYPE("numer",x);
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 /* Lift only intmods if v does not occur in x, lift with respect to main
@@ -3679,7 +3682,7 @@ op_ReIm(GEN f(GEN), GEN x)
       return z;
   }
   pari_err_TYPE("greal/gimag",x);
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 GEN
@@ -3890,7 +3893,7 @@ geval_gp(GEN x, GEN t)
       return closure_evalres(x);
   }
   pari_err_TYPE("geval",x);
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 GEN
 geval(GEN x) { return geval_gp(x,NULL); }
@@ -3942,7 +3945,7 @@ simplify_shallow(GEN x)
       return y;
   }
   pari_err_BUG("simplify_shallow, type unknown");
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 GEN
@@ -4169,7 +4172,7 @@ poleval(GEN x, GEN y)
     case t_VEC: case t_COL:
       i = lg(x)-1; imin = 1; break;
     default: pari_err_TYPE("poleval",x);
-      return NULL; /* not reached */
+      return NULL; /* LCOV_EXCL_LINE */
   }
   if (i<=imin)
     return (i==imin)? gmul(gel(x,imin),RgX_get_1(y)): RgX_get_0(y);

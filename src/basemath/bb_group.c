@@ -549,7 +549,7 @@ get_arith_ZZM(GEN o)
       break;
   }
   pari_err_TYPE("generic discrete logarithm (order factorization)",o);
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 GEN
 get_arith_Z(GEN o)
@@ -571,7 +571,7 @@ get_arith_Z(GEN o)
       break;
   }
   pari_err_TYPE("generic discrete logarithm (order factorization)",o);
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 /* grp->easylog() is an optional trapdoor function that catch easy logarithms*/

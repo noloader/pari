@@ -4420,7 +4420,7 @@ modpoly_pickD(
       if ( ! primeform_discrete_log(&dl, L0, L, Ds[i].n1, Ds[i].D1))
       {
         pari_err_BUG("modpoly_pickD");
-        return -1; /* not reached */
+        return -1; /* LCOV_EXCL_LINE */
       }
       Ds[i].dl1 = dl;
     }

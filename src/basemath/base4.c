@@ -66,7 +66,7 @@ idealtyp(GEN *ideal, GEN *arch)
       t = id_PRINCIPAL; break;
     default:
       pari_err_TYPE("idealtyp",x);
-      return 0; /*not reached*/
+      return 0; /*LCOV_EXCL_LINE*/
   }
   *ideal = x; return t;
 }
@@ -205,7 +205,7 @@ idealdiv0(GEN nf, GEN x, GEN y, long flag)
     case 1: return idealdivexact(nf,x,y);
     default: pari_err_FLAG("idealdiv");
   }
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 GEN

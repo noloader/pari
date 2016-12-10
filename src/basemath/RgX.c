@@ -516,7 +516,7 @@ QXQ_to_mod_copy(GEN x, GEN T)
       if (d == 0) return gcopy(gel(x,2));
       return mkpolmod(RgX_copy(x), T);
     default: pari_err_TYPE("QXQ_to_mod",x);
-             return NULL;/* not reached */
+             return NULL;/* LCOV_EXCL_LINE */
   }
 }
 /* pure shallow version */
@@ -534,7 +534,7 @@ QXQ_to_mod(GEN x, GEN T)
       if (d == 0) return gel(x,2);
       return mkpolmod(x, T);
     default: pari_err_TYPE("QXQ_to_mod",x);
-             return NULL;/* not reached */
+             return NULL;/* LCOV_EXCL_LINE */
   }
 }
 /* T a ZX, z lifted from (Q[Y]/(T(Y)))[X], apply QXQ_to_mod_copy to all coeffs.

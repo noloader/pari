@@ -668,7 +668,7 @@ gpoly(GEN rr, long n1, long n2)
     }
   }
   pari_err_TYPE("gpoly [undefined invariant polynomial]", mkvecsmall2(n1,n2));
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 /* a is a t_VECSMALL representing a polynomial */
@@ -2389,7 +2389,7 @@ galoisbig(GEN pol, long prec)
     case 10:t = galoismodulo10(EVEN,pol,dpol); tab=tab10; break;
     case 11:t = galoismodulo11(EVEN,pol,dpol); tab=tab11; break;
     default: pari_err_IMPL("galois in degree > 11");
-      return NULL; /* not reached */
+      return NULL; /* LCOV_EXCL_LINE */
   }
   if (!t)
   {

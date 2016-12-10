@@ -232,7 +232,7 @@ Rg_to_Fp(GEN x, GEN p)
       return remii(a, p);
     }
     default: pari_err_TYPE("Rg_to_Fp",x);
-      return NULL; /* not reached */
+      return NULL; /* LCOV_EXCL_LINE */
   }
 }
 /* If x is a POLMOD, assume modulus is a multiple of T. */
@@ -270,7 +270,7 @@ Rg_to_FpXQ(GEN x, GEN T, GEN p)
       return FpXQ_div(a,b, T,p);
   }
   pari_err_TYPE("Rg_to_FpXQ",x);
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 GEN
 RgX_to_FpX(GEN x, GEN p)
@@ -2228,5 +2228,5 @@ ffnbirred0(GEN p, long n, long flag)
     default:
       pari_err_FLAG("ffnbirred");
   }
-  return NULL; /* NOT REACHED */
+  return NULL; /* LCOV_EXCL_LINE */
 }

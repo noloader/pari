@@ -167,7 +167,7 @@ jbesselintern(GEN n, GEN z, long flag, long prec)
       return gerepileupto(av, _jbessel(n,y,flag,lg(y)-2));
   }
   pari_err_TYPE("jbessel",z);
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 GEN
 jbessel(GEN n, GEN z, long prec) { return jbesselintern(n,z,1,prec); }
@@ -268,7 +268,7 @@ jbesselh(GEN n, GEN z, long prec)
     }
   }
   pari_err_TYPE("besseljh",z);
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 static GEN
@@ -537,7 +537,7 @@ kbesselintern(GEN n, GEN z, long flag, long prec)
       return gerepileupto(av, fl2? gneg(p1): gcopy(p1));
   }
   pari_err_TYPE(f,z);
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 GEN
@@ -2537,7 +2537,7 @@ gpolylog(long m, GEN x, long prec)
       return gerepileupto(av, a);
   }
   pari_err_TYPE("gpolylog",x);
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 GEN
@@ -2551,7 +2551,7 @@ polylog0(long m, GEN x, long flag, long prec)
     case 3: return polylogP(m,x,prec);
     default: pari_err_FLAG("polylog");
   }
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 static GEN
@@ -3334,7 +3334,7 @@ weber0(GEN x, long flag,long prec)
     case 2: return weberf2(x,prec);
     default: pari_err_FLAG("weber");
   }
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 /* check |q| < 1 */

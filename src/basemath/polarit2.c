@@ -359,7 +359,7 @@ gp_factor0(GEN x, GEN flag)
     case 2: B = 0; break;
     case 3: B = flag[2]; break;
     default: pari_err_OVERFLOW("factor [large prime bound]");
-             return NULL; /*not reached*/
+             return NULL; /*LCOV_EXCL_LINE*/
   }
   return boundfact(x, B);
 }
@@ -652,7 +652,7 @@ factor(GEN x)
               }
             /*fall through*/
             default: pari_err_IMPL("factor for general polynomial");
-              return NULL; /* not reached */
+              return NULL; /* LCOV_EXCL_LINE */
           }
           switch (t1)
           {
@@ -663,7 +663,7 @@ factor(GEN x)
             case t_QUAD: w = mkquad(pol,gen_0,gen_1);
               break;
             default: pari_err_IMPL("factor for general polynomial");
-              return NULL; /* not reached */
+              return NULL; /* LCOV_EXCL_LINE */
           }
           p2=gel(p1,1);
           for(i=1; i<lg(p2); i++)
@@ -693,7 +693,7 @@ factor(GEN x)
       /* fall through */
   }
   pari_err_TYPE("factor",x);
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 /*******************************************************************/
@@ -1379,7 +1379,7 @@ ggcd(GEN x, GEN y)
     }
   }
   pari_err_TYPE2("gcd",x,y);
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 GEN
 ggcd0(GEN x, GEN y) { return y? ggcd(x,y): content(x); }
@@ -1534,7 +1534,7 @@ content(GEN x)
       lx = 4; break;
 
     default: pari_err_TYPE("content",x);
-      return NULL; /* not reached */
+      return NULL; /* LCOV_EXCL_LINE */
   }
   for (i=lontyp[tx]; i<lx; i++)
     if (typ(gel(x,i)) != t_INT) break;
@@ -1617,7 +1617,7 @@ Q_content(GEN x)
     case t_COMPLEX: return Q_gcd(Q_content(gel(x,1)), Q_content(gel(x,2)));
   }
   pari_err_TYPE("Q_content",x);
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 GEN
@@ -1675,7 +1675,7 @@ Q_denom(GEN x)
     case t_POLMOD: return Q_denom(gel(x,2));
   }
   pari_err_TYPE("Q_denom",x);
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 GEN
@@ -1724,7 +1724,7 @@ Q_muli_to_int(GEN x, GEN d)
       return y;
   }
   pari_err_TYPE("Q_muli_to_int",x);
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 /* return x * n/d. x: rational; d,n,result: integral; d,n coprime */
@@ -1764,7 +1764,7 @@ Q_divmuli_to_int(GEN x, GEN d, GEN n)
       return y;
   }
   pari_err_TYPE("Q_divmuli_to_int",x);
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 /* return x / d. x: rational; d,result: integral. */
@@ -1796,7 +1796,7 @@ Q_divi_to_int(GEN x, GEN d)
       return y;
   }
   pari_err_TYPE("Q_divi_to_int",x);
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 /* c t_FRAC */
 static GEN
@@ -1821,7 +1821,7 @@ Q_div_to_int(GEN x, GEN c)
     case t_FRAC: return Q_divq_to_int(x, c);
   }
   pari_err_TYPE("Q_div_to_int",c);
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 /* return y = x * c, assuming x,c rational, and y integral */
 GEN
@@ -1837,7 +1837,7 @@ Q_mul_to_int(GEN x, GEN c)
       return Q_divmuli_to_int(x, d,n);
   }
   pari_err_TYPE("Q_mul_to_int",c);
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 GEN
@@ -2836,7 +2836,7 @@ poldisc0(GEN x, long v)
     }
   }
   pari_err_TYPE("poldisc",x);
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 GEN
@@ -3101,7 +3101,7 @@ ginvmod(GEN x, GEN y)
       if (tx==t_POL) return gen_0;
   }
   pari_err_TYPE2("ginvmod",x,y);
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 /***********************************************************************/

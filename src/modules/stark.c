@@ -2748,7 +2748,7 @@ makescind(GEN nf, GEN P)
     }
   }
   pari_err_BUG("makescind");
-  return NULL; /*not reached*/
+  return NULL; /*LCOV_EXCL_LINE*/
 }
 
 /* pbnf = NULL if no bnf is needed, f = NULL may be passed for a trivial

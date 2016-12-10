@@ -852,7 +852,7 @@ lfunell(GEN e)
       return lfunellnf(e);
   }
   pari_err_TYPE("lfun",e);
-  return NULL; /*NOT REACHED*/
+  return NULL; /*LCOV_EXCL_LINE*/
 }
 
 GEN
@@ -1779,7 +1779,7 @@ lfunmisc_to_ldata_i(GEN ldata, long shallow)
     case t_LFUNMISC_ELLINIT: return lfunell(ldata);
   }
   pari_err_TYPE("lfunmisc_to_ldata",ldata);
-  return NULL; /* NOT REACHED */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 GEN

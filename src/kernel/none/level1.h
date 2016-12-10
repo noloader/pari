@@ -338,7 +338,7 @@ itou(GEN x)
     case 3: return x[2];
     default:
       pari_err_OVERFLOW("t_INT-->ulong assignment");
-      return 0; /* not reached */
+      return 0; /* LCOV_EXCL_LINE */
   }
 }
 

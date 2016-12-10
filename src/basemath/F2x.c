@@ -189,7 +189,7 @@ Rg_to_F2xq(GEN x, GEN T)
       return F2xq_div(a,b, T);
   }
   pari_err_TYPE("Rg_to_F2xq",x);
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 ulong

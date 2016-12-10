@@ -2085,7 +2085,7 @@ type_name(long t)
     case t_ERROR:   s="t_ERROR";   break;
     case t_INFINITY:s="t_INFINITY";break;
     default: pari_err(e_MISC,"unknown type %ld",t);
-      s = NULL; /* not reached */
+      s = NULL; /* LCOV_EXCL_LINE */
   }
   return s;
 }
@@ -4095,7 +4095,7 @@ switchin(const char *name)
     pari_free(s);
   }
   pari_err_FILE("input file",name);
-  return NULL; /*not reached*/
+  return NULL; /*LCOV_EXCL_LINE*/
 }
 
 static int is_magic_ok(FILE *f);

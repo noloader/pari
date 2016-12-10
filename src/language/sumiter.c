@@ -636,7 +636,7 @@ prodinf0(GEN a, GEN code, long flag, long prec)
     case 1: EXPR_WRAP(code, prodinf1(EXPR_ARG, a, prec));
   }
   pari_err_FLAG("prodinf");
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 GEN
@@ -939,7 +939,7 @@ sumalt0(GEN a, GEN code, long flag, long prec)
     case 1: EXPR_WRAP(code, sumalt2(EXPR_ARG,a,prec));
     default: pari_err_FLAG("sumalt");
   }
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 /* For k > 0, set S[k*2^i] <- g(k*2^i), k*2^i <= N = #S.
@@ -1052,7 +1052,7 @@ sumpos0(GEN a, GEN code, long flag, long prec)
     case 1: EXPR_WRAP(code, sumpos2(EXPR_ARG,a,prec));
     default: pari_err_FLAG("sumpos");
   }
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 /********************************************************************/
@@ -1273,7 +1273,7 @@ derivfun(void *E, GEN (*eval)(void *, GEN, long), GEN x, long prec)
     vx = varn(x);
     return gerepileupto(av, gdiv(deriv(eval(E, x, prec),vx), deriv(x,vx)));
   default: pari_err_TYPE("formal derivation",x);
-    return NULL; /*NOT REACHED*/
+    return NULL; /*LCOV_EXCL_LINE*/
   }
 }
 

@@ -2242,7 +2242,7 @@ uniformizer(GEN nf, norm_S *S, GEN P, GEN V, GEN p, int ramif)
     if (is_uniformizer(x, q, S)) return x;
   }
   errprime(p);
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 /*******************************************************************/

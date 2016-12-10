@@ -210,7 +210,7 @@ shallowconcat(GEN x, GEN y)
       break;
   }
   err_cat(x,y);
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 /* see catmany() */
@@ -303,7 +303,7 @@ shallowconcat1(GEN x)
       break;
     default:
       pari_err_TYPE("concat",x);
-      return NULL; /* not reached */
+      return NULL; /* LCOV_EXCL_LINE */
   }
   if (lx==2) return gel(x,1);
   z = gel(x,1); t = typ(z); i = 2;
@@ -577,5 +577,5 @@ gconcat(GEN x, GEN y)
       break;
   }
   err_cat(x,y);
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }

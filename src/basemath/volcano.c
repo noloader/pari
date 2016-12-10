@@ -466,8 +466,7 @@ surface_path(
       }
     }
   }
-  /* NB: Never reached */
-  return -1;
+  return -1; /*LCOV_EXCL_LINE*/
 }
 
 long

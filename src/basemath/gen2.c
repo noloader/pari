@@ -140,7 +140,7 @@ matsize(GEN x)
     case t_MAT: return mkvec2s(L? nbrows(x): 0, L);
   }
   pari_err_TYPE("matsize",x);
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 /*******************************************************************/
@@ -220,7 +220,7 @@ gtolong(GEN x)
       if (gequal0(gel(x,3))) return gtolong(gel(x,2)); break;
   }
   pari_err_TYPE("gtolong",x);
-  return 0; /* not reached */
+  return 0; /* LCOV_EXCL_LINE */
 }
 
 /*******************************************************************/
@@ -692,7 +692,7 @@ gcmp(GEN x, GEN y)
     case t_INFINITY: return inf_get_sign(x);
   }
   pari_err_TYPE2("comparison",x,y);
-  return 0;/*not reached*/
+  return 0;/*LCOV_EXCL_LINE*/
 }
 
 int
@@ -710,7 +710,7 @@ gcmpsg(long s, GEN y)
     case t_STR: return -1;
   }
   pari_err_TYPE2("comparison",stoi(s),y);
-  return 0; /* not reached */
+  return 0; /* LCOV_EXCL_LINE */
 }
 
 static long
@@ -1307,7 +1307,7 @@ gvaluation(GEN x, GEN p)
       return minval(x,p);
   }
   pari_err_OP("valuation", x,p);
-  return 0; /* not reached */
+  return 0; /* LCOV_EXCL_LINE */
 }
 GEN
 gpvaluation(GEN x, GEN p)
@@ -1856,7 +1856,7 @@ gneg(GEN x)
     case t_INFINITY: return inf_get_sign(x) == 1? mkmoo(): mkoo();
     default:
       pari_err_TYPE("gneg",x);
-      return NULL; /* not reached */
+      return NULL; /* LCOV_EXCL_LINE */
   }
   return y;
 }
@@ -1923,7 +1923,7 @@ gneg_i(GEN x)
 
     default:
       pari_err_TYPE("gneg_i",x);
-      return NULL; /* not reached */
+      return NULL; /* LCOV_EXCL_LINE */
   }
   return y;
 }
@@ -1998,7 +1998,7 @@ gabs(GEN x, long prec)
       return y;
   }
   pari_err_TYPE("gabs",x);
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 GEN
@@ -2029,7 +2029,7 @@ vecindexmax(GEN x)
       return vecsmall_indexmax(x);
     default: pari_err_TYPE("vecindexmax",x);
   }
-  /* NOT REACHED */
+  /* LCOV_EXCL_LINE */
   return 0;
 }
 long
@@ -2050,7 +2050,7 @@ vecindexmin(GEN x)
       return vecsmall_indexmin(x);
     default: pari_err_TYPE("vecindexmin",x);
   }
-  /* NOT REACHED */
+  /* LCOV_EXCL_LINE */
   return 0;
 }
 
@@ -2071,7 +2071,7 @@ vecmax0(GEN x, GEN *pi)
       if (lx==1 || (lx2 = lgcols(x)) == 1)
       {
         pari_err_DOMAIN("vecmax", "empty argument", "=", x,x);
-        return NULL;/*not reached*/
+        return NULL;/*LCOV_EXCL_LINE*/
       }
       s = gcoeff(x,i0=1,j0=1); i = 2;
       for (j=1; j<lx; j++,i=1)
@@ -2107,7 +2107,7 @@ vecmin0(GEN x, GEN *pi)
       if (lx==1 || (lx2 = lgcols(x)) == 1)
       {
         pari_err_DOMAIN("vecmin", "empty argument", "=", x,x);
-        return NULL;/*not reached*/
+        return NULL;/*LCOV_EXCL_LINE*/
       }
       s = gcoeff(x,i0=1,j0=1); i = 2;
       for (j=1; j<lx; j++,i=1)
@@ -2468,7 +2468,7 @@ cvtop2(GEN x, GEN y)
     case t_QUAD:    return qtop(x, p, d);
   }
   pari_err_TYPE("cvtop2",x);
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 /* assume is_const_t(tx) */
@@ -2521,7 +2521,7 @@ cvtop(GEN x, GEN p, long d)
     case t_QUAD: return qtop(x, p, d);
   }
   pari_err_TYPE("cvtop",x);
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 GEN
@@ -2580,7 +2580,7 @@ gexpo(GEN x)
       return f;
   }
   pari_err_TYPE("gexpo",x);
-  return 0; /* not reached */
+  return 0; /* LCOV_EXCL_LINE */
 }
 
 long
@@ -2709,7 +2709,7 @@ gsigne(GEN x)
     case t_INFINITY: return inf_get_sign(x);
   }
   pari_err_TYPE("gsigne",x);
-  return 0; /* not reached */
+  return 0; /* LCOV_EXCL_LINE */
 }
 
 /*******************************************************************/

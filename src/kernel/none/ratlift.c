@@ -269,5 +269,5 @@ Fp_ratlift(GEN x, GEN m, GEN amax, GEN bmax, GEN *a, GEN *b)
 
   /* We have run into d1 == 0 before returning. This cannot happen */
   pari_err_BUG("ratlift failed to catch d1 == 0");
-  return 0; /* NOTREACHED */
+  return 0; /* LCOV_EXCL_LINE */
 }

@@ -1040,7 +1040,7 @@ heegner_find_point(GEN e, GEN om, GEN ht, GEN z1, long k, long prec)
     avma = av;
   }
   pari_err_BUG("ellheegner, point not found");
-  return NULL; /* NOT REACHED */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 /* N > 1, fa = factor(N), return factor(4*N) */

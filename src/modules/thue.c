@@ -939,7 +939,7 @@ get_B0(long i1, GEN Delta2, GEN Lambda, GEN Deps5, long prec, baker_s *BS)
     if (i2 > BS->r) break;
   }
   pari_err_BUG("thue (totally rational case)");
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 static GEN
@@ -991,7 +991,7 @@ get_Bx_LLL(long i1, GEN Delta2, GEN Lambda, long prec, baker_s *BS)
     if (i2 > BS->r) break;
   }
   pari_err_BUG("thue (totally rational case)");
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 static GEN

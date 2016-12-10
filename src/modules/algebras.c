@@ -61,7 +61,7 @@ alg_type(GEN al)
     case t_POLMOD: return al_CYCLIC;
     default: return al_NULL;
   }
-  return -1; /*not reached*/
+  return -1; /*LCOV_EXCL_LINE*/
 }
 long
 algtype(GEN al)
@@ -78,7 +78,7 @@ alg_get_dim(GEN al)
     case al_CYCLIC: d = alg_get_degree(al); return d*d;
     default: pari_err_TYPE("alg_get_dim", al);
   }
-  return -1; /*not reached*/
+  return -1; /*LCOV_EXCL_LINE*/
 }
 long
 algdim(GEN al)
@@ -94,7 +94,7 @@ alg_get_absdim(GEN al)
       return rnf_get_absdegree(alg_get_splittingfield(al))*alg_get_degree(al);
     default: pari_err_TYPE("alg_get_absdim", al);
   }
-  return -1;/*not reached*/
+  return -1;/*LCOV_EXCL_LINE*/
 }
 long
 algabsdim(GEN al)
@@ -1253,7 +1253,7 @@ alg_model0(GEN al, GEN x)
         return al_INVALID;
       }
   }
-  return al_INVALID; /* not reached */
+  return al_INVALID; /* LCOV_EXCL_LINE */
 }
 
 static void
@@ -1518,7 +1518,7 @@ algalgmul(GEN al, GEN x, GEN y)
     case al_CYCLIC: return algalgmul_cyc(al, x, y);
     case al_CSA: return algalgmul_csa(al, x, y);
   }
-  return NULL; /*not reached*/
+  return NULL; /*LCOV_EXCL_LINE*/
 }
 
 GEN
@@ -1658,7 +1658,7 @@ algmtK2Z(GEN al, GEN m)
     case al_CYCLIC: return algmtK2Z_cyc(al, m);
     case al_CSA: return algmtK2Z_csa(al, m);
   }
-  return NULL; /*not reached*/
+  return NULL; /*LCOV_EXCL_LINE*/
 }
 
 /* left multiplication table, as a vector space of dimension n over the splitting field (by right multiplication) */
@@ -1749,7 +1749,7 @@ algalgmultable(GEN al, GEN x)
     case al_CYCLIC: return algalgmultable_cyc(al, x);
     case al_CSA: return algalgmultable_csa(al, x);
   }
-  return NULL; /*not reached*/
+  return NULL; /*LCOV_EXCL_LINE*/
 }
 
 /* on the natural basis */
@@ -1916,7 +1916,7 @@ algleftmultable(GEN al, GEN x)
     case al_ALGEBRAIC : res = algalgmultable(al,x); break;
     case al_BASIS : res = algbasismultable(al,x); break;
     case al_MATRIX : res = algleftmultable_mat(al,x); break;
-    default : return NULL; /* not reached */
+    default : return NULL; /* LCOV_EXCL_LINE */
   }
   return gerepileupto(av,res);
 }
@@ -2037,7 +2037,7 @@ alginv_i(GEN al, GEN x)
       switch(alg_type(al)) {
         case al_CYCLIC: n = alg_get_degree(al); break;
         case al_CSA: n = alg_get_dim(al); break;
-        default: return NULL; /* not reached */
+        default: return NULL; /* LCOV_EXCL_LINE */
       }
       res = algdivl_i(al, x, col_ei(n,1), tx, al_ALGEBRAIC); break;
     case al_BASIS : res = algdivl_i(al, x, col_ei(alg_get_absdim(al),1), tx, al_BASIS); break;
@@ -2133,7 +2133,7 @@ algredcharpoly(GEN al, GEN x, long v)
     case al_CSA:
       return gerepileupto(av, algredcharpoly_i(al, x, v));
   }
-  return NULL; /*not reached*/
+  return NULL; /*LCOV_EXCL_LINE*/
 }
 
 GEN
@@ -2167,7 +2167,7 @@ algcharpoly(GEN al, GEN x, long v)
   switch(alg_type(al)) {
     case al_CYCLIC: case al_CSA: return algredcharpoly(al,x,v);
     case al_TABLE: return algbasischarpoly(al,x,v);
-    default : return NULL; /* not reached */
+    default : return NULL; /* LCOV_EXCL_LINE */
   }
 }
 
@@ -2203,7 +2203,7 @@ algredtrace(GEN al, GEN x)
           res = gtrace(algalgmultable_csa(al,x));
           res = gdiv(res, stoi(alg_get_degree(al)));
           break;
-        default: return NULL; /* not reached */
+        default: return NULL; /* LCOV_EXCL_LINE */
       }
   }
   return gerepileupto(av,res);
@@ -2235,7 +2235,7 @@ algtrace(GEN al, GEN x)
   switch(alg_type(al)) {
     case al_CYCLIC: case al_CSA: return algredtrace(al,x);
     case al_TABLE: return algabstrace(al,x);
-    default : return NULL; /* not reached */
+    default : return NULL; /* LCOV_EXCL_LINE */
   }
 }
 
@@ -2311,7 +2311,7 @@ algnorm(GEN al, GEN x)
       else                  mx = algbasismultable(al,x);
       res = det(mx);
       break;
-    default: return NULL; /* not reached */
+    default: return NULL; /* LCOV_EXCL_LINE */
   }
   return gerepileupto(av, res);
 }
@@ -2360,7 +2360,7 @@ algalgtonat(GEN al, GEN x)
     case al_CYCLIC: return algalgtonat_cyc(al, x);
     case al_CSA: return algalgtonat_csa(al, x);
   }
-  return NULL; /*not reached*/
+  return NULL; /*LCOV_EXCL_LINE*/
 }
 
 static GEN
@@ -2402,7 +2402,7 @@ algnattoalg(GEN al, GEN x)
     case al_CYCLIC: return algnattoalg_cyc(al, x);
     case al_CSA: return algnattoalg_csa(al, x);
   }
-  return NULL; /*not reached*/
+  return NULL; /*LCOV_EXCL_LINE*/
 }
 
 static GEN
@@ -2687,7 +2687,7 @@ bnfgwgeneric(GEN bnf, GEN Lpr, GEN Ld, GEN pl, long var)
     }
   }
   pari_err_BUG("bnfgwgeneric (no suitable p)");
-  return NULL;/*not reached*/
+  return NULL;/*LCOV_EXCL_LINE*/
 }
 
 /* no garbage collection */
@@ -2755,7 +2755,7 @@ get_vecsmall(GEN v)
     case t_VEC: if (RgV_is_ZV(v)) return ZV_to_zv(v);
   }
   pari_err_TYPE("nfgrunwaldwang",v);
-  return NULL;/*not reached*/
+  return NULL;/*LCOV_EXCL_LINE*/
 }
 GEN
 nfgrunwaldwang(GEN nf0, GEN Lpr, GEN Ld, GEN pl, long var)
@@ -3510,7 +3510,7 @@ rnfcycaut(GEN rnf)
     if (j<d) continue;
     return s;
   }
-  return NULL; /*not reached*/
+  return NULL; /*LCOV_EXCL_LINE*/
 }
 
 GEN
@@ -3643,7 +3643,7 @@ alginit(GEN A, GEN B, long v, long flag)
       return alg_cyclic(A,gel(B,1),gel(B,2),flag);
   }
   pari_err_TYPE("alginit", A);
-  return NULL;/*not reached*/
+  return NULL;/*LCOV_EXCL_LINE*/
 }
 
 /* assumes al CSA or CYCLIC */
@@ -3857,7 +3857,7 @@ findmaximalsubfield(GEN al, GEN d, long v)
     if (nb<N) nb++;
   }
 
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 static GEN

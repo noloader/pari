@@ -39,7 +39,7 @@ get_prime_index(ulong len)
   for (i=0; i < hashprimes_len; i++)
     if (hashprimes[i] > len) return i;
   pari_err_OVERFLOW("hash table [too large]");
-  return -1; /* not reached */
+  return -1; /* LCOV_EXCL_LINE */
 }
 
 /* link hashentry e to hashtable h, setting e->hash / e->next */

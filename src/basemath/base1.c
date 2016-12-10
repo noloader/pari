@@ -546,7 +546,7 @@ elt_galoisapply(GEN nf, GEN aut, GEN x)
       }
   }
   pari_err_TYPE("galoisapply",x);
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 GEN
@@ -593,7 +593,7 @@ galoisapply(GEN nf, GEN aut, GEN x)
       return gerepileupto(av, idealhnf_shallow(nf,y));
   }
   pari_err_TYPE("galoisapply",x);
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 GEN
@@ -630,7 +630,7 @@ idealquasifrob(GEN nf, GEN gal, GEN grp, GEN pr, GEN subg, GEN *S, GEN aut)
     }
   }
   pari_err_BUG("idealquasifrob [Frobenius not found]");
-  return NULL; /*NOT REACHED*/
+  return NULL; /*LCOV_EXCL_LINE*/
 }
 
 GEN
@@ -1704,7 +1704,7 @@ nfinit0(GEN x, long flag,long prec)
     case 3: case 5: return nfinitall(x,nf_RED|nf_ORIG,prec);
     default: pari_err_FLAG("nfinit");
   }
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 /* assume x a bnr/bnf/nf */

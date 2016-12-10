@@ -1316,7 +1316,7 @@ pr_index(GEN L, GEN pr)
   for (j=1; j<l; j++)
     if (ZV_equal(al, pr_get_gen(gel(L,j)))) return j;
   pari_err_BUG("codeprime");
-  return 0; /* not reached */
+  return 0; /* LCOV_EXCL_LINE */
 }
 
 static long
@@ -3726,7 +3726,7 @@ bnfinit0(GEN P, long flag, GEN data, long prec)
     case 0: fl = 0; break;
     case 1: fl = nf_FORCE; break;
     default: pari_err_FLAG("bnfinit");
-      return NULL; /* not reached */
+      return NULL; /* LCOV_EXCL_LINE */
   }
   return Buchall_param(P, c1, c2, relpid, fl, prec);
 }

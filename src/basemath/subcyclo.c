@@ -308,7 +308,7 @@ lift_check_modulus(GEN H, long n)
       return h;
   }
   pari_err_TYPE("galoissubcyclo [subgroup]", H);
-  return 0;/*not reached*/
+  return 0;/*LCOV_EXCL_LINE*/
 }
 
 /* Compute z^ex using the baby-step/giant-step table powz
@@ -576,13 +576,13 @@ galoissubcyclo(GEN N, GEN sg, long flag, long v)
         } else
         {
           pari_err_TYPE("galoissubcyclo",N);
-          return NULL;/*Not reached*/
+          return NULL;/*LCOV_EXCL_LINE*/
         }
         break;
       }
     default: /*fall through*/
       pari_err_TYPE("galoissubcyclo",N);
-      return NULL;/*Not reached*/
+      return NULL;/*LCOV_EXCL_LINE*/
   }
   if (n==1) { avma = ltop; return deg1pol_shallow(gen_1,gen_m1,v); }
 
@@ -609,7 +609,7 @@ galoissubcyclo(GEN N, GEN sg, long flag, long v)
       break;
     default:
       pari_err_TYPE("galoissubcyclo",sg);
-      return NULL;/*Not reached*/
+      return NULL;/*LCOV_EXCL_LINE*/
   }
   if (!complex) V = vecsmall_append(V,n-1); /*add complex conjugation*/
   H = znstar_generate(n,V);

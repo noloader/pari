@@ -3145,7 +3145,7 @@ inverseimage(GEN m, GEN v)
       return y? y: cgetg(1,t_MAT);
   }
   pari_err_TYPE("inverseimage",v);
-  return NULL;/*not reached*/
+  return NULL;/*LCOV_EXCL_LINE*/
 }
 
 static GEN
@@ -3439,7 +3439,7 @@ matimage0(GEN x,long flag)
     case 1: return image2(x);
     default: pari_err_FLAG("matimage");
   }
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 long
@@ -3827,7 +3827,7 @@ det0(GEN a,long flag)
     case 1: return det2(a);
     default: pari_err_FLAG("matdet");
   }
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 /* M a 2x2 matrix, returns det(M) */
@@ -4290,7 +4290,7 @@ gaussmoduloall(GEN M, GEN D, GEN Y, GEN *ptu1)
       delta = diagonal_shallow(D); break;
     case t_INT: delta = scalarmat_shallow(D,n); break;
     default: pari_err_TYPE("gaussmodulo",D);
-      return NULL; /* not reached */
+      return NULL; /* LCOV_EXCL_LINE */
   }
   switch(typ(Y))
   {
@@ -4299,7 +4299,7 @@ gaussmoduloall(GEN M, GEN D, GEN Y, GEN *ptu1)
       if (lg(Y)-1!=n) pari_err_DIM("gaussmodulo");
       break;
     default: pari_err_TYPE("gaussmodulo",Y);
-      return NULL; /* not reached */
+      return NULL; /* LCOV_EXCL_LINE */
   }
   H = ZM_hnfall_i(shallowconcat(M,delta), &U, 1);
   Y = hnf_solve(H,Y); if (!Y) return gen_0;

@@ -2246,5 +2246,5 @@ rootsof1_kannan(GEN nf)
     if (z) return gerepilecopy(av, mkvec2(w, z));
   }
   pari_err_BUG("rootsof1");
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }

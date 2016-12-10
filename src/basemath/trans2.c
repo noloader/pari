@@ -1532,7 +1532,7 @@ ggamma(GEN x, long prec)
         if (is_bigint(a) || labs(m = itos(a)) > 962354)
         {
           pari_err_OVERFLOW("gamma");
-          return NULL; /* not reached */
+          return NULL; /* LCOV_EXCL_LINE */
         }
         return gammahs(m-1, prec);
       }

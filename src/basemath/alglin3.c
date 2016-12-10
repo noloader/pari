@@ -298,7 +298,7 @@ shallowextract(GEN x, GEN L)
     return y;
   }
   pari_err_TYPE("vecextract [mask]", L);
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 /* does the component selector l select 0 component ? */
@@ -512,7 +512,7 @@ genindexselect(void *E, long (*f)(void* E, GEN x), GEN A)
       break;
     default:
       pari_err_TYPE("select",A);
-      return NULL;/*not reached*/
+      return NULL;/*LCOV_EXCL_LINE*/
   }
   v = cgetg(l, t_VECSMALL);
   av = avma;
@@ -566,7 +566,7 @@ genselect(void *E, long (*f)(void* E, GEN x), GEN A)
       break;
     default:
       pari_err_TYPE("select",A);
-      return NULL;/*not reached*/
+      return NULL;/*LCOV_EXCL_LINE*/
   }
   clone_unlock(A); return y;
 }
@@ -587,7 +587,7 @@ select0(GEN f, GEN x, long flag)
     case 0: return genselect((void *) f, gp_callbool, x);
     case 1: return genindexselect((void *) f, gp_callbool, x);
     default: pari_err_FLAG("select");
-             return NULL;/*not reached*/
+             return NULL;/*LCOV_EXCL_LINE*/
   }
 }
 
@@ -705,7 +705,8 @@ genapply(void *E, GEN (*f)(void* E, GEN x), GEN x)
 
     case t_VEC: case t_COL: y = vecapply1(E,f,x); break;
     default:
-      pari_err_TYPE("apply",x); return NULL;/*not reached*/
+      pari_err_TYPE("apply",x);
+      return NULL;/*LCOV_EXCL_LINE*/
   }
   clone_unlock(x); return y;
 }

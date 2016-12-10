@@ -240,7 +240,7 @@ rootmod0(GEN f, GEN p, long flag)
     case 1: return rootmod2(f,p);
     default: pari_err_FLAG("polrootsmod");
   }
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 /* assume x reduced mod p > 2, monic. */
@@ -2620,5 +2620,5 @@ factormod0(GEN f, GEN p, long flag)
     case 1: return simplefactmod(f,p);
     default: pari_err_FLAG("factormod");
   }
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }

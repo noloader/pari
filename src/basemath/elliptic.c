@@ -359,7 +359,7 @@ initsmall(GEN x, long n)
     case 4:
     case 5:
       pari_err_TYPE("ellxxx [not an elliptic curve (ell5)]",x);
-      return NULL; break; /* not reached */
+      return NULL; /* LCOV_EXCL_LINE */
     case 3:
       a1 = a2 = a3 = gen_0;
       a4 = gel(x,1);
@@ -1582,7 +1582,7 @@ ellminimaltwist0(GEN e, long flag)
       return ellminimaltwistcond(e);
   }
   pari_err_FLAG("ellminimaltwist");
-  return NULL; /* NOT REACHED */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 static long
@@ -2072,7 +2072,7 @@ ellmul(GEN e, GEN z, GEN n)
     }
   }
   pari_err_TYPE("ellmul (non integral, non CM exponent)",n);
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 /********************************************************************/
@@ -3350,7 +3350,7 @@ ellperiods(GEN w, long flag, long prec)
     case 0: return gerepilecopy(av, mkvec2(T.W1, T.W2));
     case 1: return gerepilecopy(av, mkvec2(mkvec2(T.W1, T.W2), _elleta(&T)));
     default: pari_err_FLAG("ellperiods");
-             return NULL;/*not reached*/
+             return NULL;/*LCOV_EXCL_LINE*/
   }
 }
 
@@ -3951,7 +3951,7 @@ localredbug(GEN p, const char *s)
 {
   if (BPSW_psp(p)) pari_err_BUG(s);
   pari_err_PRIME("localred",p);
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 /* v_p( denom(j(E)) ) >= 0 */
@@ -4211,7 +4211,7 @@ localred_23(GEN e, long p)
       /* p^6 \nmid a6, otherwise wouldn't be minimal */
       return localred_result(nuD - 8, -2, 1, v); /* II* */
   }
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 static GEN
@@ -5938,7 +5938,7 @@ ellan(GEN E, long N)
     case t_ELL_NF: return ellnfan(E, N);
     default:
       pari_err_TYPE("ellan",E);
-      return NULL; /*NOT REACHED*/
+      return NULL; /*LCOV_EXCL_LINE*/
   }
 }
 
@@ -6544,7 +6544,7 @@ checkellp(GEN E, GEN p, const char *s)
       if (p) return p;
     default:
       pari_err_TYPE(stack_strcat(s," [can't determine p]"), E);
-      return NULL;/*not reached*/
+      return NULL;/*LCOV_EXCL_LINE*/
   }
 }
 
@@ -6570,7 +6570,7 @@ ellap(GEN E, GEN p)
     return ellnfap(E, p, &goodred);
   default:
     pari_err_TYPE("ellap",E);
-    return NULL; /*NOT REACHED*/
+    return NULL; /*LCOV_EXCL_LINE*/
   }
   return gerepileuptoint(av, subii(addiu(q,1), card));
 }
@@ -6596,7 +6596,7 @@ ellsea(GEN E, ulong smallfact)
       return FF_ellcard_SEA(E, smallfact);
     }
   }
-  return NULL; /*NOT REACHED*/
+  return NULL; /*LCOV_EXCL_LINE*/
 }
 
 GEN
@@ -6629,7 +6629,7 @@ ellcard(GEN E, GEN p)
     }
   default:
     pari_err_TYPE("ellcard",E);
-    return NULL; /*NOT REACHED*/
+    return NULL; /*LCOV_EXCL_LINE*/
   }
 }
 
@@ -6793,7 +6793,7 @@ ellgenerators(GEN E)
       return gcopy(ellff_get_gens(E));
     default:
       pari_err_TYPE("ellgenerators",E);
-      return NULL;/*not reached*/
+      return NULL;/*LCOV_EXCL_LINE*/
   }
 }
 
@@ -6859,7 +6859,7 @@ elljissupersingular(GEN x)
     res = FpXQ_elljissupersingular(j, T, p);
   } else {
     pari_err_TYPE("elljissupersingular", x);
-    return 0; /*NOT REACHED*/
+    return 0; /*LCOV_EXCL_LINE*/
   }
   avma = av;
   return res;
@@ -6905,7 +6905,7 @@ ellissupersingular(GEN E, GEN p)
   default:
     pari_err_TYPE("ellissupersingular",E);
   }
-  return 0; /* Not reached */
+  return 0; /*LCOV_EXCL_LINE*/
 }
 
 /* n <= 4, N is the characteristic of the base ring or NULL (char 0) */

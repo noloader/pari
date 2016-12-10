@@ -450,7 +450,7 @@ pari_sighandler(int sig)
         pari_outfile = stdout; pari_fclose(f);
         pari_err(e_MISC, "Broken Pipe, resetting file stack...");
       }
-      return; /* not reached */
+      return; /* LCOV_EXCL_LINE */
     }
 #endif
 
@@ -1421,7 +1421,7 @@ pari_err2str(GEN e)
                           gel(e,2), pol_x(varn(x)), pol_x(varn(y)));
     }
   }
-  return NULL; /*NOT REACHED*/
+  return NULL; /*LCOV_EXCL_LINE*/
 }
 
 static int
@@ -1567,7 +1567,7 @@ name_numerr(const char *s)
   if (!strcmp(s,"e_USER"))     return e_USER;
   if (!strcmp(s,"e_VAR"))      return e_VAR;
   pari_err(e_MISC,"unknown error name");
-  return -1; /* NOT REACHED */
+  return -1; /* LCOV_EXCL_LINE */
 }
 
 GEN

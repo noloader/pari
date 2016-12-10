@@ -599,7 +599,7 @@ time_fun(speed_function_t fun, speed_param *s, long enabled)
     }
   }
   pari_err(e_MISC,"couldn't measure time");
-  return -1.0; /* not reached */
+  return -1.0; /* LCOV_EXCL_LINE */
 }
 
 void

@@ -259,7 +259,7 @@ Rg_to_Fl(GEN x, ulong p)
       return umodiu(a, p);
     }
     default: pari_err_TYPE("Rg_to_Fl",x);
-      return 0; /* not reached */
+      return 0; /* LCOV_EXCL_LINE */
   }
 }
 
@@ -282,7 +282,7 @@ Rg_to_F2(GEN x)
       return mpodd(a);
     }
     default: pari_err_TYPE("Rg_to_F2",x);
-      return 0; /* not reached */
+      return 0; /* LCOV_EXCL_LINE */
   }
 }
 
@@ -327,7 +327,7 @@ Rg_to_Flxq(GEN x, GEN T, ulong p)
       return Flxq_div(a,b, T,p);
   }
   pari_err_TYPE("Rg_to_Flxq",x);
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 /***********************************************************************/

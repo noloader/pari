@@ -245,7 +245,7 @@ binaire(GEN x)
       for (i=1; i<lx; i++) gel(y,i) = binaire(gel(x,i));
       break;
     default: pari_err_TYPE("binary",x);
-      return NULL; /* not reached */
+      return NULL; /* LCOV_EXCL_LINE */
   }
   return y;
 }
@@ -744,5 +744,5 @@ hammingweight(GEN n)
     case t_MAT: return hamming_mat(n);
   }
   pari_err_TYPE("hammingweight", n);
-  return 0;/*notreached*/
+  return 0;/*LCOV_EXCL_LINE*/
 }

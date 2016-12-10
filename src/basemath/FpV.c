@@ -1375,7 +1375,7 @@ ZpMs_ZpCs_solve(GEN M, GEN A, long nbrow, GEN p, long e)
   for (i = 1; i <= lR; ++i)
     if (signe(gel(Rp, i)))
       return gerepileuptoleaf(av, mkvecsmall(pcol[i]));
-  return NULL; /* NOT REACHED */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 GEN

@@ -410,7 +410,7 @@ member_zkst(GEN x)
     }
   }
   member_err("zkst",x);
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 GEN
@@ -467,7 +467,7 @@ member_group(GEN x)
   if (t == typ_GAL) return gal_get_group(x);
   if (t == typ_ELL) return ellgroup0(x, NULL, 1);
   member_err("group",x);
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 GEN
 member_orders(GEN x)
@@ -475,7 +475,7 @@ member_orders(GEN x)
   long t; (void)get_nf(x,&t);
   if (t == typ_GAL) return gal_get_orders(x);
   member_err("orders",x);
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 GEN

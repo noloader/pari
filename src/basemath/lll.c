@@ -738,7 +738,7 @@ rescale_to_int(GEN x)
           break;
         default:
           pari_err_TYPE("rescale_to_int",c);
-          return NULL; /* not reached */
+          return NULL; /* LCOV_EXCL_LINE */
       }
       if (e < emin) emin = e;
     }
@@ -776,7 +776,7 @@ qflll0(GEN x, long flag)
     case 8: return lllgen(x);
     default: pari_err_FLAG("qflll");
   }
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 GEN
@@ -792,7 +792,7 @@ qflllgram0(GEN x, long flag)
     case 8: return lllgramgen(x);
     default: pari_err_FLAG("qflllgram");
   }
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 /********************************************************************/
@@ -828,5 +828,5 @@ matkerint0(GEN M, long flag)
     case 1: return gerepilecopy(av, kerint0(M));
     default: pari_err_FLAG("matkerint");
   }
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }

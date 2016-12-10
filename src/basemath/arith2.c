@@ -35,7 +35,7 @@ boundfact(GEN n, ulong lim)
     }
   }
   pari_err_TYPE("boundfact",n);
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 /* NOT memory clean */
@@ -847,7 +847,7 @@ issquarefree(GEN x)
       av = avma; d = RgX_gcd(x, RgX_deriv(x));
       avma = av; return (lg(d) == 3);
     default: pari_err_TYPE("issquarefree",x);
-      return 0; /* not reached */
+      return 0; /* LCOV_EXCL_LINE */
   }
 }
 

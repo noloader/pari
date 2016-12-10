@@ -1758,7 +1758,7 @@ quicktofp(GEN x)
       b = cxcompotor(b, prec); return sqrtr(addrr(sqrr(a), sqrr(b)));
     }
     default: pari_err_TYPE("quicktofp",x);
-      return NULL;/*not reached*/
+      return NULL;/*LCOV_EXCL_LINE*/
   }
 
 }

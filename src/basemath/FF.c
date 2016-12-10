@@ -109,7 +109,7 @@ Rg_to_raw(GEN x, GEN ff)
     return gel(x,2);
   }
   pari_err_TYPE("Rg_to_raw",x);
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 static GEN

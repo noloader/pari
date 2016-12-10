@@ -837,7 +837,7 @@ setdefault(const char *s, const char *v, long flag)
   if (!ep)
   {
     pari_err(e_MISC,"unknown default: %s",s);
-    return NULL; /* not reached */
+    return NULL; /* LCOV_EXCL_LINE */
   }
   return call_f2(ep, v, flag);
 }

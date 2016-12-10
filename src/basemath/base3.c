@@ -870,7 +870,7 @@ basistoalg(GEN nf, GEN x)
       gel(z,2) = gcopy(x); return z;
     default:
       pari_err_TYPE("basistoalg",x);
-      return NULL; /* not reached */
+      return NULL; /* LCOV_EXCL_LINE */
   }
 }
 
@@ -901,7 +901,7 @@ nf_to_scalar_or_basis(GEN nf, GEN x)
       return QV_isscalar(x)? gel(x,1): x;
   }
   pari_err_TYPE("nf_to_scalar_or_basis",x);
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 /* Let x be a polynomial with coefficients in Q or nf. Return the same
  * polynomial with coefficients expressed as vectors (on the integral basis).
@@ -942,7 +942,7 @@ nf_to_scalar_or_alg(GEN nf, GEN x)
       return QV_isscalar(x)? gel(x,1): coltoliftalg(nf, x);
   }
   pari_err_TYPE("nf_to_scalar_or_alg",x);
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 /* gmul(A, RgX_to_RgC(x)), A t_MAT (or t_VEC) of compatible dimensions */
@@ -1003,7 +1003,7 @@ algtobasis(GEN nf, GEN x)
     case t_FRAC: return scalarcol(x, nf_get_degree(nf));
   }
   pari_err_TYPE("algtobasis",x);
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 GEN
@@ -2564,7 +2564,7 @@ idealstar0(GEN nf, GEN ideal,long flag)
     case 2: return Idealstar(nf,ideal, nf_INIT|nf_GEN);
     default: pari_err_FLAG("idealstar");
   }
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 void

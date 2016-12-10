@@ -491,7 +491,7 @@ rnfidealhnf(GEN rnf, GEN x)
       return rnfprincipaltohnf(rnf,x);
   }
   pari_err_TYPE("rnfidealhnf",x);
-  return NULL; /* not reached */
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 static GEN
