@@ -1,4 +1,4 @@
-HEAP=[183, if(precision(1.)==38, 5768, 8940)];
+HEAP=[183, if(precision(1.)==38, 5768, 8938)];
 \\ A tres grande precision
 \p 2000
 \e
