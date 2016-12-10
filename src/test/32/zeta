@@ -20,4 +20,9 @@ error("overflow in zeta [large negative argument].")
 97790 E-102*I
 100.57794333849687249028215428579024415
 -0.50000000000000000000000000000000918939
-Total time spent: 4
+1.0000000000000006280369842777336909811
+0.0085169287778503305423585670283444869362
+  ***   at top-level: zeta(O(x))
+  ***                 ^----------
+  *** zeta: sorry, zeta(t_SER) is not yet implemented.
+Total time spent: 9
