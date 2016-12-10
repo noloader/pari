@@ -9,3 +9,7 @@ polylog(2,1/2+x+O(x^5))
 dilog(-4)
 polylog(2,1+I,1)
 polylog(1,2,3)
+
+\\errors
+polylog(3,2,5)
+polylog(2,Mod(1,2),0)
