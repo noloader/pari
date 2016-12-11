@@ -133,7 +133,8 @@ jbesselintern(GEN n, GEN z, long flag, long prec)
 
       i = precision(z); if (i) prec = i;
       if (flz0 && gequal0(n)) return real_1(prec);
-      p2 = gdiv(gpow(gmul2n(z,-1),n,prec), ggamma(gaddgs(n,1),prec));
+      p2 = gpow(gmul2n(z,-1),n,prec);
+      p2 = gdiv(p2, ggamma(gaddgs(n,1),prec));
       if (flz0) return gerepileupto(av, p2);
       L = HALF_E * gtodouble(gabs(gtofp(z,LOWDEFAULTPREC),prec));
       precnew = prec;
