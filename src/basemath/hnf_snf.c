@@ -49,10 +49,8 @@ mathnf0(GEN x, long flag)
 
   switch(flag)
   {
-    case 0: return RgM_is_ZM(x)? ZM_hnf(x): RgM_hnfall(x,NULL,1);
-    case 1: return RgM_is_ZM(x)? hnfall(x): hnfallgen(x);
-    case 2: return RgM_hnfall(x, NULL, 1);
-    case 3: return hnfallgen(x);
+    case 0: case 2: return RgM_is_ZM(x)? ZM_hnf(x): RgM_hnfall(x,NULL,1);
+    case 1: case 3: return RgM_is_ZM(x)? hnfall(x): hnfallgen(x);
     case 4: RgM_check_ZM(x, "mathnf0"); return hnflll(x);
     case 5: RgM_check_ZM(x, "mathnf0"); return hnfperm(x);
     default: pari_err_FLAG("mathnf");

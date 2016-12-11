@@ -19,26 +19,23 @@ Doc: let $R$ be a Euclidean ring, equal to $\Z$ or to $K[X]$ for some field
  matrix. In general, the columns of the result form a basis of the $R$-module
  spanned by the columns of $M$.
 
- The values $0,1,2,3$ of $\fl$ have a binary meaning, analogous to the one
- in \tet{matsnf}; in this case, binary digits of $\fl$ mean:
+ The values of $\fl$ are:
 
- \item 1 (complete output): if set, outputs $[H,U]$, where $H$ is the Hermite
+ \item 0 (default): only return the Hermite normal form $H$
+
+ \item 1 (complete output): return $[H,U]$, where $H$ is the Hermite
  normal form of $M$, and $U$ is a transformation matrix such that $MU=[0|H]$.
  The matrix $U$ belongs to $\text{GL}(R)$. When $M$ has a large kernel, the
  entries of $U$ are in general huge.
 
- \item 2 (generic input): \emph{Deprecated}. If set, assume that $R = K[X]$ is
- a polynomial ring; otherwise, assume that $R = \Z$. This flag is now useless
- since the routine always checks whether the matrix has integral entries.
-
- \noindent For these 4 values, we use a naive algorithm, which behaves well
+ \noindent For these two values, we use a naive algorithm, which behaves well
  in small dimension only. Larger values correspond to different algorithms,
  are restricted to \emph{integer} matrices, and all output the unimodular
  matrix $U$. From now on all matrices have integral entries.
 
  \item $\fl=4$, returns $[H,U]$ as in ``complete output'' above, using a
  variant of \idx{LLL} reduction along the way. The matrix $U$ is provably
- small in the $L_2$ sense, and in general close to optimal; but the
+ small in the $L_2$ sense, and often close to optimal; but the
  reduction is in general slow, although provably polynomial-time.
 
  If $\fl=5$, uses Batut's algorithm and output $[H,U,P]$, such that $H$ and
