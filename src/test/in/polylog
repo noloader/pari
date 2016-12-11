@@ -13,3 +13,4 @@ polylog(1,2,3)
 \\errors
 polylog(3,2,5)
 polylog(2,Mod(1,2),0)
+polylog(3,"",0)
