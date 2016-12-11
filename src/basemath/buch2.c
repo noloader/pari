@@ -762,10 +762,7 @@ nthideal(GRHcheck_t *S, GEN nf, long n)
 
 /* Compute FB, LV, iLP + KC*. Reset perm
  * C2: bound for norm of tested prime ideals (includes be_honest())
- * C1: bound for p, such that P|p (NP <= C2) used to build relations
-
- * Return prod_{p<=C2} (1-1/p) / prod_{Norm(P)<=C2} (1-1/Norm(P)),
- * close to residue of zeta_K at 1 = 2^r1 (2pi)^r2 h R / (w D) */
+ * C1: bound for p, such that P|p (NP <= C2) used to build relations */
 static void
 FBgen(FB_t *F, GEN nf, long N, ulong C1, ulong C2, GRHcheck_t *S)
 {
