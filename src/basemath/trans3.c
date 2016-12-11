@@ -549,14 +549,18 @@ GEN
 hbessel1(GEN n, GEN z, long prec)
 {
   pari_sp av = avma;
-  return gerepileupto(av, gadd(jbessel(n,z,prec), mulcxI(nbessel(n,z,prec))));
+  GEN J = jbessel(n,z,prec);
+  GEN N = nbessel(n,z,prec);
+  return gerepileupto(av, gadd(J, mulcxI(N)));
 }
 /* J - iN */
 GEN
 hbessel2(GEN n, GEN z, long prec)
 {
   pari_sp av = avma;
-  return gerepileupto(av, gadd(jbessel(n,z,prec), mulcxmI(nbessel(n,z,prec))));
+  GEN J = jbessel(n,z,prec);
+  GEN N = nbessel(n,z,prec);
+  return gerepileupto(av, gadd(J, mulcxmI(N)));
 }
 
 /***********************************************************************/
