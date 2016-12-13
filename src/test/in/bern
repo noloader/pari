@@ -6,6 +6,7 @@ bernfrac(-1)
 bernreal(-1)
 bernpol(-1)
 bernvec(30)
+default(realprecision,38);
 bernreal(30)
 bernreal(202)
 localprec(57); bernreal(30)
