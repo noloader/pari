@@ -463,6 +463,7 @@ break_loop(int numerr)
       gp_context_restore(&rec2);
       iferr_env = NULL;
       closure_err(dbg_level);
+      compilestate_restore(&rec1.eval.comp);
       (void) closure_context(oldframe_level, dbg_level);
       pari_infile = newfile(stdin, "stdin", mf_IN)->file;
     }

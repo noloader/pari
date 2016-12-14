@@ -41,3 +41,8 @@ break
 N
 M
 break
+F1(T) = 1/0;
+F1(2)
+dbg_up
+T
+break

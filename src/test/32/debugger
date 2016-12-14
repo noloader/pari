@@ -107,5 +107,20 @@ break> M
 M
 break> break
 
+? F1(T)=1/0;
+? F1(2)
+  ***   at top-level: F1(2)
+  ***                 ^-----
+  ***   in function F1: 1/0
+  ***                    ^--
+  *** _/_: impossible inverse in gdiv: 0.
+  ***   Break loop: type 'break' to go back to GP prompt
+break> dbg_up
+  ***   at top-level: F1(2)
+  ***                 ^-----
+break> T
+T
+break> break
+
 ? print("Total time spent: ",gettime);
-Total time spent: 0
+Total time spent: 4

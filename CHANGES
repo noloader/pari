@@ -19,6 +19,7 @@ BA   13- use of complex default function argument could lead to stack error.
      14- factorpadic(2*x^4+x^2,2,2) -> division by 0 [#1876]
      15- incgam(110, I) very inaccurate
 BA   16- ellinit over number field was not compatible with generic operations.
+BA   17- [breakloop] dbg_up could confuse the breakloop.
 
   Changed
       1- rewrite bnfnarrow
