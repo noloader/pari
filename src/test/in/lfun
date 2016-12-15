@@ -2,12 +2,12 @@ default("parisize","32M");
 default("realprecision",38);
 
 zetaan(n)=vector(n,i,1);
-K=bnfinit('x^3+'x^2-3*'x-1); D=abs(K.disc); /* 2^r1 h/w = 4 */
-L148=lfuncreate([n->dirzetak(K,n),0,[0,0,0],1,D,1,K.reg*4/sqrt(D)]);
+K=bnfinit('x^3+'x^2-3*'x-1);
+L148=lfuncreate(K);
 lfuncost(L148, [20])
 lfunthetacost(L148)
 for(i=1,10,print(i,":",lfun(L148,-i)))
-L117=lfuncreate([n->dirdiv(dirzetak(nfinit('x^4-'x^3-'x^2+'x+1),n),zetaan(n)),0,[0,1,1],1,117,1]); /* [0,0,1,1]-[0] */
+L117=lfundiv(nfinit('x^4-'x^3-'x^2+'x+1),1);
 for(i=1,10,print(i,":",lfun(L117,i)))
 e121=ellinit([1,1,1,-30,-76]);  \\ 121a1
 L121=lfuninit(e121,[100],2);
@@ -26,9 +26,8 @@ pol=x^6-3*x^5+5*x^4-5*x^3+5*x^2-3*x+1;
 real(lfun(lfundiv(pol,[bnrinit(bnfinit(x^2+23),1),[1]]),1))
 
 \\ check for loss in accuracy in lfunthetaspec
-pol=x^5-5*x^3-x^2+3*x+1;
-nf24217=dirzetak(nfinit(pol),32254);
-L2=lfuncreate([n->nf24217[1..n],0,[0,0,0,0,0],1,24217,1,0]);
+nf24217=nfinit(x^5-5*x^3-x^2+3*x+1);
+L2=lfuncreate(nf24217);
 lfunhardy(L2,5)
 
 /* higher precision */
@@ -45,14 +44,12 @@ lfunzeros(lzeta,[14,14.5])
 lfunzeros(lzeta,30)
 lzeta[6]=0; lfun(lzeta,2)
 /* odd Dirichlet char */
-eno=0.289784148688430089716825558518359638032819624548824635 + 0.957092026489052849592220722565333684900123465547440915*I;
-my(V=[1,I,1,-1,I,I,-I,-I,1,-1,-I,-1,0]);lfun(lfuncreate([n->vector(n,i,V[(i-1)%13+1]), 1, [1], 1, 13, eno]), 1)
+lfun(Mod(8,13), 1)
 /* EC */
 e = ellinit([0, 0, 1, -7, 6]);
-L5077 = lfuncreate([(p,d)->1-ellap(e,p)*'x+if(p==5077,0,p*'x^2),0,[0,1],2,5077,-1]);
-lfunzeros(L5077,20)
+lfunzeros(e,20)
 /* Ramanujan */
-ltau=lfuncreate([n->Vec(eta('x+O('x^n))^24),0,[0,1],12,1,1]);
+ltau=lfunetaquo(Mat([1,24]));
 lfunmfspec(ltau)
 
 /* other functions */
@@ -74,18 +71,8 @@ default("realprecision",115);
 lfun(L,2)
 default("realprecision",54);
 
-charinit(p)=
-{
-  my(q,b,c=1,cq=1,V);
-  q=exp(2*I*Pi/(p-1));
-  b=znprimroot(p);
-  V=vector(p);
-  for(i=0,p-2,V[lift(c)]=cq;c*=b;cq*=q);
-  V;
-}
-V=charinit(101);
-eno=0.9703401509466112991382370838512293369462259207965360038273136852737839701636139431354541377092777456+0.2417436482328079682464786270314674871385164688196350706240120664672535838370867831827266953374111737*I;
-L=lfuncreate([n->my(V=charinit(101));vector(n,i,if(i%101,V[i%101])),1,[1],1,101,eno]);
+Z101=znstar(101,2);
+L=lfuncreate([Z101,[1]]);
 L=lfuninit(L,[1,1,1]);
 lfuncheckfeq(L)
 L=lfuninit(L,[1,1,1]);
@@ -95,28 +82,21 @@ lfuncheckfeq(L,9/10)
 lfun(L,1)
 lfun(L,2)
 {
+  my(V=lfunan(L,100));
   my(q=exp(2*I*Pi/101),S=sum(i=1,100,V[i]*q^i)/sqrt(-101));
   my(z=lfuntheta(L,1),eps=abs(S-z/conj(z)));
   if(eps>10^-55,error("charinit(101): ",eps));
 }
 lfunzeros(L,50)
 
-mkchar(K,Z,v)=
-{
-  my(N=Z.mod[1][1,1],t=Z.cyc[1]);
-  n->if(gcd(n,N)>1,0, exp(2*I*Pi/t*(v*ideallog(K,n,Z))));
-}
-K=nfinit('x);
-f=mkchar(K,idealstar(K,101,1),[1]);
-L=lfuncreate([n->vector(n,i,f(i)),1,[1],1,101,eno]);
+L=lfuncreate([Z101,[1]]);
 L=lfuninit(L,[1,0,0]);
 lfuncheckfeq(L)
 lfun(L,1)
 
 K=bnfinit('x^2+23);B=bnrinit(K,1,1);
-L=lfuncreate([n->direuler(p=2,n,if(p==23,1/(1-'x),my(id=idealprimedec(K,p));simplify(lift(prod(i=1,#id,1/(1-Mod(j^bnrisprincipal(B,id[i])[1][1],j^2+j+1)*'x^id[i].f)))))),0,[0,1],1,23,1]);
+L=lfuncreate([B,[1]]);
 lfuncheckfeq(L)
-L=lfuncreate([[(p,d)->my(id=idealprimedec(K,p));simplify(lift(prod(i=1,#id,1-Mod(j^bnrisprincipal(B,id[i])[1][1],j^2+j+1)*'x^id[i].f))),[23, 1-'x]],0,[0,1],1,23,1]);
 algdep(exp(lfun(L,0,1)),3)
 
 /* GENUS 2 curve */
@@ -227,19 +207,22 @@ lfun(lfunetaquo([5,2;7,2]),2)
 lfun(ellinit([1,1,1,-10,-10]),2)  \\ 15a1
 
 \\ residue 2*Pi/sqrt(23) at 1
-L=lfuncreate([n->Vec(qfrep([2,1;1,12],n,1))*2,0,[0,1],1,23,1,0]);
+L=lfunqf([2,1;1,12]);
 L=lfuninit(L,[1/2,20],1);
 newton(L,z,N)=for(i=1,N,z-=lfun(L,z)/lfun(L,z,1));z;
 z=newton(L,1/2+16*I,10)
 abs(lfun(L,z))>1e-50
 
-L=lfuncreate([n->vector(n,i,numdiv(i)),0,[0,0],1,1,1,[[1,1/x^2+2*Euler/x+O(1)]]]);
+localprec(100);
+L=lfunmul(1,1);
 lfun(L,2)/(Pi^4/36)
 lfuncheckfeq(L)
 
-localprec(100);E1 = polcoeff(lfun(1,1+x+O(x^4)),1); L=lfuncreate([(p,n)->(1-x)^3,0,[0,0,0],1,1,1,[[1,1/x^3+3*Euler/x^2+3*(Euler^2+E1)/x+O(1)]]]);
+localbitprec(300);L=lfunmul(L,1);
 lfun(L,3)/(zeta(3)^3)
 lfuncheckfeq(L)
+
+print("zeta(s-a)");
 
 Z(a)=lfuncreate([(p,n)->(1-p^a*x),0,[-a],2*a+1,1,1,[[a+1,1/x+O(1)]]]);
 lfuncheckfeq(Z(1))
@@ -248,6 +231,8 @@ lfun(Z(1),3)
 lfuncheckfeq(Z(2))
 lfun(Z(2),2)
 lfun(Z(2),3)
+
+print("zeta(s)*zeta(s-a)");
 
 L(a)=lfuncreate([(p,n)->(1-p^a*x)*(1-x),0,[-a,0],a+1,1,1,[[a+1,lfun(1,a+1+x+O(x^2))*(1/x+Euler+O(x))],[1,lfun(1,1-a+x+O(x^3))*(1/x+Euler+O(x))]]]);
 lfuncheckfeq(L(1))
@@ -293,23 +278,18 @@ lfunconductor(e1)
 
 lfunrootres(x^3+x^2-3*x-1)
 
-lim=30000;
-nf725=dirzetak(nfinit(x^4-x^3-3*x^2+x+1),lim);
-nf725z=dirdiv(nf725,vector(lim,k,1));
-lnf725=lfuncreate([n->nf725z[1..n],0,[0,0,0],1,725,1]);
+lnf725=lfundiv(x^4-x^3-3*x^2+x+1,1);
 lfunconductor(lnf725,,1)
 
 /* bigger one.
  * remark: should be able to search in a big range
  * with few coefficients, would be faster
  */
-nf24217z=dirdiv(nf24217,vector(#nf24217,k,1));
-lnf24217=lfuncreate([n->nf24217z[1..n],0,[0,0,0,0],1,24217,1]);
+lnf24217=lfundiv(nf24217,1);
 lfunconductor(lnf24217,10^5,1)
 
 e2=ellinit([3,-27,-18,24,9]);
-le2=lfuncreate([n->ellan(e2,n),0,[0,1],2,0,-1]);
-lfunconductor(le2,10^9,1)
+lfunconductor(e2,10^8,1)
 
 N=nfinit(x^6-3*x^5+5*x^4-5*x^3+5*x^2-3*x+1);G=galoisinit(N);
 L=lfunartin(N,G,[[-1,1;-1,0],[0,1;1,0]],1);
@@ -323,15 +303,16 @@ lfuncost(L)
 
 lfun(1,2000)
 default(realprecision,38)
-La=lfuncreate(Mod(2,7));
-Lb=lfuncreate(Mod(4,7));
+Z=znstar(7,2);
+La=lfuncreate([Z,[2]]);
+Lb=lfuncreate([Z,[4]]);
 L=La;L[2]=Lb[1];
 lfun(L,2+I)
 lfun(La,2+I)
 {
-  my(G=Mod(3,7),t=lfunrootres(G)[3]);
-  L1=lfuncreate(G); L2=lfuncreate(-7);
-  L=lfuncreate([n->lfunan(G,n)+lfunan(-7,n),n->conj(lfunan(G,n))*t+lfunan(-7,n),[1],1,7,1]);
+  L1=lfuncreate([Z,[1]]); L2=lfuncreate([Z,[3]]);
+  my(t=lfunrootres(L1)[3]);
+  L=lfuncreate([n->lfunan(L1,n)+lfunan(L2,n),n->conj(lfunan(L1,n))*t+lfunan(L2,n),[1],1,7,1]);
 }
 f(s)=[round(lfun(L,s)/(lfun(L1,s)+lfun(L2,s)),&e),e];
 lfuncheckfeq(L)
