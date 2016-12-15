@@ -790,12 +790,10 @@ static GEN
 ellinit_nf(GEN x, GEN p)
 {
   GEN y, nf;
-  long i;
   if (lg(x) > 6) x = vecslice(x,1,5);
   nf = checknf(p);
   x = nfVtoalg(nf, x);
   if (!(y = initsmall(x, 2))) return NULL;
-  for (i = 10; i < 14; i++) gel(y,i) = nf_to_scalar_or_basis(nf, gel(y,i));
   gel(y,14) = mkvecsmall(t_ELL_NF);
   gel(y,15) = mkvec(p);
   return y;
@@ -980,19 +978,9 @@ coordch_u(GEN e, GEN u)
   D = ell_get_disc(e);
   c4 = ell_get_c4(e);
   c6 = ell_get_c6(e);
-  if (ell_get_type(e) == t_ELL_NF)
-  {
-    GEN nf = ellnf_get_nf(e);
-    c4 = nfmul(nf, c4, u4);
-    c6 = nfmul(nf, c6, u6);
-    D = nfmul(nf, D, u12);
-  }
-  else
-  {
-    c4 = gmul(c4, u4);
-    c6 = gmul(c6, u6);
-    D = gmul(D, u12);
-  }
+  c4 = gmul(c4, u4);
+  c6 = gmul(c6, u6);
+  D = gmul(D, u12);
   gel(y,10)= c4;
   gel(y,11)= c6;
   gel(y,12)= D;
@@ -5059,8 +5047,10 @@ bnf_get_v(GEN bnf, GEN E, GEN *pDP)
   long l, k;
 
   nf = bnf_get_nf(bnf);
-  c4 = ell_get_c4(E); if (typ(c4) == t_INT) c4 = NULL;
-  c6 = ell_get_c6(E); if (typ(c6) == t_INT) c6 = NULL;
+  c4 = nf_to_scalar_or_basis(nf, ell_get_c4(E));
+  c6 = nf_to_scalar_or_basis(nf, ell_get_c6(E));
+  if (typ(c4) == t_INT) c4 = NULL;
+  if (typ(c6) == t_INT) c6 = NULL;
   P = nf_pV_to_prV(nf, ellnf_c4c6_primes(E));
   l = lg(P);
   DP = vectrunc_init(l); settyp(DP,t_COL);
@@ -5282,7 +5272,7 @@ ellnfglobalred(GEN E)
   nf = ellnf_get_nf(E);
   P = nf_pV_to_prV(nf, ellnf_D_primes(E));
   lP = lg(P);
-  D = ell_get_disc(E);
+  D = nf_to_scalar_or_basis(nf, ell_get_disc(E));
   if (typ(D) == t_INT) D = NULL;
 
   c = gen_1;
@@ -6930,6 +6920,7 @@ ellissupersingular(GEN E, GEN p)
     {
       GEN modP, T, nf = ellnf_get_nf(E), pr = p;
       av = avma;
+      j = nf_to_scalar_or_basis(nf, j);
       if (dvdii(Q_denom(j), pr_get_p(pr)))
       {
         if (typ(j) == t_FRAC || nfval(nf, j, pr) < 0) return 0;
