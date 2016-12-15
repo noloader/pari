@@ -1,4 +1,22 @@
 default(realprecision,38);
+/* Test generic */
+
+F={
+  [ellwp, ellzeta, ellsigma,
+  ellformalw, ellformalpoint, ellformaldifferential, ellformallog, ellformalexp,
+  E->ellisoncurve(E,[0,0]), E->ellordinate(E,0),
+  E->elldivpol(E,5), E->ellxn(E,3), E->ellmul(E,[0,0],0), E->ellneg(E,[0,0])
+  ];
+}
+
+L={
+  [1,I,'z,Mod('z,'z^2+5),
+   ellinit([0,0,0,'z,0],nfinit('z^2+5)),
+   Mod(4,1009),ffgen([1009,5],'z)];
+}
+L=apply(x->if(type(x)=="t_VEC",x,ellinit([x,0])),L);
+for(j=1,#F,for(i=1,#L, print(F[j],":",L[i][4],":",F[j](L[i]))));
+
 ellap(ellinit([1,0,1,4,-6]), 2)
 ellap(ellinit([0,17]), 2)
 ellap(ellinit([0, 0, 1, -1, 0]),2486246173)
@@ -354,16 +372,6 @@ elltamagawa(E)
 E=ellinit([1,0,1,4,-6]);
 E.disc
 elltamagawa(E)
-
-E=ellinit([0,0,0,Mod(x,x^2+5),0]);
-ellwp(E)
-ellzeta(E)
-ellsigma(E)
-
-E=ellinit([0,0,0,Mod(1,1009),0]);
-ellwp(E)
-ellzeta(E)
-ellsigma(E)
 
 \\#1558
 ellap(ellinit([-1137195,489565862]),2038074751)
