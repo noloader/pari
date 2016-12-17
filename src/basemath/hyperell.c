@@ -103,7 +103,7 @@ ZpXXQ_invsqrt(GEN S, GEN T, ulong p, long e)
     n<<=1; if (mask & 1) n--;
     mask >>= 1;
     q = powuu(p,n); q2 = powuu(p,n2);
-    f = RgX_sub(FpXXQ_mul(S, FpXXQ_sqr(a, T, q), T, q), pol_1(v));
+    f = RgX_sub(FpXXQ_mul(FpXX_red(S, q), FpXXQ_sqr(a, T, q), T, q), pol_1(v));
     fq = ZXX_Z_divexact(f, q2);
     q22 = shifti(addis(q2,1),-1);
     afq = FpXX_Fp_mul(FpXXQ_mul(a, fq, T, q2), q22, q2);
@@ -150,10 +150,10 @@ static GEN
 ZpXXQ_frob(GEN S, GEN U, GEN V, long k, GEN T, ulong p, long e)
 {
   pari_sp av = avma, av2;
-  long i, pr = degpol(S), dT = degpol(T);
+  long i, pr = degpol(S), dT = degpol(T), vT = varn(T);
   GEN q = powuu(p,e);
   GEN Tp = FpX_deriv(T, q), Tp1 = RgX_shift_shallow(Tp, 1);
-  GEN M = gel(S,pr+2), R;
+  GEN M = to_ZX(gel(S,pr+2),vT) , R;
   av2 = avma;
   for(i = pr-1; i>=k; i--)
   {
@@ -164,7 +164,7 @@ ZpXXQ_frob(GEN S, GEN U, GEN V, long k, GEN T, ulong p, long e)
     v = u_lvalrem(2*i+1,p,&r);
     Bc = FpX_deriv(B, q);
     Bc = FpX_Fp_mul(ZX_Z_divexact(Bc,powuu(p,v)),Fp_div(gen_2, utoi(r), q), q);
-    M = FpX_add(gel(S,i+2), FpX_add(A, Bc, q), q);
+    M = FpX_add(to_ZX(gel(S,i+2),vT), FpX_add(A, Bc, q), q);
     if (gc_needed(av2,1))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"ZpXXQ_frob, step 1, i = %ld", i);
@@ -213,7 +213,7 @@ revdigits(GEN v)
 static GEN
 diff_red(GEN s, GEN A, long m, GEN T, GEN p)
 {
-  long v, n;
+  long v, n, vT = varn(T);
   GEN Q, sQ, qS;
   pari_timer ti;
   if (DEBUGLEVEL>1) timer_start(&ti);
@@ -229,7 +229,7 @@ diff_red(GEN s, GEN A, long m, GEN T, GEN p)
     long i, l = n-m-v;
     GEN rS = cgetg(l+1,t_VEC);
     for (i = l-1; i >=0 ; i--)
-      gel(rS,i+1) = gel(sQ, 1+v+l-i);
+      gel(rS,i+1) = to_ZX(gel(sQ, 1+v+l-i), vT);
     rS = FpX_fromdigits(rS,T,p);
     gel(qS,2) = FpX_add(FpX_mul(rS, T, p), gel(qS, 2), p);
     if (DEBUGLEVEL>1) timer_printf(&ti,"redadd");
