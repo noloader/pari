@@ -34,15 +34,26 @@ Doc: This low-level routine creates \tet{Ldata} structures, needed by
  coefficients in a vector $v$ and use the closure \kbd{n->v}, which
  does not depend on $n$. As a shorthand for this latter case, you can input
  the vector $v$ itself instead of the closure.
+ \bprog
+ ? z = lfuncreate([n->vector(n,i,1), 1, [0], 1, 1, 1, 1]); \\ Riemann zeta
+ ? lfun(z,2) - Pi^2/6
+ %2 = -5.877471754111437540 E-39
+ @eprog
 
  A second format is limited to multiplicative $L$ functions affording an
- Euler product. It is a closure of arity 2 \kbd{(p,d)->L(p)} giving the local
+ Euler product. It is a closure of arity 2 \kbd{(p,d)->L(p)} giving the
+ inverse of the local
  factor $L_p$ at $p$ as a rational function, to be evaluated at $p^{-s}$ as in
  \kbd{direuler}; $d$ is set to the floor of $\log_p(n)$, where $n$ is the
  total number of Dirichlet coefficients $(a_1,\dots,a_n)$ that will be
  computed in this way. This parameter $d$ allows to compute only part of $L_p$
  when $p$ is large and $L_p$ expensive to compute, but it can of course be
  ignored by the closure.
+ \bprog
+ ? z = lfuncreate([(p,d)->1-x, 1, [0], 1, 1, 1, 1]); \\ Riemann zeta
+ ? lfun(z,2) - Pi^2/6
+ %4 = -5.877471754111437540 E-39
+ @eprog
 
  Finally one can describe separately the generic Dirichlet coefficients
  and the bad local factors by setting $\kbd{dir} = [an, [p_1,L^{-1}_{p_1}],
