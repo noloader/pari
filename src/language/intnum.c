@@ -1462,6 +1462,11 @@ monrefine(GEN Q, GEN QP, GEN z, long prec)
   z = gsub(z, gdiv(poleval(Q, z), poleval(QP, z)));
   return gerepileupto(av, z);
 }
+
+static GEN
+RX_realroots(GEN x, long prec)
+{ return realroots(RgX_rescale_to_int(x), NULL, prec); }
+
 /* (real) roots of Q, assuming QP = Q' and that half the roots are close to
  * k+1, ..., k+m, m = deg(Q)/2-1. N.B. All roots are real and >= 1 */
 static GEN
@@ -1471,7 +1476,7 @@ monroots(GEN Q, GEN QP, long k, long prec)
   GEN v2, v1 = cgetg(m+1, t_VEC);
   for (j = 1; j <= m; ++j) gel(v1, j) = monrefine(Q, QP, stoi(k+j), prec);
   Q = gdivent(Q, roots_to_pol(v1, varn(Q)));
-  v2 = real_i(roots(Q, prec)); settyp(v2, t_VEC);
+  v2 = RX_realroots(Q, prec); settyp(v2, t_VEC);
   return shallowconcat(v1, v2);
 }
 
@@ -1537,7 +1542,7 @@ sumnummonieninit0(GEN a, GEN b, long k, long prec)
   else
   {
     GEN ai = ginv(a);
-    vr = real_i(roots(Q, prec2));
+    vr = RX_realroots(Q, prec2);
     vabs = cgetg(n+1, t_VEC);
     for (j = 1; j <= n; ++j) gel(vabs,j) = gpow(gel(vr,j), ai, prec2);
     c = gdiv(b,a);
@@ -1631,11 +1636,9 @@ sumnummonieninit_w(GEN w, GEN wfast, GEN a, GEN b, GEN n0, long prec)
     }
   }
   Pade(M, &P,&Q);
-  vr = real_i(roots(Q, prec)); settyp(vr, t_VEC);
+  vr = RX_realroots(Q, prec); settyp(vr, t_VEC);
   if (gequal1(a))
-  {
     vabs = vr;
-  }
   else
   {
     GEN ai = ginv(a);

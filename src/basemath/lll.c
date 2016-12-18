@@ -707,45 +707,6 @@ lllgramint(GEN x) { return lllall(x, LLL_IM | LLL_GRAM); }
 GEN
 lllgramkerim(GEN x) { return lllall(x, LLL_ALL | LLL_GRAM); }
 
-static GEN
-rescale_to_int(GEN x)
-{
-  long e, i,j, lx, hx, emin;
-  GEN D = gen_1;
-  int exact = 1;
-
-  lx = lg(x); if (lx == 1) return x;
-  hx = lgcols(x);
-  emin = HIGHEXPOBIT;
-  for (j = 1; j < lx; j++)
-    for (i = 1; i < hx; i++)
-    {
-      GEN c = gcoeff(x,i,j);
-      switch(typ(c))
-      {
-        case t_REAL:
-          exact = 0;
-          if (!signe(c)) continue;
-          e = expo(c) - bit_prec(c);
-          break;
-        case t_INT:
-          if (!signe(c)) continue;
-          e = expi(c) + 32;
-          break;
-        case t_FRAC:
-          e = expi(gel(c,1)) - expi(gel(c,2)) + 32;
-          if (exact) D = lcmii(D, gel(c,2));
-          break;
-        default:
-          pari_err_TYPE("rescale_to_int",c);
-          return NULL; /* LCOV_EXCL_LINE */
-      }
-      if (e < emin) emin = e;
-    }
-  if (exact) return D == gen_1 ? x: Q_muli_to_int(x, D);
-  return grndtoi(gmul2n(x, -emin), &e);
-}
-
 GEN
 lllfp(GEN x, double D, long flag)
 {
@@ -753,7 +714,7 @@ lllfp(GEN x, double D, long flag)
   pari_sp av = avma;
   GEN h;
   if (n <= 1) return lll_trivial(x,flag);
-  h = ZM_lll(rescale_to_int(x), D, flag);
+  h = ZM_lll(RgM_rescale_to_int(x), D, flag);
   return gerepilecopy(av, h);
 }
 

@@ -7295,6 +7295,12 @@ entries are equal in $x$ and $y$,  include the one from $x$.
 raise an error if it is not a \kbd{ZM} ($s$ should point to the name of the
 caller).
 
+\fun{GEN}{RgM_rescale_to_int}{GEN x} given a matrix $x$ with real entries
+(\typ{INT}, \typ{FRAC} or \typ{REAL}), return a \kbd{ZM} wich is very close
+to $D x$ for some well-chosen integer $D$. More precisely, if the input is
+exact, $D$ is the denominator of $x$; else it is a power of $2$ chosen
+so that all inexact entries are correctly rounded to 1 ulp.
+
 \fun{GEN}{ZM_copy}{GEN x} returns a copy of \kbd{x}.
 
 \fun{int}{ZM_equal}{GEN A, GEN B} returns $1$ if the two \kbd{ZM} are equal
@@ -8512,6 +8518,12 @@ returns \kbd{RgX\_deflate(P,d)}. Shallow function.
 
 \fun{GEN}{RgX_inflate}{GEN P, long d} return $P(X^d)$. Shallow function, not
 suitable for \kbd{gerepileupto}.
+
+\fun{GEN}{RgX_rescale_to_int}{GEN x} given a polynomial $x$ with real entries
+(\typ{INT}, \typ{FRAC} or \typ{REAL}), return a \kbd{ZX} wich is very close
+to $D x$ for some well-chosen integer $D$. More precisely, if the input is
+exact, $D$ is the denominator of $x$; else it is a power of $2$ chosen
+so that all inexact entries are correctly rounded to 1 ulp.
 
 \subsubsec{Shifts, valuations}
 

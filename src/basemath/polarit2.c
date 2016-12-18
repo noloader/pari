@@ -1727,6 +1727,63 @@ Q_muli_to_int(GEN x, GEN d)
   return NULL; /* LCOV_EXCL_LINE */
 }
 
+static void
+rescale_init(GEN c, int *exact, long *emin, GEN *D)
+{
+  long e;
+  switch(typ(c))
+  {
+    case t_REAL:
+      *exact = 0;
+      if (!signe(c)) return;
+      e = expo(c) - bit_prec(c);
+      break;
+    case t_INT:
+      if (!signe(c)) return;
+      e = expi(c) + 32;
+      break;
+    case t_FRAC:
+      e = expi(gel(c,1)) - expi(gel(c,2)) + 32;
+      if (exact) *D = lcmii(*D, gel(c,2));
+      break;
+    default:
+      pari_err_TYPE("rescale_to_int",c);
+      return; /* LCOV_EXCL_LINE */
+  }
+  if (e < *emin) *emin = e;
+}
+GEN
+RgM_rescale_to_int(GEN x)
+{
+  long lx = lg(x), i,j, hx, emin;
+  GEN D;
+  int exact;
+
+  if (lx == 1) return cgetg(1,t_MAT);
+  hx = lgcols(x);
+  exact = 1;
+  emin = HIGHEXPOBIT;
+  D = gen_1;
+  for (j = 1; j < lx; j++)
+    for (i = 1; i < hx; i++) rescale_init(gcoeff(x,i,j), &exact, &emin, &D);
+  if (exact) return D == gen_1 ? x: Q_muli_to_int(x, D);
+  return grndtoi(gmul2n(x, -emin), &i);
+}
+GEN
+RgX_rescale_to_int(GEN x)
+{
+  long lx = lg(x), i, emin;
+  GEN D;
+  int exact;
+  if (lx == 2) return gcopy(x); /* rare */
+  exact = 1;
+  emin = HIGHEXPOBIT;
+  D = gen_1;
+  for (i = 2; i < lx; i++) rescale_init(gel(x,i), &exact, &emin, &D);
+  if (exact) return D == gen_1 ? x: Q_muli_to_int(x, D);
+  return grndtoi(gmul2n(x, -emin), &i);
+}
+
 /* return x * n/d. x: rational; d,n,result: integral; d,n coprime */
 static GEN
 Q_divmuli_to_int(GEN x, GEN d, GEN n)

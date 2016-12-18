@@ -3868,6 +3868,8 @@ GEN     Q_muli_to_int(GEN x, GEN d);
 GEN     Q_primitive_part(GEN x, GEN *ptc);
 GEN     Q_primpart(GEN x);
 GEN     Q_remove_denom(GEN x, GEN *ptd);
+GEN     RgM_rescale_to_int(GEN x);
+GEN     RgX_rescale_to_int(GEN x);
 GEN     RgXQ_charpoly(GEN x, GEN T, long v);
 GEN     RgXQ_inv(GEN x, GEN y);
 GEN     RgX_disc(GEN x);

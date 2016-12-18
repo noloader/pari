@@ -49,6 +49,7 @@ BA    5- parallel fflog in characteristic at most 5
 BA    6- parallel znlog for large characteristic
       7- [libpari] u_chinese_coprime
 BA    8- new GP function elltamagawa
+      9- [libpari] RgX_rescale_to_int, RgM_rescale_to_int
 
 Changed
 
