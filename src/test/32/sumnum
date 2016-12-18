@@ -20,6 +20,10 @@
 2.3979771206715998375659850036324914714
 -37
 -38
+  ***   at top-level: sumnummonien(n=1,1/n^2,tab)
+  ***                                  ^----------
+  ***   incompatible initial value 2 != 1.
+-38
 +oo
 +oo
 -36
@@ -42,4 +46,4 @@
   ***   incorrect type in sumnum (t_STR).
    realprecision = 19 significant digits
 1.644934066848226436
-Total time spent: 5356
+Total time spent: 5809

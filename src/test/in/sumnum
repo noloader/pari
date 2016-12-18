@@ -29,6 +29,10 @@ sumnum(n = [1, -3/2], sin(1/sqrt(n))/n)
 tab=sumnummonieninit(,n->log(n)^2);
 check(sumnummonien(n=1, 1/n^2, tab), zeta''(2))
 
+tab=sumnummonieninit(,n->log(n),2);
+check(sumnummonien(n=2,1/n^2,tab), -zeta'(2))
+sumnummonien(n=1,1/n^2,tab) \\error
+
 tab=sumnummonieninit([1,2]);
 check(sumnummonien(n=1, 1/n^3, tab), zeta(3))
 

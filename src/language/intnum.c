@@ -1581,10 +1581,20 @@ wrapmonw2(void* E, GEN x)
   return gdiv(wnx, gpow(x, gadd(gmulgs(W->a, W->j), W->b), W->prec));
 }
 
+/* add 'a' to all components of v */
+static GEN
+RgV_Rg_addall(GEN v, GEN a)
+{
+  long i, l;
+  GEN w = cgetg_copy(v,&l);
+  for (i = 1; i < l; i++) gel(w,i) = gadd(gel(v,i), a);
+  return w;
+}
+
 static GEN
 sumnummonieninit_w(GEN w, GEN wfast, GEN a, GEN b, GEN n0, long prec)
 {
-  GEN c, M, P, Q, vr, vabs, vwt, R;
+  GEN M, P, Q, vr, vabs, vwt, R;
   double bit = prec2nbits(prec) / gtodouble(a), D = bit*LOG2;
   long j, n = (long)ceil(D/(log(D)-1));
   struct mon_w S;
@@ -1625,20 +1635,17 @@ sumnummonieninit_w(GEN w, GEN wfast, GEN a, GEN b, GEN n0, long prec)
   if (gequal1(a))
   {
     vabs = vr;
-    c = b;
   }
   else
   {
     GEN ai = ginv(a);
     vabs = cgetg(n+1, t_VEC);
     for (j = 1; j <= n; ++j) gel(vabs,j) = gpow(gel(vr,j), ai, prec);
-    c = gdiv(b,a);
   }
-  c = gsubgs(c,1); if (gequal0(c)) c = NULL;
   R = gneg(gdiv(P, RgX_deriv(Q)));
+  if (!equali1(n0)) vabs = RgV_Rg_addall(vabs, subsi(1,n0));
   vwt = cgetg(n+1, t_VEC);
-  for (j = 1; j <= n; j++)
-    gel(vwt,j) = poleval(R, gel(vr,j));
+  for (j = 1; j <= n; j++) gel(vwt,j) = poleval(R, gel(vr,j));
   return mkvec3(vabs, vwt, n0);
 }
 
@@ -1676,6 +1683,7 @@ sumnummonieninit_i(GEN asymp, GEN w, GEN n0, long prec)
       if (abscmpiu(n0, 2) <= 0)
       {
         GEN tab = sumnummonieninit0(a, b, itos(w), prec);
+        if (!equali1(n0)) gel(tab,1) = RgV_Rg_addall(gel(tab,1), subsi(1,n0));
         return shallowconcat(tab,n0);
       }
       w = strtofunction("log");
@@ -1696,16 +1704,6 @@ sumnummonieninit(GEN asymp, GEN w, GEN n0, long prec)
 {
   pari_sp av = avma;
   return gerepilecopy(av, sumnummonieninit_i(asymp,w,n0,prec));
-}
-
-/* add 'a' to all components of v */
-static GEN
-RgV_Rg_addall(GEN v, GEN a)
-{
-  long i, l;
-  GEN w = cgetg_copy(v,&l);
-  for (i = 1; i < l; i++) gel(w,i) = gadd(gel(v,i), a);
-  return w;
 }
 
 GEN
