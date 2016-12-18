@@ -556,7 +556,7 @@
   *** mathnfmod: domain error in ZM_hnfmod: nb lines > nb columns
   ***   at top-level: polsturm(x^2*1.)
   ***                 ^----------------
-  *** polsturm: precision too low in polsturm.
+  *** polsturm: domain error in polsturm: issquarefree(pol) = 0
   ***   at top-level: removeprimes(2)
   ***                 ^---------------
   *** removeprimes: domain error in removeprime: prime not in primetable
@@ -607,4 +607,4 @@ INFINITY
   ***   at top-level: Mod(0,n)^(-1)
   ***                         ^-----
   *** _^_: impossible inverse in Fp_inv: (...).
-Total time spent: 19
+Total time spent: 16

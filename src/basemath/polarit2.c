@@ -2983,6 +2983,7 @@ sturmpart(GEN x, GEN a, GEN b)
 {
   pari_sp av = avma;
   long r;
+  if (!b && a && typ(a) == t_VEC) return RgX_sturmpart(x, a);
   if (!a) a = mkmoo();
   if (!b) b = mkoo();
   r = sturmpart_i(x, mkvec2(a, b));
