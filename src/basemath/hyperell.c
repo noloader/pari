@@ -230,7 +230,7 @@ diff_red(GEN s, GEN A, long m, GEN T, GEN p)
     GEN rS = cgetg(l+1,t_VEC);
     for (i = l-1; i >=0 ; i--)
       gel(rS,i+1) = to_ZX(gel(sQ, 1+v+l-i), vT);
-    rS = FpX_fromdigits(rS,T,p);
+    rS = FpXV_FpX_fromdigits(rS,T,p);
     gel(qS,2) = FpX_add(FpX_mul(rS, T, p), gel(qS, 2), p);
     if (DEBUGLEVEL>1) timer_printf(&ti,"redadd");
   }

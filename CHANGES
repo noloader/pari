@@ -24,6 +24,17 @@ HC   18- sumnummonieninit(,,a) + sumnummonien(n = a, ...) with a > 1 gave wrong
          result
      19- sumnummonieninit([a,b], t_CLOSURE) => incorrect initialization
 
+  Added
+      1- [libari] ZM_isidentity
+      2- [libpari] rename buchnarrow -> bnfnarrow
+      3- [libpari] ZX_radical
+BA    4- [gmp] support for mpn_divexact_1
+BA    5- parallel fflog in characteristic at most 5
+BA    6- parallel znlog for large characteristic
+      7- [libpari] u_chinese_coprime
+BA    8- new GP function elltamagawa
+      9- [libpari] RgX_rescale_to_int, RgM_rescale_to_int
+
   Changed
       1- rewrite bnfnarrow
       2- the bid struct from idealstar has been changed, the new format is
@@ -43,20 +54,8 @@ HC   18- sumnummonieninit(,,a) + sumnummonien(n = a, ...) with a > 1 gave wrong
      11- allow polrootsreal() and polsturm() with non-rational real polynomials
          (input is rounded first)
 BA   12- FlxX_shift did not support negative (left) shift.
+BA   13- [libpari] FpX_fromdigits renamed to FpXV_FpX_fromdigits
 
-  Added
-      1- [libari] ZM_isidentity
-      2- [libpari] rename buchnarrow -> bnfnarrow
-      3- [libpari] ZX_radical
-BA    4- [gmp] support for mpn_divexact_1
-BA    5- parallel fflog in characteristic at most 5
-BA    6- parallel znlog for large characteristic
-      7- [libpari] u_chinese_coprime
-BA    8- new GP function elltamagawa
-      9- [libpari] RgX_rescale_to_int, RgM_rescale_to_int
-
-Changed
-
-Removed
+  Removed
       1- file 'MACHINES' (no longer maintained)
       2- useless argument nf in ZC_nfval, ZC_nfvalrem, pr_equal, ZC_prdvd
