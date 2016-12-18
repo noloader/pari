@@ -24,17 +24,19 @@ Doc: initialize tables for Monien summation of a series $\sum_{n\geq n_0}
  $\kbd{asymp}=\alpha$.
 
  \bprog
+ ? \p57
+ ? s = sumnum(n = 1, sin(1/sqrt(n)) / n); \\ reference point
+
  ? \p38
- ? s = sumnum(n = 1, sin(1/sqrt(n)) / n)
- %1 = 2.3979771206715998375659850036324914714
-
  ? sumnummonien(n = 1, sin(1/sqrt(n)) / n) - s
- %2 = -0.001[...] \\ completely wrong !
+ %2 = -0.001[...] \\ completely wrong
 
- ? t = sumnummonieninit([1/2,1]);  \\ f(n) = sum_i 1 / n^(i/2+1)
+ ? t = sumnummonieninit([1,1/2]);  \\ f(n) = sum_i 1 / n^(i/2+1)
  ? sumnummonien(n = 1, sin(1/sqrt(n)) / n, t) - s
- %3 = 0.E-37  \\ now correct
- @eprog
+ %3 = 0.E-37 \\ now correct
+ @eprog\noindent (As a matter of fact, in the above summation, the
+ result given by \kbd{sumnum} at \kbd{\bs p38} is slighly incorrect,
+ so we had to increase the accuracy to \kbd{\bs p57}.)
 
  The argument $w$ is used to sum expressions of the form
  $$ \sum_{n\geq n_0} f(n) w(n),$$
