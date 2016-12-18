@@ -1598,7 +1598,7 @@ RgV_Rg_addall(GEN v, GEN a)
 static GEN
 sumnummonieninit_w(GEN w, GEN wfast, GEN a, GEN b, GEN n0, long prec)
 {
-  GEN M, P, Q, vr, vabs, vwt, R;
+  GEN c, M, P, Q, vr, vabs, vwt, R;
   double bit = prec2nbits(prec) / gtodouble(a), D = bit*LOG2;
   long j, n = (long)ceil(D/(log(D)-1));
   struct mon_w S;
@@ -1637,17 +1637,27 @@ sumnummonieninit_w(GEN w, GEN wfast, GEN a, GEN b, GEN n0, long prec)
   Pade(M, &P,&Q);
   vr = RX_realroots(Q, prec); settyp(vr, t_VEC);
   if (gequal1(a))
+  {
     vabs = vr;
+    c = b;
+  }
   else
   {
     GEN ai = ginv(a);
     vabs = cgetg(n+1, t_VEC);
     for (j = 1; j <= n; ++j) gel(vabs,j) = gpow(gel(vr,j), ai, prec);
+    c = gdiv(b,a);
   }
+  c = gsubgs(c,1); if (gequal0(c)) c = NULL;
   R = gneg(gdiv(P, RgX_deriv(Q)));
   if (!equali1(n0)) vabs = RgV_Rg_addall(vabs, subsi(1,n0));
   vwt = cgetg(n+1, t_VEC);
-  for (j = 1; j <= n; j++) gel(vwt,j) = poleval(R, gel(vr,j));
+  for (j = 1; j <= n; j++)
+  {
+    GEN r = gel(vr,j), t = poleval(R,r);
+    if (c) t = gmul(t, gpow(r, c, prec));
+    gel(vwt,j) = t;
+  }
   return mkvec3(vabs, vwt, n0);
 }
 

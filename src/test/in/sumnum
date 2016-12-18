@@ -7,6 +7,11 @@ tab=sumnummonieninit(,1);
 check(sumnummonien(n=1, 1/n^2, tab), -zeta'(2))
 sumnummonien(n=3, 1/n^2, tab)
 
+tab=sumnummonieninit([1/2,1],n->1);
+sumnummonien(n=1,1/n^(3/2),tab)
+tab=sumnummonieninit([1/2,1],n->1,2);
+sumnummonien(n=2,1/n^(3/2),tab)
+
 TEST=[n->1/(n^2+1), n->log(1+1/n)/n, n->lngamma(1+1/n)/n, n->sin(1/sqrt(n))/n^(3/2)];
 FUN=[f->sumnum(n=1,f(n)), f->sumnummonien(n=1,f(n))];
 
