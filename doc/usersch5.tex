@@ -5259,6 +5259,13 @@ assuming the result is monic of the same degree as $y$ (in particular $x\neq
 
 \fun{GEN}{Flx_deriv}{GEN z, ulong p}
 
+\fun{GEN}{Flx_digits}{GEN x, GEN B, ulong p} returns a vector of \kbd{Flx}
+$[c_0,\ldots,c_n]$ of degree less than the degree of $B$ and such that
+$x=\sum_{i=0}^{n}{c_i\*B^i}$.
+
+\fun{GEN}{FlxV_Flx_fromdigits}{GEN v, GEN B, ulong p} where $v=[c_0,\ldots,c_n]$
+is a vector of \kbd{Flx}, returns $\sum_{i=0}^{n}{c_i\*B^i}$.
+
 \fun{GEN}{Flx_Frobenius}{GEN T, ulong p}
 
 \fun{GEN}{Flx_matFrobenius}{GEN T, ulong p}

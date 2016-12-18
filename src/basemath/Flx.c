@@ -1598,6 +1598,59 @@ Flx_mod_Xn1(GEN T, ulong n, ulong p)
   return Flx_renormalize(S, l);
 }
 
+struct _Flxq {
+  GEN aut;
+  GEN T;
+  ulong p;
+};
+
+static GEN
+_Flx_divrem(void * E, GEN x, GEN y, GEN *r)
+{
+  struct _Flxq *D = (struct _Flxq*) E;
+  return Flx_divrem(x, y, D->p, r);
+}
+static GEN
+_Flx_add(void * E, GEN x, GEN y) {
+  struct _Flxq *D = (struct _Flxq*) E;
+  return Flx_add(x, y, D->p);
+}
+static GEN
+_Flx_mul(void *E, GEN x, GEN y) {
+  struct _Flxq *D = (struct _Flxq*) E;
+  return Flx_mul(x, y, D->p);
+}
+static GEN
+_Flx_sqr(void *E, GEN x) {
+  struct _Flxq *D = (struct _Flxq*) E;
+  return Flx_sqr(x, D->p);
+}
+
+static struct bb_ring Flx_ring = { _Flx_add,_Flx_mul,_Flx_sqr };
+
+GEN
+Flx_digits(GEN x, GEN T, ulong p)
+{
+  pari_sp av = avma;
+  struct _Flxq D;
+  long d = degpol(T), n = (lgpol(x)+d-1)/d;
+  GEN z;
+  D.p = p;
+  z = gen_digits(x,T,n,(void *)&D, &Flx_ring, _Flx_divrem);
+  return gerepileupto(av, z);
+}
+
+GEN
+FlxV_Flx_fromdigits(GEN x, GEN T, ulong p)
+{
+  pari_sp av = avma;
+  struct _Flxq D;
+  GEN z;
+  D.p = p;
+  z = gen_fromdigits(x,T,(void *)&D, &Flx_ring);
+  return gerepileupto(av, z);
+}
+
 long
 Flx_val(GEN x)
 {
@@ -2117,12 +2170,6 @@ Flx_eval(GEN x, ulong y, ulong p)
   return Flx_eval_pre(x, y, p, get_Fl_red(p));
 }
 
-static GEN
-_Flx_mul(void *p, GEN a, GEN b)
-{
-  return Flx_mul(a,b, *(ulong*)p);
-}
-
 ulong
 Flv_prod_pre(GEN x, ulong p, ulong pi)
 {
@@ -2157,13 +2204,16 @@ Flv_prod(GEN v, ulong p)
 GEN
 FlxV_prod(GEN V, ulong p)
 {
-  return gen_product(V, (void *)&p, &_Flx_mul);
+  struct _Flxq D;
+  D.T = NULL; D.aut = NULL; D.p = p;
+  return gen_product(V, (void *)&D, &_Flx_mul);
 }
 
 /* compute prod (x - a[i]) */
 GEN
 Flv_roots_to_pol(GEN a, ulong p, long vs)
 {
+  struct _Flxq D;
   long i,k,lx = lg(a);
   GEN p1;
   if (lx == 1) return pol1_Flx(vs);
@@ -2173,7 +2223,8 @@ Flv_roots_to_pol(GEN a, ulong p, long vs)
                               Fl_neg(Fl_add(a[i],a[i+1],p),p), 1);
   if (i < lx)
     gel(p1,k++) = mkvecsmall3(vs, Fl_neg(a[i],p), 1);
-  setlg(p1, k); return gen_product(p1, (void *)&p, _Flx_mul);
+  D.T = NULL; D.aut = NULL; D.p = p;
+  setlg(p1, k); return gen_product(p1, (void *)&D, _Flx_mul);
 }
 
 INLINE void
@@ -2472,22 +2523,12 @@ Flxq_sqr(GEN x,GEN T,ulong p)
   return Flx_rem(Flx_sqr(x,p),T,p);
 }
 
-struct _Flxq {
-  GEN aut;
-  GEN T;
-  ulong p;
-};
-
 static GEN
 _Flxq_red(void *E, GEN x)
 { struct _Flxq *s = (struct _Flxq *)E;
   return Flx_rem(x, s->T, s->p); }
 static GEN
-_Flxq_add(void *E, GEN x, GEN y)
-{ struct _Flxq *s = (struct _Flxq *)E;
-  return Flx_add(x,y,s->p); }
-static GEN
-_Flxq_sub(void *E, GEN x, GEN y)
+_Flx_sub(void *E, GEN x, GEN y)
 { struct _Flxq *s = (struct _Flxq *)E;
   return Flx_sub(x,y,s->p); }
 static GEN
@@ -2613,7 +2654,7 @@ Flx_matFrobenius(GEN T, ulong p)
   return Flxq_matrix_pow(Flx_Frobenius(T, p), n, n, T, p);
 }
 
-static struct bb_algebra Flxq_algebra = { _Flxq_red, _Flxq_add, _Flxq_sub,
+static struct bb_algebra Flxq_algebra = { _Flxq_red, _Flx_add, _Flx_sub,
               _Flxq_mul, _Flxq_sqr, _Flxq_one, _Flxq_zero};
 
 GEN
@@ -3195,7 +3236,7 @@ _Flxq_s(void *E, long x)
   return Fl_to_Flx(u, get_Flx_var(s->T));
 }
 
-static const struct bb_field Flxq_field={_Flxq_red,_Flxq_add,_Flxq_rmul,_Flxq_neg,
+static const struct bb_field Flxq_field={_Flxq_red,_Flx_add,_Flxq_rmul,_Flxq_neg,
                                          _Flxq_inv,_Flxq_equal0,_Flxq_s};
 
 const struct bb_field *get_Flxq_field(void **E, GEN T, ulong p)
