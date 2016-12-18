@@ -1520,22 +1520,32 @@ sumnummonieninit0(GEN a, GEN b, long k, long prec)
   bit0 = ceil((2*n+1)*LOG2_10);
   prec = nbits2prec(maxdd(2.05*bit, bit0));
   prec2 = nbits2prec(maxdd(1.3*bit, bit0));
-  if (k && k != 1) pari_err_IMPL("log power > 1 in sumnummonieninit");
+  if (k < 0) pari_err_IMPL("log power < 0 in sumnummonieninit");
   a = gprec_w(a, 2*prec-2);
   b = gprec_w(b, 2*prec-2);
   if (k == 0)
-    M = RgV_neg(veczeta(a, gadd(a,b), 2*n+2, prec));
-  else
+    M = veczeta(a, gadd(a,b), 2*n+2, prec);
+  else if (k == 1)
   {
     M = cgetg(2*n+3, t_VEC);
     for (m = 1; m <= 2*n+2; m++)
-      gel(M,m) = gzetaprime(gadd(gmulsg(m,a), b), prec);
+      gel(M,m) = gzetaprime(gadd(gmulsg(m,a),b), prec);
   }
+  else
+  { /* very inefficient */
+    long B = prec2nbits(prec);
+    GEN a2 = gmul2n(a,-1), C = gadd(b, gmulsg(2*n+3,a2));
+    GEN L = lfuninit(gen_1, mkvec3(C, gmulsg(2*n+1,a2), gen_0), k, B);
+    M = cgetg(2*n+3, t_VEC);
+    for (m = 1; m <= 2*n+2; m++)
+      gel(M,m) = lfun0(L, gadd(gmulsg(m,a),b), k, B);
+  }
+  if (!odd(k)) M = RgV_neg(M);
   Pade(M, &P,&Q);
   Qp = RgX_deriv(Q);
   if (gequal1(a))
   {
-    vabs = vr = monroots(Q, Qp, k, prec2);
+    vabs = vr = monroots(Q, Qp, k? 1: 0, prec2);
     c = b;
   }
   else

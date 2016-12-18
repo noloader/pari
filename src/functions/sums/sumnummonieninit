@@ -49,9 +49,9 @@ Doc: initialize tables for Monien summation of a series $\sum_{n\geq n_0}
  computed using \kbd{sumnum}. The following variants are available
 
  \item an integer $k \geq 0$, to code $w(n) = (\log n)^k$;
- only the cases $k = 0,1$ are presently implemented; due to a poor
- implementation of $\zeta$ derivatives, it is not currently worth it
- to exploit the special shape of $g_w$ when $k > 0$;
+ due to a poor implementation of $\zeta$ derivatives, it is not currently
+ worth it to exploit the special shape of $g_w$ when $k > 0$; use
+ the \typ{CLOSURE} syntax with $w(n) = (\log n)^k$;
 
  \item a \typ{CLOSURE} computing the values $w(n)$, where we
  assume that $w(n) = O(n^\epsilon)$ for all $\epsilon > 0$;
