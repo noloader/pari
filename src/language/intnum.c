@@ -1504,7 +1504,7 @@ Pade(GEN M, GEN *pP, GEN *pQ)
 static GEN
 _zeta(void *E, GEN x, long prec)
 { (void)E; return gzeta(x, prec); }
-/* compute zeta'(s) numerically. FIXME: replace by lfun variant */
+/* compute zeta'(s) numerically; lfun is no more accurate and much slower */
 static GEN
 gzetaprime(GEN s, long prec)
 { return derivnum(NULL, _zeta, gtofp(s,prec), prec); }
