@@ -1079,7 +1079,7 @@ FpXQX_digits(GEN x, GEN B, GEN T, GEN p)
 }
 
 GEN
-FpXQX_fromdigits(GEN x, GEN B, GEN T, GEN p)
+FpXQXV_FpXQX_fromdigits(GEN x, GEN B, GEN T, GEN p)
 {
   pari_sp av = avma;
   struct _FpXQXQ D;

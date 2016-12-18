@@ -524,7 +524,7 @@ Fq_diff_red(GEN s, GEN A, long m, GEN S, GEN T, GEN q, GEN p, long e)
     GEN rS = cgetg(l+1,t_VEC);
     for (i = l-1; i >=0 ; i--)
       gel(rS,i+1) = gel(sQ, 1+v+l-i);
-    rS = FpXQX_fromdigits(rS,S,T,q);
+    rS = FpXQXV_FpXQX_fromdigits(rS, S, T, q);
     gel(qS,2) = FpXX_add(FpXQX_mul(rS, S, T, q), gel(qS, 2), q);
     if (DEBUGLEVEL>1) timer_printf(&ti,"redadd");
   }

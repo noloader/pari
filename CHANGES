@@ -54,7 +54,8 @@ BA    8- new GP function elltamagawa
      11- allow polrootsreal() and polsturm() with non-rational real polynomials
          (input is rounded first)
 BA   12- FlxX_shift did not support negative (left) shift.
-BA   13- [libpari] FpX_fromdigits renamed to FpXV_FpX_fromdigits
+BA   13- [libpari] rename FpX_fromdigits -> FpXV_FpX_fromdigits,
+         FpXQX_fromdigits -> FpXQXV_FpXQX_fromdigits
 
   Removed
       1- file 'MACHINES' (no longer maintained)
