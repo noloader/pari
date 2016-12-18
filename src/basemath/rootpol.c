@@ -2771,7 +2771,7 @@ ZX_Uspensky(GEN P, GEN ab, long flag, long bitprec)
 static GEN
 rootsdeg0(GEN x)
 {
-  if (!is_rational_t(typ(x))) pari_err_TYPE("realroots",x);
+  if (!is_real_t(typ(x))) pari_err_TYPE("realroots",x);
   if (gequal0(x)) pari_err_ROOTS0("realroots");
   return cgetg(1,t_COL); /* constant polynomial */
 }
@@ -2811,8 +2811,8 @@ realroots(GEN P, GEN ab, long prec)
     case -1: return rootsdeg0(gen_0);
     case 0: return rootsdeg0(gel(P,2));
   }
+  if (!RgX_is_ZX(P)) P = RgX_rescale_to_int(P);
   P = Q_primpart(P);
-  RgX_check_ZX(P,"realroots");
   v = ZX_valrem(P,&P);
   if (v && (!ab || (gsigne(gel(ab,1)) <= 0 && gsigne(gel(ab,2)) >= 0)))
     sol = const_col(v, real_0(prec));

@@ -1464,8 +1464,7 @@ monrefine(GEN Q, GEN QP, GEN z, long prec)
 }
 
 static GEN
-RX_realroots(GEN x, long prec)
-{ return realroots(RgX_rescale_to_int(x), NULL, prec); }
+RX_realroots(GEN x, long prec) { return realroots(x, NULL, prec); }
 
 /* (real) roots of Q, assuming QP = Q' and that half the roots are close to
  * k+1, ..., k+m, m = deg(Q)/2-1. N.B. All roots are real and >= 1 */

@@ -2924,137 +2924,77 @@ reduceddiscsmith(GEN x)
 /**              (number of real roots of x in [a,b])                 **/
 /**                                                                   **/
 /***********************************************************************/
-static int
-exact_sturm(GEN a)
+static GEN
+R_to_Q_up(GEN x)
 {
-  switch(typ(a))
+  long e;
+  switch(typ(x))
   {
-    case t_INT: case t_FRAC: case t_INFINITY: return 1;
-    default: return 0;
+    case t_INT: case t_FRAC: case t_INFINITY: return x;
+    case t_REAL:
+      x = mantissa_real(x,&e);
+      return gmul2n(addiu(x,1), -e);
+    default: pari_err_TYPE("R_to_Q_up", x);
+      return NULL; /* LCOV_EXCL_LINE */
+  }
+}
+static GEN
+R_to_Q_down(GEN x)
+{
+  long e;
+  switch(typ(x))
+  {
+    case t_INT: case t_FRAC: case t_INFINITY: return x;
+    case t_REAL:
+      x = mantissa_real(x,&e);
+      return gmul2n(subiu(x,1), -e);
+    default: pari_err_TYPE("R_to_Q_down", x);
+      return NULL; /* LCOV_EXCL_LINE */
   }
 }
 
-/* Deprecated: support the old format: if a (resp. b) is NULL, set it
- * to -oo resp. +oo). ZX_sturmpart() should be preferred  */
 static long
-sturmpart_i(GEN x, GEN a, GEN b)
+sturmpart_i(GEN x, GEN ab)
 {
-  long sl, sr, s, t, r1;
-  pari_sp av = avma;
-  int integral;
-  GEN g,h,u,v;
-
+  long tx = typ(x);
   if (gequal0(x)) pari_err_ROOTS0("sturm");
-  t = typ(x);
-  if (t != t_POL)
+  if (tx != t_POL)
   {
-    if (is_real_t(t)) return 0;
+    if (is_real_t(tx)) return 0;
     pari_err_TYPE("sturm",x);
   }
-  s = lg(x); if (s==3) return 0;
-  u = primpart(x);
-  integral = RgX_is_ZX(u);
-  if (integral && !ZX_is_squarefree(u))
-    pari_err_DOMAIN("polsturm","issquarefree(pol)","=",gen_0,u);
-  if (!b && a && typ(a) == t_VEC && lg(a) == 3)
-  { /* new format */
-    if (integral && exact_sturm(gel(a,1)) && exact_sturm(gel(a,2)))
-      return ZX_sturmpart(u, a);
-    /* but can't use new function; convert to old form */
-    b = gel(a,2);
-    if (typ(b) == t_INFINITY)
-    {
-      if (inf_get_sign(b) < 0) return 0;
-      b = NULL;
-    }
-    a = gel(a,1);
-    if (typ(a) == t_INFINITY)
-    {
-      if (inf_get_sign(a) > 0) return 0;
-      a = NULL;
-    }
-  }
-  else if (integral)
+  if (lg(x) == 3) return 0;
+  if (!RgX_is_ZX(x)) x = RgX_rescale_to_int(x);
+  if (!ZX_is_squarefree(x))
+    pari_err_DOMAIN("polsturm","issquarefree(pol)","=",gen_0,x);
+  if (ab)
   {
-    GEN A = a? a: mkmoo();
-    GEN B = b? b: mkoo();
-    if (exact_sturm(A) && exact_sturm(B)) return ZX_sturmpart(u, mkvec2(A,B));
+    GEN A, B;
+    if (typ(ab) != t_VEC || lg(ab) != 3) pari_err_TYPE("RgX_sturmpart", ab);
+    A = R_to_Q_down(gel(ab,1));
+    B = R_to_Q_up(gel(ab,2));
+    ab = mkvec2(A, B);
   }
-  /* legacy code: should only be used if we have a t_REAL somewhere; and even
-   * then, the calling program should be changed */
-  sl = gsigne(leading_coeff(u));
-  t = a? gsigne(poleval(u,a)): (odd(s)? sl: -sl);
-  if (s==4)
-  {
-    if (t == 0) return 1;
-    s = b? gsigne(poleval(u,b)):  sl;
-    return (s == t)? 0: 1;
-  }
-  s = b? gsigne(poleval(u,b)): sl;
-  r1= (t == 0)? 1: 0;
-  v = primpart(RgX_deriv(x));
-  sr = b? gsigne(poleval(v,b)): s;
-  if (sr)
-  {
-    if (!s) s=sr;
-    else if (sr!=s) { s= -s; r1--; }
-  }
-  sr = a? gsigne(poleval(v,a)): -t;
-  if (sr)
-  {
-    if (!t) t=sr;
-    else if (sr!=t) { t= -t; r1++; }
-  }
-  g=gen_1; h=gen_1;
-  for(;;)
-  {
-    GEN p1, r = RgX_pseudorem(u,v);
-    long du=lg(u), dv=lg(v), dr=lg(r), degq=du-dv;
-
-    if (dr<=2) pari_err_PREC("polsturm");
-    if (gsigne(leading_coeff(v)) > 0 || degq&1) r=gneg_i(r);
-    sl = gsigne(gel(r,dr-1));
-    sr = b? gsigne(poleval(r,b)): sl;
-    if (sr)
-    {
-      if (!s) s=sr;
-      else if (sr!=s) { s= -s; r1--; }
-    }
-    sr = a? gsigne(poleval(r,a)): ((dr&1)? sl: -sl);
-    if (sr)
-    {
-      if (!t) t=sr;
-      else if (sr!=t) { t= -t; r1++; }
-    }
-    if (dr==3) return r1;
-
-    u=v; p1 = g; g = gabs(leading_coeff(u),DEFAULTPREC);
-    switch(degq)
-    {
-      case 0: break;
-      case 1:
-        p1 = gmul(h,p1); h = g; break;
-      default:
-        p1 = gmul(gpowgs(h,degq),p1);
-        h = gdivexact(gpowgs(g,degq), gpowgs(h,degq-1));
-    }
-    v = RgX_Rg_divexact(r,p1);
-    if (gc_needed(av,1))
-    {
-      if(DEBUGMEM>1) pari_warn(warnmem,"polsturm, dr = %ld",dr);
-      gerepileall(av,4,&u,&v,&g,&h);
-    }
-  }
+  return ZX_sturmpart(x, ab);
 }
+/* Deprecated: RgX_sturmpart() should be preferred  */
 long
 sturmpart(GEN x, GEN a, GEN b)
 {
   pari_sp av = avma;
-  long r = sturmpart_i(x,a,b);
+  long r;
+  if (!a) a = mkmoo();
+  if (!b) b = mkoo();
+  r = sturmpart_i(x, mkvec2(a, b));
   avma = av; return r;
 }
 long
-RgX_sturmpart(GEN x, GEN ab) { return sturmpart(x, ab, NULL); }
+RgX_sturmpart(GEN x, GEN ab)
+{
+  pari_sp av = avma;
+  long r = sturmpart_i(x, ab);
+  avma = av; return r;
+}
 
 /***********************************************************************/
 /**                                                                   **/

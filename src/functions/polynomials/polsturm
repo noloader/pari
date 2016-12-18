@@ -12,8 +12,12 @@ Doc: number of real roots of the real squarefree polynomial \var{T}. If
  If possible, you should stick to exact inputs, that is avoid \typ{REAL}s in
  $T$ and the bounds $a,b$: the result is then guaranteed and we use a fast
  algorithm (Uspensky's method, relying on Descartes's rule of sign, see
- \tet{polrootsreal}); otherwise, we use Sturm's algorithm and the result
- may be wrong due to round-off errors.
+ \tet{polrootsreal}). Otherwise, the polynomial is rescaled and rounded first
+ and the result may be wrong due to that initial error. If only $a$ or $b$ is
+ inexact, on the other hand, the interval is first thickened using rational
+ endpoints and the result remains guaranteed unless there exist a root
+ \emph{very} close to a non-rational endpoint (which may be missed or unduly
+ included).
  \bprog
  ? T = (x-1)*(x-2)*(x-3);
  ? polsturm(T)
@@ -30,13 +34,7 @@ Doc: number of real roots of the real squarefree polynomial \var{T}. If
   ***   at top-level: polsturm(T^2,[0,4])
   ***                 ^-------------------
   *** polsturm: domain error in polsturm: issquarefree(pol) = 0
- ? polsturm((T*1.)^2, [0, 4])  \\ not squarefree AND inexact
-  ***   at top-level: polsturm((T*1.)^2,[0
-  ***                 ^--------------------
-  *** polsturm: precision too low in polsturm.
- @eprog\noindent In the last example, the input polynomial is not
- squarefree but there is no way to ascertain it from the given
- floating point approximation: we get a precision error in this case.
+ @eprog
  %\syn{NO}
 
  The library syntax is \fun{long}{RgX_sturmpart}{GEN T, GEN ab} or

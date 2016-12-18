@@ -2,11 +2,13 @@ Function: polrootsreal
 Section: polynomials
 C-Name: realroots
 Prototype: GDGp
-Help: polrootsreal(T, {ab}): real roots of the polynomial T with rational
+Help: polrootsreal(T, {ab}): real roots of the polynomial T with real
  coefficients, using Uspensky's method. In interval ab = [a,b] if present.
-Doc: real roots of the polynomial $T$ with rational coefficients, multiple
- roots being included according to their multiplicity. The roots are given
- to a relative accuracy of \kbd{realprecision}. If argument \var{ab} is
+Doc: real roots of the polynomial $T$ with real coefficients, multiple
+ roots being included according to their multiplicity. If the polynomial
+ does not have rational coefficients, it is first rescaled and rounded.
+ The roots are given to a relative accuracy of \kbd{realprecision}.
+ If argument \var{ab} is
  present, it must be a vector $[a,b]$ with two components (of type
  \typ{INT}, \typ{FRAC} or \typ{INFINITY}) and we restrict to roots belonging
  to that closed interval.
