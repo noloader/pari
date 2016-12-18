@@ -3922,17 +3922,24 @@ FlxY_Flx_div(GEN x, GEN y, ulong p)
 }
 
 GEN
-FlxX_shift(GEN a, long n)
+FlxX_shift(GEN a, long n, long vs)
 {
   long i, l = lg(a);
   GEN  b;
-  long vs;
-  if (!signe(a)) return a;
-  vs = mael(a,2,1);
-  b = cgetg(l+n, t_POL);
-  b[1] = a[1];
-  for (i=0; i<n; i++) gel(b,2+i) = pol0_Flx(vs);
-  for (i=2; i<l; i++) b[i+n] = a[i];
+  if (l == 2 || !n) return a;
+  l += n;
+  if (n < 0)
+  {
+    if (l <= 2) return pol_0(varn(a));
+    b = cgetg(l, t_POL); b[1] = a[1];
+    a -= n;
+    for (i=2; i<l; i++) gel(b,i) = gel(a,i);
+  } else {
+    b = cgetg(l, t_POL); b[1] = a[1];
+    a -= n; n += 2;
+    for (i=2; i<n; i++) gel(b,i) = pol0_Flx(vs);
+    for (   ; i<l; i++) gel(b,i) = gel(a,i);
+  }
   return b;
 }
 

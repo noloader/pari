@@ -42,6 +42,7 @@ HC   18- sumnummonieninit(,,a) + sumnummonien(n = a, ...) with a > 1 gave wrong
      10- allow mseval(W, t_MAT, p) to evaluate many symbols simultaneously
      11- allow polrootsreal() and polsturm() with non-rational real polynomials
          (input is rounded first)
+BA   12- FlxX_shift did not support negative (left) shift.
 
   Added
       1- [libari] ZM_isidentity

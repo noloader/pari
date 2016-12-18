@@ -337,7 +337,7 @@ GEN     FlxX_neg(GEN x, ulong p);
 GEN     FlxX_sub(GEN P, GEN Q, ulong p);
 GEN     FlxX_swap(GEN x, long n, long ws);
 GEN     FlxX_renormalize(GEN x, long lx);
-GEN     FlxX_shift(GEN a, long n);
+GEN     FlxX_shift(GEN a, long n, long vs);
 GEN     FlxX_to_Flm(GEN v, long n);
 GEN     FlxX_to_FlxC(GEN x, long N, long sv);
 GEN     FlxX_to_ZXX(GEN B);
