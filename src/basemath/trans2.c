@@ -1135,7 +1135,7 @@ cxgamma(GEN s0, int dolog, long prec)
     double st = typ(s) == t_REAL? 0.0: rtodbl(imag_i(s));
     double la, l,l2,u,v, rlogs, ilogs;
 
-    if (fabs(ssig-1) + fabs(st) < 0.0001)
+    if (fabs(ssig-1) + fabs(st) < 1e-16)
     { /* s ~ 1: loggamma(1+u) ~ - Euler * u, cancellation */
       if (funeq) /* s0 ~ 0: use lngamma(s0)+log(s0) = lngamma(s0+1) */
       {
@@ -1537,7 +1537,7 @@ ggamma(GEN x, long prec)
         return gammahs(m-1, prec);
       }
       av = avma; c = subii(a,b);
-      if (expi(c) - expi(b) < -10)
+      if (expi(c) - expi(b) < -50)
       {
         x = mkfrac(c,b);
         if (lgefint(b) >= prec) x = fractor(x,prec);
@@ -1613,7 +1613,7 @@ glngamma(GEN x, long prec)
     {
       GEN a = gel(x,1), b = gel(x,2), c = subii(a,b);
       long e = expi(b) - expi(c);
-      if (e > 10)
+      if (e > 50)
       {
         x = mkfrac(c,b);
         if (lgefint(b) >= prec) x = fractor(x,prec + nbits2nlong(e));
