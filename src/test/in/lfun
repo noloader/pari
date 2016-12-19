@@ -16,6 +16,11 @@ lfun(L121,1+100*I)
 lfun(L121,1+x+O(x^3))
 
 lfun(1,1+x+O(x^4),1)
+lfun(1,1+x+O(x^4),2)
+lfun(1,2+x^2+O(x^6),1)
+lfun(1,2+x^2+O(x^6),2)
+lfun(x^4-2,x+O(x^6),1)
+lfun(x^4-2,x+O(x^6),2)
 
 lfun(polcyclo(12),2)
 

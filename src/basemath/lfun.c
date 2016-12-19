@@ -1572,14 +1572,14 @@ derivnser(GEN x, long n)
     y = cgetg(lx,t_SER);
     y[1] = evalsigne(1)| evalvalp(e-n) | evalvarn(vx);
     for (i=0; i<lx-2; i++)
-      gel(y,i+2) = gmul(muls_interval(i+e-(n-1),i+e), gel(x,i+2));
+      gel(y,i+2) = gmul(muls_interval(i+e-n+1,i+e), gel(x,i+2));
   } else {
     if (lx <= n+2) return zeroser(vx, 0);
     lx -= n;
     y = cgetg(lx,t_SER);
     y[1] = evalsigne(1)|_evalvalp(0) | evalvarn(vx);
     for (i=0; i<lx-2; i++)
-      gel(y,i+2) = gmul(muls_interval(i-(n-1),i),gel(x,i+2+n));
+      gel(y,i+2) = gmul(muls_interval(i+1,i+n),gel(x,i+2+n-e));
   }
   return normalize(y);
 }
