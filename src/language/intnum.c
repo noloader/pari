@@ -1600,7 +1600,9 @@ static GEN
 RgV_Rg_addall(GEN v, GEN a)
 {
   long i, l;
-  GEN w = cgetg_copy(v,&l);
+  GEN w;
+  if (!signe(a)) return v;
+  w = cgetg_copy(v,&l);
   for (i = 1; i < l; i++) gel(w,i) = gadd(gel(v,i), a);
   return w;
 }
@@ -1660,7 +1662,6 @@ sumnummonieninit_w(GEN w, GEN wfast, GEN a, GEN b, GEN n0, long prec)
   }
   c = gsubgs(c,1); if (gequal0(c)) c = NULL;
   R = gneg(gdiv(P, RgX_deriv(Q)));
-  if (!equali1(n0)) vabs = RgV_Rg_addall(vabs, subsi(1,n0));
   vwt = cgetg(n+1, t_VEC);
   for (j = 1; j <= n; j++)
   {
@@ -1705,8 +1706,9 @@ sumnummonieninit_i(GEN asymp, GEN w, GEN n0, long prec)
       if (abscmpiu(n0, 2) <= 0)
       {
         GEN tab = sumnummonieninit0(a, b, itos(w), prec);
-        if (!equali1(n0)) gel(tab,1) = RgV_Rg_addall(gel(tab,1), subsi(1,n0));
-        return shallowconcat(tab,n0);
+        GEN A = gel(tab,1), B = gel(tab,2);
+        A = RgV_Rg_addall(A, subis(n0,1));
+        return mkvec3(A, B, n0);
       }
       w = strtofunction("log");
       break;
@@ -1736,7 +1738,10 @@ sumnummonien(void *E, GEN (*eval)(void*,GEN), GEN n0, GEN tab, long prec)
   long l, i;
   if (typ(n0) != t_INT) pari_err_TYPE("sumnummonien", n0);
   if (!tab)
+  {
     tab = sumnummonieninit0(gen_1,gen_1,0,prec);
+    gel(tab,1) = RgV_Rg_addall(gel(tab,1), subis(n0,1));
+  }
   else switch(lg(tab))
   {
     case 4:
@@ -1750,7 +1755,6 @@ sumnummonien(void *E, GEN (*eval)(void*,GEN), GEN n0, GEN tab, long prec)
   vwt = gel(tab,2);
   if (typ(vabs) != t_VEC || typ(vwt) != t_VEC || lg(vwt) != l)
     pari_err_TYPE("sumnummonien", tab);
-  if (!isint1(n0)) vabs = RgV_Rg_addall(vabs, subis(n0,1));
   S = gen_0;
   for (i = 1; i < l; i++) S = gadd(S, gmul(gel(vwt,i), eval(E, gel(vabs,i))));
   return gerepileupto(av, gprec_w(S, prec));
