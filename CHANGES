@@ -60,6 +60,7 @@ BA   12- FlxX_shift did not support negative (left) shift.
 BA   13- [libpari] rename FpX_fromdigits -> FpXV_FpX_fromdigits,
          FpXQX_fromdigits -> FpXQXV_FpXQX_fromdigits
      14- made lngamma(t_COMPLEX) faster
+     15- made sumnummonieninit(,1) faster
 
   Removed
       1- file 'MACHINES' (no longer maintained)

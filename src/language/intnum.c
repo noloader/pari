@@ -1502,12 +1502,19 @@ Pade(GEN M, GEN *pP, GEN *pQ)
 }
 
 static GEN
-_zeta(void *E, GEN x, long prec)
-{ (void)E; return gzeta(x, prec); }
-/* compute zeta'(s) numerically; lfun is no more accurate and much slower */
-static GEN
-gzetaprime(GEN s, long prec)
-{ return derivnum(NULL, _zeta, gtofp(s,prec), prec); }
+veczetaprime(GEN a, GEN b, long N, long prec)
+{
+  long newprec, fpr = prec2nbits(prec), pr = (long)ceil(fpr * 1.5);
+  long l = nbits2prec(pr), e = fpr / 2;
+  GEN eps, A, B;
+  newprec = nbits2prec(pr + BITS_IN_LONG);
+  a = gprec_w(a, newprec);
+  b = gprec_w(b, newprec);
+  eps = real2n(-e, l);
+  A = veczeta(a, gsub(b, eps), N, newprec);
+  B = veczeta(a, gadd(b, eps), N, newprec);
+  return gmul2n(RgV_sub(B, A), e-1);
+}
 
 /* f(n) ~ \sum_{i > 0} f_i log(n)^k / n^(a*i + b); a > 0, a+b > 1 */
 static GEN
@@ -1526,11 +1533,7 @@ sumnummonieninit0(GEN a, GEN b, long k, long prec)
   if (k == 0)
     M = veczeta(a, gadd(a,b), 2*n+2, prec);
   else if (k == 1)
-  {
-    M = cgetg(2*n+3, t_VEC);
-    for (m = 1; m <= 2*n+2; m++)
-      gel(M,m) = gzetaprime(gadd(gmulsg(m,a),b), prec);
-  }
+    M = veczetaprime(a, gadd(a,b), 2*n+2, prec);
   else
   { /* very inefficient */
     long B = prec2nbits(prec);
