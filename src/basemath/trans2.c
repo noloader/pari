@@ -1220,7 +1220,7 @@ cxgamma(GEN s0, int dolog, long prec)
     }
     if (dolog) y = logr_abs(y);
   }
-  else if (!dolog || typ(s) == t_REAL)
+  else
   { /* Compute lngamma mod 2 I Pi */
     for (i=1; i < nn; i++)
     {
@@ -1231,18 +1231,18 @@ cxgamma(GEN s0, int dolog, long prec)
         y = gerepileupto(av2, y);
       }
     }
-    if (dolog) y = logr_abs(y);
-  }
-  else
-  { /* dolog && complex s: be careful with imaginary part */
-    y = glog(y, prec);
-    for (i=1; i < nn; i++)
+    if (dolog)
     {
-      y = gadd(y, glog(gaddgs(s,i), prec));
-      if (gc_needed(av2,3))
-      {
-        if(DEBUGMEM>1) pari_warn(warnmem,"gamma");
-        y = gerepileupto(av2, y);
+      if (typ(s) == t_REAL) y = logr_abs(y);
+      else
+      { /* fix imaginary part */
+        long prec0 = LOWDEFAULTPREC;
+        GEN s0 = gprec_w(s, prec0), y0 = s0, k;
+        y0 = garg(y0, prec0); /* Im log(s) at low accuracy */
+        for (i=1; i < nn; i++) y0 = gadd(y0, garg(gaddgs(s0,i), prec0));
+        y = glog(y, prec);
+        k = ground( gdiv(gsub(y0, imag_i(y)), Pi2n(1,prec0)) );
+        if (signe(k)) y = gadd(y, mulcxI(mulir(k, Pi2n(1, prec))));
       }
     }
   }
