@@ -1576,13 +1576,14 @@ struct mon_w {
   long n, j, prec;
 };
 
-/* w(x) / x^(a*(j+k)+b), k >= 1 */
+/* w(x) / x^(a*(j+k)+b), k >= 1; w a t_INT encodes log(x)^w */
 static GEN
 wrapmonw(void* E, GEN x)
 {
   struct mon_w *W = (struct mon_w*)E;
   long k, j = W->j, n = W->n, prec = W->prec, l = 2*n+4-j;
-  GEN wx = closure_callgen1prec(W->w, x, prec);
+  GEN wx = typ(W->w) == t_CLOSURE? closure_callgen1prec(W->w, x, prec)
+                                 : powgi(glog(x, prec), W->w);
   GEN v = cgetg(l, t_VEC);
   GEN xa = gpow(x, gneg(W->a), prec), w = gmul(wx, gpowgs(xa, j));
   w = gdiv(w, gpow(x,W->b,prec));
@@ -1611,6 +1612,26 @@ RgV_Rg_addall(GEN v, GEN a)
 }
 
 static GEN
+M_from_wrapmon(struct mon_w *S, GEN wfast, GEN n0, long n, long prec)
+{
+  GEN M = cgetg(2*n+3, t_VEC), faj = gsub(wfast, S->b);
+  long j;
+  for (j = 1; j <= 2*n+2; j++)
+  {
+    faj = gsub(faj, S->a);
+    if (gcmpgs(faj, -2) <= 0)
+    {
+      S->j = j; setlg(M,j);
+      M = shallowconcat(M, sumnum((void*)S, wrapmonw, n0, NULL, prec));
+      break;
+    }
+    S->j = j;
+    gel(M,j) = sumnum((void*)S, wrapmonw2, mkvec2(n0,faj), NULL, prec);
+  }
+  return M;
+}
+
+static GEN
 sumnummonieninit_w(GEN w, GEN wfast, GEN a, GEN b, GEN n0, long prec)
 {
   GEN c, M, P, Q, vr, vabs, vwt, R;
@@ -1627,28 +1648,11 @@ sumnummonieninit_w(GEN w, GEN wfast, GEN a, GEN b, GEN n0, long prec)
   /* M[j] = sum(n >= n0, w(n) / n^(a*(j+n)+b) */
   if (typ(wfast) == t_INFINITY)
   {
-    GEN tab = sumnuminit(gen_1, prec);
     S.j = 1;
-    M = sumnum((void*)&S, wrapmonw, n0, tab, prec);
+    M = sumnum((void*)&S, wrapmonw, mkvec2(n0, gen_1), NULL, prec);
   }
   else
-  {
-    GEN faj = gsub(wfast, b);
-    long j;
-    M = cgetg(2*n+3, t_VEC);
-    for (j = 1; j <= 2*n+2; j++)
-    {
-      faj = gsub(faj, a);
-      if (gcmpgs(faj, -2) <= 0)
-      {
-        S.j = j; setlg(M,j);
-        M = shallowconcat(M, sumnum((void*)&S, wrapmonw, n0, NULL, prec));
-        break;
-      }
-      S.j = j;
-      gel(M,j) = sumnum((void*)&S, wrapmonw2, mkvec2(n0,faj), NULL, prec);
-    }
-  }
+    M = M_from_wrapmon(&S, wfast, n0, n, prec);
   Pade(M, &P,&Q);
   vr = RX_realroots(Q, prec); settyp(vr, t_VEC);
   if (gequal1(a))
