@@ -11,6 +11,8 @@ sumnummonien(n=2,1/(n+1)^2)
 tab=sumnummonieninit(1,,0);
 sumnummonien(n=0,1/(n+1)^2,tab)
 
+sumnummonieninit([-1,1]); \\ error
+sumnummonieninit([1,-1]); \\ error
 tab=sumnummonieninit([1,1/2],,0);
 sumnummonien(n=0,1/(n+1)^(3/2),tab)
 

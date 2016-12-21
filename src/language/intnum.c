@@ -1698,7 +1698,7 @@ sumnummonieninit_i(GEN asymp, GEN w, GEN n0, long prec)
     if (gsigne(a) <= 0)
       pari_err_DOMAIN(fun, "a", "<=", gen_0, a);
     if (gcmpgs(gadd(a,b), 1) <= 0)
-      pari_err_DOMAIN(fun, "a+b", "<=", gen_m1, mkvec2(a,b));
+      pari_err_DOMAIN(fun, "a+b", "<=", gen_1, mkvec2(a,b));
   }
   else a = b = gen_1;
   if (!n0) n0 = gen_1;
@@ -1706,15 +1706,12 @@ sumnummonieninit_i(GEN asymp, GEN w, GEN n0, long prec)
   switch(typ(w))
   {
     case t_INT:
-      if (abscmpiu(n0, 2) <= 0)
-      {
-        GEN tab = sumnummonieninit0(a, b, itos(w), prec);
-        GEN A = gel(tab,1), B = gel(tab,2);
-        A = RgV_Rg_addall(A, subis(n0,1));
-        return mkvec3(A, B, n0);
-      }
-      w = strtofunction("log");
-      break;
+    {
+      GEN tab = sumnummonieninit0(a, b, itos(w), prec);
+      GEN A = gel(tab,1), B = gel(tab,2);
+      A = RgV_Rg_addall(A, subis(n0,1));
+      return mkvec3(A, B, n0);
+    }
     case t_VEC:
       if (lg(w) != 3) pari_err_TYPE(fun, w);
       wfast = gel(w,2);
