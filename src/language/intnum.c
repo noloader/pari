@@ -1831,7 +1831,7 @@ checksumtab(GEN T)
 GEN
 sumnum(void *E, GEN (*eval)(void*, GEN), GEN a, GEN tab, long prec)
 {
-  pari_sp av = avma;
+  pari_sp av = avma, av2;
   GEN v, tabint, S, d, fast;
   long as, N, k, m, prec2;
   if (!a) { a = gen_1; fast = get_oo(gen_0); }
@@ -1854,13 +1854,27 @@ sumnum(void *E, GEN (*eval)(void*, GEN), GEN a, GEN tab, long prec)
   v = gel(tab,4);
   tabint = gel(tab,5);
   prec2 = prec+EXTRAPRECWORD;
+  av2 = avma;
   S = gmul(eval(E, stoi(N)), real2n(-1,prec2));
-  for (m = as; m < N; m++) S = gadd(S, eval(E, stoi(m)));
+  for (m = as; m < N; m++)
+  {
+    S = gadd(S, eval(E, stoi(m)));
+    if (gc_needed(av, 2))
+    {
+      if (DEBUGMEM>1) pari_warn(warnmem,"sumnum [1], %ld/%ld",m,N);
+      S = gerepileupto(av2, S);
+    }
+  }
   for (m = 1; m <= k/2; m++)
   {
     GEN t = gmulsg(2*m-1, d);
     GEN s = gsub(eval(E, gsubsg(N,t)), eval(E, gaddsg(N,t)));
     S = gadd(S, gmul(gel(v,m), s));
+    if (gc_needed(av2, 2))
+    {
+      if (DEBUGMEM>1) pari_warn(warnmem,"sumnum [2], %ld/%ld",m,k/2);
+      S = gerepileupto(av2, S);
+    }
   }
   S = gadd(S, intnum(E, eval,stoi(N), fast, tabint, prec2));
   return gerepilecopy(av, gprec_w(S, prec));
