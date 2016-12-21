@@ -178,6 +178,25 @@ E=ellinit([a^2-a-2,-a^2+2*a+3,a^2-1,-a^2+a+4,-a^2+2],K);
 localbitprec(4); lfuncheckfeq(E)
 localbitprec(32);lfuncheckfeq(E)
 
+print("Grossencharacter");
+
+K=bnfinit(polcyclo(5));
+id5=idealprimedec(K,5)[1];
+B=bnrinit(K,id5,1);
+F(p)=my(pr=idealprimedec(K,p)); simplify(lift(prod(k=1,#pr,(1-G(pr[k])*X^pr[k].f))));
+G(pr)=
+{
+  if(idealval(K,B.mod,pr),0,
+    my([e,al] = bnrisprincipal(B,pr));
+    my(al1=nfbasistoalg(K,al));
+    my(al2=nfbasistoalg(K,nfgaloisapply(K,x^2,al)));
+    my(al3=nfbasistoalg(K,nfgaloisapply(K,x^3,al)));
+    al1^3*al2^2*al3^1);
+}
+L=lfuncreate([(p,n)->F(p),0,[-1,0,0,1],4,625,0]);
+lfuncheckfeq(L)
+lfun(L,2)/(Pi/5^(15/4)*gamma(1/5)^(7/2)*gamma(3/5)^(1/2)/(gamma(4/5)^(7/2)*gamma(2/5)^(1/2)))
+
 print("check all formats");
 default("realprecision",54)
 e = ellinit([0, 0, 1, -1, 0]);
