@@ -1516,13 +1516,60 @@ veczetaprime(GEN a, GEN b, long N, long prec)
   return gmul2n(RgV_sub(B, A), e-1);
 }
 
+struct mon_w {
+  GEN w, a, b;
+  long n, j, prec;
+};
+
+/* w(x) / x^(a*(j+k)+b), k >= 1; w a t_INT encodes log(x)^w */
+static GEN
+wrapmonw(void* E, GEN x)
+{
+  struct mon_w *W = (struct mon_w*)E;
+  long k, j = W->j, n = W->n, prec = W->prec, l = 2*n+4-j;
+  GEN wx = typ(W->w) == t_CLOSURE? closure_callgen1prec(W->w, x, prec)
+                                 : powgi(glog(x, prec), W->w);
+  GEN v = cgetg(l, t_VEC);
+  GEN xa = gpow(x, gneg(W->a), prec), w = gmul(wx, gpowgs(xa, j));
+  w = gdiv(w, gpow(x,W->b,prec));
+  for (k = 1; k < l; k++) { gel(v,k) = w; w = gmul(w, xa); }
+  return v;
+}
+/* w(x) / x^(a*j+b) */
+static GEN
+wrapmonw2(void* E, GEN x)
+{
+  struct mon_w *W = (struct mon_w*)E;
+  GEN wnx = closure_callgen1prec(W->w, x, W->prec);
+  return gdiv(wnx, gpow(x, gadd(gmulgs(W->a, W->j), W->b), W->prec));
+}
+static GEN
+M_from_wrapmon(struct mon_w *S, GEN wfast, GEN n0)
+{
+  long j, N = 2*S->n+2;
+  GEN M = cgetg(N+1, t_VEC), faj = gsub(wfast, S->b);
+  for (j = 1; j <= N; j++)
+  {
+    faj = gsub(faj, S->a);
+    if (gcmpgs(faj, -2) <= 0)
+    {
+      S->j = j; setlg(M,j);
+      M = shallowconcat(M, sumnum((void*)S, wrapmonw, n0, NULL, S->prec));
+      break;
+    }
+    S->j = j;
+    gel(M,j) = sumnum((void*)S, wrapmonw2, mkvec2(n0,faj), NULL, S->prec);
+  }
+  return M;
+}
+
 /* f(n) ~ \sum_{i > 0} f_i log(n)^k / n^(a*i + b); a > 0, a+b > 1 */
 static GEN
 sumnummonieninit0(GEN a, GEN b, long k, long prec)
 {
   GEN c, M, vr, P, Q, Qp, R, vabs, vwt;
   double bit0, bit = prec2nbits(prec) / gtodouble(a), D = bit*LOG2;
-  long prec2, m, j, n = (long)ceil(D/(log(D)-1));
+  long prec2, j, n = (long)ceil(D/(log(D)-1));
 
   bit0 = ceil((2*n+1)*LOG2_10);
   prec = nbits2prec(maxdd(2.05*bit, bit0));
@@ -1535,14 +1582,25 @@ sumnummonieninit0(GEN a, GEN b, long k, long prec)
   else if (k == 1)
     M = veczetaprime(a, gadd(a,b), 2*n+2, prec);
   else
+#if 0
   { /* very inefficient */
-    long B = prec2nbits(prec);
+    long m, B = prec2nbits(prec);
     GEN a2 = gmul2n(a,-1), C = gadd(b, gmulsg(2*n+3,a2));
     GEN L = lfuninit(gen_1, mkvec3(C, gmulsg(2*n+1,a2), gen_0), k, B);
     M = cgetg(2*n+3, t_VEC);
-    for (m = 1; m <= 2*n+2; m++)
-      gel(M,m) = lfun0(L, gadd(gmulsg(m,a),b), k, B);
+    for (m = 1; m <= 2*n+2; m++) gel(M,m) = lfun0(L, gadd(gmulsg(m,a),b), k, B);
   }
+#else
+  {
+    struct mon_w S;
+    S.w = stoi(k);
+    S.a = a;
+    S.b = b;
+    S.n = n;
+    S.prec = prec;
+    M = M_from_wrapmon(&S, gen_0, gen_1);
+  }
+#endif
   if (!odd(k)) M = RgV_neg(M);
   Pade(M, &P,&Q);
   Qp = RgX_deriv(Q);
@@ -1571,34 +1629,6 @@ sumnummonieninit0(GEN a, GEN b, long k, long prec)
   return mkvec2(vabs,vwt);
 }
 
-struct mon_w {
-  GEN w, a, b;
-  long n, j, prec;
-};
-
-/* w(x) / x^(a*(j+k)+b), k >= 1; w a t_INT encodes log(x)^w */
-static GEN
-wrapmonw(void* E, GEN x)
-{
-  struct mon_w *W = (struct mon_w*)E;
-  long k, j = W->j, n = W->n, prec = W->prec, l = 2*n+4-j;
-  GEN wx = typ(W->w) == t_CLOSURE? closure_callgen1prec(W->w, x, prec)
-                                 : powgi(glog(x, prec), W->w);
-  GEN v = cgetg(l, t_VEC);
-  GEN xa = gpow(x, gneg(W->a), prec), w = gmul(wx, gpowgs(xa, j));
-  w = gdiv(w, gpow(x,W->b,prec));
-  for (k = 1; k < l; k++) { gel(v,k) = w; w = gmul(w, xa); }
-  return v;
-}
-/* w(x) / x^(a*j+b) */
-static GEN
-wrapmonw2(void* E, GEN x)
-{
-  struct mon_w *W = (struct mon_w*)E;
-  GEN wnx = closure_callgen1prec(W->w, x, W->prec);
-  return gdiv(wnx, gpow(x, gadd(gmulgs(W->a, W->j), W->b), W->prec));
-}
-
 /* add 'a' to all components of v */
 static GEN
 RgV_Rg_addall(GEN v, GEN a)
@@ -1612,26 +1642,6 @@ RgV_Rg_addall(GEN v, GEN a)
 }
 
 static GEN
-M_from_wrapmon(struct mon_w *S, GEN wfast, GEN n0, long n, long prec)
-{
-  GEN M = cgetg(2*n+3, t_VEC), faj = gsub(wfast, S->b);
-  long j;
-  for (j = 1; j <= 2*n+2; j++)
-  {
-    faj = gsub(faj, S->a);
-    if (gcmpgs(faj, -2) <= 0)
-    {
-      S->j = j; setlg(M,j);
-      M = shallowconcat(M, sumnum((void*)S, wrapmonw, n0, NULL, prec));
-      break;
-    }
-    S->j = j;
-    gel(M,j) = sumnum((void*)S, wrapmonw2, mkvec2(n0,faj), NULL, prec);
-  }
-  return M;
-}
-
-static GEN
 sumnummonieninit_w(GEN w, GEN wfast, GEN a, GEN b, GEN n0, long prec)
 {
   GEN c, M, P, Q, vr, vabs, vwt, R;
@@ -1639,7 +1649,7 @@ sumnummonieninit_w(GEN w, GEN wfast, GEN a, GEN b, GEN n0, long prec)
   long j, n = (long)ceil(D/(log(D)-1));
   struct mon_w S;
 
-  prec = nbits2prec(maxdd(2*bit, ceil((2*n+1)/LOG10_2)));
+  prec = nbits2prec(maxdd(2*bit, ceil((2*n+1)*LOG2_10)));
   S.w = w;
   S.a = a = gprec_w(a, 2*prec-2);
   S.b = b = gprec_w(b, 2*prec-2);
@@ -1652,7 +1662,7 @@ sumnummonieninit_w(GEN w, GEN wfast, GEN a, GEN b, GEN n0, long prec)
     M = sumnum((void*)&S, wrapmonw, mkvec2(n0, gen_1), NULL, prec);
   }
   else
-    M = M_from_wrapmon(&S, wfast, n0, n, prec);
+    M = M_from_wrapmon(&S, gen_0, n0);
   Pade(M, &P,&Q);
   vr = RX_realroots(Q, prec); settyp(vr, t_VEC);
   if (gequal1(a))
