@@ -4,6 +4,8 @@ This file lists the incompatible changes between Version 2.x and older versions
     compatible with pari-2.9
   - the bnrdisclist output is now and ordinary vector (not a vector of
     vectors)
+  - sumnummonieninit(a) for [a,a] did not conform to documentation.
+    Change to sumnummonieninit(b) for [1,b]
 
 * Specific to the PARI library:
 ===============================

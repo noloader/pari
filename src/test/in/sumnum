@@ -13,6 +13,10 @@ sumnummonien(n=0,1/(n+1)^2,tab)
 
 sumnummonieninit([-1,1]); \\ error
 sumnummonieninit([1,-1]); \\ error
+sumnummonieninit([2,0]); \\ error (BUG)
+tab=sumnummonieninit(,[n->2^-n,oo]); sumnummonien(n=1, 1, tab);
+tab=sumnummonieninit(,[n->5^-n,oo]);
+
 tab=sumnummonieninit([1,1/2],,0);
 sumnummonien(n=0,1/(n+1)^(3/2),tab)
 

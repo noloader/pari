@@ -1563,24 +1563,57 @@ M_from_wrapmon(struct mon_w *S, GEN wfast, GEN n0)
   return M;
 }
 
+/* add 'a' to all components of v */
+static GEN
+RgV_Rg_addall(GEN v, GEN a)
+{
+  long i, l;
+  GEN w;
+  if (!signe(a)) return v;
+  w = cgetg_copy(v,&l);
+  for (i = 1; i < l; i++) gel(w,i) = gadd(gel(v,i), a);
+  return w;
+}
+static GEN
+get_vwt(GEN P, GEN Qp, GEN vr, GEN c, long prec)
+{
+  long j, l = lg(vr);
+  GEN R = gdiv(P, Qp), vwt = cgetg(l, t_VEC);
+  c = gsubgs(c,1); if (gequal0(c)) c = NULL;
+  for (j = 1; j < l; j++)
+  {
+    GEN r = gel(vr,j), t = poleval(R,r);
+    if (c) t = gmul(t, gpow(r, c, prec));
+    gel(vwt,j) = t;
+  }
+  return vwt;
+}
+
+static void
+checkmonroots(GEN vr, long n)
+{
+  if (lg(vr) != n+1)
+    pari_err_IMPL("recovery when missing roots in sumnummonieninit");
+}
+
 /* f(n) ~ \sum_{i > 0} f_i log(n)^k / n^(a*i + b); a > 0, a+b > 1 */
 static GEN
-sumnummonieninit0(GEN a, GEN b, long k, long prec)
+sumnummonieninit0(GEN a, GEN b, long k, GEN n0, long prec)
 {
-  GEN c, M, vr, P, Q, Qp, R, vabs, vwt;
-  double bit0, bit = prec2nbits(prec) / gtodouble(a), D = bit*LOG2;
-  long prec2, j, n = (long)ceil(D/(log(D)-1));
+  GEN c, M, P, Q, Qp, vr, vabs, vwt, ga = gadd(a, b);
+  double bit = 2*prec2nbits(prec) / gtodouble(ga), D = bit*LOG2;
+  long prec2, n = (long)ceil(D/(log(D)-1));
+  double bit0 = ceil((2*n+1)*LOG2_10);
 
-  bit0 = ceil((2*n+1)*LOG2_10);
-  prec = nbits2prec(maxdd(2.05*bit, bit0));
+  prec = nbits2prec(maxdd(2*bit, bit0));
   prec2 = nbits2prec(maxdd(1.3*bit, bit0));
   if (k < 0) pari_err_IMPL("log power < 0 in sumnummonieninit");
   a = gprec_w(a, 2*prec-2);
   b = gprec_w(b, 2*prec-2);
   if (k == 0)
-    M = veczeta(a, gadd(a,b), 2*n+2, prec);
+    M = veczeta(a, ga, 2*n+2, prec);
   else if (k == 1)
-    M = veczetaprime(a, gadd(a,b), 2*n+2, prec);
+    M = veczetaprime(a, ga, 2*n+2, prec);
   else
 #if 0
   { /* very inefficient */
@@ -1607,64 +1640,50 @@ sumnummonieninit0(GEN a, GEN b, long k, long prec)
   if (gequal1(a))
   {
     vabs = vr = monroots(Q, Qp, k? 1: 0, prec2);
+    checkmonroots(vr, n);
     c = b;
   }
   else
   {
     GEN ai = ginv(a);
+    long j;
     vr = RX_realroots(Q, prec2);
+    checkmonroots(vr, n);
     vabs = cgetg(n+1, t_VEC);
-    for (j = 1; j <= n; ++j) gel(vabs,j) = gpow(gel(vr,j), ai, prec2);
+    for (j = 1; j <= n; j++) gel(vabs,j) = gpow(gel(vr,j), ai, prec2);
     c = gdiv(b,a);
   }
-  c = gsubgs(c,1); if (gequal0(c)) c = NULL;
-  R = gdiv(P, Qp);
-  vwt = cgetg(n+1, t_VEC);
-  for (j = 1; j <= n; ++j)
-  {
-    GEN r = gel(vr,j), t = poleval(R,r);
-    if (c) t = gmul(t, gpow(r, c, prec2));
-    gel(vwt,j) = t;
-  }
-  return mkvec2(vabs,vwt);
-}
-
-/* add 'a' to all components of v */
-static GEN
-RgV_Rg_addall(GEN v, GEN a)
-{
-  long i, l;
-  GEN w;
-  if (!signe(a)) return v;
-  w = cgetg_copy(v,&l);
-  for (i = 1; i < l; i++) gel(w,i) = gadd(gel(v,i), a);
-  return w;
+  vwt = get_vwt(P, Qp, vr, c, prec);
+  vabs = RgV_Rg_addall(vabs, subis(n0,1));
+  return mkvec3(vabs, vwt, n0);
 }
 
 static GEN
 sumnummonieninit_w(GEN w, GEN wfast, GEN a, GEN b, GEN n0, long prec)
 {
-  GEN c, M, P, Q, vr, vabs, vwt, R;
-  double bit = prec2nbits(prec) / gtodouble(a), D = bit*LOG2;
-  long j, n = (long)ceil(D/(log(D)-1));
+  GEN c, M, P, Q, Qp, vr, vabs, vwt, ga = gadd(a, b);
+  double bit = 2*prec2nbits(prec) / gtodouble(ga), D = bit*LOG2;
+  long prec2, n = (long)ceil(D/(log(D)-1));
+  double bit0 = ceil((2*n+1)*LOG2_10);
   struct mon_w S;
 
-  prec = nbits2prec(maxdd(2*bit, ceil((2*n+1)*LOG2_10)));
+  prec = nbits2prec(maxdd(2*bit, bit0));
+  prec2 = nbits2prec(maxdd(1.3*bit, bit0));
   S.w = w;
   S.a = a = gprec_w(a, 2*prec-2);
   S.b = b = gprec_w(b, 2*prec-2);
   S.n = n;
+  S.j = 1;
   S.prec = prec;
-  /* M[j] = sum(n >= n0, w(n) / n^(a*(j+n)+b) */
+  /* M[j] = sum(n >= n0, w(n) / n^(a*j+b) */
   if (typ(wfast) == t_INFINITY)
-  {
-    S.j = 1;
-    M = sumnum((void*)&S, wrapmonw, mkvec2(n0, gen_1), NULL, prec);
-  }
+    M = suminf((void*)&S, wrapmonw, n0, prec);
   else
-    M = M_from_wrapmon(&S, gen_0, n0);
+    M = M_from_wrapmon(&S, wfast, n0);
   Pade(M, &P,&Q);
-  vr = RX_realroots(Q, prec); settyp(vr, t_VEC);
+  Qp = RgX_deriv(Q);
+  vr = RX_realroots(Q, prec2); settyp(vr, t_VEC);
+  checkmonroots(vr, n);
   if (gequal1(a))
   {
     vabs = vr;
@@ -1673,19 +1692,12 @@ sumnummonieninit_w(GEN w, GEN wfast, GEN a, GEN b, GEN n0, long prec)
   else
   {
     GEN ai = ginv(a);
+    long j;
     vabs = cgetg(n+1, t_VEC);
-    for (j = 1; j <= n; ++j) gel(vabs,j) = gpow(gel(vr,j), ai, prec);
+    for (j = 1; j <= n; j++) gel(vabs,j) = gpow(gel(vr,j), ai, prec2);
     c = gdiv(b,a);
   }
-  c = gsubgs(c,1); if (gequal0(c)) c = NULL;
-  R = gneg(gdiv(P, RgX_deriv(Q)));
-  vwt = cgetg(n+1, t_VEC);
-  for (j = 1; j <= n; j++)
-  {
-    GEN r = gel(vr,j), t = poleval(R,r);
-    if (c) t = gmul(t, gpow(r, c, prec));
-    gel(vwt,j) = t;
-  }
+  vwt = get_vwt(P, gneg(Qp), vr, c, prec);
   return mkvec3(vabs, vwt, n0);
 }
 
@@ -1694,12 +1706,9 @@ sumnummonieninit_i(GEN asymp, GEN w, GEN n0, long prec)
 {
   const char *fun = "sumnummonieninit";
   GEN a, b, wfast = gen_0;
-  if (!w)
-  {
-    if (!asymp) return sumnummonieninit0(gen_1,gen_1,0,prec);
-    w = gen_0;
-  }
-  if (asymp)
+  if (!n0) n0 = gen_1; else if (typ(n0) != t_INT) pari_err_TYPE(fun, n0);
+  if (!asymp) a = b = gen_1;
+  else
   {
     if (typ(asymp) == t_VEC)
     {
@@ -1708,28 +1717,22 @@ sumnummonieninit_i(GEN asymp, GEN w, GEN n0, long prec)
       b = gel(asymp,2);
     }
     else
-      b = a = asymp;
-    if (gsigne(a) <= 0)
-      pari_err_DOMAIN(fun, "a", "<=", gen_0, a);
+    {
+      a = gen_1;
+      b = asymp;
+    }
+    if (gsigne(a) <= 0) pari_err_DOMAIN(fun, "a", "<=", gen_0, a);
     if (gcmpgs(gadd(a,b), 1) <= 0)
       pari_err_DOMAIN(fun, "a+b", "<=", gen_1, mkvec2(a,b));
   }
-  else a = b = gen_1;
-  if (!n0) n0 = gen_1;
-  if (typ(n0) != t_INT) pari_err_TYPE(fun, n0);
+  if (!w) return sumnummonieninit0(a, b, 0, n0, prec);
   switch(typ(w))
   {
-    case t_INT:
-    {
-      GEN tab = sumnummonieninit0(a, b, itos(w), prec);
-      GEN A = gel(tab,1), B = gel(tab,2);
-      A = RgV_Rg_addall(A, subis(n0,1));
-      return mkvec3(A, B, n0);
-    }
+    case t_INT: return sumnummonieninit0(a, b, itos(w), n0, prec);
     case t_VEC:
       if (lg(w) != 3) pari_err_TYPE(fun, w);
       wfast = gel(w,2);
-      w = gel(w,1);
+      w     = gel(w,1);
       if (typ(w) != t_CLOSURE) pari_err_TYPE(fun, w);
     case t_CLOSURE:
       break;
@@ -1752,18 +1755,12 @@ sumnummonien(void *E, GEN (*eval)(void*,GEN), GEN n0, GEN tab, long prec)
   long l, i;
   if (typ(n0) != t_INT) pari_err_TYPE("sumnummonien", n0);
   if (!tab)
+    tab = sumnummonieninit0(gen_1, gen_1, 0, n0, prec);
+  else
   {
-    tab = sumnummonieninit0(gen_1,gen_1,0,prec);
-    gel(tab,1) = RgV_Rg_addall(gel(tab,1), subis(n0,1));
-  }
-  else switch(lg(tab))
-  {
-    case 4:
-      if (!equalii(n0, gel(tab,3)))
-        pari_err(e_MISC, "incompatible initial value %Ps != %Ps", gel(tab,3),n0);
-    case 3:
-      if (typ(tab) == t_VEC) break;
-    default: pari_err_TYPE("sumnummonien", tab);
+    if (lg(tab) != 4 || typ(tab) != t_VEC) pari_err_TYPE("sumnummonien", tab);
+    if (!equalii(n0, gel(tab,3)))
+      pari_err(e_MISC, "incompatible initial value %Ps != %Ps", gel(tab,3),n0);
   }
   vabs= gel(tab,1); l = lg(vabs);
   vwt = gel(tab,2);
