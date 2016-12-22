@@ -6185,7 +6185,6 @@ hoo_aux(GEN E, GEN z, GEN d, long prec)
 {
   pari_sp av = avma;
   GEN h;
-  checkell_Q(E);
   if (!ellR_on_neutral(E, z, prec))
   {
     GEN eh = exphellagm(E, elladd(E, z,z), 0, prec);
