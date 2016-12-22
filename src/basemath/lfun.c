@@ -1555,7 +1555,7 @@ sersplit1(GEN s, GEN *head)
   return normalize(y);
 }
 
-/* n-th derivative of t_SER x */
+/* n-th derivative of t_SER x, n > 0 */
 static GEN
 derivnser(GEN x, long n)
 {
@@ -1613,6 +1613,7 @@ lfunderiv(GEN lmisc, long m, GEN s, long flag, long bitprec)
   pari_sp ltop = avma;
   GEN res, S = NULL, linit, dom;
   long der, prec = nbits2prec(bitprec);
+  if (m <= 0) pari_err_DOMAIN("lfun", "D", "<=", gen_0, stoi(m));
   s = get_domain(s, &dom, &der);
   linit = lfuninit(lmisc, dom, der + m, bitprec);
   if (typ(s) == t_SER)

@@ -282,8 +282,6 @@ lfuncheckfeq(L)
 lfuncost(L)
 
 lfunconductor(1,1)
-lfuntheta(1,0)
-lfunhardy(1,I)
 
 /* lfunconductor */
 
@@ -347,3 +345,7 @@ a=n->vector(n,i,1);
 z=lfuncreate([a, a, [0], 1, 1, 1, [[0,-1/x+O(1)], [1,1/x+O(1)]]~]);
 lfun(z,2)
 
+\\ ERRORS: keep them at end of file
+lfuntheta(1,0)
+lfunhardy(1,I)
+lfun(1,2,-1)

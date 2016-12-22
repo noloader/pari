@@ -243,12 +243,6 @@ zeta(s)*zeta(s-a)
 -188
 [[11, 193], [6, 193]]
 1
-  ***   at top-level: lfuntheta(1,0)
-  ***                 ^--------------
-  *** lfuntheta: domain error in lfunthetainit: t = 0
-  ***   at top-level: lfunhardy(1,I)
-  ***                 ^--------------
-  *** lfunhardy: incorrect type in lfunhardy (t_COMPLEX).
 1
 4
 857
@@ -271,4 +265,13 @@ zeta(s)*zeta(s-a)
 -126
 [1, -127]
 1.6449340668482264364724151666460251892
-Total time spent: 5308
+  ***   at top-level: lfuntheta(1,0)
+  ***                 ^--------------
+  *** lfuntheta: domain error in lfunthetainit: t = 0
+  ***   at top-level: lfunhardy(1,I)
+  ***                 ^--------------
+  *** lfunhardy: incorrect type in lfunhardy (t_COMPLEX).
+  ***   at top-level: lfun(1,2,-1)
+  ***                 ^------------
+  *** lfun: domain error in lfun: D <= 0
+Total time spent: 6736

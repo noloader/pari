@@ -25,6 +25,7 @@ HC   18- sumnummonieninit(,,a) + sumnummonien(n = a, ...) with a > 1 gave wrong
      19- sumnummonieninit([a,b], t_CLOSURE) => incorrect initialization
      20- lngamma(1+epsilon) much slower than in pari-2.7; eg. 10^-4 at \p200
 BA   21- lfun(...,t_SER,n>=1) returned a wrong result
+     22- lfun(,, negative derivation order) => internal bug
 
   Added
       1- [libari] ZM_isidentity
