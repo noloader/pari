@@ -1563,32 +1563,6 @@ M_from_wrapmon(struct mon_w *S, GEN wfast, GEN n0)
   return M;
 }
 
-/* add 'a' to all components of v */
-static GEN
-RgV_Rg_addall(GEN v, GEN a)
-{
-  long i, l;
-  GEN w;
-  if (!signe(a)) return v;
-  w = cgetg_copy(v,&l);
-  for (i = 1; i < l; i++) gel(w,i) = gadd(gel(v,i), a);
-  return w;
-}
-static GEN
-mon_get_vwt(GEN P, GEN Qp, GEN vr, GEN c, long prec)
-{
-  long j, l = lg(vr);
-  GEN R = gdiv(P, Qp), vwt = cgetg(l, t_VEC);
-  c = gsubgs(c,1); if (gequal0(c)) c = NULL;
-  for (j = 1; j < l; j++)
-  {
-    GEN r = gel(vr,j), t = poleval(R,r);
-    if (c) t = gmul(t, gpow(r, c, prec));
-    gel(vwt,j) = t;
-  }
-  return vwt;
-}
-
 static void
 checkmonroots(GEN vr, long n)
 {
@@ -1602,7 +1576,7 @@ sumnummonieninit_i(GEN a, GEN b, GEN w, GEN n0, long prec)
   GEN c, M, P, Q, Qp, vr, vabs, vwt, ga = gadd(a, b);
   double bit = 2*prec2nbits(prec) / gtodouble(ga), D = bit*LOG2;
   double da = maxdd(1., gtodouble(a));
-  long prec2, n = (long)ceil(D / (da*(log(D)-1)));
+  long j, prec2, n = (long)ceil(D / (da*(log(D)-1)));
   double bit0 = ceil((2*n+1)*LOG2_10);
   int neg = 1;
   struct mon_w S;
@@ -1650,14 +1624,25 @@ sumnummonieninit_i(GEN a, GEN b, GEN w, GEN n0, long prec)
     else
     {
       GEN ai = ginv(a);
-      long j;
       vabs = cgetg(n+1, t_VEC);
       for (j = 1; j <= n; j++) gel(vabs,j) = gpow(gel(vr,j), ai, prec2);
       c = gdiv(b,a);
     }
   }
-  vwt = mon_get_vwt(P, neg? RgX_neg(Qp): Qp, vr, c, prec);
-  if (typ(w) == t_INT) vabs = RgV_Rg_addall(vabs, subis(n0,1));
+
+  vwt = cgetg(n+1, t_VEC);
+  c = gsubgs(c,1); if (gequal0(c)) c = NULL;
+  for (j = 1; j <= n; j++)
+  {
+    GEN r = gel(vr,j), t = gdiv(poleval(P,r), poleval(Qp,r));
+    if (c) t = gmul(t, gpow(r, c, prec));
+    gel(vwt,j) = neg? gneg(t): t;
+  }
+  if (typ(w) == t_INT && !equali1(n0))
+  {
+    GEN h = subiu(n0,1);
+    for (j = 1; j <= n; j++) gel(vabs,j) = gadd(gel(vabs,j), h);
+  }
   return mkvec3(vabs, vwt, n0);
 }
 
