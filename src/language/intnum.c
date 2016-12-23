@@ -1521,7 +1521,7 @@ struct mon_w {
   long n, j, prec;
 };
 
-/* w(x) / x^(a*(j+k)+b), k >= 1; w a t_INT encodes log(x)^w */
+/* w(x) / x^(a*(j+k)+b), k >= 1; w a t_CLOSURE or t_INT [encodes log(x)^w] */
 static GEN
 wrapmonw(void* E, GEN x)
 {
@@ -1575,7 +1575,7 @@ RgV_Rg_addall(GEN v, GEN a)
   return w;
 }
 static GEN
-get_vwt(GEN P, GEN Qp, GEN vr, GEN c, long prec)
+mon_get_vwt(GEN P, GEN Qp, GEN vr, GEN c, long prec)
 {
   long j, l = lg(vr);
   GEN R = gdiv(P, Qp), vwt = cgetg(l, t_VEC);
@@ -1596,75 +1596,15 @@ checkmonroots(GEN vr, long n)
     pari_err_IMPL("recovery when missing roots in sumnummonieninit");
 }
 
-/* f(n) ~ \sum_{i > 0} f_i log(n)^k / n^(a*i + b); a > 0, a+b > 1 */
 static GEN
-sumnummonieninit0(GEN a, GEN b, long k, GEN n0, long prec)
+sumnummonieninit_i(GEN a, GEN b, GEN w, GEN n0, long prec)
 {
   GEN c, M, P, Q, Qp, vr, vabs, vwt, ga = gadd(a, b);
   double bit = 2*prec2nbits(prec) / gtodouble(ga), D = bit*LOG2;
-  long prec2, n = (long)ceil(D/(log(D)-1));
-  double bit0 = ceil((2*n+1)*LOG2_10), da = maxdd(1., gtodouble(a));
-
-  prec = nbits2prec(maxdd(2*da*bit, bit0));
-  prec2 = nbits2prec(maxdd(1.3*da*bit, bit0));
-  if (k < 0) pari_err_IMPL("log power < 0 in sumnummonieninit");
-  a = gprec_w(a, 2*prec-2);
-  b = gprec_w(b, 2*prec-2);
-  if (k == 0)
-    M = veczeta(a, ga, 2*n+2, prec);
-  else if (k == 1)
-    M = veczetaprime(a, ga, 2*n+2, prec);
-  else
-#if 0
-  { /* very inefficient */
-    long m, B = prec2nbits(prec);
-    GEN a2 = gmul2n(a,-1), C = gadd(b, gmulsg(2*n+3,a2));
-    GEN L = lfuninit(gen_1, mkvec3(C, gmulsg(2*n+1,a2), gen_0), k, B);
-    M = cgetg(2*n+3, t_VEC);
-    for (m = 1; m <= 2*n+2; m++) gel(M,m) = lfun0(L, gadd(gmulsg(m,a),b), k, B);
-  }
-#else
-  {
-    struct mon_w S;
-    S.w = stoi(k);
-    S.a = a;
-    S.b = b;
-    S.n = n;
-    S.prec = prec;
-    M = M_from_wrapmon(&S, gen_0, gen_1);
-  }
-#endif
-  if (!odd(k)) M = RgV_neg(M);
-  Pade(M, &P,&Q);
-  Qp = RgX_deriv(Q);
-  if (gequal1(a))
-  {
-    vabs = vr = monroots(Q, Qp, k? 1: 0, prec2);
-    checkmonroots(vr, n);
-    c = b;
-  }
-  else
-  {
-    GEN ai = ginv(a);
-    long j;
-    vr = RX_realroots(Q, prec2);
-    checkmonroots(vr, n);
-    vabs = cgetg(n+1, t_VEC);
-    for (j = 1; j <= n; j++) gel(vabs,j) = gpow(gel(vr,j), ai, prec2);
-    c = gdiv(b,a);
-  }
-  vwt = get_vwt(P, Qp, vr, c, prec);
-  vabs = RgV_Rg_addall(vabs, subis(n0,1));
-  return mkvec3(vabs, vwt, n0);
-}
-
-static GEN
-sumnummonieninit_w(GEN w, GEN wfast, GEN a, GEN b, GEN n0, long prec)
-{
-  GEN c, M, P, Q, Qp, vr, vabs, vwt, ga = gadd(a, b);
-  double bit = 2*prec2nbits(prec) / gtodouble(ga), D = bit*LOG2;
-  long prec2, n = (long)ceil(D/(log(D)-1));
-  double bit0 = ceil((2*n+1)*LOG2_10), da = maxdd(1.,gtodouble(a));
+  double da = maxdd(1., gtodouble(a));
+  long prec2, n = (long)ceil(D / (da*(log(D)-1)));
+  double bit0 = ceil((2*n+1)*LOG2_10);
+  int neg = 1;
   struct mon_w S;
 
   prec = nbits2prec(maxdd(2*da*bit, bit0));
@@ -1675,34 +1615,58 @@ sumnummonieninit_w(GEN w, GEN wfast, GEN a, GEN b, GEN n0, long prec)
   S.n = n;
   S.j = 1;
   S.prec = prec;
+  if (typ(w) == t_INT)
+  { /* f(n) ~ \sum_{i > 0} f_i log(n)^k / n^(a*i + b); a > 0, a+b > 1 */
+    long k = itos(w);
+    if (k == 0)
+      M = veczeta(a, ga, 2*n+2, prec);
+    else if (k == 1)
+      M = veczetaprime(a, ga, 2*n+2, prec);
+    else
+      M = M_from_wrapmon(&S, gen_0, gen_1);
+    if (odd(k)) neg = 0;
+  }
+  else
+  {
+    GEN wfast = gen_0;
+    if (typ(w) == t_VEC) { wfast = gel(w,2); w = gel(w,1); }
+    M = M_from_wrapmon(&S, wfast, n0);
+  }
   /* M[j] = sum(n >= n0, w(n) / n^(a*j+b) */
-  M = M_from_wrapmon(&S, wfast, n0);
   Pade(M, &P,&Q);
   Qp = RgX_deriv(Q);
-  vr = RX_realroots(Q, prec2); settyp(vr, t_VEC);
-  checkmonroots(vr, n);
-  if (gequal1(a))
+  if (gequal1(a)) a = NULL;
+  if (!a && typ(w) == t_INT)
   {
-    vabs = vr;
+    vabs = vr = monroots(Q, Qp, signe(w)? 1: 0, prec2);
+    checkmonroots(vr, n);
     c = b;
   }
   else
   {
-    GEN ai = ginv(a);
-    long j;
-    vabs = cgetg(n+1, t_VEC);
-    for (j = 1; j <= n; j++) gel(vabs,j) = gpow(gel(vr,j), ai, prec2);
-    c = gdiv(b,a);
+    vr = RX_realroots(Q, prec2); settyp(vr, t_VEC);
+    checkmonroots(vr, n);
+    if (!a) { vabs = vr; c = b; }
+    else
+    {
+      GEN ai = ginv(a);
+      long j;
+      vabs = cgetg(n+1, t_VEC);
+      for (j = 1; j <= n; j++) gel(vabs,j) = gpow(gel(vr,j), ai, prec2);
+      c = gdiv(b,a);
+    }
   }
-  vwt = get_vwt(P, gneg(Qp), vr, c, prec);
+  vwt = mon_get_vwt(P, neg? RgX_neg(Qp): Qp, vr, c, prec);
+  if (typ(w) == t_INT) vabs = RgV_Rg_addall(vabs, subis(n0,1));
   return mkvec3(vabs, vwt, n0);
 }
 
-static GEN
-sumnummonieninit_i(GEN asymp, GEN w, GEN n0, long prec)
+GEN
+sumnummonieninit(GEN asymp, GEN w, GEN n0, long prec)
 {
+  pari_sp av = avma;
   const char *fun = "sumnummonieninit";
-  GEN a, b, wfast = gen_0;
+  GEN a, b;
   if (!n0) n0 = gen_1; else if (typ(n0) != t_INT) pari_err_TYPE(fun, n0);
   if (!asymp) a = b = gen_1;
   else
@@ -1722,26 +1686,17 @@ sumnummonieninit_i(GEN asymp, GEN w, GEN n0, long prec)
     if (gcmpgs(gadd(a,b), 1) <= 0)
       pari_err_DOMAIN(fun, "a+b", "<=", gen_1, mkvec2(a,b));
   }
-  if (!w) return sumnummonieninit0(a, b, 0, n0, prec);
-  switch(typ(w))
+  if (!w) w = gen_0;
+  else switch(typ(w))
   {
-    case t_INT: return sumnummonieninit0(a, b, itos(w), n0, prec);
+    case t_INT:
+      if (signe(w) < 0) pari_err_IMPL("log power < 0 in sumnummonieninit");
+    case t_CLOSURE: break;
     case t_VEC:
-      if (lg(w) != 3) pari_err_TYPE(fun, w);
-      wfast = gel(w,2);
-      w     = gel(w,1);
-      if (typ(w) != t_CLOSURE) pari_err_TYPE(fun, w);
-    case t_CLOSURE:
-      break;
+      if (lg(w) == 3 && typ(gel(w,1)) == t_CLOSURE) break;
     default: pari_err_TYPE(fun, w);
   }
-  return sumnummonieninit_w(w, wfast, a, b, n0, prec);
-}
-GEN
-sumnummonieninit(GEN asymp, GEN w, GEN n0, long prec)
-{
-  pari_sp av = avma;
-  return gerepilecopy(av, sumnummonieninit_i(asymp,w,n0,prec));
+  return gerepilecopy(av, sumnummonieninit_i(a, b, w, n0, prec));
 }
 
 GEN
@@ -1752,7 +1707,7 @@ sumnummonien(void *E, GEN (*eval)(void*,GEN), GEN n0, GEN tab, long prec)
   long l, i;
   if (typ(n0) != t_INT) pari_err_TYPE("sumnummonien", n0);
   if (!tab)
-    tab = sumnummonieninit0(gen_1, gen_1, 0, n0, prec);
+    tab = sumnummonieninit_i(gen_1, gen_1, gen_0, n0, prec);
   else
   {
     if (lg(tab) != 4 || typ(tab) != t_VEC) pari_err_TYPE("sumnummonien", tab);
