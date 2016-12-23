@@ -2,25 +2,10 @@
 +oo
 +oo
 -38
-  ***   at top-level: sumnummonien(n=3,1/n^2,tab)
-  ***                                  ^----------
-  ***   incompatible initial value 1 != 3.
 1.6449340668482264364724151666460251892
 0.39493406684822643647241516664602518922
 1.6449340668482264364724151666460251892
-  ***   at top-level: sumnummonieninit([-1
-  ***                 ^--------------------
-  *** sumnummonieninit: domain error in sumnummonieninit: a <= 0
-  ***   at top-level: sumnummonieninit([1,
-  ***                 ^--------------------
-  *** sumnummonieninit: domain error in sumnummonieninit: a+b <= 1
 -38
-  ***   at top-level: tab=sumnummonieninit(,[n
-  ***                     ^--------------------
-  *** sumnummonieninit: sorry, recovery when missing roots in sumnummonieninit is not yet implemented.
-  ***   at top-level: tab=sumnummonieninit(,[n
-  ***                     ^--------------------
-  *** sumnummonieninit: sorry, recovery when missing roots in sumnummonieninit is not yet implemented.
 2.6123753486854883433485675679240716306
 2.6123753486854883433485675679240716306
 1.6123753486854883433485675679240716306
@@ -60,9 +45,18 @@
    realprecision = 38 significant digits
 0.94536905472633293526609521540827019813
 0.E-37
+   realprecision = 19 significant digits
+1.644934066848226436
   ***   at top-level: sumnum(n=1,1/n^2,"bug")
   ***                            ^------------
   ***   incorrect type in sumnum (t_STR).
-   realprecision = 19 significant digits
-1.644934066848226436
-Total time spent: 4867
+  ***   at top-level: sumnummonieninit([-1
+  ***                 ^--------------------
+  *** sumnummonieninit: domain error in sumnummonieninit: a <= 0
+  ***   at top-level: sumnummonieninit([1,
+  ***                 ^--------------------
+  *** sumnummonieninit: domain error in sumnummonieninit: a+b <= 1
+  ***   at top-level: sumnummonieninit(,[n
+  ***                 ^--------------------
+  *** sumnummonieninit: forbidden addition t_INT + t_INFINITY.
+Total time spent: 4946

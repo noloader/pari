@@ -56,14 +56,8 @@ Doc: initialize tables for Monien summation of a series $\sum_{n\geq n_0}
  \item a vector $[w, \kbd{fast}]$, where $w$ is a closure as above
  and \kbd{fast} is a scalar;
  we assume that $w(n) = O(n^{\kbd{fast}+\epsilon})$; note that
- $\kbd{w} = [w, 0]$ is equivalent to $\kbd{w} = w$.
-
- \item a vector $[w, \kbd{oo}]$, where $w$ is a closure as above;
- we assume that $w(n)$ decreases exponentially. Note that, in this case,
- \kbd{sumnummonien} is provided for completeness and comparison purposes only:
- one of \kbd{suminf} or \kbd{sumpos} should be preferred in practice.
- In fact, at low accuracy the use of this last syntax may even trigger
- an exception due to round-off errors.
+ $\kbd{w} = [w, 0]$ is equivalent to $\kbd{w} = w$. Note that if
+ $w$ decreases exponentially, \kbd{suminf} should be used instead.
 
  The subsequent calls to \kbd{sumnummonien} \emph{must} use the same value
  of $n_0$ as was used here.

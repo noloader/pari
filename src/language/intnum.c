@@ -1676,10 +1676,7 @@ sumnummonieninit_w(GEN w, GEN wfast, GEN a, GEN b, GEN n0, long prec)
   S.j = 1;
   S.prec = prec;
   /* M[j] = sum(n >= n0, w(n) / n^(a*j+b) */
-  if (typ(wfast) == t_INFINITY)
-    M = suminf((void*)&S, wrapmonw, n0, prec);
-  else
-    M = M_from_wrapmon(&S, wfast, n0);
+  M = M_from_wrapmon(&S, wfast, n0);
   Pade(M, &P,&Q);
   Qp = RgX_deriv(Q);
   vr = RX_realroots(Q, prec2); settyp(vr, t_VEC);
