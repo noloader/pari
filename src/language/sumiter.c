@@ -472,44 +472,49 @@ somme(GEN a, GEN b, GEN code, GEN x)
   pop_lex(1); return gerepileupto(av0,x);
 }
 
+static GEN
+sum_init(GEN x0, GEN t)
+{
+  long tp = typ(t);
+  GEN x;
+  if (is_vec_t(tp))
+  {
+    x = const_vec(lg(t)-1, x0);
+    settyp(x, tp);
+  }
+  else
+    x = x0;
+  return x;
+}
+
 GEN
 suminf(void *E, GEN (*eval)(void *, GEN), GEN a, long prec)
 {
-  long fl, G;
+  long fl = 0, G = prec2nbits(prec) + 5;
   pari_sp av0 = avma, av;
-  GEN p1, x = NULL, xt;
+  GEN x = NULL, _1;
 
   if (typ(a) != t_INT) pari_err_TYPE("suminf",a);
   a = setloop(a);
   av = avma;
-  fl=0; G = prec2nbits(prec) + 5;
   for(;;)
   {
-    p1 = eval(E, a);
-    if (!x)
-    {
-      long tp = typ(p1), i;
-      GEN xi = real_1(prec);
-      if (tp == t_VEC || tp == t_COL)
-      {
-        x = cgetg(lg(p1), tp);
-        for (i = 1; i < lg(p1); ++i) gel(x, i) = xi;
-      }
-      else x = xi;
-      xt = x;
-    }
-    x = gadd(x,p1); a = incloop(a);
-    if (gequal0(p1) || gexpo(p1) <= gexpo(x)-G)
-      { if (++fl==3) break; }
-    else
-      fl=0;
+    GEN t = eval(E, a);
+    if (!x) _1 = x = sum_init(real_1(prec), t);
+
+    x = gadd(x,t);
+    if (!gequal0(t) && gexpo(t) > gexpo(x)-G)
+      fl = 0;
+    else if (++fl == 3)
+      break;
+    a = incloop(a);
     if (gc_needed(av,1))
     {
       if (DEBUGMEM>1) pari_warn(warnmem,"suminf");
-      gerepileall(av,2, &xt, &x);
+      gerepileall(av,2, &x, &_1);
     }
   }
-  return gerepileupto(av0, gsub(x, xt));
+  return gerepileupto(av0, gsub(x, _1));
 }
 GEN
 suminf0(GEN a, GEN code, long prec)

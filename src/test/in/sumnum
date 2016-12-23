@@ -81,6 +81,7 @@ tab = sumnuminit([+oo,-3/2]);
 check(sumnum(n=1,1/(n*sqrt(n)),tab), zeta(3/2))
 \\
 check(suminf(n=1, 2^(-n)), 1)
+check(suminf(n=1, [2^(-n),3^(-n)]), [1,1/2])
 check(sumpos(n=1, 2^(-n)), 1)
 check(sumnum(n=[1, 1],2^(-n)), 1)
 

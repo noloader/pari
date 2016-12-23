@@ -40,6 +40,7 @@
 -305
 -305
 -307
+[-307, -305]
 -307
 +oo
    realprecision = 38 significant digits
@@ -59,4 +60,4 @@
   ***   at top-level: sumnummonieninit(,[n
   ***                 ^--------------------
   *** sumnummonieninit: forbidden addition t_INT + t_INFINITY.
-Total time spent: 4946
+Total time spent: 4979
