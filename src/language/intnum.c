@@ -194,6 +194,7 @@ intnumgaussinit(long n, long prec)
 {
   pari_sp ltop = avma;
   GEN L, dp1, p1, p2, R, W;
+  long prec0 = prec + EXTRAPRECWORD;
   long bitprec = prec2nbits(prec), i, d1;
   if (n <= 0) n = (long)(bitprec*0.2258);
   if (odd(n)) n++;
@@ -217,6 +218,8 @@ intnumgaussinit(long n, long prec)
     shiftr_inplace(t,1-2*d1);
     gel(W,i) = invr(t);
   }
+  R = gprec_wtrunc(R,prec0);
+  W = gprec_wtrunc(W,prec0);
   return gerepilecopy(ltop, mkvec2(R,W));
 }
 
@@ -1576,7 +1579,8 @@ sumnummonieninit_i(GEN a, GEN b, GEN w, GEN n0, long prec)
   GEN c, M, P, Q, Qp, vr, vabs, vwt, ga = gadd(a, b);
   double bit = 2*prec2nbits(prec) / gtodouble(ga), D = bit*LOG2;
   double da = maxdd(1., gtodouble(a));
-  long j, prec2, n = (long)ceil(D / (da*(log(D)-1)));
+  long n = (long)ceil(D / (da*(log(D)-1)));
+  long j, prec2, prec0 = prec + EXTRAPRECWORD;
   double bit0 = ceil((2*n+1)*LOG2_10);
   int neg = 1;
   struct mon_w S;
@@ -1643,7 +1647,7 @@ sumnummonieninit_i(GEN a, GEN b, GEN w, GEN n0, long prec)
     GEN h = subiu(n0,1);
     for (j = 1; j <= n; j++) gel(vabs,j) = gadd(gel(vabs,j), h);
   }
-  return mkvec3(vabs, vwt, n0);
+  return mkvec3(gprec_wtrunc(vabs,prec0), gprec_wtrunc(vwt,prec0), n0);
 }
 
 GEN
