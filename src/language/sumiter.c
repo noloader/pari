@@ -787,8 +787,8 @@ matrice(GEN nlig, GEN ncol, GEN code)
   long i, j, m, n;
   GEN c1 = utoipos(1), c2 = utoipos(1);
 
-  m = gtos(ncol);
   n = gtos(nlig);
+  m = ncol? gtos(ncol): n;
   if (m < 0)  pari_err_DOMAIN("matrix", "nbcols", "<", gen_0, stoi(m));
   if (n < 0)  pari_err_DOMAIN("matrix", "nbrows", "<", gen_0, stoi(n));
   if (!m) return cgetg(1,t_MAT);
