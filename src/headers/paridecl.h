@@ -4131,6 +4131,7 @@ GEN     qfbforms(GEN D);
 
 GEN     asympnum(void *E, GEN (*f)(void *,GEN,long), long muli, GEN alpha, long prec);
 GEN     derivnum(void *E, GEN (*eval)(void *, GEN, long prec), GEN x, long prec);
+GEN derivnumk(void *E, GEN (*eval)(void *, GEN, long), GEN x, GEN ind0, long prec);
 GEN     derivfun(void *E, GEN (*eval)(void *, GEN, long prec), GEN x, long prec);
 int     forvec_init(forvec_t *T, GEN x, long flag);
 GEN     forvec_next(forvec_t *T);

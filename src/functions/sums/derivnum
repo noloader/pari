@@ -10,14 +10,14 @@ Description:
 Doc: numerical derivation of \var{expr} with respect to $X$ at $X=a$.
 
  \bprog
- ? derivnum(x=0,sin(exp(x))) - cos(1)
- %1 = -1.262177448 E-29
+ ? derivnum(x=0, sin(exp(x))) - cos(1)
+ %1 = 0.E-38
  @eprog
  A clumsier approach, which would not work in library mode, is
  \bprog
  ? f(x) = sin(exp(x))
  ? f'(0) - cos(1)
- %1 = -1.262177448 E-29
+ %2 = 0.E-38
  @eprog
  When $a$ is a power series, compute \kbd{derivnum(t=a,f)} as $f'(a) =
  (f(a))'/a'$.
@@ -31,4 +31,3 @@ C-Name: derivfun0
 Prototype: GGp
 Help: _derivfun(closure,[args]) numerical derivation of closure with respect to
  the first variable at (args).
-

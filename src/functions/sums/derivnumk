@@ -1,0 +1,24 @@
+Function: derivnumk
+Section: sums
+C-Name: derivnumk0
+Prototype: V=GEGp
+Help: derivnum(X=a,expr,ind): numerical derivation of expr with respect to
+ X at X = a. Order of derivation is given by ind.
+Wrapper: (,Gp)
+Description:
+  (gen,gen,gen):gen:prec derivnum(${2 cookie}, ${2 wrapper}, $1, $3, $prec)
+Doc: numerical derivation of \var{expr} with respect to $X$ at $X=a$. The
+ order of derivation is given by \var{ind}, which can be
+
+ \item a non-negative integer $m$, in which case we return $f^{(m)}(x)$;
+
+ \item or a vector of orders, in which case we return the vector of
+ derivatives.
+
+ \bprog
+ ? derivnumk(x = 0, exp(sin(x)), 16)
+ %1 = -52635599.000000000000000000000000000000
+
+ ? round( derivnumk(x = 0, exp(sin(x)), [0..13]) )
+ %2 = [1, 1, 1, 0, -3, -8, -3, 56, 217, 64, -2951, -12672, 5973, 309376]
+ @eprog

@@ -1276,6 +1276,111 @@ derivnum(void *E, GEN (*eval)(void *, GEN, long), GEN x, long prec)
   return gerepileupto(av, gprec_w(y, nbits2prec(fpr)));
 }
 
+/* Fornberg interpolation algorithm for finite differences coefficients
+* using N+1 equidistant grid points around 0 [ assume N even ].
+* Compute \delta[m]_{n,nu} for all derivation orders m = 0..M such that
+*   h^m * f^{(m)}(0) = \sum_{nu = 0}^n delta[m]_{n,nu}  f(a_nu) + O(h^{n-m+1}),
+* valid for n = m..N and step size h.
+* Return vector of matrices d: d[m+1][n+1,nu+1] = delta[m]_{n,nu}, nu = 0..n */
+static void
+FD(long M, long N, GEN *pd, GEN *pa)
+{
+  GEN d, c1 = gen_1, a;
+  long N2, n, i, j;
+  if (odd(N)) N++; /* make it even */
+  a = cgetg(N+2, t_VECSMALL);
+  N2 = N>>1;
+  a[1] = 0;
+  for (i = 1, j = 2; i <= N2; i++)
+  {
+    a[j++] = -i;
+    a[j++] =  i;
+  }
+  d = cgetg(M+2, t_VEC);
+  for (i = 1; i <= M+1; i++) gel(d,i) = zeromatcopy(N+1,N+1);
+  gcoeff(gel(d,1),1,1) = gen_1;
+  for (n = 1; n <= N; n++)
+  {
+    GEN c2 = gen_1;
+    long mM = minss(n,M), nu, m;
+    for (nu = 0; nu < n; nu++)
+    {
+      long c3 = a[n+1] - a[nu+1];
+      c2 = gmulgs(c2, c3);
+      for (m = 0; m <= mM; m++)
+      {
+        GEN t = gmulsg(a[n+1], gcoeff(gel(d,m+1),n,nu+1));
+        if (m) t = gsub(t, gmulsg(m, gcoeff(gel(d,m),n,nu+1)));
+        gcoeff(gel(d,m+1),n+1,nu+1) = gdivgs(t, c3);
+      }
+    }
+    for (m = 0; m <= mM; m++)
+    {
+      GEN t = gmulsg(-a[n],gcoeff(gel(d,m+1),n,n));
+      if (m) t = gadd(t, gmulsg(m, gcoeff(gel(d,m),n,n)));
+      gcoeff(gel(d,m+1),n+1,n+1) = gdiv(gmul(c1,t),c2);
+    }
+    c1 = c2;
+  }
+  *pd = d;
+  *pa = a;
+}
+
+GEN
+derivnumk(void *E, GEN (*eval)(void *, GEN, long), GEN x, GEN ind0, long prec)
+{
+  GEN A, D, X, F, ind;
+  long M, fpr, p, i, pr, l, lA, e, ex, newprec;
+  pari_sp av = avma;
+
+  ind = gtovecsmall(ind0);
+  M = vecsmall_max(ind);
+  if (M <= 0)
+    pari_err_DOMAIN("derivnumk", "derivation order", "<", gen_0, stoi(M));
+  FD(M, 3*M-1, &D,&A); /* optimal if 'eval' uses quadratic time */
+
+  p = precision(x);
+  fpr = p ? prec2nbits(p): prec2nbits(prec);
+  ex = gexpo(x);
+  if (ex < 0) ex = 0; /* near 0 */
+  pr = (long)ceil(fpr * 1.5 + ex);
+  newprec = nbits2prec(pr + ex + BITS_IN_LONG);
+  switch(typ(x))
+  {
+    case t_REAL:
+    case t_COMPLEX:
+      x = gprec_w(x, newprec);
+  }
+  e = (fpr + M-1) / M;
+  lA = lg(A); X = cgetg(lA, t_VEC);
+  for (i = 1; i < lA; i++)
+    gel(X, i) = eval(E, gadd(x, gmul2n(stoi(A[i]), -e)), newprec);
+
+  l = lg(ind);
+  F = cgetg(l, t_VEC);
+  for (i = 1; i < l; i++)
+  {
+    long m = ind[i];
+    if (m < 0)
+      pari_err_DOMAIN("derivnumk", "derivation order", "<", gen_0, stoi(m));
+    gel(F,i) = gmul2n(RgV_dotproduct(row(gel(D,m+1), lA-1), X), e*m);
+  }
+  if (typ(ind0) == t_INT) F = gel(F,1);
+  return gerepileupto(av, gprec_w(F, nbits2prec(fpr)));
+}
+
+static GEN
+derivfunk(void *E, GEN (*eval)(void *, GEN, long), GEN x, GEN ind, long prec)
+{
+  switch(typ(x))
+  {
+  case t_REAL: case t_INT: case t_FRAC: case t_COMPLEX:
+    return derivnumk(E,eval, x, ind, prec);
+  default: pari_err_TYPE("numerical derivation",x);
+    return NULL; /*LCOV_EXCL_LINE*/
+  }
+}
+
 GEN
 derivfun(void *E, GEN (*eval)(void *, GEN, long), GEN x, long prec)
 {
@@ -1297,9 +1402,11 @@ derivfun(void *E, GEN (*eval)(void *, GEN, long), GEN x, long prec)
 
 GEN
 derivnum0(GEN a, GEN code, long prec)
-{
-  EXPR_WRAP(code, derivfun (EXPR_ARGPREC,a,prec));
-}
+{ EXPR_WRAP(code, derivfun(EXPR_ARGPREC,a,prec)); }
+
+GEN
+derivnumk0(GEN a, GEN code, GEN ind, long prec)
+{ EXPR_WRAP(code, derivfunk(EXPR_ARGPREC,a,ind,prec)); }
 
 GEN
 derivfun0(GEN code, GEN args, long prec)
