@@ -22,3 +22,4 @@ iferr(ellsearch("curve"),E,E)
 iferr(ellsearch(I),E,E)
 c=0;forell(E,1,100,c++); c
 c=0;forell(E,1,100,c++,1); c
+ellidentify(ellinit([1,1],nfinit('a^2-5)))

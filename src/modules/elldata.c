@@ -206,8 +206,10 @@ GEN
 ellidentify(GEN E)
 {
   pari_sp ltop=avma;
-  GEN V, M, G = ellglobalred(E), N = gel(G,1);
   long j;
+  GEN V, M, G, N;
+  checkell_Q(E);
+  G = ellglobalred(E); N = gel(G,1);
   V = ellcondlist(itos(N));
   M = ellchangecurve(vecslice(E,1,5),gel(G,2));
   for (j=1; j<lg(V); j++)

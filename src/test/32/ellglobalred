@@ -19,4 +19,7 @@ error("incorrect type in ellsearch (t_STR).")
 error("incorrect type in ellsearch (t_COMPLEX).")
 306
 93
-Total time spent: 1343
+  ***   at top-level: ellidentify(ellinit(
+  ***                 ^--------------------
+  *** ellidentify: incorrect type in checkell over Q (t_VEC).
+Total time spent: 1128
