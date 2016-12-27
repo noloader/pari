@@ -40,7 +40,7 @@ BA    6- parallel znlog for large characteristic
 BA    8- new GP function elltamagawa
       9- [libpari] RgX_rescale_to_int, RgM_rescale_to_int
 BA   10- [libpari] Flx_digits/FlxV_Flx_fromdigits
-     11- new GP function derivnumk
+     11- new argument (multiple derivation) in GP function derivnum
      12- allow matrix(n) for n x n matrices
 
   Changed

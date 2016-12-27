@@ -1,13 +1,15 @@
 Function: derivnum
 Section: sums
 C-Name: derivnum0
-Prototype: V=GEp
-Help: derivnum(X=a,expr): numerical derivation of expr with respect to
- X at X = a.
+Prototype: V=GEDGp
+Help: derivnum(X=a,expr,{ind=1}): numerical derivation of expr with respect to
+ X at X = a. The order of derivation is given by parameter 'ind'.
 Wrapper: (,Gp)
 Description:
   (gen,gen):gen:prec derivnum(${2 cookie}, ${2 wrapper}, $1, $prec)
-Doc: numerical derivation of \var{expr} with respect to $X$ at $X=a$.
+  (gen,gen,gen):gen:prec derivnum(${2 cookie}, ${2 wrapper}, $1, $3, $prec)
+Doc: numerical derivation of \var{expr} with respect to $X$ at $X=a$. The
+ order of derivation is 1 by default.
 
  \bprog
  ? derivnum(x=0, sin(exp(x))) - cos(1)
@@ -22,8 +24,24 @@ Doc: numerical derivation of \var{expr} with respect to $X$ at $X=a$.
  When $a$ is a power series, compute \kbd{derivnum(t=a,f)} as $f'(a) =
  (f(a))'/a'$.
 
- \synt{derivnum}{void *E, GEN (*eval)(void*,GEN), GEN a, long prec}. Also
- available is \fun{GEN}{derivfun}{void *E, GEN (*eval)(void *, GEN), GEN a, long prec}, which also allows power series for $a$.
+ If the parameter \var{ind} is present, it can be
+
+ \item a non-negative integer $m$, in which case we return $f^{(m)}(x)$;
+
+ \item or a vector of orders, in which case we return the vector of
+ derivatives.
+
+ \bprog
+ ? derivnum(x = 0, exp(sin(x)), 16) \\ 16-th derivative
+ %1 = -52635599.000000000000000000000000000000
+
+ ? round( derivnum(x = 0, exp(sin(x)), [0..13]) )  \\ 0-13-th derivatives
+ %2 = [1, 1, 1, 0, -3, -8, -3, 56, 217, 64, -2951, -12672, 5973, 309376]
+ @eprog
+
+ \synt{derivfunk}{void *E, GEN (*eval)(void*,GEN), GEN a, GEN ind long prec}.
+ Also available is
+ \fun{GEN}{derivfun}{void *E, GEN (*eval)(void *, GEN), GEN a, long prec}
 
 Function: _derivfun
 Section: programming/internals

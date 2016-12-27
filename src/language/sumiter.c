@@ -1326,7 +1326,7 @@ FD(long M, long N, GEN *pd, GEN *pa)
   *pa = a;
 }
 
-GEN
+static GEN
 derivnumk(void *E, GEN (*eval)(void *, GEN, long), GEN x, GEN ind0, long prec)
 {
   GEN A, D, X, F, ind;
@@ -1335,7 +1335,7 @@ derivnumk(void *E, GEN (*eval)(void *, GEN, long), GEN x, GEN ind0, long prec)
 
   ind = gtovecsmall(ind0);
   M = vecsmall_max(ind);
-  if (M <= 0)
+  if (M < 0)
     pari_err_DOMAIN("derivnumk", "derivation order", "<", gen_0, stoi(M));
   FD(M, 3*M-1, &D,&A); /* optimal if 'eval' uses quadratic time */
 
@@ -1369,16 +1369,47 @@ derivnumk(void *E, GEN (*eval)(void *, GEN, long), GEN x, GEN ind0, long prec)
   return gerepileupto(av, gprec_w(F, nbits2prec(fpr)));
 }
 
-static GEN
-derivfunk(void *E, GEN (*eval)(void *, GEN, long), GEN x, GEN ind, long prec)
+GEN
+derivfunk(void *E, GEN (*eval)(void *, GEN, long), GEN x, GEN ind0, long prec)
 {
+  pari_sp av;
+  GEN ind, ixp, F, G;
+  long i, l, vx, M;
+  if (!ind0) ind0 = gen_1;
   switch(typ(x))
   {
   case t_REAL: case t_INT: case t_FRAC: case t_COMPLEX:
-    return derivnumk(E,eval, x, ind, prec);
+    return derivnumk(E,eval, x, ind0, prec);
+  case t_POL:
+    ind = gtovecsmall(ind0);
+    M = vecsmall_max(ind);
+    x = RgX_to_ser(x, precdl+2 + M*maxss(RgX_val(x),1));
+    break;
+  case t_SER:
+    ind = gtovecsmall(ind0);
+    M = vecsmall_max(ind);
+    break;
   default: pari_err_TYPE("numerical derivation",x);
     return NULL; /*LCOV_EXCL_LINE*/
   }
+  av = avma;
+  vx = varn(x);
+  if (M < 0)
+    pari_err_DOMAIN("derivnumk", "derivation order", "<", gen_0, stoi(M));
+  ixp = M? ginv(deriv(x,vx)): NULL;
+  F = cgetg(M+2, t_VEC);
+  gel(F,1) = eval(E, x, prec);
+  for (i = 1; i <= M; i++) gel(F,i+1) = gmul(deriv(gel(F,i),vx), ixp);
+  l = lg(ind); G = cgetg(l, t_VEC);
+  for (i = 1; i < l; i++)
+  {
+    long m = ind[i];
+    if (m < 0)
+      pari_err_DOMAIN("derivnumk", "derivation order", "<", gen_0, stoi(m));
+    gel(G,i) = gel(F,m+1);
+  }
+  if (typ(ind0) == t_INT) G = gel(G,1);
+  return gerepilecopy(av, G);
 }
 
 GEN
@@ -1391,7 +1422,7 @@ derivfun(void *E, GEN (*eval)(void *, GEN, long), GEN x, long prec)
   case t_REAL: case t_INT: case t_FRAC: case t_COMPLEX:
     return derivnum(E,eval, x, prec);
   case t_POL:
-    x = RgX_to_ser(x, precdl+2+1); /* +1 because deriv reduce the precision by 1 */
+    x = RgX_to_ser(x, precdl+2+ maxss(RgX_val(x),1));
   case t_SER: /* FALL THROUGH */
     vx = varn(x);
     return gerepileupto(av, gdiv(deriv(eval(E, x, prec),vx), deriv(x,vx)));
@@ -1401,11 +1432,7 @@ derivfun(void *E, GEN (*eval)(void *, GEN, long), GEN x, long prec)
 }
 
 GEN
-derivnum0(GEN a, GEN code, long prec)
-{ EXPR_WRAP(code, derivfun(EXPR_ARGPREC,a,prec)); }
-
-GEN
-derivnumk0(GEN a, GEN code, GEN ind, long prec)
+derivnum0(GEN a, GEN code, GEN ind, long prec)
 { EXPR_WRAP(code, derivfunk(EXPR_ARGPREC,a,ind,prec)); }
 
 GEN

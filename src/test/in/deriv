@@ -27,5 +27,6 @@ b=intformal(O(y), x)
 variable(a)
 variable(b)
 
-derivnumk(x=0,exp(sin(x)),16)
-round( derivnumk(x=0,exp(sin(x)),[0..13]) )
+derivnum(x=0,exp(sin(x)),16)
+round( derivnum(x=0,exp(sin(x)),[0..13]) )
+derivnum(t=x^2,exp(t),4)
