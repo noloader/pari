@@ -1375,7 +1375,7 @@ derivfunk(void *E, GEN (*eval)(void *, GEN, long), GEN x, GEN ind0, long prec)
   pari_sp av;
   GEN ind, xp, ixp, F, G;
   long i, l, vx, M;
-  if (!ind0) ind0 = gen_1;
+  if (!ind0) return derivfun(E, eval, x, prec);
   switch(typ(x))
   {
   case t_REAL: case t_INT: case t_FRAC: case t_COMPLEX:
