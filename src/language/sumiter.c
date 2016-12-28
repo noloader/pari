@@ -1337,9 +1337,24 @@ derivnumk(void *E, GEN (*eval)(void *, GEN, long), GEN x, GEN ind0, long prec)
   int allodd = 1;
 
   ind = gtovecsmall(ind0);
+  l = lg(ind);
+  F = cgetg(l, t_VEC);
   M = vecsmall_max(ind);
   if (M < 0)
     pari_err_DOMAIN("derivnumk", "derivation order", "<", gen_0, stoi(M));
+  if (!M) /* silly degenerate case */
+  {
+    X = eval(E, x, prec);
+    for (i = 1; i < l; i++)
+    {
+      long m = ind[i];
+      if (m < 0)
+        pari_err_DOMAIN("derivnumk", "derivation order", "<", gen_0, stoi(m));
+      gel(F,i) = X;
+    }
+    if (typ(ind0) == t_INT) F = gel(F,1);
+    return gerepilecopy(av, F);
+  }
   FD(M, 3*M-1, &D,&A); /* optimal if 'eval' uses quadratic time */
 
   p = precision(x);
@@ -1356,7 +1371,6 @@ derivnumk(void *E, GEN (*eval)(void *, GEN, long), GEN x, GEN ind0, long prec)
       x = gprec_w(x, newprec);
   }
   lA = lg(A); X = cgetg(lA, t_VEC);
-  l = lg(ind);
   for (i = 1; i < l; i++)
     if (!odd(ind[i])) { allodd = 0; break; }
   /* if only odd derivation orders, the value at 0 (A[1]) is not needed */
@@ -1364,7 +1378,6 @@ derivnumk(void *E, GEN (*eval)(void *, GEN, long), GEN x, GEN ind0, long prec)
   for (i = allodd? 2: 1; i < lA; i++)
     gel(X, i) = eval(E, gadd(x, gmul2n(gel(A,i), -e)), newprec);
 
-  F = cgetg(l, t_VEC);
   for (i = 1; i < l; i++)
   {
     long m = ind[i];
