@@ -1287,6 +1287,7 @@ FD(long M, long N, GEN *pd, GEN *pa)
 {
   GEN d, c1 = gen_1, a;
   long N2, n, i, j;
+  pari_sp av;
   if (odd(N)) N++; /* make it even */
   a = cgetg(N+2, t_VECSMALL);
   N2 = N>>1;
@@ -1296,6 +1297,7 @@ FD(long M, long N, GEN *pd, GEN *pa)
     a[j++] = -i;
     a[j++] =  i;
   }
+  av = avma;
   d = cgetg(M+2, t_VEC);
   for (i = 1; i <= M+1; i++) gel(d,i) = zeromatcopy(N+1,N+1);
   gcoeff(gel(d,1),1,1) = gen_1;
@@ -1309,18 +1311,25 @@ FD(long M, long N, GEN *pd, GEN *pa)
       c2 = gmulgs(c2, c3);
       for (m = 0; m <= mM; m++)
       {
+        pari_sp av2 = avma;
         GEN t = gmulsg(a[n+1], gcoeff(gel(d,m+1),n,nu+1));
         if (m) t = gsub(t, gmulsg(m, gcoeff(gel(d,m),n,nu+1)));
-        gcoeff(gel(d,m+1),n+1,nu+1) = gdivgs(t, c3);
+        gcoeff(gel(d,m+1),n+1,nu+1) = gerepileupto(av2, gdivgs(t, c3));
       }
     }
     for (m = 0; m <= mM; m++)
     {
+      pari_sp av2 = avma;
       GEN t = gmulsg(-a[n],gcoeff(gel(d,m+1),n,n));
       if (m) t = gadd(t, gmulsg(m, gcoeff(gel(d,m),n,n)));
-      gcoeff(gel(d,m+1),n+1,n+1) = gdiv(gmul(c1,t),c2);
+      gcoeff(gel(d,m+1),n+1,n+1) = gerepileupto(av2, gdiv(gmul(c1,t),c2));
     }
     c1 = c2;
+    if (gc_needed(av,3))
+    {
+      if (DEBUGMEM>1) pari_warn(warnmem,"FD, n = %ld/%ld", n,N);
+      gerepileall(av, 2, &d, &c1);
+    }
   }
   *pd = d;
   *pa = a;
@@ -1332,6 +1341,7 @@ derivnumk(void *E, GEN (*eval)(void *, GEN, long), GEN x, GEN ind0, long prec)
   GEN A, D, X, F, ind;
   long M, fpr, p, i, pr, l, lA, e, ex, newprec;
   pari_sp av = avma;
+  int allodd = 1;
 
   ind = gtovecsmall(ind0);
   M = vecsmall_max(ind);
@@ -1341,9 +1351,10 @@ derivnumk(void *E, GEN (*eval)(void *, GEN, long), GEN x, GEN ind0, long prec)
 
   p = precision(x);
   fpr = p ? prec2nbits(p): prec2nbits(prec);
+  e = fpr / (2*M) + 1;
   ex = gexpo(x);
   if (ex < 0) ex = 0; /* near 0 */
-  pr = (long)ceil(fpr * 1.5 + ex);
+  pr = (long)ceil(fpr + e * M); /* ~ 3fpr/2 */
   newprec = nbits2prec(pr + ex + BITS_IN_LONG);
   switch(typ(x))
   {
@@ -1351,12 +1362,15 @@ derivnumk(void *E, GEN (*eval)(void *, GEN, long), GEN x, GEN ind0, long prec)
     case t_COMPLEX:
       x = gprec_w(x, newprec);
   }
-  e = (fpr + M-1) / M;
   lA = lg(A); X = cgetg(lA, t_VEC);
-  for (i = 1; i < lA; i++)
+  l = lg(ind);
+  for (i = 1; i < l; i++)
+    if (!odd(ind[i])) { allodd = 0; break; }
+  /* if only odd derivation orders, the value at 0 (A[1]) is not needed */
+  gel(X, 1) = gen_0;
+  for (i = allodd? 2: 1; i < lA; i++)
     gel(X, i) = eval(E, gadd(x, gmul2n(stoi(A[i]), -e)), newprec);
 
-  l = lg(ind);
   F = cgetg(l, t_VEC);
   for (i = 1; i < l; i++)
   {
