@@ -1277,59 +1277,52 @@ derivnum(void *E, GEN (*eval)(void *, GEN, long), GEN x, long prec)
 }
 
 /* Fornberg interpolation algorithm for finite differences coefficients
-* using N+1 equidistant grid points around 0 [ assume N even ].
-* Compute \delta[m]_{n,nu} for all derivation orders m = 0..M such that
-*   h^m * f^{(m)}(0) = \sum_{nu = 0}^n delta[m]_{n,nu}  f(a_nu) + O(h^{n-m+1}),
-* valid for n = m..N and step size h.
-* Return vector of matrices d: d[m+1][n+1,nu+1] = delta[m]_{n,nu}, nu = 0..n */
+* using N+1 equidistant grid points around 0 [ assume N even >= M ].
+* Compute \delta[m]_{N,nu} for all derivation orders m = 0..M such that
+*   h^m * f^{(m)}(0) = \sum_{nu = 0}^n delta[m]_{N,nu}  f(a_nu) + O(h^{N-m+1}),
+* for step size h.
+* Return a = [0,-1,1...,-N2,N2] and vector of vectors d: d[m+1][nu+1]
+* = delta[m]_{N,nu}, nu = 0..N */
 static void
 FD(long M, long N, GEN *pd, GEN *pa)
 {
-  GEN d, c1 = gen_1, a;
-  long N2, n, i, j;
-  pari_sp av;
+  GEN d, a, b, w, wp, F, mfact;
+  long N2, m, nu, i, j;
+
   if (odd(N)) N++; /* make it even */
-  a = cgetg(N+2, t_VECSMALL);
   N2 = N>>1;
-  a[1] = 0;
+  F = cgetg(N+2, t_VEC);
+  a = cgetg(N+2, t_VEC);
+  b = cgetg(N2+1, t_VEC);
+  gel(a,1) = gen_0;
   for (i = 1, j = 2; i <= N2; i++)
   {
-    a[j++] = -i;
-    a[j++] =  i;
+    gel(a,j++) = utoineg(i);
+    gel(a,j++) = utoipos(i);
+    gel(b,i) = sqru(i);
   }
-  av = avma;
-  d = cgetg(M+2, t_VEC);
-  for (i = 1; i <= M+1; i++) gel(d,i) = zeromatcopy(N+1,N+1);
-  gcoeff(gel(d,1),1,1) = gen_1;
-  for (n = 1; n <= N; n++)
+  /* w = \prod (X - a[i]) */
+  w = RgX_shift_shallow(RgX_inflate(roots_to_pol(b, 0), 2), 1);
+  wp = ZX_deriv(w);
+  for (nu = 0; nu <= N; nu++)
   {
-    GEN c2 = gen_1;
-    long mM = minss(n,M), nu, m;
-    for (nu = 0; nu < n; nu++)
+    GEN r, t = poleval(wp, gel(a,nu+1));
+    /* F_nu(a[n]) = \delta{n = nu} */
+    gel(F,nu+1) = RgX_Rg_div(RgX_div_by_X_x(w, gel(a,nu+1), &r), t);
+  }
+  d = cgetg(M+2, t_VEC);
+  mfact = gen_1;
+  for (m = 0; m <= M; m++)
+  {
+    GEN v = cgetg(N+2, t_VEC);
+    for (nu = 0; nu <= N; nu++)
     {
-      long c3 = a[n+1] - a[nu+1];
-      c2 = gmulgs(c2, c3);
-      for (m = 0; m <= mM; m++)
-      {
-        pari_sp av2 = avma;
-        GEN t = gmulsg(a[n+1], gcoeff(gel(d,m+1),n,nu+1));
-        if (m) t = gsub(t, gmulsg(m, gcoeff(gel(d,m),n,nu+1)));
-        gcoeff(gel(d,m+1),n+1,nu+1) = gerepileupto(av2, gdivgs(t, c3));
-      }
+      GEN f = gel(F,nu+1);
+      gel(v,nu+1) = gel(f,m+2); /* coeff(f,X^m) */
     }
-    for (m = 0; m <= mM; m++)
-    {
-      pari_sp av2 = avma;
-      GEN t = gmulsg(-a[n],gcoeff(gel(d,m+1),n,n));
-      if (m) t = gadd(t, gmulsg(m, gcoeff(gel(d,m),n,n)));
-      gcoeff(gel(d,m+1),n+1,n+1) = gerepileupto(av2, gdiv(gmul(c1,t),c2));
-    }
-    c1 = c2;
-    if (gc_needed(av,3))
-    {
-      if (DEBUGMEM>1) pari_warn(warnmem,"FD, n = %ld/%ld", n,N);
-      gerepileall(av, 2, &d, &c1);
-    }
+    if (m > 1) { mfact = muliu(mfact, m); v = RgV_Rg_mul(v, mfact); }
+    /* d_m = [F_nu^{(m)}(0): nu = 0..N] = \delta[m]{N,0..N} */
+    gel(d,m+1) = v;
   }
   *pd = d;
   *pa = a;
@@ -1369,7 +1362,7 @@ derivnumk(void *E, GEN (*eval)(void *, GEN, long), GEN x, GEN ind0, long prec)
   /* if only odd derivation orders, the value at 0 (A[1]) is not needed */
   gel(X, 1) = gen_0;
   for (i = allodd? 2: 1; i < lA; i++)
-    gel(X, i) = eval(E, gadd(x, gmul2n(stoi(A[i]), -e)), newprec);
+    gel(X, i) = eval(E, gadd(x, gmul2n(gel(A,i), -e)), newprec);
 
   F = cgetg(l, t_VEC);
   for (i = 1; i < l; i++)
@@ -1377,7 +1370,7 @@ derivnumk(void *E, GEN (*eval)(void *, GEN, long), GEN x, GEN ind0, long prec)
     long m = ind[i];
     if (m < 0)
       pari_err_DOMAIN("derivnumk", "derivation order", "<", gen_0, stoi(m));
-    gel(F,i) = gmul2n(RgV_dotproduct(row(gel(D,m+1), lA-1), X), e*m);
+    gel(F,i) = gmul2n(RgV_dotproduct(gel(D,m+1), X), e*m);
   }
   if (typ(ind0) == t_INT) F = gel(F,1);
   return gerepileupto(av, gprec_w(F, nbits2prec(fpr)));
