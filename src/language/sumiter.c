@@ -1373,7 +1373,7 @@ GEN
 derivfunk(void *E, GEN (*eval)(void *, GEN, long), GEN x, GEN ind0, long prec)
 {
   pari_sp av;
-  GEN ind, ixp, F, G;
+  GEN ind, xp, ixp, F, G;
   long i, l, vx, M;
   if (!ind0) ind0 = gen_1;
   switch(typ(x))
@@ -1383,11 +1383,13 @@ derivfunk(void *E, GEN (*eval)(void *, GEN, long), GEN x, GEN ind0, long prec)
   case t_POL:
     ind = gtovecsmall(ind0);
     M = vecsmall_max(ind);
-    x = RgX_to_ser(x, precdl+2 + M*maxss(RgX_val(x),1));
+    xp = RgX_deriv(x);
+    x = RgX_to_ser(x, precdl+2 + M * (1+RgX_val(xp)));
     break;
   case t_SER:
     ind = gtovecsmall(ind0);
     M = vecsmall_max(ind);
+    xp = derivser(x);
     break;
   default: pari_err_TYPE("numerical derivation",x);
     return NULL; /*LCOV_EXCL_LINE*/
@@ -1396,7 +1398,7 @@ derivfunk(void *E, GEN (*eval)(void *, GEN, long), GEN x, GEN ind0, long prec)
   vx = varn(x);
   if (M < 0)
     pari_err_DOMAIN("derivnumk", "derivation order", "<", gen_0, stoi(M));
-  ixp = M? ginv(deriv(x,vx)): NULL;
+  ixp = M? ginv(xp): NULL;
   F = cgetg(M+2, t_VEC);
   gel(F,1) = eval(E, x, prec);
   for (i = 1; i <= M; i++) gel(F,i+1) = gmul(deriv(gel(F,i),vx), ixp);
@@ -1416,19 +1418,24 @@ GEN
 derivfun(void *E, GEN (*eval)(void *, GEN, long), GEN x, long prec)
 {
   pari_sp av = avma;
+  GEN xp;
   long vx;
   switch(typ(x))
   {
   case t_REAL: case t_INT: case t_FRAC: case t_COMPLEX:
     return derivnum(E,eval, x, prec);
   case t_POL:
-    x = RgX_to_ser(x, precdl+2+ maxss(RgX_val(x),1));
-  case t_SER: /* FALL THROUGH */
-    vx = varn(x);
-    return gerepileupto(av, gdiv(deriv(eval(E, x, prec),vx), deriv(x,vx)));
+    xp = RgX_deriv(x);
+    x = RgX_to_ser(x, precdl+2+ (1 + RgX_val(xp)));
+    break;
+  case t_SER:
+    xp = derivser(x);
+    break;
   default: pari_err_TYPE("formal derivation",x);
     return NULL; /*LCOV_EXCL_LINE*/
   }
+  vx = varn(x);
+  return gerepileupto(av, gdiv(deriv(eval(E, x, prec),vx), xp));
 }
 
 GEN
