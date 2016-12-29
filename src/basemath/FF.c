@@ -120,7 +120,15 @@ FFX_to_raw(GEN x, GEN ff)
   y[1] = x[1];
   for(i=2; i<lx; i++)
     gel(y, i) = Rg_to_raw(gel(x, i), ff);
-  return y;
+  switch (ff[1])
+  {
+  case t_FF_FpXQ:
+    return FpXX_renormalize(y, lx);
+  case t_FF_F2xq:
+    return F2xX_renormalize(y, lx);
+  default:
+    return FlxX_renormalize(y, lx);
+  }
 }
 
 static GEN
