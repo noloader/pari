@@ -1335,6 +1335,13 @@ FD(long M, long N, GEN *pd, GEN *pa)
   *pa = a;
 }
 
+static void
+chk_ord(long m)
+{
+  if (m < 0)
+    pari_err_DOMAIN("derivnumk", "derivation order", "<", gen_0, stoi(m));
+}
+
 static GEN
 derivnumk(void *E, GEN (*eval)(void *, GEN, long), GEN x, GEN ind0, long prec)
 {
@@ -1347,18 +1354,11 @@ derivnumk(void *E, GEN (*eval)(void *, GEN, long), GEN x, GEN ind0, long prec)
   l = lg(ind);
   F = cgetg(l, t_VEC);
   M = vecsmall_max(ind);
-  if (M < 0)
-    pari_err_DOMAIN("derivnumk", "derivation order", "<", gen_0, stoi(M));
+  chk_ord(M);
   if (!M) /* silly degenerate case */
   {
     X = eval(E, x, prec);
-    for (i = 1; i < l; i++)
-    {
-      long m = ind[i];
-      if (m < 0)
-        pari_err_DOMAIN("derivnumk", "derivation order", "<", gen_0, stoi(m));
-      gel(F,i) = X;
-    }
+    for (i = 1; i < l; i++) { chk_ord(ind[i]); gel(F,i) = X; }
     if (typ(ind0) == t_INT) F = gel(F,1);
     return gerepilecopy(av, F);
   }
@@ -1387,9 +1387,7 @@ derivnumk(void *E, GEN (*eval)(void *, GEN, long), GEN x, GEN ind0, long prec)
 
   for (i = 1; i < l; i++)
   {
-    long m = ind[i];
-    if (m < 0)
-      pari_err_DOMAIN("derivnumk", "derivation order", "<", gen_0, stoi(m));
+    long m = ind[i]; chk_ord(m);
     gel(F,i) = gmul2n(RgV_dotproduct(gel(D,m+1), X), e*m);
   }
   if (typ(ind0) == t_INT) F = gel(F,1);
@@ -1421,10 +1419,8 @@ derivfunk(void *E, GEN (*eval)(void *, GEN, long), GEN x, GEN ind0, long prec)
   default: pari_err_TYPE("numerical derivation",x);
     return NULL; /*LCOV_EXCL_LINE*/
   }
-  av = avma;
+  av = avma; chk_ord(M);
   vx = varn(x);
-  if (M < 0)
-    pari_err_DOMAIN("derivnumk", "derivation order", "<", gen_0, stoi(M));
   ixp = M? ginv(xp): NULL;
   F = cgetg(M+2, t_VEC);
   gel(F,1) = eval(E, x, prec);
@@ -1432,9 +1428,7 @@ derivfunk(void *E, GEN (*eval)(void *, GEN, long), GEN x, GEN ind0, long prec)
   l = lg(ind); G = cgetg(l, t_VEC);
   for (i = 1; i < l; i++)
   {
-    long m = ind[i];
-    if (m < 0)
-      pari_err_DOMAIN("derivnumk", "derivation order", "<", gen_0, stoi(m));
+    long m = ind[i]; chk_ord(m);
     gel(G,i) = gel(F,m+1);
   }
   if (typ(ind0) == t_INT) G = gel(G,1);
