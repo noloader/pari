@@ -153,6 +153,22 @@ FFM_to_raw(GEN x)
 
 /* in place */
 static GEN
+rawFq_to_FF(GEN x, GEN ff)
+{
+  return mkFF_i(ff, typ(x)==t_INT ? scalarpol(x, varn(gel(ff,3))): x);
+}
+
+/* in place */
+static GEN
+raw_to_FFX(GEN x, GEN ff)
+{
+  long i, lx = lg(x);
+  for (i=2; i<lx; i++) gel(x,i) = rawFq_to_FF(gel(x,i), ff);
+  return x;
+}
+
+/* in place */
+static GEN
 raw_to_FFC(GEN x, GEN ff)
 {
   long i, lx = lg(x);
@@ -188,16 +204,6 @@ Fq_to_FF(GEN x, GEN ff)
   }
   setvarn(r, varn(T)); /* paranoia */
   return _mkFF_i(ff,z,r);
-}
-
-/* in place */
-static GEN
-to_FFX(GEN x, GEN ff)
-{
-  long i, lx = lg(x);
-  if (typ(x) != t_POL) pari_err_TYPE("to_FFX",x);
-  for (i=2; i<lx; i++) gel(x,i) = Fq_to_FF(gel(x,i), ff);
-  return x;
 }
 
 /*************************************************************************/
@@ -1525,8 +1531,46 @@ FFX_roots(GEN Pf, GEN ff)
   default:
     r = FlxqX_roots(P, T, pp);
   }
-  r = raw_to_FFC(r, ff);
-  return gerepilecopy(av, r);
+  return gerepilecopy(av, raw_to_FFC(r, ff));
+}
+
+static GEN
+raw_to_FFX_fact(GEN F, GEN ff)
+{
+  GEN y, u, v;
+  GEN P = gel(F,1), E = gel(F,2);
+  long j, l = lg(P);
+  y = cgetg(3,t_MAT);
+  u = cgetg(l,t_COL); gel(y,1) = u;
+  v = cgetg(l,t_COL); gel(y,2) = v;
+  for (j=1; j<l; j++)
+  {
+    gel(u,j) = raw_to_FFX(gel(P,j), ff);
+    gel(v,j) = utoi(uel(E,j));
+  }
+  return y;
+}
+
+GEN
+FFX_factor(GEN Pf, GEN ff)
+{
+  pari_sp av = avma;
+  GEN r,T,p;
+  ulong pp;
+  GEN P = FFX_to_raw(Pf, ff);
+  _getFF(ff,&T,&p,&pp);
+  switch(ff[1])
+  {
+  case t_FF_FpXQ:
+    r = FpXQX_factor(P, T, p);
+    break;
+  case t_FF_F2xq:
+    r = F2xqX_factor(P, T);
+    break;
+  default:
+    r = FlxqX_factor(P, T, pp);
+  }
+  return gerepilecopy(av, raw_to_FFX_fact(r, ff));
 }
 
 GEN
@@ -1537,69 +1581,6 @@ FqX_to_FFX(GEN x, GEN ff)
   y[1] = x[1];
   for (i=2; i<lx; i++) gel(y,i) = Fq_to_FF(gel(x,i), ff);
   return y;
-}
-
-/* P vector of t_POL, E t_VECSMALL of exponents, ff a t_FFELT. Update elts of
- * P so that 1) variable number is vP, 2) coefficients are ff-compatible.
- * Collect garbage wrt av */
-static GEN
-to_FF_fact(long vP, GEN P, GEN E, GEN ff, pari_sp av)
-{
-  GEN y = cgetg(3,t_MAT), u, v, zf;
-  long j, l = lg(P), nbf = lg(P);
-
-  u = cgetg(nbf,t_COL); gel(y,1) = u;
-  v = cgetg(nbf,t_COL); gel(y,2) = v;
-  for (j=1; j<l; j++)
-  {
-    GEN Q = simplify_shallow(gel(P,j)); /* may contain pols of degree 0 */
-    if (typ(Q) == t_POL) setvarn(Q, vP);
-    gel(u,j) = Q;
-    gel(v,j) = utoi(uel(E,j));
-  }
-  y = gerepilecopy(av, y); u = gel(y,1);
-  zf = FF_zero(ff);
-  for (j=1; j<nbf; j++) gel(u,j) = to_FFX(gel(u,j), zf);
-  return y;
-}
-
-static GEN
-FFX_init_fix_varn(GEN P, GEN x, GEN *pT, GEN *pp)
-{
-  ulong junk;
-  GEN Q, T, p;
-
-  _getFF(x, &T, &p, &junk);
-  switch(x[1])
-  {
-  case t_FF_FpXQ:
-    T=shallowcopy(T);
-    break;
-  case t_FF_F2xq:
-    T=F2x_to_ZX(T);
-    break;
-  default:
-    T=Flx_to_ZX(T);
-  }
-  setvarn(T, 1);
-  Q = RgX_to_FqX(P, T,p);
-  setvarn(Q, 0);
-
-  *pT = T;
-  *pp = p; return Q;
-}
-
-/* Factor P over the field of definition of x */
-GEN
-FFX_factor(GEN P, GEN x)
-{
-  long vP = varn(P);
-  GEN r, T, p;
-  pari_sp av=avma;
-
-  P = FFX_init_fix_varn(P, x, &T, &p);
-  r = FpXQX_factor(P, T,p);
-  return to_FF_fact(vP, gel(r,1),gel(r,2), x,av);
 }
 
 GEN
