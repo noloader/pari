@@ -1286,8 +1286,8 @@ derivnum(void *E, GEN (*eval)(void *, GEN, long), GEN x, long prec)
 static void
 FD(long M, long N, GEN *pd, GEN *pa)
 {
-  GEN d, a, b, w, wp, F, mfact;
-  long N2, m, nu, i, j;
+  GEN d, a, b, W, Wp, t, F, mfact;
+  long N2, m, nu, i;
 
   if (odd(N)) N++; /* make it even */
   N2 = N>>1;
@@ -1295,20 +1295,27 @@ FD(long M, long N, GEN *pd, GEN *pa)
   a = cgetg(N+2, t_VEC);
   b = cgetg(N2+1, t_VEC);
   gel(a,1) = gen_0;
-  for (i = 1, j = 2; i <= N2; i++)
+  for (i = 1; i <= N2; i++)
   {
-    gel(a,j++) = utoineg(i);
-    gel(a,j++) = utoipos(i);
+    gel(a,2*i)   = utoineg(i);
+    gel(a,2*i+1) = utoipos(i);
     gel(b,i) = sqru(i);
   }
-  /* w = \prod (X - a[i]) */
-  w = RgX_shift_shallow(RgX_inflate(roots_to_pol(b, 0), 2), 1);
-  wp = ZX_deriv(w);
-  for (nu = 0; nu <= N; nu++)
-  {
-    GEN r, t = poleval(wp, gel(a,nu+1));
+  /* w = \prod (X - a[i]) = x W(x^2) */
+  W = roots_to_pol(b, 0);
+  Wp = ZX_deriv(W);
+  t = gel(W,2); /* w'(0) */
+  gel(F,1) = RgX_Rg_div(RgX_inflate(W,2), t);
+  for (i = 1; i <= N2; i++)
+  { /* t = w'(a_{2i}) = w'(a_{2i+1}) */
+    GEN r, t = mulii(shifti(gel(b,i),1), poleval(Wp, gel(b,i)));
+    GEN U = RgX_inflate(RgX_div_by_X_x(W, gel(b,i), &r), 2);
+    GEN S = RgX_shift_shallow(U,1), T = ZX_Z_mul(U, gel(a,2*i+1));
+
+    /* X(S - T) = w(X) / (X-a_{2i}),  X(S + T) = w(X) / (X-a_{2i+1}) */
     /* F_nu(a[n]) = \delta{n = nu} */
-    gel(F,nu+1) = RgX_Rg_div(RgX_div_by_X_x(w, gel(a,nu+1), &r), t);
+    gel(F,2*i)   = RgX_shift_shallow(RgX_Rg_div(ZX_sub(S, T), t), 1);
+    gel(F,2*i+1) = RgX_shift_shallow(RgX_Rg_div(ZX_add(S, T), t), 1);
   }
   d = cgetg(M+2, t_VEC);
   mfact = gen_1;
