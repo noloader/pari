@@ -1346,7 +1346,7 @@ static GEN
 derivnumk(void *E, GEN (*eval)(void *, GEN, long), GEN x, GEN ind0, long prec)
 {
   GEN A, D, X, F, ind;
-  long M, fpr, p, i, pr, l, lA, e, ex, newprec;
+  long M, fpr, p, i, pr, l, lA, e, ex, eD, newprec;
   pari_sp av = avma;
   int allodd = 1;
 
@@ -1366,11 +1366,12 @@ derivnumk(void *E, GEN (*eval)(void *, GEN, long), GEN x, GEN ind0, long prec)
 
   p = precision(x);
   fpr = p ? prec2nbits(p): prec2nbits(prec);
-  e = fpr / (2*M) + 1;
+  eD = gexpo(gel(D,M));
+  e = (fpr + 3*M*log2((double)M)) / (2*M);
   ex = gexpo(x);
   if (ex < 0) ex = 0; /* near 0 */
   pr = (long)ceil(fpr + e * M); /* ~ 3fpr/2 */
-  newprec = nbits2prec(pr + ex + BITS_IN_LONG);
+  newprec = nbits2prec(pr + eD + ex + BITS_IN_LONG);
   switch(typ(x))
   {
     case t_REAL:
