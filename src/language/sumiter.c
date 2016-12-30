@@ -1310,12 +1310,11 @@ FD(long M, long N, GEN *pd, GEN *pa)
   { /* t = w'(a_{2i}) = w'(a_{2i+1}) */
     GEN r, t = mulii(shifti(gel(b,i),1), poleval(Wp, gel(b,i)));
     GEN U = RgX_inflate(RgX_div_by_X_x(W, gel(b,i), &r), 2);
-    GEN S = RgX_shift_shallow(U,1), T = ZX_Z_mul(U, gel(a,2*i+1));
-
-    /* X(S - T) = w(X) / (X-a_{2i}),  X(S + T) = w(X) / (X-a_{2i+1}) */
-    /* F_nu(a[n]) = \delta{n = nu} */
-    gel(F,2*i)   = RgX_shift_shallow(RgX_Rg_div(ZX_sub(S, T), t), 1);
-    gel(F,2*i+1) = RgX_shift_shallow(RgX_Rg_div(ZX_add(S, T), t), 1);
+    GEN V = RgX_shift_shallow(RgX_Rg_div(U,t), 1);
+    GEN S = RgX_shift_shallow(V,1);
+    GEN T = RgX_Rg_mul(V, gel(a,2*i+1));
+    gel(F,2*i)   = RgX_sub(S, T);
+    gel(F,2*i+1) = RgX_add(S, T);
   }
   d = cgetg(M+2, t_VEC);
   mfact = gen_1;
