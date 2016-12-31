@@ -2,7 +2,7 @@ Function: nfeltsign
 Section: number_fields
 C-Name: nfeltsign
 Prototype: GGDG
-Help: nfeltnorm(nf,x,{pl}): signs of real embeddings of x (at places given
+Help: nfeltsign(nf,x,{pl}): signs of real embeddings of x (at places given
  by vector pl)
 Doc: given an element $x$ in the number field \var{nf}, returns the signs of
  the real embeddings of $x$ specified by optional argument \var{pl}:
