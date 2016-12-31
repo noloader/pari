@@ -3029,7 +3029,7 @@ gdivgs(GEN x, long s)
 {
   long tx = typ(x), lx, i;
   pari_sp av;
-  GEN z, y, p1;
+  GEN z, y;
 
   if (!s)
   {
@@ -3095,31 +3095,9 @@ gdivgs(GEN x, long s)
 
     case t_RFRAC:
       av = avma;
-      p1 = ggcd(stoi(s),gel(x,1));
-      if (typ(p1) == t_INT)
-      {
-        avma = av;
-        z = cgetg(3, t_RFRAC);
-        i = p1[2];
-        if (i == 1)
-        {
-          gel(z,1) = gcopy(gel(x,1));
-          gel(z,2) = gmulsg(s,gel(x,2));
-        }
-        else
-        {
-          gel(z,1) = gdivgs(gel(x,1), i);
-          gel(z,2) = gmulgs(gel(x,2), s/i);
-        }
-      }
-      else /* t_FRAC */
-      {
-        z = cgetg(3, t_RFRAC);
-        gel(z,1) = gdiv(gel(x,1), p1);
-        gel(z,2) = RgX_Rg_mul(gel(x,2), gdivsg(s,p1));
-        z = gerepilecopy(av, z);
-      }
-      return z;
+      if (s == 1) return gcopy(x);
+      else if (s == -1) return gneg(x);
+      return div_rfrac_scal(x, stoi(s));
 
     case t_POL: case t_SER:
       z = cgetg_copy(x, &lx); z[1] = x[1];
