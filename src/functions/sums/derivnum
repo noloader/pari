@@ -7,7 +7,7 @@ Help: derivnum(X=a,expr,{ind=1}): numerical derivation of expr with respect to
 Wrapper: (,Gp)
 Description:
   (gen,gen):gen:prec derivnum(${2 cookie}, ${2 wrapper}, $1, $prec)
-  (gen,gen,gen):gen:prec derivnum(${2 cookie}, ${2 wrapper}, $1, $3, $prec)
+  (gen,gen,gen):gen:prec derivfunk(${2 cookie}, ${2 wrapper}, $1, $3, $prec)
 Doc: numerical derivation of \var{expr} with respect to $X$ at $X=a$. The
  order of derivation is 1 by default.
 
