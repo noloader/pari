@@ -1824,3 +1824,115 @@ sumnummonien0(GEN a, GEN code, GEN tab, long prec)
 GEN
 sumnum0(GEN a, GEN code, GEN tab, long prec)
 { EXPR_WRAP(code, sumnum(EXPR_ARG, a, tab, prec)); }
+
+/* Abel-Plana summation */
+
+static GEN
+intnumgauexpinit(long prec)
+{
+  pari_sp ltop = avma;
+  GEN V, N, E, P, Q, R, vabs, vwt;
+  long l, n, k, j, prec2, prec0 = prec + EXTRAPRECWORD, bit = prec2nbits(prec);
+
+  n = (long)ceil(bit*0.226);
+  n |= 1; /* make n odd */
+  prec = nbits2prec(1.5*bit + 32);
+  prec2 = maxss(prec0, nbits2prec(1.15*bit + 32));
+  V = cgetg(n + 4, t_VEC);
+  for (k = 1; k <= n + 3; ++k)
+    gel(V, k) = gtofp(gdivgs(bernfrac(2*k), odd(k)? 2*k: -2*k), prec);
+  Pade(V, &P, &Q);
+  N = RgX_recip(gsub(P, Q));
+  E = RgX_recip(Q);
+  R = gdivgs(gdiv(N, RgX_deriv(E)), 2);
+  vabs = realroots(E, mkvec2(gen_0,mkoo()), prec2);
+  l = lg(vabs); settyp(vabs, t_VEC);
+  vwt = cgetg(l, t_VEC);
+  for (j = 1; j < l; ++j)
+  {
+    GEN a = gel(vabs,j);
+    gel(vwt, j) = gprec_wtrunc(poleval(R, a), prec0);
+    gel(vabs, j) = gprec_wtrunc(sqrtr_abs(a), prec0);
+  }
+  return gerepilecopy(ltop, mkvec2(vabs, vwt));
+}
+
+/* Compute $\int_{-\infty}^\infty w(x)f(x)\,dx$, where $w(x)=x/(exp(x)-1)$
+ * for $x>0$ and $w(-x)=w(x)$. For Abel-Plana (sumnumap). */
+static GEN
+intnumgauexp(void *E, GEN (*eval)(void*,GEN), GEN gN, GEN tab, long prec)
+{
+  pari_sp av = avma;
+  GEN U = mkcomplex(gN, gen_0), V = mkcomplex(gel(U,1), gen_0), S = gen_0;
+  GEN vabs = gel(tab, 1), vwt = gel(tab, 2);
+  long l = lg(vabs), i;
+  if (lg(vwt) != l || typ(vabs) != t_VEC || typ(vwt) != t_VEC)
+    pari_err_TYPE("sumnumap", tab);
+  for (i = 1; i < l; i++)
+  { /* I * (w_i/a_i) * (f(N + I*a_i) - f(N - I*a_i)) */
+    GEN x = gel(vabs,i), w = gel(vwt,i), t;
+    gel(U,2) = x;
+    gel(V,2) = gneg(x);
+    t = mulcxI(gsub(eval(E,U), eval(E,V)));
+    if (typ(t) == t_COMPLEX && gequal0(gel(t,2))) t = gel(t,1);
+    S = gadd(S, gmul(gdiv(w,x), t));
+  }
+  return gerepileupto(av, gprec_w(S, prec));
+}
+
+GEN
+sumnumapinit(GEN fast, long prec)
+{
+  if (!fast) fast = mkoo();
+  retmkvec2(intnumgauexpinit(prec), intnuminit(gen_1, fast, 0, prec));
+}
+
+typedef struct {
+  GEN (*f)(void *E, GEN);
+  void *E;
+  long N;
+} expfn;
+
+/* f(Nx) */
+static GEN
+_exfn(void *E, GEN x)
+{
+  expfn *S = (expfn*)E;
+  return S->f(S->E, gmulsg(S->N, x));
+}
+
+GEN
+sumnumap(void *E, GEN (*eval)(void*,GEN), GEN a, GEN tab, long prec)
+{
+  pari_sp av = avma;
+  expfn T;
+  GEN S, fast, gN;
+  long as, m, N;
+  if (!a) { a = gen_1; fast = get_oo(gen_0); }
+  else switch(typ(a))
+  {
+    case t_VEC:
+      if (lg(a) != 3) pari_err_TYPE("sumnumap", a);
+      fast = get_oo(gel(a,2));
+      a = gel(a,1); break;
+    default:
+      fast = get_oo(gen_0);
+  }
+  if (typ(a) != t_INT) pari_err_TYPE("sumnumap", a);
+  if (!tab) tab = sumnumapinit(fast, prec);
+  else if (typ(tab) != t_VEC || lg(tab) != 3) pari_err_TYPE("sumnumap",tab);
+  as = itos(a);
+  T.N = N = maxss(as + 1, (long)ceil(prec2nbits(prec)*0.327));
+  T.E = E;
+  T.f = eval;
+  gN = stoi(N);
+  S = gtofp(gmul2n(eval(E, gN), -1), prec);
+  for (m = as; m < N; ++m) S = gadd(S, eval(E, stoi(m)));
+  S = gadd(S, gmulsg(N, intnum(&T, &_exfn, gen_1, fast, gel(tab, 2), prec)));
+  S = gadd(S, intnumgauexp(E, eval, gN, gel(tab, 1), prec));
+  return gerepileupto(av, S);
+}
+
+GEN
+sumnumap0(GEN a, GEN code, GEN tab, long prec)
+{ EXPR_WRAP(code, sumnumap(EXPR_ARG, a, tab, prec)); }

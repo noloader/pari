@@ -44,6 +44,7 @@ BA   10- [libpari] Flx_digits/FlxV_Flx_fromdigits
      11- new argument (multiple derivation) in GP function derivnum
      12- allow matrix(n) for n x n matrices
      13- new GP function nfeltsign
+HC   14- new GP functions sumnumap, sumnumapinit (Abel-Plana summation)
 
   Changed
       1- rewrite bnfnarrow

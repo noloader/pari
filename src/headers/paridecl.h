@@ -3475,6 +3475,8 @@ GEN     intnuminit(GEN a, GEN b, long m, long prec);
 GEN     intnumromb(void *E, GEN (*eval)(void *, GEN), GEN a, GEN b, long flag, long prec);
 GEN     intnumromb_bitprec(void *E, GEN (*eval)(void *, GEN), GEN a, GEN b, long flag, long bit);
 GEN     sumnum(void *E, GEN (*eval)(void*, GEN), GEN a, GEN tab, long prec);
+GEN     sumnumap(void *E, GEN (*eval)(void*,GEN), GEN a, GEN tab, long prec);
+GEN     sumnumapinit(GEN fast, long prec);
 GEN     sumnuminit(GEN fast, long prec);
 GEN     sumnummonien(void *E, GEN (*eval)(void*, GEN), GEN a, GEN tab, long prec);
 GEN     sumnummonieninit(GEN asymp, GEN w, GEN n0, long prec);
