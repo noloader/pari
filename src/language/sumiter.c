@@ -1282,11 +1282,11 @@ derivnum(void *E, GEN (*eval)(void *, GEN, long), GEN x, long prec)
 *   h^m * f^{(m)}(0) = \sum_{nu = 0}^n delta[m]_{N,nu}  f(a_nu) + O(h^{N-m+1}),
 * for step size h.
 * Return a = [0,-1,1...,-N2,N2] and vector of vectors d: d[m+1][nu+1]
-* = delta[m]_{N,nu}, nu = 0..N */
+* = (M!/m!) * delta[m]_{N,nu}, nu = 0..N */
 static void
 FD(long M, long N, GEN *pd, GEN *pa)
 {
-  GEN d, a, b, W, Wp, t, F, mfact;
+  GEN d, a, b, W, Wp, t, F, Mfact;
   long N2, m, nu, i;
 
   if (odd(N)) N++; /* make it even */
@@ -1302,32 +1302,32 @@ FD(long M, long N, GEN *pd, GEN *pa)
     gel(b,i) = sqru(i);
   }
   /* w = \prod (X - a[i]) = x W(x^2) */
+  Mfact = mpfact(M);
   W = roots_to_pol(b, 0);
   Wp = ZX_deriv(W);
   t = gel(W,2); /* w'(0) */
+  t = diviiexact(t, Mfact);
   gel(F,1) = RgX_Rg_div(RgX_inflate(W,2), t);
   for (i = 1; i <= N2; i++)
   { /* t = w'(a_{2i}) = w'(a_{2i+1}) */
     GEN r, t = mulii(shifti(gel(b,i),1), poleval(Wp, gel(b,i)));
-    GEN U = RgX_inflate(RgX_div_by_X_x(W, gel(b,i), &r), 2);
-    GEN V = RgX_shift_shallow(RgX_Rg_div(U,t), 1);
-    GEN S = RgX_shift_shallow(V,1);
-    GEN T = RgX_Rg_mul(V, gel(a,2*i+1));
+    GEN U, S, T;
+    U = RgX_inflate(RgX_div_by_X_x(W, gel(b,i), &r), 2);
+    U = RgX_shift_shallow(U, 1);
+    U = RgXn_red_shallow(U, M+1); /* higher terms not needed */
+    t = diviiexact(t, Mfact);
+    U = RgX_Rg_div(U, t);
+    S = RgX_shift_shallow(U,1);
+    T = RgX_Rg_mul(U, gel(a,2*i+1));
     gel(F,2*i)   = RgX_sub(S, T);
     gel(F,2*i+1) = RgX_add(S, T);
   }
+  /* F[i] = M! w(X) / ((X-a[i])w'(a[i])) + O(X^(M+1)) */
   d = cgetg(M+2, t_VEC);
-  mfact = gen_1;
   for (m = 0; m <= M; m++)
   {
-    GEN v = cgetg(N+2, t_VEC);
-    for (nu = 0; nu <= N; nu++)
-    {
-      GEN f = gel(F,nu+1);
-      gel(v,nu+1) = gel(f,m+2); /* coeff(f,X^m) */
-    }
-    if (m > 1) { mfact = muliu(mfact, m); v = RgV_Rg_mul(v, mfact); }
-    /* d_m = [F_nu^{(m)}(0): nu = 0..N] = \delta[m]{N,0..N} */
+    GEN v = cgetg(N+2, t_VEC); /* coeff(F[nu],X^m) */
+    for (nu = 0; nu <= N; nu++) gel(v, nu+1) = gmael(F, nu+1, m+2);
     gel(d,m+1) = v;
   }
   *pd = d;
@@ -1387,8 +1387,11 @@ derivnumk(void *E, GEN (*eval)(void *, GEN, long), GEN x, GEN ind0, long prec)
 
   for (i = 1; i < l; i++)
   {
+    GEN t;
     long m = ind[i]; chk_ord(m);
-    gel(F,i) = gmul2n(RgV_dotproduct(gel(D,m+1), X), e*m);
+    t = gmul2n(RgV_dotproduct(gel(D,m+1), X), e*m);
+    if (m < M) t = gdiv(t, mulu_interval(m+1,M));
+    gel(F,i) = t;
   }
   if (typ(ind0) == t_INT) F = gel(F,1);
   return gerepileupto(av, gprec_w(F, nbits2prec(fpr)));
