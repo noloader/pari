@@ -1,0 +1,15 @@
+nf = nfinit(polsubcyclo(11,5));
+t = nf.zk[2];
+nfeltsign(nf, t)
+nfeltsign(nf, t, 1)
+nfeltsign(nf, t, [1..4])
+nfeltsign(nf, [1,0,0,0,0]~, [1..4])
+nfeltsign(nf, [-1/2,0,0,0,0]~, [1..4])
+nfeltsign(nf, 0, 1)
+
+nfeltsign(nf, x+950385237198502187979577282097391163977102921506573742575513/495253880608585631635195731645995689515566957889181807495428)
+
+\\ Errors
+nfeltsign(nf, t, 6)
+nfeltsign(nf, t, [-1..5])
+nfeltsign(nf, t, [1..6])

@@ -1680,6 +1680,55 @@ nfsign_arch(GEN nf, GEN x, GEN arch)
   }
   avma = (pari_sp)V; return V;
 }
+static void
+chk_ind(long i, long r1)
+{
+  if (i <= 0)
+    pari_err_DOMAIN("nfeltsign", "index", "<=", gen_0, stoi(i));
+  if (i > r1)
+    pari_err_DOMAIN("nfeltsign", "index", ">", stoi(r1), stoi(i));
+}
+GEN
+nfeltsign(GEN nf, GEN x, GEN ind0)
+{
+  pari_sp av = avma;
+  long i, l, r1;
+  GEN v, ind;
+  nf = checknf(nf);
+  r1 = nf_get_r1(nf);
+  x = nf_to_scalar_or_basis(nf, x);
+  if (!ind0) ind0 = identity_perm(r1);
+  switch(typ(ind0))
+  {
+    case t_INT: case t_VEC: case t_COL:
+      ind = gtovecsmall(ind0); break;
+    case t_VECSMALL:
+      ind = ind0; break;
+    default:
+      pari_err_TYPE("nfeltsign",ind0);
+      return NULL; /* LCOV_EXCL_LINE */
+  }
+  l = lg(ind);
+  for (i = 1; i < l; i++) chk_ind(ind[i], r1);
+  if (typ(x) != t_COL)
+  {
+    GEN s;
+    switch(gsigne(x))
+    {
+      case -1:s = gen_m1; break;
+      case 1: s = gen_1; break;
+      default: s = gen_0; break;
+    }
+    avma = av;
+    return typ(ind0) == t_INT? s: const_vec(l-1, s);
+  }
+  v = nfsign_arch(nf, x, ind);
+  if (typ(ind0) == t_INT) { avma = av; return v[1]? gen_m1: gen_1; }
+  settyp(v, t_VEC);
+  for (i = 1; i < l; i++) gel(v,i) = v[i]? gen_m1: gen_1;
+  return gerepileupto(av, v);
+
+}
 
 /* return the vector of signs of x; the matrix of such if x is a vector
  * of nf elements */
