@@ -1857,7 +1857,7 @@ intnumgauexpinit(long prec)
   return gerepilecopy(ltop, mkvec2(vabs, vwt));
 }
 
-/* Compute $\int_{-\infty}^\infty w(x)f(x)\,dx$, where $w(x)=x/(exp(x)-1)$
+/* Compute $\int_{-\infty}^\infty w(x)f(x)\,dx$, where $w(x)=x/(exp(2\pi x)-1)$
  * for $x>0$ and $w(-x)=w(x)$. For Abel-Plana (sumnumap). */
 static GEN
 intnumgauexp(void *E, GEN (*eval)(void*,GEN), GEN gN, GEN tab, long prec)
