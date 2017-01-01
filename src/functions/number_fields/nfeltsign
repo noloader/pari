@@ -7,9 +7,9 @@ Help: nfeltsign(nf,x,{pl}): signs of real embeddings of x (at places given
 Doc: given an element $x$ in the number field \var{nf}, returns the signs of
  the real embeddings of $x$ specified by optional argument \var{pl}:
 
- \item \var{pl} omitted: vector of signs at all $r_1$ real places.
+ \item \var{pl} omitted: return the vector of signs at all $r_1$ real places.
 
- \item \var{pl} an integer between $1$ and $r_1$: sign of the
+ \item \var{pl} an integer between $1$ and $r_1$: return the sign of the
  $i$-th embedding of $x$, attached to the $i$-th real root of \kbd{nf.pol},
  i.e. \kbd{nf.roots$[i]$}
 
@@ -18,13 +18,18 @@ Doc: given an element $x$ in the number field \var{nf}, returns the signs of
  root of \kbd{nf.pol}.
 
  \bprog
- ? nf = nfinit(polsubcyclo(11,5));
- ? t = nf.zk[2];
- ? nfeltsign(nf, t)
-
- ? nfeltsign(nf, t, 1)
-
- ? nfeltsign(nf, t, [1..4])
-
- ? nfeltsign(nf, t, 6)
+ ? nf = nfinit(polsubcyclo(11,5,'y)); \\ Q(cos(2 pi/5))
+ ? nf.sign
+ %2 = [5, 0]
+ ? x = Mod('y, nf.pol);
+ ? nfeltsign(nf, x)
+ %4 = [-1, -1, -1, 1, 1]
+ ? nfeltsign(nf, x, 1)
+ %5 = -1
+ ? nfeltsign(nf, x, [1..4])
+ %6 = [-1, -1, -1, 1]
+ ? nfeltsign(nf, x, 6) \\ there are only 5 real embeddings
+  ***   at top-level: nfeltsign(nf,x,6)
+  ***                 ^-----------------
+  *** nfeltsign: domain error in nfeltsign: index > 5
  @eprog

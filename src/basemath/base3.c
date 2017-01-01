@@ -1614,7 +1614,7 @@ eval_sign(GEN M, GEN x, long k)
   long i, l = lg(x);
   GEN z = gel(x,1); /* times M[k,1], which is 1 */
   for (i = 2; i < l; i++) z = mpadd(z, mpmul(gcoeff(M,k,i), gel(x,i)));
-  if (realprec(z) == LOWDEFAULTPREC) return -1; /* dubious, fail */
+  if (realprec(z) <= LOWDEFAULTPREC) return -1; /* dubious, fail */
   return (signe(z) < 1)? 1: 0;
 }
 /* return (column) vector of R1 signatures of x (0 or 1) */
