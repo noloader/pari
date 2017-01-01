@@ -131,6 +131,8 @@
 0.946083
 ? intnumromb(x=0,110,x,1)
 6048.32
+? intnumromb(x=2,110,x,1)
+6039.11
 ? abs(intnumromb(x=-110,90,x,1)+1998.3)<1e-1
 1
 ? intnumromb(x=2,1,x,1)
@@ -152,4 +154,4 @@
   *** intnuminit: domain error in intnuminit: m < 0
 ? intnuminit(x=-oo,oo,1);
 ? print("Total time spent: ",gettime);
-Total time spent: 1646
+Total time spent: 1623
