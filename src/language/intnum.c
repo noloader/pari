@@ -72,7 +72,7 @@ qrom3(void *E, GEN (*eval)(void *, GEN), GEN a, GEN b, long bit)
   a = gtofp(a,prec);
   b = gtofp(b,prec);
   qlint = subrr(b,a); sig = signe(qlint);
-  if (!sig)  return gen_0;
+  if (!sig) return gen_0;
   if (sig < 0) { setabssign(qlint); swap(a,b); }
 
   s = new_chunk(JMAX+KLOC-1);
@@ -100,7 +100,7 @@ qrom3(void *E, GEN (*eval)(void *, GEN), GEN a, GEN b, long bit)
       return gmulsg(sig,ss);
   }
   pari_err_IMPL("intnumromb recovery [too many iterations]");
-  return NULL;
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 static GEN
@@ -141,7 +141,7 @@ qrom2(void *E, GEN (*eval)(void *, GEN), GEN a, GEN b, long bit)
       return gmulsg(sig, ss);
   }
   pari_err_IMPL("intnumromb recovery [too many iterations]");
-  return NULL;
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 /* integrate after change of variables x --> 1/x */
@@ -1467,7 +1467,8 @@ monrefine(GEN Q, GEN QP, GEN z, long prec)
 }
 
 static GEN
-RX_realroots(GEN x, long prec) { return realroots(x, NULL, prec); }
+RX_realroots(GEN x, long prec)
+{ return realroots(gprec_wtrunc(x,prec), NULL, prec); }
 
 /* (real) roots of Q, assuming QP = Q' and that half the roots are close to
  * k+1, ..., k+m, m = deg(Q)/2-1. N.B. All roots are real and >= 1 */
@@ -1845,7 +1846,7 @@ intnumgauexpinit(long prec)
   N = RgX_recip(gsub(P, Q));
   E = RgX_recip(Q);
   R = gdivgs(gdiv(N, RgX_deriv(E)), 2);
-  vabs = realroots(E, mkvec2(gen_0,mkoo()), prec2);
+  vabs = RX_realroots(E,prec2);
   l = lg(vabs); settyp(vabs, t_VEC);
   vwt = cgetg(l, t_VEC);
   for (j = 1; j < l; ++j)
