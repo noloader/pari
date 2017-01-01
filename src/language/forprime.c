@@ -216,8 +216,8 @@ good_arena_size(ulong slow2_size, ulong total, ulong fixed_to_cache,
 
      Thus the problem is minimizing (1 + slow2_size/arena)*overhead**0.29.
      This boils down to F=((X+A)/(X+B))X^alpha, X=overhead,
-     B = (1 - fixed_to_cache/cache_arena), A = B +
-     slow2_size/cache_arena, alpha = 0.38, and X>=0.018, X>-B.
+     B = (1 - fixed_to_cache/cache_arena), A = B + slow2_size/cache_arena,
+     alpha = 0.38, and X>=0.018, X>-B.
 
      We need to find the rightmost root of (X+A)*(X+B) - alpha(A-B)X to the
      right of 0.018 (if such exists and is below Xmax).  Then we manually
@@ -227,18 +227,13 @@ good_arena_size(ulong slow2_size, ulong total, ulong fixed_to_cache,
      function, as a sanity check always prefer fitting into the
      cache (or "almost fitting") if F-law predicts that the larger
      value of the arena provides less than 10% speedup.
-
    */
 
   /* The simplest case: we fit into cache */
-  if (total + fixed_to_cache <= cache_arena)
-      return total;
+  asize = cache_arena - fixed_to_cache;
+  if (total <= asize) return total;
   /* The simple case: fitting into cache doesn't slow us down more than 10% */
-  if (cache_arena - fixed_to_cache > 10 * slow2_size) {
-      asize = cache_arena - fixed_to_cache;
-      if (asize > total) asize = total; /* Automatically false... */
-      return asize;
-  }
+  if (asize > 10 * slow2_size) return asize;
   /* Slowdown of not fitting into cache is significant.  Try to optimize.
      Do not be afraid to spend some time on optimization - in trivial
      cases we do not reach this point; any gain we get should
@@ -250,38 +245,36 @@ good_arena_size(ulong slow2_size, ulong total, ulong fixed_to_cache,
   C1 = (A + B - 1/alpha*(A - B))/2;
   D = C1*C1 - C2;
   if (D > 0)
-      V = cut_off*cut_off + 2*C1*cut_off + C2; /* Value at CUT_OFF */
+    V = cut_off*cut_off + 2*C1*cut_off + C2; /* Value at CUT_OFF */
   else
-      V = 0;                            /* Peacify the warning */
+    V = 0; /* Peacify the warning */
   Xmin = cut_off;
   Xmax = ((double)total - fixed_to_cache)/cache_arena; /* Two candidates */
 
   if ( D <= 0 || (V >= 0 && C1 + cut_off >= 0) ) /* slowdown increasing */
-      Xmax = cut_off;                   /* Only one candidate */
-  else if (V >= 0 &&                    /* slowdown concave down */
+    Xmax = cut_off; /* Only one candidate */
+  else if (V >= 0 && /* slowdown concave down */
            ((Xmax + C1) <= 0 || (Xmax*Xmax + 2*C1*Xmax + C2) <= 0))
-      /* DO NOTHING */;                 /* Keep both candidates */
-  else if (V <= 0 && (Xmax*Xmax + 2*C1*Xmax + C2) <= 0) /* slowdown decreasing */
-      Xmin = cut_off;                   /* Only one candidate */
+      /* DO NOTHING */;  /* Keep both candidates */
+  else if (V <= 0 && (Xmax*Xmax + 2*C1*Xmax + C2) <= 0) /*slowdown decreasing*/
+      Xmin = cut_off; /* Only one candidate */
   else /* Now we know: 2 roots, the largest is in CUT_OFF..Xmax */
       Xmax = sqrt(D) - C1;
-  if (Xmax != Xmin) {   /* Xmin == CUT_OFF; Check which one is better */
-      double v1 = (cut_off + A)/(cut_off + B);
-      double v2 = 2.33 * (Xmax + A)/(Xmax + B) * pow(Xmax, alpha);
+  if (Xmax != Xmin) { /* Xmin == CUT_OFF; Check which one is better */
+    double v1 = (cut_off + A)/(cut_off + B);
+    double v2 = 2.33 * (Xmax + A)/(Xmax + B) * pow(Xmax, alpha);
 
-      if (1.1 * v2 >= v1) /* Prefer fitting into the cache if slowdown < 10% */
-          V = v1;
-      else {
-          Xmin = Xmax;
-          V = v2;
-      }
-  } else if (B > 0)                     /* We need V */
-      V = 2.33 * (Xmin + A)/(Xmin + B) * pow(Xmin, alpha);
+    if (1.1 * v2 >= v1) /* Prefer fitting into the cache if slowdown < 10% */
+      V = v1;
+    else
+    { Xmin = Xmax; V = v2; }
+  } else if (B > 0) /* We need V */
+    V = 2.33 * (Xmin + A)/(Xmin + B) * pow(Xmin, alpha);
   if (B > 0 && 1.1 * V > A/B)  /* Now Xmin is the minumum.  Compare with 0 */
-      Xmin = 0;
+    Xmin = 0;
 
   asize = (ulong)((1 + Xmin)*cache_arena - fixed_to_cache);
-  if (asize > total) asize = total;     /* May happen due to approximations */
+  if (asize > total) asize = total; /* May happen due to approximations */
   return asize;
 }
 
