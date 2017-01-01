@@ -101,10 +101,13 @@ intnumromb(x=2,110,x, 1)
 \\ wrong result
 abs(intnumromb(x=-110,90,x, 1)+1998.3) < 1e-1
 intnumromb(x=2,1,x, 1)
+intnuminit(x=-oo,oo,1);
 
+\\ Errors
+intnumgauss(t=1,2,1,"")
 intnuminit([oo,1+I],[oo,""])
+intnuminit([oo,1+I,2],[oo,1])
 intnum(x=oo,oo,1)
 intnum(x=-oo,-oo,1)
 
 intnuminit(x=-oo,oo,-1);
-intnuminit(x=-oo,oo,1);

@@ -137,11 +137,20 @@
 1
 ? intnumromb(x=2,1,x,1)
 -1.50000
+? intnuminit(x=-oo,oo,1);
+? intnumgauss(t=1,2,1,"")
+  ***   at top-level: intnumgauss(t=1,2,1,"")
+  ***                                   ^-----
+  ***   incorrect type in intnumgauss (t_STR).
 ? intnuminit([oo,1+I],[oo,""])
   *** intnuminit: Warning: real(z)*imag(z)!=0 in endpoint code, real(z) ignored.
   ***   at top-level: intnuminit([oo,1+I],
   ***                 ^--------------------
   *** intnuminit: incorrect type in intnum [incorrect b] (t_VEC).
+? intnuminit([oo,1+I,2],[oo,1])
+  ***   at top-level: intnuminit([oo,1+I,2
+  ***                 ^--------------------
+  *** intnuminit: incorrect type in intnum [incorrect a] (t_VEC).
 ? intnum(x=oo,oo,1)
   ***   Warning: integral from oo to oo.
 0
@@ -152,6 +161,5 @@
   ***   at top-level: intnuminit(x=-oo,oo,
   ***                 ^--------------------
   *** intnuminit: domain error in intnuminit: m < 0
-? intnuminit(x=-oo,oo,1);
 ? print("Total time spent: ",gettime);
-Total time spent: 1623
+Total time spent: 1529

@@ -1036,8 +1036,7 @@ weight(void *E, GEN (*eval)(void *, GEN), GEN x, GEN w)
   k--; while (k >= 1) if (!gequal0(gel(w,k--))) break;
   return k;
 }
-/* compute the necessary tabs, weights multiplied by f(t).
- * If flag set, assumes that f(-t) = conj(f(t)). */
+/* compute the necessary tabs, weights multiplied by f(t) */
 static GEN
 intfuncinit_i(void *E, GEN (*eval)(void*, GEN), GEN tab)
 {
@@ -1050,11 +1049,9 @@ intfuncinit_i(void *E, GEN (*eval)(void*, GEN), GEN tab)
     (void)weight(E, eval, tabxm, tabwm);
   else
   {
-    long L2;
     tabxm = gneg(tabxp);
     tabwm = leafcopy(tabwp);
-    L2 = weight(E, eval, tabxm, tabwm);
-    if (L > L2) L = L2;
+    L = minss(L, weight(E, eval, tabxm, tabwm));
     TABxm(tab) = tabxm;
     TABwm(tab) = tabwm;
   }
@@ -1070,16 +1067,15 @@ intfuncinit_i(void *E, GEN (*eval)(void*, GEN), GEN tab)
 GEN
 intfuncinit(void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, long m, long prec)
 {
-  pari_sp ltop = avma;
-  GEN T, tab = intnuminit_i(a, b, m, prec);
+  pari_sp av = avma;
+  GEN tab = intnuminit_i(a, b, m, prec);
 
   if (lg(tab) == 3)
     pari_err_IMPL("intfuncinit with hard endpoint behaviour");
   if (is_fin_f(transcode(a,"intfuncinit")) ||
       is_fin_f(transcode(b,"intfuncinit")))
     pari_err_IMPL("intfuncinit with finite endpoints");
-  T = intfuncinit_i(E, eval, tab);
-  return gerepilecopy(ltop, T);
+  return gerepilecopy(av, intfuncinit_i(E, eval, tab));
 }
 
 static GEN
