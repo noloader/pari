@@ -186,6 +186,28 @@ rombint(void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, long bit)
   return z;
 }
 
+GEN
+intnumromb_bitprec(void *E, GEN (*f)(void *, GEN), GEN a,GEN b, long fl, long B)
+{
+  pari_sp av = avma;
+  GEN z;
+  switch(fl)
+  {
+    case 0: z = qrom3  (E, f, a, b, B); break;
+    case 1: z = rombint(E, f, a, b, B); break;
+    case 2: z = qromi  (E, f, a, b, B); break;
+    case 3: z = qrom2  (E, f, a, b, B); break;
+    default: pari_err_FLAG("intnumromb"); return NULL; /* LCOV_EXCL_LINE */
+  }
+  return gerepileupto(av, z);
+}
+GEN
+intnumromb(void *E, GEN (*f)(void *, GEN), GEN a, GEN b, long flag, long prec)
+{ return intnumromb_bitprec(E,f,a,b,flag,prec2nbits(prec));}
+GEN
+intnumromb0_bitprec(GEN a, GEN b, GEN code, long flag, long bit)
+{ EXPR_WRAP(code, intnumromb_bitprec(EXPR_ARG, a, b, flag, bit)); }
+
 /********************************************************************/
 /**             NUMERICAL INTEGRATION (Gauss-Legendre)             **/
 /********************************************************************/
@@ -1204,28 +1226,6 @@ intcirc(void *E, GEN (*eval)(void*, GEN), GEN a, GEN R, GEN tab, long prec)
   return gmul2n(gmul(R, z), -1);
 }
 
-GEN
-intnumromb_bitprec(void *E, GEN (*eval)(void *, GEN), GEN a, GEN b, long flag, long bit)
-{
-  pari_sp av = avma;
-  GEN z;
-  switch(flag)
-  {
-    case 0: z = qrom3  (E, eval, a, b, bit); break;
-    case 1: z = rombint(E, eval, a, b, bit); break;
-    case 2: z = qromi  (E, eval, a, b, bit); break;
-    case 3: z = qrom2  (E, eval, a, b, bit); break;
-    default: pari_err_FLAG("intnumromb"); return NULL; /* LCOV_EXCL_LINE */
-  }
-  return gerepileupto(av, z);
-}
-GEN
-intnumromb(void *E, GEN (*eval)(void *, GEN), GEN a, GEN b, long flag, long prec)
-{ return intnumromb_bitprec(E,eval,a,b,flag,prec2nbits(prec));}
-
-GEN
-intnumromb0_bitprec(GEN a, GEN b, GEN code, long flag, long bit)
-{ EXPR_WRAP(code, intnumromb_bitprec(EXPR_ARG, a, b, flag, bit)); }
 GEN
 intnum0(GEN a, GEN b, GEN code, GEN tab, long prec)
 { EXPR_WRAP(code, intnum(EXPR_ARG, a, b, tab, prec)); }
