@@ -131,15 +131,15 @@ Doc: Numerical summation of $f(n)$ at high accuracy using Abel-Plana,
  Note that in the case of slow decrease ($\alpha < 0$), the exact
  decrease rate must be indicated, while in the case of exponential decrease,
  a rough value will do. In fact, for exponentially decreasing functions,
- \kbd{sumnum} is given for completeness and comparison purposes only: one
+ \kbd{sumnumap} is given for completeness and comparison purposes only: one
  of \kbd{suminf} or \kbd{sumpos} should always be preferred.
  \bprog
- ? sumnum(n=[1, 1], 2^-n) \\ pretend we decrease as exp(-n)
+ ? sumnumap(n=[1, 1], 2^-n) \\ pretend we decrease as exp(-n)
  time = 240 ms.
  %8 = 1.000[...] \\ perfect
  ? sumpos(n=1, 2^-n)
  %9 = 1.000[...] \\ perfect and instantaneous
  @eprog
 
- \synt{sumnum}{(void *E, GEN (*eval)(void*, GEN), GEN a, GEN tab, long prec)}
+ \synt{sumnumap}{(void *E, GEN (*eval)(void*, GEN), GEN a, GEN tab, long prec)}
  where an omitted \var{tab} is coded as \kbd{NULL}.
