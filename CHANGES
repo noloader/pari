@@ -71,6 +71,7 @@ BA   13- [libpari] rename FpX_fromdigits -> FpXV_FpX_fromdigits,
      15- made sumnummonieninit(,1) faster
 HC   16- sumnummonieninit(a) for [a,a] did not conform to documentation.
          Change to sumnummonieninit(b) for [1,b]
+     17- improve prime() and primepi() by adding more checkpoints [#1878]
 
   Removed
       1- file 'MACHINES' (no longer maintained)

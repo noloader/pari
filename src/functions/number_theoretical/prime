@@ -7,4 +7,6 @@ Doc: the $n^{\text{th}}$ prime number
  \bprog
  ? prime(10^9)
  %1 = 22801763489
- @eprog\noindent Uses checkpointing and a naive $O(n)$ algorithm.
+ @eprog\noindent Uses checkpointing and a naive $O(n)$ algorithm. Will need
+ about 30 minutes for $n$ up to $10^{11}$; make sure to start gp with
+ \kbd{primelimit} at least $\sqrt{n}$.
