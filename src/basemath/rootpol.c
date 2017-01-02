@@ -2343,14 +2343,11 @@ splitcauchy(GEN Pp, GEN Pm, long prec)
 static GEN
 polsolve(GEN P, long bitprec)
 {
-  pari_sp av = avma;
-  GEN Pp, Pm, Pprimep, Pprimem, pows;
-  GEN Pprime, Pprime2;
-  GEN ra, rb, rc, rcold = NULL, Pc, Ppc;
-  long deg = degpol(P), D, rt;
-  long s0, cprec = DEFAULTPREC, prec = nbits2prec(bitprec);
-  long bitaddprec, addprec;
-  long expoold = LONG_MAX, iter;
+  pari_sp av = avma, av2;
+  GEN Pp, Pm, Pprimep, Pprimem, Pprime, Pprime2, ra, rb, rc, Pc;
+  long deg = degpol(P);
+  long expoold = LONG_MAX, cprec = DEFAULTPREC, prec = nbits2prec(bitprec);
+  long iter, D, rt, s0, bitaddprec, addprec;
   if (deg == 1)
     return gerepileuptoleaf(av, rdivii(negi(gel(P,2)), gel(P,3), prec));
   Pprime = ZX_deriv(P);
@@ -2362,7 +2359,7 @@ polsolve(GEN P, long bitprec)
   rb = splitcauchy(Pp, Pm, DEFAULTPREC);
   for(;;)
   {
-    pows = gen_powers(rb, rt, 1, NULL, _mp_sqr, _mp_mul, _gen_one);
+    GEN pows = gen_powers(rb, rt, 1, NULL, _mp_sqr, _mp_mul, _gen_one);
     Pc = splitpoleval(Pp, Pm, pows, D, bitaddprec);
     if (!Pc) { cprec++; rb = rtor(rb, cprec); continue; }
     if (signe(Pc) != s0) break;
@@ -2380,7 +2377,7 @@ polsolve(GEN P, long bitprec)
       rc = shiftr(rb, -1);
     do
     {
-      pows = gen_powers(rc, rt, 1, NULL, _mp_sqr, _mp_mul, _gen_one);
+      GEN pows = gen_powers(rc, rt, 1, NULL, _mp_sqr, _mp_mul, _gen_one);
       Pc = splitpoleval(Pp, Pm, pows, D, bitaddprec+2);
       if (Pc) break;
       cprec++; rc = rtor(rc, cprec);
@@ -2403,25 +2400,22 @@ polsolve(GEN P, long bitprec)
       break;
   }
   rc = rb;
-  iter = 0;
-  for(;;)
+  av2 = avma;
+  for(;; rc = gerepileuptoleaf(av2, rc))
   {
     long exponew;
-    GEN dist;
-    iter++;
-    rcold = rc;
-    pows = gen_powers(rc, rt, 1, NULL, _mp_sqr, _mp_mul, _gen_one);
+    GEN Ppc, dist, rcold = rc;
+    GEN pows = gen_powers(rc, rt, 1, NULL, _mp_sqr, _mp_mul, _gen_one);
     Ppc = splitpoleval(Pprimep, Pprimem, pows, D-1, bitaddprec+4);
     if (Ppc)
       Pc = splitpoleval(Pp, Pm, pows, D, bitaddprec+4);
     if (!Ppc || !Pc)
     {
       if (cprec >= prec+addprec)
-        cprec++;
+        cprec += EXTRAPRECWORD;
       else
         cprec = minss(2*cprec, prec+addprec);
-      rc = rtor(rc, cprec); /* Backtrack one step */
-      continue;
+      rc = rtor(rc, cprec); continue; /* backtrack one step */
     }
     dist = typ(Ppc) == t_REAL? divrr(Pc, Ppc): divri(Pc, Ppc);
     rc = subrr(rc, dist);
@@ -2429,8 +2423,7 @@ polsolve(GEN P, long bitprec)
     {
       if (cprec >= prec+addprec) break;
       cprec = minss(2*cprec, prec+addprec);
-      rc = rtor(rcold, cprec); /* Backtrack one step */
-      continue;
+      rc = rtor(rcold, cprec); continue; /* backtrack one step */
     }
     if (expoold == LONG_MAX) { expoold = expo(dist); continue; }
     exponew = expo(dist);
@@ -2443,9 +2436,9 @@ polsolve(GEN P, long bitprec)
     if (exponew > expoold - 2)
     {
       if (cprec >= prec+addprec) break;
+      expoold = LONG_MAX;
       cprec = minss(2*cprec, prec+addprec);
-      rc = rtor(rc, cprec);
-      expoold = LONG_MAX; continue;
+      rc = rtor(rc, cprec); continue;
     }
     expoold = exponew;
   }
