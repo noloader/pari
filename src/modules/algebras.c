@@ -1695,43 +1695,78 @@ elementmultable(GEN mt, GEN x)
 {
   pari_sp av = avma;
   long D = lg(mt)-1, i;
-  GEN res, c;
-  res = zeromatcopy(D,D);
-  for (i=1; i<=D; i++) {
-    c = gel(x,i);
-    if (!gequal0(c)) res = RgM_add(res, RgM_Rg_mul(gel(mt,i),c));
+  GEN z = NULL;
+  for (i=1; i<=D; i++)
+  {
+    GEN c = gel(x,i);
+    if (!gequal0(c))
+    {
+      GEN M = RgM_Rg_mul(gel(mt,i),c);
+      z = z? RgM_add(z, M): M;
+    }
   }
-  return gerepileupto(av, res);
+  if (!z) { avma = av; return zeromatcopy(D,D); }
+  return gerepileupto(av, z);
 }
-
+/* mt a t_VEC of Flm modulo m */
+GEN
+algbasismultable_Flm(GEN mt, GEN x, ulong m)
+{
+  pari_sp av = avma;
+  long D = lg(gel(mt,1))-1, i;
+  GEN z = NULL;
+  for (i=1; i<=D; i++)
+  {
+    ulong c = x[i];
+    if (c)
+    {
+      GEN M = Flm_Fl_mul(gel(mt,i),c, m);
+      z = z? Flm_add(z, M, m): M;
+    }
+  }
+  if (!z) { avma = av; return zero_Flm(D,D); }
+  return gerepileupto(av, z);
+}
+static GEN
+elementabsmultable_Z(GEN mt, GEN x)
+{
+  long i, l = lg(x);
+  GEN z = NULL;
+  for (i = 1; i < l; i++)
+  {
+    GEN c = gel(x,i);
+    if (signe(c))
+    {
+      GEN M = ZM_Z_mul(gel(mt,i),c);
+      z = z? ZM_add(z, M): M;
+    }
+  }
+  return z;
+}
 static GEN
 elementabsmultable(GEN mt, GEN x)
 {
-  pari_sp av = avma;
-  long D = lg(mt)-1, i;
-  GEN res, c, d=NULL;
-  res = zeromatcopy(D,D);
-  x = Q_remove_denom(x, &d);
-  for (i=1; i<=D; i++) {
-    c = gel(x,i);
-    if (!gequal0(c)) res = ZM_add(res, ZM_Z_mul(gel(mt,i),c));
-  }
-  if (d) res = ZM_Z_div(res, d);
-  return gerepileupto(av, res);
+  GEN d, z = elementabsmultable_Z(mt, Q_remove_denom(x,&d));
+  return (z && d)? ZM_Z_div(z, d): z;
 }
-
 static GEN
 elementabsmultable_Fp(GEN mt, GEN x, GEN p)
 {
+  GEN z = elementabsmultable_Z(mt, x);
+  return z? FpM_red(z, p): z;
+}
+GEN
+algbasismultable(GEN al, GEN x)
+{
   pari_sp av = avma;
-  long D = lg(mt)-1, i;
-  GEN res, c;
-  res = zeromatcopy(D,D);
-  for (i=1; i<=D; i++) {
-    c = gel(x,i);
-    if (!gequal0(c)) res = FpM_add(res, FpM_Fp_mul(gel(mt,i),c,p), p);
+  GEN z, p = alg_get_char(al), mt = alg_get_multable(al);
+  z = signe(p)? elementabsmultable_Fp(mt, x, p): elementabsmultable(mt, x);
+  if (!z)
+  {
+    long D = lg(mt)-1;
+    avma = av; return zeromat(D,D);
   }
-  return gerepileupto(av, res);
+  return gerepileupto(av, z);
 }
 
 static GEN
@@ -1785,29 +1820,6 @@ algbasisrightmultable(GEN al, GEN x)
     }
   }
   return res;
-}
-
-GEN
-algbasismultable(GEN al, GEN x)
-{
-  GEN p = alg_get_char(al);
-  if (signe(p)) return elementabsmultable_Fp(alg_get_multable(al), x, p);
-  return elementabsmultable(alg_get_multable(al), x);
-}
-/* mt a t_VEC of Flm modulo m */
-GEN
-algbasismultable_Flm(GEN mt, GEN x, ulong m)
-{
-  pari_sp av = avma;
-  long D = lg(gel(mt,1))-1, i;
-  GEN res = NULL;
-  for (i=1; i<=D; i++) {
-    ulong c = x[i];
-    GEN M = Flm_Fl_mul(gel(mt,i),c, m);
-    if (c) res = res? Flm_add(res, M, m): M;
-  }
-  if (!res) { avma = av; return zero_Flm(D,D); }
-  return gerepileupto(av, res);
 }
 
 /* basis for matrices : 1, E_{i,j} for (i,j)!=(1,1) */
