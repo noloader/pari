@@ -61,6 +61,9 @@
   ***   at top-level: sumnumap(n=1,1/n^2,"bug")
   ***                              ^------------
   ***   incorrect type in sumnumap (t_STR).
+  ***   at top-level: intnumapinit(x,y)
+  ***                 ^-----------------
+  ***   not a function in function call
   ***   at top-level: sumnummonieninit([-1
   ***                 ^--------------------
   *** sumnummonieninit: domain error in sumnummonieninit: a <= 0
@@ -70,4 +73,4 @@
   ***   at top-level: sumnummonieninit(,[n
   ***                 ^--------------------
   *** sumnummonieninit: forbidden addition t_INT + t_INFINITY.
-Total time spent: 10600
+Total time spent: 6157

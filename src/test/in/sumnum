@@ -102,6 +102,7 @@ sumpos(n=1,1/n^2)
 \\ ERRORS: keep them at end of file
 sumnum(n=1,1/n^2,"bug");
 sumnumap(n=1,1/n^2,"bug");
+intnumapinit(x,y)
 sumnummonieninit([-1,1]);
 sumnummonieninit([1,-1]);
 sumnummonieninit(,[n->2^-n,oo]);

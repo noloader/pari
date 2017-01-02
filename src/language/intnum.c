@@ -834,8 +834,10 @@ transcode(GEN a, const char *name)
   switch(typ(a))
   {
     case t_VEC: break;
-    case t_INFINITY: return inf_get_sign(a) == 1 ? f_YSLOW: -f_YSLOW;
-    default: return f_REG;
+    case t_INFINITY:
+      return inf_get_sign(a) == 1 ? f_YSLOW: -f_YSLOW;
+    default: if (!isinC(a)) err_code(a,name);
+      return f_REG;
   }
   switch(lg(a))
   {

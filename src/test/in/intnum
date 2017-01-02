@@ -104,6 +104,7 @@ intnumromb(x=2,1,x, 1)
 intnuminit(x=-oo,oo,1);
 
 \\ Errors
+intnuminit(x,y)
 intnumgauss(t=1,2,1,"")
 intnuminit([oo,1+I],[oo,""])
 intnuminit([oo,1+I,2],[oo,1])
