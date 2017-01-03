@@ -299,9 +299,9 @@ fillall(long k, long nlim, long prec)
       p1 = gel(all, m + 2);
       for (j = k1 - 1; j >= 2; --j)
       {
-        w[j] = mc%2;
-        ii = (1 - w[j]) + 2*ii;
-        mc /= 2;
+        w[j] = mc & 1;
+        ii = (1 - w[j]) | (ii<<1);
+        mc >>= 1;
       }
       mbar = limm + ii;
       comp = mbar - m;
@@ -314,11 +314,11 @@ fillall(long k, long nlim, long prec)
       btop = avma;
       for (n = nlim; n >= 1; --n)
       {
-        GEN t = gmul(gel(pinit,n + 1), gmael(pab, n, a + 1));
-        GEN u = gmul(gel(pfin, n + 1), gmael(pab, n, b + 1));
-        GEN v = gmul(gel(pmid, n + 1), gmael(pab, n, a + b + 1));
-        S = gadd(k1 < k ? gel(p1, n+1) : p1, gadd(gadd(t, u), v));
-        if (gequal0(S)) S = gen_0;
+        GEN t = mpmul(gel(pinit,n + 1), gmael(pab, n, a + 1));
+        GEN u = mpmul(gel(pfin, n + 1), gmael(pab, n, b + 1));
+        GEN v = mpmul(gel(pmid, n + 1), gmael(pab, n, a + b + 1));
+        S = mpadd(k1 < k ? gel(p1, n+1) : p1, mpadd(mpadd(t, u), v));
+        if (!signe(S)) S = gen_0;
         mpaff(S, k1 < k ? gel(p1, n) : p1);
         if (comp > 0 && k1 < k) mpaff(S, gel(p2, n));
         avma = btop;
