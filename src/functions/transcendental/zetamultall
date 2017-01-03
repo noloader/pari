@@ -1,0 +1,17 @@
+Function: zetamultall
+Section: transcendental
+C-Name: zetamultall
+Prototype: Lp
+Help: zetamultall(k): list of all multiple zeta values for weight up to k.
+Doc: list of all multiple zeta values for weight up to $k$.
+ \bprog
+ ? z = zetamultall(5);
+ ? z[10]
+ %2 = 0.22881039760335375976874614894168879193
+ ? zetamultconvert(10, 1) \\ convert index 10 to avec
+ %3 = Vecsmall([3, 2])
+ ? zetamult(%)
+ %4 = 0.22881039760335375976874614894168879193
+ ? zetamult(10)
+ %5 = 0.22881039760335375976874614894168879193
+ @eprog
