@@ -45,6 +45,7 @@ BA   10- [libpari] Flx_digits/FlxV_Flx_fromdigits
      12- allow matrix(n) for n x n matrices
      13- new GP function nfeltsign
 HC   14- new GP functions sumnumap, sumnumapinit (Abel-Plana summation)
+HC   15- new GP functions zetamultall, zetamultconvert
 
   Changed
       1- rewrite bnfnarrow

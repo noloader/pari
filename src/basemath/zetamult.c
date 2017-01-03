@@ -156,13 +156,7 @@ zetamult(GEN avec, long prec)
   long k, n, i, j, nlim, l, bitprec, prec2;
   GEN binvec, S, LR, phiall, MA, MR, evec = gen_0;
 
-  switch(typ(avec))
-  {
-    case t_INT: return gzeta(avec,prec);
-    case t_VEC:
-    case t_COL: avec = gtovecsmall(avec); break;
-    default: pari_err_TYPE("zetamult",avec);
-  }
+  avec = zetamultconvert(avec, 1);
   if (lg(avec) == 1) return gen_1;
   if (vecsmall_min(avec) <= 0) pari_err_TYPE("zetamult",avec);
   if (avec[1] == 1) pari_err_DOMAIN("zetamult", "s[1]", "=", gen_1, avec);
@@ -200,3 +194,218 @@ zetamult(GEN avec, long prec)
   return gerepilecopy(ltop, rtor(S,prec));
 }
 
+/**************************************************************/
+/*                           ALL MZV's                        */
+/**************************************************************/
+
+/* vecsmall to binary */
+static long
+myfd(GEN evec, long ini, long fin)
+{
+  long i, s = 0;
+  for (i = ini; i <= fin; ++i) s = evec[i] | (s << 1);
+  return s;
+}
+
+/* Given admissible w = 0e_2....e_{k-1}1, compute a,b,v such that
+w=0{1}_{b-1}v{0}_{a-1}1 with v empty or admissible.
+Input: binary vector evec=[e_1, e_2,..., e_{k-1}]
+Output: [a, b, lv, vv] lv length of v, vv = v as binary word. */
+static void
+findabv(GEN evec, long *pa, long *pb, long *pminit, long *pmmid, long *pmfin)
+{
+  long le, a = 1, b = 1, j;
+  le = lg(evec) - 2;
+  if (le > 0)
+  {
+    long lv;
+    b = le + 1;
+    for (j = 1; j <= le; ++j)
+      if (!evec[j + 1]) { b = j; break; }
+    a = le + 1;
+    for (j = le; j >= 1; --j)
+      if (evec[j + 1]) { a = le + 1 - j; break; }
+    lv = le + 2 - a - b;
+    if (lv > 0)
+    {
+      long v = myfd(evec, b + 1, le - a + 2);
+      *pa = a;
+      *pb = b;
+      *pminit = (((1 << b) - 1) << (lv - 1)) + (v/2) + 2;
+      *pmfin = (((1 << (lv - 1)) + v) << (a - 1)) + 2;
+      *pmmid = (1 << (lv - 2)) + (v/2) + 2;
+      return;
+    }
+  }
+  *pa = a;
+  *pb = b;
+  *pminit = (1 << (b - 1)) + 1;
+  *pmfin = (a == 1) ? 2 : (1 << (a - 2)) + 2;
+  *pmmid = 1;
+}
+
+/*
+all[1] contains zeta(emptyset)_{n-1,n-1},
+all[2] contains zeta({0})_{n-1,n-1}=zeta({1})_{n-1,n-1} for n >= 2,
+all[m+2][n] : 1 <= m < 2^{k-2}, 1 <= n <= nlim + 1
+contains zeta(w)_{n-1,n-1}, w corresponding to m,n
+all[m+2] : 2^{k-2} <= m < 2^{k-1} contains zeta(w), w corresponding to m
+(code: w=0y1 iff m=1y).
+*/
+
+/* No stack handling (expensive for large k) */
+/* If flhalf is set, only half, the others set to gen_0. */
+
+static GEN
+fillall(long k, long nlim, long prec)
+{
+  GEN all, binvec, p1, p2, r1, pab, S;
+  long k1, j, n, m, mbar = 0, K = 1 << (k - 1);
+  r1 = real_1(prec);
+  pab = cgetg(nlim + 2, t_VEC);
+  for (n = 1; n <= nlim + 1; ++n) gel(pab, n) = gpowers(gdivgs(r1, n), k);
+  /* 1/n^a = gmael(pab, n, a + 1) */
+  binvec = cgetg(nlim + 2, t_VEC); gel(binvec, 1) = gen_1;
+  for (n = 1; n <= nlim; ++n)
+    gel(binvec, n + 1) = gdivgs(gmulsg(4*n - 2, gel(binvec, n)), n);
+  p1 = cgetg(nlim + 2, t_VEC);
+  for (j = 1; j <= nlim + 1; ++j) gel(p1, j) = gdiv(r1, gel(binvec, j));
+  p2 = cgetg(nlim + 2, t_VEC); gel(p2, 1) = gen_0;
+  for (j = 2; j <= nlim + 1; ++j) gel(p2, j) = gdivgs(gel(p1, j), j - 1);
+  all = cgetg(K + 2, t_VEC);
+  gel(all, 1) = p1;
+  gel(all, 2) = p2;
+  for (m = 1; m < K/2; ++m)
+  {
+    gel(all, m + 2) = p1 = cgetg(nlim + 2, t_VEC);
+    for (n = 1; n <= nlim; ++n) gel(p1, n) = cgetr(prec);
+    gel(p1, n) = gen_0;
+  }
+  for (m = K/2; m < K; ++m)
+  {
+    gel(all, m + 2) = p1 = cgetr(prec);
+    mpaff(gen_0, p1);
+  }
+  for (k1 = 2; k1 <= k; ++k1)
+  { /* Assume length evec < k1 filled */
+    /* If evec = 0e_2...e_{k_1-1}1 then m = (1e_2...e_{k_1-1})_2 */
+    GEN w = cgetg(k1, t_VECSMALL);
+    long limm = 1 << (k1 - 2);
+    for (m = limm; m < 2*limm; ++m)
+    {
+      pari_sp btop;
+      GEN pinit, pfin, pmid;
+      long comp, a, b, minit, mfin, mmid, mc = m, ii = 0;
+      p1 = gel(all, m + 2);
+      for (j = k1 - 1; j >= 2; --j)
+      {
+        w[j] = mc%2;
+        ii = (1 - w[j]) + 2*ii;
+        mc /= 2;
+      }
+      mbar = limm + ii;
+      comp = mbar - m;
+      if (comp < 0) continue;
+      p2 = gel(all, mbar + 2);
+      findabv(w, &a,&b,&minit,&mmid,&mfin);
+      pinit= gel(all, minit);
+      pfin = gel(all, mfin);
+      pmid = gel(all, mmid);
+      btop = avma;
+      for (n = nlim; n >= 1; --n)
+      {
+        GEN t = gmul(gel(pinit,n + 1), gmael(pab, n, a + 1));
+        GEN u = gmul(gel(pfin, n + 1), gmael(pab, n, b + 1));
+        GEN v = gmul(gel(pmid, n + 1), gmael(pab, n, a + b + 1));
+        S = gadd(k1 < k ? gel(p1, n+1) : p1, gadd(gadd(t, u), v));
+        if (gequal0(S)) S = gen_0;
+        mpaff(S, k1 < k ? gel(p1, n) : p1);
+        if (comp > 0 && k1 < k) mpaff(S, gel(p2, n));
+        avma = btop;
+      }
+      if (comp > 0 && k1 == k) { mpaff(p1, p2); avma = btop; }
+    }
+  }
+  return all;
+}
+
+/* If all: 2^(k-2) (sum: 2^(k-1)-1) */
+/* If half: 2^(k-3)+(0 if k odd, 2^(k/2-2) if k even),
+   sum 2^(k-2)+2^(floor(k/2)-1)-1 */
+GEN
+zetamultall(long k, long prec)
+{
+  pari_sp av = avma;
+  GEN all, res;
+  long bitprec, prec2, m, lall, K2 = 1 << (k - 2);
+  if (k >= 64) pari_err_OVERFLOW("zetamultall");
+  bitprec = prec2nbits(prec) + 32;
+  prec2 = nbits2prec(bitprec);
+  all = fillall(k, bitprec/2, prec2);
+  lall = lg(all)-2;
+  res = cgetg(lall, t_VEC);
+  for (m = 1; m < lall; ++m)
+    gel(res, m) = m < K2 ? gmael(all, m+2, 1) : gel(all, m+2);
+  return gerepilecopy(av, res);
+}
+
+/* m > 0 */
+static GEN
+mtoevec(GEN m)
+{
+  GEN p1 = binary_zv(m), p2;
+  long lp1 = lg(p1), i;
+  p2 = cgetg(lp1 + 1, t_VECSMALL);
+  p2[1] = 0;
+  for (i = 2; i < lp1; ++i) p2[i] = p1[i];
+  p2[lp1] = 1; return p2;
+}
+
+static GEN
+etoindex(GEN evec)
+{
+  long k = lg(evec) - 1;
+  return utoi((1 << (k-2)) + myfd(evec, 2, k-1));
+}
+
+/* Conversions: types are evec, avec, m (if evec=0y1, m=(1y)_2).
+   fl is respectively 0, 1, 2. Type of a is autodetected. */
+GEN
+zetamultconvert(GEN a, long fl)
+{
+  pari_sp av = avma;
+  if (fl < 0 || fl > 2) pari_err_FLAG("zetamultconvert");
+  switch(typ(a))
+  {
+    case t_INT:
+      if (signe(a) <= 0) pari_err_TYPE("zetamultconvert",a);
+      switch (fl)
+      {
+        case 0: return gerepileupto(av, mtoevec(a));
+        case 1: return gerepileupto(av, etoa(mtoevec(a)));
+        case 2: return icopy(a);
+      }
+    case t_VEC: case t_COL: case t_VECSMALL:
+      a = gtovecsmall(a);
+      if (a[1] == 0)
+      {
+        if (a[lg(a)-1] != 1) pari_err_TYPE("zetamultconvert", a);
+        switch (fl)
+        {
+          case 1: a = etoa(a); break;
+          case 2: a = etoindex(a);
+        }
+      }
+      else
+      {
+        switch (fl)
+        {
+          case 0: a = atoe(a); break;
+          case 2: a = etoindex(atoe(a));
+        }
+      }
+      break;
+    default: pari_err_TYPE("zetamultconvert", a);
+  }
+  return gerepileuptoleaf(av, a);
+}

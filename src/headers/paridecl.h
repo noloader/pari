@@ -4335,6 +4335,8 @@ GEN     mstooms(GEN W, GEN phi);
 
 /* zetamult.c */
 GEN zetamult(GEN avec, long prec);
+GEN zetamultall(long k, long prec);
+GEN zetamultconvert(GEN a, long fl);
 
 /* level1.h */
 
