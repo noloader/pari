@@ -4,8 +4,7 @@ C-Name: limitnum0
 Prototype: GD0,L,DGp
 Help: limitnum(expr,{k = 20},{alpha=1}): numerical limit of sequence expr
  using Lagrange-Zagier extrapolation; k is a multiplier so that we extrapolate
- from expr(k*n). Assume u(n) ~ sum a_i n^(-alpha*i). flag=2, assuming that the
- asymptotic expansion is in powers of 1/n^2.
+ from expr(k*n). Assume u(n) ~ sum a_i n^(-alpha*i).
 Doc: Lagrange-Zagier numerical extrapolation of \var{expr}, corresponding to a
  sequence
  $u_n$, either given by a closure \kbd{n->u(n)} or by a vector of values
