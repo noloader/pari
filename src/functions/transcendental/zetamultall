@@ -10,7 +10,7 @@ Doc: list of all multiple zeta values for weight $s_1 + \dots + s_k$ up to $n$.
  ? z = zetamultall(5);
  ? z[10]
  %2 = 0.22881039760335375976874614894168879193
- ? zetamultconvert(10, 1) \\ convert index 10 to avec
+ ? zetamultconvert(10) \\ convert index 10 to avec
  %3 = Vecsmall([3, 2])
  ? zetamult(%)
  %4 = 0.22881039760335375976874614894168879193
