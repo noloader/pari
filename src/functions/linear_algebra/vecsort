@@ -32,9 +32,12 @@ Doc: sorts the vector $x$ in ascending order, using a mergesort method.
 
  If \kbd{cmpf} is omitted, we use the standard comparison function
  \kbd{lex}, thereby restricting the possible types for the elements of $x$
- (integers, fractions or reals and vectors of those). If \kbd{cmpf} is
- present, it is understood as a comparison function and we sort according to
- it. The following possibilities exist:
+ (integers, fractions or reals and vectors of those). We also transparently
+ allow a \typ{VECSMALL} $x$ in this case, for the standard ordering on the
+ integers.
+
+ If \kbd{cmpf} is present, it is understood as a comparison function and we
+ sort according to it. The following possibilities exist:
 
  \item an integer $k$: sort according to the value of the $k$-th
  subcomponents of the components of~$x$.

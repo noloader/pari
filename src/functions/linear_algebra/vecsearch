@@ -12,7 +12,9 @@ Doc: determines whether $x$ belongs to the sorted vector or list $v$: return
  If the comparison function cmpf is omitted, we assume that $v$ is sorted in
  increasing order, according to the standard comparison function \kbd{lex},
  thereby restricting the possible types for $x$ and the elements of $v$
- (integers, fractions, reals, and vectors of such).
+ (integers, fractions, reals, and vectors of such). We also transparently
+ allow a \typ{VECSMALL} $x$ in this case, for the natural ordering of the
+ integers.
 
  If \kbd{cmpf} is present, it is understood as a comparison function and we
  assume that $v$ is sorted according to it, see \tet{vecsort} for how to

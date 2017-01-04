@@ -21,10 +21,19 @@ error("incorrect type in lexicographic vecsort, index too large (t_INT).")
 1
 0
 Vecsmall([1, 2, 3, 4])
+0
+0
+3
 List([1, 2, 3, 4])
 [1, 2, 3, 4]
 Vecsmall([4, 6, 2, 1])
 [4, 3, 2, 1]
 Vecsmall([1, 2, 6, 4])
 List([])
-Total time spent: 8
+  ***   at top-level: vecsearch(Vecsmall(1
+  ***                 ^--------------------
+  *** vecsearch: incorrect type in sort_function (t_VECSMALL).
+  ***   at top-level: vecsort(Vecsmall(1),
+  ***                 ^--------------------
+  *** vecsort: incorrect type in sort_function (t_VECSMALL).
+Total time spent: 0
