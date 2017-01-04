@@ -46,3 +46,8 @@ for (i = 1, 2^10,
 \\ Errors, keep at end of file
 zetamultall(0)
 zetamultall(64)
+zetamult([0,2,1])
+zetamult([0,1,0])
+zetamult([0,-1,1])
+zetamult([1,-1,1])
+zetamult([1,0,1])

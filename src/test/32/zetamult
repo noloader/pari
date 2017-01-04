@@ -51,4 +51,19 @@ Vecsmall([3, 1, 3, 1])
   ***   at top-level: zetamultall(64)
   ***                 ^---------------
   *** zetamultall: overflow in zetamultall.
-Total time spent: 40
+  ***   at top-level: zetamult([0,2,1])
+  ***                 ^-----------------
+  *** zetamult: incorrect type in zetamultconvert (t_VECSMALL).
+  ***   at top-level: zetamult([0,1,0])
+  ***                 ^-----------------
+  *** zetamult: incorrect type in zetamultconvert (t_VECSMALL).
+  ***   at top-level: zetamult([0,-1,1])
+  ***                 ^------------------
+  *** zetamult: incorrect type in zetamultconvert (t_VECSMALL).
+  ***   at top-level: zetamult([1,-1,1])
+  ***                 ^------------------
+  *** zetamult: incorrect type in zetamultconvert (t_VECSMALL).
+  ***   at top-level: zetamult([1,0,1])
+  ***                 ^-----------------
+  *** zetamult: incorrect type in zetamultconvert (t_VECSMALL).
+Total time spent: 54

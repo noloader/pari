@@ -367,9 +367,9 @@ zetamultconvert(GEN a, long fl)
       l = lg(a);
       if (a[1] == 0)
       {
-        if (a[l-1] != 1) pari_err_TYPE("zetamultconvert", a);
+        if (!a[l-1]) pari_err_TYPE("zetamultconvert", a);
         for (i = 1; i < l; i++)
-          if (a[i] && a[i] > 1) pari_err_TYPE("zetamultconvert", a);
+          if (a[i] & ~1UL) pari_err_TYPE("zetamultconvert", a);
         switch (fl)
         {
           case 1: a = etoa(a); break;
