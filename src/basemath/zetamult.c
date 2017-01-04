@@ -142,8 +142,6 @@ zetamult(GEN avec, long prec)
 
   avec = zetamultconvert(avec, 1);
   if (lg(avec) == 1) return gen_1;
-  if (vecsmall_min(avec) <= 0) pari_err_TYPE("zetamult",avec);
-  if (avec[1] == 1) pari_err_DOMAIN("zetamult", "s[1]", "=", gen_1, avec);
   evec = atoe(avec);
   k = lg(evec)-1; /* weight */
   bitprec = prec2nbits(prec) + 64*(1+(k>>5));
@@ -352,6 +350,7 @@ GEN
 zetamultconvert(GEN a, long fl)
 {
   pari_sp av = avma;
+  long i, l;
   if (fl < 0 || fl > 2) pari_err_FLAG("zetamultconvert");
   switch(typ(a))
   {
@@ -365,9 +364,12 @@ zetamultconvert(GEN a, long fl)
       }
     case t_VEC: case t_COL: case t_VECSMALL:
       a = gtovecsmall(a);
+      l = lg(a);
       if (a[1] == 0)
       {
-        if (a[lg(a)-1] != 1) pari_err_TYPE("zetamultconvert", a);
+        if (a[l-1] != 1) pari_err_TYPE("zetamultconvert", a);
+        for (i = 1; i < l; i++)
+          if (a[i] && a[i] > 1) pari_err_TYPE("zetamultconvert", a);
         switch (fl)
         {
           case 1: a = etoa(a); break;
@@ -376,6 +378,9 @@ zetamultconvert(GEN a, long fl)
       }
       else
       {
+        if (a[1] < 2) pari_err_TYPE("zetamultconvert", a);
+        for (i = 2; i < l; i++)
+          if (a[i] <= 0) pari_err_TYPE("zetamultconvert", a);
         switch (fl)
         {
           case 0: a = atoe(a); break;
