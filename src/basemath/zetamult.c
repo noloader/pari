@@ -63,13 +63,12 @@ atoe(GEN avec)
 static GEN
 phip(long N, GEN avec, long prec)
 {
-  pari_sp av = avma;
   long i, j, ar, r = lg(avec) - 1;
   GEN u, r1, phivec = cgetg(r+1, t_VEC);
 
   ar = avec[r]; r1 = real_1(prec);
-  gel(phivec, r) = u = cgetg(N, t_VEC);
-  for (j = 1; j < N; ++j) gel(u,j) = divri(r1, powuu(j,ar));
+  gel(phivec, r) = u = cgetg(N, t_VEC); gel(u,1) = r1;
+  for (j = 2; j < N; ++j) gel(u,j) = divri(r1, powuu(j,ar));
   for (i = r-1; i >= 1; i--)
   {
     GEN t, phi = gel(phivec,i+1);
@@ -79,11 +78,11 @@ phip(long N, GEN avec, long prec)
     gel(u,2) = gmul2n(t, -ar);
     for (j = 3; j < N; j++)
     {
-      t = gadd(t, gel(phi,j-1));
-      gel(u,j) = gdiv(t, powuu(j,ar));
+      t = mpadd(t, gel(phi,j-1));
+      gel(u,j) = mpdiv(t, powuu(j,ar));
     }
   }
-  return gerepilecopy(av, phivec);
+  return phivec;
 }
 
 /* Return 1 if vec2 RHS of vec1, -1 if vec1 RHS of vec2, 0 else */
@@ -91,12 +90,7 @@ static long
 isrhs(GEN v1, GEN v2)
 {
   long s = 1, i, l1 = lg(v1), l2 = lg(v2);
-  if (l1 < l2)
-  {
-    s = -1;
-    swap(v1,v2);
-    lswap(l1,l2);
-  }
+  if (l1 < l2) { s = -1; swap(v1,v2); lswap(l1,l2); }
   for (i = l2-1; i >= 1; --i)
     if (v2[i] != v1[l1-l2+i]) return 0;
   return s;
@@ -115,10 +109,10 @@ istruerhs(GEN v1, GEN v2)
 static GEN
 isinphi(GEN v, GEN a, GEN phivec)
 {
-  long s, m, l1 = lg(v);
-  for (m = 1; m < l1; m++)
+  long m, l = lg(v);
+  for (m = 1; m < l; m++)
   {
-    s = istruerhs(gel(v,m), a);
+    long s = istruerhs(gel(v,m), a);
     if (s) return gmael(phivec,m,s);
   }
   return NULL;
@@ -134,7 +128,7 @@ addevec(GEN LR, GEN v)
   {
     s = isrhs(gel(LR,i), v);
     if (s == 1) return LR;
-    if (s == -1) { gel(LR,i) = v; return LR; }
+    if (s ==-1) { gel(LR,i) = v; return LR; }
   }
   return vec_append(LR,v);
 }
@@ -196,41 +190,49 @@ myfd(GEN evec, long ini, long fin)
   return s;
 }
 
-/* Given admissible w = 0e_2....e_{k-1}1, compute a,b,v such that
-w=0{1}_{b-1}v{0}_{a-1}1 with v empty or admissible.
-Input: binary vector evec=[e_1, e_2,..., e_{k-1}]
-Output: [a, b, lv, vv] lv length of v, vv = v as binary word. */
+/* Given admissible evec w = 0e_2....e_{k-1}1, compute a,b,v such that
+ * w=0{1}_{b-1}v{0}_{a-1}1 with v empty or admissible.
+ * Input: binary vector evec */
 static void
-findabv(GEN evec, long *pa, long *pb, long *pminit, long *pmmid, long *pmfin)
+findabv(GEN w, long *pa, long *pb, long *pminit, long *pmmid, long *pmfin)
 {
-  long le, a = 1, b = 1, j;
-  le = lg(evec) - 2;
-  if (le > 0)
+  long le = lg(w) - 2;
+  if (le == 0)
   {
-    long lv;
-    b = le + 1;
+    *pa = 1;
+    *pb = 1;
+    *pminit = 2;
+    *pmfin = 2;
+    *pmmid = 1;
+  }
+  else
+  {
+    long a, b, j, lv;
     for (j = 1; j <= le; ++j)
-      if (!evec[j + 1]) { b = j; break; }
-    a = le + 1;
+      if (!w[j+1]) break;
+    b = j;
     for (j = le; j >= 1; --j)
-      if (evec[j + 1]) { a = le + 1 - j; break; }
+      if (w[j+1]) break;
+    a = le + 1 - j;
     lv = le + 2 - a - b;
     if (lv > 0)
     {
-      long v = myfd(evec, b + 1, le - a + 2);
+      long v = myfd(w, b + 1, le - a + 2);
       *pa = a;
       *pb = b;
       *pminit = (((1 << b) - 1) << (lv - 1)) + (v/2) + 2;
       *pmfin = (((1 << (lv - 1)) + v) << (a - 1)) + 2;
       *pmmid = (1 << (lv - 2)) + (v/2) + 2;
-      return;
+    }
+    else
+    {
+      *pa = a;
+      *pb = b;
+      *pminit = (1 << (b - 1)) + 1;
+      *pmfin = (a == 1) ? 2 : (1 << (a - 2)) + 2;
+      *pmmid = 1;
     }
   }
-  *pa = a;
-  *pb = b;
-  *pminit = (1 << (b - 1)) + 1;
-  *pmfin = (a == 1) ? 2 : (1 << (a - 2)) + 2;
-  *pmmid = 1;
 }
 
 /* Returns 'all':
@@ -241,10 +243,11 @@ findabv(GEN evec, long *pa, long *pb, long *pminit, long *pmmid, long *pmfin)
 * all[m+2] : 2^{k-2} <= m < 2^{k-1} contains zeta(w), w corresponding to m
 (code: w=0y1 iff m=1y). */
 static GEN
-fillall(long k, long N, long prec)
+fillall(long k, long bitprec)
 {
-  GEN all, binvec, p1, p2, r1, pab, S;
+  long N = bitprec / 2, prec = nbits2prec(bitprec);
   long k1, j, n, m, mbar = 0, K = 1 << (k - 1), K2 = K/2;
+  GEN all, binvec, p1, p2, r1, pab, S;
   r1 = real_1(prec);
   pab = cgetg(N + 2, t_VEC); gel(pab, 1) = gen_0; /* not needed */
   for (n = 2; n <= N+1; n++) gel(pab, n) = powersr(divru(r1, n), k);
@@ -314,28 +317,18 @@ fillall(long k, long N, long prec)
       if (comp > 0 && k1 == k) mpaff(p1, p2);
     }
   }
-  return all;
+  for (j = 1; j < K; j++)
+    gel(all, j) = j < K2 ? gmael(all, j+2, 1) : gel(all, j+2);
+  setlg(all, K); return all;
 }
 
-/* If all: 2^(k-2) (sum: 2^(k-1)-1) */
-/* If half: 2^(k-3)+(0 if k odd, 2^(k/2-2) if k even),
-   sum 2^(k-2)+2^(floor(k/2)-1)-1 */
 GEN
 zetamultall(long k, long prec)
 {
   pari_sp av = avma;
-  GEN all, res;
-  long bitprec, prec2, m, lall, K2 = 1 << (k - 2);
   if (k < 1) pari_err_DOMAIN("zetamultall", "k", "<", gen_1, stoi(k));
   if (k >= 64) pari_err_OVERFLOW("zetamultall");
-  bitprec = prec2nbits(prec) + 32;
-  prec2 = nbits2prec(bitprec);
-  all = fillall(k, bitprec/2, prec2);
-  lall = lg(all)-2;
-  res = cgetg(lall, t_VEC);
-  for (m = 1; m < lall; ++m)
-    gel(res, m) = m < K2 ? gmael(all, m+2, 1) : gel(all, m+2);
-  return gerepilecopy(av, res);
+  return gerepilecopy(av, fillall(k, prec2nbits(prec) + 32));
 }
 
 /* m > 0 */
