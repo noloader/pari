@@ -358,10 +358,11 @@ zetamultconvert(GEN a, long fl)
       if (signe(a) <= 0) pari_err_TYPE("zetamultconvert",a);
       switch (fl)
       {
-        case 0: return gerepileupto(av, mtoevec(a));
-        case 1: return gerepileupto(av, etoa(mtoevec(a)));
-        case 2: return icopy(a);
+        case 0: a = mtoevec(a); break;
+        case 1: a = etoa(mtoevec(a)); break;
+        case 2: a = icopy(a); break;
       }
+      break;
     case t_VEC: case t_COL: case t_VECSMALL:
       a = gtovecsmall(a);
       l = lg(a);
