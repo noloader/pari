@@ -59,25 +59,25 @@ atoe(GEN avec)
   return shallowconcat1(evec);
 }
 
-/* phivec[i] contains phip(j,avec[i..r]) for 1<=j<=nlim > 2 */
+/* phivec[i] contains phip(j,avec[i..r]) for 1<=j<=N > 2 */
 static GEN
-phip(long nlim, GEN avec, long prec)
+phip(long N, GEN avec, long prec)
 {
   pari_sp av = avma;
   long i, j, ar, r = lg(avec) - 1;
   GEN u, r1, phivec = cgetg(r+1, t_VEC);
 
   ar = avec[r]; r1 = real_1(prec);
-  gel(phivec, r) = u = cgetg(nlim, t_VEC);
-  for (j = 1; j < nlim; ++j) gel(u,j) = divri(r1, powuu(j,ar));
+  gel(phivec, r) = u = cgetg(N, t_VEC);
+  for (j = 1; j < N; ++j) gel(u,j) = divri(r1, powuu(j,ar));
   for (i = r-1; i >= 1; i--)
   {
     GEN t, phi = gel(phivec,i+1);
     ar = avec[i];
-    gel(phivec, i) = u = cgetg(nlim, t_VEC);
+    gel(phivec, i) = u = cgetg(N, t_VEC);
     gel(u,1) = gen_0; t = gel(phi,1);
     gel(u,2) = gmul2n(t, -ar);
-    for (j = 3; j < nlim; j++)
+    for (j = 3; j < N; j++)
     {
       t = gadd(t, gel(phi,j-1));
       gel(u,j) = gdiv(t, powuu(j,ar));
@@ -143,7 +143,7 @@ GEN
 zetamult(GEN avec, long prec)
 {
   pari_sp ltop = avma;
-  long k, n, i, j, nlim, l, bitprec, prec2;
+  long k, n, i, j, N, l, bitprec, prec2;
   GEN binvec, S, LR, phiall, MA, MR, evec = gen_0;
 
   avec = zetamultconvert(avec, 1);
@@ -154,10 +154,9 @@ zetamult(GEN avec, long prec)
   k = lg(evec)-1; /* weight */
   bitprec = prec2nbits(prec) + 64*(1+(k>>5));
   prec2 = nbits2prec(bitprec);
-  nlim = 5 + bitprec/2;
-  binvec = cgetg(nlim+1, t_VEC);
-  gel(binvec, 1) = gen_2;
-  for (n = 2; n <= nlim; ++n)
+  N = 5 + bitprec/2;
+  binvec = cgetg(N+1, t_VEC); gel(binvec, 1) = gen_2;
+  for (n = 2; n <= N; ++n)
     gel(binvec, n) = diviuexact(mului(4*n-2, gel(binvec, n-1)), n);
   LR = cgetg(1, t_VEC);
   MA = cgetg(k, t_VEC);
@@ -170,14 +169,14 @@ zetamult(GEN avec, long prec)
   }
   l = lg(LR);
   phiall = cgetg(l, t_VEC);
-  for (j = 1; j < l; j++) gel(phiall,j) = phip(nlim+1, gel(LR,j), prec2);
+  for (j = 1; j < l; j++) gel(phiall,j) = phip(N+1, gel(LR,j), prec2);
   S = real_0(prec2);
   for (i = 1; i < k; i++)
   {
     GEN phi1 = isinphi(LR, gel(MA,i), phiall);
     GEN phi2 = isinphi(LR, gel(MR,i), phiall);
     GEN s = gmul2n(mpmul(gel(phi1,1), gel(phi2,1)), -1);
-    for (n = 2; n <= nlim; ++n)
+    for (n = 2; n <= N; ++n)
       s = mpadd(s, mpdiv(mpmul(gel(phi1,n), gel(phi2,n)), gel(binvec,n)));
     S = mpadd(S, la(evec[i], evec[i+1], s));
   }
@@ -237,47 +236,45 @@ findabv(GEN evec, long *pa, long *pb, long *pminit, long *pmmid, long *pmfin)
 /* Returns 'all':
 * all[1] contains zeta(emptyset)_{n-1,n-1},
 * all[2] contains zeta({0})_{n-1,n-1}=zeta({1})_{n-1,n-1} for n >= 2,
-* all[m+2][n] : 1 <= m < 2^{k-2}, 1 <= n <= nlim + 1
+* all[m+2][n] : 1 <= m < 2^{k-2}, 1 <= n <= N + 1
 * contains zeta(w)_{n-1,n-1}, w corresponding to m,n
 * all[m+2] : 2^{k-2} <= m < 2^{k-1} contains zeta(w), w corresponding to m
 (code: w=0y1 iff m=1y). */
 static GEN
-fillall(long k, long nlim, long prec)
+fillall(long k, long N, long prec)
 {
   GEN all, binvec, p1, p2, r1, pab, S;
-  long k1, j, n, m, mbar = 0, K = 1 << (k - 1);
+  long k1, j, n, m, mbar = 0, K = 1 << (k - 1), K2 = K/2;
   r1 = real_1(prec);
-  pab = cgetg(nlim + 2, t_VEC);
-  for (n = 1; n <= nlim + 1; ++n) gel(pab, n) = gpowers(gdivgs(r1, n), k);
+  pab = cgetg(N + 2, t_VEC); gel(pab, 1) = gen_0; /* not needed */
+  for (n = 2; n <= N+1; n++) gel(pab, n) = powersr(divru(r1, n), k);
   /* 1/n^a = gmael(pab, n, a + 1) */
-  binvec = cgetg(nlim + 2, t_VEC); gel(binvec, 1) = gen_1;
-  for (n = 1; n <= nlim; ++n)
-    gel(binvec, n + 1) = gdivgs(gmulsg(4*n - 2, gel(binvec, n)), n);
-  p1 = cgetg(nlim + 2, t_VEC);
-  for (j = 1; j <= nlim + 1; ++j) gel(p1, j) = gdiv(r1, gel(binvec, j));
-  p2 = cgetg(nlim + 2, t_VEC); gel(p2, 1) = gen_0;
-  for (j = 2; j <= nlim + 1; ++j) gel(p2, j) = gdivgs(gel(p1, j), j - 1);
+  binvec = cgetg(N + 2, t_VEC); gel(binvec, 1) = gen_1;
+  for (n = 1; n <= N; n++)
+    gel(binvec, n+1) = diviuexact(mului(4*n-2, gel(binvec, n)), n);
   all = cgetg(K + 2, t_VEC);
-  gel(all, 1) = p1;
-  gel(all, 2) = p2;
-  for (m = 1; m < K/2; ++m)
+  gel(all, 1) = p1 = cgetg(N + 2, t_VEC); gel(p1, 1) = r1;
+  for (j = 2; j <= N+1; j++) gel(p1, j) = divri(r1, gel(binvec, j));
+  gel(all, 2) = p2 = cgetg(N + 2, t_VEC); gel(p2, 1) = gen_0;
+  for (j = 2; j <= N+1; j++) gel(p2, j) = gdivgs(gel(p1, j), j - 1);
+  for (m = 1; m < K2; m++)
   {
-    gel(all, m + 2) = p1 = cgetg(nlim + 2, t_VEC);
-    for (n = 1; n <= nlim; ++n) gel(p1, n) = cgetr(prec);
+    gel(all, m+2) = p1 = cgetg(N + 2, t_VEC);
+    for (n = 1; n <= N; n++) gel(p1, n) = cgetr(prec);
     gel(p1, n) = gen_0;
   }
-  for (m = K/2; m < K; ++m)
+  for (m = K2; m < K; m++)
   {
-    gel(all, m + 2) = p1 = cgetr(prec);
+    gel(all, m+2) = p1 = cgetr(prec);
     mpaff(gen_0, p1);
   }
   for (k1 = 2; k1 <= k; ++k1)
   { /* Assume length evec < k1 filled */
     /* If evec = 0e_2...e_{k_1-1}1 then m = (1e_2...e_{k_1-1})_2 */
     GEN w = cgetg(k1, t_VECSMALL);
-    long limm = 1 << (k1 - 2);
+    long M = 1 << (k1 - 2);
     pari_sp av = avma;
-    for (m = limm; m < 2*limm; ++m)
+    for (m = M; m < 2*M; ++m)
     {
       GEN pinit, pfin, pmid;
       long comp, a, b, minit, mfin, mmid, mc = m, ii = 0;
@@ -288,7 +285,7 @@ fillall(long k, long nlim, long prec)
         ii = (1 - w[j]) | (ii<<1);
         mc >>= 1;
       }
-      mbar = limm + ii;
+      mbar = M + ii;
       comp = mbar - m;
       if (comp < 0) continue;
       p2 = gel(all, mbar + 2);
@@ -296,15 +293,23 @@ fillall(long k, long nlim, long prec)
       pinit= gel(all, minit);
       pfin = gel(all, mfin);
       pmid = gel(all, mmid);
-      for (n = nlim; n >= 1; --n, avma = av)
+      for (n = N; n > 1; n--, avma = av)
       {
-        GEN t = mpmul(gel(pinit,n + 1), gmael(pab, n, a + 1));
-        GEN u = mpmul(gel(pfin, n + 1), gmael(pab, n, b + 1));
-        GEN v = mpmul(gel(pmid, n + 1), gmael(pab, n, a + b + 1));
+        GEN t = mpmul(gel(pinit,n+1), gmael(pab, n, a + 1));
+        GEN u = mpmul(gel(pfin, n+1), gmael(pab, n, b + 1));
+        GEN v = mpmul(gel(pmid, n+1), gmael(pab, n, a + b + 1));
         S = mpadd(k1 < k ? gel(p1, n+1) : p1, mpadd(mpadd(t, u), v));
         if (!signe(S)) S = gen_0;
         mpaff(S, k1 < k ? gel(p1, n) : p1);
         if (comp > 0 && k1 < k) mpaff(S, gel(p2, n));
+      }
+      { /* n = 1: same formula simplifies */
+        GEN t = gel(pinit,2), u = gel(pfin,2), v = gel(pmid,2);
+        S = mpadd(k1 < k ? gel(p1,2) : p1, mpadd(mpadd(t, u), v));
+        if (!signe(S)) S = gen_0;
+        mpaff(S, k1 < k ? gel(p1,1) : p1);
+        if (comp > 0 && k1 < k) mpaff(S, gel(p2, 1));
+        avma = av;
       }
       if (comp > 0 && k1 == k) mpaff(p1, p2);
     }
