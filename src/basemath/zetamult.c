@@ -25,13 +25,13 @@ la(long e, long f, GEN s)
   return (e > f)? s: gmulgs(s,3);
 }
 
-/* dual evec */
+/* dual of evec[1..l-1] */
 static GEN
-rev(GEN evec)
+revslice(GEN evec, long l)
 {
-  long i, le = lg(evec);
-  GEN res = cgetg(le, t_VECSMALL);
-  for (i = 1; i < le; ++i) res[i] = 1 - evec[le-i];
+  GEN res = cgetg(l, t_VECSMALL);
+  long i;
+  for (i = 1; i < l; ++i) res[i] = 1 - evec[l-i];
   return res;
 }
 
@@ -51,11 +51,7 @@ atoe(GEN avec)
 {
   long i, l = lg(avec);
   GEN evec = cgetg(l, t_VEC);
-  for (i = 1; i < l; ++i)
-  {
-    long a = avec[i];
-    gel(evec,i) = vecsmall_ei(a,a);
-  }
+  for (i = 1; i < l; i++) { long a = avec[i]; gel(evec,i) = vecsmall_ei(a,a); }
   return shallowconcat1(evec);
 }
 
@@ -68,7 +64,7 @@ phip(long N, GEN avec, long prec)
 
   ar = avec[r]; r1 = real_1(prec);
   gel(phivec, r) = u = cgetg(N, t_VEC); gel(u,1) = r1;
-  for (j = 2; j < N; ++j) gel(u,j) = divri(r1, powuu(j,ar));
+  for (j = 2; j < N; j++) gel(u,j) = divri(r1, powuu(j,ar));
   for (i = r-1; i >= 1; i--)
   {
     GEN t, phi = gel(phivec,i+1);
@@ -155,7 +151,7 @@ zetamult(GEN avec, long prec)
   MR = cgetg(k, t_VEC);
   for (i = 1; i < k; ++i)
   {
-    gel(MA,i) = etoa(rev(vecslice(evec, 1, i)));
+    gel(MA,i) = etoa(revslice(evec, i+1));
     gel(MR,i) = etoa(vecslice(evec, i+1, k));
     LR = addevec(addevec(LR, gel(MA,i)), gel(MR,i));
   }
@@ -172,7 +168,7 @@ zetamult(GEN avec, long prec)
       s = mpadd(s, mpdiv(mpmul(gel(phi1,n), gel(phi2,n)), gel(binvec,n)));
     S = mpadd(S, la(evec[i], evec[i+1], s));
   }
-  return gerepilecopy(ltop, rtor(S,prec));
+  return gerepileuptoleaf(ltop, rtor(S,prec));
 }
 
 /**************************************************************/
