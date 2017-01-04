@@ -14,4 +14,5 @@ Doc: the prime counting function. Returns the number of
  %2 = [2, 3, 5, 7, 11]
  ? primepi(10^11)
  %3 = 4118054813
- @eprog\noindent Uses checkpointing and a naive $O(x)$ algorithm.
+ @eprog\noindent Uses checkpointing and a naive $O(x)$ algorithm;
+ make sure to start gp with \kbd{primelimit} at least $\sqrt{x}$.
