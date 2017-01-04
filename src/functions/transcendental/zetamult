@@ -2,11 +2,20 @@ Function: zetamult
 Section: transcendental
 C-Name: zetamult
 Prototype: Gp
-Help: zetamult(s): multiple zeta value at integral s = [s1,...,sd].
+Help: zetamult(s): multiple zeta value at integral s = [s1,...,sk].
 Doc: For $s$ a vector of positive integers such that $s[1] \geq 2$,
  returns the multiple zeta value (MZV)
  $$\zeta(s_1,\dots, s_k) = \sum_{n_1>\dots>n_k>0} n_1^{-s_1}\dots n_k^{-s_k}.$$
  \bprog
  ? zetamult([2,1]) - zeta(3) \\ Euler's identity
  %1 = 0.E-38
- @eprog
+ @eprog\noindent In addition to the above format (\kbd{avec}), the function
+ also accepts an internal binary format \kbd{evec} (each $s_i$ as replaced
+ by $s_i$ bits$, all of them 0 but the last one), and an \kbd{index} format
+ (if $e$ is the positive integer attached the \kbd{evec} vector of
+ bits, the index is the integers $e + 2^{k-2}$). The function
+ \kbd{zetamultconvert} allows to pass from one format to the other; the
+ function \kbd{zetamultall} computes simultaneously all MZVs of weight
+ $\sum_{i\leq k} s_i$ up to $n$.
+
+ If the bit precision is $B$, this function runs in time $\tilde{O}(k B^2)$.

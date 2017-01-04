@@ -12,9 +12,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 
 /********************************************************************/
 /**                                                                **/
-/**                     MULTIPLE ZETA VALUES                       **/
-/**                                                                **/
-/** ALGORITHM DUE TO P. AKHILESH. DO NOT REPRODUCE UNTIL PUBLISHED **/
+/**             MULTIPLE ZETA VALUES (AKHILESH ALGORITHM)          **/
 /**                                                                **/
 /********************************************************************/
 #include "pari.h"
@@ -27,6 +25,7 @@ la(long e, long f, GEN s)
   return (e > f)? s: gmulgs(s,3);
 }
 
+/* dual evec */
 static GEN
 rev(GEN evec)
 {
@@ -36,35 +35,26 @@ rev(GEN evec)
   return res;
 }
 
+/* N.B. evec[ne] = 1 */
 static GEN
 etoa(GEN evec)
 {
-  long ct, a, ia, le = lg(evec) - 1;
-  GEN avec;
-
-  if (evec[le] != 1) pari_err_TYPE("zetamult",evec);
-  avec = cgetg(le+1, t_VECSMALL);
-  ct = 0; a = 0; ia = 1;
-  while (ct < le)
-  {
-    ct++; a++;
-    if (evec[ct] == 1) { avec[ia++] = a; a = 0; }
-  }
-  setlg(avec, ia); return avec;
+  long ct = 0, ctold = 0, i = 1, le = lg(evec);
+  GEN avec = cgetg(le, t_VECSMALL);
+  while (++ct < le)
+    if (evec[ct] == 1) { avec[i++] = ct - ctold; ctold = ct; }
+  setlg(avec, i); return avec;
 }
 
 static GEN
 atoe(GEN avec)
 {
-  long i, j, l1 = lg(avec);
-  GEN evec = cgetg(l1, t_VEC);
-  for (i = 1; i < l1; ++i)
+  long i, l = lg(avec);
+  GEN evec = cgetg(l, t_VEC);
+  for (i = 1; i < l; ++i)
   {
     long a = avec[i];
-    GEN e = cgetg(a+1, t_VECSMALL);
-    for (j = 1; j < a; ++j) e[j] = 0;
-    e[a] = 1;
-    gel(evec,i) = e;
+    gel(evec,i) = vecsmall_ei(a,a);
   }
   return shallowconcat1(evec);
 }
@@ -186,16 +176,16 @@ zetamult(GEN avec, long prec)
   {
     GEN phi1 = isinphi(LR, gel(MA,i), phiall);
     GEN phi2 = isinphi(LR, gel(MR,i), phiall);
-    GEN s = gmul2n(gmul(gel(phi1,1), gel(phi2,1)), -1);
+    GEN s = gmul2n(mpmul(gel(phi1,1), gel(phi2,1)), -1);
     for (n = 2; n <= nlim; ++n)
-      s = gadd(s, gdiv(gmul(gel(phi1,n), gel(phi2,n)), gel(binvec,n)));
-    S = gadd(S, la(evec[i], evec[i+1], s));
+      s = mpadd(s, mpdiv(mpmul(gel(phi1,n), gel(phi2,n)), gel(binvec,n)));
+    S = mpadd(S, la(evec[i], evec[i+1], s));
   }
   return gerepilecopy(ltop, rtor(S,prec));
 }
 
 /**************************************************************/
-/*                           ALL MZV's                        */
+/*                         ALL MZV's                          */
 /**************************************************************/
 
 /* vecsmall to binary */
@@ -244,18 +234,13 @@ findabv(GEN evec, long *pa, long *pb, long *pminit, long *pmmid, long *pmfin)
   *pmmid = 1;
 }
 
-/*
-all[1] contains zeta(emptyset)_{n-1,n-1},
-all[2] contains zeta({0})_{n-1,n-1}=zeta({1})_{n-1,n-1} for n >= 2,
-all[m+2][n] : 1 <= m < 2^{k-2}, 1 <= n <= nlim + 1
-contains zeta(w)_{n-1,n-1}, w corresponding to m,n
-all[m+2] : 2^{k-2} <= m < 2^{k-1} contains zeta(w), w corresponding to m
-(code: w=0y1 iff m=1y).
-*/
-
-/* No stack handling (expensive for large k) */
-/* If flhalf is set, only half, the others set to gen_0. */
-
+/* Returns 'all':
+* all[1] contains zeta(emptyset)_{n-1,n-1},
+* all[2] contains zeta({0})_{n-1,n-1}=zeta({1})_{n-1,n-1} for n >= 2,
+* all[m+2][n] : 1 <= m < 2^{k-2}, 1 <= n <= nlim + 1
+* contains zeta(w)_{n-1,n-1}, w corresponding to m,n
+* all[m+2] : 2^{k-2} <= m < 2^{k-1} contains zeta(w), w corresponding to m
+(code: w=0y1 iff m=1y). */
 static GEN
 fillall(long k, long nlim, long prec)
 {
@@ -291,9 +276,9 @@ fillall(long k, long nlim, long prec)
     /* If evec = 0e_2...e_{k_1-1}1 then m = (1e_2...e_{k_1-1})_2 */
     GEN w = cgetg(k1, t_VECSMALL);
     long limm = 1 << (k1 - 2);
+    pari_sp av = avma;
     for (m = limm; m < 2*limm; ++m)
     {
-      pari_sp btop;
       GEN pinit, pfin, pmid;
       long comp, a, b, minit, mfin, mmid, mc = m, ii = 0;
       p1 = gel(all, m + 2);
@@ -311,8 +296,7 @@ fillall(long k, long nlim, long prec)
       pinit= gel(all, minit);
       pfin = gel(all, mfin);
       pmid = gel(all, mmid);
-      btop = avma;
-      for (n = nlim; n >= 1; --n)
+      for (n = nlim; n >= 1; --n, avma = av)
       {
         GEN t = mpmul(gel(pinit,n + 1), gmael(pab, n, a + 1));
         GEN u = mpmul(gel(pfin, n + 1), gmael(pab, n, b + 1));
@@ -321,9 +305,8 @@ fillall(long k, long nlim, long prec)
         if (!signe(S)) S = gen_0;
         mpaff(S, k1 < k ? gel(p1, n) : p1);
         if (comp > 0 && k1 < k) mpaff(S, gel(p2, n));
-        avma = btop;
       }
-      if (comp > 0 && k1 == k) { mpaff(p1, p2); avma = btop; }
+      if (comp > 0 && k1 == k) mpaff(p1, p2);
     }
   }
   return all;
@@ -338,6 +321,7 @@ zetamultall(long k, long prec)
   pari_sp av = avma;
   GEN all, res;
   long bitprec, prec2, m, lall, K2 = 1 << (k - 2);
+  if (k < 1) pari_err_DOMAIN("zetamultall", "k", "<", gen_1, stoi(k));
   if (k >= 64) pari_err_OVERFLOW("zetamultall");
   bitprec = prec2nbits(prec) + 32;
   prec2 = nbits2prec(bitprec);
@@ -353,19 +337,15 @@ zetamultall(long k, long prec)
 static GEN
 mtoevec(GEN m)
 {
-  GEN p1 = binary_zv(m), p2;
-  long lp1 = lg(p1), i;
-  p2 = cgetg(lp1 + 1, t_VECSMALL);
-  p2[1] = 0;
-  for (i = 2; i < lp1; ++i) p2[i] = p1[i];
-  p2[lp1] = 1; return p2;
+  GEN e = vecsmall_append(binary_zv(m), 1);
+  e[1] = 0; return e;
 }
 
 static GEN
 etoindex(GEN evec)
 {
   long k = lg(evec) - 1;
-  return utoi((1 << (k-2)) + myfd(evec, 2, k-1));
+  return utoipos((1 << (k-2)) + myfd(evec, 2, k-1));
 }
 
 /* Conversions: types are evec, avec, m (if evec=0y1, m=(1y)_2).

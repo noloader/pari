@@ -36,3 +36,13 @@ zetamultconvert(a,0)
 zetamultconvert(a,1)
 zetamultconvert(a,2)
 
+{
+for (i = 1, 2^10,
+  a = zetamultconvert(i);
+  if (zetamultconvert(a,2) != i, error(i))
+);
+}
+
+\\ Errors, keep at end of file
+zetamultall(0)
+zetamultall(64)

@@ -1,16 +1,16 @@
 Function: zetamultconvert
 Section: transcendental
 C-Name: zetamultconvert
-Prototype: GL
-Help: zetamultconvert(a,fl): a being either an evec, avec, or index m,
+Prototype: GD1,L,
+Help: zetamultconvert(a,{fl=1}): a being either an evec, avec, or index m,
  converts into evec (fl=0), avec (fl=1), or index m (fl=2).
 Doc: \kbd{a} being either an \kbd{evec}, \kbd{avec}, or index \kbd{m},
- converts into \kbd{evec} (\kbd{fl=0}), \kbd{avec} (\kbd{fl=1}), or
- index \kbd{m} (\kbd{fl=2}).
+ converts into \kbd{evec} (\kbd{fl=0}), \kbd{avec} (\kbd{fl=1}, default), or
+ index \kbd{m} (\kbd{fl=2}); see \kbd{zetamult} for explanations.
  \bprog
- ? zetamultconvert(10, 1)
+ ? zetamultconvert(10)
  %1 = Vecsmall([3, 2])
- ? zetamultconvert(13, 1)
+ ? zetamultconvert(13)
  %2 = Vecsmall([2, 2, 1])
  ? zetamultconvert(10, 0)
  %3 = Vecsmall([0, 0, 1, 0, 1])
