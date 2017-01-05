@@ -63,8 +63,10 @@ phip(long N, GEN avec, long prec)
   GEN u, r1, phivec = cgetg(r+1, t_VEC);
 
   ar = avec[r]; r1 = real_1(prec);
-  gel(phivec, r) = u = cgetg(N, t_VEC); gel(u,1) = r1;
-  for (j = 2; j < N; j++) gel(u,j) = divri(r1, powuu(j,ar));
+  gel(phivec, r) = u = cgetg(N, t_VEC);
+  gel(u,1) = r1;
+  gel(u,2) = real2n(-ar, prec);
+  for (j = 3; j < N; j++) gel(u,j) = divri(r1, powuu(j,ar));
   for (i = r-1; i >= 1; i--)
   {
     GEN t, phi = gel(phivec,i+1);

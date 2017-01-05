@@ -1,3 +1,4 @@
+default(parisize,"10M");
 default(realprecision,38);
 test(a,b)= if(a==b,oo, ceil(log(abs(a-b))/log(10)));
 test(zetamult([2,1]), zeta(3))
