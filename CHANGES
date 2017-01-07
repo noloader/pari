@@ -48,6 +48,9 @@ HC   14- new GP functions sumnumap, sumnumapinit (Abel-Plana summation)
 HC   15- new GP functions zetamultall, zetamultconvert
      16- allow t_VECSMALL for vecsort [already there but undocumented] and
          vecsearch [already there but prevented by a typo]
+CG   17- new GP function matpermanent [#1860]
+     18- [libpari] hammingl, RgM_is_QM, vecsmall_prod, zm_permanent,
+         ZM_permanent
 
   Changed
       1- rewrite bnfnarrow

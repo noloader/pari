@@ -903,6 +903,7 @@ GEN     RgM_RgC_mul(GEN x, GEN y);
 GEN     RgM_RgV_mul(GEN x, GEN y);
 GEN     RgM_add(GEN x, GEN y);
 GEN     RgM_det_triangular(GEN x);
+int     RgM_is_QM(GEN x);
 int     RgM_is_ZM(GEN x);
 int     RgM_isdiagonal(GEN x);
 int     RgM_isidentity(GEN x);
@@ -1076,6 +1077,7 @@ GEN     ZG_sub(GEN x, GEN y);
 /* ZV.c */
 
 void    Flc_lincomb1_inplace(GEN X, GEN Y, ulong v, ulong q);
+GEN     vecsmall_prod(GEN v);
 void    RgM_check_ZM(GEN A, const char *s);
 void    RgV_check_ZV(GEN A, const char *s);
 GEN     Z_ZC_sub(GEN a, GEN x);
@@ -2296,6 +2298,7 @@ GEN     gbitnegimply(GEN x, GEN y);
 GEN     gbitor(GEN x, GEN y);
 GEN     gbittest(GEN x, long n);
 GEN     gbitxor(GEN x, GEN y);
+long    hammingl(ulong w);
 long    hammingweight(GEN n);
 GEN     ibitand(GEN x, GEN y);
 GEN     ibitnegimply(GEN x, GEN y);
@@ -3603,6 +3606,11 @@ int     mapisdefined(GEN T, GEN a, GEN *pt_z);
 void    mapput(GEN T, GEN a, GEN b);
 GEN     maptomat(GEN T);
 GEN     maptomat_shallow(GEN T);
+
+/* matperm.c */
+GEN     matpermanent(GEN M);
+GEN     zm_permanent(GEN M);
+GEN     ZM_permanent(GEN M);
 
 /* mellininv.c */
 

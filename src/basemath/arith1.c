@@ -1407,7 +1407,7 @@ Z_ispow2(GEN n)
     xp = int_nextW(xp);
     u = *xp;
   }
-  return !(u & (u-1)); /* faster than hamming_word(u) == 1 */
+  return !(u & (u-1));
 }
 
 static long

@@ -28,6 +28,19 @@ RgM_is_ZM(GEN x)
 }
 
 int
+RgM_is_QM(GEN x)
+{
+  long i, j, h, l = lg(x);
+  if (l == 1) return 1;
+  h = lgcols(x);
+  if (h == 1) return 1;
+  for (j = l-1; j > 0; j--)
+    for (i = h-1; i > 0; i--)
+      if (!is_rational_t(typ(gcoeff(x,i,j)))) return 0;
+  return 1;
+}
+
+int
 RgV_is_ZMV(GEN V)
 {
   long i, l = lg(V);

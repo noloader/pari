@@ -1318,16 +1318,35 @@ GEN
 zv_prod_Z(GEN v)
 {
   pari_sp av = avma;
-  long k, n = lg(v)-1, m;
-  GEN x;
-  if (n == 0) return gen_1;
-  if (n == 1) return utoi(v[1]);
-  if (n == 2) return muluu(v[1], v[2]);
+  long k, m, n = lg(v)-1;
+  GEN V;
+  switch(n) {
+    case 0: return gen_1;
+    case 1: return utoi(v[1]);
+    case 2: return muluu(v[1], v[2]);
+  }
   m = n >> 1;
-  x = cgetg(m + (odd(n)? 2: 1), t_VEC);
-  for (k = 1; k <= m; k++) gel(x,k) = muluu(v[k<<1], v[(k<<1)-1]);
-  if (odd(n)) gel(x,k) = utoipos(v[n]);
-  return gerepileuptoint(av, gen_product(x, NULL, _mulii));
+  V = cgetg(m + (odd(n)? 2: 1), t_VEC);
+  for (k = 1; k <= m; k++) gel(V,k) = muluu(v[k<<1], v[(k<<1)-1]);
+  if (odd(n)) gel(V,k) = utoipos(v[n]);
+  return gerepileuptoint(av, gen_product(V, NULL, &_mulii));
+}
+GEN
+vecsmall_prod(GEN v)
+{
+  pari_sp av = avma;
+  long k, m, n = lg(v)-1;
+  GEN V;
+  switch (n) {
+    case 0: return gen_1;
+    case 1: return stoi(v[1]);
+    case 2: return mulss(v[1], v[2]);
+  }
+  m = n >> 1;
+  V = cgetg(m + (odd(n)? 2: 1), t_VEC);
+  for (k = 1; k <= m; k++) gel(V,k) = mulss(v[k<<1], v[(k<<1)-1]);
+  if (odd(n)) gel(V,k) = stoi(v[n]);
+  return gerepileuptoint(av, gen_product(V, NULL, &_mulii));
 }
 
 GEN

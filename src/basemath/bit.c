@@ -676,8 +676,8 @@ gbitnegimply(GEN x, GEN y)
   return gerepileuptoint(ltop,z);
 }
 
-INLINE long
-hamming_word(ulong w)
+long
+hammingl(ulong w)
 {
 #if 0
   return __builtin_popcountl(w);
@@ -726,8 +726,8 @@ hamming_int(GEN n)
 {
   long lx = lgefint(n), i, sum;
   if (lx == 2) return 0;
-  sum = hamming_word(n[2]);
-  for (i = 3; i < lx; i++) sum += hamming_word(n[i]);
+  sum = hammingl(n[2]);
+  for (i = 3; i < lx; i++) sum += hammingl(n[i]);
   return sum;
 }
 
