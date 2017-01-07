@@ -1,5 +1,5 @@
 default(realprecision,38);
-allocatemem(30 * 10^6);
+allocatemem(40 * 10^6);
 check(a,b)=my(c=abs(a-b)); if(!c,oo, ceil(log(c)/log(10)));
 check(sumnummonien(n=1,1/n^2), Pi^2/6)
 check(sumnummonien(n=1,log(1+1/n)/n), sumpos(n=1,log(1+1/n)/n))

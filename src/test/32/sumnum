@@ -1,4 +1,4 @@
-  ***   Warning: new stack size = 30000000 (28.610 Mbytes).
+  ***   Warning: new stack size = 40000000 (38.147 Mbytes).
 +oo
 +oo
 -38
@@ -73,4 +73,4 @@
   ***   at top-level: sumnummonieninit(,[n
   ***                 ^--------------------
   *** sumnummonieninit: forbidden addition t_INT + t_INFINITY.
-Total time spent: 6157
+Total time spent: 4781
