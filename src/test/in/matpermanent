@@ -16,3 +16,7 @@ matpermanent(m)
   for (n = 1, 10, m = matrix(n,n,i,j,i!=j);
     if (matpermanent(m)!=n!*sum(i=0,n,(-1)^i/i!), error(n)))
 }
+
+\\Errors
+matpermanent(matrix(64))
+matpermanent(matrix(2,3))

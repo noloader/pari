@@ -12,4 +12,10 @@ a
 0710729600180853543474258186192116072131181104815025761774130562338354193365
 1962372270527617850320061887552530356998486431159949171842025616672790485876
 08238404756881640802750401375601950720000000
-Total time spent: 3116
+  ***   at top-level: matpermanent(matrix(
+  ***                 ^--------------------
+  *** matpermanent: sorry, large matrix permanent is not yet implemented.
+  ***   at top-level: matpermanent(matrix(
+  ***                 ^--------------------
+  *** matpermanent: inconsistent dimensions in matpermanent.
+Total time spent: 2046
