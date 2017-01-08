@@ -80,6 +80,7 @@ HC   16- sumnummonieninit(a) for [a,a] did not conform to documentation.
      17- improve prime() and primepi() by adding more checkpoints [#1878]
      18- lfun(Dirichlet character): switch automatically to lfunchiquad
          (Kronecker) if char has order <= 2
+     19- nfchecksigns: replace by rigorous algorithm
 
   Removed
       1- file 'MACHINES' (no longer maintained)
