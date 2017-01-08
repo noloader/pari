@@ -310,6 +310,7 @@ header.\hfil\break
 \li{eigenvectors/values of matrix $x$}{mateigen$(x)$}
 \li{characteristic/minimal polynomial of $x$}{charpoly$(x)${\rm, }minpoly}
 \li{trace/determinant of matrix $x$}{trace$(x)${\rm, }matdet}
+\li{permanent of matrix $x$}{matpermanent$(x)$}
 \li{Frobenius form of $x$}{matfrobenius$(x)$}
 \li{QR decomposition}{matqr$(x)$}
 \li{apply \kbd{matqr}'s transform to $v$}{mathouseholder$(Q,v)$}
@@ -491,7 +492,7 @@ header.\hfil\break
 \section{Iterations, Sums \& Products}
 
 \subsec{Numerical integration for meromorphic functions}
-Behaviour at endpoint for Double Exponential methods: either a scalar
+Behaviour at endpoint for Double Exponential (DE) methods: either a scalar
 ($a\in\CC$, regular) or $\pm$\kbd{oo} (decreasing at least as $x^{-2}$) or
 \beginindentedkeys
   \li{$(x-a)^{-\alpha}$ singularity}{$[a,\alpha]$}
@@ -520,6 +521,9 @@ Behaviour at endpoint for Double Exponential methods: either a scalar
 \li{sum of series by Monien summation}{sumnummonien$(n=a,f,\{T\})$}
 \li{weights for \kbd{sumnummonien}}
    {sumnummonieninit$(\{\infty, a\})$}
+\li{sum of series using Abel-Plana}{sumnumap$(n=a,f,\{T\})$}
+\li{weights for \kbd{sumnumap}, $a$ as in DE}
+   {sumnumapinit$(\{\infty, a\})$}
 
 \subsec{Products}
 \li{product $a\le X\le b$, initialized at $x$}{prod$(X=a,b,\expr,\{x\})$}

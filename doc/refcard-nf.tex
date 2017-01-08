@@ -95,13 +95,14 @@ to relative extensions $L/K$.\hfill\break
 Elements are \typ{INT}, \typ{FRAC}, \typ{POL}, \typ{POLMOD}, or \typ{COL} (on
 integral basis \kbd{\var{nf}.zk}). Basic operations (prefix \kbd{nfelt}):
 $($\kbd{nfelt}$)$\kbd{add}, \kbd{mul}, \kbd{pow}, \kbd{div}, \kbd{diveuc},
-\kbd{mod}, \kbd{divrem}, \kbd{val}, \kbd{trace}, \kbd{norm} \hfill\break
+\kbd{mod}, \kbd{divrem}, \kbd{val}, \kbd{trace}, \kbd{norm}, \kbd{reduce}
+\hfill\break
 %
 \li{express $x$ on integer basis}{nfalgtobasis$(\var{nf},x)$}
 \li{express element\ $x$ as a polmod}{nfbasistoalg$(\var{nf},x)$}
 \li{complex embeddings of \typ{POLMOD} $x$}{conjvec$(x)$}
+\li{signs of real embeddings of $x$}{nfeltsign$(\var{nf},x,\{pl\})$}
 \li{reverse polmod $a=A(X)\mod T(X)$}{modreverse$(a)$}
-
 \li{integral basis of field def. by $f=0$}{nfbasis$(f)$}
 \li{field discriminant of field $f=0$}{nfdisc$(f)$}
 \li{smallest poly defining $f=0$ (slow)}{polredabs$(f,\{\fl\})$}
