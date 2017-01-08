@@ -1009,7 +1009,7 @@ znchartokronecker(GEN G, GEN chi, long flag)
   s = zncharisodd(G, chi)? -1: 1;
   if (typ(chi) != t_COL) chi = znconreylog(G, chi);
   o = zncharorder(G, chi);
-  if (cmpiu(o,2) > 0) { avma = av; return gen_0; }
+  if (abscmpiu(o,2) > 0) { avma = av; return gen_0; }
   F = znconreyconductor(G, chi, NULL);
   if (typ(F) == t_INT)
   {
