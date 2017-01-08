@@ -78,6 +78,8 @@ BA   13- [libpari] rename FpX_fromdigits -> FpXV_FpX_fromdigits,
 HC   16- sumnummonieninit(a) for [a,a] did not conform to documentation.
          Change to sumnummonieninit(b) for [1,b]
      17- improve prime() and primepi() by adding more checkpoints [#1878]
+     18- lfun(Dirichlet character): switch automatically to lfunchiquad
+         (Kronecker) if char has order <= 2
 
   Removed
       1- file 'MACHINES' (no longer maintained)

@@ -478,30 +478,36 @@ vec01(long r1, long r2)
   return v;
 }
 
-/* bid has nftyp typ_BIDZ */
+/* G is a bid of nftyp typ_BIDZ */
 static GEN
-lfunchiZ(GEN bid, GEN chi)
+lfunchiZ(GEN G, GEN chi)
 {
   pari_sp av = avma;
   GEN sig = NULL;
-  GEN N = bid_get_ideal(bid), nchi, r;
+  GEN N = bid_get_ideal(G), nchi, r;
   int real;
 
-  if (typ(N) != t_INT) pari_err_TYPE("lfunchiZ", bid);
+  if (typ(N) != t_INT) pari_err_TYPE("lfunchiZ", G);
   if (equali1(N)) return lfunzeta();
-  if (typ(chi) != t_COL) chi = znconreylog(bid,chi);
-  N = znconreyconductor(bid, chi, &chi);
+  if (typ(chi) != t_COL) chi = znconreylog(G,chi);
+  N = znconreyconductor(G, chi, &chi);
   if (typ(N) != t_INT)
   {
     if (equali1(gel(N,1))) { avma = av; return lfunzeta(); }
-    bid = ZNstar(N, nf_INIT);
+    G = ZNstar(N, nf_INIT);
     N = gel(N,1);
   }
-  /* chi now primitive on bid */
-  sig = mkvec( zncharisodd(bid, chi)? gen_1: gen_0 );
-  nchi = znconreylog_normalize(bid, chi);
+  /* chi now primitive on G */
+  switch(itou_or_0(zncharorder(G, chi)))
+  {
+    case 1: avma = av; return lfunzeta();
+    case 2: if (zncharisodd(G,chi)) N = negi(N);
+            return gerepileupto(av, lfunchiquad(N));
+  }
+  sig = mkvec( zncharisodd(G, chi)? gen_1: gen_0 );
+  nchi = znconreylog_normalize(G, chi);
   real = abscmpiu(gel(nchi,1), 2) <= 0;
-  r = mkvecn(6, tag(mkvec2(bid,nchi), t_LFUN_CHIZ),
+  r = mkvecn(6, tag(mkvec2(G,nchi), t_LFUN_CHIZ),
                 real? gen_0: gen_1, sig, gen_1, N, gen_0);
   return gerepilecopy(av, r);
 }
