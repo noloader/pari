@@ -18,7 +18,7 @@ Doc: given an element $x$ in the number field \var{nf}, returns the signs of
  root of \kbd{nf.pol}.
 
  \bprog
- ? nf = nfinit(polsubcyclo(11,5,'y)); \\ Q(cos(2 pi/5))
+ ? nf = nfinit(polsubcyclo(11,5,'y)); \\ Q(cos(2 pi/11))
  ? nf.sign
  %2 = [5, 0]
  ? x = Mod('y, nf.pol);
