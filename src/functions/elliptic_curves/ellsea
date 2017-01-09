@@ -20,7 +20,7 @@ Doc: Let $E$ be an \var{ell} structure as output by \kbd{ellinit}, defined over
  dividing $\#E(\F_q)$.
 
  In particular, you should set \kbd{tors} to $1$ if you want a curve with
- prime order, to $2$ if you want to allow a cofacteur which is a power of two
+ prime order, to $2$ if you want to allow a cofactor which is a power of two
  (e.g. for Edwards's curves), etc.
 
  The availability of the \kbd{seadata} package will speed up the computation,
