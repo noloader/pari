@@ -254,7 +254,7 @@ chareval_i(GEN nchi, GEN dlog, GEN z)
   if (typ(z) == t_VEC)
   {
     if (itos_or_0(o) != lg(z)-1) pari_err_TYPE("chareval", z);
-    return gcopy(gel(z, itos(q)));
+    return gcopy(gel(z, itos(q)+1));
   }
   else
     return gpow(z, q, DEFAULTPREC);

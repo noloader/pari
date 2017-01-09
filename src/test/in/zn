@@ -85,6 +85,8 @@ znconreychar(G,5)
 znconreychar(G,7)
 vector(4, i, zncharisodd(G,2*i-1))
 forstep(i=1,8,2,if(znconreyexp(G, znconreylog(G, i)) != i, error(i)));
+z = [[1,-1],2];
+vector(4, i, chareval(idealstar(,8), [1,0], 1+2*i, z))
 
 G=idealstar(,192);
 znconreyexp(G, [2,8,1,1]~) \\ BIG
@@ -112,7 +114,7 @@ chareval(G,chi,2, 10)
 chareval(G,chi,2, 20)
 chareval(G,chi,2, [x,10])
 chareval(G,chi,2, [x,20])
-chareval(G,chi,2, [vector(10,i,i), 10])
+chareval(G,chi,2, [[0..9], 10])
 
 log11 = ideallog(, 11, G);
 znconreylog(G,log11)

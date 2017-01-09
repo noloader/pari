@@ -29,6 +29,7 @@ BA   21- lfun(...,t_SER,n>=1) returned a wrong result
      23- SEGV in sumnummonieninit when accuracy too low
 BA   24- ellidentify: check curve is over Q
      25- gdivgs(t_RFRAC,s) could create invalid objects
+     26- chareval(G,chi,x,[[...], o]) didn't work (off-by-1)
 
   Added
       1- [libari] ZM_isidentity
