@@ -12323,7 +12323,7 @@ To create a stack of objects of type \kbd{foo}, we proceed as follows:
 \bprog
 foo *t_foo;
 pari_stack s_foo;
-pari_stack_init(&s_foo, sizeof(*t_foo), (void**)t_foo);
+pari_stack_init(&s_foo, sizeof(*t_foo), (void**)&t_foo);
 @eprog\noindent Think of \kbd{s\_foo} as the controlling interface, and
 \kbd{t\_foo} as the (dynamic) array tied to it. The value of \kbd{t\_foo}
 may be changed as you add more elements.
