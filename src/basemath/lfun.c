@@ -31,6 +31,15 @@ mysercoeff(GEN x, long n)
   return (N < 0)? gen_0: gel(x, N+2);
 }
 
+/* a_n = O(n^{k1 + epsilon}). FIXME: assume that k1 = k-1 and even
+ * (k-1)/2 for entire functions; this should be part of ldata ! */
+static double
+ldata_get_k1(GEN ldata)
+{
+  long k = ldata_get_k(ldata);
+  return ldata_get_residue(ldata)? k-1: (k-1)/2.;
+}
+
 long
 ldata_get_type(GEN ldata) { return mael3(ldata, 1, 1, 1); }
 
@@ -375,7 +384,7 @@ lfunthetacost(GEN ldata, GEN tdom, long m, long bitprec)
   pari_sp av = avma;
   GEN Vga = ldata_get_gammavec(ldata);
   long d = lg(Vga)-1;
-  long k = ldata_get_k(ldata), k1;
+  long k1 = ldata_get_k1(ldata);
   double c = d/2., a, A, B, logC, al, rho;
   double N = gtodouble(ldata_get_conductor(ldata));
 
@@ -387,7 +396,6 @@ lfunthetacost(GEN ldata, GEN tdom, long m, long bitprec)
   }
   else
     get_cone_fuzz(tdom, &rho, &al);
-  k1 = ldata_get_residue(ldata)? k-1: (k-1)/2.;
   A = gammavec_expo(d, gtodouble(vecsum(Vga))); avma = av;
   a = (A+k1+1) + (m-1)/c;
   if (fabs(a) < 1e-10) a = 0.;
@@ -863,8 +871,7 @@ lfunparams(GEN ldata, long der, long bitprec, struct lfunp *S)
   S->hd = LOG2/S->m0;
 
   S->logC = d2*LOG2 - log(d2)/2;
-  k1 = (double)(k - 1);
-  if (!ldata_get_residue(ldata)) k1 /= 2.;
+  k1 = ldata_get_k1(ldata);
   S->k1 = k1; /* assume |a_n| << n^k1 with small implied constant */
   S->A  = gammavec_expo(d, suma);
 
