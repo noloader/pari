@@ -5,8 +5,8 @@ Prototype: lG
 Help: rnfislocalcyclo(rnf): true(1) if the l-extension attached to rnf
  is locally cyclotomic (locally contained in the Z_l extension of K_v at
  all places v | l), false(0) if not.
-Doc: Let \var{rnf} a a relative number field extension $L/K$ as output
- by \kbd{rnfinit} whole degree $[L:K]$ is a power of a prime $\ell$.
+Doc: Let \var{rnf} be a relative number field extension $L/K$ as output
+ by \kbd{rnfinit} whose degree $[L:K]$ is a power of a prime $\ell$.
  Return $1$ if the $\ell$-extension is locally cyclotomic (locally contained in
  the cyclotomic $\Z_\ell$-extension of $K_v$ at all places $v | \ell$), and
  $0$ if not.

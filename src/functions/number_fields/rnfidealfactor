@@ -2,9 +2,9 @@ Function: rnfidealfactor
 Section: number_fields
 C-Name: rnfidealfactor
 Prototype: GG
-Help: rnfidealfactor(rnf,x): factorization of the ideal x into
+Help: rnfidealfactor(rnf,x): factor the ideal x into
  prime ideals in the number field nfinit(rnf).
-Doc: factors into prime ideal powers the
+Doc: factor into prime ideal powers the
  ideal $x$ in the attached absolute number field $L = \kbd{nfinit}(\var{rnf})$.
  The output format is similar to the \kbd{factor} function, and the prime
  ideals are represented in the form output by the \kbd{idealprimedec}

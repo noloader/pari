@@ -4,7 +4,7 @@ C-Name: bnflog
 Prototype: GG
 Help: bnflog(bnf, l): let bnf be attached to a number field F and let l be
  a prime number. Return the logarithmic l-class group Cl~_F.
-Doc: let \var{bnf} be attached to a number field $F$ and let $l$ be
+Doc: let \var{bnf} be a \var{bnf} structure attached to the number field $F$ and let $l$ be
  a prime number (hereafter denoted $\ell$ for typographical reasons). Return
  the logarithmic $\ell$-class group $\widetilde{Cl}_F$
  of $F$. This is an abelian group, conjecturally finite (known to be finite
@@ -14,7 +14,7 @@ Doc: let \var{bnf} be attached to a number field $F$ and let $l$ be
  (maximal ideals containing $\ell$).
  The function returns $[D, G(\ell), G']$, where
 
- \item $D$ is the vector of elementary divisors for $\widetilde{Cl}_F$;
+ \item $D$ is the vector of elementary divisors for $\widetilde{Cl}_F$.
 
  \item $G(\ell)$ is the vector of elementary divisors for
  the (conjecturally finite) abelian group
