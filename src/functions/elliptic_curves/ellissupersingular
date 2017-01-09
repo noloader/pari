@@ -2,8 +2,8 @@ Function: ellissupersingular
 Section: elliptic_curves
 C-Name: ellissupersingular
 Prototype: iGDG
-Help: ellissupersingular(E,{p}): decide whether the elliptic curve E, defined
- over a number field or a finite field, is supersingular at p or not.
+Help: ellissupersingular(E,{p}): return 1 if the elliptic curve E, defined
+ over a number field or a finite field, is supersingular at p, and 0 otherwise.
 Doc:
  Return 1 if the elliptic curve $E$ defined over a number field
  or a finite field is supersingular at $p$, and $0$ otherwise.
@@ -15,8 +15,9 @@ Doc:
  Alternatively, $E$ can be given by its $j$-invariant in a finite field. In
  this case $p$ must be omitted.
  \bprog
+ ? setrand(1); \\ make the choice of g deterministic
  ? g = ffprimroot(ffgen(7^5))
- %1 = x^3 + 2*x^2 + 3*x + 1
+ %1 = 4*x^4 + 5*x^3 + 6*x^2 + 5*x + 6
  ? [g^n | n <- [1 .. 7^5 - 1], ellissupersingular(g^n)]
  %2 = [6]
 
@@ -24,6 +25,9 @@ Doc:
  ? E = ellinit([y,1], K);
  ? ellissupersingular(E, P)
  %5 = 1
+ ? Q = idealprimedec(K,5)[1];
+ ? ellissupersingular(E, Q)
+ %6 = 0
  @eprog
 Variant: Also available is
  \fun{int}{elljissupersingular}{GEN j} where $j$ is a $j$-invariant of a curve
