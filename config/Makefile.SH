@@ -69,6 +69,7 @@ esac
 PLOTCFLAGS=
 PLOTLIBS=
 postconfig=:
+plotrunpath=
 case "$which_graphic_lib" in
 none)
   graph=plotnull;;
@@ -90,19 +91,17 @@ fltk)
 win32)
   PLOTLIBS="-lgdi32"
   graph=plotWin32;;
+X11)
+  PLOTCFLAGS="$PLOTCFLAGS $X11_INC"
+  PLOTLIBS="$PLOTLIBS $X11_LIBS"
+  plotrunpath=$X11
+  graph=plotX;;
+*)
+  echo >&2 "### Unrecognized graphic library '$which_graphic_lib'."
+  exit 1;;
 esac
 graph="plotport $graph"
 libgraph="plottty"
-
-plotrunpath=
-case "$which_graphic_lib" in
-  *X11*)
-    PLOTCFLAGS="$PLOTCFLAGS $X11_INC"
-    PLOTLIBS="$PLOTLIBS $X11_LIBS"
-    plotrunpath=$X11
-    graph="plotX $graph"
-  ;;
-esac
 
 KERNOBJS=
 for f in $kernel; do
