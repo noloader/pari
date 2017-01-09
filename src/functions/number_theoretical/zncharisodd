@@ -8,7 +8,7 @@ Help: zncharisodd(G, chi): let G be idealstar(,N), let chi
 Doc: Let $G$ be attached to $(\Z/N\Z)^*$ (as per \kbd{G = idealstar(,N)})
  and let \kbd{chi} be a Dirichlet character on $(\Z/N\Z)^*$, given by
 
- \item a \typ{VEC}: a standard character on \kbd{bid.gen},
+ \item a \typ{VEC}: a standard character on \kbd{G.gen},
 
  \item a \typ{INT} or a \typ{COL}: a Conrey index in $(\Z/q\Z)^*$ or its
  Conrey logarithm;
