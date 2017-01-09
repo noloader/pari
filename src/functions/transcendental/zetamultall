@@ -4,7 +4,7 @@ C-Name: zetamultall
 Prototype: Lp
 Help: zetamultall(n): list of all multiple zeta values for weight up to n.
 Doc: list of all multiple zeta values for weight $s_1 + \dots + s_k$ up to $n$.
- The function returns a vector with $2^{n-1}+1$ components whose $i$-th entry
+ The function returns a vector with $2^{n-1}-1$ components whose $i$-th entry
  is the MZV of \kbd{index} $i$ (see \kbd{zetamult}).
  \bprog
  ? z = zetamultall(5);

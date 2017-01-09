@@ -13,7 +13,7 @@ Doc: For $s$ a vector of positive integers such that $s[1] \geq 2$,
  If the bit precision is $B$, this function runs in time $\tilde{O}(k B^2)$.
 
  In addition to the above format (\kbd{avec}), the function
- also accepts an internal binary format \kbd{evec} (each $s_i$ as replaced
+ also accepts an internal binary format \kbd{evec} (each $s_i$ is replaced
  by $s_i$ bits, all of them 0 but the last one), and an \kbd{index} format
  (if $e$ is the positive integer attached the \kbd{evec} vector of
  bits, the index is the integer $e + 2^{k-2}$). The function

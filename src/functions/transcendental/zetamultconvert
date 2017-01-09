@@ -17,8 +17,8 @@ Doc: \kbd{a} being either an \kbd{evec}, \kbd{avec}, or index \kbd{m},
  ? zetamultconvert(13, 0)
  %4 = Vecsmall([0, 1, 0, 1, 1])
  @eprog\noindent The last two lines imply that $[3,2]$ and $[2,2,1]$
- are dual (reverse order of bits and swap $0$ and $1$ in \kbd{evec} form),
- hence have the same zeta value:
+ are dual (reverse order of bits and swap $0$ and $1$ in \kbd{evec} form).
+ Hence they have the same zeta value:
  \bprog
  ? zetamult([3,2])
  %5 = 0.22881039760335375976874614894168879193
