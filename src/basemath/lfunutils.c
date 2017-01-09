@@ -42,7 +42,12 @@ checkldata(GEN ldata)
   vga = ldata_get_gammavec(ldata);
   if (typ(vga) != t_VEC) pari_err_TYPE("checkldata [gammavec]",vga);
   w = gel(ldata, 4); /* FIXME */
-  if (typ(w) != t_INT) pari_err_TYPE("checkldata [weight]",w);
+  switch(typ(w))
+  {
+    case t_INT: break;
+    case t_VEC: if (lg(w) == 3 && typ(gel(w,1)) == t_INT) break;
+    default: pari_err_TYPE("checkldata [weight]",w);
+  }
   N = ldata_get_conductor(ldata);
   if (typ(N) != t_INT) pari_err_TYPE("checkldata [conductor]",N);
 }

@@ -892,16 +892,13 @@ including only finitely many $a_n$-values will still completely determine $L$
 invariants from whatever information is available.
 
 \misctitle{Important Caveat}
-We currently assume that we can take the growth exponent $k_1 = (k-1)/2$ if
-$L$ is entire and $k_1 = k-1$ otherwise, and that the implied constants in
-the $O_\epsilon$ are small. This may be changed and made user-configurable
-in future versions but the essential point remains that it is impossible to
-return proven results in such a generic framework, without more detailed
-information about the $L$ function. The intended use of the $L$-function
-package is not to prove theorems, but to experiment and formulate
-conjectures, so all numerical results should be taken with a grain of salt.
-One can always increase \kbd{realbitprecision} and recompute: the difference
-estimates the actual absolute error in the original output.
+The implementation assumes that the implied constants in the $O_\epsilon$ are
+small. In our generic framework, it is impossible to return proven results
+without more detailed information about the $L$ function. The intended use of
+the $L$-function package is not to prove theorems, but to experiment and
+formulate conjectures, so all numerical results should be taken with a grain
+of salt. One can always increase \kbd{realbitprecision} and recompute: the
+difference estimates the actual absolute error in the original output.
 
 \misctitle{Note} The requested precision has a major impact on runtimes.
 Because of this, most $L$-function routines, in particular \kbd{lfun} itself,

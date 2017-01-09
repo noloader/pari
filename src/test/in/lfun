@@ -71,7 +71,7 @@ my(x = 2*I/5); e=exp(x/2)*lfuntheta(vv, exp(x)); /* should be real */
 [real(e),round(imag(e)*10^55)]
 
 M=msinit(11,4,1); F=mssplit(M,msnew(M))[1];
-L=lfuncreate([n->subst(lift(msqexpansion(M,F,n)),'x,1+sqrt(3)),0,[0,1],4,11,1]);
+L=lfuncreate([n->subst(lift(msqexpansion(M,F,n)),'x,1+sqrt(3)),0,[0,1],[4,3/2],11,1]);
 default("realprecision",115);
 lfun(L,2)
 default("realprecision",54);

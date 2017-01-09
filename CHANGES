@@ -52,6 +52,8 @@ HC   15- new GP functions zetamultall, zetamultconvert
 CG   17- new GP function matpermanent [#1860]
      18- [libpari] hammingl, RgM_is_QM, vecsmall_prod, zm_permanent,
          ZM_permanent
+     19- lfuncreate: no longer assume Ramanujan-Petersson, allow specifying
+         an arbitrary growth rate a_n = O(n^(k_1 + eps))
 
   Changed
       1- rewrite bnfnarrow

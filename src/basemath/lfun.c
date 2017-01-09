@@ -31,15 +31,6 @@ mysercoeff(GEN x, long n)
   return (N < 0)? gen_0: gel(x, N+2);
 }
 
-/* a_n = O(n^{k1 + epsilon}). FIXME: assume that k1 = k-1 and even
- * (k-1)/2 for entire functions; this should be part of ldata ! */
-static double
-ldata_get_k1(GEN ldata)
-{
-  long k = ldata_get_k(ldata);
-  return ldata_get_residue(ldata)? k-1: (k-1)/2.;
-}
-
 long
 ldata_get_type(GEN ldata) { return mael3(ldata, 1, 1, 1); }
 
@@ -59,7 +50,23 @@ long
 ldata_get_degree(GEN ldata) { return lg(gel(ldata, 3))-1; }
 
 long
-ldata_get_k(GEN ldata) { return itos(gel(ldata, 4)); }
+ldata_get_k(GEN ldata)
+{
+  GEN w = gel(ldata,4);
+  if (typ(w) == t_VEC) w = gel(w,1);
+  return itos(w);
+}
+/* a_n = O(n^{k1 + epsilon}) */
+static double
+ldata_get_k1(GEN ldata)
+{
+  GEN w = gel(ldata,4);
+  long k;
+  if (typ(w) == t_VEC) return gtodouble(gel(w,2));
+  /* by default, assume that k1 = k-1 and even (k-1)/2 for entire functions */
+  k = itos(w);
+  return ldata_get_residue(ldata)? k-1: (k-1)/2.;
+}
 
 GEN
 ldata_get_conductor(GEN ldata) { return gel(ldata, 5); }
