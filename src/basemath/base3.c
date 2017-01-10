@@ -1841,7 +1841,7 @@ nfeltembed(GEN nf, GEN x, GEN ind0)
   v = cgetg(l, t_VEC);
   for (i = 1; i < l; i++)
   {
-    GEN t = nfembed_i(M, x, i);
+    GEN t = nfembed_i(M, x, ind[i]);
     if (cx) t = gmul(t, cx);
     gel(v,i) = t;
   }
