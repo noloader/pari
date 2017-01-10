@@ -1760,12 +1760,12 @@ nfsign_arch(GEN nf, GEN x, GEN arch)
   avma = (pari_sp)V; return V;
 }
 static void
-chk_ind(long i, long r1)
+chk_ind(const char *s, long i, long r1)
 {
   if (i <= 0)
-    pari_err_DOMAIN("nfeltsign", "index", "<=", gen_0, stoi(i));
+    pari_err_DOMAIN(s, "index", "<=", gen_0, stoi(i));
   if (i > r1)
-    pari_err_DOMAIN("nfeltsign", "index", ">", stoi(r1), stoi(i));
+    pari_err_DOMAIN(s, "index", ">", stoi(r1), stoi(i));
 }
 GEN
 nfeltsign(GEN nf, GEN x, GEN ind0)
@@ -1788,7 +1788,7 @@ nfeltsign(GEN nf, GEN x, GEN ind0)
       return NULL; /* LCOV_EXCL_LINE */
   }
   l = lg(ind);
-  for (i = 1; i < l; i++) chk_ind(ind[i], r1);
+  for (i = 1; i < l; i++) chk_ind("nfeltsign", ind[i], r1);
   if (typ(x) != t_COL)
   {
     GEN s;
@@ -1807,6 +1807,46 @@ nfeltsign(GEN nf, GEN x, GEN ind0)
   for (i = 1; i < l; i++) gel(v,i) = v[i]? gen_m1: gen_1;
   return gerepileupto(av, v);
 
+}
+
+GEN
+nfeltembed(GEN nf, GEN x, GEN ind0)
+{
+  pari_sp av = avma;
+  long i, l, r1, r2;
+  GEN v, ind, cx, M;
+  nf = checknf(nf);
+  r1 = nf_get_r1(nf);
+  r2 = nf_get_r2(nf);
+  x = nf_to_scalar_or_basis(nf, x);
+  if (!ind0) ind0 = identity_perm(r1+r2);
+  switch(typ(ind0))
+  {
+    case t_INT: case t_VEC: case t_COL:
+      ind = gtovecsmall(ind0); break;
+    case t_VECSMALL:
+      ind = ind0; break;
+    default:
+      pari_err_TYPE("nfeltsign",ind0);
+      return NULL; /* LCOV_EXCL_LINE */
+  }
+  l = lg(ind);
+  for (i = 1; i < l; i++) chk_ind("nfeltembed", ind[i], r1+r2);
+  if (typ(x) != t_COL)
+  {
+    if (typ(ind0) != t_INT) x = const_vec(l-1, x);
+    return gerepilecopy(av, x);
+  }
+  x = Q_primitive_part(x, &cx); M = nf_get_M(nf);
+  v = cgetg(l, t_VEC);
+  for (i = 1; i < l; i++)
+  {
+    GEN t = nfembed_i(M, x, i);
+    if (cx) t = gmul(t, cx);
+    gel(v,i) = t;
+  }
+  if (typ(ind0) == t_INT) v = gel(v,1);
+  return gerepilecopy(av, v);
 }
 
 /* return the vector of signs of x; the matrix of such if x is a vector

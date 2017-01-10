@@ -799,13 +799,6 @@ Fpmul(void *a, GEN x, GEN y) { return Fp_mul(x,y,(GEN)a); }
 static GEN
 Fppow(void *a, GEN x, GEN n) { return Fp_pow(x,n,(GEN)a); }
 
-#if 0
-static GEN
-_ellmul(void *ell, GEN x, GEN y) { return elladd((GEN) ell, x, y); }
-static GEN
-_ellpow(void *ell, GEN x, GEN n) { return ellmul((GEN) ell, x, n); }
-#endif
-
 /* [L,e] = [fa, NULL] or [elts, NULL] or [elts, exponents] */
 GEN
 gen_factorback(GEN L, GEN e, GEN (*_mul)(void*,GEN,GEN),

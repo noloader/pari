@@ -3946,20 +3946,6 @@ localredbug(GEN p, const char *s)
 static long
 j_pval(GEN E, GEN p) { return Z_pval(Q_denom(ell_get_j(E)), p); }
 
-#if 0
-/* Here p > 3. e assumed integral, return v_p(N). Simplified version of
- * localred_p */
-static long
-localred_p_get_f(GEN e, GEN p)
-{
-  long nuj, nuD;
-  GEN D = ell_get_disc(e);
-  nuj = j_pval(e, p);
-  nuD = Z_pval(D, p);
-  if (nuj == 0) return (nuD % 12)? 2 : 0;
-  return (nuD - nuj) % 12 ? 2: 1;
-}
-#endif
 /* p > 3, e integral */
 static GEN
 localred_p(GEN e, GEN p)

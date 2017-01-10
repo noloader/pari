@@ -2962,16 +2962,6 @@ GEN
 eta0(GEN x, long flag,long prec)
 { return flag? trueeta(x,prec): eta(x,prec); }
 
-#if 0
-/* U = [a,b;c,d], return c*z +d */
-static GEN
-aut_factor(GEN U, GEN z)
-{
-  GEN c = gcoeff(U,2,1), d = gcoeff(U,2,2);
-  return signe(c)? gadd(gmul(c,z), d): d;
-}
-#endif
-
 /* eta(q) = 1 + \sum_{n>0} (-1)^n * (q^(n(3n-1)/2) + q^(n(3n+1)/2)) */
 static GEN
 ser_eta(long prec)
