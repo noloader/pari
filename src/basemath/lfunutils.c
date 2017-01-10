@@ -1099,15 +1099,44 @@ lfunellmfpeters(GEN E, long bitprec)
 }
 
 /*************************************************************/
-/*               genus 2 curves                              */
+/*               Genus 2 curves                              */
 /*************************************************************/
+
+static long
+Flx_genus2trace_naive1(GEN H, ulong p)
+{
+  pari_sp av = avma;
+  ulong i, j, D = 2;
+  long a, n = degpol(H);
+  GEN k = const_vecsmall(p, -1);
+  k[1] = 0;
+  for (i=1, j=1; i < p; i += 2, j = Fl_add(j, i, p)) k[j+1] = 1;
+  while (k[1+D] >= 0) D++;
+  a = n == 5 ? 0: k[1+Flx_lead(H)];
+  for (i=0; i < p; i++)
+  {
+    ulong v = Flx_eval(H, i, p);
+    a += k[1+v];
+  }
+  avma = av;
+  return a;
+}
 
 static GEN
 dirgenus2(void *E, GEN p)
 {
   pari_sp av = avma;
-  GEN Q = (GEN) E;
-  GEN f = RgX_recip(hyperellcharpoly(gmul(Q,gmodulo(gen_1, p))));
+  GEN L = (GEN) E, Q = gel(L,1), N = gel(L,2);
+  GEN f;
+  if (cmpii(sqri(p),N) <= 0)
+    f = RgX_recip(hyperellcharpoly(gmul(Q,gmodulo(gen_1, p))));
+  else
+  {
+    ulong pp = itou(p);
+    GEN Qp = ZX_to_Flx(Q, pp);
+    long t = Flx_genus2trace_naive1(Qp, pp);
+    f = deg1pol(stoi(t), gen_1, 0);
+  }
   return gerepileupto(av, ginv(f));
 }
 
@@ -1115,7 +1144,7 @@ static GEN
 vecan_genus2(GEN an, long L)
 {
   GEN Q = gel(an,1), bad = gel(an, 2);
-  return direuler_bad((void*)Q, dirgenus2, gen_2, stoi(L), NULL, bad);
+  return direuler_bad((void*)mkvec2(Q,stoi(L)), dirgenus2, gen_2, stoi(L), NULL, bad);
 }
 
 static GEN
