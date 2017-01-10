@@ -85,7 +85,7 @@ Doc: This low-level routine creates \tet{Ldata} structures, needed by
  for a modular form, $k$ is its weight. For motivic $L$-functions, the
  \emph{motivic} weight $w$ is $w = k-1$.
 
- By default we assume that $a_n = O_\epsilon(n^{k_1+\epsilon}), where
+ By default we assume that $a_n = O_\epsilon(n^{k_1+\epsilon})$, where
  $k_1 = w$ and even $k_1 = w/2$ when the $L$ function has no pole
  (Ramanujan-Petersson). If this is not the case, you can replace the
  $k$ argument by a vector $[k,k_1]$, where $k_1$ is the upper bound you can
