@@ -4262,13 +4262,18 @@ and \kbd{y}
 \kbd{deplin=0}) or \kbd{F2m\_deplin} (if \kbd{deplin=1}), in place
 (destroys~\kbd{x}).
 
-\subsec{\kbd{FlxqV}, \kbd{FlxqM}} See \kbd{FqV}, \kbd{FqM} operations.
+\subsec{\kbd{FlxqV}, \kbd{FlxqC}, \kbd{FlxqM}}
+See \kbd{FqV}, \kbd{FqC}, \kbd{FqM} operations.
 
 \fun{GEN}{FlxqV_dotproduct}{GEN x, GEN y, GEN T, ulong p} as
 \kbd{FpV\_dotproduct}.
 
 \fun{GEN}{FlxM_Flx_add_shallow}{GEN x, GEN y, ulong p} as
 \kbd{RgM\_Rg\_add\_shallow}.
+
+\fun{GEN}{FlxqC_Flxq_mul}{GEN x, GEN y, GEN T, ulong p}
+
+\fun{GEN}{FlxqM_Flxq_mul}{GEN x, GEN y, GEN T, ulong p}
 
 \fun{GEN}{FlxqM_FlxqC_gauss}{GEN a, GEN b, GEN T, ulong p}
 
@@ -5512,10 +5517,22 @@ returns their product.
 \fun{ulong}{FlxC_eval_powers_pre}{GEN x, GEN y, ulong p, ulong pi}
 apply \kbd{Flx\_eval\_powers\_pre} to all elements of \kbd{x}.
 
+\fun{GEN}{FlxC_neg}{GEN x, ulong p}
+
+\fun{GEN}{FlxC_sub}{GEN x, GEN y, ulong p}
+
+\fun{GEN}{zero_FlxC}{long n, long sv}
+
 \subsec{\kbd{FlxM}} See \kbd{FpXM} operations.
 
 \fun{ulong}{FlxM_eval_powers_pre}{GEN M, GEN y, ulong p, ulong pi}
 this function applies \kbd{FlxC\_eval\_powers\_pre} to all entries of \kbd{M}.
+
+\fun{GEN}{FlxM_neg}{GEN x, ulong p}
+
+\fun{GEN}{FlxM_sub}{GEN x, GEN y, ulong p}
+
+\fun{GEN}{zero_FlxM}{long r, long c, long sv}
 
 \subsec{\kbd{FlxT}} See \kbd{FpXT} operations.
 

@@ -3567,6 +3567,68 @@ FlxM_eval_powers_pre(GEN z, GEN x, ulong p, ulong pi)
   return y;
 }
 
+GEN
+zero_FlxC(long n, long sv)
+{
+  long i;
+  GEN x = cgetg(n + 1, t_COL);
+  GEN z = zero_Flx(sv);
+  for (i = 1; i <= n; i++)
+    gel(x, i) = z;
+  return x;
+}
+
+GEN
+FlxC_neg(GEN x, ulong p)
+{
+  long i, l = lg(x);
+  GEN z = cgetg(l, t_COL);
+  for (i = 1; i < l; i++)
+    gel(z, i) = Flx_neg(gel(x, i), p);
+  return z;
+}
+
+GEN
+FlxC_sub(GEN x, GEN y, ulong p)
+{
+  long i, l = lg(x);
+  GEN z = cgetg(l, t_COL);
+  for (i = 1; i < l; i++)
+    gel(z, i) = Flx_sub(gel(x, i), gel(y, i), p);
+  return z;
+}
+
+GEN
+zero_FlxM(long r, long c, long sv)
+{
+  long j;
+  GEN x = cgetg(c + 1, t_MAT);
+  GEN z = zero_FlxC(r, sv);
+  for (j = 1; j <= c; j++)
+    gel(x, j) = z;
+  return x;
+}
+
+GEN
+FlxM_neg(GEN x, ulong p)
+{
+  long j, l = lg(x);
+  GEN z = cgetg(l, t_MAT);
+  for (j = 1; j < l; j++)
+    gel(z, j) = FlxC_neg(gel(x, j), p);
+  return z;
+}
+
+GEN
+FlxM_sub(GEN x, GEN y, ulong p)
+{
+  long j, l = lg(x);
+  GEN z = cgetg(l, t_MAT);
+  for (j = 1; j < l; j++)
+    gel(z, j) = FlxC_sub(gel(x, j), gel(y, j), p);
+  return z;
+}
+
 /***********************************************************************/
 /**                                                                   **/
 /**                               FlxX                                **/
@@ -4830,6 +4892,26 @@ FlxqV_roots_to_pol(GEN V, GEN T, ulong p, long v)
 }
 
 /*** FlxqM ***/
+
+GEN
+FlxqC_Flxq_mul(GEN x, GEN y, GEN T, ulong p)
+{
+  long i, l = lg(x);
+  GEN z = cgetg(l, t_COL);
+  for (i = 1; i < l; i++)
+    gel(z, i) = Flxq_mul(gel(x, i), y, T, p);
+  return z;
+}
+
+GEN
+FlxqM_Flxq_mul(GEN x, GEN y, GEN T, ulong p)
+{
+  long j, l = lg(x);
+  GEN z = cgetg(l, t_MAT);
+  for (j = 1; j < l; j++)
+    gel(z, j) = FlxqC_Flxq_mul(gel(x, j), y, T, p);
+  return z;
+}
 
 static GEN
 kron_pack_Flx_spec_half(GEN x, long l) {
