@@ -4528,20 +4528,23 @@ definition, not the other way round.)
 
 \subsubsec{Preconditioned reduction}
 
-For faster reduction, the modulus \kbd{T} can be replaced by an extended
-modulus, which is an \kbd{FpXT}, in all \kbd{FpXQ}- and \kbd{Fq}-classes
-functions, and in \kbd{FpX\_rem} and \kbd{FpX\_divrem}.
+For faster reduction, the modulus $T$ can be replaced by an extended modulus
+in all \kbd{FpXQ}- and \kbd{Fq}-classes functions, and in \kbd{FpX\_rem} and
+\kbd{FpX\_divrem}. An extended modulus(\kbd{FpXT}, which is a tree whose leaves are \kbd{FpX})In
+current implementation, an extended modulus is either a plain modulus (an
+\kbd{FpX}) or a pair of polynomials, one being the plain modulus $T$ and the
+other being \tet{FpX_invBarret}$(T,p)$.
 
 \fun{GEN}{FpX_get_red}{GEN T, GEN p} returns the extended modulus \kbd{eT}.
 
 To write code that works both with plain and extended moduli, the following
 accessors are defined:
 
-\fun{GEN}{get_FpX_mod}{GEN eT} returns the underlying modulus \kbd{T}.
+\fun{GEN}{get_FpX_mod}{GEN eT} returns the underlying modulus $T$.
 
-\fun{GEN}{get_FpX_var}{GEN eT} returns the variable number of the modulus.
+\fun{GEN}{get_FpX_var}{GEN eT} returns the variable number \kbd{varn}$(T)$.
 
-\fun{GEN}{get_FpX_degree}{GEN eT} returns the degree of the modulus.
+\fun{GEN}{get_FpX_degree}{GEN eT} returns the degree \kbd{degpol}$(T)$.
 
 Furthermore, \kbd{ZXT\_to\_FlxT} allows to convert an extended modulus for
 a \kbd{FpX} to an extended modulus for the corresponding \kbd{Flx}.
@@ -5188,7 +5191,7 @@ variable $v$, then the coefficients by increasing degree. An \kbd{FlxX} is a
 \subsubsec{Preconditioned reduction}
 
 For faster reduction, the modulus \kbd{T} can be replaced by an extended
-modulus, which is an \kbd{FlxT}, in all \kbd{Flxq}-classes functions, and in
+modulus (\kbd{FlxT}) in all \kbd{Flxq}-classes functions, and in
 \kbd{Flx\_divrem}.
 
 \fun{GEN}{Flx_get_red}{GEN T, ulong p} returns the extended modulus \kbd{eT}.
