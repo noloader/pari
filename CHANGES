@@ -84,6 +84,7 @@ HC   16- sumnummonieninit(a) for [a,a] did not conform to documentation.
      18- lfun(Dirichlet character): switch automatically to lfunchiquad
          (Kronecker) if char has order <= 2
      19- nfchecksigns: replace by rigorous algorithm
+     20- asympnum: better tunings => usually finds more terms
 
   Removed
       1- file 'MACHINES' (no longer maintained)

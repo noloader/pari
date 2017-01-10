@@ -1477,13 +1477,31 @@ derivfun0(GEN code, GEN args, long prec)
 /********************************************************************/
 /**                   Numerical extrapolation                      **/
 /********************************************************************/
-
+/* for t_CLOSURE */
 static double
-extgetmf(long muli)
+fun_getmf(long mul)
 {
-  double mulfact[] = {0.5,0.5,0.48,0.43,0.41,0.39,0.38,0.37,0.36,0.36,0.35};
-  if (muli > 100) return 0.35*LOG10_2;
-  return mulfact[muli/10]*LOG10_2;
+  const double A[] = {0,
+    0.331,0.260,0.228,0.210,0.198,
+    0.188,0.181,0.175,0.170,0.166 };
+  const double B[] = {0,
+    0.166,0.142,0.132,0.125,0.120,
+    0.116,0.113,0.111,0.109,0.107 };
+  if (mul <=  10) return A[mul];
+  if (mul <= 109) return B[mul/10]; else return 0.105;
+}
+/* for t_VEC */
+static double
+vec_getmf(long mul)
+{
+  const double A[] = {0,
+    0.2062, 0.1760, 0.1613, 0.1519, 0.1459,
+    0.1401, 0.1360, 0.1327, 0.1299, 0.1280 };
+  const double B[] = {0,
+    0.1280, 0.1133, 0.1064, 0.1019, 0.0987,
+    0.0962, 0.0942, 0.0925, 0.0911, 0.0899 };
+  if (mul <=  10) return A[mul];
+  if (mul <= 109) return B[mul/10]; else return 0.0899;
 }
 
 /* [u(n*muli), u <= N], muli = 1 unless f!=NULL */
@@ -1491,18 +1509,17 @@ static GEN
 get_u(void *E, GEN (*f)(void *, GEN, long), long N, long muli, long prec)
 {
   long n;
-  GEN u;
+  GEN u = cgetg(N+1, t_VEC);
   if (f)
   {
-    u = cgetg(N+1, t_VEC);
     for (n = 1; n <= N; n++) gel(u,n) = f(E, stoi(muli*n), prec);
   }
   else
   {
-    u = (GEN)E;
-    n = lg(u)-1;
-    if (n < N) pari_err_COMPONENT("limitnum","<",stoi(N), stoi(n));
-    u = vecslice(u, 1, N);
+    GEN v = (GEN)E;
+    long t = lg(v)-1;
+    if (t < N*muli) pari_err_COMPONENT("limitnum","<",stoi(N), stoi(t));
+    for (n = 1; n <= N; n++) gel(u,n) = gel(v, muli*n);
   }
   for (n = 1; n <= N; n++)
   {
@@ -1527,14 +1544,12 @@ static void
 limit_init(struct limit *L, void *E, GEN (*f)(void*,GEN,long),
            long muli, GEN alpha, long prec)
 {
-  long bitprec = prec2nbits(prec), N;
+  long bitprec = prec2nbits(prec), n, N;
   GEN na;
-  long n;
 
   if (muli <= 0) muli = 20;
-  if (!f) muli = 1;
-  L->N = N = (long)ceil(extgetmf(muli)*bitprec);
-  L->prec = nbits2prec((long)ceil(1.25*bitprec) + 32);
+  L->N = N = (long)ceil((f? fun_getmf(muli): vec_getmf(muli)) * bitprec);
+  L->prec = nbits2prec(bitprec + (long)ceil(1.84*N));
   L->prec0 = prec;
   L->u = get_u(E, f, N, muli, L->prec);
   if (alpha && gequal1(alpha)) alpha = NULL;
@@ -1611,9 +1626,12 @@ asympnum(void *E, GEN (*f)(void *, GEN, long), long muli, GEN alpha, long prec)
   const long MAX = 100;
   pari_sp av = avma;
   GEN u, vres = vectrunc_init(MAX);
-  long i;
+  long i, B = prec2nbits(prec);
+  /* FIXME: heuristic, lindep ignores 20% further bits*/
+  double LB = expu(B) * 0.7;
   struct limit L;
   limit_init(&L, E,f, muli, alpha, prec);
+  if (alpha) LB *= gtodouble(alpha);
   u = L.u;
   for(i = 1; i <= MAX; i++)
   {
@@ -1621,6 +1639,7 @@ asympnum(void *E, GEN (*f)(void *, GEN, long), long muli, GEN alpha, long prec)
     long n;
     s = limitnum_i(&L);
     /* NOT bestappr: lindep will "properly" ignore the lower bits */
+    s = gprec_wtrunc(s, nbits2prec(maxss((long)floor(B - i*LB), 32)));
     v = lindep(mkvec2(gen_1, s));
     p = negi(gel(v,1));
     q = gel(v,2);
