@@ -4,7 +4,7 @@ C-Name: nfeltembed
 Prototype: GGDG
 Help: nfeltembed(nf,x,{pl}): complex embeddings of x (at places given
  by vector pl)
-Doc: given an element $x$ in the number field \var{nf}, returns the signs of
+Doc: given an element $x$ in the number field \var{nf}, returns
  the (real or) complex embeddings of $x$ specified by optional argument
  \var{pl}:
 
