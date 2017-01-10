@@ -2233,7 +2233,7 @@ X2XP1(GEN P, long deg, int *root1, GEN *Premapped)
       if (DEBUGMEM > 1) pari_warn(warnmem, "X2XP1");
     }
   }
-  if (s == signe(gel(v, vlim))) nb++;
+  if (vlim >= 2 && s == signe(gel(v, vlim))) nb++;
 END:
   if (Premapped && nb == 1) *Premapped = v; else avma = av;
   return nb;

@@ -74,3 +74,8 @@ polrootsreal((x^3-x^2)*(x-2)^3*(x-3)^2)
 
 default(realprecision,19);
 #polroots((x+1)^2 * (x-1)^7 * (x^2-x+1)^5 * 1.0)
+
+\\#1884
+default(realprecision,38);
+polsturm(x^2-1,[-1,1])
+polrootsreal(x^2-1,[-1,1])
