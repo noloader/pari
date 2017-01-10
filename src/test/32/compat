@@ -1248,8 +1248,9 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: hell(e,x) ===> ellheight(e,x)
 
-ellheight(E,P,{Q}): canonical height of point P on elliptic curve E, resp. the 
-value of the attached bilinear form at (P,Q).
+ellheight(E,{P},{Q}): Faltings height of the curve E, resp. canonical height of 
+the point P on elliptic curve E, resp. the value of the attached bilinear form 
+at (P,Q).
 
 
   ***   at top-level: hell2()
@@ -1259,8 +1260,9 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: hell2(e,x) ===> ellheight(e,x,1)
 
-ellheight(E,P,{Q}): canonical height of point P on elliptic curve E, resp. the 
-value of the attached bilinear form at (P,Q).
+ellheight(E,{P},{Q}): Faltings height of the curve E, resp. canonical height of 
+the point P on elliptic curve E, resp. the value of the attached bilinear form 
+at (P,Q).
 
 
   ***   at top-level: hermite()

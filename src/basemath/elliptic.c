@@ -5934,6 +5934,48 @@ elllseries(GEN e, GEN s, GEN A, long prec)
 /********************************************************************/
 
 static GEN
+ellnf_volume(GEN e, long prec)
+{
+  GEN V = ellnf_vecarea(e,prec);
+  long i, r1 = nf_get_r1(ellnf_get_nf(e)), l = lg(V);
+  GEN r = gen_1;
+  for(i=1; i <= r1; i++) r = gmul(r, gel(V,i));
+  for(   ; i < l  ; i++) r = gmul(r, gsqr(gel(V,i)));
+  return r;
+}
+
+/* The function follows
+<https://publications.ias.edu/sites/default/files/Number52.pdf>
+<https://resnumtheor.springeropen.com/track/pdf/10.1007/s40993-017-0077-7>
+*/
+
+static GEN
+ellheightfaltings(GEN e, long prec)
+{
+  GEN E, h;
+  long d;
+  pari_sp av = avma;
+  checkell(e);
+  switch(ell_get_type(e))
+  {
+    case t_ELL_Q:
+      d = 1;
+      E = ellminimalmodel(e,NULL);
+      h = ellR_area(E, prec);
+      obj_free(E);
+      break;
+    case t_ELL_NF:
+      d = nf_get_degree(ellnf_get_nf(e));
+      h = gmul(gsqr(ellminimalnormu(e)), ellnf_volume(e, prec));
+      break;
+    default:
+      pari_err_TYPE("ellheight", e);
+      return NULL; /*LCOV_EXCL_LINE*/
+  }
+  return gerepileupto(av, gdivgs(logr_abs(h), -2*d));
+}
+
+static GEN
 Q_numer(GEN x) { return typ(x) == t_INT? x: gel(x,1); }
 
 /* one root of X^2 - t X + c */
@@ -6045,7 +6087,7 @@ ellheightpairing(GEN E, GEN p, long n, GEN P, GEN Q)
 }
 GEN
 ellheight0(GEN e, GEN a, GEN b, long n)
-{ return b? ellheightpairing(e,NULL,n, a,b): ellheight(e,a,n); }
+{ return b? ellheightpairing(e,NULL,n, a,b): a? ellheight(e,a,n): ellheightfaltings(e,n); }
 GEN
 ellpadicheight0(GEN e, GEN p, long n, GEN P, GEN Q)
 { return Q? ellheightpairing(e,p,n, P,Q): ellpadicheight(e,p,n, P); }

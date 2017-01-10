@@ -1,18 +1,26 @@
 Function: ellheight
 Section: elliptic_curves
 C-Name: ellheight0
-Prototype: GGDGp
-Help: ellheight(E,P,{Q}): canonical height of point P on elliptic curve E,
- resp. the value of the attached bilinear form at (P,Q).
-Doc: global N\'eron-Tate height $h(P)$ of the point $P$ on the elliptic curve
- $E$, defined over $\Q$ or a number field, using the same normalization as
- Cremona's \emph{Algorithms for modular elliptic curves}. $E$ must be an
- \kbd{ell} as output by \kbd{ellinit}; it needs not be given by a minimal
- model although the computation will be faster if it is. The height of a
- torsion point is exactly 0, else a positive real number.
+Prototype: GDGDGp
+Help: ellheight(E,{P},{Q}): Faltings height of the curve E, resp. canonical
+ height of the point P on elliptic curve E, resp. the value of the attached
+ bilinear form at (P,Q).
+Doc:
+ Without arguments $P,Q$, returns the Faltings height of the curve $E$.
+
+ If the argument $P$ is present, returns the global N\'eron-Tate height
+ $h(P)$ of the point $P$ on the elliptic curve
+ $E/\Q$, using the normalization in Cremona's \emph{Algorithms for modular
+ elliptic curves}. $E$ must be an \kbd{ell} as output by \kbd{ellinit}; it
+ needs not be given by a minimal model although the computation will be faster
+ if it is.
 
  If the argument $Q$ is present, computes the value of the bilinear
  form $(h(P+Q)-h(P-Q)) / 4$.
+
+ Remark: the normalization chosen for Faltings height is that of Deligne.
+ For a rational curve, the normalization is such that the function returns
+ \kbd{-1/2*log(ellminimalmodel(E).area)}.
 
 Variant: Also available is \fun{GEN}{ellheight}{GEN E, GEN P, long prec}
  ($Q$ omitted).
