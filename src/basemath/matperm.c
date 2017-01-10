@@ -20,44 +20,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #include "pari.h"
 #include "paripriv.h"
 
-static GEN
-_mulii1(void *ignored, GEN x, GEN y)
-{
-  (void)ignored;
-  if (signe(x)) {
-    return signe(y) ? mulii(x, y) : x;
-  } else {
-    return signe(y) ? y : gen_1;
-  }
-}
-
-/* Returns the absolute value of the product of the nonzero integers in c */
-GEN
-ZC_maxprodabs(GEN c)
-{
-  pari_sp ltop = avma;
-  GEN pr = gen_product(c, NULL, &_mulii1);
-  if (is_pm1(pr)) {
-    avma = ltop;
-    return gen_1;
-  }
-  setsigne(pr, 1);
-  return gerepileuptoint(ltop, pr);
-}
-
-GEN
-ZM_maxprodabs(GEN M)
-{
-  pari_sp ltop = avma;
-  GEN mx = gen_1;
-  long i, n = lg(M);
-  for (i = 1; i < n; i++) {
-    GEN t = ZC_maxprodabs(gel(M, i));
-    if (cmpii(mx, t) < 0) mx = t;
-  }
-  return gerepileuptoint(ltop, mx);
-}
-
 /* Ryser's formula */
 GEN
 matpermanent(GEN M)
