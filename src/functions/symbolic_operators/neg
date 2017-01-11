@@ -1,5 +1,5 @@
 Function: -_
-Help: -_
+Help: -_: negate argument
 Section: symbolic_operators
 C-Name: gneg
 Prototype: G

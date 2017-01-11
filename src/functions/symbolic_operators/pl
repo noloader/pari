@@ -1,5 +1,5 @@
 Function: +_
-Help: +_
+Help: +_: copy and return its argument
 Section: symbolic_operators
 Description:
  (small):small:parens                      $1
