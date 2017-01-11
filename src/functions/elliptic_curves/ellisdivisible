@@ -2,7 +2,7 @@ Function: ellisdivisible
 Section: elliptic_curves
 C-Name: ellisdivisible
 Prototype: lGGGD&
-Help: ellisdivisible(E,P,n,{&Q})): given E/K and P in E(K),
+Help: ellisdivisible(E,P,n,{&Q}): given E/K and P in E(K),
  checks whether P = [n]R for some R in E(K) and sets Q to one such R if so;
  the integer n >= 0 may be given as ellxn(E,n).
 Doc: given $E/K$ a number field and $P$ in $E(K)$

@@ -2,7 +2,7 @@ Function: partitions
 Section: number_theoretical
 C-Name: partitions
 Prototype: LDGDG
-Help: partitions(k,{a=k},{n=k})): vector of partitions of the integer k.
+Help: partitions(k,{a=k},{n=k}): vector of partitions of the integer k.
  You can restrict the length of the partitions with parameter n (n=nmax or
  n=[nmin,nmax]), or the range of the parts with parameter a (a=amax
  or a=[amin,amax]). By default remove zeros, but one can set amin=0 to get X of
