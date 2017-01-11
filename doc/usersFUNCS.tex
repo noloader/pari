@@ -618,7 +618,8 @@ condition and we can use Chinese reminders instead. If $N = \prod p^{e_p}$ is
 the factorization of $N$ into primes, the so-called \tev{Conrey generators}
 of $G$ are the generators of the $(\Z/p^{e_p}\Z)^*$ lifted to $(\Z/N\Z)^*$ by
 requesting that they be congruent to $1$ modulo $N/p^{e_p}$ (for $p$ odd we
-take the smallest positive primitive root, and for $p = 2$ we take $-1$ if
+take the smallest positive primitive root mod $p^2$, and for $p = 2$
+we take $-1$ if
 $e_2 > 1$ and additionally $5$ if $e_2 > 2$). We can again write $G =
 \oplus_{i\leq n} (\Z/D_i\Z) G_i$, where again $\prod_i D_i = \phi(N)$. These
 generators don't satisfy the SNF condition in general since their orders are
