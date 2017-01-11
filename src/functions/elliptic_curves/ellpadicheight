@@ -2,7 +2,7 @@ Function: ellpadicheight
 Section: elliptic_curves
 C-Name: ellpadicheight0
 Prototype: GGLGDG
-Help:ellpadicheight(E, p,n, P,{Q}): E elliptic curve/Q, P in E(Q),
+Help:ellpadicheight(E,p,n, P,{Q}): E elliptic curve/Q, P in E(Q),
  p prime, n an integer; returns the cyclotomic p-adic heights of P.
  Resp. the value of the attached bilinear form at (P,Q).
 Doc: cyclotomic $p$-adic height of the rational point $P$ on the elliptic curve
@@ -30,23 +30,24 @@ Doc: cyclotomic $p$-adic height of the rational point $P$ on the elliptic curve
  curves}, Theorem~3.2) that the local height function over the complex numbers
  is of the form
    $$ \lambda(z) = -\log (|\kbd{E.disc}|) / 6 + \Re(z \eta(z)) - 2 \log(
-   \sigma(z). $$
+   \sigma(z)). $$
  (N.B. our normalization for local and global heights is twice that of
  Silverman's).
  \bprog
   ? E = ellinit([1,-1,1,0,0]); P = [0,0];
-  ? ellpadicheight(E,5,4, P)
-  %2 = [3*5 + 5^2 + 2*5^3 + O(5^4), 5^2 + 4*5^4 + O(5^6)]
+  ? ellpadicheight(E,5,3, P)
+  %2 = [3*5 + 5^2 + 2*5^3 + O(5^4), 5^2 + 4*5^4 + O(5^5)]
   ? E = ellinit("11a1"); P = [5,5]; \\ torsion point
   ? ellpadicheight(E,19,6, P)
-  %4 = O(19^6)
+  %4 = [0, 0]
   ? E = ellinit([0,0,1,-4,2]); P = [-2,1];
-  ? ellpadicheight(E,3,5, P)
-  %6 = [2*3^2 + 2*3^3 + 3^4 + O(3^5), 2*3^2 + 3^4 + 2*3^5 + 3^6 + O(3^7)]
+  ? ellpadicheight(E,3,3, P)
+  %6 = [2*3^2 + 2*3^3 + 3^4 + O(3^5), 2*3^2 + 3^4 + O(3^5)]
   ? ellpadicheight(E,3,5, P, elladd(E,P,P))
+  %7 = [3^2 + 2*3^3 + O(3^7), 3^2 + 3^3 + 2*3^4 + 3^5 + O(3^7)]
  @eprog
 
- One can replace the parameter $p$ prime by a vector $[p,[a,b]]$, in which
+ One can replace the parameter $p$ (prime) by a vector $[p,[a,b]]$, in which
  case the routine returns the $p$-adic number $af + bg$.
 
  When $E$ has good ordinary reduction at $p$, the ``canonical''
@@ -61,5 +62,5 @@ Doc: cyclotomic $p$-adic height of the rational point $P$ on the elliptic curve
  ? s2 = ellpadics2(E,p,n);
  ? M = ellpadicheightmatrix(E,[p,[1,-s2]], n, E.gen);
  ? matdet(M)   \\ p-adic regulator
- %4 = 5 + 5^2 + 4*5^3 + 2*5^4 + 2*5^5 + 5^6 + O(5^7)
+ %4 = 5 + 5^2 + 4*5^3 + 2*5^4 + 2*5^5 + 2*5^6 + O(5^7)
  @eprog
