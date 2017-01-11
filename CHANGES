@@ -55,6 +55,7 @@ CG   17- new GP function matpermanent [#1860]
          ZM_permanent
      19- lfuncreate: no longer assume Ramanujan-Petersson, allow specifying
          an arbitrary growth rate a_n = O(n^(k_1 + eps))
+BA   20- new GP function vecprod
 
   Changed
       1- rewrite bnfnarrow

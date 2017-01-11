@@ -877,6 +877,16 @@ factorback2(GEN L, GEN e) { return gen_factorback(L, e, &mul, &powi, NULL); }
 GEN
 factorback(GEN fa) { return factorback2(fa, NULL); }
 
+GEN
+vecprod(GEN v)
+{
+  pari_sp av = avma;
+  if (!is_vec_t(typ(v)))
+    pari_err_TYPE("vecprod", v);
+  if (lg(v) == 1) return gen_1;
+  return gerepilecopy(av, gen_product(v, NULL, mul));
+}
+
 static int
 RgX_is_irred_i(GEN x)
 {
