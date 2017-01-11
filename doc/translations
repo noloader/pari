@@ -31,9 +31,9 @@ edit            @se:readline@2
 #               @\#@2
 ##              @\#\#@2
 operator        @GP operators@2
-and             @&&@3
-or              @&&@3
-not             @&&@3
+and             @GP operators@2
+or              @GP operators@2
+not             @GP operators@2
 INT             @Integers@2
 integer         @Integers@2
 REAL            @Real numbers@2
@@ -102,28 +102,13 @@ user defined    @User defined functions@2
 user defined function @User defined functions@2
 member function @Member functions@2
 member          @Member functions@2
-'               @deriv
 \               @\bs
 \/              @\bs/
 ^               @\pow
-!               @factorial
 ~               @mattranspose
 %               @\%
-++              @GP operators@2
---              @GP operators@2
--=              @GP operators@2
-+=              @GP operators@2
-*=              @GP operators@2
-/=              @GP operators@2
-%=              @GP operators@2
-\/=             @GP operators@2
->>=             @GP operators@2
-<<=             @GP operators@2
 <<              @shift
 >>              @shift
-<>              @Comparison and Boolean operators
-===             @Comparison and Boolean operators
-+/-             @+$/$-
 min             @max
 emacs           @Using GP under GNU Emacs@2
 Emacs           @Using GP under GNU Emacs@2

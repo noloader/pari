@@ -288,6 +288,7 @@ sub treat {
                                   || /^refcard-/);
     if ($transl{$_}) { $_ = $transl{$_}; &choose_chap; }
   }
+  if (/^[^a-zA-Z0-9]*$/) { $_ = 'GP operators@2'; &choose_chap; }
 
   s/(\W)/\\$1/g;
   s/_/\\\\_/g if (!/^se\\:/);
@@ -295,8 +296,6 @@ sub treat {
   || (!$pipe && open(DOC,"$docfile")) || die "Cannot open $docfile: $!";
   return &apropos($_) if ($apropos);
 
-  if (/^\\[<>=!](\\=)?$/ || /^\\\|\\\||\\&\\&$/ || /\\\||&/ || /===/)
-    { $_ = 'Comparison and Boolean operators'; }
   $help = $_;
 
   my ($first);
