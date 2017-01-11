@@ -75,6 +75,8 @@ none)
   graph=plotnull;;
 ps)
   graph=plotps;;
+svg)
+  graph=plotsvg;;
 Qt)
   PLOTCFLAGS='-D__FANCY_WIN__ -I$(QTDIR)/include'
   PLOTLIBS="-L\$(QTDIR)/lib $QTLIB"
