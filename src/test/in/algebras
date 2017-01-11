@@ -970,7 +970,9 @@ tablealg() = gusuite("table algebra", ()->{
   do("random 0b", ()->algrandom(al,1));
   do("algsimpledec 0b", ()->#algsimpledec(al)==2);
   do("alg_decomposition 0b", ()->dec=algdecomposition(al); dec[1]==0 && #dec[2]==2 && #algcenter(dec[2][1])==1 && #algcenter(dec[2][2])==1 && (algabsdim(dec[2][1])==4 || algabsdim(dec[2][2])==4));
-  do("subalg M2(Q)", ()->sal=algsubalg(al,[1,0,0,0; 0,1,0,0; 0,0,1,0; 0,0,0,1; 0,0,0,0]); algisassociative(sal) && algradical(sal)==0 && #algsimpledec(sal)==1);
+  do("subalg M2(Q)", ()->sal=algsubalg(al,[1,0,0,0; 0,1,0,0; 0,0,1,0; 0,0,0,1;\
+    0,0,0,0])[1]; algisassociative(sal) && algradical(sal)==0 &&\
+    #algsimpledec(sal)==1);
   do("iscommutative 0b", ()->algiscommutative(al)==0);
   do("issemisimple 0b", ()->algissemisimple(al)==1);
   do("issimple 0b", ()->algissimple(al)==0);
@@ -2123,12 +2125,12 @@ setrand(1);
   if(n<10,print(algisassociative(al)));
   testordering(al);
 );}
-/*{for(n=4,22,
+{for(n=4,18,
   print("D",2*n);
   al = alggroup(D2n(n));
   if(n<10,print(algisassociative(al)));
   testordering(al);
-);}*/
+);}
 
 \\alggroup
 print("alggroup");
@@ -2197,4 +2199,17 @@ al = algtableinit(mt2);
 algissimple(al)
 mt = algmultable(alginit(nfinit(y),[-3,7]));
 mt == algmakeintegral(mt)
+
+\\integral subalg
+m = matcompanion(x^4+1);
+mt = [m^i | i <- [0..3]];
+al = algtableinit(mt);
+B = [1,0;0,0;0,1/2;0,0]
+al2 = algsubalg(al,B);
+algisassociative(al2[1])
+al2[2]
+
+
+
+
 

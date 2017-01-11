@@ -771,11 +771,15 @@ alg_decompose(GEN al, GEN Z, int mini)
   long i, nz = lg(Z)-1;
 
   if (nz==1) return gen_0;
+  p = alg_get_char(al);
   Zal = alg_subalg(al,Z);
+  if (!signe(p)) {
+    Z = gel(Zal,2);
+    Zal = gel(Zal,1);
+  }
   av = avma;
   rand = random_pm1(nz);
   zx = zc_to_ZC(rand);
-  p = alg_get_char(al);
   if (signe(p)) {
     zx = FpC_red(zx,p);
     x = ZM_zc_mul(Z,rand);
@@ -845,9 +849,10 @@ alg_decompose_total(GEN al, GEN Z, int maps)
 static GEN
 alg_subalg(GEN al, GEN basis)
 {
-  GEN invbasis, mt, p = alg_get_char(al);
+  GEN invbasis, mt, p = alg_get_char(al), al2;
   long i, j, n = lg(basis)-1;
   if (!signe(p)) p = NULL;
+  if (!p) basis = QM_ImQ_hnf(basis);
   if (p) { /*TODO change after bugfix?*/
     GEN complbasis = FpM_suppl(basis,p);
     invbasis = rowslice(FpM_inv(complbasis,p),1,n);
@@ -865,8 +870,11 @@ alg_subalg(GEN al, GEN basis)
     }
     gel(mt,i) = mtx;
   }
-  return algtableinit_i(mt,p);
+  al2 = algtableinit_i(mt,p);
+  if (!p) al2 = mkvec2(al2,basis);
+  return al2;
 }
+
 GEN
 algsubalg(GEN al, GEN basis)
 {
