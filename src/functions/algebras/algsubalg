@@ -25,7 +25,7 @@ Doc: \var{al} being a table algebra output by \tet{algtableinit} and \var{B}
  ? al2 = algsubalg(al,B);
  ? algdim(al2[1])
  ? al2[2]
- %13 = 
+ %13 =
  [1 0]
 
  [0 0]
