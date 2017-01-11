@@ -1300,6 +1300,7 @@ int     algissplit(GEN al, GEN pl);
 int     algisdivl(GEN al, GEN x, GEN y, GEN* ptz);
 int     algisinv(GEN al, GEN x, GEN* ptix);
 GEN     algleftordermodp(GEN al, GEN Ip, GEN p);
+GEN     algmakeintegral(GEN mt0, int maps);
 GEN     algmul(GEN al, GEN x, GEN y);
 GEN     algmultable(GEN al);
 GEN     alglathnf(GEN al, GEN m);

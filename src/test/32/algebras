@@ -2236,6 +2236,22 @@ S4
 1
 [1, 1, 4, 9, 9]
 [1, 1, 1, 1, 1]
+S1
+1
+[1]
+[1]
+S2
+1
+[1, 1]
+[1, 1]
+S3
+1
+[1, 1, 4]
+[1, 1, 1]
+S4
+1
+[1, 1, 4, 9, 9]
+[1, 1, 1, 1, 1]
 D8
 1
 [1, 1, 1, 1, 4]
@@ -2355,4 +2371,17 @@ alggroup
 1
 1
 1
-Total time spent: 9647
+should fail:
+  ***   at top-level: algmakeintegral(mt)
+  ***                 ^-------------------
+  *** algmakeintegral: incorrect type in algmakeintegral (t_VEC).
+should fail:
+  ***   at top-level: algmakeintegral(mt)
+  ***                 ^-------------------
+  *** algmakeintegral: incorrect type in algmakeintegral (t_VEC).
+1
+1
+1
+1
+1
+Total time spent: 5996

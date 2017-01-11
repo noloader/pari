@@ -523,11 +523,18 @@ alg_quotient0(GEN al, GEN S, GEN Si, long nq, GEN p, int maps)
 {
   GEN mt = cgetg(nq+1,t_VEC);
   long i;
-  for (i=1; i<=nq; i++)
-  {
+  for (i=1; i<=nq; i++) {
     GEN mti = algleftmultable(al,gel(S,i));
     if (signe(p)) gel(mt,i) = FpM_mul(Si, FpM_mul(mti,S,p), p);
     else          gel(mt,i) = RgM_mul(Si, RgM_mul(mti,S));
+  }
+  if(!signe(p) && !isint1(Q_denom(mt))) {
+    /* TODO compute image of the order instead of using generic code to compute
+     * an order: hnf on much smaller matrices */
+    mt = algmakeintegral(mt,1);
+    S = RgM_mul(S,gel(mt,3));
+    Si = RgM_mul(gel(mt,2),Si);
+    mt = gel(mt,1);
   }
   al = algtableinit_i(mt,p);
   if (maps) al = mkvec3(al,Si,S); /*algebra, proj, lift*/
@@ -939,6 +946,7 @@ check_mt(GEN mt, GEN p)
   if (!ZM_isidentity(gel(MT,1))) return NULL;
   return MT;
 }
+
 
 int
 algisassociative(GEN mt0, GEN p)
@@ -3974,7 +3982,7 @@ algtableinit_i(GEN mt0, GEN p)
   mt = check_mt(mt0,p);
   if (!mt) pari_err_TYPE("algtableinit", mt0);
   if (!p && !isint1(Q_denom(mt0)))
-    pari_err_DOMAIN("algtableinit", "denominator(mt)", "!=", gen_1,mt0);
+    pari_err_DOMAIN("algtableinit", "denominator(mt)", "!=", gen_1, mt0);
   n = lg(mt)-1;
   al = cgetg(12, t_VEC);
   for (i=1; i<=6; i++) gel(al,i) = gen_0;
@@ -4479,8 +4487,9 @@ alg_maximal(GEN al)
 
 /*
  Convention: lattice = [I,t], where
- - I integral hnf over the integral basis of the algebra
- - t element of the center, either an integer or rational, or a multiplication table
+ - I integral hnf over the integral basis of the algebra, and
+ - t element of the center, either an integer or rational, or a multiplication table,
+ representing t*I.
 */
 
 GEN
@@ -4506,6 +4515,76 @@ alglathnf(GEN al, GEN m)
   if(dm) dm = gdiv(c,dm);
   else   dm = c;
   return gerepilecopy(av, mkvec2(m2,dm));
+}
+
+/* If m is injective, computes a Z-basis of the submodule of elements whose
+ * image under m is integral */
+static GEN
+QM_invimZ(GEN m)
+{
+  return RgM_invimage(m, QM_ImQ_hnf(m));
+}
+
+/* An isomorphism of Z-modules M_{m,n}(Z) -> Z^{m*n} */
+static GEN
+mat2col(GEN M, long m, long n)
+{
+  long i,j,k,p;
+  GEN C;
+  p = m*n;
+  C = cgetg(p+1,t_VEC);
+  for(i=1,k=1;i<=m;i++)
+    for(j=1;j<=n;j++,k++)
+      gel(C,k) = gcoeff(M,i,j);
+  return C;
+}
+
+/* compute the multiplication table of the element x, where mt is a
+ * multiplication table in an arbitrary ring */
+static GEN
+Rgmultable(GEN mt, GEN x)
+{
+  long i, l = lg(x);
+  GEN z = NULL;
+  for (i = 1; i < l; i++)
+  {
+    GEN c = gel(x,i);
+    if (!gequal0(c))
+    {
+      GEN M = RgM_Rg_mul(gel(mt,i),c);
+      z = z? RgM_add(z, M): M;
+    }
+  }
+  return z;
+}
+
+GEN
+algmakeintegral(GEN mt0, int maps)
+{
+  pari_sp av = avma;
+  long n,i;
+  GEN m,P,Pi,mt2,mt;
+  n = lg(mt0)-1;
+  mt = check_mt(mt0,NULL);
+  if(isint1(Q_denom(mt0))) {
+    if(maps) mt = mkvec3(mt,matid(n),matid(n));
+    return gerepilecopy(av,mt);
+  }
+  if (!mt) pari_err_TYPE("algmakeintegral", mt0);
+  m = cgetg(n+1,t_MAT);
+  for(i=1;i<=n;i++)
+    gel(m,i) = mat2col(gel(mt,i),n,n);
+  P = QM_invimZ(m);
+  P = shallowmatconcat(mkvec2(col_ei(n,1),P));
+  P = hnf(P);
+  Pi = RgM_inv(P);
+  mt2 = cgetg(n+1,t_VEC);
+  for(i=1;i<=n;i++) {
+    GEN mti = Rgmultable(mt,gel(P,i));
+    gel(mt2,i) = RgM_mul(Pi, RgM_mul(mti,P));
+  }
+  if(maps) mt2 = mkvec3(mt2,Pi,P); /* mt2, mt->mt2, mt2->mt */
+  return gerepilecopy(av,mt2);
 }
 
 /** ORDERS **/

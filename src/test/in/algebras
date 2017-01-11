@@ -2107,18 +2107,28 @@ testordering(al)={
 setrand(1);
 {for(n=1,4,
   print("S",n);
-  al = alggroup(Sn(n),7); \\FIXME pb en char 0: algquotient fait apparaitre un
-                       \\denominateur dans la table de multiplication
+  al = alggroup(Sn(n),7);
+  print(algisassociative(al));
+  testordering(al);
+);}
+{for(n=1,4,
+  print("S",n);
+  al = alggroup(Sn(n));
   print(algisassociative(al));
   testordering(al);
 );}
 {for(n=4,22,
   print("D",2*n);
-  al = alggroup(D2n(n),691); \\FIXME pb en char 0: algquotient fait apparaitre un
-                          \\denominateur dans la table de multiplication
+  al = alggroup(D2n(n),691);
   if(n<10,print(algisassociative(al)));
   testordering(al);
 );}
+/*{for(n=4,22,
+  print("D",2*n);
+  al = alggroup(D2n(n));
+  if(n<10,print(algisassociative(al)));
+  testordering(al);
+);}*/
 
 \\alggroup
 print("alggroup");
@@ -2165,4 +2175,26 @@ lat = alglathnf(al,mt);
 print(lat[2]==1);
 lat = alglathnf(al,matid(8)*2);
 print(lat[2]==2);
+
+\\make integral
+mt = [matid(2),[0,-1/4;1/2,0]];
+print("should fail:");
+algmakeintegral(mt);
+mt = [[1,0;-1,1],[0,-1/4;1,0]];
+print("should fail:");
+algmakeintegral(mt);
+mt = [matid(2),[0,-1/4;1,0]];
+mt2 = algmakeintegral(mt);
+algisassociative(mt2)
+al = algtableinit(mt2);
+algissimple(al)
+{mt = [matid(4), [0,-1,0,0;1,0,0,0;0,0,0,-3;0,0,1/3,0],
+[0,0,2/9,0;0,0,0,-2/3;1,0,0,0;0,-1/3,0,0],
+[0,0,0,2;0,0,2/3,0;0,3,0,0;1,0,0,0]];}
+mt2 = algmakeintegral(mt);
+algisassociative(mt2)
+al = algtableinit(mt2);
+algissimple(al)
+mt = algmultable(alginit(nfinit(y),[-3,7]));
+mt == algmakeintegral(mt)
 
