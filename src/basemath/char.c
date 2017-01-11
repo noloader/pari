@@ -1031,6 +1031,48 @@ znchartokronecker(GEN G, GEN chi, long flag)
   return gerepileuptoint(av, F);
 }
 
+GEN
+znchar(GEN D)
+{
+  pari_sp av = avma;
+  GEN G, L, g, chi;
+  long l, i;
+  switch(typ(D))
+  {
+    case t_INT:
+      if (!signe(D) || Mod4(D) > 1) pari_err_TYPE("znchar", D);
+      G = ZNstar(D, nf_INIT);
+      L = gel(G,4);
+      g = gel(L,4); /* local generators of (Z/p^k)^* */
+      l = lg(g); chi = cgetg(l, t_COL);
+      for (i = 1; i < l; i++)
+        gel(chi, i) = kronecker(D, gel(g,i)) > 0? gen_0: gen_1;
+      break;
+    case t_INTMOD:
+      G = ZNstar(gel(D,1), nf_INIT);
+      chi = znconreylog(G, gel(D,2));
+      break;
+    case t_VEC:
+      if (lg(D) != 3) pari_err_TYPE("znchar", D);
+      G = gel(D,1);
+      if (!checkbidZ_i(G)) pari_err_TYPE("znchar", D);
+      chi = gel(D,2);
+      if (typ(chi) == t_VEC && lg(chi) == 3 && is_vec_t(typ(gel(chi,2))))
+      { /* normalized character */
+        GEN n = gel(chi,1), chic = gel(chi,2);
+        GEN cyc = typ(chic) == t_VEC? bid_get_cyc(G): bidZ_get_cycg(G);
+        if (!char_check(cyc, chic)) pari_err_TYPE("znchar",D);
+        chi = char_denormalize(cyc, n, chic);
+      }
+      if (!zncharcheck(G, chi)) pari_err_TYPE("znchar", D);
+      break;
+    default:
+      pari_err_TYPE("znchar", D);
+      return NULL; /*LCOV_EXCL_LINE*/
+  }
+  return gerepilecopy(av, mkvec2(G, chi));
+}
+
 /* G a bidZ, not stack clean */
 GEN
 znchareval(GEN G, GEN chi, GEN n, GEN z)

@@ -2418,6 +2418,7 @@ GEN     rootsof1_cx(GEN d, long prec);
 GEN     rootsof1u_cx(ulong d, long prec);
 GEN     char_simplify(GEN D, GEN C);
 GEN     cyc_normalize(GEN c);
+GEN     znchar(GEN D);
 int     zncharcheck(GEN G, GEN chi);
 GEN     zncharconj(GEN G, GEN chi);
 GEN     znchardiv(GEN G, GEN a, GEN b);

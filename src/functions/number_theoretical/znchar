@@ -1,0 +1,39 @@
+Function: znchar
+Section: number_theoretical
+C-Name: znchar
+Prototype: G
+Help: znchar(D): given a datum D describing a group G = (Z/NZ)^* and
+ a Dirichlet character chi, return the pair [G,chi]
+Doc: Given a datum $D$ describing a group $(\Z/N\Z)^*$ and a Dirichlet
+ character $\chi$, return the pair \kbd{[G, chi]}, where \kbd{G} is
+ \kbd{idealstar(,N)}) and \kbd{chi} is a GP character.
+
+ The following possibilities for $D$ are supported
+
+ \item a non-zero \typ{INT} congruent to $0,1$ modulo $4$, return the real
+ character modulo $D$ given by the Kronecker symbol $(D/.)$;
+
+ \intmod a \typ{INTMOD} \kbd{Mod(m, N)}, return the Conrey character
+ modulo $N$ of index $m$ (see \kbd{znconreylog}).
+ and let \kbd{chi} be a Dirichlet character on $(\Z/N\Z)^*$, given by
+
+ In the remaining cases, \kbd{G} denotes an \kbd{idealstar(,N)}.
+
+ \item a pair \kbd{[G, chi]}, where \kbd{chi} is a standard GP Dirichlet
+ character $c = (c_j)$ on \kbd{G} (generic character \typ{VEC} or
+ Conrey characters \typ{COL} or \typ{INT}); given
+ generators $G = \oplus (\ZM/d_j\ZM) g_j$, $\chi(g_j) = e(c_j/d_j)$.
+
+ \item a pair \kbd{[G, chin]}, where \kbd{chin} is a \emph{normalized}
+ representation $[n, \tilde{c}]$ of the Dirichlet character $c$; $\chi(g_j)
+ = e(\tilde{c}_j / n)$ where $n$ is minimal (order of $\chi$).
+
+ \bprog
+ ? G = idealstar(,8);
+ ? znchar(G, 1)  \\ trivial character
+ %2 = 0
+ ? znchar(G, 3)
+ %3 = 1
+ ? chareval(G, 3, -1)
+ %4 = 1/2
+ @eprog

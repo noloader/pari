@@ -49,3 +49,25 @@ test(G)
 test(znstar(8,1))
 test(znstar(5,1))
 test(znstar(1,1))
+
+test(D) =
+{ my([G,cyc]=znchar(D), C = znconreylog(G,cyc));
+ [cyc, C, znconreyexp(G,C), charorder(G,cyc)];
+}
+test(1)
+test(5)
+test(Mod(1,5))
+test(Mod(3,5))
+G = idealstar(,100);
+test([G,13])
+test([G,[0,19]~])
+test([G,[2, [1,1]]])
+
+\\ Errors
+znchar(0)
+znchar(2)
+znchar(3)
+znchar([]~)
+znchar([1,2,3])
+znchar([1,2])
+znchar([idealstar(,100), [1,2,3]])
