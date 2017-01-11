@@ -31,6 +31,7 @@ BA   24- ellidentify: check curve is over Q
      25- gdivgs(t_RFRAC,s) could create invalid objects
      26- chareval(G,chi,x,[[...], o]) didn't work (off-by-1)
      27- polsturm(x^2-1,[-1,1]) -> SEGV [#1884]
+     28- typo in description of "call" symbolic operator [ _(_) ]
 
   Added
       1- [libari] ZM_isidentity

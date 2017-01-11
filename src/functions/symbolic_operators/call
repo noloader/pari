@@ -1,5 +1,5 @@
 Function: _(_)
-Class: symbolic_operators
+Section: symbolic_operators
 Help: f(a,b,...): evaluates the function f on a,b,...
 Description:
  (gen):gen          closure_callgenall($1, 0)
