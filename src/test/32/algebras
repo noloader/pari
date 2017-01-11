@@ -2381,6 +2381,9 @@ alggroup
 1, 0, 0; 0, 0, 1, 0, 0, 0; 0, 1, 0, 0, 0, 0; 1, 0, 0, 0, 0, 0]], 0, [6, 0, 0
 , 0, 0, 0]]
 1
+  ***   at top-level: alggroup([Vecsmall([
+  ***                 ^--------------------
+  *** alggroup: incorrect type in alggroup (element is not a permutation) (t_VECSMALL).
   ***   at top-level: alggroup("a")
   ***                 ^-------------
   *** alggroup: incorrect type in alggroup (t_STR).
@@ -2393,6 +2396,9 @@ alggroup
   ***   at top-level: alggroup([Vecsmall([
   ***                 ^--------------------
   *** alggroup: inconsistent dimensions in alggroup [length of permutations].
+  ***   at top-level: alggroup([Vecsmall([
+  ***                 ^--------------------
+  *** alggroup: incorrect type in alggroup (element is not a permutation) (t_VECSMALL).
 [0, 0, 0, 0, 0, 0, [1, 0; 0, 1], [1, 0; 0, 1], [[1, 0; 0, 1], [0, 1; 1, 0]],
  0, [2, 0]]
   ***   at top-level: alglathnf(al,0)
@@ -2454,4 +2460,4 @@ should fail:
 
 [0 0]
 
-Total time spent: 7468
+Total time spent: 7432

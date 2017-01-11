@@ -4059,6 +4059,21 @@ matrix_perm(GEN perm, long n)
   return m;
 }
 
+static int
+zv_isidentity(GEN v)
+{
+  long i;
+  for(i=1;i<lg(v);i++)
+    if(v[i]!=i) return 0;
+  return 1;
+}
+
+static int
+zv_isperm(GEN v)
+{
+  return zv_isidentity(vecsort0(v,NULL,0));
+}
+
 /*
  gal = galoisinit structure or smallgroup or permutation group
  */
@@ -4078,6 +4093,8 @@ alggroup(GEN gal, GEN p)
   for(i=1; i<=n; i++) {
     if(typ(gel(elts,i)) != t_VECSMALL)
       pari_err_TYPE("alggroup (element)", gel(elts,i));
+    if(!zv_isperm(gel(elts,i)))
+      pari_err_TYPE("alggroup (element is not a permutation)", gel(elts,i));
     if(lg(gel(elts,i))!=lg(gel(elts,1)))
       pari_err_DIM("alggroup [length of permutations]");
   }
