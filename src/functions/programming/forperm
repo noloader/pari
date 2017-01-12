@@ -1,0 +1,31 @@
+Function: forperm
+Section: programming/control
+C-Name: forperm0
+Prototype: vGVI
+Help: forperm(a,p,seq): the sequence is evaluated, P going through permutations of a.
+Doc: evaluates \var{seq}, where the formal variable $p$ goes through some
+ permutations given by a \typ{VECSMALL}. If $a$ is a positive integer then
+ $P$ goes through the permutations of $\{1, 2, ..., a\}$ in lexicographic
+ order and if $a$ is a small vector then $p$ goes through the
+ (multi)permutations lexicographically larger or equal than $a$.
+ \bprog
+ ? forperm(3, p, print(p))
+ Vecsmall([1, 2, 3])
+ Vecsmall([1, 3, 2])
+ Vecsmall([2, 1, 3])
+ Vecsmall([2, 3, 1])
+ Vecsmall([3, 1, 2])
+ Vecsmall([3, 2, 1])
+ @eprog\noindent
+
+ When $a$ is itself a \typ{VECSMALL} or a \typ{VEC} then $p$ iterates through
+ multipermutations
+ \bprog
+ ? forperm([2,1,1,3], p, print(p))
+ Vecsmall([2, 1, 1, 3])
+ Vecsmall([2, 1, 3, 1])
+ Vecsmall([2, 3, 1, 1])
+ Vecsmall([3, 1, 1, 2])
+ Vecsmall([3, 1, 2, 1])
+ Vecsmall([3, 2, 1, 1])
+ @eprog\noindent

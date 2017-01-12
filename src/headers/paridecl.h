@@ -3800,6 +3800,13 @@ GEN     partitions(long k, GEN nbound, GEN abound);
 
 /* perm.c */
 
+void    forperm(void *E, long call(void *, GEN), GEN k);
+int     forperm_next(forperm_t *T);
+void    forperm0(GEN k, GEN code);
+void    forperm_init(forperm_t *T, long k);
+
+/* perm.c */
+
 GEN     abelian_group(GEN G);
 GEN     cyclicgroup(GEN g, long s);
 GEN     cyc_pow(GEN cyc, long exp);

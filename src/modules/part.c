@@ -377,11 +377,13 @@ partitions(long k, GEN abound, GEN nbound)
 void
 forpart(void *E, long call(void*, GEN), long k, GEN abound, GEN nbound)
 {
+  pari_sp av = avma;
   GEN v;
   forpart_t T;
   forpart_init(&T, k, abound, nbound);
   while ((v=forpart_next(&T)))
     if (call(E, v)) break;
+  avma=av;
 }
 
 void

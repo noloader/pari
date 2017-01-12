@@ -74,6 +74,13 @@ typedef struct
   GEN v;
 } forpart_t;
 
+/* Iterate over permutations */
+typedef struct
+{
+  long k;
+  GEN v;
+} forperm_t;
+
 /* binary I/O */
 typedef struct GENbin {
   size_t len; /* gsizeword(x) */
