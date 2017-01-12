@@ -1103,15 +1103,15 @@ lfunellmfpeters(GEN E, long bitprec)
 /*************************************************************/
 
 static long
-Flx_genus2trace_naive1(GEN H, ulong p)
+Flx_genus2trace_naive(GEN H, ulong p)
 {
   pari_sp av = avma;
   ulong i, j, D = 2;
   long a, n = degpol(H);
   GEN k = const_vecsmall(p, -1);
   k[1] = 0;
-  for (i=1, j=1; i < p; i += 2, j = Fl_add(j, i, p)) k[j+1] = 1;
-  while (k[1+D] >= 0) D++;
+  for (i=1, j=1; i < p; i += 2, j = Fl_add(j, i, p))
+    k[j+1] = 1;
   a = n == 5 ? 0: k[1+Flx_lead(H)];
   for (i=0; i < p; i++)
   {
@@ -1134,7 +1134,7 @@ dirgenus2(void *E, GEN p)
   {
     ulong pp = itou(p);
     GEN Qp = ZX_to_Flx(Q, pp);
-    long t = Flx_genus2trace_naive1(Qp, pp);
+    long t = Flx_genus2trace_naive(Qp, pp);
     f = deg1pol(stoi(t), gen_1, 0);
   }
   return gerepileupto(av, ginv(f));
