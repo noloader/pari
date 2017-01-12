@@ -1377,67 +1377,6 @@ nfcertify(GEN nf)
   return gerepilecopy(av, gel(vw,1));
 }
 
-#if 0 /* used to check benches between HNF nf.zk and LLL-reduced nf.zk */
-static GEN
-hnffromLLL(GEN nf)
-{
-  GEN d, x;
-  x = RgV_to_RgM(nf_get_zk(nf), nf_get_degree(nf));
-  x = Q_remove_denom(x, &d);
-  if (!d) return x; /* power basis */
-  return RgM_solve(ZM_hnfmodid(x, d), x);
-}
-
-static GEN
-nfbasechange(GEN u, GEN x)
-{
-  long i,lx;
-  GEN y;
-  switch(typ(x))
-  {
-    case t_COL: /* nfelt */
-      return RgM_RgC_mul(u, x);
-
-    case t_MAT: /* ideal */
-      y = cgetg_copy(x, &lx);
-      for (i=1; i<lx; i++) gel(y,i) = RgM_RgC_mul(u, gel(x,i));
-      break;
-
-    case t_VEC: /* pr */
-      checkprid(x); y = leafcopy(x);
-      gel(y,2) = RgM_RgC_mul(u, gel(y,2));
-      gel(y,5) = RgM_RgC_mul(u, gel(y,5));
-      break;
-    default: y = x;
-  }
-  return y;
-}
-
-GEN
-nffromhnfbasis(GEN nf, GEN x)
-{
-  long tx = typ(x);
-  pari_sp av = avma;
-  GEN u;
-  if (!is_vec_t(tx)) return gcopy(x);
-  nf = checknf(nf);
-  u = hnffromLLL(nf);
-  return gerepilecopy(av, nfbasechange(u, x));
-}
-
-GEN
-nftohnfbasis(GEN nf, GEN x)
-{
-  long tx = typ(x);
-  pari_sp av = avma;
-  GEN u;
-  if (!is_vec_t(tx)) return gcopy(x);
-  nf = checknf(nf);
-  u = ZM_inv(hnffromLLL(nf), gen_1);
-  return gerepilecopy(av, nfbasechange(u, x));
-}
-#endif
-
 /* set *pro to roots of S->T */
 static GEN
 get_red_G(nfmaxord_t *S, GEN *pro)
