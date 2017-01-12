@@ -72,6 +72,8 @@ test(q)=
   print(M^(-1)*M);
   my(v = [t^0, t^1, t^2]~);
   print(M*v);
+  my(N = t*[0, 1; 0, 0]);
+  iferr(N^-1, e,, errname(e) == "e_INV");
 }
 test(2^5)
 test(7^5)

@@ -187,7 +187,7 @@ Mod(6687681666819568403, 18446744073944432641)
 ? conjvec(Mod(x,x^2+Mod(1,3)))
 [Mod(Mod(1, 3)*x, Mod(1, 3)*x^2 + Mod(1, 3)), Mod(Mod(2, 3)*x, Mod(1, 3)*x^2
  + Mod(1, 3))]~
-? test(q)=my(t=ffgen(q,'t),m=[t,t^2,1+t^3;1+t,1+t^2,1+t^3]);print(matker(m));print(matimage(m));print(matrank(m));my(M=[t,2*t^0,3*t^0;t,t^2,1+t^3;1+t,1+t^2,1+t^3]);print(matdet(M));print(M^(-1)*M);my(v=[t^0,t^1,t^2]~);print(M*v);
+? test(q)=my(t=ffgen(q,'t),m=[t,t^2,1+t^3;1+t,1+t^2,1+t^3]);print(matker(m));print(matimage(m));print(matrank(m));my(M=[t,2*t^0,3*t^0;t,t^2,1+t^3;1+t,1+t^2,1+t^3]);print(matdet(M));print(M^(-1)*M);my(v=[t^0,t^1,t^2]~);print(M*v);my(N=t*[0,1;0,0]);iferr(N^-1,e,,errname(e)=="e_INV");
 ? test(2^5)
 [t^4 + t^3; t^4 + t^3; 1]
 [t, t^2; t + 1, t^2 + 1]

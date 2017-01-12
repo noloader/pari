@@ -1828,10 +1828,12 @@ FFM_wrap(GEN M, GEN ff, GEN (*Fq)(GEN,GEN,GEN),
   _getFF(ff,&T,&p,&pp); M = FFM_to_raw(M);
   switch(ff[1])
   {
-  case t_FF_FpXQ: M = FqM_to_FpXQM(Fq(M,T,p), T, p); break;
+  case t_FF_FpXQ: M = Fq(M,T,p); if (M) M = FqM_to_FpXQM(M,T,p);
+                  break;
   case t_FF_F2xq: M = F2xq(M,T); break;
   default: M = Flxq(M,T,pp); break;
   }
+  if (!M) { avma = av; return NULL; }
   return gerepilecopy(av, raw_to_FFM(M, ff));
 }
 GEN
