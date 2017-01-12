@@ -1106,7 +1106,7 @@ static long
 Flx_genus2trace_naive(GEN H, ulong p)
 {
   pari_sp av = avma;
-  ulong i, j, D = 2;
+  ulong i, j;
   long a, n = degpol(H);
   GEN k = const_vecsmall(p, -1);
   k[1] = 0;
