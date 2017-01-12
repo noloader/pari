@@ -3161,7 +3161,7 @@ Flm_invimage_i(GEN A, GEN B, ulong p)
   if (nY < nB) return NULL;
   Y = rowslice(x, nA+1, nA+nB); /* nB rows */
   d = cgetg(nB+1, t_VECSMALL);
-  for (i = nB, j = nY; i >= 1; i--)
+  for (i = nB, j = nY; i >= 1; i--, j--)
   {
     for (; j>=1; j--)
       if (coeff(Y,i,j)) { d[i] = j; break; }
@@ -3188,7 +3188,7 @@ F2m_invimage_i(GEN A, GEN B)
 
   /* implicitly: Y = rowslice(x, nA+1, nA+nB), nB rows */
   d = cgetg(nB+1, t_VECSMALL);
-  for (i = nB, j = nY; i >= 1; i--)
+  for (i = nB, j = nY; i >= 1; i--, j--)
   {
     for (; j>=1; j--)
       if (F2m_coeff(x,nA+i,j)) { d[i] = j; break; } /* Y[i,j] */
@@ -3237,7 +3237,7 @@ FpM_invimage_i(GEN A, GEN B, GEN p)
   if (nY < nB) return NULL;
   Y = rowslice(x, nA+1, nA+nB); /* nB rows */
   d = cgetg(nB+1, t_VECSMALL);
-  for (i = nB, j = nY; i >= 1; i--)
+  for (i = nB, j = nY; i >= 1; i--, j--)
   {
     for (; j>=1; j--)
       if (signe(gcoeff(Y,i,j))) { d[i] = j; break; }
@@ -3299,7 +3299,7 @@ RgM_invimage(GEN A, GEN B)
   if (nY < nB) { avma = av; return NULL; }
   Y = rowslice(x, nA+1, nA+nB); /* nB rows */
   d = cgetg(nB+1, t_VECSMALL);
-  for (i = nB, j = nY; i >= 1; i--)
+  for (i = nB, j = nY; i >= 1; i--, j--)
   {
     for (; j>=1; j--)
       if (!gequal0(gcoeff(Y,i,j))) { d[i] = j; break; }
