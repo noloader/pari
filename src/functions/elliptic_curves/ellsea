@@ -4,12 +4,19 @@ C-Name: ellsea
 Prototype: GD0,U,
 Help: ellsea(E,{tors=0}): computes the order of the group E(Fq)
  for the elliptic curve E, defined over a finite field,
- using SEA algorithm, with early abort for curves with non prime orders.
+ using SEA algorithm, with early abort for curves with non-prime order.
 Doc: Let $E$ be an \var{ell} structure as output by \kbd{ellinit}, defined over
  a finite field $\F_q$. This function computes the order of the group
  $E(\F_q)$ using the SEA algorithm and the \kbd{tors} argument allows to
  speed up a search for curves having almost prime order.
-
+ \bprog
+ ? ellsea(ellinit([1,1], 2^56+3477), 1)
+ %1 = 72057594135613381
+ ? forprime(p=2^128,oo, q = ellcard(ellinit([1,1],p)); if(isprime(q),break))
+ time = 6,571 ms.
+ ? forprime(p=2^128,oo, q = ellsea(ellinit([1,1],p),1);if(isprime(q),break))
+ time = 522 ms.
+ @eprog
  \item If the characteristic is too small ($p \leq 7$) the generic algorithm
  \kbd{ellcard} is used instead and the \kbd{tors} argument is ignored.
 
@@ -21,10 +28,12 @@ Doc: Let $E$ be an \var{ell} structure as output by \kbd{ellinit}, defined over
 
  In particular, you should set \kbd{tors} to $1$ if you want a curve with
  prime order, to $2$ if you want to allow a cofactor which is a power of two
- (e.g. for Edwards's curves), etc.
+ (e.g. for Edwards's curves), etc. The early abort on bad curves will be a
+ massive speedup compared to running the cardinal algorithm to completion.
 
  The availability of the \kbd{seadata} package will speed up the computation,
- and is strongly recommended.
+ and is strongly recommended. See also \tet{ellap} for the list of implemented
+ algorithms.
 
  The following function returns a curve of prime order over $\F_p$.
  \bprog
@@ -33,7 +42,7 @@ Doc: Let $E$ be an \var{ell} structure as output by \kbd{ellinit}, defined over
    while(1,
      my(E, N, j = Mod(random(p), p));
      E = ellinit(ellfromj(j));
-     N = ellsea(E, 1); if(!N, continue);
+     N = ellsea(E, 1); if (!N, continue);
      if (isprime(N), return(E));
      \\ try the quadratic twist for free
      if (isprime(2*p+2 - N), return(ellinit(elltwist(E))));
@@ -42,6 +51,6 @@ Doc: Let $E$ be an \var{ell} structure as output by \kbd{ellinit}, defined over
  ? p = randomprime([2^255, 2^256]);
  ? E = cryptocurve(p); \\ insist on prime order
  %2 = 47,447ms
- @eprog\noindent The same example without early abort (using \kbd{ellsea(E,1)}
- instead of \kbd{ellsea(E)}) runs for about 5 minutes before finding a
+ @eprog\noindent The same example without early abort (using \kbd{ellsea(E)}
+ instead of \kbd{ellsea(E, 1)}) runs for about 5 minutes before finding a
  suitable curve.
