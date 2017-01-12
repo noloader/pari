@@ -80,6 +80,7 @@ forperm(void *E, long call(void *, GEN), GEN k)
       break;
     default:
       pari_err_TYPE("forperm", k);
+      return; /* LCOV_EXCL_LINE */
   }
 
   do
