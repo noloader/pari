@@ -1,5 +1,5 @@
 Function: _!=_
-Help: _!=_
+Help: a!=b: true if a and b are not equal.
 Section: symbolic_operators
 C-Name: gne
 Prototype: GG

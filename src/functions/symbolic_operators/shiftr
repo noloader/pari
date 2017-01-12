@@ -2,7 +2,7 @@ Function: _>>_
 Section: symbolic_operators
 C-Name: gshift_right
 Prototype: GL
-Help: x>>y
+Help: x>>y: compute x\2^y (binary shift).
 Description:
  (small, small):small:parens     $(1)>>$(2)
  (int, small):int                shifti($1, -$(2))

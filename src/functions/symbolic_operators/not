@@ -1,5 +1,5 @@
 Function: !_
-Help: !_
+Help: !a: boolean operator "not".
 Section: symbolic_operators
 C-Name: gnot
 Prototype: G

@@ -1,5 +1,5 @@
 Function: __
-Help: __
+Help: __: integral concatenation of strings.
 Section: symbolic_operators
 Description:
  (genstr, genstr):genstr                gconcat($1, $2)

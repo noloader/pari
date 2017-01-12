@@ -2,7 +2,7 @@ Function: _--
 Section: symbolic_operators
 C-Name: gsub1e
 Prototype: &
-Help: x--
+Help: x--: set x to x-1.
 Description:
  (*bptr):bptr                          --$1
  (*small):small                        --$1

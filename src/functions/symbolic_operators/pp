@@ -2,7 +2,7 @@ Function: _++
 C-Name: gadd1e
 Prototype: &
 Section: symbolic_operators
-Help: x++
+Help: x++: set x to x+1.
 Description:
  (*bptr):bptr                            ++$1
  (*small):small                          ++$1
