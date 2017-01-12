@@ -2703,7 +2703,7 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: nfdiv(nf,a,b) ===> nfeltdiv(nf,a,b)
 
-nfdiv(nf,x,y): element x/y in nf.
+nfeltdiv(nf,x,y): element x/y in nf.
 
 
   ***   at top-level: nfdiveuc()
@@ -2713,7 +2713,7 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: nfdiveuc(nf,a,b) ===> nfeltdiveuc(nf,a,b)
 
-nfdiveuc(nf,x,y): gives algebraic integer q such that x-qy is small.
+nfeltdiveuc(nf,x,y): gives algebraic integer q such that x-qy is small.
 
 
   ***   at top-level: nfdivres()
@@ -2766,7 +2766,7 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: nfmul(nf,a,b) ===> nfeltmul(nf,a,b)
 
-nfmul(nf,x,y): element x.y in nf.
+nfeltmul(nf,x,y): element x.y in nf.
 
 
   ***   at top-level: nfpow()
@@ -4563,4 +4563,4 @@ New syntax: texprint(x) ===> printtex(x)
 printtex({str}*): outputs its string arguments in TeX format.
 
 
-Total time spent: 11
+Total time spent: 9
