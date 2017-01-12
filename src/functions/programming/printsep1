@@ -2,7 +2,7 @@ Function: printsep1
 Section: programming/specific
 C-Name: printsep1
 Prototype: vss*
-Help: printsep(sep,{str}*): outputs its string arguments (in raw format),
+Help: printsep1(sep,{str}*): outputs its string arguments (in raw format),
  separated by 'sep', without ending with a newline.
 Doc: outputs its (string) arguments in raw format, without ending with a
  newline.  Successive entries are separated by \var{sep}:
