@@ -4008,6 +4008,8 @@ algtableinit(GEN mt0, GEN p)
   return gerepilecopy(av, algtableinit_i(mt0, p));
 }
 
+/** REPRESENTATIONS OF GROUPS **/
+
 static int
 is_gal_or_grp(GEN gal)
 {
@@ -4072,6 +4074,97 @@ static int
 zv_isperm(GEN v)
 {
   return zv_isidentity(vecsort0(v,NULL,0));
+}
+
+/* return 1 if not explored conj class, 0 otherwise */
+static int
+dfs_conj(long i, long cl, GEN genes, GEN elts, GEN class)
+{
+  long j,i2;
+  GEN g,x,y;
+  if(class[i]) return 0;
+  class[i] = cl;
+  x = gel(elts,i);
+  for(j=1;j<lg(genes);j++)
+  {
+    g = gel(genes,j);
+    y = perm_mul(perm_mul(g,x),perm_inv(g));
+    i2 = vecsearch(elts,y,NULL);
+    dfs_conj(i2,cl,genes,elts,class);
+  }
+  return 1;
+}
+
+/*
+ Return a t_VECSMALL class, such that class[i] is the index of the conjugacy
+ class of elts[i].
+ Assume elts is sorted.
+ */
+static GEN
+group_conjclasses(GEN genes, GEN elts, long* ptnbcl)
+{
+  GEN class;
+  long i,n,cl;
+  n = lg(elts)-1;
+  class = const_vecsmall(n,0);
+  cl = 1;
+  for (i=1;i<=n;i++)
+    cl += dfs_conj(i,cl,genes,elts,class);
+  if (ptnbcl) *ptnbcl = cl-1;
+  return class;
+}
+
+GEN
+alggroupcenter(GEN gal, GEN p)
+{
+  pari_sp av = avma;
+  long nbcl, i, n, k, j, ci, cj, ck;
+  GEN G, elts, genes, class, mt, xi, xj, xixj, classsize, repclass;
+  if(typ(gal)!=t_VEC) pari_err_TYPE("alggroup", gal);
+  if(is_gal_or_grp(gal)) {
+    G = checkgroup(gal, &elts);
+    genes = gel(G,1);
+    if(!elts) elts = group_elts(G, group_domain(G));
+  }
+  else {
+    elts = gal;
+    genes = elts;
+  }
+  n = lg(elts)-1;
+  elts = vecsort0(elts,NULL,0);
+
+  /* compute conjugacy classes */
+  class = group_conjclasses(genes,elts,&nbcl);
+  classsize = const_vecsmall(nbcl,0);
+  repclass = const_vecsmall(nbcl,0);
+  for(i=1;i<=n;i++) {
+    classsize[class[i]]++;
+    if(!repclass[class[i]]) repclass[class[i]] = i;
+  }
+
+  /* compute multiplication table of the center of the group algebra
+   * (class functions). */
+  mt = cgetg(nbcl+1,t_VEC);
+  for(i=1;i<=nbcl;i++)
+    gel(mt,i) = zeromatcopy(nbcl,nbcl);
+  for(i=1;i<=n;i++) {
+    xi = gel(elts,i);
+    ci = class[i];
+    for(j=1;j<=n;j++) {
+      xj = gel(elts,j);
+      cj = class[j];
+      xixj = perm_mul(xi,xj);
+      k = vecsearch(elts,xixj,NULL);
+      ck = class[k];
+      if(repclass[ck]==k)
+        gcoeff(gel(mt,ci),ck,cj) = addis(gcoeff(gel(mt,ci),ck,cj) ,1);
+    }
+  }
+  if(p)
+    for(i=1; i<=nbcl; i++)
+      gel(mt,i) = FpM_red(gel(mt,i),p);
+
+  return gerepilecopy(av, algtableinit_i(mt,p));
 }
 
 /*
@@ -4591,11 +4684,11 @@ algmakeintegral(GEN mt0, int maps)
   GEN m,P,Pi,mt2,mt;
   n = lg(mt0)-1;
   mt = check_mt(mt0,NULL);
+  if (!mt) pari_err_TYPE("algmakeintegral", mt0);
   if(isint1(Q_denom(mt0))) {
     if(maps) mt = mkvec3(mt,matid(n),matid(n));
     return gerepilecopy(av,mt);
   }
-  if (!mt) pari_err_TYPE("algmakeintegral", mt0);
   m = cgetg(n+1,t_MAT);
   for(i=1;i<=n;i++)
     gel(m,i) = mat2col(gel(mt,i),n,n);

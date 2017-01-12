@@ -1406,6 +1406,11 @@ hi = [];
 hf = [PR, [1/3,-1/3]];
 A = alginit(nf, [3,hf,hi]);
 algsplittingfield(A).pol
+K = nfsplitting(x^4+x+1);
+gal = galoisinit(K);
+al = alggroupcenter(gal);
+algiscommutative(al)
+
 
 
 
@@ -2088,6 +2093,7 @@ mt = [matid(4), m_i, m_j, m_k];}
 test("quatalg csa over Q", alginit(nfinit(y), mt));
 
 \\test ordering in simpledec
+print("ordering");
 Sn(n) = {
  [Vecsmall([1+permtonum(Vec(Vecsmall(numtoperm(n,i-1))*Vecsmall(numtoperm(n,j-1)))) |
    j<-[1..n!]]) | i <- [1..n!]]; \\docu pb? 1..n! ou 0..n!-1 ?
@@ -2115,7 +2121,7 @@ setrand(1);
   print(algisassociative(al));
   testordering(al);
 );}
-{for(n=1,4,
+{for(n=1,3,
   print("S",n);
   al = alggroup(Sn(n));
   print(algisassociative(al));
@@ -2153,6 +2159,46 @@ gal = galoisinit(nfsplitting(x^4+7));
 alggroup(gal);
 gal = galoisinit(nfsplitting(x^6+7));
 alggroup(gal);
+
+\\alggroupcenter
+{for(n=1,5,
+  print("S",n);
+  al = alggroupcenter(Sn(n),7);
+  print(algisassociative(al));
+  print(algiscommutative(al));
+  print(algdim(al) == #algsimpledec(al));
+);}
+{for(n=1,4,
+  print("S",n);
+  al = alggroupcenter(Sn(n));
+  print(algisassociative(al));
+  print(algiscommutative(al));
+  print(algdim(al) == #algsimpledec(al));
+);}
+conjD2neven(n)=2+(n-2)/2+2;
+conjD2nodd(n)=1+(n-1)/2+1;
+conjD2n(n)=if(n%2,conjD2nodd(n),conjD2neven(n));
+firstprime1mod(n) =
+{
+  p = 2;
+  while(p%n!=1, p=nextprime(p+1));
+  p;
+}
+{for(n=3,30,
+  print("D",2*n);
+  p = firstprime1mod(2*n);
+  al = alggroupcenter(D2n(n),p);
+  print(algdim(al) == conjD2n(n));
+  print(algisassociative(al));
+  print(algiscommutative(al));
+  print(algdim(al) == #algsimpledec(al));
+);}
+{forprime(p=5,40,
+  print("D",2*p);
+  al = alggroupcenter(D2n(p));
+  print(algdim(al) == conjD2n(p));
+  print(algdim(al) > #algsimpledec(al));
+);}
 
 \\tests for lattices
 al = alginit(nfinit(y^2+7), [-1,-1]);
