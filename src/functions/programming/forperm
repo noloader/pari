@@ -2,12 +2,12 @@ Function: forperm
 Section: programming/control
 C-Name: forperm0
 Prototype: vGVI
-Help: forperm(a,p,seq): the sequence is evaluated, P going through permutations of a.
+Help: forperm(a,p,seq): the sequence is evaluated, p going through permutations of a.
 Doc: evaluates \var{seq}, where the formal variable $p$ goes through some
  permutations given by a \typ{VECSMALL}. If $a$ is a positive integer then
  $P$ goes through the permutations of $\{1, 2, ..., a\}$ in lexicographic
  order and if $a$ is a small vector then $p$ goes through the
- (multi)permutations lexicographically larger or equal than $a$.
+ (multi)permutations lexicographically larger than or equal to $a$.
  \bprog
  ? forperm(3, p, print(p))
  Vecsmall([1, 2, 3])
