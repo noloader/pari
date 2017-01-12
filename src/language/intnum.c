@@ -289,11 +289,11 @@ intnumgauss0(GEN a, GEN b, GEN code, GEN tab, long prec)
 typedef struct _intdata {
   long eps;  /* bit accuracy of current precision */
   long l; /* table lengths */
-  GEN tabx0; /* abcissa phi(0) for t = 0 */
+  GEN tabx0; /* abscissa phi(0) for t = 0 */
   GEN tabw0; /* weight phi'(0) for t = 0 */
-  GEN tabxp; /* table of abcissas phi(kh) for k > 0 */
+  GEN tabxp; /* table of abscissas phi(kh) for k > 0 */
   GEN tabwp; /* table of weights phi'(kh) for k > 0 */
-  GEN tabxm; /* table of abcissas phi(kh) for k < 0, possibly empty */
+  GEN tabxm; /* table of abscissas phi(kh) for k < 0, possibly empty */
   GEN tabwm; /* table of weights phi'(kh) for k < 0, possibly empty */
   GEN h; /* integration step */
 } intdata;

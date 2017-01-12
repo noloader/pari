@@ -403,7 +403,7 @@ isog_abscissa(GEN E, GEN kerp, GEN h0, GEN x, GEN two_tors)
   f2 = gel(two_tors, 3);
   h2 = gel(two_tors, 5);
 
-  /* Combine f0 and f2 into the final abcissa of the isogeny. */
+  /* Combine f0 and f2 into the final abscissa of the isogeny. */
   t1 = RgX_mul(x, RgX_sqr(kerp));
   t2 = RgX_mul(f2, RgX_sqr(h0));
   t3 = RgX_mul(f0, RgX_sqr(h2));

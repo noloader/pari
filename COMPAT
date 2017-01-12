@@ -22,7 +22,7 @@ This file lists the incompatible changes between Version 2.x and older versions
     (slow, imprecise, forced to assume holomorphy and evaluate at complex
     values, yielding determination problems) by Euler MacLaurin (none of
     these disadvantages). The interface had to change : the (mandatory)
-    abcissa of integration becomes meaningless, and the initialization
+    abscissa of integration becomes meaningless, and the initialization
     possibilities are different. Please read the documentation ??sumnum
     and ??sumnuminit
   - t_STR used to compare as larger than any real number via < or >

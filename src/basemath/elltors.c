@@ -399,7 +399,7 @@ ellisdivisible(GEN E, GEN P, GEN n, GEN *pQ)
   avma = av; return 0;
 }
 
-/* 2-torsion point of abcissa x */
+/* 2-torsion point of abscissa x */
 static GEN
 tor2(GEN E, GEN x) { return mkvec2(x, gmul2n(gneg(ec_h_evalx(E,x)), -1)); }
 

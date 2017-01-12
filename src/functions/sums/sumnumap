@@ -13,7 +13,7 @@ Doc: Numerical summation of $f(n)$ at high accuracy using Abel-Plana,
  the variable $n$ taking values from $a$ to $+\infty$, where $f$ is
  holomorphic in the right half-place $\Re(z) > a$; \kbd{a} must be an integer
  and \kbd{tab}, if given, is the output of \kbd{sumnumapinit}. The latter
- precomputes abcissas and weights, speeding up the computation; it also allows
+ precomputes abscissas and weights, speeding up the computation; it also allows
  to specify the behaviour at infinity via \kbd{sumnumapinit([+oo, asymp])}.
  \bprog
  ? \p500

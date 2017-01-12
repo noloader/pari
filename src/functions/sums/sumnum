@@ -13,7 +13,7 @@ Doc: Numerical summation of $f(n)$ at high accuracy using Euler-MacLaurin,
  the variable $n$ taking values from $a$ to $+\infty$, where $f$ is assumed to
  have positive values and is a $C^\infty$ function; \kbd{a} must be an integer
  and \kbd{tab}, if given, is the output of \kbd{sumnuminit}. The latter
- precomputes abcissas and weights, speeding up the computation; it also allows
+ precomputes abscissas and weights, speeding up the computation; it also allows
  to specify the behaviour at infinity via \kbd{sumnuminit([+oo, asymp])}.
  \bprog
  ? \p500
