@@ -1777,7 +1777,7 @@ QM_imZ_hnf_aux(GEN A)
     U = vecslice(U, 1, lg(A) - lg(B));
     A = rowslice(U, l, nbrows(U));
   }
-  return ZM_hnf(A);
+  return ZM_hnflll(A,NULL,1);
 }
 GEN
 QM_ImZ_hnf(GEN x)
