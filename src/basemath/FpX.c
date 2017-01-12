@@ -2354,25 +2354,6 @@ gener_FpXQ(GEN T, GEN p, GEN *po)
   return g;
 }
 
-#if 0 /* generic version: slower */
-GEN
-gener_FpXQ2(GEN T, GEN p, GEN *po)
-{
-  pari_sp av = avma;
-  void *E;
-  long f = get_FpX_degree(T);
-  GEN g, o = factor_pn_1(p,f);
-  const struct bb_group *S = get_FpXQ_star(&E,T,p);
-  g = gen_gener(o,E,S);
-  if (!po) g = gerepilecopy(av, g);
-  else {
-    *po = mkvec2(powiu(p,f), o);
-    gerepileall(av, 2, &g, po);
-  }
-  return g;
-}
-#endif
-
 GEN
 gener_FpXQ_local(GEN T, GEN p, GEN L)
 {
