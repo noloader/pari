@@ -2451,7 +2451,8 @@ atanhQ_split(ulong u, ulong v, long prec)
   abpq_sum(&R, 0, nmax, &A);
   return rdivii(R.T, mulii(R.B,R.Q),prec);
 }
-/* log(2) = 10*atanh(1/17)+4*atanh(13/499) */
+/* log(2) = 10*atanh(1/17)+4*atanh(13/499); faster than logagmr_abs()
+ * and Pi/2M(1,4/2^n) ~ n log(2) */
 static GEN
 log2_split(long prec)
 {
@@ -2460,16 +2461,6 @@ log2_split(long prec)
   shiftr_inplace(v, 2);
   return addrr(mulur(10, u), v);
 }
-#if 0 /* slower ! */
-/* cf logagmr_abs(). Compute Pi/2agm(1, 4/2^n) ~ log(2^n) = n log(2) */
-static GEN
-log2_agm(long prec)
-{
-  long n = prec2nbits(prec) >> 1;
-  GEN y = divrr(Pi2n(-1, prec), agm1r_abs( real2n(2 - n, prec) ));
-  return divru(y, n);
-}
-#endif
 GEN
 constlog2(long prec)
 {
