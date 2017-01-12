@@ -2,10 +2,10 @@ Function: qfeval
 Section: linear_algebra
 C-Name: qfeval0
 Prototype: DGGDG
-Help: qfeval({q},x,{y}): evaluate the binary quadratic form q (symmetric matrix)
- at x; if y is present, evaluate the polar form at (x,y);
+Help: qfeval({q},x,{y}): evaluate the quadratic form q (symmetric matrix) at x;
+ if y is present, evaluate the polar form at (x,y);
  if q omitted, use the standard Euclidean form.
-Doc: evaluate the binary quadratic form $q$ (given by a symmetric matrix)
+Doc: evaluate the quadratic form $q$ (given by a symmetric matrix)
  at the vector $x$; if $y$ is present, evaluate the polar form at $(x,y)$;
  if $q$ omitted, use the standard Euclidean scalar product, corresponding to
  the identity matrix.
@@ -30,7 +30,7 @@ Doc: evaluate the binary quadratic form $q$ (given by a symmetric matrix)
  omit $q$ altogether:
  \bprog
  ? qfeval(,x,y)
- %1 = 2
+ %6 = 8
  ? q = matid(#x);
  ? for(i=1,10^6, qfeval(q,x,y))
  time = 529 ms.
