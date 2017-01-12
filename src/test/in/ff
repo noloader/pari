@@ -72,8 +72,16 @@ test(q)=
   print(M^(-1)*M);
   my(v = [t^0, t^1, t^2]~);
   print(M*v);
+  print(M*matsolve(M, v) == v);
+  print(M*matinverseimage(M, v) == v);
+  print(matsolve(M, matid(3)*t^0) == M^(-1));
+  print(matinverseimage(M, matid(3)*t^0) == M^(-1));
   my(N = t*[0, 1; 0, 0]);
   iferr(N^-1, e,, errname(e) == "e_INV");
+  iferr(matsolve(N, t*[0, 1]~), e,, errname(e) == "e_INV");
+  print(matinverseimage(N, t*[1, 0]~));
+  print(matinverseimage(N, t*[0, 1]~));
+  print(matinverseimage(N, N^0));
 }
 test(2^5)
 test(7^5)

@@ -3902,6 +3902,8 @@ as \kbd{gauss}, where $b$ is a \kbd{FqM}.
 \fun{GEN}{FqM_FqC_gauss}{GEN a, GEN b, GEN T, GEN p}
 as \kbd{gauss}, where $b$ is a \kbd{FqC}.
 
+\fun{GEN}{FqM_FqC_invimage}{GEN a, GEN b, GEN T, GEN p}
+
 \fun{GEN}{FqM_FqC_mul}{GEN a, GEN b, GEN T, GEN p}
 
 \fun{GEN}{FqM_ker}{GEN x, GEN T, GEN p} as \kbd{ker}
@@ -3910,6 +3912,8 @@ as \kbd{gauss}, where $b$ is a \kbd{FqC}.
 
 \fun{GEN}{FqM_inv}{GEN x, GEN T, GEN p} returns the inverse of \kbd{x}, or
 \kbd{NULL} if \kbd{x} is not invertible.
+
+\fun{GEN}{FqM_invimage}{GEN a, GEN b, GEN T, GEN p}
 
 \fun{GEN}{FqM_mul}{GEN a, GEN b, GEN T, GEN p}
 
@@ -4229,6 +4233,8 @@ and \kbd{y}
 
 \fun{GEN}{FlxqM_FlxqC_gauss}{GEN a, GEN b, GEN T, ulong p}
 
+\fun{GEN}{FlxqM_FlxqC_invimage}{GEN a, GEN b, GEN T, ulong p}
+
 \fun{GEN}{FlxqM_FlxqC_mul}{GEN a, GEN b, GEN T, ulong p}
 
 \fun{GEN}{FlxqM_ker}{GEN x, GEN T, ulong p}
@@ -4238,6 +4244,8 @@ and \kbd{y}
 \fun{GEN}{FlxqM_det}{GEN a, GEN T, ulong p}
 
 \fun{GEN}{FlxqM_inv}{GEN x, GEN T, ulong p}
+
+\fun{GEN}{FlxqM_invimage}{GEN a, GEN b, GEN T, ulong p}
 
 \fun{GEN}{FlxqM_mul}{GEN a, GEN b, GEN T, ulong p}
 
@@ -5895,15 +5903,23 @@ $a=\sigma(X)$ where $\sigma$ is an automorphism of the algebra $\F_2[X]/T(X)$.
 
 \subsec{\kbd{F2xqV}, \kbd{F2xqM}}. See \kbd{FqV}, \kbd{FqM} operations.
 
+\fun{GEN}{F2xqM_F2xqC_gauss}{GEN a, GEN b, GEN T}
+
+\fun{GEN}{F2xqM_F2xqC_invimage}{GEN a, GEN b, GEN T}
+
 \fun{GEN}{F2xqM_F2xqC_mul}{GEN a, GEN b, GEN T}
 
 \fun{GEN}{F2xqM_ker}{GEN x, GEN T}
 
 \fun{GEN}{F2xqM_det}{GEN a, GEN T}
 
+\fun{GEN}{F2xqM_gauss}{GEN a, GEN b, GEN T}
+
 \fun{GEN}{F2xqM_image}{GEN x, GEN T}
 
 \fun{GEN}{F2xqM_inv}{GEN a, GEN T}
+
+\fun{GEN}{F2xqM_invimage}{GEN a, GEN b, GEN T}
 
 \fun{GEN}{F2xqM_mul}{GEN a, GEN b, GEN T}
 
@@ -9153,9 +9169,13 @@ operate on black box fields:
 
 \fun{GEN}{gen_ker}{GEN x, long deplin, void *E, const struct bb_field *ff}
 
+\fun{GEN}{gen_matcolinvimage}{GEN a, GEN b, void *E, const struct bb_field *ff}
+
 \fun{GEN}{gen_matcolmul}{GEN a, GEN b, void *E, const struct bb_field *ff}
 
 \fun{GEN}{gen_matid}{long n, void *E, const struct bb_field *ff}
+
+\fun{GEN}{gen_matinvimage}{GEN a, GEN b, void *E, const struct bb_field *ff}
 
 \fun{GEN}{gen_matmul}{GEN a, GEN b, void *E, const struct bb_field *ff}
 
@@ -11200,6 +11220,16 @@ of the univariate polynomial \kbd{f} over the definition field of the
 \typ{FFELT} \kbd{a}. The coefficients of \kbd{f} must be of type \typ{INT},
 \typ{INTMOD} or \typ{FFELT} and compatible with \kbd{a}.
 
+\fun{GEN}{FFM_FFC_gauss}{GEN M, GEN C, GEN ff} given a matrix \kbd{M}
+(\typ{MAT}) and a column vector \kbd{C} (\typ{COL}) over the finite
+field given by \kbd{ff} (\typ{FFELT}) such that $M$ is invertible,
+return the unique column vector $X$ such that $MX=C$.
+
+\fun{GEN}{FFM_FFC_invimage}{GEN M, GEN C, GEN ff} given a matrix
+\kbd{M} (\typ{MAT}) and a column vector \kbd{C} (\typ{COL}) over the
+finite field given by \kbd{ff} (\typ{FFELT}), return a column vector
+\kbd{X} such that $MX=C$, or \kbd{NULL} if no such vector exists.
+
 \fun{GEN}{FFM_FFC_mul}{GEN M, GEN C, GEN ff} returns the product of
 the matrix~\kbd{M} (\typ{MAT}) and the column vector~\kbd{C}
 (\typ{COL}) over the finite field given by \kbd{ff} (\typ{FFELT}).
@@ -11210,9 +11240,19 @@ by \tet{RgM_is_FFM(M,\&ff)}).
 
 \fun{GEN}{FFM_det}{GEN M, GEN ff}
 
+\fun{GEN}{FFM_gauss}{GEN M, GEN N, GEN ff} given two matrices \kbd{M}
+and~\kbd{N} (\typ{MAT}) over the finite field given by \kbd{ff}
+(\typ{FFELT}) such that $M$ is invertible, return the unique matrix
+$X$ such that $MX=N$.
+
 \fun{GEN}{FFM_image}{GEN M, GEN ff}
 
 \fun{GEN}{FFM_inv}{GEN M, GEN ff}
+
+\fun{GEN}{FFM_invimage}{GEN M, GEN N, GEN ff} given two matrices
+\kbd{M} and~\kbd{N} (\typ{MAT}) over the finite field given by
+\kbd{ff} (\typ{FFELT}), return a matrix \kbd{X} such that $MX=N$, or
+\kbd{NULL} if no such matrix exists.
 
 \fun{GEN}{FFM_mul}{GEN M, GEN N, GEN ff} returns the product of the
 matrices \kbd{M} and~\kbd{N} (\typ{MAT}) over the finite field given

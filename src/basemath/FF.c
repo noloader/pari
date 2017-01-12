@@ -1817,6 +1817,7 @@ FqM_to_FpXQM(GEN x, GEN T, GEN p)
   return y;
 }
 
+/* for functions t_MAT -> t_MAT */
 static GEN
 FFM_wrap(GEN M, GEN ff, GEN (*Fq)(GEN,GEN,GEN),
                        GEN (*Flxq)(GEN,GEN,ulong),
@@ -1836,6 +1837,56 @@ FFM_wrap(GEN M, GEN ff, GEN (*Fq)(GEN,GEN,GEN),
   if (!M) { avma = av; return NULL; }
   return gerepilecopy(av, raw_to_FFM(M, ff));
 }
+
+/* for functions (t_MAT, t_MAT) -> t_MAT */
+static GEN
+FFM_FFM_wrap(GEN M, GEN N, GEN ff,
+             GEN (*Fq)(GEN, GEN, GEN, GEN),
+             GEN (*Flxq)(GEN, GEN, GEN, ulong),
+             GEN (*F2xq)(GEN, GEN, GEN))
+{
+  pari_sp av = avma;
+  ulong pp;
+  GEN T, p;
+  int is_sqr = M==N;
+  _getFF(ff, &T, &p, &pp);
+  M = FFM_to_raw(M);
+  N = is_sqr? M: FFM_to_raw(N);
+  switch(ff[1])
+  {
+  case t_FF_FpXQ: M = Fq(M, N, T, p); if (M) M = FqM_to_FpXQM(M, T, p);
+                  break;
+  case t_FF_F2xq: M = F2xq(M, N, T); break;
+  default: M = Flxq(M, N, T, pp); break;
+  }
+  if (!M) { avma = av; return NULL; }
+  return gerepilecopy(av, raw_to_FFM(M, ff));
+}
+
+/* for functions (t_MAT, t_COL) -> t_COL */
+static GEN
+FFM_FFC_wrap(GEN M, GEN C, GEN ff,
+             GEN (*Fq)(GEN, GEN, GEN, GEN),
+             GEN (*Flxq)(GEN, GEN, GEN, ulong),
+             GEN (*F2xq)(GEN, GEN, GEN))
+{
+  pari_sp av = avma;
+  ulong pp;
+  GEN T, p;
+  _getFF(ff, &T, &p, &pp);
+  M = FFM_to_raw(M);
+  C = FFC_to_raw(C);
+  switch(ff[1])
+  {
+  case t_FF_FpXQ: C = Fq(M, C, T, p); if (C) C = FqC_to_FpXQC(C, T, p);
+                  break;
+  case t_FF_F2xq: C = F2xq(M, C, T); break;
+  default: C = Flxq(M, C, T, pp); break;
+  }
+  if (!C) { avma = av; return NULL; }
+  return gerepilecopy(av, raw_to_FFC(C, ff));
+}
+
 GEN
 FFM_ker(GEN M, GEN ff)
 { return FFM_wrap(M,ff, &FqM_ker,&FlxqM_ker,&F2xqM_ker); }
@@ -1878,38 +1929,42 @@ FFM_det(GEN M, GEN ff)
 }
 
 GEN
+FFM_FFC_gauss(GEN M, GEN C, GEN ff)
+{
+  return FFM_FFC_wrap(M, C, ff, FqM_FqC_gauss,
+                      FlxqM_FlxqC_gauss, F2xqM_F2xqC_gauss);
+}
+
+GEN
+FFM_gauss(GEN M, GEN N, GEN ff)
+{
+  return FFM_FFM_wrap(M, N, ff, FqM_gauss,
+                      FlxqM_gauss, F2xqM_gauss);
+}
+
+GEN
+FFM_FFC_invimage(GEN M, GEN C, GEN ff)
+{
+  return FFM_FFC_wrap(M, C, ff, FqM_FqC_invimage,
+                      FlxqM_FlxqC_invimage, F2xqM_F2xqC_invimage);
+}
+
+GEN
+FFM_invimage(GEN M, GEN N, GEN ff)
+{
+  return FFM_FFM_wrap(M, N, ff, FqM_invimage,
+                      FlxqM_invimage, F2xqM_invimage);
+}
+
+GEN
 FFM_FFC_mul(GEN M, GEN C, GEN ff)
 {
-  pari_sp av = avma;
-  ulong pp;
-  GEN P, T, p;
-  _getFF(ff, &T, &p, &pp);
-  M = FFM_to_raw(M);
-  C = FFC_to_raw(C);
-  switch (ff[1])
-  {
-  case t_FF_FpXQ: P = FqM_FqC_mul(M, C, T, p); break;
-  case t_FF_F2xq: P = F2xqM_F2xqC_mul(M, C, T); break;
-  default: P = FlxqM_FlxqC_mul(M, C, T, pp); break;
-  }
-  return gerepilecopy(av, raw_to_FFC(P, ff));
+  return FFM_FFC_wrap(M, C, ff, FqM_FqC_mul,
+                      FlxqM_FlxqC_mul, F2xqM_F2xqC_mul);
 }
 
 GEN
 FFM_mul(GEN M, GEN N, GEN ff)
 {
-  pari_sp av = avma;
-  ulong pp;
-  GEN P, T, p;
-  int is_sqr = M==N;
-  _getFF(ff, &T, &p, &pp);
-  M = FFM_to_raw(M);
-  N = is_sqr? M: FFM_to_raw(N);
-  switch (ff[1])
-  {
-  case t_FF_FpXQ: P = FqM_mul(M, N, T, p); break;
-  case t_FF_F2xq: P = F2xqM_mul(M, N, T); break;
-  default: P = FlxqM_mul(M, N, T, pp); break;
-  }
-  return gerepilecopy(av, raw_to_FFM(P, ff));
+  return FFM_FFM_wrap(M, N, ff, FqM_mul, FlxqM_mul, F2xqM_mul);
 }

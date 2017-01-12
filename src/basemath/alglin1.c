@@ -410,6 +410,107 @@ gen_matmul(GEN A, GEN B, void *E, const struct bb_field *ff)
 }
 
 static GEN
+gen_colneg(GEN A, void *E, const struct bb_field *ff)
+{
+  long i, l;
+  GEN B = cgetg_copy(A, &l);
+  for (i = 1; i < l; i++)
+    gel(B, i) = ff->neg(E, gel(A, i));
+  return B;
+}
+
+static GEN
+gen_matneg(GEN A, void *E, const struct bb_field *ff)
+{
+  long i, l;
+  GEN B = cgetg_copy(A, &l);
+  for (i = 1; i < l; i++)
+    gel(B, i) = gen_colneg(gel(A, i), E, ff);
+  return B;
+}
+
+/* assume dim A >= 1, A invertible + upper triangular  */
+static GEN
+gen_matinv_upper_ind(GEN A, long index, void *E, const struct bb_field *ff)
+{
+  long n = lg(A) - 1, i, j;
+  GEN u = cgetg(n + 1, t_COL);
+  for (i = n; i > index; i--)
+    gel(u, i) = ff->s(E, 0);
+  gel(u, i) = ff->inv(E, gcoeff(A, i, i));
+  for (i--; i > 0; i--) {
+    pari_sp av = avma;
+    GEN m = ff->neg(E, ff->mul(E, gcoeff(A, i, i + 1), gel(u, i + 1)));
+    for (j = i + 2; j <= n; j++)
+      m = ff->add(E, m, ff->neg(E, ff->mul(E, gcoeff(A, i, j), gel(u, j))));
+    gel(u, i) = gerepileupto(av, ff->red(E, ff->mul(E, m, ff->inv(E, gcoeff(A, i, i)))));
+  }
+  return u;
+}
+
+static GEN
+gen_matinv_upper(GEN A, void *E, const struct bb_field *ff)
+{
+  long i, l;
+  GEN B = cgetg_copy(A, &l);
+  for (i = 1; i < l; i++)
+    gel(B,i) = gen_matinv_upper_ind(A, i, E, ff);
+  return B;
+}
+
+/* find z such that A z = y. Return NULL if no solution */
+GEN
+gen_matcolinvimage(GEN A, GEN y, void *E, const struct bb_field *ff)
+{
+  pari_sp av = avma;
+  long i, l = lg(A);
+  GEN M, x, t;
+
+  M = gen_ker(shallowconcat(A, y), 0, E, ff);
+  i = lg(M) - 1;
+  if (!i) { avma = av; return NULL; }
+
+  x = gel(M, i);
+  t = gel(x, l);
+  if (ff->equal0(t)) { avma = av; return NULL; }
+
+  t = ff->neg(E, ff->inv(E, t));
+  setlg(x, l);
+  for (i = 1; i < l; i++)
+    gel(x, i) = ff->red(E, ff->mul(E, t, gel(x, i)));
+  return gerepilecopy(av, x);
+}
+
+/* find Z such that A Z = B. Return NULL if no solution */
+GEN
+gen_matinvimage(GEN A, GEN B, void *E, const struct bb_field *ff)
+{
+  pari_sp av = avma;
+  GEN d, x, X, Y;
+  long i, j, nY, nA, nB;
+  x = gen_ker(shallowconcat(gen_matneg(A, E, ff), B), 0, E, ff);
+  /* AX = BY, Y in strict upper echelon form with pivots = 1.
+   * We must find T such that Y T = Id_nB then X T = Z. This exists
+   * iff Y has at least nB columns and full rank. */
+  nY = lg(x) - 1;
+  nB = lg(B) - 1;
+  if (nY < nB) { avma = av; return NULL; }
+  nA = lg(A) - 1;
+  Y = rowslice(x, nA + 1, nA + nB); /* nB rows */
+  d = cgetg(nB + 1, t_VECSMALL);
+  for (i = nB, j = nY; i >= 1; i--, j--) {
+    for (; j >= 1; j--)
+      if (!ff->equal0(gcoeff(Y, i, j))) { d[i] = j; break; }
+    if (!j) { avma = av; return NULL; }
+  }
+  /* reduce to the case Y square, upper triangular with 1s on diagonal */
+  Y = vecpermute(Y, d);
+  x = vecpermute(x, d);
+  X = rowslice(x, 1, nA);
+  return gerepileupto(av, gen_matmul(X, gen_matinv_upper(Y, E, ff), E, ff));
+}
+
+static GEN
 image_from_pivot(GEN x, GEN d, long r)
 {
   GEN y;
@@ -1024,6 +1125,13 @@ FlxqM_det(GEN a, GEN T, ulong p)
 }
 
 GEN
+FlxqM_FlxqC_invimage(GEN A, GEN B, GEN T, ulong p) {
+  void *E;
+  const struct bb_field *ff = get_Flxq_field(&E, T, p);
+  return gen_matcolinvimage(A, B, E, ff);
+}
+
+GEN
 FlxqM_FlxqC_mul(GEN A, GEN B, GEN T, ulong p) {
   void *E;
   const struct bb_field *ff = get_Flxq_field(&E, T, p);
@@ -1045,6 +1153,13 @@ FlxqM_mul(GEN A, GEN B, GEN T, ulong p) {
 }
 
 GEN
+FlxqM_invimage(GEN A, GEN B, GEN T, ulong p) {
+  void *E;
+  const struct bb_field *ff = get_Flxq_field(&E, T, p);
+  return gen_matinvimage(A, B, E, ff);
+}
+
+GEN
 F2xqM_det(GEN a, GEN T)
 {
   void *E;
@@ -1059,6 +1174,19 @@ F2xqM_gauss_gen(GEN a, GEN b, GEN T)
   const struct bb_field *S = get_F2xq_field(&E, T);
   return gen_Gauss(a, b, E, S);
 }
+
+GEN
+F2xqM_gauss(GEN a, GEN b, GEN T)
+{
+  pari_sp av = avma;
+  long n = lg(a)-1;
+  GEN u;
+  if (!n || lg(b)==1) { avma = av; return cgetg(1, t_MAT); }
+  u = F2xqM_gauss_gen(a, b, T);
+  if (!u) { avma = av; return NULL; }
+  return gerepilecopy(av, u);
+}
+
 GEN
 F2xqM_inv(GEN a, GEN T)
 {
@@ -1068,6 +1196,24 @@ F2xqM_inv(GEN a, GEN T)
   u = F2xqM_gauss_gen(a, matid_F2xqM(nbrows(a),T), T);
   if (!u) { avma = av; return NULL; }
   return gerepilecopy(av, u);
+}
+
+GEN
+F2xqM_F2xqC_gauss(GEN a, GEN b, GEN T)
+{
+  pari_sp av = avma;
+  GEN u;
+  if (lg(a) == 1) return cgetg(1, t_COL);
+  u = F2xqM_gauss_gen(a, mkmat(b), T);
+  if (!u) { avma = av; return NULL; }
+  return gerepilecopy(av, gel(u,1));
+}
+
+GEN
+F2xqM_F2xqC_invimage(GEN A, GEN B, GEN T) {
+  void *E;
+  const struct bb_field *ff = get_F2xq_field(&E, T);
+  return gen_matcolinvimage(A, B, E, ff);
 }
 
 GEN
@@ -1082,6 +1228,13 @@ F2xqM_mul(GEN A, GEN B, GEN T) {
   void *E;
   const struct bb_field *ff = get_F2xq_field(&E, T);
   return gen_matmul(A, B, E, ff);
+}
+
+GEN
+F2xqM_invimage(GEN A, GEN B, GEN T) {
+  void *E;
+  const struct bb_field *ff = get_F2xq_field(&E, T);
+  return gen_matinvimage(A, B, E, ff);
 }
 
 static GEN
@@ -1133,6 +1286,13 @@ FqM_det(GEN x, GEN T, GEN p)
 }
 
 GEN
+FqM_FqC_invimage(GEN A, GEN B, GEN T, GEN p) {
+  void *E;
+  const struct bb_field *ff = get_Fq_field(&E, T, p);
+  return gen_matcolinvimage(A, B, E, ff);
+}
+
+GEN
 FqM_FqC_mul(GEN A, GEN B, GEN T, GEN p) {
   void *E;
   const struct bb_field *ff = get_Fq_field(&E, T, p);
@@ -1144,6 +1304,13 @@ FqM_mul(GEN A, GEN B, GEN T, GEN p) {
   void *E;
   const struct bb_field *ff = get_Fq_field(&E, T, p);
   return gen_matmul(A, B, E, ff);
+}
+
+GEN
+FqM_invimage(GEN A, GEN B, GEN T, GEN p) {
+  void *E;
+  const struct bb_field *ff = get_Fq_field(&E, T, p);
+  return gen_matinvimage(A, B, E, ff);
 }
 
 static GEN
@@ -1597,7 +1764,14 @@ RgM_solve(GEN a, GEN b)
   GEN p, u, data, ff = NULL;
 
   if (is_modular_solve(a,b,&u)) return gerepileupto(av, u);
-  if (!b && RgM_is_FFM(a, &ff)) return FFM_inv(a, ff);
+  if (RgM_is_FFM(a, &ff)) {
+    if (!b)
+      return FFM_inv(a, ff);
+    if (typ(b) == t_COL && RgC_is_FFC(b, &ff))
+      return FFM_FFC_gauss(a, b, ff);
+    if (typ(b) == t_MAT && RgM_is_FFM(b, &ff))
+      return FFM_gauss(a, b, ff);
+  }
   avma = av;
 
   if (lg(a)-1 == 2 && nbrows(a) == 2) {
@@ -3048,6 +3222,11 @@ RgM_RgC_invimage(GEN A, GEN y)
 
   if (l==1) return NULL;
   if (lg(y) != lgcols(A)) pari_err_DIM("inverseimage");
+  {
+    GEN ff = NULL;
+    if (RgM_is_FFM(A, &ff) && RgC_is_FFC(y, &ff))
+      return FFM_FFC_invimage(A, y, ff);
+  }
   M = ker(shallowconcat(A, y));
   i = lg(M)-1;
   if (!i) { avma = av; return NULL; }
@@ -3290,6 +3469,11 @@ RgM_invimage(GEN A, GEN B)
     }
     if (!x) { avma = av; return NULL; }
     return gerepileupto(av, x);
+  }
+  {
+    GEN ff = NULL;
+    if (RgM_is_FFM(A, &ff) && RgM_is_FFM(B, &ff))
+      return FFM_invimage(A, B, ff);
   }
   x = ker(shallowconcat(RgM_neg(A), B));
   /* AX = BY, Y in strict upper echelon form with pivots = 1.
