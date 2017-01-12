@@ -1102,21 +1102,61 @@ lfunellmfpeters(GEN E, long bitprec)
 /*               Genus 2 curves                              */
 /*************************************************************/
 
+static void
+Flv_diffnext(GEN d, ulong p)
+{
+  long j, n = lg(d)-1;
+  for(j = n; j>=2; j--)
+    uel(d,j) = Fl_add(uel(d,j), uel(d,j-1), p);
+}
+
+static GEN
+Flx_translate1(GEN P, ulong p)
+{
+  long i, k, n = degpol(P);
+  GEN R = Flx_copy(P);
+  for (i=1; i<=n; i++)
+    for (k=n-i; k<n; k++)
+      uel(R,k+2) = Fl_add(uel(R,k+2), uel(R,k+3), p);
+  return R;
+}
+
+static GEN
+Flx_diff1(GEN P, ulong p)
+{
+  return Flx_sub(Flx_translate1(P, p), P, p);
+}
+
+static GEN
+Flx_difftable(GEN P, ulong p)
+{
+  long i, n = degpol(P);
+  GEN V = cgetg(n+2, t_VECSMALL);
+  uel(V, n+1) = uel(P, 2);
+  for(i = n; i >= 1; i--)
+  {
+    P = Flx_diff1(P, p);
+    uel(V, i) = uel(P, 2);
+  }
+  return V;
+}
+
 static long
 Flx_genus2trace_naive(GEN H, ulong p)
 {
   pari_sp av = avma;
   ulong i, j;
   long a, n = degpol(H);
-  GEN k = const_vecsmall(p, -1);
+  GEN k = const_vecsmall(p, -1), d;
   k[1] = 0;
   for (i=1, j=1; i < p; i += 2, j = Fl_add(j, i, p))
     k[j+1] = 1;
   a = n == 5 ? 0: k[1+Flx_lead(H)];
+  d = Flx_difftable(H, p);
   for (i=0; i < p; i++)
   {
-    ulong v = Flx_eval(H, i, p);
-    a += k[1+v];
+    a += k[1+uel(d,n+1)];
+    Flv_diffnext(d, p);
   }
   avma = av;
   return a;
