@@ -21,8 +21,10 @@ Doc: true (1) if $x$ is a strong pseudo
  If $\fl = 0$, checks whether $x$ has no small prime divisors (up to $101$
  included) and is a Baillie-Pomerance-Selfridge-Wagstaff pseudo prime.
  Such a pseudo prime passes a Rabin-Miller test for base $2$,
- followed by a Lucas test for the sequence $(P,-1)$, $P$ smallest
- positive integer such that $P^2 - 4$ is not a square mod $x$).
+ followed by a Lucas test for the sequence $(P,1)$, where $P \geq 3$
+ is the smallest odd integer such that $P^2 - 4$ is not a square mod $x$.
+ (Technically, we are using an ``almost extra strong Lucas test'' that
+ checks whether $V_n$ is $\pm 2$, without computing $U_n$.)
 
  There are no known composite numbers passing the above test, although it is
  expected that infinitely many such numbers exist. In particular, all
