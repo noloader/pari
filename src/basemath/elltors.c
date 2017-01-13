@@ -526,6 +526,17 @@ ellnftorsprimary(GEN E, long p, long N1, long N2, long v)
   return ptor2(p, n1,n2, P1,P2);
 }
 
+/* P affine point */
+static GEN
+nfpt(GEN e, GEN P)
+{
+  GEN T = nf_get_pol(ellnf_get_nf(e));
+  GEN x = gel(P,1), y = gel(P,2);
+  long tx = typ(x), ty = typ(y);
+  if (tx == ty) return P;
+  if (tx != t_POLMOD) x = mkpolmod(x,T); else y = mkpolmod(y,T);
+  return mkvec2(x,y);
+}
 /* Computes the torsion subgroup of E(K), as [order, cyc, gen] */
 static GEN
 ellnftors(GEN e)
@@ -549,8 +560,8 @@ ellnftors(GEN e)
   }
   (void)delete_var();
   if (is_pm1(d1)) return mkvec3(gen_1,cgetg(1,t_VEC),cgetg(1,t_VEC));
-  if (is_pm1(d2)) return mkvec3(d1, mkvec(d1), mkvec(P1));
-  return mkvec3(mulii(d1,d2), mkvec2(d1,d2), mkvec2(P1,P2));
+  if (is_pm1(d2)) return mkvec3(d1, mkvec(d1), mkvec(nfpt(e,P1)));
+  return mkvec3(mulii(d1,d2), mkvec2(d1,d2), mkvec2(nfpt(e,P1),nfpt(e,P2)));
 }
 
 GEN
