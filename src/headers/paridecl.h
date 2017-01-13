@@ -1288,7 +1288,7 @@ GEN     algdisc(GEN al);
 GEN     algdivl(GEN al, GEN x, GEN y);
 GEN     algdivr(GEN al, GEN x, GEN y);
 GEN     alggroup(GEN gal, GEN p);
-GEN     alggroupcenter(GEN gal, GEN p);
+GEN     alggroupcenter(GEN gal, GEN p, GEN* ptr_conjclasses);
 GEN     alghasse(GEN al, GEN pl);
 GEN     alginit(GEN A, GEN B, long v, long flag);
 long    algindex(GEN al, GEN pl);

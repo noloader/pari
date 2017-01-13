@@ -4115,11 +4115,11 @@ group_conjclasses(GEN genes, GEN elts, long* ptnbcl)
 }
 
 GEN
-alggroupcenter(GEN gal, GEN p)
+alggroupcenter(GEN gal, GEN p, GEN* ptr_conjclasses)
 {
   pari_sp av = avma;
   long nbcl, i, n, k, j, ci, cj, ck;
-  GEN G, elts, genes, conjclass, mt, xi, xj, xixj, repclass;
+  GEN G, elts, genes, conjclass, mt, xi, xj, xixj, repclass, al;
   if(typ(gal)!=t_VEC) pari_err_TYPE("alggroupcenter", gal);
   if(is_gal_or_grp(gal)) {
     G = checkgroup(gal, &elts);
@@ -4169,7 +4169,13 @@ alggroupcenter(GEN gal, GEN p)
     for(i=1; i<=nbcl; i++)
       gel(mt,i) = FpM_red(gel(mt,i),p);
 
-  return gerepilecopy(av, algtableinit_i(mt,p));
+  al = algtableinit_i(mt,p);
+  if(ptr_conjclasses) {
+    *ptr_conjclasses = mkvec3(elts,conjclass,repclass);
+    gerepileall(av,2,&al,ptr_conjclasses);
+  }
+  else al = gerepilecopy(av,al);
+  return al;
 }
 
 /*

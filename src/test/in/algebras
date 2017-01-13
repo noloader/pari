@@ -1408,8 +1408,15 @@ A = alginit(nf, [3,hf,hi]);
 algsplittingfield(A).pol
 K = nfsplitting(x^4+x+1);
 gal = galoisinit(K);
-al = alggroupcenter(gal);
+al = alggroupcenter(gal,,&cc);
 algiscommutative(al)
+#cc[3]
+
+
+
+
+
+
 
 
 
