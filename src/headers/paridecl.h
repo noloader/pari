@@ -3825,12 +3825,22 @@ GEN     forpart_prev(forpart_t *T);
 GEN     numbpart(GEN x);
 GEN     partitions(long k, GEN nbound, GEN abound);
 
-/* perm.c */
+/* forperm.c */
 
 void    forperm(void *E, long call(void *, GEN), GEN k);
-int     forperm_next(forperm_t *T);
 void    forperm0(GEN k, GEN code);
 void    forperm_init(forperm_t *T, long k);
+int     forperm_next(forperm_t *T);
+
+/* forsubset.c */
+
+void forksubset(void *E, long call(void *, GEN), long n, long k);
+void forallsubset(void *E, long call(void *, GEN), long n);
+void forksubset_init(forsubset_t *T, long n, long k);
+void forallsubset_init(forsubset_t *T, long n);
+int forksubset_next(forsubset_t *T);
+int forallsubset_next(forsubset_t *T);
+void forsubset0(GEN nk, GEN code);
 
 /* perm.c */
 

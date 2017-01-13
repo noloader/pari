@@ -81,6 +81,13 @@ typedef struct
   GEN v;
 } forperm_t;
 
+/* Iterate over subsets */
+typedef struct
+{
+  long n,k;
+  GEN v;
+} forsubset_t;
+
 /* binary I/O */
 typedef struct GENbin {
   size_t len; /* gsizeword(x) */
