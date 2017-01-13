@@ -5255,7 +5255,7 @@ assuming the result is monic of the same degree as $y$ (in particular $x\neq
 
 \fun{GEN}{Flx_sqr}{GEN x, ulong p}
 
-\fun{GEN}{Flx_powu}{GEN x, ulong n, ulong p} returns $x^n$.
+\fun{GEN}{Flx_powu}{GEN x, ulong n, ulong p} return $x^n$.
 
 \fun{GEN}{Flx_divrem}{GEN x, GEN y, ulong p, GEN *pr}
 
@@ -5264,6 +5264,10 @@ assuming the result is monic of the same degree as $y$ (in particular $x\neq
 \fun{GEN}{Flx_rem}{GEN x, GEN y, ulong p}
 
 \fun{GEN}{Flx_deriv}{GEN z, ulong p}
+
+\fun{GEN}{Flx_translate1}{GEN P, ulong p} return $P(x+1)$
+
+\fun{GEN}{Flx_diff1}{GEN P, ulong p} return $P(x+1)-P(x)$
 
 \fun{GEN}{Flx_digits}{GEN x, GEN B, ulong p} returns a vector of \kbd{Flx}
 $[c_0,\ldots,c_n]$ of degree less than the degree of $B$ and such that

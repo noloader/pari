@@ -636,23 +636,6 @@ F2x_genus2charpoly_naive(GEN P, GEN Q)
 }
 
 static GEN
-Flx_translate1(GEN P, ulong p)
-{
-  long i, k, n = degpol(P);
-  GEN R = Flx_copy(P);
-  for (i=1; i<=n; i++)
-    for (k=n-i; k<n; k++)
-      uel(R,k+2) = Fl_add(uel(R,k+2), uel(R,k+3), p);
-  return R;
-}
-
-static GEN
-Flx_diff1(GEN P, ulong p)
-{
-  return Flx_sub(Flx_translate1(P, p), P, p);
-}
-
-static GEN
 Flx_difftable(GEN P, ulong p)
 {
   long i, n = degpol(P);
