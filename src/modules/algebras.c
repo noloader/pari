@@ -4139,7 +4139,7 @@ alggroupcenter(GEN gal, GEN p)
     if(lg(gel(elts,i))!=lg(gel(elts,1)))
       pari_err_DIM("alggroup [length of permutations]");
   }
-  elts = vecsort0(elts,NULL,0);
+  elts = gen_sort(elts,(void*)vecsmall_lexcmp,cmp_nodata);
 
   /* compute conjugacy classes */
   class = group_conjclasses(genes,elts,&nbcl);
