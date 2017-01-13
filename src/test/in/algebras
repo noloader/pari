@@ -2251,6 +2251,7 @@ al = algtableinit(mt2);
 algissimple(al)
 mt = algmultable(alginit(nfinit(y),[-3,7]));
 mt == algmakeintegral(mt)
+algmakeintegral('x,1);
 
 \\integral subalg
 m = matcompanion(x^4+1);

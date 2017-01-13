@@ -2651,6 +2651,9 @@ should fail:
 1
 1
 1
+  ***   at top-level: algmakeintegral('x,1
+  ***                 ^--------------------
+  *** algmakeintegral: incorrect type in algmakeintegral (t_POL).
 
 [1   0]
 
@@ -2671,4 +2674,4 @@ should fail:
 [0 0]
 
 1
-Total time spent: 7492
+Total time spent: 7464
