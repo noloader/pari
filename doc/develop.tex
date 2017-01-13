@@ -544,6 +544,18 @@ it is particularly annoying, e.g. opens tons of graphical windows as
 may edit \kbd{config/get\_tests} and add the \kbd{fun} test to the list of
 excluded tests, in the \kbd{test\_extra\_out} variable.
 
+\item By default, the test is run on both the \kbd{gp-sta} and \kbd{gp-dyn}
+binaries, making it twice as slow. If the test is somewhat long, it can
+be annoying; you can restrict to one binary only using the \kbd{dotestSUF}
+environment variable (whose value is \kbd{sta} or \kbd{dyn}). This will run
+the test (resp.~all tests) only under \kbd{gp-sta}:
+
+\bprog
+  env dotestSUF=sta make test-fun
+  env dotestSUF=sta make test-all
+@eprog\noindent The \kbd{test-all} variant is so common that a shortcut
+is provided: \kbd{make statest-all}.
+
 \item The \kbd{get\_tests} script also defines the recipe for
 \kbd{make bench} timings, via the variable \kbd{test\_basic}. A test is
 included as \kbd{fun} or \kbd{fun\_$n$}, where $n$ is an integer $\leq 1000$;
