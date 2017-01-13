@@ -4078,40 +4078,40 @@ zv_isperm(GEN v)
 
 /* return 1 if not explored conj class, 0 otherwise */
 static int
-dfs_conj(long i, long cl, GEN genes, GEN elts, GEN class)
+dfs_conj(long i, long cl, GEN genes, GEN elts, GEN conjclass)
 {
   long j,i2;
   GEN g,x,y;
-  if(class[i]) return 0;
-  class[i] = cl;
+  if(conjclass[i]) return 0;
+  conjclass[i] = cl;
   x = gel(elts,i);
   for(j=1;j<lg(genes);j++)
   {
     g = gel(genes,j);
     y = perm_mul(perm_mul(g,x),perm_inv(g));
     i2 = vecsearch(elts,y,NULL);
-    dfs_conj(i2,cl,genes,elts,class);
+    dfs_conj(i2,cl,genes,elts,conjclass);
   }
   return 1;
 }
 
 /*
- Return a t_VECSMALL class, such that class[i] is the index of the conjugacy
- class of elts[i].
+ Return a t_VECSMALL conjclass, such that conjclass[i] is the index of
+ the conjugacy class of elts[i].
  Assume elts is sorted.
  */
 static GEN
 group_conjclasses(GEN genes, GEN elts, long* ptnbcl)
 {
-  GEN class;
+  GEN conjclass;
   long i,n,cl;
   n = lg(elts)-1;
-  class = const_vecsmall(n,0);
+  conjclass = const_vecsmall(n,0);
   cl = 1;
   for (i=1;i<=n;i++)
-    cl += dfs_conj(i,cl,genes,elts,class);
+    cl += dfs_conj(i,cl,genes,elts,conjclass);
   if (ptnbcl) *ptnbcl = cl-1;
-  return class;
+  return conjclass;
 }
 
 GEN
@@ -4119,7 +4119,7 @@ alggroupcenter(GEN gal, GEN p)
 {
   pari_sp av = avma;
   long nbcl, i, n, k, j, ci, cj, ck;
-  GEN G, elts, genes, class, mt, xi, xj, xixj, repclass;
+  GEN G, elts, genes, conjclass, mt, xi, xj, xixj, repclass;
   if(typ(gal)!=t_VEC) pari_err_TYPE("alggroupcenter", gal);
   if(is_gal_or_grp(gal)) {
     G = checkgroup(gal, &elts);
@@ -4142,10 +4142,10 @@ alggroupcenter(GEN gal, GEN p)
   elts = gen_sort(elts,(void*)vecsmall_lexcmp,cmp_nodata);
 
   /* compute conjugacy classes */
-  class = group_conjclasses(genes,elts,&nbcl);
+  conjclass = group_conjclasses(genes,elts,&nbcl);
   repclass = const_vecsmall(nbcl,0);
   for(i=1;i<=n;i++)
-    if(!repclass[class[i]]) repclass[class[i]] = i;
+    if(!repclass[conjclass[i]]) repclass[conjclass[i]] = i;
 
   /* compute multiplication table of the center of the group algebra
    * (class functions). */
@@ -4154,13 +4154,13 @@ alggroupcenter(GEN gal, GEN p)
     gel(mt,i) = zeromatcopy(nbcl,nbcl);
   for(i=1;i<=n;i++) {
     xi = gel(elts,i);
-    ci = class[i];
+    ci = conjclass[i];
     for(j=1;j<=n;j++) {
       xj = gel(elts,j);
-      cj = class[j];
+      cj = conjclass[j];
       xixj = perm_mul(xi,xj);
       k = vecsearch(elts,xixj,NULL);
-      ck = class[k];
+      ck = conjclass[k];
       if(repclass[ck]==k)
         gcoeff(gel(mt,ci),ck,cj) = addis(gcoeff(gel(mt,ci),ck,cj) ,1);
     }
