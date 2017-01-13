@@ -2199,6 +2199,7 @@ firstprime1mod(n) =
   print(algdim(al) == conjD2n(p));
   print(algdim(al) > #algsimpledec(al));
 );}
+alggroupcenter(['x,'y]);
 
 \\tests for lattices
 al = alginit(nfinit(y^2+7), [-1,-1]);

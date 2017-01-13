@@ -4120,7 +4120,7 @@ alggroupcenter(GEN gal, GEN p)
   pari_sp av = avma;
   long nbcl, i, n, k, j, ci, cj, ck;
   GEN G, elts, genes, class, mt, xi, xj, xixj, repclass;
-  if(typ(gal)!=t_VEC) pari_err_TYPE("alggroup", gal);
+  if(typ(gal)!=t_VEC) pari_err_TYPE("alggroupcenter", gal);
   if(is_gal_or_grp(gal)) {
     G = checkgroup(gal, &elts);
     genes = gel(G,1);
@@ -4131,6 +4131,14 @@ alggroupcenter(GEN gal, GEN p)
     genes = elts;
   }
   n = lg(elts)-1;
+  for(i=1; i<=n; i++) {
+    if(typ(gel(elts,i)) != t_VECSMALL)
+      pari_err_TYPE("alggroup (element)", gel(elts,i));
+    if(!zv_isperm(gel(elts,i)))
+      pari_err_TYPE("alggroup (element is not a permutation)", gel(elts,i));
+    if(lg(gel(elts,i))!=lg(gel(elts,1)))
+      pari_err_DIM("alggroup [length of permutations]");
+  }
   elts = vecsort0(elts,NULL,0);
 
   /* compute conjugacy classes */
