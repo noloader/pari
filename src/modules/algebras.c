@@ -4120,6 +4120,7 @@ alggroupcenter(GEN gal, GEN p, GEN* ptr_conjclasses)
   pari_sp av = avma;
   long nbcl, i, n, k, j, ci, cj, ck;
   GEN G, elts, genes, conjclass, mt, xi, xj, xixj, repclass, al;
+  if(p && !signe(p)) p = NULL;
   if(typ(gal)!=t_VEC) pari_err_TYPE("alggroupcenter", gal);
   if(is_gal_or_grp(gal)) {
     G = checkgroup(gal, &elts);

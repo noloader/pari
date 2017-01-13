@@ -2208,6 +2208,7 @@ firstprime1mod(n) =
 );}
 alggroupcenter(['x,'y]);
 alggroupcenter('x,1); \\Bill's bug
+alggroupcenter(Sn(3),0);
 
 \\tests for lattices
 al = alginit(nfinit(y^2+7), [-1,-1]);
