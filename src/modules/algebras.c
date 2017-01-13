@@ -4119,7 +4119,7 @@ alggroupcenter(GEN gal, GEN p)
 {
   pari_sp av = avma;
   long nbcl, i, n, k, j, ci, cj, ck;
-  GEN G, elts, genes, class, mt, xi, xj, xixj, classsize, repclass;
+  GEN G, elts, genes, class, mt, xi, xj, xixj, repclass;
   if(typ(gal)!=t_VEC) pari_err_TYPE("alggroup", gal);
   if(is_gal_or_grp(gal)) {
     G = checkgroup(gal, &elts);
@@ -4135,12 +4135,9 @@ alggroupcenter(GEN gal, GEN p)
 
   /* compute conjugacy classes */
   class = group_conjclasses(genes,elts,&nbcl);
-  classsize = const_vecsmall(nbcl,0);
   repclass = const_vecsmall(nbcl,0);
-  for(i=1;i<=n;i++) {
-    classsize[class[i]]++;
+  for(i=1;i<=n;i++)
     if(!repclass[class[i]]) repclass[class[i]] = i;
-  }
 
   /* compute multiplication table of the center of the group algebra
    * (class functions). */
