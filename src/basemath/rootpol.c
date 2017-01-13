@@ -22,6 +22,25 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 
 static const double pariINFINITY = 100000.;
 
+static long
+isvalidcoeff(GEN x)
+{
+  switch (typ(x))
+  {
+    case t_INT: case t_REAL: case t_FRAC: return 1;
+    case t_COMPLEX: return isvalidcoeff(gel(x,1)) && isvalidcoeff(gel(x,2));
+  }
+  return 0;
+}
+
+static void
+checkvalidpol(GEN p, const char *f)
+{
+  long i,n = lg(p);
+  for (i=2; i<n; i++)
+    if (!isvalidcoeff(gel(p,i))) pari_err_TYPE(f, gel(p,i));
+}
+
 /********************************************************************/
 /**                                                                **/
 /**                   FAST ARITHMETIC over Z[i]                    **/
@@ -691,12 +710,41 @@ logmax_modulus(GEN p, double tau)
   r = itor(r, DEFAULTPREC); shiftr_inplace(r, -M);
   avma = ltop; return -rtodbl(r) * LOG2; /* -log(2) sum e_i 2^-i */
 }
-/* assume P non constant */
+
+static GEN
+RgX_normalize1(GEN x)
+{
+  long i, n = lg(x)-1;
+  GEN y;
+  for (i = n; i > 1; i--)
+    if (!gequal0( gel(x,i) )) break;
+  if (i == n) return x;
+  pari_warn(warner,"normalizing a polynomial with 0 leading term");
+  if (i == 1) pari_err_ROOTS0("roots");
+  y = cgetg(i+1, t_POL); y[1] = x[1];
+  for (; i > 1; i--) gel(y,i) = gel(x,i);
+  return y;
+}
+
 GEN
-logmax_modulus_bound(GEN P)
+polrootsbound_i(GEN P)
 {
   (void)RgX_valrem_inexact(P,&P);
-  return lg(P)==3? gen_0: dblexp(logmax_modulus(P, 0.01) + 0.01);
+  P = RgX_normalize1(P);
+  switch(degpol(P))
+  {
+    case -1: pari_err_ROOTS0("roots");
+    case 0:  return gen_0;
+    default: return dblexp(logmax_modulus(P, 0.01) + 0.01);
+  }
+}
+GEN
+polrootsbound(GEN P)
+{
+  pari_sp av = avma;
+  if (typ(P) != t_POL) pari_err_TYPE("polrootsbound",P);
+  checkvalidpol(P, "polrootsbound");
+  return gerepileuptoleaf(av, polrootsbound_i(P));
 }
 
 /* log of modulus of the smallest root of p, with relative error tau */
@@ -1902,21 +1950,6 @@ fix_roots(GEN r, GEN *m, long h, long bit)
 }
 
 static GEN
-RgX_normalize1(GEN x)
-{
-  long i, n = lg(x)-1;
-  GEN y;
-  for (i = n; i > 1; i--)
-    if (!gequal0( gel(x,i) )) break;
-  if (i == n) return x;
-  pari_warn(warner,"normalizing a polynomial with 0 leading term");
-  if (i == 1) pari_err_ROOTS0("roots");
-  y = cgetg(i+1, t_POL); y[1] = x[1];
-  for (; i > 1; i--) gel(y,i) = gel(x,i);
-  return y;
-}
-
-static GEN
 all_roots(GEN p, long bit)
 {
   GEN lc, pd, q, roots_pol, m;
@@ -1961,25 +1994,6 @@ isexactpol(GEN p)
   for (i=0; i<=n; i++)
     if (!isexactscalar(gel(p,i+2))) return 0;
   return 1;
-}
-
-static long
-isvalidcoeff(GEN x)
-{
-  switch (typ(x))
-  {
-    case t_INT: case t_REAL: case t_FRAC: return 1;
-    case t_COMPLEX: return isvalidcoeff(gel(x,1)) && isvalidcoeff(gel(x,2));
-  }
-  return 0;
-}
-
-static void
-checkvalidpol(GEN p)
-{
-  long i,n = lg(p);
-  for (i=2; i<n; i++)
-    if (!isvalidcoeff(gel(p,i))) pari_err_TYPE("roots", gel(p,i));
 }
 
 static GEN
@@ -2133,7 +2147,7 @@ roots_aux(GEN p, long l, long clean)
     return cgetg(1,t_COL); /* constant polynomial */
   }
   if (!signe(p)) pari_err_ROOTS0("roots");
-  checkvalidpol(p);
+  checkvalidpol(p,"roots");
   if (lg(p) == 3) return cgetg(1,t_COL); /* constant polynomial */
   if (l < LOWDEFAULTPREC) l = LOWDEFAULTPREC;
   bit = prec2nbits(l);
@@ -2155,7 +2169,7 @@ polmod_to_embed(GEN x, long prec)
   long i, l;
   if (typ(A) != t_POL || varn(A) != varn(T))
   {
-    checkvalidpol(T);
+    checkvalidpol(T,"polmod_to_embed");
     return const_col(degpol(T), A);
   }
   v = cleanroots(T,prec); l = lg(v);

@@ -1,0 +1,14 @@
+Function: sumaltrat
+Section: sums
+C-Name: sumaltrat
+Prototype: GLp
+Help: sumaltrat(F,a): sum from n = a to infinity of (-1)^nF(n), where F
+ is a rational function of degree less than or equal to -1.
+Doc: $\sum_{n\ge a}(-1)^nF(n)$, where $F$ is a rational function of degree
+ less than or equal to $-1$.
+ \bprog
+ ? sumaltrat(1/(x^2+1)^2,0)
+ %1 = 0.78245783931939984108944124167833302237
+ ? sumaltrat(1/(x+1),0)
+ %2 = 0.69314718055994530941723212145817656808
+ @eprog

@@ -32,12 +32,21 @@ x^2 + 1
 
 [1    0]
 
-  ***   at top-level: Pol("")
-  ***                 ^-------
-  *** Pol: incorrect type in gtopoly (t_STR).
 2*x^2 + x + 1
 6*x^3 + 2*x^2
 "t_INT"
   *** polroots: Warning: normalizing a polynomial with 0 leading term.
 [0.E-38 + 0.E-38*I]~
-Total time spent: 0
+  *** polrootsbound: Warning: normalizing a polynomial with 0 leading term.
+0
+0
+  ***   at top-level: polrootsbound(Pol(0)
+  ***                 ^--------------------
+  *** polrootsbound: zero polynomial in roots.
+  ***   at top-level: polrootsbound(1)
+  ***                 ^----------------
+  *** polrootsbound: incorrect type in polrootsbound (t_INT).
+  ***   at top-level: Pol("")
+  ***                 ^-------
+  *** Pol: incorrect type in gtopoly (t_STR).
+Total time spent: 1

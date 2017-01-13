@@ -3101,6 +3101,7 @@ ulong   padic_to_Fl(GEN x, ulong p);
 GEN     padic_to_Fp(GEN x, GEN Y);
 GEN     quadtofp(GEN x, long l);
 GEN     rfrac_to_ser(GEN x, long l);
+GEN     rfracrecip_to_ser_absolute(GEN R, long l);
 long    sizedigit(GEN x);
 long    u_lval(ulong x, ulong p);
 long    u_lvalrem(ulong x, ulong p, ulong *py);
@@ -3497,12 +3498,17 @@ GEN     intnumgaussinit(long n, long prec);
 GEN     intnuminit(GEN a, GEN b, long m, long prec);
 GEN     intnumromb(void *E, GEN (*eval)(void *, GEN), GEN a, GEN b, long flag, long prec);
 GEN     intnumromb_bitprec(void *E, GEN (*eval)(void *, GEN), GEN a, GEN b, long flag, long bit);
+GEN     prodeulerrat(GEN F, GEN s, long a, long prec);
+GEN     prodnumrat(GEN F, long a, long prec);
+GEN     sumaltrat(GEN F, long a, long prec);;
+GEN     sumeulerrat(GEN F, GEN s, long a, long prec);
 GEN     sumnum(void *E, GEN (*eval)(void*, GEN), GEN a, GEN tab, long prec);
 GEN     sumnumap(void *E, GEN (*eval)(void*,GEN), GEN a, GEN tab, long prec);
 GEN     sumnumapinit(GEN fast, long prec);
 GEN     sumnuminit(GEN fast, long prec);
 GEN     sumnummonien(void *E, GEN (*eval)(void*, GEN), GEN a, GEN tab, long prec);
 GEN     sumnummonieninit(GEN asymp, GEN w, GEN n0, long prec);
+GEN     sumnumrat(GEN F, long a, long prec);
 
 /* krasner.c */
 
@@ -4136,6 +4142,8 @@ double  fujiwara_bound_real(GEN p, long sign);
 int     isrealappr(GEN x, long l);
 GEN     polgraeffe(GEN p);
 GEN     polmod_to_embed(GEN x, long prec);
+GEN     polrootsbound(GEN p);
+GEN     polrootsbound_i(GEN P);
 GEN     roots(GEN x,long l);
 GEN     realroots(GEN P, GEN ab, long prec);
 long    ZX_sturm(GEN P);

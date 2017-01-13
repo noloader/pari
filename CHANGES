@@ -65,6 +65,9 @@ PB   23- [libpari] F2xqM_F2xqC_gauss F2xqM_F2xqC_invimage F2xqM_gauss F2xqM_invi
          FqM_FqC_invimage FqM_invimage
          gen_matcolinvimage gen_matinvimage
          FFM_FFC_invimage FFM_FFC_gauss FFM_gauss FFM_invimage
+     24- new GP function polrootsbound
+HC   25- new GP functions prodeulerrat, sumeulerrat, sumaltrat, sumnumrat,
+         prodnumrat
 
   Changed
       1- rewrite bnfnarrow

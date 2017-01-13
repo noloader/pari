@@ -21,7 +21,6 @@ polsym(2*x^4+1,4)
 norm(I*x+1)
 trace(I*x+1)
 matcompanion(2*x^2+1)
-Pol("")
 serlaplace(1+x+x^2)
 serlaplace(x^2+x^3)
 
@@ -32,4 +31,12 @@ type(subst(1/f1,x,1))
 \\#1690
 default(realprecision,38);
 P(x,y)=(x+1)*y^2+(x^2-x+1)*y+(x^2+x);
-polroots(P(exp(I*Pi),y))
+T = P(exp(I*Pi),y);
+polroots(T)
+polrootsbound(T)
+polrootsbound('x)
+
+\\ Errors
+polrootsbound(Pol(0))
+polrootsbound(1)
+Pol("")

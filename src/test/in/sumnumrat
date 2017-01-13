@@ -1,0 +1,17 @@
+\p115
+F=(x^2-3*x+1)/(x^4-x-2)^2;
+F=1/(x^2+1)^2; sumnumrat(F,1)
+sumaltrat(F,1)
+sumaltrat(1/(x+1),0)
+F=1/((x+1)*(x^2+x+1)); sumnumrat(F,0)
+sumaltrat(F,0)
+F=1+1/x^2; prodnumrat(F,1)
+sumeulerrat(1/(q^2+1),1)
+sumeulerrat(1/(q+1),2)
+prodeulerrat(1+1/q^2,1)*zeta(4)/zeta(2)
+prodeulerrat(1+1/q^4,1/2)*zeta(4)/zeta(2)
+prodeulerrat(1-2/(q*(q+1)),1)
+prodeulerrat(1+1/q,3)*zeta(6)/zeta(3)
+\\ errors
+sumnumrat(1/x,10)
+prodnumrat(1+1/x,10)

@@ -751,7 +751,7 @@ nf_root_bounds(GEN P, GEN T)
   long lR, i, j, l, prec;
   GEN Ps, R, V, nf;
 
-  if (RgX_is_rational(P)) return logmax_modulus_bound(P);
+  if (RgX_is_rational(P)) return polrootsbound(P);
   T = get_nfpol(T, &nf);
 
   P = Q_primpart(P);
@@ -769,7 +769,7 @@ nf_root_bounds(GEN P, GEN T)
   {
     GEN r = gel(R,j);
     for (i=2; i<l; i++) gel(Ps,i) = poleval(gel(P,i), r);
-    gel(V,j) = logmax_modulus_bound(Ps);
+    gel(V,j) = polrootsbound(Ps);
   }
   return V;
 }

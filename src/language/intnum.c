@@ -1935,3 +1935,228 @@ sumnumap(void *E, GEN (*eval)(void*,GEN), GEN a, GEN tab, long prec)
 GEN
 sumnumap0(GEN a, GEN code, GEN tab, long prec)
 { EXPR_WRAP(code, sumnumap(EXPR_ARG, a, tab, prec)); }
+
+
+/* max (1, |zeros|), P a t_POL or scalar */
+static GEN
+polmax(GEN P)
+{
+  GEN r;
+  if (typ(P) != t_POL || degpol(P) <= 0) return gen_1;
+  r = polrootsbound(P);
+  if (gcmpgs(r, 1) <= 0) return gen_1;
+  return r;
+}
+
+/* max (1, |poles|), F a t_POL or t_RFRAC or scalar */
+static GEN
+ratpolemax(GEN F)
+{
+  if (typ(F) == t_POL) return gen_1;
+  return polmax(gel(F, 2));
+}
+/* max (1, |poles|, |zeros|), sets *p = max(1, |poles|)) */
+static GEN
+ratpolemax2(GEN F, GEN *p)
+{
+  GEN t;
+  if (typ(F) == t_POL) { if (p) *p = gen_1; return polmax(F); }
+  t = polmax(gel(F,2)); if (p) *p = t;
+  return gmax(t, polmax(gel(F,1)));
+}
+
+static GEN
+sercoeff(GEN x, long n)
+{
+  long N = n - valp(x);
+  return (N < 0)? gen_0: gel(x,N+2);
+}
+
+/* Compute the integral from N to infinity of a rational function F, deg(F) < -1
+ * We must have N > 2 * max(1, |poles F|). */
+static GEN
+intnumainfrat(GEN F, long N, long prec)
+{
+  pari_sp av = avma;
+  GEN r, S, ser;
+  long B = prec2nbits(prec), v, k, lim;
+
+  r = gdivsg(N, ratpolemax(F));
+  if (gcmpgs(r, 2) < 0) pari_err(e_MISC, "N too small in intnumainfrat");
+  lim = (long)ceil(B/dbllog2(r)) + 1;
+  ser = gmul(F, real_1(prec + EXTRAPREC));
+  ser = rfracrecip_to_ser_absolute(ser, lim + 2);
+  v = valp(ser);
+  S = gen_0;
+  /* goes down to 2, but coeffs are 0 in degree < v */
+  for (k = lim+1; k >= v; k--) /* S <- (S + coeff(ser,k)/(k-1)) / N */
+    S = gdivgs(gadd(S, gdivgs(sercoeff(ser,k), k-1)), N);
+  if (v-2) S = gdiv(S, powuu(N, v-2));
+  return gerepileupto(av, gprec_w(S, prec));
+}
+
+/* sum_{n >= a} F(n) */
+GEN
+sumnumrat(GEN F, long a, long prec)
+{
+  pari_sp av = avma;
+  long B = prec2nbits(prec), k, vx = varn(gel(F,2));
+  GEN S, S1, S2, intf, tmp;
+  long r, j, N, m;
+
+  if (poldegree(F, -1) > -2) pari_err(e_MISC, "sum diverges in sumnumrat");
+  if (a) F = gsubst(F, vx, gaddgs(pol_x(vx), a));
+  r = (long)ceil(gtodouble(ratpolemax(F)));
+  k = maxss(50, (long)ceil(0.241*B)); if (k&1L) k++;
+  tmp = gpow(gmul2n(Q_abs(bernfrac(k)), B), ginv(stoi(k)), LOWDEFAULTPREC);
+  N = maxss(2*r, r + 1 + itos(gceil(tmp)));
+  intf = intnumainfrat(F, N, prec);
+  S = gmul(real_1(prec), gsubst(F, vx, gaddgs(pol_x(vx), N)));
+  S = gtoser(S, vx, k + 2);
+  S1 = gtofp(gmul2n(gsubst(F, vx, stoi(N)), -1), prec);
+  for (m = 0; m < N; m++) S1 = gadd(S1, gsubst(F, vx, stoi(m)));
+  S2 = gen_0;
+  for (j = 2; j <= k; j += 2)
+    S2 = gadd(S2, gdivgs(gmul(bernfrac(j), sercoeff(S, j-1)), j));
+  return gerepileupto(av, gadd(intf, gsub(S1, S2)));
+}
+
+GEN
+sumaltrat(GEN F, long a, long prec)
+{
+  pari_sp av = avma;
+  GEN G, res, X, X2;
+  long vx = gvar(F);
+
+  X = pol_x(vx); X2 = gmul2n(X, 1);
+  if (a) F = gsubst(F, vx, gaddgs(X, a));
+  G = gsubst(F, vx, X2);
+  G = gsub(G, gsubst(F, vx, gaddgs(X2, 1)));
+  res = sumnumrat(G, 0, prec);
+  if (odd(a)) res = gneg(res);
+  return gerepileupto(av, res);
+}
+
+/* prod_{n >= a} F(n) */
+GEN
+prodnumrat(GEN F, long a, long prec)
+{
+  pari_sp ltop = avma;
+  long B = prec2nbits(prec), k, vx;
+  GEN S, S1, S2, intf, G, tmp, F1 = gsubgs(F,1);
+  long r, j, N, m;
+
+  if (poldegree(F1,-1) > -2) pari_err(e_MISC, "product diverges in prodnumrat");
+  vx = gvar(F);
+  if (a) F = gsubst(F, vx, gaddgs(pol_x(vx), a));
+  r = (long)ceil(gtodouble(ratpolemax2(F, NULL)));
+  k = maxss(50, (long)ceil(0.241*B)); if (k&1L) k++;
+  tmp = gpow(gmul2n(Q_abs(bernfrac(k)), B), ginv(stoi(k)), LOWDEFAULTPREC);
+  N = maxss(2*r, r + 1 + itos(gceil(tmp)));
+  G = gdiv(deriv(F, vx), F);
+  intf = intnumainfrat(gmul(pol_x(vx),G), N, prec);
+  intf = gneg(gadd(intf, gmulsg(N, glog(gsubst(F, vx, stoi(N)), prec))));
+  S = gmul(real_1(prec), gsubst(G, vx, gaddgs(pol_x(vx), N)));
+  S = gtoser(S, vx, k + 2);
+  S1 = gsqrt(gsubst(F, vx, stoi(N)), prec);
+  for (m = 0; m < N; ++m) S1 = gmul(S1, gsubst(F, vx, stoi(m)));
+  S2 = gen_0;
+  for (j = 2; j <= k; j += 2)
+    S2 = gadd(S2, gdivgs(gmul(bernfrac(j), sercoeff(S, j-2)), j*(j-1)));
+  return gerepileupto(ltop, gmul(S1, gexp(gsub(intf, S2), prec)));
+}
+
+
+static GEN
+sdmob(GEN ser, long n)
+{
+  GEN D = divisorsu(n), S = gen_0;
+  long i, l = lg(D);
+  for (i = 1; i < l; ++i)
+  {
+    long d = D[i], mob = moebiusu(d);
+    if (mob) S = gadd(S, gdivgs(sercoeff(ser, n/d), mob*d));
+  }
+  return S;
+}
+static GEN
+logzetan(GEN s, long N, long prec)
+{
+  forprime_t T;
+  GEN negs = gneg(s), Z = gzeta(s, prec);
+  long p;
+  u_forprime_init(&T, 2, N);
+  while ( (p = u_forprime_next(&T)) )
+    Z = gmul(Z, gsubsg(1, gpow(utoipos(p), negs, prec)));
+  return glog(Z, prec);
+}
+static GEN
+sumlogzeta(GEN ser, GEN s, long N, long vF, long lim, long prec)
+{
+  GEN z = gen_0;
+  long n;
+  for (n = vF; n <= lim; ++n)
+    z = gadd(z, gmul(logzetan(gmulsg(n, s), N, prec), sdmob(ser, n)));
+  return z;
+}
+
+/* sum_{p prime, p >= a} F(p^s), F rational function */
+GEN
+sumeulerrat(GEN F, GEN s, long a, long prec)
+{
+  pari_sp av = avma;
+  forprime_t T;
+  GEN r, ser, res, rsg;
+  double rs;
+  long B = prec2nbits(prec), vx = gvar(F), vF, p, N, lim;
+
+  if (!s) s = gen_1;
+  vF = -poldegree(F, -1);
+  rsg = real_i(s); rs = gtodouble(rsg);
+  if (vF <= 0 || vF*rs <= 1)
+    pari_err(e_MISC, "real(s) <= 1/v in sumeulerrat");
+  a = maxss(a, 2); r = ratpolemax(F);
+  if (rs <= dbllog2(r) / log2((double)a))
+      pari_err(e_MISC, "real(s) too small in sumeulerrat");
+  N = maxss(maxss(30, a), (long)ceil(2*gtodouble(r)));
+  lim = (long)ceil(B / dbllog2(gdiv(gpow(stoi(N), rsg, LOWDEFAULTPREC), r))) + 1;
+  ser = gmul(real_1(prec + EXTRAPREC), F);
+  ser = rfracrecip_to_ser_absolute(ser, lim + 2);
+  res = sumlogzeta(ser, s, N, vF, lim, prec);
+  u_forprime_init(&T, a, N);
+  while ( (p = u_forprime_next(&T)) )
+    res = gadd(res, gsubst(F, vx, gpow(utoipos(p), s, prec)));
+  return gerepileupto(av, gprec_w(res, prec));
+}
+
+/* prod_{p prime, p >= a} F(p^s), F rational function */
+GEN
+prodeulerrat(GEN F, GEN s, long a, long prec)
+{
+  pari_sp ltop = avma;
+  forprime_t T;
+  GEN F1, r, r1, ser, res, rsg;
+  double rs;
+  long B = prec2nbits(prec), vx = gvar(F), vF, p, N, lim;
+
+  if (!s) s = gen_1;
+  F1 = gsubgs(F, 1);
+  vF = -poldegree(F1, -1);
+  rsg = real_i(s); rs = gtodouble(rsg);
+  if (vF <= 0 || vF*rs <= 1)
+    pari_err(e_MISC, "real(s) <= 1/v in prodeulerrat");
+  r = ratpolemax2(F, &r1);
+  if (rs <= dbllog2(r1) / log2((double)a))
+    pari_err(e_MISC, "real(s) too small in prodeulerrat");
+  N = maxss(maxss(30, a), (long)ceil(2*gtodouble(r)));
+  lim = (long)ceil(B / dbllog2(gdiv(gpow(stoi(N), rsg, LOWDEFAULTPREC), r))) + 1;
+  ser = gmul(real_1(prec + EXTRAPREC), F1);
+  ser = gaddsg(1, rfracrecip_to_ser_absolute(ser, lim + 2));
+  ser = glog(ser, 0);
+  res = sumlogzeta(ser, s, N, vF, lim, prec);
+  res = gexp(res, prec);
+  u_forprime_init(&T, a, N);
+  while ( (p = u_forprime_next(&T)) )
+    res = gmul(res, gsubst(F, vx, gpow(utoipos(p), s, prec)));
+  return gerepileupto(ltop, gprec_w(res, prec));
+}

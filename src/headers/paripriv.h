@@ -500,7 +500,6 @@ GEN chk_factors_get(GEN lt, GEN famod, GEN c, GEN T, GEN N);
 long cmbf_maxK(long nb);
 GEN ZX_DDF(GEN x);
 GEN initgaloisborne(GEN T, GEN dn, long prec, GEN *pL, GEN *pprep, GEN *pdis);
-GEN logmax_modulus_bound(GEN p);
 GEN polint_i(GEN xa, GEN ya, GEN x, long n, GEN *ptdy);
 GEN quicktrace(GEN x, GEN sym);
 
