@@ -36,6 +36,7 @@ Major contributors (large modules written or rewritten from scratch):
     http://pari.math.u-bordeaux.fr website, Lfun package
   Dominique BERNARDI: the original gp interpreter, ECM, original
     elliptic curves implementation
+  Peter BRUIN: asymptotically fast linear algebra over finite fields
   Henri COHEN: original designer and project leader, native multiprecision
     kernel, arithmetic functions, LLL, transcendental functions, number fields,
     original elliptic curves implementation, numerical integration and
