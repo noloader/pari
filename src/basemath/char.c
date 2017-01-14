@@ -327,7 +327,6 @@ ZNstar(GEN N, long flag)
   GEN F = NULL, P, E, cyc, gen, mod, G;
   long i, i0, l, nbprimes;
   pari_sp av = avma;
-  const long dogen = flag & nf_GEN;
 
   if ((F = check_arith_all(N,"znstar")))
   {
@@ -337,18 +336,12 @@ ZNstar(GEN N, long flag)
   if (!signe(N))
   {
     avma = av;
-    if (flag & nf_GEN)
-      retmkvec3(gen_2, mkvec(gen_2), mkvec(gen_m1));
-    else
-      retmkvec2(gen_2, mkvec(gen_2));
+    retmkvec3(gen_2, mkvec(gen_2), mkvec(gen_m1));
   }
   if (signe(N) < 0) N = absi(N);
   if (abscmpiu(N,2) <= 0)
   {
-    if (flag & nf_GEN)
-      G = mkvec3(gen_1, cgetg(1,t_VEC), cgetg(1,t_VEC));
-    else
-      G = mkvec2(gen_1, cgetg(1,t_VEC));
+    G = mkvec3(gen_1, cgetg(1,t_VEC), cgetg(1,t_VEC));
     if (flag & nf_INIT)
     {
       GEN v = const_vec(6,cgetg(1,t_VEC));
@@ -417,7 +410,7 @@ ZNstar(GEN N, long flag)
     gel(mod,i) = Q;
   }
   /* gen[i] has order cyc[i] and generates (Z/mod[i]Z)^* */
-  if (dogen && nbprimes > 1) /* lift generators to (Z/NZ)^*, = 1 mod N/mod[i] */
+  if (nbprimes > 1) /* lift generators to (Z/NZ)^*, = 1 mod N/mod[i] */
     for (i=1; i<l; i++)
     {
       GEN Q = gel(mod,i), g = gel(gen,i), qinv = Fp_inv(Q, diviiexact(N,Q));
@@ -431,20 +424,17 @@ ZNstar(GEN N, long flag)
     G = gen;
     for (i=l-1; i>=2; i--)
     {
-      GEN ci = gel(cyc,i), gi = dogen? gel(G,i): NULL;
+      GEN ci = gel(cyc,i), gi = gel(G,i);
       long j;
       for (j=i-1; j>=1; j--) /* we want cyc[i] | cyc[j] */
       {
-        GEN cj = gel(cyc,j), qj, v, d;
+        GEN cj = gel(cyc,j), gj, qj, v, d;
 
-        d = dogen? bezout(ci,cj,NULL,&v): gcdii(ci,cj); /* > 1 */
+        d = bezout(ci,cj,NULL,&v); /* > 1 */
         if (absequalii(ci, d)) continue; /* ci | cj */
         if (absequalii(cj, d)) { /* cj | ci */
-          if (dogen)
-          {
-            swap(gel(G,j),gel(G,i));
-            gi = gel(G,i);
-          }
+          swap(gel(G,j),gel(G,i));
+          gi = gel(G,i);
           swap(gel(cyc,j),gel(cyc,i));
           ci = gel(cyc,i); continue;
         }
@@ -455,24 +445,18 @@ ZNstar(GEN N, long flag)
 
         /* [1,v*cj/d; 0,1]*[1,0;-1,1]*diag(cj,ci)*[ci/d,-v; cj/d,u]
          * = diag(lcm,gcd), with u ci + v cj = d */
-        if (dogen)
-        {
-          GEN gj = gel(G,j);
-          /* (gj, gi) *= [1,0; -1,1]^-1 */
-          gj = Fp_mul(gj, gi, N); /* order ci*qj = lcm(ci,cj) */
-          /* (gj,gi) *= [1,v*qj; 0,1]^-1 */
-          togglesign_safe(&v);
-          if (signe(v) < 0) v = modii(v,ci); /* >= 0 to avoid inversions */
-          gel(G,i) = gi = Fp_mul(gi, Fp_pow(gj, mulii(qj, v), N), N);
-          gel(G,j) = gj;
-        }
+        gj = gel(G,j);
+        /* (gj, gi) *= [1,0; -1,1]^-1 */
+        gj = Fp_mul(gj, gi, N); /* order ci*qj = lcm(ci,cj) */
+        /* (gj,gi) *= [1,v*qj; 0,1]^-1 */
+        togglesign_safe(&v);
+        if (signe(v) < 0) v = modii(v,ci); /* >= 0 to avoid inversions */
+        gel(G,i) = gi = Fp_mul(gi, Fp_pow(gj, mulii(qj, v), N), N);
+        gel(G,j) = gj;
         ci = d; if (absequaliu(ci, 2)) break;
       }
     }
-    if (dogen)
-      G = mkvec3(ZV_prod(cyc), cyc, FpV_to_mod(G,N));
-    else
-      G = mkvec2(ZV_prod(cyc), cyc);
+    G = mkvec3(ZV_prod(cyc), cyc, FpV_to_mod(G,N));
   }
   else
   { /* keep matrices between generators, return an 'init' structure */
@@ -494,29 +478,23 @@ ZNstar(GEN N, long flag)
       }
       gel(lo,i) = t;
     }
-    if (dogen)
-    {
-      G = cgetg(l, t_VEC);
-      for (i = 1; i < l; i++) gel(G,i) = FpV_factorback(gen, gel(Ui,i), N);
-      G = mkvec3(ZV_prod(D), D, G);
-    }
-    else
-      G = mkvec2(ZV_prod(D), D);
+    G = cgetg(l, t_VEC);
+    for (i = 1; i < l; i++) gel(G,i) = FpV_factorback(gen, gel(Ui,i), N);
+    G = mkvec3(ZV_prod(D), D, G);
     G = mkvec5(mkvec2(N,mkvec(gen_0)), G, F,
                mkvecn(6,mod,fao,Ui,gen,cyc,lo), U);
   }
   return gerepilecopy(av, G);
 }
 GEN
-znstar(GEN N) { return ZNstar(N, nf_GEN); }
+znstar(GEN N) { return ZNstar(N, 0); }
 GEN
 znstar0(GEN N,long flag)
 {
   switch(flag)
   {
-    case 0: return ZNstar(N, nf_GEN);
+    case 0: return ZNstar(N, 0);
     case 1: return ZNstar(N, nf_INIT);
-    case 2: return ZNstar(N, nf_INIT|nf_GEN);
     default: pari_err_FLAG("znstar");
   }
   return NULL; /* LCOV_EXCL_LINE */

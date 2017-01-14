@@ -17,12 +17,9 @@ Doc: gives the structure of the multiplicative group $(\Z/n\Z)^*$.
  and $g$ (\kbd{G.gen}) is a $k$-component row vector giving generators of
  the image of the cyclic groups $\Z/d_i\Z$.
 
- \item $\fl = 1$ the result is a \kbd{bid} structure without generators
- (which are well defined but not explicitly computed, which saves time);
- this allows computing discrite logarithms using \tet{znlog} (also in the
+ \item $\fl = 1$ the result is a \kbd{bid} structure;
+ this allows computing discrete logarithms using \tet{znlog} (also in the
  non-cyclic case!).
-
- \item $\fl = 2$ same as $\fl = 1$ with generators.
 
  \bprog
  ? G = znstar(40)
@@ -37,9 +34,3 @@ Doc: gives the structure of the multiplicative group $(\Z/n\Z)^*$.
  %5 = [4, 2, 2]
  @eprog\noindent According to the above definitions, \kbd{znstar(0)} is
  \kbd{[2, [2], [-1]]}, corresponding to $\Z^*$.
-
-Variant: Instead the above hardcoded numerical flags, one should rather use
- \fun{GEN}{ZNstar}{GEN N, long flag}, where \kbd{flag} is
- an or-ed combination of \tet{nf_GEN} (include generators) and \tet{nf_INIT}
- (return a full \kbd{bid}, not a group), possibly $0$. This offers
- one more combination: no gen and no init.

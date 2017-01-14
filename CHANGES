@@ -101,6 +101,9 @@ HC   16- sumnummonieninit(a) for [a,a] did not conform to documentation.
      19- nfchecksigns: replace by rigorous algorithm
      20- asympnum: better tunings => usually finds more terms
      21- extended help: make ?? op work for ALL operators (=> GP operators@2)
+     22- idealstar(,N) : always include generators, for all values of flag
+         [ this is cheap, allowing not to compute it doesn't make much sense;
+         and G.gen is now always defined. ]
 
   Removed
       1- file 'MACHINES' (no longer maintained)
