@@ -570,13 +570,13 @@ rectdraw0(long *w, long *x, long *y, long lw)
 
     // launch Qt window
     int argc = 1;                         // set argc = 2 for cross
-    char * argv[] = { "gp", "-qws"}; // development using qvfb
+    const char * argv[] = { "gp", "-qws"}; // development using qvfb
 #ifdef __QPE__
     QPEApplication
 #else
     QApplication
 #endif
-        a( argc, argv);
+        a( argc, (char**) argv);
 #ifdef __FANCY_WIN__
     PlotWindow *win = new PlotWindow(w, x, y, lw);
 #else
