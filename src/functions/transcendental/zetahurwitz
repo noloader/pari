@@ -1,0 +1,19 @@
+Function: zetahurwitz
+Section: transcendental
+C-Name: zetahurwitz
+Prototype: GGp
+Help: zetahurwitz(s,x): Hurwitz zeta function at s, x. s must be of real
+ part > 1 and x must be a positive real number.
+Doc: Hurwitz zeta function $\zeta(s,x)=\sum_{n\ge0}(n+x)^{-s}$. We must have
+ $\Re(s)>1$ and $x$ real positive. Note that $\zeta(s,1) = \zeta(s)$
+ \bprog
+ ? zetahurwitz(Pi,Pi)
+ %1 = 0.056155444497585099925180502385781494486
+ ? zetahurwitz(2,1) - zeta(2)
+ %2 = -2.350988701644575016 E-38
+ @eprog\noindent We also define $\zeta(1,x) = - \psi(x)$, where $\psi$
+ is the digamma function (\kbd{psi}).
+ \bprog
+ ? zetahurwitz(1,1) - Euler
+ %3 = 2.644862289350146893 E-38
+ @eprog

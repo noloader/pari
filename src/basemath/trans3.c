@@ -2250,6 +2250,63 @@ gzeta(GEN x, long prec)
   return trans_eval("zeta",gzeta,x,prec);
 }
 
+/********************************************************/
+/*                   Hurwitz zeta function              */
+/********************************************************/
+
+/* If s=1 return -psi(x), else zeta(s,x). In particular, if x=1 return zeta(s),
+ * and Euler's constant if s=1 */
+GEN
+zetahurwitz(GEN s, GEN x, long prec)
+{
+  pari_sp av = avma;
+  GEN al, ral, ral0, Nx, S1, S2, S3, N2;
+  long j, k, m, N, bitprec = prec2nbits(prec);
+
+  if (!is_real_t(typ(x))) pari_err_TYPE("zetahurwitz", x);
+  if (gsigne(x) <= 0) pari_err_DOMAIN("zetahurwitz", "x", "<=", gen_0, x);
+  al = gneg(s); ral = greal(al);
+  if (!gequal1(s) && gcmpgs(ral, -1) >= 0)
+    pari_err_IMPL("Re(s) <= 1 in zetahurwitz");
+  ral0 = ground(ral);
+  if (signe(ral0) >= 0 && gexpo(gsub(al, ral0)) < 17-bitprec)
+  { /* al ~ non negative integer */
+    k = itos(gceil(ral)) + 1;
+    if (odd(k)) k++;
+    N = 1;
+  }
+  else
+  {
+    GEN C;
+    k = maxss(itos(gceil(gadd(ral, ghalf))) + 1, 50);
+    k = maxss(k, (long)(0.24*bitprec));
+    if (odd(k)) k++;
+    C = gmulsg(2, gmul(binomial(al, k+1), gdivgs(bernfrac(k+2), k+2)));
+    C = gmul2n(gabs(C,LOWDEFAULTPREC), bitprec);
+    C = gadd(gpow(C, ginv(gsubsg(k+1, ral)), LOWDEFAULTPREC), gsubsg(1,x));
+    N = itos(gceil(C));
+    if (N < 1) N = 1;
+  }
+  S1 = real_0(prec);
+  for (m = 0; m < N; m++) S1 = gadd(S1, gpow(gaddsg(m,x), al, prec));
+  Nx = gaddsg(N-1, x);
+  N2 = ginv(gsqr(Nx));
+  S2 = gen_0;
+  for (j = k; j >= 2; j -= 2)
+  {
+    GEN t = gsubgs(al, j), u = gmul(t, gaddgs(t, 1));
+    u = gmul(gdivgs(u, j*(j+1)), gmul(S2, N2));
+    S2 = gadd(gdivgs(bernfrac(j), j), u);
+  }
+  S2 = gadd(gmul(S2, gdiv(al, Nx)), ghalf);
+  S3 = gpow(Nx, al, prec);
+  if (!gequal1(s))
+    S2 = gmul(S3, gadd(gdiv(Nx, gaddsg(1, al)), S2));
+  else
+    S2 = gadd(glog(Nx, prec), gmul(S3, S2));
+  return gerepileupto(av, gsub(S1,S2));
+}
+
 /***********************************************************************/
 /**                                                                   **/
 /**                    FONCTIONS POLYLOGARITHME                       **/

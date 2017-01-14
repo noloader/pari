@@ -1,0 +1,7 @@
+default(realprecision,38);
+f(s,x)=zetahurwitz(s,x)+zetahurwitz(s,x+1/2)-2^s*zetahurwitz(s,2*x);
+f(Pi,Pi)
+zetahurwitz(Pi,1)-zeta(Pi)
+zetahurwitz(1,Pi)+psi(Pi)
+s = Pi+I*log(2);
+zetahurwitz(s,1)-zeta(s)
