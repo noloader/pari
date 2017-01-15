@@ -33,6 +33,7 @@ BA   24- ellidentify: check curve is over Q
      27- polsturm(x^2-1,[-1,1]) -> SEGV [#1884]
      28- typo in description of "call" symbolic operator [ _(_) ]
 PB   29- matinverseimage could find spurious solutions [#1888]
+     30- ellsea could leak variables (=> "no more variables" error)
 
   Added
       1- [libari] ZM_isidentity
@@ -104,6 +105,7 @@ HC   16- sumnummonieninit(a) for [a,a] did not conform to documentation.
      22- idealstar(,N) : always include generators, for all values of flag
          [ this is cheap, allowing not to compute it doesn't make much sense;
          and G.gen is now always defined. ]
+     23- let ellsea call the generic algorithm when q <= 523 to avoid an oo-loop
 
   Removed
       1- file 'MACHINES' (no longer maintained)

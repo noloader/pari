@@ -7,8 +7,10 @@ Help: ellsea(E,{tors=0}): computes the order of the group E(Fq)
  using SEA algorithm, with early abort for curves with non-prime order.
 Doc: Let $E$ be an \var{ell} structure as output by \kbd{ellinit}, defined over
  a finite field $\F_q$. This low-level function computes the order of the
- group $E(\F_q)$ using the SEA algorithm and the \kbd{tors} argument allows to
- speed up a search for curves having almost prime order.
+ group $E(\F_q)$ using the SEA algorithm; compared to the high-level
+ function \kbd{ellcard}, which includes SEA among its choice of algorithms,
+ the \kbd{tors} argument allows to speed up a search for curves having almost
+ prime order.
  When \kbd{tors} is set to a non-zero value, the function returns $0$ as soon
  as it detects that the order has a small prime factor not dividing \kbd{tors};
  SEA considers modular polynomials of increasing prime degree $\ell$ and we
@@ -52,8 +54,11 @@ Doc: Let $E$ be an \var{ell} structure as output by \kbd{ellinit}, defined over
  preferred when you only want to compute the cardinal of a given curve without
  caring about it having almost prime order:
 
- \item If the characteristic is too small ($p \leq 7$) the generic algorithm
+ \item If the characteristic is too small ($p \leq 7$) or the field
+ cardinality is tiny ($q \leq 523$) the generic algorithm
  \kbd{ellcard} is used instead and the \kbd{tors} argument is ignored.
+ (The reason for this is that SEA is not implemented for $p \leq 7$ and
+ that if $q \leq 523$ it is likely to run into an infinite loop.)
 
  \item If the field cardinality is smaller than about $2^{50}$, the
  generic algorithm will be faster.

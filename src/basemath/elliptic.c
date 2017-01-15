@@ -6592,23 +6592,25 @@ ellap(GEN E, GEN p)
   return gerepileuptoint(av, subii(addiu(q,1), card));
 }
 
+/* N.B. q > minq, then the list of potential orders in ellsea will not contain
+ * an ambiguity => oo-loop. E.g. ellsea(ellinit([1,519],523)) */
 GEN
 ellsea(GEN E, ulong smallfact)
 {
+  const ulong minq = 523;
   checkell_Fq(E);
   switch(ell_get_type(E))
   {
   case t_ELL_Fp:
     {
       GEN p = ellff_get_field(E), e = ellff_get_a4a6(E);
-      if (abscmpiu(p, 7) <= 0)
-        return Fp_ellcard(gel(e,1), gel(e,2), p);
+      if (abscmpiu(p, minq) <= 0) return Fp_ellcard(gel(e,1), gel(e,2), p);
       return Fp_ellcard_SEA(gel(e,1), gel(e,2), p, smallfact);
     }
   case t_ELL_Fq:
     {
       GEN fg = ellff_get_field(E);
-      if (abscmpiu(FF_p_i(fg), 7) <= 0)
+      if (abscmpiu(FF_p_i(fg), 7) <= 0 || abscmpiu(FF_q(fg), minq) <= 0)
         return FF_ellcard(E);
       return FF_ellcard_SEA(E, smallfact);
     }

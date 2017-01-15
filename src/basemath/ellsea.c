@@ -1894,6 +1894,8 @@ Fq_ellcard_SEA(GEN a4, GEN a6, GEN q, GEN T, GEN p, ulong smallfact)
         {
           if (DEBUGLEVEL)
             err_printf("\nAborting: #E(Fq) divisible by %ld\n",ell);
+          delete_var();
+          delete_var();
           avma = ltop; return gen_0;
         }
       }
@@ -1909,7 +1911,12 @@ Fq_ellcard_SEA(GEN a4, GEN a6, GEN q, GEN T, GEN p, ulong smallfact)
     if (cmpii(mulii(TR_mod, prod_atkin), bound) > 0)
     {
       GEN bound_tr;
-      if (!nb_atkin) return gerepileuptoint(ltop, subii(addis(q, 1), TR));
+      if (!nb_atkin)
+      {
+        delete_var();
+        delete_var();
+        return gerepileuptoint(ltop, subii(addis(q, 1), TR));
+      }
       bound_tr = mulrr(bound_bsgs, dbltor(bound_gr));
       bound_gr *= growth_factor;
       if (signe(max_traces))
@@ -1932,7 +1939,8 @@ Fq_ellcard_SEA(GEN a4, GEN a6, GEN q, GEN T, GEN p, ulong smallfact)
           void *E;
           if (DEBUGLEVEL)
             err_printf("Match and sort for %Ps possibilities.\n", max_traces);
-          delete_var(); delete_var();
+          delete_var();
+          delete_var();
           grp = get_FqE_group(&E,a4,a6,T,p);
           res = match_and_sort(cat, TR_mod, TR, q, E, grp);
           return gerepileuptoint(ltop, res);

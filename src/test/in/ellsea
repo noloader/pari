@@ -36,3 +36,4 @@ ellsea(E,2)
 a=ffgen(ffinit(nextprime(2^30),3),'a); E = ellinit([1,a]);
 ellsea(E,1)
 ellsea(E,2)
+ellsea(ellinit([1,519],523))
