@@ -22,7 +22,7 @@ Doc: \var{al} being a table algebra output by \tet{algtableinit} or a central
  ? algissimple(A)
  %10 = 1
  ? mt = [matid(3), [0,0,0; 1,1,0; 0,0,0], [0,0,1; 0,0,0; 1,0,1]];
- ? A = algtableinit(mt,2); \\ direct sum F_4+F_2
+ ? A = algtableinit(mt,2); \\ direct product F_4+F_2
  ? algissimple(A)
  %13 = 0
  @eprog

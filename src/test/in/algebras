@@ -2276,6 +2276,44 @@ A = algtableinit(mt,2);
 B = algsubalg(A,[0,1; 0,0; 1,0]);
 algissimple(B[1])
 
-
+\\image of lifts in algsimpledec
+testidem(al)={
+  dec = algsimpledec(al,1);
+  Le = [d[3][,1] | d <- dec];
+  for(i=1,#Le,
+    ei = Le[i];
+    if(algsqr(al,ei)!=ei, print(0); return;);
+    for(j=i+1,#Le,
+      ej = Le[j];
+      if(algmul(al,ei,ej)!=0, print(0); return;);
+    );
+  );
+  print(1);
+}
+{for(n=2,4,
+  al = alggroup(Sn(n),7);
+  testidem(al);
+);}
+{for(n=2,5,
+  al = alggroupcenter(Sn(n),11);
+  testidem(al);
+);}
+{for(n=2,4,
+  p = firstprime1mod(2*n);
+  al = alggroup(D2n(n),p);
+  testidem(al);
+);}
+{for(n=2,5,
+  al = alggroupcenter(Sn(n),11);
+  testidem(al);
+);}
+/* \\needs galpol package
+{for(i=1,267,
+  print("i=",i);
+  [pol,den] = galoisgetpol(64,i,1);
+  gal = galoisinit(pol,den);
+  al = alggroupcenter(gal,193);
+  testidem(al);
+);}*/
 
 
