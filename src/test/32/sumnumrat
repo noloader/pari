@@ -29,10 +29,22 @@
 96827440962131637628090967340973246619647
 1.00000000000000000000000000000000000000000000000000000000000000000000000000
 0000000000000000000000000000000000000000
+  ***   at top-level: sumnumrat(1/x^2,oo)
+  ***                 ^-------------------
+  *** sumnumrat: incorrect type in sumnumrat (t_INFINITY).
+  ***   at top-level: sumaltrat(1/x,oo)
+  ***                 ^-----------------
+  *** sumaltrat: incorrect type in sumnumaltrat (t_INFINITY).
+  ***   at top-level: sumnumrat(1.0,1)
+  ***                 ^----------------
+  *** sumnumrat: incorrect type in sumnumrat (t_REAL).
+  ***   at top-level: sumaltrat(1.0,1)
+  ***                 ^----------------
+  *** sumaltrat: incorrect type in sumnumrat (t_REAL).
   ***   at top-level: sumnumrat(1/x,10)
   ***                 ^-----------------
   *** sumnumrat: sum diverges in sumnumrat.
   ***   at top-level: prodnumrat(1+1/x,10)
   ***                 ^--------------------
   *** prodnumrat: product diverges in prodnumrat.
-Total time spent: 56
+Total time spent: 65
