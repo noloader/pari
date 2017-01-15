@@ -5346,24 +5346,18 @@ ellanal_globalred(GEN e, GEN *ch)
 static GEN
 ellQ_tamagawa(GEN e)
 {
-  GEN red = ellglobalred(e);
-  GEN tam = gel(red,3);
-  if (signe(ell_get_disc(e)) > 0) return shifti(tam,1);
-  else return icopy(tam);
+  GEN red = ellglobalred(e), tam = gel(red,3);
+  return (signe(ell_get_disc(e)) > 0)? shifti(tam,1): icopy(tam);
 }
 
 static GEN
 ellnf_tamagawa(GEN e)
 {
-  GEN nf  = ellnf_get_nf(e);
-  long r1 = nf_get_r1(nf), r2 = nf_get_r2(nf);
-  GEN red = ellglobalred(e);
-  GEN tam = gel(red,3);
-  long i, v = r2;
-  GEN s = nfsign(nf, ell_get_disc(e));
-  for (i=1; i<=r1; i++)
-    if (s[i] == 0) v++;
-  return shifti(tam, v);
+  GEN red = ellglobalred(e), tam = gel(red,3);
+  GEN nf  = ellnf_get_nf(e), s = nfsign(nf, ell_get_disc(e));
+  long r1, r2;
+  nf_get_sign(nf, &r1, &r2);
+  return shifti(tam, r2 + r1 - hammingweight(s));
 }
 
 GEN
@@ -5375,12 +5369,8 @@ elltamagawa(GEN E)
   switch(ell_get_type(E))
   {
     default: pari_err_TYPE("elltamagawa",E);
-    case t_ELL_Q:
-      v = ellQ_tamagawa(E);
-      break;
-    case t_ELL_NF:
-      v = ellnf_tamagawa(E);
-      break;
+    case t_ELL_Q:  v = ellQ_tamagawa(E);  break;
+    case t_ELL_NF: v = ellnf_tamagawa(E); break;
   }
   return gerepileuptoint(av, v);
 }
