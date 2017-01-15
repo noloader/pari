@@ -12,12 +12,12 @@ Doc: $\sum_{n\geq a}F(n)$, where $F$ is a rational function of degree less
  ? sumnumrat(1/(x^2+1)^2,0)
  %1 = 1.3068369754229086939178621382829073480
  ? sumnumrat(1/x^2, -oo) \\ value at x=0 is discarded
- %2 = 2.2898681336964528729448303332920503784
- ? 2*zeta(2) - 1
- %3 = 2.2898681336964528729448303332920503784
+ %2 = 3.2898681336964528729448303332920503784
+ ? 2*zeta(2)
+ %3 = 3.2898681336964528729448303332920503784
  @eprog\noindent When $\deg F = -1$, we define
  $$\sum_{-\infty}^{\infty} F(n) := \sum_{n\geq 0} (F(n) + F(-1-n)):$$
  \bprog
  ? sumnumrat(1/x, -oo)
- %4 = 1.0000000000000000000000000000000000000
+ %4 = 0.E-38
  @eprog

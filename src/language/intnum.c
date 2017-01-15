@@ -2002,28 +2002,43 @@ sumnumrat(GEN F, GEN ga, long prec)
   pari_sp av = avma;
   long B = prec2nbits(prec), k, vx;
   GEN nF, dF, S, S1, S2, intf, tmp;
-  long r, j, N, m, a = 0;
+  long r, j, N, m, a;
 
-  if (typ(F) != t_RFRAC) pari_err_TYPE("sumnumrat",F);
-  vx = varn(gel(F,2));
+  switch(typ(F))
+  {
+    case t_RFRAC: break;
+    case t_POL:
+    case t_INT:
+    case t_REAL:
+    case t_COMPLEX: if (gequal0(F)) return real_0(prec);
+    default: pari_err_TYPE("sumnumrat",F);
+  }
+  nF = gel(F,1);
+  dF = gel(F,2); vx = varn(dF);
   switch(typ(ga))
   {
     case t_INT:
       a = itos(ga);
+      if (a)
+      {
+        F = gsubst(F, vx, gaddgs(pol_x(vx), a));
+        nF = gel(F,1);
+        dF = gel(F,2);
+      }
       break;
     case t_INFINITY:
       if (inf_get_sign(ga) == -1)
-      {
-        F = gadd(F, gsubst(F, vx, gsubsg(-1, pol_x(vx))));
+      { /* F(x) + F(-x) */
+        a = 0;
+        F = gadd(F, gsubst(F, vx, RgX_neg(pol_x(vx))));
+        if (gequal0(F)) return real_0(prec);
         break;
       }
     default:
       pari_err_TYPE("sumnumrat",ga);
+      return NULL; /* LCOV_EXCL_LINE */
   }
   if (poldegree(F, -1) > -2) pari_err(e_MISC, "sum diverges in sumnumrat");
-  if (a) F = gsubst(F, vx, gaddgs(pol_x(vx), a));
-  nF = gel(F,1);
-  dF = gel(F,2);
   r = (long)ceil(gtodouble(ratpolemax(F)));
   k = maxss(50, (long)ceil(0.241*B)); if (k&1L) k++;
   tmp = gpow(gmul2n(Q_abs(bernfrac(k)), B), ginv(stoi(k)), LOWDEFAULTPREC);
@@ -2032,13 +2047,23 @@ sumnumrat(GEN F, GEN ga, long prec)
   S = gmul(real_1(prec), gsubst(F, vx, gaddgs(pol_x(vx), N)));
   S = gtoser(S, vx, k + 2);
   S1 = NULL;
-  for (m = N; m >= 0; m--)
-  {
-    GEN gm = utoi(m), d = poleval(dF, gm);
-    if (gequal0(d)) continue;
-    d = gdiv(poleval(nF, gm), d);
-    S1 = S1? gadd(S1, d): gtofp(gmul2n(d,-1),prec);
-  }
+  if (typ(ga) == t_INFINITY)
+    for (m = N; m >= -N; m--)
+    {
+      GEN gm = stoi(m), d = poleval(dF, gm);
+      if (gequal0(d)) continue;
+      d = gdiv(poleval(nF, gm), d);
+      if (labs(m) == N) d = gtofp(gmul2n(d,-1),prec);
+      S1 = S1? gadd(S1, d): d;
+    }
+  else
+    for (m = N; m >= 0; m--)
+    {
+      GEN gm = utoi(m), d = poleval(dF, gm);
+      if (gequal0(d)) continue;
+      d = gdiv(poleval(nF, gm), d);
+      S1 = S1? gadd(S1, d): gtofp(gmul2n(d,-1),prec);
+    }
   S2 = gen_0;
   for (j = 2; j <= k; j += 2)
     S2 = gadd(S2, gdivgs(gmul(bernfrac(j), sercoeff(S, j-1)), j));

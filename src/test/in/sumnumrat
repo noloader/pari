@@ -2,7 +2,6 @@
 sumnumrat(1/x,-oo)
 sumnumrat(1/x^2,-oo)
 sumaltrat(1/x,-oo)
-F=(x^2-3*x+1)/(x^4-x-2)^2;
 F=1/(x^2+1)^2; sumnumrat(F,1)
 sumaltrat(F,1)
 sumaltrat(1/(x+1),0)
