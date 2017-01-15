@@ -1997,15 +1997,33 @@ intnumainfrat(GEN F, long N, long prec)
 
 /* sum_{n >= a} F(n) */
 GEN
-sumnumrat(GEN F, long a, long prec)
+sumnumrat(GEN F, GEN ga, long prec)
 {
   pari_sp av = avma;
-  long B = prec2nbits(prec), k, vx = varn(gel(F,2));
-  GEN S, S1, S2, intf, tmp;
-  long r, j, N, m;
+  long B = prec2nbits(prec), k, vx;
+  GEN nF, dF, S, S1, S2, intf, tmp;
+  long r, j, N, m, a = 0;
 
+  if (typ(F) != t_RFRAC) pari_err_TYPE("sumnumrat",F);
+  vx = varn(gel(F,2));
+  switch(typ(ga))
+  {
+    case t_INT:
+      a = itos(ga);
+      break;
+    case t_INFINITY:
+      if (inf_get_sign(ga) == -1)
+      {
+        F = gadd(F, gsubst(F, vx, gsubsg(-1, pol_x(vx))));
+        break;
+      }
+    default:
+      pari_err_TYPE("sumnumrat",ga);
+  }
   if (poldegree(F, -1) > -2) pari_err(e_MISC, "sum diverges in sumnumrat");
   if (a) F = gsubst(F, vx, gaddgs(pol_x(vx), a));
+  nF = gel(F,1);
+  dF = gel(F,2);
   r = (long)ceil(gtodouble(ratpolemax(F)));
   k = maxss(50, (long)ceil(0.241*B)); if (k&1L) k++;
   tmp = gpow(gmul2n(Q_abs(bernfrac(k)), B), ginv(stoi(k)), LOWDEFAULTPREC);
@@ -2013,8 +2031,14 @@ sumnumrat(GEN F, long a, long prec)
   intf = intnumainfrat(F, N, prec);
   S = gmul(real_1(prec), gsubst(F, vx, gaddgs(pol_x(vx), N)));
   S = gtoser(S, vx, k + 2);
-  S1 = gtofp(gmul2n(gsubst(F, vx, stoi(N)), -1), prec);
-  for (m = 0; m < N; m++) S1 = gadd(S1, gsubst(F, vx, stoi(m)));
+  S1 = NULL;
+  for (m = N; m >= 0; m--)
+  {
+    GEN gm = utoi(m), d = poleval(dF, gm);
+    if (gequal0(d)) continue;
+    d = gdiv(poleval(nF, gm), d);
+    S1 = S1? gadd(S1, d): gtofp(gmul2n(d,-1),prec);
+  }
   S2 = gen_0;
   for (j = 2; j <= k; j += 2)
     S2 = gadd(S2, gdivgs(gmul(bernfrac(j), sercoeff(S, j-1)), j));
@@ -2022,17 +2046,33 @@ sumnumrat(GEN F, long a, long prec)
 }
 
 GEN
-sumaltrat(GEN F, long a, long prec)
+sumaltrat(GEN F, GEN ga, long prec)
 {
   pari_sp av = avma;
   GEN G, res, X, X2;
-  long vx = gvar(F);
+  long a = 0, vx;
 
+  if (typ(F) != t_RFRAC) pari_err_TYPE("sumnumrat",F);
+  vx = varn(gel(F,2));
+  switch(typ(ga))
+  {
+    case t_INT:
+      a = itos(ga);
+      break;
+    case t_INFINITY:
+      if (inf_get_sign(ga) == -1)
+      {
+        F = gsub(F, gsubst(F, vx, gsubsg(-1, pol_x(vx))));
+        break;
+      }
+    default:
+      pari_err_TYPE("sumnumaltrat",ga);
+  }
   X = pol_x(vx); X2 = gmul2n(X, 1);
   if (a) F = gsubst(F, vx, gaddgs(X, a));
   G = gsubst(F, vx, X2);
   G = gsub(G, gsubst(F, vx, gaddgs(X2, 1)));
-  res = sumnumrat(G, 0, prec);
+  res = sumnumrat(G, gen_0, prec);
   if (odd(a)) res = gneg(res);
   return gerepileupto(av, res);
 }
@@ -2065,7 +2105,6 @@ prodnumrat(GEN F, long a, long prec)
     S2 = gadd(S2, gdivgs(gmul(bernfrac(j), sercoeff(S, j-2)), j*(j-1)));
   return gerepileupto(ltop, gmul(S1, gexp(gsub(intf, S2), prec)));
 }
-
 
 static GEN
 sdmob(GEN ser, long n)
