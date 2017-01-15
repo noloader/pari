@@ -29,8 +29,11 @@ while (<FILE>)
       my ($v);
       $doc =~ s/^[\n\t ]*(.)/uc($1)/e;
       $args =~ s/ *:.*//s;
+      # sanity checks
       if ($args =~ /([_a-zA-Z0-9]*)\(/ && $fun->{Function} ne $1)
       { die "fix $fun->{Function} Help" }
+      die "double parenthesis in $fun->{Function} proto" if ($args =~ /\)\)/);
+      # ok
       if (!$args || $args =~ /^\w+=\w+\(\)/) { $args = $v = ''; }
       else
       {
