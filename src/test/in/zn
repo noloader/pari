@@ -27,8 +27,6 @@ do(N)
 G = znstar(N,1);
 G.clgp
 znlog(3, G)
-G = znstar(N,2);
-G.clgp
 L=znlog(Mod(3,N), G)
 factorback(Mod(G.gen,N),L)
 znlog(Mod(3,N/2), G)

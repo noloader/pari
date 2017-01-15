@@ -76,7 +76,7 @@ default("realprecision",115);
 lfun(L,2)
 default("realprecision",54);
 
-Z101=znstar(101,2);
+Z101=znstar(101,1);
 L=lfuncreate([Z101,[1]]);
 L=lfuninit(L,[1,1,1]);
 lfuncheckfeq(L)
@@ -325,7 +325,7 @@ lfuncost(L)
 
 lfun(1,2000)
 default(realprecision,38)
-Z=znstar(7,2);
+Z=znstar(7,1);
 La=lfuncreate([Z,[2]]);
 Lb=lfuncreate([Z,[4]]);
 L=La;L[2]=Lb[1];
