@@ -34,6 +34,7 @@ BA   24- ellidentify: check curve is over Q
      28- typo in description of "call" symbolic operator [ _(_) ]
 PB   29- matinverseimage could find spurious solutions [#1888]
      30- ellsea could leak variables (=> "no more variables" error)
+     31- ellsea leaked clones
 
   Added
       1- [libari] ZM_isidentity

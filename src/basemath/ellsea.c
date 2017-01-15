@@ -212,7 +212,7 @@ divpol(GEN t, GEN r2, long n, void *E, const struct bb_algebra *ff)
 static void
 divpol_free(GEN t)
 {
-  long i, l = lg(t);
+  long i, l = lg(gel(t,1));
   for (i=1; i<l; i++)
   {
     if (gmael(t,1,i)) gunclone(gmael(t,1,i));
