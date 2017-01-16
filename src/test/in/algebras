@@ -2101,17 +2101,20 @@ test("quatalg csa over Q", alginit(nfinit(y), mt));
 
 \\test ordering in simpledec
 print("ordering");
+/*
 Sn(n) = {
  [Vecsmall([1+permtonum(Vec(Vecsmall(numtoperm(n,i-1))*Vecsmall(numtoperm(n,j-1)))) |
    j<-[1..n!]]) | i <- [1..n!]]; \\docu pb? 1..n! ou 0..n!-1 ?
-};
+};*/
+Sn(n) = [Vecsmall(numtoperm(n,i-1)) | i <- [1..n!]];
 D2n(n) = {
  my(gen,G);
  if(n<=2, return(Sn(n)));
  gen = [Vecsmall([i%n+1 | i <- [1..n]]),Vecsmall([n+1-i | i<-[1..n]])];
  G = gen;
  while(#G<2*n, G = Set(concat([G,[gen[1]*g | g <- G],[gen[2]*g | g <- G]])));
- [Vecsmall([setsearch(G,g*G[i]) | i<-[1..#G]]) | g <- G]
+ \\[Vecsmall([setsearch(G,g*G[i]) | i<-[1..#G]]) | g <- G]
+ G
 };
 testordering(al)={
  my(jac, ss, dec);
@@ -2316,4 +2319,36 @@ testidem(al)={
   testidem(al);
 );}*/
 
+\\galoischartable
+testchar(chartab)={
+  z = 'z;
+  elts = chartab[1];
+  conjclass = chartab[2];
+  rep = chartab[3];
+  ct = chartab[4];
+  e = chartab[5];
+  n = #elts;
+  nc = #rep;
+  if(n % e, return(0));
+  if(sum(i=1,nc,ct[i,1]^2) != n, return(0));
+  f = polcyclo(e,z);
+  for(i=1,nc,
+    if(conjclass[rep[i]]!=i, return(0));
+    for(j=i,nc,
+      innprod = sum(k=1, n, ct[i,conjclass[k]] * subst(ct[j,conjclass[k]], z,
+                            z^(e-1)) * Mod(1,f)) / n;
+      if(innprod != (i==j), print("i=", i, " j=", j, " innprod=", innprod); return(0))
+    );
+  );
+  return(1);
+}
+{for(n=2,4,
+  ct = galoischartable(Sn(n),'z);
+  print(testchar(ct));
+);}
+{for(n=5,15,
+  ct = galoischartable(D2n(n),'z);
+  print(testchar(ct));
+);}
+galoischartable(Sn(5),'z)[4]
 

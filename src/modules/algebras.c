@@ -803,7 +803,6 @@ alg_decompose(GEN al, GEN Z, int mini)
   }
 }
 
-/*TODO guarantee that the images of the liftm form a direct sum*/
 static GEN
 alg_decompose_total(GEN al, GEN Z, int maps)
 {
@@ -4148,6 +4147,8 @@ alggroupcenter(GEN gal, GEN p, GEN* ptr_conjclasses)
   for(i=1;i<=n;i++)
     if(!repclass[conjclass[i]]) repclass[conjclass[i]] = i;
 
+  /* TODO sort conjugacy classes using a reasonable cmp */
+
   /* compute multiplication table of the center of the group algebra
    * (class functions). */
   mt = cgetg(nbcl+1,t_VEC);
@@ -4207,6 +4208,94 @@ alggroup(GEN gal, GEN p)
   mt = cgetg(n+1, t_VEC);
   for(i=1; i<=n; i++) gel(mt,i) = matrix_perm(gel(elts,i),n);
   return gerepilecopy(av, algtableinit_i(mt,p));
+}
+
+/* TODO should be exported in libpari? */
+static GEN
+centerliftii(GEN x, GEN p)
+{
+  pari_sp av = avma;
+  long i = cmpii(shifti(x,1), p);
+  avma = av; return (i > 0)? subii(x,p): icopy(x);
+}
+
+GEN
+galoischartable(GEN gal, long v)
+{
+  pari_sp av = avma;
+  GEN G, elts, al, cc, conjclass, rep, p, ctp, ct0, dec, e, dim, ze, chip,
+      g, a, f, expoi;
+  long n, i, j, k, l, expo, nbcl, jgl;
+  if(typ(gal)!=t_VEC) pari_err_TYPE("alggroup", gal);
+  if(is_gal_or_grp(gal)) {
+    G = checkgroup(gal, &elts);
+    if(!elts) elts = group_elts(G, group_domain(G));
+  }
+  else elts = gal;
+  n = lg(elts)-1;
+  for(i=1; i<=n; i++) {
+    if(typ(gel(elts,i)) != t_VECSMALL)
+      pari_err_TYPE("alggroup (element)", gel(elts,i));
+    if(!zv_isperm(gel(elts,i)))
+      pari_err_TYPE("alggroup (element is not a permutation)", gel(elts,i));
+    if(lg(gel(elts,i))!=lg(gel(elts,1)))
+      pari_err_DIM("alggroup [length of permutations]");
+  }
+  /* exponent of G */
+  expo = 1;
+  for(i=1;i<=n;i++)
+    expo = clcm(expo,perm_order(gel(elts,i)));
+  expoi = stoi(expo);
+  p = nextprime(stoi(2*n+1));
+  if(expo>1) while(smodis(p,expo)!=1) p = nextprime(addis(p,1));
+
+  /* compute character table modulo p: idempotents of Z(KG) */
+  al = alggroupcenter(gal,p,&cc);
+  elts = gel(cc,1);
+  conjclass = gel(cc,2);
+  rep = gel(cc,3);
+  nbcl = lg(rep)-1;
+  dec = algsimpledec(al,1);
+  ctp = cgetg(nbcl+1,t_VEC);
+  for(i=1;i<=nbcl;i++) {
+    e = FpC_Fp_mul(gmael3(dec,i,3,1),stoi(n),p);
+    dim = sqrtint(gel(e,1));
+    gel(ctp,i) = FpC_Fp_mul(e,Fp_inv(dim,p),p);
+  }
+  (void) Fp_sqrtn(gen_1,expoi,p,&ze);
+
+  /* lift character table to Z[zeta_e] */
+  f = polcyclo(expo,v);
+  ct0 = zeromatcopy(nbcl,nbcl);
+  for(i=1;i<=nbcl;i++) {
+    chip = gel(ctp,i);
+    for(j=1;j<=nbcl;j++) {
+      gcoeff(ct0,i,j) = zerovec(expo);
+      g = gel(elts,rep[j]);
+      /* chi(g) = sum_{k=0}^{e-1} a_k ze^k
+       * a_k = 1/e sum_{l=0}^{e-1} chi(g^l) ze^{-k*l} */
+      for(k=0;k<expo;k++) {
+        a = gen_0;
+        for(l=0;l<expo;l++) {
+          jgl = conjclass[vecsearch(elts,perm_pow(g,l),NULL)];
+          a = Fp_add(a,Fp_mul(gel(chip,jgl),Fp_pow(ze,stoi(-k*l),p),p),p);
+        }
+        a = Fp_div(a,expoi,p);
+        a = centerliftii(a,p);
+        gel(gcoeff(ct0,i,j),k+1) = a;
+      }
+      gcoeff(ct0,i,j) = RgV_to_RgX(gcoeff(ct0,i,j),v);
+      gcoeff(ct0,i,j) = ZX_rem(gcoeff(ct0,i,j),f);
+    }
+  }
+
+  /* TODO sort characters using a reasonable cmp */
+  /* in particular the trivial character should be the smallest one */
+  ct0 = shallowtrans(ct0);
+  ct0 = gen_sort(ct0,(void*)cmp_universal,cmp_nodata);
+  ct0 = shallowtrans(ct0);
+
+  return gerepilecopy(av,mkvec5(elts,conjclass,rep,ct0,expoi));
 }
 
 /** MAXIMAL ORDER **/
