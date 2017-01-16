@@ -35,6 +35,7 @@ BA   24- ellidentify: check curve is over Q
 PB   29- matinverseimage could find spurious solutions [#1888]
      30- ellsea could leak variables (=> "no more variables" error)
      31- ellsea leaked clones
+     32- 1/x - 1/x returned gen_0 (instead of Pol(0))
 
   Added
       1- [libari] ZM_isidentity

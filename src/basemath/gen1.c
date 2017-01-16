@@ -922,7 +922,7 @@ add_rfrac(GEN x, GEN y)
   if (!signe(n))
   {
     n = simplify_shallow(n);
-    if (isrationalzero(n)) return gerepileupto(av, n);
+    if (isrationalzero(n)) return gerepileupto(av, zeropol(varn(x2)));
     return gerepilecopy(av, mkrfrac(n, RgX_mul(gel(x,2),y2)));
   }
   if (degpol(n) == 0)
