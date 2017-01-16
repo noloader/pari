@@ -658,12 +658,6 @@ pari_mainstack_malloc(size_t s)
 static void
 pari_mainstack_mfree(void *s, size_t size) { (void) size; free(s); }
 
-static void
-pari_mainstack_mreset(pari_sp from, pari_sp to) { (void) from; (void) to; }
-
-static int
-pari_mainstack_mextend(pari_sp from, pari_sp to) { (void) from; (void) to; return 0; }
-
 static int
 pari_mainstack_setsize(struct pari_mainstack *st, size_t size)
 {
