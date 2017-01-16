@@ -556,6 +556,19 @@ the test (resp.~all tests) only under \kbd{gp-sta}:
 @eprog\noindent The \kbd{test-all} variant is so common that a shortcut
 is provided: \kbd{make statest-all}.
 
+\item Besides \kbd{statest-all}, which runs all the tests, you can run a
+subset of existing tests by calling \kbd{dotest} directly from a script:
+
+\bprog
+  cd Oxxx     # call from relevant build directory
+  env dotestSUF=sta ../src/test/dotest 64 "" lfuntype lfun gamma
+@eprog\noindent will run the \kbd{lfuntype}, \kbd{lfun} and \kbd{gamma} tests.
+This produces a combined output whereas the simpler
+
+\bprog
+  make test-lfuntype test-lfun gamma
+@eprog\noindent would not.
+
 \item The \kbd{get\_tests} script also defines the recipe for
 \kbd{make bench} timings, via the variable \kbd{test\_basic}. A test is
 included as \kbd{fun} or \kbd{fun\_$n$}, where $n$ is an integer $\leq 1000$;
