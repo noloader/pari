@@ -1327,7 +1327,7 @@ GEN     bnrgwsearch(GEN bnr, GEN Lpr, GEN Ld, GEN pl);
 void    checkalg(GEN x);
 void    checkhasse(GEN nf, GEN hi, GEN hf, long n);
 long    cyclicrelfrob(GEN rnf, GEN auts, GEN pr);
-GEN     galoischartable(GEN gal, long v);
+GEN     galoischartable(GEN gal);
 GEN     hassecoprime(GEN hi, GEN hf, long n);
 GEN     hassedown(GEN nf, long n, GEN hi, GEN hf);
 GEN     hassewedderburn(GEN hi, GEN hf, long n);

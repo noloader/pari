@@ -2321,7 +2321,7 @@ testidem(al)={
 
 \\galoischartable
 testchar(chartab)={
-  z = 'z;
+  x = 'x;
   elts = chartab[1];
   conjclass = chartab[2];
   rep = chartab[3];
@@ -2331,24 +2331,24 @@ testchar(chartab)={
   nc = #rep;
   if(n % e, return(0));
   if(sum(i=1,nc,ct[i,1]^2) != n, return(0));
-  f = polcyclo(e,z);
+  f = polcyclo(e,x);
   for(i=1,nc,
     if(conjclass[rep[i]]!=i, return(0));
     for(j=i,nc,
-      innprod = sum(k=1, n, ct[i,conjclass[k]] * subst(ct[j,conjclass[k]], z,
-                            z^(e-1)) * Mod(1,f)) / n;
+      innprod = sum(k=1, n, ct[i,conjclass[k]] * subst(ct[j,conjclass[k]], x,
+                            x^(e-1)) * Mod(1,f)) / n;
       if(innprod != (i==j), print("i=", i, " j=", j, " innprod=", innprod); return(0))
     );
   );
   return(1);
 }
 {for(n=2,4,
-  ct = galoischartable(Sn(n),'z);
+  ct = galoischartable(Sn(n));
   print(testchar(ct));
 );}
 {for(n=5,15,
-  ct = galoischartable(D2n(n),'z);
+  ct = galoischartable(D2n(n));
   print(testchar(ct));
 );}
-galoischartable(Sn(5),'z)[4]
+galoischartable(Sn(5))[4]
 

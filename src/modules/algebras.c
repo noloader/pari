@@ -4211,7 +4211,7 @@ alggroup(GEN gal, GEN p)
 }
 
 GEN
-galoischartable(GEN gal, long v)
+galoischartable(GEN gal)
 {
   pari_sp av = avma, av2;
   GEN G, elts, al, cc, conjclass, rep, p, ctp, ct0, dec, e, dim, ze, chip,
@@ -4256,7 +4256,7 @@ galoischartable(GEN gal, long v)
   (void) Fp_sqrtn(gen_1,expoi,p,&ze);
 
   /* lift character table to Z[zeta_e] */
-  f = polcyclo(expo,v);
+  f = polcyclo(expo,0);
   ct0 = zeromatcopy(nbcl,nbcl);
   pov2 = shifti(p,-1);
   av2 = avma;
@@ -4277,7 +4277,7 @@ galoischartable(GEN gal, long v)
         a = Fp_center(a,p,pov2);
         gel(gcoeff(ct0,i,j),k+1) = a;
       }
-      gcoeff(ct0,i,j) = RgV_to_RgX(gcoeff(ct0,i,j),v);
+      gcoeff(ct0,i,j) = RgV_to_RgX(gcoeff(ct0,i,j),0);
       gcoeff(ct0,i,j) = ZX_rem(gcoeff(ct0,i,j),f);
       gerepileall(av2,2,&ct0,&chip);
     }

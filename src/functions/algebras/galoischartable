@@ -1,8 +1,8 @@
 Function: galoischartable
 Section: algebras
 C-Name: galoischartable
-Prototype: GDn
-Help: galoischartable(gal,{v='x}): construct the character table of gal.
+Prototype: G
+Help: galoischartable(gal): construct the character table of gal.
 Doc: Compute the character table of~$G$, where~$G$ is the underlying group of
  the \kbd{galoisinit} structure~\var{gal}. The input~\var{gal} is also allowed
  to be a \typ{VEC} of permutations that is closed under products.
@@ -22,8 +22,8 @@ Doc: Compute the character table of~$G$, where~$G$ is the underlying group of
  \item \var{ct} is a square \typ{MAT} of size~$N$ giving the character table
  of~$G$, each column corresponding to a conjugacy class and each line
  corresponding to an irreducible character. The value of the character at the
- conjugacy class is represented by a polynomial in the supplied
- variable~\var{v}, to be interpreted as an $e$-th root of unity.
+ conjugacy class is represented by a polynomial whose variable should be
+ interpreted as an $e$-th root of unity.
 
  \item \var{e} is the exponent of the group~$G$, i.e. the LCM of the orders of
  the elements of~$G$.
@@ -35,7 +35,7 @@ Doc: Compute the character table of~$G$, where~$G$ is the underlying group of
  \bprog
  ? K = nfsplitting(x^4+x+1);
  ? gal = galoisinit(K);
- ? [elts,conjclass,rep,ct,e] = galoischartable(gal,'z);
+ ? [elts,conjclass,rep,ct,e] = galoischartable(gal);
  ? ct
  %4 =
  [1 -1 -1  1  1]
@@ -53,16 +53,16 @@ Doc: Compute the character table of~$G$, where~$G$ is the underlying group of
          Vecsmall([4, 3, 2, 1, 5]), Vecsmall([4, 5, 1, 2, 3]),
          Vecsmall([5, 1, 2, 3, 4]), Vecsmall([5, 4, 3, 2, 1])];}
    \\G = D10
- ? [elts,conjclass,rep,ct,e] = galoischartable(G,'z);
+ ? [elts,conjclass,rep,ct,e] = galoischartable(G);
  ? ct
  %7 =
  [1 -1             1             1]
 
  [1  1             1             1]
 
- [2  0 z^3 - z^2 - 1    -z^3 + z^2]
+ [2  0 x^3 - x^2 - 1    -x^3 + x^2]
 
- [2  0    -z^3 + z^2 z^3 - z^2 - 1]
+ [2  0    -x^3 + x^2 x^3 - x^2 - 1]
  ? e
  %8 = 10
  @eprog
