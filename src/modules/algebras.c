@@ -4210,21 +4210,12 @@ alggroup(GEN gal, GEN p)
   return gerepilecopy(av, algtableinit_i(mt,p));
 }
 
-/* TODO should be exported in libpari? */
-static GEN
-centerliftii(GEN x, GEN p)
-{
-  pari_sp av = avma;
-  long i = cmpii(shifti(x,1), p);
-  avma = av; return (i > 0)? subii(x,p): icopy(x);
-}
-
 GEN
 galoischartable(GEN gal, long v)
 {
-  pari_sp av = avma;
+  pari_sp av = avma, av2;
   GEN G, elts, al, cc, conjclass, rep, p, ctp, ct0, dec, e, dim, ze, chip,
-      g, a, f, expoi;
+      g, a, f, expoi, pov2;
   long n, i, j, k, l, expo, nbcl, jgl;
   if(typ(gal)!=t_VEC) pari_err_TYPE("alggroup", gal);
   if(is_gal_or_grp(gal)) {
@@ -4267,6 +4258,8 @@ galoischartable(GEN gal, long v)
   /* lift character table to Z[zeta_e] */
   f = polcyclo(expo,v);
   ct0 = zeromatcopy(nbcl,nbcl);
+  pov2 = shifti(p,-1);
+  av2 = avma;
   for(i=1;i<=nbcl;i++) {
     chip = gel(ctp,i);
     for(j=1;j<=nbcl;j++) {
@@ -4281,11 +4274,12 @@ galoischartable(GEN gal, long v)
           a = Fp_add(a,Fp_mul(gel(chip,jgl),Fp_pow(ze,stoi(-k*l),p),p),p);
         }
         a = Fp_div(a,expoi,p);
-        a = centerliftii(a,p);
+        a = Fp_center(a,p,pov2);
         gel(gcoeff(ct0,i,j),k+1) = a;
       }
       gcoeff(ct0,i,j) = RgV_to_RgX(gcoeff(ct0,i,j),v);
       gcoeff(ct0,i,j) = ZX_rem(gcoeff(ct0,i,j),f);
+      gerepileall(av2,2,&ct0,&chip);
     }
   }
 
