@@ -1704,18 +1704,6 @@ sqrtnint(GEN a, long n)
   return gerepileuptoleaf(ltop, x);
 }
 
-GEN
-cbrtr_abs(GEN x)
-{
-  long prec = realprec(x), n = bit_accuracy(prec), e = expo(x), er = e / 3;
-  /* x 2^3(n-er) = b t_INT */
-  GEN b = mantissa2nr(x, (e-3*er+1) + n*2);
-  b = sqrtnint(b, 3);
-  b = itor(b, prec);
-  setexpo(b, expo(b)+er-n);
-  return b;
-}
-
 ulong
 usqrtn(ulong a, ulong n)
 {
@@ -1732,6 +1720,68 @@ usqrtn(ulong a, ulong n)
     q = X? a/X: 0;
   }
   return x;
+}
+
+static ulong
+cubic_prec_mask(long n)
+{
+  long a = n, i;
+  ulong mask = 0;
+  for(i = 1;; i++, mask *= 3)
+  {
+    long c = a%3;
+    if (c) mask += 3 - c;
+    a = (a+2)/3;
+    if (a==1) return mask + upowuu(3, i);
+  }
+}
+
+/* cubic Newton iteration, |a|^(1/n), assuming a != 0 */
+GEN
+sqrtnr_abs(GEN a, long n)
+{
+  pari_sp av;
+  GEN x, b;
+  long eold, n1, n2, prec, B;
+  ulong mask;
+
+  if (n == 1) return mpabs(a);
+  if (n == 2) return sqrtr_abs(a);
+
+  prec = realprec(a);
+  B = prec2nbits(prec);
+  n1 = n+1;
+  n2 = 2*n; av = avma;
+
+  b = rtor(a, LOWDEFAULTPREC);
+  x = mpexp(divru(logr_abs(b), n));
+  if (prec == LOWDEFAULTPREC) return gerepileuptoleaf(av, x);
+  mask = cubic_prec_mask(B + BITS_IN_LONG-1);
+  eold = 1;
+  for(;;)
+  { /* reach BITS_IN_LONG */
+    long enew = eold * 3;
+    enew -= mask % 3;
+    if (enew > BITS_IN_LONG) break; /* back up one step */
+    mask /= 3;
+    eold = enew;
+  }
+  for(;;)
+  {
+    long pr, enew = eold * 3;
+    GEN y, z;
+    enew -= mask % 3;
+    mask /= 3;
+    pr = nbits2prec(enew);
+    b = rtor(a, pr); setsigne(b,1);
+    x = rtor(x, pr);
+    y = subrr(powru(x, n), b);
+    z = divrr(y, addrr(mulur(n1, y), mulur(n2, b)));
+    shiftr_inplace(z,1);
+    x = mulrr(x, subsr(1,z));
+    if (3*expo(y) < -B) return gerepileuptoleaf(av, x);
+    eold = enew;
+  }
 }
 
 GEN

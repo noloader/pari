@@ -11288,7 +11288,10 @@ is inconsistent here, since we sometimes use the prefix \kbd{mp} even though
 \fun{GEN}{cbrtr}{GEN x} returns the real cube root of $x$.
 
 \fun{GEN}{sqrtnr}{GEN x, long n} returns the $n$-th root of $x$, assuming
-$n\geq 1$ and $x > 0$. Not stack clean.
+$n\geq 1$ and $x \geq 0$.
+
+\fun{GEN}{sqrtnr_abs}{GEN x, long n} returns the $n$-th root of $|x|$,
+assuming $n\geq 1$ and $x \neq 0$.
 
 \fun{GEN}{mpcos[z]}{GEN x[, GEN z]} returns $\cos(x)$.
 

@@ -72,6 +72,7 @@ PB   23- [libpari] F2xqM_F2xqC_gauss F2xqM_F2xqC_invimage F2xqM_gauss F2xqM_invi
 HC   25- new GP functions prodeulerrat, sumeulerrat, sumaltrat, sumnumrat,
          prodnumrat
 HC   26- new GP function zetahurwitz
+     27- libpari function sqrtnr_abs
 
   Changed
       1- rewrite bnfnarrow
@@ -108,6 +109,7 @@ HC   16- sumnummonieninit(a) for [a,a] did not conform to documentation.
          [ this is cheap, allowing not to compute it doesn't make much sense;
          and G.gen is now always defined. ]
      23- let ellsea call the generic algorithm when q <= 523 to avoid an oo-loop
+     24- sqrtnr algorithm (Newton iteration instead of exp(log(x)/n)
 
   Removed
       1- file 'MACHINES' (no longer maintained)

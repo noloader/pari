@@ -1853,6 +1853,8 @@ sqrtr(GEN x) {
   retmkcomplex(gen_0, sqrtr_abs(x));
 }
 INLINE GEN
+cbrtr_abs(GEN x) { return sqrtnr_abs(x, 3); }
+INLINE GEN
 cbrtr(GEN x) {
   long s = signe(x);
   GEN r;
@@ -1861,16 +1863,14 @@ cbrtr(GEN x) {
   if (s < 0) togglesign(r);
   return r;
 }
-/* x^(1/n) */
 INLINE GEN
 sqrtnr(GEN x, long n) {
-  switch(n)
-  {
-    case 1: return rcopy(x);
-    case 2: return sqrtr(x);
-    case 3: return cbrtr(x);
-  }
-  return mpexp(divrs(mplog(x), n));
+  long s = signe(x);
+  GEN r;
+  if (s == 0) return real_0_bit(expo(x) / n);
+  r = sqrtnr_abs(x, n);
+  if (s < 0) pari_err_IMPL("sqrtnr for x < 0");
+  return r;
 }
 INLINE long
 logint(GEN B, GEN y) { return logintall(B,y,NULL); }
