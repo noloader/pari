@@ -342,7 +342,7 @@ pari_daemon(void)
       case -1: return 1; /* father, fork failed */
       case 0:
         (void)setsid(); /* son becomes process group leader */
-        if (fork()) exit(0); /* now son exits, also when fork fails */
+        if (fork()) _exit(0); /* now son exits, also when fork fails */
         break; /* grandson: its father is the son, which exited,
                 * hence father becomes 'init', that'll take care of it */
       default: /* father, fork succeeded */
