@@ -786,6 +786,8 @@ void
 parivstack_reset(void)
 {
   pari_mainstack_setsize(pari_mainstack, pari_mainstack->rsize);
+  if (avma < pari_mainstack->bot)
+    pari_err_BUG("parivstack_reset [avma < bot]");
 }
 
 /* Enlarge the stack if needed such that the unused portion of the stack

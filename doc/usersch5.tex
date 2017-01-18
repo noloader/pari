@@ -193,9 +193,12 @@ at most \kbd{parisizemax}. The stack content is not affected
 by this operation.
 
 \fun{void}{parivstack_reset}{void}
-resets the current stack to its default size \kbd{parisize},
-destroying its content. Used to recover memory after a
-computation that enlarged the stack.
+resets the current stack to its default size \kbd{parisize}. This is
+used to recover memory after a computation that enlarged the stack.
+This function destroys the content of the enlarged stack (between
+the old and the new bottom of the stack).
+Before calling this function, you must ensure that \kbd{avma} lies
+within the new smaller stack.
 
 \fun{void}{paristack_newrsize}{ulong newsize}
 \emph{(does not return)}. Library version of

@@ -360,7 +360,6 @@ gp_main_loop(long ismain)
       if (ismain) continue;
       pop_buffer(); return z;
     }
-    avma = av;
     if (ismain)
     {
       reset_ctrlc();
@@ -384,6 +383,7 @@ gp_main_loop(long ismain)
     if (GP_DATA->simplify) z = simplify_shallow(z);
     pari_add_hist(z, t);
     if (z != gnil && ! is_silent(b->buf) ) gp_output(z);
+    avma = av;
     parivstack_reset();
   }
 }
