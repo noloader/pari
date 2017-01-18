@@ -2584,7 +2584,7 @@ ZX_Uspensky_cst_pol(long nbz, long flag, long bitprec)
   switch(flag)
   {
     case 0:  return zerocol(nbz);
-    case 1:  retconst_col(nbz, real_0_bit(bitprec));
+    case 1:  retconst_col(nbz, real_0_bit(-bitprec));
     default: return utoi(nbz);
   }
 }
@@ -2657,7 +2657,7 @@ ZX_Uspensky(GEN P, GEN ab, long flag, long bitprec)
       sol = zerocol(nbz);
       break;
     case 1:
-      sol = const_col(nbz, real_0_bit(bitprec));
+      sol = const_col(nbz, real_0_bit(-bitprec));
       break;
     /* case 2: nothing */
   }
