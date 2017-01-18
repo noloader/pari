@@ -2329,12 +2329,19 @@ testchar(chartab)={
   e = chartab[5];
   n = #elts;
   nc = #rep;
+  id = elts[1];
   if(n % e, return(0));
   if(sum(i=1,nc,ct[i,1]^2) != n, return(0));
   f = polcyclo(e,x);
   for(i=1,nc,
     if(conjclass[rep[i]]!=i, return(0));
-    for(j=i,nc,
+    for(k=1,nc, \\conj classes
+      if(rep[k]^2==id && poldegree(ct[i,k])>0, return(0));
+      if(ct[i,conjclass[vecsearch(elts,elts[rep[k]]^(-1))]]*Mod(1,f) !=
+              subst(ct[i,k], x, x^(e-1))*Mod(1,f),
+         return(0));
+    );
+    for(j=i,nc, \\other characters
       innprod = sum(k=1, n, ct[i,conjclass[k]] * subst(ct[j,conjclass[k]], x,
                             x^(e-1)) * Mod(1,f)) / n;
       if(innprod != (i==j), print("i=", i, " j=", j, " innprod=", innprod); return(0))
@@ -2351,4 +2358,5 @@ testchar(chartab)={
   print(testchar(ct));
 );}
 galoischartable(Sn(5))[4]
+galoischartable([Vecsmall([1])])
 

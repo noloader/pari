@@ -2718,4 +2718,5 @@ should fail:
 
 [6  0  0 -2  0  0  1]
 
-Total time spent: 7880
+[[Vecsmall([1])], Vecsmall([1]), Vecsmall([1]), Mat(1), 1]
+Total time spent: 12984
