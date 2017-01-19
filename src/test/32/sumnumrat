@@ -2,8 +2,7 @@
 0.E-115
 3.28986813369645287294483033329205037843789980241359687547111645874001494080
 6401747667257801239517410608008637924674
-0.50000000000000000000000000000000000000000000000000000000000000000000000000
-00000000000000000000000000000000000000000
+0.E-115
 0.30683697542290869391786213828290734801742482783565174497642694808825913036
 03651451009491129226235190125664092098724
 -0.2175421606806001589105587583216669776310977284470035020597286593836235884
@@ -39,11 +38,11 @@
   *** sumnumrat: incorrect type in sumnumrat (t_REAL).
   ***   at top-level: sumaltrat(1.0,1)
   ***                 ^----------------
-  *** sumaltrat: incorrect type in sumnumrat (t_REAL).
+  *** sumaltrat: incorrect type in sumaltrat (t_REAL).
   ***   at top-level: sumnumrat(1/x,10)
   ***                 ^-----------------
   *** sumnumrat: sum diverges in sumnumrat.
   ***   at top-level: prodnumrat(1+1/x,10)
   ***                 ^--------------------
   *** prodnumrat: product diverges in prodnumrat.
-Total time spent: 58
+Total time spent: 61
