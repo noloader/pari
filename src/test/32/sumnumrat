@@ -31,6 +31,9 @@
 0.E-115
 1.00000000000000000000000000000000000000000000000000000000000000000000000000
 0000000000000000000000000000000000000000
+1.00000000000000000000000000000000000000000000000000000000000000000000000000
+0000000000000000000000000000000000000000
+0.E-115
   ***   at top-level: sumnumrat(1/x^2,oo)
   ***                 ^-------------------
   *** sumnumrat: incorrect type in sumnumrat (t_INFINITY).
@@ -49,4 +52,10 @@
   ***   at top-level: prodnumrat(1+1/x,10)
   ***                 ^--------------------
   *** prodnumrat: product diverges in prodnumrat.
-Total time spent: 55
+  ***   at top-level: sumeulerrat(1)
+  ***                 ^--------------
+  *** sumeulerrat: incorrect type in sumeulerrat (t_INT).
+  ***   at top-level: prodeulerrat(2)
+  ***                 ^---------------
+  *** prodeulerrat: incorrect type in prodeulerrat (t_INT).
+Total time spent: 14

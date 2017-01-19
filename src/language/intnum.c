@@ -2256,7 +2256,7 @@ sumeulerrat(GEN F, GEN s, long a, long prec)
     case t_RFRAC: break;
     case t_INT: case t_REAL: case t_COMPLEX: case t_POL:
       if (gequal0(F)) return real_0(prec);
-    default: pari_err_TYPE("prodnumrat",F);
+    default: pari_err_TYPE("sumeulerrat",F);
   }
   if (!s) s = gen_1;
   if (a < 2) a = 2;
@@ -2269,7 +2269,7 @@ sumeulerrat(GEN F, GEN s, long a, long prec)
   if (rs <= RS)
     pari_err_DOMAIN("sumeulerrat", "real(s)", "<=",  dbltor(RS), dbltor(rs));
   N = maxss(maxss(30, a), (long)ceil(2*gtodouble(r)));
-  lim = (long)ceil(B / dbllog2(gdiv(gpow(stoi(N), rsg, LOWDEFAULTPREC), r))) + 1;
+  lim = (long)ceil(B / dbllog2(gdiv(gpow(stoi(N), rsg, LOWDEFAULTPREC), r)))+1;
   ser = gmul(real_1(prec + EXTRAPREC), F);
   ser = rfracrecip_to_ser_absolute(ser, lim + 2);
   res = sumlogzeta(ser, s, N, vF, lim, prec);
@@ -2286,20 +2286,27 @@ prodeulerrat(GEN F, GEN s, long a, long prec)
   pari_sp ltop = avma;
   forprime_t T;
   GEN F1, r, r1, ser, res, rsg;
-  double rs;
+  double rs, RS;
   long B = prec2nbits(prec), vx = gvar(F), vF, p, N, lim;
 
-  if (!s) s = gen_1;
   F1 = gsubgs(F, 1);
+  switch(typ(F))
+  {
+    case t_RFRAC: break;
+    case t_INT: case t_REAL: case t_COMPLEX: case t_POL:
+      if (gequal0(F1)) return real_1(prec);
+    default: pari_err_TYPE("prodeulerrat",F);
+  }
+  if (!s) s = gen_1;
   vF = -poldegree(F1, -1);
-  rsg = real_i(s); rs = gtodouble(rsg);
-  if (vF <= 0 || vF*rs <= 1)
-    pari_err(e_MISC, "real(s) <= 1/v in prodeulerrat");
+  rsg = real_i(s);
+  rs = gtodouble(rsg);
   r = ratpolemax2(F, &r1);
-  if (rs <= dbllog2(r1) / log2((double)a))
-    pari_err(e_MISC, "real(s) too small in prodeulerrat");
+  RS = maxdd(1./vF, dbllog2(r1) / log2((double)a));
+  if (rs <= RS)
+    pari_err_DOMAIN("prodeulerrat", "real(s)", "<=",  dbltor(RS), dbltor(rs));
   N = maxss(maxss(30, a), (long)ceil(2*gtodouble(r)));
-  lim = (long)ceil(B / dbllog2(gdiv(gpow(stoi(N), rsg, LOWDEFAULTPREC), r))) + 1;
+  lim = (long)ceil(B / dbllog2(gdiv(gpow(stoi(N), rsg, LOWDEFAULTPREC), r)))+1;
   ser = gmul(real_1(prec + EXTRAPREC), F1);
   ser = gaddsg(1, rfracrecip_to_ser_absolute(ser, lim + 2));
   ser = glog(ser, 0);
