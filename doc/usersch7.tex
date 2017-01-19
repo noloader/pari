@@ -288,18 +288,21 @@ included in the vector since it is frequently needed in computations.
 
 \subsubsec{Curves over $\C$} (This includes curves over $\Q$!)
 
-\fun{long}{ellR_get_prec}{GEN E} returns the default accuracy to
+\fun{long}{ellR_get_prec}{GEN E} return the default accuracy to
 which we must compute approximate results attached to $E$.
 
-\fun{GEN}{ellR_ab}{GEN E, long prec} returns $[a,b]$
+\fun{GEN}{ellR_ab}{GEN E, long prec} return $[a,b]$
 
-\fun{GEN}{ellR_omega}{GEN x, long prec} returns periods
+\fun{GEN}{ellR_omega}{GEN x, long prec} return periods
 $[\omega_1,\omega_2]$.
 
-\fun{GEN}{ellR_eta}{GEN E, long prec} returns quasi-periods
+\fun{GEN}{ellR_eta}{GEN E, long prec} return quasi-periods
 $[\eta_1,\eta_2]$.
 
-\fun{GEN}{ellR_roots}{GEN E, long prec} returns $[e_1,e_2,e_3]$. If $E$ is
+\fun{GEN}{ellR_area}{GEN x, long prec} return the area
+$(\Im(\omega_1\*\overline{\omega_2}))$.
+
+\fun{GEN}{ellR_roots}{GEN E, long prec} return $[e_1,e_2,e_3]$. If $E$ is
 defined over $\R$, then $e_1$ is real. If furthermore $\disc E > 0$, then
 $e_1 > e_2 > e_3$.
 

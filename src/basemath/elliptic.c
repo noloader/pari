@@ -2124,6 +2124,17 @@ GEN
 ellR_roots(GEN E, long prec)
 { return obj_checkbuild_realprec(E, R_ROOTS, &doellR_roots, prec); }
 
+GEN
+ellR_area(GEN E, long prec)
+{
+  pari_sp av = avma;
+  GEN w, w1, w2, a,b,c,d;
+  w = ellR_omega(E, prec);
+  w1 = gel(w,1); a = real_i(w1); b = imag_i(w1);
+  w2 = gel(w,2); c = real_i(w2); d = imag_i(w2);
+  return gerepileupto(av, gabs(gsub(gmul(a,d),gmul(b,c)), prec));
+}
+
 /********************************************************************/
 /**                                                                **/
 /**                       ELLIPTIC FUNCTIONS                       **/

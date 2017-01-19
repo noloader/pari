@@ -2612,6 +2612,7 @@ GEN     ellQp_q(GEN E, long prec);
 GEN     ellQp_ab(GEN E, long prec);
 GEN     ellQp_L(GEN E, long prec);
 GEN     ellQp_root(GEN E, long prec);
+GEN     ellR_area(GEN E, long prec);
 GEN     ellR_ab(GEN E, long prec);
 GEN     ellR_eta(GEN E, long prec);
 GEN     ellR_omega(GEN x, long prec);

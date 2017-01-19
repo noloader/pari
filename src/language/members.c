@@ -585,15 +585,9 @@ member_eta(GEN x)
 GEN
 member_area(GEN x)
 {
-  GEN w, w1, w2, a,b,c,d;
-  long prec;
   if (!is_ell(x)) member_err("area",x);
   if (!ell_is_complex(x)) pari_err_TYPE("area [not defined over C]",x);
-  prec = ellR_get_prec(x);
-  w = ellR_omega(x, prec);
-  w1 = gel(w,1); a = real_i(w1); b = imag_i(w1);
-  w2 = gel(w,2); c = real_i(w2); d = imag_i(w2);
-  return gabs(gsub(gmul(a,d),gmul(b,c)), prec);
+  return ellR_area(x, ellR_get_prec(x));
 }
 
 GEN
