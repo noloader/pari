@@ -14,6 +14,10 @@ prodeulerrat(1+1/q^2,1)*zeta(4)/zeta(2)
 prodeulerrat(1+1/q^4,1/2)*zeta(4)/zeta(2)
 prodeulerrat(1-2/(q*(q+1)),1)
 prodeulerrat(1+1/q,3)*zeta(6)/zeta(3)
+sumnumrat(0,0)
+sumaltrat(0,0)
+prodnumrat(1,1)
+
 \\ errors
 sumnumrat(1/x^2,oo)
 sumaltrat(1/x,oo)

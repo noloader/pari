@@ -2159,6 +2159,7 @@ sumaltrat(GEN F, GEN ga, long prec)
       }
     default:
       pari_err_TYPE("sumnumaltrat",ga);
+      return NULL; /* LCOV_EXCL_LINE */
   }
   F2 = gsubst(F, vx, X2); /* F(2n) */
   F1 = gneg(gsubst(F, vx, X1)); /* - F(2n+1) */
@@ -2182,8 +2183,15 @@ prodnumrat(GEN F, long a, long prec)
   GEN S, S1, S2, intf, G, F1 = gsubgs(F,1);
   double r;
 
+  switch(typ(F1))
+  {
+    case t_RFRAC: break;
+    case t_INT: case t_REAL: case t_COMPLEX: case t_POL:
+      if (gequal0(F1)) return real_1(prec);
+    default: pari_err_TYPE("prodnumrat",F);
+  }
   if (poldegree(F1,-1) > -2) pari_err(e_MISC, "product diverges in prodnumrat");
-  vx = gvar(F);
+  vx = varn(gel(F,2));
   if (a) F = gsubst(F, vx, gaddgs(pol_x(vx), a));
   r = gtodouble(ratpolemax2(F, NULL));
   get_kN((long)ceil(r), B, &k,&N);
@@ -2191,9 +2199,9 @@ prodnumrat(GEN F, long a, long prec)
   intf = intnumainfrat(gmul(pol_x(vx),G), N, r, prec);
   intf = gneg(gadd(intf, gmulsg(N, glog(gsubst(F, vx, stoi(N)), prec))));
   S = gmul(real_1(prec), gsubst(G, vx, gaddgs(pol_x(vx), N)));
-  S = gtoser(S, vx, k + 2);
-  S1 = gsqrt(gsubst(F, vx, stoi(N)), prec);
-  for (m = 0; m < N; ++m) S1 = gmul(S1, gsubst(F, vx, stoi(m)));
+  S = rfractoser(S, vx, k + 2);
+  S1 = gsqrt(gsubst(F, vx, utoipos(N)), prec);
+  for (m = 0; m < N; m++) S1 = gmul(S1, gsubst(F, vx, utoi(m)));
   S2 = gen_0;
   for (j = 2; j <= k; j += 2)
     S2 = gadd(S2, gmul(gdivgs(bernfrac(j),j*(j-1)), sercoeff(S, j-2)));
@@ -2213,23 +2221,23 @@ sdmob(GEN ser, long n)
   return S;
 }
 static GEN
-logzetan(GEN s, long N, long prec)
+logzetan(GEN s, GEN P, long prec)
 {
-  forprime_t T;
   GEN negs = gneg(s), Z = gzeta(s, prec);
-  long p;
-  u_forprime_init(&T, 2, N);
-  while ( (p = u_forprime_next(&T)) )
-    Z = gmul(Z, gsubsg(1, gpow(utoipos(p), negs, prec)));
+  long i, l = lg(P);
+  for (i = 1; i < l; i++) Z = gmul(Z, gsubsg(1, gpow(gel(P,i), negs, prec)));
   return glog(Z, prec);
 }
 static GEN
 sumlogzeta(GEN ser, GEN s, long N, long vF, long lim, long prec)
 {
-  GEN z = gen_0;
+  GEN z = gen_0, P = primes_interval(gen_2, utoipos(N));
   long n;
-  for (n = vF; n <= lim; ++n)
-    z = gadd(z, gmul(logzetan(gmulsg(n, s), N, prec), sdmob(ser, n)));
+  for (n = vF; n <= lim; n++)
+  {
+    GEN t = sdmob(ser, n);
+    if (!gequal0(t)) z = gadd(z, gmul(logzetan(gmulsg(n,s), P, prec), t));
+  }
   return z;
 }
 
@@ -2240,17 +2248,26 @@ sumeulerrat(GEN F, GEN s, long a, long prec)
   pari_sp av = avma;
   forprime_t T;
   GEN r, ser, res, rsg;
-  double rs;
-  long B = prec2nbits(prec), vx = gvar(F), vF, p, N, lim;
+  double rs, RS;
+  long B = prec2nbits(prec), vx, vF, p, N, lim;
 
+  switch(typ(F))
+  {
+    case t_RFRAC: break;
+    case t_INT: case t_REAL: case t_COMPLEX: case t_POL:
+      if (gequal0(F)) return real_0(prec);
+    default: pari_err_TYPE("prodnumrat",F);
+  }
   if (!s) s = gen_1;
+  if (a < 2) a = 2;
+  vx = varn(gel(F,2));
   vF = -poldegree(F, -1);
-  rsg = real_i(s); rs = gtodouble(rsg);
-  if (vF <= 0 || vF*rs <= 1)
-    pari_err(e_MISC, "real(s) <= 1/v in sumeulerrat");
-  a = maxss(a, 2); r = ratpolemax(F);
-  if (rs <= dbllog2(r) / log2((double)a))
-      pari_err(e_MISC, "real(s) too small in sumeulerrat");
+  rsg = real_i(s);
+  rs = gtodouble(rsg);
+  r = ratpolemax(F);
+  RS = maxdd(1./vF, dbllog2(r) / log2((double)a));
+  if (rs <= RS)
+    pari_err_DOMAIN("sumeulerrat", "real(s)", "<=",  dbltor(RS), dbltor(rs));
   N = maxss(maxss(30, a), (long)ceil(2*gtodouble(r)));
   lim = (long)ceil(B / dbllog2(gdiv(gpow(stoi(N), rsg, LOWDEFAULTPREC), r))) + 1;
   ser = gmul(real_1(prec + EXTRAPREC), F);
