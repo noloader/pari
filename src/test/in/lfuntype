@@ -1,6 +1,8 @@
 default(realprecision,38);
 zet=1;
 Z(a)=lfuncreate([(p,n)->(1-p^a*x),0,[-a],2*a+1,1,1,[[a+1,1/x+O(1)]]]);
+N=nfinit(x^10-2*x^8-9*x^6+57*x^4-69*x^2+47);
+G=galoisinit(N);
 VALL={
 [zet,
 lfuncreate([n->vector(n,i,kronecker(i,857)),0,[0],1,857,1]),
@@ -32,8 +34,8 @@ bnfinit(x^4+2*x^2+5),
 Z(2),
 \\25
 lfunqf(matid(4)),
-  if(1,my(N=nfinit(x^10-2*x^8-9*x^6+57*x^4-69*x^2+47),G=galoisinit(N));
-lfunartin(N,G,[['a,0;0,'a^4],[0,1;1,0]],5)),
+lfunartin(N,G,[2,0,-x^3-x^2-1,x^3+x^2],5),
+lfunartin(N,G,[['a,0;0,'a^4],[0,1;1,0]],5),
   if(1,my(E1=ellinit([0,0,1,-1,0]),E2=ellinit([0,1,1,-23,-50]));
 lfuncreate([n->lfunan(E1,n)+lfunan(E2,n),n->-lfunan(E1,n)+lfunan(E2,n),[0,1],2,37,1])),
 lfunqf(matdiagonal([1,2,3,4])),

@@ -1,23 +1,25 @@
 Function: lfunartin
 Section: l_functions
 C-Name: lfunartin
-Prototype: GGGL
-Help: lfunartin(nf,gal,M,n): returns the Ldata structure attached to the
- Artin L-function attached to the representation R of the Galois group
- of the extension K/Q, defined over the cyclotomic field Q(zeta_n),
- where nf is the nfinit structure attached to K,
- gal is the galoisinit structure attached to K/Q, and M is the vector
- of the image of the generators G.gen by R. The elements of M are matrices
- with polynomial entries, whose variable is understood as the complex
- number exp(2*I*Pi/n).
+Prototype: GGGLb
+Help: lfunartin(nf,gal,rho,n): returns the Ldata structure attached to the
+ Artin L-function attached to the representation rho of the Galois group of the
+ extension K/Q, defined over the cyclotomic field Q(zeta_n), where nf is the
+ nfinit structure attached to K, gal is the galoisinit structure attached to
+ K/Q, and rho is given either by the value its character on the conjugacy
+ classes or by the matrices that are the images of the generators. Cyclotomic
+ numbers in rho are represented by polynomials, whose variable is understood as
+ the complex number exp(2*I*Pi/n).
 Doc: returns the \kbd{Ldata} structure attached to the
  Artin $L$-function attached to the representation $\rho$ of the Galois group
  of the extension $K/\Q$, defined over the cyclotomic field $\Q(\zeta_n)$,
  where \var{nf} is the nfinit structure attached to $K$,
- \var{gal} is the galoisinit structure attached to $K/\Q$, and $M$ is
- the vector of the image of the generators \kbd{\var{gal}.gen} by $\rho$.
- The elements of $M$ are matrices with polynomial entries, whose variable
- is understood as the complex number $\exp(2\*i\*\pi/n)$.
+ \var{gal} is the galoisinit structure attached to $K/\Q$, and \var{rho} is
+ given either by the value its character on the conjugacy classes
+ (see \kbd{galoisconjclasses} and \kbd{galoischartable}) or by the matrices
+ that are the images of the generators \kbd{\var{gal}.gen}.
+ Cyclotomic numbers in rho are represented by polynomials, whose variable is
+ understood as the complex number $\exp(2\*i\*\pi/n)$.
 
  In the following example we build the Artin $L$-functions attached to the two
  irreducible degree $2$ representations of the dihedral group $D_{10}$ defined
@@ -29,17 +31,18 @@ Doc: returns the \kbd{Ldata} structure attached to the
  ? P = quadhilbert(-47);
  ? N = nfinit(nfsplitting(P));
  ? G = galoisinit(N);
- ? L1 = lfunartin(N,G, [[a,0;0,a^-1],[0,1;1,0]], 5);
- ? L2 = lfunartin(N,G, [[a^2,0;0,a^-2],[0,1;1,0]], 5);
+ ? [T,n] = galoischartable(G);
+ ? L1 = lfunartin(N,G, T[,3], n);
+ ? L2 = lfunartin(N,G, T[,4], n);
  ? s = 1 + x + O(x^4);
  ? lfun(1,s)*lfun(-47,s)*lfun(L1,s)^2*lfun(L2,s)^2 - lfun(N,s)
  %6 ~ 0
  ? lfun(1,s)*lfun(L1,s)*lfun(L2,s) - lfun(P,s)
  %7 ~ 0
  ? bnr = bnrinit(bnfinit(x^2+47),1,1);
- ? lfun([bnr,[1]], s) - lfun(L1, s)
+ ? lfun([bnr,[2]], s) - lfun(L1, s)
  %9 ~ 0
- ? lfun([bnr,[1]], s) - lfun(L1, s)
+ ? lfun([bnr,[1]], s) - lfun(L2, s)
  %10 ~ 0
  @eprog
  The first identity is the factorisation of the regular representation of

@@ -1672,49 +1672,72 @@ galois_get_conj(GEN G)
   return NULL;
 }
 
+static GEN  cyclotoi(GEN v) { return simplify_shallow(lift_shallow(v)); }
+static long cyclotos(GEN v) { return gtos(cyclotoi(v)); }
+static long char_dim(GEN ch) { return cyclotos(gel(ch,1)); }
+
 static GEN
-artin_gamma(GEN N, GEN G, GEN R)
+artin_gamma(GEN N, GEN G, GEN ch)
 {
-  long a, t, d = lg(gel(R,1))-1;
-  GEN T;
+  long a, t, d = char_dim(ch);
   if (nf_get_r2(N) == 0) return vec01(d, 0);
   a = galois_get_conj(G)[1];
-  T = lift_shallow( gtrace(gel(R,a)) );
-  t = itos(simplify_shallow(T));
+  t = cyclotos(gel(ch,a));
   return vec01((d+t) / 2, (d-t) / 2);
 }
 
-static GEN
-artin_codim(GEN J, GEN R)
+static long
+artin_dim(GEN ind, GEN ch)
 {
-  pari_sp av = avma;
-  long k, l, lJ = lg(J);
-  GEN z, v = cgetg(lJ, t_VEC);
-
-  for (l = 1; l < lJ; ++l) gel(v,l) = ker(gsubgs(gel(R, gel(J,l)[1]), 1));
-  z = gel(v,1); for (k = 2; k < lJ; ++k) z = intersect(z, gel(v,k));
-  return gerepilecopy(av, z);
+  long n = lg(ch)-1;
+  GEN elts = group_elts(ind, n);
+  long i, d = lg(elts)-1;
+  GEN s = gen_0;
+  for(i=1; i<=d; i++)
+    s = gadd(s, gel(ch, gel(elts,i)[1]));
+  return gtos(gdivgs(cyclotoi(s), d));
 }
 
 static GEN
-artin_ram(GEN N, GEN G, GEN pr, GEN ramg, GEN R, GEN ss)
+artin_ind(GEN elts, GEN ch, GEN p)
+{
+  long i, d = lg(elts)-1;
+  GEN s = gen_0;
+  for(i=1; i<=d; i++)
+    s = gadd(s, gel(ch, gmul(gel(elts,i),p)[1]));
+  return gdivgs(s, d);
+}
+
+static GEN
+artin_ram(GEN nf, GEN gal, GEN pr, GEN ramg, GEN ch, long d)
 {
   pari_sp av = avma;
-  GEN c, S, Q;
-  if (lg(ss)==1) return gen_1;
-
-  Q = idealramfrobenius(N, G, pr, ramg);
-  S = gel(R, Q[1]);
-  c = RgX_recip(charpoly(gdiv(gmul(S, ss), ss), 0));
-  return gerepilecopy(av, c);
+  long i, v, n;
+  GEN p, q, V, elts;
+  if (d==0) return pol_1(0);
+  n = degpol(gal_get_pol(gal));
+  q = p = idealramfrobenius(nf, gal, pr, ramg);
+  elts = group_elts(gel(ramg,2), n);
+  v = fetch_var_higher();
+  V = cgetg(d+3, t_POL);
+  V[1] = evalsigne(1)|evalvarn(v);
+  gel(V,2) = gen_0;
+  for(i=1; i<=d; i++)
+  {
+    gel(V,i+2) = gdivgs(artin_ind(elts, ch, q), -i);
+    q = gmul(q, p);
+  }
+  delete_var();
+  V = RgXn_exp(V,d+1);
+  setvarn(V,0); return gerepilecopy(av,V);
 }
 
 /* [Artin conductor, vec of [p, Lp^(-1)]] */
 static GEN
-artin_badprimes(GEN N, GEN G, GEN R)
+artin_badprimes(GEN N, GEN G, GEN ch)
 {
   pari_sp av = avma;
-  long i, d = lg(gel(R,1))-1;
+  long i, d = char_dim(ch);
   GEN P = gel(absZ_factor(nf_get_disc(N)), 1);
   long lP = lg(P);
   GEN B = cgetg(lP, t_VEC), C = cgetg(lP, t_VEC);
@@ -1725,17 +1748,17 @@ artin_badprimes(GEN N, GEN G, GEN R)
     GEN J = idealramgroups(N, G, pr);
     GEN G0 = gel(J,2); /* inertia group */
     long lJ = lg(J);
-    GEN sdec = artin_codim(gel(G0,1), R);
+    long sdec = artin_dim(G0, ch);
     long ndec = group_order(G0);
-    long j, v = ndec * (d + 1 - lg(sdec));
+    long j, v = ndec * (d - sdec);
     for (j = 3; j < lJ; ++j)
     {
       GEN Jj = gel(J, j);
-      GEN ss = artin_codim(gel(Jj, 1), R);
-      v += group_order(Jj) * (d + 1 - lg(ss));
+      long s = artin_dim(Jj, ch);
+      v += group_order(Jj) * (d - s);
     }
     gel(C, i) = powiu(p, v/ndec);
-    gel(B, i) = mkvec2(p, artin_ram(N, G, pr, J, R, sdec));
+    gel(B, i) = mkvec2(p, artin_ram(N, G, pr, J, ch, sdec));
   }
   return gerepilecopy(av, mkvec2(ZV_prod(C), B));
 }
@@ -1769,29 +1792,160 @@ vecan_artin(GEN an, long L, long prec)
 {
   struct dir_artin d;
   GEN A, Sbad = gel(an,5);
-  long n = itos(gel(an,6));
+  long n = itos(gel(an,6)), isreal = lg(an)<8 ? 0: !itos(gel(an,7));
   d.N = gel(an,1); d.G = gel(an,2); d.V = gel(an,3); d.aut = gel(an,4);
   A = lift_shallow(direuler_bad(&d, dirartin, gen_2, stoi(L), NULL, Sbad));
-  return RgXV_RgV_eval(A, grootsof1(n, prec));
+  A = RgXV_RgV_eval(A, grootsof1(n, prec));
+  if (isreal) A = real_i(A);
+  return A;
+}
+
+static GEN
+artin_charpoly1(GEN ch, GEN p)
+{
+  long d = char_dim(ch);
+  long i, v = fetch_var_higher();
+  GEN V, q = p;
+  V = cgetg(d+3, t_POL);
+  V[1] = evalsigne(1)|evalvarn(v);
+  gel(V,2) = gen_0;
+  for(i=1; i<=d; i++)
+  {
+    gel(V,i+2) = gdivgs(gel(ch, q[1]),-i);
+    q = gmul(q, p);
+  }
+  delete_var();
+  V = RgXn_exp(V,d+1);
+  setvarn(V,0); return(V);
+}
+
+static GEN
+artin_charpoly(GEN gal, GEN ch)
+{
+  GEN grp = gal_get_group(gal);
+  long i, l = lg(grp);
+  GEN V = cgetg(l, t_VEC);
+  for (i = 1; i < l; i++)
+    gel(V,mael(grp,i,1)) = ginv(artin_charpoly1(ch, gel(grp,i)));
+  return V;
+}
+
+static GEN
+char_expand(GEN conj, GEN ch)
+{
+  long i, l = lg(conj), nc = lg(ch)-1;
+  GEN V = cgetg(l, t_VEC);
+  for (i=1; i<l; i++)
+  {
+    long ci = conj[i];
+    if (ci > nc) pari_err_DIM("lfunartin");
+    gel(V,i) = gel(ch, ci);
+  }
+  return V;
+}
+
+static GEN
+rep_to_char(GEN R)
+{
+  long i, l = lg(R);
+  GEN V = cgetg(l, t_VEC);
+  for (i=1; i<l; i++)
+    gel(V,i) = gtrace(gel(R,i));
+  return V;
+}
+
+static GEN
+handle_zeta(long n, GEN ch, long *m)
+{
+  GEN c;
+  long t, i, l = lg(ch);
+  GEN dim = cyclotoi(vecsum(ch));
+  if (typ(dim) != t_INT)
+    pari_err_DOMAIN("lfunartin","chi","is not a", strtoGENstr("character"), ch);
+  t = itos(dim);
+  if (t < 0 || t % n)
+    pari_err_DOMAIN("lfunartin","chi","is not a", strtoGENstr("character"), ch);
+  if (t == 0) { *m = 0; return ch; }
+  *m = t / n;
+  c = cgetg(l, t_VEC);
+  for (i=1; i<l; i++)
+    gel(c,i) = gsubgs(gel(ch,i), *m);
+  return c;
+}
+
+static int
+cyclo_is_real(GEN v, GEN ix)
+{
+  pari_sp av = avma;
+  int s = gequal(poleval(lift_shallow(v), ix), v);
+  avma = av; return s;
+}
+
+static int
+char_is_real(GEN ch, GEN mod)
+{
+  long i, l = lg(ch);
+  GEN ix = QXQ_inv(pol_x(varn(mod)), mod);
+  for (i=1; i<l; i++)
+    if (!cyclo_is_real(gel(ch,i), ix))
+      return 0;
+  return 1;
+}
+
+static GEN
+galois_elts_sorted(GEN gal)
+{
+  GEN elts = gal_get_group(gal);
+  long i, l = lg(elts);
+  GEN v = cgetg(l, t_VEC);
+  for(i=1; i<l; i++)
+    gel(v, mael(elts,i,1)) = gel(elts,i);
+  return v;
 }
 
 GEN
-lfunartin(GEN N, GEN G, GEN M, long o)
+lfunartin(GEN nf, GEN gal, GEN ch, long o, long bitprec)
 {
   pari_sp av = avma;
-  GEN bc, R, V, aut, Ldata;
-  long i, l;
-  N = checknf(N);
-  checkgal(G);
-  if (!is_vec_t(typ(M))) pari_err_TYPE("lfunartin",M);
-  M = gmul(M, mkpolmod(gen_1, polcyclo(o, gvar(M))));
-  R = artin_repfromgens(G,M);
-  bc = artin_badprimes(N,G,R);
-  l = lg(R); V = cgetg(l, t_VEC);
-  for (i=1; i < l; i++) gel(V,i) = ginv( RgX_recip(carberkowitz(gel(R,i),0)) );
-  aut = nfgaloispermtobasis(N, G);
-  Ldata = mkvecn(6, tag(mkcol6(N, G, V, aut, gel(bc,2), stoi(o)), t_LFUN_ARTIN),
-      gen_1, artin_gamma(N, G, R), gen_1, gel(bc,1), gen_0);
+  GEN bc, V, aut, mod, Ldata = NULL;
+  long tmult;
+  nf = checknf(nf);
+  checkgal(gal);
+  if (!is_vec_t(typ(ch))) pari_err_TYPE("lfunartin", ch);
+  if (lg(ch)>1 && typ(gel(ch,1))==t_MAT)
+  {
+    GEN M, R;
+    mod = polcyclo(o, gvar(ch));
+    M = gmul(ch, mkpolmod(gen_1, mod));
+    R = artin_repfromgens(gal, M);
+    ch = rep_to_char(R);
+  }
+  else
+  {
+    GEN conj = groupelts_conjclasses(galois_elts_sorted(gal), NULL);
+    mod = polcyclo(o, gvar(ch));
+    ch = gmul(ch, mkpolmod(gen_1, mod));
+    ch = char_expand(conj, ch);
+  }
+  ch = handle_zeta(nf_get_degree(nf), ch, &tmult);
+  if (!gequal0(ch))
+  {
+    GEN real = char_is_real(ch, mod)? gen_0: gen_1;
+    V = artin_charpoly(gal, ch);
+    bc = artin_badprimes(nf, gal, ch);
+    aut = nfgaloispermtobasis(nf, gal);
+    Ldata = mkvecn(6,
+      tag(mkcoln(7, nf, gal, V, aut, gel(bc, 2), stoi(o), real), t_LFUN_ARTIN),
+      real, artin_gamma(nf, gal, ch), gen_1, gel(bc,1), gen_0);
+  }
+  if (tmult==0 && Ldata==NULL) pari_err_TYPE("lfunartin",ch);
+  if (tmult)
+  {
+    long i;
+    if (Ldata==NULL) { Ldata = lfunzeta(); tmult--; }
+    for(i=1; i<=tmult; i++)
+      Ldata = lfunmul(Ldata, gen_1, bitprec);
+  }
   return gerepilecopy(av, Ldata);
 }
 
