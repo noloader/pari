@@ -2233,7 +2233,7 @@ sumlogzeta(GEN ser, GEN s, long N, long vF, long lim, long prec)
 {
   GEN z = gen_0, P = primes_interval(gen_2, utoipos(N));
   long n;
-  for (n = vF; n <= lim; n++)
+  for (n = lim; n >= vF; n--)
   {
     GEN t = sdmob(ser, n);
     if (!gequal0(t)) z = gadd(z, gmul(logzetan(gmulsg(n,s), P, prec), t));
