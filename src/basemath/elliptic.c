@@ -5386,6 +5386,89 @@ elltamagawa(GEN E)
   return gerepileuptoint(av, v);
 }
 
+static GEN
+ellnfembed(GEN E, long prec)
+{
+  pari_sp av = avma;
+  GEN nf = ellnf_get_nf(E);
+  long r1 = nf_get_r1(nf), r2 = nf_get_r2(nf), n = r1+r2;
+  GEN Eb, e, L;
+  long i,j;
+  Eb = cgetg(6, t_VEC);
+  for(i=1;i<=5; i++)
+    gel(Eb, i) = nfeltembed(nf,gel(E, i),NULL);
+  e = cgetg(6, t_VEC);
+  L =  cgetg(n+1, t_VEC);
+  for(i=1; i<=n; i++)
+  {
+    for(j=1;j<=5; j++) gel(e,j) = gmael(Eb,j,i);
+    gel(L,i) = ellinit_Rg(e, i<=r1, prec);
+  }
+  return gerepilecopy(av, L);
+}
+
+static void
+ellnfembed_free(GEN L)
+{
+  long i, n = lg(L)-1;
+  for(i=1; i<=n; i++)
+    obj_free(gel(L,i));
+}
+
+static GEN
+ellnfbsdperiod(GEN E, long prec)
+{
+  pari_sp av = avma;
+  GEN Eb = ellnfembed(E, prec);
+  GEN nf = ellnf_get_nf(E);
+  long r1 = nf_get_r1(nf), r2 = nf_get_r2(nf), n = r1+r2;
+  GEN per = real_1(prec);
+  long i;
+  for(i=1; i<=n; i++)
+  {
+    GEN e = gel(Eb, i);
+    GEN pi = i<=r1 ? gel(ellR_omega(e, prec),1): ellR_area(e, prec);
+    per = mulrr(per, pi);
+  }
+  ellnfembed_free(Eb);
+  return gerepileupto(av, per);
+}
+
+static GEN
+ellnf_bsd(GEN E, long prec)
+{
+  GEN nf  = ellnf_get_nf(E);
+  GEN per = ellnfbsdperiod(E, prec);
+  GEN tam = ellnf_tamagawa(E);
+  GEN tor = gel(elltors(E),1);
+  GEN disc= nf_get_disc(nf);
+  return divrr(divri(mulri(per, tam),sqri(tor)),gsqrt(absi(disc),prec));
+}
+
+static GEN
+ellQ_bsd(GEN E, long prec)
+{
+  GEN per = gel(ellR_omega(E, prec),1);
+  GEN tam = ellQ_tamagawa(E);
+  GEN tor = gel(elltors(E),1);
+  return divri(mulri(per, tam),sqri(tor));
+}
+
+GEN
+ellbsd(GEN E, long prec)
+{
+  pari_sp av = avma;
+  GEN v;
+  checkell(E);
+  switch(ell_get_type(E))
+  {
+    default: pari_err_TYPE("ellbsd",E);
+    case t_ELL_Q:  v = ellQ_bsd(E, prec);  break;
+    case t_ELL_NF: v = ellnf_bsd(E, prec); break;
+  }
+  return gerepileupto(av, v);
+}
+
 /********************************************************************/
 /**                                                                **/
 /**           ROOT NUMBER (after Halberstadt at p = 2,3)           **/

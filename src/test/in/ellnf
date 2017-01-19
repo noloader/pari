@@ -83,15 +83,18 @@ E = ellinit([1, -1, 0, -3*a, -3*a + 3],K);
 idealnorm(K,ellglobalred(E)[1])
 elltamagawa(E)
 elltors(E)
+ellbsd(E)
 
 K = nfinit(a^2 - a - 22);
 E = ellinit([0, 0, 1, -1590*a - 8580, 92750*a + 359875],K);
 idealnorm(K,ellglobalred(E)[1])
 elltamagawa(E)
 elltors(E)
+ellbsd(E)
 
 K = nfinit(a^3 - a^2 + 1);
 E = ellinit([a + 1, -a^2 - a - 1, a^2 + a, -a^2, -a^2 + 1],K);
 idealnorm(K,ellglobalred(E)[1])
 elltamagawa(E)
 elltors(E)
+ellbsd(E)

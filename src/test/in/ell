@@ -369,9 +369,11 @@ ellrootno(E,2)
 
 E.disc
 elltamagawa(E)
+ellbsd(E)
 E=ellinit([1,0,1,4,-6]);
 E.disc
 elltamagawa(E)
+ellbsd(E)
 
 \\#1558
 ellap(ellinit([-1137195,489565862]),2038074751)

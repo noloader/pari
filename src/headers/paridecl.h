@@ -2618,6 +2618,7 @@ GEN     ellR_roots(GEN E, long prec);
 GEN     elladd(GEN e, GEN z1, GEN z2);
 GEN     ellap(GEN e, GEN p);
 long    ellap_CM_fast(GEN E, ulong p, long CM);
+GEN     ellbsd(GEN e, long prec);
 GEN     ellcard(GEN E, GEN p);
 GEN     ellchangecurve(GEN e, GEN ch);
 GEN     ellchangeinvert(GEN w);

@@ -78,6 +78,7 @@ HC   26- new GP function zetahurwitz
 VD   29- [libpari] forperm_init, forperm_next, forperm, forallsubset_init,
          forallsubset_next, forksubset_init, forksubset_next, forsubset
      30- [libpari] lindep_bit
+BA   31- new GP function ellbsd
 
   Changed
       1- rewrite bnfnarrow
