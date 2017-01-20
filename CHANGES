@@ -110,6 +110,7 @@ HC   16- sumnummonieninit(a) for [a,a] did not conform to documentation.
          and G.gen is now always defined. ]
      23- let ellsea call the generic algorithm when q <= 523 to avoid an oo-loop
      24- sqrtnr algorithm (Newton iteration instead of exp(log(x)/n)
+BA   25- quadgen/quadunit: allow to specify the variable name instead of w.
 
   Removed
       1- file 'MACHINES' (no longer maintained)

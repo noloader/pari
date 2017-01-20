@@ -286,10 +286,10 @@ QFB
 QUAD
 .disc: -4
 .fu: []
-.mod: x^2 + 1
-.pol: x^2 + 1
+.mod: w^2 + 1
+.pol: w^2 + 1
 .tu: [4, w]
-.zk: [1, x]
+.zk: [1, w]
 PRID
 .e: 1
 .f: 1
@@ -333,4 +333,4 @@ BID (nogen)
 
 [  0   0 1/6]
 
-Total time spent: 49
+Total time spent: 32

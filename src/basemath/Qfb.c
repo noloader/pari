@@ -83,6 +83,13 @@ GEN
 quadgen(GEN x)
 { retmkquad(quadpoly(x), gen_0, gen_1); }
 
+GEN
+quadgen0(GEN x, long v)
+{
+  if (v==-1) v = fetch_user_var("w");
+  retmkquad(quadpoly0(x, v), gen_0, gen_1);
+}
+
 /***********************************************************************/
 /**                                                                   **/
 /**                      BINARY QUADRATIC FORMS                       **/

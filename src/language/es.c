@@ -2846,7 +2846,8 @@ bruti_intern(GEN g, pariout_t *T, outString *S, int addsign)
       break;
 
     case t_COMPLEX: case t_QUAD: r = (tg==t_QUAD);
-      a = gel(g,r+1); b = gel(g,r+2); v = r? "w": "I";
+      a = gel(g,r+1); b = gel(g,r+2);
+      v = r ? get_var(varn(gel(g,1)), buf): "I";
       if (isnull(a))
       {
         wr_lead_monome(T,S,b,v,1,addsign);

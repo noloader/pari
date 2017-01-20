@@ -4595,6 +4595,15 @@ quadunit(GEN x)
 }
 
 GEN
+quadunit0(GEN x, long v)
+{
+  GEN y = quadunit(x);
+  if (v==-1) v = fetch_user_var("w");
+  setvarn(gel(y,1), v);
+  return y;
+}
+
+GEN
 quadregulator(GEN x, long prec)
 {
   pari_sp av = avma, av2;
