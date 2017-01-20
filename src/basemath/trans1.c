@@ -1779,7 +1779,11 @@ sqrtnr_abs(GEN a, long n)
     z = divrr(y, addrr(mulur(n1, y), mulur(n2, b)));
     shiftr_inplace(z,1);
     x = mulrr(x, subsr(1,z));
-    if (3*expo(y) < -B) return gerepileuptoleaf(av, x);
+    if (3*expo(y) < -B)
+    {
+      if (realprec(x) < prec) x = rtor(x,prec); /* can occur, e.g. 8^(1/3) */
+      return gerepileuptoleaf(av, x);
+    }
     eold = enew;
   }
 }
