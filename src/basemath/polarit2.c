@@ -624,7 +624,7 @@ factor(GEN x)
         default:
         {
           GEN w;
-          long killv, t1, t2;
+          long killv, t1, t2, v2 = varn(pol);
           x = leafcopy(x); lx=lg(x);
           pol = leafcopy(pol);
           v = pari_var_next_temp();
@@ -654,6 +654,7 @@ factor(GEN x)
             default: pari_err_IMPL("factor for general polynomial");
               return NULL; /* LCOV_EXCL_LINE */
           }
+          if (killv) setvarn(pol, v2);
           switch (t1)
           {
             case t_POLMOD:
