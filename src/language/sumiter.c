@@ -1549,7 +1549,7 @@ limit_init(struct limit *L, void *E, GEN (*f)(void*,GEN,long),
 
   if (muli <= 0) muli = 20;
   L->N = N = (long)ceil((f? fun_getmf(muli): vec_getmf(muli)) * bitprec);
-  L->prec = nbits2prec(bitprec + (long)ceil(1.83*N));
+  L->prec = nbits2prec(bitprec + (long)ceil(1.844*N));
   L->prec0 = prec;
   L->u = get_u(E, f, N, muli, L->prec);
   if (alpha && gequal1(alpha)) alpha = NULL;
