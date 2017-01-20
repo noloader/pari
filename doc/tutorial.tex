@@ -640,15 +640,13 @@ a base field, usually $\Q$. It is a generalization of the type
 ``complex''. To start, we must specify which quadratic field we want to work
 in. For this, we use the function \kbd{quadgen} applied to the
 \emph{discriminant} \kbd{d} (as opposed to the radicand) of the quadratic
-field. This returns a number (always printed as \kbd{w}) equal to
+field. This returns a number equal to
 $(\kbd{d}+a) / 2$ where $a$ is equal to 0 or 1 according to whether \kbd{d} is
-even or odd. The behavior of \kbd{quadgen} is a little special: although its
-result is always printed as \kbd{w}, the variable \kbd{w} itself is not set
-to that value. Hence it is necessary to write systematically
-\kbd{w = quadgen(d)} using the variable name \kbd{w} (or \kbd{w1} etc. if you
-have several quadratic fields), otherwise things will get confusing.
+even or odd. The function \kbd{quadgen} take an extra parameter which is how
+the number will be printed. To avoid confusion, this number should be
+set to a variable of the same name, i.e. do \kbd{w = quadgen(d, 'w)}.
 
-So type \kbd{w = quadgen(-163)}, then \kbd{charpoly(w)} which asks for the
+So type \kbd{w = quadgen(-163,'w)}, then \kbd{charpoly(w)} which asks for the
 characteristic polynomial of \kbd{w}. The result shows what \kbd{w} will
 represent. You may ask for \kbd{1.*w} to see which root of the quadratic has
 been taken, but this is rarely necessary. We can now play in the field
@@ -675,7 +673,7 @@ algebraic extensions, for example elements of number fields (if the base
 field is $\Q$), or elements of finite fields (if the base field is
 $\Z/p\Z$ for a prime $p$). In a sense it is a generalization of the type
 quadratic number. The syntax used is the same as for intmods. For example,
-instead of typing \kbd{w = quadgen(-163)}, you can type
+instead of typing \kbd{w = quadgen(-163,'w)}, you can type
 \bprog
   w = Mod(x, quadpoly(-163))
 @eprog\noindent
@@ -687,7 +685,7 @@ time.) Of course, you can work in any degree, not only quadratic. For the
 latter, the corresponding elementary operations will be slower than
 with quadratic numbers. Start the timer, then compare
 \bprog
-  w = quadgen(-163); W = Mod(x, quadpoly(-163));
+  w = quadgen(-163,'w); W = Mod(x, quadpoly(-163));
   a = 2 + w;         A = 2 + W;
   b = 3 + w;         B = 3 + W;
   for (i=1,10^5, a+b)
@@ -1779,17 +1777,16 @@ maximal with \kbd{isfundamental(D)}. Elements of a quadratic field are of the
 form $a+b\omega$, where $\omega$ is chosen as $\sqrt{D}/2$ if $D$ is even and
 $(1+\sqrt{D})/2$ if $D$ is odd, and are represented in PARI by quadratic
 numbers. To initialize working in a quadratic order, one starts by the
-command \kbd{w = quadgen($D$)}.
+command \kbd{w = quadgen($D$,'w)}.
 
-This sets \kbd{w} equal to $\omega$ as above, and is printed \kbd{w}. Note
-however that if several different quadratic orders are used, a printed \kbd{w}
-may have several different meanings. For example if you type
+This sets \kbd{w} equal to $\omega$ as above, and is printed \kbd{w}.
+If you need several quadratic orders at the same time, you can
+use different variable names:
 \bprog
-  w1 = quadgen(-23)
-  w2 = quadgen(-15)
+  w1 = quadgen(-23,'w1)
+  w2 = quadgen(-15,'w1)
 @eprog\noindent
-both will be printed as \kbd{w}, but of course they are not equal. Hence
-beware when dealing with several quadratic orders at once. \smallskip
+\smallskip
 %
 In addition to elements of a quadratic order, we also want to be able to
 handle ideals of such orders. In the quadratic case, it is equivalent to

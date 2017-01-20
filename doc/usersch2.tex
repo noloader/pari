@@ -512,16 +512,16 @@ This type is used to work in the quadratic order of \emph{discriminant}
 \kbd{d}, where \kbd{d} is a non-square integer congruent to $0$ or $1$
 (modulo $4$). The command
 \bprog
-    w = quadgen(d)
+    w = quadgen(d,'w)
 @eprog\noindent
 assigns to \kbd{w} the ``canonical'' generator for the integer basis
 of the order of discriminant $d$, i.e.~$w=\sqrt{d}/2$ if $d\equiv 0 \mod 4$,
-and $w=(1+\sqrt{d})/2$ if $d\equiv 1 \mod 4$. The name \kbd{w} is of course
-just a suggestion, but corresponds to traditional usage. You can use any
-variable name that you like, but \kbd{quadgen(d)} is always printed as
-\kbd{w}, regardless of the discriminant. So beware, two \typ{QUAD}s can be
-printed in the same way and not be equal; however, \kbd{gp} will refuse to add
-or multiply them for example.
+and $w=(1+\sqrt{d})/2$ if $d\equiv 1 \mod 4$ and set its name to \kbd{w}.
+The name \kbd{'w} is used for printing and we advise to store it in a variable
+of the same name.
+Beware, two \typ{QUAD}s with different discriminants can be printed in the same
+way and not be equal; however, \kbd{gp} will refuse to add or multiply them for
+example, so use different names for different discriminants.
 
 Since the order is $\Z + \kbd{w}\Z$, any other element can be input
 as \kbd{z = $x$+$y$*w} for some integers $x$ and $y$. In fact, you may work in
