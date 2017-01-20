@@ -2223,7 +2223,7 @@ sdmob(GEN ser, long n)
 static GEN
 logzetan(GEN s, GEN P, long prec)
 {
-  GEN negs = gneg(s), Z = gzeta(s, prec);
+  GEN negs = gneg(s), Z = gzeta(gprec_w(s,prec), prec);
   long i, l = lg(P);
   for (i = 1; i < l; i++) Z = gmul(Z, gsubsg(1, gpow(gel(P,i), negs, prec)));
   return glog(Z, prec);
@@ -2236,7 +2236,12 @@ sumlogzeta(GEN ser, GEN s, long N, long vF, long lim, long prec)
   for (n = lim; n >= vF; n--)
   {
     GEN t = sdmob(ser, n);
-    if (!gequal0(t)) z = gadd(z, gmul(logzetan(gmulsg(n,s), P, prec), t));
+    if (!gequal0(t))
+    {
+      long e = gexpo(t), prec2 = e <= 0? prec: prec + nbits2prec(e);
+      z = gadd(z, gmul(logzetan(gmulsg(n,s), P, prec2), t));
+      z = gprec_w(z, prec);
+    }
   }
   return z;
 }
