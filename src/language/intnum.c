@@ -1720,24 +1720,24 @@ GEN
 sumnuminit(GEN fast, long prec)
 {
   pari_sp av;
-  GEN s, v, d, C, D, res = cgetg(6, t_VEC);
+  GEN s, v, d, C, res = cgetg(6, t_VEC);
   long bitprec = prec2nbits(prec), N, k, k2, m;
   double w;
 
-  d = mkfrac(gen_1, utoipos(4)); /* 1/4 */
-  gel(res, 1) = d;
+  gel(res, 1) = d = mkfrac(gen_1, utoipos(4)); /* 1/4 */
   av = avma;
   w = gtodouble(glambertW(ginv(d), LOWDEFAULTPREC));
   N = (long)ceil(LOG2*bitprec/(w*(1+w))+5);
   k = (long)ceil(N*w); if (k&1) k--;
 
   prec += EXTRAPRECWORD;
+  d = real2n(-2, prec);
   s = RgX_to_ser(monomial(d,1,0), k+3);
-  s = gdiv(gasinh(s, prec), d); /* asinh(dx)/d */
-  s = gsub(ginv(gsubgs(gexp(s,prec), 1)), ginv(s));
+  s = gmul2n(gasinh(s, prec), 2); /* asinh(dx)/d */
+  gel(s, 2) = gen_1;
+  s = gsub(ser_inv(gexpm1(s,prec)), ser_inv(s));
   k2 = k/2;
   C = matpascal(k-1);
-  D = gpowers(ginv(gmul2n(d,1)), k-1);
   v = cgetg(k2+1, t_VEC);
   for (m = 1; m <= k2; m++)
   {
@@ -1745,8 +1745,9 @@ sumnuminit(GEN fast, long prec)
     GEN S = real_0(prec);
     long j;
     for (j = m; j <= k2; j++)
-    { /* s[X^(2j-1)] * binomial(2*j-1, j-m) / (2d)^(2j-1) */
-      GEN t = gmul(gmul(gel(s,2*j+1), gcoeff(C, 2*j,j-m+1)), gel(D, 2*j));
+    { /* s[X^(2j-1)] * binomial(2*j-1, j-m) / (2d)^(2j-1), d = 1/4 */
+      GEN t = gmul(gel(s,2*j+1), gcoeff(C, 2*j,j-m+1));
+      t = gmul2n(t, 2*j-1);
       S = odd(j)? gsub(S,t): gadd(S,t);
     }
     if (odd(m)) S = gneg(S);
