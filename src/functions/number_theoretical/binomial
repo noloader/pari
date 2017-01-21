@@ -19,9 +19,3 @@ Doc: \idx{binomial coefficient} $\binom{x}{k}$.
  ? binomial(4)
  %3 = [1, 4, 6, 4, 1]
  @eprog
-
-Variant: The function
- \fun{GEN}{binomialuu}{ulong n, ulong k} is also available, and so is
- \fun{GEN}{vecbinomial}{long n}, which returns a vector $v$
- with $n+1$ components such that $v[k+1] = \kbd{binomial}(n,k)$ for $k$ from
- $0$ up to $n$.

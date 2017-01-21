@@ -10864,6 +10864,16 @@ copy of $|x|$, in particular returns $x$ itself when $x \geq 0$, and
 
 \fun{GEN}{sqrfrac}{GEN x} returns the square of the \typ{FRAC} $x$.
 
+\section{Binomials}
+
+\fun{GEN}{binomial}{GEN x, long k}
+
+\fun{GEN}{binomialuu}{ulong n, ulong k}
+
+\fun{GEN}{vecbinomial}{long n}, which returns a vector $v$ with $n+1$
+\typ{INT} components such that $v[k+1] = \kbd{binomial}(n,k)$ for $k$ from
+$0$ up to $n$.
+
 \section{Real numbers}
 
 \fun{GEN}{R_abs}{GEN x} $x$ being a \typ{INT}, a \typ{REAL} or a
