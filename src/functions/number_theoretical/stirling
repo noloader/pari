@@ -26,6 +26,16 @@ Doc: \idx{Stirling number} of the first kind $s(n,k)$ ($\fl=1$, default) or
  { my(Q = x^(n-1), t);
    vector(n, i, t = divrem(Q, x-i); Q=t[1]; simplify(t[2]));
  }
+
+ /* Bell numbers, B_n = B[n+1] = sum(k = 0, n, S(n,k)), n = 0..N */
+ vecbell(N)=
+ { my (B = vector(N+1));
+   B[1] = B[2] = 1;
+   for (n = 2, N,
+     my (C = binomial(n-1));
+     B[n+1] = sum(k = 1, n, C[k]*B[k]);
+   ); B;
+ }
  @eprog
 Variant: Also available are \fun{GEN}{stirling1}{ulong n, ulong k}
  ($\fl=1$) and \fun{GEN}{stirling2}{ulong n, ulong k} ($\fl=2$).
