@@ -30,37 +30,37 @@ forallsubset_init(forsubset_t *T, long n)
   T->v = vecsmalltrunc_init(n + 1);
 }
 
-int
+GEN
 forksubset_next(forsubset_t *T)
 {
   GEN v = T->v;
   long i, n = T->n, k = T->k;
 
-  if (k == 0 || k == n) return 0;
+  if (k == 0 || k == n) return NULL;
 
-  if (v[k] < n) { v[k]++; return 1; }
+  if (v[k] < n) { v[k]++; return v; }
   for (i = k - 1; i >= 1 && v[i+1] == v[i] + 1; i--);
-  if (i == 0) return 0;
+  if (i == 0) return NULL;
 
   v[i]++;
   for (; i < k; i++) v[i+1] = v[i] + 1;
-  return 1;
+  return v;
 }
 
-int
+GEN
 forallsubset_next(forsubset_t *T)
 {
   long i;
 
-  if (forksubset_next(T)) return 1;
+  if (forksubset_next(T)) return T->v;
   else if (T->k < T->n)
   {
     (T->k)++;
     setlg(T->v, T->k+1);
     for (i = 1; i <= T->k; i++) (T->v)[i] = i;
-    return 1;
+    return T->v;
   }
-  return 0;
+  return NULL;
 }
 
 void
