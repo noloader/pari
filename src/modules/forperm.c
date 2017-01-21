@@ -21,10 +21,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 void
 forperm_init(forperm_t *T, long k)
 {
-  long i;
   T->k = k;
-  T->v = zero_zv(k);
-  for(i = 1; i <= k; i++) (T->v)[i] = i;
+  T->v = identity_perm(k);
 }
 
 int
