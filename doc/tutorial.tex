@@ -642,7 +642,7 @@ in. For this, we use the function \kbd{quadgen} applied to the
 \emph{discriminant} \kbd{d} (as opposed to the radicand) of the quadratic
 field. This returns a number equal to
 $(\kbd{d}+a) / 2$ where $a$ is equal to 0 or 1 according to whether \kbd{d} is
-even or odd. The function \kbd{quadgen} take an extra parameter which is how
+even or odd. The function \kbd{quadgen} takes an extra parameter which is how
 the number will be printed. To avoid confusion, this number should be
 set to a variable of the same name, i.e. do \kbd{w = quadgen(d, 'w)}.
 
@@ -2027,7 +2027,7 @@ although it's a little inefficient. Indeed \kbd{bnfcertify} needs the
 fundamental unit which is so large that \kbd{bnfinit} will have a hard time
 computing it: it needs about $R/\log(10)\approx 1147$ digits of precision!
 (So that it would have given up had we not inserted the flag $1$.)
-See \kbd{bnf.fu}. On the other hand, you can try \kbd{quadunit(D)}.
+See \kbd{bnf.fu}. On the other hand, you can try \kbd{quadunit(D,'w)}.
 Impressive, isn't it? (You can check that its logarithm is indeed equal to
 the regulator.)
 
