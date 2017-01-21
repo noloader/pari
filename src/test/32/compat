@@ -163,8 +163,9 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: bin(x,y) ===> binomial(x,y)
 
-binomial(x,y): binomial coefficient x*(x-1)...*(x-y+1)/y! defined for y in Z 
-and any x.
+binomial(x,{k}): binomial coefficient x*(x-1)...*(x-k+1)/k! defined for k in Z 
+and any x. If k is omitted and x an integer, return the vector 
+[binomial(x,1),...,binomial(x,x)]
 
 
   ***   at top-level: boundcf()
@@ -4564,4 +4565,4 @@ New syntax: texprint(x) ===> printtex(x)
 printtex({str}*): outputs its string arguments in TeX format.
 
 
-Total time spent: 16
+Total time spent: 10

@@ -838,9 +838,21 @@ binomial(GEN n, long k)
   return gerepileupto(av, gdiv(RgV_prod(y), mpfact(k)));
 }
 
+GEN
+binomial0(GEN x, GEN k)
+{
+  if (!k)
+  {
+    if (typ(x) != t_INT || signe(x) < 0) pari_err_TYPE("binomial", x);
+    return vecbinomial(itos(x));
+  }
+  if (typ(k) != t_INT) pari_err_TYPE("binomial", k);
+  return binomial(x, itos(k));
+}
+
 /* Assume n >= 0, return bin, bin[k+1] = binomial(n, k) */
 GEN
-vecbinome(long n)
+vecbinomial(long n)
 {
   long d, k;
   GEN C;

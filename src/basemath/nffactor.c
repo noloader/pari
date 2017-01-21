@@ -645,7 +645,7 @@ nf_Mignotte_bound(GEN nf, GEN polbase)
   long prec = nf_get_prec(nf), n = nf_get_degree(nf), r1 = nf_get_r1(nf);
   long i, j, d = degpol(polbase);
 
-  binlS = bin = vecbinome(d-1);
+  binlS = bin = vecbinomial(d-1);
   if (!isint1(lS)) binlS = ZC_Z_mul(bin,lS);
 
   N2 = cgetg(n+1, t_VEC);
@@ -700,7 +700,7 @@ nf_Beauzamy_bound(GEN nf, GEN polbase)
 {
   GEN lt, C, s, POL, bin;
   long d = degpol(polbase), n = nf_get_degree(nf), prec = nf_get_prec(nf);
-  bin = vecbinome(d);
+  bin = vecbinomial(d);
   POL = polbase + 2;
   /* compute [POL]_2 */
   for (;;)

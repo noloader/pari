@@ -106,7 +106,7 @@ static GEN
 Mignotte_bound(GEN S)
 {
   long i, d = degpol(S);
-  GEN C, N2, t, binlS, lS = leading_coeff(S), bin = vecbinome(d-1);
+  GEN C, N2, t, binlS, lS = leading_coeff(S), bin = vecbinomial(d-1);
 
   N2 = sqrtr(RgX_fpnorml2(S,DEFAULTPREC));
   binlS = is_pm1(lS)? bin: ZC_Z_mul(bin, lS);
@@ -130,7 +130,7 @@ Beauzamy_bound(GEN S)
   const long prec = DEFAULTPREC;
   long i, d = degpol(S);
   GEN bin, lS, s, C;
-  bin = vecbinome(d);
+  bin = vecbinomial(d);
 
   s = real_0(prec);
   for (i=0; i<=d; i++)

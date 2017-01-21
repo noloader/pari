@@ -934,7 +934,7 @@ bernpol_i(long k, long v)
   if (v < 0) v = 0;
   if (k < 0) pari_err_DOMAIN("bernpol", "index", "<", gen_0, stoi(k));
   mpbern(k >> 1, 0); /* cache B_2, ..., B_2[k/2] */
-  C = vecbinome(k);
+  C = vecbinomial(k);
   B = cgetg(k + 3, t_POL);
   for (i = 0; i <= k; ++i) gel(B, k-i+2) = gmul(gel(C,i+1), bernfrac(i));
   B[1] = evalsigne(1) | evalvarn(v);

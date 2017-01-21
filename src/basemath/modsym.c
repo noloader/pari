@@ -3413,7 +3413,7 @@ oms_dim1(GEN W, GEN phi, GEN alpha, long flag)
  * \int (Y - X z)^(k-2) d\mu(z) = P(X,Y)
  * Return the t_VEC of k-1 first moments of \mu: \int z^i d\mu(z), 0<= i < k-1.
  *   \sum_j (-1)^(k-2-j) binomial(k-2,j) Y^j \int z^(k-2-j) d\mu(z) = P(1,Y)
- * Input is P(1,Y), bin = vecbinome(k-2): bin[j] = binomial(k-2,j-1) */
+ * Input is P(1,Y), bin = vecbinomial(k-2): bin[j] = binomial(k-2,j-1) */
 static GEN
 RgX_to_moments(GEN P, GEN bin)
 {
@@ -3497,7 +3497,7 @@ mspadicinit(GEN W, long p, long n, long flag)
   if (flag < 0) flag = 1; /* worst case */
   else if (flag >= k) flag = k-1;
 
-  bin = vecbinome(k-2);
+  bin = vecbinomial(k-2);
   Tp = mshecke(W, p, NULL);
   if (N % p == 0)
   {

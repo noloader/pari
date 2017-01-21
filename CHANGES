@@ -73,6 +73,7 @@ HC   25- new GP functions prodeulerrat, sumeulerrat, sumaltrat, sumnumrat,
          prodnumrat
 HC   26- new GP function zetahurwitz
      27- libpari function sqrtnr_abs
+     28- binomial(x,k): allow omitting k [ => vecbinomial ]
 
   Changed
       1- rewrite bnfnarrow
@@ -111,6 +112,7 @@ HC   16- sumnummonieninit(a) for [a,a] did not conform to documentation.
      23- let ellsea call the generic algorithm when q <= 523 to avoid an oo-loop
      24- sqrtnr algorithm (Newton iteration instead of exp(log(x)/n)
 BA   25- quadgen/quadunit: allow to specify the variable name instead of w.
+     26- [libpari] rename vecbinome -> vecbinomial
 
   Removed
       1- file 'MACHINES' (no longer maintained)

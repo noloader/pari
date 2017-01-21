@@ -1574,7 +1574,7 @@ limit_init(struct limit *L, void *E, GEN (*f)(void*,GEN,long),
   }
   else
   {
-    GEN coef, C = vecbinome(N);
+    GEN coef, C = vecbinomial(N);
     L->coef = coef = cgetg(N+1, t_VEC);
     L->nma = NULL;
     for (n = 1; n <= N; n++)
