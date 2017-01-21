@@ -2046,13 +2046,50 @@ yourself.
   \fun{GEN}{forpart_next}{forpart_t *T} returns the next partition, or
   \kbd{NULL} when all partitions have been exhausted.
 
-  \fun{GEN}{forpart_prev}{forpart_t *T}returns the previous partition, or
+  \fun{GEN}{forpart_prev}{forpart_t *T} returns the previous partition, or
   \kbd{NULL} when all partitions have been exhausted.
 
+  In both cases, the partition must be used or copied before the next call
+  since it is returned from a state array which will be modified in place.
   You may \emph{not} mix calls to \tet{forpart_next} and \tet{forpart_prev}:
   the first one called determines the ordering used to iterate over the
   partitions; you can not go back since the \tet{forpart_t} structure is used
   in incompatible ways.
+
+\item \tet{forperm} to loop over permutations of $k$. See the documentation
+  of the \kbd{forperm} GP function for details. This function is available as
+  a loop with callbacks:
+
+  \fun{void}{forperm}{void *E, long call(void *, GEN), GEN k}
+
+  \noindent It is also available as an iterator:
+
+  \fun{void}{forperm_init}{forperm_t *T, GEN k} initializes an iterator
+  over the permutations of $k$ (\typ{INT}, \typ{VEC} or \typ{VECSMALL}).
+
+  \fun{GEN}{forperm_next}{forperm_t *T} returns the next permutation
+  as a \typ{VECSMALL} or \kbd{NULL} whell all permutations have been
+  exhausted. The permutation must be used or copied before the next call
+  since it is returned from a state array which will be modified in place.
+
+\item \tet{forsubset} to loop over subsets. See the documentation
+  of the \kbd{forsubset} GP function for details. This function
+  is available as two loops with callbacks:
+
+  \fun{void}{forallsubset}{void *E, long call(void *, GEN), long n}
+
+  \fun{void}{forksubset}{void *E, long call(void *, GEN), long n, long k}
+
+  \noindent The two variants are also available as iterators:
+
+  \fun{void}{forallsubset_init}{forsubset_t *T, long n}
+
+  \fun{GEN}{forallsubset_next}{forsubset_t *T} returns the next subset
+  as a \typ{VECSMALL} or \kbd{NULL} when all subsets have been exhausted.
+
+  \fun{void}{forksubset_init}{forsubset_t *T, long n, long k}
+
+  \fun{GEN}{forksubset_next}{forsubset_t *T}
 
 \subsec{Iterating over primes}\label{se:primeiter}
 

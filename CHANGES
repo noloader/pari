@@ -62,7 +62,7 @@ CG   17- new GP function matpermanent [#1860]
          an arbitrary growth rate a_n = O(n^(k_1 + eps))
 BA   20- new GP function vecprod
      21- new GP function znchar
-VD   22- new GP function forperm
+VD   22- new GP functions forperm, forsubset
 PB   23- [libpari] F2xqM_F2xqC_gauss F2xqM_F2xqC_invimage F2xqM_gauss F2xqM_invimage
          FlxqM_FlxqC_invimage FlxqM_invimage
          FqM_FqC_invimage FqM_invimage
@@ -74,6 +74,8 @@ HC   25- new GP functions prodeulerrat, sumeulerrat, sumaltrat, sumnumrat,
 HC   26- new GP function zetahurwitz
      27- libpari function sqrtnr_abs
      28- binomial(x,k): allow omitting k [ => vecbinomial ]
+VD   29- [libpari] forperm_init, forperm_next, forperm, forallsubset_init,
+         forallsubset_next, forksubset_init, forksubset_next, forsubset
 
   Changed
       1- rewrite bnfnarrow

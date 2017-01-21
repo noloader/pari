@@ -80,9 +80,11 @@ GEN  direuler_bad(void *E, GEN (*eval)(void *, GEN), GEN a, GEN b, GEN c, GEN Sb
 void forcomposite(GEN a, GEN b, GEN code);
 void fordiv(GEN a, GEN code);
 void forell0(long a, long b, GEN code, long flag);
+void forperm0(GEN k, GEN code);
 void forprime(GEN a, GEN b, GEN code);
 void forstep(GEN a, GEN b, GEN s, GEN code);
 void forsubgroup0(GEN cyc, GEN bound, GEN code);
+void forsubset0(GEN nk, GEN code);
 void forvec(GEN x, GEN code, long flag);
 void forpart0(GEN k, GEN code , GEN nbound, GEN abound);
 GEN  intcirc0(GEN a, GEN R, GEN code, GEN tab, long prec);

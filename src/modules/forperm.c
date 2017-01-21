@@ -19,40 +19,40 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #include "paripriv.h"
 
 void
-forperm_init(forperm_t *T, long k)
+forperm_init(forperm_t *T, GEN k)
 {
-  T->k = k;
-  T->v = identity_perm(k);
+  switch (typ(k))
+  {
+    case t_INT:
+      if (signe(k) < 0) pari_err_DOMAIN("forperm", "a", "<", gen_0, k);
+      T->v = identity_perm(itou(k)); break;
+    case t_VEC:
+      T->v = vec_to_vecsmall(k); break;
+    case t_VECSMALL:
+      T->v = vecsmall_copy(k); break;
+    default:
+      pari_err_TYPE("forperm", k);
+      return; /* LCOV_EXCL_LINE */
+  }
+  T->k = lg(T->v) - 1;
 }
 
-int
+GEN
 forperm_next(forperm_t *T)
 {
+  long k = T->k, m1, m2, *p, *q;
   GEN v = T->v;
-  long k = T->k;
-  long t, m1, m2;
-  long *p, *q;
 
   for (m1 = k - 1; m1 > 0 && v[m1] >= v[m1 + 1]; m1--);
-  if (m1 <= 0) return 0;
+  if (m1 <= 0) return NULL;
 
   for (m2 = k; v[m1] >= v[m2]; m2--);
 
-  t = v[m1];
-  v[m1] = v[m2];
-  v[m2] = t;
-
+  lswap(v[m1], v[m2]);
   p = v + m1 + 1;
   q = v + k;
-  while (p < q)
-  {
-    t = *p;
-    *p = *q;
-    *q = t;
-    p++;
-    q--;
-  }
-  return 1;
+  while (p < q) { lswap(*p, *q); p++; q--; }
+  return v;
 }
 
 void
@@ -61,31 +61,11 @@ forperm(void *E, long call(void *, GEN), GEN k)
   forperm_t T;
   pari_sp av = avma;
 
-  switch (typ(k))
-  {
-    case t_INT:
-      if (signe(k) < 0) pari_err_DOMAIN("forperm", "a", "<", gen_0, k);
-      forperm_init(&T, itos(k));
-      break;
-    case t_VEC:
-      k = vec_to_vecsmall(k);
-      T.v = vecsmall_copy(k);
-      T.k = lg(k) - 1;
-      break;
-    case t_VECSMALL:
-      T.v = vecsmall_copy(k);
-      T.k = lg(k) - 1;
-      break;
-    default:
-      pari_err_TYPE("forperm", k);
-      return; /* LCOV_EXCL_LINE */
-  }
-
+  forperm_init(&T, k);
   do
   {
     if (call(E, T.v)) break;
   } while (forperm_next(&T));
-
   avma = av;
 }
 
