@@ -1584,7 +1584,9 @@ sumnummonieninit_i(GEN a, GEN b, GEN w, GEN n0, long prec)
   int neg = 1;
   struct mon_w S;
 
-  prec = nbits2prec(maxdd(2*da*bit, bit0));
+  /* 2.05 is heuristic; with 2.03, sumnummonien(n=1,1/n^2) loses
+   * 19 decimals at \p1500 */
+  prec = nbits2prec(maxdd(2.05*da*bit, bit0));
   prec2 = nbits2prec(maxdd(1.3*da*bit, bit0));
   S.w = w;
   S.a = a = gprec_w(a, 2*prec-2);
