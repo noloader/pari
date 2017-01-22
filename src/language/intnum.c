@@ -2055,10 +2055,11 @@ get_kN(long r, long B, long *pk, long *pN)
 static GEN
 sumnumrat_i(GEN F, GEN F0, GEN vF, long prec)
 {
-  long B = prec2nbits(prec), vx = varn(gel(F,2)), j, k, N;
+  long B = prec2nbits(prec), vx, j, k, N;
   GEN S, S1, S2, intf;
   double r;
   if (poldegree(F, -1) > -2) pari_err(e_MISC, "sum diverges in sumnumrat");
+  vx = varn(gel(F,2));
   r = gtodouble(ratpolemax(F));
   get_kN((long)ceil(r), B, &k,&N);
   intf = intnumainfrat(F, N, r, prec);
