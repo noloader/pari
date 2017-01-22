@@ -46,8 +46,7 @@ forperm_next(forperm_t *T)
   for (m1 = k - 1; m1 > 0 && v[m1] >= v[m1 + 1]; m1--);
   if (m1 <= 0) return NULL;
 
-  for (m2 = k; v[m1] >= v[m2]; m2--);
-
+  for (m2 = k; v[m1] >= v[m2]; m2--) /*nothing*/;
   lswap(v[m1], v[m2]);
   p = v + m1 + 1;
   q = v + k;
