@@ -2423,6 +2423,23 @@ Finds a small $e$ such that the rank of $G_e$ is equal to the rank of $G$
 step to speed up LLL reductions, see \tet{nf_get_Gtwist}.
 Suitable for \kbd{gerepileupto}, but does not collect garbage.
 
+\subsec{Linear dependencies}
+
+The following functions underly the \kbd{lindep} GP function:
+
+\fun{GEN}{lindep}{GEN v} real/complex entries, guess that about only the
+80\% leading bits of the input are correct.
+
+\fun{GEN}{lindep_bit}{GEN v, long b} real/complex entries, explicit form of the
+above: multiply the input by $2^b$ and round to nearest before looking for a
+linear dependency.
+
+\fun{GEN}{padic_lindep}{GEN v} $p$-adic entries.
+
+\fun{GEN}{Xadic_lindep}{GEN v} polynomial entries.
+
+\fun{GEN}{deplin}{GEN v} returns a non-zero kernel vector for a \typ{MAT} input.
+
 \subsec{Reduction modulo matrices}
 
 \fun{GEN}{ZC_hnfremdiv}{GEN x, GEN y, GEN *Q} assuming $y$ is an

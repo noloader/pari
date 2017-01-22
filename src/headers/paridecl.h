@@ -2206,6 +2206,7 @@ void    forqfvec0(GEN a, GEN BORNE, GEN code);
 GEN     gaussred_from_QR(GEN x, long prec);
 GEN     lindep0(GEN x, long flag);
 GEN     lindep(GEN x);
+GEN     lindep_bit(GEN x, long bit);
 GEN     lindep2(GEN x, long bit);
 GEN     mathouseholder(GEN Q, GEN v);
 GEN     matqr(GEN x, long flag, long prec);

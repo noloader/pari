@@ -1702,24 +1702,23 @@ RecCoeff2(GEN nf,  RC_data *d,  long prec)
 {
   pari_sp av;
   GEN vec, M = nf_get_M(nf), beta = d->beta;
-  long i, imin, imax, lM = lg(M);
+  long bit, min, max, lM = lg(M);
 
   d->G = minss(-20, -prec2nbits(prec) >> 4);
 
   vec  = shallowconcat(mkvec(gneg(beta)), row(M, d->v));
-  imin = (long)prec2nbits_mul(prec, .225);
-  imax = (long)prec2nbits_mul(prec, .315);
-
+  min = (long)prec2nbits_mul(prec, 0.75);
+  max = (long)prec2nbits_mul(prec, 0.98);
   av = avma;
-  for (i = imax; i >= imin; i-=16, avma = av)
+  for (bit = max; bit >= min; bit-=32, avma = av)
   {
     long e;
-    GEN v = lindep2(vec, i), z = gel(v,1);
+    GEN v = lindep_bit(vec, bit), z = gel(v,1);
     if (!signe(z)) continue;
     *++v = evaltyp(t_COL) | evallg(lM);
     v = grndtoi(gdiv(v, z), &e);
     if (e > 0) break;
-    if (TestOne(gmul(M, v), d)) return v;
+    if (TestOne(RgM_RgC_mul(M, v), d)) return v;
   }
   /* failure */
   return RecCoeff3(nf,d,prec);

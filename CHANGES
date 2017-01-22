@@ -76,6 +76,7 @@ HC   26- new GP function zetahurwitz
      28- binomial(x,k): allow omitting k [ => vecbinomial ]
 VD   29- [libpari] forperm_init, forperm_next, forperm, forallsubset_init,
          forallsubset_next, forksubset_init, forksubset_next, forsubset
+     30- [libpari] lindep_bit
 
   Changed
       1- rewrite bnfnarrow

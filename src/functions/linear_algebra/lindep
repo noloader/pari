@@ -58,10 +58,3 @@ Doc: \sidx{linear dependence} finds a small non-trivial integral linear
  ? v*L
  %2 = t^2+O(t^4)  \\ small but not 0
  @eprog
-
-Variant: Also available are \fun{GEN}{lindep}{GEN v} (real/complex entries,
- $\fl=0$), \fun{GEN}{lindep2}{GEN v, long flag} (real/complex entries)
- \fun{GEN}{padic_lindep}{GEN v} ($p$-adic entries) and
- \fun{GEN}{Xadic_lindep}{GEN v} (polynomial entries).
- Finally \fun{GEN}{deplin}{GEN v} returns a non-zero kernel vector for a
- \typ{MAT} input.

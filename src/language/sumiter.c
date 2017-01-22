@@ -1627,8 +1627,7 @@ asympnum(void *E, GEN (*f)(void *, GEN, long), long muli, GEN alpha, long prec)
   pari_sp av = avma;
   GEN u, vres = vectrunc_init(MAX);
   long i, B = prec2nbits(prec);
-  /* FIXME: heuristic, lindep ignores 20% further bits*/
-  double LB = expu(B) * 0.7;
+  double LB = 0.9*expu(B); /* 0.9 and 0.95 below are heuristic */
   struct limit L;
   limit_init(&L, E,f, muli, alpha, prec);
   if (alpha) LB *= gtodouble(alpha);
@@ -1638,9 +1637,8 @@ asympnum(void *E, GEN (*f)(void *, GEN, long), long muli, GEN alpha, long prec)
     GEN a, s, v, p, q;
     long n;
     s = limitnum_i(&L);
-    /* NOT bestappr: lindep will "properly" ignore the lower bits */
-    s = gprec_wtrunc(s, nbits2prec(maxss((long)floor(B - i*LB), 32)));
-    v = lindep(mkvec2(gen_1, s));
+    /* NOT bestappr: lindep properly ignores the lower bits */
+    v = lindep_bit(mkvec2(gen_1, s), maxss((long)(0.95*floor(B - i*LB)), 32));
     p = negi(gel(v,1));
     q = gel(v,2);
     if (!signe(q)) break;

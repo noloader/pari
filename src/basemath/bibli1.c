@@ -701,40 +701,25 @@ zncoppersmith(GEN P0, GEN N, GEN X, GEN B)
 /********************************************************************/
 
 static int
-real_indep(GEN re, GEN im, long bitprec)
+real_indep(GEN re, GEN im, long bit)
 {
-  GEN p1 = gsub(gmul(gel(re,1),gel(im,2)),
-                gmul(gel(re,2),gel(im,1)));
-  return (!gequal0(p1) && gexpo(p1) > - bitprec);
+  GEN d = gsub(gmul(gel(re,1),gel(im,2)), gmul(gel(re,2),gel(im,1)));
+  return (!gequal0(d) && gexpo(d) > - bit);
 }
 
 GEN
-lindep2(GEN x, long bit)
+lindep_bit(GEN x, long bit)
 {
-  long tx=typ(x), lx=lg(x), ly, i, j;
+  long lx = lg(x), ly, i, j;
   pari_sp av = avma;
   GEN re, im, M;
 
-  if (! is_vec_t(tx)) pari_err_TYPE("lindep2",x);
-  if (lx<=2)
+  if (! is_vec_t(typ(x))) pari_err_TYPE("lindep2",x);
+  if (lx <= 2)
   {
     if (lx == 2 && gequal0(x)) return mkcol(gen_1);
     return cgetg(1,t_COL);
   }
-  if (bit < 0) pari_err_DOMAIN("lindep2", "accuracy", "<", gen_0, stoi(bit));
-  if (!bit)
-  {
-    bit = gprecision(x);
-    if (!bit)
-    {
-      x = primpart(x);
-      bit = 32 + gexpo(x);
-    }
-    else
-      bit = (long)prec2nbits_mul(bit, 0.8);
-  }
-  else
-    bit = (long) (bit/LOG10_2);
   re = real_i(x);
   im = imag_i(x);
   /* independent over R ? */
@@ -753,6 +738,26 @@ lindep2(GEN x, long bit)
   M = gel(M,1);
   M[0] = evaltyp(t_COL) | evallg(lx);
   return gerepilecopy(av, M);
+}
+/* deprecated */
+GEN
+lindep2(GEN x, long dig)
+{
+  long bit;
+  if (dig < 0) pari_err_DOMAIN("lindep2", "accuracy", "<", gen_0, stoi(dig));
+  if (dig) bit = (long) (dig/LOG10_2);
+  else
+  {
+    bit = gprecision(x);
+    if (!bit)
+    {
+      x = Q_primpart(x); /* left on stack */
+      bit = 32 + gexpo(x);
+    }
+    else
+      bit = (long)prec2nbits_mul(bit, 0.8);
+  }
+  return lindep_bit(x, bit);
 }
 
 void
