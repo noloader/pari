@@ -36,6 +36,7 @@ PB   29- matinverseimage could find spurious solutions [#1888]
      30- ellsea could leak variables (=> "no more variables" error)
      31- ellsea leaked clones
      32- 1/x - 1/x returned gen_0 (instead of Pol(0))
+     33- printf("%d",factor(2*3*5*7)) => SEGV
 
   Added
       1- [libari] ZM_isidentity

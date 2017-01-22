@@ -1045,17 +1045,17 @@ fmtnum(outString *S, long lvalue, GEN gvalue, int base, int signvalue,
           else
           {
             h = lgcols(gvalue);
-            for (i=1; i<l; i++)
+            for (i=1; i<h; i++)
             {
               str_putc(S, '[');
-              for (j=1; j<h; j++)
+              for (j=1; j<l; j++)
               {
                 fmtnum(S, 0, gcoeff(gvalue,i,j), base, signvalue, ljust,len,zpad);
-                if (j<h-1) str_putc(S, ' ');
+                if (j<l-1) str_putc(S, ' ');
               }
               str_putc(S, ']');
               str_putc(S, '\n');
-              if (i<l-1) str_putc(S, '\n');
+              if (i<h-1) str_putc(S, '\n');
             }
           }
           return;
