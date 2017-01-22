@@ -2156,7 +2156,7 @@ sumaltrat(GEN F, GEN ga, long prec)
         G0 = _sub(rfrac_eval0(F), rfrac_eval(F, gen_1));
         vG = mkvec2(F,Fm);
         F = gadd(F, Fm);
-        if (gequal0(F)) return real_0(prec);
+        if (gequal0(F)) { avma = av; return real_0(prec); }
         a = 0;
         break;
       }
@@ -2168,6 +2168,7 @@ sumaltrat(GEN F, GEN ga, long prec)
   F1 = gneg(gsubst(F, vx, X1)); /* - F(2n+1) */
   if (!G0) G0 = _add(rfrac_eval0(F2), rfrac_eval0(F1));
   G = gadd(F2, F1);
+  if (gequal0(G)) { avma = av; return real_0(prec); }
   if (vG)
     vG = shallowconcat(gsubst(vG, vx, X2), gsubst(vG, vx, X1));
   else
