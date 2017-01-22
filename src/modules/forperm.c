@@ -43,10 +43,10 @@ forperm_next(forperm_t *T)
   long k = T->k, m1, m2, *p, *q;
   GEN v = T->v;
 
-  for (m1 = k - 1; m1 > 0 && v[m1] >= v[m1 + 1]; m1--);
+  m1 = k-1; while (m1 > 0 && v[m1] >= v[m1+1]) m1--;
   if (m1 <= 0) return NULL;
 
-  for (m2 = k; v[m1] >= v[m2]; m2--) /*nothing*/;
+  m2 = k; while (v[m1] >= v[m2]) m2--;
   lswap(v[m1], v[m2]);
   p = v + m1 + 1;
   q = v + k;
