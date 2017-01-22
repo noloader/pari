@@ -15,6 +15,7 @@ This file lists the incompatible changes between Version 2.x and older versions
   - renamed FpX_fromdigits -> FpXV_FpX_fromdigits
   - renamed FpXQX_fromdigits -> FpXQXV_FpXQX_fromdigits
   - rename vecbinome -> vecbinomial
+  - rename padic_lindep -> lindep_padic, Xadic_lindep -> lindep_Xadic
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%% VERSION 2.8 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

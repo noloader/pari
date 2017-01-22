@@ -116,6 +116,8 @@ HC   16- sumnummonieninit(a) for [a,a] did not conform to documentation.
      24- sqrtnr algorithm (Newton iteration instead of exp(log(x)/n)
 BA   25- quadgen/quadunit: allow to specify the variable name instead of w.
      26- [libpari] rename vecbinome -> vecbinomial
+     27- [libpari] rename padic_lindep -> lindep_padic, Xadic_lindep ->
+         lindep_Xadic
 
   Removed
       1- file 'MACHINES' (no longer maintained)

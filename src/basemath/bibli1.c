@@ -774,7 +774,7 @@ dalloc(size_t n)
 
 /* x is a vector of elts of a p-adic field */
 GEN
-padic_lindep(GEN x)
+lindep_padic(GEN x)
 {
   long i, j, prec = LONG_MAX, nx = lg(x)-1, v;
   pari_sp av = avma;
@@ -788,9 +788,9 @@ padic_lindep(GEN x)
 
     j = precp(c); if (j < prec) prec = j;
     q = gel(c,2);
-    if (!p) p = q; else if (!equalii(p, q)) pari_err_MODULUS("padic_lindep", p, q);
+    if (!p) p = q; else if (!equalii(p, q)) pari_err_MODULUS("lindep_padic", p, q);
   }
-  if (!p) pari_err_TYPE("padic_lindep [not a p-adic vector]",x);
+  if (!p) pari_err_TYPE("lindep_padic [not a p-adic vector]",x);
   v = gvaluation(x,p); pn = powiu(p,prec);
   if (v) x = gmul(x, powis(p, -v));
   x = RgV_to_FpV(x, pn);
@@ -809,7 +809,7 @@ padic_lindep(GEN x)
 }
 /* x is a vector of t_POL/t_SER */
 GEN
-Xadic_lindep(GEN x)
+lindep_Xadic(GEN x)
 {
   long i, prec = LONG_MAX, deg = 0, lx = lg(x), vx, v;
   pari_sp av = avma;
@@ -829,7 +829,7 @@ Xadic_lindep(GEN x)
     switch(typ(c))
     {
       case t_POL: deg = maxss(deg, degpol(c)); break;
-      case t_RFRAC: pari_err_TYPE("Xadic_lindep", c);
+      case t_RFRAC: pari_err_TYPE("lindep_Xadic", c);
       case t_SER:
         prec = minss(prec, valp(c)+lg(c)-2);
         gel(x,i) = ser2rfrac_i(c);
@@ -868,10 +868,10 @@ lindep0(GEN x,long bit)
   for (i = 1; i < lg(x); i++)
     switch(typ(gel(x,i)))
     {
-      case t_PADIC: return padic_lindep(x);
+      case t_PADIC: return lindep_padic(x);
       case t_POL:
       case t_RFRAC:
-      case t_SER: return Xadic_lindep(x);
+      case t_SER: return lindep_Xadic(x);
       case t_VEC:
       case t_COL: return vec_lindep(x);
     }
@@ -899,7 +899,7 @@ algdep0(GEN x, long n, long bit)
   gel(y,2) = x; /* n >= 1 */
   for (i=3; i<=n+1; i++) gel(y,i) = gmul(gel(y,i-1),x);
   if (typ(x) == t_PADIC)
-    y = padic_lindep(y);
+    y = lindep_padic(y);
   else
     y = lindep2(y, bit);
   if (lg(y) == 1) pari_err(e_DOMAIN,"algdep", "degree(x)",">", stoi(n), x);
@@ -946,7 +946,7 @@ seralgdep(GEN s, long p, long r)
       }
       gel(v, r*n + m + 1) = c;
     }
-  D = Xadic_lindep(v);
+  D = lindep_Xadic(v);
   if (lg(D) == 1) { avma = av; return gen_0; }
   v = cgetg(p+1, t_VEC);
   for (n = 0; n < p; n++)
