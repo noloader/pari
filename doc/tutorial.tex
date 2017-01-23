@@ -1499,8 +1499,6 @@ some related data, type
 component \kbd{gr[1]} tells us that the conductor is 37 as we already
 knew.  The second component is a 4-component vector which allows us to
 get the minimal equation: in fact \kbd{e} is \kbd{ellchangecurve(e0, gr[2])}.
-You can for the moment ignore the third component \kbd{gr[3]}. (For the
-impatient reader, this is the product of the local Tamagawa numbers, $c_p$.)
 Type
 \bprog
   q0 = [-2,2]
@@ -1734,7 +1732,7 @@ point. The sign of the functional equation, given by \kbd{ellrootno(E)}, is
 $+1$. Assuming the rank parity conjecture, it follows that the Mordell-Weil
 group of $E$ has even rank. The value of the L-function of \kbd{E} at 1
 \bprog
-  ls = elllseries(E, 1)
+  ls = lfun(E, 1)
 @eprog\noindent is definitely non-zero, so \kbd{E} has rank $0$. According to
 the Birch and Swinnerton-Dyer conjecture, which is proved for this curve,
 \kbd{ls} is given by the following formula (in this case):
@@ -1743,19 +1741,21 @@ the Birch and Swinnerton-Dyer conjecture, which is proved for this curve,
 $$L(E,1)=\dfrac{\Omega\cdot c\cdot|\sha|}{|E_{\text{tors}}|^2}\enspace,$$
 %
 where $\Omega$ is the real period of $E$, $c$ is the global Tamagawa number,
-product of the local $c_p$ for primes $p$ dividing the conductor, $|\sha|$ is
-the order of the Tate-Shafarevich group, and $E_{\text{tors}}$ is the
+$|\sha|$ is the order of the Tate-Shafarevich group, and $E_{\text{tors}}$ is the
 torsion group of $E$.
 
 Now we know many of these quantities: $\Omega$ is equal to \kbd{E.omega[1]}
-(if there had been 3 real roots instead of 1 in \kbd{E.roots}, $\Omega$ would
-be equal to \kbd{2 * E.omega[1]}). The Tamagawa number $c$ is given as the
-last component of \kbd{ellglobalred(E)}, and here is equal to 1. We already
-know that the torsion subgroup of $E$ contains a point of order 5, and typing
-\kbd{elltors(E)} shows that it is of order exactly 5. So type
+The global Tamagawa number $c$ is given by \kbd{elltamagawa(E)} and is $1$
+We already know that the torsion subgroup of $E$ contains a point of order 5,
+and typing \kbd{elltors(E)} shows that it is of order exactly 5. So type
 \bprog
   ls * 25/E.omega[1]
 @eprog\noindent This shows that $\sha$ must be the trivial group.
+A short hand for $\dfrac{\Omega\cdot c}{|E_{\text{tors}}|^2}$ is \kbd{ellbsd(E)},
+so the previous line can be written as
+\bprog
+ ls / ellbsd(E)
+@eprog
 
 For more detailed information on the local reduction of an elliptic curve at
 a specific prime~\kbd{p}, use the function \kbd{elllocalred(E,p)}; the second
