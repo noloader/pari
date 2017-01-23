@@ -1308,6 +1308,16 @@ Returns a multiple of the exponent of the quotient group $\Z_K/(\Z[X]/(T))$.
 In other word, a \emph{denominator} $d$ such that $d x\in\Z[X]/(T)$ for all
 $x\in\Z_K$.
 
+\fun{GEN}{FpX_gcd_check}{GEN x, GEN y, GEN D} let $x$ and $y$ be two
+coprime polynomials with integer coefficients and let $D$ be
+a factor of the resultant of $x$ and $y$; try to factor $D$ by running the
+Euclidean algorithm on $x$ and $y$ modulo $D$. This returns \kbd{NULL}
+or a non trivial factor of $D$. This is the low-level function underlying
+\kbd{poldiscfactors} (applied to $x$, \kbd{ZX\_deriv}$(x)$ and the
+discriminant of $x$). It succeeds when $D$ has at least two prime divisors
+$p$ and $q$ such that one sub-resultant of $x$ and $y$ is divisible by $p$
+but not by $q$.
+
 \subsec{Computing in the class group}
 
 We compute with arbitrary ideal representatives (in any of the various

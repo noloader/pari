@@ -1,0 +1,18 @@
+Function: poldiscfactors
+Section: polynomials
+C-Name: poldiscfactors
+Prototype: G
+Help: poldiscfactors(T,{flag=0}): [D, faD], where D = discriminant of the
+ polynomial T, and faD is a partial factorization of D
+ (entries are coprime but need not be primes); if flag is 1, finish the
+ factorization via factorint.
+Doc: given a polynomial $T$ with integer coefficients, return
+ $[D, \var{faD}]$ where $D$ is the discriminant of $T$ and
+ \var{faD} is a partial factorization of $D$: entries in its first
+ column are coprime but need not be primes. If \fl is $1$, finish the
+ factorization using \kbd{factorint}.
+ \bprog
+ ? T = x^3 - 5*x - 86089842541292486305497862178148061265660715093760132420;
+ ? poldiscfactors(T)
+ %2 =
+ @eprog

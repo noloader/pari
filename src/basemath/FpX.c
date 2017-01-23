@@ -707,25 +707,22 @@ FpX_gcd(GEN x, GEN y, GEN p)
   return gerepileupto(av, FpX_gcd_basecase(x,y,p));
 }
 
-/*Return 1 if gcd can be computed
- * else return a factor of p*/
-
+/* Return NULL if gcd can be computed else return a factor of p */
 GEN
 FpX_gcd_check(GEN x, GEN y, GEN p)
 {
+  pari_sp av = avma;
   GEN a,b,c;
-  pari_sp av=avma;
 
   a = FpX_red(x, p);
   b = FpX_red(y, p);
   while (signe(b))
   {
-    GEN lead = leading_coeff(b);
-    GEN g = gcdii(lead,p);
+    GEN g = gcdii(p, leading_coeff(b));
     if (!equali1(g)) return gerepileuptoint(av,g);
-    c = FpX_rem(a,b,p); a=b; b=c;
+    c = FpX_rem(a,b,p); a = b; b = c;
   }
-  avma = av; return gen_1;
+  avma = av; return NULL;
 }
 
 static GEN

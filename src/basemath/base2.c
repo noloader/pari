@@ -100,6 +100,48 @@ set_disc(nfmaxord_t *S)
   }
   return S->dT = dT;
 }
+
+static GEN
+poldiscfactors_i(GEN T, GEN dT, long flag)
+{
+  GEN fa = absZ_factor_limit(dT, 0);
+  GEN Tp, E, P = gel(fa,1);
+  long i, l = lg(P);
+  if (l == 1 || BPSW_psp(gel(P,l-1))) return fa;
+  settyp(P, t_VEC);
+  Tp = ZX_deriv(T);
+  for (i = l-1; i < lg(P); i++)
+  {
+    GEN p = gel(P,i), r, L;
+    if (BPSW_psp(p)) continue;
+    r = FpX_gcd_check(T, Tp, p);
+    if (r) L = Z_cba(r, diviiexact(p,r));
+    else
+    {
+      if (!flag) continue;
+      L = gel(Z_factor(p),1); settyp(L, t_VEC);
+    }
+    P = shallowconcat(vecsplice(P,i), L);
+    i--;
+  }
+  settyp(P, t_COL);
+  P = ZV_sort(P); l = lg(P);
+  E = cgetg(l, t_COL);
+  for (i = 1; i < l; i++)
+    gel(E,i) = utoi(Z_pvalrem(dT, gel(P,i), &dT));
+  return mkmat2(P,E);
+}
+GEN
+poldiscfactors(GEN T, long flag)
+{
+  pari_sp av = avma;
+  GEN dT;
+  if (typ(T) != t_POL || !RgX_is_ZX(T)) pari_err_TYPE("poldiscfactors",T);
+  if (flag < 0 || flag > 1) pari_err_FLAG("poldiscfactors");
+  dT = ZX_disc(T);
+  return gerepilecopy(av, mkvec2(dT, poldiscfactors_i(T, dT, flag)));
+}
+
 static void
 nfmaxord_check_args(nfmaxord_t *S, GEN T, long flag)
 {
@@ -139,8 +181,9 @@ nfmaxord_check_args(nfmaxord_t *S, GEN T, long flag)
         pari_err_TYPE("nfmaxord",fa);
     }
     if (!signe(dT)) pari_err_IRREDPOL("nfmaxord",mkvec2(T,fa));
-  } else
-    fa = (flag & nf_PARTIALFACT)? absZ_factor_limit(dT, 0): absZ_factor(dT);
+  }
+  else
+    fa = poldiscfactors_i(T, dT, !(flag & nf_PARTIALFACT));
   P = gel(fa,1); l = lg(P);
   E = gel(fa,2);
   if (l > 1 && is_pm1(gel(P,1)))

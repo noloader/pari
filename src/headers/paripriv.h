@@ -774,10 +774,6 @@ GEN qfb_nform(long D, long n);
 
 ulong   Flj_order_ufact(GEN P, ulong n, GEN F, ulong a4, ulong p, ulong pi);
 
-/* FpX.c */
-
-GEN     FpX_gcd_check(GEN x, GEN y, GEN p);
-
 /* polarit3.c */
 
 GEN     Flm_Frobenius_pow(GEN M, long d, GEN T, ulong p);
