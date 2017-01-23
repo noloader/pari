@@ -212,8 +212,11 @@ $z,t$ are local variables (lexical scope), $z$ initialized to 1.
 \li{\dots for $X$ dividing $n$}{fordiv$(n,X,\seq)$}
 \li{multivariable {\tt for}, lex ordering}{forvec$(X=v,\seq)$}
 \li{loop over partitions of $n$}{forpart$(p=n,\seq)$}
-\li{loop over vectors $v$, $q(v)\leq B$; $q > 0$}{forqfvec$(v, q, b, \seq)$}
-\li{loop over $H < G$ finite abelian group}{forsubgroup$(H=G)$}
+\li{\dots permutations of $S$}{forperm$(S, p,\seq)$}
+\li{\dots subsets of $\{1,\ldots,n\}$}{forsubset$(n, p,\seq)$}
+\li{\dots $k$-subsets of $\{1,\ldots,n\}$}{forsubset$([n,k], p,\seq)$}
+\li{\dots vectors $v$, $q(v)\leq B$; $q > 0$}{forqfvec$(v, q, b, \seq)$}
+\li{\dots $H < G$ finite abelian group}{forsubgroup$(H=G)$}
 \smallskip
 
 \li{evaluate \seq\ until $a\ne0$}{until$(a,\seq)$}
@@ -276,17 +279,22 @@ $z,t$ are local variables (lexical scope), $z$ initialized to 1.
 \li{get \kbd{\$VAR} from environment}{getenv$($\kbd{"VAR"}$)$}
 \li{expand env. variable in string}{Strexpand$(x)$}
 
-%
 \section{Parallel evaluation}
 These functions evaluate their arguments in parallel (pthreads or MPI);
 args.~must not access global variables and must be free of side
 effects. Enabled if threading engine is not \emph{single} in gp
-header.\hfil\break
+header.
 \li{evaluate $f$ on $x[1],\dots,x[n]$}{parapply$(f,x)$}
 \li{evaluate closures $f[1],\dots,f[n]$}{pareval$(f)$}
 \li{as \kbd{select}}{parselect$(f,A,\{\fl\})$}
 \li{as \kbd{sum}}{parsum$(i = a,b,\var{expr},\{x\})$}
 \li{as \kbd{vector}}{parvector$(n,i,\{\var{expr}\})$}
+%
+\newcolumn
+\title{\TITLE}
+\centerline{(PARI-GP version \PARIversion)}
+
+
 \li{eval $f$ for $i=a,\dots,b$}
    {parfor$(i = a, \{b\}, f,\{r\}, \{f_2\})$}
 \li{\dots for $p$ prime in $[a,b]$}
@@ -295,11 +303,6 @@ header.\hfil\break
    {parforvec$(X = v, f,\{r\}, \{f_2\}, \{\fl\})$}
 \li{declare $x$ as inline (allows to use as global)}{inline$(x)$}
 \li{stop inlining}{uninline$()$}
-
-\newcolumn
-\title{\TITLE}
-
-\centerline{(PARI-GP version \PARIversion)}
 
 \section{Linear Algebra}
 %
@@ -355,6 +358,7 @@ header.\hfil\break
 \li{signature of quad form $^ty*x*y$}{qfsign$(x)$}
 \li{decomp into squares of $^ty*x*y$}{qfgaussred$(x)$}
 \li{eigenvalues/vectors for real symmetric $x$}{qfjacobi$(x)$}
+\newcolumn
 
 \subsec{HNF and SNF}
 \li{upper triangular Hermite Normal Form}{mathnf$(x)$}
@@ -438,7 +442,6 @@ header.\hfil\break
 \li{factor $f$ over $\QQ_p$ / roots}{factorpadic$(f,p,r)${\rm, }polrootspadic}
 \li{cyclotomic factors of $f\in\QQ[X]$}{polcyclofactors$(f)$}
 
-
 \li{find irreducible $T\in \FF_p[x]$, $\deg T = n$}{ffinit$(p,n,\{x\})$}
 \li{$\#\{{\rm monic\ irred.}\ T\in \FF_q[x], \deg T = n\}$}{ffnbirred$(q,n)$}
 \li{$p$-adic root of $f$ congruent to $a\mod p$}{padicappr$(f,a)$}
@@ -457,7 +460,6 @@ header.\hfil\break
 \li{reverse power series $F$ so $F(f(x))=x$}{serreverse$(f)$}
 \li{Dirichlet series multiplication / division}{dirmul{\rm,} dirdiv$(x,y)$}
 \li{Dirichlet Euler product ($b$ terms)}{direuler$(p=a,b,\expr)$}
-
 
 \section{Transcendental and $p$-adic Functions}
 \li{real, imaginary part of $x$}{real$(x)$, imag$(x)$}
@@ -487,7 +489,6 @@ header.\hfil\break
 {(bessel)i{\rm, }k{\rm, }h1{\rm, }h2{\rm, }n}
 \li{Lambert $W$: $x$ s.t. $xe^x =y$}{lambertw$(y)$}
 \li{Teichmuller character of $p$-adic $x$}{teichmuller$(x)$}
-
 \newcolumn
 
 \section{Iterations, Sums \& Products}
