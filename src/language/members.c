@@ -566,10 +566,15 @@ static int
 ell_is_complex(GEN x)
 { long t = ell_get_type(x); return t == t_ELL_Q || t == t_ELL_Rg; }
 
+static long
+ellnf_get_prec(GEN x) { return nf_get_prec(ellnf_get_nf(x)); }
+
 GEN
 member_omega(GEN x)
 {
   if (!is_ell(x)) member_err("omega",x);
+  if (ell_get_type(x)==t_ELL_NF)
+    return ellnf_vecomega(x, ellnf_get_prec(x));
   if (!ell_is_complex(x)) pari_err_TYPE("omega [not defined over C]",x);
   return ellR_omega(x, ellR_get_prec(x));
 }
@@ -578,6 +583,8 @@ GEN
 member_eta(GEN x)
 {
   if (!is_ell(x)) member_err("eta",x);
+  if (ell_get_type(x)==t_ELL_NF)
+    return ellnf_veceta(x, ellnf_get_prec(x));
   if (!ell_is_complex(x)) pari_err_TYPE("eta [not defined over C]",x);
   return ellR_eta(x, ellR_get_prec(x));
 }

@@ -203,9 +203,14 @@ a \var{nf} or \var{bnf} structure.
 
 \fun{GEN}{ellnf_get_nf}{GEN E} returns the underlying \kbd{nf}.
 
-
 \fun{GEN}{ellnf_get_bnf}{GEN x} returns \kbd{NULL} if $K$ does not contain
 a \var{bnf} structure, else return the \var{bnf}.
+
+\fun{GEN}{ellnf_vecomega}{GEN E} returns the vector of the periods of
+all the complex embeddings of \kbd{E} in the same order as \kbd{E.nf.roots}.
+
+\fun{GEN}{ellnf_veceta}{GEN E} returns the vector of the quasi-periods of
+all the complex embeddings of \kbd{E} in the same order as \kbd{E.nf.roots}.
 
 \subsubsec{Curves over $\Q_p$}
 

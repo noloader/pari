@@ -5498,6 +5498,32 @@ ellnfembed_free(GEN L)
     obj_free(gel(L,i));
 }
 
+GEN
+ellnf_vecomega(GEN E, long prec)
+{
+  pari_sp av = avma;
+  GEN V = ellnfembed(E, prec);
+  long i, l = lg(V);
+  GEN P = cgetg(l, t_VEC);
+  for(i=1; i<l; i++)
+    gel(P, i) = ellR_omega(gel(V,i), prec);
+  ellnfembed_free(V);
+  return gerepilecopy(av, P);
+}
+
+GEN
+ellnf_veceta(GEN E, long prec)
+{
+  pari_sp av = avma;
+  GEN V = ellnfembed(E, prec);
+  long i, l = lg(V);
+  GEN P = cgetg(l, t_VEC);
+  for(i=1; i<l; i++)
+    gel(P, i) = ellR_eta(gel(V,i), prec);
+  ellnfembed_free(V);
+  return gerepilecopy(av, P);
+}
+
 static GEN
 ellnfbsdperiod(GEN E, long prec)
 {
