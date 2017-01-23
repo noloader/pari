@@ -1018,8 +1018,7 @@ get_Kohel_polynomials(ulong p, GEN *act, long *dj)
     *dj = 8;
     return fill_pols(13,mat13,11,num13,den13,act);
   }
-  *dj=0; *act = NULL;
-  return NULL;
+  *dj=0; *act = NULL; return NULL; /* LCOV_EXCL_LINE */
 }
 
 long
