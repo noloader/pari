@@ -17,6 +17,14 @@ typedef struct {
   long s, us;
 } pari_timer;
 
+typedef struct pari_str {
+  char *string; /* start of the output buffer */
+  char *end;    /* end of the output buffer */
+  char *cur;   /* current writing place in the output buffer */
+  size_t size; /* buffer size */
+  int use_stack; /* use stack_malloc instead of malloc ? */
+} pari_str;
+
 typedef unsigned char *byteptr;
 typedef ulong pari_sp;
 

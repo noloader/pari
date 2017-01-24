@@ -81,6 +81,7 @@ VD   29- [libpari] forperm_init, forperm_next, forperm, forallsubset_init,
 BA   31- new GP function ellbsd
      32- new GP function poldiscfactors
      33- [libpari] FpX_gcd_check
+     34- [libpari] str_init, str_printf, str_putc, str_puts
 
   Changed
       1- rewrite bnfnarrow

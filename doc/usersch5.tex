@@ -11744,6 +11744,35 @@ not a malloc'ed string.
 \fun{GEN}{gvsprintf}{const char *fmt, va_list ap} variadic version of
 \tet{gsprintf}
 
+\subsec{Dynamic strings}
+
+A \tet{pari_str} is a dynamic string which grows dynamically as needed.
+This structure contains private data and two public members \kbd{char *string},
+which is the string itself and \kbd{use\_stack} which tells whether the
+string lives
+
+\item on the PARI stack (value $1$), meaning that it will be destroyed by any
+manipulation of the stack, e.g. a \kbd{gerepile} call or resetting
+\kbd{avma};
+
+\item in malloc'ed memory (value $0$), in which case it is impervious to
+stack manipulation but will need to be explicitly freed by the user
+after use, via \kbd{pari\_free(s.string)}.
+
+
+\fun{void}{str_init}{pari_str *S, int use_stack} initializes a dynamic
+string; if \kbd{use\_stack} is 0, then the string is malloc'ed, else
+it lives on the PARI stack.
+
+\fun{void}{str_printf}{pari_str *S, const char *fmt, ...} write to the end
+of $S$ the remaining arguments according to PARI format \kbd{fmt}.
+
+\fun{void}{str_putc}{pari_str *S, char c} write the character $c$ to the end
+of $S$.
+
+\fun{void}{str_puts}{pari_str *S, const char *s} write the string $s$ to the
+end of $S$.
+
 \section{Output}
 
 \subsec{Output contexts}
