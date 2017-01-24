@@ -2809,7 +2809,7 @@ char*   stack_strdup(const char *s);
 void    str_init(pari_str *S, int use_stack);
 void    str_printf(pari_str *S, const char *fmt, ...);
 void    str_putc(pari_str *S, char c);
-void    str_puts(pari_str *S, char c);
+void    str_puts(pari_str *S, const char *s);
 void    strftime_expand(const char *s, char *buf, long max);
 GEN     Strprintf(const char *fmt, GEN args);
 FILE*   switchin(const char *name);
