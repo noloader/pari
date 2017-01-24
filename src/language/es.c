@@ -342,6 +342,9 @@ gp_embedded_init(long rsize, long vsize)
 {
   pari_init(rsize, 500000);
   paristack_setsize(rsize, vsize);
+#ifdef __EMSCRIPTEN__
+  pari_emscripten_plot_init();
+#endif
 }
 
 char *

@@ -13,3 +13,4 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 
 void pari_emscripten_help(const char *s);
 void pari_emscripten_wget(const char *s);
+void pari_emscripten_plot_init(void);
