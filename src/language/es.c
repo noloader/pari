@@ -4677,6 +4677,7 @@ pari_fprintf(FILE *file, const char *fmt, ...)
 }
 
 void print   (GEN g) { print0(g, f_RAW);       pari_putc('\n'); pari_flush(); }
+void printp  (GEN g) { print0(g, f_PRETTYMAT); pari_putc('\n'); pari_flush(); }
 void printtex(GEN g) { print0(g, f_TEX);       pari_putc('\n'); pari_flush(); }
 void print1  (GEN g) { print0(g, f_RAW);       pari_flush(); }
 

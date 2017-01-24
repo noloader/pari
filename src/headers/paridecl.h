@@ -2796,6 +2796,7 @@ void    out_term_color(PariOUT *out, long c);
 void    out_vprintf(PariOUT *out, const char *fmt, va_list ap);
 char*   pari_sprint0(const char *msg, GEN g, long flag);
 void    print(GEN g);
+void    printp(GEN g);
 enum { f_RAW = 0, f_PRETTYMAT = 1, f_PRETTY = 3, f_TEX = 4 };
 void    print0(GEN g, long flag);
 void    print1(GEN g);
