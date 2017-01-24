@@ -1,7 +1,7 @@
 Function: poldiscfactors
 Section: polynomials
 C-Name: poldiscfactors
-Prototype: G
+Prototype: GD0,L,
 Help: poldiscfactors(T,{flag=0}): [D, faD], where D = discriminant of the
  polynomial T, and faD is a partial factorization of D
  (entries are coprime but need not be primes); if flag is 1, finish the
