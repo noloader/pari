@@ -395,6 +395,25 @@ pari_handle_SIGINT(void)
 #endif
 }
 
+typedef void (*pari_sighandler_t)(int);
+
+pari_sighandler_t
+os_signal(int sig, pari_sighandler_t f)
+{
+#ifdef HAS_SIGACTION
+  struct sigaction sa, oldsa;
+
+  sa.sa_handler = f;
+  sigemptyset(&sa.sa_mask);
+  sa.sa_flags = SA_NODEFER;
+
+  if (sigaction(sig, &sa, &oldsa)) return NULL;
+  return oldsa.sa_handler;
+#else
+  return signal(sig,f);
+#endif
+}
+
 void
 pari_sighandler(int sig)
 {

@@ -3669,45 +3669,6 @@ try_pipe(const char *cmd, int fl)
 #endif
 }
 
-typedef void (*pari_sighandler_t)(int);
-
-pari_sighandler_t
-os_signal(int sig, pari_sighandler_t f)
-{
-#ifdef HAS_SIGACTION
-  struct sigaction sa, oldsa;
-
-  sa.sa_handler = f;
-  sigemptyset(&sa.sa_mask);
-  sa.sa_flags = SA_NODEFER;
-
-  if (sigaction(sig, &sa, &oldsa)) return NULL;
-  return oldsa.sa_handler;
-#else
-  return signal(sig,f);
-#endif
-}
-
-#if 0
-void
-os_close(long fd)
-{
-  close(fd);
-}
-void
-os_read(long fd, char ch[], long s)
-{
-  (void)read(fd,ch,s);
-}
-long
-os_open(const char *s, int mode)
-{
-  long fd;
-  fd = open(s,mode);
-  return fd;
-}
-#endif
-
 char *
 os_getenv(const char *s)
 {
