@@ -4009,14 +4009,6 @@ algtableinit(GEN mt0, GEN p)
 
 /** REPRESENTATIONS OF GROUPS **/
 
-static int
-is_gal_or_grp(GEN gal)
-{
-  if(lg(gal)==9 && typ(gel(gal,1))==t_POL) return 1;
-  if(lg(gal)==3 && typ(gel(gal,1))==t_VEC && typ(gel(gal,2))==t_VECSMALL) return 1;
-  return 0;
-}
-
 static GEN
 list_to_regular_rep(GEN elts, long n)
 {
@@ -4062,18 +4054,32 @@ zv_isperm(GEN v)
   return zv_isidentity(vecsort0(v,NULL,0));
 }
 
-static void
-check_groupelts(GEN elts)
+static GEN
+check_groupelts(GEN gal, GEN *gen)
 {
-  long i, n = lg(elts)-1;
-  if (typ(elts)!=t_VEC) pari_err_TYPE("alggroup",elts);
-  for(i=1; i<=n; i++) {
-    if(typ(gel(elts,i)) != t_VECSMALL)
-      pari_err_TYPE("alggroup (element)", gel(elts,i));
-    if(!zv_isperm(gel(elts,i)))
-      pari_err_TYPE("alggroup (element is not a permutation)", gel(elts,i));
-    if(lg(gel(elts,i))!=lg(gel(elts,1)))
-      pari_err_DIM("alggroup [length of permutations]");
+  if (typ(gal)!=t_VEC) pari_err_TYPE("alggroup", gal);
+  if ((lg(gal)==9 && typ(gel(gal,1))==t_POL) ||
+      (lg(gal)==3 && typ(gel(gal,1))==t_VEC && typ(gel(gal,2))==t_VECSMALL))
+  {
+    GEN elts, G = checkgroup(gal, &elts);
+    if(!elts) elts = group_elts(G, group_domain(G));
+    *gen = gel(G, 1);
+    return elts;
+  }
+  else
+  {
+    long i, n = lg(gal)-1;
+    for(i=1; i<=n; i++)
+    {
+      if(typ(gel(gal,i)) != t_VECSMALL)
+        pari_err_TYPE("alggroup (element)", gel(gal,i));
+      if(!zv_isperm(gel(gal,i)))
+        pari_err_TYPE("alggroup (element is not a permutation)", gel(gal,i));
+      if(lg(gel(gal,i))!=lg(gel(gal,1)))
+        pari_err_DIM("alggroup [length of permutations]");
+    }
+    *gen = NULL;
+    return gal;
   }
 }
 
@@ -4120,7 +4126,7 @@ groupelts_algcenter(GEN elts, GEN genes, GEN p, GEN* ptr_conjclasses)
 {
   pari_sp av = avma;
   long nbcl, i, n, k, j, ci, cj, ck;
-  GEN G, conjclass, mt, xi, xj, xixj, repclass, al;
+  GEN conjclass, mt, xi, xj, xixj, repclass, al;
   if(p && !signe(p)) p = NULL;
   if (!genes) genes = elts;
   n = lg(elts)-1;
@@ -4168,17 +4174,8 @@ groupelts_algcenter(GEN elts, GEN genes, GEN p, GEN* ptr_conjclasses)
 GEN
 alggroupcenter(GEN gal, GEN p, GEN* ptr_conjclasses)
 {
-  if (!is_gal_or_grp(gal))
-  {
-    check_groupelts(gal);
-    return groupelts_algcenter(gal, NULL, p, ptr_conjclasses);
-  }
-  else
-  {
-    GEN elts, G = checkgroup(gal, &elts);
-    if(!elts) elts = group_elts(G, group_domain(G));
-    return groupelts_algcenter(elts, gel(G,1), p, ptr_conjclasses);
-  }
+  GEN gen, elts = check_groupelts(gal, &gen);
+  return groupelts_algcenter(elts, gen, p, ptr_conjclasses);
 }
 
 static GEN
@@ -4196,17 +4193,8 @@ groupelts_algebra(GEN elts, GEN p)
 GEN
 alggroup(GEN gal, GEN p)
 {
-  if (!is_gal_or_grp(gal))
-  {
-    check_groupelts(gal);
-    return groupelts_algebra(gal, p);
-  }
-  else
-  {
-    GEN elts, G = checkgroup(gal, &elts);
-    if(!elts) elts = group_elts(G, group_domain(G));
-    return groupelts_algebra(elts, p);
-  }
+  GEN gen, elts = check_groupelts(gal, &gen);
+  return groupelts_algebra(elts, p);
 }
 
 static GEN
@@ -4279,17 +4267,8 @@ groupelts_chartable(GEN elts)
 GEN
 galoischartable(GEN gal)
 {
-  if (!is_gal_or_grp(gal))
-  {
-    check_groupelts(gal);
-    return groupelts_chartable(gal);
-  }
-  else
-  {
-    GEN elts, G = checkgroup(gal, &elts);
-    if(!elts) elts = group_elts(G, group_domain(G));
-    return groupelts_chartable(elts);
-  }
+  GEN gen, elts = check_groupelts(gal, &gen);
+  return groupelts_chartable(elts);
 }
 
 /** MAXIMAL ORDER **/
