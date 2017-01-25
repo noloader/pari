@@ -297,9 +297,9 @@ OBJSGP = $OBJSGP
 
 gp: gp-$dft ../gp$suffix$exe_suff $libdft
 
-../gp$suffix$exe_suff: gp-$dft
+../gp$suffix$exe_suff: gp-$dft$exe_suff
 	-\$(RM) \$@
-	-\$(LN) $ln_objdir/gp-$dft \$@
+	-\$(LN) $ln_objdir/gp-$dft$exe_suff \$@
 
 all: $exec lib-sta
 
