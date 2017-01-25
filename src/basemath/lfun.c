@@ -657,7 +657,7 @@ mkvroots(long d, long lim, long prec)
 }
 
 GEN
-lfunthetacheckinit(GEN data, GEN t, long m, long *pbitprec, long fl)
+lfunthetacheckinit(GEN data, GEN t, long m, long *pbitprec)
 {
   long bitprec = *pbitprec;
   if (is_linit(data) && linit_get_type(data)==t_LDESC_THETA)
@@ -676,7 +676,6 @@ lfunthetacheckinit(GEN data, GEN t, long m, long *pbitprec, long fl)
     al= rtodbl(gel(tdom,2)); if (rt >= r && alt <= al) return data;
   }
 INIT:
-  if (fl) { bitprec += 5; *pbitprec = bitprec; }
   return lfunthetainit_i(data, t, m, bitprec);
 }
 
@@ -799,7 +798,7 @@ lfuntheta(GEN data, GEN t, long m, long bitprec)
   GEN sqN, vecan, Vga, ldata, theta, thetainit, S;
   long n, bitprecnew = bitprec, prec = nbits2prec(bitprec);
   t = gprec_w(t, prec);
-  theta = lfunthetacheckinit(data, t, m, &bitprecnew, 0);
+  theta = lfunthetacheckinit(data, t, m, &bitprecnew);
   ldata = linit_get_ldata(theta);
   thetainit = linit_get_tech(theta);
   vecan = theta_get_an(thetainit);
@@ -1773,7 +1772,7 @@ lfuncheckfeq(GEN lmisc, GEN t0, long bitprec)
   else
     t0i = ginv(t0);
   /* |t0| >= 1 */
-  theta = lfunthetacheckinit(lmisc, t0i, 0, &bitprec, 0);
+  theta = lfunthetacheckinit(lmisc, t0i, 0, &bitprec);
   ldata = linit_get_ldata(theta);
   thetad = theta_dual(theta, ldata_get_dual(ldata));
   if (thetad)
@@ -1917,7 +1916,7 @@ lfunrootno(GEN linit, long bitprec)
   pari_sp av;
 
   /* initialize for t > 1/sqrt(2) */
-  linit = lfunthetacheckinit(linit, dbltor(sqrt(0.5)), 0, &bitprec, 1);
+  linit = lfunthetacheckinit(linit, dbltor(sqrt(0.5)), 0, &bitprec);
   ldata = linit_get_ldata(linit);
   k = ldata_get_k(ldata);
   R = ldata_get_residue(ldata)? lfunrtoR_eno(ldata, pol_x(vx), prec)
@@ -1978,7 +1977,7 @@ lfunrootres(GEN data, long bitprec)
       R = lfunrtoR_eno(ldata, w, nbits2prec(bitprec));
     return gerepilecopy(ltop, mkvec3(r, R, w));
   }
-  linit = lfunthetacheckinit(data, dbltor(sqrt(0.5)), 0, &bitprec, 1);
+  linit = lfunthetacheckinit(data, dbltor(sqrt(0.5)), 0, &bitprec);
   prec = nbits2prec(bitprec);
   if (lg(r) > 2) pari_err_IMPL("multiple poles in lfunrootres");
   /* Now residue unknown, and r = [[be,0]]. */
