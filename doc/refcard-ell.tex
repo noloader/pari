@@ -59,34 +59,35 @@ $\bullet$ All domains:
    {ellfromeqn$(\var{eq})$}
 \li{add points $P+Q$ / $P-Q$}{elladd$(E,P,Q)${\rm, }ellsub}
 \li{negate point}{ellneg$(E,P)$}
-\li{compute $n\cdot z$}{ellmul$(E,z,n)$}
-\li{check if $z$ is on $E$}{ellisoncurve$(E,z)$}
-\li{order of torsion point $z$}{ellorder$(E,z)$}
+\li{compute $n\cdot P$}{ellmul$(E,P,n)$}
+\li{check if $P$ is on $E$}{ellisoncurve$(E,P)$}
+\li{order of torsion point $P$}{ellorder$(E,P)$}
 \li{$y$-coordinates of point(s) for $x$}{ellordinate$(E,x)$}
-\li{point $[\wp(z),\wp'(z)]$ corresp. to $z$}{ellztopoint$(E,z)$}
-\li{complex $z$ such that $p=[\wp(z),\wp'(z)]$}{ellpointtoz$(E,p)$}
+\li{$[\wp(z),\wp'(z)]\in E(\CC)$ attached to $z\in\CC$}{ellztopoint$(E,z)$}
+\li{$z\in\CC$ such that $P=[\wp(z),\wp'(z)]$}{ellpointtoz$(E,P)$}
+\li{$z\in \bar{\QQ}^*/q^{\ZZ}$ to $P\in E(\bar{\QQ_p})$}{ellztopoint$(E,z)$}
+\li{$P\in E(\bar{\QQ_p})$ to $z\in \bar{\QQ}^*/q^{\ZZ}$}{ellpointtoz$(E,P)$}
 
 \subsec{Change of Weierstrass models, using $v = [u,r,s,t]$}
 \li{change curve $E$ using $v$}{ellchangecurve$(E,v)$}
-\li{change point $z$ using $v$}{ellchangepoint$(z,v)$}
-\li{change point $z$ using inverse of $v$}{ellchangepointinv$(z,v)$}
+\li{change point $P$ using $v$}{ellchangepoint$(P,v)$}
+\li{change point $P$ using inverse of $v$}{ellchangepointinv$(P,v)$}
 
 \subsec{Twists and isogenies}
-\li{quadratic twist}{elltwist$(E,D)$}
+\li{quadratic twist}{elltwist$(E,d)$}
 \li{$n$-division polynomial $f_n(x)$}{elldivpol$(E,n,\{x\})$}
 \li{$[n]P =(\phi_n\psi_n\colon \omega_n\colon \psi_n^3)$;
-   return $(\phi_n, \psi_n^2)$}{ellxn$(E,n,{v})$}
+   return $(\phi_n, \psi_n^2)$}{ellxn$(E,n,\{x\})$}
 \li{isogeny from $E$ to $E/G$}{ellisogeny$(E,G)$}
 \li{apply isogeny to $g$ (point or isogeny)}{ellisogenyapply$(f,g)$}
-
+\li{torsion subgroup with generators}{elltors$(E)$}
 \subsec{Formal group}
-\li{formal exponential, $n$ terms}{ellformalexp$(E,\{n\},\{v\})$}
-\li{formal logarithm, $n$ terms}{ellformallog$(E,\{n\},\{v\})$}
-\li{$L(-x/y)\in\QQ_p$; $P\in E(\QQ_p)$}{ellpadiclog$(E,p,n,P)$}
-\li{$[x,y]$ in the formal group}{ellformalpoint$(E,\{n\},\{v\})$}
-\li{$[f,g]$, $\omega = f(t)dt$, $x \omega = g(t)dt$}
-   {ellformaldifferential}
-\li{$w = -1/y$ in parameter $-x/y$}{ellformalw$(E,\{n\},\{v\})$}
+\li{formal exponential, $n$ terms}{ellformalexp$(E,\{n\},\{x\})$}
+\li{formal logarithm, $n$ terms}{ellformallog$(E,\{n\},\{x\})$}
+\li{$log_E(-x(P)/y(P))\in\QQ_p$; $P\in E(\QQ_p)$}{ellpadiclog$(E,p,n,P)$}
+\li{$P$ in the formal group}{ellformalpoint$(E,\{n\},\{x\})$}
+\li{$[\omega/dt,x\omega/dt]$}{ellformaldifferential$(E,\{n\},\{x\})$}
+\li{$w = -1/y$ in parameter $-x/y$}{ellformalw$(E,\{n\},\{x\})$}
 
 \section{Curves over finite fields, Pairings}
 \li{random point on $E$}{random$(E)$}
@@ -94,26 +95,25 @@ $\bullet$ All domains:
 \li{$\#E(\FF_q)$ with almost prime order}{ellsea$(E, \{\var{tors}\})$}
 \li{structure $\ZZ/d_1\ZZ\times \ZZ/d_2\ZZ$ of $E(\FF_q)$}{ellgroup$(E)$}
 \li{is $E$ supersingular?}{ellissupersingular$(E)$}
-\li{Weil pairing of $m$-torsion pts $x,y$}{ellweilpairing$(E,x,y, m)$}
-\li{Tate pairing of $x,y$; $x$ $m$-torsion}{elltatepairing$(E,x,y, m)$}
+\li{Weil pairing of $m$-torsion pts $P,Q$}{ellweilpairing$(E,P,Q, m)$}
+\li{Tate pairing of $P,Q$; $P$ $m$-torsion}{elltatepairing$(E,P,Q, m)$}
 \li{Discrete log, find $n$ s.t. $P=[n]Q$}{elllog$(E,P,Q,\{ord\})$}
 
 \section{Curves over $\QQ$}
 \subsec{Reduction, minimal model}
 \li{minimal model of $E/\QQ$} {ellminimalmodel$(E,\{$\&$v\})$}
 \li{quadratic twist of minimal conductor}{ellminimaltwist}
-\li{multiple with good reduction}
-   {ellnonsingularmultiple$(E,P)$}
+\li{multiple of $P$ with good reduction}{ellnonsingularmultiple$(E,P)$}
+\li{$E$ supersingular at $p$?}{ellissupersingular$(E, p)$}
 
 \subsec{Complex heights}
 \li{canonical height of $P$}{ellheight$(E,P)$}
 \li{canonical bilinear form taken at $P$, $Q$}{ellheight$(E,P,Q)$}
-\li{height regulator matrix for pts in $x$}{ellheightmatrix$(E,x)$}
+\li{height regulator matrix for pts in $L$}{ellheightmatrix$(E,L)$}
 \subsec{$p$-adic heights}
-\li{cyclotomic $p$-adic height of $P\in E(\QQ)$}{ellpadicheight$(E,P,n)$}
-\li{\dots bilinear form at $P,Q\in E(\QQ)$}{ellpadicheight$(E,P,n,Q)$}
-\li{\dots matrix at vector of points}
-   {ellpadicheightmatrix$(E,p,n,x)$}
+\li{cyclotomic $p$-adic height of $P\in E(\QQ)$}{ellpadicheight$(E,p,n,P)$}
+\li{\dots bilinear form at $P,Q\in E(\QQ)$}{ellpadicheight$(E,p,n,P,Q)$}
+\li{\dots matrix at vector for pts in $L$}{ellpadicheightmatrix$(E,p,n,L)$}
 \li{Frobenius on $\QQ_p \otimes H^1_{dR}(E/\QQ)$}{ellpadicfrobenius$(E,p,n)$}
 \li{slope of unit eigenvector of Frobenius}{ellpadics2$(E,p,n)$}
 
@@ -123,7 +123,6 @@ $\bullet$ All domains:
 
 \subsec{$L$-function}
 \li{$p$-th coeff $a_p$ of $L$-function, $p$ prime}{ellap$(E,p)$}
-\li{$E$ supersingular at $p$?}{ellissupersingular$(E, p)$}
 \li{$k$-th coeff $a_k$ of $L$-function}{ellak$(E,k)$}
 \li{$L(E,s)$ (using less memory than \kbd{lfun})}{elllseries$(E,s)$}
 \li{$L^{(r)}(E,1)$ (using less memory than \kbd{lfun})}{ellL1$(E,r)$}
@@ -133,8 +132,8 @@ $\bullet$ All domains:
 \li{root number for $L(E,.)$ at $p$}{ellrootno$(E,\{p\})$}
 \li{modular parametrization of $E$}{elltaniyama$(E)$}
 \li{degree of modular parametrization}{ellmoddegree$(E)$}
-\li{$p$-adic $L$-function of $E$ at $\chi^s$}
-   {ellpadicL$(E,p,n,\{s=0\}$}
+\li{$p$-adic $L$ function $L_p^{(r)}(E,d,\chi^s)$}
+   {ellpadicL$(E,p,n,\{s\},\{r\},\{d\})$}
 
 \subsec{Elldata package, Cremona's database:}
 \li{db code \kbd{"11a1"} $\leftrightarrow$ $[\var{conductor}, \var{class}, \var{index}]$}{ellconvertname$(s)$}
@@ -158,8 +157,7 @@ and $[h]$ encodes $D = [1/2,0,h]$ (critical line up to height $h$).\hfil\break
 \li{vector of first $n$ $a_k$'s in $L$-function}{ellan$(E,n)$}
 \li{init $L^{(k)}(E,s)$ for $k \leq n$}{L = lfuninit$(E, D, \{n = 0\})$}
 \li{compute $L(E,s)$ ($n$-th derivative)}{lfun$(L, s, \{n=0\})$}
-\li{torsion subgroup with generators}{elltors$(E)$}
-\li{$L(E,1,r)/r!/(R\*\text{III})$ assuming BSD}{ellbsd$(E)$}
+\li{$L(E,1,r)/(r! \cdot R\cdot \#Sha)$ assuming BSD}{ellbsd$(E)$}
 
 \section{Other curves of small genus}
 A hyperelliptic curve is given by a pair $[P,Q]$ ($y^2+Qy = P$ with $Q^2+4P$
