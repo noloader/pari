@@ -2101,21 +2101,12 @@ test("quatalg csa over Q", alginit(nfinit(y), mt));
 
 \\test ordering in simpledec
 print("ordering");
-/*
-Sn(n) = {
- [Vecsmall([1+permtonum(Vec(Vecsmall(numtoperm(n,i-1))*Vecsmall(numtoperm(n,j-1)))) |
-   j<-[1..n!]]) | i <- [1..n!]]; \\docu pb? 1..n! ou 0..n!-1 ?
-};*/
-Sn(n) = [Vecsmall(numtoperm(n,i-1)) | i <- [1..n!]];
-D2n(n) = {
- my(gen,G);
- if(n<=2, return(Sn(n)));
- gen = [Vecsmall([i%n+1 | i <- [1..n]]),Vecsmall([n+1-i | i<-[1..n]])];
- G = gen;
- while(#G<2*n, G = Set(concat([G,[gen[1]*g | g <- G],[gen[2]*g | g <- G]])));
- \\[Vecsmall([setsearch(G,g*G[i]) | i<-[1..#G]]) | g <- G]
- G
-};
+Sn(n) = [Vecsmall(numtoperm(n,i)) | i <- [0..n!-1]];
+D2n(n)=
+{
+  [[vectorsmall(2*n,i,if(i==n,1,i==2*n,n+1,i+1)),
+    vectorsmall(2*n,i,if(i==1,n+1,i==n+1,1,2*n+2-i))],Vecsmall([n,2])];
+}
 testordering(al)={
  my(jac, ss, dec);
  jac=algradical(al);
@@ -2318,8 +2309,6 @@ testidem(al)={
   al = alggroupcenter(gal,193);
   testidem(al);
 );}*/
-
-\\galoischartable
 testchar(chartab)={
   x = 'x;
   elts = chartab[1];
@@ -2359,4 +2348,3 @@ testchar(chartab)={
 );}
 galoischartable(Sn(5))[4]
 galoischartable([Vecsmall([1])])
-

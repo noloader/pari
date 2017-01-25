@@ -2611,7 +2611,7 @@ D74
   *** alggroupcenter: incorrect type in alggroup (element) (t_POL).
   ***   at top-level: alggroupcenter('x,1)
   ***                 ^--------------------
-  *** alggroupcenter: incorrect type in alggroupcenter (t_POL).
+  *** alggroupcenter: incorrect type in alggroup (t_POL).
   ***   at top-level: alglathnf(al,0)
   ***                 ^---------------
   *** alglathnf: incorrect type in alglathnf (t_INT).
@@ -2719,4 +2719,4 @@ should fail:
 [6  0  0 -2  0  0  1]
 
 [[Vecsmall([1])], Vecsmall([1]), Vecsmall([1]), Mat(1), 1]
-Total time spent: 12984
+Total time spent: 9168
