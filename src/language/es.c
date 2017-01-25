@@ -919,11 +919,11 @@ void
 str_puts(pari_str *S, const char *s) { while (*s) str_putc(S, *s++); }
 
 static void
-str_putscut(pari_str *S, const char *str, int cut)
+str_putscut(pari_str *S, const char *s, int cut)
 {
-  if (cut < 0) str_puts(S, str);
+  if (cut < 0) str_puts(S, s);
   else {
-    while (*str && cut-- > 0) str_putc(S, *str++);
+    while (*s && cut-- > 0) str_putc(S, *s++);
   }
 }
 
@@ -1867,6 +1867,7 @@ GENtoTeXstr(GEN x) { return GENtostr_fun(x, GP_DATA->fmt, &texi); }
 char *
 GENtostr_unquoted(GEN x)
 { return stack_GENtostr_fun_unquoted(x, GP_DATA->fmt, &bruti); }
+/* alloc-ed on PARI stack */
 char *
 GENtostr_raw(GEN x) { return stack_GENtostr_fun(x,GP_DATA->fmt,&bruti); }
 
@@ -3328,12 +3329,6 @@ fputGEN_pariout(GEN x, pariout_t *T, FILE *out)
 }
 
 void
-gen_output(GEN x, pariout_t *T)
-{
-  if (!T) T = GP_DATA->fmt;
-  gen_output_fun(x, T, get_fun(T->prettyp));
-}
-void
 brute(GEN g, char f, long d)
 {
   pariout_t T; _initout(&T,f,d,0);
@@ -3352,6 +3347,12 @@ texe(GEN g, char f, long d)
   gen_output_fun(g, &T, &texi);
 }
 
+void
+gen_output(GEN x)
+{
+  gen_output_fun(x, GP_DATA->fmt, get_fun(GP_DATA->fmt->prettyp));
+  pari_putc('\n'); pari_flush();
+}
 void
 output(GEN x)
 { brute(x,'g',-1); pari_putc('\n'); pari_flush(); }
@@ -4565,6 +4566,9 @@ sm_dopr(const char *fmt, GEN arg_vector, va_list args)
   str_arg_vprintf(&s, fmt, arg_vector, args);
   return s.string;
 }
+char *
+pari_vsprintf(const char *fmt, va_list ap)
+{ return sm_dopr(fmt, NULL, ap); }
 
 /* dummy needed to pass an empty va_list to sm_dopr */
 static char *
@@ -4590,7 +4594,7 @@ Strprintf(const char *fmt, GEN args)
 void
 out_vprintf(PariOUT *out, const char *fmt, va_list ap)
 {
-  char *s = sm_dopr(fmt, NULL, ap);
+  char *s = pari_vsprintf(fmt, ap);
   out_puts(out, s); pari_free(s);
 }
 void
@@ -4610,14 +4614,10 @@ pari_printf(const char *fmt, ...) /* variadic version of printf0 */
   pari_vprintf(fmt,args); va_end(args);
 }
 
-char *
-pari_vsprintf(const char *fmt, va_list ap)
-{ return sm_dopr(fmt, NULL, ap); }
-
 GEN
 gvsprintf(const char *fmt, va_list ap)
 {
-  char *s = sm_dopr(fmt, NULL, ap);
+  char *s = pari_vsprintf(fmt, ap);
   GEN z = strtoGENstr(s);
   pari_free(s); return z;
 }
@@ -4666,7 +4666,7 @@ gsprintf(const char *fmt, ...) /* variadic version of gvsprintf */
 void
 pari_vfprintf(FILE *file, const char *fmt, va_list ap)
 {
-  char *s = sm_dopr(fmt, NULL, ap);
+  char *s = pari_vsprintf(fmt, ap);
   fputs(s, file); pari_free(s);
 }
 void

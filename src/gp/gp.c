@@ -264,13 +264,7 @@ static int
 test_is_interactive(void) { return 0; }
 
 static void
-test_output(GEN z)
-{
-  init_linewrap(76);
-  gen_output(z, GP_DATA->fmt);
-  pari_putc('\n');
-  pari_flush();
-}
+test_output(GEN z) { init_linewrap(76); gen_output(z); }
 void
 init_test(void)
 {
@@ -488,13 +482,7 @@ break_loop(int numerr)
         killallfiles(); /* completely exit the debugger */
         go_on = 0; goto BR_EXIT;
     }
-
-    if (x != gnil && !is_silent(b->buf))
-    {
-      term_color(c_OUTPUT);
-      gen_output(x, GP_DATA->fmt);
-      pari_putc('\n');
-    }
+    if (x!=gnil && !is_silent(b->buf)) { term_color(c_OUTPUT); gen_output(x); }
   }
 BR_EXIT:
   s_env.n=nenv;
