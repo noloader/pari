@@ -3867,6 +3867,7 @@ long    group_subgroup_isnormal(GEN G, GEN H);
 GEN     group_subgroups(GEN G);
 GEN     groupelts_abelian_group(GEN S);
 GEN     groupelts_center(GEN S);
+long    groupelts_exponent(GEN G);
 GEN     groupelts_set(GEN G, long n);
 int     perm_commute(GEN p, GEN q);
 GEN     perm_cycles(GEN v);

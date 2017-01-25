@@ -957,6 +957,15 @@ group_subgroup_isnormal(GEN G, GEN H)
   return 1;
 }
 
+long
+groupelts_exponent(GEN elts)
+{
+  long i, n = lg(elts)-1, expo = 1;
+  for(i=1; i<=n; i++)
+    expo = clcm(expo, perm_order(gel(elts,i)));
+  return expo;
+}
+
 GEN
 groupelts_center(GEN S)
 {
