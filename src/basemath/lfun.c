@@ -657,9 +657,8 @@ mkvroots(long d, long lim, long prec)
 }
 
 GEN
-lfunthetacheckinit(GEN data, GEN t, long m, long *pbitprec)
+lfunthetacheckinit(GEN data, GEN t, long m, long bitprec)
 {
-  long bitprec = *pbitprec;
   if (is_linit(data) && linit_get_type(data)==t_LDESC_THETA)
   {
     GEN tdom, thetainit = linit_get_tech(data);
@@ -669,7 +668,6 @@ lfunthetacheckinit(GEN data, GEN t, long m, long *pbitprec)
     if (m0 != m)
       pari_err_DOMAIN("lfuntheta","derivative order","!=", stoi(m),stoi(m0));
     if (bitprec > bitprecnew) goto INIT;
-    *pbitprec = bitprecnew;
     get_cone(t, &rt, &alt);
     tdom = theta_get_tdom(thetainit);
     r = rtodbl(gel(tdom,1));
@@ -796,9 +794,9 @@ lfuntheta(GEN data, GEN t, long m, long bitprec)
   pari_sp ltop = avma;
   long limt, d;
   GEN sqN, vecan, Vga, ldata, theta, thetainit, S;
-  long n, bitprecnew = bitprec, prec = nbits2prec(bitprec);
+  long n, prec = nbits2prec(bitprec);
   t = gprec_w(t, prec);
-  theta = lfunthetacheckinit(data, t, m, &bitprecnew);
+  theta = lfunthetacheckinit(data, t, m, bitprec);
   ldata = linit_get_ldata(theta);
   thetainit = linit_get_tech(theta);
   vecan = theta_get_an(thetainit);
@@ -831,7 +829,7 @@ lfuntheta(GEN data, GEN t, long m, long bitprec)
       if (gequal0(an)) continue;
       nt = gmul(gel(vroots,n), t);
       if (m) an = gmul(an, powuu(n, m));
-      S = gadd(S, gmul(an, gammamellininvrt(K, nt, bitprecnew)));
+      S = gadd(S, gmul(an, gammamellininvrt(K, nt, bitprec)));
     }
     if (m) S = gdiv(S, gpowgs(sqN, m));
     return gerepileupto(ltop, S);
@@ -1772,7 +1770,7 @@ lfuncheckfeq(GEN lmisc, GEN t0, long bitprec)
   else
     t0i = ginv(t0);
   /* |t0| >= 1 */
-  theta = lfunthetacheckinit(lmisc, t0i, 0, &bitprec);
+  theta = lfunthetacheckinit(lmisc, t0i, 0, bitprec);
   ldata = linit_get_ldata(theta);
   thetad = theta_dual(theta, ldata_get_dual(ldata));
   if (thetad)
@@ -1916,7 +1914,7 @@ lfunrootno(GEN linit, long bitprec)
   pari_sp av;
 
   /* initialize for t > 1/sqrt(2) */
-  linit = lfunthetacheckinit(linit, dbltor(sqrt(0.5)), 0, &bitprec);
+  linit = lfunthetacheckinit(linit, dbltor(sqrt(0.5)), 0, bitprec);
   ldata = linit_get_ldata(linit);
   k = ldata_get_k(ldata);
   R = ldata_get_residue(ldata)? lfunrtoR_eno(ldata, pol_x(vx), prec)
@@ -1977,7 +1975,7 @@ lfunrootres(GEN data, long bitprec)
       R = lfunrtoR_eno(ldata, w, nbits2prec(bitprec));
     return gerepilecopy(ltop, mkvec3(r, R, w));
   }
-  linit = lfunthetacheckinit(data, dbltor(sqrt(0.5)), 0, &bitprec);
+  linit = lfunthetacheckinit(data, dbltor(sqrt(0.5)), 0, bitprec);
   prec = nbits2prec(bitprec);
   if (lg(r) > 2) pari_err_IMPL("multiple poles in lfunrootres");
   /* Now residue unknown, and r = [[be,0]]. */
