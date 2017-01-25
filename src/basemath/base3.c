@@ -2654,8 +2654,9 @@ Idealstar_i(GEN nf, GEN ideal, long flag)
   else
   {
     fa = idealfactor(nf, ideal);
-    x = idealhnf_shallow(nf, ideal);
+    x = ideal;
   }
+  if (typ(x) != t_MAT)  x = idealhnf_shallow(nf, x);
   if (lg(x) == 1) pari_err_DOMAIN("Idealstar", "ideal","=",gen_0,x);
   if (typ(gcoeff(x,1,1)) != t_INT)
     pari_err_DOMAIN("Idealstar","denominator(ideal)", "!=",gen_1,x);

@@ -40,6 +40,7 @@ PB   29- matinverseimage could find spurious solutions [#1888]
      34- lfuninit: incorrect guess for root number depending on init domain
           E = ellinit([0,-a,1,157*a-27,-90*a-543], nfinit(a^2-a+1));
           lfuninit(E,[0,20,10])[2][6] -> 1 (whereas rootno is -1)
+     35- bnrinit(bnf,idealfactor(bnf,1)) -> SEGV [#1890]
 
   Added
       1- [libari] ZM_isidentity
