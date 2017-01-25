@@ -4013,7 +4013,7 @@ static int
 is_gal_or_grp(GEN gal)
 {
   if(lg(gal)==9 && typ(gel(gal,1))==t_POL) return 1;
-  if(lg(gal)==3 && typ(gel(gal,1))==t_VEC && typ(gel(gal,2))==t_VEC) return 1;
+  if(lg(gal)==3 && typ(gel(gal,1))==t_VEC && typ(gel(gal,2))==t_VECSMALL) return 1;
   return 0;
 }
 
