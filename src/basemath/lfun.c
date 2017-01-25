@@ -1962,8 +1962,7 @@ GEN
 lfunrootres(GEN data, long bitprec)
 {
   pari_sp ltop = avma;
-  GEN w, r, R, a, b, c, d, e, f, dete, th1, th2;
-  GEN v, v2, t0, be, tbe, tkbe, tk2, ldata, linit;
+  GEN w, r, R, a, b, e, v, v2, be, ldata, linit;
   long k, prec;
 
   ldata = lfunmisc_to_ldata_shallow(data);
@@ -1997,33 +1996,33 @@ lfunrootres(GEN data, long bitprec)
   {
     GEN p2k = int2n(k);
     a = gconj(gsub(gmul(p2k, v), v2));
-    b = subis(p2k, 1);
+    b = subiu(p2k, 1);
     e = gmul(gsqrt(p2k, prec), gsub(v2, v));
   }
   else
   {
-    tk2 = gsqrt(int2n(k), prec);
-    tbe = gpow(gen_2, be, prec);
-    tkbe = gpow(gen_2, gdivgs(gsubsg(k, be), 2), prec);
+    GEN tk2 = gsqrt(int2n(k), prec);
+    GEN tbe = gpow(gen_2, be, prec);
+    GEN tkbe = gpow(gen_2, gdivgs(gsubsg(k, be), 2), prec);
     a = gconj(gsub(gmul(tbe, v), v2));
     b = gsub(gdiv(tbe, tkbe), tkbe);
     e = gsub(gmul(gdiv(tbe, tk2), v2), gmul(tk2, v));
   }
-  if (!gequal0(w)) R = gdiv(gsub(e, gmul(a, w)), b);
+  if (!isintzero(w)) R = gdiv(gsub(e, gmul(a, w)), b);
   else
   { /* Now residue unknown, r = [[be,0]], and w unknown. */
-    t0  = mkfrac(stoi(11),stoi(10));
-    th1 = lfuntheta(linit, t0,  0, bitprec);
-    th2 = lfuntheta(linit, ginv(t0), 0, bitprec);
-    tbe = gpow(t0, gmulsg(2, be), prec);
-    tkbe = gpow(t0, gsubsg(k, be), prec);
-    tk2 = gpowgs(t0, k);
-    c = gconj(gsub(gmul(tbe, th1), th2));
-    d = gsub(gdiv(tbe, tkbe), tkbe);
-    f = gsub(gmul(gdiv(tbe, tk2), th2), gmul(tk2, th1));
-    dete = gsub(gmul(a, d), gmul(b, c));
-    w = gdiv(gsub(gmul(d, e), gmul(b, f)), dete);
-    R = gdiv(gsub(gmul(a, f), gmul(c, e)), dete);
+    GEN t0  = mkfrac(stoi(11),stoi(10));
+    GEN th1 = lfuntheta(linit, t0,  0, bitprec);
+    GEN th2 = lfuntheta(linit, ginv(t0), 0, bitprec);
+    GEN tbe = gpow(t0, gmulsg(2, be), prec);
+    GEN tkbe = gpow(t0, gsubsg(k, be), prec);
+    GEN tk2 = gpowgs(t0, k);
+    GEN c = gconj(gsub(gmul(tbe, th1), th2));
+    GEN d = gsub(gdiv(tbe, tkbe), tkbe);
+    GEN f = gsub(gmul(gdiv(tbe, tk2), th2), gmul(tk2, th1));
+    GEN D = gsub(gmul(a, d), gmul(b, c));
+    w = gdiv(gsub(gmul(d, e), gmul(b, f)), D);
+    R = gdiv(gsub(gmul(a, f), gmul(c, e)), D);
   }
   r = Rtor(be, R, ldata, prec);
   return gerepilecopy(ltop, mkvec3(r, R, ropm1(w, prec)));
