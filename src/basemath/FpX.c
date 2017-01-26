@@ -2098,7 +2098,7 @@ FpXQ_sqrtn(GEN a, GEN n, GEN T, GEN p, GEN *zeta)
   {
     void *E;
     const struct bb_group *S = get_FpXQ_star(&E,T,p);
-    GEN o = addis(powiu(p,get_FpX_degree(T)),-1);
+    GEN o = subiu(powiu(p,get_FpX_degree(T)),1);
     z = gen_Shanks_sqrtn(a,n,o,zeta,E,S);
     if (!z) return NULL;
     if (!zeta) return gerepileupto(av, z);

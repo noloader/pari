@@ -365,7 +365,7 @@ iter_rho(GEN x, GEN g, GEN q, GEN A, ulong h, void *E, const struct bb_group *gr
     case 1:
       return mkvec3(grp->mul(E,a,x),addis(gel(A,2),1),gel(A,3));
     case 2:
-      return mkvec3(grp->mul(E,a,g),gel(A,2),addis(gel(A,3),1));
+      return mkvec3(grp->mul(E,a,g),gel(A,2),addiu(gel(A,3),1));
   }
   return NULL;
 }

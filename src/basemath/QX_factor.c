@@ -1026,7 +1026,7 @@ maxnorm(GEN p)
     if (abscmpii(x,m) > 0) m = x;
   }
   m = divii(m, gel(p,n));
-  return gerepileuptoint(av, addis(absi(m),1));
+  return gerepileuptoint(av, addiu(absi(m),1));
 }
 #endif
 

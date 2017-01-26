@@ -521,7 +521,7 @@ FqX_quad_root(GEN x, GEN T, GEN p)
   GEN D = Fq_sub(Fq_sqr(b, T, p), Fq_mulu(c,4, T, p), T, p);
   GEN s = Fq_sqrt(D,T, p);
   if (!s) return NULL;
-  return Fq_Fp_mul(Fq_sub(s, b, T, p), shifti(addis(p, 1),-1),T, p);
+  return Fq_Fp_mul(Fq_sub(s, b, T, p), shifti(addiu(p, 1),-1),T, p);
 }
 
 /*
@@ -733,8 +733,8 @@ Fp_ellcard_Shanks(GEN c4, GEN c6, GEN p)
 
   if (DEBUGLEVEL >= 6) timer_start(&T);
   /* once #E(Fp) is know mod B >= pordmin, it is completely determined */
-  pordmin = addis(sqrti(gmul2n(p,4)), 1); /* ceil( 4sqrt(p) ) */
-  p1p = addsi(1, p);
+  pordmin = addiu(sqrti(gmul2n(p,4)), 1); /* ceil( 4sqrt(p) ) */
+  p1p = addiu(p, 1);
   p2p = shifti(p1p, 1);
   x = 0; KRO = 0;
   /* how many 2-torsion points ? */
@@ -1190,7 +1190,7 @@ Fp_ellcard_CM(GEN a4, GEN a6, GEN p)
     if (!CM) { avma = av; return NULL; }
     a = ec_ap_cm(CM,a4,a6,p);
   }
-  return gerepileuptoint(av, subii(addis(p,1),a));
+  return gerepileuptoint(av, subii(addiu(p,1),a));
 }
 
 GEN
@@ -1783,15 +1783,15 @@ GEN
 Fp_ffellcard(GEN a4, GEN a6, GEN q, long n, GEN p)
 {
   pari_sp av = avma;
-  GEN ap = subii(addis(p, 1), Fp_ellcard(a4, a6, p));
+  GEN ap = subii(addiu(p, 1), Fp_ellcard(a4, a6, p));
   GEN te = elltrace_extension(ap, n, p);
-  return gerepileuptoint(av, subii(addis(q, 1), te));
+  return gerepileuptoint(av, subii(addiu(q, 1), te));
 }
 
 static GEN
 FpXQ_ellcardj(GEN a4, GEN a6, GEN j, GEN T, GEN q, GEN p, long n)
 {
-  GEN q1 = addis(q,1);
+  GEN q1 = addiu(q,1);
   if (signe(j)==0)
   {
     GEN W, w, t, N;

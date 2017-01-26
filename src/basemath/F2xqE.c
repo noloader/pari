@@ -859,7 +859,7 @@ F2xq_ellcard(GEN a, GEN a6, GEN T)
   else
   {
     GEN q = int2u(n);
-    c = subii(addis(q, 1), F2xq_elltracej(a, a6, T, q, n));
+    c = subii(addiu(q,1), F2xq_elltracej(a, a6, T, q, n));
   }
   return gerepileuptoint(av, c);
 }

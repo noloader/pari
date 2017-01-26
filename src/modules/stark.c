@@ -1644,7 +1644,7 @@ RecCoeff3(GEN nf, RC_data *d, long prec)
   tB  = sqrtnr(real2n(BIG-N,DEFAULTPREC), N-1);
   Bd  = grndtoi(gmin(B, tB), &e);
   if (e > 0) return NULL; /* failure */
-  Bd = addis(Bd, 1);
+  Bd = addiu(Bd, 1);
   prec2 = nbits2prec( expi(Bd) + 192 );
   prec2 = maxss(precdbl(prec), prec2);
   B2 = sqri(Bd);

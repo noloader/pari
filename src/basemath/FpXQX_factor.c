@@ -456,7 +456,7 @@ FpX_ffintersect(GEN P, GEN Q, long n, GEN l, GEN *SP, GEN *SQ, GEN MA, GEN MB)
   }
   if (e)
   {
-    GEN VP, VQ, Ay, By, lmun = addis(l,-1);
+    GEN VP, VQ, Ay, By, lmun = subiu(l,1);
     long j;
     MA = RgM_Rg_add_shallow(MA,gen_m1);
     MB = RgM_Rg_add_shallow(MB,gen_m1);

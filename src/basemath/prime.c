@@ -367,7 +367,7 @@ IsLucasPsP(GEN N)
     if (b == 129 && Z_issquare(N)) return 0; /* avoid oo loop if N = m^2 */
     if (krouu(umodiu(N,c), c) < 0) break;
   }
-  m = addis(N,1); v = vali(m); m = shifti(m,-v);
+  m = addiu(N,1); v = vali(m); m = shifti(m,-v);
   z = LucasMod(m, b, N);
   if (absequaliu(z, 2)) return 1;
   if (equalii(z, subiu(N,2))) return 1;
@@ -610,7 +610,7 @@ BPSW_isprime_small(GEN x)
 static ulong
 pl831(GEN N, GEN p)
 {
-  GEN b, c, g, Nmunp = diviiexact(addis(N,-1), p);
+  GEN b, c, g, Nmunp = diviiexact(subiu(N,1), p);
   pari_sp av = avma;
   ulong a;
   for(a = 2;; a++, avma = av)
@@ -619,7 +619,7 @@ pl831(GEN N, GEN p)
     if (!equali1(b)) break;
   }
   c = Fp_pow(b,p,N);
-  g = gcdii(addis(b,-1), N); /* 0 < g < N */
+  g = gcdii(subiu(b,1), N); /* 0 < g < N */
   return (equali1(c) && equali1(g))? a: 0;
 }
 
@@ -739,7 +739,7 @@ isprimePL(GEN N)
   }
   /* N > 2 */
   cbrtN = sqrtnint(N, 3);
-  N_1 = addis(N,-1);
+  N_1 = subiu(N,1);
   F = Z_factor_until(N_1, sqri(cbrtN));
   f = factorback(F); /* factored part of N-1, f^3 > N */
   if (DEBUGLEVEL>3)

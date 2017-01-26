@@ -1051,7 +1051,7 @@ fa_shift2(GEN fa)
   if (absequaliu(gcoeff(fa,1,1), 2))
   {
     E = shallowcopy(E);
-    gel(E,1) = addis(gel(E,1), 2);
+    gel(E,1) = addiu(gel(E,1), 2);
   }
   else
   {

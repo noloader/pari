@@ -245,7 +245,7 @@ smoothness_vec(ulong p, long r, long n)
       pari_sp av2 = avma;
       if (l*k == j)
       {
-        s = binomial(addis(Ik,l-1), l);
+        s = binomial(addiu(Ik,l-1), l);
         l--;
       }
       for (i = 0; i <= l; ++i)

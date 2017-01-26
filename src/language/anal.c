@@ -1316,8 +1316,8 @@ GEN gmode(GEN *x, GEN y) { *x = gmod(*x,y); return *x; }
 GEN gshiftle(GEN *x, long n) { *x = gshift(*x,n); return *x; }
 GEN gshiftre(GEN *x, long n) { *x = gshift(*x,-n); return *x; }
 GEN gadde(GEN *x, GEN y) { *x = gadd(*x,y); return *x; }
-GEN gadd1e(GEN *x) { *x = typ(*x)==t_INT?addis(*x,1):gaddgs(*x,1); return *x; }
+GEN gadd1e(GEN *x) { *x = typ(*x)==t_INT?addiu(*x,1):gaddgs(*x,1); return *x; }
 GEN gsube(GEN *x, GEN y) { *x = gsub(*x,y); return *x; }
-GEN gsub1e(GEN *x) { *x = typ(*x)==t_INT?subis(*x,1):gsubgs(*x,1); return *x; }
+GEN gsub1e(GEN *x) { *x = typ(*x)==t_INT?subiu(*x,1):gsubgs(*x,1); return *x; }
 
 GEN gshift_right(GEN x, long n) { return gshift(x,-n); }

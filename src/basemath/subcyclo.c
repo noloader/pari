@@ -945,7 +945,7 @@ factor_Aurifeuille(GEN a, long d)
     if (d == 1)
     {
       if (!Z_issquareall(a, &A)) return gen_1;
-      return gerepileuptoint(av, addis(A,1));
+      return gerepileuptoint(av, addiu(A,1));
     }
     A = va? shifti(a, -va): a;
     a4 = mod4(A); if (sa < 0) a4 = 4 - a4;

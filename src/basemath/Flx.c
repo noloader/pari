@@ -2955,7 +2955,7 @@ Flxq_sqrtn(GEN a, GEN n, GEN T, ulong p, GEN *zeta)
     void *E;
     pari_sp av = avma;
     const struct bb_group *S = get_Flxq_star(&E,T,p);
-    GEN o = addis(powuu(p,get_Flx_degree(T)),-1);
+    GEN o = subiu(powuu(p,get_Flx_degree(T)), 1);
     GEN s = gen_Shanks_sqrtn(a,n,o,zeta,E,S);
     if (s) gerepileall(av, zeta?2:1, &s, zeta);
     return s;
@@ -3393,7 +3393,7 @@ Fl2_sqrtn_pre(GEN a, GEN n, ulong D, ulong p, ulong pi, GEN *zeta)
     return zv_copy(a);
   }
   E.p=p; E.pi = pi; E.D = D;
-  o = addis(powuu(p,2),-1);
+  o = subiu(powuu(p,2), 1);
   return gen_Shanks_sqrtn(a,n,o,zeta,(void*)&E,&Fl2_star);
 }
 

@@ -1657,7 +1657,7 @@ static GEN
 match_and_sort(GEN compile_atkin, GEN Mu, GEN u, GEN q, void *E, const struct bb_group *grp)
 {
   pari_sp av1, av2;
-  GEN baby, giant, SgMb, Mb, Mg, den, Sg, dec_inf, div, pp1 = addis(q,1);
+  GEN baby, giant, SgMb, Mb, Mg, den, Sg, dec_inf, div, pp1 = addiu(q,1);
   GEN P, Pb, Pg, point, diff, pre, table, table_ind;
   long best_i, i, lbaby, lgiant, k = lg(compile_atkin)-1;
   GEN bound = sqrti(shifti(q, 2)), card;
@@ -1915,7 +1915,7 @@ Fq_ellcard_SEA(GEN a4, GEN a6, GEN q, GEN T, GEN p, ulong smallfact)
       {
         delete_var();
         delete_var();
-        return gerepileuptoint(ltop, subii(addis(q, 1), TR));
+        return gerepileuptoint(ltop, subii(addiu(q, 1), TR));
       }
       bound_tr = mulrr(bound_bsgs, dbltor(bound_gr));
       bound_gr *= growth_factor;

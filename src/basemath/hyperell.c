@@ -105,7 +105,7 @@ ZpXXQ_invsqrt(GEN S, GEN T, ulong p, long e)
     q = powuu(p,n); q2 = powuu(p,n2);
     f = RgX_sub(FpXXQ_mul(FpXX_red(S, q), FpXXQ_sqr(a, T, q), T, q), pol_1(v));
     fq = ZXX_Z_divexact(f, q2);
-    q22 = shifti(addis(q2,1),-1);
+    q22 = shifti(addiu(q2,1),-1);
     afq = FpXX_Fp_mul(FpXXQ_mul(a, fq, T, q2), q22, q2);
     a = RgX_sub(a, ZXX_Z_mul(afq, q2));
     if (gc_needed(av2,1))
@@ -431,7 +431,7 @@ ZpXQXXQ_invsqrt(GEN F, GEN S, GEN T, ulong p, long e)
     av3 = avma;
     f = RgX_sub(ZpXQXXQ_mul(F, ZpXQXXQ_sqr(a, S, T, q, pp, n), S, T, q, pp, n), pol_1(v));
     fq = gerepileupto(av3, RgX_Rg_divexact(f, q2));
-    q22 = shifti(addis(q2,1),-1);
+    q22 = shifti(addiu(q2,1),-1);
     afq = FpXXX_Fp_mul(ZpXQXXQ_mul(a, fq, S, T, q2, pp, n2), q22, q2);
     a = RgX_sub(a, RgX_Rg_mul(afq, q2));
     if (gc_needed(av2,1))

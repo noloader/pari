@@ -3127,7 +3127,7 @@ static GEN
 _Fp_pow(void *E, GEN x, GEN n) { return Fp_pow(x,n,(GEN)E); }
 
 static GEN
-_Fp_rand(void *E) { return addis(randomi(subis((GEN)E,1)),1); }
+_Fp_rand(void *E) { return addiu(randomi(subiu((GEN)E,1)),1); }
 
 static GEN Fp_easylog(void *E, GEN a, GEN g, GEN ord);
 
@@ -3746,10 +3746,10 @@ Fp_sqrtn(GEN a, GEN n, GEN p, GEN *zeta)
   }
   if (absequaliu(n,2))
   {
-    if (zeta) *zeta = addis(p,-1);
+    if (zeta) *zeta = subiu(p,1);
     return Fp_sqrt(a,p);
   }
-  return gen_Shanks_sqrtn(a,n,addis(p,-1),zeta,(void*)p,&Fp_star);
+  return gen_Shanks_sqrtn(a,n,subiu(p,1),zeta,(void*)p,&Fp_star);
 }
 
 /*********************************************************************/
@@ -3990,7 +3990,7 @@ Qsfcont(GEN a, GEN b, GEN y, ulong k)
         c = subii(c, b);
         if (cmpii(c, b) < 0) {
           /* by 1. If next quotient is 1 in y, add 1 */
-          if (i < l && equali1(gel(y,i+1))) gel(z,i) = addis(q,1);
+          if (i < l && equali1(gel(y,i+1))) gel(z,i) = addiu(q,1);
           i++;
         }
         break;

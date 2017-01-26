@@ -3876,11 +3876,11 @@ findmaximalsubfield(GEN al, GEN d, long v)
     for(count=0; count<nb; count++)
     {
       i = random_Fl(N)+1;
-      gel(x,i) = addis(randomi(maxc),1);
+      gel(x,i) = addiu(randomi(maxc),1);
       if (random_bits(1)) gel(x,i) = negi(gel(x,i));
     }
     if (ismaximalsubfield(al, x, d, v, &minpol)) return mkvec2(x,minpol);
-    if (!random_bits(3)) maxc = addis(maxc,1);
+    if (!random_bits(3)) maxc = addiu(maxc,1);
     if (nb<N) nb++;
   }
 
@@ -4155,7 +4155,7 @@ groupelts_algcenter(GEN elts, GEN genes, GEN p, GEN* ptr_conjclasses)
       k = vecsearch(elts,xixj,NULL);
       ck = conjclass[k];
       if(repclass[ck]==k)
-        gcoeff(gel(mt,ci),ck,cj) = addis(gcoeff(gel(mt,ci),ck,cj) ,1);
+        gcoeff(gel(mt,ci),ck,cj) = addiu(gcoeff(gel(mt,ci),ck,cj), 1);
     }
   }
   if(p)

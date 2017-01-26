@@ -146,7 +146,7 @@ treatsub(subgp_iter *T, GEN H)
 
 /* x a t_INT, x++. Could be optimized... */
 static void
-inc(GEN x) { affii(addis(x,1), x); }
+inc(GEN x) { affii(addiu(x,1), x); }
 
 /* assume t>0 and l>1 */
 static void

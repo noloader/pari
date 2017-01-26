@@ -562,7 +562,7 @@ finda(Cache *Cp, GEN N, long pk, long p)
   {
     GEN ph, b, q;
     ulong u = 2;
-    long v = Z_lvalrem(addis(N,-1), p, &q);
+    long v = Z_lvalrem(subiu(N,1), p, &q);
     ph = powuu(p, v-1); pv = muliu(ph, p); /* N - 1 = p^v q */
     if (p > 2)
     {
@@ -580,7 +580,7 @@ finda(Cache *Cp, GEN N, long pk, long p)
       b = Fp_pow(a, ph, N);
     }
     /* checking b^p = 1 mod N done economically in caller */
-    b = gcdii(addis(b,-1), N);
+    b = gcdii(subiu(b,1), N);
     if (!gequal1(b)) return NULL;
 
     if (Cp) {
@@ -813,7 +813,7 @@ step4a(Cache *C, Red *R, ulong q, long p, long k, GEN tabg)
 static long
 is_m1(GEN x, GEN N)
 {
-  return equalii(addis(x,1), N);
+  return equalii(addiu(x,1), N);
 }
 
 /* p=2, k>=3 */

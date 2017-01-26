@@ -298,7 +298,7 @@ genrand(GEN N)
         if (typ(a) != t_INT || typ(b) != t_INT) pari_err_TYPE("random", N);
         d = subii(b,a);
         if (signe(d) < 0) pari_err_TYPE("random([a,b]) (a > b)", N);
-        return gerepileuptoint(av, addii(a, randomi(addis(d,1))));
+        return gerepileuptoint(av, addii(a, randomi(addiu(d,1))));
       }
       return ellrandom(N);
     default:

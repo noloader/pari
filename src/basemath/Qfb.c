@@ -268,7 +268,7 @@ qfr_1_by_disc(GEN D, long prec)
   check_quaddisc_real(D, &r, "qfr_1_by_disc");
   gel(y,1) = gen_1; isqrtD = sqrti(D);
   if ((r & 1) != mod2(isqrtD)) /* we know isqrtD > 0 */
-    isqrtD = gerepileuptoint(av, addsi(-1,isqrtD));
+    isqrtD = gerepileuptoint(av, subiu(isqrtD,1));
   gel(y,2) = isqrtD; av = avma;
   gel(y,3) = gerepileuptoint(av, shifti(subii(sqri(isqrtD), D),-2));
   gel(y,4) = real_0(prec); return y;
@@ -286,7 +286,7 @@ qfr_1_fill(GEN y, struct qfr_data *S)
   pari_sp av = avma;
   GEN y2 = S->isqrtD;
   gel(y,1) = gen_1;
-  if (mod2(S->D) != mod2(y2)) y2 = addsi(-1,y2);
+  if (mod2(S->D) != mod2(y2)) y2 = addiu(y,1);
   gel(y,2) = y2; av = avma;
   gel(y,3) = gerepileuptoint(av, shifti(subii(sqri(y2), S->D),-2));
 }
@@ -537,9 +537,9 @@ dvmdii_round(GEN b, GEN a, GEN *r)
 {
   GEN a2 = shifti(a, 1), q = dvmdii(b, a2, r);
   if (signe(b) >= 0) {
-    if (abscmpii(*r, a) > 0) { q = addis(q,  1); *r = subii(*r, a2); }
+    if (abscmpii(*r, a) > 0) { q = addiu(q, 1); *r = subii(*r, a2); }
   } else { /* r <= 0 */
-    if (abscmpii(*r, a) >= 0){ q = addis(q, -1); *r = addii(*r, a2); }
+    if (abscmpii(*r, a) >= 0){ q = subiu(q, 1); *r = addii(*r, a2); }
   }
   return q;
 }
@@ -804,8 +804,8 @@ static void
 fix_expo(GEN x)
 {
   if (expo(gel(x,5)) >= (1L << EMAX)) {
-    gel(x,4) = addsi(1, gel(x,4));
-    shiftr_inplace(gel(x, 5), - (1L << EMAX));
+    gel(x,4) = addiu(gel(x,4), 1);
+    shiftr_inplace(gel(x,5), - (1L << EMAX));
   }
 }
 

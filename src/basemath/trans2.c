@@ -1199,7 +1199,7 @@ cxgamma(GEN s0, int dolog, long prec)
     if (is_bigint(s0)) {
       for (i=1; i < nn; i++)
       {
-        y = mulri(y, addis(s0, i));
+        y = mulri(y, addiu(s0, i));
         if (gc_needed(av2,3))
         {
           if(DEBUGMEM>1) pari_warn(warnmem,"gamma");

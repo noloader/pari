@@ -619,7 +619,7 @@ compute_data(blockdata *B)
   if (DATA)
   {
     GEN Xm1 = gsub(pol_x(varn(pol)), gen_1);
-    GEN TR = addis(gel(DATA,5), 1);
+    GEN TR = addiu(gel(DATA,5), 1);
     GEN mTR = negi(TR), interp, bezoutC;
 
     if (DEBUGLEVEL>1) err_printf("... update (translate) an existing DATA\n\n");

@@ -299,7 +299,7 @@ _next_lt_i(forvec_t *d)
         if (cmpii(d->a[i-1], d->a[i]) < 0) continue;
         av = avma;
         /* M[i] > M[i-1] >= a[i-1] */
-        t = addis(d->a[i-1],1); if (cmpii(t, d->m[i]) < 0) t = d->m[i];
+        t = addiu(d->a[i-1],1); if (cmpii(t, d->m[i]) < 0) t = d->m[i];
         d->a[i] = resetloop(d->a[i], t);/*a[i]:=max(a[i-1]+1,m[i]) <= M[i]*/
         avma = av;
       }
@@ -325,7 +325,7 @@ _next_lt(forvec_t *d)
         i++;
         if (gcmp(d->a[i-1], d->a[i]) < 0) continue;
         /* M[i] > M[i-1] >= a[i-1] >= a[i] */
-        c = addis(gfloor(gsub(d->a[i-1], d->a[i])), 1); /* > a[i-1] - a[i] */
+        c = addiu(gfloor(gsub(d->a[i-1], d->a[i])), 1); /* > a[i-1] - a[i] */
         d->a[i] = gadd(d->a[i], c);
         /* a[i-1] < a[i] <= M[i-1] + 1 => a[i] < M[i]+1 => a[i] <= M[i] */
       }
@@ -375,7 +375,7 @@ forvec_init(forvec_t *d, GEN x, long flag)
       case 2: /* a > m[i-1] - m */
         a = gfloor(gsub(d->m[i-1], m));
         if (typ(a) != t_INT) pari_err_TYPE("forvec",a);
-        a = addis(a, 1);
+        a = addiu(a, 1);
         if (signe(a) > 0) m = gadd(m, a); else m = gcopy(m);
         break;
       default: m = gcopy(m);

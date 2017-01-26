@@ -2462,7 +2462,7 @@ idealapprfact_i(GEN nf, GEN x, int nored)
   if (!z) return gen_1;
   if (nored || typ(z) != t_COL) return z;
   e2 = cgetg(r, t_VEC);
-  for (i=1; i<r; i++) gel(e2,i) = addis(gel(e,i), 1);
+  for (i=1; i<r; i++) gel(e2,i) = addiu(gel(e,i), 1);
   x = factorbackprime(nf, L,e2);
   if (flagden) /* denominator */
   {

@@ -1088,7 +1088,7 @@ Flxq_ellcard_Kohel(GEN a4, GEN a6, GEN T, ulong p)
     Nc2 = Fp_mul(Nc2,tNc2,q);
   }
   t = Fp_center(Fp_mul(Nc2,Np,q),q,shifti(q,-1));
-  return gerepileupto(av, subii(addis(powuu(p,n),1),t));
+  return gerepileupto(av, subii(addiu(powuu(p,n),1),t));
 }
 
 static void
@@ -1237,7 +1237,7 @@ Flxq_ellcard_Harley(GEN a4, GEN a6, GEN T, ulong p)
     Nc2 = Fp_mul(Nc2,tNc2,q);
   }
   t = Fp_center(Fp_mul(Nc2,Np,q),q,shifti(q,-1));
-  return gerepileupto(av, subii(addis(powuu(p,n),1),t));
+  return gerepileupto(av, subii(addiu(powuu(p,n),1),t));
 }
 
 /***************************************************************************/
@@ -1422,8 +1422,8 @@ Flxq_ellcard_Shanks(GEN a4, GEN a6, GEN q, GEN T, ulong p)
   pari_sp av = avma;
   long vn = get_Flx_var(T), n = get_Flx_degree(T), KRO = -1;
   GEN h,f, ta4, A, B, m;
-  GEN q1p = addsi(1, q), q2p = shifti(q1p, 1);
-  GEN bound = addis(sqrti(gmul2n(q,4)), 1); /* ceil( 4sqrt(q) ) */
+  GEN q1p = addiu(q,1), q2p = shifti(q1p, 1);
+  GEN bound = addiu(sqrti(gmul2n(q,4)), 1); /* ceil( 4sqrt(q) ) */
   /* once #E(Flxq) is know mod B >= bound, it is completely determined */
   /* how many 2-torsion points ? */
   switch(FlxqX_nbroots(mkpoln(4, pol1_Flx(vn), pol0_Flx(vn), a4, a6), T, p))
@@ -1466,7 +1466,7 @@ F3xq_ellcard(GEN a2, GEN a6, GEN T)
     return utoi(F3xq_ellcard_naive(a2, a6, T));
   else
   {
-    GEN q1 = addis(powuu(3, get_Flx_degree(T)), 1), t;
+    GEN q1 = addiu(powuu(3, get_Flx_degree(T)), 1), t;
     GEN a = Flxq_div(a6,Flxq_powu(a2,3,T,3),T,3);
     if (Flx_equal1(Flxq_powu(a, 8, T, 3)))
     {
@@ -1499,7 +1499,7 @@ Flxq_ellcard_Satoh(GEN a4, GEN a6, GEN j, GEN T, ulong p)
       if (degpol(m) <= 0)
       {
         GEN q = sqru(p);
-        GEN q1 = addis(powuu(p, get_Flx_degree(T)), 1);
+        GEN q1 = addiu(powuu(p, get_Flx_degree(T)), 1);
         GEN sk = Flx_Fl_add(Flx_neg(j, p), 1728%p, p);
         GEN sA4 = Flx_triple(Flxq_mul(sk, j, T, p), p);
         GEN u = Flxq_div(a4, sA4, T, p);
@@ -1529,7 +1529,7 @@ Flxq_ellcard_Kedlaya(GEN a4, GEN a6, GEN T, ulong p)
   GEN q = powuu(p, e);
   GEN tp = Fq_add(gcoeff(N,1,1), gcoeff(N,2,2), Tp, q);
   GEN t = Fp_center(typ(tp)==t_INT ? tp: leading_coeff(tp), q, shifti(q,-1));
-  return gerepileupto(av, subii(addis(powuu(p, n), 1), t));
+  return gerepileupto(av, subii(addiu(powuu(p, n), 1), t));
 }
 
 GEN
@@ -1577,7 +1577,7 @@ F3xq_ellcardj(GEN a4, GEN a6, GEN T, GEN q, long n)
 {
   const ulong p = 3;
   ulong t;
-  GEN q1 = addis(q,1);
+  GEN q1 = addiu(q,1);
   GEN na4 = Flx_neg(a4,p), ra4;
   if (!Flxq_issquare(na4,T,p))
     return q1;
@@ -1604,7 +1604,7 @@ F3xq_ellcardj(GEN a4, GEN a6, GEN T, GEN q, long n)
 static GEN
 Flxq_ellcardj(GEN a4, GEN a6, ulong j, GEN T, GEN q, ulong p, long n)
 {
-  GEN q1 = addis(q,1);
+  GEN q1 = addiu(q,1);
   if (j==0)
   {
     ulong w;
