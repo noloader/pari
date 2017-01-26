@@ -66,6 +66,26 @@ check(sumnumap(n=[1,-3/2], sin(1/sqrt(n))/n), V)
  check(sumnummonien(n=1,n^(-3/2), tmon), zeta(3/2))
 }
 
+\p115
+z2 = zeta(2);
+z3 = zeta(3);
+z32 = zeta(3/2);
+z73 = zeta(7/3);
+check(sumnumlagrange(n=1,n^-2),z2)
+check(sumnumlagrange(n=2,n^-2),z2-1)
+tab=sumnumlagrangeinit(1);
+check(sumnumlagrange(n=1,n^-2,tab),z2)
+check(sumnumlagrange(n=2,n^-2,tab),z2-1)
+tab=sumnumlagrangeinit(2);
+check(sumnumlagrange(n=1,n^-3,tab),z3)
+check(sumnumlagrange(n=2,n^-3,tab),z3-1)
+tab=sumnumlagrangeinit(1/2);
+check(sumnumlagrange(n=1,n^(-3/2),tab),z32)
+check(sumnumlagrange(n=2,n^(-3/2),tab),z32-1)
+tab=sumnumlagrangeinit(1/3);
+check(sumnumlagrange(n=1,n^(-7/3),tab),z73)
+check(sumnumlagrange(n=2,n^(-7/3),tab),z73-1)
+
 \p 308
 a = sumpos(n=1, 1/(n^3+n+1));
 b = sumpos(n=1, 1/(n^3+n+1), 1);
@@ -106,3 +126,4 @@ intnumapinit(x,y)
 sumnummonieninit([-1,1]);
 sumnummonieninit([1,-1]);
 sumnummonieninit(,[n->2^-n,oo]);
+sumnumlagrangeinit(1/5)

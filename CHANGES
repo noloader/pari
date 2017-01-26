@@ -88,6 +88,7 @@ BA   31- new GP function ellbsd
      34- [libpari] str_init, str_printf, str_putc, str_puts
      35- new GP function printp [ used to exist with a slightly different
          meaning: pretty format vs prettymatrix ]
+     36- new GP function sumnumlagrange, sumnulagrangeinit
 
   Changed
       1- rewrite bnfnarrow

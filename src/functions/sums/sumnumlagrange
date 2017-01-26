@@ -1,0 +1,38 @@
+Function: sumnumlagrange
+Section: sums
+C-Name: sumnumlagrange0
+Prototype: V=GEDGp
+Help: sumnumlagrange(n=a,f,{tab}): numerical summation of f(n) from
+ n = a to +infinity using Lagrange summation.
+ a must be an integer, and tab, if given, is the output of sumnumlagrangeinit.
+Wrapper: (,G)
+Description:
+  (gen,gen,?gen):gen:prec sumnumlagrange(${2 cookie}, ${2 wrapper}, $1, $3, $prec)
+Doc: Numerical summation of $f(n)$ at high accuracy using Lagrange summation
+ \bprog
+ ? \p1000
+ ? z3 = zeta(3);
+ ? sumpos(n = 1, n^-3) - z3
+ time = 8,088 ms.
+ %2 = -2.08[...] E-1001
+ ? sumnumlagrange(n = 1, n^-3) - z3 \\ much faster than sumpos
+ time = 40 ms.
+ %3 = 0.E-500
+ ? tab = sumnumlagrangeinit(2);
+ time = 20 ms.
+ ? sumnumlagrange(n = 1, n^-3, tab) - z3
+ time = 4 ms.
+ %5 = 0.E-1001
+
+
+ ? \p115
+ ? tab = sumnumlagrangeinit(1/3);
+ ? sumnumlagrange(n = 1, n^-(7/3), tab) - z3
+ @eprog
+
+ \misctitle{Complexity}
+ The function $f$ will be evaluated at $O(D)$ integer arguments,
+ where $D \approx \kbd{realprecision} \cdot \log(10)$.
+
+ \synt{sumnumlagrange}{(void *E, GEN (*eval)(void*, GEN), GEN a, GEN tab, long prec)}
+ where an omitted \var{tab} is coded as \kbd{NULL}.

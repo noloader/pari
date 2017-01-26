@@ -1403,6 +1403,14 @@ RgC_gtofp(GEN x, long prec)
   return y;
 }
 INLINE GEN
+RgV_gtofp(GEN x, long prec)
+{
+  long l = lg(x);
+  GEN y = cgetg(l, t_VEC);
+  while (--l > 0) gel(y,l) = gtofp(gel(x,l), prec);
+  return y;
+}
+INLINE GEN
 RgM_gtofp(GEN x, long prec)
 {
   long l;

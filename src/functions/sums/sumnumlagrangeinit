@@ -1,0 +1,22 @@
+Function: sumnumlagrangeinit
+Section: sums
+C-Name: sumnumlagrangeinit
+Prototype: DGDGp
+Help: sumnumlagrangeinit({al}, {c1}): initialize tables for Lagrange
+ summation of a series.
+Doc: initialize tables for Lagrange summation of a series.
+ \bprog
+ ? \p2000
+ ? sumnumlagrange(n=1, n^-2);
+ time = 192 ms.
+ ? tab = sumnumlagrangeinit();
+ time = 180 ms.
+ ? sumnumlagrange(n=1, n^-2, tab);
+ time = 4 ms.
+
+ ? \p115
+ ? tab = sumnumlagrangeinit(1/3);
+ time = 336 ms.
+ ? sumnumlagrange(n=1, n^(-4/3), tab);
+ time = 84 ms.
+ @eprog
