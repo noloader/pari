@@ -92,7 +92,7 @@ lfun(L,2)
   my(z=lfuntheta(L,1),eps=abs(S-z/conj(z)));
   if(eps>10^-55,error("charinit(101): ",eps));
 }
-lfunzeros(L,50)
+lfunzeros(L,20)
 
 L=lfuncreate([Z101,[1]]);
 L=lfuninit(L,[1,0,0]);
