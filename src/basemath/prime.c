@@ -302,6 +302,32 @@ LucasMod(GEN n, ulong P, GEN N)
  * v_{k+2} = P v_{k+1} - v_k, v_0 = 2, v_1 = P.
  * Assume n > 0 */
 static ulong
+u_LucasMod_pre(ulong n, ulong P, ulong N, ulong NI)
+{
+  ulong v, v1, m;
+  long j;
+
+  if (n == 1) return P;
+  j = 1 + bfffo(n); /* < BIL */
+  v = P; v1 = P*P - 2;
+  m = n<<j; j = BITS_IN_LONG - j;
+  for (; j; m<<=1,j--)
+  { /* v = v_k, v1 = v_{k+1} */
+    if (m & HIGHBIT)
+    { /* set v = v_{2k+1}, v1 = v_{2k+2} */
+      v = Fl_sub(Fl_mul_pre(v,v1,N,NI), P, N);
+      v1= Fl_sub(Fl_sqr_pre(v1,N,NI), 2UL, N);
+    }
+    else
+    {/* set v = v_{2k}, v1 = v_{2k+1} */
+      v1= Fl_sub(Fl_mul_pre(v,v1,N,NI),P, N);
+      v = Fl_sub(Fl_sqr_pre(v,N,NI), 2UL, N);
+    }
+  }
+  return v;
+}
+
+static ulong
 u_LucasMod(ulong n, ulong P, ulong N)
 {
   ulong v, v1, m;
@@ -332,7 +358,6 @@ uislucaspsp(ulong n)
 {
   long i, v;
   ulong b, z, m = n + 1;
-
   for (b=3, i=0;; b+=2, i++)
   {
     ulong c = b*b - 4; /* = 1 mod 4 */
@@ -341,13 +366,28 @@ uislucaspsp(ulong n)
   }
   if (!m) return 0; /* neither 2^32-1 nor 2^64-1 are Lucas-pp */
   v = vals(m); m >>= v;
-  z = u_LucasMod(m, b, n);
-  if (z == 2 || z == n-2) return 1;
-  for (i=1; i<v; i++)
+  if (SMALL_ULONG(n))
   {
-    if (!z) return 1;
-    z = Fl_sub(Fl_sqr(z,n), 2UL, n);
-    if (z == 2) return 0;
+    z = u_LucasMod(m, b, n);
+    if (z == 2 || z == n-2) return 1;
+    for (i=1; i<v; i++)
+    {
+      if (!z) return 1;
+      z = Fl_sub(Fl_sqr(z,n), 2UL, n);
+      if (z == 2) return 0;
+    }
+  }
+  else
+  {
+    ulong ni = get_Fl_red(n);
+    z = u_LucasMod_pre(m, b, n, ni);
+    if (z == 2 || z == n-2) return 1;
+    for (i=1; i<v; i++)
+    {
+      if (!z) return 1;
+      z = Fl_sub(Fl_sqr_pre(z,n,ni), 2UL, n);
+      if (z == 2) return 0;
+    }
   }
   return 0;
 }
