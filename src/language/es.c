@@ -1968,7 +1968,7 @@ static void
 str_long(pari_str *S, long e)
 {
   if (e >= 0) str_ulong(S, (ulong)e);
-  else { str_putc(S, '-'); str_ulong(S, (ulong)(-e)); }
+  else { str_putc(S, '-'); str_ulong(S, -(ulong)e); }
 }
 
 static void
