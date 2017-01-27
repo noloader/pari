@@ -2009,7 +2009,7 @@ guess_roots(GEN nf)
         gcdf = gcdf? cgcd(gcdf, i): i;
         if (gcdf == 1) break;
       }
-    pf_1 = subis(powuu(p, gcdf), 1);
+    pf_1 = subiu(powuu(p, gcdf), 1);
     old = nbroots;
     nbroots = nbroots? gcdii(pf_1, nbroots): pf_1;
     if (DEBUGLEVEL>5)

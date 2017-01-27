@@ -1687,8 +1687,8 @@ match_and_sort(GEN compile_atkin, GEN Mu, GEN u, GEN q, void *E, const struct bb
   best_i = separation( get_lgatkin(compile_atkin, k) );
   avma = av1;
 
-  baby  = possible_traces(compile_atkin, stoi(best_i), &Mb, 1);
-  giant = possible_traces(compile_atkin, subis(int2n(k), best_i+1), &Mg, 0);
+  baby  = possible_traces(compile_atkin, utoi(best_i), &Mb, 1);
+  giant = possible_traces(compile_atkin, subiu(int2n(k), best_i+1), &Mg, 0);
   lbaby = lg(baby);
   lgiant = lg(giant);
   den = Fp_inv(Fp_mul(Mu, Mb, Mg), Mg);

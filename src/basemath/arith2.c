@@ -141,7 +141,7 @@ factor_eulerphi(GEN n)
   A = Z_factor(n); P = gel(A,1); E = gel(A,2); l = lg(P);
   for(i = 1; i < l; i++)
   {
-    GEN p = gel(P,i), q = subis(p,1), fa;
+    GEN p = gel(P,i), q = subiu(p,1), fa;
     long e = itos(gel(E,i)), w;
 
     w = vali(q); v += w; q = shifti(q,-w);

@@ -513,7 +513,7 @@ Flxq_ellgroup(GEN a4, GEN a6, GEN N, GEN T, ulong p, GEN *pt_m)
   struct _FlxqE e;
   GEN q = powuu(p, get_Flx_degree(T));
   e.a4=a4; e.a6=a6; e.T=T; e.p=p;
-  return gen_ellgroup(N, subis(q,1), pt_m, (void*)&e, &FlxqE_group, _FlxqE_pairorder);
+  return gen_ellgroup(N, subiu(q,1), pt_m, (void*)&e, &FlxqE_group, _FlxqE_pairorder);
 }
 
 GEN

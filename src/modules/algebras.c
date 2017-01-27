@@ -2729,7 +2729,7 @@ localextdeg(GEN nf, GEN pr, GEN cnd, long d, long ell, long n)
     res = nfpowmodideal(nf, res, stoi(g), cnd);
   }
   else { /* ell != p */
-    k = powis(stoi(ell),Z_lval(subis(pr_norm(pr),1),ell));
+    k = powis(stoi(ell),Z_lval(subiu(pr_norm(pr),1),ell));
     k = divis(k,g);
     modpr = nf_to_Fq_init(nf, &ppr, &T, &p);
     (void)Fq_sqrtn(gen_1,k,T,p,&gen);
@@ -2760,7 +2760,7 @@ nfgwkummer(GEN nf, GEN Lpr, GEN Ld, GEN pl, long var)
     if (!absequalui(ell,p))
       E = gen_1;
     else
-      E = addui(1 + v*e, divsi(e,subis(p,1)));
+      E = addui(1 + v*e, divsi(e,subiu(p,1)));
     gcoeff(cnd,i,2) = E;
     gel(y,i) = localextdeg(nf, pr, idealpow(nf,pr,E), Ld[i], ell, n);
   }

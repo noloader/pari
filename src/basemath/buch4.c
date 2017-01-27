@@ -115,8 +115,8 @@ quad_char(GEN nf, GEN t, GEN pr)
   t = nf_to_Fq(nf,t,modpr);
   if (T)
   {
-    ord = subis( pr_norm(pr), 1 ); /* |(O_K / pr)^*| */
-    ordp= subis( p, 1);            /* |F_p^*|        */
+    ord = subiu( pr_norm(pr), 1 ); /* |(O_K / pr)^*| */
+    ordp= subiu( p, 1);            /* |F_p^*|        */
     t = Fq_pow(t, diviiexact(ord, ordp), T,p); /* in F_p^* */
     if (typ(t) == t_POL)
     {

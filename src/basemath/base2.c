@@ -2370,7 +2370,7 @@ pradical(GEN nf, GEN p, GEN *phi)
   m = frob; q = p;
   while (abscmpiu(q,N) < 0) { q = mulii(q,p); m = FpM_mul(m, frob, p); }
   rad = FpM_ker(m, p); /* m = Frob^k, s.t p^k >= N */
-  for (i=1; i<=N; i++) gcoeff(frob,i,i) = subis(gcoeff(frob,i,i), 1);
+  for (i=1; i<=N; i++) gcoeff(frob,i,i) = subiu(gcoeff(frob,i,i), 1);
   *phi = frob; return rad;
 }
 

@@ -335,7 +335,7 @@ check_kernel(long r, GEN M, long nbi, long nbrow, GEN T, ulong p, GEN m)
   long i, f=0;
   long lm = lgefint(m), u=1;
   GEN g;
-  GEN idx = diviiexact(subis(powuu(p,degpol(T)),1),m);
+  GEN idx = diviiexact(subiu(powuu(p,degpol(T)),1),m);
   pari_timer ti;
   if (DEBUGLEVEL) timer_start(&ti);
   while (signe(gel(K,u))==0)

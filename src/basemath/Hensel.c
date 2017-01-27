@@ -580,7 +580,7 @@ Zp_sqrtnlift(GEN b, GEN n, GEN a, GEN p, long e)
   ulong mask;
   long pis2 = equalii(n, gen_2)? 1: 0;
   if (e == 1) return icopy(a);
-  n_1 = subis(n,1);
+  n_1 = subiu(n,1);
   mask = quadratic_prec_mask(e);
   w = Fp_inv(pis2 ? shifti(a,1): Fp_mul(n,Fp_pow(a,n_1,p), p), p);
   q = p;

@@ -1873,7 +1873,7 @@ FpXQ_pow_Frobenius(GEN x, GEN n, GEN aut, GEN T, GEN p)
     long m, r, k = is_pm1(bb) ? 1 : bounded_order(p,bb,d);
     if (!k || d-vb<k) return FpXQ_pow(x,n, T, p);
     m = (d-vb)/k; r = (d-vb)%k;
-    u = diviiexact(subis(powiu(p,k),1),bb);
+    u = diviiexact(subiu(powiu(p,k),1),bb);
     v = diviiexact(subii(powiu(p,r+vb),a),b);
     autk = k==1 ? aut: FpXQ_autpow(aut,k,T,p);
     if (r)
@@ -1939,9 +1939,9 @@ Fp_FpXQ_log(GEN a, GEN g, GEN o, GEN T, GEN p)
   if (equali1(a)) return gen_0;
   /* p > 2 */
 
-  ordp = subis(p, 1); /* even */
+  ordp = subiu(p, 1); /* even */
   ord  = get_arith_Z(o);
-  if (!ord) ord = T? subis(powiu(p, get_FpX_degree(T)), 1): ordp;
+  if (!ord) ord = T? subiu(powiu(p, get_FpX_degree(T)), 1): ordp;
   if (equalii(a, ordp)) /* -1 */
     return gerepileuptoint(av, shifti(ord,-1));
   ordp = gcdii(ordp,ord);

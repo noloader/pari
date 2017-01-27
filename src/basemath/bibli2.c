@@ -799,7 +799,7 @@ binomial(GEN n, long k)
   {
     if (signe(n) > 0)
     {
-      GEN z = subis(n,k);
+      GEN z = subiu(n,k);
       if (cmpis(z,k) < 0)
       {
         k = itos(z); avma = av;
@@ -820,7 +820,7 @@ binomial(GEN n, long k)
     else
     {
       y = cgetg(k+1,t_VEC);
-      for (i=1; i<=k; i++) gel(y,i) = subis(n,i-1);
+      for (i=1; i<=k; i++) gel(y,i) = subiu(n,i-1);
       y = ZV_prod(y);
     }
     y = diviiexact(y, mpfact(k));

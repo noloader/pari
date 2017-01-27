@@ -1387,7 +1387,7 @@ Zf_add(GEN a, GEN b, GEN M)
   long mod = lgefint(M)-3;
   long l = NLIMBS(z);
   if (l<=mod) return z;
-  y = subis(z, 1);
+  y = subiu(z, 1);
   if (NLIMBS(y)<=mod) return z;
   return int_normalize(y,1);
 }

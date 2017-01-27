@@ -1243,7 +1243,7 @@ Fp_ellgroup(GEN a4, GEN a6, GEN N, GEN p, GEN *pt_m)
 {
   struct _FpE e;
   e.a4=a4; e.a6=a6; e.p=p;
-  return gen_ellgroup(N, subis(p, 1), pt_m, (void*)&e, &FpE_group, _FpE_pairorder);
+  return gen_ellgroup(N, subiu(p,1), pt_m, (void*)&e, &FpE_group, _FpE_pairorder);
 }
 
 GEN
@@ -1886,7 +1886,7 @@ FpXQ_ellgroup(GEN a4, GEN a6, GEN N, GEN T, GEN p, GEN *pt_m)
   struct _FpXQE e;
   GEN q = powiu(p, get_FpX_degree(T));
   e.a4=a4; e.a6=a6; e.T=T; e.p=p;
-  return gen_ellgroup(N, subis(q,1), pt_m, (void*)&e, &FpXQE_group, _FpXQE_pairorder);
+  return gen_ellgroup(N, subiu(q,1), pt_m, (void*)&e, &FpXQE_group, _FpXQE_pairorder);
 }
 
 GEN

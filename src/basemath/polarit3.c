@@ -1423,7 +1423,7 @@ FpX_FpXY_resultant(GEN a, GEN b, GEN p)
   {
     gel(x,++i) = utoipos(n);
     gel(y,i) = FpX_FpXY_eval_resultant(a,b,gel(x,i),p,la,db,vY);
-    gel(x,++i) = subis(p,n);
+    gel(x,++i) = subiu(p,n);
     gel(y,i) = FpX_FpXY_eval_resultant(a,b,gel(x,i),p,la,db,vY);
   }
   if (i == dres)

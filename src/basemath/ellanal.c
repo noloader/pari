@@ -759,16 +759,16 @@ best_point_old(GEN Q, GEN NQ, GEN f, GEN *u, GEN *v)
   {
     for (k = -n; k<=n; k++)
     {
-      *u = addis(c, k); *v = addis(d, n);
+      *u = addis(c, k); *v = addiu(d, n);
       if (equali1(ggcd(mulii(*u, NQ), mulii(*v, Q))))
         return;
-      *v= subis(d, n);
+      *v= subiu(d, n);
       if (equali1(ggcd(mulii(*u, NQ), mulii(*v, Q))))
         return;
-      *u = addis(c, n); *v = addis(d, k);
+      *u = addiu(c, n); *v = addis(d, k);
       if (equali1(ggcd(mulii(*u, NQ), mulii(*v, Q))))
         return;
-      *u = subis(c, n);
+      *u = subiu(c, n);
       if (equali1(ggcd(mulii(*u, NQ), mulii(*v, Q))))
         return;
     }
@@ -854,7 +854,7 @@ best_point(GEN Q, GEN NQ, GEN f, GEN *pu, GEN *pv)
     Dy2 = mulii(D, sqru(y));
     if (cmpii(Dy2, best) >= 0) break; /* we won't improve. STOP */
     By = muliu(B,y), x0 = truedvmdii(negi(By), A2, &r);
-    if (cmpii(r, A) >= 0) { x0 = subis(x0,1); r = subii(r, A2); }
+    if (cmpii(r, A) >= 0) { x0 = subiu(x0,1); r = subii(r, A2); }
     /* (2A x + By)^2 + Dy^2, minimal at x = x0. Assume A2 > 0 */
     /* r = 2A x0 + By */
     q0 = addii(sqri(r), Dy2); /* minimal value for this y, at x0 */

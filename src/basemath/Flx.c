@@ -2816,7 +2816,7 @@ Flxq_pow_Frobenius(GEN x, GEN n, GEN aut, GEN T, ulong p)
     long m, r, k = is_pm1(bb) ? 1 : bounded_order(p,bb,d);
     if (!k || d-vb<k) return Flxq_pow(x,n, T, p);
     m = (d-vb)/k; r = (d-vb)%k;
-    u = diviiexact(subis(powuu(p,k),1),bb);
+    u = diviiexact(subiu(powuu(p,k),1),bb);
     v = diviiexact(subii(powuu(p,r+vb),a),b);
     autk = k==1 ? aut: Flxq_autpow(aut,k,T,p);
     if (r)
@@ -2864,7 +2864,7 @@ Fl_Flxq_log(ulong a, GEN g, GEN o, GEN T, ulong p)
 
   ordp = utoi(p - 1);
   ord  = get_arith_Z(o);
-  if (!ord) ord = T? subis(powuu(p, get_FpX_degree(T)), 1): ordp;
+  if (!ord) ord = T? subiu(powuu(p, get_FpX_degree(T)), 1): ordp;
   if (a == p - 1) /* -1 */
     return gerepileuptoint(av, shifti(ord,-1));
   ordp = gcdii(ordp, ord);
@@ -2986,7 +2986,7 @@ Flxq_is2npower(GEN x, long n, GEN T, ulong p)
   if (n==1) return Flxq_issquare(x, T, p);
   if (lgpol(x) == 0 || p == 2) return 1;
   av = avma;
-  m = shifti(subis(powuu(p, get_Flx_degree(T)), 1), -n);
+  m = shifti(subiu(powuu(p, get_Flx_degree(T)), 1), -n);
   z = Flx_equal1(Flxq_pow(x, m, T, p));
   avma = av; return z;
 }
@@ -3176,7 +3176,7 @@ gener_Flxq(GEN T, ulong p, GEN *po)
   }
 
   av0 = avma; p_1 = p - 1;
-  q = diviuexact(subis(powuu(p,f), 1), p_1);
+  q = diviuexact(subiu(powuu(p,f), 1), p_1);
 
   L = cgetg(1, t_VECSMALL);
   if (p > 3)
@@ -3222,7 +3222,7 @@ gener_Flxq(GEN T, ulong p, GEN *po)
     g = gerepileuptoleaf(av0, g);
   }
   else {
-    *po = mkvec2(subis(powuu(p,f), 1), o);
+    *po = mkvec2(subiu(powuu(p,f), 1), o);
     gerepileall(av0, 2, &g, po);
   }
   return g;

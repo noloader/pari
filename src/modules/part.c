@@ -93,7 +93,7 @@ estim(GEN n)
 static void
 pinit(GEN n, GEN *c, GEN *d, ulong prec)
 {
-  GEN b = divru( itor( subis(muliu(n,24), 1), prec ), 24 ); /* n - 1/24 */
+  GEN b = divru( itor( subiu(muliu(n,24), 1), prec ), 24 ); /* n - 1/24 */
   GEN sqrtb = sqrtr(b), Pi = mppi(prec), pi2sqrt2, pisqrt2d3;
 
 

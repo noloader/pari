@@ -2906,7 +2906,7 @@ sumdedekind_coprime(GEN h, GEN k)
     r = addii(mulii(a,p), pp); pp = p; p = r;
   }
   /* at this point p = original k */
-  if (s == -1) s1 = subis(s1, 3);
+  if (s == -1) s1 = subiu(s1, 3);
   return gerepileupto(av, gdiv(addii(mulii(p,s1), s2), muliu(p,12)));
 }
 /* as above, for ulong arguments.

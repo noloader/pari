@@ -130,7 +130,7 @@ pgener_Fp_local(GEN p, GEN L0)
     z = pgener_Fl_local(uel(p,2), L0);
     avma = av0; return utoipos(z);
   }
-  p_1 = subis(p,1); L = is_gener_expo(p, L0);
+  p_1 = subiu(p,1); L = is_gener_expo(p, L0);
   x = utoipos(2);
   for (;; x[2]++) { if (is_gener_Fp(x, p, p_1, L)) break; }
   avma = av0; return utoipos(uel(x,2));
@@ -170,7 +170,7 @@ pgener_Zp(GEN p)
   else
   {
     const pari_sp av = avma;
-    GEN p_1 = subis(p,1), p2 = sqri(p), L = is_gener_expo(p,NULL);
+    GEN p_1 = subiu(p,1), p2 = sqri(p), L = is_gener_expo(p,NULL);
     GEN x = utoipos(2);
     for (;; x[2]++)
       if (is_gener_Fp(x,p,p_1,L) && !equali1(Fp_pow(x,p_1,p2))) break;
@@ -237,7 +237,7 @@ rootsof1_Fp(GEN n, GEN p)
   pari_sp av = avma;
   GEN L = odd_prime_divisors(n); /* 2 implicit in pgener_Fp_local */
   GEN z = pgener_Fp_local(p, L);
-  z = Fp_pow(z, diviiexact(subis(p,1), n), p); /* prim. n-th root of 1 */
+  z = Fp_pow(z, diviiexact(subiu(p,1), n), p); /* prim. n-th root of 1 */
   return gerepileuptoint(av, z);
 }
 
@@ -247,7 +247,7 @@ rootsof1u_Fp(ulong n, GEN p)
   pari_sp av = avma;
   GEN z, L = u_odd_prime_divisors(n); /* 2 implicit in pgener_Fp_local */
   z = pgener_Fp_local(p, Flv_to_ZV(L));
-  z = Fp_pow(z, diviuexact(subis(p,1), n), p); /* prim. n-th root of 1 */
+  z = Fp_pow(z, diviuexact(subiu(p,1), n), p); /* prim. n-th root of 1 */
   return gerepileuptoint(av, z);
 }
 
@@ -3222,12 +3222,12 @@ Zp_order(GEN a, GEN p, long e, GEN pe)
     }
   } else {
     ap = (e == 1)? a: remii(a,p);
-    op = Fp_order(ap, subis(p,1), p);
+    op = Fp_order(ap, subiu(p,1), p);
     if (e == 1) return op;
     a = Fp_pow(a, op, pe); /* 1 mod p */
   }
   if (equali1(a)) return op;
-  return mulii(op, powiu(p, e - Z_pval(subis(a,1), p)));
+  return mulii(op, powiu(p, e - Z_pval(subiu(a,1), p)));
 }
 
 GEN
@@ -3447,7 +3447,7 @@ check_kernel(long nbg, long N, long prmax, GEN C, GEN M, GEN p, GEN m)
     GEN K = FpMs_leftkernel_elt_col(M, nbcol, N, m);
     long i, f=0;
     long l = lg(K), lm = lgefint(m);
-    GEN idx = diviiexact(subis(p,1),m), g;
+    GEN idx = diviiexact(subiu(p,1),m), g;
     pari_timer ti;
     if (DEBUGLEVEL) timer_start(&ti);
     for(i=1; i<l; i++)
@@ -3573,7 +3573,7 @@ Fp_easylog(void *E, GEN a, GEN g, GEN ord)
   /* assume a reduced mod p, p not necessarily prime */
   if (equali1(a)) return gen_0;
   /* p > 2 */
-  if (equalii(subis(p,1), a))  /* -1 */
+  if (equalii(subiu(p,1), a))  /* -1 */
   {
     pari_sp av2;
     GEN t;
@@ -3637,7 +3637,7 @@ znlog_rec(GEN h, GEN g, GEN N, GEN P, GEN E, GEN PHI)
   { /* Avoid black box groups: (Z/p^2)^* / (Z/p)^* ~ (Z/pZ, +), where DL
        is trivial */
     /* [order(gp), factor(order(gp))] */
-    GEN v = Fp_factored_order(gp, subis(p,1), p);
+    GEN v = Fp_factored_order(gp, subiu(p,1), p);
     GEN ogp = gel(v,1);
     if (!equali1(Fp_pow(hp, ogp, p))) return NULL;
     a = Fp_log(hp, gp, v, p);
@@ -3653,9 +3653,9 @@ znlog_rec(GEN h, GEN g, GEN N, GEN P, GEN E, GEN PHI)
       /* g,h = 1 mod p; compute b s.t. h = g^b */
 
       /* v_p(order g mod pe) */
-      vpogpe = equali1(gpe)? 0: e - Z_pval(subis(gpe,1), p);
+      vpogpe = equali1(gpe)? 0: e - Z_pval(subiu(gpe,1), p);
       /* v_p(order h mod pe) */
-      vpohpe = equali1(hpe)? 0: e - Z_pval(subis(hpe,1), p);
+      vpohpe = equali1(hpe)? 0: e - Z_pval(subiu(hpe,1), p);
       if (vpohpe > vpogpe) return NULL;
 
       ogpe = mulii(ogp, powiu(p, vpogpe)); /* order g mod p^e */
@@ -3687,7 +3687,7 @@ get_PHI(GEN P, GEN E)
   {
     GEN t, p = gel(P,i);
     long e = E[i];
-    t = mulii(powiu(p, e-1), subis(p,1));
+    t = mulii(powiu(p, e-1), subiu(p,1));
     if (i > 1) t = mulii(t, gel(PHI,i));
     gel(PHI,i+1) = t;
   }
@@ -5112,7 +5112,7 @@ hclassno2(GEN x)
     if (e)
     {
       GEN p = gel(P,i), t = subis(p, kronecker(D,p));
-      if (e > 1) t = mulii(t, diviiexact(subis(powiu(p,e), 1), subis(p,1)));
+      if (e > 1) t = mulii(t, diviiexact(subiu(powiu(p,e), 1), subiu(p,1)));
       H = mulii(H, addui(1, t));
     }
   }

@@ -1076,9 +1076,9 @@ elldiscfix(GEN E, GEN Et, GEN D)
         r = gen_1; /* vt = 0, 1 <= v <= 3 */
     }
     else if (vt >= 1)
-      r = gdiv(subis(sqri(p), 1), p);
+      r = gdiv(subiu(sqri(p), 1), p);
     else
-      r = gdiv(mulii(subis(p, 1), subii(sqri(addiu(p, 1)), sqri(ellap(Et, p)))), p);
+      r = gdiv(mulii(subiu(p, 1), subii(sqri(addiu(p, 1)), sqri(ellap(Et, p)))), p);
     f = gmul(f, r);
   }
   return f;

@@ -1152,7 +1152,7 @@ gpow(GEN x, GEN n, long prec)
       return gerepileupto(av,FF_pow(FF_sqrtn(x,d,NULL),a));
     default:
       if (gequal(d, gen_2))
-        return gerepileupto(av, gmul(powgi(x, shifti(subis(a, 1), -1)),
+        return gerepileupto(av, gmul(powgi(x, shifti(subiu(a, 1), -1)),
                                      gsqrt(x, prec)));
     }
   }
@@ -1533,7 +1533,7 @@ Qp_log(GEN x)
     y = gmul2n(palogaux(y), 1);
   else
   { /* compute log(x^(p-1)) / (p-1) */
-    GEN mod = gel(y,3), p1 = subis(p,1);
+    GEN mod = gel(y,3), p1 = subiu(p,1);
     gel(y,4) = Fp_pow(a, p1, mod);
     p1 = diviiexact(subsi(1,mod), p1); /* 1/(p-1) */
     y = gmul(palogaux(y), shifti(p1,1));
@@ -2104,8 +2104,8 @@ Qp_exp_prec(GEN x)
   }
   else
   { /* e > 0, n > 0 */
-    GEN r, t = subis(p, 1);
-    k = itos(dvmdii(subis(muliu(t,n), 1), subis(muliu(t,e), 1), &r));
+    GEN r, t = subiu(p, 1);
+    k = itos(dvmdii(subiu(muliu(t,n), 1), subiu(muliu(t,e), 1), &r));
     if (!signe(r)) k--;
   }
   return k;

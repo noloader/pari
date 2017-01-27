@@ -804,7 +804,7 @@ F2xq_elltracej(GEN a, GEN a6, GEN T, GEN q, long n)
   if (odd(n))
   {
     GEN u, v, w;
-    u = F2xq_pow(a3,diviuexact(subis(shifti(q,1), 1), 3),T);
+    u = F2xq_pow(a3,diviuexact(subiu(shifti(q,1), 1), 3),T);
     v = get_v(u, a, T);
     if (F2xq_trace(v, T)==0) return gen_0;
     w = F2xq_Artin_Schreier(F2x_1_add(v), T);
@@ -815,7 +815,7 @@ F2xq_elltracej(GEN a, GEN a6, GEN T, GEN q, long n)
   }
   else
   {
-    if (F2x_degree(F2xq_pow(a3,diviuexact(subis(q, 1), 3),T))==0)
+    if (F2x_degree(F2xq_pow(a3,diviuexact(subiu(q, 1), 3),T))==0)
     {
       GEN u, v, w;
       u = F2xq_sqrtn(a3, utoi(3), T, NULL);
@@ -883,7 +883,7 @@ F2xq_ellgroup(GEN a2, GEN a6, GEN N, GEN T, GEN *pt_m)
   struct _F2xqE e;
   GEN q = int2u(F2x_degree(T));
   e.a2=a2; e.a6=a6; e.T=T;
-  return gen_ellgroup(N, subis(q,1), pt_m, (void*)&e, &F2xqE_group,
+  return gen_ellgroup(N, subiu(q,1), pt_m, (void*)&e, &F2xqE_group,
                                                       _F2xqE_pairorder);
 }
 

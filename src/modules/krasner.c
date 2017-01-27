@@ -726,7 +726,7 @@ GetRamifiedPol(GEN p, GEN efj, long flag)
   data.b   = j%e;
   data.c   = (e+2*j)/e+1;
   data.q   = powiu(p, f);
-  data.qm1 = subis(data.q, 1);
+  data.qm1 = subiu(data.q, 1);
   data.v   = v;
   data.r   = 1 + (long)ceildivuu(2*j + 3, e); /* enough precision */
   data.pr  = powiu(p, data.r);

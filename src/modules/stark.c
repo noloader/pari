@@ -1433,8 +1433,7 @@ ppgamma(ST_t *T, long prec)
   gamdm[1] = evalsigne(1) | _evalvalp(0) | evalvarn(0);
   gel(gamdm,2) = gen_0;
   gel(gamdm,3) = gneg(gadd(gmul2n(mplog2(prec), 1), eul));
-  for (i = 2; i <= r; i++)
-    gel(gamdm,i+2) = mulri(gel(gamun,i+2), subis(int2n(i), 1));
+  for (i = 2; i <= r; i++) gel(gamdm,i+2) = mulri(gel(gamun,i+2), int2um1(i));
   gamdm = gmul(sqpi, gexp(gamdm, prec)); /* Gamma(1/2 + x) */
 
  /* We simplify to get one of the following two expressions
