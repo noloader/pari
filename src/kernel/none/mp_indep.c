@@ -839,6 +839,20 @@ int2u(ulong n) {
   for (i = 2; i < l; i++) z[i] = 0;
   *int_MSW(z) = 1UL << m; return z;
 }
+/* 2^n - 1 */
+GEN
+int2um1(ulong n) {
+  ulong i, m, l;
+  GEN z;
+  if (n == 0) return gen_0;
+
+  l = dvmduBIL(n, &m);
+  l += m? 3: 2;
+  z = cgetipos(l);
+  for (i = 2; i < l; i++) z[i] = ~0UL;
+  if (m) *int_MSW(z) = (1UL << m) - 1;
+  return z;
+}
 
 GEN
 shifti(GEN x, long n)

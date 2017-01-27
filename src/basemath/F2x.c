@@ -1236,7 +1236,7 @@ F2xq_log_Coppersmith_rec(GEN W, long r2, GEN a, long r, long n, GEN T, GEN m)
       if (!R) break;
       Ao = Fp_add(Ao, mulis(R, E[i]), m);
     }
-    if (i==l) return subis(Ao,AV);
+    if (i==l) return subiu(Ao,AV);
   }
 }
 
@@ -1350,7 +1350,7 @@ check_kernel(long N, GEN M, long nbi, GEN T, GEN m)
   GEN K = FpMs_leftkernel_elt(M, N, m);
   long i, f=0;
   long l = lg(K), lm = lgefint(m);
-  GEN idx = diviiexact(subis(int2n(F2x_degree(T)),1),m);
+  GEN idx = diviiexact(int2um1(F2x_degree(T)),m);
   GEN g = F2xq_pow(polx_F2x(T[1]), idx, T);
   pari_timer ti;
   if (DEBUGLEVEL) timer_start(&ti);
@@ -1485,7 +1485,7 @@ gener_F2xq(GEN T, GEN *po)
     if (po) *po = mkvec2(gen_1, trivial_fact());
     return pol1_F2x(vT);
   }
-  q = subis(powuu(2,f), 1);
+  q = int2um1(f);
   o = factor_pn_1(gen_2,f);
   L2 = leafcopy( gel(o, 1) );
   for (i = j = 1; i < lg(L2); i++)
@@ -1507,7 +1507,7 @@ gener_F2xq(GEN T, GEN *po)
   }
   if (!po) g = gerepilecopy(av0, g);
   else {
-    *po = mkvec2(subis(int2n(f), 1), o);
+    *po = mkvec2(int2um1(f), o);
     gerepileall(av0, 2, &g, po);
   }
   return g;
