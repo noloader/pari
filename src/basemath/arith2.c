@@ -709,7 +709,7 @@ static GEN
 u_euler_sumdiv(ulong p, long v)
 {
   GEN u = utoipos(1 + p); /* can't overflow */
-  for (; v > 1; v--) u = addsi(1, mului(p, u));
+  for (; v > 1; v--) u = addui(1, mului(p, u));
   return u;
 }
 /* 1 + q + ... + q^v */

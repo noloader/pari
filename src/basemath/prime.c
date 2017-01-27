@@ -33,7 +33,7 @@ init_MR_Jaeschke(MR_Jaeschke_t *S, GEN n)
 {
   if (signe(n) < 0) n = absi(n);
   S->n = n;
-  S->t = addsi(-1,n);
+  S->t = subiu(n,1);
   S->r1 = vali(S->t);
   S->t1 = shifti(S->t, -S->r1);
   S->sqrt1 = cgeti(lg(n)); S->sqrt1[1] = evalsigne(0)|evallgefint(2);

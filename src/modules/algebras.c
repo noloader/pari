@@ -2760,7 +2760,7 @@ nfgwkummer(GEN nf, GEN Lpr, GEN Ld, GEN pl, long var)
     if (!absequalui(ell,p))
       E = gen_1;
     else
-      E = addsi(1 + v*e, divsi(e,subis(p,1)));
+      E = addui(1 + v*e, divsi(e,subis(p,1)));
     gcoeff(cnd,i,2) = E;
     gel(y,i) = localextdeg(nf, pr, idealpow(nf,pr,E), Ld[i], ell, n);
   }

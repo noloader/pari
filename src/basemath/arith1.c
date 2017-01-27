@@ -2128,7 +2128,7 @@ Fp_sqrt(GEN a, GEN p)
     return utoi(u);
   }
 
-  p1 = addsi(-1,p); e = vali(p1);
+  p1 = subiu(p,1); e = vali(p1);
   a = modii(a, p);
 
   /* On average, the algorithm of Cipolla is better than the algorithm of
@@ -3921,10 +3921,10 @@ lucas(ulong n, GEN *a, GEN *b)
   if (!n) { *a = gen_2; *b = gen_1; return; }
   lucas(n >> 1, &z, &t); zt = mulii(z, t);
   switch(n & 3) {
-    case  0: *a = addsi(-2,sqri(z)); *b = addsi(-1,zt); break;
-    case  1: *a = addsi(-1,zt);      *b = addsi(2,sqri(t)); break;
-    case  2: *a = addsi(2,sqri(z));  *b = addsi(1,zt); break;
-    case  3: *a = addsi(1,zt);       *b = addsi(-2,sqri(t));
+    case  0: *a = subiu(sqri(z),2); *b = subiu(zt,1); break;
+    case  1: *a = subiu(zt,1);      *b = addiu(sqri(t),2); break;
+    case  2: *a = addiu(sqri(z),2); *b = addiu(zt,1); break;
+    case  3: *a = addiu(zt,1);      *b = subiu(sqri(t),2);
   }
 }
 
@@ -4013,7 +4013,7 @@ Qsfcont(GEN a, GEN b, GEN y, ulong k)
   if (i > 1 && gequal1(gel(z,i)))
   {
     cgiv(gel(z,i)); --i;
-    gel(z,i) = addsi(1, gel(z,i)); /* unclean: leave old z[i] on stack */
+    gel(z,i) = addui(1, gel(z,i)); /* unclean: leave old z[i] on stack */
   }
   setlg(z,i+1); return z;
 }
@@ -4562,7 +4562,7 @@ quadunit(GEN x)
   check_quaddisc_real(x, &r, "quadunit");
   pol = quadpoly(x);
   sqd = sqrti(x); av2 = avma;
-  a = shifti(addsi(r,sqd),-1);
+  a = shifti(addui(r,sqd),-1);
   f = mkmat2(mkcol2(a, gen_1), mkcol2(gen_1, gen_0)); /* [a,0; 1,0] */
   u = stoi(r); v = gen_2;
   for(;;)
@@ -5113,7 +5113,7 @@ hclassno2(GEN x)
     {
       GEN p = gel(P,i), t = subis(p, kronecker(D,p));
       if (e > 1) t = mulii(t, diviiexact(subis(powiu(p,e), 1), subis(p,1)));
-      H = mulii(H, addsi(1, t));
+      H = mulii(H, addui(1, t));
     }
   }
   switch( itou_or_0(D) )
@@ -5238,8 +5238,8 @@ tauprime(GEN p)
     if (!(t & 255)) s = gerepileupto(av2, s);
   }
   /* 28p^3 - 28p^2 - 90p - 35 */
-  T = addsi(-35, mulii(p, addsi(-90, mulii(p, addsi(-28, mulsi(28, p))))));
-  return gerepileupto(av, subii(mulii(powiu(p,3),T), addsi(1, gmulsg(128, s))));
+  T = subiu(mulii(p, subiu(mulii(p, subiu(mului(28, p), 28)), 90)), 35);
+  return gerepileupto(av, subii(mulii(powiu(p,3),T), addui(1, gmulsg(128, s))));
 }
 
 /* Ramanujan tau function, return 0 for <= 0 */

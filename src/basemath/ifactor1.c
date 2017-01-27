@@ -118,8 +118,8 @@ nextprime(GEN n)
 #endif
   }
   /* here n > 7 */
-  if (!mod2(n)) n = addsi(1,n);
-  rc = rc0 = smodis(n, 210);
+  if (!mod2(n)) n = addui(1,n);
+  rc = rc0 = umodiu(n, 210);
   /* find next prime residue class mod 210 */
   for(;;)
   {
@@ -127,14 +127,14 @@ nextprime(GEN n)
     if (rcn != NPRC) break;
     rc += 2; /* cannot wrap since 209 is coprime and rc odd */
   }
-  if (rc > rc0) n = addsi(rc - rc0, n);
+  if (rc > rc0) n = addui(rc - rc0, n);
   /* now find an actual (pseudo)prime */
   for(;;)
   {
     if (BPSW_psp(n)) break;
     rcd = prc210_d1[rcn];
     if (++rcn > 47) rcn = 0;
-    n = addsi(rcd, n);
+    n = addui(rcd, n);
   }
   if (avma == av) return icopy(n);
   return gerepileuptoint(av, n);
@@ -191,8 +191,8 @@ precprime(GEN n)
     avma = av;
     return utoi(uprecprime(k));
   }
-  if (!mod2(n)) n = addsi(-1,n);
-  rc = rc0 = smodis(n, 210);
+  if (!mod2(n)) n = subiu(n,1);
+  rc = rc0 = umodiu(n, 210);
   /* find previous prime residue class mod 210 */
   for(;;)
   {
@@ -200,14 +200,14 @@ precprime(GEN n)
     if (rcn != NPRC) break;
     rc -= 2; /* cannot wrap since 1 is coprime and rc odd */
   }
-  if (rc < rc0) n = addsi(rc - rc0, n);
+  if (rc0 > rc) n = subiu(n, rc0 - rc);
   /* now find an actual (pseudo)prime */
   for(;;)
   {
     if (BPSW_psp(n)) break;
     if (--rcn < 0) rcn = 47;
     rcd = prc210_d1[rcn];
-    n = addsi(-rcd, n);
+    n = subiu(n, rcd);
   }
   if (avma == av) return icopy(n);
   return gerepileuptoint(av, n);
@@ -482,7 +482,7 @@ elldouble(GEN N, GEN *gl, long nbc, GEN *X1, GEN *X2)
     GEN v, w, L, z = i? mulii(*gl,W[i]): *gl;
     if (i) *gl = modii(mulii(*gl, Y1[i]), N);
     av2 = avma;
-    L = modii(mulii(addsi(1, mului(3, Fp_sqr(X1[i],N))), z), N);
+    L = modii(mulii(addui(1, mului(3, Fp_sqr(X1[i],N))), z), N);
     if (signe(L)) /* half of zero is still zero */
       L = shifti(mod2(L)? addii(L, N): L, -1);
     v = modii(subii(sqri(L), shifti(X1[i],1)), N);

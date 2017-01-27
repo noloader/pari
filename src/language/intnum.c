@@ -1126,13 +1126,13 @@ intnum_i(void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, GEN tab, long prec)
         if (codeb == f_YOSCC) c = gadd(c, pis2p);
         c = gdiv(c, pi2p);
         if (sb > 0)
-          c = addsi(1, gceil(c));
+          c = addui(1, gceil(c));
         else
-          c = subis(gfloor(c), 1);
+          c = subiu(gfloor(c), 1);
         c = gmul(pi2p, c);
         if (codeb == f_YOSCC) c = gsub(c, pis2p);
         break;
-      default: c = addsi(1, gceil(c));
+      default: c = addui(1, gceil(c));
         break;
     }
     res1 = codea==f_SING? intnsing(E, eval, a, c, gel(tab,1), prec)

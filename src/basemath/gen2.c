@@ -513,7 +513,7 @@ gequalm1(GEN x)
       return s < 0 ? absrnz_equal1(x): 0;
     }
     case t_INTMOD:
-      av=avma; y=equalii(addsi(1,gel(x,2)), gel(x,1)); avma=av; return y;
+      av=avma; y=equalii(addui(1,gel(x,2)), gel(x,1)); avma=av; return y;
 
     case t_FRAC:
       return 0;
@@ -528,7 +528,7 @@ gequalm1(GEN x)
       return gequalm1(gel(x,2)) && gequal0(gel(x,3));
 
     case t_PADIC:
-      av=avma; y=equalii(addsi(1,gel(x,4)), gel(x,3)); avma=av; return y;
+      av=avma; y=equalii(addui(1,gel(x,4)), gel(x,3)); avma=av; return y;
 
     case t_POLMOD:
       av=avma; p1 = gaddgs(gel(x,2), 1);

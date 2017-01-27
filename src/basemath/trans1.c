@@ -1693,12 +1693,12 @@ sqrtnint(GEN a, long n)
     }
     return utoi(xs);
   }
-  b = addsi(1, shifti(a, -n*k));
-  x = shifti(addsi(1, sqrtnint(b, n)), k);
+  b = addui(1, shifti(a, -n*k));
+  x = shifti(addui(1, sqrtnint(b, n)), k);
   q = divii(a, powiu(x, nm1));
   while (cmpii(q, x) < 0) /* a priori one iteration, no GC necessary */
   {
-    x = subii(x, divis(addsi(nm1, subii(x, q)), n));
+    x = subii(x, divis(addui(nm1, subii(x, q)), n));
     q = divii(a, powiu(x, nm1));
   }
   return gerepileuptoleaf(ltop, x);
@@ -2726,9 +2726,9 @@ Zp_teichmuller(GEN x, GEN p, long e, GEN pe)
     }
     else
     {
-      w = diviiexact(addsi(-1,qold),p1); /* -1/(p-1) + O(qold) */
-      t = Fp_mul(w, subis(Fp_pow(z,p1,q), 1), q);
-      z = Fp_mul(z, addsi(1,t), q);
+      w = diviiexact(subiu(qold,1),p1); /* -1/(p-1) + O(qold) */
+      t = Fp_mul(w, subiu(Fp_pow(z,p1,q), 1), q);
+      z = Fp_mul(z, addui(1,t), q);
     }
   }
   return gerepileuptoint(av, z);

@@ -798,7 +798,7 @@ factor_Aurifeuille_aux(GEN A, long Astar, long n, GEN P,
       }
       else
       {
-        a = addsi(-1,i);
+        a = subiu(i,1);
         b = subsi(-1,i);
       }
       av = avma;
