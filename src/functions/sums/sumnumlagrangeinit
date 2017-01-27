@@ -4,13 +4,19 @@ C-Name: sumnumlagrangeinit
 Prototype: DGDGp
 Help: sumnumlagrangeinit({al}, {c1}): initialize tables for Lagrange
  summation of a series.
-Doc: initialize tables for Lagrange summation of a series.
+Doc: initialize tables for Lagrange summation of a series. $al$ can be
+ either $2$, $1$ (default), $1/2$, $1/3$, or $1/4$; this initialization
+ must be used if the asymptotic expansion of the remainder of the sum
+ (minus one half of the last summand if $al=2$) is in integral powers
+ of $1/N^{al}$. The constant $c1$ is technical and computed by the program,
+ but can be set by the user: the number of interpolation steps will be
+ chosen close to $c1\cdot B$, where $B$ is the bit accuracy.
  \bprog
  ? \p2000
  ? sumnumlagrange(n=1, n^-2);
- time = 192 ms.
+ time = 173 ms.
  ? tab = sumnumlagrangeinit();
- time = 180 ms.
+ time = 172 ms.
  ? sumnumlagrange(n=1, n^-2, tab);
  time = 4 ms.
 

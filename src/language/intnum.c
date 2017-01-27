@@ -2480,11 +2480,30 @@ sumnumlagrangeinit(GEN al, GEN c1, long prec)
   return gerepilecopy(av, mkvec3(al, stoi(prec2), V));
 }
 
+/* -sum n = 1 to as - 1 of f(n) */
+
+static GEN
+sumaux(void *E, GEN (*eval)(void*,GEN,long), long as, long prec)
+{
+  GEN S = gen_0;
+  long n;
+  if (as > 1)
+  {
+    for (n = 1; n < as; ++n) S = gadd(S, eval(E, stoi(n), prec));
+    return gneg(S);
+  }
+  else
+  {
+    for (n = as; n <= 0; ++n) S = gadd(S, eval(E, stoi(n), prec));
+    return S;
+  }
+}
+
 GEN
 sumnumlagrange(void *E, GEN (*eval)(void*,GEN,long), GEN a, GEN tab, long prec)
 {
   pari_sp av = avma;
-  GEN S;
+  GEN S, al;
   long as, prec2;
   ulong n, N;
 
@@ -2495,10 +2514,15 @@ sumnumlagrange(void *E, GEN (*eval)(void*,GEN,long), GEN a, GEN tab, long prec)
     pari_err_TYPE("sumnumlagrange", tab);
 
   as = itos(a);
+  al = gel(tab, 1);
   prec2 = itos(gel(tab, 2));
   tab = gel(tab, 3);
   N = lg(tab) - 2;
-  S = gen_0;
+  if (gequal(al, gen_2))
+  {
+    S = sumaux(E, eval, as, prec2); as = 1;
+  }
+  else S = gen_0;
   for (n = 1; n <= N; n++)
     S = gadd(S, gmul(gel(tab, n), eval(E, stoi(n+as-1), prec2)));
   return gerepileupto(av, gprec_w(S, prec));
