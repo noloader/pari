@@ -1129,6 +1129,7 @@ gpow(GEN x, GEN n, long prec)
   if (tn == t_FRAC)
   {
     GEN z, d = gel(n,2), a = gel(n,1);
+    long D;
     switch (tx)
     {
     case t_INTMOD:
@@ -1144,16 +1145,27 @@ gpow(GEN x, GEN n, long prec)
       }
 
     case t_PADIC:
-      z = Qp_sqrtn(x, d, NULL);
-      if (!z) pari_err_SQRTN("gpow",x);
+      z = Qp_sqrtn(x, d, NULL); if (!z) pari_err_SQRTN("gpow",x);
       return gerepileupto(av, powgi(z, a));
 
     case t_FFELT:
       return gerepileupto(av,FF_pow(FF_sqrtn(x,d,NULL),a));
     default:
-      if (gequal(d, gen_2))
-        return gerepileupto(av, gmul(powgi(x, shifti(subiu(a, 1), -1)),
-                                     gsqrt(x, prec)));
+      D = itos_or_0(d);
+      if (!D) break;
+      if (D == 2)
+      {
+        GEN y = gsqrt(x,prec), t = shifti(subiu(a,1), -1);
+        if (signe(t)) y = gmul(y, powgi(x,t));
+        return gerepileupto(av, y);
+      }
+      if (is_real_t(tx) && gsigne(x) > 0)
+      {
+        if (tx != t_REAL) x = gtofp(x, prec);
+        z = sqrtnr(x, D);
+        if (!equali1(a)) z = powgi(z, a);
+        return gerepileuptoleaf(av, z);
+      }
     }
   }
   i = (long) precision(n); if (i) prec=i;
@@ -1779,11 +1791,7 @@ sqrtnr_abs(GEN a, long n)
     z = divrr(y, addrr(mulur(n1, y), mulur(n2, b)));
     shiftr_inplace(z,1);
     x = mulrr(x, subsr(1,z));
-    if (3*expo(y) < -B)
-    {
-      if (realprec(x) < prec) x = rtor(x,prec); /* can occur, e.g. 8^(1/3) */
-      return gerepileuptoleaf(av, x);
-    }
+    if (mask == 1) return gerepileuptoleaf(av, x);
     eold = enew;
   }
 }

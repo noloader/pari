@@ -54,7 +54,7 @@
 -307
 -307
 -307
--305
+-307
 -305
 -307
 [-307, -305]
@@ -87,4 +87,4 @@
   ***   at top-level: sumnumlagrangeinit(1
   ***                 ^--------------------
   *** sumnumlagrangeinit: sorry, sumnumlagrange for this alpha is not yet implemented.
-Total time spent: 4048
+Total time spent: 3484

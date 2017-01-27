@@ -131,6 +131,7 @@ BA   25- quadgen/quadunit: allow to specify the variable name instead of w.
      26- [libpari] rename vecbinome -> vecbinomial
      27- [libpari] rename padic_lindep -> lindep_padic, Xadic_lindep ->
          lindep_Xadic
+     28- x^(t_FRAC) use sqrtnr if possible
 
   Removed
       1- file 'MACHINES' (no longer maintained)
