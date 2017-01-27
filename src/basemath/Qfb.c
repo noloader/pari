@@ -286,7 +286,7 @@ qfr_1_fill(GEN y, struct qfr_data *S)
   pari_sp av = avma;
   GEN y2 = S->isqrtD;
   gel(y,1) = gen_1;
-  if (mod2(S->D) != mod2(y2)) y2 = addiu(y,1);
+  if (mod2(S->D) != mod2(y2)) y2 = subiu(y,1);
   gel(y,2) = y2; av = avma;
   gel(y,3) = gerepileuptoint(av, shifti(subii(sqri(y2), S->D),-2));
 }
