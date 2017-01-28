@@ -1796,6 +1796,91 @@ sqrtnr_abs(GEN a, long n)
   }
 }
 
+static void
+shiftc_inplace(GEN z, long d)
+{
+  shiftr_inplace(gel(z,1), d);
+  shiftr_inplace(gel(z,2), d);
+}
+
+/* exp(2*Pi*I/n), same iteration as sqrtnr_abs, different initial point */
+static GEN
+sqrtnof1(ulong n, long prec)
+{
+  pari_sp av;
+  GEN x;
+  long eold, n1, n2, B;
+  ulong mask;
+
+  B = prec2nbits(prec);
+  n1 = n+1;
+  n2 = 2*n; av = avma;
+
+  x = expIr(divru(Pi2n(1, LOWDEFAULTPREC), n));
+  if (prec == LOWDEFAULTPREC) return gerepileupto(av, x);
+  mask = cubic_prec_mask(B + BITS_IN_LONG-1);
+  eold = 1;
+  for(;;)
+  { /* reach BITS_IN_LONG */
+    long enew = eold * 3;
+    enew -= mask % 3;
+    if (enew > BITS_IN_LONG) break; /* back up one step */
+    mask /= 3;
+    eold = enew;
+  }
+  for(;;)
+  {
+    long pr, enew = eold * 3;
+    GEN y, z;
+    enew -= mask % 3;
+    mask /= 3;
+    pr = nbits2prec(enew);
+    x = cxtofp(x, pr);
+    y = gsub(gpowgs(x, n), gen_1);
+    z = gdiv(y, gaddgs(gmulsg(n1, y), n2));
+    shiftc_inplace(z,1);
+    x = gmul(x, gsubsg(1, z));
+    if (mask == 1) return gerepileupto(av, gprec_w(x,prec));
+    eold = enew;
+  }
+}
+
+/* exp(2iPi/d) */
+GEN
+rootsof1u_cx(ulong n, long prec)
+{
+  switch(n)
+  {
+    case 1: return gen_1;
+    case 2: return gen_m1;
+    case 4: return gen_I();
+    case 3: case 6: case 12:
+    {
+      pari_sp av = avma;
+      GEN a = (n == 3)? mkfrac(gen_m1,gen_2): ghalf;
+      GEN sq3 = sqrtr_abs(utor(3, prec));
+      shiftr_inplace(sq3, -1);
+      a = (n == 12)? mkcomplex(sq3, a): mkcomplex(a, sq3);
+      return gerepilecopy(av, a);
+    }
+    case 8:
+    {
+      pari_sp av = avma;
+      GEN sq2 = sqrtr_abs(utor(2, prec));
+      shiftr_inplace(sq2,-1);
+      return gerepilecopy(av, mkcomplex(sq2, sq2));
+    }
+  }
+  return sqrtnof1(n, prec);
+}
+/* exp(2iPi/d), assume d a t_INT */
+GEN
+rootsof1_cx(GEN d, long prec)
+{
+  if (lgefint(d) == 3) return rootsof1u_cx((ulong)d[2], prec);
+  return expIr(divri(Pi2n(1,prec), d));
+}
+
 GEN
 gsqrtn(GEN x, GEN n, GEN *zetan, long prec)
 {
@@ -1877,7 +1962,7 @@ gsqrtn(GEN x, GEN n, GEN *zetan, long prec)
         y = gexp(gdiv(glog(x,prec), n), prec);
       y = gerepileupto(av, y);
     }
-    if (zetan) *zetan = rootsof1_cx(n,prec);
+    if (zetan) *zetan = rootsof1_cx(n, prec);
     return y;
 
   case t_QUAD:

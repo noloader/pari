@@ -119,26 +119,6 @@ charconj0(GEN x, GEN chi)
   return cyc? charconj(cyc, chi): zncharconj(x, chi);
 }
 
-/* exp(2iPi/d), assume d a t_INT */
-GEN
-rootsof1_cx(GEN d, long prec)
-{
-  if (lgefint(d) == 3) return rootsof1u_cx((ulong)d[2], prec);
-  return expIr(divri(Pi2n(1,prec), d));
-}
-/* exp(2iPi/d) */
-GEN
-rootsof1u_cx(ulong d, long prec)
-{
-  switch(d)
-  {
-    case 1: return gen_1;
-    case 2: return gen_m1;
-    case 4: return gen_I();
-  }
-  return expIr(divru(Pi2n(1,prec), d));
-}
-
 GEN
 charorder(GEN cyc, GEN x)
 {
