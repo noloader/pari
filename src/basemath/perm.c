@@ -316,6 +316,23 @@ perm_order(GEN v)
   avma = ltop; return d;
 }
 
+static long
+isperm(GEN v)
+{
+  long i, l = lg(v)-1;
+  if (typ(v)!=t_VECSMALL) return 0;
+  for (i=1; i<=l; i++)
+    if (v[i]<1 || v[i]>l) return 0;
+  return 1;
+}
+
+long
+permorder(GEN v)
+{
+  if (!isperm(v)) pari_err_TYPE("permorder",v);
+  return perm_order(v);
+}
+
 GEN
 cyc_pow(GEN cyc, long exp)
 {

@@ -3879,6 +3879,7 @@ int     perm_commute(GEN p, GEN q);
 GEN     perm_cycles(GEN v);
 long    perm_order(GEN perm);
 GEN     perm_pow(GEN perm, long exp);
+long    permorder(GEN perm);
 GEN     quotient_group(GEN C, GEN G);
 GEN     quotient_perm(GEN C, GEN p);
 GEN     quotient_subgroup_lift(GEN C, GEN H, GEN S);

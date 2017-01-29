@@ -61,6 +61,7 @@ apply(H->galoisisnormal(G,H),L)
 apply(H->galoisisabelian(H),L)
 apply(H->galoisisabelian(H,1),L)
 apply(H->galoisisabelian(H,2),L)
+apply(permorder,G.group)
 
 vector(#G.group, i, galoisfixedfield(G,G.group[i],1))
 galoisfixedfield(G,G.group[2])

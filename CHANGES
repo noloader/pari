@@ -98,6 +98,7 @@ BA   31- new GP function ellbsd
      41- [libpari] Z_ZV_mod_tree
      42- [libpari] vecvecsmall_max, vecsmall_to_vec_inplace
      43- new GP function zetamultinit
+BA   44- new GP function permorder
 
   Changed
       1- rewrite bnfnarrow
