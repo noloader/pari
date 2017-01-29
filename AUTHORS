@@ -67,6 +67,7 @@ Major contributors (large modules written or rewritten from scratch):
   Denis SIMON: Norm equations, S-units, Hilbert symbols, original qfsolve
     implementation
   Nils SKORUPPA: gphtml script, Qt graphics driver
+  Michael STOLL: original ratpoint code
   Emmanuel TOLLIS: primedec, zetak
   Ilya ZAKHAREVITCH: prime sieves, gphelp, tex2mail, rewrite of the
     graphic engine (incl. splines and clipping), GP parser codes,

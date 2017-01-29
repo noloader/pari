@@ -1,0 +1,20 @@
+Function: ellratpoints
+Section: elliptic_curves
+C-Name: ellratpoints
+Prototype: GLD0,L,
+Help: ellratpoints(E,h,{flag=0}): E being an integral model of an
+ elliptic curve, return the list of affine rational points on the curve
+ of naive height less than h.
+ if fl=1, stop as soon as a point is found.
+Doc: $E$ being an integral model of elliptic curve , return the list of affine
+ rational points on the curve of naive height less than $h$.
+ if $\fl=1$, stop as soon as a point is found.
+ The naive height is defined as the maximum of the absolute value of the point.
+ \bprog
+ ? E=ellinit([-25,1]);
+ ? ellratpoints(E,10)
+ %2 = [[-5,1],[-5,-1],[-3,7],[-3,-7],[-1,5],[-1,-5],
+       [0,1],[0,-1],[5,1],[5,-1],[7,13],[7,-13]]
+ ? ellratpoints(E,10,1)
+ %3 = [[-5,1]]
+ @eprog

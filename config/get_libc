@@ -3,6 +3,10 @@ exe=$osname-$arch-tmp$$$exe_suff
 _has_list=
 echo Looking in C lib for some symbols...
 extra_flags=-lm
+
+if test "$arch" = "x86_64" && test "$sizeof_long" = "8"; then
+  list=sse2; . ./look
+fi
 list=exp2; . ./look
 list=log2; . ./look
 extra_flags=

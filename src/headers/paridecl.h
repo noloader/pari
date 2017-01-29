@@ -4214,6 +4214,11 @@ ulong   random_Fl(ulong n);
 long    random_bits(long k);
 void    setrand(GEN seed);
 
+/* ratpoints.c */
+
+GEN     ellratpoints(GEN E, long h, long flag);
+GEN     hyperellratpoints(GEN P, long h, long flag);
+
 /* rootpol.c */
 
 GEN     QX_complex_roots(GEN p, long l);
