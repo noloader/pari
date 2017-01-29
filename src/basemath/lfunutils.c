@@ -177,7 +177,8 @@ lfunmul(GEN ldata1, GEN ldata2, long bitprec)
     pari_err_OP("lfunmul [weight]",ldata1, ldata2);
   r = lfunmulpoles(ldata1, ldata2, bitprec);
   N = gmul(ldata_get_conductor(ldata1), ldata_get_conductor(ldata2));
-  Vga = vecsort0(gconcat(ldata_get_gammavec(ldata1), ldata_get_gammavec(ldata2)), NULL, 0);
+  Vga = shallowconcat(ldata_get_gammavec(ldata1), ldata_get_gammavec(ldata2));
+  Vga = sort(Vga);
   eno = gmul(ldata_get_rootno(ldata1), ldata_get_rootno(ldata2));
   a1a2 = lfunconvol(ldata_get_an(ldata1), ldata_get_an(ldata2));
   b1b2 = lfuncombdual(lfunconvol, ldata1, ldata2);
