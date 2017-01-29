@@ -19,7 +19,7 @@ static THREAD int pari_MPI_size, pari_MPI_rank;
 static THREAD long nbreq = 0;
 
 enum PMPI_cmd { PMPI_close, PMPI_worker, PMPI_work, PMPI_parisizemax,
-                PMPI_parisize, PMPI_precreal, PMPI_eval };
+                PMPI_parisize, PMPI_precreal, PMPI_primetab, PMPI_eval };
 
 struct mt_mstate
 {
@@ -196,6 +196,21 @@ pari_MPI_child(void)
     case PMPI_precreal:
       precreal = recvfrom_long(0);
       break;
+    case PMPI_primetab:
+      {
+        pari_sp ltop = avma;
+        GEN tab = recvfrom_GEN(0);
+        if (!gequal(tab, primetab))
+        {
+          long i, l = lg(tab);
+          GEN old = primetab, t = cgetg_block(l, t_VEC);
+          for (i = 1; i < l; i++) gel(t,i) = gclone(gel(tab,i));
+          primetab = t;
+          gunclone_deep(old);
+        }
+        avma = ltop;
+      }
+      break;
     case PMPI_eval:
       (void) closure_evalgen(recvfrom_GEN(0));
       avma = av;
@@ -330,6 +345,7 @@ mt_queue_start(struct pari_mt *pt, GEN worker)
       send_request_long(PMPI_parisize, mtparisize, i);
       send_request_long(PMPI_parisizemax, mtparisizemax, i);
       send_request_long(PMPI_precreal, get_localbitprec(), i);
+      send_request_GEN(PMPI_primetab, primetab, i);
       send_request_GEN(PMPI_worker, worker, i);
     }
     mt->n = n;
