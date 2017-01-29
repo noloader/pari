@@ -28,7 +28,7 @@ static int
 is_tagged(GEN v)
 {
   GEN T = gel(v,1);
-  return (lg(T)==3 && typ(gel(T,1))==t_VECSMALL);
+  return (typ(T)==t_VEC && lg(T)==3 && typ(gel(T,1))==t_VECSMALL);
 }
 static void
 checkldata(GEN ldata)

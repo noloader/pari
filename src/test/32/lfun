@@ -252,4 +252,7 @@ zeta(s)*zeta(s-a)
   ***   at top-level: lfun(1,2,-1)
   ***                 ^------------
   *** lfun: domain error in lfun: D <= 0
-Total time spent: 5956
+  ***   at top-level: lfunan(lfuncreate([1
+  ***                 ^--------------------
+  *** lfunan: incorrect type in vecan_closure (t_INT).
+Total time spent: 4784
