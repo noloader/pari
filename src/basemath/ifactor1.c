@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 /* map from prime residue classes mod 210 to their numbers in {0...47}.
  * Subscripts into this array take the form ((k-1)%210)/2, ranging from
  * 0 to 104.  Unused entries are */
-#define NPRC 128                /* non-prime residue class */
+#define NPRC 128 /* non-prime residue class */
 
 static unsigned char prc210_no[] = {
   0, NPRC, NPRC, NPRC, NPRC, 1, 2, NPRC, 3, 4, NPRC, /* 21 */
@@ -37,16 +37,6 @@ static unsigned char prc210_no[] = {
   38, NPRC, 39, NPRC, NPRC, 40, 41, NPRC, NPRC, 42, NPRC, /* 189 */
   43, 44, NPRC, 45, 46, NPRC, NPRC, NPRC, NPRC, 47, /* 209 */
 };
-
-#if 0
-/* map from prime residue classes mod 210 (by number) to their smallest
- * positive representatives */
-static unsigned char prc210_rp[] = { /* 19 + 15 + 14 = [0..47] */
-  1, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79,
-  83, 89, 97, 101, 103, 107, 109, 113, 121, 127, 131, 137, 139, 143, 149,
-  151, 157, 163, 167, 169, 173, 179, 181, 187, 191, 193, 197, 199, 209,
-};
-#endif
 
 /* first differences of the preceding */
 static unsigned char prc210_d1[] = {
@@ -222,7 +212,7 @@ precprime(GEN n)
  *
  * *q is incremented whenever q!=NULL and we wrap from 209 mod 210 to
  * 1 mod 210
- * k =  second argument for MR_Jaeschke(). --GN1998Aug22 */
+ * k =  second argument for Fl_MR_Jaeschke(). --GN1998Aug22 */
 ulong
 snextpr(ulong p, byteptr *d, long *rcn, long *q, long k)
 {
@@ -236,31 +226,19 @@ snextpr(ulong p, byteptr *d, long *rcn, long *q, long k)
     /* d1 = nextprime(p+1) - p */
     if (*rcn != NPRC)
     {
-      long rcn0 = *rcn;
       while (d1 > 0)
       {
         d1 -= prc210_d1[*rcn];
         if (++*rcn > 47) { *rcn = 0; if (q) (*q)++; }
       }
-      if (d1 < 0)
-      {
-        char *s=stack_sprintf("snextpr: %lu!=prc210_rp[%ld] mod 210\n",p,rcn0);
-        pari_err_BUG(s);
-      }
+      /* assert(d1 == 0) */
     }
     NEXT_PRIME_VIADIFF(p,*d);
     return p;
   }
   /* we are beyond the diffptr table */
-  if (*rcn == NPRC)
-  { /* initialize */
-    *rcn = prc210_no[(p % 210) >> 1];
-    if (*rcn == NPRC)
-    {
-      char *s = stack_sprintf("snextpr: %lu should have been prime\n", p);
-      pari_err_BUG(s);
-    }
-  }
+  /* initialize */
+  if (*rcn == NPRC) *rcn = prc210_no[(p % 210) >> 1]; /* != NPRC */
   /* look for the next one */
   n = p + prc210_d1[*rcn];
   if (++*rcn > 47) *rcn = 0;
@@ -670,13 +648,6 @@ alloc_scratch(long nbc, long spc, long tf)
  * larger than this, even if it would reduce the number of EC operations by a
  * few more per cent for very large B2, lest cache thrashing slow down
  * everything disproportionally. --GN */
-
-/* parameters for MR_Jaeschke() via snextpr(), for use by ellfacteur() */
-static const long MR_Jaeschke_k1 = 16;/* B1 phase, foolproof below 10^12 */
-static const long MR_Jaeschke_k2 = 1; /* B2 phase, not foolproof, 2xfaster */
-/* MR_Jaeschke_k2 will let thousands of composites slip through, which doesn't
- * harm ECM, but ellmult() during the B1 phase should only be fed primes
- * which really are prime */
 /* ellfacteur() has been re-tuned to be useful as a first stage before
  * MPQS, especially for large arguments, when 'insist' is false, and now
  * also for the case when 'insist' is true, vaguely following suggestions
@@ -685,6 +656,12 @@ static const long MR_Jaeschke_k2 = 1; /* B2 phase, not foolproof, 2xfaster */
 GEN
 ellfacteur(GEN N, int insist)
 {
+/* parameters for MR_Jaeschke() via snextpr(), for use by ellfacteur() */
+  const long MR_Jaeschke_k1 = 16;/* B1 phase, foolproof below 10^12 */
+  const long MR_Jaeschke_k2 = 1; /* B2 phase, not foolproof, 2xfaster */
+/* MR_Jaeschke_k2 will let thousands of composites slip through, which doesn't
+ * harm ECM, but ellmult() during the B1 phase should only be fed primes
+ * which really are prime */
   const ulong TB1[] = {
     142,172,208,252,305,370,450,545,661,801,972,1180,1430,
     1735,2100,2550,3090,3745,4540,5505,6675,8090,9810,11900,
@@ -1320,7 +1297,7 @@ fin:
   /* An accumulated gcd was > 1 */
   if  (!equalii(g,n))
   { /* if it isn't n, and looks prime, return it */
-    if (MR_Jaeschke(g,17))
+    if (MR_Jaeschke(g))
     {
       if (DEBUGLEVEL >= 4)
       {

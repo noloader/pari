@@ -222,27 +222,16 @@ Fl_MR_Jaeschke(ulong n, long k)
 }
 
 int
-MR_Jaeschke(GEN n, long k)
+MR_Jaeschke(GEN n)
 {
-  pari_sp av2, av = avma;
-  const ulong pr[] =
-    { 0, 2,3,5,7,11,13,17,19,23,29, 31,73, 2,13,23,1662803UL, };
-  const ulong *p;
-  long i;
+  pari_sp av = avma;
   MR_Jaeschke_t S;
 
-  if (lgefint(n) == 3) return Fl_MR_Jaeschke(uel(n,2), k);
-
+  if (lgefint(n) == 3) return Fl_MR_Jaeschke(uel(n,2), 17);
   if (!mod2(n)) return 0;
-  if      (k == 16) { p = pr+13; k = 4; } /* 2,13,23,1662803 */
-  else if (k == 17) { p = pr+11; k = 2; } /* 31,73 */
-  else p = pr; /* 2,3,5,... */
-  init_MR_Jaeschke(&S, n); av2 = avma;
-  for (i=1; i<=k; i++)
-  {
-    if (bad_for_base(&S, utoipos(p[i]))) { avma = av; return 0; }
-    avma = av2;
-  }
+  av = avma; init_MR_Jaeschke(&S, n);
+  if (bad_for_base(&S, utoipos(31))) { avma = av; return 0; }
+  if (bad_for_base(&S, utoipos(73))) { avma = av; return 0; }
   avma = av; return 1;
 }
 

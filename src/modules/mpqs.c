@@ -2394,14 +2394,13 @@ mpqs_get_relation(char *buf, long pos, pariFILE *pFREL)
   return buf;
 }
 
-#define isprobableprime(n) (MR_Jaeschke((n),17))
 static int
 split(GEN N, GEN *e, GEN *res)
 {
   ulong mask;
   long flag;
   GEN base;
-  if (isprobableprime(N)) { *e = gen_1; return 1; }
+  if (MR_Jaeschke(N)) { *e = gen_1; return 1; } /* probable prime */
   if (Z_issquareall(N, &base))
   { /* squares could cost us a lot of time */
     /* GN20050707: as used now, this is always called with res!=NULL */
