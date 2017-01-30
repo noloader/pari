@@ -165,5 +165,13 @@
   ***   at top-level: intnuminit(x=-oo,oo,
   ***                 ^--------------------
   *** intnuminit: domain error in intnuminit: m < 0
+? intfuncinit(t=0,1,s);
+  ***   at top-level: intfuncinit(t=0,1,s)
+  ***                                   ^--
+  ***   sorry, intfuncinit with finite endpoints is not yet implemented.
+? intfuncinit(t=[-oo,I],[oo,I],s);
+  ***   at top-level: ...uncinit(t=[-oo,I],[oo,I],s)
+  ***                                             ^--
+  ***   sorry, intfuncinit with hard endpoint behaviour is not yet implemented.
 ? print("Total time spent: ",gettime);
-Total time spent: 1564
+Total time spent: 1568
