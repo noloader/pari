@@ -1319,6 +1319,24 @@ primes_upto_zv(ulong b)
 /**                       PRIVATE PRIME TABLE                         **/
 /**                                                                   **/
 /***********************************************************************/
+
+static GEN global_primetab;
+void
+pari_init_primetab(void)  { global_primetab = NULL; }
+void
+pari_pthread_init_primetab(void) { global_primetab = primetab; }
+void
+pari_thread_init_primetab(void)
+{
+  if (global_primetab)
+  {
+    long i, l = lg(global_primetab);
+    primetab = cgetg_block(l, t_VEC);
+    for (i = 1; i < l; i++)
+      gel(primetab,i) = gclone(gel(global_primetab,i));
+  } else primetab = cgetg_block(1, t_VEC);
+}
+
 /* delete dummy NULL entries */
 static void
 cleanprimetab(GEN T)

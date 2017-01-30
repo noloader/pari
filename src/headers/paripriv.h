@@ -526,10 +526,13 @@ void pari_init_floats(void);
 void pari_init_homedir(void);
 void pari_init_parser(void);
 void pari_init_rand(void);
+void pari_init_primetab(void);
 void pari_init_seadata(void);
+void pari_pthread_init_primetab(void);
 void pari_pthread_init_seadata(void);
 void pari_pthread_init_varstate(void);
 void pari_thread_close_files(void);
+void pari_thread_init_primetab(void);
 void pari_thread_init_seadata(void);
 void pari_thread_init_varstate(void);
 

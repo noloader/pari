@@ -86,8 +86,7 @@ static const ulong readonly_err_STACK[] = {
   evaltyp(t_ERROR) | _evallg(2),
   e_STACK
 };
-THREAD GEN    bernzone;
-GEN     primetab; /* private primetable */
+THREAD GEN bernzone, primetab;
 byteptr diffptr;
 FILE    *pari_outfile, *pari_errfile, *pari_logfile, *pari_infile;
 char    *current_logfile, *current_psfile, *pari_datadir;
@@ -877,14 +876,16 @@ pari_thread_init(void)
   pari_init_compiler();
   pari_init_evaluator();
   pari_init_files();
+  pari_thread_init_primetab();
   pari_thread_init_seadata();
 }
 
 void
 pari_thread_sync(void)
 {
-  pari_pthread_init_varstate();
+  pari_pthread_init_primetab();
   pari_pthread_init_seadata();
+  pari_pthread_init_varstate();
 }
 
 void
@@ -961,14 +962,13 @@ pari_init_opts(size_t parisize, ulong maxprime, ulong init_opts)
   diffptr = NULL;
   if (!(init_opts&INIT_noPRIMEm))  pari_init_primes(maxprime);
   if (!(init_opts&INIT_noINTGMPm)) pari_kernel_init();
-
+  pari_init_primetab();
   pari_init_seadata();
   pari_thread_init();
   pari_init_functions();
   pari_var_init();
   pari_init_timer();
   pari_init_buffers();
-  primetab = cgetg_block(1, t_VEC);
   (void)getabstime();
   try_to_recover = 1;
   if (!(init_opts&INIT_noIMTm)) pari_mt_init();

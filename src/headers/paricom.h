@@ -71,8 +71,7 @@ extern int new_galois_format, factor_add_primes, factor_proven;
 extern ulong DEBUGFILES, DEBUGLEVEL, DEBUGMEM, precdl;
 extern long DEBUGVAR;
 extern ulong pari_mt_nbthreads;
-extern THREAD GEN  bernzone;
-extern GEN primetab;
+extern THREAD GEN  bernzone, primetab;
 extern GEN gen_m1,gen_1,gen_2,gen_m2,ghalf,gen_0,gnil,err_e_STACK;
 extern THREAD VOLATILE int PARI_SIGINT_block, PARI_SIGINT_pending;
 
