@@ -523,9 +523,7 @@ uisprime(ulong n)
       !uu_coprime(n, 1673450759UL) ||
       !uu_coprime(n, 4269855901UL)) return 0;
 #endif
-  if (n < 10427) return 1;
-  if (n < 1016801) return !is_2_prp_101(n) && u_2_prp(n);
-  return uBPSW_psp(n);
+  return uisprime_101(n);
 }
 
 /* assume no prime divisor <= 101 */
@@ -533,7 +531,7 @@ int
 uisprime_101(ulong n)
 {
   if (n < 10427) return 1;
-  if (n < 1016801) return !is_2_prp_101(n) && u_2_prp(n);
+  if (n < 1016801) return u_2_prp(n) && !is_2_prp_101(n);
   return uBPSW_psp(n);
 }
 
