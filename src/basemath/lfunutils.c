@@ -1762,7 +1762,7 @@ dirartin(void *E, GEN p)
   else /* wasteful but rare */
     pr = gel(idealprimedec(N,p), 1);
   frob = idealfrobenius_aut(N, d->G, pr, d->aut);
-  return gerepileupto(av, ginv(gel(d->V, frob[1])));
+  avma = av; return gel(d->V, frob[1]);
 }
 
 static GEN
@@ -1789,9 +1789,9 @@ lfunartin(GEN N, GEN G, GEN M, long o)
   R = artin_repfromgens(G,M);
   bc = artin_badprimes(N,G,R);
   l = lg(R); V = cgetg(l, t_VEC);
-  for (i = 1; i < l; i++) gel(V,i) = RgX_recip(charpoly(gel(R,i), 0));
+  for (i=1; i < l; i++) gel(V,i) = ginv( RgX_recip(carberkowitz(gel(R,i),0)) );
   aut = nfgaloispermtobasis(N, G);
-  Ldata = mkvecn(6, tag(mkcol6(N, G, V, aut, gel(bc, 2), stoi(o)), t_LFUN_ARTIN),
+  Ldata = mkvecn(6, tag(mkcol6(N, G, V, aut, gel(bc,2), stoi(o)), t_LFUN_ARTIN),
       gen_1, artin_gamma(N, G, R), gen_1, gel(bc,1), gen_0);
   return gerepilecopy(av, Ldata);
 }
