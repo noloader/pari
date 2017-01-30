@@ -110,8 +110,10 @@ recvstatus_buf(int source, MPI_Status *status)
 static GEN
 recvstatus_GEN(int source, MPI_Status *status)
 {
+  GEN res;
   GENbin *buf = recvstatus_buf(source, status);
-  GEN res = bin_copy(buf);
+  buf->rebase = &shiftaddress;
+  res = bin_copy(buf);
   bincopy_relink(gel(res,1),gel(res,2));
   return gel(res,1);
 }
