@@ -982,8 +982,8 @@ intnuminit_i(GEN a, GEN b, long m, long prec)
       {
         case f_YVSLO: gel(T,2) = exptab(tmp, gel(b,2), prec); return T;
         case f_YFAST: gel(T,2) = homtab(initexpexp(m,l), kmb); return T;
-        case f_YOSCS:
-        case f_YOSCC: gel(T,2) = homtab(initnumsine(m,l), kmb); return T;
+        /* YOSC[CS] */
+        default: gel(T,2) = homtab(initnumsine(m,l), kmb); return T;
       }
       break;
     case f_YFAST:
@@ -992,10 +992,10 @@ intnuminit_i(GEN a, GEN b, long m, long prec)
       switch (codeb)
       {
         case f_YFAST: gel(T,2) = homtab(tmp, kmb); return T;
-        case f_YOSCS:
-        case f_YOSCC: gel(T,2) = homtab(initnumsine(m, l), kmb); return T;
+        /* YOSC[CS] */
+        default: gel(T,2) = homtab(initnumsine(m, l), kmb); return T;
       }
-    case f_YOSCS: case f_YOSCC:
+    default: /* YOSC[CS] */
       tmp = initnumsine(m, l);
       gel(T,1) = homtab(tmp,kma);
       if (codea == f_YOSCC && codeb == f_YOSCC && !gequal(kma, kmb))
@@ -1004,7 +1004,6 @@ intnuminit_i(GEN a, GEN b, long m, long prec)
         gel(T,2) = homtab(tmp,kmb);
       return T;
   }
-  return gen_0; /* LCOV_EXCL_LINE */
 }
 GEN
 intnuminit(GEN a, GEN b, long m, long prec)
