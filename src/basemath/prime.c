@@ -1386,9 +1386,9 @@ addp(GEN *T, GEN p)
   l = lg(p);
   if (l != lg(*T))
   {
-    GEN old = *T, t = cgetalloc(t_VEC, l);
+    GEN old = *T, t = cgetg_block(l, t_VEC);
     for (i = 1; i < l; i++) gel(t,i) = gel(p,i);
-    *T = t; free(old);
+    *T = t; gunclone(old);
   }
   avma = av; return *T;
 }

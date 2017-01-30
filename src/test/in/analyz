@@ -1,4 +1,4 @@
-HEAP=[9, if(precision(1.)==38,79,87)];
+HEAP=[10, if(precision(1.)==38,84,92)];
 default(realprecision,38);
 \e
 sum(x=0,50000,x);

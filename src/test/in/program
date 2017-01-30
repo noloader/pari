@@ -1,4 +1,4 @@
-HEAP=[47, if(precision(1.)==38,1908,3340)];
+HEAP=[48, if(precision(1.)==38,1913,3345)];
 STACK=if(precision(1.)==38, 232, 128);
 STACK == getstack
 default(realprecision,38);

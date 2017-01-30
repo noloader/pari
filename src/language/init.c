@@ -962,13 +962,13 @@ pari_init_opts(size_t parisize, ulong maxprime, ulong init_opts)
   if (!(init_opts&INIT_noPRIMEm))  pari_init_primes(maxprime);
   if (!(init_opts&INIT_noINTGMPm)) pari_kernel_init();
 
-  primetab = cgetalloc(t_VEC, 1);
   pari_init_seadata();
   pari_thread_init();
   pari_init_functions();
   pari_var_init();
   pari_init_timer();
   pari_init_buffers();
+  primetab = cgetg_block(1, t_VEC);
   (void)getabstime();
   try_to_recover = 1;
   if (!(init_opts&INIT_noIMTm)) pari_mt_init();
@@ -998,7 +998,6 @@ pari_close_opts(ulong init_opts)
     }
   }
   pari_var_close();
-  free((void*)primetab);
   pari_thread_close();
   pari_close_files();
   pari_close_homedir();
