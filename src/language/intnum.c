@@ -1043,19 +1043,16 @@ intfuncinit_i(void *E, GEN (*eval)(void*, GEN), GEN tab)
 {
   GEN tabxp = TABxp(tab), tabwp = TABwp(tab);
   GEN tabxm = TABxm(tab), tabwm = TABwm(tab);
-  long L = weight(E, eval, tabxp, tabwp), L0 = lg(tabxp);
+  long L, L0 = lg(tabxp);
 
   TABw0(tab) = gmul(TABw0(tab), eval(E, TABx0(tab)));
-  if (lg(tabxm) > 1)
-    (void)weight(E, eval, tabxm, tabwm);
-  else
+  if (lg(tabxm) == 1)
   {
-    tabxm = gneg(tabxp);
-    tabwm = leafcopy(tabwp);
-    L = minss(L, weight(E, eval, tabxm, tabwm));
-    TABxm(tab) = tabxm;
-    TABwm(tab) = tabwm;
+    TABxm(tab) = tabxm = gneg(tabxp);
+    TABwm(tab) = tabwm = leafcopy(tabwp);
   }
+  /* update wp and wm in place */
+  L = minss(weight(E, eval, tabxp, tabwp), weight(E, eval, tabxm, tabwm));
   if (L < L0)
   { /* catch up functions whose growth at oo was not adequately described */
     setlg(tabxp, L+1);
