@@ -2742,6 +2742,38 @@ nmV_chinese_center(GEN A, GEN P, GEN *pt_mod)
  **                                                                  **
  **********************************************************************/
 
+/* 2^n mod p; assume n > 1 */
+static ulong
+Fl_2powu_pre(ulong n, ulong p, ulong pi)
+{
+  ulong y = 2;
+  int j = 1+bfffo(n);
+  /* normalize, i.e set highest bit to 1 (we know n != 0) */
+  n<<=j; j = BITS_IN_LONG-j; /* first bit is now implicit */
+  for (; j; n<<=1,j--)
+  {
+    y = Fl_sqr_pre(y,p,pi);
+    if (n & HIGHBIT) y = Fl_double(y, p);
+  }
+  return y;
+}
+
+/* 2^n mod p; assume n > 1 and !(p & HIGHMASK) */
+static ulong
+Fl_2powu(ulong n, ulong p)
+{
+  ulong y = 2;
+  int j = 1+bfffo(n);
+  /* normalize, i.e set highest bit to 1 (we know n != 0) */
+  n<<=j; j = BITS_IN_LONG-j; /* first bit is now implicit */
+  for (; j; n<<=1,j--)
+  {
+    y = (y*y) % p;
+    if (n & HIGHBIT) y = Fl_double(y, p);
+  }
+  return y;
+}
+
 ulong
 Fl_powu_pre(ulong x, ulong n0, ulong p, ulong pi)
 {
@@ -2751,7 +2783,11 @@ Fl_powu_pre(ulong x, ulong n0, ulong p, ulong pi)
     if (n0 == 1) return x;
     if (n0 == 0) return 1;
   }
-  if (x <= 1) return x; /* 0 or 1 */
+  if (x <= 2)
+  {
+    if (x == 2) return Fl_2powu_pre(n0, p, pi);
+    return x; /* 0 or 1 */
+  }
   y = 1; z = x; n = n0;
   for(;;)
   {
@@ -2772,14 +2808,15 @@ Fl_powu(ulong x, ulong n0, ulong p)
     if (n0 == 0) return 1;
   }
   if (x <= 1) return x; /* 0 or 1 */
-  if (!SMALL_ULONG(p))
+  if (p & HIGHMASK)
     return Fl_powu_pre(x, n0, p, get_Fl_red(p));
+  if (x == 2) return Fl_2powu(n0, p);
   y = 1; z = x; n = n0;
   for(;;)
   {
-    if (n&1) y = Fl_mul(y,z,p);
+    if (n&1) y = (y*z) % p;
     n>>=1; if (!n) return y;
-    z = Fl_sqr(z,p);
+    z = (z*z) % p;
   }
 }
 

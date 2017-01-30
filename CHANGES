@@ -92,6 +92,7 @@ BA   31- new GP function ellbsd
          meaning: pretty format vs prettymatrix ]
      36- new GP function sumnumlagrange, sumnulagrangeinit
      37- [libpari] int2um1 (for 2^n - 1)
+     38- Fl_powu: special purpose code when base is 2
 
   Changed
       1- rewrite bnfnarrow
