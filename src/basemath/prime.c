@@ -327,6 +327,7 @@ u_LucasMod_pre(ulong n, ulong P, ulong N, ulong NI)
   return v;
 }
 
+/* !(N & HIGHMASK) */
 static ulong
 u_LucasMod(ulong n, ulong P, ulong N)
 {
@@ -341,13 +342,13 @@ u_LucasMod(ulong n, ulong P, ulong N)
   { /* v = v_k, v1 = v_{k+1} */
     if (m & HIGHBIT)
     { /* set v = v_{2k+1}, v1 = v_{2k+2} */
-      v = Fl_sub(Fl_mul(v,v1,N), P, N);
-      v1= Fl_sub(Fl_sqr(v1,N), 2UL, N);
+      v = Fl_sub((v*v1) % N, P, N);
+      v1= Fl_sub((v1*v1)% N, 2UL, N);
     }
     else
     {/* set v = v_{2k}, v1 = v_{2k+1} */
-      v1= Fl_sub(Fl_mul(v,v1,N),P, N);
-      v = Fl_sub(Fl_sqr(v,N), 2UL, N);
+      v1= Fl_sub((v*v1) % N ,P, N);
+      v = Fl_sub((v*v) % N, 2UL, N);
     }
   }
   return v;
@@ -366,18 +367,7 @@ uislucaspsp(ulong n)
   }
   if (!m) return 0; /* neither 2^32-1 nor 2^64-1 are Lucas-pp */
   v = vals(m); m >>= v;
-  if (SMALL_ULONG(n))
-  {
-    z = u_LucasMod(m, b, n);
-    if (z == 2 || z == n-2) return 1;
-    for (i=1; i<v; i++)
-    {
-      if (!z) return 1;
-      z = Fl_sub(Fl_sqr(z,n), 2UL, n);
-      if (z == 2) return 0;
-    }
-  }
-  else
+  if (n & HIGHMASK)
   {
     ulong ni = get_Fl_red(n);
     z = u_LucasMod_pre(m, b, n, ni);
@@ -386,6 +376,17 @@ uislucaspsp(ulong n)
     {
       if (!z) return 1;
       z = Fl_sub(Fl_sqr_pre(z,n,ni), 2UL, n);
+      if (z == 2) return 0;
+    }
+  }
+  else
+  {
+    z = u_LucasMod(m, b, n);
+    if (z == 2 || z == n-2) return 1;
+    for (i=1; i<v; i++)
+    {
+      if (!z) return 1;
+      z = Fl_sub((z*z) % n, 2UL, n);
       if (z == 2) return 0;
     }
   }
