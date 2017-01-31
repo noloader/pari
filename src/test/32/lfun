@@ -217,7 +217,7 @@ zeta(s)*zeta(s-a)
   *** lfunconductor: Warning: #an = 598 < 1444, results may be imprecise.
 61
 1.01542133944024439298806668944681826497337332941038810
-[[147, 203], [147, 203], [147, 203]]
+[[147, 202], [147, 202], [147, 202]]
 -188
 [[11, 193], [6, 193]]
 1
@@ -256,4 +256,4 @@ zeta(s)*zeta(s-a)
   ***   at top-level: lfunan(lfuncreate([1
   ***                 ^--------------------
   *** lfunan: incorrect type in vecan_closure (t_INT).
-Total time spent: 6171
+Total time spent: 6417

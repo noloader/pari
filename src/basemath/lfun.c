@@ -944,7 +944,7 @@ lfunparams(GEN ldata, long der, long bitprec, struct lfunp *S)
     m -= 2;
     while (!L[m]) m--;
   }
-  setlg(L, m+1); S->M = m;
+  setlg(L, m+1); S->M = m-1;
   S->L = L;
   S->nmax = nmax;
 
