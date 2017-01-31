@@ -1552,38 +1552,32 @@ limit_init(struct limit *L, void *E, GEN (*f)(void*,GEN,long),
   L->prec = nbits2prec(bitprec + (long)ceil(1.844*N));
   L->prec0 = prec;
   L->u = get_u(E, f, N, muli, L->prec);
-  if (alpha && gequal1(alpha)) alpha = NULL;
-  L->na = na  = cgetg(N+1, t_VEC);
-  for (n = 1; n <= N; n++)
+  if (alpha && !gequal1(alpha))
   {
-    GEN c = utoipos(n*muli);
-    if (alpha) c = gpow(c, alpha, L->prec);
-    gel(na,n) = c;
-  }
-  if (alpha)
-  {
-    GEN nma, malpha = gneg(alpha);
+    long prec2 = gprecision(alpha);
+    GEN nma;
+    if (!prec2) prec2 = L->prec;
+    na = vecpowug(N, alpha, prec2);
     L->coef = NULL;
-    L->nma= nma = cgetg(N+1, t_VEC);
-    for (n = 1; n <= N; n++)
-    {
-      GEN c = gpow(utoipos(n),malpha,L->prec);
-      if (typ(c) != t_REAL) c = gtofp(c, L->prec);
-      gel(nma, n) = c;
-    }
+    L->nma = nma = cgetg(N+1, t_VEC);
+    for (n = 1; n <= N; n++) gel(nma, n) = ginv(gel(na, n));
+    if (muli != 1) na = gmul(na, gpow(utor(muli,prec2), alpha, prec2));
   }
   else
   {
-    GEN coef, C = vecbinomial(N);
+    GEN coef, C = vecbinomial(N), T = vecpowuu(N, N);
+    na = cgetg(N+1, t_VEC);
     L->coef = coef = cgetg(N+1, t_VEC);
     L->nma = NULL;
     for (n = 1; n <= N; n++)
     {
-      GEN c = mulii(gel(C,n+1), powuu(n, N));
+      GEN c = mulii(gel(C,n+1), gel(T,n));
       if (odd(N-n)) togglesign_safe(&c);
       gel(coef, n) = c;
+      gel(na, n) = utoipos(n*muli);
     }
   }
+  L->na = na;
 }
 
 /* Zagier/Lagrange extrapolation */
