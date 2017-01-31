@@ -600,8 +600,11 @@ GEN
 lfunan(GEN ldata, long L, long prec)
 {
   pari_sp av = avma;
+  GEN an ;
   ldata = lfunmisc_to_ldata_shallow(ldata);
-  return gerepilecopy(av, ldata_vecan(ldata_get_an(ldata), L, prec));
+  an = gerepilecopy(av, ldata_vecan(ldata_get_an(ldata), L, prec));
+  if (typ(an) != t_VEC) an = vecsmall_to_vec_inplace(an);
+  return an;
 }
 
 /* return [1^a 2^a,...,lim^a] */
@@ -743,6 +746,21 @@ theta2(GEN vecan, long limt, GEN t, GEN al, long prec)
   return gmul2n(S,1);
 }
 
+static GEN
+get_an(GEN vecan, long n)
+{
+  if (typ(vecan) == t_VECSMALL)
+  {
+    long a = vecan[n];
+    return a? stoi(a): NULL;
+  }
+  else
+  {
+    GEN a = gel(vecan,n);
+    return (!a || gequal0(a))? NULL: a;
+  }
+}
+
 /* d=1, 2 sum_{n <= limt} a_n (n t)^al q^(n^2), q = exp(-pi t^2) */
 static GEN
 theta1(GEN vecan, long limt, GEN t, GEN al, long prec)
@@ -754,8 +772,8 @@ theta1(GEN vecan, long limt, GEN t, GEN al, long prec)
   if (gequal0(al))
     for (n = 1; n <= limt; ++n)
     {
-      GEN an = gel(vecan, n);
-      if (gequal0(an)) continue;
+      GEN an = get_an(vecan, n);
+      if (!an) continue;
       S = gadd(S, gmul(an, gel(vexp, n)));
       if (gc_needed(av, 3)) S = gerepileupto(av, S);
     }
@@ -763,8 +781,8 @@ theta1(GEN vecan, long limt, GEN t, GEN al, long prec)
   {
     for (n = 1; n <= limt; ++n)
     {
-      GEN an = gel(vecan, n);
-      if (gequal0(an)) continue;
+      GEN an = get_an(vecan, n);
+      if (!an) continue;
       S = gadd(S, gmul(gmulgs(an, n), gel(vexp, n)));
       if (gc_needed(av, 3)) S = gerepileupto(av, S);
     }
@@ -776,8 +794,8 @@ theta1(GEN vecan, long limt, GEN t, GEN al, long prec)
     av = avma;
     for (n = 1; n <= limt; ++n)
     {
-      GEN an = gel(vecan, n);
-      if (gequal0(an)) continue;
+      GEN an = get_an(vecan, n);
+      if (!an) continue;
       S = gadd(S, gmul(gmul(an, gel(vroots,n)), gel(vexp, n)));
       if (gc_needed(av, 3)) S = gerepileupto(av, S);
     }
@@ -825,8 +843,8 @@ lfuntheta(GEN data, GEN t, long m, long bitprec)
     S = gen_0;
     for (n = 1; n <= limt; ++n)
     {
-      GEN nt, an = gel(vecan, n);
-      if (gequal0(an)) continue;
+      GEN nt, an = get_an(vecan, n);
+      if (!an) continue;
       nt = gmul(gel(vroots,n), t);
       if (m) an = gmul(an, powuu(n, m));
       S = gadd(S, gmul(an, gammamellininvrt(K, nt, bitprec)));
@@ -995,7 +1013,7 @@ lfuninit_vecc2(GEN theta, GEN h, struct lfunp *S, GEN poqk)
 
 /* theta(exp(mh)) ~ sum_{n <= L[m]} a(n) k[m,n] */
 static GEN
-lfuninit_vecc_sum(GEN L, long M, GEN an, GEN vK, GEN pokq, long prec)
+lfuninit_vecc_sum(GEN L, long M, GEN vecan, GEN vK, GEN pokq, long prec)
 {
   long m;
   GEN vecc = cgetg(M+2, t_VEC);
@@ -1006,8 +1024,9 @@ lfuninit_vecc_sum(GEN L, long M, GEN an, GEN vK, GEN pokq, long prec)
     long n;
     for (n = 1; n <= L[m+1]; n++)
     {
-      if (!gel(an,n)) continue;
-      s = gadd(s, gmul(gel(an,n), gmael(vK,m+1,n)));
+      GEN an = get_an(vecan, n);
+      if (!an) continue;
+      s = gadd(s, gmul(an, gmael(vK,m+1,n)));
       if (gc_needed(av, 3)) s = gerepileupto(av, s);
     }
     gel(vecc,m+1) = gerepileupto(av, s);
@@ -1161,8 +1180,8 @@ lfunparams2(GEN ldata, GEN an, GEN bn, struct lfunp *S)
 
   /* try to reduce parameters now we know the a_n (some may be 0) */
   nan = lg(an)-1;
-  an = RgV_kill0(an);
-  if (bn) bn = RgV_kill0(bn);
+  if (typ(an) == t_VEC) an = RgV_kill0(an);
+  if (bn && typ(bn) == t_VEC) bn = RgV_kill0(bn);
   S->an = an; S->bn = bn;
   if (lfunisvgaell(Vga, 1)) { S->vprec = NULL; return; }
   nmax = neval = 0;

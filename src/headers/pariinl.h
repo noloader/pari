@@ -564,6 +564,13 @@ vecsmall_to_vec(GEN z)
   return x;
 }
 INLINE GEN
+vecsmall_to_vec_inplace(GEN z)
+{
+  long i, l = lg(z);
+  for (i=1; i<l; i++) gel(z,i) = stoi(z[i]);
+  settyp(z, t_VEC); return z;
+}
+INLINE GEN
 vecsmall_to_col(GEN z)
 {
   long i, l = lg(z);

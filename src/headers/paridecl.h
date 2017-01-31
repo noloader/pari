@@ -5186,6 +5186,7 @@ INLINE GEN    vecsmall_reverse(GEN A);
 INLINE GEN    vecsmall_shorten(GEN v, long n);
 INLINE GEN    vecsmall_to_col(GEN z);
 INLINE GEN    vecsmall_to_vec(GEN z);
+INLINE GEN    vecsmall_to_vec_inplace(GEN z);
 INLINE void   vecsmalltrunc_append(GEN x, long t);
 INLINE GEN    vecsmalltrunc_init(long l);
 INLINE void   vectrunc_append(GEN x, GEN t);

@@ -82,7 +82,7 @@ static GEN
 vecan_conj(GEN an, long n, long prec)
 {
   GEN p1 = ldata_vecan(gel(an,1), n, prec);
-  return gconj(p1);
+  return typ(p1) == t_VEC? gconj(p1): p1;
 }
 
 static GEN
@@ -90,6 +90,8 @@ vecan_mul(GEN an, long n, long prec)
 {
   GEN p1 = ldata_vecan(gel(an,1), n, prec);
   GEN p2 = ldata_vecan(gel(an,2), n, prec);
+  if (typ(p1) == t_VECSMALL) p1 = vecsmall_to_vec(p1);
+  if (typ(p2) == t_VECSMALL) p2 = vecsmall_to_vec(p2);
   return dirmul(p1, p2);
 }
 
@@ -102,6 +104,8 @@ vecan_div(GEN an, long n, long prec)
 {
   GEN p1 = ldata_vecan(gel(an,1), n, prec);
   GEN p2 = ldata_vecan(gel(an,2), n, prec);
+  if (typ(p1) == t_VECSMALL) p1 = vecsmall_to_vec(p1);
+  if (typ(p2) == t_VECSMALL) p2 = vecsmall_to_vec(p2);
   return dirdiv(p1, p2);
 }
 
@@ -304,15 +308,10 @@ lfunzetainit(GEN dom, long der, long bitprec)
 static GEN
 vecan_Kronecker(GEN D, long n)
 {
-  GEN v = cgetg(n+1, t_VEC);
+  GEN v = cgetg(n+1, t_VECSMALL);
   ulong Du = itou_or_0(D);
   long i, id, d = Du ? minuu(Du, n): n;
-  for (i = 1; i <= d; i++) switch(krois(D,i))
-  {
-    case 1:  gel(v,i) = gen_1; break;
-    case -1: gel(v,i) = gen_m1; break;
-    default: gel(v,i) = gen_0; break;
-  }
+  for (i = 1; i <= d; i++) v[i] = krois(D,i);
   for (id = i; i <= n; i++,id++) /* periodic mod d */
   {
     if (id > d) id = 1;
@@ -1876,7 +1875,7 @@ ldata_vecan(GEN van, long L, long prec)
       if (n < L)
         pari_warn(warner, "#an = %ld < %ld, results may be imprecise", n, L);
       break;
-    case t_LFUN_ZETA: an = const_vec(L, gen_1); break;
+    case t_LFUN_ZETA: an = const_vecsmall(L, 1); break;
     case t_LFUN_NF:  an = dirzetak(an, stoi(L)); break;
     case t_LFUN_ELL: an = ellan(an, L); break;
     case t_LFUN_KRONECKER: an = vecan_Kronecker(an, L); break;

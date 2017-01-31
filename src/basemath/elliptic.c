@@ -5990,12 +5990,7 @@ ellanQ_zv(GEN e, long n0)
 
 static GEN
 ellanQ(GEN e, long N)
-{
-  GEN v = ellanQ_zv(e, N);
-  long i;
-  for (i = 1; i <= N; i++) gel(v,i) = stoi(v[i]);
-  settyp(v, t_VEC); return v;
-}
+{ return vecsmall_to_vec_inplace(ellanQ_zv(e,N)); }
 
 static GEN
 ellnflocal(void *S, GEN p)
