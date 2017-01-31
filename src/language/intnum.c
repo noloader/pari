@@ -2334,7 +2334,7 @@ prodeulerrat(GEN F, GEN s, long a, long prec)
 Assume that the $N$-th remainder term of the series has a
 regular asymptotic expansion in integral powers of $1/N$. */
 static GEN
-sumnumlagrange1init(GEN c1, long prec)
+sumnumlagrange1init(GEN c1, long flag, long prec)
 {
   pari_sp av = avma;
   GEN V, W, T;
@@ -2346,20 +2346,21 @@ sumnumlagrange1init(GEN c1, long prec)
   prec2 = nbits2prec(B+(long)ceil(1.8444*N) + 16);
   W = vecbinome(N);
   T = vecpowuu(N, N);
-  V = cgetg(N+2, t_VEC); gel(V, N+1) = gen_0;
-  for (n = N; n >= 1; n--)
+  V = cgetg(N+1, t_VEC); gel(V,N) = gel(T,N);
+  for (n = N-1; n >= 1; n--)
   {
     pari_sp av = avma;
     GEN t = mulii(gel(W, n+1), gel(T,n));
     if (!odd(n)) togglesign_safe(&t);
-    gel(V, n) = gerepileuptoint(av, addii(gel(V, n+1), t));
+    if (flag) t = addii(gel(V, n+1), t);
+    gel(V, n) = gerepileuptoint(av, t);
   }
   V = gdiv(RgV_gtofp(V, prec2), mpfact(N));
   return gerepilecopy(av, mkvec3(gen_1, stoi(prec2), V));
 }
 
 static GEN
-sumnumlagrange2init(GEN c1, long prec)
+sumnumlagrange2init(GEN c1, long flag, long prec)
 {
   pari_sp av = avma;
   GEN V, W, T, told;
@@ -2371,43 +2372,55 @@ sumnumlagrange2init(GEN c1, long prec)
   prec2 = nbits2prec(B+(long)ceil(1.18696*N) + 16);
   W = vecbinome(2*N);
   T = vecpowuu(N, 2*N);
-  V = cgetg(N+2, t_VEC); gel(V, N+1) = gen_0;
-  told = gen_0;
-  for (n = N; n >= 1; n--)
+  V = cgetg(N+1, t_VEC); gel(V, N) = told = gel(T,N);
+  for (n = N-1; n >= 1; n--)
   {
     GEN tnew = mulii(gel(W, N-n+1), gel(T,n));
     if (!odd(n)) togglesign_safe(&tnew);
-    gel(V, n) = addii(gel(V, n+1), addii(told, tnew));
-    told = tnew;
+    told = addii(told, tnew);
+    if (flag) told = addii(gel(V, n+1), told);
+    gel(V, n) = told; told = tnew;
   }
   V = gdiv(RgV_gtofp(V, prec2), mpfact(2*N));
   return gerepilecopy(av, mkvec3(gen_2, stoi(prec2), V));
 }
 
 /* Used only for al = 2, 1, 1/2, 1/3, 1/4. */
-GEN
-sumnumlagrangeinit(GEN al, GEN c1, long prec)
+static GEN
+sumnumlagrangeinit_i(GEN al, GEN c1, long flag, long prec)
 {
   pari_sp av = avma;
   GEN V, W;
   double c1d = 0.0, c2;
-  long B = prec2nbits(prec), B1, prec2;
+  long B = prec2nbits(prec), B1, prec2, dal;
   ulong j, n, N;
 
-  if (!al) al = gen_1;
-  if (gequal1(al)) return sumnumlagrange1init(c1, prec);
-  if (gequal(al, gen_2)) return sumnumlagrange2init(c1, prec);
-  if (c1) c1d = gtodouble(c1);
-  if      (gequal(al, ghalf))      { c2 = 2.6441; if (!c1) c1d = 0.62; }
-  else if (gequal1(gmulsg(3, al))) { c2 = 3.1578; if (!c1) c1d = 1.18; }
-  else if (gequal1(gmulsg(4, al))) { c2 = 3.5364; if (!c1) c1d = 3.00; }
-  else
+  if (typ(al) == t_INT)
   {
-    pari_err_IMPL("sumnumlagrange for this alpha");
-    return NULL; /* LCOV_EXCL_LINE */
+    switch(itos_or_0(al))
+    {
+      case 1: return sumnumlagrange1init(c1, flag, prec);
+      case 2: return sumnumlagrange2init(c1, flag, prec);
+      default: pari_err_IMPL("sumnumlagrange for this alpha");
+    }
   }
-  if (c1d <= 0)
-    pari_err_DOMAIN("sumnumlagrangeinit", "c1", "<=", gen_0, dbltor(c1d));
+  if (typ(al) != t_FRAC) pari_err_TYPE("sumnumlagrangeinit",al);
+  dal = itos_or_0(gel(al,2));
+  if (dal > 4 || !equali1(gel(al,1)))
+    pari_err_IMPL("sumnumlagrange for this alpha");
+  switch(dal)
+  {
+    case 2: c2 = 2.6441; c1d = 0.62; break;
+    case 3: c2 = 3.1578; c1d = 1.18; break;
+    case 4: c2 = 3.5364; c1d = 3.00; break;
+    default: return NULL; /* LCOV_EXCL_LINE */
+  }
+  if (c1)
+  {
+    c1d = gtodouble(c1);
+    if (c1d <= 0)
+      pari_err_DOMAIN("sumnumlagrangeinit", "c1", "<=", gen_0, c1);
+  }
   N = (ulong)ceil(c1d*B); if ((N&1L) == 0) N++;
   B1 = B + (long)ceil(c2*N) + 16;
   prec2 = nbits2prec(B1);
@@ -2421,10 +2434,39 @@ sumnumlagrangeinit(GEN al, GEN c1, long prec)
       if (j != n) t = _mpmul(t, mpsub(vn, gel(V, j)));
     gel(W, n) = gerepileuptoleaf(av2, mpdiv(gpowgs(vn, N-1), t));
   }
-  V = cgetg(N+2, t_VEC); gel(V, N+1) = gen_0;
+  if (flag)
+    for (n = N-1; n >= 1; n--) gel(W, n) = gadd(gel(W, n+1), gel(W, n));
+  return gerepilecopy(av, mkvec3(al, stoi(prec2), W));
+}
+
+GEN
+sumnumlagrangeinit(GEN al, GEN c1, long prec)
+{
+  pari_sp ltop = avma;
+  GEN V, W, S, be;
+  long n, prec2, fl, N;
+
+  if (!al) return sumnumlagrange1init(c1, 1, prec);
+  if (typ(al) != t_VEC) al = mkvec2(gen_1, al);
+  else if (lg(al) != 3) pari_err_TYPE("sumnumlagrangeinit",al);
+  be = gel(al,2);
+  al = gel(al,1);
+  if (gequal0(be)) return sumnumlagrangeinit_i(al, c1, 1, prec);
+  V = sumnumlagrangeinit_i(al, c1, 0, prec);
+  fl = (typ(be) == t_CLOSURE);
+  prec2 = itos(gel(V, 2));
+  W = gel(V, 3);
+  N = lg(W) - 1;
+  S = gen_0; V = cgetg(N+1, t_VEC);
   for (n = N; n >= 1; n--)
-    gel(V, n) = gadd(gel(V, n+1), gel(W, n));
-  return gerepilecopy(av, mkvec3(al, stoi(prec2), V));
+  {
+    GEN tmp, gn = stoi(n);
+    tmp = fl ? closure_callgen1prec(be, gn, prec2) : gpow(gn, gneg(be), prec2);
+    tmp = gdiv(gel(W, n), tmp);
+    S = gadd(S, tmp);
+    gel(V, n) = (n == N)? tmp: gadd(gel(V, n+1), tmp);
+  }
+  return gerepilecopy(ltop, mkvec3(al, stoi(prec2), gdiv(V, S)));
 }
 
 /* - sum_{n=1}^{as-1} f(n) */
@@ -2449,11 +2491,10 @@ sumnumlagrange(void *E, GEN (*eval)(void*,GEN,long), GEN a, GEN tab, long prec)
   pari_sp av = avma;
   GEN S, al;
   long as, prec2;
-  ulong n, N;
+  ulong n, l;
 
   if (typ(a) != t_INT) pari_err_TYPE("sumnumlagrange", a);
-  if (!tab)
-    tab = sumnumlagrangeinit(gen_1, tab, prec);
+  if (!tab) tab = sumnumlagrangeinit(NULL, tab, prec);
   else if (lg(tab) != 4 || typ(gel(tab,2)) != t_INT || typ(gel(tab,3)) != t_VEC)
     pari_err_TYPE("sumnumlagrange", tab);
 
@@ -2461,7 +2502,7 @@ sumnumlagrange(void *E, GEN (*eval)(void*,GEN,long), GEN a, GEN tab, long prec)
   al = gel(tab, 1);
   prec2 = itos(gel(tab, 2));
   tab = gel(tab, 3);
-  N = lg(tab) - 2;
+  l = lg(tab);
   if (gequal(al, gen_2))
   {
     S = sumaux(E, eval, as, prec2);
@@ -2469,7 +2510,7 @@ sumnumlagrange(void *E, GEN (*eval)(void*,GEN,long), GEN a, GEN tab, long prec)
   }
   else
     S = gen_0;
-  for (n = 1; n <= N; n++)
+  for (n = 1; n < l; n++)
     S = gadd(S, gmul(gel(tab, n), eval(E, stoi(n+as-1), prec2)));
   return gerepileupto(av, gprec_w(S, prec));
 }

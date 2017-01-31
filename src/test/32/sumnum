@@ -84,7 +84,7 @@
   ***   at top-level: sumnummonieninit(,[n
   ***                 ^--------------------
   *** sumnummonieninit: forbidden addition t_INT + t_INFINITY.
-  ***   at top-level: sumnumlagrangeinit(1
+  ***   at top-level: sumnumlagrangeinit([
   ***                 ^--------------------
   *** sumnumlagrangeinit: sorry, sumnumlagrange for this alpha is not yet implemented.
-Total time spent: 3484
+Total time spent: 3186

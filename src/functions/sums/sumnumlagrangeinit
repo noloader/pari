@@ -2,15 +2,33 @@ Function: sumnumlagrangeinit
 Section: sums
 C-Name: sumnumlagrangeinit
 Prototype: DGDGp
-Help: sumnumlagrangeinit({al}, {c1}): initialize tables for Lagrange
+Help: sumnumlagrangeinit({asymp}, {c1}): initialize tables for Lagrange
  summation of a series.
-Doc: initialize tables for Lagrange summation of a series. $al$ can be
- either $2$, $1$ (default), $1/2$, $1/3$, or $1/4$; this initialization
- must be used if the asymptotic expansion of the remainder of the sum
- (minus one half of the last summand if $al=2$) is in integral powers
- of $1/N^{al}$. The constant $c1$ is technical and computed by the program,
- but can be set by the user: the number of interpolation steps will be
- chosen close to $c1\cdot B$, where $B$ is the bit accuracy.
+Doc: initialize tables for Lagrange summation of a series. By
+ default, assume that the remainder $R(n) = \sum_{m \geq n} f(m)$
+ has an asymptotic expansion
+ $$R(n) = \sum_{m \geq n} f(n) \approx \sum_{i\geq 1} a_i / n^i$$
+ at infinity. The argument \kbd{asymp} allows to specify different
+ expansions:
+
+ \item a real number $\beta > 0$ means
+ $$ R(n) = n^{-\beta} \sum_{i\geq 1} a_i / n^i $$
+
+ \item a \typ{CLOSURE} $g$ means
+ $$R(n) = g(n) \sum_{i\geq 1} a_i / n^i$$
+ (The preceding case corresponds to $g(n) = n^{-\beta}$.)
+
+ \item a pair $[\alpha,\beta]$ where $\beta$ is as above and
+ $\alpha\in \{2, 1, 1/2, 1/3, 1/4\}$. We let $R_2(n) = R(n) - f(n)/2$
+ and $R_\alpha(n) = R(n)$ for $\alpha\neq 2$. Then
+ $$R_\alpha(n) = g(n) \sum_{i\geq 1} a_i / n^{i\alpha}$$
+ Note that the initialization times increase considerable for the $\alpha$
+ is this list ($1/4$ being the slowest).
+
+ The constant $c1$ is technical and computed by the program, but can be set
+ by the user: the number of interpolation steps will be chosen close to
+ $c1\cdot B$, where $B$ is the bit accuracy.
+
  \bprog
  ? \p2000
  ? sumnumlagrange(n=1, n^-2);
@@ -21,8 +39,15 @@ Doc: initialize tables for Lagrange summation of a series. $al$ can be
  time = 4 ms.
 
  ? \p115
+ ? sumnumlagrange(n=1, n^(-4/3)) - zeta(4/3);
+ %1 = -0.1093[...] \\ junk: expansion in n^(1/3)
+ time = 84 ms.
  ? tab = sumnumlagrangeinit(1/3);
  time = 336 ms.
- ? sumnumlagrange(n=1, n^(-4/3), tab);
+ ? sumnumlagrange(n=1, n^(-4/3), tab) - zeta(4/3);
  time = 84 ms.
+ %3 = 1.0151767349262596893 E-115 \\ now OK
+
+ ? tab = sumnumlagrangeinit([1, 1/3]);
+ sumnumlagrange(n=1, n^(-4/3), tab) - zeta(4/3)
  @eprog
