@@ -2330,55 +2330,6 @@ prodeulerrat(GEN F, GEN s, long a, long prec)
   return gerepileupto(ltop, gprec_w(res, prec));
 }
 
-/* [1^B,...,N^B] */
-GEN
-vecpowuu(long N, long B)
-{
-  GEN v = const_vec(N, NULL);
-  long p, i;
-  forprime_t T;
-  u_forprime_init(&T, 3, N);
-  while ((p = u_forprime_next(&T)))
-  {
-    long m, pk, oldpk;
-    gel(v,p) = powuu(p, B);
-    for (pk = p, oldpk = p; pk <= N; oldpk = pk, pk *= p)
-    {
-      if (pk != p) gel(v,pk) = mulii(gel(v,oldpk), gel(v,p));
-      for (m = N/pk; m > 1; m--)
-        if (gel(v,m) && m%p) gel(v, m*pk) = mulii(gel(v,m), gel(v,pk));
-    }
-  }
-  gel(v,1) = gen_1;
-  for (i = 2; i <= N; i+=2)
-  {
-    long vi = vals(i);
-    gel(v,i) = shifti(gel(v,i >> vi), B * vi);
-  }
-  return v;
-}
-GEN
-vecpowug(long N, GEN B, long prec)
-{
-  GEN v = const_vec(N, NULL);
-  long p;
-  forprime_t T;
-  u_forprime_init(&T, 2, N);
-  gel(v,1) = gen_1;
-  while ((p = u_forprime_next(&T)))
-  {
-    long m, pk, oldpk;
-    gel(v,p) = gpow(utor(p,prec), B, prec);
-    for (pk = p, oldpk = p; pk <= N; oldpk = pk, pk *= p)
-    {
-      if (pk != p) gel(v,pk) = gmul(gel(v,oldpk), gel(v,p));
-      for (m = N/pk; m > 1; m--)
-        if (gel(v,m) && m%p) gel(v, m*pk) = gmul(gel(v,m), gel(v,pk));
-    }
-  }
-  return v;
-}
-
 /* Compute $\sum_{n\ge a}c(n)$ using Lagrange extrapolation.
 Assume that the $N$-th remainder term of the series has a
 regular asymptotic expansion in integral powers of $1/N$. */

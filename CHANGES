@@ -93,6 +93,7 @@ BA   31- new GP function ellbsd
      36- new GP function sumnumlagrange, sumnulagrangeinit
      37- [libpari] int2um1 (for 2^n - 1)
      38- Fl_powu: special purpose code when base is 2
+     39- [libpari] vecpowuu, vecpowug
 
   Changed
       1- rewrite bnfnarrow

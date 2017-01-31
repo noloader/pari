@@ -3211,6 +3211,13 @@ whithout sanity checks.)
 \fun{long}{logint}{GEN B, GEN y} returns the floor $e$ of $\log_y B$, where
 $B > 0$ and $y > 1$ are integers.
 
+\fun{GEN}{vecpowuu}{long N, ulong a} return the vector of $n^a$, $n = 1,
+\dots, N$. Not memory clean.
+
+\fun{GEN}{vecpowug}{long N, GEN a, long prec} return the vector of $n^a$, $n
+= 1, \dots, N$, where the powers are computed at precision \kbd{prec}. Not
+memory clean.
+
 \subsec{GCD, extended GCD and LCM}
 
 \fun{long}{cgcd}{long x, long y} returns the GCD of \kbd{x} and \kbd{y}.

@@ -607,32 +607,54 @@ lfunan(GEN ldata, long L, long prec)
   return an;
 }
 
-/* return [1^a 2^a,...,lim^a] */
-static GEN
-mkvpow(GEN a, long lim, long prec)
+/* [1^B,...,N^B] */
+GEN
+vecpowuu(long N, ulong B)
 {
-  pari_sp av = avma;
-  GEN v = const_vec(lim, gen_1);
-  long n;
-  forprime_t iter;
-  ulong p;
-
-  u_forprime_init(&iter, 2, lim);
-  while ((p = u_forprime_next(&iter)))
+  GEN v = const_vec(N, NULL);
+  long p, i;
+  forprime_t T;
+  u_forprime_init(&T, 3, N);
+  while ((p = u_forprime_next(&T)))
   {
-    long limp = lim/p + 1, q = p;
-    GEN tp = gpow(utoipos(p), a, prec), tq = tp;
-    for(;;)
+    long m, pk, oldpk;
+    gel(v,p) = powuu(p, B);
+    for (pk = p, oldpk = p; pk <= N; oldpk = pk, pk *= p)
     {
-      long nq;
-      for (n=1, nq=q; nq <= lim; n++, nq+=q)
-        if (n % p) gel(v,nq) = gmul(gel(v,nq), tq);
-      if (q >= limp) break;
-      q *= p;
-      tq = gmul(tq, tp); /* q^(2/d) */
+      if (pk != p) gel(v,pk) = mulii(gel(v,oldpk), gel(v,p));
+      for (m = N/pk; m > 1; m--)
+        if (gel(v,m) && m%p) gel(v, m*pk) = mulii(gel(v,m), gel(v,pk));
     }
   }
-  return gerepilecopy(av, v);
+  gel(v,1) = gen_1;
+  for (i = 2; i <= N; i+=2)
+  {
+    long vi = vals(i);
+    gel(v,i) = shifti(gel(v,i >> vi), B * vi);
+  }
+  return v;
+}
+/* [1^B,...,N^B] */
+GEN
+vecpowug(long N, GEN B, long prec)
+{
+  GEN v = const_vec(N, NULL);
+  long p;
+  forprime_t T;
+  u_forprime_init(&T, 2, N);
+  gel(v,1) = gen_1;
+  while ((p = u_forprime_next(&T)))
+  {
+    long m, pk, oldpk;
+    gel(v,p) = gpow(utor(p,prec), B, prec);
+    for (pk = p, oldpk = p; pk <= N; oldpk = pk, pk *= p)
+    {
+      if (pk != p) gel(v,pk) = gmul(gel(v,oldpk), gel(v,p));
+      for (m = N/pk; m > 1; m--)
+        if (gel(v,m) && m%p) gel(v, m*pk) = gmul(gel(v,m), gel(v,pk));
+    }
+  }
+  return v;
 }
 
 /* return [1^(2/d), 2^(2/d),...,lim^(2/d)] */
@@ -652,11 +674,11 @@ mkvroots(long d, long lim, long prec)
         for (n=1; n <= lim; n++) gel(v,n) = utoipos(n);
         return v;
       case 4:
-        for (n=1; n <= lim; n++) gel(v,n) = sqrtr(stor(n, prec));
+        for (n=1; n <= lim; n++) gel(v,n) = sqrtr(utor(n, prec));
         return v;
     }
   }
-  return mkvpow(gdivgs(gen_2,d), lim, prec);
+  return vecpowug(lim, gdivgs(gen_2,d), prec);
 }
 
 GEN
@@ -732,7 +754,7 @@ theta2(GEN vecan, long limt, GEN t, GEN al, long prec)
   }
   else
   {
-    vroots = mkvpow(al, limt, prec);
+    vroots = vecpowug(limt, al, prec);
     cmul = vecan_nv_cmul;
     flag = 2;
   }
@@ -790,7 +812,7 @@ theta1(GEN vecan, long limt, GEN t, GEN al, long prec)
   }
   else
   {
-    GEN vroots = mkvpow(al, limt, prec);
+    GEN vroots = vecpowug(limt, al, prec);
     av = avma;
     for (n = 1; n <= limt; ++n)
     {

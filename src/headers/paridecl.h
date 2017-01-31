@@ -3517,7 +3517,7 @@ GEN     sumnumlagrange(void *E, GEN (*eval)(void*,GEN,long), GEN a, GEN tab, lon
 GEN     sumnummonien(void *E, GEN (*eval)(void*, GEN), GEN a, GEN tab, long prec);
 GEN     sumnummonieninit(GEN asymp, GEN w, GEN n0, long prec);
 GEN     sumnumrat(GEN F, GEN a, long prec);
-GEN     vecpowuu(long N, long B);
+GEN     vecpowuu(long N, ulong B);
 GEN     vecpowug(long N, GEN B, long prec);
 
 /* krasner.c */
