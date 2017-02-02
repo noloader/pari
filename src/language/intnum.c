@@ -2459,7 +2459,6 @@ sumnumlagrangeinit(GEN al, GEN c1, long prec)
     case t_INT: case t_FRAC: case t_REAL: fl = 0; break;
     default: pari_err_TYPE("sumnumlagrangeinit", be);
   }
-  fl = (typ(be) == t_CLOSURE);
   prec2 = itos(gel(V, 2));
   W = gel(V, 3);
   N = lg(W) - 1;
