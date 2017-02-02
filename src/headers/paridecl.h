@@ -5213,6 +5213,7 @@ INLINE GEN    zeropadic_shallow(GEN p, long e);
 INLINE GEN    zeropol(long v);
 INLINE GEN    zeroser(long v, long e);
 INLINE GEN    zerovec(long n);
+INLINE GEN    zerovec_block(long len);
 INLINE GEN    zm_copy(GEN x);
 INLINE GEN    zm_to_zxV(GEN x, long sv);
 INLINE GEN    zm_transpose(GEN x);

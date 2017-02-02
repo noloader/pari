@@ -965,19 +965,6 @@ Fl_addmul5(
   return remll_pre(h1, l1, p, pi);
 }
 
-
-INLINE GEN
-zero_block(long len)
-{
-  GEN blk;
-  long i;
-
-  blk = cgetg_block(len + 1, t_VEC);
-  for (i = 1; i <= len; ++i)
-    gel(blk, i) = gen_0;
-  return blk;
-}
-
 /*
  * A polmodular database for a given class invariant consists of a
  * t_VEC whose L-th entry is 0 or a GEN pointing to Phi_L.  This
@@ -991,10 +978,10 @@ polmodular_db_init(long inv)
   enum { DEFAULT_MODPOL_DB_LEN = 32 };
 
   res = cgetg_block(2 + 1, t_VEC);
-  jdb = zero_block(DEFAULT_MODPOL_DB_LEN);
+  jdb = zerovec_block(DEFAULT_MODPOL_DB_LEN);
   gel(res, 1) = jdb;
   if (inv != INV_J) {
-    fdb = zero_block(DEFAULT_MODPOL_DB_LEN);
+    fdb = zerovec_block(DEFAULT_MODPOL_DB_LEN);
     gel(res, 2) = fdb;
   } else {
     gel(res, 2) = gen_0;

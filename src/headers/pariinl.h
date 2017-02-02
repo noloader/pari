@@ -445,6 +445,16 @@ zeromatcopy(long m, long n)
   return y;
 }
 
+INLINE GEN
+zerovec_block(long len)
+{
+  long i;
+  GEN blk = cgetg_block(len + 1, t_VEC);
+  for (i = 1; i <= len; ++i)
+    gel(blk, i) = gen_0;
+  return blk;
+}
+
 /* i-th vector in the standard basis */
 INLINE GEN
 col_ei(long n, long i) { GEN e = zerocol(n); gel(e,i) = gen_1; return e; }
