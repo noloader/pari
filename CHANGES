@@ -94,6 +94,8 @@ BA   31- new GP function ellbsd
      37- [libpari] int2um1 (for 2^n - 1)
      38- Fl_powu: special purpose code when base is 2
      39- [libpari] vecpowuu, vecpowug
+     41- [libpari] zerovec_block
+     40- [libpari] Z_ZV_mod_tree
 
   Changed
       1- rewrite bnfnarrow

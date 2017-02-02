@@ -6168,6 +6168,10 @@ $P$ being a vector of integers of length $n\ge 1$, the elements of $P$ being
 pairwise coprime, return a vector $B$ of the same length such that
 $B[i]=A\pmod{P[i]}$ and $0\leq B[i] < P[i]$ for all $1\leq i\leq n$.
 
+\fun{GEN}{Z_ZV_mod_tree}{GEN A, GEN P, GEN T}
+as \kbd{Z\_ZV\_mod} where $T$ is assumed to be the tree created by
+\kbd{ZV\_producttree(P)}.
+
 \fun{GEN}{Z_nv_mod}{GEN A, GEN P}
 $P$ being a \typ{VECSMALL} of length $n\ge 1$, the elements of $P$ being
 pairwise coprime, return a \typ{VECSMALL} $B$ of the same length such that

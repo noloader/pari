@@ -2433,7 +2433,7 @@ ZV_producttree(GEN xa)
   return T;
 }
 
-static GEN
+GEN
 Z_ZV_mod_tree(GEN P, GEN xa, GEN T)
 {
   long i,j,k;

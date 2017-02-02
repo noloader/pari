@@ -1668,6 +1668,7 @@ GEN     Fp_powu(GEN x, ulong k, GEN p);
 GEN     Fp_sqrt(GEN a, GEN p);
 GEN     Fp_sqrtn(GEN a, GEN n, GEN p, GEN *zetan);
 GEN     Z_ZV_mod(GEN P, GEN xa);
+GEN     Z_ZV_mod_tree(GEN P, GEN xa, GEN T);
 GEN     Z_chinese(GEN a, GEN b, GEN A, GEN B);
 GEN     Z_chinese_all(GEN a, GEN b, GEN A, GEN B, GEN *pC);
 GEN     Z_chinese_coprime(GEN a, GEN b, GEN A, GEN B, GEN C);
