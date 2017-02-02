@@ -1501,7 +1501,7 @@ cornacchia2_helper(long av, GEN d, GEN p, GEN b, GEN px4, GEN *px, GEN *py)
 long
 cornacchia2(GEN d, GEN p, GEN *px, GEN *py)
 {
-  pari_sp av = avma, av2;
+  pari_sp av = avma;
   GEN b, px4;
   long k;
 
