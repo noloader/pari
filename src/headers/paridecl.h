@@ -648,6 +648,7 @@ long    FpX_nbfact(GEN f, GEN p);
 long    FpX_nbfact_Frobenius(GEN T, GEN XP, GEN p);
 long    FpX_nbroots(GEN f, GEN p);
 GEN     FpX_oneroot(GEN f, GEN p);
+GEN     FpX_oneroot_split(GEN fact, GEN p);
 GEN     FpX_roots(GEN f, GEN p);
 GEN     FpX_rootsff(GEN P, GEN T, GEN p);
 GEN     FpX_split_part(GEN f, GEN p);

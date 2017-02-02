@@ -631,6 +631,80 @@ FpX_oneroot(GEN f, GEN pp) {
   return gerepileuptoint(av, f);
 }
 
+/* returns a root of unity in F_p that is suitable for finding a factor   */
+/* of degree deg_factor of a polynomial of degree deg; the order is       */
+/* returned in n                                                          */
+/* A good choice seems to be n close to deg/deg_factor; we choose n       */
+/* twice as big and decrement until it divides p-1.                       */
+static GEN
+good_root_of_unity(GEN p, long deg, long deg_factor, long *pt_n)
+{
+   pari_sp ltop = avma;
+   GEN pm, factn, power, base, zeta;
+   long n;
+
+   pm = subis (p, 1ul);
+   for (n = deg / 2 / deg_factor + 1; !dvdiu (pm, n); n--);
+   factn = Z_factor(stoi(n));
+   power = diviuexact (pm, n);
+   base = gen_1;
+   do {
+      base = addis (base, 1l);
+      zeta = Fp_pow (base, power, p);
+   }
+   while (!equaliu (Fp_order (zeta, factn, p), n));
+   *pt_n = n;
+   return gerepileuptoint (ltop, zeta);
+}
+
+GEN
+FpX_oneroot_split(GEN fact, GEN p)
+{
+  pari_sp av = avma;
+  long n, deg_f, i, dmin;
+  GEN prim, expo, minfactor, xplusa, zeta, xpow;
+  fact = FpX_normalize(fact, p);
+  deg_f = degpol(fact);
+  if (deg_f<=2) return FpX_oneroot(fact, p);
+  minfactor = fact; /* factor of minimal degree found so far */
+  dmin = degpol(minfactor);
+  prim = good_root_of_unity(p, deg_f, 1, &n);
+  expo = diviuexact(subiu(p, 1), n);
+  xplusa = pol_x(varn(fact));
+  zeta = gen_1;
+  while (dmin != 1)
+  {
+    /* split minfactor by computing its gcd with (X+a)^exp-zeta, where    */
+    /* zeta varies over the roots of unity in F_p                         */
+    fact = minfactor; deg_f = dmin;
+    /* update X+a, avoid a=0 */
+    gel (xplusa, 2) = addis (gel (xplusa, 2), 1);
+    xpow = FpXQ_pow (xplusa, expo, fact, p);
+    for (i = 0; i < n; i++)
+    {
+      GEN tmp = FpX_gcd(FpX_Fp_sub(xpow, zeta, p), fact, p);
+      long dtmp = degpol(tmp);
+      if (dtmp > 0 && dtmp < deg_f)
+      {
+        fact = FpX_div(fact, tmp, p); deg_f = degpol(fact);
+        if (dtmp < dmin)
+        {
+          minfactor = FpX_normalize (tmp, p);
+          dmin = dtmp;
+          if (dmin == 1 || dmin <= deg_f / (n / 2) + 1)
+            /* stop early to avoid too many gcds */
+            break;
+        }
+      }
+      zeta = Fp_mul (zeta, prim, p);
+    }
+  }
+  GEN z = Fp_neg(gel(minfactor,2), p);
+  if (signe(FpX_eval(minfactor,z,p)))
+    pari_err_BUG("FpX_oneroot2");
+  return gerepileuptoint(av, Fp_neg(gel(minfactor,2), p));
+}
+
 /*******************************************************************/
 /*                                                                 */
 /*                     FACTORISATION MODULO p                      */
