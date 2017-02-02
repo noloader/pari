@@ -170,6 +170,28 @@ inv_height_factor(long inv)
   return 0.0;
 }
 
+long
+disc_best_inv(long D)
+{
+  long ret;
+  ret = INV_F;     if(inv_good_discriminant(D, ret)) return ret;
+  ret = INV_W2W3;  if(inv_good_discriminant(D, ret)) return ret;
+  ret = INV_W2W5;  if(inv_good_discriminant(D, ret)) return ret;
+  ret = INV_W2W7;  if(inv_good_discriminant(D, ret)) return ret;
+  ret = INV_W2W13; if(inv_good_discriminant(D, ret)) return ret;
+  ret = INV_W3W3;  if(inv_good_discriminant(D, ret)) return ret;
+  ret = INV_W2W3E2;if(inv_good_discriminant(D, ret)) return ret;
+  ret = INV_W3W5;  if(inv_good_discriminant(D, ret)) return ret;
+  ret = INV_W3W7;  if(inv_good_discriminant(D, ret)) return ret;
+  ret = INV_W3W13; if(inv_good_discriminant(D, ret)) return ret;
+  ret = INV_W2W5E2;if(inv_good_discriminant(D, ret)) return ret;
+  ret = INV_F3;    if(inv_good_discriminant(D, ret)) return ret;
+  ret = INV_W2W7E2;if(inv_good_discriminant(D, ret)) return ret;
+  ret = INV_W5W7;  if(inv_good_discriminant(D, ret)) return ret;
+  ret = INV_W3W3E2;if(inv_good_discriminant(D, ret)) return ret;
+  ret = INV_G2;    if(inv_good_discriminant(D, ret)) return ret;
+  return INV_J;
+}
 
 INLINE long
 inv_sparse_factor(long inv)

@@ -759,6 +759,7 @@ void polmodular_db_add_levels(GEN *db, long *levels, long k, long inv);
 GEN polmodular_db_for_inv(GEN db, long inv);
 GEN polmodular_db_getp(GEN fdb, long L, ulong p);
 
+long disc_best_inv(long D);
 int inv_is_valid(long inv);
 long inv_level(long inv);
 long inv_degree(long *p1, long *p2, long inv);
