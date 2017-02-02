@@ -87,4 +87,7 @@
   ***   at top-level: sumnumlagrangeinit([
   ***                 ^--------------------
   *** sumnumlagrangeinit: sorry, sumnumlagrange for this alpha is not yet implemented.
-Total time spent: 3186
+  ***   at top-level: sumnumlagrangeinit(x
+  ***                 ^--------------------
+  *** sumnumlagrangeinit: incorrect type in sumnumlagrangeinit (t_POL).
+Total time spent: 3042

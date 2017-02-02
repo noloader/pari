@@ -2453,6 +2453,12 @@ sumnumlagrangeinit(GEN al, GEN c1, long prec)
   al = gel(al,1);
   if (gequal0(be)) return sumnumlagrangeinit_i(al, c1, 1, prec);
   V = sumnumlagrangeinit_i(al, c1, 0, prec);
+  switch(typ(be))
+  {
+    case t_CLOSURE: fl = 1; break;
+    case t_INT: case t_FRAC: case t_REAL: fl = 0; break;
+    default: pari_err_TYPE("sumnumlagrangeinit", be);
+  }
   fl = (typ(be) == t_CLOSURE);
   prec2 = itos(gel(V, 2));
   W = gel(V, 3);

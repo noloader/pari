@@ -127,3 +127,4 @@ sumnummonieninit([-1,1]);
 sumnummonieninit([1,-1]);
 sumnummonieninit(,[n->2^-n,oo]);
 sumnumlagrangeinit([1/5,0])
+sumnumlagrangeinit(x)
