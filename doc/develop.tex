@@ -348,6 +348,9 @@ then \kbd{print0(g, flag)}.
 \fun{void}{print}{GEN g} equivalent to \kbd{print0(g, f\_RAW)}, followed
 by a \kbd{\bs n} then an \kbd{fflush}.
 
+\fun{void}{printp}{GEN g} equivalent to \kbd{print0(g, f\_PRETTYMAT)},
+followed by a \kbd{\bs n} then an \kbd{fflush}.
+
 \fun{void}{print1}{GEN g} as above, without the \kbd{\bs n}. Use
 \tet{pari_printf} or \tet{output} instead.
 
