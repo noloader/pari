@@ -12709,6 +12709,9 @@ of \kbd{n} components equal to \kbd{c}.
 
 \fun{GEN}{vecsmall_to_col}{GEN z} identical to \kbd{zv\_to\_ZC(z)}.
 
+\fun{GEN}{vecsmall_to_vec_inplace}{GEN z} apply \kbd{stoi} to all entries
+of $z$ and set its type to \typ{VEC}.
+
 \fun{GEN}{vecsmall_copy}{GEN x} makes a copy of \kbd{x} on the stack.
 
 \fun{GEN}{vecsmall_shorten}{GEN v, long n} shortens the \typ{VECSMALL} \kbd{v}

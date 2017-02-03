@@ -95,7 +95,7 @@ BA   31- new GP function ellbsd
      39- [libpari] vecpowuu, vecpowug
      40- [libpari] zerovec_block
      41- [libpari] Z_ZV_mod_tree
-     42- [libpari] vecvecsmall_max
+     42- [libpari] vecvecsmall_max, vecsmall_to_vec_inplace
      43- new GP function zetamultinit
 
   Changed
