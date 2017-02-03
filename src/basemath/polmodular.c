@@ -1021,7 +1021,7 @@ polmodular_db_add_level(GEN *DB, long L, long inv)
     db = gel(*DB, 1);
   } else {
     db = gel(*DB, 2);
-    if ( db == gen_0)
+    if ( isintzero(db))
       pari_err_BUG("polmodular_db_add_level");
   }
 
@@ -1039,7 +1039,7 @@ polmodular_db_add_level(GEN *DB, long L, long inv)
     /* NB: Uses the fact that INV_J == 0 */
     gel(*DB, 2 - !inv) = db = newdb;
   }
-  if ( gel(db, L) == gen_0) {
+  if ( isintzero(gel(db, L))) {
     pari_sp av = avma;
     gel(db, L) = gclone(polmodular0_ZM(L, inv, NULL, NULL, 0, DB));
     avma = av;
@@ -1069,7 +1069,7 @@ GEN
 polmodular_db_getp(GEN db, long L, ulong p)
 {
   GEN f = gel(db, L);
-  if (f == gen_0)
+  if (isintzero(f))
     pari_err_BUG("polmodular_db_getp");
   return ZM_to_Flm(f, p);
 }
