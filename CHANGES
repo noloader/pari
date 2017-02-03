@@ -43,7 +43,6 @@ PB   29- matinverseimage could find spurious solutions [#1888]
      35- bnrinit(bnf,idealfactor(bnf,1)) -> SEGV [#1890]
 BA   36- lfuncreate([1,0,[0],1,1,1,1]) -> SEGV (invalid input)
 
-
   Added
       1- [libari] ZM_isidentity
       2- [libpari] rename buchnarrow -> bnfnarrow
@@ -97,6 +96,7 @@ BA   31- new GP function ellbsd
      40- [libpari] zerovec_block
      41- [libpari] Z_ZV_mod_tree
      42- [libpari] vecvecsmall_max
+     43- new GP function zetamultinit
 
   Changed
       1- rewrite bnfnarrow

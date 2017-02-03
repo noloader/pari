@@ -58,14 +58,15 @@ atoe(GEN avec)
 /* vphi[i] contains phip(j,avec[i..r]) for 1<= j < L
  * vpow[a][j] = j^-a as a t_INT or t_REAL; j < L */
 static GEN
-phip(long L, GEN avec, GEN vpow)
+phip(GEN avec, GEN vpow)
 {
-  long i, j, r = lg(avec) - 1;
+  long i, r = lg(avec) - 1;
   GEN vphi = cgetg(r+1, t_VEC);
   gel(vphi, r) = gel(vpow, avec[r]);
   for (i = r-1; i >= 1; i--)
   {
     GEN t, u, phi = gel(vphi,i+1), pow = gel(vpow, avec[i]);
+    long j, L = lg(pow);
     gel(vphi, i) = u = cgetg(L, t_VEC);
     gel(u,1) = gen_0;
     gel(u,2) = (i==r-1)? gel(pow,2): gen_0;
@@ -128,23 +129,56 @@ addevec(GEN LR, GEN v)
   return vec_append(LR,v);
 }
 
+static GEN
+get_vbin(long N, long bitprec)
+{
+  GEN vbin = cgetg(N+1, t_VEC);
+  long n;
+  gel(vbin, 1) = gen_2;
+  for (n = 2; n <= N; ++n)
+    gel(vbin, n) = diviuexact(mului(4*n-2, gel(vbin, n-1)), n);
+  return vbin;
+}
+/* m < k */
+static GEN
+zetamultinit_i(long k, long m, long bitprec)
+{
+  long i, N, prec;
+  GEN vpow = cgetg(m+1, t_VEC);
+
+  bitprec += 64*(1+(k>>5));
+  prec = nbits2prec(bitprec);
+  N = 5 + bitprec/2;
+  gel(vpow,1) = vecpowug(N, gen_m1, prec);
+  for (i = 2; i <= m; i++)
+  {
+    GEN pow = cgetg(N+1, t_VEC), powm = gel(vpow,i-1);
+    long j;
+    gel(pow,1) = gen_1;
+    gel(pow,2) = real2n(-i, prec);
+    for (j = 3; j <= N; j++) gel(pow,j) = divru(gel(powm,j), j);
+    gel(vpow,i) = pow;
+  }
+  return mkvec2(vpow, get_vbin(N, bitprec));
+}
 GEN
-zetamult(GEN avec, long prec)
+zetamultinit(long k, long prec)
+{
+  pari_sp av = avma;
+  if (k <= 0) pari_err_DOMAIN("zetamultinit", "weight", "<=", gen_0, stoi(k));
+  return gerepilecopy(av, zetamultinit_i(k, k-1, prec2nbits(prec)));
+}
+GEN
+zetamult0(GEN avec, GEN T, long prec)
 {
   pari_sp ltop = avma;
-  long k, m, n, i, j, N, l, bitprec, prec2;
-  GEN vpow, vphi, binvec, S, LR, MA, MR, evec = gen_0;
+  long k, n, i, j, l, lbin;
+  GEN vpow, vphi, vbin, S, LR, MA, MR, evec = gen_0;
 
   avec = zetamultconvert(avec, 1);
   if (lg(avec) == 1) return gen_1;
   evec = atoe(avec);
   k = lg(evec)-1; /* weight */
-  bitprec = prec2nbits(prec) + 64*(1+(k>>5));
-  prec2 = nbits2prec(bitprec);
-  N = 5 + bitprec/2;
-  binvec = cgetg(N+1, t_VEC); gel(binvec, 1) = gen_2;
-  for (n = 2; n <= N; ++n)
-    gel(binvec, n) = diviuexact(mului(4*n-2, gel(binvec, n-1)), n);
   LR = cgetg(1, t_VEC);
   MA = cgetg(k, t_VEC);
   MR = cgetg(k, t_VEC);
@@ -154,31 +188,36 @@ zetamult(GEN avec, long prec)
     gel(MR,i) = etoa(vecslice(evec, i+1, k));
     LR = addevec(addevec(LR, gel(MA,i)), gel(MR,i));
   }
-  m = vecvecsmall_max(LR);
-  vpow = cgetg(m+1, t_VEC);
-  gel(vpow,1) = vecpowug(N, gen_m1, prec2);
-  for (i = 2; i <= m; i++)
+  if (!T)
   {
-    GEN pow = cgetg(N+1, t_VEC), powm = gel(vpow,i-1);
-    gel(pow,1) = gen_1;
-    gel(pow,2) = real2n(-i, prec2);
-    for (j = 3; j <= N; j++) gel(pow,j) = divru(gel(powm,j), j);
-    gel(vpow,i) = pow;
+    long m = vecvecsmall_max(LR); /* < k */
+    T = zetamultinit_i(k, m, prec2nbits(prec));
   }
+  else
+  {
+    long M;
+    if (typ(T) != t_VEC || lg(T) != 3) pari_err_TYPE("zetamult", T);
+    M = lg(gel(T,1)); /* need M > m, which is < k */
+    if (M < k) pari_err_DOMAIN("zetamult", "weight", ">", utoi(M), utoi(k));
+  }
+  vpow = gel(T,1);
+  vbin = gel(T,2);
   l = lg(LR); vphi = cgetg(l, t_VEC);
-  for (j = 1; j < l; j++) gel(vphi,j) = phip(N+1, gel(LR,j), vpow);
-  S = gen_0;
+  for (j = 1; j < l; j++) gel(vphi,j) = phip(gel(LR,j), vpow);
+  S = gen_0; lbin = lg(vbin);
   for (i = 1; i < k; i++)
   {
     GEN phi1 = isinphi(LR, gel(MA,i), vphi);
     GEN phi2 = isinphi(LR, gel(MR,i), vphi);
     GEN s = gmul2n(mpmul(gel(phi1,1), gel(phi2,1)), -1);
-    for (n = 2; n <= N; ++n)
-      s = gadd(s, mpdiv(mpmul(gel(phi1,n), gel(phi2,n)), gel(binvec,n)));
+    for (n = 2; n < lbin; ++n)
+      s = gadd(s, mpdiv(mpmul(gel(phi1,n), gel(phi2,n)), gel(vbin,n)));
     S = mpadd(S, la(evec[i], evec[i+1], s));
   }
   return gerepileuptoleaf(ltop, rtor(S,prec));
 }
+GEN
+zetamult(GEN avec, long prec) { return zetamult0(avec, NULL, prec); }
 
 /**************************************************************/
 /*                         ALL MZV's                          */

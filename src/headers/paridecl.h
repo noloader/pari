@@ -4405,7 +4405,9 @@ GEN     mssplit(GEN W, GEN H, long deglim);
 GEN     mstooms(GEN W, GEN phi);
 
 /* zetamult.c */
+GEN zetamult0(GEN avec, GEN T, long prec);
 GEN zetamult(GEN avec, long prec);
+GEN zetamultinit(long k, long prec);
 GEN zetamultall(long k, long prec);
 GEN zetamultconvert(GEN a, long fl);
 

@@ -475,13 +475,14 @@ header.
    {gamma{\rm, }lngamma{\rm, }psi}
 \li{half-integer gamma function $\Gamma(n+1/2)$}{gammah$(n)$}
 \li{Riemann's zeta $\zeta(s)=\sum n^{-s}$}{zeta$(s)$}
-\li{multiple zeta value (MZV), $\zeta(s_1,\dots,s_k)$}{zetamult$(s)$}
+\li{multiple zeta value (MZV), $\zeta(s_1,\dots,s_k)$}{zetamult$(s,\{T\})$}
+\li{... init $T$ for MZV with $s_1+\dots+s_k\leq w$}{zetamultinit$(w)$}
 \li{all MZVs for all weights $\sum s_i \leq n$}{zetamultall$(n)$}
 \li{convert MZV id to $[s_1,\dots,s_k]$}{zetamultconvert$(f,\{\fl\})$}
 \li{incomplete $\Gamma$ function ($y=\Gamma(s)$)}{incgam$(s,x,\{y\})$}
 \li{complementary incomplete $\Gamma$}{incgamc$(s,x)$}
-\li{exponential integral $\int_x^\infty e^{-t}/t\,dt$}{eint1$(x)$}
-\li{error function $2/\sqrt\pi\int_x^\infty e^{-t^2}dt$}{erfc$(x)$}
+\li{$\int_x^\infty e^{-t}\,dt/t$,\quad $(2/\sqrt\pi)\int_x^\infty e^{-t^2}dt$}
+   {eint1, erfc}
 \li{dilogarithm of $x$}{dilog$(x)$}
 \li{$m$-th polylogarithm of $x$}{polylog$(m,x,\{\fl\})$}
 \li{$U$-confluent hypergeometric function}{hyperu$(a,b,u)$}

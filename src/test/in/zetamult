@@ -11,6 +11,7 @@ zetamult([])
 zetamult([1,2])
 
 default(realprecision,57);
+T=zetamultinit(30);
 for(k=1,10, print(Pi^(4*k) / zetamult(vector(2*k, j, 1+2*(j%2)))));
 
 v = [zeta(9),Pi^2*zeta(7),Pi^4*zeta(5),Pi^6*zeta(3)];
