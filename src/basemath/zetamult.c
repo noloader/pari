@@ -22,7 +22,7 @@ static GEN
 la(long e, long f, GEN s)
 {
   if (e == f) return gmul2n(s,1);
-  return (e > f)? s: gmulgs(s,3);
+  return e? s: gmulgs(s,3);
 }
 
 /* dual of evec[1..l-1] */
@@ -55,32 +55,28 @@ atoe(GEN avec)
   return shallowconcat1(evec);
 }
 
-/* phivec[i] contains phip(j,avec[i..r]) for 1<=j<=N > 2 */
+/* vphi[i] contains phip(j,avec[i..r]) for 1<= j < L
+ * vpow[a][j] = j^-a as a t_INT or t_REAL; j < L */
 static GEN
-phip(long N, GEN avec, long prec)
+phip(long L, GEN avec, GEN vpow)
 {
-  long i, j, ar, r = lg(avec) - 1;
-  GEN u, r1, phivec = cgetg(r+1, t_VEC);
-
-  ar = avec[r]; r1 = real_1(prec);
-  gel(phivec, r) = u = cgetg(N, t_VEC);
-  gel(u,1) = r1;
-  gel(u,2) = real2n(-ar, prec);
-  for (j = 3; j < N; j++) gel(u,j) = divri(r1, powuu(j,ar));
+  long i, j, r = lg(avec) - 1;
+  GEN vphi = cgetg(r+1, t_VEC);
+  gel(vphi, r) = gel(vpow, avec[r]);
   for (i = r-1; i >= 1; i--)
   {
-    GEN t, phi = gel(phivec,i+1);
-    ar = avec[i];
-    gel(phivec, i) = u = cgetg(N, t_VEC);
-    gel(u,1) = gen_0; t = gel(phi,1);
-    gel(u,2) = gmul2n(t, -ar);
-    for (j = 3; j < N; j++)
+    GEN t, u, phi = gel(vphi,i+1), pow = gel(vpow, avec[i]);
+    gel(vphi, i) = u = cgetg(L, t_VEC);
+    gel(u,1) = gen_0;
+    gel(u,2) = (i==r-1)? gel(pow,2): gen_0;
+    t = gel(phi,1); /* 0 or 1 */
+    for (j = 3; j < L; j++)
     {
       t = mpadd(t, gel(phi,j-1));
-      gel(u,j) = mpdiv(t, powuu(j,ar));
+      gel(u,j) = mpmul(t, gel(pow,j)); /* t / j^avec[i] */
     }
   }
-  return phivec;
+  return vphi;
 }
 
 /* Return 1 if vec2 RHS of vec1, -1 if vec1 RHS of vec2, 0 else */
@@ -104,16 +100,17 @@ istruerhs(GEN v1, GEN v2)
   return l1-l2+1;
 }
 
+/* a is a rhs of a unique v[m] */
 static GEN
-isinphi(GEN v, GEN a, GEN phivec)
+isinphi(GEN v, GEN a, GEN vphi)
 {
   long m, l = lg(v);
   for (m = 1; m < l; m++)
   {
     long s = istruerhs(gel(v,m), a);
-    if (s) return gmael(phivec,m,s);
+    if (s) return gmael(vphi,m,s);
   }
-  return NULL;
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 /* If v RHS of LR[i] for some i, return LR. If LR[i] RHS (strict) of v, replace
@@ -135,8 +132,8 @@ GEN
 zetamult(GEN avec, long prec)
 {
   pari_sp ltop = avma;
-  long k, n, i, j, N, l, bitprec, prec2;
-  GEN binvec, S, LR, phiall, MA, MR, evec = gen_0;
+  long k, m, n, i, j, N, l, bitprec, prec2;
+  GEN vpow, vphi, binvec, S, LR, MA, MR, evec = gen_0;
 
   avec = zetamultconvert(avec, 1);
   if (lg(avec) == 1) return gen_1;
@@ -157,17 +154,27 @@ zetamult(GEN avec, long prec)
     gel(MR,i) = etoa(vecslice(evec, i+1, k));
     LR = addevec(addevec(LR, gel(MA,i)), gel(MR,i));
   }
-  l = lg(LR);
-  phiall = cgetg(l, t_VEC);
-  for (j = 1; j < l; j++) gel(phiall,j) = phip(N+1, gel(LR,j), prec2);
-  S = real_0(prec2);
+  m = vecvecsmall_max(LR);
+  vpow = cgetg(m+1, t_VEC);
+  gel(vpow,1) = vecpowug(N, gen_m1, prec2);
+  for (i = 2; i <= m; i++)
+  {
+    GEN pow = cgetg(N+1, t_VEC), powm = gel(vpow,i-1);
+    gel(pow,1) = gen_1;
+    gel(pow,2) = real2n(-i, prec2);
+    for (j = 3; j <= N; j++) gel(pow,j) = divru(gel(powm,j), j);
+    gel(vpow,i) = pow;
+  }
+  l = lg(LR); vphi = cgetg(l, t_VEC);
+  for (j = 1; j < l; j++) gel(vphi,j) = phip(N+1, gel(LR,j), vpow);
+  S = gen_0;
   for (i = 1; i < k; i++)
   {
-    GEN phi1 = isinphi(LR, gel(MA,i), phiall);
-    GEN phi2 = isinphi(LR, gel(MR,i), phiall);
+    GEN phi1 = isinphi(LR, gel(MA,i), vphi);
+    GEN phi2 = isinphi(LR, gel(MR,i), vphi);
     GEN s = gmul2n(mpmul(gel(phi1,1), gel(phi2,1)), -1);
     for (n = 2; n <= N; ++n)
-      s = mpadd(s, mpdiv(mpmul(gel(phi1,n), gel(phi2,n)), gel(binvec,n)));
+      s = gadd(s, mpdiv(mpmul(gel(phi1,n), gel(phi2,n)), gel(binvec,n)));
     S = mpadd(S, la(evec[i], evec[i+1], s));
   }
   return gerepileuptoleaf(ltop, rtor(S,prec));

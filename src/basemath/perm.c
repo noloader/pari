@@ -225,6 +225,19 @@ vecvecsmall_search(GEN x, GEN y, long flag)
   return gen_search(x,y,flag,(void*)vecsmall_prefixcmp, cmp_nodata);
 }
 
+/* assume x non empty */
+long
+vecvecsmall_max(GEN x)
+{
+  long i, l = lg(x), m = vecsmall_max(gel(x,1));
+  for (i = 2; i < l; i++)
+  {
+    long t = vecsmall_max(gel(x,i));
+    if (t > m) m = t;
+  }
+  return m;
+}
+
 /*************************************************************************/
 /**                                                                     **/
 /**                  Routines for handling permutations                 **/
