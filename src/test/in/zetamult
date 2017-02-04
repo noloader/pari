@@ -5,10 +5,8 @@ test(zetamult([2,1]), zeta(3))
 test(zetamult([4,2]), (zeta(3)^2 - 4*zeta(6)/3))
 test(zetamult([4,4]), (zeta(4)^2 - zeta(8))/2)
 test(zetamult([2,2,2]), zeta(2)^3/6 + zeta(6)/3 - zeta(2)*zeta(4)/2)
-zetamult("a")
 zetamult(2)
 zetamult([])
-zetamult([1,2])
 
 default(realprecision,57);
 T=zetamultinit(30);
@@ -46,6 +44,8 @@ for (i = 1, 2^10,
 }
 
 \\ Errors, keep at end of file
+zetamult([1,2])
+zetamult("a")
 zetamultall(0)
 zetamultall(64)
 zetamult([0,2,1])
