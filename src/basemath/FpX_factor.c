@@ -699,9 +699,6 @@ FpX_oneroot_split(GEN fact, GEN p)
       zeta = Fp_mul (zeta, prim, p);
     }
   }
-  GEN z = Fp_neg(gel(minfactor,2), p);
-  if (signe(FpX_eval(minfactor,z,p)))
-    pari_err_BUG("FpX_oneroot2");
   return gerepileuptoint(av, Fp_neg(gel(minfactor,2), p));
 }
 
