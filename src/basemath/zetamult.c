@@ -160,7 +160,7 @@ zetamultinit_i(long k, long m, long bitprec)
     for (j = 3; j <= N; j++) gel(pow,j) = divru(gel(powm,j), j);
     gel(vpow,i) = pow;
   }
-  return mkvec2(vpow, get_vbin(N, prec + EXTRAPRECWORD));
+  return mkvec2(vpow, get_vbin(N, prec));
 }
 GEN
 zetamultinit(long k, long prec)
