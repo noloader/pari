@@ -129,15 +129,16 @@ addevec(GEN LR, GEN v)
   return vec_append(LR,v);
 }
 
+/* N > 2 */
 static GEN
-get_vbin(long N, long bitprec)
+get_vbin(long N, long prec)
 {
-  GEN vbin = cgetg(N+1, t_VEC);
+  GEN v = cgetg(N+1, t_VEC);
   long n;
-  gel(vbin, 1) = gen_2;
-  for (n = 2; n <= N; ++n)
-    gel(vbin, n) = diviuexact(mului(4*n-2, gel(vbin, n-1)), n);
-  return vbin;
+  gel(v,1) = gen_0; /* unused */
+  gel(v,2) = invr(utor(6,prec));
+  for (n = 3; n <= N; n++) gel(v,n) = divru(mulru(gel(v,n-1), n), 4*n-2);
+  return v;
 }
 /* m < k */
 static GEN
@@ -159,7 +160,7 @@ zetamultinit_i(long k, long m, long bitprec)
     for (j = 3; j <= N; j++) gel(pow,j) = divru(gel(powm,j), j);
     gel(vpow,i) = pow;
   }
-  return mkvec2(vpow, get_vbin(N, bitprec));
+  return mkvec2(vpow, get_vbin(N, prec + EXTRAPRECWORD));
 }
 GEN
 zetamultinit(long k, long prec)
@@ -211,7 +212,7 @@ zetamult0(GEN avec, GEN T, long prec)
     GEN phi2 = isinphi(LR, gel(MR,i), vphi);
     GEN s = gmul2n(mpmul(gel(phi1,1), gel(phi2,1)), -1);
     for (n = 2; n < lbin; ++n)
-      s = gadd(s, mpdiv(mpmul(gel(phi1,n), gel(phi2,n)), gel(vbin,n)));
+      s = gadd(s, mpmul(mpmul(gel(phi1,n), gel(phi2,n)), gel(vbin,n)));
     S = mpadd(S, la(evec[i], evec[i+1], s));
   }
   return gerepileuptoleaf(ltop, rtor(S,prec));
@@ -287,39 +288,39 @@ findabv(GEN w, long *pa, long *pb, long *pminit, long *pmmid, long *pmfin)
 static GEN
 fillall(long k, long bitprec)
 {
-  long N = bitprec / 2, prec = nbits2prec(bitprec);
+  long N = 1 + bitprec/2, prec = nbits2prec(bitprec);
   long k1, j, n, m, mbar = 0, K = 1 << (k - 1), K2 = K/2;
-  GEN all, binvec, p1, p2, r1, pab, S;
+  GEN all, v, p1, p2, r1, pab, S;
+
   r1 = real_1(prec);
-  pab = cgetg(N + 2, t_VEC); gel(pab, 1) = gen_0; /* not needed */
-  for (n = 2; n <= N+1; n++) gel(pab, n) = powersr(divru(r1, n), k);
+  pab = cgetg(N+1, t_VEC); gel(pab, 1) = gen_0; /* not needed */
+  for (n = 2; n <= N; n++) gel(pab, n) = powersr(divru(r1, n), k);
   /* 1/n^a = gmael(pab, n, a + 1) */
-  binvec = cgetg(N + 2, t_VEC); gel(binvec, 1) = gen_1;
-  for (n = 1; n <= N; n++)
-    gel(binvec, n+1) = diviuexact(mului(4*n-2, gel(binvec, n)), n);
   all = cgetg(K + 2, t_VEC);
-  gel(all, 1) = p1 = cgetg(N + 2, t_VEC); gel(p1, 1) = r1;
-  for (j = 2; j <= N+1; j++) gel(p1, j) = divri(r1, gel(binvec, j));
-  gel(all, 2) = p2 = cgetg(N + 2, t_VEC); gel(p2, 1) = gen_0;
-  for (j = 2; j <= N+1; j++) gel(p2, j) = gdivgs(gel(p1, j), j - 1);
+  gel(all,1) = v = cgetg(N+1, t_VEC);
+  gel(v,1) = gen_0; /* unused */
+  gel(v,2) = real2n(-1,prec);
+  gel(v,3) = invr(utor(6,prec)); /* cf get_vbin: shifted by 1 :-( */
+  for (n = 3; n < N; n++) gel(v,n+1) = divru(mulru(gel(v,n), n), 4*n-2);
+
+  gel(all,2) = p1 = cgetg(N+1, t_VEC);
+  gel(p1,1) = gen_0; /* unused */
+  for (j = 2; j <= N; j++) gel(p1,j) = divru(gel(v,j), j-1);
+
   for (m = 1; m < K2; m++)
   {
-    gel(all, m+2) = p1 = cgetg(N + 2, t_VEC);
-    for (n = 1; n <= N; n++) gel(p1, n) = cgetr(prec);
+    gel(all, m+2) = p1 = cgetg(N+1, t_VEC);
+    for (n = 1; n < N; n++) gel(p1, n) = cgetr(prec);
     gel(p1, n) = gen_0;
   }
-  for (m = K2; m < K; m++)
-  {
-    gel(all, m+2) = p1 = cgetr(prec);
-    mpaff(gen_0, p1);
-  }
-  for (k1 = 2; k1 <= k; ++k1)
+  for (m = K2; m < K; m++) gel(all, m+2) = utor(0, prec);
+  for (k1 = 2; k1 <= k; k1++)
   { /* Assume length evec < k1 filled */
     /* If evec = 0e_2...e_{k_1-1}1 then m = (1e_2...e_{k_1-1})_2 */
     GEN w = cgetg(k1, t_VECSMALL);
     long M = 1 << (k1 - 2);
     pari_sp av = avma;
-    for (m = M; m < 2*M; ++m)
+    for (m = M; m < 2*M; m++)
     {
       GEN pinit, pfin, pmid;
       long comp, a, b, minit, mfin, mmid, mc = m, ii = 0;
@@ -338,11 +339,11 @@ fillall(long k, long bitprec)
       pinit= gel(all, minit);
       pfin = gel(all, mfin);
       pmid = gel(all, mmid);
-      for (n = N; n > 1; n--, avma = av)
+      for (n = N-1; n > 1; n--, avma = av)
       {
-        GEN t = mpmul(gel(pinit,n+1), gmael(pab, n, a + 1));
-        GEN u = mpmul(gel(pfin, n+1), gmael(pab, n, b + 1));
-        GEN v = mpmul(gel(pmid, n+1), gmael(pab, n, a + b + 1));
+        GEN t = mpmul(gel(pinit,n+1), gmael(pab, n, a+1));
+        GEN u = mpmul(gel(pfin, n+1), gmael(pab, n, b+1));
+        GEN v = mpmul(gel(pmid, n+1), gmael(pab, n, a+b+1));
         S = mpadd(k1 < k ? gel(p1, n+1) : p1, mpadd(mpadd(t, u), v));
         if (!signe(S)) S = gen_0;
         mpaff(S, k1 < k ? gel(p1, n) : p1);
