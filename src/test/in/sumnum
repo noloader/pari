@@ -85,6 +85,9 @@ check(sumnumlagrange(n=2,n^(-3/2),tab),z32-1)
 tab=sumnumlagrangeinit([1/3,0]);
 check(sumnumlagrange(n=1,n^(-7/3),tab),z73)
 check(sumnumlagrange(n=2,n^(-7/3),tab),z73-1)
+tab=sumnumlagrangeinit(1/3);
+check(sumnumlagrange(n=1,n^(-7/3),tab),z73)
+check(sumnumlagrange(n=2,n^(-7/3),tab),z73-1)
 
 \p 308
 a = sumpos(n=1, 1/(n^3+n+1));

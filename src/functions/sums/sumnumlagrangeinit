@@ -11,7 +11,7 @@ Doc: initialize tables for Lagrange summation of a series. By
  at infinity. The argument \kbd{asymp} allows to specify different
  expansions:
 
- \item a real number $\beta > 0$ means
+ \item a real number $\beta$ means
  $$ R(n) = n^{-\beta} \sum_{i\geq 1} a_i / n^i $$
 
  \item a \typ{CLOSURE} $g$ means
@@ -42,12 +42,21 @@ Doc: initialize tables for Lagrange summation of a series. By
  ? sumnumlagrange(n=1, n^(-4/3)) - zeta(4/3);
  %1 = -0.1093[...] \\ junk: expansion in n^(1/3)
  time = 84 ms.
- ? tab = sumnumlagrangeinit(1/3);
+ ? tab = sumnumlagrangeinit([1/3,0]); \\ alpha = 1/3
  time = 336 ms.
- ? sumnumlagrange(n=1, n^(-4/3), tab) - zeta(4/3);
+ ? sumnumlagrange(n=1, n^(-4/3), tab) - zeta(4/3)
  time = 84 ms.
  %3 = 1.0151767349262596893 E-115 \\ now OK
 
- ? tab = sumnumlagrangeinit([1, 1/3]);
- sumnumlagrange(n=1, n^(-4/3), tab) - zeta(4/3)
- @eprog
+ ? tab = sumnumlagrangeinit(1/3); \\ alpha = 1, beta = 1/3: much faster
+ time = 3ms
+ ? sumnumlagrange(n=1, n^(-4/3), tab) - zeta(4/3) \\ ... but wrong
+ %5 = -0.273825[...]   \\ junk !
+ ? tab = sumnumlagrangeinit(-2/3); \\ alpha = 1, beta = -2/3
+ time = 3ms
+ ? sumnumlagrange(n=1, n^(-4/3), tab) - zeta(4/3)
+ %6 = 2.030353469852519379 E-115 \\ now OK
+ @eprog\noindent in The final example with $\zeta(4/3)$, the remainder
+ $R_1(n)$ is of the form $n^{-1/3} \sum_{i\geq 0} a_i / n^i$, i.e.
+ $n^{2/3} \sum_{i\geq 1} a_i / n^i$. The explains the wrong result
+ for $\beta = 1/3$ and the correction with $\beta = -2/3$.
