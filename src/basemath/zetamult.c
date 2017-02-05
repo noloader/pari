@@ -18,11 +18,17 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #include "pari.h"
 #include "paripriv.h"
 
+static long
+la(long e, long f) { return (e == f)? 2: (e? 1: 3); }
 static GEN
-la(long e, long f, GEN s)
+lamul(long la, GEN s)
 {
-  if (e == f) return gmul2n(s,1);
-  return e? s: gmulgs(s,3);
+  switch(la)
+  {
+    case 2: return gmul2n(s,1);
+    case 3: return gmulgs(s,3);
+    default: return s;
+  }
 }
 
 /* dual of evec[1..l-1] */
@@ -174,7 +180,7 @@ zetamult0(GEN avec, GEN T, long prec)
 {
   pari_sp ltop = avma;
   long k, n, i, j, l, lbin;
-  GEN vpow, vphi, vbin, S, LR, MA, MR, evec = gen_0;
+  GEN vpow, vphi, vbin, S, s, LR, MA, MR, evec = gen_0;
 
   avec = zetamultconvert(avec, 1);
   if (lg(avec) == 1) return gen_1;
@@ -205,17 +211,23 @@ zetamult0(GEN avec, GEN T, long prec)
   vbin = gel(T,2);
   l = lg(LR); vphi = cgetg(l, t_VEC);
   for (j = 1; j < l; j++) gel(vphi,j) = phip(gel(LR,j), vpow);
-  S = gen_0; lbin = lg(vbin);
+  lbin = lg(vbin);
+  S = cgetg(lbin, t_VEC);
   for (i = 1; i < k; i++)
   {
+    long LA = la(evec[i],evec[i+1]);
     GEN phi1 = isinphi(LR, gel(MA,i), vphi);
     GEN phi2 = isinphi(LR, gel(MR,i), vphi);
-    GEN s = gmul2n(mpmul(gel(phi1,1), gel(phi2,1)), -1);
-    for (n = 2; n < lbin; ++n)
-      s = gadd(s, mpmul(mpmul(gel(phi1,n), gel(phi2,n)), gel(vbin,n)));
-    S = mpadd(S, la(evec[i], evec[i+1], s));
+    if (i == 1)
+      for (n = 1; n < lbin; n++)
+        gel(S,n) = lamul(LA, mpmul(gel(phi1,n), gel(phi2,n)));
+    else
+      for (n = 1; n < lbin; n++)
+        gel(S,n) = mpadd(gel(S,n), lamul(LA, mpmul(gel(phi1,n), gel(phi2,n))));
   }
-  return gerepileuptoleaf(ltop, rtor(S,prec));
+  s = gmul2n(gel(S,1), -1);
+  for (n = 2; n < lbin; n++) s = gadd(s, mpmul(gel(S,n), gel(vbin,n)));
+  return gerepileuptoleaf(ltop, rtor(s,prec));
 }
 GEN
 zetamult(GEN avec, long prec) { return zetamult0(avec, NULL, prec); }
