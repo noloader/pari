@@ -3404,6 +3404,13 @@ $n$-th power modulo \kbd{p}, and $0$ otherwise.
 \typ{INT}s, and \kbd{p} is assumed to be prime. Return \kbd{NULL}
 if \kbd{x} is not a quadratic residue modulo \kbd{p}.
 
+\fun{GEN}{Fp_2gener}{GEN p} return a generator of
+the $2$-Sylow subgroup of $\F_p^*$. To use with \kbd{Fp\_sqrt\_i}.
+
+\fun{GEN}{Fp_sqrt_i}{GEN x, GEN s2, GEN p}
+as \kbd{Fp\_sqrt} where \kbd{s2} is the element returned by
+\kbd{Fp\_2gener}.
+
 \fun{GEN}{Fp_sqrtn}{GEN a, GEN n, GEN p, GEN *zn}
 returns \kbd{NULL} if $a$ is not an $n$-th power residue mod $p$.
 Otherwise, returns an $n$-th root of $a$; if \kbd{zn} is non-\kbd{NULL}

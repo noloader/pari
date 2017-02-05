@@ -2156,13 +2156,39 @@ sqrt_Cipolla(GEN a, GEN p)
   return v;
 }
 
+static GEN
+Fp_2gener_all(long e, GEN p)
+{
+  GEN y, m;
+  long k;
+  GEN q = shifti(subiu(p,1), -e); /* q = (p-1)/2^oo is odd */
+  for (k=2; ; k++)
+  {
+    long i = krosi(k, p);
+    if (i >= 0)
+    {
+      if (i) continue;
+      pari_err_PRIME("Fp_sqrt [modulus]",p);
+    }
+    y = m = Fp_pow(utoi(k), q, p);
+    for (i=1; i<e; i++)
+      if (equali1(m = Fp_sqr(m, p))) break;
+    if (i == e) break; /* success */
+  }
+  return y;
+}
+
+GEN
+Fp_2gener(GEN p)
+{ return Fp_2gener_all(vali(subis(p,1)),p); }
+
 /* Tonelli-Shanks. Assume p is prime and return NULL if (a,p) = -1. */
 GEN
-Fp_sqrt(GEN a, GEN p)
+Fp_sqrt_i(GEN a, GEN y, GEN p)
 {
   pari_sp av = avma, av1;
   long i, k, e;
-  GEN p1, q, v, y, w, m;
+  GEN p1, q, v, w;
 
   if (typ(a) != t_INT) pari_err_TYPE("Fp_sqrt",a);
   if (typ(p) != t_INT) pari_err_TYPE("Fp_sqrt",p);
@@ -2196,24 +2222,7 @@ Fp_sqrt(GEN a, GEN p)
   }
   q = shifti(p1,-e); /* q = (p-1)/2^oo is odd */
   if (e == 1) y = p1;
-  else /* look for an odd power of a primitive root */
-    for (k=2; ; k++)
-    { /* loop terminates for k < p (even if p composite) */
-
-      i = krosi(k,p);
-      if (i >= 0)
-      {
-        if (i) continue;
-        pari_err_PRIME("Fp_sqrt [modulus]",p);
-      }
-      av1 = avma;
-      y = m = Fp_pow(utoipos((ulong)k),q,p);
-      for (i=1; i<e; i++)
-        if (gequal1(m = Fp_sqr(m,p))) break;
-      if (i == e) break; /* success */
-      avma = av1;
-    }
-
+  else if (!y) y = Fp_2gener_all(e, p);
   p1 = Fp_pow(a, shifti(q,-1), p); /* a ^ [(q-1)/2] */
   if (!signe(p1)) { avma=av; return gen_0; }
   v = Fp_mul(a, p1, p);
@@ -2239,6 +2248,12 @@ Fp_sqrt(GEN a, GEN p)
   av1 = avma;
   p1 = subii(p,v); if (cmpii(v,p1) > 0) v = p1; else avma = av1;
   return gerepileuptoint(av, v);
+}
+
+GEN
+Fp_sqrt(GEN a, GEN p)
+{
+  return Fp_sqrt_i(a, NULL, p);
 }
 
 /*********************************************************************/
