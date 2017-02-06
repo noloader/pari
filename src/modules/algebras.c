@@ -4055,7 +4055,7 @@ zv_isperm(GEN v)
 }
 
 static GEN
-check_groupelts(GEN gal, GEN *gen)
+check_groupelts(GEN gal)
 {
   if (typ(gal)!=t_VEC) pari_err_TYPE("alggroup", gal);
   if ((lg(gal)==9 && typ(gel(gal,1))==t_POL) ||
@@ -4063,7 +4063,6 @@ check_groupelts(GEN gal, GEN *gen)
   {
     GEN elts, G = checkgroup(gal, &elts);
     if(!elts) elts = group_elts(G, group_domain(G));
-    *gen = gel(G, 1);
     return elts;
   }
   else
@@ -4078,7 +4077,6 @@ check_groupelts(GEN gal, GEN *gen)
       if(lg(gel(gal,i))!=lg(gel(gal,1)))
         pari_err_DIM("alggroup [length of permutations]");
     }
-    *gen = NULL;
     return gal;
   }
 }
@@ -4108,7 +4106,7 @@ dfs_conj(long i, long cl, GEN genes, GEN elts, GEN conjclass)
  Assume elts is sorted.
  */
 static GEN
-group_conjclasses(GEN genes, GEN elts, long* ptnbcl)
+group_conjclasses(GEN elts, long* ptnbcl)
 {
   GEN conjclass;
   long i,n,cl;
@@ -4116,24 +4114,23 @@ group_conjclasses(GEN genes, GEN elts, long* ptnbcl)
   conjclass = const_vecsmall(n,0);
   cl = 1;
   for (i=1;i<=n;i++)
-    cl += dfs_conj(i,cl,genes,elts,conjclass);
+    cl += dfs_conj(i,cl,elts,elts,conjclass);
   if (ptnbcl) *ptnbcl = cl-1;
   return conjclass;
 }
 
 static GEN
-groupelts_algcenter(GEN elts, GEN genes, GEN p, GEN* ptr_conjclasses)
+groupelts_algcenter(GEN elts, GEN p, GEN* ptr_conjclasses)
 {
   pari_sp av = avma;
   long nbcl, i, n, k, j, ci, cj, ck;
   GEN conjclass, mt, xi, xj, xixj, repclass, al;
   if(p && !signe(p)) p = NULL;
-  if (!genes) genes = elts;
   n = lg(elts)-1;
   elts = gen_sort(elts,(void*)vecsmall_lexcmp,cmp_nodata);
 
   /* compute conjugacy classes */
-  conjclass = group_conjclasses(genes,elts,&nbcl);
+  conjclass = group_conjclasses(elts,&nbcl);
   repclass = const_vecsmall(nbcl,0);
   for(i=1;i<=n;i++)
     if(!repclass[conjclass[i]]) repclass[conjclass[i]] = i;
@@ -4174,8 +4171,8 @@ groupelts_algcenter(GEN elts, GEN genes, GEN p, GEN* ptr_conjclasses)
 GEN
 alggroupcenter(GEN gal, GEN p, GEN* ptr_conjclasses)
 {
-  GEN gen, elts = check_groupelts(gal, &gen);
-  return groupelts_algcenter(elts, gen, p, ptr_conjclasses);
+  GEN elts = check_groupelts(gal);
+  return groupelts_algcenter(elts, p, ptr_conjclasses);
 }
 
 static GEN
@@ -4193,7 +4190,7 @@ groupelts_algebra(GEN elts, GEN p)
 GEN
 alggroup(GEN gal, GEN p)
 {
-  GEN gen, elts = check_groupelts(gal, &gen);
+  GEN elts = check_groupelts(gal);
   return groupelts_algebra(elts, p);
 }
 
@@ -4267,7 +4264,7 @@ groupelts_chartable(GEN elts)
 GEN
 galoischartable(GEN gal)
 {
-  GEN gen, elts = check_groupelts(gal, &gen);
+  GEN elts = check_groupelts(gal);
   return groupelts_chartable(elts);
 }
 
