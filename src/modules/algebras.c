@@ -4039,44 +4039,6 @@ matrix_perm(GEN perm, long n)
   return m;
 }
 
-/* return 1 if not explored conj class, 0 otherwise */
-static int
-dfs_conj(long i, long cl, GEN genes, GEN elts, GEN conjclass)
-{
-  long j,i2;
-  GEN g,x,y;
-  if(conjclass[i]) return 0;
-  conjclass[i] = cl;
-  x = gel(elts,i);
-  for(j=1;j<lg(genes);j++)
-  {
-    g = gel(genes,j);
-    y = perm_mul(perm_mul(g,x),perm_inv(g));
-    i2 = vecsearch(elts,y,NULL);
-    dfs_conj(i2,cl,genes,elts,conjclass);
-  }
-  return 1;
-}
-
-/*
- Return a t_VECSMALL conjclass, such that conjclass[i] is the index of
- the conjugacy class of elts[i].
- Assume elts is sorted.
- */
-static GEN
-group_conjclasses(GEN elts, long* ptnbcl)
-{
-  GEN conjclass;
-  long i,n,cl;
-  n = lg(elts)-1;
-  conjclass = const_vecsmall(n,0);
-  cl = 1;
-  for (i=1;i<=n;i++)
-    cl += dfs_conj(i,cl,elts,elts,conjclass);
-  if (ptnbcl) *ptnbcl = cl-1;
-  return conjclass;
-}
-
 static GEN
 groupelts_algcenter(GEN elts, GEN p, GEN* ptr_conjclasses)
 {
@@ -4088,7 +4050,7 @@ groupelts_algcenter(GEN elts, GEN p, GEN* ptr_conjclasses)
   elts = gen_sort(elts,(void*)vecsmall_lexcmp,cmp_nodata);
 
   /* compute conjugacy classes */
-  conjclass = group_conjclasses(elts,&nbcl);
+  conjclass = groupelts_conjclasses(elts,&nbcl);
   repclass = const_vecsmall(nbcl,0);
   for(i=1;i<=n;i++)
     if(!repclass[conjclass[i]]) repclass[conjclass[i]] = i;

@@ -99,6 +99,7 @@ BA   31- new GP function ellbsd
      42- [libpari] vecvecsmall_max, vecsmall_to_vec_inplace
      43- new GP function zetamultinit
 BA   44- new GP function permorder
+BA   45- new GP function galoisconjclasses
 
   Changed
       1- rewrite bnfnarrow

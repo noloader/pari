@@ -1018,6 +1018,27 @@ groupelts_center(GEN S)
   return gerepileupto(ltop,V);
 }
 
+GEN
+groupelts_conjclasses(GEN elts, long *ptnbcl)
+{
+  long i, j, cl = 0, n = lg(elts)-1;
+  GEN c = const_vecsmall(n,0);
+  for (i=1; i<=n; i++)
+  {
+    GEN g = gel(elts,i);
+    if (c[i]) continue;
+    c[i] = ++cl;
+    for(j=1; j<=n; j++)
+    {
+      GEN h = perm_conj(gel(elts,j), g);
+      long i2 = vecsearch(elts,h,NULL);
+      c[i2] = cl;
+    }
+  }
+  if (ptnbcl) *ptnbcl = cl;
+  return c;
+}
+
 /* S a list of generators */
 GEN
 groupelts_abelian_group(GEN S)
