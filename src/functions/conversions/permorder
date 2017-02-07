@@ -12,4 +12,4 @@ Doc: given a permutation $x$ on $n$ elements, return its order.
  %3 = Vecsmall([1,2,3,4,5])
  ? permorder(p)
  %4 = 4
- @ecode
+ @eprog
