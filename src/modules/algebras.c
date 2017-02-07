@@ -4048,7 +4048,6 @@ groupelts_algcenter(GEN elts, GEN p, GEN* ptr_conjclasses)
   if(p && !signe(p)) p = NULL;
   n = lg(elts)-1;
   elts = gen_sort(elts,(void*)vecsmall_lexcmp,cmp_nodata);
-
   /* compute conjugacy classes */
   conjclass = groupelts_conjclasses(elts,&nbcl);
   repclass = const_vecsmall(nbcl,0);
@@ -4176,9 +4175,8 @@ groupelts_chartable(GEN elts)
   /* in particular the trivial character should be the smallest one */
   ct0 = shallowtrans(ct0);
   ct0 = gen_sort(ct0,(void*)cmp_universal,cmp_nodata);
-  ct0 = shallowtrans(ct0);
 
-  return gerepilecopy(av,mkvec5(elts,conjclass,rep,ct0,expoi));
+  return gerepilecopy(av,mkvec2(ct0,expoi));
 }
 
 GEN

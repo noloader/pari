@@ -2,25 +2,17 @@ Function: galoischartable
 Section: number_fields
 C-Name: galoischartable
 Prototype: G
-Help: galoischartable(gal): construct the character table of gal.
+Help: galoischartable(gal): return the character table of the underlying
+ group of gal.
 Doc: Compute the character table of~$G$, where~$G$ is the underlying group of
  the \kbd{galoisinit} structure~\var{gal}. The input~\var{gal} is also allowed
  to be a \typ{VEC} of permutations that is closed under products.
  Let~$N$ be the number of conjugacy classes of~$G$.
- Return a \typ{VEC}~$[\var{elts},\var{conjclass},\var{rep},\var{ct},\var{e}]$
+ Return a \typ{VEC}~$[\var{ct},\var{e}]$
  where:
 
- \item \var{elts} is a sorted \typ{VEC} containing the list of elements of~$G$,
-
- \item \var{conjclass} is a \typ{VECSMALL} of the same length as~\var{elts}
- containing the index of the conjugacy class of the corresponding element (an
- integer between $1$ and~$N$),
-
- \item \var{rep} is a \typ{VECSMALL} of length~$N$ giving for each conjugacy
- class the index in~\var{elts} of a representative of this conjugacy class.
-
  \item \var{ct} is a square \typ{MAT} of size~$N$ giving the character table
- of~$G$, each column corresponding to a conjugacy class and each line
+ of~$G$, each line corresponding to a conjugacy class and each column
  corresponding to an irreducible character. The value of the character at the
  conjugacy class is represented by a polynomial whose variable should be
  interpreted as an $e$-th root of unity.
@@ -28,6 +20,7 @@ Doc: Compute the character table of~$G$, where~$G$ is the underlying group of
  \item \var{e} is the exponent of the group~$G$, i.e. the LCM of the orders of
  the elements of~$G$.
 
+ The conjugacy classes are ordered as specified by \kbd{galoisconjclasses(gal)}.
  The first conjugacy class is always the identity, so that the first column
  contains the dimensions of the characters.
 
@@ -35,8 +28,8 @@ Doc: Compute the character table of~$G$, where~$G$ is the underlying group of
  \bprog
  ? K = nfsplitting(x^4+x+1);
  ? gal = galoisinit(K);
- ? [elts,conjclass,rep,ct,e] = galoischartable(gal);
- ? ct
+ ? [ct,e] = galoischartable(gal);
+ ? ct~
  %4 =
  [1 -1 -1  1  1]
 
@@ -53,8 +46,8 @@ Doc: Compute the character table of~$G$, where~$G$ is the underlying group of
          Vecsmall([4, 3, 2, 1, 5]), Vecsmall([4, 5, 1, 2, 3]),
          Vecsmall([5, 1, 2, 3, 4]), Vecsmall([5, 4, 3, 2, 1])];}
    \\G = D10
- ? [elts,conjclass,rep,ct,e] = galoischartable(G);
- ? ct
+ ? [ct,e] = galoischartable(G);
+ ? ct~
  %7 =
  [1 -1             1             1]
 
@@ -66,4 +59,3 @@ Doc: Compute the character table of~$G$, where~$G$ is the underlying group of
  ? e
  %8 = 10
  @eprog
-

@@ -1,0 +1,31 @@
+\\ package: galpol
+
+inn(len, c1, c2, f) = simplify(lift(sum(i=1,#len,len[i]*c1[i]*subst(c2[i],x,1/x))*Mod(1,f)));
+
+testchar(G)=
+{
+  my(n= poldegree(G.pol));
+  my(cl = galoisconjclasses(G));
+  my(len = apply(length, cl));
+  my([ct,e] = galoischartable(G));
+  my(dim = simplify(ct[1,]));
+  my(one = vector(#dim,k,1));
+  my(f = polcyclo(e,x));
+  if (#len!=#dim, error("dimension1"));
+  if (sum(i=1,#dim,dim[i]^2)!=n,error("dimension2"));
+  if (sum(i=1,#len,len[i])!=n,error("dimension3"));
+  M=matrix(#len,#dim,i,j,inn(len,ct[,i],ct[,j],f));
+  if(M!=n*matid(#len),error("columns"));
+  M=simplify(matrix(#len,#dim,i,j,inn(one,ct[i,],ct[j,],f)));
+  for(i=1,#len,if(M[i,i]<0,error("diag"),M[i,i]=0));
+  if(M!=0,error("lines"));
+}
+
+{
+ for(i=1,16,
+   for(j=1,galoisgetpol(i),
+     [pol,den] = galoisgetpol(i,j,1);
+     gal = galoisinit(pol,den);
+     testchar(gal);
+   ));
+}
