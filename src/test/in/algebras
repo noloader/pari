@@ -2148,7 +2148,6 @@ gal = galoisinit(K);
 al = alggroup(gal)
 algissemisimple(al)
 alggroup([Vecsmall([2,1]),Vecsmall([1,2])]);
-alggroup([Vecsmall([2,2]),Vecsmall([1,2])]);
 alggroup([Vecsmall([1,2])]);
 alggroup("a");
 alggroup(["a"]);

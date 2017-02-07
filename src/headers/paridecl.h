@@ -2986,6 +2986,7 @@ GEN     Tp_to_FF(GEN T, GEN p);
 
 GEN     checkgal(GEN gal);
 GEN     checkgroup(GEN g, GEN *S);
+GEN     checkgroupelts(GEN gal);
 GEN     embed_disc(GEN r, long r1, long prec);
 GEN     embed_roots(GEN r, long r1);
 GEN     galois_group(GEN gal);

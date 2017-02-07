@@ -4039,48 +4039,6 @@ matrix_perm(GEN perm, long n)
   return m;
 }
 
-static int
-zv_isidentity(GEN v)
-{
-  long i;
-  for(i=1;i<lg(v);i++)
-    if(v[i]!=i) return 0;
-  return 1;
-}
-
-static int
-zv_isperm(GEN v)
-{
-  return zv_isidentity(vecsort0(v,NULL,0));
-}
-
-static GEN
-check_groupelts(GEN gal)
-{
-  if (typ(gal)!=t_VEC) pari_err_TYPE("alggroup", gal);
-  if ((lg(gal)==9 && typ(gel(gal,1))==t_POL) ||
-      (lg(gal)==3 && typ(gel(gal,1))==t_VEC && typ(gel(gal,2))==t_VECSMALL))
-  {
-    GEN elts, G = checkgroup(gal, &elts);
-    if(!elts) elts = group_elts(G, group_domain(G));
-    return elts;
-  }
-  else
-  {
-    long i, n = lg(gal)-1;
-    for(i=1; i<=n; i++)
-    {
-      if(typ(gel(gal,i)) != t_VECSMALL)
-        pari_err_TYPE("alggroup (element)", gel(gal,i));
-      if(!zv_isperm(gel(gal,i)))
-        pari_err_TYPE("alggroup (element is not a permutation)", gel(gal,i));
-      if(lg(gel(gal,i))!=lg(gel(gal,1)))
-        pari_err_DIM("alggroup [length of permutations]");
-    }
-    return gal;
-  }
-}
-
 /* return 1 if not explored conj class, 0 otherwise */
 static int
 dfs_conj(long i, long cl, GEN genes, GEN elts, GEN conjclass)
@@ -4171,7 +4129,7 @@ groupelts_algcenter(GEN elts, GEN p, GEN* ptr_conjclasses)
 GEN
 alggroupcenter(GEN gal, GEN p, GEN* ptr_conjclasses)
 {
-  GEN elts = check_groupelts(gal);
+  GEN elts = checkgroupelts(gal);
   return groupelts_algcenter(elts, p, ptr_conjclasses);
 }
 
@@ -4190,7 +4148,7 @@ groupelts_algebra(GEN elts, GEN p)
 GEN
 alggroup(GEN gal, GEN p)
 {
-  GEN elts = check_groupelts(gal);
+  GEN elts = checkgroupelts(gal);
   return groupelts_algebra(elts, p);
 }
 
@@ -4264,7 +4222,7 @@ groupelts_chartable(GEN elts)
 GEN
 galoischartable(GEN gal)
 {
-  GEN elts = check_groupelts(gal);
+  GEN elts = checkgroupelts(gal);
   return groupelts_chartable(elts);
 }
 
