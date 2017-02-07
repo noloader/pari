@@ -2356,7 +2356,7 @@ sumnumlagrange1init(GEN c1, long flag, long prec)
     gel(V, n) = gerepileuptoint(av, t);
   }
   V = gdiv(RgV_gtofp(V, prec2), mpfact(N));
-  return gerepilecopy(av, mkvec3(gen_1, stoi(prec2), V));
+  return gerepilecopy(av, mkvec4(gen_1, stoi(prec2), gen_1, V));
 }
 
 static GEN
@@ -2382,7 +2382,7 @@ sumnumlagrange2init(GEN c1, long flag, long prec)
     gel(V, n) = told; told = tnew;
   }
   V = gdiv(RgV_gtofp(V, prec2), mpfact(2*N));
-  return gerepilecopy(av, mkvec3(gen_2, stoi(prec2), V));
+  return gerepilecopy(av, mkvec4(gen_2, stoi(prec2), gen_1, V));
 }
 
 /* Used only for al = 2, 1, 1/2, 1/3, 1/4. */
@@ -2436,7 +2436,7 @@ sumnumlagrangeinit_i(GEN al, GEN c1, long flag, long prec)
   }
   if (flag)
     for (n = N-1; n >= 1; n--) gel(W, n) = gadd(gel(W, n+1), gel(W, n));
-  return gerepilecopy(av, mkvec3(al, stoi(prec2), W));
+  return gerepilecopy(av, mkvec4(al, stoi(prec2), gen_1, W));
 }
 
 GEN
@@ -2461,7 +2461,7 @@ sumnumlagrangeinit(GEN al, GEN c1, long prec)
              return NULL; /* LCOV_EXCL_LINE */
   }
   prec2 = itos(gel(V, 2));
-  W = gel(V, 3);
+  W = gel(V, 4);
   N = lg(W) - 1;
   S = gen_0; V = cgetg(N+1, t_VEC);
   for (n = N; n >= 1; n--)
@@ -2472,7 +2472,7 @@ sumnumlagrangeinit(GEN al, GEN c1, long prec)
     S = gadd(S, tmp);
     gel(V, n) = (n == N)? tmp: gadd(gel(V, n+1), tmp);
   }
-  return gerepilecopy(ltop, mkvec3(al, stoi(prec2), gdiv(V, S)));
+  return gerepilecopy(ltop, mkvec4(al, stoi(prec2), S, V));
 }
 
 /* - sum_{n=1}^{as-1} f(n) */
@@ -2495,30 +2495,32 @@ GEN
 sumnumlagrange(void *E, GEN (*eval)(void*,GEN,long), GEN a, GEN tab, long prec)
 {
   pari_sp av = avma;
-  GEN S, al;
+  GEN s, S, al, V;
   long as, prec2;
   ulong n, l;
 
   if (typ(a) != t_INT) pari_err_TYPE("sumnumlagrange", a);
   if (!tab) tab = sumnumlagrangeinit(NULL, tab, prec);
-  else if (lg(tab) != 4 || typ(gel(tab,2)) != t_INT || typ(gel(tab,3)) != t_VEC)
+  else if (lg(tab) != 5 || typ(gel(tab,2)) != t_INT || typ(gel(tab,4)) != t_VEC)
     pari_err_TYPE("sumnumlagrange", tab);
 
   as = itos(a);
   al = gel(tab, 1);
   prec2 = itos(gel(tab, 2));
-  tab = gel(tab, 3);
-  l = lg(tab);
+  S = gel(tab, 3);
+  V = gel(tab, 4);
+  l = lg(V);
   if (gequal(al, gen_2))
   {
-    S = sumaux(E, eval, as, prec2);
+    s = sumaux(E, eval, as, prec2);
     as = 1;
   }
   else
-    S = gen_0;
+    s = gen_0;
   for (n = 1; n < l; n++)
-    S = gadd(S, gmul(gel(tab, n), eval(E, stoi(n+as-1), prec2)));
-  return gerepileupto(av, gprec_w(S, prec));
+    s = gadd(s, gmul(gel(V, n), eval(E, stoi(n+as-1), prec2)));
+  if (!gequal1(S)) s = gdiv(s,S);
+  return gerepileupto(av, gprec_w(s, prec));
 }
 
 GEN
