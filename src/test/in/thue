@@ -68,3 +68,6 @@ thue(T,1)
 P=-74*x^3+236*x^2+1500*x-469;
 thue(P,1)
 thue(thueinit(P,1),1)
+
+\\ denominators
+thue(x^2+3, 10^12 + 39)

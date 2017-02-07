@@ -1174,6 +1174,17 @@ filter_sol_x(GEN S, GEN L)
   }
   setlg(S, k); return S;
 }
+static GEN
+filter_sol_Z(GEN S)
+{
+  long i, k = 1, l = lg(S);
+  for (i = 1; i < l; i++)
+  {
+    GEN s = gel(S,i);
+    if (RgV_is_ZV(s)) gel(S, k++) = s;
+  }
+  setlg(S, k); return S;
+}
 
 static GEN bnfisintnorm_i(GEN bnf, GEN a, long s, GEN z);
 static GEN
@@ -1306,8 +1317,9 @@ thue(GEN tnf, GEN rhs, GEN ne)
           ne = shallowconcat1(mkvec3(ne, RgXQV_RgXQ_mul(ne,u,POL),
                                          RgXQV_RgXQ_mul(ne,u2,POL)));
         }
-        ne = ne2V_to_xyV(ne);
-        S = shallowconcat(ne, RgV_neg(ne));
+        S = ne2V_to_xyV(ne);
+        S = filter_sol_Z(S);
+        S = shallowconcat(S, RgV_neg(S));
       }
     }
     if (lg(S) == 1) S = SmallSols(S, x3, POL, rhs);
