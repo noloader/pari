@@ -4170,12 +4170,9 @@ groupelts_chartable(GEN elts)
       gerepileall(av2,2,&ct0,&chip);
     }
   }
-
-  /* TODO sort characters using a reasonable cmp */
-  /* in particular the trivial character should be the smallest one */
-  ct0 = shallowtrans(ct0);
-  ct0 = gen_sort(ct0,(void*)cmp_universal,cmp_nodata);
-
+  ct0 = gen_sort(shallowtrans(ct0),(void*)cmp_universal,cmp_nodata);
+  for(i=1; !vec_isconst(gel(ct0, i)); i++) continue;
+  if (i>1) swap(gel(ct0,1),gel(ct0,i));
   return gerepilecopy(av,mkvec2(ct0,expoi));
 }
 
