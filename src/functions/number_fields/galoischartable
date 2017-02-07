@@ -1,5 +1,5 @@
 Function: galoischartable
-Section: algebras
+Section: number_fields
 C-Name: galoischartable
 Prototype: G
 Help: galoischartable(gal): construct the character table of gal.
