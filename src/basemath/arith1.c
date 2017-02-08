@@ -2598,13 +2598,15 @@ Z_ZV_mod(GEN P, GEN xa)
 {
   pari_sp av = avma;
   GEN T = ZV_producttree(xa);
-  return gerepileuptoleaf(av, Z_ZV_mod_tree(P, xa, T));
+  return gerepilecopy(av, Z_ZV_mod_tree(P, xa, T));
 }
 
 GEN
 Z_nv_mod(GEN P, GEN xa)
 {
-  return Z_ZV_mod(P, xa);
+  pari_sp av = avma;
+  GEN T = ZV_producttree(xa);
+  return gerepileuptoleaf(av, Z_ZV_mod_tree(P, xa, T));
 }
 
 GEN
