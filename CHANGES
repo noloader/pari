@@ -100,6 +100,7 @@ BA   31- new GP function ellbsd
      43- new GP function zetamultinit
 BA   44- new GP function permorder
 BA   45- new GP function galoisconjclasses
+     46- [libpari] Flxn_inv
 
   Changed
       1- rewrite bnfnarrow
