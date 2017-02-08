@@ -757,7 +757,7 @@ qftriv(GEN G, GEN R, long base)
     }
   if (!R) return G; /* fail */
   /* case 3: a principal minor is 0 */
-  s = keri(principal_minor(G, itos(R)));
+  s = ZM_ker(principal_minor(G, itos(R)));
   s = vecextend(Q_primpart(gel(s,1)), n);
   if (!base) return s;
   H = completebasis(s, 0);
@@ -849,7 +849,7 @@ qfsolve_i(GEN G)
   if (!signe(d))
   {
     if (n == 1) return mkcol(gen_1);
-    sol = keri(G);
+    sol = ZM_ker(G);
     if (lg(sol) == 2) sol = gel(sol,1);
     return sol;
   }

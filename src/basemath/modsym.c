@@ -493,8 +493,6 @@ Qevproj_apply_vecei(GEN T, GEN pro, long k)
 }
 
 static GEN
-ZM_ker(GEN M) { return ZM_ker_ratlift(M); }
-static GEN
 QM_ker(GEN M) { return ZM_ker(Q_primpart(M)); }
 static GEN
 QM_image(GEN A)

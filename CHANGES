@@ -144,6 +144,7 @@ BA   25- quadgen/quadunit: allow to specify the variable name instead of w.
      27- [libpari] rename padic_lindep -> lindep_padic, Xadic_lindep ->
          lindep_Xadic
      28- x^(t_FRAC) use sqrtnr if possible
+BA   29- keri replaced by ZM_ker (use modular algorithm)
 
   Removed
       1- file 'MACHINES' (no longer maintained)
