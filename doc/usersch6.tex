@@ -475,8 +475,9 @@ of $K$ for \kbd{prec}.
 
 \fun{GEN}{rnf_zkabs}{GEN rnf} returns a $\Z$-basis in HNF for $\Z_L$ as a
 pair $[T, v]$, where $T$ is \tet{rnf_get_polabs}$(\var{rnf})$ and $v$
-a vector of elements lifted from $\Q[X]/(T)$. Note that \tet{rnf_build_nfabs}
-essentially applies \kbd{nfinit} to the output of this function.
+a vector of elements lifted from $\Q[X]/(T)$. Note that the function
+\tet{rnf_build_nfabs} essentially applies \kbd{nfinit} to the output of this
+function.
 
 \subsec{Increasing accuracy}
 
@@ -1595,12 +1596,13 @@ exact if \kbd{expo} is a multiple of the exponent; this is useful when trying
 to decide whether an element is a square in a residue field for instance!
 (take \kbd{expo}$ = 2$).
 
-\fun{GEN}{nf_to_Fp_coprime}{GEN nf, GEN x, GEN modpr} a low-level simple
-variant of \tet{famat_to_nf_modideal_coprime}: \var{nf} is a true \var{nf}
-structure, \kbd{modpr} is from \kbd{zkmodprinit} attached to a prime of
-degree $1$ above the prime number $p$, and $x$ is either a number field
-element or a \kbd{famat} factorization matrix. We finally assume that
-no component of $x$ has a denominator $p$.
+\fun{GEN}{nf_to_Fp_coprime}{GEN nf, GEN x, GEN modpr} this low-level function
+is variant of
+\tet{famat_to_nf_modideal_coprime}: \var{nf} is a true \var{nf} structure,
+\kbd{modpr} is from \kbd{zkmodprinit} attached to a prime of degree $1$ above
+the prime number $p$, and $x$ is either a number field element or a
+\kbd{famat} factorization matrix. We finally assume that no component of $x$
+has a denominator $p$.
 
 
 What to do when the $g[i]$ are not coprime to $f$, but only $\prod
