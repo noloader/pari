@@ -106,6 +106,7 @@ BA   45- new GP function galoisconjclasses
      48- [libpari] expose znstar internal interface: znstar_get_N,
       znstar_get_conreycyc, znstar_get_conreygen, znstar_get_faN, znstar_get_no,
       znstar_get_pe, znstar_get_Ui
+     49- [libpari] coreu_fact, moebiusu_fact
 
   Changed
       1- rewrite bnfnarrow

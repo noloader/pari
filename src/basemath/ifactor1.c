@@ -3248,6 +3248,16 @@ factoru(ulong n)
 { return factoru_sign(n, 0, decomp_default_hint); }
 
 long
+moebiusu_fact(GEN f)
+{
+  GEN E = gel(f,2);
+  long i, l = lg(E);
+  for (i = 1; i < l; i++)
+    if (E[i] > 1) return 0;
+  return odd(l)? 1: -1;
+}
+
+long
 moebiusu(ulong n)
 {
   pari_sp av;
@@ -3416,22 +3426,26 @@ ispowerful(GEN n)
 }
 
 ulong
+coreu_fact(GEN f)
+{
+  GEN P = gel(f,1), E = gel(f,2);
+  long i, l = lg(P), m = 1;
+  for (i = 1; i < l; i++)
+  {
+    ulong p = P[i], e = E[i];
+    if (e & 1) m *= p;
+  }
+  return m;
+}
+ulong
 coreu(ulong n)
 {
   if (n == 0) return 0;
   else
   {
     pari_sp av = avma;
-    GEN f = factoru(n), P = gel(f,1), E = gel(f,2);
-    long i, l = lg(P), m = 1;
-
-    avma = av;
-    for (i = 1; i < l; i++)
-    {
-      ulong p = P[i], e = E[i];
-      if (e & 1) m *= p;
-    }
-    return m;
+    long m = coreu_fact(factoru(n));
+    avma = av; return m;
   }
 }
 GEN
