@@ -2440,6 +2440,7 @@ GEN     zncharconj(GEN G, GEN chi);
 GEN     znchardiv(GEN G, GEN a, GEN b);
 GEN     zncharker(GEN G, GEN chi);
 GEN     znchareval(GEN G, GEN chi, GEN n, GEN z);
+GEN     znchargalois(GEN G, GEN ORD);
 GEN     zncharinduce(GEN G, GEN chi, GEN N);
 long    zncharisodd(GEN G, GEN chi);
 GEN     zncharmul(GEN G, GEN a, GEN b);

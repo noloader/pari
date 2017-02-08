@@ -1,0 +1,33 @@
+Function: znchargalois
+Section: number_theoretical
+C-Name: znchargalois
+Prototype: GDG
+Help: znchargalois(G,{ORD}): Let G be idealstar(,N), return a list of
+ representatives for the Galois orbits of Dirichlet characters mod N. If
+ ORD is present, select characters depending on their orders:
+ if ORD is a t_INT, restrict to orders less than this bound;
+ if ORD is a t_VEC or t_VECSMALL, restrict to orders in the list.
+Doc: Let $G$ be associated to $(\Z/N\Z)^*$ (as per \kbd{G = idealstar(,N)}),
+ return a list of representatives for the Galois orbits of Dirichlet
+ characters mod N. If
+ \kbd{ORD} is present, select characters depending on their orders:
+
+ \item if \kbd{ORD} is a \typ{INT}, restrict to orders less than this
+ bound;
+
+ \item if \kbd{ORD} is a \typ{VEC} or \typ{VECSMALL}, restrict to orders in
+ the list.
+
+ The characters are given by their Conrey logarithm, see \kbd{znconreylog}.
+
+ \bprog
+ ? G = idealstar(,96);
+ ? #znchargalois(G) \\ 16 orbits of characters mod 96
+ %2 = 16
+ ? #znchargalois(G,4) \\ order less than 4
+ %3 = 12
+ ? znchargalois(G,[1,4]) \\ order 1 or 4; 5 orbits
+ %4 = [[0, 0, 0]~, [1, 2, 0]~, [1, 6, 1]~, [0, 2, 0]~, [0, 6, 1]~]
+ @eprog\noindent
+ Given a character $\chi$, of order $n$ (\kbd{charorder(G,chi)}), the
+ elements in its orbit are the $\phi(n)$ characters $\chi^i$, $(i,n)=1$.
