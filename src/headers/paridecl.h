@@ -1535,6 +1535,7 @@ void    parforvec(GEN x, GEN code, long flag, void *E, long call(void*, GEN, GEN
 GEN     parselect(GEN C, GEN D, long flag);
 GEN     select0(GEN A, GEN f, long flag);
 GEN     shallowextract(GEN x, GEN L);
+GEN     shallowmatextract(GEN x, GEN l1, GEN l2);
 GEN     shallowtrans(GEN x);
 GEN     vecapply(void *E, GEN (*f)(void* E, GEN x), GEN x);
 GEN     veccatapply(void *E, GEN (*f)(void* E, GEN x), GEN x);

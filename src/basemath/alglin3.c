@@ -196,6 +196,25 @@ extract_selector_ok(long lx, GEN L)
 }
 
 GEN
+shallowmatextract(GEN x, GEN l1, GEN l2)
+{
+  long i, j, n1 = lg(l1), n2 = lg(l2);
+  GEN M = cgetg(n2, t_MAT);
+  for(i=1; i < n2; i++)
+  {
+    long ii = l2[i];
+    GEN C = cgetg(n1, t_COL);
+    for (j=1; j < n1; j++)
+    {
+      long jj = l1[j];
+      gel(C, j) = gmael(x, ii, jj);
+    }
+    gel(M, i) = C;
+  }
+  return M;
+}
+
+GEN
 shallowextract(GEN x, GEN L)
 {
   long i,j, tl = typ(L), tx = typ(x), lx = lg(x);
