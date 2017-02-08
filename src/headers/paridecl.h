@@ -2443,6 +2443,7 @@ GEN     charorder0(GEN x, GEN chi);
 GEN     char_denormalize(GEN cyc, GEN D, GEN chic);
 GEN     char_normalize(GEN chi, GEN ncyc);
 GEN     char_simplify(GEN D, GEN C);
+int     checkznstar_i(GEN G);
 GEN     cyc_normalize(GEN c);
 GEN     znchar(GEN D);
 int     zncharcheck(GEN G, GEN chi);

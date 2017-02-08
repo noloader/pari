@@ -78,6 +78,9 @@ on failure and $1$ on success.
 \fun{GEN}{checkbid_i}{GEN bid} same as \kbd{checkbid} but return \kbd{NULL}
 instead of raising an exception and return \kbd{bid} on success.
 
+\fun{GEN}{checkznstar_i}{GEN G} return $G$ if it is a \var{znstar};
+else return \kbd{NULL} on failure.
+
 \fun{GEN}{checkgal}{GEN x} if a \var{galoisinit} structure can be extracted
 from \kbd{x}, return it; otherwise raise an exception.
 
