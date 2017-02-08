@@ -18,16 +18,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 /**                  GENERIC ABELIAN CHARACTERS                     **/
 /**                                                                 **/
 /*********************************************************************/
-static GEN
-bidZ_get_fact(GEN G) { return gel(G,3); }
-
 /* check whether G is a bidZ */
-static int
+int
 checkbidZ_i(GEN G)
 {
   return (typ(G) == t_VEC && lg(G) == 6
-      && typ(bidZ_get_fact(G)) == t_VEC
-      && typ(bid_get_mod(G)) == t_VEC && lg(bid_get_mod(G)) == 3);
+      && typ(znstar_get_faN(G)) == t_VEC
+      && typ(gel(G,1)) == t_VEC && lg(gel(G,1)) == 3);
 }
 
 int
@@ -302,12 +299,13 @@ chareval(GEN G, GEN chi, GEN x, GEN z)
 /*********************************************************************/
 
 GEN
-ZNstar(GEN N, long flag)
+znstar0(GEN N, long flag)
 {
   GEN F = NULL, P, E, cyc, gen, mod, G;
   long i, i0, l, nbprimes;
   pari_sp av = avma;
 
+  if (flag && flag != 1) pari_err_FLAG("znstar");
   if ((F = check_arith_all(N,"znstar")))
   {
     F = clean_Z_factor(F);
@@ -322,7 +320,7 @@ ZNstar(GEN N, long flag)
   if (abscmpiu(N,2) <= 0)
   {
     G = mkvec3(gen_1, cgetg(1,t_VEC), cgetg(1,t_VEC));
-    if (flag & nf_INIT)
+    if (flag)
     {
       GEN v = const_vec(6,cgetg(1,t_VEC));
       gel(v,3) = cgetg(1,t_MAT);
@@ -399,7 +397,7 @@ ZNstar(GEN N, long flag)
     }
 
   /* cyc[i] > 1 and remain so in the loop, gen[i] = 1 mod (N/mod[i]) */
-  if (!(flag & nf_INIT))
+  if (!flag)
   { /* update generators in place; about twice faster */
     G = gen;
     for (i=l-1; i>=2; i--)
@@ -467,18 +465,7 @@ ZNstar(GEN N, long flag)
   return gerepilecopy(av, G);
 }
 GEN
-znstar(GEN N) { return ZNstar(N, 0); }
-GEN
-znstar0(GEN N,long flag)
-{
-  switch(flag)
-  {
-    case 0: return ZNstar(N, 0);
-    case 1: return ZNstar(N, nf_INIT);
-    default: pari_err_FLAG("znstar");
-  }
-  return NULL; /* LCOV_EXCL_LINE */
-}
+znstar(GEN N) { return znstar0(N, 0); }
 
 /* g has order 2^(e-2), g,h = 1 (mod 4); return x s.t. g^x = h (mod 2^e) */
 static GEN
@@ -517,17 +504,14 @@ int
 znconrey_check(GEN cyc, GEN chi)
 { return typ(chi) == t_COL && lg(chi) == lg(cyc) && RgV_is_ZV(chi); }
 
-static GEN
-bidZ_get_cycg(GEN G) { return gmael(G,4,5); }
-
 int
 zncharcheck(GEN G, GEN chi)
 {
   switch(typ(chi))
   {
     case t_INT: return 1;
-    case t_COL: return znconrey_check(bidZ_get_cycg(G), chi);
-    case t_VEC: return char_check(bid_get_cyc(G), chi);
+    case t_COL: return znconrey_check(znstar_get_conreycyc(G), chi);
+    case t_VEC: return char_check(znstar_get_cyc(G), chi);
   }
   return 0;
 }
@@ -535,11 +519,11 @@ zncharcheck(GEN G, GEN chi)
 GEN
 znconreyfromchar_normalized(GEN bid, GEN chi)
 {
-  GEN nchi, U = bid_get_U(bid);
+  GEN nchi, U = znstar_get_U(bid);
   long l = lg(chi);
   if (l == 1) retmkvec2(gen_1,cgetg(1,t_VEC));
   if (!RgV_is_ZV(chi) || lgcols(U) != l) pari_err_TYPE("lfunchiZ", chi);
-  nchi = char_normalize(chi, cyc_normalize(bid_get_cyc(bid)));
+  nchi = char_normalize(chi, cyc_normalize(znstar_get_cyc(bid)));
   gel(nchi,2) = ZV_ZM_mul(gel(nchi,2),U); return nchi;
 }
 
@@ -547,7 +531,7 @@ GEN
 znconreyfromchar(GEN bid, GEN chi)
 {
   GEN nchi = znconreyfromchar_normalized(bid, chi);
-  GEN v = char_denormalize(bidZ_get_cycg(bid), gel(nchi,1), gel(nchi,2));
+  GEN v = char_denormalize(znstar_get_conreycyc(bid), gel(nchi,1), gel(nchi,2));
   settyp(v, t_COL); return v;
 }
 
@@ -560,11 +544,10 @@ znconreylog(GEN bid, GEN x)
   GEN N, L, F, P,E, y, pe, fao, gen, lo, cycg;
   long i, l;
   if (!checkbidZ_i(bid)) pari_err_TYPE("znconreylog", bid);
-  N = bid_get_ideal(bid);
+  N = znstar_get_N(bid);
   if (typ(N) != t_INT) pari_err_TYPE("znconreylog", N);
-  if (abscmpiu(N, 2) <= 0) return cgetg(1, t_COL);
-  L = gel(bid,4);
-  cycg = bidZ_get_cycg(bid);
+  if (cmpiu(N, 2) <= 0) return cgetg(1, t_COL);
+  cycg = znstar_get_conreycyc(bid);
   switch(typ(x))
   {
     GEN Ui;
@@ -572,19 +555,20 @@ znconreylog(GEN bid, GEN x)
       if (!signe(x)) pari_err_COPRIME("znconreylog", x, N);
       break;
     case t_COL: /* log_bid(x) */
-      Ui = gel(L,3);
+      Ui = znstar_get_Ui(bid);
       if (!RgV_is_ZV(x) || lg(x) != lg(Ui)) pari_err_TYPE("znconreylog", x);
       return gerepileupto(av, vecmodii(ZM_ZC_mul(Ui,x), cycg));
     case t_VEC:
       return gerepilecopy(av, znconreyfromchar(bid, x));
     default: pari_err_TYPE("znconreylog", x);
   }
-  F = bidZ_get_fact(bid); /* factor(N) */
+  F = znstar_get_faN(bid); /* factor(N) */
   P = gel(F, 1); /* prime divisors of N */
   E = gel(F, 2); /* exponents */
-  pe = gel(L,1);
+  L = gel(bid,4);
+  pe = znstar_get_pe(bid);
   fao = gel(L,2);
-  gen = gel(L,4); /* local generators of (Z/p^k)^* */
+  gen = znstar_get_conreygen(bid); /* local generators of (Z/p^k)^* */
   lo = gel(L,6); /* 1/log_p((g_i)^(p_i-1)) */
 
   l = lg(gen); i = 1;
@@ -621,7 +605,7 @@ GEN
 Zideallog(GEN bid, GEN x)
 {
   pari_sp av = avma;
-  GEN y = znconreylog(bid, x), U = bid_get_U(bid);
+  GEN y = znconreylog(bid, x), U = znstar_get_U(bid);
   return gerepileupto(av, ZM_ZC_mul(U, y));
 }
 GEN
@@ -632,7 +616,7 @@ znlog0(GEN h, GEN g, GEN o)
     GEN N;
     if (o) pari_err_TYPE("znlog [with znstar]", o);
     if (!checkbidZ_i(g)) pari_err_TYPE("znlog", h);
-    N = bid_get_ideal(g);
+    N = znstar_get_N(g);
     h = Rg_to_Fp(h,N);
     return Zideallog(g, h);
   }
@@ -644,10 +628,10 @@ znconreyexp(GEN bid, GEN x)
 {
   pari_sp av = avma;
   long i, l;
-  GEN N, L, pe, gen, cycg, v, vmod;
+  GEN N, pe, gen, cycg, v, vmod;
   int e2;
   if (!checkbidZ_i(bid)) pari_err_TYPE("znconreyexp", bid);
-  cycg = bidZ_get_cycg(bid);
+  cycg = znstar_get_conreycyc(bid);
   switch(typ(x))
   {
     case t_VEC:
@@ -657,11 +641,11 @@ znconreyexp(GEN bid, GEN x)
       if (RgV_is_ZV(x) && lg(x) == lg(cycg)) break;
     default: pari_err_TYPE("znconreyexp",x);
   }
-  L = gel(bid,4);
-  pe = gel(L,1);
-  gen = gel(L,4); /* local generators of (Z/p^k)^* */
+  pe = znstar_get_pe(bid);
+  gen = znstar_get_conreygen(bid); /* local generators of (Z/p^k)^* */
+  cycg = znstar_get_conreycyc(bid);
   l = lg(x); v = cgetg(l, t_VEC);
-  N = bid_get_ideal(bid);
+  N = znstar_get_N(bid);
   e2 = !mod8(N); /* 2 generators at p = 2 */
   for (i = 1; i < l; i++)
   {
@@ -689,7 +673,7 @@ GEN
 znconreychar(GEN bid, GEN m)
 {
   pari_sp av = avma;
-  GEN c, d, L, Ui, nchi;
+  GEN c, d, nchi;
 
   switch(typ(m))
   {
@@ -701,11 +685,9 @@ znconreychar(GEN bid, GEN m)
       pari_err_TYPE("znconreychar",m);
       return NULL;/*LCOV_EXCL_LINE*/
   }
-  L = gel(bid,4);
-  Ui = gel(L,3);
   d = gel(nchi,1);
-  c = ZV_ZM_mul(gel(nchi,2), Ui); /* images of bid gens */
-  return gerepilecopy(av, char_denormalize(bid_get_cyc(bid),d,c));
+  c = ZV_ZM_mul(gel(nchi,2), znstar_get_Ui(bid)); /* images of bid gens */
+  return gerepilecopy(av, char_denormalize(znstar_get_cyc(bid),d,c));
 }
 
 /* chi a t_INT or Conrey log describing a character. Return conductor, as an
@@ -724,13 +706,13 @@ znconreyconductor(GEN bid, GEN chi, GEN *pm)
   if (!checkbidZ_i(bid)) pari_err_TYPE("znconreyconductor", bid);
   if (typ(chi) == t_COL)
   {
-    if (!znconrey_check(bidZ_get_cycg(bid), chi))
+    if (!znconrey_check(znstar_get_conreycyc(bid), chi))
       pari_err_TYPE("znconreyconductor",chi);
   }
   else
     chi = znconreylog(bid, chi);
   l = lg(chi);
-  F = bidZ_get_fact(bid);
+  F = znstar_get_faN(bid);
   P = gel(F,1);
   E = gel(F,2);
   if (l == 1)
@@ -789,7 +771,7 @@ znconreyconductor(GEN bid, GEN chi, GEN *pm)
   if (pm) *pm = m; /* attached primitive  character */
   if (primitive)
   {
-    q = bid_get_ideal(bid);
+    q = znstar_get_N(bid);
     if (mod4(q) == 2) primitive = 0;
   }
   if (!primitive)
@@ -816,14 +798,14 @@ zncharinduce(GEN G, GEN chi, GEN N)
 
   if (!checkbidZ_i(G)) pari_err_TYPE("zncharinduce", G);
   if (!zncharcheck(G, chi)) pari_err_TYPE("zncharinduce", chi);
-  q = bid_get_ideal(G);
+  q = znstar_get_N(G);
   if (typ(chi) != t_COL) chi = znconreylog(G, chi);
   if (checkbidZ_i(N))
   {
-    GEN faN = bidZ_get_fact(N);
+    GEN faN = znstar_get_faN(N);
     P = gel(faN,1); l = lg(P);
     E = gel(faN,2);
-    N = bid_get_ideal(N);
+    N = znstar_get_N(N);
     if (l > 2 && equalii(gel(P,1),gel(P,2)))
     { /* remove duplicate 2 */
       l--;
@@ -862,7 +844,7 @@ zncharinduce(GEN G, GEN chi, GEN N)
     return equali1(N)? cgetg(1, t_COL): zerocol(l+e2 - 1);
   }
 
-  faq = bidZ_get_fact(G);
+  faq = znstar_get_faN(G);
   Pq = gel(faq,1);
   Eq = gel(faq,2);
   CHI = cgetg(l+e2, t_COL);
@@ -902,7 +884,7 @@ zncharinduce(GEN G, GEN chi, GEN N)
 GEN
 znconreylog_normalize(GEN G, GEN m)
 {
-  GEN cycg = bidZ_get_cycg(G);
+  GEN cycg = znstar_get_conreycyc(G);
   long i, l;
   GEN d, M = cgetg_copy(m, &l);
   if (typ(cycg) != t_VEC || lg(cycg) != l)
@@ -942,7 +924,7 @@ zncharisodd(GEN G, GEN chi)
   if (!checkbidZ_i(G)) pari_err_TYPE("zncharisodd", G);
   if (!zncharcheck(G, chi)) pari_err_TYPE("zncharisodd", chi);
   if (typ(chi) != t_COL) chi = znconreylog(G, chi);
-  N = bid_get_ideal(G);
+  N = znstar_get_N(G);
   l = lg(chi);
   s = 0;
   if (!mod8(N))
@@ -978,7 +960,7 @@ znchartokronecker(GEN G, GEN chi, long flag)
   F = (s < 0)? negi(F): icopy(F);
   if (!flag)
   {
-    GEN MF = bidZ_get_fact(G), P = gel(MF,1);
+    GEN MF = znstar_get_faN(G), P = gel(MF,1);
     long i, l = lg(P);
     for (i = 1; i < l; i++)
     {
@@ -999,7 +981,7 @@ znchar(GEN D)
   {
     case t_INT:
       if (!signe(D) || Mod4(D) > 1) pari_err_TYPE("znchar", D);
-      G = ZNstar(D, nf_INIT);
+      G = znstar0(D, 1);
       L = gel(G,4);
       g = gel(L,4); /* local generators of (Z/p^k)^* */
       l = lg(g); chi = cgetg(l, t_COL);
@@ -1007,7 +989,7 @@ znchar(GEN D)
         gel(chi, i) = kronecker(D, gel(g,i)) > 0? gen_0: gen_1;
       break;
     case t_INTMOD:
-      G = ZNstar(gel(D,1), nf_INIT);
+      G = znstar0(gel(D,1), 1);
       chi = znconreylog(G, gel(D,2));
       break;
     case t_VEC:
@@ -1018,7 +1000,7 @@ znchar(GEN D)
       if (typ(chi) == t_VEC && lg(chi) == 3 && is_vec_t(typ(gel(chi,2))))
       { /* normalized character */
         GEN n = gel(chi,1), chic = gel(chi,2);
-        GEN cyc = typ(chic) == t_VEC? bid_get_cyc(G): bidZ_get_cycg(G);
+        GEN cyc = typ(chic) == t_VEC? znstar_get_cyc(G): znstar_get_conreycyc(G);
         if (!char_check(cyc, chic)) pari_err_TYPE("znchar",D);
         chi = char_denormalize(cyc, n, chic);
       }
@@ -1035,7 +1017,7 @@ znchar(GEN D)
 GEN
 znchareval(GEN G, GEN chi, GEN n, GEN z)
 {
-  GEN nchi, N = bid_get_ideal(G);
+  GEN nchi, N = znstar_get_N(G);
   /* avoid division by 0 */
   if (typ(n) == t_FRAC && !equali1(gcdii(gel(n,2), N))) return not_coprime(z);
   n = Rg_to_Fp(n, N);
@@ -1052,8 +1034,8 @@ zncharconj(GEN G, GEN chi)
   switch(typ(chi))
   {
     case t_INT: chi = znconreylog(G, chi); /* fall through */
-    case t_COL: return charconj(bidZ_get_cycg(G), chi);
-    case t_VEC: return charconj(bid_get_cyc(G), chi);
+    case t_COL: return charconj(znstar_get_conreycyc(G), chi);
+    case t_VEC: return charconj(znstar_get_cyc(G), chi);
   }
   pari_err_TYPE("zncharconj",chi);
   return NULL; /*LCOV_EXCL_LINE*/
@@ -1066,8 +1048,8 @@ zncharorder(GEN G,  GEN chi)
   switch(typ(chi))
   {
     case t_INT: chi = znconreylog(G, chi); /*fall through*/
-    case t_COL: return charorder(bidZ_get_cycg(G), chi);
-    case t_VEC: return charorder(bid_get_cyc(G), chi);
+    case t_COL: return charorder(znstar_get_conreycyc(G), chi);
+    case t_VEC: return charorder(znstar_get_cyc(G), chi);
     default: pari_err_TYPE("zncharorder",chi);
              return NULL; /* LCOV_EXCL_LINE */
   }
@@ -1078,7 +1060,7 @@ GEN
 zncharker(GEN G, GEN chi)
 {
   if (typ(chi) != t_VEC) chi = znconreychar(G, chi);
-  return charker(bid_get_cyc(G), chi);
+  return charker(znstar_get_cyc(G), chi);
 }
 
 /* G is a bidZ, 'a' and 'b' are Dirichlet character */
@@ -1088,15 +1070,15 @@ zncharmul(GEN G, GEN a, GEN b)
   long ta = typ(a), tb = typ(b);
   if (ta == tb) switch(ta)
   {
-    case t_INT: return Fp_mul(a, b, bid_get_ideal(G));
-    case t_VEC: return charmul(bid_get_cyc(G), a, b);
-    case t_COL: return charmul(bidZ_get_cycg(G), a, b);
+    case t_INT: return Fp_mul(a, b, znstar_get_N(G));
+    case t_VEC: return charmul(znstar_get_cyc(G), a, b);
+    case t_COL: return charmul(znstar_get_conreycyc(G), a, b);
     default: pari_err_TYPE("zncharmul",a);
              return NULL; /* LCOV_EXCL_LINE */
   }
   if (ta != t_COL) a = znconreylog(G, a);
   if (tb != t_COL) b = znconreylog(G, b);
-  return charmul(bidZ_get_cycg(G), a, b);
+  return charmul(znstar_get_conreycyc(G), a, b);
 }
 
 /* G is a bidZ, 'a' and 'b' are Dirichlet character */
@@ -1106,15 +1088,15 @@ znchardiv(GEN G, GEN a, GEN b)
   long ta = typ(a), tb = typ(b);
   if (ta == tb) switch(ta)
   {
-    case t_INT: return Fp_div(a, b, bid_get_ideal(G));
-    case t_VEC: return chardiv(bid_get_cyc(G), a, b);
-    case t_COL: return chardiv(bidZ_get_cycg(G), a, b);
+    case t_INT: return Fp_div(a, b, znstar_get_N(G));
+    case t_VEC: return chardiv(znstar_get_cyc(G), a, b);
+    case t_COL: return chardiv(znstar_get_conreycyc(G), a, b);
     default: pari_err_TYPE("znchardiv",a);
              return NULL; /* LCOV_EXCL_LINE */
   }
   if (ta != t_COL) a = znconreylog(G, a);
   if (tb != t_COL) b = znconreylog(G, b);
-  return chardiv(bidZ_get_cycg(G), a, b);
+  return chardiv(znstar_get_conreycyc(G), a, b);
 }
 
 GEN
@@ -1125,12 +1107,12 @@ znchargalois(GEN G, GEN ORD)
   long N, n, ct, maxord;
 
   if (!checkbidZ_i(G)) pari_err_TYPE("znchargalois", G);
-  cyc = bid_get_cyc(G);
+  cyc = znstar_get_cyc(G);
   if (lg(cyc) == 1)
   {
     w = cgetg(2, t_VEC); gel(w, 1) = cgetg(1, t_COL); return w;
   }
-  gN = bid_get_ideal(G);
+  gN = znstar_get_N(G);
   N = itou(gN);
   v = cgetg(N, t_VECSMALL);
   for (n = 1; n < N; ++n) v[n] = (cgcd(N, n) == 1);

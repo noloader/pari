@@ -403,10 +403,38 @@ to $(\Z_K/I_\infty)^*$, by \kbd{nfarchstar}.
 relating the local generators (from chinese remainders) to the global
 SNF generators (\kbd{\var{bid}.gen}).
 
-\fun{GEN}{bid_get_ind}{GEN bid} return a \typ{VECSMALL} $v$ of indices used
-while converting from local generators to the global generators: $v[i]$
-is the number of generators used to describe $(\Z_K / \prod_{j < i}
-\goth{p}_j^{e_j})^*$.
+\subsec{Extracting info from a \kbd{znstar} structure}
+
+These functions expect an argument $G$ as returned by \kbd{znstar0(N, 1)},
+attached to a positive $N$ and the abelian group $(\Z/N\Z)^*$.
+Let $(g_i)$ be the SNF generators, where $g_i$ has order $d_i$;
+we call $(g'_i)$ the (canonical) Conrey generators, where $g'_i$ has order
+$d'_i$. Both sets of generators have the same cardinality.
+
+\fun{GEN}{znstar_get_N}{GEN bid} return $N$.
+
+\fun{GEN}{znstar_get_faN}{GEN G} return the factorization \kbd{factor}$(N)$,
+$N = \prod_j p_j^{e_j}$.
+
+\fun{GEN}{znstar_get_pe}{GEN G} return the vector of primary factors
+$(p_j^{e_j})$.
+
+\fun{GEN}{znstar_get_no}{GEN G} the cardinality $\phi(N)$ of $G$.
+
+\fun{GEN}{znstar_get_cyc}{GEN G} elementary divisors $(d_i)$ of $(\Z/N\Z)^*$.
+
+\fun{GEN}{znstar_get_gen}{GEN G} SNF generators divisors $(g_i)$
+of $(\Z/N\Z)^*$.
+
+\fun{GEN}{znstar_get_conreycyc}{GEN G} orders $(d'_i)$ of Conrey generators.
+
+\fun{GEN}{znstar_get_conreygen}{GEN G} Conrey generators $(g'_i)$.
+
+\fun{GEN}{znstar_get_U}{GEN G} a square matrix $U$ such that
+$(g_i) = U(g'_i)$.
+
+\fun{GEN}{znstar_get_Ui}{GEN G} a square matrix $U'$ such that
+$U'(g_i) = (g'_i)$. In general, $UU'$ will not be the identity.
 
 \subsec{Inserting info in a number field structure}
 

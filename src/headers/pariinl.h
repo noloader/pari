@@ -2656,8 +2656,6 @@ bid_get_sarch(GEN bid) { return gmael(bid,4,2); }
 INLINE GEN
 bid_get_archp(GEN bid) { return gmael3(bid,4,2,2); }
 INLINE GEN
-bid_get_ind(GEN bid) { return gmael(bid,4,3); }
-INLINE GEN
 bid_get_U(GEN bid) { return gel(bid,5); }
 INLINE GEN
 bid_get_no(GEN bid) { return abgrp_get_no(bid_get_grp(bid)); }
@@ -2671,6 +2669,27 @@ bid_get_gen(GEN bid) {
   if (lg(G) != 4) pari_err(e_MISC,"missing bid generators. Use idealstar(,,2)");
   return abgrp_get_gen(G);
 }
+
+INLINE GEN
+znstar_get_N(GEN G) { return gmael(G,1,1); }
+INLINE GEN
+znstar_get_faN(GEN G) { return gel(G,3); }
+INLINE GEN
+znstar_get_no(GEN G) { return abgrp_get_no(gel(G,2)); }
+INLINE GEN
+znstar_get_cyc(GEN G) { return abgrp_get_cyc(gel(G,2)); }
+INLINE GEN
+znstar_get_gen(GEN G) { return abgrp_get_gen(gel(G,2)); }
+INLINE GEN
+znstar_get_conreycyc(GEN G) { return gmael(G,4,5); }
+INLINE GEN
+znstar_get_conreygen(GEN G) { return gmael(G,4,4); }
+INLINE GEN
+znstar_get_Ui(GEN G) { return gmael(G,4,3); }
+INLINE GEN
+znstar_get_U(GEN G) { return gel(G,5); }
+INLINE GEN
+znstar_get_pe(GEN G) { return gmael(G,4,1); }
 INLINE GEN
 gal_get_pol(GEN gal) { return gel(gal,1); }
 INLINE GEN
