@@ -5475,6 +5475,14 @@ $1 \leq i \leq n$.
 \fun{GEN}{FlxV_prod}{GEN V, ulong p}, \kbd{V} being a vector of \kbd{Flx},
 returns their product.
 
+\fun{ulong}{FlxC_eval_powers_pre}{GEN x, GEN y, ulong p, ulong pi}
+apply \kbd{Flx\_eval\_powers\_pre} to all the elements of \kbd{x}.
+
+\subsec{\kbd{FlxM}} See \kbd{FpXM} operations.
+
+\fun{ulong}{FlxM_eval_powers_pre}{GEN M, GEN y, ulong p, ulong pi}
+apply \kbd{FlxC\_eval\_powers\_pre} to all the elements of \kbd{M}.
+
 \subsec{\kbd{FlxT}} See \kbd{FpXT} operations.
 
 \fun{GEN}{FlxT_red}{GEN V, ulong p} reduces each leaf with \kbd{Flx\_red}.

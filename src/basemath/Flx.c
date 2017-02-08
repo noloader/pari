@@ -3541,6 +3541,32 @@ FlxqV_dotproduct(GEN x, GEN y, GEN T, ulong p)
   return gerepileuptoleaf(av, Flx_rem(c,T,p));
 }
 
+GEN
+FlxC_eval_powers_pre(GEN z, GEN x, ulong p, ulong pi)
+{
+  long i, l = lg(z);
+  GEN y = cgetg(l, t_VECSMALL);
+  for (i=1; i<l; i++)
+    uel(y,i) = Flx_eval_powers_pre(gel(z,i), x, p, pi);
+  return y;
+}
+
+/***********************************************************************/
+/**                                                                   **/
+/**                               FlxM                                **/
+/**                                                                   **/
+/***********************************************************************/
+
+GEN
+FlxM_eval_powers_pre(GEN z, GEN x, ulong p, ulong pi)
+{
+  long i, l = lg(z);
+  GEN y = cgetg(l, t_MAT);
+  for (i=1; i<l; i++)
+    gel(y,i) = FlxC_eval_powers_pre(gel(z,i), x, p, pi);
+  return y;
+}
+
 /***********************************************************************/
 /**                                                                   **/
 /**                               FlxX                                **/
