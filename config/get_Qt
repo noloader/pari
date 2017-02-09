@@ -4,7 +4,12 @@ fi
 QTDIR=
 case "$with_qt" in
 yes)
-   pth="/usr/local/lib /usr/local/share /usr/lib /usr/share"
+   addlib=""
+   case "$sizeof_long" in
+     4) addlib="/usr/local/lib32 /lib32 /usr/lib32";;
+     8) addlib="/usr/local/lib64 /lib64 /usr/lib64";;
+   esac
+   pth="$addlib /usr/local/lib /usr/local/share /usr/lib /lib /usr/share"
    QTDIR=`locatedir qt4/bin $pth`
    if test -n "$QTDIR"; then
      QTLIB="-lQtCore -lQtGui -lstdc++"
@@ -20,10 +25,12 @@ yes)
      QTDIR=`dirname $QTDIR`
    fi;;
 *) if test ! -d "$with_qt"; then
-    echo "### Qt directory '$with_qt' not found"
-  else
-    QTDIR=$with_qt
-  fi;;
+     echo "### Qt directory '$with_qt' not found"
+   else
+     QTDIR=$with_qt
+     QTLIB="-lQtCore -lQtGui -lstdc++"
+     which_graphic_lib=Qt4
+   fi;;
 esac
 if test -n "$QTDIR"; then
   echo "Using Qt library, QTDIR = $QTDIR, QTLIB = $QTLIB"
