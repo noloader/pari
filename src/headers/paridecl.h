@@ -1436,7 +1436,6 @@ GEN     ZM_det(GEN a);
 GEN     ZM_detmult(GEN A);
 GEN     ZM_gauss(GEN a, GEN b);
 GEN     ZM_ker(GEN M);
-GEN     ZM_ker_ratlift(GEN M);
 GEN     ZM_imagecompl(GEN x);
 GEN     ZM_indeximage(GEN x);
 GEN     ZM_indexrank(GEN x);
