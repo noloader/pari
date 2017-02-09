@@ -3716,7 +3716,7 @@ ZM_indexrank(GEN x) {
 
 /*******************************************************************/
 /*                                                                 */
-/*                   ZKM                                           */
+/*                             ZabM                                */
 /*                                                                 */
 /*******************************************************************/
 
@@ -3782,7 +3782,7 @@ FlkM_inv(GEN M, GEN P, ulong p)
 }
 
 GEN
-ZKM_inv_ratlift(GEN M, GEN P, long n, GEN *pden)
+ZabM_inv(GEN M, GEN P, long n, GEN *pden)
 {
   pari_sp av2, av = avma;
   GEN q, H;
@@ -3809,7 +3809,7 @@ ZKM_inv_ratlift(GEN M, GEN P, long n, GEN *pden)
     else
       ZVM_incremental_CRT(&H, Hp, &q, p);
     Hr = FpVM_ratlift(H, q, varn(P));
-    if (DEBUGLEVEL>5) err_printf("ZKM_inv mod %ld (ratlift=%ld)\n", p,!!Hr);
+    if (DEBUGLEVEL>5) err_printf("ZabM_inv mod %ld (ratlift=%ld)\n", p,!!Hr);
     if (Hr) {/* DONE ? */
       GEN Hl = Q_remove_denom(Hr, pden);
       GEN MH = RgXQM_mul(M, Hl,P);
@@ -3821,7 +3821,7 @@ ZKM_inv_ratlift(GEN M, GEN P, long n, GEN *pden)
 
     if (gc_needed(av,2))
     {
-      if (DEBUGMEM>1) pari_warn(warnmem,"ZKM_inv_ratlift");
+      if (DEBUGMEM>1) pari_warn(warnmem,"ZabM_inv");
       gerepileall(av2, 2, &H, &q);
     }
   }
@@ -3853,7 +3853,7 @@ FlkM_ker(GEN M, GEN P, ulong p)
 }
 
 GEN
-ZKM_ker_ratlift(GEN M, GEN P, long n)
+ZabM_ker(GEN M, GEN P, long n)
 {
   pari_sp av2, av = avma;
   GEN q, H, D;
@@ -3879,7 +3879,7 @@ ZKM_ker_ratlift(GEN M, GEN P, long n)
     else
       ZVM_incremental_CRT(&H, Hp, &q, p);
     Hr = FpVM_ratlift(H, q, varn(P));
-    if (DEBUGLEVEL>5) err_printf("ZKM_ker mod %ld (ratlift=%ld)\n", p,!!Hr);
+    if (DEBUGLEVEL>5) err_printf("ZabM_ker mod %ld (ratlift=%ld)\n", p,!!Hr);
     if (Hr) {/* DONE ? */
       GEN Hl = Q_remove_denom(Hr, NULL);
       GEN MH = RgXQM_mul(M, Hl,P);
@@ -3888,7 +3888,7 @@ ZKM_ker_ratlift(GEN M, GEN P, long n)
 
     if (gc_needed(av,2))
     {
-      if (DEBUGMEM>1) pari_warn(warnmem,"ZKM_ker_ratlift");
+      if (DEBUGMEM>1) pari_warn(warnmem,"ZabM_ker");
       gerepileall(av2, 3, &H, &D, &q);
     }
   }
@@ -3896,51 +3896,52 @@ ZKM_ker_ratlift(GEN M, GEN P, long n)
 }
 
 GEN
-ZKM_indexrank(GEN M, GEN P, long n)
+ZabM_indexrank(GEN M, GEN P, long n)
 {
   pari_sp av = avma;
   ulong m = LONG_MAX>>1;
-  ulong p= 1+m-(m%n);
+  ulong p = 1+m-(m%n), D = degpol(P);
   GEN v;
   do
   {
     ulong pi;
     GEN R, Mp, K;
-    do p+=n; while(!uisprime(p));
+    do p += n; while (!uisprime(p));
     pi = get_Fl_red(p);
     R = Flx_roots(ZX_to_Flx(P, p), p);
-    Mp = FqM_to_FlxM(M, P, utoi(p));
-    K = FlxM_eval_powers_pre(Mp, Fl_powers_pre(uel(R,1), degpol(P), p, pi), p, pi);
+    Mp = FqM_to_FlxM(M, P, utoipos(p));
+    K = FlxM_eval_powers_pre(Mp, Fl_powers_pre(uel(R,1), D,p,pi), p,pi);
     v = Flm_indexrank(K, p);
-  } while(lg(gel(v,2))<lg(M));
-  return gerepilecopy(av, v);
+  } while (lg(gel(v,2)) < lg(M));
+  return gerepileupto(av, v);
 }
 
+#if 0
 GEN
-ZKM_gauss(GEN M, GEN P, long n, GEN *den)
+ZabM_gauss(GEN M, GEN P, long n, GEN *den)
 {
   pari_sp av = avma;
   GEN v, S, W;
-  v = ZKM_indexrank(M, P, n);
+  v = ZabM_indexrank(M, P, n);
   S = shallowmatextract(M,gel(v,1),gel(v,2));
-  W = ZKM_inv_ratlift(S, P, n, den);
+  W = ZabM_inv(S, P, n, den);
   gerepileall(av,2,&W,den);
   return W;
 }
+#endif
 
 GEN
-ZKM_pseudoinv(GEN M, GEN P, long n, GEN *den)
+ZabM_pseudoinv(GEN M, GEN P, long n, GEN *den)
 {
   pari_sp av = avma;
   GEN v, S, W, z, v1;
   long l, i;
-  v = ZKM_indexrank(M, P, n);
+  v = ZabM_indexrank(M, P, n);
   S = shallowmatextract(M,gel(v,1),gel(v,2));
-  W = ZKM_inv_ratlift(S, P, n, den);
+  W = ZabM_inv(S, P, n, den);
   z = zeromatcopy(lg(M)-1,lgcols(M)-1);
   v1 = gel(v,1); l = lg(v1);
-  for(i=1; i<l; i++)
-    gel(z, v1[i]) = gel(W, i);
+  for(i=1; i<l; i++) gel(z, v1[i]) = gel(W, i);
   gerepileall(av,2,&z,den);
   return z;
 }

@@ -709,6 +709,26 @@ field} mechanism:
 
 \fun{GEN}{nfM_nfC_mul}{GEN nf, GEN A, GEN B}
 
+
+The following routines implement modular algorithms in cyclotomic fields. In
+the prototypes, $P$ is the $n$-th cyclotomic polynomial $\Phi_n$ and $M$ is a
+\typ{MAT} with \typ{INT} or \kbd{ZX} coefficients, understood modulo $P$.
+
+\fun{GEN}{ZabM_ker}{GEN M, GEN P, long n} returns an integral (primitive)
+basis of the kernel of $M$.
+
+\fun{GEN}{ZabM_indexrank}{GEN M, GEN P, long n} assume that
+$M$ has full column rank. Return a vector with two \typ{VECSMALL}
+components givin the rank profile of $M$.
+
+\fun{GEN}{ZabM_inv}{GEN M, GEN P, long n, GEN *pden}
+assume that $M$ is invertible; return $N$ and sets the integer \kbd{den} such
+that $M N = \kbd{den} \cdot \Id$.
+
+\fun{GEN}{ZabM_pseudoinv}{GEN M, GEN P, long n, GEN *den}
+assume that $M$ has full column rank. Return a left-inverse of $M$
+analogously to \kbd{ZabM\_inv}.
+
 \subsec{Elements in factored form}
 
 Computational algebraic theory performs extensively linear

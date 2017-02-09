@@ -107,6 +107,7 @@ BA   45- new GP function galoisconjclasses
       znstar_get_conreycyc, znstar_get_conreygen, znstar_get_faN, znstar_get_no,
       znstar_get_pe, znstar_get_Ui, checkznstar_i
      49- [libpari] coreu_fact, moebiusu_fact
+     50- [libpari] ZabM_ker, ZabM_indexrank, ZabM_inv, ZabM_pseudoinv,
 
   Changed
       1- rewrite bnfnarrow
