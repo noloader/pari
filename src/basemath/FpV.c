@@ -307,7 +307,9 @@ Flv_Fl_mul_inplace(GEN x, ulong y, ulong p)
 void
 Flm_Fl_mul_inplace(GEN y, ulong x, ulong p)
 {
-  long i, j, m = lgcols(y), l = lg(y);
+  long i, j, m, l = lg(y);
+  if (l == 1) return;
+  m = lgcols(y);
   if (HIGHWORD(x | p))
     for(j=1; j<l; j++)
       for(i=1; i<m; i++) ucoeff(y,i,j) = Fl_mul(ucoeff(y,i,j), x, p);
@@ -315,12 +317,15 @@ Flm_Fl_mul_inplace(GEN y, ulong x, ulong p)
     for(j=1; j<l; j++)
       for(i=1; i<m; i++) ucoeff(y,i,j) = (ucoeff(y,i,j) * x) % p;
 }
+
 /* return x * y */
 GEN
 Flm_Fl_mul(GEN y, ulong x, ulong p)
 {
-  long i, j, m = lgcols(y), l = lg(y);
+  long i, j, m, l = lg(y);
   GEN z = cgetg(l, t_MAT);
+  if (l == 1) return z;
+  m = lgcols(y);
   if (HIGHWORD(x | p))
     for(j=1; j<l; j++) {
       GEN c = cgetg(m, t_VECSMALL); gel(z,j) = c;
