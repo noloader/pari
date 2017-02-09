@@ -58,7 +58,7 @@ case $which_graphic_lib in
   auto|PS|ps) which_graphic_lib=ps;;
 esac
 case $which_graphic_lib in
-  X11|fltk|Qt|Qt4|ps)
+  X11|fltk|Qt4|ps)
     if test "$has_waitpid" = no -o "$has_setsid" = no; then
       echo "### Missing waitpid() or setsid(), no Hi-Res graphing window"
       which_graphic_lib=none

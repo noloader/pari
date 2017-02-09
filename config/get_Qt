@@ -14,18 +14,6 @@ yes)
      if test -n "$QTDIR"; then
        QTLIB="-lQtCore -lQtGui -lstdc++"
        which_graphic_lib=Qt4
-     else
-       QTDIR=`locatedir qt3/bin $pth`
-       if test -n "$QTDIR"; then
-         QTLIB="-lqt-mt"
-         which_graphic_lib=Qt
-       else
-         QTDIR=`locatedir qt2/bin $pth`
-         if test -n "$QTDIR"; then
-           QTLIB="-lqt"
-           which_graphic_lib=Qt
-         fi
-       fi
      fi
    fi;
    if test -n "$QTDIR"; then

@@ -77,10 +77,6 @@ ps)
   graph=plotps;;
 svg)
   graph=plotsvg;;
-Qt)
-  PLOTCFLAGS='-D__FANCY_WIN__ -I$(QTDIR)/include'
-  PLOTLIBS="-L\$(QTDIR)/lib $QTLIB"
-  graph=plotQt;;
 Qt4)
   PLOTCFLAGS='-D__FANCY_WIN__ -I$(QTDIR)/include'
   PLOTLIBS="-L\$(QTDIR)/lib $QTLIB"
@@ -741,11 +737,6 @@ for dir in basemath modules language gp graph systems mt; do
   plotport)
     cflags="$cflags -I$src/graph"
     depend="$RECT_H"
-    ;;
-  plotQt)
-    cflags="$cflags \$(PLOTCFLAGS)"
-    depend="$RECT_H"
-    compile="\$(MOC) -o plotQt.moc.cpp $src/graph/plotQt.c && \$(CXX)"
     ;;
   plotQt4)
     cflags="$cflags \$(PLOTCFLAGS)"
