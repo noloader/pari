@@ -4138,7 +4138,7 @@ groupelts_chartable(GEN elts)
     GEN e = Flv_Fl_mul(ZV_to_Flv(gmael3(dec,i,3,1), p),n%p,p);
     gel(ctp,i) = Flv_Fl_div(e, usqrt(e[1]), p);
   }
-  ze = Fl_powu(pgener_Fl(p),(p-1)/expo,p);
+  ze = Fl_inv(Fl_powu(pgener_Fl(p),(p-1)/expo, p), p);
 
   /* lift character table to Z[zeta_e] */
   f = polcyclo(expo,0);
@@ -4147,6 +4147,7 @@ groupelts_chartable(GEN elts)
   ct0 = cgetg(nbcl+1, t_MAT);
   for(j=1;j<=nbcl;j++)
   {
+    ulong zek = 1;
     GEN g = gel(elts,rep[j]);
     for (l=0; l<expo; l++)
       jg[l] = conjclass[vecsearch(elts,perm_pow(g,l),NULL)];
@@ -4160,12 +4161,15 @@ groupelts_chartable(GEN elts)
        * a_k = 1/e sum_{l=0}^{e-1} chi(g^l) ze^{-k*l} */
       for (k=0; k<expo; k++)
       {
-        ulong a = 0;
+        ulong a = 0, z = 1;
         for (l=0; l<expo; l++)
-          a = Fl_add(a, Fl_mul(uel(chip,jg[l]),
-                Fl_powu(ze ,Fl_neg(k,p-1)*l, p), p), p);
+        {
+          a = Fl_add(a, Fl_mul(uel(chip,jg[l]), z, p), p);
+          z = Fl_mul(z, zek, p);
+        }
         a = Fl_div(a, expo, p);
-        cij[k+2] = stoi(Fl_center(a, p, pov2));
+        gel(cij,k+2) = stoi(Fl_center(a, p, pov2));
+        zek = Fl_mul(zek, ze, p);
       }
       (void) ZX_renormalize(cij, expo+2);
       gcoeff(ct0,i,j) = ZX_rem(cij, f);
