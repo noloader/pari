@@ -2043,6 +2043,12 @@ prime, and \kbd{x} to be a square modulo \kbd{p}.
 modulo \kbd{p}. Assumes \kbd{p} to be prime and $p \equiv 1 \pmod{l}$, and
 \kbd{x} to be a $l$-th power modulo \kbd{p}.
 
+\fun{ulong}{Fl_sqrtn}{ulong a, ulong n, ulong p, ulong *zn}
+returns \kbd{ULONG\_MAX} if $a$ is not an $n$-th power residue mod $p$.
+Otherwise, returns an $n$-th root of $a$; if \kbd{zn} is non-\kbd{NULL}
+set it to a primitive $m$-th root of 1, $m = \gcd(p-1,n)$ allowing to compute
+all $m$ solutions in $\F_p$ of the equation $x^n = a$.
+
 \fun{ulong}{Fl_log}{ulong a, ulong g, ulong ord, ulong p} Let $g$ such that
 $g^{ord} \equiv 1 \pmod{p}$. Return an integer $e$ such that
 $a^e \equiv g \pmod{p}$. If $e$ does not exist, the result is undefined.
@@ -2115,6 +2121,9 @@ returns a $l$-the root of \kbd{x}
 modulo \kbd{p}, assuming $pi$ is the pseudo inverse of $p$,
 $p$ prime and $p \equiv 1 \pmod{l}$, and \kbd{x} to be a $l$-th power modulo
 \kbd{p}.
+
+\fun{ulong}{Fl_sqrtn_pre}{ulong x, ulong n, ulong p, ulong *zn}
+See \kbd{Fl\_sqrtn}, assuming $pi$ is the pseudo inverse of $p$.
 
 \fun{ulong}{Fl_2gener_pre}{ulong p, ulong pi} return a generator of
 the $2$-Sylow subgroup of $\F_p^*$. To use with \kbd{Fl\_sqrt\_pre\_i}.

@@ -2021,16 +2021,15 @@ Fl_lgener_pre_all(ulong l, long e, ulong r, ulong p, ulong pi, ulong *pt_m)
  * y generates the l-Sylow of G
  * m = y^(l^(e-1)) != 1 */
 static ulong
-Fl_sqrtl_i(ulong a, ulong l, ulong p, ulong pi, ulong y, ulong m)
+Fl_sqrtl_raw(ulong a, ulong l, long e, ulong r, ulong p, ulong pi, ulong y, ulong m)
 {
-  ulong p1, v, w, z, dl, zm;
-  ulong r, e, u2;
+  ulong p1, v, w, z, dl;
+  ulong u2;
   if (a==0) return a;
-  e = u_lvalrem(p-1, l, &r);
   u2 = Fl_inv(l%r, r);
-  v = Fl_powu_pre(a, u2, p,pi);
-  w = Fl_powu_pre(v, l, p,pi);
-  w = Fl_mul_pre(w, Fl_inv(a, p),p,pi);
+  v = Fl_powu_pre(a, u2, p, pi);
+  w = Fl_powu_pre(v, l, p, pi);
+  w = Fl_mul_pre(w, Fl_inv(a, p), p, pi);
   if (w==1) return v;
   if (y==0) y = Fl_lgener_pre_all(l, e, r, p, pi, &m);
   while (w!=1)
@@ -2042,12 +2041,8 @@ Fl_sqrtl_i(ulong a, ulong l, ulong p, ulong pi, ulong y, ulong m)
       z = p1; p1 = Fl_powu_pre(p1, l, p, pi);
       k++;
     } while (p1!=1);
-    if (k==e) return ~0UL;
-    dl = 0; zm = 1;
-    while (z!=zm)
-    {
-      zm = Fl_mul_pre(zm, m, p, pi); dl++;
-    }
+    if (k==e) return ULONG_MAX;
+    dl = Fl_log_pre(z, m, l, p, pi);
     dl = Fl_neg(dl, l);
     p1 = Fl_powu_pre(y,dl*upowuu(l,e-k-1),p,pi);
     m = Fl_powu_pre(m, dl, p, pi);
@@ -2057,6 +2052,13 @@ Fl_sqrtl_i(ulong a, ulong l, ulong p, ulong pi, ulong y, ulong m)
     w = Fl_mul_pre(y,w,p,pi);
   }
   return v;
+}
+
+static ulong
+Fl_sqrtl_i(ulong a, ulong l, ulong p, ulong pi, ulong y, ulong m)
+{
+  ulong r, e = u_lvalrem(p-1, l, &r);
+  return Fl_sqrtl_raw(a, l, e, r, p, pi, y, m);
 }
 
 ulong
@@ -2070,6 +2072,68 @@ Fl_sqrtl(ulong a, ulong l, ulong p)
 {
   ulong pi = get_Fl_red(p);
   return Fl_sqrtl_i(a, l, p, pi, 0, 0);
+}
+
+ulong
+Fl_sqrtn_pre(ulong a, long n, ulong p, ulong pi, ulong *zetan)
+{
+  ulong m, q = p-1, z;
+  ulong nn = n >= 0 ? (ulong)n: -(ulong)n;
+  if (a==0)
+  {
+    if (n < 0) pari_err_INV("Fl_sqrtn", mkintmod(gen_0,utoi(p)));
+    if (zetan) *zetan = 1UL;
+    return 0;
+  }
+  if (n==1)
+  {
+    if (zetan) *zetan = 1;
+    return n < 0? Fl_inv(a,p): a;
+  }
+  if (n==2)
+  {
+    if (zetan) *zetan = p-1;
+    return Fl_sqrt_pre_i(a, 0, p, pi);
+  }
+  if (a == 1 && !zetan) return a;
+  m = ugcd(nn, q);
+  z = 1;
+  if (m!=1)
+  {
+    GEN F = factoru(m);
+    long i, j, e;
+    ulong r, zeta, y, l;
+    for (i = nbrows(F); i; i--)
+    {
+      l = ucoeff(F,i,1);
+      j = ucoeff(F,i,2);
+      e = u_lvalrem(q,l, &r);
+      y = Fl_lgener_pre_all(l, e, r, p, pi, &zeta);
+      if (zetan)
+        z = Fl_mul_pre(z, Fl_powu_pre(y, upowuu(l,e-j), p, pi), p, pi);
+      if (a!=1)
+        do
+        {
+          a = Fl_sqrtl_raw(a, l, e, r, p, pi, y, zeta);
+          if (!a) return ULONG_MAX;
+        } while (--j);
+    }
+  }
+  if (m != nn)
+  {
+    ulong qm = q/m, nm = nn/m;
+    a = Fl_powu_pre(a, Fl_inv(nm%qm, qm), p, pi);
+  }
+  if (n < 0) a = Fl_inv(a, p);
+  if (zetan) *zetan = z;
+  return a;
+}
+
+ulong
+Fl_sqrtn(ulong a, long n, ulong p, ulong *zetan)
+{
+  ulong pi = get_Fl_red(p);
+  return Fl_sqrtn_pre(a, n, p, pi, zetan);
 }
 
 /* Cipolla is better than Tonelli-Shanks when e = v_2(p-1) is "too big".
@@ -4059,6 +4123,19 @@ znlog(GEN h, GEN g, GEN o)
 GEN
 Fp_sqrtn(GEN a, GEN n, GEN p, GEN *zeta)
 {
+  if (lgefint(p)==3)
+  {
+    long nn = itos_or_0(n);
+    if (nn)
+    {
+      ulong pp = p[2];
+      ulong uz;
+      ulong r = Fl_sqrtn(umodiu(a,pp),nn,pp, zeta ? &uz:NULL);
+      if (r==ULONG_MAX) return NULL;
+      if (zeta) *zeta = utoi(uz);
+      return utoi(r);
+    }
+  }
   a = modii(a,p);
   if (!signe(a))
   {

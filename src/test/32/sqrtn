@@ -6,7 +6,7 @@
 2 + O(17^100)
   ***   at top-level: sqrtn(Mod(0,3),-2)
   ***                 ^------------------
-  *** sqrtn: impossible inverse in Fp_sqrtn: Mod(0, 3).
+  *** sqrtn: impossible inverse in Fl_sqrtn: Mod(0, 3).
   ***   at top-level: sqrtn(O(3),-2)
   ***                 ^--------------
   *** sqrtn: impossible inverse in ginv: O(3).
@@ -50,7 +50,7 @@ error("not a prime number in Fl_sqrt [modulus]: 33.")
 error("not an n-th power residue in gsqrtn: Mod(2, 7).")
 [0, 0]
 Mod(2, 21)
-error("not a prime number in sqrtn [modulus]: 35.")
+Mod(15, 35)
 [Mod(99, 101), Mod(100, 101)]
 0.E-38
 Total time spent: 0
