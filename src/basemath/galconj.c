@@ -2564,3 +2564,82 @@ galoisidentify(GEN gal)
   long idx = group_ident(G,S), card = group_order(G);
   avma = av; return mkvec2s(card, idx);
 }
+
+static GEN
+groupelts_chartable(GEN elts)
+{
+  pari_sp av = avma;
+  GEN al, cc, conjclass, rep, ctp, ct0, dec, jg, f;
+  long n, i, j, k, l, expo, nbcl;
+  ulong p, pov2, ze;
+  n = lg(elts)-1;
+  /* exponent of G */
+  expo = groupelts_exponent(elts);
+  p = unextprime(2*n+1);
+  if(expo>1) while (p%expo!=1) p = unextprime(p+1);
+  /* compute character table modulo p: idempotents of Z(KG) */
+  al = alggroupcenter(elts,utoi(p),&cc);
+  elts = gel(cc,1);
+  conjclass = gel(cc,2);
+  rep = gel(cc,3);
+  nbcl = lg(rep)-1;
+  dec = algsimpledec(al,1);
+  ctp = cgetg(nbcl+1,t_VEC);
+  for(i=1;i<=nbcl;i++)
+  {
+    GEN e = Flv_Fl_mul(ZV_to_Flv(gmael3(dec,i,3,1), p),n%p,p);
+    gel(ctp,i) = Flv_Fl_div(e, usqrt(e[1]), p);
+  }
+  ze = Fl_inv(Fl_powu(pgener_Fl(p),(p-1)/expo, p), p);
+
+  /* lift character table to Z[zeta_e] */
+  f = polcyclo(expo,0);
+  pov2 = p>>1;
+  jg = new_chunk(expo);
+  ct0 = cgetg(nbcl+1, t_MAT);
+  for(j=1;j<=nbcl;j++)
+  {
+    ulong zek = 1;
+    GEN g = gel(elts,rep[j]);
+    GEN h = identity_perm(lg(g)-1);
+    for (l=0; l<expo; l++)
+    {
+      jg[l] = conjclass[vecsearch(elts,h,NULL)];
+      h = perm_mul(h, g);
+    }
+    gel(ct0, j) = cgetg(nbcl+1, t_COL);
+    for(i=1;i<=nbcl;i++)
+    {
+      GEN chip = gel(ctp,i);
+      GEN cij = cgetg(expo+2, t_POL);
+      cij[1] = evalvarn(0) | evalsigne(1);
+      /* chi(g) = sum_{k=0}^{e-1} a_k ze^k
+       * a_k = 1/e sum_{l=0}^{e-1} chi(g^l) ze^{-k*l} */
+      for (k=0; k<expo; k++)
+      {
+        ulong a = 0, z = 1;
+        for (l=0; l<expo; l++)
+        {
+          a = Fl_add(a, Fl_mul(uel(chip,jg[l]), z, p), p);
+          z = Fl_mul(z, zek, p);
+        }
+        a = Fl_div(a, expo, p);
+        gel(cij,k+2) = stoi(Fl_center(a, p, pov2));
+        zek = Fl_mul(zek, ze, p);
+      }
+      (void) ZX_renormalize(cij, expo+2);
+      gcoeff(ct0,i,j) = ZX_rem(cij, f);
+    }
+  }
+  ct0 = gen_sort(shallowtrans(ct0),(void*)cmp_universal,cmp_nodata);
+  for(i=1; !vec_isconst(gel(ct0, i)); i++) continue;
+  if (i>1) swap(gel(ct0,1),gel(ct0,i));
+  return gerepilecopy(av, mkvec2(ct0,stoi(expo)));
+}
+
+GEN
+galoischartable(GEN gal)
+{
+  GEN elts = checkgroupelts(gal);
+  return groupelts_chartable(elts);
+}
