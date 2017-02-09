@@ -3744,7 +3744,7 @@ FpVM_ratlift(GEN a, GEN q, long vs)
 }
 
 static GEN
-FlmV_recover(GEN a, GEN M, ulong p, long vs)
+FlmV_recover(GEN a, GEN M, ulong p)
 {
   GEN a1 = gel(a,1);
   long i, j, k, l = lg(a1), n, lM = lg(M);
@@ -3778,7 +3778,7 @@ FlkM_inv(GEN M, GEN P, ulong p)
     gel(V, i) = Flm_inv(FlxM_eval_powers_pre(M, Fl_powers_pre(uel(R,i), degpol(P), p, pi), p, pi), p);
     if (!gel(V, i)) return NULL;
   }
-  return FlmV_recover(V,W,p,0);
+  return FlmV_recover(V,W,p);
 }
 
 GEN
@@ -3849,7 +3849,7 @@ FlkM_ker(GEN M, GEN P, ulong p)
     if (lg(gel(K,1)) != r || !zv_equal(D, gel(K,2))) return NULL;
     gel(V, i) = gel(K,1);
   }
-  return mkvec2(FlmV_recover(V,W,p,0), D);
+  return mkvec2(FlmV_recover(V,W,p), D);
 }
 
 GEN
