@@ -1123,6 +1123,11 @@ and easier to use in most situations when temporary storage is needed. In
 particular there is no need to \kbd{free} individually all variables thus
 allocated: a simple \kbd{avma = oldavma} might be enough. On the other hand,
 beware that this is not permanent independent storage, but part of the stack.
+The memory is aligned on \kbd{sizeof(long)} bytes boundaries.
+
+\fun{char*}{stack_malloc_align}{size_t n, long k} as \kbd{stack\_malloc},
+but the memory is aligned on \kbd{k} bytes boundaries. The number\kbd{k} must
+be a multiple of the \kbd{sizeof(long)}.
 
 \fun{char*}{stack_calloc}{size_t n} as \kbd{stack\_malloc}, setting the memory
 to zero.

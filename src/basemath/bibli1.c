@@ -760,18 +760,6 @@ lindep2(GEN x, long dig)
   return lindep_bit(x, bit);
 }
 
-void
-init_dalloc(void)
-{ /* correct alignment for dalloc */
-  (void)new_chunk((avma % sizeof(double)) / sizeof(long));
-}
-
-double *
-dalloc(size_t n)
-{
-  return (double*)new_chunk(n / sizeof(long));
-}
-
 /* x is a vector of elts of a p-adic field */
 GEN
 lindep_padic(GEN x)
@@ -967,11 +955,10 @@ minim_alloc(long n, double ***q, GEN *x, double **y,  double **z, double **v)
   *x = cgetg(n, t_VECSMALL);
   *q = (double**) new_chunk(n);
   s = n * sizeof(double);
-  init_dalloc();
-  *y = dalloc(s);
-  *z = dalloc(s);
-  *v = dalloc(s);
-  for (i=1; i<n; i++) (*q)[i] = dalloc(s);
+  *y = stack_malloc_align(s, sizeof(double));
+  *z = stack_malloc_align(s, sizeof(double));
+  *v = stack_malloc_align(s, sizeof(double));
+  for (i=1; i<n; i++) (*q)[i] = stack_malloc_align(s, sizeof(double));
 }
 
 static GEN

@@ -881,10 +881,9 @@ init_trace(trace_data *T, GEN S, nflift_t *L, GEN q)
   l = lg(S);
   h = lgcols(T->dPinvS);
   T->PinvSdbl = (double**)cgetg(l, t_MAT);
-  init_dalloc();
   for (j = 1; j < l; j++)
   {
-    double *t = dalloc(h * sizeof(double));
+    double *t = (double *) stack_malloc_align(h * sizeof(double), sizeof(double));
     GEN c = gel(T->dPinvS,j);
     pari_sp av = avma;
     T->PinvSdbl[j] = t;

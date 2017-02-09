@@ -128,6 +128,14 @@ stack_malloc(size_t N)
 }
 
 INLINE char *
+stack_malloc_align(size_t N, long k)
+{
+  ulong d = ((ulong)avma) % k;
+  if (d) (void)new_chunk(d/sizeof(long));
+  return (char*) new_chunk(nchar2nlong(N));
+}
+
+INLINE char *
 stack_calloc(size_t N)
 {
   char *p = stack_malloc(N);
