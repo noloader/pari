@@ -4149,8 +4149,12 @@ groupelts_chartable(GEN elts)
   {
     ulong zek = 1;
     GEN g = gel(elts,rep[j]);
+    GEN h = identity_perm(lg(g)-1);
     for (l=0; l<expo; l++)
-      jg[l] = conjclass[vecsearch(elts,perm_pow(g,l),NULL)];
+    {
+      jg[l] = conjclass[vecsearch(elts,h,NULL)];
+      h = perm_mul(h, g);
+    }
     gel(ct0, j) = cgetg(nbcl+1, t_COL);
     for(i=1;i<=nbcl;i++)
     {
