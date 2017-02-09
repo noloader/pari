@@ -44,6 +44,7 @@ PB   29- matinverseimage could find spurious solutions [#1888]
 BA   36- lfuncreate([1,0,[0],1,1,1,1]) -> SEGV (invalid input)
      37- thue(imaginary quadratic of disc -3f^2, n) could return half-integers
 BA   38- [libpari] Z_ZV_mod caused gerepile error
+     39- bestappr(1+0.*I) -> 1 + 0*I instead of 1
 
   Added
       1- [libari] ZM_isidentity

@@ -4438,10 +4438,18 @@ bestappr_Q(GEN x, GEN k)
       return gerepilecopy(av, a);
     }
 
+    case t_COMPLEX: {
+      pari_sp av = avma;
+      y = cgetg(3, t_COMPLEX);
+      gel(y,2) = bestappr(gel(x,2), k);
+      gel(y,1) = bestappr(gel(x,1), k);
+      if (gequal0(gel(y,2))) return gerepileupto(av, gel(y,1));
+      return y;
+    }
     case t_SER:
       if (ser_isexactzero(x)) return gcopy(x);
       /* fall through */
-    case t_COMPLEX: case t_POLMOD: case t_POL: case t_RFRAC:
+    case t_POLMOD: case t_POL: case t_RFRAC:
     case t_VEC: case t_COL: case t_MAT:
       y = cgetg_copy(x, &lx);
       if (lontyp[tx] == 1) i = 1; else { y[1] = x[1]; i = 2; }
