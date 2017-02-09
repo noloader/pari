@@ -4116,64 +4116,65 @@ alggroup(GEN gal, GEN p)
 static GEN
 groupelts_chartable(GEN elts)
 {
-  pari_sp av = avma, av2;
-  GEN al, cc, conjclass, rep, p, ctp, ct0, dec, e, dim, ze, chip,
-      g, a, f, expoi, pov2;
-  long n, i, j, k, l, expo, nbcl, jgl;
-  ulong pp;
+  pari_sp av = avma;
+  GEN al, cc, conjclass, rep, ctp, ct0, dec, jg, f;
+  long n, i, j, k, l, expo, nbcl;
+  ulong p, pov2, ze;
   n = lg(elts)-1;
   /* exponent of G */
   expo = groupelts_exponent(elts);
-  expoi = stoi(expo);
-  pp = unextprime(2*n+1);
-  if(expo>1) while (pp%expo!=1) pp = unextprime(pp+1);
-  p = utoi(pp);
+  p = unextprime(2*n+1);
+  if(expo>1) while (p%expo!=1) p = unextprime(p+1);
   /* compute character table modulo p: idempotents of Z(KG) */
-  al = alggroupcenter(elts,p,&cc);
+  al = alggroupcenter(elts,utoi(p),&cc);
   elts = gel(cc,1);
   conjclass = gel(cc,2);
   rep = gel(cc,3);
   nbcl = lg(rep)-1;
   dec = algsimpledec(al,1);
   ctp = cgetg(nbcl+1,t_VEC);
-  for(i=1;i<=nbcl;i++) {
-    e = FpC_Fp_mul(gmael3(dec,i,3,1),stoi(n),p);
-    dim = sqrtint(gel(e,1));
-    gel(ctp,i) = FpC_Fp_mul(e,Fp_inv(dim,p),p);
+  for(i=1;i<=nbcl;i++)
+  {
+    GEN e = Flv_Fl_mul(ZV_to_Flv(gmael3(dec,i,3,1), p),n%p,p);
+    gel(ctp,i) = Flv_Fl_div(e, usqrt(e[1]), p);
   }
-  (void) Fp_sqrtn(gen_1,expoi,p,&ze);
+  ze = Fl_powu(pgener_Fl(p),(p-1)/expo,p);
 
   /* lift character table to Z[zeta_e] */
   f = polcyclo(expo,0);
-  ct0 = zeromatcopy(nbcl,nbcl);
-  pov2 = shifti(p,-1);
-  av2 = avma;
-  for(i=1;i<=nbcl;i++) {
-    chip = gel(ctp,i);
-    for(j=1;j<=nbcl;j++) {
-      gcoeff(ct0,i,j) = zerovec(expo);
-      g = gel(elts,rep[j]);
+  pov2 = p>>1;
+  jg = new_chunk(expo);
+  ct0 = cgetg(nbcl+1, t_MAT);
+  for(j=1;j<=nbcl;j++)
+  {
+    GEN g = gel(elts,rep[j]);
+    for (l=0; l<expo; l++)
+      jg[l] = conjclass[vecsearch(elts,perm_pow(g,l),NULL)];
+    gel(ct0, j) = cgetg(nbcl+1, t_COL);
+    for(i=1;i<=nbcl;i++)
+    {
+      GEN chip = gel(ctp,i);
+      GEN cij = cgetg(expo+2, t_POL);
+      cij[1] = evalvarn(0) | evalsigne(1);
       /* chi(g) = sum_{k=0}^{e-1} a_k ze^k
        * a_k = 1/e sum_{l=0}^{e-1} chi(g^l) ze^{-k*l} */
-      for(k=0;k<expo;k++) {
-        a = gen_0;
-        for(l=0;l<expo;l++) {
-          jgl = conjclass[vecsearch(elts,perm_pow(g,l),NULL)];
-          a = Fp_add(a,Fp_mul(gel(chip,jgl),Fp_pow(ze,stoi(-k*l),p),p),p);
-        }
-        a = Fp_div(a,expoi,p);
-        a = Fp_center(a,p,pov2);
-        gel(gcoeff(ct0,i,j),k+1) = a;
+      for (k=0; k<expo; k++)
+      {
+        ulong a = 0;
+        for (l=0; l<expo; l++)
+          a = Fl_add(a, Fl_mul(uel(chip,jg[l]),
+                Fl_powu(ze ,Fl_neg(k,p-1)*l, p), p), p);
+        a = Fl_div(a, expo, p);
+        cij[k+2] = stoi(Fl_center(a, p, pov2));
       }
-      gcoeff(ct0,i,j) = RgV_to_RgX(gcoeff(ct0,i,j),0);
-      gcoeff(ct0,i,j) = ZX_rem(gcoeff(ct0,i,j),f);
-      gerepileall(av2,2,&ct0,&chip);
+      (void) ZX_renormalize(cij, expo+2);
+      gcoeff(ct0,i,j) = ZX_rem(cij, f);
     }
   }
   ct0 = gen_sort(shallowtrans(ct0),(void*)cmp_universal,cmp_nodata);
   for(i=1; !vec_isconst(gel(ct0, i)); i++) continue;
   if (i>1) swap(gel(ct0,1),gel(ct0,i));
-  return gerepilecopy(av,mkvec2(ct0,expoi));
+  return gerepilecopy(av, mkvec2(ct0,stoi(expo)));
 }
 
 GEN
