@@ -955,10 +955,10 @@ minim_alloc(long n, double ***q, GEN *x, double **y,  double **z, double **v)
   *x = cgetg(n, t_VECSMALL);
   *q = (double**) new_chunk(n);
   s = n * sizeof(double);
-  *y = stack_malloc_align(s, sizeof(double));
-  *z = stack_malloc_align(s, sizeof(double));
-  *v = stack_malloc_align(s, sizeof(double));
-  for (i=1; i<n; i++) (*q)[i] = stack_malloc_align(s, sizeof(double));
+  *y = (double*) stack_malloc_align(s, sizeof(double));
+  *z = (double*) stack_malloc_align(s, sizeof(double));
+  *v = (double*) stack_malloc_align(s, sizeof(double));
+  for (i=1; i<n; i++) (*q)[i] = (double*) stack_malloc_align(s, sizeof(double));
 }
 
 static GEN
