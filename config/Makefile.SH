@@ -122,7 +122,7 @@ graph="$graph $libgraph"
 
 # runpath
 tmp=$runpath
-for d in "$plotrunpath" "$gmp" "$readline" "/usr/lib"; do
+for d in "$plotrunpath" "$gmp" "$readline"; do
   case "$d" in
     ""|yes) ;;
     *) case "$tmp" in
