@@ -112,6 +112,9 @@ BA   45- new GP function galoisconjclasses
      49- [libpari] coreu_fact, moebiusu_fact
      50- [libpari] ZabM_ker, ZabM_indexrank, ZabM_inv, ZabM_pseudoinv,
 BA   51- [libpari] stack_malloc_align
+PB   52- [libpari] FFM_deplin, FFM_indexrank, FFM_suppl F2xqM_deplin,
+         F2xqM_indexrank, F2xqM_suppl FlxqM_deplin, FlxqM_indexrank, FlxqM_suppl
+         FqM_indexrank
 
   Changed
       1- rewrite bnfnarrow

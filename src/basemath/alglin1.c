@@ -1399,6 +1399,12 @@ FlxqM_ker(GEN x, GEN T, ulong p)
   return FlxqM_ker_i(x, T, p, 0);
 }
 
+GEN
+FlxqM_deplin(GEN x, GEN T, ulong p)
+{
+  return FlxqM_ker_i(x, T, p, 1);
+}
+
 static GEN
 F2xqM_ker_i(GEN x, GEN T, long deplin)
 {
@@ -1415,6 +1421,13 @@ F2xqM_ker(GEN x, GEN T)
 {
   return F2xqM_ker_i(x, T, 0);
 }
+
+GEN
+F2xqM_deplin(GEN x, GEN T)
+{
+  return F2xqM_ker_i(x, T, 1);
+}
+
 static GEN
 F2xqM_gauss_pivot(GEN x, GEN T, long *rr)
 {
@@ -2796,7 +2809,7 @@ RgV_deplin(GEN v)
 GEN
 deplin(GEN x)
 {
-  GEN p = NULL;
+  GEN p = NULL, ff = NULL;
   switch(typ(x))
   {
     case t_MAT: break;
@@ -2828,6 +2841,7 @@ deplin(GEN x)
     }
     return gerepileupto(av, x);
   }
+  if (RgM_is_FFM(x, &ff)) return FFM_deplin(x, ff);
   return deplin_aux(x);
 }
 /*******************************************************************/
@@ -3462,7 +3476,7 @@ GEN
 suppl(GEN x)
 {
   pari_sp av = avma;
-  GEN d, X = x, p = NULL;
+  GEN d, X = x, p = NULL, ff = NULL;
   long r;
 
   if (typ(x)!=t_MAT) pari_err_TYPE("suppl",x);
@@ -3478,6 +3492,7 @@ suppl(GEN x)
     }
     return gerepileupto(av, x);
   }
+  if (RgM_is_FFM(x, &ff)) return FFM_suppl(x, ff);
   avma = av; init_suppl(x);
   d = gauss_pivot(X,&r);
   avma = av; return get_suppl(X,d,nbrows(X),r,&col_ei);
@@ -3509,6 +3524,59 @@ F2m_suppl(GEN x)
   long r;
   init_suppl(x); d = F2m_gauss_pivot(F2m_copy(x), &r);
   avma = av; return get_suppl(x,d,mael(x,1,1),r,&F2v_ei);
+}
+
+/* variable number to be filled in later */
+static GEN
+_FlxC_ei(long n, long i)
+{
+  GEN x = cgetg(n + 1, t_COL);
+  long j;
+  for (j = 1; j <= n; j++)
+    gel(x, j) = (j == i)? pol1_Flx(0): pol0_Flx(0);
+  return x;
+}
+
+GEN
+F2xqM_suppl(GEN x, GEN T)
+{
+  pari_sp av = avma;
+  GEN d, y;
+  long n = nbrows(x), r, sv = get_Flx_var(T);
+
+  init_suppl(x);
+  d = F2xqM_gauss_pivot(x, T, &r);
+  avma = av;
+  y = get_suppl(x, d, n, r, &_FlxC_ei);
+  if (sv) {
+    long i, j;
+    for (j = r + 1; j <= n; j++) {
+      for (i = 1; i <= n; i++)
+        gcoeff(y, i, j)[1] = sv;
+    }
+  }
+  return y;
+}
+
+GEN
+FlxqM_suppl(GEN x, GEN T, ulong p)
+{
+  pari_sp av = avma;
+  GEN d, y;
+  long n = nbrows(x), r, sv = get_Flx_var(T);
+
+  init_suppl(x);
+  d = FlxqM_gauss_pivot(x, T, p, &r);
+  avma = av;
+  y = get_suppl(x, d, n, r, &_FlxC_ei);
+  if (sv) {
+    long i, j;
+    for (j = r + 1; j <= n; j++) {
+      for (i = 1; i <= n; i++)
+        gcoeff(y, i, j)[1] = sv;
+    }
+  }
+  return y;
 }
 
 GEN
@@ -3639,24 +3707,25 @@ init_indexrank(GEN x) {
 
 GEN
 indexrank(GEN x) {
-  pari_sp av = avma;
+  pari_sp av;
   long r;
-  GEN d, p = NULL;
+  GEN d, p = NULL, ff = NULL;
   if (typ(x)!=t_MAT) pari_err_TYPE("indexrank",x);
-  init_indexrank(x);
   if (RgM_is_FpM(x, &p) && p)
   {
     ulong pp;
     x = RgM_Fp_init(x,p,&pp);
     switch(pp)
     {
-    case 0: d = FpM_gauss_pivot(x,p,&r); break;
-    case 2: d = F2m_gauss_pivot(x,&r); break;
-    default:d = Flm_gauss_pivot(x,pp,&r); break;
+    case 0:  return FpM_indexrank(x, p);
+    case 2:  return F2m_indexrank(x);
+    default: return Flm_indexrank(x, pp);
     }
   }
-  else
-    d = gauss_pivot(x,&r);
+  if (RgM_is_FFM(x, &ff)) return FFM_indexrank(x, ff);
+  av = avma;
+  init_indexrank(x);
+  d = gauss_pivot(x, &r);
   avma = av; return indexrank0(lg(x)-1, r, d);
 }
 
@@ -3686,6 +3755,36 @@ F2m_indexrank(GEN x) {
   init_indexrank(x);
   d = F2m_gauss_pivot(F2m_copy(x),&r);
   avma = av; return indexrank0(lg(x)-1, r, d);
+}
+
+GEN
+F2xqM_indexrank(GEN x, GEN T) {
+  pari_sp av = avma;
+  long r;
+  GEN d;
+  init_indexrank(x);
+  d = F2xqM_gauss_pivot(x, T, &r);
+  avma = av; return indexrank0(lg(x) - 1, r, d);
+}
+
+GEN
+FlxqM_indexrank(GEN x, GEN T, ulong p) {
+  pari_sp av = avma;
+  long r;
+  GEN d;
+  init_indexrank(x);
+  d = FlxqM_gauss_pivot(x, T, p, &r);
+  avma = av; return indexrank0(lg(x) - 1, r, d);
+}
+
+GEN
+FqM_indexrank(GEN x, GEN T, GEN p) {
+  pari_sp av = avma;
+  long r;
+  GEN d;
+  init_indexrank(x);
+  d = FqM_gauss_pivot(x, T, p, &r);
+  avma = av; return indexrank0(lg(x) - 1, r, d);
 }
 
 GEN

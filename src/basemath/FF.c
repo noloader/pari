@@ -1896,6 +1896,42 @@ FFM_image(GEN M, GEN ff)
 GEN
 FFM_inv(GEN M, GEN ff)
 { return FFM_wrap(M,ff, &FqM_inv,&FlxqM_inv,&F2xqM_inv); }
+GEN
+FFM_suppl(GEN M, GEN ff)
+{ return FFM_wrap(M,ff, &FqM_suppl,&FlxqM_suppl,&F2xqM_suppl); }
+
+GEN
+FFM_deplin(GEN M, GEN ff)
+{
+  pari_sp av = avma;
+  ulong pp;
+  GEN C, T, p;
+  _getFF(ff, &T, &p, &pp); M = FFM_to_raw(M);
+  switch(ff[1]) {
+  case t_FF_FpXQ: C = FqM_deplin(M, T, p);
+    if (C) C = FqC_to_FpXQC(C, T, p); break;
+  case t_FF_F2xq: C = F2xqM_deplin(M, T); break;
+  default: C = FlxqM_deplin(M, T, pp); break;
+  }
+  if (!C) { avma = av; return NULL; }
+  return gerepilecopy(av, raw_to_FFC(C, ff));
+}
+
+GEN
+FFM_indexrank(GEN M, GEN ff)
+{
+  pari_sp av = avma;
+  ulong pp;
+  GEN R, T, p;
+  _getFF(ff,&T,&p,&pp); M = FFM_to_raw(M);
+  switch(ff[1]) {
+  case t_FF_FpXQ: R = FqM_indexrank(M,T,p); break;
+  case t_FF_F2xq: R = F2xqM_indexrank(M,T); break;
+  default: R = FlxqM_indexrank(M,T,pp); break;
+  }
+  return gerepileupto(av, R);
+}
+
 long
 FFM_rank(GEN M, GEN ff)
 {
