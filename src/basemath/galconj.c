@@ -1153,8 +1153,7 @@ galoisanalysis(GEN T, struct galois_analysis *ga, long calcul_l)
     pari_warn(warner,"Galois group almost certainly not weakly super solvable");
     return 0;
   }
-  /*linf=(n*(n-1))>>2;*/
-  linf = n;
+  linf = 2*n*usqrt(n);
   if (calcul_l && O[1] <= linf)
   {
     pari_sp av2;

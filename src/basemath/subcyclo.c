@@ -400,12 +400,12 @@ polsubcyclo_orbits(long n, GEN H, GEN O, GEN powz, GEN le)
 }
 
 static GEN
-polsubcyclo_start(long n, long d, long o, GEN borne, long *ptr_val,long *ptr_l)
+polsubcyclo_start(long n, long d, long o, long e, GEN borne, long *ptr_val,long *ptr_l)
 {
   pari_sp av;
   GEN le, z, gl;
-  long i, l, e, val;
-  l = n+1; e = 1;
+  long i, l, val;
+  l = e*n+1;
   while(!uisprime(l)) { l += n; e++; }
   if (DEBUGLEVEL >= 4) err_printf("Subcyclo: prime l=%ld\n",l);
   gl = utoipos(l); av = avma;
@@ -492,8 +492,8 @@ galoiscyclo(long n, long v)
   long card = itos(gel(zn,1));
   GEN gen = vec_to_vecsmall(lift_shallow(gel(zn,3)));
   GEN ord = gtovecsmall(gel(zn,2));
-
-  z = polsubcyclo_start(n,card/2,2,NULL,&val,&l);
+  GEN T = polcyclo(n,v);
+  z = polsubcyclo_start(n,card/2,2,2*usqrt(n),NULL,&val,&l);
   le = gel(z,1); z = gel(z,2);
   L = cgetg(1+card,t_VEC);
   gel(L,1) = z;
@@ -505,15 +505,15 @@ galoiscyclo(long n, long v)
   G = abelian_group(ord);
   elts = group_elts(G, card); /*not stack clean*/
   grp = cgetg(9, t_VEC);
-  gel(grp,1) = polcyclo(n,v);
+  gel(grp,1) = T;
   gel(grp,2) = mkvec3(stoi(l), stoi(val), icopy(le));
-  gel(grp,3) = gcopy(L);
+  gel(grp,3) = L;
   gel(grp,4) = FpV_invVandermonde(L,  NULL, le);
   gel(grp,5) = gen_1;
-  gel(grp,6) = gcopy(elts);
-  gel(grp,7) = gcopy(gel(G,1));
-  gel(grp,8) = gcopy(gel(G,2));
-  return gerepileupto(av, grp);
+  gel(grp,6) = elts;
+  gel(grp,7) = gel(G,1);
+  gel(grp,8) = gel(G,2);
+  return gerepilecopy(av, grp);
 }
 
 /* Convert a bnrinit(Q,n) to a znstar(n)
@@ -653,7 +653,7 @@ galoissubcyclo(GEN N, GEN sg, long flag, long v)
   powz = polsubcyclo_complex_roots(n,!complex,LOWDEFAULTPREC);
   L = polsubcyclo_orbits(n,H,O,powz,NULL);
   B = polsubcyclo_complex_bound(av,L,LOWDEFAULTPREC);
-  zl = polsubcyclo_start(n,phi_n/card,card,B,&val,&l);
+  zl = polsubcyclo_start(n,phi_n/card,card,1,B,&val,&l);
   powz = polsubcyclo_roots(n,zl);
   le = gel(zl,1);
   L = polsubcyclo_orbits(n,H,O,powz,le);
@@ -689,7 +689,7 @@ polsubcyclo_g(long n, long d, GEN Z, long v)
   powz = polsubcyclo_complex_roots(n,(o&1)==0,LOWDEFAULTPREC);
   L = polsubcyclo_cyclic(n,d,o,g,gd,powz,NULL);
   B = polsubcyclo_complex_bound(ltop,L,LOWDEFAULTPREC);
-  zl = polsubcyclo_start(n,d,o,B,&val,&l);
+  zl = polsubcyclo_start(n,d,o,1,B,&val,&l);
   le = gel(zl,1);
   powz = polsubcyclo_roots(n,zl);
   L = polsubcyclo_cyclic(n,d,o,g,gd,powz,le);
@@ -906,7 +906,7 @@ Aurifeuille_init(GEN a, long d, GEN fd, struct aurifeuille_t *S)
 {
   GEN sqrta = sqrtr_abs(itor(a, LOWDEFAULTPREC));
   GEN bound = ceil_safe(powru(addrs(sqrta,1), phi(d, fd)));
-  GEN zl = polsubcyclo_start(d, 0, 0, bound, &(S->e), (long*)&(S->l));
+  GEN zl = polsubcyclo_start(d, 0, 0, 1, bound, &(S->e), (long*)&(S->l));
   S->le = gel(zl,1);
   S->z  = gel(zl,2);
 }
