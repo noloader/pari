@@ -1260,6 +1260,7 @@ minim0_dolll(GEN a, GEN BORNE, GEN STOCKMAX, long flag, long dolll)
       {
         sBORNE = itos(gnorme); avma = av1;
         BOUND = sBORNE * (1+eps);
+        L = new_chunk(maxrank+1);
         s = 0;
       }
     }
