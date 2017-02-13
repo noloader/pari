@@ -3913,12 +3913,6 @@ reduced (i.e arbitrary \typ{INT}s and \kbd{ZX}s in the same variable as
 
 \fun{GEN}{FqC_Fq_mul}{GEN a, GEN b, GEN T, GEN p}
 
-\fun{GEN}{FqM_deplin}{GEN x, GEN T, GEN p} returns a non-trivial kernel vector,
-or \kbd{NULL} if none exist.
-
-\fun{GEN}{FqM_gauss}{GEN a, GEN b, GEN T, GEN p}
-as \kbd{gauss}, where $b$ is a \kbd{FqM}.
-
 \fun{GEN}{FqM_FqC_gauss}{GEN a, GEN b, GEN T, GEN p}
 as \kbd{gauss}, where $b$ is a \kbd{FqC}.
 
@@ -3926,22 +3920,30 @@ as \kbd{gauss}, where $b$ is a \kbd{FqC}.
 
 \fun{GEN}{FqM_FqC_mul}{GEN a, GEN b, GEN T, GEN p}
 
-\fun{GEN}{FqM_ker}{GEN x, GEN T, GEN p} as \kbd{ker}
+\fun{GEN}{FqM_deplin}{GEN x, GEN T, GEN p} returns a non-trivial
+kernel vector, or \kbd{NULL} if none exist.
+
+\fun{GEN}{FqM_det}{GEN x, GEN T, GEN p} as \kbd{det}
+
+\fun{GEN}{FqM_gauss}{GEN a, GEN b, GEN T, GEN p}
+as \kbd{gauss}, where $b$ is a \kbd{FqM}.
 
 \fun{GEN}{FqM_image}{GEN x, GEN T, GEN p} as \kbd{image}
+
+\fun{GEN}{FqM_indexrank}{GEN x, GEN T, GEN p} as \kbd{indexrank}
 
 \fun{GEN}{FqM_inv}{GEN x, GEN T, GEN p} returns the inverse of \kbd{x}, or
 \kbd{NULL} if \kbd{x} is not invertible.
 
-\fun{GEN}{FqM_invimage}{GEN a, GEN b, GEN T, GEN p}
+\fun{GEN}{FqM_invimage}{GEN a, GEN b, GEN T, GEN p} as \kbd{invimage}
+
+\fun{GEN}{FqM_ker}{GEN x, GEN T, GEN p} as \kbd{ker}
 
 \fun{GEN}{FqM_mul}{GEN a, GEN b, GEN T, GEN p}
 
 \fun{long}{FqM_rank}{GEN x, GEN T, GEN p} as \kbd{rank}
 
 \fun{GEN}{FqM_suppl}{GEN x, GEN T, GEN p} as \kbd{suppl}
-
-\fun{GEN}{FqM_det}{GEN x, GEN T, GEN p} as \kbd{det}
 
 
 \subsec{\kbd{Flc} / \kbd{Flv}, \kbd{Flm}} See \kbd{FpV}, \kbd{FpM}
@@ -4250,27 +4252,33 @@ and \kbd{y}
 \fun{GEN}{FlxM_Flx_add_shallow}{GEN x, GEN y, ulong p} as
 \kbd{RgM\_Rg\_add\_shallow}.
 
-\fun{GEN}{FlxqM_gauss}{GEN a, GEN b, GEN T, ulong p}
-
 \fun{GEN}{FlxqM_FlxqC_gauss}{GEN a, GEN b, GEN T, ulong p}
 
 \fun{GEN}{FlxqM_FlxqC_invimage}{GEN a, GEN b, GEN T, ulong p}
 
 \fun{GEN}{FlxqM_FlxqC_mul}{GEN a, GEN b, GEN T, ulong p}
 
-\fun{GEN}{FlxqM_ker}{GEN x, GEN T, ulong p}
+\fun{GEN}{FlxqM_deplin}{GEN x, GEN T, ulong p}
+
+\fun{GEN}{FlxqM_det}{GEN x, GEN T, ulong p}
+
+\fun{GEN}{FlxqM_gauss}{GEN a, GEN b, GEN T, ulong p}
 
 \fun{GEN}{FlxqM_image}{GEN x, GEN T, ulong p}
 
-\fun{GEN}{FlxqM_det}{GEN a, GEN T, ulong p}
+\fun{GEN}{FlxqM_indexrank}{GEN x, GEN T, ulong p}
 
 \fun{GEN}{FlxqM_inv}{GEN x, GEN T, ulong p}
 
 \fun{GEN}{FlxqM_invimage}{GEN a, GEN b, GEN T, ulong p}
 
+\fun{GEN}{FlxqM_ker}{GEN x, GEN T, ulong p}
+
 \fun{GEN}{FlxqM_mul}{GEN a, GEN b, GEN T, ulong p}
 
 \fun{long}{FlxqM_rank}{GEN x, GEN T, ulong p}
+
+\fun{GEN}{FlxqM_suppl}{GEN x, GEN T, ulong p}
 
 \fun{GEN}{matid_FlxqM}{long n, GEN T, ulong p}
 
@@ -5940,7 +5948,7 @@ $a=\sigma(X)$ where $\sigma$ is an automorphism of the algebra $\F_2[X]/T(X)$.
 
 \fun{GEN}{F2xqM_F2xqC_mul}{GEN a, GEN b, GEN T}
 
-\fun{GEN}{F2xqM_ker}{GEN x, GEN T}
+\fun{GEN}{F2xqM_deplin}{GEN x, GEN T}
 
 \fun{GEN}{F2xqM_det}{GEN a, GEN T}
 
@@ -5948,13 +5956,19 @@ $a=\sigma(X)$ where $\sigma$ is an automorphism of the algebra $\F_2[X]/T(X)$.
 
 \fun{GEN}{F2xqM_image}{GEN x, GEN T}
 
+\fun{GEN}{F2xqM_indexrank}{GEN x, GEN T}
+
 \fun{GEN}{F2xqM_inv}{GEN a, GEN T}
 
 \fun{GEN}{F2xqM_invimage}{GEN a, GEN b, GEN T}
 
+\fun{GEN}{F2xqM_ker}{GEN x, GEN T}
+
 \fun{GEN}{F2xqM_mul}{GEN a, GEN b, GEN T}
 
 \fun{long}{F2xqM_rank}{GEN x, GEN T}
+
+\fun{GEN}{F2xqM_suppl}{GEN x, GEN T}
 
 \fun{GEN}{matid_F2xqM}{long n, GEN T}
 
@@ -11299,31 +11313,51 @@ finite field given by \kbd{ff} (\typ{FFELT}), return a column vector
 the matrix~\kbd{M} (\typ{MAT}) and the column vector~\kbd{C}
 (\typ{COL}) over the finite field given by \kbd{ff} (\typ{FFELT}).
 
-\fun{GEN}{FFM_ker}{GEN M, GEN ff} returns the kernel of the \typ{MAT} \kbd{M}
-defined over the finite field given by the \typ{FFELT} \kbd{ff} (obtained
-by \tet{RgM_is_FFM(M,\&ff)}).
+\fun{GEN}{FFM_deplin}{GEN M, GEN ff} returns a non-zero vector
+(\typ{COL}) in the kernel of the matrix~\kbd{M} over the finite field
+given by \kbd{ff}, or \kbd{NULL} if no such vector exists.
 
-\fun{GEN}{FFM_det}{GEN M, GEN ff}
+\fun{GEN}{FFM_det}{GEN M, GEN ff} returns the determinant of the
+matrix~\kbd{M} over the finite field given by \kbd{ff}.
 
 \fun{GEN}{FFM_gauss}{GEN M, GEN N, GEN ff} given two matrices \kbd{M}
 and~\kbd{N} (\typ{MAT}) over the finite field given by \kbd{ff}
 (\typ{FFELT}) such that $M$ is invertible, return the unique matrix
 $X$ such that $MX=N$.
 
-\fun{GEN}{FFM_image}{GEN M, GEN ff}
+\fun{GEN}{FFM_image}{GEN M, GEN ff} returns a matrix whose columns
+span the image of the matrix~\kbd{M} over the finite field given by
+\kbd{ff}.
 
-\fun{GEN}{FFM_inv}{GEN M, GEN ff}
+\fun{GEN}{FFM_indexrank}{GEN M, GEN ff} given a matrix \kbd{M} of
+rank~$r$ over the finite field given by \kbd{ff}, returns a vector
+with two \typ{VECSMALL} components $y$ and $z$ containing $r$ row and
+column indices, respectively, such that the $r\times r$-matrix formed
+by the \kbd{M[i,j]} for $i$ in $y$ and $j$ in $z$ is invertible.
+
+\fun{GEN}{FFM_inv}{GEN M, GEN ff} returns the inverse of the square
+matrix~\kbd{M} over the finite field given by \kbd{ff}, or \kbd{NULL}
+if \kbd{M} is not invertible.
 
 \fun{GEN}{FFM_invimage}{GEN M, GEN N, GEN ff} given two matrices
 \kbd{M} and~\kbd{N} (\typ{MAT}) over the finite field given by
 \kbd{ff} (\typ{FFELT}), return a matrix \kbd{X} such that $MX=N$, or
 \kbd{NULL} if no such matrix exists.
 
+\fun{GEN}{FFM_ker}{GEN M, GEN ff} returns the kernel of the \typ{MAT}
+\kbd{M} over the finite field given by the \typ{FFELT} \kbd{ff}.
+
 \fun{GEN}{FFM_mul}{GEN M, GEN N, GEN ff} returns the product of the
 matrices \kbd{M} and~\kbd{N} (\typ{MAT}) over the finite field given
 by \kbd{ff} (\typ{FFELT}).
 
-\fun{long}{FFM_rank}{GEN M, GEN ff}
+\fun{long}{FFM_rank}{GEN M, GEN ff} returns the rank of the
+matrix~\kbd{M} over the finite field given by \kbd{ff}.
+
+\fun{GEN}{FFM_suppl}{GEN M, GEN ff} given a matrix \kbd{M} over the
+finite field given by \kbd{ff} whose columns are linearly independent,
+returns a square invertible matrix whose first columns are those
+of~\kbd{M}.
 
 \section{Transcendental functions}
 
