@@ -89,6 +89,10 @@ while test $# -gt 0; do
   --with-qt) with_qt=yes ;;
   --with-qt=*)
       with_qt=`echo "$1" | sed -e 's/[-a-z]*=//'` ;;
+  --with-qt-lib=*)
+      with_qt_lib=`echo "$1" | sed -e 's/[-a-z]*=//'` ;;
+  --with-qt-include=*)
+      with_qt_include=`echo "$1" | sed -e 's/[-a-z]*=//'` ;;
 
   --with-fltk) with_fltk=yes ;;
   --with-fltk=*)
@@ -167,8 +171,11 @@ Optional libraries:
   --with-gmp-include=DIR      specify location of gmp headers
   --with-gmp-lib=DIR          specify location of gmp libs
 
-  --with-qt[=DIR]        use the Qt graphical library [prefix for Qt dir.]
-  --with-fltk            use the FLTK graphical library [need fltk-config]
+  --with-qt[=DIR]            use the Qt graphical library [prefix for Qt dir.]
+  --with-qt-include=DIR      specify location of Qt headers
+  --with-qt-lib=DIR          specify location of Qt libs
+
+  --with-fltk                use the FLTK graphical library [need fltk-config]
 
 Miscellaneous
   --with-runtime-perl[=path-to-perl-binary] for gphelp / tex2mail
