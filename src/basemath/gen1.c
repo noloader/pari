@@ -3094,7 +3094,6 @@ gdivgs(GEN x, long s)
       gel(z,2) = gdivgs(gel(x,2),s); return z;
 
     case t_RFRAC:
-      av = avma;
       if (s == 1) return gcopy(x);
       else if (s == -1) return gneg(x);
       return div_rfrac_scal(x, stoi(s));
