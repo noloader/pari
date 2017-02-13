@@ -16,6 +16,7 @@ O(x^5)
 -2.3699397969983658319855374253503230488
 0.91596559417721901505460351493238411077
 0.34657359027997265470861606072908828404
+320
   ***   at top-level: polylog(3,2,5)
   ***                 ^--------------
   *** polylog: invalid flag in polylog.
@@ -25,4 +26,4 @@ O(x^5)
   ***   at top-level: polylog(3,"",0)
   ***                 ^---------------
   *** polylog: incorrect type in gpolylog (t_STR).
-Total time spent: 2
+Total time spent: 0

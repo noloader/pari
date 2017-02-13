@@ -2385,7 +2385,8 @@ polylog(long m, GEN x, long prec)
     return gerepileupto(av, gneg(glog(gsub(gen_1,x), prec)));
   }
 
-  l = precision(x); if (!l) l = prec;
+  l = precision(x);
+  if (!l) l = prec; else prec = l;
   res = cgetc(l); av = avma;
   x = gtofp(x, l+EXTRAPRECWORD);
   e = gexpo(gnorm(x));
