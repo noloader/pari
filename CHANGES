@@ -51,6 +51,7 @@ BA   38- [libpari] Z_ZV_mod caused gerepile error
          [#1896]
 PB   43- M = ffgen(2017^3)*[0, 1; 0, 0]; M^-1 -> SEGV   [#1887]
 BA   44- lfun(lfungenus2(...),...) was much slower than intended
+BA   45- nfsubfields(polcyclo(88), 20) -> wrong result  [#1892]
 
   Added
       1- [libari] ZM_isidentity
