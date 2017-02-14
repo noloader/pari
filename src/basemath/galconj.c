@@ -285,10 +285,11 @@ static GEN
 galoisborne(GEN T, GEN dn, struct galois_borne *gb, long d)
 {
   pari_sp ltop, av2;
-  GEN borne, borneroots, borneabs;
+  GEN borne, borneroots, bornetrace, borneabs;
   long prec;
   GEN L, M, prep, den;
   pari_timer ti;
+  const long step=3;
 
   prec = nbits2prec(bit_accuracy(ZX_max_lg(T)));
   den = initgaloisborne(T,dn,prec, &L,&prep,NULL);
@@ -299,7 +300,9 @@ galoisborne(GEN T, GEN dn, struct galois_borne *gb, long d)
   if (DEBUGLEVEL>=4) timer_printf(&ti,"vandermondeinverse");
   borne = matrixnorm(M, prec);
   borneroots = gsupnorm(L, prec); /*t_REAL*/
-  borneabs = ceil_safe(gmul(borne,gmulsg(d, powru(borneroots, d))));
+  bornetrace = gmulsg((2*step)*step*degpol(T)/d,
+                      powru(borneroots, minss(degpol(T), step)));
+  borneabs = ceil_safe(gmul(borne,powru(bornetrace, d)));
   borneroots = ceil_safe(gmul(borne, borneroots));
   av2 = avma;
   /*We use d-1 test, so we must overlift to 2^BITS_IN_LONG*/

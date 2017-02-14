@@ -493,7 +493,9 @@ galoiscyclo(long n, long v)
   GEN gen = vec_to_vecsmall(lift_shallow(gel(zn,3)));
   GEN ord = gtovecsmall(gel(zn,2));
   GEN T = polcyclo(n,v);
-  z = polsubcyclo_start(n,card/2,2,2*usqrt(n),NULL,&val,&l);
+  const long step = 3;
+  GEN borneabs = powuu((2*step)*step,n);
+  z = polsubcyclo_start(n,card/2,2,2*usqrt(n),borneabs,&val,&l);
   le = gel(z,1); z = gel(z,2);
   L = cgetg(1+card,t_VEC);
   gel(L,1) = z;
