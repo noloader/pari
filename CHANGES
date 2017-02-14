@@ -47,6 +47,8 @@ BA   38- [libpari] Z_ZV_mod caused gerepile error
      39- bestappr(1+0.*I) -> 1 + 0*I instead of 1
      40- memory corruption in qfminim [#1894]
      41- polylog(x) used realprecision accuracy instead of precision(x) [#1895]
+     41- exp or log(I*1.0) used realprecision accuracy instead of precision(x)
+         [#1896]
 
   Added
       1- [libari] ZM_isidentity

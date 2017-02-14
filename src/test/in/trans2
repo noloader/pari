@@ -67,5 +67,18 @@ sinc(2+O(3^2))
 sinc(x)
 sinc(1/x)
 
-default(realprecision,2003);
-log(exp(1.5)) - 1.5
+localprec(2003); log(exp(1.5)) - 1.5
+
+localbitprec(320); obj=[2.1, 2.1*I, 2.1+2.1*I];
+{
+  fun=[exp,expm1,log,arg,
+       cos,sin,tan,cotan,sinc,
+       cosh,sinh,tanh,cotanh,
+       acos,asin,atan,
+       acosh,asinh,atanh,
+       sqrt,x->sqrtn(x,3),
+       gamma,lngamma,psi,zeta];
+  for (i=1, #fun,
+    my (f = fun[i]);
+    print1(f,": " ); print([bitprecision(f(p)) | p<-obj]));
+}
