@@ -962,6 +962,7 @@ pari_init_opts(size_t parisize, ulong maxprime, ulong init_opts)
   diffptr = NULL;
   if (!(init_opts&INIT_noPRIMEm))  pari_init_primes(maxprime);
   if (!(init_opts&INIT_noINTGMPm)) pari_kernel_init();
+  pari_init_graphics();
   pari_init_primetab();
   pari_init_seadata();
   pari_thread_init();

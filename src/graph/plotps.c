@@ -14,44 +14,29 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 /*******************************************************************/
 /*           HIGH RESOLUTION PLOT VIA POSTSCRIPT FILE              */
 /*******************************************************************/
-
 #include "pari.h"
-#include "paripriv.h"
-#include "rect.h"
 
-void
-rectdraw0(long *w, long *x, long *y, long lw)
+static void
+draw(PARI_plot *T, long *w, long *x, long *y, long lw)
 {
-  struct plot_eng plot;
-  FILE *file;
-  char *s, *cmd;
-  const char *v;
+  pari_str S;
+  char *s;
   if (pari_daemon()) return;  /* parent process returns */
-  s = pari_unique_filename("plotps");
-  pari_unlink(s);
-  s = stack_strcat(s, ".ps");
-  file = fopen(s, "w");
-  if (!file) pari_err_FILE("postscript file", s);
-  psplot_init(&plot, file, 1.0, 1.0, 9);
-  fprintf(file,"0 %ld translate -90 rotate\n", plot.pl->height - 50);
-  gen_rectdraw0(&plot, w, x, y, lw, 1, 1);
-  fprintf(file,"stroke showpage\n"); (void)fclose(file);
-  v = os_getenv("GP_POSTSCRIPT_VIEWER");
-  if (!v) v = "open -W";
-  cmd = pari_sprintf("%s \"%s\" 2>/dev/null", v, s);
-  gpsystem(cmd);
-  pari_unlink(s); exit(0);
+  str_init(&S,1);
+  str_printf(&S,"0 %ld translate -90 rotate\n", T->height - 50);
+  s = rect2ps_i(w,x,y,lw,1,1, 9, S.string);
+  pari_plot_by_file("GP_POSTSCRIPT_VIEWER", ".ps", s);
+  exit(0);
 }
 
 void
-PARI_get_plot(void)
+gp_get_plot(PARI_plot *T)
 {
-  if (pari_plot.init) return;
-  pari_plot.width  = 400;
-  pari_plot.height = 300;
-  pari_plot.fheight = 9;
-  pari_plot.fwidth  = 6;
-  pari_plot.hunit   = 3;
-  pari_plot.vunit   = 3;
-  pari_plot.init = 1;
+  T->width  = 400;
+  T->height = 300;
+  T->fheight= 9;
+  T->fwidth = 6;
+  T->hunit  = 3;
+  T->vunit  = 3;
+  T->draw = &draw;
 }

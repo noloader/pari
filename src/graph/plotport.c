@@ -20,24 +20,36 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #include "paripriv.h"
 #include "rect.h"
 
-void postdraw0(long *w, long *x, long *y, long lw, long scale);
-static void PARI_get_psplot(void);
+static void postdraw0(long *w, long *x, long *y, long lw, long scale);
+static void pari_get_psplot(PARI_plot *T);
+static void (*pari_get_plot)(PARI_plot *);
 
 /* no need for THREAD: OK to share this */
 static hashtable *rgb_colors = NULL;
-PariRect *rectgraph[18]; /*NUMRECT*/
 
-/* no need for THREAD: gp-specific */
-static long current_color[18]; /*NUMRECT*/
+THREAD PariRect *rectgraph[18]; /*NUMRECT*/
+THREAD static long current_color[18]; /*NUMRECT*/
 
-PARI_plot pari_plot, pari_psplot;
-PARI_plot *pari_plot_engine = &pari_plot;
-long rectpoint_itype = 0, rectline_itype  = 0;
+static long rectpoint_itype = 0, rectline_itype  = 0;
 
 const long NUMRECT = 18;
 const long RECUR_MAXDEPTH = 10;
 const double RECUR_PREC = 0.001;
 const long DEFAULT_COLOR = 1, AXIS_COLOR = 2;
+
+enum {
+  ROt_MV = 1, /* Move */
+  ROt_PT,  /* Point */
+  ROt_LN,  /* Line */
+  ROt_BX,  /* Box */
+  ROt_MP,  /* Multiple point */
+  ROt_ML,  /* Multiple lines */
+  ROt_ST,  /* String */
+  ROt_PTT,  /* Point type change */
+  ROt_LNT,  /* Line type change */
+  ROt_PTS,  /* Point size change */
+  ROt_NULL, /* To be the start of the chain */
+};
 
 INLINE long
 DTOL(double t) { return (long)(t + 0.5); }
@@ -53,7 +65,7 @@ READ_EXPR(GEN code, GEN x) {
 /**                      RECTPLOT FUNCTIONS                        **/
 /**                                                                **/
 /********************************************************************/
-void
+static void
 init_graph(void)
 {
   long n;
@@ -68,7 +80,7 @@ init_graph(void)
 }
 
 void
-free_graph(void)
+pari_kill_plot_engine(void)
 {
   int i;
   for (i=0; i<NUMRECT; i++)
@@ -107,9 +119,9 @@ check_rect_init(long ne)
 }
 
 static long
-initrect_get_arg(GEN x, long flag, long *dft)
-{ /* FIXME: gequal0(x) undocumented backward compatibility hack */
-  if (!x || gequal0(x) || flag) { PARI_get_plot(); return *dft - 1; }
+initrect_get_arg(GEN x, long flag, long dft)
+{
+  if (!x || flag) return dft-1;
   if (typ(x) != t_INT) pari_err_TYPE("initrect",x);
   return itos(x);
 }
@@ -118,10 +130,13 @@ initrect_gen(long ne, GEN x, GEN y, long flag)
 {
   const long m = NUMRECT-3;
   long xi, yi;
+  PARI_plot T;
 
-  xi = initrect_get_arg(x, flag, &pari_plot.width);
-  yi = initrect_get_arg(y, flag, &pari_plot.height);
-  if (flag) {
+  if (!x || !y || flag) pari_get_plot(&T);
+  xi = initrect_get_arg(x, flag, T.width);
+  yi = initrect_get_arg(y, flag, T.height);
+  if (flag)
+  {
     if (x) xi = DTOL(xi * gtodouble(x));
     if (y) yi = DTOL(yi * gtodouble(y));
   }
@@ -211,7 +226,7 @@ rectrmove(long ne, GEN x, GEN y)
   rectmove0(ne,gtodouble(x),gtodouble(y),1);
 }
 
-void
+static void
 rectpoint0(long ne, double x, double y,long relative) /* code = ROt_MV/ROt_PT */
 {
   PariRect *e = check_rect_init(ne);
@@ -250,7 +265,7 @@ rectcolor(long ne, long c)
   current_color[ne] = c;
 }
 
-void
+static void
 rectline0(long ne, double gx2, double gy2, long relative) /* code = ROt_MV/ROt_LN */
 {
   double dx,dy,dxy,xmin,xmax,ymin,ymax,x1,y1,x2,y2;
@@ -415,7 +430,7 @@ rectrline(long ne, GEN gx2, GEN gy2)
   rectline0(ne, gtodouble(gx2), gtodouble(gy2),1);
 }
 
-void
+static void
 rectbox0(long ne, double gx2, double gy2, long relative)
 {
   double x1,y1,x2,y2,xmin,ymin,xmax,ymax;
@@ -482,7 +497,7 @@ killrect(long ne)
   while (z) { t = RoNext(z); freeobj(z); z = t; }
 }
 
-void
+static void
 rectpoints0(long ne, double *listx, double *listy, long lx) /* code = ROt_MP */
 {
   double *ptx, *pty, x, y;
@@ -533,7 +548,7 @@ rectpoints(long ne, GEN listx, GEN listy)
   pari_free(px); pari_free(py);
 }
 
-void
+static void
 rectlines0(long ne, double *x, double *y, long lx, long flag) /* code = ROt_ML */
 {
   long i,I;
@@ -675,13 +690,14 @@ rectcopy_gen(long source, long dest, GEN xoff, GEN yoff, long flag)
   long xi, yi;
   if (flag & RECT_CP_RELATIVE) {
     double xd = gtodouble(xoff), yd = gtodouble(yoff);
+    PARI_plot T;
     if (xd > 1) pari_err_DOMAIN("plotcopy","dx",">",gen_1,xoff);
     if (xd < 0) pari_err_DOMAIN("plotcopy","dx","<",gen_0,xoff);
     if (yd > 1) pari_err_DOMAIN("plotcopy","dy",">",gen_1,yoff);
     if (yd < 0) pari_err_DOMAIN("plotcopy","dy","<",gen_0,yoff);
-    PARI_get_plot();
-    xi = pari_plot.width - 1;
-    yi = pari_plot.height - 1;
+    pari_get_plot(&T);
+    xi = T.width - 1;
+    yi = T.height - 1;
     xi = DTOL(xd*xi);
     yi = DTOL(yd*yi);
   } else {
@@ -972,16 +988,6 @@ rectclip(long rect)
 /**                        HI-RES PLOT                             **/
 /**                                                                **/
 /********************************************************************/
-void
-Printx(dblPointList *f)
-{
-  long i;
-  printf("x: [%0.5g,%0.5g], y: [%0.5g,%0.5g]\n",
-         f->xsml, f->xbig, f->ysml, f->ybig);
-  for (i = 0; i < f->nb; i++) printf("%0.5g ", f->d[i]);
-  printf("\n");
-}
-
 static void
 Appendx(dblPointList *f, dblPointList *l,double x)
 {
@@ -1200,7 +1206,7 @@ param_recursion(long cplx, dblPointList *pl,GEN code,GEN tleft,double xleft,
 static dblPointList *
 rectplothin(GEN a, GEN b, GEN code, long prec, ulong flags, long testpoints)
 {
-  const double INF = 1./0.;
+  const double INF = INFINITY;
   const long param = flags & (PLOT_PARAMETRIC|PLOT_COMPLEX);
   const long recur = flags & PLOT_RECURSIVE;
   const long cplx = flags & PLOT_COMPLEX;
@@ -1435,16 +1441,17 @@ set_range(double m, double M, double *sml, double *big)
  * + If there is no such flag, the first element is an array with
  *   x-coordinates and the following ones contain y-coordinates.
  * If grect >= 0, output to this rectwindow. Otherwise draw immediately to
- * screen (grect=-1) or to screen (grect=-2), using two drawing rectangles:
+ * screen (grect=-1) or to PS file (grect=-2), using two drawing rectangles:
  * one for labels, another for graphs.*/
 static GEN
-rectplothrawin(long grect, dblPointList *data, long flags)
+rectplothrawin(long grect0, dblPointList *data, long flags)
 {
   const long param = flags & (PLOT_PARAMETRIC|PLOT_COMPLEX);
   const pari_sp av = avma;
-  PARI_plot *W;
+  PARI_plot T, *W;
   dblPointList y,x;
   double xsml, xbig, ysml, ybig;
+  long grect = grect0;
   long ltype, max_graphcolors;
   long i,nc,nbpoints, w[2], wx[2], wy[2];
 
@@ -1459,10 +1466,11 @@ rectplothrawin(long grect, dblPointList *data, long flags)
     const long srect = NUMRECT-2;
     long lm, rm, tm, bm;
 
-    if (grect == -1) /* output to screen */
-    { W = &pari_plot; PARI_get_plot(); }
-    else /* output to file */
-    { W = &pari_psplot; PARI_get_psplot(); }
+    W = &T;
+    if (grect == -1)
+      pari_get_plot(W); /* to screen */
+    else
+      pari_get_psplot(W); /* to file */
     grect = NUMRECT-1;
     /* left/right/top/bottom margin */
     lm = W->fwidth*10;
@@ -1470,11 +1478,10 @@ rectplothrawin(long grect, dblPointList *data, long flags)
     tm = W->vunit-1;
     bm = W->vunit+W->fheight-1;
     w[0] = srect; wx[0] = 0;  wy[0] = 0;
-    w[1] = grect;   wx[1] = lm; wy[1] = tm;
+    w[1] = grect; wx[1] = lm; wy[1] = tm;
    /* Window (width x height) is given in pixels, correct pixels are 0..n-1,
     * whereas rect functions work with windows whose pixel range is [0,n] */
     initrect(srect, W->width - 1, W->height - 1);
-    rectlinetype(srect,-2); /* Frame */
     current_color[srect] = DEFAULT_COLOR;
     initrect(grect, W->width - (lm+rm) - 1, W->height - (tm+bm) - 1);
     /* draw labels on srect */
@@ -1492,7 +1499,7 @@ rectplothrawin(long grect, dblPointList *data, long flags)
   {
     int do_double = (flags & PLOT_NODOUBLETICK) ? TICKS_NODOUBLE : 0;
     PARI_plot *pl = W;
-    if (!pl) { PARI_get_plot(); pl = &pari_plot; }
+    if (!pl) { pl = &T; pari_get_plot(pl); }
 
     rectlinetype(grect, -2); /* Frame. */
     current_color[grect] = DEFAULT_COLOR;
@@ -1564,10 +1571,7 @@ rectplothrawin(long grect, dblPointList *data, long flags)
 
   if (W)
   {
-    if (W == &pari_plot)
-      rectdraw0(w,wx,wy,2);
-    else
-      postdraw0(w,wx,wy,2, 0);
+    if (grect0 == -1) W->draw(W, w,wx,wy,2); else postdraw0(w,wx,wy,2, 0);
     killrect(w[1]);
     killrect(w[0]);
   }
@@ -1621,9 +1625,6 @@ GEN
 ploth(GEN a, GEN b, GEN code, long prec,long flags,long numpoints)
 { return rectploth(-1, a,b,code,prec,flags,numpoints); }
 GEN
-ploth2(GEN a, GEN b, GEN code, long prec)
-{ return rectploth(-1, a,b,code,prec,PLOT_PARAMETRIC,0); }
-GEN
 plothmult(GEN a, GEN b, GEN code, long prec)
 { return rectploth(-1, a,b,code,prec,0,0); }
 
@@ -1633,9 +1634,6 @@ postplothraw(GEN listx, GEN listy, long flags)
 GEN
 postploth(GEN a, GEN b, GEN code, long prec,long flags, long numpoints)
 { return rectploth(-2, a,b,code,prec, flags,numpoints); }
-GEN
-postploth2(GEN a, GEN b, GEN code, long prec, long numpoints)
-{ return rectploth(-2, a,b,code,prec, PLOT_PARAMETRIC,numpoints); }
 
 GEN
 plothsizes(void) { return plothsizes_flag(0); }
@@ -1643,48 +1641,44 @@ GEN
 plothsizes_flag(long flag)
 {
   GEN vect = cgetg(1+6,t_VEC);
+  PARI_plot T;
 
-  PARI_get_plot();
-  gel(vect,1) = stoi(pari_plot.width);
-  gel(vect,2) = stoi(pari_plot.height);
+  pari_get_plot(&T);
+  gel(vect,1) = stoi(T.width);
+  gel(vect,2) = stoi(T.height);
   if (flag) {
-    gel(vect,3) = dbltor(pari_plot.hunit*1.0/pari_plot.width);
-    gel(vect,4) = dbltor(pari_plot.vunit*1.0/pari_plot.height);
-    gel(vect,5) = dbltor(pari_plot.fwidth*1.0/pari_plot.width);
-    gel(vect,6) = dbltor(pari_plot.fheight*1.0/pari_plot.height);
+    gel(vect,3) = dbltor(T.hunit*1.0/T.width);
+    gel(vect,4) = dbltor(T.vunit*1.0/T.height);
+    gel(vect,5) = dbltor(T.fwidth*1.0/T.width);
+    gel(vect,6) = dbltor(T.fheight*1.0/T.height);
   } else {
-    gel(vect,3) = stoi(pari_plot.hunit);
-    gel(vect,4) = stoi(pari_plot.vunit);
-    gel(vect,5) = stoi(pari_plot.fwidth);
-    gel(vect,6) = stoi(pari_plot.fheight);
+    gel(vect,3) = stoi(T.hunit);
+    gel(vect,4) = stoi(T.vunit);
+    gel(vect,5) = stoi(T.fwidth);
+    gel(vect,6) = stoi(T.fheight);
   }
   return vect;
 }
 
-void
-plot_count(long *w, long lw, col_counter rcolcnt)
+GEN
+rectcount(long *w, long lw)
 {
+  GEN v = const_vecsmall(ROt_NULL, 0);
   RectObj *O;
-  long col, i;
-
-  for (col = 1; col < lg(GP_DATA->colormap)-1; col++)
-    for (i = 0; i < ROt_MAX; i++) rcolcnt[col][i] = 0;
+  long i;
   for (i = 0; i < lw; i++)
   {
     PariRect *e = rectgraph[w[i]];
     for (O = RHead(e); O; O=RoNext(O))
       switch(RoType(O))
       {
-        case ROt_MP : rcolcnt[RoCol(O)][ROt_PT] += RoMPcnt(O);
-                      break;                 /* Multiple Point */
-        case ROt_PT :                        /* Point */
-        case ROt_LN :                        /* Line */
-        case ROt_BX :                        /* Box */
-        case ROt_ML :                        /* Multiple lines */
-        case ROt_ST : rcolcnt[RoCol(O)][RoType(O)]++;
-                      break;                 /* String */
+        case ROt_MP:
+          v[ROt_PT] += RoMPcnt(O); break;
+        case ROt_PT: case ROt_LN: case ROt_BX: case ROt_ML: case ROt_ST:
+          v[RoType(O)]++; break;
       }
   }
+  return v;
 }
 /*************************************************************************/
 /*                                                                       */
@@ -1693,40 +1687,39 @@ plot_count(long *w, long lw, col_counter rcolcnt)
 /*************************************************************************/
 
 static void
-PARI_get_psplot(void)
+pari_get_psplot(PARI_plot *T)
 {
-  if (pari_psplot.init) return;
-  pari_psplot.init = 1;
-
-  pari_psplot.width = 1120 - 60; /* 1400 - 60 for hi-res */
-  pari_psplot.height=  800 - 40; /* 1120 - 60 for hi-res */
-  pari_psplot.fheight= 15;
-  pari_psplot.fwidth = 6;
-  pari_psplot.hunit = 5;
-  pari_psplot.vunit = 5;
+  T->width = 1120 - 60; /* 1400 - 60 for hi-res */
+  T->height=  800 - 40; /* 1120 - 60 for hi-res */
+  T->fheight= 15;
+  T->fwidth = 6;
+  T->hunit = 5;
+  T->vunit = 5;
 }
 
 static void
 gendraw(GEN list, long ps, long flag)
 {
+  pari_sp av = avma;
   long i,n,ne,*w,*x,*y;
+  PARI_plot T;
 
   if (typ(list) != t_VEC) pari_err_TYPE("rectdraw",list);
   n = lg(list)-1; if (!n) return;
   if (n%3) pari_err_DIM("rectdraw");
   n = n/3;
-  w = (long*)pari_malloc(n*sizeof(long));
-  x = (long*)pari_malloc(n*sizeof(long));
-  y = (long*)pari_malloc(n*sizeof(long));
-  if (flag) PARI_get_plot();
+  w = (long*)stack_malloc(n*sizeof(long));
+  x = (long*)stack_malloc(n*sizeof(long));
+  y = (long*)stack_malloc(n*sizeof(long));
+  if (flag || !ps) pari_get_plot(&T);
   for (i=0; i<n; i++)
   {
     GEN win = gel(list,3*i+1), x0 = gel(list,3*i+2), y0 = gel(list,3*i+3);
     long xi, yi;
     if (typ(win)!=t_INT) pari_err_TYPE("rectdraw",win);
     if (flag) {
-      xi = DTOL(gtodouble(x0)*(pari_plot.width - 1));
-      yi = DTOL(gtodouble(y0)*(pari_plot.height - 1));
+      xi = DTOL(gtodouble(x0)*(T.width - 1));
+      yi = DTOL(gtodouble(y0)*(T.height - 1));
     } else {
       xi = gtos(x0);
       yi = gtos(y0);
@@ -1736,8 +1729,8 @@ gendraw(GEN list, long ps, long flag)
     ne = itos(win); check_rect(ne);
     w[i] = ne;
   }
-  if (ps) postdraw0(w,x,y,n,flag); else rectdraw0(w,x,y,n);
-  pari_free(x); pari_free(y); pari_free(w);
+  if (ps) postdraw0(w,x,y,n,flag); else T.draw(&T,w,x,y,n);
+  avma = av;
 }
 
 void
@@ -1752,126 +1745,30 @@ postdraw_flag(GEN list, long flag) { gendraw(list, 1, flag); }
 void
 rectdraw_flag(GEN list, long flag) { gendraw(list, 0, flag); }
 
-static void
-ps_sc(void *data, long col)
-{
-  long l = lg(GP_DATA->colormap)-1;
-  int r, g, b;
-  if (col >= l)
-  {
-    pari_warn(warner,"non-existent color: %ld", col);
-    col = l-1;
-  }
-  color_to_rgb(gel(GP_DATA->colormap,col+1), &r, &g, &b);
-  fprintf((FILE*)data,"%f %f %f setrgbcolor\n", r/255., g/255., b/255.);
-}
-
-static void
-ps_point(void *data, long x, long y)
-{
-  fprintf((FILE*)data,"%ld %ld p\n",y,x);
-}
-
-static void
-ps_line(void *data, long x1, long y1, long x2, long y2)
-{
-  fprintf((FILE*)data,"%ld %ld m %ld %ld l\n",y1,x1,y2,x2);
-  fprintf((FILE*)data,"stroke\n");
-}
-
-static void
-ps_rect(void *data, long x, long y, long w, long h)
-{
-  fprintf((FILE*)data,"%ld %ld m %ld %ld l %ld %ld l %ld %ld l closepath\n",y,x, y,x+w, y+h,x+w, y+h,x);
-}
-
-static void
-ps_points(void *data, long nb, struct plot_points *p)
-{
-  long i;
-  for (i=0; i<nb; i++) ps_point(data, p[i].x, p[i].y);
-}
-
-static void
-ps_lines(void *data, long nb, struct plot_points *p)
-{
-  FILE *psfile = (FILE*)data;
-  long i;
-  fprintf(psfile,"%ld %ld m\n",p[0].y,p[0].x);
-  for (i=1; i<nb; i++) fprintf(psfile, "%ld %ld l\n", p[i].y, p[i].x);
-  fprintf(psfile,"stroke\n");
-}
-
-static void
-ps_string(void *data, long x, long y, char *s, long length)
-{
-  FILE *psfile = (FILE*)data;
-  (void)length;
-  if (strpbrk(s, "(\\)")) {
-    fprintf(psfile,"(");
-    while (*s) {
-      if ( *s=='(' || *s==')' || *s=='\\' ) fputc('\\', psfile);
-      fputc(*s, psfile);
-      s++;
-    }
-  } else
-    fprintf(psfile,"(%s", s);
-  fprintf(psfile,") %ld %ld m 90 rotate show -90 rotate\n", y, x);
-}
-
-void
-psplot_init(struct plot_eng *S, FILE *f, double xscale, double yscale, long fontsize)
-{
-  PARI_get_psplot();
-  /* Definitions taken from post terminal of Gnuplot. */
-  fprintf(f, "%%!\n\
-50 50 translate\n\
-/p {moveto 0 2 rlineto 2 0 rlineto 0 -2 rlineto closepath fill} def\n\
-/l {lineto} def\n\
-/m {moveto} def\n"
-"/Times-Roman findfont %ld scalefont setfont\n"
-"%g %g scale\n", fontsize, yscale, xscale);
-
-  S->sc = &ps_sc;
-  S->pt = &ps_point;
-  S->ln = &ps_line;
-  S->bx = &ps_rect;
-  S->mp = &ps_points;
-  S->ml = &ps_lines;
-  S->st = &ps_string;
-  S->pl = &pari_psplot;
-  S->data = (void*)f;
-}
-
 void
 postdraw0(long *w, long *x, long *y, long lw, long scale)
 {
-  struct plot_eng plot;
-  FILE *psfile;
+  pari_sp av = avma;
+  FILE *F = fopen(current_psfile, "a");
   double xscale = 0.65, yscale = 0.65;
-  long fontsize = 16;
 
-  psfile = fopen(current_psfile, "a");
-  if (!psfile) pari_err_FILE("postscript file",current_psfile);
+  if (!F) pari_err_FILE("postscript file",current_psfile);
   if (scale) {
-    double psxscale, psyscale;
-    PARI_get_psplot();
-    PARI_get_plot();
-    psxscale = pari_psplot.width * 1.0/pari_plot.width ;
-    psyscale = pari_psplot.height* 1.0/pari_plot.height;
-    fontsize = (long) (fontsize/psxscale);
-    xscale *= psxscale;
-    yscale *= psyscale;
+    PARI_plot T, U;
+    pari_get_psplot(&T);
+    pari_get_plot(&U);
+    xscale *= T.width  * 1.0/U.width;
+    yscale *= T.height * 1.0/U.height;
   }
-  psplot_init(&plot, psfile, xscale, yscale, fontsize);
-  gen_rectdraw0(&plot, w, x, y, lw, 1, 1);
-  fprintf(psfile,"stroke showpage\n"); fclose(psfile);
+  fputs(rect2ps(w,x,y,lw, xscale,yscale), F);
+  fclose(F); avma = av;
 }
 
-#define RoColT(R) minss(numcolors,RoCol(R))
 
+#define RoColT(R) minss(numcolors,RoCol(R))
 void
-gen_rectdraw0(struct plot_eng *eng, long *w, long *x, long *y, long lw, double xs, double ys)
+gen_draw(struct plot_eng *eng, long *w, long *x, long *y, long lw,
+         double xs, double ys)
 {
   void *data = eng->data;
   long i, j;
@@ -1967,6 +1864,295 @@ gen_rectdraw0(struct plot_eng *eng, long *w, long *x, long *y, long lw, double x
       }
     }
   }
+}
+#undef RoColT
+
+static void
+get_plot_null(PARI_plot *T)
+{ (void)T; pari_err(e_MISC,"high resolution graphics disabled"); }
+
+void
+pari_init_graphics(void) { pari_get_plot = &get_plot_null; }
+
+void
+pari_set_plot_engine(void (*plot)(PARI_plot *))
+{
+  pari_get_plot = plot;
+  init_graph();
+}
+
+/*************************************************************************/
+/*                               SVG                                     */
+/*************************************************************************/
+
+struct svg_data {
+  pari_str str;
+  char hexcolor[8];  /* "#rrggbb\0" */
+};
+#define data_str(d) (&((struct svg_data*)(d))->str)
+#define data_hexcolor(d) (((struct svg_data*)(d))->hexcolor)
+
+static const char hexdigit[] = "0123456789abcdef";
+
+/* Work with precision 1/scale */
+static const float SVG_SCALE = 1024.0;
+
+static float
+svg_rescale(float x) { return x / SVG_SCALE; }
+
+static void
+svg_point(void *data, long x, long y)
+{
+  pari_str *S = data_str(data);
+
+  str_printf(S, "<circle cx='%.2f' cy='%.2f' r='0.5' ",
+    svg_rescale(x), svg_rescale(y));
+  str_printf(S, "style='fill:%s;stroke:none;'/>", data_hexcolor(data));
+}
+
+static void
+svg_line(void *data, long x1, long y1, long x2, long y2)
+{
+  pari_str *S = data_str(data);
+
+  str_printf(S, "<line x1='%.2f' y1='%.2f' x2='%.2f' y2='%.2f' ",
+    svg_rescale(x1), svg_rescale(y1), svg_rescale(x2), svg_rescale(y2));
+  str_printf(S, "style='fill:none;stroke:%s;'/>", data_hexcolor(data));
+}
+
+static void
+svg_rect(void *data, long x, long y, long w, long h)
+{
+  pari_str *S = data_str(data);
+
+  str_printf(S, "<rect x='%.2f' y='%.2f' width='%.2f' height='%.2f' ",
+    svg_rescale(x), svg_rescale(y), svg_rescale(w), svg_rescale(h));
+  str_printf(S, "style='fill:none;stroke:%s;'/>", data_hexcolor(data));
+}
+
+static void
+svg_points(void *data, long nb, struct plot_points *p)
+{
+  long i;
+  for (i = 0; i < nb; i++)
+    svg_point(data, p[i].x, p[i].y);
+}
+
+static void
+svg_color(void *data, long col)
+{
+  int r, g, b;
+  char *hexcolor = data_hexcolor(data);
+  color_to_rgb(gel(GP_DATA->colormap, col+1), &r, &g, &b);
+  hexcolor[0] = '#';
+  hexcolor[1] = hexdigit[r / 16];
+  hexcolor[2] = hexdigit[r & 15];
+  hexcolor[3] = hexdigit[g / 16];
+  hexcolor[4] = hexdigit[g & 15];
+  hexcolor[5] = hexdigit[b / 16];
+  hexcolor[6] = hexdigit[b & 15];
+  hexcolor[7] = '\0';
+}
+
+static void
+svg_lines(void *data, long nb, struct plot_points *p)
+{
+  long i;
+  pari_str *S = data_str(data);
+
+  str_printf(S, "<polyline points='");
+  for (i = 0; i < nb; i++)
+  {
+    if (i > 0) str_printf(S, " ");
+    str_printf(S, "%.2f,%.2f", svg_rescale(p[i].x), svg_rescale(p[i].y));
+  }
+  str_printf(S, "' style='fill:none;stroke:%s;'/>", data_hexcolor(data));
+}
+
+static void
+svg_text(void *data, long x, long y, char *text, long numtext)
+{
+  pari_str *S = data_str(data);
+
+  str_printf(S, "<text x='%.5f' y='%.5f' font-size='%ld' style='fill:%s;'>%s</text>",
+    svg_rescale(x),svg_rescale(y), 12, data_hexcolor(data), text);
+}
+
+static void
+svg_head(PARI_plot *T, pari_str *S)
+{
+  str_printf(S, "<svg width='%ld' height='%ld' version='1.1' xmlns='http://www.w3.org/2000/svg'>", T->width, T->height);
+}
+
+static void
+svg_tail(pari_str *S)
+{
+  str_printf(S, "</svg>");
+}
+
+static void
+pari_get_svgplot(PARI_plot *T)
+{
+  T->width   = 480;
+  T->height  = 320;
+  T->hunit   = 3;
+  T->vunit   = 3;
+  T->fwidth  = 9;
+  T->fheight = 12;
+}
+
+char *
+rect2svg(long *w, long *x, long *y, long lw)
+{
+  struct plot_eng pl;
+  struct svg_data data;
+  PARI_plot T;
+
+  str_init(&data.str, 1);
+  svg_color(&data, 0);
+  pari_get_svgplot(&T);
+
+  pl.data = &data;
+  pl.sc = &svg_color;
+  pl.pt = &svg_point;
+  pl.ln = &svg_line;
+  pl.bx = &svg_rect;
+  pl.mp = &svg_points;
+  pl.ml = &svg_lines;
+  pl.st = &svg_text;
+  pl.pl = &T;
+
+  svg_head(&T, &data.str);
+  gen_draw(&pl, w, x, y, lw, SVG_SCALE, SVG_SCALE);
+  svg_tail(&data.str);
+
+  return data.str.string;
+}
+
+/*************************************************************************/
+/*                            POSTSCRIPT                                 */
+/*************************************************************************/
+static void
+ps_sc(void *data, long col)
+{
+  pari_str *S = (pari_str*)data;
+  long l = lg(GP_DATA->colormap)-1;
+  int r, g, b;
+  if (col >= l)
+  {
+    pari_warn(warner,"non-existent color: %ld", col);
+    col = l-1;
+  }
+  color_to_rgb(gel(GP_DATA->colormap,col+1), &r, &g, &b);
+  str_printf(S,"%.6f %.6f %.6f setrgbcolor\n", r/255., g/255., b/255.);
+}
+
+static void
+ps_point(void *data, long x, long y)
+{
+  pari_str *S = (pari_str*)data;
+  str_printf(S,"%ld %ld p\n",y,x);
+}
+
+static void
+ps_line(void *data, long x1, long y1, long x2, long y2)
+{
+  pari_str *S = (pari_str*)data;
+  str_printf(S,"%ld %ld m %ld %ld l\n",y1,x1,y2,x2);
+  str_printf(S,"stroke\n");
+}
+
+static void
+ps_rect(void *data, long x, long y, long w, long h)
+{
+  pari_str *S = (pari_str*)data;
+  str_printf(S,"%ld %ld m %ld %ld l %ld %ld l %ld %ld l closepath\n",
+             y,x, y,x+w, y+h,x+w, y+h,x);
+}
+
+static void
+ps_points(void *data, long nb, struct plot_points *p)
+{
+  long i;
+  for (i=0; i<nb; i++) ps_point(data, p[i].x, p[i].y);
+}
+
+static void
+ps_lines(void *data, long nb, struct plot_points *p)
+{
+  pari_str *S = (pari_str*)data;
+  long i;
+  str_printf(S,"%ld %ld m\n",p[0].y,p[0].x);
+  for (i=1; i<nb; i++) str_printf(S, "%ld %ld l\n", p[i].y, p[i].x);
+  str_printf(S,"stroke\n");
+}
+
+static void
+ps_string(void *data, long x, long y, char *s, long length)
+{
+  pari_str *S = (pari_str*)data;
+  (void)length;
+  if (strpbrk(s, "(\\)")) {
+    str_printf(S,"(");
+    while (*s) {
+      if ( *s=='(' || *s==')' || *s=='\\' ) str_putc(S,'\\');
+      str_putc(S, *s);
+      s++;
+    }
+  } else
+    str_printf(S,"(%s", s);
+  str_printf(S,") %ld %ld m 90 rotate show -90 rotate\n", y, x);
+}
+
+char *
+rect2ps_i(long *w, long *x, long *y, long lw, double xscale, double yscale,
+          long fontsize, char *str)
+{
+  struct plot_eng pl;
+  pari_str S;
+  PARI_plot T;
+  pari_get_psplot(&T);
+  str_init(&S, 1);
+  /* Definitions taken from post terminal of Gnuplot. */
+  str_printf(&S, "%%!\n\
+50 50 translate\n\
+/p {moveto 0 2 rlineto 2 0 rlineto 0 -2 rlineto closepath fill} def\n\
+/l {lineto} def\n\
+/m {moveto} def\n"
+"/Times-Roman findfont %ld scalefont setfont\n", fontsize);
+
+  pl.sc = &ps_sc;
+  pl.pt = &ps_point;
+  pl.ln = &ps_line;
+  pl.bx = &ps_rect;
+  pl.mp = &ps_points;
+  pl.ml = &ps_lines;
+  pl.st = &ps_string;
+  pl.pl = &T;
+  pl.data = (void*)&S;
+
+  if (str) str_puts(&S, str);
+  gen_draw(&pl, w, x, y, lw, xscale, yscale);
+  str_puts(&S,"stroke showpage\n");
+  return S.string;
+}
+char *
+rect2ps(long *w, long *x, long *y, long lw, double xscale, double yscale)
+{ return rect2ps_i(w,x,y,lw,xscale,yscale, 16, NULL); }
+
+void
+pari_plot_by_file(const char *env, const char *suf, const char *img)
+{
+  char *cmd, *s = pari_unique_filename("plotfile");
+  FILE *f;
+  pari_unlink(s);
+  s = stack_strcat(s, suf);
+  f = fopen(s, "w");
+  if (!f) pari_err_FILE("image file", s);
+  fputs(img, f); (void)fclose(f);
+  cmd = os_getenv(env); if (!cmd) cmd = (char*)"open -W";
+  cmd = pari_sprintf("%s \"%s\" 2>/dev/null", cmd, s);
+  gpsystem(cmd); pari_unlink(s);
 }
 
 /*************************************************************************/

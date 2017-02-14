@@ -17,22 +17,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 #include "pari.h"
-
-static void
-draw(PARI_plot *T, long *w, long *x, long *y, long lw)
-{
-  if (pari_daemon()) return;  /* parent process returns */
-  pari_plot_by_file("GP_SVG_VIEWER", ".svg", rect2svg(w,x,y,lw));
-  exit(0);
-}
 void
 gp_get_plot(PARI_plot *T)
-{
-  T->width   = 480;
-  T->height  = 320;
-  T->hunit   = 3;
-  T->vunit   = 3;
-  T->fwidth  = 9;
-  T->fheight = 12;
-  T->draw = &draw;
-}
+{ (void)T; pari_err(e_MISC,"high resolution graphics disabled"); }

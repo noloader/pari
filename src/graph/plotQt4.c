@@ -47,9 +47,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 
 extern "C" {
 #include "pari.h"
-#include "paripriv.h"
-#undef grem
 #include "rect.h"
+#undef grem
 }
 
 using namespace Qt;
@@ -65,7 +64,7 @@ protected:
     void mouseReleaseEvent( QMouseEvent*);
 
 public:
-    Plotter( long *w, long *x, long *y, long lw,
+    Plotter(PARI_plot *T, long *w, long *x, long *y, long lw,
              QWidget* parent = 0);
     void save( const QString& s = *plotFile + ".xpm",//QString("pariplot.xpm"),
                const QString& f = QString( "XPM"));
@@ -74,31 +73,29 @@ protected:
     void paintEvent( QPaintEvent *);
 
 private:
-    long *w;                           // map into rectgraph indexes
-    long *x;                           // x, y: array of x,y-coorinates of the
-    long *y;                           //   top left corners of the rectwindows
-    long lw;                           // lw: number of rectwindows
+    PARI_plot *T;
+    long *w; // map into rectgraph indexes
+    long *x; // x, y: array of x,y-coorinates of the
+    long *y; //   top left corners of the rectwindows
+    long lw; // lw: number of rectwindows
     long numcolors;
     QColor *color;
     QFont font;
     static QString *plotFile;
     void draw(QPainter *p);
-
-// public:
-//     static void setPlotFile( const char *);
 };
 
 
 QString *Plotter::plotFile = new QString( "pariplot");
 
 
-Plotter::Plotter( long *w, long *x, long *y, long lw,
+Plotter::Plotter(PARI_plot *T, long *w, long *x, long *y, long lw,
                   QWidget* parent)
     : QWidget( parent), font( "lucida", 9) {
 
     long i;
 
-    this->w=w; this->x=x; this->y=y; this->lw=lw;
+    this->w=w; this->x=x; this->y=y; this->lw=lw; this->T=T;
     this->setFont( font);
     numcolors = lg(GP_DATA->colormap)-1;
     color = (QColor*)gpmalloc(numcolors*sizeof(QColor));
@@ -112,12 +109,6 @@ Plotter::Plotter( long *w, long *x, long *y, long lw,
     palette.setColor(backgroundRole(), color[0]);
     setPalette(palette);
 }
-
-// void Plotter::setPlotFile( const char *s) {
-
-//     delete Plotter::plotFile;
-//     Plotter::plotFile = new QString( s);
-// }
 
 struct data_qt
 {
@@ -189,11 +180,11 @@ void Plotter::draw(QPainter *p){
   plotQt.mp=&DrawPoints;
   plotQt.ml=&DrawLines;
   plotQt.st=&DrawString;
-  plotQt.pl=&pari_plot;
+  plotQt.pl=T;
   plotQt.data=(void *)&d;
-  double xs = double(this->width()) / pari_plot.width,
-         ys = double(this->height()) / pari_plot.height;
-  gen_rectdraw0(&plotQt, this->w, this->x, this->y,this->lw,xs,ys);
+  double xs = double(this->width()) / T->width,
+         ys = double(this->height()) / T->height;
+  gen_draw(&plotQt, this->w, this->x, this->y,this->lw,xs,ys);
 }
 
 void Plotter::save( const QString& s, const QString& f)
@@ -255,8 +246,8 @@ class PlotWindow: public QMainWindow {
      Q_OBJECT
 
 public:
-    PlotWindow( long *w, long *x, long *y, long lw,
-                QWidget* parent = 0, const char* name = 0);
+    PlotWindow(PARI_plot *T, long *w, long *x, long *y, long lw,
+                QWidget* parent = 0);
     ~PlotWindow();
 
 protected:
@@ -288,8 +279,8 @@ private:
 const QList<QByteArray> PlotWindow::file_formats = QImageWriter::supportedImageFormats();
 
 
-PlotWindow::PlotWindow( long *w, long *x, long *y, long lw,
-                        QWidget* parent, const char* name)
+PlotWindow::PlotWindow(PARI_plot *T, long *w, long *x, long *y, long lw,
+                        QWidget* parent)
     : QMainWindow( parent),
       saveFileName( "pariplot"), saveFileFormat( 0) {
 
@@ -337,12 +328,11 @@ PlotWindow::PlotWindow( long *w, long *x, long *y, long lw,
         menuView->addAction(fullScreenAction);
 
     // Setting up an instance of plotter
-    plr = new Plotter( w, x, y, lw, this);
+    plr = new Plotter(T, w, x, y, lw, this);
     connect( plr, SIGNAL(clicked()), this, SLOT( normalView()));
     this->setCentralWidget( plr);
 
-    this->resize( pari_plot.width,
-                  pari_plot.height + 24);
+    this->resize( T->width, T->height + 24);
     res = new QLabel( );
     statusBar()->addWidget( res);
 }
@@ -409,42 +399,30 @@ void PlotWindow::save( int id)
 
 #include "plotQt4.moc.cpp"
 
-
-//
-// Implementation of the two architecture-dependent functions
-// (from rect.h) requested by pari's plotting routines
-//
-
-
-void
-rectdraw0(long *w, long *x, long *y, long lw)
+static void
+draw(PARI_plot *T, long *w, long *x, long *y, long lw)
 {
     if (pari_daemon()) return;  // parent process returns
-
     pari_close();
-    PARI_get_plot();
 
     // launch Qt window
     int argc = 1;                         // set argc = 2 for cross
     const char * argv[] = { "gp", "-qws"}; // development using qvfb
-    QApplication
-        a( argc, (char**) argv);
-    PlotWindow *win = new PlotWindow(w, x, y, lw);
+    QApplication a( argc, (char**) argv);
+    PlotWindow *win = new PlotWindow(T, w, x, y, lw);
     win->show();
-    a.exec();
-    exit( 0);
+    a.exec(); exit( 0);
 }
 
+/* This function initialises the PARI_plot struct *T */
 void
-PARI_get_plot(void)
-/* This function initialises the structure rect.h: pari_plot */
+gp_get_plot(PARI_plot *T)
 {
-    if (pari_plot.init) return;      // pari_plot is already set
-    pari_plot.width   = 400;         // width and
-    pari_plot.height  = 300;         //  height of plot window
-    pari_plot.hunit   = 3;           //
-    pari_plot.vunit   = 3;           //
-    pari_plot.fwidth  = 6;           // font width
-    pari_plot.fheight = 9;           //   and height
-    pari_plot.init    = 1;           // flag: pari_plot is set now!
+    T->width   = 400; // width and
+    T->height  = 300; //  height of plot window
+    T->hunit   = 3;
+    T->vunit   = 3;
+    T->fwidth  = 6;   // font width
+    T->fheight = 9;   //   and height
+    T->draw = &draw;
 }

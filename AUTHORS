@@ -41,6 +41,7 @@ Major contributors (large modules written or rewritten from scratch):
     kernel, arithmetic functions, LLL, transcendental functions, number fields,
     original elliptic curves implementation, numerical integration and
     summation, Lfun package
+  Jeroen DEMEYER: SVG support
   Francisco DIAZ Y DIAZ: number fields (class groups, units)
   Yves EICHENLAUB: original polgalois implementation
   Xavier GOURDON: polroots, initial Karatsuba/Toom Cook/fft implementations

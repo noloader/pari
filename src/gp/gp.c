@@ -20,6 +20,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #include "paripriv.h"
 #include "gp.h"
 
+void gp_get_plot(PARI_plot *T);
+
 static jmp_buf *env;
 static pari_stack s_env;
 void (*cb_gp_output)(GEN z) = NULL;
@@ -564,7 +566,7 @@ main(int argc, char **argv)
   pari_add_module(functions_gp);
   pari_add_module(functions_highlevel);
 
-  init_graph();
+  pari_set_plot_engine(gp_get_plot);
   cb_pari_quit = gp_quit;
   cb_pari_whatnow = whatnow;
   cb_pari_sigint = gp_sigint_fun;
@@ -631,7 +633,7 @@ dbg_up(long k)
 void
 gp_quit(long code)
 {
-  free_graph();
+  pari_kill_plot_engine();
   pari_close();
   kill_buffers_upto(NULL);
   if (!(GP_DATA->flags & gpd_QUIET)) pari_puts("Goodbye!\n");
@@ -643,5 +645,4 @@ void
 whatnow0(char *s) { whatnow(pariOut, s,0); }
 
 #include "gp_init.h"
-#include "../graph/rect.h"
 #include "highlvl.h"

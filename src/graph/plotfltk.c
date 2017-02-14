@@ -19,7 +19,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 /////////////////////////////////////////////////////////////////////////////
 extern "C" {
 #include "pari.h"
-#include "paripriv.h"
 #include "rect.h"
 }
 
@@ -32,13 +31,14 @@ static long numcolors;
 class Plotter: public Fl_Window {
 
 public:
-    Plotter( long *w, long *x, long *y, long lw, const char* name = 0);
+    Plotter(PARI_plot *T, long *w, long *x, long *y, long lw);
 
 private:
     void draw();
     int handle(int event);
 
 private:
+    PARI_plot *T;
     long *my_w;                        // map into rectgraph indexes
     long *my_x;                        // x, y: array of x,y-coordinates of the
     long *my_y;                        // top left corners of the rectwindows
@@ -52,14 +52,13 @@ rgb_color(int R, int G, int B)
   return fl_color_cube(R*FL_NUM_RED/256, G*FL_NUM_GREEN/256, B*FL_NUM_BLUE/256);
 }
 
-Plotter::Plotter( long *w, long *x, long *y, long lw,
-             const char* name)
-        : Fl_Window(pari_plot.width, pari_plot.height, "PARI/GP")
+Plotter::Plotter(PARI_plot *T, long *w, long *x, long *y, long lw)
+        : Fl_Window(T->width, T->height, "PARI/GP")
 
 {
     long i;
 
-    this->my_w=w; this->my_x=x; this->my_y=y; this->my_lw=lw;
+    this->T = T; this->my_w=w; this->my_x=x; this->my_y=y; this->my_lw=lw;
     numcolors = lg(GP_DATA->colormap)-1;
     color = (Fl_Color*)pari_malloc(numcolors*sizeof(Fl_Color));
     for (i = 1; i < lg(GP_DATA->colormap); i++)
@@ -118,10 +117,10 @@ void Plotter::draw()
 {
   struct plot_eng pl;
 
-  double xs = double(this->w())/pari_plot.width;
-  double ys = double(this->h())/pari_plot.height;
+  double xs = double(this->w()) / T->width;
+  double ys = double(this->h()) / T->height;
 
-  fl_font(FL_COURIER, int(pari_plot.fheight * xs));
+  fl_font(FL_COURIER, int(T->fheight * xs));
   fl_color(color[0]); // transparent window on Windows otherwise
   fl_rectf(0, 0, this->w(), this->h());
   pl.sc = &SetForeground;
@@ -131,9 +130,9 @@ void Plotter::draw()
   pl.mp = &DrawPoints;
   pl.ml = &DrawLines;
   pl.st = &DrawString;
-  pl.pl = &pari_plot;
+  pl.pl = T;
   pl.data = (void*)color;
-  gen_rectdraw0(&pl, my_w, my_x, my_y, my_lw, xs, ys);
+  gen_draw(&pl, my_w, my_x, my_y, my_lw, xs, ys);
 }
 
 int Plotter::handle(int event)
@@ -189,23 +188,16 @@ int Plotter::handle(int event)
   }
 }
 
-//
-// Implementation of the two architecture-dependent functions
-// (from rect.h) requested by pari's plotting routines
-//
-
-void
-rectdraw0(long *w, long *x, long *y, long lw)
+static void
+draw(PARI_plot *T, long *w, long *x, long *y, long lw)
 {
     Plotter *win;
 
     if (pari_daemon()) return;  // parent process returns
-
     pari_close();
-    PARI_get_plot();
 
     Fl::visual(FL_DOUBLE|FL_INDEX);
-    win = new Plotter( w, x, y, lw);
+    win = new Plotter(T, w, x, y, lw);
     win->size_range(1,1);
     win->box(FL_FLAT_BOX);
     win->end();
@@ -215,15 +207,13 @@ rectdraw0(long *w, long *x, long *y, long lw)
 }
 
 void
-PARI_get_plot(void)
-/* This function initialises the structure rect.h: pari_plot */
+gp_get_plot(PARI_plot *T)
 {
-    if (pari_plot.init) return;      // pari_plot is already set
-    pari_plot.width   = 400;         // width and
-    pari_plot.height  = 300;         //  height of plot window
-    pari_plot.hunit   = 3;           //
-    pari_plot.vunit   = 3;           //
-    pari_plot.fwidth  = 6;           // font width
-    pari_plot.fheight = 9;           //   and height
-    pari_plot.init    = 1;           // flag: pari_plot is set now!
+    T->width   = 400; // width and
+    T->height  = 300; //  height of plot window
+    T->hunit   = 3;   //
+    T->vunit   = 3;   //
+    T->fwidth  = 6;   // font width
+    T->fheight = 9;   //   and height
+    T->draw = &draw;
 }

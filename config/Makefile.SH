@@ -71,12 +71,8 @@ PLOTLIBS=
 postconfig=:
 plotrunpath=
 case "$which_graphic_lib" in
-none)
-  graph=plotnull;;
-ps)
-  graph=plotps;;
-svg)
-  graph=plotsvg;;
+ps|svg|none)
+  graph=plot$which_graphic_lib;;
 Qt4)
   PLOTCFLAGS='-I$(QTDIR)/include'
   PLOTLIBS="-L\$(QTDIR)/lib $QTLIB"
@@ -98,8 +94,7 @@ X11)
   echo >&2 "### Unrecognized graphic library '$which_graphic_lib'."
   exit 1;;
 esac
-graph="plotport $graph"
-libgraph="plottty"
+libgraph="plotport plottty"
 
 KERNOBJS=
 for f in $kernel; do
@@ -727,16 +722,9 @@ for dir in basemath modules language gp graph systems mt; do
     cflags="$cflags -I$src/language \$(RLINCLUDE)"
     depend="$src/gp/gp.h"
     ;;
-  default)
-    cflags="$cflags \$(DLCFLAGS)"
-    ;;
   paricfg)
     depend="./paricfg.h"
     cflags="$cflags \$(DLCFLAGS)"
-    ;;
-  plotport)
-    cflags="$cflags -I$src/graph"
-    depend="$RECT_H"
     ;;
   plotQt4)
     cflags="$cflags \$(PLOTCFLAGS)"
@@ -748,13 +736,9 @@ for dir in basemath modules language gp graph systems mt; do
     depend="$RECT_H"
     compile="\$(CXX)"
     ;;
-  plottty)
+  plot*)
     depend="$RECT_H"
     cflags="$cflags \$(DLCFLAGS)"
-    ;;
-  plot*)
-    cflags="$cflags \$(PLOTCFLAGS)"
-    depend="$RECT_H"
     ;;
   es|sumiter|intnum|forprime)
     depend="$ANAL_H"

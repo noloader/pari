@@ -18,7 +18,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 /*******************************************************************/
 
 #include "pari.h"
-#include "paripriv.h"
 #include "rect.h"
 
 #ifdef HPPA
@@ -154,8 +153,8 @@ PARI_ColorSetUp(Display *display, GEN colors)
   }
 }
 
-void
-rectdraw0(long *w, long *x, long *y, long lw)
+static void
+draw(PARI_plot *T, long *w, long *x, long *y, long lw)
 {
   long oldwidth,oldheight;
   struct plot_eng plotX;
@@ -173,7 +172,6 @@ rectdraw0(long *w, long *x, long *y, long lw)
 
   if (pari_daemon()) return;  /* parent process returns */
 
-  PARI_get_plot();
   pari_close();
 
   display = XOpenDisplay(NULL);
@@ -186,14 +184,14 @@ rectdraw0(long *w, long *x, long *y, long lw)
   screen = DefaultScreen(display);
   win = XCreateSimpleWindow
     (display, RootWindow(display, screen), 0, 0,
-     pari_plot.width, pari_plot.height, 4,
+     T->width, T->height, 4,
      PARI_Colors[1].pixel, PARI_Colors[0].pixel);
 
   size_hints.flags = PPosition | PSize;
   size_hints.x = 0;
   size_hints.y = 0;
-  size_hints.width  = pari_plot.width;
-  size_hints.height = pari_plot.height;
+  size_hints.width  = T->width;
+  size_hints.height = T->height;
   XSetStandardProperties
     (display, win, "rectplot", NULL, None, NULL, 0, &size_hints);
 
@@ -214,8 +212,8 @@ rectdraw0(long *w, long *x, long *y, long lw)
 
   XClearWindow(display, win);
   XMapWindow(display, win);
-  oldwidth  = pari_plot.width;
-  oldheight = pari_plot.height;
+  oldwidth  = T->width;
+  oldheight = T->height;
   dx.display= display;
   dx.win = win;
   dx.numcolors = lg(GP_DATA->colormap)-1;
@@ -227,7 +225,7 @@ rectdraw0(long *w, long *x, long *y, long lw)
   plotX.mp = &DrawPoints;
   plotX.ml = &DrawLines;
   plotX.st = &DrawString;
-  plotX.pl = &pari_plot;
+  plotX.pl = T;
   plotX.data = (void*)&dx;
 
   for(;;)
@@ -269,30 +267,29 @@ EXIT:
         oldheight = height;
 
         /* recompute scale */
-        xs = ((double)width)/pari_plot.width;
-        ys = ((double)height)/pari_plot.height;
+        xs = ((double)width)/T->width;
+        ys = ((double)height)/T->height;
       }
       case Expose:
-        gen_rectdraw0(&plotX, w, x, y,lw,xs,ys);
+        gen_draw(&plotX, w, x, y,lw,xs,ys);
     }
   }
 }
 
 void
-PARI_get_plot(void)
+gp_get_plot(PARI_plot *T)
 {
   Display *display;
   int screen;
 
-  if (pari_plot.init) return;
   if (!(display = XOpenDisplay(NULL))) pari_err(e_MISC, "no X server");
   screen = DefaultScreen(display);
-  pari_plot.width  = DisplayWidth(display, screen) - 40;
-  pari_plot.height = DisplayHeight(display, screen) - 60;
-  pari_plot.fheight = 15;
-  pari_plot.fwidth  = 9;
-  pari_plot.hunit   = 5;
-  pari_plot.vunit   = 5;
-  pari_plot.init = 1;
+  T->width  = DisplayWidth(display, screen) - 40;
+  T->height = DisplayHeight(display, screen) - 60;
   XCloseDisplay(display);
+  T->fheight = 15;
+  T->fwidth  = 9;
+  T->hunit   = 5;
+  T->vunit   = 5;
+  T->draw = &draw;
 }

@@ -12,22 +12,6 @@ with the package; see the file 'COPYING'. If not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 
 BEGINEXTERN
-
-#define PLOT_NAME_LEN 20
-typedef struct PARI_plot {
-  long width;
-  long height;
-  long hunit;
-  long vunit;
-  long fwidth;
-  long fheight;
-  long init;
-  char name[PLOT_NAME_LEN+1];
-} PARI_plot;
-
-extern PARI_plot pari_plot, pari_psplot;
-extern PARI_plot *pari_plot_engine;
-
 typedef struct dblPointList{
   double *d;                   /* data */
   long nb;                     /* number of elements */
@@ -93,7 +77,6 @@ typedef struct RectObjPS {
 } RectObjPS;
 
 struct plot_points { long x, y; };
-
 struct plot_eng {
   PARI_plot *pl;
   void *data;
@@ -105,20 +88,6 @@ struct plot_eng {
   void (*ml)(void *data, long n, struct plot_points *points);
   void (*st)(void *data, long x, long y, char *s, long l);
 };
-
-#define ROt_MV 0                        /* Move */
-#define ROt_PT 1                        /* Point */
-#define ROt_LN 2                        /* Line */
-#define ROt_BX 3                        /* Box */
-#define ROt_MP 4                        /* Multiple point */
-#define ROt_ML 5                        /* Multiple lines */
-#define ROt_ST 6                        /* String */
-#define ROt_PTT 7                        /* Point type change */
-#define ROt_LNT 8                        /* Line type change */
-#define ROt_PTS 9                        /* Point size change */
-#define ROt_NULL 10                /* To be the start of the chain */
-
-#define ROt_MAX 10                /* Maximal type */
 
 /* Pointer conversion. */
 
@@ -227,60 +196,7 @@ struct plot_eng {
 #define TICKS_COORD        16        /* Output [x,y,l,isdbl] for each tick */
 #define TICKS_RELATIVE        32        /* x,y-coordinates are relative */
 
-extern long  rectpoint_itype;
-extern long  rectline_itype;
+void gen_draw(struct plot_eng *eng, long *w, long *x, long *y, long lw, double xs, double ys);
 
-/* plotport.c */
-typedef long (*col_counter)[ROt_MAX];
-
-void  color_to_rgb(GEN c, int *r, int *g, int *b);
-void  initrect(long ne, long x, long y);
-void  initrect_gen(long ne, GEN x, GEN y, long flag);
-void  killrect(long ne);
-void  plot_count(long *w, long lw, col_counter rcolcnt);
-GEN   ploth(GEN a, GEN b, GEN code, long prec, long flag, long numpoints);
-GEN   ploth2(GEN a, GEN b, GEN code, long prec);
-GEN   plothmult(GEN a, GEN b, GEN code, long prec);
-GEN   plothraw(GEN listx, GEN listy, long flag);
-GEN   plothsizes(void);
-GEN   plothsizes_flag(long flag);
-void  postdraw(GEN list);
-void  postdraw_flag(GEN list, long flag);
-GEN   postploth(GEN a,GEN b,GEN code,long prec,long flag,long numpoints);
-GEN   postploth2(GEN a,GEN b,GEN code,long prec,long numpoints);
-GEN   postplothraw(GEN listx, GEN listy, long flag);
-void  psplot_init(struct plot_eng *S, FILE *f, double xscale, double yscale, long fontsize);
-void  Printx(dblPointList *f);
-void  rectbox(long ne, GEN gx2, GEN gy2);
-void  rectcolor(long ne, long color);
-void  rectcopy(long source, long dest, long xoff, long yoff);
-void  rectcopy_gen(long source, long dest, GEN xoff, GEN yoff, long flag);
-GEN   rectcursor(long ne);
-void  rectdraw(GEN list);
-void  rectdraw_flag(GEN list, long flag);
-void  rectline(long ne, GEN gx2, GEN gy2);
-void  rectlines(long ne, GEN listx, GEN listy, long flag);
-void  rectlinetype(long ne, long t);
-void  rectmove(long ne, GEN x, GEN y);
-GEN   rectploth(long drawrect,GEN a, GEN b, GEN code, long prec, ulong flags, long testpoints);
-GEN   rectplothraw(long drawrect, GEN data, long flags);
-void  rectpoint(long ne, GEN x, GEN y);
-void  rectpoints(long ne, GEN listx, GEN listy);
-void  rectpointtype(long ne, long t);
-void  rectpointsize(long ne, GEN size);
-void  rectrbox(long ne, GEN gx2, GEN gy2);
-void  rectrline(long ne, GEN gx2, GEN gy2);
-void  rectrmove(long ne, GEN x, GEN y);
-void  rectrpoint(long ne, GEN x, GEN y);
-void  rectscale(long ne, GEN x1, GEN x2, GEN y1, GEN y2);
-void  rectstring(long ne, char *x);
-void  rectstring3(long ne, char *x, long dir);
-void  rectclip(long rect);
-
-void gen_rectdraw0(struct plot_eng *eng, long *w, long *x, long *y, long lw, double xs, double ys);
-
-/* architecture-dependent plot file (plotX.c ...) */
-void  PARI_get_plot(void);
-void  rectdraw0(long *w, long *x, long *y, long lw);
-
+void gp_get_plot(PARI_plot *T);
 ENDEXTERN

@@ -3979,6 +3979,54 @@ void    mt_queue_submit(struct pari_mt *pt, long jobid, GEN work);
 void    pari_mt_init(void);
 void    pari_mt_close(void);
 
+/* plotport.c */
+
+void  color_to_rgb(GEN c, int *r, int *g, int *b);
+void  initrect(long ne, long x, long y);
+void  initrect_gen(long ne, GEN x, GEN y, long flag);
+void  killrect(long ne);
+void  pari_plot_by_file(const char *env, const char *suf, const char *img);
+void  pari_set_plot_engine(void (*plot)(PARI_plot *));
+void  pari_kill_plot_engine(void);
+GEN   ploth(GEN a, GEN b, GEN code, long prec, long flag, long numpoints);
+GEN   plothmult(GEN a, GEN b, GEN code, long prec);
+GEN   plothraw(GEN listx, GEN listy, long flag);
+GEN   plothsizes(void);
+GEN   plothsizes_flag(long flag);
+void  postdraw(GEN list);
+void  postdraw_flag(GEN list, long flag);
+GEN   postploth(GEN a,GEN b,GEN code,long prec,long flag,long numpoints);
+GEN   postplothraw(GEN listx, GEN listy, long flag);
+char *rect2ps(long *w, long *x, long *y, long lw, double xs, double ys);
+char *rect2ps_i(long *w, long *x, long *y, long lw, double xscale, double yscale, long fontsize, char *str);
+char *rect2svg(long *w, long *x, long *y, long lw);
+void  rectbox(long ne, GEN gx2, GEN gy2);
+void  rectcolor(long ne, long color);
+void  rectcopy(long source, long dest, long xoff, long yoff);
+void  rectcopy_gen(long source, long dest, GEN xoff, GEN yoff, long flag);
+GEN   rectcount(long *w, long lw);
+GEN   rectcursor(long ne);
+void  rectdraw(GEN list);
+void  rectdraw_flag(GEN list, long flag);
+void  rectline(long ne, GEN gx2, GEN gy2);
+void  rectlines(long ne, GEN listx, GEN listy, long flag);
+void  rectlinetype(long ne, long t);
+void  rectmove(long ne, GEN x, GEN y);
+GEN   rectploth(long drawrect,GEN a, GEN b, GEN code, long prec, ulong flags, long testpoints);
+GEN   rectplothraw(long drawrect, GEN data, long flags);
+void  rectpoint(long ne, GEN x, GEN y);
+void  rectpoints(long ne, GEN listx, GEN listy);
+void  rectpointtype(long ne, long t);
+void  rectpointsize(long ne, GEN size);
+void  rectrbox(long ne, GEN gx2, GEN gy2);
+void  rectrline(long ne, GEN gx2, GEN gy2);
+void  rectrmove(long ne, GEN x, GEN y);
+void  rectrpoint(long ne, GEN x, GEN y);
+void  rectscale(long ne, GEN x1, GEN x2, GEN y1, GEN y2);
+void  rectstring(long ne, char *x);
+void  rectstring3(long ne, char *x, long dir);
+void  rectclip(long rect);
+
 /* polarit1.c */
 
 GEN     ZX_Zp_root(GEN f, GEN a, GEN p, long prec);

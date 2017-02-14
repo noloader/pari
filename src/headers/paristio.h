@@ -96,6 +96,17 @@ typedef struct
   GEN v;
 } forsubset_t;
 
+/* Plot engines */
+typedef struct PARI_plot {
+  void (*draw)(struct PARI_plot *T, long *w, long *x, long *y, long lw);
+  long width;
+  long height;
+  long hunit;
+  long vunit;
+  long fwidth;
+  long fheight;
+} PARI_plot;
+
 /* binary I/O */
 typedef struct GENbin {
   size_t len; /* gsizeword(x) */

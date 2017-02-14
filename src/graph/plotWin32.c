@@ -17,7 +17,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #include <windows.h>
 #include <time.h>
 #include "pari.h"
-#include "paripriv.h"
 #include "rect.h"
 
 static void SetForeground(void *data, long col)
@@ -68,7 +67,8 @@ static void DrawString(void *data, long x, long y, char *text, long numtext)
   TextOut((HDC)data, x, y, text, numtext);
 }
 
-void rectdraw0(long *w, long *x, long *y, long lw)
+static void
+draw(PARI_plot *T, long *w, long *x, long *y, long lw)
 {
   char tmppath[MAX_PATH], fname[MAX_PATH];
   struct plot_eng plotWin32;
@@ -92,33 +92,32 @@ void rectdraw0(long *w, long *x, long *y, long lw)
   plotWin32.mp=&DrawPoints;
   plotWin32.ml=&DrawLines;
   plotWin32.st=&DrawString;
-  plotWin32.pl=&pari_plot;
+  plotWin32.pl=T;
   plotWin32.data=(void*)hEmf;
 
-  gen_rectdraw0(&plotWin32, w, x, y, lw, 1, 1);
+  gen_draw(&plotWin32, w, x, y, lw, 1, 1);
   DeleteEnhMetaFile(CloseEnhMetaFile(hEmf));
 
   ShellExecute(NULL,NULL,fname,NULL,NULL,SW_SHOWDEFAULT);
 }
 
 void
-PARI_get_plot(void)
+gp_get_plot(PARI_plot *T)
 {
   HDC hdc;
   TEXTMETRIC tm;
-  if (pari_plot.init) return;      /* pari_plot is already set */
 
-  pari_plot.init    = 1;
-  pari_plot.width   = GetSystemMetrics(SM_CXSCREEN)/2;
-  pari_plot.height  = GetSystemMetrics(SM_CYSCREEN)/2;
-  pari_plot.hunit   = pari_plot.width/100;
-  pari_plot.vunit   = pari_plot.height/100;
+  T->width   = GetSystemMetrics(SM_CXSCREEN)/2;
+  T->height  = GetSystemMetrics(SM_CYSCREEN)/2;
+  T->hunit   = T->width/100;
+  T->vunit   = T->height/100;
 
   hdc = GetDC(0);
   SelectObject(hdc, GetStockObject(DEFAULT_GUI_FONT));
   GetTextMetrics(hdc, &tm);
   ReleaseDC(0,hdc);
 
-  pari_plot.fwidth  = tm.tmAveCharWidth;
-  pari_plot.fheight = tm.tmHeight;
+  T->fwidth  = tm.tmAveCharWidth;
+  T->fheight = tm.tmHeight;
+  T->draw = &draw;
 }
