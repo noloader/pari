@@ -919,7 +919,7 @@ fixedfieldsurmer(GEN mod, GEN l, GEN p, long v, GEN NS, GEN W)
     sym[j]++;
     if (DEBUGLEVEL>=6) err_printf("FixedField: Sym: %Ps\n",sym);
     L = sympol_eval(sym,NS);
-    if (!vec_is1to1(FpC_red(L,l))) continue;
+    if (!vec_is1to1(FpC_red(L,l))) { avma = av; continue; }
     P = FpX_center(FpV_roots_to_pol(L,mod,v),mod,mod2);
     if (!p || FpX_is_squarefree(P,p)) return mkvec3(mkvec2(sym,W),L,P);
     avma = av;
