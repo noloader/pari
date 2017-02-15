@@ -147,3 +147,8 @@ test(ffgen(3^3,'t))
 test(Mod(Mod(1,2),y^3+y^2+1))
 ispower(Mod(x,x^2+1), 2, &y)
 ispower(Mod(x,x^2+1), 2)
+
+p=2^1500+1465;
+ispower(p^11)
+ispower(p^29)
+ispower(p^101)

@@ -1754,7 +1754,7 @@ sqrtnr_abs(GEN a, long n)
 {
   pari_sp av;
   GEN x, b;
-  long eold, n1, n2, prec, B;
+  long eold, n1, n2, prec, B, v;
   ulong mask;
 
   if (n == 1) return mpabs(a);
@@ -1764,10 +1764,16 @@ sqrtnr_abs(GEN a, long n)
   B = prec2nbits(prec);
   n1 = n+1;
   n2 = 2*n; av = avma;
+  v = expo(a) / n;
+  if (v) a = shiftr(a, -n*v);
 
   b = rtor(a, LOWDEFAULTPREC);
   x = mpexp(divru(logr_abs(b), n));
-  if (prec == LOWDEFAULTPREC) return gerepileuptoleaf(av, x);
+  if (prec == LOWDEFAULTPREC)
+  {
+    if (v) shiftr_inplace(x, v);
+    return gerepileuptoleaf(av, x);
+  }
   mask = cubic_prec_mask(B + BITS_IN_LONG-1);
   eold = 1;
   for(;;)
@@ -1791,7 +1797,11 @@ sqrtnr_abs(GEN a, long n)
     z = divrr(y, addrr(mulur(n1, y), mulur(n2, b)));
     shiftr_inplace(z,1);
     x = mulrr(x, subsr(1,z));
-    if (mask == 1) return gerepileuptoleaf(av, gprec_wtrunc(x,prec));
+    if (mask == 1)
+    {
+      if (v) shiftr_inplace(x, v);
+      return gerepileuptoleaf(av, gprec_wtrunc(x,prec));
+    }
     eold = enew;
   }
 }
