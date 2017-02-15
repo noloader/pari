@@ -1791,7 +1791,7 @@ sqrtnr_abs(GEN a, long n)
     z = divrr(y, addrr(mulur(n1, y), mulur(n2, b)));
     shiftr_inplace(z,1);
     x = mulrr(x, subsr(1,z));
-    if (mask == 1) return gerepileuptoleaf(av, x);
+    if (mask == 1) return gerepileuptoleaf(av, gprec_wtrunc(x,prec));
     eold = enew;
   }
 }

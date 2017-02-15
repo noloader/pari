@@ -56,7 +56,7 @@
 -307
 -307
 -307
--307
+-305
 -305
 -307
 [-307, -305]
@@ -92,4 +92,4 @@
   ***   at top-level: sumnumlagrangeinit(x
   ***                 ^--------------------
   *** sumnumlagrangeinit: incorrect type in sumnumlagrangeinit (t_POL).
-Total time spent: 2925
+Total time spent: 3148
