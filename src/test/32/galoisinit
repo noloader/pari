@@ -1,3 +1,4 @@
+  ***   Warning: new stack size = 10000000 (9.537 Mbytes).
 [2, 1]
 [16, 10]
 [20, 3]
@@ -132,4 +133,4 @@ all([5, 6, 7, 8, 1, 2, 3, 4])], Vecsmall([4, 2])]
 + 4*x^2 - 8*x + 16, Mod(2*x^2, x^8 - x^6 + x^4 - x^2 + 1)], [x^4 - 5*x^2 + 5
 , Mod(-x^7 + x^5 - x^3 + 2*x, x^8 - x^6 + x^4 - x^2 + 1)], [x^8 - x^6 + x^4 
 - x^2 + 1, Mod(x, x^8 - x^6 + x^4 - x^2 + 1)]]
-Total time spent: 1816
+Total time spent: 1792
