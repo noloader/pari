@@ -11,5 +11,5 @@ Doc:
  $[y,g]$ where $y$ is reduced and $g$ in $\text{SL}(2,\Z)$ is such that
   $g \cdot x = y$; \var{data}, if
  present, must be equal to $[D, \kbd{sqrtint}(D)]$, where $D > 0$ is the
- discriminant of $x$. In case $x$ is \typ{QFR}, the distance component is
+ discriminant of $x$. In case $x$ is a \typ{QFR}, the distance component is
  unaffected.
