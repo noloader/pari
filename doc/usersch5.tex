@@ -9485,6 +9485,11 @@ a~\typ{INT}), converts \kbd{x} into a \kbd{long} if possible.
 discriminant of~\kbd{x}, to precision \hbox{\kbd{l} \B-bit} words.
 % forbid line brk at hyphen here [GN]
 
+\fun{GEN}{upper_to_cx}{GEN x, long *prec} valid for a \typ{COMPLEX}
+or \typ{QUAD} belonging to the upper half-plane. If a \typ{QUAD}, convert it
+to \typ{COMPLEX} using accuracy \kbd{*prec}. If $x$ is inexact, sets
+\kbd{*prec} to the precision of $x$.
+
 \fun{GEN}{cxtofp}{GEN x, long prec} converts the \typ{COMPLEX}~\kbd{x} to a
 a complex whose real and imaginary parts are \typ{REAL} of length \kbd{prec}
 (special case of~\kbd{gtofp}.

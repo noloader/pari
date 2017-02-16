@@ -4388,6 +4388,7 @@ GEN     theta(GEN q, GEN z, long prec);
 GEN     thetanullk(GEN q, long k, long prec);
 GEN     trueeta(GEN x, long prec);
 GEN     u_sumdedekind_coprime(long h, long k);
+GEN     upper_to_cx(GEN x, long *prec);
 GEN     veceint1(GEN nmax, GEN C, long prec);
 GEN     vecthetanullk(GEN q, long k, long prec);
 GEN     vecthetanullk_tau(GEN tau, long k, long prec);
