@@ -316,6 +316,18 @@ perm_order(GEN v)
   avma = ltop; return d;
 }
 
+/* sign of a permutation */
+long
+perm_sign(GEN v)
+{
+  pari_sp av = avma;
+  GEN c = vecperm_orbits_i(mkvec(v), lg(v)-1);
+  long i, l = lg(c), s = 1;
+  for (i = 1; i < l; i++)
+    if (odd(lg(gel(c, i)))) s = -s;
+  avma = av; return s;
+}
+
 static long
 isperm(GEN v)
 {
