@@ -154,3 +154,36 @@ q = nextprime(p + 1);
           matker([p^v[1]*q^v[2], p^v[3]*q^v[4];
                   p^v[5]*q^v[6], p^v[7]*q^v[8]], 1));
 }
+
+test(x) =
+{
+   n = 22; r = 12;
+   M = matrix(n, n, i, j, random(x));
+   P = matrix(n, r, i, j, if(2*i >= 3*j + 8, random(x), 0*x));
+   N = P*matrix(r, n, i, j, random(x));
+   Q = N[,1..r];
+   R = mattranspose(P);
+   X = matsolve(M, N);
+   K = matker(N);
+   J = matimage(N);
+   print(M*X == N);
+   print(N*K == 0);
+   print(N*lindep(N) == 0);
+   print(R*lindep(R) == 0);
+   print(matimage(J) == J);
+   print(matrank(J) == r);
+   print(matrank(K) == n - r);
+   print(matrank(N) == r);
+   print(J^-1 * J == matid(r));
+   print(matdet(M^-1) == matdet(M)^-1);
+   print(P*matinverseimage(P, Q) == Q);
+   print(lindep(J));
+   print(matker(K));
+   print(matker(M));
+   print(matinverseimage(N, M));
+   print(matinverseimage(P, M));
+   iferr(N^-1, e,, errname(e) == "e_INV");
+   iferr(matsolve(N, M), e,, errname(e) == "e_INV");
+}
+test(Mod(1, 8161));
+test(ffgen(2017^3));
