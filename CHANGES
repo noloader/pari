@@ -53,6 +53,8 @@ PB   43- M = ffgen(2017^3)*[0, 1; 0, 0]; M^-1 -> SEGV   [#1887]
 BA   44- lfun(lfungenus2(...),...) was much slower than intended
 BA   45- nfsubfields(polcyclo(88), 20) -> wrong result  [#1892]
 BA   46- [mpi] dynamically linking with libpari did not work
+     47- sin(1 + 1.0*I) used realprecision accuracy instead of precision(x);
+         same for cos, tan, arg, expm1, sinc.
 
   Added
       1- [libari] ZM_isidentity

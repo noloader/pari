@@ -3142,8 +3142,8 @@ gcos(GEN x, long prec)
     case t_REAL: return mpcos(x);
     case t_COMPLEX:
       if (isintzero(gel(x,1))) return gcosh(gel(x,2), prec);
-      i = precision(x); if (!i) i = prec;
-      y = cgetc(i); av = avma;
+      i = precision(x); if (i) prec = i;
+      y = cgetc(prec); av = avma;
       r = gexp(gel(x,2),prec);
       v1 = gmul2n(addrr(invr(r),r), -1); /* = cos(I*Im(x)) */
       u1 = subrr(v1, r); /* = - I*sin(I*Im(x)) */
@@ -3205,8 +3205,8 @@ gsin(GEN x, long prec)
     case t_REAL: return mpsin(x);
     case t_COMPLEX:
       if (isintzero(gel(x,1))) retmkcomplex(gen_0,gsinh(gel(x,2),prec));
-      i = precision(x); if (!i) i = prec;
-      y = cgetc(i); av = avma;
+      i = precision(x); if (i) prec = i;
+      y = cgetc(prec); av = avma;
       r = gexp(gel(x,2),prec);
       v1 = gmul2n(addrr(invr(r),r), -1); /* = cos(I*Im(x)) */
       u1 = subrr(r, v1); /* = I*sin(I*Im(x)) */
@@ -3326,6 +3326,8 @@ cxexpm1(GEN z, long prec)
 {
   pari_sp av = avma;
   GEN X, Y, x = real_i(z), y = imag_i(z);
+  long l = precision(z);
+  if (l) prec = l;
   if (typ(x) != t_REAL) x = gtofp(x, prec);
   if (typ(y) != t_REAL) y = gtofp(y, prec);
   if (gequal0(y)) return mpexpm1(x);
@@ -3357,9 +3359,9 @@ gsincos(GEN x, GEN *s, GEN *c, long prec)
       mpsincos(x,s,c); return;
 
     case t_COMPLEX:
-      i = precision(x); if (!i) i = prec;
-      ps = cgetc(i); *s = ps;
-      pc = cgetc(i); *c = pc; av = avma;
+      i = precision(x); if (i) prec = i;
+      ps = cgetc(prec); *s = ps;
+      pc = cgetc(prec); *c = pc; av = avma;
       r = gexp(gel(x,2),prec);
       v1 = gmul2n(addrr(invr(r),r), -1); /* = cos(I*Im(x)) */
       u1 = subrr(r, v1); /* = I*sin(I*Im(x)) */
@@ -3468,8 +3470,8 @@ gsinc(GEN x, long prec)
         av = avma;
         return gerepileuptoleaf(av,gdiv(gsinh(gel(x,2),prec),gel(x,2)));
       }
-      i = precision(x); if (!i) i = prec;
-      y = cgetc(i); av = avma;
+      i = precision(x); if (i) prec = i;
+      y = cgetc(prec); av = avma;
       r = gexp(gel(x,2),prec);
       v1 = gmul2n(addrr(invr(r),r), -1); /* = cos(I*Im(x)) */
       u1 = subrr(r, v1); /* = I*sin(I*Im(x)) */

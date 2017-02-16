@@ -346,12 +346,15 @@ cxarg(GEN x, GEN y, long prec)
 GEN
 garg(GEN x, long prec)
 {
+  long l;
   if (gequal0(x)) pari_err_DOMAIN("arg", "argument", "=", gen_0, x);
   switch(typ(x))
   {
     case t_REAL: prec = realprec(x); /* fall through */
     case t_INT: case t_FRAC: return (gsigne(x)>0)? real_0(prec): mppi(prec);
-    case t_COMPLEX: return cxarg(gel(x,1),gel(x,2),prec);
+    case t_COMPLEX:
+      l = precision(x); if (l) prec = l;
+      return cxarg(gel(x,1),gel(x,2),prec);
   }
   return trans_eval("arg",garg,x,prec);
 }
