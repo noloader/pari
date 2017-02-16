@@ -527,6 +527,779 @@ image_from_pivot(GEN x, GEN d, long r)
 
 /*******************************************************************/
 /*                                                                 */
+/*                Echelon form and CUP decomposition               */
+/*                                                                 */
+/*******************************************************************/
+
+/*
+  Decompose an m x n-matrix A of rank r as C*U*P, with
+  - C: m x r-matrix in column echelon form (not necessarily reduced)
+       with all pivots equal to 1
+  - U: upper-triangular r x n-matrix
+  - P: permutation matrix
+  The pivots of C and the known zeroes in C and U are not necessarily
+  filled in; instead, we also return the vector R of pivot rows.
+  Instead of the matrix P, we return the permutation p of [1..n]
+  (t_VECSMALL) such that P[i,j] = 1 if and only if j = p[i].
+*/
+
+/* complement of a strictly increasing subsequence of (1, 2, ..., n) */
+static GEN
+indexcompl(GEN v, long n) {
+  long i, j, k, m = lg(v) - 1;
+  GEN w = cgetg(n - m + 1, t_VECSMALL);
+  for (i = j = k = 1; i <= n; i++) {
+    if (j <= m && v[j] == i)
+      j++;
+    else
+      w[k++] = i;
+  }
+  return w;
+}
+
+static GEN
+Flm_rsolve_upper_1(GEN U, GEN B, ulong p) {
+  return Flm_Fl_mul(B, Fl_inv(ucoeff(U, 1, 1), p), p);
+}
+
+static GEN
+Flm_rsolve_upper_2(GEN U, GEN B, ulong p) {
+  ulong a = ucoeff(U, 1, 1), b = ucoeff(U, 1, 2), d = ucoeff(U, 2, 2);
+  ulong D = Fl_mul(a, d, p), Dinv = Fl_inv(D, p);
+  ulong ainv = Fl_mul(d, Dinv, p), dinv = Fl_mul(a, Dinv, p);
+  GEN B1 = rowslice(B, 1, 1);
+  GEN B2 = rowslice(B, 2, 2);
+  GEN X2 = Flm_Fl_mul(B2, dinv, p);
+  GEN X1 = Flm_Fl_mul(Flm_sub(B1, Flm_Fl_mul(X2, b, p), p),
+                      ainv, p);
+  return vconcat(X1, X2);
+}
+
+/* solve U*X = B,  U upper triangular and invertible */
+static GEN
+Flm_rsolve_upper(GEN U, GEN B, ulong p) {
+  long n = lg(U) - 1, n1;
+  GEN U1, U2, U11, U12, U22;
+  GEN B1, B2, X1, X2, X;
+  pari_sp av = avma;
+
+  if (n == 0)
+    return B;
+  if (n == 1)
+    return Flm_rsolve_upper_1(U, B, p);
+  if (n == 2)
+    return Flm_rsolve_upper_2(U, B, p);
+  n1 = (n + 1)/2;
+  U1 = vecslice(U, 1, n1);
+  U2 = vecslice(U, n1 + 1, n);
+  U11 = rowslice(U1, 1, n1);
+  U12 = rowslice(U2, 1, n1);
+  U22 = rowslice(U2, n1 + 1, n);
+  B1 = rowslice(B, 1, n1);
+  B2 = rowslice(B, n1 + 1, n);
+  X2 = Flm_rsolve_upper(U22, B2, p);
+  if (gc_needed(av, 1))
+    gerepileall(av, 4, &B1, &U11, &U12, &X2);
+  B1 = Flm_sub(B1, Flm_mul(U12, X2, p), p);
+  if (gc_needed(av, 1))
+    gerepileall(av, 3, &B1, &U11, &X2);
+  X1 = Flm_rsolve_upper(U11, B1, p);
+  X = vconcat(X1, X2);
+  if (gc_needed(av, 1))
+    X = gerepilecopy(av, X);
+  return X;
+}
+
+static GEN
+Flm_lsolve_upper_1(GEN U, GEN B, ulong p) {
+  return Flm_Fl_mul(B, Fl_inv(ucoeff(U, 1, 1), p), p);
+}
+
+static GEN
+Flm_lsolve_upper_2(GEN U, GEN B, ulong p) {
+  ulong a = ucoeff(U, 1, 1), b = ucoeff(U, 1, 2), d = ucoeff(U, 2, 2);
+  ulong D = Fl_mul(a, d, p), Dinv = Fl_inv(D, p);
+  ulong ainv = Fl_mul(d, Dinv, p), dinv = Fl_mul(a, Dinv, p);
+  GEN B1 = vecslice(B, 1, 1);
+  GEN B2 = vecslice(B, 2, 2);
+  GEN X1 = Flm_Fl_mul(B1, ainv, p);
+  GEN X2 = Flm_Fl_mul(Flm_sub(B2, Flm_Fl_mul(X1, b, p), p),
+                      dinv, p);
+  return shallowconcat(X1, X2);
+}
+
+/* solve X*U = B,  U upper triangular and invertible */
+static GEN
+Flm_lsolve_upper(GEN U, GEN B, ulong p) {
+  long n = lg(U) - 1, n1;
+  GEN U1, U2, U11, U12, U22;
+  GEN B1, B2, X1, X2, X;
+  pari_sp av = avma;
+
+  if (n == 0)
+    return B;
+  if (n == 1)
+    return Flm_lsolve_upper_1(U, B, p);
+  if (n == 2)
+    return Flm_lsolve_upper_2(U, B, p);
+  n1 = (n + 1)/2;
+  U1 = vecslice(U, 1, n1);
+  U2 = vecslice(U, n1 + 1, n);
+  U11 = rowslice(U1, 1, n1);
+  U12 = rowslice(U2, 1, n1);
+  U22 = rowslice(U2, n1 + 1, n);
+  B1 = vecslice(B, 1, n1);
+  B2 = vecslice(B, n1 + 1, n);
+  X1 = Flm_lsolve_upper(U11, B1, p);
+  if (gc_needed(av, 1))
+    gerepileall(av, 4, &B2, &U12, &U22, &X1);
+  B2 = Flm_sub(B2, Flm_mul(X1, U12, p), p);
+  if (gc_needed(av, 1))
+    gerepileall(av, 3, &B2, &U22, &X1);
+  X2 = Flm_lsolve_upper(U22, B2, p);
+  X = shallowconcat(X1, X2);
+  if (gc_needed(av, 1))
+    X = gerepilecopy(av, X);
+  return X;
+}
+
+static GEN
+Flm_rsolve_lower_unit_1(GEN L, GEN A, ulong p) {
+  return rowslice(A, 1, 1);
+}
+
+static GEN
+Flm_rsolve_lower_unit_2(GEN L, GEN A, ulong p) {
+  GEN X1 = rowslice(A, 1, 1);
+  GEN X2 = Flm_sub(rowslice(A, 2, 2),
+                   Flm_Fl_mul(X1, ucoeff(L, 2, 1), p), p);
+  return vconcat(X1, X2);
+}
+
+/*
+  solve L*X = A,  L lower triangular with ones on the diagonal
+  (at least as many rows as columns)
+*/
+static GEN
+Flm_rsolve_lower_unit(GEN L, GEN A, ulong p) {
+  long m = lg(L) - 1, m1, n;
+  GEN L1, L2, L11, L21, L22, A1, A2, X1, X2, X;
+  pari_sp av = avma;
+
+  if (m == 0)
+    return zero_Flm(0, lg(A) - 1);
+  if (m == 1)
+    return Flm_rsolve_lower_unit_1(L, A, p);
+  if (m == 2)
+    return Flm_rsolve_lower_unit_2(L, A, p);
+  m1 = (m + 1)/2;
+  n = nbrows(L);
+  L1 = vecslice(L, 1, m1);
+  L2 = vecslice(L, m1 + 1, m);
+  L11 = rowslice(L1, 1, m1);
+  L21 = rowslice(L1, m1 + 1, n);
+  L22 = rowslice(L2, m1 + 1, n);
+  A1 = rowslice(A, 1, m1);
+  A2 = rowslice(A, m1 + 1, n);
+  X1 = Flm_rsolve_lower_unit(L11, A1, p);
+  if (gc_needed(av, 1))
+    gerepileall(av, 4, &A2, &L21, &L22, &X1);
+  A2 = Flm_sub(A2, Flm_mul(L21, X1, p), p);
+  if (gc_needed(av, 1))
+    gerepileall(av, 3, &A2, &L22, &X1);
+  X2 = Flm_rsolve_lower_unit(L22, A2, p);
+  X = vconcat(X1, X2);
+  if (gc_needed(av, 1))
+    X = gerepilecopy(av, X);
+  return X;
+}
+
+static GEN
+Flm_lsolve_lower_unit_2(GEN L, GEN A, ulong p) {
+  GEN X2 = vecslice(A, 2, 2);
+  GEN X1 = Flm_sub(vecslice(A, 1, 1),
+                   Flm_Fl_mul(X2, ucoeff(L, 2, 1), p), p);
+  return shallowconcat(X1, X2);
+}
+
+/* solve L*X = A,  L square lower triangular with ones on the diagonal */
+static GEN
+Flm_lsolve_lower_unit(GEN L, GEN A, ulong p) {
+  long m = lg(L) - 1, m1;
+  GEN L1, L2, L11, L21, L22, A1, A2, X1, X2, X;
+  pari_sp av = avma;
+
+  if (m <= 1)
+    return A;
+  if (m == 2)
+    return Flm_lsolve_lower_unit_2(L, A, p);
+  m1 = (m + 1)/2;
+  L1 = vecslice(L, 1, m1);
+  L2 = vecslice(L, m1 + 1, m);
+  L11 = rowslice(L1, 1, m1);
+  L21 = rowslice(L1, m1 + 1, m);
+  L22 = rowslice(L2, m1 + 1, m);
+  A1 = vecslice(A, 1, m1);
+  A2 = vecslice(A, m1 + 1, m);
+  X2 = Flm_lsolve_lower_unit(L22, A2, p);
+  if (gc_needed(av, 1))
+    gerepileall(av, 4, &A1, &L11, &L21, &X2);
+  A1 = Flm_sub(A1, Flm_mul(X2, L21, p), p);
+  if (gc_needed(av, 1))
+    gerepileall(av, 3, &A1, &L11, &X2);
+  X1 = Flm_lsolve_lower_unit(L11, A1, p);
+  X = shallowconcat(X1, X2);
+  if (gc_needed(av, 1))
+    X = gerepilecopy(av, X);
+  return X;
+}
+
+/* destroy A */
+static long
+Flm_CUP_gauss(GEN A, GEN *R, GEN *C, GEN *U, GEN *P, ulong p) {
+  long i, j, k, m = nbrows(A), n = lg(A) - 1, pr, pc, u, v;
+  pari_sp av;
+
+  *P = identity_perm(n);
+  *R = cgetg(m + 1, t_VECSMALL);
+  av = avma;
+  for (j = 1, pr = 0; j <= n; j++) {
+    for (pr++, pc = 0; pr <= m; pr++) {
+      for (k = j; k <= n; k++) {
+        v = ucoeff(A, pr, k);
+        if (!pc && v)
+          pc = k;
+      }
+      if (pc)
+        break;
+    }
+    if (!pc)
+      break;
+    (*R)[j] = pr;
+    if (pc != j) {
+      swap(gel(A, j), gel(A, pc));
+      lswap((*P)[j], (*P)[pc]);
+    }
+    if (pr != j) {
+      for (k = j; k <= n; k++)
+        ucoeff(A, j, k) = ucoeff(A, pr, k);
+    }
+    u = Fl_inv(ucoeff(A, j, j), p);
+    for (i = pr + 1; i <= m; i++) {
+      v = Fl_mul(ucoeff(A, i, j), u, p);
+      ucoeff(A, i, j) = v;
+      for (k = j + 1; k <= n; k++) {
+        ucoeff(A, i, k) = Fl_sub(ucoeff(A, i, k),
+                                 Fl_mul(ucoeff(A, j, k), v, p), p);
+      }
+    }
+  }
+  setlg(*R, j);
+  *C = vecslice(A, 1, j - 1);
+  *U = rowslice(A, 1, j - 1);
+  if (gc_needed(av, 1))
+    gerepileall(av, 2, C, U);
+  return j - 1;
+}
+
+static const long Flm_CUP_LIMIT = 8;
+
+static ulong
+Flm_CUP(GEN A, GEN *R, GEN *C, GEN *U, GEN *P, ulong p) {
+  long m = nbrows(A), m1, n = lg(A) - 1, i, r1, r2, r;
+  GEN R1, C1, U1, P1, R2, C2, U2, P2;
+  GEN A1, A2, B2, C21, U11, U12, T21, T22;
+  pari_sp av = avma;
+
+  if (m < Flm_CUP_LIMIT || n < Flm_CUP_LIMIT)
+    /* destroy A; not called at the outermost recursion level */
+    return Flm_CUP_gauss(A, R, C, U, P, p);
+  m1 = (minss(m, n) + 1)/2;
+  A1 = rowslice(A, 1, m1);
+  A2 = rowslice(A, m1 + 1, m);
+  r1 = Flm_CUP(A1, &R1, &C1, &U1, &P1, p);
+  if (r1 == 0) {
+    r2 = Flm_CUP(A2, &R2, &C2, &U2, &P2, p);
+    *R = cgetg(r2 + 1, t_VECSMALL);
+    for (i = 1; i <= r2; i++)
+      (*R)[i] = R2[i] + m1;
+    *C = vconcat(zero_Flm(m1, r2), C2);
+    *U = U2;
+    *P = P2;
+    r = r2;
+  } else {
+    U11 = vecslice(U1, 1, r1);
+    U12 = vecslice(U1, r1 + 1, n);
+    T21 = vecslicepermute(A2, P1, 1, r1);
+    T22 = vecslicepermute(A2, P1, r1 + 1, n);
+    C21 = Flm_lsolve_upper(U11, T21, p);
+    if (gc_needed(av, 1))
+      gerepileall(av, 7, &R1, &C1, &P1, &U11, &U12, &T22, &C21);
+    B2 = Flm_sub(T22, Flm_mul(C21, U12, p), p);
+    r2 = Flm_CUP(B2, &R2, &C2, &U2, &P2, p);
+    r = r1 + r2;
+    *R = cgetg(r + 1, t_VECSMALL);
+    for (i = 1; i <= r1; i++)
+      (*R)[i] = R1[i];
+    for (; i <= r; i++)
+      (*R)[i] = R2[i - r1] + m1;
+    *C = shallowconcat(vconcat(C1, C21),
+                       vconcat(zero_Flm(m1, r2), C2));
+    *U = shallowconcat(vconcat(U11, zero_Flm(r2, r1)),
+                       vconcat(vecpermute(U12, P2), U2));
+    *P = cgetg(n + 1, t_VECSMALL);
+    for (i = 1; i <= r1; i++)
+      (*P)[i] = P1[i];
+    for (; i <= n; i++)
+      (*P)[i] = P1[P2[i - r1] + r1];
+  }
+  if (gc_needed(av, 1))
+    gerepileall(av, 4, R, C, U, P);
+  return r;
+}
+
+static ulong
+Flm_echelon_gauss(GEN A, GEN *R, GEN *C, ulong p) {
+  GEN U, P;
+  return Flm_CUP_gauss(A, R, C, &U, &P, p);
+}
+
+/* column echelon form */
+static ulong
+Flm_echelon(GEN A, GEN *R, GEN *C, ulong p) {
+  long i, j, j1, j2, m = nbrows(A), n = lg(A) - 1, n1, r, r1, r2;
+  GEN A1, A2, R1, R1c, C1, R2, C2;
+  GEN A12, A22, B2, C11, C21, M12;
+  pari_sp av = avma;
+
+  if (m < Flm_CUP_LIMIT || n < Flm_CUP_LIMIT)
+    return Flm_echelon_gauss(Flm_copy(A), R, C, p);
+
+  n1 = (n + 1)/2;
+  A1 = vecslice(A, 1, n1);
+  A2 = vecslice(A, n1 + 1, n);
+  r1 = Flm_echelon(A1, &R1, &C1, p);
+  if (!r1)
+    return Flm_echelon(A2, R, C, p);
+  else if (r1 == m) {
+    *R = R1;
+    *C = C1;
+    return r1;
+  }
+  R1c = indexcompl(R1, m);
+  C11 = rowpermute(C1, R1);
+  C21 = rowpermute(C1, R1c);
+  if (R1[r1] != r1) {
+    for (j = 1; j <= r1; j++)
+      for (i = 1; i <= R1[j] - j; i++)
+        ucoeff(C21, i, j) = 0;
+  }
+  A12 = rowpermute(A2, R1);
+  A22 = rowpermute(A2, R1c);
+  M12 = Flm_rsolve_lower_unit(C11, A12, p);
+  B2 = Flm_sub(A22, Flm_mul(C21, M12, p), p);
+  r2 = Flm_echelon(B2, &R2, &C2, p);
+  if (!r2) {
+    *R = R1;
+    *C = C1;
+    r = r1;
+  } else {
+    R2 = perm_mul(R1c, R2);
+    C2 = rowpermute(vconcat(zero_Flm(r1, r2), C2),
+                    perm_inv(vecsmall_concat(R1, R1c)));
+    r = r1 + r2;
+    *R = cgetg(r + 1, t_VECSMALL);
+    *C = cgetg(r + 1, t_MAT);
+    for (j = j1 = j2 = 1; j <= r; j++) {
+      if (j2 > r2 || (j1 <= r1 && R1[j1] < R2[j2])) {
+        gel(*C, j) = gel(C1, j1);
+        (*R)[j] = R1[j1++];
+      } else {
+        gel(*C, j) = gel(C2, j2);
+        (*R)[j] = R2[j2++];
+      }
+    }
+  }
+  if (gc_needed(av, 1))
+    gerepileall(av, 2, R, C);
+  return r;
+}
+
+static GEN
+FlxqM_rsolve_upper_1(GEN U, GEN B, GEN T, ulong p) {
+  return FlxqM_Flxq_mul(B, Flxq_inv(gcoeff(U, 1, 1), T, p), T, p);
+}
+
+static GEN
+FlxqM_rsolve_upper_2(GEN U, GEN B, GEN T, ulong p) {
+  GEN a = gcoeff(U, 1, 1), b = gcoeff(U, 1, 2), d = gcoeff(U, 2, 2);
+  GEN D = Flxq_mul(a, d, T, p), Dinv = Flxq_inv(D, T, p);
+  GEN ainv = Flxq_mul(d, Dinv, T, p), dinv = Flxq_mul(a, Dinv, T, p);
+  GEN B1 = rowslice(B, 1, 1);
+  GEN B2 = rowslice(B, 2, 2);
+  GEN X2 = FlxqM_Flxq_mul(B2, dinv, T, p);
+  GEN X1 = FlxqM_Flxq_mul(FlxM_sub(B1, FlxqM_Flxq_mul(X2, b, T, p), p),
+                          ainv, T, p);
+  return vconcat(X1, X2);
+}
+
+/* solve U*X = B,  U upper triangular and invertible */
+static GEN
+FlxqM_rsolve_upper(GEN U, GEN B, GEN T, ulong p) {
+  long n = lg(U) - 1, n1;
+  GEN U1, U2, U11, U12, U22;
+  GEN B1, B2, X1, X2, X;
+  pari_sp av = avma;
+
+  if (n == 0)
+    return B;
+  if (n == 1)
+    return FlxqM_rsolve_upper_1(U, B, T, p);
+  if (n == 2)
+    return FlxqM_rsolve_upper_2(U, B, T, p);
+  n1 = (n + 1)/2;
+  U1 = vecslice(U, 1, n1);
+  U2 = vecslice(U, n1 + 1, n);
+  U11 = rowslice(U1, 1, n1);
+  U12 = rowslice(U2, 1, n1);
+  U22 = rowslice(U2, n1 + 1, n);
+  B1 = rowslice(B, 1, n1);
+  B2 = rowslice(B, n1 + 1, n);
+  X2 = FlxqM_rsolve_upper(U22, B2, T, p);
+  if (gc_needed(av, 1))
+    gerepileall(av, 4, &B1, &U11, &U12, &X2);
+  B1 = FlxM_sub(B1, FlxqM_mul(U12, X2, T, p), p);
+  if (gc_needed(av, 1))
+    gerepileall(av, 3, &B1, &U11, &X2);
+  X1 = FlxqM_rsolve_upper(U11, B1, T, p);
+  X = vconcat(X1, X2);
+  if (gc_needed(av, 1))
+    X = gerepilecopy(av, X);
+  return X;
+}
+
+static GEN
+FlxqM_lsolve_upper_1(GEN U, GEN B, GEN T, ulong p) {
+  return FlxqM_Flxq_mul(B, Flxq_inv(gcoeff(U, 1, 1), T, p), T, p);
+}
+
+static GEN
+FlxqM_lsolve_upper_2(GEN U, GEN B, GEN T, ulong p) {
+  GEN a = gcoeff(U, 1, 1), b = gcoeff(U, 1, 2), d = gcoeff(U, 2, 2);
+  GEN D = Flxq_mul(a, d, T, p), Dinv = Flxq_inv(D, T, p);
+  GEN ainv = Flxq_mul(d, Dinv, T, p), dinv = Flxq_mul(a, Dinv, T, p);
+  GEN B1 = vecslice(B, 1, 1);
+  GEN B2 = vecslice(B, 2, 2);
+  GEN X1 = FlxqM_Flxq_mul(B1, ainv, T, p);
+  GEN X2 = FlxqM_Flxq_mul(FlxM_sub(B2, FlxqM_Flxq_mul(X1, b, T, p), p),
+                          dinv, T, p);
+  return shallowconcat(X1, X2);
+}
+
+/* solve X*U = B,  U upper triangular and invertible */
+static GEN
+FlxqM_lsolve_upper(GEN U, GEN B, GEN T, ulong p) {
+  long n = lg(U) - 1, n1;
+  GEN U1, U2, U11, U12, U22;
+  GEN B1, B2, X1, X2, X;
+  pari_sp av = avma;
+
+  if (n == 0)
+    return B;
+  if (n == 1)
+    return FlxqM_lsolve_upper_1(U, B, T, p);
+  if (n == 2)
+    return FlxqM_lsolve_upper_2(U, B, T, p);
+  n1 = (n + 1)/2;
+  U1 = vecslice(U, 1, n1);
+  U2 = vecslice(U, n1 + 1, n);
+  U11 = rowslice(U1, 1, n1);
+  U12 = rowslice(U2, 1, n1);
+  U22 = rowslice(U2, n1 + 1, n);
+  B1 = vecslice(B, 1, n1);
+  B2 = vecslice(B, n1 + 1, n);
+  X1 = FlxqM_lsolve_upper(U11, B1, T, p);
+  if (gc_needed(av, 1))
+    gerepileall(av, 4, &B2, &U12, &U22, &X1);
+  B2 = FlxM_sub(B2, FlxqM_mul(X1, U12, T, p), p);
+  if (gc_needed(av, 1))
+    gerepileall(av, 3, &B2, &U22, &X1);
+  X2 = FlxqM_lsolve_upper(U22, B2, T, p);
+  X = shallowconcat(X1, X2);
+  if (gc_needed(av, 1))
+    X = gerepilecopy(av, X);
+  return X;
+}
+
+static GEN
+FlxqM_rsolve_lower_unit_1(GEN L, GEN A, GEN T, ulong p) {
+  return rowslice(A, 1, 1);
+}
+
+static GEN
+FlxqM_rsolve_lower_unit_2(GEN L, GEN A, GEN T, ulong p) {
+  GEN X1 = rowslice(A, 1, 1);
+  GEN X2 = FlxM_sub(rowslice(A, 2, 2),
+                    FlxqM_Flxq_mul(X1, gcoeff(L, 2, 1), T, p), p);
+  return vconcat(X1, X2);
+}
+
+/*
+  solve L*X = A,  L lower triangular with ones on the diagonal
+  (at least as many rows as columns)
+*/
+static GEN
+FlxqM_rsolve_lower_unit(GEN L, GEN A, GEN T, ulong p) {
+  long m = lg(L) - 1, m1, n;
+  GEN L1, L2, L11, L21, L22, A1, A2, X1, X2, X;
+  pari_sp av = avma;
+
+  if (m == 0)
+    return zeromat(0, lg(A) - 1);
+  if (m == 1)
+    return FlxqM_rsolve_lower_unit_1(L, A, T, p);
+  if (m == 2)
+    return FlxqM_rsolve_lower_unit_2(L, A, T, p);
+  m1 = (m + 1)/2;
+  n = nbrows(L);
+  L1 = vecslice(L, 1, m1);
+  L2 = vecslice(L, m1 + 1, m);
+  L11 = rowslice(L1, 1, m1);
+  L21 = rowslice(L1, m1 + 1, n);
+  L22 = rowslice(L2, m1 + 1, n);
+  A1 = rowslice(A, 1, m1);
+  A2 = rowslice(A, m1 + 1, n);
+  X1 = FlxqM_rsolve_lower_unit(L11, A1, T, p);
+  if (gc_needed(av, 1))
+    gerepileall(av, 4, &A2, &L21, &L22, &X1);
+  A2 = FlxM_sub(A2, FlxqM_mul(L21, X1, T, p), p);
+  if (gc_needed(av, 1))
+    gerepileall(av, 3, &A2, &L22, &X1);
+  X2 = FlxqM_rsolve_lower_unit(L22, A2, T, p);
+  X = vconcat(X1, X2);
+  if (gc_needed(av, 1))
+    X = gerepilecopy(av, X);
+  return X;
+}
+
+static GEN
+FlxqM_lsolve_lower_unit_2(GEN L, GEN A, GEN T, ulong p) {
+  GEN X2 = vecslice(A, 2, 2);
+  GEN X1 = FlxM_sub(vecslice(A, 1, 1),
+                    FlxqM_Flxq_mul(X2, gcoeff(L, 2, 1), T, p), p);
+  return shallowconcat(X1, X2);
+}
+
+/* solve L*X = A,  L square lower triangular with ones on the diagonal */
+static GEN
+FlxqM_lsolve_lower_unit(GEN L, GEN A, GEN T, ulong p) {
+  long m = lg(L) - 1, m1;
+  GEN L1, L2, L11, L21, L22, A1, A2, X1, X2, X;
+  pari_sp av = avma;
+
+  if (m <= 1)
+    return A;
+  if (m == 2)
+    return FlxqM_lsolve_lower_unit_2(L, A, T, p);
+  m1 = (m + 1)/2;
+  L1 = vecslice(L, 1, m1);
+  L2 = vecslice(L, m1 + 1, m);
+  L11 = rowslice(L1, 1, m1);
+  L21 = rowslice(L1, m1 + 1, m);
+  L22 = rowslice(L2, m1 + 1, m);
+  A1 = vecslice(A, 1, m1);
+  A2 = vecslice(A, m1 + 1, m);
+  X2 = FlxqM_lsolve_lower_unit(L22, A2, T, p);
+  if (gc_needed(av, 1))
+    gerepileall(av, 4, &A1, &L11, &L21, &X2);
+  A1 = FlxM_sub(A1, FlxqM_mul(X2, L21, T, p), p);
+  if (gc_needed(av, 1))
+    gerepileall(av, 3, &A1, &L11, &X2);
+  X1 = FlxqM_lsolve_lower_unit(L11, A1, T, p);
+  X = shallowconcat(X1, X2);
+  if (gc_needed(av, 1))
+    X = gerepilecopy(av, X);
+  return X;
+}
+
+/* destroy A */
+static long
+FlxqM_CUP_gauss(GEN A, GEN *R, GEN *C, GEN *U, GEN *P, GEN T, ulong p) {
+  long i, j, k, m = nbrows(A), n = lg(A) - 1, pr, pc;
+  pari_sp av;
+  GEN u, v;
+
+  *P = identity_perm(n);
+  *R = cgetg(m + 1, t_VECSMALL);
+  av = avma;
+  for (j = 1, pr = 0; j <= n; j++) {
+    for (pr++, pc = 0; pr <= m; pr++) {
+      for (k = j; k <= n; k++) {
+        v = Flx_rem(gcoeff(A, pr, k), T, p);
+        gcoeff(A, pr, k) = v;
+        if (!pc && lgpol(v) > 0)
+          pc = k;
+      }
+      if (pc)
+        break;
+    }
+    if (!pc)
+      break;
+    (*R)[j] = pr;
+    if (pc != j) {
+      swap(gel(A, j), gel(A, pc));
+      lswap((*P)[j], (*P)[pc]);
+    }
+    if (pr != j) {
+      for (k = j; k <= n; k++)
+        gcoeff(A, j, k) = gcoeff(A, pr, k);
+    }
+    u = Flxq_inv(gcoeff(A, j, j), T, p);
+    for (i = pr + 1; i <= m; i++) {
+      v = Flxq_mul(gcoeff(A, i, j), u, T, p);
+      gcoeff(A, i, j) = v;
+      for (k = j + 1; k <= n; k++) {
+        gcoeff(A, i, k) = Flx_sub(gcoeff(A, i, k),
+                                  Flx_mul(gcoeff(A, j, k), v, p), p);
+      }
+    }
+  }
+  setlg(*R, j);
+  *C = vecslice(A, 1, j - 1);
+  *U = rowslice(A, 1, j - 1);
+  if (gc_needed(av, 1))
+    gerepileall(av, 2, C, U);
+  return j - 1;
+}
+
+static const long FlxqM_CUP_LIMIT = 5;
+
+static ulong
+FlxqM_CUP(GEN A, GEN *R, GEN *C, GEN *U, GEN *P, GEN T, ulong p) {
+  long m = nbrows(A), m1, n = lg(A) - 1, i, r1, r2, r, sv;
+  GEN R1, C1, U1, P1, R2, C2, U2, P2;
+  GEN A1, A2, B2, C21, U11, U12, T21, T22;
+  pari_sp av = avma;
+
+  if (m < FlxqM_CUP_LIMIT || n < FlxqM_CUP_LIMIT)
+    /* destroy A; not called at the outermost recursion level */
+    return FlxqM_CUP_gauss(A, R, C, U, P, T, p);
+  sv = get_Flx_var(T);
+  m1 = (minss(m, n) + 1)/2;
+  A1 = rowslice(A, 1, m1);
+  A2 = rowslice(A, m1 + 1, m);
+  r1 = FlxqM_CUP(A1, &R1, &C1, &U1, &P1, T, p);
+  if (r1 == 0) {
+    r2 = FlxqM_CUP(A2, &R2, &C2, &U2, &P2, T, p);
+    *R = cgetg(r2 + 1, t_VECSMALL);
+    for (i = 1; i <= r2; i++)
+      (*R)[i] = R2[i] + m1;
+    *C = vconcat(zero_FlxM(m1, r2, sv), C2);
+    *U = U2;
+    *P = P2;
+    r = r2;
+  } else {
+    U11 = vecslice(U1, 1, r1);
+    U12 = vecslice(U1, r1 + 1, n);
+    T21 = vecslicepermute(A2, P1, 1, r1);
+    T22 = vecslicepermute(A2, P1, r1 + 1, n);
+    C21 = FlxqM_lsolve_upper(U11, T21, T, p);
+    if (gc_needed(av, 1))
+      gerepileall(av, 7, &R1, &C1, &P1, &U11, &U12, &T22, &C21);
+    B2 = FlxM_sub(T22, FlxqM_mul(C21, U12, T, p), p);
+    r2 = FlxqM_CUP(B2, &R2, &C2, &U2, &P2, T, p);
+    r = r1 + r2;
+    *R = cgetg(r + 1, t_VECSMALL);
+    for (i = 1; i <= r1; i++)
+      (*R)[i] = R1[i];
+    for (; i <= r; i++)
+      (*R)[i] = R2[i - r1] + m1;
+    *C = shallowmatconcat(mkmat2(mkcol2(C1, C21),
+                                 mkcol2(zero_FlxM(m1, r2, sv), C2)));
+    *U = shallowmatconcat(mkmat2(mkcol2(U11, zero_FlxM(r2, r1, sv)),
+                                 mkcol2(vecpermute(U12, P2), U2)));
+    *P = cgetg(n + 1, t_VECSMALL);
+    for (i = 1; i <= r1; i++)
+      (*P)[i] = P1[i];
+    for (; i <= n; i++)
+      (*P)[i] = P1[P2[i - r1] + r1];
+  }
+  if (gc_needed(av, 1))
+    gerepileall(av, 4, R, C, U, P);
+  return r;
+}
+
+static ulong
+FlxqM_echelon_gauss(GEN A, GEN *R, GEN *C, GEN T, ulong p) {
+  GEN U, P;
+  return FlxqM_CUP_gauss(A, R, C, &U, &P, T, p);
+}
+
+/* column echelon form */
+static ulong
+FlxqM_echelon(GEN A, GEN *R, GEN *C, GEN T, ulong p) {
+  long i, j, j1, j2, m = nbrows(A), n = lg(A) - 1, n1, r, r1, r2;
+  GEN A1, A2, R1, R1c, C1, R2, C2;
+  GEN A12, A22, B2, C11, C21, M12;
+  pari_sp av = avma;
+
+  if (m < FlxqM_CUP_LIMIT || n < FlxqM_CUP_LIMIT)
+    return FlxqM_echelon_gauss(shallowcopy(A), R, C, T, p);
+
+  n1 = (n + 1)/2;
+  A1 = vecslice(A, 1, n1);
+  A2 = vecslice(A, n1 + 1, n);
+  r1 = FlxqM_echelon(A1, &R1, &C1, T, p);
+  if (!r1)
+    return FlxqM_echelon(A2, R, C, T, p);
+  else if (r1 == m) {
+    *R = R1;
+    *C = C1;
+    return r1;
+  }
+  R1c = indexcompl(R1, m);
+  C11 = rowpermute(C1, R1);
+  C21 = rowpermute(C1, R1c);
+  if (R1[r1] != r1) {
+    GEN zero = zero_Flx(get_Flx_var(T));
+    for (j = 1; j <= r1; j++)
+      for (i = 1; i <= R1[j] - j; i++)
+        gcoeff(C21, i, j) = zero;
+  }
+  A12 = rowpermute(A2, R1);
+  A22 = rowpermute(A2, R1c);
+  M12 = FlxqM_rsolve_lower_unit(C11, A12, T, p);
+  B2 = FlxM_sub(A22, FlxqM_mul(C21, M12, T, p), p);
+  r2 = FlxqM_echelon(B2, &R2, &C2, T, p);
+  if (!r2) {
+    *R = R1;
+    *C = C1;
+    r = r1;
+  } else {
+    R2 = perm_mul(R1c, R2);
+    C2 = rowpermute(vconcat(zero_FlxM(r1, r2, get_Flx_var(T)), C2),
+                    perm_inv(vecsmall_concat(R1, R1c)));
+    r = r1 + r2;
+    *R = cgetg(r + 1, t_VECSMALL);
+    *C = cgetg(r + 1, t_MAT);
+    for (j = j1 = j2 = 1; j <= r; j++) {
+      if (j2 > r2 || (j1 <= r1 && R1[j1] < R2[j2])) {
+        gel(*C, j) = gel(C1, j1);
+        (*R)[j] = R1[j1++];
+      } else {
+        gel(*C, j) = gel(C2, j2);
+        (*R)[j] = R2[j2++];
+      }
+    }
+  }
+  if (gc_needed(av, 1))
+    gerepileall(av, 2, R, C);
+  return r;
+}
+
+
+/*******************************************************************/
+/*                                                                 */
 /*                    LINEAR ALGEBRA MODULO P                      */
 /*                                                                 */
 /*******************************************************************/
@@ -623,7 +1396,7 @@ _Fl_add_OK(GEN b, long k, long i, ulong p)
 }
 
 static GEN
-Flm_ker_sp_OK(GEN x, ulong p, long deplin)
+Flm_ker_gauss_OK(GEN x, ulong p, long deplin)
 {
   GEN y, c, d;
   long i, j, k, r, t, m, n;
@@ -698,15 +1471,15 @@ Flm_ker_sp_OK(GEN x, ulong p, long deplin)
 }
 
 /* in place, destroy x */
-GEN
-Flm_ker_sp(GEN x, ulong p, long deplin)
+static GEN
+Flm_ker_gauss(GEN x, ulong p, long deplin)
 {
   GEN y, c, d;
   long i, j, k, r, t, m, n;
   ulong a, pi;
   n = lg(x)-1;
   if (!n) return cgetg(1,t_MAT);
-  if (SMALL_ULONG(p)) return Flm_ker_sp_OK(x, p, deplin);
+  if (SMALL_ULONG(p)) return Flm_ker_gauss_OK(x, p, deplin);
   pi = get_Fl_red(p);
 
   m=nbrows(x); r=0;
@@ -807,10 +1580,75 @@ GEN
 F2m_ker(GEN x) { return F2m_ker_sp(F2m_copy(x), 0); }
 GEN
 F2m_deplin(GEN x) { return F2m_ker_sp(F2m_copy(x), 1); }
+
+static GEN
+Flm_ker_echelon(GEN x, ulong p, long pivots) {
+  pari_sp av = avma;
+  GEN R, Rc, C, C1, C2, S, K;
+  long n = lg(x) - 1, r;
+  r = Flm_echelon(Flm_transpose(x), &R, &C, p);
+  Rc = indexcompl(R, n);
+  C1 = rowpermute(C, R);
+  C2 = rowpermute(C, Rc);
+  if (R[r] != r) {
+    long i, j;
+    for (j = 1; j <= r; j++)
+      for (i = 1; i <= R[j] - j; i++)
+        ucoeff(C2, i, j) = 0;
+  }
+  S = Flm_lsolve_lower_unit(C1, C2, p);
+  K = vecpermute(shallowconcat(Flm_neg(S, p), matid_Flm(n - r)),
+                 perm_inv(vecsmall_concat(R, Rc)));
+  K = Flm_transpose(K);
+  if (pivots)
+    return gerepilecopy(av, mkvec2(K, R));
+  return gerepileupto(av, K);
+}
+
+static GEN
+Flm_deplin_echelon(GEN x, ulong p) {
+  pari_sp av = avma;
+  GEN R, Rc, C, C1, C2, s, v;
+  long i, j, n = lg(x) - 1, r;
+  r = Flm_echelon(Flm_transpose(x), &R, &C, p);
+  if (r == n) { avma = av; return NULL; }
+  Rc = indexcompl(R, n);
+  i = Rc[1];
+  C1 = rowpermute(C, R);
+  C2 = rowslice(C, i, i);
+  for (j = i; j <= r; j++)
+    ucoeff(C2, 1, j) = 0UL;
+  s = Flm_row(Flm_lsolve_lower_unit(C1, C2, p), 1);
+  v = vecpermute(vecsmall_concat(Flv_neg(s, p), vecsmall_ei(n - r, 1)),
+                 perm_inv(vecsmall_concat(R, Rc)));
+  return gerepileuptoleaf(av, v);
+}
+
+static GEN
+Flm_ker_i(GEN x, ulong p, long deplin, long inplace) {
+  if (lg(x) - 1 >= Flm_CUP_LIMIT && nbrows(x) >= Flm_CUP_LIMIT)
+    switch(deplin) {
+    case 0: return Flm_ker_echelon(x, p, 0);
+    case 1: return Flm_deplin_echelon(x, p);
+    case 2: return Flm_ker_echelon(x, p, 1);
+    }
+  return Flm_ker_gauss(inplace? x: Flm_copy(x), p, deplin);
+}
+
 GEN
-Flm_ker(GEN x, ulong p) { return Flm_ker_sp(Flm_copy(x), p, 0); }
+Flm_ker_sp(GEN x, ulong p, long deplin) {
+  return Flm_ker_i(x, p, deplin, 1);
+}
+
 GEN
-Flm_deplin(GEN x, ulong p) { return Flm_ker_sp(Flm_copy(x), p, 1); }
+Flm_ker(GEN x, ulong p) {
+  return Flm_ker_i(x, p, 0, 0);
+}
+
+GEN
+Flm_deplin(GEN x, ulong p) {
+  return Flm_ker_i(x, p, 1, 0);
+}
 
 ulong
 F2m_det_sp(GEN x) { return !F2m_ker_sp(x, 1); }
@@ -825,7 +1663,7 @@ F2m_det(GEN x)
 
 /* in place, destroy a, SMALL_ULONG(p) is TRUE */
 static ulong
-Flm_det_sp_OK(GEN a, long nbco, ulong p)
+Flm_det_gauss_OK(GEN a, long nbco, ulong p)
 {
   long i,j,k, s = 1;
   ulong q, x = 1;
@@ -871,14 +1709,15 @@ Flm_det_sp_OK(GEN a, long nbco, ulong p)
   if (s < 0 && x) x = p - x;
   return x;
 }
+
 /* in place, destroy a */
-ulong
-Flm_det_sp(GEN a, ulong p)
+static ulong
+Flm_det_gauss(GEN a, ulong p)
 {
   long i,j,k, s = 1, nbco = lg(a)-1;
   ulong pi, q, x = 1;
 
-  if (SMALL_ULONG(p)) return Flm_det_sp_OK(a, nbco, p);
+  if (SMALL_ULONG(p)) return Flm_det_gauss_OK(a, nbco, p);
   pi = get_Fl_red(p);
   for (i=1; i<nbco; i++)
   {
@@ -908,12 +1747,40 @@ Flm_det_sp(GEN a, ulong p)
   return Fl_mul(x, ucoeff(a,nbco,nbco), p);
 }
 
-ulong
-Flm_det(GEN x, ulong p)
-{
+static ulong
+Flm_det_CUP(GEN a, ulong p) {
+  GEN R, C, U, P;
+  long d, i, n = lg(a) - 1, r;
+  r = Flm_CUP(a, &R, &C, &U, &P, p);
+  if (r < n)
+    d = 0;
+  else {
+    d = perm_sign(P) == 1? 1: p-1;
+    for (i = 1; i <= n; i++)
+      d = Fl_mul(d, ucoeff(U, i, i), p);
+  }
+  return d;
+}
+
+static ulong
+Flm_det_i(GEN x, ulong p, long inplace) {
   pari_sp av = avma;
-  ulong d = Flm_det_sp(Flm_copy(x), p);
+  ulong d;
+  if (lg(x) - 1 >= Flm_CUP_LIMIT)
+    d = Flm_det_CUP(x, p);
+  else
+    d = Flm_det_gauss(inplace? x: Flm_copy(x), p);
   avma = av; return d;
+}
+
+ulong
+Flm_det_sp(GEN x, ulong p) {
+  return Flm_det_i(x, p, 1);
+}
+
+ulong
+Flm_det(GEN x, ulong p) {
+  return Flm_det_i(x, p, 0);
 }
 
 static GEN
@@ -1036,6 +1903,27 @@ Flm_gauss_pivot(GEN x, ulong p, long *rr)
 }
 
 static GEN
+Flm_pivots_CUP(GEN x, ulong p, long *rr) {
+  pari_sp av;
+  long i, n = lg(x) - 1, r;
+  GEN R, C, U, P, d = zero_zv(n);
+  av = avma;
+  r = Flm_CUP(x, &R, &C, &U, &P, p);
+  for(i = 1; i <= r; i++)
+    d[P[i]] = R[i];
+  avma = av;
+  *rr = n - r;
+  return d;
+}
+
+static GEN
+Flm_pivots(GEN x, ulong p, long *rr, long inplace) {
+  if (lg(x) - 1 >= Flm_CUP_LIMIT && nbrows(x) >= Flm_CUP_LIMIT)
+    return Flm_pivots_CUP(x, p, rr);
+  return Flm_gauss_pivot(inplace? x: Flm_copy(x), p, rr);
+}
+
+static GEN
 FpM_gauss_pivot_gen(GEN x, GEN p, long *rr)
 {
   void *E;
@@ -1052,7 +1940,7 @@ FpM_gauss_pivot(GEN x, GEN p, long *rr)
   {
   case 0: return FpM_gauss_pivot_gen(x, p, rr);
   case 2: return F2m_gauss_pivot(x, rr);
-  default:return Flm_gauss_pivot(x, pp, rr);
+  default:return Flm_pivots(x, pp, rr, 1);
   }
 }
 
@@ -1063,13 +1951,15 @@ FpM_image(GEN x, GEN p)
   GEN d = FpM_gauss_pivot(x,p,&r); /* d left on stack for efficiency */
   return image_from_pivot(x,d,r);
 }
+
 GEN
 Flm_image(GEN x, ulong p)
 {
   long r;
-  GEN d = Flm_gauss_pivot(Flm_copy(x),p,&r); /* d left on stack for efficiency */
+  GEN d = Flm_pivots(x, p, &r, 0); /* d left on stack for efficiency */
   return image_from_pivot(x,d,r);
 }
+
 GEN
 F2m_image(GEN x)
 {
@@ -1086,14 +1976,21 @@ FpM_rank(GEN x, GEN p)
   (void)FpM_gauss_pivot(x,p,&r);
   avma = av; return lg(x)-1 - r;
 }
+
 long
 Flm_rank(GEN x, ulong p)
 {
   pari_sp av = avma;
   long r;
-  (void)Flm_gauss_pivot(Flm_copy(x),p,&r);
+  if (lg(x) - 1 >= Flm_CUP_LIMIT && nbrows(x) >= Flm_CUP_LIMIT) {
+    GEN R, C;
+    r = Flm_echelon(x, &R, &C, p);
+    avma = av; return r;
+  }
+  (void) Flm_pivots(x, p, &r, 0);
   avma = av; return lg(x)-1 - r;
 }
+
 long
 F2m_rank(GEN x)
 {
@@ -1103,7 +2000,6 @@ F2m_rank(GEN x)
   avma = av; return lg(x)-1 - r;
 }
 
-
 static GEN
 FlxqM_gauss_pivot(GEN x, GEN T, ulong p, long *rr)
 {
@@ -1112,11 +2008,32 @@ FlxqM_gauss_pivot(GEN x, GEN T, ulong p, long *rr)
   return gen_Gauss_pivot(x, rr, E, S);
 }
 
+static GEN
+FlxqM_pivots_CUP(GEN x, GEN T, ulong p, long *rr) {
+  pari_sp av;
+  long i, n = lg(x) - 1, r;
+  GEN R, C, U, P, d = zero_zv(n);
+  av = avma;
+  r = FlxqM_CUP(x, &R, &C, &U, &P, T, p);
+  for(i = 1; i <= r; i++)
+    d[P[i]] = R[i];
+  avma = av;
+  *rr = n - r;
+  return d;
+}
+
+static GEN
+FlxqM_pivots(GEN x, GEN T, ulong p, long *rr) {
+  if (lg(x) - 1 >= FlxqM_CUP_LIMIT && nbrows(x) >= FlxqM_CUP_LIMIT)
+    return FlxqM_pivots_CUP(x, T, p, rr);
+  return FlxqM_gauss_pivot(x, T, p, rr);
+}
+
 GEN
 FlxqM_image(GEN x, GEN T, ulong p)
 {
   long r;
-  GEN d = FlxqM_gauss_pivot(x,T,p,&r); /* d left on stack for efficiency */
+  GEN d = FlxqM_pivots(x, T, p, &r); /* d left on stack for efficiency */
   return image_from_pivot(x,d,r);
 }
 
@@ -1125,15 +2042,45 @@ FlxqM_rank(GEN x, GEN T, ulong p)
 {
   pari_sp av = avma;
   long r;
-  (void)FlxqM_gauss_pivot(x,T,p,&r);
+  if (lg(x) - 1 >= FlxqM_CUP_LIMIT && nbrows(x) >= FlxqM_CUP_LIMIT) {
+    GEN R, C;
+    r = FlxqM_echelon(x, &R, &C, T, p);
+    avma = av; return r;
+  }
+  (void) FlxqM_pivots(x, T, p, &r);
   avma = av; return lg(x)-1 - r;
 }
-GEN
-FlxqM_det(GEN a, GEN T, ulong p)
+
+static GEN
+FlxqM_det_gen(GEN a, GEN T, ulong p)
 {
   void *E;
   const struct bb_field *S = get_Flxq_field(&E, T, p);
   return gen_det(a, E, S);
+}
+
+static GEN
+FlxqM_det_CUP(GEN a, GEN T, ulong p) {
+  pari_sp av = avma;
+  GEN R, C, U, P, d;
+  long i, n = lg(a) - 1, r, sv = get_Flx_var(T);
+  r = FlxqM_CUP(a, &R, &C, &U, &P, T, p);
+  if (r < n)
+    d = pol0_Flx(sv);
+  else {
+    d = mkvecsmall2(sv, perm_sign(P) == 1? 1: p - 1);
+    for (i = 1; i <= n; i++)
+      d = Flxq_mul(d, gcoeff(U, i, i), T, p);
+  }
+  return gerepileuptoleaf(av, d);
+}
+
+GEN
+FlxqM_det(GEN a, GEN T, ulong p) {
+  if (lg(a) - 1 >= FlxqM_CUP_LIMIT)
+    return FlxqM_det_CUP(a, T, p);
+  else
+    return FlxqM_det_gen(a, T, p);
 }
 
 GEN
@@ -1164,11 +2111,48 @@ FlxqM_mul(GEN A, GEN B, GEN T, ulong p) {
   return gen_matmul(A, B, E, ff);
 }
 
-GEN
-FlxqM_invimage(GEN A, GEN B, GEN T, ulong p) {
+static GEN
+FlxqM_invimage_gen(GEN A, GEN B, GEN T, ulong p) {
   void *E;
   const struct bb_field *ff = get_Flxq_field(&E, T, p);
   return gen_matinvimage(A, B, E, ff);
+}
+
+static GEN
+FlxqM_invimage_CUP(GEN A, GEN B, GEN T, ulong p) {
+  pari_sp av = avma;
+  GEN R, Rc, C, U, P, B1, B2, C1, C2, X, Y, Z;
+  long r, sv = get_Flx_var(T);
+  r = FlxqM_CUP(A, &R, &C, &U, &P, T, p);
+  Rc = indexcompl(R, nbrows(B));
+  C1 = rowpermute(C, R);
+  C2 = rowpermute(C, Rc);
+  if (R[r] != r) {
+    long i, j;
+    GEN zero = zero_Flx(sv);
+    for (j = 1; j <= r; j++)
+      for (i = 1; i <= R[j] - j; i++)
+        gcoeff(C2, i, j) = zero;
+  }
+  B1 = rowpermute(B, R);
+  B2 = rowpermute(B, Rc);
+  Z = FlxqM_rsolve_lower_unit(C1, B1, T, p);
+  if (!gequal(FlxqM_mul(C2, Z, T, p), B2))
+    return NULL;
+  Y = vconcat(FlxqM_rsolve_upper(vecslice(U, 1, r), Z, T, p),
+              zero_FlxM(lg(A) - 1 - r, lg(B) - 1, sv));
+  X = rowpermute(Y, perm_inv(P));
+  return gerepilecopy(av, X);
+}
+
+GEN
+FlxqM_invimage(GEN A, GEN B, GEN T, ulong p) {
+  long nA = lg(A)-1, nB = lg(B)-1;
+
+  if (!nB) return cgetg(1, t_MAT);
+  if (nA + nB >= FlxqM_CUP_LIMIT && nbrows(B) >= FlxqM_CUP_LIMIT)
+    return FlxqM_invimage_CUP(A, B, T, p);
+  return FlxqM_invimage_gen(A, B, T, p);
 }
 
 GEN
@@ -1395,7 +2379,7 @@ GEN
 FqM_deplin(GEN x, GEN T, GEN p) { return FqM_ker_i(x,T,p,1); }
 
 static GEN
-FlxqM_ker_i(GEN x, GEN T, ulong p, long deplin)
+FlxqM_ker_gen(GEN x, GEN T, ulong p, long deplin)
 {
   const struct bb_field *ff;
   void *E;
@@ -1403,6 +2387,66 @@ FlxqM_ker_i(GEN x, GEN T, ulong p, long deplin)
   if (lg(x)==1) return cgetg(1,t_MAT);
   ff=get_Flxq_field(&E,T,p);
   return gen_ker(x,deplin, E, ff);
+}
+
+static GEN
+FlxqM_ker_echelon(GEN x, GEN T, ulong p) {
+  pari_sp av = avma;
+  GEN R, Rc, C, C1, C2, S, K;
+  long n = lg(x) - 1, r;
+  r = FlxqM_echelon(shallowtrans(x), &R, &C, T, p);
+  Rc = indexcompl(R, n);
+  C1 = rowpermute(C, R);
+  C2 = rowpermute(C, Rc);
+  if (R[r] != r) {
+    long i, j;
+    GEN zero = zero_Flx(get_Flx_var(T));
+    for (j = 1; j <= r; j++)
+      for (i = 1; i <= R[j] - j; i++)
+        gcoeff(C2, i, j) = zero;
+  }
+  S = FlxqM_lsolve_lower_unit(C1, C2, T, p);
+  K = vecpermute(shallowconcat(FlxM_neg(S, p), matid_FlxqM(n - r, T, p)),
+                 perm_inv(vecsmall_concat(R, Rc)));
+  K = shallowtrans(K);
+  return gerepilecopy(av, K);
+}
+
+static GEN
+col_ei_FlxC(long n, long i, long sv) {
+  GEN v = zero_FlxC(n, sv);
+  gel(v, i) = pol1_Flx(sv);
+  return v;
+}
+
+static GEN
+FlxqM_deplin_echelon(GEN x, GEN T, ulong p) {
+  pari_sp av = avma;
+  GEN R, Rc, C, C1, C2, s, v;
+  long i, j, n = lg(x) - 1, r, sv = get_Flx_var(T);
+  r = FlxqM_echelon(shallowtrans(x), &R, &C, T, p);
+  if (r == n) { avma = av; return NULL; }
+  Rc = indexcompl(R, n);
+  i = Rc[1];
+  C1 = rowpermute(C, R);
+  C2 = rowslice(C, i, i);
+  if (i <= r) {
+    GEN zero = zero_Flx(sv);
+    for (j = i; j <= r; j++)
+      gcoeff(C2, 1, j) = zero;
+  }
+  s = row(FlxqM_lsolve_lower_unit(C1, C2, T, p), 1);
+  settyp(s, t_COL);
+  v = vecpermute(shallowconcat(FlxC_neg(s, p), col_ei_FlxC(n - r, 1, sv)),
+                 perm_inv(vecsmall_concat(R, Rc)));
+  return gerepilecopy(av, v);
+}
+
+static GEN
+FlxqM_ker_i(GEN x, GEN T, ulong p, long deplin) {
+  if (lg(x) - 1 >= FlxqM_CUP_LIMIT && nbrows(x) >= FlxqM_CUP_LIMIT)
+    return deplin? FlxqM_deplin_echelon(x, T, p): FlxqM_ker_echelon(x, T, p);
+  return FlxqM_ker_gen(x, T, p, deplin);
 }
 
 GEN
@@ -1694,6 +2738,8 @@ init_gauss(GEN a, GEN *b, long *aco, long *li, int *iscol)
   return 1;
 }
 
+static GEN Flm_inv_sp(GEN a, ulong *detp, ulong p);
+
 static int
 is_modular_solve(GEN a, GEN b, GEN *u)
 {
@@ -1714,7 +2760,7 @@ is_modular_solve(GEN a, GEN b, GEN *u)
       if (a) a = F2m_to_mod(a);
       break;
     default:
-      a = Flm_inv(a,pp);
+      a = Flm_inv_sp(a, NULL, pp);
       if (a) a = Flm_to_mod(a, pp);
     }
   }
@@ -2231,19 +3277,68 @@ Flm_gauss_sp(GEN a, GEN b, ulong *detp, ulong p)
   return u;
 }
 
+static GEN
+Flm_gauss_CUP(GEN a, GEN b, ulong *detp, ulong p) {
+  GEN R, C, U, P, X, Y;
+  long i, n = lg(a) - 1, r;
+  if (nbrows(a) < n || (r = Flm_CUP(a, &R, &C, &U, &P, p)) < n)
+    return NULL;
+  Y = Flm_rsolve_lower_unit(rowpermute(C, R),
+                            rowpermute(b, R), p);
+  X = rowpermute(Flm_rsolve_upper(U, Y, p),
+                 perm_inv(P));
+  if (detp) {
+    ulong d = perm_sign(P) == 1? 1: p-1;
+    for (i = 1; i <= r; i++)
+      d = Fl_mul(d, ucoeff(U, i, i), p);
+    *detp = d;
+  }
+  return X;
+}
+
 GEN
 Flm_gauss(GEN a, GEN b, ulong p) {
-  return Flm_gauss_sp(RgM_shallowcopy(a), RgM_shallowcopy(b), NULL, p);
+  pari_sp av = avma;
+  GEN x;
+  if (lg(a) - 1 >= Flm_CUP_LIMIT)
+    x = Flm_gauss_CUP(a, b, NULL, p);
+  else {
+    a = RgM_shallowcopy(a);
+    b = RgM_shallowcopy(b);
+    x = Flm_gauss_sp(a, b, NULL, p);
+  }
+  if (!x) { avma = av; return NULL; }
+  return gerepileupto(av, x);
 }
+
+static GEN
+Flm_inv_i(GEN a, ulong *detp, ulong p, long inplace) {
+  pari_sp av = avma;
+  long n = lg(a) - 1;
+  GEN b, x;
+  if (n == 0) return cgetg(1, t_MAT);
+  b = matid_Flm(nbrows(a));
+  if (n >= Flm_CUP_LIMIT)
+    x = Flm_gauss_CUP(a, b, detp, p);
+  else {
+    if (!inplace)
+      a = RgM_shallowcopy(a);
+    x = Flm_gauss_sp(a, b, detp, p);
+  }
+  if (!x) { avma = av; return NULL; }
+  return gerepileupto(av, x);
+}
+
 static GEN
 Flm_inv_sp(GEN a, ulong *detp, ulong p) {
-  if (lg(a) == 1) return cgetg(1,t_MAT);
-  return Flm_gauss_sp(a, matid_Flm(nbrows(a)), detp, p);
+  return Flm_inv_i(a, detp, p, 1);
 }
+
 GEN
 Flm_inv(GEN a, ulong p) {
-  return Flm_inv_sp(RgM_shallowcopy(a), NULL, p);
+  return Flm_inv_i(a, NULL, p, 0);
 }
+
 GEN
 Flm_Flc_gauss(GEN a, GEN b, ulong p) {
   pari_sp av = avma;
@@ -2339,6 +3434,26 @@ FlxqM_gauss_gen(GEN a, GEN b, GEN T, ulong p)
   const struct bb_field *S = get_Flxq_field(&E, T, p);
   return gen_Gauss(a, b, E, S);
 }
+
+static GEN
+FlxqM_gauss_CUP(GEN a, GEN b, GEN T, ulong p) {
+  GEN R, C, U, P, Y;
+  long n = lg(a) - 1, r;
+  if (nbrows(a) < n || (r = FlxqM_CUP(a, &R, &C, &U, &P, T, p)) < n)
+    return NULL;
+  Y = FlxqM_rsolve_lower_unit(rowpermute(C, R),
+                              rowpermute(b, R), T, p);
+  return rowpermute(FlxqM_rsolve_upper(U, Y, T, p),
+                    perm_inv(P));
+}
+
+static GEN
+FlxqM_gauss_i(GEN a, GEN b, GEN T, ulong p) {
+  if (lg(a) - 1 >= FlxqM_CUP_LIMIT)
+    return FlxqM_gauss_CUP(a, b, T, p);
+  return FlxqM_gauss_gen(a, b, T, p);
+}
+
 GEN
 FlxqM_gauss(GEN a, GEN b, GEN T, ulong p)
 {
@@ -2346,7 +3461,7 @@ FlxqM_gauss(GEN a, GEN b, GEN T, ulong p)
   long n = lg(a)-1;
   GEN u;
   if (!n || lg(b)==1) { avma = av; return cgetg(1, t_MAT); }
-  u = FlxqM_gauss_gen(a, b, T, p);
+  u = FlxqM_gauss_i(a, b, T, p);
   if (!u) { avma = av; return NULL; }
   return gerepilecopy(av, u);
 }
@@ -2356,7 +3471,7 @@ FlxqM_inv(GEN a, GEN T, ulong p)
   pari_sp av = avma;
   GEN u;
   if (lg(a) == 1) { avma = av; return cgetg(1, t_MAT); }
-  u = FlxqM_gauss_gen(a, matid_FlxqM(nbrows(a),T,p), T,p);
+  u = FlxqM_gauss_i(a, matid_FlxqM(nbrows(a),T,p), T,p);
   if (!u) { avma = av; return NULL; }
   return gerepilecopy(av, u);
 }
@@ -2366,7 +3481,7 @@ FlxqM_FlxqC_gauss(GEN a, GEN b, GEN T, ulong p)
   pari_sp av = avma;
   GEN u;
   if (lg(a) == 1) return cgetg(1, t_COL);
-  u = FlxqM_gauss_gen(a, mkmat(b), T, p);
+  u = FlxqM_gauss_i(a, mkmat(b), T, p);
   if (!u) { avma = av; return NULL; }
   return gerepilecopy(av, gel(u,1));
 }
@@ -2451,7 +3566,7 @@ ZM_gauss(GEN a, GEN b0)
   for(;;)
   {
     p = u_forprime_next(&S);
-    C = Flm_inv(ZM_to_Flm(a, p), p);
+    C = Flm_inv_sp(ZM_to_Flm(a, p), NULL, p);
     if (C) break;
     elim -= expu(p);
     if (elim < 0) return NULL;
@@ -2919,7 +4034,6 @@ gauss_pivot_ker(GEN x, GEN x0, GEN *dd, long *rr)
 static GEN FpM_gauss_pivot(GEN x, GEN p, long *rr);
 static GEN FqM_gauss_pivot(GEN x, GEN T, GEN p, long *rr);
 static GEN F2m_gauss_pivot(GEN x, long *rr);
-static GEN Flm_gauss_pivot(GEN x, ulong p, long *rry);
 
 /* r = dim ker(x).
  * Returns d:
@@ -3002,7 +4116,7 @@ ZM_pivots(GEN M0, long *rr)
       ulong p = u_forprime_next(&S);
       long rp;
       if (!p) pari_err_OVERFLOW("ZM_pivots [ran out of primes]");
-      d = Flm_gauss_pivot(ZM_to_Flm(M0, p), p, &rp);
+      d = Flm_pivots(ZM_to_Flm(M0, p), p, &rp, 1);
       if (rp == rmin) { rbest = rp; goto END; } /* maximal rank, return */
       if (rp < rbest) { /* save best r so far */
         rbest = rp;
@@ -3287,10 +4401,41 @@ inverseimage(GEN m, GEN v)
 }
 
 static GEN
+Flm_invimage_CUP(GEN A, GEN B, ulong p) {
+  pari_sp av = avma;
+  GEN R, Rc, C, U, P, B1, B2, C1, C2, X, Y, Z;
+  long r;
+  r = Flm_CUP(A, &R, &C, &U, &P, p);
+  Rc = indexcompl(R, nbrows(B));
+  C1 = rowpermute(C, R);
+  C2 = rowpermute(C, Rc);
+  if (R[r] != r) {
+    long i, j;
+    for (j = 1; j <= r; j++)
+      for (i = 1; i <= R[j] - j; i++)
+        ucoeff(C2, i, j) = 0UL;
+  }
+  B1 = rowpermute(B, R);
+  B2 = rowpermute(B, Rc);
+  Z = Flm_rsolve_lower_unit(C1, B1, p);
+  if (!gequal(Flm_mul(C2, Z, p), B2))
+    return NULL;
+  Y = vconcat(Flm_rsolve_upper(vecslice(U, 1, r), Z, p),
+              zero_Flm(lg(A) - 1 - r, lg(B) - 1));
+  X = rowpermute(Y, perm_inv(P));
+  return gerepileupto(av, X);
+}
+
+static GEN
 Flm_invimage_i(GEN A, GEN B, ulong p)
 {
   GEN d, x, X, Y;
   long i, j, nY, nA = lg(A)-1, nB = lg(B)-1;
+
+  if (!nB) return cgetg(1, t_MAT);
+  if (nA + nB >= Flm_CUP_LIMIT && nbrows(B) >= Flm_CUP_LIMIT)
+    return Flm_invimage_CUP(A, B, p);
+
   x = Flm_ker_sp(shallowconcat(Flm_neg(A,p), B), p, 0);
   /* AX = BY, Y in strict upper echelon form with pivots = 1.
    * We must find T such that Y T = Id_nB then X T = Z. This exists iff
@@ -3524,16 +4669,17 @@ FpM_suppl(GEN x, GEN p)
   init_suppl(x); d = FpM_gauss_pivot(x,p, &r);
   avma = av; return get_suppl(x,d,nbrows(x),r,&col_ei);
 }
+
 GEN
 Flm_suppl(GEN x, ulong p)
 {
   pari_sp av = avma;
   GEN d;
   long r;
-  init_suppl(x); d = Flm_gauss_pivot(Flm_copy(x),p, &r);
+  init_suppl(x); d = Flm_pivots(x, p, &r, 0);
   avma = av; return get_suppl(x,d,nbrows(x),r,&vecsmall_ei);
-
 }
+
 GEN
 F2m_suppl(GEN x)
 {
@@ -3756,15 +4902,17 @@ FpM_indexrank(GEN x, GEN p) {
   d = FpM_gauss_pivot(x,p,&r);
   avma = av; return indexrank0(lg(x)-1, r, d);
 }
+
 GEN
 Flm_indexrank(GEN x, ulong p) {
   pari_sp av = avma;
   long r;
   GEN d;
   init_indexrank(x);
-  d = Flm_gauss_pivot(Flm_copy(x),p,&r);
+  d = Flm_pivots(x, p, &r, 0);
   avma = av; return indexrank0(lg(x)-1, r, d);
 }
+
 GEN
 F2m_indexrank(GEN x) {
   pari_sp av = avma;
@@ -3892,7 +5040,7 @@ FlkM_inv(GEN M, GEN P, ulong p)
   GEN V = cgetg(l, t_VEC);
   for(i=1; i<l; i++)
   {
-    gel(V, i) = Flm_inv(FlxM_eval_powers_pre(M, Fl_powers_pre(uel(R,i), degpol(P), p, pi), p, pi), p);
+    gel(V, i) = Flm_inv_sp(FlxM_eval_powers_pre(M, Fl_powers_pre(uel(R,i), degpol(P), p, pi), p, pi), NULL, p);
     if (!gel(V, i)) return NULL;
   }
   return FlmV_recover(V,W,p);
@@ -4632,7 +5780,7 @@ ZM_det_i(GEN M, long n)
   p = 0; /* -Wall */
   while( cmpii(q, h) <= 0 && (p = u_forprime_next(&S)) )
   {
-    av2 = avma; Dp = Flm_det(ZM_to_Flm(M, p), p);
+    av2 = avma; Dp = Flm_det_sp(ZM_to_Flm(M, p), p);
     avma = av2;
     if (Dp) break;
     q = muliu(q, p);
@@ -4669,7 +5817,7 @@ ZM_det_i(GEN M, long n)
     Dp = umodiu(D, p);
     if (!Dp) continue;
     av2 = avma;
-    compp = Fl_div(Flm_det(ZM_to_Flm(M, p), p), Dp, p);
+    compp = Fl_div(Flm_det_sp(ZM_to_Flm(M, p), p), Dp, p);
     avma = av2;
     (void) Z_incremental_CRT(&comp, compp, &q, p);
   }
@@ -4709,7 +5857,7 @@ det(GEN a)
     {
     case 0: return gerepileupto(av, Fp_to_mod(FpM_det(a,p),p)); break;
     case 2: d = F2m_det(a); break;
-    default:d = Flm_det(a,pp); break;
+    default:d = Flm_det_sp(a, pp); break;
     }
     avma = av; return mkintmodu(d, pp);
   }
