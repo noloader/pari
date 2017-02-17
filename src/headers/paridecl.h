@@ -2612,6 +2612,7 @@ void    checkell_Qp(GEN e);
 void    checkellisog(GEN v);
 void    checkellpt(GEN z);
 void    checkell5(GEN e);
+GEN     cxredsl2(GEN t, GEN *U);
 GEN     ec_bmodel(GEN e);
 GEN     ec_f_evalx(GEN E, GEN x);
 GEN     ec_h_evalx(GEN e, GEN x);

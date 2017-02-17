@@ -11489,6 +11489,12 @@ converts $x$ to a suitable type:
 Then evaluates the function at \typ{VEC}, \typ{COL}, \typ{MAT} arguments
 coefficientwise.
 
+\subsec{Modular functions}
+
+\fun{GEN}{cxredsl2}{GEN t, GEN *g} given $t$ a \typ{COMPLEX} belonging to the
+upper half-plane, find $\gamma \in \text{SL}_2(\Z)$ such that $\gamma \cdot t$
+belongs to the standard fundamental domain and set \kbd{*g} to $\gamma$.
+
 \subsec{Transcendental functions with \typ{PADIC} arguments}
 
 \fun{GEN}{Qp_exp}{GEN x} shortcut for \kbd{gexp(x, /*ignored*/prec)}

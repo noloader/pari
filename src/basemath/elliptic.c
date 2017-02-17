@@ -3054,7 +3054,7 @@ set_gamma(GEN t, GEN *pa, GEN *pb, GEN *pc, GEN *pd)
     togglesign_safe(&c); swap(a,c);
     togglesign_safe(&d); swap(b,d);
     if (gc_needed(av, 1)) {
-      if (DEBUGMEM>1) pari_warn(warnmem, "redtausl2");
+      if (DEBUGMEM>1) pari_warn(warnmem, "cxredsl2");
       gerepileall(av, 5, &t, &a,&b,&c,&d);
     }
   }
@@ -3066,14 +3066,13 @@ set_gamma(GEN t, GEN *pa, GEN *pb, GEN *pc, GEN *pd)
 /* Im t > 0. Return U.t in PSl2(Z)'s standard fundamental domain.
  * Set *pU to U. */
 GEN
-redtausl2(GEN t, GEN *pU)
+cxredsl2(GEN t, GEN *pU)
 {
   pari_sp av = avma;
   GEN U, a,b,c,d;
   set_gamma(t, &a, &b, &c, &d);
   U = mkmat2(mkcol2(a,c), mkcol2(b,d));
-  t = gdiv(gadd(gmul(a,t), b),
-           gadd(gmul(c,t), d));
+  t = gdiv(gadd(gmul(a,t), b), gadd(gmul(c,t), d));
   gerepileall(av, 2, &t, &U);
   *pU = U; return t;
 }

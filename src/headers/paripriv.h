@@ -561,7 +561,6 @@ GEN    ideallog_sgn(GEN nf, GEN x, GEN sgn, GEN bid);
 GEN     redimagsl2(GEN q, GEN *U);
 GEN     redrealsl2(GEN V, GEN d, GEN rd);
 GEN     redrealsl2step(GEN A, GEN d, GEN rd);
-GEN     redtausl2(GEN t, GEN *U);
 
 /* alglin1.c */
 

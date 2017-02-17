@@ -3006,7 +3006,7 @@ trueeta(GEN x, long prec)
 
   if (!is_scalar_t(typ(x))) pari_err_TYPE("trueeta",x);
   x = upper_to_cx(x, &prec);
-  x = redtausl2(x, &U);
+  x = cxredsl2(x, &U);
   st = eta_correction(x, U, 1);
   x = eta_reduced(x, prec);
   s = gel(st, 1);
@@ -3139,7 +3139,7 @@ jell(GEN x, long prec)
   }
   /* Let h = Delta(2x) / Delta(x), then j(x) = (1 + 256h)^3 / h */
   x = upper_to_cx(x, &prec);
-  x = redtausl2(x, &U); /* forget about Ua : j has weight 0 */
+  x = cxredsl2(x, &U); /* forget about Ua : j has weight 0 */
   { /* cf eta_reduced, raised to power 24
      * Compute
      *   t = (inteta(q(2x)) / inteta(q(x))) ^ 24;
@@ -3322,8 +3322,8 @@ weberf2(GEN x, long prec)
   GEN z, sqrt2, a,b, Ua,Ub, st_a,st_b;
 
   x = upper_to_cx(x, &prec);
-  a = redtausl2(x, &Ua);
-  b = redtausl2(gmul2n(x,1), &Ub);
+  a = cxredsl2(x, &Ua);
+  b = cxredsl2(gmul2n(x,1), &Ub);
   if (gequal(a,b)) /* not infrequent */
     z = gen_1;
   else
@@ -3343,8 +3343,8 @@ weberf1(GEN x, long prec)
   GEN z, a,b, Ua,Ub, st_a,st_b;
 
   x = upper_to_cx(x, &prec);
-  a = redtausl2(x, &Ua);
-  b = redtausl2(gmul2n(x,-1), &Ub);
+  a = cxredsl2(x, &Ua);
+  b = cxredsl2(gmul2n(x,-1), &Ub);
   if (gequal(a,b)) /* not infrequent */
     z = gen_1;
   else
@@ -3361,8 +3361,8 @@ weberf(GEN x, long prec)
   pari_sp av = avma;
   GEN z, t0, a,b, Ua,Ub, st_a,st_b;
   x = upper_to_cx(x, &prec);
-  a = redtausl2(x, &Ua);
-  b = redtausl2(gmul2n(gaddgs(x,1),-1), &Ub);
+  a = cxredsl2(x, &Ua);
+  b = cxredsl2(gmul2n(gaddgs(x,1),-1), &Ub);
   if (gequal(a,b)) /* not infrequent */
     z = gen_1;
   else

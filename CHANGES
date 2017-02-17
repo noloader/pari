@@ -124,7 +124,7 @@ PB   52- [libpari] FFM_deplin, FFM_indexrank, FFM_suppl F2xqM_deplin,
          F2xqM_indexrank, F2xqM_suppl FlxqM_deplin, FlxqM_indexrank, FlxqM_suppl
          FqM_indexrank
 JD   53- [plot] SVG support
-     54- [libpari] upper_to_cx
+     54- [libpari] upper_to_cx, cxredsl2
 
   Changed
       1- rewrite bnfnarrow
