@@ -989,15 +989,14 @@ GEN
 znchar(GEN D)
 {
   pari_sp av = avma;
-  GEN G, L, g, chi;
+  GEN G, g, chi;
   long l, i;
   switch(typ(D))
   {
     case t_INT:
       if (!signe(D) || Mod4(D) > 1) pari_err_TYPE("znchar", D);
       G = znstar0(D, 1);
-      L = gel(G,4);
-      g = gel(L,4); /* local generators of (Z/p^k)^* */
+      g = znstar_get_conreygen(G);
       l = lg(g); chi = cgetg(l, t_COL);
       for (i = 1; i < l; i++)
         gel(chi, i) = kronecker(D, gel(g,i)) > 0? gen_0: gen_1;
