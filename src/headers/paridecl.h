@@ -1474,7 +1474,6 @@ GEN     imagecompl(GEN x);
 GEN     indexrank(GEN x);
 GEN     inverseimage(GEN mat, GEN y);
 GEN     ker(GEN x);
-GEN     keri(GEN x);
 GEN     mateigen(GEN x, long flag, long prec);
 GEN     matimage0(GEN x,long flag);
 GEN     matker0(GEN x, long flag);
