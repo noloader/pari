@@ -4045,6 +4045,22 @@ ZabM_pseudoinv(GEN M, GEN P, long n, GEN *den)
   return z;
 }
 
+GEN
+ZM_pseudoinv(GEN M, GEN *den)
+{
+  pari_sp av = avma;
+  GEN v, S, W, z, v1;
+  long l, i;
+  v = ZM_indexrank(M);
+  S = shallowmatextract(M,gel(v,1),gel(v,2));
+  W = ZM_inv_ratlift(S, den);
+  z = zeromatcopy(lg(M)-1,lgcols(M)-1);
+  v1 = gel(v,1); l = lg(v1);
+  for(i=1; i<l; i++) gel(z, v1[i]) = gel(W, i);
+  gerepileall(av,2,&z,den);
+  return z;
+}
+
 /*******************************************************************/
 /*                                                                 */
 /*                   Structured Elimination                        */

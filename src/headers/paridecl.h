@@ -1447,6 +1447,7 @@ GEN     ZM_indeximage(GEN x);
 GEN     ZM_indexrank(GEN x);
 GEN     ZM_inv(GEN M, GEN dM);
 GEN     ZM_inv_ratlift(GEN M, GEN *pden);
+GEN     ZM_pseudoinv(GEN M, GEN *den);
 long    ZM_rank(GEN x);
 GEN     ZlM_gauss(GEN a, GEN b, ulong p, long e, GEN C);
 GEN     closemodinvertible(GEN x, GEN y);

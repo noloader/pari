@@ -126,6 +126,7 @@ PB   52- [libpari] FFM_deplin, FFM_indexrank, FFM_suppl F2xqM_deplin,
 JD   53- [plot] SVG support
      54- [libpari] upper_to_cx, cxredsl2
      55- new GP function charpow
+     56- [libpari] ZM_pseudoinv
 
   Changed
       1- rewrite bnfnarrow
