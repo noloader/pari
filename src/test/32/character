@@ -20,6 +20,15 @@
 
 [ 0 1]
 
+[0, 0]
+[0, 0]~
+1
+[18, 0]
+[0, 18]~
+69
+[3, 0]
+[0, 3]~
+33
 [19, 0]
 [0, 19]~
 [0, 19]~
@@ -81,4 +90,4 @@
   ***   at top-level: znchar([idealstar(,1
   ***                 ^--------------------
   *** znchar: incorrect type in znchar (t_VEC).
-Total time spent: 2
+Total time spent: 0

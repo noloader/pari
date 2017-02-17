@@ -161,6 +161,14 @@ charker0(GEN x, GEN chi)
 }
 
 GEN
+charpow(GEN cyc, GEN a, GEN N)
+{
+  long i, l;
+  GEN v = cgetg_copy(a, &l);
+  for (i = 1; i < l; i++) gel(v,i) = Fp_mul(gel(a,i), N, gel(cyc,i));
+  return v;
+}
+GEN
 charmul(GEN cyc, GEN a, GEN b)
 {
   long i, l;
@@ -175,6 +183,12 @@ chardiv(GEN cyc, GEN a, GEN b)
   GEN v = cgetg_copy(a, &l);
   for (i = 1; i < l; i++) gel(v,i) = Fp_sub(gel(a,i), gel(b,i), gel(cyc,i));
   return v;
+}
+GEN
+charpow0(GEN x, GEN a, GEN N)
+{
+  GEN cyc = get_cyc(x, a, "charpow");
+  return cyc? charpow(cyc, a, N): zncharpow(x, a, N);
 }
 GEN
 charmul0(GEN x, GEN a, GEN b)
@@ -1063,6 +1077,19 @@ zncharker(GEN G, GEN chi)
   return charker(znstar_get_cyc(G), chi);
 }
 
+/* G is a znstar, 'a' is a Dirichlet character */
+GEN
+zncharpow(GEN G, GEN a, GEN n)
+{
+  switch(typ(a))
+  {
+    case t_INT: return Fp_pow(a, n, znstar_get_N(G));
+    case t_VEC: return charpow(znstar_get_cyc(G), a, n);
+    case t_COL: return charpow(znstar_get_conreycyc(G), a, n);
+    default: pari_err_TYPE("znchapow",a);
+             return NULL; /* LCOV_EXCL_LINE */
+  }
+}
 /* G is a znstar, 'a' and 'b' are Dirichlet character */
 GEN
 zncharmul(GEN G, GEN a, GEN b)
