@@ -69,7 +69,7 @@ sinc(1/x)
 
 localprec(2003); log(exp(1.5)) - 1.5
 
-localbitprec(320); obj=[2.1, 2.1*I, 1+1.1*I];
+localbitprec(320); obj=[1.2, 2.1*I, 1+1.1*I];
 {
   fun=[exp,expm1,log,arg,
        cos,sin,tan,cotan,sinc,
