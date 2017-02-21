@@ -353,7 +353,7 @@ disc : discriminant                                ell,nf,bnf,bnr,rnf\n\
 e, f : inertia/residue  degree           prid\n\
 fu   : fundamental units                                  bnf,bnr\n\
 gen  : generators                    bid,prid,clgp,ell,   bnf,bnr,    gal\n\
-group: group                                       ell,          ,rnf,gal\n\
+group: group                                       ell,               gal\n\
 index: index                                           nf,bnf,bnr\n\
 j    : j-invariant                                 ell\n");
 /* split: some compilers can't handle long constant strings */

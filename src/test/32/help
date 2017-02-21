@@ -69,7 +69,7 @@ disc : discriminant                                ell,nf,bnf,bnr,rnf
 e, f : inertia/residue  degree           prid
 fu   : fundamental units                                  bnf,bnr
 gen  : generators                    bid,prid,clgp,ell,   bnf,bnr,    gal
-group: group                                       ell,          ,rnf,gal
+group: group                                       ell,               gal
 index: index                                           nf,bnf,bnr
 j    : j-invariant                                 ell
 mod  : modulus                       bid,                     bnr,    gal
