@@ -1344,9 +1344,6 @@ SPLIT(FB_t *F, GEN nf, GEN x, GEN Vbase, FACT *fact)
   long nbtest_lim, nbtest, i, j, ru, lgsub;
   pari_sp av;
 
-  if (nf_get_degree(nf) != lg(x)-1)
-    pari_err_TYPE("idealtyp [dimension != degree]", x);
-
   /* try without reduction if x is small */
   if (gexpo(gcoeff(x,1,1)) < 100 &&
       can_factor(F, nf, x, NULL, Nx, fact)) return NULL;
@@ -1859,11 +1856,12 @@ triv_gen(GEN bnf, GEN x, long flag)
 GEN
 bnfisprincipal0(GEN bnf,GEN x,long flag)
 {
-  GEN arch, c;
+  GEN arch, c, nf;
   long pr;
   pari_sp av = avma;
 
   bnf = checkbnf(bnf);
+  nf = bnf_get_nf(bnf);
   switch( idealtyp(&x, &arch) )
   {
     case id_PRINCIPAL:
@@ -1872,10 +1870,12 @@ bnfisprincipal0(GEN bnf,GEN x,long flag)
     case id_PRIME:
       if (pr_is_inert(x))
         return gerepileupto(av, triv_gen(bnf, gel(x,1), flag));
-      x = idealhnf_two(bnf_get_nf(bnf), x);
+      x = idealhnf_two(nf, x);
       break;
     case id_MAT:
       if (lg(x)==1) pari_err_DOMAIN("bnfisprincipal","ideal","=",gen_0,x);
+      if (nf_get_degree(nf) != lg(x)-1)
+        pari_err_TYPE("idealtyp [dimension != degree]", x);
   }
   pr = prec_arch(bnf); /* precision of unit matrix */
   c = getrand();
