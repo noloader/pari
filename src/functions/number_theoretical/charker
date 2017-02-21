@@ -31,10 +31,10 @@ Doc: let \var{cyc} represent a finite abelian group by its elementary
  %5 =
  [3]
  @eprog\noindent Note that for Dirichlet characters (when \kbd{cyc} is
- \kbd{idealstar(,q)}), characters in Conrey representation are available,
+ \kbd{znstar(q, 1)}), characters in Conrey representation are available,
  see \secref{se:dirichletchar} or \kbd{??character}.
  \bprog
- ? G = idealstar(,8);  \\ (Z/8Z)^*
+ ? G = znstar(8, 1);  \\ (Z/8Z)^*
  ? charker(G, 1) \\ Conrey label for trivial character
  %2 =
  [1 0]

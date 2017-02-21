@@ -2,10 +2,10 @@ Function: znconreylog
 Section: number_theoretical
 C-Name: znconreylog
 Prototype: GG
-Help: znconreylog(bid,m): Conrey logarithm attached to m in (Z/qZ)*,
- where bid is idealstar(,q).
-Doc: Given a \var{bid} attached to $(\Z/q\Z)^*$ (as per
- \kbd{bid = idealstar(,q)}), this function returns the Conrey logarithm of
+Help: znconreylog(G,m): Conrey logarithm attached to m in (Z/qZ)*,
+ where G is znstar(q,1).
+Doc: Given a \var{znstar} attached to $(\Z/q\Z)^*$ (as per
+ \kbd{G = znstar(q,1)}), this function returns the Conrey logarithm of
  $m \in (\Z/q\Z)^*$.
 
  Let $q = \prod_p p^{e_p}$ be the factorization of $q$ into distinct primes,
@@ -39,7 +39,7 @@ Doc: Given a \var{bid} attached to $(\Z/q\Z)^*$ (as per
  and $p \in S_q$, the set of prime divisors of $q$ together with $4$
  if $4 \mid q$ and $8$ if $8 \mid q$.
  Note that the $g_p$ are in general \emph{not} SNF
- generators as produced by \kbd{znstar} or \kbd{idealstar} whenever
+ generators as produced by \kbd{znstar} whenever
  $\omega(q) \geq 2$, although their number is the same. They however allow
  to handle the finite abelian group $(\Z/q\Z)^*$ in a fast and elegant
  way. (Which unfortunately does not generalize to ray class groups or Hecke
@@ -49,7 +49,7 @@ Doc: Given a \var{bid} attached to $(\Z/q\Z)^*$ (as per
  function \tet{znconreyexp} recovers the Conrey label $m$ from a character.
 
  \bprog
- ? G = idealstar(,126000);
+ ? G = znstar(126000, 1);
  ? znconreylog(G,1)
  %2 = [0, 0, 0, 0, 0]~
  ? znconreyexp(G, %)

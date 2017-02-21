@@ -3,7 +3,7 @@ Section: number_theoretical
 C-Name: chareval
 Prototype: GGGDG
 Help: chareval(G, chi, x, {z}): given an abelian group structure affording
- a discrete logarithm method, e.g. G = idealstar(,N) or a bnr structure,
+ a discrete logarithm method, e.g. G = znstar(N,1) or a bnr structure,
  let x be an element of G and let chi be a character of G. This function
  returns the value of chi at x, where the encoding depends on the optional
  argument z; if z is omitted, we fix a canonical o-th root of 1, zeta_o,
@@ -11,7 +11,7 @@ Help: chareval(G, chi, x, {z}): given an abelian group structure affording
  chi(x) = (zeta_o)^c.
 Doc:
  Let $G$ be an abelian group structure affording a discrete logarithm
- method, e.g $G = \kbd{idealstar}(,N)$ for $(\Z/N\Z)^*$ or a \kbd{bnr}
+ method, e.g $G = \kbd{znstar}(N, 1)$ for $(\Z/N\Z)^*$ or a \kbd{bnr}
  structure, let $x$ be an element of $G$ and let \var{chi} be a character of
  $G$ (see the note below for details). This function returns the value of
  \var{chi} at $x$.
@@ -31,7 +31,7 @@ Doc:
 
  \misctitle{Note on Dirichlet characters}
  In the special case where \var{bid} is attached to $G = (\Z/q\Z)^*$
- (as per \kbd{bid = idealstar(,q)}), the Dirichlet
+ (as per \kbd{G = znstar(q,1)}), the Dirichlet
  character \var{chi} can be written in one of the usual 3 formats: a \typ{VEC}
  in terms of \kbd{bid.gen} as above, a \typ{COL} in terms of the Conrey
  generators, or a \typ{INT} (Conrey label);

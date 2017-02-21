@@ -29,7 +29,7 @@ Doc: let \var{cyc} represent a finite abelian group by its elementary
  \secref{se:dirichletchar} or \kbd{??character} and the output uses the
  same format as the input.
  \bprog
- ? G = idealstar(,100);
+ ? G = znstar(100, 1);
  ? G.cyc
  %2 = [20, 2]
  ? a = [10, 1]; \\ standard representation for characters

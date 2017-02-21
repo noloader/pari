@@ -2,10 +2,10 @@ Function: zncharisodd
 Section: number_theoretical
 C-Name: zncharisodd
 Prototype: lGG
-Help: zncharisodd(G, chi): let G be idealstar(,N), let chi
+Help: zncharisodd(G, chi): let G be znstar(N,1), let chi
  be a Dirichlet character mod N, return 1 if and only if chi(-1) = -1
  and 0 otherwise.
-Doc: Let $G$ be attached to $(\Z/N\Z)^*$ (as per \kbd{G = idealstar(,N)})
+Doc: Let $G$ be attached to $(\Z/N\Z)^*$ (as per \kbd{G = znstar(N,1)})
  and let \kbd{chi} be a Dirichlet character on $(\Z/N\Z)^*$, given by
 
  \item a \typ{VEC}: a standard character on \kbd{G.gen},
@@ -17,7 +17,7 @@ Doc: Let $G$ be attached to $(\Z/N\Z)^*$ (as per \kbd{G = idealstar(,N)})
  Return $1$ if and only if \kbd{chi}$(-1) = -1$ and $0$ otherwise.
 
  \bprog
- ? G = idealstar(,8);
+ ? G = znstar(8, 1);
  ? zncharisodd(G, 1)  \\ trivial character
  %2 = 0
  ? zncharisodd(G, 3)

@@ -3,9 +3,9 @@ Section: number_theoretical
 C-Name: znconreychar
 Prototype: GG
 Help: znconreychar(bid,m): Dirichlet character attached to m in (Z/qZ)*
- in Conrey's notation, where bid is idealstar(,q).
+ in Conrey's notation, where bid is znstar(q,1).
 Doc: Given a \var{bid} attached to $(\Z/q\Z)^*$ (as per
- \kbd{bid = idealstar(,q)}), this function returns the Dirichlet character
+ \kbd{bid = znstar(q,1)}), this function returns the Dirichlet character
  attached to $m \in (\Z/q\Z)^*$ via Conrey's logarithm, which
  establishes a ``canonical'' bijection between $(\Z/q\Z)^*$ and its dual.
 
@@ -35,8 +35,7 @@ Doc: Given a \var{bid} attached to $(\Z/q\Z)^*$ (as per
  $o_p$ of $g_p$
  and $p \in S_q$, the set of prime divisors of $q$ together with $4$
  if $4 \mid q$ and $8$ if $8 \mid q$. Note that the $g_p$ are in general
- \emph{not} SNF
- generators as produced by \kbd{znstar} or \kbd{idealstar} whenever
+ \emph{not} SNF generators as produced by \kbd{znstar} whenever
  $\omega(q) \geq 2$, although their number is the same. They however allow
  to handle the finite abelian group $(\Z/q\Z)^*$ in a fast and elegant
  way. (Which unfortunately does not generalize to ray class groups or Hecke
@@ -49,13 +48,8 @@ Doc: Given a \var{bid} attached to $(\Z/q\Z)^*$ (as per
  This function returns the Conrey character expressed in the standard PARI
  way in terms of the SNF generators \kbd{bid.gen}.
 
- \misctitle{Note} It is useless to include the generators
- in the \var{bid}, except for debugging purposes: they are well defined from
- elementary matrix operations and Chinese remaindering, their explicit value
- as elements in $(\Z/q\Z)^*$ is never used.
-
  \bprog
- ? G = idealstar(,8,2); /*add generators for debugging:*/
+ ? G = znstar(8,1);
  ? G.cyc
  %2 = [2, 2]  \\ Z/2 x Z/2
  ? G.gen
@@ -82,7 +76,7 @@ Doc: Given a \var{bid} attached to $(\Z/q\Z)^*$ (as per
  For convenience, we allow to input the \emph{Conrey logarithm} of $m$
  instead of $m$:
  \bprog
- ? G = idealstar(,55);
+ ? G = znstar(55, 1);
  ? znconreychar(G,7)
  %2 = [7, 0]
  ? znconreychar(G, znconreylog(G,7))

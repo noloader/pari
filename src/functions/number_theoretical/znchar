@@ -6,7 +6,7 @@ Help: znchar(D): given a datum D describing a group G = (Z/NZ)^* and
  a Dirichlet character chi, return the pair [G,chi]
 Doc: Given a datum $D$ describing a group $(\Z/N\Z)^*$ and a Dirichlet
  character $\chi$, return the pair \kbd{[G, chi]}, where \kbd{G} is
- \kbd{idealstar(,N)}) and \kbd{chi} is a GP character.
+ \kbd{znstar(N, 1)}) and \kbd{chi} is a GP character.
 
  The following possibilities for $D$ are supported
 
@@ -17,7 +17,7 @@ Doc: Given a datum $D$ describing a group $(\Z/N\Z)^*$ and a Dirichlet
  modulo $N$ of index $m$ (see \kbd{znconreylog}).
  and let \kbd{chi} be a Dirichlet character on $(\Z/N\Z)^*$, given by
 
- In the remaining cases, \kbd{G} denotes an \kbd{idealstar(,N)}.
+ In the remaining cases, \kbd{G} is initialized by \kbd{znstar(N, 1)}.
 
  \item a pair \kbd{[G, chi]}, where \kbd{chi} is a standard GP Dirichlet
  character $c = (c_j)$ on \kbd{G} (generic character \typ{VEC} or
@@ -29,7 +29,7 @@ Doc: Given a datum $D$ describing a group $(\Z/N\Z)^*$ and a Dirichlet
  = e(\tilde{c}_j / n)$ where $n$ is minimal (order of $\chi$).
 
  \bprog
- ? G = idealstar(,8);
+ ? G = znstar(8, 1);
  ? znchar(G, 1)  \\ trivial character
  %2 = 0
  ? znchar(G, 3)

@@ -29,7 +29,7 @@ Doc: let \var{cyc} represent a finite abelian group by its elementary
  If the two characters are in the same format, the
  result is given in the same format, otherwise a Conrey logarithm is used.
  \bprog
- ? G = idealstar(,100);
+ ? G = znstar(100, 1);
  ? G.cyc
  %2 = [20, 2]
  ? a = [10, 1]; \\ usual representation for characters

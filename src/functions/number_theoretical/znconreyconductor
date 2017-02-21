@@ -2,13 +2,13 @@ Function: znconreyconductor
 Section: number_theoretical
 C-Name: znconreyconductor
 Prototype: GGD&
-Help: znconreyconductor(bid,chi, {&chi0}): let bid be idealstar(,q) and chi
+Help: znconreyconductor(G,chi, {&chi0}): let G be znstar(q,1) and chi
  be a Dirichlet character on (Z/qZ)* given by its Conrey logarithm. Return
  the conductor of chi, and set chi0 to (the Conrey logarithm of) the
  attached primitive character. If chi0 != chi, return the conductor
  and its factorization.
-Doc: Let \var{bid} be attached to $(\Z/q\Z)^*$ (as per
- \kbd{bid = idealstar(,q)}) and \kbd{chi} be a Dirichlet character on
+Doc: Let \var{G} be attached to $(\Z/q\Z)^*$ (as per
+ \kbd{G = znstar(q, 1)}) and \kbd{chi} be a Dirichlet character on
  $(\Z/q\Z)^*$, given by
 
  \item a \typ{VEC}: a standard character on \kbd{bid.gen},
@@ -25,7 +25,7 @@ Doc: Let \var{bid} be attached to $(\Z/q\Z)^*$ (as per
  primitive character.
 
  \bprog
- ? G = idealstar(,126000);
+ ? G = znstar(126000, 1);
  ? znconreyconductor(G,11)   \\ primitive
  %2 = 126000
  ? znconreyconductor(G,1)    \\ trivial character, not primitive!
@@ -34,7 +34,7 @@ Doc: Let \var{bid} be attached to $(\Z/q\Z)^*$ (as per
  %4 = [125, Mat([5, 3])]
  ? chi0
  %5 = [14]~
- ? G0 = idealstar(,N0);      \\ format [N,factor(N)] accepted
+ ? G0 = znstar(N0, 1);      \\ format [N,factor(N)] accepted
  ? znconreyexp(G0, chi0)
  %7 = 9
  ? znconreyconductor(G0, chi0) \\ now primitive, as expected

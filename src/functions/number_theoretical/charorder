@@ -23,10 +23,10 @@ Doc: let \var{cyc} represent a finite abelian group by its elementary
  ? charorder(bnf, [1])
  %5 = 3
  @eprog\noindent For Dirichlet characters (when \kbd{cyc} is
- \kbd{idealstar(,q)}), characters in Conrey representation are available,
+ \kbd{znstar(q, 1)}), characters in Conrey representation are available,
  see \secref{se:dirichletchar} or \kbd{??character}:
  \bprog
- ? G = idealstar(,100); \\ (Z/100Z)^*
+ ? G = znstar(100, 1); \\ (Z/100Z)^*
  ? charorder(G, 7)   \\ Conrey label
  %2 = 4
  @eprog
