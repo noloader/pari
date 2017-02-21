@@ -644,7 +644,7 @@ format, i.e. Conrey logarithms, is the preferred (fastest) representation.
 
 Concretely, this works as follows:
 
-\kbd{G = idealstar(,N)} initializes $(\Z/N\Z)^*$, which must be given as
+\kbd{G = znstar(N, 1)} initializes $(\Z/N\Z)^*$, which must be given as
 first arguments to all functions handling Dirichlet characters.
 
 \kbd{znconreychar} transforms \typ{INT} and \typ{COL} to a SNF character.
@@ -1016,24 +1016,24 @@ More general characters can be represented in a variety of ways:
 \item via Conrey notation (see \tet{znconreychar}): $\chi_N(m,\cdot)$
 is given as the \typ{INTMOD} \kbd{Mod(m,N)}.
 
-\item via a \var{bid} structure describing the abelian  group $(\Z/N\Z)^*$,
-where the character is given in terms of the \var{bid} generators:
+\item via a \var{znstar} structure describing the abelian  group $(\Z/N\Z)^*$,
+where the character is given in terms of the \var{znstar} generators:
 \bprog
-  ? bid = idealstar(,100,2); \\ (Z/100Z)^*
-  ? bid.cyc \\ ~ Z/20 . g1  + Z/2 . g2 for some generators g1 and g2
+  ? G = znstar(100, 1); \\ (Z/100Z)^*
+  ? G.cyc \\ ~ Z/20 . g1  + Z/2 . g2 for some generators g1 and g2
   %2 = [20, 2]
-  ? bid.gen
+  ? G.gen
   %3 = [77, 51]
   ? chi = [a, b]  \\ maps g1 to e(a/20) and g2 to e(b/2);  e(x) = exp(2ipi x)
 @eprog\noindent
 More generally, let $(\Z/N\Z)^* = \oplus (\Z/d_i\Z) g_i$ be given via a
-\var{bid} structure $G$ (\kbd{G.cyc} gives the $d_i$ and \kbd{G.gen} the
+\var{znstar} structure $G$ (\kbd{G.cyc} gives the $d_i$ and \kbd{G.gen} the
 $g_i$). A \tev{character} $\chi$ on $G$ is given by a row vector
 $v = [a_1,\ldots,a_n]$ such that $\chi(\prod g_i^{n_i}) = \exp(2\pi i\sum a_i
-n_i / d_i)$. The pair $[\var{bid}, v]$ encodes the \emph{primitive} character
+n_i / d_i)$. The pair $[G, v]$ encodes the \emph{primitive} character
 attached to $\chi$.
 
-\item in fact, this construction $[\var{bid}, m]$ describing a character
+\item in fact, this construction $[G, m]$ describing a character
 is more general: $m$ is also allowed to be a Conrey index as seen above,
 or a Conrey logarithm (see \tet{znconreylog}), and the latter format is
 actually the fastest one.
