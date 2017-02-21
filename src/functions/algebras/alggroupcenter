@@ -21,10 +21,10 @@ Doc: initialise the center~$Z(K[G])$ of the group algebra~$K[G]$ over~$K=\Q$
  Example:
  \bprog
  ? K = nfsplitting(x^4+x+1);
- ? gal = galoisinit(K); \\S4
+ ? gal = galoisinit(K); \\ S4
  ? al = alggroupcenter(gal,,&cc);
  ? algiscommutative(al)
  %4 = 1
- ? #cc[3] \\number of conjugacy classes of S4
+ ? #cc[3] \\ number of conjugacy classes of S4
  %5 = 5
  @eprog

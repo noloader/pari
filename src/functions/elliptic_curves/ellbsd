@@ -13,7 +13,7 @@ Doc:
  $S$ the cardinal of the Tate-Shafarevich group.
 
  \bprog
- ? e = ellinit([0,-1,1,-10,-20]); \\rank 0
+ ? e = ellinit([0,-1,1,-10,-20]); \\ rank 0
  ? ellbsd(e)
  %2 = 0.25384186085591068433775892335090946105
  ? lfun(e,1)
