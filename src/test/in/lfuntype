@@ -21,7 +21,7 @@ polsubcyclo(11,5),
 -4,
 857,
 \\15
-[idealstar(,5),2],
+[znstar(5,1),2],
 ellinit([0,-1,1,-10,-20]),  \\ 11a1
 ellinit([1,1]),
 ellinit([-7,3]),

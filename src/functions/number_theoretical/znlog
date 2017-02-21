@@ -26,9 +26,9 @@ Doc: This functions allows two distinct modes of operation depending
  \bprog
  ? p = nextprime(10^4); g = znprimroot(p); o = [p-1, factor(p-1)];
  ? for(i=1,10^4, znlog(i, g, o))
- time = 205 ms.
+ time = 163 ms.
  ? for(i=1,10^4, znlog(i, g))
- time = 244 ms. \\ a little slower
+ time = 200 ms. \\ a little slower
  @eprog
 
  The result is undefined if $g$ is not invertible mod $N$ or if the supplied

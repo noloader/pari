@@ -2699,9 +2699,8 @@ Idealstar_i(GEN nf, GEN ideal, long flag)
 GEN
 Idealstar(GEN nf, GEN ideal, long flag)
 {
-  pari_sp av;
-  if (!nf) return znstar0(ideal, (flag & nf_INIT)? 1: 0);
-  av = avma;
+  pari_sp av = avma;
+  if (!nf) nf = nfinit(pol_x(0), DEFAULTPREC);
   return gerepilecopy(av, Idealstar_i(nf, ideal, flag));
 }
 GEN

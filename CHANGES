@@ -55,6 +55,8 @@ BA   45- nfsubfields(polcyclo(88), 20) -> wrong result  [#1892]
 BA   46- [mpi] dynamically linking with libpari did not work
      47- sin(1 + 1.0*I) used realprecision accuracy instead of precision(x);
          same for cos, tan, arg, expm1, sinc.
+     48- make idealstar(,N) an actual shortcut for ideal(nfinit(x), N) [#1900];
+         it is recommended to use znstar instead.
 
   Added
       1- [libari] ZM_isidentity

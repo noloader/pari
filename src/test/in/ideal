@@ -7,19 +7,19 @@ idealaddtoone(Q,[;],[;])
 idealaddtoone(Q,[;],1)
 idealaddtoone(Q,[1,[;]])
 idealaddtoone(Q,[1,[;],Mat(1/2)])
-zQ = idealstar(Q,4);
+zQ = idealstar(,4);
 ideallog(Q,2,zQ)
-z=idealstar(,6,2);
+z=znstar(6,1);
 z.clgp
 ideallog(,0,z)
 ideallog(,2,z)
 ideallog(,3,z)
 ideallog(Q,3,z)
 ideallog(,3,zQ)
-p=19;N=19^4;z=idealstar(,N,2);g=Mod(z.gen[1],N);
+p=19;N=19^4;z=znstar(N,1);g=Mod(z.gen[1],N);
 for(i=1,1000,if (i%p && g^ideallog(,i,z)[1] != i, error(i)))
-z=idealstar(,3120,2);
-Mat(vector(#z,i,ideallog(,z.gen[i],z)))
+z=znstar(3120,1);
+Mat(vector(#z,i,znlog(z.gen[i],z)))
 
 nfisideal(Qi,matdiagonal([6,12]))
 P = idealprimedec(Qi,2)[1];
