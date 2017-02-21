@@ -327,6 +327,7 @@ znstar0(GEN N, long flag)
   }
   if (!signe(N))
   {
+    if (flag) pari_err_IMPL("znstar(0,1)");
     avma = av;
     retmkvec3(gen_2, mkvec(gen_2), mkvec(gen_m1));
   }

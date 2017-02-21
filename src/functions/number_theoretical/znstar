@@ -32,5 +32,6 @@ Doc: gives the structure of the multiplicative group $(\Z/n\Z)^*$.
  %4 = [Mod(17, 40), Mod(21, 40), Mod(11, 40)]
  ? apply(znorder, G.gen)
  %5 = [4, 2, 2]
- @eprog\noindent According to the above definitions, \kbd{znstar(0)} is
- \kbd{[2, [2], [-1]]}, corresponding to $\Z^*$.
+ @eprog\noindent For user convenience, we define \kbd{znstar(0)} as
+ \kbd{[2, [2], [-1]]}, corresponding to $\Z^*$, but $\fl = 1$ is not
+ implemented in this trivial case.
