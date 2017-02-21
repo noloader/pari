@@ -46,7 +46,7 @@ Doc: outputs a \kbd{bid} structure,
  \bprog
    idealstar(nfinit(x), N, flag)
  @eprog\noindent but faster. The alternative syntax \kbd{znstar(N, flag)}
- is also available for an analogous effect, but due to an unfortunate
+ is also available for an analogous effect but, due to an unfortunate
  historical oversight, the default value of \kbd{flag} is different in
  the two functions (\kbd{znstar} does not initialize by default, you probably
  want \kbd{znstar(N,1)}).
