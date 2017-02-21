@@ -57,6 +57,7 @@ BA   46- [mpi] dynamically linking with libpari did not work
          same for cos, tan, arg, expm1, sinc.
      48- make idealstar(,N) an actual shortcut for ideal(nfinit(x), N) [#1900];
          it is recommended to use znstar instead.
+HIL  49- polclass could access invalid memory
 
   Added
       1- [libari] ZM_isidentity

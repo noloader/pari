@@ -1711,10 +1711,13 @@ polclass0(long D, long inv, long xvar, GEN *db)
   s = !!G->L0;
   polmodular_db_add_levels(db, G->L + s, G->k - s, inv);
   if (orient) {
-    polmodular_db_add_levels(db, G->orient_p, G->k, inv);
     for (i = 0; i < G->k; ++i)
+    {
+      if (G->orient_p[i] > 1)
+        polmodular_db_add_level(db, G->orient_p[i], inv);
       if (G->orient_q[i] > 1)
         polmodular_db_add_level(db, G->orient_q[i], inv);
+    }
   }
 
   nprimes = lg(primes) - 1;
