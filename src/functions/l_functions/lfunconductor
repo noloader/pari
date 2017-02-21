@@ -53,7 +53,7 @@ Doc:  Compute the conductor of the given $L$-function
   ? E.disc  \\ |disc E| = 2^12
   %2 = -4096
   \\ create Ldata by hand. Guess that root number is 1 and conductor N
-  ? L(N) = lfuncreate([n->ellan(E,n), 0, [0,1], 1, N, 1]);
+  ? L(N) = lfuncreate([n->ellan(E,n), 0, [0,1], 2, N, 1]);
   ? fordiv(E.disc, d, print(d,": ",lfuncheckfeq(L(d))))
   1: 0
   2: 0
@@ -74,7 +74,7 @@ Doc:  Compute the conductor of the given $L$-function
   had we set it to $-1$, none of the \kbd{lfuncheckfeq} values would have been
   acceptable:
   \bprog
-  ? L2(N) = lfuncreate([n->ellan(E,n), 0, [0,1], 1, N, -1]);
+  ? L2(N) = lfuncreate([n->ellan(E,n), 0, [0,1], 2, N, -1]);
   ? [ lfuncheckfeq(L2(d)) | d<-divisors(E.disc) ]
   %7 = [0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, -1, -1]
   @eprog
