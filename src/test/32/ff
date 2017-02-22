@@ -187,7 +187,7 @@ Mod(6687681666819568403, 18446744073944432641)
 ? conjvec(Mod(x,x^2+Mod(1,3)))
 [Mod(Mod(1, 3)*x, Mod(1, 3)*x^2 + Mod(1, 3)), Mod(Mod(2, 3)*x, Mod(1, 3)*x^2
  + Mod(1, 3))]~
-? test(q)=my(t=ffgen(q,'t),m=[t,t^2,1+t^3;1+t,1+t^2,1+t^3]);print(matker(m));print(matimage(m));print(matrank(m));my(M=[t,2*t^0,3*t^0;t,t^2,1+t^3;1+t,1+t^2,1+t^3]);print(matdet(M));print(M^(-1)*M);my(v=[t^0,t^1,t^2]~);print(M*v);print(M*matsolve(M,v)==v);print(M*matinverseimage(M,v)==v);print(matsolve(M,matid(3)*t^0)==M^(-1));print(matinverseimage(M,matid(3)*t^0)==M^(-1));my(N=t*[0,1;0,0]);iferr(N^-1,e,,errname(e)=="e_INV");iferr(matsolve(N,t*[0,1]~),e,,errname(e)=="e_INV");print(matinverseimage(N,t*[1,0]~));print(matinverseimage(N,t*[0,1]~));print(matinverseimage(N,N^0));print(matindexrank(N));print(matsupplement(t*[0;1]));print(lindep(t*[0,0;1,1]));
+? test(q)=my(t=ffgen(q,'t),m=[t,t^2,1+t^3;1+t,1+t^2,1+t^3]);print(matker(m));print(matimage(m));print(matrank(m));my(M=[t,2*t^0,3*t^0;t,t^2,1+t^3;1+t,1+t^2,1+t^3]);print(matdet(M));print(M^(-1)*M);my(v=[t^0,t^1,t^2]~);print(M*v);print(M*matsolve(M,v)==v);print(M*matinverseimage(M,v)==v);print(matsolve(M,matid(3)*t^0)==M^(-1));print(matinverseimage(M,matid(3)*t^0)==M^(-1));my(N=t*[0,1;0,0]);iferr(N^-1,e,,errname(e)=="e_INV");iferr(matsolve(N,t*[0,1]~),e,,errname(e)=="e_INV");print(matinverseimage(N,t*[1,0]~));print(matinverseimage(N,t*[0,1]~));print(matinverseimage(N,N^0));print(matindexrank(N));print(matsupplement(t*[0;1]));print(lindep(t*[1;1]));print(lindep(t*[0,0;1,1]));
 ? test(2^5)
 [t^4 + t^3; t^4 + t^3; 1]
 [t, t^2; t + 1, t^2 + 1]
@@ -204,6 +204,7 @@ t^4 + t^2
 [;]
 [Vecsmall([1]), Vecsmall([2])]
 [0, 1; t, 0]
+[]~
 [1, 1]~
 ? test(7^5)
 [3*t^4 + 5*t^3 + 6*t^2 + 2*t; 4*t^4 + 2*t^3 + t^2 + 5*t; 1]
@@ -221,6 +222,7 @@ t^4 + t^2
 [;]
 [Vecsmall([1]), Vecsmall([2])]
 [0, 1; t, 0]
+[]~
 [6, 1]~
 ? test((2^64+13)^5)
 [3*t^4 + 5*t^3 + 18446744073709551621*t^2 + 18446744073709551617*t; 18446744
@@ -241,6 +243,7 @@ t^4 + t^2
 [;]
 [Vecsmall([1]), Vecsmall([2])]
 [0, 1; t, 0]
+[]~
 [18446744073709551628, 1]~
 ? test(q)=my(t=ffgen(q,'t),M=matrix(10,10,i,j,random(t)));subst(charpoly(M),'x,M)==0;
 ? test(nextprime(2^7)^5)

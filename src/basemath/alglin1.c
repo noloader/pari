@@ -2841,9 +2841,15 @@ deplin(GEN x)
     }
     return gerepileupto(av, x);
   }
-  if (RgM_is_FFM(x, &ff)) return FFM_deplin(x, ff);
+  if (RgM_is_FFM(x, &ff))
+  {
+    x = FFM_deplin(x, ff);
+    if (!x) return cgetg(1, t_COL);
+    return x;
+  }
   return deplin_aux(x);
 }
+
 /*******************************************************************/
 /*                                                                 */
 /*         GAUSS REDUCTION OF MATRICES  (m lines x n cols)         */
