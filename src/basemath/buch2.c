@@ -1306,6 +1306,12 @@ add_to_fact(long v, long e, FACT *fact)
   for (i=1; i<=l && fact[i].pr < v; i++)/*empty*/;
   if (i <= l && fact[i].pr == v) fact[i].ex += e; else store(v, e, fact);
 }
+static void
+inv_fact(FACT *fact)
+{
+  long i, l = fact[0].pr;
+  for (i=1; i<=l; i++) fact[i].ex = -fact[i].ex;
+}
 
 /* L (small) list of primes above the same p including pr. Return pr index */
 static int
@@ -1386,8 +1392,16 @@ SPLIT(FB_t *F, GEN nf, GEN x, GEN Vbase, FACT *fact)
       }
     }
     if (id == x0) continue;
+    /* I^(-1) * \prod Vbase[i]^ex[i] = (id[2]) / x */
 
     I = gel(id,1); NI = ZM_det_triangular(I);
+    if (can_factor(F, nf, I, NULL, NI, fact))
+    {
+      inv_fact(fact); /* I^(-1) */
+      for (i=1; i<lgsub; i++)
+        if (ex[i]) add_to_fact(Vbase_to_FB(F,gel(Vbase,i)), ex[i], fact);
+      return gel(id,2);
+    }
     for (j=1; j<ru; j++)
     {
       pari_sp av2 = avma;
@@ -1760,8 +1774,7 @@ isprincipalall(GEN bnf, GEN x, long *ptprec, long flag)
   nB = lg(B)-1; Bex = zero_zv(nB);
   for (i=1; i<=fact[0].pr; i++)
   {
-    long k = fact[i].pr;
-    long l = k - nW;
+    long k = fact[i].pr, l = k - nW;
     if (l <= 0) Wex[k] = fact[i].ex;
     else        Bex[l] = fact[i].ex;
   }
@@ -1771,20 +1784,17 @@ isprincipalall(GEN bnf, GEN x, long *ptprec, long flag)
    * since g_W B + g_B = [C_B] */
   if (xar)
   {
-    if (!nB) /*treat specially B = matrix(n,0): PARI can't represent it*/
-      A = zc_to_ZC(zv_neg(Wex));
-    else
+    A = zc_to_ZC(zv_neg(Wex));
+    if (nB)
     {
-      A = ZC_sub(ZM_zc_mul(B,Bex), zc_to_ZC(Wex));
+      A = ZC_add(A, ZM_zc_mul(B,Bex));
       Bex = zv_neg(Bex);
     }
   }
   else
   {
-    if (!nB)
-      A = zc_to_ZC(Wex);
-    else
-      A = ZC_sub(zc_to_ZC(Wex), ZM_zc_mul(B,Bex));
+    A = zc_to_ZC(Wex);
+    if (nB) A = ZC_sub(A, ZM_zc_mul(B,Bex));
   }
   Q = ZM_ZC_mul(U, A);
   for (i=1; i<=c; i++)

@@ -119,3 +119,8 @@ nfcompositum(bnfinit(x),x^3-2,x^3-1)
 nfcompositum(bnfinit(y),x^3-2,x^3-1)
 
 nfisisom(x,x^0)
+
+\\ oo loop in 2.9
+K=bnfinit(x^2+2323);
+P=idealprimedec(K,23)[1];
+bnfisprincipal(K,P)
