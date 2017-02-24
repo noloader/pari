@@ -1,3 +1,4 @@
+  ***   Warning: new stack size = 10000000 (9.537 Mbytes).
 5
 [x^8 - x^7 - 7*x^6 + 6*x^5 + 15*x^4 - 10*x^3 - 10*x^2 + 4*x + 1, 1]
 [x^8 - 7*x^6 + 14*x^4 - 8*x^2 + 1, 1]
@@ -9,6 +10,7 @@
 [x^8 + 3*x^4 + 1, 1]
 [x^8 + 12*x^6 + 36*x^4 + 36*x^2 + 9, 3]
 [x^8 - x^4 + 1, 1]
+[96, 161]
   ***   at top-level: galoisgetpol(8,6)
   ***                 ^-----------------
   *** galoisgetpol: domain error in galoisgetpol: group index > 5
@@ -18,5 +20,4 @@
   ***   at top-level: galoisgetpol(3,1,2)
   ***                 ^-------------------
   *** galoisgetpol: domain error in galoisgetpol: s > 1
-[96, 161]
-Total time spent: 3624
+Total time spent: 9152
