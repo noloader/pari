@@ -955,15 +955,15 @@ ellchangeinvert(GEN w)
   return mkvec4(U,R,S,T);
 }
 
-/* apply [u,0,0,0] */
+/* apply [u^(-1),0,0,0] */
 static GEN
-coordch_u(GEN e, GEN u)
+coordch_uinv(GEN e, GEN u)
 {
   GEN y, u2, u3, u4, u6, u12, D, c4, c6;
   long lx;
   if (gequal1(u)) return e;
   y = cgetg_copy(e, &lx);
-  u = ginv(u); u2 = gsqr(u); u3 = gmul(u,u2); u4 = gsqr(u2); u6 = gsqr(u3);
+  u2 = gsqr(u); u3 = gmul(u,u2); u4 = gsqr(u2); u6 = gsqr(u3);
   gel(y,1) = gmul(ell_get_a1(e),  u);
   gel(y,2) = gmul(ell_get_a2(e), u2);
   gel(y,3) = gmul(ell_get_a3(e), u3);
@@ -1099,7 +1099,7 @@ coordch(GEN e, GEN w)
 {
   if (typ(w) == t_INT) return e;
   e = coordch_rst(e, gel(w,2), gel(w,3), gel(w,4));
-  return coordch_u(e, gel(w,1));
+  return coordch_uinv(e, ginv(gel(w,1)));
 }
 
 /* the ch_* routines update E[14] (type), E[15] (type specific data), E[16]
@@ -1317,10 +1317,10 @@ E_gcompose_st(GEN *vtotal, GEN *e, GEN s, GEN t)
 }
 /* v o= [u,0,0,0] */
 static void
-E_gcompose_u(GEN *vtotal, GEN *e, GEN u)
+E_gcompose_u(GEN *vtotal, GEN *e, GEN u, GEN uinv)
 {
   GEN v = *vtotal;
-  *e = coordch_u(*e,u); gel(v,1) = gmul(gel(v,1), u);
+  *e = coordch_uinv(*e,uinv); gel(v,1) = gmul(gel(v,1), u);
 }
 
 /* X = (x-r)/u^2
@@ -4506,7 +4506,7 @@ nflocalred_23(GEN e, GEN P, long *ap)
     if (nfval(nf, ell_get_a6(e), P) == 5)
       return localred_result(vD-8,-2,1,ch); /* II* */
     /* 11 */
-    E_gcompose_u(&ch, &e, pi);
+    E_gcompose_u(&ch, &e, pi, pv);
     vD -= 12;
   }
 }
@@ -4709,7 +4709,7 @@ ellintegralmodel_i(GEN e, GEN *pv)
   }
   u = ginv(t);
   if (pv) *pv = mkvec4(u,gen_0,gen_0,gen_0);
-  return coordch_u(e, u);
+  return coordch_uinv(e, t);
 }
 GEN
 ellintegralmodel(GEN e, GEN *pv)
