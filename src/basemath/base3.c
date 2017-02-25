@@ -791,7 +791,9 @@ powp(GEN nf, GEN pr, long v)
   e = pr_get_e(pr);
   z = gel(b,1);
   if (e != 1) z = gdiv(nfpow_u(nf, z, e), powiu(pr_get_p(pr),e-1));
-  return nfpow_u(nf, z, v);
+  if (v < 0) { v = -v; z = nfinv(nf, z); }
+  if (v != 1) z = nfpow_u(nf, z, v);
+  return z;
 }
 long
 nfvalrem(GEN nf, GEN x, GEN pr, GEN *py)

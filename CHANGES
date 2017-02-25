@@ -61,6 +61,7 @@ HIL  49- polclass could access invalid memory
      50- K=bnfinit(x^2+2323);
          P=idealprimedec(K,23)[1];
          bnfisprincipal(K,P);  \\ oo loop
+     51- nfvalrem() overflowed in case of negative valuation
 
   Added
       1- [libari] ZM_isidentity
