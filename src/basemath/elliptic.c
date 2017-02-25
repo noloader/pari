@@ -4262,7 +4262,7 @@ approx_mod3(GEN J, GEN z)
   return ZC_Z_divexact(b, stoi(-3));
 }
 
-/* return a such that v_P(a) = -1, v_Q(a) = 0, Q!=P, Q|p, integral elsewhere */
+/* return a such that v_P(a) = -1, integral elsewhere */
 static GEN
 get_piinv(GEN P)
 {
@@ -4270,7 +4270,7 @@ get_piinv(GEN P)
   if (typ(z) == t_MAT) z = gel(z,1);
   return gdiv(z, pr_get_p(P));
 }
-/* pi = local uniformizer, valuation = 0 at Q|p, Q!=P; pv = 1/pi */
+/* pi = local uniformizer, pv = 1/pi */
 static void
 get_uniformizers(GEN nf, GEN P, GEN *pi, GEN *pv)
 {
@@ -4619,11 +4619,39 @@ nflocalred_p(GEN e, GEN P)
   return localred_result(f,kod,c,ch);
 }
 static GEN
-nflocalred(GEN e, GEN  pr)
+nflocalred(GEN E, GEN pr)
 {
   GEN p = pr_get_p(pr);
-  if (abscmpiu(p, 3) <= 0) { long ap; return nflocalred_23(e,pr,&ap); }
-  return nflocalred_p(e,pr);
+  if (abscmpiu(p, 3) <= 0)
+  {
+    long ap, vu;
+    GEN nf = ellnf_get_nf(E);
+    GEN q = nflocalred_23(E,pr,&ap), v = gel(q,3), u = gel(v,1);
+    /* do nothing if already minimal or equation was not pr-integral */
+    vu = nfval(nf, u, pr);
+    if (vu > 0)
+    { /* remove denominators in r,s,t on nf.zk */
+      GEN D, R, S, T, r = gel(v,2), s = gel(v,3), t = gel(v,4);
+      R = nf_to_scalar_or_basis(nf, r);
+      S = nf_to_scalar_or_basis(nf, s);
+      T = nf_to_scalar_or_basis(nf, t);
+      D = Q_denom(mkvec3(R, S, T));
+      if (!equali1(D))
+      { /* Beware: D may not be coprime to pr */
+        GEN a;
+        (void)nfvalrem(nf, D, pr, &D);
+        /* a in D/p^oo, = 1 mod (u^6) locally */
+        a = idealaddtoone_i(nf, D, idealpows(nf, pr, 6*vu));
+        a = basistoalg(nf, a);
+        gel(v,2) = gmul(r, a);
+        gel(v,3) = gmul(s, a);
+        gel(v,4) = gmul(t, a);
+        v = lift_if_rational(v);
+      }
+    }
+    return q;
+  }
+  return nflocalred_p(E,pr);
 }
 
 GEN
@@ -5185,7 +5213,10 @@ ellnfminimalmodel_i(GEN E, GEN *ptv)
     S = mkvec(DP);
   }
   else
+  {
+    v = lift_if_rational(v);
     S = mkvec3(DP, v, y);
+  }
   obj_insert(E, NF_MINIMALMODEL, S);
   if (ptv) *ptv = v;
   return y;

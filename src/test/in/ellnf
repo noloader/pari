@@ -79,6 +79,11 @@ E=ellinit([-3850829794560*a-15877538149168,-8352767604912215040*a-34439343881478
 ellminimalmodel(E,&v)[1..5]
 v
 
+\\ #1899
+E=ellinit([0,34,0,225,0],bnfinit(a^2-7));
+ellminimalmodel(E, &v)[1..5]
+v
+
 K = nfinit(a^2 - a + 1);
 E = ellinit([1, -1, 0, -3*a, -3*a + 3],K);
 idealnorm(K,ellglobalred(E)[1])

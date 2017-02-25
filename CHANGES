@@ -62,6 +62,7 @@ HIL  49- polclass could access invalid memory
          P=idealprimedec(K,23)[1];
          bnfisprincipal(K,P);  \\ oo loop
      51- nfvalrem() overflowed in case of negative valuation
+     52- ellminimalmodel over number field fails with impossible inverse [#1899]
 
   Added
       1- [libari] ZM_isidentity
