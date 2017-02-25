@@ -4262,7 +4262,7 @@ approx_mod3(GEN J, GEN z)
   return ZC_Z_divexact(b, stoi(-3));
 }
 
-/* return a such that v_P(a) = -1, v_Q(a) >= 0, Q!=P, Q|p */
+/* return a such that v_P(a) = -1, v_Q(a) = 0, Q!=P, Q|p, integral elsewhere */
 static GEN
 get_piinv(GEN P)
 {
@@ -4270,7 +4270,21 @@ get_piinv(GEN P)
   if (typ(z) == t_MAT) z = gel(z,1);
   return gdiv(z, pr_get_p(P));
 }
-
+/* pi = local uniformizer, valuation = 0 at Q|p, Q!=P; pv = 1/pi */
+static void
+get_uniformizers(GEN nf, GEN P, GEN *pi, GEN *pv)
+{
+  if (pr_is_inert(P))
+  {
+    *pi = pr_get_p(P);
+    *pv = mkfrac(gen_1, *pi);
+  }
+  else
+  {
+    *pv = get_piinv(P);
+    *pi = nfinv(nf, *pv);
+  }
+}
 /* x^2+E.a1*x-E.a2 */
 static GEN
 pola1a2(GEN e, GEN nf, GEN modP)
@@ -4353,15 +4367,11 @@ nflocalred_23(GEN e, GEN P, long *ap)
   long vD;
   GEN ch, D, pv, pv2, pv4, pi, pol;
   modP = nf_to_Fq_init(nf,&P,&T,&p);
-  if (typ(pr_get_tau(P)) == t_INT) /* inert prime */
-  {
-    pv = mkfrac(gen_1, p);
-    pi = p;
-  }
-  else
-  {
-    pv = basistoalg(nf, get_piinv(P));
-    pi = basistoalg(nf, nfinv(nf,pv)); /* local uniformizer */
+  get_uniformizers(nf,P, &pi, &pv);
+  if (typ(pi) == t_COL)
+  { /* sigh, we should stick to basis form */
+    pi = coltoalg(nf,pi);
+    pv = coltoalg(nf,pv);
   }
   ch = init_ch();
   D = ell_get_disc(e);
@@ -4517,8 +4527,7 @@ nflocalred_p(GEN e, GEN P)
   nuj = nfval(nf,ell_get_j(e),P);
   nuj = nuj >= 0? 0: -nuj; /* v_P(denom(j)) */
   m = (vD - nuj)/12;
-  piinv = get_piinv(P);
-  pi = nfinv(nf, piinv); /* local uniformizer */
+  get_uniformizers(nf,P, &pi, &piinv);
 
   if(m <= 0) ch = init_ch();
   else
@@ -4887,23 +4896,22 @@ ellnfap(GEN E, GEN P, int *good_red)
     long vD = nfval(nf, ell_get_disc(E), P);
     if (vD)
     {
-      long vc6 = nfval(nf,c6,P), d = vc6==LONG_MAX || vD < 2*vc6 ? vD/12: vc6/6;
-      GEN piinv = NULL;
-      /* non minimal model ? */
-      if (d) { vD -= 12*d; piinv = get_piinv(P); }
-      if (vD) /* bad reduction */
-      {
+      GEN c6new;
+      long d, vc6 = nfvalrem(nf,c6,P, &c6new);
+      d = ((vc6 == LONG_MAX)? vD: minss(vD,2*vc6)) / 12;
+      if (vD > 12*d)
+      { /* bad reduction */
         *good_red = 0;
         if (vc6 != 6*d) return gen_0;
-        if (d) c6 = nfmul(nf, c6, nfpow(nf, piinv, stoi(6*d)));
-        c6 = nf_to_Fq(nf, c6, modP);
+        c6 = nf_to_Fq(nf, c6new, modP);
         return Fq_issquare(gneg(c6),T,p)? gen_1: gen_m1;
       }
       if (d)
-      {
+      { /* model not minimal at P */
+        GEN piinv = get_piinv(P);
         GEN ui2 = nfpow(nf, piinv, stoi(2*d));
         GEN ui4 = nfsqr(nf, ui2);
-        GEN ui6 = nfmul(nf,ui2,ui4);
+        GEN ui6 = nfmul(nf, ui2, ui4);
         c4 = nfmul(nf, c4, ui4);
         c6 = nfmul(nf, c6, ui6);
       }
