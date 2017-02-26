@@ -1769,7 +1769,7 @@ artin_badprimes(GEN N, GEN G, GEN ch)
 
 struct dir_artin
 {
-  GEN N, G, V, aut;
+  GEN nf, G, V, aut;
 };
 
 static GEN
@@ -1777,17 +1777,17 @@ dirartin(void *E, GEN p, long n)
 {
   pari_sp av = avma;
   struct dir_artin *d = (struct dir_artin *) E;
-  GEN N = d->N, pr, frob;
+  GEN nf = d->nf, pr, frob;
   /* pick one maximal ideal in the conjugacy class above p */
-  if (!dvdii(nf_get_index(N), p))
+  if (!dvdii(nf_get_index(nf), p))
   { /* simple case */
-    GEN F = FpX_factor(nf_get_pol(N), p);
+    GEN F = FpX_factor(nf_get_pol(nf), p);
     GEN P = gel(F,1), E = gel(F,2);
-    pr = idealprimedec_kummer(N, gel(P,1), E[1], p);
+    pr = idealprimedec_kummer(nf, gel(P,1), E[1], p);
   }
   else /* wasteful but rare */
-    pr = gel(idealprimedec(N,p), 1);
-  frob = idealfrobenius_aut(N, d->G, pr, d->aut);
+    pr = gel(idealprimedec(nf,p), 1);
+  frob = idealfrobenius_aut(nf, d->G, pr, d->aut);
   avma = av; return RgXn_inv(gel(d->V, frob[1]), n);
 }
 
@@ -1797,7 +1797,7 @@ vecan_artin(GEN an, long L, long prec)
   struct dir_artin d;
   GEN A, Sbad = gel(an,5);
   long n = itos(gel(an,6)), isreal = lg(an)<8 ? 0: !itos(gel(an,7));
-  d.N = gel(an,1); d.G = gel(an,2); d.V = gel(an,3); d.aut = gel(an,4);
+  d.nf = gel(an,1); d.G = gel(an,2); d.V = gel(an,3); d.aut = gel(an,4);
   A = lift_shallow(direuler_bad(&d, dirartin, gen_2, stoi(L), NULL, Sbad));
   A = RgXV_RgV_eval(A, grootsof1(n, prec));
   if (isreal) A = real_i(A);
