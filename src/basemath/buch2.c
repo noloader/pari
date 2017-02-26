@@ -1438,7 +1438,9 @@ bnf_get_C(GEN bnf) { return gel(bnf,4); }
 INLINE GEN
 bnf_get_vbase(GEN bnf) { return gel(bnf,5); }
 
-/* return principal y such that y / x is smooth. Store factorization of latter*/
+/* Return y (as an elt of K or a t_MAT representing an elt in Z[K])
+ * such that x / (y) is smooth and store the exponents of  its factorization
+ * on g_W and g_B in Wex / Bex; return NULL for y = 1 */
 static GEN
 split_ideal(GEN bnf, GEN x, GEN *pWex, GEN *pBex)
 {
@@ -1467,8 +1469,8 @@ split_ideal(GEN bnf, GEN x, GEN *pWex, GEN *pBex)
     }
     a = gel(L, p)[j];
     b = a - nW;
-    if (b <= 0) Wex[a] = fact[i].ex;
-    else        Bex[b] = fact[i].ex;
+    if (b <= 0) Wex[a] = y? -fact[i].ex: fact[i].ex;
+    else        Bex[b] = y? -fact[i].ex: fact[i].ex;
   }
   return y;
 }
@@ -1774,25 +1776,11 @@ isprincipalall(GEN bnf, GEN x, long *ptprec, long flag)
   x = Q_primitive_part(x, &xc);
   av = avma;
   xar = split_ideal(bnf, x, &Wex, &Bex);
-  nB = lg(Bex)-1;
-
-  /* x = -g_W Wex - g_B Bex + [xar]  | x = g_W Wex + g_B Bex if xar = NULL
-   *   = g_W A + [xar] - [C_B]Bex    |   = g_W A + [C_B]Bex
+  /* x = g_W Wex + g_B Bex + [xar] = g_W (Wex - B*Bex) + [xar] + [C_B]Bex
    * since g_W B + g_B = [C_B] */
-  if (xar)
-  {
-    A = zc_to_ZC(zv_neg(Wex));
-    if (nB)
-    {
-      A = ZC_add(A, ZM_zc_mul(B,Bex));
-      Bex = zv_neg(Bex);
-    }
-  }
-  else
-  {
-    A = zc_to_ZC(Wex);
-    if (nB) A = ZC_sub(A, ZM_zc_mul(B,Bex));
-  }
+  A = zc_to_ZC(Wex);
+  nB = lg(Bex)-1;
+  if (nB) A = ZC_sub(A, ZM_zc_mul(B,Bex));
   Q = ZM_ZC_mul(U, A);
   for (i=1; i<=c; i++)
     gel(Q,i) = truedvmdii(gel(Q,i), gel(cyc,i), (GEN*)(ex+i));
@@ -1813,12 +1801,12 @@ isprincipalall(GEN bnf, GEN x, long *ptprec, long flag)
   if (xar)
   {
     GEN t = get_arch(nf, xar, prec);
-    col = t? gadd(col, t):NULL;
+    col = t? gadd(col, t): NULL;
   }
 
   /* find coords on Zk; Q = N (x / \prod gj^ej) = N(alpha), denom(alpha) | d */
   Q = gdiv(ZM_det_triangular(x), get_norm_fact(gen, ex, &d));
-  col = col?isprincipalarch(bnf, col, Q, gen_1, d, &e):NULL;
+  col = col?isprincipalarch(bnf, col, Q, gen_1, d, &e): NULL;
   if (col && !fact_ok(nf,x, col,gen,ex)) col = NULL;
   if (!col && !ZV_equal0(ex))
   { /* in case isprincipalfact calls bnfinit() due to prec trouble...*/
@@ -1851,14 +1839,12 @@ isprincipalall(GEN bnf, GEN x, long *ptprec, long flag)
 static GEN
 triv_gen(GEN bnf, GEN x, long flag)
 {
-  GEN y, nf = bnf_get_nf(bnf);
+  GEN nf = bnf_get_nf(bnf);
   long c;
   if (flag & nf_GEN_IF_PRINCIPAL) return algtobasis(nf,x);
   c = lg(bnf_get_cyc(bnf)) - 1;
-  if (!(flag & (nf_GEN|nf_GENMAT))) return zerocol(c);
-  y = cgetg(3,t_VEC);
-  gel(y,1) = zerocol(c);
-  gel(y,2) = algtobasis(nf,x); return y;
+  if (flag & (nf_GEN|nf_GENMAT)) retmkvec2(zerocol(c), algtobasis(nf,x));
+  return zerocol(c);
 }
 
 GEN
