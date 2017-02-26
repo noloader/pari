@@ -1429,30 +1429,6 @@ SPLIT(FB_t *F, GEN nf, GEN x, GEN Vbase, FACT *fact)
   }
 }
 
-/* return principal y such that y / x is smooth. Store factorization of latter*/
-static GEN
-split_ideal(GEN nf, FB_t *F, GEN x, GEN Vbase, GEN L, FACT *fact)
-{
-  GEN y = SPLIT(F, nf, x, Vbase, fact);
-  long p,j, i, l = lg(F->FB);
-
-  p = j = 0; /* -Wall */
-  for (i=1; i<=fact[0].pr; i++)
-  { /* decode index C = ip+j --> (p,j) */
-    long q,k,t, C = fact[i].pr;
-    for (t=1; t<l; t++)
-    {
-      q = F->FB[t];
-      k = C - F->iLP[q];
-      if (k <= 0) break;
-      p = q;
-      j = k;
-    }
-    fact[i].pr = gel(L, p)[j];
-  }
-  return y;
-}
-
 INLINE GEN
 bnf_get_W(GEN bnf) { return gel(bnf,1); }
 INLINE GEN
@@ -1461,6 +1437,41 @@ INLINE GEN
 bnf_get_C(GEN bnf) { return gel(bnf,4); }
 INLINE GEN
 bnf_get_vbase(GEN bnf) { return gel(bnf,5); }
+
+/* return principal y such that y / x is smooth. Store factorization of latter*/
+static GEN
+split_ideal(GEN bnf, GEN x, GEN *pWex, GEN *pBex)
+{
+  GEN L, y, Vbase = bnf_get_vbase(bnf);
+  GEN Wex, W  = bnf_get_W(bnf);
+  GEN Bex, B  = bnf_get_B(bnf);
+  long p, j, i, l, nW, nB;
+  FACT *fact;
+  FB_t F;
+
+  L = recover_partFB(&F, Vbase, lg(x)-1);
+  fact = (FACT*)stack_malloc((F.KC+1)*sizeof(FACT));
+  y = SPLIT(&F, bnf_get_nf(bnf), x, Vbase, fact);
+  nW = lg(W)-1; *pWex = Wex = zero_zv(nW);
+  nB = lg(B)-1; *pBex = Bex = zero_zv(nB); l = lg(F.FB);
+  p = j = 0; /* -Wall */
+  for (i = 1; i <= fact[0].pr; i++)
+  { /* decode index C = ip+j --> (p,j) */
+    long a, b, t, C = fact[i].pr;
+    for (t = 1; t < l; t++)
+    {
+      long q = F.FB[t], k = C - F.iLP[q];
+      if (k <= 0) break;
+      p = q;
+      j = k;
+    }
+    a = gel(L, p)[j];
+    b = a - nW;
+    if (b <= 0) Wex[a] = fact[i].ex;
+    else        Bex[b] = fact[i].ex;
+  }
+  return y;
+}
 
 /**** logarithmic embeddings ****/
 static GEN famat_to_arch(GEN nf, GEN fa, long prec);
@@ -1745,18 +1756,13 @@ fact_ok(GEN nf, GEN y, GEN C, GEN g, GEN e)
 static GEN
 isprincipalall(GEN bnf, GEN x, long *ptprec, long flag)
 {
-  long i,nW,nB,e,c, prec = *ptprec;
-  GEN Q,xar,Wex,Bex,U,p1,gen,cyc,xc,ex,d,col,A;
-  GEN W  = bnf_get_W(bnf);
+  long i, nB, e, c, prec = *ptprec;
+  GEN Q, xar, Wex, Bex, U, gen, cyc, xc, ex, d, col, A;
   GEN B  = bnf_get_B(bnf);
   GEN C  = bnf_get_C(bnf);
   GEN nf = bnf_get_nf(bnf);
   GEN clg2 = gel(bnf,9);
-  FB_t F;
-  GEN Vbase = bnf_get_vbase(bnf);
-  GEN L = recover_partFB(&F, Vbase, lg(x)-1);
   pari_sp av;
-  FACT *fact;
 
   U = gel(clg2,1);
   cyc = bnf_get_cyc(bnf); c = lg(cyc)-1;
@@ -1767,17 +1773,8 @@ isprincipalall(GEN bnf, GEN x, long *ptprec, long flag)
   /* factor x */
   x = Q_primitive_part(x, &xc);
   av = avma;
-
-  fact = (FACT*)stack_malloc((F.KC+1)*sizeof(FACT));
-  xar = split_ideal(nf, &F, x, Vbase, L, fact);
-  nW = lg(W)-1; Wex = zero_zv(nW);
-  nB = lg(B)-1; Bex = zero_zv(nB);
-  for (i=1; i<=fact[0].pr; i++)
-  {
-    long k = fact[i].pr, l = k - nW;
-    if (l <= 0) Wex[k] = fact[i].ex;
-    else        Bex[l] = fact[i].ex;
-  }
+  xar = split_ideal(bnf, x, &Wex, &Bex);
+  nB = lg(Bex)-1;
 
   /* x = -g_W Wex - g_B Bex + [xar]  | x = g_W Wex + g_B Bex if xar = NULL
    *   = g_W A + [xar] - [C_B]Bex    |   = g_W A + [C_B]Bex
@@ -1808,6 +1805,7 @@ isprincipalall(GEN bnf, GEN x, long *ptprec, long flag)
   { /* g A = G Ur A + [ga]A, Ur A = D Q + R as above (R = ex)
            = G R + [GD]Q + [ga]A */
     GEN ga = gel(clg2,2), GD = gel(clg2,3);
+    long nW = lg(Wex)-1;
     if (nB) col = act_arch(Bex, C + nW); else col = triv_arch(nf);
     if (nW) col = gadd(col, act_arch(A, ga));
     if (c)  col = gadd(col, act_arch(Q, GD));
@@ -1823,12 +1821,12 @@ isprincipalall(GEN bnf, GEN x, long *ptprec, long flag)
   col = col?isprincipalarch(bnf, col, Q, gen_1, d, &e):NULL;
   if (col && !fact_ok(nf,x, col,gen,ex)) col = NULL;
   if (!col && !ZV_equal0(ex))
-  {
-    /* in case isprincipalfact calls bnfinit() due to prec trouble...*/
+  { /* in case isprincipalfact calls bnfinit() due to prec trouble...*/
+    GEN y;
     ex = gerepilecopy(av, ex);
-    p1 = isprincipalfact(bnf, x, gen, ZC_neg(ex), flag);
-    if (typ(p1) != t_VEC) return p1;
-    col = gel(p1,2);
+    y = isprincipalfact(bnf, x, gen, ZC_neg(ex), flag);
+    if (typ(y) != t_VEC) return y;
+    col = gel(y,2);
   }
   if (col)
   { /* add back missing content */
