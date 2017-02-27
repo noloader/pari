@@ -63,7 +63,7 @@ HIL  49- polclass could access invalid memory
          bnfisprincipal(K,P);  \\ oo loop
      51- nfvalrem() overflowed in case of negative valuation
      52- ellminimalmodel over number field fails with impossible inverse [#1899]
-     53- [libpari] ulogintall, ulogint
+     53- [libpari] ulogintall, ulogint, umuluu_or_0
 
   Added
       1- [libari] ZM_isidentity

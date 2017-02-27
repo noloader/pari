@@ -6,3 +6,5 @@ z
 logint(5^100,3)
 logint(5^100,4)
 logint(5^100,5)
+logint(2^64-1, 2^32)
+logint(2^64-1, 2^16)

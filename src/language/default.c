@@ -44,15 +44,6 @@ get_sep(const char *t)
   }
 }
 
-static ulong
-safe_mul(ulong x, ulong y)
-{
-  ulong z;
-  LOCAL_HIREMAINDER;
-  z = mulll(x, y);
-  return hiremainder? 0: z;
-}
-
 /* "atoul" + optional [kmg] suffix */
 static ulong
 my_int(char *s)
@@ -71,11 +62,11 @@ my_int(char *s)
   {
     switch(*p)
     {
-      case 'k': case 'K': n = safe_mul(n,1000UL);       p++; break;
-      case 'm': case 'M': n = safe_mul(n,1000000UL);    p++; break;
-      case 'g': case 'G': n = safe_mul(n,1000000000UL); p++; break;
+      case 'k': case 'K': n = umuluu_or_0(n,1000UL);       p++; break;
+      case 'm': case 'M': n = umuluu_or_0(n,1000000UL);    p++; break;
+      case 'g': case 'G': n = umuluu_or_0(n,1000000000UL); p++; break;
 #ifdef LONG_IS_64BIT
-      case 't': case 'T': n = safe_mul(n,1000000000000UL); p++; break;
+      case 't': case 'T': n = umuluu_or_0(n,1000000000000UL); p++; break;
 #endif
     }
     if (!n) pari_err(e_SYNTAX,"integer too large",s,s);

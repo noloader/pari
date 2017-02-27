@@ -2882,6 +2882,9 @@ the real number equal to $x$. This is a special case of \kbd{gexpo}.
 
 \fun{GEN}{muluu}{ulong x, ulong y} multiplies \kbd{x} by \kbd{y}.
 
+\fun{ulong}{umuluu_or_0}{ulong x, ulong y} multiplies \kbd{x} by \kbd{y}.
+Return $0$ if $xy$ does not fit in an \kbd{ulong}.
+
 \fun{GEN}{mului}{ulong x, GEN y} multiplies \kbd{x} by \kbd{y}.
 
 \fun{GEN}{muluui}{ulong x, ulong y, GEN z} return $xyz$.

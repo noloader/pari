@@ -1900,7 +1900,19 @@ sqrtnr(GEN x, long n) {
 INLINE long
 logint(GEN B, GEN y) { return logintall(B,y,NULL); }
 INLINE ulong
-ulogint(ulong B, ulong y) { return ulogintall(B,y,NULL); }
+ulogint(ulong B, ulong y)
+{
+  ulong r;
+  long e;
+  if (y == 2) return expu(B);
+  r = y;
+  for (e=1;; e++)
+  { /* here, r = y^e, r2 = y^(e-1) */
+    if (r >= B) return r == B? e: e-1;
+    r = umuluu_or_0(y, r);
+    if (!r) return e;
+  }
+}
 
 /*******************************************************************/
 /*                                                                 */

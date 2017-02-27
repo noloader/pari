@@ -391,7 +391,13 @@ ulogintall(ulong B, ulong y, ulong *ptq)
       if (ptq) *ptq = r;
       return e;
     }
-    r2 = r; r *= y;
+    r2 = r;
+    r = umuluu_or_0(y, r);
+    if (!r)
+    {
+      if (ptq) *ptq = r2;
+      return e;
+    }
   }
 }
 

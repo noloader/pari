@@ -357,6 +357,15 @@ itou_or_0(GEN x) {
   return (ulong)x[2];
 }
 
+INLINE ulong
+umuluu_or_0(ulong x, ulong y)
+{
+  ulong z;
+  LOCAL_HIREMAINDER;
+  z = mulll(x, y);
+  return hiremainder? 0: z;
+}
+
 INLINE GEN
 real_0_bit(long bitprec) { GEN x=cgetr(2); x[1]=evalexpo(bitprec); return x; }
 INLINE GEN
