@@ -256,10 +256,14 @@ lfundiv(GEN ldata1, GEN ldata2, long bitprec)
 /*  L-series from closure                                        */
 /*****************************************************************/
 static GEN
-localfactor(void *E, GEN p)
+localfactor(void *E, GEN p, long n)
 {
-  GEN v = (GEN)E, L = gel(v,1), a = gel(v,2);
-  return ginv(closure_callgen2(a, p, stoi(logint(L, p))));
+  GEN a = (GEN)E;
+  GEN s = ginv(closure_callgen2(a, p, stoi(n-1)));
+  s = gtoser(s, gvar(s), n);
+  if (signe(s)==0 || valp(s) || !gequal1(gel(s, 2)))
+    pari_err_DOMAIN("direuler","constant term","!=", gen_1,s);
+  return gtrunc(s);
 }
 static GEN
 vecan_closure(GEN a, long L, GEN Sbad)
@@ -272,7 +276,7 @@ vecan_closure(GEN a, long L, GEN Sbad)
     GEN gL;
     case 2:
       gL = stoi(L);
-      return direuler_bad((void*)mkvec2(gL,a), localfactor, gen_2, gL,gL, Sbad);
+      return direuler_bad((void*)a, localfactor, gen_2, gL,gL, Sbad);
     case 1:
       a = closure_callgen1(a, stoi(L));
       if (typ(a) != t_VEC) pari_err_TYPE("vecan_closure", a);
@@ -960,7 +964,7 @@ ellsymsq_badp(GEN c4, GEN c6, GEN p, long e, long *pb)
   }
 }
 static GEN
-ellsymsq(void *D, GEN p)
+ellsymsq(void *D, GEN p, long n)
 {
   GEN E = (GEN)D;
   GEN T, ap = sqri(ellap(E, p));
@@ -987,11 +991,11 @@ ellsymsq(void *D, GEN p)
     GEN u3 = powiu(p,3);
     T = mkpoln(4,negi(u3),u2,negi(u1),gen_1);
   }
-  return mkrfrac(gen_1,T);
+  return RgXn_inv(T,n);
 }
 static GEN
 vecan_ellsymsq(GEN an, long n)
-{ GEN nn = stoi(n); return direuler((void*)an, &ellsymsq, gen_2, nn, nn); }
+{ GEN nn = stoi(n); return direuler_bad((void*)an, &ellsymsq, gen_2, nn, nn, NULL); }
 
 static GEN
 lfunellsymsqmintwist(GEN e)
@@ -1146,28 +1150,28 @@ Flx_genus2trace_naive(GEN H, ulong p)
 }
 
 static GEN
-dirgenus2(void *E, GEN p)
+dirgenus2(void *E, GEN p, long n)
 {
   pari_sp av = avma;
-  GEN L = (GEN) E, Q = gel(L,1), N = gel(L,2);
+  GEN Q = (GEN) E;
   GEN f;
-  if (cmpii(sqri(p),N) <= 0)
+  if (n > 2)
     f = RgX_recip(hyperellcharpoly(gmul(Q,gmodulo(gen_1, p))));
   else
   {
     ulong pp = itou(p);
     GEN Qp = ZX_to_Flx(Q, pp);
     long t = Flx_genus2trace_naive(Qp, pp);
-    f = deg1pol(stoi(t), gen_1, 0);
+    f = deg1pol_shallow(stoi(t), gen_1, 0);
   }
-  return gerepileupto(av, ginv(f));
+  return gerepileupto(av, RgXn_inv(f, n));
 }
 
 static GEN
 vecan_genus2(GEN an, long L)
 {
   GEN Q = gel(an,1), bad = gel(an, 2);
-  return direuler_bad((void*)mkvec2(Q,stoi(L)), dirgenus2, gen_2, stoi(L), NULL, bad);
+  return direuler_bad((void*)Q, dirgenus2, gen_2, stoi(L), NULL, bad);
 }
 
 static GEN
@@ -1769,7 +1773,7 @@ struct dir_artin
 };
 
 static GEN
-dirartin(void *E, GEN p)
+dirartin(void *E, GEN p, long n)
 {
   pari_sp av = avma;
   struct dir_artin *d = (struct dir_artin *) E;
@@ -1784,7 +1788,7 @@ dirartin(void *E, GEN p)
   else /* wasteful but rare */
     pr = gel(idealprimedec(N,p), 1);
   frob = idealfrobenius_aut(N, d->G, pr, d->aut);
-  avma = av; return gel(d->V, frob[1]);
+  avma = av; return RgXn_inv(gel(d->V, frob[1]), n);
 }
 
 static GEN
@@ -1826,7 +1830,7 @@ artin_charpoly(GEN gal, GEN ch)
   long i, l = lg(grp);
   GEN V = cgetg(l, t_VEC);
   for (i = 1; i < l; i++)
-    gel(V,mael(grp,i,1)) = ginv(artin_charpoly1(ch, gel(grp,i)));
+    gel(V,mael(grp,i,1)) = artin_charpoly1(ch, gel(grp,i));
   return V;
 }
 

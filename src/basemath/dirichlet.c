@@ -55,41 +55,38 @@ dirmuleuler_large(GEN x, ulong p, GEN ap)
 }
 
 static GEN
-eulerfact_raw(GEN s, long p, long l)
+eulerfact_raw(GEN s, long p, long n)
 {
-  long j, n = ulogint(l, p) + 1; /* minimum n s.t. p^n > l */
+  long j;
   GEN V;
-  s = gtoser(s, gvar(s), n+1);
-  if (signe(s)==0 || valp(s) || !gequal1(gel(s,2))) err_direuler(s);
-  n = minss(n, lg(s)-2);
+  n = minss(n, lgpol(s));
   V = cgetg(n+1, t_VEC);
   for (j=1; j<=n; j++) gel(V, j) = gel(s, j+1);
   return V;
 }
 
 static GEN
-eulerfact_bad(GEN s, long p, long l)
+eulerfact_bad(GEN s, long p, long n)
 {
   pari_sp av = avma;
-  return gerepilecopy(av, eulerfact_raw(s, p, l));
+  return gerepilecopy(av, eulerfact_raw(s, p, n));
 }
 
 static GEN
-eulerfact_small(void *E, GEN (*eval)(void *, GEN), long p, long l)
+eulerfact_small(void *E, GEN (*eval)(void *, GEN, long d), long p, long l)
 {
   pari_sp av = avma;
-  GEN s = eval(E, utoipos(p));
-  return gerepilecopy(av, eulerfact_raw(s, p, l));
+  long n = ulogint(l, p) + 1;
+  GEN s = eval(E, utoipos(p), n);
+  return gerepilecopy(av, eulerfact_raw(s, p, n));
 }
 
 static GEN
-eulerfact_large(void *E, GEN (*eval)(void *, GEN), long p)
+eulerfact_large(void *E, GEN (*eval)(void *, GEN, long d), long p)
 {
   pari_sp av = avma;
-  GEN s = eval(E, utoipos(p));
-  s = gtoser(s, gvar(s), 2);
-  if (signe(s)==0 || valp(s) || !gequal1(gel(s,2))) err_direuler(s);
-  return gerepilecopy(av, lg(s)>=4 ? gel(s,3): gen_0);
+  GEN s = eval(E, utoipos(p), 2);
+  return gerepilecopy(av, degpol(s)>=1 ? gel(s,3): gen_0);
 }
 
 static ulong
@@ -104,7 +101,7 @@ direulertou(GEN a, GEN fl(GEN))
 }
 
 GEN
-direuler_bad(void *E, GEN (*eval)(void *, GEN), GEN a, GEN b, GEN c, GEN Sbad)
+direuler_bad(void *E, GEN (*eval)(void *, GEN, long d), GEN a, GEN b, GEN c, GEN Sbad)
 {
   ulong n;
   pari_sp av0 = avma;
@@ -138,7 +135,10 @@ direuler_bad(void *E, GEN (*eval)(void *, GEN), GEN a, GEN b, GEN c, GEN Sbad)
       s = ginv(gel(ai, 2));
       if (p <= cu)
       {
-        n = dirmuleuler_small(V, v, n, p, eulerfact_bad(s, p, cu));
+        long nl = ulogint(cu, p) + 1;
+        s = gtoser(s, gvar(s), nl);
+        if (signe(s)==0 || valp(s) || !gequal1(gel(s, 2))) err_direuler(s);
+        n = dirmuleuler_small(V, v, n, p, eulerfact_bad(s, p, nl));
         pbad = muliu(pbad, p);
       }
     }
@@ -157,6 +157,26 @@ direuler_bad(void *E, GEN (*eval)(void *, GEN), GEN a, GEN b, GEN c, GEN Sbad)
   return gerepilecopy(av0,V);
 }
 
+struct eval_bad
+{
+  void *E;
+  GEN (*eval)(void *, GEN);
+};
+
+static GEN
+eval_bad(void *E, GEN p, long n)
+{
+  struct eval_bad *d = (struct eval_bad*) E;
+  GEN s = d->eval(d->E, p);
+  s = gtoser(s, gvar(s), n);
+  if (signe(s)==0 || valp(s) || !gequal1(gel(s, 2))) err_direuler(s);
+  return s;
+}
+
 GEN
 direuler(void *E, GEN (*eval)(void *, GEN), GEN a, GEN b, GEN c)
-{ return direuler_bad(E, eval, a, b, c, NULL); }
+{
+  struct eval_bad d;
+  d.E= E; d.eval = eval;
+  return direuler_bad((void*)&d, eval_bad, a, b, c, NULL);
+}

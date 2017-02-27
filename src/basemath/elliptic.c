@@ -6031,11 +6031,11 @@ ellanQ(GEN e, long N)
 { return vecsmall_to_vec_inplace(ellanQ_zv(e,N)); }
 
 static GEN
-ellnflocal(void *S, GEN p)
+ellnflocal(void *S, GEN p, long n)
 {
   pari_sp av = avma;
-  GEN gS = (GEN)S, E = gel(gS,1), N = gel(gS,2);
-  GEN LP = idealprimedec_limit_norm(ellnf_get_nf(E), p, N), T = NULL;
+  GEN E = (GEN)S;
+  GEN LP = idealprimedec_limit_f(ellnf_get_nf(E), p, n-1), T = NULL;
   long l = lg(LP), i;
   for (i = 1; i < l; i++)
   {
@@ -6054,14 +6054,13 @@ ellnflocal(void *S, GEN p)
     T = T? ZX_mul(T, T2): T2;
   }
   if (!T) { avma = av; return pol_1(0); }
-  return gerepileupto(av, ginv(T));
+  return gerepileupto(av, RgXn_inv(T, n));
 }
 
 static GEN
 ellnfan(GEN E, long N)
 {
-  GEN gN = stoi(N);
-  return direuler((void*)mkvec2(E,gN), &ellnflocal, gen_2, gN, NULL);
+  return direuler_bad((void*)E, &ellnflocal, gen_2, stoi(N), NULL, NULL);
 }
 GEN
 ellan(GEN E, long N)
