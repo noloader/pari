@@ -1773,21 +1773,44 @@ struct dir_artin
 };
 
 static GEN
+idealfrobenius_easy(GEN nf, GEN gal, GEN aut, GEN T, GEN p)
+{
+  long i, l = lg(aut), f = degpol(T);
+  GEN zkT, Xp, grp = gal_get_group(gal);
+  pari_sp av = avma;
+  if (f==1) return gel(grp,1);
+  zkT = QXQV_to_FpM(nf_get_zk(nf), T, p);
+  Xp = RgX_to_RgC(FpX_Frobenius(T, p), f);
+  for(i=1; i < l; i++)
+  {
+    GEN g = gel(grp,i);
+    if (perm_order(g)==f)
+    {
+      GEN A = FpM_FpC_mul(zkT, gel(aut,i), p);
+      if (ZV_equal(A, Xp)) {avma = av; return g; }
+    }
+  }
+  return NULL; /* LCOV_EXCL_LINE */
+}
+
+static GEN
 dirartin(void *E, GEN p, long n)
 {
   pari_sp av = avma;
   struct dir_artin *d = (struct dir_artin *) E;
   GEN nf = d->nf, pr, frob;
   /* pick one maximal ideal in the conjugacy class above p */
+  GEN T = nf_get_pol(nf);
   if (!dvdii(nf_get_index(nf), p))
   { /* simple case */
-    GEN F = FpX_factor(nf_get_pol(nf), p);
-    GEN P = gel(F,1), E = gel(F,2);
-    pr = idealprimedec_kummer(nf, gel(P,1), E[1], p);
+    GEN F = FpX_factor(T, p), P = gmael(F,1,1);
+    frob = idealfrobenius_easy(nf, d->G, d->aut, P, p);
   }
   else /* wasteful but rare */
+  {
     pr = gel(idealprimedec(nf,p), 1);
-  frob = idealfrobenius_aut(nf, d->G, pr, d->aut);
+    frob = idealfrobenius_aut(nf, d->G, pr, d->aut);
+  }
   avma = av; return RgXn_inv(gel(d->V, frob[1]), n);
 }
 
