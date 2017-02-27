@@ -371,12 +371,51 @@ istotient(GEN n, GEN *px)
 /* y > 1 and B > 0 integers. Return e such that y^e <= B < y^(e+1), i.e
  * e = floor(log_y B). Set *ptq = y^e if non-NULL */
 long
+ulogintall(ulong B, ulong y, ulong *ptq)
+{
+  ulong r, r2;
+  long e;
+
+  if (y == 2)
+  {
+    long eB = expu(B); /* 2^eB <= B < 2^(eB + 1) */
+    if (ptq) *ptq = 1 << eB;
+    return eB;
+  }
+  r = y, r2 = 1UL;
+  for (e=1;; e++)
+  { /* here, r = y^e, r2 = y^(e-1) */
+    if (r >= B)
+    {
+      if (r != B) { e--; r = r2; }
+      if (ptq) *ptq = r;
+      return e;
+    }
+    r2 = r; r *= y;
+  }
+}
+
+/* y > 1 and B > 0 integers. Return e such that y^e <= B < y^(e+1), i.e
+ * e = floor(log_y B). Set *ptq = y^e if non-NULL */
+long
 logintall(GEN B, GEN y, GEN *ptq)
 {
   pari_sp av;
   long ey, e, emax, i, eB = expi(B); /* 2^eB <= B < 2^(eB + 1) */
   GEN q, pow2;
 
+  if (lgefint(B) == 3)
+  {
+    ulong q;
+    if (lgefint(y) > 3)
+    {
+      if (ptq) *ptq = gen_1;
+      return 0;
+    }
+    if (!ptq) return ulogintall(B[2], y[2], NULL);
+    e = ulogintall(B[2], y[2], &q);
+    *ptq = utoi(q); return e;
+  }
   if (equaliu(y,2))
   {
     if (ptq) *ptq = int2n(eB);

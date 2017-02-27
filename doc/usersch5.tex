@@ -3213,8 +3213,14 @@ returns the floor $e$ of $\log_y B$, where $B > 0$ and $y > 1$ are integers.
 If \kbd{ptq} is not \kbd{NULL}, set it to $y^e$. (Analogous to \kbd{logint0},
 whithout sanity checks.)
 
+\fun{ulong}{ulogintall}{ulong B, ulong y, ulong *ptq} as \kbd{logintall} for
+\kbd{ulong} arguments.
+
 \fun{long}{logint}{GEN B, GEN y} returns the floor $e$ of $\log_y B$, where
 $B > 0$ and $y > 1$ are integers.
+
+\fun{ulong}{ulogint}{ulong B, ulong y} as \kbd{logint} for
+\kbd{ulong} arguments.
 
 \fun{GEN}{vecpowuu}{long N, ulong a} return the vector of $n^a$, $n = 1,
 \dots, N$. Not memory clean.

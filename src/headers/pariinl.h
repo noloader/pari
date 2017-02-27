@@ -1899,6 +1899,8 @@ sqrtnr(GEN x, long n) {
 }
 INLINE long
 logint(GEN B, GEN y) { return logintall(B,y,NULL); }
+INLINE ulong
+ulogint(ulong B, ulong y) { return ulogintall(B,y,NULL); }
 
 /*******************************************************************/
 /*                                                                 */
