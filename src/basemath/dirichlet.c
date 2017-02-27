@@ -32,12 +32,10 @@ dirmuleuler_small(GEN V, GEN v, long n, ulong p, GEN s)
   {
     GEN aq = gel(s,i+1);
     if (gequal0(aq)) continue;
-    for(j=1; j<=m; j++)
+    for (j=1; j<=m; j++)
     {
-      ulong nj;
-      LOCAL_HIREMAINDER;
-      nj = mulll(uel(v,j), q);
-      if (hiremainder || nj > b) continue;
+      ulong nj = umuluu_or_0(uel(v,j), q);
+      if (!nj || nj > b) continue;
       gel(V,nj) = gmul(aq, gel(V,v[j]));
       v[++n] = nj;
     }
@@ -52,8 +50,7 @@ dirmuleuler_large(GEN x, ulong p, GEN ap)
   {
     long b = lg(x)-1, j, m = b/p;
     gel(x,p) = ap;
-    for(j = 2; j <= m; j++)
-      gel(x,j*p) = gmul(ap, gel(x,j));
+    for (j = 2; j <= m; j++) gel(x,j*p) = gmul(ap, gel(x,j));
   }
 }
 
@@ -89,10 +86,9 @@ static GEN
 eulerfact_large(void *E, GEN (*eval)(void *, GEN), long p)
 {
   pari_sp av = avma;
-  GEN s = eval(E, utoi(p));
+  GEN s = eval(E, utoipos(p));
   s = gtoser(s, gvar(s), 2);
-  if (signe(s)==0 || valp(s)!=0 || !gequal1(gel(s,2)))
-    err_direuler(s);
+  if (signe(s)==0 || valp(s) || !gequal1(gel(s,2))) err_direuler(s);
   return gerepilecopy(av, lg(s)>=4 ? gel(s,3): gen_0);
 }
 
