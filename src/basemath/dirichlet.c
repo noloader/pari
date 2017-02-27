@@ -60,16 +60,13 @@ dirmuleuler_large(GEN x, ulong p, GEN ap)
 static GEN
 eulerfact_raw(GEN s, long p, long l)
 {
-  long j, n, q;
+  long j, n = ulogint(l, p) + 1; /* minimum n s.t. p^n > l */
   GEN V;
-  for (n = 1, q = p; q <= l; q*=p, n++);
-  s = gtoser(s, gvar(s), n);
-  if (signe(s)==0 || valp(s)!=0 || !gequal1(gel(s,2)))
-    err_direuler(s);
+  s = gtoser(s, gvar(s), n+1);
+  if (signe(s)==0 || valp(s) || !gequal1(gel(s,2))) err_direuler(s);
   n = minss(n, lg(s)-2);
   V = cgetg(n+1, t_VEC);
-  for(j=1; j<=n; j++)
-    gel(V, j) = gel(s,j+1);
+  for (j=1; j<=n; j++) gel(V, j) = gel(s, j+1);
   return V;
 }
 
@@ -84,7 +81,7 @@ static GEN
 eulerfact_small(void *E, GEN (*eval)(void *, GEN), long p, long l)
 {
   pari_sp av = avma;
-  GEN s = eval(E, utoi(p));
+  GEN s = eval(E, utoipos(p));
   return gerepilecopy(av, eulerfact_raw(s, p, l));
 }
 
