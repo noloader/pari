@@ -1959,6 +1959,7 @@ GEN     rnfsteinitz(GEN nf, GEN order);
 long    factorial_lval(ulong n, ulong p);
 GEN     zk_to_Fq_init(GEN nf, GEN *pr, GEN *T, GEN *p);
 GEN     zk_to_Fq(GEN x, GEN modpr);
+GEN     QXQV_to_FpM(GEN basis, GEN T, GEN p);
 GEN     zkmodprinit(GEN nf, GEN pr);
 
 /* base3.c */

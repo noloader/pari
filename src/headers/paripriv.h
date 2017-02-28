@@ -550,7 +550,6 @@ GEN    poltobasis(GEN nf,GEN x);
 GEN    coltoalg(GEN nf,GEN x);
 
 GEN    get_arch_real(GEN nf,GEN x,GEN *emb,long prec);
-GEN    get_proj_modT(GEN basis, GEN T, GEN p);
 GEN    make_integral(GEN nf, GEN L0, GEN f, GEN listpr);
 GEN    rnfallbase(GEN nf, GEN *ppol, GEN *pD, GEN *pd, GEN *pfi);
 GEN    subgroupcondlist(GEN cyc, GEN bound, GEN listKer);

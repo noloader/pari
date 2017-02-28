@@ -1269,7 +1269,7 @@ init_proj(nflift_t *L, GEN nfT)
     GEN z, proj;
     z = ZpX_liftfact(nfT, mkvec2(L->Tp, coTp), L->pk, L->p, L->k);
     L->Tpk = gel(z,1);
-    proj = get_proj_modT(L->topow, L->Tpk, L->pk);
+    proj = QXQV_to_FpM(L->topow, L->Tpk, L->pk);
     if (L->topowden)
       proj = FpM_red(ZM_Z_mul(proj, Fp_inv(L->topowden, L->pk)), L->pk);
     L->ZqProj = proj;

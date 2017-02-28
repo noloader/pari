@@ -1162,13 +1162,25 @@ with \kbd{nf} coefficients to the residue field; returns an \kbd{FqX}.
 \fun{GEN}{FqX_to_nfX}{GEN Q, GEN modpr} lifts an \kbd{FqX} to a polynomial
 with coefficients in \kbd{nf}.
 
-The following function is technical and may avoid computing a true
+The following functions are technical and avoid computing a true
 \kbd{nfmodpr}:
 
 \fun{GEN}{pr_basis_perm}{GEN nf, GEN pr} given a true \var{nf} structure
 and a prime ideal \kbd{pr} above $p$, return as a \typ{VECSMALL} the
 $f(\goth{p}/p)$ indices $i$ such that the \kbd{nf.zk}$[i]$ mod \goth{p}
 form an $\F_p$-basis of the residue field.
+
+\fun{GEN}{QXQV_to_FpM}{GEN v, GEN T, GEN p} let $p$ be a positive integer,
+$v$ be a vector of $n$ polynomials with rational coefficients whose denominators
+are coprime to $p$, and $T$ be a \kbd{ZX} (preferably monic) of
+degree $d$ whose leading coefficient is coprime to $p$. Return the
+$d \times n$ \kbd{FpM} whose columns are the $v[i]$ mod $T,p$ in the
+canonical basis $1, X, \dots, X^{d-1}$, see \kbd{RgX\_to\_RgC}.
+This is for instance useful when $v$ contains a $\Z$-basis of the maximal
+order of a number field $\Q[X]/(P)$, $p$ is a prime not dividing the index of
+$P$ and $T$ is an irreducible factor of $P$ mod $p$, attached to a maximal
+ideal $\goth{p}$: left-multiplication by the matrix maps number field
+elements (in basis form) to the residue field of $\goth{p}$.
 
 \subsec{Valuations}
 

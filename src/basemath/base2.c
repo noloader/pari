@@ -2655,20 +2655,25 @@ dim1proj(GEN prh)
 
 /* p not necessarily prime, but coprime to denom(basis) */
 GEN
-get_proj_modT(GEN basis, GEN T, GEN p)
+QXQV_to_FpM(GEN basis, GEN T, GEN p)
 {
   long i, l = lg(basis), f = degpol(T);
   GEN z = cgetg(l, t_MAT);
   for (i = 1; i < l; i++)
   {
-    GEN cx, w = gel(basis,i);
+    GEN w = gel(basis,i);
     if (typ(w) == t_INT)
       w = scalarcol_shallow(w, f);
     else
     {
-      w = Q_primitive_part(w, &cx);
+      GEN dx;
+      w = Q_remove_denom(w, &dx);
       w = FpXQ_red(w, T, p);
-      if (cx) w = FpX_Fp_mul(w, Rg_to_Fp(cx, p), p);
+      if (dx)
+      {
+        dx = Fp_inv(dx, p);
+        if (!equali1(dx)) w = FpX_Fp_mul(w, dx, p);
+      }
       w = RgX_to_RgC(w, f);
     }
     gel(z,i) = w; /* w_i mod (T,p) */
@@ -2718,14 +2723,14 @@ modprinit(GEN nf, GEN pr, int zk)
     { /* pr inert */
       T = nf_get_pol(nf);
       T = FpX_red(T,p);
-      ffproj = get_proj_modT(basis, T, p);
+      ffproj = QXQV_to_FpM(basis, T, p);
     }
     else
     {
       T = RgV_RgC_mul(Q_primpart(basis), pr_get_gen(pr));
       T = FpX_normalize(T,p);
       basis = vecpermute(basis, c);
-      ffproj = FpM_mul(get_proj_modT(basis, T, p), ffproj, p);
+      ffproj = FpM_mul(QXQV_to_FpM(basis, T, p), ffproj, p);
     }
 
     res = cgetg(SMALLMODPR+1, t_COL);
