@@ -688,7 +688,13 @@ Flm_ker_sp_OK(GEN x, ulong p, long deplin)
         uel(C,i) = 0UL;
     uel(C,k) = 1UL; for (i=k+1; i<=n; i++) uel(C,i) = 0UL;
   }
-  return deplin==2? mkvec2(y, d): y;
+  if (deplin == 2) {
+    GEN pc = cgetg(n - r + 1, t_VECSMALL);  /* indices of pivot columns */
+    for (i = j = 1; j <= n; j++)
+      if (d[j]) pc[i++] = j;
+    return mkvec2(y, pc);
+  }
+  return y;
 }
 
 /* in place, destroy x */
@@ -762,7 +768,13 @@ Flm_ker_sp(GEN x, ulong p, long deplin)
         uel(C,i) = 0UL;
     uel(C,k) = 1UL; for (i=k+1; i<=n; i++) uel(C,i) = 0UL;
   }
-  return deplin==2? mkvec2(y, d): y;
+  if (deplin == 2) {
+    GEN pc = cgetg(n - r + 1, t_VECSMALL);  /* indices of pivot columns */
+    for (i = j = 1; j <= n; j++)
+      if (d[j]) pc[i++] = j;
+    return mkvec2(y, pc);
+  }
+  return y;
 }
 
 GEN
