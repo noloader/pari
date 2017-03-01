@@ -5072,10 +5072,13 @@ ellnf_D_primes(GEN E)
   return P;
 }
 
+/* return change of variable to miminal model (t_VEC) or (non-trivial)
+ * Weierstrass class (t_COL), set DP = primes where the
+ * model is not locally minimal */
 static GEN
-bnf_get_v(GEN bnf, GEN E, GEN *pDP)
+bnf_get_v(GEN bnf, GEN E)
 {
-  GEN nf, c4, c6, P, DP, L, Lr, Ls, Lt, F, C, U, R, S, T;
+  GEN nf, c4, c6, P, L, Lr, Ls, Lt, F, C, U, R, S, T;
   long l, k;
 
   nf = bnf_get_nf(bnf);
@@ -5085,7 +5088,6 @@ bnf_get_v(GEN bnf, GEN E, GEN *pDP)
   if (typ(c6) == t_INT) c6 = NULL;
   P = nf_pV_to_prV(nf, ellnf_c4c6_primes(E));
   l = lg(P);
-  DP = vectrunc_init(l); settyp(DP,t_COL);
   Lr = vectrunc_init(l);
   Ls = vectrunc_init(l);
   Lt = vectrunc_init(l);
@@ -5093,17 +5095,15 @@ bnf_get_v(GEN bnf, GEN E, GEN *pDP)
   U = vectrunc_init(l); settyp(U,t_COL);
   for (k = 1; k < l; k++)
   {
-    GEN pr = gel(P, k), q, f, v, u;
+    GEN pr = gel(P, k), q, v, u;
     long vu;
     if (c4 && !ZC_prdvd(c4,pr)) continue;
     if (c6 && !ZC_prdvd(c6,pr)) continue;
     /* pr | (c4,c6) */
     q = nflocalred(E, pr);
-    f = gel(q,1);
     v = gel(q,3);
     u = gel(v,1);
     vu = nfval(nf, u, pr);
-    if (signe(f)) vectrunc_append(DP, q); /* store useful localred data */
     if (!vu) continue;
     vectrunc_append(Lr, gel(v,2));
     vectrunc_append(Ls, gel(v,3));
@@ -5112,7 +5112,6 @@ bnf_get_v(GEN bnf, GEN E, GEN *pDP)
     vectrunc_append(U, stoi(vu));
   }
   F = isprincipalfact(bnf, NULL, L, U, nf_GEN);
-  *pDP = DP;
   if (!gequal0(gel(F,1))) return gel(F,1);
   C = idealchinese(nf, mkmat2(L, ZC_z_mul(U,6)), NULL);
   U = basistoalg(nf, gel(F,2));
@@ -5177,27 +5176,27 @@ ellQminimalmodel(GEN E, GEN *ptv)
 static GEN
 ellnfminimalmodel_i(GEN E, GEN *ptv)
 {
-  GEN S, y, v, v2, bnf, nf, DP;
+  GEN S, y, v, v2, bnf, nf;
   if ((S = obj_check(E, NF_MINIMALMODEL)))
   {
     switch(lg(S))
     {
-      case 2: v = init_ch(); break;
-      case 3: v = NULL; E = gel(S,2); break;
-      default: E = gel(S,3); v = gel(S,2); break;
+      case 1: v = init_ch(); break;
+      case 2: v = NULL; E = gel(S,1); break;
+      default: E = gel(S,2); v = gel(S,1); break;
     }
-    if (ptv) *ptv = v;
+    *ptv = v;
     return gcopy(E);
   }
   bnf = ellnf_get_bnf(E);
   if (!bnf) pari_err_TYPE("ellminimalmodel (need a bnf)", ellnf_get_nf(E));
-  if (ptv) *ptv = NULL;
+  *ptv = NULL;
   nf = bnf_get_nf(bnf);
   y = ellintegralmodel_i(E, &v);
-  v2 = bnf_get_v(bnf, y, &DP);
+  v2 = bnf_get_v(bnf, y);
   if (typ(v2) == t_COL)
   {
-    obj_insert(E, NF_MINIMALMODEL, mkvec2(DP, v2));
+    obj_insert(E, NF_MINIMALMODEL, mkvec(v2));
     return v2; /* non-trivial Weierstrass class */
   }
   y = coordch(y, v2);
@@ -5210,28 +5209,25 @@ ellnfminimalmodel_i(GEN E, GEN *ptv)
   if (is_trivial_change(v))
   {
     v = init_ch();
-    S = mkvec(DP);
+    S = cgetg(1,t_VEC);
   }
   else
   {
     v = lift_if_rational(v);
-    S = mkvec3(DP, v, y);
+    S = mkvec2(v, y);
   }
   obj_insert(E, NF_MINIMALMODEL, S);
-  if (ptv) *ptv = v;
-  return y;
+  *ptv = v; return y;
 }
 static GEN
 ellnfminimalmodel(GEN E, GEN *ptv)
 {
   pari_sp av = avma;
-  GEN S, v, y = ellnfminimalmodel_i(E, &v);
-  S = obj_check(E, NF_MINIMALMODEL);
+  GEN v, y = ellnfminimalmodel_i(E, &v);
   if (v) /* true change of variable; v = NULL => no minimal model */
   {
-    S = mkvec(gel(S,1));
     if (!is_trivial_change(v)) (void)ch_Rg(y, E, v);
-    obj_insert_shallow(y, NF_MINIMALMODEL, S);
+    obj_insert_shallow(y, NF_MINIMALMODEL, cgetg(1,t_VEC));
   }
   if (!v || !ptv)
     y = gerepilecopy(av, y);
