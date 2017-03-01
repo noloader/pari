@@ -104,3 +104,14 @@ idealnorm(K,ellglobalred(E)[1])
 elltamagawa(E)
 elltors(E)
 ellbsd(E)
+
+K = nfinit(a^2-a-57);
+E = ellinit([a,-a,a,-5692-820*a,-259213-36720*a],K);
+ellminimaldisc(E)
+
+K = nfinit(a^2-26);
+E = ellinit([a,a-1,a+1,4*a+10,2*a+6],K);
+ellminimaldisc(E)
+
+E = ellinit([1,2,3,4,5]);
+ellminimaldisc(E)

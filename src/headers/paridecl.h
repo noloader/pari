@@ -2684,6 +2684,7 @@ int     elljissupersingular(GEN x);
 GEN     elllseries(GEN e, GEN s, GEN A, long prec);
 GEN     elllocalred(GEN e, GEN p1);
 GEN     elllog(GEN e, GEN a, GEN g, GEN o);
+GEN     ellminimaldisc(GEN E);
 GEN     ellminimalmodel(GEN E, GEN *ptv);
 GEN     ellminimaltwist(GEN e);
 GEN     ellminimaltwist0(GEN e, long fl);

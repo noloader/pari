@@ -140,6 +140,7 @@ JD   53- [plot] SVG support
      56- [libpari] ZM_pseudoinv
      57- [libpari] ulogintall, ulogint, umuluu_or_0, QXQV_to_FpM, ZM_ZX_mul,
          RgM_RgX_mul
+     58- new GP function ellminimaldisc
 
   Changed
       1- rewrite bnfnarrow

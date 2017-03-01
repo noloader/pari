@@ -793,7 +793,7 @@ ellinit_nf(GEN x, GEN p)
   if (lg(x) > 6) x = vecslice(x,1,5);
   nf = checknf(p);
   x = nfVtoalg(nf, x);
-  if (!(y = initsmall(x, 2))) return NULL;
+  if (!(y = initsmall(x, 3))) return NULL;
   gel(y,14) = mkvecsmall(t_ELL_NF);
   gel(y,15) = mkvec(p);
   return y;
@@ -5054,7 +5054,7 @@ ellnf_c4c6_primes(GEN E)
   GEN nf = ellnf_get_nf(E);
   GEN c4Z = zk_capZ(nf, ell_get_c4(E));
   GEN c6Z = zk_capZ(nf, ell_get_c6(E));
-  return Z_gcd_primes(c4Z, c6Z); /* prime ideals potentially dividing D */
+  return Z_gcd_primes(c4Z, c6Z); /* primes dividing (c4,c6) \cap Z */
 }
 static GEN
 ellnf_D_primes(GEN E)
@@ -5072,16 +5072,15 @@ ellnf_D_primes(GEN E)
   return P;
 }
 
-/* return change of variable to miminal model (t_VEC) or (non-trivial)
- * Weierstrass class (t_COL), set DP = primes where the
- * model is not locally minimal */
 static GEN
-bnf_get_v(GEN bnf, GEN E)
+ellminimalprimes(GEN E)
 {
-  GEN nf, c4, c6, P, L, Lr, Ls, Lt, F, C, U, R, S, T;
+  GEN S, nf, c4, c6, P, L, Lr, Ls, Lt, U;
   long l, k;
 
-  nf = bnf_get_nf(bnf);
+  if ((S = obj_check(E, NF_MINIMALPRIMES))) return S;
+
+  nf = ellnf_get_nf(E);
   c4 = nf_to_scalar_or_basis(nf, ell_get_c4(E));
   c6 = nf_to_scalar_or_basis(nf, ell_get_c6(E));
   if (typ(c4) == t_INT) c4 = NULL;
@@ -5111,14 +5110,54 @@ bnf_get_v(GEN bnf, GEN E)
     vectrunc_append(L, pr);
     vectrunc_append(U, stoi(vu));
   }
+  return obj_insert(E, NF_MINIMALPRIMES, mkvec5(L, U, Lr, Ls, Lt));
+}
+/* return change of variable to miminal model (t_VEC) or (non-trivial)
+ * Weierstrass class (t_COL), set DP = primes where the
+ * model is not locally minimal */
+static GEN
+bnf_get_v(GEN E)
+{
+  GEN bnf = ellnf_get_bnf(E);
+  GEN nf, L, Lr, Ls, Lt, F, C, U, R, S, T;
+
+  if (!bnf) pari_err_TYPE("ellminimalmodel (need a bnf)", ellnf_get_nf(E));
+  S = ellminimalprimes(E);
+  L = gel(S,1);
+  U = gel(S,2);
+  Lr = gel(S,3);
+  Ls = gel(S,4);
+  Lt = gel(S,5);
   F = isprincipalfact(bnf, NULL, L, U, nf_GEN);
   if (!gequal0(gel(F,1))) return gel(F,1);
+  nf = bnf_get_nf(bnf);
   C = idealchinese(nf, mkmat2(L, ZC_z_mul(U,6)), NULL);
   U = basistoalg(nf, gel(F,2));
   R = basistoalg(nf, idealchinese(nf, C, Lr));
   S = basistoalg(nf, idealchinese(nf, C, Ls));
   T = basistoalg(nf, idealchinese(nf, C, Lt));
   return lift_if_rational(mkvec4(U,R,S,T));
+}
+
+GEN
+ellminimaldisc(GEN E)
+{
+  pari_sp av = avma;
+  switch(ell_get_type(E))
+  {
+    case t_ELL_Q:
+      E = ellminimalmodel(E,NULL);
+      return gerepileuptoint(av, absi(ell_get_disc(E)));
+    case t_ELL_NF:
+    {
+      GEN nf = ellnf_get_nf(E);
+      GEN S = ellminimalprimes(E);
+      S = idealfactorback(nf, gel(S,1), ZC_z_mul(gel(S,2), 12), 0);
+      return gerepileupto(av, idealdiv(nf, ell_get_disc(E), S));
+    }
+    default: pari_err_TYPE("ellminimaldisc (E / number field)", E);
+             return NULL; /*LCOV_EXCL_LINE*/
+  }
 }
 
 /* update Q_MINIMALMODEL entry in E, but don't update type-specific data on
@@ -5176,7 +5215,7 @@ ellQminimalmodel(GEN E, GEN *ptv)
 static GEN
 ellnfminimalmodel_i(GEN E, GEN *ptv)
 {
-  GEN S, y, v, v2, bnf, nf;
+  GEN S, y, v, v2;
   if ((S = obj_check(E, NF_MINIMALMODEL)))
   {
     switch(lg(S))
@@ -5188,12 +5227,9 @@ ellnfminimalmodel_i(GEN E, GEN *ptv)
     *ptv = v;
     return gcopy(E);
   }
-  bnf = ellnf_get_bnf(E);
-  if (!bnf) pari_err_TYPE("ellminimalmodel (need a bnf)", ellnf_get_nf(E));
   *ptv = NULL;
-  nf = bnf_get_nf(bnf);
   y = ellintegralmodel_i(E, &v);
-  v2 = bnf_get_v(bnf, y);
+  v2 = bnf_get_v(y);
   if (typ(v2) == t_COL)
   {
     obj_insert(E, NF_MINIMALMODEL, mkvec(v2));
@@ -5201,7 +5237,7 @@ ellnfminimalmodel_i(GEN E, GEN *ptv)
   }
   y = coordch(y, v2);
   gcomposev(&v, v2);
-  v2 = nfrestrict23(nf, y);
+  v2 = nfrestrict23(ellnf_get_nf(E), y);
   y = coordch(y, v2);
   /* copy to avoid inserting twice in y = E */
   y = obj_reinit(y);
@@ -5244,7 +5280,7 @@ ellminimalmodel(GEN E, GEN *ptv)
     case t_ELL_Q: return ellQminimalmodel(E, ptv);
     case t_ELL_NF: return ellnfminimalmodel(E, ptv);
     default: pari_err_TYPE("ellminimalmodel (E / number field)", E);
-             return NULL;
+             return NULL; /*LCOV_EXCL_LINE*/
   }
 }
 
