@@ -23,7 +23,7 @@ Doc: let $E$ be an \kbd{ell} structure as output by \kbd{ellinit} attached
  If $E$ is defined over $\Q$, $v$ gives the coordinate change for $E$ to the
  standard minimal integral model (\tet{ellminimalmodel} provides it in a
  cheaper way); if $E$ is defined over another number field, $v$ gives a
- coordinate change to an integral model (\tet{ellintegral} model provides it
+ coordinate change to an integral model (\tet{ellintegralmodel} provides it
  in a cheaper way).
 
  \item $c$ is the product of the local Tamagawa numbers $c_p$, a quantity
