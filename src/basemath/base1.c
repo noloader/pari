@@ -1089,7 +1089,7 @@ nf_multable(nfmaxord_t *S, GEN invbas)
     {
       pari_sp av = avma;
       GEN z = (i == j)? ZXQ_sqr(gel(w,i), T): ZXQ_mul(gel(w,i),gel(w,j), T);
-      z = mulmat_pol(invbas, z); /* integral column */
+      z = ZM_ZX_mul(invbas, z); /* integral column */
       if (den)
       {
         GEN d = mul_denom(gel(den,i), gel(den,j));

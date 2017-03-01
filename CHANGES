@@ -135,7 +135,8 @@ JD   53- [plot] SVG support
      54- [libpari] upper_to_cx, cxredsl2
      55- new GP function charpow
      56- [libpari] ZM_pseudoinv
-     57- [libpari] ulogintall, ulogint, umuluu_or_0, QXQV_to_FpM
+     57- [libpari] ulogintall, ulogint, umuluu_or_0, QXQV_to_FpM, ZM_ZX_mul,
+         RgM_RgX_mul
 
   Changed
       1- rewrite bnfnarrow

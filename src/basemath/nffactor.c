@@ -443,7 +443,7 @@ nf_bestlift(GEN elt, GEN bound, nflift_t *L)
   long i,l = lg(L->prk), t = typ(elt);
   if (t != t_INT)
   {
-    if (t == t_POL) elt = mulmat_pol(L->tozk, elt);
+    if (t == t_POL) elt = ZM_ZX_mul(L->tozk, elt);
     u = ZM_ZC_mul(L->iprk,elt);
     for (i=1; i<l; i++) gel(u,i) = diviiround(gel(u,i), L->den);
   }

@@ -560,7 +560,7 @@ rnfidealreltoabs0(GEN rnf, GEN x, long flag)
 GEN
 rnfidealabstorel(GEN rnf, GEN x)
 {
-  long N, j, tx = typ(x);
+  long n, N, j, tx = typ(x);
   pari_sp av = avma;
   GEN A, I, invbas;
 
@@ -573,12 +573,17 @@ rnfidealabstorel(GEN rnf, GEN x)
     if (!N) return rnfideal0();
     pari_err_DIM("rnfidealabstorel");
   }
+  n = rnf_get_degree(rnf);
   A = cgetg(N+1,t_MAT);
   I = cgetg(N+1,t_VEC);
   for (j=1; j<=N; j++)
   {
     GEN t = lift_shallow( rnfeltabstorel(rnf, gel(x,j)) );
-    gel(A,j) = mulmat_pol(invbas, t);
+    if (typ(t) == t_POL)
+      t = RgM_RgX_mul(invbas, t);
+    else
+      t = scalarcol_shallow(t, n);
+    gel(A,j) = t;
     gel(I,j) = gen_1;
   }
   return gerepileupto(av, nfhnf(rnf_get_nf(rnf), mkvec2(A,I)));

@@ -281,8 +281,8 @@ error("incorrect type in rnfeltabstorel, apply nfinit(rnf) (t_COL).")
 error("incorrect type in rnfalgtobasis [not in Q[X]] (t_POL).")
 error("incorrect type in rnfbasistoalg [not in Q[X]] (t_POL).")
 error("incorrect type in rnfeltabstorel [not in Q[X]] (t_POL).")
-error("incorrect type in rnfeltup (t_COL).")
-error("incorrect type in rnfeltup (t_COL).")
+error("incorrect type in Q_denom (t_COMPLEX).")
+error("incorrect type in Q_denom (t_COMPLEX).")
 error("incorrect type in rnfeltdown [not in Q[X]] (t_POL).")
 error("incorrect type in rnfeltabstorel [not in Q[X]] (t_POL).")
 error("incorrect type in rnfeltabstorel [not in Q[X]] (t_POL).")
@@ -692,7 +692,7 @@ error("incorrect type in rnfbasistoalg [not in Q[X]] (t_POL).")
 error("incorrect type in rnfbasistoalg [not in Q[X]] (t_POL).")
 error("incorrect type in rnfidealabstorel (t_POL).")
 error("incorrect type in rnfbasistoalg [not in Q[X]] (t_POL).")
-error("incorrect type in idealhnf [integer vector] (t_COL).")
+error("incorrect type in Q_denom (t_COMPLEX).")
 error("incorrect type in rnfbasistoalg [not in Q[X]] (t_POL).")
 error("incorrect type in rnfbasistoalg [not in Q[X]] (t_POL).")
 error("incorrect type in rnfbasistoalg [not in Q[X]] (t_POL).")
@@ -844,4 +844,4 @@ error("inconsistent dimensions in idealtwoelt.")
   ***   at top-level: rnfislocalcyclo(rnfi
   ***                 ^--------------------
   *** rnfislocalcyclo: sorry, rnfislocalcyclo for non-l-extensions is not yet implemented.
-Total time spent: 452
+Total time spent: 879

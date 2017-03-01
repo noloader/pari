@@ -271,7 +271,7 @@ static GEN
 _powpolmodsimple(Cache *C, Red *R, GEN jac)
 {
   pari_sp av = avma;
-  GEN w = mulmat_pol(C->matvite, jac);
+  GEN w = ZM_ZX_mul(C->matvite, jac);
   long j, ph = lg(w);
 
   R->red = &_redsimple;

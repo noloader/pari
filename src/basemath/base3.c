@@ -947,28 +947,41 @@ nf_to_scalar_or_alg(GEN nf, GEN x)
   return NULL; /* LCOV_EXCL_LINE */
 }
 
-/* gmul(A, RgX_to_RgC(x)), A t_MAT (or t_VEC) of compatible dimensions */
+/* gmul(A, RgX_to_RgC(x)), A t_MAT of compatible dimensions */
 GEN
-mulmat_pol(GEN A, GEN x)
+RgM_RgX_mul(GEN A, GEN x)
 {
-  long i,l;
+  long i, l = lg(x)-1;
   GEN z;
-  if (typ(x) != t_POL) return gmul(x,gel(A,1)); /* scalar */
-  l=lg(x)-1; if (l == 1) return typ(A)==t_VEC? gen_0: zerocol(nbrows(A));
-  x++; z = gmul(gel(x,1), gel(A,1));
-  for (i=2; i<l ; i++)
-    if (!gequal0(gel(x,i))) z = gadd(z, gmul(gel(x,i), gel(A,i)));
+  if (l == 1) return zerocol(nbrows(A));
+  z = gmul(gel(x,2), gel(A,1));
+  for (i = 2; i < l; i++)
+    if (!gequal0(gel(x,i+1))) z = gadd(z, gmul(gel(x,i+1), gel(A,i)));
   return z;
 }
-
+GEN
+ZM_ZX_mul(GEN A, GEN x)
+{
+  long i, l = lg(x)-1;
+  GEN z;
+  if (l == 1) return zerocol(nbrows(A));
+  z = ZC_Z_mul(gel(A,1), gel(x,2));
+  for (i = 2; i < l ; i++)
+    if (signe(gel(x,i+1))) z = ZC_add(z, ZC_Z_mul(gel(A,i), gel(x,i+1)));
+  return z;
+}
 /* x a t_POL, nf a genuine nf. No garbage collecting. No check.  */
 GEN
 poltobasis(GEN nf, GEN x)
 {
-  GEN P = nf_get_pol(nf);
-  if (varn(x) != varn(P)) pari_err_VAR( "poltobasis", x,P);
-  if (degpol(x) >= degpol(P)) x = RgX_rem(x,P);
-  return mulmat_pol(nf_get_invzk(nf), x);
+  GEN d, T = nf_get_pol(nf);
+  if (varn(x) != varn(T)) pari_err_VAR( "poltobasis", x,T);
+  if (degpol(x) >= degpol(T)) x = RgX_rem(x,T);
+  x = Q_remove_denom(x, &d);
+  if (!RgX_is_ZX(x)) pari_err_TYPE("poltobasis",x);
+  x = ZM_ZX_mul(nf_get_invzk(nf), x);
+  if (d) x = RgC_Rg_div(x, d);
+  return x;
 }
 
 GEN
@@ -1166,12 +1179,12 @@ rnfalgtobasis(GEN rnf,GEN x)
     case t_POLMOD:
       x = polmod_nffix(f, rnf, x, 0);
       if (typ(x) != t_POL) break;
-      return gerepileupto(av, mulmat_pol(rnf_get_invzk(rnf), x));
+      return gerepileupto(av, RgM_RgX_mul(rnf_get_invzk(rnf), x));
     case t_POL:
       if (varn(x) == varn(T)) { RgX_check_QX(x,f); x = mkpolmod(x,T); break; }
       x = RgX_nffix(f, T, x, 0);
       if (degpol(x) >= degpol(relpol)) x = RgX_rem(x,relpol);
-      return gerepileupto(av, mulmat_pol(rnf_get_invzk(rnf), x));
+      return gerepileupto(av, RgM_RgX_mul(rnf_get_invzk(rnf), x));
   }
   return gerepileupto(av, scalarcol(x, rnf_get_degree(rnf)));
 }

@@ -7430,6 +7430,9 @@ by the \typ{INT}~\kbd{y}.
 by the \kbd{ZC}~\kbd{y} (seen as a column vector, assumed to have compatible
 dimensions).
 
+\fun{GEN}{ZM_ZX_mul}{GEN x, GEN T} returns $x \times y$, where $y$
+is \kbd{RgX\_to\_RgC}$(T, \kbd{lg}(x)-1)$.
+
 \fun{GEN}{ZM_diag_mul}{GEN d, GEN m} given a vector $d$ with integer entries
 and a \kbd{ZM} $m$ of compatible dimensions, return \kbd{diagonal(d) * m}.
 
@@ -7693,6 +7696,9 @@ scalar).
 \fun{GEN}{RgV_RgM_mul}{GEN x, GEN y} returns $x\times y$.
 
 \fun{GEN}{RgM_RgC_mul}{GEN x, GEN y} returns $x\times y$.
+
+\fun{GEN}{RgM_RgX_mul}{GEN x, GEN T} returns $x \times y$, where $y$
+is \kbd{RgX\_to\_RgC}$(T, \kbd{lg}(x)-1)$.
 
 \fun{GEN}{RgM_mul}{GEN x, GEN y} returns $x\times y$.
 

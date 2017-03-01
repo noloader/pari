@@ -2785,7 +2785,6 @@ modprinit(GEN nf, GEN pr, int zk)
   T = RgV_to_RgX(FpM_deplin(pow, p), nf_get_varn(nf));
   nfproj = cgetg(f+1, t_MAT);
   for (i=1; i<=f; i++) gel(nfproj,i) = lift_to_zk(gel(pow,i), c, N);
-  nfproj = coltoliftalg(nf, nfproj);
 
   setlg(pow, f+1);
   ffproj = FpM_mul(FpM_inv(pow, p), ffproj, p);
@@ -3000,7 +2999,7 @@ Fq_to_nf(GEN A, GEN modpr)
   if (typ(A) == t_INT || lg(modpr) < LARGEMODPR) return A;
   dA = degpol(A);
   if (dA <= 0) return dA ? gen_0: gel(A,2);
-  return mulmat_pol(gel(modpr,mpr_NFP), A);
+  return ZM_ZX_mul(gel(modpr,mpr_NFP), A);
 }
 GEN
 FqV_to_nfV(GEN A, GEN modpr)
