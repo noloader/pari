@@ -1383,7 +1383,11 @@ derivnumk(void *E, GEN (*eval)(void *, GEN, long), GEN x, GEN ind0, long prec)
   /* if only odd derivation orders, the value at 0 (A[1]) is not needed */
   gel(X, 1) = gen_0;
   for (i = allodd? 2: 1; i < lA; i++)
-    gel(X, i) = eval(E, gadd(x, gmul2n(gel(A,i), -e)), newprec);
+  {
+    GEN t = eval(E, gadd(x, gmul2n(gel(A,i), -e)), newprec);
+    if (!gprecision(t)) t = gtofp(t, newprec);
+    gel(X, i) = t;
+  }
 
   for (i = 1; i < l; i++)
   {
