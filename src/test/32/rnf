@@ -58,8 +58,10 @@ all([1]), Mat(1/861), 861/2, Mat(861)]], [[0; 0; 1; 0], [-20; 1; 0; 0], [3;
 1
 1
   *** rnfisabelian: Warning: non-monic polynomial. Result of the form [nf,c].
+  *** rnfisabelian: Warning: non-monic polynomial. Result of the form [nf,c].
 0
   *** rnfisabelian: Warning: non-monic polynomial. Result of the form [nf,c].
+1
 1
 [(-18*y^2 + 12*y + 12)*x^2 + (18*y^2 - 18*y - 8)*x + (-24*y^2 + 21*y + 15), 
 1]
@@ -844,4 +846,4 @@ error("inconsistent dimensions in idealtwoelt.")
   ***   at top-level: rnfislocalcyclo(rnfi
   ***                 ^--------------------
   *** rnfislocalcyclo: sorry, rnfislocalcyclo for non-l-extensions is not yet implemented.
-Total time spent: 879
+Total time spent: 988

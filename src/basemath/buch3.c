@@ -1678,8 +1678,8 @@ nf_deg1_prime(GEN nf)
   return NULL;
 }
 
-long
-rnfisabelian(GEN nf, GEN pol)
+static long
+rnfisabelian_i(GEN nf, GEN pol)
 {
   GEN modpr, pr, T, Tnf, pp, ro, nfL, C, a, sig, eq;
   long i, j, l, v;
@@ -1692,6 +1692,8 @@ rnfisabelian(GEN nf, GEN pol)
     Tnf = nf_get_pol(nf);
   }
   v = varn(Tnf);
+  if (degpol(Tnf) != 1 && typ(pol) == t_POL && RgX_is_QX(pol)
+                       && rnfisabelian_i(pol_x(v), pol)) return 1;
   pol = RgX_nffix("rnfisabelian",Tnf,pol,1);
   eq = nf_rnfeq(nf,pol); /* init L := K[x]/(pol), nf attached to K */
   C = gel(eq,1); setvarn(C, v); /* L = Q[t]/(C) */
@@ -1721,6 +1723,13 @@ rnfisabelian(GEN nf, GEN pol)
        != Flx_eval(gel(ro,i), sig[j], p)) return 0;
   }
   return 1;
+}
+long
+rnfisabelian(GEN nf, GEN pol)
+{
+  pari_sp av = avma;
+  long t = rnfisabelian_i(nf, pol);
+  avma = av; return t;
 }
 
 /* Given bnf and polrel defining an abelian relative extension, compute the

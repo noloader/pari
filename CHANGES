@@ -65,6 +65,7 @@ HIL  49- polclass could access invalid memory
      52- ellminimalmodel over number field fails with impossible inverse [#1899]
      53- infinite loop in rnfisabelian [#1903]
      54- incorrect GC in nfgcd [#1903]
+     55- missing GC in rnfisabelian
 
   Added
       1- [libari] ZM_isidentity
