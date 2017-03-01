@@ -187,13 +187,12 @@ nfgcd_all(GEN P, GEN Q, GEN T, GEN den, GEN *Pnew)
     R = FlxX_to_Flm(R, dT);
     /* previous primes divided Res(P/gcd, Q/gcd)? Discard them. */
     if (!mod || dR < dM) { M = ZM_init_CRT(R, p); mod = utoipos(p); dM = dR; continue; }
+    (void)ZM_incremental_CRT(&M,R, &mod,p);
     if (gc_needed(btop, 1))
     {
       if (DEBUGMEM>1) pari_warn(warnmem,"nfgcd");
       gerepileall(btop, 2, &M, &mod);
     }
-
-    (void)ZM_incremental_CRT(&M,R, &mod,p);
     /* I suspect it must be better to take amax > bmax*/
     bo = sqrti(shifti(mod, -1));
     if ((sol = FpM_ratlift(M, mod, bo, bo, den)) == NULL) continue;
