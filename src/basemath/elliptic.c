@@ -5072,6 +5072,7 @@ ellnf_D_primes(GEN E)
   return P;
 }
 
+/* assume E integral */
 static GEN
 ellminimalprimes(GEN E)
 {
@@ -5112,6 +5113,17 @@ ellminimalprimes(GEN E)
   }
   return obj_insert(E, NF_MINIMALPRIMES, mkvec5(L, U, Lr, Ls, Lt));
 }
+static GEN
+ellminimalnormu(GEN E)
+{
+  GEN v, S = ellminimalprimes(ellintegralmodel_i(E, &v));
+  long i, l;
+  GEN Nu, L = gel(S,1), U = gel(S,2), P = cgetg_copy(L, &l);
+  for (i = 1; i < l; i++) gel(P,i) = pr_norm(gel(L,i));
+  Nu = factorback2(P, U);
+  if (v) Nu = gmul(Nu, idealnorm(ellnf_get_nf(E), gel(v,1)));
+  return Nu;
+}
 /* return change of variable to miminal model (t_VEC) or (non-trivial)
  * Weierstrass class (t_COL), set DP = primes where the
  * model is not locally minimal */
@@ -5151,7 +5163,7 @@ ellminimaldisc(GEN E)
     case t_ELL_NF:
     {
       GEN nf = ellnf_get_nf(E);
-      GEN S = ellminimalprimes(E);
+      GEN S = ellminimalprimes(ellintegralmodel_i(E, NULL));
       S = idealfactorback(nf, gel(S,1), ZC_z_mul(gel(S,2), 12), 0);
       return gerepileupto(av, idealdiv(nf, ell_get_disc(E), S));
     }
@@ -5507,12 +5519,12 @@ ellnfbsdperiod(GEN E, long prec)
 static GEN
 ellnf_bsd(GEN E, long prec)
 {
-  GEN nf  = ellnf_get_nf(E);
   GEN per = ellnfbsdperiod(E, prec);
   GEN tam = ellnf_tamagawa(E);
   GEN tor = gel(elltors(E),1);
-  GEN disc= nf_get_disc(nf);
-  return divrr(divri(mulri(per, tam),sqri(tor)),gsqrt(absi(disc),prec));
+  GEN Nu = ellminimalnormu(E);
+  GEN D = itor(nf_get_disc(ellnf_get_nf(E)), prec);
+  return divrr(divri(mulri(gmul(per,Nu), tam), sqri(tor)), sqrtr_abs(D));
 }
 
 static GEN
@@ -5527,7 +5539,7 @@ ellQ_bsd(GEN E, long prec)
     GEN v = gel(S,2), u = gel(v,1);
     per = gmul(per,u);
   }
-  return divri(mulri(per, tam),sqri(tor));
+  return divri(mulri(per,tam), sqri(tor));
 }
 
 GEN

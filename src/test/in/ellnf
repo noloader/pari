@@ -97,6 +97,8 @@ idealnorm(K,ellglobalred(E)[1])
 elltamagawa(E)
 elltors(E)
 ellbsd(E)
+ellbsd(ellchangecurve(E,[1/Mod(a,K.pol),0,0,0]))
+ellbsd(ellchangecurve(E,[Mod(a,K.pol),0,0,0]))
 
 K = nfinit(a^3 - a^2 + 1);
 E = ellinit([a + 1, -a^2 - a - 1, a^2 + a, -a^2, -a^2 + 1],K);
