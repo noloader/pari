@@ -63,6 +63,7 @@ HIL  49- polclass could access invalid memory
          bnfisprincipal(K,P);  \\ oo loop
      51- nfvalrem() overflowed in case of negative valuation
      52- ellminimalmodel over number field fails with impossible inverse [#1899]
+     53- infinite loop in rnfisabelian [#1903]
 
   Added
       1- [libari] ZM_isidentity
@@ -180,6 +181,7 @@ BA   25- quadgen/quadunit: allow to specify the variable name instead of w.
          lindep_Xadic
      28- x^(t_FRAC) use sqrtnr if possible
 BA   29- keri replaced by ZM_ker (use modular algorithm)
+     30- ensures that poldiscfactors "primes" are not perfect powers
 
   Removed
       1- file 'MACHINES' (no longer maintained)

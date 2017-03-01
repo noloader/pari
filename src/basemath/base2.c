@@ -113,6 +113,7 @@ poldiscfactors_i(GEN T, GEN dT, long flag)
   for (i = l-1; i < lg(P); i++)
   {
     GEN p = gel(P,i), r, L;
+    if (Z_isanypower(p, &p)) gel(P,i) = p;
     if (BPSW_psp(p)) continue;
     r = FpX_gcd_check(T, Tp, p);
     if (r) L = Z_cba(r, diviiexact(p,r));

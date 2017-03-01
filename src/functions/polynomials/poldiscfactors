@@ -9,8 +9,8 @@ Help: poldiscfactors(T,{flag=0}): [D, faD], where D = discriminant of the
 Doc: given a polynomial $T$ with integer coefficients, return
  $[D, \var{faD}]$ where $D$ is the discriminant of $T$ and
  \var{faD} is a partial factorization of $D$: entries in its first
- column are coprime but need not be primes. If \fl is $1$, finish the
- factorization using \kbd{factorint}.
+ column are coprime and not perfect powers but need not be primes.
+ If \fl is $1$, finish the factorization using \kbd{factorint}.
  \bprog
  ? T = x^3 - 6021021*x^2 + 12072210077769*x - 8092423140177664432;
  ? [D,faD] = poldiscfactors(T); print(faD); D
