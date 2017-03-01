@@ -374,6 +374,7 @@ E=ellinit([1,0,1,4,-6]);
 E.disc
 elltamagawa(E)
 ellbsd(E)
+ellbsd(ellinit([-5*36^4,0]))
 
 \\#1558
 ellap(ellinit([-1137195,489565862]),2038074751)

@@ -5489,6 +5489,12 @@ ellQ_bsd(GEN E, long prec)
   GEN per = gel(ellR_omega(E, prec),1);
   GEN tam = ellQ_tamagawa(E);
   GEN tor = gel(elltors(E),1);
+  GEN S = obj_check(E, Q_MINIMALMODEL);
+  if (lg(S) != 2)
+  { /* switch to minimal model if needed */
+    GEN v = gel(S,2), u = gel(v,1);
+    per = gmul(per,u);
+  }
   return divri(mulri(per, tam),sqri(tor));
 }
 
