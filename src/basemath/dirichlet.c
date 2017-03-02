@@ -57,21 +57,18 @@ dirmuleuler_large(GEN x, ulong p, GEN ap)
 static GEN
 eulerfact_raw(GEN s, long n)
 {
-  long j;
-  GEN V;
-  n = minss(n, lgpol(s));
-  V = cgetg(n+1, t_VEC);
-  for (j=1; j<=n; j++) gel(V, j) = gel(s, j+1);
+  long j, l = minss(n+1, lg(s)-1);
+  GEN V = cgetg(l, t_VEC);
+  for (j = 1; j < l; j++) gel(V, j) = gel(s, j+1);
   return V;
 }
 
 static GEN
 eulerfact_small(void *E, GEN (*eval)(void *, GEN, long d), long p, long l)
 {
-  pari_sp av = avma;
   long n = ulogint(l, p) + 1; /* minimal n such that p^n > l */
   GEN s = eval(E, utoipos(p), n);
-  return gerepilecopy(av, eulerfact_raw(s, n));
+  return eulerfact_raw(s, n);
 }
 
 static GEN
@@ -113,13 +110,13 @@ direuler_bad(void *E, GEN (*eval)(void *, GEN, long d), GEN a, GEN b, GEN c, GEN
   gel(V,1) = gen_1; v[1] = 1; n = 1;
   if (Sbad)
   {
-    long l = lg(Sbad)-1;
+    long l = lg(Sbad);
     GEN pbad = gen_1;
-    for(i=1; i<=l; i++)
+    for(i = 1; i < l; i++)
     {
       ulong q;
       GEN ai = gel(Sbad,i), s;
-      if (typ(ai)!=t_VEC || lg(ai)!=3)
+      if (typ(ai) != t_VEC || lg(ai) != 3)
         pari_err_TYPE("direuler [bad primes]",ai);
       q = gtou(gel(ai, 1));
       s = ginv(gel(ai, 2));
