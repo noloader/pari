@@ -303,14 +303,16 @@ ZX_Z_normalize(GEN pol, GEN *ptk)
   long i,j, sk, n = degpol(pol); /* > 0 */
   GEN k, fa, P, E, a, POL;
 
+  if (ptk) *ptk = gen_1;
+  if (!n) return pol;
   a = pol + 2; k = gel(a,n-1); /* a[i] = coeff of degree i */
   for (i = n-2; i >= 0; i--)
   {
     k = gcdii(k, gel(a,i));
-    if (is_pm1(k)) { if (ptk) *ptk = gen_1; return pol; }
+    if (is_pm1(k)) return pol;
   }
   sk = signe(k);
-  if (!sk) { if (ptk) *ptk = gen_1; return pol; /* monomial! */ }
+  if (!sk) return pol; /* monomial! */
   fa = absZ_factor_limit(k, 0); k = gen_1;
   P = gel(fa,1);
   E = gel(fa,2);
@@ -336,7 +338,8 @@ ZX_Z_normalize(GEN pol, GEN *ptk)
       gel(a,j) = diviiexact(gel(a,j), pvj);
     }
   }
-  if (ptk) *ptk = k; return POL;
+  if (ptk) *ptk = k;
+  return POL;
 }
 
 /* Assume pol != 0 in Z[X]. Find C in Q, L in Z such that POL = C pol(x/L) monic

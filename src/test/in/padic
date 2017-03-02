@@ -73,3 +73,5 @@ factorpadic(f,2,3)
 \\#1876
 factorpadic(2*x^4+x^2,2,2)
 polrootspadic(2*x^4+x^2,2,2)
+\\#1905
+polrootspadic(x,3,10)
