@@ -55,7 +55,7 @@ dirmuleuler_large(GEN x, ulong p, GEN ap)
 }
 
 static GEN
-eulerfact_raw(GEN s, long p, long n)
+eulerfact_raw(GEN s, long n)
 {
   long j;
   GEN V;
@@ -66,19 +66,12 @@ eulerfact_raw(GEN s, long p, long n)
 }
 
 static GEN
-eulerfact_bad(GEN s, long p, long n)
-{
-  pari_sp av = avma;
-  return gerepilecopy(av, eulerfact_raw(s, p, n));
-}
-
-static GEN
 eulerfact_small(void *E, GEN (*eval)(void *, GEN, long d), long p, long l)
 {
   pari_sp av = avma;
-  long n = ulogint(l, p) + 1;
+  long n = ulogint(l, p) + 1; /* minimal n such that p^n > l */
   GEN s = eval(E, utoipos(p), n);
-  return gerepilecopy(av, eulerfact_raw(s, p, n));
+  return gerepilecopy(av, eulerfact_raw(s, n));
 }
 
 static GEN
@@ -103,47 +96,45 @@ direulertou(GEN a, GEN fl(GEN))
 GEN
 direuler_bad(void *E, GEN (*eval)(void *, GEN, long d), GEN a, GEN b, GEN c, GEN Sbad)
 {
-  ulong n;
+  ulong au, bu, cu, n, p, bb;
   pari_sp av0 = avma;
   GEN v, V;
   forprime_t T;
   long i;
-  ulong au, bu, cu;
-  ulong p, bb;
   au = direulertou(a, gceil);
   bu = direulertou(b, gfloor);
   cu = c ? direulertou(c, gfloor): bu;
   if (cu == 0) return cgetg(1,t_VEC);
   if (bu > cu) bu = cu;
   bb = usqrt(cu);
-  if (!u_forprime_init(&T, au, bu))
-    { avma = av0; return mkvec(gen_1); }
+  if (!u_forprime_init(&T, au, bu)) { avma = av0; return mkvec(gen_1); }
   v = cgetg(cu+1,t_VECSMALL);
   V = zerovec(cu);
-  gel(V,1) = gen_1; v[1] = 1; n = 1; p = 1;
+  gel(V,1) = gen_1; v[1] = 1; n = 1;
   if (Sbad)
   {
     long l = lg(Sbad)-1;
     GEN pbad = gen_1;
     for(i=1; i<=l; i++)
     {
-      ulong p;
+      ulong q;
       GEN ai = gel(Sbad,i), s;
       if (typ(ai)!=t_VEC || lg(ai)!=3)
         pari_err_TYPE("direuler [bad primes]",ai);
-      p = gtou(gel(ai, 1));
+      q = gtou(gel(ai, 1));
       s = ginv(gel(ai, 2));
-      if (p <= cu)
+      if (q <= cu)
       {
-        long nl = ulogint(cu, p) + 1;
+        long nl = ulogint(cu, q) + 1;
         s = gtoser(s, gvar(s), nl);
         if (signe(s)==0 || valp(s) || !gequal1(gel(s, 2))) err_direuler(s);
-        n = dirmuleuler_small(V, v, n, p, eulerfact_bad(s, p, nl));
-        pbad = muliu(pbad, p);
+        n = dirmuleuler_small(V, v, n, q, eulerfact_raw(s, nl));
+        pbad = muliu(pbad, q);
       }
     }
     Sbad = pbad;
   }
+  p = 1;
   while ( p <= bb && (p = u_forprime_next(&T)) )
   {
     if (Sbad && !umodiu(Sbad, p)) continue;
