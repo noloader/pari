@@ -1,5 +1,4 @@
 \\ package: galpol
-default(parisize,"10M");
 
 galoisgetpol(8)
 for(i=1,5,print(galoisgetpol(8,i)))

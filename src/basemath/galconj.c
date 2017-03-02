@@ -300,10 +300,10 @@ galoisborne(GEN T, GEN dn, struct galois_borne *gb, long d)
   if (DEBUGLEVEL>=4) timer_printf(&ti,"vandermondeinverse");
   borne = matrixnorm(M, prec);
   borneroots = gsupnorm(L, prec); /*t_REAL*/
-  bornetrace = gmulsg((2*step)*step*degpol(T)/d,
+  bornetrace = gmulsg((2*step)*degpol(T)/d,
                       powru(borneroots, minss(degpol(T), step)));
-  borneabs = ceil_safe(gmul(borne,powru(bornetrace, d)));
   borneroots = ceil_safe(gmul(borne, borneroots));
+  borneabs = ceil_safe(gmax(gmul(borne, bornetrace), powru(bornetrace, d)));
   av2 = avma;
   /*We use d-1 test, so we must overlift to 2^BITS_IN_LONG*/
   gb->valsol = logint(shifti(borneroots,2+BITS_IN_LONG), gb->l) + 1;

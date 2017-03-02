@@ -1,4 +1,3 @@
-default(parisize,"10M");
 do(p)=galoisidentify(galoisinit(p));
 
 do(algdep(I,3))
