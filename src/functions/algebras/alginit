@@ -115,10 +115,10 @@ Doc: initialize the central simple algebra defined by data $B$, $C$ and
  the natural order of $A$, accessed with \kbd{alghassef}.
 
   \item A basis of an order ${\cal O}_0$ expressed on the basis of the natural
- order, accessed with \kbd{algord}.
+ order, accessed with \kbd{algbasis}.
 
   \item A basis of the natural order expressed on the basis of ${\cal O}_0$,
- accessed with \kbd{alginvord}.
+ accessed with \kbd{alginvbasis}.
 
   \item The left multiplication table of ${\cal O}_0$ on the previous basis,
  accessed with \kbd{algmultable}.
