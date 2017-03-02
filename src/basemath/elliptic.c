@@ -5155,6 +5155,7 @@ GEN
 ellminimaldisc(GEN E)
 {
   pari_sp av = avma;
+  checkell(E);
   switch(ell_get_type(E))
   {
     case t_ELL_Q:
