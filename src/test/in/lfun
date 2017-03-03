@@ -116,18 +116,17 @@ L[5]*=4;
 lfuncheckfeq(L)
 
 print("Curve y^2=",x^5+x);
-fun(p)=
+fun(p, d)= \\ if (d < 2), only 1 + trace term is needed
 {
-  my(p16=p%16,p8=p16%8,c,d);
-  if (p8==1||p8==3,
-   [c,d]=qfbsolve(Qfb(1,0,2),p);
-   if (c%4!=1,c=-c));
-  if(p16==1,(x^2-2*x*c+p)^2,
-     p16==9,(x^2+2*x*c+p)^2,
-     p8==3, (x^2+2*x*c+p)*(x^2-2*x*c+p),
-     p8==5 || p8==7,(x^2+p)^2);
+  my(p16=p%16, p8=p16%8);
+  if (d < 2 && p8 != 1, return (1));
+  if (p8 == 5 || p8 == 7, return((1+p*x^2)^-2));
+  my([c,d] = qfbsolve(Qfb(1,0,2),p));
+  if (p8 == 3, return (1 / (1 + (-4*c^2 + 2*p)*x^2 + p^2*x^4)));
+  if (c%4 != 1, c=-c);
+  if(p16==1,(1-2*x*c+p*x^2)^-2, (1+2*x*c+p*x^2)^-2);
 }
-L=lfuncreate([[(p,d)->polrecip(fun(p)),[2, 1]], 0, [0,0,1,1], 2, 2^16, -1]);
+L=lfuncreate([[(p,d)->fun(p, d),[2, 1]], 0, [0,0,1,1], 2, 2^16, -1]);
 default("realprecision",38)
 lfuncheckfeq(L)
 lfunrootres(L)
@@ -135,17 +134,23 @@ lfun(L,1,1)
 
 print("Curve y^2=",x^5+1);
 B=bnfinit(polcyclo(5));
-fun2(p)=
+fun2(p, d)= \\ if (d < 2), only 1 + trace term is needed
 {
-  my(p10=p%10);
-  if (p10==3 || p10==7,x^4+p^2,
-      p10==9, x^4+2*p*x^2+p^2,
-      my(u=bnfisintnorm(B,p)[1], a = Mod(subst(u,x,x^2),B.pol)*u);
-      select(z->polcoeff(z,3)%10==6,
-        vector(10,i,minpoly((-x)^(i-1)*a)))[1]);
+  my(p10 = p%10);
+  if (p10 != 1,
+    if (d < 2, return (1));
+    return (if (p10==9, 1 / (1+2*p*x^2+p^2*x^4), 1 / (1 + p^2*x^4)));
+  );
+  my (u = nfbasistoalg(B, bnfisprincipal(B,idealprimedec(B,p)[1])[2]));
+  my (a = subst(liftpol(u),x,x^2) * u);
+  for (i = 0, 9,
+    my (b = (-x)^i * a);
+    my (t = nfelttrace(B, b), t10 = t % 10);
+    if (t10 == 4, return(if (d < 2, 1 + t*x, 1 / polrecip(minpoly(b)))));
+  );
 }
 
-L=lfuncreate([[(p,d)->polrecip(fun2(p)),[2, 1],[5, 1]], 0, [0,0,1,1], 2, 5^4*2^4, 1]);
+L=lfuncreate([[(p,d)->fun2(p,d),[2, 1],[5, 1]], 0, [0,0,1,1], 2, 5^4*2^4, 1]);
 lfuncheckfeq(L)
 lfunrootres(L)
 lfun(L,1)
@@ -179,11 +184,14 @@ localbitprec(4); lfuncheckfeq(E)
 localbitprec(32);lfuncheckfeq(E)
 
 print("Grossencharacter");
-
 K=bnfinit(polcyclo(5));
 id5=idealprimedec(K,5)[1];
 B=bnrinit(K,id5,1);
-F(p)=my(pr=idealprimedec(K,p)); simplify(lift(prod(k=1,#pr,(1-G(pr[k])*X^pr[k].f))));
+F(p,d)=
+{
+  my(pr=idealprimedec(K, p, d));
+  1 / simplify(lift(prod(k=1,#pr, 1 - G(pr[k])*X^pr[k].f)));
+}
 G(pr)=
 {
   if(idealval(K,B.mod,pr),0,
@@ -193,7 +201,7 @@ G(pr)=
     my(al3=nfbasistoalg(K,nfgaloisapply(K,x^3,al)));
     al1^3*al2^2*al3^1);
 }
-L=lfuncreate([(p,n)->F(p),0,[-1,0,0,1],4,625,0]);
+L=lfuncreate([(p,d)->F(p,d),0,[-1,0,0,1],4,625,0]);
 lfuncheckfeq(L)
 lfun(L,2)/(Pi/5^(15/4)*gamma(1/5)^(7/2)*gamma(3/5)^(1/2)/(gamma(4/5)^(7/2)*gamma(2/5)^(1/2)))
 
@@ -202,10 +210,10 @@ default("realprecision",54)
 e = ellinit([0, 0, 1, -1, 0]);
 le2 = lfuncreate([ n->ellan(e,n), 0, [0,1], 2, 37, -1]);
 le3 = lfuncreate([ ellan(e,1000), 0, [0,1], 2, 37, -1]);
-le4 = lfuncreate([ (p,d)->1-ellap(e,p)*'x+if(p==37,0,p*'x^2), 0, [0,1], 2, 37, -1]);
+le4 = lfuncreate([ (p,d)->1/(1-ellap(e,p)*'x+if(p!=37,p*'x^2)), 0, [0,1], 2, 37, -1]);
 le21 = lfuncreate([ [n->ellan(e,n),[37,1+'x]], 0, [0,1], 2, 37, -1]);
 le31 = lfuncreate([ [ellan(e,1000),[37,1+'x]], 0, [0,1], 2, 37, -1]);
-le41 = lfuncreate([ [(p,d)->1-ellap(e,p)*'x+p*'x^2, [37,1+'x]], 0, [0,1], 2, 37, -1]);
+le41 = lfuncreate([ [(p,d)->1/(1-ellap(e,p)*'x+p*'x^2), [37,1/(1+'x)]], 0, [0,1], 2, 37, -1]);
 lfuncheckfeq(le2)
 lfuncheckfeq(le3)
 lfuncheckfeq(le4)
@@ -248,7 +256,7 @@ lfuncheckfeq(L)
 
 print("zeta(s-a)");
 
-Z(a)=lfuncreate([(p,n)->(1-p^a*x),0,[-a],2*a+1,1,1,[[a+1,1/x+O(1)]]]);
+Z(a)=lfuncreate([(p,n)->1/(1-p^a*x),0,[-a],2*a+1,1,1,[[a+1,1/x+O(1)]]]);
 lfuncheckfeq(Z(1))
 lfun(Z(1),2)
 lfun(Z(1),3)
@@ -258,7 +266,7 @@ lfun(Z(2),3)
 
 print("zeta(s)*zeta(s-a)");
 
-L(a)=lfuncreate([(p,n)->(1-p^a*x)*(1-x),0,[-a,0],a+1,1,1,[[a+1,lfun(1,a+1+x+O(x^2))*(1/x+Euler+O(x))],[1,lfun(1,1-a+x+O(x^3))*(1/x+Euler+O(x))]]]);
+L(a)=lfuncreate([(p,n)->1/((1-p^a*x)*(1-x)),0,[-a,0],a+1,1,1,[[a+1,lfun(1,a+1+x+O(x^2))*(1/x+Euler+O(x))],[1,lfun(1,1-a+x+O(x^3))*(1/x+Euler+O(x))]]]);
 lfuncheckfeq(L(1))
 lfun(L(1),2)
 lfun(L(1),3)

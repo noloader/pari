@@ -118,8 +118,8 @@ direuler_bad(void *E, GEN (*eval)(void *, GEN, long d), GEN a, GEN b, GEN c, GEN
       GEN ai = gel(Sbad,i), s;
       if (typ(ai) != t_VEC || lg(ai) != 3)
         pari_err_TYPE("direuler [bad primes]",ai);
-      q = gtou(gel(ai, 1));
-      s = ginv(gel(ai, 2));
+      q = gtou(gel(ai,1));
+      s = gel(ai,2);
       if (q <= cu)
       {
         long nl = ulogint(cu, q) + 1;

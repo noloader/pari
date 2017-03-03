@@ -259,11 +259,11 @@ static GEN
 localfactor(void *E, GEN p, long n)
 {
   GEN a = (GEN)E;
-  GEN s = ginv(closure_callgen2(a, p, stoi(n-1)));
+  GEN s = closure_callgen2(a, p, stoi(n-1));
   s = gtoser(s, gvar(s), n);
   if (signe(s)==0 || valp(s) || !gequal1(gel(s, 2)))
     pari_err_DOMAIN("direuler","constant term","!=", gen_1,s);
-  return gtrunc(s);
+  return s;
 }
 static GEN
 vecan_closure(GEN a, long L, GEN Sbad)
@@ -288,7 +288,7 @@ vecan_closure(GEN a, long L, GEN Sbad)
   v = gel(a,1); tv = typ(v);
   /* regular vector, return it */
   if (tv != t_CLOSURE && tv != t_VEC) return vecslice(a, 1, minss(L,la-1));
-  /* vector [an, [p1, 1/L_{p1}], ..., [pk, 1/L_{pk}}]]: exceptional primes */
+  /* vector [an, [p1, L_{p1}], ..., [pk, L_{pk}}]]: exceptional primes */
   if (la > 1) Sbad = vecslice(a, 2, la-1);
   return vecan_closure(v, L, Sbad);
 }
@@ -1217,7 +1217,6 @@ ellfromeqncharpoly(GEN P, GEN Q, GEN p)
 static GEN
 genus2_eulerfact(GEN P, GEN p)
 {
-  pari_sp av = avma;
   GEN Pp = FpX_red(P, p);
   GEN GU = genus2_redmodel(Pp, p);
   long d = 6-degpol(Pp), v = d/2, w = odd(d);
@@ -1256,7 +1255,7 @@ genus2_eulerfact(GEN P, GEN p)
     kq = gmul(kq, kqoo);
   }
   tor = RgX_div(ZX_mul(oneminusxd(1), kq), ZX_mul(ki, kp));
-  return gerepileupto(av, ZX_mul(abe, tor));
+  return ginv( ZX_mul(abe, tor) );
 }
 
 static GEN
@@ -1365,7 +1364,6 @@ genus2_redmodel2(GEN P)
 static GEN
 genus2_eulerfact2(GEN PQ)
 {
-  pari_sp av = avma;
   GEN V = F2x_genus_red(ZX_to_F2x(gel(PQ, 1)), ZX_to_F2x(gel(PQ, 2)));
   GEN P = gel(V, 1), Q = gel(V, 2);
   GEN F = gel(V, 3), v = gel(V, 4);
@@ -1403,7 +1401,7 @@ genus2_eulerfact2(GEN PQ)
     kq = gmul(kq, kqoo);
   }
   tor = RgX_div(ZX_mul(oneminusxd(1),kq), ZX_mul(ki, kp));
-  return gerepileupto(av, ZX_mul(abe, tor));
+  return ginv( ZX_mul(abe, tor) );
 }
 
 GEN
@@ -1421,7 +1419,7 @@ lfungenus2(GEN G)
     pari_warn(warner,"unknown valuation of conductor at 2");
   e = cgetg(lL+(ram2?0:1), t_VEC);
   gel(e,1) = mkvec2(gen_2, ram2 ? genus2_eulerfact2(PQ)
-           : RgX_recip(hyperellcharpoly(gmul(PQ,gmodulss(1,2)))));
+           : ginv( RgX_recip(hyperellcharpoly(gmul(PQ,gmodulss(1,2))))) );
   for(i = ram2? 2: 1; i < lL; i++)
   {
     GEN Li = gel(L, i);
@@ -1728,7 +1726,7 @@ artin_ram(GEN nf, GEN gal, GEN pr, GEN ramg, GEN ch, long d)
   gel(V,2) = gen_0;
   for(i=1; i<=d; i++)
   {
-    gel(V,i+2) = gdivgs(artin_ind(elts, ch, q), -i);
+    gel(V,i+2) = gdivgs(artin_ind(elts, ch, q), i);
     q = gmul(q, p);
   }
   delete_var();
@@ -1736,7 +1734,7 @@ artin_ram(GEN nf, GEN gal, GEN pr, GEN ramg, GEN ch, long d)
   setvarn(V,0); return gerepilecopy(av,V);
 }
 
-/* [Artin conductor, vec of [p, Lp^(-1)]] */
+/* [Artin conductor, vec of [p, Lp]] */
 static GEN
 artin_badprimes(GEN N, GEN G, GEN ch)
 {

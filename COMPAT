@@ -6,6 +6,8 @@ This file lists the incompatible changes between Version 2.x and older versions
     vectors)
   - sumnummonieninit(a) for [a,a] did not conform to documentation.
     Change to sumnummonieninit(b) for [1,b]
+  - lfuncreate() with (p,d)->Lp closure and bad primes [p,Lp]: must now
+    use the actual local factor and not its inverse
 
 * Specific to the PARI library:
 ===============================
