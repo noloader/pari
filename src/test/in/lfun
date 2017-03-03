@@ -126,7 +126,7 @@ fun(p, d)= \\ if (d < 2), only 1 + trace term is needed
   if (c%4 != 1, c=-c);
   if(p16==1,(1-2*x*c+p*x^2)^-2, (1+2*x*c+p*x^2)^-2);
 }
-L=lfuncreate([[(p,d)->fun(p, d),[2, 1]], 0, [0,0,1,1], 2, 2^16, -1]);
+L=lfuncreate([[(p,d)->fun(p, d),[[2, 1]]], 0, [0,0,1,1], 2, 2^16, -1]);
 default("realprecision",38)
 lfuncheckfeq(L)
 lfunrootres(L)
@@ -150,7 +150,7 @@ fun2(p, d)= \\ if (d < 2), only 1 + trace term is needed
   );
 }
 
-L=lfuncreate([[(p,d)->fun2(p,d),[2, 1],[5, 1]], 0, [0,0,1,1], 2, 5^4*2^4, 1]);
+L=lfuncreate([[(p,d)->fun2(p,d),[[2,1],[5, 1]]], 0, [0,0,1,1], 2, 5^4*2^4, 1]);
 lfuncheckfeq(L)
 lfunrootres(L)
 lfun(L,1)
@@ -211,14 +211,10 @@ e = ellinit([0, 0, 1, -1, 0]);
 le2 = lfuncreate([ n->ellan(e,n), 0, [0,1], 2, 37, -1]);
 le3 = lfuncreate([ ellan(e,1000), 0, [0,1], 2, 37, -1]);
 le4 = lfuncreate([ (p,d)->1/(1-ellap(e,p)*'x+if(p!=37,p*'x^2)), 0, [0,1], 2, 37, -1]);
-le21 = lfuncreate([ [n->ellan(e,n),[37,1+'x]], 0, [0,1], 2, 37, -1]);
-le31 = lfuncreate([ [ellan(e,1000),[37,1+'x]], 0, [0,1], 2, 37, -1]);
-le41 = lfuncreate([ [(p,d)->1/(1-ellap(e,p)*'x+p*'x^2), [37,1/(1+'x)]], 0, [0,1], 2, 37, -1]);
+le41 = lfuncreate([ [(p,d)->1/(1-ellap(e,p)*'x+p*'x^2), [[37,1/(1+'x)]]], 0, [0,1], 2, 37, -1]);
 lfuncheckfeq(le2)
 lfuncheckfeq(le3)
 lfuncheckfeq(le4)
-lfuncheckfeq(le21)
-lfuncheckfeq(le31)
 lfuncheckfeq(le41)
 lfunan(le41,10)
 lfunan(2^63+5,10)
@@ -340,7 +336,8 @@ L=La;L[2]=Lb[1];
 lfun(L,2+I)
 lfun(La,2+I)
 {
-  L1=lfuncreate([Z,[1]]); L2=lfuncreate([Z,[3]]);
+  L1=lfuncreate([Z,[1]]);
+  L2=lfuncreate([Z,[3]]);
   my(t=lfunrootres(L1)[3]);
   L=lfuncreate([n->lfunan(L1,n)+lfunan(L2,n),n->conj(lfunan(L1,n))*t+lfunan(L2,n),[1],1,7,1]);
 }

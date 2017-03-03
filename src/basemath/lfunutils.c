@@ -266,31 +266,39 @@ localfactor(void *E, GEN p, long n)
   return s;
 }
 static GEN
-vecan_closure(GEN a, long L, GEN Sbad)
+vecan_closure(GEN a, long L, long prec)
 {
-  long ta = typ(a), la, tv;
-  GEN v;
+  long ta = typ(a);
+  GEN gL, Sbad = NULL;
 
-  if (ta == t_CLOSURE) switch(closure_arity(a))
+  if (ta == t_VEC)
   {
-    GEN gL;
-    case 2:
-      gL = stoi(L);
-      return direuler_bad((void*)a, localfactor, gen_2, gL,gL, Sbad);
-    case 1:
-      a = closure_callgen1(a, stoi(L));
-      if (typ(a) != t_VEC) pari_err_TYPE("vecan_closure", a);
-      return a;
-    default: pari_err_TYPE("vecan_closure [wrong arity]", a);
+    long l = lg(a);
+    if (l == 1) pari_err_TYPE("vecan_closure", a);
+    ta = typ(gel(a,1));
+    /* regular vector, return it */
+    if (ta != t_CLOSURE) return vecslice(a, 1, minss(L,l-1));
+    if (l != 3) pari_err_TYPE("vecan_closure", a);
+    Sbad = gel(a,2);
+    if (typ(Sbad) != t_VEC) pari_err_TYPE("vecan_closure", a);
+    a = gel(a,1);
   }
-  la = lg(a);
-  if (ta != t_VEC || la == 1) pari_err_TYPE("vecan_closure", a);
-  v = gel(a,1); tv = typ(v);
-  /* regular vector, return it */
-  if (tv != t_CLOSURE && tv != t_VEC) return vecslice(a, 1, minss(L,la-1));
-  /* vector [an, [p1, L_{p1}], ..., [pk, L_{pk}}]]: exceptional primes */
-  if (la > 1) Sbad = vecslice(a, 2, la-1);
-  return vecan_closure(v, L, Sbad);
+  else if (ta != t_CLOSURE) pari_err_TYPE("vecan_closure", a);
+  push_localprec(prec);
+  gL = stoi(L);
+  switch(closure_arity(a))
+  {
+    case 2:
+      a = direuler_bad((void*)a, localfactor, gen_2, gL,gL, Sbad);
+      break;
+    case 1:
+      a = closure_callgen1(a, gL);
+      if (typ(a) != t_VEC) pari_err_TYPE("vecan_closure", a);
+      break;
+    default: pari_err_TYPE("vecan_closure [wrong arity]", a);
+      a = NULL; /*LCOV_EXCL_LINE*/
+  }
+  pop_localprec(); return a;
 }
 
 /*****************************************************************/
@@ -2049,7 +2057,7 @@ ldata_vecan(GEN van, long L, long prec)
   {
     long n;
     case t_LFUN_GENERIC:
-      push_localprec(prec); an = vecan_closure(an, L, NULL); pop_localprec();
+      an = vecan_closure(an, L, prec);
       n = lg(an)-1;
       if (n < L)
         pari_warn(warner, "#an = %ld < %ld, results may be imprecise", n, L);

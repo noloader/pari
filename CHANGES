@@ -185,8 +185,11 @@ BA   25- quadgen/quadunit: allow to specify the variable name instead of w.
      28- x^(t_FRAC) use sqrtnr if possible
 BA   29- keri replaced by ZM_ker (use modular algorithm)
      30- ensures that poldiscfactors "primes" are not perfect powers
-     31- lfuncreate() with (p,d)->Lp closure and bad primes [p,Lp]: must now
-         use the actual local factor and not its inverse
+     31- lfuncreate() change of format for (p,d)->Lp closure:
+         - Lp here and in bad primes [p,Lp] must now use the actual local
+           factor and not its inverse
+         - bad primes are given as a separate 2nd component:
+           [Lp, [[p1,L1],...[pk,Lk]]], not as [Lp, [p1,L1],...[pk,Lk]]
 
   Removed
       1- file 'MACHINES' (no longer maintained)
