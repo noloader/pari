@@ -103,6 +103,15 @@ Flm_center(GEN z, ulong p, ulong ps2)
 }
 
 GEN
+random_FpV(long d, GEN p)
+{
+  long i;
+  GEN y = cgetg(d+1,t_POL);
+  for (i=1; i<=d; i++) gel(y,i) = randomi(p);
+  return y;
+}
+
+GEN
 random_Flv(long n, ulong p)
 {
   GEN y = cgetg(n+1, t_VECSMALL);
