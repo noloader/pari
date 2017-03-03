@@ -8914,7 +8914,7 @@ $X^n$.
 \fun{GEN}{RgX_RgXnV_eval}{GEN f, GEN V, long n} as \kbd{RgX\_RgXn\_eval(f, x, n)},
 assuming $V$ was output by \kbd{RgXn\_powers(x, m, n)} for some $m\geq 1$.
 
-\fun{GEN}{RgXn_reverse}{GEN f, GEN n} assuming that $f = a\*x \mod{x^2}$
+\fun{GEN}{RgXn_reverse}{GEN f, long n} assuming that $f = a\*x \mod{x^2}$
 with $a$ invertible, returns a \typ{POL} $g$ of degree $< n$ such that $(g
 \circ f)(x) = x$ modulo $x^n$.
 
