@@ -44,118 +44,6 @@ FpXQ_ffisom_inv(GEN S,GEN T, GEN p)
   return gerepilecopy(ltop, RgV_to_RgX(V, varn(T)));
 }
 
-/* Let M the matrix of the x^p Frobenius automorphism.
- * Compute x^(p^i) for i=0..r */
-static GEN
-FpM_Frobenius(GEN M, long r, GEN p, long v)
-{
-  GEN W, V = cgetg(r+2,t_VEC);
-  long i;
-  gel(V,1) = pol_x(v); if (!r) return V;
-  gel(V,2) = RgV_to_RgX(gel(M,2),v);
-  W = gel(M,2);
-  for (i = 3; i <= r+1; ++i)
-  {
-    W = FpM_FpC_mul(M,W,p);
-    gel(V,i) = RgV_to_RgX(W,v);
-  }
-  return V;
-}
-
-/* Let M the matrix of the x^p Frobenius automorphism.
- * Compute x^(p^i) for i=0..r */
-static GEN
-Flm_Frobenius(GEN M, long r, ulong p, long v)
-{
-  GEN W, V = cgetg(r+2,t_VEC);
-  long i;
-  gel(V,1) = polx_Flx(v); if (!r) return V;
-  gel(V,2) = Flv_to_Flx(gel(M,2),v);
-  W = gel(M,2);
-  for (i = 3; i <= r+1; ++i)
-  {
-    W = Flm_Flc_mul(M,W,p);
-    gel(V,i) = Flv_to_Flx(W,v);
-  }
-  return V;
-}
-
-/* Let P a polynomial != 0 and M the matrix of the x^p Frobenius automorphism in
- * FFp[X]/T. Compute P(M)
- * V=FpM_Frobenius(M, p, degpol(P), v)
- * not stack clean
- */
-
-static GEN
-FpXQV_FpX_Frobenius(GEN V, GEN P, GEN T, GEN p)
-{
-  pari_sp btop;
-  long i;
-  long l = get_FpX_degree(T);
-  long v = get_FpX_var(T);
-  GEN M,W,Mi;
-  GEN *gptr[2];
-  long lV=lg(V);
-  GEN  PV=RgX_to_RgC(P, lgpol(P));
-  M=cgetg(l+1,t_VEC);
-  gel(M,1) = scalar_ZX_shallow(FpX_eval(P,gen_1,p),v);
-  gel(M,2) = FpXV_FpC_mul(V,PV,p);
-  btop=avma;
-  gptr[0]=&Mi;
-  gptr[1]=&W;
-  W = leafcopy(V);
-  for(i=3;i<=l;i++)
-  {
-    long j;
-    pari_sp bbot;
-    GEN W2=cgetg(lV,t_VEC);
-    for(j=1;j<lV;j++)
-      gel(W2,j) = FpXQ_mul(gel(W,j),gel(V,j),T,p);
-    bbot=avma;
-    Mi=FpXV_FpC_mul(W2,PV,p);
-    W=gcopy(W2);
-    gerepilemanysp(btop,bbot,gptr,2);
-    btop=(pari_sp)W;
-    gel(M,i) = Mi;
-  }
-  return RgXV_to_RgM(M,l);
-}
-
-static GEN
-FlxqV_Flx_Frobenius(GEN V, GEN P, GEN T, ulong p)
-{
-  pari_sp btop;
-  long i;
-  long l = get_Flx_degree(T);
-  long v = get_Flx_var(T);
-  GEN M,W,Mi;
-  GEN PV=Flx_to_Flv(P, lgpol(P));
-  GEN *gptr[2];
-  long lV=lg(V);
-  M=cgetg(l+1,t_VEC);
-  gel(M,1) = Fl_to_Flx(Flx_eval(P,1,p),v);
-  gel(M,2) = FlxV_Flc_mul(V,PV,p);
-  btop=avma;
-  gptr[0]=&Mi;
-  gptr[1]=&W;
-  W=gcopy(V);
-  for(i=3;i<=l;i++)
-  {
-    long j;
-    pari_sp bbot;
-    GEN W2=cgetg(lV,t_VEC);
-    for(j=1;j<lV;j++)
-      gel(W2,j) = Flxq_mul(gel(W,j),gel(V,j),T,p);
-    bbot=avma;
-    Mi=FlxV_Flc_mul(W2,PV,p);
-    W=gcopy(W2);
-    gerepilemanysp(btop,bbot,gptr,2);
-    btop=(pari_sp)W;
-    gel(M,i) = Mi;
-  }
-  return FlxV_to_Flm(M,l);
-}
-
 /* Let M the matrix of the Frobenius automorphism of Fp[X]/(T).
  * Compute M^d
  * TODO: use left-right binary (tricky!)
@@ -190,39 +78,54 @@ FpM_Frobenius_pow(GEN M, long d, GEN T, GEN p)
  */
 
 static GEN
+Flx_Flm_Fl_eval(GEN U, GEN MA, GEN a, ulong p)
+{
+  long i, l = lg(U);
+  GEN b = Flv_Fl_mul(a, uel(U, l-1), p);
+  for (i=l-2; i>=2; i--)
+    b = Flv_add(Flm_Flc_mul(MA, b, p), Flv_Fl_mul(a, uel(U, i), p), p);
+  return b;
+}
+
+static GEN
 Flx_intersect_ker(GEN P, GEN MA, GEN U, ulong p)
 {
   pari_sp ltop = avma;
   long i, vp = P[1], vu = U[1], r = degpol(U);
-  GEN A, R;
+  GEN V, A, R;
   ulong ib0;
   pari_timer T;
-  GEN M, V;
   if (DEBUGLEVEL>=4) timer_start(&T);
-  V = Flm_Frobenius(MA, r, p, U[1]);
-  if (DEBUGLEVEL>=4) timer_printf(&T,"pol[Frobenius]");
-  M = FlxqV_Flx_Frobenius(V, U, P, p);
-  if (p==2)
-    A = F2m_to_Flm(F2m_ker(Flm_to_F2m(M)));
-  else
-    A = Flm_ker(M,p);
+  V = Flx_div(Flx_Fl_add(monomial_Flx(1, degpol(P), U[1]), p-1, p), U, p);
+  do
+  {
+    A = Flx_Flm_Fl_eval(V, MA, random_Flv(lg(MA)-1, p), p);
+  } while (zv_equal0(A));
   if (DEBUGLEVEL>=4) timer_printf(&T,"matrix polcyclo");
-  if (lg(A)!=r+1) pari_err_IRREDPOL("FpX_ffintersect", Flx_to_ZX(P));
-  A = gerepileupto(ltop,A);
   /*The formula is
    * a_{r-1} = -\phi(a_0)/b_0
    * a_{i-1} = \phi(a_i)+b_ia_{r-1}  i=r-1 to 1
    * Where a_0=A[1] and b_i=U[i+2] */
   ib0 = Fl_inv(Fl_neg(U[2], p), p);
   R = cgetg(r+1,t_MAT);
-  gel(R,1) = gel(A,1);
-  gel(R,r) = Flm_Flc_mul(MA, Flv_Fl_mul(gel(A,1),ib0, p), p);
+  gel(R,1) = A;
+  gel(R,r) = Flm_Flc_mul(MA, Flv_Fl_mul(A,ib0, p), p);
   for(i=r-1; i>1; i--)
   {
     gel(R,i) = Flm_Flc_mul(MA,gel(R,i+1),p);
     Flv_add_inplace(gel(R,i), Flv_Fl_mul(gel(R,r), U[i+2], p), p);
   }
   return gerepileupto(ltop, Flm_to_FlxX(Flm_transpose(R),vp,vu));
+}
+
+static GEN
+FpX_FpM_Fp_eval(GEN U, GEN MA, GEN a, GEN p)
+{
+  long i, l = lg(U);
+  GEN b = FpC_Fp_mul(a, gel(U, l-1), p);
+  for (i=l-2; i>=2; i--)
+    b = FpC_add(FpM_FpC_mul(MA, b, p), FpC_Fp_mul(a, gel(U, i), p), p);
+  return b;
 }
 
 static GEN
@@ -239,20 +142,20 @@ FpX_intersect_ker(GEN P, GEN MA, GEN U, GEN l)
     return gerepileupto(ltop, FlxX_to_ZXX(res));
   }
   if (DEBUGLEVEL>=4) timer_start(&T);
-  V = FpM_Frobenius(MA,r,l,vu);
-  if (DEBUGLEVEL>=4) timer_printf(&T,"pol[Frobenius]");
-  A = FpM_ker(FpXQV_FpX_Frobenius(V, U, P, l), l);
+  V = FpX_div(FpX_Fp_sub(monomial(gen_1, degpol(P), varn(U)), gen_1, l), U, l);
+  do
+  {
+    A = FpX_FpM_Fp_eval(V, MA, random_FpV(lg(MA)-1, l), l);
+  } while (ZV_equal0(A));
   if (DEBUGLEVEL>=4) timer_printf(&T,"matrix polcyclo");
-  if (lg(A)!=r+1) pari_err_IRREDPOL("FpX_ffintersect", P);
-  A = gerepileupto(ltop,A);
   /*The formula is
    * a_{r-1} = -\phi(a_0)/b_0
    * a_{i-1} = \phi(a_i)+b_ia_{r-1}  i=r-1 to 1
    * Where a_0=A[1] and b_i=U[i+2] */
   ib0 = Fp_inv(negi(gel(U,2)),l);
   R = cgetg(r+1,t_MAT);
-  gel(R,1) = gel(A,1);
-  gel(R,r) = FpM_FpC_mul(MA, FpC_Fp_mul(gel(A,1),ib0,l), l);
+  gel(R,1) = A;
+  gel(R,r) = FpM_FpC_mul(MA, FpC_Fp_mul(A,ib0,l), l);
   for(i=r-1;i>1;i--)
     gel(R,i) = FpC_add(FpM_FpC_mul(MA,gel(R,i+1),l),
         FpC_Fp_mul(gel(R,r), gel(U,i+2), l),l);
