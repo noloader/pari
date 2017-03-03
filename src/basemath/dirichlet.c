@@ -123,8 +123,7 @@ direuler_bad(void *E, GEN (*eval)(void *, GEN, long d), GEN a, GEN b, GEN c, GEN
       if (q <= cu)
       {
         long nl = ulogint(cu, q) + 1;
-        s = gtoser(s, gvar(s), nl);
-        if (signe(s)==0 || valp(s) || !gequal1(gel(s, 2))) err_direuler(s);
+        s = direuler_factor(s, nl);
         n = dirmuleuler_small(V, v, n, q, eulerfact_raw(s, nl));
         pbad = muliu(pbad, q);
       }
@@ -151,14 +150,47 @@ struct eval_bad
   GEN (*eval)(void *, GEN);
 };
 
+/* return a t_SER or a truncated t_POL to precision n */
+GEN
+direuler_factor(GEN s, long n)
+{
+  long t = typ(s);
+  if (is_scalar_t(t))
+  {
+    if (!gequal1(s)) err_direuler(s);
+    return scalarpol_shallow(s,0);
+  }
+  switch(t)
+  {
+    case t_POL: break; /* no need to RgXn_red */
+    case t_RFRAC:
+    {
+      GEN p = gel(s,1), q = gel(s,2);
+      q = RgXn_red_shallow(q,n);
+      s = RgXn_inv(q, n);
+      if (typ(p) == t_POL && varn(p) == varn(q))
+      {
+        p = RgXn_red_shallow(p, n);
+        s = RgXn_mul(s, p, n);
+      }
+      else
+        if (!gequal1(p)) s = RgX_Rg_mul(s, p);
+      if (!signe(s) || !gequal1(gel(s,2))) err_direuler(s);
+      break;
+    }
+    case t_SER:
+      if (!signe(s) || valp(s) || !gequal1(gel(s,2))) err_direuler(s);
+      break;
+    default: pari_err_TYPE("direuler", s);
+  }
+  return s;
+}
+
 static GEN
 eval_bad(void *E, GEN p, long n)
 {
   struct eval_bad *d = (struct eval_bad*) E;
-  GEN s = d->eval(d->E, p);
-  s = gtoser(s, gvar(s), n);
-  if (signe(s)==0 || valp(s) || !gequal1(gel(s, 2))) err_direuler(s);
-  return s;
+  return direuler_factor(d->eval(d->E, p), n);
 }
 
 GEN

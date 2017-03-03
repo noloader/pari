@@ -258,12 +258,8 @@ lfundiv(GEN ldata1, GEN ldata2, long bitprec)
 static GEN
 localfactor(void *E, GEN p, long n)
 {
-  GEN a = (GEN)E;
-  GEN s = closure_callgen2(a, p, stoi(n-1));
-  s = gtoser(s, gvar(s), n);
-  if (signe(s)==0 || valp(s) || !gequal1(gel(s, 2)))
-    pari_err_DOMAIN("direuler","constant term","!=", gen_1,s);
-  return s;
+  GEN s = closure_callgen2((GEN)E, p, stoi(n-1));
+  return direuler_factor(s, n);
 }
 static GEN
 vecan_closure(GEN a, long L, long prec)

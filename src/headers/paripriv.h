@@ -636,6 +636,9 @@ GEN     bnfsunit0(GEN bnf, GEN S, long flag, long prec);
 
 void random_curves_with_m_torsion(ulong *a4, ulong *a6, ulong *tx, ulong *ty, long ncurves, long m, ulong p);
 
+/* dirichlet.c */
+GEN direuler_factor(GEN s, long n);
+
 /* elliptic.c */
 
 void ellprint(GEN e);
