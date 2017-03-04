@@ -23,19 +23,27 @@ static void
 err_direuler(GEN x)
 { pari_err_DOMAIN("direuler","constant term","!=", gen_1,x); }
 
+/* s = t_POL (tolerate t_SER of valuation 0) of constant term = 1
+ * d = minimal such that p^d > X
+ * V indexed by 1..X will contain the a_n
+ * v[1..n] contains the indices nj such that V[nj] != 0 */
 static long
-dirmuleuler_small(GEN V, GEN v, long n, ulong p, GEN s)
+dirmuleuler_small(GEN V, GEN v, long n, ulong p, GEN s, long d)
 {
-  long i, j, m = n, d = lg(s)-2;
-  ulong q = 1, b = lg(V)-1;
-  for (i=1, q=p; i<=d; i++, q*=p)
+  long i, j, m = n, D = minss(d+2, lg(s));
+  ulong q = 1, X = lg(V)-1;
+
+  for (i = 3, q = p; i < D; i++, q *= p) /* q*p does not overflow */
   {
-    GEN aq = gel(s,i+1);
+    GEN aq = gel(s,i);
     if (gequal0(aq)) continue;
-    for (j=1; j<=m; j++)
+    /* j = 1 */
+    gel(V,q) = aq;
+    v[++n] = q;
+    for (j = 2; j <= m; j++)
     {
       ulong nj = umuluu_or_0(uel(v,j), q);
-      if (!nj || nj > b) continue;
+      if (!nj || nj > X) continue;
       gel(V,nj) = gmul(aq, gel(V,v[j]));
       v[++n] = nj;
     }
@@ -43,40 +51,13 @@ dirmuleuler_small(GEN V, GEN v, long n, ulong p, GEN s)
   return n;
 }
 
+/* ap != 0 for efficiency, p > sqrt(X) */
 static void
-dirmuleuler_large(GEN x, ulong p, GEN ap)
+dirmuleuler_large(GEN V, ulong p, GEN ap)
 {
-  if (!gequal0(ap))
-  {
-    long b = lg(x)-1, j, m = b/p;
-    gel(x,p) = ap;
-    for (j = 2; j <= m; j++) gel(x,j*p) = gmul(ap, gel(x,j));
-  }
-}
-
-static GEN
-eulerfact_raw(GEN s, long n)
-{
-  long j, l = minss(n+1, lg(s)-1);
-  GEN V = cgetg(l, t_VEC);
-  for (j = 1; j < l; j++) gel(V, j) = gel(s, j+1);
-  return V;
-}
-
-static GEN
-eulerfact_small(void *E, GEN (*eval)(void *, GEN, long d), long p, long l)
-{
-  long n = ulogint(l, p) + 1; /* minimal n such that p^n > l */
-  GEN s = eval(E, utoipos(p), n);
-  return eulerfact_raw(s, n);
-}
-
-static GEN
-eulerfact_large(void *E, GEN (*eval)(void *, GEN, long d), long p)
-{
-  pari_sp av = avma;
-  GEN s = eval(E, utoipos(p), 2);
-  return gerepilecopy(av, degpol(s)>=1 ? gel(s,3): gen_0);
+  long j, jp, X = lg(V)-1;
+  gel(V,p) = ap;
+  for (j = 2, jp = 2*p; jp <= X; j++, jp += p) gel(V,jp) = gmul(ap, gel(V,j));
 }
 
 static ulong
@@ -91,56 +72,59 @@ direulertou(GEN a, GEN fl(GEN))
 }
 
 GEN
-direuler_bad(void *E, GEN (*eval)(void *, GEN, long d), GEN a, GEN b, GEN c, GEN Sbad)
+direuler_bad(void *E, GEN (*eval)(void *,GEN,long), GEN a,GEN b,GEN c, GEN Sbad)
 {
-  ulong au, bu, cu, n, p, bb;
+  ulong au, bu, X, sqrtX, n, p;
   pari_sp av0 = avma;
-  GEN v, V;
+  GEN gp, v, V;
   forprime_t T;
   long i;
   au = direulertou(a, gceil);
   bu = direulertou(b, gfloor);
-  cu = c ? direulertou(c, gfloor): bu;
-  if (cu == 0) return cgetg(1,t_VEC);
-  if (bu > cu) bu = cu;
-  bb = usqrt(cu);
+  X = c ? direulertou(c, gfloor): bu;
+  if (X == 0) return cgetg(1,t_VEC);
+  if (bu > X) bu = X;
   if (!u_forprime_init(&T, au, bu)) { avma = av0; return mkvec(gen_1); }
-  v = cgetg(cu+1,t_VECSMALL);
-  V = zerovec(cu);
-  gel(V,1) = gen_1; v[1] = 1; n = 1;
+  v = vecsmall_ei(X, 1);
+  V = vec_ei(X, 1);
+  n = 1;
   if (Sbad)
   {
     long l = lg(Sbad);
     GEN pbad = gen_1;
-    for(i = 1; i < l; i++)
+    for (i = 1; i < l; i++)
     {
+      GEN ai = gel(Sbad,i);
       ulong q;
-      GEN ai = gel(Sbad,i), s;
       if (typ(ai) != t_VEC || lg(ai) != 3)
         pari_err_TYPE("direuler [bad primes]",ai);
       q = gtou(gel(ai,1));
-      s = gel(ai,2);
-      if (q <= cu)
+      if (q <= X)
       {
-        long nl = ulogint(cu, q) + 1;
-        s = direuler_factor(s, nl);
-        n = dirmuleuler_small(V, v, n, q, eulerfact_raw(s, nl));
+        long d = ulogint(X, q) + 1;
+        GEN s = direuler_factor(gel(ai,2), d);
+        n = dirmuleuler_small(V, v, n, q, s, d);
         pbad = muliu(pbad, q);
       }
     }
     Sbad = pbad;
   }
-  p = 1;
-  while ( p <= bb && (p = u_forprime_next(&T)) )
-  {
-    if (Sbad && !umodiu(Sbad, p)) continue;
-    n = dirmuleuler_small(V, v, n, p, eulerfact_small(E,eval,p, cu));
-  }
-  while ( (p = u_forprime_next(&T)) )
-  {
-    if (Sbad && !umodiu(Sbad, p)) continue;
-    dirmuleuler_large(V, p, eulerfact_large(E,eval,p));
-  }
+  p = 1; gp = cgetipos(3); sqrtX = usqrt(X);
+  while (p <= sqrtX && (p = u_forprime_next(&T)))
+    if (!Sbad || umodiu(Sbad, p))
+    {
+      long d = ulogint(X, p) + 1; /* minimal d such that p^d > X */
+      GEN s;
+      gp[2] = p; s = eval(E, gp, d);
+      n = dirmuleuler_small(V, v, n, p, s, d);
+    }
+  while ((p = u_forprime_next(&T))) /* sqrt(X) < p <= X */
+    if (!Sbad || umodiu(Sbad, p))
+    {
+      GEN s;
+      gp[2] = p; s = eval(E, gp, 2);
+      if (degpol(s) && !gequal0(gel(s,3))) dirmuleuler_large(V, p, gel(s,3));
+    }
   return gerepilecopy(av0,V);
 }
 
