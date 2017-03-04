@@ -135,12 +135,6 @@ FpX_intersect_ker(GEN P, GEN MA, GEN U, GEN l)
   long i, vp = varn(P), vu = varn(U), r = degpol(U);
   GEN V, A, R, ib0;
   pari_timer T;
-  if (lgefint(l)==3)
-  {
-    ulong p = l[2];
-    GEN res = Flx_intersect_ker(ZX_to_Flx(P,p), ZM_to_Flm(MA,p), ZX_to_Flx(U,p), p);
-    return gerepileupto(ltop, FlxX_to_ZXX(res));
-  }
   if (DEBUGLEVEL>=4) timer_start(&T);
   V = FpX_div(FpX_Fp_sub(monomial(gen_1, degpol(P), varn(U)), gen_1, l), U, l);
   do
@@ -296,6 +290,17 @@ FpX_ffintersect(GEN P, GEN Q, long n, GEN l, GEN *SP, GEN *SQ, GEN MA, GEN MB)
   long vp, vq, np, nq, e;
   ulong pg;
   GEN A, B, Ap, Bp;
+  if (lgefint(l)==3)
+  {
+    ulong pp = l[2];
+    GEN Pp = ZX_to_Flx(P,pp), Qp = ZX_to_Flx(Q,pp);
+    GEN MAp = MA ? ZM_to_Flm(MA, pp): NULL;
+    GEN MBp = MB ? ZM_to_Flm(MB, pp): NULL;
+    Flx_ffintersect(Pp, Qp, n, pp, SP, SQ, MAp, MBp);
+    *SP = Flx_to_ZX(*SP); *SQ = Flx_to_ZX(*SQ);
+    gerepileall(ltop,2,SP,SQ);
+    return;
+  }
   vp = varn(P); np = degpol(P);
   vq = varn(Q); nq = degpol(Q);
   if (np<=0) pari_err_IRREDPOL("FpX_ffintersect", P);
@@ -396,13 +401,19 @@ FpX_ffintersect(GEN P, GEN Q, long n, GEN l, GEN *SP, GEN *SQ, GEN MA, GEN MB)
  * that Q | P(R) mod l.  If P and Q have the same degree, it is of course an
  * isomorphism.  */
 GEN
-FpX_ffisom(GEN P,GEN Q,GEN l)
+FpX_ffisom(GEN P, GEN Q, GEN p)
 {
   pari_sp av = avma;
   GEN SP, SQ, R;
-  FpX_ffintersect(P,Q,degpol(P),l,&SP,&SQ,NULL,NULL);
-  R = FpXQ_ffisom_inv(SP,P,l);
-  return gerepileupto(av, FpX_FpXQ_eval(R,SQ,Q,l));
+  if (lgefint(p)==3)
+  {
+    ulong pp = p[2];
+    GEN R = Flx_ffisom(ZX_to_Flx(P,pp), ZX_to_Flx(Q,pp), pp);
+    return gerepileupto(av, Flx_to_ZX(R));
+  }
+  FpX_ffintersect(P,Q,degpol(P),p,&SP,&SQ,NULL,NULL);
+  R = FpXQ_ffisom_inv(SP,P,p);
+  return gerepileupto(av, FpX_FpXQ_eval(R,SQ,Q,p));
 }
 
 /* Let l be a prime number, P a ZX irreducible modulo l, MP the matrix of the
