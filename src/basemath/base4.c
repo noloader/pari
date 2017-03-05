@@ -2430,7 +2430,7 @@ prV_lcm_capZ(GEN L)
 
 /* Given a prime ideal factorization with possibly zero or negative
  * exponents, gives b such that v_p(b) = v_p(x) for all prime ideals pr | x
- * and v_pr(b)> = 0 for all other pr.
+ * and v_pr(b) >= 0 for all other pr.
  * For optimal performance, all [anti-]uniformizers should be precomputed,
  * but no support for this yet.
  *
