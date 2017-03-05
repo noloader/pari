@@ -2325,7 +2325,7 @@ Harmonic(long n)
 
 /* m >= 2. Validity domain contains | log |x| | < 5, best for |x| ~ 1.
  * Li_m(x = e^z) = sum_{n >= 0} zeta(m-n) z^n / n!
- *    with zeta(1) := H_m - log(-z) */
+ *    with zeta(1) := H_{m-1} - log(-z) */
 static GEN
 cxpolylog(long m, GEN x, long prec)
 {
