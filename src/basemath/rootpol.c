@@ -725,25 +725,27 @@ RgX_normalize1(GEN x)
   return y;
 }
 
-GEN
+static GEN
 polrootsbound_i(GEN P)
 {
+  pari_sp av = avma;
+  double d;
   (void)RgX_valrem_inexact(P,&P);
   P = RgX_normalize1(P);
   switch(degpol(P))
   {
     case -1: pari_err_ROOTS0("roots");
-    case 0:  return gen_0;
-    default: return dblexp(logmax_modulus(P, 0.01) + 0.01);
+    case 0:  avma = av; return gen_0;
   }
+  d = logmax_modulus(P, 0.01) + 0.01;
+  avma = av; return dblexp(d);
 }
 GEN
 polrootsbound(GEN P)
 {
-  pari_sp av = avma;
   if (typ(P) != t_POL) pari_err_TYPE("polrootsbound",P);
   checkvalidpol(P, "polrootsbound");
-  return gerepileuptoleaf(av, polrootsbound_i(P));
+  return polrootsbound_i(P);
 }
 
 /* log of modulus of the smallest root of p, with relative error tau */

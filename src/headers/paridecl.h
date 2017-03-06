@@ -4206,7 +4206,6 @@ int     isrealappr(GEN x, long l);
 GEN     polgraeffe(GEN p);
 GEN     polmod_to_embed(GEN x, long prec);
 GEN     polrootsbound(GEN p);
-GEN     polrootsbound_i(GEN P);
 GEN     roots(GEN x,long l);
 GEN     realroots(GEN P, GEN ab, long prec);
 long    ZX_sturm(GEN P);

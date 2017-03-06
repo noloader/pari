@@ -5,7 +5,8 @@ Prototype: G
 Help: polrootsbound(T): return a sharp upper bound for the modulus of
  the largest complex root of the polynomial T.
 Doc: return a sharp upper bound $B$ for the modulus of
- the largest complex root of the polynomial $T$. More precisely, we
+ the largest complex root of the polynomial $T$ with complex coefficients.
+ More precisely, we
  have $|z| \leq B$ for all roots and there exist one
  root such that $|z_0| \geq B exp(-0.01)$. Much faster than either polroots
  or polrootsreal.
