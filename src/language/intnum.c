@@ -2064,7 +2064,7 @@ sumnumrat_i(GEN F, GEN F0, GEN vF, long prec)
   S1 = add_sumrfrac(S1, F, vF, N-1);
   if (F0) S1 = gadd(S1, F0);
   S = gmul(real_1(prec), gsubst(F, vx, gaddgs(pol_x(vx), N)));
-  S = gtoser(S, vx, k + 2);
+  S = rfrac_to_ser(S, k + 2);
   S2 = gen_0;
   for (j = 2; j <= k; j += 2)
     S2 = gadd(S2, gmul(gdivgs(bernfrac(j),j), sercoeff(S, j-1)));
