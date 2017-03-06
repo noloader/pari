@@ -736,18 +736,17 @@ vecexpr1(GEN vec, GEN code, GEN pred)
 GEN
 vecteur(GEN nmax, GEN code)
 {
-  GEN y,p1;
-  long i,m;
-  GEN c=utoipos(1);
+  GEN y, c;
+  long i, m = gtos(nmax);
 
-  m = gtos(nmax);
   if (m < 0)  pari_err_DOMAIN("vector", "dimension", "<", gen_0, stoi(m));
   if (!code) return zerovec(m);
+  c = cgetipos(3); /* left on stack */
   y = cgetg(m+1,t_VEC); push_lex(c, code);
   for (i=1; i<=m; i++)
   {
-    c[2] = i; p1 = closure_evalnobrk(code);
-    gel(y,i) = copyupto(p1, y);
+    c[2] = i;
+    gel(y,i) = copyupto(closure_evalnobrk(code), y);
     set_lex(-1,c);
   }
   pop_lex(1); return y;
@@ -756,18 +755,20 @@ vecteur(GEN nmax, GEN code)
 GEN
 vecteursmall(GEN nmax, GEN code)
 {
-  GEN y;
-  long i,m;
-  GEN c=utoipos(1);
+  pari_sp av;
+  GEN y, c;
+  long i, m = gtos(nmax);
 
-  m = gtos(nmax);
   if (m < 0)  pari_err_DOMAIN("vectorsmall", "dimension", "<", gen_0, stoi(m));
   if (!code) return zero_zv(m);
+  c = cgetipos(3); /* left on stack */
   y = cgetg(m+1,t_VECSMALL); push_lex(c,code);
-  for (i=1; i<=m; i++)
+  av = avma;
+  for (i = 1; i <= m; i++)
   {
     c[2] = i;
     y[i] = gtos(closure_evalnobrk(code));
+    avma = av;
     set_lex(-1,c);
   }
   pop_lex(1); return y;
@@ -783,9 +784,8 @@ vvecteur(GEN nmax, GEN n)
 GEN
 matrice(GEN nlig, GEN ncol, GEN code)
 {
-  GEN y, z, p1;
-  long i, j, m, n;
-  GEN c1 = utoipos(1), c2 = utoipos(1);
+  GEN c1, c2, y;
+  long i, m, n;
 
   n = gtos(nlig);
   m = ncol? gtos(ncol): n;
@@ -793,15 +793,18 @@ matrice(GEN nlig, GEN ncol, GEN code)
   if (n < 0)  pari_err_DOMAIN("matrix", "nbrows", "<", gen_0, stoi(n));
   if (!m) return cgetg(1,t_MAT);
   if (!code || !n) return zeromatcopy(n, m);
-  push_lex(c1,code);
-  push_lex(c2,NULL); y = cgetg(m+1,t_MAT);
-  for (i=1; i<=m; i++)
+  c1 = cgetipos(3); push_lex(c1,code);
+  c2 = cgetipos(3); push_lex(c2,NULL); /* c1,c2 left on stack */
+  y = cgetg(m+1,t_MAT);
+  for (i = 1; i <= m; i++)
   {
-    c2[2] = i; z = cgetg(n+1,t_COL); gel(y,i) = z;
-    for (j=1; j<=n; j++)
+    GEN z = cgetg(n+1,t_COL);
+    long j;
+    c2[2] = i; gel(y,i) = z;
+    for (j = 1; j <= n; j++)
     {
-      c1[2] = j; p1 = closure_evalnobrk(code);
-      gel(z,j) = copyupto(p1, y);
+      c1[2] = j;
+      gel(z,j) = copyupto(closure_evalnobrk(code), y);
       set_lex(-2,c1);
       set_lex(-1,c2);
     }

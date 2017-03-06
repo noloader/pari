@@ -67,6 +67,7 @@ HIL  49- polclass could access invalid memory
      54- incorrect GC in nfgcd [#1903]
      55- missing GC in rnfisabelian
      56- derivnum(x = a, ...) allowed t_POL a but not t_RFRAC
+     57- missing GC in vectorsmall
 
   Added
       1- [libari] ZM_isidentity
