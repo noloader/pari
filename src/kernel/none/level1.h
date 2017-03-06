@@ -1341,11 +1341,11 @@ INLINE void divssz(long x, long y, GEN z)
 { affsi(x/y, z); }
 
 INLINE void modisz(GEN y, long s, GEN z)
-{ pari_sp av = avma; affii(modis(y,s),z); avma = av; }
+{ affsi(smodis(y,s),z); }
 INLINE void modsiz(long s, GEN y, GEN z)
 { pari_sp av = avma; affii(modsi(s,y),z); avma = av; }
 INLINE void modssz(long s, long y, GEN z)
-{ pari_sp av = avma; affii(modss(s,y),z); avma = av; }
+{ affsi(smodss(s,y),z); }
 
 INLINE void mpaddz(GEN x, GEN y, GEN z)
 { pari_sp av = avma; mpaff(mpadd(x,y),z); avma = av; }
