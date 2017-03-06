@@ -1341,7 +1341,7 @@ chk_ord(long m)
     pari_err_DOMAIN("derivnumk", "derivation order", "<", gen_0, stoi(m));
 }
 
-static GEN
+GEN
 derivnumk(void *E, GEN (*eval)(void *, GEN, long), GEN x, GEN ind0, long prec)
 {
   GEN A, D, X, F, ind;
@@ -1400,6 +1400,13 @@ derivnumk(void *E, GEN (*eval)(void *, GEN, long), GEN x, GEN ind0, long prec)
   if (typ(ind0) == t_INT) F = gel(F,1);
   return gerepileupto(av, gprec_w(F, nbits2prec(fpr)));
 }
+/* v(t') */
+static long
+rfrac_val_deriv(GEN t)
+{
+  long v = varn(gel(t,2));
+  return gvaluation(deriv(t, v), pol_x(v));
+}
 
 GEN
 derivfunk(void *E, GEN (*eval)(void *, GEN, long), GEN x, GEN ind0, long prec)
@@ -1417,6 +1424,12 @@ derivfunk(void *E, GEN (*eval)(void *, GEN, long), GEN x, GEN ind0, long prec)
     M = vecsmall_max(ind);
     xp = RgX_deriv(x);
     x = RgX_to_ser(x, precdl+2 + M * (1+RgX_val(xp)));
+    break;
+  case t_RFRAC:
+    ind = gtovecsmall(ind0);
+    M = vecsmall_max(ind);
+    x = rfrac_to_ser(x, precdl+2 + M * (1+rfrac_val_deriv(x)));
+    xp = derivser(x);
     break;
   case t_SER:
     ind = gtovecsmall(ind0);
@@ -1456,6 +1469,9 @@ derivfun(void *E, GEN (*eval)(void *, GEN, long), GEN x, long prec)
     xp = RgX_deriv(x);
     x = RgX_to_ser(x, precdl+2+ (1 + RgX_val(xp)));
     break;
+  case t_RFRAC:
+    x = rfrac_to_ser(x, precdl+2+ (1 + rfrac_val_deriv(x)));
+    /* fall through */
   case t_SER:
     xp = derivser(x);
     break;

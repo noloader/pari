@@ -66,6 +66,7 @@ HIL  49- polclass could access invalid memory
      53- infinite loop in rnfisabelian [#1903]
      54- incorrect GC in nfgcd [#1903]
      55- missing GC in rnfisabelian
+     56- derivnum(x = a, ...) allowed t_POL a but not t_RFRAC
 
   Added
       1- [libari] ZM_isidentity
