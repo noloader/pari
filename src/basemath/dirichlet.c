@@ -128,12 +128,6 @@ direuler_bad(void *E, GEN (*eval)(void *,GEN,long), GEN a,GEN b,GEN c, GEN Sbad)
   return gerepilecopy(av0,V);
 }
 
-struct eval_bad
-{
-  void *E;
-  GEN (*eval)(void *, GEN);
-};
-
 /* return a t_SER or a truncated t_POL to precision n */
 GEN
 direuler_factor(GEN s, long n)
@@ -170,13 +164,17 @@ direuler_factor(GEN s, long n)
   return s;
 }
 
+struct eval_bad
+{
+  void *E;
+  GEN (*eval)(void *, GEN);
+};
 static GEN
 eval_bad(void *E, GEN p, long n)
 {
   struct eval_bad *d = (struct eval_bad*) E;
   return direuler_factor(d->eval(d->E, p), n);
 }
-
 GEN
 direuler(void *E, GEN (*eval)(void *, GEN), GEN a, GEN b, GEN c)
 {
