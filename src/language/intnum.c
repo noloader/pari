@@ -1982,7 +1982,7 @@ intnumainfrat(GEN F, long N, double r, long prec)
 
   lim = (long)ceil(B/log2(N/r)) + 1;
   ser = gmul(F, real_1(prec + EXTRAPREC));
-  ser = rfracrecip_to_ser_absolute(ser, lim + 2);
+  ser = rfracrecip_to_ser_absolute(ser, lim);
   v = valp(ser);
   S = gdivgs(sercoeff(ser,lim+1), lim*N);
   /* goes down to 2, but coeffs are 0 in degree < v */
@@ -2283,7 +2283,7 @@ sumeulerrat(GEN F, GEN s, long a, long prec)
   N = maxss(maxss(30, a), (long)ceil(2*gtodouble(r)));
   lim = (long)ceil(B / dbllog2(gdiv(gpow(stoi(N), rsg, LOWDEFAULTPREC), r)))+1;
   ser = gmul(real_1(prec + EXTRAPREC), F);
-  ser = rfracrecip_to_ser_absolute(ser, lim + 2);
+  ser = rfracrecip_to_ser_absolute(ser, lim);
   res = sumlogzeta(ser, s, N, vF, lim, prec);
   u_forprime_init(&T, a, N);
   while ( (p = u_forprime_next(&T)) )
@@ -2320,7 +2320,7 @@ prodeulerrat(GEN F, GEN s, long a, long prec)
   N = maxss(maxss(30, a), (long)ceil(2*gtodouble(r)));
   lim = (long)ceil(B / dbllog2(gdiv(gpow(stoi(N), rsg, LOWDEFAULTPREC), r)))+1;
   ser = gmul(real_1(prec + EXTRAPREC), F1);
-  ser = gaddsg(1, rfracrecip_to_ser_absolute(ser, lim + 2));
+  ser = gaddsg(1, rfracrecip_to_ser_absolute(ser, lim));
   ser = glog(ser, 0);
   res = sumlogzeta(ser, s, N, vF, lim, prec);
   res = gexp(res, prec);

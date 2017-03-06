@@ -195,12 +195,12 @@ rfrac_to_ser(GEN x, long l)
   return gdiv(gel(x,1), RgX_to_ser(gel(x,2), l));
 }
 
-/* R(1/x) + O((1/x)^(l-2)) */
+/* R(1/x) + O(x^N) */
 GEN
-rfracrecip_to_ser_absolute(GEN R, long l)
+rfracrecip_to_ser_absolute(GEN R, long N)
 {
   GEN n = gel(R,1), d = gel(R,2);
-  long N = l-2, vx = varn(d), vn, v, dn;
+  long vx = varn(d), vn, v, dn;
 
   if (typ(n) != t_POL || varn(n) != vx)
   {
@@ -215,8 +215,7 @@ rfracrecip_to_ser_absolute(GEN R, long l)
   }
   v = vn - RgX_valrem(d, &d);
   d = RgX_recip(d);
-  N -= v;
-  R = gdiv(n, RgX_to_ser(d, l));
+  R = gdiv(n, RgX_to_ser(d, N+2));
   setvalp(R, valp(R) + degpol(d)-dn-v);
   return R;
 }
