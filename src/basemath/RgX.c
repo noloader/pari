@@ -738,10 +738,9 @@ RgXY_degreex(GEN b)
 GEN
 RgXn_red_shallow(GEN a, long n)
 {
-  long i, L, l = lg(a);
+  long i, L = n+2, l = lg(a);
   GEN  b;
-  if (l == 2 || !n) return pol_0(varn(a));
-  L = n+2; if (L > l) L = l;
+  if (L >= l) return a; /* deg(x) < n */
   b = cgetg(L, t_POL); b[1] = a[1];
   for (i=2; i<L; i++) gel(b,i) = gel(a,i);
   return normalizepol_lg(b,L);
