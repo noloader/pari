@@ -2382,19 +2382,19 @@ alggroup
 1
   ***   at top-level: alggroup("a")
   ***                 ^-------------
-  *** alggroup: incorrect type in alggroup (t_STR).
+  *** alggroup: incorrect type in checkgroup (t_STR).
   ***   at top-level: alggroup(["a"])
   ***                 ^---------------
-  *** alggroup: incorrect type in alggroup (element) (t_STR).
+  *** alggroup: incorrect type in checkgroup (element) (t_STR).
   ***   at top-level: alggroup(["a","b","c
   ***                 ^--------------------
-  *** alggroup: incorrect type in alggroup (element) (t_STR).
+  *** alggroup: incorrect type in checkgroup (element) (t_STR).
   ***   at top-level: alggroup([Vecsmall([
   ***                 ^--------------------
-  *** alggroup: inconsistent dimensions in alggroup [length of permutations].
+  *** alggroup: inconsistent dimensions in checkgroup [length of permutations].
   ***   at top-level: alggroup([Vecsmall([
   ***                 ^--------------------
-  *** alggroup: inconsistent dimensions in alggroup [length of permutations].
+  *** alggroup: inconsistent dimensions in checkgroup [length of permutations].
 [0, 0, 0, 0, 0, 0, [1, 0; 0, 1], [1, 0; 0, 1], [[1, 0; 0, 1], [0, 1; 1, 0]],
  0, [2, 0]]
 S1
@@ -2605,10 +2605,10 @@ D74
 1
   ***   at top-level: alggroupcenter(['x,'
   ***                 ^--------------------
-  *** alggroupcenter: incorrect type in alggroup (element) (t_POL).
+  *** alggroupcenter: incorrect type in checkgroup (element) (t_POL).
   ***   at top-level: alggroupcenter('x,1)
   ***                 ^--------------------
-  *** alggroupcenter: incorrect type in alggroup (t_POL).
+  *** alggroupcenter: incorrect type in checkgroup (t_POL).
   ***   at top-level: alglathnf(al,0)
   ***                 ^---------------
   *** alglathnf: incorrect type in alglathnf (t_INT).
@@ -2686,4 +2686,4 @@ should fail:
 1
 1
 1
-Total time spent: 8664
+Total time spent: 8816

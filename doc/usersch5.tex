@@ -11670,18 +11670,21 @@ the generators $\var{grp}[1]$.
 
 See \tet{galoisinit} for the technical details.
 
-\fun{GEN}{checkgroup}{GEN gal, GEN *elts} checks whether \var{gal} is a
+\fun{GEN}{checkgroup}{GEN gal, GEN *elts} check whether \var{gal} is a
 small group or a Galois group. Returns the underlying small
 group and set \var{elts} to the list of elements or to \kbd{NULL} if it is not
 known.
 
+\fun{GEN}{checkgroupelts}{GEN gal} as \kbd{checkgroup} but always
+return the list of elements.
+
 \fun{GEN}{galois_group}{GEN gal} return the underlying small group of the
 Galois group \var{gal}.
 
-\fun{GEN}{cyclicgroup}{GEN g, long s} returns the cyclic group with generator
+\fun{GEN}{cyclicgroup}{GEN g, long s} return the cyclic group with generator
 $g$ of order $s$.
 
-\fun{GEN}{trivialgroup}{void} returns the trivial group.
+\fun{GEN}{trivialgroup}{void} return the trivial group.
 
 \fun{GEN}{dicyclicgroup}{GEN g1, GEN g2, long s1, long s2} returns the group
 with generators \var{g1}, \var{g2} with respecting relative orders \var{s1},

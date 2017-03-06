@@ -2445,7 +2445,7 @@ checkgroup(GEN g, GEN *S)
 GEN
 checkgroupelts(GEN gal)
 {
-  if (typ(gal)!=t_VEC) pari_err_TYPE("alggroup", gal);
+  if (typ(gal)!=t_VEC) pari_err_TYPE("checkgroup", gal);
   if ((lg(gal)==9 && typ(gel(gal,1))==t_POL) ||
       (lg(gal)==3 && typ(gel(gal,1))==t_VEC && typ(gel(gal,2))==t_VECSMALL))
   {
@@ -2460,9 +2460,9 @@ checkgroupelts(GEN gal)
     for(i=1; i<=n; i++)
     {
       if(typ(gel(gal,i)) != t_VECSMALL)
-        pari_err_TYPE("alggroup (element)", gel(gal,i));
+        pari_err_TYPE("checkgroup (element)", gel(gal,i));
       if(lg(gel(gal,i))!=lg(gel(gal,1)))
-        pari_err_DIM("alggroup [length of permutations]");
+        pari_err_DIM("checkgroup [length of permutations]");
     }
     return gal;
   }
