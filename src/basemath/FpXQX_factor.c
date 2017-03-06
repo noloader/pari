@@ -78,7 +78,7 @@ FpM_Frobenius_pow(GEN M, long d, GEN T, GEN p)
  */
 
 static GEN
-Flx_Flm_Fl_eval(GEN U, GEN MA, GEN a, ulong p)
+Flx_Flm_Flc_eval(GEN U, GEN MA, GEN a, ulong p)
 {
   long i, l = lg(U);
   GEN b = Flv_Fl_mul(a, uel(U, l-1), p);
@@ -99,7 +99,7 @@ Flx_intersect_ker(GEN P, GEN MA, GEN U, ulong p)
   V = Flx_div(Flx_Fl_add(monomial_Flx(1, degpol(P), U[1]), p-1, p), U, p);
   do
   {
-    A = Flx_Flm_Fl_eval(V, MA, random_Flv(lg(MA)-1, p), p);
+    A = Flx_Flm_Flc_eval(V, MA, random_Flv(lg(MA)-1, p), p);
   } while (zv_equal0(A));
   if (DEBUGLEVEL>=4) timer_printf(&T,"matrix polcyclo");
   /*The formula is
@@ -119,7 +119,7 @@ Flx_intersect_ker(GEN P, GEN MA, GEN U, ulong p)
 }
 
 static GEN
-FpX_FpM_Fp_eval(GEN U, GEN MA, GEN a, GEN p)
+FpX_FpM_FpC_eval(GEN U, GEN MA, GEN a, GEN p)
 {
   long i, l = lg(U);
   GEN b = FpC_Fp_mul(a, gel(U, l-1), p);
@@ -139,7 +139,7 @@ FpX_intersect_ker(GEN P, GEN MA, GEN U, GEN l)
   V = FpX_div(FpX_Fp_sub(monomial(gen_1, degpol(P), varn(U)), gen_1, l), U, l);
   do
   {
-    A = FpX_FpM_Fp_eval(V, MA, random_FpV(lg(MA)-1, l), l);
+    A = FpX_FpM_FpC_eval(V, MA, random_FpC(lg(MA)-1, l), l);
   } while (ZV_equal0(A));
   if (DEBUGLEVEL>=4) timer_printf(&T,"matrix polcyclo");
   /*The formula is

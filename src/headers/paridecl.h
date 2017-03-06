@@ -830,6 +830,7 @@ GEN     matid_Flm(long n);
 GEN     matid_F2xqM(long n, GEN T);
 GEN     matid_FlxqM(long n, GEN T, ulong p);
 GEN     random_Flv(long n, ulong p);
+GEN     random_FpC(long d, GEN p);
 GEN     random_FpV(long d, GEN p);
 GEN     scalar_Flm(long s, long n);
 GEN     zCs_to_ZC(GEN C, long nbrow);

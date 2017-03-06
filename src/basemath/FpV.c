@@ -106,7 +106,16 @@ GEN
 random_FpV(long d, GEN p)
 {
   long i;
-  GEN y = cgetg(d+1,t_POL);
+  GEN y = cgetg(d+1,t_VEC);
+  for (i=1; i<=d; i++) gel(y,i) = randomi(p);
+  return y;
+}
+
+GEN
+random_FpC(long d, GEN p)
+{
+  long i;
+  GEN y = cgetg(d+1,t_COL);
   for (i=1; i<=d; i++) gel(y,i) = randomi(p);
   return y;
 }
