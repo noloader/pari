@@ -4556,7 +4556,7 @@ bestappr_RgX(GEN x, long B)
     case t_RFRAC: {
       pari_sp av = avma;
       if (B < 0 || degpol(gel(x,2)) <= B) return gcopy(x);
-      x = rfractoser(x, varn(gel(x,2)), 2*B+1);
+      x = rfrac_to_ser(x, 2*B+1);
       t = bestappr_ser(x, B); if (!t) return NULL;
       return gerepileupto(av, t);
     }

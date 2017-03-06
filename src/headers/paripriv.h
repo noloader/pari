@@ -694,8 +694,6 @@ GEN     sqr_ser_part(GEN x, long l1, long l2);
 /* gen3.c */
 
 GEN     gsubst_expr(GEN pol, GEN from, GEN to);
-GEN     poltoser(GEN x, long v, long prec);
-GEN     rfractoser(GEN x, long v, long prec);
 
 /* hash.c */
 

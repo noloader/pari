@@ -1162,9 +1162,9 @@ GEN
 ser_inv(GEN b)
 {
   pari_sp av = avma;
-  long l = lg(b), e = valp(b), v = varn(b), prec = l-2;
+  long l = lg(b), e = valp(b), prec = l-2;
   GEN y = RgXn_inv(ser2pol_i(b, l), prec);
-  GEN x = poltoser(y, v, prec);
+  GEN x = RgX_to_ser(y, l);
   setvalp(x, -e); return gerepilecopy(av, x);
 }
 
@@ -1301,7 +1301,7 @@ serdeflate(GEN x, long v, long d)
     pari_err_DOMAIN("gdeflate", s, "!=", gen_0,x);
   }
   if (dy > 0) y = RgX_deflate(y, d);
-  y = poltoser(y, v, 1 + (lx-3)/d);
+  y = RgX_to_ser(y, 3 + (lx-3)/d);
   setvalp(y, V/d); return gerepilecopy(av, y);
 }
 static GEN
@@ -1527,7 +1527,7 @@ gsubst(GEN x, long v, GEN y)
           av = avma;
           n *= ey;
           N = ex? n: maxss(n-ey,1);
-          y = (ty == t_RFRAC)? rfractoser(y, vy, N): poltoser(y, vy, N);
+          y = (ty == t_RFRAC)? rfrac_to_ser(y, N+2): RgX_to_ser(y, N+2);
           if (lg(y)-2 > n) setlg(y, n+2);
           x = ser2pol_i(x, lx);
           x = primitive_part(x, &cx);
@@ -2800,7 +2800,7 @@ coefstoser(GEN x, long v, long prec)
 }
 
 /* x a t_POL. Not stack-clean */
-GEN
+static GEN
 poltoser(GEN x, long v, long prec)
 {
   long vx = varn(x);
@@ -2813,7 +2813,7 @@ poltoser(GEN x, long v, long prec)
 }
 
 /* x a t_RFRAC. Not stack-clean */
-GEN
+static GEN
 rfractoser(GEN x, long v, long prec)
 {
   GEN n = gel(x,1);

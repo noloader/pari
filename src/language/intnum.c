@@ -2206,7 +2206,7 @@ prodnumrat(GEN F, long a, long prec)
   intf = intnumainfrat(gmul(pol_x(vx),G), N, r, prec);
   intf = gneg(gadd(intf, gmulsg(N, glog(gsubst(F, vx, stoi(N)), prec))));
   S = gmul(real_1(prec), gsubst(G, vx, gaddgs(pol_x(vx), N)));
-  S = rfractoser(S, vx, k + 2);
+  S = rfrac_to_ser(S, k + 2);
   S1 = gsqrt(gsubst(F, vx, utoipos(N)), prec);
   for (m = 0; m < N; m++) S1 = gmul(S1, gsubst(F, vx, utoi(m)));
   S2 = gen_0;
