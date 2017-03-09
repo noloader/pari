@@ -63,11 +63,10 @@ HIL  49- polclass could access invalid memory
          bnfisprincipal(K,P);  \\ oo loop
      51- nfvalrem() overflowed in case of negative valuation
      52- ellminimalmodel over number field fails with impossible inverse [#1899]
-     53- infinite loop in rnfisabelian [#1903]
-     54- incorrect GC in nfgcd [#1903]
-     55- missing GC in rnfisabelian
-     56- derivnum(x = a, ...) allowed t_POL a but not t_RFRAC
-     57- missing GC in vectorsmall
+     53- incorrect GC in nfgcd [#1903]
+     54- missing GC in rnfisabelian
+     55- derivnum(x = a, ...) allowed t_POL a but not t_RFRAC
+     56- missing GC in vectorsmall
 
   Added
       1- [libari] ZM_isidentity
@@ -188,8 +187,7 @@ BA   25- quadgen/quadunit: allow to specify the variable name instead of w.
          lindep_Xadic
      28- x^(t_FRAC) use sqrtnr if possible
 BA   29- keri replaced by ZM_ker (use modular algorithm)
-     30- ensures that poldiscfactors "primes" are not perfect powers
-     31- lfuncreate() change of format for (p,d)->Lp closure:
+     30- lfuncreate() change of format for (p,d)->Lp closure:
          - Lp here and in bad primes [p,Lp] must now use the actual local
            factor and not its inverse
          - d is now the exact number of terms needed (was 1 less), i.e.
