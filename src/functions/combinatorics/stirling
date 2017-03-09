@@ -1,5 +1,5 @@
 Function: stirling
-Section: combinatoric
+Section: combinatorics
 C-Name: stirling
 Prototype: LLD1,L,
 Help: stirling(n,k,{flag=1}): if flag=1 (default) return the Stirling number

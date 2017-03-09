@@ -1,5 +1,5 @@
 Function: partitions
-Section: combinatoric
+Section: combinatorics
 C-Name: partitions
 Prototype: LDGDG
 Help: partitions(k,{a=k},{n=k}): vector of partitions of the integer k.

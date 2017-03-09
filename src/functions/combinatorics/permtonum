@@ -1,5 +1,5 @@
 Function: permtonum
-Section: combinatoric
+Section: combinatorics
 C-Name: permtonum
 Prototype: G
 Help: permtonum(x): ordinal (between 1 and n!) of permutation x.

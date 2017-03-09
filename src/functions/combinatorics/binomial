@@ -1,5 +1,5 @@
 Function: binomial
-Section: combinatoric
+Section: combinatorics
 C-Name: binomial0
 Prototype: GDG
 Help: binomial(x,{k}): binomial coefficient x*(x-1)...*(x-k+1)/k! defined for

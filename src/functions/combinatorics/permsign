@@ -1,5 +1,5 @@
 Function: permsign
-Section: combinatoric
+Section: combinatorics
 C-Name: permsign
 Prototype: lG
 Help: permsign(x): signature of the permutation x.
