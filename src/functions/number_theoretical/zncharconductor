@@ -1,7 +1,7 @@
 Function: zncharconductor
 Section: number_theoretical
 C-Name: zncharconductor
-Prototype: GGD&
+Prototype: GG
 Help: zncharconductor(G,chi): let G be znstar(q,1) and chi
  be a Dirichlet character on (Z/qZ)*. Return
  the conductor of chi.

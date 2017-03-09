@@ -32,23 +32,25 @@ Doc: Let $G$ be attached to $(\Z/q\Z)^*$ (as per \kbd{G = znstar(q,1)})
 
  ? chi = zncharinduce(G, 3, G2)  \\ extend the non-trivial character mod 4
  %5 = [1, 0, 0]~
- ? znconreyconductor(G2, chi, &chi0)
- %6 = [4, Mat([2, 2])]
+ ? [G0,chi0] = znchartoprimitive(G2, chi);
+ ? G0.mod
+ %7 = 4
  ? chi0
- %7 = [1]~
+ %8 = [1]~
  @eprog\noindent Here is a larger example:
  \bprog
  ? G = znstar(126000, 1);
  ? label = 1009;
  ? chi = znconreylog(G, label)
  %3 = [0, 0, 0, 14, 0]~
- ? N0 = znconreyconductor(G, label, &chi0)
- %4 = [125, Mat([5, 3])]
+ ? [G0,chi0] = znchartoprimitive(G, label); \\ works also with 'chi'
+ ? G0.mod
+ %5 = 125
  ? chi0 \\ primitive character mod 5^3 attached to chi
- %5 = [14]~
+ %6 = [14]~
  ? G0 = znstar(N0, 1);
  ? zncharinduce(G0, chi0, G) \\ induce back
- %7 = [0, 0, 0, 14, 0]~
+ %8 = [0, 0, 0, 14, 0]~
  ? znconreyexp(G, %)
- %8 = 1009
+ %9 = 1009
  @eprog
