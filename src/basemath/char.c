@@ -1219,3 +1219,22 @@ znchardecompose(GEN G, GEN chi, GEN Q)
   return c;
 }
 
+GEN
+zncharconductor(GEN G, GEN chi)
+{
+  pari_sp av = avma;
+  GEN F = znconreyconductor(G, chi, NULL);
+  if (typ(F) == t_INT) return F;
+  return gerepilecopy(av, gel(F,1));
+}
+GEN
+znchartoprimitive(GEN G, GEN chi)
+{
+  pari_sp av = avma;
+  GEN chi0, F = znconreyconductor(G, chi, &chi0);
+  if (typ(F) == t_INT)
+    chi = mkvec2(G,chi);
+  else
+    chi = mkvec2(znstar0(F,1), chi0);
+  return gerepilecopy(av, chi);
+}

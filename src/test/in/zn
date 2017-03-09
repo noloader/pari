@@ -163,6 +163,18 @@ znchargalois(G,4)
 znchargalois(G,[1,4])
 
 G = znstar(126000,1);
+zncharconductor(G,11)
+zncharconductor(G,1)
+zncharconductor(G,1009)
+[G0,chi0]=znchartoprimitive(G,11);
+G0.mod
+chi0
+[G0,chi0]=znchartoprimitive(G,1);
+G0.mod
+chi0
+[G0,chi0]=znchartoprimitive(G,1009);
+G0.mod
+chi0
 test(G,1009)
 test(G,82127)
 

@@ -143,7 +143,7 @@ JD   53- [plot] SVG support
          RgM_RgX_mul
      58- new GP function ellminimaldisc
      59- [libpari] rfracrecip_to_ser_absolute
-     60- new GP function znchardecompose
+     60- new GP function znchardecompose, zncharconductor, znchartoprimitive
 PB   61- perm_sign
 PB   62- [libpari] FlxC_neg FlxC_sub FlxM_neg FlxM_sub FlxqC_Flxq_mul
                    FlxqM_Flxq_mul zero_FlxC zero_FlxM
