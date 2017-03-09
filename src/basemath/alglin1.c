@@ -531,7 +531,11 @@ image_from_pivot(GEN x, GEN d, long r)
 /*                                                                 */
 /*******************************************************************/
 
-/*
+/* By Peter Bruin, based on
+  C.-P. Jeannerod, C. Pernet and A. Storjohann, Rank-profile revealing
+  Gaussian elimination and the CUP matrix decomposition.  J. Symbolic
+  Comput. 56 (2013), 46-68.
+
   Decompose an m x n-matrix A of rank r as C*U*P, with
   - C: m x r-matrix in column echelon form (not necessarily reduced)
        with all pivots equal to 1
