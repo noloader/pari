@@ -29,11 +29,13 @@ Doc: Given a datum $D$ describing a group $(\Z/N\Z)^*$ and a Dirichlet
  = e(\tilde{c}_j / n)$ where $n$ is minimal (order of $\chi$).
 
  \bprog
- ? G = znstar(8, 1);
- ? znchar(G, 1)  \\ trivial character
- %2 = 0
- ? znchar(G, 3)
- %3 = 1
- ? chareval(G, 3, -1)
- %4 = 1/2
+ ? [G,chi] = znchar(-3);
+ ? G.cyc
+ %2 = [2]
+ ? chareval(G, chi, 2)
+ %3 = 1/2
+ ?  kronecker(-3,2)
+ %4 = -1
+ ? znchartokronecker(G,chi)
+ %5 = -3
  @eprog
