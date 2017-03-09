@@ -1180,3 +1180,42 @@ znchargalois(GEN G, GEN ORD)
     if (v[n]) gel(w, ct++) = znconreylog(G, utoipos(n));
   setlg(w, ct); return gerepilecopy(ltop, w);
 }
+
+/* CHI mod N = \prod_p p^e; let CHI = \prod CHI_p, CHI_p mod p^e
+ * return \prod_{p | (Q,N)} CHI_p. E.g if Q = p, return chi_p */
+GEN
+znchardecompose(GEN G, GEN chi, GEN Q)
+{
+  GEN c, P, E, F;
+  long l, lP, i;
+
+  if (!checkznstar_i(G)) pari_err_TYPE("znchardecompose", G);
+  if (typ(Q) != t_INT) pari_err_TYPE("znchardecompose", Q);
+  if (typ(chi) == t_COL)
+  { if (!zncharcheck(G, chi)) pari_err_TYPE("znchardecompose", chi); }
+  else
+    chi = znconreylog(G, chi);
+  l = lg(chi);
+  F = znstar_get_faN(G);
+  c = zerocol(l-1);
+  P = gel(F,1); /* prime divisors of N */
+  lP = lg(P);
+  E = gel(F,2); /* exponents */
+  for (i = 1; i < lP; i++)
+  {
+    GEN p = gel(P,i);
+    if (i == 1 && equaliu(p,2) && E[1] >= 3)
+    {
+      if (!mpodd(Q))
+      {
+        gel(c,1) = icopy(gel(chi,1));
+        gel(c,2) = icopy(gel(chi,2));
+      }
+      i = 2; /* skip P[2] = P[1] = 2 */
+    }
+    else
+      if (dvdii(Q, p)) gel(c,i) = icopy(gel(chi,i));
+  }
+  return c;
+}
+

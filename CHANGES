@@ -144,6 +144,7 @@ JD   53- [plot] SVG support
          RgM_RgX_mul
      58- new GP function ellminimaldisc
      59- [libpari] rfracrecip_to_ser_absolute
+     60- new GP function znchardecompose
 
   Changed
       1- rewrite bnfnarrow

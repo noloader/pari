@@ -145,6 +145,15 @@ test(G8,5)
 test(G8,7)
 G = znstar(48,1);
 for(i=1,48,if(gcd(i,48)==1,test(G,i)))
+{
+for (i = 1, 48,
+  if (gcd(i,48)!=1,next);
+  chi = i;
+  chi2 = znchardecompose(G, chi, 2);
+  chi3 = znchardecompose(G, chi, 3);
+  print(chi2,", ",chi3);
+  if (znconreyexp(G, charmul(G,chi2,chi3)) != i, error(i)))
+}
 
 G = znstar(300,1);
 L = znchargalois(G,2)
