@@ -1,5 +1,5 @@
 Function: permorder
-Section: conversions
+Section: combinatoric
 C-Name: permorder
 Prototype: lG
 Help: permorder(x): order of the permutation x.

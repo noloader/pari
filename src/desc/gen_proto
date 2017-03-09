@@ -9,6 +9,7 @@ $i = 1;
 %secnumber=(
   'operators'             => $i++,
   'conversions'           => $i++,
+  'combinatoric'          => $i++,
   'transcendental'        => $i++,
   'number_theoretical'    => $i++,
   'elliptic_curves'       => $i++,

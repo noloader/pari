@@ -2592,7 +2592,8 @@ pari_version(void)
  *   long menu    : which help section do we belong to
  *                   1: Standard monadic or dyadic OPERATORS
  *                   2: CONVERSIONS and similar elementary functions
- *                   3: TRANSCENDENTAL functions, etc.
+ *                   3: functions related to COMBINATORICS
+ *                   4: TRANSCENDENTAL functions, etc.
  *   char *code   : GP prototype, aka Parser Code (see libpari's manual)
  *                  if NULL, use valence instead.
  *   char *help   : short help text (init to NULL).

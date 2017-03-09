@@ -1,5 +1,5 @@
 Function: hammingweight
-Section: conversions
+Section: combinatoric
 C-Name: hammingweight
 Prototype: lG
 Help: hammingweight(x): returns the Hamming weight of x.

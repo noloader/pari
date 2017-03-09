@@ -1,5 +1,5 @@
 Function: numbpart
-Section: number_theoretical
+Section: combinatoric
 C-Name: numbpart
 Prototype: G
 Help: numbpart(n): number of partitions of n.

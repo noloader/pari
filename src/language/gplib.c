@@ -272,6 +272,7 @@ menu_commands(void)
   "user-defined functions (aliases, installed and user functions)",
   "Standard monadic or dyadic OPERATORS",
   "CONVERSIONS and similar elementary functions",
+  "functions related to COMBINATORICS",
   "TRANSCENDENTAL functions",
   "NUMBER THEORETICAL functions",
   "ELLIPTIC CURVES",
