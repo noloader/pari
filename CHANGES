@@ -122,7 +122,7 @@ BA   31- new GP function ellbsd
      41- [libpari] Z_ZV_mod_tree
      42- [libpari] vecvecsmall_max, vecsmall_to_vec_inplace
      43- new GP function zetamultinit
-BA   44- new GP function permorder
+BA   44- new GP functions permorder, permsign
 BA   45- new GP function galoisconjclasses
      46- [libpari] Flxn_inv
      47- new GP function znchargalois

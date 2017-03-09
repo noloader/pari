@@ -3928,6 +3928,7 @@ long    perm_order(GEN perm);
 GEN     perm_pow(GEN perm, long exp);
 long    perm_sign(GEN perm);
 long    permorder(GEN perm);
+long    permsign(GEN perm);
 GEN     quotient_group(GEN C, GEN G);
 GEN     quotient_perm(GEN C, GEN p);
 GEN     quotient_subgroup_lift(GEN C, GEN H, GEN S);

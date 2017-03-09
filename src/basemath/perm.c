@@ -305,6 +305,16 @@ perm_cycles(GEN v)
   return gerepilecopy(av, vecperm_orbits_i(mkvec(v), lg(v)-1));
 }
 
+static long
+isperm(GEN v)
+{
+  long i, l = lg(v)-1;
+  if (typ(v)!=t_VECSMALL) return 0;
+  for (i=1; i<=l; i++)
+    if (v[i]<1 || v[i]>l) return 0;
+  return 1;
+}
+
 /* Output the order of p */
 long
 perm_order(GEN v)
@@ -314,6 +324,13 @@ perm_order(GEN v)
   long i, d;
   for(i=1, d=1; i<lg(c); i++) d = clcm(d, lg(gel(c,i))-1);
   avma = ltop; return d;
+}
+
+long
+permorder(GEN v)
+{
+  if (!isperm(v)) pari_err_TYPE("permorder",v);
+  return perm_order(v);
 }
 
 /* sign of a permutation */
@@ -328,21 +345,11 @@ perm_sign(GEN v)
   avma = av; return s;
 }
 
-static long
-isperm(GEN v)
-{
-  long i, l = lg(v)-1;
-  if (typ(v)!=t_VECSMALL) return 0;
-  for (i=1; i<=l; i++)
-    if (v[i]<1 || v[i]>l) return 0;
-  return 1;
-}
-
 long
-permorder(GEN v)
+permsign(GEN v)
 {
   if (!isperm(v)) pari_err_TYPE("permorder",v);
-  return perm_order(v);
+  return perm_sign(v);
 }
 
 GEN
