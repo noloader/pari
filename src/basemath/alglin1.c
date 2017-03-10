@@ -668,11 +668,6 @@ Flm_lsolve_upper(GEN U, GEN B, ulong p) {
 }
 
 static GEN
-Flm_rsolve_lower_unit_1(GEN L, GEN A, ulong p) {
-  return rowslice(A, 1, 1);
-}
-
-static GEN
 Flm_rsolve_lower_unit_2(GEN L, GEN A, ulong p) {
   GEN X1 = rowslice(A, 1, 1);
   GEN X2 = Flm_sub(rowslice(A, 2, 2),
@@ -693,7 +688,7 @@ Flm_rsolve_lower_unit(GEN L, GEN A, ulong p) {
   if (m == 0)
     return zero_Flm(0, lg(A) - 1);
   if (m == 1)
-    return Flm_rsolve_lower_unit_1(L, A, p);
+    return rowslice(A, 1, 1);
   if (m == 2)
     return Flm_rsolve_lower_unit_2(L, A, p);
   m1 = (m + 1)/2;
@@ -1036,11 +1031,6 @@ FlxqM_lsolve_upper(GEN U, GEN B, GEN T, ulong p) {
 }
 
 static GEN
-FlxqM_rsolve_lower_unit_1(GEN L, GEN A, GEN T, ulong p) {
-  return rowslice(A, 1, 1);
-}
-
-static GEN
 FlxqM_rsolve_lower_unit_2(GEN L, GEN A, GEN T, ulong p) {
   GEN X1 = rowslice(A, 1, 1);
   GEN X2 = FlxM_sub(rowslice(A, 2, 2),
@@ -1061,7 +1051,7 @@ FlxqM_rsolve_lower_unit(GEN L, GEN A, GEN T, ulong p) {
   if (m == 0)
     return zeromat(0, lg(A) - 1);
   if (m == 1)
-    return FlxqM_rsolve_lower_unit_1(L, A, T, p);
+    return rowslice(A, 1, 1);
   if (m == 2)
     return FlxqM_rsolve_lower_unit_2(L, A, T, p);
   m1 = (m + 1)/2;
