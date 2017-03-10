@@ -63,7 +63,7 @@
 * 1
 1: [1, 1]
 [[]~, []~, 0, 1]
-[[1]~, [1]~, 2, 4]
+[[2]~, [2]~, 4, 2]
 [[0]~, [0]~, 1, 1]
 [[3]~, [3]~, 3, 4]
 [13, [0, 19]~, 13, 20]
@@ -90,4 +90,4 @@
   ***   at top-level: znchar([znstar(100,1
   ***                 ^--------------------
   *** znchar: incorrect type in znchar (t_VEC).
-Total time spent: 2
+Total time spent: 0

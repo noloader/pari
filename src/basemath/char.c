@@ -990,18 +990,25 @@ GEN
 znchar(GEN D)
 {
   pari_sp av = avma;
-  GEN G, g, chi;
+  GEN G, chi;
   long l, i;
   switch(typ(D))
   {
     case t_INT:
+    {
+      GEN gen, cyc;
       if (!signe(D) || Mod4(D) > 1) pari_err_TYPE("znchar", D);
       G = znstar0(D, 1);
-      g = znstar_get_conreygen(G);
-      l = lg(g); chi = cgetg(l, t_COL);
-      for (i = 1; i < l; i++)
-        gel(chi, i) = kronecker(D, gel(g,i)) > 0? gen_0: gen_1;
+      cyc = znstar_get_conreycyc(G);
+      gen = znstar_get_conreygen(G);
+      l = lg(cyc); chi = cgetg(l, t_COL);
+      for (i = 1; i < l; ++i)
+      {
+        long k = kronecker(D, gel(gen, i));
+        gel(chi, i) = (k == 1) ? gen_0: shifti(gel(cyc, i), -1);
+      }
       break;
+    }
     case t_INTMOD:
       G = znstar0(gel(D,1), 1);
       chi = znconreylog(G, gel(D,2));
@@ -1014,7 +1021,7 @@ znchar(GEN D)
       if (typ(chi) == t_VEC && lg(chi) == 3 && is_vec_t(typ(gel(chi,2))))
       { /* normalized character */
         GEN n = gel(chi,1), chic = gel(chi,2);
-        GEN cyc = typ(chic) == t_VEC? znstar_get_cyc(G): znstar_get_conreycyc(G);
+        GEN cyc = typ(chic)==t_VEC? znstar_get_cyc(G): znstar_get_conreycyc(G);
         if (!char_check(cyc, chic)) pari_err_TYPE("znchar",D);
         chi = char_denormalize(cyc, n, chic);
       }
