@@ -779,23 +779,19 @@ Flm_CUP_gauss(GEN A, GEN *R, GEN *C, GEN *U, GEN *P, ulong p) {
       swap(gel(A, j), gel(A, pc));
       lswap((*P)[j], (*P)[pc]);
     }
-    if (pr != j) {
-      for (k = j; k <= n; k++)
-        ucoeff(A, j, k) = ucoeff(A, pr, k);
-    }
-    u = Fl_inv(ucoeff(A, j, j), p);
+    u = Fl_inv(ucoeff(A, pr, j), p);
     for (i = pr + 1; i <= m; i++) {
       v = Fl_mul(ucoeff(A, i, j), u, p);
       ucoeff(A, i, j) = v;
       for (k = j + 1; k <= n; k++) {
         ucoeff(A, i, k) = Fl_sub(ucoeff(A, i, k),
-                                 Fl_mul(ucoeff(A, j, k), v, p), p);
+                                 Fl_mul(ucoeff(A, pr, k), v, p), p);
       }
     }
   }
   setlg(*R, j);
   *C = vecslice(A, 1, j - 1);
-  *U = rowslice(A, 1, j - 1);
+  *U = rowpermute(A, *R);
   if (gc_needed(av, 1))
     gerepileall(av, 2, C, U);
   return j - 1;
@@ -866,7 +862,7 @@ Flm_echelon_gauss(GEN A, GEN *R, GEN *C, ulong p) {
 /* column echelon form */
 static ulong
 Flm_echelon(GEN A, GEN *R, GEN *C, ulong p) {
-  long i, j, j1, j2, m = nbrows(A), n = lg(A) - 1, n1, r, r1, r2;
+  long j, j1, j2, m = nbrows(A), n = lg(A) - 1, n1, r, r1, r2;
   GEN A1, A2, R1, R1c, C1, R2, C2;
   GEN A12, A22, B2, C11, C21, M12;
   pari_sp av = avma;
@@ -888,11 +884,6 @@ Flm_echelon(GEN A, GEN *R, GEN *C, ulong p) {
   R1c = indexcompl(R1, m);
   C11 = rowpermute(C1, R1);
   C21 = rowpermute(C1, R1c);
-  if (R1[r1] != r1) {
-    for (j = 1; j <= r1; j++)
-      for (i = 1; i <= R1[j] - j; i++)
-        ucoeff(C21, i, j) = 0;
-  }
   A12 = rowpermute(A2, R1);
   A22 = rowpermute(A2, R1c);
   M12 = Flm_rsolve_lower_unit(C11, A12, p);
@@ -1144,23 +1135,19 @@ FlxqM_CUP_gauss(GEN A, GEN *R, GEN *C, GEN *U, GEN *P, GEN T, ulong p) {
       swap(gel(A, j), gel(A, pc));
       lswap((*P)[j], (*P)[pc]);
     }
-    if (pr != j) {
-      for (k = j; k <= n; k++)
-        gcoeff(A, j, k) = gcoeff(A, pr, k);
-    }
-    u = Flxq_inv(gcoeff(A, j, j), T, p);
+    u = Flxq_inv(gcoeff(A, pr, j), T, p);
     for (i = pr + 1; i <= m; i++) {
       v = Flxq_mul(gcoeff(A, i, j), u, T, p);
       gcoeff(A, i, j) = v;
       for (k = j + 1; k <= n; k++) {
         gcoeff(A, i, k) = Flx_sub(gcoeff(A, i, k),
-                                  Flx_mul(gcoeff(A, j, k), v, p), p);
+                                  Flx_mul(gcoeff(A, pr, k), v, p), p);
       }
     }
   }
   setlg(*R, j);
   *C = vecslice(A, 1, j - 1);
-  *U = rowslice(A, 1, j - 1);
+  *U = rowpermute(A, *R);
   if (gc_needed(av, 1))
     gerepileall(av, 2, C, U);
   return j - 1;
@@ -1232,7 +1219,7 @@ FlxqM_echelon_gauss(GEN A, GEN *R, GEN *C, GEN T, ulong p) {
 /* column echelon form */
 static ulong
 FlxqM_echelon(GEN A, GEN *R, GEN *C, GEN T, ulong p) {
-  long i, j, j1, j2, m = nbrows(A), n = lg(A) - 1, n1, r, r1, r2;
+  long j, j1, j2, m = nbrows(A), n = lg(A) - 1, n1, r, r1, r2;
   GEN A1, A2, R1, R1c, C1, R2, C2;
   GEN A12, A22, B2, C11, C21, M12;
   pari_sp av = avma;
@@ -1254,12 +1241,6 @@ FlxqM_echelon(GEN A, GEN *R, GEN *C, GEN T, ulong p) {
   R1c = indexcompl(R1, m);
   C11 = rowpermute(C1, R1);
   C21 = rowpermute(C1, R1c);
-  if (R1[r1] != r1) {
-    GEN zero = zero_Flx(get_Flx_var(T));
-    for (j = 1; j <= r1; j++)
-      for (i = 1; i <= R1[j] - j; i++)
-        gcoeff(C21, i, j) = zero;
-  }
   A12 = rowpermute(A2, R1);
   A22 = rowpermute(A2, R1c);
   M12 = FlxqM_rsolve_lower_unit(C11, A12, T, p);
@@ -1584,12 +1565,6 @@ Flm_ker_echelon(GEN x, ulong p, long pivots) {
   Rc = indexcompl(R, n);
   C1 = rowpermute(C, R);
   C2 = rowpermute(C, Rc);
-  if (R[r] != r) {
-    long i, j;
-    for (j = 1; j <= r; j++)
-      for (i = 1; i <= R[j] - j; i++)
-        ucoeff(C2, i, j) = 0;
-  }
   S = Flm_lsolve_lower_unit(C1, C2, p);
   K = vecpermute(shallowconcat(Flm_neg(S, p), matid_Flm(n - r)),
                  perm_inv(vecsmall_concat(R, Rc)));
@@ -1603,15 +1578,13 @@ static GEN
 Flm_deplin_echelon(GEN x, ulong p) {
   pari_sp av = avma;
   GEN R, Rc, C, C1, C2, s, v;
-  long i, j, n = lg(x) - 1, r;
+  long i, n = lg(x) - 1, r;
   r = Flm_echelon(Flm_transpose(x), &R, &C, p);
   if (r == n) { avma = av; return NULL; }
   Rc = indexcompl(R, n);
   i = Rc[1];
   C1 = rowpermute(C, R);
   C2 = rowslice(C, i, i);
-  for (j = i; j <= r; j++)
-    ucoeff(C2, 1, j) = 0UL;
   s = Flm_row(Flm_lsolve_lower_unit(C1, C2, p), 1);
   v = vecpermute(vecsmall_concat(Flv_neg(s, p), vecsmall_ei(n - r, 1)),
                  perm_inv(vecsmall_concat(R, Rc)));
@@ -2121,13 +2094,6 @@ FlxqM_invimage_CUP(GEN A, GEN B, GEN T, ulong p) {
   Rc = indexcompl(R, nbrows(B));
   C1 = rowpermute(C, R);
   C2 = rowpermute(C, Rc);
-  if (R[r] != r) {
-    long i, j;
-    GEN zero = zero_Flx(sv);
-    for (j = 1; j <= r; j++)
-      for (i = 1; i <= R[j] - j; i++)
-        gcoeff(C2, i, j) = zero;
-  }
   B1 = rowpermute(B, R);
   B2 = rowpermute(B, Rc);
   Z = FlxqM_rsolve_lower_unit(C1, B1, T, p);
@@ -2392,13 +2358,6 @@ FlxqM_ker_echelon(GEN x, GEN T, ulong p) {
   Rc = indexcompl(R, n);
   C1 = rowpermute(C, R);
   C2 = rowpermute(C, Rc);
-  if (R[r] != r) {
-    long i, j;
-    GEN zero = zero_Flx(get_Flx_var(T));
-    for (j = 1; j <= r; j++)
-      for (i = 1; i <= R[j] - j; i++)
-        gcoeff(C2, i, j) = zero;
-  }
   S = FlxqM_lsolve_lower_unit(C1, C2, T, p);
   K = vecpermute(shallowconcat(FlxM_neg(S, p), matid_FlxqM(n - r, T, p)),
                  perm_inv(vecsmall_concat(R, Rc)));
@@ -2417,18 +2376,13 @@ static GEN
 FlxqM_deplin_echelon(GEN x, GEN T, ulong p) {
   pari_sp av = avma;
   GEN R, Rc, C, C1, C2, s, v;
-  long i, j, n = lg(x) - 1, r, sv = get_Flx_var(T);
+  long i, n = lg(x) - 1, r, sv = get_Flx_var(T);
   r = FlxqM_echelon(shallowtrans(x), &R, &C, T, p);
   if (r == n) { avma = av; return NULL; }
   Rc = indexcompl(R, n);
   i = Rc[1];
   C1 = rowpermute(C, R);
   C2 = rowslice(C, i, i);
-  if (i <= r) {
-    GEN zero = zero_Flx(sv);
-    for (j = i; j <= r; j++)
-      gcoeff(C2, 1, j) = zero;
-  }
   s = row(FlxqM_lsolve_lower_unit(C1, C2, T, p), 1);
   settyp(s, t_COL);
   v = vecpermute(shallowconcat(FlxC_neg(s, p), col_ei_FlxC(n - r, 1, sv)),
@@ -4403,12 +4357,6 @@ Flm_invimage_CUP(GEN A, GEN B, ulong p) {
   Rc = indexcompl(R, nbrows(B));
   C1 = rowpermute(C, R);
   C2 = rowpermute(C, Rc);
-  if (R[r] != r) {
-    long i, j;
-    for (j = 1; j <= r; j++)
-      for (i = 1; i <= R[j] - j; i++)
-        ucoeff(C2, i, j) = 0UL;
-  }
   B1 = rowpermute(B, R);
   B2 = rowpermute(B, Rc);
   Z = Flm_rsolve_lower_unit(C1, B1, p);
