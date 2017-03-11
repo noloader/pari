@@ -198,6 +198,7 @@ BA   29- keri replaced by ZM_ker (use modular algorithm)
            one need only return Lp + O(x^d)
          - bad primes are given as a separate 2nd component:
            [Lp, [[p1,L1],...[pk,Lk]]], not as [Lp, [p1,L1],...[pk,Lk]]
+     31- faster nfgaloismatrix / nfgaloisapply(nf,s, ideal)
 
   Removed
       1- file 'MACHINES' (no longer maintained)

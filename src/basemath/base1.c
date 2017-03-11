@@ -471,15 +471,6 @@ FpX_FpC_nfpoleval(GEN nf, GEN pol, GEN a, GEN p)
 
 /* compute s(x), not stack clean */
 static GEN
-table_galoisapply(GEN nf, GEN m, GEN x)
-{
-  x = nf_to_scalar_or_alg(nf, x);
-  if (typ(x) != t_POL) return scalarcol(x, nf_get_degree(nf));
-  return QX_table_nfpoleval(nf, x, m);
-}
-
-/* compute s(x), not stack clean */
-static GEN
 ZC_galoisapply(GEN nf, GEN s, GEN x)
 {
   x = nf_to_scalar_or_alg(nf, x);
@@ -556,7 +547,7 @@ GEN
 galoisapply(GEN nf, GEN aut, GEN x)
 {
   pari_sp av = avma;
-  long lx, j;
+  long lx;
   GEN y;
 
   nf = checknf(nf);
@@ -590,29 +581,42 @@ galoisapply(GEN nf, GEN aut, GEN x)
     case t_MAT: /* ideal */
       lx = lg(x); if (lx==1) return cgetg(1,t_MAT);
       if (nbrows(x) != nf_get_degree(nf)) break;
-      aut = zk_multable(nf, algtobasis(nf, aut));
-      y = cgetg(lx,t_MAT);
-      for (j=1; j<lx; j++) gel(y,j) = table_galoisapply(nf, aut, gel(x,j));
+      y = RgM_mul(nfgaloismatrix(nf,aut), x);
       return gerepileupto(av, idealhnf_shallow(nf,y));
   }
   pari_err_TYPE("galoisapply",x);
   return NULL; /* LCOV_EXCL_LINE */
 }
 
+/* compute action of automorphism s on nf.zk */
 GEN
 nfgaloismatrix(GEN nf, GEN s)
 {
-  GEN zk, M, m;
-  long k, l;
+  pari_sp av2, av = avma;
+  GEN zk, M, H, dH, m;
+  long k, n;
+
   nf = checknf(nf);
-  zk = nf_get_zk(nf);
-  if (typ(s) != t_COL) s = algtobasis(nf, s); /* left on stack for efficiency */
+  zk = nf_get_zk(nf); n = lg(zk)-1;
+  M = cgetg(n+1, t_MAT);
+  gel(M,1) = col_ei(n, 1); /* s(1) = 1 */
+  if (n == 1) return M;
+  av2 = avma;
+  if (typ(s) != t_COL) s = algtobasis(nf, s);
+  H = RgXV_to_RgM(zk, n);
+  if (n == 2)
+  {
+    GEN t = gel(H,2); /* s(w_2) */
+    gel(M,2) = gerepileupto(av2, RgC_Rg_add(RgC_Rg_mul(s, gel(t,2)), gel(t,1)));
+    return M;
+  }
+  if (equali1(nf_get_index(nf))) dH = NULL; else H = Q_remove_denom(H, &dH);
   m = zk_multable(nf, s);
-  l = lg(s); M = cgetg(l, t_MAT);
-  gel(M, 1) = col_ei(l-1, 1); /* s(1) = 1 */
-  for (k = 2; k < l; k++)
-    gel(M, k) = QX_table_nfpoleval(nf, gel(zk, k), m);
-  return M;
+  gel(M,2) = s; /* M[,k] = s(x^(k-1)) */
+  for (k = 3; k <= n; k++) gel(M,k) = ZM_ZC_mul(m, gel(M,k-1));
+  M = ZM_mul(M, H);
+  if (dH) M = ZM_Z_divexact(M, dH);
+  return gerepileupto(av, M);
 }
 
 static GEN
@@ -799,19 +803,19 @@ idealramgroupindex(GEN nf, GEN gal, GEN pr)
       GEN spi = ZC_galoisapply(nf, S, pi);
       long j;
       idx[i] = idealval(nf, gsub(spi,pi), pr);
-      if (idx[i] >=1)
+      if (idx[i] >= 1)
       {
-        if (f>1)
+        if (f > 1)
         {
           GEN b = nf_to_Fq(nf, QX_galoisapplymod(nf, g, S, p), modpr);
           if (!gequalX(b)) idx[i] = 0;
         }
       }
       else idx[i] = -1;
-      for(j=2;j<o;j++)
+      for (j=2; j<o; j++)
       {
         piso = perm_mul(piso,iso);
-        if(cgcd(j,o)==1) idx[piso[1]] = idx[i];
+        if (cgcd(j,o)==1) idx[piso[1]] = idx[i];
       }
     }
   }
