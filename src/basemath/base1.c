@@ -478,30 +478,38 @@ ZC_galoisapply(GEN nf, GEN s, GEN x)
   return QX_table_nfpoleval(nf, x, zk_multable(nf, s));
 }
 
+/* true nf; S = automorphism in basis form, return an FpC = S(z) mod p */
 static GEN
-QX_galoisapplymod(GEN nf, GEN pol, GEN S, GEN p)
+zk_galoisapplymod(GEN nf, GEN z, GEN S, GEN p)
 {
-  GEN den, P = Q_remove_denom(pol,&den);
-  GEN pe, pe1, denpe, R;
+  GEN den, pe, pe1, denpe, R;
+
+  z = nf_to_scalar_or_alg(nf, z);
+  if (typ(z) != t_POL) return z;
+  if (gequalX(z)) return FpC_red(S, p); /* common, e.g. modpr_genFq */
+  z = Q_remove_denom(z,&den);
+  denpe = pe = NULL;
+  pe1 = p;
   if (den)
   {
-    ulong e = Z_pval(den, p);
-    pe = powiu(p, e); pe1 = mulii(pe, p);
-    denpe = Fp_inv(diviiexact(den, pe), pe1);
-  } else {
-    pe = gen_1; pe1 = p; denpe = gen_1;
+    ulong e = Z_pvalrem(den, p, &den);
+    if (e) { pe = powiu(p, e); pe1 = mulii(pe, p); }
+    denpe = Fp_inv(den, pe1);
   }
-  R = FpX_FpC_nfpoleval(nf, FpX_red(P, pe1), FpC_red(S, pe1), pe1);
-  return gdivexact(FpC_Fp_mul(R, denpe, pe1), pe);
+  R = FpX_FpC_nfpoleval(nf, FpX_red(z, pe1), FpC_red(S, pe1), pe1);
+  if (denpe) R = FpC_Fp_mul(R, denpe, pe1);
+  if (pe) R = gdivexact(R, pe);
+  return R;
 }
 
+/* true nf */
 static GEN
 pr_galoisapply(GEN nf, GEN pr, GEN aut)
 {
   GEN p, t, u;
   if (typ(pr_get_tau(pr)) == t_INT) return pr; /* inert */
   p = pr_get_p(pr);
-  u = QX_galoisapplymod(nf, coltoliftalg(nf, pr_get_gen(pr)), aut, p);
+  u = zk_galoisapplymod(nf, pr_get_gen(pr), aut, p);
   t = FpM_deplin(zk_multable(nf, u), p);
   t = zk_scalar_or_multable(nf, t);
   return mkvec5(p, u, gel(pr,3), gel(pr,4), t);
@@ -659,6 +667,7 @@ static void
 gal_check_pol(const char *f, GEN x, GEN y)
 { if (!RgX_equal_var(x,y)) pari_err_MODULUS(f,x,y); }
 
+/* true nf */
 GEN
 idealfrobenius_aut(GEN nf, GEN gal, GEN pr, GEN aut)
 {
@@ -672,7 +681,7 @@ idealfrobenius_aut(GEN nf, GEN gal, GEN pr, GEN aut)
   if (f==2) return gerepileupto(av, g);
   modpr = zk_to_Fq_init(nf,&pr,&T,&p);
   a = pol_x(nf_get_varn(nf));
-  b = nf_to_Fq(nf, QX_galoisapplymod(nf, modpr_genFq(modpr), S, p), modpr);
+  b = nf_to_Fq(nf, zk_galoisapplymod(nf, modpr_genFq(modpr), S, p), modpr);
   for (s = 1; s < f-1; s++)
   {
     a = Fq_pow(a, p, T, p);
@@ -693,6 +702,7 @@ idealfrobenius(GEN nf, GEN gal, GEN pr)
   return idealfrobenius_aut(nf, gal, pr, NULL);
 }
 
+/* true nf */
 GEN
 idealramfrobenius(GEN nf, GEN gal, GEN pr, GEN ram)
 {
@@ -708,7 +718,7 @@ idealramfrobenius(GEN nf, GEN gal, GEN pr, GEN ram)
   isog = group_set(gel(ram,2),  nf_get_degree(nf));
   g = idealquasifrob(nf, gal, deco, pr, isog, &S, NULL);
   a = pol_x(nf_get_varn(nf));
-  b = nf_to_Fq(nf, QX_galoisapplymod(nf, modpr_genFq(modpr), S, p), modpr);
+  b = nf_to_Fq(nf, zk_galoisapplymod(nf, modpr_genFq(modpr), S, p), modpr);
   for (s=0; !ZX_equal(a, b); s++)
     a = Fq_pow(a, p, T, p);
   g = perm_pow(g, Fl_inv(s, f));
@@ -775,20 +785,24 @@ idealramgroupstame(GEN nf, GEN gal, GEN pr)
   return res;
 }
 
+/* true nf */
 static GEN
 idealramgroupindex(GEN nf, GEN gal, GEN pr)
 {
   pari_sp av = avma;
   GEN p, T, g, idx, modpr;
-  long i, e, f, n;
+  long i, e, f, n = nf_get_degree(nf);
   ulong nt,rorder;
   GEN grp = vecvecsmall_sort(gal_get_group(gal));
-  e = pr_get_e(pr); f = pr_get_f(pr); n = nf_get_degree(nf);
+
+  e = pr_get_e(pr);
+  f = pr_get_f(pr);
   modpr = zk_to_Fq_init(nf,&pr,&T,&p);
   (void) u_pvalrem(n,p,&nt);
   rorder = e*f*(n/nt);
   idx = const_vecsmall(n,-1);
   g = modpr_genFq(modpr);
+  if (typ(g) == t_COL) g = coltoliftalg(nf,g);
   for (i=2; i<=n; i++)
   {
     GEN iso;
@@ -807,7 +821,7 @@ idealramgroupindex(GEN nf, GEN gal, GEN pr)
       {
         if (f > 1)
         {
-          GEN b = nf_to_Fq(nf, QX_galoisapplymod(nf, g, S, p), modpr);
+          GEN b = nf_to_Fq(nf, zk_galoisapplymod(nf, g, S, p), modpr);
           if (!gequalX(b)) idx[i] = 0;
         }
       }

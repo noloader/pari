@@ -18,3 +18,7 @@ idealramgroups(K,G,P)
 \\#1755
 P=x^8-12*x^6+36*x^4-36*x^2+9;N=nfinit(P);G=galoisinit(N);
 idealramgroups(N,G,idealprimedec(N,3)[1])
+
+\\#1908
+P=x^12+60*x^10+1260*x^8+10900*x^6+34200*x^4+9000*x^2+500;N=nfinit(P);
+G=galoisinit(N); pr=idealprimedec(N,2)[1]; ram=idealramgroups(N,G,pr); #ram
