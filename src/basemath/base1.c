@@ -811,6 +811,7 @@ idealramgroupindex(GEN nf, GEN gal, GEN pr)
     iso = gel(grp,i); o = perm_order(iso);
     if (rorder%o == 0)
     {
+      pari_sp av = avma;
       GEN piso = iso;
       GEN S = poltobasis(nf, galoispermtopol(gal, iso));
       GEN pi = pr_get_gen(pr);
@@ -831,6 +832,7 @@ idealramgroupindex(GEN nf, GEN gal, GEN pr)
         piso = perm_mul(piso,iso);
         if (cgcd(j,o)==1) idx[piso[1]] = idx[i];
       }
+      avma = av;
     }
   }
   return gerepileuptoleaf(av, idx);
