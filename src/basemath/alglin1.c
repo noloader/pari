@@ -757,11 +757,9 @@ Flm_lsolve_lower_unit(GEN L, GEN A, ulong p) {
 static long
 Flm_CUP_gauss(GEN A, GEN *R, GEN *C, GEN *U, GEN *P, ulong p) {
   long i, j, k, m = nbrows(A), n = lg(A) - 1, pr, pc, u, v;
-  pari_sp av;
 
-  *P = identity_perm(n);
+  if (P) *P = identity_perm(n);
   *R = cgetg(m + 1, t_VECSMALL);
-  av = avma;
   for (j = 1, pr = 0; j <= n; j++) {
     for (pr++, pc = 0; pr <= m; pr++) {
       for (k = j; k <= n; k++) {
@@ -777,7 +775,7 @@ Flm_CUP_gauss(GEN A, GEN *R, GEN *C, GEN *U, GEN *P, ulong p) {
     (*R)[j] = pr;
     if (pc != j) {
       swap(gel(A, j), gel(A, pc));
-      lswap((*P)[j], (*P)[pc]);
+      if (P) lswap((*P)[j], (*P)[pc]);
     }
     u = Fl_inv(ucoeff(A, pr, j), p);
     for (i = pr + 1; i <= m; i++) {
@@ -791,9 +789,7 @@ Flm_CUP_gauss(GEN A, GEN *R, GEN *C, GEN *U, GEN *P, ulong p) {
   }
   setlg(*R, j);
   *C = vecslice(A, 1, j - 1);
-  *U = rowpermute(A, *R);
-  if (gc_needed(av, 1))
-    gerepileall(av, 2, C, U);
+  if (U) *U = rowpermute(A, *R);
   return j - 1;
 }
 
@@ -855,8 +851,7 @@ Flm_CUP(GEN A, GEN *R, GEN *C, GEN *U, GEN *P, ulong p) {
 
 static ulong
 Flm_echelon_gauss(GEN A, GEN *R, GEN *C, ulong p) {
-  GEN U, P;
-  return Flm_CUP_gauss(A, R, C, &U, &P, p);
+  return Flm_CUP_gauss(A, R, C, NULL, NULL, p);
 }
 
 /* column echelon form */
@@ -1114,7 +1109,7 @@ FlxqM_CUP_gauss(GEN A, GEN *R, GEN *C, GEN *U, GEN *P, GEN T, ulong p) {
   pari_sp av;
   GEN u, v;
 
-  *P = identity_perm(n);
+  if (P) *P = identity_perm(n);
   *R = cgetg(m + 1, t_VECSMALL);
   av = avma;
   for (j = 1, pr = 0; j <= n; j++) {
@@ -1133,7 +1128,7 @@ FlxqM_CUP_gauss(GEN A, GEN *R, GEN *C, GEN *U, GEN *P, GEN T, ulong p) {
     (*R)[j] = pr;
     if (pc != j) {
       swap(gel(A, j), gel(A, pc));
-      lswap((*P)[j], (*P)[pc]);
+      if (P) lswap((*P)[j], (*P)[pc]);
     }
     u = Flxq_inv(gcoeff(A, pr, j), T, p);
     for (i = pr + 1; i <= m; i++) {
@@ -1144,12 +1139,12 @@ FlxqM_CUP_gauss(GEN A, GEN *R, GEN *C, GEN *U, GEN *P, GEN T, ulong p) {
                                   Flx_mul(gcoeff(A, pr, k), v, p), p);
       }
     }
+    if (gc_needed(av, 2))
+      A = gerepilecopy(av, A);
   }
   setlg(*R, j);
   *C = vecslice(A, 1, j - 1);
-  *U = rowpermute(A, *R);
-  if (gc_needed(av, 1))
-    gerepileall(av, 2, C, U);
+  if (U) *U = rowpermute(A, *R);
   return j - 1;
 }
 
@@ -1212,8 +1207,7 @@ FlxqM_CUP(GEN A, GEN *R, GEN *C, GEN *U, GEN *P, GEN T, ulong p) {
 
 static ulong
 FlxqM_echelon_gauss(GEN A, GEN *R, GEN *C, GEN T, ulong p) {
-  GEN U, P;
-  return FlxqM_CUP_gauss(A, R, C, &U, &P, T, p);
+  return FlxqM_CUP_gauss(A, R, C, NULL, NULL, T, p);
 }
 
 /* column echelon form */
