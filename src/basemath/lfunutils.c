@@ -1715,14 +1715,14 @@ artin_ind(GEN elts, GEN ch, GEN p)
 }
 
 static GEN
-artin_ram(GEN nf, GEN gal, GEN pr, GEN ramg, GEN ch, long d)
+artin_ram(GEN nf, GEN gal, GEN aut, GEN pr, GEN ramg, GEN ch, long d)
 {
   pari_sp av = avma;
   long i, v, n;
   GEN p, q, V, elts;
   if (d==0) return pol_1(0);
   n = degpol(gal_get_pol(gal));
-  q = p = idealramfrobenius(nf, gal, pr, ramg);
+  q = p = idealramfrobenius_aut(nf, gal, pr, ramg, aut);
   elts = group_elts(gel(ramg,2), n);
   v = fetch_var_higher();
   V = cgetg(d+3, t_POL);
@@ -1740,7 +1740,7 @@ artin_ram(GEN nf, GEN gal, GEN pr, GEN ramg, GEN ch, long d)
 
 /* [Artin conductor, vec of [p, Lp]] */
 static GEN
-artin_badprimes(GEN N, GEN G, GEN ch)
+artin_badprimes(GEN N, GEN G, GEN aut, GEN ch)
 {
   pari_sp av = avma;
   long i, d = char_dim(ch);
@@ -1751,7 +1751,7 @@ artin_badprimes(GEN N, GEN G, GEN ch)
   for (i = 1; i < lP; ++i)
   {
     GEN p = gel(P, i), pr = gel(idealprimedec(N, p), 1);
-    GEN J = idealramgroups(N, G, pr);
+    GEN J = idealramgroups_aut(N, G, pr, aut);
     GEN G0 = gel(J,2); /* inertia group */
     long lJ = lg(J);
     long sdec = artin_dim(G0, ch);
@@ -1764,7 +1764,7 @@ artin_badprimes(GEN N, GEN G, GEN ch)
       v += group_order(Jj) * (d - s);
     }
     gel(C, i) = powiu(p, v/ndec);
-    gel(B, i) = mkvec2(p, artin_ram(N, G, pr, J, ch, sdec));
+    gel(B, i) = mkvec2(p, artin_ram(N, G, aut, pr, J, ch, sdec));
   }
   return gerepilecopy(av, mkvec2(ZV_prod(C), B));
 }
@@ -1791,7 +1791,7 @@ idealfrobenius_easy(GEN nf, GEN gal, GEN aut, GEN T, GEN p)
     GEN g = gel(grp,i);
     if (perm_order(g)==f)
     {
-      GEN A = FpM_FpC_mul(DzkT, gel(aut,i), p);
+      GEN A = FpM_FpC_mul(DzkT, gel(aut,g[1]), p);
       if (ZV_equal(A, DXp)) {avma = av; return g; }
     }
   }
@@ -1963,9 +1963,9 @@ lfunartin(GEN nf, GEN gal, GEN ch, long o, long bitprec)
   if (!gequal0(ch))
   {
     GEN real = char_is_real(ch, mod)? gen_0: gen_1;
-    V = artin_charpoly(gal, ch);
-    bc = artin_badprimes(nf, gal, ch);
     aut = nfgaloispermtobasis(nf, gal);
+    V = artin_charpoly(gal, ch);
+    bc = artin_badprimes(nf, gal, aut, ch);
     Ldata = mkvecn(6,
       tag(mkcoln(7, nf, gal, V, aut, gel(bc, 2), stoi(o), real), t_LFUN_ARTIN),
       real, artin_gamma(nf, gal, ch), gen_1, gel(bc,1), gen_0);

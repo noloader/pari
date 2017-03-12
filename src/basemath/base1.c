@@ -629,6 +629,12 @@ nfgaloismatrix(GEN nf, GEN s)
 }
 
 static GEN
+get_aut(GEN nf, GEN gal, GEN aut, GEN g)
+{
+  return aut ? gel(aut, g[1]): poltobasis(nf, galoispermtopol(gal, g));
+}
+
+static GEN
 idealquasifrob(GEN nf, GEN gal, GEN grp, GEN pr, GEN subg, GEN *S, GEN aut)
 {
   pari_sp av = avma;
@@ -640,7 +646,7 @@ idealquasifrob(GEN nf, GEN gal, GEN grp, GEN pr, GEN subg, GEN *S, GEN aut)
     if ((!subg && perm_order(g)==f)
       || (subg && perm_relorder(g, subg)==f))
     {
-      *S = aut ? gel(aut, i): poltobasis(nf, galoispermtopol(gal, g));
+      *S = get_aut(nf, gal, aut, g);
       if (ZC_prdvd(ZC_galoisapply(nf, *S, pi), pr)) return g;
       avma = av;
     }
@@ -658,8 +664,9 @@ nfgaloispermtobasis(GEN nf, GEN gal)
   for(i=1; i<=n; i++)
   {
     pari_sp av = avma;
-    GEN vec = poltobasis(nf, galoispermtopol(gal, gel(grp, i)));
-    gel(aut, i) = gerepileupto(av, vec);
+    GEN g = gel(grp, i);
+    GEN vec = poltobasis(nf, galoispermtopol(gal, g));
+    gel(aut, g[1]) = gerepileupto(av, vec);
   }
   return aut;
 }
@@ -679,7 +686,7 @@ idealfrobenius_aut(GEN nf, GEN gal, GEN pr, GEN aut)
   f = pr_get_f(pr); n = nf_get_degree(nf);
   if (f==1) { avma = av; return identity_perm(n); }
   g = idealquasifrob(nf, gal, gal_get_group(gal), pr, NULL, &S, aut);
-  if (f==2) return gerepileupto(av, g);
+  if (f==2) return gerepileuptoleaf(av, g);
   modpr = zk_to_Fq_init(nf,&pr,&T,&p);
   a = pol_x(nf_get_varn(nf));
   b = nf_to_Fq(nf, zk_galoisapplymod(nf, modpr_genFq(modpr), S, p), modpr);
@@ -705,7 +712,7 @@ idealfrobenius(GEN nf, GEN gal, GEN pr)
 
 /* true nf */
 GEN
-idealramfrobenius(GEN nf, GEN gal, GEN pr, GEN ram)
+idealramfrobenius_aut(GEN nf, GEN gal, GEN pr, GEN ram, GEN aut)
 {
   pari_sp av = avma;
   GEN S=NULL, g=NULL; /*-Wall*/
@@ -717,7 +724,7 @@ idealramfrobenius(GEN nf, GEN gal, GEN pr, GEN ram)
   modpr = zk_to_Fq_init(nf,&pr,&T,&p);
   deco = group_elts(gel(ram,1), nf_get_degree(nf));
   isog = group_set(gel(ram,2),  nf_get_degree(nf));
-  g = idealquasifrob(nf, gal, deco, pr, isog, &S, NULL);
+  g = idealquasifrob(nf, gal, deco, pr, isog, &S, aut);
   a = pol_x(nf_get_varn(nf));
   b = nf_to_Fq(nf, zk_galoisapplymod(nf, modpr_genFq(modpr), S, p), modpr);
   for (s=0; !ZX_equal(a, b); s++)
@@ -726,8 +733,14 @@ idealramfrobenius(GEN nf, GEN gal, GEN pr, GEN ram)
   return gerepileupto(av, g);
 }
 
+GEN
+idealramfrobenius(GEN nf, GEN gal, GEN pr, GEN ram)
+{
+  return idealramfrobenius_aut(nf, gal, pr, ram, NULL);
+}
+
 static GEN
-idealinertiagroup(GEN nf, GEN gal, GEN pr)
+idealinertiagroup(GEN nf, GEN gal, GEN aut, GEN pr)
 {
   long i, n = nf_get_degree(nf);
   GEN p, T, modpr = zk_to_Fq_init(nf,&pr,&T,&p);
@@ -740,7 +753,7 @@ idealinertiagroup(GEN nf, GEN gal, GEN pr)
     GEN iso = gel(grp,i);
     if (perm_order(iso) == e)
     {
-      GEN S = poltobasis(nf, galoispermtopol(gal, iso));
+      GEN S = get_aut(nf, gal, aut, iso);
       if (ZC_prdvd(ZC_galoisapply(nf, S, pi), pr)
           && (coprime || gequalX(nf_to_Fq(nf, galoisapply(nf,S,b), modpr))))
           return iso;
@@ -752,16 +765,17 @@ idealinertiagroup(GEN nf, GEN gal, GEN pr)
 }
 
 static GEN
-idealramgroupstame(GEN nf, GEN gal, GEN pr)
+idealramgroupstame(GEN nf, GEN gal, GEN aut, GEN pr)
 {
   pari_sp av = avma;
   GEN iso, frob, giso, isog, S, res;
   long e = pr_get_e(pr), f = pr_get_f(pr);
+  GEN grp = gal_get_group(gal);
   if (e == 1)
   {
     if (f==1)
       return cgetg(1,t_VEC);
-    frob = idealquasifrob(nf, gal, gal_get_group(gal), pr, NULL, &S, NULL);
+    frob = idealquasifrob(nf, gal, grp, pr, NULL, &S, aut);
     avma = av;
     res = cgetg(2, t_VEC);
     gel(res, 1) = cyclicgroup(frob, f);
@@ -769,7 +783,7 @@ idealramgroupstame(GEN nf, GEN gal, GEN pr)
   }
   res = cgetg(3, t_VEC);
   av = avma;
-  iso = idealinertiagroup(nf, gal, pr);
+  iso = idealinertiagroup(nf, gal, aut, pr);
   avma = av;
   giso = cyclicgroup(iso, e);
   gel(res, 2) = giso;
@@ -780,7 +794,7 @@ idealramgroupstame(GEN nf, GEN gal, GEN pr)
   }
   av = avma;
   isog = group_set(giso, nf_get_degree(nf));
-  frob = idealquasifrob(nf, gal, gal_get_group(gal), pr, isog, &S, NULL);
+  frob = idealquasifrob(nf, gal, grp, pr, isog, &S, aut);
   avma = av;
   gel(res, 1) = dicyclicgroup(iso,frob,e,f);
   return res;
@@ -788,13 +802,13 @@ idealramgroupstame(GEN nf, GEN gal, GEN pr)
 
 /* true nf */
 static GEN
-idealramgroupindex(GEN nf, GEN gal, GEN pr)
+idealramgroupindex(GEN nf, GEN gal, GEN aut, GEN pr)
 {
   pari_sp av = avma;
   GEN p, T, g, idx, modpr;
   long i, e, f, n = nf_get_degree(nf);
   ulong nt,rorder;
-  GEN grp = vecvecsmall_sort(gal_get_group(gal));
+  GEN grp = gal_get_group(gal);
 
   e = pr_get_e(pr);
   f = pr_get_f(pr);
@@ -805,32 +819,33 @@ idealramgroupindex(GEN nf, GEN gal, GEN pr)
   g = nf_to_scalar_or_alg(nf, modpr_genFq(modpr));
   for (i=2; i<=n; i++)
   {
-    GEN iso;
+    GEN iso = gel(grp, i);
+    long ix = iso[1];
     long o;
-    if (idx[i]>=0) continue;
-    iso = gel(grp,i); o = perm_order(iso);
+    if (idx[ix]>=0) continue;
+    o = perm_order(iso);
     if (rorder%o == 0)
     {
       pari_sp av = avma;
       GEN piso = iso;
-      GEN S = poltobasis(nf, galoispermtopol(gal, iso));
+      GEN S = get_aut(nf, gal, aut, iso);
       GEN pi = pr_get_gen(pr);
       GEN spi = ZC_galoisapply(nf, S, pi);
       long j;
-      idx[i] = idealval(nf, gsub(spi,pi), pr);
-      if (idx[i] >= 1)
+      idx[ix] = idealval(nf, gsub(spi,pi), pr);
+      if (idx[ix] >= 1)
       {
         if (f > 1)
         {
           GEN b = nf_to_Fq(nf, zk_galoisapplymod(nf, g, S, p), modpr);
-          if (!gequalX(b)) idx[i] = 0;
+          if (!gequalX(b)) idx[ix] = 0;
         }
       }
-      else idx[i] = -1;
+      else idx[ix] = -1;
       for (j=2; j<o; j++)
       {
         piso = perm_mul(piso,iso);
-        if (cgcd(j,o)==1) idx[piso[1]] = idx[i];
+        if (cgcd(j,o)==1) idx[piso[1]] = idx[ix];
       }
       avma = av;
     }
@@ -839,7 +854,7 @@ idealramgroupindex(GEN nf, GEN gal, GEN pr)
 }
 
 GEN
-idealramgroups(GEN nf, GEN gal, GEN pr)
+idealramgroups_aut(GEN nf, GEN gal, GEN pr, GEN aut)
 {
   pari_sp av = avma;
   GEN tbl, idx, res, set, sub;
@@ -851,9 +866,9 @@ idealramgroups(GEN nf, GEN gal, GEN pr)
   gal_check_pol("idealramgroups",nf_get_pol(nf),gal_get_pol(gal));
   e = pr_get_e(pr); n = nf_get_degree(nf);
   p = itos(pr_get_p(pr));
-  if (e%p) return idealramgroupstame(nf, gal, pr);
+  if (e%p) return idealramgroupstame(nf, gal, aut, pr);
   (void) u_lvalrem(e,p,&et);
-  idx = idealramgroupindex(nf, gal, pr);
+  idx = idealramgroupindex(nf, gal, aut, pr);
   sub = group_subgroups(galois_group(gal));
   tbl = subgroups_tableset(sub, n);
   maxm = vecsmall_max(idx)+1;
@@ -861,12 +876,21 @@ idealramgroups(GEN nf, GEN gal, GEN pr)
   set = zero_F2v(n); F2v_set(set,1);
   for(i=maxm; i>0; i--)
   {
+    long ix;
     for(j=1;j<=n;j++)
       if (idx[j]==i-1)
         F2v_set(set,j);
-    gel(res,i) = gel(sub, tableset_find_index(tbl, set));
+    ix = tableset_find_index(tbl, set);
+    if (ix==0) pari_err_BUG("idealramgroups");
+    gel(res,i) = gel(sub, ix);
   }
   return gerepilecopy(av, res);
+}
+
+GEN
+idealramgroups(GEN nf, GEN gal, GEN pr)
+{
+  return idealramgroups_aut(nf, gal, pr, NULL);
 }
 
 /* x = relative polynomial nf = absolute nf, bnf = absolute bnf */
