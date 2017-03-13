@@ -2916,7 +2916,7 @@ Rg_to_ff(GEN nf, GEN x0, GEN modpr)
     case t_COL:
       x = Q_remove_denom(x, &den);
       /* content(x) and den are coprime */
-      if (lg(x) == lg(nf_get_zk(nf))) break;
+      if (lg(x)-1 == nf_get_degree(nf)) break;
     default: pari_err_TYPE("Rg_to_ff",x);
       return NULL;
   }

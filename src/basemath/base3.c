@@ -899,7 +899,7 @@ nf_to_scalar_or_basis(GEN nf, GEN x)
       return poltobasis(nf,x);
     }
     case t_COL:
-      if (lg(x) != lg(nf_get_zk(nf))) break;
+      if (lg(x)-1 != nf_get_degree(nf)) break;
       return QV_isscalar(x)? gel(x,1): x;
   }
   pari_err_TYPE("nf_to_scalar_or_basis",x);
@@ -940,7 +940,7 @@ nf_to_scalar_or_alg(GEN nf, GEN x)
       return x;
     }
     case t_COL:
-      if (lg(x) != lg(nf_get_zk(nf))) break;
+      if (lg(x)-1 != nf_get_degree(nf)) break;
       return QV_isscalar(x)? gel(x,1): coltoliftalg(nf, x);
   }
   pari_err_TYPE("nf_to_scalar_or_alg",x);
