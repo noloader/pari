@@ -835,10 +835,11 @@ gpnfvalrem(GEN nf, GEN x, GEN pr, GEN *py)
   return v == LONG_MAX? mkoo(): stoi(v);
 }
 
+/* true nf */
 GEN
 coltoalg(GEN nf, GEN x)
 {
-  return mkpolmod( coltoliftalg(nf, x), nf_get_pol(nf) );
+  return mkpolmod( nf_to_scalar_or_alg(nf, x), nf_get_pol(nf) );
 }
 
 GEN
@@ -940,8 +941,15 @@ nf_to_scalar_or_alg(GEN nf, GEN x)
       return x;
     }
     case t_COL:
+    {
+      GEN dx;
       if (lg(x)-1 != nf_get_degree(nf)) break;
-      return QV_isscalar(x)? gel(x,1): coltoliftalg(nf, x);
+      if (QV_isscalar(x)) return gel(x,1);
+      x = Q_remove_denom(x, &dx);
+      x = RgV_RgC_mul(nf_get_zkprimpart(nf), x);
+      dx = mul_denom(dx, nf_get_zkden(nf));
+      return gdiv(x,dx);
+    }
   }
   pari_err_TYPE("nf_to_scalar_or_alg",x);
   return NULL; /* LCOV_EXCL_LINE */
@@ -1244,7 +1252,7 @@ static long
 num_positive(GEN nf, GEN x)
 {
   GEN T = nf_get_pol(nf);
-  GEN charx = ZXQ_charpoly(coltoliftalg(nf,x), T, 0);
+  GEN charx = ZXQ_charpoly(nf_to_scalar_or_alg(nf,x), T, 0);
   long np;
   charx = ZX_radical(charx);
   np = ZX_sturmpart(charx, mkvec2(gen_0,mkoo()));

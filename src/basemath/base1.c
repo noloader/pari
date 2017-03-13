@@ -601,29 +601,30 @@ GEN
 nfgaloismatrix(GEN nf, GEN s)
 {
   pari_sp av2, av = avma;
-  GEN zk, M, H, dH, m;
+  GEN zk, D, M, H, m;
   long k, n;
 
   nf = checknf(nf);
-  zk = nf_get_zk(nf); n = lg(zk)-1;
+  zk = nf_get_zkprimpart(nf); n = lg(zk)-1;
   M = cgetg(n+1, t_MAT);
   gel(M,1) = col_ei(n, 1); /* s(1) = 1 */
   if (n == 1) return M;
   av2 = avma;
   if (typ(s) != t_COL) s = algtobasis(nf, s);
-  H = RgXV_to_RgM(zk, n);
+  D = nf_get_zkden(nf);
+  H = RgV_to_RgM(zk, n);
   if (n == 2)
   {
-    GEN t = gel(H,2); /* s(w_2) */
-    gel(M,2) = gerepileupto(av2, RgC_Rg_add(RgC_Rg_mul(s, gel(t,2)), gel(t,1)));
+    GEN t = gel(H,2); /* D * s(w_2) */
+    t = ZC_Z_add(ZC_Z_mul(s, gel(t,2)), gel(t,1));
+    gel(M,2) = gerepileupto(av2, gdiv(t, D));
     return M;
   }
-  if (equali1(nf_get_index(nf))) dH = NULL; else H = Q_remove_denom(H, &dH);
   m = zk_multable(nf, s);
   gel(M,2) = s; /* M[,k] = s(x^(k-1)) */
   for (k = 3; k <= n; k++) gel(M,k) = ZM_ZC_mul(m, gel(M,k-1));
   M = ZM_mul(M, H);
-  if (dH) M = ZM_Z_divexact(M, dH);
+  if (!equali1(D)) M = ZM_Z_divexact(M, D);
   return gerepileupto(av, M);
 }
 
@@ -801,8 +802,7 @@ idealramgroupindex(GEN nf, GEN gal, GEN pr)
   (void) u_pvalrem(n,p,&nt);
   rorder = e*f*(n/nt);
   idx = const_vecsmall(n,-1);
-  g = modpr_genFq(modpr);
-  if (typ(g) == t_COL) g = coltoliftalg(nf,g);
+  g = nf_to_scalar_or_alg(nf, modpr_genFq(modpr));
   for (i=2; i<=n; i++)
   {
     GEN iso;
@@ -1324,7 +1324,7 @@ GEN
 nfmaxord_to_nf(nfmaxord_t *S, GEN ro, long prec)
 {
   GEN nf = cgetg(10,t_VEC);
-  GEN T = S->T, absdK, Tr, D, TI, A, dA, MDI, mat = cgetg(9,t_VEC);
+  GEN T = S->T, absdK, Tr, D, w, dw, TI, A, dA, MDI, mat = cgetg(9,t_VEC);
   long n = degpol(T);
   nffp_t F;
   nfmaxord_complete(S);
@@ -1338,9 +1338,11 @@ nfmaxord_to_nf(nfmaxord_t *S, GEN ro, long prec)
   gel(nf,4) = S->index;
   gel(nf,5) = mat;
   gel(nf,6) = F.ro;
-  gel(nf,7) = S->basis;
-  gel(nf,8) = QM_inv(RgV_to_RgM(S->basis,n), gen_1);
-  gel(nf,9) = nf_multable(S, gel(nf,8));
+  w = S->basis; dw = gen_1;
+  if (!is_pm1(S->index)) w = Q_remove_denom(w, &dw);
+  gel(nf,7) = w;
+  gel(nf,8) = ZM_inv(RgV_to_RgM(w,n), dw);
+  gel(nf,9) = nf_multable(S, nf_get_invzk(nf));
   gel(mat,1) = F.M;
   gel(mat,2) = F.G;
 

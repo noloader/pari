@@ -2101,7 +2101,7 @@ galoisconj4_main(GEN T, GEN den, long flag)
   if (n) return flag? galoiscyclo(n, varn(T)): conjcyclo(T, n);
   n = degpol(T);
   if (nf)
-  { if (!den) den = Q_denom(nf_get_zk(nf)); }
+  { if (!den) den = nf_get_zkden(nf); }
   else
   {
     if (n <= 0) pari_err_IRREDPOL("galoisinit",T);

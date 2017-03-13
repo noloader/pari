@@ -541,10 +541,6 @@ GEN fincke_pohst(GEN a,GEN BOUND,long stockmax,long PREC, FP_chk_fun *CHECK);
 void init_zlog(zlog_S *S, GEN bid);
 GEN  log_gen_arch(zlog_S *S, long index);
 GEN  log_gen_pr(zlog_S *S, long index, GEN nf, long e);
-/* conversions basis / alg */
-/* nf a genuine NF, x an nfelt (t_COL) or t_MAT whose columns represent nfelts.
- * Return the corresponding elements as t_POLs (implicitly mod nf.pol) */
-#define coltoliftalg(nf,x) (gmul(gel((nf),7), (x)))
 GEN    poltobasis(GEN nf,GEN x);
 GEN    coltoalg(GEN nf,GEN x);
 

@@ -1822,7 +1822,8 @@ nfsqff(GEN nf, GEN pol, long fl, GEN den)
     err_printf("Prime ideal chosen: %Ps\n", pr);
   }
   L.tozk = nf_get_invzk(nf);
-  L.topow= Q_remove_denom(nf_get_zk(nf), &L.topowden);
+  L.topow= nf_get_zkprimpart(nf);
+  L.topowden = nf_get_zkden(nf);
   if (is_pm1(den)) den = NULL;
   L.dn = den;
   T.ZC = L2_bound(nf, den);
@@ -1935,7 +1936,8 @@ nf_pick_prime_for_units(GEN nf, prklift_t *P)
   P->L->p = ap;
   P->L->Tp = aT;
   P->L->tozk = nf_get_invzk(nf);
-  P->L->topow = Q_remove_denom(nf_get_zk(nf), &(P->L->topowden));
+  P->L->topow = nf_get_zkprimpart(nf);
+  P->L->topowden = nf_get_zkden(nf);
 }
 
 /* *Heuristic* exponent k such that the fundamental domain of pr^k

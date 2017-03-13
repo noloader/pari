@@ -2583,7 +2583,29 @@ nf_get_ramified_primes(GEN nf) { return gmael(nf,5,8); }
 INLINE GEN
 nf_get_roots(GEN nf) { return gel(nf,6); }
 INLINE GEN
-nf_get_zk(GEN nf) { return gel(nf,7); }
+nf_get_zk(GEN nf)
+{
+  GEN y = gel(nf,7), D = nf_get_zkden(nf);
+  if (!equali1(D)) y = gdiv(y, D);
+  return y;
+}
+INLINE GEN
+nf_get_zkprimpart(GEN nf)
+{
+  GEN y = gel(nf,7);
+  /* test for old format of nf.zk: non normalized */
+  if (!equali1(gel(nf,4)) && gequal1(gel(y,1))) y = Q_remove_denom(y,NULL);
+  return y;
+}
+INLINE GEN
+nf_get_zkden(GEN nf)
+{
+  GEN y = gel(nf,7), D = gel(y,1);
+  if (typ(D) == t_POL) D = gel(D,2);
+  /* test for old format of nf.zk: non normalized */
+  if (!equali1(gel(nf,4)) && equali1(D)) D = Q_denom(y);
+  return D;
+}
 INLINE GEN
 nf_get_invzk(GEN nf) { return gel(nf,8); }
 INLINE void

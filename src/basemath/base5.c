@@ -255,9 +255,11 @@ void
 nf_nfzk(GEN nf, GEN rnfeq, GEN *zknf, GEN *czknf)
 {
   GEN pol = gel(rnfeq,1), a = gel(rnfeq,2);
-  GEN zk = QXV_QXQ_eval(nf_get_zk(nf), a, pol);
-  *zknf = Q_primitive_part(zk, czknf);
-  if (!*czknf) *czknf = gen_1;
+  GEN C, zk = nf_get_zkprimpart(nf), D = nf_get_zkden(nf);
+  zk = QXV_QXQ_eval(zk, a, pol);
+  *zknf = Q_primitive_part(zk, &C);
+  if (!C) C = gen_1;
+  *czknf = gdiv(C, D);
 }
 
 GEN
@@ -689,7 +691,7 @@ rnfidealtwoelement(GEN rnf, GEN x)
   y = idealtwoelt(NF, y);
   if (cy) y = RgV_Rg_mul(y, cy);
   z = gel(y,2);
-  if (typ(z) == t_COL) z = rnfeltabstorel(rnf, coltoliftalg(NF, z));
+  if (typ(z) == t_COL) z = rnfeltabstorel(rnf, nf_to_scalar_or_alg(NF, z));
   return gerepilecopy(av, mkvec2(gel(y,1), z));
 }
 
@@ -1187,11 +1189,7 @@ rnfpolred(GEN nf, GEN pol, long prec)
   {
     GEN newpol, L, a, Ij = gel(I,j);
     a = RgC_Rg_mul(gel(O,j), (typ(Ij) == t_MAT)? gcoeff(Ij,1,1): Ij);
-    for (i=n; i; i--)
-    {
-      GEN c = gel(a,i);
-      if (typ(c) == t_COL) gel(a,i) = coltoliftalg(nf, c);
-    }
+    for (i=n; i; i--) gel(a,i) = nf_to_scalar_or_alg(nf, gel(a,i));
     a = RgV_to_RgX(a, v);
     newpol = RgXQX_red(RgXQ_charpoly(a, pol, v), nfpol);
     newpol = Q_primpart(newpol);

@@ -124,3 +124,9 @@ nfisisom(x,x^0)
 K=bnfinit(x^2+2323);
 P=idealprimedec(K,23)[1];
 bnfisprincipal(K,P)
+
+\\ test old-style nf.zk
+K=nfinit(x^2+23);
+K[7] /= 2;
+nfbasistoalg(K,[0,1]~)
+nfalgtobasis(K,x)

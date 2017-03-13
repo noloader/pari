@@ -182,6 +182,7 @@ reducebeta(GEN bnfz, GEN b, GEN ell)
   return b;
 }
 
+/* FIXME: remove */
 static GEN
 tauofalg(GEN x, tau_s *tau) {
   long tx = typ(x);
@@ -194,8 +195,7 @@ tauofalg(GEN x, tau_s *tau) {
 static tau_s *
 get_tau(tau_s *tau, GEN nf, compo_s *C, long g)
 {
-  GEN bas = nf_get_zk(nf), U, Uzk;
-  long i, l = lg(bas);
+  GEN U;
 
   /* compute action of tau: q^g + kp */
   U = RgX_add(RgXQ_powu(C->q, g, C->R), RgX_muls(C->p, C->k));
@@ -203,8 +203,7 @@ get_tau(tau_s *tau, GEN nf, compo_s *C, long g)
 
   tau->x  = U;
   tau->R  = C->R;
-  tau->zk = Uzk = cgetg(l, t_MAT);
-  for (i=1; i<l; i++) gel(Uzk,i) = algtobasis(nf, tauofalg(gel(bas,i), tau));
+  tau->zk = nfgaloismatrix(nf, U);
   return tau;
 }
 
@@ -947,17 +946,17 @@ invimsubgroup(GEN bnrz, GEN bnr, GEN subgroup, toK_s *T)
   long l, j;
   GEN P, cyc, gen, U, polrel, StZk;
   GEN nf = bnr_get_nf(bnr), nfz = bnr_get_nf(bnrz);
-  GEN polz = nf_get_pol(nfz), zkz = nf_get_zk(nfz);
+  GEN polz = nf_get_pol(nfz), zkzD = nf_get_zkprimpart(nfz);
 
   polrel = polrelKzK(T, pol_x(varn(polz)));
-  StZk = Stelt(nf, zkz, polrel);
+  StZk = Stelt(nf, zkzD, polrel);
   cyc = bnr_get_cyc(bnrz); l = lg(cyc);
   gen = bnr_get_gen(bnrz);
   P = cgetg(l,t_MAT);
   for (j=1; j<l; j++)
   {
     GEN g, id = idealhnf_shallow(nfz, gel(gen,j));
-    g = Stelt(nf, RgV_RgM_mul(zkz, id), polrel);
+    g = Stelt(nf, RgV_RgM_mul(zkzD, id), polrel);
     g = idealdiv(nf, g, StZk); /* N_{Kz/K}(gen[j]) */
     gel(P,j) = isprincipalray(bnr, g);
   }
@@ -1021,10 +1020,12 @@ mod_Xell_a(GEN z, long v, long ell, GEN num_a, GEN den_a)
 static GEN
 to_alg(GEN nfz, GEN c, long v)
 {
-  GEN z;
+  GEN z, D;
   if (typ(c) != t_COL) return c;
-  z = gmul(nf_get_zk(nfz), c);
+  z = gmul(nf_get_zkprimpart(nfz), c);
   if (typ(z) == t_POL) setvarn(z, v);
+  D = nf_get_zkden(nfz);
+  if (!equali1(D)) z = RgX_Rg_div(z, D);
   return z;
 }
 

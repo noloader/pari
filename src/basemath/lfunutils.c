@@ -1778,18 +1778,21 @@ static GEN
 idealfrobenius_easy(GEN nf, GEN gal, GEN aut, GEN T, GEN p)
 {
   long i, l = lg(aut), f = degpol(T);
-  GEN zkT, Xp, grp = gal_get_group(gal);
+  GEN D, Dzk, DzkT, DXp, grp = gal_get_group(gal);
   pari_sp av = avma;
   if (f==1) return gel(grp,1);
-  zkT = QXQV_to_FpM(nf_get_zk(nf), T, p);
-  Xp = RgX_to_RgC(FpX_Frobenius(T, p), f);
+  Dzk = nf_get_zkprimpart(nf);
+  D = modii(nf_get_zkden(nf), p);
+  DzkT = RgV_to_RgM(FqV_red(Dzk, T, p), f);
+  DXp = RgX_to_RgC(FpX_Frobenius(T, p), f);
+  if (!equali1(D)) DXp = FpC_Fp_mul(DXp, D, p);
   for(i=1; i < l; i++)
   {
     GEN g = gel(grp,i);
     if (perm_order(g)==f)
     {
-      GEN A = FpM_FpC_mul(zkT, gel(aut,i), p);
-      if (ZV_equal(A, Xp)) {avma = av; return g; }
+      GEN A = FpM_FpC_mul(DzkT, gel(aut,i), p);
+      if (ZV_equal(A, DXp)) {avma = av; return g; }
     }
   }
   return NULL; /* LCOV_EXCL_LINE */

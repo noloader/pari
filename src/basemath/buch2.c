@@ -1157,7 +1157,7 @@ getfu(GEN nf, GEN *ptA, long *pte, long prec)
       gel(A,j) = RgC_neg(gel(A,j));
       u = v;
     }
-    u = coltoliftalg(nf,u);
+    u = nf_to_scalar_or_alg(nf,u);
     if (gsigne(leading_coeff(u)) < 0)
     {
       gel(A,j) = RgC_add(gel(A,j), vec);
@@ -3689,7 +3689,7 @@ sbnf2bnf(GEN sbnf, long prec)
   zu = gel(sbnf,10);
   zu = mkvec2(gel(zu,1), nf_to_scalar_or_alg(nf, gel(zu,2)));
   FU = cgetg_copy(fu, &l);
-  for (k=1; k < l; k++) gel(FU,k) = coltoliftalg(nf, gel(fu,k));
+  for (k=1; k < l; k++) gel(FU,k) = nf_to_scalar_or_alg(nf, gel(fu,k));
 
   res = get_clfu(clgp, get_regulator(A), zu, FU);
   y = buchall_end(nf,res,clgp2,W,gel(sbnf,8),A,C,Vbase);

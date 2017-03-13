@@ -330,8 +330,7 @@ den_remove(GEN nf, GEN a)
     case t_COL:
       a = Q_remove_denom(a, &da);
       if (da) a = ZC_Z_mul(a, da);
-      a = coltoliftalg(nf, a);
-      return a;
+      return nf_to_scalar_or_alg(nf, a);
     default: pari_err_TYPE("nfhilbert",a);
       return NULL;/*LCOV_EXCL_LINE*/
   }

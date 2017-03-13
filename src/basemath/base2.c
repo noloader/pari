@@ -2178,10 +2178,10 @@ init_norm(norm_S *S, GEN nf, GEN p)
   }
   else
   {
-    GEN D, w = Q_remove_denom(nf_get_zk(nf), &D), Dp = sqri(p);
+    GEN w = leafcopy(nf_get_zkprimpart(nf)), D = nf_get_zkden(nf), Dp = sqri(p);
     long i;
-    if (!D) w = leafcopy(w);
-    else {
+    if (!equali1(D))
+    {
       GEN w1 = D;
       long v = Z_pval(D, p);
       D = powiu(p, v);
@@ -2719,19 +2719,26 @@ modprinit(GEN nf, GEN pr, int zk)
   ffproj = rowpermute(ffproj, c);
   if (! dvdii(nf_get_index(nf), p))
   {
-    GEN basis = nf_get_zk(nf);
+    GEN basis = nf_get_zkprimpart(nf), D = nf_get_zkden(nf);
     if (N == f)
     { /* pr inert */
       T = nf_get_pol(nf);
       T = FpX_red(T,p);
-      ffproj = QXQV_to_FpM(basis, T, p);
+      ffproj = RgV_to_RgM(basis, lg(basis)-1);
     }
     else
     {
-      T = RgV_RgC_mul(Q_primpart(basis), pr_get_gen(pr));
+      T = RgV_RgC_mul(basis, pr_get_gen(pr));
       T = FpX_normalize(T,p);
-      basis = vecpermute(basis, c);
-      ffproj = FpM_mul(QXQV_to_FpM(basis, T, p), ffproj, p);
+      basis = FqV_red(vecpermute(basis,c), T, p);
+      basis = RgV_to_RgM(basis, lg(basis)-1);
+      ffproj = ZM_mul(basis, ffproj);
+    }
+    ffproj = FpM_red(ffproj, p);
+    if (!equali1(D))
+    {
+      D = modii(D,p);
+      if (!equali1(D)) ffproj = FpM_Fp_mul(ffproj, Fp_inv(D,p), p);
     }
 
     res = cgetg(SMALLMODPR+1, t_COL);
@@ -3249,7 +3256,7 @@ rnfdedekind_i(GEN nf, GEN P, GEN pr, long vdisc, long only_maximal)
       k = RgX_Rg_div(tablemulvec(NULL,tau, k), p);
       break;
     case t_COL:
-      tau = coltoliftalg(nf, tau);
+      tau = nf_to_scalar_or_alg(nf, tau);
       k = RgX_Rg_div(RgXQX_RgXQ_mul(k, tau, nfT), p);
       break;
   }

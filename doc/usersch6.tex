@@ -179,6 +179,12 @@ maximal order of $K$.
 maximal order of $K$. Those are polynomials in $\Q[x]$ of degree $<n$; it is
 guaranteed that $w_1 = 1$.
 
+\fun{GEN}{nf_get_zkden}{GEN nf} returns the denominator of \tet{nf_get_zk},
+as a positive \typ{INT}.
+
+\fun{GEN}{nf_get_zkprimpart}{GEN nf} returns \tet{nf_get_zk} times its
+denominator.
+
 \fun{GEN}{nf_get_invzk}{GEN nf} returns the matrix $(m_{i,j})\in M_n(\Z)$
 giving the power basis $(x^i)$ in terms of the $(w_j)$, i.e such that
 $x^{j-1} = \sum_{i = 1}^n m_{i,j} w_i$ for all $1\leq j \leq n$; since $w_1 =
