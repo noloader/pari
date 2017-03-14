@@ -320,7 +320,7 @@ F2xqE_log(GEN a, GEN b, GEN o, GEN a2, GEN T)
 /* Derived from APIP from and by Jerome Milan, 2012 */
 
 static GEN
-F2xqE_vert(GEN P, GEN Q, GEN T)
+F2xqE_vert(GEN P, GEN Q, GEN a, GEN T)
 {
   long vT = T[1];
   if (ell_is_inf(P))
@@ -380,7 +380,7 @@ F2xqE_tangent_update(GEN R, GEN Q, GEN a2, GEN T, GEN *pt_R)
   else if (!lgpol(gel(R,1)))
   {
     *pt_R = ellinf();
-    return F2xqE_vert(R, Q, T);
+    return F2xqE_vert(R, Q, a2, T);
   } else {
     GEN slope;
     *pt_R = F2xqE_dbl_slope(R, a2, T, &slope);
@@ -398,12 +398,12 @@ F2xqE_chord_update(GEN R, GEN P, GEN Q, GEN a2, GEN T, GEN *pt_R)
   if (ell_is_inf(R))
   {
     *pt_R = gcopy(P);
-    return F2xqE_vert(P, Q, T);
+    return F2xqE_vert(P, Q, a2, T);
   }
   else if (ell_is_inf(P))
   {
     *pt_R = gcopy(R);
-    return F2xqE_vert(R, Q, T);
+    return F2xqE_vert(R, Q, a2, T);
   }
   else if (F2x_equal(gel(P, 1), gel(R, 1)))
   {
@@ -412,7 +412,7 @@ F2xqE_chord_update(GEN R, GEN P, GEN Q, GEN a2, GEN T, GEN *pt_R)
     else
     {
       *pt_R = ellinf();
-      return F2xqE_vert(R, Q, T);
+      return F2xqE_vert(R, Q, a2, T);
     }
   } else {
     GEN slope;
@@ -441,7 +441,7 @@ F2xqE_Miller_dbl(void* E, GEN d)
   GEN point = gel(d,3);
   line = F2xqE_tangent_update(point, P, a2, T, &point);
   num  = F2xq_mul(num, line, T);
-  v = F2xqE_vert(point, P, T);
+  v = F2xqE_vert(point, P, a2, T);
   denom = F2xq_mul(denom, v, T);
   return mkvec3(num, denom, point);
 }
@@ -458,7 +458,7 @@ F2xqE_Miller_add(void* E, GEN va, GEN vb)
   GEN denom = F2xq_mul(da, db, T);
   line = F2xqE_chord_update(pa, pb, P, a2, T, &point);
   num  = F2xq_mul(num, line, T);
-  v = F2xqE_vert(point, P, T);
+  v = F2xqE_vert(point, P, a2, T);
   denom = F2xq_mul(denom, v, T);
   return mkvec3(num, denom, point);
 }
