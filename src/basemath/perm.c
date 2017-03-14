@@ -413,7 +413,7 @@ perm_pow(GEN perm, long exp)
   GEN v = cgetg(r+1, t_VECSMALL);
   for (i=1; i<=r; i++)
   {
-    long m, e, n, k, l;
+    long e, n, k, l;
     if (p[i]) continue;
     v[1] = i;
     for (n=1, k=perm[i]; k!=i; k=perm[k], n++)
