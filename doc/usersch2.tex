@@ -691,10 +691,11 @@ creates the binary form $q = x^2+2xy+3y^2$. It is imaginary (of internal type
 Although imaginary forms could be positive or negative definite, only
 positive definite forms are implemented.
 
-The discriminant can be retrieved via \kbd{poldisc} or \kbd{q.disc}. The
-individual components are obtained via either of
+The discriminant can be retrieved via \kbd{poldisc}. The individual
+components are obtained via either of
 \bprog
   [a,b,c] = Vec(q);
+
   a = component(q,1);
   b = component(q,2);
   c = component(q,3);
@@ -702,9 +703,8 @@ individual components are obtained via either of
 
 In the case of forms with positive discriminant (\typ{QFR}), you may add an
 optional fourth component (related to the regulator, more precisely to Shanks
-and Lenstra's ``distance''), which must be a real number. See also the
-function \kbd{qfbprimeform} which directly creates a prime form of given
-discriminant.
+and Lenstra's distance), which must be a real number. See also the function
+\kbd{qfbprimeform} which creates a prime form of given discriminant.
 
 \subsec{Row and column vectors (\typ{VEC} and \typ{COL})}%
 \sidx{row vector}\sidx{column vector}\kbdsidx{t_VEC}\kbdsidx{t_COL})
