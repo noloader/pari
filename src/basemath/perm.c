@@ -261,13 +261,13 @@ static GEN
 vecperm_orbits_i(GEN v, long n)
 {
   long mj = 1, k, l, m;
-  GEN cy, cycle = cgetg(n+1, t_VEC), bit = zero_F2v(n);
+  GEN cy, cycle = cgetg(n+1, t_VEC), bit = const_vecsmall(n, 0);
   for (k = 1, l = 1; k <= n;)
   {
-    for (  ; F2v_coeff(bit,mj); mj++) /*empty*/;
+    for (  ; bit[mj]; mj++) /*empty*/;
     cy = cgetg(n+1, t_VECSMALL);
     m = 1; k++; cy[m++] = mj;
-    F2v_set(bit, mj++);
+    bit[mj++] = 1;
     for(;;)
     {
       long o, mold = m;
@@ -278,8 +278,8 @@ vecperm_orbits_i(GEN v, long n)
         for (p = 1; p < m; p++) /* m increases! */
         {
           long j = vo[ cy[p] ];
-          if (!F2v_coeff(bit,j)) cy[m++] = j;
-          F2v_set(bit,j);
+          if (!bit[j]) cy[m++] = j;
+          bit[j] = 1;
         }
       }
       if (m == mold) break;
@@ -408,7 +408,9 @@ cyc_pow_perm(GEN cyc, long exp)
 GEN
 perm_pow(GEN perm, long exp)
 {
-  return cyc_pow_perm(perm_cycles(perm), exp);
+  pari_sp av = avma;
+  GEN v = vecperm_orbits_i(mkvec(perm), lg(perm)-1);
+  return gerepileuptoleaf(av, cyc_pow_perm(v, exp));
 }
 
 GEN
