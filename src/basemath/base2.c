@@ -2315,7 +2315,7 @@ idealprimedec_kummer(GEN nf,GEN u,long e,GEN p)
     t = poltobasis(nf, FpX_div(T,u,p));
     t = centermod(t, p);
     u = FpX_center(u, p, shifti(p,-1));
-    if (e == 1 && ZpX_resultant_val(T, u, p, f+1)>=f+1)
+    if (e == 1 && ZpX_resultant_val(T, u, p, f+1) > f)
       gel(u,2) = addii(gel(u,2), p);
     u = poltobasis(nf,u);
     t = zk_multable(nf, t); /* t never a scalar here since pr is not inert */
