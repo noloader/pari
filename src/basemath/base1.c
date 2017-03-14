@@ -1229,12 +1229,11 @@ make_G(nffp_t *F)
   long i, j, k, r1 = F->r1, l = lg(M);
 
   G = cgetg(l, t_MAT);
-  for (j=1; j<l; j++)
+  for (j = 1; j < l; j++)
   {
-    GEN g = cgetg(l, t_COL);
-    GEN m = gel(M,j);
-    gel(G,j) = g;
-    for (k=i=1; i<=r1; i++) g[k++] = m[i];
+    GEN g, m = gel(M,j);
+    gel(G,j) = g = cgetg(l, t_COL);
+    for (k = i = 1; i <= r1; i++) gel(g,k++) = gel(m,i);
     for (     ; k < l; i++)
     {
       GEN r = gel(m,i);
