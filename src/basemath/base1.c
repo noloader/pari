@@ -479,7 +479,7 @@ ZC_galoisapply(GEN nf, GEN s, GEN x)
 }
 
 /* true nf; S = automorphism in basis form, return an FpC = S(z) mod p */
-static GEN
+GEN
 zk_galoisapplymod(GEN nf, GEN z, GEN S, GEN p)
 {
   GEN den, pe, pe1, denpe, R;

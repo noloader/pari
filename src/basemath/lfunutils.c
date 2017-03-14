@@ -1770,6 +1770,7 @@ struct dir_artin
   GEN nf, G, V, aut;
 };
 
+/* p does not divide nf.index */
 static GEN
 idealfrobenius_easy(GEN nf, GEN gal, GEN aut, GEN T, GEN p)
 {
@@ -1793,6 +1794,31 @@ idealfrobenius_easy(GEN nf, GEN gal, GEN aut, GEN T, GEN p)
   }
   return NULL; /* LCOV_EXCL_LINE */
 }
+/* p divides nf.index */
+static GEN
+idealfrobenius_hard(GEN nf, GEN gal, GEN aut, GEN pr)
+{
+  long i, l = lg(aut), f = pr_get_f(pr);
+  GEN modpr, p, T, X, Xp, grp = gal_get_group(gal);
+  pari_sp av = avma;
+  if (f==1) return gel(grp,1);
+  modpr = zkmodprinit(nf, pr);
+  p = modpr_get_p(modpr);
+  T = modpr_get_T(modpr);
+  X = modpr_genFq(modpr);
+  Xp = FpX_Frobenius(T, p);
+  for(i=1; i < l; i++)
+  {
+    GEN g = gel(grp,i);
+    if (perm_order(g)==f)
+    {
+      GEN S = gel(aut,g[1]);
+      GEN A = nf_to_Fq(nf, zk_galoisapplymod(nf, X, S, p), modpr);
+      if (ZX_equal(A, Xp)) { avma = av; return g; }
+    }
+  }
+  return NULL; /* LCOV_EXCL_LINE */
+}
 
 static GEN
 dirartin(void *E, GEN p, long n)
@@ -1810,7 +1836,7 @@ dirartin(void *E, GEN p, long n)
   else
   {
     pr = idealprimedec_galois(nf,p);
-    frob = idealfrobenius_aut(nf, d->G, pr, d->aut);
+    frob = idealfrobenius_hard(nf, d->G, d->aut, pr);
   }
   avma = av; return RgXn_inv(gel(d->V, frob[1]), n);
 }

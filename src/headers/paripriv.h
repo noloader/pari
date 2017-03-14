@@ -573,6 +573,10 @@ int     is_gener_Fl(ulong x, ulong p, ulong p_1, GEN L);
 int     divisors_init(GEN n, GEN *pP, GEN *pE);
 long    set_optimize(long what, GEN g);
 
+/* base1.c */
+
+GEN zk_galoisapplymod(GEN nf, GEN z, GEN S, GEN p);
+
 /* base2.c */
 
 GEN     dim1proj(GEN prh);
