@@ -265,7 +265,7 @@ vecperm_orbits_i(GEN v, long n)
   for (k = 1, l = 1; k <= n;)
   {
     long m = 1;
-    GEN cy = cgetg(n-k+1, t_VECSMALL);
+    GEN cy = cgetg(n+1, t_VECSMALL);
     for (  ; bit[mj]; mj++) /*empty*/;
     k++; cy[m++] = mj;
     bit[mj++] = 1;
