@@ -866,7 +866,7 @@ checkpols(GEN p, GEN EFJ, GEN pols)
     if (poldegree(p1, -1) == e*f) pari_err_BUG("fields are isomorphic");
     /*
       p1 = nfinitall(mkvec2(pol, mkvec(p)), 0, DEFAULTPREC);
-      p2 = gel(idealprimedec(p1, p), 1);
+      p2 = idealprimedec_galois(p1, p);
       if (!cmpis(mulii(gel(p2, 3), gel(p2, 4)), e*f)) pari_err_BUG("fields are isomorphic");
     */
   }

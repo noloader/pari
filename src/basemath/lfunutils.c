@@ -662,17 +662,13 @@ dirzetak0(GEN nf, ulong N)
   {
     avma = av2;
     if (umodiu(index, p)) /* p does not divide index */
-    {
       vect = gel(Flx_degfact(ZX_to_Flx(T,p), p),1);
-      lx = lg(vect);
-    }
     else
     {
-      GEN P;
-      court[2] = p; P = idealprimedec(nf,court);
-      lx = lg(P); vect = cgetg(lx,t_VECSMALL);
-      for (i=1; i<lx; i++) vect[i] = pr_get_f(gel(P,i));
+      court[2] = p;
+      vect = idealprimedec_degrees(nf,court);
     }
+    lx = lg(vect);
     if (p <= SQRTN)
       for (i=1; i<lx; i++)
       {
@@ -1750,7 +1746,7 @@ artin_badprimes(GEN N, GEN G, GEN aut, GEN ch)
 
   for (i = 1; i < lP; ++i)
   {
-    GEN p = gel(P, i), pr = gel(idealprimedec(N, p), 1);
+    GEN p = gel(P, i), pr = idealprimedec_galois(N, p);
     GEN J = idealramgroups_aut(N, G, pr, aut);
     GEN G0 = gel(J,2); /* inertia group */
     long lJ = lg(J);
@@ -1811,9 +1807,9 @@ dirartin(void *E, GEN p, long n)
     GEN F = FpX_factor(T, p), P = gmael(F,1,1);
     frob = idealfrobenius_easy(nf, d->G, d->aut, P, p);
   }
-  else /* wasteful but rare */
+  else
   {
-    pr = gel(idealprimedec(nf,p), 1);
+    pr = idealprimedec_galois(nf,p);
     frob = idealfrobenius_aut(nf, d->G, pr, d->aut);
   }
   avma = av; return RgXn_inv(gel(d->V, frob[1]), n);

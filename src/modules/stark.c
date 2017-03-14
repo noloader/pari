@@ -1313,11 +1313,10 @@ InitPrimesQuad(GEN bnr, ulong N0, LISTray *R)
       }
       break;
     default: /* ramified */
-      if (condZ % p == 0) deg0(R,p);
-      else {
-        GEN pr = gel(idealprimedec(nf,prime),1);
-        deg11(R, p, bnr, pr);
-      }
+      if (condZ % p == 0)
+        deg0(R,p);
+      else
+        deg11(R, p, bnr, idealprimedec_galois(nf,prime));
       break;
     }
   }

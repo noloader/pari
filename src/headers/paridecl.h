@@ -1947,6 +1947,8 @@ GEN     nfreducemodpr(GEN nf, GEN x, GEN modpr);
 GEN     nfsplitting(GEN T, GEN D);
 GEN     polcompositum0(GEN P, GEN Q,long flag);
 GEN     idealprimedec(GEN nf,GEN p);
+GEN     idealprimedec_galois(GEN nf, GEN p);
+GEN     idealprimedec_degrees(GEN nf, GEN p);
 GEN     idealprimedec_kummer(GEN nf,GEN pol,long e,GEN p);
 GEN     idealprimedec_limit_f(GEN nf, GEN p, long f);
 GEN     idealprimedec_limit_norm(GEN nf, GEN p, GEN B);

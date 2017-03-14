@@ -1040,6 +1040,12 @@ limiting the list to primes of residual degree $\leq f$ if $f$ is non-zero.
 \tet{idealprimedec}, limiting the list to primes of norm $\leq B$, which
 must be a positive \typ{INT}.
 
+\fun{GEN}{idealprimedec_galois}{GEN nf, GEN p} return a single prime ideal
+above $p$.
+
+\fun{GEN}{idealprimedec_degrees}{GEN nf, GEN p} return a (sorted)
+\typ{VECSMALL} containing the residue degrees $f(\goth{p} / p)$.
+
 \fun{GEN}{idealprimedec_kummer}{GEN nf, GEN Ti, long ei, GEN p} let \var{nf}
 (true \var{nf}) correspond to $K = \Q[X]/(T)$ ($T$ monic \kbd{ZX}).
 Let $T \equiv \prod_i T_i^{e_i} \pmod{p}$ be the factorization of $T$ and let

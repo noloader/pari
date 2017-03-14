@@ -2403,13 +2403,21 @@ pol_min(GEN mul, GEN p)
 }
 
 static GEN
-get_pr(GEN nf, norm_S *S, GEN p, GEN P, GEN V, int ramif, long N)
+get_pr(GEN nf, norm_S *S, GEN p, GEN P, GEN V, int ramif, long N, long flim)
 {
   GEN u, t;
   long e, f;
 
-  if (typ(P) == t_VEC) return P; /* already done (Kummer) */
+  if (typ(P) == t_VEC)
+  { /* already done (Kummer) */
+    f = pr_get_f(P);
+    if (flim > 0 && f > flim) return NULL;
+    if (flim == -2) return (GEN)f;
+    return P;
+  }
   f = N - (lg(P)-1);
+  if (flim > 0 && f > flim) return NULL;
+  if (flim == -2) return (GEN)f;
   /* P = (p,u) prime. t is an anti-uniformizer: Z_K + t/p Z_K = P^(-1),
    * so that v_P(t) = e(P/p)-1 */
   if (f == N) {
@@ -2428,22 +2436,29 @@ get_pr(GEN nf, norm_S *S, GEN p, GEN P, GEN V, int ramif, long N)
 }
 
 static GEN
-primedec_end(GEN nf, GEN L, GEN p)
+primedec_end(GEN nf, GEN L, GEN p, long flim)
 {
-  long i, l = lg(L), N = nf_get_degree(nf);
-  GEN Lpr = cgetg(l, t_VEC);
+  long i, j, l = lg(L), N = nf_get_degree(nf);
   GEN LV = get_LV(nf, L,p,N);
   int ramif = dvdii(nf_get_disc(nf), p);
   norm_S S; init_norm(&S, nf, p);
-  for (i=1; i<l; i++)
-    gel(Lpr,i) = get_pr(nf, &S, p, gel(L,i), gel(LV,i), ramif, N);
-  return Lpr;
+  for (i = j = 1; i < l; i++)
+  {
+    GEN P = get_pr(nf, &S, p, gel(L,i), gel(LV,i), ramif, N, flim);
+    if (!P) continue;
+    gel(L,j++) = P;
+    if (flim == -1) return P;
+  }
+  setlg(L, j); return L;
 }
 
-/* prime ideal decomposition of p; if flim!=0, restrict to f(P,p) <= flim */
+/* prime ideal decomposition of p; if flim>0, restrict to f(P,p) <= flim
+ * if flim = -1 return only the first P
+ * if flim = -2 return only the f(P/p) in a t_VECSMALL */
 static GEN
 primedec_aux(GEN nf, GEN p, long flim)
 {
+  const long TYP = (flim == -2)? t_VECSMALL: t_VEC;
   GEN E, F, L, Ip, phi, f, g, h, UN, T = nf_get_pol(nf);
   long i, k, c, iL, N;
   int kummer;
@@ -2455,12 +2470,17 @@ primedec_aux(GEN nf, GEN p, long flim)
   k = lg(F); if (k == 1) errprime(p);
   if ( !dvdii(nf_get_index(nf),p) ) /* p doesn't divide index */
   {
-    L = cgetg(k,t_VEC);
+    L = cgetg(k, TYP);
     for (i=1; i<k; i++)
     {
       GEN t = gel(F,i);
-      if (flim && degpol(t) > flim) { setlg(L, i); break; }
-      gel(L,i) = idealprimedec_kummer(nf, t, E[i],p);
+      long f = degpol(t);
+      if (flim > 0 && f > flim) { setlg(L, i); break; }
+      if (flim == -2)
+        L[i] = f;
+      else
+        gel(L,i) = idealprimedec_kummer(nf, t, E[i],p);
+      if (flim == -1) return gel(L,1);
     }
     return L;
   }
@@ -2471,13 +2491,15 @@ primedec_aux(GEN nf, GEN p, long flim)
   f = FpX_red(ZX_Z_divexact(ZX_sub(ZX_mul(g,h), T), p), p);
 
   N = degpol(T);
-  L = cgetg(N+1,t_VEC); iL = 1;
+  L = cgetg(N+1,TYP);
+  iL = 1;
   for (i=1; i<k; i++)
     if (E[i] == 1 || signe(FpX_rem(f,gel(F,i),p)))
     {
       GEN t = gel(F,i);
       kummer = 1;
       gel(L,iL++) = idealprimedec_kummer(nf, t, E[i],p);
+      if (flim == -1) return gel(L,1);
     }
     else /* F[i] | (f,g,h), happens at least once by Dedekind criterion */
       E[i] = 0;
@@ -2538,18 +2560,7 @@ primedec_aux(GEN nf, GEN p, long flim)
       gel(L,iL++) = H;
   }
   setlg(L, iL);
-  L = primedec_end(nf, L, p);
-  if (flim)
-  {
-    long k = 1;
-    for(i = 1; i < iL; i++)
-    {
-      GEN P = gel(L,i);
-      if (pr_get_f(P) <= flim) gel(L,k++) = P;
-    }
-    setlg(L,k);
-  }
-  return L;
+  return primedec_end(nf, L, p, flim);
 }
 
 GEN
@@ -2558,9 +2569,24 @@ idealprimedec_limit_f(GEN nf, GEN p, long f)
   pari_sp av = avma;
   GEN v;
   if (typ(p) != t_INT) pari_err_TYPE("idealprimedec",p);
+  if (f < 0) pari_err_DOMAIN("idealprimedec", "f", "<", gen_0, stoi(f));
   v = primedec_aux(checknf(nf), p, f);
   v = gen_sort(v, (void*)&cmp_prime_over_p, &cmp_nodata);
   return gerepileupto(av,v);
+}
+GEN
+idealprimedec_galois(GEN nf, GEN p)
+{
+  pari_sp av = avma;
+  GEN v = primedec_aux(checknf(nf), p, -1);
+  return gerepilecopy(av,v);
+}
+GEN
+idealprimedec_degrees(GEN nf, GEN p)
+{
+  pari_sp av = avma;
+  GEN v = primedec_aux(checknf(nf), p, -2);
+  vecsmall_sort(v); return gerepileuptoleaf(av, v);
 }
 GEN
 idealprimedec_limit_norm(GEN nf, GEN p, GEN B)
