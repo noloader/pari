@@ -105,3 +105,14 @@ test(p) =
 }
 test(3);
 test(5);
+
+{
+  a=ffgen(2^4);
+  E=ellinit([0, 1, 1, 0, 0], a);
+  [P,Q]=ellgenerators(E);
+  z=ellweilpairing(E,P,Q,5);
+  for(i=0,4,Pk=ellmul(E,P,i);
+    for(j=0,4,Qj=ellmul(E,Q,j);
+      w=ellweilpairing(E,Pk,Qj,5);
+      if(w!=z^(i*j), error([i,j],[Pk,Qj],[w,z^(i*j)]))));
+}

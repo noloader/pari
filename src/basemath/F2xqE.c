@@ -327,8 +327,9 @@ F2xqE_vert(GEN P, GEN Q, GEN a, GEN T)
     return pol1_F2x(T[1]);
   if (!F2x_equal(gel(Q, 1), gel(P, 1)))
     return F2x_add(gel(Q, 1), gel(P, 1));
-  if (lgpol(gel(Q, 1))) return pol1_F2x(vT);
-  return F2xq_inv(gel(Q,2), T);
+  if (typ(a)!=t_VEC && !lgpol(gel(Q, 1)))
+    return F2xq_inv(gel(Q,2), T);
+  return pol1_F2x(vT);
 }
 
 static GEN
@@ -377,7 +378,7 @@ F2xqE_tangent_update(GEN R, GEN Q, GEN a2, GEN T, GEN *pt_R)
     *pt_R = ellinf();
     return pol1_F2x(T[1]);
   }
-  else if (!lgpol(gel(R,1)))
+  else if (typ(a2)!=t_VEC && !lgpol(gel(R,1)))
   {
     *pt_R = ellinf();
     return F2xqE_vert(R, Q, a2, T);

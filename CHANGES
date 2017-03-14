@@ -68,6 +68,7 @@ HIL  49- polclass could access invalid memory
      55- derivnum(x = a, ...) allowed t_POL a but not t_RFRAC
      56- missing GC in vectorsmall
 BA   57- missing GC in idealramgroups
+BA   58- ellweilpairing failed for supersingular curves in char. 2 [#1910]
 
   Added
       1- [libari] ZM_isidentity
