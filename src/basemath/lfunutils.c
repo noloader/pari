@@ -1807,7 +1807,7 @@ idealfrobenius_hard(GEN nf, GEN gal, GEN aut, GEN pr)
   T = modpr_get_T(modpr);
   X = modpr_genFq(modpr);
   Xp = FpX_Frobenius(T, p);
-  for(i=1; i < l; i++)
+  for (i = 1; i < l; i++)
   {
     GEN g = gel(grp,i);
     if (perm_order(g)==f)
@@ -1859,18 +1859,16 @@ artin_charpoly1(GEN ch, GEN p)
 {
   long d = char_dim(ch);
   long i, v = fetch_var_higher();
-  GEN V, q = p;
-  V = cgetg(d+3, t_POL);
+  GEN q = p, V = cgetg(d+3, t_POL);
   V[1] = evalsigne(1)|evalvarn(v);
   gel(V,2) = gen_0;
-  for(i=1; i<=d; i++)
+  for (i = 1; i <= d; i++)
   {
     gel(V,i+2) = gdivgs(gel(ch, q[1]),-i);
     q = gmul(q, p);
   }
   delete_var();
-  V = RgXn_exp(V,d+1);
-  setvarn(V,0); return(V);
+  setvarn(V,0); return RgXn_exp(V,d+1);
 }
 
 static GEN
@@ -1880,7 +1878,7 @@ artin_charpoly(GEN gal, GEN ch)
   long i, l = lg(grp);
   GEN V = cgetg(l, t_VEC);
   for (i = 1; i < l; i++)
-    gel(V,mael(grp,i,1)) = artin_charpoly1(ch, gel(grp,i));
+    gel(V, mael(grp,i,1)) = artin_charpoly1(ch, gel(grp,i));
   return V;
 }
 
