@@ -723,7 +723,6 @@ GEN     group_export_GAP(GEN G);
 GEN     group_export_MAGMA(GEN G);
 GEN     perm_generate(GEN S, GEN H, long o);
 long    perm_relorder(GEN p, GEN S);
-GEN     perm_to_GAP(GEN p);
 
 /* polarit1.c */
 

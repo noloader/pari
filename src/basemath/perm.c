@@ -260,18 +260,19 @@ perm_mul_inplace2(GEN s, GEN t)
 static GEN
 vecperm_orbits_i(GEN v, long n)
 {
-  long mj = 1, k, l, m;
-  GEN cy, cycle = cgetg(n+1, t_VEC), bit = const_vecsmall(n, 0);
+  long mj = 1, lv = lg(v), k, l;
+  GEN cycle = cgetg(n+1, t_VEC), bit = const_vecsmall(n, 0);
   for (k = 1, l = 1; k <= n;)
   {
+    long m = 1;
+    GEN cy = cgetg(n-k+1, t_VECSMALL);
     for (  ; bit[mj]; mj++) /*empty*/;
-    cy = cgetg(n+1, t_VECSMALL);
-    m = 1; k++; cy[m++] = mj;
+    k++; cy[m++] = mj;
     bit[mj++] = 1;
     for(;;)
     {
       long o, mold = m;
-      for (o = 1; o < lg(v); o++)
+      for (o = 1; o < lv; o++)
       {
         GEN vo = gel(v,o);
         long p;
@@ -413,7 +414,7 @@ perm_pow(GEN perm, long exp)
   return gerepileuptoleaf(av, cyc_pow_perm(v, exp));
 }
 
-GEN
+static GEN
 perm_to_GAP(GEN p)
 {
   pari_sp ltop=avma;
