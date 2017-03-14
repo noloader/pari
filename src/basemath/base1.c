@@ -1228,6 +1228,7 @@ make_G(nffp_t *F)
   GEN G, M = F->M;
   long i, j, k, r1 = F->r1, l = lg(M);
 
+  if (r1 == l-1) { F->G = M; return; }
   G = cgetg(l, t_MAT);
   for (j = 1; j < l; j++)
   {
@@ -1239,8 +1240,9 @@ make_G(nffp_t *F)
       GEN r = gel(m,i);
       if (typ(r) == t_COMPLEX)
       {
-        gel(g,k++) = mpadd(gel(r,1), gel(r,2));
-        gel(g,k++) = mpsub(gel(r,1), gel(r,2));
+        GEN a = gel(r,1), b = gel(r,2);
+        gel(g,k++) = mpadd(a, b);
+        gel(g,k++) = mpsub(a, b);
       }
       else
       {
@@ -1576,6 +1578,14 @@ nfinit_basic_partial(nfmaxord_t *S, GEN T)
   if (typ(T) == t_POL) { nfmaxord(S, mkvec2(T,utoipos(500000)), 0); }
   else nfinit_basic(S, T);
 }
+/* true nf */
+static GEN
+nf_basden(GEN nf)
+{
+  GEN zkD = nf_get_zkprimpart(nf), D = nf_get_zkden(nf);
+  D = equali1(D)? NULL: const_vec(lg(zkD)-1, D);
+  return mkvec2(zkD, D);
+}
 void
 nfinit_basic(nfmaxord_t *S, GEN T)
 {
@@ -1588,7 +1598,8 @@ nfinit_basic(nfmaxord_t *S, GEN T)
     { /* nf, bnf, bnr */
       GEN nf = checknf(T);
       S->T = S->T0 = nf_get_pol(nf);
-      S->basis = nf_get_zk(nf);
+      S->basis = nf_get_zk(nf); /* probably useless */
+      S->basden = nf_basden(nf);
       S->index = nf_get_index(nf);
       S->dK    = nf_get_disc(nf);
       S->dKP = nf_get_ramified_primes(nf);
@@ -1702,25 +1713,23 @@ nf_get_prec(GEN x)
   return (typ(ro)==t_VEC)? precision(gel(ro,1)): DEFAULTPREC;
 }
 
-/* assume nf is an nf */
+/* true nf */
 GEN
 nfnewprec_shallow(GEN nf, long prec)
 {
-  GEN NF = leafcopy(nf);
+  GEN m, NF = leafcopy(nf);
   nffp_t F;
 
   F.T  = nf_get_pol(nf);
   F.ro = NULL;
   F.r1 = nf_get_r1(nf);
-  F.basden = get_bas_den(nf_get_zk(nf));
+  F.basden = nf_basden(nf);
   F.extraprec = -1;
   F.prec = prec; make_M_G(&F, 1);
-
-  gel(NF,5) = leafcopy(gel(NF,5));
-  gel(NF,6) = F.ro;
-  gmael(NF,5,1) = F.M;
-  gmael(NF,5,2) = F.G;
-  return NF;
+  gel(NF,5) = m = leafcopy(gel(NF,5));
+  gel(m,1) = F.M;
+  gel(m,2) = F.G;
+  gel(NF,6) = F.ro; return NF;
 }
 
 GEN
