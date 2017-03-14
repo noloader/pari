@@ -404,14 +404,28 @@ cyc_pow_perm(GEN cyc, long exp)
   return p;
 }
 
-/* Compute the power of a permutation.
- * TODO: make it more clever for small exp */
 GEN
 perm_pow(GEN perm, long exp)
 {
+  long i, r = lg(perm)-1;
+  GEN p = zero_zv(r);
   pari_sp av = avma;
-  GEN v = vecperm_orbits_i(mkvec(perm), lg(perm)-1);
-  return gerepileuptoleaf(av, cyc_pow_perm(v, exp));
+  GEN v = cgetg(r+1, t_VECSMALL);
+  for (i=1; i<=r; i++)
+  {
+    long m, e, n, k, l;
+    if (p[i]) continue;
+    v[1] = i;
+    for (n=1, k=perm[i]; k!=i; k=perm[k], n++)
+      v[n+1] = k;
+    e = smodss(exp, n);
+    for (k = 1, l = e; k <= n; k++)
+    {
+      p[v[k]] = v[l+1];
+      if (++l == n) l = 0;
+    }
+  }
+  avma = av; return p;
 }
 
 static GEN
