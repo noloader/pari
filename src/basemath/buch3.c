@@ -152,7 +152,7 @@ idealmoddivisor_aux(GEN nf, GEN x, GEN f, GEN sarch)
   else
   {/* given coprime integral ideals x and f (f HNF), compute "small"
     * G in x, such that G = 1 mod (f). GTM 193: Algo 4.3.3 */
-    GEN G = idealaddtoone_i(nf, x, f);
+    GEN G = idealaddtoone_raw(nf, x, f);
     GEN D = idealaddtoone_i(nf, idealdiv(nf,G,x), f);
     A = nfdiv(nf,D,G);
   }

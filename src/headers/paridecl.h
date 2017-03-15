@@ -2094,6 +2094,7 @@ GEN     idealadd(GEN nf, GEN x, GEN y);
 GEN     idealaddmultoone(GEN nf, GEN list);
 GEN     idealaddtoone(GEN nf, GEN x, GEN y);
 GEN     idealaddtoone_i(GEN nf, GEN x, GEN y);
+GEN     idealaddtoone_raw(GEN nf, GEN x, GEN y);
 GEN     idealaddtoone0(GEN nf, GEN x, GEN y);
 GEN     idealappr(GEN nf, GEN x);
 GEN     idealappr0(GEN nf, GEN x, long fl);

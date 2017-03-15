@@ -2646,8 +2646,8 @@ anti_uniformizer(GEN nf, GEN pr)
   }
   /* b = tau^e / p^(e-1), v_pr(b) = 0, v_Q(b) >= e(Q/p) for other Q | p */
   z = ZM_hnfmodid(FpM_red(b,p), p); /* ideal (p) / pr^e, coprime to pr */
-  z = idealaddtoone_i(nf, pr, z);
-  return Z_ZC_sub(gen_1, z);
+  z = idealaddtoone_raw(nf, pr, z);
+  return Z_ZC_sub(gen_1, FpC_center(FpC_red(z,p), p, shifti(p,-1)));
 }
 
 #define mpr_TAU 1

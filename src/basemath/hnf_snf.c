@@ -878,18 +878,14 @@ GEN
 hnfmerge_get_1(GEN A, GEN B)
 {
   pari_sp av = avma;
-  long j, k, c, l = lg(A), lb;
-  GEN b, t, U = cgetg(l + 1, t_MAT), C = cgetg(l + 1, t_VEC);
+  long j, k, l = lg(A), lb;
+  GEN b, U = cgetg(l + 1, t_MAT), C = cgetg(l + 1, t_VEC);
 
-  t = NULL; /* -Wall */
   b = gcoeff(B,1,1); lb = lgefint(b);
-  if (!signe(b)) {
-    if (!is_pm1(gcoeff(A,1,1))) return NULL;
-    return gen_1;
-  }
   for (j = 1; j < l; j++)
   {
-    c = j+1;
+    GEN t;
+    long c = j+1;
     gel(U,j) = col_ei(l-1, j);
     gel(U,c) = zerocol(l-1); /* dummy */
     gel(C,j) = vecslice(gel(A,j), 1,j);
@@ -921,7 +917,9 @@ hnfmerge_get_1(GEN A, GEN B)
     if (equali1(t)) break;
   }
   if (j >= l) return NULL;
-  return gerepileupto(av, ZM_ZC_mul(A,gel(U,1)));
+  b = lcmii(gcoeff(A,1,1),b);
+  A = FpC_red(ZM_ZC_mul(A,gel(U,1)), b);
+  return gerepileupto(av, FpC_center(A, b, shifti(b,-1)));
 }
 
 /* remove the first r columns */

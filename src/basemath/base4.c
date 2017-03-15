@@ -116,6 +116,7 @@ vec_mulid(GEN nf, GEN x, long nx, long N)
     for (j=1; j<=N; j++) gel(m, k++) = zk_ei_mul(nf, gel(x,i),j);
   return m;
 }
+/* true nf */
 GEN
 idealhnf_shallow(GEN nf, GEN x)
 {
@@ -757,25 +758,39 @@ idealadd(GEN nf, GEN x, GEN y)
 static GEN
 trivial_merge(GEN x)
 { return (lg(x) == 1 || !is_pm1(gcoeff(x,1,1)))? NULL: gen_1; }
-GEN
-idealaddtoone_i(GEN nf, GEN x, GEN y)
+/* true nf */
+static GEN
+_idealaddtoone(GEN nf, GEN x, GEN y, long red)
 {
   GEN a;
   long tx = idealtyp(&x, &a/*junk*/);
   long ty = idealtyp(&y, &a/*junk*/);
+  long ea;
   if (tx != id_MAT) x = idealhnf_shallow(nf, x);
   if (ty != id_MAT) y = idealhnf_shallow(nf, y);
   if (lg(x) == 1)
     a = trivial_merge(y);
   else if (lg(y) == 1)
     a = trivial_merge(x);
-  else {
+  else
     a = hnfmerge_get_1(x, y);
-    if (a && typ(a) == t_COL) a = ZC_reducemodlll(a, idealHNF_mul(nf,x,y));
-  }
   if (!a) pari_err_COPRIME("idealaddtoone",x,y);
+  if (red && (ea = gexpo(a)) > 10)
+  {
+    GEN b = (typ(a) == t_COL)? a: scalarcol_shallow(a, nf_get_degree(nf));
+    b = ZC_reducemodlll(b, idealHNF_mul(nf,x,y));
+    if (gexpo(b) < ea) a = b;
+  }
   return a;
 }
+/* true nf */
+GEN
+idealaddtoone_i(GEN nf, GEN x, GEN y)
+{ return _idealaddtoone(nf, x, y, 1); }
+/* true nf */
+GEN
+idealaddtoone_raw(GEN nf, GEN x, GEN y)
+{ return _idealaddtoone(nf, x, y, 0); }
 
 GEN
 idealaddtoone(GEN nf, GEN x, GEN y)

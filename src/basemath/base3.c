@@ -2098,8 +2098,15 @@ GEN
 zkchineseinit(GEN nf, GEN A, GEN B, GEN AB)
 {
   GEN v;
+  long e;
   nf = checknf(nf);
-  v = idealaddtoone_i(nf, A, B);
+  v = idealaddtoone_raw(nf, A, B);
+  if ((e = gexpo(v)) > 5)
+  {
+    GEN b = (typ(v) == t_COL)? v: scalarcol_shallow(v, nf_get_degree(nf));
+    b= ZC_reducemodlll(b, AB);
+    if (gexpo(b) < e) v = b;
+  }
   return mkvec2(zk_scalar_or_multable(nf,v), AB);
 }
 /* prepare to solve z = x (mod A), z = 1 mod (B)

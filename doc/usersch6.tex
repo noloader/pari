@@ -949,6 +949,10 @@ The result is reduced mod $AB$, so $a$, $b$ will be small.
 \fun{GEN}{idealaddtoone_i}{GEN nf, GEN A, GEN B} as \tet{idealaddtoone} except
 that \kbd{nf} must be a true \var{nf}, and only $a$ is returned.
 
+\fun{GEN}{idealaddtoone_raw}{GEN nf, GEN A, GEN B} as \tet{idealaddtoone_i}
+except that the reduction mod $AB$ is only performed modulo the lcm
+of $A \cap \Z$ and $B\cap \Z$, which will increase the size of $a$.
+
 \fun{GEN}{zkchineseinit}{GEN nf, GEN A, GEN B, GEN AB} given two coprime
 integral ideals $A$ and $B$ (in any form, preferably HNF) and
 their product \kbd{AB} (in HNF form), initialize a solution to the Chinese
