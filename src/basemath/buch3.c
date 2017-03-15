@@ -137,7 +137,7 @@ too_big(GEN nf, GEN bet)
   return 0; /* LCOV_EXCL_LINE */
 }
 
-/* GTM 193: Algo 4.3.4. Reduce x mod divisor */
+/* true nf; GTM 193: Algo 4.3.4. Reduce x mod divisor */
 static GEN
 idealmoddivisor_aux(GEN nf, GEN x, GEN f, GEN sarch)
 {
@@ -210,6 +210,7 @@ get_pi(GEN F, GEN pr, GEN *v)
   return *v;
 }
 
+/* true nf */
 static GEN
 bnr_grp(GEN nf, GEN U, GEN gen, GEN cyc, GEN bid)
 {
