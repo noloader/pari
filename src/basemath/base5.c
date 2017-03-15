@@ -1332,7 +1332,7 @@ zero_nfbezout(GEN nf,GEN bB, GEN b, GEN A,GEN B,GEN *u,GEN *v,GEN *w,GEN *di)
 static GEN
 nfbezout(GEN nf,GEN a,GEN b, GEN A,GEN B, GEN *pu,GEN *pv,GEN *pw,GEN *pdi)
 {
-  GEN w, u,v,uv, d, di, aA, bB;
+  GEN w, u, v, d, di, aA, bB;
 
   if (isintzero(a)) return zero_nfbezout(nf,NULL,b,A,B,pu,pv,pw,pdi);
   if (isintzero(b)) return zero_nfbezout(nf,NULL,a,B,A,pv,pu,pw,pdi);
@@ -1342,18 +1342,19 @@ nfbezout(GEN nf,GEN a,GEN b, GEN A,GEN B, GEN *pu,GEN *pv,GEN *pw,GEN *pdi)
     a = nf_to_scalar_or_basis(nf,a);
     if (isint1(a)) a = gen_1;
   }
-  aA = (a == gen_1)? A: idealmul(nf,a,A);
+  aA = (a == gen_1)? idealhnf_shallow(nf,A): idealmul(nf,a,A);
   bB = idealmul(nf,b,B);
   d = idealadd(nf,aA,bB);
   if (gequal(aA, d)) return zero_nfbezout(nf,aA, a,B,A,pv,pu,pw,pdi);
   if (gequal(bB, d)) return zero_nfbezout(nf,bB, b,A,B,pu,pv,pw,pdi);
   /* general case is slow */
   di = idealHNF_inv(nf,d);
-  w = idealmul(nf,aA,di); /* integral */
-  uv = idealaddtoone(nf, w, idealmul(nf,bB,di));
-  w = idealmul(nf,w,B);
-  u = gel(uv,1);
-  v = nfdiv(nf,gel(uv,2),b);
+  aA = idealmul(nf,aA,di); /* integral */
+  bB = idealmul(nf,bB,di); /* integral */
+
+  u = idealaddtoone_i(nf, aA, bB);
+  w = idealmul(nf,aA,B);
+  v = nfdiv(nf, nfsub(nf, gen_1, u), b);
   if (a != gen_1)
   {
     GEN inva = nfinv(nf, a);
