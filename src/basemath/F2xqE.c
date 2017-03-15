@@ -319,6 +319,12 @@ F2xqE_log(GEN a, GEN b, GEN o, GEN a2, GEN T)
 
 /* Derived from APIP from and by Jerome Milan, 2012 */
 
+static long
+is_2_torsion(GEN Q, GEN a)
+{
+  return (typ(a)==t_VEC || lgpol(gel(Q, 1))) ? 0: 1;
+}
+
 static GEN
 F2xqE_vert(GEN P, GEN Q, GEN a, GEN T)
 {
@@ -327,7 +333,7 @@ F2xqE_vert(GEN P, GEN Q, GEN a, GEN T)
     return pol1_F2x(T[1]);
   if (!F2x_equal(gel(Q, 1), gel(P, 1)))
     return F2x_add(gel(Q, 1), gel(P, 1));
-  if (typ(a)!=t_VEC && !lgpol(gel(Q, 1)))
+  if (is_2_torsion(Q, a))
     return F2xq_inv(gel(Q,2), T);
   return pol1_F2x(vT);
 }
@@ -342,7 +348,7 @@ F2xqE_Miller_line(GEN R, GEN Q, GEN slope, GEN a, GEN T)
   GEN s1, s2, ix;
   if (!F2x_equal(y, tmp2))
     return F2x_add(y, tmp2);
-  if (lgpol(x) == 0) return pol1_F2x(vT);
+  if (is_2_torsion(Q, a)) return pol1_F2x(vT);
   if (typ(a)==t_VEC)
   {
     GEN a4 = gel(a,2), a3i = gel(a,3);
@@ -378,7 +384,7 @@ F2xqE_tangent_update(GEN R, GEN Q, GEN a2, GEN T, GEN *pt_R)
     *pt_R = ellinf();
     return pol1_F2x(T[1]);
   }
-  else if (typ(a2)!=t_VEC && !lgpol(gel(R,1)))
+  else if (is_2_torsion(R, a2))
   {
     *pt_R = ellinf();
     return F2xqE_vert(R, Q, a2, T);

@@ -106,13 +106,20 @@ test(p) =
 test(3);
 test(5);
 
+check2(E)=
 {
-  a=ffgen(2^4);
-  E=ellinit([0, 1, 1, 0, 0], a);
-  [P,Q]=ellgenerators(E);
-  z=ellweilpairing(E,P,Q,5);
-  for(i=0,4,Pk=ellmul(E,P,i);
-    for(j=0,4,Qj=ellmul(E,Q,j);
-      w=ellweilpairing(E,Pk,Qj,5);
-      if(w!=z^(i*j), error([i,j],[Pk,Qj],[w,z^(i*j)]))));
+  E=ellinit(E);
+  my([n,D,G] = ellgroup(E,,1));
+  my(o = D[1], [P,Q] = G);
+  my(z = ellweilpairing(E,P,Q,o));
+  forvec(v=vector(4,i,[0,o-1]),
+    my(Pk, Qj, d, w);
+    Pk = elladd(E, ellmul(E,P,v[1]),ellmul(E,Q,v[2]));
+    Qj = elladd(E, ellmul(E,P,v[3]),ellmul(E,Q,v[4]));
+    d = v[1]*v[4]-v[2]*v[3];
+    w = ellweilpairing(E,Pk,Qj,o);
+    if(w != z^d, error(v,[Pk,Qj],[w,z^d])));
 }
+a=ffgen(2^4,'a);
+check2([0, a^2, a^3, 0, 0]);
+check2([0, a^2, a^3, a^4, 0]);
