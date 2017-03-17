@@ -684,14 +684,12 @@ ellfacteur(GEN N, int insist)
     241800UL,271400UL,304500UL,341500UL,383100UL,429700UL,481900UL,
     540400UL,606000UL,679500UL,761800UL,854100UL,957500UL,1073500UL,
   };
-  long nbc,nbc2,dsn,dsnmax,rep,spc,gse,gss,rcn,rcn0,bstp,bstp0;
-  long a, i, j, k, size = expi(N) + 1, tf = lgefint(N);
-  ulong B1,B2,B2_p,B2_rt,m,p,p0,dp;
-  GEN *X,*XAUX,*XT,*XD,*XG,*YG,*XH,*XB,*XB2,*Xh,*Yh,*Xb;
-  GEN res = cgeti(tf), gl;
-  pari_sp av1, avtmp, av = avma;
+  long nbc, nbc2, dsn, dsnmax, rep, spc, gse, gss;
+  long a, size = expi(N) + 1, tf = lgefint(N);
+  GEN *X, *XAUX, *XT, *XD, *XG, *YG, *XH, *XB, *XB2, *Xh, *Yh;
+  GEN gl;
+  pari_sp av = avma;
   pari_timer T;
-  int rflag;
 
   /* Determine where to start, how long to persist, and how many curves to
    * use in parallel */
@@ -728,7 +726,7 @@ ellfacteur(GEN N, int insist)
 #else
       if (DEBUGLEVEL >= 4)
         err_printf("ECM: number too small to justify this stage\n");
-      avma = av; return NULL;
+      return NULL;
 #endif
     }
     else
@@ -782,9 +780,11 @@ ellfacteur(GEN N, int insist)
    * connect to (read-only) GENs in the X/XD range */
   for(;;)
   {
+    pari_sp av1, avtmp;
     byteptr d0, d = diffptr;
-
-    rcn = NPRC; /* multipliers begin at the beginning */
+    long bstp, bstp0, rcn0, rcn = NPRC; /* multipliers begin at the beginning */
+    long i;
+    ulong B1, B2, B2_rt, B2_p, m, p, p0, dp;
     /* pick curves & bounds */
     for (i = nbc2; i--; ) affui(a++, X[i]);
     B1 = insist ? TB1[dsn] : TB1_for_stage[dsn];
@@ -817,30 +817,30 @@ ellfacteur(GEN N, int insist)
     B2_p = B2 >> 1;
     for (m=1; m<=B2_p; m<<=1)
     {
-      if ((rflag = elldouble(N, &gl, nbc, X, X)) > 1) goto fin;
-      else if (rflag) break;
+      int fl = elldouble(N, &gl, nbc, X, X);
+      if (fl > 1) goto fin; else if (fl) break;
     }
     /* p=3,...,nextprime(B1) */
     while (p < B1 && p <= B2_rt)
     {
-      pari_sp av = avma;
+      pari_sp av2 = avma;
       p = snextpr(p, &d, &rcn, NULL, MR_Jaeschke_k1);
       B2_p = B2/p; /* beware integer overflow on 32-bit CPUs */
       for (m=1; m<=B2_p; m*=p)
       {
-        if ((rflag = ellmult(N, &gl, nbc, p, X, X, XAUX)) > 1) goto fin;
-        else if (rflag) break;
-        avma = av;
+        int fl = ellmult(N, &gl, nbc, p, X, X, XAUX);
+        if (fl > 1) goto fin; else if (fl) break;
+        avma = av2;
       }
-      avma = av;
+      avma = av2;
     }
     /* primes p larger than sqrt(B2) appear only to the 1st power */
     while (p < B1)
     {
-      pari_sp av = avma;
+      pari_sp av2 = avma;
       p = snextpr(p, &d, &rcn, NULL, MR_Jaeschke_k1);
       if (ellmult(N, &gl, nbc, p, X, X, XAUX) > 1) goto fin;
-      avma = av;
+      avma = av2;
     }
     if (DEBUGLEVEL >= 4) {
       err_printf("ECM: time = %6ld ms, B1 phase done, ", timer_delay(&T));
@@ -919,6 +919,8 @@ ellfacteur(GEN N, int insist)
     /* inner loop over small sets of 4 curves at a time */
     for (i = nbc - 4; i >= 0; i -= 4)
     {
+      GEN *Xb;
+      long j, k;
       if (DEBUGLEVEL >= 6)
         err_printf("ECM: finishing curves %ld...%ld\n", i, i+3);
       /* Copy relevant pointers from XH to Xh. Memory layout in XH:
@@ -1065,24 +1067,17 @@ ellfacteur(GEN N, int insist)
 
     if (!insist && !--rep)
     {
-      if (DEBUGLEVEL >= 4) {
+      if (DEBUGLEVEL >= 4)
         err_printf("ECM: time = %6ld ms,\tellfacteur giving up.\n",
                    timer_delay(&T));
-        err_flush();
-      }
-      res = NULL; goto ret;
+      avma = av; return NULL;
     }
   }
 fin:
-  affii(gl, res);
-  if (DEBUGLEVEL >= 4) {
-    err_printf("ECM: time = %6ld ms,\tp <= %6lu,\n\tfound factor = %Ps\n",
-               timer_delay(&T), p, res);
-    err_flush();
-  }
-ret:
-  if (!isonstack((GEN)X)) killblock((GEN)X);
-  avma = av; return res;
+  if (DEBUGLEVEL >= 4)
+    err_printf("ECM: time = %6ld ms\n\tfound factor = %Ps\n",
+               timer_delay(&T), gl);
+  return gerepilecopy(av, gl);
 }
 
 /***********************************************************************/
@@ -1114,7 +1109,6 @@ rho_dbg(pari_timer *T, long c, long msg_mask)
   if (c & msg_mask) return;
   err_printf("Rho: time = %6ld ms,\t%3ld round%s\n",
              timer_delay(T), c, (c==1?"":"s"));
-  err_flush();
 }
 
 static void
@@ -1173,7 +1167,6 @@ PB_RETRY:
       err_printf("Rho: restarting for remaining rounds...\n");
     err_printf("Rho: using X^2%+1ld for up to %ld rounds of 32 iterations\n",
                delta, c >> 5);
-    err_flush();
   }
   x = gen_2; P = gen_1; g1 = NULL; k = 1; l = 1;
   affui(2, y);
@@ -1188,11 +1181,8 @@ PB_RETRY:
       if (c <= 0)
       { /* getting bored */
         if (DEBUGLEVEL >= 4)
-        {
           err_printf("Rho: time = %6ld ms,\tPollard-Brent giving up.\n",
                      timer_delay(&T));
-          err_flush();
-        }
         return NULL;
       }
       P = gen_1;
@@ -1218,11 +1208,8 @@ PB_RETRY:
     if ((c -= (l>>1)) <= 0)
     { /* got bored */
       if (DEBUGLEVEL >= 4)
-      {
         err_printf("Rho: time = %6ld ms,\tPollard-Brent giving up.\n",
                    timer_delay(&T));
-        err_flush();
-      }
       return NULL;
     }
     c &= ~0x1f; /* keep it on multiples of 32 */
@@ -1232,21 +1219,15 @@ PB_RETRY:
     k = l; l <<= 1;
     /* don't show this for the first several (short) fast forward phases. */
     if (DEBUGLEVEL >= 4 && (l>>7) > msg_mask)
-    {
       err_printf("Rho: fast forward phase (%ld rounds of 64)...\n", l>>7);
-      err_flush();
-    }
     for (k1=k; k1; k1--)
     {
       one_iter(&x, &P, x1, n, delta);
       if ((k1 & 0x1f) == 0) gerepileall(av, 2, &x, &P);
     }
     if (DEBUGLEVEL >= 4 && (l>>7) > msg_mask)
-    {
       err_printf("Rho: time = %6ld ms,\t%3ld rounds, back to normal mode\n",
                  timer_delay(&T), c0-(c>>5));
-      err_flush();
-    }
     affii(x,y); avma = av; x = y;
   } /* forever */
 
@@ -1260,7 +1241,6 @@ fin:
       {
         rho_dbg(&T, c0-(c>>5), 0);
         err_printf("\tfound factor = %Ps\n",g);
-        err_flush();
       }
       return g;
     }
@@ -1271,10 +1251,7 @@ fin:
 
   /* Here g1 is known composite */
   if (DEBUGLEVEL >= 4 && size > 192)
-  {
     err_printf("Rho: hang on a second, we got something here...\n");
-    err_flush();
-  }
   x = y;
   for(;;)
   { /* backtrack until period recovered. Must terminate */
@@ -1291,7 +1268,7 @@ fin:
       if (DEBUGLEVEL >= 4)
       {
         rho_dbg(&T, c0-(c>>5), 0);
-        err_printf("\tPollard-Brent failed.\n"); err_flush();
+        err_printf("\tPollard-Brent failed.\n");
       }
       if (++retries >= 4) pari_err_BUG("");
       goto PB_RETRY;
@@ -1301,7 +1278,6 @@ fin:
     {
       rho_dbg(&T, c0-(c>>5), 0);
       err_printf("\tfound %sfactor = %Ps\n", (g1!=n ? "composite " : ""), g);
-      err_flush();
     }
     res = cgetg(7, t_VEC);
     /* g^1: known composite when g1!=n */
@@ -1321,7 +1297,6 @@ fin:
     rho_dbg(&T, c0-(c>>5), 0);
     err_printf("\tfound factors = %Ps, %Ps,\n\tand %Ps\n",
                gel(res,1), gel(res,4), gel(res,7));
-    err_flush();
   }
   return res;
 }
