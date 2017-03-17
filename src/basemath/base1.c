@@ -800,55 +800,67 @@ idealramgroupstame(GEN nf, GEN gal, GEN aut, GEN pr)
   return res;
 }
 
-/* true nf */
+/* true nf, p | e */
 static GEN
-idealramgroupindex(GEN nf, GEN gal, GEN aut, GEN pr)
+idealramgroupswild(GEN nf, GEN gal, GEN aut, GEN pr)
 {
-  pari_sp av = avma;
-  GEN p, T, g, idx, modpr;
-  long i, e, f, n = nf_get_degree(nf);
+  pari_sp av2, av = avma;
+  GEN p, T, idx, g, gbas, pi, pibas, Dpi, modpr = zk_to_Fq_init(nf,&pr,&T,&p);
+  long bound, i, vDpi, n = nf_get_degree(nf);
+  long e = pr_get_e(pr);
+  long f = pr_get_f(pr);
   ulong nt,rorder;
-  GEN grp = gal_get_group(gal);
+  GEN pg, ppi, grp = gal_get_group(gal);
 
-  e = pr_get_e(pr);
-  f = pr_get_f(pr);
-  modpr = zk_to_Fq_init(nf,&pr,&T,&p);
+  /* G_i = {s: v(s(pi) - pi) > i} trivial for i > bound */
+  bound = (idealval(nf, nf_get_diff(nf), pr) - (e-1)) / (itou(p)-1);
   (void) u_pvalrem(n,p,&nt);
   rorder = e*f*(n/nt);
   idx = const_vecsmall(n,-1);
-  g = nf_to_scalar_or_alg(nf, modpr_genFq(modpr));
-  for (i=2; i<=n; i++)
+  pg = NULL;
+  if (f == 1)
+    g = gbas = NULL;
+  else
   {
-    GEN iso = gel(grp, i);
-    long ix = iso[1];
-    long o;
-    if (idx[ix]>=0) continue;
-    o = perm_order(iso);
-    if (rorder%o == 0)
+    GEN Dg;
+    g = nf_to_scalar_or_alg(nf, modpr_genFq(modpr));
+    if (!gcmpX(g)) /* p | nf.index */
     {
-      pari_sp av = avma;
-      GEN piso = iso;
-      GEN S = get_aut(nf, gal, aut, iso);
-      GEN pi = pr_get_gen(pr);
-      GEN spi = ZC_galoisapply(nf, S, pi);
-      long j;
-      idx[ix] = idealval(nf, gsub(spi,pi), pr);
-      if (idx[ix] >= 1)
-      {
-        if (f > 1)
-        {
-          GEN b = nf_to_Fq(nf, zk_galoisapplymod(nf, g, S, p), modpr);
-          if (!gequalX(b)) idx[ix] = 0;
-        }
-      }
-      else idx[ix] = -1;
-      for (j=2; j<o; j++)
-      {
-        piso = perm_mul(piso,iso);
-        if (cgcd(j,o)==1) idx[piso[1]] = idx[ix];
-      }
-      avma = av;
+      g = Q_remove_denom(g, &Dg);
+      pg = powiu(p, Z_pval(Dg,p) + 1);
+      g = FpX_red(g, pg);
     }
+    gbas = nf_to_scalar_or_basis(nf, g);
+  }
+  pi = nf_to_scalar_or_alg(nf, pr_get_gen(pr));
+  pi = Q_remove_denom(pi, &Dpi);
+  vDpi = Dpi ? Z_pval(Dpi, p): 0;
+  ppi = powiu(p, vDpi + (bound + e)/e);
+  pi = FpX_red(pi, ppi);
+  pibas = nf_to_scalar_or_basis(nf, pi);
+  av2 = avma;
+  for (i = 2; i <= n; i++)
+  {
+    GEN S, Spi, piso, iso = gel(grp, i);
+    long j, o, ix = iso[1];
+    if (idx[ix] >= 0 || rorder % (o = perm_order(iso))) continue;
+
+    piso = iso;
+    S = get_aut(nf, gal, aut, iso);
+    Spi = FpX_FpC_nfpoleval(nf, pi, FpC_red(S, ppi), ppi);
+    idx[ix] = idealval(nf, gsub(Spi,pibas), pr) - e*vDpi;
+    if (idx[ix] == 0) idx[ix] = -1;
+    else if (g)
+    {
+      GEN Sg = pg? FpX_FpC_nfpoleval(nf, g, FpC_red(S, pg), pg): S;
+      if (!ZC_prdvd(gsub(Sg, gbas), pr)) idx[ix] = 0;
+    }
+    for (j = 2; j < o; j++)
+    {
+      piso = perm_mul(piso,iso);
+      if (cgcd(j,o)==1) idx[ piso[1] ] = idx[ix];
+    }
+    avma = av2;
   }
   return gerepileuptoleaf(av, idx);
 }
@@ -868,7 +880,7 @@ idealramgroups_aut(GEN nf, GEN gal, GEN pr, GEN aut)
   p = itos(pr_get_p(pr));
   if (e%p) return idealramgroupstame(nf, gal, aut, pr);
   (void) u_lvalrem(e,p,&et);
-  idx = idealramgroupindex(nf, gal, aut, pr);
+  idx = idealramgroupswild(nf, gal, aut, pr);
   sub = group_subgroups(galois_group(gal));
   tbl = subgroups_tableset(sub, n);
   maxm = vecsmall_max(idx)+1;
