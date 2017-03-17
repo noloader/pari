@@ -268,6 +268,44 @@ int factor_add_primes = 0, factor_proven = 0;
 #define nbcmax 64                /* max number of simultaneous curves */
 #define bstpmax 1024                /* max number of baby step table entries */
 
+static const long MR_Jaeschke_k1 = 16;/* B1 phase, foolproof below 10^12 */
+static const long MR_Jaeschke_k2 = 1; /* B2 phase, not foolproof, 2xfaster */
+/* MR_Jaeschke_k2 will let thousands of composites slip through, which doesn't
+ * harm ECM, but ellmult() during the B1 phase should only be fed primes
+ * which really are prime */
+static const ulong TB1[] = {
+  142,172,208,252,305,370,450,545,661,801,972,1180,1430,
+  1735,2100,2550,3090,3745,4540,5505,6675,8090,9810,11900,
+  14420,17490,21200,25700,31160,37780UL,45810UL,55550UL,67350UL,
+  81660UL,99010UL,120050UL,145550UL,176475UL,213970UL,259430UL,
+  314550UL,381380UL,462415UL,560660UL,679780UL,824220UL,999340UL,
+  1211670UL,1469110UL,1781250UL,2159700UL,2618600UL,3175000UL,
+  3849600UL,4667500UL,5659200UL,6861600UL,8319500UL,10087100UL,
+  12230300UL,14828900UL,17979600UL,21799700UL,26431500UL,
+  32047300UL,38856400UL, /* 110 times that still fits into 32bits */
+#ifdef LONG_IS_64BIT
+  47112200UL,57122100UL,69258800UL,83974200UL,101816200UL,
+  123449000UL,149678200UL,181480300UL,220039400UL,266791100UL,
+  323476100UL,392204900UL,475536500UL,576573500UL,699077800UL,
+  847610500UL,1027701900UL,1246057200UL,1510806400UL,1831806700UL,
+  2221009800UL,2692906700UL,3265067200UL,3958794400UL,4799917500UL
+#endif
+};
+static const ulong TB1_for_stage[] = {
+ /* Start below the optimal B1 for finding factors which would just have been
+  * missed by pollardbrent(), and escalate, changing curves to give good
+  * coverage of the small factor ranges. Entries grow faster than what would
+  * be optimal but a table instead of a 2D array keeps the code simple */
+  500,520,560,620,700,800,900,1000,1150,1300,1450,1600,1800,2000,
+  2200,2450,2700,2950,3250,3600,4000,4400,4850,5300,5800,6400,
+  7100,7850,8700,9600,10600,11700,12900,14200,15700,17300,
+  19000,21000,23200,25500,28000,31000,34500UL,38500UL,43000UL,
+  48000UL,53800UL,60400UL,67750UL,76000UL,85300UL,95700UL,
+  107400UL,120500UL,135400UL,152000UL,170800UL,191800UL,215400UL,
+  241800UL,271400UL,304500UL,341500UL,383100UL,429700UL,481900UL,
+  540400UL,606000UL,679500UL,761800UL,854100UL,957500UL,1073500UL
+};
+
 /* addition/doubling/multiplication of a point on an 'elliptic curve mod N'
  * may result in one of three things:
  * - a new bona fide point
@@ -645,45 +683,6 @@ alloc_scratch(long nbc, long spc, long tf)
 static GEN
 ellfacteur(GEN N, int insist)
 {
-/* parameters for MR_Jaeschke() via snextpr() */
-  const long MR_Jaeschke_k1 = 16;/* B1 phase, foolproof below 10^12 */
-  const long MR_Jaeschke_k2 = 1; /* B2 phase, not foolproof, 2xfaster */
-/* MR_Jaeschke_k2 will let thousands of composites slip through, which doesn't
- * harm ECM, but ellmult() during the B1 phase should only be fed primes
- * which really are prime */
-  const ulong TB1[] = {
-    142,172,208,252,305,370,450,545,661,801,972,1180,1430,
-    1735,2100,2550,3090,3745,4540,5505,6675,8090,9810,11900,
-    14420,17490,21200,25700,31160,37780UL,45810UL,55550UL,67350UL,
-    81660UL,99010UL,120050UL,145550UL,176475UL,213970UL,259430UL,
-    314550UL,381380UL,462415UL,560660UL,679780UL,824220UL,999340UL,
-    1211670UL,1469110UL,1781250UL,2159700UL,2618600UL,3175000UL,
-    3849600UL,4667500UL,5659200UL,6861600UL,8319500UL,10087100UL,
-    12230300UL,14828900UL,17979600UL,21799700UL,26431500UL,
-    32047300UL,38856400UL, /* 110 times that still fits into 32bits */
-#ifdef LONG_IS_64BIT
-    47112200UL,57122100UL,69258800UL,83974200UL,101816200UL,
-    123449000UL,149678200UL,181480300UL,220039400UL,266791100UL,
-    323476100UL,392204900UL,475536500UL,576573500UL,699077800UL,
-    847610500UL,1027701900UL,1246057200UL,1510806400UL,1831806700UL,
-    2221009800UL,2692906700UL,3265067200UL,3958794400UL,4799917500UL,
-    /* Someone can extend this table when the hardware gets faster */
-#endif
-    };
-  const ulong TB1_for_stage[] = {
-   /* Start below the optimal B1 for finding factors which would just have been
-    * missed by pollardbrent(), and escalate, changing curves to give good
-    * coverage of the small factor ranges. Entries grow faster than what would
-    * be optimal but a table instead of a 2D array keeps the code simple */
-    500,520,560,620,700,800,900,1000,1150,1300,1450,1600,1800,2000,
-    2200,2450,2700,2950,3250,3600,4000,4400,4850,5300,5800,6400,
-    7100,7850,8700,9600,10600,11700,12900,14200,15700,17300,
-    19000,21000,23200,25500,28000,31000,34500UL,38500UL,43000UL,
-    48000UL,53800UL,60400UL,67750UL,76000UL,85300UL,95700UL,
-    107400UL,120500UL,135400UL,152000UL,170800UL,191800UL,215400UL,
-    241800UL,271400UL,304500UL,341500UL,383100UL,429700UL,481900UL,
-    540400UL,606000UL,679500UL,761800UL,854100UL,957500UL,1073500UL,
-  };
   long nbc, nbc2, dsn, dsnmax, rep, spc, gse, gss;
   long a, size = expi(N) + 1, tf = lgefint(N);
   GEN *X, *XAUX, *XT, *XD, *XG, *YG, *XH, *XB, *XB2, *Xh, *Yh;
@@ -789,7 +788,7 @@ ellfacteur(GEN N, int insist)
     for (i = nbc2; i--; ) affui(a++, X[i]);
     B1 = insist ? TB1[dsn] : TB1_for_stage[dsn];
     B2 = 110*B1;
-    B2_rt = (ulong)(sqrt((double)B2));
+    B2_rt = usqrt(B2);
     /* pick giant step exponent and size.
      * With 32 baby steps, a giant step corresponds to 32*420 = 13440,
      * appropriate for the smallest B2s. With 1024, a giant step will be 430080;
@@ -1058,11 +1057,9 @@ ellfacteur(GEN N, int insist)
       avma = av1;
     } /* for i (loop over sets of 4 curves) */
 
-    /* continuation part of main loop */
     if (dsn < dsnmax)
     {
-      dsn += insist ? 1 : 2;
-      if (dsn > dsnmax) dsn = dsnmax;
+      if (insist) dsn++; else { dsn += 2; if (dsn > dsnmax) dsn = dsnmax; }
     }
 
     if (!insist && !--rep)
