@@ -705,7 +705,6 @@ GEN     ZlXQX_hyperellpadicfrobenius(GEN H, GEN T, ulong p, long n);
 
 /* ifactor1.c */
 
-GEN     ellfacteur(GEN n, int insist);
 ulong   snextpr(ulong p, byteptr *d, long *rcn, long *q, long k);
 
 /* intnum.c */

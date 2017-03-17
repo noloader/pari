@@ -14,10 +14,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #include "paripriv.h"
 
 /***********************************************************************/
-/**                                                                   **/
 /**                       PRIMES IN SUCCESSION                        **/
-/** (abstracted by GN 1998Aug21 mainly for use in ellfacteur() below) **/
-/**                                                                   **/
 /***********************************************************************/
 
 /* map from prime residue classes mod 210 to their numbers in {0...47}.
@@ -556,20 +553,12 @@ ellmult(GEN N, GEN *gl, long nbc, ulong k, GEN *X1, GEN *X2, GEN *XAUX)
 }
 
 /* Auxiliary routines need < (3*nbc+240)*tf words on the PARI stack, in
- * addition to the spc*(tf+1) words occupied by our main table.
- * If stack space is already tight, use the heap & newblock(). */
+ * addition to the spc*(tf+1) words occupied by our main table. */
 static GEN*
 alloc_scratch(long nbc, long spc, long tf)
 {
-  pari_sp bot = pari_mainstack->bot;
   long i, tw = evallg(tf) | evaltyp(t_INT), len = spc + 385 + spc*tf;
-  GEN *X, w;
-  if ((long)((GEN)avma - (GEN)bot) < len + (3*nbc + 240)*tf)
-  {
-    if (DEBUGLEVEL>4) err_printf("ECM: stack tight, using heap space\n");
-    X = (GEN*)newblock(len);
-  } else
-    X = (GEN*)new_chunk(len);
+  GEN w, *X = (GEN*)new_chunk(len);
   /* hack for X[i] = cgeti(tf). X = current point in B1 phase */
   w = (GEN)(X + spc + 385);
   for (i = spc-1; i >= 0; i--) { X[i] = w; *w = tw; w += tf; }
@@ -653,10 +642,10 @@ alloc_scratch(long nbc, long spc, long tf)
  * also for the case when 'insist' is true, vaguely following suggestions
  * by Paul Zimmermann (http://www.loria.fr/~zimmerma/records/ecmnet.html).
  * --GN 1998Jul,Aug */
-GEN
+static GEN
 ellfacteur(GEN N, int insist)
 {
-/* parameters for MR_Jaeschke() via snextpr(), for use by ellfacteur() */
+/* parameters for MR_Jaeschke() via snextpr() */
   const long MR_Jaeschke_k1 = 16;/* B1 phase, foolproof below 10^12 */
   const long MR_Jaeschke_k2 = 1; /* B2 phase, not foolproof, 2xfaster */
 /* MR_Jaeschke_k2 will let thousands of composites slip through, which doesn't
@@ -2634,11 +2623,10 @@ update_pow(GEN where, GEN factor, long exp, pari_sp *av)
     affsi(exp * itos(ex), EXPON(where));
 }
 /* hint = 0 : Use a default strategy
- * hint & 1 : avoid mpqs()
- * hint & 2 : avoid first-stage ellfacteur()
- * (may still fall back to ellfacteur() if mpqs() is not installed or gives up)
- * hint & 4 : avoid pollardbrent() and squfof() stages.
- * hint & 8 : avoid final ellfacteur(); may flag a composite as prime. */
+ * hint & 1 : avoid MPQS
+ * hint & 2 : avoid first-stage ECM (may fall back to ECM if MPQS gives up)
+ * hint & 4 : avoid Pollard and SQUFOF stages.
+ * hint & 8 : avoid final ECM; may flag a composite as prime. */
 #define get_hint(partial) (itos(HINT(*partial)) & 15)
 
 /* Split the first (composite) entry.  There _must_ already be room for another
