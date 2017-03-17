@@ -370,10 +370,12 @@ static long
 posint(ratpoints_interval *ivlist, GEN P, long h)
 {
   GEN R = ZX_positive_region(P, h, 53);
+  const double eps = 1e-5;
+  long nR, i;
+
   if (!R) return 0;
-  long nR = lg(R)-1;
-  long i=1;
-  double eps = 1e-5;
+  nR = lg(R)-1;
+  i = 1;
   for (i=1; i<=nR; i++)
   {
     ivlist[i-1].low = rtodbl(gmael(R,i,1))-eps;
