@@ -3388,6 +3388,7 @@ GEN     ZM_hnfmod(GEN x, GEN d);
 GEN     ZM_hnfmodall(GEN x, GEN dm, long flag);
 GEN     ZM_hnfmodall_i(GEN x, GEN dm, long flag);
 GEN     ZM_hnfmodid(GEN x, GEN d);
+GEN     ZM_hnfmodprime(GEN x, GEN p);
 GEN     ZM_hnfperm(GEN A, GEN *ptU, GEN *ptperm);
 void    ZM_snfclean(GEN d, GEN u, GEN v);
 GEN     ZM_snf(GEN x);

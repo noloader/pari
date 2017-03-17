@@ -152,7 +152,7 @@ PB   62- [libpari] FlxC_neg FlxC_sub FlxM_neg FlxM_sub FlxqC_Flxq_mul
 PB   63- asymptotically fast linear algebra using CUP decomposition
      64- [libpari] nf_get_zkden, nf_get_zkprimpart
      65- [libpari] idealprimedec_galois, idealprimedec_degrees
-     66- [libpari] idealaddtoone_raw
+     66- [libpari] idealaddtoone_raw, ZM_hnfmodprime
 BA   67- new GP functions hyperellratpoints and ellratpoints based on
          Michael Stoll ratpoints code.
 

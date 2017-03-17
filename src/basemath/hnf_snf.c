@@ -1158,11 +1158,11 @@ ZM_hnfmodall_i(GEN x, GEN dm, long flag)
   li = lgcols(x); if (li == 1) return cgetg(1,t_MAT);
   if (typ(dm) == t_INT)
   {
-    long ldm = lgefint(dm);
+    if (flag == hnf_MODID && BPSW_psp(dm)) return ZM_hnfmodprime(x, dm);
     dm2 = shifti(dm, -1);
     dm = const_vec(li-1,dm);
     dm2= const_vec(li-1,dm2);
-    LDM= const_vecsmall(li-1,ldm);
+    LDM= const_vecsmall(li-1, lgefint(dm));
   }
   else
   {
@@ -1311,8 +1311,11 @@ ZM_hnfmodall(GEN x, GEN dm, long flag)
 }
 GEN
 ZM_hnfmod(GEN x, GEN d) { return ZM_hnfmodall(x,d,0); }
+GEN
+ZM_hnfmodid(GEN x, GEN d)
+{ return ZM_hnfmodall(x,d,hnf_MODID); }
 /* return the column echelon form of x with 1's as pivots,
- * P contains the row indices not containing pivots in increasing order */
+ * P contains the row indices containing the pivots in increasing order */
 static GEN
 FpM_echelon(GEN x, GEN *pP, GEN p)
 {
@@ -1331,16 +1334,17 @@ FpM_echelon(GEN x, GEN *pP, GEN p)
   for (def = co-1,i = li-1; i > ldef; i--)
   {
     GEN u = NULL;
-    for (k = 1; k <= def; k++)
+    for (k = def; k; k--)
     {
       u = gcoeff(x,i,k);
       if (signe(u)) break;
     }
-    if (k > def)
+    if (!k)
     {
       if (--ldef < 0) ldef = 0;
-      P[iP++] = i; continue;
+      continue;
     }
+    P[iP++] = i;
     if (k != def) swap(gel(x,def), gel(x,k));
     if (!equali1(u))
       FpV_Fp_mul_part_ip(gel(x,def), Fp_inv(u,p), p, i-1);
@@ -1360,11 +1364,11 @@ FpM_echelon(GEN x, GEN *pP, GEN p)
     }
     def--;
   }
-  if (co > li) x += co - li;
-  x += iP-1;
-  x[0] = evaltyp(t_MAT) | evallg(li - (iP-1));
-  setlg(P, iP);
-  vecsmall_sort(P); return x;
+  /* rank = iP - 1 */
+  setlg(P, iP); vecsmall_sort(P);
+  if (co > iP) x += co - iP;
+  x[0] = evaltyp(t_MAT) | evallg(iP);
+  return x;
 }
 /* given x square of maximal rank with 1 or p on diagonal from hnfmodid
  * (=> a column containing p has its other entries at 0 ), return the HNF */
@@ -1392,30 +1396,19 @@ FpM_hnfend(GEN x, GEN p)
   return x;
 }
 GEN
-ZM_hnfmodid(GEN x, GEN d)
+ZM_hnfmodprime(GEN x, GEN p)
 {
-  if (typ(d) == t_INT && BPSW_psp(d))
-  {
-    pari_sp av = avma;
-    GEN P, y;
-    long l, lP, i, ix, iy;
-    if (lg(x) == 1) return cgetg(1, t_MAT);
-    l = lgcols(x);
-    x = FpM_echelon(x, &P, d);
-    lP = lg(P);
-    if (lP == 1) { avma = av; return matid(l-1); }
-    y = cgetg(l, t_MAT);
-    ix = iy = 1;
-    for (i = 1; i < lP; i++)
-    {
-      long j = (i == 1)? 1: P[i-1]+1;
-      for (; j < P[i]; j++) gel(y, iy++) = gel(x, ix++);
-      gel(y, iy++) = Rg_col_ei(d, l-1, P[i]);
-    }
-    while (iy < l) gel(y, iy++) = gel(x, ix++);
-    return gerepilecopy(av, FpM_hnfend(y,d));
-  }
-  return ZM_hnfmodall(x,d,hnf_MODID);
+  pari_sp av = avma;
+  GEN P, y;
+  long l, lP, i;
+  if (lg(x) == 1) return cgetg(1, t_MAT);
+  l = lgcols(x);
+  x = FpM_echelon(x, &P, p);
+  lP = lg(P); /* rank = lP-1 */
+  if (lP == l) { avma = av; return matid(l-1); }
+  y = scalarmat_shallow(p, l-1);
+  for (i = 1; i < lP; i++) gel(y,P[i]) = gel(x,i);
+  return gerepilecopy(av, FpM_hnfend(y,p));
 }
 
 static GEN
