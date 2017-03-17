@@ -2686,7 +2686,7 @@ get_random_ideal(FB_t *F, GEN nf, GEN ex)
       if (ex[i])
       {
         GEN a = gmael(F->id2,id,ex[i]);
-        ideal = ideal? idealHNF_mul(nf,ideal, a): pr_hnf(nf,a);
+        ideal = ideal? idealHNF_mul(nf,ideal, a): idealhnf_two(nf,a);
       }
     }
     if (ideal) { /* ex  != 0 */
