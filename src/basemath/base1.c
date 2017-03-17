@@ -806,7 +806,7 @@ idealramgroupswild(GEN nf, GEN gal, GEN aut, GEN pr)
 {
   pari_sp av2, av = avma;
   GEN p, T, idx, g, gbas, pi, pibas, Dpi, modpr = zk_to_Fq_init(nf,&pr,&T,&p);
-  long bound, i, vDpi, n = nf_get_degree(nf);
+  long bound, i, vDpi, vDg, n = nf_get_degree(nf);
   long e = pr_get_e(pr);
   long f = pr_get_f(pr);
   ulong nt,rorder;
@@ -818,6 +818,7 @@ idealramgroupswild(GEN nf, GEN gal, GEN aut, GEN pr)
   rorder = e*f*(n/nt);
   idx = const_vecsmall(n,-1);
   pg = NULL;
+  vDg = 0;
   if (f == 1)
     g = gbas = NULL;
   else
@@ -827,7 +828,8 @@ idealramgroupswild(GEN nf, GEN gal, GEN aut, GEN pr)
     if (!gcmpX(g)) /* p | nf.index */
     {
       g = Q_remove_denom(g, &Dg);
-      pg = powiu(p, Z_pval(Dg,p) + 1);
+      vDg = Z_pval(Dg,p);
+      pg = powiu(p, vDg + 1);
       g = FpX_red(g, pg);
     }
     gbas = nf_to_scalar_or_basis(nf, g);
@@ -853,7 +855,10 @@ idealramgroupswild(GEN nf, GEN gal, GEN aut, GEN pr)
     else if (g)
     {
       GEN Sg = pg? FpX_FpC_nfpoleval(nf, g, FpC_red(S, pg), pg): S;
-      if (!ZC_prdvd(gsub(Sg, gbas), pr)) idx[ix] = 0;
+      if (vDg)
+      { if (nfval(nf, gsub(Sg, gbas), pr) - e*vDg <= 0) idx[ix] = 0; }
+      else /* same, more efficient */
+      { if (!ZC_prdvd(gsub(Sg, gbas), pr)) idx[ix] = 0; }
     }
     for (j = 2; j < o; j++)
     {
