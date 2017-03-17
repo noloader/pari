@@ -1362,7 +1362,8 @@ fin:
   if (DEBUGLEVEL >= 4)
   {
     rho_dbg(&T, c0-(c>>5), 0);
-    err_printf("\tfound factors = %Ps, %Ps,\n\tand %Ps\n", res[1], res[4], res[7]);
+    err_printf("\tfound factors = %Ps, %Ps,\n\tand %Ps\n",
+               gel(res,1), gel(res,4), gel(res,7));
     err_flush();
   }
   return res;
