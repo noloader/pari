@@ -1864,7 +1864,7 @@ bnfisprincipal0(GEN bnf,GEN x,long flag)
     case id_PRIME:
       if (pr_is_inert(x))
         return gerepileupto(av, triv_gen(bnf, gel(x,1), flag));
-      x = idealhnf_two(nf, x);
+      x = pr_hnf(nf, x);
       break;
     case id_MAT:
       if (lg(x)==1) pari_err_DOMAIN("bnfisprincipal","ideal","=",gen_0,x);
@@ -2419,7 +2419,7 @@ powPgen(GEN nf, GEN vp, GEN *ppowP, long a)
   id2 = cgetg(a+1,t_VEC);
   J = mkvec2(pr_get_p(vp), zk_scalar_or_multable(nf,pr_get_gen(vp)));
   gel(id2,1) = J;
-  vp = idealhnf_two(nf,vp);
+  vp = pr_hnf(nf,vp);
   for (j=2; j<=a; j++)
   {
     if (DEBUGLEVEL>1) err_printf(" %ld", j);
@@ -2638,7 +2638,7 @@ small_norm(RELCACHE_t *cache, FB_t *F, GEN nf, long nbrelpid, GEN M,
   minim_alloc(lg(M), &fp.q, &fp.x, &fp.y, &fp.z, &fp.v);
   for (av = avma; --noideal; avma = av)
   {
-    GEN ideal=gel(F->LP,L_jid[noideal]);
+    GEN ideal = gel(F->LP, L_jid[noideal]);
 
     if (DEBUGLEVEL>1)
       err_printf("\n*** Ideal no %ld: %Ps\n", L_jid[noideal], vecslice(ideal,1,4));
@@ -2647,7 +2647,7 @@ small_norm(RELCACHE_t *cache, FB_t *F, GEN nf, long nbrelpid, GEN M,
     if (p0)
       ideal = idealmul(nf, p0, ideal);
     else
-      ideal = idealhnf_two(nf, ideal);
+      ideal = pr_hnf(nf, ideal);
     if (Fincke_Pohst_ideal(cache, F, nf, M, G, ideal, fact,
           nbrelpid, &fp, NULL, prec, &nbsmallnorm, &nbfact))
       break;
@@ -2686,7 +2686,7 @@ get_random_ideal(FB_t *F, GEN nf, GEN ex)
       if (ex[i])
       {
         GEN a = gmael(F->id2,id,ex[i]);
-        ideal = ideal? idealHNF_mul(nf,ideal, a): idealhnf_two(nf,a);
+        ideal = ideal? idealHNF_mul(nf,ideal, a): pr_hnf(nf,a);
       }
     }
     if (ideal) { /* ex  != 0 */
@@ -2950,7 +2950,7 @@ be_honest(FB_t *F, GEN nf, GEN auts, FACT *fact)
         /* discard all primes in automorphism orbit simultaneously */
         pr_orbit_fill(pr_orbit, auts, P, j);
       }
-      ideal = ideal0 = idealhnf_two(nf,gel(P,j));
+      ideal = ideal0 = pr_hnf(nf,gel(P,j));
       for (nbtest=0;;)
       {
         if (Fincke_Pohst_ideal(NULL, F, nf, M, G, ideal, fact, 0, &fp,
@@ -3031,7 +3031,7 @@ bnftestprimes(GEN bnf, GEN BOUND)
       else if (DEBUGLEVEL>1)
         err_printf("    is %Ps\n", isprincipal(bnf,P));
       else /* faster: don't compute result */
-        (void)SPLIT(&F, nf, idealhnf_two(nf,P), Vbase, fact);
+        (void)SPLIT(&F, nf, pr_hnf(nf,P), Vbase, fact);
     }
   }
   avma = av0;

@@ -369,7 +369,7 @@ nfhilbertp(GEN nf, GEN a, GEN b, GEN pr)
   if (!odd(va) && !odd(vb)) { avma = av; return 1; }
   /* Trick: pretend the exponent is 2, result is OK up to squares ! */
   t = famat_makecoprime(nf, mkvec2(a,b), mkvec2s(vb, -va),
-                        pr, idealhnf_two(nf, pr), gen_2);
+                        pr, pr_hnf(nf, pr), gen_2);
   if (typ(t) == t_INT) {
     if (odd(va) && odd(vb)) t = negi(t);
     /* t = (-1)^(v(a)v(b)) a^v(b) b^(-v(a)) */

@@ -2210,7 +2210,8 @@ mul_intersect(GEN x, GEN y, GEN p)
   if (!y) return x;
   return FpM_intersect(x, y, p);
 }
-/* Fp-basis of (ZK/pr): applied to the primes found in primedec_aux() */
+/* Fp-basis of (ZK/pr): applied to the primes found in primedec_aux()
+ * true nf */
 static GEN
 Fp_basis(GEN nf, GEN pr)
 {
@@ -2219,7 +2220,7 @@ Fp_basis(GEN nf, GEN pr)
   /* already in basis form (from Buchman-Lenstra) ? */
   if (typ(pr) == t_MAT) return pr;
   /* ordinary prid (from Kummer) */
-  x = idealhnf_two(nf, pr);
+  x = pr_hnf(nf, pr);
   l = lg(x);
   y = cgetg(l, t_MAT);
   for (i=j=1; i<l; i++)
@@ -2230,7 +2231,7 @@ Fp_basis(GEN nf, GEN pr)
  * P (mod Ip) seen as sub-Fp-vector spaces of ZK/Ip.
  * Return the list of (Ip / P) (mod Ip).
  * N.B: All ideal multiplications are computed as intersections of Fp-vector
- * spaces. */
+ * spaces. true nf */
 static GEN
 get_LV(GEN nf, GEN L, GEN p, long N)
 {
@@ -2435,6 +2436,7 @@ get_pr(GEN nf, norm_S *S, GEN p, GEN P, GEN V, int ramif, long N, long flim)
   return mk_pr(p,u,e,f,t);
 }
 
+/* true nf */
 static GEN
 primedec_end(GEN nf, GEN L, GEN p, long flim)
 {
@@ -2721,7 +2723,7 @@ modprinit(GEN nf, GEN pr, int zk)
   nf = checknf(nf); checkprid(pr);
   f = pr_get_f(pr);
   N = nf_get_degree(nf);
-  prh = idealhnf_two(nf, pr);
+  prh = pr_hnf(nf, pr);
   tau = zk? gen_0: anti_uniformizer(nf, pr);
   p = pr_get_p(pr);
 

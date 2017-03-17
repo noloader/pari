@@ -71,13 +71,22 @@ idealtyp(GEN *ideal, GEN *arch)
   *ideal = x; return t;
 }
 
-/* nf a true nf; v = [a,x,...], a in Z. Return (a,x) */
+/* true nf; v = [a,x,...], a in Z. Return (a,x) */
 GEN
 idealhnf_two(GEN nf, GEN v)
 {
   GEN p = gel(v,1), pi = gel(v,2), m = zk_scalar_or_multable(nf, pi);
   if (typ(m) == t_INT) return scalarmat(gcdii(m,p), nf_get_degree(nf));
   return ZM_hnfmodid(m, p);
+}
+/* true nf */
+GEN
+pr_hnf(GEN nf, GEN pr)
+{
+  GEN p = pr_get_p(pr), m;
+  if (pr_is_inert(pr)) return scalarmat(p, nf_get_degree(nf));
+  m = zk_scalar_or_multable(nf, pr_get_gen(pr));
+  return ZM_hnfmodprime(m, p);
 }
 
 static GEN
@@ -124,7 +133,7 @@ idealhnf_shallow(GEN nf, GEN x)
 
   /* cannot use idealtyp because here we allow non-square matrices */
   if (tx == t_VEC && lx == 3) { x = gel(x,1); tx = typ(x); lx = lg(x); }
-  if (tx == t_VEC && lx == 6) return idealhnf_two(nf,x); /* PRIME */
+  if (tx == t_VEC && lx == 6) return pr_hnf(nf,x); /* PRIME */
   switch(tx)
   {
     case t_MAT:
@@ -1409,7 +1418,7 @@ idealmul_aux(GEN nf, GEN x, GEN y, long tx, long ty)
           return idealhnf_principal(nf, nfmul(nf,x,y));
         case id_PRIME:
         {
-          GEN p = gel(y,1), pi = gel(y,2), cx;
+          GEN p = pr_get_p(y), pi = pr_get_gen(y), cx;
           if (pr_is_inert(y)) return RgM_Rg_mul(idealhnf_principal(nf,x),p);
 
           x = nf_to_scalar_or_basis(nf, x);
@@ -1417,9 +1426,9 @@ idealmul_aux(GEN nf, GEN x, GEN y, long tx, long ty)
           {
             case t_INT:
               if (!signe(x)) return cgetg(1,t_MAT);
-              return ZM_Z_mul(idealhnf_two(nf,y), absi(x));
+              return ZM_Z_mul(pr_hnf(nf,y), absi_shallow(x));
             case t_FRAC:
-              return RgM_Rg_mul(idealhnf_two(nf,y), Q_abs_shallow(x));
+              return RgM_Rg_mul(pr_hnf(nf,y), Q_abs_shallow(x));
           }
           /* t_COL */
           x = Q_primitive_part(x, &cx);
@@ -1433,7 +1442,7 @@ idealmul_aux(GEN nf, GEN x, GEN y, long tx, long ty)
       }
     case id_PRIME:
       if (ty==id_PRIME)
-      { y = idealhnf_two(nf,y); cy = NULL; }
+      { y = pr_hnf(nf,y); cy = NULL; }
       else
         y = Q_primitive_part(y, &cy);
       y = idealHNF_mul_two(nf,y,x);
@@ -2176,7 +2185,7 @@ idealmin(GEN nf, GEN x, GEN vdir)
   switch( idealtyp(&x,&y) )
   {
     case id_PRINCIPAL: return gcopy(x);
-    case id_PRIME: x = idealhnf_two(nf,x); break;
+    case id_PRIME: x = pr_hnf(nf,x); break;
     case id_MAT: if (lg(x) == 1) return gen_0;
   }
   x = Q_remove_denom(x, &dx);
@@ -2372,7 +2381,7 @@ idealprodprime(GEN nf, GEN L)
   long l = lg(L), i;
   GEN z;
   if (l == 1) return matid(nf_get_degree(nf));
-  z = idealhnf_two(nf, gel(L,1));
+  z = pr_hnf(nf, gel(L,1));
   for (i=2; i<l; i++) z = idealHNF_mul_two(nf,z, gel(L,i));
   return z;
 }

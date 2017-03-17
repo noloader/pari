@@ -2137,7 +2137,7 @@ apply_U(GEN L, GEN a)
   return gdiv(e, dU);
 }
 
-/* vectors of [[cyc],[g],U.X^-1]. Assume k > 1. */
+/* true nf; vectors of [[cyc],[g],U.X^-1]. Assume k > 1. */
 static GEN
 principal_units(GEN nf, GEN pr, long k, GEN prk)
 {
@@ -2146,7 +2146,7 @@ principal_units(GEN nf, GEN pr, long k, GEN prk)
   long a = 1;
 
   if (DEBUGLEVEL>3) err_printf("treating pr^%ld, pr = %Ps\n",k,pr);
-  prb = idealhnf_two(nf,pr);
+  prb = pr_hnf(nf,pr);
   list = vectrunc_init(k);
   while (mask > 1)
   {
@@ -2185,6 +2185,7 @@ log_prk1(GEN nf, GEN a, long nh, GEN L2, GEN prk)
   }
   return y;
 }
+/* true nf */
 static GEN
 principal_units_relations(GEN nf, GEN L2, GEN prk, long nh)
 {
@@ -2203,7 +2204,8 @@ principal_units_relations(GEN nf, GEN L2, GEN prk, long nh)
   }
   return h;
 }
-/* e > 1; multiplicative group (1 + pr) / (1 + pr^k), prk = pr^k or NULL */
+/* true nf; e > 1; multiplicative group (1 + pr) / (1 + pr^k),
+ * prk = pr^k or NULL */
 static GEN
 idealprincipalunits_i(GEN nf, GEN pr, long k, GEN *pU)
 {
@@ -2243,8 +2245,8 @@ idealprincipalunits(GEN nf, GEN pr, long k)
   return gerepilecopy(av, mkvec3(powiu(pr_norm(pr), k-1), gel(v,1), gel(v,2)));
 }
 
-/* Given an ideal pr^k dividing an integral ideal x (in HNF form) compute
- * an 'sprk', the structure of G = (Z_K/pr^k)^* [ x = NULL for x = pr^k ]
+/* true nf; given an ideal pr^k dividing an integral ideal x (in HNF form)
+ * compute an 'sprk', the structure of G = (Z_K/pr^k)^* [ x = NULL for x=pr^k ]
  * Return a vector with at least 4 components [cyc],[gen],[HNF pr^k,pr,k],ff,
  * where
  * cyc : type of G as abelian group (SNF)
@@ -2280,7 +2282,7 @@ sprkinit(GEN nf, GEN pr, GEN gk, GEN x)
   {
     cyc = mkvec(A);
     gen = mkvec(g);
-    prk = idealhnf_two(nf,pr);
+    prk = pr_hnf(nf,pr);
     L2 = U = NULL;
   }
   else
@@ -2376,7 +2378,8 @@ zlog_pr(GEN nf, GEN a, GEN sprk)
   return vecmodii(y, sprk_get_cyc(sprk));
 }
 GEN
-zlog_pr_init(GEN nf, GEN pr, long k) { return sprkinit(nf,pr,utoipos(k),NULL);}
+zlog_pr_init(GEN nf, GEN pr, long k)
+{ return sprkinit(checknf(nf),pr,utoipos(k),NULL);}
 GEN
 vzlog_pr(GEN nf, GEN v, GEN sprk)
 {
@@ -2496,7 +2499,7 @@ pr_basis_perm(GEN nf, GEN pr)
   perm[1] = 1;
   if (f > 1)
   {
-    GEN H = idealhnf_two(nf,pr);
+    GEN H = pr_hnf(nf,pr);
     long i, k;
     for (i = k = 2; k <= f; i++)
     {
