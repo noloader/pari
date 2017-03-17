@@ -1134,13 +1134,6 @@ one_iter(GEN *x, GEN *P, GEN x1, GEN n, long delta)
   *x = addis(remii(sqri(*x), n), delta);
   *P = modii(mulii(*P, subii(x1, *x)), n);
 }
-/* Tuning parameter:  for input up to 64 bits long, we must not spend more
- * than a very short time, for fear of slowing things down on average.
- * With the current tuning formula, increase our efforts somewhat at 49 bit
- * input (an extra round for each bit at first),  and go up more and more
- * rapidly after we pass 80 bits.-- Changed this to adjust for the presence of
- * squfof, which will finish input up to 59 bits quickly. */
-
 /* Return NULL when we run out of time, or a single t_INT containing a
  * nontrivial factor of n, or a vector of t_INTs, each triple of successive
  * entries containing a factor, an exponent (equal to one),  and a factor
@@ -1149,39 +1142,14 @@ one_iter(GEN *x, GEN *P, GEN x1, GEN n, long delta)
  * factors may arise; the caller will sort the factors anyway. Result
  * is not gerepile-able (contains NULL) */
 static GEN
-pollardbrent(GEN n)
+pollardbrent_i(GEN n, long size, long c0, long retries)
 {
-  const long tune_pb_min = 14; /* even 15 seems too much. */
-  long tf = lgefint(n), size = 0, delta, retries = 0, msg_mask;
-  long c0, c, k, k1, l;
+  long tf = lgefint(n), delta, msg_mask, c, k, k1, l;
   pari_sp av;
   GEN x, x1, y, P, g, g1, res;
   pari_timer T;
 
   if (DEBUGLEVEL >= 4) timer_start(&T);
-
-  if (tf >= 4)
-    size = expi(n) + 1;
-  else if (tf == 3) /* keep purify happy */
-    size = 1 + expu(uel(n,2));
-
-  if (size <= 28)
-    c0 = 32;/* amounts very nearly to 'insist'. Now that we have squfof(), we
-             * don't insist any more when input is 2^29 ... 2^32 */
-  else if (size <= 42)
-    c0 = tune_pb_min;
-  else if (size <= 59) /* match squfof() cutoff point */
-    c0 = tune_pb_min + ((size - 42)<<1);
-  else if (size <= 72)
-    c0 = tune_pb_min + size - 24;
-  else if (size <= 301)
-    /* nonlinear increase in effort, kicking in around 80 bits */
-    /* 301 gives 48121 + tune_pb_min */
-    c0 = tune_pb_min + size - 60 +
-      ((size-73)>>1)*((size-70)>>3)*((size-56)>>4);
-  else
-    c0 = 49152; /* ECM is faster when it'd take longer */
-
   c = c0 << 5; /* 2^5 iterations per round */
   msg_mask = (size >= 448? 0x1fff:
                            (size >= 192? (256L<<((size-128)>>6))-1: 0xff));
@@ -1336,7 +1304,7 @@ fin:
         rho_dbg(&T, c0-(c>>5), 0);
         err_printf("\tPollard-Brent failed.\n"); err_flush();
       }
-      if (++retries >= 4) return NULL;
+      if (++retries >= 4) pari_err_BUG("");
       goto PB_RETRY;
     }
     /* half lucky: we've split n, but g1 equals either g or n */
@@ -1367,6 +1335,46 @@ fin:
     err_flush();
   }
   return res;
+}
+/* Tuning parameter:  for input up to 64 bits long, we must not spend more
+ * than a very short time, for fear of slowing things down on average.
+ * With the current tuning formula, increase our efforts somewhat at 49 bit
+ * input (an extra round for each bit at first),  and go up more and more
+ * rapidly after we pass 80 bits.-- Changed this to adjust for the presence of
+ * squfof, which will finish input up to 59 bits quickly. */
+static GEN
+pollardbrent(GEN n)
+{
+  const long tune_pb_min = 14; /* even 15 seems too much. */
+  long c0, size = expi(n) + 1;
+  if (size <= 28)
+    c0 = 32;/* amounts very nearly to 'insist'. Now that we have squfof(), we
+             * don't insist any more when input is 2^29 ... 2^32 */
+  else if (size <= 42)
+    c0 = tune_pb_min;
+  else if (size <= 59) /* match squfof() cutoff point */
+    c0 = tune_pb_min + ((size - 42)<<1);
+  else if (size <= 72)
+    c0 = tune_pb_min + size - 24;
+  else if (size <= 301)
+    /* nonlinear increase in effort, kicking in around 80 bits */
+    /* 301 gives 48121 + tune_pb_min */
+    c0 = tune_pb_min + size - 60 +
+      ((size-73)>>1)*((size-70)>>3)*((size-56)>>4);
+  else
+    c0 = 49152; /* ECM is faster when it'd take longer */
+  return pollardbrent_i(n, size, c0, 0);
+}
+GEN
+Z_pollardbrent(GEN n, long rounds, long seed)
+{
+  pari_sp av = avma;
+  GEN v = pollardbrent_i(n, expi(n)+1, rounds, seed);
+  if (!v) return NULL;
+  if (typ(v) == t_INT) v = mkvec2(v, diviiexact(n,v));
+  else if (lg(v) == 7) v = mkvec2(gel(v,1), gel(v,4));
+  else v = mkvec3(gel(v,1), gel(v,4), gel(v,7));
+  return gerepilecopy(av, v);
 }
 
 /***********************************************************************/

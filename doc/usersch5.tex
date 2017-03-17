@@ -7029,6 +7029,12 @@ and the $p^{v_p(n)}$.
 \fun{ulong}{tridiv_bound}{GEN n} returns the trial division bound used by
 \tet{Z_factor}$(n)$.
 
+\fun{GEN}{Z_pollardbrent}{GEN N, long n, long seed} try to factor
+\typ{INT} $N$ using $n$ rounds of Pollard iterations; \var{seed} is an integer
+whose value (mod $8$) selects the quadratic polynomial use to generate
+Pollard's (pseudo)random walk. Returns \kbd{NULL} on failure, else a vector
+of 2 (possibly 3) integers whose product is $N$.
+
 \subsec{Coprime factorization}
 
 Given $a$ and $b$ two non-zero integers, let \teb{ppi}$(a,b)$, \teb{ppo}$(a,b)$,

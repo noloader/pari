@@ -155,6 +155,7 @@ PB   63- asymptotically fast linear algebra using CUP decomposition
      66- [libpari] idealaddtoone_raw, ZM_hnfmodprime, pr_hnf
 BA   67- new GP functions hyperellratpoints and ellratpoints based on
          Michael Stoll ratpoints code.
+     68- [libpari] Z_pollardbrent
 
   Changed
       1- rewrite bnfnarrow
