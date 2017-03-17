@@ -12,8 +12,8 @@
  0; 0, 2, 0; 0, 0, 1], [2, 0, 0; 0, 1, 0; 0, 0, 1], [1, 0, 0; 0, 1, 0; 0, 0,
  1]]
 [[1, 0, 0; 0, 1, 0; 0, 0, 1], [0]]
-  ***   at top-level: bnrL1(bnrinit(Qi,10,
-  ***                 ^--------------------
+  ***   at top-level: bnrL1(bnrinit(Qi,10,1),1)
+  ***                 ^-------------------------
   *** bnrL1: incorrect type in bnrL1 [subgroup] (t_INT).
 0
 [32, 0, 27656345068767491604576153420888539136]
@@ -43,8 +43,8 @@
 9
 9
 9
-  ***   at top-level: bnrclassno(bnf,[7,Ve
-  ***                 ^--------------------
+  ***   at top-level: bnrclassno(bnf,[7,Vecsmall([1,2,3])])
+  ***                 ^-------------------------------------
   *** bnrclassno: incorrect type in Idealstar [incorrect archimedean component] (t_VECSMALL).
 1.0000000000000000000000000000000000000
 1

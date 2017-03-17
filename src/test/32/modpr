@@ -1,5 +1,5 @@
-  ***   at top-level: nfeltmulmodpr(nfinit
-  ***                 ^--------------------
+  ***   at top-level: nfeltmulmodpr(nfinit(x),x,x,1)
+  ***                 ^------------------------------
   *** nfeltmulmodpr: incorrect type in checkprid (t_INT).
 [0, 1, 1, error("inconsistent variables in poltobasis, z != y."), 0, error("
 incorrect type in Rg_to_ff (t_COL).")]
@@ -167,4 +167,4 @@ error("incorrect type in Rg_to_ff (t_COL).")
   *** matsolve: impossible inverse in gauss: [1, 1; 1, 1].
 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
 0, 0, 0, 0, 0, 0, 0]~
-Total time spent: 132
+Total time spent: 136

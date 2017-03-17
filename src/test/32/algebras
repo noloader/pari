@@ -1515,14 +1515,14 @@ x - 1/3
 trivial CSA over Q
 [Mod(9, y)]~
 [4]~
-  ***   at top-level: algsqr(al,[Mod(1,y),
-  ***                 ^--------------------
+  ***   at top-level: algsqr(al,[Mod(1,y),Mod(2,y)]~)
+  ***                 ^-------------------------------
   *** algsqr: incorrect type in alg_model (t_COL).
 nontrivial CSA over Q
 [Mod(0, y), Mod(12, y), Mod(6, y), Mod(12, y)]~
 [-81, 27, 36, 45]~
-  ***   at top-level: algsqr(al,[Mod(1,y),
-  ***                 ^--------------------
+  ***   at top-level: algsqr(al,[Mod(1,y),Mod(2,y)]~)
+  ***                 ^-------------------------------
   *** algsqr: incorrect type in alg_model (t_COL).
 empty matrices
 -v: 1
@@ -1563,8 +1563,8 @@ x - 12
 1
 1
 1
-  ***   at top-level: algsplittingfield(al
-  ***                 ^--------------------
+  ***   at top-level: algsplittingfield(almt)
+  ***                 ^-----------------------
   *** algsplittingfield: incorrect type in alg_get_splittingfield [use alginit] (t_VEC).
   ***   at top-level: algdegree(almt)
   ***                 ^---------------
@@ -1582,11 +1582,11 @@ x - 12
   ***                 ^--------------
   *** algrandom: incorrect type in algrandom (t_COMPLEX).
 0
-  ***   at top-level: algdim([1,[1],0,0,0,
-  ***                 ^--------------------
+  ***   at top-level: algdim([1,[1],0,0,0,0,0,0,0,0])
+  ***                 ^-------------------------------
   *** algdim: incorrect type in checkalg [please apply alginit()] (t_VEC).
-  ***   at top-level: algabsdim([1,[1],0,0
-  ***                 ^--------------------
+  ***   at top-level: algabsdim([1,[1],0,0,0,0,0,0,0,0])
+  ***                 ^----------------------------------
   *** algabsdim: incorrect type in checkalg [please apply alginit()] (t_VEC).
   ***   at top-level: algtensor(al,al2)
   ***                 ^-----------------
@@ -1597,56 +1597,56 @@ x - 12
   ***   at top-level: algtensor(1,z,1)
   ***                 ^----------------
   *** algtensor: incorrect type in checkalg [please apply alginit()] (t_INT).
-  ***   at top-level: algisassociative([1]
-  ***                 ^--------------------
+  ***   at top-level: algisassociative([1],0)
+  ***                 ^-----------------------
   *** algisassociative: incorrect type in algisassociative (mult. table) (t_VEC).
-  ***   at top-level: algisassociative([[1
-  ***                 ^--------------------
+  ***   at top-level: algisassociative([[1,0;0,2],[0,0;0,0]])
+  ***                 ^---------------------------------------
   *** algisassociative: incorrect type in algisassociative (mult. table) (t_VEC).
   ***   at top-level: algmul(almt,a,b)
   ***                 ^----------------
   *** algmul: incorrect type in alg_model (t_COL).
-  ***   at top-level: algleftmultable(almt
-  ***                 ^--------------------
+  ***   at top-level: algleftmultable(almt,a)
+  ***                 ^-----------------------
   *** algleftmultable: incorrect type in alg_model (t_COL).
   ***   at top-level: alginv(almt,a)
   ***                 ^--------------
   *** alginv: incorrect type in alg_model (t_COL).
-  ***   at top-level: algsplittingmatrix(a
-  ***                 ^--------------------
+  ***   at top-level: algsplittingmatrix(almt,[0,0,0,0]~)
+  ***                 ^-----------------------------------
   *** algsplittingmatrix: domain error in algsplittingmatrix: alg_type(al) = 1
-  ***   at top-level: algalgtobasis(almt,a
-  ***                 ^--------------------
+  ***   at top-level: algalgtobasis(almt,a)
+  ***                 ^---------------------
   *** algalgtobasis: incorrect type in algalgtobasis [use alginit] (t_VEC).
-  ***   at top-level: algbasistoalg(almt,[
-  ***                 ^--------------------
+  ***   at top-level: algbasistoalg(almt,[0,0,0,0]~)
+  ***                 ^------------------------------
   *** algbasistoalg: incorrect type in algbasistoalg [use alginit] (t_VEC).
   ***   at top-level: algpoleval(almt,1,a)
   ***                 ^--------------------
   *** algpoleval: incorrect type in algpoleval (t_INT).
-  ***   at top-level: algadd(almt,[zero;ze
-  ***                 ^--------------------
+  ***   at top-level: algadd(almt,[zero;zero],m)
+  ***                 ^--------------------------
   *** algadd: inconsistent dimensions in alM_add (rows).
-  ***   at top-level: algadd(almt,[zero;ze
-  ***                 ^--------------------
+  ***   at top-level: algadd(almt,[zero;zero;zero],[zero;zero])
+  ***                 ^-----------------------------------------
   *** algadd: inconsistent dimensions in alM_add (columns).
-  ***   at top-level: algsub(almt,[zero;ze
-  ***                 ^--------------------
+  ***   at top-level: algsub(almt,[zero;zero],m)
+  ***                 ^--------------------------
   *** algsub: inconsistent dimensions in alM_sub (rows).
-  ***   at top-level: algsub(almt,[zero;ze
-  ***                 ^--------------------
+  ***   at top-level: algsub(almt,[zero;zero;zero],[zero;zero])
+  ***                 ^-----------------------------------------
   *** algsub: inconsistent dimensions in alM_sub (columns).
-  ***   at top-level: algmul(almt,m,[zero;
-  ***                 ^--------------------
+  ***   at top-level: algmul(almt,m,[zero;zero;zero])
+  ***                 ^-------------------------------
   *** algmul: inconsistent dimensions in alM_mul.
-  ***   at top-level: algsqr(almt,[zero;ze
-  ***                 ^--------------------
+  ***   at top-level: algsqr(almt,[zero;zero])
+  ***                 ^------------------------
   *** algsqr: inconsistent dimensions in alM_mul.
   ***   at top-level: algdivl(almt,m,zero)
   ***                 ^--------------------
   *** algdivl: forbidden division t_MAT (1x2) \ t_COL (4 elts).
-  ***   at top-level: algdivl(almt,m,[zero
-  ***                 ^--------------------
+  ***   at top-level: algdivl(almt,m,[zero,zero;zero,zero])
+  ***                 ^-------------------------------------
   *** algdivl: inconsistent dimensions in algdivl.
   ***   at top-level: algdivl(almt,m,m)
   ***                 ^-----------------
@@ -1654,8 +1654,8 @@ x - 12
   ***   at top-level: alginv(almt,m)
   ***                 ^--------------
   *** alginv: inconsistent dimensions in alginv_i (nonsquare).
-  ***   at top-level: algleftmultable(almt
-  ***                 ^--------------------
+  ***   at top-level: algleftmultable(almt,m)
+  ***                 ^-----------------------
   *** algleftmultable: inconsistent dimensions in algleftmultable_mat (nonsquare).
   ***   at top-level: algpow(almt,m,3)
   ***                 ^----------------
@@ -1666,38 +1666,38 @@ x - 12
   ***   at top-level: algcharpoly(almt,m)
   ***                 ^-------------------
   *** algcharpoly: inconsistent dimensions in algleftmultable_mat (nonsquare).
-  ***   at top-level: algcharpoly(alginit(
-  ***                 ^--------------------
+  ***   at top-level: algcharpoly(alginit(nfinit(y),[-1,-1]),m)
+  ***                 ^-----------------------------------------
   *** algcharpoly: incorrect type in easychar (t_MAT).
   ***   at top-level: algnorm(almt,m)
   ***                 ^---------------
   *** algnorm: inconsistent dimensions in algleftmultable_mat (nonsquare).
-  ***   at top-level: algnorm(alginit(nfin
-  ***                 ^--------------------
+  ***   at top-level: algnorm(alginit(nfinit(y),[-1,-1]),m)
+  ***                 ^-------------------------------------
   *** algnorm: inconsistent dimensions in det.
-  ***   at top-level: alginit(nfinit(y),[2
-  ***                 ^--------------------
+  ***   at top-level: alginit(nfinit(y),[2,[[],[]],[x]])
+  ***                 ^----------------------------------
   *** alginit: incorrect type in Hasse invariant (t_POL).
-  ***   at top-level: alginit(nfinit(y),[2
-  ***                 ^--------------------
+  ***   at top-level: alginit(nfinit(y),[2,[],[1,1]])
+  ***                 ^-------------------------------
   *** alginit: incorrect type in checkhasse [hf] (t_VECSMALL).
-  ***   at top-level: alginit(nfinit(y),[2
-  ***                 ^--------------------
+  ***   at top-level: alginit(nfinit(y),[2,[[],[]],Vecsmall([1])])
+  ***                 ^--------------------------------------------
   *** alginit: domain error in checkhasse: sum(Hasse invariants) != 0
-  ***   at top-level: alginit(y,[2,[[],[]]
-  ***                 ^--------------------
+  ***   at top-level: alginit(y,[2,[[],[]],[1]])
+  ***                 ^--------------------------
   *** alginit: incorrect type in alginit (t_POL).
   ***   at top-level: alginit(nfinit(y),y)
   ***                 ^--------------------
   *** alginit: incorrect type in alginit (t_POL).
-  ***   at top-level: alginit(nfinit(y),[1
-  ***                 ^--------------------
+  ***   at top-level: alginit(nfinit(y),[1,2,3,4])
+  ***                 ^----------------------------
   *** alginit: incorrect type in alginit (t_VEC).
   ***   at top-level: algtableinit(mt,y)
   ***                 ^------------------
   *** algtableinit: incorrect type in algtableinit (t_POL).
-  ***   at top-level: alginit(nfinit(x^2+1
-  ***                 ^--------------------
+  ***   at top-level: alginit(nfinit(x^2+1),-3)
+  ***                 ^-------------------------
   *** alginit: domain error in alg_matrix: n <= 0
   ***   at top-level: ...t(nfinit(y^2-2),[-1,-1]);algrandom(al,-10)
   ***                                             ^-----------------
@@ -1723,8 +1723,8 @@ x - 12
   ***   at top-level: algisramified(almt)
   ***                 ^-------------------
   *** algisramified: incorrect type in algisramified [use alginit] (t_VEC).
-  ***   at top-level: algramifiedplaces(al
-  ***                 ^--------------------
+  ***   at top-level: algramifiedplaces(almt)
+  ***                 ^-----------------------
   *** algramifiedplaces: incorrect type in algramifiedplaces [use alginit] (t_VEC).
   ***   at top-level: alghasse(al,-1)
   ***                 ^---------------
@@ -1741,11 +1741,11 @@ x - 12
   ***   at top-level: alghasse(al,1/3)
   ***                 ^----------------
   *** alghasse: incorrect type in is_place_prid (t_FRAC).
-  ***   at top-level: algtableinit([matid(
-  ***                 ^--------------------
+  ***   at top-level: algtableinit([matid(2),[0,1/2;1,0]])
+  ***                 ^------------------------------------
   *** algtableinit: domain error in algtableinit: denominator(mt) != 1
-  ***   at top-level: alginit(Q,[matid(2),
-  ***                 ^--------------------
+  ***   at top-level: alginit(Q,[matid(2),[0,1/2;1,0]])
+  ***                 ^---------------------------------
   *** alginit: domain error in alg_csa_table: denominator(mt) != 1
   ***   at top-level: alginit(Q,[-1/2,-1])
   ***                 ^--------------------
@@ -1753,44 +1753,44 @@ x - 12
   ***   at top-level: alginit(Q,[-1,-1/2])
   ***                 ^--------------------
   *** alginit: domain error in alg_hilbert: denominator(b) != 1
-  ***   at top-level: alginit(rnfinit(Q,x^
-  ***                 ^--------------------
+  ***   at top-level: alginit(rnfinit(Q,x^2+1),[-x,-1/2])
+  ***                 ^-----------------------------------
   *** alginit: domain error in alg_cyclic: denominator(b) != 1
-  ***   at top-level: algsqr([0,0,0,0,0,0,
-  ***                 ^--------------------
+  ***   at top-level: algsqr([0,0,0,0,0,0,0,0,0,0,0],[]~)
+  ***                 ^-----------------------------------
   *** algsqr: incorrect type in checkalg [please apply alginit()] (t_VEC).
-  ***   at top-level: algsqr([0,0,0,0,0,0,
-  ***                 ^--------------------
+  ***   at top-level: algsqr([0,0,0,0,0,0,0,0,[],0,0],[]~)
+  ***                 ^------------------------------------
   *** algsqr: incorrect type in checkalg [please apply alginit()] (t_VEC).
-  ***   at top-level: algsqr([0,0,0,0,0,0,
-  ***                 ^--------------------
+  ***   at top-level: algsqr([0,0,0,0,0,0,0,0,[0],0,0],[]~)
+  ***                 ^-------------------------------------
   *** algsqr: incorrect type in checkalg [please apply alginit()] (t_VEC).
-  ***   at top-level: algsqr([0,0,0,0,0,0,
-  ***                 ^--------------------
+  ***   at top-level: algsqr([0,0,0,0,0,0,0,0,[[;]],0,0],[]~)
+  ***                 ^---------------------------------------
   *** algsqr: incorrect type in alg_model (t_COL).
-  ***   at top-level: algsqr([[],0,0,0,0,0
-  ***                 ^--------------------
+  ***   at top-level: algsqr([[],0,0,0,0,0,0,0,[[;]],0,0],[]~)
+  ***                 ^----------------------------------------
   *** algsqr: incorrect type in checkalg [please apply alginit()] (t_VEC).
-  ***   at top-level: algsqr([[],[0],0,0,0
-  ***                 ^--------------------
+  ***   at top-level: algsqr([[],[0],0,0,0,0,0,0,[[;]],0,0],[]~)
+  ***                 ^------------------------------------------
   *** algsqr: incorrect type in checkrnf (t_VEC).
-  ***   at top-level: algdim([[],[0],0,0,0
-  ***                 ^--------------------
+  ***   at top-level: algdim([[],[0],0,0,0,0,0,0,[[;]],0,0])
+  ***                 ^--------------------------------------
   *** algdim: incorrect type in checkrnf (t_VEC).
-  ***   at top-level: algdegree([[],[0],0,
-  ***                 ^--------------------
+  ***   at top-level: algdegree([[],[0],0,0,0,0,0,0,[[;]],0,0])
+  ***                 ^-----------------------------------------
   *** algdegree: incorrect type in checkrnf (t_VEC).
-  ***   at top-level: algdegree([rnfinit(n
-  ***                 ^--------------------
+  ***   at top-level: algdegree([rnfinit(nfinit(y),x),[[]],0,0,0,0,0
+  ***                 ^----------------------------------------------
   *** algdegree: incorrect type in alg_get_degree [use alginit] (t_VEC).
-  ***   at top-level: algcenter([rnfinit(n
-  ***                 ^--------------------
+  ***   at top-level: algcenter([rnfinit(nfinit(y),x),[[]],0,0,0,0,0
+  ***                 ^----------------------------------------------
   *** algcenter: incorrect type in alg_get_center [use alginit] (t_VEC).
-  ***   at top-level: algcentralproj(almt,
-  ***                 ^--------------------
+  ***   at top-level: algcentralproj(almt,0)
+  ***                 ^----------------------
   *** algcentralproj: incorrect type in alcentralproj (t_INT).
-  ***   at top-level: algcentralproj(almt,
-  ***                 ^--------------------
+  ***   at top-level: algcentralproj(almt,[zero,zero])
+  ***                 ^--------------------------------
   *** algcentralproj: incorrect type in alcentralproj [z[i]'s not surjective] (t_VEC).
   ***   at top-level: algsubalg(almt,0)
   ***                 ^-----------------
@@ -1798,83 +1798,83 @@ x - 12
   ***   at top-level: algisassociative([])
   ***                 ^--------------------
   *** algisassociative: incorrect type in algisassociative (mult. table) (t_VEC).
-  ***   at top-level: algisassociative([ma
-  ***                 ^--------------------
+  ***   at top-level: algisassociative([matid(2),Mat([1,1])])
+  ***                 ^---------------------------------------
   *** algisassociative: incorrect type in algisassociative (mult. table) (t_VEC).
-  ***   at top-level: algisassociative([[1
-  ***                 ^--------------------
+  ***   at top-level: algisassociative([[1,2;3,4],matid(2)])
+  ***                 ^--------------------------------------
   *** algisassociative: incorrect type in algisassociative (mult. table) (t_VEC).
-  ***   at top-level: algisassociative([ma
-  ***                 ^--------------------
+  ***   at top-level: algisassociative([matid(1)],[])
+  ***                 ^-------------------------------
   *** algisassociative: incorrect type in algisassociative (t_VEC).
-  ***   at top-level: algsqr(algtableinit(
-  ***                 ^--------------------
+  ***   at top-level: algsqr(algtableinit([matid(1)]),[1,2]~)
+  ***                 ^---------------------------------------
   *** algsqr: incorrect type in alg_model (t_COL).
-  ***   at top-level: algsqr(al,vector(691
-  ***                 ^--------------------
+  ***   at top-level: algsqr(al,vector(691)~)
+  ***                 ^-----------------------
   *** algsqr: incorrect type in alg_model (t_COL).
-  ***   at top-level: algsqr(al,[1,2,3,4,5
-  ***                 ^--------------------
+  ***   at top-level: algsqr(al,[1,2,3,4,5,6,7,f^2]~)
+  ***                 ^-------------------------------
   *** algsqr: incorrect type in checkalgx (t_POL).
   ***   at top-level: algsqr(al,[f^3,[]]~)
   ***                 ^--------------------
   *** algsqr: incorrect type in checkalgx (t_VEC).
-  ***   at top-level: algmul(al,[;],[1,2]~
-  ***                 ^--------------------
+  ***   at top-level: algmul(al,[;],[1,2]~)
+  ***                 ^---------------------
   *** algmul: incorrect type in algmul (t_COL).
-  ***   at top-level: algdivl(al,[;],matid
-  ***                 ^--------------------
+  ***   at top-level: algdivl(al,[;],matid(1))
+  ***                 ^------------------------
   *** algdivl: impossible inverse in algdivl: [;].
-  ***   at top-level: algdivl(al,matid(1),
-  ***                 ^--------------------
+  ***   at top-level: algdivl(al,matid(1),matrix(1,2))
+  ***                 ^--------------------------------
   *** algdivl: inconsistent dimensions in algdivl (nonsquare).
   ***   at top-level: alginv(al,[0,0]~)
   ***                 ^-----------------
   *** alginv: impossible inverse in alginv: [0, 0]~.
-  ***   at top-level: algalgtobasis(al0mt,
-  ***                 ^--------------------
+  ***   at top-level: algalgtobasis(al0mt,[1]~)
+  ***                 ^-------------------------
   *** algalgtobasis: incorrect type in algalgtobasis [use alginit] (t_VEC).
-  ***   at top-level: algbasistoalg(al0mt,
-  ***                 ^--------------------
+  ***   at top-level: algbasistoalg(al0mt,[1]~)
+  ***                 ^-------------------------
   *** algbasistoalg: incorrect type in algbasistoalg [use alginit] (t_VEC).
-  ***   at top-level: nfgrunwaldwang(nfini
-  ***                 ^--------------------
+  ***   at top-level: nfgrunwaldwang(nfinit(y),0,[],[],'x)
+  ***                 ^------------------------------------
   *** nfgrunwaldwang: incorrect type in nfgrunwaldwang (t_INT).
-  ***   at top-level: alginit(rnfinit(nfin
-  ***                 ^--------------------
+  ***   at top-level: alginit(rnfinit(nfinit(y),x),0)
+  ***                 ^-------------------------------
   *** alginit: incorrect type in alginit (t_INT).
-  ***   at top-level: alginit(rnfinit(nfin
-  ***                 ^--------------------
+  ***   at top-level: alginit(rnfinit(nfinit(y),x),[1,2,3,4])
+  ***                 ^---------------------------------------
   *** alginit: incorrect type in alginit (t_VEC).
-  ***   at top-level: alginit(nfinit(y),[m
-  ***                 ^--------------------
+  ***   at top-level: alginit(nfinit(y),[matid(2),matid(2)])
+  ***                 ^--------------------------------------
   *** alginit: incorrect type in alg_csa_table (t_VEC).
-  ***   at top-level: alginit(nfinit(y),[m
-  ***                 ^--------------------
+  ***   at top-level: alginit(nfinit(y),[matid(2),[0,1;1,0]])
+  ***                 ^---------------------------------------
   *** alginit: domain error in alg_csa_table: (nonsquare) dimension != 1
-  ***   at top-level: nfgrunwaldwang(nfini
-  ***                 ^--------------------
+  ***   at top-level: nfgrunwaldwang(nfinit(y),0,[],[0])
+  ***                 ^----------------------------------
   *** nfgrunwaldwang: incorrect type in nfgrunwaldwang (t_INT).
-  ***   at top-level: nfgrunwaldwang(nfini
-  ***                 ^--------------------
+  ***   at top-level: nfgrunwaldwang(nfinit(y),[2],[],[0])
+  ***                 ^------------------------------------
   *** nfgrunwaldwang: inconsistent dimensions in nfgrunwaldwang [#Lpr != #Ld].
-  ***   at top-level: nfgrunwaldwang(nfini
-  ***                 ^--------------------
+  ***   at top-level: nfgrunwaldwang(nfinit(y),[2],[2],[])
+  ***                 ^------------------------------------
   *** nfgrunwaldwang: domain error in nfgrunwaldwang [pl should have r1 components]: #pl != 1
-  ***   at top-level: nfgrunwaldwang(nfini
-  ***                 ^--------------------
+  ***   at top-level: nfgrunwaldwang(nfinit(y),[2],[6],[0])
+  ***                 ^-------------------------------------
   *** nfgrunwaldwang: sorry, nfgrunwaldwang for non prime-power local degrees (a) is not yet implemented.
-  ***   at top-level: nfgrunwaldwang(nfini
-  ***                 ^--------------------
+  ***   at top-level: nfgrunwaldwang(nfinit(y),[2,3],[2,3],[0])
+  ***                 ^-----------------------------------------
   *** nfgrunwaldwang: sorry, nfgrunwaldwang for non prime-power local degrees (b) is not yet implemented.
-  ***   at top-level: nfgrunwaldwang(nfini
-  ***                 ^--------------------
+  ***   at top-level: nfgrunwaldwang(nfinit(y),[2],[3],[-1])
+  ***                 ^--------------------------------------
   *** nfgrunwaldwang: sorry, nfgrunwaldwang for non prime-power local degrees (c) is not yet implemented.
-  ***   at top-level: nfgrunwaldwang(nfini
-  ***                 ^--------------------
+  ***   at top-level: nfgrunwaldwang(nfinit(y),[[]~],[3],[-1])
+  ***                 ^----------------------------------------
   *** nfgrunwaldwang: incorrect type in checkprid (t_COL).
-  ***   at top-level: nfgrunwaldwang(nfini
-  ***                 ^--------------------
+  ***   at top-level: nfgrunwaldwang(nfinit(y),[2],[9],[0])
+  ***                 ^-------------------------------------
   *** nfgrunwaldwang: sorry, nfgrunwaldwang for non-prime degree is not yet implemented.
   ***   at top-level: algdegree(A)
   ***                 ^------------
@@ -1903,38 +1903,38 @@ x - 12
   ***   at top-level: alginv(A,1)
   ***                 ^-----------
   *** alginv: incorrect type in alg_model (t_INT).
-  ***   at top-level: ...;PR=idealprimedec(K,2);A=alginit(K,[3,[PR,[1]
-  ***                                             ^--------------------
+  ***   at top-level: ...;PR=idealprimedec(K,2);A=alginit(K,[3,[PR,[1]]
+  ***                                             ^---------------------
   *** alginit: domain error in checkhasse: Hasse invariant at real place [must be 0 or 1/2] != 0
-  ***   at top-level: ...;P3=idealprimedec(K,3);A=alginit(K,[3,[concat
-  ***                                             ^--------------------
+  ***   at top-level: ...;P3=idealprimedec(K,3);A=alginit(K,[3,[concat(
+  ***                                             ^---------------------
   *** alginit: domain error in checkhasse: Hasse invariant at real place [must be 0 or 1/2] != 0
-  ***   at top-level: algtensor(alginit(nf
-  ***                 ^--------------------
+  ***   at top-level: algtensor(alginit(nfinit(y),2),alginit(nfinit(
+  ***                 ^----------------------------------------------
   *** algtensor: inconsistent tensor product [not the same center] t_VEC (11 elts) , t_VEC (11 elts).
-  ***   at top-level: algtensor(alginit(nf
-  ***                 ^--------------------
+  ***   at top-level: algtensor(alginit(nfinit(y),2),alginit(nfinit(
+  ***                 ^----------------------------------------------
   *** algtensor: sorry, tensor of cylic algebras of non-coprime degrees is not yet implemented.
-  ***   at top-level: alginit(nf,[2,[[p2,p
-  ***                 ^--------------------
+  ***   at top-level: alginit(nf,[2,[[p2,p2],[1/2,1/2]],[0]])
+  ***                 ^---------------------------------------
   *** alginit: error in checkhasse [duplicate prime ideal].
-  ***   at top-level: alginit(nf,[2,[[p2,p
-  ***                 ^--------------------
+  ***   at top-level: alginit(nf,[2,[[p2,p3],[1/2,1/2]],[0,0]])
+  ***                 ^-----------------------------------------
   *** alginit: domain error in checkhasse [hi should have r1 components]: #hi != 1
-  ***   at top-level: alginit(nf,[2,[[p2,p
-  ***                 ^--------------------
+  ***   at top-level: alginit(nf,[2,[[p2,p3],[1/2,1/2],0],[0]])
+  ***                 ^-----------------------------------------
   *** alginit: incorrect type in Hasse invariant (t_VEC).
-  ***   at top-level: alginit(nf,[2,[0,[1/
-  ***                 ^--------------------
+  ***   at top-level: alginit(nf,[2,[0,[1/2,1/2]],[0]])
+  ***                 ^---------------------------------
   *** alginit: incorrect type in Hasse invariant (t_VEC).
-  ***   at top-level: alginit(nf,[2,[[p2,p
-  ***                 ^--------------------
+  ***   at top-level: alginit(nf,[2,[[p2,p3],0],[0]])
+  ***                 ^-------------------------------
   *** alginit: incorrect type in Hasse invariant (t_INT).
-  ***   at top-level: alginit(nf,[2,[[p2,p
-  ***                 ^--------------------
+  ***   at top-level: alginit(nf,[2,[[p2,p3],[1/2,1/2,0]],[0]])
+  ***                 ^-----------------------------------------
   *** alginit: inconsistent dimensions in checkhasse [Lpr and Lh should have same length].
-  ***   at top-level: alginit(nf,[2,[[p2,p
-  ***                 ^--------------------
+  ***   at top-level: alginit(nf,[2,[[p2,p3],[1/2,1/2]],[1/3]])
+  ***                 ^-----------------------------------------
   *** alginit: domain error in hasseconvert [degree should be a denominator of the invariant]: denom(h) ndiv 2
 1/2
 0
@@ -2050,8 +2050,8 @@ non associative algebra
 csa without maximal order
 nfgrunwaldwang SEGV #1669
 x^2 + Mod(-17, y)
-  ***   at top-level: nfgrunwaldwang(nfini
-  ***                 ^--------------------
+  ***   at top-level: nfgrunwaldwang(nfinit(x),[2,3],[1,2],Vecsmall(
+  ***                 ^----------------------------------------------
   *** nfgrunwaldwang: incorrect priority in nfgrunwaldwang: variable x >= x
 simplify bug #1671
 testing simplify: degree 1 cyclic over Q
@@ -2386,14 +2386,14 @@ alggroup
   ***   at top-level: alggroup(["a"])
   ***                 ^---------------
   *** alggroup: incorrect type in checkgroup (element) (t_STR).
-  ***   at top-level: alggroup(["a","b","c
-  ***                 ^--------------------
+  ***   at top-level: alggroup(["a","b","c"])
+  ***                 ^-----------------------
   *** alggroup: incorrect type in checkgroup (element) (t_STR).
-  ***   at top-level: alggroup([Vecsmall([
-  ***                 ^--------------------
+  ***   at top-level: alggroup([Vecsmall([1]),Vecsmall([1,2]),Vecsma
+  ***                 ^----------------------------------------------
   *** alggroup: inconsistent dimensions in checkgroup [length of permutations].
-  ***   at top-level: alggroup([Vecsmall([
-  ***                 ^--------------------
+  ***   at top-level: alggroup([Vecsmall([1]),Vecsmall([2,3]),Vecsma
+  ***                 ^----------------------------------------------
   *** alggroup: inconsistent dimensions in checkgroup [length of permutations].
 [0, 0, 0, 0, 0, 0, [1, 0; 0, 1], [1, 0; 0, 1], [[1, 0; 0, 1], [0, 1; 1, 0]],
  0, [2, 0]]
@@ -2603,8 +2603,8 @@ D62
 D74
 1
 1
-  ***   at top-level: alggroupcenter(['x,'
-  ***                 ^--------------------
+  ***   at top-level: alggroupcenter(['x,'y])
+  ***                 ^-----------------------
   *** alggroupcenter: incorrect type in checkgroup (element) (t_POL).
   ***   at top-level: alggroupcenter('x,1)
   ***                 ^--------------------
@@ -2612,21 +2612,21 @@ D74
   ***   at top-level: alglathnf(al,0)
   ***                 ^---------------
   *** alglathnf: incorrect type in alglathnf (t_INT).
-  ***   at top-level: alglathnf(al,Mat([0,
-  ***                 ^--------------------
+  ***   at top-level: alglathnf(al,Mat([0,0,0,0,0,0,0,0]))
+  ***                 ^------------------------------------
   *** alglathnf: inconsistent dimensions in alglathnf.
-  ***   at top-level: alglathnf(al,[0;0;0;
-  ***                 ^--------------------
+  ***   at top-level: alglathnf(al,[0;0;0;0;0;0;0;0])
+  ***                 ^-------------------------------
   *** alglathnf: inconsistent dimensions in alglathnf.
 []
-  ***   at top-level: alglathnf(al,fakemat
-  ***                 ^--------------------
+  ***   at top-level: alglathnf(al,fakemat)
+  ***                 ^---------------------
   *** alglathnf: incorrect type in alglathnf (t_VEC).
-  ***   at top-level: alglathnf(al,matid(8
-  ***                 ^--------------------
+  ***   at top-level: alglathnf(al,matid(8)*0)
+  ***                 ^------------------------
   *** alglathnf: impossible inverse in diviiexact: 0.
-  ***   at top-level: alglathnf(al,fakemat
-  ***                 ^--------------------
+  ***   at top-level: alglathnf(al,fakemat)
+  ***                 ^---------------------
   *** alglathnf: impossible inverse in alglathnf: [0, 0, 0, 0, 0, 0, 0, 0; 0, 1, 0, 0, 0, 0, 0, 0; 0, 0, 1, 0, 0, 0, 0, 0; 0, 0, 0, 1, 0, 0, 0, 0; 0, 0, 0, 0, 1, 0, 0, 0; 0, 0, 0, 0, 0, 1, 0, 0; 0, 0, 0, 0, 0, 0, 1, 0; 0, 0, 0, 0, 0, 0, 0, 1].
 1
 1
@@ -2649,8 +2649,8 @@ should fail:
 1
 1
 1
-  ***   at top-level: algmakeintegral('x,1
-  ***                 ^--------------------
+  ***   at top-level: algmakeintegral('x,1)
+  ***                 ^---------------------
   *** algmakeintegral: incorrect type in algmakeintegral (t_POL).
 
 [1   0]
@@ -2686,4 +2686,4 @@ should fail:
 1
 1
 1
-Total time spent: 10428
+Total time spent: 10552

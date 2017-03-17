@@ -52,8 +52,8 @@ break> break
 ? f(221,3)
   ***   at top-level: f(221,3)
   ***                 ^--------
-  ***   in function f: my(z=x^2+1);breakpoint();gcd(N,z
-  ***                              ^--------------------
+  ***   in function f: my(z=x^2+1);breakpoint();gcd(N,z^2+1-z)
+  ***                              ^---------------------------
 
   ***   Break loop: <Return> to continue; 'break' to go back to GP prompt
 break> z
@@ -123,4 +123,4 @@ T
 break> break
 
 ? print("Total time spent: ",gettime);
-Total time spent: 4
+Total time spent: 0

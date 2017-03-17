@@ -328,8 +328,8 @@ Vecsmall([4, 5, 3])
   ***   at top-level: vecextract([1],11)
   ***                 ^------------------
   *** vecextract: incorrect type in vecextract [mask too large] (t_INT).
-  ***   at top-level: vecextract([1],"1..2
-  ***                 ^--------------------
+  ***   at top-level: vecextract([1],"1..2")
+  ***                 ^----------------------
   *** vecextract: incorrect type in vecextract [incorrect range] (t_STR).
   ***   at top-level: vecextract([1],1/2)
   ***                 ^-------------------
@@ -337,8 +337,8 @@ Vecsmall([4, 5, 3])
   ***   at top-level: vecextract(1,1)
   ***                 ^---------------
   *** vecextract: incorrect type in extract (t_INT).
-  ***   at top-level: vecextract(matid(2),
-  ***                 ^--------------------
+  ***   at top-level: vecextract(matid(2),[3],[])
+  ***                 ^---------------------------
   *** vecextract: incorrect type in vecextract [incorrect mask] (t_VEC).
   ***   at top-level: [1][2..3]
   ***                 ^---------

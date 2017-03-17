@@ -369,22 +369,22 @@ Mat([0, 0, 0, 2, 0]), 2]]], [[0]~, Mat(1)]]], [[2], Vecsmall([1]), Mat(1/2),
 [[[0, 0, 0]], [[]], [], [[0, 0, 0], []]]
 [[[matrix(0,2), 0, 0, 0]], [[Mat([50, 1]), 0, 0, 0]], [], [[Mat([50, 2]), 0,
  0, 0], [Mat([56, 1]), 0, 0, 0]]]
-  ***   at top-level: nfinit([y^3+2,[1,x]]
-  ***                 ^--------------------
+  ***   at top-level: nfinit([y^3+2,[1,x]])
+  ***                 ^---------------------
   *** nfinit: incorrect type in nfbasic_init (t_VEC).
-  ***   at top-level: nfinit([y^3+2,[1,x,x
-  ***                 ^--------------------
+  ***   at top-level: nfinit([y^3+2,[1,x,x^2]])
+  ***                 ^-------------------------
   *** nfinit: incorrect type in nfbasic_init (t_VEC).
-  ***   at top-level: nfinit([y^3+2,[1,y^5
-  ***                 ^--------------------
+  ***   at top-level: nfinit([y^3+2,[1,y^5,y]])
+  ***                 ^-------------------------
   *** nfinit: incorrect type in nfbasic_init (t_VEC).
 2
 [6416795761]
   ***   at top-level: nfnewprec(x)
   ***                 ^------------
   *** nfnewprec: incorrect type in nfnewprec (t_POL).
-  ***   at top-level: nfnewprec(quadgen(5)
-  ***                 ^--------------------
+  ***   at top-level: nfnewprec(quadgen(5))
+  ***                 ^---------------------
   *** nfnewprec: incorrect type in nfnewprec (t_QUAD).
   ***   at top-level: nfnewprec(vector(5))
   ***                 ^--------------------
@@ -398,8 +398,8 @@ Mat([0, 0, 0, 2, 0]), 2]]], [[0]~, Mat(1)]]], [[2], Vecsmall([1]), Mat(1/2),
   ***   at top-level: nfnewprec(vector(9))
   ***                 ^--------------------
   *** nfnewprec: incorrect type in nfnewprec (t_VEC).
-  ***   at top-level: nfnewprec(vector(16)
-  ***                 ^--------------------
+  ***   at top-level: nfnewprec(vector(16))
+  ***                 ^---------------------
   *** nfnewprec: incorrect type in nfnewprec (t_VEC).
 [x^7 - x^6 + x^5 - x^4 - x^3 - x^2, x^9 + x^8 + x^7 + x^6 + 2*x^4 + 2*x^3 + 
 x^2 + x + 1, x^10 + x^9 - x^8 - x^3 - x^2 - x, x^10 + x^9 + 2*x^7 + x^6 + x^
@@ -477,18 +477,18 @@ d(-62626/622201*y - 860751/622201, y^2 - 5), x^10 + 5*x^9 + 15*x^8 + 30*x^7
 )*x + Mod(y + 6, y^2 - 5)), -1]
 [x^2 + x + 1, Mod(0, x^2 + x + 1), Mod(x, x^2 + x + 1), -1]
 [25339, [10960, 0, 0, -3420]~]
-  ***   at top-level: nfcompositum(nfinit(
-  ***                 ^--------------------
+  ***   at top-level: nfcompositum(nfinit(x-1),x^3-2,x^3-1)
+  ***                 ^-------------------------------------
   *** nfcompositum: incorrect priority in polcompositum: variable x == x
-  ***   at top-level: nfcompositum(nfinit(
-  ***                 ^--------------------
+  ***   at top-level: nfcompositum(nfinit(x^2+1),x^3-2,x^3-1)
+  ***                 ^---------------------------------------
   *** nfcompositum: incorrect priority in polcompositum: variable x == x
-  ***   at top-level: nfcompositum(nfinit(
-  ***                 ^--------------------
+  ***   at top-level: nfcompositum(nfinit(x-1),y^3-2,y^3-1)
+  ***                 ^-------------------------------------
   *** nfcompositum: incorrect priority in nffactor: variable y >= x
 [x^3 - 3*x^2 + 3*x + 1, x^6 + 3*x^5 + 6*x^4 + 11*x^3 + 12*x^2 - 3*x + 1]
-  ***   at top-level: nfcompositum(bnfinit
-  ***                 ^--------------------
+  ***   at top-level: nfcompositum(bnfinit(x),x^3-2,x^3-1)
+  ***                 ^------------------------------------
   *** nfcompositum: incorrect priority in polcompositum: variable x == x
 [x^3 - 3*x^2 + 3*x + 1, x^6 + 3*x^5 + 6*x^4 + 11*x^3 + 12*x^2 - 3*x + 1]
   ***   at top-level: nfisisom(x,x^0)
@@ -497,4 +497,4 @@ d(-62626/622201*y - 860751/622201, y^2 - 5), x^10 + 5*x^9 + 15*x^8 + 30*x^7
 [[4]~, [33/343, 2/2401]~]
 Mod(1/2*x - 1/2, x^2 + 23)
 [1, 2]~
-Total time spent: 1868
+Total time spent: 1892

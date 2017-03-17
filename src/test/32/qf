@@ -19,8 +19,8 @@ Vecsmall([0, 0, 0, 133, 165, 638, 396, 4268])
 [0, 0, [;]]
 []
 [0, 0, [;]]
-  ***   at top-level: qfminim(L~*L,10^16)[
-  ***                 ^--------------------
+  ***   at top-level: qfminim(L~*L,10^16)[2]
+  ***                 ^----------------------
   *** qfminim: precision too low in qfminim.
 10000000000000000.000
 [0, 1]~
@@ -63,13 +63,13 @@ Vecsmall([0, 0, 0, 133, 165, 638, 396, 4268])
   ***   at top-level: qfeval(,[1],[1,2])
   ***                 ^------------------
   *** qfeval: inconsistent dimensions in qfeval.
-  ***   at top-level: qfeval(q,[1,2],[1,2]
-  ***                 ^--------------------
+  ***   at top-level: qfeval(q,[1,2],[1,2])
+  ***                 ^---------------------
   *** qfeval: inconsistent dimensions in qfevalb.
-  ***   at top-level: qfeval(Mat([1,2]),[1
-  ***                 ^--------------------
+  ***   at top-level: qfeval(Mat([1,2]),[1,2],[1,2])
+  ***                 ^------------------------------
   *** qfeval: inconsistent operation 'RgV_RgM_mul' t_VEC (2 elts) , t_MAT (1x2).
   ***   at top-level: qfeval(1,1)
   ***                 ^-----------
   *** qfeval: incorrect type in qfeval (t_INT).
-Total time spent: 13
+Total time spent: 16

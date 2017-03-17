@@ -21,14 +21,14 @@
 
 [Mod(1, 3)*x^2 + (Mod(1, 3) + Mod(1, 3)*I) 1]
 
-  ***   at top-level: factor(x^2+Mod(1,5)*
-  ***                 ^--------------------
+  ***   at top-level: factor(x^2+Mod(1,5)*I)
+  ***                 ^----------------------
   *** factor: sorry, factor for general polynomials is not yet implemented.
 
 [(1 + O(5))*x^2 + O(5)*x + (2 + O(5)) 1]
 
-  ***   at top-level: factor(x^2+(1+O(3))+
-  ***                 ^--------------------
+  ***   at top-level: factor(x^2+(1+O(3))+I)
+  ***                 ^----------------------
   *** factor: sorry, factor for general polynomial is not yet implemented.
 
 [(1 + O(5))*x + (2 + O(5)) 1]
@@ -40,16 +40,16 @@
 
 [x + (-1 + w) 1]
 
-  ***   at top-level: factor(x^2+quadgen(-
-  ***                 ^--------------------
+  ***   at top-level: factor(x^2+quadgen(-3)*Mod(1,3))
+  ***                 ^--------------------------------
   *** factor: sorry, factor for general polynomial is not yet implemented.
 
 [Mod(1, 5)*x + (Mod(4, 5) + Mod(1, 5)*w) 1]
 
 [Mod(1, 5)*x + (Mod(1, 5) + Mod(4, 5)*w) 1]
 
-  ***   at top-level: factor(x^2+quadgen(-
-  ***                 ^--------------------
+  ***   at top-level: factor(x^2+quadgen(-3)*(1+O(5)))
+  ***                 ^--------------------------------
   *** factor: sorry, factor for general polynomial is not yet implemented.
   ***   at top-level: factor(x^2+quadgen(-3)*(1+O(3)))
   ***                                       ^----------
@@ -64,11 +64,11 @@ Mod(1, 3)*y^2 + Mod(1, 3)) 1]
 [Mod(Mod(1, 3), Mod(1, 3)*y^2 + Mod(1, 3))*x + Mod(Mod(2, 3)*y + Mod(2, 3), 
 Mod(1, 3)*y^2 + Mod(1, 3)) 1]
 
-  ***   at top-level: factor(x^2+Mod(y*Mod
-  ***                 ^--------------------
+  ***   at top-level: factor(x^2+Mod(y*Mod(1,5),y^2+1))
+  ***                 ^---------------------------------
   *** factor: sorry, factor for general polynomial is not yet implemented.
-  ***   at top-level: factor(x^2+Mod(y*(1+
-  ***                 ^--------------------
+  ***   at top-level: factor(x^2+Mod(y*(1+O(3)),y^2+1))
+  ***                 ^---------------------------------
   *** factor: sorry, factor for general polynomial is not yet implemented.
 
 [       I  1]
@@ -146,4 +146,4 @@ Mod(1, 3)*y^2 + Mod(1, 3)) 1]
 
 [x + 2 -1]
 
-Total time spent: 8
+Total time spent: 4

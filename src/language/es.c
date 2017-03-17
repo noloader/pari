@@ -1744,7 +1744,7 @@ print_prefixed_text(PariOUT *out, const char *s, const char *prefix,
   pari_free(word);
 }
 
-#define STR_LEN 20
+#define CONTEXT_LEN 46
 #define MAX_TERM_COLOR 16
 /* Outputs a beautiful error message (not \n terminated)
  *   msg is errmessage to print.
@@ -1755,8 +1755,8 @@ print_errcontext(PariOUT *out,
                  const char *msg, const char *s, const char *entry)
 {
   const long MAX_PAST = 25;
-  long past = s - entry, lmsg;
-  char str[STR_LEN + 1 + 1], pre[MAX_TERM_COLOR + 8 + 1];
+  long past = s - entry, future, lmsg;
+  char str[CONTEXT_LEN + 1 + 1], pre[MAX_TERM_COLOR + 8 + 1];
   char *buf, *t;
 
   if (!s || !entry) { print_prefixed_text(out, msg,"  ***   ",NULL); return; }
@@ -1778,7 +1778,8 @@ print_errcontext(PariOUT *out,
 
   /* suffix (past arrow) */
   t = str; if (!past) *t++ = ' ';
-  strncpy(t, s, STR_LEN); t[STR_LEN] = 0;
+  future = CONTEXT_LEN - past;
+  strncpy(t, s, future); t[future] = 0;
   /* prefix '***' */
   term_get_color(pre, c_ERR);
   strcat(pre, "  ***   ");

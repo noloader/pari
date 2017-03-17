@@ -20,8 +20,8 @@ O(x^5)
   ***   at top-level: polylog(3,2,5)
   ***                 ^--------------
   *** polylog: invalid flag in polylog.
-  ***   at top-level: polylog(2,Mod(1,2),0
-  ***                 ^--------------------
+  ***   at top-level: polylog(2,Mod(1,2),0)
+  ***                 ^---------------------
   *** polylog: sorry, padic polylogarithm is not yet implemented.
   ***   at top-level: polylog(3,"",0)
   ***                 ^---------------

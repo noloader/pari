@@ -77,19 +77,19 @@
   ***   at top-level: intnumapinit(x,y)
   ***                 ^-----------------
   ***   not a function in function call
-  ***   at top-level: sumnummonieninit([-1
-  ***                 ^--------------------
+  ***   at top-level: sumnummonieninit([-1,1])
+  ***                 ^------------------------
   *** sumnummonieninit: domain error in sumnummonieninit: a <= 0
-  ***   at top-level: sumnummonieninit([1,
-  ***                 ^--------------------
+  ***   at top-level: sumnummonieninit([1,-1])
+  ***                 ^------------------------
   *** sumnummonieninit: domain error in sumnummonieninit: a+b <= 1
-  ***   at top-level: sumnummonieninit(,[n
-  ***                 ^--------------------
+  ***   at top-level: sumnummonieninit(,[n->2^-n,oo])
+  ***                 ^-------------------------------
   *** sumnummonieninit: forbidden addition t_INT + t_INFINITY.
-  ***   at top-level: sumnumlagrangeinit([
-  ***                 ^--------------------
+  ***   at top-level: sumnumlagrangeinit([1/5,0])
+  ***                 ^---------------------------
   *** sumnumlagrangeinit: sorry, sumnumlagrange for this alpha is not yet implemented.
-  ***   at top-level: sumnumlagrangeinit(x
-  ***                 ^--------------------
+  ***   at top-level: sumnumlagrangeinit(x)
+  ***                 ^---------------------
   *** sumnumlagrangeinit: incorrect type in sumnumlagrangeinit (t_POL).
-Total time spent: 3148
+Total time spent: 3384

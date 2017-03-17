@@ -87,7 +87,7 @@
   ***   at top-level: znchar([1,2])
   ***                 ^-------------
   *** znchar: incorrect type in znchar (t_VEC).
-  ***   at top-level: znchar([znstar(100,1
-  ***                 ^--------------------
+  ***   at top-level: znchar([znstar(100,1),[1,2,3]])
+  ***                 ^-------------------------------
   *** znchar: incorrect type in znchar (t_VEC).
 Total time spent: 0

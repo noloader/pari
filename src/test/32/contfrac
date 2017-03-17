@@ -1,8 +1,8 @@
   ***   at top-level: contfrac(1,[],-1)
   ***                 ^-----------------
   *** contfrac: domain error in contfrac: nmax < 0
-  ***   at top-level: contfracpnqn(Vecsmal
-  ***                 ^--------------------
+  ***   at top-level: contfracpnqn(Vecsmall([]))
+  ***                 ^--------------------------
   *** contfracpnqn: incorrect type in pnqn (t_VECSMALL).
 
 [1 0]

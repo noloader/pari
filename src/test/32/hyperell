@@ -104,10 +104,10 @@ x^2 - 2
 x^2 - 4
 x^2 - 2
 x^2 - 686
-  ***   at top-level: hyperellcharpoly((25
-  ***                 ^--------------------
+  ***   at top-level: hyperellcharpoly((256*a^5+5)*Mod(1,5))
+  ***                 ^--------------------------------------
   *** hyperellcharpoly: domain error in hyperellpadicfrobenius: H is singular at 5
-  ***   at top-level: hyperellcharpoly((25
-  ***                 ^--------------------
+  ***   at top-level: hyperellcharpoly((256*a^5+5)*ffgen(5^2))
+  ***                 ^----------------------------------------
   *** hyperellcharpoly: domain error in hyperellpadicfrobenius: H is singular at 5
-Total time spent: 3592
+Total time spent: 2952

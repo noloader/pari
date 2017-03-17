@@ -193,8 +193,8 @@ x + 9233, 1; x + 9244, 1; x + 9247, 1; x + 9261, 1; x + 9269, 1; x + 9270, 1
 [Mod(1, 41), Mod(3, 41), Mod(9, 41), Mod(14, 41), Mod(27, 41), Mod(32, 41), 
 Mod(38, 41), Mod(40, 41)]~
 [Mod(1, 5), Mod(2, 5)]~
-  ***   at top-level: polrootsmod(Pol(0),2
-  ***                 ^--------------------
+  ***   at top-level: polrootsmod(Pol(0),2)
+  ***                 ^---------------------
   *** polrootsmod: zero polynomial in rootmod.
 []~
 
@@ -214,8 +214,8 @@ Mod(38, 41), Mod(40, 41)]~
 [2 1]
 
 [Mod(1, 7), Mod(2, 7), Mod(3, 7), Mod(5, 7), Mod(6, 7)]~
-  ***   at top-level: polrootsmod(Pol(0),p
-  ***                 ^--------------------
+  ***   at top-level: polrootsmod(Pol(0),p)
+  ***                 ^---------------------
   *** polrootsmod: zero polynomial in rootmod.
 []~
 [Mod(0, 18446744073709551629)]~
@@ -251,10 +251,10 @@ Mod(38, 41), Mod(40, 41)]~
 
 [Mod(1, 100000000000000000039)*x + Mod(1, 100000000000000000039) 2]
 
-  ***   at top-level: polrootsmod(x^3-1,2^
-  ***                 ^--------------------
+  ***   at top-level: polrootsmod(x^3-1,2^101-1)
+  ***                 ^--------------------------
   *** polrootsmod: not a prime number in polrootsmod: 2535301200456458802993406410751.
-  ***   at top-level: polrootsmod(x^10-1,1
-  ***                 ^--------------------
+  ***   at top-level: polrootsmod(x^10-1,1023)
+  ***                 ^------------------------
   *** polrootsmod: not a prime number in polrootsmod: 1023.
-Total time spent: 56
+Total time spent: 84

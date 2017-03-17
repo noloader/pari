@@ -148,12 +148,12 @@
   ***   incorrect type in intnumgauss (t_STR).
 ? intnuminit([oo,1+I],[oo,""])
   *** intnuminit: Warning: real(z)*imag(z)!=0 in endpoint code, real(z) ignored.
-  ***   at top-level: intnuminit([oo,1+I],
-  ***                 ^--------------------
+  ***   at top-level: intnuminit([oo,1+I],[oo,""])
+  ***                 ^----------------------------
   *** intnuminit: incorrect type in intnum [incorrect b] (t_VEC).
 ? intnuminit([oo,1+I,2],[oo,1])
-  ***   at top-level: intnuminit([oo,1+I,2
-  ***                 ^--------------------
+  ***   at top-level: intnuminit([oo,1+I,2],[oo,1])
+  ***                 ^-----------------------------
   *** intnuminit: incorrect type in intnum [incorrect a] (t_VEC).
 ? intnum(x=oo,oo,1)
   ***   Warning: integral from oo to oo.
@@ -162,8 +162,8 @@
   ***   Warning: integral from -oo to -oo.
 0
 ? intnuminit(x=-oo,oo,-1);
-  ***   at top-level: intnuminit(x=-oo,oo,
-  ***                 ^--------------------
+  ***   at top-level: intnuminit(x=-oo,oo,-1)
+  ***                 ^-----------------------
   *** intnuminit: domain error in intnuminit: m < 0
 ? intfuncinit(t=0,1,s);
   ***   at top-level: intfuncinit(t=0,1,s)
@@ -174,4 +174,4 @@
   ***                                             ^--
   ***   sorry, intfuncinit with hard endpoint behaviour is not yet implemented.
 ? print("Total time spent: ",gettime);
-Total time spent: 1706
+Total time spent: 1572

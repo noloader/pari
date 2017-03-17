@@ -1,19 +1,19 @@
 [;]
 [1, 0]
-  ***   at top-level: idealaddtoone(Q,2,[;
-  ***                 ^--------------------
+  ***   at top-level: idealaddtoone(Q,2,[;])
+  ***                 ^----------------------
   *** idealaddtoone: elements not coprime in idealaddtoone:
     Mat(2)
     [;]
-  ***   at top-level: idealaddtoone(Q,[;],
-  ***                 ^--------------------
+  ***   at top-level: idealaddtoone(Q,[;],[;])
+  ***                 ^------------------------
   *** idealaddtoone: elements not coprime in idealaddtoone:
     [;]
     [;]
 [1, 0]
 [[1]~, 0]
-  ***   at top-level: idealaddtoone(Q,[1,[
-  ***                 ^--------------------
+  ***   at top-level: idealaddtoone(Q,[1,[;],Mat(1/2)])
+  ***                 ^---------------------------------
   *** idealaddtoone: incorrect type in idealaddmultoone [integer matrix] (t_MAT).
   ***   at top-level: ideallog(Q,2,zQ)
   ***                 ^----------------
@@ -120,11 +120,11 @@
 
 [   0  0    1]
 
-  ***   at top-level: idealmul(K,[2,1;0,1]
-  ***                 ^--------------------
+  ***   at top-level: idealmul(K,[2,1;0,1],[2,1;0,1])
+  ***                 ^-------------------------------
   *** idealmul: inconsistent dimensions in idealmul.
-  ***   at top-level: idealmul(K,matid(4),
-  ***                 ^--------------------
+  ***   at top-level: idealmul(K,matid(4),matid(4))
+  ***                 ^-----------------------------
   *** idealmul: inconsistent dimensions in idealmul.
 5
 
@@ -210,4 +210,4 @@
 []
   *** nfinit: Warning: non-monic polynomial. Result of the form [nf,c].
 [[2, [0, 1]~, 2, 1, [0, -2; 1, 0]]]
-Total time spent: 20
+Total time spent: 16

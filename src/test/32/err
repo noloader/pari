@@ -12,8 +12,8 @@
   ***                  ^--------
   *** matsolve: impossible inverse in gauss: Mat(0).
 
-  ***   at top-level: (matsolve)(Mat(0),Col
-  ***                  ^--------------------
+  ***   at top-level: (matsolve)(Mat(0),Col(1))
+  ***                  ^------------------------
   *** matsolve: impossible inverse in gauss: Mat(0).
 
   ***   at top-level: g(I)
@@ -32,8 +32,8 @@
 
 274177
 274177
-  ***   at top-level: ...=2;A=x^2+1;B=[x+t,x+t];r=polhensellift(A,B,[p
-  ***                                             ^--------------------
+  ***   at top-level: ...=2;A=x^2+1;B=[x+t,x+t];r=polhensellift(A,B,[p,
+  ***                                             ^---------------------
   *** polhensellift: elements not coprime in BuildTree:
     x + t
     x + t
@@ -106,8 +106,8 @@
   ***   at top-level: addprimes(1.)
   ***                 ^-------------
   *** addprimes: incorrect type in addprimes [integer vector] (t_VEC).
-  ***   at top-level: nfalgtobasis(nfinit(
-  ***                 ^--------------------
+  ***   at top-level: nfalgtobasis(nfinit(t^3-2),Mod(t,t^2+1))
+  ***                 ^----------------------------------------
   *** nfalgtobasis: inconsistent moduli in algtobasis: t^3 - 2 != t^2 + 1
   ***   at top-level: vector(-1,i,0)
   ***                 ^--------------
@@ -251,8 +251,8 @@
   ***   at top-level: eta(1/x)
   ***                 ^--------
   *** eta: domain error in eta: v_p(q) <= 0
-  ***   at top-level: idealhnf(K,Qfb(1,1,1
-  ***                 ^--------------------
+  ***   at top-level: idealhnf(K,Qfb(1,1,1))
+  ***                 ^----------------------
   *** idealhnf: domain error in idealhnf [Qfb]: disc(q) != -4
   ***   at top-level: idealfactor(K,[;])
   ***                 ^------------------
@@ -287,38 +287,38 @@
   ***   at top-level: ...],Vecsmall([2,2,2,2,3])];galoissubgroups(G)
   ***                                             ^------------------
   *** galoissubgroups: sorry, group_quotient for a non-WSS group is not yet implemented.
-  ***   at top-level: bnrstark(bnrinit(bnf
-  ***                 ^--------------------
+  ***   at top-level: bnrstark(bnrinit(bnfinit(y^2+1),2))
+  ***                 ^-----------------------------------
   *** bnrstark: domain error in bnrstark: r2 != 0
-  ***   at top-level: bnrstark(bnrinit(bnf
-  ***                 ^--------------------
+  ***   at top-level: bnrstark(bnrinit(bnfinit(y^2-2),[4,[1,1]]))
+  ***                 ^-------------------------------------------
   *** bnrstark: domain error in bnrstark: r2(class field) != 0
   ***   at top-level: quadray(-16,1)
   ***                 ^--------------
   *** quadray: domain error in quadray: isfundamental(D) = 0
-  ***   at top-level: quadray(bnfinit(x^3-
-  ***                 ^--------------------
+  ***   at top-level: quadray(bnfinit(x^3-2),1)
+  ***                 ^-------------------------
   *** quadray: domain error in quadray: degree != 2
   ***   at top-level: galoissubcyclo(-1)
   ***                 ^------------------
   *** galoissubcyclo: domain error in galoissubcyclo: degree <= 0
-  ***   at top-level: galoissubcyclo(6,Mod
-  ***                 ^--------------------
+  ***   at top-level: galoissubcyclo(6,Mod(1,3))
+  ***                 ^--------------------------
   *** galoissubcyclo: inconsistent moduli in galoissubcyclo: 6 != 3
-  ***   at top-level: galoissubcyclo(6,[;]
-  ***                 ^--------------------
+  ***   at top-level: galoissubcyclo(6,[;])
+  ***                 ^---------------------
   *** galoissubcyclo: incorrect type in galoissubcyclo [H not in HNF] (t_MAT).
-  ***   at top-level: galoissubcyclo(6,Mat
-  ***                 ^--------------------
+  ***   at top-level: galoissubcyclo(6,Mat(1))
+  ***                 ^------------------------
   *** galoissubcyclo: incorrect type in galoissubcyclo [N not a bnrinit or znstar] (t_MAT).
-  ***   at top-level: galoissubcyclo(znsta
-  ***                 ^--------------------
+  ***   at top-level: galoissubcyclo(znstar(5),matid(2))
+  ***                 ^----------------------------------
   *** galoissubcyclo: inconsistent dimensions in galoissubcyclo.
-  ***   at top-level: galoissubcyclo([3,[3
-  ***                 ^--------------------
+  ***   at top-level: galoissubcyclo([3,[3],[3]],Mat(3))
+  ***                 ^----------------------------------
   *** galoissubcyclo: incorrect type in galoissubcyclo (t_VEC).
-  ***   at top-level: galoissubcyclo(bnrin
-  ***                 ^--------------------
+  ***   at top-level: galoissubcyclo(bnrinit(bnfinit(y^2+1),1),2)
+  ***                 ^-------------------------------------------
   *** galoissubcyclo: domain error in bnr_to_znstar: bnr != Q
   ***   at top-level: polsubcyclo(-1,2)
   ***                 ^-----------------
@@ -344,8 +344,8 @@
   ***   at top-level: znprimroot(8)
   ***                 ^-------------
   *** znprimroot: domain error in znprimroot: argument = 8
-  ***   at top-level: polroots(x^2+Mod(1,2
-  ***                 ^--------------------
+  ***   at top-level: polroots(x^2+Mod(1,2))
+  ***                 ^----------------------
   *** polroots: incorrect type in roots (t_INTMOD).
   ***   at top-level: polroots(0)
   ***                 ^-----------
@@ -359,17 +359,17 @@
   ***   at top-level: addprimes(-1)
   ***                 ^-------------
   *** addprimes: domain error in addprimes: p < 2
-  ***   at top-level: padicappr(x^2+1+O(3^
-  ***                 ^--------------------
+  ***   at top-level: padicappr(x^2+1+O(3^5),1+O(5))
+  ***                 ^------------------------------
   *** padicappr: inconsistent moduli in Zp_to_Z: 5 != 3
-  ***   at top-level: factorpadic(x^2+1,2,
-  ***                 ^--------------------
+  ***   at top-level: factorpadic(x^2+1,2,-1)
+  ***                 ^-----------------------
   *** factorpadic: domain error in factorpadic: precision <= 0
-  ***   at top-level: polrootspadic(x^2+1,
-  ***                 ^--------------------
+  ***   at top-level: polrootspadic(x^2+1,2,-1)
+  ***                 ^-------------------------
   *** polrootspadic: domain error in rootpadic: precision <= 0
-  ***   at top-level: ellinit([1+O(3),1+O(
-  ***                 ^--------------------
+  ***   at top-level: ellinit([1+O(3),1+O(5)])
+  ***                 ^------------------------
   *** ellinit: inconsistent moduli in ellinit: 3 != 5
   ***   at top-level: ellwp([1,I],I)
   ***                 ^--------------
@@ -404,8 +404,8 @@
   ***   at top-level: qfbprimeform(2,5)
   ***                 ^-----------------
   *** qfbprimeform: domain error in primeform: disc % 4 > 1
-  ***   at top-level: qfbcomp(Qfb(1,1,1),Q
-  ***                 ^--------------------
+  ***   at top-level: qfbcomp(Qfb(1,1,1),Qfb(1,0,2))
+  ***                 ^------------------------------
   ***   not a function in function call
   ***   at top-level: galoisinit(x^2)
   ***                 ^---------------
@@ -416,14 +416,14 @@
   ***   at top-level: ellL1(1,-1)
   ***                 ^-----------
   *** ellL1: domain error in ellL1: derivative order < 0
-  ***   at top-level: ellheegner(ellinit([
-  ***                 ^--------------------
+  ***   at top-level: ellheegner(ellinit([0,-1,1,-10,-20]))
+  ***                 ^-------------------------------------
   *** ellheegner: domain error in ellheegner: (analytic rank)%2 = 0
-  ***   at top-level: ellheegner(ellinit([
-  ***                 ^--------------------
+  ***   at top-level: ellheegner(ellinit([0,0,1,-7,6]))
+  ***                 ^---------------------------------
   *** ellheegner: domain error in ellheegner: analytic rank > 1
-  ***   at top-level: substpol(x+O(x^2),x^
-  ***                 ^--------------------
+  ***   at top-level: substpol(x+O(x^2),x^3,x)
+  ***                 ^------------------------
   *** substpol: domain error in gdeflate: valuation(x) % 3 != 0
   ***   at top-level: intformal(1/(x^2+1))
   ***                 ^--------------------
@@ -434,8 +434,8 @@
   ***   at top-level: component(O(x),2)
   ***                 ^-----------------
   *** component: non-existent component: index > 1
-  ***   at top-level: component(Vecsmall([
-  ***                 ^--------------------
+  ***   at top-level: component(Vecsmall([]),1)
+  ***                 ^-------------------------
   *** component: non-existent component: index > 0
   ***   at top-level: polcoeff(O(x),2)
   ***                 ^----------------
@@ -467,8 +467,8 @@
   ***   at top-level: vecextract([1],[2])
   ***                 ^-------------------
   *** vecextract: non-existent component in vecextract: index >= 2
-  ***   at top-level: idealfrobenius(K,gal
-  ***                 ^--------------------
+  ***   at top-level: idealfrobenius(K,galoisinit(K),idealprimedec(K
+  ***                 ^----------------------------------------------
   *** idealfrobenius: domain error in idealfrobenius: pr.e > 1
   ***   at top-level: nfisincl(x^2,x^2)
   ***                 ^-----------------
@@ -476,17 +476,17 @@
   ***   at top-level: polcompositum(x^2,x)
   ***                 ^--------------------
   *** polcompositum: domain error in polcompositum: issquarefree(arg) = 0
-  ***   at top-level: rnfdedekind(K,x^2+x-
-  ***                 ^--------------------
+  ***   at top-level: rnfdedekind(K,x^2+x-1/3)
+  ***                 ^------------------------
   *** rnfdedekind: incorrect type in rnfdedekind [non integral pol] (t_POL).
   ***   at top-level: hilbert(Mod(1,2),1)
   ***                 ^-------------------
   *** hilbert: precision too low in hilbert.
-  ***   at top-level: hilbert(Mod(1,3),Mod
-  ***                 ^--------------------
+  ***   at top-level: hilbert(Mod(1,3),Mod(1,5))
+  ***                 ^--------------------------
   *** hilbert: inconsistent moduli in hilbert: 5 != 3
-  ***   at top-level: hilbert(Mod(1,3),2,0
-  ***                 ^--------------------
+  ***   at top-level: hilbert(Mod(1,3),2,0)
+  ***                 ^---------------------
   *** hilbert: inconsistent moduli in hilbert: 3 != "oo"
   ***   at top-level: znorder(0)
   ***                 ^----------
@@ -505,8 +505,8 @@
   ***   at top-level: contfrac(1,,-1)
   ***                 ^---------------
   *** contfrac: domain error in gboundcf: nmax < 0
-  ***   at top-level: contfracpnqn(matrix(
-  ***                 ^--------------------
+  ***   at top-level: contfracpnqn(matrix(3,1))
+  ***                 ^-------------------------
   *** contfracpnqn: inconsistent dimensions in pnqn [ nbrows != 1,2 ].
   ***   at top-level: divisors(1/2)
   ***                 ^-------------
@@ -517,17 +517,17 @@
   ***   at top-level: idealstar(K,1/2)
   ***                 ^----------------
   *** idealstar: domain error in Idealstar: denominator(ideal) != 1
-  ***   at top-level: idealaddtoone(K,[[;]
-  ***                 ^--------------------
+  ***   at top-level: idealaddtoone(K,[[;]])
+  ***                 ^----------------------
   *** idealaddtoone: domain error in idealaddmultoone: sum(ideals) != 1
   ***   at top-level: idealdiv(K,1,2,1)
   ***                 ^-----------------
   *** idealdiv: domain error in idealdivexact: denominator(x/y) != 1
-  ***   at top-level: idealred(K,matid(2),
-  ***                 ^--------------------
+  ***   at top-level: idealred(K,matid(2),[])
+  ***                 ^-----------------------
   *** idealred: inconsistent dimensions in idealred.
-  ***   at top-level: idealtwoelt(K,matid(
-  ***                 ^--------------------
+  ***   at top-level: idealtwoelt(K,matid(2),1/2)
+  ***                 ^---------------------------
   *** idealtwoelt: domain error in idealtwoelt2: element mod ideal != 0
   ***   at top-level: rnf=rnfinit(K,x^2-y);rnfeltdown(rnf,x)
   ***                                      ^-----------------
@@ -535,11 +535,11 @@
   ***   at top-level: matid(-1)
   ***                 ^---------
   *** matid: domain error in matid: size < 0
-  ***   at top-level: polinterpolate([1,1]
-  ***                 ^--------------------
+  ***   at top-level: polinterpolate([1,1],[2,3],Pi)
+  ***                 ^------------------------------
   *** polinterpolate: domain error in polinterpolate: X[1] = X[2]
-  ***   at top-level: modreverse(Mod(-x^3+
-  ***                 ^--------------------
+  ***   at top-level: modreverse(Mod(-x^3+9*x,x^4-10*x^2+1))
+  ***                 ^--------------------------------------
   *** modreverse: domain error in modreverse: deg(minpoly(z)) < 4
 [;]
   ***   at top-level: concat([1,2],[3,4]~)
@@ -575,8 +575,8 @@
   ***   at top-level: e.tate
   ***                   ^----
   *** _.tate: incorrect type in tate [not defined over Qp] (t_VEC).
-  ***   at top-level: ellorder(e,[0,0]*Mod
-  ***                 ^--------------------
+  ***   at top-level: ellorder(e,[0,0]*Mod(1,2))
+  ***                 ^--------------------------
   *** ellorder: sorry, ellorder for curve with singular reduction is not yet implemented.
   ***   at top-level: thue(x*(x^3-2),0)
   ***                 ^-----------------
@@ -588,8 +588,8 @@
   ***                             ^------
   ***   domain error in solve: f(a)f(b) > 0
   ***   user warning: 1
-  ***   at top-level: iferr(1/0,E,1,errnam
-  ***                 ^--------------------
+  ***   at top-level: iferr(1/0,E,1,errname(E)=="e_DOMAIN")
+  ***                 ^-------------------------------------
   *** iferr: impossible inverse in gdiv: 0.
 (x)->trap(e_INV,INFINITY,1/x)
 1/2
@@ -601,10 +601,10 @@ INFINITY
   ***                 ^------------
   ***   not a function in function call
 1
-  ***   at top-level: znlog(Mod(1,n),Mod(1
-  ***                 ^--------------------
+  ***   at top-level: znlog(Mod(1,n),Mod(1,n+1))
+  ***                 ^--------------------------
   *** znlog: inconsistent moduli in Rg_to_Fp: (...) != (...)
   ***   at top-level: Mod(0,n)^(-1)
   ***                         ^-----
   *** _^_: impossible inverse in Fp_inv: (...).
-Total time spent: 16
+Total time spent: 12

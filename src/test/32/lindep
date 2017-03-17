@@ -19,8 +19,8 @@ x^2 - 2
 [1, 1, -1]~
 [1, 1, -1]~
 []~
-  ***   at top-level: lindep([[1,0,0]~,[0,
-  ***                 ^--------------------
+  ***   at top-level: lindep([[1,0,0]~,[0,1,0],[1,1,0]])
+  ***                 ^----------------------------------
   *** lindep: incorrect type in lindep (t_VEC).
 [1, 1, -1]~
 Total time spent: 0

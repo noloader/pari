@@ -29,10 +29,10 @@ nb subgroup = 67
   ***   at top-level: subgrouplist(1)
   ***                 ^---------------
   *** subgrouplist: incorrect type in subgrouplist (t_INT).
-  ***   at top-level: subgrouplist([2,2],[
-  ***                 ^--------------------
+  ***   at top-level: subgrouplist([2,2],[2]~)
+  ***                 ^------------------------
   *** subgrouplist: sorry, exact type in subgrouplist is not yet implemented.
-  ***   at top-level: subgrouplist([2,2],-
-  ***                 ^--------------------
+  ***   at top-level: subgrouplist([2,2],-1)
+  ***                 ^----------------------
   *** subgrouplist: domain error in subgroup: index bound <= 0
 Total time spent: 0

@@ -1,11 +1,11 @@
 [-1, -1, -1, -1, 1, 1, 1, 1, 1, -1, 1, -1, -1, 1, 1, 1, 1, 1, -1, -1]
 [-1, -1, -1, 1, 1, -1, -1, -1, 1, -1, 1, 1, -1, -1, 1, -1, -1, 1, -1, -1]
 -1
-  ***   at top-level: nfhilbert(nf,Mod(0,3
-  ***                 ^--------------------
+  ***   at top-level: nfhilbert(nf,Mod(0,3),3,pr)
+  ***                 ^---------------------------
   *** nfhilbert: domain error in nfhilbert: a = 0
-  ***   at top-level: nfhilbert(nf,3,0.,pr
-  ***                 ^--------------------
+  ***   at top-level: nfhilbert(nf,3,0.,pr)
+  ***                 ^---------------------
   *** nfhilbert: domain error in nfhilbert: b = 0
 1
 1
@@ -104,4 +104,4 @@ p = 5:
 -1
 -1
 1
-Total time spent: 1052
+Total time spent: 344
