@@ -41,15 +41,15 @@ all([1]), Mat(1/861), 861/2, Mat(861)]], [[0; 0; 1; 0], [-20; 1; 0; 0], [3;
 1
 0
 0
-  ***   at top-level: rnfdedekind(nf,P,pr2
-  ***                 ^--------------------
+  ***   at top-level: rnfdedekind(nf,P,pr2,1)
+  ***                 ^-----------------------
   *** rnfdedekind: sorry, Dedekind in the difficult case is not yet implemented.
 1
   ***   at top-level: rnfdedekind(nf,P)
   ***                 ^-----------------
   *** rnfdedekind: sorry, Dedekind in the difficult case is not yet implemented.
-  ***   at top-level: rnfdedekind(nf,P,[pr
-  ***                 ^--------------------
+  ***   at top-level: rnfdedekind(nf,P,[pr2,pr3])
+  ***                 ^---------------------------
   *** rnfdedekind: sorry, Dedekind in the difficult case is not yet implemented.
 [[8, 2; 0, 1], [2, 0; 0, 1], [1, 0; 0, 1]]
 1
@@ -834,15 +834,15 @@ error("inconsistent dimensions in idealtwoelt.")
 [0  1   [1/2, 1/2]~]
 
 1
-  ***   at top-level: rnfidealtwoelt(L,[[1
-  ***                 ^--------------------
+  ***   at top-level: rnfidealtwoelt(L,[[1;0],[1/104]])
+  ***                 ^---------------------------------
   *** rnfidealtwoelt: incorrect type in idealtyp [non-square t_MAT] (t_MAT).
 0
 0
 1
 1
 1
-  ***   at top-level: rnfislocalcyclo(rnfi
-  ***                 ^--------------------
+  ***   at top-level: rnfislocalcyclo(rnfinit(K,x^6-y+1))
+  ***                 ^-----------------------------------
   *** rnfislocalcyclo: sorry, rnfislocalcyclo for non-l-extensions is not yet implemented.
-Total time spent: 684
+Total time spent: 668
