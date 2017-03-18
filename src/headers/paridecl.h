@@ -3427,6 +3427,7 @@ GEN     Z_factor_until(GEN n, GEN limit);
 long    Z_issmooth(GEN m, ulong lim);
 GEN     Z_issmooth_fact(GEN m, ulong lim);
 long    Z_issquarefree(GEN x);
+GEN     Z_pollardbrent(GEN n, long rounds, long seed);
 GEN     absZ_factor(GEN n);
 GEN     absZ_factor_limit(GEN n, ulong all);
 long    bigomega(GEN n);
