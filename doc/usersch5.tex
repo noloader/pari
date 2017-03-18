@@ -7030,10 +7030,23 @@ and the $p^{v_p(n)}$.
 \tet{Z_factor}$(n)$.
 
 \fun{GEN}{Z_pollardbrent}{GEN N, long n, long seed} try to factor
-\typ{INT} $N$ using $n$ rounds of Pollard iterations; \var{seed} is an integer
-whose value (mod $8$) selects the quadratic polynomial use to generate
-Pollard's (pseudo)random walk. Returns \kbd{NULL} on failure, else a vector
-of 2 (possibly 3) integers whose product is $N$.
+\typ{INT} $N$ using $n\geq 1$ rounds of Pollard iterations; \var{seed} is an
+integer whose value (mod $8$) selects the quadratic polynomial use to
+generate Pollard's (pseudo)random walk. Returns \kbd{NULL} on failure, else a
+vector of 2 (possibly 3) integers whose product is $N$.
+
+\fun{GEN}{Z_ECM}{GEN N, long n, long seed, ulong B1} try to
+factor \typ{INT} $N$ using $n\geq 1$ rounds of ECM iterations (on $8$ to $64$
+curves simultaneously, depending on the size of $N$); \var{seed} is an
+integer whose value selects the curves to be used: increase it by $64n$ to
+make sure that a subsequent call with a factor of $N$ uses a disjoint set of
+curves.
+Finally the $B_1$ parameter determines the computations performed on the
+curves: we compute $[k]P$ for some point in $E(\Z/N\Z)$ and $k = q \prod
+p^{e_p}$ where $p^{e_p} \leq B_1$ and $q \leq B_2 := 110 B_1$; a higher value
+of $B_1$ means higher chances of hitting a factor and more time spent.
+The computation is deterministic for a given parameters. Returns \kbd{NULL}
+on failure, else a non trivial factor or \kbd{N}.
 
 \subsec{Coprime factorization}
 

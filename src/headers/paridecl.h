@@ -3421,6 +3421,7 @@ GEN     smithclean(GEN z);
 
 /* ifactor1.c */
 
+GEN     Z_ECM(GEN N, long rounds, long seed, ulong B1);
 GEN     Z_factor(GEN n);
 GEN     Z_factor_limit(GEN n, ulong all);
 GEN     Z_factor_until(GEN n, GEN limit);

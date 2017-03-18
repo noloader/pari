@@ -265,14 +265,8 @@ int factor_add_primes = 0, factor_proven = 0;
 /**   Guillaume Hanrot and Igor Schein for intensive testing          **/
 /**                                                                   **/
 /***********************************************************************/
-#define nbcmax 64                /* max number of simultaneous curves */
-#define bstpmax 1024                /* max number of baby step table entries */
+#define nbcmax 64 /* max number of simultaneous curves */
 
-static const long MR_Jaeschke_k1 = 16;/* B1 phase, foolproof below 10^12 */
-static const long MR_Jaeschke_k2 = 1; /* B2 phase, not foolproof, 2xfaster */
-/* MR_Jaeschke_k2 will let thousands of composites slip through, which doesn't
- * harm ECM, but ellmult() during the B1 phase should only be fed primes
- * which really are prime */
 static const ulong TB1[] = {
   142,172,208,252,305,370,450,545,661,801,972,1180,1430,
   1735,2100,2550,3090,3745,4540,5505,6675,8090,9810,11900,
@@ -531,6 +525,24 @@ get_rule(ulong d, ulong e)
   return 7; /* rule 9 */
 }
 
+/* PRAC implementation notes - main changes against the paper version:
+ * (1) The general function [m+n]P = f([m]P,[n]P,[m-n]P) collapses (for m!=n)
+ * to an ecm_elladd() which does not depend on the third argument; thus
+ * references to the third variable (C in the paper) can be eliminated.
+ * (2) Since our multipliers are prime, the outer loop of the paper
+ * version executes only once, and thus is invisible above.
+ * (3) The first step in the inner loop of the paper version will always be
+ * rule 3, but the addition requested by this rule amounts to a doubling, and
+ * will always be followed by a swap, so we have unrolled this first iteration.
+ * (4) Simplifications in rules 6 and 7 are possible given the above, and we
+ * save one addition in each of the two cases.  NB none of the other
+ * ecm_elladd()s in the loop can ever degenerate into an elldouble.
+ * (5) I tried to optimize for rule 3, which is used more frequently than all
+ * others together, but it didn't improve things, so I removed the nested
+ * tight loop again.  --GN */
+/* The main loop body of ellfacteur() runs _slower_ under PRAC than under a
+ * straightforward left-shift binary multiplication when N has <30 digits and
+ * B1 is small;  PRAC wins when N and B1 get larger.  Weird. --GN */
 /* k>2 assumed prime, XAUX = scratchpad */
 static int
 ellmult(GEN N, GEN *gl, long nbc, ulong k, GEN *X1, GEN *X2, GEN *XAUX)
@@ -590,38 +602,11 @@ ellmult(GEN N, GEN *gl, long nbc, ulong k, GEN *X1, GEN *X2, GEN *XAUX)
   return ecm_elladd(N, gl, nbc, XAUX, X2, X2);
 }
 
-/* Auxiliary routines need < (3*nbc+240)*tf words on the PARI stack, in
- * addition to the spc*(tf+1) words occupied by our main table. */
-static GEN*
-alloc_scratch(long nbc, long spc, long tf)
-{
-  long i, tw = evallg(tf) | evaltyp(t_INT), len = spc + 385 + spc*tf;
-  GEN w, *X = (GEN*)new_chunk(len);
-  /* hack for X[i] = cgeti(tf). X = current point in B1 phase */
-  w = (GEN)(X + spc + 385);
-  for (i = spc-1; i >= 0; i--) { X[i] = w; *w = tw; w += tf; }
-  return X;
-}
-
-/* PRAC implementation notes - main changes against the paper version:
- * (1) The general function [m+n]P = f([m]P,[n]P,[m-n]P) collapses (for m!=n)
- * to an ecm_elladd() which does not depend on the third argument; thus
- * references to the third variable (C in the paper) can be eliminated.
- * (2) Since our multipliers are prime, the outer loop of the paper
- * version executes only once, and thus is invisible above.
- * (3) The first step in the inner loop of the paper version will always be
- * rule 3, but the addition requested by this rule amounts to a doubling, and
- * will always be followed by a swap, so we have unrolled this first iteration.
- * (4) Simplifications in rules 6 and 7 are possible given the above, and we
- * save one addition in each of the two cases.  NB none of the other
- * ecm_elladd()s in the loop can ever degenerate into an elldouble.
- * (5) I tried to optimize for rule 3, which is used more frequently than all
- * others together, but it didn't improve things, so I removed the nested
- * tight loop again.  --GN */
-
-/* The main loop body of ellfacteur() runs _slower_ under PRAC than under a
- * straightforward left-shift binary multiplication when N has <30 digits and
- * B1 is small;  PRAC wins when N and B1 get larger.  Weird. --GN */
+struct ECM {
+  pari_timer T;
+  long nbc, nbc2, seed;
+  GEN *X, *XAUX, *XT, *XD, *XB, *XB2, *XH, *Xh, *Yh;
+};
 
 /* memory layout in ellfacteur():  a large array of GEN pointers, and one
  * huge chunk of memory containing all the actual GEN (t_INT) objects.
@@ -675,83 +660,401 @@ alloc_scratch(long nbc, long spc, long tf)
  * larger than this, even if it would reduce the number of EC operations by a
  * few more per cent for very large B2, lest cache thrashing slow down
  * everything disproportionally. --GN */
-/* ellfacteur() has been re-tuned to be useful as a first stage before
- * MPQS, especially for large arguments, when 'insist' is false, and now
- * also for the case when 'insist' is true, vaguely following suggestions
- * by Paul Zimmermann (http://www.loria.fr/~zimmerma/records/ecmnet.html).
- * --GN 1998Jul,Aug */
+/* Auxiliary routines need < (3*nbc+240)*lN words on the PARI stack, in
+ * addition to the spc*(lN+1) words occupied by our main table. */
+static void
+ECM_alloc(struct ECM *E, long lN)
+{
+  const long bstpmax = 1024; /* max number of baby step table entries */
+  long spc = (13 + 48) * E->nbc2 + bstpmax * 4;
+  long len = spc + 385 + spc*lN;
+  long i, tw = evallg(lN) | evaltyp(t_INT);
+  GEN w, *X = (GEN*)new_chunk(len);
+  /* hack for X[i] = cgeti(lN). X = current point in B1 phase */
+  w = (GEN)(X + spc + 385);
+  for (i = spc-1; i >= 0; i--) { X[i] = w; *w = tw; w += lN; }
+  E->X = X;
+  E->XAUX = E->X    + E->nbc2; /* scratchpad for ellmult() */
+  E->XT   = E->XAUX + E->nbc2; /* ditto, will later hold [3*210]Q */
+  E->XD   = E->XT   + E->nbc2; /* room for various multiples */
+  E->XB   = E->XD   + 10*E->nbc2; /* start of baby steps table */
+  E->XB2  = E->XB   + 2 * bstpmax; /* middle of baby steps table */
+  E->XH   = E->XB2  + 2 * bstpmax; /* end of bstps table, start of helix */
+  E->Xh   = E->XH   + 48*E->nbc2; /* little helix, X coords */
+  E->Yh   = E->XH   + 192;     /* ditto, Y coords */
+  /* XG,YG set inside the main loop, since they depend on B2 */
+  /* E.Xh range of 384 pointers not set; these will later duplicate the pointers
+   * in the E.XH range, 4 curves at a time. Some of the cells reserved here for
+   * the E.XB range will never be used, instead, we'll warp the pointers to
+   * connect to (read-only) GENs in the X/E.XD range */
+}
+/* N.B. E->seed is not initialized here */
+static void
+ECM_init(struct ECM *E, GEN N, long nbc)
+{
+  if (nbc < 0)
+  { /* choose a sensible default */
+    const long size = expi(N) + 1;
+    nbc = ((size >> 3) << 2) - 80;
+    if (nbc < 8) nbc = 8;
+  }
+  if (nbc > nbcmax) nbc = nbcmax;
+  E->nbc = nbc;
+  E->nbc2 = nbc << 1;
+  ECM_alloc(E, lgefint(N));
+}
+
+static GEN
+ECM_loop(struct ECM *E, GEN N, ulong B1)
+{
+  const long MR_foolproof = 16;/* B1 phase, foolproof below 10^12 */
+  const long MR_fast = 1; /* B2 phase, not foolproof, 2xfaster */
+/* MR_fast will let thousands of composites slip through, which doesn't
+ * harm ECM; but ellmult() in the B1 phase should only be fed actual primes */
+  const ulong B2 = 110 * B1, B2_rt = usqrt(B2);
+  const ulong nbc = E->nbc, nbc2 = E->nbc2;
+  pari_sp av1, avtmp;
+  byteptr d0, d = diffptr;
+  long i, gse, gss, bstp, bstp0, rcn0, rcn;
+  ulong B2_p, m, p, p0;
+  GEN g, *XG, *YG;
+  GEN *X = E->X, *XAUX = E->XAUX, *XT = E->XT, *XD = E->XD;
+  GEN *XB = E->XB, *XB2 = E->XB2, *XH = E->XH, *Xh = E->Xh, *Yh = E->Yh;
+  /* pick curves */
+  for (i = nbc2; i--; ) affui(E->seed++, X[i]);
+  /* pick giant step exponent and size */
+  gse = B1 < 656
+          ? (B1 < 200? 5: 6)
+          : (B1 < 10500
+            ? (B1 < 2625? 7: 8)
+            : (B1 < 42000? 9: 10));
+  gss = 1UL << gse;
+  /* With 32 baby steps, a giant step corresponds to 32*420 = 13440,
+   * appropriate for the smallest B2s. With 1024, a giant step will be 430080;
+   * appropriate for B1 >~ 42000, where 512 baby steps would imply roughly
+   * the same number of curve additions. */
+  XG = XT + gse*nbc2; /* will later hold [2^(gse+1)*210]Q */
+  YG = XG + nbc;
+
+  if (DEBUGLEVEL >= 4) {
+    err_printf("ECM: time = %6ld ms\nECM: B1 = %4lu,", timer_delay(&E->T), B1);
+    err_printf("\tB2 = %6lu,\tgss = %4ld*420\n", B2, gss);
+  }
+  p = 0;
+  NEXT_PRIME_VIADIFF(p,d);
+
+  /* ---B1 PHASE--- */
+  /* treat p=2 separately */
+  B2_p = B2 >> 1;
+  for (m=1; m<=B2_p; m<<=1)
+  {
+    int fl = elldouble(N, &g, nbc, X, X);
+    if (fl > 1) return g; else if (fl) break;
+  }
+  rcn = NPRC; /* multipliers begin at the beginning */
+  /* p=3,...,nextprime(B1) */
+  while (p < B1 && p <= B2_rt)
+  {
+    pari_sp av2 = avma;
+    p = snextpr(p, &d, &rcn, NULL, MR_foolproof);
+    B2_p = B2/p; /* beware integer overflow on 32-bit CPUs */
+    for (m=1; m<=B2_p; m*=p)
+    {
+      int fl = ellmult(N, &g, nbc, p, X, X, XAUX);
+      if (fl > 1) return g; else if (fl) break;
+      avma = av2;
+    }
+    avma = av2;
+  }
+  /* primes p larger than sqrt(B2) appear only to the 1st power */
+  while (p < B1)
+  {
+    pari_sp av2 = avma;
+    p = snextpr(p, &d, &rcn, NULL, MR_foolproof);
+    if (ellmult(N, &g, nbc, p, X, X, XAUX) > 1) return g;
+    avma = av2;
+  }
+  if (DEBUGLEVEL >= 4) {
+    err_printf("ECM: time = %6ld ms, B1 phase done, ", timer_delay(&E->T));
+    err_printf("p = %lu, setting up for B2\n", p);
+  }
+
+  /* ---B2 PHASE--- */
+  /* compute [2]Q,...,[10]Q, needed to build the helix */
+  if (elldouble(N, &g, nbc, X, XD) > 1) return g; /*[2]Q*/
+  if (elldouble(N, &g, nbc, XD, XD + nbc2) > 1) return g; /*[4]Q*/
+  if (ecm_elladd(N, &g, nbc,
+        XD, XD + nbc2, XD + (nbc<<2)) > 1) return g; /* [6]Q */
+  if (ecm_elladd2(N, &g, nbc,
+        XD, XD + (nbc<<2), XT + (nbc<<3),
+        XD + nbc2, XD + (nbc<<2), XD + (nbc<<3)) > 1)
+    return g; /* [8]Q and [10]Q */
+  if (DEBUGLEVEL >= 7) err_printf("\t(got [2]Q...[10]Q)\n");
+
+  /* get next prime (still using the foolproof test) */
+  p = snextpr(p, &d, &rcn, NULL, MR_foolproof);
+  /* make sure we have the residue class number (mod 210) */
+  if (rcn == NPRC)
+  {
+    rcn = prc210_no[(p % 210) >> 1];
+    if (rcn == NPRC)
+    {
+      err_printf("ECM: %lu should have been prime but isn\'t\n", p);
+      pari_err_BUG("ellfacteur");
+    }
+  }
+
+  /* compute [p]Q and put it into its place in the helix */
+  if (ellmult(N, &g, nbc, p, X, XH + rcn*nbc2, XAUX) > 1)
+    return g;
+  if (DEBUGLEVEL >= 7)
+    err_printf("\t(got [p]Q, p = %lu = prc210_rp[%ld] mod 210)\n", p, rcn);
+
+  /* save current p, d, and rcn;  we'll need them more than once below */
+  p0 = p;
+  d0 = d;
+  rcn0 = rcn; /* remember where the helix wraps */
+  bstp0 = 0; /* p is at baby-step offset 0 from itself */
+
+  /* fill up the helix, stepping forward through the prime residue classes
+   * mod 210 until we're back at the r'class of p0.  Keep updating p so
+   * that we can print meaningful diagnostics if a factor shows up; don't
+   * bother checking which of these p's are in fact prime */
+  for (i = 47; i; i--) /* 47 iterations */
+  {
+    ulong dp = (ulong)prc210_d1[rcn];
+    p += dp;
+    if (rcn == 47)
+    { /* wrap mod 210 */
+      if (ecm_elladd(N, &g, nbc,
+            XT+dp*nbc, XH+rcn*nbc2, XH) > 1) return g;
+      rcn = 0; continue;
+    }
+    if (ecm_elladd(N, &g, nbc,
+          XT+dp*nbc, XH+rcn*nbc2, XH+rcn*nbc2+nbc2) > 1)
+      return g;
+    rcn++;
+  }
+  if (DEBUGLEVEL >= 7) err_printf("\t(got initial helix)\n");
+  /* compute [210]Q etc, needed for the baby step table */
+  if (ellmult(N, &g, nbc, 3, XD + (nbc<<3), X, XAUX) > 1)
+    return g;
+  if (ellmult(N, &g, nbc, 7, X, X, XAUX) > 1)
+    return g; /* [210]Q */
+  /* this was the last call to ellmult() in the main loop body; may now
+   * overwrite XAUX and slots XD and following */
+  if (elldouble(N, &g, nbc, X, XAUX) > 1) return g; /* [420]Q */
+  if (ecm_elladd(N, &g, nbc, X, XAUX, XT) > 1) return g;/*[630]Q*/
+  if (ecm_elladd(N, &g, nbc, X, XT, XD) > 1) return g;  /*[840]Q*/
+  for (i=1; i <= gse; i++)
+    if (elldouble(N, &g, nbc, XT + i*nbc2, XD + i*nbc2) > 1)
+      return g;
+  /* (the last iteration has initialized XG to [210*2^(gse+1)]Q) */
+
+  if (DEBUGLEVEL >= 4)
+    err_printf("ECM: time = %6ld ms, entering B2 phase, p = %lu\n",
+               timer_delay(&E->T), p);
+
+  for (i = nbc - 4; i >= 0; i -= 4)
+  { /* loop over small sets of 4 curves at a time */
+    GEN *Xb;
+    long j, k;
+    if (DEBUGLEVEL >= 6)
+      err_printf("ECM: finishing curves %ld...%ld\n", i, i+3);
+    /* Copy relevant pointers from XH to Xh. Memory layout in XH:
+     * nbc X coordinates, nbc Y coordinates for residue class
+     * 1 mod 210, then the same for r.c. 11 mod 210, etc. Memory layout for
+     * Xh is: four X coords for 1 mod 210, four for 11 mod 210, ..., four
+     * for 209 mod 210, then the corresponding Y coordinates in the same
+     * order. This allows a giant step on Xh using just three calls to
+     * ecm_elladd0() each acting on 64 points in parallel */
+    for (j = 48; j--; )
+    {
+      k = nbc2*j + i;
+      m = j << 2; /* X coordinates */
+      Xh[m]   = XH[k];   Xh[m+1] = XH[k+1];
+      Xh[m+2] = XH[k+2]; Xh[m+3] = XH[k+3];
+      k += nbc; /* Y coordinates */
+      Yh[m]   = XH[k];   Yh[m+1] = XH[k+1];
+      Yh[m+2] = XH[k+2]; Yh[m+3] = XH[k+3];
+    }
+    /* Build baby step table of X coords of multiples of [210]Q.  XB[4*j]
+     * will point at X coords on four curves from [(j+1)*210]Q.  Until
+     * we're done, we need some Y coords as well, which we keep in the
+     * second half of the table, overwriting them at the end when gse=10.
+     * Multiples which we already have  (by 1,2,3,4,8,16,...,2^gse) are
+     * entered simply by copying the pointers, ignoring the few slots in w
+     * that were initially reserved for them. Here are the initial entries */
+    for (Xb=XB,k=2,j=i; k--; Xb=XB2,j+=nbc) /* first X, then Y coords */
+    {
+      Xb[0]  = X[j];      Xb[1]  = X[j+1]; /* [210]Q */
+      Xb[2]  = X[j+2];    Xb[3]  = X[j+3];
+      Xb[4]  = XAUX[j];   Xb[5]  = XAUX[j+1]; /* [420]Q */
+      Xb[6]  = XAUX[j+2]; Xb[7]  = XAUX[j+3];
+      Xb[8]  = XT[j];     Xb[9]  = XT[j+1]; /* [630]Q */
+      Xb[10] = XT[j+2];   Xb[11] = XT[j+3];
+      Xb += 4; /* points at [420]Q */
+      /* ... entries at powers of 2 times 210 .... */
+      for (m = 2; m < (ulong)gse+k; m++) /* omit Y coords of [2^gse*210]Q */
+      {
+        long m2 = m*nbc2 + j;
+        Xb += (2UL<<m); /* points at [2^m*210]Q */
+        Xb[0] = XAUX[m2];   Xb[1] = XAUX[m2+1];
+        Xb[2] = XAUX[m2+2]; Xb[3] = XAUX[m2+3];
+      }
+    }
+    if (DEBUGLEVEL >= 7)
+      err_printf("\t(extracted precomputed helix / baby step entries)\n");
+    /* ... glue in between, up to 16*210 ... */
+    if (ecm_elladd0(N, &g, 12, 4, /* 12 pts + (4 pts replicated thrice) */
+          XB + 12, XB2 + 12,
+          XB,      XB2,
+          XB + 16, XB2 + 16) > 1) return g; /*4+{1,2,3} = {5,6,7}*/
+    if (ecm_elladd0(N, &g, 28, 4, /* 28 pts + (4 pts replicated 7fold) */
+          XB + 28, XB2 + 28,
+          XB,      XB2,
+          XB + 32, XB2 + 32) > 1) return g;/*8+{1...7} = {9...15}*/
+    /* ... and the remainder of the lot */
+    for (m = 5; m <= (ulong)gse; m++)
+    { /* fill in from 2^(m-1)+1 to 2^m-1 in chunks of 64 and 60 points */
+      ulong m2 = 2UL << m; /* will point at 2^(m-1)+1 */
+      for (j = 0; (ulong)j < m2-64; j+=64) /* executed 0 times when m = 5 */
+      {
+        if (ecm_elladd0(N, &g, 64, 4,
+              XB + m2-4, XB2 + m2-4,
+              XB + j,    XB2 + j,
+              XB + m2+j, (m<(ulong)gse? XB2+m2+j: NULL)) > 1)
+          return g;
+      } /* j = m2-64 here, 60 points left */
+      if (ecm_elladd0(N, &g, 60, 4,
+            XB + m2-4, XB2 + m2-4,
+            XB + j,    XB2 + j,
+            XB + m2+j, (m<(ulong)gse? XB2+m2+j: NULL)) > 1)
+        return g;
+      /* when m=gse, drop Y coords of result, and when both equal 1024,
+       * overwrite Y coords of second argument with X coords of result */
+    }
+    if (DEBUGLEVEL >= 7) err_printf("\t(baby step table complete)\n");
+    /* initialize a few other things */
+    bstp = bstp0;
+    p = p0; d = d0; rcn = rcn0;
+    g = gen_1; av1 = avma;
+    /* scratchspace for prod (x_i-x_j) */
+    avtmp = (pari_sp)new_chunk(8 * lgefint(N));
+    /* The correct entry in XB to use depends on bstp and on where we are
+     * on the helix. As we skip from prime to prime, bstp is incremented
+     * by snextpr each time we wrap around through residue class number 0
+     * (1 mod 210), but the baby step should not be taken until rcn>=rcn0,
+     * i.e. until we pass again the residue class of p0.
+     *
+     * The correct signed multiplier is thus k = bstp - (rcn < rcn0),
+     * and the offset from XB is four times (|k| - 1).  When k=0, we ignore
+     * the current prime: if it had led to a factorization, this
+     * would have been noted during the last giant step, or -- when we
+     * first get here -- whilst initializing the helix.  When k > gss,
+     * we must do a giant step and bump bstp back by -2*gss.
+     *
+     * The gcd of the product of X coord differences against N is taken just
+     * before we do a giant step. */
+    while (p < B2)
+    {/* loop over probable primes p0 < p <= nextprime(B2), inserting giant
+      * steps as necessary */
+      p = snextpr(p, &d, &rcn, &bstp, MR_fast); /* next probable prime */
+      /* work out the corresponding baby-step multiplier */
+      k = bstp - (rcn < rcn0 ? 1 : 0);
+      if (k > gss)
+      { /* giant-step time, take gcd */
+        g = gcdii(g, N);
+        if (!is_pm1(g) && !equalii(g, N)) return g;
+        g = gen_1; avma = av1;
+        while (k > gss)
+        { /* giant step */
+          if (DEBUGLEVEL >= 7) err_printf("\t(giant step at p = %lu)\n", p);
+          if (ecm_elladd0(N, &g, 64, 4, XG + i, YG + i,
+                Xh, Yh, Xh, Yh) > 1) return g;
+          if (ecm_elladd0(N, &g, 64, 4, XG + i, YG + i,
+                Xh + 64, Yh + 64, Xh + 64, Yh + 64) > 1)
+            return g;
+          if (ecm_elladd0(N, &g, 64, 4, XG + i, YG + i,
+                Xh + 128, Yh + 128, Xh + 128, Yh + 128) > 1)
+            return g;
+          bstp -= (gss << 1);
+          k = bstp - (rcn < rcn0? 1: 0); /* recompute multiplier */
+        }
+      }
+      if (!k) continue; /* point of interest is already in Xh */
+      if (k < 0) k = -k;
+      m = ((ulong)k - 1) << 2;
+      /* accumulate product of differences of X coordinates */
+      j = rcn<<2;
+      avma = avtmp; /* go to garbage zone */
+      g = modii(mulii(g, subii(XB[m],   Xh[j])), N);
+      g = modii(mulii(g, subii(XB[m+1], Xh[j+1])), N);
+      g = modii(mulii(g, subii(XB[m+2], Xh[j+2])), N);
+      g = mulii(g, subii(XB[m+3], Xh[j+3]));
+      avma = av1;
+      g = modii(g, N);
+    }
+    avma = av1;
+  }
+  return NULL;
+}
+
+/* ellfacteur() tuned to be useful as a first stage before MPQS, especially for
+ * large arguments, when 'insist' is false, and now also for the case when
+ * 'insist' is true, vaguely following suggestions by Paul Zimmermann
+ * (http://www.loria.fr/~zimmerma/records/ecmnet.html). --GN 1998Jul,Aug */
 static GEN
 ellfacteur(GEN N, int insist)
 {
-  long nbc, nbc2, dsn, dsnmax, rep, spc, gse, gss;
-  long a, size = expi(N) + 1, tf = lgefint(N);
-  GEN *X, *XAUX, *XT, *XD, *XG, *YG, *XH, *XB, *XB2, *Xh, *Yh;
-  GEN gl;
+  const long size = expi(N) + 1;
   pari_sp av = avma;
-  pari_timer T;
-
-  /* Determine where to start, how long to persist, and how many curves to
-   * use in parallel */
+  struct ECM E;
+  long nbc, dsn, dsnmax, rep = 0;
   if (insist)
   {
-#ifdef LONG_IS_64BIT
-    const long DSNMAX = 90;
-#else
-    const long DSNMAX = 65;
-#endif
+    const long DSNMAX = numberof(TB1)-1;
     dsnmax = (size >> 2) - 10;
     if (dsnmax < 0) dsnmax = 0;
     else if (dsnmax > DSNMAX) dsnmax = DSNMAX;
+    E.seed = 1 + (nbcmax<<7)*(size&0xffff); /* seed for choice of curves */
+
     dsn = (size >> 3) - 5;
-    if (dsn < 0) dsn = 0;
-    else if (dsn > 47) dsn = 47;
+    if (dsn < 0) dsn = 0; else if (dsn > 47) dsn = 47;
     /* pick up the torch where non-insistent stage would have given up */
     nbc = dsn + (dsn >> 2) + 9; /* 8 or more curves in parallel */
     nbc &= ~3; /* 4 | nbc */
-    if (nbc > nbcmax) nbc = nbcmax;
-    a = 1 + (nbcmax<<7)*(size&0xffff); /* seed for choice of curves */
-    rep = 0; /* gcc -Wall */
   }
   else
   {
     dsn = (size - 140) >> 3;
-    if (dsn > 12) dsn = 12;
-    dsnmax = 72;
-    if (dsn < 0) /* < 140 bits: decline the task */
+    if (dsn < 0)
     {
-#ifdef __EMX__
-      /* unless DOS/EMX: MPQS's disk access is abysmally slow */
-      dsn = 0; rep = 20; nbc = 8;
-#else
+#ifndef __EMX__ /* unless DOS/EMX: MPQS's disk access is abysmally slow */
       if (DEBUGLEVEL >= 4)
         err_printf("ECM: number too small to justify this stage\n");
-      return NULL;
+      return NULL; /* too small, decline the task */
 #endif
-    }
-    else
-    {
-      rep = (size <= 248 ?
-             (size <= 176 ? (size - 124) >> 4 : (size - 148) >> 3) :
-             (size - 224) >> 1);
-      nbc = ((size >> 3) << 2) - 80;
-      if (nbc < 8) nbc = 8;
-      else if (nbc > nbcmax) nbc = nbcmax;
-#ifdef __EMX__
-      rep += 20;
+      dsn = 0;
+    } else if (dsn > 12) dsn = 12;
+    rep = (size <= 248 ?
+           (size <= 176 ? (size - 124) >> 4 : (size - 148) >> 3) :
+           (size - 224) >> 1);
+#ifdef __EMX__ /* DOS/EMX: extra rounds (shun MPQS) */
+    rep += 20;
 #endif
-    }
-
+    dsnmax = 72;
     /* Use disjoint sets of curves for non-insist and insist phases; moreover,
      * repeated calls acting on factors of the same original number should try
      * to use fresh curves. The following achieves this */
-    a = 1 + (nbcmax<<3)*(size & 0xf);
+    E.seed = 1 + (nbcmax<<3)*(size & 0xf);
+    nbc = -1;
   }
-  if (dsn > dsnmax) dsn = dsnmax;
-
+  ECM_init(&E, N, nbc);
   if (DEBUGLEVEL >= 4)
   {
-    timer_start(&T);
-    err_printf("ECM: working on %ld curves at a time; initializing", nbc);
+    timer_start(&E.T);
+    err_printf("ECM: working on %ld curves at a time; initializing", E.nbc);
     if (!insist)
     {
       if (rep == 1) err_printf(" for one round");
@@ -759,322 +1062,47 @@ ellfacteur(GEN N, int insist)
     }
     err_printf("...\n");
   }
-
-  nbc2 = nbc << 1;
-  spc = (13 + 48) * nbc2 + bstpmax * 4;
-  X = alloc_scratch(nbc, spc, tf);
-  XAUX = X    + nbc2; /* scratchpad for ellmult() */
-  XT   = XAUX + nbc2; /* ditto, will later hold [3*210]Q */
-  XD   = XT   + nbc2; /* room for various multiples */
-  XB   = XD   + 10*nbc2; /* start of baby steps table */
-  XB2  = XB   + 2 * bstpmax; /* middle of baby steps table */
-  XH   = XB2  + 2 * bstpmax; /* end of bstps table, start of helix */
-  Xh   = XH   + 48*nbc2; /* little helix, X coords */
-  Yh   = XH   + 192;     /* ditto, Y coords */
-  /* XG will be set inside the main loop, since it depends on B2 */
-
-  /* Xh range of 384 pointers not set; these will later duplicate the pointers
-   * in the XH range, 4 curves at a time. Some of the cells reserved here for
-   * the XB range will never be used, instead, we'll warp the pointers to
-   * connect to (read-only) GENs in the X/XD range */
+  if (dsn > dsnmax) dsn = dsnmax;
   for(;;)
   {
-    pari_sp av1, avtmp;
-    byteptr d0, d = diffptr;
-    long bstp, bstp0, rcn0, rcn = NPRC; /* multipliers begin at the beginning */
-    long i;
-    ulong B1, B2, B2_rt, B2_p, m, p, p0, dp;
-    /* pick curves & bounds */
-    for (i = nbc2; i--; ) affui(a++, X[i]);
-    B1 = insist ? TB1[dsn] : TB1_for_stage[dsn];
-    B2 = 110*B1;
-    B2_rt = usqrt(B2);
-    /* pick giant step exponent and size.
-     * With 32 baby steps, a giant step corresponds to 32*420 = 13440,
-     * appropriate for the smallest B2s. With 1024, a giant step will be 430080;
-     * appropriate for B1 >~ 42000, where 512 baby steps would imply roughly
-     * the same number of E.C. additions. */
-    gse = B1 < 656
-            ? (B1 < 200? 5: 6)
-            : (B1 < 10500
-              ? (B1 < 2625? 7: 8)
-              : (B1 < 42000? 9: 10));
-    gss = 1UL << gse;
-    XG = XT + gse*nbc2; /* will later hold [2^(gse+1)*210]Q */
-    YG = XG + nbc;
-
-    if (DEBUGLEVEL >= 4) {
-      err_printf("ECM: time = %6ld ms\nECM: dsn = %2ld,\tB1 = %4lu,",
-                 timer_delay(&T), dsn, B1);
-      err_printf("\tB2 = %6lu,\tgss = %4ld*420\n", B2, gss);
-    }
-    p = 0;
-    NEXT_PRIME_VIADIFF(p,d);
-
-    /* ---B1 PHASE--- */
-    /* treat p=2 separately */
-    B2_p = B2 >> 1;
-    for (m=1; m<=B2_p; m<<=1)
+    ulong B1 = insist? TB1[dsn]: TB1_for_stage[dsn];
+    GEN g = ECM_loop(&E, N, B1);
+    if (g)
     {
-      int fl = elldouble(N, &gl, nbc, X, X);
-      if (fl > 1) goto fin; else if (fl) break;
+      if (DEBUGLEVEL >= 4)
+        err_printf("ECM: time = %6ld ms\n\tfound factor = %Ps\n",
+                   timer_delay(&E.T), g);
+      return gerepilecopy(av, g);
     }
-    /* p=3,...,nextprime(B1) */
-    while (p < B1 && p <= B2_rt)
-    {
-      pari_sp av2 = avma;
-      p = snextpr(p, &d, &rcn, NULL, MR_Jaeschke_k1);
-      B2_p = B2/p; /* beware integer overflow on 32-bit CPUs */
-      for (m=1; m<=B2_p; m*=p)
-      {
-        int fl = ellmult(N, &gl, nbc, p, X, X, XAUX);
-        if (fl > 1) goto fin; else if (fl) break;
-        avma = av2;
-      }
-      avma = av2;
-    }
-    /* primes p larger than sqrt(B2) appear only to the 1st power */
-    while (p < B1)
-    {
-      pari_sp av2 = avma;
-      p = snextpr(p, &d, &rcn, NULL, MR_Jaeschke_k1);
-      if (ellmult(N, &gl, nbc, p, X, X, XAUX) > 1) goto fin;
-      avma = av2;
-    }
-    if (DEBUGLEVEL >= 4) {
-      err_printf("ECM: time = %6ld ms, B1 phase done, ", timer_delay(&T));
-      err_printf("p = %lu, setting up for B2\n", p);
-    }
-
-    /* ---B2 PHASE--- */
-    /* compute [2]Q,...,[10]Q, needed to build the helix */
-    if (elldouble(N, &gl, nbc, X, XD) > 1) goto fin; /* [2]Q */
-    if (elldouble(N, &gl, nbc, XD, XD + nbc2) > 1) goto fin; /* [4]Q */
-    if (ecm_elladd(N, &gl, nbc, XD, XD + nbc2, XD + (nbc<<2)) > 1)
-      goto fin; /* [6]Q */
-    if (ecm_elladd2(N, &gl, nbc,
-                XD, XD + (nbc<<2), XT + (nbc<<3),
-                XD + nbc2, XD + (nbc<<2), XD + (nbc<<3)) > 1)
-      goto fin; /* [8]Q and [10]Q */
-    if (DEBUGLEVEL >= 7) err_printf("\t(got [2]Q...[10]Q)\n");
-
-    /* get next prime (still using the foolproof test) */
-    p = snextpr(p, &d, &rcn, NULL, MR_Jaeschke_k1);
-    /* make sure we have the residue class number (mod 210) */
-    if (rcn == NPRC)
-    {
-      rcn = prc210_no[(p % 210) >> 1];
-      if (rcn == NPRC)
-      {
-        err_printf("ECM: %lu should have been prime but isn\'t\n", p);
-        pari_err_BUG("ellfacteur");
-      }
-    }
-
-    /* compute [p]Q and put it into its place in the helix */
-    if (ellmult(N, &gl, nbc, p, X, XH + rcn*nbc2, XAUX) > 1) goto fin;
-    if (DEBUGLEVEL >= 7)
-      err_printf("\t(got [p]Q, p = %lu = prc210_rp[%ld] mod 210)\n", p, rcn);
-
-    /* save current p, d, and rcn;  we'll need them more than once below */
-    p0 = p;
-    d0 = d;
-    rcn0 = rcn; /* remember where the helix wraps */
-    bstp0 = 0; /* p is at baby-step offset 0 from itself */
-
-    /* fill up the helix, stepping forward through the prime residue classes
-     * mod 210 until we're back at the r'class of p0.  Keep updating p so
-     * that we can print meaningful diagnostics if a factor shows up; don't
-     * bother checking which of these p's are in fact prime */
-    for (i = 47; i; i--) /* 47 iterations */
-    {
-      p += (dp = (ulong)prc210_d1[rcn]);
-      if (rcn == 47)
-      { /* wrap mod 210 */
-        if (ecm_elladd(N, &gl, nbc, XT+dp*nbc, XH+rcn*nbc2, XH) > 1) goto fin;
-        rcn = 0; continue;
-      }
-      if (ecm_elladd(N, &gl, nbc, XT+dp*nbc, XH+rcn*nbc2, XH+rcn*nbc2+nbc2) > 1)
-        goto fin;
-      rcn++;
-    }
-    if (DEBUGLEVEL >= 7) err_printf("\t(got initial helix)\n");
-    /* compute [210]Q etc, needed for the baby step table */
-    if (ellmult(N, &gl, nbc, 3, XD + (nbc<<3), X, XAUX) > 1) goto fin;
-    if (ellmult(N, &gl, nbc, 7, X, X, XAUX) > 1) goto fin; /* [210]Q */
-    /* this was the last call to ellmult() in the main loop body; may now
-     * overwrite XAUX and slots XD and following */
-    if (elldouble(N, &gl, nbc, X, XAUX) > 1) goto fin; /* [420]Q */
-    if (ecm_elladd(N, &gl, nbc, X, XAUX, XT) > 1) goto fin;/* [630]Q */
-    if (ecm_elladd(N, &gl, nbc, X, XT, XD) > 1) goto fin;  /* [840]Q */
-    for (i=1; i <= gse; i++)
-      if (elldouble(N, &gl, nbc, XT + i*nbc2, XD + i*nbc2) > 1) goto fin;
-    /* (the last iteration has initialized XG to [210*2^(gse+1)]Q) */
-
-    if (DEBUGLEVEL >= 4)
-      err_printf("ECM: time = %6ld ms, entering B2 phase, p = %lu\n",
-                 timer_delay(&T), p);
-
-    /* inner loop over small sets of 4 curves at a time */
-    for (i = nbc - 4; i >= 0; i -= 4)
-    {
-      GEN *Xb;
-      long j, k;
-      if (DEBUGLEVEL >= 6)
-        err_printf("ECM: finishing curves %ld...%ld\n", i, i+3);
-      /* Copy relevant pointers from XH to Xh. Memory layout in XH:
-       * nbc X coordinates, nbc Y coordinates for residue class
-       * 1 mod 210, then the same for r.c. 11 mod 210, etc. Memory layout for
-       * Xh is: four X coords for 1 mod 210, four for 11 mod 210, ..., four
-       * for 209 mod 210, then the corresponding Y coordinates in the same
-       * order. This allows a giant step on Xh using just three calls to
-       * ecm_elladd0() each acting on 64 points in parallel */
-      for (j = 48; j--; )
-      {
-        k = nbc2*j + i;
-        m = j << 2; /* X coordinates */
-        Xh[m]   = XH[k];   Xh[m+1] = XH[k+1];
-        Xh[m+2] = XH[k+2]; Xh[m+3] = XH[k+3];
-        k += nbc; /* Y coordinates */
-        Yh[m]   = XH[k];   Yh[m+1] = XH[k+1];
-        Yh[m+2] = XH[k+2]; Yh[m+3] = XH[k+3];
-      }
-      /* Build baby step table of X coords of multiples of [210]Q.  XB[4*j]
-       * will point at X coords on four curves from [(j+1)*210]Q.  Until
-       * we're done, we need some Y coords as well, which we keep in the
-       * second half of the table, overwriting them at the end when gse=10.
-       * Multiples which we already have  (by 1,2,3,4,8,16,...,2^gse) are
-       * entered simply by copying the pointers, ignoring the few slots in w
-       * that were initially reserved for them. Here are the initial entries */
-      for (Xb=XB,k=2,j=i; k--; Xb=XB2,j+=nbc) /* do first X, then Y coords */
-      {
-        Xb[0]  = X[j];      Xb[1]  = X[j+1]; /* [210]Q */
-        Xb[2]  = X[j+2];    Xb[3]  = X[j+3];
-        Xb[4]  = XAUX[j];   Xb[5]  = XAUX[j+1]; /* [420]Q */
-        Xb[6]  = XAUX[j+2]; Xb[7]  = XAUX[j+3];
-        Xb[8]  = XT[j];     Xb[9]  = XT[j+1]; /* [630]Q */
-        Xb[10] = XT[j+2];   Xb[11] = XT[j+3];
-        Xb += 4; /* points at [420]Q */
-        /* ... entries at powers of 2 times 210 .... */
-        for (m = 2; m < (ulong)gse+k; m++) /* omit Y coords of [2^gse*210]Q */
-        {
-          long m2 = m*nbc2 + j;
-          Xb += (2UL<<m); /* points at [2^m*210]Q */
-          Xb[0] = XAUX[m2];   Xb[1] = XAUX[m2+1];
-          Xb[2] = XAUX[m2+2]; Xb[3] = XAUX[m2+3];
-        }
-      }
-      if (DEBUGLEVEL >= 7)
-        err_printf("\t(extracted precomputed helix / baby step entries)\n");
-      /* ... glue in between, up to 16*210 ... */
-      if (ecm_elladd0(N, &gl, 12, 4, /* 12 pts + (4 pts replicated thrice) */
-                  XB + 12, XB2 + 12,
-                  XB,      XB2,
-                  XB + 16, XB2 + 16) > 1) goto fin;  /*4+{1,2,3} = {5,6,7}*/
-      if (ecm_elladd0(N, &gl, 28, 4, /* 28 pts + (4 pts replicated 7fold) */
-                  XB + 28, XB2 + 28,
-                  XB,      XB2,
-                  XB + 32, XB2 + 32) > 1) goto fin; /*8+{1,...,7} = {9,...,15}*/
-      /* ... and the remainder of the lot */
-      for (m = 5; m <= (ulong)gse; m++)
-      { /* fill in from 2^(m-1)+1 to 2^m-1 in chunks of 64 and 60 points */
-        ulong m2 = 2UL << m; /* will point at 2^(m-1)+1 */
-        for (j = 0; (ulong)j < m2-64; j+=64) /* executed 0 times when m = 5 */
-        {
-          if (ecm_elladd0(N, &gl, 64, 4,
-                      XB + m2-4, XB2 + m2-4,
-                      XB + j,    XB2 + j,
-                      XB + m2+j, (m<(ulong)gse? XB2+m2+j: NULL)) > 1) goto fin;
-        } /* j = m2-64 here, 60 points left */
-        if (ecm_elladd0(N, &gl, 60, 4,
-                    XB + m2-4, XB2 + m2-4,
-                    XB + j,    XB2 + j,
-                    XB + m2+j, (m<(ulong)gse? XB2+m2+j: NULL)) > 1) goto fin;
-        /* when m=gse, drop Y coords of result, and when both equal 1024,
-         * overwrite Y coords of second argument with X coords of result */
-      }
-      if (DEBUGLEVEL >= 7) err_printf("\t(baby step table complete)\n");
-      /* initialize a few other things */
-      bstp = bstp0;
-      p = p0; d = d0; rcn = rcn0;
-      gl = gen_1; av1 = avma;
-      /* scratchspace for prod (x_i-x_j) */
-      avtmp = (pari_sp)new_chunk(8 * lgefint(N));
-      /* The correct entry in XB to use depends on bstp and on where we are
-       * on the helix. As we skip from prime to prime, bstp is incremented
-       * by snextpr each time we wrap around through residue class number 0
-       * (1 mod 210), but the baby step should not be taken until rcn>=rcn0,
-       * i.e. until we pass again the residue class of p0.
-       *
-       * The correct signed multiplier is thus k = bstp - (rcn < rcn0),
-       * and the offset from XB is four times (|k| - 1).  When k=0, we ignore
-       * the current prime: if it had led to a factorization, this
-       * would have been noted during the last giant step, or -- when we
-       * first get here -- whilst initializing the helix.  When k > gss,
-       * we must do a giant step and bump bstp back by -2*gss.
-       *
-       * The gcd of the product of X coord differences against N is taken just
-       * before we do a giant step. */
-      while (p < B2)
-      {/* loop over probable primes p0 < p <= nextprime(B2), inserting giant
-        * steps as necessary */
-        /* get next probable prime */
-        p = snextpr(p, &d, &rcn, &bstp, MR_Jaeschke_k2);
-        /* work out the corresponding baby-step multiplier */
-        k = bstp - (rcn < rcn0 ? 1 : 0);
-        /* check whether it's giant-step time */
-        if (k > gss)
-        { /* take gcd */
-          gl = gcdii(gl, N);
-          if (!is_pm1(gl) && !equalii(gl, N)) goto fin;
-          gl = gen_1; avma = av1;
-          while (k > gss)
-          { /* giant step */
-            if (DEBUGLEVEL >= 7) err_printf("\t(giant step at p = %lu)\n", p);
-            if (ecm_elladd0(N, &gl, 64, 4, XG + i, YG + i,
-                        Xh, Yh, Xh, Yh) > 1) goto fin;
-            if (ecm_elladd0(N, &gl, 64, 4, XG + i, YG + i,
-                        Xh + 64, Yh + 64, Xh + 64, Yh + 64) > 1) goto fin;
-            if (ecm_elladd0(N, &gl, 64, 4, XG + i, YG + i,
-                        Xh + 128, Yh + 128, Xh + 128, Yh + 128) > 1) goto fin;
-            bstp -= (gss << 1);
-            k = bstp - (rcn < rcn0? 1: 0); /* recompute multiplier */
-          }
-        }
-        if (!k) continue; /* point of interest is already in Xh */
-        if (k < 0) k = -k;
-        m = ((ulong)k - 1) << 2;
-        /* accumulate product of differences of X coordinates */
-        j = rcn<<2;
-        avma = avtmp; /* go to garbage zone */
-        gl = modii(mulii(gl, subii(XB[m],   Xh[j])), N);
-        gl = modii(mulii(gl, subii(XB[m+1], Xh[j+1])), N);
-        gl = modii(mulii(gl, subii(XB[m+2], Xh[j+2])), N);
-        gl = mulii(gl, subii(XB[m+3], Xh[j+3]));
-        avma = av1;
-        gl = modii(gl, N);
-      } /* loop over p */
-      avma = av1;
-    } /* for i (loop over sets of 4 curves) */
-
     if (dsn < dsnmax)
     {
-      if (insist) dsn++; else { dsn += 2; if (dsn > dsnmax) dsn = dsnmax; }
+      if (insist) dsn++;
+      else { dsn += 2; if (dsn > dsnmax) dsn = dsnmax; }
     }
-
     if (!insist && !--rep)
     {
       if (DEBUGLEVEL >= 4)
         err_printf("ECM: time = %6ld ms,\tellfacteur giving up.\n",
-                   timer_delay(&T));
+                   timer_delay(&E.T));
       avma = av; return NULL;
     }
   }
-fin:
-  if (DEBUGLEVEL >= 4)
-    err_printf("ECM: time = %6ld ms\n\tfound factor = %Ps\n",
-               timer_delay(&T), gl);
-  return gerepilecopy(av, gl);
+}
+/* assume rounds >= 1, seed >= 1, B1 <= ULONG_MAX / 110 */
+GEN
+Z_ECM(GEN N, long rounds, long seed, ulong B1)
+{
+  pari_sp av = avma;
+  struct ECM E;
+  long i;
+  E.seed = seed;
+  ECM_init(&E, N, -1);
+  for (i = rounds; i--; )
+  {
+    GEN g = ECM_loop(&E, N, B1);
+    if (g) return gerepilecopy(av, g);
+  }
+  avma = av; return NULL;
 }
 
 /***********************************************************************/
