@@ -930,14 +930,34 @@ qfr_isreduced(GEN x, GEN isqrtD)
 
 /* Not stack-clean */
 GEN
-qfr5_red(GEN x, struct qfr_data *S) {
-  while (!qfr_isreduced(x,S->isqrtD)) x = qfr5_rho(x,S);
+qfr5_red(GEN x, struct qfr_data *S)
+{
+  pari_sp av = avma;
+  while (!qfr_isreduced(x, S->isqrtD))
+  {
+    x = qfr5_rho(x, S);
+    if (gc_needed(av,2))
+    {
+      if (DEBUGMEM>1) pari_warn(warnmem,"qfr5_red");
+      x = gerepilecopy(av, x);
+    }
+  }
   return x;
 }
 /* Not stack-clean */
 GEN
-qfr3_red(GEN x, struct qfr_data *S) {
-  while (!qfr_isreduced(x, S->isqrtD)) x = qfr3_rho(x, S);
+qfr3_red(GEN x, struct qfr_data *S)
+{
+  pari_sp av = avma;
+  while (!qfr_isreduced(x, S->isqrtD))
+  {
+    x = qfr3_rho(x, S);
+    if (gc_needed(av,2))
+    {
+      if (DEBUGMEM>1) pari_warn(warnmem,"qfr3_red");
+      x = gerepilecopy(av, x);
+    }
+  }
   return x;
 }
 
