@@ -1097,6 +1097,7 @@ Z_ECM(GEN N, long rounds, long seed, ulong B1)
   long i;
   E.seed = seed;
   ECM_init(&E, N, -1);
+  if (DEBUGLEVEL >= 4) timer_start(&E.T);
   for (i = rounds; i--; )
   {
     GEN g = ECM_loop(&E, N, B1);
