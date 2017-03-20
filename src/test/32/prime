@@ -20,7 +20,17 @@
 5758
 61938
 2
+4294967311
+18446744073709551629
+3
+2
   ***   at top-level: primes([1,Pol(2)])
   ***                 ^------------------
   *** primes: incorrect type in primes_interval (t_POL).
+  ***   at top-level: nextprime(x)
+  ***                 ^------------
+  *** nextprime: incorrect type in nextprime (t_POL).
+  ***   at top-level: precprime(x)
+  ***                 ^------------
+  *** precprime: incorrect type in nextprime (t_POL).
 Total time spent: 900

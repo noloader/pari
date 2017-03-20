@@ -19,5 +19,15 @@ primes([2^64-100,2^64+100])
 #primes([2^50,2^50+200000])
 #primes([10^7, 10^7+10^6])
 #primes([2^1023+5000, 2^1023+7000])
+
+nextprime(2^32-1)
+nextprime(2^64-1)
+nextprime(2.5)
+precprime(2.5)
+
+
+\\ Errors, keep at end of file
 \\#1668
 primes([1,Pol(2)]);
+nextprime(x)
+precprime(x)
