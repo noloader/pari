@@ -203,12 +203,12 @@
   ***                 ^--------------------
   *** plotcopy: domain error in plotcopy: dy < 0
 ? ploth(x=0,2*Pi,if(x<1,[cos(x),sin(x)],1),"Parametric")
-  ***   at top-level: ploth(x=0,2*Pi,if(x<1,[cos(x),sin(x)],
-  ***                                   ^--------------------
+  ***   at top-level: ploth(x=0,2*Pi,if(x<1,[cos(x),sin(x)],1),"Para
+  ***                                   ^----------------------------
   ***   inconsistent dimensions in rectploth.
 ? ploth(t=0,2*Pi,[sin(5*t),sin(7*t)],"Recursive",100)
-  ***   at top-level: ploth(t=0,2*Pi,[sin(5*t),sin(7*t)],
-  ***                                ^--------------------
+  ***   at top-level: ploth(t=0,2*Pi,[sin(5*t),sin(7*t)],"Recursive"
+  ***                                ^-------------------------------
   ***   incorrect type in ploth [multi-curves cannot be plot recursively] (t_VEC).
 ? ploth(x=0,2*Pi,1,"Parametric")
   ***   at top-level: ploth(x=0,2*Pi,1,"Parametric")
@@ -219,4 +219,4 @@
   ***                 ^-----------------
   *** ploth: domain error in ploth: #points < 2
 ? print("Total time spent: ",gettime);
-Total time spent: 96
+Total time spent: 76
