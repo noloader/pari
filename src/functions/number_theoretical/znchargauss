@@ -1,0 +1,22 @@
+Function: znchargauss
+Section: number_theoretical
+C-Name: znchargauss
+Prototype: GDGb
+Help: znchargauss(D, {a=1}): given a datum D describing a group G = (Z/NZ)^*
+ and a Dirichlet character chi, return the complex Gauss sum g(chi,a)
+Doc: Given a datum $D$ describing a group $(\Z/N\Z)^*$ and a Dirichlet
+ character $\chi$, return the pair \kbd{[G, chi]}, where \kbd{G} is
+ \kbd{znstar(N, 1)}) and \kbd{chi} is a GP character (see \kbd{znchar} for
+ other possibilities).
+
+ \bprog
+ ? znchargauss(znchar(-3)) \\ quadratic Gauss sum: I*sqrt(3)
+ %1 = 1.7320508075688772935274463415058723670*I
+ ? znchargauss(znchar(5))  \\ sqrt(5)
+ %2 = 2.2360679774997896964091736687312762354
+ ? G = znstar(300,1); chi = [1,1,12]~;
+ ? znchargauss([G,chi]) / sqrt(300) - exp(2*I*Pi*11/25)  \\ = 0
+ %4 = 2.350988701644575016 E-38 + 1.4693679385278593850 E-39*I
+ ? lfuntheta([G,chi], 1)  \\ = 0
+ %5 = -5.79[...] E-39 - 2.71[...] E-40*I
+ @eprog

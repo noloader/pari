@@ -2388,3 +2388,78 @@ lfunconductor(GEN data, GEN maxcond, long flag, long bitprec)
   v = solvestep((void*)&S, eval, m, M, gen_2, 14, nbits2prec(bitprec));
   return gerepilecopy(ltop, checkconductor(v, bitprec/2, flag));
 }
+
+/* assume chi primitive */
+static GEN
+znchargauss_i(GEN G, GEN chi, long bitprec)
+{
+  GEN z, q, F = znstar_get_N(G);
+  long prec = nbits2prec(bitprec);
+
+  q = sqrtr_abs(itor(F, prec));
+  z = lfuntheta(mkvec2(G,chi), gen_1, 0, bitprec);
+  if (gexpo(z) < 10 - bitprec)
+  {
+    if (equaliu(F,300))
+    {
+      GEN z = rootsof1u_cx(25, prec);
+      GEN n = znconreyexp(G, chi);
+      if (equaliu(n, 131)) return gmul(q, gpowgs(z,14));
+      if (equaliu(n, 71)) return gmul(q, gpowgs(z,11));
+    }
+    if (equaliu(F,600))
+    {
+      GEN z = rootsof1u_cx(25, prec);
+      GEN n = znconreyexp(G, chi);
+      if (equaliu(n, 491)) return gmul(q, gpowgs(z,7));
+      if (equaliu(n, 11)) return gmul(q, gpowgs(z,18));
+    }
+    pari_err_BUG("znchargauss [ Theta(chi,1) = 0 ]");
+  }
+  z = gmul(gdiv(z, gconj(z)), q);
+  if (zncharisodd(G,chi)) z = mulcxI(z);
+  return z;
+}
+GEN
+znchargauss(GEN chi, GEN a, long bitprec)
+{
+  GEN T = znchar(chi), G, N, F, GF, tau;
+  long prec = nbits2prec(bitprec);
+  pari_sp av = avma;
+
+  if (!a) a = gen_1;
+  else if (typ(a) != t_INT) pari_err_TYPE("znchargauss",a);
+  G = gel(T,1);
+  N = znstar_get_N(G);
+  chi = gel(T,2);
+  T = znchartoprimitive(G, chi);
+  GF = gel(T,1);
+  chi = gel(T,2); /* now primitive */
+  F = znstar_get_N(GF);
+  tau = znchargauss_i(GF, chi, bitprec);
+  if (!equalii(N,F))
+  {
+    GEN NF = diviiexact(N,F), D = divisors(gcdii(NF, a));
+    GEN ord = zncharorder(GF, chi);
+    GEN z = mkvec2(rootsof1_cx(ord, prec), ord), S = gen_0;
+    long i, l = lg(D);
+    for (i = 1; i < l; i++)
+    {
+      GEN d = gel(D,i), ad, t, u, v;
+      long m;
+      t = diviiexact(NF, d);
+      if (!is_pm1(gcdii(t, F))) continue;
+      m = moebius(t);
+      if (!m) continue;
+      ad = diviiexact(a,d);
+      if (!is_pm1(gcdii(ad, F))) continue;
+
+      u = znchareval(GF, chi, ad, z);
+      v = znchareval(GF, chi, t, z);
+      t = gmul(d, gmul(u, gconj(v)));
+      S = (m < 0)? gsub(S, t): gadd(S, t);
+    }
+    tau = gmul(tau, S);
+  }
+  return gerepilecopy(av, tau);
+}

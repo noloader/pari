@@ -157,6 +157,7 @@ BA   67- new GP functions hyperellratpoints and ellratpoints based on
          Michael Stoll ratpoints code.
      68- [libpari] Z_pollardbrent, Z_ECM
      69- [libpari] RgX_mulhigh_i
+     70- GP function znchargauss
 
   Changed
       1- rewrite bnfnarrow

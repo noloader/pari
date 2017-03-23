@@ -215,3 +215,17 @@ znconreyconductor(G, 29)
 G=znstar(46,1);
 chi=znconreychar(G,45)
 znconreyexp(G,chi)
+
+default(realprecision,38);
+znchargauss(-3)
+znchargauss(5)
+znchargauss(Mod(7,300))
+znchargauss(Mod(71,300))
+znchargauss(Mod(131,300))
+G=znstar(600,1);
+znchargauss(Mod(7,600))
+znchargauss(Mod(491,600))
+znchargauss(Mod(11,600))
+G=znstar(12,1);
+znchargauss([G,[0,1]~],3)
+znchargauss([G,[1,0]~],3)
