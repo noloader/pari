@@ -599,6 +599,7 @@ ellorder_Q(GEN E, GEN P)
   ulong a4, p;
   long k;
   if (ell_is_inf(P)) return 1;
+  if (gequal(P, ellneg(E,P))) return 2;
 
   dx = Q_denom(gel(P,1));
   dy = Q_denom(gel(P,2));
@@ -642,6 +643,7 @@ ellorder_nf(GEN E, GEN P)
   forprime_t S;
   ulong a4, p;
   if (ell_is_inf(P)) return gen_1;
+  if (gequal(P, ellneg(E,P))) return gen_2;
 
   B = gel(nftorsbound(E), 1);
   dx = Q_denom(gel(P,1));
