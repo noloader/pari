@@ -586,7 +586,12 @@ galoissubcyclo(GEN N, GEN sg, long flag, long v)
       pari_err_TYPE("galoissubcyclo",N);
       return NULL;/*LCOV_EXCL_LINE*/
   }
-  if (n==1) { avma = ltop; return deg1pol_shallow(gen_1,gen_m1,v); }
+  if (n==1)
+  {
+    avma = ltop;
+    if (flag == 1) return gen_1;
+    return gscycloconductor(deg1pol_shallow(gen_1, gen_m1, v), 1, flag);
+  }
 
   switch(typ(sg))
   {
