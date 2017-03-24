@@ -722,7 +722,7 @@ non-zero, not necessarily a unit.
 %3 = -64*a4^3 - 432*a6^2
 @eprog
 
-\subsubsec{Curves over $\R$} %GPHELPskip
+\subsubsec{Curves over $\C$} %GPHELPskip
 
 This in particular includes curves defined over $\Q$. All member functions in
 this section return data, as it is currently stored in the structure, if
@@ -847,6 +847,10 @@ over which $E$ is defined.
 
 \item \tet{bnf} return the \var{bnf} structure attached to the number field
 over which $E$ is defined or raise an error (if only an \var{nf} is available).
+
+\item \tet{omega}, \tet{eta}, \tet{area}: vectors of complex periods,
+quasi-periods and lattice areas attached to the complex embeddings of $E$,
+in the same order as \kbd{E.nf.roots}.
 
 %SECTION: elliptic_curves
 
