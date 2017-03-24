@@ -593,6 +593,8 @@ GEN
 member_area(GEN x)
 {
   if (!is_ell(x)) member_err("area",x);
+  if (ell_get_type(x)==t_ELL_NF)
+    return ellnf_vecarea(x, ellnf_get_prec(x));
   if (!ell_is_complex(x)) pari_err_TYPE("area [not defined over C]",x);
   return ellR_area(x, ellR_get_prec(x));
 }

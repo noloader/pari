@@ -5498,31 +5498,30 @@ ellnfembed_free(GEN L)
     obj_free(gel(L,i));
 }
 
-GEN
-ellnf_vecomega(GEN E, long prec)
+static GEN
+ellnf_vec_wrap(GEN fun(GEN, long), GEN E, long prec)
 {
   pari_sp av = avma;
   GEN V = ellnfembed(E, prec);
   long i, l = lg(V);
   GEN P = cgetg(l, t_VEC);
   for(i=1; i<l; i++)
-    gel(P, i) = ellR_omega(gel(V,i), prec);
+    gel(P, i) = fun(gel(V,i), prec);
   ellnfembed_free(V);
   return gerepilecopy(av, P);
 }
 
 GEN
+ellnf_vecarea(GEN E, long prec)
+{ return ellnf_vec_wrap(ellR_area, E, prec); }
+
+GEN
 ellnf_veceta(GEN E, long prec)
-{
-  pari_sp av = avma;
-  GEN V = ellnfembed(E, prec);
-  long i, l = lg(V);
-  GEN P = cgetg(l, t_VEC);
-  for(i=1; i<l; i++)
-    gel(P, i) = ellR_eta(gel(V,i), prec);
-  ellnfembed_free(V);
-  return gerepilecopy(av, P);
-}
+{ return ellnf_vec_wrap(ellR_eta, E, prec); }
+
+GEN
+ellnf_vecomega(GEN E, long prec)
+{ return ellnf_vec_wrap(ellR_omega, E, prec); }
 
 static GEN
 ellnfbsdperiod(GEN E, long prec)
