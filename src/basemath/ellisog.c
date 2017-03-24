@@ -1138,7 +1138,7 @@ ellQ_isomat(GEN E, long flag)
       return mkisomat(l, ellisograph_p(K, E, l), flag);
 #endif
   }
-  good = ellQ_goodl(E);
+  good = ellQ_goodl(ellintegralmodel(E,NULL));
   if (good & _2)
   {
     T2 = ellisograph_p(K, E, 2, flag);
