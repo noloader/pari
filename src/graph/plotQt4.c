@@ -22,11 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 //
 //                            ---Nils-Peter Skoruppa (www.countnumber.de)
 /////////////////////////////////////////////////////////////////////////////
-#ifdef __QPE__
-#include <Qt/qpeapplication.h>
-#else
 #include <Qt/qapplication.h>
-#endif
 #include <Qt/qwidget.h>
 #include <Qt/qpainter.h>
 #include <Qt/qcolor.h>
@@ -286,11 +282,7 @@ static const char * const fullscreen_xpm[] = {
 
 /*
 class SaveAsDialog: public
-#ifdef __QPE__
-//QDialog
-#else
 QFileDialog
-#endif
 {
 
     Q_OBJECT
@@ -300,9 +292,6 @@ public:
                   const QString & s = QString::null, int w = 0, int h = 0,
                   QWidget *parent = 0, const char *name = 0, WFlags f = 0);
     ~SaveAsDialog();
-#ifdef __QPE__
-    QString selectedFile() { return nameW->text();}
-#endif
     int picWidth() { return widthW->value();}
     int picHeight() { return heightW->value();}
 
@@ -315,41 +304,6 @@ private:
 
 SaveAsDialog::SaveAsDialog( const QString & c, const QString & s, int w, int h,
                             QWidget *parent, const char *name, WFlags f)
-#ifdef __QPE__
-    // simplistic dialog in case of QPE ( fancy alternative: class FileSelector)
-
-    : QDialog( parent, name, TRUE, f) {
-
-    if( c) this->setCaption( c);
-    nameW = new QLineEdit( this);
-    if( s) nameW->setText( s);
-    widthW = new QSpinBox( 1, 65536, 1, this);
-    if( w > 0) widthW->setValue( w);
-    heightW = new QSpinBox( 1, 65536, 1, this);
-    if( h > 0) heightW->setValue( h);
-
-    QVBoxLayout *top = new QVBoxLayout( this, 10);
-    QGridLayout *contents = new QGridLayout( 3, 2);
-
-    top->addLayout( contents);
-
-    QLabel *l;
-    l = new QLabel( nameW, "Name : ", this);
-    l->setAlignment( AlignRight | AlignVCenter);
-    contents->addWidget( l, 0, 0);
-    contents->addWidget( nameW, 0, 1);
-    l = new QLabel( widthW, "Width : ", this);
-    l->setAlignment( AlignRight | AlignVCenter);
-    contents->addWidget( l, 1, 0);
-    contents->addWidget( widthW, 1, 1);
-    l = new QLabel( heightW, "Height : ", this);
-    l->setAlignment( AlignRight | AlignVCenter);
-    contents->addWidget( l, 2, 0);
-    contents->addWidget( heightW, 2, 1);
-
-    top->activate();
-    this->resize( 160, this->height()); // hack!!!
-#else
     : QFileDialog( parent, name, TRUE) {
 
     if( c) this->setFilters( c);
@@ -372,7 +326,6 @@ SaveAsDialog::SaveAsDialog( const QString & c, const QString & s, int w, int h,
     if( h > 0) heightW->setValue( h);
     l = new QLabel( "Resolution:", this);
     QFileDialog::addWidgets( l, wt, 0);
-#endif
 }
 
 
@@ -390,10 +343,8 @@ public:
                 QWidget* parent = 0, const char* name = 0);
     ~PlotWindow();
 
-#ifndef __QPE__
 protected:
     void resizeEvent( QResizeEvent *);
-#endif
 
 private slots:
     void fullScreen();
@@ -406,7 +357,6 @@ private:
     Plotter *plr;
     QString saveFileName;
     int saveFileFormat;
-#ifndef __QPE__
     QLabel *res;
     QMenu* menuFile;
     QMenu* menuView;
@@ -416,7 +366,6 @@ private:
     QAction* fullScreenAction;
     QSignalMapper* signalMapper;
     QIcon* icon;
-#endif
 };
 
 
@@ -476,12 +425,10 @@ PlotWindow::PlotWindow( long *w, long *x, long *y, long lw,
     connect( plr, SIGNAL(clicked()), this, SLOT( normalView()));
     this->setCentralWidget( plr);
 
-#ifndef __QPE__
     this->resize( pari_plot.width,
                   pari_plot.height + 24);
     res = new QLabel( );
     statusBar()->addWidget( res);
-#endif
 }
 
 
@@ -489,7 +436,6 @@ PlotWindow::~PlotWindow() {
 }
 
 
-#ifndef __QPE__
 void PlotWindow::resizeEvent( QResizeEvent *e) {
 
     QMainWindow::resizeEvent( e);
@@ -498,7 +444,6 @@ void PlotWindow::resizeEvent( QResizeEvent *e) {
                   QString::number( plr->height()));
     res->setFixedSize( res->sizeHint());
 }
-#endif
 
 
 void PlotWindow::fullScreen() {
@@ -525,9 +470,6 @@ void PlotWindow::save() {
     QString fn = saveFileName + "." + ff.toLower();
     plr->save( fn, ff);
     setWindowTitle( QString( "Pari QtPlot:") + fn);
-#ifndef __QPE__
-    //statusBar()->message( QString( "File %1 saved" ).arg( fn), 2000 );
-#endif
 }
 
 
@@ -571,23 +513,14 @@ rectdraw0(long *w, long *x, long *y, long lw)
     // launch Qt window
     int argc = 1;                         // set argc = 2 for cross
     const char * argv[] = { "gp", "-qws"}; // development using qvfb
-#ifdef __QPE__
-    QPEApplication
-#else
     QApplication
-#endif
         a( argc, (char**) argv);
 #ifdef __FANCY_WIN__
     PlotWindow *win = new PlotWindow(w, x, y, lw);
 #else
     Plotter *win = new Plotter( w, x, y, lw);
 #endif
-#ifdef __QPE__
-    a.showMainWidget( win);
-#else
-    //a.setMainWidget( win);
     win->show();
-#endif
     a.exec();
     exit( 0);
 }
@@ -597,13 +530,8 @@ PARI_get_plot(void)
 /* This function initialises the structure rect.h: pari_plot */
 {
     if (pari_plot.init) return;      // pari_plot is already set
-#ifdef __QPE__
-    pari_plot.width   = 240;         // width and
-    pari_plot.height  = 320;         //  height of plot window
-#else
     pari_plot.width   = 400;         // width and
     pari_plot.height  = 300;         //  height of plot window
-#endif
     pari_plot.hunit   = 3;           //
     pari_plot.vunit   = 3;           //
     pari_plot.fwidth  = 6;           // font width
