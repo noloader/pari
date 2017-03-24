@@ -250,60 +250,6 @@ static const char * const fullscreen_xpm[] = {
 ".     ..     .",
 ".............."};
 
-/*
-class SaveAsDialog: public
-QFileDialog
-{
-
-    Q_OBJECT
-
-public:
-    SaveAsDialog( const QString & c = QString::null,
-                  const QString & s = QString::null, int w = 0, int h = 0,
-                  QWidget *parent = 0, const char *name = 0, WFlags f = 0);
-    ~SaveAsDialog();
-    int picWidth() { return widthW->value();}
-    int picHeight() { return heightW->value();}
-
-private:
-    QLineEdit *nameW;
-    QSpinBox *widthW, *heightW;
-
-};
-
-
-SaveAsDialog::SaveAsDialog( const QString & c, const QString & s, int w, int h,
-                            QWidget *parent, const char *name, WFlags f)
-    : QFileDialog( parent, name, TRUE) {
-
-    if( c) this->setFilters( c);
-    if( s) this->setSelection( s);
-
-    QLabel *l;
-    QWidget *wt = new QWidget( this);
-    QHBoxLayout *spinBoxes = new QHBoxLayout( wt, 5);
-    widthW = new QSpinBox( 1, 65536, 1, wt);
-    l  = new QLabel( widthW, "&width ", wt);
-    spinBoxes->addWidget( l);
-    spinBoxes->addWidget( widthW);
-    if( w > 0) widthW->setValue( w);
-    heightW = new QSpinBox( 1, 65536, 1, wt);
-    spinBoxes->addSpacing(10);
-    l  = new QLabel( heightW, "&height ", wt);
-    l->setAlignment( AlignRight | AlignVCenter);
-    spinBoxes->addWidget( l);
-    spinBoxes->addWidget( heightW);
-    if( h > 0) heightW->setValue( h);
-    l = new QLabel( "Resolution:", this);
-    QFileDialog::addWidgets( l, wt, 0);
-}
-
-
-SaveAsDialog::~SaveAsDialog() {
-}
-*/
-
-
 class PlotWindow: public QMainWindow {
 
      Q_OBJECT
