@@ -78,7 +78,7 @@ ps)
 svg)
   graph=plotsvg;;
 Qt4)
-  PLOTCFLAGS='-D__FANCY_WIN__ -I$(QTDIR)/include'
+  PLOTCFLAGS='-I$(QTDIR)/include'
   PLOTLIBS="-L\$(QTDIR)/lib $QTLIB"
   graph=plotQt4;;
 fltk)

@@ -56,7 +56,6 @@ using namespace Qt;
 
 class Plotter: public QWidget {
 
-#ifdef __FANCY_WIN__
      Q_OBJECT
 
 signals:
@@ -64,7 +63,6 @@ signals:
 
 protected:
     void mouseReleaseEvent( QMouseEvent*);
-#endif
 
 public:
     Plotter( long *w, long *x, long *y, long lw,
@@ -74,10 +72,6 @@ public:
 
 protected:
     void paintEvent( QPaintEvent *);
-    //void resizeEvent ( QResizeEvent *);
-#ifndef __FANCY_WIN__
-    void keyPressEvent( QKeyEvent *);
-#endif
 
 private:
     long *w;                           // map into rectgraph indexes
@@ -105,10 +99,6 @@ Plotter::Plotter( long *w, long *x, long *y, long lw,
     long i;
 
     this->w=w; this->x=x; this->y=y; this->lw=lw;
-#ifndef __FANCY_WIN__
-    this->resize( pari_plot.width, pari_plot.height);
-    this->setCaption( "Pari QtPlot");
-#endif
     this->setFont( font);
     numcolors = lg(GP_DATA->colormap)-1;
     color = (QColor*)gpmalloc(numcolors*sizeof(QColor));
@@ -230,29 +220,9 @@ void Plotter::paintEvent( QPaintEvent *) {
 
 //void Plotter::resizeEvent( QResizeEvent *) { }
 
-#ifndef __FANCY_WIN__
-void Plotter::keyPressEvent( QKeyEvent *e) {
-
-    switch ( tolower( e->ascii())) {
-        case 's':
-            save();
-            this->setCaption( "Pari QtPlot: " + *plotFile);
-            break;
-    }
-}
-#endif
+void Plotter::mouseReleaseEvent( QMouseEvent*) { emit clicked(); }
 
 
-#ifdef __FANCY_WIN__
-void Plotter::mouseReleaseEvent( QMouseEvent*) {
-
-    emit clicked();
-}
-#endif
-
-
-
-#ifdef __FANCY_WIN__
 //
 // The envelope for an instance of plotter
 //
@@ -492,8 +462,6 @@ void PlotWindow::save( int id)
 
 
 #include "plotQt4.moc.cpp"
-#endif // __FANCY_WIN__
-
 
 
 //
@@ -515,11 +483,7 @@ rectdraw0(long *w, long *x, long *y, long lw)
     const char * argv[] = { "gp", "-qws"}; // development using qvfb
     QApplication
         a( argc, (char**) argv);
-#ifdef __FANCY_WIN__
     PlotWindow *win = new PlotWindow(w, x, y, lw);
-#else
-    Plotter *win = new Plotter( w, x, y, lw);
-#endif
     win->show();
     a.exec();
     exit( 0);
