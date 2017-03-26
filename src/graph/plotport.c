@@ -20,7 +20,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #include "paripriv.h"
 #include "rect.h"
 
-static void postdraw0(long *w, long *x, long *y, long lw, long scale);
 static void pari_get_psplot(PARI_plot *T);
 static void (*pari_get_plot)(PARI_plot *);
 
@@ -58,6 +57,25 @@ static GEN
 READ_EXPR(GEN code, GEN x) {
   if (typ(code)!=t_CLOSURE) return gsubst(code,0,x);
   set_lex(-1, x); return closure_evalgen(code);
+}
+
+static void
+postdraw0(long *w, long *x, long *y, long lw, long scale)
+{
+  pari_sp av = avma;
+  FILE *F = fopen(current_psfile, "a");
+  double xscale = 0.65, yscale = 0.65;
+
+  if (!F) pari_err_FILE("postscript file",current_psfile);
+  if (scale) {
+    PARI_plot T, U;
+    pari_get_psplot(&T);
+    pari_get_plot(&U);
+    xscale *= T.width  * 1.0/U.width;
+    yscale *= T.height * 1.0/U.height;
+  }
+  fputs(rect2ps(w,x,y,lw, xscale,yscale), F);
+  fclose(F); avma = av;
 }
 
 /********************************************************************/
@@ -1731,36 +1749,10 @@ gendraw(GEN list, long ps, long flag)
 }
 
 void
-postdraw(GEN list) { gendraw(list, 1, 0); }
+postdraw(GEN list, long flag) { gendraw(list, 1, flag); }
 
 void
-rectdraw(GEN list) { gendraw(list, 0, 0); }
-
-void
-postdraw_flag(GEN list, long flag) { gendraw(list, 1, flag); }
-
-void
-rectdraw_flag(GEN list, long flag) { gendraw(list, 0, flag); }
-
-void
-postdraw0(long *w, long *x, long *y, long lw, long scale)
-{
-  pari_sp av = avma;
-  FILE *F = fopen(current_psfile, "a");
-  double xscale = 0.65, yscale = 0.65;
-
-  if (!F) pari_err_FILE("postscript file",current_psfile);
-  if (scale) {
-    PARI_plot T, U;
-    pari_get_psplot(&T);
-    pari_get_plot(&U);
-    xscale *= T.width  * 1.0/U.width;
-    yscale *= T.height * 1.0/U.height;
-  }
-  fputs(rect2ps(w,x,y,lw, xscale,yscale), F);
-  fclose(F); avma = av;
-}
-
+rectdraw(GEN list, long flag) { gendraw(list, 0, flag); }
 
 #define RoColT(R) minss(numcolors,RoCol(R))
 void

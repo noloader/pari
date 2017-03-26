@@ -1,7 +1,7 @@
 Function: plothsizes
 Class: highlevel
 Section: graphic
-C-Name: plothsizes_flag
+C-Name: plothsizes
 Prototype: D0,L,
 Help: plothsizes({flag=0}): returns array of 6 elements: terminal width and
  height, sizes for ticks in horizontal and vertical directions, width and
