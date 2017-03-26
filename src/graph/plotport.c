@@ -701,10 +701,15 @@ rectlinetype(long ne, long type)
  }
 }
 
+static void*
+cp(void* R, size_t t)
+{ void *o = pari_malloc(t); memcpy(o,R,t); return o; }
 void
-rectcopy_gen(long source, long dest, GEN xoff, GEN yoff, long flag)
+rectcopy(long source, long dest, GEN xoff, GEN yoff, long flag)
 {
-  long xi, yi;
+  PariRect *s = check_rect_init(source), *d = check_rect_init(dest);
+  RectObj *R, *tail = RTail(d);
+  long i, x, y;
   if (flag & RECT_CP_RELATIVE) {
     double xd = gtodouble(xoff), yd = gtodouble(yoff);
     PARI_plot T;
@@ -713,47 +718,21 @@ rectcopy_gen(long source, long dest, GEN xoff, GEN yoff, long flag)
     if (yd > 1) pari_err_DOMAIN("plotcopy","dy",">",gen_1,yoff);
     if (yd < 0) pari_err_DOMAIN("plotcopy","dy","<",gen_0,yoff);
     pari_get_plot(&T);
-    xi = T.width - 1;
-    yi = T.height - 1;
-    xi = DTOL(xd*xi);
-    yi = DTOL(yd*yi);
+    x = DTOL(xd * (T.width-1));
+    y = DTOL(yd * (T.height-1));
   } else {
     if (typ(xoff) != t_INT) pari_err_TYPE("plotcopy",xoff);
     if (typ(yoff) != t_INT) pari_err_TYPE("plotcopy",yoff);
-    xi = itos(xoff);
-    yi = itos(yoff);
+    x = itos(xoff);
+    y = itos(yoff);
   }
-  if (flag & ~RECT_CP_RELATIVE) {
-    PariRect *s = check_rect_init(source), *d = check_rect_init(dest);
-
-    switch (flag & ~RECT_CP_RELATIVE) {
-      case RECT_CP_NW:
-        break;
-      case RECT_CP_SW:
-        yi = RYsize(d) - RYsize(s) - yi;
-        break;
-      case RECT_CP_SE:
-        yi = RYsize(d) - RYsize(s) - yi;
-        /* FALL THROUGH */
-      case RECT_CP_NE:
-        xi = RXsize(d) - RXsize(s) - xi;
-        break;
-    }
+  switch (flag & ~RECT_CP_RELATIVE)
+  {
+    case RECT_CP_NW: break;
+    case RECT_CP_SW: y = RYsize(d) - RYsize(s) - y; break;
+    case RECT_CP_SE: y = RYsize(d) - RYsize(s) - y; /* fall through */
+    case RECT_CP_NE: x = RXsize(d) - RXsize(s) - x; break;
   }
-  rectcopy(source, dest, xi, yi);
-}
-
-static void*
-cp(void* R, size_t t)
-{ void *o = pari_malloc(t); memcpy(o,R,t); return o; }
-
-void
-rectcopy(long source, long dest, long x, long y)
-{
-  PariRect *s = check_rect_init(source), *d = check_rect_init(dest);
-  RectObj *R, *tail = RTail(d);
-  long i;
-
   for (R = RHead(s); R; R = RoNext(R))
   {
     RectObj *o;
@@ -1639,9 +1618,6 @@ plothraw(GEN listx, GEN listy, long flags)
 GEN
 ploth(GEN a, GEN b, GEN code, long prec,long flags,long numpoints)
 { return rectploth(-1, a,b,code,prec,flags,numpoints); }
-GEN
-plothmult(GEN a, GEN b, GEN code, long prec)
-{ return rectploth(-1, a,b,code,prec,0,0); }
 
 GEN
 postplothraw(GEN listx, GEN listy, long flags)

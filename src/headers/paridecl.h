@@ -3989,7 +3989,6 @@ void  pari_plot_by_file(const char *env, const char *suf, const char *img);
 void  pari_set_plot_engine(void (*plot)(PARI_plot *));
 void  pari_kill_plot_engine(void);
 GEN   ploth(GEN a, GEN b, GEN code, long prec, long flag, long numpoints);
-GEN   plothmult(GEN a, GEN b, GEN code, long prec);
 GEN   plothraw(GEN listx, GEN listy, long flag);
 GEN   plothsizes(long flag);
 void  postdraw(GEN list, long flag);
@@ -4000,8 +3999,7 @@ char *rect2ps_i(long *w, long *x, long *y, long lw, double xscale, double yscale
 char *rect2svg(long *w, long *x, long *y, long lw);
 void  rectbox(long ne, GEN gx2, GEN gy2);
 void  rectcolor(long ne, long color);
-void  rectcopy(long source, long dest, long xoff, long yoff);
-void  rectcopy_gen(long source, long dest, GEN xoff, GEN yoff, long flag);
+void  rectcopy(long source, long dest, GEN xoff, GEN yoff, long flag);
 GEN   rectcount(long *w, long lw);
 GEN   rectcursor(long ne);
 void  rectdraw(GEN list, long flag);
