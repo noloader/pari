@@ -88,7 +88,6 @@ struct plot_eng {
 };
 
 /* Pointer conversion. */
-
 #define RoMV(rop) ((RectObj1P*)rop)
 #define RoPT(rop) ((RectObj1P*)rop)
 #define RoLN(rop) ((RectObj2P*)rop)
@@ -100,8 +99,7 @@ struct plot_eng {
 #define RoPTS(rop) ((RectObjPS*)rop)
 #define RoLNT(rop) ((RectObjPN*)rop)
 
-/* All the access to the rectangle data _should_ go via these macros! */
-
+/* All the access to the rectangle data go via these macros! */
 #define RHead(rp) ((rp)->head)
 #define RTail(rp) ((rp)->tail)
 #define RXsize(rp) ((rp)->sizex)
@@ -143,25 +141,22 @@ struct plot_eng {
 #define RoSTy(rop) (RoST(rop)->y)
 #define RoSTdir(rop) (RoST(rop)->dir)
 
-#define RoSTdirLEFT          0x00
-#define RoSTdirCENTER          0x01
-#define RoSTdirRIGHT          0x02
-#define RoSTdirHPOS_mask  0x03
-
-#define RoSTdirBOTTOM          0x00
-#define RoSTdirVCENTER          0x04
-#define RoSTdirTOP          0x08
-#define RoSTdirVPOS_mask  0x0c
-
-#define RoSTdirHGAP          0x10
-#define RoSTdirVGAP          0x20
-
-
 #define RoPTTpen(rop) (RoPTT(rop)->pen)
 #define RoLNTpen(rop) (RoLNT(rop)->pen)
 #define RoPTSsize(rop) (RoPTS(rop)->size)
 
-#define PL_POINTS 1
+#define RoSTdirLEFT       0x00
+#define RoSTdirCENTER     0x01
+#define RoSTdirRIGHT      0x02
+#define RoSTdirHPOS_mask  0x03
+
+#define RoSTdirBOTTOM     0x00
+#define RoSTdirVCENTER    0x04
+#define RoSTdirTOP        0x08
+#define RoSTdirVPOS_mask  0x0c
+
+#define RoSTdirHGAP       0x10
+#define RoSTdirVGAP       0x20
 
 #define PLOT_PARAMETRIC   0x00001
 #define PLOT_RECURSIVE    0x00002
@@ -183,14 +178,10 @@ struct plot_eng {
 #define RECT_CP_SE        0x4
 #define RECT_CP_NE        0x6
 
-#define TICKS_CLOCKW        1        /* Draw in clockwise direction */
-#define TICKS_ACLOCKW        2        /* Draw in anticlockwise direction */
-#define TICKS_ENDSTOO        4        /* Draw at endspoints if needed */
-#define TICKS_NODOUBLE        8        /* Do not draw double-length ticks */
-
-/* Not implemented yet */
-#define TICKS_COORD        16        /* Output [x,y,l,isdbl] for each tick */
-#define TICKS_RELATIVE        32        /* x,y-coordinates are relative */
+#define TICKS_CLOCKW      1 /* Draw in clockwise direction */
+#define TICKS_ACLOCKW     2 /* Draw in anticlockwise direction */
+#define TICKS_ENDSTOO     4 /* Draw at endspoints if needed */
+#define TICKS_NODOUBLE    8 /* Do not draw double-length ticks */
 
 void gen_draw(struct plot_eng *eng, long *w, long *x, long *y, long lw, double xs, double ys);
 
