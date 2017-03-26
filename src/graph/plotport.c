@@ -20,7 +20,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #include "paripriv.h"
 #include "rect.h"
 
-static void pari_get_psplot(PARI_plot *T);
 static void (*pari_get_plot)(PARI_plot *);
 
 /* no need for THREAD: OK to share this */
@@ -59,23 +58,38 @@ READ_EXPR(GEN code, GEN x) {
   set_lex(-1, x); return closure_evalgen(code);
 }
 
+static const long PS_WIDTH = 1120 - 60; /* 1400 - 60 for hi-res */
+static const long PS_HEIGH = 800 - 40; /* 1120 - 60 for hi-res */
+
 static void
-postdraw0(long *w, long *x, long *y, long lw, long scale)
+psdraw_scale(PARI_plot *T, long *w, long *x, long *y, long lw)
 {
   pari_sp av = avma;
   FILE *F = fopen(current_psfile, "a");
   double xscale = 0.65, yscale = 0.65;
 
   if (!F) pari_err_FILE("postscript file",current_psfile);
-  if (scale) {
-    PARI_plot T, U;
-    pari_get_psplot(&T);
-    pari_get_plot(&U);
-    xscale *= T.width  * 1.0/U.width;
-    yscale *= T.height * 1.0/U.height;
+  if (T) /* rescale wrt T dimens */
+  {
+    xscale *= ((double)PS_WIDTH) / T->width;
+    yscale *= ((double)PS_HEIGH) / T->height;
   }
   fputs(rect2ps(w,x,y,lw, xscale,yscale), F);
   fclose(F); avma = av;
+}
+static void
+psdraw(PARI_plot *T, long *w, long *x, long *y, long lw)
+{ (void)T; psdraw_scale(NULL,w,x,y,lw); }
+static void
+pari_get_psplot(PARI_plot *T, long scale)
+{
+  T->width = PS_WIDTH;
+  T->height= PS_HEIGH;
+  T->fheight= 15;
+  T->fwidth = 6;
+  T->hunit = 5;
+  T->vunit = 5;
+  T->draw = scale? &psdraw: &psdraw_scale;
 }
 
 /********************************************************************/
@@ -1466,7 +1480,7 @@ rectplothrawin(long grect0, dblPointList *data, long flags)
     if (grect == -1)
       pari_get_plot(W); /* to screen */
     else
-      pari_get_psplot(W); /* to file */
+      pari_get_psplot(W,0); /* to file */
     grect = NUMRECT-1;
     /* left/right/top/bottom margin */
     lm = W->fwidth*10;
@@ -1565,7 +1579,7 @@ rectplothrawin(long grect0, dblPointList *data, long flags)
 
   if (W)
   {
-    if (grect0 == -1) W->draw(W, w,wx,wy,2); else postdraw0(w,wx,wy,2, 0);
+    W->draw(W, w,wx,wy,2);
     killrect(w[1]);
     killrect(w[0]);
   }
@@ -1676,17 +1690,6 @@ rectcount(long *w, long lw)
 /*************************************************************************/
 
 static void
-pari_get_psplot(PARI_plot *T)
-{
-  T->width = 1120 - 60; /* 1400 - 60 for hi-res */
-  T->height=  800 - 40; /* 1120 - 60 for hi-res */
-  T->fheight= 15;
-  T->fwidth = 6;
-  T->hunit = 5;
-  T->vunit = 5;
-}
-
-static void
 gendraw(GEN list, long ps, long flag)
 {
   pari_sp av = avma;
@@ -1700,26 +1703,25 @@ gendraw(GEN list, long ps, long flag)
   w = (long*)stack_malloc(n*sizeof(long));
   x = (long*)stack_malloc(n*sizeof(long));
   y = (long*)stack_malloc(n*sizeof(long));
-  if (flag || !ps) pari_get_plot(&T);
+  if (ps)
+    pari_get_psplot(&T, flag);
+  else
+    pari_get_plot(&T);
   for (i=0; i<n; i++)
   {
     GEN win = gel(list,3*i+1), x0 = gel(list,3*i+2), y0 = gel(list,3*i+3);
-    long xi, yi;
     if (typ(win)!=t_INT) pari_err_TYPE("rectdraw",win);
     if (flag) {
-      xi = DTOL(gtodouble(x0)*(T.width - 1));
-      yi = DTOL(gtodouble(y0)*(T.height - 1));
+      x[i] = DTOL(gtodouble(x0)*(T.width - 1));
+      y[i] = DTOL(gtodouble(y0)*(T.height - 1));
     } else {
-      xi = gtos(x0);
-      yi = gtos(y0);
+      x[i] = gtos(x0);
+      y[i] = gtos(y0);
     }
-    x[i] = xi;
-    y[i] = yi;
     ne = itos(win); check_rect(ne);
     w[i] = ne;
   }
-  if (ps) postdraw0(w,x,y,n,flag); else T.draw(&T,w,x,y,n);
-  avma = av;
+  T.draw(&T,w,x,y,n); avma = av;
 }
 
 void
@@ -2074,7 +2076,7 @@ rect2ps_i(long *w, long *x, long *y, long lw, double xscale, double yscale,
   struct plot_eng pl;
   pari_str S;
   PARI_plot T;
-  pari_get_psplot(&T);
+  pari_get_psplot(&T,0);
   str_init(&S, 1);
   /* Definitions taken from post terminal of Gnuplot. */
   str_printf(&S, "%%!\n\
@@ -2097,7 +2099,7 @@ rect2ps_i(long *w, long *x, long *y, long lw, double xscale, double yscale,
   if (str) str_puts(&S, str);
   gen_draw(&pl, w, x, y, lw, xscale, yscale);
   str_puts(&S,"stroke showpage\n");
-  return S.string;
+  S.cur = 0; return S.string;
 }
 char *
 rect2ps(long *w, long *x, long *y, long lw, double xscale, double yscale)
