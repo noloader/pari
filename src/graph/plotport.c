@@ -1651,9 +1651,7 @@ postploth(GEN a, GEN b, GEN code, long prec,long flags, long numpoints)
 { return rectploth(-2, a,b,code,prec, flags,numpoints); }
 
 GEN
-plothsizes(void) { return plothsizes_flag(0); }
-GEN
-plothsizes_flag(long flag)
+plothsizes(long flag)
 {
   GEN vect = cgetg(1+6,t_VEC);
   PARI_plot T;
