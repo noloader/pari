@@ -9,12 +9,11 @@ Help: hyperellratpoints(X,h,{flag=0}): X being a non-singular hyperelliptic
  X can be given either by a squarefree polynomial P such that
  X:y^2=P(x) or by a vector [P,Q] such that X:y^2+Q(x)y=P(x) and Q^2+4P is
  squarefree.
-Doc: $X$ being a non-singular hyperelliptic
- curve given by an integral model, return the affine rational points on the curve
- of naive height less than $h.$
+Doc: $X$ being a non-singular hyperelliptic curve given by an integral model,
+ return the affine rational points on the curve of naive height less than $h.$
  If $\fl=1$, stop as soon as a point is found.
  The naive height is defined as the maximum of the absolute value of the
- numerator and the denominator of the abscissa of a point.
- $X$ can be given either by a squarefree polynomial $P$ such that
+ numerator and the denominator of the abscissa of a point.  $X$ can be given
+ either by a squarefree polynomial $P$ such that
  $X:y^2=P(x)$ or by a vector $[P,Q]$ such that $X:y^2+Q(x)\*y=P(x)$ and
  $Q^2+4\*P$ is squarefree.

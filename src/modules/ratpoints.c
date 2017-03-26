@@ -1108,7 +1108,7 @@ sift(long b, ratpoints_bit_array *survivors, ratpoints_args *args,
       low = -height;
     else
     {
-      if (b*inter.low > height) return;
+      if (b*inter.low > height) break;
       low = ceil(b*inter.low);
     }
     if (b*inter.up >= height)
