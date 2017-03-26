@@ -1938,7 +1938,7 @@ static void
 svg_text(void *data, long x, long y, char *text, long numtext)
 {
   pari_str *S = data_str(data);
-
+  (void)numtext;
   str_printf(S, "<text x='%.5f' y='%.5f' font-size='%ld' style='fill:%s;'>%s</text>",
     svg_rescale(x),svg_rescale(y), 12, data_hexcolor(data), text);
 }
