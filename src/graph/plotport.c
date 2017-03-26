@@ -1457,11 +1457,11 @@ static GEN
 rectplothrawin(PARI_plot *W, long grect, dblPointList *data, long flags)
 {
   const long param = flags & (PLOT_PARAMETRIC|PLOT_COMPLEX);
+  const long max_graphcolors = lg(GP_DATA->graphcolors)-1;
   const pari_sp av = avma;
-  dblPointList y,x;
+  dblPointList x, y;
   double xsml, xbig, ysml, ybig;
-  long ltype, max_graphcolors;
-  long i,nc,nbpoints, w[2], wx[2], wy[2];
+  long ltype, i, nc, nbpoints, w[2], wx[2], wy[2];
 
   if (!data) return cgetg(1,t_VEC);
   x = data[0]; nc = x.nb;
@@ -1537,7 +1537,6 @@ rectplothrawin(PARI_plot *W, long grect, dblPointList *data, long flags)
     flags |= PLOT_PARAMETRIC;
     flags &= (~PLOT_COMPLEX); /* turn COMPLEX to PARAMETRIC*/
   } else i = 1;
-  max_graphcolors = lg(GP_DATA->graphcolors)-1;
   for (ltype = 0; ltype < nc; ltype++)
   {
     current_color[grect] = GP_DATA->graphcolors[1+(ltype%max_graphcolors)];
