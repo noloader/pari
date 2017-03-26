@@ -99,7 +99,6 @@ struct plot_eng {
 #define RoPTT(rop) ((RectObjPN*)rop)
 #define RoPTS(rop) ((RectObjPS*)rop)
 #define RoLNT(rop) ((RectObjPN*)rop)
-#define RoNULL(rop) ((RectObj*)rop)
 
 /* All the access to the rectangle data _should_ go via these macros! */
 
