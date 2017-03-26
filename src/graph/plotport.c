@@ -170,7 +170,6 @@ initrect(long ne, long x, long y)
   RYsize(e) = y; RYcursor(e) = 0;
   RXscale(e) = 1; RXshift(e) = 0;
   RYscale(e) = 1; RYshift(e) = 0;
-  RHasGraph(e) = 0;
 }
 
 GEN
@@ -1490,8 +1489,6 @@ rectplothrawin(long grect0, dblPointList *data, long flags)
     put_label(srect, lm, W->height - bm, xsml, RoSTdirLEFT|RoSTdirTOP);
     put_label(srect, W->width-rm-1, W->height-bm, xbig, RoSTdirRIGHT|RoSTdirTOP);
   }
-  RHasGraph(check_rect(grect)) = 1;
-
   if (!(flags & PLOT_NO_RESCALE))
     rectscale0(grect, xsml, xbig, ysml, ybig);
 

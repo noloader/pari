@@ -29,8 +29,6 @@ typedef struct PariRect {
   double cursorx,cursory;
   double xscale,yscale;
   double xshift,yshift;
-  long has_graph; /* xy-ranges of this rectangle should be used
-                     for interactive operations.  */
 } PariRect;
 
 /* The structures below are "subclasses" of RectObj. */
@@ -115,7 +113,6 @@ struct plot_eng {
 #define RYshift(rp) ((rp)->yshift)
 #define RXscale(rp) ((rp)->xscale)
 #define RYscale(rp) ((rp)->yscale)
-#define RHasGraph(rp) ((rp)->has_graph)
 
 #define RoNext(rop) ((rop)->next)
 #define RoType(rop) ((rop)->code)
