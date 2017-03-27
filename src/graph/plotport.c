@@ -26,7 +26,7 @@ static void (*pari_get_plot)(PARI_plot *);
 static hashtable *rgb_colors = NULL;
 
 THREAD PariRect *rectgraph[18]; /*NUMRECT*/
-THREAD static long current_color[18]; /*NUMRECT*/
+static THREAD long current_color[18]; /*NUMRECT*/
 
 static long rectpoint_itype = 0, rectline_itype  = 0;
 
