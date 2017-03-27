@@ -1,5 +1,4 @@
 Function: plotpoints
-Class: highlevel
 Section: graphic
 C-Name: rectpoints
 Prototype: vLGG

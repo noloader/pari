@@ -1,5 +1,4 @@
 Function: plotcursor
-Class: highlevel
 Section: graphic
 C-Name: rectcursor
 Prototype: L

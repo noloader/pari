@@ -1,5 +1,4 @@
 Function: plothsizes
-Class: highlevel
 Section: graphic
 C-Name: plothsizes
 Prototype: D0,L,

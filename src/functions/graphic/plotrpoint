@@ -1,5 +1,4 @@
 Function: plotrpoint
-Class: highlevel
 Section: graphic
 C-Name: rectrpoint
 Prototype: vLGG

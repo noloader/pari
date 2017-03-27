@@ -1,5 +1,4 @@
 Function: plotscale
-Class: highlevel
 Section: graphic
 C-Name: rectscale
 Prototype: vLGGGG

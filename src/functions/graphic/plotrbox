@@ -1,5 +1,4 @@
 Function: plotrbox
-Class: highlevel
 Section: graphic
 C-Name: rectrbox
 Prototype: vLGG

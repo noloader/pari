@@ -1,5 +1,4 @@
 Function: plotrmove
-Class: highlevel
 Section: graphic
 C-Name: rectrmove
 Prototype: vLGG

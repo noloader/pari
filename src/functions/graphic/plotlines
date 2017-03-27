@@ -1,5 +1,4 @@
 Function: plotlines
-Class: highlevel
 Section: graphic
 C-Name: rectlines
 Prototype: vLGGD0,L,

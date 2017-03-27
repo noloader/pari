@@ -1,5 +1,4 @@
 Function: plotrline
-Class: highlevel
 Section: graphic
 C-Name: rectrline
 Prototype: vLGG

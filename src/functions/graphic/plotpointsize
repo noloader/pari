@@ -1,5 +1,4 @@
 Function: plotpointsize
-Class: highlevel
 Section: graphic
 C-Name: rectpointsize
 Prototype: vLG

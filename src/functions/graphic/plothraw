@@ -1,5 +1,4 @@
 Function: plothraw
-Class: highlevel
 Section: graphic
 C-Name: plothraw
 Prototype: GGD0,L,

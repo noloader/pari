@@ -1,5 +1,4 @@
 Function: psploth
-Class: highlevel
 Section: graphic
 C-Name: postploth
 Prototype: V=GGEpD0,L,D0,L,

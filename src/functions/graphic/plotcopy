@@ -1,5 +1,4 @@
 Function: plotcopy
-Class: highlevel
 Section: graphic
 C-Name: rectcopy
 Prototype: vLLGGD0,L,

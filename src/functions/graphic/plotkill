@@ -1,5 +1,4 @@
 Function: plotkill
-Class: highlevel
 Section: graphic
 C-Name: killrect
 Prototype: vL

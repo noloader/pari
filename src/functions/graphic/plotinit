@@ -1,5 +1,4 @@
 Function: plotinit
-Class: highlevel
 Section: graphic
 C-Name: initrect_gen
 Prototype: vLDGDGD0,L,

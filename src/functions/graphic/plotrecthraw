@@ -1,5 +1,4 @@
 Function: plotrecthraw
-Class: highlevel
 Section: graphic
 C-Name: rectplothraw
 Prototype: LGD0,L,

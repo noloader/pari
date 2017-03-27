@@ -1,5 +1,4 @@
 Function: psdraw
-Class: highlevel
 Section: graphic
 C-Name: postdraw
 Prototype: vGD0,L,

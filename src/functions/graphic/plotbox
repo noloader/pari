@@ -1,5 +1,4 @@
 Function: plotbox
-Class: highlevel
 Section: graphic
 C-Name: rectbox
 Prototype: vLGG

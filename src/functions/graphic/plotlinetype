@@ -1,5 +1,4 @@
 Function: plotlinetype
-Class: highlevel
 Section: graphic
 C-Name: rectlinetype
 Prototype: vLL

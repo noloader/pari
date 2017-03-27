@@ -1,5 +1,4 @@
 Function: plotdraw
-Class: highlevel
 Section: graphic
 C-Name: rectdraw
 Prototype: vGD0,L,

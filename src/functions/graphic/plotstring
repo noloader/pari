@@ -1,5 +1,4 @@
 Function: plotstring
-Class: highlevel
 Section: graphic
 C-Name: rectstring3
 Prototype: vLsD0,L,

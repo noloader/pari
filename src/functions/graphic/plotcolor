@@ -1,5 +1,4 @@
 Function: plotcolor
-Class: highlevel
 Section: graphic
 C-Name: rectcolor
 Prototype: vLL

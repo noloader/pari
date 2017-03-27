@@ -1,5 +1,4 @@
 Function: plotpointtype
-Class: highlevel
 Section: graphic
 C-Name: rectpointtype
 Prototype: vLL
