@@ -636,7 +636,7 @@ HUGELINE="
 $src/funclist::
 	@-$cfg/genfunclist $src/funclist $desc"
 suffix='$$$$-$(TMPSUF)'
-list="funclist init default gp_init highlvl"
+list="funclist init default gp_init"
 for name in $list; do
   case $name in
   funclist)
@@ -658,11 +658,6 @@ for name in $list; do
     target=$src/gp/gp_init.h
     depend="$desc/\$(DESC) \$(DESC_HELP_GEN)"
     script="gen_proto gp \$(DESC)"
-  ;;
-  highlvl)
-    target=$src/gp/highlvl.h
-    depend="$desc/\$(DESC) \$(DESC_HELP_GEN)"
-    script="gen_proto highlevel \$(DESC)"
   ;;
   esac
 HUGELINE="$HUGELINE

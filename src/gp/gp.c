@@ -564,7 +564,6 @@ main(int argc, char **argv)
   (void)os_signal(SIGALRM,gp_alarm_handler);
 #endif
   pari_add_module(functions_gp);
-  pari_add_module(functions_highlevel);
 
   pari_set_plot_engine(gp_get_plot);
   cb_pari_quit = gp_quit;
@@ -645,4 +644,3 @@ void
 whatnow0(char *s) { whatnow(pariOut, s,0); }
 
 #include "gp_init.h"
-#include "highlvl.h"
