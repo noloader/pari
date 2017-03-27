@@ -721,6 +721,12 @@ for dir in basemath modules language gp graph systems mt; do
     depend="./paricfg.h"
     cflags="$cflags \$(DLCFLAGS)"
     ;;
+  plotport)
+    cflags="$cflags \$(DLCFLAGS)"
+    depend="$RECT_H"
+    ;;
+  plotsvg|plotps)
+    ;;
   plotQt4)
     cflags="$cflags \$(PLOTCFLAGS)"
     depend="$RECT_H"
@@ -733,10 +739,6 @@ for dir in basemath modules language gp graph systems mt; do
     ;;
   plotX)
     cflags="$cflags \$(PLOTCFLAGS)"
-    depend="$RECT_H"
-    ;;
-  plot*)
-    cflags="$cflags \$(DLCFLAGS)"
     depend="$RECT_H"
     ;;
   es|sumiter|intnum|forprime)
