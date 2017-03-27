@@ -19,4 +19,4 @@ Doc: sum of expression \var{expr},
  %2 = 9.787606036044382264178477904
  @eprog
 
- \synt{somme}{GEN a, GEN b, char *expr, GEN x}.
+ % \syn{NO}
