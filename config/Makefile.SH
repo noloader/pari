@@ -731,13 +731,17 @@ for dir in basemath modules language gp graph systems mt; do
     depend="$RECT_H"
     compile="\$(CXX)"
     ;;
-  plot*)
+  plotX)
+    cflags="$cflags \$(PLOTCFLAGS)"
     depend="$RECT_H"
+    ;;
+  plot*)
     cflags="$cflags \$(DLCFLAGS)"
+    depend="$RECT_H"
     ;;
   es|sumiter|intnum|forprime)
-    depend="$ANAL_H"
     cflags="$cflags \$(DLCFLAGS)"
+    depend="$ANAL_H"
     ;;
   whatnow)
     depend="$src/gp/whatnow.h"
