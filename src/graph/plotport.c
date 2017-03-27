@@ -1580,70 +1580,59 @@ rectplothrawin(PARI_plot *W, long grect, dblPointList *data, long flags)
 /*                          HI-RES FUNCTIONS                             */
 /*                                                                       */
 /*************************************************************************/
+/* If T != NULL, draw using the attached graphic (using rectwindow ne as a temp)
+ * Else write to 'ne' rectwindow.
+ * Graph t_CLOSURE 'code', x=a..b, use n points */
 static GEN
-rectploth_i(PARI_plot *T, GEN a,GEN b,GEN code, long prec,ulong flags,long tpts)
+rectploth_i(PARI_plot *T, long ne, GEN a,GEN b,GEN code,
+            long prec,ulong flags,long n)
 {
-  dblPointList *pl = rectplothin(a,b, code, prec, flags, tpts);
-  return rectplothrawin(T, NUMRECT-1, pl, flags);
+  dblPointList *pl = rectplothin(a,b, code, prec, flags, n);
+  return rectplothrawin(T, ne, pl, flags);
 }
 GEN
-rectploth(long ne, GEN a,GEN b,GEN code, long prec,ulong flags,long tpts)
+rectploth(long ne, GEN a,GEN b,GEN code, long prec,ulong flags,long n)
+{ return rectploth_i(NULL, ne, a,b, code, prec, flags, n); }
+GEN
+ploth(GEN a, GEN b, GEN code, long prec,long flags,long n)
 {
-  dblPointList *pl = rectplothin(a,b, code, prec, flags, tpts);
-  return rectplothrawin(NULL, ne, pl, flags);
+  PARI_plot T; pari_get_plot(&T);
+  return rectploth_i(&T, NUMRECT-1, a,b,code,prec,flags,n);
+}
+GEN
+postploth(GEN a, GEN b, GEN code, long prec,long flags, long n)
+{
+  PARI_plot T; pari_get_psplot(&T,0);
+  return rectploth_i(&T, NUMRECT-1, a,b,code,prec, flags,n);
 }
 
-static long
-plothraw_flags(long fl)
+/* Draw list of points */
+static GEN
+rectplothraw_i(PARI_plot *T, long ne, GEN data, long flags)
 {
-  switch(fl)
-  {
-    case 0: return PLOT_PARAMETRIC|PLOT_POINTS;
-    case 1: return PLOT_PARAMETRIC;
-    default:return PLOT_PARAMETRIC|fl;
-  }
+  dblPointList *pl = gtodblList(data,flags);
+  return rectplothrawin(T, ne, pl, flags);
 }
 static GEN
 plothraw_i(PARI_plot *T, GEN X, GEN Y, long flag)
 {
   pari_sp av = avma;
-  dblPointList *pl;
-  flag = plothraw_flags(flag);
-  pl = gtodblList(mkvec2(X,Y), flag);
-  return gerepileupto(av, rectplothrawin(T, NUMRECT-1, pl, flag));
+  switch (flag) {
+    case 0: flag = PLOT_PARAMETRIC|PLOT_POINTS; break;
+    case 1: flag = PLOT_PARAMETRIC; break;
+    default: flag |= PLOT_PARAMETRIC; break;
+  }
+  return gerepileupto(av, rectplothraw_i(T, NUMRECT-1, mkvec2(X,Y), flag));
 }
-GEN
-rectplothraw(long ne, GEN data, long flags)
-{
-  dblPointList *pl = gtodblList(data,flags);
-  return rectplothrawin(NULL, ne, pl, flags);
-}
-
 GEN
 plothraw(GEN X, GEN Y, long flags)
-{
-  PARI_plot T; pari_get_plot(&T);
-  return plothraw_i(&T, X, Y, flags);
-}
+{ PARI_plot T; pari_get_plot(&T); return plothraw_i(&T, X, Y, flags); }
 GEN
 postplothraw(GEN X, GEN Y, long flags)
-{
-  PARI_plot T; pari_get_psplot(&T,0);
-  return plothraw_i(&T, X, Y, flags);
-}
-
+{ PARI_plot T; pari_get_psplot(&T,0); return plothraw_i(&T, X, Y, flags); }
 GEN
-ploth(GEN a, GEN b, GEN code, long prec,long flags,long numpoints)
-{
-  PARI_plot T; pari_get_plot(&T);
-  return rectploth_i(&T, a,b,code,prec,flags,numpoints);
-}
-GEN
-postploth(GEN a, GEN b, GEN code, long prec,long flags, long numpoints)
-{
-  PARI_plot T; pari_get_psplot(&T,0);
-  return rectploth_i(&T, a,b,code,prec, flags,numpoints);
-}
+rectplothraw(long ne, GEN data, long flags)
+{ return rectplothraw_i(NULL, ne, data, flags); }
 
 GEN
 plothsizes(long flag)
@@ -1724,16 +1713,10 @@ gendraw(PARI_plot *T, GEN list, long flag)
 }
 void
 postdraw(GEN list, long flag)
-{
-  PARI_plot T; pari_get_psplot(&T,flag);
-  gendraw(&T, list, flag);
-}
+{ PARI_plot T; pari_get_psplot(&T,flag); gendraw(&T, list, flag); }
 void
 rectdraw(GEN list, long flag)
-{
-  PARI_plot T; pari_get_plot(&T);
-  gendraw(&T, list, flag);
-}
+{ PARI_plot T; pari_get_plot(&T); gendraw(&T, list, flag); }
 
 #define RoColT(R) minss(numcolors,RoCol(R))
 void
