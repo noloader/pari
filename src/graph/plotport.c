@@ -2087,7 +2087,7 @@ rect2ps_i(long *w, long *x, long *y, long lw, double xscale, double yscale,
   if (str) str_puts(&S, str);
   gen_draw(&pl, w, x, y, lw, xscale, yscale);
   str_puts(&S,"stroke showpage\n");
-  S.cur = 0; return S.string;
+  *S.cur = 0; return S.string;
 }
 char *
 rect2ps(long *w, long *x, long *y, long lw, double xscale, double yscale)
