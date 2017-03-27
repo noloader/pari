@@ -78,17 +78,23 @@ static long
 zpsol(GEN T, GEN p, long nu, GEN pnu, GEN x0)
 {
   long i, res;
-  pari_sp av = avma;
+  pari_sp av = avma, btop;
   GEN x, pnup;
 
   res = absequaliu(p,2)? lemma7(T,nu,x0): lemma6(T,p,nu,x0);
   if (res== 1) return 1;
   if (res==-1) return 0;
   x = x0; pnup = mulii(pnu,p);
+  btop = avma;
   for (i=0; i < itos(p); i++)
   {
     x = addii(x,pnu);
     if (zpsol(T,p,nu+1,pnup,x)) { avma = av; return 1; }
+    if (gc_needed(btop, 2))
+    {
+      x = gerepileupto(btop, x);
+      if (DEBUGMEM > 1) pari_warn(warnmem, "zpsol: %ld/%Ps",i,p);
+    }
   }
   avma = av; return 0;
 }
