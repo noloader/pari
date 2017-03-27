@@ -111,3 +111,5 @@ Doc: high precision plot of the function $y=f(x)$ represented by the expression
  ploth(X=0,2*Pi,[(1+I)*X,exp(I*X)], "Complex")
  @eprog\noindent will draw respectively a circle and a circle cut by the line
  $y=x$.
+
+ %\syn{NO}

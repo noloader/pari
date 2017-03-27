@@ -9,3 +9,5 @@ Doc: crude ASCII plot of the function represented by expression \var{expr}
  from $a$ to $b$, with \var{Y} ranging from \var{Ymin} to \var{Ymax}. If
  \var{Ymin} (resp. \var{Ymax}) is not given, the minimum (resp. the maximum)
  of the computed values of the expression is used instead.
+
+ %\syn{NO}

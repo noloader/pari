@@ -68,7 +68,9 @@ sub library_syntax { my ($fun, $args) = @_;
   my ($Cname) = $fun->{'C-Name'};
   return '' if (!$Cname);
   my ($Variant) = $fun->{Variant};
-  my (@proto) = split(//, $fun->{Prototype});
+  my ($Proto) = $fun->{Prototype};
+  $Proto =~ s/\\n.*//; # delete Mnemonics
+  my (@proto) = split(//, $Proto);
   $args =~ s/[{}&]//g;
   $args =~ s/ *=[^,\)]*//g; # delete default values
   my (@ARGS) = split(/[,^] */, $args); # ^ for O(p^e)
@@ -80,7 +82,6 @@ sub library_syntax { my ($fun, $args) = @_;
     my ($c) = $proto[$i++];
     if ($c eq 'l') { $type = "long"; next; }
     if ($c eq 'v') { $type = "void"; next; }
-
     if ($c =~ /^[GWIJE]$/) {$args .= ", GEN " . shift(@ARGS); next;}
     if ($c eq 'U') {$args .= ", ulong " . shift(@ARGS); next;}
     if ($c eq 'L') {$args .= ", long " . shift(@ARGS); next;}
