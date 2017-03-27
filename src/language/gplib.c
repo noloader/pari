@@ -168,7 +168,7 @@ print_fun_list(char **list, long nbli)
   if (i) pari_putc('\n');
 }
 
-static const long MAX_SECTION = 14;
+static const long MAX_SECTION = 15;
 static void
 commands(long n)
 {
