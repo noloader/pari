@@ -1693,13 +1693,11 @@ rectcount(long *w, long lw)
 /*                         POSTSCRIPT OUTPUT                             */
 /*                                                                       */
 /*************************************************************************/
-
 static void
-gendraw(GEN list, long ps, long flag)
+gendraw(PARI_plot *T, GEN list, long flag)
 {
   pari_sp av = avma;
-  long i,n,ne,*w,*x,*y;
-  PARI_plot T;
+  long i, n, ne, *w, *x, *y;
 
   if (typ(list) != t_VEC) pari_err_TYPE("rectdraw",list);
   n = lg(list)-1; if (!n) return;
@@ -1708,17 +1706,13 @@ gendraw(GEN list, long ps, long flag)
   w = (long*)stack_malloc(n*sizeof(long));
   x = (long*)stack_malloc(n*sizeof(long));
   y = (long*)stack_malloc(n*sizeof(long));
-  if (ps)
-    pari_get_psplot(&T, flag);
-  else
-    pari_get_plot(&T);
   for (i=0; i<n; i++)
   {
     GEN win = gel(list,3*i+1), x0 = gel(list,3*i+2), y0 = gel(list,3*i+3);
     if (typ(win)!=t_INT) pari_err_TYPE("rectdraw",win);
     if (flag) {
-      x[i] = DTOL(gtodouble(x0)*(T.width - 1));
-      y[i] = DTOL(gtodouble(y0)*(T.height - 1));
+      x[i] = DTOL(gtodouble(x0)*(T->width - 1));
+      y[i] = DTOL(gtodouble(y0)*(T->height - 1));
     } else {
       x[i] = gtos(x0);
       y[i] = gtos(y0);
@@ -1726,12 +1720,20 @@ gendraw(GEN list, long ps, long flag)
     ne = itos(win); check_rect(ne);
     w[i] = ne;
   }
-  T.draw(&T,w,x,y,n); avma = av;
+  T->draw(T,w,x,y,n); avma = av;
 }
 void
-postdraw(GEN list, long flag) { gendraw(list, 1, flag); }
+postdraw(GEN list, long flag)
+{
+  PARI_plot T; pari_get_psplot(&T,flag);
+  gendraw(&T, list, flag);
+}
 void
-rectdraw(GEN list, long flag) { gendraw(list, 0, flag); }
+rectdraw(GEN list, long flag)
+{
+  PARI_plot T; pari_get_plot(&T);
+  gendraw(&T, list, flag);
+}
 
 #define RoColT(R) minss(numcolors,RoCol(R))
 void
