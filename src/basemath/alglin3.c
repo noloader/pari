@@ -459,17 +459,16 @@ GEN
 matslice0(GEN A, long x1, long x2, long y1, long y2)
 {
   GEN B;
-  long i, lB, lA = lg(A), t, skip, rskip, rlB;
+  long i, lB, lA = lg(A), rA, t, skip, rskip, rlB;
   long is_col = y1!=LONG_MAX && y2==LONG_MAX;
   long is_row = x1!=LONG_MAX && x2==LONG_MAX;
   GEN (*slice)(GEN A, long t, long lB, long y1, long skip);
   if (typ(A)!=t_MAT) pari_err_TYPE("_[_.._,_.._]",A);
   lB = vecslice_parse_arg(lA, &y1, &y2, &skip);
   if (is_col) return vecslice0(gel(A, y1), x1, x2);
-
-  /* lA > 1 */
-  rlB = vecslice_parse_arg(lg(gel(A,1)), &x1, &x2, &rskip);
-  t = typ(gel(A,1));
+  rA = lg(A)==1 ? 1: lgcols(A);
+  rlB = vecslice_parse_arg(rA, &x1, &x2, &rskip);
+  t = lg(A)==1 ? t_COL: typ(gel(A,1));
   if (is_row) return t == t_COL ? rowslice_i(A, lB, x1, y1, skip):
                                   rowsmallslice_i(A, lB, x1, y1, skip);
   slice = t == t_COL? &vecslice_i: &vecsmallslice_i;
