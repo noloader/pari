@@ -2055,15 +2055,15 @@ rect2ps_i(long *w, long *x, long *y, long lw, PARI_plot *T, int plotps)
   struct plot_eng pl;
   PARI_plot U;
   pari_str S;
-  double xscale = 0.65, yscale = 0.65;
-  if (T) /* rescale wrt T dimens */
+  double xs = 0.65, ys = 0.65;
+  if (T) /* res wrt T dimens */
   {
     if (plotps)
-      xscale = yscale = 1;
+      xs = ys = 1;
     else
     {
-      xscale *= ((double)PS_WIDTH) / T->width;
-      yscale *= ((double)PS_HEIGH) / T->height;
+      xs *= ((double)PS_WIDTH) / T->width;
+      ys *= ((double)PS_HEIGH) / T->height;
     }
   }
   else
@@ -2077,7 +2077,7 @@ rect2ps_i(long *w, long *x, long *y, long lw, PARI_plot *T, int plotps)
 /p {moveto 0 2 rlineto 2 0 rlineto 0 -2 rlineto closepath fill} def\n\
 /l {lineto} def\n\
 /m {moveto} def\n"
-"/Times-Roman findfont %ld scalefont setfont\n", T->fheight);
+"/Times-Roman findfont %ld scalefont setfont\n", DTOL(T->fheight * xs));
 
   pl.sc = &ps_sc;
   pl.pt = &ps_point;
@@ -2090,7 +2090,7 @@ rect2ps_i(long *w, long *x, long *y, long lw, PARI_plot *T, int plotps)
   pl.data = (void*)&S;
 
   if (plotps) str_printf(&S,"0 %ld translate -90 rotate\n", T->height - 50);
-  gen_draw(&pl, w, x, y, lw, xscale, yscale);
+  gen_draw(&pl, w, x, y, lw, xs, ys);
   str_puts(&S,"stroke showpage\n");
   *S.cur = 0; return S.string;
 }
