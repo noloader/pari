@@ -258,8 +258,9 @@ rectrmove(long ne, GEN x, GEN y)
   rectmove0(ne,gtodouble(x),gtodouble(y),1);
 }
 
+/* ROt_MV/ROt_PT */
 static void
-rectpoint0(long ne, double x, double y,long relative) /* code = ROt_MV/ROt_PT */
+rectpoint0(long ne, double x, double y,long relative)
 {
   PariRect *e = check_rect_init(ne);
   RectObj *z = (RectObj*) pari_malloc(sizeof(RectObj1P));
@@ -297,8 +298,9 @@ rectcolor(long ne, long c)
   current_color[ne] = c;
 }
 
+/* ROt_MV/ROt_LN */
 static void
-rectline0(long ne, double gx2, double gy2, long relative) /* code = ROt_MV/ROt_LN */
+rectline0(long ne, double gx2, double gy2, long relative)
 {
   double dx,dy,dxy,xmin,xmax,ymin,ymax,x1,y1,x2,y2;
   PariRect *e = check_rect_init(ne);
@@ -525,8 +527,9 @@ killrect(long ne)
   while (z) { t = RoNext(z); freeobj(z); z = t; }
 }
 
+/* ROt_MP */
 static void
-rectpoints0(long ne, double *listx, double *listy, long lx) /* code = ROt_MP */
+rectpoints0(long ne, double *listx, double *listy, long lx)
 {
   double *ptx, *pty, x, y;
   long i, cp=0;
@@ -576,8 +579,9 @@ rectpoints(long ne, GEN listx, GEN listy)
   pari_free(px); pari_free(py);
 }
 
+/* ROt_ML */
 static void
-rectlines0(long ne, double *x, double *y, long lx, long flag) /* code = ROt_ML */
+rectlines0(long ne, double *x, double *y, long lx, long flag)
 {
   long i,I;
   double *ptx,*pty;
@@ -641,14 +645,11 @@ put_label(long ne, long x, long y, double d, long dir)
 }
 
 void
-rectstring(long ne, char *str)
-{
-  rectstring3(ne,str,RoSTdirLEFT);
-}
+rectstring(long ne, char *str) { rectstring3(ne,str,RoSTdirLEFT); }
 
-/* Allocate memory, then put string */
+/* ROt_ST */
 void
-rectstring3(long ne, char *str, long dir) /* code = ROt_ST */
+rectstring3(long ne, char *str, long dir)
 {
   PariRect *e = check_rect_init(ne);
   RectObj *z = (RectObj*) pari_malloc(sizeof(RectObjST));
@@ -666,31 +667,29 @@ rectstring3(long ne, char *str, long dir) /* code = ROt_ST */
   RoCol(z) = current_color[ne];
 }
 
+/* ROt_PTT */
 void
-rectpointtype(long ne, long type) /* code = ROt_PTT */
+rectpointtype(long ne, long type)
 {
- if (ne == -1) {
-   rectpoint_itype = type;
- } else {
+ if (ne == -1) rectpoint_itype = type;
+ else {
    PariRect *e = check_rect_init(ne);
    RectObj *z = (RectObj*) pari_malloc(sizeof(RectObjPN));
-
    RoType(z) = ROt_PTT;
    RoPTTpen(z) = type;
    Rchain(e, z);
  }
 }
 
-/*FIXME: this function is a noop, since no graphic driver implement
- * the ROt_PTS code. ne==-1 is a legacy, meaningless value. */
+/* ROt_PTS. FIXME: this function is a noop, since no graphic driver implement
+ * this code. ne==-1 is a legacy, meaningless value. */
 void
-rectpointsize(long ne, GEN size) /* code = ROt_PTS */
+rectpointsize(long ne, GEN size)
 {
  if (ne == -1) { /*do nothing*/ }
  else {
    PariRect *e = check_rect_init(ne);
    RectObj *z = (RectObj*) pari_malloc(sizeof(RectObjPS));
-
    RoType(z) = ROt_PTS;
    RoPTSsize(z) = gtodouble(size);
    Rchain(e, z);
