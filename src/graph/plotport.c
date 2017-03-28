@@ -1673,16 +1673,15 @@ rectcount(long *w, long lw)
 static void
 gendraw(PARI_plot *T, GEN list, long flag)
 {
-  pari_sp av = avma;
   long i, n, ne, *w, *x, *y;
 
   if (typ(list) != t_VEC) pari_err_TYPE("rectdraw",list);
   n = lg(list)-1; if (!n) return;
   if (n%3) pari_err_DIM("rectdraw");
   n = n/3;
-  w = (long*)stack_malloc(n*sizeof(long));
-  x = (long*)stack_malloc(n*sizeof(long));
-  y = (long*)stack_malloc(n*sizeof(long));
+  w = (long*)pari_malloc(n*sizeof(long));
+  x = (long*)pari_malloc(n*sizeof(long));
+  y = (long*)pari_malloc(n*sizeof(long));
   for (i=0; i<n; i++)
   {
     GEN win = gel(list,3*i+1), x0 = gel(list,3*i+2), y0 = gel(list,3*i+3);
@@ -1697,7 +1696,11 @@ gendraw(PARI_plot *T, GEN list, long flag)
     ne = itos(win); check_rect(ne);
     w[i] = ne;
   }
-  T->draw(T,w,x,y,n); avma = av;
+  T->draw(T,w,x,y,n);
+  pari_free(w);
+  pari_free(x);
+  pari_free(y);
+
 }
 void
 postdraw(GEN list, long flag)
