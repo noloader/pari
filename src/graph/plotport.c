@@ -66,15 +66,8 @@ psdraw_scale(PARI_plot *T, long *w, long *x, long *y, long lw)
 {
   pari_sp av = avma;
   FILE *F = fopen(current_psfile, "a");
-  double xscale = 0.65, yscale = 0.65;
-
   if (!F) pari_err_FILE("postscript file",current_psfile);
-  if (T) /* rescale wrt T dimens */
-  {
-    xscale *= ((double)PS_WIDTH) / T->width;
-    yscale *= ((double)PS_HEIGH) / T->height;
-  }
-  fputs(rect2ps(w,x,y,lw, xscale,yscale), F);
+  fputs(rect2ps(w,x,y,lw,T), F);
   fclose(F); avma = av;
 }
 static void
@@ -1955,16 +1948,15 @@ pari_get_svgplot(PARI_plot *T)
 }
 
 char *
-rect2svg(long *w, long *x, long *y, long lw)
+rect2svg(long *w, long *x, long *y, long lw, PARI_plot *T)
 {
   struct plot_eng pl;
   struct svg_data data;
-  PARI_plot T;
+  PARI_plot U;
 
   str_init(&data.str, 1);
   svg_color(&data, 0);
-  pari_get_svgplot(&T);
-
+  if (!T) { T = &U; pari_get_svgplot(T); }
   pl.data = &data;
   pl.sc = &svg_color;
   pl.pt = &svg_point;
@@ -1973,9 +1965,9 @@ rect2svg(long *w, long *x, long *y, long lw)
   pl.mp = &svg_points;
   pl.ml = &svg_lines;
   pl.st = &svg_text;
-  pl.pl = &T;
+  pl.pl = T;
 
-  svg_head(&T, &data.str);
+  svg_head(T, &data.str);
   gen_draw(&pl, w, x, y, lw, SVG_SCALE, SVG_SCALE);
   svg_tail(&data.str);
 
@@ -2058,13 +2050,26 @@ ps_string(void *data, long x, long y, char *s, long length)
 }
 
 char *
-rect2ps_i(long *w, long *x, long *y, long lw, double xscale, double yscale,
-          long fontsize, char *str)
+rect2ps_i(long *w, long *x, long *y, long lw, PARI_plot *T, int plotps)
 {
   struct plot_eng pl;
+  PARI_plot U;
   pari_str S;
-  PARI_plot T;
-  pari_get_psplot(&T,0);
+  double xscale = 0.65, yscale = 0.65;
+  if (T) /* rescale wrt T dimens */
+  {
+    if (plotps)
+      xscale = yscale = 1;
+    else
+    {
+      xscale *= ((double)PS_WIDTH) / T->width;
+      yscale *= ((double)PS_HEIGH) / T->height;
+    }
+  }
+  else
+  {
+    T = &U; pari_get_psplot(T,0);
+  }
   str_init(&S, 1);
   /* Definitions taken from post terminal of Gnuplot. */
   str_printf(&S, "%%!\n\
@@ -2072,7 +2077,7 @@ rect2ps_i(long *w, long *x, long *y, long lw, double xscale, double yscale,
 /p {moveto 0 2 rlineto 2 0 rlineto 0 -2 rlineto closepath fill} def\n\
 /l {lineto} def\n\
 /m {moveto} def\n"
-"/Times-Roman findfont %ld scalefont setfont\n", fontsize);
+"/Times-Roman findfont %ld scalefont setfont\n", T->fheight);
 
   pl.sc = &ps_sc;
   pl.pt = &ps_point;
@@ -2081,17 +2086,17 @@ rect2ps_i(long *w, long *x, long *y, long lw, double xscale, double yscale,
   pl.mp = &ps_points;
   pl.ml = &ps_lines;
   pl.st = &ps_string;
-  pl.pl = &T;
+  pl.pl = T;
   pl.data = (void*)&S;
 
-  if (str) str_puts(&S, str);
+  if (plotps) str_printf(&S,"0 %ld translate -90 rotate\n", T->height - 50);
   gen_draw(&pl, w, x, y, lw, xscale, yscale);
   str_puts(&S,"stroke showpage\n");
   *S.cur = 0; return S.string;
 }
 char *
-rect2ps(long *w, long *x, long *y, long lw, double xscale, double yscale)
-{ return rect2ps_i(w,x,y,lw,xscale,yscale, 16, NULL); }
+rect2ps(long *w, long *x, long *y, long lw, PARI_plot *T)
+{ return rect2ps_i(w,x,y,lw,T,0); }
 
 void
 pari_plot_by_file(const char *env, const char *suf, const char *img)

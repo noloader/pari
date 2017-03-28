@@ -19,13 +19,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 static void
 draw(PARI_plot *T, long *w, long *x, long *y, long lw)
 {
-  pari_str S;
-  char *s;
   if (pari_daemon()) return;  /* parent process returns */
-  str_init(&S,1);
-  str_printf(&S,"0 %ld translate -90 rotate\n", T->height - 50);
-  s = rect2ps_i(w,x,y,lw,1,1, 9, S.string);
-  pari_plot_by_file("GP_POSTSCRIPT_VIEWER", ".ps", s);
+  pari_plot_by_file("GP_POSTSCRIPT_VIEWER", ".ps", rect2ps_i(w,x,y,lw,T,1));
   exit(0);
 }
 

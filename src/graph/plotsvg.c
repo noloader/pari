@@ -21,9 +21,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 static void
 draw(PARI_plot *T, long *w, long *x, long *y, long lw)
 {
-  (void) T;
   if (pari_daemon()) return;  /* parent process returns */
-  pari_plot_by_file("GP_SVG_VIEWER", ".svg", rect2svg(w,x,y,lw));
+  pari_plot_by_file("GP_SVG_VIEWER", ".svg", rect2svg(w,x,y,lw,T));
   exit(0);
 }
 void

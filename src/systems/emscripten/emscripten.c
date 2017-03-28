@@ -31,9 +31,9 @@ pari_emscripten_help(const char *s)
 static void
 emscripten_draw(PARI_plot *T, long *w, long *x, long *y, long lw)
 {
-  pari_sp av = avma; (void)T;
+  pari_sp av = avma;
   EM_ASM(rawPrint=true);
-  pari_printf("%s\n", rect2svg(w,x,y,lw));
+  pari_printf("%s\n", rect2svg(w,x,y,lw,T));
   EM_ASM(rawPrint=false);
   avma = av;
 }
