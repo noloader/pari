@@ -55,54 +55,51 @@ using namespace Qt;
 
 class Plotter: public QWidget {
 
-     Q_OBJECT
+  Q_OBJECT
 
 signals:
-    void clicked();
+  void clicked();
 
 protected:
-    void mouseReleaseEvent( QMouseEvent*);
+  void mouseReleaseEvent(QMouseEvent*);
 
 public:
-    Plotter(PARI_plot *T, GEN w, GEN x, GEN y, QWidget* parent = 0);
-    void save( const QString& s = *plotFile + ".xpm",//QString("pariplot.xpm"),
-               const QString& f = QString( "XPM"));
+  Plotter(PARI_plot *T, GEN w, GEN x, GEN y, QWidget* parent = 0);
+  void save(const QString& s = *plotFile + ".xpm",
+            const QString& f = QString("XPM"));
 
 protected:
-    void paintEvent( QPaintEvent *);
+  void paintEvent(QPaintEvent *);
 
 private:
-    PARI_plot *T;
-    GEN w, x, y;
-    long numcolors;
-    QColor *color;
-    QFont font;
-    static QString *plotFile;
-    void draw(QPainter *p);
+  PARI_plot *T;
+  GEN w, x, y;
+  long numcolors;
+  QColor *color;
+  QFont font;
+  static QString *plotFile;
+  void draw(QPainter *p);
 };
 
-
-QString *Plotter::plotFile = new QString( "pariplot");
-
+QString *Plotter::plotFile = new QString("pariplot");
 
 Plotter::Plotter(PARI_plot *T, GEN w, GEN x, GEN y, QWidget* parent)
-    : QWidget( parent), font( "lucida", 9) {
+    : QWidget(parent), font("lucida", 9) {
+  long i;
 
-    long i;
-
-    this->w=w; this->x=x; this->y=y; this->T=T;
-    this->setFont( font);
-    numcolors = lg(GP_DATA->colormap)-1;
-    color = (QColor*)pari_malloc(numcolors*sizeof(QColor));
-    for (i = 1; i < lg(GP_DATA->colormap); i++)
-    {
-      int r, g, b;
-      color_to_rgb(gel(GP_DATA->colormap,i), &r, &g, &b);
-      color[i-1] = QColor(r, g, b);
-    }
-    QPalette palette;
-    palette.setColor(backgroundRole(), color[0]);
-    setPalette(palette);
+  this->w = w; this->x = x; this->y = y; this->T = T;
+  this->setFont(font);
+  numcolors = lg(GP_DATA->colormap)-1;
+  color = (QColor*)pari_malloc(numcolors*sizeof(QColor));
+  for (i = 1; i < lg(GP_DATA->colormap); i++)
+  {
+    int r, g, b;
+    color_to_rgb(gel(GP_DATA->colormap,i), &r, &g, &b);
+    color[i-1] = QColor(r, g, b);
+  }
+  QPalette palette;
+  palette.setColor(backgroundRole(), color[0]);
+  setPalette(palette);
 }
 
 struct data_qt
@@ -112,57 +109,64 @@ struct data_qt
   QColor *color;
 };
 
-static void SetForeground(void *data, long col)
+static void
+SetForeground(void *data, long col)
 {
-   struct data_qt *d = (struct data_qt *) data;
-   d->p->setPen(d->color[col]);
+  struct data_qt *d = (struct data_qt *) data;
+  d->p->setPen(d->color[col]);
 }
 
-static void DrawPoint(void *data, long x, long y)
+static void
+DrawPoint(void *data, long x, long y)
 {
-   struct data_qt *d = (struct data_qt *) data;
-   d->p->drawPoint(x, y);
+  struct data_qt *d = (struct data_qt *) data;
+  d->p->drawPoint(x, y);
 }
 
-static void DrawLine(void *data, long x1, long y1, long x2, long y2)
+static void
+DrawLine(void *data, long x1, long y1, long x2, long y2)
 {
-   struct data_qt *d = (struct data_qt *) data;
-   d->p->drawLine(x1, y1, x2, y2);
+  struct data_qt *d = (struct data_qt *) data;
+  d->p->drawLine(x1, y1, x2, y2);
 }
 
-static void DrawRectangle(void *data, long x, long y, long w, long h)
+static void
+DrawRectangle(void *data, long x, long y, long w, long h)
 {
-   struct data_qt *d = (struct data_qt *) data;
-   d->p->drawRect(x, y, w, h);
+  struct data_qt *d = (struct data_qt *) data;
+  d->p->drawRect(x, y, w, h);
 }
 
-static void DrawPoints(void *data, long nb, struct plot_points *p)
+static void
+DrawPoints(void *data, long nb, struct plot_points *p)
 {
-   struct data_qt *d = (struct data_qt *) data;
-   QPolygon xp=QPolygon(nb);
-   long i;
-   for (i=0;i<nb;i++)
-     xp.setPoint(i,p[i].x, p[i].y);
-   d->p->drawPoints(xp);
+  struct data_qt *d = (struct data_qt *) data;
+  QPolygon xp = QPolygon(nb);
+  long i;
+  for (i = 0;i < nb; i++) xp.setPoint(i,p[i].x, p[i].y);
+  d->p->drawPoints(xp);
 }
 
-static void DrawLines(void *data, long nb, struct plot_points *p)
+static void
+DrawLines(void *data, long nb, struct plot_points *p)
 {
-   struct data_qt *d = (struct data_qt *) data;
-   QPolygon xp=QPolygon(nb);
-   long i;
-   for (i=0;i<nb;i++)
-     xp.setPoint(i,p[i].x, p[i].y);
-   d->p->drawPolyline(xp);
+  struct data_qt *d = (struct data_qt *) data;
+  QPolygon xp = QPolygon(nb);
+  long i;
+  for (i = 0;i < nb; i++) xp.setPoint(i, p[i].x, p[i].y);
+  d->p->drawPolyline(xp);
 }
 
-static void DrawString(void *data, long x, long y, char *text, long numtext)
+static void
+DrawString(void *data, long x, long y, char *text, long numtext)
 {
   struct data_qt *d = (struct data_qt *) data;
   d->p->drawText(x, y, QString(text).left(numtext));
 }
 
-void Plotter::draw(QPainter *p){
+void
+Plotter::draw(QPainter *p)
+{
   struct plot_eng plotQt;
   struct data_qt d;
   d.p= p;
@@ -177,44 +181,34 @@ void Plotter::draw(QPainter *p){
   plotQt.st=&DrawString;
   plotQt.pl=T;
   plotQt.data=(void *)&d;
-  double xs = double(this->width()) / T->width,
-         ys = double(this->height()) / T->height;
-  gen_draw(&plotQt, this->w, this->x, this->y,xs,ys);
+  double xs = double(this->width()) / T->width;
+  double ys = double(this->height()) / T->height;
+  gen_draw(&plotQt, this->w, this->x, this->y, xs, ys);
 }
 
-void Plotter::save( const QString& s, const QString& f)
+void
+Plotter::save(const QString& s, const QString& f)
 {
-    QPixmap pm( this->width(), this->height());
-    QPainter p;
-    p.begin(&pm);
-        p.initFrom(this);
-        p.fillRect( 0, 0, pm.width(), pm.height(), color[0]);
-        draw(&p);
-    p.end();
-    pm.save( s, f.toAscii().data());
+  QPixmap pm(this->width(), this->height());
+  QPainter p;
+  p.begin(&pm);
+  p.initFrom(this);
+  p.fillRect(0, 0, pm.width(), pm.height(), color[0]);
+  draw(&p);
+  p.end();
+  pm.save(s, f.toAscii().data());
 }
 
-
-
-void Plotter::paintEvent( QPaintEvent *) {
-
-    QPainter p;
-    p.begin( this);
-    this->draw(&p);
-    p.end();
+void
+Plotter::paintEvent(QPaintEvent *)
+{
+  QPainter p;
+  p.begin(this);
+  this->draw(&p);
+  p.end();
 }
 
-//void Plotter::resizeEvent( QResizeEvent *) { }
-
-void Plotter::mouseReleaseEvent( QMouseEvent*) { emit clicked(); }
-
-
-//
-// The envelope for an instance of plotter
-//
-
-
-
+void Plotter::mouseReleaseEvent(QMouseEvent*) { emit clicked(); }
 
 /* XPM */
 static const char * const fullscreen_xpm[] = {
@@ -236,186 +230,181 @@ static const char * const fullscreen_xpm[] = {
 ".     ..     .",
 ".............."};
 
-class PlotWindow: public QMainWindow {
-
-     Q_OBJECT
+class PlotWindow: public QMainWindow
+{
+  Q_OBJECT
 
 public:
-    PlotWindow(PARI_plot *T, GEN w, GEN x, GEN y, QWidget* parent = 0);
-    ~PlotWindow();
+  PlotWindow(PARI_plot *T, GEN w, GEN x, GEN y, QWidget* parent = 0);
+  ~PlotWindow();
 
 protected:
-    void resizeEvent( QResizeEvent *);
+  void resizeEvent(QResizeEvent *);
 
 private slots:
-    void fullScreen();
-    void normalView();
-    void save();
-    void save( int);
+  void fullScreen();
+  void normalView();
+  void save();
+  void save(int);
 
 private:
-    static const QList<QByteArray> file_formats;
-    Plotter *plr;
-    QString saveFileName;
-    int saveFileFormat;
-    QLabel *res;
-    QMenu* menuFile;
-    QMenu* menuView;
-    QMenu* menuFormat;
-    QAction* quitAction;
-    QAction* saveAction;
-    QAction* fullScreenAction;
-    QSignalMapper* signalMapper;
-    QIcon* icon;
+  static const QList<QByteArray> file_formats;
+  Plotter *plr;
+  QString saveFileName;
+  int saveFileFormat;
+  QLabel *res;
+  QMenu* menuFile;
+  QMenu* menuView;
+  QMenu* menuFormat;
+  QAction* quitAction;
+  QAction* saveAction;
+  QAction* fullScreenAction;
+  QSignalMapper* signalMapper;
+  QIcon* icon;
 };
-
 
 const QList<QByteArray> PlotWindow::file_formats = QImageWriter::supportedImageFormats();
 
-
 PlotWindow::PlotWindow(PARI_plot *T, GEN w, GEN x, GEN y, QWidget* parent)
-    : QMainWindow( parent),
-      saveFileName( "pariplot"), saveFileFormat( 0) {
-
-    setWindowTitle( "Pari QtPlot");
-
-        QPalette palette;
-        palette.setColor(this->backgroundRole(), white);
-        this->setPalette(palette);
-
-        menuFile = menuBar()->addMenu("&File");
-
-        saveAction = new QAction("&Save",this);
-        saveAction->setShortcut(QKeySequence(CTRL+Key_S));
-        connect (saveAction, SIGNAL(triggered()), this, SLOT(save()));
-        menuFile->addAction(saveAction);
-
-        menuFormat = menuFile->addMenu("Save &as");
-
-        signalMapper = new QSignalMapper(this);
-
-        for( int i = 0; i < file_formats.count(); i++)
-        {
-        QAction* tmpAction;
-        tmpAction = new QAction(QString(file_formats.at(i)),this);
-        connect (tmpAction, SIGNAL(triggered()), signalMapper, SLOT(map()));
-        signalMapper->setMapping(tmpAction,i);
-        menuFormat->addAction(tmpAction);
-        }
-
-        connect (signalMapper, SIGNAL(mapped(int)), this,SLOT(save(int)));
-
-        quitAction = new QAction("&Quit",this);
-        quitAction->setShortcut(QKeySequence(CTRL+Key_Q));
-        connect (quitAction, SIGNAL(triggered()), this, SLOT(close()));
-        menuFile->addAction(quitAction);
-
-        menuView = menuBar()->addMenu("&View");
-
-        fullScreenAction = new QAction("Use &full screen", this);
-        fullScreenAction->setShortcut(QKeySequence(CTRL+Key_F));
-        icon = new QIcon();
-        icon->addPixmap(QPixmap( (const char ** )fullscreen_xpm));
-        fullScreenAction->setIcon(*icon);
-        connect(fullScreenAction, SIGNAL( triggered()), this, SLOT( fullScreen()));
-        menuView->addAction(fullScreenAction);
-
-    // Setting up an instance of plotter
-    plr = new Plotter(T, w, x, y, this);
-    connect( plr, SIGNAL(clicked()), this, SLOT( normalView()));
-    this->setCentralWidget( plr);
-
-    this->resize( T->width, T->height + 24);
-    res = new QLabel( );
-    statusBar()->addWidget( res);
-}
-
-
-PlotWindow::~PlotWindow() {
-}
-
-
-void PlotWindow::resizeEvent( QResizeEvent *e) {
-
-    QMainWindow::resizeEvent( e);
-    res->setText( QString( "Resolution: ") +
-                  QString::number( plr->width()) + "x" +
-                  QString::number( plr->height()));
-    res->setFixedSize( res->sizeHint());
-}
-
-
-void PlotWindow::fullScreen() {
-    plr->setParent( 0);
-    plr->showMaximized();
-    plr->show();
-
-}
-
-
-void PlotWindow::normalView() {
-
-    if ( !plr->parentWidget()) {
-        plr->setParent( this);
-        this->setCentralWidget( plr);
-        plr->show();
-    }
-}
-
-
-void PlotWindow::save() {
-
-    QString ff = QString( file_formats.at( saveFileFormat));
-    QString fn = saveFileName + "." + ff.toLower();
-    plr->save( fn, ff);
-    setWindowTitle( QString( "Pari QtPlot:") + fn);
-}
-
-
-void PlotWindow::save( int id)
+    : QMainWindow(parent), saveFileName("pariplot"), saveFileFormat(0)
 {
-        QString ff( file_formats.at( id));
-        QString s( ff + " (*." + ff.toLower() +");;All (*)");
-        QString fn = QFileDialog::getSaveFileName(this, saveFileName + "." + ff,
-        saveFileName + "." + ff, s);
-        if ( !fn.isEmpty() )
-        {
-                saveFileName = fn;
-                int p;
-                if( (p = saveFileName.lastIndexOf( "." + ff, -1)) >=0)
-                        saveFileName.truncate( p);
-                saveFileFormat = id;
-                save();
-        }
+  setWindowTitle("Pari QtPlot");
+
+  QPalette palette;
+  palette.setColor(this->backgroundRole(), white);
+  this->setPalette(palette);
+
+  menuFile = menuBar()->addMenu("&File");
+
+  saveAction = new QAction("&Save",this);
+  saveAction->setShortcut(QKeySequence(CTRL+Key_S));
+  connect (saveAction, SIGNAL(triggered()), this, SLOT(save()));
+  menuFile->addAction(saveAction);
+  menuFormat = menuFile->addMenu("Save &as");
+
+  signalMapper = new QSignalMapper(this);
+
+  for(int i = 0; i < file_formats.count(); i++)
+  {
+    QAction* tmpAction;
+    tmpAction = new QAction(QString(file_formats.at(i)),this);
+    connect (tmpAction, SIGNAL(triggered()), signalMapper, SLOT(map()));
+    signalMapper->setMapping(tmpAction,i);
+    menuFormat->addAction(tmpAction);
+  }
+
+  connect (signalMapper, SIGNAL(mapped(int)), this,SLOT(save(int)));
+
+  quitAction = new QAction("&Quit",this);
+  quitAction->setShortcut(QKeySequence(CTRL+Key_Q));
+  connect (quitAction, SIGNAL(triggered()), this, SLOT(close()));
+  menuFile->addAction(quitAction);
+
+  menuView = menuBar()->addMenu("&View");
+
+  fullScreenAction = new QAction("Use &full screen", this);
+  fullScreenAction->setShortcut(QKeySequence(CTRL+Key_F));
+  icon = new QIcon();
+  icon->addPixmap(QPixmap((const char ** )fullscreen_xpm));
+  fullScreenAction->setIcon(*icon);
+  connect(fullScreenAction, SIGNAL(triggered()), this, SLOT(fullScreen()));
+  menuView->addAction(fullScreenAction);
+
+  // Setting up an instance of plotter
+  plr = new Plotter(T, w, x, y, this);
+  connect(plr, SIGNAL(clicked()), this, SLOT(normalView()));
+  this->setCentralWidget(plr);
+
+  this->resize(T->width, T->height + 24);
+  res = new QLabel();
+  statusBar()->addWidget(res);
 }
 
+PlotWindow::~PlotWindow() {}
+
+void
+PlotWindow::resizeEvent(QResizeEvent *e)
+{
+  QMainWindow::resizeEvent(e);
+  res->setText(QString("Resolution: ") +
+                QString::number(plr->width()) + "x" +
+                QString::number(plr->height()));
+  res->setFixedSize(res->sizeHint());
+}
+
+
+void
+PlotWindow::fullScreen()
+{
+  plr->setParent(0);
+  plr->showMaximized();
+  plr->show();
+}
+
+void
+PlotWindow::normalView()
+{
+  if (!plr->parentWidget())
+  {
+    plr->setParent(this);
+    this->setCentralWidget(plr);
+    plr->show();
+  }
+}
+
+void
+PlotWindow::save()
+{
+  QString ff = QString(file_formats.at(saveFileFormat));
+  QString fn = saveFileName + "." + ff.toLower();
+  plr->save(fn, ff);
+  setWindowTitle(QString("Pari QtPlot:") + fn);
+}
+
+void
+PlotWindow::save(int id)
+{
+  QString ff(file_formats.at(id));
+  QString s(ff + " (*." + ff.toLower() +");;All (*)");
+  QString fn = QFileDialog::getSaveFileName(this, saveFileName + "." + ff,
+    saveFileName + "." + ff, s);
+  if (!fn.isEmpty())
+  {
+    saveFileName = fn;
+    int p;
+    if ((p = saveFileName.lastIndexOf("." + ff, -1)) >= 0)
+      saveFileName.truncate(p);
+    saveFileFormat = id;
+    save();
+  }
+}
 
 #include "plotQt4.moc.cpp"
 
 static void
 draw(PARI_plot *T, GEN w, GEN x, GEN y)
 {
-    if (pari_daemon()) return;  // parent process returns
-    pari_close();
+  if (pari_daemon()) return;  // parent process returns
+  pari_close();
 
-    // launch Qt window
-    int argc = 1;                         // set argc = 2 for cross
-    const char * argv[] = { "gp", "-qws"}; // development using qvfb
-    QApplication a( argc, (char**) argv);
-    PlotWindow *win = new PlotWindow(T, w, x, y);
-    win->show();
-    a.exec(); exit( 0);
+  // launch Qt window
+  int argc = 1;                         // set argc = 2 for cross
+  const char * argv[] = { "gp", "-qws"}; // development using qvfb
+  QApplication a(argc, (char**) argv);
+  PlotWindow *win = new PlotWindow(T, w, x, y);
+  win->show();
+  a.exec(); exit(0);
 }
 
 /* This function initialises the PARI_plot struct *T */
 void
 gp_get_plot(PARI_plot *T)
 {
-    T->width   = 400; // width and
-    T->height  = 300; //  height of plot window
-    T->hunit   = 3;
-    T->vunit   = 3;
-    T->fwidth  = 6;   // font width
-    T->fheight = 9;   //   and height
-    T->draw = &draw;
+  T->width   = 400; // width and
+  T->height  = 300; //  height of plot window
+  T->hunit   = 3;
+  T->vunit   = 3;
+  T->fwidth  = 6;   // font width
+  T->fheight = 9;   //   and height
+  T->draw = &draw;
 }
