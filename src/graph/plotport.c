@@ -1206,12 +1206,12 @@ param_recursion(long cplx, dblPointList *pl,GEN code,GEN tleft,double xleft,
   avma = av;
 }
 
-/* Graph 'code' for parameter values in [a,b], using 'testpoints' sample
- * points (0 = use a default value); code is either a t_CLOSURE (from GP:
- * ploth, etc.) or a t_POL/t_VEC of two t_POLs from rectsplines. Returns a
- * dblPointList of (absolute) coordinates. */
+/* Graph 'code' for parameter values in [a,b], using 'N' sample points
+ * (0 = use a default value); code is either a t_CLOSURE or a t_POL or a
+ * t_VEC of two t_POLs from rectsplines. Returns a dblPointList of
+ * (absolute) coordinates. */
 static dblPointList *
-rectplothin(GEN a, GEN b, GEN code, long prec, ulong flags, long testpoints)
+rectplothin(GEN a, GEN b, GEN code, long prec, ulong flags, long N)
 {
   const double INF = 1.0/0.0;
   const long param = flags & (PLOT_PARAMETRIC|PLOT_COMPLEX);
@@ -1224,16 +1224,9 @@ rectplothin(GEN a, GEN b, GEN code, long prec, ulong flags, long testpoints)
 
   sig = gcmp(b,a); if (!sig) return NULL;
   if (sig < 0) swap(a, b);
-  if (testpoints)
-  {
-    if (testpoints < 2)
-      pari_err_DOMAIN("ploth", "#points", "<", gen_2, stoi(testpoints));
-  }
-  else
-  {
-    if (recur) testpoints = 8;
-    else       testpoints = param? 1500: 1000;
-  }
+  if (N == 1)
+    pari_err_DOMAIN("ploth", "#points", "<", gen_2, stoi(N));
+  if (!N) N = recur? 8: (param? 1500: 1000);
   /* compute F(a) to determine nc = #curves; nl = #coord. lists */
   x = gtofp(a, prec);
   if (typ(code) == t_CLOSURE) push_lex(x, code);
@@ -1266,7 +1259,7 @@ rectplothin(GEN a, GEN b, GEN code, long prec, ulong flags, long testpoints)
     pari_err_TYPE("ploth [multi-curves cannot be plot recursively]",t);
 
   ncoords = cplx? 2*nl: nl;
-  nbpoints = recur? testpoints << RECUR_MAXDEPTH: testpoints;
+  nbpoints = recur? N << RECUR_MAXDEPTH: N;
   pl=(dblPointList*) pari_malloc(ncoords*sizeof(dblPointList));
   /* set [xy]sml,[xy]big to default values */
   if (param)
@@ -1284,7 +1277,7 @@ rectplothin(GEN a, GEN b, GEN code, long prec, ulong flags, long testpoints)
     pl[i].d = (double*)pari_malloc((nbpoints+1)*sizeof(double));
     pl[i].nb=0;
   }
-  dx = divru(gtofp(gsub(b,a),prec), testpoints-1);
+  dx = divru(gtofp(gsub(b,a),prec), N-1);
   if (recur) /* recursive plot */
   {
     double yleft, yright = 0;
@@ -1296,7 +1289,7 @@ rectplothin(GEN a, GEN b, GEN code, long prec, ulong flags, long testpoints)
       affgr(a,tleft);
       t = READ_EXPR(code,tleft);
       get_xy(cplx,t, &xleft,&yleft);
-      for (i=0; i<testpoints-1; i++, avma = av2)
+      for (i=0; i<N-1; i++, avma = av2)
       {
         if (i) { affrr(tright,tleft); xleft = xright; yleft = yright; }
         addrrz(tleft,dx,tright);
@@ -1315,7 +1308,7 @@ rectplothin(GEN a, GEN b, GEN code, long prec, ulong flags, long testpoints)
       pari_sp av2 = avma;
       affgr(a,xleft);
       yleft = gtodouble(READ_EXPR(code,xleft));
-      for (i=0; i<testpoints-1; i++, avma = av2)
+      for (i=0; i<N-1; i++, avma = av2)
       {
         addrrz(xleft,dx,xright);
         yright = gtodouble(READ_EXPR(code,xright));
@@ -1335,7 +1328,7 @@ rectplothin(GEN a, GEN b, GEN code, long prec, ulong flags, long testpoints)
     pari_sp av2 = avma;
     if (param)
     {
-      for (i=0; i<testpoints; i++, affrr(addrr(x,dx), x), avma = av2)
+      for (i=0; i<N; i++, affrr(addrr(x,dx), x), avma = av2)
       {
         long k, nt;
         t = READ_EXPR(code,x);
@@ -1358,14 +1351,14 @@ rectplothin(GEN a, GEN b, GEN code, long prec, ulong flags, long testpoints)
       }
     }
     else if (non_vec)
-      for (i=0; i<testpoints; i++, affrr(addrr(x,dx), x), avma = av2)
+      for (i=0; i<N; i++, affrr(addrr(x,dx), x), avma = av2)
       {
         t = READ_EXPR(code,x);
         pl[0].d[i] = gtodouble(x);
         Appendy(&pl[0],&pl[1], gtodouble(t));
       }
     else /* vector of non-parametric curves */
-      for (i=0; i<testpoints; i++, affrr(addrr(x,dx), x), avma = av2)
+      for (i=0; i<N; i++, affrr(addrr(x,dx), x), avma = av2)
       {
         t = READ_EXPR(code,x);
         if (typ(t) != t_VEC || lg(t) != nl) pari_err_DIM("rectploth");
