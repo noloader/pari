@@ -72,6 +72,7 @@ BA   58- ellweilpairing failed for supersingular curves in char. 2 [#1910]
 BA   59- Mat()[1..0,1..0] -> SEGV
 PB   60- galoissubcyclo(1,1,fl) ignored fl [#1914]
      61- PostScript plot: fix font scaling
+EB   62- GP was incorrectly issuing fflush(NULL) [#1913]
 
   Added
       1- [libari] ZM_isidentity
