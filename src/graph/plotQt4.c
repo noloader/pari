@@ -93,7 +93,7 @@ Plotter::Plotter(PARI_plot *T, GEN w, GEN x, GEN y, QWidget* parent)
     this->w=w; this->x=x; this->y=y; this->T=T;
     this->setFont( font);
     numcolors = lg(GP_DATA->colormap)-1;
-    color = (QColor*)gpmalloc(numcolors*sizeof(QColor));
+    color = (QColor*)pari_malloc(numcolors*sizeof(QColor));
     for (i = 1; i < lg(GP_DATA->colormap); i++)
     {
       int r, g, b;

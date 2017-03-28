@@ -1465,7 +1465,7 @@ rectplothrawin(PARI_plot *W, long grect, dblPointList *data, long flags)
     rm = W->hunit-1;
     tm = W->vunit-1;
     bm = W->vunit+W->fheight-1;
-    w[0] = w[1] = w[2] = evaltyp(t_VECSMALL) | evallg(3);
+    w[0] = wx[0] = wy[0] = evaltyp(t_VECSMALL) | evallg(3);
     w[1] = srect; wx[1] = 0;  wy[1] = 0;
     w[2] = grect; wx[2] = lm; wy[2] = tm;
    /* Window (width x height) is given in pixels, correct pixels are 0..n-1,
