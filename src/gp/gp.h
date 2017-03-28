@@ -34,12 +34,6 @@ extern void (*cb_pari_end_output)(void);
 
 extern entree  functions_highlevel[], functions_gp[];
 
-/* Architecture-dependent plot files (src/graph/plotX.c ...).
- * Note that not all these might be compiled! */
-void PARI_get_plot_X(void);
-void PARI_get_plot_fltk(void);
-void PARI_get_plot_Qt4(void);
-void PARI_get_plot_Qt(void);
-void PARI_get_plot_Win32(void);
-void PARI_get_plot_ps(void);
+/* architecture-dependent plot files (src/graph/plot*.c) */
+void gp_get_plot(PARI_plot *T);
 ENDEXTERN
