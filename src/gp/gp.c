@@ -20,7 +20,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #include "paripriv.h"
 #include "gp.h"
 
+BEGINEXTERN
 void gp_get_plot(PARI_plot *T);
+ENDEXTERN
 
 static jmp_buf *env;
 static pari_stack s_env;
