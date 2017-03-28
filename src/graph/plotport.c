@@ -1213,7 +1213,7 @@ param_recursion(long cplx, dblPointList *pl,GEN code,GEN tleft,double xleft,
 static dblPointList *
 rectplothin(GEN a, GEN b, GEN code, long prec, ulong flags, long testpoints)
 {
-  const double INF = INFINITY;
+  const double INF = 1.0/0.0;
   const long param = flags & (PLOT_PARAMETRIC|PLOT_COMPLEX);
   const long recur = flags & PLOT_RECURSIVE;
   const long cplx = flags & PLOT_COMPLEX;
