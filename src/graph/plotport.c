@@ -144,9 +144,9 @@ check_rect_init(long ne)
 }
 
 static long
-initrect_get_arg(GEN x, long flag, long dft)
+initrect_get_arg(GEN x, long dft)
 {
-  if (!x || flag) return dft-1;
+  if (!x) return dft;
   if (typ(x) != t_INT) pari_err_TYPE("initrect",x);
   return itos(x);
 }
@@ -157,13 +157,17 @@ initrect_gen(long ne, GEN x, GEN y, long flag)
   long xi, yi;
   PARI_plot T;
 
-  if (!x || !y || flag) pari_get_plot(&T);
-  xi = initrect_get_arg(x, flag, T.width);
-  yi = initrect_get_arg(y, flag, T.height);
   if (flag)
   {
-    if (x) xi = DTOL(xi * gtodouble(x));
-    if (y) yi = DTOL(yi * gtodouble(y));
+    pari_get_plot(&T);
+    xi = T.width -1; if (x) xi = DTOL(xi * gtodouble(x));
+    yi = T.height-1; if (y) yi = DTOL(yi * gtodouble(y));
+  }
+  else
+  {
+    if (!x || !y) pari_get_plot(&T);
+    xi = initrect_get_arg(x, T.width -1);
+    yi = initrect_get_arg(y, T.height-1);
   }
   if (ne > m)
     pari_err_DOMAIN("graphic function", "rectwindow", ">", stoi(m), stoi(ne));
