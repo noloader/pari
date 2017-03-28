@@ -154,7 +154,7 @@ PARI_ColorSetUp(Display *display, GEN colors)
 }
 
 static void
-draw(PARI_plot *T, long *w, long *x, long *y, long lw)
+draw(PARI_plot *T, GEN w, GEN x, GEN y)
 {
   long oldwidth,oldheight;
   struct plot_eng plotX;
@@ -271,7 +271,7 @@ EXIT:
         ys = ((double)height)/T->height;
       }
       case Expose:
-        gen_draw(&plotX, w, x, y,lw,xs,ys);
+        gen_draw(&plotX, w, x, y, xs, ys);
     }
   }
 }

@@ -68,7 +68,7 @@ static void DrawString(void *data, long x, long y, char *text, long numtext)
 }
 
 static void
-draw(PARI_plot *T, long *w, long *x, long *y, long lw)
+draw(PARI_plot *T, GEN w, GEN x, GEN y)
 {
   char tmppath[MAX_PATH], fname[MAX_PATH];
   struct plot_eng plotWin32;
@@ -95,7 +95,7 @@ draw(PARI_plot *T, long *w, long *x, long *y, long lw)
   plotWin32.pl=T;
   plotWin32.data=(void*)hEmf;
 
-  gen_draw(&plotWin32, w, x, y, lw, 1, 1);
+  gen_draw(&plotWin32, w, x, y, 1, 1);
   DeleteEnhMetaFile(CloseEnhMetaFile(hEmf));
 
   ShellExecute(NULL,NULL,fname,NULL,NULL,SW_SHOWDEFAULT);

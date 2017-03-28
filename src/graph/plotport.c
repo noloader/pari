@@ -62,17 +62,17 @@ static const long PS_WIDTH = 1120 - 60; /* 1400 - 60 for hi-res */
 static const long PS_HEIGH = 800 - 40; /* 1120 - 60 for hi-res */
 
 static void
-psdraw_scale(PARI_plot *T, long *w, long *x, long *y, long lw)
+psdraw_scale(PARI_plot *T, GEN w, GEN x, GEN y)
 {
   pari_sp av = avma;
   FILE *F = fopen(current_psfile, "a");
   if (!F) pari_err_FILE("postscript file",current_psfile);
-  fputs(rect2ps(w,x,y,lw,T), F);
+  fputs(rect2ps(w,x,y,T), F);
   fclose(F); avma = av;
 }
 static void
-psdraw(PARI_plot *T, long *w, long *x, long *y, long lw)
-{ (void)T; psdraw_scale(NULL,w,x,y,lw); }
+psdraw(PARI_plot *T, GEN w, GEN x, GEN y)
+{ (void)T; psdraw_scale(NULL,w,x,y); }
 static void
 pari_get_psplot(PARI_plot *T, long scale)
 {
@@ -1450,7 +1450,7 @@ rectplothrawin(PARI_plot *W, long grect, dblPointList *data, long flags)
   const pari_sp av = avma;
   dblPointList x, y;
   double xsml, xbig, ysml, ybig;
-  long ltype, i, nc, w[2], wx[2], wy[2];
+  long ltype, i, nc, w[3], wx[3], wy[3];
 
   if (!data) return cgetg(1,t_VEC);
   x = data[0]; nc = x.nb;
@@ -1465,8 +1465,9 @@ rectplothrawin(PARI_plot *W, long grect, dblPointList *data, long flags)
     rm = W->hunit-1;
     tm = W->vunit-1;
     bm = W->vunit+W->fheight-1;
-    w[0] = srect; wx[0] = 0;  wy[0] = 0;
-    w[1] = grect; wx[1] = lm; wy[1] = tm;
+    w[0] = w[1] = w[2] = evaltyp(t_VECSMALL) | evallg(3);
+    w[1] = srect; wx[1] = 0;  wy[1] = 0;
+    w[2] = grect; wx[2] = lm; wy[2] = tm;
    /* Window (width x height) is given in pixels, correct pixels are 0..n-1,
     * whereas rect functions work with windows whose pixel range is [0,n] */
     initrect(srect, W->width - 1, W->height - 1);
@@ -1555,9 +1556,9 @@ rectplothrawin(PARI_plot *W, long grect, dblPointList *data, long flags)
 
   if (W)
   {
-    W->draw(W, w,wx,wy,2);
+    W->draw(W, w,wx,wy);
     killrect(w[1]);
-    killrect(w[0]);
+    killrect(w[2]);
   }
   avma = av;
   retmkvec4(dbltor(xsml), dbltor(xbig), dbltor(ysml), dbltor(ybig));
@@ -1646,12 +1647,12 @@ plothsizes(long flag)
 }
 
 GEN
-rectcount(long *w, long lw)
+rectcount(GEN w)
 {
   GEN v = const_vecsmall(ROt_NULL, 0);
   RectObj *O;
-  long i;
-  for (i = 0; i < lw; i++)
+  long i, l = lg(w);
+  for (i = 1; i < l; i++)
   {
     PariRect *e = &rectgraph[w[i]];
     for (O = RHead(e); O; O=RoNext(O))
@@ -1673,18 +1674,19 @@ rectcount(long *w, long lw)
 static void
 gendraw(PARI_plot *T, GEN list, long flag)
 {
-  long i, n, ne, *w, *x, *y;
+  long i, n, ne;
+  GEN w, x, y;
 
   if (typ(list) != t_VEC) pari_err_TYPE("rectdraw",list);
   n = lg(list)-1; if (!n) return;
   if (n%3) pari_err_DIM("rectdraw");
   n = n/3;
-  w = (long*)pari_malloc(n*sizeof(long));
-  x = (long*)pari_malloc(n*sizeof(long));
-  y = (long*)pari_malloc(n*sizeof(long));
-  for (i=0; i<n; i++)
+  w = cgetalloc(t_VECSMALL, n+1);
+  x = cgetalloc(t_VECSMALL, n+1);
+  y = cgetalloc(t_VECSMALL, n+1);
+  for (i=1; i<=n; i++)
   {
-    GEN win = gel(list,3*i+1), x0 = gel(list,3*i+2), y0 = gel(list,3*i+3);
+    GEN win = gel(list,3*i-2), x0 = gel(list,3*i-1), y0 = gel(list,3*i);
     if (typ(win)!=t_INT) pari_err_TYPE("rectdraw",win);
     if (flag) {
       x[i] = DTOL(gtodouble(x0)*(T->width - 1));
@@ -1696,7 +1698,7 @@ gendraw(PARI_plot *T, GEN list, long flag)
     ne = itos(win); check_rect(ne);
     w[i] = ne;
   }
-  T->draw(T,w,x,y,n);
+  T->draw(T,w,x,y);
   pari_free(w);
   pari_free(x);
   pari_free(y);
@@ -1711,15 +1713,14 @@ rectdraw(GEN list, long flag)
 
 #define RoColT(R) minss(numcolors,RoCol(R))
 void
-gen_draw(struct plot_eng *eng, long *w, long *x, long *y, long lw,
-         double xs, double ys)
+gen_draw(struct plot_eng *eng, GEN w, GEN x, GEN y, double xs, double ys)
 {
   void *data = eng->data;
-  long i, j;
+  long i, j, lw = lg(w);
   long hgapsize = eng->pl->hunit, fheight = eng->pl->fheight;
   long vgapsize = eng->pl->vunit,  fwidth = eng->pl->fwidth;
   long numcolors = lg(GP_DATA->colormap)-1;
-  for(i=0; i<lw; i++)
+  for(i = 1; i < lw; i++)
   {
     PariRect *e = &rectgraph[w[i]];
     RectObj *R;
@@ -1932,7 +1933,7 @@ pari_get_svgplot(PARI_plot *T)
 }
 
 char *
-rect2svg(long *w, long *x, long *y, long lw, PARI_plot *T)
+rect2svg(GEN w, GEN x, GEN y, PARI_plot *T)
 {
   struct plot_eng pl;
   struct svg_data data;
@@ -1952,7 +1953,7 @@ rect2svg(long *w, long *x, long *y, long lw, PARI_plot *T)
   pl.pl = T;
 
   svg_head(T, &data.str);
-  gen_draw(&pl, w, x, y, lw, SVG_SCALE, SVG_SCALE);
+  gen_draw(&pl, w, x, y, SVG_SCALE, SVG_SCALE);
   svg_tail(&data.str);
 
   return data.str.string;
@@ -2034,7 +2035,7 @@ ps_string(void *data, long x, long y, char *s, long length)
 }
 
 char *
-rect2ps_i(long *w, long *x, long *y, long lw, PARI_plot *T, int plotps)
+rect2ps_i(GEN w, GEN x, GEN y, PARI_plot *T, int plotps)
 {
   struct plot_eng pl;
   PARI_plot U;
@@ -2074,13 +2075,13 @@ rect2ps_i(long *w, long *x, long *y, long lw, PARI_plot *T, int plotps)
   pl.data = (void*)&S;
 
   if (plotps) str_printf(&S,"0 %ld translate -90 rotate\n", T->height - 50);
-  gen_draw(&pl, w, x, y, lw, xs, ys);
+  gen_draw(&pl, w, x, y, xs, ys);
   str_puts(&S,"stroke showpage\n");
   *S.cur = 0; return S.string;
 }
 char *
-rect2ps(long *w, long *x, long *y, long lw, PARI_plot *T)
-{ return rect2ps_i(w,x,y,lw,T,0); }
+rect2ps(GEN w, GEN x, GEN y, PARI_plot *T)
+{ return rect2ps_i(w,x,y,T,0); }
 
 void
 pari_plot_by_file(const char *env, const char *suf, const char *img)

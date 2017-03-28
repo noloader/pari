@@ -64,8 +64,7 @@ protected:
     void mouseReleaseEvent( QMouseEvent*);
 
 public:
-    Plotter(PARI_plot *T, long *w, long *x, long *y, long lw,
-             QWidget* parent = 0);
+    Plotter(PARI_plot *T, GEN w, GEN x, GEN y, QWidget* parent = 0);
     void save( const QString& s = *plotFile + ".xpm",//QString("pariplot.xpm"),
                const QString& f = QString( "XPM"));
 
@@ -74,10 +73,7 @@ protected:
 
 private:
     PARI_plot *T;
-    long *w; // map into rectgraph indexes
-    long *x; // x, y: array of x,y-coorinates of the
-    long *y; //   top left corners of the rectwindows
-    long lw; // lw: number of rectwindows
+    GEN w, x, y;
     long numcolors;
     QColor *color;
     QFont font;
@@ -89,13 +85,12 @@ private:
 QString *Plotter::plotFile = new QString( "pariplot");
 
 
-Plotter::Plotter(PARI_plot *T, long *w, long *x, long *y, long lw,
-                  QWidget* parent)
+Plotter::Plotter(PARI_plot *T, GEN w, GEN x, GEN y, QWidget* parent)
     : QWidget( parent), font( "lucida", 9) {
 
     long i;
 
-    this->w=w; this->x=x; this->y=y; this->lw=lw; this->T=T;
+    this->w=w; this->x=x; this->y=y; this->T=T;
     this->setFont( font);
     numcolors = lg(GP_DATA->colormap)-1;
     color = (QColor*)gpmalloc(numcolors*sizeof(QColor));
@@ -184,7 +179,7 @@ void Plotter::draw(QPainter *p){
   plotQt.data=(void *)&d;
   double xs = double(this->width()) / T->width,
          ys = double(this->height()) / T->height;
-  gen_draw(&plotQt, this->w, this->x, this->y,this->lw,xs,ys);
+  gen_draw(&plotQt, this->w, this->x, this->y,xs,ys);
 }
 
 void Plotter::save( const QString& s, const QString& f)
@@ -246,8 +241,7 @@ class PlotWindow: public QMainWindow {
      Q_OBJECT
 
 public:
-    PlotWindow(PARI_plot *T, long *w, long *x, long *y, long lw,
-                QWidget* parent = 0);
+    PlotWindow(PARI_plot *T, GEN w, GEN x, GEN y, QWidget* parent = 0);
     ~PlotWindow();
 
 protected:
@@ -279,8 +273,7 @@ private:
 const QList<QByteArray> PlotWindow::file_formats = QImageWriter::supportedImageFormats();
 
 
-PlotWindow::PlotWindow(PARI_plot *T, long *w, long *x, long *y, long lw,
-                        QWidget* parent)
+PlotWindow::PlotWindow(PARI_plot *T, GEN w, GEN x, GEN y, QWidget* parent)
     : QMainWindow( parent),
       saveFileName( "pariplot"), saveFileFormat( 0) {
 
@@ -328,7 +321,7 @@ PlotWindow::PlotWindow(PARI_plot *T, long *w, long *x, long *y, long lw,
         menuView->addAction(fullScreenAction);
 
     // Setting up an instance of plotter
-    plr = new Plotter(T, w, x, y, lw, this);
+    plr = new Plotter(T, w, x, y, this);
     connect( plr, SIGNAL(clicked()), this, SLOT( normalView()));
     this->setCentralWidget( plr);
 
@@ -400,7 +393,7 @@ void PlotWindow::save( int id)
 #include "plotQt4.moc.cpp"
 
 static void
-draw(PARI_plot *T, long *w, long *x, long *y, long lw)
+draw(PARI_plot *T, GEN w, GEN x, GEN y)
 {
     if (pari_daemon()) return;  // parent process returns
     pari_close();
@@ -409,7 +402,7 @@ draw(PARI_plot *T, long *w, long *x, long *y, long lw)
     int argc = 1;                         // set argc = 2 for cross
     const char * argv[] = { "gp", "-qws"}; // development using qvfb
     QApplication a( argc, (char**) argv);
-    PlotWindow *win = new PlotWindow(T, w, x, y, lw);
+    PlotWindow *win = new PlotWindow(T, w, x, y);
     win->show();
     a.exec(); exit( 0);
 }

@@ -98,7 +98,7 @@ typedef struct
 
 /* Plot engines */
 typedef struct PARI_plot {
-  void (*draw)(struct PARI_plot *T, long *w, long *x, long *y, long lw);
+  void (*draw)(struct PARI_plot *T, GEN w, GEN x, GEN y);
   long width;
   long height;
   long hunit;

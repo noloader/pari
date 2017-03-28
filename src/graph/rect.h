@@ -178,7 +178,6 @@ struct plot_eng {
 #define RECT_CP_SE        0x4
 #define RECT_CP_NE        0x6
 
-void gen_draw(struct plot_eng *eng, long *w, long *x, long *y, long lw, double xs, double ys);
-
+void gen_draw(struct plot_eng *eng, GEN w, GEN x, GEN y, double xs, double ys);
 void gp_get_plot(PARI_plot *T);
 ENDEXTERN

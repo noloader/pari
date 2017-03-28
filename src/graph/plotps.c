@@ -17,7 +17,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #include "pari.h"
 
 static void
-draw(PARI_plot *T, long *w, long *x, long *y, long lw)
+draw(PARI_plot *T, GEN w, GEN x, GEN y)
 {
   if (pari_daemon()) return;  /* parent process returns */
   pari_plot_by_file("GP_POSTSCRIPT_VIEWER", ".ps", rect2ps_i(w,x,y,lw,T,1));

@@ -31,7 +31,7 @@ static long numcolors;
 class Plotter: public Fl_Window {
 
 public:
-    Plotter(PARI_plot *T, long *w, long *x, long *y, long lw);
+    Plotter(PARI_plot *T, GEN w, GEN x, GEN y)
 
 private:
     void draw();
@@ -39,10 +39,7 @@ private:
 
 private:
     PARI_plot *T;
-    long *my_w;                        // map into rectgraph indexes
-    long *my_x;                        // x, y: array of x,y-coordinates of the
-    long *my_y;                        // top left corners of the rectwindows
-    long my_lw;                        // lw: number of rectwindows
+    GEN *my_w, *my_x, *my_y;
     Fl_Color *color;
 };
 
@@ -52,13 +49,13 @@ rgb_color(int R, int G, int B)
   return fl_color_cube(R*FL_NUM_RED/256, G*FL_NUM_GREEN/256, B*FL_NUM_BLUE/256);
 }
 
-Plotter::Plotter(PARI_plot *T, long *w, long *x, long *y, long lw)
+Plotter::Plotter(PARI_plot *T, GEN w, GEN x, GEN y)
         : Fl_Window(T->width, T->height, "PARI/GP")
 
 {
     long i;
 
-    this->T = T; this->my_w=w; this->my_x=x; this->my_y=y; this->my_lw=lw;
+    this->T = T; this->my_w=w; this->my_x=x; this->my_y=y;
     numcolors = lg(GP_DATA->colormap)-1;
     color = (Fl_Color*)pari_malloc(numcolors*sizeof(Fl_Color));
     for (i = 1; i < lg(GP_DATA->colormap); i++)
@@ -132,7 +129,7 @@ void Plotter::draw()
   pl.st = &DrawString;
   pl.pl = T;
   pl.data = (void*)color;
-  gen_draw(&pl, my_w, my_x, my_y, my_lw, xs, ys);
+  gen_draw(&pl, my_w, my_x, my_y, xs, ys);
 }
 
 int Plotter::handle(int event)
@@ -189,7 +186,7 @@ int Plotter::handle(int event)
 }
 
 static void
-draw(PARI_plot *T, long *w, long *x, long *y, long lw)
+draw(PARI_plot *T, GEN w, GEN x, GEN y)
 {
     Plotter *win;
 
@@ -197,7 +194,7 @@ draw(PARI_plot *T, long *w, long *x, long *y, long lw)
     pari_close();
 
     Fl::visual(FL_DOUBLE|FL_INDEX);
-    win = new Plotter(T, w, x, y, lw);
+    win = new Plotter(T, w, x, y);
     win->size_range(1,1);
     win->box(FL_FLAT_BOX);
     win->end();
