@@ -31,8 +31,7 @@ int  whatnow(PariOUT *out, const char *s, int silent);
 
 extern void (*cb_gp_output)(GEN z);
 extern void (*cb_pari_end_output)(void);
-
-extern entree  functions_highlevel[], functions_gp[];
+extern entree functions_gp[];
 
 /* architecture-dependent plot files (src/graph/plot*.c) */
 void gp_get_plot(PARI_plot *T);

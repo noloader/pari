@@ -235,13 +235,11 @@ a function, it has at least the following fields:
 A routine in GP is described to the analyzer by an \kbd{entree}
 structure. Built-in PARI routines are grouped in \emph{modules}, which
 are arrays of \kbd{entree} structs, the last of which satisfy
-\kbd{name = NULL} (sentinel). There are currently five modules in PARI/GP:
+\kbd{name = NULL} (sentinel). There are currently four modules in PARI/GP:
 
 \item general functions (\tet{functions_basic}, known to \kbd{libpari}),
 
 \item gp-specific functions (\tet{functions_gp}),
-
-\item gp-specific highlevel functions (\tet{functions_highlevel}),
 
 \noindent and two modules of obsolete functions. The function
 \kbd{pari\_init} initializes the interpreter and declares all symbols in
@@ -260,7 +258,6 @@ called.
 it adds to the default set via the calls
 \bprog
   pari_add_module(functions_gp);
-  pari_add_module(functions_highlevel);
 @eprog
 
 A GP \kbd{default} is likewise attached to a helper routine, that is run
