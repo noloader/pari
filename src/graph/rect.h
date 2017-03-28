@@ -178,11 +178,6 @@ struct plot_eng {
 #define RECT_CP_SE        0x4
 #define RECT_CP_NE        0x6
 
-#define TICKS_CLOCKW      1 /* Draw in clockwise direction */
-#define TICKS_ACLOCKW     2 /* Draw in anticlockwise direction */
-#define TICKS_ENDSTOO     4 /* Draw at endspoints if needed */
-#define TICKS_NODOUBLE    8 /* Do not draw double-length ticks */
-
 void gen_draw(struct plot_eng *eng, long *w, long *x, long *y, long lw, double xs, double ys);
 
 void gp_get_plot(PARI_plot *T);

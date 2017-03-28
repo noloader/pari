@@ -334,9 +334,15 @@ rectline0(long ne, double gx2, double gy2, long relative) /* code = ROt_MV/ROt_L
   RoCol(z) = current_color[ne];
 }
 
-/* Given coordinates of ends of a line, and labels l1 l2 attached to the
-   ends, plot ticks where the label coordinate takes "round" values */
+enum {
+  TICKS_CLOCKW   = 1, /* Draw in clockwise direction */
+  TICKS_ACLOCKW  = 2, /* Draw in anticlockwise direction */
+  TICKS_ENDSTOO  = 4, /* Draw at endspoints if needed */
+  TICKS_NODOUBLE = 8  /* Do not draw double-length ticks */
+};
 
+/* Given coordinates of ends of a line, and labels l1 l2 attached to the
+ * ends, plot ticks where the label coordinate takes "round" values */
 static void
 rectticks(PARI_plot *WW, long ne,
           double dx1, double dy1, double dx2, double dy2,
@@ -353,10 +359,8 @@ rectticks(PARI_plot *WW, long ne,
   y1 = DTOL(dy1*RYscale(e) + RYshift(e));
   x2 = DTOL(dx2*RXscale(e) + RXshift(e));
   y2 = DTOL(dy2*RYscale(e) + RYshift(e));
-  dx = x2 - x1;
-  dy = y2 - y1;
-  if (dx < 0) dx = -dx;
-  if (dy < 0) dy = -dy;
+  dx = x2 - x1; if (dx < 0) dx = -dx;
+  dy = y2 - y1; if (dy < 0) dy = -dy;
   dxy1 = maxss(dx, dy);
   dx /= WW->hunit;
   dy /= WW->vunit;
@@ -401,16 +405,16 @@ rectticks(PARI_plot *WW, long ne,
     }
     step *= mult[ n % 3 ];
   }
-  /* Where to position doubleticks, variants:
-     small: each 5, double: each 10        (n===2 mod 3)
-     small: each 2, double: each 10        (n===1 mod 3)
+  /* Where to position doubleticks. Variants:
+     small: each 5, double: each 10    (n===2 mod 3)
+     small: each 2, double: each 10    (n===1 mod 3)
      small: each 1, double: each  5 */
   dn = (n % 3 == 2)? 2: 5;
   n1 = ((long)minl) % dn; /* unused if do_double = FALSE */
 
   /* now l_min and l_max keep min/max values of l with ticks, and nticks is
      the number of ticks to draw. */
-  if (nticks == 1) ddx = ddy = 0; /* unused: for lint */
+  if (nticks == 1) ddx = ddy = 0; /* -Wall */
   else {
     dl = (l_max - l_min)/(nticks - 1);
     ddx = (dx2 - dx1) * dl / (l2 - l1);
@@ -418,31 +422,23 @@ rectticks(PARI_plot *WW, long ne,
   }
   x = dx1 + (dx2 - dx1) * (l_min - l1) / (l2 - l1);
   y = dy1 + (dy2 - dy1) * (l_min - l1) / (l2 - l1);
-  /* assume hunit and vunit form a square.  For clockwise ticks: */
-  dtx = WW->hunit * dy/dxy * (y2 > y1 ? 1 : -1);        /* y-coord runs down */
+  /* assume hunit and vunit form a square. For clockwise ticks: */
+  dtx = WW->hunit * dy/dxy * (y2 > y1 ? 1 : -1); /* y-coord runs down */
   dty = WW->vunit * dx/dxy * (x2 > x1 ? 1 : -1);
-  for (n = 0; n < nticks; n++) {
+  for (n = 0; n < nticks; n++, x += ddx, y += ddy) {
     RectObj *z = (RectObj*) pari_malloc(sizeof(RectObj2P));
     double lunit = WW->hunit > 1 ? 1.5 : 2;
     double l = (do_double && (n + n1) % dn == 0) ? lunit: 1;
-
-    RoLNx1(z) = RoLNx2(z) = x*RXscale(e) + RXshift(e);
-    RoLNy1(z) = RoLNy2(z) = y*RYscale(e) + RYshift(e);
-
-    if (flags & TICKS_CLOCKW) {
-      RoLNx1(z) += dtx*l;
-      RoLNy1(z) -= dty*l; /* y-coord runs down */
-    }
-    if (flags & TICKS_ACLOCKW) {
-      RoLNx2(z) -= dtx*l;
-      RoLNy2(z) += dty*l; /* y-coord runs down */
-    }
+    double x1, x2, y1, y2;
+    x1 = x2 = x*RXscale(e) + RXshift(e);
+    y1 = y2 = y*RYscale(e) + RYshift(e);
+    if (flags & TICKS_CLOCKW)  { x1 += dtx*l; y1 -= dty*l; }
+    if (flags & TICKS_ACLOCKW) { x2 -= dtx*l; y2 += dty*l; }
+    RoLNx1(z) = x1; RoLNy1(z) = y1;
+    RoLNx2(z) = x2; RoLNy2(z) = y2;
     RoType(z) = ROt_LN;
-
     Rchain(e, z);
     RoCol(z) = current_color[ne];
-    x += ddx;
-    y += ddy;
   }
 }
 
@@ -1451,7 +1447,7 @@ rectplothrawin(PARI_plot *W, long grect, dblPointList *data, long flags)
   const pari_sp av = avma;
   dblPointList x, y;
   double xsml, xbig, ysml, ybig;
-  long ltype, i, nc, nbpoints, w[2], wx[2], wy[2];
+  long ltype, i, nc, w[2], wx[2], wy[2];
 
   if (!data) return cgetg(1,t_VEC);
   x = data[0]; nc = x.nb;
@@ -1532,24 +1528,23 @@ rectplothrawin(PARI_plot *W, long grect, dblPointList *data, long flags)
     current_color[grect] = GP_DATA->graphcolors[1+(ltype%max_graphcolors)];
     if (param) x = data[i++];
 
-    y = data[i++]; nbpoints = y.nb;
+    y = data[i++];
     if (flags & (PLOT_POINTS_LINES|PLOT_POINTS)) {
       rectlinetype(grect, rectpoint_itype + ltype); /* Graphs */
       rectpointtype(grect,rectpoint_itype + ltype); /* Graphs */
-      rectpoints0(grect,x.d,y.d,nbpoints);
+      rectpoints0(grect, x.d, y.d, y.nb);
       if (!(flags & PLOT_POINTS_LINES)) continue;
     }
 
     if (flags & PLOT_SPLINES) {
       /* rectsplines will call us back with ltype == 0 */
       int old = rectline_itype;
-
       rectline_itype = rectline_itype + ltype;
-      rectsplines(grect,x.d,y.d,nbpoints,flags);
+      rectsplines(grect, x.d, y.d, y.nb, flags);
       rectline_itype = old;
     } else {
       rectlinetype(grect, rectline_itype + ltype); /* Graphs */
-      rectlines0(grect,x.d,y.d,nbpoints,0);
+      rectlines0(grect, x.d, y.d, y.nb, 0);
     }
   }
   for (i--; i>=0; i--) pari_free(data[i].d);
