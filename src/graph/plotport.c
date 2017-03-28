@@ -25,7 +25,7 @@ static void (*pari_get_plot)(PARI_plot *);
 /* no need for THREAD: OK to share this */
 static hashtable *rgb_colors = NULL;
 
-THREAD PariRect *rectgraph[18]; /*NUMRECT*/
+THREAD PariRect rectgraph[18]; /*NUMRECT*/
 static THREAD long current_color[18]; /*NUMRECT*/
 
 static long rectpoint_itype = 0, rectline_itype  = 0;
@@ -91,16 +91,23 @@ pari_get_psplot(PARI_plot *T, long scale)
 /**                                                                **/
 /********************************************************************/
 static void
-init_graph(void)
+get_plot_null(PARI_plot *T)
+{ (void)T; pari_err(e_MISC,"high resolution graphics disabled"); }
+
+void
+pari_init_graphics(void) { pari_get_plot = &get_plot_null; }
+
+void
+pari_set_plot_engine(void (*plot)(PARI_plot *))
 {
   long n;
-  for (n=0; n<NUMRECT; n++)
+  pari_get_plot = plot;
+  for (n = 0; n < NUMRECT; n++)
   {
-    PariRect *e = (PariRect*) pari_malloc(sizeof(PariRect));
+    PariRect *e = &rectgraph[n];
     e->head = e->tail = NULL;
     e->sizex = e->sizey = 0;
     current_color[n] = DEFAULT_COLOR;
-    rectgraph[n] = e;
   }
 }
 
@@ -110,9 +117,8 @@ pari_kill_plot_engine(void)
   int i;
   for (i=0; i<NUMRECT; i++)
   {
-    PariRect *e = rectgraph[i];
+    PariRect *e = &rectgraph[i];
     if (RHead(e)) killrect(i);
-    pari_free((void *)e);
   }
   if (rgb_colors)
   {
@@ -126,20 +132,18 @@ pari_kill_plot_engine(void)
 static PariRect *
 check_rect(long ne)
 {
+  const char *f = "graphic function";
   const long m = NUMRECT-1;
-  if (ne < 0)
-    pari_err_DOMAIN("graphic function", "rectwindow", "<", gen_0, stoi(ne));
-  if (ne > m)
-    pari_err_DOMAIN("graphic function", "rectwindow", ">", stoi(m), stoi(ne));
-  return rectgraph[ne];
+  if (ne < 0) pari_err_DOMAIN(f, "rectwindow", "<", gen_0, stoi(ne));
+  if (ne > m) pari_err_DOMAIN(f, "rectwindow", ">", stoi(m), stoi(ne));
+  return &rectgraph[ne];
 }
 
 static PariRect *
 check_rect_init(long ne)
 {
   PariRect *e = check_rect(ne);
-  if (!RHead(e))
-    pari_err_TYPE("graphic function [use plotinit() first]", stoi(ne));
+  if (!RHead(e)) pari_err_TYPE("graphic function [use plotinit()]", stoi(ne));
   return e;
 }
 
@@ -1650,7 +1654,7 @@ rectcount(long *w, long lw)
   long i;
   for (i = 0; i < lw; i++)
   {
-    PariRect *e = rectgraph[w[i]];
+    PariRect *e = &rectgraph[w[i]];
     for (O = RHead(e); O; O=RoNext(O))
       switch(RoType(O))
       {
@@ -1715,7 +1719,7 @@ gen_draw(struct plot_eng *eng, long *w, long *x, long *y, long lw,
   long numcolors = lg(GP_DATA->colormap)-1;
   for(i=0; i<lw; i++)
   {
-    PariRect *e = rectgraph[w[i]];
+    PariRect *e = &rectgraph[w[i]];
     RectObj *R;
     long x0 = x[i], y0 = y[i];
     for (R = RHead(e); R; R = RoNext(R))
@@ -1804,20 +1808,6 @@ gen_draw(struct plot_eng *eng, long *w, long *x, long *y, long lw,
   }
 }
 #undef RoColT
-
-static void
-get_plot_null(PARI_plot *T)
-{ (void)T; pari_err(e_MISC,"high resolution graphics disabled"); }
-
-void
-pari_init_graphics(void) { pari_get_plot = &get_plot_null; }
-
-void
-pari_set_plot_engine(void (*plot)(PARI_plot *))
-{
-  pari_get_plot = plot;
-  init_graph();
-}
 
 /*************************************************************************/
 /*                               SVG                                     */
