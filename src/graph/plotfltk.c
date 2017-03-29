@@ -26,94 +26,77 @@ extern "C" {
 #include <FL/Fl_Window.H>
 #include <FL/fl_draw.H>
 
-static long numcolors;
-
 class Plotter: public Fl_Window {
 
 public:
-    Plotter(PARI_plot *T, GEN w, GEN x, GEN y);
+  Plotter(PARI_plot *T, GEN w, GEN x, GEN y);
 
 private:
-    void draw();
-    int handle(int event);
+  void draw();
+  int handle(int event);
 
 private:
-    PARI_plot *T;
-    GEN my_w, my_x, my_y;
-    Fl_Color *color;
+  PARI_plot *T;
+  GEN my_w, my_x, my_y;
+  Fl_Color *color;
 };
 
 static Fl_Color
-rgb_color(int R, int G, int B)
+rgb_color(GEN col)
 {
-  return fl_color_cube(R*FL_NUM_RED/256, G*FL_NUM_GREEN/256, B*FL_NUM_BLUE/256);
+  int r, g, b;
+  color_to_rgb(col, &r, &g, &b);
+  return fl_color_cube(r*FL_NUM_RED/256, g*FL_NUM_GREEN/256, b*FL_NUM_BLUE/256);
 }
-
 Plotter::Plotter(PARI_plot *T, GEN w, GEN x, GEN y)
         : Fl_Window(T->width, T->height, "PARI/GP")
-
 {
-    long i;
+  long i, n = lg(GP_DATA->colormap)-1;
 
-    this->T = T; this->my_w=w; this->my_x=x; this->my_y=y;
-    numcolors = lg(GP_DATA->colormap)-1;
-    color = (Fl_Color*)pari_malloc(numcolors*sizeof(Fl_Color));
-    for (i = 1; i < lg(GP_DATA->colormap); i++)
-    {
-      int r, g, b;
-      color_to_rgb(gel(GP_DATA->colormap,i), &r, &g, &b);
-      color[i-1] = rgb_color(r, g, b);
-    }
+  this->T = T; this->my_w = w; this->my_x = x; this->my_y = y;
+  color = (Fl_Color*)pari_malloc(n*sizeof(Fl_Color));
+  for (i = 0; i < n; i++) color[i] = rgb_color( gel(GP_DATA->colormap,i+1) );
 }
 
-static void DrawPoint(void *data, long x, long y)
-{
-  (void)data;
-  fl_point(x,y);
-}
+static void
+DrawPoint(void *data, long x, long y)
+{ (void)data; fl_point(x,y); }
 
-static void DrawLine(void *data, long x1, long y1, long x2, long y2)
-{
-  (void)data;
-  fl_line(x1,y1, x2,y2);
-}
+static void
+DrawLine(void *data, long x1, long y1, long x2, long y2)
+{ (void)data; fl_line(x1,y1, x2,y2); }
 
-static void DrawRectangle(void *data, long x, long y, long w, long h)
-{
-  (void)data;
-  fl_rect(x,y,w,h);
-}
-
-static void DrawPoints(void *data, long nb, struct plot_points *p)
+static void
+DrawRectangle(void *data, long x, long y, long w, long h)
+{ (void)data; fl_rect(x,y,w,h); }
+static void
+DrawPoints(void *data, long nb, struct plot_points *p)
 {
   long i;
   (void)data;
   for (i=0; i<nb; i++) fl_point(p[i].x, p[i].y);
 }
-
-static void SetForeground(void *data, long col)
+static void
+SetForeground(void *data, long col)
 {
   Fl_Color *color = (Fl_Color*)data;
   fl_color(color[col]);
 }
-
-static void DrawLines(void *data, long nb, struct plot_points *p)
+static void
+DrawLines(void *data, long nb, struct plot_points *p)
 {
   long i;
   (void)data;
   for (i=1; i<nb; i++) fl_line(p[i-1].x, p[i-1].y, p[i].x, p[i].y);
 }
+static void
+DrawString(void *data, long x, long y, char *text, long numtext)
+{ (void)data; fl_draw(text,numtext,x,y); }
 
-static void DrawString(void *data, long x, long y, char *text, long numtext)
-{
-  (void)data;
-  fl_draw(text,numtext,x,y);
-}
-
-void Plotter::draw()
+void
+Plotter::draw()
 {
   struct plot_eng pl;
-
   double xs = double(this->w()) / T->width;
   double ys = double(this->h()) / T->height;
 
@@ -143,23 +126,19 @@ int Plotter::handle(int event)
      exit(0);
     case 2:
      {
-       static int flag=0;
-       static int my_x;
-       static int my_y;
-       static int my_w;
-       static int my_h;
-       flag=1-flag;
+       static int flag = 0, my_x, my_y, my_w, my_h;
+       flag = 1-flag;
        if (flag)
        {
-         my_x=this->x();
-         my_y=this->y();
-         my_w=this->w();
-         my_h=this->h();
+         my_x = this->x();
+         my_y = this->y();
+         my_w = this->w();
+         my_h = this->h();
          this->fullscreen();
        }
        else
        {
-         this->fullscreen_off(my_x,my_y,my_w,my_h);
+         this->fullscreen_off(my_x, my_y, my_w, my_h);
          this->size_range(1,1);
        }
        return 1;
@@ -172,8 +151,7 @@ int Plotter::handle(int event)
       switch(Fl::event_shift())
       {
         case 0:
-        case FL_CTRL:
-          exit(0);
+        case FL_CTRL: exit(0);
       }
       break;
     case 'c':
@@ -188,29 +166,29 @@ int Plotter::handle(int event)
 static void
 draw(PARI_plot *T, GEN w, GEN x, GEN y)
 {
-    Plotter *win;
+  Plotter *win;
 
-    if (pari_daemon()) return;  // parent process returns
-    pari_close();
+  if (pari_daemon()) return;  // parent process returns
+  pari_close();
 
-    Fl::visual(FL_DOUBLE|FL_INDEX);
-    win = new Plotter(T, w, x, y);
-    win->size_range(1,1);
-    win->box(FL_FLAT_BOX);
-    win->end();
-    win->show();
-    Fl::run();
-    exit(0);
+  Fl::visual(FL_DOUBLE|FL_INDEX);
+  win = new Plotter(T, w, x, y);
+  win->size_range(1,1);
+  win->box(FL_FLAT_BOX);
+  win->end();
+  win->show();
+  Fl::run();
+  exit(0);
 }
 
 void
 gp_get_plot(PARI_plot *T)
 {
-    T->width   = 400; // width and
-    T->height  = 300; //  height of plot window
-    T->hunit   = 3;   //
-    T->vunit   = 3;   //
-    T->fwidth  = 6;   // font width
-    T->fheight = 9;   //   and height
-    T->draw = &draw;
+  T->width   = 400; // width and
+  T->height  = 300; //  height of plot window
+  T->hunit   = 3;   //
+  T->vunit   = 3;   //
+  T->fwidth  = 6;   // font width
+  T->fheight = 9;   //   and height
+  T->draw = &draw;
 }
