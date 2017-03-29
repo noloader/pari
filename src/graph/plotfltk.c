@@ -31,7 +31,7 @@ static long numcolors;
 class Plotter: public Fl_Window {
 
 public:
-    Plotter(PARI_plot *T, GEN w, GEN x, GEN y)
+    Plotter(PARI_plot *T, GEN w, GEN x, GEN y);
 
 private:
     void draw();
@@ -39,7 +39,7 @@ private:
 
 private:
     PARI_plot *T;
-    GEN *my_w, *my_x, *my_y;
+    GEN my_w, my_x, my_y;
     Fl_Color *color;
 };
 
