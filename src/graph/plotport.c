@@ -146,7 +146,30 @@ check_rect_init(long ne)
   if (!RHead(e)) pari_err_TYPE("graphic function [use plotinit()]", stoi(ne));
   return e;
 }
+static void
+Rchain(PariRect *e, RectObj *z)
+{
+  if (!RHead(e)) RHead(e) = z; else RoNext(RTail(e)) = z;
+  RTail(e) = z;
+  RoNext(z) = NULL;
+}
 
+static void
+initrect_i(long ne, long x, long y)
+{
+  PariRect *e;
+  RectObj *z;
+
+  if (x <= 1) pari_err_DOMAIN("initrect", "x", "<=", gen_1, stoi(x));
+  if (y <= 1) pari_err_DOMAIN("initrect", "y", "<=", gen_1, stoi(y));
+  e = check_rect(ne); if (RHead(e)) killrect(ne);
+
+  z = (RectObj*) pari_malloc(sizeof(RectObj));
+  RoType(z) = ROt_NULL;
+  Rchain(e, z);
+  RXsize(e) = x; RXcursor(e) = 0; RXscale(e) = 1; RXshift(e) = 0;
+  RYsize(e) = y; RYcursor(e) = 0; RYscale(e) = 1; RYshift(e) = 0;
+}
 static long
 initrect_get_arg(GEN x, long dft)
 {
@@ -155,7 +178,7 @@ initrect_get_arg(GEN x, long dft)
   return itos(x);
 }
 void
-initrect_gen(long ne, GEN x, GEN y, long flag)
+initrect(long ne, GEN x, GEN y, long flag)
 {
   const long m = NUMRECT-3;
   long xi, yi;
@@ -174,32 +197,7 @@ initrect_gen(long ne, GEN x, GEN y, long flag)
     yi = initrect_get_arg(y, T.height-1);
   }
   if (ne > m) pari_err_DOMAIN("initrect", "rectwindow", ">", stoi(m), stoi(ne));
-  initrect(ne, xi, yi);
-}
-
-static void
-Rchain(PariRect *e, RectObj *z)
-{
-  if (!RHead(e)) RHead(e) = z; else RoNext(RTail(e)) = z;
-  RTail(e) = z;
-  RoNext(z) = NULL;
-}
-
-void
-initrect(long ne, long x, long y)
-{
-  PariRect *e;
-  RectObj *z;
-
-  if (x <= 1) pari_err_DOMAIN("initrect", "x", "<=", gen_1, stoi(x));
-  if (y <= 1) pari_err_DOMAIN("initrect", "y", "<=", gen_1, stoi(y));
-  e = check_rect(ne); if (RHead(e)) killrect(ne);
-
-  z = (RectObj*) pari_malloc(sizeof(RectObj));
-  RoType(z) = ROt_NULL;
-  Rchain(e, z);
-  RXsize(e) = x; RXcursor(e) = 0; RXscale(e) = 1; RXshift(e) = 0;
-  RYsize(e) = y; RYcursor(e) = 0; RYscale(e) = 1; RYshift(e) = 0;
+  initrect_i(ne, xi, yi);
 }
 
 GEN
@@ -1464,9 +1462,9 @@ rectplothrawin(PARI_plot *W, long grect, dblPointList *data, long flags)
     w[2] = grect; wx[2] = lm; wy[2] = tm;
    /* Window (width x height) is given in pixels, correct pixels are 0..n-1,
     * whereas rect functions work with windows whose pixel range is [0,n] */
-    initrect(srect, W->width - 1, W->height - 1);
+    initrect_i(srect, W->width - 1, W->height - 1);
     current_color[srect] = DEFAULT_COLOR;
-    initrect(grect, W->width - (lm+rm) - 1, W->height - (tm+bm) - 1);
+    initrect_i(grect, W->width - (lm+rm) - 1, W->height - (tm+bm) - 1);
     /* draw labels on srect */
     put_label(srect, lm, 0, ybig, RoSTdirRIGHT|RoSTdirHGAP|RoSTdirTOP);
     put_label(srect, lm, W->height-bm, ysml, RoSTdirRIGHT|RoSTdirHGAP|RoSTdirVGAP);

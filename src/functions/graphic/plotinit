@@ -1,6 +1,6 @@
 Function: plotinit
 Section: graphic
-C-Name: initrect_gen
+C-Name: initrect
 Prototype: vLDGDGD0,L,
 Help: plotinit(w,{x},{y},{flag=0}): initialize rectwindow w to size x,y.
  If flag!=0, x and y express fractions of the size of the current output
