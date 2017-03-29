@@ -175,8 +175,8 @@ draw(PARI_plot *T, GEN w, GEN x, GEN y)
   pari_close();
 
   display = XOpenDisplay(NULL);
-  font_info = XLoadQueryFont(display, "9x15");
-  if (!font_info) exiterr("cannot open 9x15 font");
+  font_info = XLoadQueryFont(display, "7x13");
+  if (!font_info) exiterr("cannot open 7x13 font");
   XSetErrorHandler(Xerror);
   XSetIOErrorHandler(IOerror);
   PARI_ColorSetUp(display,GP_DATA->colormap);
@@ -193,7 +193,7 @@ draw(PARI_plot *T, GEN w, GEN x, GEN y)
   size_hints.width  = T->width;
   size_hints.height = T->height;
   XSetStandardProperties
-    (display, win, "rectplot", NULL, None, NULL, 0, &size_hints);
+    (display, win, "PARI plot", NULL, None, NULL, 0, &size_hints);
 
   wm_delete_window = XInternAtom(display, "WM_DELETE_WINDOW", False);
   wm_protocols = XInternAtom(display, "WM_PROTOCOLS", False);
@@ -279,16 +279,10 @@ EXIT:
 void
 gp_get_plot(PARI_plot *T)
 {
-  Display *display;
-  int screen;
-
-  if (!(display = XOpenDisplay(NULL))) pari_err(e_MISC, "no X server");
-  screen = DefaultScreen(display);
-  T->width  = DisplayWidth(display, screen) - 40;
-  T->height = DisplayHeight(display, screen) - 60;
-  XCloseDisplay(display);
-  T->fheight = 15;
-  T->fwidth  = 9;
+  T->width  = 800;
+  T->height = 600;
+  T->fheight = 13;
+  T->fwidth  = 7;
   T->hunit   = 5;
   T->vunit   = 5;
   T->draw = &draw;
