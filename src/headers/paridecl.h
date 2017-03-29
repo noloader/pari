@@ -4018,8 +4018,7 @@ void  rectrline(long ne, GEN gx2, GEN gy2);
 void  rectrmove(long ne, GEN x, GEN y);
 void  rectrpoint(long ne, GEN x, GEN y);
 void  rectscale(long ne, GEN x1, GEN x2, GEN y1, GEN y2);
-void  rectstring(long ne, char *x);
-void  rectstring3(long ne, char *x, long dir);
+void  rectstring(long ne, char *x, long dir);
 void  rectclip(long rect);
 
 /* polarit1.c */

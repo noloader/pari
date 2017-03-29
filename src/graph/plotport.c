@@ -173,8 +173,7 @@ initrect_gen(long ne, GEN x, GEN y, long flag)
     xi = initrect_get_arg(x, T.width -1);
     yi = initrect_get_arg(y, T.height-1);
   }
-  if (ne > m)
-    pari_err_DOMAIN("graphic function", "rectwindow", ">", stoi(m), stoi(ne));
+  if (ne > m) pari_err_DOMAIN("initrect", "rectwindow", ">", stoi(m), stoi(ne));
   initrect(ne, xi, yi);
 }
 
@@ -199,10 +198,8 @@ initrect(long ne, long x, long y)
   z = (RectObj*) pari_malloc(sizeof(RectObj));
   RoType(z) = ROt_NULL;
   Rchain(e, z);
-  RXsize(e) = x; RXcursor(e) = 0;
-  RYsize(e) = y; RYcursor(e) = 0;
-  RXscale(e) = 1; RXshift(e) = 0;
-  RYscale(e) = 1; RYshift(e) = 0;
+  RXsize(e) = x; RXcursor(e) = 0; RXscale(e) = 1; RXshift(e) = 0;
+  RYsize(e) = y; RYcursor(e) = 0; RYscale(e) = 1; RYshift(e) = 0;
 }
 
 GEN
@@ -641,15 +638,12 @@ put_label(long ne, long x, long y, double d, long dir)
   char c[16];
   sprintf(c,"%.5g", d);
   rectmove0(ne,(double)x,(double)y,0);
-  rectstring3(ne, c, dir);
+  rectstring(ne, c, dir);
 }
-
-void
-rectstring(long ne, char *str) { rectstring3(ne,str,RoSTdirLEFT); }
 
 /* ROt_ST */
 void
-rectstring3(long ne, char *str, long dir)
+rectstring(long ne, char *str, long dir)
 {
   PariRect *e = check_rect_init(ne);
   RectObj *z = (RectObj*) pari_malloc(sizeof(RectObjST));
@@ -1671,47 +1665,47 @@ rectcount(GEN w)
 /*                         POSTSCRIPT OUTPUT                             */
 /*                                                                       */
 /*************************************************************************/
+/* if flag is set, rescale wrt T */
 static void
-gendraw(PARI_plot *T, GEN list, long flag)
+gendraw(PARI_plot *T, GEN wxy, long flag)
 {
-  long i, n, ne;
-  GEN w, x, y;
+  long i, n;
+  GEN W, X, Y;
 
-  if (typ(list) != t_VEC) pari_err_TYPE("rectdraw",list);
-  n = lg(list)-1; if (!n) return;
+  if (typ(wxy) != t_VEC) pari_err_TYPE("rectdraw",wxy);
+  n = lg(wxy)-1; if (!n) return;
   if (n%3) pari_err_DIM("rectdraw");
   n = n/3;
-  w = cgetalloc(t_VECSMALL, n+1);
-  x = cgetalloc(t_VECSMALL, n+1);
-  y = cgetalloc(t_VECSMALL, n+1);
+  /* malloc mandatory in case T->draw forks then pari_close() */
+  W = cgetalloc(t_VECSMALL, n+1); /* win number */
+  X = cgetalloc(t_VECSMALL, n+1);
+  Y = cgetalloc(t_VECSMALL, n+1); /* (x,y)-offset */
   for (i=1; i<=n; i++)
   {
-    GEN win = gel(list,3*i-2), x0 = gel(list,3*i-1), y0 = gel(list,3*i);
-    if (typ(win)!=t_INT) pari_err_TYPE("rectdraw",win);
+    GEN w = gel(wxy,3*i-2), x = gel(wxy,3*i-1), y = gel(wxy,3*i);
+    if (typ(w)!=t_INT) pari_err_TYPE("rectdraw",w);
     if (flag) {
-      x[i] = DTOL(gtodouble(x0)*(T->width - 1));
-      y[i] = DTOL(gtodouble(y0)*(T->height - 1));
+      X[i] = DTOL(gtodouble(x)*(T->width - 1));
+      Y[i] = DTOL(gtodouble(y)*(T->height - 1));
     } else {
-      x[i] = gtos(x0);
-      y[i] = gtos(y0);
+      X[i] = gtos(x);
+      Y[i] = gtos(y);
     }
-    ne = itos(win); check_rect(ne);
-    w[i] = ne;
+    W[i] = itos(w); check_rect_init(W[i]);
   }
-  T->draw(T,w,x,y);
-  pari_free(w);
-  pari_free(x);
-  pari_free(y);
+  T->draw(T,W,X,Y);
+  pari_free(W);
+  pari_free(X);
+  pari_free(Y);
 
 }
 void
-postdraw(GEN list, long flag)
-{ PARI_plot T; pari_get_psplot(&T,flag); gendraw(&T, list, flag); }
+postdraw(GEN wxy, long flag)
+{ PARI_plot T; pari_get_psplot(&T,flag); gendraw(&T, wxy, flag); }
 void
-rectdraw(GEN list, long flag)
-{ PARI_plot T; pari_get_plot(&T); gendraw(&T, list, flag); }
+rectdraw(GEN wxy, long flag)
+{ PARI_plot T; pari_get_plot(&T); gendraw(&T, wxy, flag); }
 
-#define RoColT(R) minss(numcolors,RoCol(R))
 void
 gen_draw(struct plot_eng *eng, GEN w, GEN x, GEN y, double xs, double ys)
 {
@@ -1727,21 +1721,20 @@ gen_draw(struct plot_eng *eng, GEN w, GEN x, GEN y, double xs, double ys)
     long x0 = x[i], y0 = y[i];
     for (R = RHead(e); R; R = RoNext(R))
     {
+      long col = minss(numcolors, RoCol(R));
       switch(RoType(R))
       {
       case ROt_PT:
-        eng->sc(data,RoColT(R));
+        eng->sc(data,col);
         eng->pt(data, DTOL((RoPTx(R)+x0)*xs), DTOL((RoPTy(R)+y0)*ys));
         break;
       case ROt_LN:
-        eng->sc(data,RoColT(R));
-        eng->ln(data, DTOL((RoLNx1(R)+x0)*xs),
-                      DTOL((RoLNy1(R)+y0)*ys),
-                      DTOL((RoLNx2(R)+x0)*xs),
-                      DTOL((RoLNy2(R)+y0)*ys));
+        eng->sc(data,col);
+        eng->ln(data, DTOL((RoLNx1(R)+x0)*xs), DTOL((RoLNy1(R)+y0)*ys),
+                      DTOL((RoLNx2(R)+x0)*xs), DTOL((RoLNy2(R)+y0)*ys));
         break;
       case ROt_BX:
-        eng->sc(data,RoColT(R));
+        eng->sc(data,col);
         eng->bx(data,
                 DTOL((RoBXx1(R)+x0)*xs),
                 DTOL((RoBXy1(R)+y0)*ys),
@@ -1760,7 +1753,7 @@ gen_draw(struct plot_eng *eng, GEN w, GEN x, GEN y, double xs, double ys)
             points[j].x = DTOL((ptx[j]+x0)*xs);
             points[j].y = DTOL((pty[j]+y0)*ys);
           }
-          eng->sc(data,RoColT(R));
+          eng->sc(data,col);
           eng->mp(data, nb, points);
           pari_free(points);
           break;
@@ -1777,7 +1770,7 @@ gen_draw(struct plot_eng *eng, GEN w, GEN x, GEN y, double xs, double ys)
             points[j].x = DTOL((ptx[j]+x0)*xs);
             points[j].y = DTOL((pty[j]+y0)*ys);
           }
-          eng->sc(data,RoColT(R));
+          eng->sc(data,col);
           eng->ml(data, nb, points);
           pari_free(points);
           break;
@@ -1792,15 +1785,13 @@ gen_draw(struct plot_eng *eng, GEN w, GEN x, GEN y, double xs, double ys)
           long x, y;
           long shift = (hjust == RoSTdirLEFT ? 0 :
               (hjust == RoSTdirRIGHT ? 2 : 1));
-          if (hgap)
-            hgap = (hjust == RoSTdirLEFT) ? hgapsize : -hgapsize;
-          if (vgap)
-            vgap = (vjust == RoSTdirBOTTOM) ? 2*vgapsize : -2*vgapsize;
+          if (hgap) hgap = (hjust == RoSTdirLEFT) ? hgapsize : -hgapsize;
+          if (vgap) vgap = (vjust == RoSTdirBOTTOM) ? 2*vgapsize : -2*vgapsize;
           if (vjust != RoSTdirBOTTOM)
             vgap -= ((vjust == RoSTdirTOP) ? 2 : 1)*(fheight - 1);
           x = DTOL((RoSTx(R) + x0 + hgap - (l * fwidth * shift)/2)*xs);
           y = DTOL((RoSTy(R) + y0 - vgap/2)*ys);
-          eng->sc(data,RoColT(R));
+          eng->sc(data,col);
           eng->st(data, x, y, text, l);
           break;
         }
@@ -1810,7 +1801,6 @@ gen_draw(struct plot_eng *eng, GEN w, GEN x, GEN y, double xs, double ys)
     }
   }
 }
-#undef RoColT
 
 /*************************************************************************/
 /*                               SVG                                     */

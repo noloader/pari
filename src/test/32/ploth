@@ -179,7 +179,7 @@
 ? plotinit(100)
   ***   at top-level: plotinit(100)
   ***                 ^-------------
-  *** plotinit: domain error in graphic function: rectwindow > 15
+  *** plotinit: domain error in initrect: rectwindow > 15
 ? plotmove(-1,0,0)
   ***   at top-level: plotmove(-1,0,0)
   ***                 ^----------------
@@ -221,4 +221,4 @@
   ***                 ^-----------------
   *** ploth: domain error in ploth: #points < 2
 ? print("Total time spent: ",gettime);
-Total time spent: 152
+Total time spent: 88
