@@ -15,6 +15,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 /*           HIGH RESOLUTION PLOT VIA POSTSCRIPT FILE              */
 /*******************************************************************/
 #include "pari.h"
+#include "rect.h"
 
 static void
 draw(PARI_plot *T, GEN w, GEN x, GEN y)

@@ -17,6 +17,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 #include "pari.h"
+#include "rect.h"
 void
 gp_get_plot(PARI_plot *T)
 { (void)T; pari_err(e_MISC,"high resolution graphics disabled"); }
