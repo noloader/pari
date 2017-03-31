@@ -1,7 +1,22 @@
+Function: _forperm_init
+Class: gp2c_internal
+Help: Initialize forperm_t
+Description:
+ (forperm,gen):void      forperm_init(&$1, $2)
+
+Function: _forperm_next
+Class: gp2c_internal
+Help: Compute the next permutation
+Description:
+ (forperm):vecsmall      forperm_next(&$1)
+
 Function: forperm
 Section: programming/control
 C-Name: forperm0
 Prototype: vGVI
+Iterator:
+ (gen,gen)         (forperm, _forperm_init, _forperm_next)
+Wrapper: (,vG,,)
 Help: forperm(a,p,seq): the sequence is evaluated, p going through permutations of a.
 Doc: evaluates \var{seq}, where the formal variable $p$ goes through some
  permutations given by a \typ{VECSMALL}. If $a$ is a positive integer then

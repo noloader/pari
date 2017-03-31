@@ -13,7 +13,9 @@ Description:
  (C!forprime_t)      forprime_t
  (C!forcomposite_t)  forcomposite_t
  (C!forpart_t)       forpart_t
+ (C!forperm_t)       forperm_t
  (C!forvec_t)        forvec_t
+ (C!forsubset_t)     forsubset_t
 
 Function: _decl_ext
 Class: gp2c_internal
@@ -48,7 +50,9 @@ Description:
  (bptr)         byteptr
  (forcomposite) forcomposite_t
  (forpart)      forpart_t
+ (forperm)      forperm_t
  (forprime)     forprime_t
+ (forsubset)    forsubset_t
  (forvec)       forvec_t
  (func_GG)      func_GG
  (pari_sp)      pari_sp
