@@ -52,12 +52,6 @@ enum {
 INLINE long
 DTOL(double t) { return (long)(t + 0.5); }
 
-static GEN
-READ_EXPR(GEN code, GEN x) {
-  if (typ(code)!=t_CLOSURE) return gsubst(code,0,x);
-  set_lex(-1, x); return closure_evalgen(code);
-}
-
 static const long PS_WIDTH = 1120 - 60; /* 1400 - 60 for hi-res */
 static const long PS_HEIGH = 800 - 40; /* 1120 - 60 for hi-res */
 
@@ -1097,8 +1091,8 @@ static GEN
 rmiddle(GEN x, GEN y) { GEN z = addrr(x,y); shiftr_inplace(z,-1); return z; }
 
 static void
-single_recursion(dblPointList *pl,GEN code,GEN xleft,double yleft,
-  GEN xright,double yright,long depth)
+single_recursion(void *E, GEN(*eval)(void*,GEN), dblPointList *pl,
+                 GEN xleft,double yleft, GEN xright,double yright,long depth)
 {
   GEN xx;
   pari_sp av = avma;
@@ -1107,21 +1101,22 @@ single_recursion(dblPointList *pl,GEN code,GEN xleft,double yleft,
   if (depth==RECUR_MAXDEPTH) return;
 
   xx = rmiddle(xleft,xright);
-  yy = gtodouble(READ_EXPR(code,xx));
+  yy = gtodouble(eval(E,xx));
 
   if (dy && fabs(yleft+yright-2*yy)< dy*RECUR_PREC) return;
-  single_recursion(pl,code, xleft,yleft, xx,yy, depth+1);
+  single_recursion(E,eval, pl,xleft,yleft, xx,yy, depth+1);
 
   Appendx(&pl[0],&pl[0],rtodbl(xx));
   Appendy(&pl[0],&pl[1],yy);
 
-  single_recursion(pl,code, xx,yy, xright,yright, depth+1);
+  single_recursion(E,eval, pl,xx,yy, xright,yright, depth+1);
   avma = av;
 }
 
 static void
-param_recursion(long cplx, dblPointList *pl,GEN code,GEN tleft,double xleft,
-  double yleft, GEN tright,double xright,double yright, long depth)
+param_recursion(void *E,GEN(*eval)(void*,GEN), long cplx, dblPointList *pl,
+  GEN tleft,double xleft, double yleft,
+  GEN tright,double xright,double yright, long depth)
 {
   GEN tt, p1;
   pari_sp av=avma;
@@ -1131,17 +1126,17 @@ param_recursion(long cplx, dblPointList *pl,GEN code,GEN tleft,double xleft,
   if (depth==RECUR_MAXDEPTH) return;
 
   tt = rmiddle(tleft,tright);
-  p1 = READ_EXPR(code,tt);
+  p1 = eval(E,tt);
   get_xy(cplx, p1, &xx,&yy);
 
   if (dx && dy && fabs(xleft+xright-2*xx) < dx*RECUR_PREC
                && fabs(yleft+yright-2*yy) < dy*RECUR_PREC) return;
-  param_recursion(cplx, pl,code, tleft,xleft,yleft, tt,xx,yy, depth+1);
+  param_recursion(E,eval, cplx, pl, tleft,xleft,yleft, tt,xx,yy, depth+1);
 
   Appendx(&pl[0],&pl[0],xx);
   Appendy(&pl[0],&pl[1],yy);
 
-  param_recursion(cplx, pl,code, tt,xx,yy, tright,xright,yright, depth+1);
+  param_recursion(E,eval,cplx, pl, tt,xx,yy, tright,xright,yright, depth+1);
   avma = av;
 }
 
@@ -1150,7 +1145,8 @@ param_recursion(long cplx, dblPointList *pl,GEN code,GEN tleft,double xleft,
  * t_VEC of two t_POLs from rectsplines. Returns a dblPointList of
  * (absolute) coordinates. */
 static dblPointList *
-plotrecthin(GEN a, GEN b, GEN code, long prec, ulong flags, long N)
+plotrecthin(void *E, GEN(*eval)(void*, GEN), GEN a, GEN b, long prec,
+            ulong flags, long N)
 {
   const double INF = 1.0/0.0;
   const long param = flags & (PLOT_PARAMETRIC|PLOT_COMPLEX);
@@ -1168,8 +1164,7 @@ plotrecthin(GEN a, GEN b, GEN code, long prec, ulong flags, long N)
   if (!N) N = recur? 8: (param? 1500: 1000);
   /* compute F(a) to determine nc = #curves; nl = #coord. lists */
   x = gtofp(a, prec);
-  if (typ(code) == t_CLOSURE) push_lex(x, code);
-  t = READ_EXPR(code,x); tx = typ(t);
+  t = eval(E, x); tx = typ(t);
   if (param)
   {
     if (cplx) nc = nl = (tx == t_VEC)? lg(t)-1: 1;
@@ -1226,17 +1221,17 @@ plotrecthin(GEN a, GEN b, GEN code, long prec, ulong flags, long N)
       double xleft, xright = 0;
       pari_sp av2 = avma;
       affgr(a,tleft);
-      t = READ_EXPR(code,tleft);
+      t = eval(E, tleft);
       get_xy(cplx,t, &xleft,&yleft);
       for (i=0; i<N-1; i++, avma = av2)
       {
         if (i) { affrr(tright,tleft); xleft = xright; yleft = yright; }
         addrrz(tleft,dx,tright);
-        t = READ_EXPR(code,tright);
+        t = eval(E, tright);
         get_xy(cplx,t, &xright,&yright);
         Appendx(&pl[0],&pl[0],xleft);
         Appendy(&pl[0],&pl[1],yleft);
-        param_recursion(cplx, pl,code, tleft,xleft,yleft, tright,xright,yright, 0);
+        param_recursion(E,eval, cplx, pl, tleft,xleft,yleft, tright,xright,yright, 0);
       }
       Appendx(&pl[0],&pl[0],xright);
       Appendy(&pl[0],&pl[1],yright);
@@ -1246,16 +1241,16 @@ plotrecthin(GEN a, GEN b, GEN code, long prec, ulong flags, long N)
       GEN xleft = cgetr(prec), xright = cgetr(prec);
       pari_sp av2 = avma;
       affgr(a,xleft);
-      yleft = gtodouble(READ_EXPR(code,xleft));
+      yleft = gtodouble(eval(E,xleft));
       for (i=0; i<N-1; i++, avma = av2)
       {
         addrrz(xleft,dx,xright);
-        yright = gtodouble(READ_EXPR(code,xright));
+        yright = gtodouble(eval(E,xright));
 
         Appendx(&pl[0],&pl[0],rtodbl(xleft));
         Appendy(&pl[0],&pl[1],yleft);
 
-        single_recursion(pl,code,xleft,yleft,xright,yright,0);
+        single_recursion(E,eval, pl,xleft,yleft,xright,yright,0);
         affrr(xright,xleft); yleft = yright;
       }
       Appendx(&pl[0],&pl[0],rtodbl(xright));
@@ -1270,7 +1265,7 @@ plotrecthin(GEN a, GEN b, GEN code, long prec, ulong flags, long N)
       for (i=0; i<N; i++, affrr(addrr(x,dx), x), avma = av2)
       {
         long k, nt;
-        t = READ_EXPR(code,x);
+        t = eval(E,x);
         if (typ(t) != t_VEC)
         {
           if (cplx) nt = 1;
@@ -1292,22 +1287,24 @@ plotrecthin(GEN a, GEN b, GEN code, long prec, ulong flags, long N)
     else if (non_vec)
       for (i=0; i<N; i++, affrr(addrr(x,dx), x), avma = av2)
       {
-        t = READ_EXPR(code,x);
+        t = eval(E,x);
         pl[0].d[i] = gtodouble(x);
         Appendy(&pl[0],&pl[1], gtodouble(t));
       }
     else /* vector of non-parametric curves */
       for (i=0; i<N; i++, affrr(addrr(x,dx), x), avma = av2)
       {
-        t = READ_EXPR(code,x);
+        t = eval(E,x);
         if (typ(t) != t_VEC || lg(t) != nl) pari_err_DIM("plotrecth");
         pl[0].d[i] = gtodouble(x);
         for (j=1; j<nl; j++) Appendy(&pl[0],&pl[j], gtodouble(gel(t,j)));
       }
   }
-  if (typ(code) == t_CLOSURE) pop_lex(1);
   pl[0].nb = nc; avma = av; return pl;
 }
+
+static GEN
+spline_eval(void* E, GEN x) { return gsubst((GEN)E,0,x); }
 
 /* Uses highlevel plotting functions to implement splines as
    a low-level plotting function. */
@@ -1344,10 +1341,11 @@ rectsplines(long ne, double *x, double *y, long lx, long flag)
       tas = xa;
     }
     /* Start with 3 points */
-    plotrecth(ne, i==   0 ? gel(tas,0) : gel(tas,1),
-                  i==lx-4 ? gel(tas,3) : gel(tas,2), pol3,
-                  DEFAULTPREC, PLOT_RECURSIVE | PLOT_NO_RESCALE
-                  | PLOT_NO_FRAME | PLOT_NO_AXE_Y | PLOT_NO_AXE_X | param, 2);
+    plotrecth((void*)pol3, &spline_eval, ne,
+               i== 0 ? gel(tas,0) : gel(tas,1),
+               i==lx-4 ? gel(tas,3) : gel(tas,2),
+               DEFAULTPREC, PLOT_RECURSIVE | PLOT_NO_RESCALE
+               | PLOT_NO_FRAME | PLOT_NO_AXE_Y | PLOT_NO_AXE_X | param, 2);
     avma = av;
   }
   avma = av0;
@@ -1521,27 +1519,37 @@ plotrecthrawin(PARI_plot *W, long grect, dblPointList *data, long flags)
  * Else write to 'ne' rectwindow.
  * Graph t_CLOSURE 'code', x=a..b, use n points */
 static GEN
-plotrecth_i(PARI_plot *T, long ne, GEN a,GEN b,GEN code,
+plotrecth_i(void *E, GEN(*f)(void*,GEN), PARI_plot *T, long ne, GEN a,GEN b,
             long prec,ulong flags,long n)
 {
-  dblPointList *pl = plotrecthin(a,b, code, prec, flags, n);
+  dblPointList *pl = plotrecthin(E,f, a,b, prec, flags, n);
   return plotrecthrawin(T, ne, pl, flags);
 }
 GEN
-plotrecth(long ne, GEN a,GEN b,GEN code, long prec,ulong flags,long n)
-{ return plotrecth_i(NULL, ne, a,b, code, prec, flags, n); }
+plotrecth(void *E, GEN(*f)(void*,GEN), long ne, GEN a,GEN b,
+          long prec,ulong flags,long n)
+{ return plotrecth_i(E,f, NULL, ne, a,b, prec, flags, n); }
 GEN
-ploth(GEN a, GEN b, GEN code, long prec,long flags,long n)
+plotrecth0(long ne, GEN a,GEN b,GEN code, long prec,ulong flags,long n)
+{ EXPR_WRAP(code, plotrecth(EXPR_ARG, ne, a,b, prec, flags, n)); }
+GEN
+ploth(void *E, GEN(*f)(void*,GEN), GEN a, GEN b, long prec,long flags,long n)
 {
   PARI_plot T; pari_get_plot(&T);
-  return plotrecth_i(&T, NUMRECT-1, a,b,code,prec,flags,n);
+  return plotrecth_i(E,f, &T, NUMRECT-1, a,b,prec, flags,n);
 }
 GEN
-psploth(GEN a, GEN b, GEN code, long prec,long flags, long n)
+ploth0(GEN a, GEN b, GEN code, long prec,long flags,long n)
+{ EXPR_WRAP(code, ploth(EXPR_ARG, a,b,prec,flags,n)); }
+GEN
+psploth(void *E, GEN(f)(void*,GEN), GEN a, GEN b, long prec,long flags, long n)
 {
   PARI_plot T; pari_get_psplot(&T,0);
-  return plotrecth_i(&T, NUMRECT-1, a,b,code,prec, flags,n);
+  return plotrecth_i(E,f, &T, NUMRECT-1, a,b,prec, flags,n);
 }
+GEN
+psploth0(GEN a, GEN b, GEN code, long prec,long flags, long n)
+{ EXPR_WRAP(code, psploth(EXPR_ARG, a, b, prec, flags, n)); }
 
 /* Draw list of points */
 static GEN

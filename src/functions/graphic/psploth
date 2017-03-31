@@ -1,6 +1,6 @@
 Function: psploth
 Section: graphic
-C-Name: psploth
+C-Name: psploth0
 Prototype: V=GGEpD0,L,D0,L,
 Help: psploth(X=a,b,expr,{flags=0},{n=0}): same as ploth, except that the
  output is a PostScript program in psfile (pari.ps by default).

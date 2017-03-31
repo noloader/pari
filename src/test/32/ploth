@@ -218,7 +218,7 @@
   ***   incorrect type in ploth [not a t_VEC with PLOT_PARAMETRIC] (t_INT).
 ? ploth(x=0,1,x,,1)
   ***   at top-level: ploth(x=0,1,x,,1)
-  ***                 ^-----------------
-  *** ploth: domain error in ploth: #points < 2
+  ***                             ^-----
+  ***   domain error in ploth: #points < 2
 ? print("Total time spent: ",gettime);
-Total time spent: 80
+Total time spent: 72
