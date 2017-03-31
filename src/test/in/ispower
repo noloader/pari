@@ -152,3 +152,6 @@ p=2^1500+1465;
 ispower(p^11)
 ispower(p^29)
 ispower(p^101)
+
+\\#1915
+issquare(Mod(1,67)*x^4+Mod(14,67)*x^2+Mod(49,67))

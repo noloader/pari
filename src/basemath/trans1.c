@@ -1377,7 +1377,7 @@ sqrt_ser(GEN b, long prec)
   while (mask > 1)
   {
     GEN y, x2 = gmul2n(x,1);
-    long l = lold << 1;
+    long l = lold << 1, lx;
 
     if (mask & 1) l--;
     mask >>= 1;
@@ -1388,7 +1388,8 @@ sqrt_ser(GEN b, long prec)
     y += lold; setvalp(y, lold);
     y = normalize(y);
     y = gsub(x, gdiv(y, x2)); /* = gmul2n(gsub(x, gdiv(a,x)), -1); */
-    for (j = lold+2; j < l+2; j++) gel(x,j) = gel(y,j);
+    lx = minss(l+2, lg(y));
+    for (j = lold+2; j < lx; j++) gel(x,j) = gel(y,j);
     lold = l;
   }
   x[1] = evalsigne(1) | evalvarn(vx) | _evalvalp(e >> 1);
