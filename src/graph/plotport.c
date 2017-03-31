@@ -498,22 +498,22 @@ killrect(long ne)
 
 /* ROt_MP */
 static void
-rectpoints0(long ne, double *listx, double *listy, long lx)
+rectpoints0(long ne, double *X, double *Y, long lx)
 {
-  double *ptx, *pty, x, y;
+  double *px, *py;
   long i, cp=0;
   PariRect *e = check_rect_init(ne);
   RectObj *z = (RectObj*) pari_malloc(sizeof(RectObjMP));
 
-  RoMPxs(z) = ptx = (double*) pari_malloc(lx*sizeof(double));
-  RoMPys(z) = pty = (double*) pari_malloc(lx*sizeof(double));
+  RoMPxs(z) = px = (double*) pari_malloc(lx*sizeof(double));
+  RoMPys(z) = py = (double*) pari_malloc(lx*sizeof(double));
   for (i=0; i<lx; i++)
   {
-    x = RXscale(e)*listx[i] + RXshift(e);
-    y = RYscale(e)*listy[i] + RYshift(e);
-    if (x>=0 && y>=0 && x<=RXsize(e) && y<=RYsize(e))
+    double x = RXscale(e)*X[i] + RXshift(e);
+    double y = RYscale(e)*Y[i] + RYshift(e);
+    if (x >= 0 && y >= 0 && x <= RXsize(e) && y <= RYsize(e))
     {
-      ptx[cp]=x; pty[cp]=y; cp++;
+      px[cp] = x; py[cp] = y; cp++;
     }
   }
   RoType(z) = ROt_MP;
@@ -521,32 +521,29 @@ rectpoints0(long ne, double *listx, double *listy, long lx)
   Rchain(e, z);
   RoCol(z) = current_color[ne];
 }
-
 void
-rectpoints(long ne, GEN listx, GEN listy)
+rectpoints(long ne, GEN X, GEN Y)
 {
-  long i,lx, tx=typ(listx), ty=typ(listy);
-  double *px,*py;
+  pari_sp av = avma;
+  long i,lx, tx = typ(X), ty = typ(Y);
+  double *px, *py;
 
-  if (!is_matvec_t(tx) || !is_matvec_t(ty)) {
-    rectpoint(ne, listx, listy); return;
-  }
-  lx = lg(listx);
-  if (tx == t_MAT) pari_err_TYPE("rectpoints",listx);
-  if (ty == t_MAT) pari_err_TYPE("rectpoints",listy);
-  if (lg(listy) != lx) pari_err_DIM("rectpoints");
+  if (!is_matvec_t(tx) || !is_matvec_t(ty)) { rectpoint(ne, X, Y); return; }
+  lx = lg(X);
+  if (tx == t_MAT) pari_err_TYPE("rectpoints",X);
+  if (ty == t_MAT) pari_err_TYPE("rectpoints",Y);
+  if (lg(Y) != lx) pari_err_DIM("rectpoints");
   lx--; if (!lx) return;
 
-  px = (double*) pari_malloc(lx*sizeof(double)); listx++;
-  py = (double*) pari_malloc(lx*sizeof(double)); listy++;
+  px = (double*)stack_malloc_align(lx*sizeof(double), sizeof(double)); X++;
+  py = (double*)stack_malloc_align(lx*sizeof(double), sizeof(double)); Y++;
   for (i=0; i<lx; i++)
   {
-    px[i] = gtodouble(gel(listx,i));
-    py[i] = gtodouble(gel(listy,i));
+    px[i] = gtodouble(gel(X,i));
+    py[i] = gtodouble(gel(Y,i));
   }
   rectpoints0(ne,px,py,lx);
-  pari_free(px);
-  pari_free(py);
+  avma = av;
 }
 
 /* ROt_ML */
