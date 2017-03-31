@@ -1646,6 +1646,7 @@ void
 plotdraw(GEN wxy, long flag)
 { PARI_plot T; pari_get_plot(&T); gendraw(&T, wxy, flag); }
 
+/* may be called after pari_close(): don't use the PARI stack */
 void
 gen_draw(struct plot_eng *eng, GEN w, GEN x, GEN y, double xs, double ys)
 {
@@ -1721,8 +1722,7 @@ gen_draw(struct plot_eng *eng, GEN w, GEN x, GEN y, double xs, double ys)
           long hjust = dir & RoSTdirHPOS_mask, hgap  = dir & RoSTdirHGAP;
           long vjust = dir & RoSTdirVPOS_mask, vgap  = dir & RoSTdirVGAP;
           char *text = RoSTs(R);
-          long l     = RoSTl(R);
-          long x, y;
+          long x, y, l = RoSTl(R);
           long shift = (hjust == RoSTdirLEFT ? 0 :
               (hjust == RoSTdirRIGHT ? 2 : 1));
           if (hgap) hgap = (hjust == RoSTdirLEFT) ? hgapsize : -hgapsize;
