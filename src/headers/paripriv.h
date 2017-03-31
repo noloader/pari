@@ -126,9 +126,9 @@ GEN  vvecteur(GEN nmax, GEN n);
 GEN  zbrent0(GEN a, GEN b, GEN code, long prec);
 GEN  solvestep0(GEN a, GEN b, GEN step, GEN code, long flag, long prec);
 
-GEN  ploth0(GEN a, GEN b, GEN code, long prec, long flag, long n);
-GEN  psploth0(GEN a,GEN b,GEN code,long prec,long flag,long n);
-GEN  plotrecth0(long ne,GEN a,GEN b,GEN code,long prec,ulong flags,long n);
+GEN  ploth0(GEN a, GEN b, GEN code, long flag, long n, long prec);
+GEN  psploth0(GEN a,GEN b,GEN code,long flag,long n,long prec);
+GEN  plotrecth0(long ne,GEN a,GEN b,GEN code,ulong flags,long n,long prec);
 
 GEN  listcreate_gp(long n);
 

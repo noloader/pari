@@ -1145,8 +1145,8 @@ param_recursion(void *E,GEN(*eval)(void*,GEN), long cplx, dblPointList *pl,
  * t_VEC of two t_POLs from rectsplines. Returns a dblPointList of
  * (absolute) coordinates. */
 static dblPointList *
-plotrecthin(void *E, GEN(*eval)(void*, GEN), GEN a, GEN b, long prec,
-            ulong flags, long N)
+plotrecthin(void *E, GEN(*eval)(void*, GEN), GEN a, GEN b, ulong flags,
+            long N, long prec)
 {
   const double INF = 1.0/0.0;
   const long param = flags & (PLOT_PARAMETRIC|PLOT_COMPLEX);
@@ -1316,6 +1316,8 @@ rectsplines(long ne, double *x, double *y, long lx, long flag)
   GEN X = pol_x(0), xa = cgetg(lx+1, t_VEC), ya = cgetg(lx+1, t_VEC);
   GEN tas, pol3;
   long param = flag & PLOT_PARAMETRIC;
+  const long fl = param | PLOT_RECURSIVE | PLOT_NO_RESCALE | PLOT_NO_FRAME
+                        | PLOT_NO_AXE_Y | PLOT_NO_AXE_X;
 
   if (lx < 4) pari_err(e_MISC, "Too few points (%ld) for spline plot", lx);
   for (i = 1; i <= lx; i++) {
@@ -1344,8 +1346,7 @@ rectsplines(long ne, double *x, double *y, long lx, long flag)
     plotrecth((void*)pol3, &spline_eval, ne,
                i== 0 ? gel(tas,0) : gel(tas,1),
                i==lx-4 ? gel(tas,3) : gel(tas,2),
-               DEFAULTPREC, PLOT_RECURSIVE | PLOT_NO_RESCALE
-               | PLOT_NO_FRAME | PLOT_NO_AXE_Y | PLOT_NO_AXE_X | param, 2);
+               fl, 2, DEFAULTPREC);
     avma = av;
   }
   avma = av0;
@@ -1516,40 +1517,40 @@ plotrecthrawin(PARI_plot *W, long grect, dblPointList *data, long flags)
 /*                                                                       */
 /*************************************************************************/
 /* If T != NULL, draw using the attached graphic (using rectwindow ne as a temp)
- * Else write to 'ne' rectwindow.
- * Graph t_CLOSURE 'code', x=a..b, use n points */
+ * Else write to rectwindow 'ne'.
+ * Graph y=f(x), x=a..b, use n points */
 static GEN
 plotrecth_i(void *E, GEN(*f)(void*,GEN), PARI_plot *T, long ne, GEN a,GEN b,
-            long prec,ulong flags,long n)
+            ulong flags,long n, long prec)
 {
-  dblPointList *pl = plotrecthin(E,f, a,b, prec, flags, n);
+  dblPointList *pl = plotrecthin(E,f, a,b, flags, n, prec);
   return plotrecthrawin(T, ne, pl, flags);
 }
 GEN
 plotrecth(void *E, GEN(*f)(void*,GEN), long ne, GEN a,GEN b,
-          long prec,ulong flags,long n)
-{ return plotrecth_i(E,f, NULL, ne, a,b, prec, flags, n); }
+          ulong flags, long n, long prec)
+{ return plotrecth_i(E,f, NULL, ne, a,b, flags, n, prec); }
 GEN
-plotrecth0(long ne, GEN a,GEN b,GEN code, long prec,ulong flags,long n)
-{ EXPR_WRAP(code, plotrecth(EXPR_ARG, ne, a,b, prec, flags, n)); }
+plotrecth0(long ne, GEN a,GEN b,GEN code,ulong flags,long n, long prec)
+{ EXPR_WRAP(code, plotrecth(EXPR_ARG, ne, a,b, flags, n, prec)); }
 GEN
-ploth(void *E, GEN(*f)(void*,GEN), GEN a, GEN b, long prec,long flags,long n)
+ploth(void *E, GEN(*f)(void*,GEN), GEN a, GEN b,long flags, long n, long prec)
 {
   PARI_plot T; pari_get_plot(&T);
-  return plotrecth_i(E,f, &T, NUMRECT-1, a,b,prec, flags,n);
+  return plotrecth_i(E,f, &T, NUMRECT-1, a,b, flags,n, prec);
 }
 GEN
-ploth0(GEN a, GEN b, GEN code, long prec,long flags,long n)
-{ EXPR_WRAP(code, ploth(EXPR_ARG, a,b,prec,flags,n)); }
+ploth0(GEN a, GEN b, GEN code, long flags,long n, long prec)
+{ EXPR_WRAP(code, ploth(EXPR_ARG, a,b,flags,n, prec)); }
 GEN
-psploth(void *E, GEN(f)(void*,GEN), GEN a, GEN b, long prec,long flags, long n)
+psploth(void *E, GEN(f)(void*,GEN), GEN a, GEN b, long flags, long n, long prec)
 {
   PARI_plot T; pari_get_psplot(&T,0);
-  return plotrecth_i(E,f, &T, NUMRECT-1, a,b,prec, flags,n);
+  return plotrecth_i(E,f, &T, NUMRECT-1, a,b, flags,n, prec);
 }
 GEN
-psploth0(GEN a, GEN b, GEN code, long prec,long flags, long n)
-{ EXPR_WRAP(code, psploth(EXPR_ARG, a, b, prec, flags, n)); }
+psploth0(GEN a, GEN b, GEN code, long flags, long n, long prec)
+{ EXPR_WRAP(code, psploth(EXPR_ARG, a, b, flags, n, prec)); }
 
 /* Draw list of points */
 static GEN
