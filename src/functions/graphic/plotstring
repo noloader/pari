@@ -1,6 +1,6 @@
 Function: plotstring
 Section: graphic
-C-Name: rectstring
+C-Name: plotstring
 Prototype: vLsD0,L,
 Help: plotstring(w,x,{flags=0}): draw in rectwindow w the string
  corresponding to x. Bits 1 and 2 of flag regulate horizontal alignment: left

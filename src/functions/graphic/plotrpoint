@@ -1,6 +1,6 @@
 Function: plotrpoint
 Section: graphic
-C-Name: rectrpoint
+C-Name: plotrpoint
 Prototype: vLGG
 Help: plotrpoint(w,dx,dy): draw a point (and move cursor) at position dx,dy
  relative to present position of the cursor in rectwindow w.

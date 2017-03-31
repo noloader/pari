@@ -1,6 +1,6 @@
 Function: psdraw
 Section: graphic
-C-Name: postdraw
+C-Name: psdraw
 Prototype: vGD0,L,
 Help: psdraw(list, {flag=0}): same as plotdraw, except that the output is a
  PostScript program in psfile (pari.ps by default), and flag!=0 scales the

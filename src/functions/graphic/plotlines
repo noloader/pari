@@ -1,6 +1,6 @@
 Function: plotlines
 Section: graphic
-C-Name: rectlines
+C-Name: plotlines
 Prototype: vLGGD0,L,
 Help: plotlines(w,X,Y,{flag=0}): draws an open polygon in rectwindow
  w where X and Y contain the x (resp. y) coordinates of the vertices.

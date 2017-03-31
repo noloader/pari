@@ -1,6 +1,6 @@
 Function: plotrmove
 Section: graphic
-C-Name: rectrmove
+C-Name: plotrmove
 Prototype: vLGG
 Help: plotrmove(w,dx,dy): move cursor to position (dx,dy) relative to the
  present position in the rectwindow w.

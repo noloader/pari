@@ -179,7 +179,7 @@
 ? plotinit(100)
   ***   at top-level: plotinit(100)
   ***                 ^-------------
-  *** plotinit: domain error in initrect: rectwindow > 15
+  *** plotinit: domain error in plotinit: rectwindow > 15
 ? plotmove(-1,0,0)
   ***   at top-level: plotmove(-1,0,0)
   ***                 ^----------------
@@ -207,7 +207,7 @@
 ? ploth(x=0,2*Pi,if(x<1,[cos(x),sin(x)],1),"Parametric")
   ***   at top-level: ploth(x=0,2*Pi,if(x<1,[cos(x),sin(x)],1),"Para
   ***                                   ^----------------------------
-  ***   inconsistent dimensions in rectploth.
+  ***   inconsistent dimensions in plotrecth.
 ? ploth(t=0,2*Pi,[sin(5*t),sin(7*t)],"Recursive",100)
   ***   at top-level: ploth(t=0,2*Pi,[sin(5*t),sin(7*t)],"Recursive"
   ***                                ^-------------------------------
@@ -221,4 +221,4 @@
   ***                 ^-----------------
   *** ploth: domain error in ploth: #points < 2
 ? print("Total time spent: ",gettime);
-Total time spent: 88
+Total time spent: 80

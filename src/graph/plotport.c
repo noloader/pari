@@ -28,7 +28,7 @@ static hashtable *rgb_colors = NULL;
 THREAD PariRect rectgraph[18]; /*NUMRECT*/
 static THREAD long current_color[18]; /*NUMRECT*/
 
-static long rectpoint_itype = 0, rectline_itype  = 0;
+static long plotpoint_itype = 0, rectline_itype  = 0;
 
 const long NUMRECT = 18;
 const long RECUR_MAXDEPTH = 10;
@@ -62,7 +62,7 @@ static const long PS_WIDTH = 1120 - 60; /* 1400 - 60 for hi-res */
 static const long PS_HEIGH = 800 - 40; /* 1120 - 60 for hi-res */
 
 static void
-psdraw_scale(PARI_plot *T, GEN w, GEN x, GEN y)
+_psdraw_scale(PARI_plot *T, GEN w, GEN x, GEN y)
 {
   pari_sp av = avma;
   FILE *F = fopen(current_psfile, "a");
@@ -71,8 +71,8 @@ psdraw_scale(PARI_plot *T, GEN w, GEN x, GEN y)
   fclose(F); avma = av;
 }
 static void
-psdraw(PARI_plot *T, GEN w, GEN x, GEN y)
-{ (void)T; psdraw_scale(NULL,w,x,y); }
+_psdraw(PARI_plot *T, GEN w, GEN x, GEN y)
+{ (void)T; _psdraw_scale(NULL,w,x,y); }
 static void
 pari_get_psplot(PARI_plot *T, long scale)
 {
@@ -82,7 +82,7 @@ pari_get_psplot(PARI_plot *T, long scale)
   T->fwidth = 6;
   T->hunit = 5;
   T->vunit = 5;
-  T->draw = scale? &psdraw: &psdraw_scale;
+  T->draw = scale? &_psdraw: &_psdraw_scale;
 }
 
 /********************************************************************/
@@ -118,7 +118,7 @@ pari_kill_plot_engine(void)
   for (i=0; i<NUMRECT; i++)
   {
     PariRect *e = &rectgraph[i];
-    if (RHead(e)) killrect(i);
+    if (RHead(e)) plotkill(i);
   }
   if (rgb_colors)
   {
@@ -160,9 +160,9 @@ initrect_i(long ne, long x, long y)
   PariRect *e;
   RectObj *z;
 
-  if (x <= 1) pari_err_DOMAIN("initrect", "x", "<=", gen_1, stoi(x));
-  if (y <= 1) pari_err_DOMAIN("initrect", "y", "<=", gen_1, stoi(y));
-  e = check_rect(ne); if (RHead(e)) killrect(ne);
+  if (x <= 1) pari_err_DOMAIN("plotinit", "x", "<=", gen_1, stoi(x));
+  if (y <= 1) pari_err_DOMAIN("plotinit", "y", "<=", gen_1, stoi(y));
+  e = check_rect(ne); if (RHead(e)) plotkill(ne);
 
   z = (RectObj*) pari_malloc(sizeof(RectObj));
   RoType(z) = ROt_NULL;
@@ -174,11 +174,11 @@ static long
 initrect_get_arg(GEN x, long dft)
 {
   if (!x) return dft;
-  if (typ(x) != t_INT) pari_err_TYPE("initrect",x);
+  if (typ(x) != t_INT) pari_err_TYPE("plotinit",x);
   return itos(x);
 }
 void
-initrect(long ne, GEN x, GEN y, long flag)
+plotinit(long ne, GEN x, GEN y, long flag)
 {
   const long m = NUMRECT-3;
   long xi, yi;
@@ -196,19 +196,19 @@ initrect(long ne, GEN x, GEN y, long flag)
     xi = initrect_get_arg(x, T.width -1);
     yi = initrect_get_arg(y, T.height-1);
   }
-  if (ne > m) pari_err_DOMAIN("initrect", "rectwindow", ">", stoi(m), stoi(ne));
+  if (ne > m) pari_err_DOMAIN("plotinit", "rectwindow", ">", stoi(m), stoi(ne));
   initrect_i(ne, xi, yi);
 }
 
 GEN
-rectcursor(long ne)
+plotcursor(long ne)
 {
   PariRect *e = check_rect_init(ne);
   return mkvec2s((long)RXcursor(e), (long)RYcursor(e));
 }
 
 static void
-rectscale0(long ne, double x1, double x2, double y1, double y2)
+plotscale0(long ne, double x1, double x2, double y1, double y2)
 {
   PariRect *e = check_rect_init(ne);
   double x, y;
@@ -221,11 +221,11 @@ rectscale0(long ne, double x1, double x2, double y1, double y2)
   RYcursor(e) = (y - RYshift(e)) / RYscale(e);
 }
 void
-rectscale(long ne, GEN x1, GEN x2, GEN y1, GEN y2)
-{ rectscale0(ne, gtodouble(x1), gtodouble(x2), gtodouble(y1), gtodouble(y2)); }
+plotscale(long ne, GEN x1, GEN x2, GEN y1, GEN y2)
+{ plotscale0(ne, gtodouble(x1), gtodouble(x2), gtodouble(y1), gtodouble(y2)); }
 
 static void
-rectmove0(long ne, double x, double y, long relative)
+plotmove0(long ne, double x, double y, long relative)
 {
   PariRect *e = check_rect_init(ne);
   RectObj *z = (RectObj*) pari_malloc(sizeof(RectObj1P));
@@ -238,15 +238,15 @@ rectmove0(long ne, double x, double y, long relative)
   Rchain(e, z);
 }
 void
-rectmove(long ne, GEN x, GEN y)
-{ rectmove0(ne,gtodouble(x),gtodouble(y),0); }
+plotmove(long ne, GEN x, GEN y)
+{ plotmove0(ne,gtodouble(x),gtodouble(y),0); }
 void
-rectrmove(long ne, GEN x, GEN y)
-{ rectmove0(ne,gtodouble(x),gtodouble(y),1); }
+plotrmove(long ne, GEN x, GEN y)
+{ plotmove0(ne,gtodouble(x),gtodouble(y),1); }
 
 /* ROt_MV/ROt_PT */
 static void
-rectpoint0(long ne, double x, double y,long relative)
+plotpoint0(long ne, double x, double y,long relative)
 {
   PariRect *e = check_rect_init(ne);
   RectObj *z = (RectObj*) pari_malloc(sizeof(RectObj1P));
@@ -262,19 +262,19 @@ rectpoint0(long ne, double x, double y,long relative)
   RoCol(z) = current_color[ne];
 }
 static void
-rectpoint(long ne, GEN x, GEN y)
-{ rectpoint0(ne,gtodouble(x),gtodouble(y),0); }
+plotpoint(long ne, GEN x, GEN y)
+{ plotpoint0(ne,gtodouble(x),gtodouble(y),0); }
 void
-rectrpoint(long ne, GEN x, GEN y)
-{ rectpoint0(ne,gtodouble(x),gtodouble(y),1); }
+plotrpoint(long ne, GEN x, GEN y)
+{ plotpoint0(ne,gtodouble(x),gtodouble(y),1); }
 
 void
-rectcolor(long ne, long c)
+plotcolor(long ne, long c)
 {
   long n = lg(GP_DATA->colormap)-2;
   check_rect(ne);
-  if (c < 1) pari_err_DOMAIN("rectcolor", "color", "<", gen_1, stoi(c));
-  if (c > n) pari_err_DOMAIN("rectcolor", "color", ">", stoi(n), stoi(c));
+  if (c < 1) pari_err_DOMAIN("plotcolor", "color", "<", gen_1, stoi(c));
+  if (c > n) pari_err_DOMAIN("plotcolor", "color", ">", stoi(n), stoi(c));
   current_color[ne] = c;
 }
 
@@ -323,10 +323,10 @@ rectline0(long ne, double gx2, double gy2, long relative)
   RoCol(z) = current_color[ne];
 }
 void
-rectline(long ne, GEN gx2, GEN gy2)
+plotline(long ne, GEN gx2, GEN gy2)
 { rectline0(ne, gtodouble(gx2), gtodouble(gy2),0); }
 void
-rectrline(long ne, GEN gx2, GEN gy2)
+plotrline(long ne, GEN gx2, GEN gy2)
 { rectline0(ne, gtodouble(gx2), gtodouble(gy2),1); }
 
 enum {
@@ -462,10 +462,10 @@ rectbox0(long ne, double gx2, double gy2, long relative)
   RoCol(z) = current_color[ne];
 }
 void
-rectbox(long ne, GEN gx2, GEN gy2)
+plotbox(long ne, GEN gx2, GEN gy2)
 { rectbox0(ne, gtodouble(gx2), gtodouble(gy2), 0); }
 void
-rectrbox(long ne, GEN gx2, GEN gy2)
+plotrbox(long ne, GEN gx2, GEN gy2)
 { rectbox0(ne, gtodouble(gx2), gtodouble(gy2), 1); }
 
 static void
@@ -481,7 +481,7 @@ freeobj(RectObj *z) {
 }
 
 void
-killrect(long ne)
+plotkill(long ne)
 {
   RectObj *z, *t;
   PariRect *e = check_rect_init(ne);
@@ -498,7 +498,7 @@ killrect(long ne)
 
 /* ROt_MP */
 static void
-rectpoints0(long ne, double *X, double *Y, long lx)
+plotpoints0(long ne, double *X, double *Y, long lx)
 {
   double *px, *py;
   long i, cp=0;
@@ -522,14 +522,14 @@ rectpoints0(long ne, double *X, double *Y, long lx)
   RoCol(z) = current_color[ne];
 }
 void
-rectpoints(long ne, GEN X, GEN Y)
+plotpoints(long ne, GEN X, GEN Y)
 {
   pari_sp av = avma;
   double *px, *py;
   long i, lx;
 
-  if (!is_vec_t(typ(X)) || !is_vec_t(typ(Y))) { rectpoint(ne, X, Y); return; }
-  lx = lg(X); if (lg(Y) != lx) pari_err_DIM("rectpoints");
+  if (!is_vec_t(typ(X)) || !is_vec_t(typ(Y))) { plotpoint(ne, X, Y); return; }
+  lx = lg(X); if (lg(Y) != lx) pari_err_DIM("plotpoints");
   lx--; if (!lx) return;
 
   px = (double*)stack_malloc_align(lx*sizeof(double), sizeof(double)); X++;
@@ -539,7 +539,7 @@ rectpoints(long ne, GEN X, GEN Y)
     px[i] = gtodouble(gel(X,i));
     py[i] = gtodouble(gel(Y,i));
   }
-  rectpoints0(ne,px,py,lx); avma = av;
+  plotpoints0(ne,px,py,lx); avma = av;
 }
 
 /* ROt_ML */
@@ -572,14 +572,14 @@ rectlines0(long ne, double *x, double *y, long lx, long flag)
   RoCol(z) = current_color[ne];
 }
 void
-rectlines(long ne, GEN X, GEN Y, long flag)
+plotlines(long ne, GEN X, GEN Y, long flag)
 {
   pari_sp av = avma;
   double *x, *y;
   long i, lx;
 
-  if (!is_vec_t(typ(X)) || !is_vec_t(typ(Y))) { rectline(ne, X, Y); return; }
-  lx = lg(X); if (lg(Y) != lx) pari_err_DIM("rectlines");
+  if (!is_vec_t(typ(X)) || !is_vec_t(typ(Y))) { plotline(ne, X, Y); return; }
+  lx = lg(X); if (lg(Y) != lx) pari_err_DIM("plotlines");
   lx--; if (!lx) return;
 
   x = (double*)stack_malloc_align(lx*sizeof(double), sizeof(double)); X++;
@@ -594,7 +594,7 @@ rectlines(long ne, GEN X, GEN Y, long flag)
 
 /* ROt_ST */
 void
-rectstring(long ne, char *str, long dir)
+plotstring(long ne, char *str, long dir)
 {
   PariRect *e = check_rect_init(ne);
   RectObj *z = (RectObj*) pari_malloc(sizeof(RectObjST));
@@ -614,9 +614,9 @@ rectstring(long ne, char *str, long dir)
 
 /* ROt_PTT */
 void
-rectpointtype(long ne, long type)
+plotpointtype(long ne, long type)
 {
- if (ne == -1) rectpoint_itype = type;
+ if (ne == -1) plotpoint_itype = type;
  else {
    PariRect *e = check_rect_init(ne);
    RectObj *z = (RectObj*) pari_malloc(sizeof(RectObjPN));
@@ -629,7 +629,7 @@ rectpointtype(long ne, long type)
 /* ROt_PTS. FIXME: this function is a noop, since no graphic driver implement
  * this code. ne == -1 (change globally). */
 void
-rectpointsize(long ne, GEN size)
+plotpointsize(long ne, GEN size)
 {
  if (ne == -1) { /*do nothing*/ }
  else {
@@ -642,7 +642,7 @@ rectpointsize(long ne, GEN size)
 }
 
 void
-rectlinetype(long ne, long type)
+plotlinetype(long ne, long type)
 {
  if (ne == -1) rectline_itype = type;
  else {
@@ -658,7 +658,7 @@ static void*
 cp(void* R, size_t t)
 { void *o = pari_malloc(t); memcpy(o,R,t); return o; }
 void
-rectcopy(long source, long dest, GEN xoff, GEN yoff, long flag)
+plotcopy(long source, long dest, GEN xoff, GEN yoff, long flag)
 {
   PariRect *s = check_rect_init(source), *d = check_rect_init(dest);
   RectObj *R, *tail = RTail(d);
@@ -797,7 +797,7 @@ clipline(double xmin, double xmax, double ymin, double ymax,
 }
 
 void
-rectclip(long rect)
+plotclip(long rect)
 {
   PariRect *s = check_rect_init(rect);
   RectObj *next, *R = RHead(s), **prevp = &RHead(s);
@@ -1006,7 +1006,7 @@ get_xy_from_vec2(long cplx, GEN X, GEN Y, long i, double *x, double *y)
   }
 }
 
-/* Convert data from GEN to double before we call rectplothrawin. */
+/* Convert data from GEN to double before we call plotrecthrawin. */
 static dblPointList*
 gtodblList(GEN data, long flags)
 {
@@ -1150,7 +1150,7 @@ param_recursion(long cplx, dblPointList *pl,GEN code,GEN tleft,double xleft,
  * t_VEC of two t_POLs from rectsplines. Returns a dblPointList of
  * (absolute) coordinates. */
 static dblPointList *
-rectplothin(GEN a, GEN b, GEN code, long prec, ulong flags, long N)
+plotrecthin(GEN a, GEN b, GEN code, long prec, ulong flags, long N)
 {
   const double INF = 1.0/0.0;
   const long param = flags & (PLOT_PARAMETRIC|PLOT_COMPLEX);
@@ -1278,7 +1278,7 @@ rectplothin(GEN a, GEN b, GEN code, long prec, ulong flags, long N)
         }
         else
           nt = lg(t)-1;
-        if (nt != nl) pari_err_DIM("rectploth");
+        if (nt != nl) pari_err_DIM("plotrecth");
         k = 0; j = 1;
         while (j <= nl)
         {
@@ -1300,7 +1300,7 @@ rectplothin(GEN a, GEN b, GEN code, long prec, ulong flags, long N)
       for (i=0; i<N; i++, affrr(addrr(x,dx), x), avma = av2)
       {
         t = READ_EXPR(code,x);
-        if (typ(t) != t_VEC || lg(t) != nl) pari_err_DIM("rectploth");
+        if (typ(t) != t_VEC || lg(t) != nl) pari_err_DIM("plotrecth");
         pl[0].d[i] = gtodouble(x);
         for (j=1; j<nl; j++) Appendy(&pl[0],&pl[j], gtodouble(gel(t,j)));
       }
@@ -1344,7 +1344,7 @@ rectsplines(long ne, double *x, double *y, long lx, long flag)
       tas = xa;
     }
     /* Start with 3 points */
-    rectploth(ne, i==   0 ? gel(tas,0) : gel(tas,1),
+    plotrecth(ne, i==   0 ? gel(tas,0) : gel(tas,1),
                   i==lx-4 ? gel(tas,3) : gel(tas,2), pol3,
                   DEFAULTPREC, PLOT_RECURSIVE | PLOT_NO_RESCALE
                   | PLOT_NO_FRAME | PLOT_NO_AXE_Y | PLOT_NO_AXE_X | param, 2);
@@ -1358,8 +1358,8 @@ put_label(long ne, long x, long y, double d, long dir)
 {
   char c[16];
   sprintf(c,"%.5g", d);
-  rectmove0(ne,(double)x,(double)y,0);
-  rectstring(ne, c, dir);
+  plotmove0(ne,(double)x,(double)y,0);
+  plotstring(ne, c, dir);
 }
 static void
 set_range(double m, double M, double *sml, double *big)
@@ -1391,7 +1391,7 @@ set_range(double m, double M, double *sml, double *big)
  * screen (grect=-1) or to PS file (grect=-2), using two drawing rectangles:
  * one for labels, another for graphs.*/
 static GEN
-rectplothrawin(PARI_plot *W, long grect, dblPointList *data, long flags)
+plotrecthrawin(PARI_plot *W, long grect, dblPointList *data, long flags)
 {
   const long param = flags & (PLOT_PARAMETRIC|PLOT_COMPLEX);
   const long max_graphcolors = lg(GP_DATA->graphcolors)-1;
@@ -1428,7 +1428,7 @@ rectplothrawin(PARI_plot *W, long grect, dblPointList *data, long flags)
     put_label(srect, W->width-rm-1, W->height-bm, xbig, RoSTdirRIGHT|RoSTdirTOP);
   }
   if (!(flags & PLOT_NO_RESCALE))
-    rectscale0(grect, xsml, xbig, ysml, ybig);
+    plotscale0(grect, xsml, xbig, ysml, ybig);
 
   if (!(flags & PLOT_NO_FRAME))
   {
@@ -1436,9 +1436,9 @@ rectplothrawin(PARI_plot *W, long grect, dblPointList *data, long flags)
     PARI_plot T, *pl;
     if (W) pl = W; else { pl = &T; pari_get_plot(pl); }
 
-    rectlinetype(grect, -2); /* Frame. */
+    plotlinetype(grect, -2); /* Frame. */
     current_color[grect] = DEFAULT_COLOR;
-    rectmove0(grect,xsml,ysml,0);
+    plotmove0(grect,xsml,ysml,0);
     rectbox0(grect,xbig,ybig,0);
     if (!(flags & PLOT_NO_TICK_X)) {
       rectticks(pl, grect, xsml, ysml, xbig, ysml, xsml, xbig,
@@ -1456,17 +1456,17 @@ rectplothrawin(PARI_plot *W, long grect, dblPointList *data, long flags)
 
   if (!(flags & PLOT_NO_AXE_Y) && (xsml<=0 && xbig >=0))
   {
-    rectlinetype(grect, -1); /* Axes. */
+    plotlinetype(grect, -1); /* Axes. */
     current_color[grect] = AXIS_COLOR;
-    rectmove0(grect,0.0,ysml,0);
+    plotmove0(grect,0.0,ysml,0);
     rectline0(grect,0.0,ybig,0);
   }
 
   if (!(flags & PLOT_NO_AXE_X) && (ysml<=0 && ybig >=0))
   {
-    rectlinetype(grect, -1); /* Axes. */
+    plotlinetype(grect, -1); /* Axes. */
     current_color[grect] = AXIS_COLOR;
-    rectmove0(grect,xsml,0.0,0);
+    plotmove0(grect,xsml,0.0,0);
     rectline0(grect,xbig,0.0,0);
   }
 
@@ -1482,9 +1482,9 @@ rectplothrawin(PARI_plot *W, long grect, dblPointList *data, long flags)
 
     y = data[i++];
     if (flags & (PLOT_POINTS_LINES|PLOT_POINTS)) {
-      rectlinetype(grect, rectpoint_itype + ltype); /* Graphs */
-      rectpointtype(grect,rectpoint_itype + ltype); /* Graphs */
-      rectpoints0(grect, x.d, y.d, y.nb);
+      plotlinetype(grect, plotpoint_itype + ltype); /* Graphs */
+      plotpointtype(grect,plotpoint_itype + ltype); /* Graphs */
+      plotpoints0(grect, x.d, y.d, y.nb);
       if (!(flags & PLOT_POINTS_LINES)) continue;
     }
 
@@ -1495,7 +1495,7 @@ rectplothrawin(PARI_plot *W, long grect, dblPointList *data, long flags)
       rectsplines(grect, x.d, y.d, y.nb, flags);
       rectline_itype = old;
     } else {
-      rectlinetype(grect, rectline_itype + ltype); /* Graphs */
+      plotlinetype(grect, rectline_itype + ltype); /* Graphs */
       rectlines0(grect, x.d, y.d, y.nb, 0);
     }
   }
@@ -1505,8 +1505,8 @@ rectplothrawin(PARI_plot *W, long grect, dblPointList *data, long flags)
   if (W)
   {
     W->draw(W, w,wx,wy);
-    killrect(w[1]);
-    killrect(w[2]);
+    plotkill(w[1]);
+    plotkill(w[2]);
   }
   avma = av;
   retmkvec4(dbltor(xsml), dbltor(xbig), dbltor(ysml), dbltor(ybig));
@@ -1521,34 +1521,34 @@ rectplothrawin(PARI_plot *W, long grect, dblPointList *data, long flags)
  * Else write to 'ne' rectwindow.
  * Graph t_CLOSURE 'code', x=a..b, use n points */
 static GEN
-rectploth_i(PARI_plot *T, long ne, GEN a,GEN b,GEN code,
+plotrecth_i(PARI_plot *T, long ne, GEN a,GEN b,GEN code,
             long prec,ulong flags,long n)
 {
-  dblPointList *pl = rectplothin(a,b, code, prec, flags, n);
-  return rectplothrawin(T, ne, pl, flags);
+  dblPointList *pl = plotrecthin(a,b, code, prec, flags, n);
+  return plotrecthrawin(T, ne, pl, flags);
 }
 GEN
-rectploth(long ne, GEN a,GEN b,GEN code, long prec,ulong flags,long n)
-{ return rectploth_i(NULL, ne, a,b, code, prec, flags, n); }
+plotrecth(long ne, GEN a,GEN b,GEN code, long prec,ulong flags,long n)
+{ return plotrecth_i(NULL, ne, a,b, code, prec, flags, n); }
 GEN
 ploth(GEN a, GEN b, GEN code, long prec,long flags,long n)
 {
   PARI_plot T; pari_get_plot(&T);
-  return rectploth_i(&T, NUMRECT-1, a,b,code,prec,flags,n);
+  return plotrecth_i(&T, NUMRECT-1, a,b,code,prec,flags,n);
 }
 GEN
-postploth(GEN a, GEN b, GEN code, long prec,long flags, long n)
+psploth(GEN a, GEN b, GEN code, long prec,long flags, long n)
 {
   PARI_plot T; pari_get_psplot(&T,0);
-  return rectploth_i(&T, NUMRECT-1, a,b,code,prec, flags,n);
+  return plotrecth_i(&T, NUMRECT-1, a,b,code,prec, flags,n);
 }
 
 /* Draw list of points */
 static GEN
-rectplothraw_i(PARI_plot *T, long ne, GEN data, long flags)
+plotrecthraw_i(PARI_plot *T, long ne, GEN data, long flags)
 {
   dblPointList *pl = gtodblList(data,flags);
-  return rectplothrawin(T, ne, pl, flags);
+  return plotrecthrawin(T, ne, pl, flags);
 }
 static GEN
 plothraw_i(PARI_plot *T, GEN X, GEN Y, long flag)
@@ -1559,17 +1559,17 @@ plothraw_i(PARI_plot *T, GEN X, GEN Y, long flag)
     case 1: flag = PLOT_PARAMETRIC; break;
     default: flag |= PLOT_PARAMETRIC; break;
   }
-  return gerepileupto(av, rectplothraw_i(T, NUMRECT-1, mkvec2(X,Y), flag));
+  return gerepileupto(av, plotrecthraw_i(T, NUMRECT-1, mkvec2(X,Y), flag));
 }
 GEN
 plothraw(GEN X, GEN Y, long flags)
 { PARI_plot T; pari_get_plot(&T); return plothraw_i(&T, X, Y, flags); }
 GEN
-postplothraw(GEN X, GEN Y, long flags)
+psplothraw(GEN X, GEN Y, long flags)
 { PARI_plot T; pari_get_psplot(&T,0); return plothraw_i(&T, X, Y, flags); }
 GEN
-rectplothraw(long ne, GEN data, long flags)
-{ return rectplothraw_i(NULL, ne, data, flags); }
+plotrecthraw(long ne, GEN data, long flags)
+{ return plotrecthraw_i(NULL, ne, data, flags); }
 
 GEN
 plothsizes(long flag)
@@ -1595,7 +1595,7 @@ plothsizes(long flag)
 }
 
 GEN
-rectcount(GEN w)
+plotcount(GEN w)
 {
   GEN v = const_vecsmall(ROt_NULL, 0);
   RectObj *O;
@@ -1626,9 +1626,9 @@ gendraw(PARI_plot *T, GEN wxy, long flag)
   long i, n;
   GEN W, X, Y;
 
-  if (typ(wxy) != t_VEC) pari_err_TYPE("rectdraw",wxy);
+  if (typ(wxy) != t_VEC) pari_err_TYPE("plotdraw",wxy);
   n = lg(wxy)-1; if (!n) return;
-  if (n%3) pari_err_DIM("rectdraw");
+  if (n%3) pari_err_DIM("plotdraw");
   n = n/3;
   /* malloc mandatory in case T->draw forks then pari_close() */
   W = cgetalloc(t_VECSMALL, n+1); /* win number */
@@ -1637,7 +1637,7 @@ gendraw(PARI_plot *T, GEN wxy, long flag)
   for (i=1; i<=n; i++)
   {
     GEN w = gel(wxy,3*i-2), x = gel(wxy,3*i-1), y = gel(wxy,3*i);
-    if (typ(w)!=t_INT) pari_err_TYPE("rectdraw",w);
+    if (typ(w)!=t_INT) pari_err_TYPE("plotdraw",w);
     if (flag) {
       X[i] = DTOL(gtodouble(x)*(T->width - 1));
       Y[i] = DTOL(gtodouble(y)*(T->height - 1));
@@ -1654,10 +1654,10 @@ gendraw(PARI_plot *T, GEN wxy, long flag)
 
 }
 void
-postdraw(GEN wxy, long flag)
+psdraw(GEN wxy, long flag)
 { PARI_plot T; pari_get_psplot(&T,flag); gendraw(&T, wxy, flag); }
 void
-rectdraw(GEN wxy, long flag)
+plotdraw(GEN wxy, long flag)
 { PARI_plot T; pari_get_plot(&T); gendraw(&T, wxy, flag); }
 
 void

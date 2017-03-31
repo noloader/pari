@@ -1,6 +1,6 @@
 Function: plotcopy
 Section: graphic
-C-Name: rectcopy
+C-Name: plotcopy
 Prototype: vLLGGD0,L,
 Help: plotcopy(sourcew,destw,dx,dy,{flag=0}): copy the contents of
  rectwindow sourcew to rectwindow destw with offset (dx,dy). If flag's bit 1

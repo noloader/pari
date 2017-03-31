@@ -1,6 +1,6 @@
 Function: plotkill
 Section: graphic
-C-Name: killrect
+C-Name: plotkill
 Prototype: vL
 Help: plotkill(w): erase the rectwindow w.
 Doc: erase rectwindow $w$ and free the corresponding memory. Note that if you

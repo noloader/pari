@@ -1,6 +1,6 @@
 Function: plotrecthraw
 Section: graphic
-C-Name: rectplothraw
+C-Name: plotrecthraw
 Prototype: LGD0,L,
 Help: plotrecthraw(w,data,{flags=0}): plot graph(s) for data in rectwindow
  w, where data is a vector of vectors. If plot is parametric, length of data

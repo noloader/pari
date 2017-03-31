@@ -1,6 +1,6 @@
 Function: plotcolor
 Section: graphic
-C-Name: rectcolor
+C-Name: plotcolor
 Prototype: vLL
 Help: plotcolor(w,c): in rectwindow w, set default color to c. Possible
  values for c are given by the graphcolormap default: factory settings

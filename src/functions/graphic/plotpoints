@@ -1,6 +1,6 @@
 Function: plotpoints
 Section: graphic
-C-Name: rectpoints
+C-Name: plotpoints
 Prototype: vLGG
 Help: plotpoints(w,X,Y): draws in rectwindow w the points whose x
  (resp y) coordinates are in X (resp Y). If X and Y are both

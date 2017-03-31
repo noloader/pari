@@ -1,6 +1,6 @@
 Function: plotrline
 Section: graphic
-C-Name: rectrline
+C-Name: plotrline
 Prototype: vLGG
 Help: plotrline(w,dx,dy): if the cursor is at (x1,y1), draw a line from
  (x1,y1) to (x1+dx,y1+dy) (and move the cursor) in the rectwindow w.

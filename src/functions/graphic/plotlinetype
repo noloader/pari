@@ -1,6 +1,6 @@
 Function: plotlinetype
 Section: graphic
-C-Name: rectlinetype
+C-Name: plotlinetype
 Prototype: vLL
 Obsolete: 2007-05-11
 Help: plotlinetype(w,type): this function is obsolete; no graphing engine

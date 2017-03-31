@@ -1,6 +1,6 @@
 Function: plotpointsize
 Section: graphic
-C-Name: rectpointsize
+C-Name: plotpointsize
 Prototype: vLG
 Obsolete: 2007-05-11
 Help: plotpointsize(w,size): change the "size" of following points in

@@ -1,6 +1,6 @@
 Function: plotcursor
 Section: graphic
-C-Name: rectcursor
+C-Name: plotcursor
 Prototype: L
 Help: plotcursor(w): current position of cursor in rectwindow w.
 Doc: give as a 2-component vector the current

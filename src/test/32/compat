@@ -4255,25 +4255,9 @@ express fractions of the size of the current output device.
   ***   at top-level: initrect()
   ***                 ^----------
   ***   not a function in function call
-A function with that name existed in GP-1.39.15. Please update your script.
-
-New syntax: initrect(w,x,y) ===> plotinit(w,x,y)
-
-plotinit(w,{x},{y},{flag=0}): initialize rectwindow w to size x,y. If flag!=0, 
-x and y express fractions of the size of the current output device. Omitting x 
-or y means use the full size of the device.
-
-
   ***   at top-level: killrect()
   ***                 ^----------
   ***   not a function in function call
-A function with that name existed in GP-1.39.15. Please update your script.
-
-New syntax: killrect(w) ===> plotkill(w)
-
-plotkill(w): erase the rectwindow w.
-
-
   ***   at top-level: line()
   ***                 ^------
   ***   not a function in function call
@@ -4373,27 +4357,9 @@ vectors), draw the corresponding point (and move cursor).
   ***   at top-level: postdraw()
   ***                 ^----------
   ***   not a function in function call
-A function with that name existed in GP-1.39.15. Please update your script.
-
-New syntax: postdraw(list) ===> psdraw(list)
-
-psdraw(list, {flag=0}): same as plotdraw, except that the output is a 
-PostScript program in psfile (pari.ps by default), and flag!=0 scales the plot 
-from size of the current output device to the standard PostScript plotting 
-size.
-
-
   ***   at top-level: postploth()
   ***                 ^-----------
   ***   not a function in function call
-A function with that name existed in GP-1.39.15. Please update your script.
-
-New syntax: postploth(X=a,b,expr) ===> psploth(X=a,b,expr)
-
-psploth(X=a,b,expr,{flags=0},{n=0}): same as ploth, except that the output is a 
-PostScript program in psfile (pari.ps by default).
-
-
   ***   at top-level: postploth2()
   ***                 ^------------
   ***   not a function in function call
@@ -4408,14 +4374,6 @@ PostScript program in psfile (pari.ps by default).
   ***   at top-level: postplothraw()
   ***                 ^--------------
   ***   not a function in function call
-A function with that name existed in GP-1.39.15. Please update your script.
-
-New syntax: postplothraw(listx,listy) ===> psplothraw(listx,listy)
-
-psplothraw(listx,listy,{flag=0}): same as plothraw, except that the output is a 
-postscript program in psfile (pari.ps by default).
-
-
   ***   at top-level: pprint()
   ***                 ^--------
   ***   not a function in function call
@@ -4565,4 +4523,4 @@ New syntax: texprint(x) ===> printtex(x)
 printtex({str}*): outputs its string arguments in TeX format.
 
 
-Total time spent: 4
+Total time spent: 12

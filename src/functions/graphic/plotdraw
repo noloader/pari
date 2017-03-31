@@ -1,6 +1,6 @@
 Function: plotdraw
 Section: graphic
-C-Name: rectdraw
+C-Name: plotdraw
 Prototype: vGD0,L,
 Help: plotdraw(list, {flag=0}): draw vector of rectwindows list at indicated
  x,y positions; list is a vector w1,x1,y1,w2,x2,y2,etc. If flag!=0, x1, y1
