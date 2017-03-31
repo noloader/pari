@@ -276,7 +276,7 @@ plotcolor(long ne, long c)
 static void
 rectline0(long ne, double gx2, double gy2, long relative)
 {
-  double dx,dy,dxy,xmin,xmax,ymin,ymax,x1,y1,x2,y2;
+  double dx, dy, dxy, xmin, xmax, ymin, ymax, x1, y1, x2, y2;
   PariRect *e = check_rect_init(ne);
   RectObj *z = (RectObj*) pari_malloc(sizeof(RectObj2P));
   const double c = 1 + 1e-10;
@@ -295,7 +295,7 @@ rectline0(long ne, double gx2, double gy2, long relative)
   if (dy)
   {
     double a = (dxy + RYsize(e)*dx) / dy, b = dxy / dy;
-    if (dx*dy<0)
+    if (dx*dy < 0)
     { xmin=maxdd(xmin,a); xmax=mindd(xmax,b); }
     else
     { xmin=maxdd(xmin,b); xmax=mindd(xmax,a); }
@@ -303,14 +303,14 @@ rectline0(long ne, double gx2, double gy2, long relative)
   if (dx)
   {
     double a = (RXsize(e)*dy - dxy) / dx, b = -dxy / dx;
-    if (dx*dy<0)
+    if (dx*dy < 0)
     { ymin=maxdd(ymin,a); ymax=mindd(ymax,b); }
     else
     { ymin=maxdd(ymin,b); ymax=mindd(ymax,a); }
   }
   RoLNx1(z) = xmin;
   RoLNx2(z) = xmax;
-  if (dx*dy<0) { RoLNy1(z) = ymax; RoLNy2(z) = ymin; }
+  if (dx*dy < 0) { RoLNy1(z) = ymax; RoLNy2(z) = ymin; }
   else         { RoLNy1(z) = ymin; RoLNy2(z) = ymax; }
   RoType(z) = (xmin>xmax*c || ymin>ymax*c) ? ROt_MV : ROt_LN;
   Rchain(e, z);
@@ -333,13 +333,11 @@ enum {
 /* Given coordinates of ends of a line, and labels l1 l2 attached to the
  * ends, plot ticks where the label coordinate takes "round" values */
 static void
-rectticks(PARI_plot *WW, long ne,
-          double dx1, double dy1, double dx2, double dy2,
-          double l1, double l2, long flags)
+rectticks(PARI_plot *WW, long ne, double dx1, double dy1, double dx2,
+          double dy2, double l1, double l2, long flags)
 {
-  long dx,dy,dxy,dxy1,x1,y1,x2,y2,nticks,n,n1,dn;
+  long ddx, ddy, dx, dy, dxy, dxy1, x1, y1, x2, y2, nticks, n, n1, dn;
   double minstep, maxstep, step, l_min, l_max, minl, maxl, dl, dtx, dty, x, y;
-  double ddx, ddy;
   const double mult[3] = { 2./1., 5./2., 10./5. };
   PariRect *e = check_rect_init(ne);
   int do_double = !(flags & TICKS_NODOUBLE);
@@ -433,8 +431,7 @@ rectticks(PARI_plot *WW, long ne,
 static void
 rectbox0(long ne, double gx2, double gy2, long relative)
 {
-  double x1,y1,x2,y2,xmin,ymin,xmax,ymax;
-  double xx,yy;
+  double xx, yy, x1, y1, x2, y2, xmin, ymin, xmax, ymax;
   PariRect *e = check_rect_init(ne);
   RectObj *z = (RectObj*) pari_malloc(sizeof(RectObj2P));
 
