@@ -525,14 +525,11 @@ void
 rectpoints(long ne, GEN X, GEN Y)
 {
   pari_sp av = avma;
-  long i,lx, tx = typ(X), ty = typ(Y);
   double *px, *py;
+  long i, lx;
 
-  if (!is_matvec_t(tx) || !is_matvec_t(ty)) { rectpoint(ne, X, Y); return; }
-  lx = lg(X);
-  if (tx == t_MAT) pari_err_TYPE("rectpoints",X);
-  if (ty == t_MAT) pari_err_TYPE("rectpoints",Y);
-  if (lg(Y) != lx) pari_err_DIM("rectpoints");
+  if (!is_vec_t(typ(X)) || !is_vec_t(typ(Y))) { rectpoint(ne, X, Y); return; }
+  lx = lg(X); if (lg(Y) != lx) pari_err_DIM("rectpoints");
   lx--; if (!lx) return;
 
   px = (double*)stack_malloc_align(lx*sizeof(double), sizeof(double)); X++;
@@ -542,8 +539,7 @@ rectpoints(long ne, GEN X, GEN Y)
     px[i] = gtodouble(gel(X,i));
     py[i] = gtodouble(gel(Y,i));
   }
-  rectpoints0(ne,px,py,lx);
-  avma = av;
+  rectpoints0(ne,px,py,lx); avma = av;
 }
 
 /* ROt_ML */
@@ -575,31 +571,25 @@ rectlines0(long ne, double *x, double *y, long lx, long flag)
   RoMLys(z) = pty;
   RoCol(z) = current_color[ne];
 }
-
 void
-rectlines(long ne, GEN listx, GEN listy, long flag)
+rectlines(long ne, GEN X, GEN Y, long flag)
 {
-  long tx=typ(listx), ty=typ(listy), lx=lg(listx), i;
+  pari_sp av = avma;
   double *x, *y;
+  long i, lx;
 
-  if (!is_matvec_t(tx) || !is_matvec_t(ty))
-  {
-    rectline(ne, listx, listy); return;
-  }
-  if (tx == t_MAT) pari_err_TYPE("rectlines",listx);
-  if (ty == t_MAT) pari_err_TYPE("rectlines",listy);
-  if (lg(listy) != lx) pari_err_DIM("rectlines");
+  if (!is_vec_t(typ(X)) || !is_vec_t(typ(Y))) { rectline(ne, X, Y); return; }
+  lx = lg(X); if (lg(Y) != lx) pari_err_DIM("rectlines");
   lx--; if (!lx) return;
 
-  x = (double*) pari_malloc(lx*sizeof(double));
-  y = (double*) pari_malloc(lx*sizeof(double));
+  x = (double*)stack_malloc_align(lx*sizeof(double), sizeof(double)); X++;
+  y = (double*)stack_malloc_align(lx*sizeof(double), sizeof(double)); Y++;
   for (i=0; i<lx; i++)
   {
-    x[i] = gtodouble(gel(listx,i+1));
-    y[i] = gtodouble(gel(listy,i+1));
+    x[i] = gtodouble(gel(X,i));
+    y[i] = gtodouble(gel(Y,i));
   }
-  rectlines0(ne,x,y,lx,flag);
-  pari_free(x); pari_free(y);
+  rectlines0(ne,x,y,lx,flag); avma = av;
 }
 
 static void
