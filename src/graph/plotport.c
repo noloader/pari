@@ -1543,7 +1543,7 @@ GEN
 ploth0(GEN a, GEN b, GEN code, long flags,long n, long prec)
 { EXPR_WRAP(code, ploth(EXPR_ARG, a,b,flags,n, prec)); }
 GEN
-psploth(void *E, GEN(f)(void*,GEN), GEN a, GEN b, long flags, long n, long prec)
+psploth(void *E, GEN(*f)(void*,GEN), GEN a,GEN b, long flags, long n, long prec)
 {
   PARI_plot T; pari_get_psplot(&T,0);
   return plotrecth_i(E,f, &T, NUMRECT-1, a,b, flags,n, prec);
@@ -1603,26 +1603,6 @@ plothsizes(long flag)
   return vect;
 }
 
-GEN
-plotcount(GEN w)
-{
-  GEN v = const_vecsmall(ROt_NULL, 0);
-  RectObj *O;
-  long i, l = lg(w);
-  for (i = 1; i < l; i++)
-  {
-    PariRect *e = &rectgraph[w[i]];
-    for (O = RHead(e); O; O=RoNext(O))
-      switch(RoType(O))
-      {
-        case ROt_MP:
-          v[ROt_PT] += RoMPcnt(O); break;
-        case ROt_PT: case ROt_LN: case ROt_BX: case ROt_ML: case ROt_ST:
-          v[RoType(O)]++; break;
-      }
-  }
-  return v;
-}
 /*************************************************************************/
 /*                                                                       */
 /*                         POSTSCRIPT OUTPUT                             */
@@ -2734,7 +2714,7 @@ COL(NULL,0) /* sentinel */
 };
 #undef COL
 
-static void
+void
 colorname_to_rgb(const char *s, int *r, int *g, int *b)
 {
   hashentry *ep;

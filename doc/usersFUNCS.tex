@@ -1769,9 +1769,7 @@ See also the discrete summation methods below, sharing the prefix \kbd{sum}.
 \section{Plotting functions}
 
   Although plotting is not even a side purpose of PARI, a number of plotting
-functions are provided. Moreover, a lot of people suggested ideas or
-submitted patches for this section of the code. There are three types of
-graphic functions.
+functions are provided. There are three types of graphic functions.
 
 \subsec{High-level plotting functions} (all the functions starting with
 \kbd{ploth}) in which the user has little to do but explain what type of plot
@@ -1813,15 +1811,17 @@ function is not called, the scaling is simply the number of pixels, the
 origin being at the upper left and the $y$-coordinates going downwards.
 
    Plotting functions are platform independent, but a number of graphical
-drivers are available for screen output: X11-windows (hence also for GUI's
-based on X11 such as Openwindows and Motif), and the Qt and FLTK graphical
-libraries. The physical window opened by \kbd{plotdraw} or any of the
-\kbd{ploth*} functions is completely separated from \kbd{gp} (technically, a
-\kbd{fork} is done, and the non-graphical memory is immediately freed in the
-child process), which means you can go on working in the current \kbd{gp}
-session, without having to kill the window first. This window can be closed,
-enlarged or reduced using the standard window manager functions. No zooming
-procedure is implemented though (yet).
+drivers are available for screen output: X11-windows (including
+Openwindows and Motif), Windows's Graphical Device Interface, the Qt and
+FLTK graphical libraries and one may even write the graphical objects to a
+PostScript or SVG file and use an external viewer to open it. The physical
+window opened by \kbd{plotdraw} or any of the \kbd{ploth*} functions is
+completely separated from \kbd{gp} (technically, a \kbd{fork} is done, and
+the non-graphical memory is immediately freed in the child process), which
+means you can go on working in the current \kbd{gp} session, without having
+to kill the window first. This window can be closed, enlarged or reduced
+using the standard window manager functions. No zooming procedure is
+implemented though.
 
 \subsec{Functions for PostScript output} in the same way that \kbd{printtex} allows you to have a \TeX\ output
 corresponding to printed results, the functions starting with \kbd{ps} allow
@@ -1834,14 +1834,6 @@ time a new PostScript output is asked for, the PostScript output is appended
 to that file. Hence you probably want to remove this file, or change the
 value of \kbd{psfile}, in between plots. On the other hand, in this manner,
 as many plots as desired can be kept in a single file. \smallskip
-
-\subsec{Library mode} \emph{None of the graphic functions are available
-within the PARI library, you must be under \kbd{gp} to use them}. The reason
-for that is that you really should not use PARI for heavy-duty graphical work,
-there are better specialized alternatives around. This whole set of routines
-was only meant as a convenient, but simple-minded, visual aid. If you really
-insist on using these in your program (we warned you), the source
-(\kbd{plot*.c}) should be readable enough for you to achieve something.
 
 %SECTION: graphic
 

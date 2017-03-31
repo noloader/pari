@@ -142,3 +142,125 @@ structure from \kbd{msinit}.
 \var{mspadic} structure from \kbd{mspadicinit}.
 
 \newpage
+
+\chapter{Plots}
+
+A \tet{PARI_plot} canvas is a record of dimensions, with the following fields:
+\bprog
+  long width;  /* window width */
+  long height; /* window height */
+  long hunit;  /* length of horizontal 'ticks' */
+  long vunit;  /* length of vertical 'ticks' */
+  long fwidth; /* font width */
+  long fheight;/* font height */
+  void (*draw)(PARI_plot *T, GEN w, GEN x, GEN y);
+@eprog\noindent The \kbd{draw} method performs the actual drawing of
+a \typ{VECSMALL} w (rectwindow indices); $x$ and $y$ are \typ{VECSMALL}s
+of the same length and rectwindow $w[i]$ is drawn with its upper left
+corner at offset $(x[i],y[i])$. No plot engine is available in \kbd{libpari}
+by default, since thie would introduce a dependency on extra graphical
+libraries. See the files \kbd{src/graph/plot*} for basic implementations of
+various plot engines: \kbd{plotsvg} is particularly simple (\kbd{draw} is a
+1-liner).
+
+\fun{void}{pari_set_plot_engine}{void (*T)(PARI_plot *)} installs the
+graphical engine $T$ and initializes the graphical subsystem. No routine in
+this chapter will work without this initialization.
+
+\fun{void}{pari_kill_plot_engine}{void} closes the graphical subsystem and
+frees the ressources it occupies.
+
+\subsec{Highlevel function}
+Those functions plot $f(E,x)$ for $x\in [a,b]$, using $n$ regularly spaced
+points (by default).
+
+\fun{GEN}{ploth}{void *E, GEN(*f)(void*,GEN), GEN a, GEN b, long flags,long
+n, long prec} draw physically.
+
+\fun{GEN}{plotrecth}{void *E, GEN(*f)(void*,GEN), long w, GEN a,GEN b, ulong
+flags,long n, long prec} draw in rectwindow $w$.
+
+\fun{GEN}{psploth}{void *E, GEN(*f)(void*,GEN), GEN a, GEN b, long flags,
+long n, long prec} draw to a PostScript file.
+
+\subsec{Function }
+
+\fun{void}{plotbox}{long ne, GEN gx2, GEN gy2}
+
+\fun{void}{plotclip}{long rect}
+
+\fun{void}{plotcolor}{long ne, long color}
+
+\fun{void}{plotcopy}{long source, long dest, GEN xoff, GEN yoff, long flag}
+
+\fun{GEN}{plotcursor}{long ne}
+
+\fun{void}{plotdraw}{GEN list, long flag}
+
+\fun{GEN}{plothraw}{GEN listx, GEN listy, long flag}
+
+\fun{GEN}{plothsizes}{long flag}
+
+\fun{void}{plotinit}{long ne, GEN x, GEN y, long flag}
+
+\fun{void}{plotkill}{long ne}
+
+\fun{void}{plotline}{long ne, GEN x2, GEN y2}
+
+\fun{void}{plotlines}{long ne, GEN listx, GEN listy, long flag}
+
+\fun{void}{plotlinetype}{long ne, long t}
+
+\fun{void}{plotmove}{long ne, GEN x, GEN y}
+
+\fun{void}{plotpoints}{long ne, GEN listx, GEN listy}
+
+\fun{void}{plotpointsize}{long ne, GEN size}
+
+\fun{void}{plotpointtype}{long ne, long t}
+
+\fun{void}{plotrbox}{long ne, GEN x2, GEN y2}
+
+\fun{GEN}{plotrecthraw}{long ne, GEN data, long flags}
+
+\fun{void}{plotrline}{long ne, GEN x2, GEN y2}
+
+\fun{void}{plotrmove}{long ne, GEN x, GEN y}
+
+\fun{void}{plotrpoint}{long ne, GEN x, GEN y}
+
+\fun{void}{plotscale}{long ne, GEN x1, GEN x2, GEN y1, GEN y2}
+
+\fun{void}{plotstring}{long ne, char *x, long dir}
+
+\fun{void}{psdraw}{GEN list, long flag}
+
+\fun{GEN}{psplothraw}{GEN listx, GEN listy, long flag}
+
+\subsec{Dump rectwindows to a PostScript or SVG file}
+
+$w,x,y$ are three \typ{VECSMALL}s indicating the rectwindows to dump, at
+which offsets. If $T$ is \kbd{NULL}, rescale with respect to the installed
+graphic engine dimensions; else with respect to $T$.
+
+\fun{char*}{rect2ps}{GEN w, GEN x, GEN y, PARI_plot *T}
+
+\fun{char*}{rect2ps_i}{GEN w, GEN x, GEN y, PARI_plot *T, int plotps}
+if \kbd{plotps} is $0$, as above; else private version used to implement
+the \kbd{plotps} graphic engine (do not rescale, rotate to portrait
+orientation).
+
+\fun{char*}{rect2svg}{GEN w, GEN x, GEN y, PARI_plot *T}
+
+\subsec{Technical functions exported for convenience}
+
+\fun{void}{pari_plot_by_file}{const char *env, const char *suf, const char *img}
+backend used by the \kbd{plotps} and \kbd{plotsvg} graphic engines.
+
+\fun{void}{colorname_to_rgb}{const char *s, int *r, int *g, int *b} convert
+an \kbd{X11} colorname to RGB values.
+
+\fun{void}{color_to_rgb}{GEN c, int *r, int *g, int *b} convert a pari color
+(\typ{VECSMALL} RGB triple or \typ{STR} name) ro RGV values.
+
+\newpage
