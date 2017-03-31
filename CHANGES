@@ -74,6 +74,8 @@ PB   60- galoissubcyclo(1,1,fl) ignored fl [#1914]
      61- PostScript plot: fix font scaling
 EB   62- GP was incorrectly issuing fflush(NULL) [#1913]
      63- issquare(Mod(1,67)*x^4+Mod(14,67)*x^2+Mod(49,67)) -> SEGV [#1915]
+     64- polroots(t_POL whose coeffs vary by a factor > 2^100000) -> SEGV
+         (or stack overflow)
 
   Added
       1- [libari] ZM_isidentity

@@ -20,7 +20,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #include "pari.h"
 #include "paripriv.h"
 
-static const double pariINFINITY = 100000.;
+static const double pariINFINITY = 1./0.;
 
 static long
 isvalidcoeff(GEN x)
