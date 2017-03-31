@@ -270,18 +270,12 @@ rectpoint0(long ne, double x, double y,long relative)
   Rchain(e, z);
   RoCol(z) = current_color[ne];
 }
-
-void
+static void
 rectpoint(long ne, GEN x, GEN y)
-{
-  rectpoint0(ne,gtodouble(x),gtodouble(y),0);
-}
-
+{ rectpoint0(ne,gtodouble(x),gtodouble(y),0); }
 void
 rectrpoint(long ne, GEN x, GEN y)
-{
-  rectpoint0(ne,gtodouble(x),gtodouble(y),1);
-}
+{ rectpoint0(ne,gtodouble(x),gtodouble(y),1); }
 
 void
 rectcolor(long ne, long c)

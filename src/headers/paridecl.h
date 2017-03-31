@@ -4008,7 +4008,6 @@ void    rectlinetype(long ne, long t);
 void    rectmove(long ne, GEN x, GEN y);
 GEN     rectploth(long ne,GEN a,GEN b,GEN code,long prec,ulong flags,long n);
 GEN     rectplothraw(long ne, GEN data, long flags);
-void    rectpoint(long ne, GEN x, GEN y);
 void    rectpoints(long ne, GEN listx, GEN listy);
 void    rectpointtype(long ne, long t);
 void    rectpointsize(long ne, GEN size);
