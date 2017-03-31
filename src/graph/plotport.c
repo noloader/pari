@@ -592,15 +592,6 @@ rectlines(long ne, GEN X, GEN Y, long flag)
   rectlines0(ne,x,y,lx,flag); avma = av;
 }
 
-static void
-put_label(long ne, long x, long y, double d, long dir)
-{
-  char c[16];
-  sprintf(c,"%.5g", d);
-  rectmove0(ne,(double)x,(double)y,0);
-  rectstring(ne, c, dir);
-}
-
 /* ROt_ST */
 void
 rectstring(long ne, char *str, long dir)
@@ -636,7 +627,7 @@ rectpointtype(long ne, long type)
 }
 
 /* ROt_PTS. FIXME: this function is a noop, since no graphic driver implement
- * this code. ne==-1 is a legacy, meaningless value. */
+ * this code. ne == -1 (change globally). */
 void
 rectpointsize(long ne, GEN size)
 {
@@ -653,12 +644,10 @@ rectpointsize(long ne, GEN size)
 void
 rectlinetype(long ne, long type)
 {
- if (ne == -1) {
-   rectline_itype = type;
- } else {
+ if (ne == -1) rectline_itype = type;
+ else {
    PariRect *e = check_rect_init(ne);
    RectObj *z = (RectObj*) pari_malloc(sizeof(RectObjPN));
-
    RoType(z) = ROt_LNT;
    RoLNTpen(z) = type;
    Rchain(e, z);
@@ -905,27 +894,24 @@ rectclip(long rect)
           RoMLcnt(R) = t;
           if (rc & CLIPLINE_CLIP_2) { /* Needs separate entry */
             RectObj *n = (RectObj*) pari_malloc(sizeof(RectObj2P));
-
             RoType(n) = ROt_LN;
             RoCol(n) = RoCol(R);
-            RoLNx1(n) = RoMLxs(R)[f];        RoLNy1(n) = RoMLys(R)[f];
-            RoLNx2(n) = RoMLxs(R)[f+1];        RoLNy2(n) = RoMLys(R)[f+1];
+            RoLNx1(n) = RoMLxs(R)[f];   RoLNy1(n) = RoMLys(R)[f];
+            RoLNx2(n) = RoMLxs(R)[f+1]; RoLNy2(n) = RoMLys(R)[f+1];
             RoNext(n) = next;
             RoNext(R) = n;
             /* Restore the unclipped value: */
-            RoMLxs(R)[f+1] = oxn;        RoMLys(R)[f+1] = oyn;
+            RoMLxs(R)[f+1] = oxn; RoMLys(R)[f+1] = oyn;
             f++;
             prevp = &RoNext(n);
           }
-          if (f + 1 < c) {                /* Are other lines */
+          if (f + 1 < c) { /* Are other lines */
             RectObj *n = (RectObj*) pari_malloc(sizeof(RectObjMP));
             RoType(n) = ROt_ML;
             RoCol(n) = RoCol(R);
             RoMLcnt(n) = c - f;
-            RoMLxs(n) = (double*) pari_malloc(sizeof(double)*(c - f));
-            RoMLys(n) = (double*) pari_malloc(sizeof(double)*(c - f));
-            memcpy(RoMPxs(n),RoMPxs(R) + f, sizeof(double)*(c - f));
-            memcpy(RoMPys(n),RoMPys(R) + f, sizeof(double)*(c - f));
+            RoMLxs(n) = cp(RoMPxs(R) + f, sizeof(double)*(c-f));
+            RoMLys(n) = cp(RoMPys(R) + f, sizeof(double)*(c-f));
             RoMPxs(n)[0] = oxn;
             RoMPys(n)[0] = oyn;
             RoNext(n) = next;
@@ -1367,6 +1353,14 @@ rectsplines(long ne, double *x, double *y, long lx, long flag)
   avma = av0;
 }
 
+static void
+put_label(long ne, long x, long y, double d, long dir)
+{
+  char c[16];
+  sprintf(c,"%.5g", d);
+  rectmove0(ne,(double)x,(double)y,0);
+  rectstring(ne, c, dir);
+}
 static void
 set_range(double m, double M, double *sml, double *big)
 {
