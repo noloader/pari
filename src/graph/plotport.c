@@ -220,12 +220,9 @@ rectscale0(long ne, double x1, double x2, double y1, double y2)
   RXcursor(e) = (x - RXshift(e)) / RXscale(e);
   RYcursor(e) = (y - RYshift(e)) / RYscale(e);
 }
-
 void
 rectscale(long ne, GEN x1, GEN x2, GEN y1, GEN y2)
-{
-  rectscale0(ne, gtodouble(x1), gtodouble(x2), gtodouble(y1), gtodouble(y2));
-}
+{ rectscale0(ne, gtodouble(x1), gtodouble(x2), gtodouble(y1), gtodouble(y2)); }
 
 static void
 rectmove0(long ne, double x, double y, long relative)
@@ -240,18 +237,12 @@ rectmove0(long ne, double x, double y, long relative)
   RoMVy(z) = RYcursor(e) * RYscale(e) + RYshift(e);
   Rchain(e, z);
 }
-
 void
 rectmove(long ne, GEN x, GEN y)
-{
-  rectmove0(ne,gtodouble(x),gtodouble(y),0);
-}
-
+{ rectmove0(ne,gtodouble(x),gtodouble(y),0); }
 void
 rectrmove(long ne, GEN x, GEN y)
-{
-  rectmove0(ne,gtodouble(x),gtodouble(y),1);
-}
+{ rectmove0(ne,gtodouble(x),gtodouble(y),1); }
 
 /* ROt_MV/ROt_PT */
 static void
@@ -309,25 +300,34 @@ rectline0(long ne, double gx2, double gy2, long relative)
   dxy = x1*y2 - y1*x2; dx = x2-x1; dy = y2-y1;
   if (dy)
   {
+    double a = (dxy + RYsize(e)*dx) / dy, b = dxy / dy;
     if (dx*dy<0)
-      { xmin = maxdd(xmin,(dxy+RYsize(e)*dx)/dy); xmax=mindd(xmax,dxy/dy); }
+    { xmin=maxdd(xmin,a); xmax=mindd(xmax,b); }
     else
-      { xmin=maxdd(xmin,dxy/dy); xmax=mindd(xmax,(dxy+RYsize(e)*dx)/dy); }
+    { xmin=maxdd(xmin,b); xmax=mindd(xmax,a); }
   }
   if (dx)
   {
+    double a = (RXsize(e)*dy - dxy) / dx, b = -dxy / dx;
     if (dx*dy<0)
-      { ymin=maxdd(ymin,(RXsize(e)*dy-dxy)/dx); ymax=mindd(ymax,-dxy/dx); }
+    { ymin=maxdd(ymin,a); ymax=mindd(ymax,b); }
     else
-      { ymin=maxdd(ymin,-dxy/dx); ymax=mindd(ymax,(RXsize(e)*dy-dxy)/dx); }
+    { ymin=maxdd(ymin,b); ymax=mindd(ymax,a); }
   }
-  RoLNx1(z) = xmin; RoLNx2(z) = xmax;
+  RoLNx1(z) = xmin;
+  RoLNx2(z) = xmax;
   if (dx*dy<0) { RoLNy1(z) = ymax; RoLNy2(z) = ymin; }
   else         { RoLNy1(z) = ymin; RoLNy2(z) = ymax; }
   RoType(z) = (xmin>xmax*c || ymin>ymax*c) ? ROt_MV : ROt_LN;
   Rchain(e, z);
   RoCol(z) = current_color[ne];
 }
+void
+rectline(long ne, GEN gx2, GEN gy2)
+{ rectline0(ne, gtodouble(gx2), gtodouble(gy2),0); }
+void
+rectrline(long ne, GEN gx2, GEN gy2)
+{ rectline0(ne, gtodouble(gx2), gtodouble(gy2),1); }
 
 enum {
   TICKS_CLOCKW   = 1, /* Draw in clockwise direction */
@@ -366,13 +366,12 @@ rectticks(PARI_plot *WW, long ne,
   nticks = (long) ((dxy + 2.5)/4);
   if (!nticks) return;
 
-  /* Now we want to find nticks (or less) "round" numbers between l1 and l2.
-     For our purpose round numbers have "last significant" digit either
-        *) any;
-        *) even;
-        *) divisible by 5.
-     We need to choose which alternative is better.
-   */
+  /* Find nticks (or less) "round" numbers between l1 and l2. For our purpose
+   * round numbers have "last significant" decimal digit either
+   *    - any;
+   *    - even;
+   *    - divisible by 5.
+   * We need to choose which alternative is better. */
   if (l1 < l2)
     l_min = l1, l_max = l2;
   else
@@ -381,12 +380,12 @@ rectticks(PARI_plot *WW, long ne,
   maxstep = 2.5*(l_max - l_min);
   step = exp(log(10.) * floor(log10(minstep)));
   if (!(flags & TICKS_ENDSTOO)) {
-    double d = 2*(l_max - l_min)/dxy1;        /* Two pixels off */
-
+    double d = 2*(l_max - l_min)/dxy1; /* Two pixels off */
     l_min += d;
     l_max -= d;
   }
-  for (n = 0; ; n++) {
+  for (n = 0; ; n++)
+  {
     if (step >= maxstep) return;
 
     if (step >= minstep) {
@@ -401,9 +400,9 @@ rectticks(PARI_plot *WW, long ne,
     step *= mult[ n % 3 ];
   }
   /* Where to position doubleticks. Variants:
-     small: each 5, double: each 10    (n===2 mod 3)
-     small: each 2, double: each 10    (n===1 mod 3)
-     small: each 1, double: each  5 */
+   * small: each 5, double: each 10  ; n=2 mod 3
+   * small: each 2, double: each 10  ; n=1 mod 3
+   * small: each 1, double: each  5 */
   dn = (n % 3 == 2)? 2: 5;
   n1 = ((long)minl) % dn; /* unused if do_double = FALSE */
 
@@ -437,18 +436,6 @@ rectticks(PARI_plot *WW, long ne,
   }
 }
 
-void
-rectline(long ne, GEN gx2, GEN gy2)
-{
-  rectline0(ne, gtodouble(gx2), gtodouble(gy2),0);
-}
-
-void
-rectrline(long ne, GEN gx2, GEN gy2)
-{
-  rectline0(ne, gtodouble(gx2), gtodouble(gy2),1);
-}
-
 static void
 rectbox0(long ne, double gx2, double gy2, long relative)
 {
@@ -474,18 +461,12 @@ rectbox0(long ne, double gx2, double gy2, long relative)
   Rchain(e, z);
   RoCol(z) = current_color[ne];
 }
-
 void
 rectbox(long ne, GEN gx2, GEN gy2)
-{
-  rectbox0(ne, gtodouble(gx2), gtodouble(gy2), 0);
-}
-
+{ rectbox0(ne, gtodouble(gx2), gtodouble(gy2), 0); }
 void
 rectrbox(long ne, GEN gx2, GEN gy2)
-{
-  rectbox0(ne, gtodouble(gx2), gtodouble(gy2), 1);
-}
+{ rectbox0(ne, gtodouble(gx2), gtodouble(gy2), 1); }
 
 static void
 freeobj(RectObj *z) {
@@ -498,7 +479,6 @@ freeobj(RectObj *z) {
   }
   pari_free(z);
 }
-
 
 void
 killrect(long ne)
@@ -565,7 +545,8 @@ rectpoints(long ne, GEN listx, GEN listy)
     py[i] = gtodouble(gel(listy,i));
   }
   rectpoints0(ne,px,py,lx);
-  pari_free(px); pari_free(py);
+  pari_free(px);
+  pari_free(py);
 }
 
 /* ROt_ML */
