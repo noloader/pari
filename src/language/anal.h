@@ -17,15 +17,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 /*                                                                       */
 /*************************************************************************/
 BEGINEXTERN
-/* GP control structures */
-#define EXPR_WRAP(code, call) \
-{ GEN z; GEN __E = code; \
-  push_lex(gen_0, __E); z = call; pop_lex(1); return z; }
-#define EXPR_ARG __E, &gp_eval
-#define EXPR_ARGPREC __E, &gp_evalprec
-#define EXPR_ARGUPTO __E, &gp_evalupto
-#define EXPR_ARGBOOL __E, &gp_evalbool
-
 /* functions */
 void   changevalue(entree *ep, GEN val);
 void    freeep(entree *ep);
@@ -53,7 +44,6 @@ entree* fetch_entry_raw(const char *s, long len);
 entree* fetch_entry(const char *s);
 void optimizenode(long n);
 void push_frame(GEN C, long lpc, long flag);
-const char * closure_func_err(void);
 GEN  gp_closure(long n);
 long eval_mnemonic(GEN str, const char *tmplate);
 

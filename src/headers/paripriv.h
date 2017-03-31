@@ -48,6 +48,17 @@ GEN resetloop(GEN a, GEN b);
 GEN setloop(GEN a);
 
 /* parser */
+
+/* GP control structures */
+#define EXPR_WRAP(code, call) \
+{ GEN z; GEN __E = code; \
+  push_lex(gen_0, __E); z = call; pop_lex(1); return z; }
+#define EXPR_ARG __E, &gp_eval
+#define EXPR_ARGPREC __E, &gp_evalprec
+#define EXPR_ARGUPTO __E, &gp_evalupto
+#define EXPR_ARGBOOL __E, &gp_evalbool
+const char * closure_func_err(void);
+
 GEN  iferrpari(GEN a, GEN b, GEN c);
 void forpari(GEN a, GEN b, GEN node);
 void untilpari(GEN a, GEN b);
