@@ -2834,6 +2834,7 @@ char*   pari_strdup(const char *s);
 char*   pari_strndup(const char *s, long n);
 char*   pari_unique_dir(const char *s);
 char*   pari_unique_filename(const char *s);
+char*   pari_unique_filename_suffix(const char *s, const char *suf);
 void    pari_unlink(const char *s);
 void    pari_vfprintf(FILE *file, const char *fmt, va_list ap);
 void    pari_vprintf(const char *fmt, va_list ap);

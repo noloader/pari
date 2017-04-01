@@ -4819,9 +4819,10 @@ pari_tmp_dir(void)
 
 /* loop through 26^2 variants [suffix 'aa' to 'zz'] */
 static int
-get_file(char *buf, int test(const char *))
+get_file(char *buf, int test(const char *), const char *suf)
 {
   char c, d, *end = buf + strlen(buf) - 1;
+  if (suf) end -= strlen(suf);
   for (d = 'a'; d <= 'z'; d++)
   {
     end[-1] = d;
@@ -4850,28 +4851,30 @@ swap_slash(char *s)
 }
 #endif
 
+/* s truncated to 8 chars, suf possibly NULL */
 static char *
-init_unique(const char *s)
+init_unique(const char *s, const char *suf)
 {
   const char *pre = pari_tmp_dir();
-  char *buf, suf[64];
-  size_t lpre, lsuf;
+  char *buf, salt[64];
+  size_t lpre, lsalt, lsuf;
 #ifdef UNIX
-  sprintf(suf,"-%ld-%ld", (long)getuid(), (long)getpid());
+  sprintf(salt,"-%ld-%ld", (long)getuid(), (long)getpid());
 #else
-  suf[0] = 0;
+  sprintf(salt,"-%ld", (long)time(NULL));
 #endif
-  lsuf = strlen(suf);
+  lsuf = suf? strlen(suf): 0;
+  lsalt = strlen(salt);
   lpre = strlen(pre);
-  /* room for prefix + '/' + s + suffix '\0' */
-  buf = (char*) pari_malloc(lpre + 1 + 8 + lsuf + 1);
+  /* room for prefix + '/' + s + salt + suf + '\0' */
+  buf = (char*) pari_malloc(lpre + 1 + 8 + lsalt + lsuf + 1);
   strcpy(buf, pre);
   if (buf[lpre-1] != '/') { (void)strcat(buf, "/"); lpre++; }
 #if defined(__EMX__) || defined(_WIN32)
   swap_slash(buf);
 #endif
-
-  sprintf(buf + lpre, "%.8s%s", s, suf);
+  sprintf(buf + lpre, "%.8s%s", s, salt);
+  if (lsuf) strcat(buf, suf);
   if (DEBUGFILES) err_printf("I/O: prefix for unique file/dir = %s\n", buf);
   return buf;
 }
@@ -4881,13 +4884,16 @@ init_unique(const char *s)
  * prepended. The name returned is pari_malloc'ed. It is DOS-safe
  * (s truncated to 8 chars) */
 char*
-pari_unique_filename(const char *s)
+pari_unique_filename_suffix(const char *s, const char *suf)
 {
-  char *buf = init_unique(s);
-  if (pari_file_exists(buf) && !get_file(buf, pari_file_exists))
+  char *buf = init_unique(s, suf);
+  if (pari_file_exists(buf) && !get_file(buf, pari_file_exists, suf))
     pari_err(e_MISC,"couldn't find a suitable name for a tempfile (%s)",s);
   return buf;
 }
+char*
+pari_unique_filename(const char *s)
+{ return pari_unique_filename_suffix(s, NULL); }
 
 /* Create a "unique directory" and return its name built from the string
  * s, the user id and process pid (on Unix systems). A "temporary"
@@ -4896,8 +4902,8 @@ pari_unique_filename(const char *s)
 char*
 pari_unique_dir(const char *s)
 {
-  char *buf = init_unique(s);
-  if (pari_dir_exists(buf) && !get_file(buf, pari_dir_exists))
+  char *buf = init_unique(s, NULL);
+  if (pari_dir_exists(buf) && !get_file(buf, pari_dir_exists, NULL))
     pari_err(e_MISC,"couldn't find a suitable name for a tempdir (%s)",s);
   return buf;
 }

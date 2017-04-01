@@ -2016,16 +2016,15 @@ rect2ps(GEN w, GEN x, GEN y, PARI_plot *T)
 void
 pari_plot_by_file(const char *env, const char *suf, const char *img)
 {
-  char *cmd, *s = pari_unique_filename("plotfile");
-  FILE *f;
-  pari_unlink(s);
-  s = stack_strcat(s, suf);
-  f = fopen(s, "w");
+  char *cmd, *s = pari_unique_filename_suffix("plotfile", suf);
+  FILE *f = fopen(s, "w");
   if (!f) pari_err_FILE("image file", s);
   fputs(img, f); (void)fclose(f);
   cmd = os_getenv(env); if (!cmd) cmd = (char*)"open -W";
   cmd = pari_sprintf("%s \"%s\" 2>/dev/null", cmd, s);
-  gpsystem(cmd); pari_unlink(s);
+  gpsystem(cmd);
+  pari_unlink(s);
+  pari_free(s);
 }
 
 /*************************************************************************/

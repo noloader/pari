@@ -12162,7 +12162,12 @@ directory mentioned above. The name returned is \tet{malloc}'ed.
 file in the temp directory, whose name contains the id-string $s$ (truncated
 to its first $8$ chars), followed by a system-dependent suffix (incorporating
 the ids of both the user and the running process, for instance). The function
-returns the tempfile name. The name returned is \tet{malloc}'ed.
+returns the tempfile name and creates an empty file with that name. The name
+returned is \tet{malloc}'ed.
+
+\fun{char*}{pari_unique_filename_suffix}{const char *s, const char *suf}
+as \tet{pari_unique_filename}, creating a (previously non-existent)
+tempfile whose name ends with suffix \kbd{suf}.
 
 \section{Errors}\label{se:errors}
 
