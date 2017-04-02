@@ -41,7 +41,6 @@ typedef struct Red {
 #define cache_matinvvite(C)  (gel((C),7))
 #define cache_avite(C)  (gel((C),8))
 #define cache_pkvite(C)  (gel((C),9))
-#define cache_ctsgt(C)  (mael((C),10,1))
 
 static GEN
 makepoldeg1(GEN c, GEN d)
@@ -288,7 +287,6 @@ powpolmod(GEN C, Red *R, long p, long k, GEN jac)
 {
   GEN (*_sqr)(GEN, Red *);
 
-  if (DEBUGLEVEL>2) cache_ctsgt(C)++;
   if (!isintzero(cache_matvite(C))) return _powpolmodsimple(C, R, jac);
   if (p == 2) /* p = 2 */
   {
@@ -676,10 +674,9 @@ filltabs(GEN C, GEN Cp, Red *R, long p, long pk, long ltab)
 static GEN
 alloc_cache(void)
 {
-  GEN C = cgetg(11,t_VEC);
+  GEN C = cgetg(10,t_VEC);
   cache_matvite(C) = gen_0;
   cache_avite(C)   = gen_0;
-  gel(C, 10) = mkvecsmall(0);
   return C;
 }
 
@@ -837,7 +834,6 @@ step4b(GEN C, Red *R, ulong q, long k)
   ind = look_eta2(k, s3);
   if (ind < 0) return -1;
   if ((ind&1)==0) return 0;
-  if (DEBUGLEVEL>2) cache_ctsgt(C)++;
   s3 = Fp_pow(utoipos(q), R->N2, R->N);
   return is_m1(s3, R->N);
 }
@@ -857,17 +853,15 @@ step4c(GEN C, Red *R, ulong q)
   ind = look_eta2(2, s3);
   if (ind < 0) return -1;
   if ((ind&1)==0) return 0;
-  if (DEBUGLEVEL>2) cache_ctsgt(C)++;
   s3 = Fp_pow(utoipos(q), R->N2, R->N);
   return is_m1(s3, R->N);
 }
 
 /* p=2, k=1 */
 static long
-step4d(GEN C, Red *R, ulong q)
+step4d(Red *R, ulong q)
 {
   GEN s1 = Fp_pow(utoipos(q), R->N2, R->N);
-  if (DEBUGLEVEL>2) cache_ctsgt(C)++;
   if (is_pm1(s1)) return 0;
   if (is_m1(s1, R->N)) return (mod4(R->N) == 1);
   return -1;
@@ -908,7 +902,7 @@ step5(GEN pC, Red *R, long p, GEN et, ulong ltab, long lpC)
     if (p >= 3)      fl = step4a(C,R, q,p,k, NULL);
     else if (k >= 3) fl = step4b(C,R, q,k);
     else if (k == 2) fl = step4c(C,R, q);
-    else             fl = step4d(C,R, q);
+    else             fl = step4d(R, q);
     if (fl == -1) return _res(q,p);
     if (fl == 1) return NULL; /*OK*/
     avma = av;
@@ -990,7 +984,7 @@ aprcl(GEN N)
       if (p >= 3)      fl = step4a(C,&R, q,p,e, tabg);
       else if (e >= 3) fl = step4b(C,&R, q,e);
       else if (e == 2) fl = step4c(C,&R, q);
-      else             fl = step4d(C,&R, q);
+      else             fl = step4d(&R, q);
       if (fl == -1) return _res(q,p);
       if (fl == 1) flaglp[ zv_search(fat, p) ] = 0;
     }
@@ -1007,17 +1001,7 @@ aprcl(GEN N)
     avma = av;
   }
   if (DEBUGLEVEL>2)
-  {
-    ulong sc = cache_ctsgt(gel(pC,1));
-    err_printf("Individual Fermat powerings:\n");
-    for (i=2; i<lpC; i++)
-      if (!isintzero(gel(pC,i))) {
-        err_printf("  %-3ld: %3ld\n", i, cache_ctsgt(gel(pC,i)));
-        sc += cache_ctsgt(gel(pC,i));
-      }
-    err_printf("Number of Fermat powerings = %lu\n",sc);
     err_printf("Step6: testing potential divisors\n");
-  }
   return step6(N, t, et);
 }
 
