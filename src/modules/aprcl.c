@@ -23,7 +23,7 @@ typedef struct Red {
 /* global data */
   GEN N; /* prime we are certifying */
   GEN N2; /* floor(N/2) */
-/* globa data for flexible window */
+/* global data for flexible window */
   long k, lv;
   ulong mask;
 /* reduction data */
@@ -902,22 +902,82 @@ step5(GEN pC, Red *R, long p, GEN et, ulong ltab, long lpC)
   return NULL;
 }
 
-static GEN
-step6(GEN N, ulong t, GEN et)
+GEN
+aprcl_step6_worker(GEN r, long t, GEN N, GEN N1, GEN et)
 {
-  GEN r, N1 = remii(N, et);
-  ulong i;
+  long i;
   pari_sp av = avma;
-
-  r = gen_1;
-  for (i=1; i<t; i++)
+  for (i=1; i<=t; i++)
   {
     r = remii(mulii(r,N1), et);
     if (equali1(r)) break;
     if (!signe(remii(N,r)) && !equalii(r,N)) return mkvec2(r, gen_0);
     if ((i & 0x1f) == 0) r = gerepileuptoint(av, r);
   }
+  return gen_0;
+}
+
+static GEN
+step6(GEN N, ulong t, GEN et)
+{
+  GEN r, rk, N1 = remii(N, et);
+  ulong k = 10000;
+  ulong i;
+  GEN worker, res = NULL;
+  long pending = 0;
+  struct pari_mt pt;
+  pari_sp btop;
+  worker = strtoclosure("_aprcl_step6_worker", 3, N, N1, et);
+  r = gen_1;
+  rk = Fp_powu(N1, k, et);
+  mt_queue_start(&pt, worker);
+  btop = avma;
+  for (i=1; (i<t && !res) || pending; i+=k)
+  {
+    GEN done;
+    mt_queue_submit(&pt, i, (i<t && !res) ? mkvec2(r, utoi(minss(k,t-i))): NULL);
+    done = mt_queue_get(&pt, NULL, &pending);
+    if (done && !isintzero(done)) res = done;
+    r = Fp_mul(r, rk, et);
+    if (gc_needed(btop, 2))
+    {
+      if(DEBUGMEM>1) pari_warn(warnmem,"APRCL: i = %ld",i);
+      r = gerepileupto(btop, r);
+    }
+  }
+  mt_queue_end(&pt);
+  if (res) return res;
   return gen_1;
+}
+
+GEN
+aprcl_step4_worker(ulong q, GEN pC, GEN N, GEN v)
+{
+  pari_sp av1 = avma, av2 = avma;
+  long j, k;
+  Red R;
+  GEN faq = factoru_pow(q-1), tabg = compute_g(q);
+  GEN P = gel(faq,1), E = gel(faq,2), PE = gel(faq,3);
+  long lfaq = lg(P);
+  GEN flags = cgetg(lfaq, t_VECSMALL);
+  R.N = N;
+  R.N2= shifti(N, -1);
+  R.k = v[1]; R.lv = v[2]; R.mask = uel(v,3); R.n = v[4];
+  av2 = avma;
+  for (j=1, k=1; j<lfaq; j++, avma = av2)
+  {
+    long p = P[j], e = E[j], pe = PE[j], fl;
+    GEN C = gel(pC,pe);
+    R.C = cache_cyc(C);
+    if (p >= 3)      fl = step4a(C,&R, q,p,e, tabg);
+    else if (e >= 3) fl = step4b(C,&R, q,e);
+    else if (e == 2) fl = step4c(C,&R, q);
+    else             fl = step4d(&R, q);
+    if (fl == -1) return _res(q,p);
+    if (fl == 1)  flags[k++] = p;
+  }
+  setlg(flags, k);
+  return gerepileuptoleaf(av1, flags);
 }
 
 static GEN
@@ -928,6 +988,9 @@ aprcl(GEN N)
   ulong t;
   Red R;
   GEN pC;
+  GEN worker, res = NULL;
+  long pending = 0, workid;
+  struct pari_mt pt;
 
   if (typ(N) != t_INT) pari_err_TYPE("aprcl",N);
   if (cmpis(N,12) <= 0)
@@ -955,33 +1018,27 @@ aprcl(GEN N)
     flaglp[i] = absequaliu(Fp_powu(N, p-1, sqru(p)), 1);
   }
   vecsmall_sort(faet);
-
   l = lg(faet);
+  worker = strtoclosure("_aprcl_step4_worker", 3,
+                        pC, N, mkvecsmall4(R.k, R.lv, R.mask, R.n));
   if (DEBUGLEVEL>2) err_printf("Step4: %ld q-values\n", l-1);
-  for (i=l-1; i>0; i--) /* decreasing order: slowest first */
+  mt_queue_start(&pt, worker);
+  for (i=l-1; (i>0 && !res) || pending; i--)
   {
-    pari_sp av1 = avma;
-    ulong q = faet[i];
-    GEN faq = factoru_pow(q-1), tabg = compute_g(q);
-    GEN P = gel(faq,1), E = gel(faq,2), PE = gel(faq,3);
-    long lfaq = lg(P);
-    pari_sp av2 = avma;
-    if (DEBUGLEVEL>2) err_printf("testing Jacobi sums for q = %ld...",q);
-    for (j=1; j<lfaq; j++, avma = av2)
+    GEN done;
+    ulong q = i>0 ? faet[i]: 0;
+    mt_queue_submit(&pt, q, q>0? mkvec(utoi(q)): NULL);
+    done = mt_queue_get(&pt, &workid, &pending);
+    if (done)
     {
-      long p = P[j], e = E[j], pe = PE[j], fl;
-      GEN C = gel(pC,pe);
-      R.C = cache_cyc(C);
-      if (p >= 3)      fl = step4a(C,&R, q,p,e, tabg);
-      else if (e >= 3) fl = step4b(C,&R, q,e);
-      else if (e == 2) fl = step4c(C,&R, q);
-      else             fl = step4d(&R, q);
-      if (fl == -1) return _res(q,p);
-      if (fl == 1) flaglp[ zv_search(fat, p) ] = 0;
+      long lf = lg(done);
+      if (typ(done) == t_VEC) res = done;
+      for (j=1; j<lf; j++) flaglp[ zv_search(fat, done[j]) ] = 0;
+      if (DEBUGLEVEL>2) err_printf("testing Jacobi sums for q = %ld...OK\n", workid);
     }
-    if (DEBUGLEVEL>2) err_printf("OK\n");
-    avma = av1;
   }
+  mt_queue_end(&pt);
+  if (res) return res;
   if (DEBUGLEVEL>2) err_printf("Step5: testing conditions lp\n");
   for (i=2; i<lfat; i++) /*skip fat[1] = 2*/
   {

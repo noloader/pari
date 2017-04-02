@@ -151,6 +151,8 @@ GEN  F2xq_log_Coppersmith_worker(GEN u, long i, GEN V, GEN R);
 GEN  Flxq_log_Coppersmith_worker(GEN u, long i, GEN V, GEN R);
 GEN  Fp_log_sieve_worker(long a, long prmax, GEN C, GEN c, GEN Ci, GEN ci, GEN pr, GEN sz);
 GEN  ZX_resultant_worker(GEN P, GEN A, GEN B, GEN dB);
+GEN  aprcl_step4_worker(ulong q, GEN pC, GEN N, GEN v);
+GEN  aprcl_step6_worker(GEN r, long t, GEN N, GEN N1, GEN et);
 
 /* Relative number fields */
 enum { rnf_NFABS = 1, rnf_MAPS };
