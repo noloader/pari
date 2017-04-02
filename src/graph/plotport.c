@@ -646,6 +646,9 @@ plotlinetype(long ne, long type)
 }
 
 static void*
+cpd(double* R, size_t t)
+{ void *o = pari_malloc(t * sizeof(double)); memcpy(o,R,t); return (double*)o; }
+static void*
 cp(void* R, size_t t)
 { void *o = pari_malloc(t); memcpy(o,R,t); return o; }
 void
@@ -901,8 +904,8 @@ plotclip(long rect)
             RoType(n) = ROt_ML;
             RoCol(n) = RoCol(R);
             RoMLcnt(n) = c - f;
-            RoMLxs(n) = cp(RoMPxs(R) + f, sizeof(double)*(c-f));
-            RoMLys(n) = cp(RoMPys(R) + f, sizeof(double)*(c-f));
+            RoMLxs(n) = cpd(RoMPxs(R) + f, c-f);
+            RoMLys(n) = cpd(RoMPys(R) + f, c-f);
             RoMPxs(n)[0] = oxn;
             RoMPys(n)[0] = oyn;
             RoNext(n) = next;
