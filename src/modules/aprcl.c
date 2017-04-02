@@ -32,15 +32,16 @@ typedef struct Red {
   GEN (*red)(GEN x, struct Red*);
 } Red;
 
-typedef struct Cache { /* data attached to p^k */
-  GEN aall, tall;
-  GEN cyc;
-  GEN E;
-  GEN eta;
-  GEN matvite, matinvvite;
-  GEN avite, pkvite;
-  ulong ctsgt; /* DEBUG */
-} Cache;
+#define cache_aall(C)  (gel((C),1))
+#define cache_tall(C)  (gel((C),2))
+#define cache_cyc(C)  (gel((C),3))
+#define cache_E(C)  (gel((C),4))
+#define cache_eta(C)  (gel((C),5))
+#define cache_matvite(C)  (gel((C),6))
+#define cache_matinvvite(C)  (gel((C),7))
+#define cache_avite(C)  (gel((C),8))
+#define cache_pkvite(C)  (gel((C),9))
+#define cache_ctsgt(C)  (mael((C),10,1))
 
 static GEN
 makepoldeg1(GEN c, GEN d)
@@ -239,10 +240,10 @@ _mul(GEN x, GEN y, Red *R) { return R->red(gmul(x,y), R); }
 
 /* jac^floor(N/pk) mod (N, polcyclo(pk)), flexible window */
 static GEN
-_powpolmod(Cache *C, GEN jac, Red *R, GEN (*_sqr)(GEN, Red *))
+_powpolmod(GEN C, GEN jac, Red *R, GEN (*_sqr)(GEN, Red *))
 {
-  const GEN taba = C->aall;
-  const GEN tabt = C->tall;
+  const GEN taba = cache_aall(C);
+  const GEN tabt = cache_tall(C);
   const long efin = lg(taba)-1, lv = R->lv;
   GEN L, res = jac, pol2 = _sqr(res, R);
   long f;
@@ -268,27 +269,27 @@ _powpolmod(Cache *C, GEN jac, Red *R, GEN (*_sqr)(GEN, Red *))
 }
 
 static GEN
-_powpolmodsimple(Cache *C, Red *R, GEN jac)
+_powpolmodsimple(GEN C, Red *R, GEN jac)
 {
   pari_sp av = avma;
-  GEN w = ZM_ZX_mul(C->matvite, jac);
+  GEN w = ZM_ZX_mul(cache_matvite(C), jac);
   long j, ph = lg(w);
 
   R->red = &_redsimple;
   for (j=1; j<ph; j++)
     gel(w,j) = _powpolmod(C, centermodii(gel(w,j), R->N, R->N2), R, &sqrmod);
-  w = centermod_i( gmul(C->matinvvite, w), R->N, R->N2 );
+  w = centermod_i( gmul(cache_matinvvite(C), w), R->N, R->N2 );
   w = gerepileupto(av, w);
   return RgV_to_RgX(w, 0);
 }
 
 static GEN
-powpolmod(Cache *C, Red *R, long p, long k, GEN jac)
+powpolmod(GEN C, Red *R, long p, long k, GEN jac)
 {
   GEN (*_sqr)(GEN, Red *);
 
-  if (DEBUGLEVEL>2) C->ctsgt++;
-  if (C->matvite) return _powpolmodsimple(C, R, jac);
+  if (DEBUGLEVEL>2) cache_ctsgt(C)++;
+  if (cache_matvite(C)) return _powpolmodsimple(C, R, jac);
   if (p == 2) /* p = 2 */
   {
     if (k == 2) _sqr = &sqrmod4;
@@ -502,14 +503,14 @@ compute_g(ulong q)
 
 /* p odd prime */
 static GEN
-get_jac(Cache *C, ulong q, long pk, GEN tabg)
+get_jac(GEN C, ulong q, long pk, GEN tabg)
 {
   ulong x, qs2 = q>>1; /* (q-1)/2 */
   GEN vpk = zero_zv(pk);
 
   for (x=2; x<=qs2; x++) vpk[ tabg[x]%pk + 1 ] += 2;
   vpk[ tabg[x]%pk + 1 ]++; /* x = (q+1)/2 */
-  return u_red(vpk, C->cyc);
+  return u_red(vpk, cache_cyc(C));
 }
 
 /* p = 2 */
@@ -551,12 +552,12 @@ get_jac2(GEN N, ulong q, long k, GEN *j2q, GEN *j3q)
 
 /* N = 1 mod p^k, return an elt of order p^k in (Z/N)^* */
 static GEN
-finda(Cache *Cp, GEN N, long pk, long p)
+finda(GEN Cp, GEN N, long pk, long p)
 {
   GEN a, pv;
-  if (Cp && Cp->avite) {
-    a  = Cp->avite;
-    pv = Cp->pkvite;
+  if (Cp && cache_avite(Cp)) {
+    a  = cache_avite(Cp);
+    pv = cache_pkvite(Cp);
   }
   else
   {
@@ -584,8 +585,8 @@ finda(Cache *Cp, GEN N, long pk, long p)
     if (!gequal1(b)) return NULL;
 
     if (Cp) {
-      Cp->avite  = a; /* a has order p^v */
-      Cp->pkvite = pv;
+      cache_avite(Cp)  = a; /* a has order p^v */
+      cache_pkvite(Cp) = pv;
     }
   }
   return Fp_pow(a, divis(pv, pk), N);
@@ -593,14 +594,14 @@ finda(Cache *Cp, GEN N, long pk, long p)
 
 /* return 0: N not a prime, 1: no problem so far */
 static long
-filltabs(Cache *C, Cache *Cp, Red *R, long p, long pk, long ltab)
+filltabs(GEN C, GEN Cp, Red *R, long p, long pk, long ltab)
 {
   pari_sp av;
   long i, j;
   long e;
   GEN tabt, taba, m;
 
-  C->cyc = polcyclo(pk,0);
+  cache_cyc(C) = polcyclo(pk,0);
 
   if (p > 2)
   {
@@ -608,14 +609,14 @@ filltabs(Cache *C, Cache *Cp, Red *R, long p, long pk, long ltab)
     GEN E = cgetg(LE, t_VECSMALL), eta = cgetg(pk+1,t_VEC);
     for (i=1,j=0; i<pk; i++)
       if (i%p) E[++j] = i;
-    C->E = E;
+    cache_E(C) = E;
 
     for (i=1; i<=pk; i++)
     {
-      GEN z = FpX_rem(pol_xn(i-1, 0), C->cyc, R->N);
+      GEN z = FpX_rem(pol_xn(i-1, 0), cache_cyc(C), R->N);
       gel(eta,i) = FpX_center(z, R->N, R->N2);
     }
-    C->eta = eta;
+    cache_eta(C) = eta;
   }
   else if (pk >= 8)
   {
@@ -623,7 +624,7 @@ filltabs(Cache *C, Cache *Cp, Red *R, long p, long pk, long ltab)
     GEN E = cgetg(LE, t_VECSMALL);
     for (i=1,j=0; i<pk; i++)
       if ((i%8)==1 || (i%8)==3) E[++j] = i;
-    C->E = E;
+    cache_E(C) = E;
   }
 
   if (pk > 2 && umodiu(R->N,pk) == 1)
@@ -653,8 +654,8 @@ filltabs(Cache *C, Cache *Cp, Red *R, long p, long pk, long ltab)
         gel(p2,i) = centermodii(mulii(gel(vpa,i),gel(p3,i)), R->N, R->N2);
       p3 = p2;
     }
-    C->matvite = p1;
-    C->matinvvite = FpM_inv(p1, R->N);
+    cache_matvite(C) = p1;
+    cache_matinvvite(C) = FpM_inv(p1, R->N);
   }
 
   tabt = cgetg(ltab+1, t_VECSMALL);
@@ -667,26 +668,27 @@ filltabs(Cache *C, Cache *Cp, Red *R, long p, long pk, long ltab)
     taba[e] = signe(m)? ((mod2BIL(m) & R->mask)+1)>>1: 0;
     m = shifti(m, -R->k);
   }
-  setlg(taba, e); C->aall = taba;
-  setlg(tabt, e); C->tall = tabt;
+  setlg(taba, e); cache_aall(C) = taba;
+  setlg(tabt, e); cache_tall(C) = tabt;
   avma = av; return 1;
 }
 
-static Cache *
+static GEN
 alloc_cache(void)
 {
-  Cache *C = (Cache*)stack_malloc(sizeof(Cache));
-  C->matvite = NULL;
-  C->avite   = NULL;
-  C->ctsgt = 0; return C;
+  GEN C = cgetg(11,t_VEC);
+  cache_matvite(C) = NULL;
+  cache_avite(C)   = NULL;
+  gel(C, 10) = mkvecsmall(0);
+  return C;
 }
 
-static Cache **
+static GEN
 calcglobs(Red *R, ulong t, long *plpC, long *pltab, GEN *pP)
 {
   GEN fat, P, E, PE;
   long lv, i, k, b;
-  Cache **pC;
+  GEN pC;
 
   b = expi(R->N)+1;
   k = 3; while (((k+1)*(k+2) << (k-1)) < b) k++;
@@ -700,17 +702,17 @@ calcglobs(Red *R, ulong t, long *plpC, long *pltab, GEN *pP)
   E = gel(fat,2);
   PE= gel(fat,3);
   *plpC = lv = vecsmall_max(PE); /* max(p^e, p^e | t) */
-  pC = (Cache**)stack_malloc((lv+1)*sizeof(Cache*));
-  pC[1] = alloc_cache(); /* to be used as temp in step5() */
-  for (i = 2; i <= lv; i++) pC[i] = NULL;
+  pC = cgetg(lv+1, t_VEC);
+  gel(pC,1) = alloc_cache(); /* to be used as temp in step5() */
+  for (i = 2; i <= lv; i++) gel(pC,i) = NULL;
   for (i=1; i<lg(P); i++)
   {
     long pk, p = P[i], e = E[i];
     pk = p;
     for (k=1; k<=e; k++, pk*=p)
     {
-      pC[pk] = alloc_cache();
-      if (!filltabs(pC[pk], pC[p], R, p,pk, *pltab)) return NULL;
+      gel(pC,pk) = alloc_cache();
+      if (!filltabs(gel(pC,pk), gel(pC,p), R, p,pk, *pltab)) return NULL;
     }
   }
   *pP = P; return pC;
@@ -791,7 +793,7 @@ look_eta2(long k, GEN z)
 }
 
 static long
-step4a(Cache *C, Red *R, ulong q, long p, long k, GEN tabg)
+step4a(GEN C, Red *R, ulong q, long p, long k, GEN tabg)
 {
   const long pk = upowuu(p,k);
   long ind;
@@ -799,12 +801,12 @@ step4a(Cache *C, Red *R, ulong q, long p, long k, GEN tabg)
 
   if (!tabg) tabg = compute_g(q);
   jpq = get_jac(C, q, pk, tabg);
-  s1 = autvec_TH(pk, jpq, C->E, C->cyc);
+  s1 = autvec_TH(pk, jpq, cache_E(C), cache_cyc(C));
   s2 = powpolmod(C,R, p,k, s1);
-  s3 = autvec_AL(pk, jpq, C->E, R);
+  s3 = autvec_AL(pk, jpq, cache_E(C), R);
   s3 = _red(gmul(s3,s2), R);
 
-  ind = look_eta(C->eta, pk, s3);
+  ind = look_eta(cache_eta(C), pk, s3);
   if (ind < 0) return -1;
   return (ind%p) != 0;
 }
@@ -818,7 +820,7 @@ is_m1(GEN x, GEN N)
 
 /* p=2, k>=3 */
 static long
-step4b(Cache *C, Red *R, ulong q, long k)
+step4b(GEN C, Red *R, ulong q, long k)
 {
   const long pk = 1L << k;
   long ind;
@@ -826,23 +828,23 @@ step4b(Cache *C, Red *R, ulong q, long k)
 
   (void)get_jac2(R->N,q,k, &j2q,&j3q);
 
-  s1 = autvec_TH(pk, j3q, C->E, C->cyc);
+  s1 = autvec_TH(pk, j3q, cache_E(C), cache_cyc(C));
   s2 = powpolmod(C,R, 2,k, s1);
-  s3 = autvec_AL(pk, j3q, C->E, R);
+  s3 = autvec_AL(pk, j3q, cache_E(C), R);
   s3 = _red(gmul(s3,s2), R);
   if (j2q) s3 = _red(gmul(j2q, s3), R);
 
   ind = look_eta2(k, s3);
   if (ind < 0) return -1;
   if ((ind&1)==0) return 0;
-  if (DEBUGLEVEL>2) C->ctsgt++;
+  if (DEBUGLEVEL>2) cache_ctsgt(C)++;
   s3 = Fp_pow(utoipos(q), R->N2, R->N);
   return is_m1(s3, R->N);
 }
 
 /* p=2, k=2 */
 static long
-step4c(Cache *C, Red *R, ulong q)
+step4c(GEN C, Red *R, ulong q)
 {
   long ind;
   GEN s0,s1,s3, jpq = get_jac2(R->N,q,2, NULL,NULL);
@@ -855,17 +857,17 @@ step4c(Cache *C, Red *R, ulong q)
   ind = look_eta2(2, s3);
   if (ind < 0) return -1;
   if ((ind&1)==0) return 0;
-  if (DEBUGLEVEL>2) C->ctsgt++;
+  if (DEBUGLEVEL>2) cache_ctsgt(C)++;
   s3 = Fp_pow(utoipos(q), R->N2, R->N);
   return is_m1(s3, R->N);
 }
 
 /* p=2, k=1 */
 static long
-step4d(Cache *C, Red *R, ulong q)
+step4d(GEN C, Red *R, ulong q)
 {
   GEN s1 = Fp_pow(utoipos(q), R->N2, R->N);
-  if (DEBUGLEVEL>2) C->ctsgt++;
+  if (DEBUGLEVEL>2) cache_ctsgt(C)++;
   if (is_pm1(s1)) return 0;
   if (is_m1(s1, R->N)) return (mod4(R->N) == 1);
   return -1;
@@ -876,12 +878,12 @@ _res(long a, long b) { return b? mkvec2s(a, b): mkvecs(a); }
 
 /* return 1 [OK so far] or <= 0 [not a prime] */
 static GEN
-step5(Cache **pC, Red *R, long p, GEN et, ulong ltab, long lpC)
+step5(GEN pC, Red *R, long p, GEN et, ulong ltab, long lpC)
 {
   pari_sp av;
   ulong q;
   long pk, k, fl = -1;
-  Cache *C, *Cp;
+  GEN C, Cp;
   forprime_t T;
 
   (void)u_forprime_arith_init(&T, 3, ULONG_MAX, 1,p);
@@ -892,17 +894,17 @@ step5(Cache **pC, Red *R, long p, GEN et, ulong ltab, long lpC)
     k = u_lval(q-1, p);
     pk = upowuu(p,k);
     if (pk <= lpC && pC[pk]) {
-      C = pC[pk];
-      Cp = pC[p];
+      C = gel(pC,pk);
+      Cp = gel(pC,p);
     } else {
-      C = pC[1];
+      C = gel(pC,1);
       Cp = NULL;
-      C->matvite = NULL; /* re-init */
+      cache_matvite(C) = NULL; /* re-init */
     }
 
     av = avma;
     if (!filltabs(C, Cp, R, p, pk, ltab)) return _res(1,0);
-    R->C = C->cyc;
+    R->C = cache_cyc(C);
     if (p >= 3)      fl = step4a(C,R, q,p,k, NULL);
     else if (k >= 3) fl = step4b(C,R, q,k);
     else if (k == 2) fl = step4c(C,R, q);
@@ -940,7 +942,7 @@ aprcl(GEN N)
   long i, j, l, ltab, lfat, lpC;
   ulong t;
   Red R;
-  Cache **pC;
+  GEN pC;
 
   if (typ(N) != t_INT) pari_err_TYPE("aprcl",N);
   if (cmpis(N,12) <= 0)
@@ -983,8 +985,8 @@ aprcl(GEN N)
     for (j=1; j<lfaq; j++, avma = av2)
     {
       long p = P[j], e = E[j], pe = PE[j], fl;
-      Cache *C = pC[pe];
-      R.C = C->cyc;
+      GEN C = gel(pC,pe);
+      R.C = cache_cyc(C);
       if (p >= 3)      fl = step4a(C,&R, q,p,e, tabg);
       else if (e >= 3) fl = step4b(C,&R, q,e);
       else if (e == 2) fl = step4c(C,&R, q);
@@ -1006,12 +1008,12 @@ aprcl(GEN N)
   }
   if (DEBUGLEVEL>2)
   {
-    ulong sc = pC[1]->ctsgt;
+    ulong sc = cache_ctsgt(gel(pC,1));
     err_printf("Individual Fermat powerings:\n");
     for (i=2; i<lpC; i++)
       if (pC[i]) {
-        err_printf("  %-3ld: %3ld\n", i, pC[i]->ctsgt);
-        sc += pC[i]->ctsgt;
+        err_printf("  %-3ld: %3ld\n", i, cache_ctsgt(gel(pC,i)));
+        sc += cache_ctsgt(gel(pC,i));
       }
     err_printf("Number of Fermat powerings = %lu\n",sc);
     err_printf("Step6: testing potential divisors\n");
