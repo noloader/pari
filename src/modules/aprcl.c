@@ -289,7 +289,7 @@ powpolmod(GEN C, Red *R, long p, long k, GEN jac)
   GEN (*_sqr)(GEN, Red *);
 
   if (DEBUGLEVEL>2) cache_ctsgt(C)++;
-  if (cache_matvite(C)) return _powpolmodsimple(C, R, jac);
+  if (!isintzero(cache_matvite(C))) return _powpolmodsimple(C, R, jac);
   if (p == 2) /* p = 2 */
   {
     if (k == 2) _sqr = &sqrmod4;
@@ -555,7 +555,7 @@ static GEN
 finda(GEN Cp, GEN N, long pk, long p)
 {
   GEN a, pv;
-  if (Cp && cache_avite(Cp)) {
+  if (Cp && !isintzero(cache_avite(Cp))) {
     a  = cache_avite(Cp);
     pv = cache_pkvite(Cp);
   }
@@ -677,8 +677,8 @@ static GEN
 alloc_cache(void)
 {
   GEN C = cgetg(11,t_VEC);
-  cache_matvite(C) = NULL;
-  cache_avite(C)   = NULL;
+  cache_matvite(C) = gen_0;
+  cache_avite(C)   = gen_0;
   gel(C, 10) = mkvecsmall(0);
   return C;
 }
@@ -704,7 +704,7 @@ calcglobs(Red *R, ulong t, long *plpC, long *pltab, GEN *pP)
   *plpC = lv = vecsmall_max(PE); /* max(p^e, p^e | t) */
   pC = cgetg(lv+1, t_VEC);
   gel(pC,1) = alloc_cache(); /* to be used as temp in step5() */
-  for (i = 2; i <= lv; i++) gel(pC,i) = NULL;
+  for (i = 2; i <= lv; i++) gel(pC,i) = gen_0;
   for (i=1; i<lg(P); i++)
   {
     long pk, p = P[i], e = E[i];
@@ -893,13 +893,13 @@ step5(GEN pC, Red *R, long p, GEN et, ulong ltab, long lpC)
     if (umodiu(R->N,q) == 0) return _res(1,p);
     k = u_lval(q-1, p);
     pk = upowuu(p,k);
-    if (pk <= lpC && pC[pk]) {
+    if (pk <= lpC && !isintzero(gel(pC,pk))) {
       C = gel(pC,pk);
       Cp = gel(pC,p);
     } else {
       C = gel(pC,1);
       Cp = NULL;
-      cache_matvite(C) = NULL; /* re-init */
+      cache_matvite(C) = gen_0; /* re-init */
     }
 
     av = avma;
@@ -1011,7 +1011,7 @@ aprcl(GEN N)
     ulong sc = cache_ctsgt(gel(pC,1));
     err_printf("Individual Fermat powerings:\n");
     for (i=2; i<lpC; i++)
-      if (pC[i]) {
+      if (!isintzero(gel(pC,i))) {
         err_printf("  %-3ld: %3ld\n", i, cache_ctsgt(gel(pC,i)));
         sc += cache_ctsgt(gel(pC,i));
       }
