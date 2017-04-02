@@ -379,7 +379,7 @@ ulogintall(ulong B, ulong y, ulong *ptq)
   if (y == 2)
   {
     long eB = expu(B); /* 2^eB <= B < 2^(eB + 1) */
-    if (ptq) *ptq = 1 << eB;
+    if (ptq) *ptq = 1UL << eB;
     return eB;
   }
   r = y, r2 = 1UL;
