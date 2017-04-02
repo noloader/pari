@@ -672,15 +672,6 @@ filltabs(GEN C, GEN Cp, Red *R, long p, long pk, long ltab)
 }
 
 static GEN
-alloc_cache(void)
-{
-  GEN C = cgetg(10,t_VEC);
-  cache_matvite(C) = gen_0;
-  cache_avite(C)   = gen_0;
-  return C;
-}
-
-static GEN
 calcglobs(Red *R, ulong t, long *plpC, long *pltab, GEN *pP)
 {
   GEN fat, P, E, PE;
@@ -699,8 +690,8 @@ calcglobs(Red *R, ulong t, long *plpC, long *pltab, GEN *pP)
   E = gel(fat,2);
   PE= gel(fat,3);
   *plpC = lv = vecsmall_max(PE); /* max(p^e, p^e | t) */
-  pC = cgetg(lv+1, t_VEC);
-  gel(pC,1) = alloc_cache(); /* to be used as temp in step5() */
+  pC = zerovec(lv);
+  gel(pC,1) = zerovec(9); /* to be used as temp in step5() */
   for (i = 2; i <= lv; i++) gel(pC,i) = gen_0;
   for (i=1; i<lg(P); i++)
   {
@@ -708,7 +699,7 @@ calcglobs(Red *R, ulong t, long *plpC, long *pltab, GEN *pP)
     pk = p;
     for (k=1; k<=e; k++, pk*=p)
     {
-      gel(pC,pk) = alloc_cache();
+      gel(pC,pk) = zerovec(9);
       if (!filltabs(gel(pC,pk), gel(pC,p), R, p,pk, *pltab)) return NULL;
     }
   }
