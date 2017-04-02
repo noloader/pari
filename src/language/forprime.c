@@ -505,18 +505,15 @@ init_primepointer_gt(ulong a, byteptr *pd)
 static ulong
 optimize_chunk(ulong a, ulong b)
 {
-  /* TODO: Optimize size (surely < 512k to stay in L1 cache, but not so large */
-  /* as to force recalculating too often). */
-  /* Guesstimate: greater of sqrt(n) * lg(n) or 1M */
-  ulong chunk = maxuu(0x100000, usqrt(b) * expu(b));
+  /* TODO: Optimize size (surely < 512k to stay in L2 cache, but not so large
+   * as to force recalculating too often). */
+  ulong chunk = 0x80000UL;
   ulong tmp = (b - a) / chunk + 1;
 
   if (tmp == 1)
     chunk = b - a + 16;
   else
     chunk = (b - a) / tmp + 15;
-  /* Don't take up more than 2/3 of the stack */
-  chunk = minuu(chunk, avma - stack_lim(avma, 2));
   /* ensure 16 | chunk + 2 */
   return (((chunk + 2)>>4)<<4) - 2;
 }
