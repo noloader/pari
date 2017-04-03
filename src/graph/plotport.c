@@ -645,7 +645,7 @@ plotlinetype(long ne, long type)
  }
 }
 
-static void*
+static double*
 cpd(double* R, size_t t)
 { void *o = pari_malloc(t * sizeof(double)); memcpy(o,R,t); return (double*)o; }
 static void*
