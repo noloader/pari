@@ -16,4 +16,4 @@ Doc: tests whether the number field $K$ defined
  If $y$ is a number field (\var{nf}), a much faster algorithm is used
  (factoring $x$ over $y$ using \tet{nffactor}). Before version 2.0.14, this
  wasn't guaranteed to return all the embeddings, hence was triggered by a
- special flag. This is no more the case.
+ special flag. This is no longer the case.

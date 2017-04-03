@@ -938,7 +938,7 @@ tests_OK(GEN a, GEN nfa, GEN b, GEN nfb, long fliso)
 
   if (m <= 0) pari_err_IRREDPOL("nfisincl",a);
   if (n <= 0) pari_err_IRREDPOL("nfisincl",b);
-  q = m / n; /* relative degree */
+  q = n / m; /* relative degree */
   if (fliso) { if (n != m) return 0; } else { if (n % m) return 0; }
   if (m == 1) return 1;
 
