@@ -597,12 +597,26 @@ pari_add_defaults_module(entree *ep)
 #ifndef MAP_ANONYMOUS
 #define MAP_ANONYMOUS MAP_ANON
 #endif
+#ifndef MAP_NORESERVE
+#define MAP_NORESERVE 0
+#endif
 static void *
 pari_mainstack_malloc(size_t size)
 {
+  /* Check that the system allows reserving "size" bytes. This is just
+   * a check, we immediately free the memory. */
   void *b = mmap(NULL, size, PROT_READ|PROT_WRITE,
                              MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
-  return (b == MAP_FAILED) ? NULL: b;
+  if (b == MAP_FAILED) return NULL;
+  munmap(b, size);
+
+  /* Map again, this time with MAP_NORESERVE. On some operating systems
+   * like Cygwin, this is needed because remapping with PROT_NONE and
+   * MAP_NORESERVE does not work as expected. */
+  b = mmap(NULL, size, PROT_READ|PROT_WRITE,
+                       MAP_PRIVATE|MAP_ANONYMOUS|MAP_NORESERVE, -1, 0);
+  if (b == MAP_FAILED) return NULL;
+  return b;
 }
 
 static void
@@ -628,7 +642,13 @@ static void
 pari_mainstack_mreset(pari_sp from, pari_sp to)
 {
   size_t s = to - from;
-  mmap((void*)from, s, PROT_NONE, MAP_FIXED|MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
+  void *addr, *res;
+  if (!s) return;
+
+  addr = (void*)from;
+  res = mmap(addr, s, PROT_NONE,
+             MAP_FIXED|MAP_PRIVATE|MAP_ANONYMOUS|MAP_NORESERVE, -1, 0);
+  if (res != addr) pari_err(e_MEM);
 }
 
 /* Commit (make available) the virtual memory mapped between the
