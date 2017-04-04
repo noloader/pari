@@ -1611,6 +1611,7 @@ GEN     varlower(const char *s, long v);
 
 /* aprcl.c */
 
+GEN     divisorslenstra(GEN N, GEN r, GEN s);
 long    isprimeAPRCL(GEN N);
 
 /* Qfb.c */

@@ -1,0 +1,6 @@
+divisorslenstra(245784, 1, 65)
+divisorslenstra(245784, 19, 65)
+divisorslenstra(288288, 1, 71)
+divisorslenstra(288288, 28, 71)
+divisorslenstra(2841696, 2, 175)
+divisorslenstra(2841696, 23, 175)
