@@ -22,12 +22,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #  include "../systems/mingw/mingw.h"
 #  include <process.h>
 #endif
-#ifdef __EMSCRIPTEN__
-#include "../systems/emscripten/emscripten.h"
-#endif
 
 #include "pari.h"
 #include "paripriv.h"
+#ifdef __EMSCRIPTEN__
+#include "../systems/emscripten/emscripten.h"
+#endif
 
 /********************************************************************/
 /**                                                                **/

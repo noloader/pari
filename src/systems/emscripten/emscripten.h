@@ -11,6 +11,8 @@ Check the License for details. You should have received a copy of it, along
 with the package; see the file 'COPYING'. If not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 
+BEGINEXTERN
 void pari_emscripten_help(const char *s);
 void pari_emscripten_wget(const char *s);
-void pari_emscripten_plot_init(void);
+void pari_emscripten_plot_init(long width, long height);
+ENDEXTERN

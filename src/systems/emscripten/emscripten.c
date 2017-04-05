@@ -11,8 +11,8 @@ Check the License for details. You should have received a copy of it, along
 with the package; see the file 'COPYING'. If not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 
-#include <emscripten/emscripten.h>
 #include "pari.h"
+#include <emscripten/emscripten.h>
 
 void
 pari_emscripten_wget(const char *s)
@@ -38,11 +38,13 @@ emscripten_draw(PARI_plot *T, GEN w, GEN x, GEN y)
   avma = av;
 }
 
+static long plot_width, plot_height;
+
 static void
 pari_emscripten_get_plot(PARI_plot *T)
 {
-  T->width   = 480; // width and
-  T->height  = 320; //  height of plot window
+  T->width   = plot_width;
+  T->height  = plot_height;
   T->hunit   = 3;   //
   T->vunit   = 3;   //
   T->fwidth  = 9;   // font width
@@ -51,7 +53,9 @@ pari_emscripten_get_plot(PARI_plot *T)
 }
 
 void
-pari_emscripten_plot_init(void)
+pari_emscripten_plot_init(long width, long height)
 {
+  plot_width  = width;
+  plot_height = height;
   pari_set_plot_engine(pari_emscripten_get_plot);
 }

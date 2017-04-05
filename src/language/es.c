@@ -24,9 +24,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #include <io.h>      /* for setmode */
 #include "../systems/mingw/mingw.h"
 #endif
-#ifdef __EMSCRIPTEN__
-#include "../systems/emscripten/emscripten.h"
-#endif
 #include "paricfg.h"
 #ifdef HAS_STAT
 #include <sys/stat.h>
@@ -38,6 +35,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #include "pari.h"
 #include "paripriv.h"
 #include "anal.h"
+#ifdef __EMSCRIPTEN__
+#include "../systems/emscripten/emscripten.h"
+#endif
 
 static const char esc = (0x1f & '['); /* C-[ = escape */
 
@@ -342,9 +342,6 @@ gp_embedded_init(long rsize, long vsize)
 {
   pari_init(rsize, 500000);
   paristack_setsize(rsize, vsize);
-#ifdef __EMSCRIPTEN__
-  pari_emscripten_plot_init();
-#endif
 }
 
 char *
