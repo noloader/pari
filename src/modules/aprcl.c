@@ -1121,7 +1121,7 @@ add(hashtable *H, GEN t1, GEN t2, GEN a, GEN b, GEN r, GEN s)
 }
 /* T^2 - B*T + C has integer roots ? */
 static void
-check_t(hashtable *H, GEN B, GEN C4, GEN a, GEN b, GEN r, GEN rp, GEN s)
+check_t(hashtable *H, GEN B, GEN C4, GEN a, GEN b, GEN r, GEN s)
 {
   GEN d, t1, t2, D = subii(sqri(B), C4);
   if (!Z_issquareall(D, &d)) return;
@@ -1186,7 +1186,7 @@ divisorslenstra(GEN N, GEN r, GEN s)
       GEN abN4 = shifti(mulii(ab, N), 2);
       GEN B = addii(mulii(a1,r), mulii(b1,rp));
       for (i = 1; i < lC; i++)
-        check_t(H, addii(B, gel(Cs,i)), abN4, a1, b1, r, rp, s);
+        check_t(H, addii(B, gel(Cs,i)), abN4, a1, b1, r, s);
     }
     else
     { /* a1 = 0, last batch */
