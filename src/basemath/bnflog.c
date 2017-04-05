@@ -273,6 +273,7 @@ islocalcycloQ(GEN L, GEN ell)
 }
 #endif
 
+/* true nf */
 static long
 nfislocalpower_i(GEN nf, GEN pr, GEN a, GEN n)
 {
@@ -306,22 +307,10 @@ nfislocalpower(GEN nf, GEN pr, GEN a, GEN n)
   pari_sp av = avma;
   long r;
   if (typ(n) != t_INT) pari_err_TYPE("nfislocalpower",n);
+  nf = checknf(nf);
   r = nfislocalpower_i(nf, pr, a, n);
   avma = av; return r;
 }
-#if 0
-/* is 'a' locally an ell-th power in K_pr, for all pr | ell */
-long
-islocalpthpower(GEN K, GEN a, GEN ell)
-{
-  pari_sp av = avma;
-  GEN S = idealprimedec(K, ell);
-  long i, lS = lg(S);
-  for (i = 1; i < lS; i++)
-    if (!nfislocalpower_i(K, gel(S,i), a, ell)) { avma = av; return 0; }
-  avma = av; return 1;
-}
-#endif
 
 /* v_ell(  exponent(D) ) */
 static long
