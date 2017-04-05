@@ -12,9 +12,7 @@ with the package; see the file 'COPYING'. If not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 
 /*******************************************************************/
-/*                                                                 */
 /*                    THE APRCL PRIMALITY TEST                     */
-/*                                                                 */
 /*******************************************************************/
 #include "pari.h"
 #include "paripriv.h"
@@ -1098,6 +1096,12 @@ isprimeAPRCL(GEN N)
   avma = av; return (typ(res) == t_INT);
 }
 
+/*******************************************************************/
+/*              DIVISORS IN RESIDUE CLASSES (LENSTRA)              */
+/*******************************************************************/
+/* This would allow to replace e(t) > N^(1/2) by e(t) > N^(1/3), but step6
+ * becomes so expensive that, at least up to 6000 bits, this is useless
+ * in this application. */
 static void
 set_add(hashtable *H, void *d)
 {
@@ -1117,9 +1121,9 @@ add(hashtable *H, GEN t1, GEN t2, GEN a, GEN b, GEN r, GEN s)
 }
 /* T^2 - B*T + C has integer roots ? */
 static void
-check_t(hashtable *H, GEN B, GEN C, GEN a, GEN b, GEN r, GEN rp, GEN s)
+check_t(hashtable *H, GEN B, GEN C4, GEN a, GEN b, GEN r, GEN rp, GEN s)
 {
-  GEN d, t1, t2, D = subii(sqri(B), shifti(C, 2));
+  GEN d, t1, t2, D = subii(sqri(B), C4);
   if (!Z_issquareall(D, &d)) return;
   t1 = shifti(addii(B, d), -1);
   t2 = subii(B, t1);
@@ -1152,50 +1156,65 @@ divisorslenstra(GEN N, GEN r, GEN s)
   j = 1;
   for (;;)
   {
-    GEN C, q, c, ab = mulii(a1,b1);
+    GEN Cs, q, c, ab = mulii(a1,b1);
     long i, lC;
-    if (j == 0) /* i even */
-      C = signe(c1)? mkvec2(subii(c1,s), c1): mkvec(gen_0);
+    if (j == 0) /* i even, a1 >= 0 */
+    {
+      if (!signe(c1)) Cs = mkvec(gen_0);
+      else
+      {
+        GEN cs = mulii(c1, s);
+        Cs = mkvec2(subii(cs,s2), cs);
+      }
+    }
     else
-    { /* i odd */
+    { /* i odd, a1 > 0 */
       GEN X = shifti(ab,1);
       c = c1;
       /* smallest c >= 2ab, c = c1 (mod s) */
-      if (cmpii(c, X) < 0) c = addii(c, mulii(s, gceil(gdiv(subii(X,c),s))));
-      C = (cmpii(c, addii(Ns2,ab)) <= 0)? mkvec(c): cgetg(1,t_VEC);
+      if (cmpii(c, X) < 0)
+      {
+        GEN rX, qX = dvmdii(subii(X,c), s, &rX);
+        if (signe(rX)) qX = addiu(qX,1); /* ceil((X-c)/s) */
+        c = addii(c, mulii(s, qX));
+      }
+      Cs = (cmpii(c, addii(Ns2,ab)) <= 0)? mkvec(mulii(c,s)): cgetg(1,t_VEC);
     }
-    lC = lg(C);
-    if (!signe(a1))
+    lC = lg(Cs);
+    if (signe(a1))
     {
+      GEN abN4 = shifti(mulii(ab, N), 2);
+      GEN B = addii(mulii(a1,r), mulii(b1,rp));
+      for (i = 1; i < lC; i++)
+        check_t(H, addii(B, gel(Cs,i)), abN4, a1, b1, r, rp, s);
+    }
+    else
+    { /* a1 = 0, last batch */
       for (i = 1; i < lC; i++)
       {
-        GEN ry, c = gel(C,i), y = dvmdii(c, b1, &ry);
+        GEN ry, ys = dvmdii(gel(Cs,i), b1, &ry);
         if (!signe(ry))
         {
-          GEN d = dvmdii(N, addii(mulii(y,s), rp), &ry);
+          GEN d = dvmdii(N, addii(ys, rp), &ry);
           if (!signe(ry)) set_add(H, (void*)d);
         }
       }
       break; /* DONE */
     }
-    else
-    {
-      GEN abN = mulii(ab, N);
-      GEN B = addii(mulii(a1,r), mulii(b1,rp));
-      for (i = 1; i < lC; i++)
-      {
-        GEN c = gel(C,i);
-        check_t(H, addii(B, mulii(c,s)), abN, a1, b1, r, rp, s);
-      }
-    }
     j = 1-j;
     q = dvmdii(a0, a1, &c);
     if (j == 1 && !signe(c)) { q = subiu(q,1); c = a1; }
     a0 = a1; a1 = c;
-    c = subii(b0, mulii(q,b1));
-    b0 = b1; b1 = c;
-    c = modii(subii(c0, mulii(q,c1)), s);
-    c0 = c1; c1 = c;
+    if (equali1(q)) /* frequent */
+    {
+      c = subii(b0, b1); b0 = b1; b1 = c;
+      c = Fp_sub(c0, c1, s); c0 = c1; c1 = c;
+    }
+    else
+    {
+      c = subii(b0, mulii(q,b1)); b0 = b1; b1 = c;
+      c = modii(subii(c0, mulii(q,c1)), s); c0 = c1; c1 = c;
+    }
   }
   return gerepileupto(av, GEN_hash_keys(H));
 }
