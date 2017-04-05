@@ -77,6 +77,7 @@ EB   62- GP was incorrectly issuing fflush(NULL) [#1913]
      64- polroots(t_POL whose coeffs vary by a factor > 2^100000) -> SEGV
          (or stack overflow)
      65- nfisincl(nf1, nf2) didn't work [#1921]
+     66- setting sopath in gprc then calling install() -> SEGV [#1922]
 
   Added
       1- [libari] ZM_isidentity

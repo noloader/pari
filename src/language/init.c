@@ -973,7 +973,7 @@ pari_init_opts(size_t parisize, ulong maxprime, ulong init_opts)
   if (init_opts&INIT_DFTm) {
     pari_init_defaults();
     GP_DATA = default_gp_data();
-    gp_expand_path(GP_DATA->path);
+    pari_init_paths();
   }
 
   pari_mainstack = (struct pari_mainstack *) malloc(sizeof(*pari_mainstack));
@@ -1035,12 +1035,9 @@ pari_close_opts(ulong init_opts)
   if (pari_datadir) free(pari_datadir);
   if (init_opts&INIT_DFTm)
   { /* delete GP_DATA */
+    pari_close_paths();
     if (GP_DATA->hist->v) free((void*)GP_DATA->hist->v);
     if (GP_DATA->pp->cmd) free((void*)GP_DATA->pp->cmd);
-    delete_dirs(GP_DATA->path);
-    free((void*)GP_DATA->path->PATH);
-    delete_dirs(GP_DATA->sopath);
-    free((void*)GP_DATA->sopath->PATH);
     if (GP_DATA->help) free((void*)GP_DATA->help);
     free((void*)GP_DATA->prompt);
     free((void*)GP_DATA->prompt_cont);

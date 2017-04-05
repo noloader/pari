@@ -118,7 +118,7 @@ pari_default_path(void) {
 #endif
 }
 
-void
+static void
 delete_dirs(gp_path *p)
 {
   char **v = p->dirs, **dirs;
@@ -130,8 +130,8 @@ delete_dirs(gp_path *p)
   }
 }
 
-void
-gp_expand_path(gp_path *p)
+static void
+expand_path(gp_path *p)
 {
   char **dirs, *s, *v = p->PATH;
   int i, n = 0;
@@ -156,6 +156,21 @@ gp_expand_path(gp_path *p)
   }
   pari_free((void*)v);
   dirs[i] = NULL; p->dirs = dirs;
+}
+void
+pari_init_paths(void)
+{
+  expand_path(GP_DATA->path);
+  expand_path(GP_DATA->sopath);
+}
+
+static void
+delete_path(gp_path *p) { delete_dirs(p); free(p->PATH); }
+void
+pari_close_paths(void)
+{
+  delete_path(GP_DATA->path);
+  delete_path(GP_DATA->sopath);
 }
 
 /********************************************************************/
@@ -736,7 +751,7 @@ sd_PATH(const char *v, long flag, const char* s, gp_path *p)
     pari_free((void*)p->PATH);
     p->PATH = pari_strdup(v);
     if (flag == d_INITRC) return gnil;
-    gp_expand_path(p);
+    expand_path(p);
   }
   if (flag == d_RETURN) return strtoGENstr(p->PATH);
   if (flag == d_ACKNOWLEDGE)

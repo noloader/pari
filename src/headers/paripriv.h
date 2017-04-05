@@ -388,9 +388,6 @@ char *pari_translate_string(const char *src, char *s, char *entry);
 
 gp_data *default_gp_data(void);
 
-void delete_dirs(gp_path *p);
-void gp_expand_path(gp_path *p);
-
 typedef char *(*fgets_t)(char *, int, void*);
 
 typedef struct input_method {
@@ -529,6 +526,7 @@ void pari_close_files(void);
 void pari_close_floats(void);
 void pari_close_homedir(void);
 void pari_close_parser(void);
+void pari_close_paths(void);
 void pari_close_primes(void);
 void pari_init_buffers(void);
 void pari_init_compiler(void);
@@ -540,6 +538,7 @@ void pari_init_homedir(void);
 void pari_init_graphics(void);
 void pari_init_parser(void);
 void pari_init_rand(void);
+void pari_init_paths(void);
 void pari_init_primetab(void);
 void pari_init_seadata(void);
 void pari_pthread_init_primetab(void);

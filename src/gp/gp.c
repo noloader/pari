@@ -569,7 +569,7 @@ main(int argc, char **argv)
   cb_pari_sigint = gp_sigint_fun;
   cb_pari_handle_exception = gp_handle_exception;
   cb_pari_ask_confirm = gp_ask_confirm;
-  gp_expand_path(GP_DATA->path);
+  pari_init_paths();
   pari_mt_init(); /* MPI: will not return on slaves (pari_MPI_rank = 0) */
 
 #ifdef READLINE
