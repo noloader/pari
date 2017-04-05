@@ -459,16 +459,21 @@ compute_t_small(double C)
   if (C < 13702.71) return 1470268800;
   if (C < 13748.76) return 1643241600;
   if (C < 13977.37) return 2058376320;
-  if (C < 14096.03) return 2148854400;
-  if (C < 15082.25) return 2205403200;
-  if (C < 15344.18) return 2572970400;
-  if (C < 15718.37) return 2940537600;
-  if (C < 15868.65) return 3491888400;
-  if (C < 15919.88) return 3675672000;
-  if (C < 16217.23) return 4108104000;
-  if (C < 17510.32) return 4410806400;
-  if (C < 18312.87) return 5145940800;
-  return 6983776800;
+  if (C < 14096.03) return 2148854400UL;
+  if (C < 15082.25) return 2205403200UL;
+  if (C < 15344.18) return 2572970400UL;
+  if (C < 15718.37) return 2940537600UL;
+  if (C < 15868.65) return 3491888400UL;
+  if (C < 15919.88) return 3675672000UL;
+  if (C < 16217.23) return 4108104000UL;
+#ifdef LONG_IS_64BIT
+  if (C < 17510.32) return 4410806400UL;
+  if (C < 18312.87) return 5145940800UL;
+  return 6983776800UL;
+#else
+  pari_err_IMPL("APRCL for large numbers on 32bit arch");
+  return 0;
+#endif
 }
 
 /* return t such that e(t) > sqrt(N), set *faet = odd prime divisors of e(t) */
@@ -488,8 +493,9 @@ compute_t(GEN N, GEN *e, GEN *faet)
     *e = compute_e(t, faet);
     return t;
   }
+#ifdef LONG_IS_64BIT
   B = sqrti(N);
-  for (t = 6983776800+5040;; t+=5040)
+  for (t = 6983776800UL+5040UL;; t+=5040)
   {
     pari_sp av = avma;
     *e = compute_e(t, faet);
@@ -497,6 +503,9 @@ compute_t(GEN N, GEN *e, GEN *faet)
     avma = av;
   }
   return t;
+#else
+  return NULL; /* LCOV_EXCL_LINE */
+#endif
 }
 
 /* T[i] = discrete log of i in (Z/q)^*, q odd prime
