@@ -323,7 +323,7 @@ compute_e(ulong t, GEN *faet)
     ulong d = D[k];
     if (uisprime(++d))
     { /* we want q = 1 (mod p) prime, not too large */
-      if (d > 50000000) return gen_0;
+      if (d > 5000000000) return gen_0;
       vecsmalltrunc_append(P, d);
       vecsmalltrunc_append(L, upowuu(d, 1 + u_lval(t,d)));
     }
@@ -335,105 +335,142 @@ compute_e(ulong t, GEN *faet)
 /* Table obtained by the following script:
 
 install(compute_e, "LD&"); \\ remove 'static' first
-
-table(first = 6, step = 6, MAXT = 8648640)=
+table(first = 6, step = 6, MAXT = 6983776800)=
 {
   emax = 0;
   forstep(t = first, MAXT, step,
     e = compute_e(t);
     if (e > 1.9*emax, emax = e;
-      printf("  if (C < %5.5g) return %8d;\n", 2*log(e)/log(2)*0.9999, t)
+      printf("  if (C < %7.2f) return %8d;\n", 2*log(e)/log(2) - 1e-2, t)
     );
   );
 }
-
-Previous values can be recovered using the following table:
-
-T=[6,12,24,48,36,60,120,180,240,504,360,420,720,840,1440,1260,1680,2520,3360,5040,13860,10080,16380,21840,18480,27720,32760,36960,55440,65520,98280,110880,131040,166320,196560,262080,277200,360360,480480,332640,554400,720720,665280,831600,1113840,1441440,1663200,2227680,2162160,2827440,3326400,3603600,6126120,4324320,6683040,7207200,11138400,8648640];
-f(t) = 2*log(compute_e(t))/log(2);
-for (i=1,#T, t=T[i]; printf("  if (C < %5.5g) return %8d;\n", f(t),t));
-
+table(,, 147026880);
+table(147026880,5040, 6983776800);
 */
 
-/* assume C < 3514.6 */
+/* assume C < 20003.8 */
 static ulong
 compute_t_small(double C)
 {
-  if (C < 17.953) return        6;
-  if (C < 31.996) return       12;
-  if (C < 33.996) return       24;
-  if (C < 54.079) return       36;
-  if (C < 65.325) return       60;
-  if (C < 68.457) return       72;
-  if (C < 70.783) return      108;
-  if (C < 78.039) return      120;
-  if (C < 102.41) return      180;
-  if (C < 127.50) return      360;
-  if (C < 136.68) return      420;
-  if (C < 153.43) return      540;
-  if (C < 165.66) return      840;
-  if (C < 169.17) return     1008;
-  if (C < 178.52) return     1080;
-  if (C < 192.68) return     1200;
-  if (C < 206.34) return     1260;
-  if (C < 211.94) return     1620;
-  if (C < 222.09) return     1680;
-  if (C < 225.11) return     2016;
-  if (C < 244.19) return     2160;
-  if (C < 270.29) return     2520;
-  if (C < 279.50) return     3360;
-  if (C < 293.62) return     3780;
-  if (C < 346.68) return     5040;
-  if (C < 348.70) return     6480;
-  if (C < 383.34) return     7560;
-  if (C < 396.68) return     8400;
-  if (C < 426.04) return    10080;
-  if (C < 458.34) return    12600;
-  if (C < 527.16) return    15120;
-  if (C < 595.38) return    25200;
-  if (C < 636.29) return    30240;
-  if (C < 672.53) return    42840;
-  if (C < 684.90) return    45360;
-  if (C < 708.78) return    55440;
-  if (C < 771.30) return    60480;
-  if (C < 775.86) return    75600;
-  if (C < 859.62) return    85680;
-  if (C < 893.16) return   100800;
-  if (C < 912.27) return   110880;
-  if (C < 966.13) return   128520;
-  if (C < 1009.1) return   131040;
-  if (C < 1041.9) return   166320;
-  if (C < 1124.9) return   196560;
-  if (C < 1251.0) return   257040;
-  if (C < 1375.0) return   332640;
-  if (C < 1431.0) return   393120;
-  if (C < 1483.3) return   514080;
-  if (C < 1546.3) return   655200;
-  if (C < 1585.8) return   665280;
-  if (C < 1661.3) return   786240;
-  if (C < 1667.5) return   831600;
-  if (C < 1676.9) return   917280;
-  if (C < 1728.0) return   982800;
-  if (C < 1747.4) return  1081080;
-  if (C < 1773.6) return  1179360;
-  if (C < 1810.6) return  1285200;
-  if (C < 1924.5) return  1310400;
-  if (C < 2001.1) return  1441440;
-  if (C < 2096.3) return  1663200;
-  if (C < 2165.8) return  1965600;
-  if (C < 2321.6) return  2162160;
-  if (C < 2368.2) return  2751840;
-  if (C < 2377.2) return  2827440;
-  if (C < 2514.7) return  3326400;
-  if (C < 2588.5) return  3341520;
-  if (C < 2636.6) return  3603600;
-  if (C < 2667.2) return  3931200;
-  if (C < 3028.6) return  4324320;
-  if (C < 3045.5) return  5654880;
-  if (C < 3080.5) return  6652800;
-  if (C < 3121.6) return  6683040;
-  if (C < 3283.1) return  7207200;
-  return  8648640;
+  if (C <   17.94) return        6;
+  if (C <   31.99) return       12;
+  if (C <   33.99) return       24;
+  if (C <   54.07) return       36;
+  if (C <   65.32) return       60;
+  if (C <   68.45) return       72;
+  if (C <   70.78) return      108;
+  if (C <   78.04) return      120;
+  if (C <  102.41) return      180;
+  if (C <  127.50) return      360;
+  if (C <  136.68) return      420;
+  if (C <  153.44) return      540;
+  if (C <  165.67) return      840;
+  if (C <  169.18) return     1008;
+  if (C <  178.53) return     1080;
+  if (C <  192.69) return     1200;
+  if (C <  206.35) return     1260;
+  if (C <  211.96) return     1620;
+  if (C <  222.10) return     1680;
+  if (C <  225.12) return     2016;
+  if (C <  244.20) return     2160;
+  if (C <  270.31) return     2520;
+  if (C <  279.52) return     3360;
+  if (C <  293.64) return     3780;
+  if (C <  346.70) return     5040;
+  if (C <  348.73) return     6480;
+  if (C <  383.37) return     7560;
+  if (C <  396.71) return     8400;
+  if (C <  426.08) return    10080;
+  if (C <  458.38) return    12600;
+  if (C <  527.20) return    15120;
+  if (C <  595.43) return    25200;
+  if (C <  636.34) return    30240;
+  if (C <  672.58) return    42840;
+  if (C <  684.96) return    45360;
+  if (C <  708.84) return    55440;
+  if (C <  771.37) return    60480;
+  if (C <  775.93) return    75600;
+  if (C <  859.69) return    85680;
+  if (C <  893.24) return   100800;
+  if (C <  912.35) return   110880;
+  if (C <  966.22) return   128520;
+  if (C < 1009.18) return   131040;
+  if (C < 1042.04) return   166320;
+  if (C < 1124.98) return   196560;
+  if (C < 1251.09) return   257040;
+  if (C < 1375.13) return   332640;
+  if (C < 1431.11) return   393120;
+  if (C < 1483.46) return   514080;
+  if (C < 1546.46) return   655200;
+  if (C < 1585.94) return   665280;
+  if (C < 1661.44) return   786240;
+  if (C < 1667.67) return   831600;
+  if (C < 1677.07) return   917280;
+  if (C < 1728.17) return   982800;
+  if (C < 1747.57) return  1081080;
+  if (C < 1773.76) return  1179360;
+  if (C < 1810.81) return  1285200;
+  if (C < 1924.66) return  1310400;
+  if (C < 2001.27) return  1441440;
+  if (C < 2096.51) return  1663200;
+  if (C < 2166.02) return  1965600;
+  if (C < 2321.86) return  2162160;
+  if (C < 2368.45) return  2751840;
+  if (C < 2377.39) return  2827440;
+  if (C < 2514.97) return  3326400;
+  if (C < 2588.72) return  3341520;
+  if (C < 2636.84) return  3603600;
+  if (C < 2667.46) return  3931200;
+  if (C < 3028.92) return  4324320;
+  if (C < 3045.76) return  5654880;
+  if (C < 3080.78) return  6652800;
+  if (C < 3121.88) return  6683040;
+  if (C < 3283.38) return  7207200;
+  if (C < 3514.94) return  8648640;
+  if (C < 3725.71) return 10810800;
+  if (C < 3817.49) return 12972960;
+  if (C < 3976.57) return 14414400;
+  if (C < 3980.72) return 18378360;
+  if (C < 4761.70) return 21621600;
+  if (C < 5067.62) return 36756720;
+  if (C < 5657.30) return 43243200;
+  if (C < 5959.24) return 64864800;
+  if (C < 6423.60) return 73513440;
+  if (C < 6497.01) return 86486400;
+  if (C < 6529.89) return 113097600;
+  if (C < 6899.19) return 122522400;
+  if (C < 7094.26) return 129729600;
+  if (C < 7494.60) return 147026880;
+  if (C < 7606.21) return 172972800;
+  if (C < 7785.10) return 183783600;
+  if (C < 7803.68) return 216216000;
+  if (C < 8024.18) return 220540320;
+  if (C < 8278.12) return 245044800;
+  if (C < 8316.48) return 273873600;
+  if (C < 8544.02) return 294053760;
+  if (C < 8634.14) return 302702400;
+  if (C < 9977.69) return 367567200;
+  if (C < 10053.06) return 514594080;
+  if (C < 10184.29) return 551350800;
+  if (C < 11798.33) return 735134400;
+  if (C < 11812.60) return 821620800;
+  if (C < 11935.31) return 1029188160;
+  if (C < 12017.99) return 1074427200;
+  if (C < 12723.99) return 1102701600;
+  if (C < 13702.71) return 1470268800;
+  if (C < 13748.76) return 1643241600;
+  if (C < 13977.37) return 2058376320;
+  if (C < 14096.03) return 2148854400;
+  if (C < 15082.25) return 2205403200;
+  if (C < 15344.18) return 2572970400;
+  if (C < 15718.37) return 2940537600;
+  if (C < 15868.65) return 3491888400;
+  if (C < 15919.88) return 3675672000;
+  if (C < 16217.23) return 4108104000;
+  if (C < 17510.32) return 4410806400;
+  if (C < 18312.87) return 5145940800;
+  return 6983776800;
 }
 
 /* return t such that e(t) > sqrt(N), set *faet = odd prime divisors of e(t) */
@@ -442,19 +479,19 @@ compute_t(GEN N, GEN *e, GEN *faet)
 {
   /* 2^e b <= N < 2^e (b+1), where b >= 2^52. Approximating log_2 N by
    * log2(gtodouble(N)) ~ e+log2(b), the error is less than log(1+1/b) < 1e-15*/
-  double C = dbllog2(N) + 1e-6; /* > log_2 N */
+  double C = dbllog2(N) + 1e-10; /* > log_2 N at least for N < 2^(2^21) */
   ulong t;
   GEN B;
   /* Return "smallest" t such that f(t) >= C, which implies e(t) > sqrt(N) */
-  /* For N < 2^3515 ~ 10^1058 */
-  if (C < 3514.6)
+  /* For N < 2^20003.8 ~ 5.5 10^6021 */
+  if (C < 20003.8)
   {
     t = compute_t_small(C);
     *e = compute_e(t, faet);
     return t;
   }
   B = sqrti(N);
-  for (t = 8648640+840;; t+=840)
+  for (t = 6983776800+5040;; t+=5040)
   {
     pari_sp av = avma;
     *e = compute_e(t, faet);
