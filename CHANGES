@@ -78,6 +78,7 @@ EB   62- GP was incorrectly issuing fflush(NULL) [#1913]
          (or stack overflow)
      65- nfisincl(nf1, nf2) didn't work [#1921]
      66- setting sopath in gprc then calling install() -> SEGV [#1922]
+     67- nfislocalpower did not accept a bnf in place of a nf
 
   Added
       1- [libari] ZM_isidentity
