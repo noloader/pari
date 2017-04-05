@@ -1,4 +1,4 @@
-K=nfinit(y^2+1);
+K=bnfinit(y^2+1);
 P=idealprimedec(K,2)[1];
 nfislocalpower(K,P,2,2)
 nfislocalpower(K,P,-1,2)
