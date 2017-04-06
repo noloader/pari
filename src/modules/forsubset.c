@@ -17,6 +17,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 void
 forksubset_init(forsubset_t *T, long n, long k)
 {
+  T->all = 0;
   T->first = 1;
   T->n = n;
   T->k = k;
@@ -26,6 +27,7 @@ forksubset_init(forsubset_t *T, long n, long k)
 void
 forallsubset_init(forsubset_t *T, long n)
 {
+  T->all = 1;
   T->first = 1;
   T->n = n;
   T->k = 0;
@@ -38,8 +40,8 @@ forksubset_next(forsubset_t *T)
   GEN v = T->v;
   long i, n = T->n, k = T->k;
 
-  if (T->first) { T->first = 0; return v; }
-  if (k == 0 || k == n) return NULL;
+  if (T->first) { T->first = 0; return (k >= 0 && k <= n) ? v: NULL; }
+  if (k <= 0 || k >= n) return NULL;
 
   if (v[k] < n) { v[k]++; return v; }
   for (i = k - 1; i >= 1 && v[i+1] == v[i] + 1; i--);
@@ -66,61 +68,36 @@ forallsubset_next(forsubset_t *T)
   return NULL;
 }
 
+GEN
+forsubset_next(forsubset_t *T)
+{ return T->all? forallsubset_next(T): forksubset_next(T); }
 void
-forksubset(void *E, long call(void *, GEN), long n, long k)
-{
-  if (k >= 0 && k <= n)
-  {
-    pari_sp av = avma;
-    forsubset_t T;
-    GEN v;
-    forksubset_init(&T, n, k);
-    while ((v = forksubset_next(&T)))
-      if (call(E, v)) break;
-    avma = av;
-  }
-}
-
-void
-forallsubset(void *E, long call(void *, GEN), long n)
-{
-  pari_sp av = avma;
-  forsubset_t T;
-  GEN v;
-  forallsubset_init(&T, n);
-  while ((v = forallsubset_next(&T)))
-    if (call(E, T.v)) break;
-  avma = av;
-}
-
-static void
-forksubset0(long n, long k, GEN code)
-{
-  push_lex(gen_0, code);
-  forksubset((void *)code, &gp_evalvoid, n, k);
-  pop_lex(1);
-}
-static void
-forallsubset0(long n, GEN code)
-{
-  push_lex(gen_0, code);
-  forallsubset((void *)code, &gp_evalvoid, n);
-  pop_lex(1);
-}
-void
-forsubset0(GEN nk, GEN code)
+forsubset_init(forsubset_t *T, GEN nk)
 {
   switch(typ(nk))
   {
-    case t_INT: return forallsubset0(itos(nk), code);
+    case t_INT: forallsubset_init(T, itos(nk)); return;
     case t_VEC:
       if (lg(nk) == 3)
       {
         GEN n = gel(nk,1), k = gel(nk,2);
         if (typ(n) == t_INT && typ(k) == t_INT)
-          return forksubset0(itos(n),itos(k), code);
+          return forksubset_init(T, itos(n),itos(k));
       }
     default:
       pari_err_TYPE("forsubset", nk);
   }
+}
+void
+forsubset0(GEN nk, GEN code)
+{
+  pari_sp av = avma;
+  forsubset_t T;
+  void *E = (void*)code;
+  GEN v;
+  push_lex(gen_0, code);
+  forsubset_init(&T, nk);
+  while ((v = forsubset_next(&T)))
+    if (gp_evalvoid(E, v)) break;
+  pop_lex(1); avma = av;
 }

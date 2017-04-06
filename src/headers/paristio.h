@@ -92,7 +92,7 @@ typedef struct
 /* Iterate over subsets */
 typedef struct
 {
-  long n, k, first;
+  long n, k, all, first;
   GEN v;
 } forsubset_t;
 

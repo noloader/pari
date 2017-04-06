@@ -3906,12 +3906,12 @@ GEN     forperm_next(forperm_t *T);
 
 /* forsubset.c */
 
-void forksubset(void *E, long call(void *, GEN), long n, long k);
-void forallsubset(void *E, long call(void *, GEN), long n);
-void forksubset_init(forsubset_t *T, long n, long k);
 void forallsubset_init(forsubset_t *T, long n);
-GEN forksubset_next(forsubset_t *T);
 GEN forallsubset_next(forsubset_t *T);
+void forksubset_init(forsubset_t *T, long n, long k);
+GEN forksubset_next(forsubset_t *T);
+GEN forsubset_next(forsubset_t *T);
+void forsubset_init(forsubset_t *T, GEN nk);
 
 /* perm.c */
 

@@ -2058,11 +2058,7 @@ yourself.
 
 \item \tet{forperm} to loop over permutations of $k$. See the documentation
   of the \kbd{forperm} GP function for details. This function is available as
-  a loop with callbacks:
-
-  \fun{void}{forperm}{void *E, long call(void *, GEN), GEN k}
-
-  \noindent It is also available as an iterator:
+  an iterator:
 
   \fun{void}{forperm_init}{forperm_t *T, GEN k} initializes an iterator
   over the permutations of $k$ (\typ{INT}, \typ{VEC} or \typ{VECSMALL}).
@@ -2074,13 +2070,7 @@ yourself.
 
 \item \tet{forsubset} to loop over subsets. See the documentation
   of the \kbd{forsubset} GP function for details. This function
-  is available as two loops with callbacks:
-
-  \fun{void}{forallsubset}{void *E, long call(void *, GEN), long n}
-
-  \fun{void}{forksubset}{void *E, long call(void *, GEN), long n, long k}
-
-  \noindent The two variants are also available as iterators:
+  is available as two iterators:
 
   \fun{void}{forallsubset_init}{forsubset_t *T, long n}
 
@@ -2090,6 +2080,13 @@ yourself.
   \fun{void}{forksubset_init}{forsubset_t *T, long n, long k}
 
   \fun{GEN}{forksubset_next}{forsubset_t *T}
+
+  It is also available in generic form:
+
+  \fun{void}{forsubset_init}{forsubset_t *T, GEN nk} where \kbd{nk} is either
+  a \typ{INT} $n$ or a \typ{VEC} with two integral components $[n,k]$.
+
+  \fun{GEN}{forsubset_next}{forsubset_t *T}
 
 \subsec{Iterating over primes}\label{se:primeiter}
 

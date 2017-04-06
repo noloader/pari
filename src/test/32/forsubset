@@ -18,5 +18,5 @@ Vecsmall([])
 Vecsmall([])
   ***   at top-level: forsubset('x,s,)
   ***                 ^----------------
-  *** forsubset: incorrect type in forsubset (t_POL).
+  ***   incorrect type in forsubset (t_POL).
 Total time spent: 0
