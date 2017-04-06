@@ -1,7 +1,23 @@
+Function: _forsubset_init
+Class: gp2c_internal
+Help: Initialize forsubset_t
+Description:
+ (forsubset,small):void            forallsubset_init(&$1, $2)
+ (forsubset,gen):void              forsubset_init(&$1, $2)
+
+Function: _forsubset_next
+Class: gp2c_internal
+Help: Compute the next subset
+Description:
+ (forsubset):vecsmall              forsubset_next(&$1)
+
 Function: forsubset
 Section: programming/control
 C-Name: forsubset0
 Prototype: vGVI
+Iterator:
+ (gen,gen)         (forsubset, _forsubset_init, _forsubset_next)
+Wrapper: (,vG,,)
 Help: forsubset(nk, s, seq): if nk is an integer n, the sequence is evaluated,
   s going through all subsets of {1, 2, ..., n}; if nk is a pair [n,k]
   of integers s goes through k-subsets of {1, 2, ..., n}.
