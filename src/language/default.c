@@ -137,24 +137,32 @@ expand_path(gp_path *p)
   int i, n = 0;
 
   delete_dirs(p);
-  v = pari_strdup(v);
-  for (s=v; *s; s++)
-    if (*s == PATH_SEPARATOR) {
-      *s = 0;
-      if (s == v || s[-1] != 0) n++; /* ignore empty path components */
-    }
-  dirs = (char**) pari_malloc((n + 2)*sizeof(char *));
-
-  for (s=v, i=0; i<=n; i++)
+  if (*v)
   {
-    char *end, *f;
-    while (!*s) s++; /* skip empty path components */
-    f = end = s + strlen(s);
-    while (f > s && *--f == '/') *f = 0; /* skip trailing '/' */
-    dirs[i] = path_expand(s);
-    s = end + 1; /* next path component */
+    v = pari_strdup(v);
+    for (s=v; *s; s++)
+      if (*s == PATH_SEPARATOR) {
+        *s = 0;
+        if (s == v || s[-1] != 0) n++; /* ignore empty path components */
+      }
+    dirs = (char**) pari_malloc((n + 2)*sizeof(char *));
+
+    for (s=v, i=0; i<=n; i++)
+    {
+      char *end, *f;
+      while (!*s) s++; /* skip empty path components */
+      f = end = s + strlen(s);
+      while (f > s && *--f == '/') *f = 0; /* skip trailing '/' */
+      dirs[i] = path_expand(s);
+      s = end + 1; /* next path component */
+    }
+    pari_free((void*)v);
   }
-  pari_free((void*)v);
+  else
+  {
+    dirs = (char**) pari_malloc(sizeof(char *));
+    i = 0;
+  }
   dirs[i] = NULL; p->dirs = dirs;
 }
 void
