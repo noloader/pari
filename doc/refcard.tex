@@ -418,6 +418,7 @@ header.
 
 \subsec{Resultant, elimination}
 \li{discriminant of polynomial $f$}{poldisc$(f)$}
+\li{find factors of \kbd{poldisc}$(f)$}{poldiscfactors$(f)$}
 \li{resultant $R = \text{Res}_v(f,g)$}{polresultant$(f,g,\{v\})$}
 \li{$[u,v,R]$, $xu + yv = \text{Res}_v(f,g)$}{polresultantext$(x,y,\{v\})$}
 \li{solve Thue equation $f(x,y)=a$}{thue$(t,a,\{sol\})$}
@@ -432,6 +433,7 @@ header.
 
 \subsec{Roots and Factorization}
 \li{complex roots of $f$}{polroots$(f)$}
+\li{bound complex roots of $f$}{polrootsbound$(f)$}
 \li{number of real roots of $f$ (in $[a,b]$)}{polsturm$(f,\{[a,b]\})$}
 \li{real roots of $f$ (in $[a,b]$)}{polrootsreal$(f,\{[a,b]\})$}
 \li{symmetric powers of roots of $f$ up to $n$}{polsym$(f,n)$}
@@ -486,13 +488,13 @@ header.
    {eint1, erfc}
 \li{dilogarithm of $x$}{dilog$(x)$}
 \li{$m$-th polylogarithm of $x$}{polylog$(m,x,\{\fl\})$}
+\newcolumn
 \li{$U$-confluent hypergeometric function}{hyperu$(a,b,u)$}
 \li{Bessel $J_n(x)$, $J_{n+1/2}(x)$}{besselj$(n,x)$, besseljh$(n,x)$}
 \li{Bessel $I_\nu$, $K_\nu$, $H^1_\nu$, $H^2_\nu$, $N_\nu$}
 {(bessel)i{\rm, }k{\rm, }h1{\rm, }h2{\rm, }n}
 \li{Lambert $W$: $x$ s.t. $xe^x =y$}{lambertw$(y)$}
 \li{Teichmuller character of $p$-adic $x$}{teichmuller$(x)$}
-\newcolumn
 
 \section{Iterations, Sums \& Products}
 
@@ -521,6 +523,9 @@ Behaviour at endpoint for Double Exponential (DE) methods: either a scalar
 \li{sum of series $f(n)$, $n\geq a$ (low accuracy)}{suminf$(n=a,\expr)$}
 \li{sum of alternating/positive series}{sumalt{\rm,} sumpos}
 \li{sum of series using Euler-Maclaurin}{sumnum$(n=a,f,\{T\})$}
+\li{$\sum_{n\geq a} F(n)$, $F$ rational function}{sumnumrat$(F,a)$}
+\li{\dots $\sum_{n\geq a} (-1)^n F(n)$}{sumaltrat$(F,a)$}
+\li{\dots $\sum_{p\geq a} F(p^s)$}{sumeulerrat$(F, \{s = 1\}, \{a = 2\})$}
 \li{weights for \kbd{sumnum}, $a$ as in DE}
    {sumnuminit$(\{\infty, a\})$}
 \li{sum of series by Monien summation}{sumnummonien$(n=a,f,\{T\})$}
@@ -534,6 +539,9 @@ Behaviour at endpoint for Double Exponential (DE) methods: either a scalar
 \li{product $a\le X\le b$, initialized at $x$}{prod$(X=a,b,\expr,\{x\})$}
 \li{product over primes $a\le X\le b$}{prodeuler$(X=a,b,\expr)$}
 \li{infinite product $a\le X\le\infty$}{prodinf$(X=a,\expr)$}
+\li{$\prod_{n\geq a} F(n)$, $F$ rational function}{prodnumrat$(F,a)$}
+\li{\dots $\prod_{p\geq a} F(p^s)$}
+   {prodeulerrat$(F,\{s=1\},\{a=2\})$}
 
 \subsec{Other numerical methods}
 \li{real root of $f$ in $[a,b]$; bracketed root}{solve$(X=a,b,f)$}
@@ -574,7 +582,7 @@ Behaviour at endpoint for Double Exponential (DE) methods: either a scalar
 \li{recover $x$ from its factorization}{factorback$(f,\{e\})$}
 \li{$x\in\ZZ$, $|x|\leq X$, $\gcd(N,P(x)) \geq N$}
    {zncoppersmith$(P,N,X,\{B\})$}
-\li{divisors of $N$ in residue class $r \pmod{s}$}{divisorslenstra$(N,r,s)$}
+\li{divisors of $N$ in residue class $r \mod{s}$}{divisorslenstra$(N,r,s)$}
 
 \subsec{Divisors and multiplicative functions}
 \li{number of prime divisors $\omega(n)$ / $\Omega(n)$}
@@ -631,6 +639,7 @@ $[c_1,\dots,c_k]$ such that $\chi(g_j) = e(n_j/d_j)$.
 
 \subsec{Dirichlet Characters}
 \li{initialize $G = (\ZZ/q\ZZ)^*$}{G = idealstar$(,q)$}
+\li{convert datum $D$ to $[G,\chi]$}{znchar$(D)$}
 \li{is $\chi$ odd?}{zncharisodd$(G,\chi)$}
 \li{real $\chi \to $ Kronecker symbol $(D/.)$}{znchartokronecker$(G,\chi)$}
 \li{conductor of $\chi$}{zncharconductor$(G,\chi)$}
