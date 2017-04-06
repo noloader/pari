@@ -475,6 +475,7 @@ header.
    {gamma{\rm, }lngamma{\rm, }psi}
 \li{half-integer gamma function $\Gamma(n+1/2)$}{gammah$(n)$}
 \li{Riemann's zeta $\zeta(s)=\sum n^{-s}$}{zeta$(s)$}
+\li{Hurwitz's $\zeta(s,x)=\sum (n+x)^{-s}$}{zetahurwitz$(s,x)$}
 \li{multiple zeta value (MZV), $\zeta(s_1,\dots,s_k)$}{zetamult$(s,\{T\})$}
 \li{... init $T$ for MZV with $s_1+\dots+s_k\leq w$}{zetamultinit$(w)$}
 \li{all MZVs for all weights $\sum s_i \leq n$}{zetamultall$(n)$}
@@ -573,6 +574,7 @@ Behaviour at endpoint for Double Exponential (DE) methods: either a scalar
 \li{recover $x$ from its factorization}{factorback$(f,\{e\})$}
 \li{$x\in\ZZ$, $|x|\leq X$, $\gcd(N,P(x)) \geq N$}
    {zncoppersmith$(P,N,X,\{B\})$}
+\li{divisors of $N$ in residue class $r \pmod{s}$}{divisorslenstra$(N,r,s)$}
 
 \subsec{Divisors and multiplicative functions}
 \li{number of prime divisors $\omega(n)$ / $\Omega(n)$}
@@ -631,8 +633,13 @@ $[c_1,\dots,c_k]$ such that $\chi(g_j) = e(n_j/d_j)$.
 \li{initialize $G = (\ZZ/q\ZZ)^*$}{G = idealstar$(,q)$}
 \li{is $\chi$ odd?}{zncharisodd$(G,\chi)$}
 \li{real $\chi \to $ Kronecker symbol $(D/.)$}{znchartokronecker$(G,\chi)$}
-\li{induce $\chi\in \hat{G}$ to $\ZZ/N\ZZ$}{zncharinduce$(G,\var{chi},N)$}
-\li{Galois orbits of Dirichlet characters}{znchargalois$(G,\{ORD\})$}
+\li{conductor of $\chi$}{zncharconductor$(G,\chi)$}
+\li{$[G_0,\chi_0]$ primitive attached to $\chi$}{znchartoprimitive$(G,\chi)$}
+\li{induce $\chi\in \hat{G}$ to $\ZZ/N\ZZ$}{zncharinduce$(G,\chi,N)$}
+\li{Galois orbits of Dirichlet characters}{znchargalois$(G)$}
+\li{$\chi_p$}{znchardecompose$(G,\chi, p)$}
+\li{$\prod_{p\mid (Q,N)} \chi_p$}{znchardecompose$(G,\chi, Q)$}
+\li{complex Gauss sum $G_a(\chi)$}{znchargauss$(G,\chi)$}
 
 \subsec{Conrey labelling}
 \li{Conrey label $m\in (\ZZ/q\ZZ)^* \to\;$ character}{znconreychar$(G,m)$}
