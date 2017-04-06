@@ -502,7 +502,8 @@ compute_t(GEN N, GEN *e, GEN *faet)
       avma = av;
     }
 #else
-  t = 0; /* LCOV_EXCL_LINE */
+    *e = NULL; /* LCOV_EXCL_LINE */
+    t = 0; /* LCOV_EXCL_LINE */
 #endif
   }
   return t;
