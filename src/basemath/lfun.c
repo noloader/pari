@@ -2421,20 +2421,19 @@ znchargauss_i(GEN G, GEN chi, long bitprec)
   return z;
 }
 GEN
-znchargauss(GEN chi, GEN a, long bitprec)
+znchargauss(GEN G, GEN chi, GEN a, long bitprec)
 {
-  GEN T = znchar(chi), G, N, F, GF, tau;
+  GEN T, N, F, GF, tau;
   long prec = nbits2prec(bitprec);
   pari_sp av = avma;
 
+  if (typ(chi) != t_COL) chi = znconreylog(G,chi);
   if (!a) a = gen_1;
   else if (typ(a) != t_INT) pari_err_TYPE("znchargauss",a);
-  G = gel(T,1);
-  N = znstar_get_N(G);
-  chi = gel(T,2);
   T = znchartoprimitive(G, chi);
   GF = gel(T,1);
   chi = gel(T,2); /* now primitive */
+  N = znstar_get_N(G);
   F = znstar_get_N(GF);
   tau = znchargauss_i(GF, chi, bitprec);
   if (!equalii(N,F))

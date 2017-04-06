@@ -3660,7 +3660,7 @@ long    theta_get_bitprec(GEN tdata);
 long    theta_get_m(GEN tdata);
 GEN     theta_get_tdom(GEN tdata);
 GEN     theta_get_sqrtN(GEN tdata);
-GEN     znchargauss(GEN chi, GEN a, long bitprec);
+GEN     znchargauss(GEN G, GEN chi, GEN a, long bitprec);
 
 /* lfunutils.c */
 
