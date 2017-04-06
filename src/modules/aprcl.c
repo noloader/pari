@@ -479,33 +479,33 @@ compute_t_small(double C)
 /* return t such that e(t) > sqrt(N), set *faet = odd prime divisors of e(t) */
 static ulong
 compute_t(GEN N, GEN *e, GEN *faet)
-{
-  /* 2^e b <= N < 2^e (b+1), where b >= 2^52. Approximating log_2 N by
+{ /* 2^e b <= N < 2^e (b+1), where b >= 2^52. Approximating log_2 N by
    * log2(gtodouble(N)) ~ e+log2(b), the error is less than log(1+1/b) < 1e-15*/
   double C = dbllog2(N) + 1e-10; /* > log_2 N at least for N < 2^(2^21) */
   ulong t;
-  GEN B;
   /* Return "smallest" t such that f(t) >= C, which implies e(t) > sqrt(N) */
   /* For N < 2^20003.8 ~ 5.5 10^6021 */
   if (C < 20003.8)
   {
     t = compute_t_small(C);
     *e = compute_e(t, faet);
-    return t;
   }
-#ifdef LONG_IS_64BIT
-  B = sqrti(N);
-  for (t = 6983776800UL+5040UL;; t+=5040)
+  else
   {
-    pari_sp av = avma;
-    *e = compute_e(t, faet);
-    if (cmpii(*e, B) > 0) break;
-    avma = av;
+#ifdef LONG_IS_64BIT
+    GEN B = sqrti(N);
+    for (t = 6983776800UL+5040UL;; t+=5040)
+    {
+      pari_sp av = avma;
+      *e = compute_e(t, faet);
+      if (cmpii(*e, B) > 0) break;
+      avma = av;
+    }
+#else
+  t = 0; /* LCOV_EXCL_LINE */
+#endif
   }
   return t;
-#else
-  return NULL; /* LCOV_EXCL_LINE */
-#endif
 }
 
 /* T[i] = discrete log of i in (Z/q)^*, q odd prime
