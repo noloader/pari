@@ -2074,19 +2074,16 @@ yourself.
 
   \fun{void}{forallsubset_init}{forsubset_t *T, long n}
 
-  \fun{GEN}{forallsubset_next}{forsubset_t *T} returns the next subset
-  as a \typ{VECSMALL} or \kbd{NULL} when all subsets have been exhausted.
-
   \fun{void}{forksubset_init}{forsubset_t *T, long n, long k}
 
-  \fun{GEN}{forksubset_next}{forsubset_t *T}
-
-  It is also available in generic form:
+  \noindent It is also available in generic form:
 
   \fun{void}{forsubset_init}{forsubset_t *T, GEN nk} where \kbd{nk} is either
   a \typ{INT} $n$ or a \typ{VEC} with two integral components $[n,k]$.
 
-  \fun{GEN}{forsubset_next}{forsubset_t *T}
+  In all three cases, \fun{GEN}{forsubset_next}{forsubset_t *T} returns the
+  next subset as a \typ{VECSMALL} or \kbd{NULL} when all subsets have been
+  exhausted.
 
 \subsec{Iterating over primes}\label{se:primeiter}
 

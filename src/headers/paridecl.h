@@ -3907,9 +3907,7 @@ GEN     forperm_next(forperm_t *T);
 /* forsubset.c */
 
 void forallsubset_init(forsubset_t *T, long n);
-GEN forallsubset_next(forsubset_t *T);
 void forksubset_init(forsubset_t *T, long n, long k);
-GEN forksubset_next(forsubset_t *T);
 GEN forsubset_next(forsubset_t *T);
 void forsubset_init(forsubset_t *T, GEN nk);
 
