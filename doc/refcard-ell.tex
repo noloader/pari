@@ -102,9 +102,10 @@ $\bullet$ All domains:
 \section{Curves over $\QQ$}
 \subsec{Reduction, minimal model}
 \li{minimal model of $E/\QQ$} {ellminimalmodel$(E,\{$\&$v\})$}
-\li{quadratic twist of minimal conductor}{ellminimaltwist}
-\li{multiple of $P$ with good reduction}{ellnonsingularmultiple$(E,P)$}
+\li{quadratic twist of minimal conductor}{ellminimaltwist$(E)$}
+\li{$[k]P$ with good reduction}{ellnonsingularmultiple$(E,P)$}
 \li{$E$ supersingular at $p$?}{ellissupersingular$(E, p)$}
+\li{affine points of na\"\i ve height $\leq h$}{ellratpoints$(E, h)$}
 
 \subsec{Complex heights}
 \li{canonical height of $P$}{ellheight$(E,P)$}
@@ -147,6 +148,7 @@ $\bullet$ All domains:
 \li{Kodaira type of $\goth{p}$-fiber of $E$}{elllocalred$(E,\goth{p})$}
 \li{integral model of $E/K$} {ellintegralmodel$(E,\{$\&$v\})$}
 \li{minimal model of $E/K$} {ellminimalmodel$(E,\{$\&$v\})$}
+\li{minimal discriminant of $E/K$}{ellminimaldisc$(E)$}
 \li{cond, min mod, Tamagawa num \kbd{[}$N,v,c$\kbd{]}}{ellglobalred$(E)$}
 \li{global Tamagawa number}{elltamagawa$(E)$}
 \li{$P\in E(K)$ $n$-divisible? $[n]Q=P$}{ellisdivisible$(E,P,n,\{\&Q\})$}
@@ -163,6 +165,7 @@ and $[h]$ encodes $D = [1/2,0,h]$ (critical line up to height $h$).\hfil\break
 A hyperelliptic curve is given by a pair $[P,Q]$ ($y^2+Qy = P$ with $Q^2+4P$
 squarefree) or a single squarefree polynomial $P$ ($y^2 = P$).\hfil\break
 \li{reduction of $y^2+Qy = P$ (genus $2$)}{genus2red$([P,Q],\{p\})$}
+\li{affine rational points of height $\leq h$}{hyperellratpoints$([P,Q], h)$}
 \li{find a rational point on a conic, $^t x G x = 0$}{qfsolve$(G)$}
 \li{quadratic Hilbert symbol (at $p$)}{hilbert$(x,y,\{p\})$}
 \li{all solutions in $\QQ^3$ of ternary form}{qfparam$(G,x)$}
