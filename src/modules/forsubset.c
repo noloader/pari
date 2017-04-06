@@ -17,6 +17,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 void
 forksubset_init(forsubset_t *T, long n, long k)
 {
+  T->first = 1;
   T->n = n;
   T->k = k;
   T->v = identity_perm(k);
@@ -25,6 +26,7 @@ forksubset_init(forsubset_t *T, long n, long k)
 void
 forallsubset_init(forsubset_t *T, long n)
 {
+  T->first = 1;
   T->n = n;
   T->k = 0;
   T->v = vecsmalltrunc_init(n + 1);
@@ -36,6 +38,7 @@ forksubset_next(forsubset_t *T)
   GEN v = T->v;
   long i, n = T->n, k = T->k;
 
+  if (T->first) { T->first = 0; return v; }
   if (k == 0 || k == n) return NULL;
 
   if (v[k] < n) { v[k]++; return v; }
@@ -70,11 +73,10 @@ forksubset(void *E, long call(void *, GEN), long n, long k)
   {
     pari_sp av = avma;
     forsubset_t T;
+    GEN v;
     forksubset_init(&T, n, k);
-    do
-    {
-      if (call(E, T.v)) break;
-    } while (forksubset_next(&T));
+    while ((v = forksubset_next(&T)))
+      if (call(E, v)) break;
     avma = av;
   }
 }
@@ -84,11 +86,10 @@ forallsubset(void *E, long call(void *, GEN), long n)
 {
   pari_sp av = avma;
   forsubset_t T;
+  GEN v;
   forallsubset_init(&T, n);
-  do
-  {
+  while ((v = forallsubset_next(&T)))
     if (call(E, T.v)) break;
-  } while (forallsubset_next(&T));
   avma = av;
 }
 

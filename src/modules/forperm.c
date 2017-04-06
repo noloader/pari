@@ -34,6 +34,7 @@ forperm_init(forperm_t *T, GEN k)
       pari_err_TYPE("forperm", k);
       return; /* LCOV_EXCL_LINE */
   }
+  T->first = 1;
   T->k = lg(T->v) - 1;
 }
 
@@ -43,6 +44,7 @@ forperm_next(forperm_t *T)
   long k = T->k, m1, m2, *p, *q;
   GEN v = T->v;
 
+  if (T->first) { T->first = 0; return v; }
   m1 = k-1; while (m1 > 0 && v[m1] >= v[m1+1]) m1--;
   if (m1 <= 0) return NULL;
 
@@ -57,14 +59,13 @@ forperm_next(forperm_t *T)
 void
 forperm(void *E, long call(void *, GEN), GEN k)
 {
-  forperm_t T;
   pari_sp av = avma;
+  forperm_t T;
+  GEN v;
 
   forperm_init(&T, k);
-  do
-  {
-    if (call(E, T.v)) break;
-  } while (forperm_next(&T));
+  while ((v = forperm_next(&T)))
+    if (call(E, v)) break;
   avma = av;
 }
 

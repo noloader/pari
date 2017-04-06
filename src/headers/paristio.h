@@ -85,14 +85,14 @@ typedef struct
 /* Iterate over permutations */
 typedef struct
 {
-  long k;
+  long k, first;
   GEN v;
 } forperm_t;
 
 /* Iterate over subsets */
 typedef struct
 {
-  long n,k;
+  long n, k, first;
   GEN v;
 } forsubset_t;
 
