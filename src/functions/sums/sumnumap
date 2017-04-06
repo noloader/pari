@@ -114,7 +114,7 @@ Doc: Numerical summation of $f(n)$ at high accuracy using Abel-Plana,
  ? sumnumap(n=1,n^(-4/3)) - zeta(4/3)  \\ fast but inaccurate
  time = 309 ms.
  %4 = -2.57[...]E-78
- ? sumnumap(n=[1,-4/3],n^(-4/3)) - zeta(4/3) \\ with decrease rate, now accurate
+ ? sumnumap(n=[1,-4/3],n^(-4/3)) - zeta(4/3) \\ decrease rate: now accurate
  time = 329 ms.
  %6 = -5.418110963941205497 E-210
 
@@ -141,5 +141,5 @@ Doc: Numerical summation of $f(n)$ at high accuracy using Abel-Plana,
  %9 = 1.000[...] \\ perfect and instantaneous
  @eprog
 
- \synt{sumnumap}{(void *E, GEN (*eval)(void*, GEN), GEN a, GEN tab, long prec)}
+ \synt{sumnumap}{(void *E, GEN (*eval)(void*,GEN), GEN a, GEN tab, long prec)}
  where an omitted \var{tab} is coded as \kbd{NULL}.

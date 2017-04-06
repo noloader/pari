@@ -39,7 +39,7 @@ Doc: Numerical summation of $f(n)$ from $n=a$ to $+\infty$ using Lagrange
  ? sumnumlagrange(n = 1, n^-(7/3), tab) - zeta(7/3)
  time = 24 ms.
  %7 = 0.E-115
- ? sumnumlagrange(n = 1, n^(-2/3) - 3*(n^(1/3) - (n-1)^(1/3)), tab) - zeta(2/3)
+ ? sumnumlagrange(n = 1, n^(-2/3) - 3*(n^(1/3)-(n-1)^(1/3)), tab) - zeta(2/3)
  time = 32 ms.
  %8 = 1.0151767349262596893 E-115
  @eprog
