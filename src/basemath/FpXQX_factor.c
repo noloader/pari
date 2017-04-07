@@ -192,8 +192,7 @@ Flx_ffintersect(GEN P, GEN Q, long n, ulong l,GEN *SP, GEN *SQ, GEN MA, GEN MB)
     /* No need to use relative extension, so don't. (Well, now we don't
      * in the other case either, but this special case is more efficient) */
     {
-      GEN L;
-      ulong z, An, Bn;
+      ulong L, z, An, Bn;
       z = Fl_neg(rootsof1_Fl(pg, l), l);
       if (DEBUGLEVEL>=4) timer_start(&T);
       A = Flm_ker(Flm_Fl_add(MA, z, l),l);
@@ -209,10 +208,10 @@ Flx_ffintersect(GEN P, GEN Q, long n, ulong l,GEN *SP, GEN *SQ, GEN MA, GEN MB)
       Bn = Flxq_powu(B,pg,Q,l)[2];
       if (!Bn) pari_err_IRREDPOL("FpX_ffintersect", mkvec2(P,Q));
       z = Fl_div(An,Bn,l);
-      L = Fp_sqrtn(utoi(z),ipg,utoipos(l),NULL);
-      if (!L) pari_err_IRREDPOL("FpX_ffintersect", mkvec2(P,Q));
+      L = Fl_sqrtn(z, pg, l, NULL);
+      if (L==ULONG_MAX) pari_err_IRREDPOL("FpX_ffintersect", mkvec2(P,Q));
       if (DEBUGLEVEL>=4) timer_printf(&T, "Fp_sqrtn");
-      B = Flx_Fl_mul(B,itou(L),l);
+      B = Flx_Fl_mul(B,L,l);
     }
     else
     {
