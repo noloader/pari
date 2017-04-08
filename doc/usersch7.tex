@@ -356,10 +356,13 @@ where $Q = [x,y]$.
 where $Q = [x,y]$.
 
 \fun{GEN}{ec_2divpol_evalx}{GEN E, GEN x} returns
-$4x^3 + b_2x^2 + 2b_4x + b_6$.
+$4x^3 + b_2\*x^2 + 2\*b_4x + b_6$.
 
 \fun{GEN}{ec_half_deriv_2divpol_evalx}{GEN E, GEN x} returns
-$6x^2 + b_2x + b_4$.
+$6\*x^2 + b_2\*x + b_4$.
+
+\fun{GEN}{ec_3divpol_evalx}{GEN E, GEN x} returns
+$3\*x^4 + b_2\*x^2 + 3\*b_4\*x^2 + 3\*b_6\*x + b_8$.
 
 \subsec{Functions to handle elliptic curves over finite fields}
 

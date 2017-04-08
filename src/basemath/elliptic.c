@@ -322,6 +322,23 @@ ec_2divpol_evalx(GEN E, GEN x)
 }
 
 /* Given E and a point Q = [xQ, yQ], return
+ *   3 xQ^4 + E.b2 xQ^3 + 3 E.b4 xQ^2 + 3*E.b6 xQ + E.b8
+ * which is the 3-division polynomial of E evaluated at Q */
+GEN
+ec_3divpol_evalx(GEN E, GEN x)
+{
+  pari_sp av = avma;
+  GEN b2 = ell_get_b2(E);
+  GEN b4 = ell_get_b4(E);
+  GEN b6 = ell_get_b6(E);
+  GEN b8 = ell_get_b8(E);
+  GEN x2 = gsqr(x);
+  GEN t1 = gadd(gadd(gmulsg(3L, x2), gmul(b2, x)), gmulsg(3L, b4));
+  GEN t2 = gadd(gmul(gmulsg(3L, b6), x), b8);
+  return gerepileupto(av, gadd(gmul(t1, x2), t2));
+}
+
+/* Given E and a point Q = [xQ, yQ], return
  *   6 xQ^2 + E.b2 xQ + E.b4
  * which, if f is the curve equation, is 2 dfdx - E.a1 dfdy evaluated at Q */
 GEN
@@ -5490,6 +5507,21 @@ ellnfembed(GEN E, long prec)
   return gerepilecopy(av, L);
 }
 
+static GEN
+ellpointnfembed(GEN E, GEN P, long prec)
+{
+  pari_sp av = avma;
+  GEN nf = ellnf_get_nf(E);
+  long r1 = nf_get_r1(nf), r2 = nf_get_r2(nf), n = r1+r2;
+  long i;
+  GEN Px = nfeltembed(nf, gel(P, 1), NULL);
+  GEN Py = nfeltembed(nf, gel(P, 2), NULL);
+  GEN L =  cgetg(n+1, t_VEC);
+  for(i=1; i<=n; i++)
+    gel(L,i) = mkvec2(gel(Px, i), gel(Py, i));
+  return gerepilecopy(av, L);
+}
+
 static void
 ellnfembed_free(GEN L)
 {
@@ -6395,8 +6427,64 @@ GEN
 ellpadicheight0(GEN e, GEN p, long n, GEN P, GEN Q)
 { return Q? ellheightpairing(e,p,n, P,Q): ellpadicheight(e,p,n, P); }
 
-GEN
-ellheight(GEN e, GEN a, long prec)
+static GEN
+ellnf_localheight(GEN e, GEN P, GEN pr)
+{
+  long v1, v2, vD, vu;
+  GEN nf = ellnf_get_nf(e);
+  GEN lr = nflocalred(e,pr);
+  GEN k = gel(lr, 2), urst = gel(lr, 3), u = gel(urst, 1);
+  GEN E = ellchangecurve(e, urst);
+  GEN Q = ellchangepoint(P, urst);
+  GEN v;
+  vu = nfvalrem(nf, u, pr, NULL);
+  v1 = nfvalrem(nf, ec_dFdx_evalQ(E, Q), pr, NULL);
+  v2 = nfvalrem(nf, ec_dmFdy_evalQ(E, Q), pr,NULL);
+  vD = nfvalrem(nf, ell_get_disc(E), pr, NULL);
+  if (v1<0)
+    vu = 0;
+  if (v1<=0 || v2<=0)
+    v = gen_0;
+  else if (cmpis(k,5) >= 0)
+  {
+    GEN a = gdivsg(minss(2*v2,vD),mulss(2,vD));
+    v = gmul(gsub(gsqr(a),a),gdivgs(stoi(vD),2));
+  }
+  else
+  {
+    long v3 = nfvalrem(nf, ec_3divpol_evalx(E, gel(Q,1)), pr, NULL);
+    v = (v2<LONG_MAX && v3>=3*v2) ? gdivgs(stoi(v2),-3):
+                                    gdivgs(stoi(v3),-8);
+  }
+  return gsubgs(v,vu);
+}
+
+static GEN
+ellnf_height(GEN E, GEN P, long prec)
+{
+  GEN nf = ellnf_get_nf(E), disc = ell_get_disc(E);
+  GEN d = idealnorm(nf, gel(idealnumden(nf, gel(P,1)), 2));
+  GEN F = gel(idealfactor(nf, disc), 1);
+  GEN Ee = ellnfembed(E, prec);
+  GEN Pe = ellpointnfembed(E, P, prec);
+  long i, n = lg(Ee), l = lg(F), r1 = nf_get_r1(nf);
+  GEN s = gmul2n(glog(d, prec), -1);
+  for (i=1; i<=r1; i++)
+    s = gadd(s, ellheightoo(gel(Ee, i), gel(Pe, i), prec));
+  for (   ; i<n; i++)
+    s = gadd(s, gmul2n(ellheightoo(gel(Ee, i), gel(Pe, i), prec), 1));
+  for (i=1; i<l; i++)
+  {
+    GEN pr = gel(F,i), p = pr_get_p(pr);
+    long f = pr_get_f(pr);
+    GEN lam = ellnf_localheight(E, P, pr);
+    s = gadd(s, gmul(lam, gmulgs(glog(p, prec), f)));
+  }
+  return gmul2n(s, 1);
+}
+
+static GEN
+ellQ_height(GEN e, GEN a, long prec)
 {
   long i, lx;
   pari_sp av = avma;
@@ -6469,6 +6557,24 @@ ellheight(GEN e, GEN a, long prec)
     z = gsub(z, divru(mulur(u, logr_abs(itor(p,prec))), v));
   }
   return gerepileupto(av, gmul2n(z, 1));
+}
+
+GEN
+ellheight(GEN e, GEN a, long prec)
+{
+  checkell(e);
+  checkellpt(a);
+  if (ell_is_inf(a)) return gen_0;
+  switch(ell_get_type(e))
+  {
+    case t_ELL_Q:
+      return ellQ_height(e, a, prec);
+    default: pari_err_TYPE("ellheight", e);
+    case t_ELL_NF:
+      if (nf_get_r2(ellnf_get_nf(e)))
+        pari_err_IMPL("ellheight, (field not totally real)");
+      return ellnf_height(e, a, prec);
+  }
 }
 
 GEN

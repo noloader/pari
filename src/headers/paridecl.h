@@ -2649,6 +2649,7 @@ GEN     ec_dFdx_evalQ(GEN E, GEN Q);
 GEN     ec_dFdy_evalQ(GEN E, GEN Q);
 GEN     ec_dmFdy_evalQ(GEN e, GEN Q);
 GEN     ec_2divpol_evalx(GEN E, GEN x);
+GEN     ec_3divpol_evalx(GEN E, GEN x);
 GEN     ec_half_deriv_2divpol_evalx(GEN E, GEN x);
 GEN     ellanal_globalred(GEN e, GEN *gr);
 GEN     ellQ_get_N(GEN e);
