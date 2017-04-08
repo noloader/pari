@@ -58,7 +58,8 @@ localprec(57); V = sumnum(n=[1,-3/2], sin(1/sqrt(n))/n);
 tmon=sumnummonieninit([1/2,1]);
 check(sumnummonien(n=1, sin(1/sqrt(n))/n, tmon), V)
 check(sumnum(n=[1,-3/2], sin(1/sqrt(n))/n), V)
-check(sumnumap(n=[1,-3/2], sin(1/sqrt(n))/n), V)
+T=sumnumapinit([oo,-3/2]);
+check(sumnumap(n=[1,-3/2], sin(1/sqrt(n))/n, T), V)
 
 {
  localprec(77);
