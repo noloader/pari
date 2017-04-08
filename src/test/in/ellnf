@@ -153,6 +153,22 @@ ellheight(E,P2)
 
 E=ellinit([0,1,0,a*(1-a),(a+1)^2],nfinit(a^2-a-1));
 P1=[-a,a+1];
-P2=[-(1-a),a+1];
+P2=[a-1,a+1];
 ellheight(E,P1)
 ellheight(E,P2)
+
+E=ellinit([0,a,1,a+1,0],nfinit(a^2+1));
+P=[0,0];
+ellheight(E,P)
+
+E=ellinit([1,a+1,0,-2*a-1,1],nfinit(a^2+1));
+P=[-2*a,-2*a-1];
+ellheight(E,P)
+
+E = ellinit([a+1,-a+1,0,7*a-46,-22*a+118], nfinit(a^2-a+3));
+P = [3,-2*a+2];
+ellheight(E,P)
+
+E = ellinit([a+1,-1,a,-a^2,0], nfinit(a^3-a^2+1));
+P = [0,-a];
+ellheight(E,P)

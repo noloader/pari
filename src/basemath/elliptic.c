@@ -6402,6 +6402,25 @@ hoo_aux(GEN E, GEN z, GEN d, long prec)
 GEN
 ellheightoo(GEN E, GEN z, long prec) { return hoo_aux(E, z, gen_1, prec); }
 
+/* Formula from Silverman GTM 151 Theorem 3.2 page 466 */
+
+static GEN
+ellheight_C(GEN E, GEN P, long prec)
+{
+  pari_sp av = avma;
+  GEN z = zell(E, P, prec);
+  GEN per = ellperiods(E, 1, prec);
+  GEN w = gel(per,1), w1 = gel(w,1), w2 = gel(w, 2), w1c = gconj(w1);
+  GEN e = gel(per,2), e1 = gel(e,1), e2 = gel(e, 2);
+  GEN D = gsub(gmul(w1, gconj(w2)),gmul(w1c, w2));
+  GEN b = gdiv(gsub(gmul(w1, gconj(z)),gmul(w1c, z)), D);
+  GEN a = gdiv(gsub(z, gmul(b, w2)), w1);
+  GEN eta = gadd(gmul(a, e1), gmul(b, e2));
+  GEN r = gmul2n(greal(gmul(z, eta)), -1);
+  GEN l = greal(ellsigma(per, z, 1, prec));
+  return gerepileupto(av, gsub(r, l));
+}
+
 static GEN
 _hell(GEN E, GEN p, long n, GEN P)
 { return p? ellpadicheight(E,p,n, P): ellheight(E,P,n); }
@@ -6465,7 +6484,7 @@ ellnf_height(GEN E, GEN P, long prec)
   for (i=1; i<=r1; i++)
     s = gadd(s, ellheightoo(gel(Ee, i), gel(Pe, i), prec));
   for (   ; i<n; i++)
-    s = gadd(s, gmul2n(ellheightoo(gel(Ee, i), gel(Pe, i), prec), 1));
+    s = gadd(s, gmul2n(ellheight_C(gel(Ee, i), gel(Pe, i), prec), 1));
   for (i=1; i<l; i++)
   {
     GEN pr = gel(F,i), p = pr_get_p(pr);
@@ -6564,8 +6583,6 @@ ellheight(GEN e, GEN a, long prec)
       return ellQ_height(e, a, prec);
     default: pari_err_TYPE("ellheight", e);
     case t_ELL_NF:
-      if (nf_get_r2(ellnf_get_nf(e)))
-        pari_err_IMPL("ellheight, (field not totally real)");
       return ellnf_height(e, a, prec);
   }
 }
