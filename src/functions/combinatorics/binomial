@@ -4,7 +4,7 @@ C-Name: binomial0
 Prototype: GDG
 Help: binomial(x,{k}): binomial coefficient x*(x-1)...*(x-k+1)/k! defined for
  k in Z and any x. If k is omitted and x an integer, return the vector
- [binomial(x,1),...,binomial(x,x)]
+ [binomial(x,1),...,binomial(x,x)].
 Doc: \idx{binomial coefficient} $\binom{x}{k}$.
  Here $k$ must be an integer, but $x$ can be any PARI object.
  \bprog

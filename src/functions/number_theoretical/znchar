@@ -3,7 +3,7 @@ Section: number_theoretical
 C-Name: znchar
 Prototype: G
 Help: znchar(D): given a datum D describing a group G = (Z/NZ)^* and
- a Dirichlet character chi, return the pair [G,chi]
+ a Dirichlet character chi, return the pair [G,chi].
 Doc: Given a datum $D$ describing a group $(\Z/N\Z)^*$ and a Dirichlet
  character $\chi$, return the pair \kbd{[G, chi]}, where \kbd{G} is
  \kbd{znstar(N, 1)}) and \kbd{chi} is a GP character.
