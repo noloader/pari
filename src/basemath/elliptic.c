@@ -6437,10 +6437,10 @@ ellnf_localheight(GEN e, GEN P, GEN pr)
   GEN E = ellchangecurve(e, urst);
   GEN Q = ellchangepoint(P, urst);
   GEN v;
-  vu = nfvalrem(nf, u, pr, NULL);
-  v1 = nfvalrem(nf, ec_dFdx_evalQ(E, Q), pr, NULL);
-  v2 = nfvalrem(nf, ec_dmFdy_evalQ(E, Q), pr,NULL);
-  vD = nfvalrem(nf, ell_get_disc(E), pr, NULL);
+  vu = nfval(nf, u, pr);
+  v1 = nfval(nf, ec_dFdx_evalQ(E, Q), pr);
+  v2 = nfval(nf, ec_dmFdy_evalQ(E, Q), pr);
+  vD = nfval(nf, ell_get_disc(E), pr);
   if (v1<0)
     vu = 0;
   if (v1<=0 || v2<=0)
@@ -6452,7 +6452,7 @@ ellnf_localheight(GEN e, GEN P, GEN pr)
   }
   else
   {
-    long v3 = nfvalrem(nf, ec_3divpol_evalx(E, gel(Q,1)), pr, NULL);
+    long v3 = nfval(nf, ec_3divpol_evalx(E, gel(Q,1)), pr);
     v = (v2<LONG_MAX && v3>=3*v2) ? gdivgs(stoi(v2),-3):
                                     gdivgs(stoi(v3),-8);
   }
