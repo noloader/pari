@@ -78,6 +78,7 @@ BA  17- QXQ_div_ratlift renamed to QXQ_div
     22- lfunzeros: allow intervals not contained in R^+
     23- removed obsolete function 'bnfcompress'
     24- [libpari] rename perf -> qfperfection
+    25- format of bnf structure, to allow compact representations
 
   Added
      1- new GP function rootsof1
@@ -126,6 +127,8 @@ BA  34- lfuncreate: support for closures of arity 0
     43- [libpari] etaquotype
     44- new GP functions fftinit, fft, fftinv
 BA  45- [libpari] init_Flxq
+    46- compact representation of units in bnf (bnfinit(pol,1)) and of
+        principal ideal generators (bnfisprincipal(bnf,id,4))
 
   Removed
      1- obsolete function rootsof1_kannan: use nfrootsof1

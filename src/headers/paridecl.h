@@ -1276,6 +1276,7 @@ GEN     ZC_Z_divexact(GEN X, GEN c);
 GEN     ZC_Z_mul(GEN X, GEN c);
 GEN     ZC_Z_sub(GEN x, GEN y);
 GEN     ZC_ZV_mul(GEN x, GEN y);
+GEN     ZC_u_divexact(GEN x, ulong c);
 GEN     ZC_add(GEN x, GEN y);
 GEN     ZC_copy(GEN x);
 GEN     ZC_hnfremdiv(GEN x, GEN y, GEN *Q);
@@ -1326,6 +1327,7 @@ void    ZM_togglesign(GEN M);
 GEN     ZM_zc_mul(GEN x, GEN y);
 GEN     ZM_zm_mul(GEN x, GEN y);
 GEN     ZMrow_ZC_mul(GEN x, GEN y, long i);
+int     ZMrow_equal0(GEN V, long i);
 GEN     ZV_ZM_mul(GEN x, GEN y);
 int     ZV_abscmp(GEN x, GEN y);
 int     ZV_cmp(GEN x, GEN y);
@@ -3956,6 +3958,7 @@ GEN     padicfields(GEN p, long m, long d, long flag);
 /* kummer.c */
 
 GEN     bnrclassfield(GEN bnr, GEN subgroup, long flag, long prec);
+GEN     famat_factorback(GEN v, GEN e);
 GEN     rnfkummer(GEN bnr, GEN subgroup, long all, long prec);
 
 /* lfun.c */
@@ -4572,6 +4575,7 @@ GEN     polrootspadic(GEN f, GEN p, long r);
 
 /* polarit2.c */
 
+ulong   Flv_factorback(GEN L, GEN e, ulong p);
 GEN     FpV_factorback(GEN L, GEN e, GEN p);
 GEN     Q_content(GEN x);
 GEN     Q_content_safe(GEN x);
@@ -5456,6 +5460,7 @@ INLINE GEN    bnf_get_logfu(GEN bnf);
 INLINE GEN    bnf_get_nf(GEN bnf);
 INLINE GEN    bnf_get_no(GEN bnf);
 INLINE GEN    bnf_get_reg(GEN bnf);
+INLINE GEN    bnf_get_sunits(GEN bnf);
 INLINE GEN    bnf_get_tuU(GEN bnf);
 INLINE long   bnf_get_tuN(GEN bnf);
 INLINE GEN    bnr_get_bnf(GEN bnr);

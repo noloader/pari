@@ -169,13 +169,15 @@ vtilde_i(GEN K, GEN x, GEN T, GEN deg, GEN ell, long prec)
 static GEN
 vtilde(GEN K, GEN x, GEN T, GEN deg, GEN ell, long prec)
 {
+  pari_sp av;
   GEN G, E, vG;
   long i, l;
   if (typ(x) != t_MAT) return vtilde_i(K,x,T,deg,ell,prec);
+  av = avma;
   G = gel(x,1); vG = cgetg_copy(G, &l);
   E = gel(x,2);
   for (i = 1; i < l; i++) gel(vG, i) = vtilde_i(K, gel(G,i),T,deg,ell,prec);
-  return RgV_dotproduct(E, vG);
+  return gerepileupto(av, RgV_dotproduct(E, vG));
 }
 
 /* v[i] = deg S[i] mod p^prec */

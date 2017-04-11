@@ -101,10 +101,9 @@ reduce_mod_Qell(GEN bnfz, GEN be, GEN gell)
   return be;
 }
 
-/* return q, q^n r = x, v_pr(r) < n for all pr. Insist q is a genuine n-th
- * root (i.e r = 1) if strict != 0. */
+/* return q, q^n r = x, v_pr(r) < n for all pr */
 static GEN
-idealsqrtn(GEN nf, GEN x, GEN gn, int strict)
+idealsqrtn(GEN nf, GEN x, GEN gn)
 {
   long i, l, n = itos(gn);
   GEN fa, q, Ex, Pr;
@@ -116,7 +115,6 @@ idealsqrtn(GEN nf, GEN x, GEN gn, int strict)
   {
     long ex = itos(gel(Ex,i));
     GEN e = stoi(ex / n);
-    if (strict && ex % n) pari_err_SQRTN("idealsqrtn", fa);
     if (q) q = idealmulpowprime(nf, q, gel(Pr,i), e);
     else   q = idealpow(nf, gel(Pr,i), e);
   }
@@ -131,7 +129,7 @@ reducebeta(GEN bnfz, GEN b, GEN ell)
   if (DEBUGLEVEL>1) err_printf("reducing beta = %Ps\n",b);
   b = reduce_mod_Qell(nf, b, ell);
   /* reduce l-th root */
-  y = idealsqrtn(nf, b, ell, 0); /* (b) = y^ell I, I integral */
+  y = idealsqrtn(nf, b, ell); /* (b) = y^ell I, I integral */
   if (typ(y) == t_MAT && !is_pm1(gcoeff(y,1,1)))
   {
     GEN T = idealred(nf, mkvec2(y, gen_1)), t = gel(T,2);
@@ -150,7 +148,7 @@ reducebeta(GEN bnfz, GEN b, GEN ell)
   if (cb && lg(y) != 1) b = gen_1;
   else
   { /* log. embeddings of fu^ell */
-    GEN fu = bnf_get_fu_nocheck(bnfz), logfu = bnf_get_logfu(bnfz);
+    GEN fu = bnf_get_fu(bnfz), logfu = bnf_get_logfu(bnfz);
     GEN elllogfu = RgM_Rg_mul(real_i(logfu), ell);
     long prec = nf_get_prec(nf);
     for (;;)
@@ -431,7 +429,7 @@ isprincipalell(GEN bnfz, GEN id, GEN cycgen, GEN u, ulong ell, long rc)
   setlg(v,rc+1); return mkvec2(v, b);
 }
 
-static GEN
+GEN
 famat_factorback(GEN v, GEN e)
 {
   long i, l = lg(e);
@@ -462,11 +460,14 @@ compute_beta(GEN X, GEN vecWB, GEN ell, GEN bnfz)
 }
 
 static GEN
-get_Selmer(GEN bnf, GEN cycgen, long rc)
+futu(GEN bnf)
 {
   GEN U = bnf_build_units(bnf), tu = gel(U,1), fu = vecslice(U, 2, lg(U)-1);
-  return shallowconcat(vec_append(fu,tu), vecslice(cycgen,1,rc));
+  return vec_append(fu, tu);
 }
+static GEN
+get_Selmer(GEN bnf, GEN cycgen, long rc)
+{ return shallowconcat(futu(bnf), vecslice(cycgen,1,rc)); }
 
 GEN
 lift_if_rational(GEN x)
@@ -880,27 +881,77 @@ FOUND:  X = Flm_Flc_mul(K, y, ell);
   return all? res: gen_0;
 }
 
-/* alg. 5.3.11 (return only discrete log mod ell) */
-static GEN
-isvirtualunit(GEN bnf, GEN v, GEN cycgen, GEN cyc, GEN gell, long rc)
+static ulong
+nf_to_logFl(GEN nf, GEN x, GEN modpr, ulong g, ulong q, ulong ell, ulong p)
 {
-  GEN L, b, eps, y, q, nf = bnf_get_nf(bnf), w = idealsqrtn(nf, v, gell, 1);
-  long i, l = lg(cycgen);
+  x = nf_to_Fp_coprime(nf, x, modpr);
+  return Fl_log(Fl_powu(umodiu(x, p), q, p), g, ell, p);
+}
+static GEN
+nfV_to_logFlv(GEN nf, GEN x, GEN modpr, ulong g, ulong q, ulong ell, ulong p)
+{ pari_APPLY_long(nf_to_logFl(nf, gel(x,i), modpr, g, q, ell, p)); }
 
-  L = bnfisprincipal0(bnf, w, nf_GENMAT|nf_FORCE);
-  q = gel(L,1);
-  if (ZV_equal0(q)) { eps = v; y = q; }
-  else
+/* u = w^ell a virtual unit, return discrete log mod ell on units.gen +
+ * bnf.gen (efficient variant of algo 5.3.11); find ru degree 1 primes Pj
+ * coprime to everything, and gj in k(Pj)^* of order ell such that
+ *      log_gj(u_i^((Pj.p - 1) / ell) mod Pj), j = 1..ru
+ * has maximal F_ell rank ru then solve linear system */
+static GEN
+matvirtualunit(GEN bnf, GEN vell, GEN vtau, long ell, long rc)
+{
+  GEN cyc = bnf_get_cyc(bnf), nf = bnf_get_nf(bnf), B, vy, vz, M, U1, U2;
+  long i, j, r, l = lg(vell), ru = l-1 - rc;
+  ulong p;
+  forprime_t T;
+
+  U1 = vecslice(vell, 1, ru); /* units */
+  U2 = vecslice(vell, ru+1, ru+rc); /* cycgen (mod ell-th powers) */
+  B = nf_get_index(nf); /* bad primes; from 1 to ru are units */
+  for (i = 1; i <= rc; i++) B = mulii(B, nfnorm(nf, gel(U2,i)));
+  vy = cgetg(l, t_MAT);
+  for (j = 1; j <= ru; j++) gel(vy,j) = zero_Flv(rc); /* units */
+  for (     ; j < l; j++)
   {
-    y = cgetg(l,t_COL);
-    for (i=1; i<l; i++) gel(y,i) = diviiexact(mulii(gell,gel(q,i)), gel(cyc,i));
-    eps = famat_mulpow_shallow(famat_factorback(cycgen,y), gel(L,2), gell);
-    eps = famat_mul_shallow(famat_inv(eps), v);
+    GEN y, w, u = gel(vtau, j); /* virtual unit */
+    (void)idealispower(nf, u, ell, &w);
+    y = isprincipal(bnf, w); setlg(y, rc+1);
+    if (!ZV_equal0(y))
+      for (i = 1; i <= rc; i++)
+        gel(y,i) = diviiexact(mului(ell,gel(y,i)), gel(cyc,i));
+    gel(vy,j) = ZV_to_Flv(y, ell);
   }
-  setlg(y, rc+1);
-  b = bnfisunit(bnf,eps);
-  if (lg(b) == 1) pari_err_BUG("isvirtualunit");
-  return shallowconcat(lift_shallow(b), y);
+  u_forprime_arith_init(&T, 100, ULONG_MAX, 1, ell);
+  M = cgetg(ru+1, t_MAT); r = 1; setlg(M,2);
+  vz = cgetg(ru+1, t_MAT);
+  while ((p = u_forprime_next(&T))) if (umodiu(B,p))
+  {
+    GEN P = idealprimedec_limit_f(nf, utoipos(p), 1);
+    long nP = lg(P)-1;
+    ulong g = rootsof1_Fl(ell, p), q = p / ell; /* (p-1) / ell */
+    for (i = 1; i <= nP; i++)
+    {
+      GEN modpr = zkmodprinit(nf, gel(P,i));
+      GEN z, v2;
+      gel(M, r) = nfV_to_logFlv(nf, U1, modpr, g, q, ell, p); /* log futu */
+      if (Flm_rank(M, ell) < r) continue; /* discard */
+
+      v2 = nfV_to_logFlv(nf, U2, modpr, g, q, ell, p); /* log alpha[1..rc] */
+      gel(vz, r) = z = nfV_to_logFlv(nf, vtau, modpr, g, q, ell, p);
+      for (j = ru+1; j < l; j++)
+        uel(z,j) = Fl_sub(uel(z,j), Flv_dotproduct(v2, gel(vy,j), ell), ell);
+      if (r == ru) break;
+      r++; setlg(M, r+1);
+    }
+    if (i < nP) break;
+  }
+  if (r != ru) pari_err_BUG("matvirtualunit");
+  /* Solve prod_k U[k]^x[j,k] = vtau[j] / prod_i alpha[i]^vy[j,i] mod (K^*)^ell
+   * for 1 <= j <= #vtau. I.e. for a fixed j: M x[j] = vz[j] (mod ell) */
+  M = Flm_inv(Flm_transpose(M), ell);
+  vz = Flm_transpose(vz); /* now ru x #vtau */
+  for (j = 1; j < l; j++)
+    gel(vy,j) = shallowconcat(Flm_Flc_mul(M, gel(vz,j), ell), gel(vy,j));
+  return vy;
 }
 
 /* J a vector of elements in nfz = relative extension of nf by polrel,
@@ -1221,24 +1272,23 @@ _rnfkummer_step4(struct rnfkummer *kum, GEN cycgen, long d, long m)
 
 /* set kum->vecW */
 static void
-_rnfkummer_step5(struct rnfkummer *kum, GEN vselmer, GEN cycgen)
+_rnfkummer_step5(struct rnfkummer *kum, GEN vselmer)
 {
-  GEN bnfz = kum->bnfz, cyc = bnf_get_cyc(bnfz);
-  long ru = (nf_get_degree(bnf_get_nf(bnfz))>>1)-1;
-  long j, lW, rc = kum->rc, rv = rc+ru+1;
   ulong ell = kum->ell;
-  GEN P, vecW, gell = utoipos(ell), Tv = cgetg(rv+1,t_MAT);
-  for (j = 1; j <= rv; j++)
+  long j, lW, l = lg(vselmer);
+  GEN P, W, T, bnfz = kum->bnfz, vtau = cgetg(l, t_VEC), vell = cgetg(l, t_VEC);
+  for (j = 1; j < l; j++)
   {
-    GEN p1 = tauofelt(gel(vselmer,j), &kum->tau);
-    if (typ(p1) == t_MAT) /* famat */
-      p1 = nffactorback(bnfz, gel(p1,1), FpC_red(gel(p1,2),gell));
-    gel(Tv,j) = ZV_to_Flv(isvirtualunit(bnfz, p1, cycgen,cyc,gell,rc), ell);
+    GEN t = gel(vselmer,j);
+    if (typ(t) == t_MAT)
+      t = nffactorback(bnfz, gel(t,1), ZV_to_Flv(gel(t,2), ell));
+    gel(vell,j) = t;
+    gel(vtau,j) = tauofelt(t, &kum->tau);
   }
-  P = Flm_ker(Flm_Fl_add(Tv, Fl_neg(kum->g, ell), ell), ell);
-  lW = lg(P);
-  kum->vecW = vecW = cgetg(lW,t_VEC);
-  for (j=1; j<lW; j++) gel(vecW,j) = famat_factorbacks(vselmer, gel(P,j));
+  T = matvirtualunit(bnfz, vell, vtau, ell, kum->rc);
+  P = Flm_ker(Flm_Fl_add(T, Fl_neg(kum->g, ell), ell), ell);
+  lW = lg(P); kum->vecW = W = cgetg(lW,t_VEC);
+  for (j = 1; j < lW; j++) gel(W,j) = famat_factorbacks(vselmer, gel(P,j));
 }
 
 static GEN
@@ -1340,12 +1390,11 @@ rnfkummer_init(struct rnfkummer *kum, GEN bnf, ulong ell, long prec)
   kum->g = g;
 
   vselmer = get_Selmer(bnfz, cycgen, kum->rc);
-  if (DEBUGLEVEL) timer_printf(&ti, "[rnfkummer] Selmer group");
   get_tau(kum);
   if (DEBUGLEVEL>2) err_printf("Step 4\n");
   _rnfkummer_step4(kum, cycgen, d, m);
   if (DEBUGLEVEL>2) err_printf("Step 5\n");
-  _rnfkummer_step5(kum, vselmer, cycgen);
+  _rnfkummer_step5(kum, vselmer);
   if (DEBUGLEVEL>2) err_printf("Step 8\n");
   /* left inverse */
   T->invexpoteta1 = RgM_inv(RgXQ_matrix_pow(COMPO->p, degKz, degK, COMPO->R));

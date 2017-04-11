@@ -102,8 +102,7 @@ all([1]), Mat(1/861), 861861/2000, Mat(861)]], [[0; 0; 1; 0], [-20; 1; 0; 0]
   *** rnfisabelian: Warning: non-monic polynomial. Result of the form [nf,c].
 1
 1
-[(-18*y^2 + 12*y + 12)*x^2 + (18*y^2 - 18*y - 8)*x + (-24*y^2 + 21*y + 15), 
-1]
+[x, 1]
 2
 2
 [x, -1]

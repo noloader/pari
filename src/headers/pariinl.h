@@ -2790,17 +2790,23 @@ bnf_get_reg(GEN bnf) { return gmael(bnf,8,2); }
 INLINE GEN
 bnf_get_logfu(GEN bnf) { return gel(bnf,3); }
 INLINE GEN
+bnf_get_sunits(GEN bnf)
+{ GEN s = gmael(bnf,8,3); return typ(s) == t_INT? NULL: s; }
+INLINE GEN
 bnf_get_tuU(GEN bnf) { return gmael3(bnf,8,4,2); }
 INLINE long
 bnf_get_tuN(GEN bnf) { return gmael3(bnf,8,4,1)[2]; }
 INLINE GEN
+bnf_get_fu_nocheck(GEN bnf) { return gmael(bnf,8,5); }
+INLINE GEN
 bnf_get_fu(GEN bnf) {
-  GEN fu = bnf_get_fu_nocheck(bnf);
+  GEN fu = bnf_build_units(bnf), nf = bnf_get_nf(bnf);
+  long i, l;
   if (typ(fu) == t_MAT) pari_err(e_MISC,"missing units in bnf");
+  l = lg(fu)-1; fu = vecslice(fu, 2, l);
+  for (i = 1; i < l; i++) gel(fu,i) = nf_to_scalar_or_alg(nf, gel(fu,i));
   return fu;
 }
-INLINE GEN
-bnf_get_fu_nocheck(GEN bnf) { return gmael(bnf,8,5); }
 
 INLINE GEN
 bnr_get_bnf(GEN bnr) { return gel(bnr,1); }

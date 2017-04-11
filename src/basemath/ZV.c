@@ -888,6 +888,9 @@ ZM_sub(GEN x, GEN y)
 GEN
 ZC_Z_divexact(GEN x, GEN c)
 { pari_APPLY_type(t_COL, diviiexact(gel(x,i), c)) }
+GEN
+ZC_u_divexact(GEN x, ulong c)
+{ pari_APPLY_type(t_COL, diviuexact(gel(x,i), c)) }
 
 GEN
 ZM_Z_divexact(GEN x, GEN c)
@@ -1181,6 +1184,14 @@ ZV_equal0(GEN V)
   long l = lg(V);
   while (--l > 0)
     if (signe(gel(V,l))) return 0;
+  return 1;
+}
+int
+ZMrow_equal0(GEN V, long i)
+{
+  long l = lg(V);
+  while (--l > 0)
+    if (signe(gcoeff(V,i,l))) return 0;
   return 1;
 }
 

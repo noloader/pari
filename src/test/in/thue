@@ -1,4 +1,4 @@
-allocatemem(20*10^6);
+allocatemem(80*10^6);
 thue(x^4 - 13*x^3 - 172*x^2 - 13*x + 1, 9)
 thue(x^3 - 2, 2)
 thue(x^6 - 2, 2638)

@@ -3,16 +3,16 @@ Section: number_fields
 C-Name: bnfisprincipal0
 Prototype: GGD1,L,
 Help: bnfisprincipal(bnf,x,{flag=1}): bnf being output by bnfinit, gives
- [v,alpha], where v is the vector of exponents on
- the class group generators and alpha is the generator of the resulting
+ [e,t], where e is the vector of exponents on
+ the class group generators and t is the generator of the resulting
  principal ideal. In particular x is principal if and only if v is the zero
- vector. flag is optional, whose binary digits mean 1: output [v,alpha] (only v
+ vector. flag is optional, whose binary digits mean 1: output [e,t] (only e
  if unset); 2: increase precision until alpha can be computed (do not insist
- if unset).
+ if unset); 4: allow returning alpha in factored form (compact representation).
 Doc: $\var{bnf}$ being the \sidx{principal ideal}
  number field data output by \kbd{bnfinit}, and $x$ being an ideal, this
  function tests whether the ideal is principal or not. The result is more
- complete than a simple true/false answer and solves general discrete
+ complete than a simple true/false answer and solves a general discrete
  logarithm problem. Assume the class group is $\oplus (\Z/d_i\Z)g_i$
  (where the generators $g_i$ and their orders $d_i$ are respectively given by
  \kbd{bnf.gen} and \kbd{bnf.cyc}). The routine returns a row vector $[e,t]$,
@@ -56,8 +56,23 @@ Doc: $\var{bnf}$ being the \sidx{principal ideal}
  to which the \kbd{bnf} structure was computed. In that case, a warning is
  printed and $t$ is set equal to the empty vector \kbd{[]\til}. If this bit is
  set, increase the precision and recompute needed quantities until $t$ can be
- computed. Warning: setting this may induce \emph{lengthy} computations.
+ computed. Warning: setting this may induce \emph{lengthy} computations
+ and you should consider using flag $4$ instead.
+
+ \item $4$: Allows to return $t$ in factored form (compact representation)
+ as a small product of $S$-units (for a small set of finite places $S$),
+ possibly with huge exponents. This kind of result can be cheaply mapped to
+ $K^*/(K^*)^\ell$ or to $\C$ or $\Q_p$ to bounded accuracy and this is usually
+ enough for applications. Explicitly expanding such a compact representation
+ is possible using \kbd{nffactorback} but may be very costly. The algorithm
+ may still fail to compute a huge generator in this case (and replace it by
+ \kbd{[]\til}) but it is guaranteed to succeed if the \kbd{bnf} was computed
+ using \kbd{bnfinit(,1)}. This should be orders of magnitude faster than flag
+ $2$ when the generators are indeed large.
+
 Variant: Instead of the above hardcoded numerical flags, one should
  rather use an or-ed combination of the symbolic flags \tet{nf_GEN} (include
- generators, possibly a place holder if too difficult) and \tet{nf_FORCE}
- (insist on finding the generators).
+ generators, possibly a place holder if too difficult), \tet{nf_GENMAT}
+ (include generators, possibly in compact form) and
+ \tet{nf_FORCE} (insist on finding the generators, a no-op if \tet{nf_GENMAT}
+ is included).

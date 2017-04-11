@@ -1195,6 +1195,23 @@ GEN
 FpV_factorback(GEN L, GEN e, GEN p)
 { return gen_factorback(L, e, (void*)p, &Fpmul, &Fppow); }
 
+ulong
+Flv_factorback(GEN L, GEN e, ulong p)
+{
+  long i, l = lg(e);
+  ulong r = 1UL, ri = 1UL;
+  for (i = 1; i < l; i++)
+  {
+    long c = e[i];
+    if (!c) continue;
+    if (c < 0)
+      ri = Fl_mul(ri, Fl_powu(L[i],-c,p), p);
+    else
+      r = Fl_mul(r, Fl_powu(L[i],c,p), p);
+  }
+  if (ri != 1UL) r = Fl_div(r, ri, p);
+  return r;
+}
 GEN
 factorback2(GEN L, GEN e) { return gen_factorback(L, e, NULL, &mul, &powi); }
 GEN

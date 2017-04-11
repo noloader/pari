@@ -368,7 +368,13 @@ member_fu(GEN x) /* fundamental units */
   }
   if (t == typ_BNR) pari_err_IMPL("ray units");
   fu = bnf_get_fu_nocheck(y);
-  if (typ(fu) == t_MAT) return gen_0; /*missing units*/
+  if (typ(fu) == t_MAT)
+  { /*missing units*/
+    GEN SUnits = bnf_get_sunits(y);
+    if (!SUnits) return gen_0;
+    fu = bnf_build_units(y);
+    fu = vecslice(fu, 2, lg(fu)-1); /* remove torsion unit */
+  }
   return matbasistoalg(y, fu);
 }
 
