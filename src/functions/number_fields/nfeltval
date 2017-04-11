@@ -35,6 +35,8 @@ Doc: given an element $x$ in
  the residue field of \var{pr} more efficiently than if the product had
  been expanded beforehand: we can reduce mod \var{pr} after each ring
  operation.
-Variant: Also available is
+Variant: Also available are
  \fun{long}{nfvalrem}{GEN nf, GEN x, GEN pr, GEN *y = NULL}, which returns
- \tet{LONG_MAX} if $x = 0$ and the valuation as a \kbd{long} integer.
+ \tet{LONG_MAX} if $x = 0$ and the valuation as a \kbd{long} integer,
+ and \fun{long}{nfval}{GEN nf, GEN x, GEN pr}, which only returns the
+ valuation ($y = \kbd{NULL}$).
