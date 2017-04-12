@@ -2997,20 +2997,21 @@ ser_eta(long prec)
 }
 
 static GEN
-coeffEu(ulong n)
+coeffEu(GEN fa)
 {
   pari_sp av = avma;
-  return gerepileuptoint(av, mului(65520, usumdivk_fact(factoru(n+1),11)));
+  return gerepileuptoint(av, mului(65520, usumdivk_fact(fa,11)));
 }
 /* E12 = 1 + q*E/691 */
 static GEN
 ser_E(long prec)
 {
   GEN e = cgetg(prec+2, t_SER), ed = e+2;
+  GEN F = vecfactoru_i(2, prec); /* F[n] = factoru(n+1) */
   long n;
   e[1] = evalsigne(1)|_evalvalp(0)|evalvarn(0);
   gel(ed,0) = utoipos(65520);
-  for (n = 1; n < prec; n++) gel(ed,n) = coeffEu(n);
+  for (n = 1; n < prec; n++) gel(ed,n) = coeffEu(gel(F,n));
   return e;
 }
 /* j = E12/Delta + 432000/691, E12 = 1 + q*E/691 */
@@ -3033,14 +3034,15 @@ ser_j2(long prec, long v)
 static GEN
 ser_j(long prec, long v)
 {
-  GEN j, J, S3, S5;
+  GEN j, J, S3, S5, F;
   long i, n;
   if (prec > 64) return ser_j2(prec, v);
   S3 = cgetg(prec+1, t_VEC);
   S5 = cgetg(prec+1,t_VEC);
+  F = vecfactoru_i(1, prec);
   for (n = 1; n <= prec; n++)
   {
-    GEN fa = factoru(n);
+    GEN fa = gel(F,n);
     gel(S3,n) = mului(10, usumdivk_fact(fa,3));
     gel(S5,n) = mului(21, usumdivk_fact(fa,5));
   }
