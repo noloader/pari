@@ -1484,7 +1484,6 @@ optim_zeta(GEN S, long prec, long *pp, long *pn)
   *pp = p;
   *pn = (long)ceil(n);
   if (*pp < 0 || *pn < 0) pari_err_OVERFLOW("zeta");
-  if (DEBUGLEVEL>2) err_printf("lim, nn: [%ld, %ld]\n", *pp, *pn);
 }
 
 /* 1/zeta(n) using Euler product. Assume n > 0.
@@ -1769,31 +1768,16 @@ szeta(long k, long prec)
   return zetaBorwein(k, prec);
 }
 
-/* return n^-s, n > 1 odd. tab[q] := q^-s, q prime power */
-static GEN
-n_s(ulong n, GEN *tab)
-{
-  GEN x, f = factoru(n), P = gel(f,1), E = gel(f,2);
-  long i, l = lg(P);
-
-  x = tab[ upowuu(P[1], E[1]) ];
-  for (i = 2; i < l; i++) x = gmul(x, tab[ upowuu(P[i], E[i]) ]);
-  return x;
-}
-
 /* s0 a t_INT, t_REAL or t_COMPLEX.
  * If a t_INT, assume it's not a trivial case (i.e we have s0 > 1, odd)
  * */
 static GEN
 czeta(GEN s0, long prec)
 {
-  GEN s, u, a, y, res, tes, sig, tau, invn2, unr;
-  GEN sim, *tab, tabn, funeq_factor = NULL;
-  ulong p, sqn;
-  long i, nn, lim, lim2, ct;
+  GEN s, u, y, res, tes, sig, tau, invn2, unr, Ns, funeq_factor = NULL;
+  long i, nn, lim, lim2;
   pari_sp av0 = avma, av;
   pari_timer T;
-  forprime_t S;
 
   if (DEBUGLEVEL>2) timer_start(&T);
   s = trans_fix_arg(&prec,&s0,&sig,&tau,&av,&res);
@@ -1830,45 +1814,15 @@ czeta(GEN s0, long prec)
     return gerepileupto(av0, funeq_factor);
   }
   optim_zeta(s, prec, &lim, &nn);
-  u_forprime_init(&S, 2, nn-1);
+  if (DEBUGLEVEL>2) err_printf("lim, nn: [%ld, %ld]\n", lim, nn);
   incrprec(prec); unr = real_1(prec); /* one extra word of precision */
 
-  tab = (GEN*)cgetg(nn, t_VEC); /* table of q^(-s), q = p^e */
-  { /* general case */
-    GEN ms = gneg(s), rp = cgetr(prec);
-    while ((p = u_forprime_next(&S)))
-    {
-      affur(p, rp);
-      tab[p] = gexp(gmul(ms, mplog(rp)), prec);
-    }
-    affsr(nn, rp);
-    a = gexp(gmul(ms, mplog(rp)), prec);
-  }
-  sqn = (ulong)sqrt(nn-1.);
-  u_forprime_init(&S, 3, sqn); /* fill in odd prime powers */
-  while ((p = u_forprime_next(&S)))
-  {
-    ulong oldq = p, q = p*p;
-    while (q<(ulong)nn) { tab[q] = gmul(tab[p], tab[oldq]); oldq = q; q *= p; }
-  }
-  if (DEBUGLEVEL>2) timer_printf(&T,"tab[q^-s] from 1 to N-1");
-
-  tabn = cgetg(nn, t_VECSMALL); ct = 0;
-  for (i = nn-1; i; i>>=1) tabn[++ct] = (i-1)>>1;
-  sim = y = unr;
-  /* compute 1 + 2^-s + ... + n^-s = P(2^-s) using Horner's scheme */
-  for (i=ct; i > 1; i--)
-  {
-    pari_sp av2 = avma;
-    long j;
-    for (j=tabn[i]+1; j<=tabn[i-1]; j++) sim = gadd(sim, n_s(2*j+1, tab));
-    sim = gerepileupto(av2, sim);
-    y = gadd(sim, gmul(tab[2],y));
-  }
-  y = gadd(y, gmul2n(a,-1));
+  Ns = vecpowug(nn, gneg(s), prec);
+  y = gmul2n(gel(Ns,nn), -1);
+  for (i = nn-1; i; i--) y = gadd(y, gel(Ns,i));
   if (DEBUGLEVEL>2) timer_printf(&T,"sum from 1 to N-1");
 
-  invn2 = divri(unr, mulss(nn,nn)); lim2 = lim<<1;
+  invn2 = divri(unr, sqru(nn)); lim2 = lim<<1;
   mpbern(lim,prec);
   tes = bernreal(lim2, prec);
   {
@@ -1896,7 +1850,7 @@ czeta(GEN s0, long prec)
   }
   if (DEBUGLEVEL>2) timer_printf(&T,"Bernoulli sum");
   /* y += tes n^(-s) / (s-1) */
-  y = gadd(y, gmul(tes, gdiv(a, gsub(s, unr))));
+  y = gadd(y, gmul(tes, gdiv(gel(Ns,nn), gsub(s, unr))));
   if (funeq_factor) y = gmul(y, funeq_factor);
   avma = av; return affc_fixlg(y,res);
 }
