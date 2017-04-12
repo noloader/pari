@@ -3476,6 +3476,8 @@ long    uissquarefree_fact(GEN f);
 ulong   unextprime(ulong n);
 ulong   uprecprime(ulong n);
 GEN     usumdivkvec(ulong n, GEN K);
+GEN     vecfactoru_i(ulong a, ulong b);
+GEN     vecfactoru(ulong a, ulong b);
 
 /* init.c */
 
@@ -5163,6 +5165,7 @@ INLINE int    ismpzero(GEN x);
 INLINE int    isonstack(GEN x);
 INLINE void   killblock(GEN x);
 INLINE GEN    leading_coeff(GEN x);
+INLINE void   lg_increase(GEN x);
 INLINE long   lgcols(GEN x);
 INLINE long   lgpol(GEN x);
 INLINE GEN    matpascal(long n);

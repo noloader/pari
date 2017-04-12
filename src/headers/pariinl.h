@@ -479,8 +479,9 @@ vectrunc_init(long l)
   z[0] = evaltyp(t_VEC) | _evallg(1); return z;
 }
 INLINE void
-vectrunc_append(GEN x, GEN t)
-{ long l = lg(x); gel(x,l) = t; setlg(x, l+1); }
+lg_increase(GEN x) { x[0]++; }
+INLINE void
+vectrunc_append(GEN x, GEN t) { gel(x, lg(x)) = t; lg_increase(x); }
 INLINE void
 vectrunc_append_batch(GEN x, GEN y)
 {
@@ -496,8 +497,7 @@ vecsmalltrunc_init(long l)
   z[0] = evaltyp(t_VECSMALL) | _evallg(1); return z;
 }
 INLINE void
-vecsmalltrunc_append(GEN x, long t)
-{ long l = lg(x); x[l] = t; setlg(x, l+1); }
+vecsmalltrunc_append(GEN x, long t) { x[ lg(x) ] = t; lg_increase(x); }
 
 /*******************************************************************/
 /*                                                                 */

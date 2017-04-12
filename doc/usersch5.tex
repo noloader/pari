@@ -7023,6 +7023,13 @@ is a $3$-component vector $[P,E,C]$, where $P$, $E$ and $C$ are
 \typ{VECSMALL} containing the prime divisors of $n$, the $v_p(n)$
 and the $p^{v_p(n)}$.
 
+\fun{GEN}{vecfactoru}{ulong a, ulong b}, returns a \typ{VEC} containing
+the factorizations (\tet{factoru} format) of $a,\dots, b$; assume that $b
+\geq a > 0$. Uses a sieve with primes up to $\sqrt{b}$.
+
+\fun{GEN}{vecfactoru_i}{ulong a, ulong b}, private version of
+\kbd{vecfactoru}, not memory clean.
+
 \fun{ulong}{tridiv_bound}{GEN n} returns the trial division bound used by
 \tet{Z_factor}$(n)$.
 

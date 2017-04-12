@@ -170,6 +170,7 @@ BA   67- new GP functions hyperellratpoints and ellratpoints based on
      70- GP function znchargauss
      71- Configure --graphic=svg
      72- GP function divisorslenstra (divisors in residue classes)
+     73- [libpari] lg_increase, vecfactoru, vecfactoru_i
 
   Changed
       1- rewrite bnfnarrow

@@ -1056,9 +1056,11 @@ soon describe as we will shortly consider each of them in turn.
 
 \fun{long}{lg}{GEN z} returns the length (in longwords) of the root of \kbd{z}.
 
-\fun{long}{setlg}{GEN z, long l} sets the length of \kbd{z} to \kbd{l} (you
-should not have to use this function if you use \kbd{cgetg}; however, see
-an advanced example in \secref{se:prog}).
+\fun{long}{setlg}{GEN z, long l} sets the length of \kbd{z} to \kbd{l}; you
+should not have to use this function if you use \kbd{cgetg}.
+
+\fun{void}{lg_increase}{GEN z} increase the length of \kbd{z} by 1; you
+should not have to use this function if you use \kbd{cgetg}.
 
 \fun{long}{isclone}{GEN z} is \kbd{z} a clone?
 

@@ -3829,3 +3829,66 @@ Z_factor_until(GEN n, GEN limit)
   }
   return gerepilecopy(av, F);
 }
+
+static void
+matsmalltrunc_append(GEN m, ulong p, ulong e)
+{
+  GEN P = gel(m,1), E = gel(m,2);
+  long l = lg(P);
+  P[l] = p; lg_increase(P);
+  E[l] = e; lg_increase(E);
+}
+static GEN
+matsmalltrunc_init(long l)
+{
+  GEN P = vecsmalltrunc_init(l);
+  GEN E = vecsmalltrunc_init(l); return mkvec2(P,E);
+}
+
+GEN
+vecfactoru_i(ulong a, ulong b)
+{
+  ulong N, k, p, n = b-a+1;
+  GEN v = const_vecsmall(n, 1);
+  GEN L = cgetg(n+1, t_VEC);
+  forprime_t T;
+  if (b < 510510UL) N = 7;
+  else if (b < 9699690UL) N = 8;
+#ifdef LONG_IS_64BIT
+  else if (b < 223092870UL) N = 9;
+  else if (b < 6469693230UL) N = 10;
+  else if (b < 200560490130UL) N = 11;
+  else if (b < 7420738134810UL) N = 12;
+  else if (b < 304250263527210UL) N = 13;
+  else N = 16; /* don't bother */
+#else
+  else N = 9;
+#endif
+  for (k = 1; k <= n; k++) gel(L,k) = matsmalltrunc_init(N);
+  u_forprime_init(&T, 2, usqrt(b));
+  while ((p = u_forprime_next(&T)))
+  { /* p <= sqrt(b) */
+    ulong pk = p, K = ulogint(b, p);
+    for (k = 1; k <= K; k++)
+    {
+      ulong ap, j, t;
+      t = a / pk;
+      ap = t * pk;
+      if (ap < a) { ap += pk; t++; }
+      /* t = (j+a-1) \ pk */
+      for (j = ap-a+1; j <= n; j += pk, t++)
+        if (t % p) { v[j] *= pk; matsmalltrunc_append(gel(L,j), p,k); }
+      pk *= p;
+    }
+  }
+  /* complete factorisation of non-sqrt(b)-smooth numbers */
+  for (k = 1, N = a; k <= n; k++, N++)
+    if (v[k] != N) matsmalltrunc_append(gel(L,k), N/v[k],1UL);
+  return L;
+}
+GEN
+vecfactoru(ulong a, ulong b)
+{
+  pari_sp av = avma;
+  return gerepilecopy(av, vecfactoru_i(a,b));
+}
