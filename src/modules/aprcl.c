@@ -321,7 +321,9 @@ compute_e(ulong t, GEN *faet)
     ulong d = D[k];
     if (uisprime(++d))
     { /* we want q = 1 (mod p) prime, not too large */
-      if (d > 5000000000) return gen_0;
+#ifdef LONG_IS_64BIT
+      if (d > 5000000000UL) return gen_0;
+#endif
       vecsmalltrunc_append(P, d);
       vecsmalltrunc_append(L, upowuu(d, 1 + u_lval(t,d)));
     }
