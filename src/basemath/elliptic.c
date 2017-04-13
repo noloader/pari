@@ -5508,66 +5508,59 @@ ellnfembed(GEN E, long prec)
 }
 
 static GEN
-ellpointnfembed(GEN E, GEN P, long prec)
+ellpointnfembed(GEN E, GEN P)
 {
   pari_sp av = avma;
   GEN nf = ellnf_get_nf(E);
-  long r1 = nf_get_r1(nf), r2 = nf_get_r2(nf), n = r1+r2;
-  long i;
-  GEN Px = nfeltembed(nf, gel(P, 1), NULL);
-  GEN Py = nfeltembed(nf, gel(P, 2), NULL);
-  GEN L =  cgetg(n+1, t_VEC);
-  for(i=1; i<=n; i++)
-    gel(L,i) = mkvec2(gel(Px, i), gel(Py, i));
+  GEN Px = nfeltembed(nf, gel(P,1), NULL);
+  GEN Py = nfeltembed(nf, gel(P,2), NULL);
+  long i, l = lg(Px);
+  GEN L =  cgetg(l, t_VEC);
+  for(i = 1; i < l; i++) gel(L,i) = mkvec2(gel(Px,i), gel(Py,i));
   return gerepilecopy(av, L);
 }
 
 static void
 ellnfembed_free(GEN L)
 {
-  long i, n = lg(L)-1;
-  for(i=1; i<=n; i++)
-    obj_free(gel(L,i));
+  long i, l = lg(L);
+  for(i = 1; i < l; i++) obj_free(gel(L,i));
 }
 
 static GEN
-ellnf_vec_wrap(GEN fun(GEN, long), GEN E, long prec)
+ellnf_vec_wrap(GEN (*fun)(GEN, long), GEN E, long prec)
 {
   pari_sp av = avma;
   GEN V = ellnfembed(E, prec);
   long i, l = lg(V);
   GEN P = cgetg(l, t_VEC);
-  for(i=1; i<l; i++)
-    gel(P, i) = fun(gel(V,i), prec);
+  for(i=1; i<l; i++) gel(P,i) = fun(gel(V,i), prec);
   ellnfembed_free(V);
   return gerepilecopy(av, P);
 }
 
 GEN
 ellnf_vecarea(GEN E, long prec)
-{ return ellnf_vec_wrap(ellR_area, E, prec); }
+{ return ellnf_vec_wrap(&ellR_area, E, prec); }
 
 GEN
 ellnf_veceta(GEN E, long prec)
-{ return ellnf_vec_wrap(ellR_eta, E, prec); }
+{ return ellnf_vec_wrap(&ellR_eta, E, prec); }
 
 GEN
 ellnf_vecomega(GEN E, long prec)
-{ return ellnf_vec_wrap(ellR_omega, E, prec); }
+{ return ellnf_vec_wrap(&ellR_omega, E, prec); }
 
 static GEN
 ellnfbsdperiod(GEN E, long prec)
 {
   pari_sp av = avma;
-  GEN Eb = ellnfembed(E, prec);
-  GEN nf = ellnf_get_nf(E);
-  long r1 = nf_get_r1(nf), r2 = nf_get_r2(nf), n = r1+r2;
-  GEN per = real_1(prec);
-  long i;
-  for(i=1; i<=n; i++)
+  GEN Eb = ellnfembed(E, prec), per = real_1(prec);
+  long i, l = lg(Eb), r1 = nf_get_r1(ellnf_get_nf(E));
+  for(i = 1; i < l; i++)
   {
     GEN e = gel(Eb, i);
-    GEN pi = i<=r1 ? gel(ellR_omega(e, prec),1): ellR_area(e, prec);
+    GEN pi = (i <= r1)? gel(ellR_omega(e, prec),1): ellR_area(e, prec);
     per = mulrr(per, pi);
   }
   ellnfembed_free(Eb);
@@ -6466,7 +6459,7 @@ ellnf_height(GEN E, GEN P, long prec)
   GEN d = idealnorm(nf, gel(idealnumden(nf, gel(P,1)), 2));
   GEN F = gel(idealfactor(nf, disc), 1);
   GEN Ee = ellnfembed(E, prec);
-  GEN Pe = ellpointnfembed(E, P, prec);
+  GEN Pe = ellpointnfembed(E, P);
   long i, n = lg(Ee), l = lg(F), r1 = nf_get_r1(nf);
   GEN s = gmul2n(glog(d, prec), -1);
   for (i=1; i<=r1; i++)
@@ -6478,7 +6471,7 @@ ellnf_height(GEN E, GEN P, long prec)
     GEN pr = gel(F,i), p = pr_get_p(pr);
     long f = pr_get_f(pr);
     GEN lam = ellnf_localheight(E, P, pr);
-    s = gadd(s, gmul(lam, gmulgs(glog(p, prec), f)));
+    s = gadd(s, gmul(lam, mulrs(glog(p, prec), f)));
   }
   return gmul2n(s, 1);
 }
