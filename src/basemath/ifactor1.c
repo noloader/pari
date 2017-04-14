@@ -3883,7 +3883,7 @@ vecfactoru_i(ulong a, ulong b)
   }
   /* complete factorisation of non-sqrt(b)-smooth numbers */
   for (k = 1, N = a; k <= n; k++, N++)
-    if (v[k] != N) matsmalltrunc_append(gel(L,k), N/v[k],1UL);
+    if (uel(v,k) != N) matsmalltrunc_append(gel(L,k), N/uel(v,k),1UL);
   return L;
 }
 GEN
