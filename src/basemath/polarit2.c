@@ -153,6 +153,153 @@ centermod_i(GEN x, GEN p, GEN ps2)
 GEN
 centermod(GEN x, GEN p) { return centermod_i(x,p,NULL); }
 
+static GEN
+RgX_Frobenius_deflate(GEN S, ulong p)
+{
+  GEN F = RgX_deflate(S, p);
+  long i, l = lg(F);
+  for (i=2; i<l; i++)
+  {
+    GEN Fi = gel(F,i), R;
+    if (typ(Fi)==t_POL)
+    {
+      if (signe(RgX_deriv(Fi))==0)
+        gel(F,i) = RgX_Frobenius_deflate(gel(F, i), p);
+      else return NULL;
+    }
+    else if (ispower(Fi, utoi(p), &R))
+      gel(F,i) = R;
+    else return NULL;
+  }
+  return F;
+}
+
+
+static GEN
+RgXY_squff(GEN f)
+{
+  long i, q, n = degpol(f);
+  ulong p = itos_or_0(characteristic(f));
+  GEN u = const_vec(n+1, pol_1(varn(f)));
+  for(q = 1;;q *= p)
+  {
+    GEN t, v, tv, r = RgX_gcd(f, RgX_deriv(f));
+    if (degpol(r) == 0) { gel(u, q) = f; break; }
+    t = RgX_div(f, r);
+    if (degpol(t) > 0)
+    {
+      long j;
+      for(j = 1;;j++)
+      {
+        v = RgX_gcd(r, t);
+        tv = RgX_div(t, v);
+        if (degpol(tv) > 0) gel(u, j*q) = tv;
+        if (degpol(v) <= 0) break;
+        r = RgX_div(r, v);
+        t = v;
+      }
+      if (degpol(r) == 0) break;
+    }
+    if (!p) break;
+    r = RgX_Frobenius_deflate(f, p);
+    if (!r) { gel(u, q) = f; break; }
+    f = r;
+  }
+  for (i = n; i; i--)
+    if (degpol(gel(u,i))) break;
+  setlg(u,i+1); return u;
+}
+
+static int
+RgX_cmbf(GEN p, long i, GEN BLOC, GEN Lmod, GEN Lfac, GEN *F)
+{
+  GEN q;
+  if (i == lg(Lmod)) return 0;
+  if (RgX_cmbf(p, i+1, BLOC, Lmod, Lfac, F) && degpol(p) > 0)
+    return 1;
+  if (!gel(Lmod,i)) return 0;
+  p = RgX_mul(p, gel(Lmod,i));
+  q = RgV_to_RgX(RgX_digits(p, BLOC), varn(*F));
+  if (degpol(q))
+  {
+    GEN R, Q = RgX_divrem(*F, q, &R);
+    if (signe(R)==0)
+    {
+      vectrunc_append(Lfac, q);
+      *F = Q;
+      return 1;
+    }
+  }
+  if (RgX_cmbf(p, i+1, BLOC, Lmod, Lfac, F))
+  { gel(Lmod,i) = NULL; return 1; }
+  return 0;
+}
+
+static GEN
+RgXY_factor_squarefree(GEN f)
+{
+  pari_sp av = avma;
+  GEN Lfac, Lmod;
+  GEN F, BLOC;
+  long vy = gvar2(f);
+  long i, n = RgXY_degreex(f);
+  long c = itou_or_0(characteristic(f));
+  long val = RgX_valrem(f, &f);
+  while(1)
+  {
+    for (i = 0; !c || i < c; i++)
+    {
+      BLOC = gpowgs(gaddgs(pol_x(vy), i), n+1);
+      F = poleval(f, BLOC);
+      if (issquarefree(F)) break;
+    }
+    if (!c || i < c) break;
+    n++;
+  }
+  if (DEBUGLEVEL >= 2)
+    err_printf("bifactor: bloc:(x+%ld)^%ld, deg f=%ld\n",i,n,RgXY_degreex(f));
+  Lmod = gel(factor(F),1);
+  if (DEBUGLEVEL >= 2)
+    err_printf("bifactor: %ld local factors\n",lg(Lmod)-1);
+  Lfac = vectrunc_init(lg(Lmod)+1);
+  settyp(Lfac, t_COL);
+  if (RgX_cmbf(pol_1(vy), 1, BLOC, Lmod, Lfac, &f));
+  if (degpol(f)) vectrunc_append(Lfac, f);
+  if (val) vectrunc_append(Lfac, pol_x(varn(f)));
+  return gerepilecopy(av, Lfac);
+}
+
+static GEN
+FE_matconcat(GEN F, GEN E, long l)
+{
+  setlg(E,l); E = shallowconcat1(E);
+  setlg(F,l); F = shallowconcat1(F); return mkmat2(F,E);
+}
+
+GEN
+RgXY_factor(GEN f)
+{
+  pari_sp av = avma;
+  GEN F, E;
+  GEN cnt = content(f);
+  GEN V = RgXY_squff(gdiv(f, cnt));
+  long i, j, l = lg(V);
+  GEN C = factor(cnt);
+  F = cgetg(l+1, t_VEC);
+  E = cgetg(l+1, t_VEC);
+  gel(F,1) = gel(C,1);
+  gel(E,1) = gel(C,2);
+  for (i=1, j=2; i < l; i++)
+    if (degpol(gel(V,i)))
+    {
+      GEN Fj = RgXY_factor_squarefree(gel(V,i));
+      gel(F, j) = Fj;
+      gel(E, j) = const_vec(lg(Fj)-1, stoi(i));
+      j++;
+    }
+  return gerepilecopy(av, sort_factor_pol(FE_matconcat(F,E,j), cmp_universal));
+}
+
 /***********************************************************************/
 /**                                                                   **/
 /**                          FACTORIZATION                            **/
@@ -262,6 +409,7 @@ settype(GEN c, long *t, GEN *p, GEN *pol, long *pa, GEN *ff, long *t2)
         if (polbis) assign_or_fail(polbis,pol);
       }
       break;
+    case t_POL: t[10] = 1; break;
     default: return 0;
   }
   return 1;
@@ -274,12 +422,14 @@ settype(GEN c, long *t, GEN *p, GEN *pol, long *pa, GEN *ff, long *t2)
  * t[6] : t_COMPLEX of t_REAL
  * t[7] : t_PADIC
  * t[8] : t_QUAD of rationals (t_INT/t_FRAC)
- * t[9]: t_POLMOD of rationals (t_INT/t_FRAC) */
+ * t[9]: t_POLMOD of rationals (t_INT/t_FRAC)
+ * t[10]: t_POL (recursive factorisation) */
 /* if t2 != 0: t_POLMOD/t_QUAD/t_COMPLEX of modular (t_INTMOD/t_PADIC,
  * given by t) */
 static long
 choosetype(long *t, long t2, GEN ff, GEN *pol)
 {
+  if (t[10]) return t_POL;
   if (t[5]) /* ffelt */
   {
     if (t2 ||t[2]||t[4]||t[6]||t[8]||t[9]) return 0;
@@ -310,7 +460,7 @@ choosetype(long *t, long t2, GEN ff, GEN *pol)
 long
 RgX_type(GEN x, GEN *p, GEN *pol, long *pa)
 {
-  long t[] = {0,0,0,0,0,0,0,0,0,0};
+  long t[] = {0,0,0,0,0,0,0,0,0,0,0};
   long tx = typ(x), t2 = 0;
   GEN ff = NULL;
   *p = *pol = NULL; *pa = LONG_MAX;
@@ -587,6 +737,7 @@ factor(GEN x)
       switch(tx)
       {
         case 0: pari_err_IMPL("factor for general polynomials");
+        case t_POL: return RgXY_factor(x);
         case t_INT: return QX_factor(x);
         case t_INTMOD: return factmod(x,p);
 
