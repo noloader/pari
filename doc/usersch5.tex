@@ -8874,6 +8874,10 @@ set \kbd{*ptr} to $r$.
 be a \typ{FRAC} if $n < 0$ and the valuation of \kbd{x} is not large
 enough.
 
+\fun{GEN}{RgX_digits}{GEN x, GEN B} returns a vector of \kbd{RgX}
+$[c_0,\ldots,c_n]$ of degree less than the degree of $B$ and such that
+$x=\sum_{i=0}^{n}{c_i\*B^i}$.
+
 \subsubsec{GCD, Resultant}
 
 \fun{GEN}{RgX_gcd}{GEN x, GEN y} returns the GCD of \kbd{x} and \kbd{y},

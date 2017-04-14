@@ -1000,6 +1000,7 @@ GEN     RgX_add(GEN x, GEN y);
 GEN     RgX_blocks(GEN P, long n, long m);
 GEN     RgX_deflate(GEN x0, long d);
 GEN     RgX_deriv(GEN x);
+GEN     RgX_digits(GEN A, GEN B);
 GEN     RgX_div_by_X_x(GEN a, GEN x, GEN *r);
 GEN     RgX_divrem(GEN x,GEN y,GEN *r);
 GEN     RgX_divs(GEN y, long x);
