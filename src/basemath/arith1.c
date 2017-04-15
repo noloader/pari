@@ -1002,7 +1002,7 @@ polispower(GEN x, GEN K, GEN *pt)
       GEN T0, T = NULL;
       if (!BPSW_isprime(p))
         pari_err_IMPL("ispower in non-prime characteristic");
-      if (RgX_is_FpXQX(x,&T,&p) && T)
+      if (RgX_is_FpXQX(x,&T,&p))
       { /* over Fq */
         T0 = T;
         if (T && typ(T) == t_FFELT) T = FF_mod(T);
