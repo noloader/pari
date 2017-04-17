@@ -521,39 +521,68 @@ cmp_padic(GEN x, GEN y)
   return cmpii(gel(x,4), gel(y,4));
 }
 
+/* replace p^e by p*...*p [ factors are not known to be equal, only close at
+ * input accuracy ] */
+static GEN
+famat_flatten(GEN fa)
+{
+  GEN y, P = gel(fa,1), E = gel(fa,2);
+  long i, l = lg(E);
+  y = cgetg(l, t_VEC);
+  for (i = 1; i < l; i++)
+  {
+    GEN p = gel(P,i);
+    long e = itou(gel(E,i));
+    gel(y,i) = const_vec(e, p);
+  }
+  y = shallowconcat1(y); settyp(y, t_COL);
+  return mkmat2(y, const_col(lg(y)-1, gen_1));
+}
+
 GEN
-factorpadic(GEN f,GEN p,long r)
+factorpadic(GEN f, GEN p, long r)
 {
   pari_sp av = avma;
-  GEN y, P, ppow, lead, lt;
-  long i, l, pr, v, n = degpol(f);
-  int reverse = 0;
+  GEN y, ppow;
+  long v, n;
+  int reverse = 0, exact;
 
   if (typ(f)!=t_POL) pari_err_TYPE("factorpadic",f);
   if (typ(p)!=t_INT) pari_err_TYPE("factorpadic",p);
   if (r <= 0) pari_err_DOMAIN("factorpadic", "precision", "<=",gen_0,stoi(r));
   if (!signe(f)) return prime_fact(f);
-  if (n == 0) return trivial_fact();
+  if (!degpol(f)) return trivial_fact();
 
   v = RgX_valrem(f, &f);
-  f = QpX_to_ZX(f, p); (void)Z_pvalrem(leading_coeff(f), p, &lt);
-  f = pnormalize(f, p, r, n-1, &lead, &pr, &reverse);
-  y = ZpX_monic_factor(f, p, pr);
-  P = gel(y,1); l = lg(P);
-  if (lead != gen_1)
-    for (i=1; i<l; i++) gel(P,i) = Q_primpart( RgX_unscale(gel(P,i), lead) );
+  exact = RgX_is_QX(f);
   ppow = powiu(p,r);
-  for (i=1; i<l; i++)
+  n = degpol(f);
+  if (!n)
+    y = trivial_fact();
+  else
   {
-    GEN t = gel(P,i);
-    if (reverse) t = normalizepol(RgX_recip_shallow(t));
-    gel(P,i) = ZX_to_ZpX_normalized(t,p,ppow,r);
+    GEN P, lead, lt;
+    long i, l, pr;
+
+    f = QpX_to_ZX(f, p); (void)Z_pvalrem(leading_coeff(f), p, &lt);
+    f = pnormalize(f, p, r, n-1, &lead, &pr, &reverse);
+    y = ZpX_monic_factor(f, p, pr);
+    P = gel(y,1); l = lg(P);
+    if (lead != gen_1)
+      for (i=1; i<l; i++) gel(P,i) = Q_primpart( RgX_unscale(gel(P,i), lead) );
+    for (i=1; i<l; i++)
+    {
+      GEN t = gel(P,i);
+      if (reverse) t = normalizepol(RgX_recip_shallow(t));
+      gel(P,i) = ZX_to_ZpX_normalized(t,p,ppow,r);
+    }
+    if (!gequal1(lt)) gel(P,1) = gmul(gel(P,1), lt);
   }
-  if (!gequal1(lt)) gel(P,1) = gmul(gel(P,1), lt);
   if (v)
-  {
+  { /* v > 0 */
     GEN X = ZX_to_ZpX(pol_x(varn(f)), p, ppow, r);
     y = famat_mulpow_shallow(y, X, utoipos(v));
   }
+  if (!exact) y = famat_flatten(y);
   return gerepilecopy(av, sort_factor_pol(y, cmp_padic));
 }

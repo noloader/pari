@@ -99,11 +99,10 @@ Doc: general factorization function, where $x$ is a
  The polynomials or rational functions to be factored must have scalar
  coefficients. In particular PARI does not know how to factor
  \emph{multivariate} polynomials. The following domains are currently
- supported: $\Q$, $\R$, $\C$, $\Q_p$, finite fields and number fields.
- See \tet{factormod} and \tet{factorff} for
- the algorithms used over finite fields, \tet{factornf} for the algorithms
- over number fields. Over $\Q$, \idx{van Hoeij}'s method is used, which is
- able to cope with hundreds of modular factors.
+ supported: $\Q$, $\R$, $\C$, $\Q_p$, finite fields and number fields. See
+ \tet{factormod} and \tet{factorff} for the algorithms used over finite
+ fields, \tet{nffactor} for the algorithms over number fields. The irreducible
+ factors are sorted by increasing degree.
 
  The routine guesses a sensible ring over which to factor: the
  smallest ring containing all coefficients, taking into account quotient
@@ -131,9 +130,30 @@ Doc: general factorization function, where $x$ is a
  ? factorpadic(T, 3,6)       \\ over Q_3, precision 6
  ? nffactor(y^3-2, T)        \\ over Q(2^{1/3})
  ? polroots(T)               \\ over C
+ ? polrootsreal(T)           \\ over R (real polynomial)
  @eprog
 
- Note that factorization of polynomials is done up to
+ \misctitle{Note about inseparable polynomials} Polynomials with inexact
+ coefficients (e.g. floating point or $p$-adic numbers) are assumed to be
+ squarefree: in fact, there exist a squarefree polynomial arbitrarily close
+ to the input, and they cannot be distinguished at the input accuracy. This
+ means that irreducible factors are repeated according to their apparent
+ multiplicity. On the contrary, using a specialized function such as
+ \kbd{factorpadic} with an \emph{exact} rational input yields the correct
+ multiplicity when the (now exact) input is not separable. Compare:
+ \bprog
+ ? factor(z^2 * (1 + O(5^2)))
+ %1 =
+ [(1 + O(5^2))*z + O(5^2) 1]
+
+ [(1 + O(5^2))*z + O(5^2) 1]
+ ? factorpadic(z^2, 5, 2)
+ %2 =
+ [1 + O(5^2))*z + O(5^2) 2]
+ @eprog
+
+ \misctitle{Note about contents}
+ Factorization of polynomials is done up to
  multiplication by a constant. In particular, the factors of rational
  polynomials will have integer coefficients, and the content of a polynomial
  or rational function is discarded and not included in the factorization. If
@@ -147,9 +167,7 @@ Doc: general factorization function, where $x$ is a
 
  ? content(t^2 + 5/2*t + 1)
  %2 = 1/2
- @eprog\noindent
- The irreducible factors are sorted by increasing degree.
- See also \tet{nffactor}.
+ @eprog
 Variant: This function should only be used by the \kbd{gp} interface. Use
  directly \fun{GEN}{factor}{GEN x} or \fun{GEN}{boundfact}{GEN x, ulong lim}.
  The obsolete function \fun{GEN}{factor0}{GEN x, long lim} is kept for

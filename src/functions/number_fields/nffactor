@@ -26,7 +26,9 @@ Doc: factorization of the univariate
  structure will then be computed internally. This is useful in two
  situations: when you do not need the \kbd{nf} elsewhere, or when you cannot
  initialize an \kbd{nf} due to integer factorization difficulties when
- attempting to compute the field discriminant and maximal order.
+ attempting to compute the field discriminant and maximal order. In all
+ cases, the function runs in polynomial time using Belabas's variant
+ of \idx{van Hoeij}'s algorithm, which copes with hundreds of modular factors.
 
  \misctitle{Caveat} \kbd{nfinit([T, listP])} allows to compute in polynomial
  time a conditional \var{nf} structure, which sets \kbd{nf.zk} to an order

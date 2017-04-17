@@ -18,4 +18,4 @@ Doc: vector of $p$-adic roots of the polynomial \var{pol}, given to
  to $\Z$ using \tet{truncate} coefficientwise. Hence the roots given are
  approximations of the roots of an exact polynomial which is $p$-adically
  close to the input. To avoid pitfalls, we advise to only factor polynomials
- with eact rational coefficients.
+ with exact rational coefficients.

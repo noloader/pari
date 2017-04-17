@@ -21,6 +21,13 @@ This file lists the incompatible changes between Version 2.x and older versions
     introduction of polcoeff ], and raised an exception for n <= 0.
     Now returns a true GEN component whenever it exists and raises an
     exception when it does not [ n <= 0 or n > polcoeff(T)+1 ].
+  - For T in Q_p[X], factor (round then compute multiplicity) and issquarefree
+    (assume input is separable) did not agree. Now, factor() repeats
+    irreducible factors according to apparent multiplicity (note that the
+    multiplicity is not well defined for inexact inputs, which are close to
+    being inseparable, i.e. v_p( disc(T) ) is large compared to the input
+    accuracy). OTOH, factorpadic with exact input is able to compute
+    multiplicities reliably.
 
 * Specific to the PARI library:
 ===============================

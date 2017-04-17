@@ -6,4 +6,22 @@ Help: issquarefree(x): true(1) if x is squarefree, false(0) if not.
 Description:
  (gen):bool       issquarefree($1)
 Doc: true (1) if $x$ is squarefree, false (0) if not. Here $x$ can be an
- integer or a polynomial.
+ integer or a polynomial with coefficients in an integral domain.
+ \bprog
+ ? issquarefree(12)
+ %1 = 0
+ ? issquarefree(6)
+ %2 = 1
+ ? issquarefree(x^3+x^2)
+ %3 = 0
+ ? issquarefree(Mod(1,4)*(x^2+x+1))    \\ Z/4Z is not a domain !
+  ***   at top-level: issquarefree(Mod(1,4)*(x^2+x+1))
+  ***                 ^--------------------------------
+  *** issquarefree: impossible inverse in Fp_inv: Mod(2, 4).
+ @eprog\noindent A polynomial is declared squarefree if \kbd{gcd}$(x,x')$ is
+ $1$. In particular a non-zero polynomial with inexact coefficients is
+ considered to be squarefree. Note that this may be inconsistent with
+ \kbd{factor}, which first rounds the input to some exact approximation before
+ factoring in the apropriate domain; this is correct when the input is not
+ close to an inseparable polynomial (the resultant of $x$ and $x'$ is not
+ close to $0$).

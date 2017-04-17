@@ -83,6 +83,15 @@ EB   62- GP was incorrectly issuing fflush(NULL) [#1913]
            subst(x+O(x^2),x,0*x) -> 1 + O(x)   [ instead of 0 ]
            subst(x+O(x^2),x,Mod(0,3)*x) -> O(x^0) [ instead of Mod(0,3) ]
      69- valuation(Mod(0,3)*x,x) -> 0 [ instead of oo ]
+     70- factor(x^2 * (1+O(5^2))) -> domain error
+     71- for T in Q_p[X], factor (round then compute multiplicity)
+         and issquarefree (assume input is separable) did not agree. Now,
+         factor() repeats irreducible factors according to apparent
+         multiplicity (note that the multiplicity is not well defined for
+         inexact inputs, which are close to being inseparable, i.e.
+         v_p( disc(T) ) is large compared to the input accuracy). On the
+         other hand, factorpadic with exact input is able to compute
+         multiplicities reliably.
 
   Added
       1- [libari] ZM_isidentity
