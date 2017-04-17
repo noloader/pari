@@ -3229,14 +3229,12 @@ compo(GEN x, long n)
     pari_err_TYPE("component [leaf]", x);
   }
   if (n < 1) pari_err_COMPONENT("", "<", gen_1, stoi(n));
-  if (tx == t_POL && (ulong)n+1 >= lx) return gen_0;
   if (tx == t_LIST) {
-    tx = t_VEC;
-    x = list_data(x);
+    x = list_data(x); tx = t_VEC;
     lx = (ulong)(x? lg(x): 1);
   }
   l = (ulong)lontyp[tx] + (ulong)n-1; /* beware overflow */
-  if (l >= lx) pari_err_COMPONENT("", ">", utoi(lx-lontyp[tx]), utoi(l));
+  if (l >= lx) pari_err_COMPONENT("", ">", utoi(lx-lontyp[tx]), stoi(n));
   return gcopy(gel(x,l));
 }
 

@@ -231,6 +231,11 @@ BA   29- keri replaced by ZM_ker (use modular algorithm)
          gp version < 2.10) but incurs a small speed penalty.
 JD   33- move plotport.c to libpari
      34- default window size for hi-res plots using --graphic=X
+     35- component(t_POL T, n) used to return polcoeff(T, n-1) for all n >= 1
+         [ undocumented compatibility behaviour, deprecated since the
+         introduction of polcoeff ], and raised an exception for n <= 0.
+         Now returns a true GEN component whenever it exists and raises an
+         exception when it does not [ n <= 0 or n > polcoeff(T)+1 ].
 
   Removed
       1- file 'MACHINES' (no longer maintained)

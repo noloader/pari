@@ -269,17 +269,17 @@ error("incorrect type in component [leaf] (t_STR).")
 0
 (x)->component(x,10)
 error("incorrect type in component [leaf] (t_INT).")
-0
 error("non-existent component: index > 2")
-0
-error("non-existent component: index > 3")
+error("non-existent component: index > 2")
+error("non-existent component: index > 5")
+error("non-existent component: index > 2")
 error("non-existent component: index > 2")
 error("non-existent component: index > 2")
 error("non-existent component: index > 3")
 error("non-existent component: index > 5")
 error("incorrect type in component [leaf] (t_STR).")
 error("non-existent component: index > 3")
-error("non-existent component: index > 3")
+error("non-existent component: index > 2")
 (x)->polcoeff(x,-1)
 0
 0
@@ -355,4 +355,4 @@ Vecsmall([4, 5, 3])
   ***   at top-level: [1..1/2]
   ***                   ^------
   *** [_.._]: incorrect type in [_.._] (t_FRAC).
-Total time spent: 0
+Total time spent: 2
