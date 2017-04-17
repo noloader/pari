@@ -1522,7 +1522,14 @@ gsubst(GEN x, long v, GEN y)
           long N, n = lx-2;
           GEN cx;
           vy = gvar(y); ey = gval(y,vy);
-          if (ey == LONG_MAX) return n? scalarser(gel(x,2),v,n): gcopy(x);
+          if (ey == LONG_MAX)
+          { /* y = 0 */
+            if (ex < 0) pari_err_INV("gsubst",y);
+            if (!n) return gcopy(x);
+            if (ex > 0) return RgX_get_0(ty == t_RFRAC? gel(y,2): y);
+            y = RgX_get_1(ty == t_RFRAC? gel(y,2): y);
+            return gmul(y, gel(x,2));
+          }
           if (ey < 1 || n == 0) return zeroser(vy, ey*(ex+n));
           av = avma;
           n *= ey;

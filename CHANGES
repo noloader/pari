@@ -79,6 +79,10 @@ EB   62- GP was incorrectly issuing fflush(NULL) [#1913]
      65- nfisincl(nf1, nf2) didn't work [#1921]
      66- setting sopath in gprc then calling install() -> SEGV [#1922]
      67- nfislocalpower did not accept a bnf in place of a nf
+     68- subst(t_SER, x, 0 t_POL) [#1925], e.g
+           subst(x+O(x^2),x,0*x) -> 1 + O(x)   [ instead of 0 ]
+           subst(x+O(x^2),x,Mod(0,3)*x) -> O(x^0) [ instead of Mod(0,3) ]
+     69- valuation(Mod(0,3)*x,x) -> 0 [ instead of oo ]
 
   Added
       1- [libari] ZM_isidentity

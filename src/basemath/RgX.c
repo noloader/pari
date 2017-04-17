@@ -838,7 +838,7 @@ RgX_val(GEN x)
   if (lx == 2) return LONG_MAX;
   for (i = 2; i < lx; i++)
     if (!isexactzero(gel(x,i))) break;
-  if (i == lx) i--; /* possible with non-rational zeros */
+  if (i == lx) return LONG_MAX;/* possible with non-rational zeros */
   return i - 2;
 }
 long
@@ -848,7 +848,8 @@ RgX_valrem(GEN x, GEN *Z)
   if (lx == 2) { *Z = pol_0(varn(x)); return LONG_MAX; }
   for (i = 2; i < lx; i++)
     if (!isexactzero(gel(x,i))) break;
-  if (i == lx) i--; /* possible with non-rational zeros */
+  /* possible with non-rational zeros */
+  if (i == lx) { *Z = pol_0(varn(x)); return LONG_MAX; }
   v = i - 2;
   *Z = RgX_shift_shallow(x, -v);
   return v;
