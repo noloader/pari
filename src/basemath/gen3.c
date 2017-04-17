@@ -3236,7 +3236,7 @@ compo(GEN x, long n)
     lx = (ulong)(x? lg(x): 1);
   }
   l = (ulong)lontyp[tx] + (ulong)n-1; /* beware overflow */
-  if (l >= lx) pari_err_COMPONENT("", ">", utoi(lx-1), utoi(l));
+  if (l >= lx) pari_err_COMPONENT("", ">", utoi(lx-lontyp[tx]), utoi(l));
   return gcopy(gel(x,l));
 }
 

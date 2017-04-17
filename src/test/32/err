@@ -433,10 +433,13 @@
   *** component: non-existent component: index < 1
   ***   at top-level: component(O(x),2)
   ***                 ^-----------------
-  *** component: non-existent component: index > 1
+  *** component: non-existent component: index > 0
   ***   at top-level: component(Vecsmall([]),1)
   ***                 ^-------------------------
   *** component: non-existent component: index > 0
+  ***   at top-level: component(x->x,6)
+  ***                 ^-----------------
+  *** component: non-existent component: index > 5
   ***   at top-level: polcoeff(O(x),2)
   ***                 ^----------------
   *** polcoeff: domain error in polcoeff: t_SER = O(x)
@@ -607,4 +610,4 @@ INFINITY
   ***   at top-level: Mod(0,n)^(-1)
   ***                         ^-----
   *** _^_: impossible inverse in Fp_inv: (...).
-Total time spent: 12
+Total time spent: 15
