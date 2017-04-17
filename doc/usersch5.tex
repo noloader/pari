@@ -12328,8 +12328,8 @@ respectively.
 
 \subsec{Overflows}
 
-\subsubsec{e\_COMPONENT} Trying to access an inexistent component in a
-vector/matrix/list in a function: the index is less than $1$ or greater
+\subsubsec{e\_COMPONENT} Trying to access an inexistent component of a 
+vector/matrix/list: the index is less than $1$ or greater
 than the allowed length.
 \bprog
   pari_err(e_COMPONENT, const char *f, const char *op, GEN lim, GEN x)
