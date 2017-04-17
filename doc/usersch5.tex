@@ -8727,15 +8727,15 @@ by shifting $x$ in place. To be used as follows
 
 \fun{long}{RgX_valrem}{GEN P, GEN *pz} returns the valuation $v$ of the
 \typ{POL}~\kbd{P} with respect to its main variable $X$. Check whether
-coefficients are $0$ using \kbd{gequal0}. Set \kbd{*pz} to
+coefficients are $0$ using \kbd{isexactzero}. Set \kbd{*pz} to
 $\kbd{RgX\_shift\_shallow}(P,-v)$.
 
 \fun{long}{RgX_val}{GEN P} returns the valuation $v$ of the
 \typ{POL}~\kbd{P} with respect to its main variable $X$. Check whether
-coefficients are $0$ using \kbd{gequal0}.
+coefficients are $0$ using \kbd{isexactzero}.
 
 \fun{long}{RgX_valrem_inexact}{GEN P, GEN *z} as \kbd{RgX\_valrem}, using
-\kbd{isexactzero} instead of \kbd{gequal0}.
+\kbd{gequal0} instead of \kbd{isexactzero}.
 
 \subsubsec{Basic arithmetic}
 
