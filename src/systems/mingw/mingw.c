@@ -136,6 +136,13 @@ win32_terminal_height(void)
 }
 
 void
+win32_set_codepage(void)
+{
+  SetConsoleCP( GetACP() );
+  SetConsoleOutputCP( GetACP() );
+}
+
+void
 win32_set_pdf_viewer(void)
 {
   char *s = getenv("GP_PDF_VIEWER");

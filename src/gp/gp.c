@@ -16,6 +16,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 /**                        PARI CALCULATOR                        **/
 /**                                                               **/
 /*******************************************************************/
+#ifdef _WIN32
+#  include "../systems/mingw/pwinver.h"
+#  include <windows.h>
+#  include "../systems/mingw/mingw.h"
+#endif
 #include "pari.h"
 #include "paripriv.h"
 #include "gp.h"
@@ -571,7 +576,9 @@ main(int argc, char **argv)
   cb_pari_ask_confirm = gp_ask_confirm;
   pari_init_paths();
   pari_mt_init(); /* MPI: will not return on slaves (pari_MPI_rank = 0) */
-
+#ifdef _WIN32
+  if (stdin_isatty) win32_set_codepage();
+#endif
 #ifdef READLINE
   init_readline();
 #endif
