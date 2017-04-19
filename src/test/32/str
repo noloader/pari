@@ -7,4 +7,7 @@ Vecsmall([104, 101, 108, 108, 111, 32, 119, 111, 114, 108, 100, 33])
 "1/2"
 "ab1"
 1
+  ***   at top-level: Strchr(-1)
+  ***                 ^----------
+  *** Strchr: out of range in integer -> character conversion (-1).
 Total time spent: 0
