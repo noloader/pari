@@ -92,6 +92,8 @@ EB   62- GP was incorrectly issuing fflush(NULL) [#1913]
          v_p( disc(T) ) is large compared to the input accuracy). On the
          other hand, factorpadic with exact input is able to compute
          multiplicities reliably.
+     72- Vecsmall(t_STR with extended (8-bit) ASCII) -> platform dependent +
+         can't be converted back with Strchr
 
   Added
       1- [libari] ZM_isidentity

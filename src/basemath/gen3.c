@@ -3182,8 +3182,8 @@ gtovecsmall(GEN x)
     case t_INT: return mkvecsmall(itos(x));
     case t_STR:
     {
-      char *s = GSTR(x);
-      l = strlen(s);
+      unsigned char *s = (unsigned char*)GSTR(x);
+      l = strlen((const char *)s);
       V = cgetg(l+1, t_VECSMALL);
       s--;
       for (i=1; i<=l; i++) V[i] = (long)s[i];
