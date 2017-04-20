@@ -1168,7 +1168,9 @@ gpow(GEN x, GEN n, long prec)
       }
     }
   }
-  i = (long) precision(n); if (i) prec=i;
+  i = precision(n);
+  if (i) prec = i;
+  if (!gprecision(x) && typ(n) != t_PADIC) prec += nbits2extraprec(gexpo(n));
   y = gmul(n, glog(x,prec));
   return gerepileupto(av, gexp(y,prec));
 }
