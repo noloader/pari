@@ -1101,7 +1101,7 @@ gpow0(GEN x, GEN n, long prec)
 GEN
 gpow(GEN x, GEN n, long prec)
 {
-  long i, lx, tx, tn = typ(n);
+  long prec0, i, lx, tx, tn = typ(n);
   pari_sp av;
   GEN y;
 
@@ -1170,9 +1170,12 @@ gpow(GEN x, GEN n, long prec)
   }
   i = precision(n);
   if (i) prec = i;
+  prec0 = prec;
   if (!gprecision(x) && typ(n) != t_PADIC) prec += nbits2extraprec(gexpo(n));
   y = gmul(n, glog(x,prec));
-  return gerepileupto(av, gexp(y,prec));
+  y = gexp(y,prec);
+  if (prec0 == prec) return gerepileupto(av, y);
+  return gerepilecopy(av, gprec_wtrunc(y,prec0));
 }
 
 GEN
