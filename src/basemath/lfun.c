@@ -639,14 +639,15 @@ GEN
 vecpowug(long N, GEN B, long prec)
 {
   GEN v = const_vec(N, NULL);
-  long p;
+  long p, eB = gexpo(B);
+  long prec0 = eB < 5? prec: prec + nbits2extraprec(eB);
   forprime_t T;
   u_forprime_init(&T, 2, N);
   gel(v,1) = gen_1;
   while ((p = u_forprime_next(&T)))
   {
     long m, pk, oldpk;
-    gel(v,p) = gpow(utor(p,prec), B, prec);
+    gel(v,p) = gpow(utor(p,prec0), B, prec);
     for (pk = p, oldpk = p; pk <= N; oldpk = pk, pk *= p)
     {
       if (pk != p) gel(v,pk) = gmul(gel(v,oldpk), gel(v,p));
