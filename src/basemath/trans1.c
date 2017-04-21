@@ -1171,7 +1171,11 @@ gpow(GEN x, GEN n, long prec)
   i = precision(n);
   if (i) prec = i;
   prec0 = prec;
-  if (!gprecision(x) && typ(n) != t_PADIC) prec += nbits2extraprec(gexpo(n));
+  if (!gprecision(x) && typ(n) != t_PADIC)
+  {
+    long e = gexpo(n);
+    if (e > 2) prec += nbits2extraprec(e); /* branch avoided if n = 0 */
+  }
   y = gmul(n, glog(x,prec));
   y = gexp(y,prec);
   if (prec0 == prec) return gerepileupto(av, y);
