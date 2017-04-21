@@ -648,6 +648,7 @@ vecpowug(long N, GEN B, long prec)
   {
     long m, pk, oldpk;
     gel(v,p) = gpow(utor(p,prec0), B, prec);
+    if (prec0 != prec) gel(v,p) = gprec_wtrunc(gel(v,p), prec);
     for (pk = p, oldpk = p; pk <= N; oldpk = pk, pk *= p)
     {
       if (pk != p) gel(v,pk) = gmul(gel(v,oldpk), gel(v,p));
