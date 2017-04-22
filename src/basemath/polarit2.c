@@ -243,7 +243,7 @@ RgXY_factor_squarefree(GEN f)
   GEN F, BLOC;
   long vy = gvar2(f);
   long i, n = RgXY_degreex(f);
-  long c = itou_or_0(characteristic(f));
+  ulong c = itou_or_0(residual_characteristic(f));
   long val = RgX_valrem(f, &f);
   while(1)
   {
@@ -251,7 +251,7 @@ RgXY_factor_squarefree(GEN f)
     {
       BLOC = gpowgs(gaddgs(pol_x(vy), i), n+1);
       F = poleval(f, BLOC);
-      if (issquarefree(F)) break;
+      if (issquarefree(c ? gmul(F,gmodulss(1,c)): F)) break;
     }
     if (!c || i < c) break;
     n++;
