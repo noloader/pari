@@ -18,6 +18,163 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 
 /***********************************************************************/
 /**                                                                   **/
+/**                              FpJ                                  **/
+/**                                                                   **/
+/***********************************************************************/
+
+/* Arithmetic is implemented using Jacobian coordinates, representing
+ * a projective point (x : y : z) on E by [z*x , z^2*y , z].  This is
+ * probably not the fastest representation available for the given
+ * problem, but they're easy to implement and up to 60% faster than
+ * the school-book method used in FpE_mulu().
+ */
+
+/*
+ * Cost: 1M + 8S + 1*a + 10add + 1*8 + 2*2 + 1*3.
+ * Source: http://www.hyperelliptic.org/EFD/g1p/auto-shortw-jacobian.html#doubling-dbl-2007-bl
+ */
+
+GEN
+FpJ_dbl(GEN P, GEN a4, GEN p)
+{
+  GEN X1, Y1, Z1;
+  GEN XX, YY, YYYY, ZZ, S, M, T, Q;
+
+  if (signe(gel(P,3)) == 0)
+    return gcopy(P);
+
+  X1 = gel(P,1); Y1 = gel(P,2); Z1 = gel(P,3);
+
+  XX = Fp_sqr(X1, p);
+  YY = Fp_sqr(Y1, p);
+  YYYY = Fp_sqr(YY, p);
+  ZZ = Fp_sqr(Z1, p);
+  S = Fp_mulu(Fp_sub(Fp_sqr(Fp_add(X1, YY, p), p),
+                       Fp_add(XX, YYYY, p), p), 2, p);
+  M = Fp_addmul(Fp_mulu(XX, 3, p), a4, Fp_sqr(ZZ, p),  p);
+  T = Fp_sub(Fp_sqr(M, p), Fp_mulu(S, 2, p), p);
+  Q = cgetg(4, t_VEC);
+  gel(Q,1) = T;
+  gel(Q,2) = Fp_sub(Fp_mul(M, Fp_sub(S, T, p), p),
+                Fp_mulu(YYYY, 8, p), p);
+  gel(Q,3) = Fp_sub(Fp_sqr(Fp_add(Y1, Z1, p), p),
+                Fp_add(YY, ZZ, p), p);
+  return Q;
+}
+
+/*
+ * Cost: 11M + 5S + 9add + 4*2.
+ * Source: http://www.hyperelliptic.org/EFD/g1p/auto-shortw-jacobian.html#addition-add-2007-bl
+ */
+
+GEN
+FpJ_add(GEN P, GEN Q, GEN a4, GEN p)
+{
+  GEN X1, Y1, Z1, X2, Y2, Z2;
+  GEN Z1Z1, Z2Z2, U1, U2, S1, S2, H, I, J, r, V, W, R;
+
+  if (signe(gel(Q,3)) == 0) return gcopy(P);
+  if (signe(gel(P,3)) == 0) return gcopy(Q);
+
+  X1 = gel(P,1); Y1 = gel(P,2); Z1 = gel(P,3);
+  X2 = gel(Q,1); Y2 = gel(Q,2); Z2 = gel(Q,3);
+
+  Z1Z1 = Fp_sqr(Z1, p);
+  Z2Z2 = Fp_sqr(Z2, p);
+  U1 = Fp_mul(X1, Z2Z2, p);
+  U2 = Fp_mul(X2, Z1Z1, p);
+  S1 = mulii(Y1, Fp_mul(Z2, Z2Z2, p));
+  S2 = mulii(Y2, Fp_mul(Z1, Z1Z1, p));
+  H = Fp_sub(U2, U1, p);
+  r = Fp_mulu(Fp_sub(S2, S1, p), 2, p);
+
+  /* If points are equal we must double. */
+  if (signe(H)== 0) {
+    if (signe(r) == 0)
+      /* Points are equal so double. */
+      return FpJ_dbl(P, a4, p);
+    else
+      return mkvec3(gen_1, gen_1, gen_0);
+  }
+  I = Fp_sqr(Fp_mulu(H, 2, p), p);
+  J = Fp_mul(H, I, p);
+  V = Fp_mul(U1, I, p);
+  W = Fp_sub(Fp_sqr(r, p), Fp_add(J, Fp_mulu(V, 2, p), p), p);
+  R = cgetg(4, t_VEC);
+  gel(R,1) = W;
+  gel(R,2) = Fp_sub(mulii(r, subii(V, W)),
+                    shifti(mulii(S1, J), 1), p);
+  gel(R,3) = Fp_mul(Fp_sub(Fp_sqr(Fp_add(Z1, Z2, p), p),
+                           Fp_add(Z1Z1, Z2Z2, p), p), H, p);
+  return R;
+}
+
+GEN
+FpJ_neg(GEN Q, GEN p)
+{
+  return mkvec3(icopy(gel(Q,1)), Fp_neg(gel(Q,2), p), icopy(gel(Q,3)));
+}
+
+GEN
+FpE_to_FpJ(GEN P)
+{ return ell_is_inf(P) ? mkvec3(gen_1, gen_1, gen_0):
+                         mkvec3(icopy(gel(P,1)),icopy(gel(P,2)), gen_1);
+}
+
+GEN
+FpJ_to_FpE(GEN P, GEN p)
+{
+  if (signe(gel(P,3)) == 0) return ellinf();
+  else
+  {
+    GEN Z = Fp_inv(gel(P,3), p);
+    GEN Z2 = Fp_sqr(Z, p), Z3 = Fp_mul(Z, Z2, p);
+    retmkvec2(Fp_mul(gel(P,1), Z2, p), Fp_mul(gel(P,2), Z3, p));
+  }
+}
+
+struct _FpE
+{
+  GEN a4,a6;
+  GEN p;
+};
+
+static GEN
+_FpJ_dbl(void *E, GEN P)
+{
+  struct _FpE *ell = (struct _FpE *) E;
+  return FpJ_dbl(P, ell->a4, ell->p);
+}
+
+static GEN
+_FpJ_add(void *E, GEN P, GEN Q)
+{
+  struct _FpE *ell=(struct _FpE *) E;
+  return FpJ_add(P, Q, ell->a4, ell->p);
+}
+
+static GEN
+_FpJ_mul(void *E, GEN P, GEN n)
+{
+  pari_sp av = avma;
+  struct _FpE *e=(struct _FpE *) E;
+  long s = signe(n);
+  if (!s || ell_is_inf(P)) return ellinf();
+  if (s<0) P = FpJ_neg(P, e->p);
+  if (is_pm1(n)) return s>0? gcopy(P): P;
+  return gerepilecopy(av, gen_pow(P, n, e, &_FpJ_dbl, &_FpJ_add));
+}
+
+GEN
+FpJ_mul(GEN P, GEN n, GEN a4, GEN p)
+{
+  struct _FpE E;
+  E.a4= a4; E.p = p;
+  return _FpJ_mul(&E, P, n);
+}
+
+/***********************************************************************/
+/**                                                                   **/
 /**                              FpE                                  **/
 /**                                                                   **/
 /***********************************************************************/
@@ -169,12 +326,6 @@ FpE_sub(GEN P, GEN Q, GEN a4, GEN p)
   return gerepileupto(av, FpE_add_slope(P, FpE_neg_i(Q, p), a4, p, &slope));
 }
 
-struct _FpE
-{
-  GEN a4,a6;
-  GEN p;
-};
-
 static GEN
 _FpE_dbl(void *E, GEN P)
 {
@@ -195,17 +346,20 @@ _FpE_mul(void *E, GEN P, GEN n)
   pari_sp av = avma;
   struct _FpE *e=(struct _FpE *) E;
   long s = signe(n);
+  GEN Q;
   if (!s || ell_is_inf(P)) return ellinf();
   if (s<0) P = FpE_neg(P, e->p);
   if (is_pm1(n)) return s>0? gcopy(P): P;
-  return gerepileupto(av, gen_pow(P, n, e, &_FpE_dbl, &_FpE_add));
+  if (equalis(n,2)) return _FpE_dbl(E, P);
+  Q = gen_pow(FpE_to_FpJ(P), n, e, &_FpJ_dbl, &_FpJ_add);
+  return gerepileupto(av, FpJ_to_FpE(Q, e->p));
 }
 
 GEN
 FpE_mul(GEN P, GEN n, GEN a4, GEN p)
 {
   struct _FpE E;
-  E.a4= a4; E.p = p;
+  E.a4 = a4; E.p = p;
   return _FpE_mul(&E, P, n);
 }
 

@@ -591,15 +591,29 @@ to give the change of coordinates $[u,r,s,t]$ as a \typ{VECSMALL}.
 
 \fun{GEN}{Fle_changepointinv}{GEN x, GEN ch, ulong p}, as \tet{Fle_changepoint}
 
-\subsec{\kbd{Flj}}
+\subsec{\kbd{FpJ}}
 
-Let $p$ be a prime \kbd{ulong}, and $E$ the elliptic curve given by the
-equation $E:y^2=x^3+a_4\*x+a_6$, where $a_4$ and $a_6$ are \kbd{ulong}.
-A \kbd{Flj} is a \kbd{Flv} with three components $[x,y,z]$, representing
+Let $p$ be a prime \typ{INT}, and $E$ the elliptic curve given by the
+equation $E:y^2=x^3+a_4\*x+a_6$, where $a_4$ and $a_6$ are \typ{INT}.
+A \kbd{FpJ} is a \kbd{FpV} with three components $[x,y,z]$, representing
 the affine point $[x/z^2,y/z^3]$ in Jacobian coordinates, the point at
 infinity being represented by $[1, 1, 0]$. The following must holds:
 $y^2=x^3+a_4\*x\*z^4+a_6\*z^6$. For all non-zero $u$, the points
 $[u^2\*x,u^3\*y,u\*z]$ and $[x,y,z]$ are representing the same affine point.
+
+\fun{GEN}{FpJ_add}{GEN P, GEN Q, GEN a4, GEN p}
+
+\fun{GEN}{FpJ_dbl}{GEN P, GEN a4, GEN p}
+
+\fun{GEN}{FpJ_mul}{GEN P, GEN n, GEN a4, GEN p};
+
+\fun{GEN}{FpJ_neg}{GEN P, GEN p} return $-P$.
+
+\fun{GEN}{FpJ_to_FpE}{GEN P, GEN p} return the corresponding \kbd{FpE}.
+
+\fun{GEN}{FpE_to_FpJ}{GEN P} return the corresponding \kbd{FpJ}.
+
+\subsec{\kbd{Flj}}
 
 Below, \kbd{pi} is assumed to be the precomputed inverse of $p$.
 
