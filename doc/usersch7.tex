@@ -143,8 +143,14 @@ $c_{p_i}$ are the local root numbers at all prime divisors of the conductor,
 ordered as in \kbd{faN} above.
 
 \fun{GEN}{ellheightoo}{GEN E, GEN P, long prec} given $P = [x,y]$ an affine
-point on $E$, return the (canonical) local height at infinity
-$\lambda_\infty(P) \in \R$.
+point on $E$, return
+$$
+\lambda_\infty(P) + \dfrac{1}{12}\log|\disc E| =
+ \dfrac{1}{2} \text{real}(z\eta(z)) - \log |\sigma(E,z)|
+\in \R, $$
+where $\lambda_\infty(P)$ is the canonical local height at infinity
+and $z$ is \kbd{ellpointtoz}$(E,P)$. This
+is computed using Mestre's (quadratically convergent) AGM algorithm.
 
 \fun{long}{ellorder_Q}{GEN E, GEN P} return the order of $P\in E(\Q)$, using
 the impossible value $0$ for a point of infinite order. Ultimately called
