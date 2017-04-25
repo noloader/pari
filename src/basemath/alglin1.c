@@ -1298,7 +1298,7 @@ F2m_ker_sp(GEN x, long deplin)
 static void /* assume m < p */
 _Fl_addmul(GEN b, long k, long i, ulong m, ulong p, ulong pi)
 {
-  uel(b,k) = Fl_addmul_pre(m, uel(b,i), uel(b,k), p, pi);
+  uel(b,k) = Fl_addmul_pre(uel(b, k), m, uel(b, i), p, pi);
 }
 static void /* same m = 1 */
 _Fl_add(GEN b, long k, long i, ulong p)

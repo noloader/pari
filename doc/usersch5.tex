@@ -2076,7 +2076,7 @@ assuming $pi$ is the pseudo inverse of $p$.
 modulo $p$, assuming $pi$ is the pseudo inverse of $p$.
 
 \fun{ulong}{Fl_addmul_pre}{ulong a, ulong b, ulong c, ulong p,  ulong pi}
-returns $a\*b+c$ modulo $p$, assuming $pi$ is the pseudo inverse of $p$.
+returns $a+b\*c$ modulo $p$, assuming $pi$ is the pseudo inverse of $p$.
 
 \fun{ulong}{Fl_addmulmul_pre}{ulong a,ulong b, ulong c,ulong d, ulong p, ulong pi}
 returns $a\*b+c\*d$ modulo $p$, assuming $pi$ is the pseudo inverse of $p$.
@@ -3316,7 +3316,7 @@ returns the representative of \kbd{a} in the symmetric residue system.
 \fun{GEN}{Fp_mul}{GEN a, GEN b, GEN m} returns the product of \kbd{a} by
 \kbd{b} modulo \kbd{m} (smallest non-negative residue).
 
-\fun{GEN}{Fp_addmul}{GEN x, GEN y, GEN z, GEN p} returns $x + yz$.
+\fun{GEN}{Fp_addmul}{GEN x, GEN y, GEN z, GEN p} returns $x + y\*z$.
 
 \fun{GEN}{Fp_mulu}{GEN a, ulong b, GEN m} returns the product of \kbd{a} by
 \kbd{b} modulo \kbd{m} (smallest non-negative residue).

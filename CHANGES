@@ -248,6 +248,7 @@ JD   33- move plotport.c to libpari
          introduction of polcoeff ], and raised an exception for n <= 0.
          Now returns a true GEN component whenever it exists and raises an
          exception when it does not [ n <= 0 or n > polcoeff(T)+1 ].
+BA   36- Fl_addmul_pre: change arguments order to follow Fp_addmul convention
 
   Removed
       1- file 'MACHINES' (no longer maintained)

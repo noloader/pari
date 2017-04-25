@@ -957,7 +957,7 @@ Fl_mul_pre(ulong a, ulong b, ulong p, ulong pi)
 }
 
 INLINE ulong
-Fl_addmul_pre(ulong x0, ulong x1, ulong y0, ulong p, ulong pi)
+Fl_addmul_pre(ulong y0, ulong x0, ulong x1, ulong p, ulong pi)
 {
   ulong l0, h0;
   LOCAL_HIREMAINDER;

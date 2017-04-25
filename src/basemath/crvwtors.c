@@ -114,8 +114,8 @@ map_X1_points(
   Flv_inv_pre_inplace(sd, p, pi);
 
   for (i = 1; i <= ncurves; ++i) {
-    r[i] = Fl_addmul_pre(rn[i], rd[i], X1->rplus1, p, pi);
-    s[i] = Fl_addmul_pre(sn[i], sd[i], X1->splus1, p, pi);
+    r[i] = Fl_addmul_pre(X1->rplus1, rn[i], rd[i], p, pi);
+    s[i] = Fl_addmul_pre(X1->splus1, sn[i], sd[i], p, pi);
   }
   avma = ltop;
 }
