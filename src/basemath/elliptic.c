@@ -4497,7 +4497,7 @@ nflocalred_23(GEN e, GEN P, long *ap)
         mr = constant_coeff(gmael(F,1,i)); /* - multiple root */
         if (!gequal0(mr))
         { /* not so frequent */
-          GEN gama = Fq_to_nf(Fq_neg(mr, T, p), modP);
+          GEN gama = nftoalg(nf, Fq_to_nf(Fq_neg(mr, T, p), modP));
           E_gcompose_r(&ch, &e, gmul(gama,pi));
         }
         if (lE == 3)
