@@ -191,6 +191,7 @@ BA   67- new GP functions hyperellratpoints and ellratpoints based on
 BA   74- ellheight for curves over number fields
      75- new GP function forfactored
      76- [libpari] ZV_sort_inplace
+BA   77- ellrootno for curves over number fields
 
   Changed
       1- rewrite bnfnarrow

@@ -5950,16 +5950,13 @@ ellrootno_global(GEN e)
 
 /* local epsilon factor at p (over Q), including p=0 for the infinite place.
  * Global if p==1 or NULL. */
-long
-ellrootno(GEN e, GEN p)
+static long
+ellQ_rootno(GEN e, GEN p)
 {
   pari_sp av = avma;
   GEN S;
   long s;
-  checkell_Q(e);
   if (!p || isint1(p)) return ellrootno_global(e);
-  if (typ(p) != t_INT) pari_err_TYPE("ellrootno", p);
-  if (signe(p) < 0) pari_err_PRIME("ellrootno",p);
   if (!signe(p)) return -1; /* local factor at infinity */
   if ( (S = obj_check(e, Q_ROOTNO)) )
   {
@@ -5980,6 +5977,111 @@ ellrootno(GEN e, GEN p)
       s = ellrootno_p(e,p); break;
   }
   avma = av; return s;
+}
+
+/* global root number over number field
+ * Root numbers and parity of ranks of elliptic curves, Tim and Vladimir Dokchitser
+ * https://arxiv.org/abs/0906.1815
+ */
+
+static GEN
+ellrnfup(GEN rnf, GEN E, long prec)
+{
+  long i;
+  GEN Eb = cgetg(6, t_VEC);
+  for(i=1; i<=5; i++)
+    gel(Eb, i) = rnfeltup(rnf,gel(E, i));
+  return ellinit_nf(Eb, rnf_build_nfabs(rnf, prec));
+}
+
+static GEN
+ellnfadelicvolume(GEN E, long prec)
+{ return gmul(elltamagawa(E),ellnfbsdperiod(E, prec)); }
+
+static GEN
+ellnf2isog(GEN E, GEN z)
+{
+  long v = fetch_var_higher();
+  GEN S = deg1pol(gen_1, gneg(z), v);
+  GEN E2 = ellisogeny(E, S, 1, -1, -1);
+  delete_var();
+  return ellinit_nf(E2, ellnf_get_nf(E));
+}
+
+static GEN
+ellnfreladelicvolume(GEN E, GEN P, GEN z, long prec)
+{
+  pari_sp av = avma;
+  GEN nf = ellnf_get_nf(E);
+  GEN rnf = rnfinit0(nf, P, 1);
+  GEN Et = ellrnfup(rnf, E, prec);
+  GEN E2 = ellnf2isog(Et, rnfeltreltoabs(rnf, z));
+  GEN c1 = ellnfadelicvolume(Et, prec), c2 = ellnfadelicvolume(E2, prec);
+  obj_free(rnf); obj_free(E2);
+  return gerepilecopy(av, mkvec2(c1,c2));
+}
+
+static long
+rootnovalp(GEN z, ulong p, long prec)
+{ return mpodd(ground(gdiv(glog(z, prec), glog(utoi(p),prec)))); }
+
+static long
+ellnf_rootno_global(GEN E)
+{
+  pari_sp av = avma;
+  GEN nf = ellnf_get_nf(E);
+  long prec = nf_get_prec(nf);
+  long v;
+  GEN F;
+  E = ellintegralmodel_i(E, NULL);
+  F = nfroots(nf, ec_bmodel(E));
+  if (lg(F)>1)
+  {
+    GEN Et = ellnf2isog(E, gel(F,1));
+    GEN cK = ellnfadelicvolume(E, prec), cKt = ellnfadelicvolume(Et, prec);
+    obj_free(Et);
+    v = rootnovalp(divrr(cK,cKt), 2, prec);
+  } else
+  {
+    GEN D = deg2pol_shallow(gen_1, gen_0, gneg(ell_get_disc(E)), 0);
+    GEN P = RgX_divs(RgX_rescale(ec_bmodel(E), utoi(4)), 4);
+    GEN c = ellnfreladelicvolume(E, P, gmul2n(pol_x(0),-2), prec);
+    GEN cL = gel(c,1), cLt = gel(c,2);
+    GEN F = nfroots(nf, D);
+    if (lg(F)>1)
+      v = rootnovalp(divrr(cL,cLt), 2, prec);
+    else
+    {
+      GEN cK = ellnfadelicvolume(E, prec);
+      GEN cp = nfcompositum(nf, P, D, 3);
+      GEN cc = ellnfreladelicvolume(E, gel(cp,1), gmul2n(gel(cp,2),-2), prec);
+      GEN cF = gel(cc,1), cFt = gel(cc,2);
+      GEN rnf = rnfinit0(nf,D,1);
+      GEN cKv = ellnfadelicvolume(ellrnfup(rnf, E, prec), prec);
+      long v2 = rootnovalp(divrr(gmul(cL,cF),gmul(cLt,cFt)), 2, prec);
+      long v3 = rootnovalp(divrr(gmul(cF,gsqr(cK)),gmul(cKv,gsqr(cL))), 3, prec);
+      obj_free(rnf);
+      v = odd(v2+v3);
+    }
+  }
+  avma = av; return v ? -1: 1;
+}
+
+long
+ellrootno(GEN e, GEN p)
+{
+  checkell(e);
+  if (p && typ(p) != t_INT) pari_err_TYPE("ellrootno", p);
+  if (p && signe(p) < 0) pari_err_PRIME("ellrootno",p);
+  switch(ell_get_type(e))
+  {
+    case t_ELL_Q:
+      return ellQ_rootno(e, p);
+    default: pari_err_TYPE("ellrootno", e);
+    case t_ELL_NF:
+      if (p) pari_err_IMPL("local root number for number fields");
+      return ellnf_rootno_global(e);
+  }
 }
 
 /********************************************************************/

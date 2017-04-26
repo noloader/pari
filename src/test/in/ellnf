@@ -95,6 +95,8 @@ idealnorm(K,ellglobalred(E)[1])
 idealnorm(K,ellglobalred(E2)[1])
 elltamagawa(E)
 elltamagawa(E2)
+ellrootno(E)
+ellrootno(E2)
 elltors(E)
 elltors(E2)
 ellbsd(E)
@@ -110,6 +112,7 @@ K = nfinit(a^2 - a - 22);
 E = ellinit([0, 0, 1, -1590*a - 8580, 92750*a + 359875],K);
 idealnorm(K,ellglobalred(E)[1])
 elltamagawa(E)
+ellrootno(E)
 elltors(E)
 ellbsd(E)
 ellbsd(ellchangecurve(E,[1/Mod(a,K.pol),0,0,0]))
@@ -122,6 +125,7 @@ K = nfinit(a^3 - a^2 + 1);
 E = ellinit([a + 1, -a^2 - a - 1, a^2 + a, -a^2, -a^2 + 1],K);
 idealnorm(K,ellglobalred(E)[1])
 elltamagawa(E)
+ellrootno(E)
 elltors(E)
 ellbsd(E)
 E.omega
@@ -142,45 +146,55 @@ ellminimaldisc(E)
 E=ellinit([0,0,1,-5*a-25,-15*a-49],nfinit(a^2-a-1));
 P=[-4*a+3,-a+1];
 ellheight(E,P)
+ellrootno(E)
 
 E=ellinit([a+1,a-1,a,6*a+2,14*a+34],nfinit(a^2-2));
 P=[-3/2*a+1/2,-9/4*a-3/2];
 ellheight(E,P)
+ellrootno(E)
 
 E=ellinit([0,a+1,0,18*a-27,-55*a+78],nfinit(a^2-2));
 P=[2*a-5,-2*a+5];
 ellheight(E,P)
+ellrootno(E)
 
 E=ellinit([0,a+a^2,0,a^3,(a+1)^2],nfinit(a^2-a-1));
 P1=[-a,a+1];
 P2=[-a^2,a+1];
 ellheight(E,P1)
 ellheight(E,P2)
+ellrootno(E)
 
 E=ellinit([0,a+a^2,0,a^3,(a+1)^2],nfinit(a^2-a-3));
 P1=[-a,a+1];
 P2=[-a^2,a+1];
 ellheight(E,P1)
 ellheight(E,P2)
+ellrootno(E)
 
 E=ellinit([0,1,0,a*(1-a),(a+1)^2],nfinit(a^2-a-1));
 P1=[-a,a+1];
 P2=[a-1,a+1];
 ellheight(E,P1)
 ellheight(E,P2)
+ellrootno(E)
 
 E=ellinit([0,a,1,a+1,0],nfinit(a^2+1));
 P=[0,0];
 ellheight(E,P)
+ellrootno(E)
 
 E=ellinit([1,a+1,0,-2*a-1,1],nfinit(a^2+1));
 P=[-2*a,-2*a-1];
 ellheight(E,P)
+ellrootno(E)
 
 E = ellinit([a+1,-a+1,0,7*a-46,-22*a+118], nfinit(a^2-a+3));
 P = [3,-2*a+2];
 ellheight(E,P)
+ellrootno(E)
 
 E = ellinit([a+1,-1,a,-a^2,0], nfinit(a^3-a^2+1));
 P = [0,-a];
 ellheight(E,P)
+ellrootno(E)
