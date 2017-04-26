@@ -507,7 +507,8 @@ isogeny_from_kernel_poly(GEN E, GEN kerp, long only_image, long vx, long vy)
   switch(degpol(kerh))
   {
   case 0:
-    two_tors = mkvec5(gen_0, gen_0, pol_0(vx), pol_0(vx), pol_1(vx));
+    two_tors = only_image? mkvec2(gen_0, gen_0):
+      mkvec5(gen_0, gen_0, pol_0(vx), pol_0(vx), pol_1(vx));
     break;
   case 1:
     two_tors = contrib_weierstrass_pt(E, kerh, only_image,vx,vy);
@@ -556,8 +557,10 @@ ellisogeny(GEN E, GEN G, long only_image, long vx, long vy)
   checkell(E);j = ell_get_j(E);
   if (vx < 0) vx = 0;
   if (vy < 0) vy = 1;
-  if (varncmp(vx, vy) >= 0) pari_err_PRIORITY("ellisogeny", pol_x(vx), "<=", vy);
-  if (varncmp(vy, gvar(j)) >= 0) pari_err_PRIORITY("ellisogeny", j, ">=", vy);
+  if (varncmp(vx, vy) >= 0)
+    pari_err_PRIORITY("ellisogeny", pol_x(vx), "<=", vy);
+  if (!only_image && varncmp(vy, gvar(j)) >= 0)
+    pari_err_PRIORITY("ellisogeny", j, ">=", vy);
   switch(typ(G))
   {
   case t_VEC:
@@ -565,13 +568,18 @@ ellisogeny(GEN E, GEN G, long only_image, long vx, long vy)
     if (!ell_is_inf(G))
     {
       GEN x =  gel(G,1), y = gel(G,2);
-      if (varncmp(vy, gvar(x)) >= 0) pari_err_PRIORITY("ellisogeny", x, ">=", vy);
-      if (varncmp(vy, gvar(y)) >= 0) pari_err_PRIORITY("ellisogeny", y, ">=", vy);
+      if (!only_image)
+      {
+        if (varncmp(vy, gvar(x)) >= 0)
+          pari_err_PRIORITY("ellisogeny", x, ">=", vy);
+        if (varncmp(vy, gvar(y)) >= 0)
+          pari_err_PRIORITY("ellisogeny", y, ">=", vy);
+      }
     }
     z = isogeny_from_kernel_point(E, G, only_image, vx, vy);
     break;
   case t_POL:
-    if (varncmp(vy, gvar(constant_coeff(G))) >= 0)
+    if (!only_image && varncmp(vy, gvar(constant_coeff(G))) >= 0)
       pari_err_PRIORITY("ellisogeny", constant_coeff(G), ">=", vy);
     z = isogeny_from_kernel_poly(E, G, only_image, vx, vy);
     break;
