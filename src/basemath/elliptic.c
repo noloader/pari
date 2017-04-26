@@ -5555,7 +5555,7 @@ static GEN
 ellnfbsdperiod(GEN E, long prec)
 {
   pari_sp av = avma;
-  GEN Eb = ellnfembed(E, prec), per = real_1(prec);
+  GEN Eb = ellnfembed(E, prec), per = gtofp(ellminimalnormu(E), prec);
   long i, l = lg(Eb), r1 = nf_get_r1(ellnf_get_nf(E));
   for(i = 1; i < l; i++)
   {
@@ -5573,9 +5573,8 @@ ellnf_bsd(GEN E, long prec)
   GEN per = ellnfbsdperiod(E, prec);
   GEN tam = ellnf_tamagawa(E);
   GEN tor = gel(elltors(E),1);
-  GEN Nu = ellminimalnormu(E);
   GEN D = itor(nf_get_disc(ellnf_get_nf(E)), prec);
-  return divrr(divri(mulri(gmul(per,Nu), tam), sqri(tor)), sqrtr_abs(D));
+  return divrr(divri(mulri(per, tam), sqri(tor)), sqrtr_abs(D));
 }
 
 static GEN
