@@ -1280,17 +1280,6 @@ FpX_rem(GEN x, GEN T, GEN p)
 }
 
 static GEN
-deg2pol_shallow(GEN x2, GEN x1, GEN x0, long v)
-{
-  GEN x = cgetg(5,t_POL);
-  x[1] = evalsigne(1) | evalvarn(v);
-  gel(x,2) = x0;
-  gel(x,3) = x1;
-  gel(x,4) = x2;
-  return normalizepol_lg(x,5);
-}
-
-static GEN
 FpV_producttree(GEN xa, GEN s, GEN p, long vs)
 {
   long n = lg(xa)-1;

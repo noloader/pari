@@ -10174,11 +10174,14 @@ scalar matrix whose diagonal is set to shallow copies of the scalar \kbd{x}.
 \fun{GEN}{diagonal_shallow}{GEN x} returns a diagonal matrix whose diagonal
 is given by the vector $x$. Shallow function.
 
-\fun{GEN}{scalarpol_shallow}{GEN a, long v} returns the degree 0
+\fun{GEN}{scalarpol_shallow}{GEN a, long v} returns the degree $0$
 \typ{POL} $a \kbd{pol\_x}(v)^0$.
 
-\fun{GEN}{deg1pol_shallow}{GEN a, GEN b,long v} returns the degree 1
+\fun{GEN}{deg1pol_shallow}{GEN a, GEN b,long v} returns the degree $1$
 \typ{POL} $a\kbd{pol\_x}(v) + b$
+
+\fun{GEN}{deg2pol_shallow}{GEN a, GEN b, GEN c, long v} returns the degree $2$
+\typ{POL} $a\*x^2+b\*x+c$ where $x=\kbd{pol\_x}(v)$.
 
 \fun{GEN}{zeropadic_shallow}{GEN p, long n} returns a (shallow) $0$
 \typ{PADIC} equal to $O(\kbd{p}^\kbd{n})$.
