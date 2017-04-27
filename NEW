@@ -274,7 +274,7 @@ functions, see doc/refcard*.dvi or http://pari.math.u-bordeaux.fr/doc#refcard
 
   - Configure -gcov: support for gcov/lcov. As a result, the regression suite
     (make test-all) has been much expanded and lots of obscure bugs fixed. See
-        http://pari.math.u-bordeaux1.fr/lcov-report/
+        http://pari.math.u-bordeaux.fr/lcov-report/
     for current coverage test reports.
 
   - Configure now generates a file 'config.log' to help diagnose problems
@@ -491,7 +491,7 @@ functions, see doc/refcard*.dvi or http://pari.math.u-bordeaux.fr/doc#refcard
 
   - genus2red: an implementation of Liu's algorithm to determine the
      reduction of a genus 2 curve (at p > 2). Based on genus2reduction-0.3,
-       http://www.math.u-bordeaux1.fr/~liu/G2R/ (Cohen & Liu, 1994)
+       http://www.math.u-bordeaux.fr/~liu/G2R/ (Cohen & Liu, 1994)
     mostly rewritten from scratch, and fixing known problems in the original
     implementation (so-called bug27, bug28). The regression bench contains a
     check of at least one instance of each of Namikawa-Ueno's types + all
