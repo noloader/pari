@@ -19,3 +19,4 @@ const long  paricfg_version_code = PARI_VERSION_CODE;
 const char *paricfg_vcsversion = PARI_VCSVERSION;
 const char *paricfg_compiledate = __DATE__;
 const char *paricfg_mt_engine = PARI_MT_ENGINE;
+const char *paricfg_gphelp = GPHELP;

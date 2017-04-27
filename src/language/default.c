@@ -897,9 +897,7 @@ static char *
 init_help(void)
 {
   char *h = os_getenv("GPHELP");
-# ifdef GPHELP
-  if (!h) h = (char*)GPHELP;
-# endif
+  if (!h) h = (char*)paricfg_gphelp;
 #ifdef _WIN32
   win32_set_pdf_viewer();
 #endif
