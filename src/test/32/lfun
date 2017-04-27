@@ -163,7 +163,7 @@ Elliptic curves over number fields
 4.4552267729872870508917049939747968543
 -126
 8.2306621809152393859013012963081422203
-1
+-2
 -22
 Grossencharacter
 -126
@@ -254,4 +254,4 @@ zeta(s)*zeta(s-a)
   ***   at top-level: lfunan(lfuncreate([1,0,[0],1,1,1,1]),10)
   ***                 ^----------------------------------------
   *** lfunan: incorrect type in vecan_closure (t_INT).
-Total time spent: 6521
+Total time spent: 5256

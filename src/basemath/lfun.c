@@ -1942,7 +1942,7 @@ get_eno(GEN R, long k, GEN t, GEN v, GEN vi, long vx, long bitprec)
 
   S = theta_add_polar_part(S, R, t, prec);
   if (typ(S) != t_POL || degpol(S) != 1) return NULL;
-  a1 = gel(S,3); if (gexpo(a1) < -bitprec/2) return NULL;
+  a1 = gel(S,3); if (gexpo(a1) < -bitprec/4) return NULL;
   a0 = gel(S,2);
   return gdiv(a0, gneg(a1));
 
