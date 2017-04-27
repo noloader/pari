@@ -95,6 +95,7 @@ EB   62- GP was incorrectly issuing fflush(NULL) [#1913]
      72- Vecsmall(t_STR with extended (8-bit) ASCII) -> platform dependent +
          can't be converted back with Strchr
      73- x^y: loss of accuracy when y >> 1 and x exact
+BA   74- [pthread] do not use pthread when nbthreads=1
 
   Added
       1- [libari] ZM_isidentity

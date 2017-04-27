@@ -275,7 +275,7 @@ mt_queue_reset(void)
 void
 mt_queue_start(struct pari_mt *pt, GEN worker)
 {
-  if (pari_mt)
+  if (pari_mt || pari_mt_nbthreads == 1)
     mtsingle_queue_start(pt, worker);
   else
   {
