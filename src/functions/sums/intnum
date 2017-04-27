@@ -68,15 +68,15 @@ Doc: numerical integration
  If $a$ is finite, the code $[a,\alpha]$ means the function has a
  singularity of the form $(x-a)^{\alpha}$, up to logarithms. (If $\alpha \ge
  0$, we only assume the function is regular, which is the default assumption.)
- If a wrong singularity exponent is used, the result will lose a catastrophic
- number of decimals:
+ If a wrong singularity exponent is used, the result will lose decimals:
  \bprog
- ? intnum(x=0, 1, x^(-1/2))         \\@com assume $x^{-1/2}$ is regular at 0
- %1 = 1.9999999999999999999999999999827931660
- ? intnum(x=[0,-1/2], 1, x^(-1/2))  \\@com no, it's not
- %2 = 2.0000000000000000000000000000000000000
- ? intnum(x=[0,-1/10], 1, x^(-1/2)) \\@com using a wrong exponent is bad
- %3 = 1.9999999999999999999999999999999901912
+ ? c = -9/10;
+ ? intnum(x=0, 1, x^c)         \\@com assume $x^{-9/10}$ is regular at 0
+ %1 = 9.9999839078827082322596783301939063944
+ ? intnum(x=[0,c], 1, x^c)  \\@com no, it's not
+ %2 = 10.000000000000000000000000000000000000
+ ? intnum(x=[0,c/2], 1, x^c) \\@com using a wrong exponent is bad
+ %3 = 9.9999999997122749095442279375719919769
  @eprog
 
  If $a$ is $\pm\infty$, which is coded as \kbd{+oo} or \kbd{-oo},
