@@ -154,10 +154,7 @@ yes) echo '#define HAS_SETSID' >> $file;;
 esac
 
 case $has_dlopen in
-yes|builtin) cat >> $file << EOT
-#define HAS_DLOPEN
-EOT
-;;
+yes|builtin) echo '#define HAS_DLOPEN' >> $file;;
 esac
 
 case $has_stack_check in
