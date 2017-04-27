@@ -120,54 +120,54 @@ inv_odd_conductor(long inv)
   return 0;
 }
 
-double
+long
 inv_height_factor(long inv)
 {
   switch (inv) {
   case INV_J:
-    return 1.0;
+    return 1;
   case INV_G2:
-    return 3.0;
+    return 3;
   case INV_F:
-    return 72.0;
+    return 72;
   case INV_F2:
-    return 36.0;
+    return 36;
   case INV_F3:
-    return 24.0;
+    return 24;
   case INV_F4:
-    return 18.0;
+    return 18;
   case INV_F8:
-    return 9.0;
+    return 9;
   case INV_W2W3:
-    return 72.0;
+    return 72;
   case INV_W3W3:
-    return 36.0;
+    return 36;
   case INV_W2W5:
-    return 54.0;
+    return 54;
   case INV_W2W7:
-    return 48.0;
+    return 48;
   case INV_W3W5:
-    return 36.0;
+    return 36;
   case INV_W2W13:
-    return 42.0;
+    return 42;
   case INV_W3W7:
-    return 32.0;
+    return 32;
   case INV_W2W3E2:
-    return 36.0;
+    return 36;
   case INV_W2W5E2:
-    return 27.0;
+    return 27;
   case INV_W2W7E2:
-    return 24.0;
+    return 24;
   case INV_W3W3E2:
-    return 18.0;
+    return 18;
   case INV_W5W7:
-    return 24.0;
+    return 24;
   case INV_W3W13:
-    return 28.0;
+    return 28;
   default:
     pari_err_BUG("inv_height_factor");
   }
-  return 0.0;
+  return 0;
 }
 
 long
@@ -3560,7 +3560,7 @@ modpoly_height_bound(long L, long inv)
 {
   double nbits, nbits2;
   double c;
-  int hf;
+  long hf;
 
   /* proven bound (in bits), derived from: 6l*log(l)+16*l+13*sqrt(l)*log(l) */
   nbits = 6.0*L*log2(L)+16/LOG2*L+8.0*sqrt((double)L)*log2(L);
@@ -3568,7 +3568,7 @@ modpoly_height_bound(long L, long inv)
   nbits2 = 6.0*L*log2(L)+17/LOG2*L;
   if ( nbits2 < nbits ) nbits = nbits2;
   hf = inv_height_factor(inv);
-  if (hf > 1.0) {
+  if (hf > 1) {
     /*
    *** Important *** when dividing by the height factor, we only want to reduce terms related
    to the bound on j (the roots of Phi_l(X,y)), not terms arising from binomial coefficients.

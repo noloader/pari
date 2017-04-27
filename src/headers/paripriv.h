@@ -774,7 +774,7 @@ int inv_is_valid(long inv);
 long inv_level(long inv);
 long inv_degree(long *p1, long *p2, long inv);
 long inv_ramified(long D, long inv);
-double inv_height_factor(long inv);
+long inv_height_factor(long inv);
 int inv_good_discriminant(long D, long inv);
 int inv_good_prime(long p, long inv);
 int inv_weber(long inv);
