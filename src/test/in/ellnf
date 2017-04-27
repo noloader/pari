@@ -89,13 +89,22 @@ v
 
 K = nfinit(a^2 - a + 1);
 E = ellinit([1, -1, 0, -3*a, -3*a + 3],K);
+/* Same curve, non integral model */
+E2 = ellinit([(144*a+9)/-48,(3240*a-2565)/-864],K);
 idealnorm(K,ellglobalred(E)[1])
+idealnorm(K,ellglobalred(E2)[1])
 elltamagawa(E)
+elltamagawa(E2)
 elltors(E)
+elltors(E2)
 ellbsd(E)
+ellbsd(E2)
 E.omega
+E2.omega
 E.eta
+E2.eta
 E.area
+E2.area
 
 K = nfinit(a^2 - a - 22);
 E = ellinit([0, 0, 1, -1590*a - 8580, 92750*a + 359875],K);
