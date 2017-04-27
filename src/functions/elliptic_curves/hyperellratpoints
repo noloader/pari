@@ -1,7 +1,7 @@
 Function: hyperellratpoints
 Section: elliptic_curves
 C-Name: hyperellratpoints
-Prototype: GLD0,L,
+Prototype: GGD0,L,
 Help: hyperellratpoints(X,h,{flag=0}): X being a non-singular hyperelliptic
  curve given by an integral model, return the affine rational points on the curve
  of naive height less than h.
@@ -10,10 +10,21 @@ Help: hyperellratpoints(X,h,{flag=0}): X being a non-singular hyperelliptic
  X:y^2=P(x) or by a vector [P,Q] such that X:y^2+Q(x)y=P(x) and Q^2+4P is
  squarefree.
 Doc: $X$ being a non-singular hyperelliptic curve given by an integral model,
- return the affine rational points on the curve of naive height less than $h.$
+ return the affine rational points on the curve of naive height less than $h$.
  If $\fl=1$, stop as soon as a point is found.
- The naive height is defined as the maximum of the absolute value of the
- numerator and the denominator of the abscissa of a point.  $X$ can be given
- either by a squarefree polynomial $P$ such that
- $X:y^2=P(x)$ or by a vector $[P,Q]$ such that $X:y^2+Q(x)\*y=P(x)$ and
- $Q^2+4\*P$ is squarefree.
+
+ The parameter $h$ can be
+
+ \item an integer $h$: find the points with abscissas with numerators and
+ denominators both less than $h$.
+
+ \item a vector $[n,d]$ with $d\leq n$: find the points with abscissas with
+ numerators less than $n$ and denominators less than $d$.
+
+ \item a vector $[n,[d1,d2]]$ with $d1<d2\leq n$  find the points with
+ abscissas with numerators less than $n$ and denominators between $d1$ and
+ $d2$.
+
+ $X$ can be given either by a squarefree polynomial $P$ such that $X:y^2=P(x)$
+ or by a vector $[P,Q]$ such that $X:y^2+Q(x)\*y=P(x)$ and $Q^2+4\*P$ is
+ squarefree.

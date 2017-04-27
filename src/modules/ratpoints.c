@@ -1601,7 +1601,7 @@ process(long a, long b, GEN y, void *info0, int *quit)
 }
 
 static GEN
-ZX_hyperellratpoints(GEN P, long h, long flag)
+ZX_hyperellratpoints(GEN P, GEN h, long flag)
 {
   pari_sp av = avma;
   ratpoints_args args;
@@ -1610,14 +1610,30 @@ ZX_hyperellratpoints(GEN P, long h, long flag)
 
   if (!ZX_is_squarefree(P))
     pari_err_DOMAIN("hyperellratpoints","issquarefree(pol)","=",gen_0, P);
+  if (typ(h)==t_INT && signe(h)>0)
+  {
+    long H = itos(h);
+    args.height        = H;
+    args.b_low         = 1;
+    args.b_high        = H;
+  } else if (typ(h)==t_VEC && lg(h)==3)
+  {
+    args.height        = gtos(gel(h,1));
+    if (typ(gel(h,2))==t_INT)
+    {
+      args.b_low         = 1;
+      args.b_high        = itos(gel(h,2));
+    } else if (typ(h)==t_VEC && lg(h)==3)
+    {
+      args.b_low         = gtos(gmael(h,2,1));
+      args.b_high        = gtos(gmael(h,2,2));
+    } else pari_err_TYPE("hyperellratpoints",h);
+  } else pari_err_TYPE("hyperellratpoints",h);
 
   find_points_init(&args, RATPOINTS_DEFAULT_BIT_PRIMES);
 
   args.cof           = shallowcopy(P);
-  args.height        = h;
   args.num_inter     = 0;
-  args.b_low         = 1;
-  args.b_high        = h;
   args.sp1           = RATPOINTS_DEFAULT_SP1;
   args.sp2           = RATPOINTS_DEFAULT_SP2;
   args.array_size    = RATPOINTS_ARRAY_SIZE;
@@ -1669,7 +1685,7 @@ hyperell_check(GEN PQ, GEN *P, GEN *Q)
 }
 
 GEN
-hyperellratpoints(GEN PQ, long h, long flag)
+hyperellratpoints(GEN PQ, GEN h, long flag)
 {
   pari_sp av = avma;
   GEN P, Q, H, L;
@@ -1704,7 +1720,7 @@ hyperellratpoints(GEN PQ, long h, long flag)
 }
 
 GEN
-ellratpoints(GEN E, long h, long flag)
+ellratpoints(GEN E, GEN h, long flag)
 {
   pari_sp av = avma;
   GEN L, a1, a3;

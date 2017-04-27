@@ -4269,8 +4269,8 @@ void    setrand(GEN seed);
 
 /* ratpoints.c */
 
-GEN     ellratpoints(GEN E, long h, long flag);
-GEN     hyperellratpoints(GEN P, long h, long flag);
+GEN     ellratpoints(GEN E, GEN h, long flag);
+GEN     hyperellratpoints(GEN P, GEN h, long flag);
 
 /* rootpol.c */
 
