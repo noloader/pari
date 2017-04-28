@@ -769,12 +769,10 @@ void polmodular_db_add_levels(GEN *db, long *levels, long k, long inv);
 GEN polmodular_db_for_inv(GEN db, long inv);
 GEN polmodular_db_getp(GEN fdb, long L, ulong p);
 
-long disc_best_modinv(long D);
 int modinv_is_valid(long inv);
 long modinv_level(long inv);
 long modinv_degree(long *p1, long *p2, long inv);
 long modinv_ramified(long D, long inv);
-long modinv_height_factor(long inv);
 int modinv_good_discriminant(long D, long inv);
 int modinv_good_prime(long p, long inv);
 int modinv_weber(long inv);
