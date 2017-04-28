@@ -1778,8 +1778,8 @@ polclass0(long D, long inv, long xvar, GEN *db)
   return gerepilecopy(av, RgV_to_RgX(H, xvar));
 }
 
-int
-modinv_is_valid(long inv)
+void
+check_modinv(long inv)
 {
   switch (inv) {
   case INV_J:
@@ -1802,9 +1802,10 @@ modinv_is_valid(long inv)
   case INV_W3W3E2:
   case INV_W5W7:
   case INV_W3W13:
-    return 1;
+    break;
+  default:
+    pari_err_DOMAIN("polmodular", "inv", "invalid invariant", stoi(inv), gen_0);
   }
-  return 0;
 }
 
 GEN
@@ -1816,9 +1817,7 @@ polclass(GEN DD, long inv, long xvar)
   if (xvar < 0)
     xvar = 0;
   check_quaddisc_imag(DD, &dummy, "polclass");
-
-  if (inv < 0 || ! modinv_is_valid(inv))
-    pari_err_DOMAIN("polclass", "inv", "invalid invariant", stoi(inv), gen_0);
+  check_modinv(inv);
 
   D = itos(DD);
   if ( ! modinv_good_discriminant(D, inv))

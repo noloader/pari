@@ -2315,8 +2315,7 @@ polmodular(long L, long inv, GEN x, long v, long compute_derivs)
   long tx;
   GEN J = NULL, P = NULL, res = NULL, one = NULL;
 
-  if ( ! modinv_is_valid(inv))
-    pari_err_DOMAIN("polmodular", "inv", "invalid invariant", stoi(inv), gen_0);
+  check_modinv(inv);
   if ( ! x || gequalX(x)) {
     long xv = 0;
     if (x)
