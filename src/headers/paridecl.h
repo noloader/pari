@@ -4210,6 +4210,8 @@ long    disc_best_modinv(long D);
 long    modinv_height_factor(long inv);
 int     modinv_good_disc(long inv, long D);
 int     modinv_good_prime(long inv, long p);
+int     modinv_is_Weber(long inv);
+int     modinv_is_double_eta(long inv);
 GEN     polmodular(long L, long inv, GEN x, long yvar, long compute_derivs);
 GEN     polmodular_ZM(long L, long inv);
 GEN     polmodular_ZXX(long L, long inv, long xvar, long yvar);

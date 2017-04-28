@@ -850,7 +850,7 @@ classgp_make_pcp(
   G->D = D;
   G->h = h;
   G->inv = inv;
-  G->L0 = (modinv_double_eta(inv) && modinv_ramified(D, inv))
+  G->L0 = (modinv_is_double_eta(inv) && modinv_ramified(D, inv))
     ? modinv_degree(NULL, NULL, inv) : 0;
   G->enum_cnt = h / (1 + !!G->L0);
   G->Lfilter = clcm(Lfilter, lvl);
@@ -1343,7 +1343,7 @@ modinv_has_sign_ambiguity(long inv)
 INLINE int
 modinv_units(int inv)
 {
-  return modinv_double_eta(inv) || modinv_weber(inv);
+  return modinv_is_double_eta(inv) || modinv_is_Weber(inv);
 }
 
 INLINE void
@@ -1396,7 +1396,7 @@ find_jinv(
       ++*endo_tries;
     } while ( ! found);
 
-    if (modinv_double_eta(inv))
+    if (modinv_is_double_eta(inv))
       ok = modfn_unambiguous_root(&r, inv, j, ne, jdb);
     else
       r = modfn_root(j, ne, inv);
@@ -1442,7 +1442,7 @@ polclass_roots_modp(
 INLINE int
 modinv_inverted_involution(long inv)
 {
-  return modinv_double_eta(inv);
+  return modinv_is_double_eta(inv);
 }
 
 INLINE int
@@ -1685,7 +1685,7 @@ polclass0(long D, long inv, long xvar, GEN *db)
   dbg_printf(1)("D = %ld, conductor = %ld, inv = %ld\n", D, u, inv);
 
   ni = modinv_degree(&p1, &p2, inv);
-  orient = modinv_double_eta(inv) && kross(D, p1) && kross(D, p2);
+  orient = modinv_is_double_eta(inv) && kross(D, p1) && kross(D, p2);
 
   classgp_make_pcp(G, &height, &ni, h, D, u, inv, filter, orient);
   primes = select_classpoly_primes(&vfactors, &biggest_v, k, delta, G, height);

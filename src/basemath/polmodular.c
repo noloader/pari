@@ -515,14 +515,14 @@ modinv_good_disc(long inv, long D)
 }
 
 int
-modinv_weber(long inv)
+modinv_is_Weber(long inv)
 {
   return inv == INV_F || inv == INV_F2 || inv == INV_F3 || inv == INV_F4
     || inv == INV_F8;
 }
 
 int
-modinv_double_eta(long inv)
+modinv_is_double_eta(long inv)
 {
   switch (inv) {
   case INV_W2W3:
@@ -827,7 +827,7 @@ modfn_root(ulong j, norm_eqn_t ne, long inv)
   case INV_F8:
     return modinv_f_from_j(j, p, pi, 1);
   }
-  if (modinv_double_eta(inv))
+  if (modinv_is_double_eta(inv))
   {
     pari_sp av = avma;
     ulong f = modinv_double_eta_from_j(double_eta_Fl(inv,p), inv, j, p, pi);
@@ -1713,7 +1713,7 @@ root_matrix(
   vecsmall_pick(rts, floor_js, cyc);
 
   /* Fix orientation if necessary */
-  if (modinv_double_eta(inv)) {
+  if (modinv_is_double_eta(inv)) {
     /* TODO: There is potential for refactoring between this,
      * double_eta_initial_js and modfn_preimage. */
     pari_sp av0 = avma;
@@ -1912,7 +1912,7 @@ polmodular_split_p_Flm(
 
   j0 = oneroot_of_classpoly(hilb, factu, ne, jdb);
   j0pr = compute_L_isogenous_curve(L, n, ne, j0, card, val, 1);
-  if (modinv_double_eta(dinfo->inv)) {
+  if (modinv_is_double_eta(dinfo->inv)) {
     double_eta_initial_js(&j0_rt, &j0pr_rt, j0, j0pr, ne, dinfo->inv,
         L, n, card, val);
   } else {
@@ -3941,7 +3941,7 @@ modpoly_pickD_primes(
     if (ugcd(absD, v) != 1)
       continue;
     /* Avoid v dividing the level. */
-    if (v > 2 && modinv_double_eta(inv) && ugcd(modinv_level(inv), v) != 1)
+    if (v > 2 && modinv_is_double_eta(inv) && ugcd(modinv_level(inv), v) != 1)
       continue;
     /* can't get odd p with D=1 mod 8 unless v is even */
     if ((v & 1) && (D & 7) == 1)
