@@ -667,7 +667,7 @@ orient_pcp(classgp_pcp_t G, long *ni, long D, long u, hashtable *tbl)
   enum { MAX_ORIENT_P = 199 };
   const long *L = G->L, *n = G->n, *r = G->r, *m = G->m, *o = G->o;
   long i, *ps = G->orient_p, *qs = G->orient_q, *reps = G->orient_reps;
-  long *ef, *e, *ei, *f, k = G->k, lvl = inv_level(G->inv);
+  long *ef, *e, *ei, *f, k = G->k, lvl = modinv_level(G->inv);
   GEN DD = stoi(D);
 
   memset(ps, 0, k * sizeof(long));
@@ -839,7 +839,7 @@ classgp_make_pcp(
   enum { MAX_GENS = 16, MAX_RLEN = MAX_GENS * (MAX_GENS - 1) / 2 };
   pari_sp av = avma, bv;
   long curr_p;
-  long h2, nelts, lvl = inv_level(inv);
+  long h2, nelts, lvl = modinv_level(inv);
   GEN DD, ident, T, v;
   hashtable *tbl;
   long i, L1, L2;
@@ -850,8 +850,8 @@ classgp_make_pcp(
   G->D = D;
   G->h = h;
   G->inv = inv;
-  G->L0 = (inv_double_eta(inv) && inv_ramified(D, inv))
-    ? inv_degree(NULL, NULL, inv) : 0;
+  G->L0 = (modinv_double_eta(inv) && modinv_ramified(D, inv))
+    ? modinv_degree(NULL, NULL, inv) : 0;
   G->enum_cnt = h / (1 + !!G->L0);
   G->Lfilter = clcm(Lfilter, lvl);
 
@@ -1093,7 +1093,7 @@ select_classpoly_prime_pool(
         ulong possible_4p = t * t + m_vsqr_D;
         if (possible_4p % 4 == 0) {
           ulong possible_p = possible_4p / 4;
-          if (uisprime(possible_p) && inv_good_prime(possible_p, inv)) {
+          if (uisprime(possible_p) && modinv_good_prime(possible_p, inv)) {
             long p = possible_p;
             double rho_inv = p / H;
             GEN hit;
@@ -1174,7 +1174,7 @@ select_classpoly_primes(
 
   if (k < 2) pari_err_BUG("select_suitable_primes");
 
-  s = inv_height_factor(inv);
+  s = modinv_height_factor(inv);
   b = height / s + height_margin(inv, D);
   dbg_printf(1)("adjusted height = %.2f\n", b);
   min_prime_bits = k * b;
@@ -1322,7 +1322,7 @@ Flv_powsum_pre(GEN v, ulong n, ulong p, ulong pi)
 }
 
 INLINE int
-inv_has_sign_ambiguity(long inv)
+modinv_has_sign_ambiguity(long inv)
 {
   switch (inv) {
   case INV_F:
@@ -1341,9 +1341,9 @@ inv_has_sign_ambiguity(long inv)
 }
 
 INLINE int
-inv_units(int inv)
+modinv_units(int inv)
 {
-  return inv_double_eta(inv) || inv_weber(inv);
+  return modinv_double_eta(inv) || modinv_weber(inv);
 }
 
 INLINE void
@@ -1351,7 +1351,7 @@ adjust_signs(GEN js, ulong p, ulong pi, long inv, GEN T, long e)
 {
   long negate = 0;
   long h = lg(js) - 1;
-  if ((h & 1) && inv_units(inv)) {
+  if ((h & 1) && modinv_units(inv)) {
     ulong prod = Flv_prod_pre(js, p, pi);
     if (prod != p - 1) {
       if (prod != 1)
@@ -1396,7 +1396,7 @@ find_jinv(
       ++*endo_tries;
     } while ( ! found);
 
-    if (inv_double_eta(inv))
+    if (modinv_double_eta(inv))
       ok = modfn_unambiguous_root(&r, inv, j, ne, jdb);
     else
       r = modfn_root(j, ne, inv);
@@ -1440,13 +1440,13 @@ polclass_roots_modp(
 }
 
 INLINE int
-inv_inverted_involution(long inv)
+modinv_inverted_involution(long inv)
 {
-  return inv_double_eta(inv);
+  return modinv_double_eta(inv);
 }
 
 INLINE int
-inv_negated_involution(long inv)
+modinv_negated_involution(long inv)
 {
   /* determined by trial and error */
   return inv == INV_F || inv == INV_W3W5 || inv == INV_W3W7
@@ -1577,11 +1577,11 @@ adjust_orientation(GEN F, long inv, GEN v, long e, ulong p, ulong pi)
 {
   ulong j0 = uel(v, 1), je = uel(v, e);
 
-  if ( ! inv_j_from_2double_eta(F, inv, NULL, j0, je, p, pi)) {
-    if (inv_inverted_involution(inv)) {
+  if ( ! modinv_j_from_2double_eta(F, inv, NULL, j0, je, p, pi)) {
+    if (modinv_inverted_involution(inv)) {
       Flv_inv_pre_inplace(v, p, pi);
     }
-    if (inv_negated_involution(inv))
+    if (modinv_negated_involution(inv))
       Flv_neg_inplace(v, p);
   }
 }
@@ -1598,7 +1598,7 @@ polclass_psum(
   GEN psum_sqr, P;
   long i, e, stabcnt, nprimes = lg(primes) - 1;
 
-  if ((h & 1) && inv_units(inv)) {
+  if ((h & 1) && modinv_units(inv)) {
     *psum = gen_1;
     *d = 0;
     return;
@@ -1684,8 +1684,8 @@ polclass0(long D, long inv, long xvar, GEN *db)
 
   dbg_printf(1)("D = %ld, conductor = %ld, inv = %ld\n", D, u, inv);
 
-  ni = inv_degree(&p1, &p2, inv);
-  orient = inv_double_eta(inv) && kross(D, p1) && kross(D, p2);
+  ni = modinv_degree(&p1, &p2, inv);
+  orient = modinv_double_eta(inv) && kross(D, p1) && kross(D, p2);
 
   classgp_make_pcp(G, &height, &ni, h, D, u, inv, filter, orient);
   primes = select_classpoly_primes(&vfactors, &biggest_v, k, delta, G, height);
@@ -1750,7 +1750,7 @@ polclass0(long D, long inv, long xvar, GEN *db)
     }
   }
 
-  if (inv_has_sign_ambiguity(inv)) {
+  if (modinv_has_sign_ambiguity(inv)) {
     GEN psum;
     long e;
     polclass_psum(&psum, &e, H, plist, pilist, h, inv);
@@ -1779,7 +1779,7 @@ polclass0(long D, long inv, long xvar, GEN *db)
 }
 
 int
-inv_is_valid(long inv)
+modinv_is_valid(long inv)
 {
   switch (inv) {
   case INV_J:
@@ -1817,11 +1817,11 @@ polclass(GEN DD, long inv, long xvar)
     xvar = 0;
   check_quaddisc_imag(DD, &dummy, "polclass");
 
-  if (inv < 0 || ! inv_is_valid(inv))
+  if (inv < 0 || ! modinv_is_valid(inv))
     pari_err_DOMAIN("polclass", "inv", "invalid invariant", stoi(inv), gen_0);
 
   D = itos(DD);
-  if ( ! inv_good_discriminant(D, inv))
+  if ( ! modinv_good_discriminant(D, inv))
     pari_err_DOMAIN("polclass", "D", "incompatible with given invariant", stoi(inv), DD);
 
   db = polmodular_db_init(inv);

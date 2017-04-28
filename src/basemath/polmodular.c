@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 /* actually just returns the square-free part of the level, which is
  * all we care about */
 long
-inv_level(long inv)
+modinv_level(long inv)
 {
   switch (inv) {
   case INV_J:
@@ -60,7 +60,7 @@ inv_level(long inv)
   case INV_W3W13:
     return 39;
   }
-  pari_err_BUG("inv_level");
+  pari_err_BUG("modinv_level");
   return 0;
 }
 
@@ -68,7 +68,7 @@ inv_level(long inv)
  * related to the same f are N-isogenous, and 0 otherwise.  This is
  * often (but not necessarily) equal to the level. */
 long
-inv_degree(long *P1, long *P2, long inv)
+modinv_degree(long *P1, long *P2, long inv)
 {
   long *p1, *p2, ignored;
 
@@ -109,7 +109,7 @@ inv_degree(long *P1, long *P2, long inv)
  * this doesn't apply to every invariant with even level so we handle
  * it separately */
 INLINE int
-inv_odd_conductor(long inv)
+modinv_odd_conductor(long inv)
 {
   switch (inv) {
   case INV_F:
@@ -121,7 +121,7 @@ inv_odd_conductor(long inv)
 }
 
 long
-inv_height_factor(long inv)
+modinv_height_factor(long inv)
 {
   switch (inv) {
   case INV_J:
@@ -165,36 +165,36 @@ inv_height_factor(long inv)
   case INV_W3W13:
     return 28;
   default:
-    pari_err_BUG("inv_height_factor");
+    pari_err_BUG("modinv_height_factor");
   }
   return 0;
 }
 
 long
-disc_best_inv(long D)
+disc_best_modinv(long D)
 {
   long ret;
-  ret = INV_F;     if(inv_good_discriminant(D, ret)) return ret;
-  ret = INV_W2W3;  if(inv_good_discriminant(D, ret)) return ret;
-  ret = INV_W2W5;  if(inv_good_discriminant(D, ret)) return ret;
-  ret = INV_W2W7;  if(inv_good_discriminant(D, ret)) return ret;
-  ret = INV_W2W13; if(inv_good_discriminant(D, ret)) return ret;
-  ret = INV_W3W3;  if(inv_good_discriminant(D, ret)) return ret;
-  ret = INV_W2W3E2;if(inv_good_discriminant(D, ret)) return ret;
-  ret = INV_W3W5;  if(inv_good_discriminant(D, ret)) return ret;
-  ret = INV_W3W7;  if(inv_good_discriminant(D, ret)) return ret;
-  ret = INV_W3W13; if(inv_good_discriminant(D, ret)) return ret;
-  ret = INV_W2W5E2;if(inv_good_discriminant(D, ret)) return ret;
-  ret = INV_F3;    if(inv_good_discriminant(D, ret)) return ret;
-  ret = INV_W2W7E2;if(inv_good_discriminant(D, ret)) return ret;
-  ret = INV_W5W7;  if(inv_good_discriminant(D, ret)) return ret;
-  ret = INV_W3W3E2;if(inv_good_discriminant(D, ret)) return ret;
-  ret = INV_G2;    if(inv_good_discriminant(D, ret)) return ret;
+  ret = INV_F;     if(modinv_good_discriminant(D, ret)) return ret;
+  ret = INV_W2W3;  if(modinv_good_discriminant(D, ret)) return ret;
+  ret = INV_W2W5;  if(modinv_good_discriminant(D, ret)) return ret;
+  ret = INV_W2W7;  if(modinv_good_discriminant(D, ret)) return ret;
+  ret = INV_W2W13; if(modinv_good_discriminant(D, ret)) return ret;
+  ret = INV_W3W3;  if(modinv_good_discriminant(D, ret)) return ret;
+  ret = INV_W2W3E2;if(modinv_good_discriminant(D, ret)) return ret;
+  ret = INV_W3W5;  if(modinv_good_discriminant(D, ret)) return ret;
+  ret = INV_W3W7;  if(modinv_good_discriminant(D, ret)) return ret;
+  ret = INV_W3W13; if(modinv_good_discriminant(D, ret)) return ret;
+  ret = INV_W2W5E2;if(modinv_good_discriminant(D, ret)) return ret;
+  ret = INV_F3;    if(modinv_good_discriminant(D, ret)) return ret;
+  ret = INV_W2W7E2;if(modinv_good_discriminant(D, ret)) return ret;
+  ret = INV_W5W7;  if(modinv_good_discriminant(D, ret)) return ret;
+  ret = INV_W3W3E2;if(modinv_good_discriminant(D, ret)) return ret;
+  ret = INV_G2;    if(modinv_good_discriminant(D, ret)) return ret;
   return INV_J;
 }
 
 INLINE long
-inv_sparse_factor(long inv)
+modinv_sparse_factor(long inv)
 {
   switch (inv) {
   case INV_G2:
@@ -231,7 +231,7 @@ inv_sparse_factor(long inv)
 #define IQ_FILTER_3MOD4 8
 
 INLINE long
-inv_pfilter(long inv)
+modinv_pfilter(long inv)
 {
   switch (inv) {
   case INV_G2:
@@ -259,7 +259,7 @@ inv_pfilter(long inv)
 }
 
 int
-inv_good_prime(long p, long inv)
+modinv_good_prime(long p, long inv)
 {
   switch (inv) {
   case INV_G2:
@@ -383,7 +383,7 @@ qfb_distinct_prods(long D, long p1, long p2)
 }
 
 INLINE int
-inv_double_eta_good_disc(long D, long inv)
+modinv_double_eta_good_disc(long D, long inv)
 {
   pari_sp av = avma;
   GEN P;
@@ -395,7 +395,7 @@ inv_double_eta_good_disc(long D, long inv)
    * we want p split and prime to the conductor.  We exclude the case
    * that p1=p2 divides the conductor, even though this does yield
    * class invariants */
-  N = inv_degree(&p1, &p2, inv);
+  N = modinv_degree(&p1, &p2, inv);
   if ( ! N)
     return 0;
   i1 = kross(D, p1);
@@ -455,18 +455,18 @@ inv_double_eta_good_disc(long D, long inv)
 /* Assumes D is a good discriminant for inv, which implies that the
  * level is prime to the conductor */
 long
-inv_ramified(long D, long inv)
+modinv_ramified(long D, long inv)
 {
   long p1, p2, N;
 
-  N = inv_degree(&p1, &p2, inv);
+  N = modinv_degree(&p1, &p2, inv);
   if (N <= 1)
     return 0;
   return !(D % p1) && !(D % p2);
 }
 
 int
-inv_good_discriminant(long D, long inv)
+modinv_good_discriminant(long D, long inv)
 {
   switch (inv) {
   case INV_J:
@@ -481,48 +481,48 @@ inv_good_discriminant(long D, long inv)
   case INV_F8:
     return ((-D & 7) == 7) && (D % 3);
   case INV_W3W5:
-    return (D % 3) && inv_double_eta_good_disc(D, inv);
+    return (D % 3) && modinv_double_eta_good_disc(D, inv);
   case INV_W3W3E2:
-    return (D % 3) && inv_double_eta_good_disc(D, inv);
+    return (D % 3) && modinv_double_eta_good_disc(D, inv);
   case INV_W3W3:
-    return (D & 1) && (D % 3) && inv_double_eta_good_disc(D, inv);
+    return (D & 1) && (D % 3) && modinv_double_eta_good_disc(D, inv);
   case INV_W2W3E2:
-    return (D % 3) && inv_double_eta_good_disc(D, inv);
+    return (D % 3) && modinv_double_eta_good_disc(D, inv);
   case INV_W2W3:
-    return ((-D & 7) == 7) && (D % 3) && inv_double_eta_good_disc(D, inv);
+    return ((-D & 7) == 7) && (D % 3) && modinv_double_eta_good_disc(D, inv);
   case INV_W2W5:
-    return ((-D % 80) != 20) && (D % 3) && inv_double_eta_good_disc(D, inv);
+    return ((-D % 80) != 20) && (D % 3) && modinv_double_eta_good_disc(D, inv);
   case INV_W2W5E2:
-    return (D % 3) && inv_double_eta_good_disc(D, inv);
+    return (D % 3) && modinv_double_eta_good_disc(D, inv);
   case INV_W2W7E2:
-    return ((-D % 112) != 84) && inv_double_eta_good_disc(D, inv);
+    return ((-D % 112) != 84) && modinv_double_eta_good_disc(D, inv);
   case INV_W2W7:
-    return ((-D & 7) == 7) && inv_double_eta_good_disc(D, inv);
+    return ((-D & 7) == 7) && modinv_double_eta_good_disc(D, inv);
   case INV_W2W13:
-    return ((-D % 208) != 52) && inv_double_eta_good_disc(D, inv);
+    return ((-D % 208) != 52) && modinv_double_eta_good_disc(D, inv);
   case INV_W3W7:
-    return (D & 1) && (-D % 21) && inv_double_eta_good_disc(D, inv);
+    return (D & 1) && (-D % 21) && modinv_double_eta_good_disc(D, inv);
   case INV_W5W7:
     /* NB: This is a guess; avs doesn't have an entry */
-    return (D % 3) && inv_double_eta_good_disc(D, inv);
+    return (D % 3) && modinv_double_eta_good_disc(D, inv);
   case INV_W3W13:
     /* NB: This is a guess; avs doesn't have an entry */
-    return (D & 1) && (D % 3) && inv_double_eta_good_disc(D, inv);
+    return (D & 1) && (D % 3) && modinv_double_eta_good_disc(D, inv);
   default:
-    pari_err_BUG("inv_good_discriminant");
+    pari_err_BUG("modinv_good_discriminant");
   }
   return 0;
 }
 
 int
-inv_weber(long inv)
+modinv_weber(long inv)
 {
   return inv == INV_F || inv == INV_F2 || inv == INV_F3 || inv == INV_F4
     || inv == INV_F8;
 }
 
 int
-inv_double_eta(long inv)
+modinv_double_eta(long inv)
 {
   switch (inv) {
   case INV_W2W3:
@@ -567,7 +567,7 @@ eighth_root(ulong *r, ulong x, ulong p, ulong pi)
 }
 
 INLINE ulong
-inv_f_from_j(ulong j, ulong p, ulong pi, long only_residue)
+modinv_f_from_j(ulong j, ulong p, ulong pi, long only_residue)
 {
   pari_sp av = avma;
   GEN pol, rts;
@@ -590,13 +590,13 @@ inv_f_from_j(ulong j, ulong p, ulong pi, long only_residue)
       break;
   }
   if (i == lg(rts))
-    pari_err_BUG("inv_f_from_j");
+    pari_err_BUG("modinv_f_from_j");
   avma = av;
   return f;
 }
 
 INLINE ulong
-inv_f3_from_j(ulong j, ulong p, ulong pi)
+modinv_f3_from_j(ulong j, ulong p, ulong pi)
 {
   pari_sp av = avma;
   GEN pol, rts;
@@ -611,17 +611,17 @@ inv_f3_from_j(ulong j, ulong p, ulong pi)
       break;
   }
   if (i == lg(rts))
-    pari_err_BUG("inv_f3_from_j");
+    pari_err_BUG("modinv_f3_from_j");
   avma = av;
   return f;
 }
 
 /* Return the exponent e for the double-eta "invariant" w such that
  * w^e is a class invariant.  For example w2w3^12 is a class
- * invariant, so inv_exponent(INV_W2W3) is 12 and
- * inv_exponent(INV_W2W3E2) is 6. */
+ * invariant, so modinv_exponent(INV_W2W3) is 12 and
+ * modinv_exponent(INV_W2W3E2) is 6. */
 INLINE ulong
-inv_exponent(int inv)
+modinv_exponent(long inv)
 {
   switch (inv) {
   case INV_W2W3:
@@ -646,9 +646,9 @@ inv_exponent(int inv)
 }
 
 INLINE ulong
-inv_power(long inv, ulong w, ulong p, ulong pi)
+modinv_power(long inv, ulong w, ulong p, ulong pi)
 {
-  return Fl_powu_pre(w, inv_exponent(inv), p, pi);
+  return Fl_powu_pre(w, modinv_exponent(inv), p, pi);
 }
 
 
@@ -690,9 +690,9 @@ fourth_root(ulong *r, ulong x, ulong p, ulong pi)
 }
 
 INLINE int
-inv_root(long inv, ulong *r, ulong w, ulong p, ulong pi)
+modinv_root(long inv, ulong *r, ulong w, ulong p, ulong pi)
 {
-  switch (inv_exponent(inv)) {
+  switch (modinv_exponent(inv)) {
   case 12: return twelth_root(r, w, p, pi);
   case 6: return sixth_root(r, w, p, pi);
   case 4: return fourth_root(r, w, p, pi);
@@ -700,7 +700,7 @@ inv_root(long inv, ulong *r, ulong w, ulong p, ulong pi)
   case 2: return krouu(w, p) != -1 && !!(*r = Fl_sqrt_pre(w, p, pi));
   case 1: *r = w; return 1;
   }
-  pari_err_BUG("inv_root");
+  pari_err_BUG("modinv_root");
   return 0;
 }
 
@@ -725,9 +725,9 @@ double_eta_Fl(long inv, ulong p)
 }
 
 /* Go through the roots of Psi(X,j) until one has an
- * inv_exponent(inv)-th root, and return that root. F = double_eta_Fl(inv,p) */
+ * modinv_exponent(inv)-th root, and return that root. F = double_eta_Fl(inv,p) */
 INLINE ulong
-inv_double_eta_from_j(GEN F, long inv, ulong j, ulong p, ulong pi)
+modinv_double_eta_from_j(GEN F, long inv, ulong j, ulong p, ulong pi)
 {
   pari_sp av = avma;
   long i;
@@ -735,24 +735,24 @@ inv_double_eta_from_j(GEN F, long inv, ulong j, ulong p, ulong pi)
   GEN a = Flx_double_eta_xpoly(F, j, p, pi);
   a = Flx_roots(a, p);
   for (i = 1; i < lg(a); ++i) {
-    if (inv_root(inv, &f, uel(a, i), p, pi))
+    if (modinv_root(inv, &f, uel(a, i), p, pi))
       break;
   }
   if (i == lg(a))
-    pari_err_BUG("inv_double_eta_from_j");
+    pari_err_BUG("modinv_double_eta_from_j");
   avma = av;
   return f;
 }
 
 /* TODO: Check whether I can use this to refactor something */
 static long
-inv_double_eta_from_2j(
+modinv_double_eta_from_2j(
   ulong *r, long inv, ulong j1, ulong j2, ulong p, ulong pi)
 {
   pari_sp av = avma;
   GEN f, g, d, F = double_eta_Fl(inv, p);
   if (j2 == j1)
-    pari_err_BUG("inv_double_eta_from_2j");
+    pari_err_BUG("modinv_double_eta_from_2j");
 
   f = Flx_double_eta_xpoly(F, j1, p, pi);
   g = Flx_double_eta_xpoly(F, j2, p, pi);
@@ -765,13 +765,13 @@ inv_double_eta_from_2j(
 #if 0
   if (degpol(d) != 1
       || (*r = Flx_oneroot(d, p)) == p
-      || ! inv_root(inv, r, *r, p, pi)) {
-    pari_err_BUG("inv_double_eta_from_2j");
+      || ! modinv_root(inv, r, *r, p, pi)) {
+    pari_err_BUG("modinv_double_eta_from_2j");
   }
 #endif
   if (degpol(d) > 2
       || (*r = Flx_oneroot(d, p)) == p
-      || ! inv_root(inv, r, *r, p, pi)) {
+      || ! modinv_root(inv, r, *r, p, pi)) {
     return 0;
   }
   avma = av;
@@ -786,7 +786,7 @@ modfn_unambiguous_root(ulong *r, long inv, ulong j0, norm_eqn_t ne, GEN jdb)
   ulong j1, p = ne->p, pi = ne->pi;
   GEN phi;
 
-  (void) inv_degree(&p1, &p2, inv);
+  (void) modinv_degree(&p1, &p2, inv);
   p1_depth = u_lval(v, p1);
 
   phi = polmodular_db_getp(jdb, p1, p);
@@ -802,7 +802,7 @@ modfn_unambiguous_root(ulong *r, long inv, ulong j0, norm_eqn_t ne, GEN jdb)
       pari_err_BUG("modfn_unambiguous_root");
   }
   avma = av;
-  return j1 != j0 && inv_double_eta_from_2j(r, inv, j0, j1, p, pi);
+  return j1 != j0 && modinv_double_eta_from_2j(r, inv, j0, j1, p, pi);
 }
 
 ulong
@@ -815,22 +815,22 @@ modfn_root(ulong j, norm_eqn_t ne, long inv)
   case INV_G2:
     return Fl_sqrtl_pre(j, 3, p, pi);
   case INV_F:
-    return inv_f_from_j(j, p, pi, 0);
+    return modinv_f_from_j(j, p, pi, 0);
   case INV_F2:
-    f = inv_f_from_j(j, p, pi, 0);
+    f = modinv_f_from_j(j, p, pi, 0);
     return Fl_sqr_pre(f, p, pi);
   case INV_F3:
-    return inv_f3_from_j(j, p, pi);
+    return modinv_f3_from_j(j, p, pi);
   case INV_F4:
-    f = inv_f_from_j(j, p, pi, 0);
+    f = modinv_f_from_j(j, p, pi, 0);
     return Fl_sqr_pre(Fl_sqr_pre(f, p, pi), p, pi);
   case INV_F8:
-    return inv_f_from_j(j, p, pi, 1);
+    return modinv_f_from_j(j, p, pi, 1);
   }
-  if (inv_double_eta(inv))
+  if (modinv_double_eta(inv))
   {
     pari_sp av = avma;
-    ulong f = inv_double_eta_from_j(double_eta_Fl(inv,p), inv, j, p, pi);
+    ulong f = modinv_double_eta_from_j(double_eta_Fl(inv,p), inv, j, p, pi);
     avma = av; return f;
   }
   pari_err_BUG("modfn_root");
@@ -838,7 +838,7 @@ modfn_root(ulong j, norm_eqn_t ne, long inv)
 }
 
 INLINE ulong
-inv_j_from_f(ulong x, ulong n, ulong p, ulong pi)
+modinv_j_from_f(ulong x, ulong n, ulong p, ulong pi)
 {
   /* If x satisfies (X^24 - 16)^3 - X^24 * j = 0
    * then j = (x^24 - 16)^3 / x^24 */
@@ -849,19 +849,19 @@ inv_j_from_f(ulong x, ulong n, ulong p, ulong pi)
 /* TODO: Check whether I can use this to refactor something
  * F = double_eta_raw(inv) */
 long
-inv_j_from_2double_eta(
+modinv_j_from_2double_eta(
   GEN F, long inv, ulong *j, ulong x0, ulong x1, ulong p, ulong pi)
 {
   GEN f, g, d;
 
-  x0 = inv_power(inv, x0, p, pi);
-  x1 = inv_power(inv, x1, p, pi);
+  x0 = modinv_power(inv, x0, p, pi);
+  x1 = modinv_power(inv, x1, p, pi);
   F = double_eta_raw_to_Fl(F, p);
   f = Flx_double_eta_jpoly(F, x0, p, pi);
   g = Flx_double_eta_jpoly(F, x1, p, pi);
   d = Flx_gcd(f, g, p);
   if (degpol(d) > 1)
-    pari_err_BUG("inv_j_from_2double_eta");
+    pari_err_BUG("modinv_j_from_2double_eta");
   else if (degpol(d) < 1)
     return 0;
   if (j)
@@ -881,21 +881,21 @@ modfn_preimage(ulong x, norm_eqn_t ne, long inv)
   case INV_F:
     /* NB: We could replace these with a single call
      *
-     *   inv_j_from_f(x, inv, p, pi),
+     *   modinv_j_from_f(x, inv, p, pi),
      *
      * but it's probably better to avoid the dependence on the actual
      * value of inv and assume it could change. */
-    return inv_j_from_f(x, 1, p, pi);
+    return modinv_j_from_f(x, 1, p, pi);
   case INV_F2:
-    return inv_j_from_f(x, 2, p, pi);
+    return modinv_j_from_f(x, 2, p, pi);
   case INV_F3:
-    return inv_j_from_f(x, 3, p, pi);
+    return modinv_j_from_f(x, 3, p, pi);
   case INV_F4:
-    return inv_j_from_f(x, 4, p, pi);
+    return modinv_j_from_f(x, 4, p, pi);
   case INV_F8:
-    return inv_j_from_f(x, 8, p, pi);
+    return modinv_j_from_f(x, 8, p, pi);
   }
-  /* NB: This function should never be called if inv_double_eta(inv) is
+  /* NB: This function should never be called if modinv_double_eta(inv) is
    * true */
   pari_err_BUG("modfn_preimage");
   return ULONG_MAX;
@@ -1713,19 +1713,19 @@ root_matrix(
   vecsmall_pick(rts, floor_js, cyc);
 
   /* Fix orientation if necessary */
-  if (inv_double_eta(inv)) {
+  if (modinv_double_eta(inv)) {
     /* TODO: There is potential for refactoring between this,
      * double_eta_initial_js and modfn_preimage. */
     pari_sp av0 = avma;
     ulong p = ne->p, pi = ne->pi, j;
     GEN F = double_eta_Fl(inv, p);
     pari_sp av = avma;
-    ulong r1 = inv_power(inv, uel(rts, 1), p, pi);
+    ulong r1 = modinv_power(inv, uel(rts, 1), p, pi);
     GEN r, f = Flx_double_eta_jpoly(F, r1, p, pi);
     if ((j = Flx_oneroot(f, p)) == p) pari_err_BUG("root_matrix");
     j = compute_L_isogenous_curve(L, n, ne, j, card, val, 0);
     avma = av;
-    r1 = inv_power(inv, uel(surface_js, i), p, pi);
+    r1 = modinv_power(inv, uel(surface_js, i), p, pi);
     f = Flx_double_eta_jpoly(F, r1, p, pi);
     r = Flx_roots(f, p);
     if (glength(r) != 2) pari_err_BUG("root_matrix");
@@ -1825,7 +1825,7 @@ normalise_coeffs(GEN coeffs, GEN js, long L, long s, ulong p, ulong pi)
 {
   pari_sp av = avma;
   long k;
-  GEN pows, inv_js;
+  GEN pows, modinv_js;
 
   /* NB: In fact it would be correct to return the coefficients "as
    * is" when s = 1, but we make that an error anyway since this
@@ -1835,10 +1835,10 @@ normalise_coeffs(GEN coeffs, GEN js, long L, long s, ulong p, ulong pi)
   /* pows[i + 1] contains 1 / js[i + 1]^i for i = 0, ..., s - 1. */
   pows = cgetg(s + 1, t_VEC);
   gel(pows, 1) = const_vecsmall(lg(js) - 1, 1);
-  inv_js = Flv_inv_pre(js, p, pi);
-  gel(pows, 2) = inv_js;
+  modinv_js = Flv_inv_pre(js, p, pi);
+  gel(pows, 2) = modinv_js;
   for (k = 3; k <= s; ++k) {
-    gel(pows, k) = gcopy(inv_js);
+    gel(pows, k) = gcopy(modinv_js);
     Flv_powu_inplace_pre(gel(pows, k), k - 1, p, pi);
   }
 
@@ -1867,8 +1867,8 @@ double_eta_initial_js(
   ulong j1pr, j1, r, t;
   GEN f, g;
 
-  *x0pr = inv_double_eta_from_j(F, inv, j0pr, p, pi);
-  t = inv_power(inv, *x0pr, p, pi);
+  *x0pr = modinv_double_eta_from_j(F, inv, j0pr, p, pi);
+  t = modinv_power(inv, *x0pr, p, pi);
   f = Flx_div_by_X_x(Flx_double_eta_jpoly(F, t, p, pi), j0pr, p, &r);
   if (r) pari_err_BUG("double_eta_initial_js");
   j1pr = Flx_deg1_root(f, p);
@@ -1881,7 +1881,7 @@ double_eta_initial_js(
   *x0 = Flx_deg1_root(Flx_gcd(f, g, p), p);
   avma = av0;
 
-  if ( ! inv_root(inv, x0, *x0, p, pi))
+  if ( ! modinv_root(inv, x0, *x0, p, pi))
     pari_err_BUG("double_eta_initial_js");
 }
 
@@ -1896,7 +1896,7 @@ polmodular_split_p_Flm(
   pari_sp ltop = avma;
   ulong j0, j0_rt, j0pr, j0pr_rt;
   ulong n, card, val, p = ne->p, pi = ne->pi;
-  long s = inv_sparse_factor(dinfo->inv);
+  long s = modinv_sparse_factor(dinfo->inv);
   long nj_selected = ceil((L + 1)/(double)s) + 1;
   GEN surface_js, floor_js, rts;
   GEN phi_modp;
@@ -1912,7 +1912,7 @@ polmodular_split_p_Flm(
 
   j0 = oneroot_of_classpoly(hilb, factu, ne, jdb);
   j0pr = compute_L_isogenous_curve(L, n, ne, j0, card, val, 1);
-  if (inv_double_eta(dinfo->inv)) {
+  if (modinv_double_eta(dinfo->inv)) {
     double_eta_initial_js(&j0_rt, &j0pr_rt, j0, j0pr, ne, dinfo->inv,
         L, n, card, val);
   } else {
@@ -2100,7 +2100,7 @@ static GEN
 polmodular_small_ZM(long L, long inv, GEN *db);
 
 INLINE long
-inv_max_internal_level(long inv)
+modinv_max_internal_level(long inv)
 {
   switch (inv) {
   case INV_J:
@@ -2132,7 +2132,7 @@ inv_max_internal_level(long inv)
   case INV_W3W13:
     return 2;
   }
-  pari_err_BUG("inv_max_internal_level");
+  pari_err_BUG("modinv_max_internal_level");
   return LONG_MAX;
 }
 
@@ -2145,14 +2145,14 @@ polmodular0_ZM(
   GEN modpoly, plist;
   modpoly_disc_info Ds[MODPOLY_MAX_DCNT];
 
-  long lvl = inv_level(inv);
+  long lvl = modinv_level(inv);
   if (cgcd(L, lvl) != 1) {
     pari_err_DOMAIN("polmodular0_ZM", "invariant",
                     "incompatible with", stoi(L), stoi(lvl));
   }
 
   dbg_printf(1)("Calculating modular polynomial of level %lu for invariant %d\n", L, inv);
-  if (L <= inv_max_internal_level(inv))
+  if (L <= modinv_max_internal_level(inv))
     return polmodular_small_ZM(L, inv, db);
 
   Dcnt = discriminant_with_classno_at_least(Ds, L, inv, USE_SPARSE_FACTOR);
@@ -2283,7 +2283,7 @@ Fp_polmodular_evalx(
   pari_sp av = avma;
   GEN db, phi;
 
-  if (L <= inv_max_internal_level(inv)) {
+  if (L <= modinv_max_internal_level(inv)) {
     GEN tmp;
     GEN phi = RgM_to_FpM(polmodular_ZM(L, inv), P);
     GEN j_powers = Fp_powers(J, L + 1, P);
@@ -2315,7 +2315,7 @@ polmodular(long L, long inv, GEN x, long v, long compute_derivs)
   long tx;
   GEN J = NULL, P = NULL, res = NULL, one = NULL;
 
-  if ( ! inv_is_valid(inv))
+  if ( ! modinv_is_valid(inv))
     pari_err_DOMAIN("polmodular", "inv", "invalid invariant", stoi(inv), gen_0);
   if ( ! x || gequalX(x)) {
     long xv = 0;
@@ -2607,7 +2607,7 @@ phi2_w3w13_ZV(void)
 }
 
 INLINE long
-inv_parent(long inv)
+modinv_parent(long inv)
 {
   switch (inv) {
   case INV_F2:
@@ -2623,14 +2623,14 @@ inv_parent(long inv)
   case INV_W3W3E2:
     return INV_W3W3;
   default:
-    pari_err_BUG("inv_parent");
+    pari_err_BUG("modinv_parent");
   }
   return -1;
 }
 
 /* TODO: Think of a better name than "parent power"; sheesh. */
 INLINE long
-inv_parent_power(long inv)
+modinv_parent_power(long inv)
 {
   switch (inv) {
   case INV_F4:
@@ -2644,7 +2644,7 @@ inv_parent_power(long inv)
   case INV_W3W3E2:
     return 2;
   default:
-    pari_err_BUG("inv_parent_power");
+    pari_err_BUG("modinv_parent_power");
   }
   return -1;
 }
@@ -2656,8 +2656,8 @@ polmodular0_powerup_ZM(long L, long inv, GEN *db)
   long s, D, nprimes, N;
   GEN mp, pol, P, H;
 
-  long parent = inv_parent(inv);
-  long e = inv_parent_power(inv);
+  long parent = modinv_parent(inv);
+  long e = modinv_parent_power(inv);
 
   modpoly_disc_info Ds[MODPOLY_MAX_DCNT];
   /* FIXME: We throw away the table of fundamental discriminants here. */
@@ -2759,7 +2759,7 @@ internal_db(long L, long inv)
   return NULL;
 }
 
-/* NB: Should only be called if L <= inv_max_internal_level(inv) */
+/* NB: Should only be called if L <= modinv_max_internal_level(inv) */
 static GEN
 polmodular_small_ZM(long L, long inv, GEN *db)
 {
@@ -3567,7 +3567,7 @@ modpoly_height_bound(long L, long inv)
   /* alternative proven bound (in bits), derived from: 6l*log(l)+17*l */
   nbits2 = 6.0*L*log2(L)+17/LOG2*L;
   if ( nbits2 < nbits ) nbits = nbits2;
-  hf = inv_height_factor(inv);
+  hf = modinv_height_factor(inv);
   if (hf > 1) {
     /*
    *** Important *** when dividing by the height factor, we only want to reduce terms related
@@ -3703,11 +3703,11 @@ primeform_discrete_log(long *x, long L0, long L, long n, long D)
 static long
 select_L0(long L, long inv, long initial_L0)
 {
-  long inv_N;
+  long modinv_N;
   long L0;
 
-  inv_N = inv_level(inv);
-  if (divides(L, inv_N))
+  modinv_N = modinv_level(inv);
+  if (divides(L, modinv_N))
     pari_err_BUG("select_L0");
 
   /* TODO: Clean up these anomolous L0 choices */
@@ -3749,9 +3749,9 @@ select_L0(long L, long inv, long initial_L0)
   if (inv == INV_W5W7 && L == 17)
     return 3;
 
-  /* L0 is the smallest small prime different from L that doesn't divide inv_N. */
+  /* L0 is the smallest small prime different from L that doesn't divide modinv_N. */
   for (L0 = unextprime(initial_L0 + 1);
-       L0 == L || divides(L0, inv_N);
+       L0 == L || divides(L0, modinv_N);
        L0 = unextprime(L0 + 1))
     ;
   return L0;
@@ -3777,29 +3777,29 @@ eql_elt(GEN P, GEN Q, long i)
   return gequal(gel(P, i), gel(Q, i));
 }
 
-/* If an ideal of norm inv_deg is equivalent to an ideal of
+/* If an ideal of norm modinv_deg is equivalent to an ideal of
  * norm L0, we have an orientation ambiguity that we need to
  * avoid. Note that we need to check all the possibilities (up
  * to 8), but we can cheaply check inverses (so at most 2) */
 static long
-orientation_ambiguity(long D1, long L0, long inv_p1, long inv_p2, long inv_N)
+orientation_ambiguity(long D1, long L0, long modinv_p1, long modinv_p2, long modinv_N)
 {
   pari_sp av = avma;
   long ambiguity = 0;
   GEN D = stoi(D1);
-  GEN Q1 = primeform_u(D, inv_p1), Q2 = NULL;
+  GEN Q1 = primeform_u(D, modinv_p1), Q2 = NULL;
 
-  if (inv_p2 > 1) {
-    if (inv_p1 != inv_p2) {
-      GEN P2 = primeform_u(D, inv_p2);
+  if (modinv_p2 > 1) {
+    if (modinv_p1 != modinv_p2) {
+      GEN P2 = primeform_u(D, modinv_p2);
       GEN Q = gsqr(P2);
       GEN R = gsqr(Q1);
       /* check that p1^2 != p2^{+/-2}, since this leads to
        * ambiguities when converting j's to f's */
       if (eql_elt(Q, R, 1)
           && (eql_elt(Q, R, 2) || gequal(gel(Q, 2), gneg(gel(R, 2))))) {
-        dbg_printf(3)("Bad D=%ld, a^2=b^2 problem between inv_p1=%ld and inv_p2=%ld\n",
-                      D1, inv_p1, inv_p2);
+        dbg_printf(3)("Bad D=%ld, a^2=b^2 problem between modinv_p1=%ld and modinv_p2=%ld\n",
+                      D1, modinv_p1, modinv_p2);
         ambiguity = 1;
       } else {
         /* generate both p1*p2 and p1*p2^{-1} */
@@ -3814,9 +3814,9 @@ orientation_ambiguity(long D1, long L0, long inv_p1, long inv_p2, long inv_N)
   if ( ! ambiguity) {
     GEN P = gsqr(primeform_u(D, L0));
     if (eql_elt(P, Q1, 1)
-        || (inv_p2 && inv_p1 != inv_p2 && eql_elt(P, Q2, 1))) {
-      dbg_printf(3)("Bad D=%ld, a=b^{+/-2} problem between inv_N=%ld and L0=%ld\n",
-                    D1, inv_N, L0);
+        || (modinv_p2 && modinv_p1 != modinv_p2 && eql_elt(P, Q2, 1))) {
+      dbg_printf(3)("Bad D=%ld, a=b^{+/-2} problem between modinv_N=%ld and L0=%ld\n",
+                    D1, modinv_N, L0);
       ambiguity = 1;
     }
   }
@@ -3908,7 +3908,7 @@ modpoly_pickD_primes(
   absD = -D;
 
   /* make sure pfilter and D don't preclude the possibility of p=(t^2-v^2D)/4 being prime */
-  pfilter = inv_pfilter(inv);
+  pfilter = modinv_pfilter(inv);
   if ((pfilter & IQ_FILTER_1MOD3) && ! (D % 3))
     return 0;
   if ((pfilter & IQ_FILTER_1MOD4) && ! (D & 0xF))
@@ -3942,7 +3942,7 @@ modpoly_pickD_primes(
     if (ugcd(absD, v) != 1)
       continue;
     /* Avoid v dividing the level. */
-    if (v > 2 && inv_double_eta(inv) && ugcd(inv_level(inv), v) != 1)
+    if (v > 2 && modinv_double_eta(inv) && ugcd(modinv_level(inv), v) != 1)
       continue;
     /* can't get odd p with D=1 mod 8 unless v is even */
     if ((v & 1) && (D & 7) == 1)
@@ -3994,7 +3994,7 @@ modpoly_pickD_primes(
       }
       if ( ! uisprime(p))
         continue;
-      if ( ! inv_good_prime(p, inv))
+      if ( ! modinv_good_prime(p, inv))
         continue;
       if (primes) {
         /* ulong vLp, vLm; */
@@ -4123,8 +4123,8 @@ modpoly_pickD(
   modpoly_disc_info Dinfo;
   pari_timer T;
   long p, q, L1;
-  long tmp, inv_p1, inv_p2;
-  long inv_N, inv_deg, deg, use_L1, twofactor, pfilter, Dcnt;
+  long tmp, modinv_p1, modinv_p2;
+  long modinv_N, modinv_deg, deg, use_L1, twofactor, pfilter, Dcnt;
   long how_many_D0s = 0;
   double D0_bits, p_bits, L_bits;
   long D0, D1, D2, m, h0, h1, h2, n0, n1, n2, dl1, dl2[2], d, cost, enum_cost, H_cost, best_cost, totbits;
@@ -4134,18 +4134,18 @@ modpoly_pickD(
     pari_err_BUG("modpoly_pickD");
 
   timer_start(&T);
-  d = (flags & MODPOLY_IGNORE_SPARSE_FACTOR) ? 1 : inv_sparse_factor(inv);
+  d = (flags & MODPOLY_IGNORE_SPARSE_FACTOR) ? 1 : modinv_sparse_factor(inv);
   /*d = ui_ceil_ratio(L + 1, d) + 1; */
   tmp = (L + 1) / d;
   d = ((tmp * d < (L + 1)) ? tmp + 1 : tmp);
   d += 1;
-  inv_N = inv_level(inv);
-  inv_deg = inv_degree(&inv_p1, &inv_p2, inv);
-  pfilter = inv_pfilter(inv);
+  modinv_N = modinv_level(inv);
+  modinv_deg = modinv_degree(&modinv_p1, &modinv_p2, inv);
+  pfilter = modinv_pfilter(inv);
 
   /* Now set level to 0 unless we will need to compute N-isogenies */
-  dbg_printf(1)("Using L0=%ld for L=%ld, d=%ld, inv_N=%ld, inv_deg=%ld\n",
-                L0, L, d, inv_N, inv_deg);
+  dbg_printf(1)("Using L0=%ld for L=%ld, d=%ld, modinv_N=%ld, modinv_deg=%ld\n",
+                L0, L, d, modinv_N, modinv_deg);
 
   /* We use L1 if (L0|L) == 1 or if we are forced to by flags. */
   use_L1 = (kross(L0,L) > 0 || (flags & MODPOLY_USE_L1));
@@ -4165,7 +4165,7 @@ modpoly_pickD(
     /* extract D0 from D0_entry */
     D0 = D0_entry.D;
 
-    if ( ! inv_good_discriminant(D0, inv))
+    if ( ! modinv_good_discriminant(D0, inv))
       continue;
     /* extract class poly degree from D0_entry */
     deg = D0_entry.h;
@@ -4174,10 +4174,10 @@ modpoly_pickD(
     h0 = ((D0_entry.m & 2) ? 2*deg : deg);
     dbg_printf(3)("D0=%ld\n", D0);
 
-    /* don't allow either inv_p1 or inv_p2 to ramify */
+    /* don't allow either modinv_p1 or modinv_p2 to ramify */
     if (kross(D0, L) < 1
-        || (inv_p1 > 1 && kross(D0, inv_p1) < 1)
-        || (inv_p2 > 1 && kross(D0, inv_p2) < 1)) {
+        || (modinv_p1 > 1 && kross(D0, modinv_p1) < 1)
+        || (modinv_p2 > 1 && kross(D0, modinv_p2) < 1)) {
       dbg_printf(3)("Bad D0=%ld due to non-split L or ramified level\n", D0);
       continue;
     }
@@ -4194,10 +4194,10 @@ modpoly_pickD(
       /* If 1 + (D0 | p) == 1, i.e. if (D0 | p) == 0, i.e. if p | D0. */
       if (((D0_entry.m >> (2*i)) & 3) == 1) {
         /* set L1 = p if it's not L0, it's less than the maximum,
-         * it doesn't divide inv_N, and (L1 | L) == -1. */
+         * it doesn't divide modinv_N, and (L1 | L) == -1. */
         /* XXX: Why do we want (L1 | L) == -1?  Presumably so (L^2 v^2 D0 | L1) == -1? */
         L1 = PRIMES[i];
-        if (L1 <= max_L1 && (inv_N % L1) && kross(L1, L) < 0)
+        if (L1 <= max_L1 && (modinv_N % L1) && kross(L1, L) < 0)
           break;
       }
     }
@@ -4252,13 +4252,13 @@ modpoly_pickD(
       avma = btop;
       /* i = 0 corresponds to 1, which we do not want to skip! (i.e. DK = D) */
       if (i) {
-        if (inv_odd_conductor(inv) && i == 1)
+        if (modinv_odd_conductor(inv) && i == 1)
           continue;
         p = PRIMES[i];
         /* Don't allow large factors in the conductor. */
         if (p > max_L1)
           break;
-        if (p == L0 || p == L1 || p == L || p == inv_p1 || p == inv_p2)
+        if (p == L0 || p == L1 || p == L || p == modinv_p1 || p == modinv_p2)
           continue;
         p_bits = log2(p);
         /* h1 is the class number of D1 = q^2 D0, where q = p^j (j defined in the loop below) */
@@ -4280,7 +4280,7 @@ modpoly_pickD(
       /* include a factor of 4 if D1 is 5 mod 8 */
       /* XXX: No idea why he does this. */
       if (twofactor && (q & 1)) {
-        if (inv_odd_conductor(inv))
+        if (modinv_odd_conductor(inv))
           continue;
         D1 *= 4;
         h1 *= twofactor;
@@ -4304,7 +4304,7 @@ modpoly_pickD(
       }
       dbg_printf(3)("Good D0=%ld, D1=%ld with q=%ld, L1=%ld, n1=%ld, h1=%ld\n",
                     D0, D1, q, L1, n1, h1);
-      if (inv_deg && orientation_ambiguity(D1, L0, inv_p1, inv_p2, inv_N))
+      if (modinv_deg && orientation_ambiguity(D1, L0, modinv_p1, modinv_p2, modinv_N))
         continue;
 
       D2 = L * L * D1;
@@ -4629,7 +4629,7 @@ discriminant_with_classno_at_least(
   pari_timer T;
   timer_start(&T);
 
-  s = inv_sparse_factor(inv);
+  s = modinv_sparse_factor(inv);
   d = s;
   /*d = ui_ceil_ratio(L + 1, d) + 1; */
   tmp = (L + 1) / d;
