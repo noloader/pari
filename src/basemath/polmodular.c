@@ -174,22 +174,22 @@ long
 disc_best_modinv(long D)
 {
   long ret;
-  ret = INV_F;     if(modinv_good_discriminant(D, ret)) return ret;
-  ret = INV_W2W3;  if(modinv_good_discriminant(D, ret)) return ret;
-  ret = INV_W2W5;  if(modinv_good_discriminant(D, ret)) return ret;
-  ret = INV_W2W7;  if(modinv_good_discriminant(D, ret)) return ret;
-  ret = INV_W2W13; if(modinv_good_discriminant(D, ret)) return ret;
-  ret = INV_W3W3;  if(modinv_good_discriminant(D, ret)) return ret;
-  ret = INV_W2W3E2;if(modinv_good_discriminant(D, ret)) return ret;
-  ret = INV_W3W5;  if(modinv_good_discriminant(D, ret)) return ret;
-  ret = INV_W3W7;  if(modinv_good_discriminant(D, ret)) return ret;
-  ret = INV_W3W13; if(modinv_good_discriminant(D, ret)) return ret;
-  ret = INV_W2W5E2;if(modinv_good_discriminant(D, ret)) return ret;
-  ret = INV_F3;    if(modinv_good_discriminant(D, ret)) return ret;
-  ret = INV_W2W7E2;if(modinv_good_discriminant(D, ret)) return ret;
-  ret = INV_W5W7;  if(modinv_good_discriminant(D, ret)) return ret;
-  ret = INV_W3W3E2;if(modinv_good_discriminant(D, ret)) return ret;
-  ret = INV_G2;    if(modinv_good_discriminant(D, ret)) return ret;
+  ret = INV_F;     if(modinv_good_disc(ret, D)) return ret;
+  ret = INV_W2W3;  if(modinv_good_disc(ret, D)) return ret;
+  ret = INV_W2W5;  if(modinv_good_disc(ret, D)) return ret;
+  ret = INV_W2W7;  if(modinv_good_disc(ret, D)) return ret;
+  ret = INV_W2W13; if(modinv_good_disc(ret, D)) return ret;
+  ret = INV_W3W3;  if(modinv_good_disc(ret, D)) return ret;
+  ret = INV_W2W3E2;if(modinv_good_disc(ret, D)) return ret;
+  ret = INV_W3W5;  if(modinv_good_disc(ret, D)) return ret;
+  ret = INV_W3W7;  if(modinv_good_disc(ret, D)) return ret;
+  ret = INV_W3W13; if(modinv_good_disc(ret, D)) return ret;
+  ret = INV_W2W5E2;if(modinv_good_disc(ret, D)) return ret;
+  ret = INV_F3;    if(modinv_good_disc(ret, D)) return ret;
+  ret = INV_W2W7E2;if(modinv_good_disc(ret, D)) return ret;
+  ret = INV_W5W7;  if(modinv_good_disc(ret, D)) return ret;
+  ret = INV_W3W3E2;if(modinv_good_disc(ret, D)) return ret;
+  ret = INV_G2;    if(modinv_good_disc(ret, D)) return ret;
   return INV_J;
 }
 
@@ -259,7 +259,7 @@ modinv_pfilter(long inv)
 }
 
 int
-modinv_good_prime(long p, long inv)
+modinv_good_prime(long inv, long p)
 {
   switch (inv) {
   case INV_G2:
@@ -466,7 +466,7 @@ modinv_ramified(long D, long inv)
 }
 
 int
-modinv_good_discriminant(long D, long inv)
+modinv_good_disc(long inv, long D)
 {
   switch (inv) {
   case INV_J:
@@ -3993,7 +3993,7 @@ modpoly_pickD_primes(
       }
       if ( ! uisprime(p))
         continue;
-      if ( ! modinv_good_prime(p, inv))
+      if ( ! modinv_good_prime(inv, p))
         continue;
       if (primes) {
         /* ulong vLp, vLm; */
@@ -4164,7 +4164,7 @@ modpoly_pickD(
     /* extract D0 from D0_entry */
     D0 = D0_entry.D;
 
-    if ( ! modinv_good_discriminant(D0, inv))
+    if ( ! modinv_good_disc(inv, D0))
       continue;
     /* extract class poly degree from D0_entry */
     deg = D0_entry.h;

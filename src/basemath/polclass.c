@@ -1093,7 +1093,7 @@ select_classpoly_prime_pool(
         ulong possible_4p = t * t + m_vsqr_D;
         if (possible_4p % 4 == 0) {
           ulong possible_p = possible_4p / 4;
-          if (uisprime(possible_p) && modinv_good_prime(possible_p, inv)) {
+          if (uisprime(possible_p) && modinv_good_prime(inv, possible_p)) {
             long p = possible_p;
             double rho_inv = p / H;
             GEN hit;
@@ -1820,7 +1820,7 @@ polclass(GEN DD, long inv, long xvar)
   check_modinv(inv);
 
   D = itos(DD);
-  if ( ! modinv_good_discriminant(D, inv))
+  if ( ! modinv_good_disc(inv, D))
     pari_err_DOMAIN("polclass", "D", "incompatible with given invariant", stoi(inv), DD);
 
   db = polmodular_db_init(inv);

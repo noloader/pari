@@ -862,6 +862,12 @@ derivatives, all evaluated at $J$ modulo~$p$).
 \fun{void}{check_modinv}{long inv} report an error if \kbd{inv} is not a
 valid code for a mdular invariant.
 
+\fun{int}{modinv_good_disc}{long inv, long D} test whether the
+invariant \kbd{inv} is defined for the discriminant \kbd{D}.
+
+\fun{int}{modinv_good_prime}{long inv, long D} test whether the
+invariant \kbd{inv} is defined for the prime \kbd{p}.
+
 \fun{long}{modinv_height_factor}{long inv} return the height factor
 of the modular invariant \kbd{inv} with respect to the $j$-invariant.
 This is an integer $n$ such that the $j$-invariant is asymptotically
