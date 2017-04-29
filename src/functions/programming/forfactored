@@ -13,8 +13,8 @@ Doc: evaluates \var{seq}, where
 
  This function is only implemented for $b < 2^{64}$ ($2^{32} on a 32-bit
  machine). It uses a sieve and runs in time $O(\sqrt{b} + b-a)$. It should
- be 3 times faster than regular factorization as long as the interval
- length $b-a$ is much larger than $\sqrt{b}$, getting relatively faster as
+ be at least 3 times faster than regular factorization as long as the interval
+ length $b-a$ is much larger than $\sqrt{b}$ and get relatively faster as
  the bounds increase. The function slows down dramatically
  if $\kbd{primelimit} < \sqrt{b}$.
 
@@ -41,3 +41,14 @@ Doc: evaluates \var{seq}, where
  to \kbd{26,750ms} if \kbd{primelimit} gets bigger than that bound.
  In any case $\sqrt{B+10^6}$ is much larger than the interval length $10^6$
  so \kbd{forfactored} gets relatively slower for that reason as well.
+
+ Note that all PARI multiplicative functions accept the \kbd{[n,fan]}
+ argument natively:
+ \bprog
+ ? s = 0; forfactored(N = 1, 10^7, s += moebius(N)*eulerphi(N)); s
+ time = 6,001 ms.
+ %1 = 6393738650
+ ? s = 0; for(N = 1, 10^7, s += moebius(N)*eulerphi(N)); s
+ time = 28,398 ms. \\ slower, we must factor N. Twice.
+ %2 = 6393738650
+ @eprog
