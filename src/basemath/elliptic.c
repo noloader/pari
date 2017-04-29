@@ -810,7 +810,7 @@ ellinit_nf(GEN x, GEN p)
   if (lg(x) > 6) x = vecslice(x,1,5);
   nf = checknf(p);
   x = nfVtoalg(nf, x);
-  if (!(y = initsmall(x, 3))) return NULL;
+  if (!(y = initsmall(x, 4))) return NULL;
   gel(y,14) = mkvecsmall(t_ELL_NF);
   gel(y,15) = mkvec(p);
   return y;
@@ -5940,13 +5940,6 @@ doellrootno(GEN e)
   }
   return mkvec2(stoi(s), V);
 }
-long
-ellrootno_global(GEN e)
-{
-  pari_sp av = avma;
-  GEN S = obj_checkbuild(e, Q_ROOTNO, &doellrootno);
-  avma = av; return itos(gel(S,1));
-}
 
 /* local epsilon factor at p (over Q), including p=0 for the infinite place.
  * Global if p==1 or NULL. */
@@ -6067,6 +6060,29 @@ ellnf_rootno_global(GEN E)
   avma = av; return v ? -1: 1;
 }
 
+static GEN
+doellnfrootno(GEN e)
+{ return stoi(ellnf_rootno_global(e)); }
+
+long
+ellrootno_global(GEN e)
+{
+  pari_sp av = avma;
+  GEN S;
+  switch(ell_get_type(e))
+  {
+    case t_ELL_Q:
+      S = gel(obj_checkbuild(e, Q_ROOTNO, &doellrootno),1);
+      break;
+    case t_ELL_NF:
+      S = obj_checkbuild(e, NF_ROOTNO, &doellnfrootno);
+      break;
+    default:
+      pari_err_TYPE("ellrootno", e); return 0; /*LCOV_EXCL_LINE*/
+  }
+  avma = av; return itos(S);
+}
+
 long
 ellrootno(GEN e, GEN p)
 {
@@ -6080,7 +6096,7 @@ ellrootno(GEN e, GEN p)
     default: pari_err_TYPE("ellrootno", e);
     case t_ELL_NF:
       if (p) pari_err_IMPL("local root number for number fields");
-      return ellnf_rootno_global(e);
+      return ellrootno_global(e);
   }
 }
 
