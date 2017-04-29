@@ -408,6 +408,7 @@ divisors(GEN n)
   ulong ndiv;
   GEN *d, *t, *t1, *t2, *t3, P, E, e;
   int isint = divisors_init(n, &P, &E);
+  GEN (*mul)(GEN,GEN) = isint? mulii: gmul;
 
   l = lg(E); e = cgetg(l, t_VECSMALL); /* left on stack */
   for (i=1; i<l; i++) e[i] = E[i]+1;
@@ -415,19 +416,10 @@ divisors(GEN n)
   if (!ndiv || ndiv & ~LGBITS) pari_err_OVERFLOW("divisors");
   d = t = (GEN*) cgetg(ndiv+1,t_VEC);
   *++d = gen_1;
-  if (isint)
-  {
-    for (i=1; i<l; i++)
-      for (t1=t,j=E[i]; j; j--,t1=t2)
-        for (t2=d, t3=t1; t3<t2; ) *++d = mulii(*++t3, gel(P,i));
-    e = (GEN)t;
-    ZV_sort_inplace(e);
-  } else {
-    for (i=1; i<l; i++)
-      for (t1=t,j=E[i]; j; j--,t1=t2)
-        for (t2=d, t3=t1; t3<t2; ) *++d = gmul(*++t3, gel(P,i));
-    e = (GEN)t;
-  }
+  for (i=1; i<l; i++)
+    for (t1=t,j=E[i]; j; j--,t1=t2)
+      for (t2=d, t3=t1; t3<t2; ) *++d = mul(*++t3, gel(P,i));
+  e = (GEN)t; if (isint) ZV_sort_inplace(e);
   return e;
 }
 

@@ -573,14 +573,16 @@ sumdivmultexpr(GEN num, GEN code)
   GEN y = gen_1, P,E;
   int isint = divisors_init(num, &P,&E);
   long i, l = lg(P);
+  GEN (*mul)(GEN,GEN);
 
   if (l == 1) { avma = av; return gen_1; }
   push_lex(gen_0, code);
+  mul = isint? mulii: gmul;
   for (i=1; i<l; i++)
   {
     GEN p = gel(P,i), q = p, z = gen_1;
     long j, e = E[i];
-    for (j = 1; j <= e; j++, q = isint?mulii(q, p): gmul(q,p))
+    for (j = 1; j <= e; j++, q = mul(q, p))
     {
       set_lex(-1, q);
       z = gadd(z, closure_evalnobrk(code));
