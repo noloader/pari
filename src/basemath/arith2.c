@@ -404,13 +404,12 @@ divisors_init(GEN n, GEN *pP, GEN *pE)
 GEN
 divisors(GEN n)
 {
-  pari_sp av = avma;
   long i, j, l;
   ulong ndiv;
   GEN *d, *t, *t1, *t2, *t3, P, E, e;
   int isint = divisors_init(n, &P, &E);
 
-  l = lg(E); e = cgetg(l, t_VECSMALL);
+  l = lg(E); e = cgetg(l, t_VECSMALL); /* left on stack */
   for (i=1; i<l; i++) e[i] = E[i]+1;
   ndiv = itou_or_0( zv_prod_Z(e) );
   if (!ndiv || ndiv & ~LGBITS) pari_err_OVERFLOW("divisors");
@@ -421,14 +420,15 @@ divisors(GEN n)
     for (i=1; i<l; i++)
       for (t1=t,j=E[i]; j; j--,t1=t2)
         for (t2=d, t3=t1; t3<t2; ) *++d = mulii(*++t3, gel(P,i));
-    e = ZV_sort((GEN)t);
+    e = (GEN)t;
+    ZV_sort_inplace(e);
   } else {
     for (i=1; i<l; i++)
       for (t1=t,j=E[i]; j; j--,t1=t2)
         for (t2=d, t3=t1; t3<t2; ) *++d = gmul(*++t3, gel(P,i));
     e = (GEN)t;
   }
-  return gerepileupto(av, e);
+  return e;
 }
 
 GEN
