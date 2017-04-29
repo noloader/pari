@@ -106,6 +106,38 @@ forpari(GEN a, GEN b, GEN code)
 }
 
 void
+forfactored(GEN a, GEN b, GEN code)
+{
+  const long SHIFT = 10;
+  pari_sp av;
+  ulong ua, ub, i, k;
+  if (typ(a) != t_INT || signe(a) <= 0) pari_err_TYPE("forfactored", a);
+  if (typ(b) != t_INT || signe(b) <= 0) pari_err_TYPE("forfactored", b);
+  ua = itou(a);
+  ub = itou(b);
+  if (ua > ub) return;
+  push_lex(NULL,code);
+  av = avma;
+  k = (ub - ua) >> SHIFT;
+  for (i = 0; i <= k; i++)
+  {
+    ulong L = ua + (i << SHIFT);
+    GEN v = vecfactoru(L, (i == k)? ub: (L+(1UL<<SHIFT)-1));
+    ulong j, lv = lg(v);
+    pari_sp av2 = avma;
+    for (j = 1; j < lv; j++)
+    {
+      ulong n = L-1 + j;
+      set_lex(-1, mkvec2(utoipos(n), Flm_to_ZM(gel(v,j))));
+      closure_evalvoid(code); if (loop_break()) { i = k+1; break; }
+      avma = av2;
+    }
+    avma = av;
+  }
+  pop_lex(1);
+}
+
+void
 whilepari(GEN a, GEN b)
 {
   pari_sp av = avma;

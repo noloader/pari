@@ -189,6 +189,7 @@ BA   67- new GP functions hyperellratpoints and ellratpoints based on
      72- GP function divisorslenstra (divisors in residue classes)
      73- [libpari] lg_increase, vecfactoru, vecfactoru_i
 BA   74- ellheight for curves over number fields
+     75- new GP function forfactored
 
   Changed
       1- rewrite bnfnarrow

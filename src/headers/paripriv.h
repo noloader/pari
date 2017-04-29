@@ -60,6 +60,7 @@ GEN setloop(GEN a);
 const char * closure_func_err(void);
 
 GEN  iferrpari(GEN a, GEN b, GEN c);
+void forfactored(GEN a, GEN b, GEN code);
 void forpari(GEN a, GEN b, GEN node);
 void untilpari(GEN a, GEN b);
 void whilepari(GEN a, GEN b);
