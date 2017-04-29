@@ -1695,7 +1695,7 @@ match_and_sort(GEN compile_atkin, GEN Mu, GEN u, GEN q, void *E, const struct bb
   av2 = avma;
   for (i = 1; i < lgiant; i++, avma = av2)
     affii(Fp_mul(gel(giant,i), den, Mg), gel(giant,i));
-  gen_sort_inplace(giant, (void*)&cmpii, &cmp_nodata, NULL);
+  ZV_sort_inplace(giant);
   Sg = Fp_mul(negi(u), den, Mg);
   den = Fp_inv(Fp_mul(Mu, Mg, Mb), Mb);
   dec_inf = divii(mulii(Mb,addii(Mg,shifti(Sg,1))), shifti(Mg,1));
@@ -1708,7 +1708,7 @@ match_and_sort(GEN compile_atkin, GEN Mu, GEN u, GEN q, void *E, const struct bb
     if (cmpii(b, dec_inf) < 0) b = addii(b, Mb);
     affii(b, gel(baby,i));
   }
-  gen_sort_inplace(baby, (void*)&cmpii, &cmp_nodata, NULL);
+  ZV_sort_inplace(baby);
 
   SgMb = mulii(Sg, Mb);
   card = cgetg(lcard+1,t_VEC);

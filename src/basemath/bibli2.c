@@ -1615,6 +1615,8 @@ GEN
 ZV_sort(GEN L) { return gen_sort(L, (void*)&cmpii, &cmp_nodata); }
 GEN
 ZV_sort_uniq(GEN L) { return gen_sort_uniq(L, (void*)&cmpii, &cmp_nodata); }
+void
+ZV_sort_inplace(GEN L) { gen_sort_inplace(L, (void*)&cmpii, &cmp_nodata,NULL); }
 
 /********************************************************************/
 /**                      SEARCH IN SORTED VECTOR                   **/

@@ -190,6 +190,7 @@ BA   67- new GP functions hyperellratpoints and ellratpoints based on
      73- [libpari] lg_increase, vecfactoru, vecfactoru_i
 BA   74- ellheight for curves over number fields
      75- new GP function forfactored
+     76- [libpari] ZV_sort_inplace
 
   Changed
       1- rewrite bnfnarrow

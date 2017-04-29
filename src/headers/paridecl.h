@@ -2267,6 +2267,7 @@ GEN     Z_to_perm(long n, GEN x);
 GEN     ZV_indexsort(GEN L);
 long    ZV_search(GEN x, GEN y);
 GEN     ZV_sort(GEN L);
+void    ZV_sort_inplace(GEN L);
 GEN     ZV_sort_uniq(GEN L);
 GEN     ZV_union_shallow(GEN x, GEN y);
 GEN     binomial(GEN x, long k);
