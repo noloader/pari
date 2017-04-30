@@ -5089,22 +5089,12 @@ ellnf_D_primes(GEN E)
   return P;
 }
 
-/* assume E integral */
+/* convert vector of localreds to NF_MINIMALPRIMES */
 static GEN
-ellminimalprimes(GEN E)
+Q_to_minimalprimes(GEN nf, GEN P, GEN Q)
 {
-  GEN S, nf, c4, c6, P, L, Lr, Ls, Lt, U;
-  long l, k;
-
-  if ((S = obj_check(E, NF_MINIMALPRIMES))) return S;
-
-  nf = ellnf_get_nf(E);
-  c4 = nf_to_scalar_or_basis(nf, ell_get_c4(E));
-  c6 = nf_to_scalar_or_basis(nf, ell_get_c6(E));
-  if (typ(c4) == t_INT) c4 = NULL;
-  if (typ(c6) == t_INT) c6 = NULL;
-  P = nf_pV_to_prV(nf, ellnf_c4c6_primes(E));
-  l = lg(P);
+  GEN L, Lr, Ls, Lt, U;
+  long k, l = lg(P);
   Lr = vectrunc_init(l);
   Ls = vectrunc_init(l);
   Lt = vectrunc_init(l);
@@ -5112,12 +5102,8 @@ ellminimalprimes(GEN E)
   U = vectrunc_init(l); settyp(U,t_COL);
   for (k = 1; k < l; k++)
   {
-    GEN pr = gel(P, k), q, v, u;
+    GEN pr = gel(P, k), q = gel(Q, k), v, u;
     long vu;
-    if (c4 && !ZC_prdvd(c4,pr)) continue;
-    if (c6 && !ZC_prdvd(c6,pr)) continue;
-    /* pr | (c4,c6) */
-    q = nflocalred(E, pr);
     v = gel(q,3);
     u = gel(v,1);
     vu = nfval(nf, u, pr);
@@ -5128,21 +5114,52 @@ ellminimalprimes(GEN E)
     vectrunc_append(L, pr);
     vectrunc_append(U, stoi(vu));
   }
-  return obj_insert(E, NF_MINIMALPRIMES, mkvec5(L, U, Lr, Ls, Lt));
+  return mkvec5(L, U, Lr, Ls, Lt);
 }
 static GEN
-ellminimalnormu(GEN E)
+ellminimalprimes(GEN E0)
 {
-  GEN v, S = ellminimalprimes(ellintegralmodel_i(E, &v));
-  long i, l;
-  GEN Nu, L = gel(S,1), U = gel(S,2), P = cgetg_copy(L, &l);
-  for (i = 1; i < l; i++) gel(P,i) = pr_norm(gel(L,i));
-  Nu = factorback2(P, U);
-  if (v) Nu = gmul(Nu, idealnorm(ellnf_get_nf(E), gel(v,1)));
-  return Nu;
+  GEN E, S, nf, c4, c6, P, Q;
+  long j, k, l;
+
+  if ((S = obj_check(E0, NF_MINIMALPRIMES))) return S;
+  E = ellintegralmodel_i(E0, NULL);
+  nf = ellnf_get_nf(E);
+  c4 = nf_to_scalar_or_basis(nf, ell_get_c4(E));
+  c6 = nf_to_scalar_or_basis(nf, ell_get_c6(E));
+  if (typ(c4) == t_INT) c4 = NULL;
+  if (typ(c6) == t_INT) c6 = NULL;
+  P = nf_pV_to_prV(nf, ellnf_c4c6_primes(E));
+  Q = cgetg_copy(P, &l);
+  for (k = j = 1; k < l; k++)
+  {
+    GEN pr = gel(P, k);
+    if (c4 && !ZC_prdvd(c4,pr)) continue;
+    if (c6 && !ZC_prdvd(c6,pr)) continue;
+    gel(Q,j) = nflocalred(E, pr); /* pr | (c4,c6) */
+    gel(P,j++) = pr;
+  }
+  setlg(P,j); setlg(Q,j);
+  return obj_insert(E0, NF_MINIMALPRIMES, Q_to_minimalprimes(nf,P,Q));
 }
-/* return change of variable to miminal model (t_VEC) or (non-trivial)
- * Weierstrass class (t_COL), set DP = primes where the
+static GEN
+ellminimalnormu(GEN E0)
+{
+  GEN E, S, L, U, P, v, Nu = NULL, nf = ellnf_get_nf(E0);
+  long i, l;
+  E = ellintegralmodel_i(E0, &v);
+  S = ellminimalprimes(E);
+  L = gel(S,1);
+  U = gel(S,2);
+  if (v) Nu = idealnorm(nf, gel(v,1));
+  P = cgetg_copy(L, &l);
+  for (i = 1; i < l; i++) gel(P,i) = pr_norm(gel(L,i));
+  P = factorback2(P, U);
+  if (Nu) P = gmul(Nu, P);
+  return P;
+}
+/* E integral model; return change of variable to miminal model (t_VEC)
+ * or (non-trivial) Weierstrass class (t_COL), set DP = primes where the
  * model is not locally minimal */
 static GEN
 bnf_get_v(GEN E)
@@ -5181,9 +5198,11 @@ ellminimaldisc(GEN E)
     case t_ELL_NF:
     {
       GEN nf = ellnf_get_nf(E);
-      GEN S = ellminimalprimes(ellintegralmodel_i(E, NULL));
-      S = idealfactorback(nf, gel(S,1), ZC_z_mul(gel(S,2), 12), 0);
-      return gerepileupto(av, idealdiv(nf, ell_get_disc(E), S));
+      GEN S = ellminimalprimes(E), L, U, D;
+      L = gel(S,1);
+      U = ZC_z_mul(gel(S,2), 12);
+      D = idealfactorback(nf, L, U, 0);
+      return gerepileupto(av, idealdiv(nf, ell_get_disc(E), D));
     }
     default: pari_err_TYPE("ellminimaldisc (E / number field)", E);
              return NULL; /*LCOV_EXCL_LINE*/
@@ -5359,41 +5378,52 @@ ellglobalred_i(GEN E)
 { return obj_checkbuild(E, Q_GLOBALRED, &ellQ_globalred); }
 
 static GEN
-ellnfglobalred(GEN E)
+Q_to_globalred(GEN nf, GEN P, GEN Q, GEN v)
 {
-  GEN c, L, P, NP, NE, D, nf, v;
-  long k, lP, iN;
+  GEN c, L, NP, NE;
+  long j, k, l = lg(P);
+  c = gen_1;
+  NP = cgetg(l, t_COL);
+  NE = cgetg(l, t_COL);
+  L = cgetg(l, t_VEC);
+  for (k = j = 1; k < l; k++)
+  {
+    GEN p = gel(P,k), q = gel(Q,k), ex;
+    ex = gel(q,1);
+    if (!signe(ex)) continue;
+    gel(NP, j) = p;
+    gel(NE, j) = ex;
+    gel(L, j) = q; j++;
+    c = mulii(c, gel(q,4));
+  }
+  setlg(L, j); setlg(NP, j); setlg(NE, j);
+  return mkvec5(idealfactorback(nf,NP,NE,0), v, c, mkmat2(NP,NE), L);
+}
 
-  E = ellintegralmodel_i(E, &v);
+static GEN
+ellnfglobalred(GEN E0)
+{
+  GEN E, P, Q, D, nf, v;
+  long j, k, l;
+
+  E = ellintegralmodel_i(E0, &v);
   if (!v) v = init_ch();
   nf = ellnf_get_nf(E);
   P = nf_pV_to_prV(nf, ellnf_D_primes(E));
-  lP = lg(P);
   D = nf_to_scalar_or_basis(nf, ell_get_disc(E));
   if (typ(D) == t_INT) D = NULL;
-
-  c = gen_1;
-  iN = 1;
-  NP = cgetg(lP, t_COL);
-  NE = cgetg(lP, t_COL);
-  L = cgetg(lP, t_VEC);
-  for (k = 1; k < lP; k++)
+  Q = cgetg_copy(P, &l);
+  for (k = j = 1; k < l; k++)
   {
-    GEN p = gel(P,k), q, ex;
+    GEN p = gel(P,k);
     if (D && !ZC_prdvd(D, p)) continue;
-
-    q = nflocalred(E, p),
-    ex = gel(q,1);
-    if (!signe(ex)) continue;
-    gel(NP, iN) = p;
-    gel(NE, iN) = ex;
-    gel(L, iN) = q; iN++;
-    c = mulii(c, gel(q,4));
+    gel(Q,j) = nflocalred(E, p);
+    gel(P,j++) = p;
   }
-  setlg(L, iN);
-  setlg(NP, iN);
-  setlg(NE, iN);
-  return mkvec5(idealfactorback(nf,NP,NE,0), v, c, mkmat2(NP,NE), L);
+  setlg(P,j); setlg(Q,j);
+  if (!obj_check(E0, NF_MINIMALPRIMES))
+    (void)obj_insert(E0, NF_MINIMALPRIMES, Q_to_minimalprimes(nf,P,Q));
+  return Q_to_globalred(nf,P,Q,v);
 }
 
 GEN
@@ -5566,15 +5596,20 @@ ellnf_bsdperiod(GEN E, long prec)
   ellnfembed_free(Eb);
   return gerepileuptoleaf(av, per);
 }
+static GEN
+ellnf_adelicvolume(GEN E, long prec)
+{
+  GEN t = ellnf_tamagawa(E);
+  return gmul(t, ellnf_bsdperiod(E, prec));
+}
 
 static GEN
 ellnf_bsd(GEN E, long prec)
 {
-  GEN per = ellnf_bsdperiod(E, prec);
-  GEN tam = ellnf_tamagawa(E);
+  GEN v = ellnf_adelicvolume(E, prec);
   GEN tor = gel(elltors(E),1);
   GEN D = itor(nf_get_disc(ellnf_get_nf(E)), prec);
-  return divrr(divri(mulri(per, tam), sqri(tor)), sqrtr_abs(D));
+  return divrr(divri(v, sqri(tor)), sqrtr_abs(D));
 }
 
 static GEN
@@ -5988,10 +6023,6 @@ ellrnfup(GEN rnf, GEN E, long prec)
 }
 
 static GEN
-ellnfadelicvolume(GEN E, long prec)
-{ return gmul(ellnf_tamagawa(E),ellnf_bsdperiod(E, prec)); }
-
-static GEN
 ellnf2isog(GEN E, GEN z)
 {
   long v = fetch_var_higher();
@@ -6002,14 +6033,14 @@ ellnf2isog(GEN E, GEN z)
 }
 
 static GEN
-ellnfreladelicvolume(GEN E, GEN P, GEN z, long prec)
+ellnf_reladelicvolume(GEN E, GEN P, GEN z, long prec)
 {
   pari_sp av = avma;
   GEN nf = ellnf_get_nf(E);
   GEN rnf = rnfinit0(nf, P, 1);
   GEN Et = ellrnfup(rnf, E, prec);
   GEN E2 = ellnf2isog(Et, rnfeltreltoabs(rnf, z));
-  GEN c1 = ellnfadelicvolume(Et, prec), c2 = ellnfadelicvolume(E2, prec);
+  GEN c1 = ellnf_adelicvolume(Et, prec), c2 = ellnf_adelicvolume(E2, prec);
   obj_free(rnf); obj_free(E2);
   return gerepilecopy(av, mkvec2(c1,c2));
 }
@@ -6031,26 +6062,26 @@ ellnf_rootno_global(GEN E)
   if (lg(F)>1)
   {
     GEN Et = ellnf2isog(E, gel(F,1));
-    GEN cK = ellnfadelicvolume(E, prec), cKt = ellnfadelicvolume(Et, prec);
+    GEN cK = ellnf_adelicvolume(E, prec), cKt = ellnf_adelicvolume(Et, prec);
     obj_free(Et);
     v = rootnovalp(divrr(cK,cKt), 2, prec);
   } else
   {
     GEN D = deg2pol_shallow(gen_1, gen_0, gneg(ell_get_disc(E)), 0);
     GEN P = RgX_divs(RgX_rescale(ec_bmodel(E), utoi(4)), 4);
-    GEN c = ellnfreladelicvolume(E, P, gmul2n(pol_x(0),-2), prec);
+    GEN c = ellnf_reladelicvolume(E, P, gmul2n(pol_x(0),-2), prec);
     GEN cL = gel(c,1), cLt = gel(c,2);
     GEN F = nfroots(nf, D);
     if (lg(F)>1)
       v = rootnovalp(divrr(cL,cLt), 2, prec);
     else
     {
-      GEN cK = ellnfadelicvolume(E, prec);
+      GEN cK = ellnf_adelicvolume(E, prec);
       GEN cp = nfcompositum(nf, P, D, 3);
-      GEN cc = ellnfreladelicvolume(E, gel(cp,1), gmul2n(gel(cp,2),-2), prec);
+      GEN cc = ellnf_reladelicvolume(E, gel(cp,1), gmul2n(gel(cp,2),-2), prec);
       GEN cF = gel(cc,1), cFt = gel(cc,2);
       GEN rnf = rnfinit0(nf,D,1);
-      GEN cKv = ellnfadelicvolume(ellrnfup(rnf, E, prec), prec);
+      GEN cKv = ellnf_adelicvolume(ellrnfup(rnf, E, prec), prec);
       long v2 = rootnovalp(divrr(gmul(cL,cF),gmul(cLt,cFt)), 2, prec);
       long v3 = rootnovalp(divrr(gmul(cF,gsqr(cK)),gmul(cKv,gsqr(cL))), 3, prec);
       obj_free(rnf);
