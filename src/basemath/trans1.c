@@ -450,7 +450,8 @@ gpowg0(GEN x)
     case t_INTMOD:
       y = cgetg(3,t_INTMOD);
       gel(y,1) = icopy(gel(x,1));
-      gel(y,2) = gen_1; return y;
+      gel(y,2) = is_pm1(gel(x,1))? gen_0: gen_1;
+      return y;
 
     case t_FFELT: return FF_1(x);
 

@@ -4,6 +4,8 @@ default(realprecision,38);
 (1/x)^0
 [;]^0
 Mat(2)^0
+Mod(0,1)^0
+Mod(2,3)^0
 Qfb(2,0,-1)^0
 Qfb(2,0,-1)^1
 Vecsmall([3,2,1])^0
