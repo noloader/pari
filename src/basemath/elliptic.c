@@ -6041,7 +6041,7 @@ ellnf_reladelicvolume(GEN E, GEN P, GEN z, long prec)
   GEN Et = ellrnfup(rnf, E, prec);
   GEN E2 = ellnf2isog(Et, rnfeltreltoabs(rnf, z));
   GEN c1 = ellnf_adelicvolume(Et, prec), c2 = ellnf_adelicvolume(E2, prec);
-  obj_free(rnf); obj_free(E2);
+  obj_free(rnf); obj_free(Et); obj_free(E2);
   return gerepilecopy(av, mkvec2(c1,c2));
 }
 
@@ -6081,10 +6081,11 @@ ellnf_rootno_global(GEN E)
       GEN cc = ellnf_reladelicvolume(E, gel(cp,1), gmul2n(gel(cp,2),-2), prec);
       GEN cF = gel(cc,1), cFt = gel(cc,2);
       GEN rnf = rnfinit0(nf,D,1);
-      GEN cKv = ellnf_adelicvolume(ellrnfup(rnf, E, prec), prec);
+      GEN Et = ellrnfup(rnf, E, prec);
+      GEN cKv = ellnf_adelicvolume(Et, prec);
       long v2 = rootnovalp(divrr(gmul(cL,cF),gmul(cLt,cFt)), 2, prec);
       long v3 = rootnovalp(divrr(gmul(cF,gsqr(cK)),gmul(cKv,gsqr(cL))), 3, prec);
-      obj_free(rnf);
+      obj_free(rnf); obj_free(Et);
       v = odd(v2+v3);
     }
   }
