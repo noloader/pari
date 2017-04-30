@@ -481,17 +481,23 @@ core2partial(GEN n, long all)
   if (typ(n) != t_INT) pari_err_TYPE("core2partial",n);
   return gerepilecopy(av, core2fa(Z_factor_limit(n,all)));
 }
+/* given an arithmetic function argument, return the underlying integer */
+static GEN
+arith_n(GEN A)
+{
+  switch(typ(A))
+  {
+    case t_INT: return A;
+    case t_VEC: return gel(A,1);
+    default: return factorback(A);
+  }
+}
 static GEN
 core2_i(GEN n)
 {
   GEN f = core(n);
   if (!signe(f)) return mkvec2(gen_0, gen_1);
-  switch(typ(n))
-  {
-    case t_VEC: n = gel(n,1); break;
-    case t_MAT: n = factorback(n); break;
-  }
-  return mkvec2(f, sqrtint(diviiexact(n, f)));
+  return mkvec2(f, sqrtint(diviiexact(arith_n(n), f)));
 }
 GEN
 core2(GEN n) { pari_sp av = avma; return gerepilecopy(av, core2_i(n)); }
@@ -637,7 +643,7 @@ eulerphi(GEN n)
   if ((F = check_arith_all(n,"eulerphi")))
   {
     F = clean_Z_factor(F);
-    n = (typ(n) == t_VEC)? gel(n,1): factorback(F);
+    n = arith_n(n);
     if (lgefint(n) == 3)
     {
       ulong e;
@@ -757,29 +763,33 @@ GEN
 sumdivk(GEN n, long k)
 {
   pari_sp av = avma;
-  GEN F, v;
+  GEN F, v, s;
   long k1;
 
   if (!k) return numdiv(n);
   if (k == 1) return sumdiv(n);
-  if (k ==-1) return gerepileupto(av, gdiv(sumdiv(n), n));
-  k1 = k;
-  if (k < 0)  k = -k;
-  if ((F = check_arith_non0(n,"sumdivk")))
-  {
-    F = clean_Z_factor(F);
-    v = sumdivk_aux(F,k);
-  }
-  else if (lgefint(n) == 3)
-  {
-    if (n[2] == 1) return gen_1;
-    F = factoru(n[2]);
-    v = usumdivk_fact(F,k);
-  }
+  if ((F = check_arith_non0(n,"sumdivk"))) F = clean_Z_factor(F);
+  k1 = k; if (k < 0)  k = -k;
+  if (k == 1)
+    v = sumdiv(F? F: n);
   else
-    v = sumdivk_aux(absZ_factor(n), k);
-  if (k1 > 0) return gerepileuptoint(av, v);
-  return gerepileupto(av, gdiv(v, powiu(n,k)));
+  {
+    if (F)
+      v = sumdivk_aux(F,k);
+    else if (lgefint(n) == 3)
+    {
+      if (n[2] == 1) return gen_1;
+      F = factoru(n[2]);
+      v = usumdivk_fact(F,k);
+    }
+    else
+      v = sumdivk_aux(absZ_factor(n), k);
+    if (k1 > 0) return gerepileuptoint(av, v);
+  }
+
+  if (F) n = arith_n(n);
+  if (k != 1) n = powiu(n,k);
+  return gerepileupto(av, gdiv(v, n));
 }
 
 GEN

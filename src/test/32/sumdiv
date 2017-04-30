@@ -17,6 +17,7 @@
 15334088
 20993420690550
 57335533287534038504
+273823/64800
 1
 error("domain error in moebius: argument = 0")
 0
@@ -26,6 +27,7 @@ error("domain error in bigomega: argument = 0")
 2
 error("domain error in numdiv: argument = 0")
 error("domain error in sumdiv: argument = 0")
+error("domain error in sumdivk: argument = 0")
 error("domain error in sumdivk: argument = 0")
 error("domain error in sumdivk: argument = 0")
 1
@@ -39,6 +41,7 @@ error("incorrect type in numdiv (t_MAT).")
 error("incorrect type in sumdiv (t_MAT).")
 error("incorrect type in sumdivk (t_MAT).")
 error("incorrect type in sumdivk (t_MAT).")
+error("incorrect type in sumdivk (t_MAT).")
 0
 -1
 -2
@@ -50,6 +53,7 @@ error("incorrect type in sumdivk (t_MAT).")
 3
 5
 9
+-3/2
 0
 -1
 -2
@@ -61,12 +65,14 @@ error("incorrect type in sumdivk (t_MAT).")
 3
 5
 9
+-3/2
 1
 1
 1
 [1, 1]
 0
 0
+1
 1
 1
 1

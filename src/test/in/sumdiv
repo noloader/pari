@@ -10,8 +10,9 @@ sumdivmult(fa, d, d^2)
 
 sigma2(x) = sigma(x,2);
 sigma3(x) = sigma(x,3);
+sigma_1(x) = sigma(x,-1);
 core2(x) = core(x,1);
-fun = [ispowerful, moebius, core, core2, omega, bigomega, eulerphi, numdiv, sigma, sigma2, sigma3];
+fun = [ispowerful, moebius, core, core2, omega, bigomega, eulerphi, numdiv, sigma, sigma2, sigma3, sigma_1];
 for(i=1,#fun, print(fun[i](fa)))
 v = concat([-50..-1], [1..50]);
 fav = apply(factor, v);
