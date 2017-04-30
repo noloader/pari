@@ -137,10 +137,8 @@ reduction at $p$), and that \kbd{CM} is as given by \tet{ellQ_get_CM},
 return the trace of Frobenius for $E/\F_p$. This is meant to quickly compute
 lots of $a_p$, esp.~when $e$ has CM by a principal quadratic order.
 
-\fun{long}{ellrootno_global}{GEN e} returns $[c, [c_{p_1}, \dots,c_{p_k}]]$,
-where the \typ{INT} $c\in \{-1,1\}$ is the global root number, and the
-$c_{p_i}$ are the local root numbers at all prime divisors of the conductor,
-ordered as in \kbd{faN} above.
+\fun{long}{ellrootno_global}{GEN e} returns the global root number
+$c\in \{-1,1\}$.
 
 \fun{GEN}{ellheightoo}{GEN E, GEN P, long prec} given $P = [x,y]$ an affine
 point on $E$, return
