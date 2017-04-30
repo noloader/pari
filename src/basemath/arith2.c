@@ -763,7 +763,7 @@ GEN
 sumdivk(GEN n, long k)
 {
   pari_sp av = avma;
-  GEN F, v, s;
+  GEN F, v;
   long k1;
 
   if (!k) return numdiv(n);
