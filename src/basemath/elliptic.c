@@ -5552,7 +5552,7 @@ ellnf_vecomega(GEN E, long prec)
 { return ellnf_vec_wrap(&ellR_omega, E, prec); }
 
 static GEN
-ellnfbsdperiod(GEN E, long prec)
+ellnf_bsdperiod(GEN E, long prec)
 {
   pari_sp av = avma;
   GEN Eb = ellnfembed(E, prec), per = gtofp(ellminimalnormu(E), prec);
@@ -5564,13 +5564,13 @@ ellnfbsdperiod(GEN E, long prec)
     per = mulrr(per, pi);
   }
   ellnfembed_free(Eb);
-  return gerepileupto(av, per);
+  return gerepileuptoleaf(av, per);
 }
 
 static GEN
 ellnf_bsd(GEN E, long prec)
 {
-  GEN per = ellnfbsdperiod(E, prec);
+  GEN per = ellnf_bsdperiod(E, prec);
   GEN tam = ellnf_tamagawa(E);
   GEN tor = gel(elltors(E),1);
   GEN D = itor(nf_get_disc(ellnf_get_nf(E)), prec);
@@ -5989,7 +5989,7 @@ ellrnfup(GEN rnf, GEN E, long prec)
 
 static GEN
 ellnfadelicvolume(GEN E, long prec)
-{ return gmul(elltamagawa(E),ellnfbsdperiod(E, prec)); }
+{ return gmul(ellnf_tamagawa(E),ellnf_bsdperiod(E, prec)); }
 
 static GEN
 ellnf2isog(GEN E, GEN z)
