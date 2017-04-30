@@ -11,7 +11,7 @@ Doc: evaluates \var{seq}, where
  loop will not stop; it is expected that the caller will break out of the
  loop itself at some point, using \kbd{break} or \kbd{return}.
 
- This function is only implemented for $b < 2^{64}$ ($2^{32} on a 32-bit
+ This function is only implemented for $b < 2^{64}$ ($2^{32}$ on a 32-bit
  machine). It uses a sieve and runs in time $O(\sqrt{b} + b-a)$. It should
  be at least 3 times faster than regular factorization as long as the interval
  length $b-a$ is much larger than $\sqrt{b}$ and get relatively faster as
