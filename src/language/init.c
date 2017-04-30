@@ -810,13 +810,17 @@ paristack_newrsize(ulong newsize)
 void
 paristack_resize(ulong newsize)
 {
+  long size = pari_mainstack->size;
   if (!newsize)
-    newsize = 2 * pari_mainstack->size;
+    newsize = 2 * size;
   newsize = minuu(newsize, pari_mainstack->vsize);
   if (newsize <= pari_mainstack->size) return;
   if (pari_mainstack_setsize(pari_mainstack, newsize))
-  {
     pari_warn(warner, "increasing stack size to %lu", pari_mainstack->size);
+  else
+  {
+    pari_mainstack_setsize(pari_mainstack, size);
+    pari_err(e_STACK);
   }
 }
 
@@ -833,26 +837,10 @@ parivstack_reset(void)
 void
 new_chunk_resize(size_t x)
 {
-  ulong size, newsize, avail;
-  avail = (avma - pari_mainstack->bot) / sizeof(long);
-  if (avail >= x) return;
-
-  /* We need to enlarge the stack. We try to at least double the
-   * stack, to avoid increasing the stack a lot of times by a small
-   * amount. */
-  size = pari_mainstack->size;
-  newsize = size + maxuu((x - avail) * sizeof(long), size);
-  paristack_resize(newsize);
-
-  /* Verify that we have enough space. Using a division here instead
-   * of a multiplication is safe against overflow. */
-  avail = (avma - pari_mainstack->bot) / sizeof(long);
-  if (avail < x)
-  {
-    /* Restore old size and error out */
-    pari_mainstack_setsize(pari_mainstack, size);
-    pari_err(e_STACK);
-  }
+  if (pari_mainstack->vsize==0
+    || x > (avma-pari_mainstack->vbot) / sizeof(long)) pari_err(e_STACK);
+  while (x > (avma-pari_mainstack->bot) / sizeof(long))
+    paristack_resize(0);
 }
 
 /*********************************************************************/
