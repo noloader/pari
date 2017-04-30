@@ -972,6 +972,135 @@ ellchangeinvert(GEN w)
   return mkvec4(U,R,S,T);
 }
 
+static GEN
+ell_to_nfell10(GEN nf, GEN e)
+{
+  long i;
+  GEN y = cgetg(11,t_VEC);
+  for(i=1; i<=10; i++)
+    gel(y, i) = nf_to_scalar_or_basis(nf, gel(e, i));
+  return y;
+}
+
+/* apply [u^(-1),0,0,0] */
+static GEN
+nf_coordch_uinv(GEN nf, GEN e, GEN u)
+{
+  GEN y, u2, u3, u4, u6, u8;
+  long lx;
+  if (gequal1(u)) return e;
+  y = cgetg_copy(e, &lx);
+  u2 = nfsqr(nf,u); u3 = nfmul(nf,u,u2); u4 = nfsqr(nf,u2);
+  u6 = nfsqr(nf,u3); u8 = nfsqr(nf,u4);
+  gel(y,1) = nfmul(nf,ell_get_a1(e),  u);
+  gel(y,2) = nfmul(nf,ell_get_a2(e), u2);
+  gel(y,3) = nfmul(nf,ell_get_a3(e), u3);
+  gel(y,4) = nfmul(nf,ell_get_a4(e), u4);
+  gel(y,5) = nfmul(nf,ell_get_a6(e), u6);
+  if (lx == 6) return y;
+  gel(y,6) = nfmul(nf,ell_get_b2(e), u2);
+  gel(y,7) = nfmul(nf,ell_get_b4(e), u4);
+  gel(y,8) = nfmul(nf,ell_get_b6(e), u6);
+  gel(y,9) = nfmul(nf,ell_get_b8(e), u8);
+  return y;
+}
+/* apply [1,r,0,0] */
+static GEN
+nf_coordch_r(GEN nf, GEN e, GEN r)
+{
+  GEN a2, a4, b4, b6, y, p1, r2, b2r, rx3;
+  if (gequal0(r)) return e;
+  y = leafcopy(e);
+  a2 = ell_get_a2(e); a4 = ell_get_a4(e);
+  rx3 = gmulsg(3,r);
+
+  /* A2 = a2 + 3r */
+  gel(y,2) = nfadd(nf,a2,rx3);
+  /* A3 = a1 r + a3 */
+  gel(y,3) = nfadd(nf,ell_get_a3(e), nfmul(nf,ell_get_a1(e),r));
+  /* A4 = 3r^2 + 2a2 r + a4 */
+  gel(y,4) = nfadd(nf,a4, nfmul(nf,r,nfadd(nf,gmul2n(a2,1),rx3)));
+  /* A6 = r^3 + a2 r^2 + a4 r + a6 */
+  gel(y,5) = nfadd(nf,ell_get_a6(e),nfmul(nf,r,nfadd(nf, a4, nfmul(nf,r,nfadd(nf,a2, r)))));
+
+  b4 = ell_get_b4(e);
+  b6 = ell_get_b6(e);
+  /* B2 = 12r + b2 */
+  gel(y,6) = nfadd(nf,ell_get_b2(e),gmul2n(rx3,2));
+  b2r = nfmul(nf,r, ell_get_b2(e));
+  r2 = nfsqr(nf,r);
+  /* B4 = 6r^2 + b2 r + b4 */
+  gel(y,7) = nfadd(nf,b4,nfadd(nf,b2r, gmulsg(6,r2)));
+  /* B6 = 4r^3 + 2b2 r^2 + 2b4 r + b6 */
+  gel(y,8) = nfadd(nf,b6,nfmul(nf,r,nfadd(nf,gmul2n(b4,1), nfadd(nf,b2r,gmul2n(r2,2)))));
+  /* B8 = 3r^4 + b2 r^3 + 3b4 r^2 + 3b6 r + b8 */
+  p1 = nfadd(nf,gmulsg(3,b4),nfadd(nf,b2r, gmulsg(3,r2)));
+  gel(y,9) = nfadd(nf,ell_get_b8(e), nfmul(nf,r,nfadd(nf,gmulsg(3,b6), nfmul(nf,r,p1))));
+  return y;
+}
+
+static GEN
+nf_coordch_s(GEN nf, GEN e, GEN s)
+{
+  GEN a1, y;
+  if (gequal0(s)) return e;
+  a1 = ell_get_a1(e);
+  y = leafcopy(e);
+
+  /* A1 = a1 + 2s */
+  gel(y,1) = nfadd(nf,a1,gmul2n(s,1));
+  /* A2 = a2 - (a1 s + s^2) */
+  gel(y,2) = nfsub(nf,ell_get_a2(e),nfmul(nf,s,nfadd(nf,a1,s)));
+  /* A4 = a4 - s a3 */
+  gel(y,4) = nfsub(nf,ell_get_a4(e),nfmul(nf,s,ell_get_a3(e)));
+  return y;
+}
+/* apply [1,0,0,t] */
+static GEN
+nf_coordch_t(GEN nf, GEN e, GEN t)
+{
+  GEN a1, a3, y;
+  if (gequal0(t)) return e;
+  a1 = ell_get_a1(e); a3 = ell_get_a3(e);
+  y = leafcopy(e);
+  /* A3 = 2t + a3 */
+  gel(y,3) = nfadd(nf,a3, gmul2n(t,1));
+  /* A4 = a4 - a1 t */
+  gel(y,4) = nfsub(nf,ell_get_a4(e), nfmul(nf,t,a1));
+  /* A6 = a6 - t(t + a3) */
+  gel(y,5) = nfsub(nf,ell_get_a6(e), nfmul(nf,t,nfadd(nf,t, a3)));
+  return y;
+}
+
+/* apply [1,0,s,t] */
+static GEN
+nf_coordch_st(GEN nf, GEN e, GEN s, GEN t)
+{
+  GEN y, a1, a3;
+  if (gequal0(s)) return nf_coordch_t(nf, e, t);
+  if (gequal0(t)) return nf_coordch_s(nf, e, s);
+  a1 = ell_get_a1(e); a3 = ell_get_a3(e);
+  y = leafcopy(e);
+  /* A1 = a1 + 2s */
+  gel(y,1) = nfadd(nf,a1,gmul2n(s,1));
+  /* A2 = a2 - (a1 s + s^2) */
+  gel(y,2) = nfsub(nf,ell_get_a2(e),nfmul(nf,s,nfadd(nf,a1,s)));
+  /* A3 = 2t + a3 */
+  gel(y,3) = nfadd(nf,a3,gmul2n(t,1));
+  /* A4 = a4 - (a1 t + s (2t + a3)) */
+  gel(y,4) = nfsub(nf,ell_get_a4(e),nfadd(nf,nfmul(nf,t,a1),nfmul(nf,s,gel(y,3))));
+  /* A6 = a6 - t(t + a3) */
+  gel(y,5) = nfsub(nf,ell_get_a6(e), nfmul(nf,t,nfadd(nf,t, a3)));
+  return y;
+}
+
+static GEN
+nf_coordch_rt(GEN nf, GEN e, GEN r, GEN t)
+{
+  e = nf_coordch_r(nf, e, r);
+  return nf_coordch_t(nf, e, t);
+}
+
 /* apply [u^(-1),0,0,0] */
 static GEN
 coordch_uinv(GEN e, GEN u)
@@ -1095,13 +1224,6 @@ coordch_st(GEN e, GEN s, GEN t)
   /* A6 = a6 - t(t + a3) */
   gel(y,5) = gsub(ell_get_a6(e), gmul(t,gadd(t, a3)));
   return y;
-}
-/* apply [1,r,0,t] */
-static GEN
-coordch_rt(GEN e, GEN r, GEN t)
-{
-  e = coordch_r(e, r);
-  return coordch_t(e, t);
 }
 /* apply [1,r,s,t] */
 static GEN
@@ -1275,69 +1397,70 @@ ellchangecurve(GEN e, GEN w)
 
 /* v o= [1,r,0,0] */
 static void
-E_gcompose_r(GEN *vtotal, GEN *e, GEN r)
+nf_compose_r(GEN nf, GEN *vtotal, GEN *e, GEN r)
 {
   GEN v = *vtotal;
   GEN U2, R, S, T;
   if (gequal0(r)) return;
-  *e = coordch_r(*e,r);
-  U2 = gsqr(gel(v,1)); R = gel(v,2); S = gel(v, 3); T = gel(v, 4);
-  gel(v,2) = gadd(R, gmul(U2, r));
-  gel(v,4) = gadd(T, gmul(U2, gmul(S, r)));
+  *e = nf_coordch_r(nf, *e,r);
+  U2 = nfsqr(nf,gel(v,1)); R = gel(v,2); S = gel(v, 3); T = gel(v, 4);
+  gel(v,2) = nfadd(nf,R, nfmul(nf,U2, r));
+  gel(v,4) = nfadd(nf,T, nfmul(nf,U2, nfmul(nf,S, r)));
 }
 /* v o= [1,0,s,0]; never used for s = 0 */
 static void
-E_gcompose_s(GEN *vtotal, GEN *e, GEN s)
+nf_compose_s(GEN nf, GEN *vtotal, GEN *e, GEN s)
 {
   GEN v = *vtotal;
   GEN U, S;
-  *e = coordch_s(*e,s);
+  *e = nf_coordch_s(nf,*e,s);
   U = gel(v,1); S = gel(v,3);
-  gel(v,3) = gadd(S, gmul(U, s));
+  gel(v,3) = nfadd(nf, S, nfmul(nf, U, s));
 }
 /* v o= [1,0,0,t] */
 static void
-E_gcompose_t(GEN *vtotal, GEN *e, GEN t)
+nf_compose_t(GEN nf ,GEN *vtotal, GEN *e, GEN t)
 {
   GEN v = *vtotal;
   GEN U3, U, T;
   if (gequal0(t)) return;
-  *e = coordch_t(*e,t);
-  U = gel(v,1); U3 = gmul(U, gsqr(U)); T = gel(v,4);
-  gel(v,4) = gadd(T, gmul(U3, t));
+  *e = nf_coordch_t(nf,*e,t);
+  U = gel(v,1); U3 = nfmul(nf,U, nfsqr(nf,U)); T = gel(v,4);
+  gel(v,4) = nfadd(nf,T, nfmul(nf,U3, t));
 }
 /* v o= [1,r,0,t] */
 static void
-E_gcompose_rt(GEN *vtotal, GEN *e, GEN r, GEN t)
+nf_compose_rt(GEN nf, GEN *vtotal, GEN *e, GEN r, GEN t)
 {
   GEN v = *vtotal;
   GEN U2, U, R, S, T;
-  if (gequal0(t)) { E_gcompose_r(vtotal, e, r); return; }
-  *e = coordch_rt(*e,r,t);
+  if (gequal0(t)) { nf_compose_r(nf, vtotal, e, r); return; }
+  *e = nf_coordch_rt(nf,*e,r,t);
   U = gel(v,1); R = gel(v,2); S = gel(v,3); T = gel(v,4);
-  U2 = gsqr(U);
-  gel(v,2) = gadd(R, gmul(U2, r));
-  gel(v,4) = gadd(T, gmul(U2, gadd(gmul(U, t), gmul(S, r))));
+  U2 = nfsqr(nf,U);
+  gel(v,2) = nfadd(nf,R, nfmul(nf,U2, r));
+  gel(v,4) = nfadd(nf,T, nfmul(nf,U2, nfadd(nf,nfmul(nf,U, t), nfmul(nf,S, r))));
 }
 /* v o= [1,0,s,t] */
 static void
-E_gcompose_st(GEN *vtotal, GEN *e, GEN s, GEN t)
+nf_compose_st(GEN nf, GEN *vtotal, GEN *e, GEN s, GEN t)
 {
   GEN v = *vtotal;
   GEN U3, U, S, T;
-  if (gequal0(s)) { E_gcompose_t(vtotal, e, t); return; }
-  if (gequal0(t)) { E_gcompose_s(vtotal, e, s); return; }
-  *e = coordch_st(*e,s,t);
-  U = gel(v,1); U3 = gmul(U,gsqr(U)); S = gel(v,3); T = gel(v,4);
-  gel(v,3) = gadd(S, gmul(U, s));
-  gel(v,4) = gadd(T, gmul(U3, t));
+  if (gequal0(s)) { nf_compose_t(nf, vtotal, e, t); return; }
+  if (gequal0(t)) { nf_compose_s(nf, vtotal, e, s); return; }
+  *e = nf_coordch_st(nf, *e,s,t);
+  U = gel(v,1); U3 = nfmul(nf,U,nfsqr(nf,U)); S = gel(v,3); T = gel(v,4);
+  gel(v,3) = nfadd(nf, S, nfmul(nf,U, s));
+  gel(v,4) = nfadd(nf, T, nfmul(nf,U3, t));
 }
+
 /* v o= [u,0,0,0] */
 static void
-E_gcompose_u(GEN *vtotal, GEN *e, GEN u, GEN uinv)
+nf_compose_u(GEN nf, GEN *vtotal, GEN *e, GEN u, GEN uinv)
 {
   GEN v = *vtotal;
-  *e = coordch_uinv(*e,uinv); gel(v,1) = gmul(gel(v,1), u);
+  *e = nf_coordch_uinv(nf, *e,uinv); gel(v,1) = nfmul(nf,gel(v,1), u);
 }
 
 /* X = (x-r)/u^2
@@ -4339,15 +4462,15 @@ pol2sqrt_23(GEN nf, GEN modP, GEN Q)
   if (!gequal1(gel(Q,4)))
     r = Fq_div(r, gel(Q,4), T, p);
   if (absequaliu(p,2)) r = Fq_sqrt(r,T,p);
-  return nftoalg(nf, Fq_to_nf(r, modP));
+  return Fq_to_nf(r, modP);
 }
 
 static GEN
 nflocalred_section7(GEN e, GEN nf, GEN modP, GEN pi, GEN pv, long vD, GEN ch)
 {
   GEN p = modpr_get_p(modP), T = modpr_get_T(modP);
-  GEN pi3 = gsqr(pi);
-  GEN pv3 = gsqr(pv), pv4 = gmul(pv,pv3), pv6 = gsqr(pv3);
+  GEN pi3 = nfsqr(nf,pi);
+  GEN pv3 = nfsqr(nf,pv), pv4 = nfmul(nf,pv,pv3), pv6 = nfsqr(nf,pv3);
   long n = 1;
   while(1)
   {
@@ -4359,8 +4482,8 @@ nflocalred_section7(GEN e, GEN nf, GEN modP, GEN pi, GEN pv, long vD, GEN ch)
       return localred_result(vD-n-4,-4-n,nr+2,ch);
     }
     gama = pol2sqrt_23(nf,modP, Q);
-    E_gcompose_t(&ch, &e, gmul(gama,pi3));
-    pv6 = gmul(pv,pv6); n++;
+    nf_compose_t(nf, &ch, &e, nfmul(nf, gama,pi3));
+    pv6 = nfmul(nf,pv,pv6); n++;
     Q = pola2a4a6(e, nf, modP, pv, pv4, pv6);
     if (FqX_is_squarefree(Q, T, p))
     {
@@ -4368,9 +4491,9 @@ nflocalred_section7(GEN e, GEN nf, GEN modP, GEN pi, GEN pv, long vD, GEN ch)
       return localred_result(vD-n-4,-4-n,nr+2,ch);
     }
     gama = pol2sqrt_23(nf, modP, Q);
-    E_gcompose_r(&ch, &e, gmul(gama, pi3));
-    pi3 = gmul(pi, pi3);
-    pv3 = pv4; pv4 = gmul(pv,pv4); pv6 = gmul(pv,pv6); n++;
+    nf_compose_r(nf, &ch, &e, nfmul(nf, gama, pi3));
+    pi3 = nfmul(nf,pi, pi3);
+    pv3 = pv4; pv4 = nfmul(nf,pv,pv4); pv6 = nfmul(nf,pv,pv6); n++;
   }
 }
 
@@ -4385,13 +4508,9 @@ nflocalred_23(GEN e, GEN P, long *ap)
   GEN ch, D, pv, pv2, pv4, pi, pol;
   modP = nf_to_Fq_init(nf,&P,&T,&p);
   get_uniformizers(nf,P, &pi, &pv);
-  if (typ(pi) == t_COL)
-  { /* sigh, we should stick to basis form */
-    pi = coltoalg(nf,pi);
-    pv = coltoalg(nf,pv);
-  }
   ch = init_ch();
   D = ell_get_disc(e);
+  e = ell_to_nfell10(nf, e);
   vD = nfval(nf,D,P);
   *ap = 0;
   while(1)
@@ -4431,9 +4550,9 @@ nflocalred_23(GEN e, GEN P, long *ap)
           x0 = Fq_sqrtn(Fq_neg(Fq_add(Fq_sqr(a3,T,p),a6,T,p),T,p),p,T,p,NULL);
         y0 = Fq_add(Fq_mul(a1, x0, T, p), a3, T, p);
       }
-      x0 = nftoalg(nf,Fq_to_nf(x0, modP));
-      y0 = nftoalg(nf,Fq_to_nf(y0, modP));
-      E_gcompose_rt(&ch, &e, x0, y0);
+      x0 = Fq_to_nf(x0, modP);
+      y0 = Fq_to_nf(y0, modP);
+      nf_compose_rt(nf, &ch, &e, x0, y0);
     }
     /* 2 */
     {
@@ -4457,7 +4576,7 @@ nflocalred_23(GEN e, GEN P, long *ap)
       if (vb8 <= 2) return localred_result(vD-1,3,2,ch);/* III */
     }
     /* 5 */
-    pv2 = gsqr(pv);
+    pv2 = nfsqr(nf,pv);
     {
       long vb6 = nfval(nf,ell_get_b6(e),P);
       if (vb6<=2)
@@ -4469,12 +4588,12 @@ nflocalred_23(GEN e, GEN P, long *ap)
     }
     /* 6 */
     {
-      GEN pv3 = gmul(pv, pv2);
+      GEN pv3 = nfmul(nf,pv, pv2);
       GEN alpha = pol2sqrt_23(nf, modP, pola1a2(e, nf, modP));
       GEN beta  = pol2sqrt_23(nf, modP, pola3a6(e, nf, modP, pv, pv2));
       GEN po2, E, F, mr;
       long i, lE;
-      E_gcompose_st(&ch, &e, alpha, gmul(beta, pi));
+      nf_compose_st(nf, &ch, &e, alpha, nfmul(nf, beta, pi));
       po2 = pola2a4a6(e, nf, modP, pv, pv2, pv3);
       if (signe(po2)) /* po2 = 0 is frequent when non-minimal */
       {
@@ -4497,14 +4616,14 @@ nflocalred_23(GEN e, GEN P, long *ap)
         mr = constant_coeff(gmael(F,1,i)); /* - multiple root */
         if (!gequal0(mr))
         { /* not so frequent */
-          GEN gama = nftoalg(nf, Fq_to_nf(Fq_neg(mr, T, p), modP));
-          E_gcompose_r(&ch, &e, gmul(gama,pi));
+          GEN gama = Fq_to_nf(Fq_neg(mr, T, p), modP);
+          nf_compose_r(nf, &ch, &e, nfmul(nf, gama,pi));
         }
         if (lE == 3)
           return nflocalred_section7(e, nf, modP, pi, pv, vD, ch); /* Inu* */
       }
     }
-    pv4 = gsqr(pv2);
+    pv4 = nfsqr(nf,pv2);
     pol = pola3a6(e, nf, modP, pv2, pv4);
     /*  8 */
     if (FqX_is_squarefree(pol,T,p))
@@ -4515,7 +4634,7 @@ nflocalred_23(GEN e, GEN P, long *ap)
     /*  9 */
     {
       GEN alpha = pol2sqrt_23(nf, modP, pol);
-      E_gcompose_t(&ch, &e, gmul(alpha, gsqr(pi)));
+      nf_compose_t(nf, &ch, &e, nfmul(nf, alpha, nfsqr(nf,pi)));
       if (nfval(nf, ell_get_a4(e), P) == 3)
         return localred_result(vD-7,-3,2,ch); /* III* */
     }
@@ -4523,7 +4642,7 @@ nflocalred_23(GEN e, GEN P, long *ap)
     if (nfval(nf, ell_get_a6(e), P) == 5)
       return localred_result(vD-8,-2,1,ch); /* II* */
     /* 11 */
-    E_gcompose_u(&ch, &e, pi, pv);
+    nf_compose_u(nf, &ch, &e, pi, pv);
     vD -= 12;
   }
 }
@@ -4641,31 +4760,28 @@ nflocalred(GEN E, GEN pr)
   GEN p = pr_get_p(pr);
   if (abscmpiu(p, 3) <= 0)
   {
-    long ap, vu;
+    long i, ap, vu;
     GEN nf = ellnf_get_nf(E);
     GEN q = nflocalred_23(E,pr,&ap), v = gel(q,3), u = gel(v,1);
+    gel(q,3) = v;
     /* do nothing if already minimal or equation was not pr-integral */
     vu = nfval(nf, u, pr);
     if (vu > 0)
     { /* remove denominators in r,s,t on nf.zk */
-      GEN D, R, S, T, r = gel(v,2), s = gel(v,3), t = gel(v,4);
-      R = nf_to_scalar_or_basis(nf, r);
-      S = nf_to_scalar_or_basis(nf, s);
-      T = nf_to_scalar_or_basis(nf, t);
-      D = Q_denom(mkvec3(R, S, T));
+      GEN D, r = gel(v,2), s = gel(v,3), t = gel(v,4);
+      D = Q_denom(mkvec3(r, s, t));
       if (!equali1(D))
       { /* Beware: D may not be coprime to pr */
         GEN a;
         (void)nfvalrem(nf, D, pr, &D);
         /* a in D/p^oo, = 1 mod (u^6) locally */
         a = idealaddtoone_i(nf, D, idealpows(nf, pr, 6*vu));
-        a = basistoalg(nf, a);
-        gel(v,2) = gmul(r, a);
-        gel(v,3) = gmul(s, a);
-        gel(v,4) = gmul(t, a);
-        v = lift_if_rational(v);
+        gel(v,2) = nfmul(nf, r, a);
+        gel(v,3) = nfmul(nf, s, a);
+        gel(v,4) = nfmul(nf, t, a);
       }
     }
+    for(i=1; i <= 4; i++) gel(v,i) = nftoalg(nf, gel(v,i));
     return q;
   }
   return nflocalred_p(E,pr);
@@ -4931,7 +5047,7 @@ ellnfap(GEN E, GEN P, int *good_red)
     GEN L = nflocalred_23(E,P,&ap), kod = gel(L,2);
     if (!equali1(kod)) { *good_red = 0; return stoi(ap); }
     *good_red = 1;
-    E = coordch(E, gel(L,3));
+    E = coordch(E, nfVtoalg(nf, gel(L,3)));
     E = ellinit_nf_to_Fq(E, modP);
     card = doellcard(E);
   }
