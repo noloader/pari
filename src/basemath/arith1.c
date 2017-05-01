@@ -3841,9 +3841,45 @@ Fp_sqrtn(GEN a, GEN n, GEN p, GEN *zeta)
 /**                    FUNDAMENTAL DISCRIMINANTS                    **/
 /**                                                                 **/
 /*********************************************************************/
+static int
+fa_isfundamental(GEN F)
+{
+  GEN P = gel(F,1), E = gel(F,2);
+  long i, s, l = lg(P);
+
+  if (l == 1) return 1;
+  s = signe(gel(P,1)); /* = signe(x) */
+  if (!s) return 0;
+  if (s < 0) { l--; P = vecslice(P,2,l); E = vecslice(E,2,l); }
+  if (l == 1) return 0;
+  if (!absequaliu(gel(P,1), 2))
+    i = 1; /* need x = 1 mod 4 */
+  else
+  {
+    i = 2;
+    switch(itou(gel(E,1)))
+    {
+      case 2: s = -s; break; /* need x/4 = 3 mod 4 */
+      case 3: s = 0; break; /* no condition mod 4 */
+      default: return 0;
+    }
+  }
+  for(; i < l; i++)
+  {
+    if (!equali1(gel(E,i))) return 0;
+    if (s && Mod4(gel(P,i)) == 3) s = -s;
+  }
+  return s >= 0;
+}
 long
-isfundamental(GEN x) {
-  if (typ(x) != t_INT) pari_err_TYPE("isfundamental",x);
+isfundamental(GEN x)
+{
+  if (typ(x) != t_INT)
+  {
+    pari_sp av = avma;
+    int v = fa_isfundamental(check_arith_all(x,"isfundamental"));
+    avma = av; return v;
+  }
   return Z_isfundamental(x);
 }
 

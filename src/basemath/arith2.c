@@ -890,6 +890,19 @@ Z_issquarefree(GEN n)
   }
   return moebius(n)? 1: 0;
 }
+
+static int
+fa_issquarefree(GEN F)
+{
+  GEN P = gel(F,1), E = gel(F,2);
+  long i, s, l = lg(P);
+  if (l == 1) return 1;
+  s = signe(gel(P,1)); /* = signe(x) */
+  if (!s) return 0;
+  for(i = 1; i < l; i++)
+    if (!equali1(gel(E,i))) return 0;
+  return 1;
+}
 long
 issquarefree(GEN x)
 {
@@ -902,6 +915,8 @@ issquarefree(GEN x)
       if (!signe(x)) return 0;
       av = avma; d = RgX_gcd(x, RgX_deriv(x));
       avma = av; return (lg(d) == 3);
+    case t_VEC:
+    case t_MAT: return fa_issquarefree(check_arith_all(x,"issquarefree"));
     default: pari_err_TYPE("issquarefree",x);
       return 0; /* LCOV_EXCL_LINE */
   }

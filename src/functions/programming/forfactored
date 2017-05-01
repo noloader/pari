@@ -52,3 +52,12 @@ Doc: evaluates \var{seq}, where
  time = 28,398 ms. \\ slower, we must factor N. Twice.
  %2 = 6393738650
  @eprog
+
+ The following loops over the fundamental dicriminants less than $X$:
+ \bprog
+ ? X = 10^8;
+ ? forfactored(d=1,X, if (isfundamental(d),));
+ time = 34,030 ms.
+ ? for(d=1,X, if (isfundamental(d),))
+ time = 1min, 24,225 ms.
+ @eprog
