@@ -210,6 +210,8 @@ $z,t$ are local variables (lexical scope), $z$ initialized to 1.
 \li{\dots for composites $a\le X\le b$}{forcomposite$(X=a,b,\seq)$}
 \li{\dots for $a\le X\le b$ stepping $s$}{forstep$(X=a,b,s,\seq)$}
 \li{\dots for $X$ dividing $n$}{fordiv$(n,X,\seq)$}
+\li{\dots $X=[n,\kbd{factor}(n)]$, $a\le n\le b$}{forfactored$(X=a,b,\seq)$}
+\li{\dots $X=[d,\kbd{factor}(d)]$, $d\mid n$}{fordivfactored$(n,X,\seq)$}
 \li{multivariable {\tt for}, lex ordering}{forvec$(X=v,\seq)$}
 \li{loop over partitions of $n$}{forpart$(p=n,\seq)$}
 \li{\dots permutations of $S$}{forperm$(S, p,\seq)$}
