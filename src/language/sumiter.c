@@ -151,7 +151,7 @@ forfactoredneg(ulong a, ulong b, GEN code)
   pari_sp av, av0 = avma;
   ulong x1, x2, i, k = (b - a) >> SHIFT, step = 1UL<<SHIFT;
   GEN P, E, M;
-  x1 = maxuu(a, b-step+1);
+  x1 = (b>=step)? maxuu(b-step,a): a;
   x2 = b;
   P = cgetg(18, t_COL); gel(P,1) = gen_m1;
   E = cgetg(18, t_COL); gel(E,1) = gen_1;

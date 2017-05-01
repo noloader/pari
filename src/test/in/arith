@@ -5,7 +5,7 @@ core(4*10^15+27)
 
 {
 forfactored(d=-100,100,
-  if (issquarefree(d[1]) != issquarefree(d[2]), error(d))
+  if (issquarefree(d[1]) != issquarefree(d[2]), error(d));
   if (isfundamental(d[1]) != isfundamental(d[2]), error(d))
 );
 }
