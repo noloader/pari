@@ -1815,6 +1815,8 @@ GEN     coredisc2(GEN n);
 long    corediscs(long D, ulong *f);
 GEN     digits(GEN N, GEN B);
 GEN     divisors(GEN n);
+GEN     divisors_factored(GEN N);
+GEN     divisors0(GEN N, long flag);
 GEN     divisorsu(ulong n);
 GEN     divisorsu_fact(GEN P, GEN e);
 GEN     factor_pn_1(GEN p, ulong n);

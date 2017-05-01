@@ -194,6 +194,7 @@ BA   74- ellheight for curves over number fields
      75- new GP function forfactored
      76- [libpari] ZV_sort_inplace
 BA   77- ellrootno for curves over number fields
+     78- optional flag to 'divisors' (add factorization)
 
   Changed
       1- rewrite bnfnarrow

@@ -401,26 +401,80 @@ divisors_init(GEN n, GEN *pP, GEN *pE)
   *pP = P; *pE = e; return isint;
 }
 
+static ulong
+ndiv(GEN E)
+{
+  long i, l;
+  GEN e = cgetg_copy(E, &l); /* left on stack */
+  ulong n;
+  for (i=1; i<l; i++) e[i] = E[i]+1;
+  n = itou_or_0( zv_prod_Z(e) );
+  if (!n || n & ~LGBITS) pari_err_OVERFLOW("divisors");
+  return n;
+}
+static int
+cmpi1(void *E, GEN a, GEN b) { (void)E; return cmpii(gel(a,1), gel(b,1)); }
+/* P a t_COL of objects, E a t_VECSMALL of exponents, return cleaned-up
+ * factorization (removing 0 exponents) as a t_MAT with 2 cols. */
+static GEN
+fa_clean(GEN P, GEN E)
+{
+  long i, j, l = lg(E);
+  GEN Q = cgetg(l, t_COL);
+  for (i = j = 1; i < l; i++)
+    if (E[i]) { gel(Q,j) = gel(P,i); E[j] = E[i]; j++; }
+  setlg(Q,j);
+  setlg(E,j); return mkmat2(Q,Flc_to_ZC(E));
+}
 GEN
-divisors(GEN n)
+divisors_factored(GEN N)
+{
+  pari_sp av = avma;
+  long i, j, l;
+  GEN *d, *t1, *t2, *t3, D, P, E;
+  int isint = divisors_init(N, &P, &E);
+  GEN (*mul)(GEN,GEN) = isint? mulii: gmul;
+  ulong n = ndiv(E);
+
+  D = cgetg(n+1,t_VEC); d = (GEN*)D;
+  l = lg(E);
+  *++d = mkvec2(gen_1, const_vecsmall(l-1,0));
+  for (i=1; i<l; i++)
+    for (t1=(GEN*)D,j=E[i]; j; j--,t1=t2)
+      for (t2=d, t3=t1; t3<t2; )
+      {
+        GEN a, b;
+        a = mul(gel(*++t3,1), gel(P,i));
+        b = leafcopy(gel(*t3,2)); b[i]++;
+        *++d = mkvec2(a,b);
+      }
+  if (isint) gen_sort_inplace(D,NULL,(void*)&cmpi1,NULL);
+  for (i = 1; i <= n; i++) gmael(D,i,2) = fa_clean(P, gmael(D,i,2));
+  return gerepilecopy(av, D);
+}
+GEN
+divisors(GEN N)
 {
   long i, j, l;
-  ulong ndiv;
-  GEN *d, *t, *t1, *t2, *t3, P, E, e;
-  int isint = divisors_init(n, &P, &E);
+  GEN *d, *t1, *t2, *t3, D, P, E;
+  int isint = divisors_init(N, &P, &E);
   GEN (*mul)(GEN,GEN) = isint? mulii: gmul;
+  ulong n = ndiv(E);
 
-  l = lg(E); e = cgetg(l, t_VECSMALL); /* left on stack */
-  for (i=1; i<l; i++) e[i] = E[i]+1;
-  ndiv = itou_or_0( zv_prod_Z(e) );
-  if (!ndiv || ndiv & ~LGBITS) pari_err_OVERFLOW("divisors");
-  d = t = (GEN*) cgetg(ndiv+1,t_VEC);
+  D = cgetg(n+1,t_VEC); d = (GEN*)D;
+  l = lg(E);
   *++d = gen_1;
   for (i=1; i<l; i++)
-    for (t1=t,j=E[i]; j; j--,t1=t2)
+    for (t1=(GEN*)D,j=E[i]; j; j--,t1=t2)
       for (t2=d, t3=t1; t3<t2; ) *++d = mul(*++t3, gel(P,i));
-  e = (GEN)t; if (isint) ZV_sort_inplace(e);
-  return e;
+  if (isint) ZV_sort_inplace(D);
+  return D;
+}
+GEN
+divisors0(GEN N, long flag)
+{
+  if (flag && flag != 1) pari_err_FLAG("divisors");
+  return flag? divisors_factored(N): divisors(N);
 }
 
 GEN
@@ -438,10 +492,10 @@ divisorsu_fact(GEN P, GEN E)
   vecsmall_sort(t); return t;
 }
 GEN
-divisorsu(ulong n)
+divisorsu(ulong N)
 {
   pari_sp av = avma;
-  GEN fa = factoru(n);
+  GEN fa = factoru(N);
   return gerepileupto(av, divisorsu_fact(gel(fa,1), gel(fa,2)));
 }
 
