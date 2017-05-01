@@ -105,38 +105,109 @@ forpari(GEN a, GEN b, GEN code)
   pop_lex(1); avma = ltop;
 }
 
-void
-forfactored(GEN a, GEN b, GEN code)
+/* 0 < a <= b */
+static int
+forfactoredpos(ulong a, ulong b, GEN code)
 {
   const long SHIFT = 10;
-  pari_sp av;
-  ulong ua, ub, i, k;
-  if (typ(a) != t_INT || signe(a) <= 0) pari_err_TYPE("forfactored", a);
-  if (typ(b) != t_INT || signe(b) <= 0) pari_err_TYPE("forfactored", b);
-  ua = itou(a);
-  ub = itou(b);
-  if (ua > ub) return;
-  push_lex(NULL,code);
-  av = avma;
-  k = (ub - ua) >> SHIFT;
+  pari_sp av = avma;
+  ulong i, k = (b - a) >> SHIFT, step = (1UL<<SHIFT)-1;
   for (i = 0; i <= k; i++)
   {
-    ulong L = ua + (i << SHIFT);
-    GEN v = vecfactoru(L, (i == k)? ub: (L+(1UL<<SHIFT)-1));
+    ulong L = a + (i << SHIFT);
+    GEN v = vecfactoru(L, (i == k)? b: L+step);
     ulong j, lv = lg(v);
     pari_sp av2 = avma;
     for (j = 1; j < lv; j++)
     {
       ulong n = L-1 + j;
       set_lex(-1, mkvec2(utoipos(n), Flm_to_ZM(gel(v,j))));
-      closure_evalvoid(code); if (loop_break()) { i = k+1; break; }
+      closure_evalvoid(code);
+      if (loop_break()) { avma = av; return 1; }
       avma = av2;
     }
     avma = av;
   }
+  return 0;
+}
+static void
+Flm2negfact(GEN v, GEN M)
+{
+  GEN p = gel(v,1), e = gel(v,2), P = gel(M,1), E = gel(M,2);
+  long i, l = lg(p);
+  for (i = 1; i < l; i++)
+  {
+    gel(P,i+1) = utoipos(p[i]);
+    gel(E,i+1) = utoipos(e[i]);
+  }
+  setlg(P,l+1);
+  setlg(E,l+1);
+}
+/* 0 < a <= b, from -b to -a */
+static int
+forfactoredneg(ulong a, ulong b, GEN code)
+{
+  const long SHIFT = 10;
+  pari_sp av, av0 = avma;
+  ulong x1, x2, i, k = (b - a) >> SHIFT, step = 1UL<<SHIFT;
+  GEN P, E, M;
+  x1 = maxuu(a, b-step+1);
+  x2 = b;
+  P = cgetg(18, t_COL); gel(P,1) = gen_m1;
+  E = cgetg(18, t_COL); gel(E,1) = gen_1;
+  M = mkmat2(P,E);
+  av = avma;
+  for (i = k; (long)i >= 0; i--)
+  {
+    GEN v = vecfactoru(x1, x2);
+    ulong j, lv = lg(v);
+    pari_sp av2 = avma;
+    for (j = lv-1; j; j--)
+    {
+      ulong n = x1-1 + j;
+      Flm2negfact(gel(v,j), M);
+      set_lex(-1, mkvec2(utoineg(n), M));
+      closure_evalvoid(code);
+      if (loop_break()) { avma = av; return 1; }
+      avma = av2;
+    }
+    x1 = (x1 > step)? x1 - step: a;
+    x2 -= step;
+    avma = av;
+  }
+  avma = av0; return 0;
+}
+static int
+eval0(GEN code)
+{
+  pari_sp av = avma;
+  set_lex(-1, mkvec2(gen_0, mkmat2(mkcol(gen_0),mkcol(gen_1))));
+  closure_evalvoid(code); avma = av;
+  return loop_break();
+}
+void
+forfactored(GEN a, GEN b, GEN code)
+{
+  long sa, sb, stop = 0;
+  if (typ(a) != t_INT) pari_err_TYPE("forfactored", a);
+  if (typ(b) != t_INT) pari_err_TYPE("forfactored", b);
+  if (cmpii(a,b) > 0) return;
+  push_lex(NULL,code);
+  sa = signe(a);
+  sb = signe(b);
+  if (sa < 0)
+  {
+    stop = forfactoredneg((sb < 0)? b[2]: 1UL, itou(a), code);
+    if (!stop && sb >= 0) stop = eval0(code);
+    if (!stop && sb > 0) forfactoredpos(1UL, b[2], code);
+  }
+  else
+  {
+    if (!sa) stop = eval0(code);
+    if (!stop && sb) forfactoredpos(sa? a[2]: 1UL, itou(b), code);
+  }
   pop_lex(1);
 }
-
 void
 whilepari(GEN a, GEN b)
 {

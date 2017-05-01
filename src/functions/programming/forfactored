@@ -6,12 +6,9 @@ Help: forfactored(N=a,b,seq): the sequence is evaluated, N is of the form
  [n, factor(n)], n going from a up to b.
 Doc: evaluates \var{seq}, where
  the formal variable $N$ is $[n, \kbd{factor}(n)]$ and $n$ goes from
- $a$ to $b$. Nothing is done if $a>b$.
- $a$ and $b$ must be positive integers. If $b$ is set to \kbd{+oo}, the
- loop will not stop; it is expected that the caller will break out of the
- loop itself at some point, using \kbd{break} or \kbd{return}.
+ $a$ to $b$; $a$ and $b$ must be integers. Nothing is done if $a>b$.
 
- This function is only implemented for $b < 2^{64}$ ($2^{32}$ on a 32-bit
+ This function is only implemented for $|a|, |b| < 2^{64}$ ($2^{32}$ on a 32-bit
  machine). It uses a sieve and runs in time $O(\sqrt{b} + b-a)$. It should
  be at least 3 times faster than regular factorization as long as the interval
  length $b-a$ is much larger than $\sqrt{b}$ and get relatively faster as
