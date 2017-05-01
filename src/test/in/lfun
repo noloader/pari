@@ -321,6 +321,11 @@ N=nfinit(x^6-3*x^5+5*x^4-5*x^3+5*x^2-3*x+1);G=galoisinit(N);
 L=lfunartin(N,G,[[-1,1;-1,0],[0,1;1,0]],1);
 if(lfunan(L,100)!=lfunan(lfundiv(x^3-3*x^2+2*x-1,1),100),error("lfunartin"));
 
+N=nfinit(x^12-11*x^10+44*x^8-78*x^6+60*x^4-16*x^2+1);
+G=galoisinit(N);
+L=lfunartin(N,G,[1,-x+1,x,-x+1,-1,x,-x,1,x-1,-x,x-1,-1]~,6);
+lfuncheckfeq(L)
+
 localbitprec(20); #lfunzeros('x^2-2,6)
 
 lfuncost(1, [100], 5)

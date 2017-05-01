@@ -1726,12 +1726,12 @@ artin_ram(GEN nf, GEN gal, GEN aut, GEN pr, GEN ramg, GEN ch, long d)
   gel(V,2) = gen_0;
   for(i=1; i<=d; i++)
   {
-    gel(V,i+2) = gdivgs(artin_ind(elts, ch, q), i);
+    gel(V,i+2) = gdivgs(artin_ind(elts, ch, q), -i);
     q = gmul(q, p);
   }
   delete_var();
   V = RgXn_exp(V,d+1);
-  setvarn(V,0); return gerepilecopy(av,V);
+  setvarn(V,0); return gerepilecopy(av,ginv(V));
 }
 
 /* [Artin conductor, vec of [p, Lp]] */

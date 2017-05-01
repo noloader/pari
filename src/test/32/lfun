@@ -231,6 +231,7 @@ zeta(s)*zeta(s-a)
 725.0000000000000000
 24217.00000000000000
 28614069.00000000000
+-62
 1
 [6, 184]
 [[12, 125], [11, 125], [5, 124]]
@@ -254,4 +255,4 @@ zeta(s)*zeta(s-a)
   ***   at top-level: lfunan(lfuncreate([1,0,[0],1,1,1,1]),10)
   ***                 ^----------------------------------------
   *** lfunan: incorrect type in vecan_closure (t_INT).
-Total time spent: 5256
+Total time spent: 4232
