@@ -207,13 +207,12 @@ forstep(GEN a, GEN b, GEN s, GEN code)
   pop_lex(1); avma = av0;
 }
 
-void
-fordiv(GEN a, GEN code)
+static void
+_fordiv(GEN a, GEN code, GEN (*D)(GEN))
 {
   long i, l;
   pari_sp av2, av = avma;
-  GEN t = divisors(a);
-
+  GEN t = D(a);
   push_lex(gen_0,code); l=lg(t); av2 = avma;
   for (i=1; i<l; i++)
   {
@@ -223,6 +222,10 @@ fordiv(GEN a, GEN code)
   }
   pop_lex(1); avma=av;
 }
+void
+fordiv(GEN a, GEN code) { return _fordiv(a, code, &divisors); }
+void
+fordivfactored(GEN a, GEN code) { return _fordiv(a, code, &divisors_factored); }
 
 /* Embedded for loops:
  *   fl = 0: execute ch (a), where a = (ai) runs through all n-uplets in

@@ -91,6 +91,7 @@ GEN  direuler0(GEN a, GEN b, GEN code, GEN c);
 GEN  direuler_bad(void *E, GEN (*eval)(void *, GEN, long), GEN a, GEN b, GEN c, GEN Sbad);
 void forcomposite(GEN a, GEN b, GEN code);
 void fordiv(GEN a, GEN code);
+void fordivfactored(GEN a, GEN code);
 void forell0(long a, long b, GEN code, long flag);
 void forperm0(GEN k, GEN code);
 void forprime(GEN a, GEN b, GEN code);
