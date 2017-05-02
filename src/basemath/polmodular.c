@@ -618,10 +618,10 @@ modinv_f3_from_j(ulong j, ulong p, ulong pi)
 
 /* Return the exponent e for the double-eta "invariant" w such that
  * w^e is a class invariant.  For example w2w3^12 is a class
- * invariant, so modinv_exponent(INV_W2W3) is 12 and
- * modinv_exponent(INV_W2W3E2) is 6. */
+ * invariant, so double_eta_exponent(INV_W2W3) is 12 and
+ * double_eta_exponent(INV_W2W3E2) is 6. */
 INLINE ulong
-modinv_exponent(long inv)
+double_eta_exponent(long inv)
 {
   switch (inv) {
   case INV_W2W3:
@@ -646,9 +646,9 @@ modinv_exponent(long inv)
 }
 
 INLINE ulong
-modinv_power(long inv, ulong w, ulong p, ulong pi)
+double_eta_power(long inv, ulong w, ulong p, ulong pi)
 {
-  return Fl_powu_pre(w, modinv_exponent(inv), p, pi);
+  return Fl_powu_pre(w, double_eta_exponent(inv), p, pi);
 }
 
 
@@ -690,9 +690,9 @@ fourth_root(ulong *r, ulong x, ulong p, ulong pi)
 }
 
 INLINE int
-modinv_root(long inv, ulong *r, ulong w, ulong p, ulong pi)
+double_eta_root(long inv, ulong *r, ulong w, ulong p, ulong pi)
 {
-  switch (modinv_exponent(inv)) {
+  switch (double_eta_exponent(inv)) {
   case 12: return twelth_root(r, w, p, pi);
   case 6: return sixth_root(r, w, p, pi);
   case 4: return fourth_root(r, w, p, pi);
@@ -700,7 +700,7 @@ modinv_root(long inv, ulong *r, ulong w, ulong p, ulong pi)
   case 2: return krouu(w, p) != -1 && !!(*r = Fl_sqrt_pre(w, p, pi));
   case 1: *r = w; return 1;
   }
-  pari_err_BUG("modinv_root");
+  pari_err_BUG("double_eta_root");
   return 0;
 }
 
@@ -725,7 +725,7 @@ double_eta_Fl(long inv, ulong p)
 }
 
 /* Go through the roots of Psi(X,j) until one has an
- * modinv_exponent(inv)-th root, and return that root. F = double_eta_Fl(inv,p) */
+ * double_eta_exponent(inv)-th root, and return that root. F = double_eta_Fl(inv,p) */
 INLINE ulong
 modinv_double_eta_from_j(GEN F, long inv, ulong j, ulong p, ulong pi)
 {
@@ -735,7 +735,7 @@ modinv_double_eta_from_j(GEN F, long inv, ulong j, ulong p, ulong pi)
   GEN a = Flx_double_eta_xpoly(F, j, p, pi);
   a = Flx_roots(a, p);
   for (i = 1; i < lg(a); ++i) {
-    if (modinv_root(inv, &f, uel(a, i), p, pi))
+    if (double_eta_root(inv, &f, uel(a, i), p, pi))
       break;
   }
   if (i == lg(a))
@@ -765,13 +765,13 @@ modinv_double_eta_from_2j(
 #if 0
   if (degpol(d) != 1
       || (*r = Flx_oneroot(d, p)) == p
-      || ! modinv_root(inv, r, *r, p, pi)) {
+      || ! double_eta_root(inv, r, *r, p, pi)) {
     pari_err_BUG("modinv_double_eta_from_2j");
   }
 #endif
   if (degpol(d) > 2
       || (*r = Flx_oneroot(d, p)) == p
-      || ! modinv_root(inv, r, *r, p, pi)) {
+      || ! double_eta_root(inv, r, *r, p, pi)) {
     return 0;
   }
   avma = av;
@@ -854,8 +854,8 @@ modinv_j_from_2double_eta(
 {
   GEN f, g, d;
 
-  x0 = modinv_power(inv, x0, p, pi);
-  x1 = modinv_power(inv, x1, p, pi);
+  x0 = double_eta_power(inv, x0, p, pi);
+  x1 = double_eta_power(inv, x1, p, pi);
   F = double_eta_raw_to_Fl(F, p);
   f = Flx_double_eta_jpoly(F, x0, p, pi);
   g = Flx_double_eta_jpoly(F, x1, p, pi);
@@ -1720,12 +1720,12 @@ root_matrix(
     ulong p = ne->p, pi = ne->pi, j;
     GEN F = double_eta_Fl(inv, p);
     pari_sp av = avma;
-    ulong r1 = modinv_power(inv, uel(rts, 1), p, pi);
+    ulong r1 = double_eta_power(inv, uel(rts, 1), p, pi);
     GEN r, f = Flx_double_eta_jpoly(F, r1, p, pi);
     if ((j = Flx_oneroot(f, p)) == p) pari_err_BUG("root_matrix");
     j = compute_L_isogenous_curve(L, n, ne, j, card, val, 0);
     avma = av;
-    r1 = modinv_power(inv, uel(surface_js, i), p, pi);
+    r1 = double_eta_power(inv, uel(surface_js, i), p, pi);
     f = Flx_double_eta_jpoly(F, r1, p, pi);
     r = Flx_roots(f, p);
     if (glength(r) != 2) pari_err_BUG("root_matrix");
@@ -1868,7 +1868,7 @@ double_eta_initial_js(
   GEN f, g;
 
   *x0pr = modinv_double_eta_from_j(F, inv, j0pr, p, pi);
-  t = modinv_power(inv, *x0pr, p, pi);
+  t = double_eta_power(inv, *x0pr, p, pi);
   f = Flx_div_by_X_x(Flx_double_eta_jpoly(F, t, p, pi), j0pr, p, &r);
   if (r) pari_err_BUG("double_eta_initial_js");
   j1pr = Flx_deg1_root(f, p);
@@ -1881,7 +1881,7 @@ double_eta_initial_js(
   *x0 = Flx_deg1_root(Flx_gcd(f, g, p), p);
   avma = av0;
 
-  if ( ! modinv_root(inv, x0, *x0, p, pi))
+  if ( ! double_eta_root(inv, x0, *x0, p, pi))
     pari_err_BUG("double_eta_initial_js");
 }
 
