@@ -1731,7 +1731,7 @@ artin_ram(GEN nf, GEN gal, GEN aut, GEN pr, GEN ramg, GEN ch, long d)
   }
   delete_var();
   V = RgXn_exp(V,d+1);
-  setvarn(V,0); return gerepilecopy(av,ginv(V));
+  setvarn(V,0); return gerepileupto(av, ginv(V));
 }
 
 /* [Artin conductor, vec of [p, Lp]] */
