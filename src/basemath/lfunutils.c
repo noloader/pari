@@ -837,7 +837,7 @@ lfunellnf(GEN e)
   gel(ldata, 3) = vec01(n, n);
   gel(ldata, 4) = gen_2;
   gel(ldata, 5) = mulii(d2,N);
-  gel(ldata, 6) = gen_0;
+  gel(ldata, 6) = stoi(ellrootno_global(e));
   return gerepileupto(av, ldata);
 }
 
