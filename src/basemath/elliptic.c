@@ -842,9 +842,9 @@ ellinit_Fq(GEN x, GEN fg)
 }
 
 static GEN
-ellnf_to_Fq(GEN x, GEN P, GEN *pp, GEN *pT)
+ellnf_to_Fq(GEN nf, GEN x, GEN P, GEN *pp, GEN *pT)
 {
-  GEN nf = ellnf_get_nf(x), e = vecslice(x,1,5);
+  GEN e = vecslice(x,1,5);
   GEN p, modP;
   if (get_modpr(P))
   { /* modpr accept */
@@ -862,10 +862,10 @@ ellnf_to_Fq(GEN x, GEN P, GEN *pp, GEN *pT)
   return nfV_to_FqV(e, nf, modP);
 }
 static GEN
-ellinit_nf_to_Fq(GEN E, GEN P)
+ellinit_nf_to_Fq(GEN nf, GEN E, GEN P)
 {
   GEN T,p;
-  E = ellnf_to_Fq(E, P, &p, &T);
+  E = ellnf_to_Fq(nf, E, P, &p, &T);
   return T? ellinit_Fq(E,Tp_to_FF(T,p)): ellinit_Fp(E,p);
 }
 
@@ -885,7 +885,7 @@ ellinit(GEN x, GEN D, long prec)
   if (D && get_prid(D))
   {
     if (ell_get_type(x) != t_ELL_NF) pari_err_TYPE("ellinit",x);
-    y = ellinit_nf_to_Fq(x, D);
+    y = ellinit_nf_to_Fq(ellnf_get_nf(x), x, D);
     goto END;
   }
   switch (base_ring(x, &D, &prec))
@@ -973,9 +973,10 @@ ellchangeinvert(GEN w)
 }
 
 static GEN
-ell_to_nfell10(GEN nf, GEN e)
+ell_to_nfell10(GEN e)
 {
   long i;
+  GEN nf = ellnf_get_nf(e);
   GEN y = cgetg(11,t_VEC);
   for(i=1; i<=10; i++)
     gel(y, i) = nf_to_scalar_or_basis(nf, gel(e, i));
@@ -1099,6 +1100,22 @@ nf_coordch_rt(GEN nf, GEN e, GEN r, GEN t)
 {
   e = nf_coordch_r(nf, e, r);
   return nf_coordch_t(nf, e, t);
+}
+
+/* apply [1,r,s,t] */
+static GEN
+nf_coordch_rst(GEN nf, GEN e, GEN r, GEN s, GEN t)
+{
+  e = nf_coordch_r(nf, e, r);
+  return nf_coordch_st(nf, e, s, t);
+}
+/* apply w = [u,r,s,t] */
+static GEN
+nf_coordch(GEN nf, GEN e, GEN w)
+{
+  if (typ(w) == t_INT) return e;
+  e = nf_coordch_rst(nf, e, gel(w,2), gel(w,3), gel(w,4));
+  return nf_coordch_uinv(nf, e, nfinv(nf, gel(w,1)));
 }
 
 /* apply [u^(-1),0,0,0] */
@@ -4501,16 +4518,14 @@ nflocalred_section7(GEN e, GEN nf, GEN modP, GEN pi, GEN pv, long vD, GEN ch)
 /* Dedicated to John Tate for his kind words */
 
 static GEN
-nflocalred_23(GEN e, GEN P, long *ap)
+nflocalred_23(GEN nf, GEN e, GEN D, GEN P, long *ap)
 {
-  GEN nf = ellnf_get_nf(e), T,p, modP;
+  GEN T, p, modP;
   long vD;
-  GEN ch, D, pv, pv2, pv4, pi, pol;
+  GEN ch, pv, pv2, pv4, pi, pol;
   modP = nf_to_Fq_init(nf,&P,&T,&p);
   get_uniformizers(nf,P, &pi, &pv);
   ch = init_ch();
-  D = ell_get_disc(e);
-  e = ell_to_nfell10(nf, e);
   vD = nfval(nf,D,P);
   *ap = 0;
   while(1)
@@ -4761,8 +4776,8 @@ nflocalred(GEN E, GEN pr)
   if (abscmpiu(p, 3) <= 0)
   {
     long i, ap, vu;
-    GEN nf = ellnf_get_nf(E);
-    GEN q = nflocalred_23(E,pr,&ap), v = gel(q,3), u = gel(v,1);
+    GEN nf = ellnf_get_nf(E), e = ell_to_nfell10(E), D = ell_get_disc(E);
+    GEN q = nflocalred_23(nf,e,D,pr,&ap), v = gel(q,3), u = gel(v,1);
     gel(q,3) = v;
     /* do nothing if already minimal or equation was not pr-integral */
     vu = nfval(nf, u, pr);
@@ -5044,11 +5059,12 @@ ellnfap(GEN E, GEN P, int *good_red)
   if (abscmpiu(p, 3) <= 0)
   {
     long ap;
-    GEN L = nflocalred_23(E,P,&ap), kod = gel(L,2);
+    GEN nf = ellnf_get_nf(E), e = ell_to_nfell10(E), D = ell_get_disc(E);
+    GEN L = nflocalred_23(nf, e,D,P,&ap), kod = gel(L,2);
     if (!equali1(kod)) { *good_red = 0; return stoi(ap); }
     *good_red = 1;
-    E = coordch(E, nfVtoalg(nf, gel(L,3)));
-    E = ellinit_nf_to_Fq(E, modP);
+    E = nf_coordch(nf, vecslice(e,1,5), gel(L,3));
+    E = ellinit_nf_to_Fq(nf, E, modP);
     card = doellcard(E);
   }
   else
