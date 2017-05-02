@@ -401,7 +401,7 @@ divisors_init(GEN n, GEN *pP, GEN *pE)
   *pP = P; *pE = e; return isint;
 }
 
-static ulong
+static long
 ndiv(GEN E)
 {
   long i, l;
@@ -430,11 +430,10 @@ GEN
 divisors_factored(GEN N)
 {
   pari_sp av = avma;
-  long i, j, l;
   GEN *d, *t1, *t2, *t3, D, P, E;
   int isint = divisors_init(N, &P, &E);
   GEN (*mul)(GEN,GEN) = isint? mulii: gmul;
-  ulong n = ndiv(E);
+  long i, j, l, n = ndiv(E);
 
   D = cgetg(n+1,t_VEC); d = (GEN*)D;
   l = lg(E);
@@ -448,7 +447,7 @@ divisors_factored(GEN N)
         b = leafcopy(gel(*t3,2)); b[i]++;
         *++d = mkvec2(a,b);
       }
-  if (isint) gen_sort_inplace(D,NULL,(void*)&cmpi1,NULL);
+  if (isint) gen_sort_inplace(D,NULL,&cmpi1,NULL);
   for (i = 1; i <= n; i++) gmael(D,i,2) = fa_clean(P, gmael(D,i,2));
   return gerepilecopy(av, D);
 }
@@ -459,9 +458,8 @@ divisors(GEN N)
   GEN *d, *t1, *t2, *t3, D, P, E;
   int isint = divisors_init(N, &P, &E);
   GEN (*mul)(GEN,GEN) = isint? mulii: gmul;
-  ulong n = ndiv(E);
 
-  D = cgetg(n+1,t_VEC); d = (GEN*)D;
+  D = cgetg(ndiv(E)+1,t_VEC); d = (GEN*)D;
   l = lg(E);
   *++d = gen_1;
   for (i=1; i<l; i++)
