@@ -1888,7 +1888,7 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: isfund(x) ===> isfundamental(x)
 
-isfundamental(x): true(1) if x is a fundamental discriminant (including 1), 
+isfundamental(D): true(1) if D is a fundamental discriminant (including 1), 
 false(0) if not.
 
 
@@ -4522,4 +4522,4 @@ New syntax: texprint(x) ===> printtex(x)
 printtex({str}*): outputs its string arguments in TeX format.
 
 
-Total time spent: 8
+Total time spent: 12
