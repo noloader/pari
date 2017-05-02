@@ -105,31 +105,33 @@ forpari(GEN a, GEN b, GEN code)
   pop_lex(1); avma = ltop;
 }
 
-/* 0 < a <= b */
+/* 0 < a <= b. Using small consecutive chunks to 1) limit memory use, 2) allow
+ * cheap early abort */
 static int
 forfactoredpos(ulong a, ulong b, GEN code)
 {
-  const long SHIFT = 10;
+  const ulong step = 1024;
   pari_sp av = avma;
-  ulong i, k = (b - a) >> SHIFT, step = (1UL<<SHIFT)-1;
-  for (i = 0; i <= k; i++)
-  {
-    ulong L = a + (i << SHIFT);
-    GEN v = vecfactoru(L, (i == k)? b: L+step);
-    ulong j, lv = lg(v);
+  ulong x1;
+  for(x1 = a;; x1 += step, avma = av)
+  { /* beware overflow, fuse last two bins (avoid a tiny remainder) */
+    ulong j, lv, x2 = (b >= 2*step && b - 2*step >= x1)? x1-1 + step: b;
+    GEN v = vecfactoru(x1, x2);
     pari_sp av2 = avma;
-    for (j = 1; j < lv; j++)
+    lv = lg(v);
+    for (j = 1; j < lv; j++, avma = av2)
     {
-      ulong n = L-1 + j;
+      ulong n = x1-1 + j;
       set_lex(-1, mkvec2(utoipos(n), Flm_to_ZM(gel(v,j))));
       closure_evalvoid(code);
-      if (loop_break()) { avma = av; return 1; }
-      avma = av2;
+      if (loop_break()) return 1;
     }
-    avma = av;
+    if (x2 == b) break;
   }
   return 0;
 }
+/* convert factoru(n) to factor(-n); M pre-allocated factorization matrix
+ * with (-1)^1 already set */
 static void
 Flm2negfact(GEN v, GEN M)
 {
@@ -147,35 +149,31 @@ Flm2negfact(GEN v, GEN M)
 static int
 forfactoredneg(ulong a, ulong b, GEN code)
 {
-  const long SHIFT = 10;
-  pari_sp av, av0 = avma;
-  ulong x1, x2, i, k = (b - a) >> SHIFT, step = 1UL<<SHIFT;
+  const ulong step = 1024;
   GEN P, E, M;
-  x1 = (b>=step)? maxuu(b-step,a): a;
-  x2 = b;
+  pari_sp av;
+  ulong x2;
+
   P = cgetg(18, t_COL); gel(P,1) = gen_m1;
   E = cgetg(18, t_COL); gel(E,1) = gen_1;
   M = mkmat2(P,E);
   av = avma;
-  for (i = k; (long)i >= 0; i--)
-  {
+  for(x2 = b;; x2 -= step, avma = av)
+  { /* beware overflow, fuse last two bins (avoid a tiny remainder) */
+    ulong j, x1 = (x2 >= 2*step && x2-2*step >= a)? x2+1 - step: a;
     GEN v = vecfactoru(x1, x2);
-    ulong j, lv = lg(v);
     pari_sp av2 = avma;
-    for (j = lv-1; j; j--)
-    {
+    for (j = lg(v)-1; j; j--, avma = av2)
+    { /* run backward: from factor(x1..x2) to factor(-x2..-x1) */
       ulong n = x1-1 + j;
       Flm2negfact(gel(v,j), M);
       set_lex(-1, mkvec2(utoineg(n), M));
       closure_evalvoid(code);
-      if (loop_break()) { avma = av; return 1; }
-      avma = av2;
+      if (loop_break()) return 1;
     }
-    x1 = (x1 > step)? x1 - step: a;
-    x2 -= step;
-    avma = av;
+    if (x1 == a) break;
   }
-  avma = av0; return 0;
+  return 0;
 }
 static int
 eval0(GEN code)
@@ -188,6 +186,7 @@ eval0(GEN code)
 void
 forfactored(GEN a, GEN b, GEN code)
 {
+  pari_sp av = avma;
   long sa, sb, stop = 0;
   if (typ(a) != t_INT) pari_err_TYPE("forfactored", a);
   if (typ(b) != t_INT) pari_err_TYPE("forfactored", b);
@@ -206,7 +205,7 @@ forfactored(GEN a, GEN b, GEN code)
     if (!sa) stop = eval0(code);
     if (!stop && sb) forfactoredpos(sa? a[2]: 1UL, itou(b), code);
   }
-  pop_lex(1);
+  pop_lex(1); avma = av;
 }
 void
 whilepari(GEN a, GEN b)

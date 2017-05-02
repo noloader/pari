@@ -36,6 +36,7 @@ for(i=1,4,for(j=5,8,
 
 forfactored(N=10^5,10^5+10,print(N))
 c=0;forfactored(N=1,10^6, my([n,f]=N); if (factorback(f)!=n || c++!=n,error(N)))
+c=-10^6-1;forfactored(N=-10^6,-1, my([n,f]=N); if (factorback(f)!=n || c++!=n,error(N)))
 forfactored(x=-3,-1,print(x))
 forfactored(x=-3,-1, if (x[1]==-2,break); print(x))
 forfactored(x=-3,0,print(x))
