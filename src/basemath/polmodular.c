@@ -646,11 +646,70 @@ double_eta_exponent(long inv)
 }
 
 INLINE ulong
+weber_exponent(long inv)
+{
+  switch (inv)
+  {
+  case INV_F:  return 24;
+  case INV_F2: return 12;
+  case INV_F3: return 8;
+  case INV_F4: return 6;
+  case INV_F8: return 3;
+  default:     return 1;
+  }
+}
+
+INLINE ulong
 double_eta_power(long inv, ulong w, ulong p, ulong pi)
 {
   return Fl_powu_pre(w, double_eta_exponent(inv), p, pi);
 }
 
+static GEN
+double_eta_raw_to_Fp(GEN f, GEN p)
+{
+  GEN u = FpX_red(RgV_to_RgX(gel(f,1), 0), p);
+  GEN v = FpX_red(RgV_to_RgX(gel(f,2), 0), p);
+  return mkvec3(u, v, gel(f,3));
+}
+
+/* Given a root x of polclass(D, inv) modulo N,
+   returns a root of polclass(D, 0) modulo N
+   by plugging x to a modular polynomial.
+   For double-eta quotients,
+     this is done by plugging x into the
+     modular polynomial Phi(w, j) where
+     w = INV_WpWq.
+   More information on
+     Enge, Morain 2013: Generalised Weber Functions. */
+GEN
+Fp_modinv_to_j(GEN x, long inv, GEN p)
+{
+  switch(inv)
+  {
+  case INV_J:
+    return Fp_red(x, p);
+  case INV_G2:
+    return Fp_powu(x, 3, p);
+  case INV_F: case INV_F2: case INV_F3: case INV_F4: case INV_F8:
+    {
+      GEN xe = Fp_powu(x, weber_exponent(inv), p);
+      return Fp_div(Fp_powu(subiu(xe, 16), 3, p), xe, p);
+    }
+  default:
+    if(modinv_is_double_eta(inv))
+    {
+      GEN xe = Fp_powu(x, double_eta_exponent(inv), p);
+      GEN uvk = double_eta_raw_to_Fp(double_eta_raw(inv), p);
+      GEN J0 = FpX_eval(gel(uvk,1), xe, p);
+      GEN J1 = FpX_eval(gel(uvk,2), xe, p);
+      GEN J2 = Fp_pow(xe, gel(uvk,3), p);
+      GEN phi = mkvec3(J0, J1, J2);
+      return FpX_oneroot(RgX_to_FpX(RgV_to_RgX(phi,1), p),p);
+    }
+    pari_err_BUG("Fp_modinv_to_j"); return NULL; /* LCOV_EXCL_LIpE */
+  }
+}
 
 /* Assuming p = 2 (mod 3) and p = 3 (mod 4): if the two 12th roots of
  * x (mod p) exist, set *r to one of them and return 1, otherwise
