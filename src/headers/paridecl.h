@@ -4208,6 +4208,7 @@ GEN     polclass(GEN D, long inv, long xvar);
 
 /* polmodular.c */
 
+GEN     Fp_modinv_to_j(GEN x, long inv, GEN p);
 GEN     Fp_polmodular_evalx(long L, long inv, GEN J, GEN P, long v, int compute_derivs);
 void    check_modinv(long inv);
 long    disc_best_modinv(long D);
