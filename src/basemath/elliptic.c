@@ -5064,7 +5064,7 @@ ellnfap(GEN E, GEN P, int *good_red)
     *good_red = 1;
     E = nf_coordch(nf, vecslice(e,1,5), gel(L,3));
     E = ellinit_nf_to_Fq(nf, E, modP);
-    card = doellcard(E);
+    card = FF_ellcard(E);
   }
   else
   {
