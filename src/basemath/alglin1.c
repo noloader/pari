@@ -5056,18 +5056,29 @@ ZabM_indexrank(GEN M, GEN P, long n)
   pari_sp av = avma;
   ulong m = LONG_MAX>>1;
   ulong p = 1+m-(m%n), D = degpol(P);
+  long lM = lg(M), lmax = 0, c = 0;
   GEN v;
-  do
+  for(;;)
   {
-    ulong pi;
     GEN R, Mp, K;
+    ulong pi;
+    long l;
     do p += n; while (!uisprime(p));
     pi = get_Fl_red(p);
     R = Flx_roots(ZX_to_Flx(P, p), p);
     Mp = FqM_to_FlxM(M, P, utoipos(p));
     K = FlxM_eval_powers_pre(Mp, Fl_powers_pre(uel(R,1), D,p,pi), p,pi);
     v = Flm_indexrank(K, p);
-  } while (lg(gel(v,2)) < lg(M));
+    l = lg(gel(v,2));
+    if (l == lM) break;
+    if (lmax >= 0 && l > lmax) { lmax = l; c = 0; } else c++;
+    if (c > 2)
+    { /* probably not maximal rank, expensive check */
+      lM -= lg(ZabM_ker(M, P, n))-1; /* actual rank (+1) */
+      if (lmax == lM) break;
+      lmax = -1; /* disable check */
+    }
+  }
   return gerepileupto(av, v);
 }
 

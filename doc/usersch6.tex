@@ -723,9 +723,9 @@ the prototypes, $P$ is the $n$-th cyclotomic polynomial $\Phi_n$ and $M$ is a
 \fun{GEN}{ZabM_ker}{GEN M, GEN P, long n} returns an integral (primitive)
 basis of the kernel of $M$.
 
-\fun{GEN}{ZabM_indexrank}{GEN M, GEN P, long n} assume that
-$M$ has full column rank. Return a vector with two \typ{VECSMALL}
-components givin the rank profile of $M$.
+\fun{GEN}{ZabM_indexrank}{GEN M, GEN P, long n} return a vector with two
+ \typ{VECSMALL} components givin the rank profile of $M$. Inefficient
+(but correct) when $M$ does not have almost full column rank.
 
 \fun{GEN}{ZabM_inv}{GEN M, GEN P, long n, GEN *pden}
 assume that $M$ is invertible; return $N$ and sets the integer \kbd{den} such
