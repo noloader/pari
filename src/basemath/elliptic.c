@@ -4472,12 +4472,11 @@ pola2a4a6(GEN e, GEN nf, GEN modP, GEN pv2, GEN pv4, GEN pv6)
 }
 
 static GEN
-pol2sqrt_23(GEN nf, GEN modP, GEN Q)
+pol2sqrt_23(GEN modP, GEN Q)
 {
   GEN p = modpr_get_p(modP), T = modpr_get_T(modP);
   GEN r = absequaliu(p,2) ? gel(Q,2): gel(Q,3);
-  if (!gequal1(gel(Q,4)))
-    r = Fq_div(r, gel(Q,4), T, p);
+  if (!gequal1(gel(Q,4))) r = Fq_div(r, gel(Q,4), T, p);
   if (absequaliu(p,2)) r = Fq_sqrt(r,T,p);
   return Fq_to_nf(r, modP);
 }
@@ -4498,7 +4497,7 @@ nflocalred_section7(GEN e, GEN nf, GEN modP, GEN pi, GEN pv, long vD, GEN ch)
       long nr = FqX_nbroots(Q,T,p);
       return localred_result(vD-n-4,-4-n,nr+2,ch);
     }
-    gama = pol2sqrt_23(nf,modP, Q);
+    gama = pol2sqrt_23(modP, Q);
     nf_compose_t(nf, &ch, &e, nfmul(nf, gama,pi3));
     pv6 = nfmul(nf,pv,pv6); n++;
     Q = pola2a4a6(e, nf, modP, pv, pv4, pv6);
@@ -4507,7 +4506,7 @@ nflocalred_section7(GEN e, GEN nf, GEN modP, GEN pi, GEN pv, long vD, GEN ch)
       long nr = FqX_nbroots(Q,T,p);
       return localred_result(vD-n-4,-4-n,nr+2,ch);
     }
-    gama = pol2sqrt_23(nf, modP, Q);
+    gama = pol2sqrt_23(modP, Q);
     nf_compose_r(nf, &ch, &e, nfmul(nf, gama, pi3));
     pi3 = nfmul(nf,pi, pi3);
     pv3 = pv4; pv4 = nfmul(nf,pv,pv4); pv6 = nfmul(nf,pv,pv6); n++;
@@ -4604,8 +4603,8 @@ nflocalred_23(GEN nf, GEN e, GEN D, GEN P, long *ap)
     /* 6 */
     {
       GEN pv3 = nfmul(nf,pv, pv2);
-      GEN alpha = pol2sqrt_23(nf, modP, pola1a2(e, nf, modP));
-      GEN beta  = pol2sqrt_23(nf, modP, pola3a6(e, nf, modP, pv, pv2));
+      GEN alpha = pol2sqrt_23(modP, pola1a2(e, nf, modP));
+      GEN beta  = pol2sqrt_23(modP, pola3a6(e, nf, modP, pv, pv2));
       GEN po2, E, F, mr;
       long i, lE;
       nf_compose_st(nf, &ch, &e, alpha, nfmul(nf, beta, pi));
@@ -4648,7 +4647,7 @@ nflocalred_23(GEN nf, GEN e, GEN D, GEN P, long *ap)
     }
     /*  9 */
     {
-      GEN alpha = pol2sqrt_23(nf, modP, pol);
+      GEN alpha = pol2sqrt_23(modP, pol);
       nf_compose_t(nf, &ch, &e, nfmul(nf, alpha, nfsqr(nf,pi)));
       if (nfval(nf, ell_get_a4(e), P) == 3)
         return localred_result(vD-7,-3,2,ch); /* III* */
