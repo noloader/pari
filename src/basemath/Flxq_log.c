@@ -474,26 +474,13 @@ rel_Coppersmith(long r, GEN u, GEN v, long h, GEN R, long d, ulong p)
   return famatsmall_reduce(M);
 }
 
-static GEN
-vec_append_grow(GEN z, long i, GEN x)
-{
-  long n = lg(z)-1;
-  if (i > n)
-  {
-    n <<= 1;
-    z = vec_lengthen(z,n);
-  }
-  gel(z,i) = x;
-  return z;
-}
-
 GEN
 Flxq_log_Coppersmith_worker(GEN u, long i, GEN V, GEN R)
 {
   long r = V[1], h = V[2], d = V[3], p = V[4], dT = V[5];
   pari_sp ltop = avma;
   GEN v = zero_zv(dT+2);
-  GEN L = cgetg(17, t_VEC);
+  GEN L = cgetg(2*i+1, t_VEC);
   pari_sp av = avma;
   long j;
   long nbtest=0, rel = 1;
@@ -511,14 +498,14 @@ Flxq_log_Coppersmith_worker(GEN u, long i, GEN V, GEN R)
     {
       z = rel_Coppersmith(r, u, v, h, R, d, p);
       nbtest++;
-      if (z) { L = vec_append_grow(L, rel++, z); av = avma; }
+      if (z) { gel(L, rel++) = z; av = avma; }
     }
     if (i==j) continue;
     if (lv==1)
     {
       z = rel_Coppersmith(r, v, u, h, R, d, p);
       nbtest++;
-      if (z) { L = vec_append_grow(L, rel++, z); av = avma; }
+      if (z) { gel(L, rel++) = z; av = avma; }
     }
   }
   setlg(L,rel);
