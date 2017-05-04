@@ -3404,7 +3404,7 @@ struct Fp_log_rel
 {
   GEN rel;
   ulong prmax;
-  long nbrel, nbmax;
+  long nbrel, nbmax, nbgen;
 };
 
 /* add u^e */
@@ -3495,34 +3495,74 @@ static long
 Fp_log_sieve(struct Fp_log_rel *r, GEN C, GEN c, GEN Ci, GEN ci, GEN pi, GEN sz)
 {
   struct pari_mt pt;
-  long i;
+  long i, j, nb = 0;
   GEN worker = snm_closure(is_entry("_Fp_log_sieve_worker"),
                mkvecn(7, utoi(r->prmax), C, c, Ci, ci, pi, sz));
   long running, pending = 0;
-  mt_queue_start(&pt, worker);
-  for (i = 0; (running = (r->nbrel < r->nbmax)) || pending; i++)
+  GEN W = zerovec(r->nbgen);
+  mt_queue_start_lim(&pt, worker, r->nbgen);
+  for (i = 0; (running = (i < r->nbgen)) || pending; i++)
   {
-    GEN L, done;
-    long ll, m;
-    mt_queue_submit(&pt, 0, running ? mkvec(stoi(i)): NULL);
-    done = mt_queue_get(&pt, NULL, &pending);
-    if (!done) continue;
-    L = done; ll = lg(L);
-    if (ll == 1) continue;
-    for (m=1; m<ll; m++)
-    {
-       GEN Lm = gel(L,m), h = gel(Lm, 1), v = gel(Lm, 2);
-       if (r->nbrel == r->nbmax) break;
-       if (v[1] == 1)
-         addifsmooth1(r, h, v[2], v[3]);
-       else
-         addifsmooth2(r, h, v[2], v[3]);
-    }
+    GEN done;
+    long idx;
+    mt_queue_submit(&pt, i, running ? mkvec(stoi(i)): NULL);
+    done = mt_queue_get(&pt, &idx, &pending);
+    if (!done || lg(done)==1) continue;
+    gel(W, idx+1) = done;
+    nb += lg(done)-1;
     if (DEBUGLEVEL && (i&127)==0)
-      err_printf("%ld%% ",100*r->nbrel/(r->nbmax));
+      err_printf("%ld%% ",100*nb/r->nbmax);
   }
   mt_queue_end(&pt);
-  return i;
+  for(j = 1; j <= r->nbgen && r->nbrel < r->nbmax; j++)
+  {
+    long ll, m;
+    GEN L = gel(W,j);
+    if (isintzero(L)) continue;
+    ll = lg(L);
+    for (m=1; m<ll && r->nbrel < r->nbmax ; m++)
+    {
+      GEN Lm = gel(L,m), h = gel(Lm, 1), v = gel(Lm, 2);
+      if (v[1] == 1)
+        addifsmooth1(r, h, v[2], v[3]);
+      else
+        addifsmooth2(r, h, v[2], v[3]);
+    }
+  }
+  return j;
+}
+
+static GEN
+ECP_psi(GEN x, GEN y)
+{
+  long prec = realprec(x);
+  GEN lx = glog(x, prec), ly = glog(y, prec);
+  GEN u = gdiv(lx, ly);
+  return gpow(u, gneg(u),prec);
+}
+
+struct computeG
+{
+  GEN C;
+  long bnd, nbi;
+};
+
+static GEN
+_computeG(void *E, GEN gen)
+{
+  struct computeG * d = (struct computeG *) E;
+  GEN ps = ECP_psi(gmul(gen,d->C), stoi(d->bnd));
+  return gsub(gmul(gsqr(gen),ps),gmul2n(gaddgs(gen,d->nbi),2));
+}
+
+static long
+compute_nbgen(GEN C, long bnd, long nbi)
+{
+  struct computeG d;
+  d.C = shifti(C, 1);
+  d.bnd = bnd;
+  d.nbi = nbi;
+  return itos(ground(zbrent((void*)&d, _computeG, gen_2, stoi(bnd), DEFAULTPREC)));
 }
 
 static GEN
@@ -3620,11 +3660,6 @@ Fp_log_index(GEN a, GEN b, GEN m, GEN p)
     m = diviiexact(p_1, Z_ppo(p_1, m));
   pr = primes_upto_zv(bnd);
   nbi = lg(pr)-1;
-  if (DEBUGLEVEL)
-  {
-    err_printf("bnd=%lu Size FB=%ld\n", bnd, nbi);
-    timer_start(&ti);
-  }
   C = sqrtremi(p, &c);
   av2 = avma;
   for (i = 1; i <= nbi; ++i)
@@ -3654,9 +3689,15 @@ Fp_log_index(GEN a, GEN b, GEN m, GEN p)
     }
   }
   r.nbrel = 0;
-  r.nbmax = 8*nbi;
+  r.nbgen = compute_nbgen(C, bnd, nbi);
+  r.nbmax = 2*(nbi+r.nbgen);
   r.rel = cgetg(r.nbmax+1,t_VEC);
   r.prmax = pr[nbi];
+  if (DEBUGLEVEL)
+  {
+    err_printf("bnd=%lu Size FB=%ld extra gen=%ld \n", bnd, nbi, r.nbgen);
+    timer_start(&ti);
+  }
   nbg = Fp_log_sieve(&r, C, c, Ci, ci, pi, sz);
   nbrow = r.prmax + nbg;
   if (DEBUGLEVEL)
