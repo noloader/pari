@@ -4967,7 +4967,7 @@ ZabM_inv(GEN M, GEN P, long n, GEN *pden)
     if (DEBUGLEVEL>5) err_printf("ZabM_inv mod %ld (ratlift=%ld)\n", p,!!Hr);
     if (Hr) {/* DONE ? */
       GEN Hl = Q_remove_denom(Hr, pden);
-      GEN MH = RgXQM_mul(M, Hl,P);
+      GEN MH = ZXQM_mul(M, Hl,P);
       if (*pden)
       { if (RgM_isscalar(MH, *pden)) { H = Hl; break; }}
       else
@@ -5037,7 +5037,7 @@ ZabM_ker(GEN M, GEN P, long n)
     if (DEBUGLEVEL>5) err_printf("ZabM_ker mod %ld (ratlift=%ld)\n", p,!!Hr);
     if (Hr) {/* DONE ? */
       GEN Hl = Q_remove_denom(Hr, NULL);
-      GEN MH = RgXQM_mul(M, Hl,P);
+      GEN MH = ZXQM_mul(M, Hl,P);
       if (gequal0(MH)) { H = Hl;  break; }
     }
 

@@ -8347,19 +8347,7 @@ either \kbd{NULL} (no restriction) or a \typ{VEC} $[a,b]$ with two real
 components (of type \typ{INT}, \typ{FRAC} or \typ{INFINITY}). For efficiency,
 it is advised to make $P$ primitive first.
 
-\subsec{\kbd{ZXQ}}
-
-\fun{GEN}{ZXQ_mul}{GEN x,GEN y,GEN T} returns $x*y$ mod $T$, assuming
-that all inputs are \kbd{ZX}s and that $T$ is monic.
-
-\fun{GEN}{ZXQ_sqr}{GEN x,GEN T} returns $x^2$ mod $T$, assuming
-that all inputs are \kbd{ZX}s and that $T$ is monic.
-
-\fun{GEN}{ZXQ_charpoly}{GEN A, GEN T, long v}: let \kbd{T} and \kbd{A} be
-\kbd{ZX}s, returns the characteristic polynomial of \kbd{Mod(A, T)}.
-More generally, \kbd{A} is allowed to be a \kbd{QX}, hence possibly has
-rational coefficients, \emph{assuming} the result is a \kbd{ZX}, i.e.~the
-algebraic number \kbd{Mod(A,T)} is integral over \kbd{Z}.
+\subsec{Resultants}
 
 \fun{GEN}{ZX_ZXY_resultant}{GEN A, GEN B}
 under the assumption that \kbd{A} in $\Z[Y]$, \kbd{B} in $\Q[Y][X]$, and
@@ -8397,6 +8385,32 @@ and $y$ have \kbd{ZX} entries.
 
 \fun{GEN}{ZXT_remi2n}{GEN x, long n} applies \kbd{ZX\_remi2n} to all
 leaves of the tree \kbd{x}.
+
+\subsec{\kbd{ZXQ}}
+
+\fun{GEN}{ZXQ_mul}{GEN x,GEN y,GEN T} returns $x*y$ mod $T$, assuming
+that all inputs are \kbd{ZX}s and that $T$ is monic.
+
+\fun{GEN}{ZXQ_sqr}{GEN x,GEN T} returns $x^2$ mod $T$, assuming
+that all inputs are \kbd{ZX}s and that $T$ is monic.
+
+\fun{GEN}{ZXQ_charpoly}{GEN A, GEN T, long v}: let \kbd{T} and \kbd{A} be
+\kbd{ZX}s, returns the characteristic polynomial of \kbd{Mod(A, T)}.
+More generally, \kbd{A} is allowed to be a \kbd{QX}, hence possibly has
+rational coefficients, \emph{assuming} the result is a \kbd{ZX}, i.e.~the
+algebraic number \kbd{Mod(A,T)} is integral over \kbd{Z}.
+
+\subsec{\kbd{ZXQM}}
+
+\kbd{ZXQM} are matrices of \kbd{ZXQ}. All entries must be integers or
+polynomials of degree strictly less than the degree of $T$.
+
+\fun{GEN}{ZXQM_mul}{GEN x,GEN y,GEN T} returns $x*y$ mod $T$, assuming
+that all inputs are \kbd{ZX}s and that $T$ is monic.
+
+\fun{GEN}{ZXQM_sqr}{GEN x,GEN T} returns $x^2$ mod $T$, assuming
+that all inputs are \kbd{ZX}s and that $T$ is monic.
+
 
 \subsec{\kbd{ZXX}}
 

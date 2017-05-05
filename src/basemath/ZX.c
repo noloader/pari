@@ -417,7 +417,7 @@ Z_mod2BIL_ZX(GEN x, long bs, long d, long vx)
   {
     pari_sp av = avma;
     long lz = minss(bs, lm-offset);
-    GEN z = adduispec_offset(carry, x, offset, lz);
+    GEN z = lz > 0 ?adduispec_offset(carry, x, offset, lz): utoi(carry);
     if (lgefint(z) == 3+bs) { carry = 1; z = gen_0;}
     else
     {
@@ -705,6 +705,121 @@ ZXV_dotproduct(GEN x, GEN y)
     if (signe(t)) c = ZX_add(c, t);
   }
   return gerepileupto(av, c);
+}
+
+/*******************************************************************/
+/*                                                                 */
+/*                                ZXQM                             */
+/*                                                                 */
+/*******************************************************************/
+
+static long
+ZX_expi(GEN x)
+{
+  if (signe(x)==0) return 0;
+  if (typ(x)==t_INT) return expi(x);
+  return ZX_expispec(x+2, lgpol(x));
+}
+
+static long
+ZXC_expi(GEN x)
+{
+  long i, l = lg(x), m=0;
+  for(i = 1; i < l; i++)
+  {
+    long e = ZX_expi(gel(x,i));
+    if (e > m) m = e;
+  }
+  return m;
+}
+
+static long
+ZXM_expi(GEN x)
+{
+  long i, l = lg(x), m=0;
+  for(i = 1; i < l; i++)
+  {
+    long e = ZXC_expi(gel(x,i));
+    if (e > m) m = e;
+  }
+  return m;
+}
+
+static GEN
+ZX_eval2BIL(GEN x, long k)
+{
+  if (signe(x)==0) return gen_0;
+  if (typ(x)==t_INT) return x;
+  return ZX_eval2BILspec(x+2, k, lgpol(x));
+}
+
+/*Eval x in 2^(k*BIL) in linear time*/
+static GEN
+ZXC_eval2BIL(GEN x, long k)
+{
+  long i, lx = lg(x);
+  GEN A = cgetg(lx, t_COL);
+  for (i=1; i<lx; i++) gel(A,i) = ZX_eval2BIL(gel(x,i), k);
+  return A;
+}
+
+static GEN
+ZXM_eval2BIL(GEN x, long k)
+{
+  long i, lx = lg(x);
+  GEN A = cgetg(lx, t_MAT);
+  for (i=1; i<lx; i++) gel(A,i) = ZXC_eval2BIL(gel(x,i), k);
+  return A;
+}
+
+static GEN
+Z_mod2BIL_ZXQ(GEN x, long bs, GEN T)
+{
+  pari_sp av = avma;
+  long v = varn(T), d = 2*(degpol(T)-1);
+  GEN z = Z_mod2BIL_ZX(x, bs, d, 0);
+  setvarn(z, v);
+  return gerepileupto(av, ZX_rem(z, T));
+}
+
+static GEN
+ZC_mod2BIL_ZXQC(GEN x, long bs, GEN T)
+{
+  long i, lx = lg(x);
+  GEN A = cgetg(lx, t_COL);
+  for (i=1; i<lx; i++) gel(A,i) = Z_mod2BIL_ZXQ(gel(x,i), bs, T);
+  return A;
+}
+
+static GEN
+ZM_mod2BIL_ZXQM(GEN x, long bs, GEN T)
+{
+  long i, lx = lg(x);
+  GEN A = cgetg(lx, t_MAT);
+  for (i=1; i<lx; i++) gel(A,i) = ZC_mod2BIL_ZXQC(gel(x,i), bs, T);
+  return A;
+}
+
+GEN
+ZXQM_mul(GEN x, GEN y, GEN T)
+{
+  pari_sp av = avma;
+  long ex = ZXM_expi(x), ey = ZXM_expi(y), d= degpol(T), n = lg(x)-1;
+  long e = ex + ey + expu(d) + expu(n) + 4;
+  long N = divsBIL(e)+1;
+  GEN  z = ZM_mul(ZXM_eval2BIL(x,N), ZXM_eval2BIL(y,N));
+  return gerepileupto(av, ZM_mod2BIL_ZXQM(z, N, T));
+}
+
+GEN
+ZXQM_sqr(GEN x, GEN T)
+{
+  pari_sp av = avma;
+  long ex = ZXM_expi(x), d = degpol(T), n = lg(x)-1;
+  long e = 2*ex + expu(d) + expu(n) + 4;
+  long N = divsBIL(e)+1;
+  GEN  z = ZM_sqr(ZXM_eval2BIL(x,N));
+  return gerepileupto(av, ZM_mod2BIL_ZXQM(z, N, T));
 }
 
 /*******************************************************************/
