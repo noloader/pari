@@ -40,27 +40,40 @@ RgM_check_ZM(GEN A, const char *s)
   }
 }
 
-long
-ZV_max_lg(GEN x)
+static long
+ZV_max_lg_i(GEN x, long m)
 {
-  long i, prec = 2, m = lg(x);
+  long i, prec = 2;
   for (i=1; i<m; i++) { long l = lgefint(gel(x,i)); if (l > prec) prec = l; }
   return prec;
 }
+
 long
-ZM_max_lg(GEN x)
+ZV_max_lg(GEN x)
+{ return ZV_max_lg_i(x, lg(x)); }
+
+static long
+ZM_max_lg_i(GEN x, long n, long m)
 {
-  long i, prec = 2, n = lg(x);
+  long prec = 2;
   if (n != 1)
   {
-    long j, m = lgcols(x);
+    long j;
     for (j=1; j<n; j++)
     {
-      GEN c = gel(x,j);
-      for (i=1; i<m; i++) { long l = lgefint(gel(c,i)); if (l > prec) prec = l; }
+      long l = ZV_max_lg_i(gel(x,j), m);
+      if (l > prec) prec = l;
     }
   }
   return prec;
+}
+
+long
+ZM_max_lg(GEN x)
+{
+  long n = lg(x);
+  if (n==1) return 2;
+  return ZM_max_lg_i(x, n, lgcols(x));
 }
 
 GEN
@@ -388,11 +401,11 @@ ZM_mul_classical(GEN x, GEN y, long l, long lx, long ly)
 }
 
 /* Strassen-Winograd used for dim >= ZM_sw_bound */
-static const long ZM_sw_bound = 36;
-
 static GEN
 ZM_mul_i(GEN x, GEN y, long l, long lx, long ly)
 {
+  long s = maxss(ZM_max_lg_i(x,lx,l), ZM_max_lg_i(y,ly,lx));
+  long ZM_sw_bound = s > 60 ? 2: s > 25 ? 4: s>15 ? 8 : s > 8 ? 16 : 32;
   if (l <= ZM_sw_bound || lx <= ZM_sw_bound || ly <= ZM_sw_bound)
     return ZM_mul_classical(x, y, l, lx, ly);
   else
@@ -518,6 +531,8 @@ ZM_transmul(GEN x, GEN y)
 static GEN
 ZM_sqr_i(GEN x, long l)
 {
+  long s = ZM_max_lg_i(x,l,l);
+  long ZM_sw_bound = s > 60 ? 2: s > 25 ? 4: s>15 ? 8 : s > 8 ? 16 : 32;
   if (l <= ZM_sw_bound)
     return ZM_mul_classical(x, x, l, l, l);
   else
