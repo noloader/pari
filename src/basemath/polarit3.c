@@ -1894,7 +1894,7 @@ ZX_resultant_all(GEN A, GEN B, GEN dB, ulong bound)
     if (DEBUGLEVEL > 4)
       err_printf("ZX_resultant: bound 2^%ld, nb primes: %ld\n",bound, n);
     H = cgetg(m+1+!!r, t_VEC); P = cgetg(m+1+!!r, t_VEC);
-    mt_queue_start(&pt, worker);
+    mt_queue_start_lim(&pt, worker, m);
     for (i=1; i<=m || pending; i++)
     {
       GEN done;

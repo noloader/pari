@@ -2619,7 +2619,7 @@ nmV_polint_center_tree(GEN T, GEN R, GEN xa, GEN Ma, GEN m2)
   va = mkvec(gen_0);
   M = cgetg(l, t_MAT);
   if (DEBUGLEVEL>2) err_printf("Start parallel Chinese remainder: ");
-  mt_queue_start(&pt, worker);
+  mt_queue_start_lim(&pt, worker, l-1);
   for (i=1; i<l || pending; i++)
   {
     for(j=1; j < n; j++)

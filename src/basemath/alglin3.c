@@ -621,7 +621,7 @@ parselect(GEN C, GEN D, long flag)
   V = cgetg(l, t_VECSMALL); av = avma;
   worker = strtoclosure("_parapply_worker", 1, C);
   av2 = avma;
-  mt_queue_start(&pt, worker);
+  mt_queue_start_lim(&pt, worker, l-1);
   for (i=1; i<l || pending; i++)
   {
     mt_queue_submit(&pt, i, i<l? mkvec(gel(D,i)): NULL);
@@ -774,7 +774,7 @@ parapply(GEN C, GEN D)
   if (!is_vec_t(typ(D))) pari_err_TYPE("parapply",D);
   worker = strtoclosure("_parapply_worker", 1, C);
   V = cgetg(l, typ(D));
-  mt_queue_start(&pt, worker);
+  mt_queue_start_lim(&pt, worker, l-1);
   for (i=1; i<l || pending; i++)
   {
     mt_queue_submit(&pt, i, i<l? mkvec(gel(D,i)): NULL);

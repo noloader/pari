@@ -2260,7 +2260,7 @@ polmodular0_ZM(
     worker = strtoclosure("_polmodular_worker", 8, utoi(L), hilb, factu, ne_to_vne(ne),
         dinfo_to_vinfo(dinfo),
         stoi(compute_derivs), j_powers, *db);
-    mt_queue_start(&pt, worker);
+    mt_queue_start_lim(&pt, worker, dinfo->nprimes);
     for (i = 0; i < dinfo->nprimes || pending; ++i)
     {
       GEN done;

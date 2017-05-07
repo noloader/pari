@@ -1618,7 +1618,7 @@ pareval(GEN C)
       pari_err_TYPE("pareval",gel(C,i));
   worker = snm_closure(is_entry("_pareval_worker"), NULL);
   V = cgetg(l, t_VEC);
-  mt_queue_start(&pt, worker);
+  mt_queue_start_lim(&pt, worker, l-1);
   for (i=1; i<l || pending; i++)
   {
     mt_queue_submit(&pt, i, i<l? mkvec(gel(C,i)): NULL);
@@ -1648,7 +1648,7 @@ parvector(long n, GEN code)
   GEN worker = snm_closure(is_entry("_parvector_worker"), mkvec(code));
   GEN a, V, done;
   struct pari_mt pt;
-  mt_queue_start(&pt, worker);
+  mt_queue_start_lim(&pt, worker, n);
   a = mkvec(cgetipos(3)); /* left on the stack */
   V = cgetg(n+1, t_VEC);
   for (i=1; i<=n || pending; i++)

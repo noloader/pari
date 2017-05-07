@@ -977,7 +977,7 @@ step6(GEN N, ulong t, GEN et)
   worker = strtoclosure("_aprcl_step6_worker", 3, N, N1, et);
   r = gen_1;
   rk = Fp_powu(N1, k, et);
-  mt_queue_start(&pt, worker);
+  mt_queue_start_lim(&pt, worker, (t-1+k-1)/k);
   btop = avma;
   for (i=1; (i<t && !res) || pending; i+=k)
   {
@@ -1069,7 +1069,7 @@ aprcl(GEN N)
   worker = strtoclosure("_aprcl_step4_worker", 3,
                         pC, N, mkvecsmall4(R.k, R.lv, R.mask, R.n));
   if (DEBUGLEVEL>2) err_printf("Step4: %ld q-values\n", l-1);
-  mt_queue_start(&pt, worker);
+  mt_queue_start_lim(&pt, worker, l-1);
   for (i=l-1; (i>0 && !res) || pending; i--)
   {
     GEN done;
