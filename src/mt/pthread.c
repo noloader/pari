@@ -273,29 +273,30 @@ mt_queue_reset(void)
 }
 
 void
-mt_queue_start(struct pari_mt *pt, GEN worker)
+mt_queue_start_lim(struct pari_mt *pt, GEN worker, long lim)
 {
-  if (pari_mt || pari_mt_nbthreads == 1)
+  if (lim==0) lim = pari_mt_nbthreads;
+  else        lim = minss(pari_mt_nbthreads, lim);
+  if (pari_mt || lim <= 1)
     mtsingle_queue_start(pt, worker);
   else
   {
-    long NBT = pari_mt_nbthreads;
     struct mt_pstate *mt =
            (struct mt_pstate*) pari_malloc(sizeof(struct mt_pstate));
     long mtparisize = GP_DATA->threadsize? GP_DATA->threadsize: pari_mainstack->rsize;
     long mtparisizemax = GP_DATA->threadsizemax;
     long i;
-    mt->mq  = (struct mt_queue *) pari_malloc(sizeof(*mt->mq)*NBT);
-    mt->th  = (pthread_t *) pari_malloc(sizeof(*mt->th)*NBT);
-    mt->pth = (struct pari_thread *) pari_malloc(sizeof(*mt->pth)*NBT);
+    mt->mq  = (struct mt_queue *) pari_malloc(sizeof(*mt->mq)*lim);
+    mt->th  = (pthread_t *) pari_malloc(sizeof(*mt->th)*lim);
+    mt->pth = (struct pari_thread *) pari_malloc(sizeof(*mt->pth)*lim);
     mt->pending = 0;
-    mt->n = NBT;
+    mt->n = lim;
     mt->nbint = 0;
     mt->last = 0;
     pthread_cond_init(&mt->pcond,NULL);
     pthread_mutex_init(&mt->pmut,NULL);
     pari_thread_sync();
-    for (i=0;i<NBT;i++)
+    for (i=0;i<lim;i++)
     {
       struct mt_queue *mq = mt->mq+i;
       mq->no     = i;
@@ -314,7 +315,7 @@ mt_queue_start(struct pari_mt *pt, GEN worker)
     }
     if (DEBUGLEVEL) pari_warn(warner,"start threads");
     BLOCK_SIGINT_START
-    for (i=0;i<NBT;i++)
+    for (i=0;i<lim;i++)
       pthread_create(&mt->th[i],NULL, &mt_queue_run, (void*)&mt->pth[i]);
     pari_mt = mt;
     BLOCK_SIGINT_END

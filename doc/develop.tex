@@ -606,6 +606,16 @@ PARI provides an abstraction for doing parallel computations.
 be a \typ{CLOSURE} object of arity $1$.  Initialize the structure \kbd{pt}
 to evaluate \kbd{worker} in parallel.
 
+\fun{void}{mt_queue_start_lim}{struct pari_mt *pt, GEN worker, long lim}
+as \kbd{mt\_queue\_start}, where \kbd{lim} is an upper bound on the number
+of \kbd{tasks} to perform. Concretly the number of
+threads will be \kbd{min(lim,nbthreads}. The values $0$ and $1$ of \kbd{lim}
+are special:
+
+\item $0$: no limit, equivalent to \kbd{mt\_queue\_start}.
+
+\item $1$: no parallelism. Evaluate the tasks sequentially.
+
 \fun{void}{mt_queue_submit}{struct pari_mt *pt, long taskid, GEN task} Submit
 \kbd{task} to be evaluated by \kbd{worker}, or \kbd{NULL} if no further task
 is left to be submitted. The value \kbd{taskid} is user-specified and allows

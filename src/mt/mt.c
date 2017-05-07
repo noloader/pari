@@ -56,6 +56,9 @@ GEN
 mt_queue_get(struct pari_mt *pt, long *workid, long *pending)
 { return pt->get(&pt->mt, workid, pending); }
 
+void
+mt_queue_start(struct pari_mt *pt, GEN worker)
+{ return mt_queue_start_lim(pt, worker, 0); }
 
 void
 mtstate_save(long *pending)

@@ -43,7 +43,8 @@ pari_mt_init(void)
 }
 
 void
-mt_queue_start(struct pari_mt *pt, GEN worker)
+mt_queue_start_lim(struct pari_mt *pt, GEN worker, long lim)
 {
+  (void) lim;
   mtsingle_queue_start(pt, worker);
 }

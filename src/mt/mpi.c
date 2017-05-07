@@ -328,14 +328,16 @@ mt_queue_reset(void)
 }
 
 void
-mt_queue_start(struct pari_mt *pt, GEN worker)
+mt_queue_start_lim(struct pari_mt *pt, GEN worker, long lim)
 {
-  if (pari_mt || pari_MPI_size <= 2 || pari_mt_nbthreads <= 1)
+  if (lim==0) lim = pari_mt_nbthreads;
+  else        lim = minss(pari_mt_nbthreads, lim);
+  if (pari_mt || pari_MPI_size <= 2 || lim <= 1)
     mtsingle_queue_start(pt, worker);
   else
   {
     struct mt_mstate *mt = &pari_mt_data;
-    long i, n = minss(pari_mt_nbthreads, pari_MPI_size-1);
+    long i, n = minss(lim, pari_MPI_size-1);
     long mtparisize = GP_DATA->threadsize? GP_DATA->threadsize: pari_mainstack->rsize;
     long mtparisizemax = GP_DATA->threadsizemax;
     pari_mt = mt;
