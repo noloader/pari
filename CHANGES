@@ -98,6 +98,8 @@ EB   62- GP was incorrectly issuing fflush(NULL) [#1913]
 BA   74- [pthread] do not use pthread when nbthreads=1
      75- sumdiv(arg. in factored form, k < 0) => error or wrong result
      76- Mod(0,1)^0 -> invalid t_INTMOD
+     77- gamma and lngamma inaccurate near negative integers, e.g.
+         gamma(-1+10^-16)
 
   Added
       1- [libari] ZM_isidentity

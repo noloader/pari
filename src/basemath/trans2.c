@@ -1277,27 +1277,36 @@ cxgamma(GEN s0, int dolog, long prec)
   if (dolog)
   {
     if (funeq)
-    { /* (recall that s = 1 - s0) */
+    { /* recall that s = 1 - s0 */
+      GEN T = shiftr(sqrtpi2,-1); /* sqrt(2Pi)/2 */
+      if (typ(s) != t_REAL)
+      {
+        /* We compute log(sin(Pi s0)) so that it has branch cuts along
+        * (-oo, 0] and [1, oo).  To do this in a numerically stable way
+        * we must compute the log first then mangle its imaginary part.
+        * The rounding operation below is stable because we're rounding
+        * a number which is already within 1/4 of an integer. */
 
-      /* We compute log(sin(Pi s0)) so that it has branch cuts along
-      * (-oo, 0] and [1, oo).  To do this in a numerically stable way
-      * we must compute the log first then mangle its imaginary part.
-      * The rounding operation below is stable because we're rounding
-      * a number which is already within 1/4 of an integer. */
-
-      /* z = log( sin(Pi s0) / (sqrt(2Pi)/2) ) */
-      GEN z = glog(gdiv(gsin(gmul(pi,s0),prec), shiftr(sqrtpi2,-1)), prec);
-      /* b = (2 Re(s) - 1) / 4 */
-      GEN b = shiftr(subrs(shiftr(sig, 1), 1), -2);
-      y = gsub(y, z);
-      if (gsigne(imag_i(s)) > 0) togglesign(b);
-      /* z = 2Pi round( Im(z)/2Pi - b ) */
-      z = gmul(roundr(gsub(gdiv(imag_i(z), pi2), b)), pi2);
-      if (signe(z)) { /* y += I*z */
-        if (typ(y) == t_COMPLEX)
-          gel(y,2) = gadd(gel(y,2), z);
-        else
-          y = gadd(y, mkcomplex(gen_0, z));
+        /* z = log( sin(Pi s0) / (sqrt(2Pi)/2) ) */
+        GEN z = glog(gdiv(gsin(gmul(pi,s0),prec), T), prec);
+        /* b = (2 Re(s) - 1) / 4 */
+        GEN b = shiftr(subrs(shiftr(sig, 1), 1), -2);
+        y = gsub(y, z);
+        if (gsigne(imag_i(s)) > 0) togglesign(b);
+        /* z = 2Pi round( Im(z)/2Pi - b ) */
+        z = gmul(roundr(gsub(gdiv(imag_i(z), pi2), b)), pi2);
+        if (signe(z)) { /* y += I*z, z a t_REAL */
+          if (typ(y) == t_COMPLEX)
+            gel(y,2) = gadd(gel(y,2), z);
+          else
+            y = mkcomplex(y, z);
+        }
+      }
+      else
+      { /* s0 < 0, formula simplifies: imag(lngamma(s0)) = - Pi * floor(s0) */
+        GEN z = logr_abs(divrr(mpsin(gmul(pi,s0)), T));
+        y = gsub(y, z);
+        y = mkcomplex(y, mulri(pi, gfloor(s0)));
       }
       p1 = gneg(p1);
     }
@@ -1541,10 +1550,19 @@ ggamma(GEN x, long prec)
       }
       av = avma; c = subii(a,b);
       if (expi(c) - expi(b) < -50)
-      {
+      { /* x = 1 + c/b is close to 1 */
         x = mkfrac(c,b);
         if (lgefint(b) >= prec) x = fractor(x,prec);
         y = mpexp(lngamma1(x, prec));
+      }
+      else if (signe(a) < 0 || cmpii(shifti(a,1), b) < 0)
+      { /* gamma will use functional equation x -> z = 1-x = -c/b >= 1/2.
+         * Gamma(x) = Pi / (sin(Pi z) * Gamma(z)) */
+        GEN z = mkfrac(negi(c), b), q = ground(z), r = gsub(z,q);
+        GEN pi = mppi(prec); /* |r| <= 1/2 */
+        z = fractor(z, prec);
+        y = divrr(pi, mulrr(mpsin(gmul(pi, r)), cxgamma(z, 0, prec)));
+        if (mpodd(q)) togglesign(y);
       }
       else
       {
@@ -1621,6 +1639,15 @@ glngamma(GEN x, long prec)
         x = mkfrac(c,b);
         if (lgefint(b) >= prec) x = fractor(x,prec + nbits2nlong(e));
         y = lngamma1(x, prec);
+      }
+      else if (signe(a) < 0 || cmpii(shifti(a,1), b) < 0)
+      { /* gamma will use functional equation x -> z = 1-x = -c/b >= 1/2.
+         * lngamma(x) = log |Pi / (sin(Pi z) * Gamma(z))| + I*Pi * floor(x) */
+        GEN z = mkfrac(negi(c), b), q = ground(z), r = gsub(z,q);
+        GEN pi = mppi(prec); /* |r| <= 1/2 */
+        z = fractor(z, prec);
+        y = subrr(logr_abs(divrr(pi, mpsin(gmul(pi, r)))), cxgamma(z, 1, prec));
+        if (signe(a) < 0) y = gadd(y, mkcomplex(gen_0, mulri(pi, gfloor(x))));
       }
       else
       {
