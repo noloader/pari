@@ -198,6 +198,7 @@ BA   74- ellheight for curves over number fields
 BA   77- ellrootno for curves over number fields
      78- optional flag to 'divisors' (add factorization)
      79- GP functions fordivfactored
+BA   80 [libpari] ZXQM_mul, ZXQM_sqr
 
   Changed
       1- rewrite bnfnarrow
