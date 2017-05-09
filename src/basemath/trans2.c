@@ -1560,7 +1560,7 @@ ggamma(GEN x, long prec)
          * Gamma(x) = Pi / (sin(Pi z) * Gamma(z)) */
         GEN z = mkfrac(negi(c), b), q = ground(z), r = gsub(z,q);
         GEN pi = mppi(prec); /* |r| <= 1/2 */
-        z = fractor(z, prec);
+        z = fractor(z, prec+EXTRAPRECWORD);
         y = divrr(pi, mulrr(mpsin(gmul(pi, r)), cxgamma(z, 0, prec)));
         if (mpodd(q)) togglesign(y);
       }
@@ -1645,7 +1645,7 @@ glngamma(GEN x, long prec)
          * lngamma(x) = log |Pi / (sin(Pi z) * Gamma(z))| + I*Pi * floor(x) */
         GEN z = mkfrac(negi(c), b), q = ground(z), r = gsub(z,q);
         GEN pi = mppi(prec); /* |r| <= 1/2 */
-        z = fractor(z, prec);
+        z = fractor(z, prec+EXTRAPRECWORD);
         y = subrr(logr_abs(divrr(pi, mpsin(gmul(pi, r)))), cxgamma(z, 1, prec));
         if (signe(a) < 0) y = gadd(y, mkcomplex(gen_0, mulri(pi, gfloor(x))));
       }
