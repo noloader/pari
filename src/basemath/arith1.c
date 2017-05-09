@@ -1958,9 +1958,13 @@ Fl_2gener_pre_all(long e, ulong p, ulong pi)
   return y;
 }
 
+ulong
+Fl_2gener_pre(ulong p, ulong pi)
+{ return Fl_2gener_pre_all(vals(p-1), p, pi); }
+
 /* Tonelli-Shanks. Assume p is prime and (a,p) != -1. */
-static ulong
-Fl_sqrt_i(ulong a, ulong p, ulong pi, ulong y)
+ulong
+Fl_sqrt_pre_i(ulong a, ulong y, ulong p, ulong pi)
 {
   long i, e, k;
   ulong p1, q, v, w;
@@ -2000,13 +2004,13 @@ ulong
 Fl_sqrt(ulong a, ulong p)
 {
   ulong pi = get_Fl_red(p);
-  return Fl_sqrt_i(a, p, pi, 0);
+  return Fl_sqrt_pre_i(a, 0, p, pi);
 }
 
 ulong
 Fl_sqrt_pre(ulong a, ulong p, ulong pi)
 {
-  return Fl_sqrt_i(a, p, pi, 0);
+  return Fl_sqrt_pre_i(a, 0, p, pi);
 }
 
 static ulong

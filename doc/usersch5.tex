@@ -2101,6 +2101,13 @@ modulo \kbd{p}, assuming $pi$ is the pseudo inverse of $p$,
 $p$ prime and $p \equiv 1 \pmod{l}$, and \kbd{x} to be a $l$-th power modulo
 \kbd{p}.
 
+\fun{ulong}{Fl_2gener_pre}{ulong p, ulong pi} return a generator of
+the $2$-Sylow subgroup of $\F_p^*$. To use with \kbd{Fl\_sqrt\_pre\_i}.
+
+\fun{ulong}{Fl_sqrt_pre_i}{ulong x, ulong s2, ulong p, ulong pi}
+as \kbd{Fl\_sqrtl\_pre} where \kbd{s2} is the element returned by
+\kbd{Fl\_2gener\_pre}.
+
 \subsec{Switching between Fl\_xxx and standard operators}
 
 Even though the \kbd{Fl\_xxx} routines are efficient, they are slower than

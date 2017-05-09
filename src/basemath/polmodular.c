@@ -546,28 +546,28 @@ modinv_is_double_eta(long inv)
 /* END Code from "class_inv.h" */
 
 INLINE int
-safe_abs_sqrt(ulong *r, ulong x, ulong p, ulong pi)
+safe_abs_sqrt(ulong *r, ulong x, ulong p, ulong pi, ulong s2)
 {
   if (krouu(x, p) == -1) {
     if (p%4 == 1) return 0;
     x = Fl_neg(x, p);
   }
-  *r = Fl_sqrt_pre(x, p, pi);
+  *r = Fl_sqrt_pre_i(x, s2, p, pi);
   return 1;
 }
 
 INLINE int
-eighth_root(ulong *r, ulong x, ulong p, ulong pi)
+eighth_root(ulong *r, ulong x, ulong p, ulong pi, ulong s2)
 {
   ulong s;
   if (krouu(x, p) == -1)
     return 0;
-  s = Fl_sqrt_pre(x, p, pi);
-  return safe_abs_sqrt(&s, s, p, pi) && safe_abs_sqrt(r, s, p, pi);
+  s = Fl_sqrt_pre_i(x, s2, p, pi);
+  return safe_abs_sqrt(&s, s, p, pi, s2) && safe_abs_sqrt(r, s, p, pi, s2);
 }
 
 INLINE ulong
-modinv_f_from_j(ulong j, ulong p, ulong pi, long only_residue)
+modinv_f_from_j(ulong j, ulong p, ulong pi, ulong s2, long only_residue)
 {
   pari_sp av = avma;
   GEN pol, rts;
@@ -586,7 +586,7 @@ modinv_f_from_j(ulong j, ulong p, ulong pi, long only_residue)
         break;
       } else
         continue;
-    } else if (eighth_root(&f, rts[i], p, pi))
+    } else if (eighth_root(&f, rts[i], p, pi, s2))
       break;
   }
   if (i == lg(rts))
@@ -596,7 +596,7 @@ modinv_f_from_j(ulong j, ulong p, ulong pi, long only_residue)
 }
 
 INLINE ulong
-modinv_f3_from_j(ulong j, ulong p, ulong pi)
+modinv_f3_from_j(ulong j, ulong p, ulong pi, ulong s2)
 {
   pari_sp av = avma;
   GEN pol, rts;
@@ -607,7 +607,7 @@ modinv_f3_from_j(ulong j, ulong p, ulong pi)
       Fl_neg(4096 % p, p), Fl_sub(768 % p, j, p), Fl_neg(48 % p, p), 1UL);
   rts = Flx_roots(pol, p);
   for (i = 1; i < lg(rts); ++i) {
-    if (eighth_root(&f, rts[i], p, pi))
+    if (eighth_root(&f, rts[i], p, pi, s2))
       break;
   }
   if (i == lg(rts))
@@ -715,48 +715,48 @@ Fp_modinv_to_j(GEN x, long inv, GEN p)
  * x (mod p) exist, set *r to one of them and return 1, otherwise
  * return 0 (without touching *r). */
 INLINE int
-twelth_root(ulong *r, ulong x, ulong p, ulong pi)
+twelth_root(ulong *r, ulong x, ulong p, ulong pi, ulong s2)
 {
   register ulong t;
 
   t = Fl_sqrtl_pre(x, 3, p, pi);
   if (krouu(t, p) == -1)
     return 0;
-  t = Fl_sqrt_pre(t, p, pi);
-  return safe_abs_sqrt(r, t, p, pi);
+  t = Fl_sqrt_pre_i(t, s2, p, pi);
+  return safe_abs_sqrt(r, t, p, pi, s2);
 }
 
 INLINE int
-sixth_root(ulong *r, ulong x, ulong p, ulong pi)
+sixth_root(ulong *r, ulong x, ulong p, ulong pi, ulong s2)
 {
   register ulong t;
 
   t = Fl_sqrtl_pre(x, 3, p, pi);
   if (krouu(t, p) == -1)
     return 0;
-  *r = Fl_sqrt_pre(t, p, pi);
+  *r = Fl_sqrt_pre_i(t, s2, p, pi);
   return 1;
 }
 
 INLINE int
-fourth_root(ulong *r, ulong x, ulong p, ulong pi)
+fourth_root(ulong *r, ulong x, ulong p, ulong pi, ulong s2)
 {
   register ulong s;
   if (krouu(x, p) == -1)
     return 0;
-  s = Fl_sqrt_pre(x, p, pi);
-  return safe_abs_sqrt(r, s, p, pi);
+  s = Fl_sqrt_pre_i(x, s2, p, pi);
+  return safe_abs_sqrt(r, s, p, pi, s2);
 }
 
 INLINE int
-double_eta_root(long inv, ulong *r, ulong w, ulong p, ulong pi)
+double_eta_root(long inv, ulong *r, ulong w, ulong p, ulong pi, ulong s2)
 {
   switch (double_eta_exponent(inv)) {
-  case 12: return twelth_root(r, w, p, pi);
-  case 6: return sixth_root(r, w, p, pi);
-  case 4: return fourth_root(r, w, p, pi);
+  case 12: return twelth_root(r, w, p, pi, s2);
+  case 6: return sixth_root(r, w, p, pi, s2);
+  case 4: return fourth_root(r, w, p, pi, s2);
   case 3: *r = Fl_sqrtl_pre(w, 3, p, pi); return 1;
-  case 2: return krouu(w, p) != -1 && !!(*r = Fl_sqrt_pre(w, p, pi));
+  case 2: return krouu(w, p) != -1 && !!(*r = Fl_sqrt_pre_i(w, s2, p, pi));
   case 1: *r = w; return 1;
   }
   pari_err_BUG("double_eta_root");
@@ -786,7 +786,7 @@ double_eta_Fl(long inv, ulong p)
 /* Go through the roots of Psi(X,j) until one has an
  * double_eta_exponent(inv)-th root, and return that root. F = double_eta_Fl(inv,p) */
 INLINE ulong
-modinv_double_eta_from_j(GEN F, long inv, ulong j, ulong p, ulong pi)
+modinv_double_eta_from_j(GEN F, long inv, ulong j, ulong p, ulong pi, ulong s2)
 {
   pari_sp av = avma;
   long i;
@@ -794,7 +794,7 @@ modinv_double_eta_from_j(GEN F, long inv, ulong j, ulong p, ulong pi)
   GEN a = Flx_double_eta_xpoly(F, j, p, pi);
   a = Flx_roots(a, p);
   for (i = 1; i < lg(a); ++i) {
-    if (double_eta_root(inv, &f, uel(a, i), p, pi))
+    if (double_eta_root(inv, &f, uel(a, i), p, pi, s2))
       break;
   }
   if (i == lg(a))
@@ -806,7 +806,7 @@ modinv_double_eta_from_j(GEN F, long inv, ulong j, ulong p, ulong pi)
 /* TODO: Check whether I can use this to refactor something */
 static long
 modinv_double_eta_from_2j(
-  ulong *r, long inv, ulong j1, ulong j2, ulong p, ulong pi)
+  ulong *r, long inv, ulong j1, ulong j2, ulong p, ulong pi, ulong s2)
 {
   pari_sp av = avma;
   GEN f, g, d, F = double_eta_Fl(inv, p);
@@ -824,13 +824,13 @@ modinv_double_eta_from_2j(
 #if 0
   if (degpol(d) != 1
       || (*r = Flx_oneroot(d, p)) == p
-      || ! double_eta_root(inv, r, *r, p, pi)) {
+      || ! double_eta_root(inv, r, *r, p, pi, s2)) {
     pari_err_BUG("modinv_double_eta_from_2j");
   }
 #endif
   if (degpol(d) > 2
       || (*r = Flx_oneroot(d, p)) == p
-      || ! double_eta_root(inv, r, *r, p, pi)) {
+      || ! double_eta_root(inv, r, *r, p, pi, s2)) {
     return 0;
   }
   avma = av;
@@ -842,7 +842,7 @@ modfn_unambiguous_root(ulong *r, long inv, ulong j0, norm_eqn_t ne, GEN jdb)
 {
   pari_sp av = avma;
   long p1, p2, v = ne->v, p1_depth;
-  ulong j1, p = ne->p, pi = ne->pi;
+  ulong j1, p = ne->p, pi = ne->pi, s2 = ne->s2;
   GEN phi;
 
   (void) modinv_degree(&p1, &p2, inv);
@@ -861,35 +861,35 @@ modfn_unambiguous_root(ulong *r, long inv, ulong j0, norm_eqn_t ne, GEN jdb)
       pari_err_BUG("modfn_unambiguous_root");
   }
   avma = av;
-  return j1 != j0 && modinv_double_eta_from_2j(r, inv, j0, j1, p, pi);
+  return j1 != j0 && modinv_double_eta_from_2j(r, inv, j0, j1, p, pi, s2);
 }
 
 ulong
 modfn_root(ulong j, norm_eqn_t ne, long inv)
 {
-  ulong f, p = ne->p, pi = ne->pi;
+  ulong f, p = ne->p, pi = ne->pi, s2 = ne->s2;
   switch (inv) {
   case INV_J:
     return j;
   case INV_G2:
     return Fl_sqrtl_pre(j, 3, p, pi);
   case INV_F:
-    return modinv_f_from_j(j, p, pi, 0);
+    return modinv_f_from_j(j, p, pi, s2, 0);
   case INV_F2:
-    f = modinv_f_from_j(j, p, pi, 0);
+    f = modinv_f_from_j(j, p, pi, s2, 0);
     return Fl_sqr_pre(f, p, pi);
   case INV_F3:
-    return modinv_f3_from_j(j, p, pi);
+    return modinv_f3_from_j(j, p, pi, s2);
   case INV_F4:
-    f = modinv_f_from_j(j, p, pi, 0);
+    f = modinv_f_from_j(j, p, pi, s2, 0);
     return Fl_sqr_pre(Fl_sqr_pre(f, p, pi), p, pi);
   case INV_F8:
-    return modinv_f_from_j(j, p, pi, 1);
+    return modinv_f_from_j(j, p, pi, s2, 1);
   }
   if (modinv_is_double_eta(inv))
   {
     pari_sp av = avma;
-    ulong f = modinv_double_eta_from_j(double_eta_Fl(inv,p), inv, j, p, pi);
+    ulong f = modinv_double_eta_from_j(double_eta_Fl(inv,p), inv, j, p, pi, s2);
     avma = av; return f;
   }
   pari_err_BUG("modfn_root");
@@ -1920,13 +1920,13 @@ double_eta_initial_js(
   long inv, ulong L, ulong n, ulong card, ulong val)
 {
   pari_sp av0 = avma;
-  ulong p = ne->p, pi = ne->pi;
+  ulong p = ne->p, pi = ne->pi, s2 = ne->s2;
   GEN F = double_eta_Fl(inv, p);
   pari_sp av = avma;
   ulong j1pr, j1, r, t;
   GEN f, g;
 
-  *x0pr = modinv_double_eta_from_j(F, inv, j0pr, p, pi);
+  *x0pr = modinv_double_eta_from_j(F, inv, j0pr, p, pi, s2);
   t = double_eta_power(inv, *x0pr, p, pi);
   f = Flx_div_by_X_x(Flx_double_eta_jpoly(F, t, p, pi), j0pr, p, &r);
   if (r) pari_err_BUG("double_eta_initial_js");
@@ -1940,7 +1940,7 @@ double_eta_initial_js(
   *x0 = Flx_deg1_root(Flx_gcd(f, g, p), p);
   avma = av0;
 
-  if ( ! double_eta_root(inv, x0, *x0, p, pi))
+  if ( ! double_eta_root(inv, x0, *x0, p, pi, s2))
     pari_err_BUG("double_eta_initial_js");
 }
 
@@ -2039,6 +2039,7 @@ norm_eqn_update(norm_eqn_t ne, ulong t, ulong p, long L)
   ne->t = t;
   ne->p = p;
   ne->pi = get_Fl_red(p);
+  ne->s2 = Fl_2gener_pre(p, ne->pi);
 
   vL_sqr = (4 * p - t * t) / -ne->D;
   res = uissquareall(vL_sqr, &vL);

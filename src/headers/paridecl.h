@@ -1700,6 +1700,7 @@ GEN     rhorealnod(GEN x, GEN isqrtD);
 
 /* arith1.c */
 
+ulong   Fl_2gener_pre(ulong p, ulong pi);
 ulong   Fl_order(ulong a, ulong o, ulong p);
 GEN     Fl_powers(ulong x, long n, ulong p);
 GEN     Fl_powers_pre(ulong x, long n, ulong p, ulong pi);
@@ -1707,6 +1708,7 @@ ulong   Fl_powu(ulong x, ulong n, ulong p);
 ulong   Fl_powu_pre(ulong x, ulong n, ulong p, ulong pi);
 ulong   Fl_sqrt(ulong a, ulong p);
 ulong   Fl_sqrt_pre(ulong a, ulong p, ulong pi);
+ulong   Fl_sqrt_pre_i(ulong a, ulong s2, ulong p, ulong pi);
 ulong   Fl_sqrtl(ulong a, ulong l, ulong p);
 ulong   Fl_sqrtl_pre(ulong a, ulong l, ulong p, ulong pi);
 GEN     Fp_factored_order(GEN a, GEN o, GEN p);

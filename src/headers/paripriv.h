@@ -222,7 +222,7 @@ typedef classgp_pcp_struct classgp_pcp_t[1];
  * T is a twisting parameter, which satisfies (T|p) == -1. */
 typedef struct {
   long D, t, u, v;
-  ulong p, pi, T;
+  ulong p, pi, s2, T;
 } norm_eqn_struct;
 typedef norm_eqn_struct norm_eqn_t[1];
 

@@ -1308,6 +1308,7 @@ setup_norm_eqn(norm_eqn_t ne, long D, long u, GEN norm_eqn)
   ne->v = norm_eqn[3];
   ne->p = (ulong) norm_eqn[1];
   ne->pi = get_Fl_red(ne->p);
+  ne->s2 = Fl_2gener_pre(ne->p, ne->pi);
   ne->T = select_twisting_param(ne->p);
 }
 
