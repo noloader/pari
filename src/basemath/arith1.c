@@ -1937,7 +1937,7 @@ hilbert(GEN x, GEN y, GEN p)
 /*******************************************************************/
 
 static ulong
-Fl_2gener_pre_all(long e, ulong p, ulong pi, ulong *pt_m)
+Fl_2gener_pre_all(long e, ulong p, ulong pi)
 {
   ulong y, m;
   long k, i;
@@ -1955,13 +1955,12 @@ Fl_2gener_pre_all(long e, ulong p, ulong pi, ulong *pt_m)
       if ((m = Fl_sqr_pre(m, p, pi)) == 1) break;
     if (i == e) break; /* success */
   }
-  *pt_m = m;
   return y;
 }
 
 /* Tonelli-Shanks. Assume p is prime and (a,p) != -1. */
 static ulong
-Fl_sqrt_i(ulong a, ulong p, ulong pi, ulong y, ulong m)
+Fl_sqrt_i(ulong a, ulong p, ulong pi, ulong y)
 {
   long i, e, k;
   ulong p1, q, v, w;
@@ -1975,7 +1974,7 @@ Fl_sqrt_i(ulong a, ulong p, ulong pi, ulong y, ulong m)
   }
   q = p1 >> e; /* q = (p-1)/2^oo is odd */
   if (e == 1)    y = p1;
-  else if (y==0) y = Fl_2gener_pre_all(e, p, pi, &m);
+  else if (y==0) y = Fl_2gener_pre_all(e, p, pi);
   p1 = Fl_powu_pre(a, q >> 1, p, pi); /* a ^ [(q-1)/2] */
   if (!p1) return 0;
   v = Fl_mul_pre(a, p1, p, pi);
@@ -2001,13 +2000,13 @@ ulong
 Fl_sqrt(ulong a, ulong p)
 {
   ulong pi = get_Fl_red(p);
-  return Fl_sqrt_i(a, p, pi, 0, 0);
+  return Fl_sqrt_i(a, p, pi, 0);
 }
 
 ulong
 Fl_sqrt_pre(ulong a, ulong p, ulong pi)
 {
-  return Fl_sqrt_i(a, p, pi, 0, 0);
+  return Fl_sqrt_i(a, p, pi, 0);
 }
 
 static ulong
