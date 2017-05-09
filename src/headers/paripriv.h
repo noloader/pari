@@ -513,6 +513,9 @@ GEN  ZX_resultant_all(GEN A, GEN B, GEN dB, ulong bound);
 GEN  ZX_ZXY_resultant_all(GEN A, GEN B, long *lambda, GEN *LPRS);
 GEN  RgXQ_minpoly_naive(GEN y, GEN P);
 
+GEN FlxqM_mul_Kronecker(GEN A, GEN B, GEN T, ulong p);
+GEN FqM_mul_Kronecker(GEN x, GEN y, GEN T, GEN p);
+
 /* c) factorization */
 GEN chk_factors_get(GEN lt, GEN famod, GEN c, GEN T, GEN N);
 long cmbf_maxK(long nb);
@@ -669,10 +672,6 @@ void    killallfiles(void);
 pariFILE* newfile(FILE *f, const char *name, int type);
 int     popinfile(void);
 pariFILE* try_pipe(const char *cmd, int flag);
-
-/* Flx.c */
-
-GEN FlxqM_mul_Kronecker(GEN A, GEN B, GEN T, ulong p);
 
 /* Flxq_log.c */
 

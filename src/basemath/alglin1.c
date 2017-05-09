@@ -2206,7 +2206,13 @@ FqM_FqC_mul(GEN A, GEN B, GEN T, GEN p) {
 GEN
 FqM_mul(GEN A, GEN B, GEN T, GEN p) {
   void *E;
-  const struct bb_field *ff = get_Fq_field(&E, T, p);
+  long n = lg(A) - 1;
+  const struct bb_field *ff;
+  if (n == 0)
+    return cgetg(1, t_MAT);
+  if (n > 1)
+    return FqM_mul_Kronecker(A, B, T, p);
+  ff = get_Fq_field(&E, T, p);
   return gen_matmul(A, B, E, ff);
 }
 

@@ -822,6 +822,45 @@ ZXQM_sqr(GEN x, GEN T)
   return gerepileupto(av, ZM_mod2BIL_ZXQM(z, N, T));
 }
 
+static GEN
+Z_mod2BIL_Fq(GEN x, long bs, GEN T, GEN p)
+{
+  pari_sp av = avma;
+  long v = varn(T), d = 2*(degpol(T)-1);
+  GEN z = Z_mod2BIL_ZX(x, bs, d, 0);
+  setvarn(z, v);
+  return gerepileupto(av, FpX_rem(z, T, p));
+}
+
+static GEN
+ZC_mod2BIL_FqC(GEN x, long bs, GEN T, GEN p)
+{
+  long i, lx = lg(x);
+  GEN A = cgetg(lx, t_COL);
+  for (i=1; i<lx; i++) gel(A,i) = Z_mod2BIL_Fq(gel(x,i), bs, T, p);
+  return A;
+}
+
+static GEN
+ZM_mod2BIL_FqM(GEN x, long bs, GEN T, GEN p)
+{
+  long i, lx = lg(x);
+  GEN A = cgetg(lx, t_MAT);
+  for (i=1; i<lx; i++) gel(A,i) = ZC_mod2BIL_FqC(gel(x,i), bs, T, p);
+  return A;
+}
+
+GEN
+FqM_mul_Kronecker(GEN x, GEN y, GEN T, GEN p)
+{
+  pari_sp av = avma;
+  long ex = ZXM_expi(x), ey = ZXM_expi(y), d= degpol(T), n = lg(x)-1;
+  long e = ex + ey + expu(d) + expu(n) + 4;
+  long N = divsBIL(e)+1;
+  GEN  z = ZM_mul(ZXM_eval2BIL(x,N), ZXM_eval2BIL(y,N));
+  return gerepileupto(av, ZM_mod2BIL_FqM(z, N, T, p));
+}
+
 /*******************************************************************/
 /*                                                                 */
 /*                                ZXX                              */
