@@ -1207,8 +1207,12 @@ divisorslenstra(GEN N, GEN r, GEN s)
         GEN ry, ys = dvmdii(gel(Cs,i), b1, &ry);
         if (!signe(ry))
         {
-          GEN d = dvmdii(N, addii(ys, rp), &ry);
-          if (!signe(ry)) set_add(H, (void*)d);
+          GEN d = addii(ys, rp);
+          if (signe(d))
+          {
+            d = dvmdii(N, d, &ry);
+            if (!signe(ry)) set_add(H, (void*)d);
+          }
         }
       }
       break; /* DONE */

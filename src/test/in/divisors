@@ -4,6 +4,7 @@ divisorslenstra(288288, 1, 71)
 divisorslenstra(288288, 28, 71)
 divisorslenstra(2841696, 2, 175)
 divisorslenstra(2841696, 23, 175)
+divisorslenstra(4,1,2) \\ #1930
 
 divisors(1)
 divisors(12)
