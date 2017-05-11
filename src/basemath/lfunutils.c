@@ -1885,12 +1885,11 @@ artin_charpoly(GEN gal, GEN ch)
 static GEN
 char_expand(GEN conj, GEN ch)
 {
-  long i, l = lg(conj), nc = lg(ch)-1;
+  long i, l = lg(conj);
   GEN V = cgetg(l, t_VEC);
   for (i=1; i<l; i++)
   {
     long ci = conj[i];
-    if (ci > nc) pari_err_DIM("lfunartin");
     gel(V,i) = gel(ch, ci);
   }
   return V;
@@ -1974,7 +1973,9 @@ lfunartin(GEN nf, GEN gal, GEN ch, long o, long bitprec)
   }
   else
   {
-    GEN conj = groupelts_conjclasses(galois_elts_sorted(gal), NULL);
+    long nbc;
+    GEN conj = groupelts_conjclasses(galois_elts_sorted(gal), &nbc);
+    if (nbc != lg(ch)-1) pari_err_DIM("lfunartin");
     mod = polcyclo(o, gvar(ch));
     ch = gmul(ch, mkpolmod(gen_1, mod));
     ch = char_expand(conj, ch);

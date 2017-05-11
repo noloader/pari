@@ -255,4 +255,10 @@ zeta(s)*zeta(s-a)
   ***   at top-level: lfunan(lfuncreate([1,0,[0],1,1,1,1]),10)
   ***                 ^----------------------------------------
   *** lfunan: incorrect type in vecan_closure (t_INT).
-Total time spent: 6176
+  ***   at top-level: ...t(x^2+1);G=galoisinit(N);lfunartin(N,G,[1]~,2)
+  ***                                             ^---------------------
+  *** lfunartin: inconsistent dimensions in lfunartin.
+  ***   at top-level: ...t(x^2+1);G=galoisinit(N);lfunartin(N,G,[1,1,1]
+  ***                                             ^---------------------
+  *** lfunartin: inconsistent dimensions in lfunartin.
+Total time spent: 5084
