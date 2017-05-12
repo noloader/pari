@@ -1010,11 +1010,13 @@ static GEN
 nf_coordch_r(GEN nf, GEN e, GEN r)
 {
   GEN a2, a4, b4, b6, y, p1, r2, b2r, rx3;
+  long lx;
   if (gequal0(r)) return e;
-  y = leafcopy(e);
+  y = cgetg_copy(e, &lx);
   a2 = ell_get_a2(e); a4 = ell_get_a4(e);
   rx3 = gmulsg(3,r);
 
+  gel(y,1) = ell_get_a1(e);
   /* A2 = a2 + 3r */
   gel(y,2) = nfadd(nf,a2,rx3);
   /* A3 = a1 r + a3 */
@@ -1023,6 +1025,7 @@ nf_coordch_r(GEN nf, GEN e, GEN r)
   gel(y,4) = nfadd(nf,a4, nfmul(nf,r,nfadd(nf,gmul2n(a2,1),rx3)));
   /* A6 = r^3 + a2 r^2 + a4 r + a6 */
   gel(y,5) = nfadd(nf,ell_get_a6(e),nfmul(nf,r,nfadd(nf, a4, nfmul(nf,r,nfadd(nf,a2, r)))));
+  if (lx == 6) return y;
 
   b4 = ell_get_b4(e);
   b6 = ell_get_b6(e);

@@ -49,6 +49,15 @@ ellglobalred(E)
 ellglobalred(E2)
 ellglobalred(E3)
 
+{ E = ellinit(
+  [-1377/256*x^6-6885/32*x^4+729/4*x^3-4131/2*x^2+14013/4*x+5589/4,
+   -1863/16*x^6-9315/2*x^4-5589/2*x^3-44712*x^2-53460*x+33534],
+  nfinit(x^4+20*x^2+16));
+}
+ellap(E,idealprimedec(E.nf,2)[1])
+ellap(E,idealprimedec(E.nf,3)[1])
+ellap(E,idealprimedec(E.nf,5)[1])
+
 K=bnfinit(a^2 - 2*3*5*29);
 e = ellinit([a,1], K);
 E = ellchangecurve(e, Mod([2^3 * 3 * a, a+123, 17*a+2, 16*a+3], K.pol));
