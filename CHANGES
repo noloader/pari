@@ -158,50 +158,51 @@ BA   31- new GP function ellbsd
      43- new GP function zetamultinit
 BA   44- new GP functions permorder, permsign
 BA   45- new GP function galoisconjclasses
-     46- [libpari] Flxn_inv
-     47- new GP function znchargalois
-     48- [libpari] expose znstar internal interface: znstar_get_N,
+AP   46- new GP functions galoischartable, alggroupcenter, algmakeintegral
+     47- [libpari] Flxn_inv
+     48- new GP function znchargalois
+     49- [libpari] expose znstar internal interface: znstar_get_N,
       znstar_get_conreycyc, znstar_get_conreygen, znstar_get_faN, znstar_get_no,
       znstar_get_pe, znstar_get_Ui, checkznstar_i
-     49- [libpari] coreu_fact, moebiusu_fact
-     50- [libpari] ZabM_ker, ZabM_indexrank, ZabM_inv, ZabM_pseudoinv,
-BA   51- [libpari] stack_malloc_align
-PB   52- [libpari] FFM_deplin, FFM_indexrank, FFM_suppl F2xqM_deplin,
+     50- [libpari] coreu_fact, moebiusu_fact
+     51- [libpari] ZabM_ker, ZabM_indexrank, ZabM_inv, ZabM_pseudoinv,
+BA   52- [libpari] stack_malloc_align
+PB   53- [libpari] FFM_deplin, FFM_indexrank, FFM_suppl F2xqM_deplin,
          F2xqM_indexrank, F2xqM_suppl FlxqM_deplin, FlxqM_indexrank, FlxqM_suppl
          FqM_indexrank
-JD   53- [plot] SVG support
-     54- [libpari] upper_to_cx, cxredsl2
-     55- new GP function charpow
-     56- [libpari] ZM_pseudoinv
-     57- [libpari] ulogintall, ulogint, umuluu_or_0, QXQV_to_FpM, ZM_ZX_mul,
+JD   54- [plot] SVG support
+     55- [libpari] upper_to_cx, cxredsl2
+     56- new GP function charpow
+     57- [libpari] ZM_pseudoinv
+     58- [libpari] ulogintall, ulogint, umuluu_or_0, QXQV_to_FpM, ZM_ZX_mul,
          RgM_RgX_mul
-     58- new GP function ellminimaldisc
-     59- [libpari] rfracrecip_to_ser_absolute
-     60- new GP function znchardecompose, zncharconductor, znchartoprimitive
-PB   61- perm_sign
-PB   62- [libpari] FlxC_neg FlxC_sub FlxM_neg FlxM_sub FlxqC_Flxq_mul
+     59- new GP function ellminimaldisc
+     60- [libpari] rfracrecip_to_ser_absolute
+     61- new GP function znchardecompose, zncharconductor, znchartoprimitive
+PB   62- perm_sign
+PB   63- [libpari] FlxC_neg FlxC_sub FlxM_neg FlxM_sub FlxqC_Flxq_mul
                    FlxqM_Flxq_mul zero_FlxC zero_FlxM
-PB   63- asymptotically fast linear algebra using CUP decomposition
-     64- [libpari] nf_get_zkden, nf_get_zkprimpart
-     65- [libpari] idealprimedec_galois, idealprimedec_degrees
-     66- [libpari] idealaddtoone_raw, ZM_hnfmodprime, pr_hnf
-BA   67- new GP functions hyperellratpoints and ellratpoints based on
+PB   64- asymptotically fast linear algebra using CUP decomposition
+     65- [libpari] nf_get_zkden, nf_get_zkprimpart
+     66- [libpari] idealprimedec_galois, idealprimedec_degrees
+     67- [libpari] idealaddtoone_raw, ZM_hnfmodprime, pr_hnf
+BA   68- new GP functions hyperellratpoints and ellratpoints based on
          Michael Stoll ratpoints code.
-     68- [libpari] Z_pollardbrent, Z_ECM
-     69- [libpari] RgX_mulhigh_i
-     70- GP function znchargauss
-     71- Configure --graphic=svg
-     72- GP function divisorslenstra (divisors in residue classes)
-     73- [libpari] lg_increase, vecfactoru, vecfactoru_i
-BA   74- ellheight for curves over number fields
-     75- new GP function forfactored
-     76- [libpari] ZV_sort_inplace
-BA   77- ellrootno for curves over number fields
-     78- optional flag to 'divisors' (add factorization)
-     79- GP functions fordivfactored
-BA   80- [libpari] ZXQM_mul, ZXQM_sqr
-     81- [libpari] ZX_z_unscale
-     82- [libpari] Flxn_mul
+     69- [libpari] Z_pollardbrent, Z_ECM
+     70- [libpari] RgX_mulhigh_i
+     71- GP function znchargauss
+     72- Configure --graphic=svg
+     73- GP function divisorslenstra (divisors in residue classes)
+     74- [libpari] lg_increase, vecfactoru, vecfactoru_i
+BA   75- ellheight for curves over number fields
+     76- new GP function forfactored
+     77- [libpari] ZV_sort_inplace
+BA   78- ellrootno for curves over number fields
+     79- optional flag to 'divisors' (add factorization)
+     80- GP functions fordivfactored
+BA   81- [libpari] ZXQM_mul, ZXQM_sqr
+     82- [libpari] ZX_z_unscale
+     83- [libpari] Flxn_mul
 
   Changed
       1- rewrite bnfnarrow
