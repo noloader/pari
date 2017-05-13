@@ -877,6 +877,23 @@ basistoalg(GEN nf, GEN x)
   }
 }
 
+/* true nf, x a t_POL */
+static GEN
+pol_to_scalar_or_basis(GEN nf, GEN x)
+{
+  GEN T = nf_get_pol(nf);
+  long l = lg(x);
+  if (varn(x) != varn(T)) pari_err_VAR("nf_to_scalar_or_basis", x,T);
+  if (l >= lg(T)) { x = RgX_rem(x, T); l = lg(x); }
+  if (l == 2) return gen_0;
+  if (l == 3)
+  {
+    x = gel(x,2);
+    if (!is_rational_t(typ(x))) pari_err_TYPE("nf_to_scalar_or_basis",x);
+    return x;
+  }
+  return poltobasis(nf,x);
+}
 /* Assume nf is a genuine nf. */
 GEN
 nf_to_scalar_or_basis(GEN nf, GEN x)
@@ -887,18 +904,13 @@ nf_to_scalar_or_basis(GEN nf, GEN x)
       return x;
     case t_POLMOD:
       x = checknfelt_mod(nf,x,"nf_to_scalar_or_basis");
-      if (typ(x) != t_POL) return x;
-      /* fall through */
-    case t_POL:
-    {
-      GEN T = nf_get_pol(nf);
-      long l = lg(x);
-      if (varn(x) != varn(T)) pari_err_VAR("nf_to_scalar_or_basis", x,T);
-      if (l >= lg(T)) { x = RgX_rem(x, T); l = lg(x); }
-      if (l == 2) return gen_0;
-      if (l == 3) return gel(x,2);
-      return poltobasis(nf,x);
-    }
+      switch(typ(x))
+      {
+        case t_INT: case t_FRAC: return x;
+        case t_POL: return pol_to_scalar_or_basis(nf,x);
+      }
+      break;
+    case t_POL: return pol_to_scalar_or_basis(nf,x);
     case t_COL:
       if (lg(x)-1 != nf_get_degree(nf)) break;
       return QV_isscalar(x)? gel(x,1): x;
